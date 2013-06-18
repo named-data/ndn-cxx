@@ -17,6 +17,10 @@
 
 namespace ndn {
 
+class SignedBlob;
+typedef boost::shared_ptr<SignedBlob> SignedBlobPtr;
+typedef boost::shared_ptr<const SignedBlob> ConstSignedBlobPtr;
+
 /**
  * @brief Class representing a blob, which has a signed portion (e.g., bytes of DATA packet)
  */
@@ -91,7 +95,6 @@ SignedBlob::signed_size () const
 {
   return m_signedEnd - m_signedBegin;
 }
-
 
 } // ndn
 

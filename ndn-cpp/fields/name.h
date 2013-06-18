@@ -18,6 +18,10 @@
 
 namespace ndn {
 
+class Name;
+typedef boost::shared_ptr<Name> NamePtr;
+typedef boost::shared_ptr<const Name> ConstNamePtr;
+
 /**
  * @brief Class for NDN Name
  */
@@ -392,8 +396,6 @@ public:
 private:
   std::vector<name::Component> m_comps;
 };
-
-typedef boost::shared_ptr<Name> NamePtr;
 
 inline std::ostream &
 operator << (std::ostream &os, const Name &name)

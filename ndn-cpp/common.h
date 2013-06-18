@@ -19,27 +19,6 @@
 
 namespace ndn
 {
-template<class T>
-struct Ptr : public boost::shared_ptr<T>
-{
-  Ptr () { }
-  Ptr (boost::shared_ptr<T> ptr) : boost::shared_ptr<T>(ptr) { }
-  Ptr (T *ptr) :  boost::shared_ptr<T>(ptr) { }
-
-  template<class Y>
-  Ptr & operator = (boost::shared_ptr<Y> ptr)
-  {
-    boost::static_pointer_cast<T> (ptr).swap (*this);
-    // *this = boost::static_pointer_cast<T> (ptr);
-    return *this;
-  }
-
-  operator Ptr<const T> () const { return *this; }
-
-  static Ptr
-  Create () { return boost::make_shared<T> (); }
-};
-
 typedef boost::posix_time::ptime Time;
 typedef boost::posix_time::time_duration TimeInterval;
 
@@ -97,6 +76,7 @@ typedef std::vector<unsigned char> Bytes;
 typedef std::vector<std::string>Comps;
 
 typedef boost::shared_ptr<Bytes> BytesPtr;
+typedef boost::shared_ptr<const Bytes> ConstBytesPtr;
 
 inline
 const unsigned char *

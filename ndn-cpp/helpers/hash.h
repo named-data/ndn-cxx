@@ -25,6 +25,7 @@ namespace ndn
 
 class Hash;
 typedef boost::shared_ptr<Hash> HashPtr;
+typedef boost::shared_ptr<const Hash> ConstHashPtr;
 
 class Hash
 {

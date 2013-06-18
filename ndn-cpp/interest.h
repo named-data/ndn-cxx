@@ -20,6 +20,10 @@
 
 namespace ndn {
 
+class Interest;
+typedef boost::shared_ptr<Interest> InterestPtr;
+typedef boost::shared_ptr<const Interest> ConstInterestPtr;
+
 /**
  * @brief Class abstracting operations with Interests (constructing and getting access to Interest fields)
  */
@@ -293,10 +297,8 @@ private:
   Hash m_publisherPublicKeyDigest;
   Exclude m_exclude;
 
-  Ptr<Blob> m_wire;
+  BlobPtr m_wire;
 };
-
-typedef boost::shared_ptr<Interest> InterestPtr;
 
 namespace Error
 {
