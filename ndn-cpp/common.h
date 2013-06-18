@@ -116,9 +116,5 @@ readRawPtr (const unsigned char *src, size_t len)
   else
     return BytesPtr ();
 }
-
-// Exceptions
-typedef boost::error_info<struct tag_errmsg, std::string> error_info_str;
-
 } // ndn
 #endif // NDN_COMMON_H
