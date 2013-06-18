@@ -53,40 +53,6 @@ Interest::Interest (const Interest &other)
   m_publisherPublicKeyDigest = other.m_publisherPublicKeyDigest;
 }
 
-Interest::Interest (const ccn_parsed_interest *pi)
-  : m_maxSuffixComponents (Interest::ncomps)
-  , m_minSuffixComponents (Interest::ncomps)
-  , m_answerOriginKind (AOK_DEFAULT)
-  , m_interestLifetime (time::Seconds (-1.0))
-  , m_scope (NO_SCOPE)
-  , m_childSelector (CHILD_DEFAULT)
-{
-  if (pi != NULL)
-  {
-    m_maxSuffixComponents = pi->max_suffix_comps;
-    m_minSuffixComponents = pi->min_suffix_comps;
-    switch(pi->orderpref)
-      {
-      case 0: m_childSelector = CHILD_LEFT; break;
-      case 1: m_childSelector = CHILD_RIGHT; break;
-      default: m_childSelector = CHILD_DEFAULT; break;
-      }
-
-    switch(pi->answerfrom)
-    {
-      case 0x1: m_answerOriginKind = AOK_CS; break;
-      case 0x2: m_answerOriginKind = AOK_NEW; break;
-      case 0x3: m_answerOriginKind = AOK_DEFAULT; break;
-      case 0x4: m_answerOriginKind = AOK_STALE; break;
-      case 0x10: m_answerOriginKind = AOK_EXPIRE; break;
-      default: break;
-    }
-    m_scope = static_cast<Scope> (pi->scope);
-  }
-
-  /// @todo copy publisher key digest
-}
-
 bool
 Interest::operator == (const Interest &other)
 {

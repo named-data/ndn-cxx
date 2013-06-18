@@ -47,15 +47,6 @@ inline TimeInterval NowUnixTimestamp ()
 } // time
 } // ndn
 
-
-extern "C" {
-#include <ccn/ccn.h>
-#include <ccn/charbuf.h>
-#include <ccn/keystore.h>
-#include <ccn/uri.h>
-#include <ccn/bloom.h>
-#include <ccn/signing.h>
-}
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/exception/all.hpp>
