@@ -12,5 +12,17 @@
 *.la
 *.a
 
+# Emacs temp files
+*~
+
+# Autoconf files
+/Makefile
+/aclocal.m4
+/autom4te.cache
+/config.log
+/config.status
+/stamp-h1
+*.Po
+
 # Mac OSX
 .DS_Store
