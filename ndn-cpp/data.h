@@ -61,13 +61,13 @@ public:
   /**
    * @brief Get const smart pointer to signature object
    */
-  inline ConstSignaturePtr
+  inline ptr_lib::shared_ptr<const Signature>
   getSignature () const;
 
   /**
    * @brief Get smart pointer to signature object
    */
-  inline SignaturePtr
+  inline ptr_lib::shared_ptr<Signature>
   getSignature ();
 
   /**
@@ -75,7 +75,7 @@ public:
    * @param signature smart pointer to a signature object
    */
   inline void
-  setSignature (SignaturePtr sigature);
+  setSignature (ptr_lib::shared_ptr<Signature> sigature);
 
   /**
    * @brief Get const reference to content object (content info + actual content)
@@ -126,10 +126,10 @@ public:
 
 private:
   Name m_name;
-  SignaturePtr m_signature; // signature with its parameters "binds" name and content
+  ptr_lib::shared_ptr<Signature> m_signature; // signature with its parameters "binds" name and content
   Content m_content;
 
-  SignedBlobPtr m_wire;  
+  ptr_lib::shared_ptr<SignedBlob> m_wire;  
 };
 
 inline Data &
@@ -151,20 +151,20 @@ Data::getName ()
   return m_name;
 }
 
-inline ConstSignaturePtr
+inline ptr_lib::shared_ptr<const Signature>
 Data::getSignature () const
 {
   return m_signature;
 }
 
-inline SignaturePtr
+inline ptr_lib::shared_ptr<Signature>
 Data::getSignature ()
 {
   return m_signature;
 }
 
 inline void
-Data::setSignature (SignaturePtr signature)
+Data::setSignature (ptr_lib::shared_ptr<Signature> signature)
 {
   m_signature = signature;
 }

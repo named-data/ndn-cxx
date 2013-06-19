@@ -22,16 +22,11 @@
 
 namespace ndn
 {
-
-class Hash;
-typedef boost::shared_ptr<Hash> HashPtr;
-typedef boost::shared_ptr<const Hash> ConstHashPtr;
-
 class Hash
 {
 public:
   static unsigned char _origin;
-  static HashPtr Origin;
+  static ptr_lib::shared_ptr<Hash> Origin;
 
   Hash ()
     : m_buf(0)
@@ -59,13 +54,13 @@ public:
       }
   }
 
-  static HashPtr
+  static ptr_lib::shared_ptr<Hash>
   FromString (const std::string &hashInTextEncoding);
 
-  static HashPtr
+  static ptr_lib::shared_ptr<Hash>
   FromFileContent (const char *fileName);
 
-  static HashPtr
+  static ptr_lib::shared_ptr<Hash>
   FromBytes (const ndn::Bytes &bytes);
 
   ~Hash ()

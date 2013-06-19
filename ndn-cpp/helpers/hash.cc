@@ -49,12 +49,12 @@ Hash::shortHash () const
 
 
 unsigned char Hash::_origin = 0;
-HashPtr Hash::Origin(new Hash(&Hash::_origin, sizeof(unsigned char)));
+ptr_lib::shared_ptr<Hash> Hash::Origin(new Hash(&Hash::_origin, sizeof(unsigned char)));
 
-HashPtr
+ptr_lib::shared_ptr<Hash>
 Hash::FromString (const std::string &hashInTextEncoding)
 {
-  HashPtr retval = make_shared<Hash> (reinterpret_cast<void*> (0), 0);
+  ptr_lib::shared_ptr<Hash> retval = make_shared<Hash> (reinterpret_cast<void*> (0), 0);
 
   if (hashInTextEncoding.size () == 0)
     {
@@ -78,10 +78,10 @@ Hash::FromString (const std::string &hashInTextEncoding)
   return retval;
 }
 
-HashPtr
+ptr_lib::shared_ptr<Hash>
 Hash::FromFileContent (const char *filename)
 {
-  HashPtr retval = make_shared<Hash> (reinterpret_cast<void*> (0), 0);
+  ptr_lib::shared_ptr<Hash> retval = make_shared<Hash> (reinterpret_cast<void*> (0), 0);
   retval->m_buf = new unsigned char [EVP_MAX_MD_SIZE];
 
   EVP_MD_CTX *hash_context = EVP_MD_CTX_create ();
@@ -105,10 +105,10 @@ Hash::FromFileContent (const char *filename)
   return retval;
 }
 
-HashPtr
+ptr_lib::shared_ptr<Hash>
 Hash::FromBytes (const ndn::Bytes &bytes)
 {
-  HashPtr retval = make_shared<Hash> (reinterpret_cast<void*> (0), 0);
+  ptr_lib::shared_ptr<Hash> retval = make_shared<Hash> (reinterpret_cast<void*> (0), 0);
   retval->m_buf = new unsigned char [EVP_MAX_MD_SIZE];
 
   EVP_MD_CTX *hash_context = EVP_MD_CTX_create ();

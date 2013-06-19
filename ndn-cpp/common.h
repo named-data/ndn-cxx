@@ -19,6 +19,7 @@
 
 namespace ndn
 {
+namespace ptr_lib = boost;
 typedef boost::posix_time::ptime Time;
 typedef boost::posix_time::time_duration TimeInterval;
 
@@ -66,9 +67,6 @@ namespace ndn {
 typedef std::vector<unsigned char> Bytes;
 typedef std::vector<std::string>Comps;
 
-typedef boost::shared_ptr<Bytes> BytesPtr;
-typedef boost::shared_ptr<const Bytes> ConstBytesPtr;
-
 inline
 const unsigned char *
 head(const Bytes &bytes)
@@ -94,18 +92,18 @@ readRaw(Bytes &bytes, const unsigned char *src, size_t len)
   }
 }
 
-inline BytesPtr
+inline ptr_lib::shared_ptr<Bytes>
 readRawPtr (const unsigned char *src, size_t len)
 {
   if (len > 0)
     {
-      BytesPtr ret (new Bytes (len));
+      ptr_lib::shared_ptr<Bytes> ret (new Bytes (len));
       memcpy (head (*ret), src, len);
 
       return ret;
     }
   else
-    return BytesPtr ();
+    return ptr_lib::shared_ptr<Bytes> ();
 }
 } // ndn
 #endif // NDN_COMMON_H

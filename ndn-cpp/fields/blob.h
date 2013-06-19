@@ -19,10 +19,6 @@
 
 namespace ndn {
 
-class Blob;
-typedef boost::shared_ptr<Blob> BlobPtr;
-typedef boost::shared_ptr<const Blob> ConstBlobPtr;
-
 /**
  * @brief Class representing a general-use binary blob
  */

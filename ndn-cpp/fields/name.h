@@ -18,10 +18,6 @@
 
 namespace ndn {
 
-class Name;
-typedef boost::shared_ptr<Name> NamePtr;
-typedef boost::shared_ptr<const Name> ConstNamePtr;
-
 /**
  * @brief Class for NDN Name
  */

@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <sstream>
+#include <iostream>
 #include "ndn-cpp/fields/name.h"
 #include "ndn-cpp/fields/name-component.h"
 #include "ndn-cpp/interest.h"
@@ -19,7 +20,7 @@ using namespace ndn;
  * 
  */
 int main(int argc, char** argv) {
-  InterestPtr interest(new Interest());
+  ptr_lib::shared_ptr<Interest> interest(new Interest());
   interest->setName(Name("/test"));
   interest->setMinSuffixComponents(2);
   interest->setMaxSuffixComponents(2);

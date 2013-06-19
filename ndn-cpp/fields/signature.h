@@ -18,10 +18,6 @@ namespace ndn {
 
 namespace wire { class Base; }
 
-class Signature;
-typedef boost::shared_ptr<Signature> SignaturePtr;
-typedef boost::shared_ptr<const Signature> ConstSignaturePtr;
-
 /**
  * @brief Pure virtual class providing an interface to work with signatures for NDN data packets
  */
