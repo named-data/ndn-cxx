@@ -16,10 +16,20 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#include "../config.h"
 
 namespace ndn
 {
+// Depending on where ./configure found shared_ptr, define the ptr_lib namespace.
+// We always use ptr_lib::shared_ptr.
+#if HAVE_STD_SHARED_PTR
+namespace ptr_lib = std;
+#elif HAVE_BOOST_SHARED_PTR
 namespace ptr_lib = boost;
+#else
+#error "Can't find shared_ptr in std or boost"
+#endif
+
 typedef boost::posix_time::ptime Time;
 typedef boost::posix_time::time_duration TimeInterval;
 
