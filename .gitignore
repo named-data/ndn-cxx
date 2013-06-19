@@ -23,7 +23,8 @@
 /config.status
 /stamp-h1
 *.Po
-*.dirstamp
+.deps
+.dirstamp
 
 # Mac OSX
 .DS_Store
