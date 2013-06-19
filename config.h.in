@@ -3,6 +3,9 @@
 /* 1 if have the `boost::shared_ptr' class. */
 #undef HAVE_BOOST_SHARED_PTR
 
+/* define if the compiler supports basic C++11 syntax */
+#undef HAVE_CXX11
+
 /* 1 if have the `std::shared_ptr' class. */
 #undef HAVE_STD_SHARED_PTR
 

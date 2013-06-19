@@ -6,6 +6,7 @@ AM_INIT_AUTOMAKE([1.10 -Wall no-define foreign])
 AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 AC_LANG([C++])
+AX_CXX_COMPILE_STDCXX_11(, optional)
 
 AC_MSG_CHECKING([for std::shared_ptr])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
