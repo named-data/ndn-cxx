@@ -60,7 +60,6 @@ inline TimeInterval NowUnixTimestamp ()
 } // ndn
 
 #include <vector>
-#include <boost/shared_ptr.hpp>
 #include <boost/exception/all.hpp>
 #include <boost/function.hpp>
 #include <string>
@@ -72,7 +71,6 @@ inline TimeInterval NowUnixTimestamp ()
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <boost/make_shared.hpp>
 
 namespace ndn {
 typedef std::vector<unsigned char> Bytes;
