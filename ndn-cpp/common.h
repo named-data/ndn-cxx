@@ -13,7 +13,6 @@
 #ifndef NDN_COMMON_H
 #define NDN_COMMON_H
 
-#include <boost/make_shared.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include "../config.h"
 
@@ -24,6 +23,7 @@
 namespace ndn { namespace ptr_lib = std; }
 #elif HAVE_BOOST_SHARED_PTR
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 namespace ndn { namespace ptr_lib = boost; }
 #else
 #error "Can't find shared_ptr in std or boost"
