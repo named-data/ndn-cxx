@@ -1,5 +1,3 @@
-## Helloworld C++: an example project using Automake
-
 ## Place generated object files (.o) into the same directory as their source
 ## files, in order to avoid collisions when non-recursive make is used.
 AUTOMAKE_OPTIONS = subdir-objects
@@ -9,17 +7,12 @@ AUTOMAKE_OPTIONS = subdir-objects
 ## to provide a way for the user to supply additional arguments.
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
-## Define an executable target "hello", which will be installed into the
-## directory named by the predefined variable $(bindir).
+lib_LIBRARIES = ndn-cpp.a
+
 bin_PROGRAMS = test1
 
-## Define the list of source files for the "hello" target. The file extension
-## .cpp is recognized by Automake, and causes it to produce rules which invoke
-## the C++ compiler to produce an object file (.o) from each source file. The
-## header files (.h) do not result in object files by themselves, but will be
-## included in distribution archives of the project.
-test1_SOURCES = test/test1.cpp
+ndn_cpp_a_SOURCES = ndn-cpp/fields/name.h ndn-cpp/fields/name.cc
 
-## Define an independent executable script for inclusion in the distribution
-## archive. It will not be installed on an end user's system, however.
+test1_SOURCES = ndn-cpp.a test/test1.cpp
+
 dist_noinst_SCRIPTS = autogen.sh
