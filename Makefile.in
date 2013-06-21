@@ -78,13 +78,11 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = @build@
-host_triplet = @host@
-bin_PROGRAMS = test1$(EXEEXT)
+bin_PROGRAMS = test-encode-decode-interest$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
-	$(srcdir)/config.h.in $(dist_noinst_SCRIPTS) depcomp \
+	$(srcdir)/config.h.in $(dist_noinst_SCRIPTS) depcomp ar-lib \
 	config.guess config.sub install-sh missing ltmain.sh
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -133,16 +131,20 @@ am__v_AR_1 =
 ndn_cpp_a_AR = $(AR) $(ARFLAGS)
 ndn_cpp_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_ndn_cpp_a_OBJECTS = ndn-cpp/fields/name.$(OBJEXT)
+am_ndn_cpp_a_OBJECTS = ndn-cpp/data.$(OBJEXT) \
+	ndn-cpp/interest.$(OBJEXT) ndn-cpp/fields/content.$(OBJEXT) \
+	ndn-cpp/fields/exclude.$(OBJEXT) \
+	ndn-cpp/fields/key-locator.$(OBJEXT) \
+	ndn-cpp/fields/name-component.$(OBJEXT) \
+	ndn-cpp/fields/name.$(OBJEXT) \
+	ndn-cpp/fields/signature.$(OBJEXT) ndn-cpp/wire/ccnb.$(OBJEXT)
 ndn_cpp_a_OBJECTS = $(am_ndn_cpp_a_OBJECTS)
 PROGRAMS = $(bin_PROGRAMS)
-am_test1_OBJECTS = test/test1.$(OBJEXT)
-test1_OBJECTS = $(am_test1_OBJECTS)
-test1_LDADD = $(LDADD)
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
+am_test_encode_decode_interest_OBJECTS =  \
+	test/test-encode-decode-interest.$(OBJEXT)
+test_encode_decode_interest_OBJECTS =  \
+	$(am_test_encode_decode_interest_OBJECTS)
+test_encode_decode_interest_DEPENDENCIES = ndn-cpp.a
 SCRIPTS = $(dist_noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -162,42 +164,32 @@ am__depfiles_maybe = depfiles
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CXXFLAGS) $(CXXFLAGS)
 AM_V_CXX = $(am__v_CXX_@AM_V@)
 am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
 am__v_CXX_0 = @echo "  CXX     " $@;
 am__v_CXX_1 = 
 CXXLD = $(CXX)
-CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
 AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_@AM_V@)
 am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
 am__v_CC_0 = @echo "  CC      " $@;
 am__v_CC_1 = 
 CCLD = $(CC)
-LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(ndn_cpp_a_SOURCES) $(test1_SOURCES)
-DIST_SOURCES = $(ndn_cpp_a_SOURCES) $(test1_SOURCES)
+SOURCES = $(ndn_cpp_a_SOURCES) $(test_encode_decode_interest_SOURCES)
+DIST_SOURCES = $(ndn_cpp_a_SOURCES) \
+	$(test_encode_decode_interest_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -253,48 +245,30 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
-CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
-DLLTOOL = @DLLTOOL@
-DSYMUTIL = @DSYMUTIL@
-DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
-EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-FGREP = @FGREP@
-GREP = @GREP@
 HAVE_CXX11 = @HAVE_CXX11@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBTOOL = @LIBTOOL@
-LIPO = @LIPO@
-LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
-MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
-NM = @NM@
-NMEDIT = @NMEDIT@
-OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OTOOL = @OTOOL@
-OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -304,7 +278,6 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
-SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -316,29 +289,20 @@ abs_top_srcdir = @abs_top_srcdir@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
-ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
 bindir = @bindir@
-build = @build@
 build_alias = @build_alias@
-build_cpu = @build_cpu@
-build_os = @build_os@
-build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
-host = @host@
 host_alias = @host_alias@
-host_cpu = @host_cpu@
-host_os = @host_os@
-host_vendor = @host_vendor@
 htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
@@ -365,14 +329,27 @@ top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 lib_LIBRARIES = ndn-cpp.a
-ndn_cpp_a_SOURCES = ndn-cpp/fields/name.h ndn-cpp/fields/name.cc
-test1_SOURCES = ndn-cpp.a test/test1.cpp
+ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
+  ndn-cpp/data.h ndn-cpp/data.cc \
+  ndn-cpp/interest.h ndn-cpp/interest.cc \
+  ndn-cpp/fields/blob.h \
+  ndn-cpp/fields/content.h ndn-cpp/fields/content.cc \
+  ndn-cpp/fields/exclude.h ndn-cpp/fields/exclude.cc \
+  ndn-cpp/fields/key-locator.h ndn-cpp/fields/key-locator.cc \
+  ndn-cpp/fields/name-component.h ndn-cpp/fields/name-component.cc \
+  ndn-cpp/fields/name.h ndn-cpp/fields/name.cc \
+  ndn-cpp/fields/signature.h ndn-cpp/fields/signature.cc \
+  ndn-cpp/wire/base.h \
+  ndn-cpp/wire/ccnb.h ndn-cpp/wire/ccnb.cc
+
+test_encode_decode_interest_SOURCES = test/test-encode-decode-interest.cpp
+test_encode_decode_interest_LDADD = ndn-cpp.a
 dist_noinst_SCRIPTS = autogen.sh
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .cc .cpp .lo .o .obj
+.SUFFIXES: .cc .cpp .o .obj
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -453,14 +430,43 @@ uninstall-libLIBRARIES:
 
 clean-libLIBRARIES:
 	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
+ndn-cpp/$(am__dirstamp):
+	@$(MKDIR_P) ndn-cpp
+	@: > ndn-cpp/$(am__dirstamp)
+ndn-cpp/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ndn-cpp/$(DEPDIR)
+	@: > ndn-cpp/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/data.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
+	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/interest.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
+	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/fields/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/fields
 	@: > ndn-cpp/fields/$(am__dirstamp)
 ndn-cpp/fields/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/fields/$(DEPDIR)
 	@: > ndn-cpp/fields/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/fields/content.$(OBJEXT): ndn-cpp/fields/$(am__dirstamp) \
+	ndn-cpp/fields/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/fields/exclude.$(OBJEXT): ndn-cpp/fields/$(am__dirstamp) \
+	ndn-cpp/fields/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/fields/key-locator.$(OBJEXT): ndn-cpp/fields/$(am__dirstamp) \
+	ndn-cpp/fields/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/fields/name-component.$(OBJEXT):  \
+	ndn-cpp/fields/$(am__dirstamp) \
+	ndn-cpp/fields/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/fields/name.$(OBJEXT): ndn-cpp/fields/$(am__dirstamp) \
 	ndn-cpp/fields/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/fields/signature.$(OBJEXT): ndn-cpp/fields/$(am__dirstamp) \
+	ndn-cpp/fields/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/wire/$(am__dirstamp):
+	@$(MKDIR_P) ndn-cpp/wire
+	@: > ndn-cpp/wire/$(am__dirstamp)
+ndn-cpp/wire/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ndn-cpp/wire/$(DEPDIR)
+	@: > ndn-cpp/wire/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/wire/ccnb.$(OBJEXT): ndn-cpp/wire/$(am__dirstamp) \
+	ndn-cpp/wire/$(DEPDIR)/$(am__dirstamp)
 
 ndn-cpp.a: $(ndn_cpp_a_OBJECTS) $(ndn_cpp_a_DEPENDENCIES) $(EXTRA_ndn_cpp_a_DEPENDENCIES) 
 	$(AM_V_at)-rm -f ndn-cpp.a
@@ -476,7 +482,6 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	for p in $$list; do echo "$$p $$p"; done | \
 	sed 's/$(EXEEXT)$$//' | \
 	while read p p1; do if test -f $$p \
-	 || test -f $$p1 \
 	  ; then echo "$$p"; echo "$$p"; else :; fi; \
 	done | \
 	sed -e 'p;s,.*/,,;n;h' \
@@ -491,8 +496,8 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	while read type dir files; do \
 	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
 	    test -z "$$files" || { \
-	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
-	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
+	      echo " $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
+	      $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
 	    } \
 	; done
 
@@ -508,36 +513,40 @@ uninstall-binPROGRAMS:
 	cd "$(DESTDIR)$(bindir)" && rm -f $$files
 
 clean-binPROGRAMS:
-	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
-	echo " rm -f" $$list; \
-	rm -f $$list || exit $$?; \
-	test -n "$(EXEEXT)" || exit 0; \
-	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
-	echo " rm -f" $$list; \
-	rm -f $$list
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 test/$(am__dirstamp):
 	@$(MKDIR_P) test
 	@: > test/$(am__dirstamp)
 test/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) test/$(DEPDIR)
 	@: > test/$(DEPDIR)/$(am__dirstamp)
-test/test1.$(OBJEXT): test/$(am__dirstamp) \
+test/test-encode-decode-interest.$(OBJEXT): test/$(am__dirstamp) \
 	test/$(DEPDIR)/$(am__dirstamp)
 
-test1$(EXEEXT): $(test1_OBJECTS) $(test1_DEPENDENCIES) $(EXTRA_test1_DEPENDENCIES) 
-	@rm -f test1$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(test1_OBJECTS) $(test1_LDADD) $(LIBS)
+test-encode-decode-interest$(EXEEXT): $(test_encode_decode_interest_OBJECTS) $(test_encode_decode_interest_DEPENDENCIES) $(EXTRA_test_encode_decode_interest_DEPENDENCIES) 
+	@rm -f test-encode-decode-interest$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(test_encode_decode_interest_OBJECTS) $(test_encode_decode_interest_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f ndn-cpp/*.$(OBJEXT)
 	-rm -f ndn-cpp/fields/*.$(OBJEXT)
+	-rm -f ndn-cpp/wire/*.$(OBJEXT)
 	-rm -f test/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/data.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/interest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/content.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/exclude.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/key-locator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/name-component.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/name.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/signature.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/wire/$(DEPDIR)/ccnb.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test-encode-decode-interest.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -555,14 +564,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-.cc.lo:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
-@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
-
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
@@ -578,23 +579,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-.cpp.lo:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
-@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
-
-mostlyclean-libtool:
-	-rm -f *.lo
-
-clean-libtool:
-	-rm -rf .libs _libs
-
-distclean-libtool:
-	-rm -f libtool config.lt
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -844,8 +828,12 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f ndn-cpp/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ndn-cpp/$(am__dirstamp)
 	-rm -f ndn-cpp/fields/$(DEPDIR)/$(am__dirstamp)
 	-rm -f ndn-cpp/fields/$(am__dirstamp)
+	-rm -f ndn-cpp/wire/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ndn-cpp/wire/$(am__dirstamp)
 	-rm -f test/$(DEPDIR)/$(am__dirstamp)
 	-rm -f test/$(am__dirstamp)
 
@@ -855,14 +843,14 @@ maintainer-clean-generic:
 clean: clean-am
 
 clean-am: clean-binPROGRAMS clean-generic clean-libLIBRARIES \
-	clean-libtool mostlyclean-am
+	mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ndn-cpp/fields/$(DEPDIR) test/$(DEPDIR)
+	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/fields/$(DEPDIR) ndn-cpp/wire/$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-hdr distclean-libtool distclean-tags
+	distclean-hdr distclean-tags
 
 dvi: dvi-am
 
@@ -907,14 +895,13 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ndn-cpp/fields/$(DEPDIR) test/$(DEPDIR)
+	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/fields/$(DEPDIR) ndn-cpp/wire/$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-am
 
-mostlyclean-am: mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool
+mostlyclean-am: mostlyclean-compile mostlyclean-generic
 
 pdf: pdf-am
 
@@ -930,22 +917,20 @@ uninstall-am: uninstall-binPROGRAMS uninstall-libLIBRARIES
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--refresh check check-am clean \
 	clean-binPROGRAMS clean-cscope clean-generic \
-	clean-libLIBRARIES clean-libtool cscope cscopelist-am ctags \
-	ctags-am dist dist-all dist-bzip2 dist-gzip dist-lzip \
-	dist-shar dist-tarZ dist-xz dist-zip distcheck distclean \
-	distclean-compile distclean-generic distclean-hdr \
-	distclean-libtool distclean-tags distcleancheck distdir \
-	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-binPROGRAMS install-data \
+	clean-libLIBRARIES cscope cscopelist-am ctags ctags-am dist \
+	dist-all dist-bzip2 dist-gzip dist-lzip dist-shar dist-tarZ \
+	dist-xz dist-zip distcheck distclean distclean-compile \
+	distclean-generic distclean-hdr distclean-tags distcleancheck \
+	distdir distuninstallcheck dvi dvi-am html html-am info \
+	info-am install install-am install-binPROGRAMS install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
 	install-info-am install-libLIBRARIES install-man install-pdf \
 	install-pdf-am install-ps install-ps-am install-strip \
 	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-libLIBRARIES
+	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-libLIBRARIES
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
