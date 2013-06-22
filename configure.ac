@@ -22,6 +22,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     AC_MSG_RESULT([no])
     AC_DEFINE_UNQUOTED([HAVE_STD_SHARED_PTR], 0, [1 if have the `std::shared_ptr' class.])
 ])
+AC_MSG_CHECKING([for boost::shared_ptr])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     [[#include <boost/shared_ptr.hpp>]]
     [[boost::shared_ptr<int> have_shared_ptr;]])
