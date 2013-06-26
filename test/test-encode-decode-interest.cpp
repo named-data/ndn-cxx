@@ -9,7 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include "ndn-cpp/interest.h"
-#include "ndn-cpp/wire/ccnb.h"
+#include "ndn-cpp/encoding/ccnb.h"
 
 using namespace std;
 using namespace ndn;

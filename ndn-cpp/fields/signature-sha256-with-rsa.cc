@@ -9,7 +9,7 @@
  */
 
 #include "signature-sha256-with-rsa.h"
-#include "ndn-cpp/wire/base.h"
+#include "../encoding/base.h"
 
 namespace ndn {
 namespace signature {
