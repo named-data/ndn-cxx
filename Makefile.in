@@ -14,6 +14,8 @@
 
 @SET_MAKE@
 
+# This file is copied from http://www.gnu.org/software/autoconf-archive/ax_prog_doxygen.html
+
 
 
 VPATH = @srcdir@
@@ -78,12 +80,13 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+DIST_COMMON = $(srcdir)/aminclude.am $(srcdir)/Makefile.in \
+	$(srcdir)/Makefile.am $(top_srcdir)/configure \
+	$(am__configure_deps) $(srcdir)/config.h.in \
+	$(dist_noinst_SCRIPTS) depcomp ar-lib config.guess config.sub \
+	install-sh missing ltmain.sh
 bin_PROGRAMS = test-encode-decode-interest$(EXEEXT)
 subdir = .
-DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/configure $(am__configure_deps) \
-	$(srcdir)/config.h.in $(dist_noinst_SCRIPTS) depcomp ar-lib \
-	config.guess config.sub install-sh missing ltmain.sh
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -131,8 +134,8 @@ am__v_AR_1 =
 ndn_cpp_a_AR = $(AR) $(ARFLAGS)
 ndn_cpp_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_ndn_cpp_a_OBJECTS = ndn-cpp/BinaryXMLName.$(OBJEXT) \
-	ndn-cpp/Name.$(OBJEXT) ndn-cpp/data.$(OBJEXT) \
+am_ndn_cpp_a_OBJECTS = ndn-cpp/Name.$(OBJEXT) \
+	ndn-cpp/WireFormat.$(OBJEXT) ndn-cpp/data.$(OBJEXT) \
 	ndn-cpp/interest.$(OBJEXT) ndn-cpp/fields/content.$(OBJEXT) \
 	ndn-cpp/fields/exclude.$(OBJEXT) \
 	ndn-cpp/fields/key-locator.$(OBJEXT) \
@@ -141,6 +144,7 @@ am_ndn_cpp_a_OBJECTS = ndn-cpp/BinaryXMLName.$(OBJEXT) \
 	ndn-cpp/fields/signature.$(OBJEXT) \
 	ndn-cpp/encoding/BinaryXMLDecoder.$(OBJEXT) \
 	ndn-cpp/encoding/BinaryXMLStructureDecoder.$(OBJEXT) \
+	ndn-cpp/encoding/BinaryXMLWireFormat.$(OBJEXT) \
 	ndn-cpp/encoding/ccnb.$(OBJEXT)
 ndn_cpp_a_OBJECTS = $(am_ndn_cpp_a_OBJECTS)
 PROGRAMS = $(bin_PROGRAMS)
@@ -256,6 +260,30 @@ CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DOXYGEN_PAPER_SIZE = @DOXYGEN_PAPER_SIZE@
+DX_CONFIG = @DX_CONFIG@
+DX_DOCDIR = @DX_DOCDIR@
+DX_DOT = @DX_DOT@
+DX_DOXYGEN = @DX_DOXYGEN@
+DX_DVIPS = @DX_DVIPS@
+DX_EGREP = @DX_EGREP@
+DX_ENV = @DX_ENV@
+DX_FLAG_chi = @DX_FLAG_chi@
+DX_FLAG_chm = @DX_FLAG_chm@
+DX_FLAG_doc = @DX_FLAG_doc@
+DX_FLAG_dot = @DX_FLAG_dot@
+DX_FLAG_html = @DX_FLAG_html@
+DX_FLAG_man = @DX_FLAG_man@
+DX_FLAG_pdf = @DX_FLAG_pdf@
+DX_FLAG_ps = @DX_FLAG_ps@
+DX_FLAG_rtf = @DX_FLAG_rtf@
+DX_FLAG_xml = @DX_FLAG_xml@
+DX_HHC = @DX_HHC@
+DX_LATEX = @DX_LATEX@
+DX_MAKEINDEX = @DX_MAKEINDEX@
+DX_PDFLATEX = @DX_PDFLATEX@
+DX_PERL = @DX_PERL@
+DX_PROJECT = @DX_PROJECT@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
@@ -330,12 +358,36 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+@DX_COND_doc_TRUE@@DX_COND_html_TRUE@DX_CLEAN_HTML = @DX_DOCDIR@/html
+@DX_COND_chm_TRUE@@DX_COND_doc_TRUE@DX_CLEAN_CHM = @DX_DOCDIR@/chm
+@DX_COND_chi_TRUE@@DX_COND_chm_TRUE@@DX_COND_doc_TRUE@DX_CLEAN_CHI = @DX_DOCDIR@/@PACKAGE@.chi
+@DX_COND_doc_TRUE@@DX_COND_man_TRUE@DX_CLEAN_MAN = @DX_DOCDIR@/man
+@DX_COND_doc_TRUE@@DX_COND_rtf_TRUE@DX_CLEAN_RTF = @DX_DOCDIR@/rtf
+@DX_COND_doc_TRUE@@DX_COND_xml_TRUE@DX_CLEAN_XML = @DX_DOCDIR@/xml
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@DX_CLEAN_PS = @DX_DOCDIR@/@PACKAGE@.ps
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@DX_PS_GOAL = doxygen-ps
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@DX_CLEAN_PDF = @DX_DOCDIR@/@PACKAGE@.pdf
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@DX_PDF_GOAL = doxygen-pdf
+@DX_COND_doc_TRUE@@DX_COND_latex_TRUE@DX_CLEAN_LATEX = @DX_DOCDIR@/latex
+@DX_COND_doc_TRUE@DX_CLEANFILES = \
+@DX_COND_doc_TRUE@    @DX_DOCDIR@/@PACKAGE@.tag \
+@DX_COND_doc_TRUE@    -r \
+@DX_COND_doc_TRUE@    $(DX_CLEAN_HTML) \
+@DX_COND_doc_TRUE@    $(DX_CLEAN_CHM) \
+@DX_COND_doc_TRUE@    $(DX_CLEAN_CHI) \
+@DX_COND_doc_TRUE@    $(DX_CLEAN_MAN) \
+@DX_COND_doc_TRUE@    $(DX_CLEAN_RTF) \
+@DX_COND_doc_TRUE@    $(DX_CLEAN_XML) \
+@DX_COND_doc_TRUE@    $(DX_CLEAN_PS) \
+@DX_COND_doc_TRUE@    $(DX_CLEAN_PDF) \
+@DX_COND_doc_TRUE@    $(DX_CLEAN_LATEX)
+
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 lib_LIBRARIES = ndn-cpp.a
 ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
-  ndn-cpp/BinaryXMLName.cpp ndn-cpp/BinaryXMLName.hpp \
   ndn-cpp/Name.cpp ndn-cpp/Name.hpp \
+  ndn-cpp/WireFormat.cpp ndn-cpp/WireFormat.hpp \
   ndn-cpp/data.cc ndn-cpp/data.h \
   ndn-cpp/interest.cc ndn-cpp/interest.h \
   ndn-cpp/fields/blob.h \
@@ -349,6 +401,7 @@ ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
   ndn-cpp/encoding/BinaryXMLDecoder.c ndn-cpp/encoding/BinaryXMLDecoder.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.c ndn-cpp/encoding/BinaryXMLStructureDecoder.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
+  ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
   ndn-cpp/encoding/base.h \
   ndn-cpp/encoding/ccnb.cc ndn-cpp/encoding/ccnb.h
 
@@ -362,7 +415,7 @@ all: config.h
 .SUFFIXES: .c .cc .cpp .o .obj
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/aminclude.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -385,6 +438,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
+$(srcdir)/aminclude.am:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -446,9 +500,9 @@ ndn-cpp/$(am__dirstamp):
 ndn-cpp/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/$(DEPDIR)
 	@: > ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/BinaryXMLName.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/Name.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
+	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/WireFormat.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/data.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
@@ -483,6 +537,9 @@ ndn-cpp/encoding/BinaryXMLDecoder.$(OBJEXT):  \
 	ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/BinaryXMLStructureDecoder.$(OBJEXT):  \
+	ndn-cpp/encoding/$(am__dirstamp) \
+	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/encoding/BinaryXMLWireFormat.$(OBJEXT):  \
 	ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/ccnb.$(OBJEXT): ndn-cpp/encoding/$(am__dirstamp) \
@@ -557,12 +614,13 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/BinaryXMLName.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Name.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/WireFormat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/interest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLDecoder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLStructureDecoder.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLWireFormat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/ccnb.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/content.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/exclude.Po@am__quote@
@@ -972,6 +1030,52 @@ uninstall-am: uninstall-binPROGRAMS uninstall-libLIBRARIES
 	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
 	uninstall-am uninstall-binPROGRAMS uninstall-libLIBRARIES
 
+
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@doxygen-ps: @DX_DOCDIR@/@PACKAGE@.ps
+
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@@DX_DOCDIR@/@PACKAGE@.ps: @DX_DOCDIR@/@PACKAGE@.tag
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	cd @DX_DOCDIR@/latex; \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	rm -f *.aux *.toc *.idx *.ind *.ilg *.log *.out; \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	$(DX_LATEX) refman.tex; \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	$(MAKEINDEX_PATH) refman.idx; \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	$(DX_LATEX) refman.tex; \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	countdown=5; \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	while $(DX_EGREP) 'Rerun (LaTeX|to get cross-references right)' \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	                  refman.log > /dev/null 2>&1 \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	   && test $$countdown -gt 0; do \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	    $(DX_LATEX) refman.tex; \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	    countdown=`expr $$countdown - 1`; \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	done; \
+@DX_COND_doc_TRUE@@DX_COND_ps_TRUE@	$(DX_DVIPS) -o ../@PACKAGE@.ps refman.dvi
+
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@doxygen-pdf: @DX_DOCDIR@/@PACKAGE@.pdf
+
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@@DX_DOCDIR@/@PACKAGE@.pdf: @DX_DOCDIR@/@PACKAGE@.tag
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	cd @DX_DOCDIR@/latex; \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	rm -f *.aux *.toc *.idx *.ind *.ilg *.log *.out; \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	$(DX_PDFLATEX) refman.tex; \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	$(DX_MAKEINDEX) refman.idx; \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	$(DX_PDFLATEX) refman.tex; \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	countdown=5; \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	while $(DX_EGREP) 'Rerun (LaTeX|to get cross-references right)' \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	                  refman.log > /dev/null 2>&1 \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	   && test $$countdown -gt 0; do \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	    $(DX_PDFLATEX) refman.tex; \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	    countdown=`expr $$countdown - 1`; \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	done; \
+@DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@	mv refman.pdf ../@PACKAGE@.pdf
+
+@DX_COND_doc_TRUE@.PHONY: doxygen-run doxygen-doc $(DX_PS_GOAL) $(DX_PDF_GOAL)
+
+@DX_COND_doc_TRUE@.INTERMEDIATE: doxygen-run $(DX_PS_GOAL) $(DX_PDF_GOAL)
+
+@DX_COND_doc_TRUE@doxygen-run: @DX_DOCDIR@/@PACKAGE@.tag
+
+@DX_COND_doc_TRUE@doxygen-doc: doxygen-run $(DX_PS_GOAL) $(DX_PDF_GOAL)
+
+@DX_COND_doc_TRUE@@DX_DOCDIR@/@PACKAGE@.tag: $(DX_CONFIG) $(pkginclude_HEADERS)
+@DX_COND_doc_TRUE@	rm -rf @DX_DOCDIR@
+@DX_COND_doc_TRUE@	$(DX_ENV) $(DX_DOXYGEN) $(srcdir)/$(DX_CONFIG)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

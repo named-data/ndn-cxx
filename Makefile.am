@@ -1,3 +1,5 @@
+include aminclude.am
+
 ## Place generated object files (.o) into the same directory as their source
 ## files, in order to avoid collisions when non-recursive make is used.
 AUTOMAKE_OPTIONS = subdir-objects
@@ -12,8 +14,8 @@ lib_LIBRARIES = ndn-cpp.a
 bin_PROGRAMS = test-encode-decode-interest
 
 ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
-  ndn-cpp/BinaryXMLName.cpp ndn-cpp/BinaryXMLName.hpp \
   ndn-cpp/Name.cpp ndn-cpp/Name.hpp \
+  ndn-cpp/WireFormat.cpp ndn-cpp/WireFormat.hpp \
   ndn-cpp/data.cc ndn-cpp/data.h \
   ndn-cpp/interest.cc ndn-cpp/interest.h \
   ndn-cpp/fields/blob.h \
@@ -27,6 +29,7 @@ ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
   ndn-cpp/encoding/BinaryXMLDecoder.c ndn-cpp/encoding/BinaryXMLDecoder.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.c ndn-cpp/encoding/BinaryXMLStructureDecoder.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
+  ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
   ndn-cpp/encoding/base.h \
   ndn-cpp/encoding/ccnb.cc ndn-cpp/encoding/ccnb.h
 
