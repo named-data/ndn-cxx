@@ -4337,6 +4337,81 @@ _ACEOF
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for memcpy" >&5
+$as_echo_n "checking for memcpy... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <memory.h>
+    void test() { unsigned char buffer[1]; memcpy(buffer, buffer, 1); }
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_MEMCPY 1
+_ACEOF
+
+
+else
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_MEMCPY 0
+_ACEOF
+
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for memset" >&5
+$as_echo_n "checking for memset... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <memory.h>
+    void test() { unsigned char buffer[1]; memset(buffer, 0, 1); }
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_MEMSET 1
+_ACEOF
+
+
+else
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_MEMSET 0
+_ACEOF
+
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
 
 
 

@@ -34,6 +34,29 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     AC_DEFINE_UNQUOTED([HAVE_BOOST_SHARED_PTR], 0, [1 if have the `boost::shared_ptr' class.])
 ])
 
+AC_MSG_CHECKING([for memcpy])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+    [[#include <memory.h>]]
+    [[void test() { unsigned char buffer[1]; memcpy(buffer, buffer, 1); }]])
+], [
+    AC_MSG_RESULT([yes])
+    AC_DEFINE_UNQUOTED([HAVE_MEMCPY], 1, [1 if have memcpy in memory.h.])
+], [
+    AC_MSG_RESULT([no])
+    AC_DEFINE_UNQUOTED([HAVE_MEMCPY], 0, [1 if have memcpy in memory.h.])
+])
+AC_MSG_CHECKING([for memset])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+    [[#include <memory.h>]]
+    [[void test() { unsigned char buffer[1]; memset(buffer, 0, 1); }]])
+], [
+    AC_MSG_RESULT([yes])
+    AC_DEFINE_UNQUOTED([HAVE_MEMSET], 1, [1 if have memset in memory.h.])
+], [
+    AC_MSG_RESULT([no])
+    AC_DEFINE_UNQUOTED([HAVE_MEMSET], 0, [1 if have memset in memory.h.])
+])
+
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
 DX_CHI_FEATURE(OFF)

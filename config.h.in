@@ -6,6 +6,12 @@
 /* define if the compiler supports basic C++11 syntax */
 #undef HAVE_CXX11
 
+/* 1 if have memcpy in memory.h. */
+#undef HAVE_MEMCPY
+
+/* 1 if have memset in memory.h. */
+#undef HAVE_MEMSET
+
 /* 1 if have the `std::shared_ptr' class. */
 #undef HAVE_STD_SHARED_PTR
 
