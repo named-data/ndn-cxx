@@ -11,21 +11,30 @@
 extern "C" {
 #endif
   
-struct ndn_Component {
+struct ndn_NameComponent {
   unsigned char *value;
-  unsigned int valueLen;
+  unsigned int valueLength;
 };
+
+static inline void ndn_NameComponent_init(struct ndn_NameComponent *self, unsigned char *value, unsigned int valueLength) 
+{
+  self->value = value;
+  self->valueLength = valueLength;
+}
 
 enum {
   ndn_Name_MAX_COMPONENTS = 100  
 };
   
 struct ndn_Name {
-  struct ndn_Component components[ndn_Name_MAX_COMPONENTS];
+  struct ndn_NameComponent components[ndn_Name_MAX_COMPONENTS];
   unsigned int nComponents;
 };
 
-void ndn_Name_init(struct ndn_Name *self);
+static inline void ndn_Name_init(struct ndn_Name *self) 
+{
+  self->nComponents = 0;
+}
 
 #ifdef	__cplusplus
 }
