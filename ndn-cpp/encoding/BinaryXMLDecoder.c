@@ -7,7 +7,8 @@
 #include "BinaryXML.h"
 #include "BinaryXMLDecoder.h"
 
-const char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self, unsigned int *type, unsigned int *valueOut) {
+const char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self, unsigned int *type, unsigned int *valueOut) 
+{
   unsigned int value = 0;
   
 	while (1) {
