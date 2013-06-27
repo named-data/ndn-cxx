@@ -17,7 +17,8 @@ struct ndn_BinaryXMLDecoder {
   unsigned int offset;
 };
 
-static inline void ndn_BinaryXMLDecoder_init(struct ndn_BinaryXMLDecoder *self, const unsigned char *input, unsigned int inputLength) {
+static inline void ndn_BinaryXMLDecoder_init(struct ndn_BinaryXMLDecoder *self, const unsigned char *input, unsigned int inputLength) 
+{
   self->input = input;
   self->inputLength = inputLength;
   self->offset = 0;
@@ -31,7 +32,8 @@ const char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder 
  * @param self pointer to the ndn_BinaryXMLDecoder struct
  * @param offset the new offset
  */
-static inline void ndn_BinaryXMLDecoder_seek(struct ndn_BinaryXMLDecoder *self, unsigned int offset) {
+static inline void ndn_BinaryXMLDecoder_seek(struct ndn_BinaryXMLDecoder *self, unsigned int offset) 
+{
   self->offset = offset;
 }
 
