@@ -23,7 +23,8 @@ void ndn_BinaryXMLStructureDecoder_init(struct ndn_BinaryXMLStructureDecoder *se
 /**
  * Set the state to READ_HEADER_OR_CLOSE and set up to start reading the header.
  */
-static inline void startHeader(struct ndn_BinaryXMLStructureDecoder *self) {
+static inline void startHeader(struct ndn_BinaryXMLStructureDecoder *self)
+{
   self->headerLength = 0;
   self->useHeaderBuffer = 0;
   self->state = ndn_BinaryXMLStructureDecoder_READ_HEADER_OR_CLOSE;    
@@ -94,7 +95,7 @@ const char *ndn_BinaryXMLStructureDecoder_findElementEnd
         // Use a local decoder just for the headerBuffer.
         struct ndn_BinaryXMLDecoder bufferDecoder;
         ndn_BinaryXMLDecoder_init(&bufferDecoder, self->headerBuffer, sizeof(self->headerBuffer));
-        if (ndn_BinaryXMLDecoder_decodeTypeAndValue(&decoder, &type, &value))
+        if (ndn_BinaryXMLDecoder_decodeTypeAndValue(&bufferDecoder, &type, &value))
           return "ndn_BinaryXMLStructureDecoder_findElementEnd: Can't read header type and value";
       }
       else {
