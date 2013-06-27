@@ -134,8 +134,7 @@ am__v_AR_1 =
 ndn_cpp_a_AR = $(AR) $(ARFLAGS)
 ndn_cpp_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_ndn_cpp_a_OBJECTS = ndn-cpp/Name.$(OBJEXT) \
-	ndn-cpp/WireFormat.$(OBJEXT) ndn-cpp/data.$(OBJEXT) \
+am_ndn_cpp_a_OBJECTS = ndn-cpp/Name.$(OBJEXT) ndn-cpp/data.$(OBJEXT) \
 	ndn-cpp/interest.$(OBJEXT) ndn-cpp/fields/content.$(OBJEXT) \
 	ndn-cpp/fields/exclude.$(OBJEXT) \
 	ndn-cpp/fields/key-locator.$(OBJEXT) \
@@ -145,6 +144,7 @@ am_ndn_cpp_a_OBJECTS = ndn-cpp/Name.$(OBJEXT) \
 	ndn-cpp/encoding/BinaryXMLDecoder.$(OBJEXT) \
 	ndn-cpp/encoding/BinaryXMLStructureDecoder.$(OBJEXT) \
 	ndn-cpp/encoding/BinaryXMLWireFormat.$(OBJEXT) \
+	ndn-cpp/encoding/WireFormat.$(OBJEXT) \
 	ndn-cpp/encoding/ccnb.$(OBJEXT)
 ndn_cpp_a_OBJECTS = $(am_ndn_cpp_a_OBJECTS)
 PROGRAMS = $(bin_PROGRAMS)
@@ -387,7 +387,6 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 lib_LIBRARIES = ndn-cpp.a
 ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
   ndn-cpp/Name.cpp ndn-cpp/Name.hpp \
-  ndn-cpp/WireFormat.cpp ndn-cpp/WireFormat.hpp \
   ndn-cpp/data.cc ndn-cpp/data.h \
   ndn-cpp/interest.cc ndn-cpp/interest.h \
   ndn-cpp/fields/blob.h \
@@ -402,6 +401,7 @@ ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.c ndn-cpp/encoding/BinaryXMLStructureDecoder.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
+  ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp \
   ndn-cpp/encoding/base.h \
   ndn-cpp/encoding/ccnb.cc ndn-cpp/encoding/ccnb.h
 
@@ -502,8 +502,6 @@ ndn-cpp/$(DEPDIR)/$(am__dirstamp):
 	@: > ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/Name.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/WireFormat.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/data.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/interest.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
@@ -540,6 +538,9 @@ ndn-cpp/encoding/BinaryXMLStructureDecoder.$(OBJEXT):  \
 	ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/BinaryXMLWireFormat.$(OBJEXT):  \
+	ndn-cpp/encoding/$(am__dirstamp) \
+	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/encoding/WireFormat.$(OBJEXT):  \
 	ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/ccnb.$(OBJEXT): ndn-cpp/encoding/$(am__dirstamp) \
@@ -615,12 +616,12 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Name.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/WireFormat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/interest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLDecoder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLStructureDecoder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLWireFormat.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/WireFormat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/ccnb.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/content.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/exclude.Po@am__quote@

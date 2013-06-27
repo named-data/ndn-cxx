@@ -15,7 +15,6 @@ bin_PROGRAMS = test-encode-decode-interest
 
 ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
   ndn-cpp/Name.cpp ndn-cpp/Name.hpp \
-  ndn-cpp/WireFormat.cpp ndn-cpp/WireFormat.hpp \
   ndn-cpp/data.cc ndn-cpp/data.h \
   ndn-cpp/interest.cc ndn-cpp/interest.h \
   ndn-cpp/fields/blob.h \
@@ -30,6 +29,7 @@ ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.c ndn-cpp/encoding/BinaryXMLStructureDecoder.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
+  ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp \
   ndn-cpp/encoding/base.h \
   ndn-cpp/encoding/ccnb.cc ndn-cpp/encoding/ccnb.h
 
