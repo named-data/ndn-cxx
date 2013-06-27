@@ -10,6 +10,11 @@
 #include "BinaryXMLStructureDecoder.h"
 
 namespace ndn {
+  
+/**
+ * A BinaryXMLStructureDecoder wraps a C struct ndn_BinaryXMLStructureDecoder and
+ * related functions.
+ */
 class BinaryXMLStructureDecoder {
 public:
   BinaryXMLStructureDecoder() {
@@ -19,6 +24,7 @@ public:
 private:
   struct ndn_BinaryXMLStructureDecoder base;
 };
+
 }
 
 #endif	/* BINARYXMLSTRUCTUREDECODER_HPP */

@@ -12,12 +12,12 @@ extern "C" {
 #endif
 
 struct ndn_BinaryXMLStructureDecoder {
-  int gotElementEnd; // boolean
+  int gotElementEnd; /**< boolean */
   unsigned int offset;
   int level;
   int state;
   unsigned int headerLength;
-  int useHeaderBuffer; // boolean
+  int useHeaderBuffer; /**< boolean */
   // 10 bytes is enough to hold an encoded header with a type and a 64 bit value.
   unsigned char headerBuffer[10];
   int nBytesToRead;
