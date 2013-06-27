@@ -29,5 +29,9 @@
 .deps
 .dirstamp
 
+# Doxygen output
+/doc/html
+/doc/latex
+
 # Mac OSX
 .DS_Store
