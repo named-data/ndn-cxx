@@ -12,7 +12,7 @@ const char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder 
   unsigned int value = 0;
   
 	while (1) {
-    if (self->offset >= self->inputLen)
+    if (self->offset >= self->inputLength)
       return "ndn_BinaryXMLDecoder_decodeTypeAndVal read past the end of the input";
     
 		unsigned int octet = (unsigned int)(self->input[self->offset++] & 0xff);
