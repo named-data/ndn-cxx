@@ -24,11 +24,11 @@ public:
   void encode(std::vector<unsigned char> &output) {
     encode(output, BinaryXMLWireFormat::instance());
   }
-  void decode(std::vector<unsigned char> &input, WireFormat &wireFormat) {
-    wireFormat.decodeName(*this, input);
+  void decode(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat) {
+    wireFormat.decodeName(*this, input, inputLength);
   }
-  void decode(std::vector<unsigned char> &input) {
-    decode(input, BinaryXMLWireFormat::instance());
+  void decode(const unsigned char *input, unsigned int inputLength) {
+    decode(input, inputLength, BinaryXMLWireFormat::instance());
   }
   
 private:
