@@ -26,11 +26,10 @@ static inline void ndn_BinaryXMLDecoder_init(struct ndn_BinaryXMLDecoder *self, 
 
 /**
  * Decode the header's type and value from self's input starting at offset. Update offset.
- * Even though the first byte should not be zero, this silently ignores initial zeros.
  * @param self pointer to the ndn_BinaryXMLDecoder struct
  * @param type output for the header type
  * @param value output for the header value
- * @return 0 for success, else an error string for read past the end of the input
+ * @return 0 for success, else an error string for read past the end of the input or if the initial byte is zero
  */
 char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self, unsigned int *type, unsigned int *value);
 

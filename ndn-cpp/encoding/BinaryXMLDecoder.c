@@ -28,6 +28,7 @@ static inline unsigned int unsafeGetOctet(struct ndn_BinaryXMLDecoder *self)
 char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self, unsigned int *type, unsigned int *valueOut) 
 {
   unsigned int value = 0;
+  int gotFirstOctet = 0;
   
 	while (1) {
     if (self->offset >= self->inputLength)
@@ -35,6 +36,13 @@ char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self,
     
 		unsigned int octet = unsafeReadOctet(self);
 		
+    if (!gotFirstOctet) {
+      if (octet == 0)
+        return "ndn_BinaryXMLDecoder_decodeTypeAndVal: the first header octet may not be zero";
+      
+      gotFirstOctet = 1;
+    }
+    
 		if (octet & ndn_BinaryXML_TT_FINAL) {
       // Finished.
 			*type = octet & ndn_BinaryXML_TT_MASK;
