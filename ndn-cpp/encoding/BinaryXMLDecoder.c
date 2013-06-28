@@ -89,7 +89,13 @@ char *ndn_BinaryXMLDecoder_peekDTag(struct ndn_BinaryXMLDecoder *self, unsigned 
 {
   // Default to 0.
   *gotExpectedTag = 0;
-  
+
+  // First check if it is an element close (which cannot be the expected tag).  
+  if (self->offset >= self->inputLength)
+    return "ndn_BinaryXMLDecoder_readElementClose: read past the end of the input";
+  if (unsafeGetOctet(self) == 0)
+    return 0;
+
   unsigned int type;
   unsigned int value;
   unsigned int saveOffset = self->offset;
