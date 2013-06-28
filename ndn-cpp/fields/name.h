@@ -10,8 +10,8 @@
  *         Zhenkai Zhu <zhenkai@cs.ucla.edu>
  */
 
-#ifndef NDN_NAME_H
-#define NDN_NAME_H
+#ifndef NDN_NAME_HXX
+#define NDN_NAME_HXX
 
 #include "ndn-cpp/fields/name-component.h"
 #include "ndn-cpp/common.h"
