@@ -30,3 +30,20 @@ char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self,
 	*valueOut = value;
   return (char *)0;
 }
+
+char *ndn_BinaryXMLDecoder_readDTag(struct ndn_BinaryXMLDecoder *self, unsigned int tag)
+{
+  char *error;
+  unsigned int type;
+  unsigned int value;
+  if (error = ndn_BinaryXMLDecoder_decodeTypeAndValue(self, &type, &value))
+    return error;
+  
+  if (type != ndn_BinaryXML_DTAG)
+    return "ndn_BinaryXMLDecoder_readDTag: header type is not a DTAG";
+  
+  if (value != tag)
+    return "ndn_BinaryXMLDecoder_readDTag: did not get the expected DTAG";
+  
+  return (char *)0;
+}
