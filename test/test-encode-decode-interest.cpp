@@ -8,16 +8,17 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
-#include "../ndn-cpp/interest.h"
-#include "../ndn-cpp/encoding/ccnb.h"
-#include "../ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp"
+#include <ndn-cpp/Name.hpp>
 
 using namespace std;
 using namespace ndn;
 
-const unsigned char Interest1[] = {
+unsigned char Interest1[] = {
+#if 0
 0x01, 0xd2,
+#endif
   0xf2, 0xfa, 0x9d, 0x6e, 0x64, 0x6e, 0x00, 0xfa, 0x9d, 0x61, 0x62, 0x63, 0x00, 0x00, 
+#if 0
   0x05, 0x9a, 0x8e, 0x32, 0x00, 
   0x05, 0xa2, 0x8e, 0x34, 0x00,
   0x03, 0xe2, 
@@ -28,6 +29,7 @@ const unsigned char Interest1[] = {
   0xfa, 0x8e, 0x34, 0x00, 0x02, 0xd2, 0x8e, 0x32, 0x00, 0x03, 0x82, 0x9d, 0x01, 0xe0, 0x00, 0x00, 0x02, 0xca, 0xb5, 0x61,
   0x62, 0x61, 0x62, 0x61, 0x62, 0x00, 
 0x00, 
+#endif
 1
 };
 
@@ -37,29 +39,26 @@ const unsigned char Interest1[] = {
 int main(int argc, char** argv)
 {
   try {
-  BinaryXMLStructureDecoder structureDecoder;
-  for (unsigned int i = 1; i <= sizeof(Interest1); ++i) {
-    if (structureDecoder.findElementEnd(Interest1, i)) {
-      cout << "got element end at " << structureDecoder.getOffset() << " vs. sizeof(Interest1) " << sizeof(Interest1) << endl;
-      break;
-    }
-  }
+    Name name;
+    name.decode(Interest1, sizeof(Interest1));
+    cout << "name N components" << name.getComponentCount() << endl;
+     
+#if 0
+    ndn::ptr_lib::shared_ptr<Interest> interest(new Interest());
+    interest->setName(Name("/test"));
+    interest->setMinSuffixComponents(2);
+    interest->setMaxSuffixComponents(2);
+    interest->setInterestLifetime(boost::posix_time::seconds(10));
+    interest->setScope(Interest::SCOPE_LOCAL_CCND);
+    interest->setAnswerOriginKind(Interest::AOK_STALE);
+    interest->setChildSelector(Interest::CHILD_RIGHT);
+    // i.setPublisherPublicKeyDigest(?);
+    ostringstream binary;
+    wire::Ccnb::appendInterest(binary, *interest);
+    cout << binary.str().size() << endl;
+#endif
   } catch (exception &e) {
     cout << "exception " << e.what() << endl;
   }
-  
-  ndn::ptr_lib::shared_ptr<Interest> interest(new Interest());
-  interest->setName(Name("/test"));
-  interest->setMinSuffixComponents(2);
-  interest->setMaxSuffixComponents(2);
-  interest->setInterestLifetime(boost::posix_time::seconds(10));
-  interest->setScope(Interest::SCOPE_LOCAL_CCND);
-  interest->setAnswerOriginKind(Interest::AOK_STALE);
-  interest->setChildSelector(Interest::CHILD_RIGHT);
-  // i.setPublisherPublicKeyDigest(?);
-  ostringstream binary;
-  wire::Ccnb::appendInterest(binary, *interest);
-  cout << binary.str().size() << endl;
-  
   return 0;
 }
