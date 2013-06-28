@@ -30,8 +30,8 @@ public:
    * @param inputLength the number of bytes in input.
    * @return true if found the element end, false if need to read more. (This is the same as returning gotElementEnd().)
    */
-  bool findElementEnd(const unsigned char *input, unsigned int inputLength) {
-    const char *error;
+  bool findElementEnd(unsigned char *input, unsigned int inputLength) {
+    char *error;
     if (error = ndn_BinaryXMLStructureDecoder_findElementEnd(&base_, input, inputLength))
       throw std::runtime_error(error);
     return gotElementEnd();

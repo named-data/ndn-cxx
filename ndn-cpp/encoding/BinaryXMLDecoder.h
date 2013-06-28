@@ -12,12 +12,12 @@ extern "C" {
 #endif
 
 struct ndn_BinaryXMLDecoder {
-  const unsigned char *input;
+  unsigned char *input;
   unsigned int inputLength;
   unsigned int offset;
 };
 
-static inline void ndn_BinaryXMLDecoder_init(struct ndn_BinaryXMLDecoder *self, const unsigned char *input, unsigned int inputLength) 
+static inline void ndn_BinaryXMLDecoder_init(struct ndn_BinaryXMLDecoder *self, unsigned char *input, unsigned int inputLength) 
 {
   self->input = input;
   self->inputLength = inputLength;
@@ -25,7 +25,7 @@ static inline void ndn_BinaryXMLDecoder_init(struct ndn_BinaryXMLDecoder *self, 
 }
 
 // Even though the first byte should not be zero, this silently ignores initial zeros.
-const char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self, unsigned int *type, unsigned int *value);
+char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self, unsigned int *type, unsigned int *value);
 
 /**
  * Set the offset into the input, used for the next read.

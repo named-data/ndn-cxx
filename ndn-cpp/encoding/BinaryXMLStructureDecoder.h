@@ -40,8 +40,8 @@ void ndn_BinaryXMLStructureDecoder_init(struct ndn_BinaryXMLStructureDecoder *se
  * @param inputLength the number of bytes in input.
  * @return 0 for success, else an error string
  */
-const char *ndn_BinaryXMLStructureDecoder_findElementEnd
-  (struct ndn_BinaryXMLStructureDecoder *self, const unsigned char *input, unsigned int inputLength);
+char *ndn_BinaryXMLStructureDecoder_findElementEnd
+  (struct ndn_BinaryXMLStructureDecoder *self, unsigned char *input, unsigned int inputLength);
 
 #ifdef	__cplusplus
 }
