@@ -31,6 +31,28 @@ public:
     decode(input, inputLength, BinaryXMLWireFormat::instance());
   }
   
+  /**
+   * Add a new component, copying from value of length valueLength.
+   */
+  void addComponent(unsigned char *value, unsigned int valueLength) {
+    components_.push_back(std::vector<unsigned char>(value, value + valueLength));
+  }
+  
+  /**
+   * Clear all the components.
+   */
+  void clear() {
+    components_.clear();
+  }
+  
+  /**
+   * Get the number of components.
+   * @return the number of components
+   */
+  unsigned int getComponentCount() {
+    return components_.size();
+  }
+  
 private:
   std::vector<std::vector<unsigned char> > components_;
 };  
