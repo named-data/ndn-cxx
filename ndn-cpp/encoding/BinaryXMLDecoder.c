@@ -7,6 +7,24 @@
 #include "BinaryXML.h"
 #include "BinaryXMLDecoder.h"
 
+/**
+ * Return the octet at self->offset, converting to unsigned int.  Increment self->offset.
+ * This does not check for reading past the end of the input, so this is called "unsafe".
+ */
+static inline unsigned int unsafeReadOctet(struct ndn_BinaryXMLDecoder *self) 
+{
+  return (unsigned int)(self->input[self->offset++] & 0xff);  
+}
+
+/**
+ * Return the octet at self->offset, converting to unsigned int.  Do not increment self->offset.
+ * This does not check for reading past the end of the input, so this is called "unsafe".
+ */
+static inline unsigned int unsafeGetOctet(struct ndn_BinaryXMLDecoder *self) 
+{
+  return (unsigned int)(self->input[self->offset] & 0xff);  
+}
+
 char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self, unsigned int *type, unsigned int *valueOut) 
 {
   unsigned int value = 0;
@@ -15,7 +33,7 @@ char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self,
     if (self->offset >= self->inputLength)
       return "ndn_BinaryXMLDecoder_decodeTypeAndVal read past the end of the input";
     
-		unsigned int octet = (unsigned int)(self->input[self->offset++] & 0xff);
+		unsigned int octet = unsafeReadOctet(self);
 		
 		if (octet & ndn_BinaryXML_TT_FINAL) {
       // Finished.
@@ -28,7 +46,7 @@ char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self,
 	}
 
 	*valueOut = value;
-  return (char *)0;
+  return 0;
 }
 
 char *ndn_BinaryXMLDecoder_readDTag(struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag)
@@ -45,7 +63,7 @@ char *ndn_BinaryXMLDecoder_readDTag(struct ndn_BinaryXMLDecoder *self, unsigned 
   if (value != expectedTag)
     return "ndn_BinaryXMLDecoder_readDTag: did not get the expected DTAG";
   
-  return (char *)0;
+  return 0;
 }
 
 char *ndn_BinaryXMLDecoder_readElementClose(struct ndn_BinaryXMLDecoder *self)
@@ -53,12 +71,10 @@ char *ndn_BinaryXMLDecoder_readElementClose(struct ndn_BinaryXMLDecoder *self)
   if (self->offset >= self->inputLength)
     return "ndn_BinaryXMLDecoder_readElementClose read past the end of the input";
   
-  unsigned int octet = (unsigned int)(self->input[self->offset++] & 0xff);
-
-  if (octet != ndn_BinaryXML_CLOSE)
+  if (unsafeReadOctet(self) != ndn_BinaryXML_CLOSE)
     return "ndn_BinaryXMLDecoder_readDTag: did not get the expected element close";
   
-  return (char *)0;
+  return 0;
 }
 
 char *ndn_BinaryXMLDecoder_peekDTag(struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int *gotExpectedTag)
@@ -70,6 +86,7 @@ char *ndn_BinaryXMLDecoder_peekDTag(struct ndn_BinaryXMLDecoder *self, unsigned 
   unsigned int value;
   unsigned int saveOffset = self->offset;
   char *error = ndn_BinaryXMLDecoder_decodeTypeAndValue(self, &type, &value);
+  // Restore offset.
   self->offset = saveOffset;
   
   if (error)
@@ -78,5 +95,38 @@ char *ndn_BinaryXMLDecoder_peekDTag(struct ndn_BinaryXMLDecoder *self, unsigned 
   if (type == ndn_BinaryXML_DTAG && value == expectedTag)
     *gotExpectedTag = 1;
   
-  return (char *)0;
+  return 0;
+}
+
+char *ndn_BinaryXMLDecoder_readBinaryDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int allowNull, unsigned char **value, unsigned int *valueLen)
+{
+  char *error;
+  if (error = ndn_BinaryXMLDecoder_readDTag(self, expectedTag))
+    return error;
+  
+  if (allowNull) {
+    if (self->offset >= self->inputLength)
+      return "ndn_BinaryXMLDecoder_readBinaryDTagElement read past the end of the input";
+  
+    if (unsafeGetOctet(self) == ndn_BinaryXML_CLOSE) {
+      // The binary item is missing, and this is allowed, so read the element close and return a null value.
+      ++self->offset;
+      *value = 0;
+      *valueLen = 0;
+      return 0;
+    }
+  }
+  
+  unsigned int itemType;
+  if (error = ndn_BinaryXMLDecoder_decodeTypeAndValue(self, &itemType, valueLen))
+    return error;
+  // Ignore itemType.
+  *value = self->input + self->offset;
+  self->offset += *valueLen;
+  
+  if (error = ndn_BinaryXMLDecoder_readElementClose(self))
+    return error;
+  
+  return 0;
 }

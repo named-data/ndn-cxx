@@ -61,6 +61,24 @@ char *ndn_BinaryXMLDecoder_readElementClose(struct ndn_BinaryXMLDecoder *self);
 char *ndn_BinaryXMLDecoder_peekDTag(struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int *gotExpectedTag);
 
 /**
+ * Decode the header from self's input starting at offset, expecting the type to be DTAG and the value to be expectedTag.
+ * Then read one item of any type (presumably BLOB, UDATA, TAG or ATTR) and return the item's value and length.
+ * However, if allowNull is 1, then the item may be absent.
+ * Finally, read the element close.  Update offset.
+ * @param self pointer to the ndn_BinaryXMLDecoder struct
+ * @param expectedTag the expected value for DTAG
+ * @param allowNull 1 if the binary item may be missing
+ * @param value output a pointer to the binary data inside self's input buffer. However, if allowNull is 1 and the
+ * binary data item is absent, then return 0.
+ * @param valueLen output the length of the binary data. However, if allowNull is 1 and the
+ * binary data item is absent, then return 0.
+ * @return 0 for success, else an error string, including an error if not the expected tag, or if allowNull is 0
+ * and the binary data is absent
+ */
+char *ndn_BinaryXMLDecoder_readBinaryDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int allowNull, unsigned char **value, unsigned int *valueLen);
+
+/**
  * Set the offset into the input, used for the next read.
  * @param self pointer to the ndn_BinaryXMLDecoder struct
  * @param offset the new offset
