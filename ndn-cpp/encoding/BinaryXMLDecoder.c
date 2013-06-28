@@ -31,7 +31,7 @@ char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self,
   
 	while (1) {
     if (self->offset >= self->inputLength)
-      return "ndn_BinaryXMLDecoder_decodeTypeAndVal read past the end of the input";
+      return "ndn_BinaryXMLDecoder_decodeTypeAndVal: read past the end of the input";
     
 		unsigned int octet = unsafeReadOctet(self);
 		
@@ -69,7 +69,7 @@ char *ndn_BinaryXMLDecoder_readDTag(struct ndn_BinaryXMLDecoder *self, unsigned 
 char *ndn_BinaryXMLDecoder_readElementClose(struct ndn_BinaryXMLDecoder *self)
 {
   if (self->offset >= self->inputLength)
-    return "ndn_BinaryXMLDecoder_readElementClose read past the end of the input";
+    return "ndn_BinaryXMLDecoder_readElementClose: read past the end of the input";
   
   if (unsafeReadOctet(self) != ndn_BinaryXML_CLOSE)
     return "ndn_BinaryXMLDecoder_readDTag: did not get the expected element close";
@@ -107,7 +107,7 @@ char *ndn_BinaryXMLDecoder_readBinaryDTagElement
   
   if (allowNull) {
     if (self->offset >= self->inputLength)
-      return "ndn_BinaryXMLDecoder_readBinaryDTagElement read past the end of the input";
+      return "ndn_BinaryXMLDecoder_readBinaryDTagElement: read past the end of the input";
   
     if (unsafeGetOctet(self) == ndn_BinaryXML_CLOSE) {
       // The binary item is missing, and this is allowed, so read the element close and return a null value.
