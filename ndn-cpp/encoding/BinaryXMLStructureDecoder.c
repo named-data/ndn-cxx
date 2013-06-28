@@ -4,7 +4,7 @@
  * BSD license, See the LICENSE file for more information.
  */
 
-#include <memory.h>
+#include "../util/ndn_memory.h"
 #include "BinaryXML.h"
 #include "BinaryXMLDecoder.h"
 #include "BinaryXMLStructureDecoder.h"
@@ -30,12 +30,12 @@ static inline void startHeader(struct ndn_BinaryXMLStructureDecoder *self)
   self->state = ndn_BinaryXMLStructureDecoder_READ_HEADER_OR_CLOSE;    
 }
 
-const char *ndn_BinaryXMLStructureDecoder_findElementEnd
-  (struct ndn_BinaryXMLStructureDecoder *self, const unsigned char *input, unsigned int inputLength) 
+char *ndn_BinaryXMLStructureDecoder_findElementEnd
+  (struct ndn_BinaryXMLStructureDecoder *self, unsigned char *input, unsigned int inputLength) 
 {
   if (self->gotElementEnd)
     // Someone is calling when we already got the end.
-    return (const char *)0;
+    return (char *)0;
   
   struct ndn_BinaryXMLDecoder decoder;
   ndn_BinaryXMLDecoder_init(&decoder, input, inputLength);
@@ -43,7 +43,7 @@ const char *ndn_BinaryXMLStructureDecoder_findElementEnd
   while (1) {
     if (self->offset >= inputLength)
       // All the cases assume we have some input. Return and wait for more.
-      return (const char *)0;
+      return (char *)0;
     
     if (self->state == ndn_BinaryXMLStructureDecoder_READ_HEADER_OR_CLOSE) {
       // First check for CLOSE.
@@ -54,7 +54,7 @@ const char *ndn_BinaryXMLStructureDecoder_findElementEnd
         if (self->level == 0) {
           // Finished.
           self->gotElementEnd = 1;
-          return (const char *)0;
+          return (char *)0;
         }
         if (self->level < 0)
           return "ndn_BinaryXMLStructureDecoder_findElementEnd: Unexpected close tag";
@@ -72,9 +72,9 @@ const char *ndn_BinaryXMLStructureDecoder_findElementEnd
             return "ndn_BinaryXMLStructureDecoder_findElementEnd: Can't store more header bytes than the size of headerBuffer";
           self->useHeaderBuffer = 1;
           unsigned int nNewBytes = self->headerLength - startingHeaderLength;
-          memcpy(self->headerBuffer + startingHeaderLength, input + (self->offset - nNewBytes), nNewBytes);
+          ndn_memcpy(self->headerBuffer + startingHeaderLength, input + (self->offset - nNewBytes), nNewBytes);
             
-          return (const char *)0;
+          return (char *)0;
         }
         unsigned int headerByte = (unsigned int)input[self->offset++];
         ++self->headerLength;
@@ -90,7 +90,7 @@ const char *ndn_BinaryXMLStructureDecoder_findElementEnd
         if (self->headerLength > sizeof(self->headerBuffer))
           return "ndn_BinaryXMLStructureDecoder_findElementEnd: Can't store more header bytes than the size of headerBuffer";
         unsigned int nNewBytes = self->headerLength - startingHeaderLength;
-        memcpy(self->headerBuffer + startingHeaderLength, input + (self->offset - nNewBytes), nNewBytes);
+        ndn_memcpy(self->headerBuffer + startingHeaderLength, input + (self->offset - nNewBytes), nNewBytes);
 
         // Use a local decoder just for the headerBuffer.
         struct ndn_BinaryXMLDecoder bufferDecoder;
@@ -137,7 +137,7 @@ const char *ndn_BinaryXMLStructureDecoder_findElementEnd
         // Need more.
         self->offset += nRemainingBytes;
         self->nBytesToRead -= nRemainingBytes;
-        return (const char *)0;
+        return (char *)0;
       }
       // Got the bytes. Read a new header or close.
       self->offset += self->nBytesToRead;

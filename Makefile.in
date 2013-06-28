@@ -145,7 +145,8 @@ am_ndn_cpp_a_OBJECTS = ndn-cpp/Name.$(OBJEXT) ndn-cpp/data.$(OBJEXT) \
 	ndn-cpp/encoding/BinaryXMLStructureDecoder.$(OBJEXT) \
 	ndn-cpp/encoding/BinaryXMLWireFormat.$(OBJEXT) \
 	ndn-cpp/encoding/WireFormat.$(OBJEXT) \
-	ndn-cpp/encoding/ccnb.$(OBJEXT)
+	ndn-cpp/encoding/ccnb.$(OBJEXT) \
+	ndn-cpp/util/ndn_memory.$(OBJEXT)
 ndn_cpp_a_OBJECTS = $(am_ndn_cpp_a_OBJECTS)
 PROGRAMS = $(bin_PROGRAMS)
 am_test_encode_decode_interest_OBJECTS =  \
@@ -403,7 +404,8 @@ ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
   ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp \
   ndn-cpp/encoding/base.h \
-  ndn-cpp/encoding/ccnb.cc ndn-cpp/encoding/ccnb.h
+  ndn-cpp/encoding/ccnb.cc ndn-cpp/encoding/ccnb.h \
+  ndn-cpp/util/ndn_memory.c ndn-cpp/util/ndn_memory.h
 
 test_encode_decode_interest_SOURCES = test/test-encode-decode-interest.cpp
 test_encode_decode_interest_LDADD = ndn-cpp.a
@@ -545,6 +547,14 @@ ndn-cpp/encoding/WireFormat.$(OBJEXT):  \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/ccnb.$(OBJEXT): ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/util/$(am__dirstamp):
+	@$(MKDIR_P) ndn-cpp/util
+	@: > ndn-cpp/util/$(am__dirstamp)
+ndn-cpp/util/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ndn-cpp/util/$(DEPDIR)
+	@: > ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/util/ndn_memory.$(OBJEXT): ndn-cpp/util/$(am__dirstamp) \
+	ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
 
 ndn-cpp.a: $(ndn_cpp_a_OBJECTS) $(ndn_cpp_a_DEPENDENCIES) $(EXTRA_ndn_cpp_a_DEPENDENCIES) 
 	$(AM_V_at)-rm -f ndn-cpp.a
@@ -610,6 +620,7 @@ mostlyclean-compile:
 	-rm -f ndn-cpp/*.$(OBJEXT)
 	-rm -f ndn-cpp/encoding/*.$(OBJEXT)
 	-rm -f ndn-cpp/fields/*.$(OBJEXT)
+	-rm -f ndn-cpp/util/*.$(OBJEXT)
 	-rm -f test/*.$(OBJEXT)
 
 distclean-compile:
@@ -629,6 +640,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/name-component.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/name.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/fields/$(DEPDIR)/signature.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/ndn_memory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test-encode-decode-interest.Po@am__quote@
 
 .c.o:
@@ -933,6 +945,8 @@ distclean-generic:
 	-rm -f ndn-cpp/encoding/$(am__dirstamp)
 	-rm -f ndn-cpp/fields/$(DEPDIR)/$(am__dirstamp)
 	-rm -f ndn-cpp/fields/$(am__dirstamp)
+	-rm -f ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ndn-cpp/util/$(am__dirstamp)
 	-rm -f test/$(DEPDIR)/$(am__dirstamp)
 	-rm -f test/$(am__dirstamp)
 
@@ -946,7 +960,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libLIBRARIES \
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/fields/$(DEPDIR) test/$(DEPDIR)
+	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/fields/$(DEPDIR) ndn-cpp/util/$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -994,7 +1008,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/fields/$(DEPDIR) test/$(DEPDIR)
+	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/fields/$(DEPDIR) ndn-cpp/util/$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
