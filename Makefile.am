@@ -14,7 +14,7 @@ lib_LIBRARIES = ndn-cpp.a
 bin_PROGRAMS = test-encode-decode-interest
 
 ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
-  ndn-cpp/Name.cpp ndn-cpp/Name.hpp \
+  ndn-cpp/Name.cpp ndn-cpp/Name.h ndn-cpp/Name.hpp \
   ndn-cpp/data.cc ndn-cpp/data.h \
   ndn-cpp/interest.cc ndn-cpp/interest.h \
   ndn-cpp/fields/blob.h \
