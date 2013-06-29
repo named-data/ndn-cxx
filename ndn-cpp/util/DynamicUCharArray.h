@@ -7,6 +7,8 @@
 #ifndef NDN_DYNAMICUCHARARRAY_H
 #define	NDN_DYNAMICUCHARARRAY_H
 
+#include "ndn_memory.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
