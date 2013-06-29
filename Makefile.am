@@ -22,6 +22,7 @@ ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
   ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp \
+  ndn-cpp/util/DynamicUCharArray.c ndn-cpp/util/DynamicUCharArray.h \
   ndn-cpp/util/ndn_memory.c ndn-cpp/util/ndn_memory.h
 
 test_encode_decode_interest_SOURCES = test/test-encode-decode-interest.cpp
