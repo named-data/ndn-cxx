@@ -83,8 +83,8 @@ POST_UNINSTALL = :
 DIST_COMMON = $(srcdir)/aminclude.am $(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.am $(top_srcdir)/configure \
 	$(am__configure_deps) $(srcdir)/config.h.in \
-	$(dist_noinst_SCRIPTS) depcomp ar-lib config.guess config.sub \
-	install-sh missing ltmain.sh
+	$(dist_noinst_SCRIPTS) depcomp ar-lib compile config.guess \
+	config.sub install-sh missing ltmain.sh
 bin_PROGRAMS = test-encode-decode-interest$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
