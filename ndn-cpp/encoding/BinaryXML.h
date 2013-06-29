@@ -22,11 +22,11 @@ enum {
   ndn_BinaryXML_CLOSE = 0x0,
 
   ndn_BinaryXML_TT_BITS = 3,
-  ndn_BinaryXML_TT_MASK = 0x07,
+  ndn_BinaryXML_TT_MASK = ((1 << ndn_BinaryXML_TT_BITS) - 1),
   ndn_BinaryXML_TT_VALUE_BITS = 4,
-  ndn_BinaryXML_TT_VALUE_MASK = 0x0f,
+  ndn_BinaryXML_TT_VALUE_MASK = ((1 << (ndn_BinaryXML_TT_VALUE_BITS)) - 1),
   ndn_BinaryXML_REGULAR_VALUE_BITS = 7,
-  ndn_BinaryXML_REGULAR_VALUE_MASK = 0x7f,
+  ndn_BinaryXML_REGULAR_VALUE_MASK = ((1 << ndn_BinaryXML_REGULAR_VALUE_BITS) - 1),
   ndn_BinaryXML_TT_FINAL = 0x80,
 
   ndn_BinaryXML_DTag_Any = 13,
