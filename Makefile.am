@@ -17,6 +17,7 @@ ndn_cpp_a_SOURCES = ndn-cpp/common.h ndn-cpp/config.h \
   ndn-cpp/Name.cpp ndn-cpp/Name.h ndn-cpp/Name.hpp \
   ndn-cpp/encoding/BinaryXML.h \
   ndn-cpp/encoding/BinaryXMLDecoder.c ndn-cpp/encoding/BinaryXMLDecoder.h \
+  ndn-cpp/encoding/BinaryXMLEncoder.c ndn-cpp/encoding/BinaryXMLEncoder.h \
   ndn-cpp/encoding/BinaryXMLName.c ndn-cpp/encoding/BinaryXMLName.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.c ndn-cpp/encoding/BinaryXMLStructureDecoder.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
