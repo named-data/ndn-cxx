@@ -53,6 +53,12 @@ public:
     return components_.size();
   }
   
+  /**
+   * Encode this name as a URI.
+   * @return the encoded URI.
+   */
+  std::string to_uri();
+  
 private:
   std::vector<std::vector<unsigned char> > components_;
 };  
