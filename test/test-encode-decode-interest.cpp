@@ -13,7 +13,7 @@
 using namespace std;
 using namespace ndn;
 
-unsigned char Interest1[] = {
+unsigned char Name1[] = {
 #if 0
 0x01, 0xd2,
 #endif
@@ -39,24 +39,11 @@ unsigned char Interest1[] = {
 int main(int argc, char** argv)
 {
   try {
+    
     Name name;
-    name.decode(Interest1, sizeof(Interest1));
-    cout << "name N components" << name.getComponentCount() << endl;
-     
-#if 0
-    ndn::ptr_lib::shared_ptr<Interest> interest(new Interest());
-    interest->setName(Name("/test"));
-    interest->setMinSuffixComponents(2);
-    interest->setMaxSuffixComponents(2);
-    interest->setInterestLifetime(boost::posix_time::seconds(10));
-    interest->setScope(Interest::SCOPE_LOCAL_CCND);
-    interest->setAnswerOriginKind(Interest::AOK_STALE);
-    interest->setChildSelector(Interest::CHILD_RIGHT);
-    // i.setPublisherPublicKeyDigest(?);
-    ostringstream binary;
-    wire::Ccnb::appendInterest(binary, *interest);
-    cout << binary.str().size() << endl;
-#endif
+    name.decode(Name1, sizeof(Name1));
+    cout << "Name " << name.to_uri() << endl;
+    
   } catch (exception &e) {
     cout << "exception " << e.what() << endl;
   }
