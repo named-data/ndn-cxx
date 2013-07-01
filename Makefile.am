@@ -14,17 +14,17 @@ lib_LIBRARIES = libndn-c.a libndn-cpp.a
 bin_PROGRAMS = test-encode-decode-interest
 
 libndn_c_a_SOURCES = \
-  ndn-cpp/config.h \
-  ndn-cpp/Name.h \
-  ndn-cpp/encoding/BinaryXMLDecoder.c ndn-cpp/encoding/BinaryXMLDecoder.h \
-  ndn-cpp/encoding/BinaryXMLEncoder.c ndn-cpp/encoding/BinaryXMLEncoder.h \
-  ndn-cpp/encoding/BinaryXMLName.c ndn-cpp/encoding/BinaryXMLName.h \
-  ndn-cpp/encoding/BinaryXMLStructureDecoder.c ndn-cpp/encoding/BinaryXMLStructureDecoder.h \
-  ndn-cpp/util/DynamicUCharArray.c ndn-cpp/util/DynamicUCharArray.h \
-  ndn-cpp/util/ndn_memory.c ndn-cpp/util/ndn_memory.h
+  config.h \
+  ndn-cpp/c/Name.h \
+  ndn-cpp/c/encoding/BinaryXMLDecoder.c ndn-cpp/c/encoding/BinaryXMLDecoder.h \
+  ndn-cpp/c/encoding/BinaryXMLEncoder.c ndn-cpp/c/encoding/BinaryXMLEncoder.h \
+  ndn-cpp/c/encoding/BinaryXMLName.c ndn-cpp/c/encoding/BinaryXMLName.h \
+  ndn-cpp/c/encoding/BinaryXMLStructureDecoder.c ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h \
+  ndn-cpp/c/util/DynamicUCharArray.c ndn-cpp/c/util/DynamicUCharArray.h \
+  ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h
 
 libndn_cpp_a_SOURCES = \
-  ndn-cpp/config.h ndn-cpp/common.h \
+  config.h ndn-cpp/common.h \
   ndn-cpp/Name.cpp ndn-cpp/Name.h ndn-cpp/Name.hpp \
   ndn-cpp/encoding/BinaryXML.h \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \

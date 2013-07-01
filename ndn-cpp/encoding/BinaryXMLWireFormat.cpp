@@ -5,7 +5,7 @@
  */
 
 #include <stdexcept>
-#include "BinaryXMLName.h"
+#include "../c/encoding/BinaryXMLName.h"
 #include "../Name.hpp"
 #include "BinaryXMLWireFormat.hpp"
 
