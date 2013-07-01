@@ -16,9 +16,10 @@ extern "C" {
 struct ndn_DynamicUCharArray {
   unsigned char *array; /**< the allocated array buffer */
   unsigned int length;  /**< the length of the allocated array buffer */
-  unsigned char (*realloc)(unsigned char *array, unsigned int length); /**< a pointer to a function that reallocates array and returns a new buffer of
-                                                                        * length bytes or 0 for error.  The original array pointer is no longer used.
-                                                                        * This may be 0 (which causes an error if a reallocate is necessary). */
+  unsigned char * (*realloc)(unsigned char *array, unsigned int length); /**< a pointer to a function that reallocates array and returns a new pointer to a buffer of
+                                                                          * length bytes, or 0 for error.  On success, the contents of the old buffer are copied to the new one.
+                                                                          * On success, the original array pointer will no longer be used.
+                                                                          * This function pointer may be 0 (which causes an error if a reallocate is necessary). */
 };
 
 /**
@@ -29,13 +30,21 @@ struct ndn_DynamicUCharArray {
  * @param reallocFunction see ndn_DynamicUCharArray_ensureLength.  This may be 0.
  */
 static inline void ndn_DynamicUCharArray_init
-  (struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length, unsigned char (*reallocFunction)(unsigned char *, unsigned int)) 
+  (struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length, unsigned char * (*reallocFunction)(unsigned char *, unsigned int)) 
 {
   self->array = array;
   self->length = length;
   self->realloc = reallocFunction;
 }
 
+/**
+ * Do the work of ndn_DynamicUCharArray_ensureLength if realloc is necessary.
+ * If the self->realloc function pointer is null, then return an error.
+ * If not null, call self->realloc to reallocate self->array, and update self->length (which may be greater than length).
+ * @param self pointer to the ndn_DynamicUCharArray struct
+ * @param length the needed minimum size for self->length
+ * @return 0 for success, else an error string if can't reallocate the array
+ */
 char *ndn_DynamicUCharArray_reallocArray(struct ndn_DynamicUCharArray *self, unsigned int length);
 
 /**
