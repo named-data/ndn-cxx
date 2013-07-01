@@ -38,3 +38,37 @@ static unsigned int getNEncodingBytes(unsigned int x)
   
 	return nBytes;
 }
+
+char *ndn_BinaryXMLEncoder_encodeTypeAndValue(struct ndn_BinaryXMLEncoder *self, unsigned int type, unsigned int value)
+{
+	if (type > ndn_BinaryXML_UDATA)
+		return "ndn_BinaryXMLEncoder_encodeTypeAndValue: type is out of range";
+  
+	// Encode backwards. Calculate how many bytes we need.
+	unsigned int nEncodingBytes = getNEncodingBytes(value);
+  char *error;
+  if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + nEncodingBytes))
+    return error;
+
+	// Bottom 4 bits of value go in last byte with tag.
+	self->output.array[self->offset + nEncodingBytes - 1] = 
+		(ndn_BinaryXML_TT_MASK & type | 
+		((ndn_BinaryXML_TT_VALUE_MASK & value) << ndn_BinaryXML_TT_BITS)) |
+		ndn_BinaryXML_TT_FINAL; // set top bit for last byte
+	value >>= ndn_BinaryXML_TT_VALUE_BITS;
+	
+	// Rest of value goes into preceding bytes, 7 bits per byte. (Zero top bit is "more" flag.)
+	unsigned int i = self->offset + nEncodingBytes - 2;
+	while (value != 0 && i >= self->offset) {
+		self->output.array[i] = (value & ndn_BinaryXML_REGULAR_VALUE_MASK);
+		value >>= ndn_BinaryXML_REGULAR_VALUE_BITS;
+		--i;
+	}
+	if (value != 0)
+    // This should not happen if getNEncodingBytes is correct.
+		return "ndn_BinaryXMLEncoder_encodeTypeAndValue: : miscalculated N encoding bytes";
+	
+	self->offset+= nEncodingBytes;
+  
+  return 0;
+}

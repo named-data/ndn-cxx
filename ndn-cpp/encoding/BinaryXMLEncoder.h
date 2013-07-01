@@ -34,6 +34,8 @@ static inline void ndn_BinaryXMLEncoder_init
   self->offset = 0;
 }
 
+char *ndn_BinaryXMLEncoder_encodeTypeAndValue(struct ndn_BinaryXMLEncoder *self, unsigned int type, unsigned int value);
+
 #ifdef	__cplusplus
 }
 #endif
