@@ -57,7 +57,7 @@ char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self,
   return 0;
 }
 
-char *ndn_BinaryXMLDecoder_readDTag(struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag)
+char *ndn_BinaryXMLDecoder_readElementStartDTag(struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag)
 {
   char *error;
   unsigned int type;
@@ -66,10 +66,10 @@ char *ndn_BinaryXMLDecoder_readDTag(struct ndn_BinaryXMLDecoder *self, unsigned 
     return error;
   
   if (type != ndn_BinaryXML_DTAG)
-    return "ndn_BinaryXMLDecoder_readDTag: header type is not a DTAG";
+    return "ndn_BinaryXMLDecoder_readElementStartDTag: header type is not a DTAG";
   
   if (value != expectedTag)
-    return "ndn_BinaryXMLDecoder_readDTag: did not get the expected DTAG";
+    return "ndn_BinaryXMLDecoder_readElementStartDTag: did not get the expected DTAG";
   
   return 0;
 }
@@ -80,7 +80,7 @@ char *ndn_BinaryXMLDecoder_readElementClose(struct ndn_BinaryXMLDecoder *self)
     return "ndn_BinaryXMLDecoder_readElementClose: read past the end of the input";
   
   if (unsafeReadOctet(self) != ndn_BinaryXML_CLOSE)
-    return "ndn_BinaryXMLDecoder_readDTag: did not get the expected element close";
+    return "ndn_BinaryXMLDecoder_readElementStartDTag: did not get the expected element close";
   
   return 0;
 }
@@ -116,7 +116,7 @@ char *ndn_BinaryXMLDecoder_readBinaryDTagElement
   (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int allowNull, unsigned char **value, unsigned int *valueLen)
 {
   char *error;
-  if (error = ndn_BinaryXMLDecoder_readDTag(self, expectedTag))
+  if (error = ndn_BinaryXMLDecoder_readElementStartDTag(self, expectedTag))
     return error;
   
   if (allowNull) {

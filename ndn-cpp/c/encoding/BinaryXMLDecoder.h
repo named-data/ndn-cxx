@@ -40,7 +40,7 @@ char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self,
  * @param expectedTag the expected value for DTAG
  * @return 0 for success, else an error string, including an error if not the expected tag
  */
-char *ndn_BinaryXMLDecoder_readDTag(struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag);
+char *ndn_BinaryXMLDecoder_readElementStartDTag(struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag);
 
 /**
  * Read one byte from self's input starting at offset, expecting it to be the element close.

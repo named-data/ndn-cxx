@@ -8,10 +8,13 @@
 #define	NDN_BINARYXMLNAME_H
 
 #include "../Name.h"
+#include "../util/DynamicUCharArray.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
+
+char *ndn_encodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLEncoder *encoder);
 
 char *ndn_decodeBinaryXMLName(struct ndn_Name *name, unsigned char *input, unsigned int inputLength);
 

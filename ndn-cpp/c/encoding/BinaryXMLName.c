@@ -8,13 +8,18 @@
 #include "BinaryXML.h"
 #include "BinaryXMLName.h"
 
+char *ndn_encodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLEncoder *encoder)
+{
+  
+}
+
 char *ndn_decodeBinaryXMLName(struct ndn_Name *name, unsigned char *input, unsigned int inputLength)
 {
   struct ndn_BinaryXMLDecoder decoder;
   ndn_BinaryXMLDecoder_init(&decoder, input, inputLength);
   
   char *error;
-  if (error = ndn_BinaryXMLDecoder_readDTag(&decoder, ndn_BinaryXML_DTag_Name))
+  if (error = ndn_BinaryXMLDecoder_readElementStartDTag(&decoder, ndn_BinaryXML_DTag_Name))
     return error;
     
   while (1) {
