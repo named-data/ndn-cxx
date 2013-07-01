@@ -8,7 +8,7 @@
 #define	BINARYXMLSTRUCTUREDECODER_HPP
 
 #include <stdexcept>
-#include "BinaryXMLStructureDecoder.h"
+#include "../c/encoding/BinaryXMLStructureDecoder.h"
 
 namespace ndn {
   
