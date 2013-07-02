@@ -27,6 +27,7 @@ libndn_cpp_a_SOURCES = \
   config.h ndn-cpp/common.h \
   ndn-cpp/Name.cpp ndn-cpp/Name.h ndn-cpp/Name.hpp \
   ndn-cpp/encoding/BinaryXML.h \
+  ndn-cpp/encoding/BinaryXMLEncoder.hpp \
   ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
   ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp
