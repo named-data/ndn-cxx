@@ -44,17 +44,29 @@ public:
   }
   Name(const char *uri);
   
-  void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) {
+  void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) 
+  {
     wireFormat.encodeName(*this, output);
   }
-  void encode(std::vector<unsigned char> &output) {
+  void encode(std::vector<unsigned char> &output) 
+  {
     encode(output, BinaryXMLWireFormat::instance());
   }
-  void decode(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat) {
+  void decode(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat) 
+  {
     wireFormat.decodeName(*this, input, inputLength);
   }
-  void decode(const unsigned char *input, unsigned int inputLength) {
+  void decode(const unsigned char *input, unsigned int inputLength) 
+  {
     decode(input, inputLength, BinaryXMLWireFormat::instance());
+  }
+  void decode(const std::vector<unsigned char> &input, WireFormat &wireFormat) 
+  {
+    decode(&input[0], input.size(), wireFormat);
+  }
+  void decode(const std::vector<unsigned char> &input) 
+  {
+    decode(&input[0], input.size());
   }
   
   /**
