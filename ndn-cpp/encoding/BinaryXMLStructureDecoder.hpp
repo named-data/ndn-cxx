@@ -17,7 +17,8 @@ namespace ndn {
  */
 class BinaryXMLStructureDecoder {
 public:
-  BinaryXMLStructureDecoder() {
+  BinaryXMLStructureDecoder() 
+  {
     ndn_BinaryXMLStructureDecoder_init(&base_);
   }
   
@@ -29,7 +30,8 @@ public:
    * @param inputLength the number of bytes in input.
    * @return true if found the element end, false if need to read more. (This is the same as returning gotElementEnd().)
    */
-  bool findElementEnd(unsigned char *input, unsigned int inputLength) {
+  bool findElementEnd(unsigned char *input, unsigned int inputLength) 
+  {
     char *error;
     if (error = ndn_BinaryXMLStructureDecoder_findElementEnd(&base_, input, inputLength))
       throw std::runtime_error(error);
