@@ -14,7 +14,7 @@ namespace ndn {
 
 class BinaryXMLWireFormat : public WireFormat {
 public:
-  //virtual void encodeName(Name &name, std::vector<unsigned char> &output);
+  virtual void encodeName(Name &name, std::vector<unsigned char> &output);
   virtual void decodeName(Name &name, const unsigned char *input, unsigned int inputLength);
 
   //virtual void encodeInterest(Interest &interest, std::vector<unsigned char> &output);

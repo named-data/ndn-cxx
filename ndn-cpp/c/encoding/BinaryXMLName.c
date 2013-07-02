@@ -4,13 +4,27 @@
  * BSD license, See the LICENSE file for more information.
  */
 
+#include "BinaryXMLEncoder.h"
 #include "BinaryXMLDecoder.h"
-#include "BinaryXML.h"
 #include "BinaryXMLName.h"
 
 char *ndn_encodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLEncoder *encoder)
 {
+  char *error;
+  if (error = ndn_BinaryXMLEncoder_writeElementStartDTag(encoder, ndn_BinaryXML_DTag_Name))
+    return error;
   
+  unsigned int i;
+  for (i = 0; i < name->nComponents; ++i) {
+    if (error = ndn_BinaryXMLEncoder_writeBlobDTagElement
+        (encoder, ndn_BinaryXML_DTag_Component, name->components[i].value, name->components[i].valueLength))
+      return error;
+	}
+  
+	if (error = ndn_BinaryXMLEncoder_writeElementClose(encoder))
+    return error;
+  
+  return 0;
 }
 
 char *ndn_decodeBinaryXMLName(struct ndn_Name *name, unsigned char *input, unsigned int inputLength)

@@ -39,10 +39,15 @@ unsigned char Name1[] = {
 int main(int argc, char** argv)
 {
   try {
-    
     Name name;
     name.decode(Name1, sizeof(Name1));
     cout << "Name " << name.to_uri() << endl;
+    
+    vector<unsigned char> encoding;
+    name.encode(encoding);
+    unsigned char *encodingBuffer = &encoding[0];
+    unsigned int encodingLength = encoding.size();
+    cout << "Name encoding length " << encodingLength << " vs. sizeof(Name1) " << sizeof(Name1) << endl;
     
   } catch (exception &e) {
     cout << "exception " << e.what() << endl;

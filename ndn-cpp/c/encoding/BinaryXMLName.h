@@ -8,7 +8,7 @@
 #define	NDN_BINARYXMLNAME_H
 
 #include "../Name.h"
-#include "../util/DynamicUCharArray.h"
+#include "BinaryXMLEncoder.h"
 
 #ifdef	__cplusplus
 extern "C" {
