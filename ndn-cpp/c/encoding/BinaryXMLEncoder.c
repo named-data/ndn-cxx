@@ -4,6 +4,7 @@
  * BSD license, See the LICENSE file for more information.
  */
 
+#include "../util/ndn_memory.h"
 #include "BinaryXML.h"
 #include "BinaryXMLEncoder.h"
 
@@ -12,6 +13,26 @@ enum {
   ENCODING_LIMIT_2_BYTES = ((1 << (ndn_BinaryXML_TT_VALUE_BITS + ndn_BinaryXML_REGULAR_VALUE_BITS)) - 1),
   ENCODING_LIMIT_3_BYTES = ((1 << (ndn_BinaryXML_TT_VALUE_BITS + 2 * ndn_BinaryXML_REGULAR_VALUE_BITS)) - 1)
 };
+
+/**
+ * Call ndn_DynamicUCharArray_ensureLength to ensure that there is enough room in the output, and copy
+ * array to the output.  This does not write a header.
+ * @param self pointer to the ndn_BinaryXMLEncoder struct
+ * @param array the array to copy
+ * @param arrayLength the length of the array
+ * @return 0 for success, else an error string
+ */
+static char *writeArray(struct ndn_BinaryXMLEncoder *self, unsigned char *array, unsigned int arrayLength)
+{
+  char *error;
+  if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + arrayLength))
+    return error;
+  
+  ndn_memcpy(self->output.array + self->offset, array, arrayLength);
+	self->offset += arrayLength;
+  
+  return 0;
+}
 
 /**
  * Return the number of bytes to encode a header of value x.
@@ -69,6 +90,45 @@ char *ndn_BinaryXMLEncoder_encodeTypeAndValue(struct ndn_BinaryXMLEncoder *self,
 		return "ndn_BinaryXMLEncoder_encodeTypeAndValue: : miscalculated N encoding bytes";
 	
 	self->offset+= nEncodingBytes;
+  
+  return 0;
+}
+
+char *ndn_BinaryXMLEncoder_writeElementClose(struct ndn_BinaryXMLEncoder *self)
+{
+  char *error;
+  if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1))
+    return error;
+  
+	self->output.array[self->offset] = ndn_BinaryXML_CLOSE;
+	self->offset += 1;
+  
+  return 0;
+}
+
+char *ndn_BinaryXMLEncoder_writeBlob(struct ndn_BinaryXMLEncoder *self, unsigned char *value, unsigned int valueLength)
+{
+  char *error;
+  if (error = ndn_BinaryXMLEncoder_encodeTypeAndValue(self, ndn_BinaryXML_BLOB, valueLength))
+    return error;
+  
+  if (error = writeArray(self, value, valueLength))
+    return error;
+  
+  return 0;
+}
+
+char *ndn_BinaryXMLEncoder_writeBlobDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength)
+{
+  char *error;
+  if (error = ndn_BinaryXMLEncoder_writeElementStartDTag(self, tag))
+    return error;
+  
+  if (error = ndn_BinaryXMLEncoder_writeBlob(self, value, valueLength))
+    return error;  
+  
+  if (error = ndn_BinaryXMLEncoder_writeElementClose(self))
+    return error;
   
   return 0;
 }
