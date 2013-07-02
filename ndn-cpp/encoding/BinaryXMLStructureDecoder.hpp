@@ -13,8 +13,7 @@
 namespace ndn {
   
 /**
- * A BinaryXMLStructureDecoder wraps a C struct ndn_BinaryXMLStructureDecoder and
- * related functions.
+ * A BinaryXMLStructureDecoder wraps a C ndn_BinaryXMLStructureDecoder struct and related functions.
  */
 class BinaryXMLStructureDecoder {
 public:
@@ -37,8 +36,7 @@ public:
     return gotElementEnd();
   }
   
-  unsigned int getOffset() { return base_.
-          offset; }
+  unsigned int getOffset() { return base_._offset; }
   bool gotElementEnd() { return base_.gotElementEnd != 0; }
   
 private:
