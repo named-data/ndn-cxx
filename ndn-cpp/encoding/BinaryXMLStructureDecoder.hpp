@@ -38,7 +38,7 @@ public:
     return gotElementEnd();
   }
   
-  unsigned int getOffset() { return base_._offset; }
+  unsigned int getOffset() { return base_.offset; }
   bool gotElementEnd() { return base_.gotElementEnd != 0; }
   
 private:
