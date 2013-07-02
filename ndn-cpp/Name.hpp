@@ -40,6 +40,13 @@ public:
   void set(struct ndn_Name &nameStruct);
   
   /**
+   * Set the nameStruct to point to the components in this name, without copying any memory.
+   * WARNING: The resulting pointers in nameStruct are invalid after a further use of this name which could reallocate the components memory.
+   * @param nameStruct a C ndn_Name struct where the components array is already allocated.
+   */
+  void get(struct ndn_Name &nameStruct);
+  
+  /**
    * Add a new component, copying from value of length valueLength.
    */
   void addComponent(unsigned char *value, unsigned int valueLength) {

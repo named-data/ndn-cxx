@@ -19,17 +19,29 @@ Name::Name()
 void Name::set(struct ndn_Name &nameStruct) 
 {
   clear();
-  for (int i = 0; i < nameStruct.nComponents; ++i)
+  for (unsigned int i = 0; i < nameStruct.nComponents; ++i)
     addComponent(nameStruct.components[i].value, nameStruct.components[i].valueLength);  
+}
+
+void Name::get(struct ndn_Name &nameStruct) 
+{
+  if (nameStruct.maxComponents < components_.size())
+    throw runtime_error("nameStruct.maxComponents must be >= this name getNComponents()");
+  
+  nameStruct.nComponents = components_.size();
+  for (unsigned int i = 0; i < nameStruct.nComponents; ++i) {
+    nameStruct.components[i].value = &components_[i][0];
+    nameStruct.components[i].valueLength = components_[i].size();
+  }  
 }
 
 std::string Name::to_uri()
 {
   // TODO: implement fully.
   ostringstream output;
-  for (int i = 0; i < components_.size(); ++i) {
+  for (unsigned int i = 0; i < components_.size(); ++i) {
     output << "/";
-    for (int j = 0; j < components_[i].size(); ++j)
+    for (unsigned int j = 0; j < components_[i].size(); ++j)
       output << components_[i][j];
   }
   
