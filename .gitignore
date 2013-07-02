@@ -1,16 +1,13 @@
-# Compiled Object files
+# Compiled files
 *.slo
 *.lo
 *.o
-
-# Compiled Dynamic libraries
 *.so
 *.dylib
-
-# Compiled Static libraries
 *.lai
 *.la
 *.a
+bin/*
 
 # Emacs temp files
 *~

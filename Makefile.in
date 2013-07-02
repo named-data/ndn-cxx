@@ -85,7 +85,7 @@ DIST_COMMON = $(srcdir)/aminclude.am $(srcdir)/Makefile.in \
 	$(am__configure_deps) $(srcdir)/config.h.in \
 	$(dist_noinst_SCRIPTS) depcomp ar-lib compile config.guess \
 	config.sub install-sh missing ltmain.sh
-bin_PROGRAMS = test-encode-decode-interest$(EXEEXT)
+bin_PROGRAMS = bin/test-encode-decode-interest$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -148,11 +148,11 @@ am_libndn_cpp_a_OBJECTS = ndn-cpp/Name.$(OBJEXT) \
 	ndn-cpp/encoding/WireFormat.$(OBJEXT)
 libndn_cpp_a_OBJECTS = $(am_libndn_cpp_a_OBJECTS)
 PROGRAMS = $(bin_PROGRAMS)
-am_test_encode_decode_interest_OBJECTS =  \
+am_bin_test_encode_decode_interest_OBJECTS =  \
 	test/test-encode-decode-interest.$(OBJEXT)
-test_encode_decode_interest_OBJECTS =  \
-	$(am_test_encode_decode_interest_OBJECTS)
-test_encode_decode_interest_DEPENDENCIES = libndn-c.a libndn-cpp.a
+bin_test_encode_decode_interest_OBJECTS =  \
+	$(am_bin_test_encode_decode_interest_OBJECTS)
+bin_test_encode_decode_interest_DEPENDENCIES = libndn-c.a libndn-cpp.a
 SCRIPTS = $(dist_noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -196,9 +196,9 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(libndn_c_a_SOURCES) $(libndn_cpp_a_SOURCES) \
-	$(test_encode_decode_interest_SOURCES)
+	$(bin_test_encode_decode_interest_SOURCES)
 DIST_SOURCES = $(libndn_c_a_SOURCES) $(libndn_cpp_a_SOURCES) \
-	$(test_encode_decode_interest_SOURCES)
+	$(bin_test_encode_decode_interest_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -405,8 +405,8 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
   ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp
 
-test_encode_decode_interest_SOURCES = test/test-encode-decode-interest.cpp
-test_encode_decode_interest_LDADD = libndn-c.a libndn-cpp.a
+bin_test_encode_decode_interest_SOURCES = test/test-encode-decode-interest.cpp
+bin_test_encode_decode_interest_LDADD = libndn-c.a libndn-cpp.a
 dist_noinst_SCRIPTS = autogen.sh
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -603,10 +603,13 @@ test/$(DEPDIR)/$(am__dirstamp):
 	@: > test/$(DEPDIR)/$(am__dirstamp)
 test/test-encode-decode-interest.$(OBJEXT): test/$(am__dirstamp) \
 	test/$(DEPDIR)/$(am__dirstamp)
+bin/$(am__dirstamp):
+	@$(MKDIR_P) bin
+	@: > bin/$(am__dirstamp)
 
-test-encode-decode-interest$(EXEEXT): $(test_encode_decode_interest_OBJECTS) $(test_encode_decode_interest_DEPENDENCIES) $(EXTRA_test_encode_decode_interest_DEPENDENCIES) 
-	@rm -f test-encode-decode-interest$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(test_encode_decode_interest_OBJECTS) $(test_encode_decode_interest_LDADD) $(LIBS)
+bin/test-encode-decode-interest$(EXEEXT): $(bin_test_encode_decode_interest_OBJECTS) $(bin_test_encode_decode_interest_DEPENDENCIES) $(EXTRA_bin_test_encode_decode_interest_DEPENDENCIES) bin/$(am__dirstamp)
+	@rm -f bin/test-encode-decode-interest$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(bin_test_encode_decode_interest_OBJECTS) $(bin_test_encode_decode_interest_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -910,6 +913,7 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f bin/$(am__dirstamp)
 	-rm -f ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 	-rm -f ndn-cpp/$(am__dirstamp)
 	-rm -f ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)

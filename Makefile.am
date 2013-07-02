@@ -11,7 +11,7 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 lib_LIBRARIES = libndn-c.a libndn-cpp.a
 
-bin_PROGRAMS = test-encode-decode-interest
+bin_PROGRAMS = bin/test-encode-decode-interest
 
 libndn_c_a_SOURCES = \
   config.h \
@@ -32,7 +32,7 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
   ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp
 
-test_encode_decode_interest_SOURCES = test/test-encode-decode-interest.cpp
-test_encode_decode_interest_LDADD = libndn-c.a libndn-cpp.a
+bin_test_encode_decode_interest_SOURCES = test/test-encode-decode-interest.cpp
+bin_test_encode_decode_interest_LDADD = libndn-c.a libndn-cpp.a
 
 dist_noinst_SCRIPTS = autogen.sh
