@@ -25,6 +25,7 @@ bin/*
 *.Po
 .deps
 .dirstamp
+*.tar.gz
 
 # Doxygen output
 /doc/html
