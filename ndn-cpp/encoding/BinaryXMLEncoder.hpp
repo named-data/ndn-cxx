@@ -9,6 +9,7 @@
 
 #include <cstdlib>
 #include <stdexcept>
+#include <vector>
 #include "../c/encoding/BinaryXMLEncoder.h"
 
 namespace ndn {
@@ -43,6 +44,15 @@ public:
    * @return 
    */
   struct ndn_BinaryXMLEncoder *getEncoder() { return &base_; }
+  
+  /**
+   * Copy the encoded bytes to the end of the buffer.
+   * @param buffer a vector to receive the copy
+   */
+  void appendTo(std::vector<unsigned char> &buffer) 
+  {
+    buffer.insert(buffer.end(), base_.output.array, base_.output.array + base_.offset);
+  }
   
 private:
   struct ndn_BinaryXMLEncoder base_;

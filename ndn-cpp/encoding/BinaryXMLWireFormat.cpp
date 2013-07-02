@@ -25,8 +25,8 @@ void BinaryXMLWireFormat::encodeName(Name &name, vector<unsigned char> &output)
 
   BinaryXMLEncoder encoder;
   ndn_encodeBinaryXMLName(&nameStruct, encoder.getEncoder());
-          
-  output.insert(output.end(), encoder.getEncoder()->output.array, encoder.getEncoder()->output.array + encoder.getEncoder()->offset);
+     
+  encoder.appendTo(output);
 }
 
 void BinaryXMLWireFormat::decodeName(Name &name, const unsigned char *input, unsigned int inputLength)
