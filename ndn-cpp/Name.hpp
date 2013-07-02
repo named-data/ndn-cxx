@@ -11,6 +11,8 @@
 #include "common.h"
 #include "encoding/BinaryXMLWireFormat.hpp"
 
+extern "C" { struct ndn_Name; }
+
 namespace ndn {
   
 class Name {
@@ -30,6 +32,12 @@ public:
   void decode(const unsigned char *input, unsigned int inputLength) {
     decode(input, inputLength, BinaryXMLWireFormat::instance());
   }
+  
+  /**
+   * Clear the name, and set the components by copying from the name struct.
+   * @param name a C ndn_Name struct
+   */
+  void set(struct ndn_Name &nameStruct);
   
   /**
    * Add a new component, copying from value of length valueLength.
