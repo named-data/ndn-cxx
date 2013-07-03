@@ -8,6 +8,7 @@
 #define	NDN_NAME_HPP
 
 #include <vector>
+#include <string>
 #include "common.h"
 #include "c/Name.h"
 #include "encoding/BinaryXMLWireFormat.hpp"
@@ -16,6 +17,10 @@ namespace ndn {
   
 class NameComponent {
 public:
+  NameComponent() 
+  {    
+  }
+  
   NameComponent(unsigned char * value, unsigned int valueLen) 
   : value_(value, value + valueLen)
   {
@@ -32,6 +37,16 @@ public:
     componentStruct.valueLength = value_.size(); 
   }
   
+  /**
+   * Set this component value by decoding the escapedString between first and last according to the NDN URI Scheme.
+   * If the escaped string is "", "." or ".." then return false, which means this component value was not changed, and
+   * the component should be skipped in a URI name.
+   * @param first pointer to the beginning of the escaped string
+   * @param last pointer to the first character past the end of the escaped string
+   * @return true for success, false if escapedString is not a valid escaped component.
+   */
+  bool setFromEscapedString(const char *first, const char *last);
+  
   const std::vector<unsigned char> &getValue() const { return value_; }
   
 private:
@@ -40,8 +55,16 @@ private:
   
 class Name {
 public:
+  /**
+   * Create a new Name with no components.
+   */
   Name() {
   }
+  
+  /**
+   * Parse the uri according to the NDN URI Scheme and create the name with the components.
+   * @param uri the URI string.
+   */
   Name(const char *uri);
   
   void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) 
@@ -103,6 +126,8 @@ public:
   unsigned int getComponentCount() {
     return components_.size();
   }
+  
+  const NameComponent &getComponent(unsigned int i) const { return components_[i]; }
   
   /**
    * Encode this name as a URI.

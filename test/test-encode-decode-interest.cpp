@@ -48,7 +48,6 @@ int main(int argc, char** argv)
     unsigned char *encodingBuffer = &encoding[0];
     unsigned int encodingLength = encoding.size();
     cout << "Name encoding length " << encodingLength << " vs. sizeof(Name1) " << sizeof(Name1) << endl;
-    
   } catch (exception &e) {
     cout << "exception " << e.what() << endl;
   }

@@ -99,7 +99,7 @@ static void trim(string &str)
   trimLeft(str);
   trimRight(str);
 }
-  
+
 /**
  * Convert the hex character to an integer from 0 to 15, or -1 if not a hex character.
  * @param c
@@ -145,6 +145,85 @@ static string unescape(const string &str)
   }
   
   return result.str();
+}
+
+bool NameComponent::setFromEscapedString(const char *first, const char *last)
+{
+  string trimmedString(first, last);
+  trim(trimmedString);
+  string component = unescape(trimmedString);
+        
+  if (component.find_first_not_of(".") == string::npos) {
+    // Special case for component of only periods.  
+    if (component.size() <= 2)
+      // Zero, one or two periods is illegal.  Ignore this component.
+      return false;
+    else {
+      // Remove 3 periods.
+      value_.clear();
+      value_.insert(value_.begin(), component.begin() + 3, component.end()); 
+    }
+  }
+  else {
+    value_.clear();
+    value_.insert(value_.begin(), component.begin(), component.end()); 
+  }
+  
+  return true;
+}
+
+Name::Name(const char *uri_cstr) 
+{
+  string uri = uri_cstr;
+  trim(uri);
+  if (uri.size() == 0)
+    return;
+
+  size_t iColon = uri.find(':');
+  if (iColon != string::npos) {
+    // Make sure the colon came before a '/'.
+    size_t iFirstSlash = uri.find('/');
+    if (iFirstSlash == string::npos || iColon < iFirstSlash) {
+      // Omit the leading protocol such as ndn:
+      uri.erase(0, iColon + 1);
+      trim(uri);
+    }
+  }
+    
+  // Trim the leading slash and possibly the authority.
+  if (uri[0] == '/') {
+    if (uri.size() >= 2 && uri[1] == '/') {
+      // Strip the authority following "//".
+      size_t iAfterAuthority = uri.find('/', 2);
+      if (iAfterAuthority == string::npos)
+        // Unusual case: there was only an authority.
+        return;
+      else {
+        uri.erase(0, iAfterAuthority + 1);
+        trim(uri);
+      }
+    }
+    else {
+      uri.erase(0, 1);
+      trim(uri);
+    }
+  }
+
+  size_t iComponentStart = 0;
+  
+  // Unescape the components.
+  while (iComponentStart < uri.size()) {
+    size_t iComponentEnd = uri.find("/", iComponentStart);
+    if (iComponentEnd == string::npos)
+      iComponentEnd = uri.size();
+    
+    components_.push_back(NameComponent());
+    if (!components_[components_.size() - 1].setFromEscapedString(&uri[iComponentStart], &uri[iComponentEnd]))
+      // Ignore the illegal component.  This also gets rid of a trailing '/'.
+      components_.pop_back();
+    
+    iComponentStart = iComponentEnd + 1;
+  }
 }
 
 void Name::get(struct ndn_Name &nameStruct) 
