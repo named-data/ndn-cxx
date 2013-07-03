@@ -55,7 +55,98 @@ static void toEscapedString(const vector<unsigned char> &value, ostringstream &r
     result.flags(saveFlags);
   }  
 }
+
+static const char *WHITESPACE_CHARS = " \n\r\t";
+
+/**
+ * Modify str in place to erase whitespace on the left.
+ * @param str
+ */
+static inline void trimLeft(string &str)
+{
+  size_t found = str.find_first_not_of(WHITESPACE_CHARS);
+  if (found != string::npos) {
+    if (found > 0)
+      str.erase(0, found);
+  }
+  else
+    // All whitespace
+    str.clear();    
+}
+
+/**
+ * Modify str in place to erase whitespace on the right.
+ * @param str
+ */
+static inline void trimRight(string &str)
+{
+  size_t found = str.find_last_not_of(WHITESPACE_CHARS);
+  if (found != string::npos) {
+    if (found + 1 < str.size())
+      str.erase(found + 1);
+  }
+  else
+    // All whitespace
+    str.clear();
+}
+
+/**
+ * Modify str in place to erase whitespace on the left and right.
+ * @param str
+ */
+static void trim(string &str)
+{
+  trimLeft(str);
+  trimRight(str);
+}
   
+/**
+ * Convert the hex character to an integer from 0 to 15, or -1 if not a hex character.
+ * @param c
+ * @return 
+ */
+static int fromHexChar(unsigned char c)
+{
+  if (c >= '0' && c <= '9')
+    return (int)c - (int)'0';
+  else if (c >= 'A' && c <= 'F')
+    return (int)c - (int)'A' + 10;
+  else if (c >= 'a' && c <= 'f')
+    return (int)c - (int)'a' + 10;
+  else
+    return -1;
+}
+
+/**
+ * Return a copy of str, converting each escaped "%XX" to the char value.
+ * @param str
+ */
+static string unescape(const string &str)
+{
+  ostringstream result;
+  
+  for (unsigned int i = 0; i < str.size(); ++i) {
+    if (str[i] == '%' && i + 2 < str.size()) {
+      int hi = fromHexChar(str[i + 1]);
+      int lo = fromHexChar(str[i + 2]);
+      
+      if (hi < 0 || lo < 0)
+        // Invalid hex characters, so just keep the escaped string.
+        result << str[i] << str[i + 1] << str[i + 2];
+      else
+        result << (unsigned char)(16 * hi + lo);
+      
+      // Skip ahead past the escaped value.
+      i += 2;
+    }
+    else
+      // Just copy through.
+      result << str[i];
+  }
+  
+  return result.str();
+}
+
 void Name::get(struct ndn_Name &nameStruct) 
 {
   if (nameStruct.maxComponents < components_.size())
