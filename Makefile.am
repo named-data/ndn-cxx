@@ -15,10 +15,12 @@ bin_PROGRAMS = bin/test-encode-decode-interest
 
 libndn_c_a_SOURCES = \
   config.h \
+  ndn-cpp/c/Interest.h \
   ndn-cpp/c/Name.h \
   ndn-cpp/c/encoding/BinaryXML.h \
   ndn-cpp/c/encoding/BinaryXMLDecoder.c ndn-cpp/c/encoding/BinaryXMLDecoder.h \
   ndn-cpp/c/encoding/BinaryXMLEncoder.c ndn-cpp/c/encoding/BinaryXMLEncoder.h \
+  ndn-cpp/c/encoding/BinaryXMLInterest.c ndn-cpp/c/encoding/BinaryXMLInterest.h \
   ndn-cpp/c/encoding/BinaryXMLName.c ndn-cpp/c/encoding/BinaryXMLName.h \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.c ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h \
   ndn-cpp/c/util/DynamicUCharArray.c ndn-cpp/c/util/DynamicUCharArray.h \
@@ -26,6 +28,7 @@ libndn_c_a_SOURCES = \
 
 libndn_cpp_a_SOURCES = \
   config.h ndn-cpp/common.h \
+  ndn-cpp/Interest.cpp ndn-cpp/c/Interest.h ndn-cpp/Interest.hpp \
   ndn-cpp/Name.cpp ndn-cpp/c/Name.h ndn-cpp/Name.hpp \
   ndn-cpp/c/encoding/BinaryXML.h \
   ndn-cpp/c/encoding/BinaryXMLEncoder.h ndn-cpp/encoding/BinaryXMLEncoder.hpp ndn-cpp/c/util/DynamicUCharArray.h \
