@@ -27,18 +27,15 @@ char *ndn_encodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLEncoder
   return 0;
 }
 
-char *ndn_decodeBinaryXMLName(struct ndn_Name *name, unsigned char *input, unsigned int inputLength)
+char *ndn_decodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLDecoder *decoder)
 {
-  struct ndn_BinaryXMLDecoder decoder;
-  ndn_BinaryXMLDecoder_init(&decoder, input, inputLength);
-  
   char *error;
-  if (error = ndn_BinaryXMLDecoder_readElementStartDTag(&decoder, ndn_BinaryXML_DTag_Name))
+  if (error = ndn_BinaryXMLDecoder_readElementStartDTag(decoder, ndn_BinaryXML_DTag_Name))
     return error;
     
   while (1) {
     int gotExpectedTag;
-    if (error = ndn_BinaryXMLDecoder_peekDTag(&decoder, ndn_BinaryXML_DTag_Component, &gotExpectedTag))
+    if (error = ndn_BinaryXMLDecoder_peekDTag(decoder, ndn_BinaryXML_DTag_Component, &gotExpectedTag))
       return error;
     
     if (!gotExpectedTag)
@@ -47,7 +44,7 @@ char *ndn_decodeBinaryXMLName(struct ndn_Name *name, unsigned char *input, unsig
     
     unsigned char *component;
     unsigned int componentLen;
-    if (error = ndn_BinaryXMLDecoder_readBinaryDTagElement(&decoder, ndn_BinaryXML_DTag_Component, 0, &component, &componentLen))
+    if (error = ndn_BinaryXMLDecoder_readBinaryDTagElement(decoder, ndn_BinaryXML_DTag_Component, 0, &component, &componentLen))
       return error;
     
     // Add the component to the name.
@@ -57,7 +54,7 @@ char *ndn_decodeBinaryXMLName(struct ndn_Name *name, unsigned char *input, unsig
     ++name->nComponents;
   }
   
-  if (error = ndn_BinaryXMLDecoder_readElementClose(&decoder))
+  if (error = ndn_BinaryXMLDecoder_readElementClose(decoder))
     return error;
   
   return 0;
