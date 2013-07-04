@@ -100,8 +100,8 @@ public:
   void get(struct ndn_Name &nameStruct);
   
   /**
-   * Clear the name, and set the components by copying from the name struct.
-   * @param name a C ndn_Name struct
+   * Clear this name, and set the components by copying from the name struct.
+   * @param nameStruct a C ndn_Name struct
    */
   void set(struct ndn_Name &nameStruct);
   
