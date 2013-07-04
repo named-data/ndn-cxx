@@ -11,17 +11,29 @@
 extern "C" {
 #endif
   
+/**
+ * An ndn_NameComponent holds a pointer to the component value.
+ */
 struct ndn_NameComponent {
-  unsigned char *value;     /**< pointer to the component value */
+  unsigned char *value;     /**< pointer to the pre-allocated buffer for the component value */
   unsigned int valueLength; /**< the number of bytes in value */
 };
 
+/**
+ * 
+ * @param self pointer to the ndn_NameComponent struct
+ * @param value the pre-allocated buffer for the component value
+ * @param valueLength the number of bytes in value
+ */
 static inline void ndn_NameComponent_init(struct ndn_NameComponent *self, unsigned char *value, unsigned int valueLength) 
 {
   self->value = value;
   self->valueLength = valueLength;
 }
   
+/**
+ * An ndn_Name holds an array of ndn_NameComponent.
+ */
 struct ndn_Name {
   struct ndn_NameComponent *components; /**< pointer to the array of components. */
   unsigned int maxComponents;           /**< the number of elements in the allocated components array */
@@ -31,7 +43,7 @@ struct ndn_Name {
 /**
  * Initialize an ndn_Name struct with the components array.
  * @param self pointer to the ndn_Name struct
- * @param components the array of ndn_NameComponent already allocated
+ * @param components the pre-allocated array of ndn_NameComponent
  * @param maxComponents the number of elements in the allocated components array
  */
 static inline void ndn_Name_init(struct ndn_Name *self, struct ndn_NameComponent *components, unsigned int maxComponents) 
