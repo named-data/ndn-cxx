@@ -6,7 +6,8 @@
 
 #include <stdexcept>
 #include "../c/encoding/BinaryXMLName.h"
-#include "../Name.hpp"
+#include "../c/encoding/BinaryXMLInterest.h"
+#include "../Interest.hpp"
 #include "BinaryXMLEncoder.hpp"
 #include "BinaryXMLWireFormat.hpp"
 
@@ -40,6 +41,19 @@ void BinaryXMLWireFormat::decodeName(Name &name, const unsigned char *input, uns
     throw std::runtime_error(error);
 
   name.set(nameStruct);
+}
+
+void BinaryXMLWireFormat::decodeInterest(Interest &interest, const unsigned char *input, unsigned int inputLength)
+{
+  struct ndn_NameComponent components[100];
+  struct ndn_Interest interestStruct;
+  ndn_Interest_init(&interestStruct, components, sizeof(components) / sizeof(components[0]));
+    
+  char *error;
+  if (error = ndn_decodeBinaryXMLInterest(&interestStruct, (unsigned char *)input, inputLength))
+    throw std::runtime_error(error);
+
+  interest.set(interestStruct);
 }
 
 }
