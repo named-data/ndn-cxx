@@ -15,7 +15,7 @@ extern "C" {
 
 char *ndn_encodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_BinaryXMLEncoder *encoder);
 
-char *ndn_decodeBinaryXMLInterest(struct ndn_Interest *interest, unsigned char *input, unsigned int inputLength);
+char *ndn_decodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_BinaryXMLDecoder *decoder);
 
 #ifdef	__cplusplus
 }
