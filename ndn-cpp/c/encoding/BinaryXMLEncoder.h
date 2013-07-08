@@ -86,12 +86,23 @@ ndn_Error ndn_BinaryXMLEncoder_writeBlob(struct ndn_BinaryXMLEncoder *self, unsi
 ndn_Error ndn_BinaryXMLEncoder_writeBlobDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength);
 
 /**
- * Write a UDATA header, then the value as an unsigned decimal int.
+ * Write a UDATA header, then the value as an unsigned decimal integer.
  * @param self pointer to the ndn_BinaryXMLEncoder struct
  * @param value the unsigned int
  * @return 0 for success, else an error code
  */
 ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalInt(struct ndn_BinaryXMLEncoder *self, unsigned int value);
+
+/**
+ * Write an element start header using DTAG with the tag to self->output, then the value as an unsigned decimal integer, 
+ * then an element close.
+ * (If you want to just write the integer, use ndn_BinaryXMLEncoder_writeUnsignedDecimalInt .)
+ * @param self pointer to the ndn_BinaryXMLEncoder struct
+ * @param tag the DTAG tag
+ * @param value the unsigned int
+ * @return 0 for success, else an error code
+ */
+ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, unsigned int value);
 
 #ifdef	__cplusplus
 }

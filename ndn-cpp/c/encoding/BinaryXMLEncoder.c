@@ -200,6 +200,7 @@ ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalInt(struct ndn_BinaryXMLEncod
     return error;
   
   // Don't use memcpy to shift because its behavior is not guaranteed when the buffers overlap.
+  // We are shifting forward, so start from the end of the buffer.
   unsigned char *source = self->output.array + startOffset + nIntegerBytes - 1;
   unsigned char *dest = source + nHeaderBytes;
   unsigned char *sourceFinal = self->output.array + startOffset;
@@ -212,6 +213,21 @@ ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalInt(struct ndn_BinaryXMLEncod
     // We don't really expect to get an error, since we have already ensured the length.
     return error;
   self->offset = startOffset + nHeaderBytes + nIntegerBytes;
+  
+  return 0;
+}
+
+ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, unsigned int value)
+{
+  ndn_Error error;
+  if (error = ndn_BinaryXMLEncoder_writeElementStartDTag(self, tag))
+    return error;
+  
+  if (error = ndn_BinaryXMLEncoder_writeUnsignedDecimalInt(self, value))
+    return error;  
+  
+  if (error = ndn_BinaryXMLEncoder_writeElementClose(self))
+    return error;
   
   return 0;
 }
