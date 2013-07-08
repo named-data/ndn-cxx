@@ -78,6 +78,44 @@ char *ndn_BinaryXMLDecoder_readBinaryDTagElement
   (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int allowNull, unsigned char **value, unsigned int *valueLen);
 
 /**
+ * Decode the header from self's input starting at offset, expecting the type to be DTAG and the value to be expectedTag.
+ * Then read one item expecting it to be type UDATA, and return the item's value and length.
+ * Finally, read the element close.  Update offset.
+ * @param self pointer to the ndn_BinaryXMLDecoder struct
+ * @param expectedTag the expected value for DTAG
+ * @param value output a pointer to the binary data inside self's input buffer.
+ * @param valueLen output the length of the binary data.
+ * @return 0 for success, else an error string, including an error if not the expected tag, or if the item is not UDATA.
+ */
+char *ndn_BinaryXMLDecoder_readUDataDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, unsigned char **value, unsigned int *valueLen);
+
+/**
+ * Decode the header from self's input starting at offset, expecting the type to be DTAG and the value to be expectedTag.
+ * Then read one item expecting it to be type UDATA, parse it as an unsigned decimal integer and return the integer.
+ * Finally, read the element close.  Update offset.
+ * @param self pointer to the ndn_BinaryXMLDecoder struct
+ * @param expectedTag the expected value for DTAG
+ * @param value output the unsigned integer
+ * @return 0 for success, else an error string, including an error if not the expected tag, or if the item is not UDATA,
+ * or can't parse the integer
+ */
+char *ndn_BinaryXMLDecoder_readUnsignedIntegerDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, unsigned int *value);
+
+/**
+ * Peek at the next element, and if it has the expectedTag then call ndn_BinaryXMLDecoder_readUnsignedIntegerDTagElement.
+ * Otherwise, set value to -1.
+ * @param self pointer to the ndn_BinaryXMLDecoder struct
+ * @param expectedTag the expected value for DTAG
+ * @param value output the unsigned integer cast to int, or -1 if the next element doesn't have expectedTag.
+ * @return 0 for success, else an error string, including an error if the item is not UDATA,
+ * or can't parse the integer
+ */
+char *ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int *value);
+
+/**
  * Set the offset into the input, used for the next read.
  * @param self pointer to the ndn_BinaryXMLDecoder struct
  * @param offset the new offset

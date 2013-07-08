@@ -25,6 +25,32 @@ static inline unsigned int unsafeGetOctet(struct ndn_BinaryXMLDecoder *self)
   return (unsigned int)(self->input[self->offset] & 0xff);  
 }
 
+/**
+ * Parse the value as a decimal unsigned integer.  This does not check for whitespace or + sign.
+ * If valueLength is 0, this succeeds with resultOut 0.
+ * @param value
+ * @param valueLength
+ * @param resultOut output the parsed integer.
+ * @return 0 for success, else an error string, including if an element of value is not a decimal digit.
+ */
+static char *parseUnsignedDecimalInt(unsigned char *value, unsigned int valueLength, unsigned int *resultOut)
+{
+  unsigned int result = 0;
+  
+  unsigned int i;
+  for (i = 0; i < valueLength; ++i) {
+    unsigned char digit = value[i];
+    if (!(digit >= '0' && digit <= '9'))
+      return "parseUnsignedDecimalInt: element of value is not a decimal digit";
+
+    result *= 10;
+    result += (unsigned int)(digit - '0');
+  }
+    
+  *resultOut = result;
+  return 0;
+}
+
 char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self, unsigned int *type, unsigned int *valueOut) 
 {
   unsigned int value = 0;
@@ -142,5 +168,62 @@ char *ndn_BinaryXMLDecoder_readBinaryDTagElement
   if (error = ndn_BinaryXMLDecoder_readElementClose(self))
     return error;
   
+  return 0;
+}
+
+char *ndn_BinaryXMLDecoder_readUDataDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, unsigned char **value, unsigned int *valueLen)
+{
+  char *error;
+  if (error = ndn_BinaryXMLDecoder_readElementStartDTag(self, expectedTag))
+    return error;
+    
+  unsigned int itemType;
+  if (error = ndn_BinaryXMLDecoder_decodeTypeAndValue(self, &itemType, valueLen))
+    return error;
+  if (itemType != ndn_BinaryXML_UDATA)
+    return "ndn_BinaryXMLDecoder_readUDataDTagElement: item is not UDATA";
+  *value = self->input + self->offset;
+  self->offset += *valueLen;
+  
+  if (error = ndn_BinaryXMLDecoder_readElementClose(self))
+    return error;
+  
+  return 0;
+}
+
+char *ndn_BinaryXMLDecoder_readUnsignedIntegerDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, unsigned int *value)
+{
+  unsigned char *udataValue;
+  unsigned int udataValueLength;
+  char *error;
+  if (error = ndn_BinaryXMLDecoder_readUDataDTagElement(self, expectedTag, &udataValue, &udataValueLength))
+    return error;
+  
+  if (error = parseUnsignedDecimalInt(udataValue, udataValueLength, value))
+    return error;
+  
+  return 0;
+}
+
+char *ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int *value)
+{
+  int gotExpectedTag;
+  char *error;
+  if (error = ndn_BinaryXMLDecoder_peekDTag(self, expectedTag, &gotExpectedTag))
+    return error;
+    
+  if (!gotExpectedTag) {
+    value = -1;
+    return 0;
+  }
+
+  unsigned int unsignedValue;
+  if (error = ndn_BinaryXMLDecoder_readUnsignedIntegerDTagElement(self, expectedTag, &unsignedValue))
+    return error;
+  
+  *value = (int)unsignedValue;
   return 0;
 }
