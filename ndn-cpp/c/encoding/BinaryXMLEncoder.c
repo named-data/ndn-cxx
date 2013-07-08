@@ -1,5 +1,6 @@
 /**
  * @author: Jeff Thompson
+ * Derived from BinaryXMLEncoder.js by Meki Cheraoui.
  * See COPYING for copyright and distribution information.
  */
 
