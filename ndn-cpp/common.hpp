@@ -1,13 +1,6 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
-/*
- * Copyright (c) 2013, Regents of the University of California
- *                     Alexander Afanasyev
- *                     Zhenkai Zhu
- *
- * BSD license, See the LICENSE file for more information
- *
- * Author: Zhenkai Zhu <zhenkai@cs.ucla.edu>
- *         Alexander Afanasyev <alexander.afanasyev@ucla.edu>
+/**
+ * @author: Jeff Thompson
+ * See COPYING for copyright and distribution information.
  */
 
 #ifndef NDN_COMMON_HPP

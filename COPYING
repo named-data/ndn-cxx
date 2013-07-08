@@ -1,10 +1,8 @@
-Copyright (c) 2013, Regents of the University of California
-Copyright (c) 2013, Alexander Afanasyev
-Copyright (c) 2013, Zhenkai Zhu
-                    
+Copyright (c) 2012, Regents of the University of California
 All rights reserved.
-Written by: Alexander Afanasyev <alexander.afanasyev@ucla.edu>
-            Zhenkai Zhu <zhenkai@cs.ucla.edu>
+
+Authors of individual source files and components are listed in the
+respective files.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -28,3 +26,4 @@ OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+

@@ -1,9 +1,7 @@
-/* 
- * Author: Jeff Thompson
- *
- * BSD license, See the LICENSE file for more information.
+/**
+ * @author: Jeff Thompson
+ * See COPYING for copyright and distribution information.
  */
-
 
 #ifndef NDN_BINARYXMLWIREFORMAT_HPP
 #define	NDN_BINARYXMLWIREFORMAT_HPP

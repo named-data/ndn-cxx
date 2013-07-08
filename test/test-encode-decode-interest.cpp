@@ -1,8 +1,6 @@
-/* 
- * File:   test-no-boost.cpp
- * Author: jefft0
- *
- * Created on June 10, 2013, 4:21 PM
+/**
+ * @author: Jeff Thompson
+ * See COPYING for copyright and distribution information.
  */
 
 #include <cstdlib>
