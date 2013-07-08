@@ -14,8 +14,8 @@ extern "C" {
 
 struct ndn_Interest {
   struct ndn_Name name;
-	int maxSuffixComponents;  /**< -1 for none */
 	int minSuffixComponents;  /**< -1 for none */
+	int maxSuffixComponents;  /**< -1 for none */
 	unsigned char *publisherPublicKeyDigest;      /**< pointer to pre-allocated buffer.  0 for none */
   unsigned int publisherPublicKeyDigestLength; /**< length of publisherPublicKeyDigest.  0 for none */
 	// TODO: implement exclude
@@ -30,8 +30,8 @@ struct ndn_Interest {
 static inline void ndn_Interest_init(struct ndn_Interest *self, struct ndn_NameComponent *nameComponents, unsigned int maxNameComponents) 
 {
   ndn_Name_init(&self->name, nameComponents, maxNameComponents);
-  self->maxSuffixComponents = -1;
 	self->minSuffixComponents = -1;
+  self->maxSuffixComponents = -1;
 	self->publisherPublicKeyDigest = 0;
 	self->publisherPublicKeyDigestLength = 0;
 	// TODO: implement exclude

@@ -12,8 +12,8 @@ namespace ndn {
 void Interest::set(struct ndn_Interest &interestStruct) 
 {
   name_.set(interestStruct.name);
-	maxSuffixComponents_ = interestStruct.maxSuffixComponents;
 	minSuffixComponents_ = interestStruct.minSuffixComponents;
+	maxSuffixComponents_ = interestStruct.maxSuffixComponents;
 	
 	publisherPublicKeyDigest_.clear();
   if (interestStruct.publisherPublicKeyDigest)
@@ -33,8 +33,8 @@ void Interest::set(struct ndn_Interest &interestStruct)
 void Interest::get(struct ndn_Interest &interestStruct) 
 {
   name_.get(interestStruct.name);
-  interestStruct.maxSuffixComponents = maxSuffixComponents_;
   interestStruct.minSuffixComponents = minSuffixComponents_;
+  interestStruct.maxSuffixComponents = maxSuffixComponents_;
   
   interestStruct.publisherPublicKeyDigestLength = publisherPublicKeyDigest_.size();
   if (publisherPublicKeyDigest_.size() > 0)

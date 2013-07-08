@@ -59,9 +59,8 @@ public:
 private:
   
   Name name_;
-	int maxSuffixComponents_;
 	int minSuffixComponents_;
-	
+	int maxSuffixComponents_;	
 	std::vector<unsigned char> publisherPublicKeyDigest_;
 	// TODO: implement exclude
 	int childSelector_;
