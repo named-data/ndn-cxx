@@ -18,14 +18,14 @@ struct ndn_Interest {
 	int maxSuffixComponents;  /**< -1 for none */
 	int minSuffixComponents;  /**< -1 for none */
 	unsigned char *publisherPublicKeyDigest;      /**< pointer to pre-allocated buffer.  0 for none */
-  unsigned int publisherPublicKeyDigestLength; /**< length of publisherPublicKeyDigest */
+  unsigned int publisherPublicKeyDigestLength; /**< length of publisherPublicKeyDigest.  0 for none */
 	// TODO: implement exclude
 	int childSelector;        /**< -1 for none */
 	int answerOriginKind;     /**< -1 for none */
 	int scope;                /**< -1 for none */
 	int interestLifetime;     /**< milliseconds. -1 for none */
 	unsigned char *nonce;	    /**< pointer to pre-allocated buffer.  0 for none */
-  unsigned int nonceLength; /**< length of nonce */
+  unsigned int nonceLength; /**< length of nonce.  0 for none */
 };
 
 static inline void ndn_Interest_init(struct ndn_Interest *self, struct ndn_NameComponent *nameComponents, unsigned int maxNameComponents) 
