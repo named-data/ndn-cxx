@@ -31,9 +31,9 @@ public:
    */
   bool findElementEnd(unsigned char *input, unsigned int inputLength) 
   {
-    char *error;
+    ndn_Error error;
     if (error = ndn_BinaryXMLStructureDecoder_findElementEnd(&base_, input, inputLength))
-      throw std::runtime_error(error);
+      throw std::runtime_error(ndn_getErrorString(error));
     return gotElementEnd();
   }
   

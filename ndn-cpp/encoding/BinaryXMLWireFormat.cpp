@@ -39,9 +39,9 @@ void BinaryXMLWireFormat::decodeName(Name &name, const unsigned char *input, uns
   struct ndn_BinaryXMLDecoder decoder;
   ndn_BinaryXMLDecoder_init(&decoder, (unsigned char *)input, inputLength);
   
-  char *error;
+  ndn_Error error;
   if (error = ndn_decodeBinaryXMLName(&nameStruct, &decoder))
-    throw std::runtime_error(error);
+    throw std::runtime_error(ndn_getErrorString(error));
 
   name.set(nameStruct);
 }
@@ -55,9 +55,9 @@ void BinaryXMLWireFormat::decodeInterest(Interest &interest, const unsigned char
   struct ndn_BinaryXMLDecoder decoder;
   ndn_BinaryXMLDecoder_init(&decoder, (unsigned char *)input, inputLength);
   
-  char *error;
+  ndn_Error error;
   if (error = ndn_decodeBinaryXMLInterest(&interestStruct, &decoder))
-    throw std::runtime_error(error);
+    throw std::runtime_error(ndn_getErrorString(error));
 
   interest.set(interestStruct);
 }
