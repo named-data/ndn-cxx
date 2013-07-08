@@ -59,6 +59,59 @@ static unsigned int getNEncodingBytes(unsigned int x)
 	return nBytes;
 }
 
+/**
+ * Reverse the length bytes in array starting at offset.
+ * @param array
+ * @param offset
+ * @param length
+ */
+static void reverse(unsigned char *array, unsigned int offset, unsigned int length) 
+{
+  if (length == 0)
+    return;
+  
+  unsigned char *left = array + offset;
+  unsigned char *right = array + offset + length - 1;
+  while (left < right) {
+    // Swap.
+    unsigned char temp = *left;
+    *left = *right;
+    *right = temp;
+    
+    ++left;
+    --right;
+  }
+}
+
+/**
+ * Write x as an unsigned decimal integer to the output, using ndn_DynamicUCharArray_ensureLength.
+ * This does not write a header.
+ * @param self pointer to the ndn_BinaryXMLEncoder struct
+ * @param x the unsigned int to write
+ * @return 0 for success, else an error code
+ */
+static ndn_Error writeUnsignedDecimalInt(struct ndn_BinaryXMLEncoder *self, unsigned int x) 
+{
+  // We write the value backwards, then reverse it.
+  unsigned int startOffset = self->offset;
+  
+  while (1) {
+    ndn_Error error;
+    if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1))
+      return error;
+    
+    self->output.array[self->offset++] = (unsigned char)(x % 10 + '0');
+    x /= 10;
+    
+    if (x == 0)
+      break;
+  }
+  
+  // Now reverse.
+  reverse(self->output.array, startOffset, self->offset - startOffset);
+  return 0;
+}
+
 ndn_Error ndn_BinaryXMLEncoder_encodeTypeAndValue(struct ndn_BinaryXMLEncoder *self, unsigned int type, unsigned int value)
 {
 	if (type > ndn_BinaryXML_UDATA)
