@@ -36,7 +36,7 @@ static ndn_Error writeArray(struct ndn_BinaryXMLEncoder *self, unsigned char *ar
 /**
  * Return the number of bytes to encode a header of value x.
  */
-static unsigned int getNEncodingBytes(unsigned int x) 
+static unsigned int getNHeaderEncodingBytes(unsigned int x) 
 {
   // Do a quick check for pre-compiled results.
 	if (x <= ENCODING_LIMIT_1_BYTE) 
@@ -90,7 +90,7 @@ static void reverse(unsigned char *array, unsigned int offset, unsigned int leng
  * @param x the unsigned int to write
  * @return 0 for success, else an error code
  */
-static ndn_Error writeUnsignedDecimalInt(struct ndn_BinaryXMLEncoder *self, unsigned int x) 
+static ndn_Error encodeUnsignedDecimalInt(struct ndn_BinaryXMLEncoder *self, unsigned int x) 
 {
   // We write the value backwards, then reverse it.
   unsigned int startOffset = self->offset;
@@ -118,7 +118,7 @@ ndn_Error ndn_BinaryXMLEncoder_encodeTypeAndValue(struct ndn_BinaryXMLEncoder *s
 		return NDN_ERROR_header_type_is_out_of_range;
   
 	// Encode backwards. Calculate how many bytes we need.
-	unsigned int nEncodingBytes = getNEncodingBytes(value);
+	unsigned int nEncodingBytes = getNHeaderEncodingBytes(value);
   ndn_Error error;
   if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + nEncodingBytes))
     return error;
@@ -138,7 +138,7 @@ ndn_Error ndn_BinaryXMLEncoder_encodeTypeAndValue(struct ndn_BinaryXMLEncoder *s
 		--i;
 	}
 	if (value != 0)
-    // This should not happen if getNEncodingBytes is correct.
+    // This should not happen if getNHeaderEncodingBytes is correct.
 		return NDN_ERROR_encodeTypeAndValue_miscalculated_N_encoding_bytes;
 	
 	self->offset+= nEncodingBytes;
@@ -181,6 +181,37 @@ ndn_Error ndn_BinaryXMLEncoder_writeBlobDTagElement(struct ndn_BinaryXMLEncoder 
   
   if (error = ndn_BinaryXMLEncoder_writeElementClose(self))
     return error;
+  
+  return 0;
+}
+
+ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalInt(struct ndn_BinaryXMLEncoder *self, unsigned int value)
+{
+  // First write the decimal int (to find out how many bytes it is), then shift it forward to make room for the header.
+  unsigned int startOffset = self->offset;
+  
+  ndn_Error error;
+  if (error = encodeUnsignedDecimalInt(self, value))
+    return error;
+  
+  unsigned int nIntegerBytes = self->offset - startOffset;
+  unsigned int nHeaderBytes = getNHeaderEncodingBytes(nIntegerBytes);
+  if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + nHeaderBytes))
+    return error;
+  
+  // Don't use memcpy to shift because its behavior is not guaranteed when the buffers overlap.
+  unsigned char *source = self->output.array + startOffset + nIntegerBytes - 1;
+  unsigned char *dest = source + nHeaderBytes;
+  unsigned char *sourceFinal = self->output.array + startOffset;
+  while (source >= sourceFinal)
+    *(dest--) = *(source--);
+  
+  // Override the offset to force encodeTypeAndValue to encode at startOffset, then fix the offset.
+  self->offset = startOffset;
+  if (error = ndn_BinaryXMLEncoder_encodeTypeAndValue(self, ndn_BinaryXML_UDATA, nIntegerBytes))
+    // We don't really expect to get an error, since we have already ensured the length.
+    return error;
+  self->offset = startOffset + nHeaderBytes + nIntegerBytes;
   
   return 0;
 }
