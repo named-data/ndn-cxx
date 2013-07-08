@@ -51,8 +51,20 @@ public:
   int getMinSuffixComponents() const { return minSuffixComponents_; }
   
   int getMaxSuffixComponents() const { return maxSuffixComponents_; }
+  
+  const std::vector<unsigned char> getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
+
+  // TODO: Implement getExclude().)
+  
+  int getChildSelector() const { return childSelector_; }
+
+  int getAnswerOriginKind() const { return answerOriginKind_; }
+
+  int getScope() const { return scope_; }
 
   int getInterestLifetime() const { return interestLifetime_; }
+
+  const std::vector<unsigned char> getNonce() const { return nonce_; }
   
   /**
    * Clear this interest, and set the values by copying from the interest struct.
