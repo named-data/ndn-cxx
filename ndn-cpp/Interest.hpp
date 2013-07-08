@@ -42,6 +42,8 @@ public:
 
   Name &getName() { return name_; }
   
+  int getInterestLifetime() { return interestLifetime_; }
+  
   /**
    * Clear this interest, and set the values by copying from the interest struct.
    * @param interestStruct a C ndn_Interest struct
