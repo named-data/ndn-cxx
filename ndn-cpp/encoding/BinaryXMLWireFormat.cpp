@@ -46,6 +46,19 @@ void BinaryXMLWireFormat::decodeName(Name &name, const unsigned char *input, uns
   name.set(nameStruct);
 }
 
+void BinaryXMLWireFormat::encodeInterest(Interest &interest, vector<unsigned char> &output) 
+{
+  struct ndn_Interest interestStruct;
+  struct ndn_NameComponent components[100];
+  ndn_Interest_init(&interestStruct, components, sizeof(components) / sizeof(components[0]));
+  interest.get(interestStruct);
+
+  BinaryXMLEncoder encoder;
+  ndn_encodeBinaryXMLInterest(&interestStruct, encoder.getEncoder());
+     
+  encoder.appendTo(output);
+}
+
 void BinaryXMLWireFormat::decodeInterest(Interest &interest, const unsigned char *input, unsigned int inputLength)
 {
   struct ndn_NameComponent components[100];
