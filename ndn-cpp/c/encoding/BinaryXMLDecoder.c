@@ -227,7 +227,6 @@ ndn_Error ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
   return 0;
 }
 
-// TODO: This could be in a more central source file.
 unsigned int ndn_BinaryXMLDecoder_bigEndianToUnsignedInt(unsigned char *bytes, unsigned int bytesLength) 
 {
   unsigned int result = 0;
