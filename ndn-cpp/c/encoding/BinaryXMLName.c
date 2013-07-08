@@ -1,5 +1,6 @@
 /**
  * @author: Jeff Thompson
+ * Derived from Name.js by Meki Cheraoui.
  * See COPYING for copyright and distribution information.
  */
 
