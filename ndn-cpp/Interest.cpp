@@ -30,7 +30,7 @@ void Interest::set(struct ndn_Interest &interestStruct)
       (nonce_.begin(), interestStruct.nonce, interestStruct.nonce + interestStruct.nonceLength);
 }
 
-void Interest::get(struct ndn_Interest &interestStruct) 
+void Interest::get(struct ndn_Interest &interestStruct) const 
 {
   name_.get(interestStruct.name);
   interestStruct.minSuffixComponents = minSuffixComponents_;
@@ -38,7 +38,7 @@ void Interest::get(struct ndn_Interest &interestStruct)
   
   interestStruct.publisherPublicKeyDigestLength = publisherPublicKeyDigest_.size();
   if (publisherPublicKeyDigest_.size() > 0)
-    interestStruct.publisherPublicKeyDigest = &publisherPublicKeyDigest_[0];
+    interestStruct.publisherPublicKeyDigest = (unsigned char *)&publisherPublicKeyDigest_[0];
   else
     interestStruct.publisherPublicKeyDigest = 0;
   
@@ -51,7 +51,7 @@ void Interest::get(struct ndn_Interest &interestStruct)
 
   interestStruct.nonceLength = nonce_.size();
   if (nonce_.size() > 0)
-    interestStruct.nonce = &nonce_[0];
+    interestStruct.nonce = (unsigned char *)&nonce_[0];
   else
     interestStruct.nonce = 0;
 }

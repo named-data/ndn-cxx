@@ -10,7 +10,7 @@ using namespace std;
 
 namespace ndn {
   
-void WireFormat::encodeName(Name &name, vector<unsigned char> &output) 
+void WireFormat::encodeName(const Name &name, vector<unsigned char> &output) 
 {
   throw logic_error("unimplemented");
 }
@@ -19,7 +19,7 @@ void WireFormat::decodeName(Name &name, const unsigned char *input, unsigned int
   throw logic_error("unimplemented");
 }
 
-void WireFormat::encodeInterest(Interest &interest, vector<unsigned char> &output) 
+void WireFormat::encodeInterest(const Interest &interest, vector<unsigned char> &output) 
 {
   throw logic_error("unimplemented");
 }

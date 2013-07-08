@@ -29,9 +29,9 @@ public:
    * WARNING: The resulting pointer in componentStruct is invalid after a further use of this object which could reallocate memory.
    * @param componentStruct the C ndn_NameComponent struct to receive the pointer.
    */
-  void get(struct ndn_NameComponent &componentStruct) 
+  void get(struct ndn_NameComponent &componentStruct) const 
   {
-    componentStruct.value = &value_[0];
+    componentStruct.value = (unsigned char *)&value_[0];
     componentStruct.valueLength = value_.size(); 
   }
   
@@ -65,11 +65,11 @@ public:
    */
   Name(const char *uri);
   
-  void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) 
+  void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) const
   {
     wireFormat.encodeName(*this, output);
   }
-  void encode(std::vector<unsigned char> &output) 
+  void encode(std::vector<unsigned char> &output) const 
   {
     encode(output, BinaryXMLWireFormat::instance());
   }
@@ -95,7 +95,7 @@ public:
    * WARNING: The resulting pointers in nameStruct are invalid after a further use of this object which could reallocate memory.
    * @param nameStruct a C ndn_Name struct where the components array is already allocated.
    */
-  void get(struct ndn_Name &nameStruct);
+  void get(struct ndn_Name &nameStruct) const;
   
   /**
    * Clear this name, and set the components by copying from the name struct.
@@ -121,7 +121,7 @@ public:
    * Get the number of components.
    * @return the number of components
    */
-  unsigned int getComponentCount() {
+  unsigned int getComponentCount() const {
     return components_.size();
   }
   
@@ -131,7 +131,7 @@ public:
    * Encode this name as a URI.
    * @return the encoded URI.
    */
-  std::string to_uri();
+  std::string to_uri() const;
   
 private:
   std::vector<NameComponent> components_;

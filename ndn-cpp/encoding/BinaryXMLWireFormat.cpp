@@ -17,7 +17,7 @@ namespace ndn {
 
 BinaryXMLWireFormat BinaryXMLWireFormat::instance_;
 
-void BinaryXMLWireFormat::encodeName(Name &name, vector<unsigned char> &output) 
+void BinaryXMLWireFormat::encodeName(const Name &name, vector<unsigned char> &output) 
 {
   struct ndn_Name nameStruct;
   struct ndn_NameComponent components[100];
@@ -46,7 +46,7 @@ void BinaryXMLWireFormat::decodeName(Name &name, const unsigned char *input, uns
   name.set(nameStruct);
 }
 
-void BinaryXMLWireFormat::encodeInterest(Interest &interest, vector<unsigned char> &output) 
+void BinaryXMLWireFormat::encodeInterest(const Interest &interest, vector<unsigned char> &output) 
 {
   struct ndn_Interest interestStruct;
   struct ndn_NameComponent components[100];

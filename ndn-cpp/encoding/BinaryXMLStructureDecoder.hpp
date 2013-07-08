@@ -37,8 +37,8 @@ public:
     return gotElementEnd();
   }
   
-  unsigned int getOffset() { return base_.offset; }
-  bool gotElementEnd() { return base_.gotElementEnd != 0; }
+  unsigned int getOffset() const { return base_.offset; }
+  bool gotElementEnd() const { return base_.gotElementEnd != 0; }
   
 private:
   struct ndn_BinaryXMLStructureDecoder base_;

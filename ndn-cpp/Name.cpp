@@ -226,7 +226,7 @@ Name::Name(const char *uri_cstr)
   }
 }
 
-void Name::get(struct ndn_Name &nameStruct) 
+void Name::get(struct ndn_Name &nameStruct) const
 {
   if (nameStruct.maxComponents < components_.size())
     throw runtime_error("nameStruct.maxComponents must be >= this name getNComponents()");
@@ -243,7 +243,7 @@ void Name::set(struct ndn_Name &nameStruct)
     addComponent(nameStruct.components[i].value, nameStruct.components[i].valueLength);  
 }
 
-std::string Name::to_uri()
+std::string Name::to_uri() const
 {
   if (components_.size() == 0)
     return "/";

@@ -14,11 +14,11 @@ namespace ndn {
 
 class Interest {
 public:    
-  void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) 
+  void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) const 
   {
     wireFormat.encodeInterest(*this, output);
   }
-  void encode(std::vector<unsigned char> &output) 
+  void encode(std::vector<unsigned char> &output) const 
   {
     encode(output, BinaryXMLWireFormat::instance());
   }
@@ -44,11 +44,15 @@ public:
    * WARNING: The resulting pointers in interestStruct are invalid after a further use of this object which could reallocate memory.
    * @param interestStruct a C ndn_Interest struct where the name components array is already allocated.
    */
-  void get(struct ndn_Interest &interestStruct);
+  void get(struct ndn_Interest &interestStruct) const;
 
-  Name &getName() { return name_; }
+  const Name &getName() const { return name_; }
   
-  int getInterestLifetime() { return interestLifetime_; }
+  int getMinSuffixComponents() const { return minSuffixComponents_; }
+  
+  int getMaxSuffixComponents() const { return maxSuffixComponents_; }
+
+  int getInterestLifetime() const { return interestLifetime_; }
   
   /**
    * Clear this interest, and set the values by copying from the interest struct.
