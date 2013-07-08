@@ -29,6 +29,32 @@ void Interest::set(struct ndn_Interest &interestStruct)
     nonce_.insert
       (nonce_.begin(), interestStruct.nonce, interestStruct.nonce + interestStruct.nonceLength);
 }
+
+void Interest::get(struct ndn_Interest &interestStruct) 
+{
+  name_.get(interestStruct.name);
+  interestStruct.maxSuffixComponents = maxSuffixComponents_;
+  interestStruct.minSuffixComponents = minSuffixComponents_;
+  
+  interestStruct.publisherPublicKeyDigestLength = publisherPublicKeyDigest_.size();
+  if (publisherPublicKeyDigest_.size() > 0)
+    interestStruct.publisherPublicKeyDigest = &publisherPublicKeyDigest_[0];
+  else
+    interestStruct.publisherPublicKeyDigest = 0;
+  
+  // TODO: implement exclude.
+  
+  interestStruct.childSelector = childSelector_;
+  interestStruct.answerOriginKind = answerOriginKind_;
+  interestStruct.scope = scope_;
+  interestStruct.interestLifetime = interestLifetime_;
+
+  interestStruct.nonceLength = nonce_.size();
+  if (nonce_.size() > 0)
+    interestStruct.nonce = &nonce_[0];
+  else
+    interestStruct.nonce = 0;
+}
   
 }
 

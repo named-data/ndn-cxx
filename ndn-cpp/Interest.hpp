@@ -38,6 +38,13 @@ public:
   {
     decode(&input[0], input.size());
   }
+  
+  /**
+   * Set the interestStruct to point to the components in this interest, without copying any memory.
+   * WARNING: The resulting pointers in interestStruct are invalid after a further use of this object which could reallocate memory.
+   * @param interestStruct a C ndn_Interest struct where the name components array is already allocated.
+   */
+  void get(struct ndn_Interest &interestStruct);
 
   Name &getName() { return name_; }
   
