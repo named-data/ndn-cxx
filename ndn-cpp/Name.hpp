@@ -9,7 +9,6 @@
 
 #include <vector>
 #include <string>
-#include "common.h"
 #include "c/Name.h"
 #include "encoding/BinaryXMLWireFormat.hpp"
 
