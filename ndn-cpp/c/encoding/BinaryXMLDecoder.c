@@ -216,7 +216,7 @@ char *ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
     return error;
     
   if (!gotExpectedTag) {
-    value = -1;
+    *value = -1;
     return 0;
   }
 
@@ -226,4 +226,17 @@ char *ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
   
   *value = (int)unsignedValue;
   return 0;
+}
+
+// TODO: This could be in a more central source file.
+unsigned int ndn_BinaryXMLDecoder_bigEndianToUnsignedInt(unsigned char *bytes, unsigned int bytesLength) 
+{
+  unsigned int result = 0;
+  unsigned int i;
+  for (i = 0; i < bytesLength; ++i) {
+    result <<= 8;
+    result += (unsigned int)bytes[i];
+  }
+  
+  return result;
 }

@@ -116,6 +116,14 @@ char *ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
   (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int *value);
 
 /**
+ * Convert the big endian bytes to an unsigned int. Don't check for overflow.
+ * @param bytes pointer to the array of bytes
+ * @param bytesLength the length of bytes
+ * @return the result unsigned int
+ */
+unsigned int ndn_BinaryXMLDecoder_bigEndianToUnsignedInt(unsigned char *bytes, unsigned int bytesLength); 
+
+/**
  * Set the offset into the input, used for the next read.
  * @param self pointer to the ndn_BinaryXMLDecoder struct
  * @param offset the new offset
