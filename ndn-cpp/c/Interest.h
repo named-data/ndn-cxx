@@ -12,6 +12,17 @@
 extern "C" {
 #endif
 
+enum {
+  ndn_Interest_CHILD_SELECTOR_LEFT = 0,
+  ndn_Interest_CHILD_SELECTOR_RIGHT = 1,
+  ndn_Interest_ANSWER_CONTENT_STORE = 1,
+  ndn_Interest_ANSWER_GENERATED = 2,
+  ndn_Interest_ANSWER_STALE = 4,		// Stale answer OK
+  ndn_Interest_MARK_STALE = 16,		  // Must have scope 0.  Michael calls this a "hack"
+
+  ndn_Interest_DEFAULT_ANSWER_ORIGIN_KIND = ndn_Interest_ANSWER_CONTENT_STORE | ndn_Interest_ANSWER_GENERATED
+};
+
 struct ndn_Interest {
   struct ndn_Name name;
 	int minSuffixComponents;  /**< -1 for none */
