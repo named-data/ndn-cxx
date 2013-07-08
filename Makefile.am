@@ -17,6 +17,7 @@ libndn_c_a_SOURCES = \
   config.h \
   ndn-cpp/c/Interest.h \
   ndn-cpp/c/Name.h \
+  ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
   ndn-cpp/c/encoding/BinaryXML.h \
   ndn-cpp/c/encoding/BinaryXMLDecoder.c ndn-cpp/c/encoding/BinaryXMLDecoder.h \
   ndn-cpp/c/encoding/BinaryXMLEncoder.c ndn-cpp/c/encoding/BinaryXMLEncoder.h \

@@ -6,6 +6,7 @@
 #ifndef NDN_BINARYXMLNAME_H
 #define	NDN_BINARYXMLNAME_H
 
+#include "../errors.h"
 #include "../Name.h"
 #include "BinaryXMLEncoder.h"
 
@@ -13,9 +14,9 @@
 extern "C" {
 #endif
 
-char *ndn_encodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLEncoder *encoder);
+ndn_Error ndn_encodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLEncoder *encoder);
 
-char *ndn_decodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLDecoder *decoder);
+ndn_Error ndn_decodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLDecoder *decoder);
 
 #ifdef	__cplusplus
 }

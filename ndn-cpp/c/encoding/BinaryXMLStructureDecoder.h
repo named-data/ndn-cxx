@@ -6,6 +6,8 @@
 #ifndef NDN_BINARYXMLSTRUCTUREDECODER_H
 #define	NDN_BINARYXMLSTRUCTUREDECODER_H
 
+#include "../errors.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -37,9 +39,9 @@ void ndn_BinaryXMLStructureDecoder_init(struct ndn_BinaryXMLStructureDecoder *se
  * @param self pointer to the ndn_BinaryXMLStructureDecoder struct
  * @param input the input buffer. You have to pass in input each time because the buffer could be reallocated.
  * @param inputLength the number of bytes in input.
- * @return 0 for success, else an error string
+ * @return 0 for success, else an error code
  */
-char *ndn_BinaryXMLStructureDecoder_findElementEnd
+ndn_Error ndn_BinaryXMLStructureDecoder_findElementEnd
   (struct ndn_BinaryXMLStructureDecoder *self, unsigned char *input, unsigned int inputLength);
 
 #ifdef	__cplusplus

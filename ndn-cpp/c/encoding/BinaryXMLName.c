@@ -7,9 +7,9 @@
 #include "BinaryXMLDecoder.h"
 #include "BinaryXMLName.h"
 
-char *ndn_encodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLEncoder *encoder)
+ndn_Error ndn_encodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLEncoder *encoder)
 {
-  char *error;
+  ndn_Error error;
   if (error = ndn_BinaryXMLEncoder_writeElementStartDTag(encoder, ndn_BinaryXML_DTag_Name))
     return error;
   
@@ -26,9 +26,9 @@ char *ndn_encodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLEncoder
   return 0;
 }
 
-char *ndn_decodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLDecoder *decoder)
+ndn_Error ndn_decodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLDecoder *decoder)
 {
-  char *error;
+  ndn_Error error;
   if (error = ndn_BinaryXMLDecoder_readElementStartDTag(decoder, ndn_BinaryXML_DTag_Name))
     return error;
     
@@ -48,7 +48,7 @@ char *ndn_decodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLDecoder
     
     // Add the component to the name.
     if (name->nComponents >= name->maxComponents)
-      return "ndn_decodeBinaryXMLName: read a component past the maximum number of components allowed in the name";
+      return NDN_ERROR_read_a_component_past_the_maximum_number_of_components_allowed_in_the_name;
     ndn_NameComponent_init(name->components + name->nComponents, component, componentLen);
     ++name->nComponents;
   }

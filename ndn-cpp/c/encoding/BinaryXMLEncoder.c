@@ -19,11 +19,11 @@ enum {
  * @param self pointer to the ndn_BinaryXMLEncoder struct
  * @param array the array to copy
  * @param arrayLength the length of the array
- * @return 0 for success, else an error string
+ * @return 0 for success, else an error code
  */
-static char *writeArray(struct ndn_BinaryXMLEncoder *self, unsigned char *array, unsigned int arrayLength)
+static ndn_Error writeArray(struct ndn_BinaryXMLEncoder *self, unsigned char *array, unsigned int arrayLength)
 {
-  char *error;
+  ndn_Error error;
   if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + arrayLength))
     return error;
   
@@ -59,14 +59,14 @@ static unsigned int getNEncodingBytes(unsigned int x)
 	return nBytes;
 }
 
-char *ndn_BinaryXMLEncoder_encodeTypeAndValue(struct ndn_BinaryXMLEncoder *self, unsigned int type, unsigned int value)
+ndn_Error ndn_BinaryXMLEncoder_encodeTypeAndValue(struct ndn_BinaryXMLEncoder *self, unsigned int type, unsigned int value)
 {
 	if (type > ndn_BinaryXML_UDATA)
-		return "ndn_BinaryXMLEncoder_encodeTypeAndValue: type is out of range";
+		return NDN_ERROR_header_type_is_out_of_range;
   
 	// Encode backwards. Calculate how many bytes we need.
 	unsigned int nEncodingBytes = getNEncodingBytes(value);
-  char *error;
+  ndn_Error error;
   if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + nEncodingBytes))
     return error;
 
@@ -86,16 +86,16 @@ char *ndn_BinaryXMLEncoder_encodeTypeAndValue(struct ndn_BinaryXMLEncoder *self,
 	}
 	if (value != 0)
     // This should not happen if getNEncodingBytes is correct.
-		return "ndn_BinaryXMLEncoder_encodeTypeAndValue: : miscalculated N encoding bytes";
+		return NDN_ERROR_encodeTypeAndValue_miscalculated_N_encoding_bytes;
 	
 	self->offset+= nEncodingBytes;
   
   return 0;
 }
 
-char *ndn_BinaryXMLEncoder_writeElementClose(struct ndn_BinaryXMLEncoder *self)
+ndn_Error ndn_BinaryXMLEncoder_writeElementClose(struct ndn_BinaryXMLEncoder *self)
 {
-  char *error;
+  ndn_Error error;
   if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1))
     return error;
   
@@ -105,9 +105,9 @@ char *ndn_BinaryXMLEncoder_writeElementClose(struct ndn_BinaryXMLEncoder *self)
   return 0;
 }
 
-char *ndn_BinaryXMLEncoder_writeBlob(struct ndn_BinaryXMLEncoder *self, unsigned char *value, unsigned int valueLength)
+ndn_Error ndn_BinaryXMLEncoder_writeBlob(struct ndn_BinaryXMLEncoder *self, unsigned char *value, unsigned int valueLength)
 {
-  char *error;
+  ndn_Error error;
   if (error = ndn_BinaryXMLEncoder_encodeTypeAndValue(self, ndn_BinaryXML_BLOB, valueLength))
     return error;
   
@@ -117,9 +117,9 @@ char *ndn_BinaryXMLEncoder_writeBlob(struct ndn_BinaryXMLEncoder *self, unsigned
   return 0;
 }
 
-char *ndn_BinaryXMLEncoder_writeBlobDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength)
+ndn_Error ndn_BinaryXMLEncoder_writeBlobDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength)
 {
-  char *error;
+  ndn_Error error;
   if (error = ndn_BinaryXMLEncoder_writeElementStartDTag(self, tag))
     return error;
   

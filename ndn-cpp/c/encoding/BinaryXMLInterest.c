@@ -8,9 +8,9 @@
 #include "BinaryXMLName.h"
 #include "BinaryXMLInterest.h"
 
-char *ndn_decodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_BinaryXMLDecoder *decoder)
+ndn_Error ndn_decodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_BinaryXMLDecoder *decoder)
 {
-  char *error;
+  ndn_Error error;
   if (error = ndn_BinaryXMLDecoder_readElementStartDTag(decoder, ndn_BinaryXML_DTag_Interest))
     return error;
     

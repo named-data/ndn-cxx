@@ -6,6 +6,8 @@
 #ifndef NDN_BINARYXMLDECODER_H
 #define	NDN_BINARYXMLDECODER_H
 
+#include "../errors.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -28,25 +30,25 @@ static inline void ndn_BinaryXMLDecoder_init(struct ndn_BinaryXMLDecoder *self, 
  * @param self pointer to the ndn_BinaryXMLDecoder struct
  * @param type output for the header type
  * @param value output for the header value
- * @return 0 for success, else an error string for read past the end of the input or if the initial byte is zero
+ * @return 0 for success, else an error code for read past the end of the input or if the initial byte is zero
  */
-char *ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self, unsigned int *type, unsigned int *value);
+ndn_Error ndn_BinaryXMLDecoder_decodeTypeAndValue(struct ndn_BinaryXMLDecoder *self, unsigned int *type, unsigned int *value);
 
 /**
  * Decode the header from self's input starting at offset, expecting the type to be DTAG and the value to be expectedTag.
  * Update offset.
  * @param self pointer to the ndn_BinaryXMLDecoder struct
  * @param expectedTag the expected value for DTAG
- * @return 0 for success, else an error string, including an error if not the expected tag
+ * @return 0 for success, else an error code, including an error if not the expected tag
  */
-char *ndn_BinaryXMLDecoder_readElementStartDTag(struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag);
+ndn_Error ndn_BinaryXMLDecoder_readElementStartDTag(struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag);
 
 /**
  * Read one byte from self's input starting at offset, expecting it to be the element close.
  * @param self pointer to the ndn_BinaryXMLDecoder struct
- * @return 0 for success, else an error string, including an error if not the element close
+ * @return 0 for success, else an error code, including an error if not the element close
  */
-char *ndn_BinaryXMLDecoder_readElementClose(struct ndn_BinaryXMLDecoder *self);
+ndn_Error ndn_BinaryXMLDecoder_readElementClose(struct ndn_BinaryXMLDecoder *self);
 
 /**
  * Decode the header from self's input starting at offset, and if it is a DTAG where the value is the expectedTag,
@@ -54,9 +56,9 @@ char *ndn_BinaryXMLDecoder_readElementClose(struct ndn_BinaryXMLDecoder *self);
  * @param self pointer to the ndn_BinaryXMLDecoder struct
  * @param expectedTag the expected value for DTAG
  * @param gotExpectedTag output a 1 if got the expected tag, else 0
- * @return 0 for success, else an error string for read past the end of the input
+ * @return 0 for success, else an error code for read past the end of the input
  */
-char *ndn_BinaryXMLDecoder_peekDTag(struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int *gotExpectedTag);
+ndn_Error ndn_BinaryXMLDecoder_peekDTag(struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int *gotExpectedTag);
 
 /**
  * Decode the header from self's input starting at offset, expecting the type to be DTAG and the value to be expectedTag.
@@ -70,10 +72,10 @@ char *ndn_BinaryXMLDecoder_peekDTag(struct ndn_BinaryXMLDecoder *self, unsigned 
  * binary data item is absent, then return 0.
  * @param valueLen output the length of the binary data. However, if allowNull is 1 and the
  * binary data item is absent, then return 0.
- * @return 0 for success, else an error string, including an error if not the expected tag, or if allowNull is 0
+ * @return 0 for success, else an error code, including an error if not the expected tag, or if allowNull is 0
  * and the binary data is absent
  */
-char *ndn_BinaryXMLDecoder_readBinaryDTagElement
+ndn_Error ndn_BinaryXMLDecoder_readBinaryDTagElement
   (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int allowNull, unsigned char **value, unsigned int *valueLen);
 
 /**
@@ -84,9 +86,9 @@ char *ndn_BinaryXMLDecoder_readBinaryDTagElement
  * @param expectedTag the expected value for DTAG
  * @param value output a pointer to the binary data inside self's input buffer.
  * @param valueLen output the length of the binary data.
- * @return 0 for success, else an error string, including an error if not the expected tag, or if the item is not UDATA.
+ * @return 0 for success, else an error code, including an error if not the expected tag, or if the item is not UDATA.
  */
-char *ndn_BinaryXMLDecoder_readUDataDTagElement
+ndn_Error ndn_BinaryXMLDecoder_readUDataDTagElement
   (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, unsigned char **value, unsigned int *valueLen);
 
 /**
@@ -96,10 +98,10 @@ char *ndn_BinaryXMLDecoder_readUDataDTagElement
  * @param self pointer to the ndn_BinaryXMLDecoder struct
  * @param expectedTag the expected value for DTAG
  * @param value output the unsigned integer
- * @return 0 for success, else an error string, including an error if not the expected tag, or if the item is not UDATA,
+ * @return 0 for success, else an error code, including an error if not the expected tag, or if the item is not UDATA,
  * or can't parse the integer
  */
-char *ndn_BinaryXMLDecoder_readUnsignedIntegerDTagElement
+ndn_Error ndn_BinaryXMLDecoder_readUnsignedIntegerDTagElement
   (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, unsigned int *value);
 
 /**
@@ -108,10 +110,10 @@ char *ndn_BinaryXMLDecoder_readUnsignedIntegerDTagElement
  * @param self pointer to the ndn_BinaryXMLDecoder struct
  * @param expectedTag the expected value for DTAG
  * @param value output the unsigned integer cast to int, or -1 if the next element doesn't have expectedTag.
- * @return 0 for success, else an error string, including an error if the item is not UDATA,
+ * @return 0 for success, else an error code, including an error if the item is not UDATA,
  * or can't parse the integer
  */
-char *ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
+ndn_Error ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
   (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int *value);
 
 /**

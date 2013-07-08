@@ -6,6 +6,7 @@
 #ifndef NDN_DYNAMICUCHARARRAY_H
 #define	NDN_DYNAMICUCHARARRAY_H
 
+#include "../errors.h"
 #include "ndn_memory.h"
 
 #ifdef	__cplusplus
@@ -42,9 +43,9 @@ static inline void ndn_DynamicUCharArray_init
  * If not null, call self->realloc to reallocate self->array, and update self->length (which may be greater than length).
  * @param self pointer to the ndn_DynamicUCharArray struct
  * @param length the needed minimum size for self->length
- * @return 0 for success, else an error string if can't reallocate the array
+ * @return 0 for success, else an error code if can't reallocate the array
  */
-char *ndn_DynamicUCharArray_reallocArray(struct ndn_DynamicUCharArray *self, unsigned int length);
+ndn_Error ndn_DynamicUCharArray_reallocArray(struct ndn_DynamicUCharArray *self, unsigned int length);
 
 /**
  * Ensure that self->length is greater than or equal to length.  If it is, just return 0 for success.
@@ -52,12 +53,12 @@ char *ndn_DynamicUCharArray_reallocArray(struct ndn_DynamicUCharArray *self, uns
  * If not null, call self->realloc to reallocate self->array, and update self->length (which may be greater than length).
  * @param self pointer to the ndn_DynamicUCharArray struct
  * @param length the needed minimum size for self->length
- * @return 0 for success, else an error string if need to reallocate the array but can't
+ * @return 0 for success, else an error code if need to reallocate the array but can't
  */
-static inline char *ndn_DynamicUCharArray_ensureLength(struct ndn_DynamicUCharArray *self, unsigned int length) 
+static inline ndn_Error ndn_DynamicUCharArray_ensureLength(struct ndn_DynamicUCharArray *self, unsigned int length) 
 {
   if (self->length >= length)
-    return 0;
+    return (ndn_Error)0;
 
   return ndn_DynamicUCharArray_reallocArray(self, length);
 }
@@ -68,12 +69,12 @@ static inline char *ndn_DynamicUCharArray_ensureLength(struct ndn_DynamicUCharAr
  * @param value the buffer to copy from
  * @param valueLength the length of the value buffer
  * @param offset the offset in self->array to copy to
- * @return 0 for success, else an error string if need to reallocate the array but can't
+ * @return 0 for success, else an error code if need to reallocate the array but can't
  */
-static inline char *ndn_DynamicUCharArray_set
+static inline ndn_Error ndn_DynamicUCharArray_set
   (struct ndn_DynamicUCharArray *self, unsigned char *value, unsigned int valueLength, unsigned int offset) 
 {
-  char *error;
+  ndn_Error error;
   if (error = ndn_DynamicUCharArray_ensureLength(self, valueLength + offset))
     return error;
   ndn_memcpy(self->array + offset, value, valueLength);

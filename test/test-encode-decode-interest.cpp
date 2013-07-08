@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     cout << "Interest encoding length " << encodingLength << " vs. sizeof(Interest1) " << sizeof(Interest1) << endl;
 #endif
   } catch (exception &e) {
-    cout << "exception " << e.what() << endl;
+    cout << "exception: " << e.what() << endl;
   }
   return 0;
 }

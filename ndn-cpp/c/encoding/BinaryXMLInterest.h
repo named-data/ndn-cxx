@@ -6,15 +6,16 @@
 #ifndef NDN_BINARYXMLINTEREST_H
 #define	NDN_BINARYXMLINTEREST_H
 
+#include "../errors.h"
 #include "../Interest.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-char *ndn_encodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_BinaryXMLEncoder *encoder);
+ndn_Error ndn_encodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_BinaryXMLEncoder *encoder);
 
-char *ndn_decodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_BinaryXMLDecoder *decoder);
+ndn_Error ndn_decodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_BinaryXMLDecoder *decoder);
 
 #ifdef	__cplusplus
 }

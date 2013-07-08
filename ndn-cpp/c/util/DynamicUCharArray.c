@@ -5,10 +5,10 @@
 
 #include "DynamicUCharArray.h"
 
-char *ndn_DynamicUCharArray_reallocArray(struct ndn_DynamicUCharArray *self, unsigned int length)
+ndn_Error ndn_DynamicUCharArray_reallocArray(struct ndn_DynamicUCharArray *self, unsigned int length)
 {
   if (!self->realloc)
-    return "ndn_DynamicUCharArray_reallocArray: realloc function pointer not supplied";
+    return NDN_ERROR_DynamicUCharArray_realloc_function_pointer_not_supplied;
   
   // See if double is enough.
   unsigned int newLength = self->length * 2;
@@ -18,7 +18,7 @@ char *ndn_DynamicUCharArray_reallocArray(struct ndn_DynamicUCharArray *self, uns
     
   unsigned char *newArray = (*self->realloc)(self->array, newLength);
   if (!newArray)
-    return "ndn_DynamicUCharArray_reallocArray: realloc failed";
+    return NDN_ERROR_DynamicUCharArray_realloc_failed;
   
   self->array = newArray;
   self->length = newLength;

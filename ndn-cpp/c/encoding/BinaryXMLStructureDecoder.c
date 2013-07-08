@@ -29,7 +29,7 @@ static inline void startHeader(struct ndn_BinaryXMLStructureDecoder *self)
   self->state = ndn_BinaryXMLStructureDecoder_READ_HEADER_OR_CLOSE;    
 }
 
-char *ndn_BinaryXMLStructureDecoder_findElementEnd
+ndn_Error ndn_BinaryXMLStructureDecoder_findElementEnd
   (struct ndn_BinaryXMLStructureDecoder *self, unsigned char *input, unsigned int inputLength) 
 {
   if (self->gotElementEnd)
@@ -56,7 +56,7 @@ char *ndn_BinaryXMLStructureDecoder_findElementEnd
           return 0;
         }
         if (self->level < 0)
-          return "ndn_BinaryXMLStructureDecoder_findElementEnd: Unexpected close tag";
+          return NDN_ERROR_findElementEnd_unexpected_close_tag;
           
         // Get ready for the next header.
         startHeader(self);
@@ -68,7 +68,7 @@ char *ndn_BinaryXMLStructureDecoder_findElementEnd
         if (self->offset >= inputLength) {
           // We can't get all of the header bytes from this input. Save in headerBuffer.
           if (self->headerLength > sizeof(self->headerBuffer))
-            return "ndn_BinaryXMLStructureDecoder_findElementEnd: Can't store more header bytes than the size of headerBuffer";
+            return NDN_ERROR_cannot_store_more_header_bytes_than_the_size_of_headerBuffer;
           self->useHeaderBuffer = 1;
           unsigned int nNewBytes = self->headerLength - startingHeaderLength;
           ndn_memcpy(self->headerBuffer + startingHeaderLength, input + (self->offset - nNewBytes), nNewBytes);
@@ -87,7 +87,7 @@ char *ndn_BinaryXMLStructureDecoder_findElementEnd
       if (self->useHeaderBuffer) {
         // Copy the remaining bytes into headerBuffer.
         if (self->headerLength > sizeof(self->headerBuffer))
-          return "ndn_BinaryXMLStructureDecoder_findElementEnd: Can't store more header bytes than the size of headerBuffer";
+          return NDN_ERROR_cannot_store_more_header_bytes_than_the_size_of_headerBuffer;
         unsigned int nNewBytes = self->headerLength - startingHeaderLength;
         ndn_memcpy(self->headerBuffer + startingHeaderLength, input + (self->offset - nNewBytes), nNewBytes);
 
@@ -95,13 +95,13 @@ char *ndn_BinaryXMLStructureDecoder_findElementEnd
         struct ndn_BinaryXMLDecoder bufferDecoder;
         ndn_BinaryXMLDecoder_init(&bufferDecoder, self->headerBuffer, sizeof(self->headerBuffer));
         if (ndn_BinaryXMLDecoder_decodeTypeAndValue(&bufferDecoder, &type, &value))
-          return "ndn_BinaryXMLStructureDecoder_findElementEnd: Can't read header type and value";
+          return NDN_ERROR_findElementEnd_cannot_read_header_type_and_value;
       }
       else {
         // We didn't have to use the headerBuffer.
         ndn_BinaryXMLDecoder_seek(&decoder, self->offset - self->headerLength);
         if (ndn_BinaryXMLDecoder_decodeTypeAndValue(&decoder, &type, &value))
-          return "ndn_BinaryXMLStructureDecoder_findElementEnd: Can't read header type and value";
+          return NDN_ERROR_findElementEnd_cannot_read_header_type_and_value;
       }
         
       // Set the next state based on the type.
@@ -128,7 +128,7 @@ char *ndn_BinaryXMLStructureDecoder_findElementEnd
         self->state = ndn_BinaryXMLStructureDecoder_READ_BYTES;
       }
       else
-        return "ndn_BinaryXMLStructureDecoder_findElementEnd: Unrecognized header type";
+        return NDN_ERROR_findElementEnd_unrecognized_header_type;
     }  
     else if (self->state == ndn_BinaryXMLStructureDecoder_READ_BYTES) {
       unsigned int nRemainingBytes = inputLength - self->offset;
@@ -144,6 +144,6 @@ char *ndn_BinaryXMLStructureDecoder_findElementEnd
     }
     else
       // We don't expect this to happen.
-      return "ndn_BinaryXMLStructureDecoder_findElementEnd: Unrecognized state";
+      return NDN_ERROR_findElementEnd_unrecognized_state;
   }
 }
