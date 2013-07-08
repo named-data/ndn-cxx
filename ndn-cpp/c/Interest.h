@@ -33,12 +33,14 @@ static inline void ndn_Interest_init(struct ndn_Interest *self, struct ndn_NameC
   self->maxSuffixComponents = -1;
 	self->minSuffixComponents = -1;
 	self->publisherPublicKeyDigest = 0;
+	self->publisherPublicKeyDigestLength = 0;
 	// TODO: implement exclude
 	self->childSelector = -1;
 	self->answerOriginKind = -1;
 	self->scope = -1;
 	self->interestLifetime = -1;
-	self->nonce = 0; /**< length of nonce */
+	self->nonce = 0;
+	self->nonceLength = 0;
 }
 
 #ifdef	__cplusplus
