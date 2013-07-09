@@ -12,7 +12,7 @@
 static ndn_Error encodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXMLEncoder *encoder)
 {
   if (exclude->nEntries == 0)
-    return;
+    return 0;
   
   ndn_Error error;
   if (error = ndn_BinaryXMLEncoder_writeElementStartDTag(encoder, ndn_BinaryXML_DTag_Exclude))
