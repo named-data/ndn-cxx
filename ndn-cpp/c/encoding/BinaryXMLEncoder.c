@@ -84,17 +84,15 @@ static void reverse(unsigned char *array, unsigned int length)
 }
 
 /**
- * Write x as an unsigned decimal integer to the output, using ndn_DynamicUCharArray_ensureLength.
+ * Write x as an unsigned decimal integer to the output with the digits in reverse order, using ndn_DynamicUCharArray_ensureLength.
  * This does not write a header.
+ * We encode in reverse order, because this is the natural way to encode the digits, and the caller can reverse as needed.
  * @param self pointer to the ndn_BinaryXMLEncoder struct
  * @param x the unsigned int to write
  * @return 0 for success, else an error code
  */
-static ndn_Error encodeUnsignedDecimalInt(struct ndn_BinaryXMLEncoder *self, unsigned int x) 
+static ndn_Error encodeReversedUnsignedDecimalInt(struct ndn_BinaryXMLEncoder *self, unsigned int x) 
 {
-  // We write the value backwards, then reverse it.
-  unsigned int startOffset = self->offset;
-  
   while (1) {
     ndn_Error error;
     if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1))
@@ -107,41 +105,20 @@ static ndn_Error encodeUnsignedDecimalInt(struct ndn_BinaryXMLEncoder *self, uns
       break;
   }
   
-  // Now reverse.
-  reverse(self->output.array + startOffset, self->offset - startOffset);
   return 0;
 }
 
 /**
- * Like memcpy, copy length bytes from source to dest, assuming that the buffers can overlap and that
- * we are shifting the buffer right.
- * Don't use memcpy to shift because its behavior is not guaranteed when the buffers overlap.
- * @param dest
- * @param source
- * @param length
- */
-static void copyBufferRight(unsigned char *dest, unsigned char *source, unsigned int length)
-{
-  if (length == 0)
-    return;
-  
-  // We are shifting right, so start from the end of the buffer.
-  unsigned char *from = source + length - 1;
-  unsigned char *to = dest + length - 1;
-  while (from >= source)
-    *(to--) = *(from--);
-}
-
-/**
- * Shift a buffer in self->output.array right by the amount needed to prefix a header with type, then encode the header
- * at startOffset.
- * The buffer to shift right begins at startOffset and self->offset is at the end.
+ * Reverse the buffer in self->output.array, then shift it right by the amount needed to prefix a header with type, 
+ * then encode the header at startOffset.
+ * startOffser it the position in self-output.array of the first byte of the buffer and self->offset is the first byte past the end.
+ * We reverse and shift in the same function to avoid unnecessary copying if we first reverse then shift.
  * @param self pointer to the ndn_BinaryXMLEncoder struct
  * @param startOffset the offset in self->output.array of the start of the buffer to shift right
  * @param type the header type
  * @return 0 for success, else an error code
  */
-static ndn_Error insertHeader
+static ndn_Error reverseBufferAndInsertHeader
   (struct ndn_BinaryXMLEncoder *self, unsigned int startOffset, unsigned int type)
 {
   unsigned int nBufferBytes = self->offset - startOffset;
@@ -150,7 +127,16 @@ static ndn_Error insertHeader
   if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + nHeaderBytes))
     return error;
   
-  copyBufferRight(self->output.array + startOffset + nHeaderBytes, self->output.array + startOffset, nBufferBytes);
+  // To reverse and shift at the same time, we first shift nHeaderBytes to the destination while reversing,
+  //   then reverse the remaining bytes in place.
+  unsigned char *from = self->output.array + startOffset;
+  unsigned char *fromEnd = from + nHeaderBytes;
+  unsigned char *to = self->output.array + startOffset + nBufferBytes + nHeaderBytes - 1;
+  while (from < fromEnd)
+    *(to--) = *(from++);
+  // Reverse the remaining bytes in place (if any).
+  if (nBufferBytes > nHeaderBytes)
+    reverse(self->output.array + startOffset + nHeaderBytes, nBufferBytes - nHeaderBytes);
   
   // Override the offset to force encodeTypeAndValue to encode at startOffset, then fix the offset.
   self->offset = startOffset;
@@ -241,10 +227,10 @@ ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalInt(struct ndn_BinaryXMLEncod
   unsigned int startOffset = self->offset;
   
   ndn_Error error;
-  if (error = encodeUnsignedDecimalInt(self, value))
+  if (error = encodeReversedUnsignedDecimalInt(self, value))
     return error;
   
-  if (error = insertHeader(self, startOffset, ndn_BinaryXML_UDATA))
+  if (error = reverseBufferAndInsertHeader(self, startOffset, ndn_BinaryXML_UDATA))
     return error;
   
   return 0;
@@ -278,10 +264,7 @@ ndn_Error ndn_BinaryXMLEncoder_writeUnsignedIntBigEndianBlob(struct ndn_BinaryXM
     value >>= 8;
   }
   
-  unsigned int bigEndianLength = self->offset - startOffset;
-  reverse(self->output.array + startOffset, bigEndianLength);
-  
-  if (error = insertHeader(self, startOffset, ndn_BinaryXML_BLOB))
+  if (error = reverseBufferAndInsertHeader(self, startOffset, ndn_BinaryXML_BLOB))
     return error;
   
   return 0;
