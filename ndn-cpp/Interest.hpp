@@ -168,7 +168,23 @@ public:
    * @param interestStruct a C ndn_Interest struct
    */
   void set(struct ndn_Interest &interestStruct);
+  
+  void setMinSuffixComponents(int value) { minSuffixComponents_ = value; }
+  
+  void setMaxSuffixComponents(int value) { maxSuffixComponents_ = value; }
+  
+  void setPublisherPublicKeyDigest(const std::vector<unsigned char> &value) { publisherPublicKeyDigest_ = value; }
 
+  void setChildSelector(int value) { childSelector_ = value; }
+
+  void setAnswerOriginKind(int value) { answerOriginKind_ = value; }
+
+  void setScope(int value) { scope_ = value; }
+
+  void setInterestLifetime(int value) { interestLifetime_ = value; }
+
+  void setNonce(const std::vector<unsigned char> &value) { nonce_ = value; }
+  
 private:
   
   Name name_;
