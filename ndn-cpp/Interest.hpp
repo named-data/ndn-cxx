@@ -141,6 +141,7 @@ public:
    */
   void get(struct ndn_Interest &interestStruct) const;
 
+  Name &getName() { return name_; }
   const Name &getName() const { return name_; }
   
   int getMinSuffixComponents() const { return minSuffixComponents_; }
@@ -149,6 +150,7 @@ public:
   
   const std::vector<unsigned char> getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
 
+  Exclude &getExclude() { return exclude_; }
   const Exclude &getExclude() const { return exclude_; }
   
   int getChildSelector() const { return childSelector_; }
