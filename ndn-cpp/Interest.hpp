@@ -11,6 +11,101 @@
 #include "c/Interest.h"
 
 namespace ndn {
+  
+class ExcludeEntry {
+public:
+  /**
+   * Create an ExcludeEntry of type ndn_Exclude_ANY
+   */
+  ExcludeEntry()
+  : type_(ndn_Exclude_ANY)
+  {    
+  }
+  
+  /**
+   * Create an ExcludeEntry of type ndn_Exclude_COMPONENT
+   */
+  ExcludeEntry(unsigned char *component, unsigned int componentLen) 
+  : type_(ndn_Exclude_COMPONENT), component_(component, component + componentLen)
+  {
+  }
+  
+  /**
+   * Set the type in the excludeEntryStruct and to point to this component, without copying any memory.
+   * WARNING: The resulting pointer in excludeEntryStruct is invalid after a further use of this object which could reallocate memory.
+   * @param excludeEntryStruct the C ndn_NameComponent struct to receive the pointer.
+   */
+  void get(struct ndn_ExcludeEntry &excludeEntryStruct) const 
+  {
+    excludeEntryStruct.type = type_;
+    if (type_ == ndn_Exclude_COMPONENT) {
+      excludeEntryStruct.componentLength = component_.size();
+      excludeEntryStruct.component = (unsigned char *)&component_[0];
+    }
+  }
+  
+  ndn_ExcludeType getType() const { return type_; }
+  
+  const std::vector<unsigned char> &getComponent() const { return component_; }
+  
+private:
+  ndn_ExcludeType type_;
+  std::vector<unsigned char> component_; /**< only used if type_ is ndn_Exclude_COMPONENT */
+}; 
+  
+class Exclude {
+public:
+  /**
+   * Create a new Exclude with no entries.
+   */
+  Exclude() {
+  }
+  
+  unsigned int getEntryCount() const {
+    return entries_.size();
+  }
+  
+  const ExcludeEntry &getEntry(unsigned int i) const { return entries_[i]; }
+  
+  /**
+   * Set the excludeStruct to point to the entries in this exclude, without copying any memory.
+   * WARNING: The resulting pointers in excludeStruct are invalid after a further use of this object which could reallocate memory.
+   * @param excludeStruct a C ndn_Exclude struct where the entries array is already allocated.
+   */
+  void get(struct ndn_Exclude &excludeStruct) const;
+  
+  /**
+   * Clear this exclude, and set the entries by copying from the ndn_Exclude struct.
+   * @param excludeStruct a C ndn_Exclude struct
+   */
+  void set(struct ndn_Exclude &excludeStruct);
+
+  /**
+   * Add a new entry of type ndn_Exclude_ANY
+   */
+  void addAny()
+  {    
+    entries_.push_back(ExcludeEntry());
+  }
+  
+  /**
+   * Add a new entry of type ndn_Exclude_COMPONENT, copying from component of length compnentLength
+   */
+  void addComponent(unsigned char *component, unsigned int componentLen) 
+  {
+    entries_.push_back(ExcludeEntry(component, componentLen));
+  }
+  
+  /**
+   * Clear all the entries.
+   */
+  void clear() {
+    entries_.clear();
+  }
+  
+private:
+	std::vector<ExcludeEntry> entries_;
+};
 
 class Interest {
 public:    
@@ -54,7 +149,7 @@ public:
   
   const std::vector<unsigned char> getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
 
-  // TODO: Implement getExclude().)
+  const Exclude &getExclude() const { return exclude_; }
   
   int getChildSelector() const { return childSelector_; }
 
@@ -78,7 +173,7 @@ private:
 	int minSuffixComponents_;
 	int maxSuffixComponents_;	
 	std::vector<unsigned char> publisherPublicKeyDigest_;
-	// TODO: implement exclude
+  Exclude exclude_;
 	int childSelector_;
 	int answerOriginKind_;
 	int scope_;

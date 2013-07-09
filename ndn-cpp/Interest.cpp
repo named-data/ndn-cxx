@@ -3,12 +3,38 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include <stdexcept>
 #include "Interest.hpp"
 
 using namespace std;
 
 namespace ndn {
   
+void Exclude::get(struct ndn_Exclude &excludeStruct) const
+{
+  if (excludeStruct.maxEntries < entries_.size())
+    throw runtime_error("excludeStruct.maxEntries must be >= this exclude getEntryCount()");
+  
+  excludeStruct.nEntries = entries_.size();
+  for (unsigned int i = 0; i < excludeStruct.nEntries; ++i)
+    entries_[i].get(excludeStruct.entries[i]);  
+}
+
+void Exclude::set(struct ndn_Exclude &excludeStruct)
+{
+  entries_.clear();
+  for (unsigned int i = 0; i < excludeStruct.nEntries; ++i) {
+    ndn_ExcludeEntry *entry = &excludeStruct.entries[i];
+    
+    if (entry->type == ndn_Exclude_COMPONENT)
+      addComponent(entry->component, entry->componentLength);
+    else if (entry->type == ndn_Exclude_ANY)
+      addAny();
+    else
+      throw runtime_error("unrecognized ndn_ExcludeType");
+  }
+}
+
 void Interest::set(struct ndn_Interest &interestStruct) 
 {
   name_.set(interestStruct.name);
@@ -19,7 +45,8 @@ void Interest::set(struct ndn_Interest &interestStruct)
   if (interestStruct.publisherPublicKeyDigest)
     publisherPublicKeyDigest_.insert
       (publisherPublicKeyDigest_.begin(), interestStruct.publisherPublicKeyDigest, interestStruct.publisherPublicKeyDigest + interestStruct.publisherPublicKeyDigestLength);
-	// TODO: implement exclude
+  
+  exclude_.set(interestStruct.exclude);
 	childSelector_ = interestStruct.childSelector;
 	answerOriginKind_ = interestStruct.answerOriginKind;
 	scope_ = interestStruct.scope;
@@ -42,8 +69,7 @@ void Interest::get(struct ndn_Interest &interestStruct) const
   else
     interestStruct.publisherPublicKeyDigest = 0;
   
-  // TODO: implement exclude.
-  
+  exclude_.get(interestStruct.exclude);
   interestStruct.childSelector = childSelector_;
   interestStruct.answerOriginKind = answerOriginKind_;
   interestStruct.scope = scope_;
