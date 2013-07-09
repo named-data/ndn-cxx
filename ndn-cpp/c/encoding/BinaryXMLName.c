@@ -33,6 +33,7 @@ ndn_Error ndn_decodeBinaryXMLName(struct ndn_Name *name, struct ndn_BinaryXMLDec
   if (error = ndn_BinaryXMLDecoder_readElementStartDTag(decoder, ndn_BinaryXML_DTag_Name))
     return error;
     
+  name->nComponents = 0;
   while (1) {
     int gotExpectedTag;
     if (error = ndn_BinaryXMLDecoder_peekDTag(decoder, ndn_BinaryXML_DTag_Component, &gotExpectedTag))
