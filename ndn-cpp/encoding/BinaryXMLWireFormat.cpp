@@ -48,9 +48,12 @@ void BinaryXMLWireFormat::decodeName(Name &name, const unsigned char *input, uns
 
 void BinaryXMLWireFormat::encodeInterest(const Interest &interest, vector<unsigned char> &output) 
 {
+  struct ndn_NameComponent nameComponents[100];
+  struct ndn_ExcludeEntry excludeEntries[100];
   struct ndn_Interest interestStruct;
-  struct ndn_NameComponent components[100];
-  ndn_Interest_init(&interestStruct, components, sizeof(components) / sizeof(components[0]));
+  ndn_Interest_init
+    (&interestStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
+     excludeEntries, sizeof(excludeEntries) / sizeof(excludeEntries[0]));
   interest.get(interestStruct);
 
   BinaryXMLEncoder encoder;
@@ -61,9 +64,12 @@ void BinaryXMLWireFormat::encodeInterest(const Interest &interest, vector<unsign
 
 void BinaryXMLWireFormat::decodeInterest(Interest &interest, const unsigned char *input, unsigned int inputLength)
 {
-  struct ndn_NameComponent components[100];
+  struct ndn_NameComponent nameComponents[100];
+  struct ndn_ExcludeEntry excludeEntries[100];
   struct ndn_Interest interestStruct;
-  ndn_Interest_init(&interestStruct, components, sizeof(components) / sizeof(components[0]));
+  ndn_Interest_init
+    (&interestStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
+     excludeEntries, sizeof(excludeEntries) / sizeof(excludeEntries[0]));
     
   struct ndn_BinaryXMLDecoder decoder;
   ndn_BinaryXMLDecoder_init(&decoder, (unsigned char *)input, inputLength);
