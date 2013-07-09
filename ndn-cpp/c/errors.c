@@ -44,6 +44,8 @@ char *ndn_getErrorString(int error)
     return      "DynamicUCharArray realloc function pointer not supplied";
   case NDN_ERROR_DynamicUCharArray_realloc_failed:
     return      "DynamicUCharArray realloc failed";
+  case NDN_ERROR_unrecognized_ndn_ExcludeType:
+    return      "unrecognized ndn_ExcludeType";
   default:
     return "unrecognized ndn_Error code";  
   }

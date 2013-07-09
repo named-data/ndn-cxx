@@ -29,7 +29,8 @@ typedef enum {
   NDN_ERROR_findElementEnd_unrecognized_header_type,
   NDN_ERROR_findElementEnd_unrecognized_state,
   NDN_ERROR_DynamicUCharArray_realloc_function_pointer_not_supplied,
-  NDN_ERROR_DynamicUCharArray_realloc_failed
+  NDN_ERROR_DynamicUCharArray_realloc_failed,
+  NDN_ERROR_unrecognized_ndn_ExcludeType
 } ndn_Error;
   
 /**
