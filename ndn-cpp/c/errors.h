@@ -23,6 +23,7 @@ typedef enum {
   NDN_ERROR_header_type_is_out_of_range,
   NDN_ERROR_encodeTypeAndValue_miscalculated_N_encoding_bytes,
   NDN_ERROR_read_a_component_past_the_maximum_number_of_components_allowed_in_the_name,
+  NDN_ERROR_read_an_entry_past_the_maximum_number_of_entries_allowed_in_the_exclude,
   NDN_ERROR_findElementEnd_unexpected_close_tag,
   NDN_ERROR_cannot_store_more_header_bytes_than_the_size_of_headerBuffer,
   NDN_ERROR_findElementEnd_cannot_read_header_type_and_value,
