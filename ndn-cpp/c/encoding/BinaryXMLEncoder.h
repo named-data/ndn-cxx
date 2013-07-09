@@ -104,6 +104,14 @@ ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalInt(struct ndn_BinaryXMLEncod
  */
 ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, unsigned int value);
 
+/**
+ * Write a BLOB header, then the value to self->output encoded as big endian.
+ * @param self pointer to the ndn_BinaryXMLEncoder struct
+ * @param value the unsigned int to encode as big endian.  If value is 0, the big endian encoding has zero bytes.
+ * @return 0 for success, else an error code
+ */
+ndn_Error ndn_BinaryXMLEncoder_writeUnsignedIntBigEndianBlob(struct ndn_BinaryXMLEncoder *self, unsigned int value);
+
 #ifdef	__cplusplus
 }
 #endif
