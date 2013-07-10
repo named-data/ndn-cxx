@@ -3,8 +3,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef BINARYXMLSTRUCTUREDECODER_HPP
-#define	BINARYXMLSTRUCTUREDECODER_HPP
+#ifndef NDN_BINARYXMLSTRUCTUREDECODER_HPP
+#define	NDN_BINARYXMLSTRUCTUREDECODER_HPP
 
 #include <stdexcept>
 #include "../c/encoding/BinaryXMLStructureDecoder.h"
@@ -46,5 +46,4 @@ private:
 
 }
 
-#endif	/* BINARYXMLSTRUCTUREDECODER_HPP */
-
+#endif
