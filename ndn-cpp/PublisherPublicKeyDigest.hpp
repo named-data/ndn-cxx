@@ -38,7 +38,7 @@ public:
    * Clear this PublisherPublicKeyDigest, and copy from the ndn_PublisherPublicKeyDigest struct.
    * @param excludeStruct a C ndn_Exclude struct
    */
-  void set(struct ndn_PublisherPublicKeyDigest &publisherPublicKeyDigestStruct) 
+  void set(const struct ndn_PublisherPublicKeyDigest &publisherPublicKeyDigestStruct) 
   {
   	publisherPublicKeyDigest_.clear();
     if (publisherPublicKeyDigestStruct.publisherPublicKeyDigest)

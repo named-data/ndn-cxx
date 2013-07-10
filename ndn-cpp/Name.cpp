@@ -236,7 +236,7 @@ void Name::get(struct ndn_Name &nameStruct) const
     components_[i].get(nameStruct.components[i]);
 }
   
-void Name::set(struct ndn_Name &nameStruct) 
+void Name::set(const struct ndn_Name &nameStruct) 
 {
   clear();
   for (unsigned int i = 0; i < nameStruct.nComponents; ++i)

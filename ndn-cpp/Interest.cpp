@@ -20,7 +20,7 @@ void Exclude::get(struct ndn_Exclude &excludeStruct) const
     entries_[i].get(excludeStruct.entries[i]);  
 }
 
-void Exclude::set(struct ndn_Exclude &excludeStruct)
+void Exclude::set(const struct ndn_Exclude &excludeStruct)
 {
   entries_.clear();
   for (unsigned int i = 0; i < excludeStruct.nEntries; ++i) {
@@ -35,7 +35,7 @@ void Exclude::set(struct ndn_Exclude &excludeStruct)
   }
 }
 
-void Interest::set(struct ndn_Interest &interestStruct) 
+void Interest::set(const struct ndn_Interest &interestStruct) 
 {
   name_.set(interestStruct.name);
 	minSuffixComponents_ = interestStruct.minSuffixComponents;

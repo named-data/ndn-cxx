@@ -85,7 +85,7 @@ public:
    * Clear this Exclude, and set the entries by copying from the ndn_Exclude struct.
    * @param excludeStruct a C ndn_Exclude struct
    */
-  void set(struct ndn_Exclude &excludeStruct);
+  void set(const struct ndn_Exclude &excludeStruct);
 
   /**
    * Add a new entry of type ndn_Exclude_ANY
@@ -178,7 +178,7 @@ public:
    * Clear this interest, and set the values by copying from the interest struct.
    * @param interestStruct a C ndn_Interest struct
    */
-  void set(struct ndn_Interest &interestStruct);
+  void set(const struct ndn_Interest &interestStruct);
   
   void setMinSuffixComponents(int value) { minSuffixComponents_ = value; }
   

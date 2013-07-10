@@ -101,7 +101,7 @@ public:
    * Clear this name, and set the components by copying from the name struct.
    * @param nameStruct a C ndn_Name struct
    */
-  void set(struct ndn_Name &nameStruct);
+  void set(const struct ndn_Name &nameStruct);
   
   /**
    * Add a new component, copying from value of length valueLength.
