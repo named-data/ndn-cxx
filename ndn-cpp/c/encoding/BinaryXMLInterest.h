@@ -8,6 +8,8 @@
 
 #include "../errors.h"
 #include "../Interest.h"
+#include "BinaryXMLEncoder.h"
+#include "BinaryXMLDecoder.h"
 
 #ifdef	__cplusplus
 extern "C" {

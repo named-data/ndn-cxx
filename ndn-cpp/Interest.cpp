@@ -41,10 +41,7 @@ void Interest::set(struct ndn_Interest &interestStruct)
 	minSuffixComponents_ = interestStruct.minSuffixComponents;
 	maxSuffixComponents_ = interestStruct.maxSuffixComponents;
 	
-	publisherPublicKeyDigest_.clear();
-  if (interestStruct.publisherPublicKeyDigest)
-    publisherPublicKeyDigest_.insert
-      (publisherPublicKeyDigest_.begin(), interestStruct.publisherPublicKeyDigest, interestStruct.publisherPublicKeyDigest + interestStruct.publisherPublicKeyDigestLength);
+	publisherPublicKeyDigest_.set(interestStruct.publisherPublicKeyDigest);
   
   exclude_.set(interestStruct.exclude);
 	childSelector_ = interestStruct.childSelector;
@@ -62,13 +59,7 @@ void Interest::get(struct ndn_Interest &interestStruct) const
   name_.get(interestStruct.name);
   interestStruct.minSuffixComponents = minSuffixComponents_;
   interestStruct.maxSuffixComponents = maxSuffixComponents_;
-  
-  interestStruct.publisherPublicKeyDigestLength = publisherPublicKeyDigest_.size();
-  if (publisherPublicKeyDigest_.size() > 0)
-    interestStruct.publisherPublicKeyDigest = (unsigned char *)&publisherPublicKeyDigest_[0];
-  else
-    interestStruct.publisherPublicKeyDigest = 0;
-  
+  publisherPublicKeyDigest_.get(interestStruct.publisherPublicKeyDigest);
   exclude_.get(interestStruct.exclude);
   interestStruct.childSelector = childSelector_;
   interestStruct.answerOriginKind = answerOriginKind_;

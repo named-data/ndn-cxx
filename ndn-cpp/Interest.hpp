@@ -8,10 +8,14 @@
 
 #include <vector>
 #include "Name.hpp"
+#include "PublisherPublicKeyDigest.hpp"
 #include "c/Interest.h"
 
 namespace ndn {
   
+/**
+ * An ExcludeEntry holds an ndn_ExcludeType, and if it is a COMPONENT, it holds the component value.
+ */
 class ExcludeEntry {
 public:
   /**
@@ -33,7 +37,7 @@ public:
   /**
    * Set the type in the excludeEntryStruct and to point to this component, without copying any memory.
    * WARNING: The resulting pointer in excludeEntryStruct is invalid after a further use of this object which could reallocate memory.
-   * @param excludeEntryStruct the C ndn_NameComponent struct to receive the pointer.
+   * @param excludeEntryStruct the C ndn_NameComponent struct to receive the pointer
    */
   void get(struct ndn_ExcludeEntry &excludeEntryStruct) const 
   {
@@ -53,6 +57,9 @@ private:
   std::vector<unsigned char> component_; /**< only used if type_ is ndn_Exclude_COMPONENT */
 }; 
   
+/**
+ * An Exclude holds a vector of ExcludeEntry.
+ */
 class Exclude {
 public:
   /**
@@ -68,14 +75,14 @@ public:
   const ExcludeEntry &getEntry(unsigned int i) const { return entries_[i]; }
   
   /**
-   * Set the excludeStruct to point to the entries in this exclude, without copying any memory.
+   * Set the excludeStruct to point to the entries in this Exclude, without copying any memory.
    * WARNING: The resulting pointers in excludeStruct are invalid after a further use of this object which could reallocate memory.
-   * @param excludeStruct a C ndn_Exclude struct where the entries array is already allocated.
+   * @param excludeStruct a C ndn_Exclude struct where the entries array is already allocated
    */
   void get(struct ndn_Exclude &excludeStruct) const;
   
   /**
-   * Clear this exclude, and set the entries by copying from the ndn_Exclude struct.
+   * Clear this Exclude, and set the entries by copying from the ndn_Exclude struct.
    * @param excludeStruct a C ndn_Exclude struct
    */
   void set(struct ndn_Exclude &excludeStruct);
@@ -107,6 +114,9 @@ private:
 	std::vector<ExcludeEntry> entries_;
 };
 
+/**
+ * An Interest holds a Name and other fields for an interest.
+ */
 class Interest {
 public:    
   void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) const 
@@ -148,7 +158,8 @@ public:
   
   int getMaxSuffixComponents() const { return maxSuffixComponents_; }
   
-  const std::vector<unsigned char> getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
+  PublisherPublicKeyDigest &getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
+  const PublisherPublicKeyDigest &getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
 
   Exclude &getExclude() { return exclude_; }
   const Exclude &getExclude() const { return exclude_; }
@@ -173,8 +184,6 @@ public:
   
   void setMaxSuffixComponents(int value) { maxSuffixComponents_ = value; }
   
-  void setPublisherPublicKeyDigest(const std::vector<unsigned char> &value) { publisherPublicKeyDigest_ = value; }
-
   void setChildSelector(int value) { childSelector_ = value; }
 
   void setAnswerOriginKind(int value) { answerOriginKind_ = value; }
@@ -190,7 +199,7 @@ private:
   Name name_;
 	int minSuffixComponents_;
 	int maxSuffixComponents_;	
-	std::vector<unsigned char> publisherPublicKeyDigest_;
+	PublisherPublicKeyDigest publisherPublicKeyDigest_;
   Exclude exclude_;
 	int childSelector_;
 	int answerOriginKind_;

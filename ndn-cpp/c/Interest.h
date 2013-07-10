@@ -7,6 +7,7 @@
 #define	NDN_INTEREST_H
 
 #include "Name.h"
+#include "PublisherPublicKeyDigest.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -72,12 +73,14 @@ enum {
   ndn_Interest_DEFAULT_ANSWER_ORIGIN_KIND = ndn_Interest_ANSWER_CONTENT_STORE | ndn_Interest_ANSWER_GENERATED
 };
 
+/**
+ * An ndn_Interest holds an ndn_Name and other fields for an interest.
+ */
 struct ndn_Interest {
   struct ndn_Name name;
 	int minSuffixComponents;  /**< -1 for none */
 	int maxSuffixComponents;  /**< -1 for none */
-	unsigned char *publisherPublicKeyDigest;      /**< pointer to pre-allocated buffer.  0 for none */
-  unsigned int publisherPublicKeyDigestLength; /**< length of publisherPublicKeyDigest.  0 for none */
+  struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
 	struct ndn_Exclude exclude;
 	int childSelector;        /**< -1 for none */
 	int answerOriginKind;     /**< -1 for none */
@@ -103,8 +106,7 @@ static inline void ndn_Interest_init
   ndn_Name_init(&self->name, nameComponents, maxNameComponents);
 	self->minSuffixComponents = -1;
   self->maxSuffixComponents = -1;
-	self->publisherPublicKeyDigest = 0;
-	self->publisherPublicKeyDigestLength = 0;
+  ndn_PublisherPublicKeyDigest_init(&self->publisherPublicKeyDigest);
   ndn_Exclude_init(&self->exclude, excludeEntries, maxExcludeEntries);
 	self->childSelector = -1;
 	self->answerOriginKind = -1;

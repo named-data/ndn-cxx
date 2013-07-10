@@ -40,6 +40,7 @@ int main(int argc, char** argv)
     interest.decode(Interest1, sizeof(Interest1));
     cout << "Interest name " << interest.getName().to_uri() << endl;
     cout << "Interest minSuffixComponents " << interest.getMinSuffixComponents() << endl;
+    cout << "Interest publisherPublicKeyDigest length " << interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() << endl;
     cout << "Interest excludeEntryCount " << interest.getExclude().getEntryCount() << endl;
     cout << "InterestLifetime " << interest.getInterestLifetime() << endl;
     
@@ -51,6 +52,7 @@ int main(int argc, char** argv)
     reDecodedInterest.decode(encoding);
     cout << "Re-decoded Interest name " << reDecodedInterest.getName().to_uri() << endl;
     cout << "Re-decoded Interest minSuffixComponents " << reDecodedInterest.getMinSuffixComponents() << endl;
+    cout << "Re-decoded Interest publisherPublicKeyDigest length " << reDecodedInterest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() << endl;
     cout << "Re-decoded Interest excludeEntryCount " << reDecodedInterest.getExclude().getEntryCount() << endl;
     cout << "Re-decoded InterestLifetime " << reDecodedInterest.getInterestLifetime() << endl;
   } catch (exception &e) {

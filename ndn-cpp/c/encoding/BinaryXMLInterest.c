@@ -7,6 +7,7 @@
 #include "BinaryXMLEncoder.h"
 #include "BinaryXMLDecoder.h"
 #include "BinaryXMLName.h"
+#include "BinaryXMLPublisherPublicKeyDigest.h"
 #include "BinaryXMLInterest.h"
 
 static ndn_Error encodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXMLEncoder *encoder)
@@ -138,13 +139,11 @@ ndn_Error ndn_encodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_
       return error;
   }
     
-  if (interest->publisherPublicKeyDigest && interest->publisherPublicKeyDigestLength > 0) {
-    if (error = ndn_BinaryXMLEncoder_writeBlobDTagElement
-        (encoder, ndn_BinaryXML_DTag_PublisherPublicKeyDigest, interest->publisherPublicKeyDigest, interest->publisherPublicKeyDigestLength))
-      return error;
-  }
+  // This will skip encoding if there is no publisherPublicKeyDigest.
+  if (error = ndn_encodeBinaryXMLPublisherPublicKeyDigest(&interest->publisherPublicKeyDigest, encoder))
+    return error;
   
-  // This will check for no exclude.
+  // This will skip encoding if there is no exclude.
   if (error = encodeExclude(&interest->exclude, encoder))
     return error;
 
@@ -208,14 +207,12 @@ ndn_Error ndn_decodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_
   if (error = ndn_BinaryXMLDecoder_peekDTag(decoder, ndn_BinaryXML_DTag_PublisherPublicKeyDigest, &gotExpectedTag))
     return error;
   if (gotExpectedTag) {
-    if (error = ndn_BinaryXMLDecoder_readBinaryDTagElement
-        (decoder, ndn_BinaryXML_DTag_PublisherPublicKeyDigest, 0, &interest->publisherPublicKeyDigest,
-         &interest->publisherPublicKeyDigestLength))
+    if (error = ndn_decodeBinaryXMLPublisherPublicKeyDigest(&interest->publisherPublicKeyDigest, decoder))
       return error;
   }
   else {
-    interest->publisherPublicKeyDigest = 0;
-    interest->publisherPublicKeyDigestLength = 0;
+    interest->publisherPublicKeyDigest.publisherPublicKeyDigest = 0;
+    interest->publisherPublicKeyDigest.publisherPublicKeyDigestLength = 0;
   }
   
   if (error = ndn_BinaryXMLDecoder_peekDTag(decoder, ndn_BinaryXML_DTag_Exclude, &gotExpectedTag))
