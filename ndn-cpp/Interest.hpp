@@ -118,6 +118,16 @@ private:
  */
 class Interest {
 public:    
+  Interest() 
+  {
+  	minSuffixComponents_ = -1;
+	  maxSuffixComponents_ = -1;	
+	  childSelector_ = -1;
+	  answerOriginKind_ = -1;
+	  scope_ = -1;
+	  interestLifetime_ = -1;
+  }
+  
   void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) const 
   {
     wireFormat.encodeInterest(*this, output);
