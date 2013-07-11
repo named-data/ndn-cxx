@@ -132,6 +132,29 @@ ndn_Error ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
   (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int *value);
 
 /**
+ * Decode the header from self's input starting at offset, expecting the type to be DTAG and the value to be expectedTag.
+ * Then read one item, parse it as an unsigned big endian integer in 4096 ticks per second, and convert it to milliseconds.
+ * Finally, read the element close.  Update offset.
+ * @param self pointer to the ndn_BinaryXMLDecoder struct
+ * @param expectedTag the expected value for DTAG
+ * @param value output the number of milliseconds
+ * @return 0 for success, else an error code, including an error if not the expected tag
+ */
+ndn_Error ndn_BinaryXMLDecoder_readTimeMillisecondsDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, double *value);
+
+/**
+ * Peek at the next element, and if it has the expectedTag then call ndn_BinaryXMLDecoder_readTimeMillisecondsDTagElement.
+ * Otherwise, set value to -1.0 .
+ * @param self pointer to the ndn_BinaryXMLDecoder struct
+ * @param expectedTag the expected value for DTAG
+ * @param value output the number of milliseconds, or -1.0 if the next element doesn't have expectedTag.
+ * @return 0 for success, else an error code
+ */
+ndn_Error ndn_BinaryXMLDecoder_readOptionalTimeMillisecondsDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, double *value);
+
+/**
  * Interpret the bytes as an unsigned big endian integer and convert to a double. Don't check for overflow.
  * We use a double because it is large enough to represent NDN time (4096 ticks per second since 1970).
  * @param bytes pointer to the array of bytes

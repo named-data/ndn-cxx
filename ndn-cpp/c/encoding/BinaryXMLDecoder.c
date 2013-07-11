@@ -247,6 +247,38 @@ ndn_Error ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
   return 0;
 }
 
+ndn_Error ndn_BinaryXMLDecoder_readTimeMillisecondsDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, double *value)
+{
+  ndn_Error error;
+  unsigned char *bytes;
+  unsigned int bytesLength;
+  if (error = ndn_BinaryXMLDecoder_readBinaryDTagElement(self, expectedTag, 0, &bytes, &bytesLength))
+    return error;
+    
+  *value = 1000.0 * ndn_BinaryXMLDecoder_unsignedBigEndianToDouble(bytes, bytesLength) / 4096.0;
+  return 0;  
+}
+
+ndn_Error ndn_BinaryXMLDecoder_readOptionalTimeMillisecondsDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, double *value)
+{
+  int gotExpectedTag;
+  ndn_Error error;
+  if (error = ndn_BinaryXMLDecoder_peekDTag(self, expectedTag, &gotExpectedTag))
+    return error;
+    
+  if (!gotExpectedTag) {
+    *value = -1.0;
+    return 0;
+  }
+
+  if (error = ndn_BinaryXMLDecoder_readTimeMillisecondsDTagElement(self, expectedTag, value))
+    return error;
+  
+  return 0;
+}
+
 double ndn_BinaryXMLDecoder_unsignedBigEndianToDouble(unsigned char *bytes, unsigned int bytesLength) 
 {
   double result = 0.0;
