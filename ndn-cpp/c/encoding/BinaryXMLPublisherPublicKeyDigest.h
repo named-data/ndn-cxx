@@ -34,6 +34,16 @@ ndn_Error ndn_encodeBinaryXMLPublisherPublicKeyDigest
 ndn_Error ndn_decodeBinaryXMLPublisherPublicKeyDigest
   (struct ndn_PublisherPublicKeyDigest *publisherPublicKeyDigest, struct ndn_BinaryXMLDecoder *decoder);
 
+/**
+ * Peek the next element and if it is a Binary XML PublisherPublicKeyDigest and decode into the ndn_PublisherPublicKeyDigest struct.
+ * Otherwise, set the ndn_PublisherPublicKeyDigest struct to none.
+ * @param publisherPublicKeyDigest pointer to the ndn_PublisherPublicKeyDigest struct
+ * @param decoder pointer to the ndn_BinaryXMLDecoder struct
+ * @return 0 for success, else an error code, including if the next element is not PublisherPublicKeyDigest.
+ */
+ndn_Error ndn_decodeOptionalBinaryXMLPublisherPublicKeyDigest
+  (struct ndn_PublisherPublicKeyDigest *publisherPublicKeyDigest, struct ndn_BinaryXMLDecoder *decoder);
+
 #ifdef	__cplusplus
 }
 #endif

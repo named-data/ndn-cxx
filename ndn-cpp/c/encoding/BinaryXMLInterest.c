@@ -203,18 +203,10 @@ ndn_Error ndn_decodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_
       (decoder, ndn_BinaryXML_DTag_MaxSuffixComponents, &interest->maxSuffixComponents))
     return error;
   
-  int gotExpectedTag;
-  if (error = ndn_BinaryXMLDecoder_peekDTag(decoder, ndn_BinaryXML_DTag_PublisherPublicKeyDigest, &gotExpectedTag))
+  if (error = ndn_decodeOptionalBinaryXMLPublisherPublicKeyDigest(&interest->publisherPublicKeyDigest, decoder))
     return error;
-  if (gotExpectedTag) {
-    if (error = ndn_decodeBinaryXMLPublisherPublicKeyDigest(&interest->publisherPublicKeyDigest, decoder))
-      return error;
-  }
-  else {
-    interest->publisherPublicKeyDigest.publisherPublicKeyDigest = 0;
-    interest->publisherPublicKeyDigest.publisherPublicKeyDigestLength = 0;
-  }
   
+  int gotExpectedTag;
   if (error = ndn_BinaryXMLDecoder_peekDTag(decoder, ndn_BinaryXML_DTag_Exclude, &gotExpectedTag))
     return error;
   if (gotExpectedTag) {
