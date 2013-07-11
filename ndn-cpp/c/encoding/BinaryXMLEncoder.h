@@ -86,7 +86,7 @@ ndn_Error ndn_BinaryXMLEncoder_writeBlob(struct ndn_BinaryXMLEncoder *self, unsi
 ndn_Error ndn_BinaryXMLEncoder_writeBlobDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength);
 
 /**
- * If value or valueLen is 0, then do nothing, otherwise call ndn_BinaryXMLEncoder_writeBlobDTagElement.
+ * If value or valueLen is 0 then do nothing, otherwise call ndn_BinaryXMLEncoder_writeBlobDTagElement.
  * @param self pointer to the ndn_BinaryXMLEncoder struct
  * @param tag the DTAG tag
  * @param value an array of bytes for the blob value
@@ -120,6 +120,21 @@ ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalInt(struct ndn_BinaryXMLEncod
  * @return 0 for success, else an error code
  */
 ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, unsigned int value);
+
+/**
+ * If value is negative then do nothing, otherwise call ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement.
+ * @param self pointer to the ndn_BinaryXMLEncoder struct
+ * @param tag the DTAG tag
+ * @param value negative for none, otherwise use (unsigned int)value
+ * @return 0 for success, else an error code
+ */
+static inline ndn_Error ndn_BinaryXMLEncoder_writeOptionalUnsignedDecimalIntDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, int value)
+{
+  if (value >= 0)
+    return ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement(self, tag, (unsigned int)value);
+  else
+    return 0;
+}
 
 /**
  * Write a BLOB header, then the value to self->output encoded as big endian.

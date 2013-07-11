@@ -128,16 +128,12 @@ ndn_Error ndn_encodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_
   if (error = ndn_encodeBinaryXMLName(&interest->name, encoder))
     return error;
   
-  if (interest->minSuffixComponents >= 0) {
-    if (error = ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement
-        (encoder, ndn_BinaryXML_DTag_MinSuffixComponents, (unsigned int)interest->minSuffixComponents))
-      return error;
-  }
-  if (interest->maxSuffixComponents >= 0) {
-    if (error = ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement
-        (encoder, ndn_BinaryXML_DTag_MaxSuffixComponents, (unsigned int)interest->maxSuffixComponents))
-      return error;
-  }
+  if (error = ndn_BinaryXMLEncoder_writeOptionalUnsignedDecimalIntDTagElement
+      (encoder, ndn_BinaryXML_DTag_MinSuffixComponents, interest->minSuffixComponents))
+    return error;
+  if (error = ndn_BinaryXMLEncoder_writeOptionalUnsignedDecimalIntDTagElement
+      (encoder, ndn_BinaryXML_DTag_MaxSuffixComponents, interest->maxSuffixComponents))
+    return error;
     
   // This will skip encoding if there is no publisherPublicKeyDigest.
   if (error = ndn_encodeBinaryXMLPublisherPublicKeyDigest(&interest->publisherPublicKeyDigest, encoder))
@@ -147,21 +143,17 @@ ndn_Error ndn_encodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_
   if (error = encodeExclude(&interest->exclude, encoder))
     return error;
 
-  if (interest->childSelector >= 0) {
-    if (error = ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement
-        (encoder, ndn_BinaryXML_DTag_ChildSelector, (unsigned int)interest->childSelector))
-      return error;
-  }
+  if (error = ndn_BinaryXMLEncoder_writeOptionalUnsignedDecimalIntDTagElement
+      (encoder, ndn_BinaryXML_DTag_ChildSelector, interest->childSelector))
+    return error;
   if (interest->answerOriginKind >= 0 && interest->answerOriginKind != ndn_Interest_DEFAULT_ANSWER_ORIGIN_KIND) {
     if (error = ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement
         (encoder, ndn_BinaryXML_DTag_AnswerOriginKind, (unsigned int)interest->answerOriginKind))
       return error;
   }
-  if (interest->scope >= 0) {
-    if (error = ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement
-        (encoder, ndn_BinaryXML_DTag_Scope, (unsigned int)interest->scope))
-      return error;
-  }
+  if (error = ndn_BinaryXMLEncoder_writeOptionalUnsignedDecimalIntDTagElement
+      (encoder, ndn_BinaryXML_DTag_Scope, interest->scope))
+    return error;
   
   if (interest->interestLifetime >= 0) {
     if (error = ndn_BinaryXMLEncoder_writeElementStartDTag(encoder, ndn_BinaryXML_DTag_InterestLifetime))
