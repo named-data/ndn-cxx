@@ -132,12 +132,13 @@ ndn_Error ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
   (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int *value);
 
 /**
- * Convert the big endian bytes to an unsigned int. Don't check for overflow.
+ * Interpret the bytes as an unsigned big endian integer and convert to a double. Don't check for overflow.
+ * We use a double because it is large enough to represent NDN time (4096 ticks per second since 1970).
  * @param bytes pointer to the array of bytes
  * @param bytesLength the length of bytes
- * @return the result unsigned int
+ * @return the result
  */
-unsigned int ndn_BinaryXMLDecoder_bigEndianToUnsignedInt(unsigned char *bytes, unsigned int bytesLength); 
+double ndn_BinaryXMLDecoder_unsignedBigEndianToDouble(unsigned char *bytes, unsigned int bytesLength); 
 
 /**
  * Set the offset into the input, used for the next read.

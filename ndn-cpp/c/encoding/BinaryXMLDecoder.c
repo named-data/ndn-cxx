@@ -247,13 +247,13 @@ ndn_Error ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
   return 0;
 }
 
-unsigned int ndn_BinaryXMLDecoder_bigEndianToUnsignedInt(unsigned char *bytes, unsigned int bytesLength) 
+double ndn_BinaryXMLDecoder_unsignedBigEndianToDouble(unsigned char *bytes, unsigned int bytesLength) 
 {
-  unsigned int result = 0;
+  double result = 0.0;
   unsigned int i;
   for (i = 0; i < bytesLength; ++i) {
-    result <<= 8;
-    result += (unsigned int)bytes[i];
+    result *= 256.0;
+    result += (double)bytes[i];
   }
   
   return result;

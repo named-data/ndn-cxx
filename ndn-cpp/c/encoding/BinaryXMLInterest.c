@@ -226,7 +226,7 @@ ndn_Error ndn_decodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_
       return error;
     
     interest->interestLifetimeMilliseconds = 1000.0 * 
-      (double)ndn_BinaryXMLDecoder_bigEndianToUnsignedInt(interestLifetime, interestLifetimeLength) / 4096.0;
+      ndn_BinaryXMLDecoder_unsignedBigEndianToDouble(interestLifetime, interestLifetimeLength) / 4096.0;
   }
   else
     interest->interestLifetimeMilliseconds = -1.0;
