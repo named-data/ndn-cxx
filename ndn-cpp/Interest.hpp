@@ -6,7 +6,6 @@
 #ifndef NDN_INTEREST_HPP
 #define	NDN_INTEREST_HPP
 
-#include <vector>
 #include "Name.hpp"
 #include "PublisherPublicKeyDigest.hpp"
 #include "c/Interest.h"
