@@ -17,7 +17,7 @@ typedef enum {
 } ndn_KeyLocatorType;
   
 struct ndn_KeyLocator {
-  ndn_KeyLocatorType type;
+  ndn_KeyLocatorType type;         /**< -1 for none */
   unsigned char *keyOrCertificate; /**< if type is ndn_KeyLocatorType_KEY, pointer to the pre-allocated buffer for the key value.
                                         if type is ndn_KeyLocatorType_CERTIFICATE, pointer to the pre-allocated buffer for the cetrificate value. */
   unsigned int keyOrCertificateLength;
