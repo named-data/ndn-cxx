@@ -91,7 +91,7 @@ struct ndn_Interest {
 };
 
 /**
- * Initialize an ndn_Interest_init struct with the pre-allocated nameComponents and excludeEntries,
+ * Initialize an ndn_Interest struct with the pre-allocated nameComponents and excludeEntries,
  * and defaults for all the values.
  * @param self pointer to the ndn_Interest struct
  * @param nameComponents the pre-allocated array of ndn_NameComponent
