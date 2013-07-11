@@ -50,6 +50,8 @@ char *ndn_getErrorString(int error)
     return      "unrecognized ndn_ExcludeType";
   case NDN_ERROR_unrecognized_ndn_KeyLocatorType:
     return      "unrecognized ndn_KeyLocatorType";
+  case NDN_ERROR_decodeBinaryXMLKeyLocator_unrecognized_key_locator_type:
+    return      "decodeBinaryXMLKeyLocator unrecognized key locator type";
   default:
     return "unrecognized ndn_Error code";  
   }
