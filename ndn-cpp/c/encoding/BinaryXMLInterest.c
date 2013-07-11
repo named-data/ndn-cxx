@@ -175,11 +175,9 @@ ndn_Error ndn_encodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_
       return error;
   }
   
-  if (interest->nonce && interest->nonceLength > 0) {
-    if (error = ndn_BinaryXMLEncoder_writeBlobDTagElement
-        (encoder, ndn_BinaryXML_DTag_Nonce, interest->nonce, interest->nonceLength))
-      return error;
-  }
+  if (error = ndn_BinaryXMLEncoder_writeOptionalBlobDTagElement
+      (encoder, ndn_BinaryXML_DTag_Nonce, interest->nonce, interest->nonceLength))
+    return error;
   
 	if (error = ndn_BinaryXMLEncoder_writeElementClose(encoder))
     return error;

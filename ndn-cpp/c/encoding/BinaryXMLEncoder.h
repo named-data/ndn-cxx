@@ -86,6 +86,23 @@ ndn_Error ndn_BinaryXMLEncoder_writeBlob(struct ndn_BinaryXMLEncoder *self, unsi
 ndn_Error ndn_BinaryXMLEncoder_writeBlobDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength);
 
 /**
+ * If value or valueLen is 0, then do nothing, otherwise call ndn_BinaryXMLEncoder_writeBlobDTagElement.
+ * @param self pointer to the ndn_BinaryXMLEncoder struct
+ * @param tag the DTAG tag
+ * @param value an array of bytes for the blob value
+ * @param valueLength the length of the array
+ * @return 0 for success, else an error code
+ */
+static inline ndn_Error ndn_BinaryXMLEncoder_writeOptionalBlobDTagElement
+  (struct ndn_BinaryXMLEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength)
+{
+  if (value && valueLength > 0)
+    return ndn_BinaryXMLEncoder_writeBlobDTagElement(self, tag, value, valueLength);
+  else
+    return 0;
+}
+
+/**
  * Write a UDATA header, then the value as an unsigned decimal integer.
  * @param self pointer to the ndn_BinaryXMLEncoder struct
  * @param value the unsigned int
