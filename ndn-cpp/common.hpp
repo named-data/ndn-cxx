@@ -6,6 +6,7 @@
 #ifndef NDN_COMMON_HPP
 #define NDN_COMMON_HPP
 
+#include <vector>
 #include "../config.h"
 
 // Depending on where ./configure found shared_ptr, define the ptr_lib namespace.
@@ -20,5 +21,22 @@ namespace ndn { namespace ptr_lib = boost; }
 #else
 #error "Can't find shared_ptr in std or boost"
 #endif
+
+namespace ndn {
+  
+/**
+ * Clear the vector and copy valueLength bytes from value.
+ * @param v the vector to copy to
+ * @param value the array of bytes, or 0 to not copy
+ * @param valueLength the length of value
+ */
+static inline void setVector(std::vector<unsigned char> &vec, const unsigned char *value, unsigned int valueLength) 
+{
+	vec.clear();
+  if (value)
+    vec.insert(vec.begin(), value, value + valueLength);  
+}
+  
+}
 
 #endif

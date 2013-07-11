@@ -4,6 +4,7 @@
  */
 
 #include <stdexcept>
+#include "common.hpp"
 #include "Interest.hpp"
 
 using namespace std;
@@ -48,10 +49,7 @@ void Interest::set(const struct ndn_Interest &interestStruct)
 	answerOriginKind_ = interestStruct.answerOriginKind;
 	scope_ = interestStruct.scope;
 	interestLifetime_ = interestStruct.interestLifetime;
-	nonce_.clear();
-  if (interestStruct.nonce)
-    nonce_.insert
-      (nonce_.begin(), interestStruct.nonce, interestStruct.nonce + interestStruct.nonceLength);
+  setVector(nonce_, interestStruct.nonce, interestStruct.nonceLength);
 }
 
 void Interest::get(struct ndn_Interest &interestStruct) const 

@@ -7,6 +7,7 @@
 #define	NDN_PUBLISHERPUBLICKEYDIGEST_HPP
 
 #include <vector>
+#include "common.hpp"
 #include "c/PublisherPublicKeyDigest.h"
 
 namespace ndn {
@@ -40,11 +41,8 @@ public:
    */
   void set(const struct ndn_PublisherPublicKeyDigest &publisherPublicKeyDigestStruct) 
   {
-  	publisherPublicKeyDigest_.clear();
-    if (publisherPublicKeyDigestStruct.publisherPublicKeyDigest)
-      publisherPublicKeyDigest_.insert
-        (publisherPublicKeyDigest_.begin(), publisherPublicKeyDigestStruct.publisherPublicKeyDigest, 
-         publisherPublicKeyDigestStruct.publisherPublicKeyDigest + publisherPublicKeyDigestStruct.publisherPublicKeyDigestLength);
+    setVector(publisherPublicKeyDigest_, publisherPublicKeyDigestStruct.publisherPublicKeyDigest, 
+              publisherPublicKeyDigestStruct.publisherPublicKeyDigestLength);
   }
 
   const std::vector<unsigned char> &getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
