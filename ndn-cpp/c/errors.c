@@ -48,6 +48,8 @@ char *ndn_getErrorString(int error)
     return      "DynamicUCharArray realloc failed";
   case NDN_ERROR_unrecognized_ndn_ExcludeType:
     return      "unrecognized ndn_ExcludeType";
+  case NDN_ERROR_unrecognized_ndn_KeyLocatorType:
+    return      "unrecognized ndn_KeyLocatorType";
   default:
     return "unrecognized ndn_Error code";  
   }
