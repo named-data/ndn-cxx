@@ -99,7 +99,7 @@ static inline ndn_Error ndn_BinaryXMLEncoder_writeOptionalBlobDTagElement
   if (value && valueLength > 0)
     return ndn_BinaryXMLEncoder_writeBlobDTagElement(self, tag, value, valueLength);
   else
-    return 0;
+    return (ndn_Error)0;
 }
 
 /**
@@ -133,7 +133,7 @@ static inline ndn_Error ndn_BinaryXMLEncoder_writeOptionalUnsignedDecimalIntDTag
   if (value >= 0)
     return ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement(self, tag, (unsigned int)value);
   else
-    return 0;
+    return (ndn_Error)0;
 }
 
 /**
