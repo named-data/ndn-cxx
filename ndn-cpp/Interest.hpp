@@ -125,7 +125,7 @@ public:
 	  childSelector_ = -1;
 	  answerOriginKind_ = -1;
 	  scope_ = -1;
-	  interestLifetime_ = -1;
+	  interestLifetimeMilliseconds_ = -1.0;
   }
   
   void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) const 
@@ -179,7 +179,7 @@ public:
 
   int getScope() const { return scope_; }
 
-  int getInterestLifetime() const { return interestLifetime_; }
+  double getInterestLifetimeMilliseconds() const { return interestLifetimeMilliseconds_; }
 
   const std::vector<unsigned char> getNonce() const { return nonce_; }
   
@@ -199,7 +199,7 @@ public:
 
   void setScope(int value) { scope_ = value; }
 
-  void setInterestLifetime(int value) { interestLifetime_ = value; }
+  void setInterestLifetimeMilliseconds(double value) { interestLifetimeMilliseconds_ = value; }
 
   void setNonce(const std::vector<unsigned char> &value) { nonce_ = value; }
   
@@ -213,7 +213,7 @@ private:
 	int childSelector_;
 	int answerOriginKind_;
 	int scope_;
-	int interestLifetime_;
+	double interestLifetimeMilliseconds_;
 	std::vector<unsigned char> nonce_;
 };
   

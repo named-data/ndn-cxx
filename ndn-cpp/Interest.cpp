@@ -48,7 +48,7 @@ void Interest::set(const struct ndn_Interest &interestStruct)
 	childSelector_ = interestStruct.childSelector;
 	answerOriginKind_ = interestStruct.answerOriginKind;
 	scope_ = interestStruct.scope;
-	interestLifetime_ = interestStruct.interestLifetime;
+	interestLifetimeMilliseconds_ = interestStruct.interestLifetimeMilliseconds;
   setVector(nonce_, interestStruct.nonce, interestStruct.nonceLength);
 }
 
@@ -62,7 +62,7 @@ void Interest::get(struct ndn_Interest &interestStruct) const
   interestStruct.childSelector = childSelector_;
   interestStruct.answerOriginKind = answerOriginKind_;
   interestStruct.scope = scope_;
-  interestStruct.interestLifetime = interestLifetime_;
+  interestStruct.interestLifetimeMilliseconds = interestLifetimeMilliseconds_;
 
   interestStruct.nonceLength = nonce_.size();
   if (nonce_.size() > 0)

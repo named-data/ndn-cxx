@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     cout << "Interest minSuffixComponents " << interest.getMinSuffixComponents() << endl;
     cout << "Interest publisherPublicKeyDigest length " << interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() << endl;
     cout << "Interest excludeEntryCount " << interest.getExclude().getEntryCount() << endl;
-    cout << "InterestLifetime " << interest.getInterestLifetime() << endl;
+    cout << "InterestLifetimeMilliseconds " << interest.getInterestLifetimeMilliseconds() << endl;
     
     vector<unsigned char> encoding;
     interest.encode(encoding);
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     cout << "Re-decoded Interest minSuffixComponents " << reDecodedInterest.getMinSuffixComponents() << endl;
     cout << "Re-decoded Interest publisherPublicKeyDigest length " << reDecodedInterest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() << endl;
     cout << "Re-decoded Interest excludeEntryCount " << reDecodedInterest.getExclude().getEntryCount() << endl;
-    cout << "Re-decoded InterestLifetime " << reDecodedInterest.getInterestLifetime() << endl;
+    cout << "Re-decoded InterestLifetimeMilliseconds " << reDecodedInterest.getInterestLifetimeMilliseconds() << endl;
   } catch (exception &e) {
     cout << "exception: " << e.what() << endl;
   }

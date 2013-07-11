@@ -155,11 +155,11 @@ ndn_Error ndn_encodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_
       (encoder, ndn_BinaryXML_DTag_Scope, interest->scope))
     return error;
   
-  if (interest->interestLifetime >= 0) {
+  if (interest->interestLifetimeMilliseconds >= 0) {
     if (error = ndn_BinaryXMLEncoder_writeElementStartDTag(encoder, ndn_BinaryXML_DTag_InterestLifetime))
       return error;
    
-    unsigned int ticks = (unsigned int)(((double)interest->interestLifetime / 1000.0) * 4096.0);
+    unsigned int ticks = (unsigned int)((interest->interestLifetimeMilliseconds / 1000.0) * 4096.0);
     if (error = ndn_BinaryXMLEncoder_writeUnsignedIntBigEndianBlob(encoder, ticks))
       return error;
     
@@ -225,11 +225,11 @@ ndn_Error ndn_decodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_
         (decoder, ndn_BinaryXML_DTag_InterestLifetime, 0, &interestLifetime, &interestLifetimeLength))
       return error;
     
-    interest->interestLifetime = (int)(1000.0 * 
-      (double)ndn_BinaryXMLDecoder_bigEndianToUnsignedInt(interestLifetime, interestLifetimeLength) / 4096.0);
+    interest->interestLifetimeMilliseconds = 1000.0 * 
+      (double)ndn_BinaryXMLDecoder_bigEndianToUnsignedInt(interestLifetime, interestLifetimeLength) / 4096.0;
   }
   else
-    interest->interestLifetime = -1;
+    interest->interestLifetimeMilliseconds = -1.0;
   
   if (error = ndn_BinaryXMLDecoder_readOptionalBinaryDTagElement
       (decoder, ndn_BinaryXML_DTag_Nonce, 0, &interest->nonce, &interest->nonceLength))

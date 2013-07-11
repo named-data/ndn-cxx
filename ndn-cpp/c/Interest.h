@@ -85,7 +85,7 @@ struct ndn_Interest {
 	int childSelector;        /**< -1 for none */
 	int answerOriginKind;     /**< -1 for none */
 	int scope;                /**< -1 for none */
-	int interestLifetime;     /**< milliseconds. -1 for none */
+	double interestLifetimeMilliseconds; /**< milliseconds. -1.0 for none */
 	unsigned char *nonce;	    /**< pointer to pre-allocated buffer.  0 for none */
   unsigned int nonceLength; /**< length of nonce.  0 for none */
 };
@@ -111,7 +111,7 @@ static inline void ndn_Interest_init
 	self->childSelector = -1;
 	self->answerOriginKind = -1;
 	self->scope = -1;
-	self->interestLifetime = -1;
+	self->interestLifetimeMilliseconds = -1.0;
 	self->nonce = 0;
 	self->nonceLength = 0;
 }
