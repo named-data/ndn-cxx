@@ -35,6 +35,17 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     AC_DEFINE_UNQUOTED([HAVE_BOOST_SHARED_PTR], 0, [1 if have the `boost::shared_ptr' class.])
 ])
 
+AC_MSG_CHECKING([for memcmp])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+    [[#include <memory.h>]]
+    [[void test() { unsigned char buffer[1]; memcmp(buffer, buffer, 1); }]])
+], [
+    AC_MSG_RESULT([yes])
+    AC_DEFINE_UNQUOTED([HAVE_MEMCMP], 1, [1 if have memcmp in memory.h.])
+], [
+    AC_MSG_RESULT([no])
+    AC_DEFINE_UNQUOTED([HAVE_MEMCMP], 0, [1 if have memcmp in memory.h.])
+])
 AC_MSG_CHECKING([for memcpy])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     [[#include <memory.h>]]
