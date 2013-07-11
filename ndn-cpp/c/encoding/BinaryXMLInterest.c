@@ -241,17 +241,9 @@ ndn_Error ndn_decodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_
   else
     interest->interestLifetime = -1;
   
-  if (error = ndn_BinaryXMLDecoder_peekDTag(decoder, ndn_BinaryXML_DTag_Nonce, &gotExpectedTag))
+  if (error = ndn_BinaryXMLDecoder_readOptionalBinaryDTagElement
+      (decoder, ndn_BinaryXML_DTag_Nonce, 0, &interest->nonce, &interest->nonceLength))
     return error;
-  if (gotExpectedTag) {
-    if (error = ndn_BinaryXMLDecoder_readBinaryDTagElement
-        (decoder, ndn_BinaryXML_DTag_Nonce, 0, &interest->nonce, &interest->nonceLength))
-      return error;
-  }
-  else {
-    interest->nonce = 0;
-    interest->nonceLength = 0;
-  }
 
   if (error = ndn_BinaryXMLDecoder_readElementClose(decoder))
     return error;

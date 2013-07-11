@@ -139,7 +139,7 @@ ndn_Error ndn_BinaryXMLDecoder_peekDTag(struct ndn_BinaryXMLDecoder *self, unsig
 }
 
 ndn_Error ndn_BinaryXMLDecoder_readBinaryDTagElement
-  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int allowNull, unsigned char **value, unsigned int *valueLen)
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int allowNull, unsigned char **value, unsigned int *valueLength)
 {
   ndn_Error error;
   if (error = ndn_BinaryXMLDecoder_readElementStartDTag(self, expectedTag))
@@ -153,17 +153,17 @@ ndn_Error ndn_BinaryXMLDecoder_readBinaryDTagElement
       // The binary item is missing, and this is allowed, so read the element close and return a null value.
       ++self->offset;
       *value = 0;
-      *valueLen = 0;
+      *valueLength = 0;
       return 0;
     }
   }
   
   unsigned int itemType;
-  if (error = ndn_BinaryXMLDecoder_decodeTypeAndValue(self, &itemType, valueLen))
+  if (error = ndn_BinaryXMLDecoder_decodeTypeAndValue(self, &itemType, valueLength))
     return error;
   // Ignore itemType.
   *value = self->input + self->offset;
-  self->offset += *valueLen;
+  self->offset += *valueLength;
   
   if (error = ndn_BinaryXMLDecoder_readElementClose(self))
     return error;
@@ -171,20 +171,39 @@ ndn_Error ndn_BinaryXMLDecoder_readBinaryDTagElement
   return 0;
 }
 
+ndn_Error ndn_BinaryXMLDecoder_readOptionalBinaryDTagElement
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, int allowNull, unsigned char **value, unsigned int *valueLength)
+{
+  ndn_Error error;
+  int gotExpectedTag;
+  if (error = ndn_BinaryXMLDecoder_peekDTag(self, expectedTag, &gotExpectedTag))
+    return error;
+  if (gotExpectedTag) {
+    if (error = ndn_BinaryXMLDecoder_readBinaryDTagElement(self, expectedTag, allowNull, value, valueLength))
+      return error;
+  }
+  else {
+    *value = 0;
+    *valueLength = 0;
+  }  
+  
+  return 0;
+}
+
 ndn_Error ndn_BinaryXMLDecoder_readUDataDTagElement
-  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, unsigned char **value, unsigned int *valueLen)
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, unsigned char **value, unsigned int *valueLength)
 {
   ndn_Error error;
   if (error = ndn_BinaryXMLDecoder_readElementStartDTag(self, expectedTag))
     return error;
     
   unsigned int itemType;
-  if (error = ndn_BinaryXMLDecoder_decodeTypeAndValue(self, &itemType, valueLen))
+  if (error = ndn_BinaryXMLDecoder_decodeTypeAndValue(self, &itemType, valueLength))
     return error;
   if (itemType != ndn_BinaryXML_UDATA)
     return NDN_ERROR_item_is_not_UDATA;
   *value = self->input + self->offset;
-  self->offset += *valueLen;
+  self->offset += *valueLength;
   
   if (error = ndn_BinaryXMLDecoder_readElementClose(self))
     return error;
