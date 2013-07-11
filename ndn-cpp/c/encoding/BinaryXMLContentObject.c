@@ -103,7 +103,9 @@ static ndn_Error decodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_
   if (error = ndn_decodeOptionalBinaryXMLPublisherPublicKeyDigest(&signedInfo->publisherPublicKeyDigest, decoder))
     return error;
   
-  // TODO: Implement timeStamp
+  if (error= ndn_BinaryXMLDecoder_readOptionalTimeMillisecondsDTagElement
+      (decoder, ndn_BinaryXML_DTag_Timestamp, &signedInfo->timestampMilliseconds))
+    return error;
   
   // TODO: Implement reading the type and converting to an int.
   signedInfo->type = ndn_ContentType_DATA;

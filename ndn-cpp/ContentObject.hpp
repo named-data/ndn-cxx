@@ -63,7 +63,7 @@ public:
 
   const PublisherPublicKeyDigest &getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
   
-  // TODO: Implement timestamp
+  double getTimestampMilliseconds() const { return timestampMilliseconds_; }
   
   int getType() const { return type_; }
   
@@ -75,10 +75,10 @@ public:
   
 private:
   PublisherPublicKeyDigest publisherPublicKeyDigest_;
-  // TODO: Implement timestamp
-  int type_;
-  int freshnessSeconds_;
-  std::vector<unsigned char> finalBlockID_;
+  double timestampMilliseconds_; /**< milliseconds since 1/1/1970. -1 for none */
+  int type_;                     /**< default is ndn_ContentType_DATA. -1 for none */
+  int freshnessSeconds_;         /**< -1 for none */
+  std::vector<unsigned char> finalBlockID_; /** size 0 for none */
   KeyLocator keyLocator_;
 };
   

@@ -41,7 +41,7 @@ void Signature::set(const struct ndn_Signature &signatureStruct)
 void SignedInfo::get(struct ndn_SignedInfo &signedInfoStruct) const 
 {
   publisherPublicKeyDigest_.get(signedInfoStruct.publisherPublicKeyDigest);
-  // TODO: Implement timestamp
+  signedInfoStruct.timestampMilliseconds = timestampMilliseconds_;
   signedInfoStruct.type = type_;
   signedInfoStruct.freshnessSeconds = freshnessSeconds_;
   
@@ -57,7 +57,7 @@ void SignedInfo::get(struct ndn_SignedInfo &signedInfoStruct) const
 void SignedInfo::set(const struct ndn_SignedInfo &signedInfoStruct)
 {
   publisherPublicKeyDigest_.set(signedInfoStruct.publisherPublicKeyDigest);
-  // TODO: Implement timestamp
+  timestampMilliseconds_ = signedInfoStruct.timestampMilliseconds;
   type_ = signedInfoStruct.type;
   freshnessSeconds_ = signedInfoStruct.freshnessSeconds;
   setVector(finalBlockID_, signedInfoStruct.finalBlockID, signedInfoStruct.finalBlockIDLength);

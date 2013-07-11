@@ -32,11 +32,9 @@ unsigned char ContentObject1[] = {
       0xba, 0x3d, 0xa7, 0x76, 0x1b, 0x0f, 0x8d, 0x61, 0xa4, 0xaa, 0x7e, 0x3b, 0x6d, 0x15, 0xb4, 0x26, 0xfe, 0xb5,
       0xbd, 0xa8, 0x23, 0x89, 0xac, 0xa7, 0x65, 0xa3, 0xb8, 0x1c, 
     0x00, 
-#if 0
     0x02, 0xba, // Timestamp
       0xb5, 0x05, 0x1d, 0xde, 0xe9, 0x5b, 0xdb, 
     0x00, 
-#endif
     0x01, 0xe2, // KeyLocator
       0x01, 0xda, // Key
         0x0a, 0x95, 0x30, 0x81, 0x9f, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86,
@@ -59,15 +57,13 @@ unsigned char ContentObject1[] = {
 1
 };
 
-/*
- * 
- */
 int main(int argc, char** argv)
 {
   try {
     ContentObject contentObject;
     contentObject.decode(ContentObject1, sizeof(ContentObject1));
-    cout << "Interest name " << contentObject.getName().to_uri() << endl;
+    cout << "ContentObject name " << contentObject.getName().to_uri() << endl;
+    cout << "ContentObject timestamp (ms) " << contentObject.getSignedInfo().getTimestampMilliseconds() << endl;
     
     vector<unsigned char> encoding;
     contentObject.encode(encoding);
@@ -75,7 +71,8 @@ int main(int argc, char** argv)
     
     ContentObject reDecodedContentObject;
     reDecodedContentObject.decode(encoding);
-    cout << "Re-decoded Interest name " << reDecodedContentObject.getName().to_uri() << endl;
+    cout << "Re-decoded ContentObject name " << reDecodedContentObject.getName().to_uri() << endl;
+    cout << "Re-decoded ContentObject timestamp (ms) " << reDecodedContentObject.getSignedInfo().getTimestampMilliseconds() << endl;
   } catch (exception &e) {
     cout << "exception: " << e.what() << endl;
   }

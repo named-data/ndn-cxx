@@ -44,11 +44,11 @@ enum {
 
 struct ndn_SignedInfo {
   struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
-  // TODO: Implement timestamp
-  int type;              /**< default is ndn_ContentType_DATA. -1 for none */
-  int freshnessSeconds;  /**< -1 for none */
-	unsigned char *finalBlockID;	    /**< pointer to pre-allocated buffer.  0 for none */
-  unsigned int finalBlockIDLength;  /**< length of finalBlockID.  0 for none */
+  double timestampMilliseconds;    /**< milliseconds since 1/1/1970. -1 for none */
+  int type;                        /**< default is ndn_ContentType_DATA. -1 for none */
+  int freshnessSeconds;            /**< -1 for none */
+	unsigned char *finalBlockID;	   /**< pointer to pre-allocated buffer.  0 for none */
+  unsigned int finalBlockIDLength; /**< length of finalBlockID.  0 for none */
   struct ndn_KeyLocator keyLocator;
 };
 
