@@ -6,7 +6,9 @@
 #include <stdexcept>
 #include "../c/encoding/BinaryXMLName.h"
 #include "../c/encoding/BinaryXMLInterest.h"
+#include "../c/encoding/BinaryXMLContentObject.h"
 #include "../Interest.hpp"
+#include "../ContentObject.hpp"
 #include "BinaryXMLEncoder.hpp"
 #include "../c/encoding/BinaryXMLDecoder.h"
 #include "BinaryXMLWireFormat.hpp"
@@ -79,6 +81,37 @@ void BinaryXMLWireFormat::decodeInterest(Interest &interest, const unsigned char
     throw std::runtime_error(ndn_getErrorString(error));
 
   interest.set(interestStruct);
+}
+
+void BinaryXMLWireFormat::encodeContentObject(const ContentObject &contentObject, vector<unsigned char> &output) 
+{
+  struct ndn_NameComponent nameComponents[100];
+  struct ndn_ContentObject contentObjectStruct;
+  ndn_ContentObject_init
+    (&contentObjectStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
+  contentObject.get(contentObjectStruct);
+
+  BinaryXMLEncoder encoder;
+  ndn_encodeBinaryXMLContentObject(&contentObjectStruct, encoder.getEncoder());
+     
+  encoder.appendTo(output);
+}
+
+void BinaryXMLWireFormat::decodeContentObject(ContentObject &contentObject, const unsigned char *input, unsigned int inputLength)
+{
+  struct ndn_NameComponent nameComponents[100];
+  struct ndn_ContentObject contentObjectStruct;
+  ndn_ContentObject_init
+    (&contentObjectStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
+    
+  struct ndn_BinaryXMLDecoder decoder;
+  ndn_BinaryXMLDecoder_init(&decoder, (unsigned char *)input, inputLength);
+  
+  ndn_Error error;
+  if (error = ndn_decodeBinaryXMLContentObject(&contentObjectStruct, &decoder))
+    throw std::runtime_error(ndn_getErrorString(error));
+
+  contentObject.set(contentObjectStruct);
 }
 
 }

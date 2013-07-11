@@ -12,6 +12,7 @@ namespace ndn {
   
 class Name;
 class Interest;
+class ContentObject;
   
 class WireFormat {
 public:
@@ -21,7 +22,8 @@ public:
   virtual void encodeInterest(const Interest &interest, std::vector<unsigned char> &output);
   virtual void decodeInterest(Interest &interest, const unsigned char *input, unsigned int inputLength);
 
-  // etc. for each type of object.
+  virtual void encodeContentObject(const ContentObject &contentObject, std::vector<unsigned char> &output);
+  virtual void decodeContentObject(ContentObject &contentObject, const unsigned char *input, unsigned int inputLength);
 };
 
 }

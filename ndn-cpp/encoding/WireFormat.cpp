@@ -28,4 +28,13 @@ void WireFormat::decodeInterest(Interest &interest, const unsigned char *input, 
   throw logic_error("unimplemented");
 }
 
+void WireFormat::encodeContentObject(const ContentObject &contentObject, vector<unsigned char> &output) 
+{
+  throw logic_error("unimplemented");
+}
+void WireFormat::decodeContentObject(ContentObject &contentObject, const unsigned char *input, unsigned int inputLength) 
+{
+  throw logic_error("unimplemented");
+}
+
 }
