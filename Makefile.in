@@ -140,6 +140,7 @@ am_libndn_c_a_OBJECTS = ndn-cpp/c/errors.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLDecoder.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLEncoder.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLInterest.$(OBJEXT) \
+	ndn-cpp/c/encoding/BinaryXMLKey.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLName.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLStructureDecoder.$(OBJEXT) \
@@ -414,6 +415,7 @@ libndn_c_a_SOURCES = \
   ndn-cpp/c/encoding/BinaryXMLDecoder.c ndn-cpp/c/encoding/BinaryXMLDecoder.h \
   ndn-cpp/c/encoding/BinaryXMLEncoder.c ndn-cpp/c/encoding/BinaryXMLEncoder.h \
   ndn-cpp/c/encoding/BinaryXMLInterest.c ndn-cpp/c/encoding/BinaryXMLInterest.h \
+  ndn-cpp/c/encoding/BinaryXMLKey.c ndn-cpp/c/encoding/BinaryXMLKey.h \
   ndn-cpp/c/encoding/BinaryXMLName.c ndn-cpp/c/encoding/BinaryXMLName.h \
   ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.c ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.h \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.c ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h \
@@ -548,6 +550,9 @@ ndn-cpp/c/encoding/BinaryXMLEncoder.$(OBJEXT):  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/encoding/BinaryXMLInterest.$(OBJEXT):  \
+	ndn-cpp/c/encoding/$(am__dirstamp) \
+	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/c/encoding/BinaryXMLKey.$(OBJEXT):  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/encoding/BinaryXMLName.$(OBJEXT):  \
@@ -691,6 +696,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLDecoder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLEncoder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLInterest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLKey.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLName.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLPublisherPublicKeyDigest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLStructureDecoder.Po@am__quote@
