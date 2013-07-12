@@ -155,17 +155,9 @@ ndn_Error ndn_encodeBinaryXMLInterest(struct ndn_Interest *interest, struct ndn_
       (encoder, ndn_BinaryXML_DTag_Scope, interest->scope))
     return error;
   
-  if (interest->interestLifetimeMilliseconds >= 0) {
-    if (error = ndn_BinaryXMLEncoder_writeElementStartDTag(encoder, ndn_BinaryXML_DTag_InterestLifetime))
-      return error;
-   
-    unsigned int ticks = (unsigned int)((interest->interestLifetimeMilliseconds / 1000.0) * 4096.0);
-    if (error = ndn_BinaryXMLEncoder_writeUnsignedIntBigEndianBlob(encoder, ticks))
-      return error;
-    
-    if (error = ndn_BinaryXMLEncoder_writeElementClose(encoder))
-      return error;
-  }
+  if (error = ndn_BinaryXMLEncoder_writeOptionalTimeMillisecondsDTagElement
+      (encoder, ndn_BinaryXML_DTag_InterestLifetime, interest->interestLifetimeMilliseconds))
+    return error;
   
   if (error = ndn_BinaryXMLEncoder_writeOptionalBlobDTagElement
       (encoder, ndn_BinaryXML_DTag_Nonce, interest->nonce, interest->nonceLength))

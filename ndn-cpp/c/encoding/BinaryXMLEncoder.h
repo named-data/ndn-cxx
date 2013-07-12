@@ -137,12 +137,40 @@ static inline ndn_Error ndn_BinaryXMLEncoder_writeOptionalUnsignedDecimalIntDTag
 }
 
 /**
- * Write a BLOB header, then the value to self->output encoded as big endian.
+ * Write a BLOB header, then the absolute value of value to self->output encoded as big endian.
  * @param self pointer to the ndn_BinaryXMLEncoder struct
- * @param value the unsigned int to encode as big endian.  If value is 0, the big endian encoding has zero bytes.
+ * @param value the double to encode as big endian.  If value is 0, the big endian encoding has zero bytes.
+ * The value is converted to absolute value.
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXMLEncoder_writeUnsignedIntBigEndianBlob(struct ndn_BinaryXMLEncoder *self, unsigned int value);
+ndn_Error ndn_BinaryXMLEncoder_writeAbsDoubleBigEndianBlob(struct ndn_BinaryXMLEncoder *self, double value);
+
+/**
+ * Write an element start header using DTAG with the tag to self->output, then the absolute value of milliseconds
+ * as a big endian BLOB converted to 4096 ticks per second, then an element close.
+ * (If you want to just write the integer, use ndn_BinaryXMLEncoder_writeUnsignedDecimalInt .)
+ * @param self pointer to the ndn_BinaryXMLEncoder struct
+ * @param tag the DTAG tag
+ * @param milliseconds the the number of milliseconds
+ * @return 0 for success, else an error code
+ */
+ndn_Error ndn_BinaryXMLEncoder_writeTimeMillisecondsDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, double milliseconds);
+
+/**
+ * If milliseconds is negative then do nothing, otherwise call ndn_BinaryXMLEncoder_writeTimeMillisecondsDTagElement.
+ * @param self pointer to the ndn_BinaryXMLEncoder struct
+ * @param tag the DTAG tag
+ * @param milliseconds negative for none, otherwise the number of milliseconds
+ * @return 0 for success, else an error code
+ */
+static inline ndn_Error ndn_BinaryXMLEncoder_writeOptionalTimeMillisecondsDTagElement
+  (struct ndn_BinaryXMLEncoder *self, unsigned int tag, double milliseconds)
+{
+  if (milliseconds >= 0)
+    return ndn_BinaryXMLEncoder_writeTimeMillisecondsDTagElement(self, tag, milliseconds);
+  else
+    return (ndn_Error)0;
+}
 
 #ifdef	__cplusplus
 }

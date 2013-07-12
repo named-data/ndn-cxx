@@ -4,6 +4,7 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include <math.h>
 #include "../util/ndn_memory.h"
 #include "BinaryXML.h"
 #include "BinaryXMLEncoder.h"
@@ -148,6 +149,27 @@ static ndn_Error reverseBufferAndInsertHeader
   return 0;
 }
 
+/**
+ * Split the absolute value of x into 32 bit unsigned integers hi32 and lo32.
+ * We need this because not all C compilers support 64 bit long long integers, so we carry around
+ * a high precision value as a double, which we assume has more than 32 bits.
+ * But we want to do bit-wise operations on integers.
+ * @param x the double value
+ * @param hi32 output the high 32 bits
+ * @param lo32 output the low 32 bits
+ */
+static inline void splitAbsDouble(double x, unsigned long *hi32, unsigned long *lo32)
+{
+  if (x < 0)
+    x = -x;
+  x = round(x);
+  
+  double twoPower32 = 4294967296.0;
+  double lo32Double = fmod(x, twoPower32);
+  *lo32 = (unsigned long)lo32Double;
+  *hi32 = (unsigned long)((x - lo32Double) / twoPower32);
+}
+
 ndn_Error ndn_BinaryXMLEncoder_encodeTypeAndValue(struct ndn_BinaryXMLEncoder *self, unsigned int type, unsigned int value)
 {
 	if (type > ndn_BinaryXML_UDATA)
@@ -251,20 +273,58 @@ ndn_Error ndn_BinaryXMLEncoder_writeUnsignedDecimalIntDTagElement(struct ndn_Bin
   return 0;
 }
 
-ndn_Error ndn_BinaryXMLEncoder_writeUnsignedIntBigEndianBlob(struct ndn_BinaryXMLEncoder *self, unsigned int value)
+ndn_Error ndn_BinaryXMLEncoder_writeAbsDoubleBigEndianBlob(struct ndn_BinaryXMLEncoder *self, double value)
 {
-  // First encode the big endian backwards, then reverse it.
+  unsigned long hi32, lo32;
+  splitAbsDouble(value, &hi32, &lo32);
+  
+  // First encode the big endian backwards, then reverseBufferAndInsertHeader will reverse it.
   unsigned int startOffset = self->offset;
+  
   ndn_Error error;
-  while (value != 0) {
+  while (lo32 != 0) {
     if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1))
       return error;
     
-    self->output.array[self->offset++] = (unsigned char)(value & 0xff);
-    value >>= 8;
+    self->output.array[self->offset++] = (unsigned char)(lo32 & 0xff);
+    lo32 >>= 8;
+  }
+  
+  if (hi32 != 0) {
+    // Pad the lo values out to 4 bytes.
+    while (self->offset - startOffset < 4) {
+      if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1))
+        return error;
+    
+      self->output.array[self->offset++] = 0;
+    }
+    
+    // Encode hi32
+    while (hi32 != 0) {
+      if (error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1))
+        return error;
+    
+      self->output.array[self->offset++] = (unsigned char)(hi32 & 0xff);
+      hi32 >>= 8;
+    }
   }
   
   if (error = reverseBufferAndInsertHeader(self, startOffset, ndn_BinaryXML_BLOB))
+    return error;
+  
+  return 0;
+}
+
+ndn_Error ndn_BinaryXMLEncoder_writeTimeMillisecondsDTagElement(struct ndn_BinaryXMLEncoder *self, unsigned int tag, double milliseconds)
+{
+  ndn_Error error;
+  if (error = ndn_BinaryXMLEncoder_writeElementStartDTag(self, tag))
+    return error;
+   
+  if (error = ndn_BinaryXMLEncoder_writeAbsDoubleBigEndianBlob(self, (milliseconds / 1000.0) * 4096.0))
+    return error;
+    
+  if (error = ndn_BinaryXMLEncoder_writeElementClose(self))
     return error;
   
   return 0;
