@@ -248,7 +248,7 @@ ndn_Error ndn_BinaryXMLDecoder_readOptionalUnsignedIntegerDTagElement
 }
 
 ndn_Error ndn_BinaryXMLDecoder_readTimeMillisecondsDTagElement
-  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, double *value)
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, double *milliseconds)
 {
   ndn_Error error;
   unsigned char *bytes;
@@ -256,12 +256,12 @@ ndn_Error ndn_BinaryXMLDecoder_readTimeMillisecondsDTagElement
   if (error = ndn_BinaryXMLDecoder_readBinaryDTagElement(self, expectedTag, 0, &bytes, &bytesLength))
     return error;
     
-  *value = 1000.0 * ndn_BinaryXMLDecoder_unsignedBigEndianToDouble(bytes, bytesLength) / 4096.0;
+  *milliseconds = 1000.0 * ndn_BinaryXMLDecoder_unsignedBigEndianToDouble(bytes, bytesLength) / 4096.0;
   return 0;  
 }
 
 ndn_Error ndn_BinaryXMLDecoder_readOptionalTimeMillisecondsDTagElement
-  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, double *value)
+  (struct ndn_BinaryXMLDecoder *self, unsigned int expectedTag, double *milliseconds)
 {
   int gotExpectedTag;
   ndn_Error error;
@@ -269,11 +269,11 @@ ndn_Error ndn_BinaryXMLDecoder_readOptionalTimeMillisecondsDTagElement
     return error;
     
   if (!gotExpectedTag) {
-    *value = -1.0;
+    *milliseconds = -1.0;
     return 0;
   }
 
-  if (error = ndn_BinaryXMLDecoder_readTimeMillisecondsDTagElement(self, expectedTag, value))
+  if (error = ndn_BinaryXMLDecoder_readTimeMillisecondsDTagElement(self, expectedTag, milliseconds))
     return error;
   
   return 0;
