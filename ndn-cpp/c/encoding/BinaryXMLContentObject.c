@@ -69,7 +69,9 @@ static ndn_Error encodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_
   if (error = ndn_encodeBinaryXMLPublisherPublicKeyDigest(&signedInfo->publisherPublicKeyDigest, encoder))
     return error;
   
-  // TODO: Implement timeStamp  
+  if (error = ndn_BinaryXMLEncoder_writeOptionalTimeMillisecondsDTagElement
+      (encoder, ndn_BinaryXML_DTag_Timestamp, signedInfo->timestampMilliseconds))
+    return error;
   
   if (signedInfo->type != ndn_ContentType_DATA) {
     // Not the default of DATA, so we need to encode the type.
