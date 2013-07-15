@@ -44,6 +44,16 @@ void ndn_BinaryXMLStructureDecoder_init(struct ndn_BinaryXMLStructureDecoder *se
 ndn_Error ndn_BinaryXMLStructureDecoder_findElementEnd
   (struct ndn_BinaryXMLStructureDecoder *self, unsigned char *input, unsigned int inputLength);
 
+/**
+ * Set the offset into the input, used for the next read.
+ * @param self pointer to the ndn_BinaryXMLStructureDecoder struct
+ * @param offset the new offset
+ */
+static inline void ndn_BinaryXMLStructureDecoder_seek(struct ndn_BinaryXMLStructureDecoder *self, unsigned int offset) 
+{
+  self->offset = offset;
+}
+
 #ifdef	__cplusplus
 }
 #endif
