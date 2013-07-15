@@ -12,13 +12,13 @@
 namespace ndn {
   
 /**
- * A BinaryXMLStructureDecoder wraps a C ndn_BinaryXMLStructureDecoder struct and related functions.
+ * A BinaryXMLStructureDecoder extends a C ndn_BinaryXMLStructureDecoder struct and wraps related functions.
  */
-class BinaryXMLStructureDecoder {
+class BinaryXMLStructureDecoder : private ndn_BinaryXMLStructureDecoder {
 public:
   BinaryXMLStructureDecoder() 
   {
-    ndn_BinaryXMLStructureDecoder_init(&structureDecoder_);
+    ndn_BinaryXMLStructureDecoder_init(this);
   }
   
   /**
@@ -32,16 +32,13 @@ public:
   bool findElementEnd(unsigned char *input, unsigned int inputLength) 
   {
     ndn_Error error;
-    if (error = ndn_BinaryXMLStructureDecoder_findElementEnd(&structureDecoder_, input, inputLength))
+    if (error = ndn_BinaryXMLStructureDecoder_findElementEnd(this, input, inputLength))
       throw std::runtime_error(ndn_getErrorString(error));
     return gotElementEnd();
   }
   
-  unsigned int getOffset() const { return structureDecoder_.offset; }
-  bool gotElementEnd() const { return structureDecoder_.gotElementEnd != 0; }
-  
-private:
-  struct ndn_BinaryXMLStructureDecoder structureDecoder_;
+  unsigned int getOffset() const { return offset; }
+  bool gotElementEnd() const { return gotElementEnd != 0; }
 };
 
 }
