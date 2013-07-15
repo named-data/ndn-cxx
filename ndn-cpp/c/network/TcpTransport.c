@@ -26,26 +26,28 @@ static inline void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-ndn_Error ndn_TcpTransport_connect(ndn_TcpTransport *self, char *host, int port)
+ndn_Error ndn_TcpTransport_connect(struct ndn_TcpTransport *self, char *host, unsigned short port)
 {
+  if (self->socketDescriptor >= 0) {
+    close(self->socketDescriptor);
+    self->socketDescriptor = -1;
+  }
   
-}
-
-int testTcpTransport(unsigned char *data, unsigned int dataLength) 
-{
-	struct addrinfo hints, *serverInfo;
-
-  printf("starting\n");
-
+	struct addrinfo hints;
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 
-	if (getaddrinfo("E.hub.ndn.ucla.edu", "9695", &hints, &serverInfo) != 0)
-		return 1;
+  char portString[10];
+  sprintf(portString, "%d", port);
+  
+	struct addrinfo *serverInfo;
+	if (getaddrinfo(host, portString, &hints, &serverInfo) != 0)
+		return NDN_ERROR_TcpTransport_error_in_getaddrinfo;
 
 	// loop through all the results and connect to the first we can
 	struct addrinfo *p;
+  int socketDescriptor;
 	for(p = serverInfo; p != NULL; p = p->ai_next) {
 		if ((socketDescriptor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
 			continue;
@@ -58,32 +60,47 @@ int testTcpTransport(unsigned char *data, unsigned int dataLength)
 		break;
 	}
 
-	if (p == NULL)
-		return 2;
+	if (p == NULL) {
+    freeaddrinfo(serverInfo);
+		return NDN_ERROR_TcpTransport_cannot_connect_to_socket;
+  }
 
-	freeaddrinfo(serverInfo); // all done with this structure
+	freeaddrinfo(serverInfo);
+  self->socketDescriptor = socketDescriptor;
 
+  return 0;
+}
+
+ndn_Error ndn_TcpTransport_send(struct ndn_TcpTransport *self, unsigned char *data, unsigned int dataLength)
+{
+  if (self->socketDescriptor < 0)
+    return NDN_ERROR_TcpTransport_socket_is_not_open;
+  
   int nBytes;
   while (1) {
-    if ((nBytes = send(socketDescriptor, data, dataLength, 0)) < 0)
-      return 1;
+    if ((nBytes = send(self->socketDescriptor, data, dataLength, 0)) < 0)
+      return NDN_ERROR_TcpTransport_error_in_send;
     if (nBytes >= dataLength)
       break;
     
+    // Send more.
     dataLength -= nBytes;
   }
+
+  return 0;  
+}
+
+ndn_Error ndn_TcpTransport_receive
+(struct ndn_TcpTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytesOut)
+{
+  if (self->socketDescriptor < 0)
+    return NDN_ERROR_TcpTransport_socket_is_not_open;
+
+  int nBytes;  
+	if ((nBytes = recv(self->socketDescriptor, buffer, bufferLength, 0)) == -1)
+    return NDN_ERROR_TcpTransport_error_in_recv;
+
+  *nBytesOut = (unsigned int)nBytes;
   
-	unsigned char buffer[1000];
-	if ((nBytes = recv(socketDescriptor, buffer, sizeof(buffer) - 1, 0)) == -1)
-    return 1;
-
-	printf("received %d bytes\n", nBytes);
-  int i;
-  for (i = 0; i < nBytes; ++i)
-    printf("%02X ", (unsigned int)buffer[i]);
-  printf("\n");
-
-	close(socketDescriptor);
-
-	return 0;
+	return 0;  
 }
