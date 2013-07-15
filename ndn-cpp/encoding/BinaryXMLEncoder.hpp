@@ -24,7 +24,7 @@ public:
   BinaryXMLEncoder() 
   {
     const unsigned int initialLength = 16;
-    ndn_BinaryXMLEncoder_init(&base_, (unsigned char *)malloc(initialLength), initialLength, simpleRealloc);
+    ndn_BinaryXMLEncoder_init(&encoder_, (unsigned char *)malloc(initialLength), initialLength, simpleRealloc);
   }
   
   /**
@@ -42,7 +42,7 @@ public:
    * Return a pointer to the base ndn_BinaryXMLEncoder struct.
    * @return 
    */
-  struct ndn_BinaryXMLEncoder *getEncoder() { return &base_; }
+  struct ndn_BinaryXMLEncoder *getEncoder() { return &encoder_; }
   
   /**
    * Copy the encoded bytes to the end of the buffer.
@@ -50,11 +50,11 @@ public:
    */
   void appendTo(std::vector<unsigned char> &buffer) 
   {
-    buffer.insert(buffer.end(), base_.output.array, base_.output.array + base_.offset);
+    buffer.insert(buffer.end(), encoder_.output.array, encoder_.output.array + encoder_.offset);
   }
   
 private:
-  struct ndn_BinaryXMLEncoder base_;
+  struct ndn_BinaryXMLEncoder encoder_;
 };
 
 }
