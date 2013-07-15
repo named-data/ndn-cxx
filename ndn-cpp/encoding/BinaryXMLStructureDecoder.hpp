@@ -18,7 +18,7 @@ class BinaryXMLStructureDecoder {
 public:
   BinaryXMLStructureDecoder() 
   {
-    ndn_BinaryXMLStructureDecoder_init(&base_);
+    ndn_BinaryXMLStructureDecoder_init(&structureDecoder_);
   }
   
   /**
@@ -32,16 +32,16 @@ public:
   bool findElementEnd(unsigned char *input, unsigned int inputLength) 
   {
     ndn_Error error;
-    if (error = ndn_BinaryXMLStructureDecoder_findElementEnd(&base_, input, inputLength))
+    if (error = ndn_BinaryXMLStructureDecoder_findElementEnd(&structureDecoder_, input, inputLength))
       throw std::runtime_error(ndn_getErrorString(error));
     return gotElementEnd();
   }
   
-  unsigned int getOffset() const { return base_.offset; }
-  bool gotElementEnd() const { return base_.gotElementEnd != 0; }
+  unsigned int getOffset() const { return structureDecoder_.offset; }
+  bool gotElementEnd() const { return structureDecoder_.gotElementEnd != 0; }
   
 private:
-  struct ndn_BinaryXMLStructureDecoder base_;
+  struct ndn_BinaryXMLStructureDecoder structureDecoder_;
 };
 
 }
