@@ -8,14 +8,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <errno.h>
-#include <string.h>
 #include <netdb.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-
 #include <arpa/inet.h>
+#include "../util/ndn_memory.h"
 
 // get sockaddr, IPv4 or IPv6:
 static inline void *get_in_addr(struct sockaddr *sa)
@@ -34,7 +32,7 @@ ndn_Error ndn_TcpTransport_connect(struct ndn_TcpTransport *self, char *host, un
   }
   
 	struct addrinfo hints;
-	memset(&hints, 0, sizeof hints);
+	ndn_memset((unsigned char *)&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 
