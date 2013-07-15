@@ -5,6 +5,7 @@
  */
 
 #include "BinaryXML.h"
+#include "BinaryXMLStructureDecoder.h"
 #include "BinaryXMLKey.h"
 
 ndn_Error ndn_encodeBinaryXMLKeyLocator(struct ndn_KeyLocator *keyLocator, struct ndn_BinaryXMLEncoder *encoder)
@@ -68,7 +69,16 @@ ndn_Error ndn_decodeBinaryXMLKeyLocator(struct ndn_KeyLocator *keyLocator, struc
       if (error = ndn_BinaryXMLDecoder_peekDTag(decoder, ndn_BinaryXML_DTag_KeyName, &gotExpectedTag))
         return error;
       if (gotExpectedTag) {
-        // TODO: Implement keyName
+        // TODO: Implement keyName. For now, just use a structure decoder to skip it.
+        struct ndn_BinaryXMLStructureDecoder structureDecoder;
+        ndn_BinaryXMLStructureDecoder_init(&structureDecoder);
+        
+        ndn_BinaryXMLStructureDecoder_seek(&structureDecoder, decoder->offset);
+        if (error = ndn_BinaryXMLStructureDecoder_findElementEnd(&structureDecoder, decoder->input, decoder->inputLength))
+          return error;
+        if (!structureDecoder.gotElementEnd)
+          return NDN_ERROR_read_past_the_end_of_the_input;
+        ndn_BinaryXMLDecoder_seek(decoder, structureDecoder.offset);        
       }
       else
         return NDN_ERROR_decodeBinaryXMLKeyLocator_unrecognized_key_locator_type;
