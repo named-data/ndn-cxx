@@ -8,6 +8,7 @@
 #include <iostream>
 #include <ndn-cpp/Interest.hpp>
 #include <ndn-cpp/ContentObject.hpp>
+#include <ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp>
 #include <ndn-cpp/c/network/TcpTransport.h>
 
 using namespace std;
@@ -28,20 +29,34 @@ int main(int argc, char** argv)
     if (error = ndn_TcpTransport_send(&transport, &encoding[0], encoding.size()))
       return error;
 
+    BinaryXMLStructureDecoder structureDecoder;
+    vector<unsigned char> element;
     unsigned char buffer[8000];
     unsigned int nBytes;
-    while (1) {
-      if (error = ndn_TcpTransport_receive(&transport, buffer, sizeof(buffer), &nBytes))
-        return error;
-      if (buffer[0] == 0x04)
-        break;    
+    while (true) {
+      while (true) {
+        if (error = ndn_TcpTransport_receive(&transport, buffer, sizeof(buffer), &nBytes))
+          return error;
+        element.insert(element.end(), buffer, buffer + nBytes);
+        if (structureDecoder.findElementEnd(&element[0], element.size()))
+          break;
+      }
+      
+      if (element[0] == 0x04)
+        // Assume this is a ContentObject.
+        break;
+      
+      // Erase this element and try again.
+      element.erase(element.begin(), element.begin() + structureDecoder.getOffset());
     }
-    
-    for (int i = 0; i < nBytes; ++i)
-      printf("%02X ", (unsigned int)buffer[i]);
-    
+        
     ContentObject contentObject;
-    contentObject.decode(buffer, nBytes);
+    contentObject.decode(&element[0], structureDecoder.getOffset());
+    
+    cout << "Got content with name " << contentObject.getName().to_uri() << endl;
+    for (unsigned int i = 0; i < contentObject.getContent().size(); ++i)
+      cout << contentObject.getContent()[i];
+    cout << endl;
   } catch (exception &e) {
     cout << "exception: " << e.what() << endl;
   }
