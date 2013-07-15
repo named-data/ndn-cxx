@@ -9,7 +9,7 @@
 #include <ndn-cpp/Interest.hpp>
 #include <ndn-cpp/ContentObject.hpp>
 #include <ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp>
-#include <ndn-cpp/c/network/TcpTransport.h>
+#include <ndn-cpp/transport/TcpTransport.hpp>
 
 using namespace std;
 using namespace ndn;
@@ -21,23 +21,18 @@ int main(int argc, char** argv)
     vector<unsigned char> encoding;
     interest.encode(encoding);
 
-    struct ndn_TcpTransport transport;
-    ndn_TcpTransport_init(&transport);
-    ndn_Error error;
-    if (error = ndn_TcpTransport_connect(&transport, (char *)"E.hub.ndn.ucla.edu", 9695))
-      return error;
-    if (error = ndn_TcpTransport_send(&transport, &encoding[0], encoding.size()))
-      return error;
+    TcpTransport transport;
+    transport.connect((char *)"E.hub.ndn.ucla.edu", 9695);
+    transport.send(&encoding[0], encoding.size());
 
     BinaryXMLStructureDecoder structureDecoder;
     vector<unsigned char> element;
-    unsigned char buffer[8000];
-    unsigned int nBytes;
     while (true) {
       while (true) {
-        if (error = ndn_TcpTransport_receive(&transport, buffer, sizeof(buffer), &nBytes))
-          return error;
+        unsigned char buffer[8000];
+        unsigned int nBytes = transport.receive(buffer, sizeof(buffer));
         element.insert(element.end(), buffer, buffer + nBytes);
+
         if (structureDecoder.findElementEnd(&element[0], element.size()))
           break;
       }

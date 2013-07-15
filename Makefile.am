@@ -30,7 +30,7 @@ libndn_c_a_SOURCES = \
   ndn-cpp/c/encoding/BinaryXMLName.c ndn-cpp/c/encoding/BinaryXMLName.h \
   ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.c ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.h \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.c ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h \
-  ndn-cpp/c/network/TcpTransport.c ndn-cpp/c/network/TcpTransport.c \
+  ndn-cpp/c/transport/TcpTransport.c ndn-cpp/c/transport/TcpTransport.c \
   ndn-cpp/c/util/DynamicUCharArray.c ndn-cpp/c/util/DynamicUCharArray.h \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h
 
@@ -45,7 +45,9 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/c/encoding/BinaryXMLEncoder.h ndn-cpp/encoding/BinaryXMLEncoder.hpp ndn-cpp/c/util/DynamicUCharArray.h \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/c/encoding/BinaryXMLName.h ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
-  ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp
+  ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp \
+  ndn-cpp/transport/TcpTransport2.cpp ndn-cpp/transport/TcpTransport.hpp \
+  ndn-cpp/transport/Transport.cpp ndn-cpp/transport/Transport.hpp
 
 bin_test_encode_decode_Interest_SOURCES = tests/test-encode-decode-Interest.cpp
 bin_test_encode_decode_Interest_LDADD = libndn-c.a libndn-cpp.a
