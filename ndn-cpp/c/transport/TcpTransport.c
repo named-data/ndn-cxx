@@ -15,15 +15,6 @@
 #include <arpa/inet.h>
 #include "../util/ndn_memory.h"
 
-// get sockaddr, IPv4 or IPv6:
-static inline void *get_in_addr(struct sockaddr *sa)
-{
-	if (sa->sa_family == AF_INET)
-		return &(((struct sockaddr_in*)sa)->sin_addr);
-
-	return &(((struct sockaddr_in6*)sa)->sin6_addr);
-}
-
 ndn_Error ndn_TcpTransport_connect(struct ndn_TcpTransport *self, char *host, unsigned short port)
 {
   if (self->socketDescriptor >= 0) {
