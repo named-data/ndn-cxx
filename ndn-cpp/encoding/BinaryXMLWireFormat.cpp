@@ -27,7 +27,7 @@ void BinaryXMLWireFormat::encodeName(const Name &name, vector<unsigned char> &ou
   name.get(nameStruct);
 
   BinaryXMLEncoder encoder;
-  ndn_encodeBinaryXMLName(&nameStruct, encoder.getEncoder());
+  ndn_encodeBinaryXMLName(&nameStruct, &encoder);
      
   encoder.appendTo(output);
 }
@@ -59,7 +59,7 @@ void BinaryXMLWireFormat::encodeInterest(const Interest &interest, vector<unsign
   interest.get(interestStruct);
 
   BinaryXMLEncoder encoder;
-  ndn_encodeBinaryXMLInterest(&interestStruct, encoder.getEncoder());
+  ndn_encodeBinaryXMLInterest(&interestStruct, &encoder);
      
   encoder.appendTo(output);
 }
@@ -92,7 +92,7 @@ void BinaryXMLWireFormat::encodeContentObject(const ContentObject &contentObject
   contentObject.get(contentObjectStruct);
 
   BinaryXMLEncoder encoder;
-  ndn_encodeBinaryXMLContentObject(&contentObjectStruct, encoder.getEncoder());
+  ndn_encodeBinaryXMLContentObject(&contentObjectStruct, &encoder);
      
   encoder.appendTo(output);
 }

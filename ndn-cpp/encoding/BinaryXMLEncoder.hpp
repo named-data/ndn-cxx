@@ -14,9 +14,9 @@
 namespace ndn {
   
 /**
- * A BinaryXMLEncoder wraps a C ndn_BinaryXMLEncoder struct and related functions.
+ * A BinaryXMLEncoder extends a C ndn_BinaryXMLEncoder struct and wraps related functions.
  */
-class BinaryXMLEncoder {
+class BinaryXMLEncoder : public ndn_BinaryXMLEncoder {
 public:
   /**
    * Initialize the base ndn_BinaryXMLEncoder struct with an initial array of 16 bytes.  Use simpleRealloc.
@@ -24,7 +24,7 @@ public:
   BinaryXMLEncoder() 
   {
     const unsigned int initialLength = 16;
-    ndn_BinaryXMLEncoder_init(&encoder_, (unsigned char *)malloc(initialLength), initialLength, simpleRealloc);
+    ndn_BinaryXMLEncoder_init(this, (unsigned char *)malloc(initialLength), initialLength, simpleRealloc);
   }
   
   /**
@@ -39,22 +39,13 @@ public:
   }
   
   /**
-   * Return a pointer to the base ndn_BinaryXMLEncoder struct.
-   * @return 
-   */
-  struct ndn_BinaryXMLEncoder *getEncoder() { return &encoder_; }
-  
-  /**
    * Copy the encoded bytes to the end of the buffer.
    * @param buffer a vector to receive the copy
    */
   void appendTo(std::vector<unsigned char> &buffer) 
   {
-    buffer.insert(buffer.end(), encoder_.output.array, encoder_.output.array + encoder_.offset);
+    buffer.insert(buffer.end(), this->output.array, this->output.array + this->offset);
   }
-  
-private:
-  struct ndn_BinaryXMLEncoder encoder_;
 };
 
 }
