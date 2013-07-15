@@ -44,7 +44,7 @@ public:
    */
   void appendTo(std::vector<unsigned char> &buffer) 
   {
-    buffer.insert(buffer.end(), this->output.array, this->output.array + this->offset);
+    buffer.insert(buffer.end(), output.array, output.array + offset);
   }
 };
 
