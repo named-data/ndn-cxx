@@ -7,7 +7,6 @@
 #include <sstream>
 #include <iostream>
 #include <ndn-cpp/Interest.hpp>
-#include <ndn-cpp/c/network/TcpTransport.h>
 
 using namespace std;
 using namespace ndn;
@@ -38,36 +37,17 @@ int main(int argc, char** argv)
 {
   try {
     Interest interest;
-#if 0
     interest.decode(Interest1, sizeof(Interest1));
     cout << "Interest name " << interest.getName().to_uri() << endl;
     cout << "Interest minSuffixComponents " << interest.getMinSuffixComponents() << endl;
     cout << "Interest publisherPublicKeyDigest length " << interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() << endl;
     cout << "Interest excludeEntryCount " << interest.getExclude().getEntryCount() << endl;
     cout << "InterestLifetimeMilliseconds " << interest.getInterestLifetimeMilliseconds() << endl;
-#endif
     
     vector<unsigned char> encoding;
     interest.encode(encoding);
     cout << "Interest encoding length " << encoding.size() << " vs. sizeof(Interest1) " << sizeof(Interest1) << endl;
 
-    struct ndn_TcpTransport transport;
-    ndn_TcpTransport_init(&transport);
-    ndn_Error error;
-    if (error = ndn_TcpTransport_connect(&transport, (char *)"E.hub.ndn.ucla.edu", 9695))
-      return error;
-    if (error = ndn_TcpTransport_send(&transport, &encoding[0], encoding.size()))
-      return error;
-    
-    unsigned char buffer[1000];
-    unsigned int nBytes;
-    if (error = ndn_TcpTransport_receive(&transport, buffer, sizeof(buffer), &nBytes))
-      return error;
-    
-    for (int i = 0; i < nBytes; ++i)
-      printf("%02X ", (unsigned int)buffer[i]);
-    
-#if 0
     Interest reDecodedInterest;
     reDecodedInterest.decode(encoding);
     cout << "Re-decoded Interest name " << reDecodedInterest.getName().to_uri() << endl;
@@ -75,7 +55,6 @@ int main(int argc, char** argv)
     cout << "Re-decoded Interest publisherPublicKeyDigest length " << reDecodedInterest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() << endl;
     cout << "Re-decoded Interest excludeEntryCount " << reDecodedInterest.getExclude().getEntryCount() << endl;
     cout << "Re-decoded InterestLifetimeMilliseconds " << reDecodedInterest.getInterestLifetimeMilliseconds() << endl;
-#endif
   } catch (exception &e) {
     cout << "exception: " << e.what() << endl;
   }
