@@ -46,7 +46,7 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/c/encoding/BinaryXMLName.h ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
   ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp \
-  ndn-cpp/transport/TcpTransport2.cpp ndn-cpp/transport/TcpTransport.hpp \
+  ndn-cpp/transport/TcpTransport.cpp ndn-cpp/transport/TcpTransport.hpp \
   ndn-cpp/transport/Transport.cpp ndn-cpp/transport/Transport.hpp
 
 bin_test_encode_decode_Interest_SOURCES = tests/test-encode-decode-Interest.cpp

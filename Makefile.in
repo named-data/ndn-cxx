@@ -157,7 +157,7 @@ am_libndn_cpp_a_OBJECTS = ndn-cpp/ContentObject.$(OBJEXT) \
 	ndn-cpp/Name.$(OBJEXT) \
 	ndn-cpp/encoding/BinaryXMLWireFormat.$(OBJEXT) \
 	ndn-cpp/encoding/WireFormat.$(OBJEXT) \
-	ndn-cpp/transport/TcpTransport2.$(OBJEXT) \
+	ndn-cpp/transport/TcpTransport.$(OBJEXT) \
 	ndn-cpp/transport/Transport.$(OBJEXT)
 libndn_cpp_a_OBJECTS = $(am_libndn_cpp_a_OBJECTS)
 PROGRAMS = $(bin_PROGRAMS)
@@ -445,7 +445,7 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/c/encoding/BinaryXMLName.h ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
   ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp \
-  ndn-cpp/transport/TcpTransport2.cpp ndn-cpp/transport/TcpTransport.hpp \
+  ndn-cpp/transport/TcpTransport.cpp ndn-cpp/transport/TcpTransport.hpp \
   ndn-cpp/transport/Transport.cpp ndn-cpp/transport/Transport.hpp
 
 bin_test_encode_decode_Interest_SOURCES = tests/test-encode-decode-Interest.cpp
@@ -636,7 +636,7 @@ ndn-cpp/transport/$(am__dirstamp):
 ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/transport/$(DEPDIR)
 	@: > ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/transport/TcpTransport2.$(OBJEXT):  \
+ndn-cpp/transport/TcpTransport.$(OBJEXT):  \
 	ndn-cpp/transport/$(am__dirstamp) \
 	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/transport/Transport.$(OBJEXT):  \
@@ -749,7 +749,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_memory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLWireFormat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/WireFormat.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/TcpTransport2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/TcpTransport.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/Transport.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-ContentObject.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-Interest.Po@am__quote@
