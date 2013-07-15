@@ -52,6 +52,16 @@ char *ndn_getErrorString(int error)
     return      "unrecognized ndn_KeyLocatorType";
   case NDN_ERROR_decodeBinaryXMLKeyLocator_unrecognized_key_locator_type:
     return      "decodeBinaryXMLKeyLocator unrecognized key locator type";
+  case NDN_ERROR_TcpTransport_error_in_getaddrinfo:
+    return      "TcpTransport error in getaddrinfo";
+  case NDN_ERROR_TcpTransport_cannot_connect_to_socket:
+    return      "TcpTransport cannot connect to socket";
+  case NDN_ERROR_TcpTransport_socket_is_not_open:
+    return      "TcpTransport socket is not open";
+  case NDN_ERROR_TcpTransport_error_in_send:
+    return      "TcpTransport error in send";
+  case NDN_ERROR_TcpTransport_error_in_recv:
+    return      "TcpTransport error in recv";
   default:
     return "unrecognized ndn_Error code";  
   }
