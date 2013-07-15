@@ -30,6 +30,7 @@ libndn_c_a_SOURCES = \
   ndn-cpp/c/encoding/BinaryXMLName.c ndn-cpp/c/encoding/BinaryXMLName.h \
   ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.c ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.h \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.c ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h \
+  ndn-cpp/c/network/TcpTransport.c ndn-cpp/c/network/TcpTransport.c \
   ndn-cpp/c/util/DynamicUCharArray.c ndn-cpp/c/util/DynamicUCharArray.h \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h
 
