@@ -12,6 +12,16 @@ using namespace std;
 
 namespace ndn {
 
+void NDN::expressInterest(const Name &name, const ptr_lib::shared_ptr<Closure> &closure, const Interest *interestTemplate)
+{
+  Interest interest(name);
+  vector<unsigned char> encoding;
+  interest.encode(encoding);  
+
+  transport_->connect((char *)"E.hub.ndn.ucla.edu", 9695);
+  transport_->send(&encoding[0], encoding.size());
+}
+    
 void NDN::onReceivedElement(unsigned char *element, unsigned int elementLength)
 {
   BinaryXMLDecoder decoder(element, elementLength);
@@ -22,7 +32,7 @@ void NDN::onReceivedElement(unsigned char *element, unsigned int elementLength)
     
     ptr_lib::shared_ptr<Interest> dummyInterest;
     UpcallInfo upcallInfo(this, dummyInterest, 0, contentObject);
-    closure_->upcall(UPCALL_CONTENT, upcallInfo);
+    tempClosure_->upcall(UPCALL_CONTENT, upcallInfo);
   }
 }
 
