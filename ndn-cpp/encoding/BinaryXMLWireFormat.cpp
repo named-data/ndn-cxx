@@ -10,7 +10,7 @@
 #include "../Interest.hpp"
 #include "../ContentObject.hpp"
 #include "BinaryXMLEncoder.hpp"
-#include "../c/encoding/BinaryXMLDecoder.h"
+#include "BinaryXMLDecoder.hpp"
 #include "BinaryXMLWireFormat.hpp"
 
 using namespace std;
@@ -38,9 +38,7 @@ void BinaryXMLWireFormat::decodeName(Name &name, const unsigned char *input, uns
   struct ndn_Name nameStruct;
   ndn_Name_init(&nameStruct, components, sizeof(components) / sizeof(components[0]));
     
-  struct ndn_BinaryXMLDecoder decoder;
-  ndn_BinaryXMLDecoder_init(&decoder, (unsigned char *)input, inputLength);
-  
+  BinaryXMLDecoder decoder(input, inputLength);  
   ndn_Error error;
   if (error = ndn_decodeBinaryXMLName(&nameStruct, &decoder))
     throw std::runtime_error(ndn_getErrorString(error));
@@ -73,9 +71,7 @@ void BinaryXMLWireFormat::decodeInterest(Interest &interest, const unsigned char
     (&interestStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
      excludeEntries, sizeof(excludeEntries) / sizeof(excludeEntries[0]));
     
-  struct ndn_BinaryXMLDecoder decoder;
-  ndn_BinaryXMLDecoder_init(&decoder, (unsigned char *)input, inputLength);
-  
+  BinaryXMLDecoder decoder(input, inputLength);  
   ndn_Error error;
   if (error = ndn_decodeBinaryXMLInterest(&interestStruct, &decoder))
     throw std::runtime_error(ndn_getErrorString(error));
@@ -104,9 +100,7 @@ void BinaryXMLWireFormat::decodeContentObject(ContentObject &contentObject, cons
   ndn_ContentObject_init
     (&contentObjectStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
     
-  struct ndn_BinaryXMLDecoder decoder;
-  ndn_BinaryXMLDecoder_init(&decoder, (unsigned char *)input, inputLength);
-  
+  BinaryXMLDecoder decoder(input, inputLength);  
   ndn_Error error;
   if (error = ndn_decodeBinaryXMLContentObject(&contentObjectStruct, &decoder))
     throw std::runtime_error(ndn_getErrorString(error));
