@@ -7,7 +7,6 @@
 #define	NDN_BINARYXMLENCODER_HPP
 
 #include <cstdlib>
-#include <stdexcept>
 #include <vector>
 #include "../c/encoding/BinaryXMLEncoder.h"
 
