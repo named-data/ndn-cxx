@@ -8,11 +8,30 @@
 #include <iostream>
 #include <ndn-cpp/Interest.hpp>
 #include <ndn-cpp/ContentObject.hpp>
-#include <ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp>
 #include <ndn-cpp/transport/TcpTransport.hpp>
+#include <ndn-cpp/c/encoding/BinaryXMLElementReader.h>
+#include <ndn-cpp/NDN.hpp>
 
 using namespace std;
 using namespace ndn;
+
+class MyClosure : public Closure {
+public:
+  virtual UpcallResult upcall(UpcallKind kind, UpcallInfo &upcallInfo)
+  {
+    if (kind == UPCALL_CONTENT || kind == UPCALL_CONTENT_UNVERIFIED) {
+      cout << "Got content with name " << upcallInfo.getContentObject()->getName().to_uri() << endl;
+      for (unsigned int i = 0; i < upcallInfo.getContentObject()->getContent().size(); ++i)
+        cout << upcallInfo.getContentObject()->getContent()[i];
+      cout << endl;
+      
+      return CLOSURE_RESULT_OK;
+    }
+    else
+      return CLOSURE_RESULT_OK;
+  }
+};
+
 int main(int argc, char** argv)
 {
   try {
@@ -25,33 +44,15 @@ int main(int argc, char** argv)
     transport.connect((char *)"E.hub.ndn.ucla.edu", 9695);
     transport.send(&encoding[0], encoding.size());
 
-    BinaryXMLStructureDecoder structureDecoder;
-    vector<unsigned char> element;
-    while (true) {
-      while (true) {
-        unsigned char buffer[8000];
-        unsigned int nBytes = transport.receive(buffer, sizeof(buffer));
-        element.insert(element.end(), buffer, buffer + nBytes);
-
-        if (structureDecoder.findElementEnd(&element[0], element.size()))
-          break;
-      }
-      
-      if (element[0] == 0x04)
-        // Assume this is a ContentObject.
-        break;
-      
-      // Erase this element and try again.
-      element.erase(element.begin(), element.begin() + structureDecoder.getOffset());
-    }
-        
-    ContentObject contentObject;
-    contentObject.decode(&element[0], structureDecoder.getOffset());
+    MyClosure closure;
+    NDN ndn(&closure);
     
-    cout << "Got content with name " << contentObject.getName().to_uri() << endl;
-    for (unsigned int i = 0; i < contentObject.getContent().size(); ++i)
-      cout << contentObject.getContent()[i];
-    cout << endl;
+    ndn_BinaryXMLElementReader elementReader;
+    ndn_BinaryXMLElementReader_init(&elementReader, (struct ndn_ElementListener *)&ndn);
+    
+    unsigned char buffer[8000];
+    unsigned int nBytes = transport.receive(buffer, sizeof(buffer));
+    ndn_BinaryXMLElementReader_onReceivedData(&elementReader, buffer, nBytes);    
   } catch (exception &e) {
     cout << "exception: " << e.what() << endl;
   }

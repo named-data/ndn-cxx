@@ -8,6 +8,8 @@
 #include "ContentObject.hpp"
 #include "NDN.hpp"
 
+using namespace std;
+
 namespace ndn {
 
 void NDN::onReceivedElement(unsigned char *element, unsigned int elementLength)
@@ -15,15 +17,11 @@ void NDN::onReceivedElement(unsigned char *element, unsigned int elementLength)
   BinaryXMLDecoder decoder(element, elementLength);
   
   if (decoder.peekDTag(ndn_BinaryXML_DTag_ContentObject)) {
-    ContentObject contentObject;
-    contentObject.decode(element, elementLength);
-
-#if 0
-    cout << "Got content with name " << contentObject.getName().to_uri() << endl;
-    for (unsigned int i = 0; i < contentObject.getContent().size(); ++i)
-      cout << contentObject.getContent()[i];
-    cout << endl;
-#endif
+    ptr_lib::shared_ptr<ContentObject> contentObject(new ContentObject());
+    contentObject->decode(element, elementLength);
+    
+    UpcallInfo upcallInfo(this, ptr_lib::shared_ptr<Interest>(), 0, contentObject);
+    closure_->upcall(UPCALL_CONTENT, upcallInfo);
   }
 }
 

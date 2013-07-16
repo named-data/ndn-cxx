@@ -438,6 +438,7 @@ libndn_c_a_SOURCES = \
 
 libndn_cpp_a_SOURCES = \
   config.h ndn-cpp/common.hpp \
+  ndn-cpp/Closure.hpp \
   ndn-cpp/ContentObject.cpp ndn-cpp/c/ContentObject.h ndn-cpp/ContentObject.hpp \
   ndn-cpp/Interest.cpp ndn-cpp/c/Interest.h ndn-cpp/Interest.hpp \
   ndn-cpp/Key.cpp ndn-cpp/c/Key.h ndn-cpp/Key.hpp \
