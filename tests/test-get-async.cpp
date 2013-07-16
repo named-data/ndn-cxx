@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 {
   try {
     ptr_lib::shared_ptr<TcpTransport> transport(new TcpTransport());
-    NDN ndn(transport, "E.hub.ndn.ucla.edu", 9695, ptr_lib::make_shared<MyClosure>());
+    NDN ndn(transport, "E.hub.ndn.ucla.edu", 9695);
     ndn.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), ptr_lib::make_shared<MyClosure>(), 0);
     
     transport->tempReceive();    

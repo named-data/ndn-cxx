@@ -18,6 +18,9 @@ void NDN::expressInterest(const Name &name, const ptr_lib::shared_ptr<Closure> &
   vector<unsigned char> encoding;
   interest.encode(encoding);  
 
+  // TODO: This should go in the PIT.
+  tempClosure_ = closure;
+  
   transport_->connect(*this);
   transport_->send(&encoding[0], encoding.size());
 }
