@@ -120,12 +120,13 @@ class Interest {
 public:    
   Interest() 
   {
-  	minSuffixComponents_ = -1;
-	  maxSuffixComponents_ = -1;	
-	  childSelector_ = -1;
-	  answerOriginKind_ = -1;
-	  scope_ = -1;
-	  interestLifetimeMilliseconds_ = -1.0;
+  	construct();
+  }
+
+  Interest(const Name &name) 
+  {
+    name_ = name;
+  	construct();
   }
   
   void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) const 
@@ -204,6 +205,15 @@ public:
   void setNonce(const std::vector<unsigned char> &value) { nonce_ = value; }
   
 private:
+  void construct() 
+  {
+  	minSuffixComponents_ = -1;
+	  maxSuffixComponents_ = -1;	
+	  childSelector_ = -1;
+	  answerOriginKind_ = -1;
+	  scope_ = -1;
+	  interestLifetimeMilliseconds_ = -1.0;
+  }
   
   Name name_;
 	int minSuffixComponents_;
