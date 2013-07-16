@@ -35,15 +35,11 @@ public:
 int main(int argc, char** argv)
 {
   try {
-    NDN ndn(ptr_lib::make_shared<TcpTransport>(), "E.hub.ndn.ucla.edu", 9695, ptr_lib::make_shared<MyClosure>());
+    ptr_lib::shared_ptr<TcpTransport> transport(new TcpTransport());
+    NDN ndn(transport, "E.hub.ndn.ucla.edu", 9695, ptr_lib::make_shared<MyClosure>());
     ndn.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), ptr_lib::make_shared<MyClosure>(), 0);
     
-    ndn_BinaryXMLElementReader elementReader;
-    ndn_BinaryXMLElementReader_init(&elementReader, (struct ndn_ElementListener *)&ndn);
-    
-    unsigned char buffer[8000];
-    unsigned int nBytes = ndn.tempGetTransport().receive(buffer, sizeof(buffer));
-    ndn_BinaryXMLElementReader_onReceivedData(&elementReader, buffer, nBytes);    
+    transport->tempReceive();    
   } catch (exception &e) {
     cout << "exception: " << e.what() << endl;
   }

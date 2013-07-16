@@ -18,7 +18,7 @@ void NDN::expressInterest(const Name &name, const ptr_lib::shared_ptr<Closure> &
   vector<unsigned char> encoding;
   interest.encode(encoding);  
 
-  transport_->connect(host_.c_str(), port_);
+  transport_->connect(*this);
   transport_->send(&encoding[0], encoding.size());
 }
     

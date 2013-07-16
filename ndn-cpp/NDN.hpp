@@ -33,7 +33,9 @@ public:
    */
   void expressInterest(const Name &name, const ptr_lib::shared_ptr<Closure> &closure, const Interest *interestTemplate);
   
-  Transport &tempGetTransport() { return *transport_; }
+  const char *getHost() const { return host_.c_str(); }
+  
+  unsigned short getPort() const { return port_; }
   
   virtual void onReceivedElement(unsigned char *element, unsigned int elementLength);
   

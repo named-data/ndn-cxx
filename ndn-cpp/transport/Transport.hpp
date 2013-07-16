@@ -7,14 +7,13 @@
 #define	NDN_TRANSPORT_HPP
 
 namespace ndn {
-  
+
+class NDN;  
 class Transport {
 public:
-  virtual void connect(const char *host, unsigned short port);
+  virtual void connect(NDN &ndn);
   
   virtual void send(unsigned char *data, unsigned int dataLength);
-  
-  virtual unsigned int receive(unsigned char *buffer, unsigned int bufferLength);
 };
 
 }
