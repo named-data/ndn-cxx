@@ -9,11 +9,11 @@
 #include <ndn-cpp/Interest.hpp>
 #include <ndn-cpp/ContentObject.hpp>
 #include <ndn-cpp/transport/TcpTransport.hpp>
-#include <ndn-cpp/c/encoding/BinaryXMLElementReader.h>
 #include <ndn-cpp/NDN.hpp>
 
 using namespace std;
 using namespace ndn;
+using namespace ptr_lib;
 
 class MyClosure : public Closure {
 public:
@@ -35,12 +35,12 @@ public:
 int main(int argc, char** argv)
 {
   try {
-    ptr_lib::shared_ptr<TcpTransport> transport(new TcpTransport());
+    shared_ptr<TcpTransport> transport(new TcpTransport());
     NDN ndn(transport, "E.hub.ndn.ucla.edu", 9695);
-    ndn.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), ptr_lib::make_shared<MyClosure>(), 0);
+    ndn.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), make_shared<MyClosure>(), 0);
     
     transport->tempReceive();    
-  } catch (exception &e) {
+  } catch (std::exception &e) {
     cout << "exception: " << e.what() << endl;
   }
   return 0;
