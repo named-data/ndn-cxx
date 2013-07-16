@@ -20,7 +20,8 @@ void NDN::onReceivedElement(unsigned char *element, unsigned int elementLength)
     ptr_lib::shared_ptr<ContentObject> contentObject(new ContentObject());
     contentObject->decode(element, elementLength);
     
-    UpcallInfo upcallInfo(this, ptr_lib::shared_ptr<Interest>(), 0, contentObject);
+    ptr_lib::shared_ptr<Interest> dummyInterest;
+    UpcallInfo upcallInfo(this, dummyInterest, 0, contentObject);
     closure_->upcall(UPCALL_CONTENT, upcallInfo);
   }
 }

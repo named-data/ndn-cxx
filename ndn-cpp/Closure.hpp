@@ -39,7 +39,7 @@ class ContentObject;
 
 class UpcallInfo {
 public:
-  UpcallInfo(NDN *ndn, ptr_lib::shared_ptr<Interest> interest, int matchedComps, ptr_lib::shared_ptr<ContentObject> contentObject) 
+  UpcallInfo(NDN *ndn, ptr_lib::shared_ptr<Interest> &interest, int matchedComps, ptr_lib::shared_ptr<ContentObject> &contentObject) 
   {
     ndn_ = ndn;
     interest_ = interest;
@@ -48,9 +48,9 @@ public:
   
   NDN *getNDN() { return ndn_; }
   
-  ptr_lib::shared_ptr<Interest> getInterest() { return interest_; }
+  ptr_lib::shared_ptr<Interest> &getInterest() { return interest_; }
   
-  ptr_lib::shared_ptr<ContentObject> getContentObject() { return contentObject_; }
+  ptr_lib::shared_ptr<ContentObject> &getContentObject() { return contentObject_; }
   
 private:
   NDN *ndn_;
