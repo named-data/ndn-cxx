@@ -6,10 +6,15 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/date_time/posix_time/time_serialize.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 #include <ndn-cpp/ContentObject.hpp>
 
 using namespace std;
 using namespace ndn;
+using namespace boost::posix_time;
+using namespace boost::gregorian;
 
 unsigned char ContentObject1[] = {
 0x04, 0x82, // ContentObject
@@ -57,13 +62,17 @@ unsigned char ContentObject1[] = {
 1
 };
 
+const ptime UNIX_EPOCH_TIME = ptime (date (1970, Jan, 1));
+
 int main(int argc, char** argv)
 {
   try {
     ContentObject contentObject;
     contentObject.decode(ContentObject1, sizeof(ContentObject1));
     cout << "ContentObject name " << contentObject.getName().to_uri() << endl;
-    cout << "ContentObject timestamp (ms) " << contentObject.getSignedInfo().getTimestampMilliseconds() << endl;
+    ptime timestamp = UNIX_EPOCH_TIME + milliseconds(contentObject.getSignedInfo().getTimestampMilliseconds());
+    cout << "ContentObject timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() 
+         << " " << timestamp.time_of_day().hours() << ":" << timestamp.time_of_day().minutes() << ":" << timestamp.time_of_day().seconds()  << endl;
     
     vector<unsigned char> encoding;
     contentObject.encode(encoding);
@@ -72,7 +81,8 @@ int main(int argc, char** argv)
     ContentObject reDecodedContentObject;
     reDecodedContentObject.decode(encoding);
     cout << "Re-decoded ContentObject name " << reDecodedContentObject.getName().to_uri() << endl;
-    cout << "Re-decoded ContentObject timestamp (ms) " << reDecodedContentObject.getSignedInfo().getTimestampMilliseconds() << endl;
+    timestamp = UNIX_EPOCH_TIME + milliseconds(reDecodedContentObject.getSignedInfo().getTimestampMilliseconds());
+    cout << "Re-decoded ContentObject timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() << endl;
   } catch (exception &e) {
     cout << "exception: " << e.what() << endl;
   }
