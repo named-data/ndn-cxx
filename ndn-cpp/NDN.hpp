@@ -11,14 +11,15 @@
 #include "transport/Transport.hpp"
 #include "encoding/BinaryXMLElementReader.hpp"
 
+using namespace std;
+
 namespace ndn {
 
 class NDN : public ElementListener {
 public:
-  NDN(const ptr_lib::shared_ptr<Transport> &transport, const ptr_lib::shared_ptr<Closure> &tempClosure)
+  NDN(const ptr_lib::shared_ptr<Transport> &transport, const char *host, unsigned short port, const ptr_lib::shared_ptr<Closure> &tempClosure)
+  : transport_(transport), host_(host), port_(port), tempClosure_(tempClosure) 
   {
-    transport_ = transport;
-    tempClosure_ = tempClosure;
   }
   
   /**
@@ -38,6 +39,8 @@ public:
   
 private:
   ptr_lib::shared_ptr<Transport> transport_;
+  string host_;
+  unsigned short port_;
   ptr_lib::shared_ptr<Closure> tempClosure_;
 };
 

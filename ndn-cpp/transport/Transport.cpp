@@ -10,7 +10,7 @@ using namespace std;
 
 namespace ndn {
 
-void Transport::connect(char *host, unsigned short port) 
+void Transport::connect(const char *host, unsigned short port) 
 {
   throw logic_error("unimplemented");
 }

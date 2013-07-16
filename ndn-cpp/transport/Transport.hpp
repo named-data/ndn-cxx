@@ -10,7 +10,7 @@ namespace ndn {
   
 class Transport {
 public:
-  virtual void connect(char *host, unsigned short port);
+  virtual void connect(const char *host, unsigned short port);
   
   virtual void send(unsigned char *data, unsigned int dataLength);
   

@@ -10,10 +10,10 @@ using namespace std;
 
 namespace ndn {
 
-void TcpTransport::connect(char *host, unsigned short port)
+void TcpTransport::connect(const char *host, unsigned short port)
 {
   ndn_Error error;
-  if (error = ndn_TcpTransport_connect(&transport_, host, port))
+  if (error = ndn_TcpTransport_connect(&transport_, (char *)host, port))
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
