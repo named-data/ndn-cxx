@@ -6,6 +6,7 @@
 #ifndef NDN_BINARYXMLDECODER_HPP
 #define	NDN_BINARYXMLDECODER_HPP
 
+#include <stdexcept>
 #include "../c/errors.h"
 #include "../c/encoding/BinaryXMLDecoder.h"
 
