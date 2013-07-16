@@ -139,6 +139,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 am_libndn_c_a_OBJECTS = ndn-cpp/c/errors.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLContentObject.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLDecoder.$(OBJEXT) \
+	ndn-cpp/c/encoding/BinaryXMLElementReader.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLEncoder.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLInterest.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLKey.$(OBJEXT) \
@@ -154,7 +155,8 @@ libndn_cpp_a_AR = $(AR) $(ARFLAGS)
 libndn_cpp_a_LIBADD =
 am_libndn_cpp_a_OBJECTS = ndn-cpp/ContentObject.$(OBJEXT) \
 	ndn-cpp/Interest.$(OBJEXT) ndn-cpp/Key.$(OBJEXT) \
-	ndn-cpp/Name.$(OBJEXT) \
+	ndn-cpp/NDN.$(OBJEXT) ndn-cpp/Name.$(OBJEXT) \
+	ndn-cpp/encoding/BinaryXMLElementReader.$(OBJEXT) \
 	ndn-cpp/encoding/BinaryXMLWireFormat.$(OBJEXT) \
 	ndn-cpp/encoding/WireFormat.$(OBJEXT) \
 	ndn-cpp/transport/TcpTransport.$(OBJEXT) \
@@ -423,6 +425,7 @@ libndn_c_a_SOURCES = \
   ndn-cpp/c/encoding/BinaryXML.h \
   ndn-cpp/c/encoding/BinaryXMLContentObject.c ndn-cpp/c/encoding/BinaryXMLContentObject.h \
   ndn-cpp/c/encoding/BinaryXMLDecoder.c ndn-cpp/c/encoding/BinaryXMLDecoder.h \
+  ndn-cpp/c/encoding/BinaryXMLElementReader.c ndn-cpp/c/encoding/BinaryXMLElementReader.h \
   ndn-cpp/c/encoding/BinaryXMLEncoder.c ndn-cpp/c/encoding/BinaryXMLEncoder.h \
   ndn-cpp/c/encoding/BinaryXMLInterest.c ndn-cpp/c/encoding/BinaryXMLInterest.h \
   ndn-cpp/c/encoding/BinaryXMLKey.c ndn-cpp/c/encoding/BinaryXMLKey.h \
@@ -438,9 +441,12 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/ContentObject.cpp ndn-cpp/c/ContentObject.h ndn-cpp/ContentObject.hpp \
   ndn-cpp/Interest.cpp ndn-cpp/c/Interest.h ndn-cpp/Interest.hpp \
   ndn-cpp/Key.cpp ndn-cpp/c/Key.h ndn-cpp/Key.hpp \
+  ndn-cpp/NDN.cpp ndn-cpp/NDN.hpp \
   ndn-cpp/Name.cpp ndn-cpp/c/Name.h ndn-cpp/Name.hpp \
   ndn-cpp/PublisherPublicKeyDigest.hpp \
   ndn-cpp/c/encoding/BinaryXML.h \
+  ndn-cpp/c/encoding/BinaryXMLDecoder.h ndn-cpp/encoding/BinaryXMLDecoder.hpp \
+  ndn-cpp/c/encoding/BinaryXMLElementReader.h ndn-cpp/encoding/BinaryXMLElementReader.cpp ndn-cpp/encoding/BinaryXMLElementReader.hpp \
   ndn-cpp/c/encoding/BinaryXMLEncoder.h ndn-cpp/encoding/BinaryXMLEncoder.hpp ndn-cpp/c/util/DynamicUCharArray.h \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/c/encoding/BinaryXMLName.h ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
@@ -561,6 +567,9 @@ ndn-cpp/c/encoding/BinaryXMLContentObject.$(OBJEXT):  \
 ndn-cpp/c/encoding/BinaryXMLDecoder.$(OBJEXT):  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/c/encoding/BinaryXMLElementReader.$(OBJEXT):  \
+	ndn-cpp/c/encoding/$(am__dirstamp) \
+	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/encoding/BinaryXMLEncoder.$(OBJEXT):  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
@@ -616,6 +625,8 @@ ndn-cpp/Interest.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/Key.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/NDN.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
+	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/Name.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/$(am__dirstamp):
@@ -624,6 +635,9 @@ ndn-cpp/encoding/$(am__dirstamp):
 ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/encoding/$(DEPDIR)
 	@: > ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/encoding/BinaryXMLElementReader.$(OBJEXT):  \
+	ndn-cpp/encoding/$(am__dirstamp) \
+	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/BinaryXMLWireFormat.$(OBJEXT):  \
 	ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
@@ -734,10 +748,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/ContentObject.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Interest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Key.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/NDN.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Name.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/errors.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLContentObject.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLDecoder.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLElementReader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLEncoder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLInterest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLKey.Po@am__quote@
@@ -747,6 +763,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/transport/$(DEPDIR)/TcpTransport.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/DynamicUCharArray.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_memory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLElementReader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLWireFormat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/WireFormat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/TcpTransport.Po@am__quote@

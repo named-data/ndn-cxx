@@ -24,6 +24,7 @@ libndn_c_a_SOURCES = \
   ndn-cpp/c/encoding/BinaryXML.h \
   ndn-cpp/c/encoding/BinaryXMLContentObject.c ndn-cpp/c/encoding/BinaryXMLContentObject.h \
   ndn-cpp/c/encoding/BinaryXMLDecoder.c ndn-cpp/c/encoding/BinaryXMLDecoder.h \
+  ndn-cpp/c/encoding/BinaryXMLElementReader.c ndn-cpp/c/encoding/BinaryXMLElementReader.h \
   ndn-cpp/c/encoding/BinaryXMLEncoder.c ndn-cpp/c/encoding/BinaryXMLEncoder.h \
   ndn-cpp/c/encoding/BinaryXMLInterest.c ndn-cpp/c/encoding/BinaryXMLInterest.h \
   ndn-cpp/c/encoding/BinaryXMLKey.c ndn-cpp/c/encoding/BinaryXMLKey.h \
@@ -39,9 +40,12 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/ContentObject.cpp ndn-cpp/c/ContentObject.h ndn-cpp/ContentObject.hpp \
   ndn-cpp/Interest.cpp ndn-cpp/c/Interest.h ndn-cpp/Interest.hpp \
   ndn-cpp/Key.cpp ndn-cpp/c/Key.h ndn-cpp/Key.hpp \
+  ndn-cpp/NDN.cpp ndn-cpp/NDN.hpp \
   ndn-cpp/Name.cpp ndn-cpp/c/Name.h ndn-cpp/Name.hpp \
   ndn-cpp/PublisherPublicKeyDigest.hpp \
   ndn-cpp/c/encoding/BinaryXML.h \
+  ndn-cpp/c/encoding/BinaryXMLDecoder.h ndn-cpp/encoding/BinaryXMLDecoder.hpp \ 
+  ndn-cpp/c/encoding/BinaryXMLElementReader.h ndn-cpp/encoding/BinaryXMLElementReader.cpp ndn-cpp/encoding/BinaryXMLElementReader.hpp \
   ndn-cpp/c/encoding/BinaryXMLEncoder.h ndn-cpp/encoding/BinaryXMLEncoder.hpp ndn-cpp/c/util/DynamicUCharArray.h \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/c/encoding/BinaryXMLName.h ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
