@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include "../NDN.hpp"
+#include "../c/util/ndn_realloc.h"
 #include "TcpTransport.hpp"
 
 using namespace std;
@@ -18,8 +19,10 @@ void TcpTransport::connect(NDN &ndn)
     throw std::runtime_error(ndn_getErrorString(error)); 
 
   // TODO: This belongs in the socket listener.
+  const unsigned int initialLength = 1000;
   // Automatically cast ndn_ to (struct ndn_ElementListener *)
-  ndn_BinaryXMLElementReader_init(&elementReader_, &ndn);
+  ndn_BinaryXMLElementReader_init
+    (&elementReader_, &ndn, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
   
   // TODO: Properly indicate connected status.
   ndn_ = &ndn;

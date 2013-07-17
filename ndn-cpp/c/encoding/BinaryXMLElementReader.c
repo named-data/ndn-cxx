@@ -21,9 +21,20 @@ ndn_Error ndn_BinaryXMLElementReader_onReceivedData
 #if 0 // TODO: implement saving data parts.
       this.dataParts.push(data.subarray(0, this.structureDecoder.offset));
       var element = DataUtils.concatArrays(this.dataParts);
-      this.dataParts = [];
 #endif
-      (*self->elementListener->onReceivedElement)(self->elementListener, data, self->structureDecoder.offset);
+      if (self->usePartialData) {
+        // We have partial data from a previous call, so append this data and point to partialData.
+        if (error = ndn_DynamicUCharArray_set(&self->partialData, data, self->structureDecoder.offset, self->partialDataLength))
+          return error;
+        self->partialDataLength += dataLength;
+                
+        (*self->elementListener->onReceivedElement)(self->elementListener, self->partialData.array, self->partialDataLength);
+        // Assume we don't need to use partialData anymore until needed.
+        self->usePartialData = 0;
+      }
+      else
+        // We are not using partialData, so just point to the input data buffer.
+        (*self->elementListener->onReceivedElement)(self->elementListener, data, self->structureDecoder.offset);
         
       // Need to read a new object.
       data += self->structureDecoder.offset;
@@ -36,12 +47,16 @@ ndn_Error ndn_BinaryXMLElementReader_onReceivedData
       // else loop back to decode.
     }
     else {
-#if 0 // TODO: implement saving data parts.
-      // Save for a later call to concatArrays so that we only copy data once.
-      this.dataParts.push(data);
-#else
-      return -1; // TODO: implement saving data parts.
-#endif
+      // Save remaining data for a later call.
+      if (!self->usePartialData) {
+        self->usePartialData = 1;
+        self->partialDataLength = 0;
+      }
+      
+      if (error = ndn_DynamicUCharArray_set(&self->partialData, data, dataLength, self->partialDataLength))
+        return error;
+      self->partialDataLength += dataLength;
+      
       return 0;
     }
   }      

@@ -8,6 +8,7 @@
 
 #include "../errors.h"
 #include "BinaryXMLStructureDecoder.h"
+#include "../util/DynamicUCharArray.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -41,18 +42,27 @@ static inline void ndn_ElementListener_init
 struct ndn_BinaryXMLElementReader {
   struct ndn_ElementListener *elementListener;
   struct ndn_BinaryXMLStructureDecoder structureDecoder;
+  int usePartialData;
+  struct ndn_DynamicUCharArray partialData;
+  unsigned int partialDataLength;
 };
 
 /**
- * Initialize an ndn_BinaryXMLElementReader struct with the elementListener.
+ * Initialize an ndn_BinaryXMLElementReader struct with the elementListener and a buffer for saving partial data.
  * @param self pointer to the ndn_BinaryXMLElementReader struct
  * @param elementListener pointer to the ndn_ElementListener used by ndn_BinaryXMLElementReader_onReceivedData.
+ * @param buffer the allocated buffer.  If reallocFunction is null, this should be large enough to save a full element, perhaps 8000 bytes.
+ * @param bufferLength the length of the buffer
+ * @param reallocFunction see ndn_DynamicUCharArray_ensureLength.  This may be 0.
  */
 static inline void ndn_BinaryXMLElementReader_init
-  (struct ndn_BinaryXMLElementReader *self, struct ndn_ElementListener *elementListener)
+  (struct ndn_BinaryXMLElementReader *self, struct ndn_ElementListener *elementListener,
+   unsigned char *buffer, unsigned int bufferLength, unsigned char * (*reallocFunction)(unsigned char *, unsigned int))
 {
   self->elementListener = elementListener;
   ndn_BinaryXMLStructureDecoder_init(&self->structureDecoder);
+  self->usePartialData = 0;
+  ndn_DynamicUCharArray_init(&self->partialData, buffer, bufferLength, reallocFunction);
 }
 
 /**
