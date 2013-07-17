@@ -34,16 +34,23 @@ void TcpTransport::tempReceive()
   if (!ndn_)
     // TODO: Properly check if connected.
     return;
-  ndn_BinaryXMLElementReader elementReader;
-  // Automatically cast ndn_ to (struct ndn_ElementListener *)
-  ndn_BinaryXMLElementReader_init(&elementReader, ndn_);
+  
+  try {
+    ndn_BinaryXMLElementReader elementReader;
+    // Automatically cast ndn_ to (struct ndn_ElementListener *)
+    ndn_BinaryXMLElementReader_init(&elementReader, ndn_);
     
-  unsigned char buffer[8000];
-  ndn_Error error;
-  unsigned int nBytes;
-  if (error = ndn_TcpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes))
-    throw std::runtime_error(ndn_getErrorString(error));  
-  ndn_BinaryXMLElementReader_onReceivedData(&elementReader, buffer, nBytes);      
+    ndn_Error error;
+    unsigned char buffer[8000];
+    unsigned int nBytes;
+    if (error = ndn_TcpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes))
+      throw std::runtime_error(ndn_getErrorString(error));  
+
+    ndn_BinaryXMLElementReader_onReceivedData(&elementReader, buffer, nBytes);
+  } catch (...) {
+    // This function is called by the socket callback, so don't send an exception back to it.
+    // TODO: Log the exception?
+  }
 }
 
 }
