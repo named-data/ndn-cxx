@@ -35,7 +35,7 @@ void TcpTransport::tempReceive()
     // TODO: Properly check if connected.
     return;
   ndn_BinaryXMLElementReader elementReader;
-  // Automaticall cast ndn_ to (struct ndn_ElementListener *)
+  // Automatically cast ndn_ to (struct ndn_ElementListener *)
   ndn_BinaryXMLElementReader_init(&elementReader, ndn_);
     
   unsigned char buffer[8000];
