@@ -7,6 +7,7 @@
 #define	NDN_TCPTRANSPORT_HPP
 
 #include "../c/transport/TcpTransport.h"
+#include "../c/encoding/BinaryXMLElementReader.h"
 #include "Transport.hpp"
 
 namespace ndn {
@@ -28,6 +29,8 @@ public:
 private:
   struct ndn_TcpTransport transport_;
   NDN *ndn_;
+  // TODO: This belongs in the socket listener.
+  ndn_BinaryXMLElementReader elementReader_;
 };
 
 }
