@@ -6,8 +6,8 @@
 #ifndef NDN_BINARYXMLENCODER_HPP
 #define	NDN_BINARYXMLENCODER_HPP
 
-#include <cstdlib>
 #include <vector>
+#include "../c/util/ndn_realloc.h"
 #include "../c/encoding/BinaryXMLEncoder.h"
 
 namespace ndn {
@@ -23,18 +23,7 @@ public:
   BinaryXMLEncoder() 
   {
     const unsigned int initialLength = 16;
-    ndn_BinaryXMLEncoder_init(this, (unsigned char *)malloc(initialLength), initialLength, simpleRealloc);
-  }
-  
-  /**
-   * Wrap the C stdlib realloc to convert to/from void * to unsigned char *.
-   * @param array the allocated array buffer to realloc
-   * @param length the length for the new array buffer
-   * @return the new allocated array buffer
-   */
-  static unsigned char *simpleRealloc(unsigned char *array, unsigned int length)
-  {
-    return (unsigned char *)realloc(array, length);
+    ndn_BinaryXMLEncoder_init(this, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
   }
   
   /**
