@@ -8,27 +8,36 @@
 #ifndef NDN_TCPTRANSPORT_H
 #define	NDN_TCPTRANSPORT_H
 
-#include "../errors.h"
+#include "SocketTransport.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
 struct ndn_TcpTransport {
-  int socketDescriptor; /**< -1 if not connected */
+  struct ndn_SocketTransport base;
 };
   
 static inline void ndn_TcpTransport_init(struct ndn_TcpTransport *self)
 {
-  self->socketDescriptor = -1;
+  ndn_SocketTransport_init(&self->base);
 }
 
-ndn_Error ndn_TcpTransport_connect(struct ndn_TcpTransport *self, char *host, unsigned short port);
+static inline ndn_Error ndn_TcpTransport_connect(struct ndn_TcpTransport *self, char *host, unsigned short port)
+{
+  return ndn_SocketTransport_connect(&self->base, SOCKET_TCP, host, port);
+}
 
-ndn_Error ndn_TcpTransport_send(struct ndn_TcpTransport *self, unsigned char *data, unsigned int dataLength);
+static inline ndn_Error ndn_TcpTransport_send(struct ndn_TcpTransport *self, unsigned char *data, unsigned int dataLength)
+{
+  return ndn_SocketTransport_send(&self->base, data, dataLength);
+}
 
-ndn_Error ndn_TcpTransport_receive
-  (struct ndn_TcpTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytes);
+static inline ndn_Error ndn_TcpTransport_receive
+  (struct ndn_TcpTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytes)
+{
+  return ndn_SocketTransport_receive(&self->base, buffer, bufferLength, nBytes);
+}
 
 #ifdef	__cplusplus
 }

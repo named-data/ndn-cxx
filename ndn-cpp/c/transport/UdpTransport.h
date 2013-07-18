@@ -1,32 +1,43 @@
-/**
- * @author: Jeff Thompson
- * See COPYING for copyright and distribution information.
+/* 
+ * File:   UdpTransport.h
+ * Author: jefft0
+ *
+ * Created on July 14, 2013, 4:15 PM
  */
 
 #ifndef NDN_UDPTRANSPORT_H
 #define	NDN_UDPTRANSPORT_H
 
-#include "../errors.h"
+#include "SocketTransport.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
 struct ndn_UdpTransport {
-  int socketDescriptor; /**< -1 if not connected */
+  struct ndn_SocketTransport base;
 };
   
 static inline void ndn_UdpTransport_init(struct ndn_UdpTransport *self)
 {
-  self->socketDescriptor = -1;
+  ndn_SocketTransport_init(&self->base);
 }
 
-ndn_Error ndn_UdpTransport_connect(struct ndn_UdpTransport *self, char *host, unsigned short port);
+static inline ndn_Error ndn_UdpTransport_connect(struct ndn_UdpTransport *self, char *host, unsigned short port)
+{
+  return ndn_SocketTransport_connect(&self->base, SOCKET_UDP, host, port);
+}
 
-ndn_Error ndn_UdpTransport_send(struct ndn_UdpTransport *self, unsigned char *data, unsigned int dataLength);
+static inline ndn_Error ndn_UdpTransport_send(struct ndn_UdpTransport *self, unsigned char *data, unsigned int dataLength)
+{
+  return ndn_SocketTransport_send(&self->base, data, dataLength);
+}
 
-ndn_Error ndn_UdpTransport_receive
-  (struct ndn_UdpTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytes);
+static inline ndn_Error ndn_UdpTransport_receive
+  (struct ndn_UdpTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytes)
+{
+  return ndn_SocketTransport_receive(&self->base, buffer, bufferLength, nBytes);
+}
 
 #ifdef	__cplusplus
 }
