@@ -8,7 +8,7 @@
 #include <iostream>
 #include <ndn-cpp/Interest.hpp>
 #include <ndn-cpp/ContentObject.hpp>
-#include <ndn-cpp/transport/TcpTransport.hpp>
+#include <ndn-cpp/transport/UdpTransport.hpp>
 #include <ndn-cpp/NDN.hpp>
 
 using namespace std;
@@ -43,7 +43,7 @@ public:
 int main(int argc, char** argv)
 {
   try {
-    shared_ptr<TcpTransport> transport(new TcpTransport());
+    shared_ptr<UdpTransport> transport(new UdpTransport());
     shared_ptr<MyClosure> closure(new MyClosure());
     NDN ndn(transport, "E.hub.ndn.ucla.edu", 9695);
     ndn.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), closure, 0);

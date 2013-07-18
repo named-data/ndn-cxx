@@ -62,6 +62,16 @@ char *ndn_getErrorString(int error)
     return      "TcpTransport error in send";
   case NDN_ERROR_TcpTransport_error_in_recv:
     return      "TcpTransport error in recv";
+  case NDN_ERROR_UdpTransport_error_in_getaddrinfo:
+    return      "UdpTransport error in getaddrinfo";
+  case NDN_ERROR_UdpTransport_cannot_connect_to_socket:
+    return      "UdpTransport cannot connect to socket";
+  case NDN_ERROR_UdpTransport_socket_is_not_open:
+    return      "UdpTransport socket is not open";
+  case NDN_ERROR_UdpTransport_error_in_send:
+    return      "UdpTransport error in send";
+  case NDN_ERROR_UdpTransport_error_in_recv:
+    return      "UdpTransport error in recv";
   default:
     return "unrecognized ndn_Error code";  
   }

@@ -147,7 +147,7 @@ am_libndn_c_a_OBJECTS = ndn-cpp/c/errors.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.$(OBJEXT) \
 	ndn-cpp/c/encoding/BinaryXMLStructureDecoder.$(OBJEXT) \
 	ndn-cpp/c/transport/TcpTransport.$(OBJEXT) \
-	ndn-cpp/c/transport/TcpTransport.$(OBJEXT) \
+	ndn-cpp/c/transport/UdpTransport.$(OBJEXT) \
 	ndn-cpp/c/util/DynamicUCharArray.$(OBJEXT) \
 	ndn-cpp/c/util/ndn_memory.$(OBJEXT) \
 	ndn-cpp/c/util/ndn_realloc.$(OBJEXT)
@@ -161,7 +161,8 @@ am_libndn_cpp_a_OBJECTS = ndn-cpp/ContentObject.$(OBJEXT) \
 	ndn-cpp/encoding/BinaryXMLWireFormat.$(OBJEXT) \
 	ndn-cpp/encoding/WireFormat.$(OBJEXT) \
 	ndn-cpp/transport/TcpTransport.$(OBJEXT) \
-	ndn-cpp/transport/Transport.$(OBJEXT)
+	ndn-cpp/transport/Transport.$(OBJEXT) \
+	ndn-cpp/transport/UdpTransport.$(OBJEXT)
 libndn_cpp_a_OBJECTS = $(am_libndn_cpp_a_OBJECTS)
 PROGRAMS = $(bin_PROGRAMS)
 am_bin_test_encode_decode_ContentObject_OBJECTS =  \
@@ -433,7 +434,8 @@ libndn_c_a_SOURCES = \
   ndn-cpp/c/encoding/BinaryXMLName.c ndn-cpp/c/encoding/BinaryXMLName.h \
   ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.c ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.h \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.c ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h \
-  ndn-cpp/c/transport/TcpTransport.c ndn-cpp/c/transport/TcpTransport.c \
+  ndn-cpp/c/transport/TcpTransport.c ndn-cpp/c/transport/TcpTransport.h \
+  ndn-cpp/c/transport/UdpTransport.c ndn-cpp/c/transport/UdpTransport.h \
   ndn-cpp/c/util/DynamicUCharArray.c ndn-cpp/c/util/DynamicUCharArray.h \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
@@ -454,8 +456,9 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
   ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/c/encoding/BinaryXMLName.h ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
   ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp \
-  ndn-cpp/transport/TcpTransport.cpp ndn-cpp/transport/TcpTransport.hpp \
-  ndn-cpp/transport/Transport.cpp ndn-cpp/transport/Transport.hpp
+  ndn-cpp/c/transport/TcpTransport.h ndn-cpp/transport/TcpTransport.cpp ndn-cpp/transport/TcpTransport.hpp \
+  ndn-cpp/transport/Transport.cpp ndn-cpp/transport/Transport.hpp \
+  ndn-cpp/c/transport/UdpTransport.h ndn-cpp/transport/UdpTransport.cpp ndn-cpp/transport/UdpTransport.hpp
 
 bin_test_encode_decode_Interest_SOURCES = tests/test-encode-decode-Interest.cpp
 bin_test_encode_decode_Interest_LDADD = libndn-c.a libndn-cpp.a
@@ -600,6 +603,9 @@ ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp):
 ndn-cpp/c/transport/TcpTransport.$(OBJEXT):  \
 	ndn-cpp/c/transport/$(am__dirstamp) \
 	ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/c/transport/UdpTransport.$(OBJEXT):  \
+	ndn-cpp/c/transport/$(am__dirstamp) \
+	ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/util/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/util
 	@: > ndn-cpp/c/util/$(am__dirstamp)
@@ -659,6 +665,9 @@ ndn-cpp/transport/TcpTransport.$(OBJEXT):  \
 	ndn-cpp/transport/$(am__dirstamp) \
 	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/transport/Transport.$(OBJEXT):  \
+	ndn-cpp/transport/$(am__dirstamp) \
+	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/transport/UdpTransport.$(OBJEXT):  \
 	ndn-cpp/transport/$(am__dirstamp) \
 	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
 
@@ -766,6 +775,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLPublisherPublicKeyDigest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLStructureDecoder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/transport/$(DEPDIR)/TcpTransport.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/transport/$(DEPDIR)/UdpTransport.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/DynamicUCharArray.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_memory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_realloc.Po@am__quote@
@@ -774,6 +784,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/WireFormat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/TcpTransport.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/Transport.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/UdpTransport.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-ContentObject.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-Interest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-get-async.Po@am__quote@
