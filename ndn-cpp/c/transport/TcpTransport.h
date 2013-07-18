@@ -30,8 +30,6 @@ ndn_Error ndn_TcpTransport_send(struct ndn_TcpTransport *self, unsigned char *da
 ndn_Error ndn_TcpTransport_receive
   (struct ndn_TcpTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytes);
 
-int testTcpTransport(unsigned char *data, unsigned int dataLength);
-
 #ifdef	__cplusplus
 }
 #endif
