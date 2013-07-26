@@ -63,33 +63,7 @@ public:
    * Parse the uri according to the NDN URI Scheme and create the name with the components.
    * @param uri the URI string.
    */
-  Name(const char *uri);
-  
-  void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) const
-  {
-    wireFormat.encodeName(*this, output);
-  }
-  void encode(std::vector<unsigned char> &output) const 
-  {
-    encode(output, BinaryXMLWireFormat::instance());
-  }
-  void decode(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat) 
-  {
-    wireFormat.decodeName(*this, input, inputLength);
-  }
-  void decode(const unsigned char *input, unsigned int inputLength) 
-  {
-    decode(input, inputLength, BinaryXMLWireFormat::instance());
-  }
-  void decode(const std::vector<unsigned char> &input, WireFormat &wireFormat) 
-  {
-    decode(&input[0], input.size(), wireFormat);
-  }
-  void decode(const std::vector<unsigned char> &input) 
-  {
-    decode(&input[0], input.size());
-  }
-  
+  Name(const char *uri);  
   /**
    * Set the nameStruct to point to the components in this name, without copying any memory.
    * WARNING: The resulting pointers in nameStruct are invalid after a further use of this object which could reallocate memory.

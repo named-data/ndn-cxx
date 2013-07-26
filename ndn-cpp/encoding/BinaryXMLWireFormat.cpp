@@ -4,7 +4,6 @@
  */
 
 #include <stdexcept>
-#include "../c/encoding/BinaryXMLName.h"
 #include "../c/encoding/BinaryXMLInterest.h"
 #include "../c/encoding/BinaryXMLContentObject.h"
 #include "../Interest.hpp"
@@ -18,33 +17,6 @@ using namespace std;
 namespace ndn {
 
 BinaryXMLWireFormat BinaryXMLWireFormat::instance_;
-
-void BinaryXMLWireFormat::encodeName(const Name &name, vector<unsigned char> &output) 
-{
-  struct ndn_Name nameStruct;
-  struct ndn_NameComponent components[100];
-  ndn_Name_init(&nameStruct, components, sizeof(components) / sizeof(components[0]));
-  name.get(nameStruct);
-
-  BinaryXMLEncoder encoder;
-  ndn_encodeBinaryXMLName(&nameStruct, &encoder);
-     
-  encoder.appendTo(output);
-}
-
-void BinaryXMLWireFormat::decodeName(Name &name, const unsigned char *input, unsigned int inputLength)
-{
-  struct ndn_NameComponent components[100];
-  struct ndn_Name nameStruct;
-  ndn_Name_init(&nameStruct, components, sizeof(components) / sizeof(components[0]));
-    
-  BinaryXMLDecoder decoder(input, inputLength);  
-  ndn_Error error;
-  if (error = ndn_decodeBinaryXMLName(&nameStruct, &decoder))
-    throw std::runtime_error(ndn_getErrorString(error));
-
-  name.set(nameStruct);
-}
 
 void BinaryXMLWireFormat::encodeInterest(const Interest &interest, vector<unsigned char> &output) 
 {
