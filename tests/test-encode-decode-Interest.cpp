@@ -44,12 +44,11 @@ int main(int argc, char** argv)
     cout << "Interest excludeEntryCount " << interest.getExclude().getEntryCount() << endl;
     cout << "InterestLifetimeMilliseconds " << interest.getInterestLifetimeMilliseconds() << endl;
     
-    vector<unsigned char> encoding;
-    interest.encode(encoding);
-    cout << "Interest encoding length " << encoding.size() << " vs. sizeof(Interest1) " << sizeof(Interest1) << endl;
+    ptr_lib::shared_ptr<vector<unsigned char> > encoding = interest.encode();
+    cout << "Interest encoding length " << encoding->size() << " vs. sizeof(Interest1) " << sizeof(Interest1) << endl;
 
     Interest reDecodedInterest;
-    reDecodedInterest.decode(encoding);
+    reDecodedInterest.decode(*encoding);
     cout << "Re-decoded Interest name " << reDecodedInterest.getName().to_uri() << endl;
     cout << "Re-decoded Interest minSuffixComponents " << reDecodedInterest.getMinSuffixComponents() << endl;
     cout << "Re-decoded Interest publisherPublicKeyDigest length " << reDecodedInterest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() << endl;

@@ -129,13 +129,13 @@ public:
   	construct();
   }
   
-  void encode(std::vector<unsigned char> &output, WireFormat &wireFormat) const 
+  ptr_lib::shared_ptr<std::vector<unsigned char> > encode(WireFormat &wireFormat) const 
   {
-    wireFormat.encodeInterest(*this, output);
+    return wireFormat.encodeInterest(*this);
   }
-  void encode(std::vector<unsigned char> &output) const 
+  ptr_lib::shared_ptr<std::vector<unsigned char> > encode() const 
   {
-    encode(output, BinaryXMLWireFormat::instance());
+    return encode(BinaryXMLWireFormat::instance());
   }
   void decode(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat) 
   {

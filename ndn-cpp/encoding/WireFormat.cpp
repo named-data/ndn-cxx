@@ -9,7 +9,7 @@
 using namespace std;
 
 namespace ndn {
-void WireFormat::encodeInterest(const Interest &interest, vector<unsigned char> &output) 
+ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeInterest(const Interest &interest) 
 {
   throw logic_error("unimplemented");
 }
@@ -18,7 +18,7 @@ void WireFormat::decodeInterest(Interest &interest, const unsigned char *input, 
   throw logic_error("unimplemented");
 }
 
-void WireFormat::encodeContentObject(const ContentObject &contentObject, vector<unsigned char> &output) 
+ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeContentObject(const ContentObject &contentObject) 
 {
   throw logic_error("unimplemented");
 }

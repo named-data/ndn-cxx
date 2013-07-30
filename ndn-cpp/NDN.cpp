@@ -16,14 +16,13 @@ namespace ndn {
 void NDN::expressInterest(const Name &name, const shared_ptr<Closure> &closure, const Interest *interestTemplate)
 {
   Interest interest(name);
-  vector<unsigned char> encoding;
-  interest.encode(encoding);  
+  shared_ptr<vector<unsigned char> > encoding = interest.encode();  
 
   // TODO: This should go in the PIT.
   tempClosure_ = closure;
   
   transport_->connect(*this);
-  transport_->send(&encoding[0], encoding.size());
+  transport_->send(*encoding);
 }
     
 void NDN::onReceivedElement(unsigned char *element, unsigned int elementLength)

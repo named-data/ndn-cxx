@@ -7,6 +7,7 @@
 #define	NDN_BINARYXMLENCODER_HPP
 
 #include <vector>
+#include "../common.hpp"
 #include "../c/util/ndn_realloc.h"
 #include "../c/encoding/BinaryXMLEncoder.h"
 
@@ -27,12 +28,11 @@ public:
   }
   
   /**
-   * Copy the encoded bytes to the end of the buffer.
-   * @param buffer a vector to receive the copy
+   * Return the output as a shared_ptr.
    */
-  void appendTo(std::vector<unsigned char> &buffer) 
+  ptr_lib::shared_ptr<std::vector<unsigned char> > getOutput() 
   {
-    buffer.insert(buffer.end(), output.array, output.array + offset);
+    return ptr_lib::shared_ptr<std::vector<unsigned char> >(new std::vector<unsigned char>(output.array, output.array + offset));
   }
 };
 

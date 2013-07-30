@@ -74,12 +74,11 @@ int main(int argc, char** argv)
     cout << "ContentObject timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() 
          << " " << timestamp.time_of_day().hours() << ":" << timestamp.time_of_day().minutes() << ":" << timestamp.time_of_day().seconds()  << endl;
     
-    vector<unsigned char> encoding;
-    contentObject.encode(encoding);
-    cout << "ContentObject encoding length " << encoding.size() << " vs. sizeof(ContentObject1) " << sizeof(ContentObject1) << endl;
+    ptr_lib::shared_ptr<vector<unsigned char> > encoding = contentObject.encode();
+    cout << "ContentObject encoding length " << encoding->size() << " vs. sizeof(ContentObject1) " << sizeof(ContentObject1) << endl;
     
     ContentObject reDecodedContentObject;
-    reDecodedContentObject.decode(encoding);
+    reDecodedContentObject.decode(*encoding);
     cout << "Re-decoded ContentObject name " << reDecodedContentObject.getName().to_uri() << endl;
     timestamp = UNIX_EPOCH_TIME + milliseconds(reDecodedContentObject.getSignedInfo().getTimestampMilliseconds());
     cout << "Re-decoded ContentObject timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() << endl;

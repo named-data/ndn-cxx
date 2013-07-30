@@ -18,7 +18,7 @@ namespace ndn {
 
 BinaryXMLWireFormat BinaryXMLWireFormat::instance_;
 
-void BinaryXMLWireFormat::encodeInterest(const Interest &interest, vector<unsigned char> &output) 
+ptr_lib::shared_ptr<vector<unsigned char> > BinaryXMLWireFormat::encodeInterest(const Interest &interest) 
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ExcludeEntry excludeEntries[100];
@@ -31,7 +31,7 @@ void BinaryXMLWireFormat::encodeInterest(const Interest &interest, vector<unsign
   BinaryXMLEncoder encoder;
   ndn_encodeBinaryXMLInterest(&interestStruct, &encoder);
      
-  encoder.appendTo(output);
+  return encoder.getOutput();
 }
 
 void BinaryXMLWireFormat::decodeInterest(Interest &interest, const unsigned char *input, unsigned int inputLength)
@@ -51,7 +51,7 @@ void BinaryXMLWireFormat::decodeInterest(Interest &interest, const unsigned char
   interest.set(interestStruct);
 }
 
-void BinaryXMLWireFormat::encodeContentObject(const ContentObject &contentObject, vector<unsigned char> &output) 
+ptr_lib::shared_ptr<vector<unsigned char> > BinaryXMLWireFormat::encodeContentObject(const ContentObject &contentObject) 
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ContentObject contentObjectStruct;
@@ -62,7 +62,7 @@ void BinaryXMLWireFormat::encodeContentObject(const ContentObject &contentObject
   BinaryXMLEncoder encoder;
   ndn_encodeBinaryXMLContentObject(&contentObjectStruct, &encoder);
      
-  encoder.appendTo(output);
+  return encoder.getOutput();
 }
 
 void BinaryXMLWireFormat::decodeContentObject(ContentObject &contentObject, const unsigned char *input, unsigned int inputLength)
