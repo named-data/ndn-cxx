@@ -28,10 +28,10 @@ void UdpTransport::connect(NDN &ndn)
   ndn_ = &ndn;
 }
 
-void UdpTransport::send(unsigned char *data, unsigned int dataLength)
+void UdpTransport::send(const unsigned char *data, unsigned int dataLength)
 {
   ndn_Error error;
-  if (error = ndn_UdpTransport_send(&transport_, data, dataLength))
+  if (error = ndn_UdpTransport_send(&transport_, (unsigned char *)data, dataLength))
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
