@@ -26,7 +26,7 @@ public:
    */
   virtual void connect(NDN &ndn);
   
-  virtual void send(unsigned char *data, unsigned int dataLength);
+  virtual void send(const unsigned char *data, unsigned int dataLength);
 
   virtual void tempReceive();
   

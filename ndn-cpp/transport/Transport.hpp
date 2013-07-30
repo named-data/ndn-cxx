@@ -6,6 +6,8 @@
 #ifndef NDN_TRANSPORT_HPP
 #define	NDN_TRANSPORT_HPP
 
+#include <vector>
+
 namespace ndn {
 
 class NDN;  
@@ -17,7 +19,12 @@ public:
    */
   virtual void connect(NDN &ndn);
   
-  virtual void send(unsigned char *data, unsigned int dataLength);
+  virtual void send(const unsigned char *data, unsigned int dataLength);
+  
+  void send(const std::vector<unsigned char> &data)
+  {
+    send(&data[0], data.size());
+  }
 };
 
 }

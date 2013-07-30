@@ -28,7 +28,7 @@ void TcpTransport::connect(NDN &ndn)
   ndn_ = &ndn;
 }
 
-void TcpTransport::send(unsigned char *data, unsigned int dataLength)
+void TcpTransport::send(const unsigned char *data, unsigned int dataLength)
 {
   ndn_Error error;
   if (error = ndn_TcpTransport_send(&transport_, data, dataLength))
