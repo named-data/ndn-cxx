@@ -15,7 +15,7 @@ void Transport::connect(NDN &ndn)
   throw logic_error("unimplemented");
 }
   
-void Transport::send(unsigned char *data, unsigned int dataLength)
+void Transport::send(const unsigned char *data, unsigned int dataLength)
 {
   throw logic_error("unimplemented");
 }

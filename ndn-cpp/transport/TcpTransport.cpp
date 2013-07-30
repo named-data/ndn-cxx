@@ -31,7 +31,7 @@ void TcpTransport::connect(NDN &ndn)
 void TcpTransport::send(const unsigned char *data, unsigned int dataLength)
 {
   ndn_Error error;
-  if (error = ndn_TcpTransport_send(&transport_, data, dataLength))
+  if (error = ndn_TcpTransport_send(&transport_, (unsigned char *)data, dataLength))
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
