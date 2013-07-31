@@ -43,6 +43,11 @@ public:
    */
   void expressInterest(const Name &name, const ptr_lib::shared_ptr<Closure> &closure, const Interest *interestTemplate);
   
+  void expressInterest(const Name &name, const ptr_lib::shared_ptr<Closure> &closure)
+  {
+    expressInterest(name, closure, 0);
+  }
+  
   const char *getHost() const { return host_.c_str(); }
   
   unsigned short getPort() const { return port_; }
