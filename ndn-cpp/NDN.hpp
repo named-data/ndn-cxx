@@ -8,7 +8,7 @@
 
 #include "Closure.hpp"
 #include "Interest.hpp"
-#include "transport/Transport.hpp"
+#include "transport/UdpTransport.hpp"
 #include "encoding/BinaryXMLElementReader.hpp"
 
 using namespace std;
@@ -18,10 +18,15 @@ namespace ndn {
 class NDN : public ElementListener {
 public:
   NDN(const char *host, unsigned short port, const ptr_lib::shared_ptr<Transport> &transport)
-  : transport_(transport), host_(host), port_(port) 
+  : host_(host), port_(port), transport_(transport)
   {
   }
   
+  NDN(const char *host, unsigned short port)
+  : host_(host), port_(port), transport_(new UdpTransport())
+  {
+  }
+
   /**
    * Encode name as an Interest. If interestTemplate is not 0, use its interest selectors.
    * Send the interest through the transport, read the entire response and call
