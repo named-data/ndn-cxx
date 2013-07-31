@@ -3,8 +3,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_TCPTRANSPORT_HPP
-#define	NDN_TCPTRANSPORT_HPP
+#ifndef NDN_UDPTRANSPORT_HPP
+#define	NDN_UDPTRANSPORT_HPP
 
 #include "../c/transport/UdpTransport.h"
 #include "../c/encoding/BinaryXMLElementReader.h"
