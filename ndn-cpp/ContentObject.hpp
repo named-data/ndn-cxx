@@ -90,7 +90,7 @@ public:
   }
   ptr_lib::shared_ptr<std::vector<unsigned char> > encode() const 
   {
-    return encode(BinaryXmlWireFormat::instance());
+    return encode(BinaryXmlWireFormat::getInstance());
   }
   void decode(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat) 
   {
@@ -98,7 +98,7 @@ public:
   }
   void decode(const unsigned char *input, unsigned int inputLength) 
   {
-    decode(input, inputLength, BinaryXmlWireFormat::instance());
+    decode(input, inputLength, BinaryXmlWireFormat::getInstance());
   }
   void decode(const std::vector<unsigned char> &input, WireFormat &wireFormat) 
   {

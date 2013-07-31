@@ -18,7 +18,7 @@ public:
   virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeContentObject(const ContentObject &contentObject);
   virtual void decodeContentObject(ContentObject &contentObject, const unsigned char *input, unsigned int inputLength);
   
-  static BinaryXmlWireFormat &instance() { return instance_; }
+  static BinaryXmlWireFormat &getInstance() { return instance_; }
   
 private:
   static BinaryXmlWireFormat instance_;
