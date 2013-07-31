@@ -26,6 +26,11 @@ public:
   : host_(host), port_(port), transport_(new UdpTransport())
   {
   }
+  
+  NDN(const char *host)
+  : host_(host), port_(9695), transport_(new UdpTransport())
+  {
+  }
 
   /**
    * Encode name as an Interest. If interestTemplate is not 0, use its interest selectors.
