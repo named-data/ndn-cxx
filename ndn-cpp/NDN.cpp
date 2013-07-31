@@ -27,9 +27,9 @@ void NDN::expressInterest(const Name &name, const shared_ptr<Closure> &closure, 
     
 void NDN::onReceivedElement(unsigned char *element, unsigned int elementLength)
 {
-  BinaryXMLDecoder decoder(element, elementLength);
+  BinaryXmlDecoder decoder(element, elementLength);
   
-  if (decoder.peekDTag(ndn_BinaryXML_DTag_ContentObject)) {
+  if (decoder.peekDTag(ndn_BinaryXml_DTag_ContentObject)) {
     shared_ptr<ContentObject> contentObject(new ContentObject());
     contentObject->decode(element, elementLength);
     

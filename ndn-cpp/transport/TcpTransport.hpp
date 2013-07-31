@@ -34,7 +34,7 @@ private:
   struct ndn_TcpTransport transport_;
   NDN *ndn_;
   // TODO: This belongs in the socket listener.
-  ndn_BinaryXMLElementReader elementReader_;
+  ndn_BinaryXmlElementReader elementReader_;
 };
 
 }

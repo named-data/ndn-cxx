@@ -5,16 +5,16 @@
 
 #include "BinaryXMLElementReader.h"
 
-ndn_Error ndn_BinaryXMLElementReader_onReceivedData
-  (struct ndn_BinaryXMLElementReader *self, unsigned char *data, unsigned int dataLength)
+ndn_Error ndn_BinaryXmlElementReader_onReceivedData
+  (struct ndn_BinaryXmlElementReader *self, unsigned char *data, unsigned int dataLength)
 {
   // Process multiple objects in the data.
   while(1) {
     // Scan the input to check if a whole binary XML object has been read.
-    ndn_BinaryXMLStructureDecoder_seek(&self->structureDecoder, 0);
+    ndn_BinaryXmlStructureDecoder_seek(&self->structureDecoder, 0);
     
     ndn_Error error;
-    if (error = ndn_BinaryXMLStructureDecoder_findElementEnd(&self->structureDecoder, data, dataLength))
+    if (error = ndn_BinaryXmlStructureDecoder_findElementEnd(&self->structureDecoder, data, dataLength))
       return error;
     if (self->structureDecoder.gotElementEnd) {
       // Got the remainder of an element.  Report to the caller.
@@ -39,7 +39,7 @@ ndn_Error ndn_BinaryXMLElementReader_onReceivedData
       // Need to read a new object.
       data += self->structureDecoder.offset;
       dataLength -= self->structureDecoder.offset;
-      ndn_BinaryXMLStructureDecoder_init(&self->structureDecoder);
+      ndn_BinaryXmlStructureDecoder_init(&self->structureDecoder);
       if (dataLength == 0)
         // No more data in the packet.
         return 0;

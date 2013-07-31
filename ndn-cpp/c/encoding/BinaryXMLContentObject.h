@@ -15,9 +15,9 @@
 extern "C" {
 #endif
 
-ndn_Error ndn_encodeBinaryXMLContentObject(struct ndn_ContentObject *contentObject, struct ndn_BinaryXMLEncoder *encoder);
+ndn_Error ndn_encodeBinaryXmlContentObject(struct ndn_ContentObject *contentObject, struct ndn_BinaryXmlEncoder *encoder);
 
-ndn_Error ndn_decodeBinaryXMLContentObject(struct ndn_ContentObject *contentObject, struct ndn_BinaryXMLDecoder *decoder);
+ndn_Error ndn_decodeBinaryXmlContentObject(struct ndn_ContentObject *contentObject, struct ndn_BinaryXmlDecoder *decoder);
 
 #ifdef	__cplusplus
 }

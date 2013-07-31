@@ -33,7 +33,7 @@ typedef enum {
   NDN_ERROR_DynamicUCharArray_realloc_failed,
   NDN_ERROR_unrecognized_ndn_ExcludeType,
   NDN_ERROR_unrecognized_ndn_KeyLocatorType,
-  NDN_ERROR_decodeBinaryXMLKeyLocator_unrecognized_key_locator_type,
+  NDN_ERROR_decodeBinaryXmlKeyLocator_unrecognized_key_locator_type,
   NDN_ERROR_unrecognized_ndn_SocketTransport,
   NDN_ERROR_SocketTransport_error_in_getaddrinfo,
   NDN_ERROR_SocketTransport_cannot_connect_to_socket,

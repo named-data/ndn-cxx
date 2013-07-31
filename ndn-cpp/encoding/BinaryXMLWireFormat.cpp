@@ -16,9 +16,9 @@ using namespace std;
 
 namespace ndn {
 
-BinaryXMLWireFormat BinaryXMLWireFormat::instance_;
+BinaryXmlWireFormat BinaryXmlWireFormat::instance_;
 
-ptr_lib::shared_ptr<vector<unsigned char> > BinaryXMLWireFormat::encodeInterest(const Interest &interest) 
+ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeInterest(const Interest &interest) 
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ExcludeEntry excludeEntries[100];
@@ -28,13 +28,13 @@ ptr_lib::shared_ptr<vector<unsigned char> > BinaryXMLWireFormat::encodeInterest(
      excludeEntries, sizeof(excludeEntries) / sizeof(excludeEntries[0]));
   interest.get(interestStruct);
 
-  BinaryXMLEncoder encoder;
-  ndn_encodeBinaryXMLInterest(&interestStruct, &encoder);
+  BinaryXmlEncoder encoder;
+  ndn_encodeBinaryXmlInterest(&interestStruct, &encoder);
      
   return encoder.getOutput();
 }
 
-void BinaryXMLWireFormat::decodeInterest(Interest &interest, const unsigned char *input, unsigned int inputLength)
+void BinaryXmlWireFormat::decodeInterest(Interest &interest, const unsigned char *input, unsigned int inputLength)
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ExcludeEntry excludeEntries[100];
@@ -43,15 +43,15 @@ void BinaryXMLWireFormat::decodeInterest(Interest &interest, const unsigned char
     (&interestStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
      excludeEntries, sizeof(excludeEntries) / sizeof(excludeEntries[0]));
     
-  BinaryXMLDecoder decoder(input, inputLength);  
+  BinaryXmlDecoder decoder(input, inputLength);  
   ndn_Error error;
-  if (error = ndn_decodeBinaryXMLInterest(&interestStruct, &decoder))
+  if (error = ndn_decodeBinaryXmlInterest(&interestStruct, &decoder))
     throw std::runtime_error(ndn_getErrorString(error));
 
   interest.set(interestStruct);
 }
 
-ptr_lib::shared_ptr<vector<unsigned char> > BinaryXMLWireFormat::encodeContentObject(const ContentObject &contentObject) 
+ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeContentObject(const ContentObject &contentObject) 
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ContentObject contentObjectStruct;
@@ -59,22 +59,22 @@ ptr_lib::shared_ptr<vector<unsigned char> > BinaryXMLWireFormat::encodeContentOb
     (&contentObjectStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
   contentObject.get(contentObjectStruct);
 
-  BinaryXMLEncoder encoder;
-  ndn_encodeBinaryXMLContentObject(&contentObjectStruct, &encoder);
+  BinaryXmlEncoder encoder;
+  ndn_encodeBinaryXmlContentObject(&contentObjectStruct, &encoder);
      
   return encoder.getOutput();
 }
 
-void BinaryXMLWireFormat::decodeContentObject(ContentObject &contentObject, const unsigned char *input, unsigned int inputLength)
+void BinaryXmlWireFormat::decodeContentObject(ContentObject &contentObject, const unsigned char *input, unsigned int inputLength)
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ContentObject contentObjectStruct;
   ndn_ContentObject_init
     (&contentObjectStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
     
-  BinaryXMLDecoder decoder(input, inputLength);  
+  BinaryXmlDecoder decoder(input, inputLength);  
   ndn_Error error;
-  if (error = ndn_decodeBinaryXMLContentObject(&contentObjectStruct, &decoder))
+  if (error = ndn_decodeBinaryXmlContentObject(&contentObjectStruct, &decoder))
     throw std::runtime_error(ndn_getErrorString(error));
 
   contentObject.set(contentObjectStruct);

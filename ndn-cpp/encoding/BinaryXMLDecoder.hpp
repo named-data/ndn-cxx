@@ -14,16 +14,16 @@ namespace ndn {
 
   
 /**
- * A BinaryXMLDecoder extends a C ndn_BinaryXMLDecoder struct and wraps related functions.
+ * A BinaryXmlDecoder extends a C ndn_BinaryXmlDecoder struct and wraps related functions.
  */
-class BinaryXMLDecoder : public ndn_BinaryXMLDecoder {
+class BinaryXmlDecoder : public ndn_BinaryXmlDecoder {
 public:
   /**
-   * Initialize the base ndn_BinaryXMLDecoder struct with the input.
+   * Initialize the base ndn_BinaryXmlDecoder struct with the input.
    */
-  BinaryXMLDecoder(const unsigned char *input, unsigned int inputLength) 
+  BinaryXmlDecoder(const unsigned char *input, unsigned int inputLength) 
   {
-    ndn_BinaryXMLDecoder_init(this, (unsigned char *)input, inputLength);
+    ndn_BinaryXmlDecoder_init(this, (unsigned char *)input, inputLength);
   }
   
   /**
@@ -36,7 +36,7 @@ public:
   {
     int gotExpectedTag;
     ndn_Error error;
-    if (error = ndn_BinaryXMLDecoder_peekDTag(this, expectedTag, &gotExpectedTag))
+    if (error = ndn_BinaryXmlDecoder_peekDTag(this, expectedTag, &gotExpectedTag))
       throw std::runtime_error(ndn_getErrorString(error));
     
     return gotExpectedTag;

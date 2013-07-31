@@ -12,13 +12,13 @@
 namespace ndn {
   
 /**
- * A BinaryXMLStructureDecoder extends a C ndn_BinaryXMLStructureDecoder struct and wraps related functions.
+ * A BinaryXmlStructureDecoder extends a C ndn_BinaryXmlStructureDecoder struct and wraps related functions.
  */
-class BinaryXMLStructureDecoder : private ndn_BinaryXMLStructureDecoder {
+class BinaryXmlStructureDecoder : private ndn_BinaryXmlStructureDecoder {
 public:
-  BinaryXMLStructureDecoder() 
+  BinaryXmlStructureDecoder() 
   {
-    ndn_BinaryXMLStructureDecoder_init(this);
+    ndn_BinaryXmlStructureDecoder_init(this);
   }
   
   /**
@@ -32,7 +32,7 @@ public:
   bool findElementEnd(unsigned char *input, unsigned int inputLength) 
   {
     ndn_Error error;
-    if (error = ndn_BinaryXMLStructureDecoder_findElementEnd(this, input, inputLength))
+    if (error = ndn_BinaryXmlStructureDecoder_findElementEnd(this, input, inputLength))
       throw std::runtime_error(ndn_getErrorString(error));
     return gotElementEnd();
   }

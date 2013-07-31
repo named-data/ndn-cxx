@@ -21,7 +21,7 @@ void TcpTransport::connect(NDN &ndn)
   // TODO: This belongs in the socket listener.
   const unsigned int initialLength = 1000;
   // Automatically cast ndn_ to (struct ndn_ElementListener *)
-  ndn_BinaryXMLElementReader_init
+  ndn_BinaryXmlElementReader_init
     (&elementReader_, &ndn, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
   
   // TODO: Properly indicate connected status.
@@ -44,7 +44,7 @@ void TcpTransport::tempReceive()
     if (error = ndn_TcpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes))
       throw std::runtime_error(ndn_getErrorString(error));  
 
-    ndn_BinaryXMLElementReader_onReceivedData(&elementReader_, buffer, nBytes);
+    ndn_BinaryXmlElementReader_onReceivedData(&elementReader_, buffer, nBytes);
   } catch (...) {
     // This function is called by the socket callback, so don't send an exception back to it.
     // TODO: Log the exception?

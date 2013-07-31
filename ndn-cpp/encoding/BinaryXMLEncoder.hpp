@@ -14,17 +14,17 @@
 namespace ndn {
   
 /**
- * A BinaryXMLEncoder extends a C ndn_BinaryXMLEncoder struct and wraps related functions.
+ * A BinaryXmlEncoder extends a C ndn_BinaryXmlEncoder struct and wraps related functions.
  */
-class BinaryXMLEncoder : public ndn_BinaryXMLEncoder {
+class BinaryXmlEncoder : public ndn_BinaryXmlEncoder {
 public:
   /**
-   * Initialize the base ndn_BinaryXMLEncoder struct with an initial array of 16 bytes.  Use simpleRealloc.
+   * Initialize the base ndn_BinaryXmlEncoder struct with an initial array of 16 bytes.  Use simpleRealloc.
    */
-  BinaryXMLEncoder() 
+  BinaryXmlEncoder() 
   {
     const unsigned int initialLength = 16;
-    ndn_BinaryXMLEncoder_init(this, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
+    ndn_BinaryXmlEncoder_init(this, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
   }
   
   /**
