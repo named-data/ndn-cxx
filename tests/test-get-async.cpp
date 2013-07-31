@@ -45,7 +45,7 @@ int main(int argc, char** argv)
   try {
     shared_ptr<UdpTransport> transport(new UdpTransport());
     shared_ptr<MyClosure> closure(new MyClosure());
-    NDN ndn(transport, "E.hub.ndn.ucla.edu", 9695);
+    NDN ndn("E.hub.ndn.ucla.edu", 9695, transport);
     ndn.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), closure, 0);
     
     // Pump the receive process.  This should really be done by a socket listener.

@@ -17,7 +17,7 @@ namespace ndn {
 
 class NDN : public ElementListener {
 public:
-  NDN(const ptr_lib::shared_ptr<Transport> &transport, const char *host, unsigned short port)
+  NDN(const char *host, unsigned short port, const ptr_lib::shared_ptr<Transport> &transport)
   : transport_(transport), host_(host), port_(port) 
   {
   }
