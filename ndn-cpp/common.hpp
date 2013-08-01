@@ -10,7 +10,7 @@
 #include "../config.h"
 
 // Depending on where ./configure found shared_ptr, define the ptr_lib namespace.
-// We always use ndn::ptr_lib::shared_ptr.
+// We always use ndn::ptr_lib.
 #if HAVE_STD_SHARED_PTR
 #include <memory>
 namespace ndn { namespace ptr_lib = std; }
@@ -19,7 +19,13 @@ namespace ndn { namespace ptr_lib = std; }
 #include <boost/make_shared.hpp>
 namespace ndn { namespace ptr_lib = boost; }
 #else
-#error "Can't find shared_ptr in std or boost"
+// Use the boost header files in this distribution that were extracted with:
+// bcp --namespace=ndnboost shared_ptr make_shared ~/bcp_temp
+// Since HAVE_BOOST_SHARED_PTR failed, assume that there is no boost subdirectory on the INCLUDE path, so that
+//   <boost> is the boost subdirectory in this distribution.
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
+namespace ndn { namespace ptr_lib = ndnboost; }
 #endif
 
 namespace ndn {
