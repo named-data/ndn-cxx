@@ -4,7 +4,7 @@
  */
 
 #include <stdexcept>
-#include "../NDN.hpp"
+#include "../face.hpp"
 #include "../c/util/ndn_realloc.h"
 #include "TcpTransport.hpp"
 
@@ -12,20 +12,20 @@ using namespace std;
 
 namespace ndn {
 
-void TcpTransport::connect(NDN &ndn)
+void TcpTransport::connect(Face &face)
 {
   ndn_Error error;
-  if (error = ndn_TcpTransport_connect(&transport_, (char *)ndn.getHost(), ndn.getPort()))
+  if (error = ndn_TcpTransport_connect(&transport_, (char *)face.getHost(), face.getPort()))
     throw std::runtime_error(ndn_getErrorString(error)); 
 
   // TODO: This belongs in the socket listener.
   const unsigned int initialLength = 1000;
   // Automatically cast ndn_ to (struct ndn_ElementListener *)
   ndn_BinaryXmlElementReader_init
-    (&elementReader_, &ndn, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
+    (&elementReader_, &face, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
   
   // TODO: Properly indicate connected status.
-  ndn_ = &ndn;
+  face_ = &face;
 }
 
 void TcpTransport::send(const unsigned char *data, unsigned int dataLength)

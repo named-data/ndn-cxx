@@ -6,14 +6,14 @@
 #include "encoding/BinaryXMLDecoder.hpp"
 #include "c/encoding/BinaryXML.h"
 #include "data.hpp"
-#include "NDN.hpp"
+#include "face.hpp"
 
 using namespace std;
 using namespace ndn::ptr_lib;
 
 namespace ndn {
 
-void NDN::expressInterest(const Name &name, const shared_ptr<Closure> &closure, const Interest *interestTemplate)
+void Face::expressInterest(const Name &name, const shared_ptr<Closure> &closure, const Interest *interestTemplate)
 {
   Interest interest(name);
   shared_ptr<vector<unsigned char> > encoding = interest.encode();  
@@ -25,7 +25,7 @@ void NDN::expressInterest(const Name &name, const shared_ptr<Closure> &closure, 
   transport_->send(*encoding);
 }
     
-void NDN::onReceivedElement(unsigned char *element, unsigned int elementLength)
+void Face::onReceivedElement(unsigned char *element, unsigned int elementLength)
 {
   BinaryXmlDecoder decoder(element, elementLength);
   

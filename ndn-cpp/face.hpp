@@ -3,8 +3,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_NDN_HPP
-#define	NDN_NDN_HPP
+#ifndef NDN_FACE_HPP
+#define	NDN_FACE_HPP
 
 #include "Closure.hpp"
 #include "Interest.hpp"
@@ -15,19 +15,19 @@ using namespace std;
 
 namespace ndn {
 
-class NDN : public ElementListener {
+class Face : public ElementListener {
 public:
-  NDN(const char *host, unsigned short port, const ptr_lib::shared_ptr<Transport> &transport)
+  Face(const char *host, unsigned short port, const ptr_lib::shared_ptr<Transport> &transport)
   : host_(host), port_(port), transport_(transport)
   {
   }
   
-  NDN(const char *host, unsigned short port)
+  Face(const char *host, unsigned short port)
   : host_(host), port_(port), transport_(new UdpTransport())
   {
   }
   
-  NDN(const char *host)
+  Face(const char *host)
   : host_(host), port_(9695), transport_(new UdpTransport())
   {
   }

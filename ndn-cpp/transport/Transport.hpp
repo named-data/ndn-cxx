@@ -10,14 +10,14 @@
 
 namespace ndn {
 
-class NDN;  
+class Face;  
 class Transport {
 public:
   /**
    * 
-   * @param ndn Not a shared_ptr because we assume that it will remain valid during the life of this Transport object.
+   * @param face Not a shared_ptr because we assume that it will remain valid during the life of this Transport object.
    */
-  virtual void connect(NDN &ndn);
+  virtual void connect(Face &face);
   
   virtual void send(const unsigned char *data, unsigned int dataLength);
   

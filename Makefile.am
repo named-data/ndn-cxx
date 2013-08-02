@@ -44,7 +44,7 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
   ndn-cpp/Interest.cpp ndn-cpp/c/Interest.h ndn-cpp/Interest.hpp \
   ndn-cpp/Key.cpp ndn-cpp/c/Key.h ndn-cpp/Key.hpp \
-  ndn-cpp/NDN.cpp ndn-cpp/NDN.hpp \
+  ndn-cpp/face.cpp ndn-cpp/face.hpp \
   ndn-cpp/Name.cpp ndn-cpp/c/Name.h ndn-cpp/Name.hpp \
   ndn-cpp/PublisherPublicKeyDigest.hpp \
   ndn-cpp/c/encoding/BinaryXML.h \

@@ -9,7 +9,7 @@
 #include <ndn-cpp/Interest.hpp>
 #include <ndn-cpp/data.hpp>
 #include <ndn-cpp/transport/UdpTransport.hpp>
-#include <ndn-cpp/NDN.hpp>
+#include <ndn-cpp/face.hpp>
 
 using namespace std;
 using namespace ndn;
@@ -45,8 +45,8 @@ int main(int argc, char** argv)
   try {
     shared_ptr<UdpTransport> transport(new UdpTransport());
     shared_ptr<MyClosure> closure(new MyClosure());
-    NDN ndn("E.hub.ndn.ucla.edu", 9695, transport);
-    ndn.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), closure);
+    Face face("E.hub.ndn.ucla.edu", 9695, transport);
+    face.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), closure);
     
     // Pump the receive process.  This should really be done by a socket listener.
     while (!closure->gotContent_)

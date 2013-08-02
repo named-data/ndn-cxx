@@ -17,14 +17,14 @@ public:
   UdpTransport() 
   {
     ndn_UdpTransport_init(&transport_);
-    ndn_ = 0;
+    face_ = 0;
   }
   
   /**
    * 
-   * @param ndn Not a shared_ptr because we assume that it will remain valid during the life of this Transport object.
+   * @param face Not a shared_ptr because we assume that it will remain valid during the life of this Transport object.
    */
-  virtual void connect(NDN &ndn);
+  virtual void connect(Face &face);
   
   virtual void send(const unsigned char *data, unsigned int dataLength);
 
@@ -32,7 +32,7 @@ public:
   
 private:
   struct ndn_UdpTransport transport_;
-  NDN *ndn_;
+  Face *face_;
   // TODO: This belongs in the socket listener.
   ndn_BinaryXmlElementReader elementReader_;
 };
