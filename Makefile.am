@@ -11,7 +11,7 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 lib_LIBRARIES = libndn-c.a libndn-cpp.a
 
-bin_PROGRAMS = bin/test-encode-decode-Interest bin/test-encode-decode-data bin/test-get-async
+bin_PROGRAMS = bin/test-encode-decode-interest bin/test-encode-decode-data bin/test-get-async
 
 libndn_c_a_SOURCES = \
   config.h \
@@ -48,7 +48,7 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/Name.cpp ndn-cpp/c/Name.h ndn-cpp/Name.hpp \
   ndn-cpp/PublisherPublicKeyDigest.hpp \
   ndn-cpp/c/encoding/BinaryXML.h \
-  ndn-cpp/c/encoding/BinaryXMLDecoder.h ndn-cpp/encoding/BinaryXMLDecoder.hpp \ 
+  ndn-cpp/c/encoding/BinaryXMLDecoder.h ndn-cpp/encoding/BinaryXMLDecoder.hpp \
   ndn-cpp/c/encoding/BinaryXMLElementReader.h ndn-cpp/encoding/BinaryXMLElementReader.cpp ndn-cpp/encoding/BinaryXMLElementReader.hpp \
   ndn-cpp/c/encoding/BinaryXMLEncoder.h ndn-cpp/encoding/BinaryXMLEncoder.hpp ndn-cpp/c/util/DynamicUCharArray.h \
   ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
@@ -58,8 +58,8 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/transport/Transport.cpp ndn-cpp/transport/Transport.hpp \
   ndn-cpp/c/transport/SocketTransport.h ndn-cpp/c/transport/UdpTransport.h ndn-cpp/transport/UdpTransport.cpp ndn-cpp/transport/UdpTransport.hpp
 
-bin_test_encode_decode_Interest_SOURCES = tests/test-encode-decode-Interest.cpp
-bin_test_encode_decode_Interest_LDADD = libndn-c.a libndn-cpp.a
+bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
+bin_test_encode_decode_interest_LDADD = libndn-c.a libndn-cpp.a
 
 bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
 bin_test_encode_decode_data_LDADD = libndn-c.a libndn-cpp.a
