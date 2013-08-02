@@ -20,11 +20,10 @@ namespace ndn { namespace ptr_lib = std; }
 namespace ndn { namespace ptr_lib = boost; }
 #else
 // Use the boost header files in this distribution that were extracted with:
-// bcp --namespace=ndnboost shared_ptr make_shared ~/bcp_temp
-// Since HAVE_BOOST_SHARED_PTR failed, assume that there is no boost subdirectory on the INCLUDE path, so that
-//   <boost> is the boost subdirectory in this distribution.
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
+// cd <INCLUDE DIRECTORY WITH boost SUBDIRECTORY>; bcp --namespace=ndnboost shared_ptr make_shared <NDN-CPP ROOT>
+// Also needed to rename all '<boost/' to '<ndnboost/', and all '"boost/' to '"ndnboost/', and the boost subdirectory to ndnboost.
+#include <ndnboost/shared_ptr.hpp>
+#include <ndnboost/make_shared.hpp>
 namespace ndn { namespace ptr_lib = ndnboost; }
 #endif
 
