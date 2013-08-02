@@ -11,7 +11,7 @@
 #include <boost/date_time/posix_time/time_serialize.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #endif
-#include <ndn-cpp/ContentObject.hpp>
+#include <ndn-cpp/data.hpp>
 
 using namespace std;
 using namespace ndn;
@@ -20,8 +20,8 @@ using namespace boost::posix_time;
 using namespace boost::gregorian;
 #endif
 
-unsigned char ContentObject1[] = {
-0x04, 0x82, // ContentObject
+unsigned char Data1[] = {
+0x04, 0x82, // NDN Data
   0x02, 0xaa, // Signature
     0x03, 0xb2, // SignatureBits
       0x08, 0x85, 0x20, 0xea, 0xb5, 0xb0, 0x63, 0xda, 0x94, 0xe9, 0x68, 0x7a,
@@ -73,24 +73,24 @@ const ptime UNIX_EPOCH_TIME = ptime (date (1970, Jan, 1));
 int main(int argc, char** argv)
 {
   try {
-    ContentObject contentObject;
-    contentObject.decode(ContentObject1, sizeof(ContentObject1));
-    cout << "ContentObject name " << contentObject.getName().to_uri() << endl;
+    Data data;
+    data.decode(Data1, sizeof(Data1));
+    cout << "Data name " << data.getName().to_uri() << endl;
 #if 0
-    ptime timestamp = UNIX_EPOCH_TIME + milliseconds(contentObject.getSignedInfo().getTimestampMilliseconds());
-    cout << "ContentObject timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() 
+    ptime timestamp = UNIX_EPOCH_TIME + milliseconds(data.getSignedInfo().getTimestampMilliseconds());
+    cout << "Data timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() 
          << " " << timestamp.time_of_day().hours() << ":" << timestamp.time_of_day().minutes() << ":" << timestamp.time_of_day().seconds()  << endl;
 #endif
     
-    ptr_lib::shared_ptr<vector<unsigned char> > encoding = contentObject.encode();
-    cout << "ContentObject encoding length " << encoding->size() << " vs. sizeof(ContentObject1) " << sizeof(ContentObject1) << endl;
+    ptr_lib::shared_ptr<vector<unsigned char> > encoding = data.encode();
+    cout << "Data encoding length " << encoding->size() << " vs. sizeof(Data1) " << sizeof(Data1) << endl;
     
-    ContentObject reDecodedContentObject;
-    reDecodedContentObject.decode(*encoding);
-    cout << "Re-decoded ContentObject name " << reDecodedContentObject.getName().to_uri() << endl;
+    Data reDecodedData;
+    reDecodedData.decode(*encoding);
+    cout << "Re-decoded Data name " << reDecodedData.getName().to_uri() << endl;
 #if 0
-    timestamp = UNIX_EPOCH_TIME + milliseconds(reDecodedContentObject.getSignedInfo().getTimestampMilliseconds());
-    cout << "Re-decoded ContentObject timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() << endl;
+    timestamp = UNIX_EPOCH_TIME + milliseconds(reDecodedData.getSignedInfo().getTimestampMilliseconds());
+    cout << "Re-decoded Data timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() << endl;
 #endif
   } catch (exception &e) {
     cout << "exception: " << e.what() << endl;

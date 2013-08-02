@@ -3,13 +3,13 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_CONTENTOBJECT_HPP
-#define	NDN_CONTENTOBJECT_HPP
+#ifndef NDN_DATA_HPP
+#define	NDN_DATA_HPP
 
 #include "Name.hpp"
 #include "PublisherPublicKeyDigest.hpp"
 #include "Key.hpp"
-#include "c/ContentObject.h"
+#include "c/data.h"
 
 namespace ndn {
 
@@ -82,11 +82,11 @@ private:
   KeyLocator keyLocator_;
 };
   
-class ContentObject {
+class Data {
 public:
   ptr_lib::shared_ptr<std::vector<unsigned char> > encode(WireFormat &wireFormat) const 
   {
-    return wireFormat.encodeContentObject(*this);
+    return wireFormat.encodeData(*this);
   }
   ptr_lib::shared_ptr<std::vector<unsigned char> > encode() const 
   {
@@ -94,7 +94,7 @@ public:
   }
   void decode(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat) 
   {
-    wireFormat.decodeContentObject(*this, input, inputLength);
+    wireFormat.decodeData(*this, input, inputLength);
   }
   void decode(const unsigned char *input, unsigned int inputLength) 
   {
@@ -110,17 +110,17 @@ public:
   }
   
   /**
-   * Set the contentObjectStruct to point to the values in this interest, without copying any memory.
-   * WARNING: The resulting pointers in contentObjectStruct are invalid after a further use of this object which could reallocate memory.
-   * @param contentObjectStruct a C ndn_ContentObject struct where the name components array is already allocated.
+   * Set the dataStruct to point to the values in this interest, without copying any memory.
+   * WARNING: The resulting pointers in dataStruct are invalid after a further use of this object which could reallocate memory.
+   * @param dataStruct a C ndn_Data struct where the name components array is already allocated.
    */
-  void get(struct ndn_ContentObject &contentObjectStruct) const;
+  void get(struct ndn_Data &dataStruct) const;
 
   /**
-   * Clear this content object, and set the values by copying from the ndn_ContentObject struct.
-   * @param contentObjectStruct a C ndn_ContentObject struct
+   * Clear this data object, and set the values by copying from the ndn_Data struct.
+   * @param dataStruct a C ndn_Data struct
    */
-  void set(const struct ndn_ContentObject &contentObjectStruct);
+  void set(const struct ndn_Data &dataStruct);
 
   const Signature &getSignature() const { return signature_; }
   

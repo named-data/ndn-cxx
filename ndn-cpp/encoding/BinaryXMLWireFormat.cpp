@@ -5,9 +5,9 @@
 
 #include <stdexcept>
 #include "../c/encoding/BinaryXMLInterest.h"
-#include "../c/encoding/BinaryXMLContentObject.h"
+#include "../c/encoding/binary-xml-data.h"
 #include "../Interest.hpp"
-#include "../ContentObject.hpp"
+#include "../data.hpp"
 #include "BinaryXMLEncoder.hpp"
 #include "BinaryXMLDecoder.hpp"
 #include "BinaryXMLWireFormat.hpp"
@@ -51,33 +51,33 @@ void BinaryXmlWireFormat::decodeInterest(Interest &interest, const unsigned char
   interest.set(interestStruct);
 }
 
-ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeContentObject(const ContentObject &contentObject) 
+ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeData(const Data &data) 
 {
   struct ndn_NameComponent nameComponents[100];
-  struct ndn_ContentObject contentObjectStruct;
-  ndn_ContentObject_init
-    (&contentObjectStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
-  contentObject.get(contentObjectStruct);
+  struct ndn_Data dataStruct;
+  ndn_Data_init
+    (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
+  data.get(dataStruct);
 
   BinaryXmlEncoder encoder;
-  ndn_encodeBinaryXmlContentObject(&contentObjectStruct, &encoder);
+  ndn_encodeBinaryXmlData(&dataStruct, &encoder);
      
   return encoder.getOutput();
 }
 
-void BinaryXmlWireFormat::decodeContentObject(ContentObject &contentObject, const unsigned char *input, unsigned int inputLength)
+void BinaryXmlWireFormat::decodeData(Data &data, const unsigned char *input, unsigned int inputLength)
 {
   struct ndn_NameComponent nameComponents[100];
-  struct ndn_ContentObject contentObjectStruct;
-  ndn_ContentObject_init
-    (&contentObjectStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
+  struct ndn_Data dataStruct;
+  ndn_Data_init
+    (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
     
   BinaryXmlDecoder decoder(input, inputLength);  
   ndn_Error error;
-  if (error = ndn_decodeBinaryXmlContentObject(&contentObjectStruct, &decoder))
+  if (error = ndn_decodeBinaryXmlData(&dataStruct, &decoder))
     throw std::runtime_error(ndn_getErrorString(error));
 
-  contentObject.set(contentObjectStruct);
+  data.set(dataStruct);
 }
 
 }

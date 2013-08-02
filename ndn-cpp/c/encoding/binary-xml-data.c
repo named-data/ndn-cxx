@@ -8,7 +8,7 @@
 #include "BinaryXMLDecoder.h"
 #include "BinaryXMLName.h"
 #include "BinaryXMLPublisherPublicKeyDigest.h"
-#include "BinaryXMLContentObject.h"
+#include "binary-xml-data.h"
 
 static ndn_Error encodeSignature(struct ndn_Signature *signature, struct ndn_BinaryXmlEncoder *encoder)
 {
@@ -129,23 +129,23 @@ static ndn_Error decodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_
   return 0;
 }
 
-ndn_Error ndn_encodeBinaryXmlContentObject(struct ndn_ContentObject *contentObject, struct ndn_BinaryXmlEncoder *encoder)
+ndn_Error ndn_encodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlEncoder *encoder)
 {
   ndn_Error error;
   if (error = ndn_BinaryXmlEncoder_writeElementStartDTag(encoder, ndn_BinaryXml_DTag_ContentObject))
     return error;
   
-  if (error = encodeSignature(&contentObject->signature, encoder))
+  if (error = encodeSignature(&data->signature, encoder))
     return 0;
 
-  if (error = ndn_encodeBinaryXmlName(&contentObject->name, encoder))
+  if (error = ndn_encodeBinaryXmlName(&data->name, encoder))
     return error;
 
-  if (error = encodeSignedInfo(&contentObject->signedInfo, encoder))
+  if (error = encodeSignedInfo(&data->signedInfo, encoder))
     return 0;
 
   if (error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-      (encoder, ndn_BinaryXml_DTag_Content, contentObject->content, contentObject->contentLength))
+      (encoder, ndn_BinaryXml_DTag_Content, data->content, data->contentLength))
     return error;
   
 	if (error = ndn_BinaryXmlEncoder_writeElementClose(encoder))
@@ -154,7 +154,7 @@ ndn_Error ndn_encodeBinaryXmlContentObject(struct ndn_ContentObject *contentObje
   return 0;
 }
 
-ndn_Error ndn_decodeBinaryXmlContentObject(struct ndn_ContentObject *contentObject, struct ndn_BinaryXmlDecoder *decoder)
+ndn_Error ndn_decodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlDecoder *decoder)
 {
   ndn_Error error;
   if (error = ndn_BinaryXmlDecoder_readElementStartDTag(decoder, ndn_BinaryXml_DTag_ContentObject))
@@ -164,27 +164,27 @@ ndn_Error ndn_decodeBinaryXmlContentObject(struct ndn_ContentObject *contentObje
   if (error = ndn_BinaryXmlDecoder_peekDTag(decoder, ndn_BinaryXml_DTag_Signature, &gotExpectedTag))
     return error;
   if (gotExpectedTag) {
-    if (error = decodeSignature(&contentObject->signature, decoder))
+    if (error = decodeSignature(&data->signature, decoder))
       return error;
   }
   else
-    ndn_Signature_init(&contentObject->signature);
+    ndn_Signature_init(&data->signature);
   
-  if (error = ndn_decodeBinaryXmlName(&contentObject->name, decoder))
+  if (error = ndn_decodeBinaryXmlName(&data->name, decoder))
     return error;
   
   if (error = ndn_BinaryXmlDecoder_peekDTag(decoder, ndn_BinaryXml_DTag_SignedInfo, &gotExpectedTag))
     return error;
   if (gotExpectedTag) {
-    if (error = decodeSignedInfo(&contentObject->signedInfo, decoder))
+    if (error = decodeSignedInfo(&data->signedInfo, decoder))
       return error;
   }
   else
-    ndn_SignedInfo_init(&contentObject->signedInfo);
+    ndn_SignedInfo_init(&data->signedInfo);
 
   // Require a Content element, but set allowNull to allow a missing BLOB.
   if (error = ndn_BinaryXmlDecoder_readBinaryDTagElement
-      (decoder, ndn_BinaryXml_DTag_Content, 1, &contentObject->content, &contentObject->contentLength))
+      (decoder, ndn_BinaryXml_DTag_Content, 1, &data->content, &data->contentLength))
     return error; 
   
   if (error = ndn_BinaryXmlDecoder_readElementClose(decoder))

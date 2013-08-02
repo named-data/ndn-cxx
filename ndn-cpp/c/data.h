@@ -3,8 +3,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_CONTENTOBJECT_H
-#define	NDN_CONTENTOBJECT_H
+#ifndef NDN_DATA_H
+#define	NDN_DATA_H
 
 #include "Name.h"
 #include "PublisherPublicKeyDigest.h"
@@ -65,7 +65,7 @@ static inline void ndn_SignedInfo_init(struct ndn_SignedInfo *self) {
   ndn_KeyLocator_init(&self->keyLocator);
 }
 
-struct ndn_ContentObject {
+struct ndn_Data {
   struct ndn_Signature signature;
   struct ndn_Name name;
   struct ndn_SignedInfo signedInfo;
@@ -74,13 +74,13 @@ struct ndn_ContentObject {
 };
 
 /**
- * Initialize an ndn_ContentObject struct with the pre-allocated nameComponents,
+ * Initialize an ndn_Data struct with the pre-allocated nameComponents,
  * and defaults for all the values.
- * @param self pointer to the ndn_ContentObject struct
+ * @param self pointer to the ndn_Data struct
  * @param nameComponents the pre-allocated array of ndn_NameComponent
  * @param maxNameComponents the number of elements in the allocated nameComponents array
  */
-static inline void ndn_ContentObject_init(struct ndn_ContentObject *self, struct ndn_NameComponent *nameComponents, unsigned int maxNameComponents) 
+static inline void ndn_Data_init(struct ndn_Data *self, struct ndn_NameComponent *nameComponents, unsigned int maxNameComponents) 
 {
   ndn_Signature_init(&self->signature);
   ndn_Name_init(&self->name, nameComponents, maxNameComponents);

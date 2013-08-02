@@ -27,35 +27,35 @@ enum UpcallKind {
   UPCALL_FINAL              = 0, // handler is about to be deregistered
   UPCALL_INTEREST           = 1, // incoming interest
   UPCALL_CONSUMED_INTEREST  = 2, // incoming interest, someone has answered
-  UPCALL_CONTENT            = 3, // incoming verified content
+  UPCALL_DATA               = 3, // incoming verified data packet
   UPCALL_INTEREST_TIMED_OUT = 4, // interest timed out
-  UPCALL_CONTENT_UNVERIFIED = 5, // content that has not been verified
-  UPCALL_CONTENT_BAD        = 6  // verification failed  
+  UPCALL_DATA_UNVERIFIED    = 5, // data packet that has not been verified
+  UPCALL_DATA_BAD           = 6  // verification failed  
 };
 
 class NDN;
 class Interest;
-class ContentObject;
+class Data;
 
 class UpcallInfo {
 public:
-  UpcallInfo(NDN *ndn, ptr_lib::shared_ptr<Interest> &interest, int matchedComps, ptr_lib::shared_ptr<ContentObject> &contentObject) 
+  UpcallInfo(NDN *ndn, ptr_lib::shared_ptr<Interest> &interest, int matchedComps, ptr_lib::shared_ptr<Data> &data) 
   {
     ndn_ = ndn;
     interest_ = interest;
-    contentObject_ = contentObject;
+    data_ = data;
   }
   
   NDN *getNDN() { return ndn_; }
   
   ptr_lib::shared_ptr<Interest> &getInterest() { return interest_; }
   
-  ptr_lib::shared_ptr<ContentObject> &getContentObject() { return contentObject_; }
+  ptr_lib::shared_ptr<Data> &getData() { return data_; }
   
 private:
   NDN *ndn_;
   ptr_lib::shared_ptr<Interest> interest_;
-  ptr_lib::shared_ptr<ContentObject> contentObject_;
+  ptr_lib::shared_ptr<Data> data_;
 };
 
 class Closure {

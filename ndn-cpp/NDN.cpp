@@ -5,7 +5,7 @@
 
 #include "encoding/BinaryXMLDecoder.hpp"
 #include "c/encoding/BinaryXML.h"
-#include "ContentObject.hpp"
+#include "data.hpp"
 #include "NDN.hpp"
 
 using namespace std;
@@ -30,12 +30,12 @@ void NDN::onReceivedElement(unsigned char *element, unsigned int elementLength)
   BinaryXmlDecoder decoder(element, elementLength);
   
   if (decoder.peekDTag(ndn_BinaryXml_DTag_ContentObject)) {
-    shared_ptr<ContentObject> contentObject(new ContentObject());
-    contentObject->decode(element, elementLength);
+    shared_ptr<Data> data(new Data());
+    data->decode(element, elementLength);
     
     shared_ptr<Interest> dummyInterest;
-    UpcallInfo upcallInfo(this, dummyInterest, 0, contentObject);
-    tempClosure_->upcall(UPCALL_CONTENT, upcallInfo);
+    UpcallInfo upcallInfo(this, dummyInterest, 0, data);
+    tempClosure_->upcall(UPCALL_DATA, upcallInfo);
   }
 }
 

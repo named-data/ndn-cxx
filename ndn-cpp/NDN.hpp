@@ -35,8 +35,8 @@ public:
   /**
    * Encode name as an Interest. If interestTemplate is not 0, use its interest selectors.
    * Send the interest through the transport, read the entire response and call
-   * closure->upcall(UPCALL_CONTENT (or UPCALL_CONTENT_UNVERIFIED),
-   *                 UpcallInfo(this, interest, 0, contentObject)).
+   * closure->upcall(UPCALL_DATA (or UPCALL_DATA_UNVERIFIED),
+   *                 UpcallInfo(this, interest, 0, data)).
    * @param name reference to a Name for the interest.  This does not keep a pointer to the Name object.
    * @param closure a shared_ptr for the Closure.  This uses shared_ptr to take another reference to the object.
    * @param interestTemplate if not 0, copy interest selectors from the template.   This does not keep a pointer to the Interest object.

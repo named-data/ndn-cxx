@@ -7,7 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <ndn-cpp/Interest.hpp>
-#include <ndn-cpp/ContentObject.hpp>
+#include <ndn-cpp/data.hpp>
 #include <ndn-cpp/transport/UdpTransport.hpp>
 #include <ndn-cpp/NDN.hpp>
 
@@ -24,11 +24,11 @@ public:
   
   virtual UpcallResult upcall(UpcallKind kind, UpcallInfo &upcallInfo)
   {
-    if (kind == UPCALL_CONTENT || kind == UPCALL_CONTENT_UNVERIFIED) {
+    if (kind == UPCALL_DATA || kind == UPCALL_DATA_UNVERIFIED) {
       gotContent_ = true;
-      cout << "Got content with name " << upcallInfo.getContentObject()->getName().to_uri() << endl;
-      for (unsigned int i = 0; i < upcallInfo.getContentObject()->getContent().size(); ++i)
-        cout << upcallInfo.getContentObject()->getContent()[i];
+      cout << "Got data packet with name " << upcallInfo.getData()->getName().to_uri() << endl;
+      for (unsigned int i = 0; i < upcallInfo.getData()->getContent().size(); ++i)
+        cout << upcallInfo.getData()->getContent()[i];
       cout << endl;
       
       return CLOSURE_RESULT_OK;

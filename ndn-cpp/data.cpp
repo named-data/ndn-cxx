@@ -4,7 +4,7 @@
  */
 
 #include "common.hpp"
-#include "ContentObject.hpp"
+#include "data.hpp"
 
 using namespace std;
 
@@ -64,25 +64,25 @@ void SignedInfo::set(const struct ndn_SignedInfo &signedInfoStruct)
   keyLocator_.set(signedInfoStruct.keyLocator);
 }
 
-void ContentObject::get(struct ndn_ContentObject &contentObjectStruct) const 
+void Data::get(struct ndn_Data &dataStruct) const 
 {
-  signature_.get(contentObjectStruct.signature);
-  name_.get(contentObjectStruct.name);
-  signedInfo_.get(contentObjectStruct.signedInfo);
+  signature_.get(dataStruct.signature);
+  name_.get(dataStruct.name);
+  signedInfo_.get(dataStruct.signedInfo);
   
-  contentObjectStruct.contentLength = content_.size();
+  dataStruct.contentLength = content_.size();
   if (content_.size() > 0)
-    contentObjectStruct.content = (unsigned char *)&content_[0];
+    dataStruct.content = (unsigned char *)&content_[0];
   else
-    contentObjectStruct.content = 0;
+    dataStruct.content = 0;
 }
 
-void ContentObject::set(const struct ndn_ContentObject &contentObjectStruct)
+void Data::set(const struct ndn_Data &dataStruct)
 {
-  signature_.set(contentObjectStruct.signature);
-  name_.set(contentObjectStruct.name);
-  signedInfo_.set(contentObjectStruct.signedInfo);
-  setVector(content_, contentObjectStruct.content, contentObjectStruct.contentLength);
+  signature_.set(dataStruct.signature);
+  name_.set(dataStruct.name);
+  signedInfo_.set(dataStruct.signedInfo);
+  setVector(content_, dataStruct.content, dataStruct.contentLength);
 }
 
 }

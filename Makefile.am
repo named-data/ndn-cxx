@@ -11,18 +11,18 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 lib_LIBRARIES = libndn-c.a libndn-cpp.a
 
-bin_PROGRAMS = bin/test-encode-decode-Interest bin/test-encode-decode-ContentObject bin/test-get-async
+bin_PROGRAMS = bin/test-encode-decode-Interest bin/test-encode-decode-data bin/test-get-async
 
 libndn_c_a_SOURCES = \
   config.h \
-  ndn-cpp/c/ContentObject.h \
+  ndn-cpp/c/data.h \
   ndn-cpp/c/Interest.h \
   ndn-cpp/c/Key.h \
   ndn-cpp/c/Name.h \
   ndn-cpp/c/PublisherPublicKeyDigest.h \
   ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
   ndn-cpp/c/encoding/BinaryXML.h \
-  ndn-cpp/c/encoding/BinaryXMLContentObject.c ndn-cpp/c/encoding/BinaryXMLContentObject.h \
+  ndn-cpp/c/encoding/binary-xml-data.c ndn-cpp/c/encoding/binary-xml-data.h \
   ndn-cpp/c/encoding/BinaryXMLDecoder.c ndn-cpp/c/encoding/BinaryXMLDecoder.h \
   ndn-cpp/c/encoding/BinaryXMLElementReader.c ndn-cpp/c/encoding/BinaryXMLElementReader.h \
   ndn-cpp/c/encoding/BinaryXMLEncoder.c ndn-cpp/c/encoding/BinaryXMLEncoder.h \
@@ -41,7 +41,7 @@ libndn_c_a_SOURCES = \
 libndn_cpp_a_SOURCES = \
   config.h ndn-cpp/common.hpp \
   ndn-cpp/Closure.hpp \
-  ndn-cpp/ContentObject.cpp ndn-cpp/c/ContentObject.h ndn-cpp/ContentObject.hpp \
+  ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
   ndn-cpp/Interest.cpp ndn-cpp/c/Interest.h ndn-cpp/Interest.hpp \
   ndn-cpp/Key.cpp ndn-cpp/c/Key.h ndn-cpp/Key.hpp \
   ndn-cpp/NDN.cpp ndn-cpp/NDN.hpp \
@@ -61,8 +61,8 @@ libndn_cpp_a_SOURCES = \
 bin_test_encode_decode_Interest_SOURCES = tests/test-encode-decode-Interest.cpp
 bin_test_encode_decode_Interest_LDADD = libndn-c.a libndn-cpp.a
 
-bin_test_encode_decode_ContentObject_SOURCES = tests/test-encode-decode-ContentObject.cpp
-bin_test_encode_decode_ContentObject_LDADD = libndn-c.a libndn-cpp.a
+bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
+bin_test_encode_decode_data_LDADD = libndn-c.a libndn-cpp.a
 
 bin_test_get_async_SOURCES = tests/test-get-async.cpp
 bin_test_get_async_LDADD = libndn-c.a libndn-cpp.a
