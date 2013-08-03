@@ -17,11 +17,6 @@ public:
 
   virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeData(const Data &data);
   virtual void decodeData(Data &data, const unsigned char *input, unsigned int inputLength);
-  
-  static BinaryXmlWireFormat &getInstance() { return instance_; }
-  
-private:
-  static BinaryXmlWireFormat instance_;
 };
   
 }

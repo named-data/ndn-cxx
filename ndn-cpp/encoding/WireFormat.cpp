@@ -5,10 +5,16 @@
 
 #include <stdexcept>
 #include "WireFormat.hpp"
+#include "BinaryXMLWireFormat.hpp"
 
 using namespace std;
 
 namespace ndn {
+
+ptr_lib::shared_ptr<WireFormat> WireFormat::initialDefaultWireFormat_(newInitialDefaultWireFormat());
+
+WireFormat *WireFormat::defaultWireFormat_ = initialDefaultWireFormat_.get();
+
 ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeInterest(const Interest &interest) 
 {
   throw logic_error("unimplemented");

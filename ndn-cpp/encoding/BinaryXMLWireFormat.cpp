@@ -16,8 +16,12 @@ using namespace std;
 
 namespace ndn {
 
-BinaryXmlWireFormat BinaryXmlWireFormat::instance_;
-
+// This is declared in the WireFormat class.
+WireFormat *WireFormat::newInitialDefaultWireFormat() 
+{
+  return new BinaryXmlWireFormat();
+}
+  
 ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeInterest(const Interest &interest) 
 {
   struct ndn_NameComponent nameComponents[100];
