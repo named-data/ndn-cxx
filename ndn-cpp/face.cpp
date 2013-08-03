@@ -16,7 +16,7 @@ namespace ndn {
 void Face::expressInterest(const Name &name, const shared_ptr<Closure> &closure, const Interest *interestTemplate)
 {
   Interest interest(name);
-  shared_ptr<vector<unsigned char> > encoding = interest.encode();  
+  shared_ptr<vector<unsigned char> > encoding = interest.wireEncode();  
 
   // TODO: This should go in the PIT.
   tempClosure_ = closure;
@@ -31,7 +31,7 @@ void Face::onReceivedElement(unsigned char *element, unsigned int elementLength)
   
   if (decoder.peekDTag(ndn_BinaryXml_DTag_ContentObject)) {
     shared_ptr<Data> data(new Data());
-    data->decode(element, elementLength);
+    data->wireDecode(element, elementLength);
     
     shared_ptr<Interest> dummyInterest;
     UpcallInfo upcallInfo(this, dummyInterest, 0, data);

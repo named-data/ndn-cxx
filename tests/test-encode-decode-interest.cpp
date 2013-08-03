@@ -37,18 +37,18 @@ int main(int argc, char** argv)
 {
   try {
     Interest interest;
-    interest.decode(Interest1, sizeof(Interest1));
+    interest.wireDecode(Interest1, sizeof(Interest1));
     cout << "Interest name " << interest.getName().to_uri() << endl;
     cout << "Interest minSuffixComponents " << interest.getMinSuffixComponents() << endl;
     cout << "Interest publisherPublicKeyDigest length " << interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() << endl;
     cout << "Interest excludeEntryCount " << interest.getExclude().getEntryCount() << endl;
     cout << "InterestLifetimeMilliseconds " << interest.getInterestLifetimeMilliseconds() << endl;
     
-    ptr_lib::shared_ptr<vector<unsigned char> > encoding = interest.encode();
+    ptr_lib::shared_ptr<vector<unsigned char> > encoding = interest.wireEncode();
     cout << "Interest encoding length " << encoding->size() << " vs. sizeof(Interest1) " << sizeof(Interest1) << endl;
 
     Interest reDecodedInterest;
-    reDecodedInterest.decode(*encoding);
+    reDecodedInterest.wireDecode(*encoding);
     cout << "Re-decoded Interest name " << reDecodedInterest.getName().to_uri() << endl;
     cout << "Re-decoded Interest minSuffixComponents " << reDecodedInterest.getMinSuffixComponents() << endl;
     cout << "Re-decoded Interest publisherPublicKeyDigest length " << reDecodedInterest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() << endl;

@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 {
   try {
     Data data;
-    data.decode(Data1, sizeof(Data1));
+    data.wireDecode(Data1, sizeof(Data1));
     cout << "Data name " << data.getName().to_uri() << endl;
 #if 0
     ptime timestamp = UNIX_EPOCH_TIME + milliseconds(data.getSignedInfo().getTimestampMilliseconds());
@@ -82,11 +82,11 @@ int main(int argc, char** argv)
          << " " << timestamp.time_of_day().hours() << ":" << timestamp.time_of_day().minutes() << ":" << timestamp.time_of_day().seconds()  << endl;
 #endif
     
-    ptr_lib::shared_ptr<vector<unsigned char> > encoding = data.encode();
+    ptr_lib::shared_ptr<vector<unsigned char> > encoding = data.wireEncode();
     cout << "Data encoding length " << encoding->size() << " vs. sizeof(Data1) " << sizeof(Data1) << endl;
     
     Data reDecodedData;
-    reDecodedData.decode(*encoding);
+    reDecodedData.wireDecode(*encoding);
     cout << "Re-decoded Data name " << reDecodedData.getName().to_uri() << endl;
 #if 0
     timestamp = UNIX_EPOCH_TIME + milliseconds(reDecodedData.getSignedInfo().getTimestampMilliseconds());
