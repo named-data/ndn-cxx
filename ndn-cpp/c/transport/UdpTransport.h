@@ -39,6 +39,11 @@ static inline ndn_Error ndn_UdpTransport_receive
   return ndn_SocketTransport_receive(&self->base, buffer, bufferLength, nBytes);
 }
 
+static inline ndn_Error ndn_UdpTransport_close(struct ndn_UdpTransport *self)
+{
+  return ndn_SocketTransport_close(&self->base);
+}
+
 #ifdef	__cplusplus
 }
 #endif

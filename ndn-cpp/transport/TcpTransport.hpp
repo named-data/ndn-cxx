@@ -29,6 +29,8 @@ public:
   virtual void send(const unsigned char *data, unsigned int dataLength);
 
   virtual void tempReceive();
+
+  virtual void close();
   
 private:
   struct ndn_TcpTransport transport_;

@@ -30,6 +30,8 @@ public:
 
   virtual void tempReceive();
   
+  virtual void close();
+
 private:
   struct ndn_UdpTransport transport_;
   Face *face_;

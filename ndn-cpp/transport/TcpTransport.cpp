@@ -51,4 +51,11 @@ void TcpTransport::tempReceive()
   }
 }
 
+void TcpTransport::close()
+{
+  ndn_Error error;
+  if (error = ndn_TcpTransport_close(&transport_))
+    throw std::runtime_error(ndn_getErrorString(error));  
+}
+
 }

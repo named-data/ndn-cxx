@@ -34,6 +34,8 @@ ndn_Error ndn_SocketTransport_send(struct ndn_SocketTransport *self, unsigned ch
 ndn_Error ndn_SocketTransport_receive
   (struct ndn_SocketTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytes);
 
+ndn_Error ndn_SocketTransport_close(struct ndn_SocketTransport *self);
+
 #ifdef	__cplusplus
 }
 #endif

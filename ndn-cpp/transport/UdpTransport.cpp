@@ -51,4 +51,11 @@ void UdpTransport::tempReceive()
   }
 }
 
+void UdpTransport::close()
+{
+  ndn_Error error;
+  if (error = ndn_UdpTransport_close(&transport_))
+    throw std::runtime_error(ndn_getErrorString(error));  
+}
+
 }

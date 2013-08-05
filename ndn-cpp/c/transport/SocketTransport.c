@@ -98,3 +98,17 @@ ndn_Error ndn_SocketTransport_receive
   
 	return 0;  
 }
+
+ndn_Error ndn_SocketTransport_close(struct ndn_SocketTransport *self)
+{
+  if (self->socketDescriptor < 0)
+    // Already closed.  Do nothing.
+    return 0;
+  
+  if (close(self->socketDescriptor) != 0)
+    return NDN_ERROR_SocketTransport_error_in_close;
+  
+  self->socketDescriptor = -1;
+  
+  return 0;
+}

@@ -64,6 +64,8 @@ char *ndn_getErrorString(int error)
     return      "SocketTransport error in send";
   case NDN_ERROR_SocketTransport_error_in_recv:
     return      "SocketTransport error in recv";
+  case NDN_ERROR_SocketTransport_error_in_close:
+    return      "SocketTransport error in close";
   default:
     return "unrecognized ndn_Error code";  
   }
