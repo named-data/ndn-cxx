@@ -21,6 +21,7 @@ bin/*
 /config.guess
 /config.sub
 /stamp-h1
+/aclocal.m4
 *.Po
 .deps
 .dirstamp
