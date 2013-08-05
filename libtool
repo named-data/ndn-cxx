@@ -44,7 +44,7 @@ macro_version=2.4.2
 macro_revision=1.3337
 
 # Whether or not to build shared libraries.
-build_libtool_libs=no
+build_libtool_libs=yes
 
 # Whether or not to build static libraries.
 build_old_libs=yes

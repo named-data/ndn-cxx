@@ -9,11 +9,11 @@ AUTOMAKE_OPTIONS = subdir-objects
 ## to provide a way for the user to supply additional arguments.
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
-lib_LIBRARIES = libndn-c.a libndn-cpp.a
+lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 
 bin_PROGRAMS = bin/test-encode-decode-interest bin/test-encode-decode-data bin/test-get-async
 
-libndn_c_a_SOURCES = \
+libndn_c_la_SOURCES = \
   config.h \
   ndn-cpp/c/data.h \
   ndn-cpp/c/Interest.h \
@@ -38,7 +38,7 @@ libndn_c_a_SOURCES = \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
 
-libndn_cpp_a_SOURCES = \
+libndn_cpp_la_SOURCES = \
   config.h ndn-cpp/common.hpp \
   ndn-cpp/Closure.hpp \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
@@ -59,12 +59,12 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/c/transport/SocketTransport.h ndn-cpp/c/transport/UdpTransport.h ndn-cpp/transport/UdpTransport.cpp ndn-cpp/transport/UdpTransport.hpp
 
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
-bin_test_encode_decode_interest_LDADD = libndn-c.a libndn-cpp.a
+bin_test_encode_decode_interest_LDADD = libndn-c.la libndn-cpp.la
 
 bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
-bin_test_encode_decode_data_LDADD = libndn-c.a libndn-cpp.a
+bin_test_encode_decode_data_LDADD = libndn-c.la libndn-cpp.la
 
 bin_test_get_async_SOURCES = tests/test-get-async.cpp
-bin_test_get_async_LDADD = libndn-c.a libndn-cpp.a
+bin_test_get_async_LDADD = libndn-c.la libndn-cpp.la
 
 dist_noinst_SCRIPTS = autogen.sh

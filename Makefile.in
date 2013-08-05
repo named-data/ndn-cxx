@@ -80,11 +80,13 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+build_triplet = @build@
+host_triplet = @host@
 DIST_COMMON = $(srcdir)/aminclude.am $(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.am $(top_srcdir)/configure \
 	$(am__configure_deps) $(srcdir)/config.h.in \
 	$(dist_noinst_SCRIPTS) depcomp COPYING ar-lib compile \
-	install-sh missing ltmain.sh
+	config.guess config.sub install-sh missing ltmain.sh
 bin_PROGRAMS = bin/test-encode-decode-interest$(EXEEXT) \
 	bin/test-encode-decode-data$(EXEEXT) \
 	bin/test-get-async$(EXEEXT)
@@ -127,56 +129,52 @@ am__uninstall_files_from_dir = { \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
-LIBRARIES = $(lib_LIBRARIES)
-ARFLAGS = cru
-AM_V_AR = $(am__v_AR_@AM_V@)
-am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
-am__v_AR_0 = @echo "  AR      " $@;
-am__v_AR_1 = 
-libndn_c_a_AR = $(AR) $(ARFLAGS)
-libndn_c_a_LIBADD =
+LTLIBRARIES = $(lib_LTLIBRARIES)
+libndn_c_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libndn_c_a_OBJECTS = ndn-cpp/c/errors.$(OBJEXT) \
-	ndn-cpp/c/encoding/binary-xml-data.$(OBJEXT) \
-	ndn-cpp/c/encoding/BinaryXMLDecoder.$(OBJEXT) \
-	ndn-cpp/c/encoding/BinaryXMLElementReader.$(OBJEXT) \
-	ndn-cpp/c/encoding/BinaryXMLEncoder.$(OBJEXT) \
-	ndn-cpp/c/encoding/BinaryXMLInterest.$(OBJEXT) \
-	ndn-cpp/c/encoding/BinaryXMLKey.$(OBJEXT) \
-	ndn-cpp/c/encoding/BinaryXMLName.$(OBJEXT) \
-	ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.$(OBJEXT) \
-	ndn-cpp/c/encoding/BinaryXMLStructureDecoder.$(OBJEXT) \
-	ndn-cpp/c/transport/SocketTransport.$(OBJEXT) \
-	ndn-cpp/c/util/DynamicUCharArray.$(OBJEXT) \
-	ndn-cpp/c/util/ndn_memory.$(OBJEXT) \
-	ndn-cpp/c/util/ndn_realloc.$(OBJEXT)
-libndn_c_a_OBJECTS = $(am_libndn_c_a_OBJECTS)
-libndn_cpp_a_AR = $(AR) $(ARFLAGS)
-libndn_cpp_a_LIBADD =
-am_libndn_cpp_a_OBJECTS = ndn-cpp/data.$(OBJEXT) \
-	ndn-cpp/Interest.$(OBJEXT) ndn-cpp/Key.$(OBJEXT) \
-	ndn-cpp/face.$(OBJEXT) ndn-cpp/Name.$(OBJEXT) \
-	ndn-cpp/encoding/BinaryXMLElementReader.$(OBJEXT) \
-	ndn-cpp/encoding/BinaryXMLWireFormat.$(OBJEXT) \
-	ndn-cpp/encoding/WireFormat.$(OBJEXT) \
-	ndn-cpp/transport/TcpTransport.$(OBJEXT) \
-	ndn-cpp/transport/Transport.$(OBJEXT) \
-	ndn-cpp/transport/UdpTransport.$(OBJEXT)
-libndn_cpp_a_OBJECTS = $(am_libndn_cpp_a_OBJECTS)
+am_libndn_c_la_OBJECTS = ndn-cpp/c/errors.lo \
+	ndn-cpp/c/encoding/binary-xml-data.lo \
+	ndn-cpp/c/encoding/BinaryXMLDecoder.lo \
+	ndn-cpp/c/encoding/BinaryXMLElementReader.lo \
+	ndn-cpp/c/encoding/BinaryXMLEncoder.lo \
+	ndn-cpp/c/encoding/BinaryXMLInterest.lo \
+	ndn-cpp/c/encoding/BinaryXMLKey.lo \
+	ndn-cpp/c/encoding/BinaryXMLName.lo \
+	ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.lo \
+	ndn-cpp/c/encoding/BinaryXMLStructureDecoder.lo \
+	ndn-cpp/c/transport/SocketTransport.lo \
+	ndn-cpp/c/util/DynamicUCharArray.lo \
+	ndn-cpp/c/util/ndn_memory.lo ndn-cpp/c/util/ndn_realloc.lo
+libndn_c_la_OBJECTS = $(am_libndn_c_la_OBJECTS)
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
+libndn_cpp_la_LIBADD =
+am_libndn_cpp_la_OBJECTS = ndn-cpp/data.lo ndn-cpp/Interest.lo \
+	ndn-cpp/Key.lo ndn-cpp/face.lo ndn-cpp/Name.lo \
+	ndn-cpp/encoding/BinaryXMLElementReader.lo \
+	ndn-cpp/encoding/BinaryXMLWireFormat.lo \
+	ndn-cpp/encoding/WireFormat.lo \
+	ndn-cpp/transport/TcpTransport.lo \
+	ndn-cpp/transport/Transport.lo \
+	ndn-cpp/transport/UdpTransport.lo
+libndn_cpp_la_OBJECTS = $(am_libndn_cpp_la_OBJECTS)
 PROGRAMS = $(bin_PROGRAMS)
 am_bin_test_encode_decode_data_OBJECTS =  \
 	tests/test-encode-decode-data.$(OBJEXT)
 bin_test_encode_decode_data_OBJECTS =  \
 	$(am_bin_test_encode_decode_data_OBJECTS)
-bin_test_encode_decode_data_DEPENDENCIES = libndn-c.a libndn-cpp.a
+bin_test_encode_decode_data_DEPENDENCIES = libndn-c.la libndn-cpp.la
 am_bin_test_encode_decode_interest_OBJECTS =  \
 	tests/test-encode-decode-interest.$(OBJEXT)
 bin_test_encode_decode_interest_OBJECTS =  \
 	$(am_bin_test_encode_decode_interest_OBJECTS)
-bin_test_encode_decode_interest_DEPENDENCIES = libndn-c.a libndn-cpp.a
+bin_test_encode_decode_interest_DEPENDENCIES = libndn-c.la \
+	libndn-cpp.la
 am_bin_test_get_async_OBJECTS = tests/test-get-async.$(OBJEXT)
 bin_test_get_async_OBJECTS = $(am_bin_test_get_async_OBJECTS)
-bin_test_get_async_DEPENDENCIES = libndn-c.a libndn-cpp.a
+bin_test_get_async_DEPENDENCIES = libndn-c.la libndn-cpp.la
 SCRIPTS = $(dist_noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -196,34 +194,45 @@ am__depfiles_maybe = depfiles
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_@AM_V@)
 am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
 am__v_CC_0 = @echo "  CC      " $@;
 am__v_CC_1 = 
 CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
 AM_V_CXX = $(am__v_CXX_@AM_V@)
 am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
 am__v_CXX_0 = @echo "  CXX     " $@;
 am__v_CXX_1 = 
 CXXLD = $(CXX)
-CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
-	-o $@
+CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(libndn_c_a_SOURCES) $(libndn_cpp_a_SOURCES) \
+SOURCES = $(libndn_c_la_SOURCES) $(libndn_cpp_la_SOURCES) \
 	$(bin_test_encode_decode_data_SOURCES) \
 	$(bin_test_encode_decode_interest_SOURCES) \
 	$(bin_test_get_async_SOURCES)
-DIST_SOURCES = $(libndn_c_a_SOURCES) $(libndn_cpp_a_SOURCES) \
+DIST_SOURCES = $(libndn_c_la_SOURCES) $(libndn_cpp_la_SOURCES) \
 	$(bin_test_encode_decode_data_SOURCES) \
 	$(bin_test_encode_decode_interest_SOURCES) \
 	$(bin_test_get_async_SOURCES)
@@ -282,14 +291,19 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
+CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
 DOXYGEN_PAPER_SIZE = @DOXYGEN_PAPER_SIZE@
+DSYMUTIL = @DSYMUTIL@
+DUMPBIN = @DUMPBIN@
 DX_CONFIG = @DX_CONFIG@
 DX_DOCDIR = @DX_DOCDIR@
 DX_DOT = @DX_DOT@
@@ -316,21 +330,34 @@ DX_PROJECT = @DX_PROJECT@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
+EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+FGREP = @FGREP@
+GREP = @GREP@
 HAVE_CXX11 = @HAVE_CXX11@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
+LIBTOOL = @LIBTOOL@
+LIPO = @LIPO@
+LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
+MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
+NM = @NM@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OTOOL = @OTOOL@
+OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -340,6 +367,7 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -351,20 +379,29 @@ abs_top_srcdir = @abs_top_srcdir@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
+ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
 bindir = @bindir@
+build = @build@
 build_alias = @build_alias@
+build_cpu = @build_cpu@
+build_os = @build_os@
+build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+host = @host@
 host_alias = @host_alias@
+host_cpu = @host_cpu@
+host_os = @host_os@
+host_vendor = @host_vendor@
 htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
@@ -414,8 +451,8 @@ top_srcdir = @top_srcdir@
 
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
-lib_LIBRARIES = libndn-c.a libndn-cpp.a
-libndn_c_a_SOURCES = \
+lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
+libndn_c_la_SOURCES = \
   config.h \
   ndn-cpp/c/data.h \
   ndn-cpp/c/Interest.h \
@@ -440,7 +477,7 @@ libndn_c_a_SOURCES = \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
 
-libndn_cpp_a_SOURCES = \
+libndn_cpp_la_SOURCES = \
   config.h ndn-cpp/common.hpp \
   ndn-cpp/Closure.hpp \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
@@ -461,17 +498,17 @@ libndn_cpp_a_SOURCES = \
   ndn-cpp/c/transport/SocketTransport.h ndn-cpp/c/transport/UdpTransport.h ndn-cpp/transport/UdpTransport.cpp ndn-cpp/transport/UdpTransport.hpp
 
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
-bin_test_encode_decode_interest_LDADD = libndn-c.a libndn-cpp.a
+bin_test_encode_decode_interest_LDADD = libndn-c.la libndn-cpp.la
 bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
-bin_test_encode_decode_data_LDADD = libndn-c.a libndn-cpp.a
+bin_test_encode_decode_data_LDADD = libndn-c.la libndn-cpp.la
 bin_test_get_async_SOURCES = tests/test-get-async.cpp
-bin_test_get_async_LDADD = libndn-c.a libndn-cpp.a
+bin_test_get_async_LDADD = libndn-c.la libndn-cpp.la
 dist_noinst_SCRIPTS = autogen.sh
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .o .obj
+.SUFFIXES: .c .cpp .lo .o .obj
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/aminclude.am $(am__configure_deps)
@@ -522,9 +559,10 @@ $(srcdir)/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
-install-libLIBRARIES: $(lib_LIBRARIES)
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
-	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
+	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
 	list2=; for p in $$list; do \
 	  if test -f $$p; then \
 	    list2="$$list2 $$p"; \
@@ -533,33 +571,36 @@ install-libLIBRARIES: $(lib_LIBRARIES)
 	test -z "$$list2" || { \
 	  echo " $(MKDIR_P) '$(DESTDIR)$(libdir)'"; \
 	  $(MKDIR_P) "$(DESTDIR)$(libdir)" || exit 1; \
-	  echo " $(INSTALL_DATA) $$list2 '$(DESTDIR)$(libdir)'"; \
-	  $(INSTALL_DATA) $$list2 "$(DESTDIR)$(libdir)" || exit $$?; }
-	@$(POST_INSTALL)
-	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
+	}
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
 	for p in $$list; do \
-	  if test -f $$p; then \
-	    $(am__strip_dir) \
-	    echo " ( cd '$(DESTDIR)$(libdir)' && $(RANLIB) $$f )"; \
-	    ( cd "$(DESTDIR)$(libdir)" && $(RANLIB) $$f ) || exit $$?; \
-	  else :; fi; \
+	  $(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$f"; \
 	done
 
-uninstall-libLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(libdir)'; $(am__uninstall_files_from_dir)
-
-clean-libLIBRARIES:
-	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+	@list='$(lib_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
 ndn-cpp/c/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c
 	@: > ndn-cpp/c/$(am__dirstamp)
 ndn-cpp/c/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/$(DEPDIR)
 	@: > ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/errors.$(OBJEXT): ndn-cpp/c/$(am__dirstamp) \
+ndn-cpp/c/errors.lo: ndn-cpp/c/$(am__dirstamp) \
 	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/encoding/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/encoding
@@ -567,31 +608,31 @@ ndn-cpp/c/encoding/$(am__dirstamp):
 ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/encoding/$(DEPDIR)
 	@: > ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/binary-xml-data.$(OBJEXT):  \
+ndn-cpp/c/encoding/binary-xml-data.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLDecoder.$(OBJEXT):  \
+ndn-cpp/c/encoding/BinaryXMLDecoder.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLElementReader.$(OBJEXT):  \
+ndn-cpp/c/encoding/BinaryXMLElementReader.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLEncoder.$(OBJEXT):  \
+ndn-cpp/c/encoding/BinaryXMLEncoder.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLInterest.$(OBJEXT):  \
+ndn-cpp/c/encoding/BinaryXMLInterest.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLKey.$(OBJEXT):  \
+ndn-cpp/c/encoding/BinaryXMLKey.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLName.$(OBJEXT):  \
+ndn-cpp/c/encoding/BinaryXMLName.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.$(OBJEXT):  \
+ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLStructureDecoder.$(OBJEXT):  \
+ndn-cpp/c/encoding/BinaryXMLStructureDecoder.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/transport/$(am__dirstamp):
@@ -600,7 +641,7 @@ ndn-cpp/c/transport/$(am__dirstamp):
 ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/transport/$(DEPDIR)
 	@: > ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/transport/SocketTransport.$(OBJEXT):  \
+ndn-cpp/c/transport/SocketTransport.lo:  \
 	ndn-cpp/c/transport/$(am__dirstamp) \
 	ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/util/$(am__dirstamp):
@@ -609,33 +650,30 @@ ndn-cpp/c/util/$(am__dirstamp):
 ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/util/$(DEPDIR)
 	@: > ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/util/DynamicUCharArray.$(OBJEXT):  \
-	ndn-cpp/c/util/$(am__dirstamp) \
+ndn-cpp/c/util/DynamicUCharArray.lo: ndn-cpp/c/util/$(am__dirstamp) \
 	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/util/ndn_memory.$(OBJEXT): ndn-cpp/c/util/$(am__dirstamp) \
+ndn-cpp/c/util/ndn_memory.lo: ndn-cpp/c/util/$(am__dirstamp) \
 	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/util/ndn_realloc.$(OBJEXT): ndn-cpp/c/util/$(am__dirstamp) \
+ndn-cpp/c/util/ndn_realloc.lo: ndn-cpp/c/util/$(am__dirstamp) \
 	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
 
-libndn-c.a: $(libndn_c_a_OBJECTS) $(libndn_c_a_DEPENDENCIES) $(EXTRA_libndn_c_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libndn-c.a
-	$(AM_V_AR)$(libndn_c_a_AR) libndn-c.a $(libndn_c_a_OBJECTS) $(libndn_c_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libndn-c.a
+libndn-c.la: $(libndn_c_la_OBJECTS) $(libndn_c_la_DEPENDENCIES) $(EXTRA_libndn_c_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libndn_c_la_OBJECTS) $(libndn_c_la_LIBADD) $(LIBS)
 ndn-cpp/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp
 	@: > ndn-cpp/$(am__dirstamp)
 ndn-cpp/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/$(DEPDIR)
 	@: > ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/data.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
+ndn-cpp/data.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/Interest.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
+ndn-cpp/Interest.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/Key.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
+ndn-cpp/Key.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/face.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
+ndn-cpp/face.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/Name.$(OBJEXT): ndn-cpp/$(am__dirstamp) \
+ndn-cpp/Name.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/encoding
@@ -643,14 +681,13 @@ ndn-cpp/encoding/$(am__dirstamp):
 ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/encoding/$(DEPDIR)
 	@: > ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/BinaryXMLElementReader.$(OBJEXT):  \
+ndn-cpp/encoding/BinaryXMLElementReader.lo:  \
 	ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/BinaryXMLWireFormat.$(OBJEXT):  \
+ndn-cpp/encoding/BinaryXMLWireFormat.lo:  \
 	ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/WireFormat.$(OBJEXT):  \
-	ndn-cpp/encoding/$(am__dirstamp) \
+ndn-cpp/encoding/WireFormat.lo: ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/transport/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/transport
@@ -658,20 +695,15 @@ ndn-cpp/transport/$(am__dirstamp):
 ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/transport/$(DEPDIR)
 	@: > ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/transport/TcpTransport.$(OBJEXT):  \
-	ndn-cpp/transport/$(am__dirstamp) \
+ndn-cpp/transport/TcpTransport.lo: ndn-cpp/transport/$(am__dirstamp) \
 	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/transport/Transport.$(OBJEXT):  \
-	ndn-cpp/transport/$(am__dirstamp) \
+ndn-cpp/transport/Transport.lo: ndn-cpp/transport/$(am__dirstamp) \
 	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/transport/UdpTransport.$(OBJEXT):  \
-	ndn-cpp/transport/$(am__dirstamp) \
+ndn-cpp/transport/UdpTransport.lo: ndn-cpp/transport/$(am__dirstamp) \
 	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
 
-libndn-cpp.a: $(libndn_cpp_a_OBJECTS) $(libndn_cpp_a_DEPENDENCIES) $(EXTRA_libndn_cpp_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libndn-cpp.a
-	$(AM_V_AR)$(libndn_cpp_a_AR) libndn-cpp.a $(libndn_cpp_a_OBJECTS) $(libndn_cpp_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libndn-cpp.a
+libndn-cpp.la: $(libndn_cpp_la_OBJECTS) $(libndn_cpp_la_DEPENDENCIES) $(EXTRA_libndn_cpp_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(CXXLINK) -rpath $(libdir) $(libndn_cpp_la_OBJECTS) $(libndn_cpp_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
@@ -682,6 +714,7 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	for p in $$list; do echo "$$p $$p"; done | \
 	sed 's/$(EXEEXT)$$//' | \
 	while read p p1; do if test -f $$p \
+	 || test -f $$p1 \
 	  ; then echo "$$p"; echo "$$p"; else :; fi; \
 	done | \
 	sed -e 'p;s,.*/,,;n;h' \
@@ -696,8 +729,8 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	while read type dir files; do \
 	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
 	    test -z "$$files" || { \
-	      echo " $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
-	      $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
+	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
+	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
 	    } \
 	; done
 
@@ -713,7 +746,13 @@ uninstall-binPROGRAMS:
 	cd "$(DESTDIR)$(bindir)" && rm -f $$files
 
 clean-binPROGRAMS:
-	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
 tests/$(am__dirstamp):
 	@$(MKDIR_P) tests
 	@: > tests/$(am__dirstamp)
@@ -745,42 +784,49 @@ bin/test-get-async$(EXEEXT): $(bin_test_get_async_OBJECTS) $(bin_test_get_async_
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f ndn-cpp/*.$(OBJEXT)
+	-rm -f ndn-cpp/*.lo
 	-rm -f ndn-cpp/c/*.$(OBJEXT)
+	-rm -f ndn-cpp/c/*.lo
 	-rm -f ndn-cpp/c/encoding/*.$(OBJEXT)
+	-rm -f ndn-cpp/c/encoding/*.lo
 	-rm -f ndn-cpp/c/transport/*.$(OBJEXT)
+	-rm -f ndn-cpp/c/transport/*.lo
 	-rm -f ndn-cpp/c/util/*.$(OBJEXT)
+	-rm -f ndn-cpp/c/util/*.lo
 	-rm -f ndn-cpp/encoding/*.$(OBJEXT)
+	-rm -f ndn-cpp/encoding/*.lo
 	-rm -f ndn-cpp/transport/*.$(OBJEXT)
+	-rm -f ndn-cpp/transport/*.lo
 	-rm -f tests/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Interest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Key.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Name.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/data.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/face.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/errors.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLDecoder.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLElementReader.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLEncoder.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLInterest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLKey.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLName.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLPublisherPublicKeyDigest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLStructureDecoder.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-data.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/transport/$(DEPDIR)/SocketTransport.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/DynamicUCharArray.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_memory.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_realloc.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLElementReader.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLWireFormat.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/WireFormat.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/TcpTransport.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/Transport.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/UdpTransport.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Interest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Key.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Name.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/data.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/face.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/errors.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLDecoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLElementReader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLEncoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLInterest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLKey.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLName.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLPublisherPublicKeyDigest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLStructureDecoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-data.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/transport/$(DEPDIR)/SocketTransport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/DynamicUCharArray.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_memory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_realloc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLElementReader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLWireFormat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/WireFormat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/TcpTransport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/Transport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/UdpTransport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-interest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-get-async.Po@am__quote@
@@ -801,6 +847,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
+.c.lo:
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
@@ -816,6 +870,31 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cpp.lo:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+	-rm -rf bin/.libs bin/_libs
+	-rm -rf ndn-cpp/.libs ndn-cpp/_libs
+	-rm -rf ndn-cpp/c/.libs ndn-cpp/c/_libs
+	-rm -rf ndn-cpp/c/encoding/.libs ndn-cpp/c/encoding/_libs
+	-rm -rf ndn-cpp/c/transport/.libs ndn-cpp/c/transport/_libs
+	-rm -rf ndn-cpp/c/util/.libs ndn-cpp/c/util/_libs
+	-rm -rf ndn-cpp/encoding/.libs ndn-cpp/encoding/_libs
+	-rm -rf ndn-cpp/transport/.libs ndn-cpp/transport/_libs
+
+distclean-libtool:
+	-rm -f libtool config.lt
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -1034,7 +1113,9 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES) $(PROGRAMS) $(SCRIPTS) config.h
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) config.h
+install-binPROGRAMS: install-libLTLIBRARIES
+
 installdirs:
 	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -1088,15 +1169,15 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libLIBRARIES \
-	mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
+	clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/c/$(DEPDIR) ndn-cpp/c/encoding/$(DEPDIR) ndn-cpp/c/transport/$(DEPDIR) ndn-cpp/c/util/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/transport/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-hdr distclean-tags
+	distclean-hdr distclean-libtool distclean-tags
 
 dvi: dvi-am
 
@@ -1116,7 +1197,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-binPROGRAMS install-libLIBRARIES
+install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
 
 install-html: install-html-am
 
@@ -1147,7 +1228,8 @@ maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-am
 
-mostlyclean-am: mostlyclean-compile mostlyclean-generic
+mostlyclean-am: mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool
 
 pdf: pdf-am
 
@@ -1157,26 +1239,28 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-libLIBRARIES
+uninstall-am: uninstall-binPROGRAMS uninstall-libLTLIBRARIES
 
 .MAKE: all install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--refresh check check-am clean \
 	clean-binPROGRAMS clean-cscope clean-generic \
-	clean-libLIBRARIES cscope cscopelist-am ctags ctags-am dist \
-	dist-all dist-bzip2 dist-gzip dist-lzip dist-shar dist-tarZ \
-	dist-xz dist-zip distcheck distclean distclean-compile \
-	distclean-generic distclean-hdr distclean-tags distcleancheck \
-	distdir distuninstallcheck dvi dvi-am html html-am info \
-	info-am install install-am install-binPROGRAMS install-data \
+	clean-libLTLIBRARIES clean-libtool cscope cscopelist-am ctags \
+	ctags-am dist dist-all dist-bzip2 dist-gzip dist-lzip \
+	dist-shar dist-tarZ dist-xz dist-zip distcheck distclean \
+	distclean-compile distclean-generic distclean-hdr \
+	distclean-libtool distclean-tags distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-am install-binPROGRAMS install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
-	install-info-am install-libLIBRARIES install-man install-pdf \
+	install-info-am install-libLTLIBRARIES install-man install-pdf \
 	install-pdf-am install-ps install-ps-am install-strip \
 	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS uninstall-libLIBRARIES
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-libLTLIBRARIES
 
 
 @DX_COND_doc_TRUE@@DX_COND_ps_TRUE@doxygen-ps: @DX_DOCDIR@/@PACKAGE@.ps
