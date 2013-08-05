@@ -10,7 +10,7 @@
 #ifndef NDN_CLOSURE_HPP
 #define	NDN_CLOSURE_HPP
 
-#include "Common.hpp"
+#include "common.hpp"
 
 namespace ndn {
 
