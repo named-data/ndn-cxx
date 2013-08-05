@@ -25,6 +25,11 @@ void Face::expressInterest(const Name &name, const shared_ptr<Closure> &closure,
   transport_->send(*encoding);
 }
     
+void Face::shutdown()
+{
+  transport_->close();
+}
+
 void Face::onReceivedElement(unsigned char *element, unsigned int elementLength)
 {
   BinaryXmlDecoder decoder(element, elementLength);

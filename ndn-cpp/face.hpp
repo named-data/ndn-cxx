@@ -48,6 +48,8 @@ public:
     expressInterest(name, closure, 0);
   }
   
+  void shutdown();
+  
   const char *getHost() const { return host_.c_str(); }
   
   unsigned short getPort() const { return port_; }
