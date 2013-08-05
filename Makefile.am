@@ -59,12 +59,12 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/c/transport/SocketTransport.h ndn-cpp/c/transport/UdpTransport.h ndn-cpp/transport/UdpTransport.cpp ndn-cpp/transport/UdpTransport.hpp
 
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
-bin_test_encode_decode_interest_LDADD = libndn-c.la libndn-cpp.la
+bin_test_encode_decode_interest_LDADD = libndn-cpp.la libndn-c.la
 
 bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
-bin_test_encode_decode_data_LDADD = libndn-c.la libndn-cpp.la
+bin_test_encode_decode_data_LDADD = libndn-cpp.la libndn-c.la
 
 bin_test_get_async_SOURCES = tests/test-get-async.cpp
-bin_test_get_async_LDADD = libndn-c.la libndn-cpp.la
+bin_test_get_async_LDADD = libndn-cpp.la libndn-c.la
 
 dist_noinst_SCRIPTS = autogen.sh
