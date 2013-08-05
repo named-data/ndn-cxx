@@ -12,64 +12,64 @@
 #include "encoding/BinaryXMLWireFormat.hpp"
 
 namespace ndn {
-  
-class NameComponent {
-public:
-  /**
-   * Create a new NameComponent with an empty value.
-   */
-  NameComponent() 
-  {    
-  }
-  
-  /**
-   * Create a new NameComponent, copying the given value.
-   * @param value The value byte array.
-   */
-  NameComponent(const std::vector<unsigned char> &value) 
-  : value_(value)
-  {
-  }
-
-  /**
-   * Create a new NameComponent, copying the given value.
-   * @param value Pointer to the value byte array.
-   * @param valueLen Length of value.
-   */
-  NameComponent(unsigned char *value, unsigned int valueLen) 
-  : value_(value, value + valueLen)
-  {
-  }
-  
-  /**
-   * Set the componentStruct to point to this component, without copying any memory.
-   * WARNING: The resulting pointer in componentStruct is invalid after a further use of this object which could reallocate memory.
-   * @param componentStruct The C ndn_NameComponent struct to receive the pointer.
-   */
-  void get(struct ndn_NameComponent &componentStruct) const 
-  {
-    componentStruct.value = (unsigned char *)&value_[0];
-    componentStruct.valueLength = value_.size(); 
-  }
-  
-  /**
-   * Set this component value by decoding the escapedString between first and last according to the NDN URI Scheme.
-   * If the escaped string is "", "." or ".." then return false, which means this component value was not changed, and
-   * the component should be skipped in a URI name.
-   * @param first Pointer to the beginning of the escaped string
-   * @param last Pointer to the first character past the end of the escaped string
-   * @return True for success, false if escapedString is not a valid escaped component.
-   */
-  bool setFromEscapedString(const char *first, const char *last);
-  
-  const std::vector<unsigned char> &getValue() const { return value_; }
-  
-private:
-  std::vector<unsigned char> value_;
-}; 
-  
+    
 class Name {
 public:
+  class Component {
+  public:
+    /**
+     * Create a new Name::Component with an empty value.
+     */
+    Component() 
+    {    
+    }
+  
+    /**
+     * Create a new Name::Component, copying the given value.
+     * @param value The value byte array.
+     */
+    Component(const std::vector<unsigned char> &value) 
+    : value_(value)
+    {
+    }
+
+    /**
+     * Create a new Name::Component, copying the given value.
+     * @param value Pointer to the value byte array.
+     * @param valueLen Length of value.
+     */
+    Component(unsigned char *value, unsigned int valueLen) 
+    : value_(value, value + valueLen)
+    {
+    }
+  
+    /**
+     * Set the componentStruct to point to this component, without copying any memory.
+     * WARNING: The resulting pointer in componentStruct is invalid after a further use of this object which could reallocate memory.
+     * @param componentStruct The C ndn_NameComponent struct to receive the pointer.
+     */
+    void get(struct ndn_NameComponent &componentStruct) const 
+    {
+      componentStruct.value = (unsigned char *)&value_[0];
+      componentStruct.valueLength = value_.size(); 
+    }
+  
+    /**
+     * Set this component value by decoding the escapedString between first and last according to the NDN URI Scheme.
+     * If the escaped string is "", "." or ".." then return false, which means this component value was not changed, and
+     * the component should be skipped in a URI name.
+     * @param first Pointer to the beginning of the escaped string
+     * @param last Pointer to the first character past the end of the escaped string
+     * @return True for success, false if escapedString is not a valid escaped component.
+     */
+    bool setFromEscapedString(const char *first, const char *last);
+  
+    const std::vector<unsigned char> &getValue() const { return value_; }
+  
+  private:
+    std::vector<unsigned char> value_;
+  }; 
+  
   /**
    * Create a new Name with no components.
    */
@@ -78,9 +78,9 @@ public:
   
   /**
    * Create a new Name, copying the name components.
-   * @param components A vector of NameComponent
+   * @param components A vector of Component
    */
-  Name(const std::vector<NameComponent> &components)
+  Name(const std::vector<Component> &components)
   : components_(components)
   {
   }
@@ -90,6 +90,7 @@ public:
    * @param uri The URI string.
    */
   Name(const char *uri);  
+  
   /**
    * Set the nameStruct to point to the components in this name, without copying any memory.
    * WARNING: The resulting pointers in nameStruct are invalid after a further use of this object which could reallocate memory.
@@ -107,7 +108,7 @@ public:
    * Add a new component, copying from value of length valueLength.
    */
   void addComponent(unsigned char *value, unsigned int valueLength) {
-    components_.push_back(NameComponent(value, valueLength));
+    components_.push_back(Component(value, valueLength));
   }
   
   /**
@@ -125,7 +126,7 @@ public:
     return components_.size();
   }
   
-  const NameComponent &getComponent(unsigned int i) const { return components_[i]; }
+  const Component &getComponent(unsigned int i) const { return components_[i]; }
   
   /**
    * Encode this name as a URI.
@@ -134,7 +135,7 @@ public:
   std::string to_uri() const;
   
 private:
-  std::vector<NameComponent> components_;
+  std::vector<Component> components_;
 };  
 
 }
