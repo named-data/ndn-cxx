@@ -30,7 +30,7 @@ static void toEscapedString(const vector<unsigned char> &value, ostringstream &r
     // Special case for component of zero or more periods.  Add 3 periods.
     result << "...";
     for (unsigned int i = 0; i < value.size(); ++i)
-      result << ".";
+      result << '.';
   }
   else {
     // In case we need to escape, set to upper case hex and save the previous flags.
@@ -44,9 +44,9 @@ static void toEscapedString(const vector<unsigned char> &value, ostringstream &r
         x == 0x2e || x == 0x5f)
         result << x;
       else {
-        result << "%";
+        result << '%';
         if (x < 16)
-          result << "0";
+          result << '0';
         result << (unsigned int)x;
       }
     }
