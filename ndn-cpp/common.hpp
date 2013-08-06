@@ -37,7 +37,7 @@ namespace ndn {
  */
 static inline void setVector(std::vector<unsigned char> &vec, const unsigned char *value, unsigned int valueLength) 
 {
-	vec.clear();
+  vec.clear();
   if (value)
     vec.insert(vec.begin(), value, value + valueLength);  
 }

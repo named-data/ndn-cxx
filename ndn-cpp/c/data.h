@@ -4,20 +4,20 @@
  */
 
 #ifndef NDN_DATA_H
-#define	NDN_DATA_H
+#define NDN_DATA_H
 
 #include "name.h"
 #include "publisher-public-key-digest.h"
 #include "key.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
 struct ndn_Signature {
   unsigned char *digestAlgorithm;      /**< pointer to pre-allocated buffer.  0 for none.
                                         *   If none, default is 2.16.840.1.101.3.4.2.1 (sha-256). */
-  unsigned int digestAlgorithmLength; /**< length of digestAlgorithm.  0 for none */
+  unsigned int digestAlgorithmLength;  /**< length of digestAlgorithm.  0 for none */
   unsigned char *witness;              /**< pointer to pre-allocated buffer.  0 for none. */
   unsigned int witnessLength;          /**< length of witness.  0 for none */
   unsigned char *signature;
@@ -47,7 +47,7 @@ struct ndn_SignedInfo {
   double timestampMilliseconds;    /**< milliseconds since 1/1/1970. -1 for none */
   int type;                        /**< default is ndn_ContentType_DATA. -1 for none */
   int freshnessSeconds;            /**< -1 for none */
-	unsigned char *finalBlockID;	   /**< pointer to pre-allocated buffer.  0 for none */
+  unsigned char *finalBlockID;     /**< pointer to pre-allocated buffer.  0 for none */
   unsigned int finalBlockIDLength; /**< length of finalBlockID.  0 for none */
   struct ndn_KeyLocator keyLocator;
 };
@@ -89,7 +89,7 @@ static inline void ndn_Data_init(struct ndn_Data *self, struct ndn_NameComponent
   self->contentLength = 0;
 }
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

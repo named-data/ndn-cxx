@@ -8,11 +8,11 @@
  */
 
 #ifndef NDN_MEMORY_H
-#define	NDN_MEMORY_H
+#define NDN_MEMORY_H
 
 #include "../../../config.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -55,7 +55,7 @@ static inline void ndn_memset(unsigned char *dest, int val, unsigned int len) { 
 void ndn_memset(unsigned char *dest, int val, unsigned int len);
 #endif
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

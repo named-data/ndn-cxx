@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_FACE_HPP
-#define	NDN_FACE_HPP
+#define NDN_FACE_HPP
 
 #include "closure.hpp"
 #include "interest.hpp"

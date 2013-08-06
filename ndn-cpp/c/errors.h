@@ -5,9 +5,9 @@
  */
 
 #ifndef NDN_ERRORS_H
-#define	NDN_ERRORS_H
+#define NDN_ERRORS_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -50,7 +50,7 @@ typedef enum {
  */
 char *ndn_getErrorString(int error);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

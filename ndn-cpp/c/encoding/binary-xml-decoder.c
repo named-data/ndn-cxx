@@ -56,12 +56,12 @@ ndn_Error ndn_BinaryXmlDecoder_decodeTypeAndValue(struct ndn_BinaryXmlDecoder *s
   unsigned int value = 0;
   int gotFirstOctet = 0;
   
-	while (1) {
+  while (1) {
     if (self->offset >= self->inputLength)
       return NDN_ERROR_read_past_the_end_of_the_input;
     
-		unsigned int octet = unsafeReadOctet(self);
-		
+    unsigned int octet = unsafeReadOctet(self);
+    
     if (!gotFirstOctet) {
       if (octet == 0)
         return NDN_ERROR_the_first_header_octet_may_not_be_zero;
@@ -69,17 +69,17 @@ ndn_Error ndn_BinaryXmlDecoder_decodeTypeAndValue(struct ndn_BinaryXmlDecoder *s
       gotFirstOctet = 1;
     }
     
-		if (octet & ndn_BinaryXml_TT_FINAL) {
+    if (octet & ndn_BinaryXml_TT_FINAL) {
       // Finished.
-			*type = octet & ndn_BinaryXml_TT_MASK;
-			value = (value << ndn_BinaryXml_TT_VALUE_BITS) | ((octet >> ndn_BinaryXml_TT_BITS) & ndn_BinaryXml_TT_VALUE_MASK);
+      *type = octet & ndn_BinaryXml_TT_MASK;
+      value = (value << ndn_BinaryXml_TT_VALUE_BITS) | ((octet >> ndn_BinaryXml_TT_BITS) & ndn_BinaryXml_TT_VALUE_MASK);
       break;
-		}
-		
-    value = (value << ndn_BinaryXml_REGULAR_VALUE_BITS) | (octet & ndn_BinaryXml_REGULAR_VALUE_MASK);		
-	}
+    }
+    
+    value = (value << ndn_BinaryXml_REGULAR_VALUE_BITS) | (octet & ndn_BinaryXml_REGULAR_VALUE_MASK);    
+  }
 
-	*valueOut = value;
+  *valueOut = value;
   return 0;
 }
 

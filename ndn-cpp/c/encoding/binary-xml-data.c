@@ -27,7 +27,7 @@ static ndn_Error encodeSignature(struct ndn_Signature *signature, struct ndn_Bin
       (encoder, ndn_BinaryXml_DTag_SignatureBits, signature->signature, signature->signatureLength))
     return error;
   
-	if (error = ndn_BinaryXmlEncoder_writeElementClose(encoder))
+  if (error = ndn_BinaryXmlEncoder_writeElementClose(encoder))
     return error;
   
   return 0;    
@@ -90,7 +90,7 @@ static ndn_Error encodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_
   if (error = ndn_encodeBinaryXmlKeyLocator(&signedInfo->keyLocator, encoder))
     return error;
   
-	if (error = ndn_BinaryXmlEncoder_writeElementClose(encoder))
+  if (error = ndn_BinaryXmlEncoder_writeElementClose(encoder))
     return error;
   
   return 0;  
@@ -148,7 +148,7 @@ ndn_Error ndn_encodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlEnc
       (encoder, ndn_BinaryXml_DTag_Content, data->content, data->contentLength))
     return error;
   
-	if (error = ndn_BinaryXmlEncoder_writeElementClose(encoder))
+  if (error = ndn_BinaryXmlEncoder_writeElementClose(encoder))
     return error;
   
   return 0;

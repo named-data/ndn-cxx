@@ -4,14 +4,14 @@
  */
 
 #ifndef NDN_BINARYXML_H
-#define	NDN_BINARYXML_H
+#define NDN_BINARYXML_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
 enum {
-  ndn_BinaryXml_EXT = 0x00, 	
+  ndn_BinaryXml_EXT = 0x00,   
   ndn_BinaryXml_TAG = 0x01, 
   ndn_BinaryXml_DTAG = 0x02, 
   ndn_BinaryXml_ATTR = 0x03, 
@@ -40,14 +40,14 @@ enum {
   ndn_BinaryXml_DTag_ContentHash = 22,
   ndn_BinaryXml_DTag_Count = 24,
   ndn_BinaryXml_DTag_Header = 25,
-  ndn_BinaryXml_DTag_Interest = 26,	/* 20090915 */
+  ndn_BinaryXml_DTag_Interest = 26,  /* 20090915 */
   ndn_BinaryXml_DTag_Key = 27,
   ndn_BinaryXml_DTag_KeyLocator = 28,
   ndn_BinaryXml_DTag_KeyName = 29,
   ndn_BinaryXml_DTag_Length = 30,
   ndn_BinaryXml_DTag_Link = 31,
   ndn_BinaryXml_DTag_LinkAuthenticator = 32,
-  ndn_BinaryXml_DTag_NameComponentCount = 33,	/* DeprecatedInInterest */
+  ndn_BinaryXml_DTag_NameComponentCount = 33,  /* DeprecatedInInterest */
   ndn_BinaryXml_DTag_RootDigest = 36,
   ndn_BinaryXml_DTag_Signature = 37,
   ndn_BinaryXml_DTag_Start = 38,
@@ -70,7 +70,7 @@ enum {
   ndn_BinaryXml_DTag_PublisherCertificateDigest = 61,
   ndn_BinaryXml_DTag_PublisherIssuerKeyDigest = 62,
   ndn_BinaryXml_DTag_PublisherIssuerCertificateDigest = 63,
-  ndn_BinaryXml_DTag_ContentObject = 64,	/* 20090915 */
+  ndn_BinaryXml_DTag_ContentObject = 64,  /* 20090915 */
   ndn_BinaryXml_DTag_WrappedKey = 65,
   ndn_BinaryXml_DTag_WrappingKeyIdentifier = 66,
   ndn_BinaryXml_DTag_WrapAlgorithm = 67,
@@ -137,7 +137,7 @@ enum {
   ndn_BinaryXml_DTag_CCNProtocolDataUnit = 17702112
 };
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

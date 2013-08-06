@@ -4,9 +4,9 @@
  */
 
 #ifndef NDN_NDN_REALLOC_H
-#define	NDN_NDN_REALLOC_H
+#define NDN_NDN_REALLOC_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -19,7 +19,7 @@ extern "C" {
  */
 unsigned char *ndn_realloc(unsigned char *array, unsigned int length);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

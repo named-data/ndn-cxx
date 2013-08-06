@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_DATA_HPP
-#define	NDN_DATA_HPP
+#define NDN_DATA_HPP
 
 #include "name.hpp"
 #include "publisher-public-key-digest.hpp"

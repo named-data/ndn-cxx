@@ -4,14 +4,14 @@
  */
 
 #ifndef NDN_BINARY_XML_DATA_H
-#define	NDN_BINARY_XML_DATA_H
+#define NDN_BINARY_XML_DATA_H
 
 #include "../errors.h"
 #include "../data.h"
 #include "binary-xml-encoder.h"
 #include "binary-xml-decoder.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -19,7 +19,7 @@ ndn_Error ndn_encodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlEnc
 
 ndn_Error ndn_decodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlDecoder *decoder);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
