@@ -6,9 +6,9 @@
 #ifndef NDN_DATA_HPP
 #define	NDN_DATA_HPP
 
-#include "Name.hpp"
-#include "PublisherPublicKeyDigest.hpp"
-#include "Key.hpp"
+#include "name.hpp"
+#include "publisher-public-key-digest.hpp"
+#include "key.hpp"
 #include "c/data.h"
 
 namespace ndn {

@@ -4,10 +4,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "BinaryXMLEncoder.h"
-#include "BinaryXMLDecoder.h"
-#include "BinaryXMLName.h"
-#include "BinaryXMLPublisherPublicKeyDigest.h"
+#include "binary-xml-encoder.h"
+#include "binary-xml-decoder.h"
+#include "binary-xml-name.h"
+#include "binary-xml-publisher-public-key-digest.h"
 #include "binary-xml-data.h"
 
 static ndn_Error encodeSignature(struct ndn_Signature *signature, struct ndn_BinaryXmlEncoder *encoder)

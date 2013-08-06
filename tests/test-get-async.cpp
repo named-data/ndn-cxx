@@ -6,9 +6,9 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
-#include <ndn-cpp/Interest.hpp>
+#include <ndn-cpp/interest.hpp>
 #include <ndn-cpp/data.hpp>
-#include <ndn-cpp/transport/UdpTransport.hpp>
+#include <ndn-cpp/transport/udp-transport.hpp>
 #include <ndn-cpp/face.hpp>
 
 using namespace std;

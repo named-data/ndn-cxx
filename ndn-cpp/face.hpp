@@ -6,10 +6,10 @@
 #ifndef NDN_FACE_HPP
 #define	NDN_FACE_HPP
 
-#include "Closure.hpp"
-#include "Interest.hpp"
-#include "transport/UdpTransport.hpp"
-#include "encoding/BinaryXMLElementReader.hpp"
+#include "closure.hpp"
+#include "interest.hpp"
+#include "transport/udp-transport.hpp"
+#include "encoding/binary-xml-element-reader.hpp"
 
 using namespace std;
 

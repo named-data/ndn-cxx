@@ -16,47 +16,47 @@ bin_PROGRAMS = bin/test-encode-decode-interest bin/test-encode-decode-data bin/t
 libndn_c_la_SOURCES = \
   config.h \
   ndn-cpp/c/data.h \
-  ndn-cpp/c/Interest.h \
-  ndn-cpp/c/Key.h \
-  ndn-cpp/c/Name.h \
-  ndn-cpp/c/PublisherPublicKeyDigest.h \
+  ndn-cpp/c/interest.h \
+  ndn-cpp/c/key.h \
+  ndn-cpp/c/name.h \
+  ndn-cpp/c/publisher-public-key-digest.h \
   ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
-  ndn-cpp/c/encoding/BinaryXML.h \
+  ndn-cpp/c/encoding/binary-xml.h \
   ndn-cpp/c/encoding/binary-xml-data.c ndn-cpp/c/encoding/binary-xml-data.h \
-  ndn-cpp/c/encoding/BinaryXMLDecoder.c ndn-cpp/c/encoding/BinaryXMLDecoder.h \
-  ndn-cpp/c/encoding/BinaryXMLElementReader.c ndn-cpp/c/encoding/BinaryXMLElementReader.h \
-  ndn-cpp/c/encoding/BinaryXMLEncoder.c ndn-cpp/c/encoding/BinaryXMLEncoder.h \
-  ndn-cpp/c/encoding/BinaryXMLInterest.c ndn-cpp/c/encoding/BinaryXMLInterest.h \
-  ndn-cpp/c/encoding/BinaryXMLKey.c ndn-cpp/c/encoding/BinaryXMLKey.h \
-  ndn-cpp/c/encoding/BinaryXMLName.c ndn-cpp/c/encoding/BinaryXMLName.h \
-  ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.c ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.h \
-  ndn-cpp/c/encoding/BinaryXMLStructureDecoder.c ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h \
-  ndn-cpp/c/transport/SocketTransport.c ndn-cpp/c/transport/SocketTransport.h \
-  ndn-cpp/c/transport/TcpTransport.h \
-  ndn-cpp/c/transport/UdpTransport.h \
-  ndn-cpp/c/util/DynamicUCharArray.c ndn-cpp/c/util/DynamicUCharArray.h \
+  ndn-cpp/c/encoding/binary-xml-decoder.c ndn-cpp/c/encoding/binary-xml-decoder.h \
+  ndn-cpp/c/encoding/binary-xml-element-reader.c ndn-cpp/c/encoding/binary-xml-element-reader.h \
+  ndn-cpp/c/encoding/binary-xml-encoder.c ndn-cpp/c/encoding/binary-xml-encoder.h \
+  ndn-cpp/c/encoding/binary-xml-interest.c ndn-cpp/c/encoding/binary-xml-interest.h \
+  ndn-cpp/c/encoding/binary-xml-key.c ndn-cpp/c/encoding/binary-xml-key.h \
+  ndn-cpp/c/encoding/binary-xml-name.c ndn-cpp/c/encoding/binary-xml-name.h \
+  ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.c ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.h \
+  ndn-cpp/c/encoding/binary-xml-structure-decoder.c ndn-cpp/c/encoding/binary-xml-structure-decoder.h \
+  ndn-cpp/c/transport/socket-transport.c ndn-cpp/c/transport/socket-transport.h \
+  ndn-cpp/c/transport/tcp-transport.h \
+  ndn-cpp/c/transport/udp-transport.h \
+  ndn-cpp/c/util/dynamic-uchar-array.c ndn-cpp/c/util/dynamic-uchar-array.h \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
 
 libndn_cpp_la_SOURCES = \
   config.h ndn-cpp/common.hpp \
-  ndn-cpp/Closure.hpp \
+  ndn-cpp/closure.hpp \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
-  ndn-cpp/Interest.cpp ndn-cpp/c/Interest.h ndn-cpp/Interest.hpp \
-  ndn-cpp/Key.cpp ndn-cpp/c/Key.h ndn-cpp/Key.hpp \
+  ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
+  ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
   ndn-cpp/face.cpp ndn-cpp/face.hpp \
-  ndn-cpp/Name.cpp ndn-cpp/c/Name.h ndn-cpp/Name.hpp \
-  ndn-cpp/PublisherPublicKeyDigest.hpp \
-  ndn-cpp/c/encoding/BinaryXML.h \
-  ndn-cpp/c/encoding/BinaryXMLDecoder.h ndn-cpp/encoding/BinaryXMLDecoder.hpp \
-  ndn-cpp/c/encoding/BinaryXMLElementReader.h ndn-cpp/encoding/BinaryXMLElementReader.cpp ndn-cpp/encoding/BinaryXMLElementReader.hpp \
-  ndn-cpp/c/encoding/BinaryXMLEncoder.h ndn-cpp/encoding/BinaryXMLEncoder.hpp ndn-cpp/c/util/DynamicUCharArray.h \
-  ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
-  ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/c/encoding/BinaryXMLName.h ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
-  ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp \
-  ndn-cpp/c/transport/SocketTransport.h ndn-cpp/c/transport/TcpTransport.h ndn-cpp/transport/TcpTransport.cpp ndn-cpp/transport/TcpTransport.hpp \
-  ndn-cpp/transport/Transport.cpp ndn-cpp/transport/Transport.hpp \
-  ndn-cpp/c/transport/SocketTransport.h ndn-cpp/c/transport/UdpTransport.h ndn-cpp/transport/UdpTransport.cpp ndn-cpp/transport/UdpTransport.hpp
+  ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
+  ndn-cpp/publisher-public-key-digest.hpp \
+  ndn-cpp/c/encoding/binary-xml.h \
+  ndn-cpp/c/encoding/binary-xml-decoder.h ndn-cpp/encoding/binary-xml-decoder.hpp \
+  ndn-cpp/c/encoding/binary-xml-element-reader.h ndn-cpp/encoding/binary-xml-element-reader.cpp ndn-cpp/encoding/binary-xml-element-reader.hpp \
+  ndn-cpp/c/encoding/binary-xml-encoder.h ndn-cpp/encoding/binary-xml-encoder.hpp ndn-cpp/c/util/dynamic-uchar-array.h \
+  ndn-cpp/c/encoding/binary-xml-structure-decoder.h ndn-cpp/encoding/binary-xml-structure-decoder.hpp \
+  ndn-cpp/encoding/binary-xml-wire-format.cpp ndn-cpp/c/encoding/binary-xml-name.h ndn-cpp/encoding/binary-xml-wire-format.hpp \
+  ndn-cpp/encoding/wire-format.cpp ndn-cpp/encoding/wire-format.hpp \
+  ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/tcp-transport.h ndn-cpp/transport/tcp-transport.cpp ndn-cpp/transport/tcp-transport.hpp \
+  ndn-cpp/transport/transport.cpp ndn-cpp/transport/transport.hpp \
+  ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp
 
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
 bin_test_encode_decode_interest_LDADD = libndn-cpp.la libndn-c.la

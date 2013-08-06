@@ -3,8 +3,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "encoding/BinaryXMLDecoder.hpp"
-#include "c/encoding/BinaryXML.h"
+#include "encoding/binary-xml-decoder.hpp"
+#include "c/encoding/binary-xml.h"
 #include "data.hpp"
 #include "face.hpp"
 

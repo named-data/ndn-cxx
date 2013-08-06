@@ -6,9 +6,9 @@
 #ifndef NDN_DATA_H
 #define	NDN_DATA_H
 
-#include "Name.h"
-#include "PublisherPublicKeyDigest.h"
-#include "Key.h"
+#include "name.h"
+#include "publisher-public-key-digest.h"
+#include "key.h"
 
 #ifdef	__cplusplus
 extern "C" {

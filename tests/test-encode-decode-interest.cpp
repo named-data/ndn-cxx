@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
-#include <ndn-cpp/Interest.hpp>
+#include <ndn-cpp/interest.hpp>
 
 using namespace std;
 using namespace ndn;

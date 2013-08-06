@@ -134,16 +134,16 @@ libndn_c_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libndn_c_la_OBJECTS = ndn-cpp/c/errors.lo \
 	ndn-cpp/c/encoding/binary-xml-data.lo \
-	ndn-cpp/c/encoding/BinaryXMLDecoder.lo \
-	ndn-cpp/c/encoding/BinaryXMLElementReader.lo \
-	ndn-cpp/c/encoding/BinaryXMLEncoder.lo \
-	ndn-cpp/c/encoding/BinaryXMLInterest.lo \
-	ndn-cpp/c/encoding/BinaryXMLKey.lo \
-	ndn-cpp/c/encoding/BinaryXMLName.lo \
-	ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.lo \
-	ndn-cpp/c/encoding/BinaryXMLStructureDecoder.lo \
-	ndn-cpp/c/transport/SocketTransport.lo \
-	ndn-cpp/c/util/DynamicUCharArray.lo \
+	ndn-cpp/c/encoding/binary-xml-decoder.lo \
+	ndn-cpp/c/encoding/binary-xml-element-reader.lo \
+	ndn-cpp/c/encoding/binary-xml-encoder.lo \
+	ndn-cpp/c/encoding/binary-xml-interest.lo \
+	ndn-cpp/c/encoding/binary-xml-key.lo \
+	ndn-cpp/c/encoding/binary-xml-name.lo \
+	ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.lo \
+	ndn-cpp/c/encoding/binary-xml-structure-decoder.lo \
+	ndn-cpp/c/transport/socket-transport.lo \
+	ndn-cpp/c/util/dynamic-uchar-array.lo \
 	ndn-cpp/c/util/ndn_memory.lo ndn-cpp/c/util/ndn_realloc.lo
 libndn_c_la_OBJECTS = $(am_libndn_c_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -151,14 +151,14 @@ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 libndn_cpp_la_LIBADD =
-am_libndn_cpp_la_OBJECTS = ndn-cpp/data.lo ndn-cpp/Interest.lo \
-	ndn-cpp/Key.lo ndn-cpp/face.lo ndn-cpp/Name.lo \
-	ndn-cpp/encoding/BinaryXMLElementReader.lo \
-	ndn-cpp/encoding/BinaryXMLWireFormat.lo \
-	ndn-cpp/encoding/WireFormat.lo \
-	ndn-cpp/transport/TcpTransport.lo \
-	ndn-cpp/transport/Transport.lo \
-	ndn-cpp/transport/UdpTransport.lo
+am_libndn_cpp_la_OBJECTS = ndn-cpp/data.lo ndn-cpp/interest.lo \
+	ndn-cpp/key.lo ndn-cpp/face.lo ndn-cpp/name.lo \
+	ndn-cpp/encoding/binary-xml-element-reader.lo \
+	ndn-cpp/encoding/binary-xml-wire-format.lo \
+	ndn-cpp/encoding/wire-format.lo \
+	ndn-cpp/transport/tcp-transport.lo \
+	ndn-cpp/transport/transport.lo \
+	ndn-cpp/transport/udp-transport.lo
 libndn_cpp_la_OBJECTS = $(am_libndn_cpp_la_OBJECTS)
 PROGRAMS = $(bin_PROGRAMS)
 am_bin_test_encode_decode_data_OBJECTS =  \
@@ -455,47 +455,47 @@ lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 libndn_c_la_SOURCES = \
   config.h \
   ndn-cpp/c/data.h \
-  ndn-cpp/c/Interest.h \
-  ndn-cpp/c/Key.h \
-  ndn-cpp/c/Name.h \
-  ndn-cpp/c/PublisherPublicKeyDigest.h \
+  ndn-cpp/c/interest.h \
+  ndn-cpp/c/key.h \
+  ndn-cpp/c/name.h \
+  ndn-cpp/c/publisher-public-key-digest.h \
   ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
-  ndn-cpp/c/encoding/BinaryXML.h \
+  ndn-cpp/c/encoding/binary-xml.h \
   ndn-cpp/c/encoding/binary-xml-data.c ndn-cpp/c/encoding/binary-xml-data.h \
-  ndn-cpp/c/encoding/BinaryXMLDecoder.c ndn-cpp/c/encoding/BinaryXMLDecoder.h \
-  ndn-cpp/c/encoding/BinaryXMLElementReader.c ndn-cpp/c/encoding/BinaryXMLElementReader.h \
-  ndn-cpp/c/encoding/BinaryXMLEncoder.c ndn-cpp/c/encoding/BinaryXMLEncoder.h \
-  ndn-cpp/c/encoding/BinaryXMLInterest.c ndn-cpp/c/encoding/BinaryXMLInterest.h \
-  ndn-cpp/c/encoding/BinaryXMLKey.c ndn-cpp/c/encoding/BinaryXMLKey.h \
-  ndn-cpp/c/encoding/BinaryXMLName.c ndn-cpp/c/encoding/BinaryXMLName.h \
-  ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.c ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.h \
-  ndn-cpp/c/encoding/BinaryXMLStructureDecoder.c ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h \
-  ndn-cpp/c/transport/SocketTransport.c ndn-cpp/c/transport/SocketTransport.h \
-  ndn-cpp/c/transport/TcpTransport.h \
-  ndn-cpp/c/transport/UdpTransport.h \
-  ndn-cpp/c/util/DynamicUCharArray.c ndn-cpp/c/util/DynamicUCharArray.h \
+  ndn-cpp/c/encoding/binary-xml-decoder.c ndn-cpp/c/encoding/binary-xml-decoder.h \
+  ndn-cpp/c/encoding/binary-xml-element-reader.c ndn-cpp/c/encoding/binary-xml-element-reader.h \
+  ndn-cpp/c/encoding/binary-xml-encoder.c ndn-cpp/c/encoding/binary-xml-encoder.h \
+  ndn-cpp/c/encoding/binary-xml-interest.c ndn-cpp/c/encoding/binary-xml-interest.h \
+  ndn-cpp/c/encoding/binary-xml-key.c ndn-cpp/c/encoding/binary-xml-key.h \
+  ndn-cpp/c/encoding/binary-xml-name.c ndn-cpp/c/encoding/binary-xml-name.h \
+  ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.c ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.h \
+  ndn-cpp/c/encoding/binary-xml-structure-decoder.c ndn-cpp/c/encoding/binary-xml-structure-decoder.h \
+  ndn-cpp/c/transport/socket-transport.c ndn-cpp/c/transport/socket-transport.h \
+  ndn-cpp/c/transport/tcp-transport.h \
+  ndn-cpp/c/transport/udp-transport.h \
+  ndn-cpp/c/util/dynamic-uchar-array.c ndn-cpp/c/util/dynamic-uchar-array.h \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
 
 libndn_cpp_la_SOURCES = \
   config.h ndn-cpp/common.hpp \
-  ndn-cpp/Closure.hpp \
+  ndn-cpp/closure.hpp \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
-  ndn-cpp/Interest.cpp ndn-cpp/c/Interest.h ndn-cpp/Interest.hpp \
-  ndn-cpp/Key.cpp ndn-cpp/c/Key.h ndn-cpp/Key.hpp \
+  ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
+  ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
   ndn-cpp/face.cpp ndn-cpp/face.hpp \
-  ndn-cpp/Name.cpp ndn-cpp/c/Name.h ndn-cpp/Name.hpp \
-  ndn-cpp/PublisherPublicKeyDigest.hpp \
-  ndn-cpp/c/encoding/BinaryXML.h \
-  ndn-cpp/c/encoding/BinaryXMLDecoder.h ndn-cpp/encoding/BinaryXMLDecoder.hpp \
-  ndn-cpp/c/encoding/BinaryXMLElementReader.h ndn-cpp/encoding/BinaryXMLElementReader.cpp ndn-cpp/encoding/BinaryXMLElementReader.hpp \
-  ndn-cpp/c/encoding/BinaryXMLEncoder.h ndn-cpp/encoding/BinaryXMLEncoder.hpp ndn-cpp/c/util/DynamicUCharArray.h \
-  ndn-cpp/c/encoding/BinaryXMLStructureDecoder.h ndn-cpp/encoding/BinaryXMLStructureDecoder.hpp \
-  ndn-cpp/encoding/BinaryXMLWireFormat.cpp ndn-cpp/c/encoding/BinaryXMLName.h ndn-cpp/encoding/BinaryXMLWireFormat.hpp \
-  ndn-cpp/encoding/WireFormat.cpp ndn-cpp/encoding/WireFormat.hpp \
-  ndn-cpp/c/transport/SocketTransport.h ndn-cpp/c/transport/TcpTransport.h ndn-cpp/transport/TcpTransport.cpp ndn-cpp/transport/TcpTransport.hpp \
-  ndn-cpp/transport/Transport.cpp ndn-cpp/transport/Transport.hpp \
-  ndn-cpp/c/transport/SocketTransport.h ndn-cpp/c/transport/UdpTransport.h ndn-cpp/transport/UdpTransport.cpp ndn-cpp/transport/UdpTransport.hpp
+  ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
+  ndn-cpp/publisher-public-key-digest.hpp \
+  ndn-cpp/c/encoding/binary-xml.h \
+  ndn-cpp/c/encoding/binary-xml-decoder.h ndn-cpp/encoding/binary-xml-decoder.hpp \
+  ndn-cpp/c/encoding/binary-xml-element-reader.h ndn-cpp/encoding/binary-xml-element-reader.cpp ndn-cpp/encoding/binary-xml-element-reader.hpp \
+  ndn-cpp/c/encoding/binary-xml-encoder.h ndn-cpp/encoding/binary-xml-encoder.hpp ndn-cpp/c/util/dynamic-uchar-array.h \
+  ndn-cpp/c/encoding/binary-xml-structure-decoder.h ndn-cpp/encoding/binary-xml-structure-decoder.hpp \
+  ndn-cpp/encoding/binary-xml-wire-format.cpp ndn-cpp/c/encoding/binary-xml-name.h ndn-cpp/encoding/binary-xml-wire-format.hpp \
+  ndn-cpp/encoding/wire-format.cpp ndn-cpp/encoding/wire-format.hpp \
+  ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/tcp-transport.h ndn-cpp/transport/tcp-transport.cpp ndn-cpp/transport/tcp-transport.hpp \
+  ndn-cpp/transport/transport.cpp ndn-cpp/transport/transport.hpp \
+  ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp
 
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
 bin_test_encode_decode_interest_LDADD = libndn-cpp.la libndn-c.la
@@ -611,28 +611,28 @@ ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp):
 ndn-cpp/c/encoding/binary-xml-data.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLDecoder.lo:  \
+ndn-cpp/c/encoding/binary-xml-decoder.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLElementReader.lo:  \
+ndn-cpp/c/encoding/binary-xml-element-reader.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLEncoder.lo:  \
+ndn-cpp/c/encoding/binary-xml-encoder.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLInterest.lo:  \
+ndn-cpp/c/encoding/binary-xml-interest.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLKey.lo:  \
+ndn-cpp/c/encoding/binary-xml-key.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLName.lo:  \
+ndn-cpp/c/encoding/binary-xml-name.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLPublisherPublicKeyDigest.lo:  \
+ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/BinaryXMLStructureDecoder.lo:  \
+ndn-cpp/c/encoding/binary-xml-structure-decoder.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/transport/$(am__dirstamp):
@@ -641,7 +641,7 @@ ndn-cpp/c/transport/$(am__dirstamp):
 ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/transport/$(DEPDIR)
 	@: > ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/transport/SocketTransport.lo:  \
+ndn-cpp/c/transport/socket-transport.lo:  \
 	ndn-cpp/c/transport/$(am__dirstamp) \
 	ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/util/$(am__dirstamp):
@@ -650,7 +650,7 @@ ndn-cpp/c/util/$(am__dirstamp):
 ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/util/$(DEPDIR)
 	@: > ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/util/DynamicUCharArray.lo: ndn-cpp/c/util/$(am__dirstamp) \
+ndn-cpp/c/util/dynamic-uchar-array.lo: ndn-cpp/c/util/$(am__dirstamp) \
 	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/util/ndn_memory.lo: ndn-cpp/c/util/$(am__dirstamp) \
 	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
@@ -667,13 +667,13 @@ ndn-cpp/$(DEPDIR)/$(am__dirstamp):
 	@: > ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/data.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/Interest.lo: ndn-cpp/$(am__dirstamp) \
+ndn-cpp/interest.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/Key.lo: ndn-cpp/$(am__dirstamp) \
+ndn-cpp/key.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/face.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/Name.lo: ndn-cpp/$(am__dirstamp) \
+ndn-cpp/name.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/encoding
@@ -681,13 +681,13 @@ ndn-cpp/encoding/$(am__dirstamp):
 ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/encoding/$(DEPDIR)
 	@: > ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/BinaryXMLElementReader.lo:  \
+ndn-cpp/encoding/binary-xml-element-reader.lo:  \
 	ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/BinaryXMLWireFormat.lo:  \
+ndn-cpp/encoding/binary-xml-wire-format.lo:  \
 	ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/WireFormat.lo: ndn-cpp/encoding/$(am__dirstamp) \
+ndn-cpp/encoding/wire-format.lo: ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/transport/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/transport
@@ -695,11 +695,11 @@ ndn-cpp/transport/$(am__dirstamp):
 ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/transport/$(DEPDIR)
 	@: > ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/transport/TcpTransport.lo: ndn-cpp/transport/$(am__dirstamp) \
+ndn-cpp/transport/tcp-transport.lo: ndn-cpp/transport/$(am__dirstamp) \
 	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/transport/Transport.lo: ndn-cpp/transport/$(am__dirstamp) \
+ndn-cpp/transport/transport.lo: ndn-cpp/transport/$(am__dirstamp) \
 	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/transport/UdpTransport.lo: ndn-cpp/transport/$(am__dirstamp) \
+ndn-cpp/transport/udp-transport.lo: ndn-cpp/transport/$(am__dirstamp) \
 	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
 
 libndn-cpp.la: $(libndn_cpp_la_OBJECTS) $(libndn_cpp_la_DEPENDENCIES) $(EXTRA_libndn_cpp_la_DEPENDENCIES) 
@@ -802,31 +802,31 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Interest.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Key.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/Name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/data.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/face.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/interest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/key.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/errors.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLDecoder.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLElementReader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLEncoder.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLInterest.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLKey.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLName.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLPublisherPublicKeyDigest.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/BinaryXMLStructureDecoder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-data.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/transport/$(DEPDIR)/SocketTransport.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/DynamicUCharArray.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-decoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-element-reader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-encoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-interest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-key.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-name.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-publisher-public-key-digest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-structure-decoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/transport/$(DEPDIR)/socket-transport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/dynamic-uchar-array.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_realloc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLElementReader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/BinaryXMLWireFormat.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/WireFormat.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/TcpTransport.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/Transport.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/UdpTransport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/binary-xml-element-reader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/binary-xml-wire-format.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/wire-format.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/tcp-transport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/transport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/udp-transport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-interest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-get-async.Po@am__quote@
