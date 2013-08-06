@@ -10,18 +10,17 @@ using namespace std;
 
 namespace ndn {
 
-ptr_lib::shared_ptr<WireFormat> WireFormat::initialDefaultWireFormat_;
+static bool gotInitialDefaultWireFormat = false;
 
 WireFormat *WireFormat::defaultWireFormat_ = 0;
 
 WireFormat *WireFormat::getDefaultWireFormat()
 {
-  if (!defaultWireFormat_ && !initialDefaultWireFormat_) {
+  if (!defaultWireFormat_ && !gotInitialDefaultWireFormat) {
     // There is no defaultWireFormat_ and we have not yet initialized initialDefaultWireFormat_, so initialize and use it.
-    // NOTE: This could have been done with a static initializer on initialDefaultWireFormat_, but this does not have
-    //   good cross-platform support, especially for dynamic shared libraries.
-    initialDefaultWireFormat_.reset(newInitialDefaultWireFormat());
-    defaultWireFormat_ = initialDefaultWireFormat_.get();
+    gotInitialDefaultWireFormat = true;
+    // NOTE: This allocates one object which we never free for the life of the application.
+    defaultWireFormat_ = newInitialDefaultWireFormat();
   }
   
   return defaultWireFormat_;

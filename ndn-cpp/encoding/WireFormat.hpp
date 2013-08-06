@@ -48,11 +48,6 @@ private:
    */
   static WireFormat *newInitialDefaultWireFormat();
   
-  /**
-   * Hold the result of newInitialDefaultWireFormat in this shared_ptr which is freed when the application exits.
-   */
-  static ptr_lib::shared_ptr<WireFormat> initialDefaultWireFormat_;
-  
   static WireFormat *defaultWireFormat_;
 };
 
