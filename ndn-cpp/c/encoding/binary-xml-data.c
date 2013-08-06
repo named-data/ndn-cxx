@@ -59,7 +59,7 @@ static ndn_Error decodeSignature(struct ndn_Signature *signature, struct ndn_Bin
 static ndn_Error encodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_BinaryXmlEncoder *encoder)
 {
   if (signedInfo->type < 0)
-    return;
+    return 0;
 
   ndn_Error error;
   if (error = ndn_BinaryXmlEncoder_writeElementStartDTag(encoder, ndn_BinaryXml_DTag_SignedInfo))
