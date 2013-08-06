@@ -5,7 +5,6 @@
 
 #include <stdexcept>
 #include "WireFormat.hpp"
-#include "BinaryXMLWireFormat.hpp"
 
 using namespace std;
 
