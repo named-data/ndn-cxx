@@ -37,10 +37,7 @@ public:
    * setDefaultWireFormat.
    * @return A pointer to the WireFormat object.
    */
-  static WireFormat *getDefaultWireFormat() 
-  {
-    return defaultWireFormat_;
-  }
+  static WireFormat *getDefaultWireFormat();
   
 private:
   /**
