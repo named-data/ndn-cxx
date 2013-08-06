@@ -11,7 +11,7 @@ ndn_Error ndn_encodeBinaryXmlPublisherPublicKeyDigest
   (struct ndn_PublisherPublicKeyDigest *publisherPublicKeyDigest, struct ndn_BinaryXmlEncoder *encoder)
 {  
   if (!publisherPublicKeyDigest->publisherPublicKeyDigest || publisherPublicKeyDigest->publisherPublicKeyDigestLength == 0)
-    return;
+    return 0;
   
   ndn_Error error;
   if (error = ndn_BinaryXmlEncoder_writeBlobDTagElement
