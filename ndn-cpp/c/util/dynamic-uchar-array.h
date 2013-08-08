@@ -58,7 +58,7 @@ ndn_Error ndn_DynamicUCharArray_reallocArray(struct ndn_DynamicUCharArray *self,
 static inline ndn_Error ndn_DynamicUCharArray_ensureLength(struct ndn_DynamicUCharArray *self, unsigned int length) 
 {
   if (self->length >= length)
-    return (ndn_Error)0;
+    return NDN_ERROR_success;
 
   return ndn_DynamicUCharArray_reallocArray(self, length);
 }

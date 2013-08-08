@@ -99,7 +99,7 @@ static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement
   if (value && valueLength > 0)
     return ndn_BinaryXmlEncoder_writeBlobDTagElement(self, tag, value, valueLength);
   else
-    return (ndn_Error)0;
+    return NDN_ERROR_success;
 }
 
 /**
@@ -133,7 +133,7 @@ static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalUnsignedDecimalIntDTag
   if (value >= 0)
     return ndn_BinaryXmlEncoder_writeUnsignedDecimalIntDTagElement(self, tag, (unsigned int)value);
   else
-    return (ndn_Error)0;
+    return NDN_ERROR_success;
 }
 
 /**
@@ -169,7 +169,7 @@ static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalTimeMillisecondsDTagEl
   if (milliseconds >= 0)
     return ndn_BinaryXmlEncoder_writeTimeMillisecondsDTagElement(self, tag, milliseconds);
   else
-    return (ndn_Error)0;
+    return NDN_ERROR_success;
 }
 
 #ifdef	__cplusplus
