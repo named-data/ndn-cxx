@@ -70,12 +70,64 @@ unsigned char Data1[] = {
 const ptime UNIX_EPOCH_TIME = ptime (date (1970, Jan, 1));
 #endif
 
+static void dumpData(const Data &data)
+{
+  cout << "name: " << data.getName().to_uri() << endl;
+  if (data.getContent().size() > 0) {
+    cout << "content (raw): ";
+    for (unsigned int i = 0; i < data.getContent().size(); ++i)
+      cout << data.getContent()[i];
+    cout<< endl;
+    cout << "content (hex): " << toHex(data.getContent()) << endl;
+  }
+  else
+    cout << "content: <empty>" << endl;
+    
+  cout << "signature.digestAlgorithm: "
+       << (data.getSignature().getDigestAlgorithm().size() > 0 ? toHex(data.getSignature().getDigestAlgorithm()).c_str() : "default (sha-256)") << endl;
+  cout << "signature.witness: "
+       << (data.getSignature().getWitness().size() > 0 ? toHex(data.getSignature().getWitness()).c_str() : "<none>") << endl;
+  cout << "signature.signature: ";
+  if (data.getSignature().getSignature().size() > 0)
+    cout << data.getSignature().getSignature().size() << " bytes" << endl;
+  else
+    cout << "<none>" << endl;
+  
+  cout << "signedInfo.publisherPublicKeyDigest: "
+       << (data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? 
+           toHex(data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()).c_str() : "<none>") << endl;
+  // TODO: dump timestamp.
+  cout << "signedInfo.freshnessSeconds: ";
+  if (data.getSignedInfo().getFreshnessSeconds() >= 0)
+    cout << data.getSignedInfo().getFreshnessSeconds() << endl;
+  else
+    cout << "<none>" << endl;
+  cout << "signedInfo.finalBlockID: "
+       << (data.getSignedInfo().getFinalBlockID().size() > 0 ? 
+           toHex(data.getSignedInfo().getFinalBlockID()).c_str() : "<none>") << endl;
+  cout << "signedInfo.keyLocator: ";
+  if (data.getSignedInfo().getKeyLocator().getType() >= 0) {
+    if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEY)
+      cout << "Key: " << toHex(data.getSignedInfo().getKeyLocator().getKeyOrCertificate()) << endl;
+    else if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_CERTIFICATE)
+      cout << "Certificate: " << toHex(data.getSignedInfo().getKeyLocator().getKeyOrCertificate()) << endl;
+    else if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEYNAME)
+      // TODO: Implement keyName.
+      cout << "keyName" << endl;
+    else
+      cout << "<unrecognized ndn_KeyLocatorType " << data.getSignedInfo().getKeyLocator().getType() << ">" << endl;
+  }
+  else
+    cout << "<none>" << endl;
+}
+
 int main(int argc, char** argv)
 {
   try {
     Data data;
     data.wireDecode(Data1, sizeof(Data1));
-    cout << "Data name " << data.getName().to_uri() << endl;
+    cout << "Decoded Data:" << endl;
+    dumpData(data);
 #if 0
     ptime timestamp = UNIX_EPOCH_TIME + milliseconds(data.getSignedInfo().getTimestampMilliseconds());
     cout << "Data timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() 
@@ -83,15 +135,11 @@ int main(int argc, char** argv)
 #endif
     
     ptr_lib::shared_ptr<vector<unsigned char> > encoding = data.wireEncode();
-    cout << "Data encoding length " << encoding->size() << " vs. sizeof(Data1) " << sizeof(Data1) << endl;
     
     Data reDecodedData;
     reDecodedData.wireDecode(*encoding);
-    cout << "Re-decoded Data name " << reDecodedData.getName().to_uri() << endl;
-#if 0
-    timestamp = UNIX_EPOCH_TIME + milliseconds(reDecodedData.getSignedInfo().getTimestampMilliseconds());
-    cout << "Re-decoded Data timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() << endl;
-#endif
+    cout << endl << "Re-decoded Data:" << endl;
+    dumpData(reDecodedData);
   } catch (exception &e) {
     cout << "exception: " << e.what() << endl;
   }
