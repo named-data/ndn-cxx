@@ -34,7 +34,7 @@ ndn_Error ndn_BinaryXmlStructureDecoder_findElementEnd
 {
   if (self->gotElementEnd)
     // Someone is calling when we already got the end.
-    return 0;
+    return NDN_ERROR_success;
   
   struct ndn_BinaryXmlDecoder decoder;
   ndn_BinaryXmlDecoder_init(&decoder, input, inputLength);
@@ -42,7 +42,7 @@ ndn_Error ndn_BinaryXmlStructureDecoder_findElementEnd
   while (1) {
     if (self->offset >= inputLength)
       // All the cases assume we have some input. Return and wait for more.
-      return 0;
+      return NDN_ERROR_success;
     
     if (self->state == ndn_BinaryXmlStructureDecoder_READ_HEADER_OR_CLOSE) {
       // First check for CLOSE.
@@ -53,7 +53,7 @@ ndn_Error ndn_BinaryXmlStructureDecoder_findElementEnd
         if (self->level == 0) {
           // Finished.
           self->gotElementEnd = 1;
-          return 0;
+          return NDN_ERROR_success;
         }
         if (self->level < 0)
           return NDN_ERROR_findElementEnd_unexpected_close_tag;
@@ -73,7 +73,7 @@ ndn_Error ndn_BinaryXmlStructureDecoder_findElementEnd
           unsigned int nNewBytes = self->headerLength - startingHeaderLength;
           ndn_memcpy(self->headerBuffer + startingHeaderLength, input + (self->offset - nNewBytes), nNewBytes);
             
-          return 0;
+          return NDN_ERROR_success;
         }
         unsigned int headerByte = (unsigned int)input[self->offset++];
         ++self->headerLength;
@@ -136,7 +136,7 @@ ndn_Error ndn_BinaryXmlStructureDecoder_findElementEnd
         // Need more.
         self->offset += nRemainingBytes;
         self->nBytesToRead -= nRemainingBytes;
-        return 0;
+        return NDN_ERROR_success;
       }
       // Got the bytes. Read a new header or close.
       self->offset += self->nBytesToRead;

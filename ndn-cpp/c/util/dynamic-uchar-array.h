@@ -78,6 +78,7 @@ static inline ndn_Error ndn_DynamicUCharArray_set
   if ((error = ndn_DynamicUCharArray_ensureLength(self, valueLength + offset)))
     return error;
   ndn_memcpy(self->array + offset, value, valueLength);
+  return NDN_ERROR_success;
 };
 
 #ifdef	__cplusplus

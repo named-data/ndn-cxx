@@ -18,10 +18,6 @@ ndn_Error ndn_BinaryXmlElementReader_onReceivedData
       return error;
     if (self->structureDecoder.gotElementEnd) {
       // Got the remainder of an element.  Report to the caller.
-#if 0 // TODO: implement saving data parts.
-      this.dataParts.push(data.subarray(0, this.structureDecoder.offset));
-      var element = DataUtils.concatArrays(this.dataParts);
-#endif
       if (self->usePartialData) {
         // We have partial data from a previous call, so append this data and point to partialData.
         if ((error = ndn_DynamicUCharArray_set(&self->partialData, data, self->structureDecoder.offset, self->partialDataLength)))
@@ -42,7 +38,7 @@ ndn_Error ndn_BinaryXmlElementReader_onReceivedData
       ndn_BinaryXmlStructureDecoder_init(&self->structureDecoder);
       if (dataLength == 0)
         // No more data in the packet.
-        return 0;
+        return NDN_ERROR_success;
             
       // else loop back to decode.
     }
@@ -57,7 +53,7 @@ ndn_Error ndn_BinaryXmlElementReader_onReceivedData
         return error;
       self->partialDataLength += dataLength;
       
-      return 0;
+      return NDN_ERROR_success;
     }
   }      
 }

@@ -11,7 +11,7 @@
 ndn_Error ndn_encodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struct ndn_BinaryXmlEncoder *encoder)
 {
   if (keyLocator->type < 0)
-    return 0;
+    return NDN_ERROR_success;
 
   ndn_Error error;
   if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(encoder, ndn_BinaryXml_DTag_KeyLocator)))
@@ -36,7 +36,7 @@ ndn_Error ndn_encodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
 	if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 ndn_Error ndn_decodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struct ndn_BinaryXmlDecoder *decoder)
@@ -88,7 +88,7 @@ ndn_Error ndn_decodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
   if ((error = ndn_BinaryXmlDecoder_readElementClose(decoder)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 ndn_Error ndn_decodeOptionalBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struct ndn_BinaryXmlDecoder *decoder)
@@ -104,5 +104,5 @@ ndn_Error ndn_decodeOptionalBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocato
   else
     ndn_KeyLocator_init(keyLocator);
   
-  return 0;
+  return NDN_ERROR_success;
 }

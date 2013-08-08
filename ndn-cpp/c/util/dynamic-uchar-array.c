@@ -23,5 +23,5 @@ ndn_Error ndn_DynamicUCharArray_reallocArray(struct ndn_DynamicUCharArray *self,
   self->array = newArray;
   self->length = newLength;
   
-  return 0;
+  return NDN_ERROR_success;
 }

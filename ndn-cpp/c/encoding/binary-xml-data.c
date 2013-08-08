@@ -30,7 +30,7 @@ static ndn_Error encodeSignature(struct ndn_Signature *signature, struct ndn_Bin
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
     return error;
   
-  return 0;    
+  return NDN_ERROR_success;    
 }
 
 static ndn_Error decodeSignature(struct ndn_Signature *signature, struct ndn_BinaryXmlDecoder *decoder)
@@ -53,13 +53,13 @@ static ndn_Error decodeSignature(struct ndn_Signature *signature, struct ndn_Bin
   if ((error = ndn_BinaryXmlDecoder_readElementClose(decoder)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 static ndn_Error encodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_BinaryXmlEncoder *encoder)
 {
   if (signedInfo->type < 0)
-    return 0;
+    return NDN_ERROR_success;
 
   ndn_Error error;
   if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(encoder, ndn_BinaryXml_DTag_SignedInfo)))
@@ -93,7 +93,7 @@ static ndn_Error encodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
     return error;
   
-  return 0;  
+  return NDN_ERROR_success;  
 }
 
 static ndn_Error decodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_BinaryXmlDecoder *decoder)
@@ -126,7 +126,7 @@ static ndn_Error decodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_
   if ((error = ndn_BinaryXmlDecoder_readElementClose(decoder)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 ndn_Error ndn_encodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlEncoder *encoder)
@@ -136,13 +136,13 @@ ndn_Error ndn_encodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlEnc
     return error;
   
   if ((error = encodeSignature(&data->signature, encoder)))
-    return 0;
+    return NDN_ERROR_success;
 
   if ((error = ndn_encodeBinaryXmlName(&data->name, encoder)))
     return error;
 
   if ((error = encodeSignedInfo(&data->signedInfo, encoder)))
-    return 0;
+    return NDN_ERROR_success;
 
   if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
       (encoder, ndn_BinaryXml_DTag_Content, data->content, data->contentLength)))
@@ -151,7 +151,7 @@ ndn_Error ndn_encodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlEnc
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 ndn_Error ndn_decodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlDecoder *decoder)
@@ -190,5 +190,5 @@ ndn_Error ndn_decodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlDec
   if ((error = ndn_BinaryXmlDecoder_readElementClose(decoder)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }

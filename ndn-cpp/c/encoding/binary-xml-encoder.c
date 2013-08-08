@@ -32,7 +32,7 @@ static ndn_Error writeArray(struct ndn_BinaryXmlEncoder *self, unsigned char *ar
   ndn_memcpy(self->output.array + self->offset, array, arrayLength);
 	self->offset += arrayLength;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 /**
@@ -106,7 +106,7 @@ static ndn_Error encodeReversedUnsignedDecimalInt(struct ndn_BinaryXmlEncoder *s
       break;
   }
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 /**
@@ -146,7 +146,7 @@ static ndn_Error reverseBufferAndInsertHeader
     return error;
   self->offset = startOffset + nHeaderBytes + nBufferBytes;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 /**
@@ -201,7 +201,7 @@ ndn_Error ndn_BinaryXmlEncoder_encodeTypeAndValue(struct ndn_BinaryXmlEncoder *s
 	
 	self->offset+= nEncodingBytes;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 ndn_Error ndn_BinaryXmlEncoder_writeElementClose(struct ndn_BinaryXmlEncoder *self)
@@ -213,7 +213,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeElementClose(struct ndn_BinaryXmlEncoder *se
 	self->output.array[self->offset] = ndn_BinaryXml_CLOSE;
 	self->offset += 1;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, unsigned char *value, unsigned int valueLength)
@@ -225,7 +225,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, unsi
   if ((error = writeArray(self, value, valueLength)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength)
@@ -240,7 +240,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder 
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(self)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 ndn_Error ndn_BinaryXmlEncoder_writeUnsignedDecimalInt(struct ndn_BinaryXmlEncoder *self, unsigned int value)
@@ -255,7 +255,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeUnsignedDecimalInt(struct ndn_BinaryXmlEncod
   if ((error = reverseBufferAndInsertHeader(self, startOffset, ndn_BinaryXml_UDATA)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 ndn_Error ndn_BinaryXmlEncoder_writeUnsignedDecimalIntDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, unsigned int value)
@@ -270,7 +270,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeUnsignedDecimalIntDTagElement(struct ndn_Bin
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(self)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 ndn_Error ndn_BinaryXmlEncoder_writeAbsDoubleBigEndianBlob(struct ndn_BinaryXmlEncoder *self, double value)
@@ -312,7 +312,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeAbsDoubleBigEndianBlob(struct ndn_BinaryXmlE
   if ((error = reverseBufferAndInsertHeader(self, startOffset, ndn_BinaryXml_BLOB)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }
 
 ndn_Error ndn_BinaryXmlEncoder_writeTimeMillisecondsDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, double milliseconds)
@@ -327,5 +327,5 @@ ndn_Error ndn_BinaryXmlEncoder_writeTimeMillisecondsDTagElement(struct ndn_Binar
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(self)))
     return error;
   
-  return 0;
+  return NDN_ERROR_success;
 }
