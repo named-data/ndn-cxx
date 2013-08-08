@@ -6,6 +6,7 @@
 #ifndef NDN_DATA_HPP
 #define NDN_DATA_HPP
 
+#include "common.hpp"
 #include "name.hpp"
 #include "publisher-public-key-digest.hpp"
 #include "key.hpp"
@@ -33,7 +34,25 @@ public:
   const std::vector<unsigned char> getWitness() const { return witness_; }
 
   const std::vector<unsigned char> getSignature() const { return signature_; }
-  
+
+  void setDigestAlgorithm(const std::vector<unsigned char> &digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
+  void setDigestAlgorithm(const unsigned char *digestAlgorithm, unsigned int digestAlgorithmLength) 
+  { 
+    setVector(digestAlgorithm_, digestAlgorithm, digestAlgorithmLength); 
+  }
+
+  void setWitness(const std::vector<unsigned char> &witness) { witness_ = witness; }
+  void setWitness(const unsigned char *witness, unsigned int witnessLength) 
+  { 
+    setVector(witness_, witness, witnessLength); 
+  }
+
+  void setSignature(const std::vector<unsigned char> &signature) { signature_ = signature; }
+  void setSignature(const unsigned char *signature, unsigned int signatureLength) 
+  { 
+    setVector(signature_, signature, signatureLength); 
+  }
+
 private:
   std::vector<unsigned char> digestAlgorithm_; /**< if empty, the default is 2.16.840.1.101.3.4.2.1 (sha-256) */
   std::vector<unsigned char> witness_;
@@ -72,6 +91,24 @@ public:
   const std::vector<unsigned char> getFinalBlockID() const { return finalBlockID_; }
   
   const KeyLocator &getKeyLocator() const { return keyLocator_; }
+
+  PublisherPublicKeyDigest &getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
+  void setPublisherPublicKeyDigest(const PublisherPublicKeyDigest &publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
+  
+  void setTimestampMilliseconds(double timestampMilliseconds) { timestampMilliseconds_ = timestampMilliseconds; }
+  
+  void setType(int type) { type_ = type; }
+  
+  void setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
+  
+  void setFinalBlockID(const std::vector<unsigned char> &finalBlockID) { finalBlockID_ = finalBlockID; }
+  void setFinalBlockID(const unsigned char *finalBlockID, unsigned int finalBlockIdLength) 
+  { 
+    setVector(finalBlockID_, finalBlockID, finalBlockIdLength); 
+  }
+  
+  KeyLocator &getKeyLocator() { return keyLocator_; }
+  void setKeyLocator(const KeyLocator &keyLocator) { keyLocator_ = keyLocator; }
   
 private:
   PublisherPublicKeyDigest publisherPublicKeyDigest_;
@@ -129,6 +166,21 @@ public:
   const SignedInfo &getSignedInfo() const { return signedInfo_; }
   
   const std::vector<unsigned char> getContent() const { return content_; }
+
+  Signature &getSignature() { return signature_; }
+  void setSignature(const Signature &signature) { signature_ = signature; }
+  
+  Name &getName() { return name_; }
+  void setName(const Name &name) { name_ = name; }
+  
+  SignedInfo &getSignedInfo() { return signedInfo_; }
+  void setSignedInfo(const SignedInfo &signedInfo) { signedInfo_ = signedInfo; }
+
+  void setContent(const std::vector<unsigned char> &content) { content_ = content; }
+  void setContent(const unsigned char *content, unsigned int contentLength) 
+  { 
+    setVector(content_, content, contentLength); 
+  }
   
 private:
   Signature signature_;

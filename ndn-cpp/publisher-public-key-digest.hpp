@@ -47,6 +47,12 @@ public:
 
   const std::vector<unsigned char> &getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
 
+  void setPublisherPublicKeyDigest(const std::vector<unsigned char> &publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
+  void setPublisherPublicKeyDigest(const unsigned char *publisherPublicKeyDigest, unsigned int publisherPublicKeyDigestLength) 
+  { 
+    setVector(publisherPublicKeyDigest_, publisherPublicKeyDigest, publisherPublicKeyDigestLength); 
+  }
+
 private:
 	std::vector<unsigned char> publisherPublicKeyDigest_;
 };
