@@ -108,9 +108,9 @@ static void dumpData(const Data &data)
   cout << "signedInfo.keyLocator: ";
   if (data.getSignedInfo().getKeyLocator().getType() >= 0) {
     if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEY)
-      cout << "Key: " << toHex(data.getSignedInfo().getKeyLocator().getKeyOrCertificate()) << endl;
+      cout << "Key: " << data.getSignedInfo().getKeyLocator().getKeyOrCertificate().size() << " bytes" << endl;
     else if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_CERTIFICATE)
-      cout << "Certificate: " << toHex(data.getSignedInfo().getKeyLocator().getKeyOrCertificate()) << endl;
+      cout << "Certificate: " << data.getSignedInfo().getKeyLocator().getKeyOrCertificate().size() << " bytes" << endl;
     else if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEYNAME)
       // TODO: Implement keyName.
       cout << "keyName" << endl;
