@@ -151,9 +151,9 @@ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 libndn_cpp_la_LIBADD =
-am_libndn_cpp_la_OBJECTS = ndn-cpp/data.lo ndn-cpp/interest.lo \
-	ndn-cpp/key.lo ndn-cpp/face.lo ndn-cpp/name.lo \
-	ndn-cpp/encoding/binary-xml-element-reader.lo \
+am_libndn_cpp_la_OBJECTS = ndn-cpp/common.lo ndn-cpp/data.lo \
+	ndn-cpp/interest.lo ndn-cpp/key.lo ndn-cpp/face.lo \
+	ndn-cpp/name.lo ndn-cpp/encoding/binary-xml-element-reader.lo \
 	ndn-cpp/encoding/binary-xml-wire-format.lo \
 	ndn-cpp/encoding/wire-format.lo \
 	ndn-cpp/transport/tcp-transport.lo \
@@ -478,8 +478,9 @@ libndn_c_la_SOURCES = \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
 
 libndn_cpp_la_SOURCES = \
-  config.h ndn-cpp/common.hpp \
+  config.h \
   ndn-cpp/closure.hpp \
+  ndn-cpp/common.hpp ndn-cpp/common.cpp \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
   ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
   ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
@@ -665,6 +666,8 @@ ndn-cpp/$(am__dirstamp):
 ndn-cpp/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/$(DEPDIR)
 	@: > ndn-cpp/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/common.lo: ndn-cpp/$(am__dirstamp) \
+	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/data.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/interest.lo: ndn-cpp/$(am__dirstamp) \
@@ -802,6 +805,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/common.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/data.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/face.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/interest.Plo@am__quote@
