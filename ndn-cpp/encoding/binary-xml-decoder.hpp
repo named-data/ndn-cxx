@@ -36,7 +36,7 @@ public:
   {
     int gotExpectedTag;
     ndn_Error error;
-    if (error = ndn_BinaryXmlDecoder_peekDTag(this, expectedTag, &gotExpectedTag))
+    if ((error = ndn_BinaryXmlDecoder_peekDTag(this, expectedTag, &gotExpectedTag)))
       throw std::runtime_error(ndn_getErrorString(error));
     
     return gotExpectedTag;

@@ -49,7 +49,7 @@ void BinaryXmlWireFormat::decodeInterest(Interest &interest, const unsigned char
     
   BinaryXmlDecoder decoder(input, inputLength);  
   ndn_Error error;
-  if (error = ndn_decodeBinaryXmlInterest(&interestStruct, &decoder))
+  if ((error = ndn_decodeBinaryXmlInterest(&interestStruct, &decoder)))
     throw std::runtime_error(ndn_getErrorString(error));
 
   interest.set(interestStruct);
@@ -78,7 +78,7 @@ void BinaryXmlWireFormat::decodeData(Data &data, const unsigned char *input, uns
     
   BinaryXmlDecoder decoder(input, inputLength);  
   ndn_Error error;
-  if (error = ndn_decodeBinaryXmlData(&dataStruct, &decoder))
+  if ((error = ndn_decodeBinaryXmlData(&dataStruct, &decoder)))
     throw std::runtime_error(ndn_getErrorString(error));
 
   data.set(dataStruct);

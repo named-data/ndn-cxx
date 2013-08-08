@@ -14,7 +14,7 @@ ndn_Error ndn_BinaryXmlElementReader_onReceivedData
     ndn_BinaryXmlStructureDecoder_seek(&self->structureDecoder, 0);
     
     ndn_Error error;
-    if (error = ndn_BinaryXmlStructureDecoder_findElementEnd(&self->structureDecoder, data, dataLength))
+    if ((error = ndn_BinaryXmlStructureDecoder_findElementEnd(&self->structureDecoder, data, dataLength)))
       return error;
     if (self->structureDecoder.gotElementEnd) {
       // Got the remainder of an element.  Report to the caller.
@@ -24,7 +24,7 @@ ndn_Error ndn_BinaryXmlElementReader_onReceivedData
 #endif
       if (self->usePartialData) {
         // We have partial data from a previous call, so append this data and point to partialData.
-        if (error = ndn_DynamicUCharArray_set(&self->partialData, data, self->structureDecoder.offset, self->partialDataLength))
+        if ((error = ndn_DynamicUCharArray_set(&self->partialData, data, self->structureDecoder.offset, self->partialDataLength)))
           return error;
         self->partialDataLength += dataLength;
                 
@@ -53,7 +53,7 @@ ndn_Error ndn_BinaryXmlElementReader_onReceivedData
         self->partialDataLength = 0;
       }
       
-      if (error = ndn_DynamicUCharArray_set(&self->partialData, data, dataLength, self->partialDataLength))
+      if ((error = ndn_DynamicUCharArray_set(&self->partialData, data, dataLength, self->partialDataLength)))
         return error;
       self->partialDataLength += dataLength;
       

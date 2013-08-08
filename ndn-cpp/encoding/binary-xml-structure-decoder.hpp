@@ -32,7 +32,7 @@ public:
   bool findElementEnd(unsigned char *input, unsigned int inputLength) 
   {
     ndn_Error error;
-    if (error = ndn_BinaryXmlStructureDecoder_findElementEnd(this, input, inputLength))
+    if ((error = ndn_BinaryXmlStructureDecoder_findElementEnd(this, input, inputLength)))
       throw std::runtime_error(ndn_getErrorString(error));
     return gotElementEnd();
   }

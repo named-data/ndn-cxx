@@ -75,7 +75,7 @@ static inline ndn_Error ndn_DynamicUCharArray_set
   (struct ndn_DynamicUCharArray *self, unsigned char *value, unsigned int valueLength, unsigned int offset) 
 {
   ndn_Error error;
-  if (error = ndn_DynamicUCharArray_ensureLength(self, valueLength + offset))
+  if ((error = ndn_DynamicUCharArray_ensureLength(self, valueLength + offset)))
     return error;
   ndn_memcpy(self->array + offset, value, valueLength);
 };

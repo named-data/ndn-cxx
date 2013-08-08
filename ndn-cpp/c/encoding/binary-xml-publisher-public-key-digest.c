@@ -14,9 +14,9 @@ ndn_Error ndn_encodeBinaryXmlPublisherPublicKeyDigest
     return 0;
   
   ndn_Error error;
-  if (error = ndn_BinaryXmlEncoder_writeBlobDTagElement
+  if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
       (encoder, ndn_BinaryXml_DTag_PublisherPublicKeyDigest, publisherPublicKeyDigest->publisherPublicKeyDigest, 
-       publisherPublicKeyDigest->publisherPublicKeyDigestLength))
+       publisherPublicKeyDigest->publisherPublicKeyDigestLength)))
     return error;
   
   return 0;
@@ -26,9 +26,9 @@ ndn_Error ndn_decodeBinaryXmlPublisherPublicKeyDigest
   (struct ndn_PublisherPublicKeyDigest *publisherPublicKeyDigest, struct ndn_BinaryXmlDecoder *decoder)
 {
   ndn_Error error; 
-  if (error = ndn_BinaryXmlDecoder_readBinaryDTagElement
+  if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement
       (decoder, ndn_BinaryXml_DTag_PublisherPublicKeyDigest, 0, &publisherPublicKeyDigest->publisherPublicKeyDigest,
-       &publisherPublicKeyDigest->publisherPublicKeyDigestLength))
+       &publisherPublicKeyDigest->publisherPublicKeyDigestLength)))
     return error;
   
   return 0;
@@ -39,10 +39,10 @@ ndn_Error ndn_decodeOptionalBinaryXmlPublisherPublicKeyDigest
 {
   int gotExpectedTag;
   ndn_Error error; 
-  if (error = ndn_BinaryXmlDecoder_peekDTag(decoder, ndn_BinaryXml_DTag_PublisherPublicKeyDigest, &gotExpectedTag))
+  if ((error = ndn_BinaryXmlDecoder_peekDTag(decoder, ndn_BinaryXml_DTag_PublisherPublicKeyDigest, &gotExpectedTag)))
     return error;
   if (gotExpectedTag) {
-    if (error = ndn_decodeBinaryXmlPublisherPublicKeyDigest(publisherPublicKeyDigest, decoder))
+    if ((error = ndn_decodeBinaryXmlPublisherPublicKeyDigest(publisherPublicKeyDigest, decoder)))
       return error;
   }
   else {

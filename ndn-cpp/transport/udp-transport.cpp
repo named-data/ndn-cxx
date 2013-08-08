@@ -15,7 +15,7 @@ namespace ndn {
 void UdpTransport::connect(Face &face)
 {
   ndn_Error error;
-  if (error = ndn_UdpTransport_connect(&transport_, (char *)face.getHost(), face.getPort()))
+  if ((error = ndn_UdpTransport_connect(&transport_, (char *)face.getHost(), face.getPort())))
     throw std::runtime_error(ndn_getErrorString(error)); 
 
   // TODO: This belongs in the socket listener.
@@ -31,7 +31,7 @@ void UdpTransport::connect(Face &face)
 void UdpTransport::send(const unsigned char *data, unsigned int dataLength)
 {
   ndn_Error error;
-  if (error = ndn_UdpTransport_send(&transport_, (unsigned char *)data, dataLength))
+  if ((error = ndn_UdpTransport_send(&transport_, (unsigned char *)data, dataLength)))
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
@@ -41,7 +41,7 @@ void UdpTransport::tempReceive()
     ndn_Error error;
     unsigned char buffer[8000];
     unsigned int nBytes;
-    if (error = ndn_UdpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes))
+    if ((error = ndn_UdpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes)))
       throw std::runtime_error(ndn_getErrorString(error));  
 
     ndn_BinaryXmlElementReader_onReceivedData(&elementReader_, buffer, nBytes);
@@ -54,7 +54,7 @@ void UdpTransport::tempReceive()
 void UdpTransport::close()
 {
   ndn_Error error;
-  if (error = ndn_UdpTransport_close(&transport_))
+  if ((error = ndn_UdpTransport_close(&transport_)))
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
