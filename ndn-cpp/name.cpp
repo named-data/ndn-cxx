@@ -243,7 +243,7 @@ void Name::set(const struct ndn_Name &nameStruct)
     addComponent(nameStruct.components[i].value, nameStruct.components[i].valueLength);  
 }
 
-std::string Name::to_uri() const
+std::string Name::toUri() const
 {
   if (components_.size() == 0)
     return "/";

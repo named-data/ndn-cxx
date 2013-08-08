@@ -132,8 +132,16 @@ public:
    * Encode this name as a URI.
    * @return The encoded URI.
    */
-  std::string to_uri() const;
+  std::string toUri() const;
   
+  /**
+   * @deprecated Use toUri().
+   */
+  std::string to_uri() const 
+  {
+    return toUri();
+  }
+
 private:
   std::vector<Component> components_;
 };  
