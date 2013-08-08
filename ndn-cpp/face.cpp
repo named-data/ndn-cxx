@@ -13,7 +13,7 @@ using namespace ndn::ptr_lib;
 
 namespace ndn {
 
-void Face::expressInterest(const Name &name, const shared_ptr<Closure> &closure, const Interest *interestTemplate)
+void Face::expressInterest(const Name &name, Closure *closure, const Interest *interestTemplate)
 {
   Interest interest(name);
   shared_ptr<vector<unsigned char> > encoding = interest.wireEncode();  

@@ -43,12 +43,12 @@ public:
 int main(int argc, char** argv)
 {
   try {
-    shared_ptr<MyClosure> closure(new MyClosure());
+    MyClosure closure;
     Face face("E.hub.ndn.ucla.edu", 9695, shared_ptr<UdpTransport>(new UdpTransport()));
-    face.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), closure);
+    face.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), &closure);
     
     // Pump the receive process.  This should really be done by a socket listener.
-    while (!closure->gotContent_)
+    while (!closure.gotContent_)
       face.getTransport()->tempReceive();    
   } catch (std::exception &e) {
     cout << "exception: " << e.what() << endl;
