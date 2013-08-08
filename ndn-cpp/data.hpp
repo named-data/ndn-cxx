@@ -121,6 +121,15 @@ private:
   
 class Data {
 public:
+  Data() 
+  {
+  }
+  
+  Data(const Name &name)
+  : name_(name)
+  {
+  }
+  
   ptr_lib::shared_ptr<std::vector<unsigned char> > wireEncode(WireFormat &wireFormat) const 
   {
     return wireFormat.encodeData(*this);
