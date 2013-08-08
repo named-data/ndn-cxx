@@ -39,8 +39,9 @@ libndn_c_la_SOURCES = \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
 
 libndn_cpp_la_SOURCES = \
-  config.h ndn-cpp/common.hpp \
+  config.h \
   ndn-cpp/closure.hpp \
+  ndn-cpp/common.hpp ndn-cpp/common.cpp \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
   ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
   ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \

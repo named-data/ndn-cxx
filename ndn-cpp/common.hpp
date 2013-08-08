@@ -41,7 +41,14 @@ static inline void setVector(std::vector<unsigned char> &vec, const unsigned cha
   if (value)
     vec.insert(vec.begin(), value, value + valueLength);  
 }
-  
+ 
+/**
+ * Return the hex representation of the bytes in array.
+ * @param array The array of bytes.
+ * @return Hex string.
+ */
+std::string toHex(const std::vector<unsigned char> &array);
+
 }
 
 #endif
