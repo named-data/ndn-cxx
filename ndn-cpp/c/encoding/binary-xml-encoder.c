@@ -141,7 +141,7 @@ static ndn_Error reverseBufferAndInsertHeader
   
   // Override the offset to force encodeTypeAndValue to encode at startOffset, then fix the offset.
   self->offset = startOffset;
-  if ((error = ndn_BinaryXmlEncoder_encodeTypeAndValue(self, ndn_BinaryXml_UDATA, nBufferBytes)))
+  if ((error = ndn_BinaryXmlEncoder_encodeTypeAndValue(self, type, nBufferBytes)))
     // We don't really expect to get an error, since we have already ensured the length.
     return error;
   self->offset = startOffset + nHeaderBytes + nBufferBytes;
