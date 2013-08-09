@@ -12,6 +12,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #endif
 #include <ndn-cpp/data.hpp>
+#include <ndn-cpp/key-chain.hpp>
 
 using namespace std;
 using namespace ndn;
@@ -93,7 +94,12 @@ static void dumpData(const Data &data)
   cout << "signedInfo.publisherPublicKeyDigest: "
        << (data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? 
            toHex(data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()).c_str() : "<none>") << endl;
-  // TODO: dump timestamp.
+  cout << "signedInfo.timestamp: ";
+  if (data.getSignedInfo().getTimestampMilliseconds() >= 0)
+    cout << data.getSignedInfo().getTimestampMilliseconds() << " milliseconds" << endl;
+    // TODO: dump timestamp real date.
+  else
+    cout << "<none>" << endl;
   cout << "signedInfo.freshnessSeconds: ";
   if (data.getSignedInfo().getFreshnessSeconds() >= 0)
     cout << data.getSignedInfo().getFreshnessSeconds() << endl;
@@ -137,6 +143,14 @@ int main(int argc, char** argv)
     reDecodedData.wireDecode(*encoding);
     cout << endl << "Re-decoded Data:" << endl;
     dumpData(reDecodedData);
+  
+    Data freshData(Name("/ndn/abc"));
+    const char *freshContent = "SUCCESS!";
+    freshData.setContent((const unsigned char *)freshContent, strlen(freshContent));
+    
+    KeyChain::defaultSign(freshData);
+    cout << endl << "Freshly signed data:" << endl;
+    dumpData(freshData);
   } catch (exception &e) {
     cout << "exception: " << e.what() << endl;
   }

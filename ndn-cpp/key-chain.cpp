@@ -4,7 +4,7 @@
  */
 
 #include <stdexcept>
-#include <openssl/ssl.h>
+#include <openssl/evp.h>
 #include "c/encoding/binary-xml-data.h"
 #include "encoding/binary-xml-encoder.hpp"
 #include "key-chain.hpp"
@@ -25,7 +25,15 @@ static unsigned char DEFAULT_PUBLIC_KEY[] = {
 0x00, 01  
 };
 
-#if 0
+static bool CryptoIsEstablished = false;
+static void establishCrypto()
+{
+  if (!CryptoIsEstablished) {
+    CryptoIsEstablished = true;
+    OpenSSL_add_all_digests();
+  }
+}
+
 /**
  * Set digest to the sha-256 digest of data
  * @param data Pointer to the input byte array.
@@ -34,12 +42,18 @@ static unsigned char DEFAULT_PUBLIC_KEY[] = {
  */
 static void setSha256(unsigned char *data, unsigned int dataLength, vector<unsigned char> &digest)
 {
-  unsigned char digestBuffer[SHA256_DIGEST_LENGTH];
-  SHA256_CTX sha256;
-  SHA256_Init(&sha256);
-  SHA256_Update(&sha256, data, dataLength);
-  SHA256_Final(digestBuffer, &sha256);
-  setVector(digest, digestBuffer, sizeof(digestBuffer));
+  establishCrypto();
+  
+  EVP_MD_CTX *context = EVP_MD_CTX_create();
+  EVP_DigestInit_ex(context, EVP_get_digestbyname("SHA256"), NULL);
+  EVP_DigestUpdate(context, data, dataLength);
+  
+  unsigned char digestBuffer[EVP_MAX_MD_SIZE];
+  unsigned int digestLength;
+  EVP_DigestFinal_ex(context, digestBuffer, &digestLength);
+  EVP_MD_CTX_destroy(context);
+
+  setVector(digest, digestBuffer, digestLength);
 }
 
 /**
@@ -78,12 +92,13 @@ void KeyChain::defaultSign(Data &data)
   // TODO: use RSA_size to get the proper size of the signature buffer.
   unsigned char signature[1000];
   unsigned int signatureLength;
+#if 0
   RSA *privateKey;
   if (!RSA_sign(NID_sha256, &dataFieldsDigest[0], dataFieldsDigest.size(), signature, &signatureLength, privateKey))
     throw std::runtime_error("Errir in RSA_sign");
   
   data.getSignature().setSignature(signature, signatureLength);
-}
 #endif
+}
 
 }
