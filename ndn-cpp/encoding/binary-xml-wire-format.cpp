@@ -33,7 +33,9 @@ ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeInterest(
   interest.get(interestStruct);
 
   BinaryXmlEncoder encoder;
-  ndn_encodeBinaryXmlInterest(&interestStruct, &encoder);
+  ndn_Error error;
+  if ((error = ndn_encodeBinaryXmlInterest(&interestStruct, &encoder)))
+    throw std::runtime_error(ndn_getErrorString(error));
      
   return encoder.getOutput();
 }
@@ -64,7 +66,10 @@ ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeData(cons
   data.get(dataStruct);
 
   BinaryXmlEncoder encoder;
-  ndn_encodeBinaryXmlData(&dataStruct, &encoder);
+  unsigned int dummyBeginOffset, dummyEndOffset;
+  ndn_Error error;
+  if ((error = ndn_encodeBinaryXmlData(&dataStruct, &dummyBeginOffset, &dummyEndOffset, &encoder)))
+    throw std::runtime_error(ndn_getErrorString(error));
      
   return encoder.getOutput();
 }

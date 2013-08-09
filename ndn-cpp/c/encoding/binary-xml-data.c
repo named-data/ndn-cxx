@@ -129,7 +129,8 @@ static ndn_Error decodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_encodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlEncoder *encoder)
+ndn_Error ndn_encodeBinaryXmlData
+  (struct ndn_Data *data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset, struct ndn_BinaryXmlEncoder *encoder)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(encoder, ndn_BinaryXml_DTag_ContentObject)))
@@ -137,17 +138,21 @@ ndn_Error ndn_encodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlEnc
   
   if ((error = encodeSignature(&data->signature, encoder)))
     return NDN_ERROR_success;
+  
+  *signedFieldsBeginOffset = encoder->offset;
 
   if ((error = ndn_encodeBinaryXmlName(&data->name, encoder)))
     return error;
-
+  
   if ((error = encodeSignedInfo(&data->signedInfo, encoder)))
     return NDN_ERROR_success;
 
   if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
       (encoder, ndn_BinaryXml_DTag_Content, data->content, data->contentLength)))
     return error;
-  
+
+  *signedFieldsEndOffset = encoder->offset;
+
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
     return error;
   
