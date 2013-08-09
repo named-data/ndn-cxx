@@ -30,10 +30,13 @@ public:
   void set(const struct ndn_Signature &signatureStruct);
 
   const std::vector<unsigned char> getDigestAlgorithm() const { return digestAlgorithm_; }
+  std::vector<unsigned char> getDigestAlgorithm() { return digestAlgorithm_; }
 
   const std::vector<unsigned char> getWitness() const { return witness_; }
+  std::vector<unsigned char> getWitness() { return witness_; }
 
   const std::vector<unsigned char> getSignature() const { return signature_; }
+  std::vector<unsigned char> getSignature() { return signature_; }
 
   void setDigestAlgorithm(const std::vector<unsigned char> &digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
   void setDigestAlgorithm(const unsigned char *digestAlgorithm, unsigned int digestAlgorithmLength) 
@@ -81,6 +84,7 @@ public:
   void set(const struct ndn_SignedInfo &signedInfoStruct);
 
   const PublisherPublicKeyDigest &getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
+  PublisherPublicKeyDigest &getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
   
   double getTimestampMilliseconds() const { return timestampMilliseconds_; }
   
@@ -89,10 +93,11 @@ public:
   int getFreshnessSeconds() const { return freshnessSeconds_; }
   
   const std::vector<unsigned char> getFinalBlockID() const { return finalBlockID_; }
+  std::vector<unsigned char> getFinalBlockID() { return finalBlockID_; }
   
   const KeyLocator &getKeyLocator() const { return keyLocator_; }
+  KeyLocator &getKeyLocator() { return keyLocator_; }
 
-  PublisherPublicKeyDigest &getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
   void setPublisherPublicKeyDigest(const PublisherPublicKeyDigest &publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
   
   void setTimestampMilliseconds(double timestampMilliseconds) { timestampMilliseconds_ = timestampMilliseconds; }
@@ -107,7 +112,6 @@ public:
     setVector(finalBlockID_, finalBlockID, finalBlockIdLength); 
   }
   
-  KeyLocator &getKeyLocator() { return keyLocator_; }
   void setKeyLocator(const KeyLocator &keyLocator) { keyLocator_ = keyLocator; }
   
 private:
@@ -190,7 +194,7 @@ public:
   { 
     setVector(content_, content, contentLength); 
   }
-  
+    
 private:
   Signature signature_;
   Name name_;
