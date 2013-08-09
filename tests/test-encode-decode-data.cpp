@@ -147,6 +147,8 @@ int main(int argc, char** argv)
     Data freshData(Name("/ndn/abc"));
     const unsigned char freshContent[] = "SUCCESS!";
     freshData.setContent(freshContent, sizeof(freshContent) - 1);
+    freshData.getSignedInfo().setTimestampMilliseconds(256);
+
     
     KeyChain::defaultSign(freshData);
     cout << endl << "Freshly signed data:" << endl;
