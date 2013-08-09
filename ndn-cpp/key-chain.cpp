@@ -4,7 +4,7 @@
  */
 
 #include <stdexcept>
-#include <openssl/evp.h>
+#include <openssl/ssl.h>
 #include "c/encoding/binary-xml-data.h"
 #include "encoding/binary-xml-encoder.hpp"
 #include "key-chain.hpp"
@@ -25,43 +25,39 @@ static unsigned char DEFAULT_PUBLIC_KEY[] = {
 0x00, 01  
 };
 
-static bool CryptoIsEstablished = false;
-static void establishCrypto()
+/**
+ * Compute the sha-256 digest of data.
+ * @param data Pointer to the input byte array.
+ * @param dataLength The length of data.
+ * @param digest A pointer to a buffer of size SHA256_DIGEST_LENGTH to receive the data.
+ */
+static void digestSha256(unsigned char *data, unsigned int dataLength, unsigned char *digest)
 {
-  if (!CryptoIsEstablished) {
-    CryptoIsEstablished = true;
-    OpenSSL_add_all_digests();
-  }
+  SHA256_CTX sha256;
+  SHA256_Init(&sha256);
+  SHA256_Update(&sha256, data, dataLength);
+  SHA256_Final(digest, &sha256);
 }
 
 /**
- * Set digest to the sha-256 digest of data
- * @param data Pointer to the input byte array.
- * @param dataLength The length of data.
- * @param digest Set this to the resulting digest.
+ * Call digestSha256 and set the digest vector to the result.
+ * @param data
+ * @param dataLength
+ * @param digest
  */
 static void setSha256(unsigned char *data, unsigned int dataLength, vector<unsigned char> &digest)
 {
-  establishCrypto();
-  
-  EVP_MD_CTX *context = EVP_MD_CTX_create();
-  EVP_DigestInit_ex(context, EVP_get_digestbyname("SHA256"), NULL);
-  EVP_DigestUpdate(context, data, dataLength);
-  
-  unsigned char digestBuffer[EVP_MAX_MD_SIZE];
-  unsigned int digestLength;
-  EVP_DigestFinal_ex(context, digestBuffer, &digestLength);
-  EVP_MD_CTX_destroy(context);
-
-  setVector(digest, digestBuffer, digestLength);
+  unsigned char digestBuffer[SHA256_DIGEST_LENGTH];
+  digestSha256(data, dataLength, digestBuffer);
+  setVector(digest, digestBuffer, sizeof(digestBuffer));
 }
 
 /**
  * Encode the fields of the Data object and set digest to the sha-256 digest.
  * @param data The Data object with the fields to digest.
- * @param digest Set this to the resulting digest.
+ * @param digest A pointer to a buffer of size SHA256_DIGEST_LENGTH to receive the data.
  */
-static void setDataFieldsSha256(const Data &data, vector<unsigned char> &digest)
+static void digestDataFieldsSha256(const Data &data, unsigned char *digest)
 {
   // Imitate BinaryXmlWireFormat::encodeData.
   struct ndn_NameComponent nameComponents[100];
@@ -75,7 +71,7 @@ static void setDataFieldsSha256(const Data &data, vector<unsigned char> &digest)
   if ((error = ndn_encodeBinaryXmlData(&dataStruct, &signedFieldsBeginOffset, &signedFieldsEndOffset, &encoder)))
     throw std::runtime_error(ndn_getErrorString(error));
   
-  setSha256(encoder.output.array + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, digest);
+  digestSha256(encoder.output.array + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, digest);
 }
 
 void KeyChain::defaultSign(Data &data)
@@ -87,14 +83,14 @@ void KeyChain::defaultSign(Data &data)
   data.getSignedInfo().getKeyLocator().setKeyOrCertificate(DEFAULT_PUBLIC_KEY, sizeof(DEFAULT_PUBLIC_KEY));
   
   data.getSignature().getSignature().clear();
-  vector<unsigned char> dataFieldsDigest;
-  setDataFieldsSha256(data, dataFieldsDigest);
+  unsigned char dataFieldsDigest[SHA256_DIGEST_LENGTH];
+  digestDataFieldsSha256(data, dataFieldsDigest);
   // TODO: use RSA_size to get the proper size of the signature buffer.
   unsigned char signature[1000];
   unsigned int signatureLength;
 #if 0
   RSA *privateKey;
-  if (!RSA_sign(NID_sha256, &dataFieldsDigest[0], dataFieldsDigest.size(), signature, &signatureLength, privateKey))
+  if (!RSA_sign(NID_sha256, dataFieldsDigest, sizeof(dataFieldsDigest), signature, &signatureLength, privateKey))
     throw std::runtime_error("Errir in RSA_sign");
   
   data.getSignature().setSignature(signature, signatureLength);
