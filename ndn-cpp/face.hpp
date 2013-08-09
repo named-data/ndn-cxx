@@ -54,7 +54,7 @@ public:
   
   unsigned short getPort() const { return port_; }
   
-  ptr_lib::shared_ptr<Transport> &getTransport() { return transport_; }
+  const ptr_lib::shared_ptr<Transport> &getTransport() { return transport_; }
   
   virtual void onReceivedElement(unsigned char *element, unsigned int elementLength);
   
