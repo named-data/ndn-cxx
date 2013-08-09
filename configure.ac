@@ -12,8 +12,6 @@ AM_PROG_CC_C_O
 AC_LANG([C++])
 
 AX_CXX_COMPILE_STDCXX_11(, optional)
-AC_CHECK_LIB([ssl], [SSL_library_init], [],
-             [AC_MSG_FAILURE([can't find openssl ssl lib])])
 AC_CHECK_LIB([crypto], [EVP_EncryptInit], [],
              [AC_MSG_FAILURE([can't find openssl crypto lib])])
 
