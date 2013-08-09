@@ -166,19 +166,16 @@ am_bin_test_encode_decode_data_OBJECTS =  \
 	tests/test-encode-decode-data.$(OBJEXT)
 bin_test_encode_decode_data_OBJECTS =  \
 	$(am_bin_test_encode_decode_data_OBJECTS)
-am__DEPENDENCIES_1 =
-bin_test_encode_decode_data_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	libndn-cpp.la libndn-c.la
+bin_test_encode_decode_data_DEPENDENCIES = libndn-cpp.la libndn-c.la
 am_bin_test_encode_decode_interest_OBJECTS =  \
 	tests/test-encode-decode-interest.$(OBJEXT)
 bin_test_encode_decode_interest_OBJECTS =  \
 	$(am_bin_test_encode_decode_interest_OBJECTS)
-bin_test_encode_decode_interest_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	libndn-cpp.la libndn-c.la
+bin_test_encode_decode_interest_DEPENDENCIES = libndn-cpp.la \
+	libndn-c.la
 am_bin_test_get_async_OBJECTS = tests/test-get-async.$(OBJEXT)
 bin_test_get_async_OBJECTS = $(am_bin_test_get_async_OBJECTS)
-bin_test_get_async_DEPENDENCIES = $(am__DEPENDENCIES_1) libndn-cpp.la \
-	libndn-c.la
+bin_test_get_async_DEPENDENCIES = libndn-cpp.la libndn-c.la
 SCRIPTS = $(dist_noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -360,9 +357,6 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OPENSSL_INCLUDES = @OPENSSL_INCLUDES@
-OPENSSL_LDFLAGS = @OPENSSL_LDFLAGS@
-OPENSSL_LIBS = @OPENSSL_LIBS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -373,7 +367,6 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
-PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -508,11 +501,11 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp
 
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
-bin_test_encode_decode_interest_LDADD = $(OPENSSL_LIBS) libndn-cpp.la libndn-c.la
+bin_test_encode_decode_interest_LDADD = libndn-cpp.la libndn-c.la
 bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
-bin_test_encode_decode_data_LDADD = $(OPENSSL_LIBS) libndn-cpp.la libndn-c.la
+bin_test_encode_decode_data_LDADD = libndn-cpp.la libndn-c.la
 bin_test_get_async_SOURCES = tests/test-get-async.cpp
-bin_test_get_async_LDADD = $(OPENSSL_LIBS) libndn-cpp.la libndn-c.la
+bin_test_get_async_LDADD = libndn-cpp.la libndn-c.la
 dist_noinst_SCRIPTS = autogen.sh
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
