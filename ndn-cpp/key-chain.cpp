@@ -25,6 +25,7 @@ static unsigned char DEFAULT_PUBLIC_KEY[] = {
 0x00, 01  
 };
 
+#if 0
 /**
  * Set digest to the sha-256 digest of data
  * @param data Pointer to the input byte array.
@@ -83,6 +84,6 @@ void KeyChain::defaultSign(Data &data)
   
   data.getSignature().setSignature(signature, signatureLength);
 }
-
+#endif
 
 }
