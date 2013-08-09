@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
+#include <time.h>
 #if 0
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>
@@ -95,9 +96,15 @@ static void dumpData(const Data &data)
        << (data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? 
            toHex(data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()).c_str() : "<none>") << endl;
   cout << "signedInfo.timestamp: ";
-  if (data.getSignedInfo().getTimestampMilliseconds() >= 0)
+  if (data.getSignedInfo().getTimestampMilliseconds() >= 0) {
     cout << data.getSignedInfo().getTimestampMilliseconds() << " milliseconds" << endl;
     // TODO: dump timestamp real date.
+#if 0
+    ptime timestamp = UNIX_EPOCH_TIME + milliseconds(data.getSignedInfo().getTimestampMilliseconds());
+    cout << "Data timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() 
+         << " " << timestamp.time_of_day().hours() << ":" << timestamp.time_of_day().minutes() << ":" << timestamp.time_of_day().seconds()  << endl;
+#endif
+  }
   else
     cout << "<none>" << endl;
   cout << "signedInfo.freshnessSeconds: ";
@@ -131,11 +138,6 @@ int main(int argc, char** argv)
     data.wireDecode(Data1, sizeof(Data1));
     cout << "Decoded Data:" << endl;
     dumpData(data);
-#if 0
-    ptime timestamp = UNIX_EPOCH_TIME + milliseconds(data.getSignedInfo().getTimestampMilliseconds());
-    cout << "Data timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() 
-         << " " << timestamp.time_of_day().hours() << ":" << timestamp.time_of_day().minutes() << ":" << timestamp.time_of_day().seconds()  << endl;
-#endif
     
     ptr_lib::shared_ptr<vector<unsigned char> > encoding = data.wireEncode();
     
@@ -147,8 +149,7 @@ int main(int argc, char** argv)
     Data freshData(Name("/ndn/abc"));
     const unsigned char freshContent[] = "SUCCESS!";
     freshData.setContent(freshContent, sizeof(freshContent) - 1);
-    freshData.getSignedInfo().setTimestampMilliseconds(256);
-
+    freshData.getSignedInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
     
     KeyChain::defaultSign(freshData);
     cout << endl << "Freshly signed data:" << endl;
