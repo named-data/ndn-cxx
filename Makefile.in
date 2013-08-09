@@ -152,8 +152,9 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 libndn_cpp_la_LIBADD =
 am_libndn_cpp_la_OBJECTS = ndn-cpp/common.lo ndn-cpp/data.lo \
-	ndn-cpp/interest.lo ndn-cpp/key.lo ndn-cpp/face.lo \
-	ndn-cpp/name.lo ndn-cpp/encoding/binary-xml-element-reader.lo \
+	ndn-cpp/interest.lo ndn-cpp/key-chain.lo ndn-cpp/key.lo \
+	ndn-cpp/face.lo ndn-cpp/name.lo \
+	ndn-cpp/encoding/binary-xml-element-reader.lo \
 	ndn-cpp/encoding/binary-xml-wire-format.lo \
 	ndn-cpp/encoding/wire-format.lo \
 	ndn-cpp/transport/tcp-transport.lo \
@@ -165,7 +166,9 @@ am_bin_test_encode_decode_data_OBJECTS =  \
 	tests/test-encode-decode-data.$(OBJEXT)
 bin_test_encode_decode_data_OBJECTS =  \
 	$(am_bin_test_encode_decode_data_OBJECTS)
-bin_test_encode_decode_data_DEPENDENCIES = libndn-cpp.la libndn-c.la
+am__DEPENDENCIES_1 =
+bin_test_encode_decode_data_DEPENDENCIES = libndn-cpp.la libndn-c.la \
+	$(am__DEPENDENCIES_1)
 am_bin_test_encode_decode_interest_OBJECTS =  \
 	tests/test-encode-decode-interest.$(OBJEXT)
 bin_test_encode_decode_interest_OBJECTS =  \
@@ -356,6 +359,9 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OPENSSL_INCLUDES = @OPENSSL_INCLUDES@
+OPENSSL_LDFLAGS = @OPENSSL_LDFLAGS@
+OPENSSL_LIBS = @OPENSSL_LIBS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -366,6 +372,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -483,6 +490,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/common.hpp ndn-cpp/common.cpp \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
   ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
+  ndn-cpp/key-chain.cpp ndn-cpp/key-chain.hpp \
   ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
   ndn-cpp/face.cpp ndn-cpp/face.hpp \
   ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
@@ -501,7 +509,7 @@ libndn_cpp_la_SOURCES = \
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
 bin_test_encode_decode_interest_LDADD = libndn-cpp.la libndn-c.la
 bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
-bin_test_encode_decode_data_LDADD = libndn-cpp.la libndn-c.la
+bin_test_encode_decode_data_LDADD = libndn-cpp.la libndn-c.la $(OPENSSL_LIBS)
 bin_test_get_async_SOURCES = tests/test-get-async.cpp
 bin_test_get_async_LDADD = libndn-cpp.la libndn-c.la
 dist_noinst_SCRIPTS = autogen.sh
@@ -672,6 +680,8 @@ ndn-cpp/data.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/interest.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/key-chain.lo: ndn-cpp/$(am__dirstamp) \
+	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/key.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/face.lo: ndn-cpp/$(am__dirstamp) \
@@ -809,6 +819,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/data.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/face.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/interest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/key-chain.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/key.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/errors.Plo@am__quote@
