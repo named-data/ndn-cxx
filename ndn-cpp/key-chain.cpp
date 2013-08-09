@@ -85,6 +85,9 @@ void KeyChain::defaultSign(Data &data)
   data.getSignature().getSignature().clear();
   unsigned char dataFieldsDigest[SHA256_DIGEST_LENGTH];
   digestDataFieldsSha256(data, dataFieldsDigest);
+#if 1
+  data.getSignature().setSignature(dataFieldsDigest, sizeof(dataFieldsDigest));
+#endif
   // TODO: use RSA_size to get the proper size of the signature buffer.
   unsigned char signature[1000];
   unsigned int signatureLength;

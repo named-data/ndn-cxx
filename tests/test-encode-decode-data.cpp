@@ -145,8 +145,8 @@ int main(int argc, char** argv)
     dumpData(reDecodedData);
   
     Data freshData(Name("/ndn/abc"));
-    const char *freshContent = "SUCCESS!";
-    freshData.setContent((const unsigned char *)freshContent, strlen(freshContent));
+    const unsigned char freshContent[] = "SUCCESS!";
+    freshData.setContent(freshContent, sizeof(freshContent) - 1);
     
     KeyChain::defaultSign(freshData);
     cout << endl << "Freshly signed data:" << endl;
