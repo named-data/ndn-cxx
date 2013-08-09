@@ -4,13 +4,13 @@
  */
 
 #ifndef NDN_BINARYXMLELEMENTREADER_H
-#define	NDN_BINARYXMLELEMENTREADER_H
+#define NDN_BINARYXMLELEMENTREADER_H
 
 #include "../errors.h"
 #include "binary-xml-structure-decoder.h"
 #include "../util/dynamic-uchar-array.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -76,7 +76,7 @@ static inline void ndn_BinaryXmlElementReader_init
 ndn_Error ndn_BinaryXmlElementReader_onReceivedData
   (struct ndn_BinaryXmlElementReader *self, unsigned char *data, unsigned int dataLength);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

@@ -33,7 +33,7 @@ ndn_Error ndn_encodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
   else
     return NDN_ERROR_unrecognized_ndn_KeyLocatorType;
   
-	if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
+  if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
     return error;
   
   return NDN_ERROR_success;

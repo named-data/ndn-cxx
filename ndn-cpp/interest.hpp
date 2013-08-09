@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_INTEREST_HPP
-#define	NDN_INTEREST_HPP
+#define NDN_INTEREST_HPP
 
 #include "name.hpp"
 #include "publisher-public-key-digest.hpp"
@@ -110,7 +110,7 @@ public:
   }
   
 private:
-	std::vector<ExcludeEntry> entries_;
+  std::vector<ExcludeEntry> entries_;
 };
 
 /**
@@ -120,14 +120,14 @@ class Interest {
 public:    
   Interest() 
   {
-  	construct();
+    construct();
   }
 
   Interest(const Name &name) 
   : name_(name)
   {
     name_ = name;
-  	construct();
+    construct();
   }
   
   Interest(const Name &name, int minSuffixComponents, int maxSuffixComponents, 
@@ -218,24 +218,24 @@ public:
 private:
   void construct() 
   {
-  	minSuffixComponents_ = -1;
-	  maxSuffixComponents_ = -1;	
-	  childSelector_ = -1;
-	  answerOriginKind_ = -1;
-	  scope_ = -1;
-	  interestLifetimeMilliseconds_ = -1.0;
+    minSuffixComponents_ = -1;
+    maxSuffixComponents_ = -1;  
+    childSelector_ = -1;
+    answerOriginKind_ = -1;
+    scope_ = -1;
+    interestLifetimeMilliseconds_ = -1.0;
   }
   
   Name name_;
-	int minSuffixComponents_;
-	int maxSuffixComponents_;	
-	PublisherPublicKeyDigest publisherPublicKeyDigest_;
+  int minSuffixComponents_;
+  int maxSuffixComponents_;  
+  PublisherPublicKeyDigest publisherPublicKeyDigest_;
   Exclude exclude_;
-	int childSelector_;
-	int answerOriginKind_;
-	int scope_;
-	double interestLifetimeMilliseconds_;
-	std::vector<unsigned char> nonce_;
+  int childSelector_;
+  int answerOriginKind_;
+  int scope_;
+  double interestLifetimeMilliseconds_;
+  std::vector<unsigned char> nonce_;
 };
   
 }

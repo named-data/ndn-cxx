@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_NAME_HPP
-#define	NDN_NAME_HPP
+#define NDN_NAME_HPP
 
 #include <vector>
 #include <string>

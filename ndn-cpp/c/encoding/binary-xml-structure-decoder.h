@@ -4,11 +4,11 @@
  */
 
 #ifndef NDN_BINARYXMLSTRUCTUREDECODER_H
-#define	NDN_BINARYXMLSTRUCTUREDECODER_H
+#define NDN_BINARYXMLSTRUCTUREDECODER_H
 
 #include "../errors.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -54,7 +54,7 @@ static inline void ndn_BinaryXmlStructureDecoder_seek(struct ndn_BinaryXmlStruct
   self->offset = offset;
 }
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

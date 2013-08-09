@@ -4,12 +4,12 @@
  */
 
 #ifndef NDN_SOCKETTRANSPORT_H
-#define	NDN_SOCKETTRANSPORT_H
+#define NDN_SOCKETTRANSPORT_H
 
 #include <sys/socket.h>
 #include "../errors.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -36,7 +36,7 @@ ndn_Error ndn_SocketTransport_receive
 
 ndn_Error ndn_SocketTransport_close(struct ndn_SocketTransport *self);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

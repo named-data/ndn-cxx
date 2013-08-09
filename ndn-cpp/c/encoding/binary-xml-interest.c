@@ -32,14 +32,14 @@ static ndn_Error encodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXml
     else if (entry->type == ndn_Exclude_ANY) {
       if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(encoder, ndn_BinaryXml_DTag_Any)))
         return error;
-    	if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
+      if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
         return error;
     }
     else
       return NDN_ERROR_unrecognized_ndn_ExcludeType;
-	}
+  }
   
-	if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
+  if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
     return error;
   
   return NDN_ERROR_success;  
@@ -163,7 +163,7 @@ ndn_Error ndn_encodeBinaryXmlInterest(struct ndn_Interest *interest, struct ndn_
       (encoder, ndn_BinaryXml_DTag_Nonce, interest->nonce, interest->nonceLength)))
     return error;
   
-	if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
+  if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
     return error;
   
   return NDN_ERROR_success;  

@@ -19,9 +19,9 @@ ndn_Error ndn_encodeBinaryXmlName(struct ndn_Name *name, struct ndn_BinaryXmlEnc
     if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
         (encoder, ndn_BinaryXml_DTag_Component, name->components[i].value, name->components[i].valueLength)))
       return error;
-	}
+  }
   
-	if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
+  if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
     return error;
   
   return NDN_ERROR_success;

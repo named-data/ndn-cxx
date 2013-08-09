@@ -4,12 +4,12 @@
  */
 
 #ifndef NDN_DYNAMICUCHARARRAY_H
-#define	NDN_DYNAMICUCHARARRAY_H
+#define NDN_DYNAMICUCHARARRAY_H
 
 #include "../errors.h"
 #include "ndn_memory.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -81,7 +81,7 @@ static inline ndn_Error ndn_DynamicUCharArray_set
   return NDN_ERROR_success;
 };
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

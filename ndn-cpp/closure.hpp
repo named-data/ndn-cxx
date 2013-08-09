@@ -8,7 +8,7 @@
  */
 
 #ifndef NDN_CLOSURE_HPP
-#define	NDN_CLOSURE_HPP
+#define NDN_CLOSURE_HPP
 
 #include "common.hpp"
 

@@ -39,16 +39,16 @@ void Exclude::set(const struct ndn_Exclude &excludeStruct)
 void Interest::set(const struct ndn_Interest &interestStruct) 
 {
   name_.set(interestStruct.name);
-	minSuffixComponents_ = interestStruct.minSuffixComponents;
-	maxSuffixComponents_ = interestStruct.maxSuffixComponents;
-	
-	publisherPublicKeyDigest_.set(interestStruct.publisherPublicKeyDigest);
+  minSuffixComponents_ = interestStruct.minSuffixComponents;
+  maxSuffixComponents_ = interestStruct.maxSuffixComponents;
+  
+  publisherPublicKeyDigest_.set(interestStruct.publisherPublicKeyDigest);
   
   exclude_.set(interestStruct.exclude);
-	childSelector_ = interestStruct.childSelector;
-	answerOriginKind_ = interestStruct.answerOriginKind;
-	scope_ = interestStruct.scope;
-	interestLifetimeMilliseconds_ = interestStruct.interestLifetimeMilliseconds;
+  childSelector_ = interestStruct.childSelector;
+  answerOriginKind_ = interestStruct.answerOriginKind;
+  scope_ = interestStruct.scope;
+  interestLifetimeMilliseconds_ = interestStruct.interestLifetimeMilliseconds;
   setVector(nonce_, interestStruct.nonce, interestStruct.nonceLength);
 }
 

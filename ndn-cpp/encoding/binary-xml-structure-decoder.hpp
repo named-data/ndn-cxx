@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_BINARYXMLSTRUCTUREDECODER_HPP
-#define	NDN_BINARYXMLSTRUCTUREDECODER_HPP
+#define NDN_BINARYXMLSTRUCTUREDECODER_HPP
 
 #include <stdexcept>
 #include "../c/encoding/BinaryXMLStructureDecoder.h"

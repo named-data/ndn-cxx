@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_PUBLISHERPUBLICKEYDIGEST_HPP
-#define	NDN_PUBLISHERPUBLICKEYDIGEST_HPP
+#define NDN_PUBLISHERPUBLICKEYDIGEST_HPP
 
 #include <vector>
 #include "common.hpp"
@@ -55,7 +55,7 @@ public:
   }
 
 private:
-	std::vector<unsigned char> publisherPublicKeyDigest_;
+  std::vector<unsigned char> publisherPublicKeyDigest_;
 };
   
 }

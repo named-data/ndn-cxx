@@ -4,9 +4,9 @@
  */
 
 #ifndef NDN_PUBLISHERPUBLICKEYDIGEST_H
-#define	NDN_PUBLISHERPUBLICKEYDIGEST_H
+#define NDN_PUBLISHERPUBLICKEYDIGEST_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -15,7 +15,7 @@ extern "C" {
  * We make a separate struct since this is used by multiple other structs.
  */
 struct ndn_PublisherPublicKeyDigest {
-	unsigned char *publisherPublicKeyDigest;      /**< pointer to pre-allocated buffer.  0 for none */
+  unsigned char *publisherPublicKeyDigest;      /**< pointer to pre-allocated buffer.  0 for none */
   unsigned int publisherPublicKeyDigestLength;  /**< length of publisherPublicKeyDigest.  0 for none */  
 };
 
@@ -28,7 +28,7 @@ static inline void ndn_PublisherPublicKeyDigest_init(struct ndn_PublisherPublicK
   self->publisherPublicKeyDigestLength = 0;
 }
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

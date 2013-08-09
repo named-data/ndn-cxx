@@ -4,9 +4,9 @@
  */
 
 #ifndef NDN_NAME_H
-#define	NDN_NAME_H
+#define NDN_NAME_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
   
@@ -52,7 +52,7 @@ static inline void ndn_Name_init(struct ndn_Name *self, struct ndn_NameComponent
   self->nComponents = 0;
 }
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

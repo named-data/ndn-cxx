@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_KEY_HPP
-#define	NDN_KEY_HPP
+#define NDN_KEY_HPP
 
 #include <vector>
 #include "c/key.h"

@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_TCPTRANSPORT_HPP
-#define	NDN_TCPTRANSPORT_HPP
+#define NDN_TCPTRANSPORT_HPP
 
 #include "../c/transport/tcp-transport.h"
 #include "../c/encoding/binary-xml-element-reader.h"

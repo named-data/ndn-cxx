@@ -30,7 +30,7 @@ static ndn_Error writeArray(struct ndn_BinaryXmlEncoder *self, unsigned char *ar
     return error;
   
   ndn_memcpy(self->output.array + self->offset, array, arrayLength);
-	self->offset += arrayLength;
+  self->offset += arrayLength;
   
   return NDN_ERROR_success;
 }
@@ -41,24 +41,24 @@ static ndn_Error writeArray(struct ndn_BinaryXmlEncoder *self, unsigned char *ar
 static unsigned int getNHeaderEncodingBytes(unsigned int x) 
 {
   // Do a quick check for pre-compiled results.
-	if (x <= ENCODING_LIMIT_1_BYTE) 
+  if (x <= ENCODING_LIMIT_1_BYTE) 
     return 1;
-	if (x <= ENCODING_LIMIT_2_BYTES) 
+  if (x <= ENCODING_LIMIT_2_BYTES) 
     return 2;
-	if (x <= ENCODING_LIMIT_3_BYTES) 
+  if (x <= ENCODING_LIMIT_3_BYTES) 
     return 3;
-	
-	unsigned int nBytes = 1;
-	
-	// Last byte gives you TT_VALUE_BITS.
-	// Remainder each gives you REGULAR_VALUE_BITS.
-	x >>= ndn_BinaryXml_TT_VALUE_BITS;
-	while (x != 0) {
-    ++nBytes;
-	  x >>= ndn_BinaryXml_REGULAR_VALUE_BITS;
-	}
   
-	return nBytes;
+  unsigned int nBytes = 1;
+  
+  // Last byte gives you TT_VALUE_BITS.
+  // Remainder each gives you REGULAR_VALUE_BITS.
+  x >>= ndn_BinaryXml_TT_VALUE_BITS;
+  while (x != 0) {
+    ++nBytes;
+    x >>= ndn_BinaryXml_REGULAR_VALUE_BITS;
+  }
+  
+  return nBytes;
 }
 
 /**
@@ -172,34 +172,34 @@ static inline void splitAbsDouble(double x, unsigned long *hi32, unsigned long *
 
 ndn_Error ndn_BinaryXmlEncoder_encodeTypeAndValue(struct ndn_BinaryXmlEncoder *self, unsigned int type, unsigned int value)
 {
-	if (type > ndn_BinaryXml_UDATA)
-		return NDN_ERROR_header_type_is_out_of_range;
+  if (type > ndn_BinaryXml_UDATA)
+    return NDN_ERROR_header_type_is_out_of_range;
   
-	// Encode backwards. Calculate how many bytes we need.
-	unsigned int nEncodingBytes = getNHeaderEncodingBytes(value);
+  // Encode backwards. Calculate how many bytes we need.
+  unsigned int nEncodingBytes = getNHeaderEncodingBytes(value);
   ndn_Error error;
   if ((error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + nEncodingBytes)))
     return error;
 
-	// Bottom 4 bits of value go in last byte with tag.
-	self->output.array[self->offset + nEncodingBytes - 1] = 
-		(ndn_BinaryXml_TT_MASK & type | 
-		((ndn_BinaryXml_TT_VALUE_MASK & value) << ndn_BinaryXml_TT_BITS)) |
-		ndn_BinaryXml_TT_FINAL; // set top bit for last byte
-	value >>= ndn_BinaryXml_TT_VALUE_BITS;
-	
-	// Rest of value goes into preceding bytes, 7 bits per byte. (Zero top bit is "more" flag.)
-	unsigned int i = self->offset + nEncodingBytes - 2;
-	while (value != 0 && i >= self->offset) {
-		self->output.array[i] = (value & ndn_BinaryXml_REGULAR_VALUE_MASK);
-		value >>= ndn_BinaryXml_REGULAR_VALUE_BITS;
-		--i;
-	}
-	if (value != 0)
+  // Bottom 4 bits of value go in last byte with tag.
+  self->output.array[self->offset + nEncodingBytes - 1] = 
+    (ndn_BinaryXml_TT_MASK & type | 
+    ((ndn_BinaryXml_TT_VALUE_MASK & value) << ndn_BinaryXml_TT_BITS)) |
+    ndn_BinaryXml_TT_FINAL; // set top bit for last byte
+  value >>= ndn_BinaryXml_TT_VALUE_BITS;
+  
+  // Rest of value goes into preceding bytes, 7 bits per byte. (Zero top bit is "more" flag.)
+  unsigned int i = self->offset + nEncodingBytes - 2;
+  while (value != 0 && i >= self->offset) {
+    self->output.array[i] = (value & ndn_BinaryXml_REGULAR_VALUE_MASK);
+    value >>= ndn_BinaryXml_REGULAR_VALUE_BITS;
+    --i;
+  }
+  if (value != 0)
     // This should not happen if getNHeaderEncodingBytes is correct.
-		return NDN_ERROR_encodeTypeAndValue_miscalculated_N_encoding_bytes;
-	
-	self->offset+= nEncodingBytes;
+    return NDN_ERROR_encodeTypeAndValue_miscalculated_N_encoding_bytes;
+  
+  self->offset+= nEncodingBytes;
   
   return NDN_ERROR_success;
 }
@@ -210,8 +210,8 @@ ndn_Error ndn_BinaryXmlEncoder_writeElementClose(struct ndn_BinaryXmlEncoder *se
   if ((error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1)))
     return error;
   
-	self->output.array[self->offset] = ndn_BinaryXml_CLOSE;
-	self->offset += 1;
+  self->output.array[self->offset] = ndn_BinaryXml_CLOSE;
+  self->offset += 1;
   
   return NDN_ERROR_success;
 }

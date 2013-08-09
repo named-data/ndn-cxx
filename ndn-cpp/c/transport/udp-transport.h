@@ -6,11 +6,11 @@
  */
 
 #ifndef NDN_UDPTRANSPORT_H
-#define	NDN_UDPTRANSPORT_H
+#define NDN_UDPTRANSPORT_H
 
 #include "socket-transport.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -44,7 +44,7 @@ static inline ndn_Error ndn_UdpTransport_close(struct ndn_UdpTransport *self)
   return ndn_SocketTransport_close(&self->base);
 }
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

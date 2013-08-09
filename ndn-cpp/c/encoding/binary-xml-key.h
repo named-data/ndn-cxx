@@ -4,14 +4,14 @@
  */
 
 #ifndef NDN_BINARYXMLKEY_H
-#define	NDN_BINARYXMLKEY_H
+#define NDN_BINARYXMLKEY_H
 
 #include "../errors.h"
 #include "../key.h"
 #include "binary-xml-encoder.h"
 #include "binary-xml-decoder.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -40,7 +40,7 @@ ndn_Error ndn_decodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
  */
 ndn_Error ndn_decodeOptionalBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struct ndn_BinaryXmlDecoder *decoder);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

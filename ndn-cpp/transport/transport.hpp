@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_TRANSPORT_HPP
-#define	NDN_TRANSPORT_HPP
+#define NDN_TRANSPORT_HPP
 
 #include <vector>
 

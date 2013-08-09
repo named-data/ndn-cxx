@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_WIREFORMAT_HPP
-#define	NDN_WIREFORMAT_HPP
+#define NDN_WIREFORMAT_HPP
 
 #include "../common.hpp"
 #include <vector>

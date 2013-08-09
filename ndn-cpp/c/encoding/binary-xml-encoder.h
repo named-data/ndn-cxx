@@ -4,13 +4,13 @@
  */
 
 #ifndef NDN_BINARYXMLENCODER_H
-#define	NDN_BINARYXMLENCODER_H
+#define NDN_BINARYXMLENCODER_H
 
 #include "../errors.h"
 #include "../util/dynamic-uchar-array.h"
 #include "binary-xml.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -172,7 +172,7 @@ static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalTimeMillisecondsDTagEl
     return NDN_ERROR_success;
 }
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

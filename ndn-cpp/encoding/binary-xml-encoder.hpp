@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_BINARYXMLENCODER_HPP
-#define	NDN_BINARYXMLENCODER_HPP
+#define NDN_BINARYXMLENCODER_HPP
 
 #include <vector>
 #include "../common.hpp"

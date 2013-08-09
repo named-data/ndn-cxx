@@ -22,9 +22,9 @@ ndn_Error ndn_SocketTransport_connect(struct ndn_SocketTransport *self, ndn_Sock
     self->socketDescriptor = -1;
   }
   
-	struct addrinfo hints;
-	ndn_memset((unsigned char *)&hints, 0, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
+  struct addrinfo hints;
+  ndn_memset((unsigned char *)&hints, 0, sizeof(hints));
+  hints.ai_family = AF_UNSPEC;
   if (socketType == SOCKET_TCP)
     hints.ai_socktype = SOCK_STREAM;
   else if (socketType == SOCKET_UDP)
@@ -35,31 +35,31 @@ ndn_Error ndn_SocketTransport_connect(struct ndn_SocketTransport *self, ndn_Sock
   char portString[10];
   sprintf(portString, "%d", port);
   
-	struct addrinfo *serverInfo;
-	if (getaddrinfo(host, portString, &hints, &serverInfo) != 0)
-		return NDN_ERROR_SocketTransport_error_in_getaddrinfo;
+  struct addrinfo *serverInfo;
+  if (getaddrinfo(host, portString, &hints, &serverInfo) != 0)
+    return NDN_ERROR_SocketTransport_error_in_getaddrinfo;
 
-	// loop through all the results and connect to the first we can
-	struct addrinfo *p;
+  // loop through all the results and connect to the first we can
+  struct addrinfo *p;
   int socketDescriptor;
-	for(p = serverInfo; p != NULL; p = p->ai_next) {
-		if ((socketDescriptor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
-			continue;
+  for(p = serverInfo; p != NULL; p = p->ai_next) {
+    if ((socketDescriptor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+      continue;
 
-		if (connect(socketDescriptor, p->ai_addr, p->ai_addrlen) == -1) {
-			close(socketDescriptor);
-			continue;
-		}
+    if (connect(socketDescriptor, p->ai_addr, p->ai_addrlen) == -1) {
+      close(socketDescriptor);
+      continue;
+    }
 
-		break;
-	}
-
-	if (p == NULL) {
-    freeaddrinfo(serverInfo);
-		return NDN_ERROR_SocketTransport_cannot_connect_to_socket;
+    break;
   }
 
-	freeaddrinfo(serverInfo);
+  if (p == NULL) {
+    freeaddrinfo(serverInfo);
+    return NDN_ERROR_SocketTransport_cannot_connect_to_socket;
+  }
+
+  freeaddrinfo(serverInfo);
   self->socketDescriptor = socketDescriptor;
 
   return NDN_ERROR_success;
@@ -91,12 +91,12 @@ ndn_Error ndn_SocketTransport_receive
     return NDN_ERROR_SocketTransport_socket_is_not_open;
 
   int nBytes;  
-	if ((nBytes = recv(self->socketDescriptor, buffer, bufferLength, 0)) == -1)
+  if ((nBytes = recv(self->socketDescriptor, buffer, bufferLength, 0)) == -1)
     return NDN_ERROR_SocketTransport_error_in_recv;
 
   *nBytesOut = (unsigned int)nBytes;
   
-	return NDN_ERROR_success;  
+  return NDN_ERROR_success;  
 }
 
 ndn_Error ndn_SocketTransport_close(struct ndn_SocketTransport *self)

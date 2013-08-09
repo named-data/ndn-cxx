@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_BINARYXMLELEMENTREADER_HPP
-#define	NDN_BINARYXMLELEMENTREADER_HPP
+#define NDN_BINARYXMLELEMENTREADER_HPP
 
 #include "../c/encoding/binary-xml-element-reader.h"
 

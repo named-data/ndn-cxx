@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_UDPTRANSPORT_HPP
-#define	NDN_UDPTRANSPORT_HPP
+#define NDN_UDPTRANSPORT_HPP
 
 #include "../c/transport/udp-transport.h"
 #include "../c/encoding/binary-xml-element-reader.h"

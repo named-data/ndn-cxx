@@ -4,7 +4,7 @@
  */
 
 #ifndef NDN_BINARYXMLWIREFORMAT_HPP
-#define	NDN_BINARYXMLWIREFORMAT_HPP
+#define NDN_BINARYXMLWIREFORMAT_HPP
 
 #include "wire-format.hpp"
 

@@ -4,9 +4,9 @@
  */
 
 #ifndef NDN_KEY_H
-#define	NDN_KEY_H
+#define NDN_KEY_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -31,7 +31,7 @@ static inline void ndn_KeyLocator_init(struct ndn_KeyLocator *self) {
   // TODO: Implement keyName.
 }
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

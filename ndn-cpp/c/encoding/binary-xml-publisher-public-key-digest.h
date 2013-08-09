@@ -4,14 +4,14 @@
  */
 
 #ifndef NDN_BINARYXMLPUBLISHERPUBLICKEYDIGEST_H
-#define	NDN_BINARYXMLPUBLISHERPUBLICKEYDIGEST_H
+#define NDN_BINARYXMLPUBLISHERPUBLICKEYDIGEST_H
 
 #include "../errors.h"
 #include "../publisher-public-key-digest.h"
 #include "binary-xml-encoder.h"
 #include "binary-xml-decoder.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -44,7 +44,7 @@ ndn_Error ndn_decodeBinaryXmlPublisherPublicKeyDigest
 ndn_Error ndn_decodeOptionalBinaryXmlPublisherPublicKeyDigest
   (struct ndn_PublisherPublicKeyDigest *publisherPublicKeyDigest, struct ndn_BinaryXmlDecoder *decoder);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
