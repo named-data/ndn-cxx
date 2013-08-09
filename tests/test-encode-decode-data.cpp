@@ -87,11 +87,8 @@ static void dumpData(const Data &data)
        << (data.getSignature().getDigestAlgorithm().size() > 0 ? toHex(data.getSignature().getDigestAlgorithm()).c_str() : "default (sha-256)") << endl;
   cout << "signature.witness: "
        << (data.getSignature().getWitness().size() > 0 ? toHex(data.getSignature().getWitness()).c_str() : "<none>") << endl;
-  cout << "signature.signature: ";
-  if (data.getSignature().getSignature().size() > 0)
-    cout << data.getSignature().getSignature().size() << " bytes" << endl;
-  else
-    cout << "<none>" << endl;
+  cout << "signature.signature: "
+       << (data.getSignature().getSignature().size() > 0 ? toHex(data.getSignature().getSignature()).c_str() : "<none>") << endl;
   
   cout << "signedInfo.publisherPublicKeyDigest: "
        << (data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? 
@@ -108,9 +105,9 @@ static void dumpData(const Data &data)
   cout << "signedInfo.keyLocator: ";
   if (data.getSignedInfo().getKeyLocator().getType() >= 0) {
     if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEY)
-      cout << "Key: " << data.getSignedInfo().getKeyLocator().getKeyOrCertificate().size() << " bytes" << endl;
+      cout << "Key: " << toHex(data.getSignedInfo().getKeyLocator().getKeyOrCertificate()) << endl;
     else if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_CERTIFICATE)
-      cout << "Certificate: " << data.getSignedInfo().getKeyLocator().getKeyOrCertificate().size() << " bytes" << endl;
+      cout << "Certificate: " << toHex(data.getSignedInfo().getKeyLocator().getKeyOrCertificate()) << endl;
     else if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEYNAME)
       // TODO: Implement keyName.
       cout << "keyName" << endl;
