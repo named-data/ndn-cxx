@@ -6,7 +6,7 @@
 #ifndef NDN_KEY_CHAIN_HPP
 #define	NDN_KEY_CHAIN_HPP
 
-#include "data.hpp";
+#include "data.hpp"
 
 namespace ndn {
 
