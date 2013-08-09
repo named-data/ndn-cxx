@@ -29,14 +29,14 @@ public:
    */
   void set(const struct ndn_Signature &signatureStruct);
 
-  const std::vector<unsigned char> getDigestAlgorithm() const { return digestAlgorithm_; }
-  std::vector<unsigned char> getDigestAlgorithm() { return digestAlgorithm_; }
+  const std::vector<unsigned char> &getDigestAlgorithm() const { return digestAlgorithm_; }
+  std::vector<unsigned char> &getDigestAlgorithm() { return digestAlgorithm_; }
 
-  const std::vector<unsigned char> getWitness() const { return witness_; }
-  std::vector<unsigned char> getWitness() { return witness_; }
+  const std::vector<unsigned char> &getWitness() const { return witness_; }
+  std::vector<unsigned char> &getWitness() { return witness_; }
 
-  const std::vector<unsigned char> getSignature() const { return signature_; }
-  std::vector<unsigned char> getSignature() { return signature_; }
+  const std::vector<unsigned char> &getSignature() const { return signature_; }
+  std::vector<unsigned char> &getSignature() { return signature_; }
 
   void setDigestAlgorithm(const std::vector<unsigned char> &digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
   void setDigestAlgorithm(const unsigned char *digestAlgorithm, unsigned int digestAlgorithmLength) 
@@ -173,20 +173,20 @@ public:
   void set(const struct ndn_Data &dataStruct);
 
   const Signature &getSignature() const { return signature_; }
+  Signature &getSignature() { return signature_; }
   
   const Name &getName() const { return name_; }
+  Name &getName() { return name_; }
   
   const SignedInfo &getSignedInfo() const { return signedInfo_; }
+  SignedInfo &getSignedInfo() { return signedInfo_; }
   
   const std::vector<unsigned char> getContent() const { return content_; }
 
-  Signature &getSignature() { return signature_; }
   void setSignature(const Signature &signature) { signature_ = signature; }
   
-  Name &getName() { return name_; }
   void setName(const Name &name) { name_ = name; }
   
-  SignedInfo &getSignedInfo() { return signedInfo_; }
   void setSignedInfo(const SignedInfo &signedInfo) { signedInfo_ = signedInfo; }
 
   void setContent(const std::vector<unsigned char> &content) { content_ = content; }
