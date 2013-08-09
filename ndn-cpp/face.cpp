@@ -24,7 +24,12 @@ void Face::expressInterest(const Name &name, Closure *closure, const Interest *i
   transport_->connect(*this);
   transport_->send(*encoding);
 }
-    
+
+void Face::processEvents()
+{
+  transport_->processEvents();
+}
+
 void Face::shutdown()
 {
   transport_->close();

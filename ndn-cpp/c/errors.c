@@ -62,6 +62,8 @@ char *ndn_getErrorString(int error)
     return      "SocketTransport socket is not open";
   case NDN_ERROR_SocketTransport_error_in_send:
     return      "SocketTransport error in send";
+  case NDN_ERROR_SocketTransport_error_in_poll:
+    return      "SocketTransport error in poll";
   case NDN_ERROR_SocketTransport_error_in_recv:
     return      "SocketTransport error in recv";
   case NDN_ERROR_SocketTransport_error_in_close:

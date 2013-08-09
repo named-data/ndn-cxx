@@ -35,20 +35,21 @@ void TcpTransport::send(const unsigned char *data, unsigned int dataLength)
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
-void TcpTransport::tempReceive()
+void TcpTransport::processEvents()
 {
-  try {   
-    ndn_Error error;
-    unsigned char buffer[8000];
-    unsigned int nBytes;
-    if ((error = ndn_TcpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes)))
-      throw std::runtime_error(ndn_getErrorString(error));  
+  int receiveIsReady;
+  ndn_Error error;
+  if ((error = ndn_TcpTransport_receiveIsReady(&transport_, &receiveIsReady)))
+    throw std::runtime_error(ndn_getErrorString(error));  
+  if (!receiveIsReady)
+    return;
 
-    ndn_BinaryXmlElementReader_onReceivedData(&elementReader_, buffer, nBytes);
-  } catch (...) {
-    // This function is called by the socket callback, so don't send an exception back to it.
-    // TODO: Log the exception?
-  }
+  unsigned char buffer[8000];
+  unsigned int nBytes;
+  if ((error = ndn_TcpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes)))
+    throw std::runtime_error(ndn_getErrorString(error));  
+
+  ndn_BinaryXmlElementReader_onReceivedData(&elementReader_, buffer, nBytes);
 }
 
 void TcpTransport::close()

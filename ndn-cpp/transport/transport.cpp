@@ -19,7 +19,12 @@ void Transport::send(const unsigned char *data, unsigned int dataLength)
 {
   throw logic_error("unimplemented");
 }
- 
+
+void Transport::processEvents()
+{
+  throw logic_error("unimplemented");
+}
+
 void Transport::close()
 {
 }

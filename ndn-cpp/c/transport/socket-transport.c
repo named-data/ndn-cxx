@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <poll.h>
 #include "../util/ndn_memory.h"
 
 ndn_Error ndn_SocketTransport_connect(struct ndn_SocketTransport *self, ndn_SocketType socketType, char *host, unsigned short port)
@@ -84,8 +85,36 @@ ndn_Error ndn_SocketTransport_send(struct ndn_SocketTransport *self, unsigned ch
   return NDN_ERROR_success;  
 }
 
+ndn_Error ndn_SocketTransport_receiveIsReady(struct ndn_SocketTransport *self, int *receiveIsReady)
+{
+  // Default to not ready.
+  *receiveIsReady = 0;
+
+  if (self->socketDescriptor < 0)
+    // The socket is not open.  Just silently return.
+    return NDN_ERROR_success;
+  
+  struct pollfd pollInfo[1];
+  pollInfo[0].fd = self->socketDescriptor;
+  pollInfo[0].events = POLLIN;
+  
+  int pollResult = poll(pollInfo, 1, 200);
+
+  if (pollResult < 0)
+    return NDN_ERROR_SocketTransport_error_in_poll;
+  else if (pollResult == 0)
+    // Timeout, so no data ready.
+    return NDN_ERROR_success;
+  else {
+   if (pollInfo[0].revents & POLLIN)
+     *receiveIsReady = 1;
+  }
+
+  return NDN_ERROR_success;
+}
+
 ndn_Error ndn_SocketTransport_receive
-(struct ndn_SocketTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytesOut)
+  (struct ndn_SocketTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytesOut)
 {
   if (self->socketDescriptor < 0)
     return NDN_ERROR_SocketTransport_socket_is_not_open;

@@ -35,20 +35,21 @@ void UdpTransport::send(const unsigned char *data, unsigned int dataLength)
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
-void UdpTransport::tempReceive()
+void UdpTransport::processEvents()
 {
-  try {   
-    ndn_Error error;
-    unsigned char buffer[8000];
-    unsigned int nBytes;
-    if ((error = ndn_UdpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes)))
-      throw std::runtime_error(ndn_getErrorString(error));  
+  int receiveIsReady;
+  ndn_Error error;
+  if ((error = ndn_UdpTransport_receiveIsReady(&transport_, &receiveIsReady)))
+    throw std::runtime_error(ndn_getErrorString(error));  
+  if (!receiveIsReady)
+    return;
 
-    ndn_BinaryXmlElementReader_onReceivedData(&elementReader_, buffer, nBytes);
-  } catch (...) {
-    // This function is called by the socket callback, so don't send an exception back to it.
-    // TODO: Log the exception?
-  }
+  unsigned char buffer[8000];
+  unsigned int nBytes;
+  if ((error = ndn_UdpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes)))
+    throw std::runtime_error(ndn_getErrorString(error));  
+
+  ndn_BinaryXmlElementReader_onReceivedData(&elementReader_, buffer, nBytes);
 }
 
 void UdpTransport::close()

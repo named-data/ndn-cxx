@@ -47,9 +47,9 @@ int main(int argc, char** argv)
     Face face("E.hub.ndn.ucla.edu", 9695, shared_ptr<UdpTransport>(new UdpTransport()));
     face.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), &closure);
     
-    // Pump the receive process.  This should really be done by a socket listener.
+    // The main event loop.
     while (!closure.gotContent_)
-      face.getTransport()->tempReceive();    
+      face.processEvents();    
   } catch (std::exception &e) {
     cout << "exception: " << e.what() << endl;
   }

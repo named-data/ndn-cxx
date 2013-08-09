@@ -39,6 +39,7 @@ typedef enum {
   NDN_ERROR_SocketTransport_cannot_connect_to_socket,
   NDN_ERROR_SocketTransport_socket_is_not_open,
   NDN_ERROR_SocketTransport_error_in_send,
+  NDN_ERROR_SocketTransport_error_in_poll,
   NDN_ERROR_SocketTransport_error_in_recv,
   NDN_ERROR_SocketTransport_error_in_close
 } ndn_Error;
