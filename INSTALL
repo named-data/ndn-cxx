@@ -1,4 +1,4 @@
-ndn-cpp:  A Named Data Networking client library for C++ and C
+NDN-CPP:  A Named Data Networking client library for C++ and C
 -------------------------------------------------------------
 
 Prerequisites
@@ -33,7 +33,7 @@ bin/test-encode-decode-data: Encode and decode a data packet, including signing 
 Supported platforms
 -------------------
 
-ndn-cpp is tested on the following platforms:
+NDN-CPP is tested on the following platforms:
 Ubuntu 12.04 (gcc 4.6.3)
 Mac OS X 10.8.4 (clang 4.2)
 Mac OS X 10.8.4 (gcc 4.2)
