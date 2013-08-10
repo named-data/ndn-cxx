@@ -10,7 +10,7 @@ contributions to the library if they are willing to do so under the same license
 
 See the file INSTALL for build and install instructions.
 
-Please ubmit any bugs or issues to the NDN-CPP issue tracker:
+Please submit any bugs or issues to the NDN-CPP issue tracker:
 http://redmine.named-data.net/projects/ndn-cpp/issues
 
 ---
