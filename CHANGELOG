@@ -1,0 +1,5 @@
+ndd-cpp v0.1 (2013-08-09)
+
+This is the initial release, with support for expressInterest for one interest at a time.  A new release
+coming soon will have a Pending Interest Table and support processing multiple simultaneous interest and
+data packets.

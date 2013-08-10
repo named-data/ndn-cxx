@@ -1,0 +1,41 @@
+ndn-cpp:  A Named Data Networking client library for C++ and C
+-------------------------------------------------------------
+
+Prerequisites
+-------------
+
+libcrypto
+
+Build
+-----
+
+To build in a terminal, change directory to the ndn-cpp root.  Enter:
+
+./configure
+make
+
+(There is currently no "install" step.)
+
+Files
+-----
+
+This makes the following libraries:
+
+.libs/libndn-c.a: The core C code for encoding and communication.
+.libs/libndn-cpp.a: The C++ library API.  libndn-cpp also needs libndn-c.
+
+This makes the following test files:
+
+bin/test-get-async: Connect to one of the NDN testbed hubs, express an interest and display the received data.
+bin/test-encode-decode-interest: Encode and decode an interest, testing interest selectors and the name URI.
+bin/test-encode-decode-data: Encode and decode a data packet, including signing the data packet.
+
+Supported platforms
+-------------------
+
+ndn-cpp is tested on the following platforms:
+Ubuntu 12.04 (gcc 4.6.3)
+Mac OS X 10.8.4 (clang 4.2)
+Mac OS X 10.8.4 (gcc 4.2)
+
+
