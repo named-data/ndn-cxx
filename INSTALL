@@ -16,6 +16,9 @@ make
 
 (There is currently no "install" step.)
 
+To make documentation, enter:
+make doxygen-doc
+
 Files
 -----
 
@@ -29,6 +32,9 @@ This makes the following test files:
 bin/test-get-async: Connect to one of the NDN testbed hubs, express an interest and display the received data.
 bin/test-encode-decode-interest: Encode and decode an interest, testing interest selectors and the name URI.
 bin/test-encode-decode-data: Encode and decode a data packet, including signing the data packet.
+
+Running make doxygen-doc puts code documentation in:
+doc/html
 
 Supported platforms
 -------------------
