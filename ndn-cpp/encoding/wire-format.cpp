@@ -35,11 +35,13 @@ void WireFormat::decodeInterest(Interest &interest, const unsigned char *input, 
   throw logic_error("unimplemented");
 }
 
-ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeData(const Data &data) 
+ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeData
+  (const Data &data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
 {
   throw logic_error("unimplemented");
 }
-void WireFormat::decodeData(Data &data, const unsigned char *input, unsigned int inputLength) 
+void WireFormat::decodeData
+  (Data &data, const unsigned char *input, unsigned int inputLength, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
 {
   throw logic_error("unimplemented");
 }
