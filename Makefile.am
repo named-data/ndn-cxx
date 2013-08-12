@@ -58,7 +58,8 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/encoding/wire-format.cpp ndn-cpp/encoding/wire-format.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/tcp-transport.h ndn-cpp/transport/tcp-transport.cpp ndn-cpp/transport/tcp-transport.hpp \
   ndn-cpp/transport/transport.cpp ndn-cpp/transport/transport.hpp \
-  ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp
+  ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \
+  ndn-cpp/util/dynamic-uchar-vector.cpp ndn-cpp/util/dynamic-uchar-vector.hpp
 
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
 bin_test_encode_decode_interest_LDADD = libndn-cpp.la libndn-c.la

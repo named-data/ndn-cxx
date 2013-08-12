@@ -159,7 +159,8 @@ am_libndn_cpp_la_OBJECTS = ndn-cpp/common.lo ndn-cpp/data.lo \
 	ndn-cpp/encoding/wire-format.lo \
 	ndn-cpp/transport/tcp-transport.lo \
 	ndn-cpp/transport/transport.lo \
-	ndn-cpp/transport/udp-transport.lo
+	ndn-cpp/transport/udp-transport.lo \
+	ndn-cpp/util/dynamic-uchar-vector.lo
 libndn_cpp_la_OBJECTS = $(am_libndn_cpp_la_OBJECTS)
 PROGRAMS = $(bin_PROGRAMS)
 am_bin_test_encode_decode_data_OBJECTS =  \
@@ -498,7 +499,8 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/encoding/wire-format.cpp ndn-cpp/encoding/wire-format.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/tcp-transport.h ndn-cpp/transport/tcp-transport.cpp ndn-cpp/transport/tcp-transport.hpp \
   ndn-cpp/transport/transport.cpp ndn-cpp/transport/transport.hpp \
-  ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp
+  ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \
+  ndn-cpp/util/dynamic-uchar-vector.cpp ndn-cpp/util/dynamic-uchar-vector.hpp
 
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
 bin_test_encode_decode_interest_LDADD = libndn-cpp.la libndn-c.la
@@ -708,6 +710,14 @@ ndn-cpp/transport/transport.lo: ndn-cpp/transport/$(am__dirstamp) \
 	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/transport/udp-transport.lo: ndn-cpp/transport/$(am__dirstamp) \
 	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/util/$(am__dirstamp):
+	@$(MKDIR_P) ndn-cpp/util
+	@: > ndn-cpp/util/$(am__dirstamp)
+ndn-cpp/util/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ndn-cpp/util/$(DEPDIR)
+	@: > ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/util/dynamic-uchar-vector.lo: ndn-cpp/util/$(am__dirstamp) \
+	ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
 
 libndn-cpp.la: $(libndn_cpp_la_OBJECTS) $(libndn_cpp_la_DEPENDENCIES) $(EXTRA_libndn_cpp_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(CXXLINK) -rpath $(libdir) $(libndn_cpp_la_OBJECTS) $(libndn_cpp_la_LIBADD) $(LIBS)
@@ -804,6 +814,8 @@ mostlyclean-compile:
 	-rm -f ndn-cpp/encoding/*.lo
 	-rm -f ndn-cpp/transport/*.$(OBJEXT)
 	-rm -f ndn-cpp/transport/*.lo
+	-rm -f ndn-cpp/util/*.$(OBJEXT)
+	-rm -f ndn-cpp/util/*.lo
 	-rm -f tests/*.$(OBJEXT)
 
 distclean-compile:
@@ -836,6 +848,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/tcp-transport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/transport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/udp-transport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/dynamic-uchar-vector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-interest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-get-async.Po@am__quote@
@@ -901,6 +914,7 @@ clean-libtool:
 	-rm -rf ndn-cpp/c/util/.libs ndn-cpp/c/util/_libs
 	-rm -rf ndn-cpp/encoding/.libs ndn-cpp/encoding/_libs
 	-rm -rf ndn-cpp/transport/.libs ndn-cpp/transport/_libs
+	-rm -rf ndn-cpp/util/.libs ndn-cpp/util/_libs
 
 distclean-libtool:
 	-rm -f libtool config.lt
@@ -1170,6 +1184,8 @@ distclean-generic:
 	-rm -f ndn-cpp/encoding/$(am__dirstamp)
 	-rm -f ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
 	-rm -f ndn-cpp/transport/$(am__dirstamp)
+	-rm -f ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ndn-cpp/util/$(am__dirstamp)
 	-rm -f tests/$(DEPDIR)/$(am__dirstamp)
 	-rm -f tests/$(am__dirstamp)
 
@@ -1183,7 +1199,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/c/$(DEPDIR) ndn-cpp/c/encoding/$(DEPDIR) ndn-cpp/c/transport/$(DEPDIR) ndn-cpp/c/util/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/transport/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/c/$(DEPDIR) ndn-cpp/c/encoding/$(DEPDIR) ndn-cpp/c/transport/$(DEPDIR) ndn-cpp/c/util/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/transport/$(DEPDIR) ndn-cpp/util/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -1231,7 +1247,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/c/$(DEPDIR) ndn-cpp/c/encoding/$(DEPDIR) ndn-cpp/c/transport/$(DEPDIR) ndn-cpp/c/util/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/transport/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/c/$(DEPDIR) ndn-cpp/c/encoding/$(DEPDIR) ndn-cpp/c/transport/$(DEPDIR) ndn-cpp/c/util/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/transport/$(DEPDIR) ndn-cpp/util/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
