@@ -44,6 +44,8 @@ public:
    * Close the connection.  This base class implementation does nothing, but your derived class can override.
    */
   virtual void close();
+  
+  virtual ~Transport();
 };
 
 }

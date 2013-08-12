@@ -29,4 +29,8 @@ void Transport::close()
 {
 }
 
+Transport::~Transport()
+{
+}
+
 }
