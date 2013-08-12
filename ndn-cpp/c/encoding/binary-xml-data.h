@@ -19,9 +19,9 @@ extern "C" {
  * Encode the data packet as binary XML.
  * @param data Pointer to the data object the encode.
  * @param signedFieldsBeginOffset Return the offset in the encoding of the beginning of the fields which are signed.
- * If you are not encoding in order to sign, you can ignore this.
+ * If you are not encoding in order to sign, you can ignore this returned value.
  * @param signedFieldsEndOffset Return the offset in the encoding of the end of the fields which are signed.
- * If you are not encoding in order to sign, you can ignore this.
+ * If you are not encoding in order to sign, you can ignore this returned value.
  * @param encoder Pointer to the ndn_BinaryXmlEncoder struct which receives the encoding. 
  * @return 0 for success, else an error code.
  */
@@ -32,9 +32,9 @@ ndn_Error ndn_encodeBinaryXmlData
  * Decode the data packet as binary XML.
  * @param data Pointer to the data object the decode.
  * @param signedFieldsBeginOffset Return the offset in the encoding of the beginning of the fields which are signed.
- * If you are not encoding in order to sign, you can ignore this.
+ * If you are not decoding in order to verify, you can ignore this returned value.
  * @param signedFieldsEndOffset Return the offset in the encoding of the end of the fields which are signed.
- * If you are not encoding in order to sign, you can ignore this.
+ * If you are not decoding in order to verify, you can ignore this returned value.
  * @param decoder Pointer to the ndn_BinaryXmlDecoder struct which has been initialized with the buffer to decode. 
  * @return 0 for success, else an error code.
  */
