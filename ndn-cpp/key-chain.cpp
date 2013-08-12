@@ -126,8 +126,7 @@ void KeyChain::sign
   // TODO: use RSA_size to get the proper size of the signature buffer.
   unsigned char signature[1000];
   unsigned int signatureLength;
-  const unsigned char *keyPointer = privateKeyDer;
-  RSA *privateKey = d2i_RSAPrivateKey(NULL, &keyPointer, privateKeyDerLength);
+  RSA *privateKey = d2i_RSAPrivateKey(NULL, &privateKeyDer, privateKeyDerLength);
   if (!privateKey)
     throw std::runtime_error("Error decoding private key in d2i_RSAPrivateKey");
   int success = RSA_sign(NID_sha256, dataFieldsDigest, sizeof(dataFieldsDigest), signature, &signatureLength, privateKey);
@@ -142,6 +141,42 @@ void KeyChain::sign
 void KeyChain::defaultSign(Data &data)
 {
   sign(data, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
+}
+
+bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat)
+{
+  // Decode the data packet and digest the data fields.
+  Data data;
+  unsigned int signedFieldsBeginOffset, signedFieldsEndOffset;
+  wireFormat.decodeData(data, input, inputLength, &signedFieldsBeginOffset, &signedFieldsEndOffset);
+  if (data.getSignature().getDigestAlgorithm().size() != 0)
+    // TODO: Allow a non-default digest algorithm.
+    throw std::runtime_error("Cannot verify a data packet with a non-default digest algorithm");
+  unsigned char dataFieldsDigest[SHA256_DIGEST_LENGTH];
+  digestSha256(input + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, dataFieldsDigest);
+  
+  // Find the public key.
+  const unsigned char *publicKeyDer;
+  unsigned int publicKeyDerLength;
+  if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEY) {
+    publicKeyDer = &data.getSignedInfo().getKeyLocator().getKeyOrCertificate().front();
+    publicKeyDerLength = data.getSignedInfo().getKeyLocator().getKeyOrCertificate().size();
+  }
+  else
+    // Can't find a public key.
+    return false;
+
+  // Verify the dataFieldsDigest.
+  RSA *publicKey = d2i_RSA_PUBKEY(NULL, &publicKeyDer, publicKeyDerLength);
+  if (!publicKey)
+    throw std::runtime_error("Error decoding public key in d2i_RSAPublicKey");
+  int success = RSA_verify
+    (NID_sha256, dataFieldsDigest, sizeof(dataFieldsDigest), &data.getSignature().getSignature().front(), 
+     data.getSignature().getSignature().size(), publicKey);
+  // Free the public key before checking for success.
+  RSA_free(publicKey);
+  
+  return (success == 1);
 }
 
 }

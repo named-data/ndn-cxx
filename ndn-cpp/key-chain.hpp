@@ -32,6 +32,23 @@ public:
    * @param data
    */
   static void defaultSign(Data &data);
+  
+  /**
+   * Use the WireFormat to decode the input as a Data packet and use the public key in the key locator to 
+   * verify the signature.
+   * This does just uses the public key without checking whether it is certified.
+   * @param input A pointer to the input buffer to decode.
+   * @param inputLength The number of bytes in input.
+   * @param wireFormat The WireFormat for calling decodeData.
+   * @return true if the public key in the Data object verifies the object, false if not or if the Data object
+   * doesn't have a public key.
+   */
+  static bool selfVerifyData(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat);
+  
+  static bool selfVerifyData(const unsigned char *input, unsigned int inputLength)
+  {
+    return selfVerifyData(input, inputLength, *WireFormat::getDefaultWireFormat());
+  }
 };
 
 }
