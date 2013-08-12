@@ -55,6 +55,16 @@ public:
   { 
     setVector(signature_, signature, signatureLength); 
   }
+  
+  /**
+   * Clear the digest algorithm, witness and signature fields.
+   */
+  void clear()
+  {
+    digestAlgorithm_.clear();
+    witness_.clear();
+    signature_.clear();
+  }
 
 private:
   std::vector<unsigned char> digestAlgorithm_; /**< if empty, the default is 2.16.840.1.101.3.4.2.1 (sha-256) */
