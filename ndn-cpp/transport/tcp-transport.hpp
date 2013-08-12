@@ -18,6 +18,7 @@ public:
   {
     ndn_TcpTransport_init(&transport_);
     face_ = 0;
+    elementReader_.partialData.array = 0;
   }
   
   /**
@@ -46,6 +47,8 @@ public:
    * Close the connection to the host.
    */
   virtual void close();
+  
+  ~TcpTransport();
   
 private:
   struct ndn_TcpTransport transport_;

@@ -59,4 +59,11 @@ void TcpTransport::close()
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
+TcpTransport::~TcpTransport()
+{
+  if (elementReader_.partialData.array)
+    // Free the memory allocated in connect.
+    free(elementReader_.partialData.array);
+}
+
 }

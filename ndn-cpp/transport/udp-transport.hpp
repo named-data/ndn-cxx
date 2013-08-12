@@ -18,6 +18,7 @@ public:
   {
     ndn_UdpTransport_init(&transport_);
     face_ = 0;
+    elementReader_.partialData.array = 0;
   }
   
   /**
@@ -47,6 +48,8 @@ public:
    */
   virtual void close();
 
+  ~UdpTransport();
+  
 private:
   struct ndn_UdpTransport transport_;
   Face *face_;
