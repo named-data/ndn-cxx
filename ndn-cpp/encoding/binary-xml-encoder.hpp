@@ -22,8 +22,9 @@ public:
    * Initialize the base ndn_BinaryXmlEncoder struct with an initial array of 16 bytes.  Use simpleRealloc.
    */
   BinaryXmlEncoder() 
-  : output_(16)
+  : output_(1)
   {
+    ndn_BinaryXmlEncoder_init(this, &output_);
   }
   
   /**
