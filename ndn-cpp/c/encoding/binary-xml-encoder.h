@@ -18,23 +18,20 @@ extern "C" {
  *  ndn_BinaryXmlEncoder_init.
  */
 struct ndn_BinaryXmlEncoder {
-  struct ndn_DynamicUCharArray output; /**< receives the encoded output */
+  struct ndn_DynamicUCharArray *output; /**< A pointer to a ndn_DynamicUCharArray which receives the encoded output */
   unsigned int offset;             /**< the offset into output.array for the next encoding */
 };
 
 /**
  * Initialize an ndn_BinaryXmlEncoder_init struct with the arguments for initializing the ndn_DynamicUCharArray.
  * @param self pointer to the ndn_BinaryXmlEncoder struct
- * @param outputArray the allocated array buffer to receive the encoding
- * @param outputArrayLength the length of outputArray
- * @param reallocFunction the realloc function used by ndn_DynamicUCharArray_ensureLength.  If outputArrayLength
- * is large enough to receive the entire encoding, this can be 0.
+ * @param output A pointer to a ndn_DynamicUCharArray struct which receives the encoded output.  The struct must
+ * remain valid during the entire life of this ndn_BinaryXmlEncoder. If the output->realloc
+ * function pointer is null, its array must be large enough to receive the entire encoding.
  */
-static inline void ndn_BinaryXmlEncoder_init
-  (struct ndn_BinaryXmlEncoder *self, unsigned char *outputArray, unsigned int outputArrayLength, 
-   unsigned char * (*reallocFunction)(struct ndn_DynamicUCharArray *self, unsigned char *, unsigned int)) 
+static inline void ndn_BinaryXmlEncoder_init(struct ndn_BinaryXmlEncoder *self, struct ndn_DynamicUCharArray *output) 
 {
-  ndn_DynamicUCharArray_init(&self->output, outputArray, outputArrayLength, reallocFunction);
+  self->output = output;
   self->offset = 0;
 }
 

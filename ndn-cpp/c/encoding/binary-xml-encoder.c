@@ -26,10 +26,10 @@ enum {
 static ndn_Error writeArray(struct ndn_BinaryXmlEncoder *self, unsigned char *array, unsigned int arrayLength)
 {
   ndn_Error error;
-  if ((error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + arrayLength)))
+  if ((error = ndn_DynamicUCharArray_ensureLength(self->output, self->offset + arrayLength)))
     return error;
   
-  ndn_memcpy(self->output.array + self->offset, array, arrayLength);
+  ndn_memcpy(self->output->array + self->offset, array, arrayLength);
   self->offset += arrayLength;
   
   return NDN_ERROR_success;
@@ -96,10 +96,10 @@ static ndn_Error encodeReversedUnsignedDecimalInt(struct ndn_BinaryXmlEncoder *s
 {
   while (1) {
     ndn_Error error;
-    if ((error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1)))
+    if ((error = ndn_DynamicUCharArray_ensureLength(self->output, self->offset + 1)))
       return error;
     
-    self->output.array[self->offset++] = (unsigned char)(x % 10 + '0');
+    self->output->array[self->offset++] = (unsigned char)(x % 10 + '0');
     x /= 10;
     
     if (x == 0)
@@ -110,12 +110,12 @@ static ndn_Error encodeReversedUnsignedDecimalInt(struct ndn_BinaryXmlEncoder *s
 }
 
 /**
- * Reverse the buffer in self->output.array, then shift it right by the amount needed to prefix a header with type, 
+ * Reverse the buffer in self->output->array, then shift it right by the amount needed to prefix a header with type, 
  * then encode the header at startOffset.
  * startOffser it the position in self-output.array of the first byte of the buffer and self->offset is the first byte past the end.
  * We reverse and shift in the same function to avoid unnecessary copying if we first reverse then shift.
  * @param self pointer to the ndn_BinaryXmlEncoder struct
- * @param startOffset the offset in self->output.array of the start of the buffer to shift right
+ * @param startOffset the offset in self->output->array of the start of the buffer to shift right
  * @param type the header type
  * @return 0 for success, else an error code
  */
@@ -125,19 +125,19 @@ static ndn_Error reverseBufferAndInsertHeader
   unsigned int nBufferBytes = self->offset - startOffset;
   unsigned int nHeaderBytes = getNHeaderEncodingBytes(nBufferBytes);
   ndn_Error error;
-  if ((error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + nHeaderBytes)))
+  if ((error = ndn_DynamicUCharArray_ensureLength(self->output, self->offset + nHeaderBytes)))
     return error;
   
   // To reverse and shift at the same time, we first shift nHeaderBytes to the destination while reversing,
   //   then reverse the remaining bytes in place.
-  unsigned char *from = self->output.array + startOffset;
+  unsigned char *from = self->output->array + startOffset;
   unsigned char *fromEnd = from + nHeaderBytes;
-  unsigned char *to = self->output.array + startOffset + nBufferBytes + nHeaderBytes - 1;
+  unsigned char *to = self->output->array + startOffset + nBufferBytes + nHeaderBytes - 1;
   while (from < fromEnd)
     *(to--) = *(from++);
   // Reverse the remaining bytes in place (if any).
   if (nBufferBytes > nHeaderBytes)
-    reverse(self->output.array + startOffset + nHeaderBytes, nBufferBytes - nHeaderBytes);
+    reverse(self->output->array + startOffset + nHeaderBytes, nBufferBytes - nHeaderBytes);
   
   // Override the offset to force encodeTypeAndValue to encode at startOffset, then fix the offset.
   self->offset = startOffset;
@@ -178,11 +178,11 @@ ndn_Error ndn_BinaryXmlEncoder_encodeTypeAndValue(struct ndn_BinaryXmlEncoder *s
   // Encode backwards. Calculate how many bytes we need.
   unsigned int nEncodingBytes = getNHeaderEncodingBytes(value);
   ndn_Error error;
-  if ((error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + nEncodingBytes)))
+  if ((error = ndn_DynamicUCharArray_ensureLength(self->output, self->offset + nEncodingBytes)))
     return error;
 
   // Bottom 4 bits of value go in last byte with tag.
-  self->output.array[self->offset + nEncodingBytes - 1] = 
+  self->output->array[self->offset + nEncodingBytes - 1] = 
     (ndn_BinaryXml_TT_MASK & type | 
     ((ndn_BinaryXml_TT_VALUE_MASK & value) << ndn_BinaryXml_TT_BITS)) |
     ndn_BinaryXml_TT_FINAL; // set top bit for last byte
@@ -191,7 +191,7 @@ ndn_Error ndn_BinaryXmlEncoder_encodeTypeAndValue(struct ndn_BinaryXmlEncoder *s
   // Rest of value goes into preceding bytes, 7 bits per byte. (Zero top bit is "more" flag.)
   unsigned int i = self->offset + nEncodingBytes - 2;
   while (value != 0 && i >= self->offset) {
-    self->output.array[i] = (value & ndn_BinaryXml_REGULAR_VALUE_MASK);
+    self->output->array[i] = (value & ndn_BinaryXml_REGULAR_VALUE_MASK);
     value >>= ndn_BinaryXml_REGULAR_VALUE_BITS;
     --i;
   }
@@ -207,10 +207,10 @@ ndn_Error ndn_BinaryXmlEncoder_encodeTypeAndValue(struct ndn_BinaryXmlEncoder *s
 ndn_Error ndn_BinaryXmlEncoder_writeElementClose(struct ndn_BinaryXmlEncoder *self)
 {
   ndn_Error error;
-  if ((error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1)))
+  if ((error = ndn_DynamicUCharArray_ensureLength(self->output, self->offset + 1)))
     return error;
   
-  self->output.array[self->offset] = ndn_BinaryXml_CLOSE;
+  self->output->array[self->offset] = ndn_BinaryXml_CLOSE;
   self->offset += 1;
   
   return NDN_ERROR_success;
@@ -283,28 +283,28 @@ ndn_Error ndn_BinaryXmlEncoder_writeAbsDoubleBigEndianBlob(struct ndn_BinaryXmlE
   
   ndn_Error error;
   while (lo32 != 0) {
-    if ((error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1)))
+    if ((error = ndn_DynamicUCharArray_ensureLength(self->output, self->offset + 1)))
       return error;
     
-    self->output.array[self->offset++] = (unsigned char)(lo32 & 0xff);
+    self->output->array[self->offset++] = (unsigned char)(lo32 & 0xff);
     lo32 >>= 8;
   }
   
   if (hi32 != 0) {
     // Pad the lo values out to 4 bytes.
     while (self->offset - startOffset < 4) {
-      if ((error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1)))
+      if ((error = ndn_DynamicUCharArray_ensureLength(self->output, self->offset + 1)))
         return error;
     
-      self->output.array[self->offset++] = 0;
+      self->output->array[self->offset++] = 0;
     }
     
     // Encode hi32
     while (hi32 != 0) {
-      if ((error = ndn_DynamicUCharArray_ensureLength(&self->output, self->offset + 1)))
+      if ((error = ndn_DynamicUCharArray_ensureLength(self->output, self->offset + 1)))
         return error;
     
-      self->output.array[self->offset++] = (unsigned char)(hi32 & 0xff);
+      self->output->array[self->offset++] = (unsigned char)(hi32 & 0xff);
       hi32 >>= 8;
     }
   }
