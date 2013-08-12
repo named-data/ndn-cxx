@@ -82,8 +82,9 @@ void BinaryXmlWireFormat::decodeData(Data &data, const unsigned char *input, uns
     (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
     
   BinaryXmlDecoder decoder(input, inputLength);  
+  unsigned int dummyBeginOffset, dummyEndOffset;
   ndn_Error error;
-  if ((error = ndn_decodeBinaryXmlData(&dataStruct, &decoder)))
+  if ((error = ndn_decodeBinaryXmlData(&dataStruct, &dummyBeginOffset, &dummyEndOffset, &decoder)))
     throw std::runtime_error(ndn_getErrorString(error));
 
   data.set(dataStruct);

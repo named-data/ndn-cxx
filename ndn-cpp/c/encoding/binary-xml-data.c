@@ -159,7 +159,8 @@ ndn_Error ndn_encodeBinaryXmlData
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_decodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlDecoder *decoder)
+ndn_Error ndn_decodeBinaryXmlData
+  (struct ndn_Data *data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset, struct ndn_BinaryXmlDecoder *decoder)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlDecoder_readElementStartDTag(decoder, ndn_BinaryXml_DTag_ContentObject)))
@@ -174,6 +175,8 @@ ndn_Error ndn_decodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlDec
   }
   else
     ndn_Signature_init(&data->signature);
+  
+  *signedFieldsBeginOffset = decoder->offset;
   
   if ((error = ndn_decodeBinaryXmlName(&data->name, decoder)))
     return error;
@@ -192,6 +195,8 @@ ndn_Error ndn_decodeBinaryXmlData(struct ndn_Data *data, struct ndn_BinaryXmlDec
       (decoder, ndn_BinaryXml_DTag_Content, 1, &data->content, &data->contentLength)))
     return error; 
   
+  *signedFieldsEndOffset = decoder->offset;
+
   if ((error = ndn_BinaryXmlDecoder_readElementClose(decoder)))
     return error;
   
