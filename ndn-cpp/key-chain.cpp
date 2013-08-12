@@ -66,7 +66,7 @@ static unsigned char DEFAULT_PRIVATE_KEY_DER[] = {
  * @param dataLength The length of data.
  * @param digest A pointer to a buffer of size SHA256_DIGEST_LENGTH to receive the data.
  */
-static void digestSha256(unsigned char *data, unsigned int dataLength, unsigned char *digest)
+static void digestSha256(const unsigned char *data, unsigned int dataLength, unsigned char *digest)
 {
   SHA256_CTX sha256;
   SHA256_Init(&sha256);
@@ -80,7 +80,7 @@ static void digestSha256(unsigned char *data, unsigned int dataLength, unsigned 
  * @param dataLength
  * @param digest
  */
-static void setSha256(unsigned char *data, unsigned int dataLength, vector<unsigned char> &digest)
+static void setSha256(const unsigned char *data, unsigned int dataLength, vector<unsigned char> &digest)
 {
   unsigned char digestBuffer[SHA256_DIGEST_LENGTH];
   digestSha256(data, dataLength, digestBuffer);
@@ -109,12 +109,16 @@ static void digestDataFieldsSha256(const Data &data, unsigned char *digest)
   digestSha256(encoder.output.array + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, digest);
 }
 
-void KeyChain::defaultSign(Data &data)
+void KeyChain::sign
+  (Data &data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
+   const unsigned char *privateKeyDer, unsigned int privateKeyDerLength)
 {
   // Set the public key.
-  setSha256(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest());
+  setSha256(publicKeyDer, publicKeyDerLength, data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest());
   data.getSignedInfo().getKeyLocator().setType(ndn_KeyLocatorType_KEY);
-  data.getSignedInfo().getKeyLocator().setKeyOrCertificate(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER));
+  data.getSignedInfo().getKeyLocator().setKeyOrCertificate(publicKeyDer, publicKeyDerLength);
+  // Clear the signature so we don't encode it below.
+  data.getSignature().clear();
 
   // Sign the fields.
   unsigned char dataFieldsDigest[SHA256_DIGEST_LENGTH];
@@ -122,8 +126,8 @@ void KeyChain::defaultSign(Data &data)
   // TODO: use RSA_size to get the proper size of the signature buffer.
   unsigned char signature[1000];
   unsigned int signatureLength;
-  const unsigned char *keyPointer = DEFAULT_PRIVATE_KEY_DER;
-  RSA *privateKey = d2i_RSAPrivateKey(NULL, &keyPointer, sizeof(DEFAULT_PRIVATE_KEY_DER));
+  const unsigned char *keyPointer = privateKeyDer;
+  RSA *privateKey = d2i_RSAPrivateKey(NULL, &keyPointer, privateKeyDerLength);
   if (!privateKey)
     throw std::runtime_error("Error decoding private key in d2i_RSAPrivateKey");
   int success = RSA_sign(NID_sha256, dataFieldsDigest, sizeof(dataFieldsDigest), signature, &signatureLength, privateKey);
@@ -133,6 +137,11 @@ void KeyChain::defaultSign(Data &data)
     throw std::runtime_error("Error in RSA_sign");
   
   data.getSignature().setSignature(signature, signatureLength);
+}
+
+void KeyChain::defaultSign(Data &data)
+{
+  sign(data, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
 }
 
 }
