@@ -16,7 +16,7 @@ ndn_Error ndn_DynamicUCharArray_reallocArray(struct ndn_DynamicUCharArray *self,
     // The needed length is much greater, so use it.
     newLength = length;
     
-  unsigned char *newArray = (*self->realloc)(self->array, newLength);
+  unsigned char *newArray = (*self->realloc)(self, self->array, newLength);
   if (!newArray)
     return NDN_ERROR_DynamicUCharArray_realloc_failed;
   

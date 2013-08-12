@@ -32,7 +32,7 @@ struct ndn_BinaryXmlEncoder {
  */
 static inline void ndn_BinaryXmlEncoder_init
   (struct ndn_BinaryXmlEncoder *self, unsigned char *outputArray, unsigned int outputArrayLength, 
-   unsigned char * (*reallocFunction)(unsigned char *, unsigned int)) 
+   unsigned char * (*reallocFunction)(struct ndn_DynamicUCharArray *self, unsigned char *, unsigned int)) 
 {
   ndn_DynamicUCharArray_init(&self->output, outputArray, outputArrayLength, reallocFunction);
   self->offset = 0;

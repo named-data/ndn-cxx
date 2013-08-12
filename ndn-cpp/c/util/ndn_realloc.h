@@ -6,6 +6,8 @@
 #ifndef NDN_NDN_REALLOC_H
 #define NDN_NDN_REALLOC_H
 
+#include "dynamic-uchar-array.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -13,11 +15,12 @@ extern "C" {
 /**
  * Wrap the C stdlib realloc to convert to/from void * to unsigned char *.
  * This can be used by ndn_DynamicUCharArray_init.
- * @param array the allocated array buffer to realloc
- * @param length the length for the new array buffer
- * @return the new allocated array buffer
+ * @param self This is ignored.
+ * @param array the allocated array buffer to realloc.
+ * @param length the length for the new array buffer.
+ * @return the new allocated array buffer.
  */
-unsigned char *ndn_realloc(unsigned char *array, unsigned int length);
+unsigned char *ndn_realloc(struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length);
 
 #ifdef __cplusplus
 }

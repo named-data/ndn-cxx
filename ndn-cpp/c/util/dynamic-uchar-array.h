@@ -16,10 +16,12 @@ extern "C" {
 struct ndn_DynamicUCharArray {
   unsigned char *array; /**< the allocated array buffer */
   unsigned int length;  /**< the length of the allocated array buffer */
-  unsigned char * (*realloc)(unsigned char *array, unsigned int length); /**< a pointer to a function that reallocates array and returns a new pointer to a buffer of
-                                                                          * length bytes, or 0 for error.  On success, the contents of the old buffer are copied to the new one.
-                                                                          * On success, the original array pointer will no longer be used.
-                                                                          * This function pointer may be 0 (which causes an error if a reallocate is necessary). */
+  unsigned char * (*realloc)
+    (struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length); /**< a pointer to a function that reallocates array and returns a new pointer to a buffer of
+                                                                                      * length bytes, or 0 for error.  On success, the contents of the old buffer are copied to the new one.
+                                                                                      * On success, the original array pointer will no longer be used.
+                                                                                      * self is a pointer to the struct ndn_DynamicUCharArray which is calling realloc.
+                                                                                      * This function pointer may be 0 (which causes an error if a reallocate is necessary). */
 };
 
 /**
@@ -30,7 +32,8 @@ struct ndn_DynamicUCharArray {
  * @param reallocFunction see ndn_DynamicUCharArray_ensureLength.  This may be 0.
  */
 static inline void ndn_DynamicUCharArray_init
-  (struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length, unsigned char * (*reallocFunction)(unsigned char *, unsigned int)) 
+  (struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length, 
+   unsigned char * (*reallocFunction)(struct ndn_DynamicUCharArray *self, unsigned char *, unsigned int)) 
 {
   self->array = array;
   self->length = length;
