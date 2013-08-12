@@ -8,7 +8,7 @@
 
 #include <vector>
 #include "../common.hpp"
-#include "../c/util/ndn_realloc.h"
+#include "../util/dynamic-uchar-vector.hpp"
 #include "../c/encoding/binary-xml-encoder.h"
 
 namespace ndn {
@@ -22,9 +22,8 @@ public:
    * Initialize the base ndn_BinaryXmlEncoder struct with an initial array of 16 bytes.  Use simpleRealloc.
    */
   BinaryXmlEncoder() 
+  : output_(16)
   {
-    const unsigned int initialLength = 16;
-    ndn_BinaryXmlEncoder_init(this, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
   }
   
   /**
@@ -32,8 +31,10 @@ public:
    */
   ptr_lib::shared_ptr<std::vector<unsigned char> > getOutput() 
   {
-    return ptr_lib::shared_ptr<std::vector<unsigned char> >(new std::vector<unsigned char>(output.array, output.array + offset));
+    return output_.get();
   }
+  
+  DynamicUCharVector output_;
 };
 
 }

@@ -106,7 +106,7 @@ static void digestDataFieldsSha256(const Data &data, unsigned char *digest)
   if ((error = ndn_encodeBinaryXmlData(&dataStruct, &signedFieldsBeginOffset, &signedFieldsEndOffset, &encoder)))
     throw std::runtime_error(ndn_getErrorString(error));
   
-  digestSha256(encoder.output.array + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, digest);
+  digestSha256(&encoder.getOutput()->front() + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, digest);
 }
 
 void KeyChain::sign
