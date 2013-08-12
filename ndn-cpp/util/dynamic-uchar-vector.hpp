@@ -16,7 +16,7 @@ namespace ndn {
  * A DynamicUCharVector extends ndn_DynamicUCharArray to hold a shared_ptr<vector<unsigned char> > for use with
  * C functions which need an ndn_DynamicUCharArray.
  */
-class DynamicUCharVector : ndn_DynamicUCharArray {
+class DynamicUCharVector : public ndn_DynamicUCharArray {
 public:
   /**
    * Create a new DynamicUCharVector with an initial length.
@@ -32,7 +32,7 @@ public:
   
 private:
   /**
-   * Implement the static realloc function using vector reserve.
+   * Implement the static realloc function using vector resize.
    * @param self A pointer to this object.
    * @param array Should be the front of the vector.
    * @param length The new length for the vector.

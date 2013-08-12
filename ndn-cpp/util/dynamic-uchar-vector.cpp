@@ -24,7 +24,7 @@ unsigned char *DynamicUCharVector::realloc(struct ndn_DynamicUCharArray *self, u
     // We don't expect this to ever happen. The caller didn't pass the array from this object.
     return 0;
   
-  thisObject->vector_->reserve(length);
+  thisObject->vector_->resize(length);
   return &thisObject->vector_->front();
 }
 
