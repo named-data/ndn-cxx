@@ -31,9 +31,9 @@ ndn_Error ndn_encodeBinaryXmlData
 /**
  * Decode the data packet as binary XML.
  * @param data Pointer to the data object the decode.
- * @param signedFieldsBeginOffset Return the offset in the encoding of the beginning of the fields which are signed.
+ * @param signedFieldsBeginOffset Return the offset in the input buffer of the beginning of the fields which are signed.
  * If you are not decoding in order to verify, you can ignore this returned value.
- * @param signedFieldsEndOffset Return the offset in the encoding of the end of the fields which are signed.
+ * @param signedFieldsEndOffset Return the offset in the input buffer of the end of the fields which are signed.
  * If you are not decoding in order to verify, you can ignore this returned value.
  * @param decoder Pointer to the ndn_BinaryXmlDecoder struct which has been initialized with the buffer to decode. 
  * @return 0 for success, else an error code.
