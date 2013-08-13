@@ -52,6 +52,14 @@ static inline void ndn_Name_init(struct ndn_Name *self, struct ndn_NameComponent
   self->nComponents = 0;
 }
 
+/**
+ * Return true if the N components of this name are the same as the first N components of the given name.
+ * @param self A pointer to the ndn_Name struct.
+ * @param name A pointer to the other name to match.
+ * @return 1 if this matches the given name, 0 otherwise.  This always returns 1 if this name is empty.
+ */
+int ndn_Name_match(struct ndn_Name *self, struct ndn_Name *name);
+
 #ifdef __cplusplus
 }
 #endif

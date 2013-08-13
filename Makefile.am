@@ -18,7 +18,7 @@ libndn_c_la_SOURCES = \
   ndn-cpp/c/data.h \
   ndn-cpp/c/interest.h \
   ndn-cpp/c/key.h \
-  ndn-cpp/c/name.h \
+  ndn-cpp/c/name.c ndn-cpp/c/name.h \
   ndn-cpp/c/publisher-public-key-digest.h \
   ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
   ndn-cpp/c/encoding/binary-xml.h \
