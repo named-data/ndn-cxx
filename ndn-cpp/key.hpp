@@ -33,7 +33,7 @@ public:
 
   ndn_KeyLocatorType getType() const { return type_; }
   
-  const std::vector<unsigned char> getKeyOrCertificate() const { return keyOrCertificate_; }
+  const std::vector<unsigned char> &getKeyOrCertificate() const { return keyOrCertificate_; }
 
   // TODO: Implement getKeyName.
 
