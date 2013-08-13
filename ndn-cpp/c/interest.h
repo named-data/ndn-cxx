@@ -62,6 +62,15 @@ static inline void ndn_Exclude_init(struct ndn_Exclude *self, struct ndn_Exclude
   self->nEntries = 0;
 }
 
+/**
+ * Compare the components using NDN component ordering.
+ * A component is less if it is shorter, otherwise if equal length do a byte comparison.
+ * @param component1 A pointer to the first name component.
+ * @param component2 A pointer to the second name component.
+ * @return -1 if component1 is less than component2, 1 if greater or 0 if equal.
+ */
+int ndn_Exclude_compareComponents(struct ndn_NameComponent *component1, struct ndn_NameComponent *component2);
+
 enum {
   ndn_Interest_CHILD_SELECTOR_LEFT = 0,
   ndn_Interest_CHILD_SELECTOR_RIGHT = 1,

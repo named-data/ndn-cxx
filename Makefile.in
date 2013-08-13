@@ -132,8 +132,8 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libndn_c_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libndn_c_la_OBJECTS = ndn-cpp/c/name.lo ndn-cpp/c/errors.lo \
-	ndn-cpp/c/encoding/binary-xml-data.lo \
+am_libndn_c_la_OBJECTS = ndn-cpp/c/interest.lo ndn-cpp/c/name.lo \
+	ndn-cpp/c/errors.lo ndn-cpp/c/encoding/binary-xml-data.lo \
 	ndn-cpp/c/encoding/binary-xml-decoder.lo \
 	ndn-cpp/c/encoding/binary-xml-element-reader.lo \
 	ndn-cpp/c/encoding/binary-xml-encoder.lo \
@@ -457,7 +457,7 @@ lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 libndn_c_la_SOURCES = \
   config.h \
   ndn-cpp/c/data.h \
-  ndn-cpp/c/interest.h \
+  ndn-cpp/c/interest.c ndn-cpp/c/interest.h \
   ndn-cpp/c/key.h \
   ndn-cpp/c/name.c ndn-cpp/c/name.h \
   ndn-cpp/c/publisher-public-key-digest.h \
@@ -605,6 +605,8 @@ ndn-cpp/c/$(am__dirstamp):
 ndn-cpp/c/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/$(DEPDIR)
 	@: > ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/c/interest.lo: ndn-cpp/c/$(am__dirstamp) \
+	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/name.lo: ndn-cpp/c/$(am__dirstamp) \
 	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/errors.lo: ndn-cpp/c/$(am__dirstamp) \
@@ -831,6 +833,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/key.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/errors.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/interest.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-data.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-decoder.Plo@am__quote@

@@ -16,7 +16,7 @@ bin_PROGRAMS = bin/test-encode-decode-interest bin/test-encode-decode-data bin/t
 libndn_c_la_SOURCES = \
   config.h \
   ndn-cpp/c/data.h \
-  ndn-cpp/c/interest.h \
+  ndn-cpp/c/interest.c ndn-cpp/c/interest.h \
   ndn-cpp/c/key.h \
   ndn-cpp/c/name.c ndn-cpp/c/name.h \
   ndn-cpp/c/publisher-public-key-digest.h \
