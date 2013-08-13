@@ -65,6 +65,12 @@ public:
     bool setFromEscapedString(const char *first, const char *last);
   
     const std::vector<unsigned char> &getValue() const { return value_; }
+    
+    /**
+     * Set this component to the encoded segment number.
+     * @param segment The segment number.
+     */
+    void setSegment(unsigned long segment);
   
   private:
     std::vector<unsigned char> value_;
@@ -140,6 +146,16 @@ public:
   std::string to_uri() const 
   {
     return toUri();
+  }
+  
+  /**
+   * Append a component with the encoded segment number.
+   * @param segment The segment number.
+   */
+  void appendSegment(unsigned long segment)
+  {
+    components_.push_back(Component());
+    components_.back().setSegment(segment);
   }
 
 private:
