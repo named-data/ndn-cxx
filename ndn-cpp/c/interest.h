@@ -131,6 +131,15 @@ static inline void ndn_Interest_init
   self->nonceLength = 0;
 }
 
+/**
+ * Check if self's name matches the given name (using ndn_Name_match) and the given name also conforms to the 
+ * interest selectors.
+ * @param self A pointer to the ndn_Interest struct.
+ * @param name A pointer to the name to check.
+ * @return 1 if the name and interest selectors match, 0 otherwise.
+ */
+int ndn_Interest_matchesName(struct ndn_Interest *self, struct ndn_Name *name);
+
 #ifdef __cplusplus
 }
 #endif

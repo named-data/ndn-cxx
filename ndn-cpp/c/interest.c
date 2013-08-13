@@ -70,3 +70,23 @@ int ndn_Exclude_matches(struct ndn_Exclude *self, struct ndn_NameComponent *comp
   
   return 0;  
 }
+
+int ndn_Interest_matchesName(struct ndn_Interest *self, struct ndn_Name *name)
+{
+  if (!ndn_Name_match(&self->name, name))
+    return 0;
+  
+  if (self->minSuffixComponents >= 0 &&
+    // Add 1 for the implicit digest.
+    !(name->nComponents + 1 - self->name.nComponents >= self->minSuffixComponents))
+    return 0;
+  if (self->maxSuffixComponents >= 0 &&
+    // Add 1 for the implicit digest.
+    !(name->nComponents + 1 - self->name.nComponents <= self->maxSuffixComponents))
+    return 0;
+  if (self->exclude.nEntries > 0 && name->nComponents > self->name.nComponents &&
+      ndn_Exclude_matches(&self->exclude, name->components + self->name.nComponents))
+    return 0;
+  
+  return 1; 
+}
