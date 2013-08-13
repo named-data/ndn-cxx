@@ -2,7 +2,7 @@ NDN-CPP:  A Named Data Networking client library for C++ and C
 --------------------------------------------------------------
 
 NDN-CPP is a new implementation of a Named Data Networking client library written in C++ and C.  
-It is wire format compatible with NDNx.
+It is wire format compatible with NDNx and PARC's CCNx.
 	
 NDN-CPP is open source under a license described in the file COPYING.  While the license
 does not require it, we really would appreciate it if others would share their
