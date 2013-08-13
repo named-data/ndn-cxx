@@ -49,7 +49,7 @@ struct ndn_Exclude {
 };
 /**
  * Initialize an ndn_Exclude struct with the entries array.
- * @param self pointer to the ndn_Exclude struct
+ * @param self A pointer to the ndn_Exclude struct.
  * @param entries the pre-allocated array of ndn_ExcludeEntry
  * @param maxEntries the number of elements in the allocated entries array
  */
@@ -68,6 +68,14 @@ static inline void ndn_Exclude_init(struct ndn_Exclude *self, struct ndn_Exclude
  * @return -1 if component1 is less than component2, 1 if greater or 0 if equal.
  */
 int ndn_Exclude_compareComponents(struct ndn_NameComponent *component1, struct ndn_NameComponent *component2);
+
+/**
+ * Check if the component matches any of the exclude criteria.
+ * @param self A pointer to the ndn_Exclude struct.
+ * @param component A pointer to the name component to check.
+ * @return 1 if the component matches any of the exclude criteria, otherwise 0.
+ */
+int ndn_Exclude_matches(struct ndn_Exclude *self, struct ndn_NameComponent *component);
 
 enum {
   ndn_Interest_CHILD_SELECTOR_LEFT = 0,
