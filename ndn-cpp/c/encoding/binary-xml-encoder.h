@@ -134,7 +134,7 @@ static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalUnsignedDecimalIntDTag
 }
 
 /**
- * Write a BLOB header, then the absolute value of value to self->output encoded as big endian.
+ * Write a BLOB header, then the absolute value of value, rounded to an integer, to self->output encoded as big endian.
  * @param self pointer to the ndn_BinaryXmlEncoder struct
  * @param value the double to encode as big endian.  If value is 0, the big endian encoding has zero bytes.
  * The value is converted to absolute value.
