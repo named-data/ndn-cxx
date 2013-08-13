@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <algorithm>
 #include "name.hpp"
 
 using namespace std;
@@ -176,17 +177,17 @@ void Name::Component::setSegment(unsigned long segment)
 {
   value_.clear();
   
+  // Add the leading zero.
+  value_.push_back(0);
+  
   // First encode in little endian.
   while (segment != 0) {
     value_.push_back(segment & 0xff);
     segment >>= 8;
   }
   
-  // Append a zero which will become the leading zero when we reverse.
-  value_.push_back(0);
-  
   // Make it big endian.
-  reverse(value_.begin(), value_.end());
+  reverse(value_.begin() + 1, value_.end());
 }
 
 Name::Name(const char *uri_cstr) 
