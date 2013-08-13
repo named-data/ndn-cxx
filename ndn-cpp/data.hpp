@@ -102,8 +102,8 @@ public:
   
   int getFreshnessSeconds() const { return freshnessSeconds_; }
   
-  const std::vector<unsigned char> getFinalBlockID() const { return finalBlockID_; }
-  std::vector<unsigned char> getFinalBlockID() { return finalBlockID_; }
+  const std::vector<unsigned char> &getFinalBlockID() const { return finalBlockID_; }
+  std::vector<unsigned char> &getFinalBlockID() { return finalBlockID_; }
   
   const KeyLocator &getKeyLocator() const { return keyLocator_; }
   KeyLocator &getKeyLocator() { return keyLocator_; }
@@ -191,7 +191,8 @@ public:
   const SignedInfo &getSignedInfo() const { return signedInfo_; }
   SignedInfo &getSignedInfo() { return signedInfo_; }
   
-  const std::vector<unsigned char> getContent() const { return content_; }
+  const std::vector<unsigned char> &getContent() const { return content_; }
+  std::vector<unsigned char> &getContent() { return content_; }
 
   void setSignature(const Signature &signature) { signature_ = signature; }
   

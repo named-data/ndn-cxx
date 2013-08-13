@@ -191,7 +191,7 @@ public:
 
   double getInterestLifetimeMilliseconds() const { return interestLifetimeMilliseconds_; }
 
-  const std::vector<unsigned char> getNonce() const { return nonce_; }
+  const std::vector<unsigned char> &getNonce() const { return nonce_; }
   
   /**
    * Clear this interest, and set the values by copying from the interest struct.
