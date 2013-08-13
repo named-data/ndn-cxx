@@ -15,18 +15,36 @@ using namespace std;
 
 namespace ndn {
 
+/**
+ * The Face class provides the main methods for NDN communication.
+ */
 class Face : public ElementListener {
 public:
+  /**
+   * Create a new Face for communication with an NDN hub at host:port with the given Transport object.
+   * @param host The host of the NDN hub.
+   * @param port The port of the NDN hub.
+   * @param transport A pointer to a Transport object used for communication.
+   */
   Face(const char *host, unsigned short port, const ptr_lib::shared_ptr<Transport> &transport)
   : host_(host), port_(port), transport_(transport), tempClosure_(0)
   {
   }
   
+  /**
+   * Create a new Face for communication with an NDN hub at host:port using the default UdpTransport.
+   * @param host The host of the NDN hub.
+   * @param port The port of the NDN hub.
+   */
   Face(const char *host, unsigned short port)
   : host_(host), port_(port), transport_(new UdpTransport()), tempClosure_(0)
   {
   }
   
+  /**
+   * Create a new Face for communication with an NDN hub at host with the default port 9695 and using the default UdpTransport.
+   * @param host The host of the NDN hub.
+   */
   Face(const char *host)
   : host_(host), port_(9695), transport_(new UdpTransport()), tempClosure_(0)
   {
