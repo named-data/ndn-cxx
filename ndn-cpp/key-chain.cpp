@@ -126,7 +126,9 @@ void KeyChain::sign
   // TODO: use RSA_size to get the proper size of the signature buffer.
   unsigned char signature[1000];
   unsigned int signatureLength;
-  RSA *privateKey = d2i_RSAPrivateKey(NULL, &privateKeyDer, privateKeyDerLength);
+  // Use a temporary pointer since d2i updates it.
+  const unsigned char *derPointer = privateKeyDer;
+  RSA *privateKey = d2i_RSAPrivateKey(NULL, &derPointer, privateKeyDerLength);
   if (!privateKey)
     throw std::runtime_error("Error decoding private key in d2i_RSAPrivateKey");
   int success = RSA_sign(NID_sha256, dataFieldsDigest, sizeof(dataFieldsDigest), signature, &signatureLength, privateKey);
@@ -167,7 +169,9 @@ bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLeng
     return false;
 
   // Verify the dataFieldsDigest.
-  RSA *publicKey = d2i_RSA_PUBKEY(NULL, &publicKeyDer, publicKeyDerLength);
+  // Use a temporary pointer since d2i updates it.
+  const unsigned char *derPointer = publicKeyDer;
+  RSA *publicKey = d2i_RSA_PUBKEY(NULL, &derPointer, publicKeyDerLength);
   if (!publicKey)
     throw std::runtime_error("Error decoding public key in d2i_RSAPublicKey");
   int success = RSA_verify
