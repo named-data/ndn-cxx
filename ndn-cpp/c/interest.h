@@ -23,8 +23,7 @@ typedef enum {
  */
 struct ndn_ExcludeEntry {
   ndn_ExcludeType type;
-  unsigned char *component;     /**< pointer to the pre-allocated buffer for the component value */
-  unsigned int componentLength; /**< the number of bytes in value */
+  struct ndn_NameComponent component;
 };
 
 /**
@@ -37,8 +36,7 @@ struct ndn_ExcludeEntry {
 static inline void ndn_ExcludeEntry_init(struct ndn_ExcludeEntry *self, ndn_ExcludeType type, unsigned char *component, unsigned int componentLength) 
 {
   self->type = type;
-  self->component = component;
-  self->componentLength = componentLength;
+  ndn_NameComponent_init(&self->component, component, componentLength);
 }
 
 /**

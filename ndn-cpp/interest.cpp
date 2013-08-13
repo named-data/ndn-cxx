@@ -28,7 +28,7 @@ void Exclude::set(const struct ndn_Exclude &excludeStruct)
     ndn_ExcludeEntry *entry = &excludeStruct.entries[i];
     
     if (entry->type == ndn_Exclude_COMPONENT)
-      addComponent(entry->component, entry->componentLength);
+      addComponent(entry->component.value, entry->component.valueLength);
     else if (entry->type == ndn_Exclude_ANY)
       addAny();
     else

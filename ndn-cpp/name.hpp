@@ -50,8 +50,9 @@ public:
      */
     void get(struct ndn_NameComponent &componentStruct) const 
     {
-      componentStruct.value = (unsigned char *)&value_[0];
       componentStruct.valueLength = value_.size(); 
+      if (value_.size() > 0)
+        componentStruct.value = (unsigned char *)&value_[0];
     }
   
     /**

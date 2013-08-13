@@ -26,7 +26,7 @@ static ndn_Error encodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXml
     
     if (entry->type == ndn_Exclude_COMPONENT) {
       if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-          (encoder, ndn_BinaryXml_DTag_Component, entry->component, entry->componentLength)))
+          (encoder, ndn_BinaryXml_DTag_Component, entry->component.value, entry->component.valueLength)))
         return error;
     }
     else if (entry->type == ndn_Exclude_ANY) {

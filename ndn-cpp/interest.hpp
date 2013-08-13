@@ -29,7 +29,7 @@ public:
    * Create an ExcludeEntry of type ndn_Exclude_COMPONENT
    */
   ExcludeEntry(unsigned char *component, unsigned int componentLen) 
-  : type_(ndn_Exclude_COMPONENT), component_(component, component + componentLen)
+  : type_(ndn_Exclude_COMPONENT), component_(component, componentLen)
   {
   }
   
@@ -41,19 +41,17 @@ public:
   void get(struct ndn_ExcludeEntry &excludeEntryStruct) const 
   {
     excludeEntryStruct.type = type_;
-    if (type_ == ndn_Exclude_COMPONENT) {
-      excludeEntryStruct.componentLength = component_.size();
-      excludeEntryStruct.component = (unsigned char *)&component_[0];
-    }
+    if (type_ == ndn_Exclude_COMPONENT)
+      component_.get(excludeEntryStruct.component);
   }
   
   ndn_ExcludeType getType() const { return type_; }
   
-  const std::vector<unsigned char> &getComponent() const { return component_; }
+  const Name::Component &getComponent() const { return component_; }
   
 private:
   ndn_ExcludeType type_;
-  std::vector<unsigned char> component_; /**< only used if type_ is ndn_Exclude_COMPONENT */
+  Name::Component component_; /**< only used if type_ is ndn_Exclude_COMPONENT */
 }; 
   
 /**
