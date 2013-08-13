@@ -150,7 +150,7 @@ static ndn_Error reverseBufferAndInsertHeader
 }
 
 /**
- * Split the absolute value of x into 32 bit unsigned integers hi32 and lo32.
+ * Split the absolute value of x, rounded to an integer into 32 bit unsigned integers hi32 and lo32.
  * We need this because not all C compilers support 64 bit long long integers, so we carry around
  * a high precision value as a double, which we assume has more than 32 bits.
  * But we want to do bit-wise operations on integers.
