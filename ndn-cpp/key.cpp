@@ -14,11 +14,11 @@ void KeyLocator::get(struct ndn_KeyLocator &keyLocatorStruct) const
 {
   keyLocatorStruct.type = type_;
   
-  keyLocatorStruct.keyOrCertificateLength = keyOrCertificate_.size();
-  if (keyOrCertificate_.size() > 0)
-    keyLocatorStruct.keyOrCertificate = (unsigned char *)&keyOrCertificate_[0];
+  keyLocatorStruct.keyDataLength = keyData_.size();
+  if (keyData_.size() > 0)
+    keyLocatorStruct.keyData = (unsigned char *)&keyData_[0];
   else
-    keyLocatorStruct.keyOrCertificate = 0;
+    keyLocatorStruct.keyData = 0;
 
   // TODO: Implement keyName.
 }
@@ -26,7 +26,7 @@ void KeyLocator::get(struct ndn_KeyLocator &keyLocatorStruct) const
 void KeyLocator::set(const struct ndn_KeyLocator &keyLocatorStruct)
 {
   type_ = keyLocatorStruct.type;
-  setVector(keyOrCertificate_, keyLocatorStruct.keyOrCertificate, keyLocatorStruct.keyOrCertificateLength);
+  setVector(keyData_, keyLocatorStruct.keyData, keyLocatorStruct.keyDataLength);
   // TODO: Implement keyName.
 }
 

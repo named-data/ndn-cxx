@@ -19,12 +19,12 @@ ndn_Error ndn_encodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
 
   if (keyLocator->type == ndn_KeyLocatorType_KEY) {
     if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-        (encoder, ndn_BinaryXml_DTag_Key, keyLocator->keyOrCertificate, keyLocator->keyOrCertificateLength)))
+        (encoder, ndn_BinaryXml_DTag_Key, keyLocator->keyData, keyLocator->keyDataLength)))
       return error;    
   }
   else if (keyLocator->type == ndn_KeyLocatorType_CERTIFICATE) {
     if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-        (encoder, ndn_BinaryXml_DTag_Certificate, keyLocator->keyOrCertificate, keyLocator->keyOrCertificateLength)))
+        (encoder, ndn_BinaryXml_DTag_Certificate, keyLocator->keyData, keyLocator->keyDataLength)))
       return error;    
   }
   else if (keyLocator->type == ndn_KeyLocatorType_KEYNAME) {
@@ -52,7 +52,7 @@ ndn_Error ndn_decodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
     keyLocator->type = ndn_KeyLocatorType_KEY;
     
     if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement
-        (decoder, ndn_BinaryXml_DTag_Key, 0, &keyLocator->keyOrCertificate, &keyLocator->keyOrCertificateLength)))
+        (decoder, ndn_BinaryXml_DTag_Key, 0, &keyLocator->keyData, &keyLocator->keyDataLength)))
       return error;
   }
   else {
@@ -62,7 +62,7 @@ ndn_Error ndn_decodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
       keyLocator->type = ndn_KeyLocatorType_CERTIFICATE;
     
       if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement
-          (decoder, ndn_BinaryXml_DTag_Certificate, 0, &keyLocator->keyOrCertificate, &keyLocator->keyOrCertificateLength)))
+          (decoder, ndn_BinaryXml_DTag_Certificate, 0, &keyLocator->keyData, &keyLocator->keyDataLength)))
         return error;
     }
     else {

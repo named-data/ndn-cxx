@@ -33,23 +33,38 @@ public:
 
   ndn_KeyLocatorType getType() const { return type_; }
   
-  const std::vector<unsigned char> &getKeyOrCertificate() const { return keyOrCertificate_; }
+  const std::vector<unsigned char> &getKeyData() const { return keyData_; }
 
   // TODO: Implement getKeyName.
 
   void setType(ndn_KeyLocatorType type) { type_ = type; }
   
-  void setKeyOrCertificate(const std::vector<unsigned char> &keyOrCertificate) { keyOrCertificate_ = keyOrCertificate; }
-  void setKeyOrCertificate(const unsigned char *keyOrCertificate, unsigned int keyOrCertificateLength) 
+  void setKeyData(const std::vector<unsigned char> &keyData) { keyData_ = keyData; }
+  void setKeyData(const unsigned char *keyData, unsigned int keyDataLength) 
   { 
-    setVector(keyOrCertificate_, keyOrCertificate, keyOrCertificateLength); 
+    setVector(keyData_, keyData, keyDataLength); 
   }
+
+  /**
+   * @deprecated Use getKeyData().
+   */
+  const std::vector<unsigned char> &getKeyOrCertificate() const { return getKeyData(); }
+
+  /**
+   * @deprecated Use setKeyData.
+   */
+  void setKeyOrCertificate(const std::vector<unsigned char> &keyData) { setKeyData(keyData); }
+  
+  /**
+   * @deprecated Use setKeyData.
+   */
+  void setKeyOrCertificate(const unsigned char *keyData, unsigned int keyDataLength) { setKeyData(keyData, keyDataLength); }
 
   // TODO: Implement setKeyName.
 
 private:
   ndn_KeyLocatorType type_;
-  std::vector<unsigned char> keyOrCertificate_; /**< used if type_ is ndn_KeyLocatorType_KEY or ndn_KeyLocatorType_CERTIFICATE */
+  std::vector<unsigned char> keyData_; /**< used if type_ is ndn_KeyLocatorType_KEY or ndn_KeyLocatorType_CERTIFICATE */
   // TODO: Implement keyName.
 };
   

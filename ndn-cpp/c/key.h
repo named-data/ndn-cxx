@@ -18,16 +18,16 @@ typedef enum {
   
 struct ndn_KeyLocator {
   ndn_KeyLocatorType type;         /**< -1 for none */
-  unsigned char *keyOrCertificate; /**< if type is ndn_KeyLocatorType_KEY, pointer to the pre-allocated buffer for the key value.
-                                        if type is ndn_KeyLocatorType_CERTIFICATE, pointer to the pre-allocated buffer for the cetrificate value. */
-  unsigned int keyOrCertificateLength;
+  unsigned char *keyData; /**< if type is ndn_KeyLocatorType_KEY, pointer to the pre-allocated buffer for the key value.
+                               if type is ndn_KeyLocatorType_CERTIFICATE, pointer to the pre-allocated buffer for the cetrificate value. */
+  unsigned int keyDataLength;
   // TODO: Implement keyName.
 };
 
 static inline void ndn_KeyLocator_init(struct ndn_KeyLocator *self) {
   self->type = (ndn_KeyLocatorType)-1;
-  self->keyOrCertificate = 0;
-  self->keyOrCertificateLength = 0;
+  self->keyData = 0;
+  self->keyDataLength = 0;
   // TODO: Implement keyName.
 }
 
