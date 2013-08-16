@@ -96,7 +96,10 @@ public:
    * Parse the uri according to the NDN URI Scheme and create the name with the components.
    * @param uri The URI string.
    */
-  Name(const char *uri);  
+  Name(const char *uri)
+  {
+    set(uri);
+  }
   
   /**
    * Set the nameStruct to point to the components in this name, without copying any memory.
@@ -111,6 +114,12 @@ public:
    */
   void set(const struct ndn_Name &nameStruct);
   
+  /**
+   * Parse the uri according to the NDN URI Scheme and set the name with the components.
+   * @param uri The URI string.
+   */
+  void set(const char *uri);  
+
   /**
    * Add a new component, copying from value of length valueLength.
    */

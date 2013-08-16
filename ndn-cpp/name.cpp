@@ -190,8 +190,10 @@ void Name::Component::setSegment(unsigned long segment)
   reverse(value_.begin() + 1, value_.end());
 }
 
-Name::Name(const char *uri_cstr) 
+void Name::set(const char *uri_cstr) 
 {
+  components_.clear();
+  
   string uri = uri_cstr;
   trim(uri);
   if (uri.size() == 0)
