@@ -45,7 +45,7 @@ int main(int argc, char** argv)
     cout << "InterestLifetimeMilliseconds " << interest.getInterestLifetimeMilliseconds() << endl;
     
     ptr_lib::shared_ptr<vector<unsigned char> > encoding = interest.wireEncode();
-    cout << "Interest encoding length " << encoding->size() << " vs. sizeof(Interest1) " << sizeof(Interest1) << endl;
+    cout << endl << "Re-encoded interest " << toHex(*encoding) << endl;
 
     Interest reDecodedInterest;
     reDecodedInterest.wireDecode(*encoding);
