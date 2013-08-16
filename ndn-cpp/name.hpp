@@ -126,6 +126,13 @@ public:
   void addComponent(unsigned char *value, unsigned int valueLength) {
     components_.push_back(Component(value, valueLength));
   }
+
+  /**
+   * Add a new component, copying from value.
+   */
+  void addComponent(const std::vector<unsigned char> &value) {
+    components_.push_back(value);
+  }
   
   /**
    * Clear all the components.
