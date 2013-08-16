@@ -40,7 +40,7 @@ private:
    */
   static unsigned char *realloc(struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length);
   
-  ndn::ptr_lib::shared_ptr<std::vector<unsigned char> > vector_;
+  ptr_lib::shared_ptr<std::vector<unsigned char> > vector_;
 };
 
 }
