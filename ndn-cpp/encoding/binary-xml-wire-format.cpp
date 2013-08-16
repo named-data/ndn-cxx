@@ -61,9 +61,11 @@ ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeData
   (const Data &data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
 {
   struct ndn_NameComponent nameComponents[100];
+  struct ndn_NameComponent keyNameComponents[100];
   struct ndn_Data dataStruct;
   ndn_Data_init
-    (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
+    (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
+     keyNameComponents, sizeof(keyNameComponents) / sizeof(keyNameComponents[0]));
   data.get(dataStruct);
 
   BinaryXmlEncoder encoder;
@@ -78,9 +80,11 @@ void BinaryXmlWireFormat::decodeData
   (Data &data, const unsigned char *input, unsigned int inputLength, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset)
 {
   struct ndn_NameComponent nameComponents[100];
+  struct ndn_NameComponent keyNameComponents[100];
   struct ndn_Data dataStruct;
   ndn_Data_init
-    (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
+    (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
+     keyNameComponents, sizeof(keyNameComponents) / sizeof(keyNameComponents[0]));
     
   BinaryXmlDecoder decoder(input, inputLength);  
   ndn_Error error;

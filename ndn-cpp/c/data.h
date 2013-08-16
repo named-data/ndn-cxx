@@ -54,15 +54,18 @@ struct ndn_SignedInfo {
 
 /**
  * Initialize the ndn_SignedInfo struct with values for none and the type to the default ndn_ContentType_DATA.
- * @param self pointer to the ndn_SignedInfo struct.
+ * @param self A pointer to the ndn_SignedInfo struct.
+ * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the keyLocator.
+ * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
  */
-static inline void ndn_SignedInfo_init(struct ndn_SignedInfo *self) {
+static inline void ndn_SignedInfo_init
+  (struct ndn_SignedInfo *self, struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) {
   ndn_PublisherPublicKeyDigest_init(&self->publisherPublicKeyDigest);
   self->type = ndn_ContentType_DATA;
   self->freshnessSeconds = -1;
   self->finalBlockID = 0;
   self->finalBlockIDLength = 0;
-  ndn_KeyLocator_init(&self->keyLocator);
+  ndn_KeyLocator_init(&self->keyLocator, keyNameComponents, maxKeyNameComponents);
 }
 
 struct ndn_Data {
@@ -74,17 +77,21 @@ struct ndn_Data {
 };
 
 /**
- * Initialize an ndn_Data struct with the pre-allocated nameComponents,
+ * Initialize an ndn_Data struct with the pre-allocated nameComponents and keyNameComponents,
  * and defaults for all the values.
- * @param self pointer to the ndn_Data struct
- * @param nameComponents the pre-allocated array of ndn_NameComponent
- * @param maxNameComponents the number of elements in the allocated nameComponents array
+ * @param self A pointer to the ndn_Data struct.
+ * @param nameComponents The pre-allocated array of ndn_NameComponent.
+ * @param maxNameComponents The number of elements in the allocated nameComponents array.
+ * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the signedInfo.keyLocator.
+ * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
  */
-static inline void ndn_Data_init(struct ndn_Data *self, struct ndn_NameComponent *nameComponents, unsigned int maxNameComponents) 
+static inline void ndn_Data_init
+  (struct ndn_Data *self, struct ndn_NameComponent *nameComponents, unsigned int maxNameComponents, 
+   struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) 
 {
   ndn_Signature_init(&self->signature);
   ndn_Name_init(&self->name, nameComponents, maxNameComponents);
-  ndn_SignedInfo_init(&self->signedInfo);
+  ndn_SignedInfo_init(&self->signedInfo, keyNameComponents, maxKeyNameComponents);
   self->content = 0;
   self->contentLength = 0;
 }

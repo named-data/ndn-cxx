@@ -96,8 +96,11 @@ static void digestDataFieldsSha256(const Data &data, unsigned char *digest)
 {
   // Imitate BinaryXmlWireFormat::encodeData.
   struct ndn_NameComponent nameComponents[100];
+  struct ndn_NameComponent keyNameComponents[100];
   struct ndn_Data dataStruct;
-  ndn_Data_init(&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
+  ndn_Data_init
+    (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
+     keyNameComponents, sizeof(keyNameComponents) / sizeof(keyNameComponents[0]));
   data.get(dataStruct);
 
   BinaryXmlEncoder encoder;

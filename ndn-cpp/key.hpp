@@ -8,14 +8,15 @@
 
 #include <vector>
 #include "c/key.h"
+#include "Name.hpp"
 
 namespace ndn {
   
 class KeyLocator {
 public:
   KeyLocator()
+  : type_((ndn_KeyLocatorType)-1), keyNameType_((ndn_KeyNameType)-1)
   {
-    type_ = (ndn_KeyLocatorType)-1;
   }
   
   /**
@@ -35,7 +36,10 @@ public:
   
   const std::vector<unsigned char> &getKeyData() const { return keyData_; }
 
-  // TODO: Implement getKeyName.
+  const Name &getKeyName() const { return keyName_; }
+  Name &getKeyName() { return keyName_; }
+
+  ndn_KeyNameType getKeyNameType() const { return keyNameType_; }
 
   void setType(ndn_KeyLocatorType type) { type_ = type; }
   
@@ -60,12 +64,20 @@ public:
    */
   void setKeyOrCertificate(const unsigned char *keyData, unsigned int keyDataLength) { setKeyData(keyData, keyDataLength); }
 
-  // TODO: Implement setKeyName.
+  void setKeyNameType(ndn_KeyNameType keyNameType) { keyNameType_ = keyNameType; }
 
 private:
-  ndn_KeyLocatorType type_;
-  std::vector<unsigned char> keyData_; /**< used if type_ is ndn_KeyLocatorType_KEY or ndn_KeyLocatorType_CERTIFICATE */
-  // TODO: Implement keyName.
+  ndn_KeyLocatorType type_; /**< -1 for none */
+  std::vector<unsigned char> keyData_; /**< A pointer to a pre-allocated buffer for the key data as follows:
+    *   If type_ is ndn_KeyLocatorType_KEY, the key data.
+    *   If type_ is ndn_KeyLocatorType_CERTIFICATE, the certificate data. 
+    *   If type_ is ndn_KeyLocatorType_KEYNAME and keyNameType_ is ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST, the publisher public key digest. 
+    *   If type_ is ndn_KeyLocatorType_KEYNAME and keyNameType_ is ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST, the publisher certificate digest. 
+    *   If type_ is ndn_KeyLocatorType_KEYNAME and keyNameType_ is ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST, the publisher issuer key digest. 
+    *   If type_ is ndn_KeyLocatorType_KEYNAME and keyNameType_ is ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST, the publisher issuer certificate digest. 
+                                */
+  Name keyName_;                /**< The key name (only used if type_ is ndn_KeyLocatorType_KEYNAME.) */
+  ndn_KeyNameType keyNameType_; /**< The type of data for keyName_ (only used if type_ is ndn_KeyLocatorType_KEYNAME.) */
 };
   
 }

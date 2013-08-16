@@ -188,7 +188,7 @@ ndn_Error ndn_decodeBinaryXmlData
       return error;
   }
   else
-    ndn_SignedInfo_init(&data->signedInfo);
+    ndn_SignedInfo_init(&data->signedInfo, data->signedInfo.keyLocator.keyName.components, data->signedInfo.keyLocator.keyName.maxComponents);
 
   // Require a Content element, but set allowNull to allow a missing BLOB.
   if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement

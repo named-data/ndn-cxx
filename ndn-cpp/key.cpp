@@ -20,14 +20,22 @@ void KeyLocator::get(struct ndn_KeyLocator &keyLocatorStruct) const
   else
     keyLocatorStruct.keyData = 0;
 
-  // TODO: Implement keyName.
+  keyName_.get(keyLocatorStruct.keyName);
+  keyLocatorStruct.keyNameType = keyNameType_;
 }
 
 void KeyLocator::set(const struct ndn_KeyLocator &keyLocatorStruct)
 {
   type_ = keyLocatorStruct.type;
   setVector(keyData_, keyLocatorStruct.keyData, keyLocatorStruct.keyDataLength);
-  // TODO: Implement keyName.
+  if (keyLocatorStruct.type == ndn_KeyLocatorType_KEYNAME) {
+    keyName_.set(keyLocatorStruct.keyName);
+    keyNameType_ = keyLocatorStruct.keyNameType;
+  }
+  else {
+    keyName_.clear();
+    keyNameType_ = (ndn_KeyNameType)-1;
+  }
 }
 
 }
