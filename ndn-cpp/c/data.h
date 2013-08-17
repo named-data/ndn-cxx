@@ -33,19 +33,19 @@ static inline void ndn_Signature_init(struct ndn_Signature *self) {
   self->signatureLength = 0;
 }
 
-enum {
+typedef enum {
   ndn_ContentType_DATA = 0,
   ndn_ContentType_ENCR = 1,
   ndn_ContentType_GONE = 2,
   ndn_ContentType_KEY =  3,
   ndn_ContentType_LINK = 4,
   ndn_ContentType_NACK = 5
-};
+} ndn_ContentType;
 
 struct ndn_SignedInfo {
   struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
   double timestampMilliseconds;    /**< milliseconds since 1/1/1970. -1 for none */
-  int type;                        /**< default is ndn_ContentType_DATA. -1 for none */
+  ndn_ContentType type;            /**< default is ndn_ContentType_DATA. -1 for none */
   int freshnessSeconds;            /**< -1 for none */
   unsigned char *finalBlockID;     /**< pointer to pre-allocated buffer.  0 for none */
   unsigned int finalBlockIDLength; /**< length of finalBlockID.  0 for none */

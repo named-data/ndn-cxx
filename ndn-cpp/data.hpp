@@ -98,7 +98,7 @@ public:
   
   double getTimestampMilliseconds() const { return timestampMilliseconds_; }
   
-  int getType() const { return type_; }
+  ndn_ContentType getType() const { return type_; }
   
   int getFreshnessSeconds() const { return freshnessSeconds_; }
   
@@ -112,7 +112,7 @@ public:
   
   void setTimestampMilliseconds(double timestampMilliseconds) { timestampMilliseconds_ = timestampMilliseconds; }
   
-  void setType(int type) { type_ = type; }
+  void setType(ndn_ContentType type) { type_ = type; }
   
   void setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
   
@@ -127,7 +127,7 @@ public:
 private:
   PublisherPublicKeyDigest publisherPublicKeyDigest_;
   double timestampMilliseconds_; /**< milliseconds since 1/1/1970. -1 for none */
-  int type_;                     /**< default is ndn_ContentType_DATA. -1 for none */
+  ndn_ContentType type_;         /**< default is ndn_ContentType_DATA. -1 for none */
   int freshnessSeconds_;         /**< -1 for none */
   std::vector<unsigned char> finalBlockID_; /** size 0 for none */
   KeyLocator keyLocator_;
