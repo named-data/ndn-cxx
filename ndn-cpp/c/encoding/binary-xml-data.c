@@ -73,9 +73,26 @@ static ndn_Error encodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_
       (encoder, ndn_BinaryXml_DTag_Timestamp, signedInfo->timestampMilliseconds)))
     return error;
   
-  if (signedInfo->type != ndn_ContentType_DATA) {
+  if (!(signedInfo->type < 0 || signedInfo->type == ndn_ContentType_DATA)) {
     // Not the default of DATA, so we need to encode the type.
-    // TODO: Implement converting the type from an int and encoding.
+    unsigned char *typeBytes;
+    unsigned int typeBytesLength = 3;
+    if (signedInfo->type == ndn_ContentType_ENCR)
+      typeBytes = "\x10\xD0\x91";
+    else if (signedInfo->type == ndn_ContentType_GONE)
+      typeBytes = "\x18\xE3\x44";
+    else if (signedInfo->type == ndn_ContentType_KEY)
+      typeBytes = "\x28\x46\x3F";
+    else if (signedInfo->type == ndn_ContentType_LINK)
+      typeBytes = "\x2C\x83\x4A";
+    else if (signedInfo->type == ndn_ContentType_NACK)
+      typeBytes = "\x34\x00\x8A";
+    else
+      return NDN_ERROR_unrecognized_ndn_ContentType;
+
+    if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
+        (encoder, ndn_BinaryXml_DTag_Type, typeBytes, typeBytesLength)))
+      return error;
   }
   
   if ((error = ndn_BinaryXmlEncoder_writeOptionalUnsignedDecimalIntDTagElement
@@ -109,8 +126,33 @@ static ndn_Error decodeSignedInfo(struct ndn_SignedInfo *signedInfo, struct ndn_
       (decoder, ndn_BinaryXml_DTag_Timestamp, &signedInfo->timestampMilliseconds))
     return error;
   
-  // TODO: Implement reading the type and converting to an int.
-  signedInfo->type = ndn_ContentType_DATA;
+  unsigned char *typeBytes;
+  unsigned int typeBytesLength;
+  if ((error = ndn_BinaryXmlDecoder_readOptionalBinaryDTagElement
+      (decoder, ndn_BinaryXml_DTag_Type, 0, &typeBytes, &typeBytesLength)))
+    return error;
+  if (typeBytesLength == 0)
+    // The default Type is DATA.
+    signedInfo->type = ndn_ContentType_DATA;
+  else if (typeBytesLength == 3) {
+    // All the recognized content types are 3 bytes.
+    if (ndn_memcmp(typeBytes, "\x0C\x04\xC0", typeBytesLength) == 0)
+      signedInfo->type = ndn_ContentType_DATA;
+    else if (ndn_memcmp(typeBytes, "\x10\xD0\x91", typeBytesLength) == 0)
+      signedInfo->type = ndn_ContentType_ENCR;
+    else if (ndn_memcmp(typeBytes, "\x18\xE3\x44", typeBytesLength) == 0)
+      signedInfo->type = ndn_ContentType_GONE;
+    else if (ndn_memcmp(typeBytes, "\x28\x46\x3F", typeBytesLength) == 0)
+      signedInfo->type = ndn_ContentType_KEY;
+    else if (ndn_memcmp(typeBytes, "\x2C\x83\x4A", typeBytesLength) == 0)
+      signedInfo->type = ndn_ContentType_LINK;
+    else if (ndn_memcmp(typeBytes, "\x34\x00\x8A", typeBytesLength) == 0)
+      signedInfo->type = ndn_ContentType_NACK;
+    else
+      return NDN_ERROR_unrecognized_ndn_ContentType;
+  }
+  else
+    return NDN_ERROR_unrecognized_ndn_ContentType;
  
   if ((error = ndn_BinaryXmlDecoder_readOptionalUnsignedIntegerDTagElement
       (decoder, ndn_BinaryXml_DTag_FreshnessSeconds, &signedInfo->freshnessSeconds)))

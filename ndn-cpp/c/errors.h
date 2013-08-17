@@ -32,6 +32,7 @@ typedef enum {
   NDN_ERROR_DynamicUCharArray_realloc_function_pointer_not_supplied,
   NDN_ERROR_DynamicUCharArray_realloc_failed,
   NDN_ERROR_unrecognized_ndn_ExcludeType,
+  NDN_ERROR_unrecognized_ndn_ContentType,
   NDN_ERROR_unrecognized_ndn_KeyLocatorType,
   NDN_ERROR_unrecognized_ndn_KeyNameType,
   NDN_ERROR_decodeBinaryXmlKeyLocator_unrecognized_key_locator_type,
