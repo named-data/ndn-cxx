@@ -30,7 +30,7 @@ public:
   /**
    * Return the output as a shared_ptr.
    */
-  ptr_lib::shared_ptr<std::vector<unsigned char> > getOutput() 
+  const ptr_lib::shared_ptr<std::vector<unsigned char> > &getOutput() 
   {
     return output_.get();
   }
