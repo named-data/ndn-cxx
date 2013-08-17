@@ -107,6 +107,19 @@ static void dumpData(const Data &data)
   }
   else
     cout << "<none>" << endl;
+  if (!(data.getSignedInfo().getType() < 0 || data.getSignedInfo().getType() == ndn_ContentType_DATA)) {
+    cout << "signedInfo.type: ";
+    if (data.getSignedInfo().getType() == ndn_ContentType_ENCR)
+      cout << "ENCR" << endl;
+    else if (data.getSignedInfo().getType() == ndn_ContentType_GONE)
+      cout << "GONE" << endl;
+    else if (data.getSignedInfo().getType() == ndn_ContentType_KEY)
+      cout << "KEY" << endl;
+    else if (data.getSignedInfo().getType() == ndn_ContentType_LINK)
+      cout << "LINK" << endl;
+    else if (data.getSignedInfo().getType() == ndn_ContentType_NACK)
+      cout << "NACK" << endl;
+  }
   cout << "signedInfo.freshnessSeconds: ";
   if (data.getSignedInfo().getFreshnessSeconds() >= 0)
     cout << data.getSignedInfo().getFreshnessSeconds() << endl;
