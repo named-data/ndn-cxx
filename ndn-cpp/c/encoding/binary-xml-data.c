@@ -137,7 +137,7 @@ ndn_Error ndn_encodeBinaryXmlData
     return error;
   
   if ((error = encodeSignature(&data->signature, encoder)))
-    return NDN_ERROR_success;
+    return error;
   
   *signedFieldsBeginOffset = encoder->offset;
 
@@ -145,7 +145,7 @@ ndn_Error ndn_encodeBinaryXmlData
     return error;
   
   if ((error = encodeSignedInfo(&data->signedInfo, encoder)))
-    return NDN_ERROR_success;
+    return error;
 
   if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
       (encoder, ndn_BinaryXml_DTag_Content, data->content, data->contentLength)))
