@@ -21,7 +21,7 @@ extern "C" {
 /**
  * Use the library version of memcmp.
  */
-static inline int ndn_memcmp(unsigned char *buf1, unsigned char *buf2, unsigned int len) { memcpy(buf1, buf2, len); }
+static inline int ndn_memcmp(unsigned char *buf1, unsigned char *buf2, unsigned int len) { memcmp(buf1, buf2, len); }
 #else
 /**
  * Use a local implementation of memcmp instead of the library version.
