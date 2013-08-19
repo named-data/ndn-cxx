@@ -53,6 +53,7 @@ static inline ndn_Error ndn_TcpTransport_send(struct ndn_TcpTransport *self, uns
 
 /**
  * Check if there is data ready on the socket to be received with ndn_TcpTransport_receive.
+ * This does not block, and returns immediately.
  * @param self A pointer to the ndn_TcpTransport struct.
  * @param receiveIsReady This will be set to 1 if data is ready, 0 if not.
  * @return 0 for success, else an error code.

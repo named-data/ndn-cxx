@@ -52,6 +52,7 @@ ndn_Error ndn_SocketTransport_send(struct ndn_SocketTransport *self, unsigned ch
 
 /**
  * Check if there is data ready on the socket to be received with ndn_SocketTransport_receive.
+ * This does not block, and returns immediately.
  * @param self A pointer to the ndn_SocketTransport struct.
  * @param receiveIsReady This will be set to 1 if data is ready, 0 if not.
  * @return 0 for success, else an error code.

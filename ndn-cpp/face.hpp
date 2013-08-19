@@ -68,8 +68,8 @@ public:
   
   /**
    * Process any data to receive.  For each element received, call face.onReceivedElement.
-   * This is non-blocking and will silently time out after a brief period if there is no data to receive.
-   * You should repeatedly call this from an event loop.
+   * This is non-blocking and will return immediately if there is no data to receive.
+   * You should repeatedly call this from an event loop, with calls to sleep as needed so that the loop doesn't use 100% of the CPU.
    * @throw This may throw an exception for reading data or in the callback for processing the data.  If you
    * call this from an main event loop, you may want to catch and log/disregard all exceptions.
    */

@@ -98,7 +98,7 @@ ndn_Error ndn_SocketTransport_receiveIsReady(struct ndn_SocketTransport *self, i
   pollInfo[0].fd = self->socketDescriptor;
   pollInfo[0].events = POLLIN;
   
-  int pollResult = poll(pollInfo, 1, 200);
+  int pollResult = poll(pollInfo, 1, 0);
 
   if (pollResult < 0)
     return NDN_ERROR_SocketTransport_error_in_poll;
