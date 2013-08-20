@@ -7,20 +7,11 @@
 #include <sstream>
 #include <iostream>
 #include <time.h>
-#if 0
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/date_time/posix_time/time_serialize.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
-#endif
 #include <ndn-cpp/data.hpp>
 #include <ndn-cpp/key-chain.hpp>
 
 using namespace std;
 using namespace ndn;
-#if 0
-using namespace boost::posix_time;
-using namespace boost::gregorian;
-#endif
 
 unsigned char Data1[] = {
 0x04, 0x82, // NDN Data
@@ -68,10 +59,6 @@ unsigned char Data1[] = {
 1
 };
 
-#if 0
-const ptime UNIX_EPOCH_TIME = ptime (date (1970, Jan, 1));
-#endif
-
 static void dumpData(const Data &data)
 {
   cout << "name: " << data.getName().to_uri() << endl;
@@ -97,13 +84,8 @@ static void dumpData(const Data &data)
            toHex(data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()).c_str() : "<none>") << endl;
   cout << "signedInfo.timestamp: ";
   if (data.getSignedInfo().getTimestampMilliseconds() >= 0) {
-    cout << data.getSignedInfo().getTimestampMilliseconds() << " milliseconds" << endl;
-    // TODO: dump timestamp real date.
-#if 0
-    ptime timestamp = UNIX_EPOCH_TIME + milliseconds(data.getSignedInfo().getTimestampMilliseconds());
-    cout << "Data timestamp " << timestamp.date().year() << "/" << timestamp.date().month() << "/" << timestamp.date().day() 
-         << " " << timestamp.time_of_day().hours() << ":" << timestamp.time_of_day().minutes() << ":" << timestamp.time_of_day().seconds()  << endl;
-#endif
+    time_t seconds = data.getSignedInfo().getTimestampMilliseconds() / 1000.0;
+    cout << data.getSignedInfo().getTimestampMilliseconds() << " milliseconds, UTC time: " << asctime(gmtime(&seconds));
   }
   else
     cout << "<none>" << endl;
