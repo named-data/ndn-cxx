@@ -68,7 +68,7 @@ public:
   
   /**
    * Set the static default WireFormat used by default encoding and decoding methods.
-   * @param wireFormat A Pointer to a object of a subclass of WireFormat.  This does not make a copy and
+   * @param wireFormat A Pointer to an object of a subclass of WireFormat.  This does not make a copy and
    * the caller must ensure that the object remains allocated.
    */
   static void setDefaultWireFormat(WireFormat *wireFormat) 
