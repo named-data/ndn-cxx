@@ -8,7 +8,6 @@
 #include <iostream>
 #include <ndn-cpp/interest.hpp>
 #include <ndn-cpp/data.hpp>
-#include <ndn-cpp/transport/udp-transport.hpp>
 #include <ndn-cpp/face.hpp>
 
 using namespace std;
@@ -44,7 +43,7 @@ int main(int argc, char** argv)
 {
   try {
     MyClosure closure;
-    Face face("E.hub.ndn.ucla.edu", 9695, shared_ptr<UdpTransport>(new UdpTransport()));
+    Face face("E.hub.ndn.ucla.edu");
     face.expressInterest(Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E"), &closure);
     
     // The main event loop.
