@@ -174,6 +174,8 @@ public:
     components_.push_back(Component());
     components_.back().setSegment(segment);
   }
+  
+  bool match(const Name &name);
 
 private:
   std::vector<Component> components_;

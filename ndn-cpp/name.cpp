@@ -277,4 +277,25 @@ std::string Name::toUri() const
   return result.str();
 }
 
+bool Name::match(const Name &name)
+{
+  // Imitate ndn_Name_match.
+  
+	// This name is longer than the name we are checking it against.
+	if (components_.size() > name.components_.size())
+    return 0;
+
+	// Check if at least one of given components doesn't match.
+  unsigned int i;
+  for (i = 0; i < components_.size(); ++i) {
+    const Component &selfComponent = components_[i];
+    const Component &nameComponent = name.components_[i];
+
+    if (selfComponent.getValue() != nameComponent.getValue())
+      return false;
+  }
+
+	return true;
+}
+
 }
