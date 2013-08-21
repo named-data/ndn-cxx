@@ -39,26 +39,26 @@ class Data;
 
 class UpcallInfo {
 public:
-  UpcallInfo(Node *node, const ptr_lib::shared_ptr<Interest> &interest, int matchedComps, const ptr_lib::shared_ptr<Data> &data) 
+  UpcallInfo(Node *node, const ptr_lib::shared_ptr<const Interest> &interest, int matchedComps, const ptr_lib::shared_ptr<Data> &data) 
   : node_(node), interest_(interest), data_(data)
   {
   }
   
   Node *getNode() { return node_; }
   
-  ptr_lib::shared_ptr<Interest> &getInterest() { return interest_; }
+  const ptr_lib::shared_ptr<const Interest> &getInterest() const { return interest_; }
   
-  ptr_lib::shared_ptr<Data> &getData() { return data_; }
+  const ptr_lib::shared_ptr<Data> &getData() const { return data_; }
   
 private:
   Node *node_;
-  ptr_lib::shared_ptr<Interest> interest_;
+  ptr_lib::shared_ptr<const Interest> interest_;
   ptr_lib::shared_ptr<Data> data_;
 };
 
 class Closure {
 public:
-  virtual UpcallResult upcall(UpcallKind kind, UpcallInfo &upcallInfo) = 0;
+  virtual UpcallResult upcall(UpcallKind kind, const UpcallInfo &upcallInfo) = 0;
 };
 
 }
