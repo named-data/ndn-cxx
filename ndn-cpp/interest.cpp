@@ -36,6 +36,25 @@ void Exclude::set(const struct ndn_Exclude &excludeStruct)
   }
 }
 
+string Exclude::toUri() const
+{
+	if (entries_.size() == 0)
+		return "";
+
+  ostringstream result;
+  for (unsigned i = 0; i < entries_.size(); ++i) {
+    if (i > 0)
+      result << ",";
+        
+    if (entries_[i].getType() == ndn_Exclude_ANY)
+      result << "*";
+    else
+      Name::toEscapedString(entries_[i].getComponent().getValue(), result);
+  }
+  
+  return result.str();  
+}
+
 void Interest::set(const struct ndn_Interest &interestStruct) 
 {
   name_.set(interestStruct.name);
