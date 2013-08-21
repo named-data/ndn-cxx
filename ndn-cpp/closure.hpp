@@ -39,11 +39,9 @@ class Data;
 
 class UpcallInfo {
 public:
-  UpcallInfo(Node *node, ptr_lib::shared_ptr<Interest> &interest, int matchedComps, ptr_lib::shared_ptr<Data> &data) 
+  UpcallInfo(Node *node, const ptr_lib::shared_ptr<Interest> &interest, int matchedComps, const ptr_lib::shared_ptr<Data> &data) 
+  : node_(node), interest_(interest), data_(data)
   {
-    node_ = node;
-    interest_ = interest;
-    data_ = data;
   }
   
   Node *getNode() { return node_; }
