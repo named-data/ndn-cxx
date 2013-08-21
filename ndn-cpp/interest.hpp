@@ -141,10 +141,16 @@ public:
   {
   }
 
+  Interest(const Name &name, double interestLifetimeMilliseconds) 
+  : name_(name)
+  {
+    construct();
+    interestLifetimeMilliseconds_ = interestLifetimeMilliseconds;
+  }
+
   Interest(const Name &name) 
   : name_(name)
   {
-    name_ = name;
     construct();
   }
 
