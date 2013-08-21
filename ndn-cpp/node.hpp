@@ -6,6 +6,7 @@
 #ifndef NDN_NODE_HPP
 #define NDN_NODE_HPP
 
+#include <time.h>
 #include "interest.hpp"
 #include "closure.hpp"
 #include "transport/udp-transport.hpp"
@@ -24,7 +25,7 @@ public:
    * @param transport A pointer to a Transport object used for communication.
    */
   Node(const char *host, unsigned short port, const ptr_lib::shared_ptr<Transport> &transport)
-  : host_(host), port_(port), transport_(transport), tempClosure_(0)
+  : host_(host), port_(port), transport_(transport)
   {
   }
   
@@ -34,7 +35,7 @@ public:
    * @param port The port of the NDN hub.
    */
   Node(const char *host, unsigned short port)
-  : host_(host), port_(port), transport_(new UdpTransport()), tempClosure_(0)
+  : host_(host), port_(port), transport_(new UdpTransport())
   {
   }
   
@@ -43,7 +44,7 @@ public:
    * @param host The host of the NDN hub.
    */
   Node(const char *host)
-  : host_(host), port_(9695), transport_(new UdpTransport()), tempClosure_(0)
+  : host_(host), port_(9695), transport_(new UdpTransport())
   {
   }
 
@@ -83,10 +84,60 @@ public:
   void shutdown();
 
 private:
+  class PitEntry {
+  public:
+    /**
+     * Create a new PitEntry and set the timeoutTime_ based on the current time and the interest lifetime.
+     * @param name The name for the interest.  You can use the non-const getInterest() to set other fields.
+     * (We do it like this to avoid invoking the Interest copy constructor.)
+     * @param closure A pointer to the closure with the callbacks to call on match. 
+     * The caller must manage the memory for the Closure.  This will not try to delete it.
+     */
+    PitEntry(const Name &name, Closure *closure);
+    
+    Interest &getInterest() 
+    { 
+      // Assume that the caller will modify interest_, so mark it stale.
+      interestStructIsStale_ = true;
+      return interest_; 
+    }
+    
+    Closure *getClosure() { return closure_; }
+    
+    /**
+     * Get the struct ndn_Interest for the interest_.  If interestStructIsStale_, then this will
+     * re-build from interest_.  
+     * WARNING: Assume that this PitEntry was created with new, so that no copy constructor is invoked between calls.
+     * This class is private to Node and only used by its methods, so this should be OK.
+     * TODO: Doesn't this functionality belong in the Interest class?
+     * @return A reference to the ndn_Interest struct.
+     * WARNING: The resulting pointers in are invalid uses getInterest() to manipulate the object which could reallocate memory.
+     */
+    const struct ndn_Interest &getInterestStruct();
+    
+  private:
+    Interest interest_;
+    std::vector<struct ndn_NameComponent> nameComponents_;
+    std::vector<struct ndn_ExcludeEntry> excludeEntries_;
+    struct ndn_Interest interestStruct_;
+    bool interestStructIsStale_;
+  
+    Closure *closure_;
+    clock_t timeoutTime_; /**< The clock time when the interest times out, of 0 for none. */
+  };
+  
+  /**
+   * Find the entry from the pit_ where the name conforms to the entry's interest selectors, and
+   * the entry interest name is the longest that matches name.
+   * @param name The name to find the interest for (from the incoming data packet).
+   * @return The index in pit_ of the pit entry, or -1 if not found.
+   */
+  int getEntryIndexForExpressedInterest(const Name &name);
+  
   ptr_lib::shared_ptr<Transport> transport_;
+  std::vector<ptr_lib::shared_ptr<PitEntry> > pit_;
   std::string host_;
   unsigned short port_;
-  Closure *tempClosure_;
 };
 
 }
