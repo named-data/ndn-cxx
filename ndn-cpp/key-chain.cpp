@@ -133,7 +133,7 @@ void KeyChain::sign
 
 void KeyChain::defaultSign(Data &data, WireFormat &wireFormat)
 {
-  sign(data, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
+  sign(data, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER), wireFormat);
 }
 
 void KeyChain::defaultSign(Data &data)
