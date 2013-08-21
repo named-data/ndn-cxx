@@ -122,18 +122,6 @@ private:
  */
 class Interest {
 public:    
-  Interest() 
-  {
-    construct();
-  }
-
-  Interest(const Name &name) 
-  : name_(name)
-  {
-    name_ = name;
-    construct();
-  }
-  
   Interest(const Name &name, int minSuffixComponents, int maxSuffixComponents, 
     const PublisherPublicKeyDigest &publisherPublicKeyDigest, const Exclude &exclude, int childSelector, int answerOriginKind, 
     int scope, double interestLifetimeMilliseconds, const std::vector<unsigned char> &nonce) 
@@ -142,6 +130,27 @@ public:
   answerOriginKind_(answerOriginKind), scope_(scope), interestLifetimeMilliseconds_(interestLifetimeMilliseconds),
   nonce_(nonce)
   {
+  }
+
+  Interest(const Name &name, int minSuffixComponents, int maxSuffixComponents, 
+    const PublisherPublicKeyDigest &publisherPublicKeyDigest, const Exclude &exclude, int childSelector, int answerOriginKind, 
+    int scope, double interestLifetimeMilliseconds) 
+  : name_(name), minSuffixComponents_(minSuffixComponents), maxSuffixComponents_(maxSuffixComponents),
+  publisherPublicKeyDigest_(publisherPublicKeyDigest), exclude_(exclude), childSelector_(childSelector), 
+  answerOriginKind_(answerOriginKind), scope_(scope), interestLifetimeMilliseconds_(interestLifetimeMilliseconds)
+  {
+  }
+
+  Interest(const Name &name) 
+  : name_(name)
+  {
+    name_ = name;
+    construct();
+  }
+
+  Interest() 
+  {
+    construct();
   }
   
   ptr_lib::shared_ptr<std::vector<unsigned char> > wireEncode(WireFormat &wireFormat) const 
