@@ -22,13 +22,21 @@ public:
    * @param publicKeyDerLength The number of bytes in publicKeyDer.
    * @param privateKeyDer A pointer to a buffer with the DER-encoded private key.
    * @param privateKeyDerLength The number of bytes in privateKeyDer.
+   * @param wireFormat The WireFormat for calling encodeData.
    */
   static void sign
     (Data &data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
-     const unsigned char *privateKeyDer, unsigned int privateKeyDerLength);
+     const unsigned char *privateKeyDer, unsigned int privateKeyDerLength, WireFormat &wireFormat);
 
   /**
    * Call sign with the default public and private keys.
+   * @param data
+   * @param wireFormat The WireFormat for calling encodeData.
+   */
+  static void defaultSign(Data &data, WireFormat &wireFormat);
+
+  /**
+   * Call sign with the default public and private keys.  For wireFormat, use WireFormat::getDefaultWireFormat().
    * @param data
    */
   static void defaultSign(Data &data);

@@ -92,29 +92,17 @@ static void setSha256(const unsigned char *data, unsigned int dataLength, vector
  * @param data The Data object with the fields to digest.
  * @param digest A pointer to a buffer of size SHA256_DIGEST_LENGTH to receive the data.
  */
-static void digestDataFieldsSha256(const Data &data, unsigned char *digest)
+static void digestDataFieldsSha256(const Data &data, WireFormat &wireFormat, unsigned char *digest)
 {
-  // Imitate BinaryXmlWireFormat::encodeData.
-  struct ndn_NameComponent nameComponents[100];
-  struct ndn_NameComponent keyNameComponents[100];
-  struct ndn_Data dataStruct;
-  ndn_Data_init
-    (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
-     keyNameComponents, sizeof(keyNameComponents) / sizeof(keyNameComponents[0]));
-  data.get(dataStruct);
-
-  BinaryXmlEncoder encoder;
   unsigned int signedFieldsBeginOffset, signedFieldsEndOffset;
-  ndn_Error error;
-  if ((error = ndn_encodeBinaryXmlData(&dataStruct, &signedFieldsBeginOffset, &signedFieldsEndOffset, &encoder)))
-    throw std::runtime_error(ndn_getErrorString(error));
+  ptr_lib::shared_ptr<vector<unsigned char> > encoding = wireFormat.encodeData(data, &signedFieldsBeginOffset, &signedFieldsEndOffset);
   
-  digestSha256(&encoder.getOutput()->front() + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, digest);
+  digestSha256(&encoding->front() + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, digest);
 }
 
 void KeyChain::sign
   (Data &data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
-   const unsigned char *privateKeyDer, unsigned int privateKeyDerLength)
+   const unsigned char *privateKeyDer, unsigned int privateKeyDerLength, WireFormat &wireFormat)
 {
   // Set the public key.
   setSha256(publicKeyDer, publicKeyDerLength, data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest());
@@ -125,7 +113,7 @@ void KeyChain::sign
 
   // Sign the fields.
   unsigned char dataFieldsDigest[SHA256_DIGEST_LENGTH];
-  digestDataFieldsSha256(data, dataFieldsDigest);
+  digestDataFieldsSha256(data, wireFormat, dataFieldsDigest);
   // TODO: use RSA_size to get the proper size of the signature buffer.
   unsigned char signature[1000];
   unsigned int signatureLength;
@@ -143,9 +131,15 @@ void KeyChain::sign
   data.getSignature().setSignature(signature, signatureLength);
 }
 
-void KeyChain::defaultSign(Data &data)
+void KeyChain::defaultSign(Data &data, WireFormat &wireFormat)
 {
   sign(data, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
+}
+
+void KeyChain::defaultSign(Data &data)
+{
+  sign(data, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER),
+       *WireFormat::getDefaultWireFormat());
 }
 
 bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat)
