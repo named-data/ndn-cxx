@@ -30,30 +30,62 @@ unsigned char Interest1[] = {
 1
 };
 
-/*
- * 
- */
+static void dumpInterest(const Interest &interest)
+{
+  cout << "name: " << interest.getName().to_uri() << endl;
+  cout << "minSuffixComponents: ";
+  if (interest.getMinSuffixComponents() >= 0)
+    cout << interest.getMinSuffixComponents() << endl;
+  else
+    cout << "<none>" << endl;
+  cout << "maxSuffixComponents: ";
+  if (interest.getMaxSuffixComponents() >= 0)
+    cout << interest.getMaxSuffixComponents() << endl;
+  else
+    cout << "<none>" << endl;
+  cout << "publisherPublicKeyDigest: " 
+       << (interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? toHex(interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()) : "<none>") << endl;
+  cout << "exclude: " 
+       << (interest.getExclude().getEntryCount() > 0 ? interest.getExclude().toUri() : "<none>") << endl;
+  cout << "lifetimeMilliseconds: ";
+  if (interest.getInterestLifetimeMilliseconds() >= 0)
+    cout << interest.getInterestLifetimeMilliseconds() << endl;
+  else
+    cout << "<none>" << endl;
+  cout << "childSelector: ";
+  if (interest.getChildSelector() >= 0)
+    cout << interest.getChildSelector() << endl;
+  else
+    cout << "<none>" << endl;
+  cout << "answerOriginKind: ";
+  if (interest.getAnswerOriginKind() >= 0)
+    cout << interest.getAnswerOriginKind() << endl;
+  else
+    cout << "<none>" << endl;
+  cout << "scope: ";
+  if (interest.getScope() >= 0)
+    cout << interest.getScope() << endl;
+  else
+    cout << "<none>" << endl;
+  cout << "nonce: " 
+       << (interest.getNonce().size() > 0 ? toHex(interest.getNonce()) : "<none>") << endl;
+}
+
 int main(int argc, char** argv)
 {
   try {
     Interest interest;
     interest.wireDecode(Interest1, sizeof(Interest1));
-    cout << "Interest name " << interest.getName().to_uri() << endl;
-    cout << "Interest minSuffixComponents " << interest.getMinSuffixComponents() << endl;
-    cout << "Interest publisherPublicKeyDigest length " << interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() << endl;
-    cout << "Interest excludeEntryCount " << interest.getExclude().getEntryCount() << endl;
-    cout << "InterestLifetimeMilliseconds " << interest.getInterestLifetimeMilliseconds() << endl;
+    cout << "Interest:" << endl;
+    dumpInterest(interest);
     
     ptr_lib::shared_ptr<vector<unsigned char> > encoding = interest.wireEncode();
     cout << endl << "Re-encoded interest " << toHex(*encoding) << endl;
 
     Interest reDecodedInterest;
     reDecodedInterest.wireDecode(*encoding);
-    cout << "Re-decoded Interest name " << reDecodedInterest.getName().to_uri() << endl;
-    cout << "Re-decoded Interest minSuffixComponents " << reDecodedInterest.getMinSuffixComponents() << endl;
-    cout << "Re-decoded Interest publisherPublicKeyDigest length " << reDecodedInterest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() << endl;
-    cout << "Re-decoded Interest excludeEntryCount " << reDecodedInterest.getExclude().getEntryCount() << endl;
-    cout << "Re-decoded InterestLifetimeMilliseconds " << reDecodedInterest.getInterestLifetimeMilliseconds() << endl;
+    cout << "Re-decoded Interest:" << endl;
+    dumpInterest(reDecodedInterest);
   } catch (exception &e) {
     cout << "exception: " << e.what() << endl;
   }
