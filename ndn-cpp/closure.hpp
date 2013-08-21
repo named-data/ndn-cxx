@@ -33,27 +33,27 @@ enum UpcallKind {
   UPCALL_DATA_BAD           = 6  // verification failed  
 };
 
-class Face;
+class Node;
 class Interest;
 class Data;
 
 class UpcallInfo {
 public:
-  UpcallInfo(Face *ndn, ptr_lib::shared_ptr<Interest> &interest, int matchedComps, ptr_lib::shared_ptr<Data> &data) 
+  UpcallInfo(Node *node, ptr_lib::shared_ptr<Interest> &interest, int matchedComps, ptr_lib::shared_ptr<Data> &data) 
   {
-    ndn_ = ndn;
+    node_ = node;
     interest_ = interest;
     data_ = data;
   }
   
-  Face *getNDN() { return ndn_; }
+  Node *getNode() { return node_; }
   
   ptr_lib::shared_ptr<Interest> &getInterest() { return interest_; }
   
   ptr_lib::shared_ptr<Data> &getData() { return data_; }
   
 private:
-  Face *ndn_;
+  Node *node_;
   ptr_lib::shared_ptr<Interest> interest_;
   ptr_lib::shared_ptr<Data> data_;
 };

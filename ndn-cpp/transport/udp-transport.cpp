@@ -12,20 +12,20 @@ using namespace std;
 
 namespace ndn {
 
-void UdpTransport::connect(Face &face)
+void UdpTransport::connect(Node &node)
 {
   ndn_Error error;
-  if ((error = ndn_UdpTransport_connect(&transport_, (char *)face.getHost(), face.getPort())))
+  if ((error = ndn_UdpTransport_connect(&transport_, (char *)node.getHost(), node.getPort())))
     throw std::runtime_error(ndn_getErrorString(error)); 
 
   // TODO: This belongs in the socket listener.
   const unsigned int initialLength = 1000;
   // Automatically cast ndn_ to (struct ndn_ElementListener *)
   ndn_BinaryXmlElementReader_init
-    (&elementReader_, &face, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
+    (&elementReader_, &node, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
   
   // TODO: Properly indicate connected status.
-  face_ = &face;
+  node_ = &node;
 }
 
 void UdpTransport::send(const unsigned char *data, unsigned int dataLength)

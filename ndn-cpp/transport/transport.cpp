@@ -10,7 +10,7 @@ using namespace std;
 
 namespace ndn {
 
-void Transport::connect(Face &face) 
+void Transport::connect(Node &node) 
 {
   throw logic_error("unimplemented");
 }

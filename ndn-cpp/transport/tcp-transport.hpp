@@ -15,17 +15,17 @@ namespace ndn {
 class TcpTransport : public Transport {
 public:
   TcpTransport() 
+  : node_(0)
   {
     ndn_TcpTransport_init(&transport_);
-    face_ = 0;
     elementReader_.partialData.array = 0;
   }
   
   /**
-   * Connect to the host specified in face.
-   * @param face Not a shared_ptr because we assume that it will remain valid during the life of this Transport object.
+   * Connect to the host specified in node.
+   * @param node Not a shared_ptr because we assume that it will remain valid during the life of this Transport object.
    */
-  virtual void connect(Face &face);
+  virtual void connect(Node &node);
   
   /**
    * Set data to the host
@@ -35,7 +35,7 @@ public:
   virtual void send(const unsigned char *data, unsigned int dataLength);
 
   /**
-   * Process any data to receive.  For each element received, call face.onReceivedElement.
+   * Process any data to receive.  For each element received, call node.onReceivedElement.
    * This is non-blocking and will return immediately if there is no data to receive.
    * You should normally not call this directly since it is called by Face.processEvents.
    * @throw This may throw an exception for reading data or in the callback for processing the data.  If you
@@ -52,7 +52,7 @@ public:
   
 private:
   struct ndn_TcpTransport transport_;
-  Face *face_;
+  Node *node_;
   // TODO: This belongs in the socket listener.
   ndn_BinaryXmlElementReader elementReader_;
 };
