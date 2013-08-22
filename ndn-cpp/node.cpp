@@ -97,7 +97,7 @@ void Node::processEvents()
   }
 }
 
-void Node::onReceivedElement(unsigned char *element, unsigned int elementLength)
+void Node::onReceivedElement(const unsigned char *element, unsigned int elementLength)
 {
   BinaryXmlDecoder decoder(element, elementLength);
   

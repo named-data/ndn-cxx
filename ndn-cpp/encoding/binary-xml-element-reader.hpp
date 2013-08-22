@@ -27,7 +27,7 @@ public:
    * later, you must copy.
    * @param elementLength length of element
    */
-  virtual void onReceivedElement(unsigned char *element, unsigned int elementLength) = 0;
+  virtual void onReceivedElement(const unsigned char *element, unsigned int elementLength) = 0;
   
 private:
   /**

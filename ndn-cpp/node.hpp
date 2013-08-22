@@ -78,7 +78,7 @@ public:
   
   const ptr_lib::shared_ptr<Transport> &getTransport() { return transport_; }
   
-  virtual void onReceivedElement(unsigned char *element, unsigned int elementLength);
+  void onReceivedElement(const unsigned char *element, unsigned int elementLength);
   
   void shutdown();
 
