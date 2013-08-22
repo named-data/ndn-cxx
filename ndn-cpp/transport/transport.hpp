@@ -10,14 +10,24 @@
 
 namespace ndn {
 
-class Node;  
+class ElementListener;
+
 class Transport {
 public:
   /**
-   * Connect to the host specified in node.
-   * @param node Not a shared_ptr because we assume that it will remain valid during the life of this Transport object.
+   * A Transport::ConnectionInfo is a base class for connection information used by subclasses of Transport.
    */
-  virtual void connect(Node &node);
+  class ConnectionInfo { 
+  public:
+    virtual ~ConnectionInfo();
+  };
+  
+  /**
+   * Connect according to the info in ConnectionInfo, and processEvents() will use elementListener.
+   * @param connectionInfo A reference to an object of a subclass of ConnectionInfo.
+   * @param elementListener Not a shared_ptr because we assume that it will remain valid during the life of this object.
+   */
+  virtual void connect(const Transport::ConnectionInfo &connectionInfo, ElementListener &elementListener);
   
   /**
    * Set data to the host
@@ -32,7 +42,7 @@ public:
   }
   
   /**
-   * Process any data to receive.  For each element received, call node.onReceivedElement.
+   * Process any data to receive.  For each element received, call elementListener.onReceivedElement.
    * This is non-blocking and will silently time out after a brief period if there is no data to receive.
    * You should repeatedly call this from an event loop.
    * @throw This may throw an exception for reading data or in the callback for processing the data.  If you

@@ -18,13 +18,12 @@ class Face;
 class Node : public ElementListener {
 public:
   /**
-   * Create a new Node for communication with an NDN hub at host:port with the given Transport object.
-   * @param host The host of the NDN hub.
-   * @param port The port of the NDN hub.
-   * @param transport A pointer to a Transport object used for communication.
+   * Create a new Node for communication with an NDN hub with the given Transport object and connectionInfo.
+   * @param transport A shared_ptr to a Transport object used for communication.
+   * @param transport A shared_ptr to a Transport::ConnectionInfo to be used to connect to the transport.
    */
-  Node(const char *host, unsigned short port, const ptr_lib::shared_ptr<Transport> &transport)
-  : host_(host), port_(port), transport_(transport)
+  Node(const ptr_lib::shared_ptr<Transport> &transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo> &connectionInfo)
+  : transport_(transport), connectionInfo_(connectionInfo)
   {
   }
   
@@ -34,7 +33,7 @@ public:
    * @param port The port of the NDN hub.
    */
   Node(const char *host, unsigned short port)
-  : host_(host), port_(port), transport_(new UdpTransport())
+  : transport_(new UdpTransport()), connectionInfo_(new UdpTransport::ConnectionInfo(host, port))
   {
   }
   
@@ -43,7 +42,7 @@ public:
    * @param host The host of the NDN hub.
    */
   Node(const char *host)
-  : host_(host), port_(9695), transport_(new UdpTransport())
+  : transport_(new UdpTransport()), connectionInfo_(new UdpTransport::ConnectionInfo(host, 9695))
   {
   }
 
@@ -72,12 +71,10 @@ public:
    */
   void processEvents();
   
-  const char *getHost() const { return host_.c_str(); }
-  
-  unsigned short getPort() const { return port_; }
-  
   const ptr_lib::shared_ptr<Transport> &getTransport() { return transport_; }
   
+  const ptr_lib::shared_ptr<const Transport::ConnectionInfo> &getConnectionInfo() { return connectionInfo_; }
+
   void onReceivedElement(const unsigned char *element, unsigned int elementLength);
   
   void shutdown();
@@ -137,9 +134,8 @@ private:
   int getEntryIndexForExpressedInterest(const Name &name);
   
   ptr_lib::shared_ptr<Transport> transport_;
+  ptr_lib::shared_ptr<const Transport::ConnectionInfo> connectionInfo_;
   std::vector<ptr_lib::shared_ptr<PitEntry> > pit_;
-  std::string host_;
-  unsigned short port_;
 };
 
 }

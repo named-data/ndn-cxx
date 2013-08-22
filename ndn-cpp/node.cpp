@@ -78,7 +78,7 @@ void Node::expressInterest(const Name &name, Closure *closure, const Interest *i
   
   // TODO: Properly check if we are already connected to the expected host.
   if (!transport_->getIsConnected())
-    transport_->connect(*this);
+    transport_->connect(*connectionInfo_, *this);
   
   transport_->send(*encoding);
 }

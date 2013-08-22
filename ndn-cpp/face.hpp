@@ -16,13 +16,12 @@ namespace ndn {
 class Face {
 public:
   /**
-   * Create a new Face for communication with an NDN hub at host:port with the given Transport object.
-   * @param host The host of the NDN hub.
-   * @param port The port of the NDN hub.
-   * @param transport A pointer to a Transport object used for communication.
+   * Create a new Face for communication with an NDN hub with the given Transport object and connectionInfo.
+   * @param transport A shared_ptr to a Transport object used for communication.
+   * @param transport A shared_ptr to a Transport::ConnectionInfo to be used to connect to the transport.
    */
-  Face(const char *host, unsigned short port, const ptr_lib::shared_ptr<Transport> &transport)
-  : node_(host, port, transport)
+  Face(const ptr_lib::shared_ptr<Transport> &transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo> &connectionInfo)
+  : node_(transport, connectionInfo)
   {
   }
   
