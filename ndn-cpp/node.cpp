@@ -3,6 +3,7 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include <sys/time.h>
 #include "encoding/binary-xml-decoder.hpp"
 #include "c/encoding/binary-xml.h"
 #include "data.hpp"
@@ -13,50 +14,67 @@ using namespace ndn::ptr_lib;
 
 namespace ndn {
 
-Node::PitEntry::PitEntry(const Name &name, Closure *closure)
-: interest_(name), interestStructIsStale_(true), closure_(closure)
+// Use gettimeofday to return the current time in milliseconds.
+static inline double getNowMilliseconds()
 {
-  if (interest_.getInterestLifetimeMilliseconds() >= 0.0)
-    timeoutTime_ = ::clock() + (clock_t)((interest_.getInterestLifetimeMilliseconds() / 1000.0) * (double)CLOCKS_PER_SEC);
+  timeval t;
+  gettimeofday(&t, NULL);
+  return t.tv_sec * 1000.0 + t.tv_usec / 1000.0;
+}
+  
+Node::PitEntry::PitEntry(const ptr_lib::shared_ptr<const Interest> &interest, Closure *closure)
+: interest_(interest), closure_(closure)
+{
+  // Set up timeoutTime_.
+  if (interest_->getInterestLifetimeMilliseconds() >= 0.0)
+    timeoutTimeMilliseconds_ = getNowMilliseconds() + interest_->getInterestLifetimeMilliseconds();
   else
     // No timeout.
-    timeoutTime_ = 0;
+    timeoutTimeMilliseconds_ = -1.0;
+  
+  // Set up interestStruct_.
+  // TODO: Doesn't this belong in the Interest class?
+  nameComponents_.reserve(interest_->getName().getComponentCount());
+  excludeEntries_.reserve(interest_->getExclude().getEntryCount());
+  ndn_Interest_init
+    (&interestStruct_, &nameComponents_[0], nameComponents_.capacity(), &excludeEntries_[0], excludeEntries_.capacity());
+  interest_->get(interestStruct_);  
 }
 
-const struct ndn_Interest &Node::PitEntry::getInterestStruct()
+bool Node::PitEntry::checkTimeout(Node *parent, double nowMilliseconds)
 {
-  if (interestStructIsStale_) {
-    nameComponents_.reserve(interest_.getName().getComponentCount());
-    excludeEntries_.reserve(interest_.getExclude().getEntryCount());
-    ndn_Interest_init
-      (&interestStruct_, &nameComponents_[0], nameComponents_.capacity(), &excludeEntries_[0], excludeEntries_.capacity());
-    interest_.get(interestStruct_);
+  if (timeoutTimeMilliseconds_ >= 0.0 && nowMilliseconds >= timeoutTimeMilliseconds_) {
+    shared_ptr<Data> dummyData;
+    UpcallInfo upcallInfo(parent, interest_, 0, dummyData);
     
-    interestStructIsStale_ = false;
+    // Ignore all exceptions.
+    try {
+      closure_->upcall(UPCALL_INTEREST_TIMED_OUT, upcallInfo);
+    }
+    catch (...) { }
+    
+    return true;
   }
-  
-  return interestStruct_;
+  else
+    return false;
 }
 
 void Node::expressInterest(const Name &name, Closure *closure, const Interest *interestTemplate)
 {
-  shared_ptr<PitEntry> pitEntry(new PitEntry(name, closure));
-  if (interestTemplate) {
-		pitEntry->getInterest().setMinSuffixComponents(interestTemplate->getMinSuffixComponents());
-		pitEntry->getInterest().setMaxSuffixComponents(interestTemplate->getMaxSuffixComponents());
-		pitEntry->getInterest().getPublisherPublicKeyDigest() = interestTemplate->getPublisherPublicKeyDigest();
-		pitEntry->getInterest().getExclude() = interestTemplate->getExclude();
-		pitEntry->getInterest().setChildSelector(interestTemplate->getChildSelector());
-		pitEntry->getInterest().setAnswerOriginKind(interestTemplate->getAnswerOriginKind());
-		pitEntry->getInterest().setScope(interestTemplate->getScope());
-		pitEntry->getInterest().setInterestLifetimeMilliseconds(interestTemplate->getInterestLifetimeMilliseconds());
-  }
+  shared_ptr<const Interest> interest;
+  if (interestTemplate)
+    interest.reset(new Interest
+      (name, interestTemplate->getMinSuffixComponents(), interestTemplate->getMaxSuffixComponents(),
+       interestTemplate->getPublisherPublicKeyDigest(), interestTemplate->getExclude(),
+       interestTemplate->getChildSelector(), interestTemplate->getAnswerOriginKind(),
+       interestTemplate->getScope(), interestTemplate->getInterestLifetimeMilliseconds()));
   else
-    pitEntry->getInterest().setInterestLifetimeMilliseconds(4000.0);   // default interest timeout value.
+    interest.reset(new Interest(name, 4000.0));
   
+  shared_ptr<PitEntry> pitEntry(new PitEntry(interest, closure));
   pit_.push_back(pitEntry);
   
-  shared_ptr<vector<unsigned char> > encoding = pitEntry->getInterest().wireEncode();  
+  shared_ptr<vector<unsigned char> > encoding = pitEntry->getInterest()->wireEncode();  
   
   // TODO: Check if we are already connected.
   transport_->connect(*this);
@@ -66,6 +84,17 @@ void Node::expressInterest(const Name &name, Closure *closure, const Interest *i
 void Node::processEvents()
 {
   transport_->processEvents();
+  
+  // Check for PIT entry timeouts.  Go backwards through the list so we can erase entries.
+  double nowMilliseconds = getNowMilliseconds();
+  for (int i = (int)pit_.size() - 1; i >= 0; --i) {
+    if (pit_[i]->checkTimeout(this, nowMilliseconds)) {
+      pit_.erase(pit_.begin() + i);
+      
+      // Refresh now since the timeout callback might have delayed.
+      nowMilliseconds = getNowMilliseconds();
+    }
+  }
 }
 
 void Node::onReceivedElement(unsigned char *element, unsigned int elementLength)
@@ -78,8 +107,7 @@ void Node::onReceivedElement(unsigned char *element, unsigned int elementLength)
     
     int iPitEntry = getEntryIndexForExpressedInterest(data->getName());
     if (iPitEntry >= 0) {
-      shared_ptr<Interest> interestCopy(new Interest(pit_[iPitEntry]->getInterest()));
-      UpcallInfo upcallInfo(this, interestCopy, 0, data);
+      UpcallInfo upcallInfo(this, pit_[iPitEntry]->getInterest(), 0, data);
       
       // Remove the PIT entry before the calling the callback.
       Closure *closure = pit_[iPitEntry]->getClosure();
@@ -108,7 +136,8 @@ int Node::getEntryIndexForExpressedInterest(const Name &name)
 	for (unsigned int i = 0; i < pit_.size(); ++i) {
 		if (ndn_Interest_matchesName((struct ndn_Interest *)&pit_[i]->getInterestStruct(), &nameStruct)) {
       if (iResult < 0 || 
-          pit_[i]->getInterest().getName().getComponentCount() > pit_[iResult]->getInterest().getName().getComponentCount())
+          pit_[i]->getInterestStruct().name.nComponents > pit_[iResult]->getInterestStruct().name.nComponents)
+        // Update to the longer match.
         iResult = i;
     }
 	}

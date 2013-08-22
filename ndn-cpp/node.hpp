@@ -6,7 +6,6 @@
 #ifndef NDN_NODE_HPP
 #define NDN_NODE_HPP
 
-#include <time.h>
 #include "interest.hpp"
 #include "closure.hpp"
 #include "transport/udp-transport.hpp"
@@ -88,42 +87,45 @@ private:
   public:
     /**
      * Create a new PitEntry and set the timeoutTime_ based on the current time and the interest lifetime.
-     * @param name The name for the interest.  You can use the non-const getInterest() to set other fields.
-     * (We do it like this to avoid invoking the Interest copy constructor.)
+     * @param interest A shared_ptr for the interest.
      * @param closure A pointer to the closure with the callbacks to call on match. 
      * The caller must manage the memory for the Closure.  This will not try to delete it.
      */
-    PitEntry(const Name &name, Closure *closure);
+    PitEntry(const ptr_lib::shared_ptr<const Interest> &interest, Closure *closure);
     
-    Interest &getInterest() 
-    { 
-      // Assume that the caller will modify interest_, so mark it stale.
-      interestStructIsStale_ = true;
-      return interest_; 
-    }
+    const ptr_lib::shared_ptr<const Interest> &getInterest() { return interest_; }
     
     Closure *getClosure() { return closure_; }
     
     /**
-     * Get the struct ndn_Interest for the interest_.  If interestStructIsStale_, then this will
-     * re-build from interest_.  
+     * Get the struct ndn_Interest for the interest_.
      * WARNING: Assume that this PitEntry was created with new, so that no copy constructor is invoked between calls.
      * This class is private to Node and only used by its methods, so this should be OK.
      * TODO: Doesn't this functionality belong in the Interest class?
      * @return A reference to the ndn_Interest struct.
      * WARNING: The resulting pointers in are invalid uses getInterest() to manipulate the object which could reallocate memory.
      */
-    const struct ndn_Interest &getInterestStruct();
+    const struct ndn_Interest &getInterestStruct()
+    {
+      return interestStruct_;
+    }
+    
+    /**
+     * If this interest is timed out, call the timeout callback and return true.
+     * @param parent The parent Node for the UpcallInfo.
+     * @param nowMilliseconds The current time in milliseconds from gettimeofday.
+     * @return true if this interest timed out and the timeout callback was called, otherwise false.
+     */
+    bool checkTimeout(Node *parent, double nowMilliseconds);
     
   private:
-    Interest interest_;
+    ptr_lib::shared_ptr<const Interest> interest_;
     std::vector<struct ndn_NameComponent> nameComponents_;
     std::vector<struct ndn_ExcludeEntry> excludeEntries_;
     struct ndn_Interest interestStruct_;
-    bool interestStructIsStale_;
   
     Closure *closure_;
-    clock_t timeoutTime_; /**< The clock time when the interest times out, of 0 for none. */
+    double timeoutTimeMilliseconds_; /**< The time when the interest times out in milliseconds according to gettimeofday, or -1 for no timeout. */
   };
   
   /**
