@@ -48,6 +48,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
   ndn-cpp/face.cpp ndn-cpp/face.hpp \
   ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
+  ndn-cpp/node.cpp ndn-cpp/node.hpp \
   ndn-cpp/publisher-public-key-digest.hpp \
   ndn-cpp/c/encoding/binary-xml.h \
   ndn-cpp/c/encoding/binary-xml-decoder.h ndn-cpp/encoding/binary-xml-decoder.hpp \
