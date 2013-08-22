@@ -16,7 +16,7 @@ namespace ndn {
 class TcpTransport : public Transport {
 public:
   /**
-   * A UcpTransport::ConnectionInfo extends Transport::ConnectionInfo to hold the host and port info for the TCP connection.
+   * A TcpTransport::ConnectionInfo extends Transport::ConnectionInfo to hold the host and port info for the TCP connection.
    */
   class ConnectionInfo : public Transport::ConnectionInfo {
   public:
