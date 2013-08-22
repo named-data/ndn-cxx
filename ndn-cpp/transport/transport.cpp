@@ -25,6 +25,11 @@ void Transport::processEvents()
   throw logic_error("unimplemented");
 }
 
+bool Transport::getIsConnected()
+{
+  throw logic_error("unimplemented");
+}
+
 void Transport::close()
 {
 }

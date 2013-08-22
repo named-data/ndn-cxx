@@ -15,7 +15,7 @@ namespace ndn {
 class TcpTransport : public Transport {
 public:
   TcpTransport() 
-  : node_(0)
+  : node_(0), isConnected_(false)
   {
     ndn_TcpTransport_init(&transport_);
     elementReader_.partialData.array = 0;
@@ -43,6 +43,8 @@ public:
    */
   virtual void processEvents();
 
+  virtual bool getIsConnected();
+
   /**
    * Close the connection to the host.
    */
@@ -52,6 +54,7 @@ public:
   
 private:
   struct ndn_TcpTransport transport_;
+  bool isConnected_;
   Node *node_;
   // TODO: This belongs in the socket listener.
   ndn_BinaryXmlElementReader elementReader_;

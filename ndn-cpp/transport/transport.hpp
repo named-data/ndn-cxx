@@ -40,6 +40,8 @@ public:
    */
   virtual void processEvents() = 0;
 
+  virtual bool getIsConnected();
+  
   /**
    * Close the connection.  This base class implementation does nothing, but your derived class can override.
    */

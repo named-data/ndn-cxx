@@ -25,6 +25,7 @@ void UdpTransport::connect(Node &node)
     (&elementReader_, &node, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
   
   // TODO: Properly indicate connected status.
+  isConnected_ = true;
   node_ = &node;
 }
 
@@ -50,6 +51,11 @@ void UdpTransport::processEvents()
     throw std::runtime_error(ndn_getErrorString(error));  
 
   ndn_BinaryXmlElementReader_onReceivedData(&elementReader_, buffer, nBytes);
+}
+
+bool UdpTransport::getIsConnected()
+{
+  return isConnected_;
 }
 
 void UdpTransport::close()

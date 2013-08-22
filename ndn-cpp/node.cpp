@@ -76,8 +76,10 @@ void Node::expressInterest(const Name &name, Closure *closure, const Interest *i
   
   shared_ptr<vector<unsigned char> > encoding = pitEntry->getInterest()->wireEncode();  
   
-  // TODO: Check if we are already connected.
-  transport_->connect(*this);
+  // TODO: Properly check if we are already connected to the expected host.
+  if (!transport_->getIsConnected())
+    transport_->connect(*this);
+  
   transport_->send(*encoding);
 }
 
