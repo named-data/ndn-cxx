@@ -8,7 +8,7 @@
 
 #include <vector>
 #include "c/key.h"
-#include "Name.hpp"
+#include "name.hpp"
 
 namespace ndn {
   
