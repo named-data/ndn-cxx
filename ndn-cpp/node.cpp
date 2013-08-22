@@ -7,7 +7,7 @@
 #include "encoding/binary-xml-decoder.hpp"
 #include "c/encoding/binary-xml.h"
 #include "data.hpp"
-#include "Node.hpp"
+#include "node.hpp"
 
 using namespace std;
 using namespace ndn::ptr_lib;
