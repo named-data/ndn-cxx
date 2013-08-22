@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* 1 if have the `boost::function' class. */
+#undef HAVE_BOOST_FUNCTION
+
 /* 1 if have the `boost::shared_ptr' class. */
 #undef HAVE_BOOST_SHARED_PTR
 
@@ -32,6 +35,9 @@
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
+
+/* 1 if have the `std::function' class. */
+#undef HAVE_STD_FUNCTION
 
 /* 1 if have the `std::shared_ptr' class. */
 #undef HAVE_STD_SHARED_PTR

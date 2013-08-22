@@ -20,11 +20,30 @@ namespace ndn { namespace ptr_lib = std; }
 namespace ndn { namespace ptr_lib = boost; }
 #else
 // Use the boost header files in this distribution that were extracted with:
-// cd <INCLUDE DIRECTORY WITH boost SUBDIRECTORY>; bcp --namespace=ndnboost shared_ptr make_shared weak_ptr <NDN-CPP ROOT>
-// Also needed to rename all '<boost/' to '<ndnboost/', and all '"boost/' to '"ndnboost/', and the boost subdirectory to ndnboost.
+// cd <INCLUDE DIRECTORY WITH boost SUBDIRECTORY>
+// dist/bin/bcp --namespace=ndnboost shared_ptr make_shared weak_ptr functional <NDN-CPP ROOT>
+// cd <NDN-CPP ROOT>
+// mv boost ndnboost
+// cd ndnboost
+// (unset LANG; find . -type f -exec sed -i '' 's/\<boost\//\<ndnboost\//g' {} +)
+// (unset LANG; find . -type f -exec sed -i '' 's/\"boost\//\"ndnboost\//g' {} +)
 #include <ndnboost/shared_ptr.hpp>
 #include <ndnboost/make_shared.hpp>
 namespace ndn { namespace ptr_lib = ndnboost; }
+#endif
+
+// Depending on where ./configure found function, define the func_lib namespace.
+// We always use ndn::func_lib.
+#if HAVE_STD_FUNCTION
+#include <functional>
+namespace ndn { namespace func_lib = std; }
+#elif HAVE_BOOST_FUNCTION
+#include <boost/function.hpp>
+namespace ndn { namespace func_lib = boost; }
+#else
+// Use the boost header files in this distribution that were extracted as above:
+#include <ndnboost/function.hpp>
+namespace ndn { namespace func_lib = ndnboost; }
 #endif
 
 namespace ndn {
