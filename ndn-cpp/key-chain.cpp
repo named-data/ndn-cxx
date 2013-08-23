@@ -4,8 +4,7 @@
  */
 
 #include <stdexcept>
-#include <openssl/ssl.h>
-#include <openssl/rsa.h>
+#include "c/util/crypto.h"
 #include "c/encoding/binary-xml-data.h"
 #include "encoding/binary-xml-encoder.hpp"
 #include "key-chain.hpp"
@@ -61,29 +60,15 @@ static unsigned char DEFAULT_PRIVATE_KEY_DER[] = {
 };
 
 /**
- * Compute the sha-256 digest of data.
- * @param data Pointer to the input byte array.
- * @param dataLength The length of data.
- * @param digest A pointer to a buffer of size SHA256_DIGEST_LENGTH to receive the data.
- */
-static void digestSha256(const unsigned char *data, unsigned int dataLength, unsigned char *digest)
-{
-  SHA256_CTX sha256;
-  SHA256_Init(&sha256);
-  SHA256_Update(&sha256, data, dataLength);
-  SHA256_Final(digest, &sha256);
-}
-
-/**
  * Call digestSha256 and set the digest vector to the result.
  * @param data
  * @param dataLength
  * @param digest
  */
-static void setSha256(const unsigned char *data, unsigned int dataLength, vector<unsigned char> &digest)
+void setSha256(const unsigned char *data, unsigned int dataLength, vector<unsigned char> &digest)
 {
   unsigned char digestBuffer[SHA256_DIGEST_LENGTH];
-  digestSha256(data, dataLength, digestBuffer);
+  ndn_digestSha256(data, dataLength, digestBuffer);
   setVector(digest, digestBuffer, sizeof(digestBuffer));
 }
 
@@ -97,7 +82,7 @@ static void digestDataFieldsSha256(const Data &data, WireFormat &wireFormat, uns
   unsigned int signedFieldsBeginOffset, signedFieldsEndOffset;
   ptr_lib::shared_ptr<vector<unsigned char> > encoding = wireFormat.encodeData(data, &signedFieldsBeginOffset, &signedFieldsEndOffset);
   
-  digestSha256(&encoding->front() + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, digest);
+  ndn_digestSha256(&encoding->front() + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, digest);
 }
 
 void KeyChain::sign
@@ -152,7 +137,7 @@ bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLeng
     // TODO: Allow a non-default digest algorithm.
     throw std::runtime_error("Cannot verify a data packet with a non-default digest algorithm");
   unsigned char dataFieldsDigest[SHA256_DIGEST_LENGTH];
-  digestSha256(input + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, dataFieldsDigest);
+  ndn_digestSha256(input + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, dataFieldsDigest);
   
   // Find the public key.
   const unsigned char *publicKeyDer;

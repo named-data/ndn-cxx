@@ -143,7 +143,7 @@ am_libndn_c_la_OBJECTS = ndn-cpp/c/interest.lo ndn-cpp/c/name.lo \
 	ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.lo \
 	ndn-cpp/c/encoding/binary-xml-structure-decoder.lo \
 	ndn-cpp/c/transport/socket-transport.lo \
-	ndn-cpp/c/util/dynamic-uchar-array.lo \
+	ndn-cpp/c/util/crypto.lo ndn-cpp/c/util/dynamic-uchar-array.lo \
 	ndn-cpp/c/util/ndn_memory.lo ndn-cpp/c/util/ndn_realloc.lo
 libndn_c_la_OBJECTS = $(am_libndn_c_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -475,6 +475,7 @@ libndn_c_la_SOURCES = \
   ndn-cpp/c/transport/socket-transport.c ndn-cpp/c/transport/socket-transport.h \
   ndn-cpp/c/transport/tcp-transport.h \
   ndn-cpp/c/transport/udp-transport.h \
+  ndn-cpp/c/util/crypto.c ndn-cpp/c/util/crypto.h \
   ndn-cpp/c/util/dynamic-uchar-array.c ndn-cpp/c/util/dynamic-uchar-array.h \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
@@ -659,6 +660,8 @@ ndn-cpp/c/util/$(am__dirstamp):
 ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/util/$(DEPDIR)
 	@: > ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/c/util/crypto.lo: ndn-cpp/c/util/$(am__dirstamp) \
+	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/util/dynamic-uchar-array.lo: ndn-cpp/c/util/$(am__dirstamp) \
 	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/util/ndn_memory.lo: ndn-cpp/c/util/$(am__dirstamp) \
@@ -848,6 +851,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-publisher-public-key-digest.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-structure-decoder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/transport/$(DEPDIR)/socket-transport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/crypto.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/dynamic-uchar-array.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_realloc.Plo@am__quote@
