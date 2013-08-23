@@ -8,6 +8,7 @@
 *.la
 *.a
 bin/*
+libs/*
 
 # Emacs temp files
 *~
