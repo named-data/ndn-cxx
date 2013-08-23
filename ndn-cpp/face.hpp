@@ -46,21 +46,56 @@ public:
 
   /**
    * Encode name as an Interest. If interestTemplate is not 0, use its interest selectors.
-   * Send the interest through the transport, read the entire response and call
-   * closure->upcall(UPCALL_DATA (or UPCALL_DATA_UNVERIFIED),
-   *                 UpcallInfo(this, interest, 0, data)).
-   * @param name reference to a Name for the interest.  This does not keep a pointer to the Name object.
-   * @param closure a pointer for the Closure.  The caller must manage the memory for the Closure.  This will not try to delete it.
+   * Send the interest through the transport, read the entire response and call onData(interest, data).
+   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
    * @param interestTemplate if not 0, copy interest selectors from the template.   This does not keep a pointer to the Interest object.
+   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
+   * This copies the function object, so you may need to use func_lib::ref() as appropriate.
    */
-  void expressInterest(const Name &name, Closure *closure, const Interest *interestTemplate)
+  void expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData, const OnTimeout &onTimeout)
   {
-    node_.expressInterest(name, closure, interestTemplate);
+    node_.expressInterest(name, interestTemplate, onData, onTimeout);
+  }
+
+  /**
+   * Encode name as an Interest, using a default interest lifetime.
+   * Send the interest through the transport, read the entire response and call onData(interest, data).
+   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
+   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
+   * This copies the function object, so you may need to use func_lib::ref() as appropriate.
+   */
+  void expressInterest(const Name &name, const OnData &onData, const OnTimeout &onTimeout) 
+  {
+    node_.expressInterest(name, onData, onTimeout);
   }
   
-  void expressInterest(const Name &name, Closure *closure)
+  /**
+   * Encode name as an Interest. If interestTemplate is not 0, use its interest selectors.
+   * Send the interest through the transport, read the entire response and call onData(interest, data).
+   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
+   * @param interestTemplate if not 0, copy interest selectors from the template.   This does not keep a pointer to the Interest object.
+   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   */
+  void expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData)
   {
-    node_.expressInterest(name, closure);
+    node_.expressInterest(name, interestTemplate, onData);
+  }
+  
+  /**
+   * Encode name as an Interest, using a default interest lifetime.
+   * Send the interest through the transport, read the entire response and call onData(interest, data).
+   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
+   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   */
+  void expressInterest(const Name &name, const OnData &onData)
+  {
+    node_.expressInterest(name, onData);
   }
   
   /**

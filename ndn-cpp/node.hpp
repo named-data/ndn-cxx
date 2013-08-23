@@ -6,12 +6,22 @@
 #ifndef NDN_NODE_HPP
 #define NDN_NODE_HPP
 
+#include "common.hpp"
 #include "interest.hpp"
-#include "closure.hpp"
 #include "transport/udp-transport.hpp"
 #include "encoding/binary-xml-element-reader.hpp"
 
 namespace ndn {
+
+/**
+ * An OnData function object is used to pass a callback to expressInterest.
+ */
+typedef func_lib::function<void(const ptr_lib::shared_ptr<const Interest> &, const ptr_lib::shared_ptr<Data> &)> OnData;
+
+/**
+ * An OnTimeout function object is used to pass a callback to expressInterest.
+ */
+typedef func_lib::function<void(const ptr_lib::shared_ptr<const Interest> &)> OnTimeout;
 
 class Face;
   
@@ -48,18 +58,53 @@ public:
 
   /**
    * Encode name as an Interest. If interestTemplate is not 0, use its interest selectors.
-   * Send the interest through the transport, read the entire response and call
-   * closure->upcall(UPCALL_DATA (or UPCALL_DATA_UNVERIFIED),
-   *                 UpcallInfo(this, interest, 0, data)).
-   * @param name reference to a Name for the interest.  This does not keep a pointer to the Name object.
-   * @param closure a pointer for the Closure.  The caller must manage the memory for the Closure.  This will not try to delete it.
+   * Send the interest through the transport, read the entire response and call onData(interest, data).
+   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
    * @param interestTemplate if not 0, copy interest selectors from the template.   This does not keep a pointer to the Interest object.
+   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
+   * This copies the function object, so you may need to use func_lib::ref() as appropriate.
    */
-  void expressInterest(const Name &name, Closure *closure, const Interest *interestTemplate);
-  
-  void expressInterest(const Name &name, Closure *closure)
+  void expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData, const OnTimeout &onTimeout);
+
+  /**
+   * Encode name as an Interest, using a default interest lifetime.
+   * Send the interest through the transport, read the entire response and call onData(interest, data).
+   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
+   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
+   * This copies the function object, so you may need to use func_lib::ref() as appropriate.
+   */
+  void expressInterest(const Name &name, const OnData &onData, const OnTimeout &onTimeout) 
   {
-    expressInterest(name, closure, 0);
+    expressInterest(name, 0, onData, onTimeout);
+  }
+  
+  /**
+   * Encode name as an Interest. If interestTemplate is not 0, use its interest selectors.
+   * Send the interest through the transport, read the entire response and call onData(interest, data).
+   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
+   * @param interestTemplate if not 0, copy interest selectors from the template.   This does not keep a pointer to the Interest object.
+   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   */
+  void expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData)
+  {
+    expressInterest(name, interestTemplate, onData, OnTimeout());
+  }
+  
+  /**
+   * Encode name as an Interest, using a default interest lifetime.
+   * Send the interest through the transport, read the entire response and call onData(interest, data).
+   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
+   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   */
+  void expressInterest(const Name &name, const OnData &onData)
+  {
+    expressInterest(name, 0, onData);
   }
 
   /**
@@ -85,14 +130,16 @@ private:
     /**
      * Create a new PitEntry and set the timeoutTime_ based on the current time and the interest lifetime.
      * @param interest A shared_ptr for the interest.
-     * @param closure A pointer to the closure with the callbacks to call on match. 
-     * The caller must manage the memory for the Closure.  This will not try to delete it.
+     * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
+     * use func_lib::ref() as appropriate.
+     * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
+     * This copies the function object, so you may need to use func_lib::ref() as appropriate.
      */
-    PitEntry(const ptr_lib::shared_ptr<const Interest> &interest, Closure *closure);
+    PitEntry(const ptr_lib::shared_ptr<const Interest> &interest, const OnData &onData, const OnTimeout &onTimeout);
     
     const ptr_lib::shared_ptr<const Interest> &getInterest() { return interest_; }
     
-    Closure *getClosure() { return closure_; }
+    const OnData &getOnData() { return onData_; }
     
     /**
      * Get the struct ndn_Interest for the interest_.
@@ -108,7 +155,7 @@ private:
     }
     
     /**
-     * If this interest is timed out, call the timeout callback and return true.
+     * If this interest is timed out, call onTimeout_ (if defined) and return true.
      * @param parent The parent Node for the UpcallInfo.
      * @param nowMilliseconds The current time in milliseconds from gettimeofday.
      * @return true if this interest timed out and the timeout callback was called, otherwise false.
@@ -121,7 +168,8 @@ private:
     std::vector<struct ndn_ExcludeEntry> excludeEntries_;
     struct ndn_Interest interestStruct_;
   
-    Closure *closure_;
+    const OnData onData_;
+    const OnTimeout onTimeout_;
     double timeoutTimeMilliseconds_; /**< The time when the interest times out in milliseconds according to gettimeofday, or -1 for no timeout. */
   };
   

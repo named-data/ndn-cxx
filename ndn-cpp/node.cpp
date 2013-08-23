@@ -22,8 +22,8 @@ static inline double getNowMilliseconds()
   return t.tv_sec * 1000.0 + t.tv_usec / 1000.0;
 }
   
-Node::PitEntry::PitEntry(const ptr_lib::shared_ptr<const Interest> &interest, Closure *closure)
-: interest_(interest), closure_(closure)
+Node::PitEntry::PitEntry(const ptr_lib::shared_ptr<const Interest> &interest, const OnData &onData, const OnTimeout &onTimeout)
+: interest_(interest), onData_(onData), onTimeout_(onTimeout)
 {
   // Set up timeoutTime_.
   if (interest_->getInterestLifetimeMilliseconds() >= 0.0)
@@ -44,14 +44,13 @@ Node::PitEntry::PitEntry(const ptr_lib::shared_ptr<const Interest> &interest, Cl
 bool Node::PitEntry::checkTimeout(Node *parent, double nowMilliseconds)
 {
   if (timeoutTimeMilliseconds_ >= 0.0 && nowMilliseconds >= timeoutTimeMilliseconds_) {
-    shared_ptr<Data> dummyData;
-    UpcallInfo upcallInfo(parent, interest_, 0, dummyData);
-    
-    // Ignore all exceptions.
-    try {
-      closure_->upcall(UPCALL_INTEREST_TIMED_OUT, upcallInfo);
+    if (onTimeout_) {
+      // Ignore all exceptions.
+      try {
+        onTimeout_(interest_);
+      }
+      catch (...) { }
     }
-    catch (...) { }
     
     return true;
   }
@@ -59,7 +58,7 @@ bool Node::PitEntry::checkTimeout(Node *parent, double nowMilliseconds)
     return false;
 }
 
-void Node::expressInterest(const Name &name, Closure *closure, const Interest *interestTemplate)
+void Node::expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData, const OnTimeout &onTimeout)
 {
   shared_ptr<const Interest> interest;
   if (interestTemplate)
@@ -71,7 +70,7 @@ void Node::expressInterest(const Name &name, Closure *closure, const Interest *i
   else
     interest.reset(new Interest(name, 4000.0));
   
-  shared_ptr<PitEntry> pitEntry(new PitEntry(interest, closure));
+  shared_ptr<PitEntry> pitEntry(new PitEntry(interest, onData, onTimeout));
   pit_.push_back(pitEntry);
   
   shared_ptr<vector<unsigned char> > encoding = pitEntry->getInterest()->wireEncode();  
@@ -109,12 +108,11 @@ void Node::onReceivedElement(const unsigned char *element, unsigned int elementL
     
     int iPitEntry = getEntryIndexForExpressedInterest(data->getName());
     if (iPitEntry >= 0) {
-      UpcallInfo upcallInfo(this, pit_[iPitEntry]->getInterest(), 0, data);
-      
-      // Remove the PIT entry before the calling the callback.
-      Closure *closure = pit_[iPitEntry]->getClosure();
+      // Copy pointers to the needed objects and remove the PIT entry before the calling the callback.
+      const OnData onData = pit_[iPitEntry]->getOnData();
+      const ptr_lib::shared_ptr<const Interest> interest = pit_[iPitEntry]->getInterest();
       pit_.erase(pit_.begin() + iPitEntry);
-      closure->upcall(UPCALL_DATA, upcallInfo);
+      onData(interest, data);
     }
   }
 }

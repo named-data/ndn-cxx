@@ -40,7 +40,6 @@ libndn_c_la_SOURCES = \
 
 libndn_cpp_la_SOURCES = \
   config.h \
-  ndn-cpp/closure.hpp \
   ndn-cpp/common.hpp ndn-cpp/common.cpp \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
   ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
