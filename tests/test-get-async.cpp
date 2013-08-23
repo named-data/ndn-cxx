@@ -13,6 +13,11 @@
 using namespace std;
 using namespace ndn;
 using namespace ptr_lib;
+using namespace func_lib;
+#if HAVE_STD_FUNCTION
+// In the std library, the placeholders are in a different namespace than boost.
+using namespace func_lib::placeholders;
+#endif
 
 class Counter
 {
