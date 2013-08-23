@@ -43,11 +43,34 @@ public:
   : node_(host)
   {
   }
+  
+  /**
+   * Send the Interest through the transport, read the entire response and call onData(interest, data).
+   * @param interest A reference to the Interest.  This copies the Interest.
+   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
+   * This copies the function object, so you may need to use func_lib::ref() as appropriate.
+   */
+  void expressInterest(const Interest &interest, const OnData &onData, const OnTimeout &onTimeout)
+  {
+    node_.expressInterest(interest, onData, onTimeout);
+  }
+
+  /**
+   * Send the Interest through the transport, read the entire response and call onData(interest, data).
+   * @param interest A reference to the Interest.  This copies the Interest.
+   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   */
+  void expressInterest(const Interest &interest, const OnData &onData) {
+    node_.expressInterest(interest, onData);
+  }
 
   /**
    * Encode name as an Interest. If interestTemplate is not 0, use its interest selectors.
    * Send the interest through the transport, read the entire response and call onData(interest, data).
-   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
+   * @param name A reference to a Name for the interest.  This copies the Name.
    * @param interestTemplate if not 0, copy interest selectors from the template.   This does not keep a pointer to the Interest object.
    * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
    * use func_lib::ref() as appropriate.
@@ -62,7 +85,7 @@ public:
   /**
    * Encode name as an Interest, using a default interest lifetime.
    * Send the interest through the transport, read the entire response and call onData(interest, data).
-   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
+   * @param name A reference to a Name for the interest.  This copies the Name.
    * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
    * use func_lib::ref() as appropriate.
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
@@ -76,7 +99,7 @@ public:
   /**
    * Encode name as an Interest. If interestTemplate is not 0, use its interest selectors.
    * Send the interest through the transport, read the entire response and call onData(interest, data).
-   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
+   * @param name A reference to a Name for the interest.  This copies the Name.
    * @param interestTemplate if not 0, copy interest selectors from the template.   This does not keep a pointer to the Interest object.
    * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
    * use func_lib::ref() as appropriate.
@@ -89,7 +112,7 @@ public:
   /**
    * Encode name as an Interest, using a default interest lifetime.
    * Send the interest through the transport, read the entire response and call onData(interest, data).
-   * @param name A reference to a Name for the interest.  This does not keep a pointer to the Name object.
+   * @param name A reference to a Name for the interest.  This copies the Name.
    * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
    * use func_lib::ref() as appropriate.
    */

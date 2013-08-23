@@ -58,19 +58,9 @@ bool Node::PitEntry::checkTimeout(Node *parent, double nowMilliseconds)
     return false;
 }
 
-void Node::expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData, const OnTimeout &onTimeout)
+void Node::expressInterest(const Interest &interest, const OnData &onData, const OnTimeout &onTimeout)
 {
-  shared_ptr<const Interest> interest;
-  if (interestTemplate)
-    interest.reset(new Interest
-      (name, interestTemplate->getMinSuffixComponents(), interestTemplate->getMaxSuffixComponents(),
-       interestTemplate->getPublisherPublicKeyDigest(), interestTemplate->getExclude(),
-       interestTemplate->getChildSelector(), interestTemplate->getAnswerOriginKind(),
-       interestTemplate->getScope(), interestTemplate->getInterestLifetimeMilliseconds()));
-  else
-    interest.reset(new Interest(name, 4000.0));
-  
-  shared_ptr<PitEntry> pitEntry(new PitEntry(interest, onData, onTimeout));
+  shared_ptr<PitEntry> pitEntry(new PitEntry(shared_ptr<const Interest>(new Interest(interest)), onData, onTimeout));
   pit_.push_back(pitEntry);
   
   shared_ptr<vector<unsigned char> > encoding = pitEntry->getInterest()->wireEncode();  
@@ -80,6 +70,18 @@ void Node::expressInterest(const Name &name, const Interest *interestTemplate, c
     transport_->connect(*connectionInfo_, *this);
   
   transport_->send(*encoding);
+}
+
+void Node::expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData, const OnTimeout &onTimeout)
+{
+  if (interestTemplate)
+    expressInterest(Interest
+      (name, interestTemplate->getMinSuffixComponents(), interestTemplate->getMaxSuffixComponents(),
+       interestTemplate->getPublisherPublicKeyDigest(), interestTemplate->getExclude(),
+       interestTemplate->getChildSelector(), interestTemplate->getAnswerOriginKind(),
+       interestTemplate->getScope(), interestTemplate->getInterestLifetimeMilliseconds()), onData, onTimeout);
+  else
+    expressInterest(Interest(name, 4000.0), onData, onTimeout);
 }
 
 void Node::processEvents()
