@@ -21,7 +21,7 @@ namespace ndn { namespace ptr_lib = boost; }
 #else
 // Use the boost header files in this distribution that were extracted with:
 // cd <INCLUDE DIRECTORY WITH boost SUBDIRECTORY>
-// dist/bin/bcp --namespace=ndnboost shared_ptr make_shared weak_ptr functional <NDN-CPP ROOT>
+// dist/bin/bcp --namespace=ndnboost shared_ptr make_shared weak_ptr function bind <NDN-CPP ROOT>
 // cd <NDN-CPP ROOT>
 // mv boost ndnboost
 // cd ndnboost
@@ -39,10 +39,12 @@ namespace ndn { namespace ptr_lib = ndnboost; }
 namespace ndn { namespace func_lib = std; }
 #elif HAVE_BOOST_FUNCTION
 #include <boost/function.hpp>
+#include <boost/bind.hpp>
 namespace ndn { namespace func_lib = boost; }
 #else
 // Use the boost header files in this distribution that were extracted as above:
 #include <ndnboost/function.hpp>
+#include <ndnboost/bind.hpp>
 namespace ndn { namespace func_lib = ndnboost; }
 #endif
 
