@@ -11,7 +11,7 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 
-bin_PROGRAMS = bin/test-encode-decode-interest bin/test-encode-decode-data bin/test-get-async
+bin_PROGRAMS = bin/test-encode-decode-interest bin/test-encode-decode-data bin/test-get-async bin/test-publish-async
 
 libndn_c_la_SOURCES = \
   config.h \
@@ -70,5 +70,8 @@ bin_test_encode_decode_data_LDADD = libndn-cpp.la libndn-c.la
 
 bin_test_get_async_SOURCES = tests/test-get-async.cpp
 bin_test_get_async_LDADD = libndn-cpp.la libndn-c.la
+
+bin_test_publish_async_SOURCES = tests/test-publish-async.cpp
+bin_test_publish_async_LDADD = libndn-cpp.la libndn-c.la
 
 dist_noinst_SCRIPTS = autogen.sh

@@ -89,7 +89,7 @@ DIST_COMMON = $(srcdir)/aminclude.am $(srcdir)/Makefile.in \
 	config.guess config.sub install-sh missing ltmain.sh
 bin_PROGRAMS = bin/test-encode-decode-interest$(EXEEXT) \
 	bin/test-encode-decode-data$(EXEEXT) \
-	bin/test-get-async$(EXEEXT)
+	bin/test-get-async$(EXEEXT) bin/test-publish-async$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -177,6 +177,10 @@ bin_test_encode_decode_interest_DEPENDENCIES = libndn-cpp.la \
 am_bin_test_get_async_OBJECTS = tests/test-get-async.$(OBJEXT)
 bin_test_get_async_OBJECTS = $(am_bin_test_get_async_OBJECTS)
 bin_test_get_async_DEPENDENCIES = libndn-cpp.la libndn-c.la
+am_bin_test_publish_async_OBJECTS =  \
+	tests/test-publish-async.$(OBJEXT)
+bin_test_publish_async_OBJECTS = $(am_bin_test_publish_async_OBJECTS)
+bin_test_publish_async_DEPENDENCIES = libndn-cpp.la libndn-c.la
 SCRIPTS = $(dist_noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -233,11 +237,13 @@ am__v_CXXLD_1 =
 SOURCES = $(libndn_c_la_SOURCES) $(libndn_cpp_la_SOURCES) \
 	$(bin_test_encode_decode_data_SOURCES) \
 	$(bin_test_encode_decode_interest_SOURCES) \
-	$(bin_test_get_async_SOURCES)
+	$(bin_test_get_async_SOURCES) \
+	$(bin_test_publish_async_SOURCES)
 DIST_SOURCES = $(libndn_c_la_SOURCES) $(libndn_cpp_la_SOURCES) \
 	$(bin_test_encode_decode_data_SOURCES) \
 	$(bin_test_encode_decode_interest_SOURCES) \
-	$(bin_test_get_async_SOURCES)
+	$(bin_test_get_async_SOURCES) \
+	$(bin_test_publish_async_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -509,6 +515,8 @@ bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
 bin_test_encode_decode_data_LDADD = libndn-cpp.la libndn-c.la
 bin_test_get_async_SOURCES = tests/test-get-async.cpp
 bin_test_get_async_LDADD = libndn-cpp.la libndn-c.la
+bin_test_publish_async_SOURCES = tests/test-publish-async.cpp
+bin_test_publish_async_LDADD = libndn-cpp.la libndn-c.la
 dist_noinst_SCRIPTS = autogen.sh
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -806,6 +814,12 @@ tests/test-get-async.$(OBJEXT): tests/$(am__dirstamp) \
 bin/test-get-async$(EXEEXT): $(bin_test_get_async_OBJECTS) $(bin_test_get_async_DEPENDENCIES) $(EXTRA_bin_test_get_async_DEPENDENCIES) bin/$(am__dirstamp)
 	@rm -f bin/test-get-async$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(bin_test_get_async_OBJECTS) $(bin_test_get_async_LDADD) $(LIBS)
+tests/test-publish-async.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+
+bin/test-publish-async$(EXEEXT): $(bin_test_publish_async_OBJECTS) $(bin_test_publish_async_DEPENDENCIES) $(EXTRA_bin_test_publish_async_DEPENDENCIES) bin/$(am__dirstamp)
+	@rm -f bin/test-publish-async$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(bin_test_publish_async_OBJECTS) $(bin_test_publish_async_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -865,6 +879,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-interest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-get-async.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-publish-async.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
