@@ -56,8 +56,6 @@ char *ndn_getErrorString(int error)
     return      "unrecognized ndn_KeyNameType";
   case NDN_ERROR_decodeBinaryXmlKeyLocator_unrecognized_key_locator_type:
     return      "decodeBinaryXmlKeyLocator unrecognized key locator type";
-  case NDN_ERROR_decodeBinaryXmlKeyLocator_unrecognized_key_name_type:
-    return      "decodeBinaryXmlKeyLocator unrecognized key name type";
   case NDN_ERROR_unrecognized_ndn_SocketTransport:
     return      "unrecognized ndn_SocketTransport";
   case NDN_ERROR_SocketTransport_error_in_getaddrinfo:

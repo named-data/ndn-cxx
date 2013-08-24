@@ -47,8 +47,11 @@ static ndn_Error decodeKeyNameData(struct ndn_KeyLocator *keyLocator, struct ndn
               (decoder, ndn_BinaryXml_DTag_PublisherIssuerCertificateDigest, 0, &keyLocator->keyData, &keyLocator->keyDataLength)))
             return error;
         }
-        else
-          return NDN_ERROR_decodeBinaryXmlKeyLocator_unrecognized_key_name_type;
+        else {
+          // Key name data is omitted.
+          keyLocator->keyNameType = -1;
+          keyLocator->keyDataLength = 0;
+        }
       }
     }
   }
@@ -81,29 +84,31 @@ ndn_Error ndn_encodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
     if ((error = ndn_encodeBinaryXmlName(&keyLocator->keyName, encoder)))
       return error;
     
-    if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST) {
-      if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-          (encoder, ndn_BinaryXml_DTag_PublisherPublicKeyDigest, keyLocator->keyData, keyLocator->keyDataLength)))
-        return error;    
+    if ((int)keyLocator->keyNameType >= 0 && keyLocator->keyDataLength > 0) {
+      if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST) {
+        if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
+            (encoder, ndn_BinaryXml_DTag_PublisherPublicKeyDigest, keyLocator->keyData, keyLocator->keyDataLength)))
+          return error;    
+      }
+      else if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST) {
+        if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
+            (encoder, ndn_BinaryXml_DTag_PublisherCertificateDigest, keyLocator->keyData, keyLocator->keyDataLength)))
+          return error;    
+      }
+      else if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST) {
+        if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
+            (encoder, ndn_BinaryXml_DTag_PublisherIssuerKeyDigest, keyLocator->keyData, keyLocator->keyDataLength)))
+          return error;    
+      }
+      else if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST) {
+        if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
+            (encoder, ndn_BinaryXml_DTag_PublisherIssuerCertificateDigest, keyLocator->keyData, keyLocator->keyDataLength)))
+          return error;    
+      }
+      else
+        return NDN_ERROR_unrecognized_ndn_KeyNameType;
     }
-    else if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST) {
-      if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-          (encoder, ndn_BinaryXml_DTag_PublisherCertificateDigest, keyLocator->keyData, keyLocator->keyDataLength)))
-        return error;    
-    }
-    else if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST) {
-      if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-          (encoder, ndn_BinaryXml_DTag_PublisherIssuerKeyDigest, keyLocator->keyData, keyLocator->keyDataLength)))
-        return error;    
-    }
-    else if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST) {
-      if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-          (encoder, ndn_BinaryXml_DTag_PublisherIssuerCertificateDigest, keyLocator->keyData, keyLocator->keyDataLength)))
-        return error;    
-    }
-    else
-      return NDN_ERROR_unrecognized_ndn_KeyNameType;
-
+    
     if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
       return error;
   }

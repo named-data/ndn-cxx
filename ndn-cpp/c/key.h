@@ -40,7 +40,7 @@ struct ndn_KeyLocator {
     */
   unsigned int keyDataLength;  /**< The length of keyData. */
   struct ndn_Name keyName;     /**< The key name (only used if type is ndn_KeyLocatorType_KEYNAME.) */
-  ndn_KeyNameType keyNameType; /**< The type of data for keyName (only used if type is ndn_KeyLocatorType_KEYNAME.) */
+  ndn_KeyNameType keyNameType; /**< The type of data for keyName, -1 for none. (only used if type is ndn_KeyLocatorType_KEYNAME.) */
 };
 
 /**

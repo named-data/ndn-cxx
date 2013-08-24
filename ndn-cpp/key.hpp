@@ -77,7 +77,7 @@ private:
     *   If type_ is ndn_KeyLocatorType_KEYNAME and keyNameType_ is ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST, the publisher issuer certificate digest. 
                                 */
   Name keyName_;                /**< The key name (only used if type_ is ndn_KeyLocatorType_KEYNAME.) */
-  ndn_KeyNameType keyNameType_; /**< The type of data for keyName_ (only used if type_ is ndn_KeyLocatorType_KEYNAME.) */
+  ndn_KeyNameType keyNameType_; /**< The type of data for keyName_, -1 for none. (only used if type_ is ndn_KeyLocatorType_KEYNAME.) */
 };
   
 }

@@ -111,7 +111,7 @@ static void dumpData(const Data &data)
        << (data.getSignedInfo().getFinalBlockID().size() > 0 ? 
            toHex(data.getSignedInfo().getFinalBlockID()).c_str() : "<none>") << endl;
   cout << "signedInfo.keyLocator: ";
-  if (data.getSignedInfo().getKeyLocator().getType() >= 0) {
+  if ((int)data.getSignedInfo().getKeyLocator().getType() >= 0) {
     if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEY)
       cout << "Key: " << toHex(data.getSignedInfo().getKeyLocator().getKeyData()) << endl;
     else if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_CERTIFICATE)
@@ -119,21 +119,25 @@ static void dumpData(const Data &data)
     else if (data.getSignedInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEYNAME) {
       cout << "KeyName: " << data.getSignedInfo().getKeyLocator().getKeyName().to_uri() << endl;
       cout << "signedInfo.keyLocator: ";
-      bool showKeyNameData = true;
-      if (data.getSignedInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST)
-        cout << "PublisherPublicKeyDigest: ";
-      else if (data.getSignedInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST)
-        cout << "PublisherCertificateDigest: ";
-      else if (data.getSignedInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST)
-        cout << "PublisherIssuerKeyDigest: ";
-      else if (data.getSignedInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST)
-        cout << "PublisherIssuerCertificateDigest: ";
-      else {
-        cout << "<unrecognized ndn_KeyNameType " << data.getSignedInfo().getKeyLocator().getKeyNameType() << ">" << endl;
-        showKeyNameData = false;
+      if ((int)data.getSignedInfo().getKeyLocator().getKeyNameType() >= 0) {
+        bool showKeyNameData = true;
+        if (data.getSignedInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST)
+          cout << "PublisherPublicKeyDigest: ";
+        else if (data.getSignedInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST)
+          cout << "PublisherCertificateDigest: ";
+        else if (data.getSignedInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST)
+          cout << "PublisherIssuerKeyDigest: ";
+        else if (data.getSignedInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST)
+          cout << "PublisherIssuerCertificateDigest: ";
+        else {
+          cout << "<unrecognized ndn_KeyNameType " << data.getSignedInfo().getKeyLocator().getKeyNameType() << ">" << endl;
+          showKeyNameData = false;
+        }
+        if (showKeyNameData)
+          cout << toHex(data.getSignedInfo().getKeyLocator().getKeyData()) << endl;
       }
-      if (showKeyNameData)
-        cout << toHex(data.getSignedInfo().getKeyLocator().getKeyData()) << endl;
+      else
+        cout << "<no key digest>" << endl;
     }
     else
       cout << "<unrecognized ndn_KeyLocatorType " << data.getSignedInfo().getKeyLocator().getType() << ">" << endl;
