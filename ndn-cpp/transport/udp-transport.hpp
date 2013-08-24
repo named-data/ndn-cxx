@@ -29,6 +29,15 @@ public:
     : host_(host), port_(port)
     {
     }
+
+    /**
+     * Create a ConnectionInfo with the given host and default port 9695.
+     * @param host The host for the connection.
+     */
+    ConnectionInfo(const char *host)
+    : host_(host), port_(9695)
+    {
+    }
      
     /**
      * Get the host given to the constructor.
