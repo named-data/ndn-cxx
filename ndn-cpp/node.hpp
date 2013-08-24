@@ -8,7 +8,8 @@
 
 #include "common.hpp"
 #include "interest.hpp"
-#include "transport/udp-transport.hpp"
+#include "data.hpp"
+#include "transport/tcp-transport.hpp"
 #include "encoding/binary-xml-element-reader.hpp"
 
 namespace ndn {
@@ -23,6 +24,11 @@ typedef func_lib::function<void(const ptr_lib::shared_ptr<const Interest> &, con
  */
 typedef func_lib::function<void(const ptr_lib::shared_ptr<const Interest> &)> OnTimeout;
 
+/**
+ * An OnInterest function object is used to pass a callback to registerPrefix.
+ */
+typedef func_lib::function<void(const ptr_lib::shared_ptr<const Name> &, const ptr_lib::shared_ptr<const Interest> &)> OnInterest;
+
 class Face;
   
 class Node : public ElementListener {
@@ -35,25 +41,28 @@ public:
   Node(const ptr_lib::shared_ptr<Transport> &transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo> &connectionInfo)
   : transport_(transport), connectionInfo_(connectionInfo)
   {
+    construct();
   }
   
   /**
-   * Create a new Node for communication with an NDN hub at host:port using the default UdpTransport.
+   * Create a new Node for communication with an NDN hub at host:port using the default TcpTransport.
    * @param host The host of the NDN hub.
    * @param port The port of the NDN hub.
    */
   Node(const char *host, unsigned short port)
-  : transport_(new UdpTransport()), connectionInfo_(new UdpTransport::ConnectionInfo(host, port))
+  : transport_(new TcpTransport()), connectionInfo_(new TcpTransport::ConnectionInfo(host, port))
   {
+    construct();
   }
   
   /**
-   * Create a new Node for communication with an NDN hub at host with the default port 9695 and using the default UdpTransport.
+   * Create a new Node for communication with an NDN hub at host with the default port 9695 and using the default TcpTransport.
    * @param host The host of the NDN hub.
    */
   Node(const char *host)
-  : transport_(new UdpTransport()), connectionInfo_(new UdpTransport::ConnectionInfo(host, 9695))
+  : transport_(new TcpTransport()), connectionInfo_(new TcpTransport::ConnectionInfo(host, 9695))
   {
+    construct();
   }
 
   /**
@@ -128,6 +137,26 @@ public:
   }
 
   /**
+   * Register prefix with the connected NDN hub and call onInterest when a matching interest is received.
+   * @param prefix A reference to a Name for the prefix to register.  This copies the Name.
+   * @param onInterest A function object to call when a matching interest is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   * @param flags The flags for finer control of which interests are forward to the application.
+   */
+  void registerPrefix(const Name &prefix, const OnInterest &onInterest, int flags);
+
+  /**
+   * Register prefix with the connected NDN hub and call onInterest when a matching interest is received.
+   * @param prefix A reference to a Name for the prefix to register.  This copies the Name.
+   * @param onInterest A function object to call when a matching interest is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   */
+  void registerPrefix(const Name &prefix, const OnInterest &onInterest)
+  {
+    registerPrefix(prefix, onInterest, 0);
+  }
+  
+  /**
    * Process any data to receive.  For each element received, call onReceivedElement.
    * This is non-blocking and will return immediately if there is no data to receive.
    * You should repeatedly call this from an event loop, with calls to sleep as needed so that the loop doesn't use 100% of the CPU.
@@ -194,6 +223,53 @@ private:
   };
   
   /**
+   * An NdndIdFetcher receives the Data packet with the publisher public key digest for the connected NDN hub.
+   * This class is a function object for the callbacks. It only holds a pointer to an Info object, so it is OK to copy the pointer.
+   */
+  class NdndIdFetcher {
+  public:
+    class Info;
+    NdndIdFetcher(ptr_lib::shared_ptr<NdndIdFetcher::Info> info)
+    : info_(info)
+    {      
+    }
+    
+    /**
+     * We received the ndnd ID.
+     * @param interest
+     * @param data
+     */
+    void operator()(const ptr_lib::shared_ptr<const Interest> &interest, const ptr_lib::shared_ptr<Data> &ndndIdData);
+
+    /**
+     * We timed out fetching the ndnd ID.
+     * @param interest
+     */
+    void operator()(const ptr_lib::shared_ptr<const Interest> &timedOutInterest);
+    
+    class Info {
+    public:
+      Info(Node *node, const Name &prefix, const OnInterest &onInterest, int flags)
+      : node_(*node), prefix_(prefix), onInterest_(onInterest), flags_(flags)
+      {      
+      }
+      
+      Node &node_;
+      Name prefix_;
+      const OnInterest onInterest_;
+      int flags_;
+    };
+    
+  private:
+    ptr_lib::shared_ptr<Info> info_;
+  };
+  
+  /**
+   * Finish constructing this object.
+   */
+  void construct();
+  
+  /**
    * Find the entry from the pit_ where the name conforms to the entry's interest selectors, and
    * the entry interest name is the longest that matches name.
    * @param name The name to find the interest for (from the incoming data packet).
@@ -201,9 +277,19 @@ private:
    */
   int getEntryIndexForExpressedInterest(const Name &name);
   
+  /**
+   * Do the work of registerPrefix once we know we are connected with an ndndId_.
+   * @param prefix
+   * @param onInterest
+   * @param flags
+   */
+  void registerPrefixHelper(const Name &prefix, const OnInterest &onInterest, int flags);
+  
   ptr_lib::shared_ptr<Transport> transport_;
   ptr_lib::shared_ptr<const Transport::ConnectionInfo> connectionInfo_;
   std::vector<ptr_lib::shared_ptr<PitEntry> > pit_;
+  Interest ndndIdFetcherInterest_;
+  std::vector<unsigned char> ndndId_;
 };
 
 }

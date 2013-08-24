@@ -26,7 +26,7 @@ public:
   }
   
   /**
-   * Create a new Face for communication with an NDN hub at host:port using the default UdpTransport.
+   * Create a new Face for communication with an NDN hub at host:port using the default TcpTransport.
    * @param host The host of the NDN hub.
    * @param port The port of the NDN hub.
    */
@@ -36,7 +36,7 @@ public:
   }
   
   /**
-   * Create a new Face for communication with an NDN hub at host with the default port 9695 and using the default UdpTransport.
+   * Create a new Face for communication with an NDN hub at host with the default port 9695 and using the default TcpTransport.
    * @param host The host of the NDN hub.
    */
   Face(const char *host)
@@ -119,6 +119,29 @@ public:
   void expressInterest(const Name &name, const OnData &onData)
   {
     node_.expressInterest(name, onData);
+  }
+  
+  /**
+   * Register prefix with the connected NDN hub and call onInterest when a matching interest is received.
+   * @param prefix A reference to a Name for the prefix to register.  This copies the Name.
+   * @param onInterest A function object to call when a matching interest is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   * @param flags The flags for finer control of which interests are forward to the application.
+   */
+  void registerPrefix(const Name &prefix, const OnInterest &onInterest, int flags)
+  {
+    node_.registerPrefix(prefix, onInterest, flags);
+  }
+
+  /**
+   * Register prefix with the connected NDN hub and call onInterest when a matching interest is received.
+   * @param prefix A reference to a Name for the prefix to register.  This copies the Name.
+   * @param onInterest A function object to call when a matching interest is received.  This copies the function object, so you may need to
+   * use func_lib::ref() as appropriate.
+   */
+  void registerPrefix(const Name &prefix, const OnInterest &onInterest)
+  {
+    node_.registerPrefix(prefix, onInterest);
   }
   
   /**
