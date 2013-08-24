@@ -38,33 +38,8 @@ public:
    * @param transport A shared_ptr to a Transport object used for communication.
    * @param transport A shared_ptr to a Transport::ConnectionInfo to be used to connect to the transport.
    */
-  Node(const ptr_lib::shared_ptr<Transport> &transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo> &connectionInfo)
-  : transport_(transport), connectionInfo_(connectionInfo)
-  {
-    construct();
-  }
+  Node(const ptr_lib::shared_ptr<Transport> &transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo> &connectionInfo);
   
-  /**
-   * Create a new Node for communication with an NDN hub at host:port using the default TcpTransport.
-   * @param host The host of the NDN hub.
-   * @param port The port of the NDN hub.
-   */
-  Node(const char *host, unsigned short port)
-  : transport_(new TcpTransport()), connectionInfo_(new TcpTransport::ConnectionInfo(host, port))
-  {
-    construct();
-  }
-  
-  /**
-   * Create a new Node for communication with an NDN hub at host with the default port 9695 and using the default TcpTransport.
-   * @param host The host of the NDN hub.
-   */
-  Node(const char *host)
-  : transport_(new TcpTransport()), connectionInfo_(new TcpTransport::ConnectionInfo(host, 9695))
-  {
-    construct();
-  }
-
   /**
    * Send the Interest through the transport, read the entire response and call onData(interest, data).
    * @param interest A reference to the Interest.  This copies the Interest.
@@ -74,68 +49,7 @@ public:
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
    */
   void expressInterest(const Interest &interest, const OnData &onData, const OnTimeout &onTimeout);
-
-  /**
-   * Send the Interest through the transport, read the entire response and call onData(interest, data).
-   * @param interest A reference to the Interest.  This copies the Interest.
-   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
-   * use func_lib::ref() as appropriate.
-   */
-  void expressInterest(const Interest &interest, const OnData &onData) {
-    expressInterest(interest, onData, OnTimeout());
-  }
-
-  /**
-   * Encode name as an Interest. If interestTemplate is not 0, use its interest selectors.
-   * Send the interest through the transport, read the entire response and call onData(interest, data).
-   * @param name A reference to a Name for the interest.  This copies the Name.
-   * @param interestTemplate if not 0, copy interest selectors from the template.   This does not keep a pointer to the Interest object.
-   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
-   * use func_lib::ref() as appropriate.
-   * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
-   * This copies the function object, so you may need to use func_lib::ref() as appropriate.
-   */
-  void expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData, const OnTimeout &onTimeout);
-
-  /**
-   * Encode name as an Interest, using a default interest lifetime.
-   * Send the interest through the transport, read the entire response and call onData(interest, data).
-   * @param name A reference to a Name for the interest.  This copies the Name.
-   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
-   * use func_lib::ref() as appropriate.
-   * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
-   * This copies the function object, so you may need to use func_lib::ref() as appropriate.
-   */
-  void expressInterest(const Name &name, const OnData &onData, const OnTimeout &onTimeout) 
-  {
-    expressInterest(name, 0, onData, onTimeout);
-  }
   
-  /**
-   * Encode name as an Interest. If interestTemplate is not 0, use its interest selectors.
-   * Send the interest through the transport, read the entire response and call onData(interest, data).
-   * @param name A reference to a Name for the interest.  This copies the Name.
-   * @param interestTemplate if not 0, copy interest selectors from the template.   This does not keep a pointer to the Interest object.
-   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
-   * use func_lib::ref() as appropriate.
-   */
-  void expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData)
-  {
-    expressInterest(name, interestTemplate, onData, OnTimeout());
-  }
-  
-  /**
-   * Encode name as an Interest, using a default interest lifetime.
-   * Send the interest through the transport, read the entire response and call onData(interest, data).
-   * @param name A reference to a Name for the interest.  This copies the Name.
-   * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
-   * use func_lib::ref() as appropriate.
-   */
-  void expressInterest(const Name &name, const OnData &onData)
-  {
-    expressInterest(name, 0, onData);
-  }
-
   /**
    * Register prefix with the connected NDN hub and call onInterest when a matching interest is received.
    * @param prefix A reference to a Name for the prefix to register.  This copies the Name.
@@ -145,17 +59,6 @@ public:
    */
   void registerPrefix(const Name &prefix, const OnInterest &onInterest, int flags);
 
-  /**
-   * Register prefix with the connected NDN hub and call onInterest when a matching interest is received.
-   * @param prefix A reference to a Name for the prefix to register.  This copies the Name.
-   * @param onInterest A function object to call when a matching interest is received.  This copies the function object, so you may need to
-   * use func_lib::ref() as appropriate.
-   */
-  void registerPrefix(const Name &prefix, const OnInterest &onInterest)
-  {
-    registerPrefix(prefix, onInterest, 0);
-  }
-  
   /**
    * Process any data to receive.  For each element received, call onReceivedElement.
    * This is non-blocking and will return immediately if there is no data to receive.
@@ -263,11 +166,6 @@ private:
   private:
     ptr_lib::shared_ptr<Info> info_;
   };
-  
-  /**
-   * Finish constructing this object.
-   */
-  void construct();
   
   /**
    * Find the entry from the pit_ where the name conforms to the entry's interest selectors, and

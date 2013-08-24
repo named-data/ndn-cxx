@@ -21,9 +21,10 @@ static inline double getNowMilliseconds()
   return t.tv_sec * 1000.0 + t.tv_usec / 1000.0;
 }
 
-void Node::construct()
+Node::Node(const ptr_lib::shared_ptr<Transport> &transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo> &connectionInfo)
+: transport_(transport), connectionInfo_(connectionInfo),
+  ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
 {
-  ndndIdFetcherInterest_ = Interest(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0);
 }
 
 void Node::expressInterest(const Interest &interest, const OnData &onData, const OnTimeout &onTimeout)
@@ -38,18 +39,6 @@ void Node::expressInterest(const Interest &interest, const OnData &onData, const
   shared_ptr<vector<unsigned char> > encoding = pitEntry->getInterest()->wireEncode();  
   
   transport_->send(*encoding);
-}
-
-void Node::expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData, const OnTimeout &onTimeout)
-{
-  if (interestTemplate)
-    expressInterest(Interest
-      (name, interestTemplate->getMinSuffixComponents(), interestTemplate->getMaxSuffixComponents(),
-       interestTemplate->getPublisherPublicKeyDigest(), interestTemplate->getExclude(),
-       interestTemplate->getChildSelector(), interestTemplate->getAnswerOriginKind(),
-       interestTemplate->getScope(), interestTemplate->getInterestLifetimeMilliseconds()), onData, onTimeout);
-  else
-    expressInterest(Interest(name, 4000.0), onData, onTimeout);
 }
 
 void Node::registerPrefix(const Name &prefix, const OnInterest &onInterest, int flags)
