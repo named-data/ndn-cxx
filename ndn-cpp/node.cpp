@@ -57,6 +57,7 @@ void Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest> &
 {
   if (ndndIdData->getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
     // Set the ndndId_ and continue.
+    // TODO: If there are multiple connected hubs, the NDN ID is really stored per connected hub.
     info_->node_.ndndId_ = ndndIdData->getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest();
     info_->node_.registerPrefixHelper(info_->prefix_, info_->onInterest_, info_->flags_);
   }

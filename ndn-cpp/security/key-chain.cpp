@@ -4,9 +4,9 @@
  */
 
 #include <stdexcept>
-#include "c/util/crypto.h"
-#include "c/encoding/binary-xml-data.h"
-#include "encoding/binary-xml-encoder.hpp"
+#include "../c/util/crypto.h"
+#include "../c/encoding/binary-xml-data.h"
+#include "../encoding/binary-xml-encoder.hpp"
 #include "key-chain.hpp"
 
 using namespace std;
