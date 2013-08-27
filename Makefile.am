@@ -11,21 +11,24 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 
-bin_PROGRAMS = bin/test-encode-decode-interest bin/test-encode-decode-data bin/test-get-async bin/test-publish-async
+bin_PROGRAMS = bin/test-encode-decode-forwarding-entry bin/test-encode-decode-interest bin/test-encode-decode-data \
+  bin/test-get-async bin/test-publish-async
 
 libndn_c_la_SOURCES = \
   config.h \
   ndn-cpp/c/data.h \
+  ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
+  ndn-cpp/c/forwarding-entry.h \
   ndn-cpp/c/interest.c ndn-cpp/c/interest.h \
   ndn-cpp/c/key.h \
   ndn-cpp/c/name.c ndn-cpp/c/name.h \
   ndn-cpp/c/publisher-public-key-digest.h \
-  ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
   ndn-cpp/c/encoding/binary-xml.h \
   ndn-cpp/c/encoding/binary-xml-data.c ndn-cpp/c/encoding/binary-xml-data.h \
   ndn-cpp/c/encoding/binary-xml-decoder.c ndn-cpp/c/encoding/binary-xml-decoder.h \
   ndn-cpp/c/encoding/binary-xml-element-reader.c ndn-cpp/c/encoding/binary-xml-element-reader.h \
   ndn-cpp/c/encoding/binary-xml-encoder.c ndn-cpp/c/encoding/binary-xml-encoder.h \
+  ndn-cpp/c/encoding/binary-xml-forwarding-entry.c ndn-cpp/c/encoding/binary-xml-forwarding-entry.h \
   ndn-cpp/c/encoding/binary-xml-interest.c ndn-cpp/c/encoding/binary-xml-interest.h \
   ndn-cpp/c/encoding/binary-xml-key.c ndn-cpp/c/encoding/binary-xml-key.h \
   ndn-cpp/c/encoding/binary-xml-name.c ndn-cpp/c/encoding/binary-xml-name.h \
@@ -46,6 +49,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
   ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
   ndn-cpp/face.cpp ndn-cpp/face.hpp \
+  ndn-cpp/forwarding-entry.cpp ndn-cpp/c/forwarding-entry.h ndn-cpp/forwarding-entry.hpp \
   ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
   ndn-cpp/node.cpp ndn-cpp/node.hpp \
   ndn-cpp/publisher-public-key-digest.hpp \
@@ -61,6 +65,9 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/transport/transport.cpp ndn-cpp/transport/transport.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \
   ndn-cpp/util/dynamic-uchar-vector.cpp ndn-cpp/util/dynamic-uchar-vector.hpp
+
+bin_test_encode_decode_forwarding_entry_SOURCES = tests/test-encode-decode-forwarding-entry.cpp
+bin_test_encode_decode_forwarding_entry_LDADD = libndn-cpp.la libndn-c.la
 
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
 bin_test_encode_decode_interest_LDADD = libndn-cpp.la libndn-c.la

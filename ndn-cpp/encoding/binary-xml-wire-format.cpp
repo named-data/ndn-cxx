@@ -6,8 +6,10 @@
 #include <stdexcept>
 #include "../c/encoding/binary-xml-interest.h"
 #include "../c/encoding/binary-xml-data.h"
+#include "../c/encoding/binary-xml-forwarding-entry.h"
 #include "../interest.hpp"
 #include "../data.hpp"
+#include "../forwarding-entry.hpp"
 #include "binary-xml-encoder.hpp"
 #include "binary-xml-decoder.hpp"
 #include "binary-xml-wire-format.hpp"
@@ -92,6 +94,37 @@ void BinaryXmlWireFormat::decodeData
     throw std::runtime_error(ndn_getErrorString(error));
 
   data.set(dataStruct);
+}
+
+ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeForwardingEntry(const ForwardingEntry &forwardingEntry) 
+{
+  struct ndn_NameComponent prefixNameComponents[100];
+  struct ndn_ForwardingEntry forwardingEntryStruct;
+  ndn_ForwardingEntry_init
+    (&forwardingEntryStruct, prefixNameComponents, sizeof(prefixNameComponents) / sizeof(prefixNameComponents[0]));
+  forwardingEntry.get(forwardingEntryStruct);
+
+  BinaryXmlEncoder encoder;
+  ndn_Error error;
+  if ((error = ndn_encodeBinaryXmlForwardingEntry(&forwardingEntryStruct, &encoder)))
+    throw std::runtime_error(ndn_getErrorString(error));
+     
+  return encoder.getOutput();
+}
+
+void BinaryXmlWireFormat::decodeForwardingEntry(ForwardingEntry &forwardingEntry, const unsigned char *input, unsigned int inputLength)
+{
+  struct ndn_NameComponent prefixNameComponents[100];
+  struct ndn_ForwardingEntry forwardingEntryStruct;
+  ndn_ForwardingEntry_init
+    (&forwardingEntryStruct, prefixNameComponents, sizeof(prefixNameComponents) / sizeof(prefixNameComponents[0]));
+    
+  BinaryXmlDecoder decoder(input, inputLength);  
+  ndn_Error error;
+  if ((error = ndn_decodeBinaryXmlForwardingEntry(&forwardingEntryStruct, &decoder)))
+    throw std::runtime_error(ndn_getErrorString(error));
+
+  forwardingEntry.set(forwardingEntryStruct);
 }
 
 }

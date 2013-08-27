@@ -87,7 +87,8 @@ DIST_COMMON = $(srcdir)/aminclude.am $(srcdir)/Makefile.in \
 	$(am__configure_deps) $(srcdir)/config.h.in \
 	$(dist_noinst_SCRIPTS) depcomp COPYING INSTALL ar-lib compile \
 	config.guess config.sub install-sh missing ltmain.sh
-bin_PROGRAMS = bin/test-encode-decode-interest$(EXEEXT) \
+bin_PROGRAMS = bin/test-encode-decode-forwarding-entry$(EXEEXT) \
+	bin/test-encode-decode-interest$(EXEEXT) \
 	bin/test-encode-decode-data$(EXEEXT) \
 	bin/test-get-async$(EXEEXT) bin/test-publish-async$(EXEEXT)
 subdir = .
@@ -132,11 +133,12 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libndn_c_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libndn_c_la_OBJECTS = ndn-cpp/c/interest.lo ndn-cpp/c/name.lo \
-	ndn-cpp/c/errors.lo ndn-cpp/c/encoding/binary-xml-data.lo \
+am_libndn_c_la_OBJECTS = ndn-cpp/c/errors.lo ndn-cpp/c/interest.lo \
+	ndn-cpp/c/name.lo ndn-cpp/c/encoding/binary-xml-data.lo \
 	ndn-cpp/c/encoding/binary-xml-decoder.lo \
 	ndn-cpp/c/encoding/binary-xml-element-reader.lo \
 	ndn-cpp/c/encoding/binary-xml-encoder.lo \
+	ndn-cpp/c/encoding/binary-xml-forwarding-entry.lo \
 	ndn-cpp/c/encoding/binary-xml-interest.lo \
 	ndn-cpp/c/encoding/binary-xml-key.lo \
 	ndn-cpp/c/encoding/binary-xml-name.lo \
@@ -153,7 +155,7 @@ am__v_lt_1 =
 libndn_cpp_la_LIBADD =
 am_libndn_cpp_la_OBJECTS = ndn-cpp/common.lo ndn-cpp/data.lo \
 	ndn-cpp/interest.lo ndn-cpp/key.lo ndn-cpp/face.lo \
-	ndn-cpp/name.lo ndn-cpp/node.lo \
+	ndn-cpp/forwarding-entry.lo ndn-cpp/name.lo ndn-cpp/node.lo \
 	ndn-cpp/encoding/binary-xml-element-reader.lo \
 	ndn-cpp/encoding/binary-xml-wire-format.lo \
 	ndn-cpp/encoding/wire-format.lo ndn-cpp/security/key-chain.lo \
@@ -168,6 +170,12 @@ am_bin_test_encode_decode_data_OBJECTS =  \
 bin_test_encode_decode_data_OBJECTS =  \
 	$(am_bin_test_encode_decode_data_OBJECTS)
 bin_test_encode_decode_data_DEPENDENCIES = libndn-cpp.la libndn-c.la
+am_bin_test_encode_decode_forwarding_entry_OBJECTS =  \
+	tests/test-encode-decode-forwarding-entry.$(OBJEXT)
+bin_test_encode_decode_forwarding_entry_OBJECTS =  \
+	$(am_bin_test_encode_decode_forwarding_entry_OBJECTS)
+bin_test_encode_decode_forwarding_entry_DEPENDENCIES = libndn-cpp.la \
+	libndn-c.la
 am_bin_test_encode_decode_interest_OBJECTS =  \
 	tests/test-encode-decode-interest.$(OBJEXT)
 bin_test_encode_decode_interest_OBJECTS =  \
@@ -236,11 +244,13 @@ am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(libndn_c_la_SOURCES) $(libndn_cpp_la_SOURCES) \
 	$(bin_test_encode_decode_data_SOURCES) \
+	$(bin_test_encode_decode_forwarding_entry_SOURCES) \
 	$(bin_test_encode_decode_interest_SOURCES) \
 	$(bin_test_get_async_SOURCES) \
 	$(bin_test_publish_async_SOURCES)
 DIST_SOURCES = $(libndn_c_la_SOURCES) $(libndn_cpp_la_SOURCES) \
 	$(bin_test_encode_decode_data_SOURCES) \
+	$(bin_test_encode_decode_forwarding_entry_SOURCES) \
 	$(bin_test_encode_decode_interest_SOURCES) \
 	$(bin_test_get_async_SOURCES) \
 	$(bin_test_publish_async_SOURCES)
@@ -463,16 +473,18 @@ lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 libndn_c_la_SOURCES = \
   config.h \
   ndn-cpp/c/data.h \
+  ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
+  ndn-cpp/c/forwarding-entry.h \
   ndn-cpp/c/interest.c ndn-cpp/c/interest.h \
   ndn-cpp/c/key.h \
   ndn-cpp/c/name.c ndn-cpp/c/name.h \
   ndn-cpp/c/publisher-public-key-digest.h \
-  ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
   ndn-cpp/c/encoding/binary-xml.h \
   ndn-cpp/c/encoding/binary-xml-data.c ndn-cpp/c/encoding/binary-xml-data.h \
   ndn-cpp/c/encoding/binary-xml-decoder.c ndn-cpp/c/encoding/binary-xml-decoder.h \
   ndn-cpp/c/encoding/binary-xml-element-reader.c ndn-cpp/c/encoding/binary-xml-element-reader.h \
   ndn-cpp/c/encoding/binary-xml-encoder.c ndn-cpp/c/encoding/binary-xml-encoder.h \
+  ndn-cpp/c/encoding/binary-xml-forwarding-entry.c ndn-cpp/c/encoding/binary-xml-forwarding-entry.h \
   ndn-cpp/c/encoding/binary-xml-interest.c ndn-cpp/c/encoding/binary-xml-interest.h \
   ndn-cpp/c/encoding/binary-xml-key.c ndn-cpp/c/encoding/binary-xml-key.h \
   ndn-cpp/c/encoding/binary-xml-name.c ndn-cpp/c/encoding/binary-xml-name.h \
@@ -493,6 +505,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
   ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
   ndn-cpp/face.cpp ndn-cpp/face.hpp \
+  ndn-cpp/forwarding-entry.cpp ndn-cpp/c/forwarding-entry.h ndn-cpp/forwarding-entry.hpp \
   ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
   ndn-cpp/node.cpp ndn-cpp/node.hpp \
   ndn-cpp/publisher-public-key-digest.hpp \
@@ -509,6 +522,8 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \
   ndn-cpp/util/dynamic-uchar-vector.cpp ndn-cpp/util/dynamic-uchar-vector.hpp
 
+bin_test_encode_decode_forwarding_entry_SOURCES = tests/test-encode-decode-forwarding-entry.cpp
+bin_test_encode_decode_forwarding_entry_LDADD = libndn-cpp.la libndn-c.la
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
 bin_test_encode_decode_interest_LDADD = libndn-cpp.la libndn-c.la
 bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
@@ -614,11 +629,11 @@ ndn-cpp/c/$(am__dirstamp):
 ndn-cpp/c/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/$(DEPDIR)
 	@: > ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/c/errors.lo: ndn-cpp/c/$(am__dirstamp) \
+	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/interest.lo: ndn-cpp/c/$(am__dirstamp) \
 	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/name.lo: ndn-cpp/c/$(am__dirstamp) \
-	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/errors.lo: ndn-cpp/c/$(am__dirstamp) \
 	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/encoding/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/encoding
@@ -636,6 +651,9 @@ ndn-cpp/c/encoding/binary-xml-element-reader.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/encoding/binary-xml-encoder.lo:  \
+	ndn-cpp/c/encoding/$(am__dirstamp) \
+	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/c/encoding/binary-xml-forwarding-entry.lo:  \
 	ndn-cpp/c/encoding/$(am__dirstamp) \
 	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/encoding/binary-xml-interest.lo:  \
@@ -694,6 +712,8 @@ ndn-cpp/interest.lo: ndn-cpp/$(am__dirstamp) \
 ndn-cpp/key.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/face.lo: ndn-cpp/$(am__dirstamp) \
+	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/forwarding-entry.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/name.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
@@ -808,6 +828,12 @@ bin/$(am__dirstamp):
 bin/test-encode-decode-data$(EXEEXT): $(bin_test_encode_decode_data_OBJECTS) $(bin_test_encode_decode_data_DEPENDENCIES) $(EXTRA_bin_test_encode_decode_data_DEPENDENCIES) bin/$(am__dirstamp)
 	@rm -f bin/test-encode-decode-data$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(bin_test_encode_decode_data_OBJECTS) $(bin_test_encode_decode_data_LDADD) $(LIBS)
+tests/test-encode-decode-forwarding-entry.$(OBJEXT):  \
+	tests/$(am__dirstamp) tests/$(DEPDIR)/$(am__dirstamp)
+
+bin/test-encode-decode-forwarding-entry$(EXEEXT): $(bin_test_encode_decode_forwarding_entry_OBJECTS) $(bin_test_encode_decode_forwarding_entry_DEPENDENCIES) $(EXTRA_bin_test_encode_decode_forwarding_entry_DEPENDENCIES) bin/$(am__dirstamp)
+	@rm -f bin/test-encode-decode-forwarding-entry$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(bin_test_encode_decode_forwarding_entry_OBJECTS) $(bin_test_encode_decode_forwarding_entry_LDADD) $(LIBS)
 tests/test-encode-decode-interest.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -855,6 +881,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/common.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/data.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/face.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/forwarding-entry.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/interest.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/key.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/name.Plo@am__quote@
@@ -866,6 +893,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-decoder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-element-reader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-encoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-forwarding-entry.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-interest.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-key.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-name.Plo@am__quote@
@@ -885,6 +913,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/udp-transport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/dynamic-uchar-vector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-data.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-forwarding-entry.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-interest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-get-async.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-publish-async.Po@am__quote@

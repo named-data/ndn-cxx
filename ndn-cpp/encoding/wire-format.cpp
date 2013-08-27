@@ -46,4 +46,13 @@ void WireFormat::decodeData
   throw logic_error("unimplemented");
 }
 
+ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeForwardingEntry(const ForwardingEntry &forwardingEntry) 
+{
+  throw logic_error("unimplemented");
+}
+void WireFormat::decodeForwardingEntry(ForwardingEntry &forwardingEntry, const unsigned char *input, unsigned int inputLength) 
+{
+  throw logic_error("unimplemented");
+}
+
 }

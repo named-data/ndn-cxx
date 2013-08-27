@@ -13,10 +13,25 @@ namespace ndn {
   
 class Interest;
 class Data;
+class ForwardingEntry;
   
 class WireFormat {
 public:
+  /**
+   * Encode interest and return the encoding.  Your derived class should override.
+   * @param interest The Interest object to encode.
+   * @return A shared_ptr with the vector<unsigned char> containing the encoding.
+   * @throw logic_error for unimplemented if the derived class does not override.
+   */
   virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeInterest(const Interest &interest);
+  
+  /**
+   * Decode input as an interest and set the fields of the interest object.  Your derived class should override.
+   * @param interest The Interest object whose fields are updated.
+   * @param input A pointer to the input buffer to decode.
+   * @param inputLength The number of bytes in input.
+   * @throw logic_error for unimplemented if the derived class does not override.
+   */
   virtual void decodeInterest(Interest &interest, const unsigned char *input, unsigned int inputLength);
 
   /**
@@ -66,6 +81,23 @@ public:
     decodeData(data, input, inputLength, &dummyBeginOffset, &dummyEndOffset);
   }
   
+  /**
+   * Encode forwardingEntry and return the encoding.  Your derived class should override.
+   * @param forwardingEntry The ForwardingEntry object to encode.
+   * @return A shared_ptr with the vector<unsigned char> containing the encoding.
+   * @throw logic_error for unimplemented if the derived class does not override.
+   */
+  virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeForwardingEntry(const ForwardingEntry &forwardingEntry);
+  
+  /**
+   * Decode input as a forwarding entry and set the fields of the forwardingEntry object.  Your derived class should override.
+   * @param forwardingEntry The ForwardingEntry object whose fields are updated.
+   * @param input A pointer to the input buffer to decode.
+   * @param inputLength The number of bytes in input.
+   * @throw logic_error for unimplemented if the derived class does not override.
+   */
+  virtual void decodeForwardingEntry(ForwardingEntry &forwardingEntry, const unsigned char *input, unsigned int inputLength);
+
   /**
    * Set the static default WireFormat used by default encoding and decoding methods.
    * @param wireFormat A Pointer to an object of a subclass of WireFormat.  This does not make a copy and
