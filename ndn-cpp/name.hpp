@@ -39,7 +39,7 @@ public:
      * @param value Pointer to the value byte array.
      * @param valueLen Length of value.
      */
-    Component(unsigned char *value, unsigned int valueLen) 
+    Component(const unsigned char *value, unsigned int valueLen) 
     : value_(value, value + valueLen)
     {
     }
@@ -124,7 +124,7 @@ public:
   /**
    * Add a new component, copying from value of length valueLength.
    */
-  void addComponent(unsigned char *value, unsigned int valueLength) {
+  void addComponent(const unsigned char *value, unsigned int valueLength) {
     components_.push_back(Component(value, valueLength));
   }
 
