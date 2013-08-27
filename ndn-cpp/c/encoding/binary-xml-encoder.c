@@ -243,6 +243,33 @@ ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder 
   return NDN_ERROR_success;
 }
 
+ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, unsigned char *value, unsigned int valueLength)
+{
+  ndn_Error error;
+  if ((error = ndn_BinaryXmlEncoder_encodeTypeAndValue(self, ndn_BinaryXml_UDATA, valueLength)))
+    return error;
+  
+  if ((error = writeArray(self, value, valueLength)))
+    return error;
+  
+  return NDN_ERROR_success;
+}
+
+ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength)
+{
+  ndn_Error error;
+  if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(self, tag)))
+    return error;
+  
+  if ((error = ndn_BinaryXmlEncoder_writeUData(self, value, valueLength)))
+    return error;  
+  
+  if ((error = ndn_BinaryXmlEncoder_writeElementClose(self)))
+    return error;
+  
+  return NDN_ERROR_success;
+}
+
 ndn_Error ndn_BinaryXmlEncoder_writeUnsignedDecimalInt(struct ndn_BinaryXmlEncoder *self, unsigned int value)
 {
   // First write the decimal int (to find out how many bytes it is), then shift it forward to make room for the header.
