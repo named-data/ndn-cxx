@@ -211,6 +211,25 @@ ndn_Error ndn_BinaryXmlDecoder_readUDataDTagElement
   return NDN_ERROR_success;
 }
 
+ndn_Error ndn_BinaryXmlDecoder_readOptionalUDataDTagElement
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, unsigned char **value, unsigned int *valueLength)
+{
+  ndn_Error error;
+  int gotExpectedTag;
+  if ((error = ndn_BinaryXmlDecoder_peekDTag(self, expectedTag, &gotExpectedTag)))
+    return error;
+  if (gotExpectedTag) {
+    if ((error = ndn_BinaryXmlDecoder_readUDataDTagElement(self, expectedTag, value, valueLength)))
+      return error;
+  }
+  else {
+    *value = 0;
+    *valueLength = 0;
+  }  
+  
+  return NDN_ERROR_success;
+}
+
 ndn_Error ndn_BinaryXmlDecoder_readUnsignedIntegerDTagElement
   (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, unsigned int *value)
 {

@@ -107,6 +107,20 @@ ndn_Error ndn_BinaryXmlDecoder_readUDataDTagElement
   (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, unsigned char **value, unsigned int *valueLength);
 
 /**
+ * Peek at the next element and if it is the expectedTag, call ndn_BinaryXmlDecoder_readUDataDTagElement.
+ * Otherwise, set value and valueLength to 0.
+ * @param self pointer to the ndn_BinaryXmlDecoder struct
+ * @param expectedTag the expected value for DTAG
+ * @param value output a pointer to the binary data inside self's input buffer. However, if allowNull is 1 and the
+ * binary data item is absent, then return 0.
+ * @param valueLength output the length of the binary data. However, if allowNull is 1 and the
+ * binary data item is absent, then return 0.
+ * @return 0 for success, else an error code.
+ */
+ndn_Error ndn_BinaryXmlDecoder_readOptionalUDataDTagElement
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, unsigned char **value, unsigned int *valueLength);
+
+/**
  * Decode the header from self's input starting at offset, expecting the type to be DTAG and the value to be expectedTag.
  * Then read one item expecting it to be type UDATA, parse it as an unsigned decimal integer and return the integer.
  * Finally, read the element close.  Update offset.
