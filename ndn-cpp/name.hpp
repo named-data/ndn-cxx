@@ -181,7 +181,7 @@ public:
    * @param name The Name to check.
    * @return true if this matches the given name, otherwise false.  This always returns true if this name is empty.
    */
-  bool match(const Name &name);
+  bool match(const Name &name) const;
   
   /**
    * Write the value to result, escaping characters according to the NDN URI Scheme.

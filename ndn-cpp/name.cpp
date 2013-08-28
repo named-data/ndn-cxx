@@ -231,7 +231,7 @@ std::string Name::toUri() const
   return result.str();
 }
 
-bool Name::match(const Name &name)
+bool Name::match(const Name &name) const
 {
   // Imitate ndn_Name_match.
   
