@@ -177,7 +177,7 @@ Node::PrefixEntry *Node::getEntryForRegisteredPrefix(const Name &name)
 {
   int iResult = -1;
     
-	for (unsigned int i = 0; i < pit_.size(); ++i) {
+	for (unsigned int i = 0; i < registeredPrefixTable_.size(); ++i) {
 		if (registeredPrefixTable_[i]->getPrefix()->match(name)) {
       if (iResult < 0 || 
           registeredPrefixTable_[i]->getPrefix()->getComponentCount() > registeredPrefixTable_[iResult]->getPrefix()->getComponentCount())
