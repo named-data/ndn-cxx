@@ -6,6 +6,8 @@
 #include <sys/time.h>
 #include "encoding/binary-xml-decoder.hpp"
 #include "c/encoding/binary-xml.h"
+#include "forwarding-entry.hpp"
+#include "security/key-chain.hpp"
 #include "node.hpp"
 
 using namespace std;
@@ -33,11 +35,9 @@ void Node::expressInterest(const Interest &interest, const OnData &onData, const
   if (!transport_->getIsConnected())
     transport_->connect(*connectionInfo_, *this);
   
-  shared_ptr<PitEntry> pitEntry(new PitEntry(shared_ptr<const Interest>(new Interest(interest)), onData, onTimeout));
-  pit_.push_back(pitEntry);
+  pit_.push_back(shared_ptr<PitEntry>(new PitEntry(shared_ptr<const Interest>(new Interest(interest)), onData, onTimeout)));
   
-  shared_ptr<vector<unsigned char> > encoding = pitEntry->getInterest()->wireEncode();  
-  
+  shared_ptr<vector<unsigned char> > encoding = interest.wireEncode();  
   transport_->send(*encoding);
 }
 
@@ -71,7 +71,35 @@ void Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest> &
 
 void Node::registerPrefixHelper(const Name &prefix, const OnInterest &onInterest, int flags)
 {
-  throw logic_error("need to finish implementing registerPrefix");
+  // Create a ForwardingEntry.
+  ForwardingEntry forwardingEntry("selfreg", prefix, PublisherPublicKeyDigest(), -1, 3, 2147483647);
+  ptr_lib::shared_ptr<vector<unsigned char> > content = forwardingEntry.wireEncode();
+
+  // Set the ForwardingEntry as the content of a Data packet and sign.
+  Data data;
+  data.setContent(*content);
+  data.getSignedInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
+  // TODO: Should we sign with a different key?
+  KeyChain::defaultSign(data);
+  ptr_lib::shared_ptr<vector<unsigned char> > encodedData = data.wireEncode();
+  
+  // Create an interest where the name has the encoded Data packet.
+  Name interestName;
+  const unsigned char component0[] = "ndnx";
+  const unsigned char component2[] = "selfreg";
+  interestName.addComponent(component0, sizeof(component0) - 1);
+  interestName.addComponent(ndndId_);
+  interestName.addComponent(component2, sizeof(component2) - 1);
+  interestName.addComponent(*encodedData);
+  
+  Interest interest(interestName);
+  interest.setScope(1);
+  ptr_lib::shared_ptr<vector<unsigned char> > encodedInterest = interest.wireEncode();
+  
+  // Save the onInterest callback and send the registration interest.
+  registeredPrefixTable_.push_back(shared_ptr<PrefixEntry>(new PrefixEntry(shared_ptr<const Name>(new Name(prefix)), onInterest)));
+  
+  transport_->send(*encodedInterest);
 }
 
 void Node::processEvents()
@@ -94,7 +122,15 @@ void Node::onReceivedElement(const unsigned char *element, unsigned int elementL
 {
   BinaryXmlDecoder decoder(element, elementLength);
   
-  if (decoder.peekDTag(ndn_BinaryXml_DTag_ContentObject)) {
+  if (decoder.peekDTag(ndn_BinaryXml_DTag_Interest)) {
+    shared_ptr<Interest> interest(new Interest());
+    interest->wireDecode(element, elementLength);
+    
+    PrefixEntry *entry = getEntryForRegisteredPrefix(interest->getName());
+    if (entry)
+      entry->getOnInterest()(entry->getPrefix(), interest, *transport_);
+  }
+  else if (decoder.peekDTag(ndn_BinaryXml_DTag_ContentObject)) {
     shared_ptr<Data> data(new Data());
     data->wireDecode(element, elementLength);
     
@@ -137,6 +173,25 @@ int Node::getEntryIndexForExpressedInterest(const Name &name)
 	return iResult;
 }
   
+Node::PrefixEntry *Node::getEntryForRegisteredPrefix(const Name &name)
+{
+  int iResult = -1;
+    
+	for (unsigned int i = 0; i < pit_.size(); ++i) {
+		if (registeredPrefixTable_[i]->getPrefix()->match(name)) {
+      if (iResult < 0 || 
+          registeredPrefixTable_[i]->getPrefix()->getComponentCount() > registeredPrefixTable_[iResult]->getPrefix()->getComponentCount())
+        // Update to the longer match.
+        iResult = i;
+    }
+	}
+    
+  if (iResult >= 0)
+  	return registeredPrefixTable_[iResult].get();
+  else
+    return 0;
+}
+
 Node::PitEntry::PitEntry(const ptr_lib::shared_ptr<const Interest> &interest, const OnData &onData, const OnTimeout &onTimeout)
 : interest_(interest), onData_(onData), onTimeout_(onTimeout)
 {

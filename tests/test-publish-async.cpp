@@ -22,17 +22,20 @@ public:
     interestCount_ = 0;
   }
   
-  void operator()(const ptr_lib::shared_ptr<const Name> &prefix, const ptr_lib::shared_ptr<const Interest> &interest) {
+  void operator()
+     (const ptr_lib::shared_ptr<const Name> &prefix, const ptr_lib::shared_ptr<const Interest> &interest, Transport &transport) {
     ++interestCount_;
     
     // Make and sign a Data packet.
     Data data(interest->getName());
     string content(string("Echo ") + interest->getName().toUri());
-    data.setContent((const unsigned char*)&content[0], sizeof(content));
+    data.setContent((const unsigned char *)&content[0], content.size());
     data.getSignedInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
     KeyChain::defaultSign(data);
+    shared_ptr<vector<unsigned char> > encodedData = data.wireEncode();
 
-    // TODO: Need to put the Data.
+    cout << "Sent content " << content << endl;
+    transport.send(*encodedData);
   }
 
   int interestCount_;
@@ -48,7 +51,8 @@ int main(int argc, char** argv)
     cout << "Register prefix  " << prefix.toUri() << endl;
     face.registerPrefix(prefix, ref(echo));
     
-    // The main event loop.
+    // The main event loop.  
+    // Wait forever to receive one interest for the prefix.
     while (echo.interestCount_ < 1) {
       face.processEvents();
       // We need to sleep for a few milliseconds so we don't use 100% of the CPU.

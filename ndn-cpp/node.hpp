@@ -27,7 +27,8 @@ typedef func_lib::function<void(const ptr_lib::shared_ptr<const Interest> &)> On
 /**
  * An OnInterest function object is used to pass a callback to registerPrefix.
  */
-typedef func_lib::function<void(const ptr_lib::shared_ptr<const Name> &, const ptr_lib::shared_ptr<const Interest> &)> OnInterest;
+typedef func_lib::function<void
+  (const ptr_lib::shared_ptr<const Name> &, const ptr_lib::shared_ptr<const Interest> &, Transport &)> OnInterest;
 
 class Face;
   
@@ -82,10 +83,8 @@ private:
     /**
      * Create a new PitEntry and set the timeoutTime_ based on the current time and the interest lifetime.
      * @param interest A shared_ptr for the interest.
-     * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
-     * use func_lib::ref() as appropriate.
+     * @param onData A function object to call when a matching data packet is received.
      * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
-     * This copies the function object, so you may need to use func_lib::ref() as appropriate.
      */
     PitEntry(const ptr_lib::shared_ptr<const Interest> &interest, const OnData &onData, const OnTimeout &onTimeout);
     
@@ -123,6 +122,27 @@ private:
     const OnData onData_;
     const OnTimeout onTimeout_;
     double timeoutTimeMilliseconds_; /**< The time when the interest times out in milliseconds according to gettimeofday, or -1 for no timeout. */
+  };
+
+  class PrefixEntry {
+  public:
+    /**
+     * Create a new PrefixEntry.
+     * @param prefix A shared_ptr for the prefix.
+     * @param onInterest A function object to call when a matching data packet is received.
+     */
+    PrefixEntry(const ptr_lib::shared_ptr<const Name> &prefix, const OnInterest &onInterest)
+    : prefix_(prefix), onInterest_(onInterest)
+    {
+    }
+    
+    const ptr_lib::shared_ptr<const Name> &getPrefix() { return prefix_; }
+    
+    const OnInterest &getOnInterest() { return onInterest_; }
+    
+  private:
+    ptr_lib::shared_ptr<const Name> prefix_;
+    const OnInterest onInterest_;
   };
   
   /**
@@ -176,6 +196,13 @@ private:
   int getEntryIndexForExpressedInterest(const Name &name);
   
   /**
+   * Find the first entry from the registeredPrefixTable_ where the entry prefix is the longest that matches name.
+   * @param name The name to find the PrefixEntry for (from the incoming interest packet).
+   * @return A pointer to the entry, or 0 if not found.
+   */
+  PrefixEntry *getEntryForRegisteredPrefix(const Name &name);
+  
+  /**
    * Do the work of registerPrefix once we know we are connected with an ndndId_.
    * @param prefix
    * @param onInterest
@@ -186,6 +213,7 @@ private:
   ptr_lib::shared_ptr<Transport> transport_;
   ptr_lib::shared_ptr<const Transport::ConnectionInfo> connectionInfo_;
   std::vector<ptr_lib::shared_ptr<PitEntry> > pit_;
+  std::vector<ptr_lib::shared_ptr<PrefixEntry> > registeredPrefixTable_;
   Interest ndndIdFetcherInterest_;
   std::vector<unsigned char> ndndId_;
 };
