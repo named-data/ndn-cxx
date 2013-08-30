@@ -22,9 +22,9 @@ struct ndn_UdpTransport {
  * Initialize the ndn_UdpTransport struct with default values for no connection yet.
  * @param self A pointer to the ndn_UdpTransport struct.
  */
-static inline void ndn_UdpTransport_init(struct ndn_UdpTransport *self)
+static inline void ndn_UdpTransport_initialize(struct ndn_UdpTransport *self)
 {
-  ndn_SocketTransport_init(&self->base);
+  ndn_SocketTransport_initialize(&self->base);
 }
 
 /**

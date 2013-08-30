@@ -33,10 +33,10 @@ struct ndn_ExcludeEntry {
  * @param component the pre-allocated buffer for the component value, only used if type is ndn_Exclude_COMPONENT
  * @param componentLength the number of bytes in value, only used if type is ndn_Exclude_COMPONENT
  */
-static inline void ndn_ExcludeEntry_init(struct ndn_ExcludeEntry *self, ndn_ExcludeType type, unsigned char *component, unsigned int componentLength) 
+static inline void ndn_ExcludeEntry_initialize(struct ndn_ExcludeEntry *self, ndn_ExcludeType type, unsigned char *component, unsigned int componentLength) 
 {
   self->type = type;
-  ndn_NameComponent_init(&self->component, component, componentLength);
+  ndn_NameComponent_initialize(&self->component, component, componentLength);
 }
 
 /**
@@ -53,7 +53,7 @@ struct ndn_Exclude {
  * @param entries the pre-allocated array of ndn_ExcludeEntry
  * @param maxEntries the number of elements in the allocated entries array
  */
-static inline void ndn_Exclude_init(struct ndn_Exclude *self, struct ndn_ExcludeEntry *entries, unsigned int maxEntries) 
+static inline void ndn_Exclude_initialize(struct ndn_Exclude *self, struct ndn_ExcludeEntry *entries, unsigned int maxEntries) 
 {
   self->entries = entries;
   self->maxEntries = maxEntries;
@@ -114,15 +114,15 @@ struct ndn_Interest {
  * @param excludeEntries the pre-allocated array of ndn_ExcludeEntry
  * @param maxExcludeEntries the number of elements in the allocated excludeEntries array
  */
-static inline void ndn_Interest_init
+static inline void ndn_Interest_initialize
   (struct ndn_Interest *self, struct ndn_NameComponent *nameComponents, unsigned int maxNameComponents,
    struct ndn_ExcludeEntry *excludeEntries, unsigned int maxExcludeEntries) 
 {
-  ndn_Name_init(&self->name, nameComponents, maxNameComponents);
+  ndn_Name_initialize(&self->name, nameComponents, maxNameComponents);
   self->minSuffixComponents = -1;
   self->maxSuffixComponents = -1;
-  ndn_PublisherPublicKeyDigest_init(&self->publisherPublicKeyDigest);
-  ndn_Exclude_init(&self->exclude, excludeEntries, maxExcludeEntries);
+  ndn_PublisherPublicKeyDigest_initialize(&self->publisherPublicKeyDigest);
+  ndn_Exclude_initialize(&self->exclude, excludeEntries, maxExcludeEntries);
   self->childSelector = -1;
   self->answerOriginKind = -1;
   self->scope = -1;

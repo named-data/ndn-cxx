@@ -24,7 +24,7 @@ struct ndn_Signature {
   unsigned int signatureLength;
 };
 
-static inline void ndn_Signature_init(struct ndn_Signature *self) {
+static inline void ndn_Signature_initialize(struct ndn_Signature *self) {
   self->digestAlgorithm = 0;
   self->digestAlgorithmLength = 0;
   self->witness = 0;
@@ -58,14 +58,14 @@ struct ndn_SignedInfo {
  * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the keyLocator.
  * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
  */
-static inline void ndn_SignedInfo_init
+static inline void ndn_SignedInfo_initialize
   (struct ndn_SignedInfo *self, struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) {
-  ndn_PublisherPublicKeyDigest_init(&self->publisherPublicKeyDigest);
+  ndn_PublisherPublicKeyDigest_initialize(&self->publisherPublicKeyDigest);
   self->type = ndn_ContentType_DATA;
   self->freshnessSeconds = -1;
   self->finalBlockID = 0;
   self->finalBlockIDLength = 0;
-  ndn_KeyLocator_init(&self->keyLocator, keyNameComponents, maxKeyNameComponents);
+  ndn_KeyLocator_initialize(&self->keyLocator, keyNameComponents, maxKeyNameComponents);
 }
 
 struct ndn_Data {
@@ -85,13 +85,13 @@ struct ndn_Data {
  * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the signedInfo.keyLocator.
  * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
  */
-static inline void ndn_Data_init
+static inline void ndn_Data_initialize
   (struct ndn_Data *self, struct ndn_NameComponent *nameComponents, unsigned int maxNameComponents, 
    struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) 
 {
-  ndn_Signature_init(&self->signature);
-  ndn_Name_init(&self->name, nameComponents, maxNameComponents);
-  ndn_SignedInfo_init(&self->signedInfo, keyNameComponents, maxKeyNameComponents);
+  ndn_Signature_initialize(&self->signature);
+  ndn_Name_initialize(&self->name, nameComponents, maxNameComponents);
+  ndn_SignedInfo_initialize(&self->signedInfo, keyNameComponents, maxKeyNameComponents);
   self->content = 0;
   self->contentLength = 0;
 }

@@ -18,7 +18,7 @@ extern "C" {
  * will be passed to onReceivedElement.
  */
 struct ndn_ElementListener {
-  void (*onReceivedElement)(struct ndn_ElementListener *self, unsigned char *element, unsigned int elementLength); /**< see ndn_ElementListener_init */
+  void (*onReceivedElement)(struct ndn_ElementListener *self, unsigned char *element, unsigned int elementLength); /**< see ndn_ElementListener_initialize */
 };
 
 /**
@@ -27,7 +27,7 @@ struct ndn_ElementListener {
  * @param onReceivedElement pointer to a function which is called when an entire binary XML element is received.
  * self is the pointer to this ndn_ElementListener struct.  See ndn_BinaryXmlElementReader_onReceivedData.
  */
-static inline void ndn_ElementListener_init
+static inline void ndn_ElementListener_initialize
   (struct ndn_ElementListener *self, void (*onReceivedElement)(struct ndn_ElementListener *self, unsigned char *element, unsigned int elementLength))
 {
   self->onReceivedElement = onReceivedElement;
@@ -55,14 +55,14 @@ struct ndn_BinaryXmlElementReader {
  * @param bufferLength the length of the buffer
  * @param reallocFunction see ndn_DynamicUCharArray_ensureLength.  This may be 0.
  */
-static inline void ndn_BinaryXmlElementReader_init
+static inline void ndn_BinaryXmlElementReader_initialize
   (struct ndn_BinaryXmlElementReader *self, struct ndn_ElementListener *elementListener,
    unsigned char *buffer, unsigned int bufferLength, unsigned char * (*reallocFunction)(struct ndn_DynamicUCharArray *self, unsigned char *, unsigned int))
 {
   self->elementListener = elementListener;
-  ndn_BinaryXmlStructureDecoder_init(&self->structureDecoder);
+  ndn_BinaryXmlStructureDecoder_initialize(&self->structureDecoder);
   self->usePartialData = 0;
-  ndn_DynamicUCharArray_init(&self->partialData, buffer, bufferLength, reallocFunction);
+  ndn_DynamicUCharArray_initialize(&self->partialData, buffer, bufferLength, reallocFunction);
 }
 
 /**

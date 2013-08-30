@@ -26,7 +26,7 @@ struct ndn_SocketTransport {
  * Initialize the ndn_SocketTransport struct with default values for no connection yet.
  * @param self A pointer to the ndn_SocketTransport struct.
  */
-static inline void ndn_SocketTransport_init(struct ndn_SocketTransport *self)
+static inline void ndn_SocketTransport_initialize(struct ndn_SocketTransport *self)
 {
   self->socketDescriptor = -1;
 }

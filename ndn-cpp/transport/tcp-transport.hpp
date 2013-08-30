@@ -52,7 +52,7 @@ public:
   TcpTransport() 
   : elementListener_(0), isConnected_(false)
   {
-    ndn_TcpTransport_init(&transport_);
+    ndn_TcpTransport_initialize(&transport_);
     elementReader_.partialData.array = 0;
   }
   

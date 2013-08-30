@@ -22,9 +22,9 @@ struct ndn_TcpTransport {
  * Initialize the ndn_TcpTransport struct with default values for no connection yet.
  * @param self A pointer to the ndn_TcpTransport struct.
  */
-static inline void ndn_TcpTransport_init(struct ndn_TcpTransport *self)
+static inline void ndn_TcpTransport_initialize(struct ndn_TcpTransport *self)
 {
-  ndn_SocketTransport_init(&self->base);
+  ndn_SocketTransport_initialize(&self->base);
 }
 
 /**

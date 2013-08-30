@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 /** An ndn_BinaryXmlEncoder struct is used by all the encoding functions.  You should initialize it with
- *  ndn_BinaryXmlEncoder_init.
+ *  ndn_BinaryXmlEncoder_initialize.
  */
 struct ndn_BinaryXmlEncoder {
   struct ndn_DynamicUCharArray *output; /**< A pointer to a ndn_DynamicUCharArray which receives the encoded output */
@@ -23,13 +23,13 @@ struct ndn_BinaryXmlEncoder {
 };
 
 /**
- * Initialize an ndn_BinaryXmlEncoder_init struct with the arguments for initializing the ndn_DynamicUCharArray.
+ * Initialize an ndn_BinaryXmlEncoder_initialize struct with the arguments for initializing the ndn_DynamicUCharArray.
  * @param self pointer to the ndn_BinaryXmlEncoder struct
  * @param output A pointer to a ndn_DynamicUCharArray struct which receives the encoded output.  The struct must
  * remain valid during the entire life of this ndn_BinaryXmlEncoder. If the output->realloc
  * function pointer is null, its array must be large enough to receive the entire encoding.
  */
-static inline void ndn_BinaryXmlEncoder_init(struct ndn_BinaryXmlEncoder *self, struct ndn_DynamicUCharArray *output) 
+static inline void ndn_BinaryXmlEncoder_initialize(struct ndn_BinaryXmlEncoder *self, struct ndn_DynamicUCharArray *output) 
 {
   self->output = output;
   self->offset = 0;

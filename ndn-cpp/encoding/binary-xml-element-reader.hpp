@@ -18,7 +18,7 @@ class ElementListener : public ndn_ElementListener {
 public:
   ElementListener() 
   {
-    ndn_ElementListener_init(this, staticOnReceivedElement);
+    ndn_ElementListener_initialize(this, staticOnReceivedElement);
   }
   
   /**

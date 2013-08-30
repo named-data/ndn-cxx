@@ -35,7 +35,7 @@ ndn_Error ndn_BinaryXmlElementReader_onReceivedData
       // Need to read a new object.
       data += self->structureDecoder.offset;
       dataLength -= self->structureDecoder.offset;
-      ndn_BinaryXmlStructureDecoder_init(&self->structureDecoder);
+      ndn_BinaryXmlStructureDecoder_initialize(&self->structureDecoder);
       if (dataLength == 0)
         // No more data in the packet.
         return NDN_ERROR_success;

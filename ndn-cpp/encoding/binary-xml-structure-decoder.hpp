@@ -18,7 +18,7 @@ class BinaryXmlStructureDecoder : private ndn_BinaryXmlStructureDecoder {
 public:
   BinaryXmlStructureDecoder() 
   {
-    ndn_BinaryXmlStructureDecoder_init(this);
+    ndn_BinaryXmlStructureDecoder_initialize(this);
   }
   
   /**

@@ -24,7 +24,7 @@ struct ndn_NameComponent {
  * @param value the pre-allocated buffer for the component value
  * @param valueLength the number of bytes in value
  */
-static inline void ndn_NameComponent_init(struct ndn_NameComponent *self, unsigned char *value, unsigned int valueLength) 
+static inline void ndn_NameComponent_initialize(struct ndn_NameComponent *self, unsigned char *value, unsigned int valueLength) 
 {
   self->value = value;
   self->valueLength = valueLength;
@@ -45,7 +45,7 @@ struct ndn_Name {
  * @param components the pre-allocated array of ndn_NameComponent
  * @param maxComponents the number of elements in the allocated components array
  */
-static inline void ndn_Name_init(struct ndn_Name *self, struct ndn_NameComponent *components, unsigned int maxComponents) 
+static inline void ndn_Name_initialize(struct ndn_Name *self, struct ndn_NameComponent *components, unsigned int maxComponents) 
 {
   self->components = components;
   self->maxComponents = maxComponents;

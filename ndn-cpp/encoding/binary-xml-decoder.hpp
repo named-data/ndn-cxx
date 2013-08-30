@@ -23,7 +23,7 @@ public:
    */
   BinaryXmlDecoder(const unsigned char *input, unsigned int inputLength) 
   {
-    ndn_BinaryXmlDecoder_init(this, (unsigned char *)input, inputLength);
+    ndn_BinaryXmlDecoder_initialize(this, (unsigned char *)input, inputLength);
   }
   
   /**

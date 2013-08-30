@@ -52,7 +52,7 @@ public:
   UdpTransport() 
   : elementListener_(0), isConnected_(false)
   {
-    ndn_UdpTransport_init(&transport_);
+    ndn_UdpTransport_initialize(&transport_);
     elementReader_.partialData.array = 0;
   }
   

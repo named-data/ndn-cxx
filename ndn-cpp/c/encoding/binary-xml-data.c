@@ -216,7 +216,7 @@ ndn_Error ndn_decodeBinaryXmlData
       return error;
   }
   else
-    ndn_Signature_init(&data->signature);
+    ndn_Signature_initialize(&data->signature);
   
   *signedFieldsBeginOffset = decoder->offset;
   
@@ -230,7 +230,7 @@ ndn_Error ndn_decodeBinaryXmlData
       return error;
   }
   else
-    ndn_SignedInfo_init(&data->signedInfo, data->signedInfo.keyLocator.keyName.components, data->signedInfo.keyLocator.keyName.maxComponents);
+    ndn_SignedInfo_initialize(&data->signedInfo, data->signedInfo.keyLocator.keyName.components, data->signedInfo.keyLocator.keyName.maxComponents);
 
   // Require a Content element, but set allowNull to allow a missing BLOB.
   if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement

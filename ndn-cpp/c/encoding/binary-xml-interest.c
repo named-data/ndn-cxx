@@ -67,7 +67,7 @@ static ndn_Error decodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXml
       // Add the component entry.
       if (exclude->nEntries >= exclude->maxEntries)
         return NDN_ERROR_read_an_entry_past_the_maximum_number_of_entries_allowed_in_the_exclude;
-      ndn_ExcludeEntry_init(exclude->entries + exclude->nEntries, ndn_Exclude_COMPONENT, component, componentLen);
+      ndn_ExcludeEntry_initialize(exclude->entries + exclude->nEntries, ndn_Exclude_COMPONENT, component, componentLen);
       ++exclude->nEntries;
 
       continue;
@@ -85,7 +85,7 @@ static ndn_Error decodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXml
       // Add the any entry.
       if (exclude->nEntries >= exclude->maxEntries)
         return NDN_ERROR_read_an_entry_past_the_maximum_number_of_entries_allowed_in_the_exclude;
-      ndn_ExcludeEntry_init(exclude->entries + exclude->nEntries, ndn_Exclude_ANY, 0, 0);
+      ndn_ExcludeEntry_initialize(exclude->entries + exclude->nEntries, ndn_Exclude_ANY, 0, 0);
       ++exclude->nEntries;
 
       continue;
@@ -103,7 +103,7 @@ static ndn_Error decodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXml
       // Add the any entry.
       if (exclude->nEntries >= exclude->maxEntries)
         return NDN_ERROR_read_an_entry_past_the_maximum_number_of_entries_allowed_in_the_exclude;
-      ndn_ExcludeEntry_init(exclude->entries + exclude->nEntries, ndn_Exclude_ANY, 0, 0);
+      ndn_ExcludeEntry_initialize(exclude->entries + exclude->nEntries, ndn_Exclude_ANY, 0, 0);
       ++exclude->nEntries;
 
       continue;

@@ -8,7 +8,7 @@
 #include "binary-xml-decoder.h"
 #include "binary-xml-structure-decoder.h"
 
-void ndn_BinaryXmlStructureDecoder_init(struct ndn_BinaryXmlStructureDecoder *self) 
+void ndn_BinaryXmlStructureDecoder_initialize(struct ndn_BinaryXmlStructureDecoder *self) 
 {
   self->gotElementEnd = 0;
   self->offset = 0;
@@ -37,7 +37,7 @@ ndn_Error ndn_BinaryXmlStructureDecoder_findElementEnd
     return NDN_ERROR_success;
   
   struct ndn_BinaryXmlDecoder decoder;
-  ndn_BinaryXmlDecoder_init(&decoder, input, inputLength);
+  ndn_BinaryXmlDecoder_initialize(&decoder, input, inputLength);
   
   while (1) {
     if (self->offset >= inputLength)
@@ -93,7 +93,7 @@ ndn_Error ndn_BinaryXmlStructureDecoder_findElementEnd
 
         // Use a local decoder just for the headerBuffer.
         struct ndn_BinaryXmlDecoder bufferDecoder;
-        ndn_BinaryXmlDecoder_init(&bufferDecoder, self->headerBuffer, sizeof(self->headerBuffer));
+        ndn_BinaryXmlDecoder_initialize(&bufferDecoder, self->headerBuffer, sizeof(self->headerBuffer));
         if (ndn_BinaryXmlDecoder_decodeTypeAndValue(&bufferDecoder, &type, &value))
           return NDN_ERROR_findElementEnd_cannot_read_header_type_and_value;
       }

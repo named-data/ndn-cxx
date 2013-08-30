@@ -29,7 +29,7 @@ ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeInterest(
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ExcludeEntry excludeEntries[100];
   struct ndn_Interest interestStruct;
-  ndn_Interest_init
+  ndn_Interest_initialize
     (&interestStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
      excludeEntries, sizeof(excludeEntries) / sizeof(excludeEntries[0]));
   interest.get(interestStruct);
@@ -47,7 +47,7 @@ void BinaryXmlWireFormat::decodeInterest(Interest &interest, const unsigned char
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ExcludeEntry excludeEntries[100];
   struct ndn_Interest interestStruct;
-  ndn_Interest_init
+  ndn_Interest_initialize
     (&interestStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
      excludeEntries, sizeof(excludeEntries) / sizeof(excludeEntries[0]));
     
@@ -65,7 +65,7 @@ ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeData
   struct ndn_NameComponent nameComponents[100];
   struct ndn_NameComponent keyNameComponents[100];
   struct ndn_Data dataStruct;
-  ndn_Data_init
+  ndn_Data_initialize
     (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
      keyNameComponents, sizeof(keyNameComponents) / sizeof(keyNameComponents[0]));
   data.get(dataStruct);
@@ -84,7 +84,7 @@ void BinaryXmlWireFormat::decodeData
   struct ndn_NameComponent nameComponents[100];
   struct ndn_NameComponent keyNameComponents[100];
   struct ndn_Data dataStruct;
-  ndn_Data_init
+  ndn_Data_initialize
     (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
      keyNameComponents, sizeof(keyNameComponents) / sizeof(keyNameComponents[0]));
     
@@ -100,7 +100,7 @@ ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeForwardin
 {
   struct ndn_NameComponent prefixNameComponents[100];
   struct ndn_ForwardingEntry forwardingEntryStruct;
-  ndn_ForwardingEntry_init
+  ndn_ForwardingEntry_initialize
     (&forwardingEntryStruct, prefixNameComponents, sizeof(prefixNameComponents) / sizeof(prefixNameComponents[0]));
   forwardingEntry.get(forwardingEntryStruct);
 
@@ -116,7 +116,7 @@ void BinaryXmlWireFormat::decodeForwardingEntry(ForwardingEntry &forwardingEntry
 {
   struct ndn_NameComponent prefixNameComponents[100];
   struct ndn_ForwardingEntry forwardingEntryStruct;
-  ndn_ForwardingEntry_init
+  ndn_ForwardingEntry_initialize
     (&forwardingEntryStruct, prefixNameComponents, sizeof(prefixNameComponents) / sizeof(prefixNameComponents[0]));
     
   BinaryXmlDecoder decoder(input, inputLength);  

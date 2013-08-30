@@ -33,13 +33,13 @@ struct ndn_ForwardingEntry {
  * @param prefixNameComponents the pre-allocated array of ndn_NameComponent
  * @param maxPrefixNameComponents the number of elements in the allocated prefixNameComponents array
  */
-static inline void ndn_ForwardingEntry_init
+static inline void ndn_ForwardingEntry_initialize
   (struct ndn_ForwardingEntry *self, struct ndn_NameComponent *prefixNameComponents, unsigned int maxPrefixNameComponents) 
 {
   self->action = 0;
   self->actionLength = 0;
-  ndn_Name_init(&self->prefix, prefixNameComponents, maxPrefixNameComponents);
-  ndn_PublisherPublicKeyDigest_init(&self->publisherPublicKeyDigest);
+  ndn_Name_initialize(&self->prefix, prefixNameComponents, maxPrefixNameComponents);
+  ndn_PublisherPublicKeyDigest_initialize(&self->publisherPublicKeyDigest);
   self->faceId = -1;
   self->forwardingFlags = -1;
   self->freshnessSeconds = -1;

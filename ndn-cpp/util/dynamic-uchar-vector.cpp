@@ -12,7 +12,7 @@ namespace ndn {
 DynamicUCharVector::DynamicUCharVector(unsigned int initialLength)
 : vector_(new vector<unsigned char>(initialLength))
 {
-  ndn_DynamicUCharArray_init(this, &vector_->front(), initialLength, DynamicUCharVector::realloc);
+  ndn_DynamicUCharArray_initialize(this, &vector_->front(), initialLength, DynamicUCharVector::realloc);
 }
 
 unsigned char *DynamicUCharVector::realloc(struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length)

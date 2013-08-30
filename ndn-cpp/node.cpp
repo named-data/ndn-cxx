@@ -156,7 +156,7 @@ int Node::getEntryIndexForExpressedInterest(const Name &name)
   vector<struct ndn_NameComponent> nameComponents;
   nameComponents.reserve(name.getComponentCount());
   struct ndn_Name nameStruct;
-  ndn_Name_init(&nameStruct, &nameComponents[0], nameComponents.capacity());
+  ndn_Name_initialize(&nameStruct, &nameComponents[0], nameComponents.capacity());
   name.get(nameStruct);
   
   int iResult = -1;
@@ -206,7 +206,7 @@ Node::PitEntry::PitEntry(const ptr_lib::shared_ptr<const Interest> &interest, co
   // TODO: Doesn't this belong in the Interest class?
   nameComponents_.reserve(interest_->getName().getComponentCount());
   excludeEntries_.reserve(interest_->getExclude().getEntryCount());
-  ndn_Interest_init
+  ndn_Interest_initialize
     (&interestStruct_, &nameComponents_[0], nameComponents_.capacity(), &excludeEntries_[0], excludeEntries_.capacity());
   interest_->get(interestStruct_);  
 }

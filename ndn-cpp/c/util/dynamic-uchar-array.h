@@ -31,7 +31,7 @@ struct ndn_DynamicUCharArray {
  * @param length the length of the allocated array buffer
  * @param reallocFunction see ndn_DynamicUCharArray_ensureLength.  This may be 0.
  */
-static inline void ndn_DynamicUCharArray_init
+static inline void ndn_DynamicUCharArray_initialize
   (struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length, 
    unsigned char * (*reallocFunction)(struct ndn_DynamicUCharArray *self, unsigned char *, unsigned int)) 
 {

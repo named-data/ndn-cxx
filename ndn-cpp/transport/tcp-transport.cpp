@@ -27,7 +27,7 @@ void TcpTransport::connect(const Transport::ConnectionInfo &connectionInfo, Elem
   // TODO: This belongs in the socket listener.
   const unsigned int initialLength = 1000;
   // Automatically cast elementReader_ to (struct ndn_ElementListener *)
-  ndn_BinaryXmlElementReader_init
+  ndn_BinaryXmlElementReader_initialize
     (&elementReader_, &elementListener, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
   
   isConnected_ = true;

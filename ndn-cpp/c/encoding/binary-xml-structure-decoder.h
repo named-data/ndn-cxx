@@ -29,7 +29,7 @@ enum {
   ndn_BinaryXmlStructureDecoder_READ_BYTES
 };
 
-void ndn_BinaryXmlStructureDecoder_init(struct ndn_BinaryXmlStructureDecoder *self);
+void ndn_BinaryXmlStructureDecoder_initialize(struct ndn_BinaryXmlStructureDecoder *self);
         
 /**
  * Continue scanning input starting from self->offset to find the element end.  On return, you must check

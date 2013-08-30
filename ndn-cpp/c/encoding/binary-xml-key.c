@@ -184,7 +184,7 @@ ndn_Error ndn_decodeOptionalBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocato
       return error;
   }
   else
-    ndn_KeyLocator_init(keyLocator, keyLocator->keyName.components, keyLocator->keyName.maxComponents);
+    ndn_KeyLocator_initialize(keyLocator, keyLocator->keyName.components, keyLocator->keyName.maxComponents);
   
   return NDN_ERROR_success;
 }

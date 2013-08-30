@@ -14,7 +14,7 @@ extern "C" {
 
 /**
  * Wrap the C stdlib realloc to convert to/from void * to unsigned char *.
- * This can be used by ndn_DynamicUCharArray_init.
+ * This can be used by ndn_DynamicUCharArray_initialize.
  * @param self This is ignored.
  * @param array the allocated array buffer to realloc.
  * @param length the length for the new array buffer.

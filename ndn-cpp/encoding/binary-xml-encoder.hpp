@@ -24,7 +24,7 @@ public:
   BinaryXmlEncoder() 
   : output_(16)
   {
-    ndn_BinaryXmlEncoder_init(this, &output_);
+    ndn_BinaryXmlEncoder_initialize(this, &output_);
   }
   
   /**

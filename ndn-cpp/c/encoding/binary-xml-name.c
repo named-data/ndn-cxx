@@ -51,7 +51,7 @@ ndn_Error ndn_decodeBinaryXmlName(struct ndn_Name *name, struct ndn_BinaryXmlDec
     // Add the component to the name.
     if (name->nComponents >= name->maxComponents)
       return NDN_ERROR_read_a_component_past_the_maximum_number_of_components_allowed_in_the_name;
-    ndn_NameComponent_init(name->components + name->nComponents, component, componentLen);
+    ndn_NameComponent_initialize(name->components + name->nComponents, component, componentLen);
     ++name->nComponents;
   }
   
