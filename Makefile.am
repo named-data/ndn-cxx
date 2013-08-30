@@ -37,6 +37,7 @@ libndn_c_la_SOURCES = \
   ndn-cpp/c/transport/socket-transport.c ndn-cpp/c/transport/socket-transport.h \
   ndn-cpp/c/transport/tcp-transport.h \
   ndn-cpp/c/transport/udp-transport.h \
+  ndn-cpp/c/util/blob.h \
   ndn-cpp/c/util/crypto.c ndn-cpp/c/util/crypto.h \
   ndn-cpp/c/util/dynamic-uchar-array.c ndn-cpp/c/util/dynamic-uchar-array.h \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
