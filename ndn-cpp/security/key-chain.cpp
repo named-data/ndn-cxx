@@ -65,7 +65,7 @@ static unsigned char DEFAULT_PRIVATE_KEY_DER[] = {
  * @param dataLength
  * @param digest
  */
-void setSha256(const unsigned char *data, unsigned int dataLength, vector<unsigned char> &digest)
+void setSha256(const unsigned char *data, unsigned int dataLength, vector<unsigned char>& digest)
 {
   unsigned char digestBuffer[SHA256_DIGEST_LENGTH];
   ndn_digestSha256(data, dataLength, digestBuffer);
@@ -77,7 +77,7 @@ void setSha256(const unsigned char *data, unsigned int dataLength, vector<unsign
  * @param data The Data object with the fields to digest.
  * @param digest A pointer to a buffer of size SHA256_DIGEST_LENGTH to receive the data.
  */
-static void digestDataFieldsSha256(const Data &data, WireFormat &wireFormat, unsigned char *digest)
+static void digestDataFieldsSha256(const Data& data, WireFormat& wireFormat, unsigned char *digest)
 {
   unsigned int signedFieldsBeginOffset, signedFieldsEndOffset;
   ptr_lib::shared_ptr<vector<unsigned char> > encoding = wireFormat.encodeData(data, &signedFieldsBeginOffset, &signedFieldsEndOffset);
@@ -86,8 +86,8 @@ static void digestDataFieldsSha256(const Data &data, WireFormat &wireFormat, uns
 }
 
 void KeyChain::sign
-  (Data &data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
-   const unsigned char *privateKeyDer, unsigned int privateKeyDerLength, WireFormat &wireFormat)
+  (Data& data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
+   const unsigned char *privateKeyDer, unsigned int privateKeyDerLength, WireFormat& wireFormat)
 {
   // Set the public key.
   setSha256(publicKeyDer, publicKeyDerLength, data.getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest());
@@ -116,18 +116,18 @@ void KeyChain::sign
   data.getSignature().setSignature(signature, signatureLength);
 }
 
-void KeyChain::defaultSign(Data &data, WireFormat &wireFormat)
+void KeyChain::defaultSign(Data& data, WireFormat& wireFormat)
 {
   sign(data, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER), wireFormat);
 }
 
-void KeyChain::defaultSign(Data &data)
+void KeyChain::defaultSign(Data& data)
 {
   sign(data, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER),
        *WireFormat::getDefaultWireFormat());
 }
 
-bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat)
+bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat)
 {
   // Decode the data packet and digest the data fields.
   Data data;

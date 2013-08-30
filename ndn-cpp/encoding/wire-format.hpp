@@ -23,7 +23,7 @@ public:
    * @return A shared_ptr with the vector<unsigned char> containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeInterest(const Interest &interest);
+  virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeInterest(const Interest& interest);
   
   /**
    * Decode input as an interest and set the fields of the interest object.  Your derived class should override.
@@ -32,20 +32,20 @@ public:
    * @param inputLength The number of bytes in input.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual void decodeInterest(Interest &interest, const unsigned char *input, unsigned int inputLength);
+  virtual void decodeInterest(Interest& interest, const unsigned char *input, unsigned int inputLength);
 
   /**
    * Encode data and return the encoding.  Your derived class should override.
    * @param data The Data object to encode.
    * @param signedFieldsBeginOffset Return the offset in the encoding of the beginning of the fields which are signed.
-   * If you are not encoding in order to sign, you can call encodeData(const Data &data) to ignore this returned value.
+   * If you are not encoding in order to sign, you can call encodeData(const Data& data) to ignore this returned value.
    * @param signedFieldsEndOffset Return the offset in the encoding of the end of the fields which are signed.
-   * If you are not encoding in order to sign, you can call encodeData(const Data &data) to ignore this returned value.
+   * If you are not encoding in order to sign, you can call encodeData(const Data& data) to ignore this returned value.
    * @return A shared_ptr with the vector<unsigned char> containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
   virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeData
-    (const Data &data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset);
+    (const Data& data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset);
 
   /**
    * Encode data and return the encoding.
@@ -53,7 +53,7 @@ public:
    * @return A shared_ptr with the vector<unsigned char> containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  ptr_lib::shared_ptr<std::vector<unsigned char> > encodeData(const Data &data)
+  ptr_lib::shared_ptr<std::vector<unsigned char> > encodeData(const Data& data)
   {
     unsigned int dummyBeginOffset, dummyEndOffset;
     return encodeData(data, &dummyBeginOffset, &dummyEndOffset);
@@ -66,16 +66,16 @@ public:
    * @param inputLength The number of bytes in input.
    * @param signedFieldsBeginOffset Return the offset in the input buffer of the beginning of the fields which are signed.
    * If you are not decoding in order to verify, you can call 
-   * decodeData(Data &data, const unsigned char *input, unsigned int inputLength) to ignore this returned value.
+   * decodeData(Data& data, const unsigned char *input, unsigned int inputLength) to ignore this returned value.
    * @param signedFieldsEndOffset Return the offset in the input buffer of the end of the fields which are signed.
    * If you are not decoding in order to verify, you can call 
-   * decodeData(Data &data, const unsigned char *input, unsigned int inputLength) to ignore this returned value.
+   * decodeData(Data& data, const unsigned char *input, unsigned int inputLength) to ignore this returned value.
    * @throw logic_error for unimplemented if the derived class does not override.
    */  
   virtual void decodeData
-    (Data &data, const unsigned char *input, unsigned int inputLength, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset);
+    (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset);
 
-  void decodeData(Data &data, const unsigned char *input, unsigned int inputLength)
+  void decodeData(Data& data, const unsigned char *input, unsigned int inputLength)
   {
     unsigned int dummyBeginOffset, dummyEndOffset;
     decodeData(data, input, inputLength, &dummyBeginOffset, &dummyEndOffset);
@@ -87,7 +87,7 @@ public:
    * @return A shared_ptr with the vector<unsigned char> containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeForwardingEntry(const ForwardingEntry &forwardingEntry);
+  virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeForwardingEntry(const ForwardingEntry& forwardingEntry);
   
   /**
    * Decode input as a forwarding entry and set the fields of the forwardingEntry object.  Your derived class should override.
@@ -96,7 +96,7 @@ public:
    * @param inputLength The number of bytes in input.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual void decodeForwardingEntry(ForwardingEntry &forwardingEntry, const unsigned char *input, unsigned int inputLength);
+  virtual void decodeForwardingEntry(ForwardingEntry& forwardingEntry, const unsigned char *input, unsigned int inputLength);
 
   /**
    * Set the static default WireFormat used by default encoding and decoding methods.

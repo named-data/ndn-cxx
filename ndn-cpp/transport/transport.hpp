@@ -27,7 +27,7 @@ public:
    * @param connectionInfo A reference to an object of a subclass of ConnectionInfo.
    * @param elementListener Not a shared_ptr because we assume that it will remain valid during the life of this object.
    */
-  virtual void connect(const Transport::ConnectionInfo &connectionInfo, ElementListener &elementListener);
+  virtual void connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener);
   
   /**
    * Set data to the host
@@ -36,7 +36,7 @@ public:
    */
   virtual void send(const unsigned char *data, unsigned int dataLength);
   
-  void send(const std::vector<unsigned char> &data)
+  void send(const std::vector<unsigned char>& data)
   {
     send(&data[0], data.size());
   }

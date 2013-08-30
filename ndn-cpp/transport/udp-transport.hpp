@@ -34,7 +34,7 @@ public:
      * Get the host given to the constructor.
      * @return A string reference for the host.
      */
-    const std::string &getHost() const { return host_; }
+    const std::string& getHost() const { return host_; }
     
     /**
      * Get the port given to the constructor.
@@ -61,7 +61,7 @@ public:
    * @param connectionInfo A reference to a TcpTransport::ConnectionInfo.
    * @param elementListener Not a shared_ptr because we assume that it will remain valid during the life of this object.
    */
-  virtual void connect(const Transport::ConnectionInfo &connectionInfo, ElementListener &elementListener);
+  virtual void connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener);
   
   /**
    * Set data to the host

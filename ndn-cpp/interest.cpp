@@ -11,7 +11,7 @@ using namespace std;
 
 namespace ndn {
   
-void Exclude::get(struct ndn_Exclude &excludeStruct) const
+void Exclude::get(struct ndn_Exclude& excludeStruct) const
 {
   if (excludeStruct.maxEntries < entries_.size())
     throw runtime_error("excludeStruct.maxEntries must be >= this exclude getEntryCount()");
@@ -21,7 +21,7 @@ void Exclude::get(struct ndn_Exclude &excludeStruct) const
     entries_[i].get(excludeStruct.entries[i]);  
 }
 
-void Exclude::set(const struct ndn_Exclude &excludeStruct)
+void Exclude::set(const struct ndn_Exclude& excludeStruct)
 {
   entries_.clear();
   for (unsigned int i = 0; i < excludeStruct.nEntries; ++i) {
@@ -55,7 +55,7 @@ string Exclude::toUri() const
   return result.str();  
 }
 
-void Interest::set(const struct ndn_Interest &interestStruct) 
+void Interest::set(const struct ndn_Interest& interestStruct) 
 {
   name_.set(interestStruct.name);
   minSuffixComponents_ = interestStruct.minSuffixComponents;
@@ -71,7 +71,7 @@ void Interest::set(const struct ndn_Interest &interestStruct)
   setVector(nonce_, interestStruct.nonce, interestStruct.nonceLength);
 }
 
-void Interest::get(struct ndn_Interest &interestStruct) const 
+void Interest::get(struct ndn_Interest& interestStruct) const 
 {
   name_.get(interestStruct.name);
   interestStruct.minSuffixComponents = minSuffixComponents_;

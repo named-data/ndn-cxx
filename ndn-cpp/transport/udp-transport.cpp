@@ -16,9 +16,9 @@ UdpTransport::ConnectionInfo::~ConnectionInfo()
 {  
 }
 
-void UdpTransport::connect(const Transport::ConnectionInfo &connectionInfo, ElementListener &elementListener)
+void UdpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener)
 {
-  const UdpTransport::ConnectionInfo &udpConnectionInfo = dynamic_cast<const UdpTransport::ConnectionInfo &>(connectionInfo);
+  const UdpTransport::ConnectionInfo& udpConnectionInfo = dynamic_cast<const UdpTransport::ConnectionInfo&>(connectionInfo);
   
   ndn_Error error;
   if ((error = ndn_UdpTransport_connect(&transport_, (char *)udpConnectionInfo.getHost().c_str(), udpConnectionInfo.getPort())))

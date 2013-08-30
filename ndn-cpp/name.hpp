@@ -29,7 +29,7 @@ public:
      * Create a new Name::Component, copying the given value.
      * @param value The value byte array.
      */
-    Component(const std::vector<unsigned char> &value) 
+    Component(const std::vector<unsigned char>& value) 
     : value_(value)
     {
     }
@@ -49,7 +49,7 @@ public:
      * WARNING: The resulting pointer in componentStruct is invalid after a further use of this object which could reallocate memory.
      * @param componentStruct The C ndn_NameComponent struct to receive the pointer.
      */
-    void get(struct ndn_NameComponent &componentStruct) const 
+    void get(struct ndn_NameComponent& componentStruct) const 
     {
       componentStruct.valueLength = value_.size(); 
       if (value_.size() > 0)
@@ -66,7 +66,7 @@ public:
      */
     bool setFromEscapedString(const char *first, const char *last);
   
-    const std::vector<unsigned char> &getValue() const { return value_; }
+    const std::vector<unsigned char>& getValue() const { return value_; }
     
     /**
      * Set this component to the encoded segment number.
@@ -88,7 +88,7 @@ public:
    * Create a new Name, copying the name components.
    * @param components A vector of Component
    */
-  Name(const std::vector<Component> &components)
+  Name(const std::vector<Component>& components)
   : components_(components)
   {
   }
@@ -107,13 +107,13 @@ public:
    * WARNING: The resulting pointers in nameStruct are invalid after a further use of this object which could reallocate memory.
    * @param nameStruct A C ndn_Name struct where the components array is already allocated.
    */
-  void get(struct ndn_Name &nameStruct) const;
+  void get(struct ndn_Name& nameStruct) const;
   
   /**
    * Clear this name, and set the components by copying from the name struct.
    * @param nameStruct A C ndn_Name struct
    */
-  void set(const struct ndn_Name &nameStruct);
+  void set(const struct ndn_Name& nameStruct);
   
   /**
    * Parse the uri according to the NDN URI Scheme and set the name with the components.
@@ -131,7 +131,7 @@ public:
   /**
    * Add a new component, copying from value.
    */
-  void addComponent(const std::vector<unsigned char> &value) {
+  void addComponent(const std::vector<unsigned char>& value) {
     components_.push_back(value);
   }
   
@@ -150,7 +150,7 @@ public:
     return components_.size();
   }
   
-  const Component &getComponent(unsigned int i) const { return components_[i]; }
+  const Component& getComponent(unsigned int i) const { return components_[i]; }
   
   /**
    * Encode this name as a URI.
@@ -181,7 +181,7 @@ public:
    * @param name The Name to check.
    * @return true if this matches the given name, otherwise false.  This always returns true if this name is empty.
    */
-  bool match(const Name &name) const;
+  bool match(const Name& name) const;
   
   /**
    * Write the value to result, escaping characters according to the NDN URI Scheme.
@@ -189,7 +189,7 @@ public:
    * @param value the buffer with the value to escape
    * @param result the string stream to write to.
    */
-  static void toEscapedString(const std::vector<unsigned char> &value, std::ostringstream &result);
+  static void toEscapedString(const std::vector<unsigned char>& value, std::ostringstream& result);
 
 private:
   std::vector<Component> components_;

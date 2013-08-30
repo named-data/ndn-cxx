@@ -25,21 +25,21 @@ public:
    * @param wireFormat The WireFormat for calling encodeData.
    */
   static void sign
-    (Data &data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
-     const unsigned char *privateKeyDer, unsigned int privateKeyDerLength, WireFormat &wireFormat);
+    (Data& data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
+     const unsigned char *privateKeyDer, unsigned int privateKeyDerLength, WireFormat& wireFormat);
 
   /**
    * Call sign with the default public and private keys.
    * @param data
    * @param wireFormat The WireFormat for calling encodeData.
    */
-  static void defaultSign(Data &data, WireFormat &wireFormat);
+  static void defaultSign(Data& data, WireFormat& wireFormat);
 
   /**
    * Call sign with the default public and private keys.  For wireFormat, use WireFormat::getDefaultWireFormat().
    * @param data
    */
-  static void defaultSign(Data &data);
+  static void defaultSign(Data& data);
   
   /**
    * Use the WireFormat to decode the input as a Data packet and use the public key in the key locator to 
@@ -51,7 +51,7 @@ public:
    * @return true if the public key in the Data object verifies the object, false if not or if the Data object
    * doesn't have a public key.
    */
-  static bool selfVerifyData(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat);
+  static bool selfVerifyData(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat);
   
   static bool selfVerifyData(const unsigned char *input, unsigned int inputLength)
   {

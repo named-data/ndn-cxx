@@ -28,7 +28,7 @@ public:
    * Get the shared_ptr to the allocated vector.
    * @return The shared_ptr to the allocated vector. 
    */
-  const ptr_lib::shared_ptr<std::vector<unsigned char> > &get() { return vector_; }
+  const ptr_lib::shared_ptr<std::vector<unsigned char> >& get() { return vector_; }
   
 private:
   /**

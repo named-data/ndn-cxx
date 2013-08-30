@@ -57,12 +57,12 @@ unsigned char Interest1[] = {
 1
 };
 
-static inline string toString(const vector<unsigned char> &v)
+static inline string toString(const vector<unsigned char>& v)
 {
   return string(&v[0], &v[0] + v.size());
 }
 
-static void dumpForwardingEntry(const ForwardingEntry &forwardingEntry) 
+static void dumpForwardingEntry(const ForwardingEntry& forwardingEntry) 
 {
   cout << "action: " << forwardingEntry.getAction() << endl;
   cout << "prefix: " << forwardingEntry.getPrefix().to_uri() << endl;
@@ -89,7 +89,7 @@ static void dumpForwardingEntry(const ForwardingEntry &forwardingEntry)
  * Show the interest name and scope, and expect the name to have 4 components where the last component is a data packet 
  * whose content is a forwarding entry.
  */
-static void dumpInterestWithForwardingEntry(const Interest &interest)
+static void dumpInterestWithForwardingEntry(const Interest& interest)
 {
   if (interest.getName().getComponentCount() != 4) {
     cout << "Error: expected the interest name to have 4 components.  Got: " << interest.getName().to_uri() << endl;
@@ -129,7 +129,7 @@ int main(int argc, char** argv)
     reDecodedInterest.wireDecode(*encoding);
     cout << "Re-decoded Interest:" << endl;
     dumpInterestWithForwardingEntry(reDecodedInterest);
-  } catch (exception &e) {
+  } catch (exception& e) {
     cout << "exception: " << e.what() << endl;
   }
   return 0;

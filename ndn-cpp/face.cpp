@@ -9,7 +9,7 @@ using namespace std;
 
 namespace ndn {
   
-void Face::expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData, const OnTimeout &onTimeout)
+void Face::expressInterest(const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout)
 {
   if (interestTemplate)
     node_.expressInterest(Interest

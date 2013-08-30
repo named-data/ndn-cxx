@@ -16,9 +16,9 @@ TcpTransport::ConnectionInfo::~ConnectionInfo()
 {  
 }
 
-void TcpTransport::connect(const Transport::ConnectionInfo &connectionInfo, ElementListener &elementListener)
+void TcpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener)
 {
-  const TcpTransport::ConnectionInfo &tcpConnectionInfo = dynamic_cast<const TcpTransport::ConnectionInfo &>(connectionInfo);
+  const TcpTransport::ConnectionInfo& tcpConnectionInfo = dynamic_cast<const TcpTransport::ConnectionInfo&>(connectionInfo);
   
   ndn_Error error;
   if ((error = ndn_TcpTransport_connect(&transport_, (char *)tcpConnectionInfo.getHost().c_str(), tcpConnectionInfo.getPort())))

@@ -31,7 +31,7 @@ public:
    * Resize the output vector to the correct encoding length and return.
    * @return The encoding as a shared_ptr.  Assume that the caller now owns the vector.
    */
-  const ptr_lib::shared_ptr<std::vector<unsigned char> > &getOutput() 
+  const ptr_lib::shared_ptr<std::vector<unsigned char> >& getOutput() 
   {
     output_.get()->resize(offset);
     return output_.get();

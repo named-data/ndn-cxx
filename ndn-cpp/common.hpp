@@ -56,7 +56,7 @@ namespace ndn {
  * @param value the array of bytes, or 0 to not copy
  * @param valueLength the length of value
  */
-static inline void setVector(std::vector<unsigned char> &vec, const unsigned char *value, unsigned int valueLength) 
+static inline void setVector(std::vector<unsigned char>& vec, const unsigned char *value, unsigned int valueLength) 
 {
   vec.clear();
   if (value)
@@ -68,7 +68,7 @@ static inline void setVector(std::vector<unsigned char> &vec, const unsigned cha
  * @param array The array of bytes.
  * @return Hex string.
  */
-std::string toHex(const std::vector<unsigned char> &array);
+std::string toHex(const std::vector<unsigned char>& array);
 
 }
 

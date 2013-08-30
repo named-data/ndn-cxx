@@ -21,7 +21,7 @@ public:
    * @param transport A shared_ptr to a Transport object used for communication.
    * @param transport A shared_ptr to a Transport::ConnectionInfo to be used to connect to the transport.
    */
-  Face(const ptr_lib::shared_ptr<Transport> &transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo> &connectionInfo)
+  Face(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo>& connectionInfo)
   : node_(transport, connectionInfo)
   {
   }
@@ -45,7 +45,7 @@ public:
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
    */
-  void expressInterest(const Interest &interest, const OnData &onData, const OnTimeout &onTimeout = OnTimeout())
+  void expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout = OnTimeout())
   {
     node_.expressInterest(interest, onData, onTimeout);
   }
@@ -60,7 +60,7 @@ public:
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
    */
-  void expressInterest(const Name &name, const Interest *interestTemplate, const OnData &onData, const OnTimeout &onTimeout = OnTimeout());
+  void expressInterest(const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout = OnTimeout());
 
   /**
    * Encode name as an Interest, using a default interest lifetime.
@@ -71,7 +71,7 @@ public:
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
    */
-  void expressInterest(const Name &name, const OnData &onData, const OnTimeout &onTimeout = OnTimeout()) 
+  void expressInterest(const Name& name, const OnData& onData, const OnTimeout& onTimeout = OnTimeout()) 
   {
     expressInterest(name, 0, onData, onTimeout);
   }
@@ -83,7 +83,7 @@ public:
    * use func_lib::ref() as appropriate.
    * @param flags The flags for finer control of which interests are forward to the application.
    */
-  void registerPrefix(const Name &prefix, const OnInterest &onInterest, int flags = 0)
+  void registerPrefix(const Name& prefix, const OnInterest& onInterest, int flags = 0)
   {
     node_.registerPrefix(prefix, onInterest, flags);
   }

@@ -30,7 +30,7 @@ unsigned char Interest1[] = {
 1
 };
 
-static void dumpInterest(const Interest &interest)
+static void dumpInterest(const Interest& interest)
 {
   cout << "name: " << interest.getName().to_uri() << endl;
   cout << "minSuffixComponents: ";
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
     reDecodedInterest.wireDecode(*encoding);
     cout << "Re-decoded Interest:" << endl;
     dumpInterest(reDecodedInterest);
-  } catch (exception &e) {
+  } catch (exception& e) {
     cout << "exception: " << e.what() << endl;
   }
   return 0;

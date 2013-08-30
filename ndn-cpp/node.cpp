@@ -23,13 +23,13 @@ static inline double getNowMilliseconds()
   return t.tv_sec * 1000.0 + t.tv_usec / 1000.0;
 }
 
-Node::Node(const ptr_lib::shared_ptr<Transport> &transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo> &connectionInfo)
+Node::Node(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo>& connectionInfo)
 : transport_(transport), connectionInfo_(connectionInfo),
   ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
 {
 }
 
-void Node::expressInterest(const Interest &interest, const OnData &onData, const OnTimeout &onTimeout)
+void Node::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)
 {
   // TODO: Properly check if we are already connected to the expected host.
   if (!transport_->getIsConnected())
@@ -41,7 +41,7 @@ void Node::expressInterest(const Interest &interest, const OnData &onData, const
   transport_->send(*encoding);
 }
 
-void Node::registerPrefix(const Name &prefix, const OnInterest &onInterest, int flags)
+void Node::registerPrefix(const Name& prefix, const OnInterest& onInterest, int flags)
 {
   if (ndndId_.size() == 0) {
     // First fetch the ndndId of the connected hub.
@@ -53,7 +53,7 @@ void Node::registerPrefix(const Name &prefix, const OnInterest &onInterest, int 
     registerPrefixHelper(prefix, onInterest, flags);
 }
 
-void Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest> &interest, const ptr_lib::shared_ptr<Data> &ndndIdData)
+void Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& ndndIdData)
 {
   if (ndndIdData->getSignedInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
     // Set the ndndId_ and continue.
@@ -64,12 +64,12 @@ void Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest> &
   // TODO: else need to log not getting the ndndId.
 }
 
-void Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest> &timedOutInterest)
+void Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& timedOutInterest)
 {
   // TODO: Log the timeout.
 }
 
-void Node::registerPrefixHelper(const Name &prefix, const OnInterest &onInterest, int flags)
+void Node::registerPrefixHelper(const Name& prefix, const OnInterest& onInterest, int flags)
 {
   // Create a ForwardingEntry.
   ForwardingEntry forwardingEntry("selfreg", prefix, PublisherPublicKeyDigest(), -1, 3, 2147483647);
@@ -150,7 +150,7 @@ void Node::shutdown()
   transport_->close();
 }
 
-int Node::getEntryIndexForExpressedInterest(const Name &name)
+int Node::getEntryIndexForExpressedInterest(const Name& name)
 {
   // TODO: Doesn't this belong in the Name class?
   vector<struct ndn_NameComponent> nameComponents;
@@ -173,7 +173,7 @@ int Node::getEntryIndexForExpressedInterest(const Name &name)
 	return iResult;
 }
   
-Node::PrefixEntry *Node::getEntryForRegisteredPrefix(const Name &name)
+Node::PrefixEntry *Node::getEntryForRegisteredPrefix(const Name& name)
 {
   int iResult = -1;
     
@@ -192,7 +192,7 @@ Node::PrefixEntry *Node::getEntryForRegisteredPrefix(const Name &name)
     return 0;
 }
 
-Node::PitEntry::PitEntry(const ptr_lib::shared_ptr<const Interest> &interest, const OnData &onData, const OnTimeout &onTimeout)
+Node::PitEntry::PitEntry(const ptr_lib::shared_ptr<const Interest>& interest, const OnData& onData, const OnTimeout& onTimeout)
 : interest_(interest), onData_(onData), onTimeout_(onTimeout)
 {
   // Set up timeoutTime_.

@@ -24,7 +24,7 @@ public:
     callbackCount_ = 0;
   }
   
-  void onData(const ptr_lib::shared_ptr<const Interest> &interest, const ptr_lib::shared_ptr<Data> &data)
+  void onData(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& data)
   {
     ++callbackCount_;
     cout << "Got data packet with name " << data->getName().to_uri() << endl;
@@ -33,7 +33,7 @@ public:
     cout << endl;  
   }
 
-  void onTimeout(const ptr_lib::shared_ptr<const Interest> &interest)
+  void onTimeout(const ptr_lib::shared_ptr<const Interest>& interest)
   {
     ++callbackCount_;
     cout << "Time out for interest " << interest->getName().toUri() << endl;    
@@ -69,7 +69,7 @@ int main(int argc, char** argv)
       // We need to sleep for a few milliseconds so we don't use 100% of the CPU.
       usleep(10000);
     }
-  } catch (std::exception &e) {
+  } catch (std::exception& e) {
     cout << "exception: " << e.what() << endl;
   }
   return 0;

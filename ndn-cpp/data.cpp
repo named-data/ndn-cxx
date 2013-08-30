@@ -10,7 +10,7 @@ using namespace std;
 
 namespace ndn {
 
-void Signature::get(struct ndn_Signature &signatureStruct) const 
+void Signature::get(struct ndn_Signature& signatureStruct) const 
 {
   signatureStruct.digestAlgorithmLength = digestAlgorithm_.size();
   if (digestAlgorithm_.size() > 0)
@@ -31,14 +31,14 @@ void Signature::get(struct ndn_Signature &signatureStruct) const
     signatureStruct.signature = 0;
 }
 
-void Signature::set(const struct ndn_Signature &signatureStruct)
+void Signature::set(const struct ndn_Signature& signatureStruct)
 {
   setVector(digestAlgorithm_, signatureStruct.digestAlgorithm, signatureStruct.digestAlgorithmLength);
   setVector(witness_, signatureStruct.witness, signatureStruct.witnessLength);
   setVector(signature_, signatureStruct.signature, signatureStruct.signatureLength);
 }
 
-void SignedInfo::get(struct ndn_SignedInfo &signedInfoStruct) const 
+void SignedInfo::get(struct ndn_SignedInfo& signedInfoStruct) const 
 {
   publisherPublicKeyDigest_.get(signedInfoStruct.publisherPublicKeyDigest);
   signedInfoStruct.timestampMilliseconds = timestampMilliseconds_;
@@ -54,7 +54,7 @@ void SignedInfo::get(struct ndn_SignedInfo &signedInfoStruct) const
   keyLocator_.get(signedInfoStruct.keyLocator);
 }
 
-void SignedInfo::set(const struct ndn_SignedInfo &signedInfoStruct)
+void SignedInfo::set(const struct ndn_SignedInfo& signedInfoStruct)
 {
   publisherPublicKeyDigest_.set(signedInfoStruct.publisherPublicKeyDigest);
   timestampMilliseconds_ = signedInfoStruct.timestampMilliseconds;
@@ -64,7 +64,7 @@ void SignedInfo::set(const struct ndn_SignedInfo &signedInfoStruct)
   keyLocator_.set(signedInfoStruct.keyLocator);
 }
 
-void Data::get(struct ndn_Data &dataStruct) const 
+void Data::get(struct ndn_Data& dataStruct) const 
 {
   signature_.get(dataStruct.signature);
   name_.get(dataStruct.name);
@@ -77,7 +77,7 @@ void Data::get(struct ndn_Data &dataStruct) const
     dataStruct.content = 0;
 }
 
-void Data::set(const struct ndn_Data &dataStruct)
+void Data::set(const struct ndn_Data& dataStruct)
 {
   signature_.set(dataStruct.signature);
   name_.set(dataStruct.name);

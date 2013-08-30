@@ -21,36 +21,36 @@ public:
    * WARNING: The resulting pointers in signatureStruct are invalid after a further use of this object which could reallocate memory.
    * @param signatureStruct a C ndn_Signature struct where the name components array is already allocated.
    */
-  void get(struct ndn_Signature &signatureStruct) const;
+  void get(struct ndn_Signature& signatureStruct) const;
 
   /**
    * Clear this signature, and set the values by copying from the ndn_Signature struct.
    * @param signatureStruct a C ndn_Signature struct
    */
-  void set(const struct ndn_Signature &signatureStruct);
+  void set(const struct ndn_Signature& signatureStruct);
 
-  const std::vector<unsigned char> &getDigestAlgorithm() const { return digestAlgorithm_; }
-  std::vector<unsigned char> &getDigestAlgorithm() { return digestAlgorithm_; }
+  const std::vector<unsigned char>& getDigestAlgorithm() const { return digestAlgorithm_; }
+  std::vector<unsigned char>& getDigestAlgorithm() { return digestAlgorithm_; }
 
-  const std::vector<unsigned char> &getWitness() const { return witness_; }
-  std::vector<unsigned char> &getWitness() { return witness_; }
+  const std::vector<unsigned char>& getWitness() const { return witness_; }
+  std::vector<unsigned char>& getWitness() { return witness_; }
 
-  const std::vector<unsigned char> &getSignature() const { return signature_; }
-  std::vector<unsigned char> &getSignature() { return signature_; }
+  const std::vector<unsigned char>& getSignature() const { return signature_; }
+  std::vector<unsigned char>& getSignature() { return signature_; }
 
-  void setDigestAlgorithm(const std::vector<unsigned char> &digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
+  void setDigestAlgorithm(const std::vector<unsigned char>& digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
   void setDigestAlgorithm(const unsigned char *digestAlgorithm, unsigned int digestAlgorithmLength) 
   { 
     setVector(digestAlgorithm_, digestAlgorithm, digestAlgorithmLength); 
   }
 
-  void setWitness(const std::vector<unsigned char> &witness) { witness_ = witness; }
+  void setWitness(const std::vector<unsigned char>& witness) { witness_ = witness; }
   void setWitness(const unsigned char *witness, unsigned int witnessLength) 
   { 
     setVector(witness_, witness, witnessLength); 
   }
 
-  void setSignature(const std::vector<unsigned char> &signature) { signature_ = signature; }
+  void setSignature(const std::vector<unsigned char>& signature) { signature_ = signature; }
   void setSignature(const unsigned char *signature, unsigned int signatureLength) 
   { 
     setVector(signature_, signature, signatureLength); 
@@ -85,16 +85,16 @@ public:
    * WARNING: The resulting pointers in signedInfoStruct are invalid after a further use of this object which could reallocate memory.
    * @param signedInfoStruct a C ndn_SignedInfo struct where the name components array is already allocated.
    */
-  void get(struct ndn_SignedInfo &signedInfoStruct) const;
+  void get(struct ndn_SignedInfo& signedInfoStruct) const;
 
   /**
    * Clear this signed info, and set the values by copying from the ndn_SignedInfo struct.
    * @param signedInfoStruct a C ndn_SignedInfo struct
    */
-  void set(const struct ndn_SignedInfo &signedInfoStruct);
+  void set(const struct ndn_SignedInfo& signedInfoStruct);
 
-  const PublisherPublicKeyDigest &getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
-  PublisherPublicKeyDigest &getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
+  const PublisherPublicKeyDigest& getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
+  PublisherPublicKeyDigest& getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
   
   double getTimestampMilliseconds() const { return timestampMilliseconds_; }
   
@@ -102,13 +102,13 @@ public:
   
   int getFreshnessSeconds() const { return freshnessSeconds_; }
   
-  const std::vector<unsigned char> &getFinalBlockID() const { return finalBlockID_; }
-  std::vector<unsigned char> &getFinalBlockID() { return finalBlockID_; }
+  const std::vector<unsigned char>& getFinalBlockID() const { return finalBlockID_; }
+  std::vector<unsigned char>& getFinalBlockID() { return finalBlockID_; }
   
-  const KeyLocator &getKeyLocator() const { return keyLocator_; }
-  KeyLocator &getKeyLocator() { return keyLocator_; }
+  const KeyLocator& getKeyLocator() const { return keyLocator_; }
+  KeyLocator& getKeyLocator() { return keyLocator_; }
 
-  void setPublisherPublicKeyDigest(const PublisherPublicKeyDigest &publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
+  void setPublisherPublicKeyDigest(const PublisherPublicKeyDigest& publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
   
   void setTimestampMilliseconds(double timestampMilliseconds) { timestampMilliseconds_ = timestampMilliseconds; }
   
@@ -116,13 +116,13 @@ public:
   
   void setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
   
-  void setFinalBlockID(const std::vector<unsigned char> &finalBlockID) { finalBlockID_ = finalBlockID; }
+  void setFinalBlockID(const std::vector<unsigned char>& finalBlockID) { finalBlockID_ = finalBlockID; }
   void setFinalBlockID(const unsigned char *finalBlockID, unsigned int finalBlockIdLength) 
   { 
     setVector(finalBlockID_, finalBlockID, finalBlockIdLength); 
   }
   
-  void setKeyLocator(const KeyLocator &keyLocator) { keyLocator_ = keyLocator; }
+  void setKeyLocator(const KeyLocator& keyLocator) { keyLocator_ = keyLocator; }
   
 private:
   PublisherPublicKeyDigest publisherPublicKeyDigest_;
@@ -139,12 +139,12 @@ public:
   {
   }
   
-  Data(const Name &name)
+  Data(const Name& name)
   : name_(name)
   {
   }
   
-  ptr_lib::shared_ptr<std::vector<unsigned char> > wireEncode(WireFormat &wireFormat) const 
+  ptr_lib::shared_ptr<std::vector<unsigned char> > wireEncode(WireFormat& wireFormat) const 
   {
     return wireFormat.encodeData(*this);
   }
@@ -152,7 +152,7 @@ public:
   {
     return wireEncode(*WireFormat::getDefaultWireFormat());
   }
-  void wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat &wireFormat) 
+  void wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat) 
   {
     wireFormat.decodeData(*this, input, inputLength);
   }
@@ -160,11 +160,11 @@ public:
   {
     wireDecode(input, inputLength, *WireFormat::getDefaultWireFormat());
   }
-  void wireDecode(const std::vector<unsigned char> &input, WireFormat &wireFormat) 
+  void wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat) 
   {
     wireDecode(&input[0], input.size(), wireFormat);
   }
-  void wireDecode(const std::vector<unsigned char> &input) 
+  void wireDecode(const std::vector<unsigned char>& input) 
   {
     wireDecode(&input[0], input.size());
   }
@@ -174,33 +174,33 @@ public:
    * WARNING: The resulting pointers in dataStruct are invalid after a further use of this object which could reallocate memory.
    * @param dataStruct a C ndn_Data struct where the name components array is already allocated.
    */
-  void get(struct ndn_Data &dataStruct) const;
+  void get(struct ndn_Data& dataStruct) const;
 
   /**
    * Clear this data object, and set the values by copying from the ndn_Data struct.
    * @param dataStruct a C ndn_Data struct
    */
-  void set(const struct ndn_Data &dataStruct);
+  void set(const struct ndn_Data& dataStruct);
 
-  const Signature &getSignature() const { return signature_; }
-  Signature &getSignature() { return signature_; }
+  const Signature& getSignature() const { return signature_; }
+  Signature& getSignature() { return signature_; }
   
-  const Name &getName() const { return name_; }
-  Name &getName() { return name_; }
+  const Name& getName() const { return name_; }
+  Name& getName() { return name_; }
   
-  const SignedInfo &getSignedInfo() const { return signedInfo_; }
-  SignedInfo &getSignedInfo() { return signedInfo_; }
+  const SignedInfo& getSignedInfo() const { return signedInfo_; }
+  SignedInfo& getSignedInfo() { return signedInfo_; }
   
-  const std::vector<unsigned char> &getContent() const { return content_; }
-  std::vector<unsigned char> &getContent() { return content_; }
+  const std::vector<unsigned char>& getContent() const { return content_; }
+  std::vector<unsigned char>& getContent() { return content_; }
 
-  void setSignature(const Signature &signature) { signature_ = signature; }
+  void setSignature(const Signature& signature) { signature_ = signature; }
   
-  void setName(const Name &name) { name_ = name; }
+  void setName(const Name& name) { name_ = name; }
   
-  void setSignedInfo(const SignedInfo &signedInfo) { signedInfo_ = signedInfo; }
+  void setSignedInfo(const SignedInfo& signedInfo) { signedInfo_ = signedInfo; }
 
-  void setContent(const std::vector<unsigned char> &content) { content_ = content; }
+  void setContent(const std::vector<unsigned char>& content) { content_ = content; }
   void setContent(const unsigned char *content, unsigned int contentLength) 
   { 
     setVector(content_, content, contentLength); 

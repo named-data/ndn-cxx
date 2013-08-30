@@ -26,31 +26,31 @@ WireFormat *WireFormat::getDefaultWireFormat()
   return defaultWireFormat_;
 }
 
-ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeInterest(const Interest &interest) 
+ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeInterest(const Interest& interest) 
 {
   throw logic_error("unimplemented");
 }
-void WireFormat::decodeInterest(Interest &interest, const unsigned char *input, unsigned int inputLength) 
+void WireFormat::decodeInterest(Interest& interest, const unsigned char *input, unsigned int inputLength) 
 {
   throw logic_error("unimplemented");
 }
 
 ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeData
-  (const Data &data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
+  (const Data& data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
 {
   throw logic_error("unimplemented");
 }
 void WireFormat::decodeData
-  (Data &data, const unsigned char *input, unsigned int inputLength, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
+  (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
 {
   throw logic_error("unimplemented");
 }
 
-ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeForwardingEntry(const ForwardingEntry &forwardingEntry) 
+ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeForwardingEntry(const ForwardingEntry& forwardingEntry) 
 {
   throw logic_error("unimplemented");
 }
-void WireFormat::decodeForwardingEntry(ForwardingEntry &forwardingEntry, const unsigned char *input, unsigned int inputLength) 
+void WireFormat::decodeForwardingEntry(ForwardingEntry& forwardingEntry, const unsigned char *input, unsigned int inputLength) 
 {
   throw logic_error("unimplemented");
 }

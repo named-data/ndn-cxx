@@ -17,7 +17,7 @@ static const char *WHITESPACE_CHARS = " \n\r\t";
  * Modify str in place to erase whitespace on the left.
  * @param str
  */
-static inline void trimLeft(string &str)
+static inline void trimLeft(string& str)
 {
   size_t found = str.find_first_not_of(WHITESPACE_CHARS);
   if (found != string::npos) {
@@ -33,7 +33,7 @@ static inline void trimLeft(string &str)
  * Modify str in place to erase whitespace on the right.
  * @param str
  */
-static inline void trimRight(string &str)
+static inline void trimRight(string& str)
 {
   size_t found = str.find_last_not_of(WHITESPACE_CHARS);
   if (found != string::npos) {
@@ -49,7 +49,7 @@ static inline void trimRight(string &str)
  * Modify str in place to erase whitespace on the left and right.
  * @param str
  */
-static void trim(string &str)
+static void trim(string& str)
 {
   trimLeft(str);
   trimRight(str);
@@ -76,7 +76,7 @@ static int fromHexChar(unsigned char c)
  * Return a copy of str, converting each escaped "%XX" to the char value.
  * @param str
  */
-static string unescape(const string &str)
+static string unescape(const string& str)
 {
   ostringstream result;
   
@@ -200,7 +200,7 @@ void Name::set(const char *uri_cstr)
   }
 }
 
-void Name::get(struct ndn_Name &nameStruct) const
+void Name::get(struct ndn_Name& nameStruct) const
 {
   if (nameStruct.maxComponents < components_.size())
     throw runtime_error("nameStruct.maxComponents must be >= this name getNComponents()");
@@ -210,7 +210,7 @@ void Name::get(struct ndn_Name &nameStruct) const
     components_[i].get(nameStruct.components[i]);
 }
   
-void Name::set(const struct ndn_Name &nameStruct) 
+void Name::set(const struct ndn_Name& nameStruct) 
 {
   clear();
   for (unsigned int i = 0; i < nameStruct.nComponents; ++i)
@@ -231,7 +231,7 @@ std::string Name::toUri() const
   return result.str();
 }
 
-bool Name::match(const Name &name) const
+bool Name::match(const Name& name) const
 {
   // Imitate ndn_Name_match.
   
@@ -252,7 +252,7 @@ bool Name::match(const Name &name) const
 	return true;
 }
 
-void Name::toEscapedString(const vector<unsigned char> &value, ostringstream &result)
+void Name::toEscapedString(const vector<unsigned char>& value, ostringstream& result)
 {
   bool gotNonDot = false;
   for (unsigned i = 0; i < value.size(); ++i) {

@@ -10,7 +10,7 @@ using namespace std;
 
 namespace ndn {
 
-string toHex(const vector<unsigned char> &array) 
+string toHex(const vector<unsigned char>& array) 
 {
   ostringstream result;
   result.flags(ios::hex | ios::uppercase);

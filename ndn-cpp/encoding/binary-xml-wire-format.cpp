@@ -24,7 +24,7 @@ WireFormat *WireFormat::newInitialDefaultWireFormat()
   return new BinaryXmlWireFormat();
 }
   
-ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeInterest(const Interest &interest) 
+ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeInterest(const Interest& interest) 
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ExcludeEntry excludeEntries[100];
@@ -42,7 +42,7 @@ ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeInterest(
   return encoder.getOutput();
 }
 
-void BinaryXmlWireFormat::decodeInterest(Interest &interest, const unsigned char *input, unsigned int inputLength)
+void BinaryXmlWireFormat::decodeInterest(Interest& interest, const unsigned char *input, unsigned int inputLength)
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ExcludeEntry excludeEntries[100];
@@ -60,7 +60,7 @@ void BinaryXmlWireFormat::decodeInterest(Interest &interest, const unsigned char
 }
 
 ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeData
-  (const Data &data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
+  (const Data& data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_NameComponent keyNameComponents[100];
@@ -79,7 +79,7 @@ ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeData
 }
 
 void BinaryXmlWireFormat::decodeData
-  (Data &data, const unsigned char *input, unsigned int inputLength, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset)
+  (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset)
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_NameComponent keyNameComponents[100];
@@ -96,7 +96,7 @@ void BinaryXmlWireFormat::decodeData
   data.set(dataStruct);
 }
 
-ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeForwardingEntry(const ForwardingEntry &forwardingEntry) 
+ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeForwardingEntry(const ForwardingEntry& forwardingEntry) 
 {
   struct ndn_NameComponent prefixNameComponents[100];
   struct ndn_ForwardingEntry forwardingEntryStruct;
@@ -112,7 +112,7 @@ ptr_lib::shared_ptr<vector<unsigned char> > BinaryXmlWireFormat::encodeForwardin
   return encoder.getOutput();
 }
 
-void BinaryXmlWireFormat::decodeForwardingEntry(ForwardingEntry &forwardingEntry, const unsigned char *input, unsigned int inputLength)
+void BinaryXmlWireFormat::decodeForwardingEntry(ForwardingEntry& forwardingEntry, const unsigned char *input, unsigned int inputLength)
 {
   struct ndn_NameComponent prefixNameComponents[100];
   struct ndn_ForwardingEntry forwardingEntryStruct;

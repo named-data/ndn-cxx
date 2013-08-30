@@ -59,7 +59,7 @@ unsigned char Data1[] = {
 1
 };
 
-static void dumpData(const Data &data)
+static void dumpData(const Data& data)
 {
   cout << "name: " << data.getName().to_uri() << endl;
   if (data.getContent().size() > 0) {
@@ -173,7 +173,7 @@ int main(int argc, char** argv)
     dumpData(freshData);
     ptr_lib::shared_ptr<vector<unsigned char> > freshEncoding = freshData.wireEncode();
     cout << "Freshly-signed Data signature verification: " << (KeyChain::selfVerifyData(&freshEncoding->front(), freshEncoding->size()) ? "VERIFIED" : "FAILED") << endl;
-  } catch (exception &e) {
+  } catch (exception& e) {
     cout << "exception: " << e.what() << endl;
   }
   return 0;
