@@ -72,26 +72,26 @@ private:
   std::vector<unsigned char> signature_;
 };
 
-class SignedInfo {
+class MetaInfo {
 public:
-  SignedInfo() 
+  MetaInfo() 
   {   
     type_ = ndn_ContentType_DATA;
     freshnessSeconds_ = -1;
   }
 
   /**
-   * Set the signedInfoStruct to point to the values in this signed info object, without copying any memory.
-   * WARNING: The resulting pointers in signedInfoStruct are invalid after a further use of this object which could reallocate memory.
-   * @param signedInfoStruct a C ndn_SignedInfo struct where the name components array is already allocated.
+   * Set the metaInfoStruct to point to the values in this meta info object, without copying any memory.
+   * WARNING: The resulting pointers in metaInfoStruct are invalid after a further use of this object which could reallocate memory.
+   * @param metaInfoStruct a C ndn_MetaInfo struct where the name components array is already allocated.
    */
-  void get(struct ndn_SignedInfo& signedInfoStruct) const;
+  void get(struct ndn_MetaInfo& metaInfoStruct) const;
 
   /**
-   * Clear this signed info, and set the values by copying from the ndn_SignedInfo struct.
-   * @param signedInfoStruct a C ndn_SignedInfo struct
+   * Clear this meta info, and set the values by copying from the ndn_MetaInfo struct.
+   * @param metaInfoStruct a C ndn_MetaInfo struct
    */
-  void set(const struct ndn_SignedInfo& signedInfoStruct);
+  void set(const struct ndn_MetaInfo& metaInfoStruct);
 
   const PublisherPublicKeyDigest& getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
   PublisherPublicKeyDigest& getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
@@ -188,8 +188,8 @@ public:
   const Name& getName() const { return name_; }
   Name& getName() { return name_; }
   
-  const SignedInfo& getSignedInfo() const { return signedInfo_; }
-  SignedInfo& getSignedInfo() { return signedInfo_; }
+  const MetaInfo& getMetaInfo() const { return metaInfo_; }
+  MetaInfo& getMetaInfo() { return metaInfo_; }
   
   const std::vector<unsigned char>& getContent() const { return content_; }
   std::vector<unsigned char>& getContent() { return content_; }
@@ -198,7 +198,7 @@ public:
   
   void setName(const Name& name) { name_ = name; }
   
-  void setSignedInfo(const SignedInfo& signedInfo) { signedInfo_ = signedInfo; }
+  void setMetainfo(const MetaInfo& metaInfo) { metaInfo_ = metaInfo; }
 
   void setContent(const std::vector<unsigned char>& content) { content_ = content; }
   void setContent(const unsigned char *content, unsigned int contentLength) 
@@ -209,7 +209,7 @@ public:
 private:
   Signature signature_;
   Name name_;
-  SignedInfo signedInfo_;
+  MetaInfo metaInfo_;
   std::vector<unsigned char> content_;
 };
   

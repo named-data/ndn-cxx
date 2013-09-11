@@ -42,7 +42,7 @@ typedef enum {
   ndn_ContentType_NACK = 5
 } ndn_ContentType;
 
-struct ndn_SignedInfo {
+struct ndn_MetaInfo {
   struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
   double timestampMilliseconds;    /**< milliseconds since 1/1/1970. -1 for none */
   ndn_ContentType type;            /**< default is ndn_ContentType_DATA. -1 for none */
@@ -53,13 +53,13 @@ struct ndn_SignedInfo {
 };
 
 /**
- * Initialize the ndn_SignedInfo struct with values for none and the type to the default ndn_ContentType_DATA.
- * @param self A pointer to the ndn_SignedInfo struct.
+ * Initialize the ndn_MetaInfo struct with values for none and the type to the default ndn_ContentType_DATA.
+ * @param self A pointer to the ndn_MetaInfo struct.
  * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the keyLocator.
  * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
  */
-static inline void ndn_SignedInfo_initialize
-  (struct ndn_SignedInfo *self, struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) {
+static inline void ndn_MetaInfo_initialize
+  (struct ndn_MetaInfo *self, struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) {
   ndn_PublisherPublicKeyDigest_initialize(&self->publisherPublicKeyDigest);
   self->type = ndn_ContentType_DATA;
   self->freshnessSeconds = -1;
@@ -71,7 +71,7 @@ static inline void ndn_SignedInfo_initialize
 struct ndn_Data {
   struct ndn_Signature signature;
   struct ndn_Name name;
-  struct ndn_SignedInfo signedInfo;
+  struct ndn_MetaInfo metaInfo;
   unsigned char *content;     /**< pointer to the content */
   unsigned int contentLength; /**< length of content */
 };
@@ -82,7 +82,7 @@ struct ndn_Data {
  * @param self A pointer to the ndn_Data struct.
  * @param nameComponents The pre-allocated array of ndn_NameComponent.
  * @param maxNameComponents The number of elements in the allocated nameComponents array.
- * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the signedInfo.keyLocator.
+ * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the metaInfo.keyLocator.
  * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
  */
 static inline void ndn_Data_initialize
@@ -91,7 +91,7 @@ static inline void ndn_Data_initialize
 {
   ndn_Signature_initialize(&self->signature);
   ndn_Name_initialize(&self->name, nameComponents, maxNameComponents);
-  ndn_SignedInfo_initialize(&self->signedInfo, keyNameComponents, maxKeyNameComponents);
+  ndn_MetaInfo_initialize(&self->metaInfo, keyNameComponents, maxKeyNameComponents);
   self->content = 0;
   self->contentLength = 0;
 }

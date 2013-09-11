@@ -13,10 +13,10 @@ namespace ndn {
 class KeyChain {
 public:
   /**
-   * In data, set the signed info publisher public key digest and key locator key to the public key and set the 
+   * In data, set the meta info publisher public key digest and key locator key to the public key and set the 
    * signature using the private key.
    * Note: the caller must make sure the timestamp is correct, for example with 
-   * data.getSignedInfo().setTimestampMilliseconds(time(NULL) * 1000.0).
+   * data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0).
    * @param data The Data object to sign and set the key and signature.
    * @param publicKeyDer A pointer to a buffer with the DER-encoded public key.
    * @param publicKeyDerLength The number of bytes in publicKeyDer.
