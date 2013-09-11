@@ -55,10 +55,10 @@ void Node::registerPrefix(const Name& prefix, const OnInterest& onInterest, int 
 
 void Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& ndndIdData)
 {
-  if (ndndIdData->getMetaInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
+  if (ndndIdData->getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
     // Set the ndndId_ and continue.
     // TODO: If there are multiple connected hubs, the NDN ID is really stored per connected hub.
-    info_->node_.ndndId_ = ndndIdData->getMetaInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest();
+    info_->node_.ndndId_ = ndndIdData->getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest();
     info_->node_.registerPrefixHelper(info_->prefix_, info_->onInterest_, info_->flags_);
   }
   // TODO: else need to log not getting the ndndId.

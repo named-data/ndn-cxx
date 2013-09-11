@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+/**
+ * An ndn_Signature struct holds the signature bits and other info representing the signature in a data packet.
+ */
 struct ndn_Signature {
   unsigned char *digestAlgorithm;      /**< pointer to pre-allocated buffer.  0 for none.
                                         *   If none, default is 2.16.840.1.101.3.4.2.1 (sha-256). */
@@ -22,15 +25,25 @@ struct ndn_Signature {
   unsigned int witnessLength;          /**< length of witness.  0 for none */
   unsigned char *signature;
   unsigned int signatureLength;
+  struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
+  struct ndn_KeyLocator keyLocator;
 };
 
-static inline void ndn_Signature_initialize(struct ndn_Signature *self) {
+/**
+ * Initialize the ndn_Signature struct with values for none and the default digestAlgorithm.
+ * @param self A pointer to the ndn_MetaInfo struct.
+ * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the keyLocator.
+ * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
+ */
+static inline void ndn_Signature_initialize(struct ndn_Signature *self, struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) {
   self->digestAlgorithm = 0;
   self->digestAlgorithmLength = 0;
   self->witness = 0;
   self->witnessLength = 0;
   self->signature = 0;
   self->signatureLength = 0;
+  ndn_PublisherPublicKeyDigest_initialize(&self->publisherPublicKeyDigest);
+  ndn_KeyLocator_initialize(&self->keyLocator, keyNameComponents, maxKeyNameComponents);
 }
 
 typedef enum {
@@ -42,30 +55,27 @@ typedef enum {
   ndn_ContentType_NACK = 5
 } ndn_ContentType;
 
+/**
+ * An ndn_MetaInfo struct holds the meta info which is signed inside the data packet.
+ */
 struct ndn_MetaInfo {
-  struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
   double timestampMilliseconds;    /**< milliseconds since 1/1/1970. -1 for none */
   ndn_ContentType type;            /**< default is ndn_ContentType_DATA. -1 for none */
   int freshnessSeconds;            /**< -1 for none */
   unsigned char *finalBlockID;     /**< pointer to pre-allocated buffer.  0 for none */
   unsigned int finalBlockIDLength; /**< length of finalBlockID.  0 for none */
-  struct ndn_KeyLocator keyLocator;
 };
 
 /**
  * Initialize the ndn_MetaInfo struct with values for none and the type to the default ndn_ContentType_DATA.
  * @param self A pointer to the ndn_MetaInfo struct.
- * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the keyLocator.
- * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
  */
 static inline void ndn_MetaInfo_initialize
-  (struct ndn_MetaInfo *self, struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) {
-  ndn_PublisherPublicKeyDigest_initialize(&self->publisherPublicKeyDigest);
+  (struct ndn_MetaInfo *self) {
   self->type = ndn_ContentType_DATA;
   self->freshnessSeconds = -1;
   self->finalBlockID = 0;
   self->finalBlockIDLength = 0;
-  ndn_KeyLocator_initialize(&self->keyLocator, keyNameComponents, maxKeyNameComponents);
 }
 
 struct ndn_Data {
@@ -82,16 +92,16 @@ struct ndn_Data {
  * @param self A pointer to the ndn_Data struct.
  * @param nameComponents The pre-allocated array of ndn_NameComponent.
  * @param maxNameComponents The number of elements in the allocated nameComponents array.
- * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the metaInfo.keyLocator.
+ * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the signature.keyLocator.
  * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
  */
 static inline void ndn_Data_initialize
   (struct ndn_Data *self, struct ndn_NameComponent *nameComponents, unsigned int maxNameComponents, 
    struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) 
 {
-  ndn_Signature_initialize(&self->signature);
+  ndn_Signature_initialize(&self->signature, keyNameComponents, maxKeyNameComponents);
   ndn_Name_initialize(&self->name, nameComponents, maxNameComponents);
-  ndn_MetaInfo_initialize(&self->metaInfo, keyNameComponents, maxKeyNameComponents);
+  ndn_MetaInfo_initialize(&self->metaInfo);
   self->content = 0;
   self->contentLength = 0;
 }

@@ -14,6 +14,9 @@
 
 namespace ndn {
 
+/**
+ * A Signature holds the signature bits and other info representing the signature in a data packet.
+ */
 class Signature {
 public:
   /**
@@ -37,6 +40,12 @@ public:
 
   const std::vector<unsigned char>& getSignature() const { return signature_; }
   std::vector<unsigned char>& getSignature() { return signature_; }
+  
+  const PublisherPublicKeyDigest& getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
+  PublisherPublicKeyDigest& getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
+  
+  const KeyLocator& getKeyLocator() const { return keyLocator_; }
+  KeyLocator& getKeyLocator() { return keyLocator_; }
 
   void setDigestAlgorithm(const std::vector<unsigned char>& digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
   void setDigestAlgorithm(const unsigned char *digestAlgorithm, unsigned int digestAlgorithmLength) 
@@ -55,23 +64,34 @@ public:
   { 
     setVector(signature_, signature, signatureLength); 
   }
+
+  void setPublisherPublicKeyDigest(const PublisherPublicKeyDigest& publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
+  
+  void setKeyLocator(const KeyLocator& keyLocator) { keyLocator_ = keyLocator; }
   
   /**
-   * Clear the digest algorithm, witness and signature fields.
+   * Clear all the fields.
    */
   void clear()
   {
     digestAlgorithm_.clear();
     witness_.clear();
     signature_.clear();
+    publisherPublicKeyDigest_.clear();
+    keyLocator_.clear();
   }
 
 private:
   std::vector<unsigned char> digestAlgorithm_; /**< if empty, the default is 2.16.840.1.101.3.4.2.1 (sha-256) */
   std::vector<unsigned char> witness_;
   std::vector<unsigned char> signature_;
+  PublisherPublicKeyDigest publisherPublicKeyDigest_;
+  KeyLocator keyLocator_;
 };
 
+/**
+ * An MetaInfo holds the meta info which is signed inside the data packet.
+ */
 class MetaInfo {
 public:
   MetaInfo() 
@@ -93,9 +113,6 @@ public:
    */
   void set(const struct ndn_MetaInfo& metaInfoStruct);
 
-  const PublisherPublicKeyDigest& getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
-  PublisherPublicKeyDigest& getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
-  
   double getTimestampMilliseconds() const { return timestampMilliseconds_; }
   
   ndn_ContentType getType() const { return type_; }
@@ -104,11 +121,6 @@ public:
   
   const std::vector<unsigned char>& getFinalBlockID() const { return finalBlockID_; }
   std::vector<unsigned char>& getFinalBlockID() { return finalBlockID_; }
-  
-  const KeyLocator& getKeyLocator() const { return keyLocator_; }
-  KeyLocator& getKeyLocator() { return keyLocator_; }
-
-  void setPublisherPublicKeyDigest(const PublisherPublicKeyDigest& publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
   
   void setTimestampMilliseconds(double timestampMilliseconds) { timestampMilliseconds_ = timestampMilliseconds; }
   
@@ -122,15 +134,11 @@ public:
     setVector(finalBlockID_, finalBlockID, finalBlockIdLength); 
   }
   
-  void setKeyLocator(const KeyLocator& keyLocator) { keyLocator_ = keyLocator; }
-  
 private:
-  PublisherPublicKeyDigest publisherPublicKeyDigest_;
   double timestampMilliseconds_; /**< milliseconds since 1/1/1970. -1 for none */
   ndn_ContentType type_;         /**< default is ndn_ContentType_DATA. -1 for none */
   int freshnessSeconds_;         /**< -1 for none */
   std::vector<unsigned char> finalBlockID_; /** size 0 for none */
-  KeyLocator keyLocator_;
 };
   
 class Data {

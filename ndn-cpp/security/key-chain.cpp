@@ -89,12 +89,12 @@ void KeyChain::sign
   (Data& data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
    const unsigned char *privateKeyDer, unsigned int privateKeyDerLength, WireFormat& wireFormat)
 {
-  // Set the public key.
-  setSha256(publicKeyDer, publicKeyDerLength, data.getMetaInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest());
-  data.getMetaInfo().getKeyLocator().setType(ndn_KeyLocatorType_KEY);
-  data.getMetaInfo().getKeyLocator().setKeyData(publicKeyDer, publicKeyDerLength);
   // Clear the signature so we don't encode it below.
   data.getSignature().clear();
+  // Set the public key.
+  setSha256(publicKeyDer, publicKeyDerLength, data.getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest());
+  data.getSignature().getKeyLocator().setType(ndn_KeyLocatorType_KEY);
+  data.getSignature().getKeyLocator().setKeyData(publicKeyDer, publicKeyDerLength);
 
   // Sign the fields.
   unsigned char dataFieldsDigest[SHA256_DIGEST_LENGTH];
@@ -142,9 +142,9 @@ bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLeng
   // Find the public key.
   const unsigned char *publicKeyDer;
   unsigned int publicKeyDerLength;
-  if (data.getMetaInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEY) {
-    publicKeyDer = &data.getMetaInfo().getKeyLocator().getKeyData().front();
-    publicKeyDerLength = data.getMetaInfo().getKeyLocator().getKeyData().size();
+  if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_KEY) {
+    publicKeyDer = &data.getSignature().getKeyLocator().getKeyData().front();
+    publicKeyDerLength = data.getSignature().getKeyLocator().getKeyData().size();
   }
   else
     // Can't find a public key.

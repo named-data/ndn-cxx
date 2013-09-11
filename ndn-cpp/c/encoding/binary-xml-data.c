@@ -56,7 +56,7 @@ static ndn_Error decodeSignature(struct ndn_Signature *signature, struct ndn_Bin
   return NDN_ERROR_success;
 }
 
-static ndn_Error encodeSignedInfo(struct ndn_MetaInfo *metaInfo, struct ndn_BinaryXmlEncoder *encoder)
+static ndn_Error encodeSignedInfo(struct ndn_Signature *signature, struct ndn_MetaInfo *metaInfo, struct ndn_BinaryXmlEncoder *encoder)
 {
   if (metaInfo->type < 0)
     return NDN_ERROR_success;
@@ -66,7 +66,7 @@ static ndn_Error encodeSignedInfo(struct ndn_MetaInfo *metaInfo, struct ndn_Bina
     return error;
 
   // This will skip encoding if there is no publisherPublicKeyDigest.
-  if ((error = ndn_encodeBinaryXmlPublisherPublicKeyDigest(&metaInfo->publisherPublicKeyDigest, encoder)))
+  if ((error = ndn_encodeBinaryXmlPublisherPublicKeyDigest(&signature->publisherPublicKeyDigest, encoder)))
     return error;
   
   if ((error = ndn_BinaryXmlEncoder_writeOptionalTimeMillisecondsDTagElement
@@ -104,7 +104,7 @@ static ndn_Error encodeSignedInfo(struct ndn_MetaInfo *metaInfo, struct ndn_Bina
     return error;
  
   // This will skip encoding if there is no key locator.
-  if ((error = ndn_encodeBinaryXmlKeyLocator(&metaInfo->keyLocator, encoder)))
+  if ((error = ndn_encodeBinaryXmlKeyLocator(&signature->keyLocator, encoder)))
     return error;
   
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
@@ -113,13 +113,13 @@ static ndn_Error encodeSignedInfo(struct ndn_MetaInfo *metaInfo, struct ndn_Bina
   return NDN_ERROR_success;  
 }
 
-static ndn_Error decodeSignedInfo(struct ndn_MetaInfo *metaInfo, struct ndn_BinaryXmlDecoder *decoder)
+static ndn_Error decodeSignedInfo(struct ndn_Signature *signature, struct ndn_MetaInfo *metaInfo, struct ndn_BinaryXmlDecoder *decoder)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlDecoder_readElementStartDTag(decoder, ndn_BinaryXml_DTag_SignedInfo)))
     return error;
   
-  if ((error = ndn_decodeOptionalBinaryXmlPublisherPublicKeyDigest(&metaInfo->publisherPublicKeyDigest, decoder)))
+  if ((error = ndn_decodeOptionalBinaryXmlPublisherPublicKeyDigest(&signature->publisherPublicKeyDigest, decoder)))
     return error;
   
   if (error= ndn_BinaryXmlDecoder_readOptionalTimeMillisecondsDTagElement
@@ -162,7 +162,7 @@ static ndn_Error decodeSignedInfo(struct ndn_MetaInfo *metaInfo, struct ndn_Bina
       (decoder, ndn_BinaryXml_DTag_FinalBlockID, 0, &metaInfo->finalBlockID, &metaInfo->finalBlockIDLength)))
     return error;
 
-  if ((error = ndn_decodeOptionalBinaryXmlKeyLocator(&metaInfo->keyLocator, decoder)))
+  if ((error = ndn_decodeOptionalBinaryXmlKeyLocator(&signature->keyLocator, decoder)))
     return error;
   
   if ((error = ndn_BinaryXmlDecoder_readElementClose(decoder)))
@@ -186,7 +186,7 @@ ndn_Error ndn_encodeBinaryXmlData
   if ((error = ndn_encodeBinaryXmlName(&data->name, encoder)))
     return error;
   
-  if ((error = encodeSignedInfo(&data->metaInfo, encoder)))
+  if ((error = encodeSignedInfo(&data->signature, &data->metaInfo, encoder)))
     return error;
 
   if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
@@ -216,7 +216,7 @@ ndn_Error ndn_decodeBinaryXmlData
       return error;
   }
   else
-    ndn_Signature_initialize(&data->signature);
+    ndn_Signature_initialize(&data->signature, data->signature.keyLocator.keyName.components, data->signature.keyLocator.keyName.maxComponents);
   
   *signedFieldsBeginOffset = decoder->offset;
   
@@ -226,11 +226,11 @@ ndn_Error ndn_decodeBinaryXmlData
   if ((error = ndn_BinaryXmlDecoder_peekDTag(decoder, ndn_BinaryXml_DTag_SignedInfo, &gotExpectedTag)))
     return error;
   if (gotExpectedTag) {
-    if ((error = decodeSignedInfo(&data->metaInfo, decoder)))
+    if ((error = decodeSignedInfo(&data->signature, &data->metaInfo, decoder)))
       return error;
   }
   else
-    ndn_MetaInfo_initialize(&data->metaInfo, data->metaInfo.keyLocator.keyName.components, data->metaInfo.keyLocator.keyName.maxComponents);
+    ndn_MetaInfo_initialize(&data->metaInfo);
 
   // Require a Content element, but set allowNull to allow a missing BLOB.
   if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement

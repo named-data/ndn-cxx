@@ -20,6 +20,16 @@ public:
   }
   
   /**
+   * Clear the keyData and set the type to none.
+   */
+  void clear()
+  {
+    type_ = (ndn_KeyLocatorType)-1;
+    keyNameType_ = (ndn_KeyNameType)-1;
+    keyData_.clear();
+  }
+  
+  /**
    * Set the keyLocatorStruct to point to the values in this key locator, without copying any memory.
    * WARNING: The resulting pointers in keyLocatorStruct are invalid after a further use of this object which could reallocate memory.
    * @param keyLocatorStruct a C ndn_KeyLocator struct where the name components array is already allocated.

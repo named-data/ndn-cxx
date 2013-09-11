@@ -29,6 +29,9 @@ void Signature::get(struct ndn_Signature& signatureStruct) const
     signatureStruct.signature = (unsigned char *)&signature_[0];
   else
     signatureStruct.signature = 0;
+  
+  publisherPublicKeyDigest_.get(signatureStruct.publisherPublicKeyDigest);
+  keyLocator_.get(signatureStruct.keyLocator);
 }
 
 void Signature::set(const struct ndn_Signature& signatureStruct)
@@ -36,11 +39,12 @@ void Signature::set(const struct ndn_Signature& signatureStruct)
   setVector(digestAlgorithm_, signatureStruct.digestAlgorithm, signatureStruct.digestAlgorithmLength);
   setVector(witness_, signatureStruct.witness, signatureStruct.witnessLength);
   setVector(signature_, signatureStruct.signature, signatureStruct.signatureLength);
+  publisherPublicKeyDigest_.set(signatureStruct.publisherPublicKeyDigest);
+  keyLocator_.set(signatureStruct.keyLocator);
 }
 
 void MetaInfo::get(struct ndn_MetaInfo& metaInfoStruct) const 
 {
-  publisherPublicKeyDigest_.get(metaInfoStruct.publisherPublicKeyDigest);
   metaInfoStruct.timestampMilliseconds = timestampMilliseconds_;
   metaInfoStruct.type = type_;
   metaInfoStruct.freshnessSeconds = freshnessSeconds_;
@@ -50,18 +54,14 @@ void MetaInfo::get(struct ndn_MetaInfo& metaInfoStruct) const
     metaInfoStruct.finalBlockID = (unsigned char *)&finalBlockID_[0];
   else
     metaInfoStruct.finalBlockID = 0;
-
-  keyLocator_.get(metaInfoStruct.keyLocator);
 }
 
 void MetaInfo::set(const struct ndn_MetaInfo& metaInfoStruct)
 {
-  publisherPublicKeyDigest_.set(metaInfoStruct.publisherPublicKeyDigest);
   timestampMilliseconds_ = metaInfoStruct.timestampMilliseconds;
   type_ = metaInfoStruct.type;
   freshnessSeconds_ = metaInfoStruct.freshnessSeconds;
   setVector(finalBlockID_, metaInfoStruct.finalBlockID, metaInfoStruct.finalBlockIDLength);
-  keyLocator_.set(metaInfoStruct.keyLocator);
 }
 
 void Data::get(struct ndn_Data& dataStruct) const 

@@ -53,6 +53,14 @@ public:
   { 
     setVector(publisherPublicKeyDigest_, publisherPublicKeyDigest, publisherPublicKeyDigestLength); 
   }
+  
+  /**
+   * Clear the publisherPublicKeyDigest.
+   */
+  void clear()
+  {
+    publisherPublicKeyDigest_.clear();
+  }
 
 private:
   std::vector<unsigned char> publisherPublicKeyDigest_;

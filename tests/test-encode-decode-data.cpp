@@ -72,9 +72,6 @@ static void dumpData(const Data& data)
   else
     cout << "content: <empty>" << endl;
   
-  cout << "metaInfo.publisherPublicKeyDigest: "
-       << (data.getMetaInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? 
-           toHex(data.getMetaInfo().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()).c_str() : "<none>") << endl;
   cout << "metaInfo.timestamp: ";
   if (data.getMetaInfo().getTimestampMilliseconds() >= 0) {
     time_t seconds = data.getMetaInfo().getTimestampMilliseconds() / 1000.0;
@@ -103,40 +100,6 @@ static void dumpData(const Data& data)
   cout << "metaInfo.finalBlockID: "
        << (data.getMetaInfo().getFinalBlockID().size() > 0 ? 
            toHex(data.getMetaInfo().getFinalBlockID()).c_str() : "<none>") << endl;
-  cout << "metaInfo.keyLocator: ";
-  if ((int)data.getMetaInfo().getKeyLocator().getType() >= 0) {
-    if (data.getMetaInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEY)
-      cout << "Key: " << toHex(data.getMetaInfo().getKeyLocator().getKeyData()) << endl;
-    else if (data.getMetaInfo().getKeyLocator().getType() == ndn_KeyLocatorType_CERTIFICATE)
-      cout << "Certificate: " << toHex(data.getMetaInfo().getKeyLocator().getKeyData()) << endl;
-    else if (data.getMetaInfo().getKeyLocator().getType() == ndn_KeyLocatorType_KEYNAME) {
-      cout << "KeyName: " << data.getMetaInfo().getKeyLocator().getKeyName().to_uri() << endl;
-      cout << "metaInfo.keyLocator: ";
-      if ((int)data.getMetaInfo().getKeyLocator().getKeyNameType() >= 0) {
-        bool showKeyNameData = true;
-        if (data.getMetaInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST)
-          cout << "PublisherPublicKeyDigest: ";
-        else if (data.getMetaInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST)
-          cout << "PublisherCertificateDigest: ";
-        else if (data.getMetaInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST)
-          cout << "PublisherIssuerKeyDigest: ";
-        else if (data.getMetaInfo().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST)
-          cout << "PublisherIssuerCertificateDigest: ";
-        else {
-          cout << "<unrecognized ndn_KeyNameType " << data.getMetaInfo().getKeyLocator().getKeyNameType() << ">" << endl;
-          showKeyNameData = false;
-        }
-        if (showKeyNameData)
-          cout << toHex(data.getMetaInfo().getKeyLocator().getKeyData()) << endl;
-      }
-      else
-        cout << "<no key digest>" << endl;
-    }
-    else
-      cout << "<unrecognized ndn_KeyLocatorType " << data.getMetaInfo().getKeyLocator().getType() << ">" << endl;
-  }
-  else
-    cout << "<none>" << endl;
     
   cout << "signature.digestAlgorithm: "
        << (data.getSignature().getDigestAlgorithm().size() > 0 ? toHex(data.getSignature().getDigestAlgorithm()).c_str() : "default (sha-256)") << endl;
@@ -144,6 +107,43 @@ static void dumpData(const Data& data)
        << (data.getSignature().getWitness().size() > 0 ? toHex(data.getSignature().getWitness()).c_str() : "<none>") << endl;
   cout << "signature.signature: "
        << (data.getSignature().getSignature().size() > 0 ? toHex(data.getSignature().getSignature()).c_str() : "<none>") << endl;
+  cout << "signature.publisherPublicKeyDigest: "
+       << (data.getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? 
+           toHex(data.getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()).c_str() : "<none>") << endl;
+  cout << "signature.keyLocator: ";
+  if ((int)data.getSignature().getKeyLocator().getType() >= 0) {
+    if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_KEY)
+      cout << "Key: " << toHex(data.getSignature().getKeyLocator().getKeyData()) << endl;
+    else if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_CERTIFICATE)
+      cout << "Certificate: " << toHex(data.getSignature().getKeyLocator().getKeyData()) << endl;
+    else if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_KEYNAME) {
+      cout << "KeyName: " << data.getSignature().getKeyLocator().getKeyName().to_uri() << endl;
+      cout << "metaInfo.keyLocator: ";
+      if ((int)data.getSignature().getKeyLocator().getKeyNameType() >= 0) {
+        bool showKeyNameData = true;
+        if (data.getSignature().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST)
+          cout << "PublisherPublicKeyDigest: ";
+        else if (data.getSignature().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST)
+          cout << "PublisherCertificateDigest: ";
+        else if (data.getSignature().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST)
+          cout << "PublisherIssuerKeyDigest: ";
+        else if (data.getSignature().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST)
+          cout << "PublisherIssuerCertificateDigest: ";
+        else {
+          cout << "<unrecognized ndn_KeyNameType " << data.getSignature().getKeyLocator().getKeyNameType() << ">" << endl;
+          showKeyNameData = false;
+        }
+        if (showKeyNameData)
+          cout << toHex(data.getSignature().getKeyLocator().getKeyData()) << endl;
+      }
+      else
+        cout << "<no key digest>" << endl;
+    }
+    else
+      cout << "<unrecognized ndn_KeyLocatorType " << data.getSignature().getKeyLocator().getType() << ">" << endl;
+  }
+  else
+    cout << "<none>" << endl;
 }
 
 int main(int argc, char** argv)
