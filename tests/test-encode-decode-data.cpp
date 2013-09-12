@@ -113,9 +113,9 @@ static void dumpData(const Data& data)
   cout << "signature.keyLocator: ";
   if ((int)data.getSignature().getKeyLocator().getType() >= 0) {
     if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_KEY)
-      cout << "Key: " << toHex(data.getSignature().getKeyLocator().getKeyData()) << endl;
+      cout << "Key: " << toHex(*data.getSignature().getKeyLocator().getKeyData()) << endl;
     else if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_CERTIFICATE)
-      cout << "Certificate: " << toHex(data.getSignature().getKeyLocator().getKeyData()) << endl;
+      cout << "Certificate: " << toHex(*data.getSignature().getKeyLocator().getKeyData()) << endl;
     else if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_KEYNAME) {
       cout << "KeyName: " << data.getSignature().getKeyLocator().getKeyName().to_uri() << endl;
       cout << "metaInfo.keyLocator: ";
@@ -134,7 +134,7 @@ static void dumpData(const Data& data)
           showKeyNameData = false;
         }
         if (showKeyNameData)
-          cout << toHex(data.getSignature().getKeyLocator().getKeyData()) << endl;
+          cout << toHex(*data.getSignature().getKeyLocator().getKeyData()) << endl;
       }
       else
         cout << "<no key digest>" << endl;

@@ -16,7 +16,7 @@ void KeyLocator::get(struct ndn_KeyLocator& keyLocatorStruct) const
   
   keyLocatorStruct.keyDataLength = keyData_.size();
   if (keyData_.size() > 0)
-    keyLocatorStruct.keyData = (unsigned char *)&keyData_[0];
+    keyLocatorStruct.keyData = (unsigned char *)keyData_.buf();
   else
     keyLocatorStruct.keyData = 0;
 
@@ -27,7 +27,7 @@ void KeyLocator::get(struct ndn_KeyLocator& keyLocatorStruct) const
 void KeyLocator::set(const struct ndn_KeyLocator& keyLocatorStruct)
 {
   type_ = keyLocatorStruct.type;
-  setVector(keyData_, keyLocatorStruct.keyData, keyLocatorStruct.keyDataLength);
+  keyData_ = Blob(keyLocatorStruct.keyData, keyLocatorStruct.keyDataLength);
   if (keyLocatorStruct.type == ndn_KeyLocatorType_KEYNAME) {
     keyName_.set(keyLocatorStruct.keyName);
     keyNameType_ = keyLocatorStruct.keyNameType;

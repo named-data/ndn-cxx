@@ -137,7 +137,7 @@ bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLeng
   const unsigned char *publicKeyDer;
   unsigned int publicKeyDerLength;
   if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_KEY) {
-    publicKeyDer = &data.getSignature().getKeyLocator().getKeyData().front();
+    publicKeyDer = data.getSignature().getKeyLocator().getKeyData().buf();
     publicKeyDerLength = data.getSignature().getKeyLocator().getKeyData().size();
   }
   else

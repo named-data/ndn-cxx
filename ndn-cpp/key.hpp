@@ -26,7 +26,7 @@ public:
   {
     type_ = (ndn_KeyLocatorType)-1;
     keyNameType_ = (ndn_KeyNameType)-1;
-    keyData_.clear();
+    keyData_ = Blob(0, 0);
   }
   
   /**
@@ -44,7 +44,7 @@ public:
 
   ndn_KeyLocatorType getType() const { return type_; }
   
-  const std::vector<unsigned char>& getKeyData() const { return keyData_; }
+  const Blob& getKeyData() const { return keyData_; }
 
   const Name& getKeyName() const { return keyName_; }
   Name& getKeyName() { return keyName_; }
@@ -56,29 +56,21 @@ public:
   void setKeyData(const std::vector<unsigned char>& keyData) { keyData_ = keyData; }
   void setKeyData(const unsigned char *keyData, unsigned int keyDataLength) 
   { 
-    setVector(keyData_, keyData, keyDataLength); 
+    keyData_ = Blob(keyData, keyDataLength); 
   }
-
-  /**
-   * @deprecated Use getKeyData().
-   */
-  const std::vector<unsigned char>& getKeyOrCertificate() const { return getKeyData(); }
-
-  /**
-   * @deprecated Use setKeyData.
-   */
-  void setKeyOrCertificate(const std::vector<unsigned char>& keyData) { setKeyData(keyData); }
   
   /**
-   * @deprecated Use setKeyData.
+   * Set keyData to point to an existing byte array.  IMPORTANT: After calling this constructor,
+   * if you keep a pointer to the array then you must treat the array as immutable and promise not to change it.
+   * @param keyData A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
    */
-  void setKeyOrCertificate(const unsigned char *keyData, unsigned int keyDataLength) { setKeyData(keyData, keyDataLength); }
+  void setKeyData(const ptr_lib::shared_ptr<std::vector<unsigned char> > &keyData) { keyData_ = keyData; }
 
   void setKeyNameType(ndn_KeyNameType keyNameType) { keyNameType_ = keyNameType; }
 
 private:
   ndn_KeyLocatorType type_; /**< -1 for none */
-  std::vector<unsigned char> keyData_; /**< A pointer to a pre-allocated buffer for the key data as follows:
+  Blob keyData_; /**< An array for the key data as follows:
     *   If type_ is ndn_KeyLocatorType_KEY, the key data.
     *   If type_ is ndn_KeyLocatorType_CERTIFICATE, the certificate data. 
     *   If type_ is ndn_KeyLocatorType_KEYNAME and keyNameType_ is ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST, the publisher public key digest. 
