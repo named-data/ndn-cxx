@@ -32,7 +32,7 @@ public:
     data.setContent((const unsigned char *)&content[0], content.size());
     data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
     KeyChain::defaultSign(data);
-    shared_ptr<vector<unsigned char> > encodedData = data.wireEncode();
+    Blob encodedData = data.wireEncode();
 
     cout << "Sent content " << content << endl;
     transport.send(*encodedData);

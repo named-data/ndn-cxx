@@ -148,7 +148,7 @@ public:
   {
   }
   
-  ptr_lib::shared_ptr<std::vector<unsigned char> > wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
+  Blob wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
   {
     return wireFormat.encodeData(*this);
   }
@@ -200,7 +200,15 @@ public:
   { 
     content_ = Blob(content, contentLength); 
   }
-    
+      
+  /**
+   * Set content to point to an existing byte array.  IMPORTANT: After calling this,
+   * if you keep a pointer to the array then you must treat the array as immutable and promise not to change it.
+   * @param content A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
+   */
+  void setContent(const ptr_lib::shared_ptr<std::vector<unsigned char> > &content) { content_ = content; }
+  void setContent(const ptr_lib::shared_ptr<const std::vector<unsigned char> > &content) { content_ = content; }
+
 private:
   Signature signature_;
   Name name_;

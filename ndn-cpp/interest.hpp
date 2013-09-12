@@ -159,7 +159,7 @@ public:
     construct();
   }
   
-  ptr_lib::shared_ptr<std::vector<unsigned char> > wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
+  Blob wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
   {
     return wireFormat.encodeInterest(*this);
   }

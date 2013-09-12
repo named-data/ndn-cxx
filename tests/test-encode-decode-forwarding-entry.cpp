@@ -59,6 +59,9 @@ unsigned char Interest1[] = {
 
 static inline string toString(const vector<unsigned char>& v)
 {
+  if (!&v)
+    return "";
+  
   return string(&v[0], &v[0] + v.size());
 }
 
@@ -67,7 +70,7 @@ static void dumpForwardingEntry(const ForwardingEntry& forwardingEntry)
   cout << "action: " << forwardingEntry.getAction() << endl;
   cout << "prefix: " << forwardingEntry.getPrefix().to_uri() << endl;
   cout << "publisherPublicKeyDigest: " 
-       << (forwardingEntry.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? toHex(forwardingEntry.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()) : "<none>") << endl;
+       << (forwardingEntry.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? toHex(*forwardingEntry.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()) : "<none>") << endl;
   cout << "faceId: ";
   if (forwardingEntry.getFaceId() >= 0)
     cout << forwardingEntry.getFaceId() << endl;
@@ -101,16 +104,16 @@ static void dumpInterestWithForwardingEntry(const Interest& interest)
     cout << interest.getScope() << endl;
   else
     cout << "<none>" << endl;
-  cout << "name[0]: " << toString(interest.getName().getComponent(0).getValue()) << endl;
-  cout << "name[1]: " << toHex(interest.getName().getComponent(1).getValue()) << endl;
-  cout << "name[2]: " << toString(interest.getName().getComponent(2).getValue()) << endl;
+  cout << "name[0]: " << toString(*interest.getName().getComponent(0).getValue()) << endl;
+  cout << "name[1]: " << toHex(*interest.getName().getComponent(1).getValue()) << endl;
+  cout << "name[2]: " << toString(*interest.getName().getComponent(2).getValue()) << endl;
   cout << "name[3] decoded as Data, showing content as ForwardingEntry: " << endl;
   
   Data data;
-  data.wireDecode(interest.getName().getComponent(3).getValue());
+  data.wireDecode(*interest.getName().getComponent(3).getValue());
   
   ForwardingEntry forwardingEntry;
-  forwardingEntry.wireDecode(data.getContent());
+  forwardingEntry.wireDecode(*data.getContent());
   dumpForwardingEntry(forwardingEntry);
 }
 
@@ -122,7 +125,7 @@ int main(int argc, char** argv)
     cout << "Interest:" << endl;
     dumpInterestWithForwardingEntry(interest);
     
-    ptr_lib::shared_ptr<vector<unsigned char> > encoding = interest.wireEncode();
+    Blob encoding = interest.wireEncode();
     cout << endl << "Re-encoded interest " << toHex(*encoding) << endl;
 
     Interest reDecodedInterest;

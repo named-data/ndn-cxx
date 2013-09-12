@@ -26,7 +26,7 @@ WireFormat *WireFormat::getDefaultWireFormat()
   return defaultWireFormat_;
 }
 
-ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeInterest(const Interest& interest) 
+Blob WireFormat::encodeInterest(const Interest& interest) 
 {
   throw logic_error("unimplemented");
 }
@@ -35,8 +35,7 @@ void WireFormat::decodeInterest(Interest& interest, const unsigned char *input, 
   throw logic_error("unimplemented");
 }
 
-ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeData
-  (const Data& data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
+Blob WireFormat::encodeData(const Data& data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
 {
   throw logic_error("unimplemented");
 }
@@ -46,7 +45,7 @@ void WireFormat::decodeData
   throw logic_error("unimplemented");
 }
 
-ptr_lib::shared_ptr<vector<unsigned char> > WireFormat::encodeForwardingEntry(const ForwardingEntry& forwardingEntry) 
+Blob WireFormat::encodeForwardingEntry(const ForwardingEntry& forwardingEntry) 
 {
   throw logic_error("unimplemented");
 }

@@ -19,9 +19,9 @@ public:
   /**
    * Encode interest in binary XML and return the encoding.
    * @param interest The Interest object to encode.
-   * @return A shared_ptr with the vector<unsigned char> containing the encoding.
+   * @return A Blob containing the encoding.
    */  
-  virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeInterest(const Interest& interest);
+  virtual Blob encodeInterest(const Interest& interest);
     
   /**
    * Decode input as an interest in binary XML and set the fields of the interest object.
@@ -38,9 +38,9 @@ public:
    * If you are not encoding in order to sign, you can call encodeData(const Data& data) to ignore this returned value.
    * @param signedFieldsEndOffset Return the offset in the encoding of the end of the fields which are signed.
    * If you are not encoding in order to sign, you can call encodeData(const Data& data) to ignore this returned value.
-   * @return A shared_ptr with the vector<unsigned char> containing the encoding.
+   * @return A Blob containing the encoding.
    */
-  virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeData
+  virtual Blob encodeData
     (const Data& data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset);
   
   /**
@@ -61,9 +61,9 @@ public:
   /**
    * Encode forwardingEntry in binary XML and return the encoding. 
    * @param forwardingEntry The ForwardingEntry object to encode.
-   * @return A shared_ptr with the vector<unsigned char> containing the encoding.
+   * @return A Blob containing the encoding.
    */
-  virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeForwardingEntry(const ForwardingEntry& forwardingEntry);
+  virtual Blob encodeForwardingEntry(const ForwardingEntry& forwardingEntry);
   
   /**
    * Decode input as a forwarding entry in binary XML and set the fields of the forwardingEntry object. 

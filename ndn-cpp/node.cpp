@@ -37,7 +37,7 @@ void Node::expressInterest(const Interest& interest, const OnData& onData, const
   
   pit_.push_back(shared_ptr<PitEntry>(new PitEntry(shared_ptr<const Interest>(new Interest(interest)), onData, onTimeout)));
   
-  shared_ptr<vector<unsigned char> > encoding = interest.wireEncode();  
+  Blob encoding = interest.wireEncode();  
   transport_->send(*encoding);
 }
 
@@ -73,15 +73,15 @@ void Node::registerPrefixHelper(const Name& prefix, const OnInterest& onInterest
 {
   // Create a ForwardingEntry.
   ForwardingEntry forwardingEntry("selfreg", prefix, PublisherPublicKeyDigest(), -1, 3, 2147483647);
-  ptr_lib::shared_ptr<vector<unsigned char> > content = forwardingEntry.wireEncode();
+  Blob content = forwardingEntry.wireEncode();
 
   // Set the ForwardingEntry as the content of a Data packet and sign.
   Data data;
-  data.setContent(*content);
+  data.setContent(content);
   data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
   // TODO: Should we sign with a different key?
   KeyChain::defaultSign(data);
-  ptr_lib::shared_ptr<vector<unsigned char> > encodedData = data.wireEncode();
+  Blob encodedData = data.wireEncode();
   
   // Create an interest where the name has the encoded Data packet.
   Name interestName;
@@ -90,11 +90,11 @@ void Node::registerPrefixHelper(const Name& prefix, const OnInterest& onInterest
   interestName.addComponent(component0, sizeof(component0) - 1);
   interestName.addComponent(ndndId_);
   interestName.addComponent(component2, sizeof(component2) - 1);
-  interestName.addComponent(*encodedData);
+  interestName.addComponent(encodedData);
   
   Interest interest(interestName);
   interest.setScope(1);
-  ptr_lib::shared_ptr<vector<unsigned char> > encodedInterest = interest.wireEncode();
+  Blob encodedInterest = interest.wireEncode();
   
   // Save the onInterest callback and send the registration interest.
   registeredPrefixTable_.push_back(shared_ptr<PrefixEntry>(new PrefixEntry(shared_ptr<const Name>(new Name(prefix)), onInterest)));

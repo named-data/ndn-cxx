@@ -155,7 +155,7 @@ int main(int argc, char** argv)
     dumpData(data);
     cout << "Decoded Data signature verification: " << (KeyChain::selfVerifyData(Data1, sizeof(Data1)) ? "VERIFIED" : "FAILED") << endl;
     
-    ptr_lib::shared_ptr<vector<unsigned char> > encoding = data.wireEncode();
+    Blob encoding = data.wireEncode();
     
     Data reDecodedData;
     reDecodedData.wireDecode(*encoding);
@@ -171,7 +171,7 @@ int main(int argc, char** argv)
     KeyChain::defaultSign(freshData);
     cout << endl << "Freshly-signed Data:" << endl;
     dumpData(freshData);
-    ptr_lib::shared_ptr<vector<unsigned char> > freshEncoding = freshData.wireEncode();
+    Blob freshEncoding = freshData.wireEncode();
     cout << "Freshly-signed Data signature verification: " << (KeyChain::selfVerifyData(&freshEncoding->front(), freshEncoding->size()) ? "VERIFIED" : "FAILED") << endl;
   } catch (exception& e) {
     cout << "exception: " << e.what() << endl;

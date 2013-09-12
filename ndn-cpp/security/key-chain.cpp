@@ -67,9 +67,9 @@ static unsigned char DEFAULT_PRIVATE_KEY_DER[] = {
 static void digestDataFieldsSha256(const Data& data, WireFormat& wireFormat, unsigned char *digest)
 {
   unsigned int signedFieldsBeginOffset, signedFieldsEndOffset;
-  ptr_lib::shared_ptr<vector<unsigned char> > encoding = wireFormat.encodeData(data, &signedFieldsBeginOffset, &signedFieldsEndOffset);
+  Blob encoding = wireFormat.encodeData(data, &signedFieldsBeginOffset, &signedFieldsEndOffset);
   
-  ndn_digestSha256(&encoding->front() + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, digest);
+  ndn_digestSha256(encoding.buf() + signedFieldsBeginOffset, signedFieldsEndOffset - signedFieldsBeginOffset, digest);
 }
 
 void KeyChain::sign

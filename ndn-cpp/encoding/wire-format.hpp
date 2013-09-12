@@ -7,7 +7,7 @@
 #define NDN_WIREFORMAT_HPP
 
 #include "../common.hpp"
-#include <vector>
+#include "../util/blob.hpp"
 
 namespace ndn {
   
@@ -20,10 +20,10 @@ public:
   /**
    * Encode interest and return the encoding.  Your derived class should override.
    * @param interest The Interest object to encode.
-   * @return A shared_ptr with the vector<unsigned char> containing the encoding.
+   * @return A Blob containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeInterest(const Interest& interest);
+  virtual Blob encodeInterest(const Interest& interest);
   
   /**
    * Decode input as an interest and set the fields of the interest object.  Your derived class should override.
@@ -41,19 +41,19 @@ public:
    * If you are not encoding in order to sign, you can call encodeData(const Data& data) to ignore this returned value.
    * @param signedFieldsEndOffset Return the offset in the encoding of the end of the fields which are signed.
    * If you are not encoding in order to sign, you can call encodeData(const Data& data) to ignore this returned value.
-   * @return A shared_ptr with the vector<unsigned char> containing the encoding.
+   * @return A Blob containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeData
+  virtual Blob encodeData
     (const Data& data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset);
 
   /**
    * Encode data and return the encoding.
    * @param data The Data object to encode.
-   * @return A shared_ptr with the vector<unsigned char> containing the encoding.
+   * @return A Blob containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  ptr_lib::shared_ptr<std::vector<unsigned char> > encodeData(const Data& data)
+  Blob encodeData(const Data& data)
   {
     unsigned int dummyBeginOffset, dummyEndOffset;
     return encodeData(data, &dummyBeginOffset, &dummyEndOffset);
@@ -84,10 +84,10 @@ public:
   /**
    * Encode forwardingEntry and return the encoding.  Your derived class should override.
    * @param forwardingEntry The ForwardingEntry object to encode.
-   * @return A shared_ptr with the vector<unsigned char> containing the encoding.
+   * @return A Blob containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual ptr_lib::shared_ptr<std::vector<unsigned char> > encodeForwardingEntry(const ForwardingEntry& forwardingEntry);
+  virtual Blob encodeForwardingEntry(const ForwardingEntry& forwardingEntry);
   
   /**
    * Decode input as a forwarding entry and set the fields of the forwardingEntry object.  Your derived class should override.

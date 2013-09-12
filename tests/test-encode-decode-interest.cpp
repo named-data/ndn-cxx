@@ -44,7 +44,7 @@ static void dumpInterest(const Interest& interest)
   else
     cout << "<none>" << endl;
   cout << "publisherPublicKeyDigest: " 
-       << (interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? toHex(interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()) : "<none>") << endl;
+       << (interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? toHex(*interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()) : "<none>") << endl;
   cout << "exclude: " 
        << (interest.getExclude().getEntryCount() > 0 ? interest.getExclude().toUri() : "<none>") << endl;
   cout << "lifetimeMilliseconds: ";
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
     cout << "Interest:" << endl;
     dumpInterest(interest);
     
-    ptr_lib::shared_ptr<vector<unsigned char> > encoding = interest.wireEncode();
+    Blob encoding = interest.wireEncode();
     cout << endl << "Re-encoded interest " << toHex(*encoding) << endl;
 
     Interest reDecodedInterest;
