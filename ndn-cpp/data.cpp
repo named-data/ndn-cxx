@@ -72,7 +72,7 @@ void Data::get(struct ndn_Data& dataStruct) const
   
   dataStruct.contentLength = content_.size();
   if (content_.size() > 0)
-    dataStruct.content = (unsigned char *)&content_[0];
+    dataStruct.content = (unsigned char*)content_.buf();
   else
     dataStruct.content = 0;
 }
@@ -82,7 +82,7 @@ void Data::set(const struct ndn_Data& dataStruct)
   signature_.set(dataStruct.signature);
   name_.set(dataStruct.name);
   metaInfo_.set(dataStruct.metaInfo);
-  setVector(content_, dataStruct.content, dataStruct.contentLength);
+  content_ = Blob(dataStruct.content, dataStruct.contentLength);
 }
 
 }

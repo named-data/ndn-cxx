@@ -187,8 +187,7 @@ public:
   const MetaInfo& getMetaInfo() const { return metaInfo_; }
   MetaInfo& getMetaInfo() { return metaInfo_; }
   
-  const std::vector<unsigned char>& getContent() const { return content_; }
-  std::vector<unsigned char>& getContent() { return content_; }
+  const std::vector<unsigned char>& getContent() const { return (*content_); }
 
   void setSignature(const Signature& signature) { signature_ = signature; }
   
@@ -196,17 +195,21 @@ public:
   
   void setMetainfo(const MetaInfo& metaInfo) { metaInfo_ = metaInfo; }
 
+  /**
+   * Set the content to a copy of the data in the vector.
+   * @param content A vector whose contents are copied.
+   */
   void setContent(const std::vector<unsigned char>& content) { content_ = content; }
   void setContent(const unsigned char *content, unsigned int contentLength) 
   { 
-    setVector(content_, content, contentLength); 
+    content_ = Blob(content, contentLength); 
   }
     
 private:
   Signature signature_;
   Name name_;
   MetaInfo metaInfo_;
-  std::vector<unsigned char> content_;
+  Blob content_;
 };
   
 }
