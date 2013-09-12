@@ -59,6 +59,10 @@ public:
   : ptr_lib::shared_ptr<const std::vector<unsigned char> >(value)
   {
   }
+  Blob(const ptr_lib::shared_ptr<const std::vector<unsigned char> > &value)
+  : ptr_lib::shared_ptr<const std::vector<unsigned char> >(value)
+  {
+  }
   
   /**
    * Return the length of the immutable byte array.
