@@ -186,7 +186,7 @@ public:
   const MetaInfo& getMetaInfo() const { return metaInfo_; }
   MetaInfo& getMetaInfo() { return metaInfo_; }
   
-  const std::vector<unsigned char>& getContent() const { return (*content_); }
+  const Blob& getContent() const { return content_; }
 
   void setSignature(const Signature& signature) { signature_ = signature; }
   
