@@ -65,15 +65,21 @@ public:
    */
   unsigned int size() const
   {
-    return (*this)->size();
+    if (*this)
+      return (*this)->size();
+    else
+      return 0;
   }
 
   /**
-   * Get const pointer to the first byte of the immutable byte array.
+   * Return a const pointer to the first byte of the immutable byte array, or 0 if the pointer is null.
    */
   const unsigned char* buf() const
   {
-    return &(*this)->front ();
+    if (*this)
+      return &(*this)->front ();
+    else
+      return 0;
   }
 };
 
