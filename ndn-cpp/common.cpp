@@ -12,6 +12,9 @@ namespace ndn {
 
 string toHex(const vector<unsigned char>& array) 
 {
+  if (!&array)
+    return "";
+  
   ostringstream result;
   result.flags(ios::hex | ios::uppercase);
   for (unsigned int i = 0; i < array.size(); ++i) {
