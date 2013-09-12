@@ -140,7 +140,7 @@ bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLeng
   if (!publicKey)
     throw std::runtime_error("Error decoding public key in d2i_RSAPublicKey");
   int success = RSA_verify
-    (NID_sha256, dataFieldsDigest, sizeof(dataFieldsDigest), &data.getSignature().getSignature().front(), 
+    (NID_sha256, dataFieldsDigest, sizeof(dataFieldsDigest), (unsigned char *)data.getSignature().getSignature().buf(), 
      data.getSignature().getSignature().size(), publicKey);
   // Free the public key before checking for success.
   RSA_free(publicKey);

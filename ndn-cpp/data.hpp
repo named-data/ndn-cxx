@@ -32,14 +32,11 @@ public:
    */
   void set(const struct ndn_Signature& signatureStruct);
 
-  const std::vector<unsigned char>& getDigestAlgorithm() const { return digestAlgorithm_; }
-  std::vector<unsigned char>& getDigestAlgorithm() { return digestAlgorithm_; }
+  const Blob& getDigestAlgorithm() const { return digestAlgorithm_; }
 
-  const std::vector<unsigned char>& getWitness() const { return witness_; }
-  std::vector<unsigned char>& getWitness() { return witness_; }
+  const Blob& getWitness() const { return witness_; }
 
-  const std::vector<unsigned char>& getSignature() const { return signature_; }
-  std::vector<unsigned char>& getSignature() { return signature_; }
+  const Blob& getSignature() const { return signature_; }
   
   const PublisherPublicKeyDigest& getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
   PublisherPublicKeyDigest& getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
@@ -50,19 +47,19 @@ public:
   void setDigestAlgorithm(const std::vector<unsigned char>& digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
   void setDigestAlgorithm(const unsigned char *digestAlgorithm, unsigned int digestAlgorithmLength) 
   { 
-    setVector(digestAlgorithm_, digestAlgorithm, digestAlgorithmLength); 
+    digestAlgorithm_ = Blob(digestAlgorithm, digestAlgorithmLength); 
   }
 
   void setWitness(const std::vector<unsigned char>& witness) { witness_ = witness; }
   void setWitness(const unsigned char *witness, unsigned int witnessLength) 
   { 
-    setVector(witness_, witness, witnessLength); 
+    witness_ = Blob(witness, witnessLength); 
   }
 
   void setSignature(const std::vector<unsigned char>& signature) { signature_ = signature; }
   void setSignature(const unsigned char *signature, unsigned int signatureLength) 
   { 
-    setVector(signature_, signature, signatureLength); 
+    signature_ = Blob(signature, signatureLength); 
   }
 
   void setPublisherPublicKeyDigest(const PublisherPublicKeyDigest& publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
@@ -74,17 +71,17 @@ public:
    */
   void clear()
   {
-    digestAlgorithm_.clear();
-    witness_.clear();
-    signature_.clear();
+    digestAlgorithm_.reset();
+    witness_.reset();
+    signature_.reset();
     publisherPublicKeyDigest_.clear();
     keyLocator_.clear();
   }
 
 private:
-  std::vector<unsigned char> digestAlgorithm_; /**< if empty, the default is 2.16.840.1.101.3.4.2.1 (sha-256) */
-  std::vector<unsigned char> witness_;
-  std::vector<unsigned char> signature_;
+  Blob digestAlgorithm_; /**< if empty, the default is 2.16.840.1.101.3.4.2.1 (sha-256) */
+  Blob witness_;
+  Blob signature_;
   PublisherPublicKeyDigest publisherPublicKeyDigest_;
   KeyLocator keyLocator_;
 };

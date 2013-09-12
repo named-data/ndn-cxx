@@ -102,11 +102,11 @@ static void dumpData(const Data& data)
            toHex(*data.getMetaInfo().getFinalBlockID().getValue()).c_str() : "<none>") << endl;
     
   cout << "signature.digestAlgorithm: "
-       << (data.getSignature().getDigestAlgorithm().size() > 0 ? toHex(data.getSignature().getDigestAlgorithm()).c_str() : "default (sha-256)") << endl;
+       << (data.getSignature().getDigestAlgorithm().size() > 0 ? toHex(*data.getSignature().getDigestAlgorithm()).c_str() : "default (sha-256)") << endl;
   cout << "signature.witness: "
-       << (data.getSignature().getWitness().size() > 0 ? toHex(data.getSignature().getWitness()).c_str() : "<none>") << endl;
+       << (data.getSignature().getWitness().size() > 0 ? toHex(*data.getSignature().getWitness()).c_str() : "<none>") << endl;
   cout << "signature.signature: "
-       << (data.getSignature().getSignature().size() > 0 ? toHex(data.getSignature().getSignature()).c_str() : "<none>") << endl;
+       << (data.getSignature().getSignature().size() > 0 ? toHex(*data.getSignature().getSignature()).c_str() : "<none>") << endl;
   cout << "signature.publisherPublicKeyDigest: "
        << (data.getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? 
            toHex(*data.getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()).c_str() : "<none>") << endl;
