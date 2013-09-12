@@ -30,7 +30,7 @@ public:
   {
     publisherPublicKeyDigestStruct.publisherPublicKeyDigestLength = publisherPublicKeyDigest_.size();
     if (publisherPublicKeyDigest_.size() > 0)
-      publisherPublicKeyDigestStruct.publisherPublicKeyDigest = (unsigned char *)&publisherPublicKeyDigest_[0];
+      publisherPublicKeyDigestStruct.publisherPublicKeyDigest = (unsigned char *)publisherPublicKeyDigest_.buf();
     else
       publisherPublicKeyDigestStruct.publisherPublicKeyDigest = 0;
   }
@@ -41,17 +41,16 @@ public:
    */
   void set(const struct ndn_PublisherPublicKeyDigest& publisherPublicKeyDigestStruct) 
   {
-    setVector(publisherPublicKeyDigest_, publisherPublicKeyDigestStruct.publisherPublicKeyDigest, 
-              publisherPublicKeyDigestStruct.publisherPublicKeyDigestLength);
+    publisherPublicKeyDigest_ = 
+      Blob(publisherPublicKeyDigestStruct.publisherPublicKeyDigest, publisherPublicKeyDigestStruct.publisherPublicKeyDigestLength);
   }
 
-  const std::vector<unsigned char>& getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
-  std::vector<unsigned char>& getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
+  const Blob& getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
 
   void setPublisherPublicKeyDigest(const std::vector<unsigned char>& publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
   void setPublisherPublicKeyDigest(const unsigned char *publisherPublicKeyDigest, unsigned int publisherPublicKeyDigestLength) 
   { 
-    setVector(publisherPublicKeyDigest_, publisherPublicKeyDigest, publisherPublicKeyDigestLength); 
+    publisherPublicKeyDigest_ = Blob(publisherPublicKeyDigest, publisherPublicKeyDigestLength); 
   }
   
   /**
@@ -59,11 +58,11 @@ public:
    */
   void clear()
   {
-    publisherPublicKeyDigest_.clear();
+    publisherPublicKeyDigest_.reset();
   }
 
 private:
-  std::vector<unsigned char> publisherPublicKeyDigest_;
+  Blob publisherPublicKeyDigest_;
 };
   
 }

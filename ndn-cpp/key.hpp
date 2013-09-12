@@ -26,7 +26,7 @@ public:
   {
     type_ = (ndn_KeyLocatorType)-1;
     keyNameType_ = (ndn_KeyNameType)-1;
-    keyData_ = Blob(0, 0);
+    keyData_.reset();
   }
   
   /**

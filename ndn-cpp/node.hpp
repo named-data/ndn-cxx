@@ -215,7 +215,7 @@ private:
   std::vector<ptr_lib::shared_ptr<PitEntry> > pit_;
   std::vector<ptr_lib::shared_ptr<PrefixEntry> > registeredPrefixTable_;
   Interest ndndIdFetcherInterest_;
-  std::vector<unsigned char> ndndId_;
+  Blob ndndId_;
 };
 
 }

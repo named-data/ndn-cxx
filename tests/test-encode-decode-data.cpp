@@ -109,7 +109,7 @@ static void dumpData(const Data& data)
        << (data.getSignature().getSignature().size() > 0 ? toHex(data.getSignature().getSignature()).c_str() : "<none>") << endl;
   cout << "signature.publisherPublicKeyDigest: "
        << (data.getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? 
-           toHex(data.getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()).c_str() : "<none>") << endl;
+           toHex(*data.getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()).c_str() : "<none>") << endl;
   cout << "signature.keyLocator: ";
   if ((int)data.getSignature().getKeyLocator().getType() >= 0) {
     if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_KEY)

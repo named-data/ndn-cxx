@@ -60,19 +60,6 @@ static unsigned char DEFAULT_PRIVATE_KEY_DER[] = {
 };
 
 /**
- * Call digestSha256 and set the digest vector to the result.
- * @param data
- * @param dataLength
- * @param digest
- */
-void setSha256(const unsigned char *data, unsigned int dataLength, vector<unsigned char>& digest)
-{
-  unsigned char digestBuffer[SHA256_DIGEST_LENGTH];
-  ndn_digestSha256(data, dataLength, digestBuffer);
-  setVector(digest, digestBuffer, sizeof(digestBuffer));
-}
-
-/**
  * Encode the fields of the Data object and set digest to the sha-256 digest.
  * @param data The Data object with the fields to digest.
  * @param digest A pointer to a buffer of size SHA256_DIGEST_LENGTH to receive the data.
@@ -92,7 +79,9 @@ void KeyChain::sign
   // Clear the signature so we don't encode it below.
   data.getSignature().clear();
   // Set the public key.
-  setSha256(publicKeyDer, publicKeyDerLength, data.getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest());
+  unsigned char publicKeyDigest[SHA256_DIGEST_LENGTH];
+  ndn_digestSha256(publicKeyDer, publicKeyDerLength, publicKeyDigest);
+  data.getSignature().getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(publicKeyDigest, sizeof(publicKeyDigest));
   data.getSignature().getKeyLocator().setType(ndn_KeyLocatorType_KEY);
   data.getSignature().getKeyLocator().setKeyData(publicKeyDer, publicKeyDerLength);
 
