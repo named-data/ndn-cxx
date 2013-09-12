@@ -61,7 +61,7 @@ static ndn_Error decodeKeyNameData(struct ndn_KeyLocator *keyLocator, struct ndn
 
 ndn_Error ndn_encodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struct ndn_BinaryXmlEncoder *encoder)
 {
-  if (keyLocator->type < 0)
+  if ((int)keyLocator->type < 0)
     return NDN_ERROR_success;
 
   ndn_Error error;
