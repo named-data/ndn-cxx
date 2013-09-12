@@ -200,7 +200,7 @@ public:
 
   double getInterestLifetimeMilliseconds() const { return interestLifetimeMilliseconds_; }
 
-  const std::vector<unsigned char>& getNonce() const { return nonce_; }
+  const Blob& getNonce() const { return nonce_; }
   
   /**
    * Clear this interest, and set the values by copying from the interest struct.
@@ -242,7 +242,7 @@ private:
   int answerOriginKind_;
   int scope_;
   double interestLifetimeMilliseconds_;
-  std::vector<unsigned char> nonce_;
+  Blob nonce_;
 };
   
 }

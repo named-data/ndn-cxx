@@ -68,7 +68,7 @@ void Interest::set(const struct ndn_Interest& interestStruct)
   answerOriginKind_ = interestStruct.answerOriginKind;
   scope_ = interestStruct.scope;
   interestLifetimeMilliseconds_ = interestStruct.interestLifetimeMilliseconds;
-  setVector(nonce_, interestStruct.nonce, interestStruct.nonceLength);
+  nonce_ = Blob(interestStruct.nonce, interestStruct.nonceLength);
 }
 
 void Interest::get(struct ndn_Interest& interestStruct) const 
@@ -85,7 +85,7 @@ void Interest::get(struct ndn_Interest& interestStruct) const
 
   interestStruct.nonceLength = nonce_.size();
   if (nonce_.size() > 0)
-    interestStruct.nonce = (unsigned char *)&nonce_[0];
+    interestStruct.nonce = (unsigned char *)nonce_.buf();
   else
     interestStruct.nonce = 0;
 }

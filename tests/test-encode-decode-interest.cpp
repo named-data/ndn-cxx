@@ -68,7 +68,7 @@ static void dumpInterest(const Interest& interest)
   else
     cout << "<none>" << endl;
   cout << "nonce: " 
-       << (interest.getNonce().size() > 0 ? toHex(interest.getNonce()) : "<none>") << endl;
+       << (interest.getNonce().size() > 0 ? toHex(*interest.getNonce()) : "<none>") << endl;
 }
 
 int main(int argc, char** argv)
