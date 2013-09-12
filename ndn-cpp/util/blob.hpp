@@ -77,7 +77,7 @@ public:
   const unsigned char* buf() const
   {
     if (*this)
-      return &(*this)->front ();
+      return &(*this)->front();
     else
       return 0;
   }
