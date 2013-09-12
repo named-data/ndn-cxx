@@ -44,6 +44,15 @@ public:
     : value_(value, valueLen)
     {
     }
+    
+    /**
+     * Create a new Name::Component, taking another pointer to the Blob value.
+     * @param value A blob with a pointer to an immutable array.  The pointer is copied.
+     */
+    Component(const Blob &value)
+    : value_(value)
+    {
+    }
   
     /**
      * Set the componentStruct to point to this component, without copying any memory.
@@ -129,14 +138,21 @@ public:
   /**
    * Add a new component, copying from value of length valueLength.
    */
-  void addComponent(const unsigned char *value, unsigned int valueLength) {
+  void addComponent(const unsigned char *value, unsigned int valueLength) 
+  {
     components_.push_back(Component(value, valueLength));
   }
 
   /**
    * Add a new component, copying from value.
    */
-  void addComponent(const std::vector<unsigned char>& value) {
+  void addComponent(const std::vector<unsigned char>& value) 
+  {
+    components_.push_back(value);
+  }
+  
+  void addComponent(const Blob &value)
+  {
     components_.push_back(value);
   }
   
