@@ -113,35 +113,32 @@ bool Name::Component::setFromEscapedString(const char *first, const char *last)
     if (component.size() <= 2)
       // Zero, one or two periods is illegal.  Ignore this component.
       return false;
-    else {
+    else
       // Remove 3 periods.
-      value_.clear();
-      value_.insert(value_.begin(), component.begin() + 3, component.end()); 
-    }
+      value_ = Blob((const unsigned char *)&component[3], component.size() - 3); 
   }
-  else {
-    value_.clear();
-    value_.insert(value_.begin(), component.begin(), component.end()); 
-  }
+  else
+    value_ = Blob((const unsigned char *)&component[0], component.size()); 
   
   return true;
 }
 
 void Name::Component::setSegment(unsigned long segment)
 {
-  value_.clear();
+  ptr_lib::shared_ptr<vector<unsigned char> > value;
   
   // Add the leading zero.
-  value_.push_back(0);
+  value->push_back(0);
   
   // First encode in little endian.
   while (segment != 0) {
-    value_.push_back(segment & 0xff);
+    value->push_back(segment & 0xff);
     segment >>= 8;
   }
   
   // Make it big endian.
-  reverse(value_.begin() + 1, value_.end());
+  reverse(value->begin() + 1, value->end());
+  value_ = value;
 }
 
 void Name::set(const char *uri_cstr) 

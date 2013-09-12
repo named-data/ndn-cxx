@@ -11,6 +11,7 @@
 #include <sstream>
 #include "c/name.h"
 #include "encoding/binary-xml-wire-format.hpp"
+#include "util/blob.hpp"
 
 namespace ndn {
     
@@ -40,7 +41,7 @@ public:
      * @param valueLen Length of value.
      */
     Component(const unsigned char *value, unsigned int valueLen) 
-    : value_(value, value + valueLen)
+    : value_(value, valueLen)
     {
     }
   
@@ -53,7 +54,7 @@ public:
     {
       componentStruct.valueLength = value_.size(); 
       if (value_.size() > 0)
-        componentStruct.value = (unsigned char *)&value_[0];
+        componentStruct.value = (unsigned char*)value_.buf();
     }
   
     /**
@@ -66,7 +67,7 @@ public:
      */
     bool setFromEscapedString(const char *first, const char *last);
   
-    const std::vector<unsigned char>& getValue() const { return value_; }
+    const std::vector<unsigned char>& getValue() const { return (*value_); }
     
     /**
      * Set this component to the encoded segment number.
@@ -75,7 +76,7 @@ public:
     void setSegment(unsigned long segment);
   
   private:
-    std::vector<unsigned char> value_;
+    Blob value_;
   }; 
   
   /**
