@@ -119,8 +119,7 @@ public:
   
   int getFreshnessSeconds() const { return freshnessSeconds_; }
   
-  const std::vector<unsigned char>& getFinalBlockID() const { return finalBlockID_; }
-  std::vector<unsigned char>& getFinalBlockID() { return finalBlockID_; }
+  const Name::Component& getFinalBlockID() const { return finalBlockID_; }
   
   void setTimestampMilliseconds(double timestampMilliseconds) { timestampMilliseconds_ = timestampMilliseconds; }
   
@@ -128,17 +127,17 @@ public:
   
   void setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
   
-  void setFinalBlockID(const std::vector<unsigned char>& finalBlockID) { finalBlockID_ = finalBlockID; }
+  void setFinalBlockID(const std::vector<unsigned char>& finalBlockID) { finalBlockID_ = Name::Component(finalBlockID); }
   void setFinalBlockID(const unsigned char *finalBlockID, unsigned int finalBlockIdLength) 
   { 
-    setVector(finalBlockID_, finalBlockID, finalBlockIdLength); 
+    finalBlockID_ = Name::Component(finalBlockID, finalBlockIdLength); 
   }
   
 private:
   double timestampMilliseconds_; /**< milliseconds since 1/1/1970. -1 for none */
   ndn_ContentType type_;         /**< default is ndn_ContentType_DATA. -1 for none */
   int freshnessSeconds_;         /**< -1 for none */
-  std::vector<unsigned char> finalBlockID_; /** size 0 for none */
+  Name::Component finalBlockID_; /** size 0 for none */
 };
   
 class Data {

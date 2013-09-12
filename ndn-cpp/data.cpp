@@ -49,9 +49,9 @@ void MetaInfo::get(struct ndn_MetaInfo& metaInfoStruct) const
   metaInfoStruct.type = type_;
   metaInfoStruct.freshnessSeconds = freshnessSeconds_;
   
-  metaInfoStruct.finalBlockIDLength = finalBlockID_.size();
-  if (finalBlockID_.size() > 0)
-    metaInfoStruct.finalBlockID = (unsigned char *)&finalBlockID_[0];
+  metaInfoStruct.finalBlockIDLength = finalBlockID_.getValue().size();
+  if (metaInfoStruct.finalBlockIDLength > 0)
+    metaInfoStruct.finalBlockID = (unsigned char *)finalBlockID_.getValue().buf();
   else
     metaInfoStruct.finalBlockID = 0;
 }
@@ -61,7 +61,7 @@ void MetaInfo::set(const struct ndn_MetaInfo& metaInfoStruct)
   timestampMilliseconds_ = metaInfoStruct.timestampMilliseconds;
   type_ = metaInfoStruct.type;
   freshnessSeconds_ = metaInfoStruct.freshnessSeconds;
-  setVector(finalBlockID_, metaInfoStruct.finalBlockID, metaInfoStruct.finalBlockIDLength);
+  finalBlockID_.setValue(Blob(metaInfoStruct.finalBlockID, metaInfoStruct.finalBlockIDLength));
 }
 
 void Data::get(struct ndn_Data& dataStruct) const 

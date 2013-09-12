@@ -98,8 +98,8 @@ static void dumpData(const Data& data)
   else
     cout << "<none>" << endl;
   cout << "metaInfo.finalBlockID: "
-       << (data.getMetaInfo().getFinalBlockID().size() > 0 ? 
-           toHex(data.getMetaInfo().getFinalBlockID()).c_str() : "<none>") << endl;
+       << (data.getMetaInfo().getFinalBlockID().getValue().size() > 0 ? 
+           toHex(*data.getMetaInfo().getFinalBlockID().getValue()).c_str() : "<none>") << endl;
     
   cout << "signature.digestAlgorithm: "
        << (data.getSignature().getDigestAlgorithm().size() > 0 ? toHex(data.getSignature().getDigestAlgorithm()).c_str() : "default (sha-256)") << endl;
