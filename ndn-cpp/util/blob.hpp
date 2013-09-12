@@ -11,7 +11,10 @@
 namespace ndn {
 
 /**
- * A Blob holds a pointer to an immutable byte array.
+ * A Blob holds a pointer to an immutable byte array.  This is like a JavaScript string which is a pointer
+ * to an immutable string.  It is OK to pass a pointer to the string because the new owner can't change the bytes
+ * of the string.  However, like a JavaScript string, it is possible to change the pointer, and so this does allow
+ * the copy constructor and assignment to change the pointer.
  */
 class Blob {
 public:
@@ -27,6 +30,8 @@ public:
   
   /**
    * Create a new Blob with an immutable copy of the array in the given vector.
+   * If you want to transfer the array without copying, the the vector has to start as a 
+   * ptr_lib::shared_ptr<std::vector<unsigned char> > and you can use the Blob constructor with this type.
    * @param value A reference to a vector which is copied.
    */
   Blob(const std::vector<unsigned char> &value)
