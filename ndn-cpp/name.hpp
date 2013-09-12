@@ -55,6 +55,8 @@ public:
       componentStruct.valueLength = value_.size(); 
       if (value_.size() > 0)
         componentStruct.value = (unsigned char*)value_.buf();
+      else
+        componentStruct.value = 0;
     }
   
     /**
