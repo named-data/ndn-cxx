@@ -158,7 +158,9 @@ am_libndn_cpp_la_OBJECTS = ndn-cpp/common.lo ndn-cpp/data.lo \
 	ndn-cpp/forwarding-entry.lo ndn-cpp/name.lo ndn-cpp/node.lo \
 	ndn-cpp/encoding/binary-xml-element-reader.lo \
 	ndn-cpp/encoding/binary-xml-wire-format.lo \
-	ndn-cpp/encoding/wire-format.lo ndn-cpp/security/key-chain.lo \
+	ndn-cpp/encoding/wire-format.lo \
+	ndn-cpp/security/identity-manager.lo \
+	ndn-cpp/security/key-chain.lo \
 	ndn-cpp/transport/tcp-transport.lo \
 	ndn-cpp/transport/transport.lo \
 	ndn-cpp/transport/udp-transport.lo \
@@ -517,7 +519,8 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/c/encoding/binary-xml-structure-decoder.h ndn-cpp/encoding/binary-xml-structure-decoder.hpp \
   ndn-cpp/encoding/binary-xml-wire-format.cpp ndn-cpp/c/encoding/binary-xml-name.h ndn-cpp/encoding/binary-xml-wire-format.hpp \
   ndn-cpp/encoding/wire-format.cpp ndn-cpp/encoding/wire-format.hpp \
-  ndn-cpp/c/util/crypto.h ndn-cpp/security/key-chain.cpp ndn-cpp/security/key-chain.hpp \
+  ndn-cpp/security/identity-manager.cpp ndn-cpp/security/identity-manager.hpp \
+  ndn-cpp/security/key-chain.cpp ndn-cpp/security/key-chain.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/tcp-transport.h ndn-cpp/transport/tcp-transport.cpp ndn-cpp/transport/tcp-transport.hpp \
   ndn-cpp/transport/transport.cpp ndn-cpp/transport/transport.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \
@@ -741,6 +744,9 @@ ndn-cpp/security/$(am__dirstamp):
 ndn-cpp/security/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/security/$(DEPDIR)
 	@: > ndn-cpp/security/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/security/identity-manager.lo:  \
+	ndn-cpp/security/$(am__dirstamp) \
+	ndn-cpp/security/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/security/key-chain.lo: ndn-cpp/security/$(am__dirstamp) \
 	ndn-cpp/security/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/transport/$(am__dirstamp):
@@ -909,6 +915,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/binary-xml-element-reader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/binary-xml-wire-format.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/wire-format.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/$(DEPDIR)/identity-manager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/$(DEPDIR)/key-chain.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/tcp-transport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/transport.Plo@am__quote@
