@@ -67,7 +67,9 @@ public:
      */
     bool setFromEscapedString(const char *first, const char *last);
   
-    const std::vector<unsigned char>& getValue() const { return (*value_); }
+    const Blob& getValue() const { return value_; }
+    
+    void setValue(const Blob& value) { value_ = value; }
     
     /**
      * Set this component to the encoded segment number.

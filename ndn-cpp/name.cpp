@@ -222,7 +222,7 @@ std::string Name::toUri() const
   ostringstream result;
   for (unsigned int i = 0; i < components_.size(); ++i) {
     result << "/";
-    toEscapedString(components_[i].getValue(), result);
+    toEscapedString(*components_[i].getValue(), result);
   }
   
   return result.str();
