@@ -152,29 +152,17 @@ public:
   {
   }
   
-  ptr_lib::shared_ptr<std::vector<unsigned char> > wireEncode(WireFormat& wireFormat) const 
+  ptr_lib::shared_ptr<std::vector<unsigned char> > wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
   {
     return wireFormat.encodeData(*this);
   }
-  ptr_lib::shared_ptr<std::vector<unsigned char> > wireEncode() const 
-  {
-    return wireEncode(*WireFormat::getDefaultWireFormat());
-  }
-  void wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat) 
+  void wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireFormat.decodeData(*this, input, inputLength);
   }
-  void wireDecode(const unsigned char *input, unsigned int inputLength) 
-  {
-    wireDecode(input, inputLength, *WireFormat::getDefaultWireFormat());
-  }
-  void wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat) 
+  void wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireDecode(&input[0], input.size(), wireFormat);
-  }
-  void wireDecode(const std::vector<unsigned char>& input) 
-  {
-    wireDecode(&input[0], input.size());
   }
   
   /**

@@ -121,12 +121,6 @@ void KeyChain::defaultSign(Data& data, WireFormat& wireFormat)
   sign(data, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER), wireFormat);
 }
 
-void KeyChain::defaultSign(Data& data)
-{
-  sign(data, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER),
-       *WireFormat::getDefaultWireFormat());
-}
-
 bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat)
 {
   // Decode the data packet and digest the data fields.

@@ -31,16 +31,10 @@ public:
   /**
    * Call sign with the default public and private keys.
    * @param data
-   * @param wireFormat The WireFormat for calling encodeData.
+   * @param wireFormat The WireFormat for calling encodeData, or WireFormat::getDefaultWireFormat() if omitted.
    */
-  static void defaultSign(Data& data, WireFormat& wireFormat);
+  static void defaultSign(Data& data, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
 
-  /**
-   * Call sign with the default public and private keys.  For wireFormat, use WireFormat::getDefaultWireFormat().
-   * @param data
-   */
-  static void defaultSign(Data& data);
-  
   /**
    * Use the WireFormat to decode the input as a Data packet and use the public key in the key locator to 
    * verify the signature.
