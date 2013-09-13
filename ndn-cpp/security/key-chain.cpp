@@ -7,6 +7,7 @@
 #include "../c/util/crypto.h"
 #include "../c/encoding/binary-xml-data.h"
 #include "../encoding/binary-xml-encoder.hpp"
+#include "../sha256-with-rsa-signature.hpp"
 #include "key-chain.hpp"
 
 using namespace std;
@@ -76,33 +77,37 @@ void KeyChain::sign
   (Data& data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
    const unsigned char *privateKeyDer, unsigned int privateKeyDerLength, WireFormat& wireFormat)
 {
+  Sha256WithRsaSignature *signature = dynamic_cast<Sha256WithRsaSignature*>(data.getSignature());
+  if (!signature)
+    throw std::runtime_error("signature is not Sha256WithRsaSignature");
+  
   // Clear the signature so we don't encode it below.
-  data.getSignature().clear();
+  signature->clear();
   // Set the public key.
   unsigned char publicKeyDigest[SHA256_DIGEST_LENGTH];
   ndn_digestSha256(publicKeyDer, publicKeyDerLength, publicKeyDigest);
-  data.getSignature().getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(publicKeyDigest, sizeof(publicKeyDigest));
-  data.getSignature().getKeyLocator().setType(ndn_KeyLocatorType_KEY);
-  data.getSignature().getKeyLocator().setKeyData(publicKeyDer, publicKeyDerLength);
+  signature->getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(publicKeyDigest, sizeof(publicKeyDigest));
+  signature->getKeyLocator().setType(ndn_KeyLocatorType_KEY);
+  signature->getKeyLocator().setKeyData(publicKeyDer, publicKeyDerLength);
 
   // Sign the fields.
   unsigned char dataFieldsDigest[SHA256_DIGEST_LENGTH];
   digestDataFieldsSha256(data, wireFormat, dataFieldsDigest);
   // TODO: use RSA_size to get the proper size of the signature buffer.
-  unsigned char signature[1000];
-  unsigned int signatureLength;
+  unsigned char signatureBits[1000];
+  unsigned int signatureBitsLength;
   // Use a temporary pointer since d2i updates it.
   const unsigned char *derPointer = privateKeyDer;
   RSA *privateKey = d2i_RSAPrivateKey(NULL, &derPointer, privateKeyDerLength);
   if (!privateKey)
     throw std::runtime_error("Error decoding private key in d2i_RSAPrivateKey");
-  int success = RSA_sign(NID_sha256, dataFieldsDigest, sizeof(dataFieldsDigest), signature, &signatureLength, privateKey);
+  int success = RSA_sign(NID_sha256, dataFieldsDigest, sizeof(dataFieldsDigest), signatureBits, &signatureBitsLength, privateKey);
   // Free the private key before checking for success.
   RSA_free(privateKey);
   if (!success)
     throw std::runtime_error("Error in RSA_sign");
   
-  data.getSignature().setSignature(signature, signatureLength);
+  signature->setSignature(signatureBits, signatureBitsLength);
 }
 
 void KeyChain::defaultSign(Data& data, WireFormat& wireFormat)
@@ -116,7 +121,11 @@ bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLeng
   Data data;
   unsigned int signedFieldsBeginOffset, signedFieldsEndOffset;
   wireFormat.decodeData(data, input, inputLength, &signedFieldsBeginOffset, &signedFieldsEndOffset);
-  if (data.getSignature().getDigestAlgorithm().size() != 0)
+  Sha256WithRsaSignature *signature = dynamic_cast<Sha256WithRsaSignature*>(data.getSignature());
+  if (!signature)
+    throw std::runtime_error("signature is not Sha256WithRsaSignature");
+  
+  if (signature->getDigestAlgorithm().size() != 0)
     // TODO: Allow a non-default digest algorithm.
     throw std::runtime_error("Cannot verify a data packet with a non-default digest algorithm");
   unsigned char dataFieldsDigest[SHA256_DIGEST_LENGTH];
@@ -125,9 +134,9 @@ bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLeng
   // Find the public key.
   const unsigned char *publicKeyDer;
   unsigned int publicKeyDerLength;
-  if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_KEY) {
-    publicKeyDer = data.getSignature().getKeyLocator().getKeyData().buf();
-    publicKeyDerLength = data.getSignature().getKeyLocator().getKeyData().size();
+  if (signature->getKeyLocator().getType() == ndn_KeyLocatorType_KEY) {
+    publicKeyDer = signature->getKeyLocator().getKeyData().buf();
+    publicKeyDerLength = signature->getKeyLocator().getKeyData().size();
   }
   else
     // Can't find a public key.
@@ -140,8 +149,8 @@ bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLeng
   if (!publicKey)
     throw std::runtime_error("Error decoding public key in d2i_RSAPublicKey");
   int success = RSA_verify
-    (NID_sha256, dataFieldsDigest, sizeof(dataFieldsDigest), (unsigned char *)data.getSignature().getSignature().buf(), 
-     data.getSignature().getSignature().size(), publicKey);
+    (NID_sha256, dataFieldsDigest, sizeof(dataFieldsDigest), (unsigned char *)signature->getSignature().buf(), 
+     signature->getSignature().size(), publicKey);
   // Free the public key before checking for success.
   RSA_free(publicKey);
   

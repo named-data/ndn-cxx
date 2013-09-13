@@ -54,6 +54,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
   ndn-cpp/node.cpp ndn-cpp/node.hpp \
   ndn-cpp/publisher-public-key-digest.hpp \
+  ndn-cpp/sha256-woth-rsa-signature.cpp ndn-cpp/sha256-woth-rsa-signature.hpp \
   ndn-cpp/c/encoding/binary-xml.h \
   ndn-cpp/c/encoding/binary-xml-decoder.h ndn-cpp/encoding/binary-xml-decoder.hpp \
   ndn-cpp/c/encoding/binary-xml-element-reader.h ndn-cpp/encoding/binary-xml-element-reader.cpp ndn-cpp/encoding/binary-xml-element-reader.hpp \

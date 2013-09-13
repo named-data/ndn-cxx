@@ -156,6 +156,7 @@ libndn_cpp_la_LIBADD =
 am_libndn_cpp_la_OBJECTS = ndn-cpp/common.lo ndn-cpp/data.lo \
 	ndn-cpp/interest.lo ndn-cpp/key.lo ndn-cpp/face.lo \
 	ndn-cpp/forwarding-entry.lo ndn-cpp/name.lo ndn-cpp/node.lo \
+	ndn-cpp/sha256-woth-rsa-signature.lo \
 	ndn-cpp/encoding/binary-xml-element-reader.lo \
 	ndn-cpp/encoding/binary-xml-wire-format.lo \
 	ndn-cpp/encoding/wire-format.lo \
@@ -512,6 +513,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
   ndn-cpp/node.cpp ndn-cpp/node.hpp \
   ndn-cpp/publisher-public-key-digest.hpp \
+  ndn-cpp/sha256-woth-rsa-signature.cpp ndn-cpp/sha256-woth-rsa-signature.hpp \
   ndn-cpp/c/encoding/binary-xml.h \
   ndn-cpp/c/encoding/binary-xml-decoder.h ndn-cpp/encoding/binary-xml-decoder.hpp \
   ndn-cpp/c/encoding/binary-xml-element-reader.h ndn-cpp/encoding/binary-xml-element-reader.cpp ndn-cpp/encoding/binary-xml-element-reader.hpp \
@@ -724,6 +726,8 @@ ndn-cpp/name.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/node.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/sha256-woth-rsa-signature.lo: ndn-cpp/$(am__dirstamp) \
+	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/encoding
 	@: > ndn-cpp/encoding/$(am__dirstamp)
@@ -894,6 +898,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/key.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/node.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/sha256-woth-rsa-signature.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/errors.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/interest.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/name.Plo@am__quote@

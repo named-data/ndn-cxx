@@ -5,44 +5,16 @@
 
 #include "common.hpp"
 #include "data.hpp"
+#include "sha256-with-rsa-signature.hpp"
 
 using namespace std;
 
 namespace ndn {
 
-void Signature::get(struct ndn_Signature& signatureStruct) const 
+Signature::~Signature()
 {
-  signatureStruct.digestAlgorithmLength = digestAlgorithm_.size();
-  if (digestAlgorithm_.size() > 0)
-    signatureStruct.digestAlgorithm = (unsigned char *)digestAlgorithm_.buf();
-  else
-    signatureStruct.digestAlgorithm = 0;
-
-  signatureStruct.witnessLength = witness_.size();
-  if (witness_.size() > 0)
-    signatureStruct.witness = (unsigned char *)witness_.buf();
-  else
-    signatureStruct.witness = 0;
-
-  signatureStruct.signatureLength = signature_.size();
-  if (signature_.size() > 0)
-    signatureStruct.signature = (unsigned char *)signature_.buf();
-  else
-    signatureStruct.signature = 0;
+}
   
-  publisherPublicKeyDigest_.get(signatureStruct.publisherPublicKeyDigest);
-  keyLocator_.get(signatureStruct.keyLocator);
-}
-
-void Signature::set(const struct ndn_Signature& signatureStruct)
-{
-  digestAlgorithm_ = Blob(signatureStruct.digestAlgorithm, signatureStruct.digestAlgorithmLength);
-  witness_ = Blob(signatureStruct.witness, signatureStruct.witnessLength);
-  signature_ = Blob(signatureStruct.signature, signatureStruct.signatureLength);
-  publisherPublicKeyDigest_.set(signatureStruct.publisherPublicKeyDigest);
-  keyLocator_.set(signatureStruct.keyLocator);
-}
-
 void MetaInfo::get(struct ndn_MetaInfo& metaInfoStruct) const 
 {
   metaInfoStruct.timestampMilliseconds = timestampMilliseconds_;
@@ -59,9 +31,19 @@ void MetaInfo::set(const struct ndn_MetaInfo& metaInfoStruct)
   finalBlockID_.setValue(Blob(metaInfoStruct.finalBlockID.value, metaInfoStruct.finalBlockID.valueLength));
 }
 
+Data::Data()
+: signature_(new Sha256WithRsaSignature())
+{
+}
+  
+Data::Data(const Name& name)
+: name_(name), signature_(new Sha256WithRsaSignature())
+{
+}
+
 void Data::get(struct ndn_Data& dataStruct) const 
 {
-  signature_.get(dataStruct.signature);
+  signature_->get(dataStruct.signature);
   name_.get(dataStruct.name);
   metaInfo_.get(dataStruct.metaInfo);
   
@@ -74,7 +56,7 @@ void Data::get(struct ndn_Data& dataStruct) const
 
 void Data::set(const struct ndn_Data& dataStruct)
 {
-  signature_.set(dataStruct.signature);
+  signature_->set(dataStruct.signature);
   name_.set(dataStruct.name);
   metaInfo_.set(dataStruct.metaInfo);
   content_ = Blob(dataStruct.content, dataStruct.contentLength);

@@ -9,6 +9,7 @@
 #include <time.h>
 #include "../ndn-cpp/data.hpp"
 #include "../ndn-cpp/security/key-chain.hpp"
+#include "../ndn-cpp/sha256-with-rsa-signature.hpp"
 
 using namespace std;
 using namespace ndn;
@@ -101,49 +102,52 @@ static void dumpData(const Data& data)
        << (data.getMetaInfo().getFinalBlockID().getValue().size() > 0 ? 
            toHex(*data.getMetaInfo().getFinalBlockID().getValue()).c_str() : "<none>") << endl;
     
-  cout << "signature.digestAlgorithm: "
-       << (data.getSignature().getDigestAlgorithm().size() > 0 ? toHex(*data.getSignature().getDigestAlgorithm()).c_str() : "default (sha-256)") << endl;
-  cout << "signature.witness: "
-       << (data.getSignature().getWitness().size() > 0 ? toHex(*data.getSignature().getWitness()).c_str() : "<none>") << endl;
-  cout << "signature.signature: "
-       << (data.getSignature().getSignature().size() > 0 ? toHex(*data.getSignature().getSignature()).c_str() : "<none>") << endl;
-  cout << "signature.publisherPublicKeyDigest: "
-       << (data.getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? 
-           toHex(*data.getSignature().getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()).c_str() : "<none>") << endl;
-  cout << "signature.keyLocator: ";
-  if ((int)data.getSignature().getKeyLocator().getType() >= 0) {
-    if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_KEY)
-      cout << "Key: " << toHex(*data.getSignature().getKeyLocator().getKeyData()) << endl;
-    else if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_CERTIFICATE)
-      cout << "Certificate: " << toHex(*data.getSignature().getKeyLocator().getKeyData()) << endl;
-    else if (data.getSignature().getKeyLocator().getType() == ndn_KeyLocatorType_KEYNAME) {
-      cout << "KeyName: " << data.getSignature().getKeyLocator().getKeyName().to_uri() << endl;
-      cout << "metaInfo.keyLocator: ";
-      if ((int)data.getSignature().getKeyLocator().getKeyNameType() >= 0) {
-        bool showKeyNameData = true;
-        if (data.getSignature().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST)
-          cout << "PublisherPublicKeyDigest: ";
-        else if (data.getSignature().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST)
-          cout << "PublisherCertificateDigest: ";
-        else if (data.getSignature().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST)
-          cout << "PublisherIssuerKeyDigest: ";
-        else if (data.getSignature().getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST)
-          cout << "PublisherIssuerCertificateDigest: ";
-        else {
-          cout << "<unrecognized ndn_KeyNameType " << data.getSignature().getKeyLocator().getKeyNameType() << ">" << endl;
-          showKeyNameData = false;
+  const Sha256WithRsaSignature *signature = dynamic_cast<const Sha256WithRsaSignature*>(data.getSignature());
+  if (signature) {
+    cout << "signature.digestAlgorithm: "
+         << (signature->getDigestAlgorithm().size() > 0 ? toHex(*signature->getDigestAlgorithm()).c_str() : "default (sha-256)") << endl;
+    cout << "signature.witness: "
+         << (signature->getWitness().size() > 0 ? toHex(*signature->getWitness()).c_str() : "<none>") << endl;
+    cout << "signature.signature: "
+         << (signature->getSignature().size() > 0 ? toHex(*signature->getSignature()).c_str() : "<none>") << endl;
+    cout << "signature.publisherPublicKeyDigest: "
+         << (signature->getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? 
+           toHex(*signature->getPublisherPublicKeyDigest().getPublisherPublicKeyDigest()).c_str() : "<none>") << endl;
+    cout << "signature.keyLocator: ";
+    if ((int)signature->getKeyLocator().getType() >= 0) {
+      if (signature->getKeyLocator().getType() == ndn_KeyLocatorType_KEY)
+        cout << "Key: " << toHex(*signature->getKeyLocator().getKeyData()) << endl;
+      else if (signature->getKeyLocator().getType() == ndn_KeyLocatorType_CERTIFICATE)
+        cout << "Certificate: " << toHex(*signature->getKeyLocator().getKeyData()) << endl;
+      else if (signature->getKeyLocator().getType() == ndn_KeyLocatorType_KEYNAME) {
+        cout << "KeyName: " << signature->getKeyLocator().getKeyName().to_uri() << endl;
+        cout << "metaInfo.keyLocator: ";
+        if ((int)signature->getKeyLocator().getKeyNameType() >= 0) {
+          bool showKeyNameData = true;
+          if (signature->getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST)
+            cout << "PublisherPublicKeyDigest: ";
+          else if (signature->getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST)
+            cout << "PublisherCertificateDigest: ";
+          else if (signature->getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST)
+            cout << "PublisherIssuerKeyDigest: ";
+          else if (signature->getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST)
+            cout << "PublisherIssuerCertificateDigest: ";
+          else {
+            cout << "<unrecognized ndn_KeyNameType " << signature->getKeyLocator().getKeyNameType() << ">" << endl;
+            showKeyNameData = false;
+          }
+          if (showKeyNameData)
+            cout << toHex(*signature->getKeyLocator().getKeyData()) << endl;
         }
-        if (showKeyNameData)
-          cout << toHex(*data.getSignature().getKeyLocator().getKeyData()) << endl;
+        else
+          cout << "<no key digest>" << endl;
       }
       else
-        cout << "<no key digest>" << endl;
+        cout << "<unrecognized ndn_KeyLocatorType " << signature->getKeyLocator().getType() << ">" << endl;
     }
     else
-      cout << "<unrecognized ndn_KeyLocatorType " << data.getSignature().getKeyLocator().getType() << ">" << endl;
+      cout << "<none>" << endl;
   }
-  else
-    cout << "<none>" << endl;
 }
 
 int main(int argc, char** argv)
