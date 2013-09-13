@@ -1,4 +1,5 @@
 /**
+ * @author: Yingdi Yu <yingdi@cs.ucla.edu>
  * @author: Jeff Thompson
  * See COPYING for copyright and distribution information.
  */
