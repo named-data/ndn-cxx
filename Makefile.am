@@ -70,7 +70,8 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/transport/transport.cpp ndn-cpp/transport/transport.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \
   ndn-cpp/util/blob.hpp \
-  ndn-cpp/util/dynamic-uchar-vector.cpp ndn-cpp/util/dynamic-uchar-vector.hpp
+  ndn-cpp/util/dynamic-uchar-vector.cpp ndn-cpp/util/dynamic-uchar-vector.hpp \
+  ndn-cpp/util/signed-blob.hpp
 
 bin_test_encode_decode_forwarding_entry_SOURCES = tests/test-encode-decode-forwarding-entry.cpp
 bin_test_encode_decode_forwarding_entry_LDADD = libndn-cpp.la libndn-c.la
