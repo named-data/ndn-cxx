@@ -173,7 +173,7 @@ static ndn_Error decodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
 }
 
 ndn_Error ndn_encodeBinaryXmlData
-  (struct ndn_Data *data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset, struct ndn_BinaryXmlEncoder *encoder)
+  (struct ndn_Data *data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset, struct ndn_BinaryXmlEncoder *encoder)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(encoder, ndn_BinaryXml_DTag_ContentObject)))
@@ -182,7 +182,7 @@ ndn_Error ndn_encodeBinaryXmlData
   if ((error = encodeSignature(&data->signature, encoder)))
     return error;
   
-  *signedFieldsBeginOffset = encoder->offset;
+  *signedPortionBeginOffset = encoder->offset;
 
   if ((error = ndn_encodeBinaryXmlName(&data->name, encoder)))
     return error;
@@ -194,7 +194,7 @@ ndn_Error ndn_encodeBinaryXmlData
       (encoder, ndn_BinaryXml_DTag_Content, data->content, data->contentLength)))
     return error;
 
-  *signedFieldsEndOffset = encoder->offset;
+  *signedPortionEndOffset = encoder->offset;
 
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
     return error;
@@ -203,7 +203,7 @@ ndn_Error ndn_encodeBinaryXmlData
 }
 
 ndn_Error ndn_decodeBinaryXmlData
-  (struct ndn_Data *data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset, struct ndn_BinaryXmlDecoder *decoder)
+  (struct ndn_Data *data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset, struct ndn_BinaryXmlDecoder *decoder)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlDecoder_readElementStartDTag(decoder, ndn_BinaryXml_DTag_ContentObject)))
@@ -219,7 +219,7 @@ ndn_Error ndn_decodeBinaryXmlData
   else
     ndn_Signature_initialize(&data->signature, data->signature.keyLocator.keyName.components, data->signature.keyLocator.keyName.maxComponents);
   
-  *signedFieldsBeginOffset = decoder->offset;
+  *signedPortionBeginOffset = decoder->offset;
   
   if ((error = ndn_decodeBinaryXmlName(&data->name, decoder)))
     return error;
@@ -238,7 +238,7 @@ ndn_Error ndn_decodeBinaryXmlData
       (decoder, ndn_BinaryXml_DTag_Content, 1, &data->content, &data->contentLength)))
     return error; 
   
-  *signedFieldsEndOffset = decoder->offset;
+  *signedPortionEndOffset = decoder->offset;
 
   if ((error = ndn_BinaryXmlDecoder_readElementClose(decoder)))
     return error;

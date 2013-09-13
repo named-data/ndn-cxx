@@ -38,15 +38,15 @@ public:
   /**
    * Encode data and return the encoding.  Your derived class should override.
    * @param data The Data object to encode.
-   * @param signedFieldsBeginOffset Return the offset in the encoding of the beginning of the fields which are signed.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the beginning of the signed portion.
    * If you are not encoding in order to sign, you can call encodeData(const Data& data) to ignore this returned value.
-   * @param signedFieldsEndOffset Return the offset in the encoding of the end of the fields which are signed.
+   * @param signedPortionEndOffset Return the offset in the encoding of the end of the signed portion.
    * If you are not encoding in order to sign, you can call encodeData(const Data& data) to ignore this returned value.
    * @return A Blob containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
   virtual Blob encodeData
-    (const Data& data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset);
+    (const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset);
 
   /**
    * Encode data and return the encoding.
@@ -65,16 +65,16 @@ public:
    * @param data The Data object whose fields are updated.
    * @param input A pointer to the input buffer to decode.
    * @param inputLength The number of bytes in input.
-   * @param signedFieldsBeginOffset Return the offset in the input buffer of the beginning of the fields which are signed.
+   * @param signedPortionBeginOffset Return the offset in the input buffer of the beginning of the signed portion.
    * If you are not decoding in order to verify, you can call 
    * decodeData(Data& data, const unsigned char *input, unsigned int inputLength) to ignore this returned value.
-   * @param signedFieldsEndOffset Return the offset in the input buffer of the end of the fields which are signed.
+   * @param signedPortionEndOffset Return the offset in the input buffer of the end of the signed portion.
    * If you are not decoding in order to verify, you can call 
    * decodeData(Data& data, const unsigned char *input, unsigned int inputLength) to ignore this returned value.
    * @throw logic_error for unimplemented if the derived class does not override.
    */  
   virtual void decodeData
-    (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset);
+    (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset);
 
   void decodeData(Data& data, const unsigned char *input, unsigned int inputLength)
   {

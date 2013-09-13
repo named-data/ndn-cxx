@@ -36,12 +36,12 @@ void WireFormat::decodeInterest(Interest& interest, const unsigned char *input, 
   throw logic_error("unimplemented");
 }
 
-Blob WireFormat::encodeData(const Data& data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
+Blob WireFormat::encodeData(const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset) 
 {
   throw logic_error("unimplemented");
 }
 void WireFormat::decodeData
-  (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
+  (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset) 
 {
   throw logic_error("unimplemented");
 }

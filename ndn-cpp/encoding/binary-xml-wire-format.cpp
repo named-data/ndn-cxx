@@ -60,7 +60,7 @@ void BinaryXmlWireFormat::decodeInterest(Interest& interest, const unsigned char
   interest.set(interestStruct);
 }
 
-Blob BinaryXmlWireFormat::encodeData(const Data& data, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset) 
+Blob BinaryXmlWireFormat::encodeData(const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset) 
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_NameComponent keyNameComponents[100];
@@ -72,14 +72,14 @@ Blob BinaryXmlWireFormat::encodeData(const Data& data, unsigned int *signedField
 
   BinaryXmlEncoder encoder;
   ndn_Error error;
-  if ((error = ndn_encodeBinaryXmlData(&dataStruct, signedFieldsBeginOffset, signedFieldsEndOffset, &encoder)))
+  if ((error = ndn_encodeBinaryXmlData(&dataStruct, signedPortionBeginOffset, signedPortionEndOffset, &encoder)))
     throw std::runtime_error(ndn_getErrorString(error));
      
   return encoder.getOutput();
 }
 
 void BinaryXmlWireFormat::decodeData
-  (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedFieldsBeginOffset, unsigned int *signedFieldsEndOffset)
+  (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset)
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_NameComponent keyNameComponents[100];
@@ -90,7 +90,7 @@ void BinaryXmlWireFormat::decodeData
     
   BinaryXmlDecoder decoder(input, inputLength);  
   ndn_Error error;
-  if ((error = ndn_decodeBinaryXmlData(&dataStruct, signedFieldsBeginOffset, signedFieldsEndOffset, &decoder)))
+  if ((error = ndn_decodeBinaryXmlData(&dataStruct, signedPortionBeginOffset, signedPortionEndOffset, &decoder)))
     throw std::runtime_error(ndn_getErrorString(error));
 
   data.set(dataStruct);
