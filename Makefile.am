@@ -54,7 +54,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
   ndn-cpp/node.cpp ndn-cpp/node.hpp \
   ndn-cpp/publisher-public-key-digest.hpp \
-  ndn-cpp/sha256-woth-rsa-signature.cpp ndn-cpp/sha256-woth-rsa-signature.hpp \
+  ndn-cpp/sha256-with-rsa-signature.cpp ndn-cpp/sha256-with-rsa-signature.hpp \
   ndn-cpp/c/encoding/binary-xml.h \
   ndn-cpp/c/encoding/binary-xml-decoder.h ndn-cpp/encoding/binary-xml-decoder.hpp \
   ndn-cpp/c/encoding/binary-xml-element-reader.h ndn-cpp/encoding/binary-xml-element-reader.cpp ndn-cpp/encoding/binary-xml-element-reader.hpp \
@@ -62,8 +62,10 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/c/encoding/binary-xml-structure-decoder.h ndn-cpp/encoding/binary-xml-structure-decoder.hpp \
   ndn-cpp/encoding/binary-xml-wire-format.cpp ndn-cpp/c/encoding/binary-xml-name.h ndn-cpp/encoding/binary-xml-wire-format.hpp \
   ndn-cpp/encoding/wire-format.cpp ndn-cpp/encoding/wire-format.hpp \
-  ndn-cpp/security/identity-manager.cpp ndn-cpp/security/identity-manager.hpp \
+  ndn-cpp/security/security-common.hpp \
   ndn-cpp/security/key-chain.cpp ndn-cpp/security/key-chain.hpp \
+  ndn-cpp/security/identity/identity-manager.cpp ndn-cpp/security/identity/identity-manager.hpp \
+  ndn-cpp/security/identity/private-key-storage.cpp ndn-cpp/identity/security/private-key-storage.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/tcp-transport.h ndn-cpp/transport/tcp-transport.cpp ndn-cpp/transport/tcp-transport.hpp \
   ndn-cpp/transport/transport.cpp ndn-cpp/transport/transport.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \

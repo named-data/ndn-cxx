@@ -1,0 +1,46 @@
+/**
+ * @author: Yingdi Yu <yingdi@cs.ucla.edu>
+ * @author: Jeff Thompson
+ * See COPYING for copyright and distribution information.
+ */
+
+#ifndef NDN_SECURITY_COMMON_HPP
+#define	NDN_SECURITY_COMMON_HPP
+
+namespace ndn {
+
+enum KeyType {
+  KEY_TYPE_RSA,
+  // KEY_TYPE_DSA,
+  KEY_TYPE_AES,
+  // KEY_TYPE_DES,
+  // KEY_TYPE_RC4,
+  // KEY_TYPE_RC2
+};
+
+enum KeyClass {
+  KEY_CLASS_PUBLIC,
+  KEY_CLASS_PRIVATE,
+  KEY_CLASS_SYMMETRIC
+};
+  
+enum KeyFormat {
+  KEY_FORMAT_PUBLIC_OPENSSL,
+};
+
+enum DigestAlgorithm {
+  // DIGEST_ALGORITHM_MD2,
+  // DIGEST_ALGORITHM_MD5,
+  // DIGEST_ALGORITHM_SHA1,
+  DIGEST_ALGORITHM_SHA256
+};
+
+enum EncryptMode {
+  ENCRYPTION_MODE_DEFAULT,
+  ENCRYPTION_MODE_CFB_AES,
+  // ENCRYPTION_MODE_CBC_AES
+};
+
+}
+
+#endif

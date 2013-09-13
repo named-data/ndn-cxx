@@ -6,7 +6,7 @@
 #ifndef NDN_IDENTITY_MANAGER_HPP
 #define	NDN_IDENTITY_MANAGER_HPP
 
-#include "../data.hpp"
+#include "../../data.hpp"
 
 namespace ndn {
 
