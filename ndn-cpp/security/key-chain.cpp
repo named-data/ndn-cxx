@@ -77,12 +77,9 @@ void KeyChain::sign
   (Data& data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
    const unsigned char *privateKeyDer, unsigned int privateKeyDerLength, WireFormat& wireFormat)
 {
+  data.setSignature(Sha256WithRsaSignature());
   Sha256WithRsaSignature *signature = dynamic_cast<Sha256WithRsaSignature*>(data.getSignature());
-  if (!signature)
-    throw std::runtime_error("signature is not Sha256WithRsaSignature");
   
-  // Clear the signature so we don't encode it below.
-  signature->clear();
   // Set the public key.
   unsigned char publicKeyDigest[SHA256_DIGEST_LENGTH];
   ndn_digestSha256(publicKeyDer, publicKeyDerLength, publicKeyDigest);
