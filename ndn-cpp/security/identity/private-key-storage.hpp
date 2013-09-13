@@ -40,14 +40,15 @@ class PrivateKeyStorage {
 #endif
   
   /**
-   * Sign data blob.
-   * @param blob The blob to be signed.
+   * Fetch the private key for keyName and sign the data, returning a signature Blob.
+   * @param data Pointer to the input byte array.
+   * @param dataLength The length of data.
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
    * @return The signature, or 0 if signing fails.
    */  
   virtual Blob 
-  sign(const Blob& blob, const std::string& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256);
+  sign(const unsigned char *data, unsigned int dataLength, const std::string& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256);
     
 #if 0
   /**

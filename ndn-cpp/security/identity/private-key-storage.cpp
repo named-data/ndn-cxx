@@ -56,14 +56,14 @@ static unsigned char DEFAULT_PRIVATE_KEY_DER[] = {
 
 // TODO: Move to subclass.
 Blob 
-PrivateKeyStorage::sign(const Blob& blob, const string& keyName, DigestAlgorithm digestAlgorithm)
+PrivateKeyStorage::sign(const unsigned char *data, unsigned int dataLength, const string& keyName, DigestAlgorithm digestAlgorithm)
 {
 #if 1
   if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
     return Blob();
 
   unsigned char digest[SHA256_DIGEST_LENGTH];
-  ndn_digestSha256(blob.buf(), blob.size(), digest);
+  ndn_digestSha256(data, dataLength, digest);
   // TODO: use RSA_size to get the proper size of the signature buffer.
   unsigned char signatureBits[1000];
   unsigned int signatureBitsLength;
