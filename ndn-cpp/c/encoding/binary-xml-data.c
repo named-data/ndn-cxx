@@ -1,5 +1,6 @@
 /**
- * @author: Jeff Thompson
+ * Copyright (C) 2013 Regents of the University of California.
+ * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * Derived from ContentObject.js by Meki Cheraoui.
  * See COPYING for copyright and distribution information.
  */
