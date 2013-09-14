@@ -103,7 +103,7 @@ static string unescape(const string& str)
   return result.str();
 }
 
-bool Name::Component::setFromEscapedString(const char *escapedString, unsigned int beginOffset, unsigned int endOffset)
+Blob Name::Component::makeFromEscapedString(const char *escapedString, unsigned int beginOffset, unsigned int endOffset)
 {
   string trimmedString(escapedString + beginOffset, escapedString + endOffset);
   trim(trimmedString);
@@ -113,18 +113,16 @@ bool Name::Component::setFromEscapedString(const char *escapedString, unsigned i
     // Special case for component of only periods.  
     if (component.size() <= 2)
       // Zero, one or two periods is illegal.  Ignore this component.
-      return false;
+      return Blob();
     else
       // Remove 3 periods.
-      value_ = Blob((const unsigned char *)&component[3], component.size() - 3); 
+      return Blob((const unsigned char *)&component[3], component.size() - 3); 
   }
   else
-    value_ = Blob((const unsigned char *)&component[0], component.size()); 
-  
-  return true;
+    return Blob((const unsigned char *)&component[0], component.size()); 
 }
 
-void Name::Component::setSegment(unsigned long segment)
+Blob Name::Component::makeSegment(unsigned long segment)
 {
   ptr_lib::shared_ptr<vector<unsigned char> > value;
   
@@ -139,7 +137,7 @@ void Name::Component::setSegment(unsigned long segment)
   
   // Make it big endian.
   reverse(value->begin() + 1, value->end());
-  value_ = value;
+  return Blob(value);
 }
 
 void Name::set(const char *uri_cstr) 
@@ -189,10 +187,10 @@ void Name::set(const char *uri_cstr)
     if (iComponentEnd == string::npos)
       iComponentEnd = uri.size();
     
-    components_.push_back(Component());
-    if (!components_[components_.size() - 1].setFromEscapedString(&uri[0], iComponentStart, iComponentEnd))
-      // Ignore the illegal component.  This also gets rid of a trailing '/'.
-      components_.pop_back();
+    Blob component = Component::makeFromEscapedString(&uri[0], iComponentStart, iComponentEnd);
+    // Ignore illegal components.  This also gets rid of a trailing '/'.
+    if (component)
+      components_.push_back(Component(component));
     
     iComponentStart = iComponentEnd + 1;
   }
