@@ -153,8 +153,16 @@ public:
    */
   void setSignature(const Signature& signature) { signature_ = signature.clone(); }
   
+  /**
+   * Set name to a copy of the given Name.
+   * @param name The Name which is copied.
+   */
   void setName(const Name& name) { name_ = name; }
   
+  /**
+   * Set metaInfo to a copy of the given MetaInfo.
+   * @param metaInfo The MetaInfo which is copied.
+   */
   void setMetainfo(const MetaInfo& metaInfo) { metaInfo_ = metaInfo; }
 
   /**
