@@ -103,9 +103,9 @@ static string unescape(const string& str)
   return result.str();
 }
 
-bool Name::Component::setFromEscapedString(const char *first, const char *last)
+bool Name::Component::setFromEscapedString(const char *escapedString, unsigned int beginOffset, unsigned int endOffset)
 {
-  string trimmedString(first, last);
+  string trimmedString(escapedString + beginOffset, escapedString + endOffset);
   trim(trimmedString);
   string component = unescape(trimmedString);
         
@@ -190,7 +190,7 @@ void Name::set(const char *uri_cstr)
       iComponentEnd = uri.size();
     
     components_.push_back(Component());
-    if (!components_[components_.size() - 1].setFromEscapedString(&uri[iComponentStart], &uri[iComponentEnd]))
+    if (!components_[components_.size() - 1].setFromEscapedString(&uri[0], iComponentStart, iComponentEnd))
       // Ignore the illegal component.  This also gets rid of a trailing '/'.
       components_.pop_back();
     

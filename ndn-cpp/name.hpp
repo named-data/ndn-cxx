@@ -18,6 +18,9 @@ namespace ndn {
     
 class Name {
 public:
+  /**
+   * A Name::Component is holds an immutable name component value.
+   */
   class Component {
   public:
     /**
@@ -69,19 +72,20 @@ public:
         componentStruct.value = 0;
     }
   
-    /**
-     * Set this component value by decoding the escapedString between first and last according to the NDN URI Scheme.
-     * If the escaped string is "", "." or ".." then return false, which means this component value was not changed, and
-     * the component should be skipped in a URI name.
-     * @param first Pointer to the beginning of the escaped string
-     * @param last Pointer to the first character past the end of the escaped string
-     * @return True for success, false if escapedString is not a valid escaped component.
-     */
-    bool setFromEscapedString(const char *first, const char *last);
-  
     const Blob& getValue() const { return value_; }
     
     void setValue(const Blob& value) { value_ = value; }
+  
+    /**
+     * Set this component value by decoding the escapedString between beginOffset and endOffset according to the NDN URI Scheme.
+     * If the escaped string is "", "." or ".." then return false, which means this component value was not changed, and
+     * the component should be skipped in a URI name.
+     * @param escapedString The escaped string.  It does not need to be null-terminated because we only scan to endOffset.
+     * @param beginOffset The offset in escapedString of the beginning of the portion to decode.
+     * @param endOffset The offset in escapedString of the end of the portion to decode.
+     * @return True for success, false if escapedString is not a valid escaped component.
+     */
+    bool setFromEscapedString(const char *escapedString, unsigned int beginOffset, unsigned int endOffset);
     
     /**
      * Set this component to the encoded segment number.
