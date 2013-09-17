@@ -8,6 +8,7 @@
 #define	NDN_SHA256_WITH_RSA_SIGNATURE_HPP
 
 #include "data.hpp"
+#include "key.hpp"
 #include "publisher-public-key-digest.hpp"
 
 namespace ndn {
@@ -86,6 +87,17 @@ public:
   { 
     signature_ = Blob(signature, signatureLength); 
   }
+
+  /**
+   * Set signature to point to an existing byte array.  IMPORTANT: After calling this,
+   * if you keep a pointer to the array then you must treat the array as immutable and promise not to change it.
+   * @param signature A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
+   */
+  void 
+  setSignature(const ptr_lib::shared_ptr<std::vector<unsigned char> > &signature) { signature_ = signature; }
+
+  void 
+  setSignature(const ptr_lib::shared_ptr<const std::vector<unsigned char> > &signature) { signature_ = signature; }
 
   void 
   setPublisherPublicKeyDigest(const PublisherPublicKeyDigest& publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
