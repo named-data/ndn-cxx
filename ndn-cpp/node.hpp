@@ -18,18 +18,18 @@ namespace ndn {
 /**
  * An OnData function object is used to pass a callback to expressInterest.
  */
-typedef func_lib::function<void(const ptr_lib::shared_ptr<const Interest>& , const ptr_lib::shared_ptr<Data>& )> OnData;
+typedef func_lib::function<void(const ptr_lib::shared_ptr<const Interest>&, const ptr_lib::shared_ptr<Data>&)> OnData;
 
 /**
  * An OnTimeout function object is used to pass a callback to expressInterest.
  */
-typedef func_lib::function<void(const ptr_lib::shared_ptr<const Interest>& )> OnTimeout;
+typedef func_lib::function<void(const ptr_lib::shared_ptr<const Interest>&)> OnTimeout;
 
 /**
  * An OnInterest function object is used to pass a callback to registerPrefix.
  */
 typedef func_lib::function<void
-  (const ptr_lib::shared_ptr<const Name>& , const ptr_lib::shared_ptr<const Interest>& , Transport& )> OnInterest;
+  (const ptr_lib::shared_ptr<const Name>&, const ptr_lib::shared_ptr<const Interest>&, Transport&)> OnInterest;
 
 class Face;
   
