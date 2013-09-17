@@ -10,6 +10,7 @@
 #include "common.hpp"
 #include "name.hpp"
 #include "key.hpp"
+#include "util/signed-blob.hpp"
 #include "c/data.h"
 
 namespace ndn {
@@ -110,14 +111,27 @@ public:
    */
   Data(const Name& name);
   
-  Blob wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
-  {
-    return wireFormat.encodeData(*this);
-  }
-  void wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
-  {
-    wireFormat.decodeData(*this, input, inputLength);
-  }
+  /**
+   * Encode this Data for a particular wire format. Also, set the wireEncoding field to the encoded result.
+   * This is not const because it updates the wireEncoding.
+   * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
+   * @return The encoded byte array.
+   */
+  SignedBlob wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  
+  /**
+   * Decode the input using a particular wire format and update this Data. Also, set the wireEncoding field to the input.
+   * @param input The input byte array to be decoded.
+   * @param inputLength The length of input.
+   * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat getDefaultWireFormat().
+   */
+  void wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  
+  /**
+   * Decode the input using a particular wire format and update this Data. Also, set the wireEncoding field to the input.
+   * @param input The input byte array to be decoded.
+   * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat getDefaultWireFormat().
+   */
   void wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireDecode(&input[0], input.size(), wireFormat);
@@ -137,13 +151,28 @@ public:
   void set(const struct ndn_Data& dataStruct);
 
   const Signature* getSignature() const { return signature_.get(); }
-  Signature* getSignature() { return signature_.get(); }
+  Signature* getSignature() 
+  { 
+    // TODO: Should add an OnChanged listener to instead of always calling onChanged.
+    onChanged();
+    return signature_.get(); 
+  }
   
   const Name& getName() const { return name_; }
-  Name& getName() { return name_; }
+  Name& getName() 
+  { 
+    // TODO: Should add an OnChanged listener to instead of always calling onChanged.
+    onChanged();
+    return name_; 
+  }
   
   const MetaInfo& getMetaInfo() const { return metaInfo_; }
-  MetaInfo& getMetaInfo() { return metaInfo_; }
+  MetaInfo& getMetaInfo() 
+  { 
+    // TODO: Should add an OnChanged listener to instead of always calling onChanged.
+    onChanged();
+    return metaInfo_; 
+  }
   
   const Blob& getContent() const { return content_; }
 
@@ -151,28 +180,45 @@ public:
    * Set the signature to a copy of the given signature.
    * @param signature The signature object which is cloned.
    */
-  void setSignature(const Signature& signature) { signature_ = signature.clone(); }
+  void setSignature(const Signature& signature) 
+  { 
+    signature_ = signature.clone(); 
+    onChanged();
+  }
   
   /**
    * Set name to a copy of the given Name.
    * @param name The Name which is copied.
    */
-  void setName(const Name& name) { name_ = name; }
+  void setName(const Name& name) 
+  { 
+    name_ = name; 
+    onChanged();
+  }
   
   /**
    * Set metaInfo to a copy of the given MetaInfo.
    * @param metaInfo The MetaInfo which is copied.
    */
-  void setMetainfo(const MetaInfo& metaInfo) { metaInfo_ = metaInfo; }
+  void setMetainfo(const MetaInfo& metaInfo) 
+  { 
+    metaInfo_ = metaInfo; 
+    onChanged();
+  }
 
   /**
    * Set the content to a copy of the data in the vector.
    * @param content A vector whose contents are copied.
    */
-  void setContent(const std::vector<unsigned char>& content) { content_ = content; }
+  void setContent(const std::vector<unsigned char>& content) 
+  { 
+    content_ = content; 
+    onChanged();
+  }
   void setContent(const unsigned char *content, unsigned int contentLength) 
   { 
     content_ = Blob(content, contentLength); 
+    onChanged();
   }
       
   /**
@@ -180,14 +226,28 @@ public:
    * if you keep a pointer to the array then you must treat the array as immutable and promise not to change it.
    * @param content A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
    */
-  void setContent(const ptr_lib::shared_ptr<std::vector<unsigned char> > &content) { content_ = content; }
-  void setContent(const ptr_lib::shared_ptr<const std::vector<unsigned char> > &content) { content_ = content; }
+  void setContent(const ptr_lib::shared_ptr<std::vector<unsigned char> > &content) 
+  { 
+    content_ = content;
+    onChanged();
+  }
+  void setContent(const ptr_lib::shared_ptr<const std::vector<unsigned char> > &content) 
+  { 
+    content_ = content;
+    onChanged();
+  }
 
 private:
+  /**
+   * Clear the wire encoding.
+   */
+  void onChanged();
+  
   ptr_lib::shared_ptr<Signature> signature_;
   Name name_;
   MetaInfo metaInfo_;
   Blob content_;
+  SignedBlob wireEncoding_;
 };
   
 }

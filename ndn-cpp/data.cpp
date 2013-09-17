@@ -29,7 +29,7 @@ void MetaInfo::set(const struct ndn_MetaInfo& metaInfoStruct)
   timestampMilliseconds_ = metaInfoStruct.timestampMilliseconds;
   type_ = metaInfoStruct.type;
   freshnessSeconds_ = metaInfoStruct.freshnessSeconds;
-  finalBlockID_.setValue(Blob(metaInfoStruct.finalBlockID.value, metaInfoStruct.finalBlockID.valueLength));
+  finalBlockID_ = Name::Component(Blob(metaInfoStruct.finalBlockID.value, metaInfoStruct.finalBlockID.valueLength));
 }
 
 Data::Data()
@@ -61,6 +61,30 @@ void Data::set(const struct ndn_Data& dataStruct)
   name_.set(dataStruct.name);
   metaInfo_.set(dataStruct.metaInfo);
   content_ = Blob(dataStruct.content, dataStruct.contentLength);
+
+  onChanged();
+}
+
+SignedBlob Data::wireEncode(WireFormat& wireFormat) 
+{
+  unsigned int signedPortionBeginOffset, signedPortionEndOffset;
+  Blob encoding = wireFormat.encodeData(*this, &signedPortionBeginOffset, &signedPortionEndOffset);
+  
+  wireEncoding_ = SignedBlob(encoding, signedPortionBeginOffset, signedPortionEndOffset);
+  return wireEncoding_;
+}
+
+void Data::wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat) 
+{
+  unsigned int signedPortionBeginOffset, signedPortionEndOffset;
+  wireFormat.decodeData(*this, input, inputLength, &signedPortionBeginOffset, &signedPortionEndOffset);
+  
+  wireEncoding_ = SignedBlob(input, inputLength, signedPortionBeginOffset, signedPortionEndOffset);
+}
+
+void Data::onChanged()
+{
+  wireEncoding_ = SignedBlob();
 }
 
 }
