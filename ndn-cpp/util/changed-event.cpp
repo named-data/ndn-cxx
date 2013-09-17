@@ -10,7 +10,8 @@ using namespace std;
 
 namespace ndn {
 
-void ChangedEvent::fire()
+void 
+ChangedEvent::fire()
 {
   for (unsigned int i = 0; i < listeners_.size(); ++i)
     listeners_[i]();

@@ -32,15 +32,20 @@ public:
   {
   }
   
-  Blob wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
+  Blob 
+  wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
   {
     return wireFormat.encodeForwardingEntry(*this);
   }
-  void wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  
+  void 
+  wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireFormat.decodeForwardingEntry(*this, input, inputLength);
   }
-  void wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  
+  void 
+  wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireDecode(&input[0], input.size(), wireFormat);
   }
@@ -50,36 +55,53 @@ public:
    * WARNING: The resulting pointers in forwardingEntryStruct are invalid after a further use of this object which could reallocate memory.
    * @param forwardingEntryStruct a C ndn_ForwardingEntry struct where the prefix name components array is already allocated.
    */
-  void get(struct ndn_ForwardingEntry& forwardingEntryStruct) const;
+  void 
+  get(struct ndn_ForwardingEntry& forwardingEntryStruct) const;
 
-  const std::string& getAction() const { return action_; }
+  const std::string& 
+  getAction() const { return action_; }
   
-  Name& getPrefix() { return prefix_; }
-  const Name& getPrefix() const { return prefix_; }
+  Name& 
+  getPrefix() { return prefix_; }
   
-  PublisherPublicKeyDigest& getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
-  const PublisherPublicKeyDigest& getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
+  const Name& 
+  getPrefix() const { return prefix_; }
   
-  int getFaceId() const { return faceId_; }
+  PublisherPublicKeyDigest& 
+  getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
+  
+  const PublisherPublicKeyDigest& 
+  getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
+  
+  int 
+  getFaceId() const { return faceId_; }
 
-  int getForwardingFlags() const { return forwardingFlags_; }
+  int 
+  getForwardingFlags() const { return forwardingFlags_; }
 
-  int getFreshnessSeconds() const { return freshnessSeconds_; }
+  int 
+  getFreshnessSeconds() const { return freshnessSeconds_; }
   
   /**
    * Clear this forwarding entry, and set the values by copying from forwardingEntryStruct.
    * @param forwardingEntryStruct a C ndn_ForwardingEntry struct.
    */
-  void set(const struct ndn_ForwardingEntry& forwardingEntryStruct);
+  void 
+  set(const struct ndn_ForwardingEntry& forwardingEntryStruct);
 
-  void setAction(const std::string& value) { action_ = value; }
+  void 
+  setAction(const std::string& value) { action_ = value; }
   
-  void setFaceId(int value) { faceId_ = value; }
+  void 
+  setFaceId(int value) { faceId_ = value; }
       
-  void setForwardingFlags(int value) { forwardingFlags_ = value; }
+  void 
+  setForwardingFlags(int value) { forwardingFlags_ = value; }
       
-  void setFreshnessSeconds(int value) { freshnessSeconds_ = value; }
+  void 
+  setFreshnessSeconds(int value) { freshnessSeconds_ = value; }
       
+private:
   std::string action_;   /**< empty for none. */
   Name prefix_;
   PublisherPublicKeyDigest publisherPublicKeyDigest_;

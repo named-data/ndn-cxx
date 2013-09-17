@@ -28,16 +28,19 @@ public:
    * @param connectionInfo A reference to an object of a subclass of ConnectionInfo.
    * @param elementListener Not a shared_ptr because we assume that it will remain valid during the life of this object.
    */
-  virtual void connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener);
+  virtual void 
+  connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener);
   
   /**
    * Set data to the host
    * @param data A pointer to the buffer of data to send.
    * @param dataLength The number of bytes in data.
    */
-  virtual void send(const unsigned char *data, unsigned int dataLength);
+  virtual void 
+  send(const unsigned char *data, unsigned int dataLength);
   
-  void send(const std::vector<unsigned char>& data)
+  void 
+  send(const std::vector<unsigned char>& data)
   {
     send(&data[0], data.size());
   }
@@ -49,14 +52,17 @@ public:
    * @throw This may throw an exception for reading data or in the callback for processing the data.  If you
    * call this from an main event loop, you may want to catch and log/disregard all exceptions.
    */
-  virtual void processEvents() = 0;
+  virtual void 
+  processEvents() = 0;
 
-  virtual bool getIsConnected();
+  virtual bool 
+  getIsConnected();
   
   /**
    * Close the connection.  This base class implementation does nothing, but your derived class can override.
    */
-  virtual void close();
+  virtual void 
+  close();
   
   virtual ~Transport();
 };

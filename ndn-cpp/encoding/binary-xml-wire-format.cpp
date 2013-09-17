@@ -20,12 +20,14 @@ using namespace std;
 namespace ndn {
 
 // This is declared in the WireFormat class.
-WireFormat *WireFormat::newInitialDefaultWireFormat() 
+WireFormat*
+WireFormat::newInitialDefaultWireFormat() 
 {
   return new BinaryXmlWireFormat();
 }
   
-Blob BinaryXmlWireFormat::encodeInterest(const Interest& interest) 
+Blob 
+BinaryXmlWireFormat::encodeInterest(const Interest& interest) 
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ExcludeEntry excludeEntries[100];
@@ -43,7 +45,8 @@ Blob BinaryXmlWireFormat::encodeInterest(const Interest& interest)
   return encoder.getOutput();
 }
 
-void BinaryXmlWireFormat::decodeInterest(Interest& interest, const unsigned char *input, unsigned int inputLength)
+void 
+BinaryXmlWireFormat::decodeInterest(Interest& interest, const unsigned char *input, unsigned int inputLength)
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_ExcludeEntry excludeEntries[100];
@@ -60,7 +63,8 @@ void BinaryXmlWireFormat::decodeInterest(Interest& interest, const unsigned char
   interest.set(interestStruct);
 }
 
-Blob BinaryXmlWireFormat::encodeData(const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset) 
+Blob 
+BinaryXmlWireFormat::encodeData(const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset) 
 {
   struct ndn_NameComponent nameComponents[100];
   struct ndn_NameComponent keyNameComponents[100];
@@ -78,7 +82,8 @@ Blob BinaryXmlWireFormat::encodeData(const Data& data, unsigned int *signedPorti
   return encoder.getOutput();
 }
 
-void BinaryXmlWireFormat::decodeData
+void 
+BinaryXmlWireFormat::decodeData
   (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset)
 {
   struct ndn_NameComponent nameComponents[100];
@@ -96,7 +101,8 @@ void BinaryXmlWireFormat::decodeData
   data.set(dataStruct);
 }
 
-Blob BinaryXmlWireFormat::encodeForwardingEntry(const ForwardingEntry& forwardingEntry) 
+Blob 
+BinaryXmlWireFormat::encodeForwardingEntry(const ForwardingEntry& forwardingEntry) 
 {
   struct ndn_NameComponent prefixNameComponents[100];
   struct ndn_ForwardingEntry forwardingEntryStruct;
@@ -112,7 +118,8 @@ Blob BinaryXmlWireFormat::encodeForwardingEntry(const ForwardingEntry& forwardin
   return encoder.getOutput();
 }
 
-void BinaryXmlWireFormat::decodeForwardingEntry(ForwardingEntry& forwardingEntry, const unsigned char *input, unsigned int inputLength)
+void 
+BinaryXmlWireFormat::decodeForwardingEntry(ForwardingEntry& forwardingEntry, const unsigned char *input, unsigned int inputLength)
 {
   struct ndn_NameComponent prefixNameComponents[100];
   struct ndn_ForwardingEntry forwardingEntryStruct;

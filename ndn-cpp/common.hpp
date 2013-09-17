@@ -56,7 +56,8 @@ namespace ndn {
  * @param array The array of bytes.
  * @return Hex string.
  */
-std::string toHex(const std::vector<unsigned char>& array);
+std::string 
+toHex(const std::vector<unsigned char>& array);
 
 }
 

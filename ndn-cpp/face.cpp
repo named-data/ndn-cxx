@@ -10,7 +10,8 @@ using namespace std;
 
 namespace ndn {
   
-void Face::expressInterest(const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout)
+void 
+Face::expressInterest(const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout)
 {
   if (interestTemplate)
     node_.expressInterest(Interest
@@ -22,7 +23,8 @@ void Face::expressInterest(const Name& name, const Interest *interestTemplate, c
     node_.expressInterest(Interest(name, 4000.0), onData, onTimeout);  
 }
 
-void Face::shutdown()
+void 
+Face::shutdown()
 {
   node_.shutdown();
 }

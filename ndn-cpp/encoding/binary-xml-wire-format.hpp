@@ -22,7 +22,8 @@ public:
    * @param interest The Interest object to encode.
    * @return A Blob containing the encoding.
    */  
-  virtual Blob encodeInterest(const Interest& interest);
+  virtual Blob 
+  encodeInterest(const Interest& interest);
     
   /**
    * Decode input as an interest in binary XML and set the fields of the interest object.
@@ -30,7 +31,8 @@ public:
    * @param input A pointer to the input buffer to decode.
    * @param inputLength The number of bytes in input.
    */
-  virtual void decodeInterest(Interest& interest, const unsigned char *input, unsigned int inputLength);
+  virtual void 
+  decodeInterest(Interest& interest, const unsigned char *input, unsigned int inputLength);
 
   /**
    * Encode data with binary XML and return the encoding.
@@ -41,7 +43,8 @@ public:
    * If you are not encoding in order to sign, you can call encodeData(const Data& data) to ignore this returned value.
    * @return A Blob containing the encoding.
    */
-  virtual Blob encodeData
+  virtual Blob 
+  encodeData
     (const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset);
   
   /**
@@ -56,7 +59,8 @@ public:
    * If you are not decoding in order to verify, you can call 
    * decodeData(Data& data, const unsigned char *input, unsigned int inputLength) to ignore this returned value.
    */  
-  virtual void decodeData
+  virtual void 
+  decodeData
     (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset);
 
   /**
@@ -64,7 +68,8 @@ public:
    * @param forwardingEntry The ForwardingEntry object to encode.
    * @return A Blob containing the encoding.
    */
-  virtual Blob encodeForwardingEntry(const ForwardingEntry& forwardingEntry);
+  virtual Blob 
+  encodeForwardingEntry(const ForwardingEntry& forwardingEntry);
   
   /**
    * Decode input as a forwarding entry in binary XML and set the fields of the forwardingEntry object. 
@@ -72,7 +77,8 @@ public:
    * @param input A pointer to the input buffer to decode.
    * @param inputLength The number of bytes in input.
    */
-  virtual void decodeForwardingEntry(ForwardingEntry& forwardingEntry, const unsigned char *input, unsigned int inputLength);
+  virtual void 
+  decodeForwardingEntry(ForwardingEntry& forwardingEntry, const unsigned char *input, unsigned int inputLength);
 };
   
 }

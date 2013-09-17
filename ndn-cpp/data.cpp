@@ -16,7 +16,8 @@ Signature::~Signature()
 {
 }
   
-void MetaInfo::get(struct ndn_MetaInfo& metaInfoStruct) const 
+void 
+MetaInfo::get(struct ndn_MetaInfo& metaInfoStruct) const 
 {
   metaInfoStruct.timestampMilliseconds = timestampMilliseconds_;
   metaInfoStruct.type = type_;
@@ -24,7 +25,8 @@ void MetaInfo::get(struct ndn_MetaInfo& metaInfoStruct) const
   finalBlockID_.get(metaInfoStruct.finalBlockID);
 }
 
-void MetaInfo::set(const struct ndn_MetaInfo& metaInfoStruct)
+void 
+MetaInfo::set(const struct ndn_MetaInfo& metaInfoStruct)
 {
   timestampMilliseconds_ = metaInfoStruct.timestampMilliseconds;
   type_ = metaInfoStruct.type;
@@ -42,7 +44,8 @@ Data::Data(const Name& name)
 {
 }
 
-void Data::get(struct ndn_Data& dataStruct) const 
+void 
+Data::get(struct ndn_Data& dataStruct) const 
 {
   signature_->get(dataStruct.signature);
   name_.get(dataStruct.name);
@@ -55,7 +58,8 @@ void Data::get(struct ndn_Data& dataStruct) const
     dataStruct.content = 0;
 }
 
-void Data::set(const struct ndn_Data& dataStruct)
+void 
+Data::set(const struct ndn_Data& dataStruct)
 {
   signature_->set(dataStruct.signature);
   name_.set(dataStruct.name);
@@ -65,7 +69,8 @@ void Data::set(const struct ndn_Data& dataStruct)
   onChanged();
 }
 
-SignedBlob Data::wireEncode(WireFormat& wireFormat) 
+SignedBlob 
+Data::wireEncode(WireFormat& wireFormat) 
 {
   unsigned int signedPortionBeginOffset, signedPortionEndOffset;
   Blob encoding = wireFormat.encodeData(*this, &signedPortionBeginOffset, &signedPortionEndOffset);
@@ -74,7 +79,8 @@ SignedBlob Data::wireEncode(WireFormat& wireFormat)
   return wireEncoding_;
 }
 
-void Data::wireDecode(const unsigned char* input, unsigned int inputLength, WireFormat& wireFormat) 
+void 
+Data::wireDecode(const unsigned char* input, unsigned int inputLength, WireFormat& wireFormat) 
 {
   unsigned int signedPortionBeginOffset, signedPortionEndOffset;
   wireFormat.decodeData(*this, input, inputLength, &signedPortionBeginOffset, &signedPortionEndOffset);
@@ -82,7 +88,8 @@ void Data::wireDecode(const unsigned char* input, unsigned int inputLength, Wire
   wireEncoding_ = SignedBlob(input, inputLength, signedPortionBeginOffset, signedPortionEndOffset);
 }
 
-void Data::onChanged()
+void 
+Data::onChanged()
 {
   wireEncoding_ = SignedBlob();
 }

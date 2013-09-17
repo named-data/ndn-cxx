@@ -27,7 +27,8 @@ public:
    * WARNING: The resulting pointers in publisherPublicKeyDigestStruct are invalid after a further use of this object which could reallocate memory.
    * @param publisherPublicKeyDigestStruct a C ndn_PublisherPublicKeyDigest struct to receive the pointer
    */
-  void get(struct ndn_PublisherPublicKeyDigest& publisherPublicKeyDigestStruct) const 
+  void 
+  get(struct ndn_PublisherPublicKeyDigest& publisherPublicKeyDigestStruct) const 
   {
     publisherPublicKeyDigestStruct.publisherPublicKeyDigestLength = publisherPublicKeyDigest_.size();
     if (publisherPublicKeyDigest_.size() > 0)
@@ -40,16 +41,24 @@ public:
    * Clear this PublisherPublicKeyDigest, and copy from the ndn_PublisherPublicKeyDigest struct.
    * @param excludeStruct a C ndn_Exclude struct
    */
-  void set(const struct ndn_PublisherPublicKeyDigest& publisherPublicKeyDigestStruct) 
+  void 
+  set(const struct ndn_PublisherPublicKeyDigest& publisherPublicKeyDigestStruct) 
   {
     publisherPublicKeyDigest_ = 
       Blob(publisherPublicKeyDigestStruct.publisherPublicKeyDigest, publisherPublicKeyDigestStruct.publisherPublicKeyDigestLength);
   }
 
-  const Blob& getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
+  const Blob& 
+  getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
 
-  void setPublisherPublicKeyDigest(const std::vector<unsigned char>& publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
-  void setPublisherPublicKeyDigest(const unsigned char *publisherPublicKeyDigest, unsigned int publisherPublicKeyDigestLength) 
+  void 
+  setPublisherPublicKeyDigest(const std::vector<unsigned char>& publisherPublicKeyDigest) 
+  { 
+    publisherPublicKeyDigest_ = publisherPublicKeyDigest; 
+  }
+  
+  void 
+  setPublisherPublicKeyDigest(const unsigned char *publisherPublicKeyDigest, unsigned int publisherPublicKeyDigestLength) 
   { 
     publisherPublicKeyDigest_ = Blob(publisherPublicKeyDigest, publisherPublicKeyDigestLength); 
   }
@@ -57,7 +66,8 @@ public:
   /**
    * Clear the publisherPublicKeyDigest.
    */
-  void clear()
+  void 
+  clear()
   {
     publisherPublicKeyDigest_.reset();
   }

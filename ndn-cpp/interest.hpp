@@ -39,7 +39,8 @@ public:
    * WARNING: The resulting pointer in excludeEntryStruct is invalid after a further use of this object which could reallocate memory.
    * @param excludeEntryStruct the C ndn_NameComponent struct to receive the pointer
    */
-  void get(struct ndn_ExcludeEntry& excludeEntryStruct) const 
+  void 
+  get(struct ndn_ExcludeEntry& excludeEntryStruct) const 
   {
     excludeEntryStruct.type = type_;
     if (type_ == ndn_Exclude_COMPONENT)
@@ -66,29 +67,34 @@ public:
   Exclude() {
   }
   
-  unsigned int getEntryCount() const {
+  unsigned int 
+  getEntryCount() const {
     return entries_.size();
   }
   
-  const ExcludeEntry& getEntry(unsigned int i) const { return entries_[i]; }
+  const ExcludeEntry& 
+  getEntry(unsigned int i) const { return entries_[i]; }
   
   /**
    * Set the excludeStruct to point to the entries in this Exclude, without copying any memory.
    * WARNING: The resulting pointers in excludeStruct are invalid after a further use of this object which could reallocate memory.
    * @param excludeStruct a C ndn_Exclude struct where the entries array is already allocated
    */
-  void get(struct ndn_Exclude& excludeStruct) const;
+  void 
+  get(struct ndn_Exclude& excludeStruct) const;
   
   /**
    * Clear this Exclude, and set the entries by copying from the ndn_Exclude struct.
    * @param excludeStruct a C ndn_Exclude struct
    */
-  void set(const struct ndn_Exclude& excludeStruct);
+  void 
+  set(const struct ndn_Exclude& excludeStruct);
 
   /**
    * Add a new entry of type ndn_Exclude_ANY
    */
-  void addAny()
+  void 
+  addAny()
   {    
     entries_.push_back(ExcludeEntry());
   }
@@ -96,7 +102,8 @@ public:
   /**
    * Add a new entry of type ndn_Exclude_COMPONENT, copying from component of length compnentLength
    */
-  void addComponent(unsigned char *component, unsigned int componentLen) 
+  void 
+  addComponent(unsigned char *component, unsigned int componentLen) 
   {
     entries_.push_back(ExcludeEntry(component, componentLen));
   }
@@ -104,7 +111,8 @@ public:
   /**
    * Clear all the entries.
    */
-  void clear() {
+  void 
+  clear() {
     entries_.clear();
   }
   
@@ -160,15 +168,20 @@ public:
     construct();
   }
   
-  Blob wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
+  Blob 
+  wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
   {
     return wireFormat.encodeInterest(*this);
   }
-  void wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  
+  void 
+  wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireFormat.decodeInterest(*this, input, inputLength);
   }
-  void wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  
+  void 
+  wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireDecode(&input[0], input.size(), wireFormat);
   }
@@ -178,53 +191,79 @@ public:
    * WARNING: The resulting pointers in interestStruct are invalid after a further use of this object which could reallocate memory.
    * @param interestStruct a C ndn_Interest struct where the name components array is already allocated.
    */
-  void get(struct ndn_Interest& interestStruct) const;
+  void 
+  get(struct ndn_Interest& interestStruct) const;
 
-  Name& getName() { return name_; }
-  const Name& getName() const { return name_; }
+  Name& 
+  getName() { return name_; }
   
-  int getMinSuffixComponents() const { return minSuffixComponents_; }
+  const Name& 
+  getName() const { return name_; }
   
-  int getMaxSuffixComponents() const { return maxSuffixComponents_; }
+  int 
+  getMinSuffixComponents() const { return minSuffixComponents_; }
   
-  PublisherPublicKeyDigest& getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
-  const PublisherPublicKeyDigest& getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
-
-  Exclude& getExclude() { return exclude_; }
-  const Exclude& getExclude() const { return exclude_; }
+  int 
+  getMaxSuffixComponents() const { return maxSuffixComponents_; }
   
-  int getChildSelector() const { return childSelector_; }
+  PublisherPublicKeyDigest& 
+  getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
+  
+  const PublisherPublicKeyDigest& 
+  getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
 
-  int getAnswerOriginKind() const { return answerOriginKind_; }
+  Exclude& 
+  getExclude() { return exclude_; }
+  
+  const Exclude& 
+  getExclude() const { return exclude_; }
+  
+  int 
+  getChildSelector() const { return childSelector_; }
 
-  int getScope() const { return scope_; }
+  int 
+  getAnswerOriginKind() const { return answerOriginKind_; }
 
-  double getInterestLifetimeMilliseconds() const { return interestLifetimeMilliseconds_; }
+  int 
+  getScope() const { return scope_; }
 
-  const Blob& getNonce() const { return nonce_; }
+  double 
+  getInterestLifetimeMilliseconds() const { return interestLifetimeMilliseconds_; }
+
+  const Blob& 
+  getNonce() const { return nonce_; }
   
   /**
    * Clear this interest, and set the values by copying from the interest struct.
    * @param interestStruct a C ndn_Interest struct
    */
-  void set(const struct ndn_Interest& interestStruct);
+  void 
+  set(const struct ndn_Interest& interestStruct);
   
-  void setMinSuffixComponents(int value) { minSuffixComponents_ = value; }
+  void 
+  setMinSuffixComponents(int value) { minSuffixComponents_ = value; }
   
-  void setMaxSuffixComponents(int value) { maxSuffixComponents_ = value; }
+  void 
+  setMaxSuffixComponents(int value) { maxSuffixComponents_ = value; }
   
-  void setChildSelector(int value) { childSelector_ = value; }
+  void 
+  setChildSelector(int value) { childSelector_ = value; }
 
-  void setAnswerOriginKind(int value) { answerOriginKind_ = value; }
+  void 
+  setAnswerOriginKind(int value) { answerOriginKind_ = value; }
 
-  void setScope(int value) { scope_ = value; }
+  void 
+  setScope(int value) { scope_ = value; }
 
-  void setInterestLifetimeMilliseconds(double value) { interestLifetimeMilliseconds_ = value; }
+  void 
+  setInterestLifetimeMilliseconds(double value) { interestLifetimeMilliseconds_ = value; }
 
-  void setNonce(const std::vector<unsigned char>& value) { nonce_ = value; }
+  void 
+  setNonce(const std::vector<unsigned char>& value) { nonce_ = value; }
   
 private:
-  void construct() 
+  void 
+  construct() 
   {
     minSuffixComponents_ = -1;
     maxSuffixComponents_ = -1;  

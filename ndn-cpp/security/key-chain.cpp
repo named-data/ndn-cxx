@@ -66,7 +66,8 @@ static unsigned char DEFAULT_PRIVATE_KEY_DER[] = {
  * @param data The Data object with the fields to digest.
  * @param digest A pointer to a buffer of size SHA256_DIGEST_LENGTH to receive the data.
  */
-static void dataSignedPortionSha256(const Data& data, WireFormat& wireFormat, unsigned char *digest)
+static void 
+dataSignedPortionSha256(const Data& data, WireFormat& wireFormat, unsigned char *digest)
 {
   unsigned int signedPortionBeginOffset, signedPortionEndOffset;
   Blob encoding = wireFormat.encodeData(data, &signedPortionBeginOffset, &signedPortionEndOffset);
@@ -74,7 +75,8 @@ static void dataSignedPortionSha256(const Data& data, WireFormat& wireFormat, un
   ndn_digestSha256(encoding.buf() + signedPortionBeginOffset, signedPortionEndOffset - signedPortionBeginOffset, digest);
 }
 
-void KeyChain::sign
+void 
+KeyChain::sign
   (Data& data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
    const unsigned char *privateKeyDer, unsigned int privateKeyDerLength, WireFormat& wireFormat)
 {
@@ -108,12 +110,14 @@ void KeyChain::sign
   signature->setSignature(signatureBits, signatureBitsLength);
 }
 
-void KeyChain::defaultSign(Data& data, WireFormat& wireFormat)
+void 
+KeyChain::defaultSign(Data& data, WireFormat& wireFormat)
 {
   sign(data, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER), wireFormat);
 }
 
-bool KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat)
+bool 
+KeyChain::selfVerifyData(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat)
 {
   // Decode the data packet and digest the data fields.
   Data data;

@@ -9,7 +9,8 @@
 
 namespace ndn {
 
-void IdentityManager::signByCertificate(const Data &data, const Name &certificateName, WireFormat& wireFormat)
+void 
+IdentityManager::signByCertificate(const Data &data, const Name &certificateName, WireFormat& wireFormat)
 {
   
 }

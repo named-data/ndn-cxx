@@ -23,7 +23,8 @@ public:
   /**
    * Clear the keyData and set the type to none.
    */
-  void clear()
+  void 
+  clear()
   {
     type_ = (ndn_KeyLocatorType)-1;
     keyNameType_ = (ndn_KeyNameType)-1;
@@ -35,27 +36,39 @@ public:
    * WARNING: The resulting pointers in keyLocatorStruct are invalid after a further use of this object which could reallocate memory.
    * @param keyLocatorStruct a C ndn_KeyLocator struct where the name components array is already allocated.
    */
-  void get(struct ndn_KeyLocator& keyLocatorStruct) const;
+  void 
+  get(struct ndn_KeyLocator& keyLocatorStruct) const;
   
   /**
    * Clear this key locator, and set the values by copying from the ndn_KeyLocator struct.
    * @param keyLocatorStruct a C ndn_KeyLocator struct
    */
-  void set(const struct ndn_KeyLocator& keyLocatorStruct);
+  void 
+  set(const struct ndn_KeyLocator& keyLocatorStruct);
 
-  ndn_KeyLocatorType getType() const { return type_; }
+  ndn_KeyLocatorType 
+  getType() const { return type_; }
   
-  const Blob& getKeyData() const { return keyData_; }
+  const Blob& 
+  getKeyData() const { return keyData_; }
 
-  const Name& getKeyName() const { return keyName_; }
-  Name& getKeyName() { return keyName_; }
-
-  ndn_KeyNameType getKeyNameType() const { return keyNameType_; }
-
-  void setType(ndn_KeyLocatorType type) { type_ = type; }
+  const Name& 
+  getKeyName() const { return keyName_; }
   
-  void setKeyData(const std::vector<unsigned char>& keyData) { keyData_ = keyData; }
-  void setKeyData(const unsigned char *keyData, unsigned int keyDataLength) 
+  Name& 
+  getKeyName() { return keyName_; }
+
+  ndn_KeyNameType 
+  getKeyNameType() const { return keyNameType_; }
+
+  void 
+  setType(ndn_KeyLocatorType type) { type_ = type; }
+  
+  void 
+  setKeyData(const std::vector<unsigned char>& keyData) { keyData_ = keyData; }
+  
+  void 
+  setKeyData(const unsigned char *keyData, unsigned int keyDataLength) 
   { 
     keyData_ = Blob(keyData, keyDataLength); 
   }
@@ -65,9 +78,11 @@ public:
    * if you keep a pointer to the array then you must treat the array as immutable and promise not to change it.
    * @param keyData A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
    */
-  void setKeyData(const ptr_lib::shared_ptr<std::vector<unsigned char> > &keyData) { keyData_ = keyData; }
+  void 
+  setKeyData(const ptr_lib::shared_ptr<std::vector<unsigned char> > &keyData) { keyData_ = keyData; }
 
-  void setKeyNameType(ndn_KeyNameType keyNameType) { keyNameType_ = keyNameType; }
+  void 
+  setKeyNameType(ndn_KeyNameType keyNameType) { keyNameType_ = keyNameType; }
 
 private:
   ndn_KeyLocatorType type_; /**< -1 for none */

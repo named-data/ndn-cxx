@@ -28,7 +28,8 @@ public:
    * later, you must copy.
    * @param elementLength length of element
    */
-  virtual void onReceivedElement(const unsigned char *element, unsigned int elementLength) = 0;
+  virtual void 
+  onReceivedElement(const unsigned char *element, unsigned int elementLength) = 0;
   
 private:
   /**
@@ -37,7 +38,8 @@ private:
    * @param element
    * @param elementLength
    */
-  static void staticOnReceivedElement(struct ndn_ElementListener *self, unsigned char *element, unsigned int elementLength);
+  static void 
+  staticOnReceivedElement(struct ndn_ElementListener *self, unsigned char *element, unsigned int elementLength);
 };
 
 }

@@ -68,7 +68,8 @@ public:
   /**
    * Return the length of the immutable byte array.
    */
-  unsigned int size() const
+  unsigned int 
+  size() const
   {
     if (*this)
       return (*this)->size();
@@ -79,7 +80,8 @@ public:
   /**
    * Return a const pointer to the first byte of the immutable byte array, or 0 if the pointer is null.
    */
-  const unsigned char* buf() const
+  const unsigned char* 
+  buf() const
   {
     if (*this)
       return &(*this)->front();

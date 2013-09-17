@@ -24,7 +24,8 @@ public:
    * @return A Blob containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual Blob encodeInterest(const Interest& interest);
+  virtual Blob 
+  encodeInterest(const Interest& interest);
   
   /**
    * Decode input as an interest and set the fields of the interest object.  Your derived class should override.
@@ -33,7 +34,8 @@ public:
    * @param inputLength The number of bytes in input.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual void decodeInterest(Interest& interest, const unsigned char *input, unsigned int inputLength);
+  virtual void 
+  decodeInterest(Interest& interest, const unsigned char *input, unsigned int inputLength);
 
   /**
    * Encode data and return the encoding.  Your derived class should override.
@@ -45,7 +47,8 @@ public:
    * @return A Blob containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual Blob encodeData
+  virtual Blob 
+  encodeData
     (const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset);
 
   /**
@@ -54,7 +57,8 @@ public:
    * @return A Blob containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  Blob encodeData(const Data& data)
+  Blob 
+  encodeData(const Data& data)
   {
     unsigned int dummyBeginOffset, dummyEndOffset;
     return encodeData(data, &dummyBeginOffset, &dummyEndOffset);
@@ -73,10 +77,12 @@ public:
    * decodeData(Data& data, const unsigned char *input, unsigned int inputLength) to ignore this returned value.
    * @throw logic_error for unimplemented if the derived class does not override.
    */  
-  virtual void decodeData
+  virtual void 
+  decodeData
     (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset);
 
-  void decodeData(Data& data, const unsigned char *input, unsigned int inputLength)
+  void 
+  decodeData(Data& data, const unsigned char *input, unsigned int inputLength)
   {
     unsigned int dummyBeginOffset, dummyEndOffset;
     decodeData(data, input, inputLength, &dummyBeginOffset, &dummyEndOffset);
@@ -88,7 +94,8 @@ public:
    * @return A Blob containing the encoding.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual Blob encodeForwardingEntry(const ForwardingEntry& forwardingEntry);
+  virtual Blob 
+  encodeForwardingEntry(const ForwardingEntry& forwardingEntry);
   
   /**
    * Decode input as a forwarding entry and set the fields of the forwardingEntry object.  Your derived class should override.
@@ -97,14 +104,16 @@ public:
    * @param inputLength The number of bytes in input.
    * @throw logic_error for unimplemented if the derived class does not override.
    */
-  virtual void decodeForwardingEntry(ForwardingEntry& forwardingEntry, const unsigned char *input, unsigned int inputLength);
+  virtual void 
+  decodeForwardingEntry(ForwardingEntry& forwardingEntry, const unsigned char *input, unsigned int inputLength);
 
   /**
    * Set the static default WireFormat used by default encoding and decoding methods.
    * @param wireFormat A Pointer to an object of a subclass of WireFormat.  This does not make a copy and
    * the caller must ensure that the object remains allocated.
    */
-  static void setDefaultWireFormat(WireFormat *wireFormat) 
+  static void 
+  setDefaultWireFormat(WireFormat *wireFormat) 
   {
     defaultWireFormat_ = wireFormat;
   }
@@ -114,7 +123,8 @@ public:
    * setDefaultWireFormat.
    * @return A pointer to the WireFormat object.
    */
-  static WireFormat *getDefaultWireFormat();
+  static WireFormat*
+  getDefaultWireFormat();
   
 private:
   /**
@@ -123,7 +133,8 @@ private:
    * needs to include another subclass which defines WireFormat::newInitialDefaultWireFormat.
    * @return a new object, which is held by a shared_ptr and freed when the application exits.
    */
-  static WireFormat *newInitialDefaultWireFormat();
+  static WireFormat*
+  newInitialDefaultWireFormat();
   
   static WireFormat *defaultWireFormat_;
 };

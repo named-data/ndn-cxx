@@ -63,7 +63,8 @@ public:
      * WARNING: The resulting pointer in componentStruct is invalid after a further use of this object which could reallocate memory.
      * @param componentStruct The C ndn_NameComponent struct to receive the pointer.
      */
-    void get(struct ndn_NameComponent& componentStruct) const 
+    void 
+    get(struct ndn_NameComponent& componentStruct) const 
     {
       componentStruct.valueLength = value_.size(); 
       if (value_.size() > 0)
@@ -72,7 +73,8 @@ public:
         componentStruct.value = 0;
     }
   
-    const Blob& getValue() const { return value_; }
+    const Blob& 
+    getValue() const { return value_; }
     
     /**
      * Make a component value by decoding the escapedString between beginOffset and endOffset according to the NDN URI Scheme.
@@ -83,14 +85,16 @@ public:
      * @param endOffset The offset in escapedString of the end of the portion to decode.
      * @return The component value as a Blob, or a Blob with a null pointer if escapedString is not a valid escaped component.
      */
-    static Blob makeFromEscapedString(const char *escapedString, unsigned int beginOffset, unsigned int endOffset);
+    static Blob 
+    makeFromEscapedString(const char *escapedString, unsigned int beginOffset, unsigned int endOffset);
     
     /**
      * Make a component as the encoded segment number.
      * @param segment The segment number.
      * @return The component value as a Blob.
      */
-    static Blob makeSegment(unsigned long segment);
+    static Blob 
+    makeSegment(unsigned long segment);
   
   private:
     Blob value_;
@@ -125,24 +129,28 @@ public:
    * WARNING: The resulting pointers in nameStruct are invalid after a further use of this object which could reallocate memory.
    * @param nameStruct A C ndn_Name struct where the components array is already allocated.
    */
-  void get(struct ndn_Name& nameStruct) const;
+  void 
+  get(struct ndn_Name& nameStruct) const;
   
   /**
    * Clear this name, and set the components by copying from the name struct.
    * @param nameStruct A C ndn_Name struct
    */
-  void set(const struct ndn_Name& nameStruct);
+  void 
+  set(const struct ndn_Name& nameStruct);
   
   /**
    * Parse the uri according to the NDN URI Scheme and set the name with the components.
    * @param uri The URI string.
    */
-  void set(const char *uri);  
+  void 
+  set(const char *uri);  
 
   /**
    * Add a new component, copying from value of length valueLength.
    */
-  void addComponent(const unsigned char *value, unsigned int valueLength) 
+  void 
+  addComponent(const unsigned char *value, unsigned int valueLength) 
   {
     components_.push_back(Component(value, valueLength));
   }
@@ -150,12 +158,14 @@ public:
   /**
    * Add a new component, copying from value.
    */
-  void addComponent(const std::vector<unsigned char>& value) 
+  void 
+  addComponent(const std::vector<unsigned char>& value) 
   {
     components_.push_back(value);
   }
   
-  void addComponent(const Blob &value)
+  void 
+  addComponent(const Blob &value)
   {
     components_.push_back(value);
   }
@@ -163,7 +173,8 @@ public:
   /**
    * Clear all the components.
    */
-  void clear() {
+  void 
+  clear() {
     components_.clear();
   }
   
@@ -171,22 +182,26 @@ public:
    * Get the number of components.
    * @return The number of components.
    */
-  unsigned int getComponentCount() const {
+  unsigned int 
+  getComponentCount() const {
     return components_.size();
   }
   
-  const Component& getComponent(unsigned int i) const { return components_[i]; }
+  const Component& 
+  getComponent(unsigned int i) const { return components_[i]; }
   
   /**
    * Encode this name as a URI.
    * @return The encoded URI.
    */
-  std::string toUri() const;
+  std::string 
+  toUri() const;
   
   /**
    * @deprecated Use toUri().
    */
-  std::string to_uri() const 
+  std::string 
+  to_uri() const 
   {
     return toUri();
   }
@@ -195,7 +210,8 @@ public:
    * Append a component with the encoded segment number.
    * @param segment The segment number.
    */
-  void appendSegment(unsigned long segment)
+  void 
+  appendSegment(unsigned long segment)
   {
     components_.push_back(Component(Component::makeSegment(segment)));
   }
@@ -205,7 +221,8 @@ public:
    * @param name The Name to check.
    * @return true if this matches the given name, otherwise false.  This always returns true if this name is empty.
    */
-  bool match(const Name& name) const;
+  bool 
+  match(const Name& name) const;
   
   /**
    * Write the value to result, escaping characters according to the NDN URI Scheme.
@@ -213,7 +230,8 @@ public:
    * @param value the buffer with the value to escape
    * @param result the string stream to write to.
    */
-  static void toEscapedString(const std::vector<unsigned char>& value, std::ostringstream& result);
+  static void 
+  toEscapedString(const std::vector<unsigned char>& value, std::ostringstream& result);
 
 private:
   std::vector<Component> components_;

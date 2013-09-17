@@ -35,15 +35,18 @@ public:
      * Get the host given to the constructor.
      * @return A string reference for the host.
      */
-    const std::string& getHost() const { return host_; }
+    const std::string& 
+    getHost() const { return host_; }
     
     /**
      * Get the port given to the constructor.
      * @return The port number.
      */
-    unsigned short getPort() const { return port_; }
+    unsigned short 
+    getPort() const { return port_; }
     
-    virtual ~ConnectionInfo();
+    virtual 
+    ~ConnectionInfo();
     
   private:
     std::string host_;

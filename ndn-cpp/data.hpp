@@ -24,12 +24,14 @@ public:
    * Return a pointer to a new Signature which is a copy of this signature.
    * This is pure virtual, the subclass must implement it.
    */
-  virtual ptr_lib::shared_ptr<Signature> clone() const = 0;
+  virtual ptr_lib::shared_ptr<Signature> 
+  clone() const = 0;
   
   /**
    * The virtual destructor.
    */
-  virtual ~Signature();
+  virtual 
+  ~Signature();
   
     /**
    * Set the signatureStruct to point to the values in this signature object, without copying any memory.
@@ -37,14 +39,16 @@ public:
    * This is pure virtual, the subclass must implement it.
    * @param signatureStruct a C ndn_Signature struct where the name components array is already allocated.
    */
-  virtual void get(struct ndn_Signature& signatureStruct) const = 0;
+  virtual void 
+  get(struct ndn_Signature& signatureStruct) const = 0;
 
   /**
    * Clear this signature, and set the values by copying from the ndn_Signature struct.
    * This is pure virtual, the subclass must implement it.
    * @param signatureStruct a C ndn_Signature struct
    */
-  virtual void set(const struct ndn_Signature& signatureStruct) = 0;
+  virtual void 
+  set(const struct ndn_Signature& signatureStruct) = 0;
 };
 
 /**
@@ -63,30 +67,42 @@ public:
    * WARNING: The resulting pointers in metaInfoStruct are invalid after a further use of this object which could reallocate memory.
    * @param metaInfoStruct a C ndn_MetaInfo struct where the name components array is already allocated.
    */
-  void get(struct ndn_MetaInfo& metaInfoStruct) const;
+  void 
+  get(struct ndn_MetaInfo& metaInfoStruct) const;
 
   /**
    * Clear this meta info, and set the values by copying from the ndn_MetaInfo struct.
    * @param metaInfoStruct a C ndn_MetaInfo struct
    */
-  void set(const struct ndn_MetaInfo& metaInfoStruct);
+  void 
+  set(const struct ndn_MetaInfo& metaInfoStruct);
 
-  double getTimestampMilliseconds() const { return timestampMilliseconds_; }
+  double 
+  getTimestampMilliseconds() const { return timestampMilliseconds_; }
   
-  ndn_ContentType getType() const { return type_; }
+  ndn_ContentType 
+  getType() const { return type_; }
   
-  int getFreshnessSeconds() const { return freshnessSeconds_; }
+  int 
+  getFreshnessSeconds() const { return freshnessSeconds_; }
   
-  const Name::Component& getFinalBlockID() const { return finalBlockID_; }
+  const Name::Component& 
+  getFinalBlockID() const { return finalBlockID_; }
   
-  void setTimestampMilliseconds(double timestampMilliseconds) { timestampMilliseconds_ = timestampMilliseconds; }
+  void 
+  setTimestampMilliseconds(double timestampMilliseconds) { timestampMilliseconds_ = timestampMilliseconds; }
   
-  void setType(ndn_ContentType type) { type_ = type; }
+  void 
+  setType(ndn_ContentType type) { type_ = type; }
   
-  void setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
+  void 
+  setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
   
-  void setFinalBlockID(const std::vector<unsigned char>& finalBlockID) { finalBlockID_ = Name::Component(finalBlockID); }
-  void setFinalBlockID(const unsigned char* finalBlockID, unsigned int finalBlockIdLength) 
+  void 
+  setFinalBlockID(const std::vector<unsigned char>& finalBlockID) { finalBlockID_ = Name::Component(finalBlockID); }
+  
+  void 
+  setFinalBlockID(const unsigned char* finalBlockID, unsigned int finalBlockIdLength) 
   { 
     finalBlockID_ = Name::Component(finalBlockID, finalBlockIdLength); 
   }
@@ -117,7 +133,8 @@ public:
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    * @return The encoded byte array.
    */
-  SignedBlob wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  SignedBlob 
+  wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
   
   /**
    * Decode the input using a particular wire format and update this Data. Also, set the wireEncoding field to the input.
@@ -125,14 +142,16 @@ public:
    * @param inputLength The length of input.
    * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
-  void wireDecode(const unsigned char* input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  void 
+  wireDecode(const unsigned char* input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
   
   /**
    * Decode the input using a particular wire format and update this Data. Also, set the wireEncoding field to the input.
    * @param input The input byte array to be decoded.
    * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
-  void wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  void 
+  wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireDecode(&input[0], input.size(), wireFormat);
   }
@@ -142,45 +161,58 @@ public:
    * WARNING: The resulting pointers in dataStruct are invalid after a further use of this object which could reallocate memory.
    * @param dataStruct a C ndn_Data struct where the name components array is already allocated.
    */
-  void get(struct ndn_Data& dataStruct) const;
+  void 
+  get(struct ndn_Data& dataStruct) const;
 
   /**
    * Clear this data object, and set the values by copying from the ndn_Data struct.
    * @param dataStruct a C ndn_Data struct
    */
-  void set(const struct ndn_Data& dataStruct);
+  void 
+  set(const struct ndn_Data& dataStruct);
 
-  const Signature* getSignature() const { return signature_.get(); }
-  Signature* getSignature() 
+  const Signature* 
+  getSignature() const { return signature_.get(); }
+  
+  Signature* 
+  getSignature() 
   { 
     // TODO: Should add an OnChanged listener instead of always calling onChanged.
     onChanged();
     return signature_.get(); 
   }
   
-  const Name& getName() const { return name_; }
-  Name& getName() 
+  const Name& 
+  getName() const { return name_; }
+  
+  Name& 
+  getName() 
   { 
     // TODO: Should add an OnChanged listener instead of always calling onChanged.
     onChanged();
     return name_; 
   }
   
-  const MetaInfo& getMetaInfo() const { return metaInfo_; }
-  MetaInfo& getMetaInfo() 
+  const MetaInfo& 
+  getMetaInfo() const { return metaInfo_; }
+  
+  MetaInfo& 
+  getMetaInfo() 
   { 
     // TODO: Should add an OnChanged listener instead of always calling onChanged.
     onChanged();
     return metaInfo_; 
   }
   
-  const Blob& getContent() const { return content_; }
+  const Blob& 
+  getContent() const { return content_; }
 
   /**
    * Set the signature to a copy of the given signature.
    * @param signature The signature object which is cloned.
    */
-  void setSignature(const Signature& signature) 
+  void 
+  setSignature(const Signature& signature) 
   { 
     signature_ = signature.clone(); 
     onChanged();
@@ -190,7 +222,8 @@ public:
    * Set name to a copy of the given Name.
    * @param name The Name which is copied.
    */
-  void setName(const Name& name) 
+  void 
+  setName(const Name& name) 
   { 
     name_ = name; 
     onChanged();
@@ -200,7 +233,8 @@ public:
    * Set metaInfo to a copy of the given MetaInfo.
    * @param metaInfo The MetaInfo which is copied.
    */
-  void setMetainfo(const MetaInfo& metaInfo) 
+  void 
+  setMetainfo(const MetaInfo& metaInfo) 
   { 
     metaInfo_ = metaInfo; 
     onChanged();
@@ -210,12 +244,14 @@ public:
    * Set the content to a copy of the data in the vector.
    * @param content A vector whose contents are copied.
    */
-  void setContent(const std::vector<unsigned char>& content) 
+  void 
+  setContent(const std::vector<unsigned char>& content) 
   { 
     content_ = content; 
     onChanged();
   }
-  void setContent(const unsigned char* content, unsigned int contentLength) 
+  void 
+  setContent(const unsigned char* content, unsigned int contentLength) 
   { 
     content_ = Blob(content, contentLength); 
     onChanged();
@@ -226,12 +262,15 @@ public:
    * if you keep a pointer to the array then you must treat the array as immutable and promise not to change it.
    * @param content A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
    */
-  void setContent(const ptr_lib::shared_ptr<std::vector<unsigned char> > &content) 
+  void 
+  setContent(const ptr_lib::shared_ptr<std::vector<unsigned char> > &content) 
   { 
     content_ = content;
     onChanged();
   }
-  void setContent(const ptr_lib::shared_ptr<const std::vector<unsigned char> > &content) 
+  
+  void 
+  setContent(const ptr_lib::shared_ptr<const std::vector<unsigned char> > &content) 
   { 
     content_ = content;
     onChanged();
@@ -241,7 +280,8 @@ private:
   /**
    * Clear the wire encoding.
    */
-  void onChanged();
+  void 
+  onChanged();
   
   ptr_lib::shared_ptr<Signature> signature_;
   Name name_;

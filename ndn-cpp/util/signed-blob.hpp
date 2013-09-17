@@ -76,7 +76,8 @@ public:
   /**
    * Return the length of the signed portion of the immutable byte array, or 0 of the pointer to the array is null.
    */
-  unsigned int signedSize() const
+  unsigned int 
+  signedSize() const
   {
     if (*this)
       return signedPortionEndOffset_ - signedPortionBeginOffset_;
@@ -88,7 +89,8 @@ public:
    * Return a const pointer to the first byte of the signed portion of the immutable byte array, or 0 if the 
    * pointer to the array is null.
    */
-  const unsigned char* signedBuf() const
+  const unsigned char*
+  signedBuf() const
   {
     if (*this)
       return &(*this)->front() + signedPortionBeginOffset_;
@@ -99,12 +101,14 @@ public:
   /**
    * Return the offset in the array of the beginning of the signed portion.
    */  
-  unsigned int getSignedPortionBeginOffset() { return signedPortionBeginOffset_; }
+  unsigned int 
+  getSignedPortionBeginOffset() { return signedPortionBeginOffset_; }
 
   /**
    * Return the offset in the array of the end of the signed portion.
    */  
-  unsigned int getSignedPortionEndOffset() { return signedPortionEndOffset_; }
+  unsigned int 
+  getSignedPortionEndOffset() { return signedPortionEndOffset_; }
   
 private:
   unsigned int signedPortionBeginOffset_;

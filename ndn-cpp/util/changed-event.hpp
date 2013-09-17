@@ -23,7 +23,8 @@ public:
    * Add onChanged to the listener list. This does not check if a duplicate is already in the list.
    * @param onChanged The OnChanged function object.
    */
-  void add(OnChanged onChanged)
+  void 
+  add(OnChanged onChanged)
   {
     listeners_.push_back(onChanged);
   }
@@ -31,7 +32,8 @@ public:
   /**
    * Call all the listeners.
    */
-  void fire();
+  void 
+  fire();
 
 #if 0  
 private:

@@ -22,7 +22,8 @@ public:
    * @param certificateName The Name identifying the certificate which identifies the signing key.
    * @param wireFormat The WireFormat for calling encodeData, or WireFormat::getDefaultWireFormat() if omitted.
    */
-  void signByCertificate(const Data& data, const Name& certificateName, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  void 
+  signByCertificate(const Data& data, const Name& certificateName, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
 };
 
 }

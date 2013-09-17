@@ -33,7 +33,8 @@ public:
    * @param expectedTag the expected value for DTAG
    * @return true if got the expected tag, else false
    */
-  bool peekDTag(unsigned int expectedTag) 
+  bool 
+  peekDTag(unsigned int expectedTag) 
   {
     int gotExpectedTag;
     ndn_Error error;

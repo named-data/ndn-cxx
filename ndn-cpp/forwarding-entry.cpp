@@ -12,7 +12,8 @@ using namespace std;
 
 namespace ndn {
   
-void ForwardingEntry::set(const struct ndn_ForwardingEntry& forwardingEntryStruct) 
+void 
+ForwardingEntry::set(const struct ndn_ForwardingEntry& forwardingEntryStruct) 
 {
   if (forwardingEntryStruct.action && forwardingEntryStruct.actionLength > 0)
     action_ = string(forwardingEntryStruct.action, forwardingEntryStruct.action + forwardingEntryStruct.actionLength);
@@ -26,7 +27,8 @@ void ForwardingEntry::set(const struct ndn_ForwardingEntry& forwardingEntryStruc
   freshnessSeconds_ = forwardingEntryStruct.freshnessSeconds;
 }
 
-void ForwardingEntry::get(struct ndn_ForwardingEntry& forwardingEntryStruct) const 
+void 
+ForwardingEntry::get(struct ndn_ForwardingEntry& forwardingEntryStruct) const 
 {
   prefix_.get(forwardingEntryStruct.prefix);
   publisherPublicKeyDigest_.get(forwardingEntryStruct.publisherPublicKeyDigest);

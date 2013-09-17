@@ -11,7 +11,8 @@ using namespace std;
 
 namespace ndn {
 
-void KeyLocator::get(struct ndn_KeyLocator& keyLocatorStruct) const 
+void 
+KeyLocator::get(struct ndn_KeyLocator& keyLocatorStruct) const 
 {
   keyLocatorStruct.type = type_;
   
@@ -25,7 +26,8 @@ void KeyLocator::get(struct ndn_KeyLocator& keyLocatorStruct) const
   keyLocatorStruct.keyNameType = keyNameType_;
 }
 
-void KeyLocator::set(const struct ndn_KeyLocator& keyLocatorStruct)
+void 
+KeyLocator::set(const struct ndn_KeyLocator& keyLocatorStruct)
 {
   type_ = keyLocatorStruct.type;
   keyData_ = Blob(keyLocatorStruct.keyData, keyLocatorStruct.keyDataLength);

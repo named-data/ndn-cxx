@@ -17,7 +17,8 @@ UdpTransport::ConnectionInfo::~ConnectionInfo()
 {  
 }
 
-void UdpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener)
+void 
+UdpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener)
 {
   const UdpTransport::ConnectionInfo& udpConnectionInfo = dynamic_cast<const UdpTransport::ConnectionInfo&>(connectionInfo);
   
@@ -35,14 +36,16 @@ void UdpTransport::connect(const Transport::ConnectionInfo& connectionInfo, Elem
   elementListener_ = &elementListener;
 }
 
-void UdpTransport::send(const unsigned char *data, unsigned int dataLength)
+void 
+UdpTransport::send(const unsigned char *data, unsigned int dataLength)
 {
   ndn_Error error;
   if ((error = ndn_UdpTransport_send(&transport_, (unsigned char *)data, dataLength)))
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
-void UdpTransport::processEvents()
+void 
+UdpTransport::processEvents()
 {
   int receiveIsReady;
   ndn_Error error;
@@ -59,12 +62,14 @@ void UdpTransport::processEvents()
   ndn_BinaryXmlElementReader_onReceivedData(&elementReader_, buffer, nBytes);
 }
 
-bool UdpTransport::getIsConnected()
+bool 
+UdpTransport::getIsConnected()
 {
   return isConnected_;
 }
 
-void UdpTransport::close()
+void 
+UdpTransport::close()
 {
   ndn_Error error;
   if ((error = ndn_UdpTransport_close(&transport_)))

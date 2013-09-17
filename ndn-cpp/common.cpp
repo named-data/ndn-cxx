@@ -11,7 +11,8 @@ using namespace std;
 
 namespace ndn {
 
-string toHex(const vector<unsigned char>& array) 
+string 
+toHex(const vector<unsigned char>& array) 
 {
   if (!&array)
     return "";

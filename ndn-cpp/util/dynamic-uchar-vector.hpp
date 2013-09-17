@@ -29,7 +29,8 @@ public:
    * Get the shared_ptr to the allocated vector.
    * @return The shared_ptr to the allocated vector. 
    */
-  const ptr_lib::shared_ptr<std::vector<unsigned char> >& get() { return vector_; }
+  const ptr_lib::shared_ptr<std::vector<unsigned char> >& 
+  get() { return vector_; }
   
 private:
   /**
@@ -39,7 +40,8 @@ private:
    * @param length The new length for the vector.
    * @return The front of the allocated vector.
    */
-  static unsigned char *realloc(struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length);
+  static unsigned char*
+  realloc(struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length);
   
   ptr_lib::shared_ptr<std::vector<unsigned char> > vector_;
 };

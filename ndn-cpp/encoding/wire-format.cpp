@@ -13,9 +13,10 @@ namespace ndn {
 
 static bool gotInitialDefaultWireFormat = false;
 
-WireFormat *WireFormat::defaultWireFormat_ = 0;
+WireFormat* WireFormat::defaultWireFormat_ = 0;
 
-WireFormat *WireFormat::getDefaultWireFormat()
+WireFormat*
+WireFormat::getDefaultWireFormat()
 {
   if (!defaultWireFormat_ && !gotInitialDefaultWireFormat) {
     // There is no defaultWireFormat_ and we have not yet initialized initialDefaultWireFormat_, so initialize and use it.
@@ -27,30 +28,39 @@ WireFormat *WireFormat::getDefaultWireFormat()
   return defaultWireFormat_;
 }
 
-Blob WireFormat::encodeInterest(const Interest& interest) 
-{
-  throw logic_error("unimplemented");
-}
-void WireFormat::decodeInterest(Interest& interest, const unsigned char *input, unsigned int inputLength) 
+Blob 
+WireFormat::encodeInterest(const Interest& interest) 
 {
   throw logic_error("unimplemented");
 }
 
-Blob WireFormat::encodeData(const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset) 
+void 
+WireFormat::decodeInterest(Interest& interest, const unsigned char *input, unsigned int inputLength) 
 {
   throw logic_error("unimplemented");
 }
-void WireFormat::decodeData
+
+Blob 
+WireFormat::encodeData(const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset) 
+{
+  throw logic_error("unimplemented");
+}
+
+void 
+WireFormat::decodeData
   (Data& data, const unsigned char *input, unsigned int inputLength, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset) 
 {
   throw logic_error("unimplemented");
 }
 
-Blob WireFormat::encodeForwardingEntry(const ForwardingEntry& forwardingEntry) 
+Blob 
+WireFormat::encodeForwardingEntry(const ForwardingEntry& forwardingEntry) 
 {
   throw logic_error("unimplemented");
 }
-void WireFormat::decodeForwardingEntry(ForwardingEntry& forwardingEntry, const unsigned char *input, unsigned int inputLength) 
+
+void 
+WireFormat::decodeForwardingEntry(ForwardingEntry& forwardingEntry, const unsigned char *input, unsigned int inputLength) 
 {
   throw logic_error("unimplemented");
 }

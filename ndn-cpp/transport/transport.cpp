@@ -15,27 +15,32 @@ Transport::ConnectionInfo::~ConnectionInfo()
 {  
 }
 
-void Transport::connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener) 
+void 
+Transport::connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener) 
 {
   throw logic_error("unimplemented");
 }
   
-void Transport::send(const unsigned char *data, unsigned int dataLength)
+void 
+Transport::send(const unsigned char *data, unsigned int dataLength)
 {
   throw logic_error("unimplemented");
 }
 
-void Transport::processEvents()
+void 
+Transport::processEvents()
 {
   throw logic_error("unimplemented");
 }
 
-bool Transport::getIsConnected()
+bool 
+Transport::getIsConnected()
 {
   throw logic_error("unimplemented");
 }
 
-void Transport::close()
+void 
+Transport::close()
 {
 }
 

@@ -35,15 +35,18 @@ public:
      * Get the host given to the constructor.
      * @return A string reference for the host.
      */
-    const std::string& getHost() const { return host_; }
+    const std::string& 
+    getHost() const { return host_; }
     
     /**
      * Get the port given to the constructor.
      * @return The port number.
      */
-    unsigned short getPort() const { return port_; }
+    unsigned short 
+    getPort() const { return port_; }
     
-    virtual ~ConnectionInfo();
+    virtual 
+    ~ConnectionInfo();
 
   private:
     std::string host_;
@@ -62,14 +65,16 @@ public:
    * @param connectionInfo A reference to a TcpTransport::ConnectionInfo.
    * @param elementListener Not a shared_ptr because we assume that it will remain valid during the life of this object.
    */
-  virtual void connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener);
+  virtual void 
+  connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener);
   
   /**
    * Set data to the host
    * @param data A pointer to the buffer of data to send.
    * @param dataLength The number of bytes in data.
    */
-  virtual void send(const unsigned char *data, unsigned int dataLength);
+  virtual void 
+  send(const unsigned char *data, unsigned int dataLength);
 
   /**
    * Process any data to receive.  For each element received, call elementListener.onReceivedElement.
@@ -78,14 +83,17 @@ public:
    * @throw This may throw an exception for reading data or in the callback for processing the data.  If you
    * call this from an main event loop, you may want to catch and log/disregard all exceptions.
    */
-  virtual void processEvents();
+  virtual void 
+  processEvents();
   
-  virtual bool getIsConnected();
+  virtual bool 
+  getIsConnected();
 
   /**
    * Close the connection to the host.
    */
-  virtual void close();
+  virtual void 
+  close();
 
   ~UdpTransport();
   

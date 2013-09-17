@@ -50,7 +50,8 @@ public:
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
    */
-  void expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout);
+  void 
+  expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout);
   
   /**
    * Register prefix with the connected NDN hub and call onInterest when a matching interest is received.
@@ -59,7 +60,8 @@ public:
    * use func_lib::ref() as appropriate.
    * @param flags The flags for finer control of which interests are forward to the application.
    */
-  void registerPrefix(const Name& prefix, const OnInterest& onInterest, int flags);
+  void 
+  registerPrefix(const Name& prefix, const OnInterest& onInterest, int flags);
 
   /**
    * Process any data to receive.  For each element received, call onReceivedElement.
@@ -68,15 +70,20 @@ public:
    * @throw This may throw an exception for reading data or in the callback for processing the data.  If you
    * call this from an main event loop, you may want to catch and log/disregard all exceptions.
    */
-  void processEvents();
+  void 
+  processEvents();
   
-  const ptr_lib::shared_ptr<Transport>& getTransport() { return transport_; }
+  const ptr_lib::shared_ptr<Transport>& 
+  getTransport() { return transport_; }
   
-  const ptr_lib::shared_ptr<const Transport::ConnectionInfo>& getConnectionInfo() { return connectionInfo_; }
+  const ptr_lib::shared_ptr<const Transport::ConnectionInfo>& 
+  getConnectionInfo() { return connectionInfo_; }
 
-  void onReceivedElement(const unsigned char *element, unsigned int elementLength);
+  void 
+  onReceivedElement(const unsigned char *element, unsigned int elementLength);
   
-  void shutdown();
+  void 
+  shutdown();
 
 private:
   class PitEntry {
@@ -89,9 +96,11 @@ private:
      */
     PitEntry(const ptr_lib::shared_ptr<const Interest>& interest, const OnData& onData, const OnTimeout& onTimeout);
     
-    const ptr_lib::shared_ptr<const Interest>& getInterest() { return interest_; }
+    const ptr_lib::shared_ptr<const Interest>& 
+    getInterest() { return interest_; }
     
-    const OnData& getOnData() { return onData_; }
+    const OnData& 
+    getOnData() { return onData_; }
     
     /**
      * Get the struct ndn_Interest for the interest_.
@@ -101,7 +110,8 @@ private:
      * @return A reference to the ndn_Interest struct.
      * WARNING: The resulting pointers in are invalid uses getInterest() to manipulate the object which could reallocate memory.
      */
-    const struct ndn_Interest& getInterestStruct()
+    const struct ndn_Interest& 
+    getInterestStruct()
     {
       return interestStruct_;
     }
@@ -112,7 +122,8 @@ private:
      * @param nowMilliseconds The current time in milliseconds from gettimeofday.
      * @return true if this interest timed out and the timeout callback was called, otherwise false.
      */
-    bool checkTimeout(Node *parent, double nowMilliseconds);
+    bool 
+    checkTimeout(Node *parent, double nowMilliseconds);
     
   private:
     ptr_lib::shared_ptr<const Interest> interest_;
@@ -137,9 +148,11 @@ private:
     {
     }
     
-    const ptr_lib::shared_ptr<const Name>& getPrefix() { return prefix_; }
+    const ptr_lib::shared_ptr<const Name>& 
+    getPrefix() { return prefix_; }
     
-    const OnInterest& getOnInterest() { return onInterest_; }
+    const OnInterest& 
+    getOnInterest() { return onInterest_; }
     
   private:
     ptr_lib::shared_ptr<const Name> prefix_;
@@ -163,13 +176,15 @@ private:
      * @param interest
      * @param data
      */
-    void operator()(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& ndndIdData);
+    void 
+    operator()(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& ndndIdData);
 
     /**
      * We timed out fetching the ndnd ID.
      * @param interest
      */
-    void operator()(const ptr_lib::shared_ptr<const Interest>& timedOutInterest);
+    void 
+    operator()(const ptr_lib::shared_ptr<const Interest>& timedOutInterest);
     
     class Info {
     public:
@@ -194,14 +209,16 @@ private:
    * @param name The name to find the interest for (from the incoming data packet).
    * @return The index in pit_ of the pit entry, or -1 if not found.
    */
-  int getEntryIndexForExpressedInterest(const Name& name);
+  int 
+          getEntryIndexForExpressedInterest(const Name& name);
   
   /**
    * Find the first entry from the registeredPrefixTable_ where the entry prefix is the longest that matches name.
    * @param name The name to find the PrefixEntry for (from the incoming interest packet).
    * @return A pointer to the entry, or 0 if not found.
    */
-  PrefixEntry *getEntryForRegisteredPrefix(const Name& name);
+  PrefixEntry*
+  getEntryForRegisteredPrefix(const Name& name);
   
   /**
    * Do the work of registerPrefix once we know we are connected with an ndndId_.
@@ -209,7 +226,8 @@ private:
    * @param onInterest
    * @param flags
    */
-  void registerPrefixHelper(const Name& prefix, const OnInterest& onInterest, int flags);
+  void 
+  registerPrefixHelper(const Name& prefix, const OnInterest& onInterest, int flags);
   
   ptr_lib::shared_ptr<Transport> transport_;
   ptr_lib::shared_ptr<const Transport::ConnectionInfo> connectionInfo_;

@@ -16,7 +16,8 @@ DynamicUCharVector::DynamicUCharVector(unsigned int initialLength)
   ndn_DynamicUCharArray_initialize(this, &vector_->front(), initialLength, DynamicUCharVector::realloc);
 }
 
-unsigned char *DynamicUCharVector::realloc(struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length)
+unsigned char*
+DynamicUCharVector::realloc(struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length)
 {
   // Because this method is private, assume there is not a problem with upcasting.
   DynamicUCharVector *thisObject = (DynamicUCharVector *)self;

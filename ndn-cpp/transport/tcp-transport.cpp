@@ -17,7 +17,8 @@ TcpTransport::ConnectionInfo::~ConnectionInfo()
 {  
 }
 
-void TcpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener)
+void 
+TcpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener)
 {
   const TcpTransport::ConnectionInfo& tcpConnectionInfo = dynamic_cast<const TcpTransport::ConnectionInfo&>(connectionInfo);
   
@@ -35,14 +36,16 @@ void TcpTransport::connect(const Transport::ConnectionInfo& connectionInfo, Elem
   elementListener_ = &elementListener;
 }
 
-void TcpTransport::send(const unsigned char *data, unsigned int dataLength)
+void 
+TcpTransport::send(const unsigned char *data, unsigned int dataLength)
 {
   ndn_Error error;
   if ((error = ndn_TcpTransport_send(&transport_, (unsigned char *)data, dataLength)))
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
-void TcpTransport::processEvents()
+void 
+TcpTransport::processEvents()
 {
   int receiveIsReady;
   ndn_Error error;
@@ -59,12 +62,14 @@ void TcpTransport::processEvents()
   ndn_BinaryXmlElementReader_onReceivedData(&elementReader_, buffer, nBytes);
 }
 
-bool TcpTransport::getIsConnected()
+bool 
+TcpTransport::getIsConnected()
 {
   return isConnected_;
 }
 
-void TcpTransport::close()
+void 
+TcpTransport::close()
 {
   ndn_Error error;
   if ((error = ndn_TcpTransport_close(&transport_)))

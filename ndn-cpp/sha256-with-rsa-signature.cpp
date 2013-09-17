@@ -10,12 +10,14 @@ using namespace std;
 
 namespace ndn {
 
-ptr_lib::shared_ptr<Signature> Sha256WithRsaSignature::clone() const
+ptr_lib::shared_ptr<Signature> 
+Sha256WithRsaSignature::clone() const
 {
   return ptr_lib::shared_ptr<Signature>(new Sha256WithRsaSignature(*this));
 }
 
-void Sha256WithRsaSignature::get(struct ndn_Signature& signatureStruct) const 
+void 
+Sha256WithRsaSignature::get(struct ndn_Signature& signatureStruct) const 
 {
   signatureStruct.digestAlgorithmLength = digestAlgorithm_.size();
   if (digestAlgorithm_.size() > 0)
@@ -39,7 +41,8 @@ void Sha256WithRsaSignature::get(struct ndn_Signature& signatureStruct) const
   keyLocator_.get(signatureStruct.keyLocator);
 }
 
-void Sha256WithRsaSignature::set(const struct ndn_Signature& signatureStruct)
+void 
+Sha256WithRsaSignature::set(const struct ndn_Signature& signatureStruct)
 {
   digestAlgorithm_ = Blob(signatureStruct.digestAlgorithm, signatureStruct.digestAlgorithmLength);
   witness_ = Blob(signatureStruct.witness, signatureStruct.witnessLength);

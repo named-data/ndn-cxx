@@ -18,7 +18,8 @@ using namespace ndn::ptr_lib;
 namespace ndn {
 
 // Use gettimeofday to return the current time in milliseconds.
-static inline double getNowMilliseconds()
+static inline double 
+getNowMilliseconds()
 {
   timeval t;
   gettimeofday(&t, NULL);
@@ -31,7 +32,8 @@ Node::Node(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::share
 {
 }
 
-void Node::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)
+void 
+Node::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)
 {
   // TODO: Properly check if we are already connected to the expected host.
   if (!transport_->getIsConnected())
@@ -43,7 +45,8 @@ void Node::expressInterest(const Interest& interest, const OnData& onData, const
   transport_->send(*encoding);
 }
 
-void Node::registerPrefix(const Name& prefix, const OnInterest& onInterest, int flags)
+void 
+Node::registerPrefix(const Name& prefix, const OnInterest& onInterest, int flags)
 {
   if (ndndId_.size() == 0) {
     // First fetch the ndndId of the connected hub.
@@ -55,7 +58,8 @@ void Node::registerPrefix(const Name& prefix, const OnInterest& onInterest, int 
     registerPrefixHelper(prefix, onInterest, flags);
 }
 
-void Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& ndndIdData)
+void 
+Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& ndndIdData)
 {
   Sha256WithRsaSignature *signature = dynamic_cast<Sha256WithRsaSignature*>(ndndIdData->getSignature());
   if (signature && signature->getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
@@ -67,12 +71,14 @@ void Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& 
   // TODO: else need to log not getting the ndndId.
 }
 
-void Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& timedOutInterest)
+void 
+Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& timedOutInterest)
 {
   // TODO: Log the timeout.
 }
 
-void Node::registerPrefixHelper(const Name& prefix, const OnInterest& onInterest, int flags)
+void 
+Node::registerPrefixHelper(const Name& prefix, const OnInterest& onInterest, int flags)
 {
   // Create a ForwardingEntry.
   ForwardingEntry forwardingEntry("selfreg", prefix, PublisherPublicKeyDigest(), -1, 3, 2147483647);
@@ -105,7 +111,8 @@ void Node::registerPrefixHelper(const Name& prefix, const OnInterest& onInterest
   transport_->send(*encodedInterest);
 }
 
-void Node::processEvents()
+void 
+Node::processEvents()
 {
   transport_->processEvents();
   
@@ -121,7 +128,8 @@ void Node::processEvents()
   }
 }
 
-void Node::onReceivedElement(const unsigned char *element, unsigned int elementLength)
+void 
+Node::onReceivedElement(const unsigned char *element, unsigned int elementLength)
 {
   BinaryXmlDecoder decoder(element, elementLength);
   
@@ -148,12 +156,14 @@ void Node::onReceivedElement(const unsigned char *element, unsigned int elementL
   }
 }
 
-void Node::shutdown()
+void 
+Node::shutdown()
 {
   transport_->close();
 }
 
-int Node::getEntryIndexForExpressedInterest(const Name& name)
+int 
+Node::getEntryIndexForExpressedInterest(const Name& name)
 {
   // TODO: Doesn't this belong in the Name class?
   vector<struct ndn_NameComponent> nameComponents;
@@ -176,7 +186,8 @@ int Node::getEntryIndexForExpressedInterest(const Name& name)
 	return iResult;
 }
   
-Node::PrefixEntry *Node::getEntryForRegisteredPrefix(const Name& name)
+Node::PrefixEntry*
+Node::getEntryForRegisteredPrefix(const Name& name)
 {
   int iResult = -1;
     
@@ -214,7 +225,8 @@ Node::PitEntry::PitEntry(const ptr_lib::shared_ptr<const Interest>& interest, co
   interest_->get(interestStruct_);  
 }
 
-bool Node::PitEntry::checkTimeout(Node *parent, double nowMilliseconds)
+bool 
+Node::PitEntry::checkTimeout(Node *parent, double nowMilliseconds)
 {
   if (timeoutTimeMilliseconds_ >= 0.0 && nowMilliseconds >= timeoutTimeMilliseconds_) {
     if (onTimeout_) {
