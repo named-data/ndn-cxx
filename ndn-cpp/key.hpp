@@ -81,6 +81,8 @@ public:
   void 
   setKeyData(const ptr_lib::shared_ptr<std::vector<unsigned char> > &keyData) { keyData_ = keyData; }
 
+  void setKeyName(const Name &keyName) { keyName_ = keyName; }
+  
   void 
   setKeyNameType(ndn_KeyNameType keyNameType) { keyNameType_ = keyNameType; }
 
