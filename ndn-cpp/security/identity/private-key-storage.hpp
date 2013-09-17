@@ -15,6 +15,7 @@
 namespace ndn {
 
 class PrivateKeyStorage {
+public:
   /**
    * The virtual destructor
    */    
