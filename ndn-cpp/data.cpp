@@ -74,7 +74,7 @@ SignedBlob Data::wireEncode(WireFormat& wireFormat)
   return wireEncoding_;
 }
 
-void Data::wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat) 
+void Data::wireDecode(const unsigned char* input, unsigned int inputLength, WireFormat& wireFormat) 
 {
   unsigned int signedPortionBeginOffset, signedPortionEndOffset;
   wireFormat.decodeData(*this, input, inputLength, &signedPortionBeginOffset, &signedPortionEndOffset);

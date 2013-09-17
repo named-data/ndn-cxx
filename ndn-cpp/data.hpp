@@ -86,7 +86,7 @@ public:
   void setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
   
   void setFinalBlockID(const std::vector<unsigned char>& finalBlockID) { finalBlockID_ = Name::Component(finalBlockID); }
-  void setFinalBlockID(const unsigned char *finalBlockID, unsigned int finalBlockIdLength) 
+  void setFinalBlockID(const unsigned char* finalBlockID, unsigned int finalBlockIdLength) 
   { 
     finalBlockID_ = Name::Component(finalBlockID, finalBlockIdLength); 
   }
@@ -125,7 +125,7 @@ public:
    * @param inputLength The length of input.
    * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
-  void wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  void wireDecode(const unsigned char* input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
   
   /**
    * Decode the input using a particular wire format and update this Data. Also, set the wireEncoding field to the input.
@@ -153,7 +153,7 @@ public:
   const Signature* getSignature() const { return signature_.get(); }
   Signature* getSignature() 
   { 
-    // TODO: Should add an OnChanged listener to instead of always calling onChanged.
+    // TODO: Should add an OnChanged listener instead of always calling onChanged.
     onChanged();
     return signature_.get(); 
   }
@@ -161,7 +161,7 @@ public:
   const Name& getName() const { return name_; }
   Name& getName() 
   { 
-    // TODO: Should add an OnChanged listener to instead of always calling onChanged.
+    // TODO: Should add an OnChanged listener instead of always calling onChanged.
     onChanged();
     return name_; 
   }
@@ -169,7 +169,7 @@ public:
   const MetaInfo& getMetaInfo() const { return metaInfo_; }
   MetaInfo& getMetaInfo() 
   { 
-    // TODO: Should add an OnChanged listener to instead of always calling onChanged.
+    // TODO: Should add an OnChanged listener instead of always calling onChanged.
     onChanged();
     return metaInfo_; 
   }
@@ -215,7 +215,7 @@ public:
     content_ = content; 
     onChanged();
   }
-  void setContent(const unsigned char *content, unsigned int contentLength) 
+  void setContent(const unsigned char* content, unsigned int contentLength) 
   { 
     content_ = Blob(content, contentLength); 
     onChanged();
