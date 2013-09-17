@@ -14,6 +14,11 @@
 
 using namespace std;
 using namespace ndn;
+using namespace func_lib;
+#if HAVE_STD_FUNCTION
+// In the std library, the placeholders are in a different namespace than boost.                                                           
+using namespace func_lib::placeholders;
+#endif
 
 unsigned char Data1[] = {
 0x04, 0x82, // NDN Data
@@ -122,7 +127,7 @@ static void dumpData(const Data& data)
         cout << "Certificate: " << toHex(*signature->getKeyLocator().getKeyData()) << endl;
       else if (signature->getKeyLocator().getType() == ndn_KeyLocatorType_KEYNAME) {
         cout << "KeyName: " << signature->getKeyLocator().getKeyName().to_uri() << endl;
-        cout << "metaInfo.keyLocator: ";
+        cout << "signature.keyLocator: ";
         if ((int)signature->getKeyLocator().getKeyNameType() >= 0) {
           bool showKeyNameData = true;
           if (signature->getKeyLocator().getKeyNameType() == ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST)
@@ -138,7 +143,8 @@ static void dumpData(const Data& data)
             showKeyNameData = false;
           }
           if (showKeyNameData)
-            cout << toHex(*signature->getKeyLocator().getKeyData()) << endl;
+            cout << (signature->getKeyLocator().getKeyData().size() > 0 ?
+                     toHex(*signature->getKeyLocator().getKeyData()).c_str() : "<none>") << endl;
         }
         else
           cout << "<no key digest>" << endl;
@@ -151,6 +157,16 @@ static void dumpData(const Data& data)
   }
 }
 
+static void onVerified(const char *prefix, const Data &data)
+{
+  cout << prefix << " signature verification: VERIFIED" << endl;
+}
+
+static void onVerifyFailed(const char *prefix)
+{
+  cout << prefix << " signature verification: FAILED" << endl;
+}
+
 int main(int argc, char** argv)
 {
   try {
@@ -158,7 +174,6 @@ int main(int argc, char** argv)
     data.wireDecode(Data1, sizeof(Data1));
     cout << "Decoded Data:" << endl;
     dumpData(data);
-    cout << "Decoded Data signature verification: " << (KeyChain::selfVerifyData(Data1, sizeof(Data1)) ? "VERIFIED" : "FAILED") << endl;
     
     Blob encoding = data.wireEncode();
     
@@ -166,19 +181,27 @@ int main(int argc, char** argv)
     reDecodedData.wireDecode(*encoding);
     cout << endl << "Re-decoded Data:" << endl;
     dumpData(reDecodedData);
-    cout << "Re-decoded Data signature verification: " << (KeyChain::selfVerifyData(&encoding->front(), encoding->size()) ? "VERIFIED" : "FAILED") << endl;
   
     Data freshData(Name("/ndn/abc"));
     const unsigned char freshContent[] = "SUCCESS!";
     freshData.setContent(freshContent, sizeof(freshContent) - 1);
     freshData.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
     
-    KeyChain::defaultSign(freshData);
+    ptr_lib::shared_ptr<PrivateKeyStorage> privateKeyStorage(new PrivateKeyStorage());
+    ptr_lib::shared_ptr<IdentityManager> identityManager(new IdentityManager(privateKeyStorage));
+    KeyChain keyChain(identityManager);
+    
+    keyChain.sign(freshData);
     cout << endl << "Freshly-signed Data:" << endl;
     dumpData(freshData);
     Blob freshEncoding = freshData.wireEncode();
-    cout << "Freshly-signed Data signature verification: " << (KeyChain::selfVerifyData(&freshEncoding->front(), freshEncoding->size()) ? "VERIFIED" : "FAILED") << endl;
-  } catch (exception& e) {
+
+    // Do verification at the end because it uses callbacks.
+    cout << endl;
+    keyChain.verifyData(data, bind(&onVerified, "Decoded Data", _1), bind(&onVerifyFailed, "Decoded Data"));
+    keyChain.verifyData(reDecodedData, bind(&onVerified, "Re-decoded Data", _1), bind(&onVerifyFailed, "Re-decoded Data"));
+    keyChain.verifyData(freshData, bind(&onVerified, "Freshly-signed Data", _1), bind(&onVerifyFailed, "Freshly-signed Data"));
+  } catch (std::exception& e) {
     cout << "exception: " << e.what() << endl;
   }
   return 0;
