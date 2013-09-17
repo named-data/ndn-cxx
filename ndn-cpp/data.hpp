@@ -9,7 +9,6 @@
 
 #include "common.hpp"
 #include "name.hpp"
-#include "key.hpp"
 #include "util/signed-blob.hpp"
 #include "c/data.h"
 
@@ -250,6 +249,7 @@ public:
     content_ = content; 
     onChanged();
   }
+  
   void 
   setContent(const unsigned char* content, unsigned int contentLength) 
   { 
