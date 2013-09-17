@@ -19,6 +19,14 @@ namespace ndn {
 class SignedBlob : public Blob {
 public:
   /**
+   * Create a new SignedBlob with a null pointer.
+   */
+  SignedBlob()
+  : signedPortionBeginOffset_(0), signedPortionEndOffset_(0)
+  {  
+  }
+  
+  /**
    * Create a new SignedBlob with an immutable copy of the given array.
    * @param value A pointer to the byte array which is copied.
    * @param valueLength The length of value.
