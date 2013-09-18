@@ -8,54 +8,61 @@
 #define NDN_KEY_CHAIN_HPP
 
 #include "../data.hpp"
+#include "../face.hpp"
+#include "identity/identity-manager.hpp"
 
 namespace ndn {
 
+/**
+ * An OnVerified function object is used to pass a callback to verifyData to report a successful verification.
+ */
+typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerified;
+
+/**
+ * An OnVerifyFailed function object is used to pass a callback to verifyData to report a failed verification.
+ */
+typedef func_lib::function<void()> OnVerifyFailed;
+
 class KeyChain {
 public:
+  KeyChain(ptr_lib::shared_ptr<IdentityManager> identityManager)
+  : identityManager_(identityManager), face_(0), maxSteps_(100)
+  {  
+  }
+
   /**
-   * In data, set the meta info publisher public key digest and key locator key to the public key and set the 
-   * signature using the private key.
+   * Wire encode the Data object, sign it and set its signature.
    * Note: the caller must make sure the timestamp is correct, for example with 
    * data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0).
-   * @param data The Data object to sign and set the key and signature.
-   * @param publicKeyDer A pointer to a buffer with the DER-encoded public key.
-   * @param publicKeyDerLength The number of bytes in publicKeyDer.
-   * @param privateKeyDer A pointer to a buffer with the DER-encoded private key.
-   * @param privateKeyDerLength The number of bytes in privateKeyDer.
-   * @param wireFormat The WireFormat for calling encodeData.
+   * @param data The Data object to be signed.  This updates its signature and key locator field and wireEncoding.
+   * @param signerName The signing identity or certificate name, depending on byKeyName. If omitted, infer the certificate name from data.getName().
+   * @param byKeyName If true, the signerName is the key name, otherwise it is the certificate name. If omitted, the default is true.
+   * @param wireFormat
    */
-  static void 
-  sign
-    (Data& data, const unsigned char *publicKeyDer, unsigned int publicKeyDerLength, 
-     const unsigned char *privateKeyDer, unsigned int privateKeyDerLength, WireFormat& wireFormat);
+  void 
+  signData(Data& data, const Name& signerName = Name(), bool byKeyName = true, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
 
   /**
-   * Call sign with the default public and private keys.
+   * Check the signature on the Data object and call either onVerify or onVerifyFailed. 
+   * We use callback functions because verify may fetch information to check the signature.
    * @param data
-   * @param wireFormat The WireFormat for calling encodeData, or WireFormat::getDefaultWireFormat() if omitted.
+   * @param onVerified
+   * @param onVerifyFailed
    */
-  static void 
-  defaultSign(Data& data, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  void
+  verifyData(const ptr_lib::shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed);
 
   /**
-   * Use the WireFormat to decode the input as a Data packet and use the public key in the key locator to 
-   * verify the signature.
-   * This does just uses the public key without checking whether it is certified.
-   * @param input A pointer to the input buffer to decode.
-   * @param inputLength The number of bytes in input.
-   * @param wireFormat The WireFormat for calling decodeData.
-   * @return true if the public key in the Data object verifies the object, false if not or if the Data object
-   * doesn't have a public key.
+   * Set the Face which will be used to fetch required certificates.
+   * @param face A pointer to the Face object.
    */
-  static bool 
-  selfVerifyData(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat);
-  
-  static bool 
-  selfVerifyData(const unsigned char *input, unsigned int inputLength)
-  {
-    return selfVerifyData(input, inputLength, *WireFormat::getDefaultWireFormat());
-  }
+  void
+  setFace(Face* face) { face_ = face; }
+
+private:
+  ptr_lib::shared_ptr<IdentityManager> identityManager_;
+  Face* face_;
+  const int maxSteps_;
 };
 
 }

@@ -88,8 +88,11 @@ Node::registerPrefixHelper(const Name& prefix, const OnInterest& onInterest, int
   Data data;
   data.setContent(content);
   data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
-  // TODO: Should we sign with a different key?
+#if 0
   KeyChain::defaultSign(data);
+#else
+#warning "Should we have the application use KeyChain.signData?"
+#endif
   Blob encodedData = data.wireEncode();
   
   // Create an interest where the name has the encoded Data packet.
