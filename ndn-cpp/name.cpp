@@ -9,6 +9,7 @@
 #include "name.hpp"
 
 using namespace std;
+using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -131,7 +132,7 @@ Name::Component::makeFromEscapedString(const char *escapedString, unsigned int b
 Blob 
 Name::Component::makeSegment(unsigned long segment)
 {
-  ptr_lib::shared_ptr<vector<unsigned char> > value;
+  shared_ptr<vector<unsigned char> > value;
   
   // Add the leading zero.
   value->push_back(0);

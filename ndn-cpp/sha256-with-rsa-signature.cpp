@@ -7,13 +7,14 @@
 #include "sha256-with-rsa-signature.hpp"
 
 using namespace std;
+using namespace ndn::ptr_lib;
 
 namespace ndn {
 
-ptr_lib::shared_ptr<Signature> 
+shared_ptr<Signature> 
 Sha256WithRsaSignature::clone() const
 {
-  return ptr_lib::shared_ptr<Signature>(new Sha256WithRsaSignature(*this));
+  return shared_ptr<Signature>(new Sha256WithRsaSignature(*this));
 }
 
 void 

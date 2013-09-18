@@ -12,6 +12,7 @@
 #include "key-chain.hpp"
 
 using namespace std;
+using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -115,7 +116,7 @@ KeyChain::signData(Data& data, const Name& signerName, bool byKeyName, WireForma
 }
 
 void
-KeyChain::verifyData(const ptr_lib::shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
+KeyChain::verifyData(const shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
 {
 #if 0
   _LOG_TRACE("Enter Verify");
