@@ -26,7 +26,7 @@ getNowMilliseconds()
   return t.tv_sec * 1000.0 + t.tv_usec / 1000.0;
 }
 
-Node::Node(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo>& connectionInfo)
+Node::Node(const shared_ptr<Transport>& transport, const shared_ptr<const Transport::ConnectionInfo>& connectionInfo)
 : transport_(transport), connectionInfo_(connectionInfo),
   ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
 {
@@ -46,53 +46,60 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
 }
 
 void 
-Node::registerPrefix(const Name& prefix, const OnInterest& onInterest, int flags)
+Node::registerPrefix
+  (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, KeyChain &keyChain,
+   const Name& signerName, bool byKeyName, int flags, WireFormat& wireFormat)
 {
   if (ndndId_.size() == 0) {
     // First fetch the ndndId of the connected hub.
-    NdndIdFetcher fetcher(make_shared<NdndIdFetcher::Info>(this, prefix, onInterest, flags));
+    NdndIdFetcher fetcher
+      (shared_ptr<NdndIdFetcher::Info>(new NdndIdFetcher::Info
+                             (this, prefix, onInterest, onRegisterFailed, keyChain, signerName, byKeyName, flags, wireFormat)));
     // It is OK for func_lib::function make a copy of the function object because the Info is in a shared_ptr.
     expressInterest(ndndIdFetcherInterest_, fetcher, fetcher);
   }
   else
-    registerPrefixHelper(prefix, onInterest, flags);
+    registerPrefixHelper
+      (make_shared<const Name>(prefix), onInterest, onRegisterFailed, keyChain, make_shared<const Name>(signerName), byKeyName, 
+       flags, wireFormat);
 }
 
 void 
-Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& ndndIdData)
+Node::NdndIdFetcher::operator()(const shared_ptr<const Interest>& interest, const shared_ptr<Data>& ndndIdData)
 {
   Sha256WithRsaSignature *signature = dynamic_cast<Sha256WithRsaSignature*>(ndndIdData->getSignature());
   if (signature && signature->getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
     // Set the ndndId_ and continue.
     // TODO: If there are multiple connected hubs, the NDN ID is really stored per connected hub.
     info_->node_.ndndId_ = signature->getPublisherPublicKeyDigest().getPublisherPublicKeyDigest();
-    info_->node_.registerPrefixHelper(info_->prefix_, info_->onInterest_, info_->flags_);
+    info_->node_.registerPrefixHelper
+      (info_->prefix_, info_->onInterest_, info_->onRegisterFailed_, info_->keyChain_, info_->signerName_,
+       info_->byKeyName_, info_->flags_, info_->wireFormat_);
   }
-  // TODO: else need to log not getting the ndndId.
+  else
+    info_->onRegisterFailed_(info_->prefix_);
 }
 
 void 
-Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& timedOutInterest)
+Node::NdndIdFetcher::operator()(const shared_ptr<const Interest>& timedOutInterest)
 {
-  // TODO: Log the timeout.
+  info_->onRegisterFailed_(info_->prefix_);
 }
 
 void 
-Node::registerPrefixHelper(const Name& prefix, const OnInterest& onInterest, int flags)
+Node::registerPrefixHelper
+  (const shared_ptr<const Name>& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, 
+   KeyChain &keyChain, const shared_ptr<const Name>& signerName, bool byKeyName, int flags, WireFormat& wireFormat)
 {
   // Create a ForwardingEntry.
-  ForwardingEntry forwardingEntry("selfreg", prefix, PublisherPublicKeyDigest(), -1, 3, 2147483647);
+  ForwardingEntry forwardingEntry("selfreg", *prefix, PublisherPublicKeyDigest(), -1, 3, 2147483647);
   Blob content = forwardingEntry.wireEncode();
 
   // Set the ForwardingEntry as the content of a Data packet and sign.
   Data data;
   data.setContent(content);
   data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
-#if 0
-  KeyChain::defaultSign(data);
-#else
-#warning "Should we have the application use KeyChain.signData?"
-#endif
+  keyChain.signData(data, *signerName, byKeyName, wireFormat);
   Blob encodedData = data.wireEncode();
   
   // Create an interest where the name has the encoded Data packet.
@@ -109,7 +116,7 @@ Node::registerPrefixHelper(const Name& prefix, const OnInterest& onInterest, int
   Blob encodedInterest = interest.wireEncode();
   
   // Save the onInterest callback and send the registration interest.
-  registeredPrefixTable_.push_back(shared_ptr<PrefixEntry>(new PrefixEntry(shared_ptr<const Name>(new Name(prefix)), onInterest)));
+  registeredPrefixTable_.push_back(shared_ptr<PrefixEntry>(new PrefixEntry(prefix, onInterest)));
   
   transport_->send(*encodedInterest);
 }
@@ -152,7 +159,7 @@ Node::onReceivedElement(const unsigned char *element, unsigned int elementLength
     if (iPitEntry >= 0) {
       // Copy pointers to the needed objects and remove the PIT entry before the calling the callback.
       const OnData onData = pit_[iPitEntry]->getOnData();
-      const ptr_lib::shared_ptr<const Interest> interest = pit_[iPitEntry]->getInterest();
+      const shared_ptr<const Interest> interest = pit_[iPitEntry]->getInterest();
       pit_.erase(pit_.begin() + iPitEntry);
       onData(interest, data);
     }
@@ -209,7 +216,7 @@ Node::getEntryForRegisteredPrefix(const Name& name)
     return 0;
 }
 
-Node::PitEntry::PitEntry(const ptr_lib::shared_ptr<const Interest>& interest, const OnData& onData, const OnTimeout& onTimeout)
+Node::PitEntry::PitEntry(const shared_ptr<const Interest>& interest, const OnData& onData, const OnTimeout& onTimeout)
 : interest_(interest), onData_(onData), onTimeout_(onTimeout)
 {
   // Set up timeoutTime_.
