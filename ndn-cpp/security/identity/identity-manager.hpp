@@ -9,13 +9,19 @@
 #define	NDN_IDENTITY_MANAGER_HPP
 
 #include "../../data.hpp"
+#include "private-key-storage.hpp"
 
 namespace ndn {
 
 class IdentityManager {
 public:
+  IdentityManager(const ptr_lib::shared_ptr<PrivateKeyStorage> &privateKeyStorage)
+  : privateKeyStorage_(privateKeyStorage)
+  {
+  }
+  
   /**
-   * 
+   * Sign data packet based on the certificate name.
    * Note: the caller must make sure the timestamp in data is correct, for example with 
    * data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0).
    * @param data The Data object to sign and update its signature.
@@ -23,7 +29,10 @@ public:
    * @param wireFormat The WireFormat for calling encodeData, or WireFormat::getDefaultWireFormat() if omitted.
    */
   void 
-  signByCertificate(const Data& data, const Name& certificateName, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  signByCertificate(Data& data, const Name& certificateName, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  
+private:
+  ptr_lib::shared_ptr<PrivateKeyStorage> privateKeyStorage_;
 };
 
 }
