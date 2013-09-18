@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace ndn;
+using namespace ptr_lib;
 using namespace func_lib;
 #if HAVE_STD_FUNCTION
 // In the std library, the placeholders are in a different namespace than boost.                                                           
@@ -157,7 +158,7 @@ static void dumpData(const Data& data)
   }
 }
 
-static void onVerified(const char *prefix, const ptr_lib::shared_ptr<Data>& data)
+static void onVerified(const char *prefix, const shared_ptr<Data>& data)
 {
   cout << prefix << " signature verification: VERIFIED" << endl;
 }
@@ -170,25 +171,25 @@ static void onVerifyFailed(const char *prefix)
 int main(int argc, char** argv)
 {
   try {
-    ptr_lib::shared_ptr<Data> data(new Data());
+    shared_ptr<Data> data(new Data());
     data->wireDecode(Data1, sizeof(Data1));
     cout << "Decoded Data:" << endl;
     dumpData(*data);
     
     Blob encoding = data->wireEncode();
     
-    ptr_lib::shared_ptr<Data> reDecodedData(new Data());
+    shared_ptr<Data> reDecodedData(new Data());
     reDecodedData->wireDecode(*encoding);
     cout << endl << "Re-decoded Data:" << endl;
     dumpData(*reDecodedData);
   
-    ptr_lib::shared_ptr<Data> freshData(new Data(Name("/ndn/abc")));
+    shared_ptr<Data> freshData(new Data(Name("/ndn/abc")));
     const unsigned char freshContent[] = "SUCCESS!";
     freshData->setContent(freshContent, sizeof(freshContent) - 1);
     freshData->getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
     
-    ptr_lib::shared_ptr<PrivateKeyStorage> privateKeyStorage(new PrivateKeyStorage());
-    ptr_lib::shared_ptr<IdentityManager> identityManager(new IdentityManager(privateKeyStorage));
+    shared_ptr<PrivateKeyStorage> privateKeyStorage(new PrivateKeyStorage());
+    shared_ptr<IdentityManager> identityManager(new IdentityManager(privateKeyStorage));
     KeyChain keyChain(identityManager);
     
     keyChain.signData(*freshData);

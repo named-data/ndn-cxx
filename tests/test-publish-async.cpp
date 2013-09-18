@@ -24,7 +24,7 @@ public:
   }
   
   void operator()
-     (const ptr_lib::shared_ptr<const Name>& prefix, const ptr_lib::shared_ptr<const Interest>& interest, Transport& transport) {
+     (const shared_ptr<const Name>& prefix, const shared_ptr<const Interest>& interest, Transport& transport) {
     ++interestCount_;
     
     // Make and sign a Data packet.

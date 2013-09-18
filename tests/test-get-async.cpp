@@ -25,7 +25,7 @@ public:
     callbackCount_ = 0;
   }
   
-  void onData(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& data)
+  void onData(const shared_ptr<const Interest>& interest, const shared_ptr<Data>& data)
   {
     ++callbackCount_;
     cout << "Got data packet with name " << data->getName().to_uri() << endl;
@@ -34,7 +34,7 @@ public:
     cout << endl;  
   }
 
-  void onTimeout(const ptr_lib::shared_ptr<const Interest>& interest)
+  void onTimeout(const shared_ptr<const Interest>& interest)
   {
     ++callbackCount_;
     cout << "Time out for interest " << interest->getName().toUri() << endl;    
