@@ -37,7 +37,7 @@ public:
    * @param data The Data object to be signed.  This updates its signature and key locator field and wireEncoding.
    * @param signerName The signing identity or certificate name, depending on byKeyName. If omitted, infer the certificate name from data.getName().
    * @param byKeyName If true, the signerName is the key name, otherwise it is the certificate name. If omitted, the default is true.
-   * @param wireFormat
+   * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
   void 
   signData(Data& data, const Name& signerName = Name(), bool byKeyName = true, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
