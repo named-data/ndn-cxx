@@ -191,7 +191,7 @@ int main(int argc, char** argv)
     ptr_lib::shared_ptr<IdentityManager> identityManager(new IdentityManager(privateKeyStorage));
     KeyChain keyChain(identityManager);
     
-    keyChain.sign(freshData);
+    keyChain.signData(freshData);
     cout << endl << "Freshly-signed Data:" << endl;
     dumpData(freshData);
     Blob freshEncoding = freshData.wireEncode();
