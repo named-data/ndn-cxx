@@ -207,6 +207,12 @@ public:
   getContent() const { return content_; }
 
   /**
+   * Return a pointer to the wireEncoding.  It may be null.
+   */
+  const SignedBlob&
+  getWireEncoding() const { return wireEncoding_; }
+  
+  /**
    * Set the signature to a copy of the given signature.
    * @param signature The signature object which is cloned.
    */
