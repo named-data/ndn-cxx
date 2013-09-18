@@ -157,7 +157,7 @@ static void dumpData(const Data& data)
   }
 }
 
-static void onVerified(const char *prefix, const Data &data)
+static void onVerified(const char *prefix, const ptr_lib::shared_ptr<Data>& data)
 {
   cout << prefix << " signature verification: VERIFIED" << endl;
 }
@@ -170,31 +170,31 @@ static void onVerifyFailed(const char *prefix)
 int main(int argc, char** argv)
 {
   try {
-    Data data;
-    data.wireDecode(Data1, sizeof(Data1));
+    ptr_lib::shared_ptr<Data> data(new Data());
+    data->wireDecode(Data1, sizeof(Data1));
     cout << "Decoded Data:" << endl;
-    dumpData(data);
+    dumpData(*data);
     
-    Blob encoding = data.wireEncode();
+    Blob encoding = data->wireEncode();
     
-    Data reDecodedData;
-    reDecodedData.wireDecode(*encoding);
+    ptr_lib::shared_ptr<Data> reDecodedData(new Data());
+    reDecodedData->wireDecode(*encoding);
     cout << endl << "Re-decoded Data:" << endl;
-    dumpData(reDecodedData);
+    dumpData(*reDecodedData);
   
-    Data freshData(Name("/ndn/abc"));
+    ptr_lib::shared_ptr<Data> freshData(new Data(Name("/ndn/abc")));
     const unsigned char freshContent[] = "SUCCESS!";
-    freshData.setContent(freshContent, sizeof(freshContent) - 1);
-    freshData.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
+    freshData->setContent(freshContent, sizeof(freshContent) - 1);
+    freshData->getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
     
     ptr_lib::shared_ptr<PrivateKeyStorage> privateKeyStorage(new PrivateKeyStorage());
     ptr_lib::shared_ptr<IdentityManager> identityManager(new IdentityManager(privateKeyStorage));
     KeyChain keyChain(identityManager);
     
-    keyChain.signData(freshData);
+    keyChain.signData(*freshData);
     cout << endl << "Freshly-signed Data:" << endl;
-    dumpData(freshData);
-    Blob freshEncoding = freshData.wireEncode();
+    dumpData(*freshData);
+    Blob freshEncoding = freshData->wireEncode();
 
     // Do verification at the end because it uses callbacks.
     cout << endl;
