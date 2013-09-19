@@ -197,10 +197,6 @@ int main(int argc, char** argv)
     dumpData(*freshData);
     Blob freshEncoding = freshData->wireEncode();
 
-    // Do verification at the end because it uses callbacks.
-    cout << endl;
-    keyChain.verifyData(data, bind(&onVerified, "Decoded Data", _1), bind(&onVerifyFailed, "Decoded Data"));
-    keyChain.verifyData(reDecodedData, bind(&onVerified, "Re-decoded Data", _1), bind(&onVerifyFailed, "Re-decoded Data"));
     keyChain.verifyData(freshData, bind(&onVerified, "Freshly-signed Data", _1), bind(&onVerifyFailed, "Freshly-signed Data"));
   } catch (std::exception& e) {
     cout << "exception: " << e.what() << endl;
