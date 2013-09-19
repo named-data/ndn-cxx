@@ -18,28 +18,38 @@ using namespace func_lib;
 
 class Echo {
 public:
-  Echo() 
+  Echo(KeyChain &keyChain)
+  : keyChain_(keyChain), responseCount_(0)
   { 
-    interestCount_ = 0;
   }
   
+  // onInterest.
   void operator()
-     (const shared_ptr<const Name>& prefix, const shared_ptr<const Interest>& interest, Transport& transport) {
-    ++interestCount_;
+     (const shared_ptr<const Name>& prefix, const shared_ptr<const Interest>& interest, Transport& transport) 
+  {
+    ++responseCount_;
     
     // Make and sign a Data packet.
     Data data(interest->getName());
     string content(string("Echo ") + interest->getName().toUri());
     data.setContent((const unsigned char *)&content[0], content.size());
     data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
-    KeyChain::defaultSign(data);
+    keyChain_.signData(data);
     Blob encodedData = data.wireEncode();
 
     cout << "Sent content " << content << endl;
     transport.send(*encodedData);
   }
+  
+  // onRegisterFailed.
+  void operator()(const ptr_lib::shared_ptr<const Name>& prefix)
+  {
+    ++responseCount_;
+    cout << "Register failed for prefix " << prefix->toUri() << endl;
+  }
 
-  int interestCount_;
+  KeyChain keyChain_;
+  int responseCount_;
 };
 
 int main(int argc, char** argv)
@@ -47,14 +57,19 @@ int main(int argc, char** argv)
   try {
     Face face("localhost");
     
-    Echo echo;
+    shared_ptr<PrivateKeyStorage> privateKeyStorage(new PrivateKeyStorage());
+    shared_ptr<IdentityManager> identityManager(new IdentityManager(privateKeyStorage));
+    KeyChain keyChain(identityManager);
+    keyChain.setFace(&face);
+   
+    Echo echo(keyChain);
     Name prefix("/testecho");
     cout << "Register prefix  " << prefix.toUri() << endl;
-    face.registerPrefix(prefix, ref(echo));
+    face.registerPrefix(prefix, ref(echo), ref(echo), keyChain, Name());
     
     // The main event loop.  
     // Wait forever to receive one interest for the prefix.
-    while (echo.interestCount_ < 1) {
+    while (echo.responseCount_ < 1) {
       face.processEvents();
       // We need to sleep for a few milliseconds so we don't use 100% of the CPU.
       usleep(10000);
