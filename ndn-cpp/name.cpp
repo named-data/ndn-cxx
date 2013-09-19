@@ -254,7 +254,7 @@ Name::match(const Name& name) const
     const Component &selfComponent = components_[i];
     const Component &nameComponent = name.components_[i];
 
-    if (selfComponent.getValue() != nameComponent.getValue())
+    if (*selfComponent.getValue() != *nameComponent.getValue())
       return false;
   }
 
