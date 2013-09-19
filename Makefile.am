@@ -47,10 +47,10 @@ libndn_cpp_la_SOURCES = \
   config.h \
   ndn-cpp/common.hpp ndn-cpp/common.cpp \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
-  ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
-  ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
   ndn-cpp/face.cpp ndn-cpp/face.hpp \
   ndn-cpp/forwarding-entry.cpp ndn-cpp/c/forwarding-entry.h ndn-cpp/forwarding-entry.hpp \
+  ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
+  ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
   ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
   ndn-cpp/node.cpp ndn-cpp/node.hpp \
   ndn-cpp/publisher-public-key-digest.hpp \
@@ -72,6 +72,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/util/blob.hpp \
   ndn-cpp/util/changed-event.cpp ndn-cpp/util/changed-event.hpp \
   ndn-cpp/util/dynamic-uchar-vector.cpp ndn-cpp/util/dynamic-uchar-vector.hpp \
+  ndn-cpp/util/logging.cpp ndn-cpp/util/logging.hpp \
   ndn-cpp/util/signed-blob.hpp
 
 bin_test_encode_decode_forwarding_entry_SOURCES = tests/test-encode-decode-forwarding-entry.cpp
