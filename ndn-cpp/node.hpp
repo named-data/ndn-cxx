@@ -66,17 +66,12 @@ public:
    * use func_lib::ref() as appropriate.
    * @param onRegisterFailed A function object to call if failed to retrieve the connected hub’s ID or failed to register the prefix.
    * This calls onRegisterFailed(prefix) where prefix is the prefix given to registerPrefix.
-   * @param keyChain The KeyChain object whose signData is called to sign the Data packet with the ForwardingEntry to register the prefix.
-   * @param signerName The signing identity or certificate name, depending on byKeyName. This is used to sign the Data packet 
-   * with the ForwardingEntry to register the prefix.This copies the function object, so you may need to use func_lib::ref() as appropriate.
-   * @param byKeyName If true, the signerName is the key name, otherwise it is the certificate name. If omitted, the default is true.
    * @param flags The flags for finer control of which interests are forward to the application.
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
   void 
   registerPrefix
-    (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, KeyChain &keyChain, 
-     const Name& signerName, bool byKeyName, int flags, WireFormat& wireFormat);
+    (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, int flags, WireFormat& wireFormat);
 
   /**
    * Process any data to receive.  For each element received, call onReceivedElement.
@@ -204,9 +199,9 @@ private:
     class Info {
     public:
       Info(Node *node, const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, 
-           KeyChain &keyChain, const Name& signerName, bool byKeyName, int flags, WireFormat& wireFormat)
+           int flags, WireFormat& wireFormat)
       : node_(*node), prefix_(new Name(prefix)), onInterest_(onInterest), onRegisterFailed_(onRegisterFailed), 
-        keyChain_(keyChain), signerName_(new Name(signerName)), byKeyName_(byKeyName), flags_(flags), wireFormat_(wireFormat)
+        flags_(flags), wireFormat_(wireFormat)
       {      
       }
       
@@ -214,9 +209,6 @@ private:
       ptr_lib::shared_ptr<const Name> prefix_;
       const OnInterest onInterest_;
       const OnRegisterFailed onRegisterFailed_;
-      KeyChain &keyChain_;
-      ptr_lib::shared_ptr<const Name> signerName_;
-      bool byKeyName_;
       int flags_;
       WireFormat& wireFormat_;
     };
@@ -247,16 +239,13 @@ private:
    * @param prefix
    * @param onInterest
    * @param onRegisterFailed
-   * @param keyChain
-   * @param signerName
-   * @param byKeyName
    * @param flags
    * @param wireFormat
    */  
   void 
   registerPrefixHelper
     (const ptr_lib::shared_ptr<const Name>& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, 
-     KeyChain &keyChain, const ptr_lib::shared_ptr<const Name>& signerName, bool byKeyName, int flags, WireFormat& wireFormat);
+     int flags, WireFormat& wireFormat);
   
   ptr_lib::shared_ptr<Transport> transport_;
   ptr_lib::shared_ptr<const Transport::ConnectionInfo> connectionInfo_;

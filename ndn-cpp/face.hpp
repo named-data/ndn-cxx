@@ -87,19 +87,15 @@ public:
    * use func_lib::ref() as appropriate.
    * @param onRegisterFailed A function object to call if failed to retrieve the connected hub’s ID or failed to register the prefix.
    * This calls onRegisterFailed(prefix) where prefix is the prefix given to registerPrefix.
-   * @param keyChain The KeyChain object whose signData is called to sign the Data packet with the ForwardingEntry to register the prefix.
-   * @param signerName The signing identity or certificate name, depending on byKeyName. This is used to sign the Data packet 
-   * with the ForwardingEntry to register the prefix.This copies the function object, so you may need to use func_lib::ref() as appropriate.
-   * @param byKeyName If true, the signerName is the key name, otherwise it is the certificate name. If omitted, the default is true.
    * @param flags The flags for finer control of which interests are forward to the application.
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
   void 
   registerPrefix
-    (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, KeyChain &keyChain,
-     const Name& signerName, bool byKeyName = true, int flags = 0, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat())
+    (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, int flags = 0, 
+     WireFormat& wireFormat = *WireFormat::getDefaultWireFormat())
   {
-    node_.registerPrefix(prefix, onInterest, onRegisterFailed, keyChain, signerName, byKeyName, flags, wireFormat);
+    node_.registerPrefix(prefix, onInterest, onRegisterFailed, flags, wireFormat);
   }
   
   /**

@@ -65,7 +65,7 @@ int main(int argc, char** argv)
     Echo echo(keyChain);
     Name prefix("/testecho");
     cout << "Register prefix  " << prefix.toUri() << endl;
-    face.registerPrefix(prefix, ref(echo), ref(echo), keyChain, Name());
+    face.registerPrefix(prefix, ref(echo), ref(echo));
     
     // The main event loop.  
     // Wait forever to receive one interest for the prefix.
