@@ -13,6 +13,9 @@
 
 namespace ndn {
 
+/**
+ * An IdentityManager is the interface of operations related to identity, keys, and certificates.
+ */
 class IdentityManager {
 public:
   IdentityManager(const ptr_lib::shared_ptr<PrivateKeyStorage> &privateKeyStorage)

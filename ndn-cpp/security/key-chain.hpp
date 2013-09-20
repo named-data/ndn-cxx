@@ -23,6 +23,12 @@ typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerifi
  */
 typedef func_lib::function<void()> OnVerifyFailed;
 
+/**
+ * Keychain is main class of security library.
+ *
+ * The Keychain class provides a set of interfaces to the security library such as identity management, policy configuration 
+ * and packet signing and verification.
+ */
 class KeyChain {
 public:
   KeyChain(ptr_lib::shared_ptr<IdentityManager> identityManager)
