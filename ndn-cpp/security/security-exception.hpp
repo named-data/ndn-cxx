@@ -20,7 +20,9 @@ public:
     
   virtual ~SecurityException() throw();
     
-  inline std::string Msg() { return errorMessage_; }
+  std::string Msg() { return errorMessage_; }
+
+  std::string what() { return errorMessage_; }
     
 private:
   const std::string errorMessage_;
