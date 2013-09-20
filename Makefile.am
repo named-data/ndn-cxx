@@ -64,6 +64,9 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/encoding/wire-format.cpp ndn-cpp/encoding/wire-format.hpp \
   ndn-cpp/security/security-common.hpp \
   ndn-cpp/security/key-chain.cpp ndn-cpp/security/key-chain.hpp \
+  ndn-cpp/security/security-exception.cpp ndn-cpp/security/security-exception.hpp \
+  ndn-cpp/security/certificate/oid.cpp ndn-cpp/security/certificate/oid.hpp \
+  ndn-cpp/security/certificate/public-key.cpp ndn-cpp/security/certificate/public-key.hpp \
   ndn-cpp/security/identity/identity-manager.cpp ndn-cpp/security/identity/identity-manager.hpp \
   ndn-cpp/security/identity/private-key-storage.cpp ndn-cpp/identity/security/private-key-storage.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/tcp-transport.h ndn-cpp/transport/tcp-transport.cpp ndn-cpp/transport/tcp-transport.hpp \
