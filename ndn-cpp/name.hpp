@@ -170,27 +170,54 @@ public:
   set(const char *uri);  
 
   /**
-   * Add a new component, copying from value of length valueLength.
+   * Append a new component, copying from value of length valueLength.
    */
   void 
-  addComponent(const unsigned char *value, unsigned int valueLength) 
+  appendComponent(const unsigned char *value, unsigned int valueLength) 
   {
     components_.push_back(Component(value, valueLength));
   }
 
   /**
-   * Add a new component, copying from value.
+   * Append a new component, copying from value.
    */
   void 
-  addComponent(const std::vector<unsigned char>& value) 
+  appendComponent(const std::vector<unsigned char>& value) 
   {
     components_.push_back(value);
   }
   
   void 
-  addComponent(const Blob &value)
+  appendComponent(const Blob &value)
   {
     components_.push_back(value);
+  }
+  
+  /**
+   * @deprecated Use appendComponent.
+   */
+  void 
+  addComponent(const unsigned char *value, unsigned int valueLength) 
+  {
+    appendComponent(value, valueLength);
+  }
+
+  /**
+   * @deprecated Use appendComponent.
+   */
+  void 
+  addComponent(const std::vector<unsigned char>& value) 
+  {
+    appendComponent(value);
+  }
+  
+  /**
+   * @deprecated Use appendComponent.
+   */
+  void 
+  addComponent(const Blob &value)
+  {
+    appendComponent(value);
   }
   
   /**
