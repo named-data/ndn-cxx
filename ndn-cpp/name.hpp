@@ -171,53 +171,93 @@ public:
 
   /**
    * Append a new component, copying from value of length valueLength.
+   * @return This name so that you can chain calls to append.
    */
-  void 
-  appendComponent(const unsigned char *value, unsigned int valueLength) 
+  Name& 
+  append(const unsigned char *value, unsigned int valueLength) 
   {
     components_.push_back(Component(value, valueLength));
+    return *this;
   }
 
   /**
    * Append a new component, copying from value.
+   * @return This name so that you can chain calls to append.
    */
-  void 
-  appendComponent(const std::vector<unsigned char>& value) 
+  Name& 
+  append(const std::vector<unsigned char>& value) 
   {
     components_.push_back(value);
+    return *this;
   }
   
-  void 
-  appendComponent(const Blob &value)
+  Name& 
+  append(const Blob &value)
   {
     components_.push_back(value);
+    return *this;
   }
   
   /**
-   * @deprecated Use appendComponent.
+   * Append the components of the given name to this name.
+   * @param name The Name with components to append.
+   * @return This name so that you can chain calls to append.
    */
-  void 
-  addComponent(const unsigned char *value, unsigned int valueLength) 
+  Name&
+  append(const Name& name);
+  
+  /**
+   * @deprecated Use append.
+   */
+  Name& 
+  appendComponent(const unsigned char *value, unsigned int valueLength) 
   {
-    appendComponent(value, valueLength);
+    return append(value, valueLength);
   }
 
   /**
-   * @deprecated Use appendComponent.
+   * @deprecated Use append.
    */
-  void 
-  addComponent(const std::vector<unsigned char>& value) 
+  Name& 
+  appendComponent(const std::vector<unsigned char>& value) 
   {
-    appendComponent(value);
+    return append(value);
   }
   
   /**
-   * @deprecated Use appendComponent.
+   * @deprecated Use append.
    */
-  void 
+  Name& 
+  appendComponent(const Blob &value)
+  {
+    return append(value);
+  }
+
+  /**
+   * @deprecated Use append.
+   */
+  Name& 
+  addComponent(const unsigned char *value, unsigned int valueLength) 
+  {
+    return append(value, valueLength);
+  }
+
+  /**
+   * @deprecated Use append.
+   */
+  Name& 
+  addComponent(const std::vector<unsigned char>& value) 
+  {
+    return append(value);
+  }
+  
+  /**
+   * @deprecated Use append.
+   */
+  Name& 
   addComponent(const Blob &value)
   {
-    appendComponent(value);
+    return append(value);
   }
   
   /**
@@ -283,15 +323,17 @@ public:
   {
     return toUri();
   }
-  
+
   /**
    * Append a component with the encoded segment number.
    * @param segment The segment number.
-   */
-  void 
+   * @return This name so that you can chain calls to append.
+   */  
+  Name& 
   appendSegment(unsigned long segment)
   {
     components_.push_back(Component(Component::makeSegment(segment)));
+    return *this;
   }
   
   /**

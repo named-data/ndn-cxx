@@ -224,6 +224,19 @@ Name::set(const struct ndn_Name& nameStruct)
     addComponent(nameStruct.components[i].value, nameStruct.components[i].valueLength);  
 }
 
+Name&
+Name::append(const Name& name)
+{
+  if (&name == this)
+    // Copying from this name, so need to make a copy first.
+    return append(Name(name));
+
+  for (size_t i = 0; i < name.components_.size(); ++i)
+    components_.push_back(name.components_[i]);
+  
+  return *this;
+}
+
 std::string 
 Name::toUri() const
 {
