@@ -83,7 +83,7 @@ public:
      * @param result the string stream to write to.
      */
     void 
-    toEscapedString(std::ostringstream& result)
+    toEscapedString(std::ostringstream& result) const
     {
       Name::toEscapedString(*value_, result);
     }
@@ -94,7 +94,7 @@ public:
      * @return The escaped string.
      */
     std::string
-    toEscapedString()
+    toEscapedString() const
     {
       return Name::toEscapedString(*value_);
     }
@@ -239,6 +239,34 @@ public:
   
   const Component& 
   getComponent(unsigned int i) const { return components_[i]; }
+  
+  /**
+   * Get a new name, constructed as a subset of components.
+   * @param iStartComponent The index if the first component to get.
+   * @param nComponents The number of components starting at iStartComponent.
+   * @return A new name.
+   */
+  Name
+  getSubName(size_t iStartComponent, size_t nComponents) const;
+
+  /**
+   * Get a new name, constructed as a subset of components starting at iStartComponent until the end of the name.
+   * @param iStartComponent The index if the first component to get.
+   * @return A new name.
+   */
+  Name
+  getSubName(size_t iStartComponent) const;
+  
+  /**
+   * Return a new Name with the first nComponents components of this Name.
+   * @param nComponents The number of prefix components.
+   * @return A new Name.
+   */
+  Name
+  getPrefix(size_t nComponents) const
+  {
+    return getSubName(0, nComponents);
+  }
   
   /**
    * Encode this name as a URI.

@@ -239,6 +239,29 @@ Name::toUri() const
   return result.str();
 }
 
+Name
+Name::getSubName(size_t iStartComponent, size_t nComponents) const
+{
+  Name result;
+  
+  unsigned int iEnd = iStartComponent + nComponents;
+  for (unsigned int i = iStartComponent; i < iEnd && i < components_.size(); ++i)
+    result.components_.push_back(components_[i]);
+  
+  return result;
+}
+
+Name
+Name::getSubName(size_t iStartComponent) const
+{
+  Name result;
+  
+  for (unsigned int i = iStartComponent; i < components_.size(); ++i)
+    result.components_.push_back(components_[i]);
+  
+  return result;
+}
+
 bool 
 Name::match(const Name& name) const
 {
