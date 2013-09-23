@@ -301,4 +301,12 @@ Name::toEscapedString(const vector<unsigned char>& value, ostringstream& result)
   }  
 }
 
+string
+Name::toEscapedString(const vector<unsigned char>& value)
+{
+  ostringstream result;
+  toEscapedString(value, result);
+  return result.str();
+}
+
 }

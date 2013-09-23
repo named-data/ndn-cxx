@@ -75,6 +75,29 @@ public:
   
     const Blob& 
     getValue() const { return value_; }
+
+    /**
+     * Write this component value to result, escaping characters according to the NDN URI Scheme.
+     * This also adds "..." to a value with zero or more ".".
+     * @param value the buffer with the value to escape
+     * @param result the string stream to write to.
+     */
+    void 
+    toEscapedString(std::ostringstream& result)
+    {
+      Name::toEscapedString(*value_, result);
+    }
+
+    /**
+     * Convert this component value by escaping characters according to the NDN URI Scheme.
+     * This also adds "..." to a value with zero or more ".".
+     * @return The escaped string.
+     */
+    std::string
+    toEscapedString()
+    {
+      return Name::toEscapedString(*value_);
+    }
     
     /**
      * Make a component value by decoding the escapedString between beginOffset and endOffset according to the NDN URI Scheme.
@@ -232,6 +255,15 @@ public:
    */
   static void 
   toEscapedString(const std::vector<unsigned char>& value, std::ostringstream& result);
+
+  /**
+   * Convert the value by escaping characters according to the NDN URI Scheme.
+   * This also adds "..." to a value with zero or more ".".
+   * @param value the buffer with the value to escape
+   * @return The escaped string.
+   */
+  static std::string
+  toEscapedString(const std::vector<unsigned char>& value);
 
 private:
   std::vector<Component> components_;
