@@ -22,7 +22,7 @@ public:
     
   std::string Msg() { return errorMessage_; }
 
-  std::string what() { return errorMessage_; }
+  virtual const char* what() const throw() { return errorMessage_.c_str(); }
     
 private:
   const std::string errorMessage_;
