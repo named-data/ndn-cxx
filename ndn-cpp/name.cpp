@@ -132,7 +132,7 @@ Name::Component::makeFromEscapedString(const char *escapedString, unsigned int b
 Blob 
 Name::Component::makeSegment(unsigned long segment)
 {
-  shared_ptr<vector<unsigned char> > value;
+  shared_ptr<vector<unsigned char> > value(new vector<unsigned char>());
   
   // Add the leading zero.
   value->push_back(0);
