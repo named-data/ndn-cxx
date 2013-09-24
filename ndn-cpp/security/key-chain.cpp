@@ -4,11 +4,12 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <stdexcept>
 #include "../c/util/crypto.h"
 #include "../c/encoding/binary-xml-data.h"
 #include "../encoding/binary-xml-encoder.hpp"
 #include "../sha256-with-rsa-signature.hpp"
+#include "../util/logging.hpp"
+#include "security-exception.hpp"
 #include "key-chain.hpp"
 
 using namespace std;
@@ -29,6 +30,11 @@ static unsigned char DEFAULT_PUBLIC_KEY_DER[] = {
 0x00, 01  
 };
 #endif
+
+KeyChain::KeyChain(const ptr_lib::shared_ptr<IdentityStorage>& identityStorage, const ptr_lib::shared_ptr<PrivateKeyStorage>& privateKeyStorage)
+: identityManager_(identityStorage, privateKeyStorage), face_(0), maxSteps_(100)
+{  
+}
 
 static bool 
 verifySignature(const Data& data /*, const Publickey& publickey */)
@@ -64,13 +70,14 @@ verifySignature(const Data& data /*, const Publickey& publickey */)
 #else
   const Sha256WithRsaSignature *signature = dynamic_cast<const Sha256WithRsaSignature*>(data.getSignature());
   if (!signature)
-    throw std::runtime_error("signature is not Sha256WithRsaSignature.");
+    throw SecurityException("signature is not Sha256WithRsaSignature.");
   
   if (signature->getDigestAlgorithm().size() != 0)
     // TODO: Allow a non-default digest algorithm.
-    throw std::runtime_error("Cannot verify a data packet with a non-default digest algorithm.");
+    throw UnrecognizedDigestAlgorithmException("Cannot verify a data packet with a non-default digest algorithm.");
   if (!data.getWireEncoding())
-    throw std::runtime_error("The Data wireEncoding is null.");
+    // Don't expect this to happen
+    throw SecurityException("The Data wireEncoding is null.");
   unsigned char signedPortionDigest[SHA256_DIGEST_LENGTH];
   ndn_digestSha256(data.getWireEncoding().signedBuf(), data.getWireEncoding().signedSize(), signedPortionDigest);
   
@@ -79,7 +86,7 @@ verifySignature(const Data& data /*, const Publickey& publickey */)
   const unsigned char *derPointer = DEFAULT_PUBLIC_KEY_DER;
   RSA *publicKey = d2i_RSA_PUBKEY(NULL, &derPointer, sizeof(DEFAULT_PUBLIC_KEY_DER));
   if (!publicKey)
-    throw std::runtime_error("Error decoding public key in d2i_RSAPublicKey");
+    throw UnrecognizedKeyFormatException("Error decoding public key in d2i_RSAPublicKey");
   int success = RSA_verify
     (NID_sha256, signedPortionDigest, sizeof(signedPortionDigest), (unsigned char *)signature->getSignature().buf(), 
      signature->getSignature().size(), publicKey);
@@ -91,36 +98,37 @@ verifySignature(const Data& data /*, const Publickey& publickey */)
 }
 
 void 
-KeyChain::signData(Data& data, const Name& signerName, bool byKeyName, WireFormat& wireFormat)
+KeyChain::signData(Data& data, const Name& certificateNameIn, WireFormat& wireFormat)
 {
-  Name certificateName;
-    
+  Name inferredCertificateName;
+  const Name* certificateName;
+  
+  if (certificateNameIn.getComponentCount() == 0) {
 #if 0
-  if(signerName.getComponentCount() == 0)
-    certificateName = m_identityManager->getDefaultCertificateNameByIdentity(m_policyManager->inferSigningIdentity (data.getName ()));
-  else {
-    if (byKeyName)
-      certificateName = m_identityManager->getDefaultCertificateNameByIdentity(signerName);
-    else
-      certificateName = signerName;
+    inferredCertificateName = identityManager_.getDefaultCertificateNameForIdentity(policyManager_->inferSigningIdentity(data.getName ()));
+#else
+    inferredCertificateName = Name();
+#endif
+    if (inferredCertificateName.getComponentCount() == 0)
+      throw SecurityException("No qualified certificate name can be inferred");
+    
+    certificateName = &inferredCertificateName;
   }
-
-  if (certificateName.getComponentCount() == 0)
-    throw std::runtime_error("No qualified certificate name found!");
-
-  if (!m_policyManager->checkSigningPolicy (data.getName (), certificateName))
-    throw std::runtime_error("Signing Cert name does not comply with signing policy");
+  else
+    certificateName = &certificateNameIn;
+        
+#if 0
+  if (!policyManager_->checkSigningPolicy (data.getName (), certificateName))
+    throw SecurityException("Signing Cert name does not comply with signing policy");
 #endif
   
-  identityManager_->signByCertificate(data, certificateName, wireFormat);  
+  identityManager_.signByCertificate(data, *certificateName, wireFormat);  
 }
 
 void
 KeyChain::verifyData(const shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
 {
-#if 0
   _LOG_TRACE("Enter Verify");
-#endif
 
 #if 0
   if (m_policyManager->requireVerify(*dataPtr))

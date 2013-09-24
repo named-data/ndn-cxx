@@ -31,9 +31,32 @@ typedef func_lib::function<void()> OnVerifyFailed;
  */
 class KeyChain {
 public:
-  KeyChain(ptr_lib::shared_ptr<IdentityManager> identityManager)
-  : identityManager_(identityManager), face_(0), maxSteps_(100)
-  {  
+  KeyChain(const ptr_lib::shared_ptr<IdentityStorage>& identityStorage, const ptr_lib::shared_ptr<PrivateKeyStorage>& privateKeyStorage);
+
+  /**
+   * Get the default certificate name for the specified identity, which will be used when signing is performed based on identity.
+   * @param identityName The name of the specified identity.
+   * @return The requested certificate name.
+   */
+  Name
+  getDefaultCertificateNameForIdentity(const Name& identityName)
+  {
+    return identityManager_.getDefaultCertificateNameForIdentity(identityName);
+  }
+  
+  /**
+   * Examine the data packet Name and infer the identity name for signing the content.
+   * @param name The data packet name to examine.
+   * @return A new identity name for signing a data packet.
+   */
+  Name
+  inferSigningIdentity(const Name& name)
+  {
+#if 0
+    policyManager_->inferSigningIdentity(name)
+#else
+    return Name();
+#endif
   }
 
   /**
@@ -41,12 +64,11 @@ public:
    * Note: the caller must make sure the timestamp is correct, for example with 
    * data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0).
    * @param data The Data object to be signed.  This updates its signature and key locator field and wireEncoding.
-   * @param signerName The signing identity or certificate name, depending on byKeyName. If omitted, infer the certificate name from data.getName().
-   * @param byKeyName If true, the signerName is the key name, otherwise it is the certificate name. If omitted, the default is true.
+   * @param certificateName The certificate name of the key to use for signing.  If omitted, infer the signing identity from the data packet name.
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
   void 
-  signData(Data& data, const Name& signerName = Name(), bool byKeyName = true, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  signData(Data& data, const Name& certificateName = Name(), WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
 
   /**
    * Check the signature on the Data object and call either onVerify or onVerifyFailed. 
@@ -66,7 +88,7 @@ public:
   setFace(Face* face) { face_ = face; }
 
 private:
-  ptr_lib::shared_ptr<IdentityManager> identityManager_;
+  IdentityManager identityManager_;
   Face* face_;
   const int maxSteps_;
 };
