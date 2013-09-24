@@ -4,23 +4,23 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "dynamic-uchar-vector.hpp"
+#include "dynamic-uint8-vector.hpp"
 
 using namespace std;
 
 namespace ndn {
 
-DynamicUCharVector::DynamicUCharVector(unsigned int initialLength)
-: vector_(new vector<unsigned char>(initialLength))
+DynamicUInt8Vector::DynamicUInt8Vector(unsigned int initialLength)
+: vector_(new vector<uint8_t>(initialLength))
 {
-  ndn_DynamicUCharArray_initialize(this, &vector_->front(), initialLength, DynamicUCharVector::realloc);
+  ndn_DynamicUInt8Array_initialize(this, &vector_->front(), initialLength, DynamicUInt8Vector::realloc);
 }
 
-unsigned char*
-DynamicUCharVector::realloc(struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length)
+uint8_t*
+DynamicUInt8Vector::realloc(struct ndn_DynamicUInt8Array *self, uint8_t *array, unsigned int length)
 {
   // Because this method is private, assume there is not a problem with upcasting.
-  DynamicUCharVector *thisObject = (DynamicUCharVector *)self;
+  DynamicUInt8Vector *thisObject = (DynamicUInt8Vector *)self;
   
   if (array != &thisObject->vector_->front())
     // We don't expect this to ever happen. The caller didn't pass the array from this object.

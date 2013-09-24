@@ -66,7 +66,7 @@ trim(string& str)
  * @return 
  */
 static int 
-fromHexChar(unsigned char c)
+fromHexChar(uint8_t c)
 {
   if (c >= '0' && c <= '9')
     return (int)c - (int)'0';
@@ -96,7 +96,7 @@ unescape(const string& str)
         // Invalid hex characters, so just keep the escaped string.
         result << str[i] << str[i + 1] << str[i + 2];
       else
-        result << (unsigned char)(16 * hi + lo);
+        result << (uint8_t)(16 * hi + lo);
       
       // Skip ahead past the escaped value.
       i += 2;
@@ -123,16 +123,16 @@ Name::Component::makeFromEscapedString(const char *escapedString, unsigned int b
       return Blob();
     else
       // Remove 3 periods.
-      return Blob((const unsigned char *)&component[3], component.size() - 3); 
+      return Blob((const uint8_t *)&component[3], component.size() - 3); 
   }
   else
-    return Blob((const unsigned char *)&component[0], component.size()); 
+    return Blob((const uint8_t *)&component[0], component.size()); 
 }
 
 Blob 
 Name::Component::makeSegment(unsigned long segment)
 {
-  shared_ptr<vector<unsigned char> > value(new vector<unsigned char>());
+  shared_ptr<vector<uint8_t> > value(new vector<uint8_t>());
   
   // Add the leading zero.
   value->push_back(0);
@@ -298,7 +298,7 @@ Name::match(const Name& name) const
 }
 
 void 
-Name::toEscapedString(const vector<unsigned char>& value, ostringstream& result)
+Name::toEscapedString(const vector<uint8_t>& value, ostringstream& result)
 {
   bool gotNonDot = false;
   for (unsigned i = 0; i < value.size(); ++i) {
@@ -318,7 +318,7 @@ Name::toEscapedString(const vector<unsigned char>& value, ostringstream& result)
     ios::fmtflags saveFlags = result.flags(ios::hex | ios::uppercase);
     
     for (unsigned int i = 0; i < value.size(); ++i) {
-      unsigned char x = value[i];
+      uint8_t x = value[i];
       // Check for 0-9, A-Z, a-z, (+), (-), (.), (_)
       if (x >= 0x30 && x <= 0x39 || x >= 0x41 && x <= 0x5a ||
         x >= 0x61 && x <= 0x7a || x == 0x2b || x == 0x2d || 
@@ -338,7 +338,7 @@ Name::toEscapedString(const vector<unsigned char>& value, ostringstream& result)
 }
 
 string
-Name::toEscapedString(const vector<unsigned char>& value)
+Name::toEscapedString(const vector<uint8_t>& value)
 {
   ostringstream result;
   toEscapedString(value, result);

@@ -22,9 +22,9 @@ public:
   /**
    * Initialize the base ndn_BinaryXmlDecoder struct with the input.
    */
-  BinaryXmlDecoder(const unsigned char *input, unsigned int inputLength) 
+  BinaryXmlDecoder(const uint8_t *input, unsigned int inputLength) 
   {
-    ndn_BinaryXmlDecoder_initialize(this, (unsigned char *)input, inputLength);
+    ndn_BinaryXmlDecoder_initialize(this, (uint8_t *)input, inputLength);
   }
   
   /**

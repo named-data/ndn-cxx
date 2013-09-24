@@ -9,7 +9,7 @@
 
 #include "../errors.h"
 #include "binary-xml-structure-decoder.h"
-#include "../util/dynamic-uchar-array.h"
+#include "../util/dynamic-uint8-array.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,7 +19,7 @@ extern "C" {
  * will be passed to onReceivedElement.
  */
 struct ndn_ElementListener {
-  void (*onReceivedElement)(struct ndn_ElementListener *self, unsigned char *element, unsigned int elementLength); /**< see ndn_ElementListener_initialize */
+  void (*onReceivedElement)(struct ndn_ElementListener *self, uint8_t *element, unsigned int elementLength); /**< see ndn_ElementListener_initialize */
 };
 
 /**
@@ -29,7 +29,7 @@ struct ndn_ElementListener {
  * self is the pointer to this ndn_ElementListener struct.  See ndn_BinaryXmlElementReader_onReceivedData.
  */
 static inline void ndn_ElementListener_initialize
-  (struct ndn_ElementListener *self, void (*onReceivedElement)(struct ndn_ElementListener *self, unsigned char *element, unsigned int elementLength))
+  (struct ndn_ElementListener *self, void (*onReceivedElement)(struct ndn_ElementListener *self, uint8_t *element, unsigned int elementLength))
 {
   self->onReceivedElement = onReceivedElement;
 }
@@ -44,7 +44,7 @@ struct ndn_BinaryXmlElementReader {
   struct ndn_ElementListener *elementListener;
   struct ndn_BinaryXmlStructureDecoder structureDecoder;
   int usePartialData;
-  struct ndn_DynamicUCharArray partialData;
+  struct ndn_DynamicUInt8Array partialData;
   unsigned int partialDataLength;
 };
 
@@ -54,16 +54,16 @@ struct ndn_BinaryXmlElementReader {
  * @param elementListener pointer to the ndn_ElementListener used by ndn_BinaryXmlElementReader_onReceivedData.
  * @param buffer the allocated buffer.  If reallocFunction is null, this should be large enough to save a full element, perhaps 8000 bytes.
  * @param bufferLength the length of the buffer
- * @param reallocFunction see ndn_DynamicUCharArray_ensureLength.  This may be 0.
+ * @param reallocFunction see ndn_DynamicUInt8Array_ensureLength.  This may be 0.
  */
 static inline void ndn_BinaryXmlElementReader_initialize
   (struct ndn_BinaryXmlElementReader *self, struct ndn_ElementListener *elementListener,
-   unsigned char *buffer, unsigned int bufferLength, unsigned char * (*reallocFunction)(struct ndn_DynamicUCharArray *self, unsigned char *, unsigned int))
+   uint8_t *buffer, unsigned int bufferLength, uint8_t * (*reallocFunction)(struct ndn_DynamicUInt8Array *self, uint8_t *, unsigned int))
 {
   self->elementListener = elementListener;
   ndn_BinaryXmlStructureDecoder_initialize(&self->structureDecoder);
   self->usePartialData = 0;
-  ndn_DynamicUCharArray_initialize(&self->partialData, buffer, bufferLength, reallocFunction);
+  ndn_DynamicUInt8Array_initialize(&self->partialData, buffer, bufferLength, reallocFunction);
 }
 
 /**
@@ -75,7 +75,7 @@ static inline void ndn_BinaryXmlElementReader_initialize
  * @return 0 for success, else an error code
  */
 ndn_Error ndn_BinaryXmlElementReader_onReceivedData
-  (struct ndn_BinaryXmlElementReader *self, unsigned char *data, unsigned int dataLength);
+  (struct ndn_BinaryXmlElementReader *self, uint8_t *data, unsigned int dataLength);
 
 #ifdef __cplusplus
 }

@@ -8,6 +8,7 @@
 #define NDN_SOCKETTRANSPORT_H
 
 #include <sys/socket.h>
+#include "../common.h"
 #include "../errors.h"
 
 #ifdef __cplusplus
@@ -49,7 +50,7 @@ ndn_Error ndn_SocketTransport_connect(struct ndn_SocketTransport *self, ndn_Sock
  * @param dataLength The number of bytes in data.
  * @return 0 for success, else an error code.
  */
-ndn_Error ndn_SocketTransport_send(struct ndn_SocketTransport *self, unsigned char *data, unsigned int dataLength);
+ndn_Error ndn_SocketTransport_send(struct ndn_SocketTransport *self, uint8_t *data, unsigned int dataLength);
 
 /**
  * Check if there is data ready on the socket to be received with ndn_SocketTransport_receive.
@@ -70,7 +71,7 @@ ndn_Error ndn_SocketTransport_receiveIsReady(struct ndn_SocketTransport *self, i
  * @return 0 for success, else an error code.
  */
 ndn_Error ndn_SocketTransport_receive
-  (struct ndn_SocketTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytes);
+  (struct ndn_SocketTransport *self, uint8_t *buffer, unsigned int bufferLength, unsigned int *nBytes);
 
 /**
  * Close the socket.

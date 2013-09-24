@@ -7,7 +7,7 @@
 #include "ndn_memory.h"
 
 #if !HAVE_MEMCMP
-int ndn_memcmp(unsigned char *buf1, unsigned char *buf2, unsigned int len)
+int ndn_memcmp(uint8_t *buf1, uint8_t *buf2, unsigned int len)
 {
   unsigned int i;
   
@@ -25,7 +25,7 @@ int ndn_memcmp_stub_to_avoid_empty_file_warning = 0;
 #endif
 
 #if !HAVE_MEMCPY
-void ndn_memcpy(unsigned char *dest, unsigned char *src, unsigned int len)
+void ndn_memcpy(uint8_t *dest, uint8_t *src, unsigned int len)
 {
   unsigned int i;
   
@@ -37,12 +37,12 @@ int ndn_memcpy_stub_to_avoid_empty_file_warning = 0;
 #endif
 
 #if !HAVE_MEMSET
-void ndn_memset(unsigned char *dest, int val, unsigned int len)
+void ndn_memset(uint8_t *dest, int val, unsigned int len)
 {
   unsigned int i;
   
   for (i = 0; i < len; i++)
-    dest[i] = (unsigned char)val;
+    dest[i] = (uint8_t)val;
 }
 #else
 int ndn_memset_stub_to_avoid_empty_file_warning = 0;

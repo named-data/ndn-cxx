@@ -9,7 +9,7 @@
 
 #include <vector>
 #include "../common.hpp"
-#include "../util/dynamic-uchar-vector.hpp"
+#include "../util/dynamic-uint8-vector.hpp"
 #include "../c/encoding/binary-xml-encoder.h"
 
 namespace ndn {
@@ -32,14 +32,14 @@ public:
    * Resize the output vector to the correct encoding length and return.
    * @return The encoding as a shared_ptr.  Assume that the caller now owns the vector.
    */
-  const ptr_lib::shared_ptr<std::vector<unsigned char> >& 
+  const ptr_lib::shared_ptr<std::vector<uint8_t> >& 
   getOutput() 
   {
     output_.get()->resize(offset);
     return output_.get();
   }
   
-  DynamicUCharVector output_;
+  DynamicUInt8Vector output_;
 };
 
 }

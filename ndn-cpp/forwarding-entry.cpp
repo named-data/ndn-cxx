@@ -38,7 +38,7 @@ ForwardingEntry::get(struct ndn_ForwardingEntry& forwardingEntryStruct) const
 
   forwardingEntryStruct.actionLength = action_.size();
   if (action_.size() > 0)
-    forwardingEntryStruct.action = (unsigned char *)&action_[0];
+    forwardingEntryStruct.action = (uint8_t *)&action_[0];
   else
     forwardingEntryStruct.action = 0;
 }

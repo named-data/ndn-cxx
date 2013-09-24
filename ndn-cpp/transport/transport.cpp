@@ -22,7 +22,7 @@ Transport::connect(const Transport::ConnectionInfo& connectionInfo, ElementListe
 }
   
 void 
-Transport::send(const unsigned char *data, unsigned int dataLength)
+Transport::send(const uint8_t *data, unsigned int dataLength)
 {
   throw logic_error("unimplemented");
 }

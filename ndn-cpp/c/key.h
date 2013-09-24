@@ -31,7 +31,7 @@ typedef enum {
  */
 struct ndn_KeyLocator {
   ndn_KeyLocatorType type;     /**< -1 for none */
-  unsigned char *keyData;      /**< A pointer to a pre-allocated buffer for the key data as follows:
+  uint8_t *keyData;      /**< A pointer to a pre-allocated buffer for the key data as follows:
     *   If type is ndn_KeyLocatorType_KEY, the key data.
     *   If type is ndn_KeyLocatorType_CERTIFICATE, the certificate data. 
     *   If type is ndn_KeyLocatorType_KEYNAME and keyNameType is ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST, the publisher public key digest. 

@@ -25,7 +25,7 @@ ndn_Error ndn_SocketTransport_connect(struct ndn_SocketTransport *self, ndn_Sock
   }
   
   struct addrinfo hints;
-  ndn_memset((unsigned char *)&hints, 0, sizeof(hints));
+  ndn_memset((uint8_t *)&hints, 0, sizeof(hints));
   hints.ai_family = AF_UNSPEC;
   if (socketType == SOCKET_TCP)
     hints.ai_socktype = SOCK_STREAM;
@@ -67,7 +67,7 @@ ndn_Error ndn_SocketTransport_connect(struct ndn_SocketTransport *self, ndn_Sock
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_SocketTransport_send(struct ndn_SocketTransport *self, unsigned char *data, unsigned int dataLength)
+ndn_Error ndn_SocketTransport_send(struct ndn_SocketTransport *self, uint8_t *data, unsigned int dataLength)
 {
   if (self->socketDescriptor < 0)
     return NDN_ERROR_SocketTransport_socket_is_not_open;
@@ -115,7 +115,7 @@ ndn_Error ndn_SocketTransport_receiveIsReady(struct ndn_SocketTransport *self, i
 }
 
 ndn_Error ndn_SocketTransport_receive
-  (struct ndn_SocketTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytesOut)
+  (struct ndn_SocketTransport *self, uint8_t *buffer, unsigned int bufferLength, unsigned int *nBytesOut)
 {
   if (self->socketDescriptor < 0)
     return NDN_ERROR_SocketTransport_socket_is_not_open;

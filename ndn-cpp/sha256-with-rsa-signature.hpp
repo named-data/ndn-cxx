@@ -62,28 +62,28 @@ public:
   getKeyLocator() { return keyLocator_; }
 
   void 
-  setDigestAlgorithm(const std::vector<unsigned char>& digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
+  setDigestAlgorithm(const std::vector<uint8_t>& digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
   
   void 
-  setDigestAlgorithm(const unsigned char *digestAlgorithm, unsigned int digestAlgorithmLength) 
+  setDigestAlgorithm(const uint8_t *digestAlgorithm, unsigned int digestAlgorithmLength) 
   { 
     digestAlgorithm_ = Blob(digestAlgorithm, digestAlgorithmLength); 
   }
 
   void 
-  setWitness(const std::vector<unsigned char>& witness) { witness_ = witness; }
+  setWitness(const std::vector<uint8_t>& witness) { witness_ = witness; }
   
   void 
-  setWitness(const unsigned char *witness, unsigned int witnessLength) 
+  setWitness(const uint8_t *witness, unsigned int witnessLength) 
   { 
     witness_ = Blob(witness, witnessLength); 
   }
 
   void 
-  setSignature(const std::vector<unsigned char>& signature) { signature_ = signature; }
+  setSignature(const std::vector<uint8_t>& signature) { signature_ = signature; }
   
   void 
-  setSignature(const unsigned char *signature, unsigned int signatureLength) 
+  setSignature(const uint8_t *signature, unsigned int signatureLength) 
   { 
     signature_ = Blob(signature, signatureLength); 
   }
@@ -94,10 +94,10 @@ public:
    * @param signature A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
    */
   void 
-  setSignature(const ptr_lib::shared_ptr<std::vector<unsigned char> > &signature) { signature_ = signature; }
+  setSignature(const ptr_lib::shared_ptr<std::vector<uint8_t> > &signature) { signature_ = signature; }
 
   void 
-  setSignature(const ptr_lib::shared_ptr<const std::vector<unsigned char> > &signature) { signature_ = signature; }
+  setSignature(const ptr_lib::shared_ptr<const std::vector<uint8_t> > &signature) { signature_ = signature; }
 
   void 
   setPublisherPublicKeyDigest(const PublisherPublicKeyDigest& publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }

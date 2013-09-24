@@ -19,12 +19,12 @@ extern "C" {
  * An ndn_Signature struct holds the signature bits and other info representing the signature in a data packet.
  */
 struct ndn_Signature {
-  unsigned char *digestAlgorithm;      /**< pointer to pre-allocated buffer.  0 for none.
+  uint8_t *digestAlgorithm;      /**< pointer to pre-allocated buffer.  0 for none.
                                         *   If none, default is 2.16.840.1.101.3.4.2.1 (sha-256). */
   unsigned int digestAlgorithmLength;  /**< length of digestAlgorithm.  0 for none */
-  unsigned char *witness;              /**< pointer to pre-allocated buffer.  0 for none. */
+  uint8_t *witness;              /**< pointer to pre-allocated buffer.  0 for none. */
   unsigned int witnessLength;          /**< length of witness.  0 for none */
-  unsigned char *signature;
+  uint8_t *signature;
   unsigned int signatureLength;
   struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
   struct ndn_KeyLocator keyLocator;
@@ -81,7 +81,7 @@ struct ndn_Data {
   struct ndn_Signature signature;
   struct ndn_Name name;
   struct ndn_MetaInfo metaInfo;
-  unsigned char *content;     /**< pointer to the content */
+  uint8_t *content;     /**< pointer to the content */
   unsigned int contentLength; /**< length of content */
 };
 

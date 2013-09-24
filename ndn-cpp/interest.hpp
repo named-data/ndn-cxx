@@ -29,7 +29,7 @@ public:
   /**
    * Create an ExcludeEntry of type ndn_Exclude_COMPONENT
    */
-  ExcludeEntry(unsigned char *component, unsigned int componentLen) 
+  ExcludeEntry(uint8_t *component, unsigned int componentLen) 
   : type_(ndn_Exclude_COMPONENT), component_(component, componentLen)
   {
   }
@@ -103,7 +103,7 @@ public:
    * Add a new entry of type ndn_Exclude_COMPONENT, copying from component of length compnentLength
    */
   void 
-  addComponent(unsigned char *component, unsigned int componentLen) 
+  addComponent(uint8_t *component, unsigned int componentLen) 
   {
     entries_.push_back(ExcludeEntry(component, componentLen));
   }
@@ -133,7 +133,7 @@ class Interest {
 public:    
   Interest(const Name& name, int minSuffixComponents, int maxSuffixComponents, 
     const PublisherPublicKeyDigest& publisherPublicKeyDigest, const Exclude& exclude, int childSelector, int answerOriginKind, 
-    int scope, double interestLifetimeMilliseconds, const std::vector<unsigned char>& nonce) 
+    int scope, double interestLifetimeMilliseconds, const std::vector<uint8_t>& nonce) 
   : name_(name), minSuffixComponents_(minSuffixComponents), maxSuffixComponents_(maxSuffixComponents),
   publisherPublicKeyDigest_(publisherPublicKeyDigest), exclude_(exclude), childSelector_(childSelector), 
   answerOriginKind_(answerOriginKind), scope_(scope), interestLifetimeMilliseconds_(interestLifetimeMilliseconds),
@@ -175,13 +175,13 @@ public:
   }
   
   void 
-  wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  wireDecode(const uint8_t *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireFormat.decodeInterest(*this, input, inputLength);
   }
   
   void 
-  wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  wireDecode(const std::vector<uint8_t>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireDecode(&input[0], input.size(), wireFormat);
   }
@@ -259,7 +259,7 @@ public:
   setInterestLifetimeMilliseconds(double value) { interestLifetimeMilliseconds_ = value; }
 
   void 
-  setNonce(const std::vector<unsigned char>& value) { nonce_ = value; }
+  setNonce(const std::vector<uint8_t>& value) { nonce_ = value; }
   
 private:
   void 

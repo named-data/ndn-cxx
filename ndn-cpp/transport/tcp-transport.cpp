@@ -30,17 +30,17 @@ TcpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementLi
   const unsigned int initialLength = 1000;
   // Automatically cast elementReader_ to (struct ndn_ElementListener *)
   ndn_BinaryXmlElementReader_initialize
-    (&elementReader_, &elementListener, (unsigned char *)malloc(initialLength), initialLength, ndn_realloc);
+    (&elementReader_, &elementListener, (uint8_t *)malloc(initialLength), initialLength, ndn_realloc);
   
   isConnected_ = true;
   elementListener_ = &elementListener;
 }
 
 void 
-TcpTransport::send(const unsigned char *data, unsigned int dataLength)
+TcpTransport::send(const uint8_t *data, unsigned int dataLength)
 {
   ndn_Error error;
-  if ((error = ndn_TcpTransport_send(&transport_, (unsigned char *)data, dataLength)))
+  if ((error = ndn_TcpTransport_send(&transport_, (uint8_t *)data, dataLength)))
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
@@ -54,7 +54,7 @@ TcpTransport::processEvents()
   if (!receiveIsReady)
     return;
 
-  unsigned char buffer[8000];
+  uint8_t buffer[8000];
   unsigned int nBytes;
   if ((error = ndn_TcpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes)))
     throw std::runtime_error(ndn_getErrorString(error));  

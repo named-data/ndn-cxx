@@ -9,6 +9,7 @@
 
 #include <openssl/ssl.h>
 #include <openssl/rsa.h>
+#include "../common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,7 +21,7 @@ extern "C" {
  * @param dataLength The length of data.
  * @param digest A pointer to a buffer of size SHA256_DIGEST_LENGTH to receive the data.
  */
-void ndn_digestSha256(const unsigned char *data, unsigned int dataLength, unsigned char *digest);
+void ndn_digestSha256(const uint8_t *data, unsigned int dataLength, uint8_t *digest);
 
 #ifdef __cplusplus
 }

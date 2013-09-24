@@ -12,7 +12,7 @@ using namespace std;
 namespace ndn {
 
 string 
-toHex(const vector<unsigned char>& array) 
+toHex(const vector<uint8_t>& array) 
 {
   if (!&array)
     return "";
@@ -20,7 +20,7 @@ toHex(const vector<unsigned char>& array)
   ostringstream result;
   result.flags(ios::hex | ios::uppercase);
   for (unsigned int i = 0; i < array.size(); ++i) {
-    unsigned char x = array[i];
+    uint8_t x = array[i];
     if (x < 16)
       result << '0';
     result << (unsigned int)x;

@@ -34,7 +34,7 @@ public:
    * @param signedPortionEndOffset The offset in the encoding of the end of the signed portion.
    */
   SignedBlob
-    (const unsigned char* value, unsigned int valueLength, unsigned int signedPortionBeginOffset, unsigned int signedPortionEndOffset)
+    (const uint8_t* value, unsigned int valueLength, unsigned int signedPortionBeginOffset, unsigned int signedPortionEndOffset)
   : Blob(value, valueLength), signedPortionBeginOffset_(signedPortionBeginOffset), signedPortionEndOffset_(signedPortionEndOffset)
   {
   }
@@ -42,13 +42,13 @@ public:
   /**
    * Create a new SignedBlob with an immutable copy of the array in the given vector.
    * If you want to transfer the array without copying, the the vector has to start as a 
-   * ptr_lib::shared_ptr<std::vector<unsigned char> > and you can use the SignedBlob constructor with this type.
+   * ptr_lib::shared_ptr<std::vector<uint8_t> > and you can use the SignedBlob constructor with this type.
    * @param value A reference to a vector which is copied.
    * @param signedPortionBeginOffset The offset in the encoding of the beginning of the signed portion.
    * @param signedPortionEndOffset The offset in the encoding of the end of the signed portion.
    */
   SignedBlob
-    (const std::vector<unsigned char> &value, unsigned int signedPortionBeginOffset, unsigned int signedPortionEndOffset)
+    (const std::vector<uint8_t> &value, unsigned int signedPortionBeginOffset, unsigned int signedPortionEndOffset)
   : Blob(value), signedPortionBeginOffset_(signedPortionBeginOffset), signedPortionEndOffset_(signedPortionEndOffset)
   {
   }
@@ -61,13 +61,13 @@ public:
    * @param signedPortionEndOffset The offset in the array of the end of the signed portion.
    */
   SignedBlob
-    (const ptr_lib::shared_ptr<std::vector<unsigned char> > &value, 
+    (const ptr_lib::shared_ptr<std::vector<uint8_t> > &value, 
      unsigned int signedPortionBeginOffset, unsigned int signedPortionEndOffset)
   : Blob(value), signedPortionBeginOffset_(signedPortionBeginOffset), signedPortionEndOffset_(signedPortionEndOffset)
   {
   }
   SignedBlob
-    (const ptr_lib::shared_ptr<const std::vector<unsigned char> > &value, 
+    (const ptr_lib::shared_ptr<const std::vector<uint8_t> > &value, 
      unsigned int signedPortionBeginOffset, unsigned int signedPortionEndOffset)
   : Blob(value), signedPortionBeginOffset_(signedPortionBeginOffset), signedPortionEndOffset_(signedPortionEndOffset)
   {
@@ -89,7 +89,7 @@ public:
    * Return a const pointer to the first byte of the signed portion of the immutable byte array, or 0 if the 
    * pointer to the array is null.
    */
-  const unsigned char*
+  const uint8_t*
   signedBuf() const
   {
     if (*this)

@@ -34,7 +34,7 @@ public:
      * Create a new Name::Component, copying the given value.
      * @param value The value byte array.
      */
-    Component(const std::vector<unsigned char>& value) 
+    Component(const std::vector<uint8_t>& value) 
     : value_(value)
     {
     }
@@ -44,7 +44,7 @@ public:
      * @param value Pointer to the value byte array.
      * @param valueLen Length of value.
      */
-    Component(const unsigned char *value, unsigned int valueLen) 
+    Component(const uint8_t *value, unsigned int valueLen) 
     : value_(value, valueLen)
     {
     }
@@ -68,7 +68,7 @@ public:
     {
       componentStruct.valueLength = value_.size(); 
       if (value_.size() > 0)
-        componentStruct.value = (unsigned char*)value_.buf();
+        componentStruct.value = (uint8_t*)value_.buf();
       else
         componentStruct.value = 0;
     }
@@ -174,7 +174,7 @@ public:
    * @return This name so that you can chain calls to append.
    */
   Name& 
-  append(const unsigned char *value, unsigned int valueLength) 
+  append(const uint8_t *value, unsigned int valueLength) 
   {
     components_.push_back(Component(value, valueLength));
     return *this;
@@ -185,7 +185,7 @@ public:
    * @return This name so that you can chain calls to append.
    */
   Name& 
-  append(const std::vector<unsigned char>& value) 
+  append(const std::vector<uint8_t>& value) 
   {
     components_.push_back(value);
     return *this;
@@ -210,7 +210,7 @@ public:
    * @deprecated Use append.
    */
   Name& 
-  appendComponent(const unsigned char *value, unsigned int valueLength) 
+  appendComponent(const uint8_t *value, unsigned int valueLength) 
   {
     return append(value, valueLength);
   }
@@ -219,7 +219,7 @@ public:
    * @deprecated Use append.
    */
   Name& 
-  appendComponent(const std::vector<unsigned char>& value) 
+  appendComponent(const std::vector<uint8_t>& value) 
   {
     return append(value);
   }
@@ -237,7 +237,7 @@ public:
    * @deprecated Use append.
    */
   Name& 
-  addComponent(const unsigned char *value, unsigned int valueLength) 
+  addComponent(const uint8_t *value, unsigned int valueLength) 
   {
     return append(value, valueLength);
   }
@@ -246,7 +246,7 @@ public:
    * @deprecated Use append.
    */
   Name& 
-  addComponent(const std::vector<unsigned char>& value) 
+  addComponent(const std::vector<uint8_t>& value) 
   {
     return append(value);
   }
@@ -351,7 +351,7 @@ public:
    * @param result the string stream to write to.
    */
   static void 
-  toEscapedString(const std::vector<unsigned char>& value, std::ostringstream& result);
+  toEscapedString(const std::vector<uint8_t>& value, std::ostringstream& result);
 
   /**
    * Convert the value by escaping characters according to the NDN URI Scheme.
@@ -360,7 +360,7 @@ public:
    * @return The escaped string.
    */
   static std::string
-  toEscapedString(const std::vector<unsigned char>& value);
+  toEscapedString(const std::vector<uint8_t>& value);
 
 private:
   std::vector<Component> components_;

@@ -19,7 +19,7 @@ MemoryPrivateKeyStorage::~MemoryPrivateKeyStorage()
 }
 
 void MemoryPrivateKeyStorage::setKeyPairForKeyName
-  (const Name& keyName, unsigned char *publicKeyDer, size_t publicKeyDerLength, unsigned char *privateKeyDer, 
+  (const Name& keyName, uint8_t *publicKeyDer, size_t publicKeyDerLength, uint8_t *privateKeyDer, 
    size_t privateKeyDerLength)
 {
   publicKeyStore_[keyName.toUri()] = PublicKey::fromDer(Blob(publicKeyDer, publicKeyDerLength));
@@ -44,15 +44,15 @@ MemoryPrivateKeyStorage::getPublicKey(const Name& keyName)
 }
 
 Blob 
-MemoryPrivateKeyStorage::sign(const unsigned char *data, unsigned int dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm)
+MemoryPrivateKeyStorage::sign(const uint8_t *data, unsigned int dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm)
 {
   if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
     return Blob();
 
-  unsigned char digest[SHA256_DIGEST_LENGTH];
+  uint8_t digest[SHA256_DIGEST_LENGTH];
   ndn_digestSha256(data, dataLength, digest);
   // TODO: use RSA_size to get the proper size of the signature buffer.
-  unsigned char signatureBits[1000];
+  uint8_t signatureBits[1000];
   unsigned int signatureBitsLength;
   
   // Find the private key and sign.
@@ -66,7 +66,7 @@ MemoryPrivateKeyStorage::sign(const unsigned char *data, unsigned int dataLength
 }
 
 Blob 
-MemoryPrivateKeyStorage::decrypt(const Name& keyName, const unsigned char* data, unsigned int dataLength, bool isSymmetric)
+MemoryPrivateKeyStorage::decrypt(const Name& keyName, const uint8_t* data, unsigned int dataLength, bool isSymmetric)
 {
 #if 1
   throw std::runtime_error("MemoryPrivateKeyStorage::decrypt not implemented");
@@ -74,7 +74,7 @@ MemoryPrivateKeyStorage::decrypt(const Name& keyName, const unsigned char* data,
 }
 
 Blob
-MemoryPrivateKeyStorage::encrypt(const Name& keyName, const unsigned char* data, unsigned int dataLength, bool isSymmetric)
+MemoryPrivateKeyStorage::encrypt(const Name& keyName, const uint8_t* data, unsigned int dataLength, bool isSymmetric)
 {
 #if 1
   throw std::runtime_error("MemoryPrivateKeyStorage::encrypt not implemented");
@@ -101,10 +101,10 @@ MemoryPrivateKeyStorage::doesKeyExist(const Name& keyName, KeyClass keyClass)
     return false;
 }
 
-MemoryPrivateKeyStorage::RsaPrivateKey::RsaPrivateKey(unsigned char *keyDer, size_t keyDerLength)
+MemoryPrivateKeyStorage::RsaPrivateKey::RsaPrivateKey(uint8_t *keyDer, size_t keyDerLength)
 {
   // Use a temporary pointer since d2i updates it.
-  const unsigned char *derPointer = keyDer;
+  const uint8_t *derPointer = keyDer;
   privateKey_ = d2i_RSAPrivateKey(NULL, &derPointer, keyDerLength);
   if (!privateKey_)
     throw SecurityException("RsaPrivateKey constructor: Error decoding private key DER");

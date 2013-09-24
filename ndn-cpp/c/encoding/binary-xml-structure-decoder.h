@@ -7,6 +7,7 @@
 #ifndef NDN_BINARYXMLSTRUCTUREDECODER_H
 #define NDN_BINARYXMLSTRUCTUREDECODER_H
 
+#include "../common.h"
 #include "../errors.h"
 
 #ifdef __cplusplus
@@ -21,7 +22,7 @@ struct ndn_BinaryXmlStructureDecoder {
   unsigned int headerLength;
   int useHeaderBuffer; /**< boolean */
   // 10 bytes is enough to hold an encoded header with a type and a 64 bit value.
-  unsigned char headerBuffer[10];
+  uint8_t headerBuffer[10];
   int nBytesToRead;
 };
 
@@ -43,7 +44,7 @@ void ndn_BinaryXmlStructureDecoder_initialize(struct ndn_BinaryXmlStructureDecod
  * @return 0 for success, else an error code
  */
 ndn_Error ndn_BinaryXmlStructureDecoder_findElementEnd
-  (struct ndn_BinaryXmlStructureDecoder *self, unsigned char *input, unsigned int inputLength);
+  (struct ndn_BinaryXmlStructureDecoder *self, uint8_t *input, unsigned int inputLength);
 
 /**
  * Set the offset into the input, used for the next read.

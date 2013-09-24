@@ -11,7 +11,7 @@
 #ifndef NDN_MEMORY_H
 #define NDN_MEMORY_H
 
-#include "../../../config.h"
+#include "../common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,12 +22,12 @@ extern "C" {
 /**
  * Use the library version of memcmp.
  */
-static inline int ndn_memcmp(unsigned char *buf1, unsigned char *buf2, unsigned int len) { return memcmp(buf1, buf2, len); }
+static inline int ndn_memcmp(uint8_t *buf1, uint8_t *buf2, unsigned int len) { return memcmp(buf1, buf2, len); }
 #else
 /**
  * Use a local implementation of memcmp instead of the library version.
  */
-int ndn_memcmp(unsigned char *buf1, unsigned char *buf2, unsigned int len);
+int ndn_memcmp(uint8_t *buf1, uint8_t *buf2, unsigned int len);
 #endif
 
 #if HAVE_MEMCPY
@@ -35,12 +35,12 @@ int ndn_memcmp(unsigned char *buf1, unsigned char *buf2, unsigned int len);
 /**
  * Use the library version of memcpy.
  */
-static inline void ndn_memcpy(unsigned char *dest, unsigned char *src, unsigned int len) { memcpy(dest, src, len); }
+static inline void ndn_memcpy(uint8_t *dest, uint8_t *src, unsigned int len) { memcpy(dest, src, len); }
 #else
 /**
  * Use a local implementation of memcpy instead of the library version.
  */
-void ndn_memcpy(unsigned char *dest, unsigned char *src, unsigned int len);
+void ndn_memcpy(uint8_t *dest, uint8_t *src, unsigned int len);
 #endif
 
 #if HAVE_MEMSET
@@ -48,12 +48,12 @@ void ndn_memcpy(unsigned char *dest, unsigned char *src, unsigned int len);
 /**
  * Use the library version of memset.
  */
-static inline void ndn_memset(unsigned char *dest, int val, unsigned int len) { memset(dest, val, len); }
+static inline void ndn_memset(uint8_t *dest, int val, unsigned int len) { memset(dest, val, len); }
 #else
 /**
  * Use a local implementation of memset instead of the library version.
  */
-void ndn_memset(unsigned char *dest, int val, unsigned int len);
+void ndn_memset(uint8_t *dest, int val, unsigned int len);
 #endif
 
 #ifdef __cplusplus

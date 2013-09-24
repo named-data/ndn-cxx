@@ -45,7 +45,7 @@ static inline ndn_Error ndn_UdpTransport_connect(struct ndn_UdpTransport *self, 
  * @param dataLength The number of bytes in data.
  * @return 0 for success, else an error code.
  */
-static inline ndn_Error ndn_UdpTransport_send(struct ndn_UdpTransport *self, unsigned char *data, unsigned int dataLength)
+static inline ndn_Error ndn_UdpTransport_send(struct ndn_UdpTransport *self, uint8_t *data, unsigned int dataLength)
 {
   return ndn_SocketTransport_send(&self->base, data, dataLength);
 }
@@ -72,7 +72,7 @@ static inline ndn_Error ndn_UdpTransport_receiveIsReady(struct ndn_UdpTransport 
  * @return 0 for success, else an error code.
  */
 static inline ndn_Error ndn_UdpTransport_receive
-  (struct ndn_UdpTransport *self, unsigned char *buffer, unsigned int bufferLength, unsigned int *nBytes)
+  (struct ndn_UdpTransport *self, uint8_t *buffer, unsigned int bufferLength, unsigned int *nBytes)
 {
   return ndn_SocketTransport_receive(&self->base, buffer, bufferLength, nBytes);
 }

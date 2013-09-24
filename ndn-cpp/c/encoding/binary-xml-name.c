@@ -44,7 +44,7 @@ ndn_Error ndn_decodeBinaryXmlName(struct ndn_Name *name, struct ndn_BinaryXmlDec
       // No more components.
       break;
     
-    unsigned char *component;
+    uint8_t *component;
     unsigned int componentLen;
     if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(decoder, ndn_BinaryXml_DTag_Component, 0, &component, &componentLen)))
       return error;

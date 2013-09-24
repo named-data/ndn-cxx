@@ -145,7 +145,7 @@ am_libndn_c_la_OBJECTS = ndn-cpp/c/errors.lo ndn-cpp/c/interest.lo \
 	ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.lo \
 	ndn-cpp/c/encoding/binary-xml-structure-decoder.lo \
 	ndn-cpp/c/transport/socket-transport.lo \
-	ndn-cpp/c/util/crypto.lo ndn-cpp/c/util/dynamic-uchar-array.lo \
+	ndn-cpp/c/util/crypto.lo ndn-cpp/c/util/dynamic-uint8-array.lo \
 	ndn-cpp/c/util/ndn_memory.lo ndn-cpp/c/util/ndn_realloc.lo
 libndn_c_la_OBJECTS = $(am_libndn_c_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -170,7 +170,7 @@ am_libndn_cpp_la_OBJECTS = ndn-cpp/common.lo ndn-cpp/data.lo \
 	ndn-cpp/transport/transport.lo \
 	ndn-cpp/transport/udp-transport.lo \
 	ndn-cpp/util/changed-event.lo \
-	ndn-cpp/util/dynamic-uchar-vector.lo ndn-cpp/util/logging.lo
+	ndn-cpp/util/dynamic-uint8-vector.lo ndn-cpp/util/logging.lo
 libndn_cpp_la_OBJECTS = $(am_libndn_cpp_la_OBJECTS)
 PROGRAMS = $(bin_PROGRAMS)
 am_bin_test_encode_decode_data_OBJECTS =  \
@@ -504,7 +504,7 @@ libndn_c_la_SOURCES = \
   ndn-cpp/c/transport/udp-transport.h \
   ndn-cpp/c/util/blob.h \
   ndn-cpp/c/util/crypto.c ndn-cpp/c/util/crypto.h \
-  ndn-cpp/c/util/dynamic-uchar-array.c ndn-cpp/c/util/dynamic-uchar-array.h \
+  ndn-cpp/c/util/dynamic-uint8-array.c ndn-cpp/c/util/dynamic-uint8-array.h \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
 
@@ -524,7 +524,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/c/encoding/binary-xml.h \
   ndn-cpp/c/encoding/binary-xml-decoder.h ndn-cpp/encoding/binary-xml-decoder.hpp \
   ndn-cpp/c/encoding/binary-xml-element-reader.h ndn-cpp/encoding/binary-xml-element-reader.cpp ndn-cpp/encoding/binary-xml-element-reader.hpp \
-  ndn-cpp/c/encoding/binary-xml-encoder.h ndn-cpp/encoding/binary-xml-encoder.hpp ndn-cpp/c/util/dynamic-uchar-array.h \
+  ndn-cpp/c/encoding/binary-xml-encoder.h ndn-cpp/encoding/binary-xml-encoder.hpp ndn-cpp/c/util/dynamic-uint8-array.h \
   ndn-cpp/c/encoding/binary-xml-structure-decoder.h ndn-cpp/encoding/binary-xml-structure-decoder.hpp \
   ndn-cpp/encoding/binary-xml-wire-format.cpp ndn-cpp/c/encoding/binary-xml-name.h ndn-cpp/encoding/binary-xml-wire-format.hpp \
   ndn-cpp/encoding/wire-format.cpp ndn-cpp/encoding/wire-format.hpp \
@@ -543,7 +543,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \
   ndn-cpp/util/blob.hpp \
   ndn-cpp/util/changed-event.cpp ndn-cpp/util/changed-event.hpp \
-  ndn-cpp/util/dynamic-uchar-vector.cpp ndn-cpp/util/dynamic-uchar-vector.hpp \
+  ndn-cpp/util/dynamic-uint8-vector.cpp ndn-cpp/util/dynamic-uint8-vector.hpp \
   ndn-cpp/util/logging.cpp ndn-cpp/util/logging.hpp \
   ndn-cpp/util/signed-blob.hpp
 
@@ -713,7 +713,7 @@ ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp):
 	@: > ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/util/crypto.lo: ndn-cpp/c/util/$(am__dirstamp) \
 	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/util/dynamic-uchar-array.lo: ndn-cpp/c/util/$(am__dirstamp) \
+ndn-cpp/c/util/dynamic-uint8-array.lo: ndn-cpp/c/util/$(am__dirstamp) \
 	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/util/ndn_memory.lo: ndn-cpp/c/util/$(am__dirstamp) \
 	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
@@ -818,7 +818,7 @@ ndn-cpp/util/$(DEPDIR)/$(am__dirstamp):
 	@: > ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/util/changed-event.lo: ndn-cpp/util/$(am__dirstamp) \
 	ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/util/dynamic-uchar-vector.lo: ndn-cpp/util/$(am__dirstamp) \
+ndn-cpp/util/dynamic-uint8-vector.lo: ndn-cpp/util/$(am__dirstamp) \
 	ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/util/logging.lo: ndn-cpp/util/$(am__dirstamp) \
 	ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
@@ -967,7 +967,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-structure-decoder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/transport/$(DEPDIR)/socket-transport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/crypto.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/dynamic-uchar-array.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/dynamic-uint8-array.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_realloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/binary-xml-element-reader.Plo@am__quote@
@@ -984,7 +984,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/transport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/udp-transport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/changed-event.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/dynamic-uchar-vector.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/dynamic-uint8-vector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/logging.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-forwarding-entry.Po@am__quote@

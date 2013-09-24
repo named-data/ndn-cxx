@@ -53,7 +53,7 @@ Data::get(struct ndn_Data& dataStruct) const
   
   dataStruct.contentLength = content_.size();
   if (content_.size() > 0)
-    dataStruct.content = (unsigned char*)content_.buf();
+    dataStruct.content = (uint8_t*)content_.buf();
   else
     dataStruct.content = 0;
 }
@@ -80,7 +80,7 @@ Data::wireEncode(WireFormat& wireFormat)
 }
 
 void 
-Data::wireDecode(const unsigned char* input, unsigned int inputLength, WireFormat& wireFormat) 
+Data::wireDecode(const uint8_t* input, unsigned int inputLength, WireFormat& wireFormat) 
 {
   unsigned int signedPortionBeginOffset, signedPortionEndOffset;
   wireFormat.decodeData(*this, input, inputLength, &signedPortionBeginOffset, &signedPortionEndOffset);

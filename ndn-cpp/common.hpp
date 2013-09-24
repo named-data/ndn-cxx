@@ -58,7 +58,7 @@ namespace ndn {
  * @return Hex string.
  */
 std::string 
-toHex(const std::vector<unsigned char>& array);
+toHex(const std::vector<uint8_t>& array);
 
 }
 

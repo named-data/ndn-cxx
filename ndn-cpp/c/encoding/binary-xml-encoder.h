@@ -8,7 +8,7 @@
 #define NDN_BINARYXMLENCODER_H
 
 #include "../errors.h"
-#include "../util/dynamic-uchar-array.h"
+#include "../util/dynamic-uint8-array.h"
 #include "binary-xml.h"
 
 #ifdef __cplusplus
@@ -19,18 +19,18 @@ extern "C" {
  *  ndn_BinaryXmlEncoder_initialize.
  */
 struct ndn_BinaryXmlEncoder {
-  struct ndn_DynamicUCharArray *output; /**< A pointer to a ndn_DynamicUCharArray which receives the encoded output */
+  struct ndn_DynamicUInt8Array *output; /**< A pointer to a ndn_DynamicUInt8Array which receives the encoded output */
   unsigned int offset;             /**< the offset into output.array for the next encoding */
 };
 
 /**
- * Initialize an ndn_BinaryXmlEncoder_initialize struct with the arguments for initializing the ndn_DynamicUCharArray.
+ * Initialize an ndn_BinaryXmlEncoder_initialize struct with the arguments for initializing the ndn_DynamicUInt8Array.
  * @param self pointer to the ndn_BinaryXmlEncoder struct
- * @param output A pointer to a ndn_DynamicUCharArray struct which receives the encoded output.  The struct must
+ * @param output A pointer to a ndn_DynamicUInt8Array struct which receives the encoded output.  The struct must
  * remain valid during the entire life of this ndn_BinaryXmlEncoder. If the output->realloc
  * function pointer is null, its array must be large enough to receive the entire encoding.
  */
-static inline void ndn_BinaryXmlEncoder_initialize(struct ndn_BinaryXmlEncoder *self, struct ndn_DynamicUCharArray *output) 
+static inline void ndn_BinaryXmlEncoder_initialize(struct ndn_BinaryXmlEncoder *self, struct ndn_DynamicUInt8Array *output) 
 {
   self->output = output;
   self->offset = 0;
@@ -70,7 +70,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeElementClose(struct ndn_BinaryXmlEncoder *se
  * @param valueLength the length of the array
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, unsigned char *value, unsigned int valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, uint8_t *value, unsigned int valueLength);
 
 /**
  * Write an element start header using DTAG with the tag to self->output, then the blob, then an element close.
@@ -81,7 +81,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, unsi
  * @param valueLength the length of the array
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, unsigned int valueLength);
 
 /**
  * If value or valueLen is 0 then do nothing, otherwise call ndn_BinaryXmlEncoder_writeBlobDTagElement.
@@ -92,7 +92,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder 
  * @return 0 for success, else an error code
  */
 static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement
-  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength)
+  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, unsigned int valueLength)
 {
   if (value && valueLength > 0)
     return ndn_BinaryXmlEncoder_writeBlobDTagElement(self, tag, value, valueLength);
@@ -107,7 +107,7 @@ static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement
  * @param valueLength the length of the array
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, unsigned char *value, unsigned int valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, uint8_t *value, unsigned int valueLength);
 
 /**
  * Write an element start header using DTAG with the tag to self->output, then the UDATA value, then an element close.
@@ -118,7 +118,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, uns
  * @param valueLength the length of the array
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, unsigned int valueLength);
 
 /**
  * If value or valueLen is 0 then do nothing, otherwise call ndn_BinaryXmlEncoder_writeUDataDTagElement.
@@ -129,7 +129,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder
  * @return 0 for success, else an error code
  */
 static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalUDataDTagElement
-  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, unsigned char *value, unsigned int valueLength)
+  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, unsigned int valueLength)
 {
   if (value && valueLength > 0)
     return ndn_BinaryXmlEncoder_writeUDataDTagElement(self, tag, value, valueLength);

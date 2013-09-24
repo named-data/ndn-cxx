@@ -31,7 +31,7 @@ public:
    * @return true if found the element end, false if need to read more. (This is the same as returning gotElementEnd().)
    */
   bool 
-  findElementEnd(unsigned char *input, unsigned int inputLength) 
+  findElementEnd(uint8_t *input, unsigned int inputLength) 
   {
     ndn_Error error;
     if ((error = ndn_BinaryXmlStructureDecoder_findElementEnd(this, input, inputLength)))

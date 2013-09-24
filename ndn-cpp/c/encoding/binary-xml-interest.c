@@ -60,7 +60,7 @@ static ndn_Error decodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXml
       return error;    
     if (gotExpectedTag) {
       // Component
-      unsigned char *component;
+      uint8_t *component;
       unsigned int componentLen;
       if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(decoder, ndn_BinaryXml_DTag_Component, 0, &component, &componentLen)))
         return error;
@@ -96,7 +96,7 @@ static ndn_Error decodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXml
       return error;    
     if (gotExpectedTag) {
       // Skip the Bloom and treat it as Any.
-      unsigned char *value;
+      uint8_t *value;
       unsigned int valueLen;
       if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(decoder, ndn_BinaryXml_DTag_Bloom, 0, &value, &valueLen)))
         return error;

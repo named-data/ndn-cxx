@@ -91,7 +91,7 @@ Interest::get(struct ndn_Interest& interestStruct) const
 
   interestStruct.nonceLength = nonce_.size();
   if (nonce_.size() > 0)
-    interestStruct.nonce = (unsigned char *)nonce_.buf();
+    interestStruct.nonce = (uint8_t *)nonce_.buf();
   else
     interestStruct.nonce = 0;
 }

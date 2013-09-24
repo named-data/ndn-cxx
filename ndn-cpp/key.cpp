@@ -18,7 +18,7 @@ KeyLocator::get(struct ndn_KeyLocator& keyLocatorStruct) const
   
   keyLocatorStruct.keyDataLength = keyData_.size();
   if (keyData_.size() > 0)
-    keyLocatorStruct.keyData = (unsigned char *)keyData_.buf();
+    keyLocatorStruct.keyData = (uint8_t *)keyData_.buf();
   else
     keyLocatorStruct.keyData = 0;
 

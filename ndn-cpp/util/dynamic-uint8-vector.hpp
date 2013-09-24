@@ -9,27 +9,27 @@
 
 #include <vector>
 #include "../common.hpp"
-#include "../c/util/dynamic-uchar-array.h"
+#include "../c/util/dynamic-uint8-array.h"
 
 namespace ndn {
 
 /**
- * A DynamicUCharVector extends ndn_DynamicUCharArray to hold a shared_ptr<vector<unsigned char> > for use with
- * C functions which need an ndn_DynamicUCharArray.
+ * A DynamicUInt8Vector extends ndn_DynamicUInt8Array to hold a shared_ptr<vector<uint8_t> > for use with
+ * C functions which need an ndn_DynamicUInt8Array.
  */
-class DynamicUCharVector : public ndn_DynamicUCharArray {
+class DynamicUInt8Vector : public ndn_DynamicUInt8Array {
 public:
   /**
-   * Create a new DynamicUCharVector with an initial length.
+   * Create a new DynamicUInt8Vector with an initial length.
    * @param initialLength The initial size of the allocated vector.
    */
-  DynamicUCharVector(unsigned int initialLength);
+  DynamicUInt8Vector(unsigned int initialLength);
   
   /**
    * Get the shared_ptr to the allocated vector.
    * @return The shared_ptr to the allocated vector. 
    */
-  const ptr_lib::shared_ptr<std::vector<unsigned char> >& 
+  const ptr_lib::shared_ptr<std::vector<uint8_t> >& 
   get() { return vector_; }
   
 private:
@@ -40,10 +40,10 @@ private:
    * @param length The new length for the vector.
    * @return The front of the allocated vector.
    */
-  static unsigned char*
-  realloc(struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length);
+  static uint8_t*
+  realloc(struct ndn_DynamicUInt8Array *self, uint8_t *array, unsigned int length);
   
-  ptr_lib::shared_ptr<std::vector<unsigned char> > vector_;
+  ptr_lib::shared_ptr<std::vector<uint8_t> > vector_;
 };
 
 }

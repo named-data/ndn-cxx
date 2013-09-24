@@ -40,7 +40,7 @@ libndn_c_la_SOURCES = \
   ndn-cpp/c/transport/udp-transport.h \
   ndn-cpp/c/util/blob.h \
   ndn-cpp/c/util/crypto.c ndn-cpp/c/util/crypto.h \
-  ndn-cpp/c/util/dynamic-uchar-array.c ndn-cpp/c/util/dynamic-uchar-array.h \
+  ndn-cpp/c/util/dynamic-uint8-array.c ndn-cpp/c/util/dynamic-uint8-array.h \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
 
@@ -60,7 +60,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/c/encoding/binary-xml.h \
   ndn-cpp/c/encoding/binary-xml-decoder.h ndn-cpp/encoding/binary-xml-decoder.hpp \
   ndn-cpp/c/encoding/binary-xml-element-reader.h ndn-cpp/encoding/binary-xml-element-reader.cpp ndn-cpp/encoding/binary-xml-element-reader.hpp \
-  ndn-cpp/c/encoding/binary-xml-encoder.h ndn-cpp/encoding/binary-xml-encoder.hpp ndn-cpp/c/util/dynamic-uchar-array.h \
+  ndn-cpp/c/encoding/binary-xml-encoder.h ndn-cpp/encoding/binary-xml-encoder.hpp ndn-cpp/c/util/dynamic-uint8-array.h \
   ndn-cpp/c/encoding/binary-xml-structure-decoder.h ndn-cpp/encoding/binary-xml-structure-decoder.hpp \
   ndn-cpp/encoding/binary-xml-wire-format.cpp ndn-cpp/c/encoding/binary-xml-name.h ndn-cpp/encoding/binary-xml-wire-format.hpp \
   ndn-cpp/encoding/wire-format.cpp ndn-cpp/encoding/wire-format.hpp \
@@ -79,7 +79,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \
   ndn-cpp/util/blob.hpp \
   ndn-cpp/util/changed-event.cpp ndn-cpp/util/changed-event.hpp \
-  ndn-cpp/util/dynamic-uchar-vector.cpp ndn-cpp/util/dynamic-uchar-vector.hpp \
+  ndn-cpp/util/dynamic-uint8-vector.cpp ndn-cpp/util/dynamic-uint8-vector.hpp \
   ndn-cpp/util/logging.cpp ndn-cpp/util/logging.hpp \
   ndn-cpp/util/signed-blob.hpp
 

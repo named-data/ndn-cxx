@@ -43,10 +43,10 @@ char *ndn_getErrorString(int error)
     return      "findElementEnd unrecognized header type";
   case NDN_ERROR_findElementEnd_unrecognized_state:
     return      "findElementEnd unrecognized state";
-  case NDN_ERROR_DynamicUCharArray_realloc_function_pointer_not_supplied:
-    return      "DynamicUCharArray realloc function pointer not supplied";
-  case NDN_ERROR_DynamicUCharArray_realloc_failed:
-    return      "DynamicUCharArray realloc failed";
+  case NDN_ERROR_DynamicUInt8Array_realloc_function_pointer_not_supplied:
+    return      "DynamicUInt8Array realloc function pointer not supplied";
+  case NDN_ERROR_DynamicUInt8Array_realloc_failed:
+    return      "DynamicUInt8Array realloc failed";
   case NDN_ERROR_unrecognized_ndn_ExcludeType:
     return      "unrecognized ndn_ExcludeType";
   case NDN_ERROR_unrecognized_ndn_ContentType:

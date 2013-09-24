@@ -74,7 +74,7 @@ public:
    * @param dataLength The number of bytes in data.
    */
   virtual void 
-  send(const unsigned char *data, unsigned int dataLength);
+  send(const uint8_t *data, unsigned int dataLength);
 
   /**
    * Process any data to receive.  For each element received, call elementListener.onReceivedElement.

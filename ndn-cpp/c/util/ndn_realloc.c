@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include "ndn_realloc.h"
 
-unsigned char *ndn_realloc(struct ndn_DynamicUCharArray *self, unsigned char *array, unsigned int length)
+uint8_t *ndn_realloc(struct ndn_DynamicUInt8Array *self, uint8_t *array, unsigned int length)
 {
-  return (unsigned char *)realloc(array, length);
+  return (uint8_t *)realloc(array, length);
 }

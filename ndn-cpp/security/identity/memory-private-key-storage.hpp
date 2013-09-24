@@ -36,7 +36,7 @@ public:
    * @param privateKeyDerLength The length of privateKeyDer.
    */
   void setKeyPairForKeyName
-    (const Name& keyName, unsigned char *publicKeyDer, size_t publicKeyDerLength, unsigned char *privateKeyDer, 
+    (const Name& keyName, uint8_t *publicKeyDer, size_t publicKeyDerLength, uint8_t *privateKeyDer, 
      size_t privateKeyDerLength);
   
   /**
@@ -65,7 +65,7 @@ public:
    * @return The signature, or a null pointer if signing fails.
    */  
   virtual Blob 
-  sign(const unsigned char *data, unsigned int dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
+  sign(const uint8_t *data, unsigned int dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
     
   /**
    * Decrypt data.
@@ -76,7 +76,7 @@ public:
    * @return The decrypted data.
    */
   virtual Blob 
-  decrypt(const Name& keyName, const unsigned char* data, unsigned int dataLength, bool isSymmetric);
+  decrypt(const Name& keyName, const uint8_t* data, unsigned int dataLength, bool isSymmetric);
 
   /**
    * Encrypt data.
@@ -87,7 +87,7 @@ public:
    * @return The encrypted data.
    */
   virtual Blob
-  encrypt(const Name& keyName, const unsigned char* data, unsigned int dataLength, bool isSymmetric);
+  encrypt(const Name& keyName, const uint8_t* data, unsigned int dataLength, bool isSymmetric);
 
   /**
    * @brief Generate a symmetric key.
@@ -113,7 +113,7 @@ private:
    */
   class RsaPrivateKey {
   public:
-    RsaPrivateKey(unsigned char *keyDer, size_t keyDerLength);
+    RsaPrivateKey(uint8_t *keyDer, size_t keyDerLength);
     
     ~RsaPrivateKey();
     

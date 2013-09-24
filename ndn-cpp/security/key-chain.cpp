@@ -18,7 +18,7 @@ using namespace ndn::ptr_lib;
 namespace ndn {
 
 #if 1
-static unsigned char DEFAULT_PUBLIC_KEY_DER[] = {
+static uint8_t DEFAULT_PUBLIC_KEY_DER[] = {
 0x30, 0x81, 0x9F, 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x81,
 0x8D, 0x00, 0x30, 0x81, 0x89, 0x02, 0x81, 0x81, 0x00, 0xE1, 0x7D, 0x30, 0xA7, 0xD8, 0x28, 0xAB, 0x1B, 0x84, 0x0B, 0x17,
 0x54, 0x2D, 0xCA, 0xF6, 0x20, 0x7A, 0xFD, 0x22, 0x1E, 0x08, 0x6B, 0x2A, 0x60, 0xD1, 0x6C, 0xB7, 0xF5, 0x44, 0x48, 0xBA,
@@ -78,17 +78,17 @@ verifySignature(const Data& data /*, const Publickey& publickey */)
   if (!data.getWireEncoding())
     // Don't expect this to happen
     throw SecurityException("The Data wireEncoding is null.");
-  unsigned char signedPortionDigest[SHA256_DIGEST_LENGTH];
+  uint8_t signedPortionDigest[SHA256_DIGEST_LENGTH];
   ndn_digestSha256(data.getWireEncoding().signedBuf(), data.getWireEncoding().signedSize(), signedPortionDigest);
   
   // Verify the signedPortionDigest.
   // Use a temporary pointer since d2i updates it.
-  const unsigned char *derPointer = DEFAULT_PUBLIC_KEY_DER;
+  const uint8_t *derPointer = DEFAULT_PUBLIC_KEY_DER;
   RSA *publicKey = d2i_RSA_PUBKEY(NULL, &derPointer, sizeof(DEFAULT_PUBLIC_KEY_DER));
   if (!publicKey)
     throw UnrecognizedKeyFormatException("Error decoding public key in d2i_RSAPublicKey");
   int success = RSA_verify
-    (NID_sha256, signedPortionDigest, sizeof(signedPortionDigest), (unsigned char *)signature->getSignature().buf(), 
+    (NID_sha256, signedPortionDigest, sizeof(signedPortionDigest), (uint8_t *)signature->getSignature().buf(), 
      signature->getSignature().size(), publicKey);
   // Free the public key before checking for success.
   RSA_free(publicKey);

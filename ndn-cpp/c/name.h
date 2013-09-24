@@ -15,7 +15,7 @@ extern "C" {
  * An ndn_NameComponent holds a pointer to the component value.
  */
 struct ndn_NameComponent {
-  unsigned char *value;     /**< pointer to the pre-allocated buffer for the component value */
+  uint8_t *value;     /**< pointer to the pre-allocated buffer for the component value */
   unsigned int valueLength; /**< the number of bytes in value */
 };
 
@@ -25,7 +25,7 @@ struct ndn_NameComponent {
  * @param value the pre-allocated buffer for the component value
  * @param valueLength the number of bytes in value
  */
-static inline void ndn_NameComponent_initialize(struct ndn_NameComponent *self, unsigned char *value, unsigned int valueLength) 
+static inline void ndn_NameComponent_initialize(struct ndn_NameComponent *self, uint8_t *value, unsigned int valueLength) 
 {
   self->value = value;
   self->valueLength = valueLength;

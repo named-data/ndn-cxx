@@ -6,7 +6,7 @@
 
 #include "crypto.h"
 
-void ndn_digestSha256(const unsigned char *data, unsigned int dataLength, unsigned char *digest)
+void ndn_digestSha256(const uint8_t *data, unsigned int dataLength, uint8_t *digest)
 {
   SHA256_CTX sha256;
   SHA256_Init(&sha256);

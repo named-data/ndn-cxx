@@ -7,7 +7,7 @@
 #include "binary-xml-element-reader.h"
 
 ndn_Error ndn_BinaryXmlElementReader_onReceivedData
-  (struct ndn_BinaryXmlElementReader *self, unsigned char *data, unsigned int dataLength)
+  (struct ndn_BinaryXmlElementReader *self, uint8_t *data, unsigned int dataLength)
 {
   // Process multiple objects in the data.
   while(1) {
@@ -21,7 +21,7 @@ ndn_Error ndn_BinaryXmlElementReader_onReceivedData
       // Got the remainder of an element.  Report to the caller.
       if (self->usePartialData) {
         // We have partial data from a previous call, so append this data and point to partialData.
-        if ((error = ndn_DynamicUCharArray_set(&self->partialData, data, self->structureDecoder.offset, self->partialDataLength)))
+        if ((error = ndn_DynamicUInt8Array_set(&self->partialData, data, self->structureDecoder.offset, self->partialDataLength)))
           return error;
         self->partialDataLength += dataLength;
                 
@@ -50,7 +50,7 @@ ndn_Error ndn_BinaryXmlElementReader_onReceivedData
         self->partialDataLength = 0;
       }
       
-      if ((error = ndn_DynamicUCharArray_set(&self->partialData, data, dataLength, self->partialDataLength)))
+      if ((error = ndn_DynamicUInt8Array_set(&self->partialData, data, dataLength, self->partialDataLength)))
         return error;
       self->partialDataLength += dataLength;
       

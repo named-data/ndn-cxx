@@ -90,7 +90,7 @@ public:
   getConnectionInfo() { return connectionInfo_; }
 
   void 
-  onReceivedElement(const unsigned char *element, unsigned int elementLength);
+  onReceivedElement(const uint8_t *element, unsigned int elementLength);
   
   void 
   shutdown();

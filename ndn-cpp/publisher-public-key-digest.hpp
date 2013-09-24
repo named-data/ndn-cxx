@@ -32,7 +32,7 @@ public:
   {
     publisherPublicKeyDigestStruct.publisherPublicKeyDigestLength = publisherPublicKeyDigest_.size();
     if (publisherPublicKeyDigest_.size() > 0)
-      publisherPublicKeyDigestStruct.publisherPublicKeyDigest = (unsigned char *)publisherPublicKeyDigest_.buf();
+      publisherPublicKeyDigestStruct.publisherPublicKeyDigest = (uint8_t *)publisherPublicKeyDigest_.buf();
     else
       publisherPublicKeyDigestStruct.publisherPublicKeyDigest = 0;
   }
@@ -52,13 +52,13 @@ public:
   getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
 
   void 
-  setPublisherPublicKeyDigest(const std::vector<unsigned char>& publisherPublicKeyDigest) 
+  setPublisherPublicKeyDigest(const std::vector<uint8_t>& publisherPublicKeyDigest) 
   { 
     publisherPublicKeyDigest_ = publisherPublicKeyDigest; 
   }
   
   void 
-  setPublisherPublicKeyDigest(const unsigned char *publisherPublicKeyDigest, unsigned int publisherPublicKeyDigestLength) 
+  setPublisherPublicKeyDigest(const uint8_t *publisherPublicKeyDigest, unsigned int publisherPublicKeyDigestLength) 
   { 
     publisherPublicKeyDigest_ = Blob(publisherPublicKeyDigest, publisherPublicKeyDigestLength); 
   }
@@ -69,13 +69,13 @@ public:
    * @param signature A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
    */
   void 
-  setPublisherPublicKeyDigest(const ptr_lib::shared_ptr<std::vector<unsigned char> > &publisherPublicKeyDigest) 
+  setPublisherPublicKeyDigest(const ptr_lib::shared_ptr<std::vector<uint8_t> > &publisherPublicKeyDigest) 
   { 
     publisherPublicKeyDigest_ = publisherPublicKeyDigest; 
   }
 
   void 
-  setPublisherPublicKeyDigest(const ptr_lib::shared_ptr<const std::vector<unsigned char> > &publisherPublicKeyDigest) 
+  setPublisherPublicKeyDigest(const ptr_lib::shared_ptr<const std::vector<uint8_t> > &publisherPublicKeyDigest) 
   { 
     publisherPublicKeyDigest_ = publisherPublicKeyDigest; 
   }

@@ -31,7 +31,7 @@ static inline void startHeader(struct ndn_BinaryXmlStructureDecoder *self)
 }
 
 ndn_Error ndn_BinaryXmlStructureDecoder_findElementEnd
-  (struct ndn_BinaryXmlStructureDecoder *self, unsigned char *input, unsigned int inputLength) 
+  (struct ndn_BinaryXmlStructureDecoder *self, uint8_t *input, unsigned int inputLength) 
 {
   if (self->gotElementEnd)
     // Someone is calling when we already got the end.

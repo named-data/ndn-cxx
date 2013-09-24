@@ -32,7 +32,7 @@ shared_ptr<PublicKey>
 PublicKey::fromDer(const Blob& keyDer)
 {
   // Use a temporary pointer since d2i updates it.
-  const unsigned char *derPointer = keyDer.buf();
+  const uint8_t *derPointer = keyDer.buf();
   RSA *publicKey = d2i_RSA_PUBKEY(NULL, &derPointer, keyDer.size());
   if (!publicKey)
     throw UnrecognizedKeyFormatException("Error decoding public key DER");  
@@ -45,7 +45,7 @@ Blob
 PublicKey::getDigest(DigestAlgorithm digestAlgorithm) const
 {
   if (digestAlgorithm == DIGEST_ALGORITHM_SHA256) {
-    unsigned char digest[SHA256_DIGEST_LENGTH];
+    uint8_t digest[SHA256_DIGEST_LENGTH];
     ndn_digestSha256(keyDer_.buf(), keyDer_.size(), digest);
     
     return Blob(digest, sizeof(digest));

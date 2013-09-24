@@ -37,10 +37,10 @@ public:
    * @param dataLength The number of bytes in data.
    */
   virtual void 
-  send(const unsigned char *data, unsigned int dataLength);
+  send(const uint8_t *data, unsigned int dataLength);
   
   void 
-  send(const std::vector<unsigned char>& data)
+  send(const std::vector<uint8_t>& data)
   {
     send(&data[0], data.size());
   }

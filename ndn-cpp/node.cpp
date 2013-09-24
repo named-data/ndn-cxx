@@ -19,7 +19,7 @@ using namespace ndn::ptr_lib;
 
 namespace ndn {
 
-static unsigned char SELFREG_PUBLIC_KEY_DER[] = {
+static uint8_t SELFREG_PUBLIC_KEY_DER[] = {
 0x30, 0x81, 0x9F, 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x81,
 0x8D, 0x00, 0x30, 0x81, 0x89, 0x02, 0x81, 0x81, 0x00, 0xE1, 0x7D, 0x30, 0xA7, 0xD8, 0x28, 0xAB, 0x1B, 0x84, 0x0B, 0x17,
 0x54, 0x2D, 0xCA, 0xF6, 0x20, 0x7A, 0xFD, 0x22, 0x1E, 0x08, 0x6B, 0x2A, 0x60, 0xD1, 0x6C, 0xB7, 0xF5, 0x44, 0x48, 0xBA,
@@ -31,7 +31,7 @@ static unsigned char SELFREG_PUBLIC_KEY_DER[] = {
 0x00, 01
 };
 
-static unsigned char SELFREG_PRIVATE_KEY_DER[] = {
+static uint8_t SELFREG_PRIVATE_KEY_DER[] = {
 0x30, 0x82, 0x02, 0x5d, 0x02, 0x01, 0x00, 0x02, 0x81, 0x81, 0x00, 0xe1, 0x7d, 0x30, 0xa7, 0xd8, 0x28, 0xab, 0x1b, 0x84,
 0x0b, 0x17, 0x54, 0x2d, 0xca, 0xf6, 0x20, 0x7a, 0xfd, 0x22, 0x1e, 0x08, 0x6b, 0x2a, 0x60, 0xd1, 0x6c, 0xb7, 0xf5, 0x44,
 0x48, 0xba, 0x9f, 0x3f, 0x08, 0xbc, 0xd0, 0x99, 0xdb, 0x21, 0xdd, 0x16, 0x2a, 0x77, 0x9e, 0x61, 0xaa, 0x89, 0xee, 0xe5,
@@ -79,7 +79,7 @@ selfregSign(Data& data, WireFormat& wireFormat)
   Sha256WithRsaSignature *signature = dynamic_cast<Sha256WithRsaSignature*>(data.getSignature());
   
   // Set the public key.
-  unsigned char publicKeyDigest[SHA256_DIGEST_LENGTH];
+  uint8_t publicKeyDigest[SHA256_DIGEST_LENGTH];
   ndn_digestSha256(SELFREG_PUBLIC_KEY_DER, sizeof(SELFREG_PUBLIC_KEY_DER), publicKeyDigest);
   signature->getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(publicKeyDigest, sizeof(publicKeyDigest));
   signature->getKeyLocator().setType(ndn_KeyLocatorType_KEY);
@@ -87,12 +87,12 @@ selfregSign(Data& data, WireFormat& wireFormat)
 
   // Sign the fields.
   SignedBlob encoding = data.wireEncode(wireFormat);
-  unsigned char signedPortionDigest[SHA256_DIGEST_LENGTH];
+  uint8_t signedPortionDigest[SHA256_DIGEST_LENGTH];
   ndn_digestSha256(encoding.signedBuf(), encoding.signedSize(), signedPortionDigest);
-  unsigned char signatureBits[1000];
+  uint8_t signatureBits[1000];
   unsigned int signatureBitsLength;
   // Use a temporary pointer since d2i updates it.
-  const unsigned char *derPointer = SELFREG_PRIVATE_KEY_DER;
+  const uint8_t *derPointer = SELFREG_PRIVATE_KEY_DER;
   RSA *privateKey = d2i_RSAPrivateKey(NULL, &derPointer, sizeof(SELFREG_PRIVATE_KEY_DER));
   if (!privateKey)
     throw std::runtime_error("Error decoding private key in d2i_RSAPrivateKey");
@@ -189,8 +189,8 @@ Node::registerPrefixHelper
   
   // Create an interest where the name has the encoded Data packet.
   Name interestName;
-  const unsigned char component0[] = "ndnx";
-  const unsigned char component2[] = "selfreg";
+  const uint8_t component0[] = "ndnx";
+  const uint8_t component2[] = "selfreg";
   interestName.addComponent(component0, sizeof(component0) - 1);
   interestName.addComponent(ndndId_);
   interestName.addComponent(component2, sizeof(component2) - 1);
@@ -224,7 +224,7 @@ Node::processEvents()
 }
 
 void 
-Node::onReceivedElement(const unsigned char *element, unsigned int elementLength)
+Node::onReceivedElement(const uint8_t *element, unsigned int elementLength)
 {
   BinaryXmlDecoder decoder(element, elementLength);
   

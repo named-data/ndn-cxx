@@ -39,13 +39,13 @@ public:
   }
   
   void 
-  wireDecode(const unsigned char *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  wireDecode(const uint8_t *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireFormat.decodeForwardingEntry(*this, input, inputLength);
   }
   
   void 
-  wireDecode(const std::vector<unsigned char>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  wireDecode(const std::vector<uint8_t>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireDecode(&input[0], input.size(), wireFormat);
   }

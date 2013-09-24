@@ -65,10 +65,10 @@ public:
   setType(ndn_KeyLocatorType type) { type_ = type; }
   
   void 
-  setKeyData(const std::vector<unsigned char>& keyData) { keyData_ = keyData; }
+  setKeyData(const std::vector<uint8_t>& keyData) { keyData_ = keyData; }
   
   void 
-  setKeyData(const unsigned char *keyData, unsigned int keyDataLength) 
+  setKeyData(const uint8_t *keyData, unsigned int keyDataLength) 
   { 
     keyData_ = Blob(keyData, keyDataLength); 
   }
@@ -79,7 +79,7 @@ public:
    * @param keyData A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
    */
   void 
-  setKeyData(const ptr_lib::shared_ptr<std::vector<unsigned char> > &keyData) { keyData_ = keyData; }
+  setKeyData(const ptr_lib::shared_ptr<std::vector<uint8_t> > &keyData) { keyData_ = keyData; }
 
   void setKeyName(const Name &keyName) { keyName_ = keyName; }
   

@@ -34,7 +34,7 @@ struct ndn_ExcludeEntry {
  * @param component the pre-allocated buffer for the component value, only used if type is ndn_Exclude_COMPONENT
  * @param componentLength the number of bytes in value, only used if type is ndn_Exclude_COMPONENT
  */
-static inline void ndn_ExcludeEntry_initialize(struct ndn_ExcludeEntry *self, ndn_ExcludeType type, unsigned char *component, unsigned int componentLength) 
+static inline void ndn_ExcludeEntry_initialize(struct ndn_ExcludeEntry *self, ndn_ExcludeType type, uint8_t *component, unsigned int componentLength) 
 {
   self->type = type;
   ndn_NameComponent_initialize(&self->component, component, componentLength);
@@ -102,7 +102,7 @@ struct ndn_Interest {
   int answerOriginKind;     /**< -1 for none */
   int scope;                /**< -1 for none */
   double interestLifetimeMilliseconds; /**< milliseconds. -1.0 for none */
-  unsigned char *nonce;     /**< pointer to pre-allocated buffer.  0 for none */
+  uint8_t *nonce;     /**< pointer to pre-allocated buffer.  0 for none */
   unsigned int nonceLength; /**< length of nonce.  0 for none */
 };
 

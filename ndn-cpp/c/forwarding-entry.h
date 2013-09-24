@@ -7,6 +7,7 @@
 #ifndef NDN_FORWARDING_ENTRY_H
 #define NDN_FORWARDING_ENTRY_H
 
+#include "common.h"
 #include "name.h"
 #include "publisher-public-key-digest.h"
 
@@ -18,7 +19,7 @@ extern "C" {
  * An ndn_ForwardingEntry holds fields for a ForwardingEntry which is used to register a prefix with a hub.
  */
 struct ndn_ForwardingEntry {
-  unsigned char *action;     /**< pointer to pre-allocated buffer.  0 for none. */
+  uint8_t *action;     /**< pointer to pre-allocated buffer.  0 for none. */
   unsigned int actionLength; /**< length of action.  0 for none. */
   struct ndn_Name prefix;
   struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
