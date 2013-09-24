@@ -16,6 +16,7 @@ bin_PROGRAMS = bin/test-encode-decode-forwarding-entry bin/test-encode-decode-in
 
 libndn_c_la_SOURCES = \
   config.h \
+  ndn-cpp/c/common.h \
   ndn-cpp/c/data.h \
   ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
   ndn-cpp/c/forwarding-entry.h \
@@ -45,6 +46,7 @@ libndn_c_la_SOURCES = \
 
 libndn_cpp_la_SOURCES = \
   config.h \
+  ndn-cpp/c/common.h \
   ndn-cpp/common.hpp ndn-cpp/common.cpp \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
   ndn-cpp/face.cpp ndn-cpp/face.hpp \
