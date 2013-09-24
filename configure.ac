@@ -95,6 +95,18 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     AC_DEFINE_UNQUOTED([HAVE_MEMSET], 0, [1 if have memset in memory.h.])
 ])
 
+AC_MSG_CHECKING([for stdint])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+    [[#include <stdint.h>]]
+    [[void test() { uint8_t x; }]])
+], [
+    AC_MSG_RESULT([yes])
+    AC_DEFINE_UNQUOTED([HAVE_STDINT], 1, [1 if have stdint.h.])
+], [
+    AC_MSG_RESULT([no])
+    AC_DEFINE_UNQUOTED([HAVE_STDINT], 0, [1 if have stdint.h.])
+])
+
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
 DX_CHI_FEATURE(OFF)

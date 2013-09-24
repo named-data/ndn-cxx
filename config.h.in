@@ -30,6 +30,9 @@
 /* 1 if have memset in memory.h. */
 #undef HAVE_MEMSET
 
+/* 1 if have stdint.h. */
+#undef HAVE_STDINT
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 

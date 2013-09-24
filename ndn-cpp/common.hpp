@@ -49,6 +49,15 @@ namespace ndn { namespace func_lib = boost; }
 namespace ndn { namespace func_lib = ndnboost; }
 #endif
 
+// Need to define uint8_t.  There may be no stdint.h since since it is only part of the C standard since 1999.
+#if HAVE_STDINT
+#include <stdint.h>
+#else
+#endif
+#ifndef _UINT8_T
+#define _UINT8_T
+typedef unsigned char uint8_t;
+#endif
 namespace ndn {
    
 /**
