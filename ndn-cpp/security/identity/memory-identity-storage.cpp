@@ -118,7 +118,7 @@ MemoryIdentityStorage::addCertificate(const Certificate& certificate)
 #endif
 }
 
-ptr_lib::shared_ptr<Data> 
+ptr_lib::shared_ptr<Certificate> 
 MemoryIdentityStorage::getCertificate(const Name &certificateName, bool allowAny)
 {
 #if 1

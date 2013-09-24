@@ -127,7 +127,7 @@ public:
    * @param allowAny If false, only a valid certificate will be returned, otherwise validity is disregarded.
    * @return The requested certificate.
    */
-  virtual ptr_lib::shared_ptr<Data> 
+  virtual ptr_lib::shared_ptr<Certificate> 
   getCertificate(const Name &certificateName, bool allowAny = false) = 0;
 
 
