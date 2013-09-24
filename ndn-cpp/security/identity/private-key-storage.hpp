@@ -10,36 +10,36 @@
 
 #include <string>
 #include "../../util/blob.hpp"
+#include "../certificate/public-key.hpp"
 #include "../security-common.hpp"
+#include "../../name.hpp"
 
 namespace ndn {
 
 class PrivateKeyStorage {
 public:
   /**
-   * The virtual destructor
+   * The virtual destructor.
    */    
   virtual 
-  ~PrivateKeyStorage();
+  ~PrivateKeyStorage() {}
 
-#if 0
   /**
-   * @brief generate a pair of asymmetric keys
-   * @param keyName the name of the key pair
-   * @param keyType the type of the key pair, e.g. RSA
-   * @param keySize the size of the key pair
+   * Generate a pair of asymmetric keys.
+   * @param keyName The name of the key pair.
+   * @param keyType The type of the key pair, e.g. KEY_TYPE_RSA.
+   * @param keySize The size of the key pair.
    */
   virtual void 
-  generateKeyPair(const string & keyName, KeyType keyType = KEY_TYPE_RSA, int keySize = 2048) = 0;
+  generateKeyPair(const Name& keyName, KeyType keyType = KEY_TYPE_RSA, int keySize = 2048) = 0;
 
   /**
-   * @brief get the public key
-   * @param keyName the name of public key
-   * @return the public key
+   * Get the public key
+   * @param keyName The name of public key.
+   * @return The public key.
    */
-  virtual Ptr<Publickey> 
-  getPublickey(const string & keyName) = 0;
-#endif
+  virtual ptr_lib::shared_ptr<PublicKey> 
+  getPublicKey(const Name& keyName) = 0;
   
   /**
    * Fetch the private key for keyName and sign the data, returning a signature Blob.
@@ -47,50 +47,68 @@ public:
    * @param dataLength The length of data.
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
-   * @return The signature, or 0 if signing fails.
+   * @return The signature, or a null pointer if signing fails.
    */  
   virtual Blob 
-  sign(const unsigned char *data, unsigned int dataLength, const std::string& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256);
+  sign(const unsigned char *data, unsigned int dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
     
-#if 0
+  Blob 
+  sign(const Blob& data, const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256)
+  {
+    sign(data.buf(), data.size(), keyName, digestAlgorithm);
+  }
+  
   /**
-   * @brief decrypt data
-   * @param keyName the name of the decrypting key
-   * @param blob the blob to be decrypted
-   * @param sym if true symmetric encryption is used, otherwise asymmetric decryption is used.
-   * @return decrypted data
+   * Decrypt data.
+   * @param keyName The name of the decrypting key.
+   * @param data The byte to be decrypted.
+   * @param dataLength the length of data.
+   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric decryption is used.
+   * @return The decrypted data.
    */
-  virtual Ptr<Blob> 
-  decrypt(const string & keyName, const Blob & data, bool sym = false) = 0;
+  virtual Blob 
+  decrypt(const Name& keyName, const unsigned char* data, unsigned int dataLength, bool isSymmetric = false) = 0;
+
+  Blob 
+  decrypt(const Name& keyName, const Blob& data, bool isSymmetric = false)
+  {
+    decrypt(keyName, data.buf(), data.size(), isSymmetric);
+  }
 
   /**
-   * @brief encrypt data
-   * @param keyName the name of the encrypting key
-   * @param blob the blob to be encrypted
-   * @param sym if true symmetric encryption is used, otherwise asymmetric decryption is used.
-   * @return encrypted data
+   * Encrypt data.
+   * @param keyName The name of the encrypting key.
+   * @param data The byte to be encrypted.
+   * @param dataLength the length of data.
+   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric decryption is used.
+   * @return The encrypted data.
    */
-  virtual Ptr<Blob> 
-  encrypt(const string & keyName, const Blob & pData, bool sym = false) = 0;
+  virtual Blob
+  encrypt(const Name& keyName, const unsigned char* data, unsigned int dataLength, bool isSymmetric = false) = 0;
+
+  Blob
+  encrypt(const Name& keyName, const Blob& data, bool isSymmetric = false)
+  {
+    encrypt(keyName, data.buf(), data.size(), isSymmetric);
+  }
 
   /**
-   * @brief generate a symmetric key
-   * @param keyName the name of the key 
-   * @param keyType the type of the key, e.g. AES
-   * @param keySize the size of the key
+   * @brief Generate a symmetric key.
+   * @param keyName The name of the key.
+   * @param keyType The type of the key, e.g. KEY_TYPE_AES.
+   * @param keySize The size of the key.
    */
   virtual void 
-  generateKey(const string & keyName, KeyType keyType = KEY_TYPE_AES, int keySize = 256) = 0;
+  generateKey(const Name& keyName, KeyType keyType = KEY_TYPE_AES, int keySize = 256) = 0;
 
   /**
-   * @brief check if a particular key exist
-   * @param keyName the name of the key
-   * @param keyClass the class of the key, e.g. public, private, or symmetric
-   * @return true if the key exists, otherwise false
+   * Check if a particular key exists.
+   * @param keyName The name of the key.
+   * @param keyClass The class of the key, e.g. KEY_CLASS_PUBLIC, KEY_CLASS_PRIVATE, or KEY_CLASS_SYMMETRIC.
+   * @return True if the key exists, otherwise false.
    */
   virtual bool
-  doesKeyExist(const string & keyName, KeyClass keyClass) = 0;  
-#endif
+  doesKeyExist(const Name& keyName, KeyClass keyClass) = 0;  
 };
 
 }

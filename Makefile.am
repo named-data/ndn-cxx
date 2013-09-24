@@ -68,7 +68,10 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/security/certificate/oid.cpp ndn-cpp/security/certificate/oid.hpp \
   ndn-cpp/security/certificate/public-key.cpp ndn-cpp/security/certificate/public-key.hpp \
   ndn-cpp/security/identity/identity-manager.cpp ndn-cpp/security/identity/identity-manager.hpp \
-  ndn-cpp/security/identity/private-key-storage.cpp ndn-cpp/identity/security/private-key-storage.hpp \
+  ndn-cpp/security/identity/identity-storage.hpp \
+  ndn-cpp/security/identity/memory-identity-storage.cpp ndn-cpp/security/identity/memory-identity-storage.hpp \
+  ndn-cpp/security/identity/memory-private-key-storage.cpp ndn-cpp/security/identity/memory-private-key-storage.hpp \
+  ndn-cpp/security/identity/private-key-storage.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/tcp-transport.h ndn-cpp/transport/tcp-transport.cpp ndn-cpp/transport/tcp-transport.hpp \
   ndn-cpp/transport/transport.cpp ndn-cpp/transport/transport.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \
