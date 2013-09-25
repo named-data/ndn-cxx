@@ -78,7 +78,8 @@ public:
    * @param onVerifyFailed
    */
   void
-  verifyData(const ptr_lib::shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed);
+  verifyData
+    (const ptr_lib::shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed, int stepCount = 0);
 
   /**
    * Set the Face which will be used to fetch required certificates.

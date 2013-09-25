@@ -126,7 +126,8 @@ KeyChain::signData(Data& data, const Name& certificateNameIn, WireFormat& wireFo
 }
 
 void
-KeyChain::verifyData(const shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
+KeyChain::verifyData
+  (const shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed, int stepCount)
 {
   _LOG_TRACE("Enter Verify");
 
