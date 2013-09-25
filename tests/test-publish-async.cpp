@@ -108,7 +108,7 @@ int main(int argc, char** argv)
     
     shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
     shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
-    KeyChain keyChain(identityStorage, privateKeyStorage);
+    KeyChain keyChain(shared_ptr<IdentityManager>(new IdentityManager(identityStorage, privateKeyStorage)));
     keyChain.setFace(&face);
     
     // Initialize the storage.

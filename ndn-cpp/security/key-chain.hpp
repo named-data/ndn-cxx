@@ -31,7 +31,7 @@ typedef func_lib::function<void()> OnVerifyFailed;
  */
 class KeyChain {
 public:
-  KeyChain(const ptr_lib::shared_ptr<IdentityStorage>& identityStorage, const ptr_lib::shared_ptr<PrivateKeyStorage>& privateKeyStorage);
+  KeyChain(const ptr_lib::shared_ptr<IdentityManager>& identityManager);
 
   /**
    * Get the default certificate name for the specified identity, which will be used when signing is performed based on identity.
@@ -41,7 +41,7 @@ public:
   Name
   getDefaultCertificateNameForIdentity(const Name& identityName)
   {
-    return identityManager_.getDefaultCertificateNameForIdentity(identityName);
+    return identityManager_->getDefaultCertificateNameForIdentity(identityName);
   }
   
   /**
@@ -88,7 +88,7 @@ public:
   setFace(Face* face) { face_ = face; }
 
 private:
-  IdentityManager identityManager_;
+  ptr_lib::shared_ptr<IdentityManager> identityManager_;
   Face* face_;
   const int maxSteps_;
 };

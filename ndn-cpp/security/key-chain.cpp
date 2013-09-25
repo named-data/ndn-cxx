@@ -31,8 +31,8 @@ static uint8_t DEFAULT_PUBLIC_KEY_DER[] = {
 };
 #endif
 
-KeyChain::KeyChain(const ptr_lib::shared_ptr<IdentityStorage>& identityStorage, const ptr_lib::shared_ptr<PrivateKeyStorage>& privateKeyStorage)
-: identityManager_(identityStorage, privateKeyStorage), face_(0), maxSteps_(100)
+KeyChain::KeyChain(const shared_ptr<IdentityManager>& identityManager)
+: identityManager_(identityManager), face_(0), maxSteps_(100)
 {  
 }
 
@@ -105,7 +105,7 @@ KeyChain::signData(Data& data, const Name& certificateNameIn, WireFormat& wireFo
   
   if (certificateNameIn.getComponentCount() == 0) {
 #if 0
-    inferredCertificateName = identityManager_.getDefaultCertificateNameForIdentity(policyManager_->inferSigningIdentity(data.getName ()));
+    inferredCertificateName = identityManager_->getDefaultCertificateNameForIdentity(policyManager_->inferSigningIdentity(data.getName ()));
 #else
     inferredCertificateName = Name();
 #endif
@@ -122,7 +122,7 @@ KeyChain::signData(Data& data, const Name& certificateNameIn, WireFormat& wireFo
     throw SecurityException("Signing Cert name does not comply with signing policy");
 #endif
   
-  identityManager_.signByCertificate(data, *certificateName, wireFormat);  
+  identityManager_->signByCertificate(data, *certificateName, wireFormat);  
 }
 
 void
