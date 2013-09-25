@@ -14,7 +14,7 @@ int ndn_Name_match(struct ndn_Name *self, struct ndn_Name *name)
     return 0;
 
 	// Check if at least one of given components doesn't match.
-  unsigned int i;
+  size_t i;
   for (i = 0; i < self->nComponents; ++i) {
     struct ndn_NameComponent *selfComponent = self->components + i;
     struct ndn_NameComponent *nameComponent = name->components + i;

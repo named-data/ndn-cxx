@@ -44,7 +44,7 @@ MemoryPrivateKeyStorage::getPublicKey(const Name& keyName)
 }
 
 Blob 
-MemoryPrivateKeyStorage::sign(const uint8_t *data, unsigned int dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm)
+MemoryPrivateKeyStorage::sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm)
 {
   if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
     return Blob();
@@ -62,11 +62,11 @@ MemoryPrivateKeyStorage::sign(const uint8_t *data, unsigned int dataLength, cons
   if (!RSA_sign(NID_sha256, digest, sizeof(digest), signatureBits, &signatureBitsLength, privateKey->second->getPrivateKey()))
     throw SecurityException("Error in RSA_sign");
   
-  return Blob(signatureBits, signatureBitsLength);
+  return Blob(signatureBits, (size_t)signatureBitsLength);
 }
 
 Blob 
-MemoryPrivateKeyStorage::decrypt(const Name& keyName, const uint8_t* data, unsigned int dataLength, bool isSymmetric)
+MemoryPrivateKeyStorage::decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
 {
 #if 1
   throw std::runtime_error("MemoryPrivateKeyStorage::decrypt not implemented");
@@ -74,7 +74,7 @@ MemoryPrivateKeyStorage::decrypt(const Name& keyName, const uint8_t* data, unsig
 }
 
 Blob
-MemoryPrivateKeyStorage::encrypt(const Name& keyName, const uint8_t* data, unsigned int dataLength, bool isSymmetric)
+MemoryPrivateKeyStorage::encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
 {
 #if 1
   throw std::runtime_error("MemoryPrivateKeyStorage::encrypt not implemented");

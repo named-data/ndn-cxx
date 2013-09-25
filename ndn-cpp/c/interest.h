@@ -34,7 +34,7 @@ struct ndn_ExcludeEntry {
  * @param component the pre-allocated buffer for the component value, only used if type is ndn_Exclude_COMPONENT
  * @param componentLength the number of bytes in value, only used if type is ndn_Exclude_COMPONENT
  */
-static inline void ndn_ExcludeEntry_initialize(struct ndn_ExcludeEntry *self, ndn_ExcludeType type, uint8_t *component, unsigned int componentLength) 
+static inline void ndn_ExcludeEntry_initialize(struct ndn_ExcludeEntry *self, ndn_ExcludeType type, uint8_t *component, size_t componentLength) 
 {
   self->type = type;
   ndn_NameComponent_initialize(&self->component, component, componentLength);
@@ -45,8 +45,8 @@ static inline void ndn_ExcludeEntry_initialize(struct ndn_ExcludeEntry *self, nd
  */
 struct ndn_Exclude {
   struct ndn_ExcludeEntry *entries;  /**< pointer to the array of entries. */
-  unsigned int maxEntries;           /**< the number of elements in the allocated entries array */
-  unsigned int nEntries;             /**< the number of entries in the exclude, 0 for no exclude */
+  size_t maxEntries;                 /**< the number of elements in the allocated entries array */
+  size_t nEntries;                   /**< the number of entries in the exclude, 0 for no exclude */
 };
 /**
  * Initialize an ndn_Exclude struct with the entries array.
@@ -54,7 +54,7 @@ struct ndn_Exclude {
  * @param entries the pre-allocated array of ndn_ExcludeEntry
  * @param maxEntries the number of elements in the allocated entries array
  */
-static inline void ndn_Exclude_initialize(struct ndn_Exclude *self, struct ndn_ExcludeEntry *entries, unsigned int maxEntries) 
+static inline void ndn_Exclude_initialize(struct ndn_Exclude *self, struct ndn_ExcludeEntry *entries, size_t maxEntries) 
 {
   self->entries = entries;
   self->maxEntries = maxEntries;
@@ -102,8 +102,8 @@ struct ndn_Interest {
   int answerOriginKind;     /**< -1 for none */
   int scope;                /**< -1 for none */
   double interestLifetimeMilliseconds; /**< milliseconds. -1.0 for none */
-  uint8_t *nonce;     /**< pointer to pre-allocated buffer.  0 for none */
-  unsigned int nonceLength; /**< length of nonce.  0 for none */
+  uint8_t *nonce;           /**< pointer to pre-allocated buffer.  0 for none */
+  size_t nonceLength;       /**< length of nonce.  0 for none */
 };
 
 /**
@@ -116,8 +116,8 @@ struct ndn_Interest {
  * @param maxExcludeEntries the number of elements in the allocated excludeEntries array
  */
 static inline void ndn_Interest_initialize
-  (struct ndn_Interest *self, struct ndn_NameComponent *nameComponents, unsigned int maxNameComponents,
-   struct ndn_ExcludeEntry *excludeEntries, unsigned int maxExcludeEntries) 
+  (struct ndn_Interest *self, struct ndn_NameComponent *nameComponents, size_t maxNameComponents,
+   struct ndn_ExcludeEntry *excludeEntries, size_t maxExcludeEntries) 
 {
   ndn_Name_initialize(&self->name, nameComponents, maxNameComponents);
   self->minSuffixComponents = -1;

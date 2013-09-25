@@ -77,7 +77,7 @@ static ndn_Error encodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
   if (!(metaInfo->type < 0 || metaInfo->type == ndn_ContentType_DATA)) {
     // Not the default of DATA, so we need to encode the type.
     uint8_t *typeBytes;
-    unsigned int typeBytesLength = 3;
+    size_t typeBytesLength = 3;
     if (metaInfo->type == ndn_ContentType_ENCR)
       typeBytes = "\x10\xD0\x91";
     else if (metaInfo->type == ndn_ContentType_GONE)
@@ -128,7 +128,7 @@ static ndn_Error decodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
     return error;
   
   uint8_t *typeBytes;
-  unsigned int typeBytesLength;
+  size_t typeBytesLength;
   if ((error = ndn_BinaryXmlDecoder_readOptionalBinaryDTagElement
       (decoder, ndn_BinaryXml_DTag_Type, 0, &typeBytes, &typeBytesLength)))
     return error;
@@ -173,7 +173,7 @@ static ndn_Error decodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
 }
 
 ndn_Error ndn_encodeBinaryXmlData
-  (struct ndn_Data *data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset, struct ndn_BinaryXmlEncoder *encoder)
+  (struct ndn_Data *data, size_t *signedPortionBeginOffset, size_t *signedPortionEndOffset, struct ndn_BinaryXmlEncoder *encoder)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(encoder, ndn_BinaryXml_DTag_ContentObject)))
@@ -203,7 +203,7 @@ ndn_Error ndn_encodeBinaryXmlData
 }
 
 ndn_Error ndn_decodeBinaryXmlData
-  (struct ndn_Data *data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset, struct ndn_BinaryXmlDecoder *decoder)
+  (struct ndn_Data *data, size_t *signedPortionBeginOffset, size_t *signedPortionEndOffset, struct ndn_BinaryXmlDecoder *decoder)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlDecoder_readElementStartDTag(decoder, ndn_BinaryXml_DTag_ContentObject)))

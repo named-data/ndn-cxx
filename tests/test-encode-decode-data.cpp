@@ -121,7 +121,7 @@ static void dumpData(const Data& data)
   cout << "name: " << data.getName().to_uri() << endl;
   if (data.getContent().size() > 0) {
     cout << "content (raw): ";
-    for (unsigned int i = 0; i < data.getContent().size(); ++i)
+    for (size_t i = 0; i < data.getContent().size(); ++i)
       cout << (*data.getContent())[i];
     cout<< endl;
     cout << "content (hex): " << toHex(*data.getContent()) << endl;

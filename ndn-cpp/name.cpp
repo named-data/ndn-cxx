@@ -87,7 +87,7 @@ unescape(const string& str)
 {
   ostringstream result;
   
-  for (unsigned int i = 0; i < str.size(); ++i) {
+  for (size_t i = 0; i < str.size(); ++i) {
     if (str[i] == '%' && i + 2 < str.size()) {
       int hi = fromHexChar(str[i + 1]);
       int lo = fromHexChar(str[i + 2]);
@@ -110,7 +110,7 @@ unescape(const string& str)
 }
 
 Blob 
-Name::Component::makeFromEscapedString(const char *escapedString, unsigned int beginOffset, unsigned int endOffset)
+Name::Component::makeFromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset)
 {
   string trimmedString(escapedString + beginOffset, escapedString + endOffset);
   trim(trimmedString);
@@ -212,7 +212,7 @@ Name::get(struct ndn_Name& nameStruct) const
     throw runtime_error("nameStruct.maxComponents must be >= this name getNComponents()");
   
   nameStruct.nComponents = components_.size();
-  for (unsigned int i = 0; i < nameStruct.nComponents; ++i)
+  for (size_t i = 0; i < nameStruct.nComponents; ++i)
     components_[i].get(nameStruct.components[i]);
 }
   
@@ -220,7 +220,7 @@ void
 Name::set(const struct ndn_Name& nameStruct) 
 {
   clear();
-  for (unsigned int i = 0; i < nameStruct.nComponents; ++i)
+  for (size_t i = 0; i < nameStruct.nComponents; ++i)
     addComponent(nameStruct.components[i].value, nameStruct.components[i].valueLength);  
 }
 
@@ -244,7 +244,7 @@ Name::toUri() const
     return "/";
   
   ostringstream result;
-  for (unsigned int i = 0; i < components_.size(); ++i) {
+  for (size_t i = 0; i < components_.size(); ++i) {
     result << "/";
     toEscapedString(*components_[i].getValue(), result);
   }
@@ -257,8 +257,8 @@ Name::getSubName(size_t iStartComponent, size_t nComponents) const
 {
   Name result;
   
-  unsigned int iEnd = iStartComponent + nComponents;
-  for (unsigned int i = iStartComponent; i < iEnd && i < components_.size(); ++i)
+  size_t iEnd = iStartComponent + nComponents;
+  for (size_t i = iStartComponent; i < iEnd && i < components_.size(); ++i)
     result.components_.push_back(components_[i]);
   
   return result;
@@ -269,7 +269,7 @@ Name::getSubName(size_t iStartComponent) const
 {
   Name result;
   
-  for (unsigned int i = iStartComponent; i < components_.size(); ++i)
+  for (size_t i = iStartComponent; i < components_.size(); ++i)
     result.components_.push_back(components_[i]);
   
   return result;
@@ -285,7 +285,7 @@ Name::match(const Name& name) const
     return 0;
 
 	// Check if at least one of given components doesn't match.
-  unsigned int i;
+  size_t i;
   for (i = 0; i < components_.size(); ++i) {
     const Component &selfComponent = components_[i];
     const Component &nameComponent = name.components_[i];
@@ -310,14 +310,14 @@ Name::toEscapedString(const vector<uint8_t>& value, ostringstream& result)
   if (!gotNonDot) {
     // Special case for component of zero or more periods.  Add 3 periods.
     result << "...";
-    for (unsigned int i = 0; i < value.size(); ++i)
+    for (size_t i = 0; i < value.size(); ++i)
       result << '.';
   }
   else {
     // In case we need to escape, set to upper case hex and save the previous flags.
     ios::fmtflags saveFlags = result.flags(ios::hex | ios::uppercase);
     
-    for (unsigned int i = 0; i < value.size(); ++i) {
+    for (size_t i = 0; i < value.size(); ++i) {
       uint8_t x = value[i];
       // Check for 0-9, A-Z, a-z, (+), (-), (.), (_)
       if (x >= 0x30 && x <= 0x39 || x >= 0x41 && x <= 0x5a ||

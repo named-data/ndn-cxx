@@ -65,7 +65,7 @@ public:
    * @return The signature, or a null pointer if signing fails.
    */  
   virtual Blob 
-  sign(const uint8_t *data, unsigned int dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
+  sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
     
   /**
    * Decrypt data.
@@ -76,7 +76,7 @@ public:
    * @return The decrypted data.
    */
   virtual Blob 
-  decrypt(const Name& keyName, const uint8_t* data, unsigned int dataLength, bool isSymmetric);
+  decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric);
 
   /**
    * Encrypt data.
@@ -87,7 +87,7 @@ public:
    * @return The encrypted data.
    */
   virtual Blob
-  encrypt(const Name& keyName, const uint8_t* data, unsigned int dataLength, bool isSymmetric);
+  encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric);
 
   /**
    * @brief Generate a symmetric key.

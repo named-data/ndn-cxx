@@ -7,7 +7,7 @@
 #include "binary-xml-element-reader.h"
 
 ndn_Error ndn_BinaryXmlElementReader_onReceivedData
-  (struct ndn_BinaryXmlElementReader *self, uint8_t *data, unsigned int dataLength)
+  (struct ndn_BinaryXmlElementReader *self, uint8_t *data, size_t dataLength)
 {
   // Process multiple objects in the data.
   while(1) {

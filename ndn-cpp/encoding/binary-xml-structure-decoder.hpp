@@ -31,7 +31,7 @@ public:
    * @return true if found the element end, false if need to read more. (This is the same as returning gotElementEnd().)
    */
   bool 
-  findElementEnd(uint8_t *input, unsigned int inputLength) 
+  findElementEnd(uint8_t *input, size_t inputLength) 
   {
     ndn_Error error;
     if ((error = ndn_BinaryXmlStructureDecoder_findElementEnd(this, input, inputLength)))
@@ -39,7 +39,7 @@ public:
     return gotElementEnd();
   }
   
-  unsigned int 
+  size_t 
   getOffset() const { return offset; }
   
   bool 

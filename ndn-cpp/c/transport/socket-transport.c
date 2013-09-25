@@ -67,7 +67,7 @@ ndn_Error ndn_SocketTransport_connect(struct ndn_SocketTransport *self, ndn_Sock
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_SocketTransport_send(struct ndn_SocketTransport *self, uint8_t *data, unsigned int dataLength)
+ndn_Error ndn_SocketTransport_send(struct ndn_SocketTransport *self, uint8_t *data, size_t dataLength)
 {
   if (self->socketDescriptor < 0)
     return NDN_ERROR_SocketTransport_socket_is_not_open;
@@ -115,7 +115,7 @@ ndn_Error ndn_SocketTransport_receiveIsReady(struct ndn_SocketTransport *self, i
 }
 
 ndn_Error ndn_SocketTransport_receive
-  (struct ndn_SocketTransport *self, uint8_t *buffer, unsigned int bufferLength, unsigned int *nBytesOut)
+  (struct ndn_SocketTransport *self, uint8_t *buffer, size_t bufferLength, size_t *nBytesOut)
 {
   if (self->socketDescriptor < 0)
     return NDN_ERROR_SocketTransport_socket_is_not_open;
@@ -124,7 +124,7 @@ ndn_Error ndn_SocketTransport_receive
   if ((nBytes = recv(self->socketDescriptor, buffer, bufferLength, 0)) == -1)
     return NDN_ERROR_SocketTransport_error_in_recv;
 
-  *nBytesOut = (unsigned int)nBytes;
+  *nBytesOut = (size_t)nBytes;
   
   return NDN_ERROR_success;  
 }

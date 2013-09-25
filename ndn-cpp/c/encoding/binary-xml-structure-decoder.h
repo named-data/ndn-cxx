@@ -16,10 +16,10 @@ extern "C" {
 
 struct ndn_BinaryXmlStructureDecoder {
   int gotElementEnd; /**< boolean */
-  unsigned int offset;
+  size_t offset;
   int level;
   int state;
-  unsigned int headerLength;
+  size_t headerLength;
   int useHeaderBuffer; /**< boolean */
   // 10 bytes is enough to hold an encoded header with a type and a 64 bit value.
   uint8_t headerBuffer[10];
@@ -44,14 +44,14 @@ void ndn_BinaryXmlStructureDecoder_initialize(struct ndn_BinaryXmlStructureDecod
  * @return 0 for success, else an error code
  */
 ndn_Error ndn_BinaryXmlStructureDecoder_findElementEnd
-  (struct ndn_BinaryXmlStructureDecoder *self, uint8_t *input, unsigned int inputLength);
+  (struct ndn_BinaryXmlStructureDecoder *self, uint8_t *input, size_t inputLength);
 
 /**
  * Set the offset into the input, used for the next read.
  * @param self pointer to the ndn_BinaryXmlStructureDecoder struct
  * @param offset the new offset
  */
-static inline void ndn_BinaryXmlStructureDecoder_seek(struct ndn_BinaryXmlStructureDecoder *self, unsigned int offset) 
+static inline void ndn_BinaryXmlStructureDecoder_seek(struct ndn_BinaryXmlStructureDecoder *self, size_t offset) 
 {
   self->offset = offset;
 }

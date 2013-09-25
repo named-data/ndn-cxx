@@ -19,7 +19,7 @@ toHex(const vector<uint8_t>& array)
   
   ostringstream result;
   result.flags(ios::hex | ios::uppercase);
-  for (unsigned int i = 0; i < array.size(); ++i) {
+  for (size_t i = 0; i < array.size(); ++i) {
     uint8_t x = array[i];
     if (x < 16)
       result << '0';

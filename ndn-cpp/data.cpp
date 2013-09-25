@@ -72,7 +72,7 @@ Data::set(const struct ndn_Data& dataStruct)
 SignedBlob 
 Data::wireEncode(WireFormat& wireFormat) 
 {
-  unsigned int signedPortionBeginOffset, signedPortionEndOffset;
+  size_t signedPortionBeginOffset, signedPortionEndOffset;
   Blob encoding = wireFormat.encodeData(*this, &signedPortionBeginOffset, &signedPortionEndOffset);
   
   wireEncoding_ = SignedBlob(encoding, signedPortionBeginOffset, signedPortionEndOffset);
@@ -80,9 +80,9 @@ Data::wireEncode(WireFormat& wireFormat)
 }
 
 void 
-Data::wireDecode(const uint8_t* input, unsigned int inputLength, WireFormat& wireFormat) 
+Data::wireDecode(const uint8_t* input, size_t inputLength, WireFormat& wireFormat) 
 {
-  unsigned int signedPortionBeginOffset, signedPortionEndOffset;
+  size_t signedPortionBeginOffset, signedPortionEndOffset;
   wireFormat.decodeData(*this, input, inputLength, &signedPortionBeginOffset, &signedPortionEndOffset);
   
   wireEncoding_ = SignedBlob(input, inputLength, signedPortionBeginOffset, signedPortionEndOffset);

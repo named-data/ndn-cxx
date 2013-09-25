@@ -32,7 +32,7 @@ public:
    * @param inputLength The number of bytes in input.
    */
   virtual void 
-  decodeInterest(Interest& interest, const uint8_t *input, unsigned int inputLength);
+  decodeInterest(Interest& interest, const uint8_t *input, size_t inputLength);
 
   /**
    * Encode data with binary XML and return the encoding.
@@ -45,7 +45,7 @@ public:
    */
   virtual Blob 
   encodeData
-    (const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset);
+    (const Data& data, size_t *signedPortionBeginOffset, size_t *signedPortionEndOffset);
   
   /**
    * Decode input as a data packet in binary XML and set the fields in the data object.
@@ -54,14 +54,14 @@ public:
    * @param inputLength The number of bytes in input.
    * @param signedPortionBeginOffset Return the offset in the input buffer of the beginning of the signed portion.
    * If you are not decoding in order to verify, you can call 
-   * decodeData(Data& data, const uint8_t *input, unsigned int inputLength) to ignore this returned value.
+   * decodeData(Data& data, const uint8_t *input, size_t inputLength) to ignore this returned value.
    * @param signedPortionEndOffset Return the offset in the input buffer of the end of the signed portion.
    * If you are not decoding in order to verify, you can call 
-   * decodeData(Data& data, const uint8_t *input, unsigned int inputLength) to ignore this returned value.
+   * decodeData(Data& data, const uint8_t *input, size_t inputLength) to ignore this returned value.
    */  
   virtual void 
   decodeData
-    (Data& data, const uint8_t *input, unsigned int inputLength, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset);
+    (Data& data, const uint8_t *input, size_t inputLength, size_t *signedPortionBeginOffset, size_t *signedPortionEndOffset);
 
   /**
    * Encode forwardingEntry in binary XML and return the encoding. 
@@ -78,7 +78,7 @@ public:
    * @param inputLength The number of bytes in input.
    */
   virtual void 
-  decodeForwardingEntry(ForwardingEntry& forwardingEntry, const uint8_t *input, unsigned int inputLength);
+  decodeForwardingEntry(ForwardingEntry& forwardingEntry, const uint8_t *input, size_t inputLength);
 };
   
 }

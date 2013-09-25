@@ -35,20 +35,20 @@ WireFormat::encodeInterest(const Interest& interest)
 }
 
 void 
-WireFormat::decodeInterest(Interest& interest, const uint8_t *input, unsigned int inputLength) 
+WireFormat::decodeInterest(Interest& interest, const uint8_t *input, size_t inputLength) 
 {
   throw logic_error("unimplemented");
 }
 
 Blob 
-WireFormat::encodeData(const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset) 
+WireFormat::encodeData(const Data& data, size_t *signedPortionBeginOffset, size_t *signedPortionEndOffset) 
 {
   throw logic_error("unimplemented");
 }
 
 void 
 WireFormat::decodeData
-  (Data& data, const uint8_t *input, unsigned int inputLength, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset) 
+  (Data& data, const uint8_t *input, size_t inputLength, size_t *signedPortionBeginOffset, size_t *signedPortionEndOffset) 
 {
   throw logic_error("unimplemented");
 }
@@ -60,7 +60,7 @@ WireFormat::encodeForwardingEntry(const ForwardingEntry& forwardingEntry)
 }
 
 void 
-WireFormat::decodeForwardingEntry(ForwardingEntry& forwardingEntry, const uint8_t *input, unsigned int inputLength) 
+WireFormat::decodeForwardingEntry(ForwardingEntry& forwardingEntry, const uint8_t *input, size_t inputLength) 
 {
   throw logic_error("unimplemented");
 }

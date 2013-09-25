@@ -58,7 +58,7 @@ public:
   }
   
   void 
-  setPublisherPublicKeyDigest(const uint8_t *publisherPublicKeyDigest, unsigned int publisherPublicKeyDigestLength) 
+  setPublisherPublicKeyDigest(const uint8_t *publisherPublicKeyDigest, size_t publisherPublicKeyDigestLength) 
   { 
     publisherPublicKeyDigest_ = Blob(publisherPublicKeyDigest, publisherPublicKeyDigestLength); 
   }

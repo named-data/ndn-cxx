@@ -65,7 +65,7 @@ public:
   setDigestAlgorithm(const std::vector<uint8_t>& digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
   
   void 
-  setDigestAlgorithm(const uint8_t *digestAlgorithm, unsigned int digestAlgorithmLength) 
+  setDigestAlgorithm(const uint8_t *digestAlgorithm, size_t digestAlgorithmLength) 
   { 
     digestAlgorithm_ = Blob(digestAlgorithm, digestAlgorithmLength); 
   }
@@ -74,7 +74,7 @@ public:
   setWitness(const std::vector<uint8_t>& witness) { witness_ = witness; }
   
   void 
-  setWitness(const uint8_t *witness, unsigned int witnessLength) 
+  setWitness(const uint8_t *witness, size_t witnessLength) 
   { 
     witness_ = Blob(witness, witnessLength); 
   }
@@ -83,7 +83,7 @@ public:
   setSignature(const std::vector<uint8_t>& signature) { signature_ = signature; }
   
   void 
-  setSignature(const uint8_t *signature, unsigned int signatureLength) 
+  setSignature(const uint8_t *signature, size_t signatureLength) 
   { 
     signature_ = Blob(signature, signatureLength); 
   }

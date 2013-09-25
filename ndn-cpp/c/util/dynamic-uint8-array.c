@@ -6,13 +6,13 @@
 
 #include "dynamic-uint8-array.h"
 
-ndn_Error ndn_DynamicUInt8Array_reallocArray(struct ndn_DynamicUInt8Array *self, unsigned int length)
+ndn_Error ndn_DynamicUInt8Array_reallocArray(struct ndn_DynamicUInt8Array *self, size_t length)
 {
   if (!self->realloc)
     return NDN_ERROR_DynamicUInt8Array_realloc_function_pointer_not_supplied;
   
   // See if double is enough.
-  unsigned int newLength = self->length * 2;
+  size_t newLength = self->length * 2;
   if (length > newLength)
     // The needed length is much greater, so use it.
     newLength = length;

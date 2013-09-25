@@ -10,14 +10,14 @@ using namespace std;
 
 namespace ndn {
 
-DynamicUInt8Vector::DynamicUInt8Vector(unsigned int initialLength)
+DynamicUInt8Vector::DynamicUInt8Vector(size_t initialLength)
 : vector_(new vector<uint8_t>(initialLength))
 {
   ndn_DynamicUInt8Array_initialize(this, &vector_->front(), initialLength, DynamicUInt8Vector::realloc);
 }
 
 uint8_t*
-DynamicUInt8Vector::realloc(struct ndn_DynamicUInt8Array *self, uint8_t *array, unsigned int length)
+DynamicUInt8Vector::realloc(struct ndn_DynamicUInt8Array *self, uint8_t *array, size_t length)
 {
   // Because this method is private, assume there is not a problem with upcasting.
   DynamicUInt8Vector *thisObject = (DynamicUInt8Vector *)self;

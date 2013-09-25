@@ -13,7 +13,7 @@ namespace ndn {
 void 
 ChangedEvent::fire()
 {
-  for (unsigned int i = 0; i < listeners_.size(); ++i)
+  for (size_t i = 0; i < listeners_.size(); ++i)
     listeners_[i]();
 }
 

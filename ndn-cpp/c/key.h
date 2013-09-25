@@ -31,7 +31,7 @@ typedef enum {
  */
 struct ndn_KeyLocator {
   ndn_KeyLocatorType type;     /**< -1 for none */
-  uint8_t *keyData;      /**< A pointer to a pre-allocated buffer for the key data as follows:
+  uint8_t *keyData;            /**< A pointer to a pre-allocated buffer for the key data as follows:
     *   If type is ndn_KeyLocatorType_KEY, the key data.
     *   If type is ndn_KeyLocatorType_CERTIFICATE, the certificate data. 
     *   If type is ndn_KeyLocatorType_KEYNAME and keyNameType is ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST, the publisher public key digest. 
@@ -39,7 +39,7 @@ struct ndn_KeyLocator {
     *   If type is ndn_KeyLocatorType_KEYNAME and keyNameType is ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST, the publisher issuer key digest. 
     *   If type is ndn_KeyLocatorType_KEYNAME and keyNameType is ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST, the publisher issuer certificate digest. 
     */
-  unsigned int keyDataLength;  /**< The length of keyData. */
+  size_t keyDataLength;        /**< The length of keyData. */
   struct ndn_Name keyName;     /**< The key name (only used if type is ndn_KeyLocatorType_KEYNAME.) */
   ndn_KeyNameType keyNameType; /**< The type of data for keyName, -1 for none. (only used if type is ndn_KeyLocatorType_KEYNAME.) */
 };
@@ -51,7 +51,7 @@ struct ndn_KeyLocator {
  * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
  */
 static inline void ndn_KeyLocator_initialize
-  (struct ndn_KeyLocator *self, struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) {
+  (struct ndn_KeyLocator *self, struct ndn_NameComponent *keyNameComponents, size_t maxKeyNameComponents) {
   self->type = (ndn_KeyLocatorType)-1;
   self->keyData = 0;
   self->keyDataLength = 0;

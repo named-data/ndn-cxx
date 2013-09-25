@@ -34,7 +34,7 @@ public:
    * @param signedPortionEndOffset The offset in the encoding of the end of the signed portion.
    */
   SignedBlob
-    (const uint8_t* value, unsigned int valueLength, unsigned int signedPortionBeginOffset, unsigned int signedPortionEndOffset)
+    (const uint8_t* value, size_t valueLength, size_t signedPortionBeginOffset, size_t signedPortionEndOffset)
   : Blob(value, valueLength), signedPortionBeginOffset_(signedPortionBeginOffset), signedPortionEndOffset_(signedPortionEndOffset)
   {
   }
@@ -48,7 +48,7 @@ public:
    * @param signedPortionEndOffset The offset in the encoding of the end of the signed portion.
    */
   SignedBlob
-    (const std::vector<uint8_t> &value, unsigned int signedPortionBeginOffset, unsigned int signedPortionEndOffset)
+    (const std::vector<uint8_t> &value, size_t signedPortionBeginOffset, size_t signedPortionEndOffset)
   : Blob(value), signedPortionBeginOffset_(signedPortionBeginOffset), signedPortionEndOffset_(signedPortionEndOffset)
   {
   }
@@ -62,13 +62,13 @@ public:
    */
   SignedBlob
     (const ptr_lib::shared_ptr<std::vector<uint8_t> > &value, 
-     unsigned int signedPortionBeginOffset, unsigned int signedPortionEndOffset)
+     size_t signedPortionBeginOffset, size_t signedPortionEndOffset)
   : Blob(value), signedPortionBeginOffset_(signedPortionBeginOffset), signedPortionEndOffset_(signedPortionEndOffset)
   {
   }
   SignedBlob
     (const ptr_lib::shared_ptr<const std::vector<uint8_t> > &value, 
-     unsigned int signedPortionBeginOffset, unsigned int signedPortionEndOffset)
+     size_t signedPortionBeginOffset, size_t signedPortionEndOffset)
   : Blob(value), signedPortionBeginOffset_(signedPortionBeginOffset), signedPortionEndOffset_(signedPortionEndOffset)
   {
   }
@@ -76,7 +76,7 @@ public:
   /**
    * Return the length of the signed portion of the immutable byte array, or 0 of the pointer to the array is null.
    */
-  unsigned int 
+  size_t 
   signedSize() const
   {
     if (*this)
@@ -101,18 +101,18 @@ public:
   /**
    * Return the offset in the array of the beginning of the signed portion.
    */  
-  unsigned int 
+  size_t 
   getSignedPortionBeginOffset() { return signedPortionBeginOffset_; }
 
   /**
    * Return the offset in the array of the end of the signed portion.
    */  
-  unsigned int 
+  size_t 
   getSignedPortionEndOffset() { return signedPortionEndOffset_; }
   
 private:
-  unsigned int signedPortionBeginOffset_;
-  unsigned int signedPortionEndOffset_;
+  size_t signedPortionBeginOffset_;
+  size_t signedPortionEndOffset_;
 };
 
 }

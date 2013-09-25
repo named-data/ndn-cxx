@@ -19,7 +19,7 @@ extern "C" {
  * will be passed to onReceivedElement.
  */
 struct ndn_ElementListener {
-  void (*onReceivedElement)(struct ndn_ElementListener *self, uint8_t *element, unsigned int elementLength); /**< see ndn_ElementListener_initialize */
+  void (*onReceivedElement)(struct ndn_ElementListener *self, uint8_t *element, size_t elementLength); /**< see ndn_ElementListener_initialize */
 };
 
 /**
@@ -29,7 +29,7 @@ struct ndn_ElementListener {
  * self is the pointer to this ndn_ElementListener struct.  See ndn_BinaryXmlElementReader_onReceivedData.
  */
 static inline void ndn_ElementListener_initialize
-  (struct ndn_ElementListener *self, void (*onReceivedElement)(struct ndn_ElementListener *self, uint8_t *element, unsigned int elementLength))
+  (struct ndn_ElementListener *self, void (*onReceivedElement)(struct ndn_ElementListener *self, uint8_t *element, size_t elementLength))
 {
   self->onReceivedElement = onReceivedElement;
 }
@@ -45,7 +45,7 @@ struct ndn_BinaryXmlElementReader {
   struct ndn_BinaryXmlStructureDecoder structureDecoder;
   int usePartialData;
   struct ndn_DynamicUInt8Array partialData;
-  unsigned int partialDataLength;
+  size_t partialDataLength;
 };
 
 /**
@@ -58,7 +58,7 @@ struct ndn_BinaryXmlElementReader {
  */
 static inline void ndn_BinaryXmlElementReader_initialize
   (struct ndn_BinaryXmlElementReader *self, struct ndn_ElementListener *elementListener,
-   uint8_t *buffer, unsigned int bufferLength, uint8_t * (*reallocFunction)(struct ndn_DynamicUInt8Array *self, uint8_t *, unsigned int))
+   uint8_t *buffer, size_t bufferLength, uint8_t * (*reallocFunction)(struct ndn_DynamicUInt8Array *self, uint8_t *, size_t))
 {
   self->elementListener = elementListener;
   ndn_BinaryXmlStructureDecoder_initialize(&self->structureDecoder);
@@ -75,7 +75,7 @@ static inline void ndn_BinaryXmlElementReader_initialize
  * @return 0 for success, else an error code
  */
 ndn_Error ndn_BinaryXmlElementReader_onReceivedData
-  (struct ndn_BinaryXmlElementReader *self, uint8_t *data, unsigned int dataLength);
+  (struct ndn_BinaryXmlElementReader *self, uint8_t *data, size_t dataLength);
 
 #ifdef __cplusplus
 }

@@ -19,7 +19,7 @@ Exclude::get(struct ndn_Exclude& excludeStruct) const
     throw runtime_error("excludeStruct.maxEntries must be >= this exclude getEntryCount()");
   
   excludeStruct.nEntries = entries_.size();
-  for (unsigned int i = 0; i < excludeStruct.nEntries; ++i)
+  for (size_t i = 0; i < excludeStruct.nEntries; ++i)
     entries_[i].get(excludeStruct.entries[i]);  
 }
 
@@ -27,7 +27,7 @@ void
 Exclude::set(const struct ndn_Exclude& excludeStruct)
 {
   entries_.clear();
-  for (unsigned int i = 0; i < excludeStruct.nEntries; ++i) {
+  for (size_t i = 0; i < excludeStruct.nEntries; ++i) {
     ndn_ExcludeEntry *entry = &excludeStruct.entries[i];
     
     if (entry->type == ndn_Exclude_COMPONENT)

@@ -16,9 +16,9 @@ extern "C" {
 
 struct ndn_DynamicUInt8Array {
   uint8_t *array; /**< the allocated array buffer */
-  unsigned int length;  /**< the length of the allocated array buffer */
+  size_t length;  /**< the length of the allocated array buffer */
   uint8_t * (*realloc)
-    (struct ndn_DynamicUInt8Array *self, uint8_t *array, unsigned int length); /**< a pointer to a function that reallocates array and returns a new pointer to a buffer of
+    (struct ndn_DynamicUInt8Array *self, uint8_t *array, size_t length); /**< a pointer to a function that reallocates array and returns a new pointer to a buffer of
                                                                                       * length bytes, or 0 for error.  On success, the contents of the old buffer are copied to the new one.
                                                                                       * On success, the original array pointer will no longer be used.
                                                                                       * self is a pointer to the struct ndn_DynamicUInt8Array which is calling realloc.
@@ -33,8 +33,8 @@ struct ndn_DynamicUInt8Array {
  * @param reallocFunction see ndn_DynamicUInt8Array_ensureLength.  This may be 0.
  */
 static inline void ndn_DynamicUInt8Array_initialize
-  (struct ndn_DynamicUInt8Array *self, uint8_t *array, unsigned int length, 
-   uint8_t * (*reallocFunction)(struct ndn_DynamicUInt8Array *self, uint8_t *, unsigned int)) 
+  (struct ndn_DynamicUInt8Array *self, uint8_t *array, size_t length, 
+   uint8_t * (*reallocFunction)(struct ndn_DynamicUInt8Array *self, uint8_t *, size_t)) 
 {
   self->array = array;
   self->length = length;
@@ -49,7 +49,7 @@ static inline void ndn_DynamicUInt8Array_initialize
  * @param length the needed minimum size for self->length
  * @return 0 for success, else an error code if can't reallocate the array
  */
-ndn_Error ndn_DynamicUInt8Array_reallocArray(struct ndn_DynamicUInt8Array *self, unsigned int length);
+ndn_Error ndn_DynamicUInt8Array_reallocArray(struct ndn_DynamicUInt8Array *self, size_t length);
 
 /**
  * Ensure that self->length is greater than or equal to length.  If it is, just return 0 for success.
@@ -59,7 +59,7 @@ ndn_Error ndn_DynamicUInt8Array_reallocArray(struct ndn_DynamicUInt8Array *self,
  * @param length the needed minimum size for self->length
  * @return 0 for success, else an error code if need to reallocate the array but can't
  */
-static inline ndn_Error ndn_DynamicUInt8Array_ensureLength(struct ndn_DynamicUInt8Array *self, unsigned int length) 
+static inline ndn_Error ndn_DynamicUInt8Array_ensureLength(struct ndn_DynamicUInt8Array *self, size_t length) 
 {
   if (self->length >= length)
     return NDN_ERROR_success;
@@ -76,7 +76,7 @@ static inline ndn_Error ndn_DynamicUInt8Array_ensureLength(struct ndn_DynamicUIn
  * @return 0 for success, else an error code if need to reallocate the array but can't
  */
 static inline ndn_Error ndn_DynamicUInt8Array_set
-  (struct ndn_DynamicUInt8Array *self, uint8_t *value, unsigned int valueLength, unsigned int offset) 
+  (struct ndn_DynamicUInt8Array *self, uint8_t *value, size_t valueLength, size_t offset) 
 {
   ndn_Error error;
   if ((error = ndn_DynamicUInt8Array_ensureLength(self, valueLength + offset)))

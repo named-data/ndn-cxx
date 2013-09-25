@@ -39,7 +39,7 @@ public:
   }
   
   void 
-  wireDecode(const uint8_t *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  wireDecode(const uint8_t *input, size_t inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireFormat.decodeForwardingEntry(*this, input, inputLength);
   }

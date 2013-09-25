@@ -68,7 +68,7 @@ public:
   setKeyData(const std::vector<uint8_t>& keyData) { keyData_ = keyData; }
   
   void 
-  setKeyData(const uint8_t *keyData, unsigned int keyDataLength) 
+  setKeyData(const uint8_t *keyData, size_t keyDataLength) 
   { 
     keyData_ = Blob(keyData, keyDataLength); 
   }

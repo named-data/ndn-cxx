@@ -21,7 +21,7 @@ extern "C" {
  * @param length the length for the new array buffer.
  * @return the new allocated array buffer.
  */
-uint8_t *ndn_realloc(struct ndn_DynamicUInt8Array *self, uint8_t *array, unsigned int length);
+uint8_t *ndn_realloc(struct ndn_DynamicUInt8Array *self, uint8_t *array, size_t length);
 
 #ifdef __cplusplus
 }

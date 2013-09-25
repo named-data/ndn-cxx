@@ -21,11 +21,11 @@ extern "C" {
 struct ndn_Signature {
   uint8_t *digestAlgorithm;      /**< pointer to pre-allocated buffer.  0 for none.
                                         *   If none, default is 2.16.840.1.101.3.4.2.1 (sha-256). */
-  unsigned int digestAlgorithmLength;  /**< length of digestAlgorithm.  0 for none */
+  size_t digestAlgorithmLength;  /**< length of digestAlgorithm.  0 for none */
   uint8_t *witness;              /**< pointer to pre-allocated buffer.  0 for none. */
-  unsigned int witnessLength;          /**< length of witness.  0 for none */
+  size_t witnessLength;          /**< length of witness.  0 for none */
   uint8_t *signature;
-  unsigned int signatureLength;
+  size_t signatureLength;
   struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
   struct ndn_KeyLocator keyLocator;
 };
@@ -36,7 +36,7 @@ struct ndn_Signature {
  * @param keyNameComponents The pre-allocated array of ndn_NameComponent for the keyLocator.
  * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
  */
-static inline void ndn_Signature_initialize(struct ndn_Signature *self, struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) {
+static inline void ndn_Signature_initialize(struct ndn_Signature *self, struct ndn_NameComponent *keyNameComponents, size_t maxKeyNameComponents) {
   self->digestAlgorithm = 0;
   self->digestAlgorithmLength = 0;
   self->witness = 0;
@@ -82,7 +82,7 @@ struct ndn_Data {
   struct ndn_Name name;
   struct ndn_MetaInfo metaInfo;
   uint8_t *content;     /**< pointer to the content */
-  unsigned int contentLength; /**< length of content */
+  size_t contentLength; /**< length of content */
 };
 
 /**
@@ -95,8 +95,8 @@ struct ndn_Data {
  * @param maxKeyNameComponents The number of elements in the allocated keyNameComponents array.
  */
 static inline void ndn_Data_initialize
-  (struct ndn_Data *self, struct ndn_NameComponent *nameComponents, unsigned int maxNameComponents, 
-   struct ndn_NameComponent *keyNameComponents, unsigned int maxKeyNameComponents) 
+  (struct ndn_Data *self, struct ndn_NameComponent *nameComponents, size_t maxNameComponents, 
+   struct ndn_NameComponent *keyNameComponents, size_t maxKeyNameComponents) 
 {
   ndn_Signature_initialize(&self->signature, keyNameComponents, maxKeyNameComponents);
   ndn_Name_initialize(&self->name, nameComponents, maxNameComponents);

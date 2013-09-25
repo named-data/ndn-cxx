@@ -21,7 +21,7 @@ extern "C" {
  * @param dataLength The length of data.
  * @param digest A pointer to a buffer of size SHA256_DIGEST_LENGTH to receive the data.
  */
-void ndn_digestSha256(const uint8_t *data, unsigned int dataLength, uint8_t *digest);
+void ndn_digestSha256(const uint8_t *data, size_t dataLength, uint8_t *digest);
 
 #ifdef __cplusplus
 }

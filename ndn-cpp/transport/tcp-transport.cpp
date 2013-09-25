@@ -27,7 +27,7 @@ TcpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementLi
     throw std::runtime_error(ndn_getErrorString(error)); 
 
   // TODO: This belongs in the socket listener.
-  const unsigned int initialLength = 1000;
+  const size_t initialLength = 1000;
   // Automatically cast elementReader_ to (struct ndn_ElementListener *)
   ndn_BinaryXmlElementReader_initialize
     (&elementReader_, &elementListener, (uint8_t *)malloc(initialLength), initialLength, ndn_realloc);
@@ -37,7 +37,7 @@ TcpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementLi
 }
 
 void 
-TcpTransport::send(const uint8_t *data, unsigned int dataLength)
+TcpTransport::send(const uint8_t *data, size_t dataLength)
 {
   ndn_Error error;
   if ((error = ndn_TcpTransport_send(&transport_, (uint8_t *)data, dataLength)))
@@ -55,7 +55,7 @@ TcpTransport::processEvents()
     return;
 
   uint8_t buffer[8000];
-  unsigned int nBytes;
+  size_t nBytes;
   if ((error = ndn_TcpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes)))
     throw std::runtime_error(ndn_getErrorString(error));  
 

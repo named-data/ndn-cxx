@@ -101,7 +101,7 @@ public:
   setFinalBlockID(const std::vector<uint8_t>& finalBlockID) { finalBlockID_ = Name::Component(finalBlockID); }
   
   void 
-  setFinalBlockID(const uint8_t* finalBlockID, unsigned int finalBlockIdLength) 
+  setFinalBlockID(const uint8_t* finalBlockID, size_t finalBlockIdLength) 
   { 
     finalBlockID_ = Name::Component(finalBlockID, finalBlockIdLength); 
   }
@@ -142,7 +142,7 @@ public:
    * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
   void 
-  wireDecode(const uint8_t* input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  wireDecode(const uint8_t* input, size_t inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
   
   /**
    * Decode the input using a particular wire format and update this Data. Also, set the wireEncoding field to the input.
@@ -257,7 +257,7 @@ public:
   }
   
   void 
-  setContent(const uint8_t* content, unsigned int contentLength) 
+  setContent(const uint8_t* content, size_t contentLength) 
   { 
     content_ = Blob(content, contentLength); 
     onChanged();

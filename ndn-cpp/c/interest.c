@@ -20,7 +20,7 @@ int ndn_Exclude_compareComponents(struct ndn_NameComponent *component1, struct n
 
 int ndn_Exclude_matches(struct ndn_Exclude *self, struct ndn_NameComponent *component)
 {
-  unsigned int i;
+  size_t i;
   for (i = 0; i < self->nEntries; ++i) {
     if (self->entries[i].type == ndn_Exclude_ANY) {
       struct ndn_ExcludeEntry *lowerBound = 0;
@@ -28,7 +28,7 @@ int ndn_Exclude_matches(struct ndn_Exclude *self, struct ndn_NameComponent *comp
         lowerBound = self->entries + (i - 1);
       
       // Find the upper bound, possibly skipping over multiple ANY in a row.
-      unsigned int iUpperBound;
+      size_t iUpperBound;
       struct ndn_ExcludeEntry *upperBound = 0;
       for (iUpperBound = i + 1; iUpperBound < self->nEntries; ++iUpperBound) {
         if (self->entries[iUpperBound].type == ndn_Exclude_COMPONENT) {

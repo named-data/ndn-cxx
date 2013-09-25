@@ -35,7 +35,7 @@ public:
    * @throw logic_error for unimplemented if the derived class does not override.
    */
   virtual void 
-  decodeInterest(Interest& interest, const uint8_t *input, unsigned int inputLength);
+  decodeInterest(Interest& interest, const uint8_t *input, size_t inputLength);
 
   /**
    * Encode data and return the encoding.  Your derived class should override.
@@ -49,7 +49,7 @@ public:
    */
   virtual Blob 
   encodeData
-    (const Data& data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset);
+    (const Data& data, size_t *signedPortionBeginOffset, size_t *signedPortionEndOffset);
 
   /**
    * Encode data and return the encoding.
@@ -60,7 +60,7 @@ public:
   Blob 
   encodeData(const Data& data)
   {
-    unsigned int dummyBeginOffset, dummyEndOffset;
+    size_t dummyBeginOffset, dummyEndOffset;
     return encodeData(data, &dummyBeginOffset, &dummyEndOffset);
   }
 
@@ -71,20 +71,20 @@ public:
    * @param inputLength The number of bytes in input.
    * @param signedPortionBeginOffset Return the offset in the input buffer of the beginning of the signed portion.
    * If you are not decoding in order to verify, you can call 
-   * decodeData(Data& data, const uint8_t *input, unsigned int inputLength) to ignore this returned value.
+   * decodeData(Data& data, const uint8_t *input, size_t inputLength) to ignore this returned value.
    * @param signedPortionEndOffset Return the offset in the input buffer of the end of the signed portion.
    * If you are not decoding in order to verify, you can call 
-   * decodeData(Data& data, const uint8_t *input, unsigned int inputLength) to ignore this returned value.
+   * decodeData(Data& data, const uint8_t *input, size_t inputLength) to ignore this returned value.
    * @throw logic_error for unimplemented if the derived class does not override.
    */  
   virtual void 
   decodeData
-    (Data& data, const uint8_t *input, unsigned int inputLength, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset);
+    (Data& data, const uint8_t *input, size_t inputLength, size_t *signedPortionBeginOffset, size_t *signedPortionEndOffset);
 
   void 
-  decodeData(Data& data, const uint8_t *input, unsigned int inputLength)
+  decodeData(Data& data, const uint8_t *input, size_t inputLength)
   {
-    unsigned int dummyBeginOffset, dummyEndOffset;
+    size_t dummyBeginOffset, dummyEndOffset;
     decodeData(data, input, inputLength, &dummyBeginOffset, &dummyEndOffset);
   }
   
@@ -105,7 +105,7 @@ public:
    * @throw logic_error for unimplemented if the derived class does not override.
    */
   virtual void 
-  decodeForwardingEntry(ForwardingEntry& forwardingEntry, const uint8_t *input, unsigned int inputLength);
+  decodeForwardingEntry(ForwardingEntry& forwardingEntry, const uint8_t *input, size_t inputLength);
 
   /**
    * Set the static default WireFormat used by default encoding and decoding methods.

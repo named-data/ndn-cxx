@@ -35,7 +35,7 @@ public:
    * @param value A pointer to the byte array which is copied.
    * @param valueLength The length of value.
    */
-  Blob(const uint8_t* value, unsigned int valueLength)
+  Blob(const uint8_t* value, size_t valueLength)
   : ptr_lib::shared_ptr<const std::vector<uint8_t> >(new std::vector<uint8_t>(value, value + valueLength))
   {
   }
@@ -68,7 +68,7 @@ public:
   /**
    * Return the length of the immutable byte array.
    */
-  unsigned int 
+  size_t 
   size() const
   {
     if (*this)

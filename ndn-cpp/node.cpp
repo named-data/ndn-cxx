@@ -102,7 +102,7 @@ selfregSign(Data& data, WireFormat& wireFormat)
   if (!success)
     throw std::runtime_error("Error in RSA_sign");
   
-  signature->setSignature(signatureBits, signatureBitsLength);
+  signature->setSignature(signatureBits, (size_t)signatureBitsLength);
 }
 
 // Use gettimeofday to return the current time in milliseconds.
@@ -224,7 +224,7 @@ Node::processEvents()
 }
 
 void 
-Node::onReceivedElement(const uint8_t *element, unsigned int elementLength)
+Node::onReceivedElement(const uint8_t *element, size_t elementLength)
 {
   BinaryXmlDecoder decoder(element, elementLength);
   
@@ -269,7 +269,7 @@ Node::getEntryIndexForExpressedInterest(const Name& name)
   
   int iResult = -1;
     
-	for (unsigned int i = 0; i < pit_.size(); ++i) {
+	for (size_t i = 0; i < pit_.size(); ++i) {
 		if (ndn_Interest_matchesName((struct ndn_Interest *)&pit_[i]->getInterestStruct(), &nameStruct)) {
       if (iResult < 0 || 
           pit_[i]->getInterestStruct().name.nComponents > pit_[iResult]->getInterestStruct().name.nComponents)
@@ -286,7 +286,7 @@ Node::getEntryForRegisteredPrefix(const Name& name)
 {
   int iResult = -1;
     
-	for (unsigned int i = 0; i < registeredPrefixTable_.size(); ++i) {
+	for (size_t i = 0; i < registeredPrefixTable_.size(); ++i) {
 		if (registeredPrefixTable_[i]->getPrefix()->match(name)) {
       if (iResult < 0 || 
           registeredPrefixTable_[i]->getPrefix()->getComponentCount() > registeredPrefixTable_[iResult]->getPrefix()->getComponentCount())

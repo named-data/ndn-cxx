@@ -44,7 +44,7 @@ public:
      * @param value Pointer to the value byte array.
      * @param valueLen Length of value.
      */
-    Component(const uint8_t *value, unsigned int valueLen) 
+    Component(const uint8_t *value, size_t valueLen) 
     : value_(value, valueLen)
     {
     }
@@ -109,7 +109,7 @@ public:
      * @return The component value as a Blob, or a Blob with a null pointer if escapedString is not a valid escaped component.
      */
     static Blob 
-    makeFromEscapedString(const char *escapedString, unsigned int beginOffset, unsigned int endOffset);
+    makeFromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset);
     
     /**
      * Make a component as the encoded segment number.
@@ -174,7 +174,7 @@ public:
    * @return This name so that you can chain calls to append.
    */
   Name& 
-  append(const uint8_t *value, unsigned int valueLength) 
+  append(const uint8_t *value, size_t valueLength) 
   {
     components_.push_back(Component(value, valueLength));
     return *this;
@@ -210,7 +210,7 @@ public:
    * @deprecated Use append.
    */
   Name& 
-  appendComponent(const uint8_t *value, unsigned int valueLength) 
+  appendComponent(const uint8_t *value, size_t valueLength) 
   {
     return append(value, valueLength);
   }
@@ -237,7 +237,7 @@ public:
    * @deprecated Use append.
    */
   Name& 
-  addComponent(const uint8_t *value, unsigned int valueLength) 
+  addComponent(const uint8_t *value, size_t valueLength) 
   {
     return append(value, valueLength);
   }
@@ -272,13 +272,13 @@ public:
    * Get the number of components.
    * @return The number of components.
    */
-  unsigned int 
+  size_t 
   getComponentCount() const {
     return components_.size();
   }
   
   const Component& 
-  getComponent(unsigned int i) const { return components_[i]; }
+  getComponent(size_t i) const { return components_[i]; }
   
   /**
    * Get a new name, constructed as a subset of components.

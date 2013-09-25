@@ -23,7 +23,7 @@ public:
    * Create a new DynamicUInt8Vector with an initial length.
    * @param initialLength The initial size of the allocated vector.
    */
-  DynamicUInt8Vector(unsigned int initialLength);
+  DynamicUInt8Vector(size_t initialLength);
   
   /**
    * Get the shared_ptr to the allocated vector.
@@ -41,7 +41,7 @@ private:
    * @return The front of the allocated vector.
    */
   static uint8_t*
-  realloc(struct ndn_DynamicUInt8Array *self, uint8_t *array, unsigned int length);
+  realloc(struct ndn_DynamicUInt8Array *self, uint8_t *array, size_t length);
   
   ptr_lib::shared_ptr<std::vector<uint8_t> > vector_;
 };

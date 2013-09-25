@@ -20,7 +20,7 @@ extern "C" {
  */
 struct ndn_BinaryXmlEncoder {
   struct ndn_DynamicUInt8Array *output; /**< A pointer to a ndn_DynamicUInt8Array which receives the encoded output */
-  unsigned int offset;             /**< the offset into output.array for the next encoding */
+  size_t offset;                        /**< the offset into output.array for the next encoding */
 };
 
 /**
@@ -70,7 +70,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeElementClose(struct ndn_BinaryXmlEncoder *se
  * @param valueLength the length of the array
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, uint8_t *value, unsigned int valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, uint8_t *value, size_t valueLength);
 
 /**
  * Write an element start header using DTAG with the tag to self->output, then the blob, then an element close.
@@ -81,7 +81,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, uint
  * @param valueLength the length of the array
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, unsigned int valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength);
 
 /**
  * If value or valueLen is 0 then do nothing, otherwise call ndn_BinaryXmlEncoder_writeBlobDTagElement.
@@ -92,7 +92,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder 
  * @return 0 for success, else an error code
  */
 static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement
-  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, unsigned int valueLength)
+  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength)
 {
   if (value && valueLength > 0)
     return ndn_BinaryXmlEncoder_writeBlobDTagElement(self, tag, value, valueLength);
@@ -107,7 +107,7 @@ static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement
  * @param valueLength the length of the array
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, uint8_t *value, unsigned int valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, uint8_t *value, size_t valueLength);
 
 /**
  * Write an element start header using DTAG with the tag to self->output, then the UDATA value, then an element close.
@@ -118,7 +118,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, uin
  * @param valueLength the length of the array
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, unsigned int valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength);
 
 /**
  * If value or valueLen is 0 then do nothing, otherwise call ndn_BinaryXmlEncoder_writeUDataDTagElement.
@@ -129,7 +129,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder
  * @return 0 for success, else an error code
  */
 static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalUDataDTagElement
-  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, unsigned int valueLength)
+  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength)
 {
   if (value && valueLength > 0)
     return ndn_BinaryXmlEncoder_writeUDataDTagElement(self, tag, value, valueLength);
@@ -166,7 +166,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeUnsignedDecimalIntDTagElement(struct ndn_Bin
 static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalUnsignedDecimalIntDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, int value)
 {
   if (value >= 0)
-    return ndn_BinaryXmlEncoder_writeUnsignedDecimalIntDTagElement(self, tag, (unsigned int)value);
+    return ndn_BinaryXmlEncoder_writeUnsignedDecimalIntDTagElement(self, tag, (size_t)value);
   else
     return NDN_ERROR_success;
 }

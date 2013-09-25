@@ -19,7 +19,7 @@ extern "C" {
  */
 struct ndn_PublisherPublicKeyDigest {
   uint8_t *publisherPublicKeyDigest;      /**< pointer to pre-allocated buffer.  0 for none */
-  unsigned int publisherPublicKeyDigestLength;  /**< length of publisherPublicKeyDigest.  0 for none */  
+  size_t publisherPublicKeyDigestLength;  /**< length of publisherPublicKeyDigest.  0 for none */  
 };
 
 /**

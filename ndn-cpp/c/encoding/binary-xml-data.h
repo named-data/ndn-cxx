@@ -27,7 +27,7 @@ extern "C" {
  * @return 0 for success, else an error code.
  */
 ndn_Error ndn_encodeBinaryXmlData
-  (struct ndn_Data *data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset, struct ndn_BinaryXmlEncoder *encoder);
+  (struct ndn_Data *data, size_t *signedPortionBeginOffset, size_t *signedPortionEndOffset, struct ndn_BinaryXmlEncoder *encoder);
 
 /**
  * Decode the data packet as binary XML and set the fields in the data object.
@@ -40,7 +40,7 @@ ndn_Error ndn_encodeBinaryXmlData
  * @return 0 for success, else an error code.
  */
 ndn_Error ndn_decodeBinaryXmlData
-  (struct ndn_Data *data, unsigned int *signedPortionBeginOffset, unsigned int *signedPortionEndOffset, struct ndn_BinaryXmlDecoder *decoder);
+  (struct ndn_Data *data, size_t *signedPortionBeginOffset, size_t *signedPortionEndOffset, struct ndn_BinaryXmlDecoder *decoder);
 
 #ifdef __cplusplus
 }

@@ -7,9 +7,9 @@
 #include "ndn_memory.h"
 
 #if !HAVE_MEMCMP
-int ndn_memcmp(uint8_t *buf1, uint8_t *buf2, unsigned int len)
+int ndn_memcmp(uint8_t *buf1, uint8_t *buf2, size_t len)
 {
-  unsigned int i;
+  size_t i;
   
   for (i = 0; i < len; i++) {
     if (buf1[i] > buf2[i])
@@ -25,9 +25,9 @@ int ndn_memcmp_stub_to_avoid_empty_file_warning = 0;
 #endif
 
 #if !HAVE_MEMCPY
-void ndn_memcpy(uint8_t *dest, uint8_t *src, unsigned int len)
+void ndn_memcpy(uint8_t *dest, uint8_t *src, size_t len)
 {
-  unsigned int i;
+  size_t i;
   
   for (i = 0; i < len; i++)
     dest[i] = src[i];
@@ -37,9 +37,9 @@ int ndn_memcpy_stub_to_avoid_empty_file_warning = 0;
 #endif
 
 #if !HAVE_MEMSET
-void ndn_memset(uint8_t *dest, int val, unsigned int len)
+void ndn_memset(uint8_t *dest, int val, size_t len)
 {
-  unsigned int i;
+  size_t i;
   
   for (i = 0; i < len; i++)
     dest[i] = (uint8_t)val;

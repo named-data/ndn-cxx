@@ -29,7 +29,7 @@ public:
   {
     ++callbackCount_;
     cout << "Got data packet with name " << data->getName().to_uri() << endl;
-    for (unsigned int i = 0; i < data->getContent().size(); ++i)
+    for (size_t i = 0; i < data->getContent().size(); ++i)
       cout << (*data->getContent())[i];
     cout << endl;  
   }

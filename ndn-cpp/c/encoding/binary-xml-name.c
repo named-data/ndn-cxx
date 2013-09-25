@@ -15,7 +15,7 @@ ndn_Error ndn_encodeBinaryXmlName(struct ndn_Name *name, struct ndn_BinaryXmlEnc
   if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(encoder, ndn_BinaryXml_DTag_Name)))
     return error;
   
-  unsigned int i;
+  size_t i;
   for (i = 0; i < name->nComponents; ++i) {
     if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
         (encoder, ndn_BinaryXml_DTag_Component, name->components[i].value, name->components[i].valueLength)))
@@ -45,7 +45,7 @@ ndn_Error ndn_decodeBinaryXmlName(struct ndn_Name *name, struct ndn_BinaryXmlDec
       break;
     
     uint8_t *component;
-    unsigned int componentLen;
+    size_t componentLen;
     if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(decoder, ndn_BinaryXml_DTag_Component, 0, &component, &componentLen)))
       return error;
     

@@ -20,7 +20,7 @@ extern "C" {
  */
 struct ndn_ForwardingEntry {
   uint8_t *action;     /**< pointer to pre-allocated buffer.  0 for none. */
-  unsigned int actionLength; /**< length of action.  0 for none. */
+  size_t actionLength; /**< length of action.  0 for none. */
   struct ndn_Name prefix;
   struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
   int faceId;               /**< -1 for none. */
@@ -36,7 +36,7 @@ struct ndn_ForwardingEntry {
  * @param maxPrefixNameComponents the number of elements in the allocated prefixNameComponents array
  */
 static inline void ndn_ForwardingEntry_initialize
-  (struct ndn_ForwardingEntry *self, struct ndn_NameComponent *prefixNameComponents, unsigned int maxPrefixNameComponents) 
+  (struct ndn_ForwardingEntry *self, struct ndn_NameComponent *prefixNameComponents, size_t maxPrefixNameComponents) 
 {
   self->action = 0;
   self->actionLength = 0;

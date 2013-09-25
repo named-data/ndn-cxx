@@ -29,7 +29,7 @@ public:
   /**
    * Create an ExcludeEntry of type ndn_Exclude_COMPONENT
    */
-  ExcludeEntry(uint8_t *component, unsigned int componentLen) 
+  ExcludeEntry(uint8_t *component, size_t componentLen) 
   : type_(ndn_Exclude_COMPONENT), component_(component, componentLen)
   {
   }
@@ -67,13 +67,13 @@ public:
   Exclude() {
   }
   
-  unsigned int 
+  size_t 
   getEntryCount() const {
     return entries_.size();
   }
   
   const ExcludeEntry& 
-  getEntry(unsigned int i) const { return entries_[i]; }
+  getEntry(size_t i) const { return entries_[i]; }
   
   /**
    * Set the excludeStruct to point to the entries in this Exclude, without copying any memory.
@@ -103,7 +103,7 @@ public:
    * Add a new entry of type ndn_Exclude_COMPONENT, copying from component of length compnentLength
    */
   void 
-  addComponent(uint8_t *component, unsigned int componentLen) 
+  addComponent(uint8_t *component, size_t componentLen) 
   {
     entries_.push_back(ExcludeEntry(component, componentLen));
   }
@@ -175,7 +175,7 @@ public:
   }
   
   void 
-  wireDecode(const uint8_t *input, unsigned int inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  wireDecode(const uint8_t *input, size_t inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireFormat.decodeInterest(*this, input, inputLength);
   }

@@ -50,7 +50,7 @@ public:
    * @return The signature, or a null pointer if signing fails.
    */  
   virtual Blob 
-  sign(const uint8_t *data, unsigned int dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
+  sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
     
   Blob 
   sign(const Blob& data, const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256)
@@ -67,7 +67,7 @@ public:
    * @return The decrypted data.
    */
   virtual Blob 
-  decrypt(const Name& keyName, const uint8_t* data, unsigned int dataLength, bool isSymmetric = false) = 0;
+  decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric = false) = 0;
 
   Blob 
   decrypt(const Name& keyName, const Blob& data, bool isSymmetric = false)
@@ -84,7 +84,7 @@ public:
    * @return The encrypted data.
    */
   virtual Blob
-  encrypt(const Name& keyName, const uint8_t* data, unsigned int dataLength, bool isSymmetric = false) = 0;
+  encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric = false) = 0;
 
   Blob
   encrypt(const Name& keyName, const Blob& data, bool isSymmetric = false)

@@ -24,7 +24,7 @@ enum {
  * @param arrayLength the length of the array
  * @return 0 for success, else an error code
  */
-static ndn_Error writeArray(struct ndn_BinaryXmlEncoder *self, uint8_t *array, unsigned int arrayLength)
+static ndn_Error writeArray(struct ndn_BinaryXmlEncoder *self, uint8_t *array, size_t arrayLength)
 {
   ndn_Error error;
   if ((error = ndn_DynamicUInt8Array_ensureLength(self->output, self->offset + arrayLength)))
@@ -39,7 +39,7 @@ static ndn_Error writeArray(struct ndn_BinaryXmlEncoder *self, uint8_t *array, u
 /**
  * Return the number of bytes to encode a header of value x.
  */
-static unsigned int getNHeaderEncodingBytes(unsigned int x) 
+static size_t getNHeaderEncodingBytes(unsigned int x) 
 {
   // Do a quick check for pre-compiled results.
   if (x <= ENCODING_LIMIT_1_BYTE) 
@@ -49,7 +49,7 @@ static unsigned int getNHeaderEncodingBytes(unsigned int x)
   if (x <= ENCODING_LIMIT_3_BYTES) 
     return 3;
   
-  unsigned int nBytes = 1;
+  size_t nBytes = 1;
   
   // Last byte gives you TT_VALUE_BITS.
   // Remainder each gives you REGULAR_VALUE_BITS.
@@ -67,7 +67,7 @@ static unsigned int getNHeaderEncodingBytes(unsigned int x)
  * @param array
  * @param length
  */
-static void reverse(uint8_t *array, unsigned int length) 
+static void reverse(uint8_t *array, size_t length) 
 {
   if (length == 0)
     return;
@@ -121,10 +121,10 @@ static ndn_Error encodeReversedUnsignedDecimalInt(struct ndn_BinaryXmlEncoder *s
  * @return 0 for success, else an error code
  */
 static ndn_Error reverseBufferAndInsertHeader
-  (struct ndn_BinaryXmlEncoder *self, unsigned int startOffset, unsigned int type)
+  (struct ndn_BinaryXmlEncoder *self, size_t startOffset, unsigned int type)
 {
-  unsigned int nBufferBytes = self->offset - startOffset;
-  unsigned int nHeaderBytes = getNHeaderEncodingBytes(nBufferBytes);
+  size_t nBufferBytes = self->offset - startOffset;
+  size_t nHeaderBytes = getNHeaderEncodingBytes(nBufferBytes);
   ndn_Error error;
   if ((error = ndn_DynamicUInt8Array_ensureLength(self->output, self->offset + nHeaderBytes)))
     return error;
@@ -177,7 +177,7 @@ ndn_Error ndn_BinaryXmlEncoder_encodeTypeAndValue(struct ndn_BinaryXmlEncoder *s
     return NDN_ERROR_header_type_is_out_of_range;
   
   // Encode backwards. Calculate how many bytes we need.
-  unsigned int nEncodingBytes = getNHeaderEncodingBytes(value);
+  size_t nEncodingBytes = getNHeaderEncodingBytes(value);
   ndn_Error error;
   if ((error = ndn_DynamicUInt8Array_ensureLength(self->output, self->offset + nEncodingBytes)))
     return error;
@@ -190,7 +190,7 @@ ndn_Error ndn_BinaryXmlEncoder_encodeTypeAndValue(struct ndn_BinaryXmlEncoder *s
   value >>= ndn_BinaryXml_TT_VALUE_BITS;
   
   // Rest of value goes into preceding bytes, 7 bits per byte. (Zero top bit is "more" flag.)
-  unsigned int i = self->offset + nEncodingBytes - 2;
+  size_t i = self->offset + nEncodingBytes - 2;
   while (value != 0 && i >= self->offset) {
     self->output->array[i] = (value & ndn_BinaryXml_REGULAR_VALUE_MASK);
     value >>= ndn_BinaryXml_REGULAR_VALUE_BITS;
@@ -217,7 +217,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeElementClose(struct ndn_BinaryXmlEncoder *se
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, uint8_t *value, unsigned int valueLength)
+ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, uint8_t *value, size_t valueLength)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlEncoder_encodeTypeAndValue(self, ndn_BinaryXml_BLOB, valueLength)))
@@ -229,7 +229,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, uint
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, unsigned int valueLength)
+ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(self, tag)))
@@ -244,7 +244,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder 
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, uint8_t *value, unsigned int valueLength)
+ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, uint8_t *value, size_t valueLength)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlEncoder_encodeTypeAndValue(self, ndn_BinaryXml_UDATA, valueLength)))
@@ -256,7 +256,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, uin
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, unsigned int valueLength)
+ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(self, tag)))
@@ -274,7 +274,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder
 ndn_Error ndn_BinaryXmlEncoder_writeUnsignedDecimalInt(struct ndn_BinaryXmlEncoder *self, unsigned int value)
 {
   // First write the decimal int (to find out how many bytes it is), then shift it forward to make room for the header.
-  unsigned int startOffset = self->offset;
+  size_t startOffset = self->offset;
   
   ndn_Error error;
   if ((error = encodeReversedUnsignedDecimalInt(self, value)))
@@ -307,7 +307,7 @@ ndn_Error ndn_BinaryXmlEncoder_writeAbsDoubleBigEndianBlob(struct ndn_BinaryXmlE
   splitAbsDouble(value, &hi32, &lo32);
   
   // First encode the big endian backwards, then reverseBufferAndInsertHeader will reverse it.
-  unsigned int startOffset = self->offset;
+  size_t startOffset = self->offset;
   
   ndn_Error error;
   while (lo32 != 0) {
