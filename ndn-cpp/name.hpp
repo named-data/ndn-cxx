@@ -142,9 +142,18 @@ public:
    * Parse the uri according to the NDN URI Scheme and create the name with the components.
    * @param uri The URI string.
    */
-  Name(const char *uri)
+  Name(const char* uri)
   {
     set(uri);
+  }
+  
+  /**
+   * Parse the uri according to the NDN URI Scheme and create the name with the components.
+   * @param uri The URI string.
+   */
+  Name(const std::string& uri)
+  {
+    set(uri.c_str());
   }
   
   /**
