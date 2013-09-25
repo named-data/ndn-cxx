@@ -6,6 +6,7 @@
  */
 
 #include <stdexcept>
+#include "../security-exception.hpp"
 #include "memory-identity-storage.hpp"
 
 using namespace std;
@@ -20,17 +21,18 @@ MemoryIdentityStorage::~MemoryIdentityStorage()
 bool 
 MemoryIdentityStorage::doesIdentityExist(const Name& identityName)
 {
-#if 1
-  throw std::runtime_error("MemoryIdentityStorage::doesIdentityExist not implemented");
-#endif
+  string identityUri = identityName.toUri();
+  return find(identityStore_.begin(), identityStore_.end(), identityUri) != identityStore_.end();
 }
 
 void
 MemoryIdentityStorage::addIdentity(const Name& identityName)
 {
-#if 1
-  throw std::runtime_error("MemoryIdentityStorage::addIdentity not implemented");
-#endif
+  string identityUri = identityName.toUri();
+  if (find(identityStore_.begin(), identityStore_.end(), identityUri) != identityStore_.end())
+    throw SecurityException("Identity already exists: " + identityUri);
+  
+  identityStore_.push_back(identityUri);
 }
 
 bool 
@@ -129,9 +131,7 @@ MemoryIdentityStorage::getCertificate(const Name &certificateName, bool allowAny
 Name 
 MemoryIdentityStorage::getDefaultIdentity()
 {
-#if 1
-  throw std::runtime_error("MemoryIdentityStorage::getDefaultIdentity not implemented");
-#endif
+  return Name(defaultIdentity_);
 }
 
 Name 
@@ -153,9 +153,12 @@ MemoryIdentityStorage::getDefaultCertificateNameForKey(const Name& keyName)
 void 
 MemoryIdentityStorage::setDefaultIdentity(const Name& identityName)
 {
-#if 1
-  throw std::runtime_error("MemoryIdentityStorage::setDefaultIdentity not implemented");
-#endif
+  string identityUri = identityName.toUri();
+  if (find(identityStore_.begin(), identityStore_.end(), identityUri) != identityStore_.end())
+    defaultIdentity_ = identityUri;
+  else
+    // The identity doesn't exist, so clear the default.
+    defaultIdentity_.clear();
 }
 
 void 

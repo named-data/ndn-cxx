@@ -242,9 +242,11 @@ int main(int argc, char** argv)
     KeyChain keyChain(shared_ptr<IdentityManager>(new IdentityManager(identityStorage, privateKeyStorage)));
     
     // Initialize the storage.
-    Name keyName("/testname/DSK-123");
-    Name certificateName = keyName;
-    certificateName.append(Name("ID-CERT/0"));
+    Name identityName("/testname");
+    Name keyName = Name(identityName).append(Name("DSK-123"));
+    Name certificateName = Name(keyName).append(Name("ID-CERT/0"));
+    identityStorage->addIdentity(identityName);
+    identityStorage->setDefaultIdentity(identityName);
     privateKeyStorage->setKeyPairForKeyName
       (keyName, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
     

@@ -137,7 +137,7 @@ public:
 
   /**
    * Get the default identity. 
-   * @param return The name of default identity.
+   * @param return The name of default identity, or an empty name if there is no default.
    */
   virtual Name 
   getDefaultIdentity() = 0;
@@ -170,7 +170,8 @@ public:
   getDefaultCertificateNameForKey(const Name& keyName) = 0;
 
   /**
-   * Set the default identity.
+   * Set the default identity.  If the identityName does not exist, then clear the default identity
+   * so that getDefaultIdentity() returns an empty name.
    * @param identityName The default identity name.
    */
   virtual void 

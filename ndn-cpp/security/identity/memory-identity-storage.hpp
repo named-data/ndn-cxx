@@ -8,6 +8,7 @@
 #ifndef NDN_MEMORY_IDENTITY_STORAGE_HPP
 #define	NDN_MEMORY_IDENTITY_STORAGE_HPP
 
+#include <vector>
 #include "identity-storage.hpp"
 
 namespace ndn {
@@ -132,7 +133,7 @@ public:
 
   /**
    * Get the default identity. 
-   * @param return The name of default identity.
+   * @param return The name of default identity, or an empty name if there is no default.
    */
   virtual Name 
   getDefaultIdentity();
@@ -154,7 +155,8 @@ public:
   getDefaultCertificateNameForKey(const Name& keyName);
 
   /**
-   * Set the default identity.
+   * Set the default identity.  If the identityName does not exist, then clear the default identity
+   * so that getDefaultIdentity() returns an empty name.
    * @param identityName The default identity name.
    */
   virtual void 
@@ -175,6 +177,10 @@ public:
    */
   virtual void 
   setDefaultCertificateNameForKey(const Name& keyName, const Name& certificateName);  
+  
+private:
+  std::vector<std::string> identityStore_; /**< A list of name URI. */
+  std::string defaultIdentity_;            /**< The default identity in identityStore_, or "" if not defined. */
 };
 
 }
