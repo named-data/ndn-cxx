@@ -105,16 +105,15 @@ int main(int argc, char** argv)
 {
   try {
     Face face("localhost");
-    
-    shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
+        
     shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
-    KeyChain keyChain(shared_ptr<IdentityManager>(new IdentityManager(identityStorage, privateKeyStorage)));
+    KeyChain keyChain(shared_ptr<IdentityManager>
+      (new IdentityManager(make_shared<MemoryIdentityStorage>(), privateKeyStorage)));
     keyChain.setFace(&face);
     
     // Initialize the storage.
     Name keyName("/testname/DSK-123");
-    Name certificateName = keyName;
-    certificateName.append(Name("ID-CERT/0"));
+    Name certificateName = Name(keyName).append(Name("ID-CERT/0"));
     privateKeyStorage->setKeyPairForKeyName
       (keyName, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
    

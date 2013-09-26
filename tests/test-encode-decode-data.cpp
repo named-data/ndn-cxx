@@ -237,24 +237,20 @@ int main(int argc, char** argv)
     freshData->setContent(freshContent, sizeof(freshContent) - 1);
     freshData->getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
     
-    shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
     shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
-    KeyChain keyChain(shared_ptr<IdentityManager>(new IdentityManager(identityStorage, privateKeyStorage)));
+    KeyChain keyChain(shared_ptr<IdentityManager>
+      (new IdentityManager(make_shared<MemoryIdentityStorage>(), privateKeyStorage)));
     
     // Initialize the storage.
-    Name identityName("/testname");
-    Name keyName = Name(identityName).append(Name("DSK-123"));
+    Name keyName("/testname/DSK-123");
     Name certificateName = Name(keyName).append(Name("ID-CERT/0"));
-    identityStorage->addIdentity(identityName);
-    identityStorage->setDefaultIdentity(identityName);
     privateKeyStorage->setKeyPairForKeyName
       (keyName, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
     
     keyChain.signData(*freshData, certificateName);
     cout << endl << "Freshly-signed Data:" << endl;
     dumpData(*freshData);
-    Blob freshEncoding = freshData->wireEncode();
-
+    
     keyChain.verifyData(freshData, bind(&onVerified, "Freshly-signed Data", _1), bind(&onVerifyFailed, "Freshly-signed Data"));
   } catch (std::exception& e) {
     cout << "exception: " << e.what() << endl;
