@@ -81,6 +81,8 @@ int ndn_Exclude_matches(struct ndn_Exclude *self, struct ndn_NameComponent *comp
 enum {
   ndn_Interest_CHILD_SELECTOR_LEFT = 0,
   ndn_Interest_CHILD_SELECTOR_RIGHT = 1,
+
+  ndn_Interest_ANSWER_NO_CONTENT_STORE = 0,
   ndn_Interest_ANSWER_CONTENT_STORE = 1,
   ndn_Interest_ANSWER_GENERATED = 2,
   ndn_Interest_ANSWER_STALE = 4,    // Stale answer OK
