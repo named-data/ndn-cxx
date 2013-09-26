@@ -207,6 +207,13 @@ public:
     return *this;
   }
   
+  Name& 
+  append(const Component &value)
+  {
+    components_.push_back(value);
+    return *this;
+  }
+  
   /**
    * Append the components of the given name to this name.
    * @param name The Name with components to append.
