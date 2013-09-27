@@ -15,7 +15,7 @@
 namespace ndn {
 
 /**
- * A Signature is an abstract base class providing an methods to work with the signature information in a Data packet.
+ * A Signature is an abstract base class providing methods to work with the signature information in a Data packet.
  */
 class Signature {
 public:
