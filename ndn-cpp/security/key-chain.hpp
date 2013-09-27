@@ -13,6 +13,8 @@
 
 namespace ndn {
 
+class PolicyManager;
+  
 /**
  * An OnVerified function object is used to pass a callback to verifyData to report a successful verification.
  */
@@ -21,7 +23,7 @@ typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerifi
 /**
  * An OnVerifyFailed function object is used to pass a callback to verifyData to report a failed verification.
  */
-typedef func_lib::function<void()> OnVerifyFailed;
+typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerifyFailed;
 
 /**
  * Keychain is main class of security library.
@@ -31,33 +33,8 @@ typedef func_lib::function<void()> OnVerifyFailed;
  */
 class KeyChain {
 public:
-  KeyChain(const ptr_lib::shared_ptr<IdentityManager>& identityManager);
-
-  /**
-   * Get the default certificate name for the specified identity, which will be used when signing is performed based on identity.
-   * @param identityName The name of the specified identity.
-   * @return The requested certificate name.
-   */
-  Name
-  getDefaultCertificateNameForIdentity(const Name& identityName)
-  {
-    return identityManager_->getDefaultCertificateNameForIdentity(identityName);
-  }
-  
-  /**
-   * Examine the data packet Name and infer the identity name for signing the content.
-   * @param name The data packet name to examine.
-   * @return A new identity name for signing a data packet.
-   */
-  Name
-  inferSigningIdentity(const Name& name)
-  {
-#if 0
-    policyManager_->inferSigningIdentity(name)
-#else
-    return Name();
-#endif
-  }
+  KeyChain
+    (const ptr_lib::shared_ptr<IdentityManager>& identityManager, const ptr_lib::shared_ptr<PolicyManager>& policyManager);
 
   /**
    * Wire encode the Data object, sign it and set its signature.
@@ -68,14 +45,26 @@ public:
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
   void 
-  signData(Data& data, const Name& certificateName = Name(), WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  sign(Data& data, const Name& certificateName, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+
+  /**
+   * Wire encode the Data object, sign it and set its signature.
+   * Note: the caller must make sure the timestamp is correct, for example with 
+   * data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0).
+   * @param data The Data object to be signed.  This updates its signature and key locator field and wireEncoding.
+   * @param identityName The identity name for the key to use for signing.  If omitted, infer the signing identity from the data packet name.
+   * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
+   */
+  void 
+  signByIdentity(Data& data, const Name& identityName = Name(), WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
 
   /**
    * Check the signature on the Data object and call either onVerify or onVerifyFailed. 
    * We use callback functions because verify may fetch information to check the signature.
-   * @param data
-   * @param onVerified
-   * @param onVerifyFailed
+   * @param data The Data object with the signature to check. It is an error if data does not have a wireEncoding. 
+   * To set the wireEncoding, you can call data.wireDecode.
+   * @param onVerified If the signature is verified, this calls onVerified(data).
+   * @param onVerifyFailed If the signature check fails, this calls onVerifyFailed(data).
    */
   void
   verifyData
@@ -90,6 +79,7 @@ public:
 
 private:
   ptr_lib::shared_ptr<IdentityManager> identityManager_;
+  ptr_lib::shared_ptr<PolicyManager> policyManager_;
   Face* face_;
   const int maxSteps_;
 };

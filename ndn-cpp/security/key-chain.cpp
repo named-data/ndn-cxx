@@ -9,6 +9,7 @@
 #include "../encoding/binary-xml-encoder.hpp"
 #include "../sha256-with-rsa-signature.hpp"
 #include "../util/logging.hpp"
+#include "policy/policy-manager.hpp"
 #include "security-exception.hpp"
 #include "key-chain.hpp"
 
@@ -31,8 +32,8 @@ static uint8_t DEFAULT_PUBLIC_KEY_DER[] = {
 };
 #endif
 
-KeyChain::KeyChain(const shared_ptr<IdentityManager>& identityManager)
-: identityManager_(identityManager), face_(0), maxSteps_(100)
+KeyChain::KeyChain(const shared_ptr<IdentityManager>& identityManager, const shared_ptr<PolicyManager>& policyManager)
+: identityManager_(identityManager), policyManager_(policyManager), face_(0), maxSteps_(100)
 {  
 }
 
@@ -98,31 +99,33 @@ verifySignature(const Data& data /*, const Publickey& publickey */)
 }
 
 void 
-KeyChain::signData(Data& data, const Name& certificateNameIn, WireFormat& wireFormat)
+KeyChain::sign(Data& data, const Name& certificateName, WireFormat& wireFormat)
 {
-  Name inferredCertificateName;
-  const Name* certificateName;
+  identityManager_->signByCertificate(data, certificateName, wireFormat);
+}
+
+void 
+KeyChain::signByIdentity(Data& data, const Name& identityName, WireFormat& wireFormat)
+{
+  Name signingCertificateName;
   
-  if (certificateNameIn.getComponentCount() == 0) {
-#if 0
-    inferredCertificateName = identityManager_->getDefaultCertificateNameForIdentity(policyManager_->inferSigningIdentity(data.getName ()));
-#else
-    inferredCertificateName = Name();
-#endif
-    if (inferredCertificateName.getComponentCount() == 0)
-      throw SecurityException("No qualified certificate name can be inferred");
-    
-    certificateName = &inferredCertificateName;
+  if (identityName.getComponentCount() == 0) {
+    Name inferredIdentity = policyManager_->inferSigningIdentity(data.getName());
+    if (inferredIdentity.getComponentCount() == 0)
+      signingCertificateName = identityManager_->getDefaultCertificateName();
+    else
+      signingCertificateName = identityManager_->getDefaultCertificateNameForIdentity(inferredIdentity);    
   }
   else
-    certificateName = &certificateNameIn;
-        
-#if 0
-  if (!policyManager_->checkSigningPolicy (data.getName (), certificateName))
+    signingCertificateName = identityManager_->getDefaultCertificateNameForIdentity(identityName);
+
+  if (signingCertificateName.getComponentCount() == 0)
+    throw SecurityException("No qualified certificate name found!");
+
+  if (!policyManager_->checkSigningPolicy(data.getName(), signingCertificateName))
     throw SecurityException("Signing Cert name does not comply with signing policy");
-#endif
-  
-  identityManager_->signByCertificate(data, *certificateName, wireFormat);  
+
+  identityManager_->signByCertificate(data, signingCertificateName);  
 }
 
 void
@@ -140,7 +143,7 @@ KeyChain::verifyData
 #endif
     onVerified(data);
   else
-    onVerifyFailed();
+    onVerifyFailed(data);
 }
 
 }

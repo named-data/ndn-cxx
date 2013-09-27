@@ -11,12 +11,12 @@
 #include "../ndn-cpp/face.hpp"
 #include "../ndn-cpp/security/identity/memory-identity-storage.hpp"
 #include "../ndn-cpp/security/identity/memory-private-key-storage.hpp"
+#include "../ndn-cpp/security/policy/no-verify-policy-manager.hpp"
 #include "../ndn-cpp/security/key-chain.hpp"
 
 using namespace std;
 using namespace ndn;
-using namespace ptr_lib;
-using namespace func_lib;
+using namespace ndn::ptr_lib;
 
 static uint8_t DEFAULT_PUBLIC_KEY_DER[] = {
 0x30, 0x81, 0x9F, 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x81,
@@ -82,7 +82,7 @@ public:
     string content(string("Echo ") + interest->getName().toUri());
     data.setContent((const uint8_t *)&content[0], content.size());
     data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
-    keyChain_.signData(data, certificateName_);
+    keyChain_.sign(data, certificateName_);
     Blob encodedData = data.wireEncode();
 
     cout << "Sent content " << content << endl;
@@ -90,7 +90,7 @@ public:
   }
   
   // onRegisterFailed.
-  void operator()(const ptr_lib::shared_ptr<const Name>& prefix)
+  void operator()(const shared_ptr<const Name>& prefix)
   {
     ++responseCount_;
     cout << "Register failed for prefix " << prefix->toUri() << endl;
@@ -107,8 +107,9 @@ int main(int argc, char** argv)
     Face face("localhost");
         
     shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
-    KeyChain keyChain(shared_ptr<IdentityManager>
-      (new IdentityManager(make_shared<MemoryIdentityStorage>(), privateKeyStorage)));
+    KeyChain keyChain
+      (make_shared<IdentityManager>(make_shared<MemoryIdentityStorage>(), privateKeyStorage), 
+       make_shared<NoVerifyPolicyManager>());
     keyChain.setFace(&face);
     
     // Initialize the storage.

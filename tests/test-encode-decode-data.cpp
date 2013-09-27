@@ -12,6 +12,7 @@
 #include "../ndn-cpp/data.hpp"
 #include "../ndn-cpp/security/identity/memory-identity-storage.hpp"
 #include "../ndn-cpp/security/identity/memory-private-key-storage.hpp"
+#include "../ndn-cpp/security/policy/no-verify-policy-manager.hpp"
 #include "../ndn-cpp/security/key-chain.hpp"
 #include "../ndn-cpp/sha256-with-rsa-signature.hpp"
 
@@ -212,7 +213,7 @@ static void onVerified(const char *prefix, const shared_ptr<Data>& data)
   cout << prefix << " signature verification: VERIFIED" << endl;
 }
 
-static void onVerifyFailed(const char *prefix)
+static void onVerifyFailed(const char *prefix, const shared_ptr<Data>& data)
 {
   cout << prefix << " signature verification: FAILED" << endl;
 }
@@ -238,8 +239,9 @@ int main(int argc, char** argv)
     freshData->getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
     
     shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
-    KeyChain keyChain(shared_ptr<IdentityManager>
-      (new IdentityManager(make_shared<MemoryIdentityStorage>(), privateKeyStorage)));
+    KeyChain keyChain
+      (make_shared<IdentityManager>(make_shared<MemoryIdentityStorage>(), privateKeyStorage), 
+       make_shared<NoVerifyPolicyManager>());
     
     // Initialize the storage.
     Name keyName("/testname/DSK-123");
@@ -247,11 +249,11 @@ int main(int argc, char** argv)
     privateKeyStorage->setKeyPairForKeyName
       (keyName, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
     
-    keyChain.signData(*freshData, certificateName);
+    keyChain.sign(*freshData, certificateName);
     cout << endl << "Freshly-signed Data:" << endl;
     dumpData(*freshData);
     
-    keyChain.verifyData(freshData, bind(&onVerified, "Freshly-signed Data", _1), bind(&onVerifyFailed, "Freshly-signed Data"));
+    keyChain.verifyData(freshData, bind(&onVerified, "Freshly-signed Data", _1), bind(&onVerifyFailed, "Freshly-signed Data", _1));
   } catch (std::exception& e) {
     cout << "exception: " << e.what() << endl;
   }
