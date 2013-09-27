@@ -176,7 +176,7 @@ Node::registerPrefixHelper
    int flags, WireFormat& wireFormat)
 {
   // Create a ForwardingEntry.
-  ForwardingEntry forwardingEntry("selfreg", *prefix, PublisherPublicKeyDigest(), -1, 3, 2147483647);
+  ForwardingEntry forwardingEntry("selfreg", *prefix, PublisherPublicKeyDigest(), -1, flags, 2147483647);
   Blob content = forwardingEntry.wireEncode();
 
   // Set the ForwardingEntry as the content of a Data packet and sign.
