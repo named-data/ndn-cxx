@@ -10,6 +10,7 @@
 #include "../data.hpp"
 #include "../face.hpp"
 #include "identity/identity-manager.hpp"
+#include "encryption/encryption-manager.hpp"
 
 namespace ndn {
 
@@ -26,7 +27,7 @@ typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerifi
 typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerifyFailed;
 
 /**
- * Keychain is main class of security library.
+ * Keychain is the main class of the security library.
  *
  * The Keychain class provides a set of interfaces to the security library such as identity management, policy configuration 
  * and packet signing and verification.
@@ -35,6 +36,126 @@ class KeyChain {
 public:
   KeyChain
     (const ptr_lib::shared_ptr<IdentityManager>& identityManager, const ptr_lib::shared_ptr<PolicyManager>& policyManager);
+
+  /*****************************************
+   *          Identity Management          *
+   *****************************************/
+
+#if 0
+  /**
+   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a self-signed certificate of the KSK.
+   * @param identityName The name of the identity.
+   * @return The key name of the auto-generated KSK of the identity.
+   */
+  Name
+  createIdentity(const Name& identityName)
+  {
+    return identityManager_->createIdentity(identityName);
+  }
+#endif
+
+  /**
+   * Get the default identity.
+   * @return The default identity name.
+   */
+  Name
+  getDefaultIdentity()
+  {
+    return identityManager_->getDefaultIdentity();
+  }
+  
+#if 0
+  /**
+   * Generate a pair of RSA keys for the specified identity
+   * @param identity the name of the identity
+   * @param ksk create a KSK or not, true for KSK, false for DSK 
+   * @param keySize the size of the key
+   * @return the generated key name 
+   */
+  Name
+  generateRSAKeyPair (const Name& identity, bool ksk = false, int keySize = 2048);
+
+  /**
+   * Set a key as the default key of an identity
+   * @param keyName the name of the key
+   * @param identity the name of the identity, if not specified the identity name can be inferred from the keyName
+   */
+  void
+  setDefaultKeyForIdentity (const Name& keyName, const Name& identity = Name());
+
+  /**
+   * Generate a pair of RSA keys for the specified identity and set it as default key of the identity
+   * @param identity the name of the identity
+   * @param ksk create a KSK or not, true for KSK, false for DSK 
+   * @param keySize the size of the key
+   * @return the generated key name
+   */
+  Name
+  generateRSAKeyPairAsDefault (const Name& identity, bool ksk = false, int keySize = 2048);
+
+  /**
+   * Create a public key signing request
+   * @param keyName the name of the key
+   * @returns signing request blob
+   */
+  Ptr<Blob> 
+  createSigningRequest(const Name& keyName);
+
+  /**
+   * Install a certificate into identity
+   * @param certificate the certificate in terms of Data packet
+   */
+  void 
+  installCertificate(Ptr<Certificate> certificate);
+
+  /**
+   * Set a certificate as the default certificate name of the corresponding key
+   * @param certificateName the name of the certificate
+   */
+  void
+  setDefaultCertificateForKey(const Name& certificateName);
+
+  /**
+   * Get certificate
+   * @param certificateName name of the certificate
+   * @returns certificate that is valid 
+   */
+  Ptr<Certificate> 
+  getCertificate(const Name& certificateName);
+
+  /**
+   * Get certificate even if it is not valid
+   * @param certificateName name of the certificate
+   * @returns certificate that is valid 
+   */
+  Ptr<Certificate>
+  getAnyCertificate(const Name& certName);
+
+  /**
+   * Revoke a key
+   * @param keyName the name of the key that will be revoked
+   */
+  void 
+  revokeKey(const Name & keyName);
+
+  /**
+   * Revoke a certificate
+   * @param certificateName the name of the certificate that will be revoked
+   */
+  void 
+  revokeCertificate(const Name & certificateName);
+#endif
+
+  /*****************************************
+   *           Policy Management           *
+   *****************************************/
+
+  const ptr_lib::shared_ptr<PolicyManager>&
+  getPolicyManager() { return policyManager_; }
+  
+  /*****************************************
+   *              Sign/Verify              *
+   *****************************************/
 
   /**
    * Wire encode the Data object, sign it and set its signature.
@@ -46,7 +167,7 @@ public:
    */
   void 
   sign(Data& data, const Name& certificateName, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
-
+  
   /**
    * Wire encode the Data object, sign it and set its signature.
    * Note: the caller must make sure the timestamp is correct, for example with 
@@ -70,6 +191,53 @@ public:
   verifyData
     (const ptr_lib::shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed, int stepCount = 0);
 
+  /*****************************************
+   *           Encrypt/Decrypt             *
+   *****************************************/
+
+  /**
+   * Generate a symmetric key.
+   * @param keyName The name of the generated key.
+   * @param keyType The type of the key, e.g. KEY_TYPE_AES
+   */
+  void 
+  generateSymmetricKey(const Name& keyName, KeyType keyType)
+  {
+    encryptionManager_->createSymmetricKey(keyName, keyType);
+  }
+
+  /**
+   * Encrypt a byte array.
+   * @param keyName The name of the encrypting key.
+   * @param data The byte array that will be encrypted.
+   * @param dataLength The length of data.
+   * @param useSymmetric If true then symmetric encryption is used, otherwise asymmetric encryption is used.
+   * @param encryptMode the encryption mode
+   * @return the encrypted data as an immutable Blob.
+   */
+  Blob
+  encrypt(const Name &keyName, const uint8_t* data, size_t dataLength, bool useSymmetric = true, 
+          EncryptMode encryptMode = ENCRYPT_MODE_DEFAULT)
+  {
+    return encryptionManager_->encrypt(keyName, data, dataLength, useSymmetric, encryptMode);
+  }
+
+  /**
+   * Decrypt a byte array.
+   * @param keyName The name of the decrypting key.
+   * @param data The byte array that will be decrypted.
+   * @param dataLength The length of data.
+   * @param useSymmetric If true then symmetric encryption is used, otherwise asymmetric encryption is used.
+   * @param encryptMode the encryption mode
+   * @return the decrypted data as an immutable Blob.
+   */
+  Blob
+  decrypt(const Name &keyName, const uint8_t* data, size_t dataLength, bool useSymmetric = true, 
+          EncryptMode encryptMode = ENCRYPT_MODE_DEFAULT)
+  {
+     return encryptionManager_->decrypt(keyName, data, dataLength, useSymmetric, encryptMode);
+  }
+  
   /**
    * Set the Face which will be used to fetch required certificates.
    * @param face A pointer to the Face object.
@@ -80,6 +248,7 @@ public:
 private:
   ptr_lib::shared_ptr<IdentityManager> identityManager_;
   ptr_lib::shared_ptr<PolicyManager> policyManager_;
+  ptr_lib::shared_ptr<EncryptionManager> encryptionManager_;
   Face* face_;
   const int maxSteps_;
 };
