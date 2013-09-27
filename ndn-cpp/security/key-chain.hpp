@@ -41,7 +41,6 @@ public:
    *          Identity Management          *
    *****************************************/
 
-#if 0
   /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a self-signed certificate of the KSK.
    * @param identityName The name of the identity.
@@ -52,7 +51,6 @@ public:
   {
     return identityManager_->createIdentity(identityName);
   }
-#endif
 
   /**
    * Get the default identity.
@@ -64,87 +62,115 @@ public:
     return identityManager_->getDefaultIdentity();
   }
   
-#if 0
   /**
-   * Generate a pair of RSA keys for the specified identity
-   * @param identity the name of the identity
-   * @param ksk create a KSK or not, true for KSK, false for DSK 
-   * @param keySize the size of the key
-   * @return the generated key name 
+   * Generate a pair of RSA keys for the specified identity.
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @param keySize The size of the key.
+   * @return The generated key name.
    */
   Name
-  generateRSAKeyPair (const Name& identity, bool ksk = false, int keySize = 2048);
+  generateRSAKeyPair(const Name& identityName, bool isKsk = false, int keySize = 2048)
+  {
+    return identityManager_->generateRSAKeyPair(identityName, isKsk, keySize);
+  }
 
   /**
-   * Set a key as the default key of an identity
-   * @param keyName the name of the key
-   * @param identity the name of the identity, if not specified the identity name can be inferred from the keyName
+   * Set a key as the default key of an identity.
+   * @param keyName The name of the key.
+   * @param identityName the name of the identity. If not specified, the identity name is inferred from the keyName.
    */
   void
-  setDefaultKeyForIdentity (const Name& keyName, const Name& identity = Name());
+  setDefaultKeyForIdentity(const Name& keyName, const Name& identityName = Name())
+  {
+    return identityManager_->setDefaultKeyForIdentity(keyName, identityName);
+  }
 
   /**
-   * Generate a pair of RSA keys for the specified identity and set it as default key of the identity
-   * @param identity the name of the identity
-   * @param ksk create a KSK or not, true for KSK, false for DSK 
-   * @param keySize the size of the key
-   * @return the generated key name
+   * Generate a pair of RSA keys for the specified identity and set it as default key for the identity.
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @param keySize The size of the key.
+   * @return The generated key name.
    */
   Name
-  generateRSAKeyPairAsDefault (const Name& identity, bool ksk = false, int keySize = 2048);
+  generateRSAKeyPairAsDefault(const Name& identityName, bool isKsk = false, int keySize = 2048)
+  {
+    return identityManager_->generateRSAKeyPairAsDefault(identityName, isKsk, keySize);
+  }
 
   /**
-   * Create a public key signing request
-   * @param keyName the name of the key
-   * @returns signing request blob
+   * Create a public key signing request.
+   * @param keyName The name of the key.
+   * @returns The signing request data.
    */
-  Ptr<Blob> 
-  createSigningRequest(const Name& keyName);
+  Blob
+  createSigningRequest(const Name& keyName)
+  {
+    return identityManager_->getPublicKey(keyName)->getKeyDer();
+  }
 
   /**
-   * Install a certificate into identity
-   * @param certificate the certificate in terms of Data packet
-   */
-  void 
-  installCertificate(Ptr<Certificate> certificate);
-
-  /**
-   * Set a certificate as the default certificate name of the corresponding key
-   * @param certificateName the name of the certificate
+   * Install a certificate into the public key identity storage.
+   * @param certificate The certificate to to added.
    */
   void
-  setDefaultCertificateForKey(const Name& certificateName);
+  installCertificate(const Certificate& certificate)
+  {
+    identityManager_->addCertificate(certificate);
+  }
 
   /**
-   * Get certificate
-   * @param certificateName name of the certificate
-   * @returns certificate that is valid 
+   * Set the certificate as the default for its corresponding key.
+   * @param certificateName The name of the certificate.
    */
-  Ptr<Certificate> 
-  getCertificate(const Name& certificateName);
+  void
+  setDefaultCertificateForKey(const Name& certificateName)
+  {
+    identityManager_->setDefaultCertificateForKey(certificateName);
+  }
 
   /**
-   * Get certificate even if it is not valid
-   * @param certificateName name of the certificate
-   * @returns certificate that is valid 
+   * Get a certificate with the specified name.
+   * @param certificateName The name of the requested certificate.
+   * @return the requested certificate.
    */
-  Ptr<Certificate>
-  getAnyCertificate(const Name& certName);
+  ptr_lib::shared_ptr<Certificate>
+  getCertificate(const Name& certificateName)
+  {
+    return identityManager_->getCertificate(certificateName);
+  }
+
+  /**
+   * Get a certificate even if the certificate is not valid anymore.
+   * @param certificateName The name of the requested certificate.
+   * @return the requested certificate.
+   */
+  ptr_lib::shared_ptr<Certificate>
+  getAnyCertificate(const Name& certificateName)
+  {
+    return identityManager_->getAnyCertificate(certificateName);
+  }
 
   /**
    * Revoke a key
    * @param keyName the name of the key that will be revoked
    */
   void 
-  revokeKey(const Name & keyName);
+  revokeKey(const Name & keyName)
+  {
+    //TODO: Implement
+  }
 
   /**
    * Revoke a certificate
    * @param certificateName the name of the certificate that will be revoked
    */
   void 
-  revokeCertificate(const Name & certificateName);
-#endif
+  revokeCertificate(const Name & certificateName)
+  {
+    //TODO: Implement
+  }
 
   /*****************************************
    *           Policy Management           *
