@@ -73,7 +73,7 @@ MemoryIdentityStorage::getKeyNameForCertificate(const Name& certificateName)
 }
 
 void 
-MemoryIdentityStorage::addKey(const Name& keyName, KeyType keyType, Blob& publicKeyDer)
+MemoryIdentityStorage::addKey(const Name& keyName, KeyType keyType, const Blob& publicKeyDer)
 {
 #if 1
   throw std::runtime_error("MemoryIdentityStorage::addKey not implemented");

@@ -79,7 +79,7 @@ public:
    * @param publicKeyDer A blob of the public key DER to be added.
    */
   virtual void 
-  addKey(const Name& keyName, KeyType keyType, Blob& publicKeyDer);
+  addKey(const Name& keyName, KeyType keyType, const Blob& publicKeyDer);
 
   /**
    * Get the public key DER blob from the identity storage.
