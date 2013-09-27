@@ -87,12 +87,12 @@ public:
    * use func_lib::ref() as appropriate.
    * @param onRegisterFailed A function object to call if failed to retrieve the connected hub’s ID or failed to register the prefix.
    * This calls onRegisterFailed(prefix) where prefix is the prefix given to registerPrefix.
-   * @param flags The flags for finer control of which interests are forward to the application.
+   * @param flags The flags for finer control of which interests are forward to the application.  If omitted, use 3 (ACTIVE | CHILD_INHERIT).
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
   void 
   registerPrefix
-    (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, int flags = 0, 
+    (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, int flags = 3, 
      WireFormat& wireFormat = *WireFormat::getDefaultWireFormat())
   {
     node_.registerPrefix(prefix, onInterest, onRegisterFailed, flags, wireFormat);
