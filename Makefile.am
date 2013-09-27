@@ -74,6 +74,8 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/security/identity/memory-identity-storage.cpp ndn-cpp/security/identity/memory-identity-storage.hpp \
   ndn-cpp/security/identity/memory-private-key-storage.cpp ndn-cpp/security/identity/memory-private-key-storage.hpp \
   ndn-cpp/security/identity/private-key-storage.hpp \
+  ndn-cpp/security/policy/no-verify-policy-manager.cpp ndn-cpp/security/policy/no-verify-policy-manager.hpp \
+  ndn-cpp/security/policy/policy-manager.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/tcp-transport.h ndn-cpp/transport/tcp-transport.cpp ndn-cpp/transport/tcp-transport.hpp \
   ndn-cpp/transport/transport.cpp ndn-cpp/transport/transport.hpp \
   ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \
