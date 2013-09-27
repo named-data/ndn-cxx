@@ -1,8 +1,8 @@
-AC_INIT([ndn-cpp], [0.5], [],
-        [ndn-cpp], [https://github.com/named-data/ndn-cpp])
 AC_PREREQ([2.59])
+AC_INIT([ndn-cpp], [0.2], [ndn-lib@lists.cs.ucla.edu], [ndn-cpp], [https://github.com/named-data/ndn-cpp])
 AM_INIT_AUTOMAKE([1.10 -Wall no-define foreign])
 
+AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 AM_MAINTAINER_MODE
 AM_PROG_AR
