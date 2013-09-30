@@ -10,6 +10,7 @@
 #include <string>
 #include "name.hpp"
 #include "publisher-public-key-digest.hpp"
+#include "forwarding-flags.hpp"
 #include "c/forwarding-entry.h"
 
 namespace ndn {
@@ -21,15 +22,17 @@ class ForwardingEntry {
 public:    
   ForwardingEntry
     (const std::string& action, const Name& prefix, const PublisherPublicKeyDigest publisherPublicKeyDigest,
-     int faceId, int forwardingFlags, int freshnessSeconds) 
+     int faceId, const ForwardingFlags& forwardingFlags, int freshnessSeconds) 
   : action_(action), prefix_(prefix), publisherPublicKeyDigest_(publisherPublicKeyDigest), 
     faceId_(faceId), forwardingFlags_(forwardingFlags), freshnessSeconds_(freshnessSeconds)
   {
   }
 
   ForwardingEntry()
-  : faceId_(-1), forwardingFlags_(-1), freshnessSeconds_(-1)
+  : faceId_(-1), freshnessSeconds_(-1)
   {
+    forwardingFlags_.setActive(true);
+    forwardingFlags_.setChildInherit(true);
   }
   
   Blob 
@@ -76,7 +79,7 @@ public:
   int 
   getFaceId() const { return faceId_; }
 
-  int 
+  const ForwardingFlags& 
   getForwardingFlags() const { return forwardingFlags_; }
 
   int 
@@ -96,7 +99,7 @@ public:
   setFaceId(int value) { faceId_ = value; }
       
   void 
-  setForwardingFlags(int value) { forwardingFlags_ = value; }
+  setForwardingFlags(const ForwardingFlags& value) { forwardingFlags_ = value; }
       
   void 
   setFreshnessSeconds(int value) { freshnessSeconds_ = value; }
@@ -106,7 +109,7 @@ private:
   Name prefix_;
   PublisherPublicKeyDigest publisherPublicKeyDigest_;
   int faceId_;           /**< -1 for none. */
-  int forwardingFlags_;  /**< -1 for none. */
+  ForwardingFlags forwardingFlags_;
   int freshnessSeconds_; /**< -1 for none. */
 };
 

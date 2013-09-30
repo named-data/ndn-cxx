@@ -12,6 +12,7 @@
 #include "data.hpp"
 #include "transport/tcp-transport.hpp"
 #include "encoding/binary-xml-element-reader.hpp"
+#include "forwarding-flags.hpp"
 
 namespace ndn {
 
@@ -71,7 +72,8 @@ public:
    */
   void 
   registerPrefix
-    (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, int flags, WireFormat& wireFormat);
+    (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags, 
+     WireFormat& wireFormat);
 
   /**
    * Process any data to receive.  For each element received, call onReceivedElement.
@@ -199,7 +201,7 @@ private:
     class Info {
     public:
       Info(Node *node, const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, 
-           int flags, WireFormat& wireFormat)
+           const ForwardingFlags& flags, WireFormat& wireFormat)
       : node_(*node), prefix_(new Name(prefix)), onInterest_(onInterest), onRegisterFailed_(onRegisterFailed), 
         flags_(flags), wireFormat_(wireFormat)
       {      
@@ -209,7 +211,7 @@ private:
       ptr_lib::shared_ptr<const Name> prefix_;
       const OnInterest onInterest_;
       const OnRegisterFailed onRegisterFailed_;
-      int flags_;
+      ForwardingFlags flags_;
       WireFormat& wireFormat_;
     };
     
@@ -245,7 +247,7 @@ private:
   void 
   registerPrefixHelper
     (const ptr_lib::shared_ptr<const Name>& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, 
-     int flags, WireFormat& wireFormat);
+     const ForwardingFlags& flags, WireFormat& wireFormat);
   
   ptr_lib::shared_ptr<Transport> transport_;
   ptr_lib::shared_ptr<const Transport::ConnectionInfo> connectionInfo_;

@@ -77,11 +77,26 @@ static void dumpForwardingEntry(const ForwardingEntry& forwardingEntry)
     cout << forwardingEntry.getFaceId() << endl;
   else
     cout << "<none>" << endl;
-  cout << "forwardingFlags: ";
-  if (forwardingEntry.getForwardingFlags() >= 0)
-    cout << forwardingEntry.getForwardingFlags() << endl;
-  else
-    cout << "<none>" << endl;
+  
+  cout << "forwardingFlags:";
+  if (forwardingEntry.getForwardingFlags().getActive())
+    cout << " active";
+  if (forwardingEntry.getForwardingFlags().getChildInherit())
+    cout << " childInherit";
+  if (forwardingEntry.getForwardingFlags().getAdvertise())
+    cout << " advertise";
+  if (forwardingEntry.getForwardingFlags().getLast())
+    cout << " last";
+  if (forwardingEntry.getForwardingFlags().getCapture())
+    cout << " capture";
+  if (forwardingEntry.getForwardingFlags().getLocal())
+    cout << " local";
+  if (forwardingEntry.getForwardingFlags().getTap())
+    cout << " tap";
+  if (forwardingEntry.getForwardingFlags().getCaptureOk())
+    cout << " captureOk";
+  cout << endl;
+  
   cout << "freshnessSeconds: ";
   if (forwardingEntry.getFreshnessSeconds() >= 0)
     cout << forwardingEntry.getFreshnessSeconds() << endl;

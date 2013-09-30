@@ -10,10 +10,22 @@
 #include "common.h"
 #include "name.h"
 #include "publisher-public-key-digest.h"
+#include "forwarding-flags.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef enum {
+  ndn_ForwardingEntryFlags_ACTIVE         = 1,
+  ndn_ForwardingEntryFlags_CHILD_INHERIT  = 2,
+  ndn_ForwardingEntryFlags_ADVERTISE      = 4,
+  ndn_ForwardingEntryFlags_LAST           = 8,
+  ndn_ForwardingEntryFlags_CAPTURE       = 16,
+  ndn_ForwardingEntryFlags_LOCAL         = 32,
+  ndn_ForwardingEntryFlags_TAP           = 64,
+  ndn_ForwardingEntryFlags_CAPTURE_OK   = 128
+} ndn_ForwardingEntryFlags;
 
 /**
  * An ndn_ForwardingEntry holds fields for a ForwardingEntry which is used to register a prefix with a hub.
@@ -24,7 +36,7 @@ struct ndn_ForwardingEntry {
   struct ndn_Name prefix;
   struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
   int faceId;               /**< -1 for none. */
-  int forwardingFlags;      /**< -1 for none. */
+  struct ndn_ForwardingFlags forwardingFlags;
   int freshnessSeconds;     /**< -1 for none. */
 };
 
@@ -43,7 +55,7 @@ static inline void ndn_ForwardingEntry_initialize
   ndn_Name_initialize(&self->prefix, prefixNameComponents, maxPrefixNameComponents);
   ndn_PublisherPublicKeyDigest_initialize(&self->publisherPublicKeyDigest);
   self->faceId = -1;
-  self->forwardingFlags = -1;
+  ndn_ForwardingFlags_initialize(&self->forwardingFlags);
   self->freshnessSeconds = -1;
 }
 

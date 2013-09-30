@@ -135,7 +135,7 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
 
 void 
 Node::registerPrefix
-  (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, int flags, WireFormat& wireFormat)
+  (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags, WireFormat& wireFormat)
 {
   if (ndndId_.size() == 0) {
     // First fetch the ndndId of the connected hub.
@@ -173,7 +173,7 @@ Node::NdndIdFetcher::operator()(const shared_ptr<const Interest>& timedOutIntere
 void 
 Node::registerPrefixHelper
   (const shared_ptr<const Name>& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, 
-   int flags, WireFormat& wireFormat)
+   const ForwardingFlags& flags, WireFormat& wireFormat)
 {
   // Create a ForwardingEntry.
   ForwardingEntry forwardingEntry("selfreg", *prefix, PublisherPublicKeyDigest(), -1, flags, 2147483647);

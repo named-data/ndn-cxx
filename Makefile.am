@@ -20,6 +20,7 @@ libndn_c_la_SOURCES = \
   ndn-cpp/c/data.h \
   ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
   ndn-cpp/c/forwarding-entry.h \
+  ndn-cpp/c/forwarding-flags.c ndn-cpp/c/forwarding-flags.h \
   ndn-cpp/c/interest.c ndn-cpp/c/interest.h \
   ndn-cpp/c/key.h \
   ndn-cpp/c/name.c ndn-cpp/c/name.h \
@@ -51,6 +52,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
   ndn-cpp/face.cpp ndn-cpp/face.hpp \
   ndn-cpp/forwarding-entry.cpp ndn-cpp/c/forwarding-entry.h ndn-cpp/forwarding-entry.hpp \
+  ndn-cpp/c/forwarding-entry.h ndn-cpp/forwarding-entry.hpp \
   ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
   ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
   ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \

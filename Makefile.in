@@ -133,7 +133,8 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libndn_c_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libndn_c_la_OBJECTS = ndn-cpp/c/errors.lo ndn-cpp/c/interest.lo \
+am_libndn_c_la_OBJECTS = ndn-cpp/c/errors.lo \
+	ndn-cpp/c/forwarding-flags.lo ndn-cpp/c/interest.lo \
 	ndn-cpp/c/name.lo ndn-cpp/c/encoding/binary-xml-data.lo \
 	ndn-cpp/c/encoding/binary-xml-decoder.lo \
 	ndn-cpp/c/encoding/binary-xml-element-reader.lo \
@@ -485,6 +486,7 @@ libndn_c_la_SOURCES = \
   ndn-cpp/c/data.h \
   ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
   ndn-cpp/c/forwarding-entry.h \
+  ndn-cpp/c/forwarding-flags.c ndn-cpp/c/forwarding-flags.h \
   ndn-cpp/c/interest.c ndn-cpp/c/interest.h \
   ndn-cpp/c/key.h \
   ndn-cpp/c/name.c ndn-cpp/c/name.h \
@@ -516,6 +518,7 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
   ndn-cpp/face.cpp ndn-cpp/face.hpp \
   ndn-cpp/forwarding-entry.cpp ndn-cpp/c/forwarding-entry.h ndn-cpp/forwarding-entry.hpp \
+  ndn-cpp/c/forwarding-entry.h ndn-cpp/forwarding-entry.hpp \
   ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
   ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
   ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
@@ -659,6 +662,8 @@ ndn-cpp/c/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/c/$(DEPDIR)
 	@: > ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/errors.lo: ndn-cpp/c/$(am__dirstamp) \
+	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/c/forwarding-flags.lo: ndn-cpp/c/$(am__dirstamp) \
 	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/c/interest.lo: ndn-cpp/c/$(am__dirstamp) \
 	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
@@ -968,6 +973,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/node.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/sha256-with-rsa-signature.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/errors.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/forwarding-flags.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/interest.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-data.Plo@am__quote@
