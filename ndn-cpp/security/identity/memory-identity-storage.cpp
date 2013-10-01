@@ -5,7 +5,10 @@
  * See COPYING for copyright and distribution information.
  */
 
+#if 1
 #include <stdexcept>
+#endif
+#include <algorithm>
 #include "../security-exception.hpp"
 #include "memory-identity-storage.hpp"
 
