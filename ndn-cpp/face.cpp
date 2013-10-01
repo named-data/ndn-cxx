@@ -10,17 +10,17 @@ using namespace std;
 
 namespace ndn {
   
-void 
+unsigned int 
 Face::expressInterest(const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout)
 {
   if (interestTemplate)
-    node_.expressInterest(Interest
+    return node_.expressInterest(Interest
       (name, interestTemplate->getMinSuffixComponents(), interestTemplate->getMaxSuffixComponents(),
        interestTemplate->getPublisherPublicKeyDigest(), interestTemplate->getExclude(),
        interestTemplate->getChildSelector(), interestTemplate->getAnswerOriginKind(),
        interestTemplate->getScope(), interestTemplate->getInterestLifetimeMilliseconds()), onData, onTimeout);
   else
-    node_.expressInterest(Interest(name, 4000.0), onData, onTimeout);  
+    return node_.expressInterest(Interest(name, 4000.0), onData, onTimeout);  
 }
 
 void 

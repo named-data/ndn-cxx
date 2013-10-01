@@ -45,11 +45,12 @@ public:
    * use func_lib::ref() as appropriate.
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
+   * @return The pending interest ID which can be used with removePendingInterest.
    */
-  void 
+  unsigned int 
   expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout = OnTimeout())
   {
-    node_.expressInterest(interest, onData, onTimeout);
+    return node_.expressInterest(interest, onData, onTimeout);
   }
 
   /**
@@ -61,8 +62,9 @@ public:
    * use func_lib::ref() as appropriate.
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
+   * @return The pending interest ID which can be used with removePendingInterest.
    */
-  void 
+  unsigned int 
   expressInterest(const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout = OnTimeout());
 
   /**
@@ -73,11 +75,24 @@ public:
    * use func_lib::ref() as appropriate.
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
+   * @return The pending interest ID which can be used with removePendingInterest.
    */
-  void 
+  unsigned int 
   expressInterest(const Name& name, const OnData& onData, const OnTimeout& onTimeout = OnTimeout()) 
   {
-    expressInterest(name, 0, onData, onTimeout);
+    return expressInterest(name, 0, onData, onTimeout);
+  }
+
+  /**
+   * Remove the pending interest entry with the pendingInterestId from the pending interest table.
+   * This does not affect another pending interest with a different pendingInterestId, even it if has the same interest name.
+   * If there is no entry with the pendingInterestId, do nothing.
+   * @param pendingInterestId The ID returned from expressInterest.
+   */
+  void
+  removePendingInterest(unsigned int pendingInterestId)
+  {
+    node_.removePendingInterest(pendingInterestId);
   }
   
   /**
@@ -90,13 +105,26 @@ public:
    * @param flags The flags for finer control of which interests are forward to the application.  If omitted, use 
    * the default flags defined by the default ForwardingFlags constructor.
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
+   * @return The registered prefix ID which can be used with removeRegisteredPrefix.
    */
-  void 
+  unsigned int 
   registerPrefix
     (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags = ForwardingFlags(), 
      WireFormat& wireFormat = *WireFormat::getDefaultWireFormat())
   {
-    node_.registerPrefix(prefix, onInterest, onRegisterFailed, flags, wireFormat);
+    return node_.registerPrefix(prefix, onInterest, onRegisterFailed, flags, wireFormat);
+  }
+
+  /**
+   * Remove the registered prefix entry with the registeredPrefixId from the pending interest table.  
+   * This does not affect another registered prefix with a different registeredPrefixId, even it if has the same prefix name.
+   * If there is no entry with the registeredPrefixId, do nothing.
+   * @param registeredPrefixId The ID returned from registerPrefix.
+   */
+  void
+  removeRegisteredPrefix(unsigned int registeredPrefixId)
+  {
+    node_.removeRegisteredPrefix(registeredPrefixId);
   }
   
   /**
