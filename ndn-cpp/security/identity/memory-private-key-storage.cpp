@@ -5,6 +5,9 @@
  * See COPYING for copyright and distribution information.
  */
 
+#if 1
+#include <stdexcept>
+#endif
 #include "../../c/util/crypto.h"
 #include "../security-exception.hpp"
 #include "memory-private-key-storage.hpp"

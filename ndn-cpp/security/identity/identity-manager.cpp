@@ -5,6 +5,9 @@
  * See COPYING for copyright and distribution information.
  */
 
+#if 1
+#include <stdexcept>
+#endif
 #include "../../util/logging.hpp"
 #include "../../sha256-with-rsa-signature.hpp"
 #include "../security-exception.hpp"
