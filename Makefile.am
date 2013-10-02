@@ -14,6 +14,7 @@ lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 bin_PROGRAMS = bin/test-encode-decode-forwarding-entry bin/test-encode-decode-interest bin/test-encode-decode-data \
   bin/test-get-async bin/test-publish-async
 
+# Just the C code.
 libndn_c_la_SOURCES = \
   config.h \
   ndn-cpp/c/common.h \
@@ -45,7 +46,9 @@ libndn_c_la_SOURCES = \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
 
+# C++ code and also the C code.
 libndn_cpp_la_SOURCES = \
+  $(libndn_c_la_SOURCES) \
   config.h \
   ndn-cpp/c/common.h \
   ndn-cpp/common.hpp ndn-cpp/common.cpp \
@@ -89,18 +92,18 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/util/signed-blob.hpp
 
 bin_test_encode_decode_forwarding_entry_SOURCES = tests/test-encode-decode-forwarding-entry.cpp
-bin_test_encode_decode_forwarding_entry_LDADD = libndn-cpp.la libndn-c.la
+bin_test_encode_decode_forwarding_entry_LDADD = libndn-cpp.la
 
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
-bin_test_encode_decode_interest_LDADD = libndn-cpp.la libndn-c.la
+bin_test_encode_decode_interest_LDADD = libndn-cpp.la
 
 bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
-bin_test_encode_decode_data_LDADD = libndn-cpp.la libndn-c.la
+bin_test_encode_decode_data_LDADD = libndn-cpp.la
 
 bin_test_get_async_SOURCES = tests/test-get-async.cpp
-bin_test_get_async_LDADD = libndn-cpp.la libndn-c.la
+bin_test_get_async_LDADD = libndn-cpp.la
 
 bin_test_publish_async_SOURCES = tests/test-publish-async.cpp
-bin_test_publish_async_LDADD = libndn-cpp.la libndn-c.la
+bin_test_publish_async_LDADD = libndn-cpp.la
 
 dist_noinst_SCRIPTS = autogen.sh

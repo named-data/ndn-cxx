@@ -154,8 +154,23 @@ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 libndn_cpp_la_LIBADD =
-am_libndn_cpp_la_OBJECTS = ndn-cpp/common.lo ndn-cpp/data.lo \
-	ndn-cpp/face.lo ndn-cpp/forwarding-entry.lo \
+am__objects_1 = ndn-cpp/c/errors.lo ndn-cpp/c/forwarding-flags.lo \
+	ndn-cpp/c/interest.lo ndn-cpp/c/name.lo \
+	ndn-cpp/c/encoding/binary-xml-data.lo \
+	ndn-cpp/c/encoding/binary-xml-decoder.lo \
+	ndn-cpp/c/encoding/binary-xml-element-reader.lo \
+	ndn-cpp/c/encoding/binary-xml-encoder.lo \
+	ndn-cpp/c/encoding/binary-xml-forwarding-entry.lo \
+	ndn-cpp/c/encoding/binary-xml-interest.lo \
+	ndn-cpp/c/encoding/binary-xml-key.lo \
+	ndn-cpp/c/encoding/binary-xml-name.lo \
+	ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.lo \
+	ndn-cpp/c/encoding/binary-xml-structure-decoder.lo \
+	ndn-cpp/c/transport/socket-transport.lo \
+	ndn-cpp/c/util/crypto.lo ndn-cpp/c/util/dynamic-uint8-array.lo \
+	ndn-cpp/c/util/ndn_memory.lo ndn-cpp/c/util/ndn_realloc.lo
+am_libndn_cpp_la_OBJECTS = $(am__objects_1) ndn-cpp/common.lo \
+	ndn-cpp/data.lo ndn-cpp/face.lo ndn-cpp/forwarding-entry.lo \
 	ndn-cpp/interest.lo ndn-cpp/key.lo ndn-cpp/name.lo \
 	ndn-cpp/node.lo ndn-cpp/sha256-with-rsa-signature.lo \
 	ndn-cpp/encoding/binary-xml-element-reader.lo \
@@ -179,26 +194,24 @@ am_bin_test_encode_decode_data_OBJECTS =  \
 	tests/test-encode-decode-data.$(OBJEXT)
 bin_test_encode_decode_data_OBJECTS =  \
 	$(am_bin_test_encode_decode_data_OBJECTS)
-bin_test_encode_decode_data_DEPENDENCIES = libndn-cpp.la libndn-c.la
+bin_test_encode_decode_data_DEPENDENCIES = libndn-cpp.la
 am_bin_test_encode_decode_forwarding_entry_OBJECTS =  \
 	tests/test-encode-decode-forwarding-entry.$(OBJEXT)
 bin_test_encode_decode_forwarding_entry_OBJECTS =  \
 	$(am_bin_test_encode_decode_forwarding_entry_OBJECTS)
-bin_test_encode_decode_forwarding_entry_DEPENDENCIES = libndn-cpp.la \
-	libndn-c.la
+bin_test_encode_decode_forwarding_entry_DEPENDENCIES = libndn-cpp.la
 am_bin_test_encode_decode_interest_OBJECTS =  \
 	tests/test-encode-decode-interest.$(OBJEXT)
 bin_test_encode_decode_interest_OBJECTS =  \
 	$(am_bin_test_encode_decode_interest_OBJECTS)
-bin_test_encode_decode_interest_DEPENDENCIES = libndn-cpp.la \
-	libndn-c.la
+bin_test_encode_decode_interest_DEPENDENCIES = libndn-cpp.la
 am_bin_test_get_async_OBJECTS = tests/test-get-async.$(OBJEXT)
 bin_test_get_async_OBJECTS = $(am_bin_test_get_async_OBJECTS)
-bin_test_get_async_DEPENDENCIES = libndn-cpp.la libndn-c.la
+bin_test_get_async_DEPENDENCIES = libndn-cpp.la
 am_bin_test_publish_async_OBJECTS =  \
 	tests/test-publish-async.$(OBJEXT)
 bin_test_publish_async_OBJECTS = $(am_bin_test_publish_async_OBJECTS)
-bin_test_publish_async_DEPENDENCIES = libndn-cpp.la libndn-c.la
+bin_test_publish_async_DEPENDENCIES = libndn-cpp.la
 SCRIPTS = $(dist_noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -487,6 +500,8 @@ top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
+
+# Just the C code.
 libndn_c_la_SOURCES = \
   config.h \
   ndn-cpp/c/common.h \
@@ -518,7 +533,10 @@ libndn_c_la_SOURCES = \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
   ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
 
+
+# C++ code and also the C code.
 libndn_cpp_la_SOURCES = \
+  $(libndn_c_la_SOURCES) \
   config.h \
   ndn-cpp/c/common.h \
   ndn-cpp/common.hpp ndn-cpp/common.cpp \
@@ -562,15 +580,15 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/util/signed-blob.hpp
 
 bin_test_encode_decode_forwarding_entry_SOURCES = tests/test-encode-decode-forwarding-entry.cpp
-bin_test_encode_decode_forwarding_entry_LDADD = libndn-cpp.la libndn-c.la
+bin_test_encode_decode_forwarding_entry_LDADD = libndn-cpp.la
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
-bin_test_encode_decode_interest_LDADD = libndn-cpp.la libndn-c.la
+bin_test_encode_decode_interest_LDADD = libndn-cpp.la
 bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
-bin_test_encode_decode_data_LDADD = libndn-cpp.la libndn-c.la
+bin_test_encode_decode_data_LDADD = libndn-cpp.la
 bin_test_get_async_SOURCES = tests/test-get-async.cpp
-bin_test_get_async_LDADD = libndn-cpp.la libndn-c.la
+bin_test_get_async_LDADD = libndn-cpp.la
 bin_test_publish_async_SOURCES = tests/test-publish-async.cpp
-bin_test_publish_async_LDADD = libndn-cpp.la libndn-c.la
+bin_test_publish_async_LDADD = libndn-cpp.la
 dist_noinst_SCRIPTS = autogen.sh
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
