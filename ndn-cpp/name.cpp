@@ -276,21 +276,31 @@ Name::getSubName(size_t iStartComponent) const
 }
 
 bool 
+Name::equals(const Name& name) const
+{
+	if (components_.size() != name.components_.size())
+    return false;
+
+  for (size_t i = 0; i < components_.size(); ++i) {
+    if (*components_[i].getValue() != *name.components_[i].getValue())
+      return false;
+  }
+
+	return true;
+}
+
+bool 
 Name::match(const Name& name) const
 {
   // Imitate ndn_Name_match.
   
 	// This name is longer than the name we are checking it against.
 	if (components_.size() > name.components_.size())
-    return 0;
+    return false;
 
 	// Check if at least one of given components doesn't match.
-  size_t i;
-  for (i = 0; i < components_.size(); ++i) {
-    const Component &selfComponent = components_[i];
-    const Component &nameComponent = name.components_[i];
-
-    if (*selfComponent.getValue() != *nameComponent.getValue())
+  for (size_t i = 0; i < components_.size(); ++i) {
+    if (*components_[i].getValue() != *name.components_[i].getValue())
       return false;
   }
 
