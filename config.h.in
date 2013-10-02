@@ -30,6 +30,9 @@
 /* 1 if have memset in memory.h. */
 #undef HAVE_MEMSET
 
+/* Have the SQLITE3 library */
+#undef HAVE_SQLITE3
+
 /* 1 if have stdint.h. */
 #undef HAVE_STDINT
 

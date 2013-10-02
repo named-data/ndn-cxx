@@ -11,6 +11,7 @@ AC_PROG_CXX
 AM_PROG_CC_C_O
 AC_PROG_OBJCXX
 AC_LANG([C++])
+AX_LIB_SQLITE3()
 
 AX_CXX_COMPILE_STDCXX_11(, optional)
 AC_CHECK_LIB([crypto], [EVP_EncryptInit], [],
