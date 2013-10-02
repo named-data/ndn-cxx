@@ -84,6 +84,7 @@ public:
   /**
    * Get the public key DER blob from the identity storage.
    * @param keyName The name of the requested public key.
+   * @return The DER Blob.  If not found, return a Blob with a null pointer.
    */
   virtual Blob
   getKey(const Name& keyName);
@@ -121,7 +122,7 @@ public:
    * Get a certificate from the identity storage.
    * @param certificateName The name of the requested certificate.
    * @param allowAny If false, only a valid certificate will be returned, otherwise validity is disregarded.
-   * @return The requested certificate.
+   * @return The requested certificate.  If not found, return a shared_ptr with a null pointer.
    */
   virtual ptr_lib::shared_ptr<Certificate> 
   getCertificate(const Name &certificateName, bool allowAny = false);
@@ -165,10 +166,10 @@ public:
   /**
    * Set the default key name for the specified identity.
    * @param keyName The key name.
-   * @param identityName (optional) The identity name to check the keyName.
+   * @param identityNameCheck (optional) The identity name to check the keyName.
    */
   virtual void 
-  setDefaultKeyNameForIdentity(const Name& keyName, const Name& identityName = Name());
+  setDefaultKeyNameForIdentity(const Name& keyName, const Name& identityNameCheck = Name());
 
   /**
    * Set the default key name for the specified identity.

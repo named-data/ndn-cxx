@@ -165,7 +165,7 @@ MemoryIdentityStorage::setDefaultIdentity(const Name& identityName)
 }
 
 void 
-MemoryIdentityStorage::setDefaultKeyNameForIdentity(const Name& keyName, const Name& identityName)
+MemoryIdentityStorage::setDefaultKeyNameForIdentity(const Name& keyName, const Name& identityNameCheck)
 {
 #if 1
   throw std::runtime_error("MemoryIdentityStorage::setDefaultKeyNameForIdentity not implemented");
