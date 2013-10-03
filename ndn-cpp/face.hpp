@@ -30,9 +30,9 @@ public:
   /**
    * Create a new Face for communication with an NDN hub at host:port using the default TcpTransport.
    * @param host The host of the NDN hub.
-   * @param port The port of the NDN hub. If omitted. use 9695.
+   * @param port The port of the NDN hub. If omitted. use 6363.
    */
-  Face(const char *host, unsigned short port = 9695)
+  Face(const char *host, unsigned short port = 6363)
   : node_(ptr_lib::make_shared<TcpTransport>(), 
           ptr_lib::make_shared<TcpTransport::ConnectionInfo>(host, port))
   {
