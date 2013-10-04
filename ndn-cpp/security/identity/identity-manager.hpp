@@ -65,6 +65,17 @@ public:
   }
 
   /**
+   * Get the default key for an identity.
+   * @param identityName the name of the identity. If omitted, the identity name is inferred from the keyName.
+   * @return The default key name.
+   */
+  Name
+  getDefaultKeyNameForIdentity(const Name& identityName = Name())
+  {
+    return identityStorage_->getDefaultKeyNameForIdentity(identityName);
+  }
+  
+  /**
    * Generate a pair of RSA keys for the specified identity and set it as default key for the identity.
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
