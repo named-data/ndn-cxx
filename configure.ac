@@ -109,6 +109,20 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     AC_DEFINE_UNQUOTED([HAVE_STDINT], 0, [1 if have stdint.h.])
 ])
 
+AC_MSG_CHECKING([for OSX SecKeychain])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+    [[#include <CoreFoundation/CoreFoundation.h>]]
+    [[#include <Security/Security.h>]]
+    [[#include <CoreServices/CoreServices.h>]]
+    [[void test() { SecKeychainRef x; }]])
+], [
+    AC_MSG_RESULT([yes])
+    AC_DEFINE_UNQUOTED([HAVE_OSX_SECKEYCHAIN], 1, [1 if have OSX SecKeychain.])
+], [
+    AC_MSG_RESULT([no])
+    AC_DEFINE_UNQUOTED([HAVE_OSX_SECKEYCHAIN], 0, [1 if have OSX SecKeychain.])
+])
+
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
 DX_CHI_FEATURE(OFF)
