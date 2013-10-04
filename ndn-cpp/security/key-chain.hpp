@@ -111,11 +111,11 @@ public:
   }
 
   /**
-   * Install a certificate into the public key identity storage.
+   * Install an identity certificate into the public key identity storage.
    * @param certificate The certificate to to added.
    */
   void
-  installCertificate(const Certificate& certificate)
+  installIdentityCertificate(const Certificate& certificate)
   {
     identityManager_->addCertificate(certificate);
   }
