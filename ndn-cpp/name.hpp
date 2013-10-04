@@ -431,6 +431,22 @@ public:
     append(component);
   }
   
+  /**
+   * Check if this name has the same component count and components as the given name.
+   * @param name The Name to check.
+   * @return true if the names are equal, otherwise false.
+   */
+  bool
+  operator == (const Name &name) const { return equals(name); }
+
+  /**
+   * Check if this name has the same component count and components as the given name.
+   * @param name The Name to check.
+   * @return true if the names are not equal, otherwise false.
+   */
+  bool
+  operator != (const Name &name) const { return !equals(name); }
+
   //
   // Iterator interface to name components.
   //
@@ -447,73 +463,49 @@ public:
    * Begin iterator (const).
    */
   const_iterator
-  begin() const
-  {
-    return components_.begin();
-  }
+  begin() const { return components_.begin(); }
 
   /**
    * Begin iterator.
    */
   iterator
-  begin()
-  {
-    return components_.begin();
-  }
+  begin() { return components_.begin(); }
 
   /**
    * End iterator (const).
    */
   const_iterator
-  end() const
-  {
-    return components_.end();
-  }
+  end() const { return components_.end(); }
 
   /**
    * End iterator.
    */
   iterator
-  end()
-  {
-    return components_.end();
-  }
+  end() { return components_.end(); }
 
   /**
    * Reverse begin iterator (const).
    */
   const_reverse_iterator
-  rbegin() const
-  {
-    return components_.rbegin();
-  }
+  rbegin() const { return components_.rbegin(); }
 
   /**
    * Reverse begin iterator.
    */
   reverse_iterator
-  rbegin()
-  {
-    return components_.rbegin();
-  }
+  rbegin() { return components_.rbegin(); }
 
   /**
    * Reverse end iterator (const).
    */
   const_reverse_iterator
-  rend() const
-  {
-    return components_.rend();
-  }
+  rend() const { return components_.rend(); }
 
   /**
    * Reverse end iterator.
    */
   reverse_iterator
-  rend()
-  {
-    return components_.rend();
-  }
+  rend() { return components_.rend(); }
 
 private:
   std::vector<Component> components_;
