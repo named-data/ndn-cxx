@@ -1,6 +1,8 @@
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * @author: Alexander Afanasyev <alexander.afanasyev@ucla.edu>
+ * @author: Zhenkai Zhu <zhenkai@cs.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
@@ -155,7 +157,7 @@ public:
   {
     set(uri.c_str());
   }
-  
+
   /**
    * Set the nameStruct to point to the components in this name, without copying any memory.
    * WARNING: The resulting pointers in nameStruct are invalid after a further use of this object which could reallocate memory.
@@ -293,6 +295,11 @@ public:
     return components_.size();
   }
   
+  /**
+   * Get the component at the given index.
+   * @param i The index of the component, starting from 0.
+   * @return The name component at the index.
+   */
   const Component& 
   getComponent(size_t i) const { return components_[i]; }
   
@@ -385,6 +392,128 @@ public:
    */
   static std::string
   toEscapedString(const std::vector<uint8_t>& value);
+
+  //
+  // vector equivalent interface.
+  //
+  
+  /**
+   * Get the number of components.
+   * @return The number of components.
+   */
+  size_t 
+  size() const {
+    return getComponentCount();
+  }
+
+  /**
+   * Get the component at the given index.
+   * @param i The index of the component, starting from 0.
+   * @return The name component at the index.
+   */
+  const Component& 
+  get(size_t i) const { return getComponent(i); }
+  
+
+  const Component&
+  operator [] (int i) const
+  {
+    return get(i);
+  }
+
+  /**
+   * Append the component
+   * @param component The component of type T.
+   */
+  template<class T> void
+  push_back(const T &component)
+  {
+    append(component);
+  }
+  
+  //
+  // Iterator interface to name components.
+  //
+  typedef std::vector<Component>::iterator iterator;
+  typedef std::vector<Component>::const_iterator const_iterator;
+  typedef std::vector<Component>::reverse_iterator reverse_iterator;
+  typedef std::vector<Component>::const_reverse_iterator const_reverse_iterator;
+  typedef std::vector<Component>::reference reference;
+  typedef std::vector<Component>::const_reference const_reference;
+
+  typedef Component partial_type;
+
+  /**
+   * Begin iterator (const).
+   */
+  const_iterator
+  begin() const
+  {
+    return components_.begin();
+  }
+
+  /**
+   * Begin iterator.
+   */
+  iterator
+  begin()
+  {
+    return components_.begin();
+  }
+
+  /**
+   * End iterator (const).
+   */
+  const_iterator
+  end() const
+  {
+    return components_.end();
+  }
+
+  /**
+   * End iterator.
+   */
+  iterator
+  end()
+  {
+    return components_.end();
+  }
+
+  /**
+   * Reverse begin iterator (const).
+   */
+  const_reverse_iterator
+  rbegin() const
+  {
+    return components_.rbegin();
+  }
+
+  /**
+   * Reverse begin iterator.
+   */
+  reverse_iterator
+  rbegin()
+  {
+    return components_.rbegin();
+  }
+
+  /**
+   * Reverse end iterator (const).
+   */
+  const_reverse_iterator
+  rend() const
+  {
+    return components_.rend();
+  }
+
+  /**
+   * Reverse end iterator.
+   */
+  reverse_iterator
+  rend()
+  {
+    return components_.rend();
+  }
 
 private:
   std::vector<Component> components_;
