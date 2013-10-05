@@ -511,6 +511,13 @@ private:
   std::vector<Component> components_;
 };  
 
+inline std::ostream&
+operator << (std::ostream& os, const Name& name)
+{
+  os << name.toUri();
+  return os;
+}
+
 }
 
 #endif
