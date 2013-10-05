@@ -75,10 +75,12 @@ libndn_cpp_la_SOURCES = \
   ndn-cpp/security/certificate/oid.cpp ndn-cpp/security/certificate/oid.hpp \
   ndn-cpp/security/certificate/public-key.cpp ndn-cpp/security/certificate/public-key.hpp \
   ndn-cpp/security/encryption/encryption-manager.hpp \
+  ndn-cpp/security/identity/basic-identity-storage.cpp ndn-cpp/security/identity/basic-identity-storage.hpp \
   ndn-cpp/security/identity/identity-manager.cpp ndn-cpp/security/identity/identity-manager.hpp \
   ndn-cpp/security/identity/identity-storage.hpp \
   ndn-cpp/security/identity/memory-identity-storage.cpp ndn-cpp/security/identity/memory-identity-storage.hpp \
   ndn-cpp/security/identity/memory-private-key-storage.cpp ndn-cpp/security/identity/memory-private-key-storage.hpp \
+  ndn-cpp/security/identity/osx-private-key-storage.cpp ndn-cpp/security/identity/osx-private-key-storage.hpp \
   ndn-cpp/security/identity/private-key-storage.hpp \
   ndn-cpp/security/policy/no-verify-policy-manager.cpp ndn-cpp/security/policy/no-verify-policy-manager.hpp \
   ndn-cpp/security/policy/policy-manager.hpp \
