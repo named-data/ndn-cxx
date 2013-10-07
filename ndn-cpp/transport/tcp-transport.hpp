@@ -24,9 +24,9 @@ public:
     /**
      * Create a ConnectionInfo with the given host and port.
      * @param host The host for the connection.
-     * @param port The port number for the connection. If omitted, use 9695.
+     * @param port The port number for the connection. If omitted, use 6363.
      */
-    ConnectionInfo(const char *host, unsigned short port = 9695)
+    ConnectionInfo(const char *host, unsigned short port = 6363)
     : host_(host), port_(port)
     {
     }
