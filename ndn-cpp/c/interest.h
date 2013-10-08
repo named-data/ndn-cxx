@@ -104,8 +104,7 @@ struct ndn_Interest {
   int answerOriginKind;     /**< -1 for none */
   int scope;                /**< -1 for none */
   double interestLifetimeMilliseconds; /**< milliseconds. -1.0 for none */
-  uint8_t *nonce;           /**< pointer to pre-allocated buffer.  0 for none */
-  size_t nonceLength;       /**< length of nonce.  0 for none */
+  struct ndn_Blob nonce;    /**< The blob whose value is a pointer to a pre-allocated buffer.  0 for none */
 };
 
 /**
@@ -130,8 +129,7 @@ static inline void ndn_Interest_initialize
   self->answerOriginKind = -1;
   self->scope = -1;
   self->interestLifetimeMilliseconds = -1.0;
-  self->nonce = 0;
-  self->nonceLength = 0;
+  ndn_Blob_initialize(&self->nonce, 0, 0);
 }
 
 /**

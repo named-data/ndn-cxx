@@ -18,7 +18,7 @@ static ndn_Error decodeKeyNameData(struct ndn_KeyLocator *keyLocator, struct ndn
   if (gotExpectedTag) {
     keyLocator->keyNameType = ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST;
     if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement
-        (decoder, ndn_BinaryXml_DTag_PublisherPublicKeyDigest, 0, &keyLocator->keyData, &keyLocator->keyDataLength)))
+        (decoder, ndn_BinaryXml_DTag_PublisherPublicKeyDigest, 0, &keyLocator->keyData)))
       return error;
   }
   else {
@@ -27,7 +27,7 @@ static ndn_Error decodeKeyNameData(struct ndn_KeyLocator *keyLocator, struct ndn
     if (gotExpectedTag) {
       keyLocator->keyNameType = ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST;
       if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement
-          (decoder, ndn_BinaryXml_DTag_PublisherCertificateDigest, 0, &keyLocator->keyData, &keyLocator->keyDataLength)))
+          (decoder, ndn_BinaryXml_DTag_PublisherCertificateDigest, 0, &keyLocator->keyData)))
         return error;
     }
     else {
@@ -36,7 +36,7 @@ static ndn_Error decodeKeyNameData(struct ndn_KeyLocator *keyLocator, struct ndn
       if (gotExpectedTag) {
         keyLocator->keyNameType = ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST;
         if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement
-            (decoder, ndn_BinaryXml_DTag_PublisherIssuerKeyDigest, 0, &keyLocator->keyData, &keyLocator->keyDataLength)))
+            (decoder, ndn_BinaryXml_DTag_PublisherIssuerKeyDigest, 0, &keyLocator->keyData)))
           return error;
       }
       else {
@@ -45,13 +45,13 @@ static ndn_Error decodeKeyNameData(struct ndn_KeyLocator *keyLocator, struct ndn
         if (gotExpectedTag) {
           keyLocator->keyNameType = ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST;
           if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement
-              (decoder, ndn_BinaryXml_DTag_PublisherIssuerCertificateDigest, 0, &keyLocator->keyData, &keyLocator->keyDataLength)))
+              (decoder, ndn_BinaryXml_DTag_PublisherIssuerCertificateDigest, 0, &keyLocator->keyData)))
             return error;
         }
         else {
           // Key name data is omitted.
           keyLocator->keyNameType = -1;
-          keyLocator->keyDataLength = 0;
+          keyLocator->keyData.length = 0;
         }
       }
     }
@@ -70,13 +70,11 @@ ndn_Error ndn_encodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
     return error;
 
   if (keyLocator->type == ndn_KeyLocatorType_KEY) {
-    if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-        (encoder, ndn_BinaryXml_DTag_Key, keyLocator->keyData, keyLocator->keyDataLength)))
+    if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement(encoder, ndn_BinaryXml_DTag_Key, &keyLocator->keyData)))
       return error;    
   }
   else if (keyLocator->type == ndn_KeyLocatorType_CERTIFICATE) {
-    if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-        (encoder, ndn_BinaryXml_DTag_Certificate, keyLocator->keyData, keyLocator->keyDataLength)))
+    if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement(encoder, ndn_BinaryXml_DTag_Certificate, &keyLocator->keyData)))
       return error;    
   }
   else if (keyLocator->type == ndn_KeyLocatorType_KEYNAME) {
@@ -85,25 +83,25 @@ ndn_Error ndn_encodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
     if ((error = ndn_encodeBinaryXmlName(&keyLocator->keyName, encoder)))
       return error;
     
-    if ((int)keyLocator->keyNameType >= 0 && keyLocator->keyDataLength > 0) {
+    if ((int)keyLocator->keyNameType >= 0 && keyLocator->keyData.length > 0) {
       if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST) {
         if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-            (encoder, ndn_BinaryXml_DTag_PublisherPublicKeyDigest, keyLocator->keyData, keyLocator->keyDataLength)))
+            (encoder, ndn_BinaryXml_DTag_PublisherPublicKeyDigest, &keyLocator->keyData)))
           return error;    
       }
       else if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST) {
         if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-            (encoder, ndn_BinaryXml_DTag_PublisherCertificateDigest, keyLocator->keyData, keyLocator->keyDataLength)))
+            (encoder, ndn_BinaryXml_DTag_PublisherCertificateDigest, &keyLocator->keyData)))
           return error;    
       }
       else if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST) {
         if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-            (encoder, ndn_BinaryXml_DTag_PublisherIssuerKeyDigest, keyLocator->keyData, keyLocator->keyDataLength)))
+            (encoder, ndn_BinaryXml_DTag_PublisherIssuerKeyDigest, &keyLocator->keyData)))
           return error;    
       }
       else if (keyLocator->keyNameType == ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST) {
         if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-            (encoder, ndn_BinaryXml_DTag_PublisherIssuerCertificateDigest, keyLocator->keyData, keyLocator->keyDataLength)))
+            (encoder, ndn_BinaryXml_DTag_PublisherIssuerCertificateDigest, &keyLocator->keyData)))
           return error;    
       }
       else
@@ -134,8 +132,7 @@ ndn_Error ndn_decodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
   if (gotExpectedTag) {
     keyLocator->type = ndn_KeyLocatorType_KEY;
     
-    if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement
-        (decoder, ndn_BinaryXml_DTag_Key, 0, &keyLocator->keyData, &keyLocator->keyDataLength)))
+    if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(decoder, ndn_BinaryXml_DTag_Key, 0, &keyLocator->keyData)))
       return error;
   }
   else {
@@ -145,7 +142,7 @@ ndn_Error ndn_decodeBinaryXmlKeyLocator(struct ndn_KeyLocator *keyLocator, struc
       keyLocator->type = ndn_KeyLocatorType_CERTIFICATE;
     
       if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement
-          (decoder, ndn_BinaryXml_DTag_Certificate, 0, &keyLocator->keyData, &keyLocator->keyDataLength)))
+          (decoder, ndn_BinaryXml_DTag_Certificate, 0, &keyLocator->keyData)))
         return error;
     }
     else {

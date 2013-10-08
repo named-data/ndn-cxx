@@ -7,6 +7,8 @@
 #ifndef NDN_NAME_H
 #define NDN_NAME_H
 
+#include "util/blob.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,8 +17,7 @@ extern "C" {
  * An ndn_NameComponent holds a pointer to the component value.
  */
 struct ndn_NameComponent {
-  uint8_t *value;     /**< pointer to the pre-allocated buffer for the component value */
-  size_t valueLength; /**< the number of bytes in value */
+  struct ndn_Blob value;     /**< A Blob with a pointer to the pre-allocated buffer for the component value */
 };
 
 /**
@@ -27,8 +28,7 @@ struct ndn_NameComponent {
  */
 static inline void ndn_NameComponent_initialize(struct ndn_NameComponent *self, uint8_t *value, size_t valueLength) 
 {
-  self->value = value;
-  self->valueLength = valueLength;
+  ndn_Blob_initialize(&self->value, value, valueLength);
 }
   
 /**

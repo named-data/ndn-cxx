@@ -140,7 +140,7 @@ ndn_Error ndn_BinaryXmlDecoder_peekDTag(struct ndn_BinaryXmlDecoder *self, unsig
 }
 
 ndn_Error ndn_BinaryXmlDecoder_readBinaryDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, int allowNull, uint8_t **value, size_t *valueLength)
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, int allowNull, struct ndn_Blob *value)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlDecoder_readElementStartDTag(self, expectedTag)))
@@ -153,8 +153,8 @@ ndn_Error ndn_BinaryXmlDecoder_readBinaryDTagElement
     if (unsafeGetOctet(self) == ndn_BinaryXml_CLOSE) {
       // The binary item is missing, and this is allowed, so read the element close and return a null value.
       ++self->offset;
-      *value = 0;
-      *valueLength = 0;
+      value->value = 0;
+      value->length = 0;
       return NDN_ERROR_success;
     }
   }
@@ -164,9 +164,9 @@ ndn_Error ndn_BinaryXmlDecoder_readBinaryDTagElement
   if ((error = ndn_BinaryXmlDecoder_decodeTypeAndValue(self, &itemType, &uintValueLength)))
     return error;
   // Ignore itemType.
-  *value = self->input + self->offset;
-  *valueLength = (size_t)uintValueLength;
-  self->offset += *valueLength;
+  value->value = self->input + self->offset;
+  value->length = (size_t)uintValueLength;
+  self->offset += value->length;
   
   if ((error = ndn_BinaryXmlDecoder_readElementClose(self)))
     return error;
@@ -175,26 +175,26 @@ ndn_Error ndn_BinaryXmlDecoder_readBinaryDTagElement
 }
 
 ndn_Error ndn_BinaryXmlDecoder_readOptionalBinaryDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, int allowNull, uint8_t **value, size_t *valueLength)
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, int allowNull, struct ndn_Blob *value)
 {
   ndn_Error error;
   int gotExpectedTag;
   if ((error = ndn_BinaryXmlDecoder_peekDTag(self, expectedTag, &gotExpectedTag)))
     return error;
   if (gotExpectedTag) {
-    if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(self, expectedTag, allowNull, value, valueLength)))
+    if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(self, expectedTag, allowNull, value)))
       return error;
   }
   else {
-    *value = 0;
-    *valueLength = 0;
+    value->value = 0;
+    value->length = 0;
   }  
   
   return NDN_ERROR_success;
 }
 
 ndn_Error ndn_BinaryXmlDecoder_readUDataDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, uint8_t **value, size_t *valueLength)
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, struct ndn_Blob *value)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlDecoder_readElementStartDTag(self, expectedTag)))
@@ -206,9 +206,9 @@ ndn_Error ndn_BinaryXmlDecoder_readUDataDTagElement
     return error;
   if (itemType != ndn_BinaryXml_UDATA)
     return NDN_ERROR_item_is_not_UDATA;
-  *value = self->input + self->offset;
-  *valueLength = uintValueLength;
-  self->offset += *valueLength;
+  value->value = self->input + self->offset;
+  value->length = uintValueLength;
+  self->offset += value->length;
   
   if ((error = ndn_BinaryXmlDecoder_readElementClose(self)))
     return error;
@@ -217,19 +217,19 @@ ndn_Error ndn_BinaryXmlDecoder_readUDataDTagElement
 }
 
 ndn_Error ndn_BinaryXmlDecoder_readOptionalUDataDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, uint8_t **value, size_t *valueLength)
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, struct ndn_Blob *value)
 {
   ndn_Error error;
   int gotExpectedTag;
   if ((error = ndn_BinaryXmlDecoder_peekDTag(self, expectedTag, &gotExpectedTag)))
     return error;
   if (gotExpectedTag) {
-    if ((error = ndn_BinaryXmlDecoder_readUDataDTagElement(self, expectedTag, value, valueLength)))
+    if ((error = ndn_BinaryXmlDecoder_readUDataDTagElement(self, expectedTag, value)))
       return error;
   }
   else {
-    *value = 0;
-    *valueLength = 0;
+    value->value = 0;
+    value->length = 0;
   }  
   
   return NDN_ERROR_success;
@@ -238,13 +238,12 @@ ndn_Error ndn_BinaryXmlDecoder_readOptionalUDataDTagElement
 ndn_Error ndn_BinaryXmlDecoder_readUnsignedIntegerDTagElement
   (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, unsigned int *value)
 {
-  uint8_t *udataValue;
-  size_t udataValueLength;
+  struct ndn_Blob udataValue;
   ndn_Error error;
-  if ((error = ndn_BinaryXmlDecoder_readUDataDTagElement(self, expectedTag, &udataValue, &udataValueLength)))
+  if ((error = ndn_BinaryXmlDecoder_readUDataDTagElement(self, expectedTag, &udataValue)))
     return error;
   
-  if ((error = parseUnsignedDecimalInt(udataValue, udataValueLength, value)))
+  if ((error = parseUnsignedDecimalInt(udataValue.value, udataValue.length, value)))
     return error;
   
   return NDN_ERROR_success;
@@ -275,12 +274,11 @@ ndn_Error ndn_BinaryXmlDecoder_readTimeMillisecondsDTagElement
   (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, double *milliseconds)
 {
   ndn_Error error;
-  uint8_t *bytes;
-  size_t bytesLength;
-  if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(self, expectedTag, 0, &bytes, &bytesLength)))
+  struct ndn_Blob bytes;
+  if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(self, expectedTag, 0, &bytes)))
     return error;
     
-  *milliseconds = 1000.0 * ndn_BinaryXmlDecoder_unsignedBigEndianToDouble(bytes, bytesLength) / 4096.0;
+  *milliseconds = 1000.0 * ndn_BinaryXmlDecoder_unsignedBigEndianToDouble(bytes.value, bytes.length) / 4096.0;
   return NDN_ERROR_success;  
 }
 

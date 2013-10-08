@@ -15,7 +15,7 @@ ndn_Error ndn_encodeBinaryXmlForwardingEntry(struct ndn_ForwardingEntry *forward
     return error;
     
   if ((error = ndn_BinaryXmlEncoder_writeOptionalUDataDTagElement
-      (encoder, ndn_BinaryXml_DTag_Action, forwardingEntry->action, forwardingEntry->actionLength)))
+      (encoder, ndn_BinaryXml_DTag_Action, &forwardingEntry->action)))
     return error;
   if ((error = ndn_encodeBinaryXmlName(&forwardingEntry->prefix, encoder)))
     return error;
@@ -46,7 +46,7 @@ ndn_Error ndn_decodeBinaryXmlForwardingEntry(struct ndn_ForwardingEntry *forward
     return error;
     
   if ((error = ndn_BinaryXmlDecoder_readOptionalUDataDTagElement
-      (decoder, ndn_BinaryXml_DTag_Action, &forwardingEntry->action, &forwardingEntry->actionLength)))
+      (decoder, ndn_BinaryXml_DTag_Action, &forwardingEntry->action)))
     return error;
   if ((error = ndn_decodeBinaryXmlName(&forwardingEntry->prefix, decoder)))
     return error;

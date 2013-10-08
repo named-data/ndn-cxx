@@ -8,6 +8,7 @@
 #define NDN_PUBLISHERPUBLICKEYDIGEST_H
 
 #include "common.h"
+#include "util/blob.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,8 +19,7 @@ extern "C" {
  * We make a separate struct since this is used by multiple other structs.
  */
 struct ndn_PublisherPublicKeyDigest {
-  uint8_t *publisherPublicKeyDigest;      /**< pointer to pre-allocated buffer.  0 for none */
-  size_t publisherPublicKeyDigestLength;  /**< length of publisherPublicKeyDigest.  0 for none */  
+  struct ndn_Blob publisherPublicKeyDigest; /**< A Blob whose value is a pointer to pre-allocated buffer.  0 for none */
 };
 
 /**
@@ -27,8 +27,7 @@ struct ndn_PublisherPublicKeyDigest {
  */
 static inline void ndn_PublisherPublicKeyDigest_initialize(struct ndn_PublisherPublicKeyDigest *self)
 {
-  self->publisherPublicKeyDigest = 0;
-  self->publisherPublicKeyDigestLength = 0;
+  ndn_Blob_initialize(&self->publisherPublicKeyDigest, 0, 0);
 }
 
 #ifdef __cplusplus

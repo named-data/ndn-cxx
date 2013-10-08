@@ -20,24 +20,9 @@ Sha256WithRsaSignature::clone() const
 void 
 Sha256WithRsaSignature::get(struct ndn_Signature& signatureStruct) const 
 {
-  signatureStruct.digestAlgorithmLength = digestAlgorithm_.size();
-  if (digestAlgorithm_.size() > 0)
-    signatureStruct.digestAlgorithm = (uint8_t *)digestAlgorithm_.buf();
-  else
-    signatureStruct.digestAlgorithm = 0;
-
-  signatureStruct.witnessLength = witness_.size();
-  if (witness_.size() > 0)
-    signatureStruct.witness = (uint8_t *)witness_.buf();
-  else
-    signatureStruct.witness = 0;
-
-  signatureStruct.signatureLength = signature_.size();
-  if (signature_.size() > 0)
-    signatureStruct.signature = (uint8_t *)signature_.buf();
-  else
-    signatureStruct.signature = 0;
-  
+  digestAlgorithm_.get(signatureStruct.digestAlgorithm);
+  witness_.get(signatureStruct.witness);
+  signature_.get(signatureStruct.signature);  
   publisherPublicKeyDigest_.get(signatureStruct.publisherPublicKeyDigest);
   keyLocator_.get(signatureStruct.keyLocator);
 }
@@ -45,9 +30,9 @@ Sha256WithRsaSignature::get(struct ndn_Signature& signatureStruct) const
 void 
 Sha256WithRsaSignature::set(const struct ndn_Signature& signatureStruct)
 {
-  digestAlgorithm_ = Blob(signatureStruct.digestAlgorithm, signatureStruct.digestAlgorithmLength);
-  witness_ = Blob(signatureStruct.witness, signatureStruct.witnessLength);
-  signature_ = Blob(signatureStruct.signature, signatureStruct.signatureLength);
+  digestAlgorithm_ = Blob(signatureStruct.digestAlgorithm);
+  witness_ = Blob(signatureStruct.witness);
+  signature_ = Blob(signatureStruct.signature);
   publisherPublicKeyDigest_.set(signatureStruct.publisherPublicKeyDigest);
   keyLocator_.set(signatureStruct.keyLocator);
 }

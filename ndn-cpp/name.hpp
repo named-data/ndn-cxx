@@ -68,11 +68,7 @@ public:
     void 
     get(struct ndn_NameComponent& componentStruct) const 
     {
-      componentStruct.valueLength = value_.size(); 
-      if (value_.size() > 0)
-        componentStruct.value = (uint8_t*)value_.buf();
-      else
-        componentStruct.value = 0;
+      value_.get(componentStruct.value);
     }
   
     const Blob& 

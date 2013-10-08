@@ -9,6 +9,7 @@
 
 #include "../common.h"
 #include "../errors.h"
+#include "../util/blob.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,14 +72,12 @@ ndn_Error ndn_BinaryXmlDecoder_peekDTag(struct ndn_BinaryXmlDecoder *self, unsig
  * @param expectedTag the expected value for DTAG
  * @param allowNull 1 if the binary item may be missing
  * @param value output a pointer to the binary data inside self's input buffer. However, if allowNull is 1 and the
- * binary data item is absent, then return 0.
- * @param valueLength output the length of the binary data. However, if allowNull is 1 and the
- * binary data item is absent, then return 0.
+ * binary data item is absent, then set value and length to 0.
  * @return 0 for success, else an error code, including an error if not the expected tag, or if allowNull is 0
  * and the binary data is absent
  */
 ndn_Error ndn_BinaryXmlDecoder_readBinaryDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, int allowNull, uint8_t **value, size_t *valueLength);
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, int allowNull, struct ndn_Blob *value);
 
 /**
  * Peek at the next element and if it is the expectedTag, call ndn_BinaryXmlDecoder_readBinaryDTagElement.
@@ -87,13 +86,11 @@ ndn_Error ndn_BinaryXmlDecoder_readBinaryDTagElement
  * @param expectedTag the expected value for DTAG
  * @param allowNull 1 if the binary item may be missing
  * @param value output a pointer to the binary data inside self's input buffer. However, if allowNull is 1 and the
- * binary data item is absent, then return 0.
- * @param valueLength output the length of the binary data. However, if allowNull is 1 and the
- * binary data item is absent, then return 0.
+ * binary data item is absent, then set value and length to 0.
  * @return 0 for success, else an error code, including if allowNull is 0 and the binary data is absent
  */
 ndn_Error ndn_BinaryXmlDecoder_readOptionalBinaryDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, int allowNull, uint8_t **value, size_t *valueLength);
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, int allowNull, struct ndn_Blob *value);
 
 /**
  * Decode the header from self's input starting at offset, expecting the type to be DTAG and the value to be expectedTag.
@@ -102,11 +99,10 @@ ndn_Error ndn_BinaryXmlDecoder_readOptionalBinaryDTagElement
  * @param self pointer to the ndn_BinaryXmlDecoder struct
  * @param expectedTag the expected value for DTAG
  * @param value output a pointer to the binary data inside self's input buffer.
- * @param valueLength output the length of the binary data.
  * @return 0 for success, else an error code, including an error if not the expected tag, or if the item is not UDATA.
  */
 ndn_Error ndn_BinaryXmlDecoder_readUDataDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, uint8_t **value, size_t *valueLength);
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, struct ndn_Blob *value);
 
 /**
  * Peek at the next element and if it is the expectedTag, call ndn_BinaryXmlDecoder_readUDataDTagElement.
@@ -114,13 +110,11 @@ ndn_Error ndn_BinaryXmlDecoder_readUDataDTagElement
  * @param self pointer to the ndn_BinaryXmlDecoder struct
  * @param expectedTag the expected value for DTAG
  * @param value output a pointer to the binary data inside self's input buffer. However, if allowNull is 1 and the
- * binary data item is absent, then return 0.
- * @param valueLength output the length of the binary data. However, if allowNull is 1 and the
- * binary data item is absent, then return 0.
+ * binary data item is absent, then set value and length to 0.
  * @return 0 for success, else an error code.
  */
 ndn_Error ndn_BinaryXmlDecoder_readOptionalUDataDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, uint8_t **value, size_t *valueLength);
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, struct ndn_Blob *value);
 
 /**
  * Decode the header from self's input starting at offset, expecting the type to be DTAG and the value to be expectedTag.

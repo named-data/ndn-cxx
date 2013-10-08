@@ -9,6 +9,7 @@
 
 #include "../errors.h"
 #include "../util/dynamic-uint8-array.h"
+#include "../util/blob.h"
 #include "binary-xml.h"
 
 #ifdef __cplusplus
@@ -66,36 +67,33 @@ ndn_Error ndn_BinaryXmlEncoder_writeElementClose(struct ndn_BinaryXmlEncoder *se
 /**
  * Write a BLOB header, then the bytes of the blob value to self->output.
  * @param self pointer to the ndn_BinaryXmlEncoder struct
- * @param value an array of bytes for the blob value
- * @param valueLength the length of the array
+ * @param value A Blob with the array of bytes for the value.
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, uint8_t *value, size_t valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, struct ndn_Blob *value);
 
 /**
  * Write an element start header using DTAG with the tag to self->output, then the blob, then an element close.
  * (If you want to just write the blob, use ndn_BinaryXmlEncoder_writeBlob .)
  * @param self pointer to the ndn_BinaryXmlEncoder struct
  * @param tag the DTAG tag
- * @param value an array of bytes for the blob value
- * @param valueLength the length of the array
+ * @param value A Blob with the array of bytes for the value.
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, struct ndn_Blob *value);
 
 /**
  * If value or valueLen is 0 then do nothing, otherwise call ndn_BinaryXmlEncoder_writeBlobDTagElement.
- * @param self pointer to the ndn_BinaryXmlEncoder struct
- * @param tag the DTAG tag
- * @param value an array of bytes for the blob value
- * @param valueLength the length of the array
+ * @param self A pointer to the ndn_BinaryXmlEncoder struct.
+ * @param tag The DTAG tag.
+ * @param value A Blob with the array of bytes for the value.
  * @return 0 for success, else an error code
  */
 static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement
-  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength)
+  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, struct ndn_Blob *value)
 {
-  if (value && valueLength > 0)
-    return ndn_BinaryXmlEncoder_writeBlobDTagElement(self, tag, value, valueLength);
+  if (value->value && value->length > 0)
+    return ndn_BinaryXmlEncoder_writeBlobDTagElement(self, tag, value);
   else
     return NDN_ERROR_success;
 }
@@ -103,36 +101,33 @@ static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement
 /**
  * Write a UDATA header, then the bytes of the UDATA value to self->output.
  * @param self pointer to the ndn_BinaryXmlEncoder struct
- * @param value an array of bytes for the value
- * @param valueLength the length of the array
+ * @param value A Blob with the array of bytes for the value.
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, uint8_t *value, size_t valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, struct ndn_Blob *value);
 
 /**
  * Write an element start header using DTAG with the tag to self->output, then the UDATA value, then an element close.
  * (If you want to just write the UDATA value, use ndn_BinaryXmlEncoder_writeUData .)
  * @param self pointer to the ndn_BinaryXmlEncoder struct
  * @param tag the DTAG tag
- * @param value an array of bytes for the value
- * @param valueLength the length of the array
+ * @param value A Blob with the array of bytes for the value.
  * @return 0 for success, else an error code
  */
-ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength);
+ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, struct ndn_Blob *value);
 
 /**
  * If value or valueLen is 0 then do nothing, otherwise call ndn_BinaryXmlEncoder_writeUDataDTagElement.
  * @param self pointer to the ndn_BinaryXmlEncoder struct
  * @param tag the DTAG tag
- * @param value an array of bytes for the value
- * @param valueLength the length of the array
+ * @param value A Blob with the array of bytes for the value.
  * @return 0 for success, else an error code
  */
 static inline ndn_Error ndn_BinaryXmlEncoder_writeOptionalUDataDTagElement
-  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength)
+  (struct ndn_BinaryXmlEncoder *self, unsigned int tag, struct ndn_Blob *value)
 {
-  if (value && valueLength > 0)
-    return ndn_BinaryXmlEncoder_writeUDataDTagElement(self, tag, value, valueLength);
+  if (value->value && value->length > 0)
+    return ndn_BinaryXmlEncoder_writeUDataDTagElement(self, tag, value);
   else
     return NDN_ERROR_success;
 }

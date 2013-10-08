@@ -19,8 +19,8 @@ int ndn_Name_match(struct ndn_Name *self, struct ndn_Name *name)
     struct ndn_NameComponent *selfComponent = self->components + i;
     struct ndn_NameComponent *nameComponent = name->components + i;
 
-    if (selfComponent->valueLength != nameComponent->valueLength ||
-        ndn_memcmp(selfComponent->value, nameComponent->value, selfComponent->valueLength) != 0)
+    if (selfComponent->value.length != nameComponent->value.length ||
+        ndn_memcmp(selfComponent->value.value, nameComponent->value.value, selfComponent->value.length) != 0)
       return 0;
   }
 

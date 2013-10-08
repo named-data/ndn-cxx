@@ -26,8 +26,7 @@ static ndn_Error encodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXml
     struct ndn_ExcludeEntry *entry = &exclude->entries[i];
     
     if (entry->type == ndn_Exclude_COMPONENT) {
-      if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-          (encoder, ndn_BinaryXml_DTag_Component, entry->component.value, entry->component.valueLength)))
+      if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement(encoder, ndn_BinaryXml_DTag_Component, &entry->component.value)))
         return error;
     }
     else if (entry->type == ndn_Exclude_ANY) {
@@ -60,15 +59,14 @@ static ndn_Error decodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXml
       return error;    
     if (gotExpectedTag) {
       // Component
-      uint8_t *component;
-      size_t componentLen;
-      if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(decoder, ndn_BinaryXml_DTag_Component, 0, &component, &componentLen)))
+      struct ndn_Blob component;
+      if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(decoder, ndn_BinaryXml_DTag_Component, 0, &component)))
         return error;
     
       // Add the component entry.
       if (exclude->nEntries >= exclude->maxEntries)
         return NDN_ERROR_read_an_entry_past_the_maximum_number_of_entries_allowed_in_the_exclude;
-      ndn_ExcludeEntry_initialize(exclude->entries + exclude->nEntries, ndn_Exclude_COMPONENT, component, componentLen);
+      ndn_ExcludeEntry_initialize(exclude->entries + exclude->nEntries, ndn_Exclude_COMPONENT, component.value, component.length);
       ++exclude->nEntries;
 
       continue;
@@ -96,9 +94,8 @@ static ndn_Error decodeExclude(struct ndn_Exclude *exclude, struct ndn_BinaryXml
       return error;    
     if (gotExpectedTag) {
       // Skip the Bloom and treat it as Any.
-      uint8_t *value;
-      size_t valueLen;
-      if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(decoder, ndn_BinaryXml_DTag_Bloom, 0, &value, &valueLen)))
+      struct ndn_Blob value;
+      if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(decoder, ndn_BinaryXml_DTag_Bloom, 0, &value)))
         return error;
     
       // Add the any entry.
@@ -160,8 +157,7 @@ ndn_Error ndn_encodeBinaryXmlInterest(struct ndn_Interest *interest, struct ndn_
       (encoder, ndn_BinaryXml_DTag_InterestLifetime, interest->interestLifetimeMilliseconds)))
     return error;
   
-  if ((error = ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement
-      (encoder, ndn_BinaryXml_DTag_Nonce, interest->nonce, interest->nonceLength)))
+  if ((error = ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement(encoder, ndn_BinaryXml_DTag_Nonce, &interest->nonce)))
     return error;
   
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
@@ -214,7 +210,7 @@ ndn_Error ndn_decodeBinaryXmlInterest(struct ndn_Interest *interest, struct ndn_
     return error;
   
   if ((error = ndn_BinaryXmlDecoder_readOptionalBinaryDTagElement
-      (decoder, ndn_BinaryXml_DTag_Nonce, 0, &interest->nonce, &interest->nonceLength)))
+      (decoder, ndn_BinaryXml_DTag_Nonce, 0, &interest->nonce)))
     return error;
 
   if ((error = ndn_BinaryXmlDecoder_readElementClose(decoder)))

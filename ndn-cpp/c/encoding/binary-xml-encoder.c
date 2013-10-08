@@ -217,25 +217,25 @@ ndn_Error ndn_BinaryXmlEncoder_writeElementClose(struct ndn_BinaryXmlEncoder *se
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, uint8_t *value, size_t valueLength)
+ndn_Error ndn_BinaryXmlEncoder_writeBlob(struct ndn_BinaryXmlEncoder *self, struct ndn_Blob *value)
 {
   ndn_Error error;
-  if ((error = ndn_BinaryXmlEncoder_encodeTypeAndValue(self, ndn_BinaryXml_BLOB, valueLength)))
+  if ((error = ndn_BinaryXmlEncoder_encodeTypeAndValue(self, ndn_BinaryXml_BLOB, value->length)))
     return error;
   
-  if ((error = writeArray(self, value, valueLength)))
+  if ((error = writeArray(self, value->value, value->length)))
     return error;
   
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength)
+ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, struct ndn_Blob *value)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(self, tag)))
     return error;
   
-  if ((error = ndn_BinaryXmlEncoder_writeBlob(self, value, valueLength)))
+  if ((error = ndn_BinaryXmlEncoder_writeBlob(self, value)))
     return error;  
   
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(self)))
@@ -244,25 +244,25 @@ ndn_Error ndn_BinaryXmlEncoder_writeBlobDTagElement(struct ndn_BinaryXmlEncoder 
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, uint8_t *value, size_t valueLength)
+ndn_Error ndn_BinaryXmlEncoder_writeUData(struct ndn_BinaryXmlEncoder *self, struct ndn_Blob *value)
 {
   ndn_Error error;
-  if ((error = ndn_BinaryXmlEncoder_encodeTypeAndValue(self, ndn_BinaryXml_UDATA, valueLength)))
+  if ((error = ndn_BinaryXmlEncoder_encodeTypeAndValue(self, ndn_BinaryXml_UDATA, value->length)))
     return error;
   
-  if ((error = writeArray(self, value, valueLength)))
+  if ((error = writeArray(self, value->value, value->length)))
     return error;
   
   return NDN_ERROR_success;
 }
 
-ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, uint8_t *value, size_t valueLength)
+ndn_Error ndn_BinaryXmlEncoder_writeUDataDTagElement(struct ndn_BinaryXmlEncoder *self, unsigned int tag, struct ndn_Blob *value)
 {
   ndn_Error error;
   if ((error = ndn_BinaryXmlEncoder_writeElementStartDTag(self, tag)))
     return error;
   
-  if ((error = ndn_BinaryXmlEncoder_writeUData(self, value, valueLength)))
+  if ((error = ndn_BinaryXmlEncoder_writeUData(self, value)))
     return error;  
   
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(self)))

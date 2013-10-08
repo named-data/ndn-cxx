@@ -31,7 +31,7 @@ Exclude::set(const struct ndn_Exclude& excludeStruct)
     ndn_ExcludeEntry *entry = &excludeStruct.entries[i];
     
     if (entry->type == ndn_Exclude_COMPONENT)
-      addComponent(entry->component.value, entry->component.valueLength);
+      addComponent(entry->component.value.value, entry->component.value.length);
     else if (entry->type == ndn_Exclude_ANY)
       addAny();
     else
@@ -73,7 +73,7 @@ Interest::set(const struct ndn_Interest& interestStruct)
   answerOriginKind_ = interestStruct.answerOriginKind;
   scope_ = interestStruct.scope;
   interestLifetimeMilliseconds_ = interestStruct.interestLifetimeMilliseconds;
-  nonce_ = Blob(interestStruct.nonce, interestStruct.nonceLength);
+  nonce_ = Blob(interestStruct.nonce);
 }
 
 void 
@@ -88,12 +88,7 @@ Interest::get(struct ndn_Interest& interestStruct) const
   interestStruct.answerOriginKind = answerOriginKind_;
   interestStruct.scope = scope_;
   interestStruct.interestLifetimeMilliseconds = interestLifetimeMilliseconds_;
-
-  interestStruct.nonceLength = nonce_.size();
-  if (nonce_.size() > 0)
-    interestStruct.nonce = (uint8_t *)nonce_.buf();
-  else
-    interestStruct.nonce = 0;
+  nonce_.get(interestStruct.nonce);
 }
   
 }

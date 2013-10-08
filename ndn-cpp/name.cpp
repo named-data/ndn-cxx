@@ -221,7 +221,7 @@ Name::set(const struct ndn_Name& nameStruct)
 {
   clear();
   for (size_t i = 0; i < nameStruct.nComponents; ++i)
-    addComponent(nameStruct.components[i].value, nameStruct.components[i].valueLength);  
+    addComponent(nameStruct.components[i].value.value, nameStruct.components[i].value.length);  
 }
 
 Name&

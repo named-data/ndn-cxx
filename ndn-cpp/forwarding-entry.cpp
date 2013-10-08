@@ -15,8 +15,8 @@ namespace ndn {
 void 
 ForwardingEntry::set(const struct ndn_ForwardingEntry& forwardingEntryStruct) 
 {
-  if (forwardingEntryStruct.action && forwardingEntryStruct.actionLength > 0)
-    action_ = string(forwardingEntryStruct.action, forwardingEntryStruct.action + forwardingEntryStruct.actionLength);
+  if (forwardingEntryStruct.action.value && forwardingEntryStruct.action.length > 0)
+    action_ = string(forwardingEntryStruct.action.value, forwardingEntryStruct.action.value + forwardingEntryStruct.action.length);
   else
     action_ = "";
             
@@ -36,11 +36,11 @@ ForwardingEntry::get(struct ndn_ForwardingEntry& forwardingEntryStruct) const
   forwardingEntryStruct.forwardingFlags = forwardingFlags_;
   forwardingEntryStruct.freshnessSeconds = freshnessSeconds_;
 
-  forwardingEntryStruct.actionLength = action_.size();
+  forwardingEntryStruct.action.length = action_.size();
   if (action_.size() > 0)
-    forwardingEntryStruct.action = (uint8_t *)&action_[0];
+    forwardingEntryStruct.action.value = (uint8_t *)&action_[0];
   else
-    forwardingEntryStruct.action = 0;
+    forwardingEntryStruct.action.value = 0;
 }
 
 }

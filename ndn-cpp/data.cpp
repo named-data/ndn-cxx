@@ -31,7 +31,7 @@ MetaInfo::set(const struct ndn_MetaInfo& metaInfoStruct)
   timestampMilliseconds_ = metaInfoStruct.timestampMilliseconds;
   type_ = metaInfoStruct.type;
   freshnessSeconds_ = metaInfoStruct.freshnessSeconds;
-  finalBlockID_ = Name::Component(Blob(metaInfoStruct.finalBlockID.value, metaInfoStruct.finalBlockID.valueLength));
+  finalBlockID_ = Name::Component(Blob(metaInfoStruct.finalBlockID.value));
 }
 
 Data::Data()
@@ -50,12 +50,7 @@ Data::get(struct ndn_Data& dataStruct) const
   signature_->get(dataStruct.signature);
   name_.get(dataStruct.name);
   metaInfo_.get(dataStruct.metaInfo);
-  
-  dataStruct.contentLength = content_.size();
-  if (content_.size() > 0)
-    dataStruct.content = (uint8_t*)content_.buf();
-  else
-    dataStruct.content = 0;
+  content_.get(dataStruct.content);
 }
 
 void 
@@ -64,7 +59,7 @@ Data::set(const struct ndn_Data& dataStruct)
   signature_->set(dataStruct.signature);
   name_.set(dataStruct.name);
   metaInfo_.set(dataStruct.metaInfo);
-  content_ = Blob(dataStruct.content, dataStruct.contentLength);
+  content_ = Blob(dataStruct.content);
 
   onChanged();
 }

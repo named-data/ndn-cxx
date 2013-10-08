@@ -19,13 +19,11 @@ static ndn_Error encodeSignature(struct ndn_Signature *signature, struct ndn_Bin
   
   // TODO: Check if digestAlgorithm is the same as the default, and skip it, otherwise encode it as UDATA.
 
-  if ((error = ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement
-      (encoder, ndn_BinaryXml_DTag_Witness, signature->witness, signature->witnessLength)))
+  if ((error = ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement(encoder, ndn_BinaryXml_DTag_Witness, &signature->witness)))
     return error;
 
   // Require a signature.
-  if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-      (encoder, ndn_BinaryXml_DTag_SignatureBits, signature->signature, signature->signatureLength)))
+  if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement(encoder, ndn_BinaryXml_DTag_SignatureBits, &signature->signature)))
     return error;
   
   if ((error = ndn_BinaryXmlEncoder_writeElementClose(encoder)))
@@ -40,15 +38,15 @@ static ndn_Error decodeSignature(struct ndn_Signature *signature, struct ndn_Bin
   if ((error = ndn_BinaryXmlDecoder_readElementStartDTag(decoder, ndn_BinaryXml_DTag_Signature)))
     return error;
   
-  /* TODO: digestAlgorithm as UDATA */ signature->digestAlgorithm = 0; signature->digestAlgorithmLength = 0;
+  /* TODO: digestAlgorithm as UDATA */ signature->digestAlgorithm.value = 0; signature->digestAlgorithm.length = 0;
   
   if ((error = ndn_BinaryXmlDecoder_readOptionalBinaryDTagElement
-      (decoder, ndn_BinaryXml_DTag_Witness, 0, &signature->witness, &signature->witnessLength)))
+      (decoder, ndn_BinaryXml_DTag_Witness, 0, &signature->witness)))
     return error;
   
   // Require a signature.
   if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement
-      (decoder, ndn_BinaryXml_DTag_SignatureBits, 0, &signature->signature, &signature->signatureLength)))
+      (decoder, ndn_BinaryXml_DTag_SignatureBits, 0, &signature->signature)))
     return error;
   
   if ((error = ndn_BinaryXmlDecoder_readElementClose(decoder)))
@@ -76,23 +74,22 @@ static ndn_Error encodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
   
   if (!(metaInfo->type < 0 || metaInfo->type == ndn_ContentType_DATA)) {
     // Not the default of DATA, so we need to encode the type.
-    uint8_t *typeBytes;
-    size_t typeBytesLength = 3;
+    struct ndn_Blob typeBytes;
+    typeBytes.length = 3;
     if (metaInfo->type == ndn_ContentType_ENCR)
-      typeBytes = "\x10\xD0\x91";
+      typeBytes.value = "\x10\xD0\x91";
     else if (metaInfo->type == ndn_ContentType_GONE)
-      typeBytes = "\x18\xE3\x44";
+      typeBytes.value = "\x18\xE3\x44";
     else if (metaInfo->type == ndn_ContentType_KEY)
-      typeBytes = "\x28\x46\x3F";
+      typeBytes.value = "\x28\x46\x3F";
     else if (metaInfo->type == ndn_ContentType_LINK)
-      typeBytes = "\x2C\x83\x4A";
+      typeBytes.value = "\x2C\x83\x4A";
     else if (metaInfo->type == ndn_ContentType_NACK)
-      typeBytes = "\x34\x00\x8A";
+      typeBytes.value = "\x34\x00\x8A";
     else
       return NDN_ERROR_unrecognized_ndn_ContentType;
 
-    if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-        (encoder, ndn_BinaryXml_DTag_Type, typeBytes, typeBytesLength)))
+    if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement(encoder, ndn_BinaryXml_DTag_Type, &typeBytes)))
       return error;
   }
   
@@ -101,7 +98,7 @@ static ndn_Error encodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
     return error;
   
   if ((error = ndn_BinaryXmlEncoder_writeOptionalBlobDTagElement
-      (encoder, ndn_BinaryXml_DTag_FinalBlockID, metaInfo->finalBlockID.value, metaInfo->finalBlockID.valueLength)))
+      (encoder, ndn_BinaryXml_DTag_FinalBlockID, &metaInfo->finalBlockID.value)))
     return error;
  
   // This will skip encoding if there is no key locator.
@@ -127,27 +124,26 @@ static ndn_Error decodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
       (decoder, ndn_BinaryXml_DTag_Timestamp, &metaInfo->timestampMilliseconds))
     return error;
   
-  uint8_t *typeBytes;
-  size_t typeBytesLength;
+  struct ndn_Blob typeBytes;
   if ((error = ndn_BinaryXmlDecoder_readOptionalBinaryDTagElement
-      (decoder, ndn_BinaryXml_DTag_Type, 0, &typeBytes, &typeBytesLength)))
+      (decoder, ndn_BinaryXml_DTag_Type, 0, &typeBytes)))
     return error;
-  if (typeBytesLength == 0)
+  if (typeBytes.length == 0)
     // The default Type is DATA.
     metaInfo->type = ndn_ContentType_DATA;
-  else if (typeBytesLength == 3) {
+  else if (typeBytes.length == 3) {
     // All the recognized content types are 3 bytes.
-    if (ndn_memcmp(typeBytes, "\x0C\x04\xC0", typeBytesLength) == 0)
+    if (ndn_memcmp(typeBytes.value, "\x0C\x04\xC0", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_DATA;
-    else if (ndn_memcmp(typeBytes, "\x10\xD0\x91", typeBytesLength) == 0)
+    else if (ndn_memcmp(typeBytes.value, "\x10\xD0\x91", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_ENCR;
-    else if (ndn_memcmp(typeBytes, "\x18\xE3\x44", typeBytesLength) == 0)
+    else if (ndn_memcmp(typeBytes.value, "\x18\xE3\x44", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_GONE;
-    else if (ndn_memcmp(typeBytes, "\x28\x46\x3F", typeBytesLength) == 0)
+    else if (ndn_memcmp(typeBytes.value, "\x28\x46\x3F", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_KEY;
-    else if (ndn_memcmp(typeBytes, "\x2C\x83\x4A", typeBytesLength) == 0)
+    else if (ndn_memcmp(typeBytes.value, "\x2C\x83\x4A", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_LINK;
-    else if (ndn_memcmp(typeBytes, "\x34\x00\x8A", typeBytesLength) == 0)
+    else if (ndn_memcmp(typeBytes.value, "\x34\x00\x8A", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_NACK;
     else
       return NDN_ERROR_unrecognized_ndn_ContentType;
@@ -160,7 +156,7 @@ static ndn_Error decodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
     return error;
 
   if ((error = ndn_BinaryXmlDecoder_readOptionalBinaryDTagElement
-      (decoder, ndn_BinaryXml_DTag_FinalBlockID, 0, &metaInfo->finalBlockID.value, &metaInfo->finalBlockID.valueLength)))
+      (decoder, ndn_BinaryXml_DTag_FinalBlockID, 0, &metaInfo->finalBlockID.value)))
     return error;
 
   if ((error = ndn_decodeOptionalBinaryXmlKeyLocator(&signature->keyLocator, decoder)))
@@ -190,8 +186,7 @@ ndn_Error ndn_encodeBinaryXmlData
   if ((error = encodeSignedInfo(&data->signature, &data->metaInfo, encoder)))
     return error;
 
-  if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement
-      (encoder, ndn_BinaryXml_DTag_Content, data->content, data->contentLength)))
+  if ((error = ndn_BinaryXmlEncoder_writeBlobDTagElement(encoder, ndn_BinaryXml_DTag_Content, &data->content)))
     return error;
 
   *signedPortionEndOffset = encoder->offset;
@@ -234,8 +229,7 @@ ndn_Error ndn_decodeBinaryXmlData
     ndn_MetaInfo_initialize(&data->metaInfo);
 
   // Require a Content element, but set allowNull to allow a missing BLOB.
-  if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement
-      (decoder, ndn_BinaryXml_DTag_Content, 1, &data->content, &data->contentLength)))
+  if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(decoder, ndn_BinaryXml_DTag_Content, 1, &data->content)))
     return error; 
   
   *signedPortionEndOffset = decoder->offset;

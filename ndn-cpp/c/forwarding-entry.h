@@ -31,8 +31,7 @@ typedef enum {
  * An ndn_ForwardingEntry holds fields for a ForwardingEntry which is used to register a prefix with a hub.
  */
 struct ndn_ForwardingEntry {
-  uint8_t *action;     /**< pointer to pre-allocated buffer.  0 for none. */
-  size_t actionLength; /**< length of action.  0 for none. */
+  struct ndn_Blob action;   /**< A Blob whose value is a pointer to a pre-allocated buffer.  0 for none. */
   struct ndn_Name prefix;
   struct ndn_PublisherPublicKeyDigest publisherPublicKeyDigest;
   int faceId;               /**< -1 for none. */
@@ -50,8 +49,7 @@ struct ndn_ForwardingEntry {
 static inline void ndn_ForwardingEntry_initialize
   (struct ndn_ForwardingEntry *self, struct ndn_NameComponent *prefixNameComponents, size_t maxPrefixNameComponents) 
 {
-  self->action = 0;
-  self->actionLength = 0;
+  ndn_Blob_initialize(&self->action, 0, 0);
   ndn_Name_initialize(&self->prefix, prefixNameComponents, maxPrefixNameComponents);
   ndn_PublisherPublicKeyDigest_initialize(&self->publisherPublicKeyDigest);
   self->faceId = -1;

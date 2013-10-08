@@ -30,11 +30,7 @@ public:
   void 
   get(struct ndn_PublisherPublicKeyDigest& publisherPublicKeyDigestStruct) const 
   {
-    publisherPublicKeyDigestStruct.publisherPublicKeyDigestLength = publisherPublicKeyDigest_.size();
-    if (publisherPublicKeyDigest_.size() > 0)
-      publisherPublicKeyDigestStruct.publisherPublicKeyDigest = (uint8_t *)publisherPublicKeyDigest_.buf();
-    else
-      publisherPublicKeyDigestStruct.publisherPublicKeyDigest = 0;
+    publisherPublicKeyDigest_.get(publisherPublicKeyDigestStruct.publisherPublicKeyDigest);
   }
   
   /**
@@ -44,8 +40,7 @@ public:
   void 
   set(const struct ndn_PublisherPublicKeyDigest& publisherPublicKeyDigestStruct) 
   {
-    publisherPublicKeyDigest_ = 
-      Blob(publisherPublicKeyDigestStruct.publisherPublicKeyDigest, publisherPublicKeyDigestStruct.publisherPublicKeyDigestLength);
+    publisherPublicKeyDigest_ = Blob(publisherPublicKeyDigestStruct.publisherPublicKeyDigest);
   }
 
   const Blob& 
