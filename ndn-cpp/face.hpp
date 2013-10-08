@@ -47,7 +47,7 @@ public:
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
    * @return The pending interest ID which can be used with removePendingInterest.
    */
-  unsigned int 
+  uint64_t 
   expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout = OnTimeout())
   {
     return node_.expressInterest(interest, onData, onTimeout);
@@ -64,7 +64,7 @@ public:
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
    * @return The pending interest ID which can be used with removePendingInterest.
    */
-  unsigned int 
+  uint64_t 
   expressInterest(const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout = OnTimeout());
 
   /**
@@ -77,7 +77,7 @@ public:
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
    * @return The pending interest ID which can be used with removePendingInterest.
    */
-  unsigned int 
+  uint64_t 
   expressInterest(const Name& name, const OnData& onData, const OnTimeout& onTimeout = OnTimeout()) 
   {
     return expressInterest(name, 0, onData, onTimeout);
@@ -90,7 +90,7 @@ public:
    * @param pendingInterestId The ID returned from expressInterest.
    */
   void
-  removePendingInterest(unsigned int pendingInterestId)
+  removePendingInterest(uint64_t pendingInterestId)
   {
     node_.removePendingInterest(pendingInterestId);
   }
@@ -107,7 +107,7 @@ public:
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    * @return The registered prefix ID which can be used with removeRegisteredPrefix.
    */
-  unsigned int 
+  uint64_t 
   registerPrefix
     (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags = ForwardingFlags(), 
      WireFormat& wireFormat = *WireFormat::getDefaultWireFormat())
@@ -122,7 +122,7 @@ public:
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
   void
-  removeRegisteredPrefix(unsigned int registeredPrefixId)
+  removeRegisteredPrefix(uint64_t registeredPrefixId)
   {
     node_.removeRegisteredPrefix(registeredPrefixId);
   }

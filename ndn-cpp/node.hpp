@@ -58,7 +58,7 @@ public:
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
    * @return The pending interest ID which can be used with removePendingInterest.
    */
-  unsigned int 
+  uint64_t 
   expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout);
   
   /**
@@ -68,7 +68,7 @@ public:
    * @param pendingInterestId The ID returned from expressInterest.
    */
   void
-  removePendingInterest(unsigned int pendingInterestId);
+  removePendingInterest(uint64_t pendingInterestId);
   
   /**
    * Register prefix with the connected NDN hub and call onInterest when a matching interest is received.
@@ -81,7 +81,7 @@ public:
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    * @return The registered prefix ID which can be used with removeRegisteredPrefix.
    */
-  unsigned int 
+  uint64_t 
   registerPrefix
     (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags, 
      WireFormat& wireFormat);
@@ -93,7 +93,7 @@ public:
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
   void
-  removeRegisteredPrefix(unsigned int registeredPrefixId);
+  removeRegisteredPrefix(uint64_t registeredPrefixId);
 
   /**
    * Process any data to receive.  For each element received, call onReceivedElement.
@@ -128,13 +128,13 @@ private:
      * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
      */
     PendingInterest
-      (unsigned int pendingInterestId, const ptr_lib::shared_ptr<const Interest>& interest, const OnData& onData, 
+      (uint64_t pendingInterestId, const ptr_lib::shared_ptr<const Interest>& interest, const OnData& onData, 
        const OnTimeout& onTimeout);
     
     /**
      * Return the next unique pending interest ID.
      */
-    static unsigned int 
+    static uint64_t 
     getNextPendingInterestId()
     {
       return ++lastPendingInterestId_;
@@ -143,7 +143,7 @@ private:
     /**
      * Return the pendingInterestId given to the constructor.
      */
-    unsigned int 
+    uint64_t 
     getPendingInterestId() { return pendingInterestId_; }
     
     const ptr_lib::shared_ptr<const Interest>& 
@@ -181,8 +181,8 @@ private:
     std::vector<struct ndn_ExcludeEntry> excludeEntries_;
     struct ndn_Interest interestStruct_;
   
-    static unsigned int lastPendingInterestId_; /**< A class variable used to get the next unique ID. */
-    unsigned int pendingInterestId_;            /**< A unique identifier for this entry so it can be deleted */
+    static uint64_t lastPendingInterestId_; /**< A class variable used to get the next unique ID. */
+    uint64_t pendingInterestId_;            /**< A unique identifier for this entry so it can be deleted */
     const OnData onData_;
     const OnTimeout onTimeout_;
     double timeoutTimeMilliseconds_; /**< The time when the interest times out in milliseconds according to gettimeofday, or -1 for no timeout. */
@@ -196,7 +196,7 @@ private:
      * @param prefix A shared_ptr for the prefix.
      * @param onInterest A function object to call when a matching data packet is received.
      */
-    RegisteredPrefix(unsigned int registeredPrefixId, const ptr_lib::shared_ptr<const Name>& prefix, const OnInterest& onInterest)
+    RegisteredPrefix(uint64_t registeredPrefixId, const ptr_lib::shared_ptr<const Name>& prefix, const OnInterest& onInterest)
     : registeredPrefixId_(registeredPrefixId), prefix_(prefix), onInterest_(onInterest)
     {
     }
@@ -204,7 +204,7 @@ private:
     /**
      * Return the next unique entry ID.
      */
-    static unsigned int 
+    static uint64_t 
     getNextRegisteredPrefixId()
     {
       return ++lastRegisteredPrefixId_;
@@ -213,7 +213,7 @@ private:
     /**
      * Return the registeredPrefixId given to the constructor.
      */
-    unsigned int 
+    uint64_t 
     getRegisteredPrefixId() { return registeredPrefixId_; }
     
     const ptr_lib::shared_ptr<const Name>& 
@@ -223,8 +223,8 @@ private:
     getOnInterest() { return onInterest_; }
     
   private:
-    static unsigned int lastRegisteredPrefixId_; /**< A class variable used to get the next unique ID. */
-    unsigned int registeredPrefixId_;            /**< A unique identifier for this entry so it can be deleted */
+    static uint64_t lastRegisteredPrefixId_; /**< A class variable used to get the next unique ID. */
+    uint64_t registeredPrefixId_;            /**< A unique identifier for this entry so it can be deleted */
     ptr_lib::shared_ptr<const Name> prefix_;
     const OnInterest onInterest_;
   };
@@ -268,7 +268,7 @@ private:
        * @param flags
        * @param wireFormat
        */
-      Info(Node *node, unsigned int registeredPrefixId, const Name& prefix, const OnInterest& onInterest, 
+      Info(Node *node, uint64_t registeredPrefixId, const Name& prefix, const OnInterest& onInterest, 
            const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags, WireFormat& wireFormat)
       : node_(*node), registeredPrefixId_(registeredPrefixId), prefix_(new Name(prefix)), onInterest_(onInterest), onRegisterFailed_(onRegisterFailed), 
         flags_(flags), wireFormat_(wireFormat)
@@ -276,7 +276,7 @@ private:
       }
       
       Node& node_;
-      unsigned int registeredPrefixId_;
+      uint64_t registeredPrefixId_;
       ptr_lib::shared_ptr<const Name> prefix_;
       const OnInterest onInterest_;
       const OnRegisterFailed onRegisterFailed_;
@@ -316,7 +316,7 @@ private:
    */  
   void 
   registerPrefixHelper
-    (unsigned int registeredPrefixId, const ptr_lib::shared_ptr<const Name>& prefix, const OnInterest& onInterest, 
+    (uint64_t registeredPrefixId, const ptr_lib::shared_ptr<const Name>& prefix, const OnInterest& onInterest, 
      const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags, WireFormat& wireFormat);
   
   ptr_lib::shared_ptr<Transport> transport_;

@@ -10,7 +10,7 @@ using namespace std;
 
 namespace ndn {
   
-unsigned int 
+uint64_t 
 Face::expressInterest(const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout)
 {
   if (interestTemplate)

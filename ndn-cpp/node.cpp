@@ -65,8 +65,8 @@ static uint8_t SELFREG_PRIVATE_KEY_DER[] = {
 0x30, 0x18, 0xeb, 0x90, 0xfb, 0x17, 0xd3, 0xce, 0xb5
 };
 
-unsigned int Node::PendingInterest::lastPendingInterestId_ = 0;
-unsigned int Node::RegisteredPrefix::lastRegisteredPrefixId_ = 0;
+uint64_t Node::PendingInterest::lastPendingInterestId_ = 0;
+uint64_t Node::RegisteredPrefix::lastRegisteredPrefixId_ = 0;
 
 /**
  * Set the KeyLocator using the full SELFREG_PUBLIC_KEY_DER, sign the data packet using SELFREG_PRIVATE_KEY_DER 
@@ -123,14 +123,14 @@ Node::Node(const shared_ptr<Transport>& transport, const shared_ptr<const Transp
 {
 }
 
-unsigned int 
+uint64_t 
 Node::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)
 {
   // TODO: Properly check if we are already connected to the expected host.
   if (!transport_->getIsConnected())
     transport_->connect(*connectionInfo_, *this);
   
-  unsigned int pendingInterestId = PendingInterest::getNextPendingInterestId();
+  uint64_t pendingInterestId = PendingInterest::getNextPendingInterestId();
   pendingInterestTable_.push_back(shared_ptr<PendingInterest>(new PendingInterest
     (pendingInterestId, shared_ptr<const Interest>(new Interest(interest)), onData, onTimeout)));
   
@@ -141,7 +141,7 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
 }
 
 void
-Node::removePendingInterest(unsigned int pendingInterestId)
+Node::removePendingInterest(uint64_t pendingInterestId)
 {
   // Go backwards through the list so we can erase entries.
   // Remove all entries even though pendingInterestId should be unique.
@@ -151,12 +151,12 @@ Node::removePendingInterest(unsigned int pendingInterestId)
   }
 }
 
-unsigned int 
+uint64_t 
 Node::registerPrefix
   (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags, WireFormat& wireFormat)
 {
   // Get the registeredPrefixId now so we can return it to the caller.
-  unsigned int registeredPrefixId = RegisteredPrefix::getNextRegisteredPrefixId();
+  uint64_t registeredPrefixId = RegisteredPrefix::getNextRegisteredPrefixId();
 
   if (ndndId_.size() == 0) {
     // First fetch the ndndId of the connected hub.
@@ -173,7 +173,7 @@ Node::registerPrefix
 }
 
 void
-Node::removeRegisteredPrefix(unsigned int registeredPrefixId)
+Node::removeRegisteredPrefix(uint64_t registeredPrefixId)
 {
   // Go backwards through the list so we can erase entries.
   // Remove all entries even though pendingInterestId should be unique.
@@ -206,7 +206,7 @@ Node::NdndIdFetcher::operator()(const shared_ptr<const Interest>& timedOutIntere
 
 void 
 Node::registerPrefixHelper
-  (unsigned int registeredPrefixId, const shared_ptr<const Name>& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, 
+  (uint64_t registeredPrefixId, const shared_ptr<const Name>& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, 
    const ForwardingFlags& flags, WireFormat& wireFormat)
 {
   // Create a ForwardingEntry.
@@ -337,7 +337,7 @@ Node::getEntryForRegisteredPrefix(const Name& name)
 }
 
 Node::PendingInterest::PendingInterest
-  (unsigned int pendingInterestId, const shared_ptr<const Interest>& interest, const OnData& onData, const OnTimeout& onTimeout)
+  (uint64_t pendingInterestId, const shared_ptr<const Interest>& interest, const OnData& onData, const OnTimeout& onTimeout)
 : pendingInterestId_(pendingInterestId), interest_(interest), onData_(onData), onTimeout_(onTimeout)
 {
   // Set up timeoutTime_.
