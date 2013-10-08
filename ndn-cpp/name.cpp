@@ -109,6 +109,19 @@ unescape(const string& str)
   return result.str();
 }
 
+uint64_t Name::Component::toNumberWithMarker(uint8_t marker) const
+{
+  struct ndn_NameComponent componentStruct;
+  get(componentStruct);
+  uint64_t result;
+  
+  ndn_Error error;
+  if ((error = ndn_NameComponent_toNumberWithMarker(&componentStruct, marker, &result)))
+    throw std::runtime_error(ndn_getErrorString(error));
+    
+  return result;
+}
+
 Blob 
 Name::Component::makeFromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset)
 {

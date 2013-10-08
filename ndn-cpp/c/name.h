@@ -7,6 +7,7 @@
 #ifndef NDN_NAME_H
 #define NDN_NAME_H
 
+#include "errors.h"
 #include "util/blob.h"
 
 #ifdef __cplusplus
@@ -30,7 +31,32 @@ static inline void ndn_NameComponent_initialize(struct ndn_NameComponent *self, 
 {
   ndn_Blob_initialize(&self->value, value, valueLength);
 }
-  
+
+/**
+/**
+ * Interpret the name component as a network-ordered number and return an integer.
+ * @param self A pointer to the ndn_NameComponent struct.
+ * @return The integer number.
+ */
+uint64_t ndn_NameComponent_toNumber(struct ndn_NameComponent *self);
+
+/**
+ * Convert binary blob name component (network-ordered number) to number, using appropriate marker from the naming convention
+ * @param comp name component to be converted
+ * @param marker required marker from the naming convention
+ *
+ * If the required marker does not exist, an exception will be thrown
+ */  
+
+/**
+ * Interpret the name component as a network-ordered number with a marker and return an integer.
+ * @param self A pointer to the ndn_NameComponent struct.
+ * @param marker The required first byte of the component.
+ * @param result Return the integer number.
+ * @return 0 for success, or an error code if the first byte of the component does not equal the marker.
+ */
+ndn_Error ndn_NameComponent_toNumberWithMarker(struct ndn_NameComponent *self, uint8_t marker, uint64_t *result);
+
 /**
  * An ndn_Name holds an array of ndn_NameComponent.
  */

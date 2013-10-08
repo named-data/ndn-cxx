@@ -97,6 +97,15 @@ public:
       return Name::toEscapedString(*value_);
     }
     
+    uint64_t toNumber() const
+    {
+      struct ndn_NameComponent componentStruct;
+      get(componentStruct);
+      return ndn_NameComponent_toNumber(&componentStruct);
+    }
+
+    uint64_t toNumberWithMarker(uint8_t marker) const;
+    
     /**
      * Make a component value by decoding the escapedString between beginOffset and endOffset according to the NDN URI Scheme.
      * If the escaped string is "", "." or ".." then return a Blob with a null pointer, which means this component value was not changed, and
