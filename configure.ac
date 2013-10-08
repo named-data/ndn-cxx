@@ -12,6 +12,18 @@ AM_PROG_CC_C_O
 AC_PROG_OBJCXX
 AC_LANG([C++])
 AX_LIB_SQLITE3()
+AC_TYPE_SIZE_T
+AC_TYPE_INT8_T
+AC_TYPE_INT16_T
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
+AC_TYPE_UINT8_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_CHECK_FUNCS([memcmp])
+AC_CHECK_FUNCS([memcpy])
+AC_CHECK_FUNCS([memset])
 
 AX_CXX_COMPILE_STDCXX_11(, optional)
 AC_CHECK_LIB([crypto], [EVP_EncryptInit], [],
@@ -61,52 +73,6 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
 ], [
     AC_MSG_RESULT([no])
     AC_DEFINE_UNQUOTED([HAVE_BOOST_FUNCTION], 0, [1 if have the `boost::function' class.])
-])
-
-AC_MSG_CHECKING([for memcmp])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-    [[#include <memory.h>]]
-    [[void test() { unsigned char buffer[1]; memcmp(buffer, buffer, 1); }]])
-], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE_UNQUOTED([HAVE_MEMCMP], 1, [1 if have memcmp in memory.h.])
-], [
-    AC_MSG_RESULT([no])
-    AC_DEFINE_UNQUOTED([HAVE_MEMCMP], 0, [1 if have memcmp in memory.h.])
-])
-AC_MSG_CHECKING([for memcpy])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-    [[#include <memory.h>]]
-    [[void test() { unsigned char buffer[1]; memcpy(buffer, buffer, 1); }]])
-], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE_UNQUOTED([HAVE_MEMCPY], 1, [1 if have memcpy in memory.h.])
-], [
-    AC_MSG_RESULT([no])
-    AC_DEFINE_UNQUOTED([HAVE_MEMCPY], 0, [1 if have memcpy in memory.h.])
-])
-AC_MSG_CHECKING([for memset])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-    [[#include <memory.h>]]
-    [[void test() { unsigned char buffer[1]; memset(buffer, 0, 1); }]])
-], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE_UNQUOTED([HAVE_MEMSET], 1, [1 if have memset in memory.h.])
-], [
-    AC_MSG_RESULT([no])
-    AC_DEFINE_UNQUOTED([HAVE_MEMSET], 0, [1 if have memset in memory.h.])
-])
-
-AC_MSG_CHECKING([for stdint])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-    [[#include <stdint.h>]]
-    [[void test() { uint8_t x; }]])
-], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE_UNQUOTED([HAVE_STDINT], 1, [1 if have stdint.h.])
-], [
-    AC_MSG_RESULT([no])
-    AC_DEFINE_UNQUOTED([HAVE_STDINT], 0, [1 if have stdint.h.])
 ])
 
 AC_MSG_CHECKING([for OSX SecKeychain])
