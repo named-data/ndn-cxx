@@ -30,7 +30,7 @@ typedef func_lib::function<void(const ptr_lib::shared_ptr<const Interest>&)> OnT
  * An OnInterest function object is used to pass a callback to registerPrefix.
  */
 typedef func_lib::function<void
-  (const ptr_lib::shared_ptr<const Name>&, const ptr_lib::shared_ptr<const Interest>&, Transport&)> OnInterest;
+  (const ptr_lib::shared_ptr<const Name>&, const ptr_lib::shared_ptr<const Interest>&, Transport&, uint64_t)> OnInterest;
 
 /**
  * An OnRegisterFailed function object is used to report when registerPrefix fails.

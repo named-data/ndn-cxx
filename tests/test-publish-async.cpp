@@ -73,7 +73,8 @@ public:
   
   // onInterest.
   void operator()
-     (const shared_ptr<const Name>& prefix, const shared_ptr<const Interest>& interest, Transport& transport) 
+     (const shared_ptr<const Name>& prefix, const shared_ptr<const Interest>& interest, Transport& transport,
+      uint64_t registeredPrefixId) 
   {
     ++responseCount_;
     

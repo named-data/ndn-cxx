@@ -268,7 +268,7 @@ Node::onReceivedElement(const uint8_t *element, size_t elementLength)
     
     RegisteredPrefix *entry = getEntryForRegisteredPrefix(interest->getName());
     if (entry)
-      entry->getOnInterest()(entry->getPrefix(), interest, *transport_);
+      entry->getOnInterest()(entry->getPrefix(), interest, *transport_, entry->getRegisteredPrefixId());
   }
   else if (decoder.peekDTag(ndn_BinaryXml_DTag_ContentObject)) {
     shared_ptr<Data> data(new Data());
