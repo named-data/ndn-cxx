@@ -73,6 +73,8 @@ char *ndn_getErrorString(int error)
     return      "SocketTransport error in recv";
   case NDN_ERROR_SocketTransport_error_in_close:
     return      "SocketTransport error in close";
+  case NDN_ERROR_Name_component_does_not_begin_with_the_expected_marker:
+    return      "Name component does not begin with the expected marker";
   default:
     return "unrecognized ndn_Error code";  
   }
