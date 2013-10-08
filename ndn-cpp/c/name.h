@@ -41,14 +41,6 @@ static inline void ndn_NameComponent_initialize(struct ndn_NameComponent *self, 
 uint64_t ndn_NameComponent_toNumber(struct ndn_NameComponent *self);
 
 /**
- * Convert binary blob name component (network-ordered number) to number, using appropriate marker from the naming convention
- * @param comp name component to be converted
- * @param marker required marker from the naming convention
- *
- * If the required marker does not exist, an exception will be thrown
- */  
-
-/**
  * Interpret the name component as a network-ordered number with a marker and return an integer.
  * @param self A pointer to the ndn_NameComponent struct.
  * @param marker The required first byte of the component.

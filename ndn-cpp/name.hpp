@@ -97,14 +97,60 @@ public:
       return Name::toEscapedString(*value_);
     }
     
-    uint64_t toNumber() const
+    /**
+     * Interpret this name component as a network-ordered number and return an integer.
+     * @return The integer number.
+     */
+    uint64_t
+    toNumber() const
     {
       struct ndn_NameComponent componentStruct;
       get(componentStruct);
       return ndn_NameComponent_toNumber(&componentStruct);
     }
 
-    uint64_t toNumberWithMarker(uint8_t marker) const;
+    /**
+     * Interpret this name component as a network-ordered number with a marker and return an integer.
+     * @param marker The required first byte of the component.
+     * @return The integer number.
+     * @throw runtime_error If the first byte of the component does not equal the marker.
+     */
+    uint64_t
+    toNumberWithMarker(uint8_t marker) const;
+    
+    /**
+     * Interpret this name component as a segment number according to NDN name conventions (a network-ordered number 
+     * where the first byte is the marker 0x00).
+     * @return The integer segment number.
+     * @throw runtime_error If the first byte of the component is not the expected marker.
+     */
+    uint64_t
+    toSegment() const
+    {
+      return toNumberWithMarker(0x00);
+    }
+    
+    /**
+     * @deprecated Use toSegment.
+     */
+    uint64_t
+    toSeqNum() const
+    {
+      return toSegment();
+    }
+        
+    /**
+     * Interpret this name component as a version number according to NDN name conventions (a network-ordered number 
+     * where the first byte is the marker 0xFD).  Note that this returns the exact number from the component
+     * without converting it to a time representation.
+     * @return The integer segment number.
+     * @throw runtime_error If the first byte of the component is not the expected marker.
+     */
+    uint64_t
+    toVersion() const
+    {
+      return toNumberWithMarker(0xFD);
+    }
     
     /**
      * Make a component value by decoding the escapedString between beginOffset and endOffset according to the NDN URI Scheme.
