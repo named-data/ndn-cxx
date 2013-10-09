@@ -7,7 +7,7 @@
 #ifndef NDN_COMMON_H
 #define	NDN_COMMON_H
 
-#include "../../config.h"
+#include "../ndn-cpp-config.h"
 #include <stdint.h>
 #include <stddef.h>
 

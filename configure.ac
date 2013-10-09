@@ -3,7 +3,7 @@ AC_INIT([ndn-cpp], [0.2], [ndn-lib@lists.cs.ucla.edu], [ndn-cpp], [https://githu
 AM_INIT_AUTOMAKE([1.10 -Wall no-define foreign])
 
 AC_CONFIG_SRCDIR([config.h.in])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([ndn-cpp/ndn-cpp-config.h:config.h.in])
 AM_MAINTAINER_MODE
 AM_PROG_AR
 AC_PROG_LIBTOOL

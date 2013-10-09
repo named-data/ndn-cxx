@@ -5,7 +5,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-// Only compile if config.h defines HAVE_SQLITE3.
+// Only compile if ndn-cpp-config.h defines HAVE_SQLITE3.
 #include "../../c/common.h"
 #if 0 // temporarily disable.
 //#ifdef HAVE_SQLITE3

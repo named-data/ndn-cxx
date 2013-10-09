@@ -8,7 +8,7 @@
 #define NDN_COMMON_HPP
 
 #include <vector>
-// common.h includes config.h.
+// common.h includes ndn-cpp-config.h.
 #include "c/common.h"
 
 // Depending on where ./configure found shared_ptr, define the ptr_lib namespace.

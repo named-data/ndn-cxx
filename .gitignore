@@ -16,10 +16,10 @@ libs/*
 # Autoconf files
 /Makefile
 /autom4te.cache
-/config.h
 /config.log
 /config.status
-/stamp-h1
+/ndn-cpp/ndn-cpp-config.h
+/ndn-cpp/stamp-h1
 /aclocal.m4
 *.Po
 .deps

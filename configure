@@ -3230,7 +3230,7 @@ END
 fi
 
 
-ac_config_headers="$ac_config_headers config.h"
+ac_config_headers="$ac_config_headers ndn-cpp/ndn-cpp-config.h:config.h.in"
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
@@ -19705,7 +19705,7 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
+    "ndn-cpp/ndn-cpp-config.h") CONFIG_HEADERS="$CONFIG_HEADERS ndn-cpp/ndn-cpp-config.h:config.h.in" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;

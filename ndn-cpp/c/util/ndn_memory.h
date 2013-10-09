@@ -5,7 +5,7 @@
  */
 
 /*
- * Based on HAVE_MEMCPY and HAVE_MEMSET in config.h, use the library version or a local implementation of memcmp, memcpy and memset.
+ * Based on HAVE_MEMCPY and HAVE_MEMSET in ndn-cpp-config.h, use the library version or a local implementation of memcmp, memcpy and memset.
  */
 
 #ifndef NDN_MEMORY_H

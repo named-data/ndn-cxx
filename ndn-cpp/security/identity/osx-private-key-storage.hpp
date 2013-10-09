@@ -8,7 +8,7 @@
 #ifndef NDN_OSX_PRIVATEKEY_STORAGE_H
 #define NDN_OSX_PRIVATEKEY_STORAGE_H
 
-// Only compile if config.h defines HAVE_OSX_SECKEYCHAIN 1.
+// Only compile if ndn-cpp-config.h defines HAVE_OSX_SECKEYCHAIN 1.
 #include "../../c/common.h"
 #if 0 // temporarily disable.
 //#if HAVE_OSX_SECKEYCHAIN
