@@ -13,10 +13,10 @@
 
 // Depending on where ./configure found shared_ptr, define the ptr_lib namespace.
 // We always use ndn::ptr_lib.
-#if HAVE_STD_SHARED_PTR
+#if NDN_CPP_HAVE_STD_SHARED_PTR
 #include <memory>
 namespace ndn { namespace ptr_lib = std; }
-#elif HAVE_BOOST_SHARED_PTR
+#elif NDN_CPP_HAVE_BOOST_SHARED_PTR
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 namespace ndn { namespace ptr_lib = boost; }
@@ -36,10 +36,10 @@ namespace ndn { namespace ptr_lib = ndnboost; }
 
 // Depending on where ./configure found function, define the func_lib namespace.
 // We always use ndn::func_lib.
-#if HAVE_STD_FUNCTION
+#if NDN_CPP_HAVE_STD_FUNCTION
 #include <functional>
 namespace ndn { namespace func_lib = std; }
-#elif HAVE_BOOST_FUNCTION
+#elif NDN_CPP_HAVE_BOOST_FUNCTION
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 namespace ndn { namespace func_lib = boost; }

@@ -8,7 +8,7 @@
 
 #include "logging.hpp"
 
-#ifdef HAVE_LOG4CXX
+#ifdef NDN_CPP_HAVE_LOG4CXX
 
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>

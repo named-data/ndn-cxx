@@ -5,10 +5,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-// Only compile if ndn-cpp-config.h defines HAVE_SQLITE3.
-#include "../../c/common.h"
+// Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_SQLITE3.
+#include "../../ndn-cpp-config.h"
 #if 0 // temporarily disable.
-//#ifdef HAVE_SQLITE3
+//#ifdef NDN_CPP_HAVE_SQLITE3
 
 #include <stdlib.h>
 #include <sstream>
@@ -674,4 +674,4 @@ BasicIdentityStorage::setDefaultCertificateNameForKey(const Name& keyName, const
         
 }
 
-#endif // HAVE_SQLITE3
+#endif // NDN_CPP_HAVE_SQLITE3

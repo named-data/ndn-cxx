@@ -8,10 +8,10 @@
 #ifndef NDN_BASIC_IDENTITY_STORAGE_H
 #define NDN_BASIC_IDENTITY_STORAGE_H
 
-// Only compile if ndn-cpp-config.h defines HAVE_SQLITE3.
-#include "../../c/common.h"
+// Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_SQLITE3.
+#include "../../ndn-cpp-config.h"
 #if 0 // temporarily disable.
-//#ifdef HAVE_SQLITE3
+//#ifdef NDN_CPP_HAVE_SQLITE3
 
 #include <sqlite3.h>
 #include "../../common.hpp"
@@ -207,6 +207,6 @@ private:
 
 }
 
-#endif // HAVE_SQLITE3
+#endif // NDN_CPP_HAVE_SQLITE3
 
 #endif

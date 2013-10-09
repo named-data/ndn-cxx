@@ -5,7 +5,7 @@
  */
 
 /*
- * Based on HAVE_MEMCPY and HAVE_MEMSET in ndn-cpp-config.h, use the library version or a local implementation of memcmp, memcpy and memset.
+ * Based on NDN_CPP_HAVE_MEMCPY and NDN_CPP_HAVE_MEMSET in ndn-cpp-config.h, use the library version or a local implementation of memcmp, memcpy and memset.
  */
 
 #ifndef NDN_MEMORY_H
@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 
-#if HAVE_MEMCMP
+#if NDN_CPP_HAVE_MEMCMP
 #include <memory.h>
 /**
  * Use the library version of memcmp.
@@ -30,7 +30,7 @@ static inline int ndn_memcmp(uint8_t *buf1, uint8_t *buf2, size_t len) { return 
 int ndn_memcmp(uint8_t *buf1, uint8_t *buf2, size_t len);
 #endif
 
-#if HAVE_MEMCPY
+#if NDN_CPP_HAVE_MEMCPY
 #include <memory.h>
 /**
  * Use the library version of memcpy.
@@ -43,7 +43,7 @@ static inline void ndn_memcpy(uint8_t *dest, uint8_t *src, size_t len) { memcpy(
 void ndn_memcpy(uint8_t *dest, uint8_t *src, size_t len);
 #endif
 
-#if HAVE_MEMSET
+#if NDN_CPP_HAVE_MEMSET
 #include <memory.h>
 /**
  * Use the library version of memset.

@@ -5,11 +5,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-// Only compile if ndn-cpp-config.h defines HAVE_OSX_SECKEYCHAIN 1.
-#include "../../c/common.h"
+// Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_OSX_SECKEYCHAIN 1.
+#include "../../ndn-cpp-config.h"
 #if 0 // temporarily disable.
-//#if HAVE_OSX_SECKEYCHAIN
-
+//#if NDN_CPP_HAVE_OSX_SECKEYCHAIN
 
 #include <fstream>
 #include <sstream>
@@ -514,4 +513,4 @@ namespace ndn
   
 }
 
-#endif HAVE_OSX_SECKEYCHAIN
+#endif NDN_CPP_HAVE_OSX_SECKEYCHAIN
