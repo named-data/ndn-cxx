@@ -24,6 +24,7 @@ libs/*
 /ndn-cpp/ndn-cpp-config.h
 /ndn-cpp/stamp-h1
 /aclocal.m4
+/libtool
 *.Po
 .deps
 .dirstamp
