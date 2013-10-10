@@ -126,11 +126,7 @@ public:
    * certificate the certificate to be added
    */
   void
-  addCertificateAsDefault(const Certificate& certificate)
-  {
-    identityStorage_->addCertificate(certificate);    
-    setDefaultCertificateForKey(certificate.getName());
-  }
+  addCertificateAsDefault(const Certificate& certificate);
 
   /**
    * Get a certificate with the specified name.

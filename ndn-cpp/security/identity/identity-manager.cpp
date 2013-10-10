@@ -81,6 +81,13 @@ IdentityManager::addCertificateAsIdentityDefault(const Certificate& certificate)
   setDefaultCertificateForKey(certificate.getName());
 }
 
+void
+IdentityManager::addCertificateAsDefault(const Certificate& certificate)
+{
+  identityStorage_->addCertificate(certificate);    
+  setDefaultCertificateForKey(certificate.getName());
+}
+
 void 
 IdentityManager::signByCertificate(Data &data, const Name &certificateName, WireFormat& wireFormat)
 {

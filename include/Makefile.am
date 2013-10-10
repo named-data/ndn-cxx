@@ -33,6 +33,7 @@ ndn_cpp_cpp_headers = \
   ndn-cpp/security/security-common.hpp \
   ndn-cpp/security/key-chain.hpp \
   ndn-cpp/security/security-exception.hpp \
+  ndn-cpp/security/certificate/certificate.hpp \
   ndn-cpp/security/certificate/oid.hpp \
   ndn-cpp/security/certificate/public-key.hpp \
   ndn-cpp/security/encryption/encryption-manager.hpp \
