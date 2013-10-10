@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -8,9 +9,11 @@
 #define NDN_TCPTRANSPORT_HPP
 
 #include <string>
-#include "../c/transport/tcp-transport.h"
-#include "../c/encoding/binary-xml-element-reader.h"
+#include "../common.hpp"
 #include "transport.hpp"
+
+struct ndn_TcpTransport;
+struct ndn_BinaryXmlElementReader;
 
 namespace ndn {
   
@@ -53,12 +56,7 @@ public:
     unsigned short port_;
   };
 
-  TcpTransport() 
-  : elementListener_(0), isConnected_(false)
-  {
-    ndn_TcpTransport_initialize(&transport_);
-    elementReader_.partialData.array = 0;
-  }
+  TcpTransport();
   
   /**
    * Connect according to the info in ConnectionInfo, and processEvents() will use elementListener.
@@ -93,11 +91,11 @@ public:
   ~TcpTransport();
   
 private:
-  struct ndn_TcpTransport transport_;
+  ptr_lib::shared_ptr<struct ndn_TcpTransport> transport_;
   bool isConnected_;
   ElementListener *elementListener_;
   // TODO: This belongs in the socket listener.
-  ndn_BinaryXmlElementReader elementReader_;
+  ptr_lib::shared_ptr<struct ndn_BinaryXmlElementReader> elementReader_;
 };
 
 }

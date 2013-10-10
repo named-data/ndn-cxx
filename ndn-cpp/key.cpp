@@ -1,16 +1,18 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
-#include "common.hpp"
-#include "key.hpp"
+#include <ndn-cpp/common.hpp>
+#include <ndn-cpp/key.hpp>
+#include "c/key.h"
 
 using namespace std;
 
 namespace ndn {
-
+  
 void 
 KeyLocator::get(struct ndn_KeyLocator& keyLocatorStruct) const 
 {

@@ -1,12 +1,14 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
-#include "common.hpp"
-#include "data.hpp"
-#include "sha256-with-rsa-signature.hpp"
+#include <ndn-cpp/common.hpp>
+#include <ndn-cpp/data.hpp>
+#include <ndn-cpp/sha256-with-rsa-signature.hpp>
+#include "c/data.h"
 
 using namespace std;
 

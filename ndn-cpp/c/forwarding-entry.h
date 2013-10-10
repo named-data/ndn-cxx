@@ -7,10 +7,10 @@
 #ifndef NDN_FORWARDING_ENTRY_H
 #define NDN_FORWARDING_ENTRY_H
 
-#include "common.h"
+#include <ndn-cpp/c/common.h>
+#include <ndn-cpp/c/forwarding-flags.h>
 #include "name.h"
 #include "publisher-public-key-digest.h"
-#include "forwarding-flags.h"
 
 #ifdef __cplusplus
 extern "C" {

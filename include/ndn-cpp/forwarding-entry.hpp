@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -11,7 +12,9 @@
 #include "name.hpp"
 #include "publisher-public-key-digest.hpp"
 #include "forwarding-flags.hpp"
-#include "c/forwarding-entry.h"
+#include "encoding/wire-format.hpp"
+
+struct ndn_ForwardingEntry;
 
 namespace ndn {
 

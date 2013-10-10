@@ -9,8 +9,8 @@
 #include <stdexcept>
 #endif
 #include <algorithm>
-#include "../security-exception.hpp"
-#include "memory-identity-storage.hpp"
+#include <ndn-cpp/security/security-exception.hpp>
+#include <ndn-cpp/security/identity/memory-identity-storage.hpp>
 
 using namespace std;
 using namespace ndn::ptr_lib;

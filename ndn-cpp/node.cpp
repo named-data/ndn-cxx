@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -6,13 +7,15 @@
 
 #include <sys/time.h>
 #include <stdexcept>
+#include "c/name.h"
+#include "c/interest.h"
 #include "c/util/crypto.h"
-#include "encoding/binary-xml-decoder.hpp"
 #include "c/encoding/binary-xml.h"
-#include "forwarding-entry.hpp"
-#include "security/key-chain.hpp"
-#include "sha256-with-rsa-signature.hpp"
-#include "node.hpp"
+#include "encoding/binary-xml-decoder.hpp"
+#include <ndn-cpp/forwarding-entry.hpp>
+#include <ndn-cpp/security/key-chain.hpp>
+#include <ndn-cpp/sha256-with-rsa-signature.hpp>
+#include <ndn-cpp/node.hpp>
 
 using namespace std;
 using namespace ndn::ptr_lib;
@@ -338,7 +341,8 @@ Node::getEntryForRegisteredPrefix(const Name& name)
 
 Node::PendingInterest::PendingInterest
   (uint64_t pendingInterestId, const shared_ptr<const Interest>& interest, const OnData& onData, const OnTimeout& onTimeout)
-: pendingInterestId_(pendingInterestId), interest_(interest), onData_(onData), onTimeout_(onTimeout)
+: pendingInterestId_(pendingInterestId), interest_(interest), onData_(onData), onTimeout_(onTimeout),
+  interestStruct_(new struct ndn_Interest)
 {
   // Set up timeoutTime_.
   if (interest_->getInterestLifetimeMilliseconds() >= 0.0)
@@ -352,8 +356,8 @@ Node::PendingInterest::PendingInterest
   nameComponents_.reserve(interest_->getName().getComponentCount());
   excludeEntries_.reserve(interest_->getExclude().getEntryCount());
   ndn_Interest_initialize
-    (&interestStruct_, &nameComponents_[0], nameComponents_.capacity(), &excludeEntries_[0], excludeEntries_.capacity());
-  interest_->get(interestStruct_);  
+    (interestStruct_.get(), &nameComponents_[0], nameComponents_.capacity(), &excludeEntries_[0], excludeEntries_.capacity());
+  interest_->get(*interestStruct_);  
 }
 
 bool 

@@ -7,7 +7,7 @@
 #ifndef NDN_BINARYXMLDECODER_H
 #define NDN_BINARYXMLDECODER_H
 
-#include "../common.h"
+#include <ndn-cpp/c/common.h>
 #include "../errors.h"
 #include "../util/blob.h"
 

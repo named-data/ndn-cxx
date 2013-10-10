@@ -6,7 +6,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "security-exception.hpp"
+#include <ndn-cpp/security/security-exception.hpp>
 using namespace std;
 
 namespace ndn {

@@ -135,8 +135,9 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libndn_c_la_LIBADD =
+am__objects_1 =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libndn_c_la_OBJECTS = ndn-cpp/c/errors.lo \
+am_libndn_c_la_OBJECTS = $(am__objects_1) ndn-cpp/c/errors.lo \
 	ndn-cpp/c/forwarding-flags.lo ndn-cpp/c/interest.lo \
 	ndn-cpp/c/name.lo ndn-cpp/c/encoding/binary-xml-data.lo \
 	ndn-cpp/c/encoding/binary-xml-decoder.lo \
@@ -157,9 +158,9 @@ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 libndn_cpp_la_LIBADD =
-am__objects_1 = ndn-cpp/c/errors.lo ndn-cpp/c/forwarding-flags.lo \
-	ndn-cpp/c/interest.lo ndn-cpp/c/name.lo \
-	ndn-cpp/c/encoding/binary-xml-data.lo \
+am__objects_2 = $(am__objects_1) ndn-cpp/c/errors.lo \
+	ndn-cpp/c/forwarding-flags.lo ndn-cpp/c/interest.lo \
+	ndn-cpp/c/name.lo ndn-cpp/c/encoding/binary-xml-data.lo \
 	ndn-cpp/c/encoding/binary-xml-decoder.lo \
 	ndn-cpp/c/encoding/binary-xml-element-reader.lo \
 	ndn-cpp/c/encoding/binary-xml-encoder.lo \
@@ -172,12 +173,14 @@ am__objects_1 = ndn-cpp/c/errors.lo ndn-cpp/c/forwarding-flags.lo \
 	ndn-cpp/c/transport/socket-transport.lo \
 	ndn-cpp/c/util/crypto.lo ndn-cpp/c/util/dynamic-uint8-array.lo \
 	ndn-cpp/c/util/ndn_memory.lo ndn-cpp/c/util/ndn_realloc.lo
-am_libndn_cpp_la_OBJECTS = $(am__objects_1) ndn-cpp/common.lo \
-	ndn-cpp/data.lo ndn-cpp/face.lo ndn-cpp/forwarding-entry.lo \
-	ndn-cpp/interest.lo ndn-cpp/key.lo ndn-cpp/name.lo \
-	ndn-cpp/node.lo ndn-cpp/sha256-with-rsa-signature.lo \
-	ndn-cpp/encoding/binary-xml-element-reader.lo \
+am_libndn_cpp_la_OBJECTS = $(am__objects_2) $(am__objects_1) \
+	ndn-cpp/common.lo ndn-cpp/data.lo ndn-cpp/face.lo \
+	ndn-cpp/forwarding-entry.lo ndn-cpp/interest.lo ndn-cpp/key.lo \
+	ndn-cpp/name.lo ndn-cpp/node.lo \
+	ndn-cpp/publisher-public-key-digest.lo \
+	ndn-cpp/sha256-with-rsa-signature.lo \
 	ndn-cpp/encoding/binary-xml-wire-format.lo \
+	ndn-cpp/encoding/element-listener.lo \
 	ndn-cpp/encoding/wire-format.lo ndn-cpp/security/key-chain.lo \
 	ndn-cpp/security/security-exception.lo \
 	ndn-cpp/security/certificate/oid.lo \
@@ -190,7 +193,7 @@ am_libndn_cpp_la_OBJECTS = $(am__objects_1) ndn-cpp/common.lo \
 	ndn-cpp/security/policy/no-verify-policy-manager.lo \
 	ndn-cpp/transport/tcp-transport.lo \
 	ndn-cpp/transport/transport.lo \
-	ndn-cpp/transport/udp-transport.lo \
+	ndn-cpp/transport/udp-transport.lo ndn-cpp/util/blob.lo \
 	ndn-cpp/util/changed-event.lo \
 	ndn-cpp/util/dynamic-uint8-vector.lo ndn-cpp/util/logging.lo
 libndn_cpp_la_OBJECTS = $(am_libndn_cpp_la_OBJECTS)
@@ -549,16 +552,62 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS} -I m4
 SUBDIRS = include
 lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 
+# Public C headers.
+ndn_cpp_c_headers = \
+  include/ndn-cpp/ndn-cpp-config.h \
+  include/ndn-cpp/c/common.h \
+  include/ndn-cpp/c/data-types.h \
+  include/ndn-cpp/c/forwarding-flags.h \
+  include/ndn-cpp/c/interest-types.h \
+  include/ndn-cpp/c/key-types.h \
+  include/ndn-cpp/c/encoding/element-listener.h
+
+
+# Public C++ headers.
+ndn_cpp_cpp_headers = \
+  include/ndn-cpp/common.hpp \
+  include/ndn-cpp/data.hpp \
+  include/ndn-cpp/face.hpp \
+  include/ndn-cpp/forwarding-entry.hpp \
+  include/ndn-cpp/forwarding-flags.hpp \
+  include/ndn-cpp/interest.hpp \
+  include/ndn-cpp/key.hpp \
+  include/ndn-cpp/name.hpp \
+  include/ndn-cpp/node.hpp \
+  include/ndn-cpp/publisher-public-key-digest.hpp \
+  include/ndn-cpp/sha256-with-rsa-signature.hpp \
+  include/ndn-cpp/encoding/element-listener.hpp \
+  include/ndn-cpp/encoding/binary-xml-wire-format.hpp \
+  include/ndn-cpp/encoding/wire-format.hpp \
+  include/ndn-cpp/security/security-common.hpp \
+  include/ndn-cpp/security/key-chain.hpp \
+  include/ndn-cpp/security/security-exception.hpp \
+  include/ndn-cpp/security/certificate/oid.hpp \
+  include/ndn-cpp/security/certificate/public-key.hpp \
+  include/ndn-cpp/security/encryption/encryption-manager.hpp \
+  include/ndn-cpp/security/identity/basic-identity-storage.hpp \
+  include/ndn-cpp/security/identity/identity-manager.hpp \
+  include/ndn-cpp/security/identity/identity-storage.hpp \
+  include/ndn-cpp/security/identity/memory-identity-storage.hpp \
+  include/ndn-cpp/security/identity/memory-private-key-storage.hpp \
+  include/ndn-cpp/security/identity/osx-private-key-storage.hpp \
+  include/ndn-cpp/security/identity/private-key-storage.hpp \
+  include/ndn-cpp/security/policy/no-verify-policy-manager.hpp \
+  include/ndn-cpp/security/policy/policy-manager.hpp \
+  include/ndn-cpp/transport/tcp-transport.hpp \
+  include/ndn-cpp/transport/transport.hpp \
+  include/ndn-cpp/transport/udp-transport.hpp \
+  include/ndn-cpp/util/blob.hpp \
+  include/ndn-cpp/util/signed-blob.hpp
+
+
 # Just the C code.
-libndn_c_la_SOURCES = \
-  ndn-cpp/ndn-cpp-config.h \
-  ndn-cpp/c/common.h \
+libndn_c_la_SOURCES = $(ndn_cpp_c_headers) \
   ndn-cpp/c/data.h \
   ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
   ndn-cpp/c/forwarding-entry.h \
-  ndn-cpp/c/forwarding-flags.c ndn-cpp/c/forwarding-flags.h \
+  ndn-cpp/c/forwarding-flags.c \
   ndn-cpp/c/interest.c ndn-cpp/c/interest.h \
-  ndn-cpp/c/key.h \
   ndn-cpp/c/name.c ndn-cpp/c/name.h \
   ndn-cpp/c/publisher-public-key-digest.h \
   ndn-cpp/c/encoding/binary-xml.h \
@@ -583,51 +632,40 @@ libndn_c_la_SOURCES = \
 
 
 # C++ code and also the C code.
-libndn_cpp_la_SOURCES = \
-  $(libndn_c_la_SOURCES) \
-  ndn-cpp/ndn-cpp-config.h \
-  ndn-cpp/c/common.h \
-  ndn-cpp/common.hpp ndn-cpp/common.cpp \
-  ndn-cpp/data.cpp ndn-cpp/c/data.h ndn-cpp/data.hpp \
-  ndn-cpp/face.cpp ndn-cpp/face.hpp \
-  ndn-cpp/forwarding-entry.cpp ndn-cpp/c/forwarding-entry.h ndn-cpp/forwarding-entry.hpp \
-  ndn-cpp/c/forwarding-entry.h ndn-cpp/forwarding-entry.hpp \
-  ndn-cpp/interest.cpp ndn-cpp/c/interest.h ndn-cpp/interest.hpp \
-  ndn-cpp/key.cpp ndn-cpp/c/key.h ndn-cpp/key.hpp \
-  ndn-cpp/name.cpp ndn-cpp/c/name.h ndn-cpp/name.hpp \
-  ndn-cpp/node.cpp ndn-cpp/node.hpp \
-  ndn-cpp/publisher-public-key-digest.hpp \
-  ndn-cpp/sha256-with-rsa-signature.cpp ndn-cpp/sha256-with-rsa-signature.hpp \
-  ndn-cpp/c/encoding/binary-xml.h \
-  ndn-cpp/c/encoding/binary-xml-decoder.h ndn-cpp/encoding/binary-xml-decoder.hpp \
-  ndn-cpp/c/encoding/binary-xml-element-reader.h ndn-cpp/encoding/binary-xml-element-reader.cpp ndn-cpp/encoding/binary-xml-element-reader.hpp \
-  ndn-cpp/c/encoding/binary-xml-encoder.h ndn-cpp/encoding/binary-xml-encoder.hpp ndn-cpp/c/util/dynamic-uint8-array.h \
-  ndn-cpp/c/encoding/binary-xml-structure-decoder.h ndn-cpp/encoding/binary-xml-structure-decoder.hpp \
-  ndn-cpp/encoding/binary-xml-wire-format.cpp ndn-cpp/c/encoding/binary-xml-name.h ndn-cpp/encoding/binary-xml-wire-format.hpp \
-  ndn-cpp/encoding/wire-format.cpp ndn-cpp/encoding/wire-format.hpp \
-  ndn-cpp/security/security-common.hpp \
-  ndn-cpp/security/key-chain.cpp ndn-cpp/security/key-chain.hpp \
-  ndn-cpp/security/security-exception.cpp ndn-cpp/security/security-exception.hpp \
-  ndn-cpp/security/certificate/oid.cpp ndn-cpp/security/certificate/oid.hpp \
-  ndn-cpp/security/certificate/public-key.cpp ndn-cpp/security/certificate/public-key.hpp \
-  ndn-cpp/security/encryption/encryption-manager.hpp \
-  ndn-cpp/security/identity/basic-identity-storage.cpp ndn-cpp/security/identity/basic-identity-storage.hpp \
-  ndn-cpp/security/identity/identity-manager.cpp ndn-cpp/security/identity/identity-manager.hpp \
-  ndn-cpp/security/identity/identity-storage.hpp \
-  ndn-cpp/security/identity/memory-identity-storage.cpp ndn-cpp/security/identity/memory-identity-storage.hpp \
-  ndn-cpp/security/identity/memory-private-key-storage.cpp ndn-cpp/security/identity/memory-private-key-storage.hpp \
-  ndn-cpp/security/identity/osx-private-key-storage.cpp ndn-cpp/security/identity/osx-private-key-storage.hpp \
-  ndn-cpp/security/identity/private-key-storage.hpp \
-  ndn-cpp/security/policy/no-verify-policy-manager.cpp ndn-cpp/security/policy/no-verify-policy-manager.hpp \
-  ndn-cpp/security/policy/policy-manager.hpp \
-  ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/tcp-transport.h ndn-cpp/transport/tcp-transport.cpp ndn-cpp/transport/tcp-transport.hpp \
-  ndn-cpp/transport/transport.cpp ndn-cpp/transport/transport.hpp \
-  ndn-cpp/c/transport/socket-transport.h ndn-cpp/c/transport/udp-transport.h ndn-cpp/transport/udp-transport.cpp ndn-cpp/transport/udp-transport.hpp \
-  ndn-cpp/util/blob.hpp \
+libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
+  ndn-cpp/common.cpp \
+  ndn-cpp/data.cpp \
+  ndn-cpp/face.cpp \
+  ndn-cpp/forwarding-entry.cpp \
+  ndn-cpp/interest.cpp \
+  ndn-cpp/key.cpp \
+  ndn-cpp/name.cpp \
+  ndn-cpp/node.cpp \
+  ndn-cpp/publisher-public-key-digest.cpp \
+  ndn-cpp/sha256-with-rsa-signature.cpp \
+  ndn-cpp/encoding/binary-xml-decoder.hpp \
+  ndn-cpp/encoding/binary-xml-encoder.hpp \
+  ndn-cpp/encoding/binary-xml-structure-decoder.hpp \
+  ndn-cpp/encoding/binary-xml-wire-format.cpp \
+  ndn-cpp/encoding/element-listener.cpp \
+  ndn-cpp/encoding/wire-format.cpp \
+  ndn-cpp/security/key-chain.cpp \
+  ndn-cpp/security/security-exception.cpp \
+  ndn-cpp/security/certificate/oid.cpp \
+  ndn-cpp/security/certificate/public-key.cpp \
+  ndn-cpp/security/identity/basic-identity-storage.cpp \
+  ndn-cpp/security/identity/identity-manager.cpp \
+  ndn-cpp/security/identity/memory-identity-storage.cpp \
+  ndn-cpp/security/identity/memory-private-key-storage.cpp \
+  ndn-cpp/security/identity/osx-private-key-storage.cpp \
+  ndn-cpp/security/policy/no-verify-policy-manager.cpp \
+  ndn-cpp/transport/tcp-transport.cpp \
+  ndn-cpp/transport/transport.cpp \
+  ndn-cpp/transport/udp-transport.cpp \
+  ndn-cpp/util/blob.cpp \
   ndn-cpp/util/changed-event.cpp ndn-cpp/util/changed-event.hpp \
   ndn-cpp/util/dynamic-uint8-vector.cpp ndn-cpp/util/dynamic-uint8-vector.hpp \
-  ndn-cpp/util/logging.cpp ndn-cpp/util/logging.hpp \
-  ndn-cpp/util/signed-blob.hpp
+  ndn-cpp/util/logging.cpp ndn-cpp/util/logging.hpp
 
 bin_test_encode_decode_forwarding_entry_SOURCES = tests/test-encode-decode-forwarding-entry.cpp
 bin_test_encode_decode_forwarding_entry_LDADD = libndn-cpp.la
@@ -812,6 +850,8 @@ ndn-cpp/name.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/node.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/publisher-public-key-digest.lo: ndn-cpp/$(am__dirstamp) \
+	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/sha256-with-rsa-signature.lo: ndn-cpp/$(am__dirstamp) \
 	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/$(am__dirstamp):
@@ -820,10 +860,10 @@ ndn-cpp/encoding/$(am__dirstamp):
 ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/encoding/$(DEPDIR)
 	@: > ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/binary-xml-element-reader.lo:  \
+ndn-cpp/encoding/binary-xml-wire-format.lo:  \
 	ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/binary-xml-wire-format.lo:  \
+ndn-cpp/encoding/element-listener.lo:  \
 	ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/wire-format.lo: ndn-cpp/encoding/$(am__dirstamp) \
@@ -899,6 +939,8 @@ ndn-cpp/util/$(am__dirstamp):
 ndn-cpp/util/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/util/$(DEPDIR)
 	@: > ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/util/blob.lo: ndn-cpp/util/$(am__dirstamp) \
+	ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/util/changed-event.lo: ndn-cpp/util/$(am__dirstamp) \
 	ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/util/dynamic-uint8-vector.lo: ndn-cpp/util/$(am__dirstamp) \
@@ -1036,6 +1078,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/key.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/node.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/publisher-public-key-digest.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/sha256-with-rsa-signature.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/errors.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/forwarding-flags.Plo@am__quote@
@@ -1056,8 +1099,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/dynamic-uint8-array.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_realloc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/binary-xml-element-reader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/binary-xml-wire-format.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/element-listener.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/wire-format.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/$(DEPDIR)/key-chain.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/$(DEPDIR)/security-exception.Plo@am__quote@
@@ -1072,6 +1115,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/tcp-transport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/transport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/udp-transport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/blob.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/changed-event.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/dynamic-uint8-vector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/logging.Plo@am__quote@

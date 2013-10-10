@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -8,7 +9,8 @@
 #define	NDN_BLOB_HPP
 
 #include "../common.hpp"
-#include "../c/util/blob.h"
+
+struct ndn_Blob;
 
 namespace ndn {
 
@@ -56,10 +58,7 @@ public:
    * Create a new Blob with an immutable copy of the array in the given Blob struct.
    * @param blobStruct The C ndn_Blob struct to receive the pointer.
    */
-  Blob(const struct ndn_Blob& blobStruct)
-  : ptr_lib::shared_ptr<const std::vector<uint8_t> >(new std::vector<uint8_t>(blobStruct.value, blobStruct.value + blobStruct.length))
-  {
-  }
+  Blob(const struct ndn_Blob& blobStruct);
   
   /**
    * Create a new Blob to point to an existing byte array.  IMPORTANT: After calling this constructor,
@@ -105,14 +104,7 @@ public:
    * @param blobStruct The C ndn_Blob struct to receive the pointer.
    */
   void 
-  get(struct ndn_Blob& blobStruct) const 
-  {
-    blobStruct.length = size(); 
-    if (size() > 0)
-      blobStruct.value = (uint8_t*)buf();
-    else
-      blobStruct.value = 0;
-  }
+  get(struct ndn_Blob& blobStruct) const;
 };
 
 }

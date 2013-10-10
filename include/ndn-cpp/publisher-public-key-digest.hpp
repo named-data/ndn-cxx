@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -9,7 +10,9 @@
 
 #include <vector>
 #include "common.hpp"
-#include "c/publisher-public-key-digest.h"
+#include "util/blob.hpp"
+
+struct ndn_PublisherPublicKeyDigest;
 
 namespace ndn {
   
@@ -28,20 +31,14 @@ public:
    * @param publisherPublicKeyDigestStruct a C ndn_PublisherPublicKeyDigest struct to receive the pointer
    */
   void 
-  get(struct ndn_PublisherPublicKeyDigest& publisherPublicKeyDigestStruct) const 
-  {
-    publisherPublicKeyDigest_.get(publisherPublicKeyDigestStruct.publisherPublicKeyDigest);
-  }
+  get(struct ndn_PublisherPublicKeyDigest& publisherPublicKeyDigestStruct) const;
   
   /**
    * Clear this PublisherPublicKeyDigest, and copy from the ndn_PublisherPublicKeyDigest struct.
    * @param excludeStruct a C ndn_Exclude struct
    */
   void 
-  set(const struct ndn_PublisherPublicKeyDigest& publisherPublicKeyDigestStruct) 
-  {
-    publisherPublicKeyDigest_ = Blob(publisherPublicKeyDigestStruct.publisherPublicKeyDigest);
-  }
+  set(const struct ndn_PublisherPublicKeyDigest& publisherPublicKeyDigestStruct);
 
   const Blob& 
   getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }

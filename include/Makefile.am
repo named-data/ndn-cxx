@@ -3,7 +3,55 @@
 # These files are included by the application with, for example
 # #include <ndn-cpp/namp.hpp>
 # Internal include headers are not put in this public install directory.
-ndnboost_files = \
+
+# Public C headers.
+ndn_cpp_c_headers = \
+  ndn-cpp/ndn-cpp-config.h \
+  ndn-cpp/c/common.h \
+  ndn-cpp/c/data-types.h \
+  ndn-cpp/c/forwarding-flags.h \
+  ndn-cpp/c/interest-types.h \
+  ndn-cpp/c/key-types.h \
+  ndn-cpp/c/encoding/element-listener.h
+
+# Public C++ headers.
+ndn_cpp_cpp_headers = \
+  ndn-cpp/common.hpp \
+  ndn-cpp/data.hpp \
+  ndn-cpp/face.hpp \
+  ndn-cpp/forwarding-entry.hpp \
+  ndn-cpp/forwarding-flags.hpp \
+  ndn-cpp/interest.hpp \
+  ndn-cpp/key.hpp \
+  ndn-cpp/name.hpp \
+  ndn-cpp/node.hpp \
+  ndn-cpp/publisher-public-key-digest.hpp \
+  ndn-cpp/sha256-with-rsa-signature.hpp \
+  ndn-cpp/encoding/element-listener.hpp \
+  ndn-cpp/encoding/binary-xml-wire-format.hpp \
+  ndn-cpp/encoding/wire-format.hpp \
+  ndn-cpp/security/security-common.hpp \
+  ndn-cpp/security/key-chain.hpp \
+  ndn-cpp/security/security-exception.hpp \
+  ndn-cpp/security/certificate/oid.hpp \
+  ndn-cpp/security/certificate/public-key.hpp \
+  ndn-cpp/security/encryption/encryption-manager.hpp \
+  ndn-cpp/security/identity/basic-identity-storage.hpp \
+  ndn-cpp/security/identity/identity-manager.hpp \
+  ndn-cpp/security/identity/identity-storage.hpp \
+  ndn-cpp/security/identity/memory-identity-storage.hpp \
+  ndn-cpp/security/identity/memory-private-key-storage.hpp \
+  ndn-cpp/security/identity/osx-private-key-storage.hpp \
+  ndn-cpp/security/identity/private-key-storage.hpp \
+  ndn-cpp/security/policy/no-verify-policy-manager.hpp \
+  ndn-cpp/security/policy/policy-manager.hpp \
+  ndn-cpp/transport/tcp-transport.hpp \
+  ndn-cpp/transport/transport.hpp \
+  ndn-cpp/transport/udp-transport.hpp \
+  ndn-cpp/util/blob.hpp \
+  ndn-cpp/util/signed-blob.hpp
+
+ndnboost_headers = \
   ndnboost/algorithm/string/compare.hpp \
   ndnboost/algorithm/string/concept.hpp \
   ndnboost/algorithm/string/config.hpp \
@@ -1757,5 +1805,4 @@ ndnboost_files = \
   ndnboost/visit_each.hpp \
   ndnboost/weak_ptr.hpp
 
-nobase_include_HEADERS = $(ndnboost_files) \
-  ndn-cpp/ndn-cpp-config.h
+nobase_include_HEADERS = $(ndn_cpp_c_headers) $(ndn_cpp_cpp_headers) $(ndnboost_headers)

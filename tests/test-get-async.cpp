@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
-#include "../ndn-cpp/face.hpp"
+#include <ndn-cpp/face.hpp>
 
 using namespace std;
 using namespace ndn;

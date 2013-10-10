@@ -1,13 +1,14 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_BINARYXMLELEMENTREADER_HPP
-#define NDN_BINARYXMLELEMENTREADER_HPP
+#ifndef NDN_ELEMENT_LISTENER_HPP
+#define NDN_ELEMENT_LISTENER_HPP
 
-#include "../c/encoding/binary-xml-element-reader.h"
+#include "../c/encoding/element-listener.h"
 
 namespace ndn {
 

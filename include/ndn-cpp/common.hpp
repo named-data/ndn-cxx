@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -8,7 +9,7 @@
 #define NDN_COMMON_HPP
 
 #include <vector>
-// common.h includes ndn-cpp-config.h.
+// common.h include ndn-cpp-config.h.
 #include "c/common.h"
 
 // Depending on where ./configure found shared_ptr, define the ptr_lib namespace.

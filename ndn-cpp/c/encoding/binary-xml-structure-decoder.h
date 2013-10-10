@@ -7,7 +7,7 @@
 #ifndef NDN_BINARYXMLSTRUCTUREDECODER_H
 #define NDN_BINARYXMLSTRUCTUREDECODER_H
 
-#include "../common.h"
+#include <ndn-cpp/c/common.h>
 #include "../errors.h"
 
 #ifdef __cplusplus

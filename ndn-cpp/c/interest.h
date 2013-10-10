@@ -7,17 +7,13 @@
 #ifndef NDN_INTEREST_H
 #define NDN_INTEREST_H
 
+#include <ndn-cpp/c/interest-types.h>
 #include "name.h"
 #include "publisher-public-key-digest.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef enum {
-  ndn_Exclude_COMPONENT = 0,
-  ndn_Exclude_ANY = 1  
-} ndn_ExcludeType;
 
 /**
  * An ndn_ExcludeEntry holds an ndn_ExcludeType, and if it is a COMPONENT, it holds a pointer to the component value.

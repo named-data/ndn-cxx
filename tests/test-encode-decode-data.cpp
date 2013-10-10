@@ -9,12 +9,12 @@
 #include <iostream>
 #include <time.h>
 #include <stdint.h>
-#include "../ndn-cpp/data.hpp"
-#include "../ndn-cpp/security/identity/memory-identity-storage.hpp"
-#include "../ndn-cpp/security/identity/memory-private-key-storage.hpp"
-#include "../ndn-cpp/security/policy/no-verify-policy-manager.hpp"
-#include "../ndn-cpp/security/key-chain.hpp"
-#include "../ndn-cpp/sha256-with-rsa-signature.hpp"
+#include <ndn-cpp/data.hpp>
+#include <ndn-cpp/security/identity/memory-identity-storage.hpp>
+#include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
+#include <ndn-cpp/security/policy/no-verify-policy-manager.hpp>
+#include <ndn-cpp/security/key-chain.hpp>
+#include <ndn-cpp/sha256-with-rsa-signature.hpp>
 
 using namespace std;
 using namespace ndn;

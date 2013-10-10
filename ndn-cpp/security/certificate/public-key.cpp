@@ -6,9 +6,9 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "../security-exception.hpp"
+#include <ndn-cpp/security//security-exception.hpp>
 #include "../../c/util/crypto.h"
-#include "public-key.hpp"
+#include <ndn-cpp/security/certificate/public-key.hpp>
 
 using namespace std;
 using namespace ndn::ptr_lib;

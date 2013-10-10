@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -8,7 +9,7 @@
 #define NDN_BINARYXMLENCODER_HPP
 
 #include <vector>
-#include "../common.hpp"
+#include <ndn-cpp/common.hpp>
 #include "../util/dynamic-uint8-vector.hpp"
 #include "../c/encoding/binary-xml-encoder.h"
 

@@ -7,10 +7,10 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
-#include "../ndn-cpp/interest.hpp"
-#include "../ndn-cpp/data.hpp"
-#include "../ndn-cpp/forwarding-entry.hpp"
-#include "../ndn-cpp/security/key-chain.hpp"
+#include <ndn-cpp/interest.hpp>
+#include <ndn-cpp/data.hpp>
+#include <ndn-cpp/forwarding-entry.hpp>
+#include <ndn-cpp/security/key-chain.hpp>
 
 using namespace std;
 using namespace ndn;

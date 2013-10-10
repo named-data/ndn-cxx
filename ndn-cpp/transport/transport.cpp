@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -5,7 +6,7 @@
  */
 
 #include <stdexcept>
-#include "transport.hpp"
+#include <ndn-cpp/transport/transport.hpp>
 
 using namespace std;
 

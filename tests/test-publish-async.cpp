@@ -8,11 +8,11 @@
 #include <sstream>
 #include <iostream>
 #include <time.h>
-#include "../ndn-cpp/face.hpp"
-#include "../ndn-cpp/security/identity/memory-identity-storage.hpp"
-#include "../ndn-cpp/security/identity/memory-private-key-storage.hpp"
-#include "../ndn-cpp/security/policy/no-verify-policy-manager.hpp"
-#include "../ndn-cpp/security/key-chain.hpp"
+#include <ndn-cpp/face.hpp>
+#include <ndn-cpp/security/identity/memory-identity-storage.hpp>
+#include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
+#include <ndn-cpp/security/policy/no-verify-policy-manager.hpp>
+#include <ndn-cpp/security/key-chain.hpp>
 
 using namespace std;
 using namespace ndn;

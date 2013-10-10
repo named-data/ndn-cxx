@@ -9,8 +9,8 @@
 #include <stdexcept>
 #endif
 #include "../../c/util/crypto.h"
-#include "../security-exception.hpp"
-#include "memory-private-key-storage.hpp"
+#include <ndn-cpp/security/security-exception.hpp>
+#include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
 
 using namespace std;
 using namespace ndn::ptr_lib;

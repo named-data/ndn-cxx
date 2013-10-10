@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -9,7 +10,12 @@
 
 #include "name.hpp"
 #include "publisher-public-key-digest.hpp"
-#include "c/interest.h"
+#include "c/interest-types.h"
+#include "encoding/wire-format.hpp"
+
+struct ndn_ExcludeEntry;
+struct ndn_Exclude;
+struct ndn_Interest;
 
 namespace ndn {
   
@@ -40,12 +46,7 @@ public:
    * @param excludeEntryStruct the C ndn_NameComponent struct to receive the pointer
    */
   void 
-  get(struct ndn_ExcludeEntry& excludeEntryStruct) const 
-  {
-    excludeEntryStruct.type = type_;
-    if (type_ == ndn_Exclude_COMPONENT)
-      component_.get(excludeEntryStruct.component);
-  }
+  get(struct ndn_ExcludeEntry& excludeEntryStruct) const;
   
   ndn_ExcludeType getType() const { return type_; }
   

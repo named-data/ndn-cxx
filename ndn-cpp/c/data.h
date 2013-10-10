@@ -7,6 +7,7 @@
 #ifndef NDN_DATA_H
 #define NDN_DATA_H
 
+#include <ndn-cpp/c/data-types.h>
 #include "name.h"
 #include "publisher-public-key-digest.h"
 #include "key.h"
@@ -40,15 +41,6 @@ static inline void ndn_Signature_initialize(struct ndn_Signature *self, struct n
   ndn_PublisherPublicKeyDigest_initialize(&self->publisherPublicKeyDigest);
   ndn_KeyLocator_initialize(&self->keyLocator, keyNameComponents, maxKeyNameComponents);
 }
-
-typedef enum {
-  ndn_ContentType_DATA = 0,
-  ndn_ContentType_ENCR = 1,
-  ndn_ContentType_GONE = 2,
-  ndn_ContentType_KEY =  3,
-  ndn_ContentType_LINK = 4,
-  ndn_ContentType_NACK = 5
-} ndn_ContentType;
 
 /**
  * An ndn_MetaInfo struct holds the meta info which is signed inside the data packet.

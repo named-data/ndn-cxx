@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -5,9 +6,11 @@
  */
 
 #include <stdexcept>
-#include "../face.hpp"
+#include <ndn-cpp/face.hpp>
+#include "../c/transport/udp-transport.h"
+#include "../c/encoding/binary-xml-element-reader.h"
 #include "../c/util/ndn_realloc.h"
-#include "udp-transport.hpp"
+#include <ndn-cpp/transport/udp-transport.hpp>
 
 using namespace std;
 
@@ -17,20 +20,27 @@ UdpTransport::ConnectionInfo::~ConnectionInfo()
 {  
 }
 
+UdpTransport::UdpTransport() 
+  : elementListener_(0), isConnected_(false), transport_(new struct ndn_UdpTransport), elementReader_(new struct ndn_BinaryXmlElementReader)
+{
+  ndn_UdpTransport_initialize(transport_.get());
+  elementReader_->partialData.array = 0;
+}
+
 void 
 UdpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener)
 {
   const UdpTransport::ConnectionInfo& udpConnectionInfo = dynamic_cast<const UdpTransport::ConnectionInfo&>(connectionInfo);
   
   ndn_Error error;
-  if ((error = ndn_UdpTransport_connect(&transport_, (char *)udpConnectionInfo.getHost().c_str(), udpConnectionInfo.getPort())))
+  if ((error = ndn_UdpTransport_connect(transport_.get(), (char *)udpConnectionInfo.getHost().c_str(), udpConnectionInfo.getPort())))
     throw std::runtime_error(ndn_getErrorString(error)); 
 
   // TODO: This belongs in the socket listener.
   const size_t initialLength = 1000;
   // Automatically cast elementReader_ to (struct ndn_ElementListener *)
   ndn_BinaryXmlElementReader_initialize
-    (&elementReader_, &elementListener, (uint8_t *)malloc(initialLength), initialLength, ndn_realloc);
+    (elementReader_.get(), &elementListener, (uint8_t *)malloc(initialLength), initialLength, ndn_realloc);
   
   isConnected_ = true;
   elementListener_ = &elementListener;
@@ -40,7 +50,7 @@ void
 UdpTransport::send(const uint8_t *data, size_t dataLength)
 {
   ndn_Error error;
-  if ((error = ndn_UdpTransport_send(&transport_, (uint8_t *)data, dataLength)))
+  if ((error = ndn_UdpTransport_send(transport_.get(), (uint8_t *)data, dataLength)))
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
@@ -49,17 +59,17 @@ UdpTransport::processEvents()
 {
   int receiveIsReady;
   ndn_Error error;
-  if ((error = ndn_UdpTransport_receiveIsReady(&transport_, &receiveIsReady)))
+  if ((error = ndn_UdpTransport_receiveIsReady(transport_.get(), &receiveIsReady)))
     throw std::runtime_error(ndn_getErrorString(error));  
   if (!receiveIsReady)
     return;
 
   uint8_t buffer[8000];
   size_t nBytes;
-  if ((error = ndn_UdpTransport_receive(&transport_, buffer, sizeof(buffer), &nBytes)))
+  if ((error = ndn_UdpTransport_receive(transport_.get(), buffer, sizeof(buffer), &nBytes)))
     throw std::runtime_error(ndn_getErrorString(error));  
 
-  ndn_BinaryXmlElementReader_onReceivedData(&elementReader_, buffer, nBytes);
+  ndn_BinaryXmlElementReader_onReceivedData(elementReader_.get(), buffer, nBytes);
 }
 
 bool 
@@ -72,15 +82,15 @@ void
 UdpTransport::close()
 {
   ndn_Error error;
-  if ((error = ndn_UdpTransport_close(&transport_)))
+  if ((error = ndn_UdpTransport_close(transport_.get())))
     throw std::runtime_error(ndn_getErrorString(error));  
 }
 
 UdpTransport::~UdpTransport()
 {
-  if (elementReader_.partialData.array)
+  if (elementReader_->partialData.array)
     // Free the memory allocated in connect.
-    free(elementReader_.partialData.array);
+    free(elementReader_->partialData.array);
 }
 
 }

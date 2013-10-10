@@ -6,7 +6,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "no-verify-policy-manager.hpp"
+#include <ndn-cpp/security/policy/no-verify-policy-manager.hpp>
 
 using namespace std;
 using namespace ndn::ptr_lib;

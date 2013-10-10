@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -12,9 +13,10 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#include "c/name.h"
-#include "encoding/binary-xml-wire-format.hpp"
 #include "util/blob.hpp"
+
+struct ndn_NameComponent;
+struct ndn_Name;
 
 namespace ndn {
     
@@ -66,10 +68,7 @@ public:
      * @param componentStruct The C ndn_NameComponent struct to receive the pointer.
      */
     void 
-    get(struct ndn_NameComponent& componentStruct) const 
-    {
-      value_.get(componentStruct.value);
-    }
+    get(struct ndn_NameComponent& componentStruct) const;
   
     const Blob& 
     getValue() const { return value_; }
@@ -102,12 +101,7 @@ public:
      * @return The integer number.
      */
     uint64_t
-    toNumber() const
-    {
-      struct ndn_NameComponent componentStruct;
-      get(componentStruct);
-      return ndn_NameComponent_toNumber(&componentStruct);
-    }
+    toNumber() const;
 
     /**
      * Interpret this name component as a network-ordered number with a marker and return an integer.

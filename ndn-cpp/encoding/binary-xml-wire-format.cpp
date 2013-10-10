@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -5,15 +6,15 @@
  */
 
 #include <stdexcept>
+#include <ndn-cpp/interest.hpp>
+#include <ndn-cpp/data.hpp>
+#include <ndn-cpp/forwarding-entry.hpp>
+#include <ndn-cpp/encoding/binary-xml-wire-format.hpp>
 #include "../c/encoding/binary-xml-interest.h"
 #include "../c/encoding/binary-xml-data.h"
 #include "../c/encoding/binary-xml-forwarding-entry.h"
-#include "../interest.hpp"
-#include "../data.hpp"
-#include "../forwarding-entry.hpp"
 #include "binary-xml-encoder.hpp"
 #include "binary-xml-decoder.hpp"
-#include "binary-xml-wire-format.hpp"
 
 using namespace std;
 

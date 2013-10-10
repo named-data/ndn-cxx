@@ -4,9 +4,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_BINARYXMLELEMENTREADER_H
-#define NDN_BINARYXMLELEMENTREADER_H
+#ifndef NDN_BINARY_XML_ELEMENT_READER_H
+#define NDN_BINARY_XML_ELEMENT_READER_H
 
+#include <ndn-cpp/c/encoding/element-listener.h>
 #include "../errors.h"
 #include "binary-xml-structure-decoder.h"
 #include "../util/dynamic-uint8-array.h"
@@ -14,25 +15,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/** An ndn_ElementListener struct holds a function pointer onReceivedElement.  You can extend this struct with data that
- * will be passed to onReceivedElement.
- */
-struct ndn_ElementListener {
-  void (*onReceivedElement)(struct ndn_ElementListener *self, uint8_t *element, size_t elementLength); /**< see ndn_ElementListener_initialize */
-};
-
-/**
- * Initialize an ndn_ElementListener struct to use the onReceivedElement function pointer.
- * @param self pointer to the ndn_ElementListener struct
- * @param onReceivedElement pointer to a function which is called when an entire binary XML element is received.
- * self is the pointer to this ndn_ElementListener struct.  See ndn_BinaryXmlElementReader_onReceivedData.
- */
-static inline void ndn_ElementListener_initialize
-  (struct ndn_ElementListener *self, void (*onReceivedElement)(struct ndn_ElementListener *self, uint8_t *element, size_t elementLength))
-{
-  self->onReceivedElement = onReceivedElement;
-}
   
 /**
  * A BinaryXmlElementReader lets you call ndn_BinaryXmlElementReader_onReceivedData multiple times which uses an

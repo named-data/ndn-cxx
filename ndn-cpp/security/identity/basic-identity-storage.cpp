@@ -15,9 +15,9 @@
 #include <stdlib.h>
 #include <sstream>
 #include <fstream>
-#include "basic-identity-storage.hpp"
+#include <ndn-cpp/security/identity/basic-identity-storage.hpp>
 #include "../../util/logging.hpp"
-#include "../security-exception.hpp"
+#include <ndn-cpp/security//security-exception.hpp>
 #include "ndn-cpp/data.hpp"
 
 #if 0

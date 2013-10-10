@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -11,8 +12,10 @@
 #include "interest.hpp"
 #include "data.hpp"
 #include "transport/tcp-transport.hpp"
-#include "encoding/binary-xml-element-reader.hpp"
 #include "forwarding-flags.hpp"
+#include "encoding/element-listener.hpp"
+
+struct ndn_Interest;
 
 namespace ndn {
 
@@ -163,7 +166,7 @@ private:
     const struct ndn_Interest& 
     getInterestStruct()
     {
-      return interestStruct_;
+      return *interestStruct_;
     }
     
     /**
@@ -179,7 +182,7 @@ private:
     ptr_lib::shared_ptr<const Interest> interest_;
     std::vector<struct ndn_NameComponent> nameComponents_;
     std::vector<struct ndn_ExcludeEntry> excludeEntries_;
-    struct ndn_Interest interestStruct_;
+    ptr_lib::shared_ptr<struct ndn_Interest> interestStruct_;
   
     static uint64_t lastPendingInterestId_; /**< A class variable used to get the next unique ID. */
     uint64_t pendingInterestId_;            /**< A unique identifier for this entry so it can be deleted */

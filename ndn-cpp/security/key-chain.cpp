@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -7,11 +8,11 @@
 #include "../c/util/crypto.h"
 #include "../c/encoding/binary-xml-data.h"
 #include "../encoding/binary-xml-encoder.hpp"
-#include "../sha256-with-rsa-signature.hpp"
+#include <ndn-cpp/sha256-with-rsa-signature.hpp>
 #include "../util/logging.hpp"
-#include "policy/policy-manager.hpp"
-#include "security-exception.hpp"
-#include "key-chain.hpp"
+#include <ndn-cpp/security/security-exception.hpp>
+#include <ndn-cpp/security/policy/policy-manager.hpp>
+#include <ndn-cpp/security/key-chain.hpp>
 
 using namespace std;
 using namespace ndn::ptr_lib;

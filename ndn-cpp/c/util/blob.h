@@ -7,6 +7,8 @@
 #ifndef NDN_BLOB_H
 #define	NDN_BLOB_H
 
+#include <ndn-cpp/c/common.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif

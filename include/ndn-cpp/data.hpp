@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -10,7 +11,12 @@
 #include "common.hpp"
 #include "name.hpp"
 #include "util/signed-blob.hpp"
-#include "c/data.h"
+#include "c/data-types.h"
+#include "encoding/wire-format.hpp"
+
+struct ndn_MetaInfo;
+struct ndn_Signature;
+struct ndn_Data;
 
 namespace ndn {
 

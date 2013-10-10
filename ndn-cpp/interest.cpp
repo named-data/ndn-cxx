@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -5,13 +6,22 @@
  */
 
 #include <stdexcept>
-#include "common.hpp"
-#include "interest.hpp"
+#include <ndn-cpp/common.hpp>
+#include <ndn-cpp/interest.hpp>
+#include "c/interest.h"
 
 using namespace std;
 
 namespace ndn {
   
+void 
+ExcludeEntry::get(struct ndn_ExcludeEntry& excludeEntryStruct) const 
+{
+  excludeEntryStruct.type = type_;
+  if (type_ == ndn_Exclude_COMPONENT)
+    component_.get(excludeEntryStruct.component);
+}
+
 void 
 Exclude::get(struct ndn_Exclude& excludeStruct) const
 {

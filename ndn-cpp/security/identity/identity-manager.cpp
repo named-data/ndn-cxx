@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Yingdi Yu <yingdi@cs.ucla.edu>
@@ -9,9 +10,9 @@
 #include <stdexcept>
 #endif
 #include "../../util/logging.hpp"
-#include "../../sha256-with-rsa-signature.hpp"
-#include "../security-exception.hpp"
-#include "identity-manager.hpp"
+#include <ndn-cpp/sha256-with-rsa-signature.hpp>
+#include <ndn-cpp/security/security-exception.hpp>
+#include <ndn-cpp/security/identity/identity-manager.hpp>
 
 using namespace std;
 using namespace ndn::ptr_lib;

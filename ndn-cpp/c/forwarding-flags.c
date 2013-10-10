@@ -5,7 +5,6 @@
  */
 
 #include "forwarding-entry.h"
-#include "forwarding-flags.h"
 
 void ndn_ForwardingFlags_initialize(struct ndn_ForwardingFlags *self)
 {

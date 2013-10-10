@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -6,7 +7,8 @@
 
 #include <stdexcept>
 #include <algorithm>
-#include "name.hpp"
+#include <ndn-cpp/name.hpp>
+#include "c/name.h"
 
 using namespace std;
 using namespace ndn::ptr_lib;
@@ -159,6 +161,20 @@ Name::Component::makeSegment(unsigned long segment)
   // Make it big endian.
   reverse(value->begin() + 1, value->end());
   return Blob(value);
+}
+
+void 
+Name::Component::get(struct ndn_NameComponent& componentStruct) const 
+{
+  value_.get(componentStruct.value);
+}
+
+uint64_t
+Name::Component::toNumber() const
+{
+  struct ndn_NameComponent componentStruct;
+  get(componentStruct);
+  return ndn_NameComponent_toNumber(&componentStruct);
 }
 
 void 

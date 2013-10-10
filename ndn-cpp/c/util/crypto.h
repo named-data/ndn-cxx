@@ -9,7 +9,7 @@
 
 #include <openssl/ssl.h>
 #include <openssl/rsa.h>
-#include "../common.h"
+#include <ndn-cpp/c/common.h>
 
 #ifdef __cplusplus
 extern "C" {

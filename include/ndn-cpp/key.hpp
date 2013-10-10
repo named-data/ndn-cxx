@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -8,8 +9,10 @@
 #define NDN_KEY_HPP
 
 #include <vector>
-#include "c/key.h"
+#include "c/key-types.h"
 #include "name.hpp"
+
+struct ndn_KeyLocator;
 
 namespace ndn {
   

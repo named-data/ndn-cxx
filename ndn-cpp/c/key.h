@@ -7,24 +7,12 @@
 #ifndef NDN_KEY_H
 #define NDN_KEY_H
 
+#include <ndn-cpp/c/key-types.h>
 #include "name.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef enum {
-  ndn_KeyLocatorType_KEY = 1,
-  ndn_KeyLocatorType_CERTIFICATE = 2,
-  ndn_KeyLocatorType_KEYNAME = 3
-} ndn_KeyLocatorType;
-
-typedef enum {
-  ndn_KeyNameType_PUBLISHER_PUBLIC_KEY_DIGEST = 1,
-  ndn_KeyNameType_PUBLISHER_CERTIFICATE_DIGEST = 2,
-  ndn_KeyNameType_PUBLISHER_ISSUER_KEY_DIGEST = 3,
-  ndn_KeyNameType_PUBLISHER_ISSUER_CERTIFICATE_DIGEST = 4
-} ndn_KeyNameType;
 
 /**
  * An ndn_KeyLocator holds the type of key locator and related data.
