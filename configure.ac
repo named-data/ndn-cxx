@@ -29,7 +29,6 @@ AC_PROG_CXX
 AM_PROG_CC_C_O
 AC_PROG_OBJCXX
 AC_LANG([C++])
-AX_LIB_SQLITE3()
 AC_TYPE_SIZE_T
 AC_TYPE_INT8_T
 AC_TYPE_INT16_T
@@ -42,13 +41,7 @@ AC_TYPE_UINT64_T
 AC_CHECK_FUNCS([memcmp])
 AC_CHECK_FUNCS([memcpy])
 AC_CHECK_FUNCS([memset])
-
 AX_CXX_COMPILE_STDCXX_11(, optional)
-# Require libcrypto.
-AC_CHECK_LIB([crypto], [EVP_EncryptInit], [],
-             [AC_MSG_FAILURE([can't find openssl crypto lib])])
-# Silently check for libsqlite3.
-AC_CHECK_LIB([sqlite3], [sqlite3_open], [], [])
 
 AC_MSG_CHECKING([for std::shared_ptr])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
@@ -95,6 +88,17 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     AC_MSG_RESULT([no])
     AC_DEFINE_UNQUOTED([HAVE_BOOST_FUNCTION], 0, [1 if have the `boost::function' class.])
 ])
+
+# Require libcrypto.
+AC_CHECK_LIB([crypto], [EVP_EncryptInit], [],
+             [AC_MSG_FAILURE([can't find openssl crypto lib])])
+
+# Conditionally use libsqlite3.
+AX_LIB_SQLITE3()
+if test "$HAVE_LIBSQLITE3" == 1 ; then
+AC_CHECK_LIB([sqlite3], [sqlite3_open], [],
+             [AC_MSG_FAILURE([have sqlite2 headers but no libsqlite3])])
+fi
 
 AC_MSG_CHECKING([for OSX SecKeychain])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(

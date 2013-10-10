@@ -682,10 +682,10 @@ DX_ENV
 DX_DOCDIR
 DX_CONFIG
 DX_PROJECT
-HAVE_CXX11
 SQLITE3_VERSION
 SQLITE3_LDFLAGS
 SQLITE3_CFLAGS
+HAVE_CXX11
 am__fastdepOBJCXX_FALSE
 am__fastdepOBJCXX_TRUE
 OBJCXXDEPMODE
@@ -16023,149 +16023,6 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-
-
-# Check whether --with-sqlite3 was given.
-if test "${with_sqlite3+set}" = set; then :
-  withval=$with_sqlite3;
-        if test "$withval" = "no"; then
-            WANT_SQLITE3="no"
-        elif test "$withval" = "yes"; then
-            WANT_SQLITE3="yes"
-            ac_sqlite3_path=""
-        else
-            WANT_SQLITE3="yes"
-            ac_sqlite3_path="$withval"
-        fi
-
-else
-  WANT_SQLITE3="yes"
-
-fi
-
-
-    SQLITE3_CFLAGS=""
-    SQLITE3_LDFLAGS=""
-    SQLITE3_VERSION=""
-
-    if test "x$WANT_SQLITE3" = "xyes"; then
-
-        ac_sqlite3_header="sqlite3.h"
-
-        sqlite3_version_req=3.0.0
-        sqlite3_version_req_shorten=`expr $sqlite3_version_req : '\([0-9]*\.[0-9]*\)'`
-        sqlite3_version_req_major=`expr $sqlite3_version_req : '\([0-9]*\)'`
-        sqlite3_version_req_minor=`expr $sqlite3_version_req : '[0-9]*\.\([0-9]*\)'`
-        sqlite3_version_req_micro=`expr $sqlite3_version_req : '[0-9]*\.[0-9]*\.\([0-9]*\)'`
-        if test "x$sqlite3_version_req_micro" = "x" ; then
-            sqlite3_version_req_micro="0"
-        fi
-
-        sqlite3_version_req_number=`expr $sqlite3_version_req_major \* 1000000 \
-                                   \+ $sqlite3_version_req_minor \* 1000 \
-                                   \+ $sqlite3_version_req_micro`
-
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SQLite3 library >= $sqlite3_version_req" >&5
-$as_echo_n "checking for SQLite3 library >= $sqlite3_version_req... " >&6; }
-
-        if test "$ac_sqlite3_path" != ""; then
-            ac_sqlite3_ldflags="-L$ac_sqlite3_path/lib"
-            ac_sqlite3_cppflags="-I$ac_sqlite3_path/include"
-        else
-            for ac_sqlite3_path_tmp in /usr /usr/local /opt ; do
-                if test -f "$ac_sqlite3_path_tmp/include/$ac_sqlite3_header" \
-                    && test -r "$ac_sqlite3_path_tmp/include/$ac_sqlite3_header"; then
-                    ac_sqlite3_path=$ac_sqlite3_path_tmp
-                    ac_sqlite3_cppflags="-I$ac_sqlite3_path_tmp/include"
-                    ac_sqlite3_ldflags="-L$ac_sqlite3_path_tmp/lib"
-                    break;
-                fi
-            done
-        fi
-
-        ac_sqlite3_ldflags="$ac_sqlite3_ldflags -lsqlite3"
-
-        saved_CPPFLAGS="$CPPFLAGS"
-        CPPFLAGS="$CPPFLAGS $ac_sqlite3_cppflags"
-
-        ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-            #include <sqlite3.h>
-int
-main ()
-{
-
-#if (SQLITE_VERSION_NUMBER >= $sqlite3_version_req_number)
-/* Everything is okay */
-#else
-#  error SQLite version is too old
-#endif
-
-
-  ;
-  return 0;
-}
-
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-            { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-            success="yes"
-
-else
-
-            { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
-$as_echo "not found" >&6; }
-            success="no"
-
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-        ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-
-        CPPFLAGS="$saved_CPPFLAGS"
-
-        if test "$success" = "yes"; then
-
-            SQLITE3_CFLAGS="$ac_sqlite3_cppflags"
-            SQLITE3_LDFLAGS="$ac_sqlite3_ldflags"
-
-            ac_sqlite3_header_path="$ac_sqlite3_path/include/$ac_sqlite3_header"
-
-                        if test "x$ac_sqlite3_header_path" != "x"; then
-                ac_sqlite3_version=`cat $ac_sqlite3_header_path \
-                    | grep '#define.*SQLITE_VERSION.*\"' | sed -e 's/.* "//' \
-                        | sed -e 's/"//'`
-                if test $ac_sqlite3_version != ""; then
-                    SQLITE3_VERSION=$ac_sqlite3_version
-                else
-                    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Cannot find SQLITE_VERSION macro in sqlite3.h header to retrieve SQLite version!" >&5
-$as_echo "$as_me: WARNING: Cannot find SQLITE_VERSION macro in sqlite3.h header to retrieve SQLite version!" >&2;}
-                fi
-            fi
-
-
-
-
-
-$as_echo "#define HAVE_SQLITE3 /**/" >>confdefs.h
-
-        fi
-    fi
-
 ac_fn_cxx_check_type "$LINENO" "size_t" "ac_cv_type_size_t" "$ac_includes_default"
 if test "x$ac_cv_type_size_t" = xyes; then :
 
@@ -16307,7 +16164,6 @@ _ACEOF
 
 fi
 done
-
 
     ax_cxx_compile_cxx11_required=falsednl
   ac_ext=cpp
@@ -16479,103 +16335,6 @@ $as_echo "#define HAVE_CXX11 1" >>confdefs.h
 
   fi
 
-# Require libcrypto.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for EVP_EncryptInit in -lcrypto" >&5
-$as_echo_n "checking for EVP_EncryptInit in -lcrypto... " >&6; }
-if ${ac_cv_lib_crypto_EVP_EncryptInit+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lcrypto  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char EVP_EncryptInit ();
-int
-main ()
-{
-return EVP_EncryptInit ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_crypto_EVP_EncryptInit=yes
-else
-  ac_cv_lib_crypto_EVP_EncryptInit=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_EVP_EncryptInit" >&5
-$as_echo "$ac_cv_lib_crypto_EVP_EncryptInit" >&6; }
-if test "x$ac_cv_lib_crypto_EVP_EncryptInit" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBCRYPTO 1
-_ACEOF
-
-  LIBS="-lcrypto $LIBS"
-
-else
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "can't find openssl crypto lib
-See \`config.log' for more details" "$LINENO" 5; }
-fi
-
-# Silently check for libsqlite3.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
-$as_echo_n "checking for sqlite3_open in -lsqlite3... " >&6; }
-if ${ac_cv_lib_sqlite3_sqlite3_open+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lsqlite3  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char sqlite3_open ();
-int
-main ()
-{
-return sqlite3_open ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_sqlite3_sqlite3_open=yes
-else
-  ac_cv_lib_sqlite3_sqlite3_open=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sqlite3_sqlite3_open" >&5
-$as_echo "$ac_cv_lib_sqlite3_sqlite3_open" >&6; }
-if test "x$ac_cv_lib_sqlite3_sqlite3_open" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBSQLITE3 1
-_ACEOF
-
-  LIBS="-lsqlite3 $LIBS"
-
-fi
-
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for std::shared_ptr" >&5
 $as_echo_n "checking for std::shared_ptr... " >&6; }
@@ -16726,6 +16485,255 @@ _ACEOF
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+# Require libcrypto.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for EVP_EncryptInit in -lcrypto" >&5
+$as_echo_n "checking for EVP_EncryptInit in -lcrypto... " >&6; }
+if ${ac_cv_lib_crypto_EVP_EncryptInit+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lcrypto  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char EVP_EncryptInit ();
+int
+main ()
+{
+return EVP_EncryptInit ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  ac_cv_lib_crypto_EVP_EncryptInit=yes
+else
+  ac_cv_lib_crypto_EVP_EncryptInit=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_EVP_EncryptInit" >&5
+$as_echo "$ac_cv_lib_crypto_EVP_EncryptInit" >&6; }
+if test "x$ac_cv_lib_crypto_EVP_EncryptInit" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBCRYPTO 1
+_ACEOF
+
+  LIBS="-lcrypto $LIBS"
+
+else
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "can't find openssl crypto lib
+See \`config.log' for more details" "$LINENO" 5; }
+fi
+
+
+# Conditionally use libsqlite3.
+
+
+# Check whether --with-sqlite3 was given.
+if test "${with_sqlite3+set}" = set; then :
+  withval=$with_sqlite3;
+        if test "$withval" = "no"; then
+            WANT_SQLITE3="no"
+        elif test "$withval" = "yes"; then
+            WANT_SQLITE3="yes"
+            ac_sqlite3_path=""
+        else
+            WANT_SQLITE3="yes"
+            ac_sqlite3_path="$withval"
+        fi
+
+else
+  WANT_SQLITE3="yes"
+
+fi
+
+
+    SQLITE3_CFLAGS=""
+    SQLITE3_LDFLAGS=""
+    SQLITE3_VERSION=""
+
+    if test "x$WANT_SQLITE3" = "xyes"; then
+
+        ac_sqlite3_header="sqlite3.h"
+
+        sqlite3_version_req=3.0.0
+        sqlite3_version_req_shorten=`expr $sqlite3_version_req : '\([0-9]*\.[0-9]*\)'`
+        sqlite3_version_req_major=`expr $sqlite3_version_req : '\([0-9]*\)'`
+        sqlite3_version_req_minor=`expr $sqlite3_version_req : '[0-9]*\.\([0-9]*\)'`
+        sqlite3_version_req_micro=`expr $sqlite3_version_req : '[0-9]*\.[0-9]*\.\([0-9]*\)'`
+        if test "x$sqlite3_version_req_micro" = "x" ; then
+            sqlite3_version_req_micro="0"
+        fi
+
+        sqlite3_version_req_number=`expr $sqlite3_version_req_major \* 1000000 \
+                                   \+ $sqlite3_version_req_minor \* 1000 \
+                                   \+ $sqlite3_version_req_micro`
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SQLite3 library >= $sqlite3_version_req" >&5
+$as_echo_n "checking for SQLite3 library >= $sqlite3_version_req... " >&6; }
+
+        if test "$ac_sqlite3_path" != ""; then
+            ac_sqlite3_ldflags="-L$ac_sqlite3_path/lib"
+            ac_sqlite3_cppflags="-I$ac_sqlite3_path/include"
+        else
+            for ac_sqlite3_path_tmp in /usr /usr/local /opt ; do
+                if test -f "$ac_sqlite3_path_tmp/include/$ac_sqlite3_header" \
+                    && test -r "$ac_sqlite3_path_tmp/include/$ac_sqlite3_header"; then
+                    ac_sqlite3_path=$ac_sqlite3_path_tmp
+                    ac_sqlite3_cppflags="-I$ac_sqlite3_path_tmp/include"
+                    ac_sqlite3_ldflags="-L$ac_sqlite3_path_tmp/lib"
+                    break;
+                fi
+            done
+        fi
+
+        ac_sqlite3_ldflags="$ac_sqlite3_ldflags -lsqlite3"
+
+        saved_CPPFLAGS="$CPPFLAGS"
+        CPPFLAGS="$CPPFLAGS $ac_sqlite3_cppflags"
+
+        ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+            #include <sqlite3.h>
+int
+main ()
+{
+
+#if (SQLITE_VERSION_NUMBER >= $sqlite3_version_req_number)
+/* Everything is okay */
+#else
+#  error SQLite version is too old
+#endif
+
+
+  ;
+  return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+            success="yes"
+
+else
+
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
+$as_echo "not found" >&6; }
+            success="no"
+
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+        ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+        CPPFLAGS="$saved_CPPFLAGS"
+
+        if test "$success" = "yes"; then
+
+            SQLITE3_CFLAGS="$ac_sqlite3_cppflags"
+            SQLITE3_LDFLAGS="$ac_sqlite3_ldflags"
+
+            ac_sqlite3_header_path="$ac_sqlite3_path/include/$ac_sqlite3_header"
+
+                        if test "x$ac_sqlite3_header_path" != "x"; then
+                ac_sqlite3_version=`cat $ac_sqlite3_header_path \
+                    | grep '#define.*SQLITE_VERSION.*\"' | sed -e 's/.* "//' \
+                        | sed -e 's/"//'`
+                if test $ac_sqlite3_version != ""; then
+                    SQLITE3_VERSION=$ac_sqlite3_version
+                else
+                    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Cannot find SQLITE_VERSION macro in sqlite3.h header to retrieve SQLite version!" >&5
+$as_echo "$as_me: WARNING: Cannot find SQLITE_VERSION macro in sqlite3.h header to retrieve SQLite version!" >&2;}
+                fi
+            fi
+
+
+
+
+
+$as_echo "#define HAVE_SQLITE3 /**/" >>confdefs.h
+
+        fi
+    fi
+
+if test "$HAVE_LIBSQLITE3" == 1 ; then
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
+$as_echo_n "checking for sqlite3_open in -lsqlite3... " >&6; }
+if ${ac_cv_lib_sqlite3_sqlite3_open+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lsqlite3  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char sqlite3_open ();
+int
+main ()
+{
+return sqlite3_open ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  ac_cv_lib_sqlite3_sqlite3_open=yes
+else
+  ac_cv_lib_sqlite3_sqlite3_open=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sqlite3_sqlite3_open" >&5
+$as_echo "$ac_cv_lib_sqlite3_sqlite3_open" >&6; }
+if test "x$ac_cv_lib_sqlite3_sqlite3_open" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBSQLITE3 1
+_ACEOF
+
+  LIBS="-lsqlite3 $LIBS"
+
+else
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "have sqlite2 headers but no libsqlite3
+See \`config.log' for more details" "$LINENO" 5; }
+fi
+
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for OSX SecKeychain" >&5
 $as_echo_n "checking for OSX SecKeychain... " >&6; }

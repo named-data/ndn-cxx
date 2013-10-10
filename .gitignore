@@ -25,6 +25,9 @@ libs/*
 /ndn-cpp/stamp-h1
 /aclocal.m4
 /libtool
+/condefs.h
+/conftest.cpp
+/conftest.err
 /m4/*
 *.Po
 .deps
