@@ -96,11 +96,12 @@ AC_CHECK_LIB([crypto], [EVP_EncryptInit], [],
 # Conditionally use libsqlite3.  AX_LIB_SQLITE3 defines HAVE_SQLITE3 in confdefs.h .
 AX_LIB_SQLITE3()
 if grep -q "#define HAVE_SQLITE3" confdefs.h ; then
-AC_CHECK_LIB([sqlite3], [sqlite3_open], [],
-             [AC_MSG_FAILURE([have sqlite2 headers but no libsqlite3])])
+  AC_CHECK_LIB([sqlite3], [sqlite3_open], [],
+               [AC_MSG_FAILURE([have sqlite2 headers but no libsqlite3])])
 fi
 
-AC_MSG_CHECKING([for OSX SecKeychain])
+# Conditionally use the OSX Security framework .
+AC_MSG_CHECKING([for OSX Security framework])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     [[#include <CoreFoundation/CoreFoundation.h>]]
     [[#include <Security/Security.h>]]
@@ -108,12 +109,15 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     [[void test() { SecKeychainRef x; }]])
 ], [
     AC_MSG_RESULT([yes])
-    HAVE_OSX_SECKEYCHAIN=1
+    HAVE_OSX_SECURITY=1
 ], [
     AC_MSG_RESULT([no])
-    HAVE_OSX_SECKEYCHAIN=0
+    HAVE_OSX_SECURITY=0
 ])
-AC_DEFINE_UNQUOTED([HAVE_OSX_SECKEYCHAIN], $HAVE_OSX_SECKEYCHAIN, [1 if have OSX SecKeychain.])
+AC_DEFINE_UNQUOTED([HAVE_OSX_SECURITY], $HAVE_OSX_SECURITY, [1 if have the OSX framework.])
+if test "$HAVE_OSX_SECURITY" == "1" ; then
+  LIBS="$LIBS -framework Security"
+fi
 
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)

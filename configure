@@ -16683,7 +16683,7 @@ $as_echo "#define HAVE_SQLITE3 /**/" >>confdefs.h
     fi
 
 if grep -q "#define HAVE_SQLITE3" confdefs.h ; then
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
 $as_echo_n "checking for sqlite3_open in -lsqlite3... " >&6; }
 if ${ac_cv_lib_sqlite3_sqlite3_open+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -16735,8 +16735,9 @@ fi
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for OSX SecKeychain" >&5
-$as_echo_n "checking for OSX SecKeychain... " >&6; }
+# Conditionally use the OSX Security framework .
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for OSX Security framework" >&5
+$as_echo_n "checking for OSX Security framework... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <CoreFoundation/CoreFoundation.h>
@@ -16756,21 +16757,24 @@ if ac_fn_cxx_try_compile "$LINENO"; then :
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-    HAVE_OSX_SECKEYCHAIN=1
+    HAVE_OSX_SECURITY=1
 
 else
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-    HAVE_OSX_SECKEYCHAIN=0
+    HAVE_OSX_SECURITY=0
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 cat >>confdefs.h <<_ACEOF
-#define HAVE_OSX_SECKEYCHAIN $HAVE_OSX_SECKEYCHAIN
+#define HAVE_OSX_SECURITY $HAVE_OSX_SECURITY
 _ACEOF
 
+if test "$HAVE_OSX_SECURITY" == "1" ; then
+  LIBS="$LIBS -framework Security"
+fi
 
 
 
