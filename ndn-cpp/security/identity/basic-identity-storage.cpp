@@ -9,6 +9,9 @@
 #include "../../ndn-cpp-config.h"
 #ifdef NDN_CPP_HAVE_SQLITE3
 
+#if 1
+#include <stdexcept>
+#endif
 #include <stdlib.h>
 #include <sstream>
 #include <fstream>
