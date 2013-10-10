@@ -15,14 +15,15 @@ libs/*
 
 # Autoconf files
 /Makefile
+/include/Makefile
 /autom4te.cache
-/config.log
+config.log
 /config.status
-/config.h
+/include/config.h
 /_configs.sed
 /stamp-h1
-/ndn-cpp/ndn-cpp-config.h
-/ndn-cpp/stamp-h1
+/include/ndn-cpp/ndn-cpp-config.h
+/include/stamp-h1
 /aclocal.m4
 /libtool
 /condefs.h

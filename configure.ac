@@ -16,10 +16,10 @@ AM_INIT_AUTOMAKE([1.10 -Wall no-define foreign])
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([config.h.in])
-# Create config.h without prefixes.
-AC_CONFIG_HEADERS(config.h)
-# Add prefixes and output to a unique file name.
-AX_PREFIX_CONFIG_H(ndn-cpp/ndn-cpp-config.h)
+# Create config.h without prefixes.  Put it in the include directory so CFLAGS will have -I./include .
+AC_CONFIG_HEADERS(include/config.h)
+# Add prefixes and output to a unique file name which will go into the ndn-cpp include install directory.
+AX_PREFIX_CONFIG_H(include/ndn-cpp/ndn-cpp-config.h)
 AM_MAINTAINER_MODE
 AM_PROG_AR
 AC_PROG_LIBTOOL
@@ -42,6 +42,7 @@ AC_CHECK_FUNCS([memcmp])
 AC_CHECK_FUNCS([memcpy])
 AC_CHECK_FUNCS([memset])
 AX_CXX_COMPILE_STDCXX_11(, optional)
+AC_C_INLINE
 
 AC_MSG_CHECKING([for std::shared_ptr])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
@@ -129,5 +130,6 @@ DX_PDF_FEATURE(OFF)
 DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN([$PACKAGE_NAME],[Doxyfile])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile
+                 include/Makefile])
 AC_OUTPUT

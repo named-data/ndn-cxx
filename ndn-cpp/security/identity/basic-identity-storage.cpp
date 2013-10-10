@@ -6,7 +6,7 @@
  */
 
 // Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_SQLITE3.
-#include "../../ndn-cpp-config.h"
+#include <ndn-cpp/ndn-cpp-config.h>
 #ifdef NDN_CPP_HAVE_SQLITE3
 
 #if 1

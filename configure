@@ -3231,12 +3231,12 @@ fi
 
 
 
-# Create config.h without prefixes.
-ac_config_headers="$ac_config_headers config.h"
+# Create config.h without prefixes.  Put it in the include directory so CFLAGS will have -I./include .
+ac_config_headers="$ac_config_headers include/config.h"
 
-# Add prefixes and output to a unique file name.
+# Add prefixes and output to a unique file name which will go into the ndn-cpp include install directory.
 
-ac_config_commands="$ac_config_commands ndn-cpp/ndn-cpp-config.h"
+ac_config_commands="$ac_config_commands include/ndn-cpp/ndn-cpp-config.h"
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
@@ -16335,6 +16335,48 @@ $as_echo "#define HAVE_CXX11 1" >>confdefs.h
 
   fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for inline" >&5
+$as_echo_n "checking for inline... " >&6; }
+if ${ac_cv_c_inline+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_cv_c_inline=no
+for ac_kw in inline __inline__ __inline; do
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#ifndef __cplusplus
+typedef int foo_t;
+static $ac_kw foo_t static_foo () {return 0; }
+$ac_kw foo_t foo () {return 0; }
+#endif
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  ac_cv_c_inline=$ac_kw
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  test "$ac_cv_c_inline" != no && break
+done
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c_inline" >&5
+$as_echo "$ac_cv_c_inline" >&6; }
+
+case $ac_cv_c_inline in
+  inline | yes) ;;
+  *)
+    case $ac_cv_c_inline in
+      no) ac_val=;;
+      *) ac_val=$ac_cv_c_inline;;
+    esac
+    cat >>confdefs.h <<_ACEOF
+#ifndef __cplusplus
+#define inline $ac_val
+#endif
+_ACEOF
+    ;;
+esac
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for std::shared_ptr" >&5
 $as_echo_n "checking for std::shared_ptr... " >&6; }
@@ -18614,7 +18656,7 @@ esac
 #echo DX_ENV=$DX_ENV
 
 
-ac_config_files="$ac_config_files Makefile"
+ac_config_files="$ac_config_files Makefile include/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -19774,11 +19816,12 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
-    "ndn-cpp/ndn-cpp-config.h") CONFIG_COMMANDS="$CONFIG_COMMANDS ndn-cpp/ndn-cpp-config.h" ;;
+    "include/config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/config.h" ;;
+    "include/ndn-cpp/ndn-cpp-config.h") CONFIG_COMMANDS="$CONFIG_COMMANDS include/ndn-cpp/ndn-cpp-config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+    "include/Makefile") CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -20374,7 +20417,7 @@ $as_echo "$as_me: executing $ac_file commands" >&6;}
 
 
   case $ac_file$ac_mode in
-    "ndn-cpp/ndn-cpp-config.h":C) ac_prefix_conf_OUT=`echo ndn-cpp/ndn-cpp-config.h`
+    "include/ndn-cpp/ndn-cpp-config.h":C) ac_prefix_conf_OUT=`echo include/ndn-cpp/ndn-cpp-config.h`
 ac_prefix_conf_DEF=`echo _$ac_prefix_conf_OUT | sed -e "y:abcdefghijklmnopqrstuvwxyz:ABCDEFGHIJKLMNOPQRSTUVWXYZ:" -e "s/[^abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]/_/g"`
 ac_prefix_conf_PKG=`echo $PACKAGE`
 ac_prefix_conf_LOW=`echo _$ac_prefix_conf_PKG | sed -e "y:ABCDEFGHIJKLMNOPQRSTUVWXYZ-:abcdefghijklmnopqrstuvwxyz_:"`
