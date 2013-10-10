@@ -4,7 +4,15 @@ NDN-CPP:  A Named Data Networking client library for C++ and C
 Prerequisites
 -------------
 
-libcrypto
+Required: libcrypto
+Optional: libsqlite3 (for key storage)
+Optional: OSX Security framework (for key storage)
+
+Following are the detailed steps for each platform to install the prerequisites.
+
+* Ubuntu 12.04
+sudo apt-get install build-essential
+sudo apt-get install libssl-dev
 
 Build
 -----
@@ -13,8 +21,7 @@ To build in a terminal, change directory to the ndn-cpp root.  Enter:
 
 ./configure
 make
-
-(There is currently no "install" step.)
+make install
 
 To make documentation, enter:
 make doxygen-doc
@@ -25,13 +32,14 @@ Files
 This makes the following libraries:
 
 .libs/libndn-c.a: The core C code for encoding and communication.
-.libs/libndn-cpp.a: The C++ library API.  libndn-cpp also needs libndn-c.
+.libs/libndn-cpp.a: The C++ library API.  (If linking to libndn-cpp, don't link to libndn-c since it is included.)
 
 This makes the following test files:
 
 bin/test-get-async: Connect to one of the NDN testbed hubs, express an interest and display the received data.
 bin/test-encode-decode-interest: Encode and decode an interest, testing interest selectors and the name URI.
 bin/test-encode-decode-data: Encode and decode a data packet, including signing the data packet.
+bin/test-encode-decode-forwarding-entry: Encode and decode a data packet, including signing the data packet.
 
 Running make doxygen-doc puts code documentation in:
 doc/html
