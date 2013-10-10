@@ -16538,7 +16538,7 @@ See \`config.log' for more details" "$LINENO" 5; }
 fi
 
 
-# Conditionally use libsqlite3.  AX_LIB_SQLITE3 defines HAVE_SQLITE3.
+# Conditionally use libsqlite3.  AX_LIB_SQLITE3 defines HAVE_SQLITE3 in confdefs.h .
 
 
 # Check whether --with-sqlite3 was given.
@@ -16682,7 +16682,7 @@ $as_echo "#define HAVE_SQLITE3 /**/" >>confdefs.h
         fi
     fi
 
-if test "$HAVE_SQLITE3" == 1 ; then
+if grep -q "#define HAVE_SQLITE3" confdefs.h ; then
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
 $as_echo_n "checking for sqlite3_open in -lsqlite3... " >&6; }
 if ${ac_cv_lib_sqlite3_sqlite3_open+:} false; then :
@@ -16756,24 +16756,21 @@ if ac_fn_cxx_try_compile "$LINENO"; then :
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_OSX_SECKEYCHAIN 1
-_ACEOF
-
+    HAVE_OSX_SECKEYCHAIN=1
 
 else
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_OSX_SECKEYCHAIN 0
-_ACEOF
-
+    HAVE_OSX_SECKEYCHAIN=0
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_OSX_SECKEYCHAIN $HAVE_OSX_SECKEYCHAIN
+_ACEOF
+
 
 
 
