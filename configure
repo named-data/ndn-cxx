@@ -595,7 +595,7 @@ PACKAGE_STRING='ndn-cpp 0.2'
 PACKAGE_BUGREPORT='ndn-lib@lists.cs.ucla.edu'
 PACKAGE_URL='https://github.com/named-data/ndn-cpp'
 
-ac_unique_file="config.h.in"
+ac_unique_file="configure.ac"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
