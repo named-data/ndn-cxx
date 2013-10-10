@@ -93,9 +93,9 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
 AC_CHECK_LIB([crypto], [EVP_EncryptInit], [],
              [AC_MSG_FAILURE([can't find openssl crypto lib])])
 
-# Conditionally use libsqlite3.
+# Conditionally use libsqlite3.  AX_LIB_SQLITE3 defines HAVE_SQLITE3.
 AX_LIB_SQLITE3()
-if test "$HAVE_LIBSQLITE3" == 1 ; then
+if test "$HAVE_SQLITE3" == 1 ; then
 AC_CHECK_LIB([sqlite3], [sqlite3_open], [],
              [AC_MSG_FAILURE([have sqlite2 headers but no libsqlite3])])
 fi

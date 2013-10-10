@@ -16538,7 +16538,7 @@ See \`config.log' for more details" "$LINENO" 5; }
 fi
 
 
-# Conditionally use libsqlite3.
+# Conditionally use libsqlite3.  AX_LIB_SQLITE3 defines HAVE_SQLITE3.
 
 
 # Check whether --with-sqlite3 was given.
@@ -16682,7 +16682,7 @@ $as_echo "#define HAVE_SQLITE3 /**/" >>confdefs.h
         fi
     fi
 
-if test "$HAVE_LIBSQLITE3" == 1 ; then
+if test "$HAVE_SQLITE3" == 1 ; then
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
 $as_echo_n "checking for sqlite3_open in -lsqlite3... " >&6; }
 if ${ac_cv_lib_sqlite3_sqlite3_open+:} false; then :
