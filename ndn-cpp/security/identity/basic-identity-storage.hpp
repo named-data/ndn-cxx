@@ -10,8 +10,7 @@
 
 // Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_SQLITE3.
 #include "../../ndn-cpp-config.h"
-#if 0 // temporarily disable.
-//#ifdef NDN_CPP_HAVE_SQLITE3
+#ifdef NDN_CPP_HAVE_SQLITE3
 
 #include <sqlite3.h>
 #include "../../common.hpp"

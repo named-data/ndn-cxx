@@ -7,8 +7,7 @@
 
 // Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_SQLITE3.
 #include "../../ndn-cpp-config.h"
-#if 0 // temporarily disable.
-//#ifdef NDN_CPP_HAVE_SQLITE3
+#ifdef NDN_CPP_HAVE_SQLITE3
 
 #include <stdlib.h>
 #include <sstream>
@@ -217,10 +216,10 @@ BasicIdentityStorage::revokeIdentity()
   return false;
 }
 
-#if 0
 Name 
 BasicIdentityStorage::getNewKeyName(const Name& identityName, bool useKsk)
 {
+#if 0
   TimeInterval ti = time::NowUnixTimestamp();
   ostringstream oss;
   oss << ti.total_seconds();
@@ -239,8 +238,10 @@ BasicIdentityStorage::getNewKeyName(const Name& identityName, bool useKsk)
     throw SecurityException("Key name already exists");
 
   return keyName;
-}
+#else
+  throw logic_error("unimplemented");
 #endif
+}
 
 bool 
 BasicIdentityStorage::doesKeyExist(const Name& keyName)
@@ -387,10 +388,10 @@ BasicIdentityStorage::doesCertificateExist(const Name& certificateName)
   return certExist;
 }
 
-#if 0
 void
 BasicIdentityStorage::addAnyCertificate(const Certificate& certificate)
 {
+#if 0
   const Name& certificateName = certificate.getName();
   Name keyName = getKeyNameForCertificate(certificateName);
 
@@ -424,11 +425,15 @@ BasicIdentityStorage::addAnyCertificate(const Certificate& certificate)
   int res = sqlite3_step(statement);
 
   sqlite3_finalize(statement);
+#else
+  throw logic_error("unimplemented");
+#endif
 }
 
 void 
 BasicIdentityStorage::addCertificate(const Certificate& certificate)
 {
+#if 0
   _LOG_DEBUG("1");
   const Name& certificateName = certificate.getName();
   Name keyName = getKeyNameForCertificate(certificateName);
@@ -483,11 +488,15 @@ BasicIdentityStorage::addCertificate(const Certificate& certificate)
   int res = sqlite3_step(statement);
 
   sqlite3_finalize(statement);
+#else
+  throw logic_error("unimplemented");
+#endif
 }
 
 shared_ptr<Certificate> 
 BasicIdentityStorage::getCertificate(const Name &certificateName, bool allowAny)
 {
+#if 0
   if (doesCertificateExist(certificateName)) {
     sqlite3_stmt *statement;
     if (!allowAny) {
@@ -521,8 +530,10 @@ BasicIdentityStorage::getCertificate(const Name &certificateName, bool allowAny)
     _LOG_DEBUG("Certificate does not exist!");
     return shared_ptr<Certificate>();
   }
-}
+#else
+  throw logic_error("unimplemented");
 #endif
+}
 
 Name 
 BasicIdentityStorage::getDefaultIdentity()

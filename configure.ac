@@ -44,8 +44,11 @@ AC_CHECK_FUNCS([memcpy])
 AC_CHECK_FUNCS([memset])
 
 AX_CXX_COMPILE_STDCXX_11(, optional)
+# Require libcrypto.
 AC_CHECK_LIB([crypto], [EVP_EncryptInit], [],
              [AC_MSG_FAILURE([can't find openssl crypto lib])])
+# Silently check for libsqlite3.
+AC_CHECK_LIB([sqlite3], [sqlite3_open], [], [])
 
 AC_MSG_CHECKING([for std::shared_ptr])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(

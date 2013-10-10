@@ -18,6 +18,9 @@
 /* Define to 1 if you have the `crypto' library (-lcrypto). */
 #undef HAVE_LIBCRYPTO
 
+/* Define to 1 if you have the `sqlite3' library (-lsqlite3). */
+#undef HAVE_LIBSQLITE3
+
 /* Define to 1 if you have the `memcmp' function. */
 #undef HAVE_MEMCMP
 
