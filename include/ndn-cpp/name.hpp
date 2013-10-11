@@ -153,18 +153,29 @@ public:
      * @param escapedString The escaped string.  It does not need to be null-terminated because we only scan to endOffset.
      * @param beginOffset The offset in escapedString of the beginning of the portion to decode.
      * @param endOffset The offset in escapedString of the end of the portion to decode.
-     * @return The component value as a Blob, or a Blob with a null pointer if escapedString is not a valid escaped component.
+     * @return The component value. If the escapedString is not a valid escaped component, then the component value is a null pointer.
      */
-    static Blob 
-    makeFromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset);
+    static Component 
+    fromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset);
+
+    /**
+     * Create a component whose value is the network-ordered encoding of the number.
+     * Note: if the number is zero, the result is empty.
+     * @param number The number to be encoded.
+     * @return The component value.
+     */
+    static Component 
+    fromNumber(uint64_t number);
     
     /**
-     * Make a component as the encoded segment number.
-     * @param segment The segment number.
-     * @return The component value as a Blob.
+     * Create a component whose value is the marker appended with the network-ordered encoding of the number.
+     * Note: if the number is zero, no bytes are used for the number - the result will have only the marker.
+     * @param number The number to be encoded.  
+     * @param marker The marker to use as the first byte of the component.
+     * @return The component value.
      */
-    static Blob 
-    makeSegment(unsigned long segment);
+    static Component 
+    fromNumberWithMarker(uint64_t number, uint8_t marker);
   
   private:
     Blob value_;
@@ -398,9 +409,22 @@ public:
    * @return This name so that you can chain calls to append.
    */  
   Name& 
-  appendSegment(unsigned long segment)
+  appendSegment(uint64_t segment)
   {
-    components_.push_back(Component(Component::makeSegment(segment)));
+    components_.push_back(Component::fromNumberWithMarker(segment, 0x00));
+    return *this;
+  }
+
+  /**
+   * Append a component with the encoded version number.
+   * Note that this encodes the exact value of version without converting from a time representation.
+   * @param version The version number.
+   * @return This name so that you can chain calls to append.
+   */  
+  Name& 
+  appendVersion(uint64_t version)
+  {
+    components_.push_back(Component::fromNumberWithMarker(version, 0xFD));
     return *this;
   }
   

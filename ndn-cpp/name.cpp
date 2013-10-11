@@ -124,8 +124,8 @@ uint64_t Name::Component::toNumberWithMarker(uint8_t marker) const
   return result;
 }
 
-Blob 
-Name::Component::makeFromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset)
+Name::Component 
+Name::Component::fromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset)
 {
   string trimmedString(escapedString + beginOffset, escapedString + endOffset);
   trim(trimmedString);
@@ -135,27 +135,43 @@ Name::Component::makeFromEscapedString(const char *escapedString, size_t beginOf
     // Special case for component of only periods.  
     if (component.size() <= 2)
       // Zero, one or two periods is illegal.  Ignore this component.
-      return Blob();
+      return Component();
     else
       // Remove 3 periods.
-      return Blob((const uint8_t *)&component[3], component.size() - 3); 
+      return Component((const uint8_t *)&component[3], component.size() - 3); 
   }
   else
-    return Blob((const uint8_t *)&component[0], component.size()); 
+    return Component((const uint8_t *)&component[0], component.size()); 
 }
 
-Blob 
-Name::Component::makeSegment(unsigned long segment)
+Name::Component 
+Name::Component::fromNumber(uint64_t number)
 {
   shared_ptr<vector<uint8_t> > value(new vector<uint8_t>());
   
-  // Add the leading zero.
-  value->push_back(0);
+  // First encode in little endian.
+  while (number != 0) {
+    value->push_back(number & 0xff);
+    number >>= 8;
+  }
+  
+  // Make it big endian.
+  reverse(value->begin(), value->end());
+  return Blob(value);
+}
+
+Name::Component 
+Name::Component::fromNumberWithMarker(uint64_t number, uint8_t marker)
+{
+  shared_ptr<vector<uint8_t> > value(new vector<uint8_t>());
+  
+  // Add the leading marker.
+  value->push_back(marker);
   
   // First encode in little endian.
-  while (segment != 0) {
-    value->push_back(segment & 0xff);
-    segment >>= 8;
+  while (number != 0) {
+    value->push_back(number & 0xff);
+    number >>= 8;
   }
   
   // Make it big endian.
@@ -225,9 +241,9 @@ Name::set(const char *uri_cstr)
     if (iComponentEnd == string::npos)
       iComponentEnd = uri.size();
     
-    Blob component = Component::makeFromEscapedString(&uri[0], iComponentStart, iComponentEnd);
+    Component component = Component::fromEscapedString(&uri[0], iComponentStart, iComponentEnd);
     // Ignore illegal components.  This also gets rid of a trailing '/'.
-    if (component)
+    if (component.getValue())
       components_.push_back(Component(component));
     
     iComponentStart = iComponentEnd + 1;
