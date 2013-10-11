@@ -14,7 +14,7 @@ SUBDIRS = include
 
 lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 
-bin_PROGRAMS = bin/test-encode-decode-forwarding-entry bin/test-encode-decode-interest bin/test-encode-decode-data \
+noinst_PROGRAMS = bin/test-encode-decode-forwarding-entry bin/test-encode-decode-interest bin/test-encode-decode-data \
   bin/test-get-async bin/test-publish-async
 
 # Public C headers.
