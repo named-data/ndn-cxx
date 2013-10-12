@@ -200,6 +200,6 @@ public:
   
 }
 
-#endif NDN_CPP_HAVE_OSX_SECURITY
+#endif // NDN_CPP_HAVE_OSX_SECURITY
 
 #endif
