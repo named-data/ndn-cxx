@@ -16023,6 +16023,24 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
+
+# Special case.
+case "$host" in
+  *-darwin* | *-macos10*)
+     if test -d /opt/local ; then
+       CFLAGS="$CFLAGS -I/opt/local/include"
+       CXXFLAGS="$CXXFLAGS -I/opt/local/include"
+       CPPFLAGS="$CPPFLAGS -I/opt/local/include"
+       LDFLAGS="$LDFLAGS -L/opt/local/lib"
+     elif test -d /sw ; then
+       CFLAGS="$CFLAGS -I/sw/include"
+       CXXFLAGS="$CXXFLAGS -I/sw/include"
+       CPPFLAGS="$CPPFLAGS -I/sw/include"
+       LDFLAGS="$LDFLAGS -L/sw/lib"
+     fi
+  ;;
+esac
+
 ac_fn_cxx_check_type "$LINENO" "size_t" "ac_cv_type_size_t" "$ac_includes_default"
 if test "x$ac_cv_type_size_t" = xyes; then :
 

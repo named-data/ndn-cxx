@@ -29,6 +29,24 @@ AC_PROG_CXX
 AM_PROG_CC_C_O
 AC_PROG_OBJCXX
 AC_LANG([C++])
+
+# Special case.
+case "$host" in
+  *-darwin* | *-macos10*)
+     if test -d /opt/local ; then
+       CFLAGS="$CFLAGS -I/opt/local/include"
+       CXXFLAGS="$CXXFLAGS -I/opt/local/include"
+       CPPFLAGS="$CPPFLAGS -I/opt/local/include"
+       LDFLAGS="$LDFLAGS -L/opt/local/lib"
+     elif test -d /sw ; then
+       CFLAGS="$CFLAGS -I/sw/include"
+       CXXFLAGS="$CXXFLAGS -I/sw/include"
+       CPPFLAGS="$CPPFLAGS -I/sw/include"
+       LDFLAGS="$LDFLAGS -L/sw/lib"
+     fi
+  ;;
+esac
+
 AC_TYPE_SIZE_T
 AC_TYPE_INT8_T
 AC_TYPE_INT16_T
