@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <sstream>
 
-#include <ndn-cpp/security/certificate/oid.hpp>
+#include <ndn-cpp/encoding/oid.hpp>
 
 using namespace std;
 

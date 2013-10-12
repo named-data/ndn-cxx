@@ -10,7 +10,7 @@
 #define	NDN_PUBLIC_KEY_HPP
 
 #include "../../util/blob.hpp"
-#include "oid.hpp"
+#include "../../encoding/oid.hpp"
 #include "../security-common.hpp"
 
 namespace ndn {

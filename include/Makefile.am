@@ -1,5 +1,5 @@
 # "make install" will install these in the install include directory, for example
-# /usr/local/include/ndn-cpp/name.hpp.
+# /usr/local/ndn-cpp/name.hpp.
 # These files are included by the application with, for example
 # #include <ndn-cpp/namp.hpp>
 # Internal include headers are not put in this public install directory.
@@ -27,15 +27,15 @@ ndn_cpp_cpp_headers = \
   ndn-cpp/node.hpp \
   ndn-cpp/publisher-public-key-digest.hpp \
   ndn-cpp/sha256-with-rsa-signature.hpp \
-  ndn-cpp/encoding/element-listener.hpp \
   ndn-cpp/encoding/binary-xml-wire-format.hpp \
+  ndn-cpp/encoding/element-listener.hpp \
+  ndn-cpp/encoding/oid.hpp \
   ndn-cpp/encoding/wire-format.hpp \
   ndn-cpp/security/security-common.hpp \
   ndn-cpp/security/key-chain.hpp \
   ndn-cpp/security/security-exception.hpp \
   ndn-cpp/security/certificate/certificate.hpp \
   ndn-cpp/security/certificate/identity-certificate.hpp \
-  ndn-cpp/security/certificate/oid.hpp \
   ndn-cpp/security/certificate/public-key.hpp \
   ndn-cpp/security/encryption/encryption-manager.hpp \
   ndn-cpp/security/identity/basic-identity-storage.hpp \

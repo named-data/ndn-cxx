@@ -40,15 +40,15 @@ ndn_cpp_cpp_headers = \
   include/ndn-cpp/node.hpp \
   include/ndn-cpp/publisher-public-key-digest.hpp \
   include/ndn-cpp/sha256-with-rsa-signature.hpp \
-  include/ndn-cpp/encoding/element-listener.hpp \
   include/ndn-cpp/encoding/binary-xml-wire-format.hpp \
+  include/ndn-cpp/encoding/element-listener.hpp \
+  include/ndn-cpp/encoding/oid.hpp \
   include/ndn-cpp/encoding/wire-format.hpp \
   include/ndn-cpp/security/security-common.hpp \
   include/ndn-cpp/security/key-chain.hpp \
   include/ndn-cpp/security/security-exception.hpp \
   include/ndn-cpp/security/certificate/certificate.hpp \
   include/ndn-cpp/security/certificate/identity-certificate.hpp \
-  include/ndn-cpp/security/certificate/oid.hpp \
   include/ndn-cpp/security/certificate/public-key.hpp \
   include/ndn-cpp/security/encryption/encryption-manager.hpp \
   include/ndn-cpp/security/identity/basic-identity-storage.hpp \
@@ -112,10 +112,10 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   ndn-cpp/encoding/binary-xml-structure-decoder.hpp \
   ndn-cpp/encoding/binary-xml-wire-format.cpp \
   ndn-cpp/encoding/element-listener.cpp \
+  ndn-cpp/encoding/oid.cpp \
   ndn-cpp/encoding/wire-format.cpp \
   ndn-cpp/security/key-chain.cpp \
   ndn-cpp/security/security-exception.cpp \
-  ndn-cpp/security/certificate/oid.cpp \
   ndn-cpp/security/certificate/public-key.cpp \
   ndn-cpp/security/identity/basic-identity-storage.cpp \
   ndn-cpp/security/identity/identity-manager.cpp \
