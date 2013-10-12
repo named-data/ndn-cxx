@@ -134,6 +134,11 @@ public:
   Data(const Name& name);
   
   /**
+   * The virtual destructor.
+   */
+  virtual ~Data() {}
+  
+  /**
    * Encode this Data for a particular wire format. Also, set the wireEncoding field to the encoded result.
    * This is not const because it updates the wireEncoding.
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().

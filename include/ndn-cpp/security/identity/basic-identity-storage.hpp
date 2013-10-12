@@ -123,14 +123,14 @@ public:
    * @param certificate The certificate to be added.
    */
   void
-  addAnyCertificate (const Certificate& certificate);
+  addAnyCertificate (const IdentityCertificate& certificate);
 
   /**
    * Add a certificate to the identity storage.
-   * @param certificate The certificate to be added.
+   * @param certificate The certificate to be added.  This makes a copy of the certificate.
    */
   virtual void 
-  addCertificate(const Certificate& certificate);
+  addCertificate(const IdentityCertificate& certificate);
 
   /**
    * Get a certificate from the identity storage.

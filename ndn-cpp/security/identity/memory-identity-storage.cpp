@@ -116,7 +116,7 @@ MemoryIdentityStorage::doesCertificateExist(const Name& certificateName)
 }
 
 void 
-MemoryIdentityStorage::addCertificate(const Certificate& certificate)
+MemoryIdentityStorage::addCertificate(const IdentityCertificate& certificate)
 {
 #if 1
   throw std::runtime_error("MemoryIdentityStorage::addCertificate not implemented");

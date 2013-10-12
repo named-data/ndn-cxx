@@ -14,7 +14,17 @@
 namespace ndn {
 
 class Certificate : public Data {
-  
+public:
+  /**
+   * The default constructor.
+   */
+  Certificate();
+
+  /**
+   * Create a Certificate from the content in the data packet.
+   * @param data The data packet with the content to decode.
+   */
+  Certificate(const Data& data);
 };
 
 }

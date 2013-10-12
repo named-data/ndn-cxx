@@ -392,7 +392,7 @@ BasicIdentityStorage::doesCertificateExist(const Name& certificateName)
 }
 
 void
-BasicIdentityStorage::addAnyCertificate(const Certificate& certificate)
+BasicIdentityStorage::addAnyCertificate(const IdentityCertificate& certificate)
 {
 #if 0
   const Name& certificateName = certificate.getName();
@@ -434,7 +434,7 @@ BasicIdentityStorage::addAnyCertificate(const Certificate& certificate)
 }
 
 void 
-BasicIdentityStorage::addCertificate(const Certificate& certificate)
+BasicIdentityStorage::addCertificate(const IdentityCertificate& certificate)
 {
 #if 0
   _LOG_DEBUG("1");

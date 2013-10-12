@@ -116,7 +116,7 @@ public:
    * @param certificate The certificate to to added.
    */
   void
-  installIdentityCertificate(const Certificate& certificate)
+  installIdentityCertificate(const IdentityCertificate& certificate)
   {
     identityManager_->addCertificate(certificate);
   }
@@ -134,7 +134,7 @@ public:
   /**
    * Get a certificate with the specified name.
    * @param certificateName The name of the requested certificate.
-   * @return the requested certificate.
+   * @return the requested certificate which is valid.
    */
   ptr_lib::shared_ptr<Certificate>
   getCertificate(const Name& certificateName)
@@ -149,6 +149,28 @@ public:
    */
   ptr_lib::shared_ptr<Certificate>
   getAnyCertificate(const Name& certificateName)
+  {
+    return identityManager_->getAnyCertificate(certificateName);
+  }
+
+  /**
+   * Get an identity certificate with the specified name.
+   * @param certificateName The name of the requested certificate.
+   * @return the requested certificate which is valid.
+   */
+  ptr_lib::shared_ptr<IdentityCertificate>
+  getIdentityCertificate(const Name& certificateName)
+  {
+    return identityManager_->getCertificate(certificateName);
+  }
+
+  /**
+   * Get an identity certificate even if the certificate is not valid anymore.
+   * @param certificateName The name of the requested certificate.
+   * @return the requested certificate.
+   */
+  ptr_lib::shared_ptr<IdentityCertificate>
+  getAnyIdentityCertificate(const Name& certificateName)
   {
     return identityManager_->getAnyCertificate(certificateName);
   }

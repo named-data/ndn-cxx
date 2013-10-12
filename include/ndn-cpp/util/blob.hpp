@@ -21,7 +21,7 @@ namespace ndn {
  * of the string.  However, like a JavaScript string, it is possible to change the pointer, and so this does allow
  * the copy constructor and assignment to change the pointer.  Also remember that the pointer can be null.
  * (Note that we could have made Blob derive directly from vector<uint8_t> and then explicitly use
- * a pointer to it like shared_ptr<Blob>, but this does not enforce immutability because we can't declare
+ * a pointer to it like Blob, but this does not enforce immutability because we can't declare
  * Blob as derived from const vector<uint8_t>.)
  */
 class Blob : public ptr_lib::shared_ptr<const std::vector<uint8_t> > {

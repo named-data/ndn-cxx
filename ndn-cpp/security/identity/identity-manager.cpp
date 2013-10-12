@@ -9,10 +9,15 @@
 #if 1
 #include <stdexcept>
 #endif
-#include "../../util/logging.hpp"
+#include <ctime>
+#include <fstream>
+#include <ndn-cpp/key.hpp>
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
 #include <ndn-cpp/security/security-exception.hpp>
+#include "../../util/logging.hpp"
 #include <ndn-cpp/security/identity/identity-manager.hpp>
+
+INIT_LOGGER("ndn.security.IdentityManager")
 
 using namespace std;
 using namespace ndn::ptr_lib;
@@ -20,25 +25,42 @@ using namespace ndn::ptr_lib;
 namespace ndn {
 
 Name
-IdentityManager::createIdentity(const Name& identityName) 
+IdentityManager::createIdentity(const Name& identityName)
 {
   if (!identityStorage_->doesIdentityExist(identityName)) {
-  	_LOG_DEBUG("Create Identity");
-	  identityStorage_->addIdentity(identityName);
-	
-	  _LOG_DEBUG("Create Default RSA key pair");
-	  Name keyName = generateRSAKeyPairAsDefault(identityName, true);
+  _LOG_DEBUG("Create Identity");
+  identityStorage_->addIdentity(identityName);
+  
+  _LOG_DEBUG("Create Default RSA key pair");
+  Name keyName = generateRSAKeyPairAsDefault(identityName, true);
 
-  	_LOG_DEBUG("Create self-signed certificate");
-	  shared_ptr<Certificate> selfCert = selfSign(keyName); 
-	
-	  _LOG_DEBUG("Add self-signed certificate as default");
-	  addCertificateAsDefault(*selfCert);
+  _LOG_DEBUG("Create self-signed certificate");
+  shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
+  
+  _LOG_DEBUG("Add self-signed certificate as default");
 
-    return keyName;
+  addCertificateAsDefault(*selfCert);
+
+  return keyName;
   }
   else
     throw SecurityException("Identity has already been created!");
+}
+
+Name
+IdentityManager::generateKeyPair(const Name& identityName, bool isKsk, KeyType keyType, int keySize)
+{
+  _LOG_DEBUG("Get new key ID");    
+  Name keyName = identityStorage_->getNewKeyName(identityName, isKsk);
+
+  _LOG_DEBUG("Generate key pair in private storage");
+  privateKeyStorage_->generateKeyPair(keyName.toUri(), keyType, keySize);
+
+  _LOG_DEBUG("Create a key record in public storage");
+  shared_ptr<PublicKey> pubKey = privateKeyStorage_->getPublicKey(keyName.toUri());
+  identityStorage_->addKey(keyName, keyType, pubKey->getKeyDer());
+  _LOG_DEBUG("OK");
+  return keyName;
 }
 
 Name
@@ -53,45 +75,124 @@ Name
 IdentityManager::generateRSAKeyPairAsDefault(const Name& identityName, bool isKsk, int keySize)
 {
   Name keyName = generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
-  
+
   identityStorage_->setDefaultKeyNameForIdentity(keyName, identityName);
   
-  return keyName;  
+  return keyName;
+}
+
+Name
+IdentityManager::createIdentityCertificate(const Name& keyName, const Name& signerCertificateName, const Time& notBefore, const Time& notAfter)
+{
+  Blob keyBlob = identityStorage_->getKey(keyName);
+  shared_ptr<PublicKey> publicKey = PublicKey::fromDer(keyBlob);
+
+  shared_ptr<IdentityCertificate> certificate = createIdentityCertificate
+    (keyName, *publicKey,  signerCertificateName, notBefore, notAfter);
+
+  identityStorage_->addCertificate(*certificate);
+  
+  return certificate->getName();
+}
+
+ptr_lib::shared_ptr<IdentityCertificate>
+IdentityManager::createIdentityCertificate
+  (const Name& keyName, const PublicKey& publicKey, const Name& signerCertificateName, const Time& notBefore, const Time& notAfter)
+{
+#if 0
+  shared_ptr<IdentityCertificate> certificate(new IdentityCertificate());
+  
+  Name certificateName;
+  TimeInterval ti = time::NowUnixTimestamp();
+  ostringstream oss;
+  oss << ti.total_seconds();
+
+  certificateName.append(keyName).append("ID-CERT").append(oss.str());
+  certificate->setName(certificateName);
+
+  certificate->setNotBefore(notBefore);
+  certificate->setNotAfter(notAfter);
+  certificate->setPublicKeyInfo(publicKey);
+  certificate->addSubjectDescription(CertificateSubDescrypt("2.5.4.41", keyName.toUri()));
+  certificate->encode();
+
+  shared_ptr<Sha256WithRsaSignature> sha256Sig(new Sha256WithRsaSignature());
+
+  KeyLocator keyLocator;    
+  keyLocator.setType(KeyLocator::KEYNAME);
+  keyLocator.setKeyName(signerCertificateName);
+  
+  sha256Sig->setKeyLocator(keyLocator);
+  sha256Sig->setPublisherKeyDigest(*publicKey.getDigest());
+
+  certificate->setSignature(sha256Sig);
+
+  SignedBlob unsignedData = certificate->encodeToUnsignedWire();
+
+  Blob sigBits = privateKeyStorage_->sign(*unsignedData, keyName);
+  
+  sha256Sig->setSignatureBits(*sigBits);
+
+  return certificate;
+#else
+  throw std::runtime_error("not implemented");
+#endif
+}
+
+void
+IdentityManager::addCertificateAsDefault(const IdentityCertificate& certificate)
+{
+  identityStorage_->addCertificate(certificate);
+
+  Name keyName = identityStorage_->getKeyNameForCertificate(certificate.getName());
+  
+  setDefaultKeyForIdentity(keyName);
+
+  setDefaultCertificateForKey(certificate.getName());
 }
 
 void
 IdentityManager::setDefaultCertificateForKey(const Name& certificateName)
 {
   Name keyName = identityStorage_->getKeyNameForCertificate(certificateName);
-    
-  if (!identityStorage_->doesKeyExist(keyName))
+  
+  if(!identityStorage_->doesKeyExist(keyName))
     throw SecurityException("No corresponding Key record for certificaite!");
 
-  identityStorage_->setDefaultCertificateNameForKey (keyName, certificateName);
+  identityStorage_->setDefaultCertificateNameForKey(keyName, certificateName);
+}
+  
+ptr_lib::shared_ptr<Signature>
+IdentityManager::signByCertificate(const uint8_t* data, size_t dataLength, const Name& certificateName)
+{    
+#if 0
+  Name keyName = identityStorage_->getKeyNameForCertificate(certName);
+  
+  shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName.toUri());
+
+  Blob sigBits = privateKeyStorage_->sign(blob, keyName.toUri());
+
+  //For temporary usage, we support RSA + SHA256 only, but will support more.
+  shared_ptr<signature::Sha256WithRsa> sha256Sig = shared_ptr<signature::Sha256WithRsa>::Create();
+
+  KeyLocator keyLocator;    
+  keyLocator.setType(KeyLocator::KEYNAME);
+  keyLocator.setKeyName(certName);
+  
+  sha256Sig->setKeyLocator(keyLocator);
+  sha256Sig->setPublisherKeyDigest(*publicKey->getDigest());
+  sha256Sig->setSignatureBits(*sigBits);
+
+  return sha256Sig;
+#else
+  throw std::runtime_error("not implemented");
+#endif
 }
 
 void
-IdentityManager::addCertificateAsIdentityDefault(const Certificate& certificate)
-{
-  identityStorage_->addCertificate(certificate);
-
-  Name keyName = identityStorage_->getKeyNameForCertificate(certificate.getName());
-    
-  setDefaultKeyForIdentity(keyName);
-  setDefaultCertificateForKey(certificate.getName());
-}
-
-void
-IdentityManager::addCertificateAsDefault(const Certificate& certificate)
-{
-  identityStorage_->addCertificate(certificate);    
-  setDefaultCertificateForKey(certificate.getName());
-}
-
-void 
 IdentityManager::signByCertificate(Data &data, const Name &certificateName, WireFormat& wireFormat)
 {
-  Name keyName = identityStorage_->getKeyNameForCertificate(certificateName); 
+  Name keyName = identityStorage_->getKeyNameForCertificate(certificateName);
 
   shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName);
 
@@ -115,31 +216,57 @@ IdentityManager::signByCertificate(Data &data, const Name &certificateName, Wire
     (privateKeyStorage_->sign(encoding.signedBuf(), encoding.signedSize(), keyName, digestAlgorithm));
 
   // Encode again to include the signature.
-  data.wireEncode(wireFormat);  
+  data.wireEncode(wireFormat);
 }
 
-Name
-IdentityManager::generateKeyPair (const Name& identityName, bool isKsk, KeyType keyType, int keySize)
+shared_ptr<IdentityCertificate>
+IdentityManager::selfSign(const Name& keyName)
 {
-  _LOG_DEBUG("Get new key ID");    
-  Name keyName = identityStorage_->getNewKeyName(identityName, isKsk);
+#if 0
+  shared_ptr<IdentityCertificate> certificate = Create<IdentityCertificate>();
+  
+  Name certificateName;
+  certificateName.append(keyName).append("ID-CERT").append("0");
+  certificate->setName(certificateName);
 
-  _LOG_DEBUG("Generate key pair in private storage");
-  privateKeyStorage_->generateKeyPair(keyName.toUri(), keyType, keySize);
+  Blob keyBlob = identityStorage_->getKey(keyName);
+  shared_ptr<PublicKey> publicKey = PublicKey::fromDer(keyBlob);
 
-  _LOG_DEBUG("Create a key record in public storage");
-  shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName);
-  identityStorage_->addKey(keyName, keyType, publicKey->getKeyDer());
-  _LOG_DEBUG("OK");
-  return keyName;
-}
+  tm current = boost::posix_time::to_tm(time::Now());
+  current.tm_hour = 0;
+  current.tm_min  = 0;
+  current.tm_sec  = 0;
+  Time notBefore = boost::posix_time::ptime_from_tm(current);
+  current.tm_year = current.tm_year + 20;
+  Time notAfter = boost::posix_time::ptime_from_tm(current);
 
-shared_ptr<Certificate>
-IdentityManager::selfSign (const Name& keyName)
-{
-#if 1
-  throw std::runtime_error("MemoryIdentityStorage::getNewKeyName not implemented");
+  certificate->setNotBefore(notBefore);
+  certificate->setNotAfter(notAfter);
+  certificate->setPublicKeyInfo(*publicKey);
+  certificate->addSubjectDescription(CertificateSubDescrypt("2.5.4.41", keyName.toUri()));
+  certificate->encode();
+
+  shared_ptr<signature::Sha256WithRsa> sha256Sig = shared_ptr<signature::Sha256WithRsa>::Create();
+
+  KeyLocator keyLocator;    
+  keyLocator.setType(KeyLocator::KEYNAME);
+  keyLocator.setKeyName(certificateName);
+  
+  sha256Sig->setKeyLocator(keyLocator);
+  sha256Sig->setPublisherKeyDigest(*publicKey->getDigest());
+
+  certificate->setSignature(sha256Sig);
+
+  Blob unsignedData = certificate->encodeToUnsignedWire();
+
+  Blob sigBits = privateKeyStorage_->sign(*unsignedData, keyName.toUri());
+  
+  sha256Sig->setSignatureBits(*sigBits);
+
+  return certificate;
+#else
+  throw std::runtime_error("not implemented");
 #endif  
 }
-  
+
 }

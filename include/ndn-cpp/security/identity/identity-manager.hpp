@@ -7,12 +7,15 @@
  */
 
 #ifndef NDN_IDENTITY_MANAGER_HPP
-#define	NDN_IDENTITY_MANAGER_HPP
+#define NDN_IDENTITY_MANAGER_HPP
 
-#include "../certificate/certificate.hpp"
+#include "../certificate/identity-certificate.hpp"
 #include "identity-storage.hpp"
 #include "../certificate/public-key.hpp"
 #include "private-key-storage.hpp"
+
+// TODO: Implement Time values.
+class Time;
 
 namespace ndn {
 
@@ -98,11 +101,35 @@ public:
   }
 
   /**
+   * Create an identity certificate for a public key managed by this IdentityManager.
+   * @param keyName The name of public key to be signed.
+   * @param signerCertificateName The name of signing certificate.
+   * @param notBefore The notBefore value in the validity field of the generated certificate.
+   * @param notAfter The notAfter vallue in validity field of the generated certificate.
+   * @return The name of generated identity certificate.
+   */
+  Name
+  createIdentityCertificate(const Name& keyName, const Name& signerCertificateName, const Time& notBefore, const Time& notAfter);
+
+  /**
+   * Create an identity certificate for a public key supplied by the caller.
+   * @param keyName The name of public key to be signed.
+   * @param publickey The public key to be signed.
+   * @param signerCertificateName The name of signing certificate.
+   * @param notBefore The notBefore value in the validity field of the generated certificate.
+   * @param notAfter The notAfter vallue in validity field of the generated certificate.
+   * @return The generated identity certificate.
+   */
+  ptr_lib::shared_ptr<IdentityCertificate>
+  createIdentityCertificate
+    (const Name& keyName, const PublicKey& publickey, const Name& signerCertificateName, const Time& notBefore, const Time& notAfter); 
+    
+  /**
    * Add a certificate into the public key identity storage.
-   * @param certificate The certificate to to added.
+   * @param certificate The certificate to to added.  This makes a copy of the certificate.
    */
   void
-  addCertificate(const Certificate& certificate)
+  addCertificate(const IdentityCertificate& certificate)
   {
     identityStorage_->addCertificate(certificate);
   }
@@ -116,27 +143,27 @@ public:
 
   /**
    * Add a certificate into the public key identity storage and set the certificate as the default for its corresponding identity.
-   * @param certificate The certificate to be added.
+   * @param certificate The certificate to be added.  This makes a copy of the certificate.
    */
   void
-  addCertificateAsIdentityDefault(const Certificate& certificate);
+  addCertificateAsIdentityDefault(const IdentityCertificate& certificate);
 
   /**
    * Add a certificate into the public key identity storage and set the certificate as the default of its corresponding key.
-   * certificate the certificate to be added
+   * @param certificate The certificate to be added.  This makes a copy of the certificate.
    */
   void
-  addCertificateAsDefault(const Certificate& certificate);
+  addCertificateAsDefault(const IdentityCertificate& certificate);
 
   /**
    * Get a certificate with the specified name.
    * @param certificateName The name of the requested certificate.
    * @return the requested certificate which is valid.
    */
-  ptr_lib::shared_ptr<Certificate>
+  ptr_lib::shared_ptr<IdentityCertificate>
   getCertificate(const Name& certificateName)
   {
-    return identityStorage_->getCertificate(certificateName, false);
+    return ptr_lib::make_shared<IdentityCertificate>(*identityStorage_->getCertificate(certificateName, false));
   }
     
   /**
@@ -144,10 +171,10 @@ public:
    * @param certificateName The name of the requested certificate.
    * @return the requested certificate.
    */
-  ptr_lib::shared_ptr<Certificate>
+  ptr_lib::shared_ptr<IdentityCertificate>
   getAnyCertificate(const Name& certificateName)
   {
-    return identityStorage_->getCertificate(certificateName, true);
+    return ptr_lib::make_shared<IdentityCertificate>(*identityStorage_->getCertificate(certificateName, true));
   }
     
   /**
@@ -172,16 +199,15 @@ public:
     return identityStorage_->getDefaultCertificateNameForIdentity(getDefaultIdentity());
   }
         
-#if 0
   /**
-   * sign blob based on certificate name
-   * @param blob the blob to be signed
-   * @param certificateName the signing certificate name
-   * @return the generated signature
+   * Sign the byte array data based on the certificate name.
+   * @param data The data to be signed.
+   * @param dataLength the length of data.
+   * @param certificateName The signing certificate name.
+   * @return The generated signature.
    */
-  Ptr<Signature>
-  signByCertificate(const Blob& blob, const Name& certificateName);
-#endif
+  ptr_lib::shared_ptr<Signature>
+  signByCertificate(const uint8_t* data, size_t dataLength, const Name& certificateName);
     
   /**
    * Sign data packet based on the certificate name.
@@ -211,7 +237,7 @@ private:
    * @param keyName The name of the public key.
    * @return The generated certificate.
    */
-  ptr_lib::shared_ptr<Certificate>
+  ptr_lib::shared_ptr<IdentityCertificate>
   selfSign(const Name& keyName);
   
   ptr_lib::shared_ptr<IdentityStorage> identityStorage_;
