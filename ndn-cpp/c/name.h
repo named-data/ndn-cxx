@@ -34,7 +34,6 @@ static inline void ndn_NameComponent_initialize(struct ndn_NameComponent *self, 
 }
 
 /**
-/**
  * Interpret the name component as a network-ordered number and return an integer.
  * @param self A pointer to the ndn_NameComponent struct.
  * @return The integer number.
