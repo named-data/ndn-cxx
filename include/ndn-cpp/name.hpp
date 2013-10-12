@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <string>
+#include <string.h>
 #include <sstream>
 #include "util/blob.hpp"
 
