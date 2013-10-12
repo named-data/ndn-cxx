@@ -56,7 +56,7 @@ public:
   Blob 
   sign(const Blob& data, const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256)
   {
-    sign(data.buf(), data.size(), keyName, digestAlgorithm);
+    return sign(data.buf(), data.size(), keyName, digestAlgorithm);
   }
   
   /**
@@ -73,7 +73,7 @@ public:
   Blob 
   decrypt(const Name& keyName, const Blob& data, bool isSymmetric = false)
   {
-    decrypt(keyName, data.buf(), data.size(), isSymmetric);
+    return decrypt(keyName, data.buf(), data.size(), isSymmetric);
   }
 
   /**
@@ -90,7 +90,7 @@ public:
   Blob
   encrypt(const Name& keyName, const Blob& data, bool isSymmetric = false)
   {
-    encrypt(keyName, data.buf(), data.size(), isSymmetric);
+    return encrypt(keyName, data.buf(), data.size(), isSymmetric);
   }
 
   /**
