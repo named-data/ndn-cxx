@@ -47,6 +47,8 @@ ndn_cpp_cpp_headers = \
   include/ndn-cpp/security/security-common.hpp \
   include/ndn-cpp/security/key-chain.hpp \
   include/ndn-cpp/security/security-exception.hpp \
+  include/ndn-cpp/security/certificate/certificate-extension.hpp \
+  include/ndn-cpp/security/certificate/certificate-subject-description.hpp \
   include/ndn-cpp/security/certificate/certificate.hpp \
   include/ndn-cpp/security/certificate/identity-certificate.hpp \
   include/ndn-cpp/security/certificate/public-key.hpp \
@@ -114,8 +116,16 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   ndn-cpp/encoding/element-listener.cpp \
   ndn-cpp/encoding/oid.cpp \
   ndn-cpp/encoding/wire-format.cpp \
+  ndn-cpp/encoding/der/der.hpp \
+  ndn-cpp/encoding/der/visitor/no-arguments-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/simple-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/visitor.hpp \
+  ndn-cpp/encoding/der/visitor/void-no-arguments-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/void-visitor.hpp \
   ndn-cpp/security/key-chain.cpp \
   ndn-cpp/security/security-exception.cpp \
+  ndn-cpp/security/certificate/certificate-extension.cpp \
+  ndn-cpp/security/certificate/certificate-subject-description.cpp \
   ndn-cpp/security/certificate/public-key.cpp \
   ndn-cpp/security/identity/basic-identity-storage.cpp \
   ndn-cpp/security/identity/identity-manager.cpp \

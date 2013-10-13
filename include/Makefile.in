@@ -351,6 +351,8 @@ ndn_cpp_cpp_headers = \
   ndn-cpp/security/security-common.hpp \
   ndn-cpp/security/key-chain.hpp \
   ndn-cpp/security/security-exception.hpp \
+  ndn-cpp/security/certificate/certificate-extension.hpp \
+  ndn-cpp/security/certificate/certificate-subject-description.hpp \
   ndn-cpp/security/certificate/certificate.hpp \
   ndn-cpp/security/certificate/identity-certificate.hpp \
   ndn-cpp/security/certificate/public-key.hpp \

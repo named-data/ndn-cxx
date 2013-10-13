@@ -14,10 +14,10 @@
 #include "../certificate/public-key.hpp"
 #include "private-key-storage.hpp"
 
+namespace ndn {
+
 // TODO: Implement Time values.
 class Time;
-
-namespace ndn {
 
 /**
  * An IdentityManager is the interface of operations related to identity, keys, and certificates.
