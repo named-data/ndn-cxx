@@ -185,6 +185,7 @@ am_libndn_cpp_la_OBJECTS = $(am__objects_2) $(am__objects_1) \
 	ndn-cpp/security/security-exception.lo \
 	ndn-cpp/security/certificate/certificate-extension.lo \
 	ndn-cpp/security/certificate/certificate-subject-description.lo \
+	ndn-cpp/security/certificate/identity-certificate.lo \
 	ndn-cpp/security/certificate/public-key.lo \
 	ndn-cpp/security/identity/basic-identity-storage.lo \
 	ndn-cpp/security/identity/identity-manager.lo \
@@ -665,6 +666,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   ndn-cpp/security/security-exception.cpp \
   ndn-cpp/security/certificate/certificate-extension.cpp \
   ndn-cpp/security/certificate/certificate-subject-description.cpp \
+  ndn-cpp/security/certificate/identity-certificate.cpp \
   ndn-cpp/security/certificate/public-key.cpp \
   ndn-cpp/security/identity/basic-identity-storage.cpp \
   ndn-cpp/security/identity/identity-manager.cpp \
@@ -906,6 +908,9 @@ ndn-cpp/security/certificate/certificate-extension.lo:  \
 ndn-cpp/security/certificate/certificate-subject-description.lo:  \
 	ndn-cpp/security/certificate/$(am__dirstamp) \
 	ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/security/certificate/identity-certificate.lo:  \
+	ndn-cpp/security/certificate/$(am__dirstamp) \
+	ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/security/certificate/public-key.lo:  \
 	ndn-cpp/security/certificate/$(am__dirstamp) \
 	ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp)
@@ -1085,6 +1090,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/$(DEPDIR)/security-exception.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/certificate/$(DEPDIR)/certificate-extension.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/certificate/$(DEPDIR)/certificate-subject-description.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/certificate/$(DEPDIR)/identity-certificate.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/certificate/$(DEPDIR)/public-key.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/identity/$(DEPDIR)/basic-identity-storage.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/identity/$(DEPDIR)/identity-manager.Plo@am__quote@

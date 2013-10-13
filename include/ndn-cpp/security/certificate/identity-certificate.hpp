@@ -19,7 +19,9 @@ public:
   /**
    * The default constructor.
    */
-  IdentityCertificate();
+  IdentityCertificate()
+  {
+  }
 
   /**
    * Create an IdentityCertificate from the content in the data packet.
@@ -32,11 +34,12 @@ public:
    */
   virtual 
   ~IdentityCertificate();
-    Data &
-    setName (const Name& name);
+  
+  Data &
+  setName(const Name& name);
 
   virtual Name 
-  getPublicKeyName () const;
+  getPublicKeyName() const;
 
   static bool
   isIdentityCertificate(const Certificate& certificate);
