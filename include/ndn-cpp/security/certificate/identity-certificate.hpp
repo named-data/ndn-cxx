@@ -26,6 +26,24 @@ public:
    * @param data The data packet with the content to decode.
    */
   IdentityCertificate(const Data& data);
+  
+  /**
+   * The virtual destructor.
+   */
+  virtual 
+  ~IdentityCertificate();
+    Data &
+    setName (const Name& name);
+
+  virtual Name 
+  getPublicKeyName () const;
+
+  static bool
+  isIdentityCertificate(const Certificate& certificate);
+
+private:
+  static bool
+  isCorrectName(const Name& name);
 };
 
 }
