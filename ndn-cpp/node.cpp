@@ -306,17 +306,17 @@ Node::getEntryIndexForExpressedInterest(const Name& name)
   
   int iResult = -1;
     
-	for (size_t i = 0; i < pendingInterestTable_.size(); ++i) {
-		if (ndn_Interest_matchesName((struct ndn_Interest *)&pendingInterestTable_[i]->getInterestStruct(), &nameStruct)) {
+  for (size_t i = 0; i < pendingInterestTable_.size(); ++i) {
+    if (ndn_Interest_matchesName((struct ndn_Interest *)&pendingInterestTable_[i]->getInterestStruct(), &nameStruct)) {
       if (iResult < 0 || 
           pendingInterestTable_[i]->getInterestStruct().name.nComponents > 
           pendingInterestTable_[iResult]->getInterestStruct().name.nComponents)
         // Update to the longer match.
         iResult = i;
     }
-	}
+  }
     
-	return iResult;
+  return iResult;
 }
   
 Node::RegisteredPrefix*
@@ -324,17 +324,17 @@ Node::getEntryForRegisteredPrefix(const Name& name)
 {
   int iResult = -1;
     
-	for (size_t i = 0; i < registeredPrefixTable_.size(); ++i) {
-		if (registeredPrefixTable_[i]->getPrefix()->match(name)) {
+  for (size_t i = 0; i < registeredPrefixTable_.size(); ++i) {
+    if (registeredPrefixTable_[i]->getPrefix()->match(name)) {
       if (iResult < 0 || 
           registeredPrefixTable_[i]->getPrefix()->getComponentCount() > registeredPrefixTable_[iResult]->getPrefix()->getComponentCount())
         // Update to the longer match.
         iResult = i;
     }
-	}
+  }
     
   if (iResult >= 0)
-  	return registeredPrefixTable_[iResult].get();
+    return registeredPrefixTable_[iResult].get();
   else
     return 0;
 }

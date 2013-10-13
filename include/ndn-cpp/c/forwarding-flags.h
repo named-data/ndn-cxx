@@ -5,9 +5,9 @@
  */
 
 #ifndef NDN_FORWARDING_FLAGS_H
-#define	NDN_FORWARDING_FLAGS_H
+#define NDN_FORWARDING_FLAGS_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -48,7 +48,7 @@ int ndn_ForwardingFlags_getForwardingEntryFlags(struct ndn_ForwardingFlags *self
 void ndn_ForwardingFlags_setForwardingEntryFlags(struct ndn_ForwardingFlags *self, int forwardingEntryFlags);
 
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

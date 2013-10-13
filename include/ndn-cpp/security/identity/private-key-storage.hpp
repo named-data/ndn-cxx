@@ -7,7 +7,7 @@
  */
 
 #ifndef NDN_PRIVATE_KEY_STORAGE_HPP
-#define	NDN_PRIVATE_KEY_STORAGE_HPP
+#define NDN_PRIVATE_KEY_STORAGE_HPP
 
 #include <string>
 #include "../../util/blob.hpp"

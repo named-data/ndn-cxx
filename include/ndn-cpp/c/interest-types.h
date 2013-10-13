@@ -5,9 +5,9 @@
  */
 
 #ifndef NDN_INTEREST_TYPES_H
-#define	NDN_INTEREST_TYPES_H
+#define NDN_INTEREST_TYPES_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -18,7 +18,7 @@ typedef enum {
 
 
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

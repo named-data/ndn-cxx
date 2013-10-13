@@ -6,7 +6,7 @@
  */
 
 #ifndef NDN_ENCRYPTION_MANAGER_HPP
-#define	NDN_ENCRYPTION_MANAGER_HPP
+#define NDN_ENCRYPTION_MANAGER_HPP
 
 #include "../../name.hpp"
 #include "../security-common.hpp"

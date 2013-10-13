@@ -6,7 +6,7 @@
  */
 
 #ifndef NDN_SHA256_WITH_RSA_SIGNATURE_HPP
-#define	NDN_SHA256_WITH_RSA_SIGNATURE_HPP
+#define NDN_SHA256_WITH_RSA_SIGNATURE_HPP
 
 #include "data.hpp"
 #include "key.hpp"

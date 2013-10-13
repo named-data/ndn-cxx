@@ -7,7 +7,7 @@
  */
 
 #ifndef NDN_LOGGING_HPP
-#define	NDN_LOGGING_HPP
+#define NDN_LOGGING_HPP
 
 #include <ndn-cpp//common.hpp>
 

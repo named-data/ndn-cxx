@@ -6,7 +6,7 @@
  */
 
 #ifndef NDN_MEMORY_IDENTITY_STORAGE_HPP
-#define	NDN_MEMORY_IDENTITY_STORAGE_HPP
+#define NDN_MEMORY_IDENTITY_STORAGE_HPP
 
 #include <vector>
 #include "identity-storage.hpp"

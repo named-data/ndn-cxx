@@ -37,11 +37,11 @@ ndn_Error ndn_NameComponent_toNumberWithMarker(struct ndn_NameComponent *self, u
 
 int ndn_Name_match(struct ndn_Name *self, struct ndn_Name *name)
 {
-	// This name is longer than the name we are checking it against.
-	if (self->nComponents > name->nComponents)
+  // This name is longer than the name we are checking it against.
+  if (self->nComponents > name->nComponents)
     return 0;
 
-	// Check if at least one of given components doesn't match.
+  // Check if at least one of given components doesn't match.
   size_t i;
   for (i = 0; i < self->nComponents; ++i) {
     struct ndn_NameComponent *selfComponent = self->components + i;
@@ -52,5 +52,5 @@ int ndn_Name_match(struct ndn_Name *self, struct ndn_Name *name)
       return 0;
   }
 
-	return 1;
+  return 1;
 }

@@ -6,7 +6,7 @@
  */
 
 #ifndef NDN_BLOB_HPP
-#define	NDN_BLOB_HPP
+#define NDN_BLOB_HPP
 
 #include "../common.hpp"
 

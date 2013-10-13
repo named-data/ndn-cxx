@@ -5,14 +5,14 @@
  */
 
 #ifndef NDN_BINARY_XML_FORWARDING_ENTRY_H
-#define	NDN_BINARY_XML_FORWARDING_ENTRY_H
+#define NDN_BINARY_XML_FORWARDING_ENTRY_H
 
 #include "../errors.h"
 #include "../forwarding-entry.h"
 #include "binary-xml-encoder.h"
 #include "binary-xml-decoder.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -32,7 +32,7 @@ ndn_Error ndn_encodeBinaryXmlForwardingEntry(struct ndn_ForwardingEntry *forward
  */
 ndn_Error ndn_decodeBinaryXmlForwardingEntry(struct ndn_ForwardingEntry *forwardingEntry, struct ndn_BinaryXmlDecoder *decoder);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

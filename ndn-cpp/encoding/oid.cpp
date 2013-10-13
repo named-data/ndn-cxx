@@ -26,7 +26,7 @@ OID::OID(const string& oid)
 
     pos = str.find_first_of('.', pos);
     if(pos == string::npos)
-	    break;
+      break;
 
     oid_.push_back(atoi(str.substr(ppos, pos - ppos).c_str()));
 

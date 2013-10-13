@@ -52,8 +52,8 @@ Exclude::set(const struct ndn_Exclude& excludeStruct)
 string 
 Exclude::toUri() const
 {
-	if (entries_.size() == 0)
-		return "";
+  if (entries_.size() == 0)
+    return "";
 
   ostringstream result;
   for (unsigned i = 0; i < entries_.size(); ++i) {

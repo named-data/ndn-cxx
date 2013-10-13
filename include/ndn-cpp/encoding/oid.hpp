@@ -7,7 +7,7 @@
  */
 
 #ifndef NDN_OID_HPP
-#define	NDN_OID_HPP
+#define NDN_OID_HPP
 
 #include <vector>
 #include <string>

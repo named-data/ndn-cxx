@@ -7,7 +7,7 @@
  */
 
 #ifndef NDN_NO_VERIFY_POLICY_MANAGER_HPP
-#define	NDN_NO_VERIFY_POLICY_MANAGER_HPP
+#define NDN_NO_VERIFY_POLICY_MANAGER_HPP
 
 #include "policy-manager.hpp"
 

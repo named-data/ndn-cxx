@@ -8,7 +8,7 @@
  */
 
 #ifndef NDN_SIGNED_BLOB_HPP
-#define	NDN_SIGNED_BLOB_HPP
+#define NDN_SIGNED_BLOB_HPP
 
 #include "blob.hpp"
 

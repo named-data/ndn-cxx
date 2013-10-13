@@ -6,7 +6,7 @@
  */
 
 #ifndef NDN_SECURITY_COMMON_HPP
-#define	NDN_SECURITY_COMMON_HPP
+#define NDN_SECURITY_COMMON_HPP
 
 namespace ndn {
 

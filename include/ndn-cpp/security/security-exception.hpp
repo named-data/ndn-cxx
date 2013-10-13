@@ -7,7 +7,7 @@
  */
 
 #ifndef NDN_SECURITY_EXCEPTION_HPP
-#define	NDN_SECURITY_EXCEPTION_HPP
+#define NDN_SECURITY_EXCEPTION_HPP
 
 #include <exception>
 #include <string>

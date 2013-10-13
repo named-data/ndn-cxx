@@ -7,7 +7,7 @@
  */
 
 #ifndef NDN_IDENTITY_CERTIFICATE_HPP
-#define	NDN_IDENTITY_CERTIFICATE_HPP
+#define NDN_IDENTITY_CERTIFICATE_HPP
 
 #include "certificate.hpp"
 

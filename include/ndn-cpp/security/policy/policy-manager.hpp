@@ -7,7 +7,7 @@
  */
 
 #ifndef NDN_POLICY_MANAGER_HPP
-#define	NDN_POLICY_MANAGER_HPP
+#define NDN_POLICY_MANAGER_HPP
 
 #include "../../data.hpp"
 #include "../key-chain.hpp"

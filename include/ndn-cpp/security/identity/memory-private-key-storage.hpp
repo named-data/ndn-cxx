@@ -6,7 +6,7 @@
  */
 
 #ifndef NDN_MEMORY_PRIVATE_KEY_STORAGE_HPP
-#define	NDN_MEMORY_PRIVATE_KEY_STORAGE_HPP
+#define NDN_MEMORY_PRIVATE_KEY_STORAGE_HPP
 
 #include <map>
 #include "private-key-storage.hpp"

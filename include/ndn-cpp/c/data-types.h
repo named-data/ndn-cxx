@@ -5,9 +5,9 @@
  */
 
 #ifndef NDN_DATA_TYPES_H
-#define	NDN_DATA_TYPES_H
+#define NDN_DATA_TYPES_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -20,7 +20,7 @@ typedef enum {
   ndn_ContentType_NACK = 5
 } ndn_ContentType;
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

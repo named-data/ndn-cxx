@@ -7,7 +7,7 @@
  */
 
 #ifndef NDN_IDENTITY_STORAGE_HPP
-#define	NDN_IDENTITY_STORAGE_HPP
+#define NDN_IDENTITY_STORAGE_HPP
 
 #include "../../name.hpp"
 #include "../security-common.hpp"

@@ -6,7 +6,7 @@
  */
 
 #ifndef NDN_CHANGED_EVENT_HPP
-#define	NDN_CHANGED_EVENT_HPP
+#define NDN_CHANGED_EVENT_HPP
 
 #include <vector>
 #include <ndn-cpp/common.hpp>

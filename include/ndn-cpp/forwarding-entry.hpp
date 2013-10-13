@@ -6,7 +6,7 @@
  */
 
 #ifndef NDN_FORWARDING_ENTRY_HPP
-#define	NDN_FORWARDING_ENTRY_HPP
+#define NDN_FORWARDING_ENTRY_HPP
 
 #include <string>
 #include "name.hpp"

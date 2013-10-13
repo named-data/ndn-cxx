@@ -6,7 +6,7 @@
  */
 
 #ifndef NDN_FORWARDING_FLAGS_HPP
-#define	NDN_FORWARDING_FLAGS_HPP
+#define NDN_FORWARDING_FLAGS_HPP
 
 #include "c/forwarding-flags.h"
 

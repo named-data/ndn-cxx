@@ -5,11 +5,11 @@
  */
 
 #ifndef NDN_BLOB_H
-#define	NDN_BLOB_H
+#define NDN_BLOB_H
 
 #include <ndn-cpp/c/common.h>
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -33,7 +33,7 @@ static inline void ndn_Blob_initialize(struct ndn_Blob *self, uint8_t *value, si
   self->length = length;
 }
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
