@@ -16,9 +16,6 @@
 
 namespace ndn {
 
-// TODO: Implement Time values.
-class Time;
-
 /**
  * An IdentityManager is the interface of operations related to identity, keys, and certificates.
  */

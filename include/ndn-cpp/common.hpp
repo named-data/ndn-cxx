@@ -53,6 +53,9 @@ namespace ndn { namespace func_lib = ndnboost; }
 
 namespace ndn {
    
+// TODO: Implement Time, used in certificates and DER encoding.
+typedef double Time;  
+  
 /**
  * Return the hex representation of the bytes in array.
  * @param array The array of bytes.

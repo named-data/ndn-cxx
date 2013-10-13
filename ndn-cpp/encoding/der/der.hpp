@@ -25,9 +25,6 @@
 
 namespace ndn {
 
-// TODO: Implement Time values.
-class Time;
-
 namespace der {
 
 enum DerType {
