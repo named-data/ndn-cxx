@@ -103,6 +103,9 @@ public:
   
   void 
   setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
+
+  void 
+  setFinalBlockID(const Blob& finalBlockID) { finalBlockID_ = Name::Component(finalBlockID); }
   
   void 
   setFinalBlockID(const std::vector<uint8_t>& finalBlockID) { finalBlockID_ = Name::Component(finalBlockID); }
