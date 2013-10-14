@@ -278,20 +278,8 @@ public:
     onChanged();
   }
       
-  /**
-   * Set content to point to an existing byte array.  IMPORTANT: After calling this,
-   * if you keep a pointer to the array then you must treat the array as immutable and promise not to change it.
-   * @param content A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
-   */
   void 
-  setContent(const ptr_lib::shared_ptr<std::vector<uint8_t> > &content) 
-  { 
-    content_ = content;
-    onChanged();
-  }
-  
-  void 
-  setContent(const ptr_lib::shared_ptr<const std::vector<uint8_t> > &content) 
+  setContent(const Blob& content) 
   { 
     content_ = content;
     onChanged();
