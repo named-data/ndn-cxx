@@ -72,33 +72,25 @@ public:
   }
 
   void 
+  setDigestAlgorithm(const Blob& digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
+
+  void 
   setWitness(const std::vector<uint8_t>& witness) { witness_ = witness; }
   
   void 
-  setWitness(const uint8_t *witness, size_t witnessLength) 
-  { 
-    witness_ = Blob(witness, witnessLength); 
-  }
+  setWitness(const uint8_t *witness, size_t witnessLength) { witness_ = Blob(witness, witnessLength); }
+  
+  void 
+  setWitness(const Blob& witness) { witness_ = witness; }
 
   void 
   setSignature(const std::vector<uint8_t>& signature) { signature_ = signature; }
   
   void 
-  setSignature(const uint8_t *signature, size_t signatureLength) 
-  { 
-    signature_ = Blob(signature, signatureLength); 
-  }
-
-  /**
-   * Set signature to point to an existing byte array.  IMPORTANT: After calling this,
-   * if you keep a pointer to the array then you must treat the array as immutable and promise not to change it.
-   * @param signature A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
-   */
-  void 
-  setSignature(const ptr_lib::shared_ptr<std::vector<uint8_t> > &signature) { signature_ = signature; }
+  setSignature(const uint8_t *signature, size_t signatureLength) { signature_ = Blob(signature, signatureLength); }
 
   void 
-  setSignature(const ptr_lib::shared_ptr<const std::vector<uint8_t> > &signature) { signature_ = signature; }
+  setSignature(const Blob& signature) { signature_ = signature; }
 
   void 
   setPublisherPublicKeyDigest(const PublisherPublicKeyDigest& publisherPublicKeyDigest) { publisherPublicKeyDigest_ = publisherPublicKeyDigest; }
