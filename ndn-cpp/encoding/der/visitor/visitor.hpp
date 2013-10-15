@@ -13,9 +13,14 @@ namespace ndn {
 
 namespace der {
   
-// TODO: We want to implement an any type, but avoid boost::any which is not in the C++ standard library.
-typedef void *Any;
-
+// TODO: This is a stub. We want to implement an any type, but avoid boost::any which is not in the C++ standard library.
+class Any {
+public:
+  Any() {}
+  
+  template<class T> Any(const T& value) {}
+};
+  
 class DerBool;
 class DerInteger;
 class DerPrintableString;

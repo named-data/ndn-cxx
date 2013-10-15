@@ -28,7 +28,6 @@ SimpleVisitor::visit(DerBool& derBool)
   return Any(result);
 }
 
-#if 0
 Any 
 SimpleVisitor::visit(DerInteger& derInteger)
 {
@@ -38,7 +37,7 @@ SimpleVisitor::visit(DerInteger& derInteger)
 Any 
 SimpleVisitor::visit(DerPrintableString& derPStr)
 {
-  return Any(string(derPStr.getPayload().buf(), derPStr.getPayload().size()));
+  return Any(string((const char*)&derPStr.getPayload()[0], derPStr.getPayload().size()));
 }
 
 Any 
@@ -56,7 +55,7 @@ SimpleVisitor::visit(DerNull& derNull)
 Any 
 SimpleVisitor::visit(DerOctetString& derOStr)
 {
-  Ptr<Blob> result = Ptr<Blob>(new Blob(derOStr.getPayload().buf(), derOStr.getPayload().size()));
+  vector<uint8_t> result(derOStr.getPayload());
   return Any(result);
 }
 
@@ -66,7 +65,7 @@ SimpleVisitor::visit(DerOid& derOid)
   vector<int> intList;
   int offset = 0;
 
-  Blob & blob = derOid.getPayload();
+  vector<uint8_t>& blob = derOid.getPayload();
     
   int first = blob[offset];
   
@@ -88,10 +87,11 @@ SimpleVisitor::visit(DerSequence& derSeq)
   return Any();
 }
 
+#if 0 // TODO: Implmenent alternative to boost::posix_time::from_iso_string.
 Any 
 SimpleVisitor::visit(DerGtime& derGtime)
 {
-  string str(derGtime.getPayload().buf() , derGtime.getPayload().size());
+  string str((const char*)&derGtime.getPayload()[0], derGtime.getPayload().size());
   return Any(boost::posix_time::from_iso_string(str.substr(0, 8) + "T" + str.substr(8, 6)));
 }
 #endif
