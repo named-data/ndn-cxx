@@ -181,7 +181,11 @@ am_libndn_cpp_la_OBJECTS = $(am__objects_2) $(am__objects_1) \
 	ndn-cpp/sha256-with-rsa-signature.lo \
 	ndn-cpp/encoding/binary-xml-wire-format.lo \
 	ndn-cpp/encoding/element-listener.lo ndn-cpp/encoding/oid.lo \
-	ndn-cpp/encoding/wire-format.lo ndn-cpp/security/key-chain.lo \
+	ndn-cpp/encoding/wire-format.lo \
+	ndn-cpp/encoding/der/visitor/no-arguments-visitor.lo \
+	ndn-cpp/encoding/der/visitor/simple-visitor.lo \
+	ndn-cpp/encoding/der/visitor/void-visitor.lo \
+	ndn-cpp/security/key-chain.lo \
 	ndn-cpp/security/security-exception.lo \
 	ndn-cpp/security/certificate/certificate-extension.lo \
 	ndn-cpp/security/certificate/certificate-subject-description.lo \
@@ -657,11 +661,11 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   ndn-cpp/encoding/oid.cpp \
   ndn-cpp/encoding/wire-format.cpp \
   ndn-cpp/encoding/der/der.hpp \
-  ndn-cpp/encoding/der/visitor/no-arguments-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/simple-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/no-arguments-visitor.cpp ndn-cpp/encoding/der/visitor/no-arguments-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/simple-visitor.cpp ndn-cpp/encoding/der/visitor/simple-visitor.hpp \
   ndn-cpp/encoding/der/visitor/visitor.hpp \
   ndn-cpp/encoding/der/visitor/void-no-arguments-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/void-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/void-visitor.cpp ndn-cpp/encoding/der/visitor/void-visitor.hpp \
   ndn-cpp/security/key-chain.cpp \
   ndn-cpp/security/security-exception.cpp \
   ndn-cpp/security/certificate/certificate-extension.cpp \
@@ -885,6 +889,21 @@ ndn-cpp/encoding/oid.lo: ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/wire-format.lo: ndn-cpp/encoding/$(am__dirstamp) \
 	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/encoding/der/visitor/$(am__dirstamp):
+	@$(MKDIR_P) ndn-cpp/encoding/der/visitor
+	@: > ndn-cpp/encoding/der/visitor/$(am__dirstamp)
+ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ndn-cpp/encoding/der/visitor/$(DEPDIR)
+	@: > ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/encoding/der/visitor/no-arguments-visitor.lo:  \
+	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
+	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/encoding/der/visitor/simple-visitor.lo:  \
+	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
+	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/encoding/der/visitor/void-visitor.lo:  \
+	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
+	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/security/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/security
 	@: > ndn-cpp/security/$(am__dirstamp)
@@ -1036,6 +1055,8 @@ mostlyclean-compile:
 	-rm -f ndn-cpp/c/util/*.lo
 	-rm -f ndn-cpp/encoding/*.$(OBJEXT)
 	-rm -f ndn-cpp/encoding/*.lo
+	-rm -f ndn-cpp/encoding/der/visitor/*.$(OBJEXT)
+	-rm -f ndn-cpp/encoding/der/visitor/*.lo
 	-rm -f ndn-cpp/security/*.$(OBJEXT)
 	-rm -f ndn-cpp/security/*.lo
 	-rm -f ndn-cpp/security/certificate/*.$(OBJEXT)
@@ -1086,6 +1107,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/element-listener.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/oid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/wire-format.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/no-arguments-visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/simple-visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/void-visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/$(DEPDIR)/key-chain.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/$(DEPDIR)/security-exception.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/certificate/$(DEPDIR)/certificate-extension.Plo@am__quote@
@@ -1171,6 +1195,7 @@ clean-libtool:
 	-rm -rf ndn-cpp/c/transport/.libs ndn-cpp/c/transport/_libs
 	-rm -rf ndn-cpp/c/util/.libs ndn-cpp/c/util/_libs
 	-rm -rf ndn-cpp/encoding/.libs ndn-cpp/encoding/_libs
+	-rm -rf ndn-cpp/encoding/der/visitor/.libs ndn-cpp/encoding/der/visitor/_libs
 	-rm -rf ndn-cpp/security/.libs ndn-cpp/security/_libs
 	-rm -rf ndn-cpp/security/certificate/.libs ndn-cpp/security/certificate/_libs
 	-rm -rf ndn-cpp/security/identity/.libs ndn-cpp/security/identity/_libs
@@ -1521,6 +1546,8 @@ distclean-generic:
 	-rm -f ndn-cpp/c/util/$(am__dirstamp)
 	-rm -f ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
 	-rm -f ndn-cpp/encoding/$(am__dirstamp)
+	-rm -f ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ndn-cpp/encoding/der/visitor/$(am__dirstamp)
 	-rm -f ndn-cpp/security/$(DEPDIR)/$(am__dirstamp)
 	-rm -f ndn-cpp/security/$(am__dirstamp)
 	-rm -f ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp)
@@ -1546,7 +1573,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/c/$(DEPDIR) ndn-cpp/c/encoding/$(DEPDIR) ndn-cpp/c/transport/$(DEPDIR) ndn-cpp/c/util/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/security/$(DEPDIR) ndn-cpp/security/certificate/$(DEPDIR) ndn-cpp/security/identity/$(DEPDIR) ndn-cpp/security/policy/$(DEPDIR) ndn-cpp/transport/$(DEPDIR) ndn-cpp/util/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/c/$(DEPDIR) ndn-cpp/c/encoding/$(DEPDIR) ndn-cpp/c/transport/$(DEPDIR) ndn-cpp/c/util/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/encoding/der/visitor/$(DEPDIR) ndn-cpp/security/$(DEPDIR) ndn-cpp/security/certificate/$(DEPDIR) ndn-cpp/security/identity/$(DEPDIR) ndn-cpp/security/policy/$(DEPDIR) ndn-cpp/transport/$(DEPDIR) ndn-cpp/util/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
@@ -1594,7 +1621,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/c/$(DEPDIR) ndn-cpp/c/encoding/$(DEPDIR) ndn-cpp/c/transport/$(DEPDIR) ndn-cpp/c/util/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/security/$(DEPDIR) ndn-cpp/security/certificate/$(DEPDIR) ndn-cpp/security/identity/$(DEPDIR) ndn-cpp/security/policy/$(DEPDIR) ndn-cpp/transport/$(DEPDIR) ndn-cpp/util/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/c/$(DEPDIR) ndn-cpp/c/encoding/$(DEPDIR) ndn-cpp/c/transport/$(DEPDIR) ndn-cpp/c/util/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/encoding/der/visitor/$(DEPDIR) ndn-cpp/security/$(DEPDIR) ndn-cpp/security/certificate/$(DEPDIR) ndn-cpp/security/identity/$(DEPDIR) ndn-cpp/security/policy/$(DEPDIR) ndn-cpp/transport/$(DEPDIR) ndn-cpp/util/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

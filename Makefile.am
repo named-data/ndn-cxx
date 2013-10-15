@@ -117,11 +117,11 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   ndn-cpp/encoding/oid.cpp \
   ndn-cpp/encoding/wire-format.cpp \
   ndn-cpp/encoding/der/der.hpp \
-  ndn-cpp/encoding/der/visitor/no-arguments-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/simple-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/no-arguments-visitor.cpp ndn-cpp/encoding/der/visitor/no-arguments-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/simple-visitor.cpp ndn-cpp/encoding/der/visitor/simple-visitor.hpp \
   ndn-cpp/encoding/der/visitor/visitor.hpp \
   ndn-cpp/encoding/der/visitor/void-no-arguments-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/void-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/void-visitor.cpp ndn-cpp/encoding/der/visitor/void-visitor.hpp \
   ndn-cpp/security/key-chain.cpp \
   ndn-cpp/security/security-exception.cpp \
   ndn-cpp/security/certificate/certificate-extension.cpp \
