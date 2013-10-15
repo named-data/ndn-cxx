@@ -1421,7 +1421,7 @@ namespace ndnboost {
         // acts as a stream buffer which wraps around a pair of pointers
         //
         // This class is copied (and slightly changed) from
-        // boost/regex/v4/cpp_regex_traits.hpp
+        // ndnboost/regex/v4/cpp_regex_traits.hpp
         // Thanks John Maddock for it! (previous version had some
         // problems with libc++ and some other STL implementations)
         template <class BufferType, class charT>

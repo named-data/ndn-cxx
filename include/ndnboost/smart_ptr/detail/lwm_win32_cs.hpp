@@ -8,7 +8,7 @@
 #endif
 
 //
-//  boost/detail/lwm_win32_cs.hpp
+//  ndnboost/detail/lwm_win32_cs.hpp
 //
 //  Copyright (c) 2002, 2003 Peter Dimov
 //

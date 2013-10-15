@@ -22,7 +22,7 @@
 
 #include <ndnboost/static_assert.hpp>
 
-// Use boost/limits to work around missing limits headers on some compilers
+// Use ndnboost/limits to work around missing limits headers on some compilers
 #include <ndnboost/limits.hpp>
 #include <ndnboost/config.hpp>
 

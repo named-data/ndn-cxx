@@ -1,5 +1,5 @@
 //
-//  boost/assert.hpp - BOOST_ASSERT(expr)
+//  ndnboost/assert.hpp - BOOST_ASSERT(expr)
 //                     BOOST_ASSERT_MSG(expr, msg)
 //                     BOOST_VERIFY(expr)
 //

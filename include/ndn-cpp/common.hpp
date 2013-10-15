@@ -30,6 +30,8 @@ namespace ndn { namespace ptr_lib = boost; }
 // cd ndnboost
 // (unset LANG; find . -type f -exec sed -i '' 's/\<boost\//\<ndnboost\//g' {} +)
 // (unset LANG; find . -type f -exec sed -i '' 's/\"boost\//\"ndnboost\//g' {} +)
+// (unset LANG; find . -type f -exec sed -i '' 's/\ boost\//\ ndnboost\//g' {} +)
+// (unset LANG; find . -type f -exec sed -i '' 's/(boost\//(ndnboost\//g' {} +)
 #include <ndnboost/shared_ptr.hpp>
 #include <ndnboost/make_shared.hpp>
 namespace ndn { namespace ptr_lib = ndnboost; }

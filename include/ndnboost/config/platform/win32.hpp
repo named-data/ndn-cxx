@@ -23,7 +23,7 @@
 
 //  Default defines for BOOST_SYMBOL_EXPORT and BOOST_SYMBOL_IMPORT
 //  If a compiler doesn't support __declspec(dllexport)/__declspec(dllimport),
-//  its boost/config/compiler/ file must define BOOST_SYMBOL_EXPORT and
+//  its ndnboost/config/compiler/ file must define BOOST_SYMBOL_EXPORT and
 //  BOOST_SYMBOL_IMPORT
 #ifndef BOOST_SYMBOL_EXPORT
 #  define BOOST_HAS_DECLSPEC

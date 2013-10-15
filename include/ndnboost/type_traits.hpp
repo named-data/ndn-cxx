@@ -5,7 +5,7 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-//  See boost/type_traits/*.hpp for full copyright notices.
+//  See ndnboost/type_traits/*.hpp for full copyright notices.
 
 #ifndef BOOST_TYPE_TRAITS_HPP
 #define BOOST_TYPE_TRAITS_HPP

@@ -70,7 +70,7 @@ struct synthesize_mop
 };
 
 #define BOOST_FT_variations BOOST_FT_function|BOOST_FT_member_pointer
-#define BOOST_FT_al_path boost/function_types/detail/synthesize_impl
+#define BOOST_FT_al_path ndnboost/function_types/detail/synthesize_impl
 #include <ndnboost/function_types/detail/pp_loop.hpp>
 
 } } } // namespace ::ndnboost::function_types::detail

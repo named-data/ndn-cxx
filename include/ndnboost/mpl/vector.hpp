@@ -33,7 +33,7 @@
     /**/
 #endif
 
-#   include BOOST_PP_STRINGIZE(boost/mpl/vector/AUX778076_VECTOR_HEADER)
+#   include BOOST_PP_STRINGIZE(ndnboost/mpl/vector/AUX778076_VECTOR_HEADER)
 #   undef AUX778076_VECTOR_HEADER
 #endif
 

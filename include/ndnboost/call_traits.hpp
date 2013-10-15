@@ -5,7 +5,7 @@
 //
 //  See http://www.boost.org/libs/utility for most recent version including documentation.
 
-//  See boost/detail/call_traits.hpp and boost/detail/ob_call_traits.hpp
+//  See ndnboost/detail/call_traits.hpp and ndnboost/detail/ob_call_traits.hpp
 //  for full copyright notices.
 
 #ifndef BOOST_CALL_TRAITS_HPP

@@ -18,7 +18,7 @@
     #pragma warning( disable : 4996 )
 #endif
 
-// From boost/dynamic_bitset.hpp; thanks to Matthias Troyer for Cray X1 patch.
+// From ndnboost/dynamic_bitset.hpp; thanks to Matthias Troyer for Cray X1 patch.
 #ifndef BOOST_OLD_IOSTREAMS 
 # if defined(__STL_CONFIG_H) && \
     !defined (__STL_USE_NEW_IOSTREAMS) && !defined(__crayx1) \

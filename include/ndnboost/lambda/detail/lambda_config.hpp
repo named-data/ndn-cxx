@@ -13,7 +13,7 @@
 #ifndef BOOST_LAMBDA_LAMBDA_CONFIG_HPP
 #define BOOST_LAMBDA_LAMBDA_CONFIG_HPP
 
-// add to boost/config.hpp
+// add to ndnboost/config.hpp
 // for now
 
 

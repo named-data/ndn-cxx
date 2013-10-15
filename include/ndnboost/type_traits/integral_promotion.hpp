@@ -41,7 +41,7 @@ template<> struct need_promotion<unsigned short int> : public true_type {};
     template<> struct need_promotion<T>          \
         : public integral_constant<bool, (sizeof(T) < sizeof(int))> {};
 
-// Same set of integral types as in boost/type_traits/is_integral.hpp.
+// Same set of integral types as in ndnboost/type_traits/is_integral.hpp.
 // Please, keep in sync.
 #if (defined(BOOST_MSVC) && (BOOST_MSVC < 1300)) \
     || (defined(BOOST_INTEL_CXX_VERSION) && defined(_MSC_VER) && (BOOST_INTEL_CXX_VERSION <= 600)) \

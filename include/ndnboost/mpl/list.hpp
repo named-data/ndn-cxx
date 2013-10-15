@@ -33,7 +33,7 @@
     /**/
 #endif
 
-#   include BOOST_PP_STRINGIZE(boost/mpl/list/AUX778076_LIST_HEADER)
+#   include BOOST_PP_STRINGIZE(ndnboost/mpl/list/AUX778076_LIST_HEADER)
 #   undef AUX778076_LIST_HEADER
 #endif
 

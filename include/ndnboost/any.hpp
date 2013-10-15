@@ -25,7 +25,7 @@
 #include <ndnboost/utility/enable_if.hpp>
 #include <ndnboost/type_traits/is_same.hpp>
 
-// See boost/python/type_id.hpp
+// See ndnboost/python/type_id.hpp
 // TODO: add BOOST_TYPEID_COMPARE_BY_NAME to config.hpp
 # if (defined(__GNUC__) && __GNUC__ >= 3) \
  || defined(_AIX) \

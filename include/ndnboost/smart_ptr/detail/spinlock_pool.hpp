@@ -8,7 +8,7 @@
 #endif
 
 //
-//  boost/detail/spinlock_pool.hpp
+//  ndnboost/detail/spinlock_pool.hpp
 //
 //  Copyright (c) 2008 Peter Dimov
 //

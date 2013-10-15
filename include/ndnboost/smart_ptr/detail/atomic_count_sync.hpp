@@ -2,7 +2,7 @@
 #define BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_SYNC_HPP_INCLUDED
 
 //
-//  boost/detail/atomic_count_sync.hpp
+//  ndnboost/detail/atomic_count_sync.hpp
 //
 //  atomic_count for g++ 4.1+
 //

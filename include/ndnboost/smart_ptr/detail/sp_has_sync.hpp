@@ -8,7 +8,7 @@
 #endif
 
 //
-//  boost/smart_ptr/detail/sp_has_sync.hpp
+//  ndnboost/smart_ptr/detail/sp_has_sync.hpp
 //
 //  Copyright (c) 2008, 2009 Peter Dimov
 //

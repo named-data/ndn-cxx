@@ -118,7 +118,7 @@
 # define BOOST_LITTLE_ENDIAN
 # define BOOST_BYTE_ORDER 1234
 #else
-# error The file boost/detail/endian.hpp needs to be set up for your CPU type.
+# error The file ndnboost/detail/endian.hpp needs to be set up for your CPU type.
 #endif
 
 

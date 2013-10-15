@@ -21,7 +21,7 @@
 //             vc-stlport.
 //  20 Jan 01  Moved BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS to config.hpp.
 //             Removed unused BOOST_EXPLICIT_TARGET macro. Moved
-//             ndnboost::detail::type to boost/type.hpp. Made it compile with
+//             ndnboost::detail::type to ndnboost/type.hpp. Made it compile with
 //             stock gcc again (Dave Abrahams)
 //  29 Nov 00  Remove nested namespace cast, cleanup spacing before Formal
 //             Review (Beman Dawes)
@@ -58,7 +58,7 @@
 //  appear in the function's argument list.
 //
 //  TODO: Add this to config.hpp?
-//  FLC: This macro is repeated in boost/cast.hpp but only locally (is undefined at the bottom)
+//  FLC: This macro is repeated in ndnboost/cast.hpp but only locally (is undefined at the bottom)
 //       so is OK to reproduce it here.
 # if defined(BOOST_MSVC) && BOOST_MSVC < 1300
 #  define BOOST_EXPLICIT_DEFAULT_TARGET , ::ndnboost::type<Target>* = 0

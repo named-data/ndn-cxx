@@ -2,7 +2,7 @@
 #define BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_PTHREADS_HPP_INCLUDED
 
 //
-//  boost/detail/atomic_count_pthreads.hpp
+//  ndnboost/detail/atomic_count_pthreads.hpp
 //
 //  Copyright (c) 2001, 2002 Peter Dimov and Multi Media Ltd.
 //

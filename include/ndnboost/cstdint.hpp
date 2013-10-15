@@ -212,7 +212,7 @@ namespace ndnboost
      typedef unsigned char   uint_least8_t;
      typedef unsigned char   uint_fast8_t;
 # else
-#    error defaults not correct; you must hand modify boost/cstdint.hpp
+#    error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 # endif
 
 //  16-bit types  -----------------------------------------------------------//
@@ -251,7 +251,7 @@ namespace ndnboost
      typedef unsigned short  uint_least16_t;
      typedef unsigned short  uint_fast16_t;
 # else
-#    error defaults not correct; you must hand modify boost/cstdint.hpp
+#    error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 # endif
 
 //  32-bit types  -----------------------------------------------------------//
@@ -286,7 +286,7 @@ namespace ndnboost
       typedef unsigned __int32  uint_least32_t; 
       typedef unsigned __int32  uint_fast32_t; 
 # else
-#    error defaults not correct; you must hand modify boost/cstdint.hpp
+#    error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 # endif
 
 //  64-bit types + intmax_t and uintmax_t  ----------------------------------//
@@ -300,7 +300,7 @@ namespace ndnboost
 #    elif (defined(ULLONG_MAX) && ULLONG_MAX == 18446744073709551615ULL) || (defined(ULONG_LONG_MAX) && ULONG_LONG_MAX == 18446744073709551615ULL) || (defined(ULONGLONG_MAX) && ULONGLONG_MAX == 18446744073709551615ULL)
                                                                  // 2**64 - 1
 #    else
-#       error defaults not correct; you must hand modify boost/cstdint.hpp
+#       error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 #    endif
 
      typedef  ::ndnboost::long_long_type            intmax_t;
@@ -324,7 +324,7 @@ namespace ndnboost
      typedef unsigned long        uint_least64_t;
      typedef unsigned long        uint_fast64_t;
 #    else
-#       error defaults not correct; you must hand modify boost/cstdint.hpp
+#       error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 #    endif
 # elif defined(__GNUC__) && defined(BOOST_HAS_LONG_LONG)
      __extension__ typedef long long            intmax_t;
@@ -378,7 +378,7 @@ INT#_C macros if they're not already defined (John Maddock).
 //
 // For the following code we get several warnings along the lines of: 
 // 
-// boost/cstdint.hpp:428:35: error: use of C99 long long integer constant 
+// ndnboost/cstdint.hpp:428:35: error: use of C99 long long integer constant 
 // 
 // So we declare this a system header to suppress these warnings. 
 //
@@ -469,7 +469,7 @@ INT#_C macros if they're not already defined (John Maddock).
 #       define INT64_C(value) value##LL
 #       define UINT64_C(value) value##uLL
 #    else
-#       error defaults not correct; you must hand modify boost/cstdint.hpp
+#       error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 #    endif
 #  elif ULONG_MAX != 0xffffffff
 
@@ -477,7 +477,7 @@ INT#_C macros if they're not already defined (John Maddock).
 #       define INT64_C(value) value##L
 #       define UINT64_C(value) value##uL
 #    else
-#       error defaults not correct; you must hand modify boost/cstdint.hpp
+#       error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 #    endif
 #  elif defined(BOOST_HAS_LONG_LONG)
      // Usual macros not defined, work things out for ourselves:
@@ -485,10 +485,10 @@ INT#_C macros if they're not already defined (John Maddock).
 #       define INT64_C(value) value##LL
 #       define UINT64_C(value) value##uLL
 #    else
-#       error defaults not correct; you must hand modify boost/cstdint.hpp
+#       error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 #    endif
 #  else
-#    error defaults not correct; you must hand modify boost/cstdint.hpp
+#    error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 #  endif
 
 #  ifdef BOOST_NO_INT64_T

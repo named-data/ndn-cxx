@@ -8,7 +8,7 @@
 #endif
 
 //
-//  boost/detail/atomic_count_win32.hpp
+//  ndnboost/detail/atomic_count_win32.hpp
 //
 //  Copyright (c) 2001-2005 Peter Dimov
 //

@@ -2,7 +2,7 @@
 #define BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_GCC_HPP_INCLUDED
 
 //
-//  boost/detail/atomic_count_gcc.hpp
+//  ndnboost/detail/atomic_count_gcc.hpp
 //
 //  atomic_count for GNU libstdc++ v3
 //

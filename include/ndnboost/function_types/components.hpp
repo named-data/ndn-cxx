@@ -415,7 +415,7 @@ namespace ndnboost
 
 #endif // end of BORLAND WORKAROUND
 
-#define BOOST_FT_al_path boost/function_types/detail/components_impl
+#define BOOST_FT_al_path ndnboost/function_types/detail/components_impl
 #include <ndnboost/function_types/detail/pp_loop.hpp>
 
   } } // namespace function_types::detail

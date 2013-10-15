@@ -44,7 +44,7 @@ BOOST_TT_AUX_BOOL_TRAIT_CV_SPEC1(is_integral,char,true)
 BOOST_TT_AUX_BOOL_TRAIT_CV_SPEC1(is_integral,wchar_t,true)
 #endif
 
-// Same set of integral types as in boost/type_traits/integral_promotion.hpp.
+// Same set of integral types as in ndnboost/type_traits/integral_promotion.hpp.
 // Please, keep in sync. -- Alexander Nasonov
 #if (defined(BOOST_MSVC) && (BOOST_MSVC < 1300)) \
     || (defined(BOOST_INTEL_CXX_VERSION) && defined(_MSC_VER) && (BOOST_INTEL_CXX_VERSION <= 600)) \

@@ -42,11 +42,11 @@
 
 
 #if BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(700))
-#   define AUX778076_INCLUDE_STRING BOOST_PP_STRINGIZE(boost/mpl/vector/aux_/preprocessed/AUX778076_HEADER)
+#   define AUX778076_INCLUDE_STRING BOOST_PP_STRINGIZE(ndnboost/mpl/vector/aux_/preprocessed/AUX778076_HEADER)
 #   include AUX778076_INCLUDE_STRING
 #   undef AUX778076_INCLUDE_STRING
 #else
-#   include BOOST_PP_STRINGIZE(boost/mpl/vector/aux_/preprocessed/AUX778076_HEADER)
+#   include BOOST_PP_STRINGIZE(ndnboost/mpl/vector/aux_/preprocessed/AUX778076_HEADER)
 #endif
 
 #   undef AUX778076_HEADER

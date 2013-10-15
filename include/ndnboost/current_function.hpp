@@ -8,7 +8,7 @@
 #endif
 
 //
-//  boost/current_function.hpp - BOOST_CURRENT_FUNCTION
+//  ndnboost/current_function.hpp - BOOST_CURRENT_FUNCTION
 //
 //  Copyright (c) 2002 Peter Dimov and Multi Media Ltd.
 //
