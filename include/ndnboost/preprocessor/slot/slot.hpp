@@ -9,24 +9,24 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_SLOT_SLOT_HPP
-# define BOOST_PREPROCESSOR_SLOT_SLOT_HPP
+# ifndef NDNBOOST_PREPROCESSOR_SLOT_SLOT_HPP
+# define NDNBOOST_PREPROCESSOR_SLOT_SLOT_HPP
 #
 # include <ndnboost/preprocessor/cat.hpp>
 # include <ndnboost/preprocessor/slot/detail/def.hpp>
 #
-# /* BOOST_PP_ASSIGN_SLOT */
+# /* NDNBOOST_PP_ASSIGN_SLOT */
 #
-# define BOOST_PP_ASSIGN_SLOT(i) BOOST_PP_CAT(BOOST_PP_ASSIGN_SLOT_, i)
+# define NDNBOOST_PP_ASSIGN_SLOT(i) NDNBOOST_PP_CAT(NDNBOOST_PP_ASSIGN_SLOT_, i)
 #
-# define BOOST_PP_ASSIGN_SLOT_1 <ndnboost/preprocessor/slot/detail/slot1.hpp>
-# define BOOST_PP_ASSIGN_SLOT_2 <ndnboost/preprocessor/slot/detail/slot2.hpp>
-# define BOOST_PP_ASSIGN_SLOT_3 <ndnboost/preprocessor/slot/detail/slot3.hpp>
-# define BOOST_PP_ASSIGN_SLOT_4 <ndnboost/preprocessor/slot/detail/slot4.hpp>
-# define BOOST_PP_ASSIGN_SLOT_5 <ndnboost/preprocessor/slot/detail/slot5.hpp>
+# define NDNBOOST_PP_ASSIGN_SLOT_1 <ndnboost/preprocessor/slot/detail/slot1.hpp>
+# define NDNBOOST_PP_ASSIGN_SLOT_2 <ndnboost/preprocessor/slot/detail/slot2.hpp>
+# define NDNBOOST_PP_ASSIGN_SLOT_3 <ndnboost/preprocessor/slot/detail/slot3.hpp>
+# define NDNBOOST_PP_ASSIGN_SLOT_4 <ndnboost/preprocessor/slot/detail/slot4.hpp>
+# define NDNBOOST_PP_ASSIGN_SLOT_5 <ndnboost/preprocessor/slot/detail/slot5.hpp>
 #
-# /* BOOST_PP_SLOT */
+# /* NDNBOOST_PP_SLOT */
 #
-# define BOOST_PP_SLOT(i) BOOST_PP_CAT(BOOST_PP_SLOT_, i)()
+# define NDNBOOST_PP_SLOT(i) NDNBOOST_PP_CAT(NDNBOOST_PP_SLOT_, i)()
 #
 # endif

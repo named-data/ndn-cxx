@@ -12,13 +12,13 @@
 //  Description : Facilities to perform exception safety tests
 // ***************************************************************************
 
-#ifndef BOOST_TEST_EXECUTION_SAFETY_IPP_112005GER
-#define BOOST_TEST_EXECUTION_SAFETY_IPP_112005GER
+#ifndef NDNBOOST_TEST_EXECUTION_SAFETY_IPP_112005GER
+#define NDNBOOST_TEST_EXECUTION_SAFETY_IPP_112005GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
 
-#if BOOST_TEST_SUPPORT_INTERACTION_TESTING
+#if NDNBOOST_TEST_SUPPORT_INTERACTION_TESTING
 
 #include <ndnboost/test/detail/global_typedef.hpp>
 #include <ndnboost/test/detail/unit_test_parameters.hpp>
@@ -245,7 +245,7 @@ exception_safety_tester::next_execution_path()
         }
     }
 
-    BOOST_TEST_MESSAGE( "Total tested " << --m_exec_path_counter << " execution path" );
+    NDNBOOST_TEST_MESSAGE( "Total tested " << --m_exec_path_counter << " execution path" );
 
     return false;
 }
@@ -277,7 +277,7 @@ exception_safety_tester::decision_point( const_string file, std::size_t line_num
     activity_guard ag( m_internal_activity );
 
     if( m_exec_path_point < m_execution_path.size() ) {
-        BOOST_REQUIRE_MESSAGE( m_execution_path[m_exec_path_point].m_type == EPP_DECISION &&
+        NDNBOOST_REQUIRE_MESSAGE( m_execution_path[m_exec_path_point].m_type == EPP_DECISION &&
                                m_execution_path[m_exec_path_point].m_file_name == file &&
                                m_execution_path[m_exec_path_point].m_line_num == line_num,
                                "Function under test exibit non-deterministic behavior" );
@@ -301,7 +301,7 @@ exception_safety_tester::enter_scope( const_string file, std::size_t line_num, c
     activity_guard ag( m_internal_activity );
 
     if( m_exec_path_point < m_execution_path.size() ) {
-        BOOST_REQUIRE_MESSAGE( m_execution_path[m_exec_path_point].m_type == EPP_SCOPE &&
+        NDNBOOST_REQUIRE_MESSAGE( m_execution_path[m_exec_path_point].m_type == EPP_SCOPE &&
                                m_execution_path[m_exec_path_point].m_file_name == file &&
                                m_execution_path[m_exec_path_point].m_line_num == line_num,
                                "Function under test exibit non-deterministic behavior" );
@@ -324,7 +324,7 @@ exception_safety_tester::leave_scope( unsigned enter_scope_point )
 {
     activity_guard ag( m_internal_activity );
 
-    BOOST_REQUIRE_MESSAGE( m_execution_path[enter_scope_point].m_type == EPP_SCOPE,
+    NDNBOOST_REQUIRE_MESSAGE( m_execution_path[enter_scope_point].m_type == EPP_SCOPE,
                            "Function under test exibit non-deterministic behavior" );
 
     m_execution_path[enter_scope_point].m_scope.size = m_exec_path_point - enter_scope_point;
@@ -341,7 +341,7 @@ exception_safety_tester::allocated( const_string file, std::size_t line_num, voi
     activity_guard ag( m_internal_activity );
 
     if( m_exec_path_point < m_execution_path.size() )
-        BOOST_REQUIRE_MESSAGE( m_execution_path[m_exec_path_point].m_type == EPP_ALLOC,
+        NDNBOOST_REQUIRE_MESSAGE( m_execution_path[m_exec_path_point].m_type == EPP_ALLOC,
                                "Function under test exibit non-deterministic behavior" );
     else
         m_execution_path.push_back(
@@ -508,7 +508,7 @@ exception_safety_tester::report_error()
 // **************             exception safety test            ************** //
 // ************************************************************************** //
 
-void BOOST_TEST_DECL
+void NDNBOOST_TEST_DECL
 exception_safety( callback0<> const& F, const_string test_name )
 {
     exception_safety_tester est( test_name );
@@ -534,4 +534,4 @@ exception_safety( callback0<> const& F, const_string test_name )
 
 #endif // non-ancient compiler
 
-#endif // BOOST_TEST_EXECUTION_SAFETY_IPP_112005GER
+#endif // NDNBOOST_TEST_EXECUTION_SAFETY_IPP_112005GER

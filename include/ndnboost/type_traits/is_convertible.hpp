@@ -9,18 +9,18 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_CONVERTIBLE_HPP_INCLUDED
-#define BOOST_TT_IS_CONVERTIBLE_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_CONVERTIBLE_HPP_INCLUDED
+#define NDNBOOST_TT_IS_CONVERTIBLE_HPP_INCLUDED
 
 #include <ndnboost/type_traits/intrinsics.hpp>
-#ifndef BOOST_IS_CONVERTIBLE
+#ifndef NDNBOOST_IS_CONVERTIBLE
 #include <ndnboost/type_traits/detail/yes_no_type.hpp>
 #include <ndnboost/type_traits/config.hpp>
 #include <ndnboost/type_traits/is_array.hpp>
 #include <ndnboost/type_traits/ice.hpp>
 #include <ndnboost/type_traits/is_arithmetic.hpp>
 #include <ndnboost/type_traits/is_void.hpp>
-#ifndef BOOST_NO_IS_ABSTRACT
+#ifndef NDNBOOST_NO_IS_ABSTRACT
 #include <ndnboost/type_traits/is_abstract.hpp>
 #endif
 #include <ndnboost/type_traits/add_lvalue_reference.hpp>
@@ -31,14 +31,14 @@
 #include <ndnboost/type_traits/remove_reference.hpp>
 #endif
 
-#endif // BOOST_IS_CONVERTIBLE
+#endif // NDNBOOST_IS_CONVERTIBLE
 
 // should be always the last #include directive
 #include <ndnboost/type_traits/detail/bool_trait_def.hpp>
 
 namespace ndnboost {
 
-#ifndef BOOST_IS_CONVERTIBLE
+#ifndef NDNBOOST_IS_CONVERTIBLE
 
 // is one type convertible to another?
 //
@@ -54,7 +54,7 @@ namespace detail {
 
 // MS specific version:
 
-#if defined(BOOST_MSVC) && (BOOST_MSVC <= 1300)
+#if defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC <= 1300)
 
 // This workaround is necessary to handle when From is void
 // which is normally taken care of by the partial specialization
@@ -67,8 +67,8 @@ struct does_conversion_exist
 {
     template< typename To > struct result_
     {
-        static no_type BOOST_TT_DECL _m_check(...);
-        static yes_type BOOST_TT_DECL _m_check(To);
+        static no_type NDNBOOST_TT_DECL _m_check(...);
+        static yes_type NDNBOOST_TT_DECL _m_check(To);
         static typename add_lvalue_reference<From>::type  _m_from;
         enum { value = sizeof( _m_check(_m_from) ) == sizeof(yes_type) };
     };
@@ -103,8 +103,8 @@ struct is_convertible_impl
     // so we only use it for Borland.
     template <typename T> struct checker
     {
-        static ::ndnboost::type_traits::no_type BOOST_TT_DECL _m_check(...);
-        static ::ndnboost::type_traits::yes_type BOOST_TT_DECL _m_check(T);
+        static ::ndnboost::type_traits::no_type NDNBOOST_TT_DECL _m_check(...);
+        static ::ndnboost::type_traits::yes_type NDNBOOST_TT_DECL _m_check(T);
     };
 
     static typename add_lvalue_reference<From>::type  _m_from;
@@ -137,7 +137,7 @@ struct is_convertible_basic_impl
     typedef typename add_lvalue_reference<From>::type lvalue_type;
     typedef typename add_rvalue_reference<From>::type rvalue_type;
     static lvalue_type _m_from;
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6)))
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6)))
     static bool const value =
         sizeof( ndnboost::detail::checker<To>::_m_check(static_cast<rvalue_type>(_m_from), 0) )
         == sizeof(::ndnboost::type_traits::yes_type);
@@ -173,18 +173,18 @@ struct any_conversion
 template <typename From, typename To>
 struct is_convertible_basic_impl
 {
-    static ::ndnboost::type_traits::no_type BOOST_TT_DECL _m_check(any_conversion ...);
-    static ::ndnboost::type_traits::yes_type BOOST_TT_DECL _m_check(To, int);
+    static ::ndnboost::type_traits::no_type NDNBOOST_TT_DECL _m_check(any_conversion ...);
+    static ::ndnboost::type_traits::yes_type NDNBOOST_TT_DECL _m_check(To, int);
     typedef typename add_lvalue_reference<From>::type lvalue_type;
     typedef typename add_rvalue_reference<From>::type rvalue_type; 
     static lvalue_type _m_from;
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-    BOOST_STATIC_CONSTANT(bool, value =
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         sizeof( _m_check(static_cast<rvalue_type>(_m_from), 0) ) == sizeof(::ndnboost::type_traits::yes_type)
         );
 #else
-    BOOST_STATIC_CONSTANT(bool, value =
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         sizeof( _m_check(_m_from, 0) ) == sizeof(::ndnboost::type_traits::yes_type)
         );
 #endif
@@ -207,15 +207,15 @@ struct is_convertible_basic_impl
 {
     // Using '...' doesn't always work on Digital Mars. This version seems to.
     template <class T>
-    static ::ndnboost::type_traits::no_type BOOST_TT_DECL _m_check(any_conversion,  float, T);
-    static ::ndnboost::type_traits::yes_type BOOST_TT_DECL _m_check(To, int, int);
+    static ::ndnboost::type_traits::no_type NDNBOOST_TT_DECL _m_check(any_conversion,  float, T);
+    static ::ndnboost::type_traits::yes_type NDNBOOST_TT_DECL _m_check(To, int, int);
     typedef typename add_lvalue_reference<From>::type lvalue_type;
     typedef typename add_rvalue_reference<From>::type rvalue_type;
     static lvalue_type _m_from;
 
     // Static constants sometime cause the conversion of _m_from to To to be
     // called. This doesn't happen with an enum.
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
     enum { value =
         sizeof( _m_check(static_cast<rvalue_type>(_m_from), 0, 0) ) == sizeof(::ndnboost::type_traits::yes_type)
         };
@@ -248,18 +248,18 @@ struct any_conversion
 template <typename From, typename To>
 struct is_convertible_basic_impl_aux<From,To,false /*FromIsFunctionRef*/>
 {
-    static ::ndnboost::type_traits::no_type BOOST_TT_DECL _m_check(any_conversion ...);
-    static ::ndnboost::type_traits::yes_type BOOST_TT_DECL _m_check(To, int);
+    static ::ndnboost::type_traits::no_type NDNBOOST_TT_DECL _m_check(any_conversion ...);
+    static ::ndnboost::type_traits::yes_type NDNBOOST_TT_DECL _m_check(To, int);
     typedef typename add_lvalue_reference<From>::type lvalue_type;
     typedef typename add_rvalue_reference<From>::type rvalue_type; 
     static lvalue_type _m_from;
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-    BOOST_STATIC_CONSTANT(bool, value =
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         sizeof( _m_check(static_cast<rvalue_type>(_m_from), 0) ) == sizeof(::ndnboost::type_traits::yes_type)
         );
 #else
-    BOOST_STATIC_CONSTANT(bool, value =
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         sizeof( _m_check(_m_from, 0) ) == sizeof(::ndnboost::type_traits::yes_type)
         );
 #endif
@@ -268,17 +268,17 @@ struct is_convertible_basic_impl_aux<From,To,false /*FromIsFunctionRef*/>
 template <typename From, typename To>
 struct is_convertible_basic_impl_aux<From,To,true /*FromIsFunctionRef*/>
 {
-    static ::ndnboost::type_traits::no_type BOOST_TT_DECL _m_check(...);
-    static ::ndnboost::type_traits::yes_type BOOST_TT_DECL _m_check(To);
+    static ::ndnboost::type_traits::no_type NDNBOOST_TT_DECL _m_check(...);
+    static ::ndnboost::type_traits::yes_type NDNBOOST_TT_DECL _m_check(To);
     typedef typename add_lvalue_reference<From>::type lvalue_type;
     typedef typename add_rvalue_reference<From>::type rvalue_type;
     static lvalue_type _m_from;
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-    BOOST_STATIC_CONSTANT(bool, value =
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         sizeof( _m_check(static_cast<rvalue_type>(_m_from)) ) == sizeof(::ndnboost::type_traits::yes_type)
         );
 #else
-    BOOST_STATIC_CONSTANT(bool, value =
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         sizeof( _m_check(_m_from) ) == sizeof(::ndnboost::type_traits::yes_type)
         );
 #endif
@@ -300,28 +300,28 @@ struct is_convertible_basic_impl:
 template <typename From, typename To>
 struct is_convertible_basic_impl
 {
-    static ::ndnboost::type_traits::no_type BOOST_TT_DECL _m_check(...);
-    static ::ndnboost::type_traits::yes_type BOOST_TT_DECL _m_check(To);
+    static ::ndnboost::type_traits::no_type NDNBOOST_TT_DECL _m_check(...);
+    static ::ndnboost::type_traits::yes_type NDNBOOST_TT_DECL _m_check(To);
     typedef typename add_lvalue_reference<From>::type lvalue_type;
     typedef typename add_rvalue_reference<From>::type rvalue_type; 
     static lvalue_type _m_from;
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(push)
 #pragma warning(disable:4244)
-#if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC_FULL_VER, >= 140050000)
 #pragma warning(disable:6334)
 #endif
 #endif
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-    BOOST_STATIC_CONSTANT(bool, value =
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         sizeof( _m_check(static_cast<rvalue_type>(_m_from)) ) == sizeof(::ndnboost::type_traits::yes_type)
         );
 #else
-    BOOST_STATIC_CONSTANT(bool, value =
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         sizeof( _m_check(_m_from) ) == sizeof(::ndnboost::type_traits::yes_type)
         );
 #endif
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(pop)
 #endif
 };
@@ -351,7 +351,7 @@ struct is_convertible_impl
 template <typename From, typename To>
 struct is_convertible_impl
 {
-    BOOST_STATIC_CONSTANT(bool, value =
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         (::ndnboost::type_traits::ice_and<
             ::ndnboost::type_traits::ice_or<
                ::ndnboost::detail::is_convertible_basic_impl<From,To>::value,
@@ -411,11 +411,11 @@ struct is_convertible_impl_select<true, false, true>
 template <typename From, typename To>
 struct is_convertible_impl_dispatch_base
 {
-#if !BOOST_WORKAROUND(__HP_aCC, < 60700)
+#if !NDNBOOST_WORKAROUND(__HP_aCC, < 60700)
    typedef is_convertible_impl_select< 
       ::ndnboost::is_arithmetic<From>::value, 
       ::ndnboost::is_arithmetic<To>::value,
-#ifndef BOOST_NO_IS_ABSTRACT
+#ifndef NDNBOOST_NO_IS_ABSTRACT
       ::ndnboost::is_abstract<To>::value
 #else
       false
@@ -438,12 +438,12 @@ struct is_convertible_impl_dispatch
 // for void types, these are common to all the
 // implementation above:
 //
-#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
+#ifndef NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
 #   define TT_AUX_BOOL_CV_VOID_TRAIT_SPEC2_PART1(trait,spec1,spec2,value) \
-    BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC2(trait,spec1,spec2,value) \
-    BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC2(trait,spec1,spec2 const,value) \
-    BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC2(trait,spec1,spec2 volatile,value) \
-    BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC2(trait,spec1,spec2 const volatile,value) \
+    NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC2(trait,spec1,spec2,value) \
+    NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC2(trait,spec1,spec2 const,value) \
+    NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC2(trait,spec1,spec2 volatile,value) \
+    NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC2(trait,spec1,spec2 const volatile,value) \
     /**/
 
 #   define TT_AUX_BOOL_CV_VOID_TRAIT_SPEC2(trait,spec1,spec2,value) \
@@ -459,29 +459,29 @@ struct is_convertible_impl_dispatch
 #   undef TT_AUX_BOOL_CV_VOID_TRAIT_SPEC2_PART1
 
 #else
-    BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC2(is_convertible,void,void,true)
-#endif // BOOST_NO_CV_VOID_SPECIALIZATIONS
+    NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC2(is_convertible,void,void,true)
+#endif // NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename To,is_convertible,void,To,false)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename From,is_convertible,From,void,false)
-#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename To,is_convertible,void const,To,false)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename To,is_convertible,void volatile,To,false)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename To,is_convertible,void const volatile,To,false)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename From,is_convertible,From,void const,false)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename From,is_convertible,From,void volatile,false)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename From,is_convertible,From,void const volatile,false)
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename To,is_convertible,void,To,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename From,is_convertible,From,void,false)
+#ifndef NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename To,is_convertible,void const,To,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename To,is_convertible,void volatile,To,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename To,is_convertible,void const volatile,To,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename From,is_convertible,From,void const,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename From,is_convertible,From,void volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_PARTIAL_SPEC2_1(typename From,is_convertible,From,void const volatile,false)
 #endif
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF2(is_convertible,From,To,(::ndnboost::detail::is_convertible_impl_dispatch<From,To>::value))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF2(is_convertible,From,To,(::ndnboost::detail::is_convertible_impl_dispatch<From,To>::value))
 
 #else
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF2(is_convertible,From,To,BOOST_IS_CONVERTIBLE(From,To))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF2(is_convertible,From,To,NDNBOOST_IS_CONVERTIBLE(From,To))
 
 #endif
 
@@ -489,4 +489,4 @@ BOOST_TT_AUX_BOOL_TRAIT_DEF2(is_convertible,From,To,BOOST_IS_CONVERTIBLE(From,To
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_CONVERTIBLE_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_CONVERTIBLE_HPP_INCLUDED

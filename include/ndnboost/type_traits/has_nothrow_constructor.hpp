@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_HAS_NOTHROW_CONSTRUCTOR_HPP_INCLUDED
-#define BOOST_TT_HAS_NOTHROW_CONSTRUCTOR_HPP_INCLUDED
+#ifndef NDNBOOST_TT_HAS_NOTHROW_CONSTRUCTOR_HPP_INCLUDED
+#define NDNBOOST_TT_HAS_NOTHROW_CONSTRUCTOR_HPP_INCLUDED
 
 #include <ndnboost/type_traits/has_trivial_constructor.hpp>
 
@@ -20,34 +20,34 @@ namespace detail{
 
 template <class T>
 struct has_nothrow_constructor_imp{
-#ifdef BOOST_HAS_NOTHROW_CONSTRUCTOR
-   BOOST_STATIC_CONSTANT(bool, value = BOOST_HAS_NOTHROW_CONSTRUCTOR(T));
+#ifdef NDNBOOST_HAS_NOTHROW_CONSTRUCTOR
+   NDNBOOST_STATIC_CONSTANT(bool, value = NDNBOOST_HAS_NOTHROW_CONSTRUCTOR(T));
 #else
-   BOOST_STATIC_CONSTANT(bool, value = ::ndnboost::has_trivial_constructor<T>::value);
+   NDNBOOST_STATIC_CONSTANT(bool, value = ::ndnboost::has_trivial_constructor<T>::value);
 #endif
 };
 
 }
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(has_nothrow_constructor,T,::ndnboost::detail::has_nothrow_constructor_imp<T>::value)
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(has_nothrow_default_constructor,T,::ndnboost::detail::has_nothrow_constructor_imp<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(has_nothrow_constructor,T,::ndnboost::detail::has_nothrow_constructor_imp<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(has_nothrow_default_constructor,T,::ndnboost::detail::has_nothrow_constructor_imp<T>::value)
 
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_constructor,void,false)
-#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_constructor,void const,false)
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_constructor,void const volatile,false)
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_constructor,void volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_constructor,void,false)
+#ifndef NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_constructor,void const,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_constructor,void const volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_constructor,void volatile,false)
 #endif
 
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_default_constructor,void,false)
-#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_default_constructor,void const,false)
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_default_constructor,void const volatile,false)
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_default_constructor,void volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_default_constructor,void,false)
+#ifndef NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_default_constructor,void const,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_default_constructor,void const volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_nothrow_default_constructor,void volatile,false)
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_HAS_NOTHROW_CONSTRUCTOR_HPP_INCLUDED
+#endif // NDNBOOST_TT_HAS_NOTHROW_CONSTRUCTOR_HPP_INCLUDED

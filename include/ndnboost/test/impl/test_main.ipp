@@ -13,8 +13,8 @@
 //  Description : implements main function for Test Execution Monitor.
 // ***************************************************************************
 
-#ifndef BOOST_TEST_TEST_MAIN_IPP_012205GER
-#define BOOST_TEST_TEST_MAIN_IPP_012205GER
+#ifndef NDNBOOST_TEST_TEST_MAIN_IPP_012205GER
+#define NDNBOOST_TEST_TEST_MAIN_IPP_012205GER
 
 // Boost.Test
 #include <ndnboost/test/framework.hpp>
@@ -37,7 +37,7 @@ struct test_main_caller {
         int test_main_result = test_main( m_argc, m_argv );
 
         // translate a test_main non-success return into a test error
-        BOOST_CHECK( test_main_result == 0 || test_main_result == ndnboost::exit_success );
+        NDNBOOST_CHECK( test_main_result == 0 || test_main_result == ndnboost::exit_success );
     }
   
 private:
@@ -56,7 +56,7 @@ init_unit_test_suite( int argc, char* argv[] ) {
     
     framework::master_test_suite().p_name.value = "Test Program";
     
-    framework::master_test_suite().add( BOOST_TEST_CASE( test_main_caller( argc, argv ) ) );
+    framework::master_test_suite().add( NDNBOOST_TEST_CASE( test_main_caller( argc, argv ) ) );
     
     return 0;
 }
@@ -65,4 +65,4 @@ init_unit_test_suite( int argc, char* argv[] ) {
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_TEST_MAIN_IPP_012205GER
+#endif // NDNBOOST_TEST_TEST_MAIN_IPP_012205GER

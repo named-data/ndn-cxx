@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_ITER_FOLD_IF_IMPL_HPP_INCLUDED
-#define BOOST_MPL_AUX_ITER_FOLD_IF_IMPL_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_ITER_FOLD_IF_IMPL_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_ITER_FOLD_IF_IMPL_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 // Copyright David Abrahams 2001-2002
@@ -15,7 +15,7 @@
 // $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
 // $Revision: 49267 $
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   include <ndnboost/mpl/identity.hpp>
 #   include <ndnboost/mpl/next.hpp>
 #   include <ndnboost/mpl/if.hpp>
@@ -25,10 +25,10 @@
 
 #include <ndnboost/mpl/aux_/config/use_preprocessed.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
-    && !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+    && !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
-#   define BOOST_MPL_PREPROCESSED_HEADER iter_fold_if_impl.hpp
+#   define NDNBOOST_MPL_PREPROCESSED_HEADER iter_fold_if_impl.hpp
 #   include <ndnboost/mpl/aux_/include_preprocessed.hpp>
 
 #else
@@ -94,7 +94,7 @@ struct iter_fold_if_forward_step
 {
     typedef typename apply2<Predicate,State,Iterator>::type not_last;
     typedef typename iter_fold_if_step_impl<
-          BOOST_MPL_AUX_MSVC_VALUE_WKND(not_last)::value
+          NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(not_last)::value
         >::template result_< Iterator,State,ForwardOp,mpl::next<Iterator> > impl_;
 
     typedef typename impl_::state state;
@@ -111,7 +111,7 @@ struct iter_fold_if_backward_step
 {
     typedef typename apply2<Predicate,State,Iterator>::type not_last;
     typedef typename iter_fold_if_step_impl<
-          BOOST_MPL_AUX_MSVC_VALUE_WKND(not_last)::value
+          NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(not_last)::value
         >::template result_< Iterator,State,BackwardOp,identity<Iterator> > impl_;
 
     typedef typename impl_::state state;
@@ -123,34 +123,34 @@ struct iter_fold_if_backward_step
 
 #   define AUX_ITER_FOLD_FORWARD_STEP(unused, i, unused2) \
     typedef iter_fold_if_forward_step< \
-          typename BOOST_PP_CAT(forward_step,i)::iterator \
-        , typename BOOST_PP_CAT(forward_step,i)::state \
+          typename NDNBOOST_PP_CAT(forward_step,i)::iterator \
+        , typename NDNBOOST_PP_CAT(forward_step,i)::state \
         , ForwardOp \
         , ForwardPredicate \
-        > BOOST_PP_CAT(forward_step, BOOST_PP_INC(i)); \
+        > NDNBOOST_PP_CAT(forward_step, NDNBOOST_PP_INC(i)); \
     /**/
 
 #   define AUX_ITER_FOLD_BACKWARD_STEP_FUNC(i) \
     typedef iter_fold_if_backward_step< \
-          typename BOOST_PP_CAT(forward_step,BOOST_PP_DEC(i))::iterator \
-        , typename BOOST_PP_CAT(backward_step,i)::state \
+          typename NDNBOOST_PP_CAT(forward_step,NDNBOOST_PP_DEC(i))::iterator \
+        , typename NDNBOOST_PP_CAT(backward_step,i)::state \
         , BackwardOp \
         , BackwardPredicate \
-        > BOOST_PP_CAT(backward_step,BOOST_PP_DEC(i)); \
+        > NDNBOOST_PP_CAT(backward_step,NDNBOOST_PP_DEC(i)); \
     /**/
 
 #   define AUX_ITER_FOLD_BACKWARD_STEP(unused, i, unused2) \
     AUX_ITER_FOLD_BACKWARD_STEP_FUNC( \
-        BOOST_PP_SUB_D(1,BOOST_MPL_LIMIT_UNROLLING,i) \
+        NDNBOOST_PP_SUB_D(1,NDNBOOST_MPL_LIMIT_UNROLLING,i) \
         ) \
     /**/
 
 #   define AUX_LAST_FORWARD_STEP \
-    BOOST_PP_CAT(forward_step, BOOST_MPL_LIMIT_UNROLLING) \
+    NDNBOOST_PP_CAT(forward_step, NDNBOOST_MPL_LIMIT_UNROLLING) \
     /**/
 
 #   define AUX_LAST_BACKWARD_STEP \
-    BOOST_PP_CAT(backward_step, BOOST_MPL_LIMIT_UNROLLING) \
+    NDNBOOST_PP_CAT(backward_step, NDNBOOST_MPL_LIMIT_UNROLLING) \
     /**/
 
 template<
@@ -165,8 +165,8 @@ struct iter_fold_if_impl
 {
  private:
     typedef iter_fold_if_null_step<Iterator,State> forward_step0;
-    BOOST_PP_REPEAT(
-          BOOST_MPL_LIMIT_UNROLLING
+    NDNBOOST_PP_REPEAT(
+          NDNBOOST_MPL_LIMIT_UNROLLING
         , AUX_ITER_FOLD_FORWARD_STEP
         , unused
         )
@@ -187,8 +187,8 @@ struct iter_fold_if_impl
             >
         >::type AUX_LAST_BACKWARD_STEP;
 
-    BOOST_PP_REPEAT(
-          BOOST_MPL_LIMIT_UNROLLING
+    NDNBOOST_PP_REPEAT(
+          NDNBOOST_MPL_LIMIT_UNROLLING
         , AUX_ITER_FOLD_BACKWARD_STEP
         , unused
         )
@@ -206,5 +206,5 @@ struct iter_fold_if_impl
 
 }}}
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#endif // BOOST_MPL_AUX_ITER_FOLD_IF_IMPL_HPP_INCLUDED
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_AUX_ITER_FOLD_IF_IMPL_HPP_INCLUDED

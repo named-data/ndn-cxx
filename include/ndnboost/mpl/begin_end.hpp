@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_BEGIN_END_HPP_INCLUDED
-#define BOOST_MPL_BEGIN_END_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_BEGIN_END_HPP_INCLUDED
+#define NDNBOOST_MPL_BEGIN_END_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -26,7 +26,7 @@ namespace ndnboost { namespace mpl {
 // happy this way (less ETI-related errors), and it doesn't affect 
 // anything else
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
     >
 struct begin
 {
@@ -34,11 +34,11 @@ struct begin
     typedef typename begin_impl< tag_ >
         ::template apply< Sequence >::type type;
 
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1,begin,(Sequence))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,begin,(Sequence))
 };
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
     >
 struct end
 {
@@ -46,12 +46,12 @@ struct end
     typedef typename end_impl< tag_ >
         ::template apply< Sequence >::type type;
 
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1,end,(Sequence))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,end,(Sequence))
 };
 
-BOOST_MPL_AUX_NA_SPEC(1, begin)
-BOOST_MPL_AUX_NA_SPEC(1, end)
+NDNBOOST_MPL_AUX_NA_SPEC(1, begin)
+NDNBOOST_MPL_AUX_NA_SPEC(1, end)
 
 }}
 
-#endif // BOOST_MPL_BEGIN_END_HPP_INCLUDED
+#endif // NDNBOOST_MPL_BEGIN_END_HPP_INCLUDED

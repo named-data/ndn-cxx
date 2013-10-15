@@ -7,17 +7,17 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_IS_CLASS_HPP_INCLUDED
-#define BOOST_TT_IS_CLASS_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_CLASS_HPP_INCLUDED
+#define NDNBOOST_TT_IS_CLASS_HPP_INCLUDED
 
 #include <ndnboost/type_traits/config.hpp>
 #include <ndnboost/type_traits/intrinsics.hpp>
-#ifndef BOOST_IS_CLASS
+#ifndef NDNBOOST_IS_CLASS
 #   include <ndnboost/type_traits/is_union.hpp>
 #   include <ndnboost/type_traits/detail/ice_and.hpp>
 #   include <ndnboost/type_traits/detail/ice_not.hpp>
 
-#ifdef BOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION
+#ifdef NDNBOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION
 #   include <ndnboost/type_traits/detail/yes_no_type.hpp>
 #else
 #   include <ndnboost/type_traits/is_scalar.hpp>
@@ -27,7 +27,7 @@
 #   include <ndnboost/type_traits/is_function.hpp>
 #endif
 
-#endif // BOOST_IS_CLASS
+#endif // NDNBOOST_IS_CLASS
 
 #ifdef __EDG_VERSION__
 #   include <ndnboost/type_traits/remove_cv.hpp>
@@ -40,8 +40,8 @@ namespace ndnboost {
 
 namespace detail {
 
-#ifndef BOOST_IS_CLASS
-#ifdef BOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION
+#ifndef NDNBOOST_IS_CLASS
+#ifdef NDNBOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION
 
 // This is actually the conforming implementation which works with
 // abstract classes.  However, enough compilers have trouble with
@@ -62,7 +62,7 @@ template <typename T>
 struct is_class_impl
 {
 
-    BOOST_STATIC_CONSTANT(bool, value =
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         (::ndnboost::type_traits::ice_and<
             sizeof(is_class_tester<T>(0)) == sizeof(::ndnboost::type_traits::yes_type),
             ::ndnboost::type_traits::ice_not< ::ndnboost::is_union<T>::value >::value
@@ -78,7 +78,7 @@ struct is_class_impl
     template <class U> static ::ndnboost::type_traits::yes_type is_class_tester(void(U::*)(void));
     template <class U> static ::ndnboost::type_traits::no_type is_class_tester(...);
 
-    BOOST_STATIC_CONSTANT(bool, value =
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         (::ndnboost::type_traits::ice_and<
             sizeof(is_class_tester<T>(0)) == sizeof(::ndnboost::type_traits::yes_type),
             ::ndnboost::type_traits::ice_not< ::ndnboost::is_union<T>::value >::value
@@ -93,8 +93,8 @@ struct is_class_impl
 template <typename T>
 struct is_class_impl
 {
-#   ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-    BOOST_STATIC_CONSTANT(bool, value =
+#   ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+    NDNBOOST_STATIC_CONSTANT(bool, value =
     (::ndnboost::type_traits::ice_and<
         ::ndnboost::type_traits::ice_not< ::ndnboost::is_union<T>::value >::value,
         ::ndnboost::type_traits::ice_not< ::ndnboost::is_scalar<T>::value >::value,
@@ -104,7 +104,7 @@ struct is_class_impl
         ::ndnboost::type_traits::ice_not< ::ndnboost::is_function<T>::value >::value
         >::value));
 #   else
-    BOOST_STATIC_CONSTANT(bool, value =
+    NDNBOOST_STATIC_CONSTANT(bool, value =
     (::ndnboost::type_traits::ice_and<
         ::ndnboost::type_traits::ice_not< ::ndnboost::is_union<T>::value >::value,
         ::ndnboost::type_traits::ice_not< ::ndnboost::is_scalar<T>::value >::value,
@@ -115,26 +115,26 @@ struct is_class_impl
 #   endif
 };
 
-# endif // BOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION
-# else // BOOST_IS_CLASS
+# endif // NDNBOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION
+# else // NDNBOOST_IS_CLASS
 template <typename T>
 struct is_class_impl
 {
-    BOOST_STATIC_CONSTANT(bool, value = BOOST_IS_CLASS(T));
+    NDNBOOST_STATIC_CONSTANT(bool, value = NDNBOOST_IS_CLASS(T));
 };
-# endif // BOOST_IS_CLASS
+# endif // NDNBOOST_IS_CLASS
 
 } // namespace detail
 
 # ifdef __EDG_VERSION__
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(
    is_class,T, ndnboost::detail::is_class_impl<typename ndnboost::remove_cv<T>::type>::value)
 # else 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_class,T,::ndnboost::detail::is_class_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_class,T,::ndnboost::detail::is_class_impl<T>::value)
 # endif
     
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_CLASS_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_CLASS_HPP_INCLUDED

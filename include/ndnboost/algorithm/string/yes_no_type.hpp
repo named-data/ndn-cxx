@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_YES_NO_TYPE_DETAIL_HPP
-#define BOOST_STRING_YES_NO_TYPE_DETAIL_HPP
+#ifndef NDNBOOST_STRING_YES_NO_TYPE_DETAIL_HPP
+#define NDNBOOST_STRING_YES_NO_TYPE_DETAIL_HPP
 
 namespace ndnboost {
     namespace algorithm {
@@ -30,4 +30,4 @@ namespace ndnboost {
 } // namespace ndnboost
 
 
-#endif  // BOOST_STRING_YES_NO_TYPE_DETAIL_HPP
+#endif  // NDNBOOST_STRING_YES_NO_TYPE_DETAIL_HPP

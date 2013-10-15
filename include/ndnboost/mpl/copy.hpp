@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_COPY_HPP_INCLUDED
-#define BOOST_MPL_COPY_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_COPY_HPP_INCLUDED
+#define NDNBOOST_MPL_COPY_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 // Copyright David Abrahams 2003-2004
@@ -51,8 +51,8 @@ struct reverse_copy_impl
 
 } // namespace aux
 
-BOOST_MPL_AUX_INSERTER_ALGORITHM_DEF(2, copy)
+NDNBOOST_MPL_AUX_INSERTER_ALGORITHM_DEF(2, copy)
 
 }}
 
-#endif // BOOST_MPL_COPY_HPP_INCLUDED
+#endif // NDNBOOST_MPL_COPY_HPP_INCLUDED

@@ -6,8 +6,8 @@
 
 //------------------------------------------------------------------------------
 
-#ifndef BOOST_FT_RESULT_TYPE_HPP_INCLUDED
-#define BOOST_FT_RESULT_TYPE_HPP_INCLUDED
+#ifndef NDNBOOST_FT_RESULT_TYPE_HPP_INCLUDED
+#define NDNBOOST_FT_RESULT_TYPE_HPP_INCLUDED
 
 #include <ndnboost/blank.hpp>
 #include <ndnboost/mpl/if.hpp>
@@ -40,10 +40,10 @@ namespace ndnboost
         , detail::result_type_impl<T>, ndnboost::blank
         >::type
     { 
-      BOOST_MPL_AUX_LAMBDA_SUPPORT(1,result_type,(T)) 
+      NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,result_type,(T)) 
     };
   }
-  BOOST_TT_AUX_TEMPLATE_ARITY_SPEC(1,function_types::result_type)
+  NDNBOOST_TT_AUX_TEMPLATE_ARITY_SPEC(1,function_types::result_type)
 }
 
 #endif

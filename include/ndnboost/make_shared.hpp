@@ -1,5 +1,5 @@
-#ifndef BOOST_MAKE_SHARED_HPP_INCLUDED
-#define BOOST_MAKE_SHARED_HPP_INCLUDED
+#ifndef NDNBOOST_MAKE_SHARED_HPP_INCLUDED
+#define NDNBOOST_MAKE_SHARED_HPP_INCLUDED
 
 //  make_shared.hpp
 //
@@ -14,4 +14,4 @@
 
 #include <ndnboost/smart_ptr/make_shared.hpp>
 
-#endif // #ifndef BOOST_MAKE_SHARED_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_MAKE_SHARED_HPP_INCLUDED

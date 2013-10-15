@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_VOID_HPP_INCLUDED
-#define BOOST_MPL_VOID_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_VOID_HPP_INCLUDED
+#define NDNBOOST_MPL_VOID_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -20,7 +20,7 @@
 #include <ndnboost/mpl/aux_/config/msvc.hpp>
 #include <ndnboost/mpl/aux_/config/workaround.hpp>
 
-BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
+NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
 
 //  [JDG Feb-4-2003] made void_ a complete type to allow it to be
 //  instantiated so that it can be passed in as an object that can be
@@ -28,7 +28,7 @@ BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
 //  a zero arity functor evaluation call.
 struct void_ { typedef void_ type; };
 
-BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE
+NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE
 
 namespace ndnboost { namespace mpl {
 
@@ -36,7 +36,7 @@ template< typename T >
 struct is_void_
     : false_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
     using false_::value;
 #endif
 };
@@ -45,7 +45,7 @@ template<>
 struct is_void_<void_>
     : true_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
     using true_::value;
 #endif
 };
@@ -54,7 +54,7 @@ template< typename T >
 struct is_not_void_
     : true_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
     using true_::value;
 #endif
 };
@@ -63,14 +63,14 @@ template<>
 struct is_not_void_<void_>
     : false_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
     using false_::value;
 #endif
 };
 
-BOOST_MPL_AUX_NA_SPEC(1, is_void_)
-BOOST_MPL_AUX_NA_SPEC(1, is_not_void_)
+NDNBOOST_MPL_AUX_NA_SPEC(1, is_void_)
+NDNBOOST_MPL_AUX_NA_SPEC(1, is_not_void_)
 
 }}
 
-#endif // BOOST_MPL_VOID_HPP_INCLUDED
+#endif // NDNBOOST_MPL_VOID_HPP_INCLUDED

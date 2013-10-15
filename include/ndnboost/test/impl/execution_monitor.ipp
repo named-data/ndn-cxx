@@ -21,8 +21,8 @@
 //  boost libraries.
 // ***************************************************************************
 
-#ifndef BOOST_TEST_EXECUTION_MONITOR_IPP_012205GER
-#define BOOST_TEST_EXECUTION_MONITOR_IPP_012205GER
+#ifndef NDNBOOST_TEST_EXECUTION_MONITOR_IPP_012205GER
+#define NDNBOOST_TEST_EXECUTION_MONITOR_IPP_012205GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
@@ -48,7 +48,7 @@
 #include <cstdio>               // for vsnprintf
 #include <cstdarg>              // for varargs
 
-#ifdef BOOST_NO_STDC_NAMESPACE
+#ifdef NDNBOOST_NO_STDC_NAMESPACE
 namespace std { using ::strerror; using ::strlen; using ::strncat; }
 #endif
 
@@ -64,11 +64,11 @@ using std::va_list;
 #  include <stdio.h> 
 #endif
 
-#if defined(_WIN32) && !defined(BOOST_DISABLE_WIN32) &&                  \
+#if defined(_WIN32) && !defined(NDNBOOST_DISABLE_WIN32) &&                  \
     (!defined(__COMO__) && !defined(__MWERKS__) && !defined(__GNUC__) || \
-     BOOST_WORKAROUND(__MWERKS__, >= 0x3000))
+     NDNBOOST_WORKAROUND(__MWERKS__, >= 0x3000))
 
-#  define BOOST_SEH_BASED_SIGNAL_HANDLING
+#  define NDNBOOST_SEH_BASED_SIGNAL_HANDLING
 
 #  include <windows.h>
 
@@ -84,7 +84,7 @@ using std::va_list;
     typedef unsigned uintptr_t;
 #  endif
 
-#  if BOOST_WORKAROUND(_MSC_VER,  < 1300 ) || defined(UNDER_CE)
+#  if NDNBOOST_WORKAROUND(_MSC_VER,  < 1300 ) || defined(UNDER_CE)
 typedef void* uintptr_t;
 #  endif
 
@@ -117,18 +117,18 @@ typedef void* uintptr_t;
 
 #  if !defined(NDEBUG) && defined(_MSC_VER) && !defined(UNDER_CE)
 #    include <crtdbg.h>
-#    define BOOST_TEST_CRT_HOOK_TYPE    _CRT_REPORT_HOOK
-#    define BOOST_TEST_CRT_ASSERT       _CRT_ASSERT
-#    define BOOST_TEST_CRT_ERROR        _CRT_ERROR
-#    define BOOST_TEST_CRT_SET_HOOK(H)  _CrtSetReportHook(H)
+#    define NDNBOOST_TEST_CRT_HOOK_TYPE    _CRT_REPORT_HOOK
+#    define NDNBOOST_TEST_CRT_ASSERT       _CRT_ASSERT
+#    define NDNBOOST_TEST_CRT_ERROR        _CRT_ERROR
+#    define NDNBOOST_TEST_CRT_SET_HOOK(H)  _CrtSetReportHook(H)
 #  else
-#    define BOOST_TEST_CRT_HOOK_TYPE    void*
-#    define BOOST_TEST_CRT_ASSERT       2
-#    define BOOST_TEST_CRT_ERROR        1
-#    define BOOST_TEST_CRT_SET_HOOK(H)  (void*)(H)
+#    define NDNBOOST_TEST_CRT_HOOK_TYPE    void*
+#    define NDNBOOST_TEST_CRT_ASSERT       2
+#    define NDNBOOST_TEST_CRT_ERROR        1
+#    define NDNBOOST_TEST_CRT_SET_HOOK(H)  (void*)(H)
 #  endif
 
-#  if !BOOST_WORKAROUND(_MSC_VER,  >= 1400 ) || defined(UNDER_CE)
+#  if !NDNBOOST_WORKAROUND(_MSC_VER,  >= 1400 ) || defined(UNDER_CE)
 
 typedef void* _invalid_parameter_handler;
 
@@ -140,15 +140,15 @@ _set_invalid_parameter_handler( _invalid_parameter_handler arg )
 
 #  endif
 
-#  if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0564)) || defined(UNDER_CE)
+#  if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x0564)) || defined(UNDER_CE)
 
 namespace { void _set_se_translator( void* ) {} }
 
 #  endif
 
-#elif defined(BOOST_HAS_SIGACTION)
+#elif defined(NDNBOOST_HAS_SIGACTION)
 
-#  define BOOST_SIGACTION_BASED_SIGNAL_HANDLING
+#  define NDNBOOST_SIGACTION_BASED_SIGNAL_HANDLING
 
 #  include <unistd.h>
 #  include <signal.h>
@@ -167,30 +167,30 @@ namespace { void _set_se_translator( void* ) {} }
 #      define ILL_ILLOPN 2 // ILL_RESOP_FAULT
 #      define ILL_COPROC ILL_FPOP_FAULT
 
-#      define BOOST_TEST_LIMITED_SIGNAL_DETAILS
-#      define BOOST_TEST_IGNORE_SIGCHLD
+#      define NDNBOOST_TEST_LIMITED_SIGNAL_DETAILS
+#      define NDNBOOST_TEST_IGNORE_SIGCHLD
 
 #    endif 
 #  endif 
 
 #  if !defined(__CYGWIN__) && !defined(__QNXNTO__)
-#   define BOOST_TEST_USE_ALT_STACK
+#   define NDNBOOST_TEST_USE_ALT_STACK
 #  endif
 
 #  if defined(SIGPOLL) && !defined(__CYGWIN__)                              && \
       !(defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__))  && \
       !defined(__NetBSD__)                                                  && \
       !defined(__QNXNTO__)
-#    define BOOST_TEST_CATCH_SIGPOLL
+#    define NDNBOOST_TEST_CATCH_SIGPOLL
 #  endif
 
-#  ifdef BOOST_TEST_USE_ALT_STACK
-#    define BOOST_TEST_ALT_STACK_SIZE SIGSTKSZ
+#  ifdef NDNBOOST_TEST_USE_ALT_STACK
+#    define NDNBOOST_TEST_ALT_STACK_SIZE SIGSTKSZ
 #  endif
 
 #else
 
-#  define BOOST_NO_SIGNAL_HANDLING
+#  define NDNBOOST_NO_SIGNAL_HANDLING
 
 #endif
 
@@ -211,13 +211,13 @@ namespace ndnboost {
 namespace detail {
 
 #ifdef __BORLANDC__
-#  define BOOST_TEST_VSNPRINTF( a1, a2, a3, a4 ) std::vsnprintf( (a1), (a2), (a3), (a4) )
-#elif BOOST_WORKAROUND(_MSC_VER, <= 1310) || \
-      BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3000)) || \
+#  define NDNBOOST_TEST_VSNPRINTF( a1, a2, a3, a4 ) std::vsnprintf( (a1), (a2), (a3), (a4) )
+#elif NDNBOOST_WORKAROUND(_MSC_VER, <= 1310) || \
+      NDNBOOST_WORKAROUND(__MWERKS__, NDNBOOST_TESTED_AT(0x3000)) || \
       defined(UNDER_CE)
-#  define BOOST_TEST_VSNPRINTF( a1, a2, a3, a4 ) _vsnprintf( (a1), (a2), (a3), (a4) )
+#  define NDNBOOST_TEST_VSNPRINTF( a1, a2, a3, a4 ) _vsnprintf( (a1), (a2), (a3), (a4) )
 #else
-#  define BOOST_TEST_VSNPRINTF( a1, a2, a3, a4 ) vsnprintf( (a1), (a2), (a3), (a4) )
+#  define NDNBOOST_TEST_VSNPRINTF( a1, a2, a3, a4 ) vsnprintf( (a1), (a2), (a3), (a4) )
 #endif
 
 template <typename ErrorInfo>
@@ -240,7 +240,7 @@ report_error( execution_exception::error_code ec, ndnboost::exception const* be,
     static const int REPORT_ERROR_BUFFER_SIZE = 512;
     static char buf[REPORT_ERROR_BUFFER_SIZE];
 
-    BOOST_TEST_VSNPRINTF( buf, sizeof(buf)-1, format, *args ); 
+    NDNBOOST_TEST_VSNPRINTF( buf, sizeof(buf)-1, format, *args ); 
     buf[sizeof(buf)-1] = 0;
 
     va_end( *args );
@@ -285,7 +285,7 @@ do_invoke( Tr const& tr, Functor const& F )
 
 } // namespace detail
 
-#if defined(BOOST_SIGACTION_BASED_SIGNAL_HANDLING)
+#if defined(NDNBOOST_SIGACTION_BASED_SIGNAL_HANDLING)
 
 // ************************************************************************** //
 // **************       Sigaction based signal handling        ************** //
@@ -356,7 +356,7 @@ system_signal_exception::report() const
     switch( m_sig_info->si_signo ) {
     case SIGILL:
         switch( m_sig_info->si_code ) {
-#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
+#ifndef NDNBOOST_TEST_LIMITED_SIGNAL_DETAILS
         case ILL_ILLOPC:
             report_error( execution_exception::system_fatal_error,
                           "signal: illegal opcode; address of failing instruction: 0x%08lx",
@@ -458,7 +458,7 @@ system_signal_exception::report() const
 
     case SIGSEGV:
         switch( m_sig_info->si_code ) {
-#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
+#ifndef NDNBOOST_TEST_LIMITED_SIGNAL_DETAILS
         case SEGV_MAPERR:
             report_error( execution_exception::system_fatal_error,
                           "memory access violation at address: 0x%08lx: no mapping at fault address",
@@ -480,7 +480,7 @@ system_signal_exception::report() const
 
     case SIGBUS:
         switch( m_sig_info->si_code ) {
-#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
+#ifndef NDNBOOST_TEST_LIMITED_SIGNAL_DETAILS
         case BUS_ADRALN:
             report_error( execution_exception::system_fatal_error,
                           "memory access violation at address: 0x%08lx: invalid address alignment",
@@ -507,7 +507,7 @@ system_signal_exception::report() const
 
     case SIGCHLD:
         switch( m_sig_info->si_code ) {
-#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
+#ifndef NDNBOOST_TEST_LIMITED_SIGNAL_DETAILS
         case CLD_EXITED:
             report_error( execution_exception::system_error,
                           "child has exited; pid: %d; uid: %d; exit value: %d",
@@ -547,11 +547,11 @@ system_signal_exception::report() const
         }
         break;
 
-#if defined(BOOST_TEST_CATCH_SIGPOLL)
+#if defined(NDNBOOST_TEST_CATCH_SIGPOLL)
 
     case SIGPOLL:
         switch( m_sig_info->si_code ) {
-#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
+#ifndef NDNBOOST_TEST_LIMITED_SIGNAL_DETAILS
         case POLL_IN:
             report_error( execution_exception::system_error,
                           "data input available; band event %d",
@@ -655,7 +655,7 @@ signal_action::signal_action( int sig, bool install, bool attach_dbg, char* alt_
 
     std::memset( &m_new_action, 0, sizeof(struct sigaction) );
 
-    BOOST_TEST_SYS_ASSERT( ::sigaction( m_sig , sigaction_ptr(), &m_new_action ) != -1 );
+    NDNBOOST_TEST_SYS_ASSERT( ::sigaction( m_sig , sigaction_ptr(), &m_new_action ) != -1 );
 
     if( m_new_action.sa_sigaction || m_new_action.sa_handler ) {
         m_installed = false;
@@ -665,14 +665,14 @@ signal_action::signal_action( int sig, bool install, bool attach_dbg, char* alt_
     m_new_action.sa_flags     |= SA_SIGINFO;
     m_new_action.sa_sigaction  = attach_dbg ? &execution_monitor_attaching_signal_handler
                                             : &execution_monitor_jumping_signal_handler;
-    BOOST_TEST_SYS_ASSERT( sigemptyset( &m_new_action.sa_mask ) != -1 );
+    NDNBOOST_TEST_SYS_ASSERT( sigemptyset( &m_new_action.sa_mask ) != -1 );
 
-#ifdef BOOST_TEST_USE_ALT_STACK
+#ifdef NDNBOOST_TEST_USE_ALT_STACK
     if( alt_stack )
         m_new_action.sa_flags |= SA_ONSTACK;
 #endif
 
-    BOOST_TEST_SYS_ASSERT( ::sigaction( m_sig, &m_new_action, &m_old_action ) != -1 );
+    NDNBOOST_TEST_SYS_ASSERT( ::sigaction( m_sig, &m_new_action, &m_old_action ) != -1 );
 }
 
 //____________________________________________________________________________//
@@ -745,10 +745,10 @@ signal_handler::signal_handler( bool catch_system_errors, int timeout, bool atta
 , m_FPE_action ( SIGFPE , catch_system_errors, attach_dbg, alt_stack )
 , m_SEGV_action( SIGSEGV, catch_system_errors, attach_dbg, alt_stack )
 , m_BUS_action ( SIGBUS , catch_system_errors, attach_dbg, alt_stack )
-#ifndef BOOST_TEST_IGNORE_SIGCHLD
+#ifndef NDNBOOST_TEST_IGNORE_SIGCHLD
 , m_CHLD_action( SIGCHLD, catch_system_errors, attach_dbg, alt_stack )
 #endif
-#ifdef BOOST_TEST_CATCH_SIGPOLL
+#ifdef NDNBOOST_TEST_CATCH_SIGPOLL
 , m_POLL_action( SIGPOLL, catch_system_errors, attach_dbg, alt_stack )
 #endif
 , m_ABRT_action( SIGABRT, catch_system_errors, attach_dbg, alt_stack )
@@ -761,18 +761,18 @@ signal_handler::signal_handler( bool catch_system_errors, int timeout, bool atta
         ::alarm( timeout );
     }
 
-#ifdef BOOST_TEST_USE_ALT_STACK
+#ifdef NDNBOOST_TEST_USE_ALT_STACK
     if( alt_stack ) {
         stack_t sigstk;
         std::memset( &sigstk, 0, sizeof(stack_t) );
 
-        BOOST_TEST_SYS_ASSERT( ::sigaltstack( 0, &sigstk ) != -1 );
+        NDNBOOST_TEST_SYS_ASSERT( ::sigaltstack( 0, &sigstk ) != -1 );
 
         if( sigstk.ss_flags & SS_DISABLE ) {
             sigstk.ss_sp    = alt_stack;
-            sigstk.ss_size  = BOOST_TEST_ALT_STACK_SIZE;
+            sigstk.ss_size  = NDNBOOST_TEST_ALT_STACK_SIZE;
             sigstk.ss_flags = 0;
-            BOOST_TEST_SYS_ASSERT( ::sigaltstack( &sigstk, 0 ) != -1 );
+            NDNBOOST_TEST_SYS_ASSERT( ::sigaltstack( &sigstk, 0 ) != -1 );
         }
     }
 #endif
@@ -787,7 +787,7 @@ signal_handler::~signal_handler()
     if( m_timeout > 0 )
         ::alarm( 0 );
 
-#ifdef BOOST_TEST_USE_ALT_STACK
+#ifdef NDNBOOST_TEST_USE_ALT_STACK
 #ifdef __GNUC__
     // We shouldn't need to explicitly initialize all the members here,
     // but gcc warns if we don't, so add initializers for each of the
@@ -799,7 +799,7 @@ signal_handler::~signal_handler()
 
     sigstk.ss_size  = MINSIGSTKSZ;
     sigstk.ss_flags = SS_DISABLE;
-    BOOST_TEST_SYS_ASSERT( ::sigaltstack( &sigstk, 0 ) != -1 );
+    NDNBOOST_TEST_SYS_ASSERT( ::sigaltstack( &sigstk, 0 ) != -1 );
 #endif
 
     s_active_handler = m_prev_handler;
@@ -816,10 +816,10 @@ extern "C" {
 static bool ignore_sigchild( siginfo_t* info )
 {
     return info->si_signo == SIGCHLD
-#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
+#ifndef NDNBOOST_TEST_LIMITED_SIGNAL_DETAILS
             && info->si_code == CLD_EXITED 
 #endif
-#ifdef BOOST_TEST_IGNORE_NON_ZERO_CHILD_CODE
+#ifdef NDNBOOST_TEST_IGNORE_NON_ZERO_CHILD_CODE
             ;
 #else
             && (int)info->si_status == 0;
@@ -849,7 +849,7 @@ static void execution_monitor_attaching_signal_handler( int sig, siginfo_t* info
         execution_monitor_jumping_signal_handler( sig, info, context );
 
     // debugger attached; it will handle the signal
-    BOOST_TEST_SYS_ASSERT( ::signal( sig, SIG_DFL ) != SIG_ERR );
+    NDNBOOST_TEST_SYS_ASSERT( ::signal( sig, SIG_DFL ) != SIG_ERR );
 }
 
 //____________________________________________________________________________//
@@ -871,9 +871,9 @@ execution_monitor::catch_signals( unit_test::callback0<int> const& F )
     p_catch_system_errors.value = false;
 #endif
 
-#ifdef BOOST_TEST_USE_ALT_STACK
+#ifdef NDNBOOST_TEST_USE_ALT_STACK
     if( !!p_use_alt_stack && !m_alt_stack )
-        m_alt_stack.reset( new char[BOOST_TEST_ALT_STACK_SIZE] );
+        m_alt_stack.reset( new char[NDNBOOST_TEST_ALT_STACK_SIZE] );
 #else
     p_use_alt_stack.value = false;
 #endif
@@ -889,13 +889,13 @@ execution_monitor::catch_signals( unit_test::callback0<int> const& F )
 
 //____________________________________________________________________________//
 
-#elif defined(BOOST_SEH_BASED_SIGNAL_HANDLING)
+#elif defined(NDNBOOST_SEH_BASED_SIGNAL_HANDLING)
 
 // ************************************************************************** //
 // **************   Microsoft structured exception handling    ************** //
 // ************************************************************************** //
 
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0564))
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x0564))
 namespace { void _set_se_translator( void* ) {} }
 #endif
 
@@ -1068,15 +1068,15 @@ system_signal_exception::report() const
 // **************          assert_reporting_function           ************** //
 // ************************************************************************** //
 
-int BOOST_TEST_CALL_DECL
+int NDNBOOST_TEST_CALL_DECL
 assert_reporting_function( int reportType, char* userMessage, int* )
 {
     switch( reportType ) {
-    case BOOST_TEST_CRT_ASSERT:
+    case NDNBOOST_TEST_CRT_ASSERT:
         detail::report_error( execution_exception::user_error, userMessage );
 
         return 1; // return value and retVal are not important since we never reach this line
-    case BOOST_TEST_CRT_ERROR:
+    case NDNBOOST_TEST_CRT_ERROR:
         detail::report_error( execution_exception::system_error, userMessage );
 
         return 1; // return value and retVal are not important since we never reach this line
@@ -1087,7 +1087,7 @@ assert_reporting_function( int reportType, char* userMessage, int* )
 
 //____________________________________________________________________________//
 
-void BOOST_TEST_CALL_DECL
+void NDNBOOST_TEST_CALL_DECL
 invalid_param_handler( wchar_t const* /* expr */, 
                        wchar_t const* /* func */, 
                        wchar_t const* /* file */, 
@@ -1100,7 +1100,7 @@ invalid_param_handler( wchar_t const* /* expr */,
 
 //____________________________________________________________________________//
 
-void BOOST_TEST_CALL_DECL
+void NDNBOOST_TEST_CALL_DECL
 switch_fp_exceptions( bool on_off )
 {
     if( !on_off )
@@ -1134,7 +1134,7 @@ int
 execution_monitor::catch_signals( unit_test::callback0<int> const& F )
 {
     _invalid_parameter_handler old_iph = _invalid_parameter_handler();
-    BOOST_TEST_CRT_HOOK_TYPE old_crt_hook = 0;
+    NDNBOOST_TEST_CRT_HOOK_TYPE old_crt_hook = 0;
 
     if( !p_catch_system_errors )
         _set_se_translator( &detail::seh_catch_preventer );
@@ -1142,7 +1142,7 @@ execution_monitor::catch_signals( unit_test::callback0<int> const& F )
         if( !!p_detect_fp_exceptions )
             detail::switch_fp_exceptions( true );
 
-       old_crt_hook = BOOST_TEST_CRT_SET_HOOK( &detail::assert_reporting_function );
+       old_crt_hook = NDNBOOST_TEST_CRT_SET_HOOK( &detail::assert_reporting_function );
 
        old_iph = _set_invalid_parameter_handler( 
            reinterpret_cast<_invalid_parameter_handler>( &detail::invalid_param_handler ) );
@@ -1165,7 +1165,7 @@ execution_monitor::catch_signals( unit_test::callback0<int> const& F )
             if( !!p_detect_fp_exceptions )
                 detail::switch_fp_exceptions( false );
 
-            BOOST_TEST_CRT_SET_HOOK( old_crt_hook );
+            NDNBOOST_TEST_CRT_SET_HOOK( old_crt_hook );
 
            _set_invalid_parameter_handler( old_iph );
         }
@@ -1230,7 +1230,7 @@ execution_monitor::execute( unit_test::callback0<int> const& F )
                               current_exception_cast<ndnboost::exception const>(),
                               "std::bad_alloc: %s", ex.what() ); }
 
-#if BOOST_WORKAROUND(__BORLANDC__, <= 0x0551)
+#if NDNBOOST_WORKAROUND(__BORLANDC__, <= 0x0551)
     catch( std::bad_cast const& ex )
       { detail::report_error( execution_exception::cpp_exception_error, 
                               current_exception_cast<ndnboost::exception const>(),
@@ -1345,7 +1345,7 @@ system_error::system_error( char const* exp )
 
 execution_exception::execution_exception( error_code ec_, const_string what_msg_, location const& location_ )
 : m_error_code( ec_ )
-, m_what( what_msg_.empty() ? BOOST_TEST_L( "uncaught exception, system error or abort requested" ) : what_msg_ )
+, m_what( what_msg_.empty() ? NDNBOOST_TEST_L( "uncaught exception, system error or abort requested" ) : what_msg_ )
 , m_location( location_ )
 {}
 
@@ -1363,5 +1363,5 @@ execution_exception::location::location( char const* file_name, size_t line_num,
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_EXECUTION_MONITOR_IPP_012205GER
+#endif // NDNBOOST_TEST_EXECUTION_MONITOR_IPP_012205GER
 

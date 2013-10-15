@@ -2,28 +2,28 @@
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_TYPEOF_UNSUPPORTED_HPP_INCLUDED
-#define BOOST_TYPEOF_UNSUPPORTED_HPP_INCLUDED
+#ifndef NDNBOOST_TYPEOF_UNSUPPORTED_HPP_INCLUDED
+#define NDNBOOST_TYPEOF_UNSUPPORTED_HPP_INCLUDED
 
 namespace ndnboost { namespace type_of {
     struct typeof_emulation_is_unsupported_on_this_compiler {};
 }}
 
-#define BOOST_TYPEOF(expr) ndnboost::type_of::typeof_emulation_is_unsupported_on_this_compiler
-#define BOOST_TYPEOF_TPL BOOST_TYPEOF
+#define NDNBOOST_TYPEOF(expr) ndnboost::type_of::typeof_emulation_is_unsupported_on_this_compiler
+#define NDNBOOST_TYPEOF_TPL NDNBOOST_TYPEOF
 
-#define BOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) \
+#define NDNBOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) \
 struct name {\
-    typedef BOOST_TYPEOF_TPL(expr) type;\
+    typedef NDNBOOST_TYPEOF_TPL(expr) type;\
 };
 
-#define BOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
+#define NDNBOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
 struct name {\
-    typedef BOOST_TYPEOF(expr) type;\
+    typedef NDNBOOST_TYPEOF(expr) type;\
 };
 
 
-#define BOOST_TYPEOF_REGISTER_TYPE(x)
-#define BOOST_TYPEOF_REGISTER_TEMPLATE(x, params)
+#define NDNBOOST_TYPEOF_REGISTER_TYPE(x)
+#define NDNBOOST_TYPEOF_REGISTER_TEMPLATE(x, params)
 
 #endif

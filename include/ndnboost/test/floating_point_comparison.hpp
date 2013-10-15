@@ -12,8 +12,8 @@
 //  Description : defines algoirthms for comparing 2 floating point values
 // ***************************************************************************
 
-#ifndef BOOST_TEST_FLOATING_POINT_COMPARISON_HPP_071894GER
-#define BOOST_TEST_FLOATING_POINT_COMPARISON_HPP_071894GER
+#ifndef NDNBOOST_TEST_FLOATING_POINT_COMPARISON_HPP_071894GER
+#define NDNBOOST_TEST_FLOATING_POINT_COMPARISON_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/detail/global_typedef.hpp>
@@ -212,7 +212,7 @@ private:
 // **************               check_is_close                 ************** //
 // ************************************************************************** //
 
-struct BOOST_TEST_DECL check_is_close_t {
+struct NDNBOOST_TEST_DECL check_is_close_t {
     // Public typedefs
     typedef bool result_type;
 
@@ -226,7 +226,7 @@ struct BOOST_TEST_DECL check_is_close_t {
         // value of integral type is promoted to the floating. The same for float and double
         // But we don't want to compare two values of integral types using this tool.
         typedef typename numeric::conversion_traits<FPT1,FPT2>::supertype FPT;
-        BOOST_STATIC_ASSERT( !is_integral<FPT>::value );
+        NDNBOOST_STATIC_ASSERT( !is_integral<FPT>::value );
 
         close_at_tolerance<FPT> pred( tolerance, fpc_type );
 
@@ -239,7 +239,7 @@ struct BOOST_TEST_DECL check_is_close_t {
     {
         // same as in a comment above
         typedef typename numeric::conversion_traits<FPT1,FPT2>::supertype FPT;
-        BOOST_STATIC_ASSERT( !is_integral<FPT>::value );
+        NDNBOOST_STATIC_ASSERT( !is_integral<FPT>::value );
 
         close_at_tolerance<FPT> pred( tolerance, fpc_type );
 
@@ -257,7 +257,7 @@ check_is_close_t const& check_is_close = unit_test::ut_detail::static_constant<c
 // **************               check_is_small                 ************** //
 // ************************************************************************** //
 
-struct BOOST_TEST_DECL check_is_small_t {
+struct NDNBOOST_TEST_DECL check_is_small_t {
     // Public typedefs
     typedef bool result_type;
 
@@ -283,4 +283,4 @@ check_is_small_t const& check_is_small = unit_test::ut_detail::static_constant<c
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_FLOATING_POINT_COMAPARISON_HPP_071894GER
+#endif // NDNBOOST_FLOATING_POINT_COMAPARISON_HPP_071894GER

@@ -9,20 +9,20 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_ARRAY_SIZE_HPP
-# define BOOST_PREPROCESSOR_ARRAY_SIZE_HPP
+# ifndef NDNBOOST_PREPROCESSOR_ARRAY_SIZE_HPP
+# define NDNBOOST_PREPROCESSOR_ARRAY_SIZE_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 # include <ndnboost/preprocessor/tuple/elem.hpp>
 #
-# /* BOOST_PP_ARRAY_SIZE */
+# /* NDNBOOST_PP_ARRAY_SIZE */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_ARRAY_SIZE(array) BOOST_PP_TUPLE_ELEM(2, 0, array)
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_ARRAY_SIZE(array) NDNBOOST_PP_TUPLE_ELEM(2, 0, array)
 # else
-#    define BOOST_PP_ARRAY_SIZE(array) BOOST_PP_ARRAY_SIZE_I(array)
-#    define BOOST_PP_ARRAY_SIZE_I(array) BOOST_PP_ARRAY_SIZE_II array
-#    define BOOST_PP_ARRAY_SIZE_II(size, data) size
+#    define NDNBOOST_PP_ARRAY_SIZE(array) NDNBOOST_PP_ARRAY_SIZE_I(array)
+#    define NDNBOOST_PP_ARRAY_SIZE_I(array) NDNBOOST_PP_ARRAY_SIZE_II array
+#    define NDNBOOST_PP_ARRAY_SIZE_II(size, data) size
 # endif
 #
 # endif

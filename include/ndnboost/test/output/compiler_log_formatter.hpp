@@ -12,8 +12,8 @@
 //  Description : contains compiler like Log formatter definition
 // ***************************************************************************
 
-#ifndef BOOST_TEST_COMPILER_LOG_FORMATTER_HPP_020105GER
-#define BOOST_TEST_COMPILER_LOG_FORMATTER_HPP_020105GER
+#ifndef NDNBOOST_TEST_COMPILER_LOG_FORMATTER_HPP_020105GER
+#define NDNBOOST_TEST_COMPILER_LOG_FORMATTER_HPP_020105GER
 
 // Boost.Test
 #include <ndnboost/test/detail/global_typedef.hpp>
@@ -33,7 +33,7 @@ namespace output {
 // **************             compiler_log_formatter           ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL compiler_log_formatter : public unit_test_log_formatter {
+class NDNBOOST_TEST_DECL compiler_log_formatter : public unit_test_log_formatter {
 public:
     // Formatter interface
     void    log_start( std::ostream&, counter_t test_cases_amount );
@@ -65,4 +65,4 @@ protected:
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_COMPILER_LOG_FORMATTER_HPP_020105GER
+#endif // NDNBOOST_TEST_COMPILER_LOG_FORMATTER_HPP_020105GER

@@ -10,10 +10,10 @@
 
 // ---------------------------------------------------------------
 
-#ifndef BOOST_LAMBDA_IS_INSTANCE_OF
-#define BOOST_LAMBDA_IS_INSTANCE_OF
+#ifndef NDNBOOST_LAMBDA_IS_INSTANCE_OF
+#define NDNBOOST_LAMBDA_IS_INSTANCE_OF
 
-#include "ndnboost/config.hpp" // for BOOST_STATIC_CONSTANT
+#include "ndnboost/config.hpp" // for NDNBOOST_STATIC_CONSTANT
 #include "ndnboost/type_traits/conversion_traits.hpp" // for is_convertible
 #include "ndnboost/preprocessor/enum_shifted_params.hpp"
 #include "ndnboost/preprocessor/repeat_2nd.hpp"
@@ -38,60 +38,60 @@
 // Now we only have one version of is_instance_of templates, which delagate
 // all the nasty compiler tricks to is_convertible. 
 
-#define BOOST_LAMBDA_CLASS(z, N,A) BOOST_PP_COMMA_IF(N) class
-#define BOOST_LAMBDA_CLASS_ARG(z, N,A) BOOST_PP_COMMA_IF(N) class A##N 
-#define BOOST_LAMBDA_ARG(z, N,A) BOOST_PP_COMMA_IF(N) A##N 
+#define NDNBOOST_LAMBDA_CLASS(z, N,A) NDNBOOST_PP_COMMA_IF(N) class
+#define NDNBOOST_LAMBDA_CLASS_ARG(z, N,A) NDNBOOST_PP_COMMA_IF(N) class A##N 
+#define NDNBOOST_LAMBDA_ARG(z, N,A) NDNBOOST_PP_COMMA_IF(N) A##N 
 
-#define BOOST_LAMBDA_CLASS_LIST(n, NAME) BOOST_PP_REPEAT(n, BOOST_LAMBDA_CLASS, NAME)
+#define NDNBOOST_LAMBDA_CLASS_LIST(n, NAME) NDNBOOST_PP_REPEAT(n, NDNBOOST_LAMBDA_CLASS, NAME)
 
-#define BOOST_LAMBDA_CLASS_ARG_LIST(n, NAME) BOOST_PP_REPEAT(n, BOOST_LAMBDA_CLASS_ARG, NAME)
+#define NDNBOOST_LAMBDA_CLASS_ARG_LIST(n, NAME) NDNBOOST_PP_REPEAT(n, NDNBOOST_LAMBDA_CLASS_ARG, NAME)
 
-#define BOOST_LAMBDA_ARG_LIST(n, NAME) BOOST_PP_REPEAT(n, BOOST_LAMBDA_ARG, NAME)
+#define NDNBOOST_LAMBDA_ARG_LIST(n, NAME) NDNBOOST_PP_REPEAT(n, NDNBOOST_LAMBDA_ARG, NAME)
 
 namespace ndnboost {
 namespace lambda {
 
-#define BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE(INDEX)                         \
+#define NDNBOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE(INDEX)                         \
                                                                             \
 namespace detail {                                                          \
                                                                             \
-template <template<BOOST_LAMBDA_CLASS_LIST(INDEX,T)> class F>               \
-struct BOOST_PP_CAT(conversion_tester_,INDEX) {                             \
-  template<BOOST_LAMBDA_CLASS_ARG_LIST(INDEX,A)>                            \
-  BOOST_PP_CAT(conversion_tester_,INDEX)                                    \
-    (const F<BOOST_LAMBDA_ARG_LIST(INDEX,A)>&);                             \
+template <template<NDNBOOST_LAMBDA_CLASS_LIST(INDEX,T)> class F>               \
+struct NDNBOOST_PP_CAT(conversion_tester_,INDEX) {                             \
+  template<NDNBOOST_LAMBDA_CLASS_ARG_LIST(INDEX,A)>                            \
+  NDNBOOST_PP_CAT(conversion_tester_,INDEX)                                    \
+    (const F<NDNBOOST_LAMBDA_ARG_LIST(INDEX,A)>&);                             \
 };                                                                          \
                                                                             \
 } /* end detail */                                                          \
                                                                             \
-template <class From, template <BOOST_LAMBDA_CLASS_LIST(INDEX,T)> class To> \
-struct BOOST_PP_CAT(is_instance_of_,INDEX)                                  \
+template <class From, template <NDNBOOST_LAMBDA_CLASS_LIST(INDEX,T)> class To> \
+struct NDNBOOST_PP_CAT(is_instance_of_,INDEX)                                  \
 {                                                                           \
  private:                                                                   \
    typedef ::ndnboost::is_convertible<                                         \
      From,                                                                  \
-     BOOST_PP_CAT(detail::conversion_tester_,INDEX)<To>                     \
+     NDNBOOST_PP_CAT(detail::conversion_tester_,INDEX)<To>                     \
    > helper_type;                                                           \
                                                                             \
 public:                                                                     \
-  BOOST_STATIC_CONSTANT(bool, value = helper_type::value);                  \
+  NDNBOOST_STATIC_CONSTANT(bool, value = helper_type::value);                  \
 };
 
 
-#define BOOST_LAMBDA_HELPER(z, N, A) BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE( BOOST_PP_INC(N) )
+#define NDNBOOST_LAMBDA_HELPER(z, N, A) NDNBOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE( NDNBOOST_PP_INC(N) )
 
 // Generate the traits for 1-4 argument templates
 
-BOOST_PP_REPEAT_2ND(4,BOOST_LAMBDA_HELPER,FOO)
+NDNBOOST_PP_REPEAT_2ND(4,NDNBOOST_LAMBDA_HELPER,FOO)
 
-#undef BOOST_LAMBDA_HELPER
-#undef BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE
-#undef BOOST_LAMBDA_CLASS
-#undef BOOST_LAMBDA_ARG
-#undef BOOST_LAMBDA_CLASS_ARG
-#undef BOOST_LAMBDA_CLASS_LIST
-#undef BOOST_LAMBDA_ARG_LIST
-#undef BOOST_LAMBDA_CLASS_ARG_LIST
+#undef NDNBOOST_LAMBDA_HELPER
+#undef NDNBOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE
+#undef NDNBOOST_LAMBDA_CLASS
+#undef NDNBOOST_LAMBDA_ARG
+#undef NDNBOOST_LAMBDA_CLASS_ARG
+#undef NDNBOOST_LAMBDA_CLASS_LIST
+#undef NDNBOOST_LAMBDA_ARG_LIST
+#undef NDNBOOST_LAMBDA_CLASS_ARG_LIST
 
 } // lambda
 } // boost

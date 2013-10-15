@@ -12,8 +12,8 @@
 //  Description : implements compiler like Log formatter
 // ***************************************************************************
 
-#ifndef BOOST_TEST_COMPILER_LOG_FORMATTER_IPP_020105GER
-#define BOOST_TEST_COMPILER_LOG_FORMATTER_IPP_020105GER
+#ifndef NDNBOOST_TEST_COMPILER_LOG_FORMATTER_IPP_020105GER
+#define NDNBOOST_TEST_COMPILER_LOG_FORMATTER_IPP_020105GER
 
 // Boost.Test
 #include <ndnboost/test/output/compiler_log_formatter.hpp>
@@ -49,7 +49,7 @@ test_phase_identifier()
 {
     return framework::is_initialized() 
             ? const_string( framework::current_test_case().p_name.get() )
-            : BOOST_TEST_L( "Test setup" );
+            : NDNBOOST_TEST_L( "Test setup" );
 }
 
 } // local namespace
@@ -77,12 +77,12 @@ compiler_log_formatter::log_finish( std::ostream& ostr )
 void
 compiler_log_formatter::log_build_info( std::ostream& output )
 {
-    output  << "Platform: " << BOOST_PLATFORM            << '\n'
-            << "Compiler: " << BOOST_COMPILER            << '\n'
-            << "STL     : " << BOOST_STDLIB              << '\n'
-            << "Boost   : " << BOOST_VERSION/100000      << "."
-                            << BOOST_VERSION/100 % 1000  << "."
-                            << BOOST_VERSION % 100       << std::endl;
+    output  << "Platform: " << NDNBOOST_PLATFORM            << '\n'
+            << "Compiler: " << NDNBOOST_COMPILER            << '\n'
+            << "STL     : " << NDNBOOST_STDLIB              << '\n'
+            << "Boost   : " << NDNBOOST_VERSION/100000      << "."
+                            << NDNBOOST_VERSION/100 % 1000  << "."
+                            << NDNBOOST_VERSION % 100       << std::endl;
 }
 
 //____________________________________________________________________________//
@@ -148,21 +148,21 @@ void
 compiler_log_formatter::log_entry_start( std::ostream& output, log_entry_data const& entry_data, log_entry_types let )
 {
     switch( let ) {
-        case BOOST_UTL_ET_INFO:
+        case NDNBOOST_UTL_ET_INFO:
             print_prefix( output, entry_data.m_file_name, entry_data.m_line_num );
             output << "info: ";
             break;
-        case BOOST_UTL_ET_MESSAGE:
+        case NDNBOOST_UTL_ET_MESSAGE:
             break;
-        case BOOST_UTL_ET_WARNING:
+        case NDNBOOST_UTL_ET_WARNING:
             print_prefix( output, entry_data.m_file_name, entry_data.m_line_num );
             output << "warning in \"" << test_phase_identifier() << "\": ";
             break;
-        case BOOST_UTL_ET_ERROR:
+        case NDNBOOST_UTL_ET_ERROR:
             print_prefix( output, entry_data.m_file_name, entry_data.m_line_num );
             output << "error in \"" << test_phase_identifier() << "\": ";
             break;
-        case BOOST_UTL_ET_FATAL_ERROR:
+        case NDNBOOST_UTL_ET_FATAL_ERROR:
             print_prefix( output, entry_data.m_file_name, entry_data.m_line_num );
             output << "fatal error in \"" << test_phase_identifier() << "\": ";
             break;
@@ -219,4 +219,4 @@ compiler_log_formatter::print_prefix( std::ostream& output, const_string file, s
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_COMPILER_LOG_FORMATTER_IPP_020105GER
+#endif // NDNBOOST_TEST_COMPILER_LOG_FORMATTER_IPP_020105GER

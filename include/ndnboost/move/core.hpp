@@ -13,35 +13,35 @@
 //! This header implements macros to define movable classes and
 //! move-aware functions
 
-#ifndef BOOST_MOVE_CORE_HPP
-#define BOOST_MOVE_CORE_HPP
+#ifndef NDNBOOST_MOVE_CORE_HPP
+#define NDNBOOST_MOVE_CORE_HPP
 
 #include <ndnboost/move/detail/config_begin.hpp>
 
-#ifdef BOOST_NO_CXX11_DELETED_FUNCTIONS
-   #define BOOST_MOVE_IMPL_NO_COPY_CTOR_OR_ASSIGN(TYPE) \
+#ifdef NDNBOOST_NO_CXX11_DELETED_FUNCTIONS
+   #define NDNBOOST_MOVE_IMPL_NO_COPY_CTOR_OR_ASSIGN(TYPE) \
       private:\
       TYPE(TYPE &);\
       TYPE& operator=(TYPE &);\
    //
 #else
-   #define BOOST_MOVE_IMPL_NO_COPY_CTOR_OR_ASSIGN(TYPE) \
+   #define NDNBOOST_MOVE_IMPL_NO_COPY_CTOR_OR_ASSIGN(TYPE) \
       public:\
       TYPE(TYPE const &) = delete;\
       TYPE& operator=(TYPE const &) = delete;\
       private:\
    //
-#endif   //BOOST_NO_CXX11_DELETED_FUNCTIONS
+#endif   //NDNBOOST_NO_CXX11_DELETED_FUNCTIONS
 
-#if defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+#if defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(NDNBOOST_MOVE_DOXYGEN_INVOKED)
 
    #include <ndnboost/move/detail/meta_utils.hpp>
 
    //Move emulation rv breaks standard aliasing rules so add workarounds for some compilers
    #if defined(__GNUC__) && (__GNUC__ >= 4)
-      #define BOOST_MOVE_ATTRIBUTE_MAY_ALIAS __attribute__((__may_alias__))
+      #define NDNBOOST_MOVE_ATTRIBUTE_MAY_ALIAS __attribute__((__may_alias__))
    #else
-      #define BOOST_MOVE_ATTRIBUTE_MAY_ALIAS
+      #define NDNBOOST_MOVE_ATTRIBUTE_MAY_ALIAS
    #endif
 
    namespace ndnboost {
@@ -63,7 +63,7 @@
       ~rv();
       rv(rv const&);
       void operator=(rv const&);
-   } BOOST_MOVE_ATTRIBUTE_MAY_ALIAS;
+   } NDNBOOST_MOVE_ATTRIBUTE_MAY_ALIAS;
 
 
    //////////////////////////////////////////////////////////////////////////////
@@ -113,61 +113,61 @@
 
    }  //namespace ndnboost {
 
-   #define BOOST_RV_REF(TYPE)\
+   #define NDNBOOST_RV_REF(TYPE)\
       ::ndnboost::rv< TYPE >& \
    //
 
-   #define BOOST_RV_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
+   #define NDNBOOST_RV_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
       ::ndnboost::rv< TYPE<ARG1, ARG2> >& \
    //
 
-   #define BOOST_RV_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
+   #define NDNBOOST_RV_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
       ::ndnboost::rv< TYPE<ARG1, ARG2, ARG3> >& \
    //
 
-   #define BOOST_RV_REF_BEG\
+   #define NDNBOOST_RV_REF_BEG\
       ::ndnboost::rv<   \
    //
 
-   #define BOOST_RV_REF_END\
+   #define NDNBOOST_RV_REF_END\
       >& \
    //
 
-   #define BOOST_FWD_REF(TYPE)\
+   #define NDNBOOST_FWD_REF(TYPE)\
       const TYPE & \
    //
 
-   #define BOOST_COPY_ASSIGN_REF(TYPE)\
+   #define NDNBOOST_COPY_ASSIGN_REF(TYPE)\
       const ::ndnboost::rv< TYPE >& \
    //
 
-   #define BOOST_COPY_ASSIGN_REF_BEG \
+   #define NDNBOOST_COPY_ASSIGN_REF_BEG \
       const ::ndnboost::rv<  \
    //
 
-   #define BOOST_COPY_ASSIGN_REF_END \
+   #define NDNBOOST_COPY_ASSIGN_REF_END \
       >& \
    //
 
-   #define BOOST_COPY_ASSIGN_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
+   #define NDNBOOST_COPY_ASSIGN_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
       const ::ndnboost::rv< TYPE<ARG1, ARG2> >& \
    //
 
-   #define BOOST_COPY_ASSIGN_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
+   #define NDNBOOST_COPY_ASSIGN_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
       const ::ndnboost::rv< TYPE<ARG1, ARG2, ARG3> >& \
    //
 
-   #define BOOST_CATCH_CONST_RLVALUE(TYPE)\
+   #define NDNBOOST_CATCH_CONST_RLVALUE(TYPE)\
       const ::ndnboost::rv< TYPE >& \
    //
 
    //////////////////////////////////////////////////////////////////////////////
    //
-   //                         BOOST_MOVABLE_BUT_NOT_COPYABLE
+   //                         NDNBOOST_MOVABLE_BUT_NOT_COPYABLE
    //
    //////////////////////////////////////////////////////////////////////////////
-   #define BOOST_MOVABLE_BUT_NOT_COPYABLE(TYPE)\
-      BOOST_MOVE_IMPL_NO_COPY_CTOR_OR_ASSIGN(TYPE)\
+   #define NDNBOOST_MOVABLE_BUT_NOT_COPYABLE(TYPE)\
+      NDNBOOST_MOVE_IMPL_NO_COPY_CTOR_OR_ASSIGN(TYPE)\
       public:\
       operator ::ndnboost::rv<TYPE>&() \
       {  return *static_cast< ::ndnboost::rv<TYPE>* >(this);  }\
@@ -178,11 +178,11 @@
 
    //////////////////////////////////////////////////////////////////////////////
    //
-   //                         BOOST_COPYABLE_AND_MOVABLE
+   //                         NDNBOOST_COPYABLE_AND_MOVABLE
    //
    //////////////////////////////////////////////////////////////////////////////
 
-   #define BOOST_COPYABLE_AND_MOVABLE(TYPE)\
+   #define NDNBOOST_COPYABLE_AND_MOVABLE(TYPE)\
       public:\
       TYPE& operator=(TYPE &t)\
       {  this->operator=(static_cast<const ::ndnboost::rv<TYPE> &>(const_cast<const TYPE &>(t))); return *this;}\
@@ -194,7 +194,7 @@
       private:\
    //
 
-   #define BOOST_COPYABLE_AND_MOVABLE_ALT(TYPE)\
+   #define NDNBOOST_COPYABLE_AND_MOVABLE_ALT(TYPE)\
       public:\
       operator ::ndnboost::rv<TYPE>&() \
       {  return *static_cast< ::ndnboost::rv<TYPE>* >(this);  }\
@@ -203,27 +203,27 @@
       private:\
    //
 
-#else    //BOOST_NO_CXX11_RVALUE_REFERENCES
+#else    //NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 
    //Compiler workaround detection
-   #if !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   #if !defined(NDNBOOST_MOVE_DOXYGEN_INVOKED)
       #if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ < 5) && !defined(__clang__)
          //Pre-standard rvalue binding rules
-         #define BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES
+         #define NDNBOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES
       #elif defined(_MSC_VER) && (_MSC_VER == 1600)
          //Standard rvalue binding rules but with some bugs
-         #define BOOST_MOVE_MSVC_10_MEMBER_RVALUE_REF_BUG
+         #define NDNBOOST_MOVE_MSVC_10_MEMBER_RVALUE_REF_BUG
          //Use standard library for MSVC to avoid namespace issues as
          //some move calls in the STL are not fully qualified.
-         //#define BOOST_MOVE_USE_STANDARD_LIBRARY_MOVE
+         //#define NDNBOOST_MOVE_USE_STANDARD_LIBRARY_MOVE
       #endif
    #endif
 
    //! This macro marks a type as movable but not copyable, disabling copy construction
    //! and assignment. The user will need to write a move constructor/assignment as explained
    //! in the documentation to fully write a movable but not copyable class.
-   #define BOOST_MOVABLE_BUT_NOT_COPYABLE(TYPE)\
-      BOOST_MOVE_IMPL_NO_COPY_CTOR_OR_ASSIGN(TYPE)\
+   #define NDNBOOST_MOVABLE_BUT_NOT_COPYABLE(TYPE)\
+      NDNBOOST_MOVE_IMPL_NO_COPY_CTOR_OR_ASSIGN(TYPE)\
       public:\
       typedef int boost_move_emulation_t;\
    //
@@ -231,18 +231,18 @@
    //! This macro marks a type as copyable and movable.
    //! The user will need to write a move constructor/assignment and a copy assignment
    //! as explained in the documentation to fully write a copyable and movable class.
-   #define BOOST_COPYABLE_AND_MOVABLE(TYPE)\
+   #define NDNBOOST_COPYABLE_AND_MOVABLE(TYPE)\
    //
 
-   #if !defined(BOOST_MOVE_DOXYGEN_INVOKED)
-   #define BOOST_COPYABLE_AND_MOVABLE_ALT(TYPE)\
+   #if !defined(NDNBOOST_MOVE_DOXYGEN_INVOKED)
+   #define NDNBOOST_COPYABLE_AND_MOVABLE_ALT(TYPE)\
    //
-   #endif   //#if !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   #endif   //#if !defined(NDNBOOST_MOVE_DOXYGEN_INVOKED)
 
    namespace ndnboost {
 
    //!This trait yields to a compile-time true boolean if T was marked as
-   //!BOOST_MOVABLE_BUT_NOT_COPYABLE or BOOST_COPYABLE_AND_MOVABLE and
+   //!NDNBOOST_MOVABLE_BUT_NOT_COPYABLE or NDNBOOST_COPYABLE_AND_MOVABLE and
    //!rvalue references are not available on the platform. False otherwise.
    template<class T>
    struct has_move_emulation_enabled
@@ -254,79 +254,79 @@
 
    //!This macro is used to achieve portable syntax in move
    //!constructors and assignments for classes marked as
-   //!BOOST_COPYABLE_AND_MOVABLE or BOOST_MOVABLE_BUT_NOT_COPYABLE
-   #define BOOST_RV_REF(TYPE)\
+   //!NDNBOOST_COPYABLE_AND_MOVABLE or NDNBOOST_MOVABLE_BUT_NOT_COPYABLE
+   #define NDNBOOST_RV_REF(TYPE)\
       TYPE && \
    //
 
    //!This macro is used to achieve portable syntax in move
    //!constructors and assignments for template classes marked as
-   //!BOOST_COPYABLE_AND_MOVABLE or BOOST_MOVABLE_BUT_NOT_COPYABLE.
+   //!NDNBOOST_COPYABLE_AND_MOVABLE or NDNBOOST_MOVABLE_BUT_NOT_COPYABLE.
    //!As macros have problems with comma-separatd template arguments,
-   //!the template argument must be preceded with BOOST_RV_REF_START
-   //!and ended with BOOST_RV_REF_END
-   #define BOOST_RV_REF_BEG\
+   //!the template argument must be preceded with NDNBOOST_RV_REF_START
+   //!and ended with NDNBOOST_RV_REF_END
+   #define NDNBOOST_RV_REF_BEG\
          \
    //
 
    //!This macro is used to achieve portable syntax in move
    //!constructors and assignments for template classes marked as
-   //!BOOST_COPYABLE_AND_MOVABLE or BOOST_MOVABLE_BUT_NOT_COPYABLE.
+   //!NDNBOOST_COPYABLE_AND_MOVABLE or NDNBOOST_MOVABLE_BUT_NOT_COPYABLE.
    //!As macros have problems with comma-separatd template arguments,
-   //!the template argument must be preceded with BOOST_RV_REF_START
-   //!and ended with BOOST_RV_REF_END
-   #define BOOST_RV_REF_END\
+   //!the template argument must be preceded with NDNBOOST_RV_REF_START
+   //!and ended with NDNBOOST_RV_REF_END
+   #define NDNBOOST_RV_REF_END\
       && \
 
    //!This macro is used to achieve portable syntax in copy
-   //!assignment for classes marked as BOOST_COPYABLE_AND_MOVABLE.
-   #define BOOST_COPY_ASSIGN_REF(TYPE)\
+   //!assignment for classes marked as NDNBOOST_COPYABLE_AND_MOVABLE.
+   #define NDNBOOST_COPY_ASSIGN_REF(TYPE)\
       const TYPE & \
    //
 
    //! This macro is used to implement portable perfect forwarding
    //! as explained in the documentation.
-   #define BOOST_FWD_REF(TYPE)\
+   #define NDNBOOST_FWD_REF(TYPE)\
       TYPE && \
    //
 
-   #if !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   #if !defined(NDNBOOST_MOVE_DOXYGEN_INVOKED)
    /// @cond
 
-   #define BOOST_RV_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
+   #define NDNBOOST_RV_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
       TYPE<ARG1, ARG2> && \
    //
 
-   #define BOOST_RV_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
+   #define NDNBOOST_RV_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
       TYPE<ARG1, ARG2, ARG3> && \
    //
 
-   #define BOOST_COPY_ASSIGN_REF_BEG \
+   #define NDNBOOST_COPY_ASSIGN_REF_BEG \
       const \
    //
 
-   #define BOOST_COPY_ASSIGN_REF_END \
+   #define NDNBOOST_COPY_ASSIGN_REF_END \
       & \
    //
 
-   #define BOOST_COPY_ASSIGN_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
+   #define NDNBOOST_COPY_ASSIGN_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
       const TYPE<ARG1, ARG2> & \
    //
 
-   #define BOOST_COPY_ASSIGN_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
+   #define NDNBOOST_COPY_ASSIGN_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
       const TYPE<ARG1, ARG2, ARG3>& \
    //
 
-   #define BOOST_CATCH_CONST_RLVALUE(TYPE)\
+   #define NDNBOOST_CATCH_CONST_RLVALUE(TYPE)\
       const TYPE & \
    //
 
    /// @endcond
 
-   #endif   //#if !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   #endif   //#if !defined(NDNBOOST_MOVE_DOXYGEN_INVOKED)
 
-#endif   //BOOST_NO_CXX11_RVALUE_REFERENCES
+#endif   //NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 
 #include <ndnboost/move/detail/config_end.hpp>
 
-#endif //#ifndef BOOST_MOVE_CORE_HPP
+#endif //#ifndef NDNBOOST_MOVE_CORE_HPP

@@ -1,7 +1,7 @@
 
 // NO INCLUDE GUARDS, THE HEADER IS INTENDED FOR MULTIPLE INCLUSION
 
-#if defined(BOOST_PP_IS_ITERATING)
+#if defined(NDNBOOST_PP_IS_ITERATING)
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -22,27 +22,27 @@
 #include <ndnboost/preprocessor/dec.hpp>
 #include <ndnboost/preprocessor/cat.hpp>
 
-#define i_ BOOST_PP_FRAME_ITERATION(1)
+#define i_ NDNBOOST_PP_FRAME_ITERATION(1)
 
-#if defined(BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
+#if defined(NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
 
 #   define AUX778076_VECTOR_TAIL(vector, i_, T) \
-    BOOST_PP_CAT(vector,i_)< \
-          BOOST_PP_ENUM_PARAMS(i_, T) \
+    NDNBOOST_PP_CAT(vector,i_)< \
+          NDNBOOST_PP_ENUM_PARAMS(i_, T) \
         > \
     /**/
 
 #if i_ > 0
 template<
-      BOOST_PP_ENUM_PARAMS(i_, typename T)
+      NDNBOOST_PP_ENUM_PARAMS(i_, typename T)
     >
-struct BOOST_PP_CAT(vector,i_)
+struct NDNBOOST_PP_CAT(vector,i_)
     : v_item<
-          BOOST_PP_CAT(T,BOOST_PP_DEC(i_))
-        , AUX778076_VECTOR_TAIL(vector,BOOST_PP_DEC(i_),T)
+          NDNBOOST_PP_CAT(T,NDNBOOST_PP_DEC(i_))
+        , AUX778076_VECTOR_TAIL(vector,NDNBOOST_PP_DEC(i_),T)
         >
 {
-    typedef BOOST_PP_CAT(vector,i_) type;
+    typedef NDNBOOST_PP_CAT(vector,i_) type;
 };
 #endif
 
@@ -53,21 +53,21 @@ struct BOOST_PP_CAT(vector,i_)
 #   if i_ > 0
 
 template<
-      BOOST_PP_ENUM_PARAMS(i_, typename T)
+      NDNBOOST_PP_ENUM_PARAMS(i_, typename T)
     >
-struct BOOST_PP_CAT(vector,i_)
+struct NDNBOOST_PP_CAT(vector,i_)
 {
     typedef aux::vector_tag<i_> tag;
-    typedef BOOST_PP_CAT(vector,i_) type;
+    typedef NDNBOOST_PP_CAT(vector,i_) type;
 
 #   define AUX778076_VECTOR_ITEM(unused, i_, unused2) \
-    typedef BOOST_PP_CAT(T,i_) BOOST_PP_CAT(item,i_); \
+    typedef NDNBOOST_PP_CAT(T,i_) NDNBOOST_PP_CAT(item,i_); \
     /**/
 
-    BOOST_PP_REPEAT(i_, AUX778076_VECTOR_ITEM, unused)
+    NDNBOOST_PP_REPEAT(i_, AUX778076_VECTOR_ITEM, unused)
 #   undef AUX778076_VECTOR_ITEM
-    typedef void_ BOOST_PP_CAT(item,i_);
-    typedef BOOST_PP_CAT(T,BOOST_PP_DEC(i_)) back;
+    typedef void_ NDNBOOST_PP_CAT(item,i_);
+    typedef NDNBOOST_PP_CAT(T,NDNBOOST_PP_DEC(i_)) back;
 
     // Borland forces us to use 'type' here (instead of the class name)
     typedef v_iter<type,0> begin;
@@ -75,14 +75,14 @@ struct BOOST_PP_CAT(vector,i_)
 };
 
 template<>
-struct push_front_impl< aux::vector_tag<BOOST_PP_DEC(i_)> >
+struct push_front_impl< aux::vector_tag<NDNBOOST_PP_DEC(i_)> >
 {
     template< typename Vector, typename T > struct apply
     {
-        typedef BOOST_PP_CAT(vector,i_)<
+        typedef NDNBOOST_PP_CAT(vector,i_)<
               T
-              BOOST_PP_COMMA_IF(BOOST_PP_DEC(i_))
-              BOOST_PP_ENUM_PARAMS(BOOST_PP_DEC(i_), typename Vector::item)
+              NDNBOOST_PP_COMMA_IF(NDNBOOST_PP_DEC(i_))
+              NDNBOOST_PP_ENUM_PARAMS(NDNBOOST_PP_DEC(i_), typename Vector::item)
             > type;
     };
 };
@@ -92,21 +92,21 @@ struct pop_front_impl< aux::vector_tag<i_> >
 {
     template< typename Vector > struct apply
     {
-        typedef BOOST_PP_CAT(vector,BOOST_PP_DEC(i_))<
-              BOOST_PP_ENUM_SHIFTED_PARAMS(i_, typename Vector::item)
+        typedef NDNBOOST_PP_CAT(vector,NDNBOOST_PP_DEC(i_))<
+              NDNBOOST_PP_ENUM_SHIFTED_PARAMS(i_, typename Vector::item)
             > type;
     };
 };
 
 
 template<>
-struct push_back_impl< aux::vector_tag<BOOST_PP_DEC(i_)> >
+struct push_back_impl< aux::vector_tag<NDNBOOST_PP_DEC(i_)> >
 {
     template< typename Vector, typename T > struct apply
     {
-        typedef BOOST_PP_CAT(vector,i_)<
-              BOOST_PP_ENUM_PARAMS(BOOST_PP_DEC(i_), typename Vector::item)
-              BOOST_PP_COMMA_IF(BOOST_PP_DEC(i_))
+        typedef NDNBOOST_PP_CAT(vector,i_)<
+              NDNBOOST_PP_ENUM_PARAMS(NDNBOOST_PP_DEC(i_), typename Vector::item)
+              NDNBOOST_PP_COMMA_IF(NDNBOOST_PP_DEC(i_))
               T
             > type;
     };
@@ -117,21 +117,21 @@ struct pop_back_impl< aux::vector_tag<i_> >
 {
     template< typename Vector > struct apply
     {
-        typedef BOOST_PP_CAT(vector,BOOST_PP_DEC(i_))<
-              BOOST_PP_ENUM_PARAMS(BOOST_PP_DEC(i_), typename Vector::item)
+        typedef NDNBOOST_PP_CAT(vector,NDNBOOST_PP_DEC(i_))<
+              NDNBOOST_PP_ENUM_PARAMS(NDNBOOST_PP_DEC(i_), typename Vector::item)
             > type;
     };
 };
 
 #   endif // i_ > 0
 
-#   if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
-    && !defined(BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC)
+#   if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
+    && !defined(NDNBOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC)
 
 template< typename V >
 struct v_at<V,i_>
 {
-    typedef typename V::BOOST_PP_CAT(item,i_) type;
+    typedef typename V::NDNBOOST_PP_CAT(item,i_) type;
 };
 
 #   else
@@ -141,7 +141,7 @@ template<> struct v_at_impl<i_>
 {
     template< typename V_ > struct result_
     {
-        typedef typename V_::BOOST_PP_CAT(item,i_) type;
+        typedef typename V_::NDNBOOST_PP_CAT(item,i_) type;
     };
 };
 }
@@ -151,7 +151,7 @@ struct at_impl< aux::vector_tag<i_> >
 {
     template< typename V_, typename N > struct apply
     {
-        typedef typename aux::v_at_impl<BOOST_MPL_AUX_VALUE_WKND(N)::value>
+        typedef typename aux::v_at_impl<NDNBOOST_MPL_AUX_VALUE_WKND(N)::value>
             ::template result_<V_>::type type;
     };
 };
@@ -209,10 +209,10 @@ struct clear_impl< aux::vector_tag<i_> >
     };
 };
 
-#   endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#   endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
-#endif // BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
+#endif // NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
 
 #undef i_
 
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_IS_ITERATING

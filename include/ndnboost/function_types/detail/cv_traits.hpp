@@ -6,14 +6,14 @@
 
 //------------------------------------------------------------------------------
 
-#ifndef BOOST_FT_DETAIL_CV_TRAITS_HPP_INCLUDED
-#define BOOST_FT_DETAIL_CV_TRAITS_HPP_INCLUDED
+#ifndef NDNBOOST_FT_DETAIL_CV_TRAITS_HPP_INCLUDED
+#define NDNBOOST_FT_DETAIL_CV_TRAITS_HPP_INCLUDED
 
 #include <cstddef>
 #include <ndnboost/detail/workaround.hpp>
 
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
-    || BOOST_WORKAROUND(__BORLANDC__, <= 0x582)
+#if defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
+    || NDNBOOST_WORKAROUND(__BORLANDC__, <= 0x582)
 #   include <ndnboost/type_traits/remove_cv.hpp>
 #   include <ndnboost/type_traits/remove_pointer.hpp>
 #   include <ndnboost/type_traits/remove_reference.hpp>
@@ -23,8 +23,8 @@
 
 namespace ndnboost { namespace function_types { namespace detail {
 
-#if ! (defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
-    || BOOST_WORKAROUND(__BORLANDC__, <= 0x582))
+#if ! (defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
+    || NDNBOOST_WORKAROUND(__BORLANDC__, <= 0x582))
 
 template<typename T> struct cv_traits 
 { typedef non_cv tag; typedef T type; };
@@ -107,7 +107,7 @@ template<typename T>
 struct cv_code
 {
   static T _t;
-  BOOST_STATIC_CONSTANT(std::size_t, value = 
+  NDNBOOST_STATIC_CONSTANT(std::size_t, value = 
       sizeof(::ndnboost::function_types::detail::switch_cv(
          ::ndnboost::function_types::detail::ref_to_ptr(_t) ) ));
 };

@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_SHARED_ARRAY_NMT_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_SHARED_ARRAY_NMT_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_SHARED_ARRAY_NMT_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_SHARED_ARRAY_NMT_HPP_INCLUDED
 
 //
 //  detail/shared_array_nmt.hpp - shared_array.hpp without member templates
@@ -39,7 +39,7 @@ public:
       
     explicit shared_array(T * p = 0): px(p)
     {
-#ifndef BOOST_NO_EXCEPTIONS
+#ifndef NDNBOOST_NO_EXCEPTIONS
 
         try  // prevent leak if new throws
         {
@@ -87,7 +87,7 @@ public:
 
     void reset(T * p = 0)
     {
-        BOOST_ASSERT(p == 0 || p != px);
+        NDNBOOST_ASSERT(p == 0 || p != px);
         shared_array(p).swap(*this);
     }
 
@@ -98,8 +98,8 @@ public:
 
     T & operator[](std::ptrdiff_t i) const  // never throws
     {
-        BOOST_ASSERT(px != 0);
-        BOOST_ASSERT(i >= 0);
+        NDNBOOST_ASSERT(px != 0);
+        NDNBOOST_ASSERT(i >= 0);
         return px[i];
     }
 
@@ -148,4 +148,4 @@ template<class T> void swap(shared_array<T> & a, shared_array<T> & b)
 
 } // namespace ndnboost
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SHARED_ARRAY_NMT_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_DETAIL_SHARED_ARRAY_NMT_HPP_INCLUDED

@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_QUICK_ALLOCATOR_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_QUICK_ALLOCATOR_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_QUICK_ALLOCATOR_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_QUICK_ALLOCATOR_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -60,9 +60,9 @@ template<unsigned size, unsigned align_> struct allocator_impl
     // varying the page size. g++ 2.96 on Red Hat Linux 7.2,
     // for example, passionately dislikes 496. 512 seems OK.
 
-#if defined(BOOST_QA_PAGE_SIZE)
+#if defined(NDNBOOST_QA_PAGE_SIZE)
 
-    enum { items_per_page = BOOST_QA_PAGE_SIZE / size };
+    enum { items_per_page = NDNBOOST_QA_PAGE_SIZE / size };
 
 #else
 
@@ -70,7 +70,7 @@ template<unsigned size, unsigned align_> struct allocator_impl
 
 #endif
 
-#ifdef BOOST_HAS_THREADS
+#ifdef NDNBOOST_HAS_THREADS
 
     static lightweight_mutex & mutex()
     {
@@ -89,7 +89,7 @@ template<unsigned size, unsigned align_> struct allocator_impl
 
     static inline void * alloc()
     {
-#ifdef BOOST_HAS_THREADS
+#ifdef NDNBOOST_HAS_THREADS
         lightweight_mutex::scoped_lock lock( mutex() );
 #endif
         if(block * x = free)
@@ -119,7 +119,7 @@ template<unsigned size, unsigned align_> struct allocator_impl
         }
         else
         {
-#ifdef BOOST_HAS_THREADS
+#ifdef NDNBOOST_HAS_THREADS
             lightweight_mutex::scoped_lock lock( mutex() );
 #endif
             if(block * x = free)
@@ -144,7 +144,7 @@ template<unsigned size, unsigned align_> struct allocator_impl
     {
         if(pv != 0) // 18.4.1.1/13
         {
-#ifdef BOOST_HAS_THREADS
+#ifdef NDNBOOST_HAS_THREADS
             lightweight_mutex::scoped_lock lock( mutex() );
 #endif
             block * pb = static_cast<block *>(pv);
@@ -161,7 +161,7 @@ template<unsigned size, unsigned align_> struct allocator_impl
         }
         else if(pv != 0) // 18.4.1.1/13
         {
-#ifdef BOOST_HAS_THREADS
+#ifdef NDNBOOST_HAS_THREADS
             lightweight_mutex::scoped_lock lock( mutex() );
 #endif
             block * pb = static_cast<block *>(pv);
@@ -171,7 +171,7 @@ template<unsigned size, unsigned align_> struct allocator_impl
     }
 };
 
-#ifdef BOOST_HAS_THREADS
+#ifdef NDNBOOST_HAS_THREADS
 
 template<unsigned size, unsigned align_>
   lightweight_mutex * allocator_impl<size, align_>::mutex_init = &allocator_impl<size, align_>::mutex();
@@ -196,4 +196,4 @@ struct quick_allocator: public allocator_impl< sizeof(T), ndnboost::alignment_of
 
 } // namespace ndnboost
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_QUICK_ALLOCATOR_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_DETAIL_QUICK_ALLOCATOR_HPP_INCLUDED

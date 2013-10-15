@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_IDENTITY_HPP_INCLUDED
-#define BOOST_MPL_IDENTITY_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_IDENTITY_HPP_INCLUDED
+#define NDNBOOST_MPL_IDENTITY_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -20,26 +20,26 @@
 namespace ndnboost { namespace mpl {
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(T)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(T)
     >
 struct identity
 {
     typedef T type;
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1, identity, (T))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1, identity, (T))
 };
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(T)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(T)
     >
 struct make_identity
 {
     typedef identity<T> type;
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1, make_identity, (T))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1, make_identity, (T))
 };
 
-BOOST_MPL_AUX_NA_SPEC_NO_ETI(1, identity)
-BOOST_MPL_AUX_NA_SPEC_NO_ETI(1, make_identity)
+NDNBOOST_MPL_AUX_NA_SPEC_NO_ETI(1, identity)
+NDNBOOST_MPL_AUX_NA_SPEC_NO_ETI(1, make_identity)
 
 }}
 
-#endif // BOOST_MPL_IDENTITY_HPP_INCLUDED
+#endif // NDNBOOST_MPL_IDENTITY_HPP_INCLUDED

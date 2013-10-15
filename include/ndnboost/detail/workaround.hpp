@@ -9,34 +9,34 @@
 //
 // Usage:
 //
-//     #if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+//     #if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
 //        // workaround for eVC4 and VC6
 //        ... // workaround code here
 //     #endif
 //
-// When BOOST_STRICT_CONFIG is defined, expands to 0. Otherwise, the
+// When NDNBOOST_STRICT_CONFIG is defined, expands to 0. Otherwise, the
 // first argument must be undefined or expand to a numeric
 // value. The above expands to:
 //
-//     (BOOST_MSVC) != 0 && (BOOST_MSVC) < 1300
+//     (NDNBOOST_MSVC) != 0 && (NDNBOOST_MSVC) < 1300
 //
 // When used for workarounds that apply to the latest known version 
 // and all earlier versions of a compiler, the following convention 
 // should be observed:
 //
-//     #if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1301))
+//     #if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, NDNBOOST_TESTED_AT(1301))
 //
 // The version number in this case corresponds to the last version in
 // which the workaround was known to have been required. When
-// BOOST_DETECT_OUTDATED_WORKAROUNDS is not the defined, the macro
-// BOOST_TESTED_AT(x) expands to "!= 0", which effectively activates
+// NDNBOOST_DETECT_OUTDATED_WORKAROUNDS is not the defined, the macro
+// NDNBOOST_TESTED_AT(x) expands to "!= 0", which effectively activates
 // the workaround for any version of the compiler. When
-// BOOST_DETECT_OUTDATED_WORKAROUNDS is defined, a compiler warning or
+// NDNBOOST_DETECT_OUTDATED_WORKAROUNDS is defined, a compiler warning or
 // error will be issued if the compiler version exceeds the argument
-// to BOOST_TESTED_AT().  This can be used to locate workarounds which
+// to NDNBOOST_TESTED_AT().  This can be used to locate workarounds which
 // may be obsoleted by newer versions.
 
-# ifndef BOOST_STRICT_CONFIG
+# ifndef NDNBOOST_STRICT_CONFIG
 
 #include <ndnboost/config.hpp>
 
@@ -60,15 +60,15 @@
 #else
 #define _MSC_FULL_VER_WORKAROUND_GUARD 0
 #endif
-#ifndef BOOST_MSVC
-#define BOOST_MSVC_WORKAROUND_GUARD 1
+#ifndef NDNBOOST_MSVC
+#define NDNBOOST_MSVC_WORKAROUND_GUARD 1
 #else
-#define BOOST_MSVC_WORKAROUND_GUARD 0
+#define NDNBOOST_MSVC_WORKAROUND_GUARD 0
 #endif
-#ifndef BOOST_MSVC_FULL_VER
-#define BOOST_MSVC_FULL_VER_WORKAROUND_GUARD 1
+#ifndef NDNBOOST_MSVC_FULL_VER
+#define NDNBOOST_MSVC_FULL_VER_WORKAROUND_GUARD 1
 #else
-#define BOOST_MSVC_FULL_VER_WORKAROUND_GUARD 0
+#define NDNBOOST_MSVC_FULL_VER_WORKAROUND_GUARD 0
 #endif
 #ifndef __GNUC__
 #define __GNUC___WORKAROUND_GUARD 1
@@ -171,10 +171,10 @@
 #else
 #define _RWSTD_VER_WORKAROUND_GUARD 0
 #endif
-#ifndef BOOST_RWSTD_VER
-#define BOOST_RWSTD_VER_WORKAROUND_GUARD 1
+#ifndef NDNBOOST_RWSTD_VER
+#define NDNBOOST_RWSTD_VER_WORKAROUND_GUARD 1
 #else
-#define BOOST_RWSTD_VER_WORKAROUND_GUARD 0
+#define NDNBOOST_RWSTD_VER_WORKAROUND_GUARD 0
 #endif
 #ifndef __GLIBCPP__
 #define __GLIBCPP___WORKAROUND_GUARD 1
@@ -207,60 +207,60 @@
 #define _CPPLIB_VER_WORKAROUND_GUARD 0
 #endif
 
-#ifndef BOOST_INTEL_CXX_VERSION
-#define BOOST_INTEL_CXX_VERSION_WORKAROUND_GUARD 1
+#ifndef NDNBOOST_INTEL_CXX_VERSION
+#define NDNBOOST_INTEL_CXX_VERSION_WORKAROUND_GUARD 1
 #else
-#define BOOST_INTEL_CXX_VERSION_WORKAROUND_GUARD 0
+#define NDNBOOST_INTEL_CXX_VERSION_WORKAROUND_GUARD 0
 #endif
-#ifndef BOOST_INTEL_WIN
-#define BOOST_INTEL_WIN_WORKAROUND_GUARD 1
+#ifndef NDNBOOST_INTEL_WIN
+#define NDNBOOST_INTEL_WIN_WORKAROUND_GUARD 1
 #else
-#define BOOST_INTEL_WIN_WORKAROUND_GUARD 0
+#define NDNBOOST_INTEL_WIN_WORKAROUND_GUARD 0
 #endif
-#ifndef BOOST_DINKUMWARE_STDLIB
-#define BOOST_DINKUMWARE_STDLIB_WORKAROUND_GUARD 1
+#ifndef NDNBOOST_DINKUMWARE_STDLIB
+#define NDNBOOST_DINKUMWARE_STDLIB_WORKAROUND_GUARD 1
 #else
-#define BOOST_DINKUMWARE_STDLIB_WORKAROUND_GUARD 0
+#define NDNBOOST_DINKUMWARE_STDLIB_WORKAROUND_GUARD 0
 #endif
-#ifndef BOOST_INTEL
-#define BOOST_INTEL_WORKAROUND_GUARD 1
+#ifndef NDNBOOST_INTEL
+#define NDNBOOST_INTEL_WORKAROUND_GUARD 1
 #else
-#define BOOST_INTEL_WORKAROUND_GUARD 0
+#define NDNBOOST_INTEL_WORKAROUND_GUARD 0
 #endif
 // Always define to zero, if it's used it'll be defined my MPL:
-#define BOOST_MPL_CFG_GCC_WORKAROUND_GUARD 0
+#define NDNBOOST_MPL_CFG_GCC_WORKAROUND_GUARD 0
 
-#  define BOOST_WORKAROUND(symbol, test)                \
+#  define NDNBOOST_WORKAROUND(symbol, test)                \
          ((symbol ## _WORKAROUND_GUARD + 0 == 0) &&     \
          (symbol != 0) && (1 % (( (symbol test) ) + 1)))
 //                              ^ ^           ^ ^
 // The extra level of parenthesis nesting above, along with the
-// BOOST_OPEN_PAREN indirection below, is required to satisfy the
+// NDNBOOST_OPEN_PAREN indirection below, is required to satisfy the
 // broken preprocessor in MWCW 8.3 and earlier.
 //
 // The basic mechanism works as follows:
 //      (symbol test) + 1        =>   if (symbol test) then 2 else 1
 //      1 % ((symbol test) + 1)  =>   if (symbol test) then 1 else 0
 //
-// The complication with % is for cooperation with BOOST_TESTED_AT().
-// When "test" is BOOST_TESTED_AT(x) and
-// BOOST_DETECT_OUTDATED_WORKAROUNDS is #defined,
+// The complication with % is for cooperation with NDNBOOST_TESTED_AT().
+// When "test" is NDNBOOST_TESTED_AT(x) and
+// NDNBOOST_DETECT_OUTDATED_WORKAROUNDS is #defined,
 //
 //      symbol test              =>   if (symbol <= x) then 1 else -1
 //      (symbol test) + 1        =>   if (symbol <= x) then 2 else 0
 //      1 % ((symbol test) + 1)  =>   if (symbol <= x) then 1 else divide-by-zero
 //
 
-#  ifdef BOOST_DETECT_OUTDATED_WORKAROUNDS
-#   define BOOST_OPEN_PAREN (
-#   define BOOST_TESTED_AT(value)  > value) ?(-1): BOOST_OPEN_PAREN 1
+#  ifdef NDNBOOST_DETECT_OUTDATED_WORKAROUNDS
+#   define NDNBOOST_OPEN_PAREN (
+#   define NDNBOOST_TESTED_AT(value)  > value) ?(-1): NDNBOOST_OPEN_PAREN 1
 #  else
-#   define BOOST_TESTED_AT(value) != ((value)-(value))
+#   define NDNBOOST_TESTED_AT(value) != ((value)-(value))
 #  endif
 
 # else
 
-#  define BOOST_WORKAROUND(symbol, test) 0
+#  define NDNBOOST_WORKAROUND(symbol, test) 0
 
 # endif 
 

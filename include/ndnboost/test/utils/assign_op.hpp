@@ -12,8 +12,8 @@
 //  Description : overloadable assignment
 // ***************************************************************************
 
-#ifndef BOOST_TEST_ASSIGN_OP_033005GER
-#define BOOST_TEST_ASSIGN_OP_033005GER
+#ifndef NDNBOOST_TEST_ASSIGN_OP_033005GER
+#define NDNBOOST_TEST_ASSIGN_OP_033005GER
 
 namespace ndnboost {
 
@@ -37,5 +37,5 @@ assign_op( T& t, S const& s, long )
 
 } // namespace ndnboost
 
-#endif // BOOST_TEST_ASSIGN_OP_033005GER
+#endif // NDNBOOST_TEST_ASSIGN_OP_033005GER
 

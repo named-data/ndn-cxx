@@ -1,10 +1,10 @@
 
-#if !defined(BOOST_PP_IS_ITERATING)
+#if !defined(NDNBOOST_PP_IS_ITERATING)
 
 ///// header body
 
-#ifndef BOOST_MPL_ARG_HPP_INCLUDED
-#define BOOST_MPL_ARG_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_ARG_HPP_INCLUDED
+#define NDNBOOST_MPL_ARG_HPP_INCLUDED
 
 // Copyright Peter Dimov 2001-2002
 // Copyright Aleksey Gurtovoy 2001-2004
@@ -19,7 +19,7 @@
 // $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
 // $Revision: 49267 $
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   include <ndnboost/mpl/arg_fwd.hpp>
 #   include <ndnboost/mpl/aux_/na.hpp>
 #   include <ndnboost/mpl/aux_/na_assert.hpp>
@@ -30,10 +30,10 @@
 #include <ndnboost/mpl/aux_/config/static_constant.hpp>
 #include <ndnboost/mpl/aux_/config/use_preprocessed.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
-    && !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+    && !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
-#   define BOOST_MPL_PREPROCESSED_HEADER arg.hpp
+#   define NDNBOOST_MPL_PREPROCESSED_HEADER arg.hpp
 #   include <ndnboost/mpl/aux_/include_preprocessed.hpp>
 
 #else
@@ -49,61 +49,61 @@
 #   include <ndnboost/preprocessor/inc.hpp>
 #   include <ndnboost/preprocessor/cat.hpp>
 
-BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
+NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
 
 // local macro, #undef-ined at the end of the header
-#if !defined(BOOST_MPL_CFG_NO_DEFAULT_PARAMETERS_IN_NESTED_TEMPLATES)
+#if !defined(NDNBOOST_MPL_CFG_NO_DEFAULT_PARAMETERS_IN_NESTED_TEMPLATES)
 #   define AUX778076_ARG_N_DEFAULT_PARAMS(param,value) \
-    BOOST_MPL_PP_DEFAULT_PARAMS( \
-          BOOST_MPL_LIMIT_METAFUNCTION_ARITY \
+    NDNBOOST_MPL_PP_DEFAULT_PARAMS( \
+          NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY \
         , param \
         , value \
         ) \
     /**/
 #else
 #   define AUX778076_ARG_N_DEFAULT_PARAMS(param,value) \
-    BOOST_MPL_PP_PARAMS( \
-          BOOST_MPL_LIMIT_METAFUNCTION_ARITY \
+    NDNBOOST_MPL_PP_PARAMS( \
+          NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY \
         , param \
         ) \
     /**/
 #endif
 
-#define BOOST_PP_ITERATION_PARAMS_1 \
-    (3,(0, BOOST_MPL_LIMIT_METAFUNCTION_ARITY, <ndnboost/mpl/arg.hpp>))
-#include BOOST_PP_ITERATE()
+#define NDNBOOST_PP_ITERATION_PARAMS_1 \
+    (3,(0, NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY, <ndnboost/mpl/arg.hpp>))
+#include NDNBOOST_PP_ITERATE()
 
 
 #   undef AUX778076_ARG_N_DEFAULT_PARAMS
 
-BOOST_MPL_AUX_NONTYPE_ARITY_SPEC(1,int,arg)
+NDNBOOST_MPL_AUX_NONTYPE_ARITY_SPEC(1,int,arg)
 
-BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE
+NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#endif // BOOST_MPL_ARG_HPP_INCLUDED
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_ARG_HPP_INCLUDED
 
 ///// iteration
 
 #else
-#define i_ BOOST_PP_FRAME_ITERATION(1)
+#define i_ NDNBOOST_PP_FRAME_ITERATION(1)
 
 #if i_ > 0
 
 template<> struct arg<i_>
 {
-    BOOST_STATIC_CONSTANT(int, value = i_);
-    typedef arg<BOOST_PP_INC(i_)> next;
-    BOOST_MPL_AUX_ARG_TYPEDEF(na, tag)
-    BOOST_MPL_AUX_ARG_TYPEDEF(na, type)
+    NDNBOOST_STATIC_CONSTANT(int, value = i_);
+    typedef arg<NDNBOOST_PP_INC(i_)> next;
+    NDNBOOST_MPL_AUX_ARG_TYPEDEF(na, tag)
+    NDNBOOST_MPL_AUX_ARG_TYPEDEF(na, type)
 
     template<
           AUX778076_ARG_N_DEFAULT_PARAMS(typename U, na)
         >
     struct apply
     {
-        typedef BOOST_PP_CAT(U,i_) type;
-        BOOST_MPL_AUX_ASSERT_NOT_NA(type);
+        typedef NDNBOOST_PP_CAT(U,i_) type;
+        NDNBOOST_MPL_AUX_ASSERT_NOT_NA(type);
     };
 };
 
@@ -111,9 +111,9 @@ template<> struct arg<i_>
 
 template<> struct arg<-1>
 {
-    BOOST_STATIC_CONSTANT(int, value = -1);
-    BOOST_MPL_AUX_ARG_TYPEDEF(na, tag)
-    BOOST_MPL_AUX_ARG_TYPEDEF(na, type)
+    NDNBOOST_STATIC_CONSTANT(int, value = -1);
+    NDNBOOST_MPL_AUX_ARG_TYPEDEF(na, tag)
+    NDNBOOST_MPL_AUX_ARG_TYPEDEF(na, type)
 
     template<
           AUX778076_ARG_N_DEFAULT_PARAMS(typename U, na)
@@ -121,11 +121,11 @@ template<> struct arg<-1>
     struct apply
     {
         typedef U1 type;
-        BOOST_MPL_AUX_ASSERT_NOT_NA(type);
+        NDNBOOST_MPL_AUX_ASSERT_NOT_NA(type);
     };
 };
 
 #endif // i_ > 0
 
 #undef i_
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_IS_ITERATING

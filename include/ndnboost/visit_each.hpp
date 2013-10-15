@@ -7,8 +7,8 @@
 
 // For more information, see http://www.boost.org/libs/signals
 
-#ifndef BOOST_VISIT_EACH_HPP
-#define BOOST_VISIT_EACH_HPP
+#ifndef NDNBOOST_VISIT_EACH_HPP
+#define NDNBOOST_VISIT_EACH_HPP
 
 #include <ndnboost/config.hpp>
 
@@ -26,4 +26,4 @@ namespace ndnboost {
   }
 }
 
-#endif // BOOST_VISIT_EACH_HPP
+#endif // NDNBOOST_VISIT_EACH_HPP

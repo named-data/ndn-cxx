@@ -6,12 +6,12 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_HAS_LEFT_SHIFT_HPP_INCLUDED
-#define BOOST_TT_HAS_LEFT_SHIFT_HPP_INCLUDED
+#ifndef NDNBOOST_TT_HAS_LEFT_SHIFT_HPP_INCLUDED
+#define NDNBOOST_TT_HAS_LEFT_SHIFT_HPP_INCLUDED
 
-#define BOOST_TT_TRAIT_NAME has_left_shift
-#define BOOST_TT_TRAIT_OP <<
-#define BOOST_TT_FORBIDDEN_IF\
+#define NDNBOOST_TT_TRAIT_NAME has_left_shift
+#define NDNBOOST_TT_TRAIT_OP <<
+#define NDNBOOST_TT_FORBIDDEN_IF\
    ::ndnboost::type_traits::ice_or<\
       /* Lhs==fundamental and Rhs==fundamental and (Lhs!=integral or Rhs!=integral) */\
       ::ndnboost::type_traits::ice_and<\
@@ -42,8 +42,8 @@
 
 #include <ndnboost/type_traits/detail/has_binary_operator.hpp>
 
-#undef BOOST_TT_TRAIT_NAME
-#undef BOOST_TT_TRAIT_OP
-#undef BOOST_TT_FORBIDDEN_IF
+#undef NDNBOOST_TT_TRAIT_NAME
+#undef NDNBOOST_TT_TRAIT_OP
+#undef NDNBOOST_TT_FORBIDDEN_IF
 
 #endif

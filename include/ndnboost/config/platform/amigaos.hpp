@@ -5,11 +5,11 @@
 
 //  See http://www.boost.org for most recent version.
 
-#define BOOST_PLATFORM "AmigaOS"
+#define NDNBOOST_PLATFORM "AmigaOS"
 
-#define BOOST_DISABLE_THREADS
-#define BOOST_NO_CWCHAR
-#define BOOST_NO_STD_WSTRING
-#define BOOST_NO_INTRINSIC_WCHAR_T
+#define NDNBOOST_DISABLE_THREADS
+#define NDNBOOST_NO_CWCHAR
+#define NDNBOOST_NO_STD_WSTRING
+#define NDNBOOST_NO_INTRINSIC_WCHAR_T
  
 

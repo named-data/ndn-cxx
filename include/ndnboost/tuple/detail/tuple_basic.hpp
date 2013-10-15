@@ -29,8 +29,8 @@
 //      Added default constructor for cons<>.
 // -----------------------------------------------------------------
 
-#ifndef BOOST_TUPLE_BASIC_HPP
-#define BOOST_TUPLE_BASIC_HPP
+#ifndef NDNBOOST_TUPLE_BASIC_HPP
+#define NDNBOOST_TUPLE_BASIC_HPP
 
 
 #include <utility> // needed for the assignment from pair to tuple
@@ -39,7 +39,7 @@
 #include "ndnboost/type_traits/function_traits.hpp"
 #include "ndnboost/utility/swap.hpp"
 
-#include "ndnboost/detail/workaround.hpp" // needed for BOOST_WORKAROUND
+#include "ndnboost/detail/workaround.hpp" // needed for NDNBOOST_WORKAROUND
 
 namespace ndnboost {
 namespace tuples {
@@ -91,9 +91,9 @@ template<int N>
 struct drop_front {
     template<class Tuple>
     struct apply {
-        typedef BOOST_DEDUCED_TYPENAME drop_front<N-1>::BOOST_NESTED_TEMPLATE
+        typedef NDNBOOST_DEDUCED_TYPENAME drop_front<N-1>::NDNBOOST_NESTED_TEMPLATE
             apply<Tuple> next;
-        typedef BOOST_DEDUCED_TYPENAME next::type::tail_type type;
+        typedef NDNBOOST_DEDUCED_TYPENAME next::type::tail_type type;
         static const type& call(const Tuple& tup) {
             return next::call(tup).tail;
         }
@@ -119,12 +119,12 @@ struct drop_front<0> {
 // Nth element ot T, first element is at index 0
 // -------------------------------------------------------
 
-#ifndef BOOST_NO_CV_SPECIALIZATIONS
+#ifndef NDNBOOST_NO_CV_SPECIALIZATIONS
 
 template<int N, class T>
 struct element
 {
-  typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
+  typedef NDNBOOST_DEDUCED_TYPENAME detail::drop_front<N>::NDNBOOST_NESTED_TEMPLATE
       apply<T>::type::head_type type;
 };
 
@@ -132,30 +132,30 @@ template<int N, class T>
 struct element<N, const T>
 {
 private:
-  typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
+  typedef NDNBOOST_DEDUCED_TYPENAME detail::drop_front<N>::NDNBOOST_NESTED_TEMPLATE
       apply<T>::type::head_type unqualified_type;
 public:
-#if BOOST_WORKAROUND(__BORLANDC__,<0x600)
+#if NDNBOOST_WORKAROUND(__BORLANDC__,<0x600)
   typedef const unqualified_type type;
 #else
-  typedef BOOST_DEDUCED_TYPENAME ndnboost::add_const<unqualified_type>::type type;
+  typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::add_const<unqualified_type>::type type;
 #endif
 };
-#else // def BOOST_NO_CV_SPECIALIZATIONS
+#else // def NDNBOOST_NO_CV_SPECIALIZATIONS
 
 namespace detail {
 
 template<int N, class T, bool IsConst>
 struct element_impl
 {
-  typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
+  typedef NDNBOOST_DEDUCED_TYPENAME detail::drop_front<N>::NDNBOOST_NESTED_TEMPLATE
       apply<T>::type::head_type type;
 };
 
 template<int N, class T>
 struct element_impl<N, T, true /* IsConst */>
 {
-  typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
+  typedef NDNBOOST_DEDUCED_TYPENAME detail::drop_front<N>::NDNBOOST_NESTED_TEMPLATE
       apply<T>::type::head_type unqualified_type;
   typedef const unqualified_type type;
 };
@@ -208,10 +208,10 @@ template<int N, class HT, class TT>
 inline typename access_traits<
                   typename element<N, cons<HT, TT> >::type
                 >::non_const_type
-get(cons<HT, TT>& c BOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) {
-  typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
+get(cons<HT, TT>& c NDNBOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) {
+  typedef NDNBOOST_DEDUCED_TYPENAME detail::drop_front<N>::NDNBOOST_NESTED_TEMPLATE
       apply<cons<HT, TT> > impl;
-  typedef BOOST_DEDUCED_TYPENAME impl::type cons_element;
+  typedef NDNBOOST_DEDUCED_TYPENAME impl::type cons_element;
   return const_cast<cons_element&>(impl::call(c)).head;
 }
 
@@ -222,10 +222,10 @@ template<int N, class HT, class TT>
 inline typename access_traits<
                   typename element<N, cons<HT, TT> >::type
                 >::const_type
-get(const cons<HT, TT>& c BOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) {
-  typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
+get(const cons<HT, TT>& c NDNBOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) {
+  typedef NDNBOOST_DEDUCED_TYPENAME detail::drop_front<N>::NDNBOOST_NESTED_TEMPLATE
       apply<cons<HT, TT> > impl;
-  typedef BOOST_DEDUCED_TYPENAME impl::type cons_element;
+  typedef NDNBOOST_DEDUCED_TYPENAME impl::type cons_element;
   return impl::call(c).head;
 }
 
@@ -322,7 +322,7 @@ struct cons {
 
   template <class T1, class T2>
   cons& operator=( const std::pair<T1, T2>& u ) {
-    BOOST_STATIC_ASSERT(length<cons>::value == 2); // check length = 2
+    NDNBOOST_STATIC_ASSERT(length<cons>::value == 2); // check length = 2
     head = u.first; tail.head = u.second; return *this;
   }
 
@@ -399,7 +399,7 @@ struct cons<HT, null_type> {
   typename access_traits<
              typename element<N, self_type>::type
             >::non_const_type
-  get(BOOST_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) {
+  get(NDNBOOST_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) {
     return ndnboost::tuples::get<N>(*this);
   }
 
@@ -407,7 +407,7 @@ struct cons<HT, null_type> {
   typename access_traits<
              typename element<N, self_type>::type
            >::const_type
-  get(BOOST_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) const {
+  get(NDNBOOST_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) const {
     return ndnboost::tuples::get<N>(*this);
   }
 
@@ -417,27 +417,27 @@ struct cons<HT, null_type> {
 
 template<class T>
 struct length  {
-  BOOST_STATIC_CONSTANT(int, value = 1 + length<typename T::tail_type>::value);
+  NDNBOOST_STATIC_CONSTANT(int, value = 1 + length<typename T::tail_type>::value);
 };
 
 template<>
 struct length<tuple<> > {
-  BOOST_STATIC_CONSTANT(int, value = 0);
+  NDNBOOST_STATIC_CONSTANT(int, value = 0);
 };
 
 template<>
 struct length<tuple<> const> {
-  BOOST_STATIC_CONSTANT(int, value = 0);
+  NDNBOOST_STATIC_CONSTANT(int, value = 0);
 };
 
 template<>
 struct length<null_type> {
-  BOOST_STATIC_CONSTANT(int, value = 0);
+  NDNBOOST_STATIC_CONSTANT(int, value = 0);
 };
 
 template<>
 struct length<null_type const> {
-  BOOST_STATIC_CONSTANT(int, value = 0);
+  NDNBOOST_STATIC_CONSTANT(int, value = 0);
 };
 
 namespace detail {
@@ -579,7 +579,7 @@ public:
 
   template <class U1, class U2>
   tuple& operator=(const std::pair<U1, U2>& k) {
-    BOOST_STATIC_ASSERT(length<tuple>::value == 2);// check_length = 2
+    NDNBOOST_STATIC_ASSERT(length<tuple>::value == 2);// check_length = 2
     this->head = k.first;
     this->tail.head = k.second;
     return *this;
@@ -975,6 +975,6 @@ inline void swap(tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>& lhs,
 } // end of namespace ndnboost
 
 
-#endif // BOOST_TUPLE_BASIC_HPP
+#endif // NDNBOOST_TUPLE_BASIC_HPP
 
 

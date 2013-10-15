@@ -7,8 +7,8 @@
 //
 // For more information, see http://www.boost.org/libs/range/
 //
-#ifndef BOOST_RANGE_DETAIL_EXTRACT_OPTIONAL_TYPE_HPP_INCLUDED
-#define BOOST_RANGE_DETAIL_EXTRACT_OPTIONAL_TYPE_HPP_INCLUDED
+#ifndef NDNBOOST_RANGE_DETAIL_EXTRACT_OPTIONAL_TYPE_HPP_INCLUDED
+#define NDNBOOST_RANGE_DETAIL_EXTRACT_OPTIONAL_TYPE_HPP_INCLUDED
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
@@ -16,13 +16,13 @@
 
 #include <ndnboost/config.hpp>
 
-#ifdef BOOST_NO_PARTIAL_SPECIALIZATION_IMPLICIT_DEFAULT_ARGS
+#ifdef NDNBOOST_NO_PARTIAL_SPECIALIZATION_IMPLICIT_DEFAULT_ARGS
 
-#define BOOST_RANGE_EXTRACT_OPTIONAL_TYPE( a_typedef )                         \
+#define NDNBOOST_RANGE_EXTRACT_OPTIONAL_TYPE( a_typedef )                         \
     template< typename C >                                                     \
     struct extract_ ## a_typedef                                               \
     {                                                                          \
-        typedef BOOST_DEDUCED_TYPENAME C::a_typedef type;                      \
+        typedef NDNBOOST_DEDUCED_TYPENAME C::a_typedef type;                      \
     };
 
 #else
@@ -36,15 +36,15 @@ namespace ndnboost {
 // Defines extract_some_typedef<T> which exposes T::some_typedef as
 // extract_some_typedef<T>::type if T::some_typedef exists. Otherwise
 // extract_some_typedef<T> is empty.
-#define BOOST_RANGE_EXTRACT_OPTIONAL_TYPE( a_typedef )                         \
+#define NDNBOOST_RANGE_EXTRACT_OPTIONAL_TYPE( a_typedef )                         \
     template< typename C, typename Enable=void >                               \
     struct extract_ ## a_typedef                                               \
     {};                                                                        \
     template< typename C >                                                     \
     struct extract_ ## a_typedef< C                                            \
-    , BOOST_DEDUCED_TYPENAME ndnboost::range_detail::exists< BOOST_DEDUCED_TYPENAME C::a_typedef >::type \
+    , NDNBOOST_DEDUCED_TYPENAME ndnboost::range_detail::exists< NDNBOOST_DEDUCED_TYPENAME C::a_typedef >::type \
     > {                                                                        \
-        typedef BOOST_DEDUCED_TYPENAME C::a_typedef type;                      \
+        typedef NDNBOOST_DEDUCED_TYPENAME C::a_typedef type;                      \
     };
 
 #endif

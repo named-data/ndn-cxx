@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_TAG_HPP_INCLUDED
-#define BOOST_MPL_TAG_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_TAG_HPP_INCLUDED
+#define NDNBOOST_MPL_TAG_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2004
 //
@@ -29,7 +29,7 @@ template< typename T > struct tag_impl
 }
 
 template< typename T, typename Default = void_ > struct tag
-#if !defined(BOOST_MPL_CFG_MSVC_ETI_BUG)
+#if !defined(NDNBOOST_MPL_CFG_MSVC_ETI_BUG)
     : if_< 
           aux::has_tag<T>
         , aux::tag_impl<T>
@@ -49,4 +49,4 @@ template< typename T, typename Default = void_ > struct tag
 
 }}
 
-#endif // BOOST_MPL_TAG_HPP_INCLUDED
+#endif // NDNBOOST_MPL_TAG_HPP_INCLUDED

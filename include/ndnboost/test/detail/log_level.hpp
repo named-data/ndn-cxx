@@ -12,8 +12,8 @@
 //  Description : shared definition for unit test log levels
 // ***************************************************************************
 
-#ifndef BOOST_TEST_LOG_LEVEL_HPP_011605GER
-#define BOOST_TEST_LOG_LEVEL_HPP_011605GER
+#ifndef NDNBOOST_TEST_LOG_LEVEL_HPP_011605GER
+#define NDNBOOST_TEST_LOG_LEVEL_HPP_011605GER
 
 namespace ndnboost {
 namespace unit_test {
@@ -40,4 +40,4 @@ enum            log_level {
 } // namespace unit_test
 } // namespace ndnboost
 
-#endif // BOOST_TEST_LOG_LEVEL_HPP_011605GER
+#endif // NDNBOOST_TEST_LOG_LEVEL_HPP_011605GER

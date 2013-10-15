@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_ADD_POINTER_HPP_INCLUDED
-#define BOOST_TT_ADD_POINTER_HPP_INCLUDED
+#ifndef NDNBOOST_TT_ADD_POINTER_HPP_INCLUDED
+#define NDNBOOST_TT_ADD_POINTER_HPP_INCLUDED
 
 #include <ndnboost/type_traits/remove_reference.hpp>
 
@@ -63,10 +63,10 @@ struct add_pointer_impl
 
 } // namespace detail
 
-BOOST_TT_AUX_TYPE_TRAIT_DEF1(add_pointer,T,typename ndnboost::detail::add_pointer_impl<T>::type)
+NDNBOOST_TT_AUX_TYPE_TRAIT_DEF1(add_pointer,T,typename ndnboost::detail::add_pointer_impl<T>::type)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/type_trait_undef.hpp>
 
-#endif // BOOST_TT_ADD_POINTER_HPP_INCLUDED
+#endif // NDNBOOST_TT_ADD_POINTER_HPP_INCLUDED

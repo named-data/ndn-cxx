@@ -12,8 +12,8 @@
 //  Description : defines test_unit, test_case, test_case_results, test_suite and test_tree_visitor
 // ***************************************************************************
 
-#ifndef BOOST_TEST_UNIT_TEST_SUITE_IMPL_HPP_071894GER
-#define BOOST_TEST_UNIT_TEST_SUITE_IMPL_HPP_071894GER
+#ifndef NDNBOOST_TEST_UNIT_TEST_SUITE_IMPL_HPP_071894GER
+#define NDNBOOST_TEST_UNIT_TEST_SUITE_IMPL_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
@@ -49,7 +49,7 @@ namespace unit_test {
 // **************                   test_unit                  ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL test_unit {
+class NDNBOOST_TEST_DECL test_unit {
 public:
     enum { type = tut_any };
 
@@ -61,8 +61,8 @@ public:
     bool    check_dependencies() const;
 
     // Public r/o properties
-    typedef BOOST_READONLY_PROPERTY(test_unit_id,(framework_impl))  id_t;
-    typedef BOOST_READONLY_PROPERTY(test_unit_id,(test_suite))      parent_id_t;
+    typedef NDNBOOST_READONLY_PROPERTY(test_unit_id,(framework_impl))  id_t;
+    typedef NDNBOOST_READONLY_PROPERTY(test_unit_id,(test_suite))      parent_id_t;
     readonly_property<test_unit_type>   p_type;                 // type for this test unit
     readonly_property<const_string>     p_type_name;            // "case"/"suite"
     id_t                                p_id;                   // unique id for this test unit
@@ -88,19 +88,19 @@ private:
 // **************              test_case_generator             ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL test_unit_generator {
+class NDNBOOST_TEST_DECL test_unit_generator {
 public:
     virtual test_unit*  next() const = 0;
 
 protected:
-    BOOST_TEST_PROTECTED_VIRTUAL ~test_unit_generator() {}
+    NDNBOOST_TEST_PROTECTED_VIRTUAL ~test_unit_generator() {}
 };
 
 // ************************************************************************** //
 // **************                   test_case                  ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL test_case : public test_unit {
+class NDNBOOST_TEST_DECL test_case : public test_unit {
 public:
     enum { type = tut_case };
 
@@ -114,7 +114,7 @@ private:
     friend class framework_impl;
     ~test_case() {}
 
-    // BOOST_MSVC <= 1200 have problems with callback as property
+    // NDNBOOST_MSVC <= 1200 have problems with callback as property
     // Data members
     callback0<> m_test_func;
 };
@@ -123,7 +123,7 @@ private:
 // **************                  test_suite                  ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL test_suite : public test_unit {
+class NDNBOOST_TEST_DECL test_suite : public test_unit {
 public:
     enum { type = tut_suite };
 
@@ -140,7 +140,7 @@ public:
     std::size_t     size() const { return m_members.size(); }
 
 protected:
-    friend BOOST_TEST_DECL 
+    friend NDNBOOST_TEST_DECL 
     void        traverse_test_tree( test_suite const&, test_tree_visitor& );
     friend class framework_impl;
     virtual     ~test_suite() {}
@@ -153,7 +153,7 @@ protected:
 // **************               master_test_suite              ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL master_test_suite_t : public test_suite {
+class NDNBOOST_TEST_DECL master_test_suite_t : public test_suite {
 public:
     master_test_suite_t() : test_suite( "Master Test Suite" )
     , argc( 0 )
@@ -170,7 +170,7 @@ public:
 // **************               test_tree_visitor              ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL test_tree_visitor {
+class NDNBOOST_TEST_DECL test_tree_visitor {
 public:
     // test tree visitor interface
     virtual void    visit( test_case const& )               {}
@@ -178,16 +178,16 @@ public:
     virtual void    test_suite_finish( test_suite const& )  {}
 
 protected:
-    BOOST_TEST_PROTECTED_VIRTUAL ~test_tree_visitor() {}
+    NDNBOOST_TEST_PROTECTED_VIRTUAL ~test_tree_visitor() {}
 };
 
 // ************************************************************************** //
 // **************               traverse_test_tree             ************** //
 // ************************************************************************** //
 
-BOOST_TEST_DECL void    traverse_test_tree( test_case const&, test_tree_visitor& );
-BOOST_TEST_DECL void    traverse_test_tree( test_suite const&, test_tree_visitor& );
-BOOST_TEST_DECL void    traverse_test_tree( test_unit_id     , test_tree_visitor& );
+NDNBOOST_TEST_DECL void    traverse_test_tree( test_case const&, test_tree_visitor& );
+NDNBOOST_TEST_DECL void    traverse_test_tree( test_suite const&, test_tree_visitor& );
+NDNBOOST_TEST_DECL void    traverse_test_tree( test_unit_id     , test_tree_visitor& );
 
 //____________________________________________________________________________//
 
@@ -211,7 +211,7 @@ public:
     // Constructor
     test_case_counter() : p_count( 0 ) {}
 
-    BOOST_READONLY_PROPERTY( counter_t, (test_case_counter)) p_count;
+    NDNBOOST_READONLY_PROPERTY( counter_t, (test_case_counter)) p_count;
 private:
     // test tree visitor interface
     virtual void    visit( test_case const& );
@@ -222,7 +222,7 @@ private:
 // **************               test_being_aborted             ************** //
 // ************************************************************************** //
 
-struct BOOST_TEST_DECL test_being_aborted {};
+struct NDNBOOST_TEST_DECL test_being_aborted {};
 
 // ************************************************************************** //
 // **************               object generators              ************** //
@@ -230,7 +230,7 @@ struct BOOST_TEST_DECL test_being_aborted {};
 
 namespace ut_detail {
 
-BOOST_TEST_DECL std::string normalize_test_case_name( const_string tu_name );
+NDNBOOST_TEST_DECL std::string normalize_test_case_name( const_string tu_name );
 
 template<typename InstanceType,typename UserTestCase>
 struct user_tc_method_invoker {
@@ -275,7 +275,7 @@ make_test_case( void (UserTestCase::*           test_method )(),
 
 namespace ut_detail {
 
-struct BOOST_TEST_DECL auto_test_unit_registrar
+struct NDNBOOST_TEST_DECL auto_test_unit_registrar
 {
     // Constructors
                 auto_test_unit_registrar( test_case* tc, counter_t exp_fail );
@@ -322,7 +322,7 @@ private:
 // **************                global_fixture                ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL global_fixture : public test_observer { 
+class NDNBOOST_TEST_DECL global_fixture : public test_observer { 
 public: 
     // Constructor
     global_fixture();
@@ -430,5 +430,5 @@ public:
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_UNIT_TEST_SUITE_IMPL_HPP_071894GER
+#endif // NDNBOOST_TEST_UNIT_TEST_SUITE_IMPL_HPP_071894GER
 

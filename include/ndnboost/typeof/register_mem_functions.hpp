@@ -6,27 +6,27 @@
 
 // member functions
 
-template<class V, class T, class R BOOST_PP_ENUM_TRAILING_PARAMS(n, class P)> 
-struct encode_type_impl<V, R(T::*)(BOOST_PP_ENUM_PARAMS(n, P)) BOOST_TYPEOF_qualifier>
+template<class V, class T, class R NDNBOOST_PP_ENUM_TRAILING_PARAMS(n, class P)> 
+struct encode_type_impl<V, R(T::*)(NDNBOOST_PP_ENUM_PARAMS(n, P)) NDNBOOST_TYPEOF_qualifier>
 {
-    typedef R BOOST_PP_CAT(P, n);
-    typedef T BOOST_PP_CAT(P, BOOST_PP_INC(n));
-    typedef BOOST_TYPEOF_ENCODE_PARAMS(BOOST_PP_ADD(n, 2), BOOST_TYPEOF_id + n) type;
+    typedef R NDNBOOST_PP_CAT(P, n);
+    typedef T NDNBOOST_PP_CAT(P, NDNBOOST_PP_INC(n));
+    typedef NDNBOOST_TYPEOF_ENCODE_PARAMS(NDNBOOST_PP_ADD(n, 2), NDNBOOST_TYPEOF_id + n) type;
 };
 
 template<class Iter>
-struct decode_type_impl<ndnboost::mpl::size_t<BOOST_TYPEOF_id + n>, Iter>
+struct decode_type_impl<ndnboost::mpl::size_t<NDNBOOST_TYPEOF_id + n>, Iter>
 {
     typedef Iter iter0;
-    BOOST_TYPEOF_DECODE_PARAMS(BOOST_PP_ADD(n, 2))
+    NDNBOOST_TYPEOF_DECODE_PARAMS(NDNBOOST_PP_ADD(n, 2))
     template<class T> struct workaround{
-        typedef BOOST_PP_CAT(p, n)(T::*type)(BOOST_PP_ENUM_PARAMS(n, p)) BOOST_TYPEOF_qualifier;
+        typedef NDNBOOST_PP_CAT(p, n)(T::*type)(NDNBOOST_PP_ENUM_PARAMS(n, p)) NDNBOOST_TYPEOF_qualifier;
     };
-    typedef typename workaround<BOOST_PP_CAT(p, BOOST_PP_INC(n))>::type type;
-    typedef BOOST_PP_CAT(iter, BOOST_PP_ADD(n, 2)) iter;
+    typedef typename workaround<NDNBOOST_PP_CAT(p, NDNBOOST_PP_INC(n))>::type type;
+    typedef NDNBOOST_PP_CAT(iter, NDNBOOST_PP_ADD(n, 2)) iter;
 };
 
 // undef parameters
 
-#undef BOOST_TYPEOF_id
-#undef BOOST_TYPEOF_qualifier
+#undef NDNBOOST_TYPEOF_id
+#undef NDNBOOST_TYPEOF_qualifier

@@ -11,14 +11,14 @@
 
 //! \file
 
-#ifndef BOOST_MOVE_MOVE_UTILITY_HPP
-#define BOOST_MOVE_MOVE_UTILITY_HPP
+#ifndef NDNBOOST_MOVE_MOVE_UTILITY_HPP
+#define NDNBOOST_MOVE_MOVE_UTILITY_HPP
 
 #include <ndnboost/move/detail/config_begin.hpp>
 #include <ndnboost/move/core.hpp>
 #include <ndnboost/move/detail/meta_utils.hpp>
 
-#if defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+#if defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(NDNBOOST_MOVE_DOXYGEN_INVOKED)
 
    namespace ndnboost {
 
@@ -82,9 +82,9 @@
 
    }  //namespace ndnboost
 
-#else    //#if defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+#else    //#if defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(NDNBOOST_MOVE_DOXYGEN_INVOKED)
 
-   #if defined(BOOST_MOVE_USE_STANDARD_LIBRARY_MOVE)
+   #if defined(NDNBOOST_MOVE_USE_STANDARD_LIBRARY_MOVE)
       #include <utility>
 
       namespace ndnboost{
@@ -94,7 +94,7 @@
 
       }  //namespace ndnboost
 
-   #else //!BOOST_MOVE_USE_STANDARD_LIBRARY_MOVE
+   #else //!NDNBOOST_MOVE_USE_STANDARD_LIBRARY_MOVE
 
       #include <ndnboost/type_traits/remove_reference.hpp>
 
@@ -118,27 +118,27 @@
       //
       //////////////////////////////////////////////////////////////////////////////
 
-      #if defined(BOOST_MOVE_DOXYGEN_INVOKED)
+      #if defined(NDNBOOST_MOVE_DOXYGEN_INVOKED)
          //! This function provides a way to convert a reference into a rvalue reference
          //! in compilers with rvalue references. For other compilers converts T & into
          //! <i>::ndnboost::rv<T> &</i> so that move emulation is activated.
          template <class T>
          rvalue_reference move (input_reference);
 
-      #elif defined(BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES)
+      #elif defined(NDNBOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES)
 
          //Old move approach, lvalues could bind to rvalue references
          template <class T>
          inline typename remove_reference<T>::type && move(T&& t)
          {  return t;   }
 
-      #else //BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES
+      #else //NDNBOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES
 
          template <class T>
          inline typename remove_reference<T>::type && move(T&& t)
          { return static_cast<typename remove_reference<T>::type &&>(t); }
 
-      #endif   //BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES
+      #endif   //NDNBOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES
 
       //////////////////////////////////////////////////////////////////////////////
       //
@@ -147,7 +147,7 @@
       //////////////////////////////////////////////////////////////////////////////
 
 
-      #if defined(BOOST_MOVE_DOXYGEN_INVOKED)
+      #if defined(NDNBOOST_MOVE_DOXYGEN_INVOKED)
          //! This function provides limited form of forwarding that is usually enough for
          //! in-place construction and avoids the exponential overloading for
          //! achieve the limited forwarding in C++03.
@@ -160,7 +160,7 @@
          //!
          //! * Else, output_reference is equal to input_reference.
          template <class T> output_reference forward(input_reference);
-      #elif defined(BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES)
+      #elif defined(NDNBOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES)
 
          //Old move approach, lvalues could bind to rvalue references
 
@@ -181,14 +181,14 @@
                   <typename remove_reference<U>::type*, typename remove_reference<T>::type*>::value>::type * = 0*/)
          { return static_cast<T&&>(t);   }
 
-      #endif   //BOOST_MOVE_DOXYGEN_INVOKED
+      #endif   //NDNBOOST_MOVE_DOXYGEN_INVOKED
 
       }  //namespace ndnboost {
 
-   #endif   //#if defined(BOOST_MOVE_USE_STANDARD_LIBRARY_MOVE)
+   #endif   //#if defined(NDNBOOST_MOVE_USE_STANDARD_LIBRARY_MOVE)
 
-#endif   //BOOST_NO_CXX11_RVALUE_REFERENCES
+#endif   //NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 
 #include <ndnboost/move/detail/config_end.hpp>
 
-#endif //#ifndef BOOST_MOVE_MOVE_UTILITY_HPP
+#endif //#ifndef NDNBOOST_MOVE_MOVE_UTILITY_HPP

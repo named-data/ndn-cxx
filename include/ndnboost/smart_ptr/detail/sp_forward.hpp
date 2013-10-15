@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_SP_FORWARD_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_SP_FORWARD_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_SP_FORWARD_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_SP_FORWARD_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -23,9 +23,9 @@ namespace ndnboost
 namespace detail
 {
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
-template< class T > T&& sp_forward( T & t ) BOOST_NOEXCEPT
+template< class T > T&& sp_forward( T & t ) NDNBOOST_NOEXCEPT
 {
     return static_cast< T&& >( t );
 }
@@ -36,4 +36,4 @@ template< class T > T&& sp_forward( T & t ) BOOST_NOEXCEPT
 
 } // namespace ndnboost
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_FORWARD_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_DETAIL_SP_FORWARD_HPP_INCLUDED

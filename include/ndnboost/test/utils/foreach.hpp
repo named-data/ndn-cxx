@@ -10,15 +10,15 @@
 //
 //  Version     : $Revision: 54633 $
 //
-//  Description : this is an abridged version of an excelent BOOST_FOREACH facility
+//  Description : this is an abridged version of an excelent NDNBOOST_FOREACH facility
 //  presented by Eric Niebler. I am so fond of it so I can't wait till it 
 //  going to be accepted into Boost. Also I need version with less number of dependencies 
 //  and more portable. This version doesn't support rvalues and will reeveluate it's 
 //  parameters, but should be good enough for my purposes.
 // ***************************************************************************
 
-#ifndef BOOST_TEST_FOREACH_HPP_021005GER
-#define BOOST_TEST_FOREACH_HPP_021005GER
+#ifndef NDNBOOST_TEST_FOREACH_HPP_021005GER
+#define NDNBOOST_TEST_FOREACH_HPP_021005GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
@@ -92,19 +92,19 @@ is_const_coll( C& )
 // ************************************************************************** //
 
 template<typename C>
-inline static_any<BOOST_DEDUCED_TYPENAME C::iterator>
+inline static_any<NDNBOOST_DEDUCED_TYPENAME C::iterator>
 begin( C& t, mpl::false_ )
 {
-    return static_any<BOOST_DEDUCED_TYPENAME C::iterator>( t.begin() );
+    return static_any<NDNBOOST_DEDUCED_TYPENAME C::iterator>( t.begin() );
 }
 
 //____________________________________________________________________________//
 
 template<typename C>
-inline static_any<BOOST_DEDUCED_TYPENAME C::const_iterator>
+inline static_any<NDNBOOST_DEDUCED_TYPENAME C::const_iterator>
 begin( C const& t, mpl::true_ )
 {
-    return static_any<BOOST_DEDUCED_TYPENAME C::const_iterator>( t.begin() );
+    return static_any<NDNBOOST_DEDUCED_TYPENAME C::const_iterator>( t.begin() );
 }
 
 //____________________________________________________________________________//
@@ -114,19 +114,19 @@ begin( C const& t, mpl::true_ )
 // ************************************************************************** //
 
 template<typename C>
-inline static_any<BOOST_DEDUCED_TYPENAME C::iterator>
+inline static_any<NDNBOOST_DEDUCED_TYPENAME C::iterator>
 end( C& t, mpl::false_ )
 {
-    return static_any<BOOST_DEDUCED_TYPENAME C::iterator>( t.end() );
+    return static_any<NDNBOOST_DEDUCED_TYPENAME C::iterator>( t.end() );
 }
 
 //____________________________________________________________________________//
 
 template<typename C>
-inline static_any<BOOST_DEDUCED_TYPENAME C::const_iterator>
+inline static_any<NDNBOOST_DEDUCED_TYPENAME C::const_iterator>
 end( C const& t, mpl::true_ )
 {
-    return static_any<BOOST_DEDUCED_TYPENAME C::const_iterator>( t.end() );
+    return static_any<NDNBOOST_DEDUCED_TYPENAME C::const_iterator>( t.end() );
 }
 
 //____________________________________________________________________________//
@@ -139,8 +139,8 @@ template<typename C>
 inline bool
 done( static_any_t cur, static_any_t end, C&, mpl::false_ )
 {
-    return  static_any_cast<BOOST_DEDUCED_TYPENAME C::iterator>( cur ) ==
-            static_any_cast<BOOST_DEDUCED_TYPENAME C::iterator>( end );
+    return  static_any_cast<NDNBOOST_DEDUCED_TYPENAME C::iterator>( cur ) ==
+            static_any_cast<NDNBOOST_DEDUCED_TYPENAME C::iterator>( end );
 }
 
 //____________________________________________________________________________//
@@ -149,8 +149,8 @@ template<typename C>
 inline bool
 done( static_any_t cur, static_any_t end, C const&, mpl::true_ )
 {
-    return  static_any_cast<BOOST_DEDUCED_TYPENAME C::const_iterator>( cur ) ==
-            static_any_cast<BOOST_DEDUCED_TYPENAME C::const_iterator>( end );
+    return  static_any_cast<NDNBOOST_DEDUCED_TYPENAME C::const_iterator>( cur ) ==
+            static_any_cast<NDNBOOST_DEDUCED_TYPENAME C::const_iterator>( end );
 }
 
 //____________________________________________________________________________//
@@ -163,7 +163,7 @@ template<typename C>
 inline void
 next( static_any_t cur, C&, mpl::false_ )
 {
-    ++static_any_cast<BOOST_DEDUCED_TYPENAME C::iterator>( cur );
+    ++static_any_cast<NDNBOOST_DEDUCED_TYPENAME C::iterator>( cur );
 }
 
 //____________________________________________________________________________//
@@ -172,7 +172,7 @@ template<typename C>
 inline void
 next( static_any_t cur, C const&, mpl::true_ )
 {
-    ++static_any_cast<BOOST_DEDUCED_TYPENAME C::const_iterator>( cur );
+    ++static_any_cast<NDNBOOST_DEDUCED_TYPENAME C::const_iterator>( cur );
 }
 
 //____________________________________________________________________________//
@@ -185,7 +185,7 @@ template<class RefType,typename C>
 inline RefType
 deref( static_any_t cur, C&, ::ndnboost::type<RefType>, mpl::false_ )
 {
-    return *static_any_cast<BOOST_DEDUCED_TYPENAME C::iterator>( cur );
+    return *static_any_cast<NDNBOOST_DEDUCED_TYPENAME C::iterator>( cur );
 }
 
 //____________________________________________________________________________//
@@ -194,76 +194,76 @@ template<class RefType,typename C>
 inline RefType
 deref( static_any_t cur, C const&, ::ndnboost::type<RefType>, mpl::true_ )
 {
-    return *static_any_cast<BOOST_DEDUCED_TYPENAME C::const_iterator>( cur );
+    return *static_any_cast<NDNBOOST_DEDUCED_TYPENAME C::const_iterator>( cur );
 }
 
 //____________________________________________________________________________//
 
 // ************************************************************************** //
-// **************              BOOST_TEST_FOREACH              ************** //
+// **************              NDNBOOST_TEST_FOREACH              ************** //
 // ************************************************************************** //
 
-#define BOOST_TEST_FE_ANY                   ::ndnboost::unit_test::for_each::static_any_t
-#define BOOST_TEST_FE_IS_CONST( COL )       ::ndnboost::unit_test::for_each::is_const_coll( COL )
+#define NDNBOOST_TEST_FE_ANY                   ::ndnboost::unit_test::for_each::static_any_t
+#define NDNBOOST_TEST_FE_IS_CONST( COL )       ::ndnboost::unit_test::for_each::is_const_coll( COL )
 
-#define BOOST_TEST_FE_BEG( COL )            \
+#define NDNBOOST_TEST_FE_BEG( COL )            \
     ::ndnboost::unit_test::for_each::begin(    \
         COL,                                \
-        BOOST_TEST_FE_IS_CONST( COL ) )     \
+        NDNBOOST_TEST_FE_IS_CONST( COL ) )     \
 /**/
 
-#define BOOST_TEST_FE_END( COL )            \
+#define NDNBOOST_TEST_FE_END( COL )            \
     ::ndnboost::unit_test::for_each::end(      \
         COL,                                \
-        BOOST_TEST_FE_IS_CONST( COL ) )     \
+        NDNBOOST_TEST_FE_IS_CONST( COL ) )     \
 /**/
 
-#define BOOST_TEST_FE_DONE( COL )           \
+#define NDNBOOST_TEST_FE_DONE( COL )           \
     ::ndnboost::unit_test::for_each::done(     \
-        BOOST_TEST_FE_CUR_VAR,              \
-        BOOST_TEST_FE_END_VAR,              \
+        NDNBOOST_TEST_FE_CUR_VAR,              \
+        NDNBOOST_TEST_FE_END_VAR,              \
         COL,                                \
-        BOOST_TEST_FE_IS_CONST( COL ) )     \
+        NDNBOOST_TEST_FE_IS_CONST( COL ) )     \
 /**/
 
-#define BOOST_TEST_FE_NEXT( COL )           \
+#define NDNBOOST_TEST_FE_NEXT( COL )           \
     ::ndnboost::unit_test::for_each::next(     \
-        BOOST_TEST_FE_CUR_VAR,              \
+        NDNBOOST_TEST_FE_CUR_VAR,              \
         COL,                                \
-        BOOST_TEST_FE_IS_CONST( COL ) )     \
+        NDNBOOST_TEST_FE_IS_CONST( COL ) )     \
 /**/
 
-#define BOOST_FOREACH_NOOP(COL)             \
+#define NDNBOOST_FOREACH_NOOP(COL)             \
     ((void)&(COL))
 
-#define BOOST_TEST_FE_DEREF( COL, RefType ) \
+#define NDNBOOST_TEST_FE_DEREF( COL, RefType ) \
     ::ndnboost::unit_test::for_each::deref(    \
-        BOOST_TEST_FE_CUR_VAR,              \
+        NDNBOOST_TEST_FE_CUR_VAR,              \
         COL,                                \
         ::ndnboost::type<RefType >(),          \
-        BOOST_TEST_FE_IS_CONST( COL ) )     \
+        NDNBOOST_TEST_FE_IS_CONST( COL ) )     \
 /**/
 
-#if BOOST_WORKAROUND( BOOST_MSVC, == 1310 )
-#define BOOST_TEST_LINE_NUM
+#if NDNBOOST_WORKAROUND( NDNBOOST_MSVC, == 1310 )
+#define NDNBOOST_TEST_LINE_NUM
 #else
-#define BOOST_TEST_LINE_NUM     __LINE__
+#define NDNBOOST_TEST_LINE_NUM     __LINE__
 #endif
 
-#define BOOST_TEST_FE_CUR_VAR   BOOST_JOIN( _fe_cur_, BOOST_TEST_LINE_NUM )
-#define BOOST_TEST_FE_END_VAR   BOOST_JOIN( _fe_end_, BOOST_TEST_LINE_NUM )
-#define BOOST_TEST_FE_CON_VAR   BOOST_JOIN( _fe_con_, BOOST_TEST_LINE_NUM )
+#define NDNBOOST_TEST_FE_CUR_VAR   NDNBOOST_JOIN( _fe_cur_, NDNBOOST_TEST_LINE_NUM )
+#define NDNBOOST_TEST_FE_END_VAR   NDNBOOST_JOIN( _fe_end_, NDNBOOST_TEST_LINE_NUM )
+#define NDNBOOST_TEST_FE_CON_VAR   NDNBOOST_JOIN( _fe_con_, NDNBOOST_TEST_LINE_NUM )
 
-#define BOOST_TEST_FOREACH( RefType, var, COL )                                             \
-if( BOOST_TEST_FE_ANY BOOST_TEST_FE_CUR_VAR = BOOST_TEST_FE_BEG( COL ) ) {} else            \
-if( BOOST_TEST_FE_ANY BOOST_TEST_FE_END_VAR = BOOST_TEST_FE_END( COL ) ) {} else            \
-for( bool BOOST_TEST_FE_CON_VAR = true;                                                     \
-          BOOST_TEST_FE_CON_VAR && !BOOST_TEST_FE_DONE( COL );                              \
-          BOOST_TEST_FE_CON_VAR ? BOOST_TEST_FE_NEXT( COL ) : BOOST_FOREACH_NOOP( COL ))    \
+#define NDNBOOST_TEST_FOREACH( RefType, var, COL )                                             \
+if( NDNBOOST_TEST_FE_ANY NDNBOOST_TEST_FE_CUR_VAR = NDNBOOST_TEST_FE_BEG( COL ) ) {} else            \
+if( NDNBOOST_TEST_FE_ANY NDNBOOST_TEST_FE_END_VAR = NDNBOOST_TEST_FE_END( COL ) ) {} else            \
+for( bool NDNBOOST_TEST_FE_CON_VAR = true;                                                     \
+          NDNBOOST_TEST_FE_CON_VAR && !NDNBOOST_TEST_FE_DONE( COL );                              \
+          NDNBOOST_TEST_FE_CON_VAR ? NDNBOOST_TEST_FE_NEXT( COL ) : NDNBOOST_FOREACH_NOOP( COL ))    \
                                                                                             \
-    if( (BOOST_TEST_FE_CON_VAR = false, false) ) {} else                                    \
-    for( RefType var = BOOST_TEST_FE_DEREF( COL, RefType );                                 \
-         !BOOST_TEST_FE_CON_VAR; BOOST_TEST_FE_CON_VAR = true )                             \
+    if( (NDNBOOST_TEST_FE_CON_VAR = false, false) ) {} else                                    \
+    for( RefType var = NDNBOOST_TEST_FE_DEREF( COL, RefType );                                 \
+         !NDNBOOST_TEST_FE_CON_VAR; NDNBOOST_TEST_FE_CON_VAR = true )                             \
 /**/
 
 //____________________________________________________________________________//
@@ -278,4 +278,4 @@ for( bool BOOST_TEST_FE_CON_VAR = true;                                         
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_FOREACH_HPP_021005GER
+#endif // NDNBOOST_TEST_FOREACH_HPP_021005GER

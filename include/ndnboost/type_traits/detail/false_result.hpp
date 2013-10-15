@@ -6,8 +6,8 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_DETAIL_FALSE_RESULT_HPP_INCLUDED
-#define BOOST_TT_DETAIL_FALSE_RESULT_HPP_INCLUDED
+#ifndef NDNBOOST_TT_DETAIL_FALSE_RESULT_HPP_INCLUDED
+#define NDNBOOST_TT_DETAIL_FALSE_RESULT_HPP_INCLUDED
 
 #include <ndnboost/config.hpp>
 
@@ -19,10 +19,10 @@ struct false_result
 {
     template <typename T> struct result_
     {
-        BOOST_STATIC_CONSTANT(bool, value = false);
+        NDNBOOST_STATIC_CONSTANT(bool, value = false);
     };
 };
 
 }} // namespace ndnboost::type_traits
 
-#endif // BOOST_TT_DETAIL_FALSE_RESULT_HPP_INCLUDED
+#endif // NDNBOOST_TT_DETAIL_FALSE_RESULT_HPP_INCLUDED

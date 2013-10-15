@@ -13,8 +13,8 @@
 //  run unit of test cases. Translates execution exception into error level
 // ***************************************************************************
 
-#ifndef BOOST_TEST_UNIT_TEST_MONITOR_HPP_020905GER
-#define BOOST_TEST_UNIT_TEST_MONITOR_HPP_020905GER
+#ifndef NDNBOOST_TEST_UNIT_TEST_MONITOR_HPP_020905GER
+#define NDNBOOST_TEST_UNIT_TEST_MONITOR_HPP_020905GER
 
 // Boost.Test
 #include <ndnboost/test/execution_monitor.hpp>
@@ -34,7 +34,7 @@ namespace unit_test {
 // **************               unit_test_monitor              ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL unit_test_monitor_t : public singleton<unit_test_monitor_t>, public execution_monitor {
+class NDNBOOST_TEST_DECL unit_test_monitor_t : public singleton<unit_test_monitor_t>, public execution_monitor {
 public:
     enum error_level { 
         test_fail               =  1,
@@ -53,10 +53,10 @@ public:
     error_level execute_and_translate( test_case const& );
 
 private:
-    BOOST_TEST_SINGLETON_CONS( unit_test_monitor_t );
+    NDNBOOST_TEST_SINGLETON_CONS( unit_test_monitor_t );
 };
 
-BOOST_TEST_SINGLETON_INST( unit_test_monitor )
+NDNBOOST_TEST_SINGLETON_INST( unit_test_monitor )
 
 } // namespace unit_test
 
@@ -66,4 +66,4 @@ BOOST_TEST_SINGLETON_INST( unit_test_monitor )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_UNIT_TEST_MONITOR_HPP_020905GER
+#endif // NDNBOOST_TEST_UNIT_TEST_MONITOR_HPP_020905GER

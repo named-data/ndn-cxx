@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_ITERATOR_HPP
-#define BOOST_RANGE_ITERATOR_HPP
+#ifndef NDNBOOST_RANGE_ITERATOR_HPP
+#define NDNBOOST_RANGE_ITERATOR_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
@@ -25,14 +25,14 @@
 namespace ndnboost
 {
 
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1310)
 
     namespace range_detail_vc7_1
     {
        template< typename C, typename Sig = void(C) >
        struct range_iterator
        {
-           typedef BOOST_RANGE_DEDUCED_TYPENAME
+           typedef NDNBOOST_RANGE_DEDUCED_TYPENAME
                mpl::eval_if_c< is_const<C>::value,
                                range_const_iterator< typename remove_const<C>::type >,
                                range_mutable_iterator<C> >::type type;
@@ -50,14 +50,14 @@ namespace ndnboost
     template< typename C >
     struct range_iterator
     {
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1310)
 
-        typedef BOOST_RANGE_DEDUCED_TYPENAME
+        typedef NDNBOOST_RANGE_DEDUCED_TYPENAME
                range_detail_vc7_1::range_iterator<C>::type type;
 
 #else
 
-        typedef BOOST_RANGE_DEDUCED_TYPENAME
+        typedef NDNBOOST_RANGE_DEDUCED_TYPENAME
             mpl::eval_if_c< is_const<C>::value,
                             range_const_iterator< typename remove_const<C>::type >,
                             range_mutable_iterator<C> >::type type;
@@ -67,6 +67,6 @@ namespace ndnboost
 
 } // namespace ndnboost
 
-//#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+//#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 #endif

@@ -12,8 +12,8 @@
 //  Description : enhanced result for test predicate that include message explaining failure
 // ***************************************************************************
 
-#ifndef BOOST_TEST_PREDICATE_RESULT_HPP_012705GER
-#define BOOST_TEST_PREDICATE_RESULT_HPP_012705GER
+#ifndef NDNBOOST_TEST_PREDICATE_RESULT_HPP_012705GER
+#define NDNBOOST_TEST_PREDICATE_RESULT_HPP_012705GER
 
 // Boost.Test
 #include <ndnboost/test/utils/class_properties.hpp>
@@ -39,7 +39,7 @@ namespace test_tools {
 // **************                predicate_result              ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL predicate_result {
+class NDNBOOST_TEST_DECL predicate_result {
     typedef unit_test::const_string      const_string;
     struct dummy { void nonnull() {}; };
     typedef void (dummy::*safe_bool)();
@@ -59,7 +59,7 @@ public:
     operator            safe_bool() const           { return !!p_predicate_value ? &dummy::nonnull : 0; }
 
     // Public properties
-    BOOST_READONLY_PROPERTY( bool, (predicate_result) ) p_predicate_value;
+    NDNBOOST_READONLY_PROPERTY( bool, (predicate_result) ) p_predicate_value;
 
     // Access methods
     bool                has_empty_message() const   { return !m_message; }
@@ -85,4 +85,4 @@ private:
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_PREDICATE_RESULT_HPP_012705GER
+#endif // NDNBOOST_TEST_PREDICATE_RESULT_HPP_012705GER

@@ -1,10 +1,10 @@
 
-#if !defined(BOOST_PP_IS_ITERATING)
+#if !defined(NDNBOOST_PP_IS_ITERATING)
 
 ///// header body
 
-#ifndef BOOST_MPL_QUOTE_HPP_INCLUDED
-#define BOOST_MPL_QUOTE_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_QUOTE_HPP_INCLUDED
+#define NDNBOOST_MPL_QUOTE_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2008
 //
@@ -18,7 +18,7 @@
 // $Date: 2008-10-10 23:50:46 -0700 (Fri, 10 Oct 2008) $
 // $Revision: 49272 $
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   include <ndnboost/mpl/void.hpp>
 #   include <ndnboost/mpl/aux_/has_type.hpp>
 #endif
@@ -26,22 +26,22 @@
 #include <ndnboost/mpl/aux_/config/bcc.hpp>
 #include <ndnboost/mpl/aux_/config/ttp.hpp>
 
-#if defined(BOOST_MPL_CFG_NO_TEMPLATE_TEMPLATE_PARAMETERS) \
-    && !defined(BOOST_MPL_CFG_BCC590_WORKAROUNDS)
-#   define BOOST_MPL_CFG_NO_QUOTE_TEMPLATE
+#if defined(NDNBOOST_MPL_CFG_NO_TEMPLATE_TEMPLATE_PARAMETERS) \
+    && !defined(NDNBOOST_MPL_CFG_BCC590_WORKAROUNDS)
+#   define NDNBOOST_MPL_CFG_NO_QUOTE_TEMPLATE
 #endif
 
-#if !defined(BOOST_MPL_CFG_NO_IMPLICIT_METAFUNCTIONS) \
-    && defined(BOOST_MPL_CFG_NO_HAS_XXX)
-#   define BOOST_MPL_CFG_NO_IMPLICIT_METAFUNCTIONS
+#if !defined(NDNBOOST_MPL_CFG_NO_IMPLICIT_METAFUNCTIONS) \
+    && defined(NDNBOOST_MPL_CFG_NO_HAS_XXX)
+#   define NDNBOOST_MPL_CFG_NO_IMPLICIT_METAFUNCTIONS
 #endif
 
 #include <ndnboost/mpl/aux_/config/use_preprocessed.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
- && !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+ && !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
-#   define BOOST_MPL_PREPROCESSED_HEADER quote.hpp
+#   define NDNBOOST_MPL_PREPROCESSED_HEADER quote.hpp
 #   include <ndnboost/mpl/aux_/include_preprocessed.hpp>
 
 #else
@@ -54,19 +54,19 @@
 #   include <ndnboost/preprocessor/iterate.hpp>
 #   include <ndnboost/preprocessor/cat.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_QUOTE_TEMPLATE)
+#if !defined(NDNBOOST_MPL_CFG_NO_QUOTE_TEMPLATE)
 
 namespace ndnboost { namespace mpl {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template< typename T, bool has_type_ >
 struct quote_impl
 // GCC has a problem with metafunction forwarding when T is a
 // specialization of a template called 'type'.
-# if BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4)) \
-    && BOOST_WORKAROUND(__GNUC_MINOR__, BOOST_TESTED_AT(0)) \
-    && BOOST_WORKAROUND(__GNUC_PATCHLEVEL__, BOOST_TESTED_AT(2))
+# if NDNBOOST_WORKAROUND(__GNUC__, NDNBOOST_TESTED_AT(4)) \
+    && NDNBOOST_WORKAROUND(__GNUC_MINOR__, NDNBOOST_TESTED_AT(0)) \
+    && NDNBOOST_WORKAROUND(__GNUC_PATCHLEVEL__, NDNBOOST_TESTED_AT(2))
 {
     typedef typename T::type type;
 };
@@ -82,7 +82,7 @@ struct quote_impl<T,false>
     typedef T type;
 };
 
-#else // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#else // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 template< bool > struct quote_impl
 {
@@ -102,50 +102,50 @@ template<> struct quote_impl<false>
 
 #endif 
 
-#define BOOST_PP_ITERATION_PARAMS_1 \
-    (3,(1, BOOST_MPL_LIMIT_METAFUNCTION_ARITY, <ndnboost/mpl/quote.hpp>))
-#include BOOST_PP_ITERATE()
+#define NDNBOOST_PP_ITERATION_PARAMS_1 \
+    (3,(1, NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY, <ndnboost/mpl/quote.hpp>))
+#include NDNBOOST_PP_ITERATE()
 
 }}
 
-#endif // BOOST_MPL_CFG_NO_QUOTE_TEMPLATE
+#endif // NDNBOOST_MPL_CFG_NO_QUOTE_TEMPLATE
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#endif // BOOST_MPL_QUOTE_HPP_INCLUDED
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_QUOTE_HPP_INCLUDED
 
 ///// iteration
 
 #else
-#define i_ BOOST_PP_FRAME_ITERATION(1)
+#define i_ NDNBOOST_PP_FRAME_ITERATION(1)
 
 template<
-      template< BOOST_MPL_PP_PARAMS(i_, typename P) > class F
+      template< NDNBOOST_MPL_PP_PARAMS(i_, typename P) > class F
     , typename Tag = void_
     >
-struct BOOST_PP_CAT(quote,i_)
+struct NDNBOOST_PP_CAT(quote,i_)
 {
-    template< BOOST_MPL_PP_PARAMS(i_, typename U) > struct apply
-#if defined(BOOST_MPL_CFG_BCC590_WORKAROUNDS)
+    template< NDNBOOST_MPL_PP_PARAMS(i_, typename U) > struct apply
+#if defined(NDNBOOST_MPL_CFG_BCC590_WORKAROUNDS)
     {
         typedef typename quote_impl<
-              F< BOOST_MPL_PP_PARAMS(i_, U) >
-            , aux::has_type< F< BOOST_MPL_PP_PARAMS(i_, U) > >::value
+              F< NDNBOOST_MPL_PP_PARAMS(i_, U) >
+            , aux::has_type< F< NDNBOOST_MPL_PP_PARAMS(i_, U) > >::value
             >::type type;
     };
-#elif !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#elif !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
         : quote_impl<
-              F< BOOST_MPL_PP_PARAMS(i_, U) >
-            , aux::has_type< F< BOOST_MPL_PP_PARAMS(i_, U) > >::value
+              F< NDNBOOST_MPL_PP_PARAMS(i_, U) >
+            , aux::has_type< F< NDNBOOST_MPL_PP_PARAMS(i_, U) > >::value
             >
     {
     };
 #else
-        : quote_impl< aux::has_type< F< BOOST_MPL_PP_PARAMS(i_, U) > >::value >
-            ::template result_< F< BOOST_MPL_PP_PARAMS(i_, U) > >
+        : quote_impl< aux::has_type< F< NDNBOOST_MPL_PP_PARAMS(i_, U) > >::value >
+            ::template result_< F< NDNBOOST_MPL_PP_PARAMS(i_, U) > >
     {
     };
 #endif
 };
 
 #undef i_
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_IS_ITERATING

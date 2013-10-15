@@ -9,7 +9,7 @@
 
 
 namespace ndnboost { namespace type_of {
-    template<class V, class Increase_BOOST_TYPEOF_LIMIT_SIZE> struct v_iter;
+    template<class V, class Increase_NDNBOOST_TYPEOF_LIMIT_SIZE> struct v_iter;
         template<class V> struct v_iter<V, mpl::int_<0> > { typedef typename V::item0 type; typedef v_iter<V, mpl::int_<0 + 1> > next; };
         template<class V> struct v_iter<V, mpl::int_<1> > { typedef typename V::item1 type; typedef v_iter<V, mpl::int_<1 + 1> > next; };
         template<class V> struct v_iter<V, mpl::int_<2> > { typedef typename V::item2 type; typedef v_iter<V, mpl::int_<2 + 1> > next; };

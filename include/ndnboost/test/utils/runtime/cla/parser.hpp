@@ -12,8 +12,8 @@
 //  Description : defines parser - public interface for CLA parsing and accessing
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_PARSER_HPP_062604GER
-#define BOOST_RT_CLA_PARSER_HPP_062604GER
+#ifndef NDNBOOST_RT_CLA_PARSER_HPP_062604GER
+#define NDNBOOST_RT_CLA_PARSER_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -32,7 +32,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -139,15 +139,15 @@ private:
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#ifndef BOOST_RT_PARAM_OFFLINE
+#ifndef NDNBOOST_RT_PARAM_OFFLINE
 
-#  define BOOST_RT_PARAM_INLINE inline
+#  define NDNBOOST_RT_PARAM_INLINE inline
 #  include <ndnboost/test/utils/runtime/cla/parser.ipp>
 
 #endif
 
-#endif // BOOST_RT_CLA_PARSER_HPP_062604GER
+#endif // NDNBOOST_RT_CLA_PARSER_HPP_062604GER

@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_VECTOR_ITERATOR_HPP_INCLUDED
-#define BOOST_MPL_AUX_VECTOR_ITERATOR_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_VECTOR_ITERATOR_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_VECTOR_ITERATOR_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -31,7 +31,7 @@ namespace ndnboost { namespace mpl {
 
 template<
       typename Vector
-    , BOOST_MPL_AUX_NTTP_DECL(long, n_)
+    , NDNBOOST_MPL_AUX_NTTP_DECL(long, n_)
     >
 struct v_iter
 {
@@ -42,7 +42,7 @@ struct v_iter
     typedef Vector vector_;
     typedef mpl::long_<n_> pos;
 
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
     enum { 
           next_ = n_ + 1
         , prior_ = n_ - 1
@@ -56,11 +56,11 @@ struct v_iter
 };
 
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template<
       typename Vector
-    , BOOST_MPL_AUX_NTTP_DECL(long, n_)
+    , NDNBOOST_MPL_AUX_NTTP_DECL(long, n_)
     >
 struct next< v_iter<Vector,n_> >
 {
@@ -69,7 +69,7 @@ struct next< v_iter<Vector,n_> >
 
 template<
       typename Vector
-    , BOOST_MPL_AUX_NTTP_DECL(long, n_)
+    , NDNBOOST_MPL_AUX_NTTP_DECL(long, n_)
     >
 struct prior< v_iter<Vector,n_> >
 {
@@ -78,28 +78,28 @@ struct prior< v_iter<Vector,n_> >
 
 template<
       typename Vector
-    , BOOST_MPL_AUX_NTTP_DECL(long, n_)
+    , NDNBOOST_MPL_AUX_NTTP_DECL(long, n_)
     , typename Distance
     >
 struct advance< v_iter<Vector,n_>,Distance>
 {
     typedef v_iter<
           Vector
-        , (n_ + BOOST_MPL_AUX_NESTED_VALUE_WKND(long, Distance))
+        , (n_ + NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(long, Distance))
         > type;
 };
 
 template< 
       typename Vector
-    , BOOST_MPL_AUX_NTTP_DECL(long, n_)
-    , BOOST_MPL_AUX_NTTP_DECL(long, m_)
+    , NDNBOOST_MPL_AUX_NTTP_DECL(long, n_)
+    , NDNBOOST_MPL_AUX_NTTP_DECL(long, m_)
     > 
 struct distance< v_iter<Vector,n_>, v_iter<Vector,m_> >
     : mpl::long_<(m_ - n_)>
 {
 };
 
-#else // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#else // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 template<> struct advance_impl<aux::v_iter_tag>
 {
@@ -119,7 +119,7 @@ template<> struct distance_impl<aux::v_iter_tag>
     {
         enum { pos1_ = Iter1::pos_, pos2_ = Iter2::pos_ };
         typedef long_<( pos2_ - pos1_ )> type;
-        BOOST_STATIC_CONSTANT(long, value = ( pos2_ - pos1_ ));
+        NDNBOOST_STATIC_CONSTANT(long, value = ( pos2_ - pos1_ ));
     };
 };
 
@@ -127,4 +127,4 @@ template<> struct distance_impl<aux::v_iter_tag>
 
 }}
 
-#endif // BOOST_MPL_AUX_VECTOR_ITERATOR_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_VECTOR_ITERATOR_HPP_INCLUDED

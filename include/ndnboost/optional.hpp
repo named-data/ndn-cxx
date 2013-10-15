@@ -9,8 +9,8 @@
 // You are welcome to contact the author at:
 //  fernando_cacciola@hotmail.com
 //
-#ifndef BOOST_OPTIONAL_FLC_19NOV2002_HPP
-#define BOOST_OPTIONAL_FLC_19NOV2002_HPP
+#ifndef NDNBOOST_OPTIONAL_FLC_19NOV2002_HPP
+#define NDNBOOST_OPTIONAL_FLC_19NOV2002_HPP
 
 #include "ndnboost/optional/optional.hpp"
 

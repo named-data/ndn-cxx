@@ -12,8 +12,8 @@
 //  Description : environment subsystem forward declarations
 // ***************************************************************************
 
-#ifndef BOOST_RT_ENV_FWD_HPP_062604GER
-#define BOOST_RT_ENV_FWD_HPP_062604GER
+#ifndef NDNBOOST_RT_ENV_FWD_HPP_062604GER
+#define NDNBOOST_RT_ENV_FWD_HPP_062604GER
 
 #ifdef UNDER_CE
 #error Windows CE does not support environment variables.
@@ -24,7 +24,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace environment {
 
@@ -47,8 +47,8 @@ template <typename T> class variable;
 
 } // namespace environment
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_ENV_FWD_HPP_062604GER
+#endif // NDNBOOST_RT_ENV_FWD_HPP_062604GER

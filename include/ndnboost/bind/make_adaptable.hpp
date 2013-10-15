@@ -1,5 +1,5 @@
-#ifndef BOOST_BIND_MAKE_ADAPTABLE_HPP_INCLUDED
-#define BOOST_BIND_MAKE_ADAPTABLE_HPP_INCLUDED
+#ifndef NDNBOOST_BIND_MAKE_ADAPTABLE_HPP_INCLUDED
+#define NDNBOOST_BIND_MAKE_ADAPTABLE_HPP_INCLUDED
 
 //
 //  make_adaptable.hpp
@@ -184,4 +184,4 @@ template<class R, class A1, class A2, class A3, class A4, class F> _bi::af4<R, A
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_BIND_MAKE_ADAPTABLE_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_BIND_MAKE_ADAPTABLE_HPP_INCLUDED

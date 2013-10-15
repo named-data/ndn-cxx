@@ -8,15 +8,15 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_INTRUSIVE_DETAIL_WRKRND_HPP
-#define BOOST_INTRUSIVE_DETAIL_WRKRND_HPP
+#ifndef NDNBOOST_INTRUSIVE_DETAIL_WRKRND_HPP
+#define NDNBOOST_INTRUSIVE_DETAIL_WRKRND_HPP
 
 #include <ndnboost/intrusive/detail/config_begin.hpp>
 
-#if    !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-   #define BOOST_INTRUSIVE_PERFECT_FORWARDING
+#if    !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
+   #define NDNBOOST_INTRUSIVE_PERFECT_FORWARDING
 #endif
 
 #include <ndnboost/intrusive/detail/config_end.hpp>
 
-#endif   //#ifndef BOOST_INTRUSIVE_DETAIL_WRKRND_HPP
+#endif   //#ifndef NDNBOOST_INTRUSIVE_DETAIL_WRKRND_HPP

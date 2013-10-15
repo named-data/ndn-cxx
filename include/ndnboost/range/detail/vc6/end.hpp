@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DETAIL_VC6_END_HPP
-#define BOOST_RANGE_DETAIL_VC6_END_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_VC6_END_HPP
+#define NDNBOOST_RANGE_DETAIL_VC6_END_HPP
 
 #include <ndnboost/range/detail/implementation_help.hpp>
 #include <ndnboost/range/detail/implementation_help.hpp>
@@ -33,7 +33,7 @@ namespace ndnboost
         {
             template< typename C >
             struct inner {
-                static BOOST_RANGE_DEDUCED_TYPENAME range_result_iterator<C>::type 
+                static NDNBOOST_RANGE_DEDUCED_TYPENAME range_result_iterator<C>::type 
                 fun( C& c )
                 {
                     return c.end();
@@ -50,7 +50,7 @@ namespace ndnboost
         {
             template< typename P >
             struct inner {
-                static BOOST_RANGE_DEDUCED_TYPENAME range_result_iterator<P>::type 
+                static NDNBOOST_RANGE_DEDUCED_TYPENAME range_result_iterator<P>::type 
                 fun( const P& p )
                 {
                     return p.second;
@@ -67,7 +67,7 @@ namespace ndnboost
         {
             template< typename T >
             struct inner {
-                static BOOST_DEDUCED_TYPENAME remove_extent<T>::type*
+                static NDNBOOST_DEDUCED_TYPENAME remove_extent<T>::type*
                 fun(T& t)
                 {
                     return t + remove_extent<T>::size;
@@ -81,7 +81,7 @@ namespace ndnboost
         {
             template< typename T >
             struct inner {
-                static BOOST_DEDUCED_TYPENAME remove_extent<T>::type*
+                static NDNBOOST_DEDUCED_TYPENAME remove_extent<T>::type*
                 fun(T& t)
                 {
                     return t + remove_extent<T>::size;
@@ -94,7 +94,7 @@ namespace ndnboost
         {
             template< typename T >
             struct inner {
-                static BOOST_DEDUCED_TYPENAME remove_extent<T>::type*
+                static NDNBOOST_DEDUCED_TYPENAME remove_extent<T>::type*
                 fun(T& t)
                 {
                     return t + remove_extent<T>::size;
@@ -158,7 +158,7 @@ namespace ndnboost
     } // namespace 'range_detail'
     
     template< typename C >
-    inline BOOST_DEDUCED_TYPENAME range_result_iterator<C>::type 
+    inline NDNBOOST_DEDUCED_TYPENAME range_result_iterator<C>::type 
     end( C& c )
     {
         return range_detail::range_end<range_detail::range<C>::type>::inner<C>::fun( c );

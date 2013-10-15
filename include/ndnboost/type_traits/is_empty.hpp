@@ -6,15 +6,15 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_EMPTY_HPP_INCLUDED
-#define BOOST_TT_IS_EMPTY_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_EMPTY_HPP_INCLUDED
+#define NDNBOOST_TT_IS_EMPTY_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_convertible.hpp>
 #include <ndnboost/type_traits/detail/ice_or.hpp>
 #include <ndnboost/type_traits/config.hpp>
 #include <ndnboost/type_traits/intrinsics.hpp>
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 #   include <ndnboost/type_traits/remove_cv.hpp>
 #   include <ndnboost/type_traits/is_class.hpp>
 #   include <ndnboost/type_traits/add_reference.hpp>
@@ -31,19 +31,19 @@
 // should be always the last #include directive
 #include <ndnboost/type_traits/detail/bool_trait_def.hpp>
 
-#ifndef BOOST_INTERNAL_IS_EMPTY
-#define BOOST_INTERNAL_IS_EMPTY(T) false
+#ifndef NDNBOOST_INTERNAL_IS_EMPTY
+#define NDNBOOST_INTERNAL_IS_EMPTY(T) false
 #else
-#define BOOST_INTERNAL_IS_EMPTY(T) BOOST_IS_EMPTY(T)
+#define NDNBOOST_INTERNAL_IS_EMPTY(T) NDNBOOST_IS_EMPTY(T)
 #endif
 
 namespace ndnboost {
 
 namespace detail {
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(push)
 #pragma warning(disable:4624) // destructor could not be generated
 #endif
@@ -59,24 +59,24 @@ private:
    empty_helper_t1& operator=(const empty_helper_t1&);
 };
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(pop)
 #endif
 
 struct empty_helper_t2 { int i[256]; };
 
-#if !BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, < 0x600)
 
 template <typename T, bool is_a_class = false>
 struct empty_helper
 {
-    BOOST_STATIC_CONSTANT(bool, value = false);
+    NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
 
 template <typename T>
 struct empty_helper<T, true>
 {
-    BOOST_STATIC_CONSTANT(
+    NDNBOOST_STATIC_CONSTANT(
         bool, value = (sizeof(empty_helper_t1<T>) == sizeof(empty_helper_t2))
         );
 };
@@ -85,11 +85,11 @@ template <typename T>
 struct is_empty_impl
 {
     typedef typename remove_cv<T>::type cvt;
-    BOOST_STATIC_CONSTANT(
+    NDNBOOST_STATIC_CONSTANT(
         bool, value = (
             ::ndnboost::type_traits::ice_or<
               ::ndnboost::detail::empty_helper<cvt,::ndnboost::is_class<T>::value>::value
-              , BOOST_INTERNAL_IS_EMPTY(cvt)
+              , NDNBOOST_INTERNAL_IS_EMPTY(cvt)
             >::value
             ));
 };
@@ -99,13 +99,13 @@ struct is_empty_impl
 template <typename T, bool is_a_class, bool convertible_to_int>
 struct empty_helper
 {
-    BOOST_STATIC_CONSTANT(bool, value = false);
+    NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
 
 template <typename T>
 struct empty_helper<T, true, false>
 {
-    BOOST_STATIC_CONSTANT(bool, value = (
+    NDNBOOST_STATIC_CONSTANT(bool, value = (
         sizeof(empty_helper_t1<T>) == sizeof(empty_helper_t2)
         ));
 };
@@ -116,7 +116,7 @@ struct is_empty_impl
    typedef typename remove_cv<T>::type cvt;
    typedef typename add_reference<T>::type r_type;
 
-   BOOST_STATIC_CONSTANT(
+   NDNBOOST_STATIC_CONSTANT(
        bool, value = (
            ::ndnboost::type_traits::ice_or<
               ::ndnboost::detail::empty_helper<
@@ -124,15 +124,15 @@ struct is_empty_impl
                 , ::ndnboost::is_class<T>::value
                 , ::ndnboost::is_convertible< r_type,int>::value
               >::value
-              , BOOST_INTERNAL_IS_EMPTY(cvt)
+              , NDNBOOST_INTERNAL_IS_EMPTY(cvt)
            >::value));
 };
 
 #endif // __BORLANDC__
 
-#else // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#else // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
-#ifdef BOOST_MSVC6_MEMBER_TEMPLATES
+#ifdef NDNBOOST_MSVC6_MEMBER_TEMPLATES
 
 template <typename T>
 struct empty_helper_t1 : public T
@@ -192,38 +192,38 @@ struct is_empty_impl
    typedef typename chooser::template result_<T> result;
    typedef typename result::type eh_type;
 
-   BOOST_STATIC_CONSTANT(bool, value =
-      (::ndnboost::type_traits::ice_or<eh_type::value, BOOST_INTERNAL_IS_EMPTY(T)>::value));
+   NDNBOOST_STATIC_CONSTANT(bool, value =
+      (::ndnboost::type_traits::ice_or<eh_type::value, NDNBOOST_INTERNAL_IS_EMPTY(T)>::value));
 };
 
 #else
 
 template <typename T> struct is_empty_impl
 {
-    BOOST_STATIC_CONSTANT(bool, value = BOOST_INTERNAL_IS_EMPTY(T));
+    NDNBOOST_STATIC_CONSTANT(bool, value = NDNBOOST_INTERNAL_IS_EMPTY(T));
 };
 
-#endif  // BOOST_MSVC6_MEMBER_TEMPLATES
+#endif  // NDNBOOST_MSVC6_MEMBER_TEMPLATES
 
-#endif  // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif  // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 // these help when the compiler has no partial specialization support:
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_empty,void,false)
-#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_empty,void const,false)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_empty,void volatile,false)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_empty,void const volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_empty,void,false)
+#ifndef NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_empty,void const,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_empty,void volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_empty,void const volatile,false)
 #endif
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_empty,T,::ndnboost::detail::is_empty_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_empty,T,::ndnboost::detail::is_empty_impl<T>::value)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#undef BOOST_INTERNAL_IS_EMPTY
+#undef NDNBOOST_INTERNAL_IS_EMPTY
 
-#endif // BOOST_TT_IS_EMPTY_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_EMPTY_HPP_INCLUDED
 

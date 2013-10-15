@@ -6,8 +6,8 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 
 // For more information, see http://www.boost.org/libs/utility
-#ifndef BOOST_RESULT_OF_HPP
-#define BOOST_RESULT_OF_HPP
+#ifndef NDNBOOST_RESULT_OF_HPP
+#define NDNBOOST_RESULT_OF_HPP
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/preprocessor/cat.hpp>
@@ -32,24 +32,24 @@
 #include <ndnboost/utility/declval.hpp>
 #include <ndnboost/utility/enable_if.hpp>
 
-#ifndef BOOST_RESULT_OF_NUM_ARGS
-#  define BOOST_RESULT_OF_NUM_ARGS 16
+#ifndef NDNBOOST_RESULT_OF_NUM_ARGS
+#  define NDNBOOST_RESULT_OF_NUM_ARGS 16
 #endif
 
 // Use the decltype-based version of result_of by default if the compiler
 // supports N3276 <http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2011/n3276.pdf>.
-// The user can force the choice by defining either BOOST_RESULT_OF_USE_DECLTYPE or
-// BOOST_RESULT_OF_USE_TR1, but not both!
-#if defined(BOOST_RESULT_OF_USE_DECLTYPE) && defined(BOOST_RESULT_OF_USE_TR1)
-#  error Both BOOST_RESULT_OF_USE_DECLTYPE and BOOST_RESULT_OF_USE_TR1 cannot be defined at the same time.
+// The user can force the choice by defining either NDNBOOST_RESULT_OF_USE_DECLTYPE or
+// NDNBOOST_RESULT_OF_USE_TR1, but not both!
+#if defined(NDNBOOST_RESULT_OF_USE_DECLTYPE) && defined(NDNBOOST_RESULT_OF_USE_TR1)
+#  error Both NDNBOOST_RESULT_OF_USE_DECLTYPE and NDNBOOST_RESULT_OF_USE_TR1 cannot be defined at the same time.
 #endif
 
-#ifndef BOOST_RESULT_OF_USE_TR1
-#  ifndef BOOST_RESULT_OF_USE_DECLTYPE
-#    ifndef BOOST_NO_CXX11_DECLTYPE_N3276 // this implies !defined(BOOST_NO_CXX11_DECLTYPE)
-#      define BOOST_RESULT_OF_USE_DECLTYPE
+#ifndef NDNBOOST_RESULT_OF_USE_TR1
+#  ifndef NDNBOOST_RESULT_OF_USE_DECLTYPE
+#    ifndef NDNBOOST_NO_CXX11_DECLTYPE_N3276 // this implies !defined(NDNBOOST_NO_CXX11_DECLTYPE)
+#      define NDNBOOST_RESULT_OF_USE_DECLTYPE
 #    else
-#      define BOOST_RESULT_OF_USE_TR1
+#      define NDNBOOST_RESULT_OF_USE_TR1
 #    endif
 #  endif
 #endif
@@ -59,19 +59,19 @@ namespace ndnboost {
 template<typename F> struct result_of;
 template<typename F> struct tr1_result_of; // a TR1-style implementation of result_of
 
-#if !defined(BOOST_NO_SFINAE) && !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_SFINAE) && !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 namespace detail {
 
-BOOST_MPL_HAS_XXX_TRAIT_DEF(result_type)
+NDNBOOST_MPL_HAS_XXX_TRAIT_DEF(result_type)
 
 template<typename F, typename FArgs, bool HasResultType> struct tr1_result_of_impl;
 
-#ifdef BOOST_NO_SFINAE_EXPR
+#ifdef NDNBOOST_NO_SFINAE_EXPR
 
 // There doesn't seem to be any other way to turn this off such that the presence of
 // the user-defined operator,() below doesn't cause spurious warning all over the place,
 // so unconditionally turn it off.
-#if BOOST_MSVC
+#if NDNBOOST_MSVC
 #  pragma warning(disable: 4913) // user defined binary operator ',' exists but no overload could convert all operands, default built-in binary operator ',' used
 #endif
 
@@ -122,7 +122,7 @@ struct result_of_wrap_callable_class<C &> {
 
 template<typename F, bool TestCallability = true> struct cpp0x_result_of_impl;
 
-#else // BOOST_NO_SFINAE_EXPR
+#else // NDNBOOST_NO_SFINAE_EXPR
 
 template<typename T>
 struct result_of_always_void
@@ -132,7 +132,7 @@ struct result_of_always_void
 
 template<typename F, typename Enable = void> struct cpp0x_result_of_impl {};
 
-#endif // BOOST_NO_SFINAE_EXPR
+#endif // NDNBOOST_NO_SFINAE_EXPR
 
 template<typename F>
 struct result_of_void_impl
@@ -182,13 +182,13 @@ struct tr1_result_of_impl<F, FArgs, false>
 
 } // end namespace detail
 
-#define BOOST_PP_ITERATION_PARAMS_1 (3,(0,BOOST_RESULT_OF_NUM_ARGS,<ndnboost/utility/detail/result_of_iterate.hpp>))
-#include BOOST_PP_ITERATE()
+#define NDNBOOST_PP_ITERATION_PARAMS_1 (3,(0,NDNBOOST_RESULT_OF_NUM_ARGS,<ndnboost/utility/detail/result_of_iterate.hpp>))
+#include NDNBOOST_PP_ITERATE()
 
 #else
-#  define BOOST_NO_RESULT_OF 1
+#  define NDNBOOST_NO_RESULT_OF 1
 #endif
 
 }
 
-#endif // BOOST_RESULT_OF_HPP
+#endif // NDNBOOST_RESULT_OF_HPP

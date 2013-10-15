@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_VECTOR_AUX_BACK_HPP_INCLUDED
-#define BOOST_MPL_VECTOR_AUX_BACK_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_VECTOR_AUX_BACK_HPP_INCLUDED
+#define NDNBOOST_MPL_VECTOR_AUX_BACK_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -23,7 +23,7 @@
 
 namespace ndnboost { namespace mpl {
 
-#if defined(BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
+#if defined(NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
 
 template<>
 struct back_impl< aux::vector_tag >
@@ -39,7 +39,7 @@ struct back_impl< aux::vector_tag >
 
 #else
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template< long n_ >
 struct back_impl< aux::vector_tag<n_> >
@@ -50,10 +50,10 @@ struct back_impl< aux::vector_tag<n_> >
     };
 };
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
-#endif // BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
+#endif // NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
 
 }}
 
-#endif // BOOST_MPL_VECTOR_AUX_BACK_HPP_INCLUDED
+#endif // NDNBOOST_MPL_VECTOR_AUX_BACK_HPP_INCLUDED

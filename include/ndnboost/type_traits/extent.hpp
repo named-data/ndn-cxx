@@ -7,8 +7,8 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_EXTENT_HPP_INCLUDED
-#define BOOST_TT_EXTENT_HPP_INCLUDED
+#ifndef NDNBOOST_TT_EXTENT_HPP_INCLUDED
+#define NDNBOOST_TT_EXTENT_HPP_INCLUDED
 
 // should be the last #include
 #include <ndnboost/type_traits/detail/size_t_trait_def.hpp>
@@ -29,97 +29,97 @@ namespace detail{
 template <class T, std::size_t N>
 struct extent_imp
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = 0);
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = 0);
 };
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(NDNBOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
 template <class T, std::size_t R, std::size_t N>
 struct extent_imp<T[R], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
 };
 
 template <class T, std::size_t R, std::size_t N>
 struct extent_imp<T const[R], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
 };
 
 template <class T, std::size_t R, std::size_t N>
 struct extent_imp<T volatile[R], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
 };
 
 template <class T, std::size_t R, std::size_t N>
 struct extent_imp<T const volatile[R], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
 };
 
 template <class T, std::size_t R>
 struct extent_imp<T[R],0>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = R);
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = R);
 };
 
 template <class T, std::size_t R>
 struct extent_imp<T const[R], 0>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = R);
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = R);
 };
 
 template <class T, std::size_t R>
 struct extent_imp<T volatile[R], 0>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = R);
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = R);
 };
 
 template <class T, std::size_t R>
 struct extent_imp<T const volatile[R], 0>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = R);
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = R);
 };
 
-#if !BOOST_WORKAROUND(__BORLANDC__, < 0x600) && !defined(__IBMCPP__) &&  !BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840)) && !defined(__MWERKS__)
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, < 0x600) && !defined(__IBMCPP__) &&  !NDNBOOST_WORKAROUND(__DMC__, NDNBOOST_TESTED_AT(0x840)) && !defined(__MWERKS__)
 template <class T, std::size_t N>
 struct extent_imp<T[], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
 };
 template <class T, std::size_t N>
 struct extent_imp<T const[], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
 };
 template <class T, std::size_t N>
 struct extent_imp<T volatile[], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
 };
 template <class T, std::size_t N>
 struct extent_imp<T const volatile[], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::extent_imp<T, N-1>::value));
 };
 template <class T>
 struct extent_imp<T[], 0>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = 0);
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = 0);
 };
 template <class T>
 struct extent_imp<T const[], 0>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = 0);
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = 0);
 };
 template <class T>
 struct extent_imp<T volatile[], 0>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = 0);
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = 0);
 };
 template <class T>
 struct extent_imp<T const volatile[], 0>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = 0);
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = 0);
 };
 #endif
 #endif
@@ -131,15 +131,15 @@ template <class T, std::size_t N = 0>
 struct extent
    : public ::ndnboost::integral_constant<std::size_t, ::ndnboost::detail::extent_imp<T,N>::value>
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300) 
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300) 
    typedef ::ndnboost::integral_constant<std::size_t, ::ndnboost::detail::extent_imp<T,N>::value> base_; 
    using base_::value;
 #endif
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1,extent,(T))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,extent,(T))
 };
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/size_t_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_MEMBER_FUNCTION_POINTER_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_MEMBER_FUNCTION_POINTER_HPP_INCLUDED

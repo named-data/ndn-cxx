@@ -12,8 +12,8 @@
 //  Description : simple helpers for creating cusom output manipulators
 // ***************************************************************************
 
-#ifndef BOOST_TEST_CUSTOM_MANIP_HPP_071894GER
-#define BOOST_TEST_CUSTOM_MANIP_HPP_071894GER
+#ifndef NDNBOOST_TEST_CUSTOM_MANIP_HPP_071894GER
+#define NDNBOOST_TEST_CUSTOM_MANIP_HPP_071894GER
 
 // STL
 #include <iosfwd>
@@ -60,4 +60,4 @@ operator<<( std::ostream& ostr, custom_manip<Uniq> const& ) { return custom_prin
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_CUSTOM_MANIP_HPP_071894GER
+#endif // NDNBOOST_TEST_CUSTOM_MANIP_HPP_071894GER

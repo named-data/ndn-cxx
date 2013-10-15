@@ -11,8 +11,8 @@
 
 //! \file
 
-#ifndef BOOST_MOVE_ALGORITHM_HPP
-#define BOOST_MOVE_ALGORITHM_HPP
+#ifndef NDNBOOST_MOVE_ALGORITHM_HPP
+#define NDNBOOST_MOVE_ALGORITHM_HPP
 
 #include <ndnboost/move/detail/config_begin.hpp>
 
@@ -32,7 +32,7 @@ namespace ndnboost {
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#if !defined(BOOST_MOVE_USE_STANDARD_LIBRARY_MOVE)
+#if !defined(NDNBOOST_MOVE_USE_STANDARD_LIBRARY_MOVE)
 
    //! <b>Effects</b>: Moves elements in the range [first,last) into the range [result,result + (last -
    //!   first)) starting from first and proceeding to last. For each non-negative integer n < (last-first),
@@ -85,7 +85,7 @@ namespace ndnboost {
 
    using ::std::move_backward;
 
-#endif   //!defined(BOOST_MOVE_USE_STANDARD_LIBRARY_MOVE)
+#endif   //!defined(NDNBOOST_MOVE_USE_STANDARD_LIBRARY_MOVE)
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -113,20 +113,20 @@ F uninitialized_move(I f, I l, F r
    typedef typename std::iterator_traits<I>::value_type input_value_type;
 
    F back = r;
-   BOOST_TRY{
+   NDNBOOST_TRY{
       while (f != l) {
          void * const addr = static_cast<void*>(::ndnboost::move_detail::addressof(*r));
          ::new(addr) input_value_type(::ndnboost::move(*f));
          ++f; ++r;
       }
    }
-   BOOST_CATCH(...){
+   NDNBOOST_CATCH(...){
 	   for (; back != r; ++back){
          back->~input_value_type();
       }
-	   BOOST_RETHROW;
+	   NDNBOOST_RETHROW;
    }
-   BOOST_CATCH_END
+   NDNBOOST_CATCH_END
    return r;
 }
 
@@ -272,4 +272,4 @@ inline F copy_or_move(I f, I l, F r
 
 #include <ndnboost/move/detail/config_end.hpp>
 
-#endif //#ifndef BOOST_MOVE_MOVE_HPP
+#endif //#ifndef NDNBOOST_MOVE_MOVE_HPP

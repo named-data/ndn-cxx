@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_FORMATTER_HPP
-#define BOOST_STRING_FORMATTER_HPP
+#ifndef NDNBOOST_STRING_FORMATTER_HPP
+#define NDNBOOST_STRING_FORMATTER_HPP
 
 #include <ndnboost/detail/iterator.hpp>
 #include <ndnboost/range/value_type.hpp>
@@ -45,12 +45,12 @@ namespace ndnboost {
         template<typename RangeT>
         inline detail::const_formatF<
             iterator_range<
-                BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> >
+                NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> >
         const_formatter(const RangeT& Format)
         {
             return detail::const_formatF<
                 iterator_range<
-                    BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> >(::ndnboost::as_literal(Format));
+                    NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> >(::ndnboost::as_literal(Format));
         }
 
         //! Identity formatter
@@ -63,12 +63,12 @@ namespace ndnboost {
         template<typename RangeT>
         inline detail::identity_formatF<
             iterator_range<
-                BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> >
+                NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> >
         identity_formatter()
         {
             return detail::identity_formatF<
                 iterator_range<
-                    BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> >();
+                    NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> >();
         }
 
         //! Empty formatter
@@ -82,11 +82,11 @@ namespace ndnboost {
         */
         template<typename RangeT>
         inline detail::empty_formatF< 
-            BOOST_STRING_TYPENAME range_value<RangeT>::type>
+            NDNBOOST_STRING_TYPENAME range_value<RangeT>::type>
         empty_formatter(const RangeT&)
         {
             return detail::empty_formatF<
-                BOOST_STRING_TYPENAME range_value<RangeT>::type>();
+                NDNBOOST_STRING_TYPENAME range_value<RangeT>::type>();
         }
 
         //! Empty formatter
@@ -117,4 +117,4 @@ namespace ndnboost {
 } // namespace ndnboost
 
 
-#endif  // BOOST_FORMATTER_HPP
+#endif  // NDNBOOST_FORMATTER_HPP

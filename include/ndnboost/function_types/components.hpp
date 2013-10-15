@@ -6,8 +6,8 @@
 
 //------------------------------------------------------------------------------
 
-#ifndef BOOST_FT_COMPONENTS_HPP_INCLUDED
-#define BOOST_FT_COMPONENTS_HPP_INCLUDED
+#ifndef NDNBOOST_FT_COMPONENTS_HPP_INCLUDED
+#define NDNBOOST_FT_COMPONENTS_HPP_INCLUDED
 
 #include <cstddef>
 
@@ -23,7 +23,7 @@
 #include <ndnboost/mpl/integral_c.hpp>
 #include <ndnboost/mpl/vector/vector0.hpp>
 
-#if BOOST_WORKAROUND(__BORLANDC__, <= 0x565)
+#if NDNBOOST_WORKAROUND(__BORLANDC__, <= 0x565)
 #   include <ndnboost/type_traits/remove_cv.hpp>
 
 #   include <ndnboost/mpl/identity.hpp>
@@ -41,22 +41,22 @@
 #   include <ndnboost/function_types/detail/classifier.hpp>
 #endif
 
-#ifndef BOOST_FT_NO_CV_FUNC_SUPPORT
+#ifndef NDNBOOST_FT_NO_CV_FUNC_SUPPORT
 #   include <ndnboost/mpl/remove.hpp>
 #endif
 
 #include <ndnboost/function_types/config/config.hpp>
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-#   if   BOOST_FT_MAX_ARITY < 10
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#   if   NDNBOOST_FT_MAX_ARITY < 10
 #     include <ndnboost/mpl/vector/vector10.hpp>
-#   elif BOOST_FT_MAX_ARITY < 20
+#   elif NDNBOOST_FT_MAX_ARITY < 20
 #     include <ndnboost/mpl/vector/vector20.hpp>
-#   elif BOOST_FT_MAX_ARITY < 30
+#   elif NDNBOOST_FT_MAX_ARITY < 30
 #     include <ndnboost/mpl/vector/vector30.hpp>
-#   elif BOOST_FT_MAX_ARITY < 40
+#   elif NDNBOOST_FT_MAX_ARITY < 40
 #     include <ndnboost/mpl/vector/vector40.hpp>
-#   elif BOOST_FT_MAX_ARITY < 50
+#   elif NDNBOOST_FT_MAX_ARITY < 50
 #     include <ndnboost/mpl/vector/vector50.hpp>
 #   endif
 #else
@@ -81,14 +81,14 @@ namespace ndnboost
     namespace detail 
     {
       template<typename T, typename L> struct components_impl;
-#if BOOST_WORKAROUND(__BORLANDC__, <= 0x565)
+#if NDNBOOST_WORKAROUND(__BORLANDC__, <= 0x565)
       template<typename T, typename OrigT, typename L> struct components_bcc;
 #endif
     }
 
     template<typename T, typename ClassTypeTransform> 
     struct components
-#if !BOOST_WORKAROUND(__BORLANDC__, <= 0x565)
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, <= 0x565)
       : detail::components_impl<T, ClassTypeTransform>
 #else
       : detail::components_bcc<typename remove_cv<T>::type,T,
@@ -97,7 +97,7 @@ namespace ndnboost
     { 
       typedef components<T,ClassTypeTransform> type;
 
-      BOOST_MPL_AUX_LAMBDA_SUPPORT(2,components,(T,ClassTypeTransform))
+      NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2,components,(T,ClassTypeTransform))
     };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -148,7 +148,7 @@ namespace ndnboost
         , pointer_tag, /* --> */ reference_tag >
     { };
 
-#if !BOOST_FT_NO_CV_FUNC_SUPPORT
+#if !NDNBOOST_FT_NO_CV_FUNC_SUPPORT
     // Retry the type with a member pointer attached to detect cv functions
     class a_class;
 
@@ -260,8 +260,8 @@ namespace ndnboost
           typename detail::class_transform<C,L>::type > types;
     };
 
-#if !BOOST_WORKAROUND(__BORLANDC__, <= 0x565)
-#   define BOOST_FT_variations BOOST_FT_pointer|BOOST_FT_member_pointer
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, <= 0x565)
+#   define NDNBOOST_FT_variations NDNBOOST_FT_pointer|NDNBOOST_FT_member_pointer
 
     template<typename T, class C, typename L>
     struct components_impl<T C::*, L>
@@ -269,7 +269,7 @@ namespace ndnboost
     { };
 
 #else  
-#   define BOOST_FT_variations BOOST_FT_pointer
+#   define NDNBOOST_FT_variations NDNBOOST_FT_pointer
 
     // This workaround removes the member pointer from the type to allow 
     // detection of member function pointers with BCC. 
@@ -288,13 +288,13 @@ namespace ndnboost
     // we remove the qualifiers, So we cannot exploit the same bug to make the 
     // library work for cv-qualified function types).
     template<typename T> struct encode_cv
-    { typedef char (& type)[1]; BOOST_STATIC_CONSTANT(std::size_t, value = 1); };
+    { typedef char (& type)[1]; NDNBOOST_STATIC_CONSTANT(std::size_t, value = 1); };
     template<typename T> struct encode_cv<T const *>
-    { typedef char (& type)[2]; BOOST_STATIC_CONSTANT(std::size_t, value = 2); };
+    { typedef char (& type)[2]; NDNBOOST_STATIC_CONSTANT(std::size_t, value = 2); };
     template<typename T> struct encode_cv<T volatile *>
-    { typedef char (& type)[3]; BOOST_STATIC_CONSTANT(std::size_t, value = 3); };
+    { typedef char (& type)[3]; NDNBOOST_STATIC_CONSTANT(std::size_t, value = 3); };
     template<typename T> struct encode_cv<T const volatile *> 
-    { typedef char (& type)[4]; BOOST_STATIC_CONSTANT(std::size_t, value = 4); };
+    { typedef char (& type)[4]; NDNBOOST_STATIC_CONSTANT(std::size_t, value = 4); };
 
     // For member function pointers we have to use a function template (partial
     // template specialization for a member pointer drops the cv qualification 
@@ -304,7 +304,7 @@ namespace ndnboost
 
     template<typename T> struct encode_mfp_cv
     { 
-      BOOST_STATIC_CONSTANT(std::size_t, value = 
+      NDNBOOST_STATIC_CONSTANT(std::size_t, value = 
           sizeof(detail::mfp_cv_tester((T)0L))); 
     };
 
@@ -415,12 +415,12 @@ namespace ndnboost
 
 #endif // end of BORLAND WORKAROUND
 
-#define BOOST_FT_al_path ndnboost/function_types/detail/components_impl
+#define NDNBOOST_FT_al_path ndnboost/function_types/detail/components_impl
 #include <ndnboost/function_types/detail/pp_loop.hpp>
 
   } } // namespace function_types::detail
 
-  BOOST_TT_AUX_TEMPLATE_ARITY_SPEC(2,function_types::components)
+  NDNBOOST_TT_AUX_TEMPLATE_ARITY_SPEC(2,function_types::components)
 
 } // namespace ::boost
 

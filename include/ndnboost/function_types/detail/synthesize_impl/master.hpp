@@ -8,10 +8,10 @@
 
 // no include guards, this file is intended for multiple inclusion
 
-#if   BOOST_FT_ARITY_LOOP_PREFIX
+#if   NDNBOOST_FT_ARITY_LOOP_PREFIX
 
-#   ifndef BOOST_FT_DETAIL_SYNTHESIZE_IMPL_MASTER_HPP_INCLUDED
-#   define BOOST_FT_DETAIL_SYNTHESIZE_IMPL_MASTER_HPP_INCLUDED
+#   ifndef NDNBOOST_FT_DETAIL_SYNTHESIZE_IMPL_MASTER_HPP_INCLUDED
+#   define NDNBOOST_FT_DETAIL_SYNTHESIZE_IMPL_MASTER_HPP_INCLUDED
 #     include <ndnboost/preprocessor/cat.hpp>
 #     include <ndnboost/preprocessor/arithmetic/dec.hpp>
 #     include <ndnboost/preprocessor/iteration/local.hpp>
@@ -19,67 +19,67 @@
 #     include <ndnboost/preprocessor/facilities/identity.hpp>
 #   endif
 
-#   define BOOST_FT_type_name type
+#   define NDNBOOST_FT_type_name type
 
-#   ifdef BOOST_FT_flags
-#     define BOOST_FT_make_type(flags,cc,arity) BOOST_FT_make_type_impl(flags,cc,arity)
-#     define BOOST_FT_make_type_impl(flags,cc,arity) make_type_ ## flags ## _ ## cc ## _ ## arity
+#   ifdef NDNBOOST_FT_flags
+#     define NDNBOOST_FT_make_type(flags,cc,arity) NDNBOOST_FT_make_type_impl(flags,cc,arity)
+#     define NDNBOOST_FT_make_type_impl(flags,cc,arity) make_type_ ## flags ## _ ## cc ## _ ## arity
 #   else
-BOOST_PP_EXPAND(#) define BOOST_FT_make_type(flags,cc,arity) BOOST_FT_make_type_impl(flags,cc,arity)
-BOOST_PP_EXPAND(#) define BOOST_FT_make_type_impl(flags,cc,arity) make_type_ ## flags ## _ ## cc ## _ ## arity
+NDNBOOST_PP_EXPAND(#) define NDNBOOST_FT_make_type(flags,cc,arity) NDNBOOST_FT_make_type_impl(flags,cc,arity)
+NDNBOOST_PP_EXPAND(#) define NDNBOOST_FT_make_type_impl(flags,cc,arity) make_type_ ## flags ## _ ## cc ## _ ## arity
 #   endif
 
-#   define BOOST_FT_iter(i) BOOST_PP_CAT(iter_,i)
+#   define NDNBOOST_FT_iter(i) NDNBOOST_PP_CAT(iter_,i)
 
-#elif BOOST_FT_ARITY_LOOP_IS_ITERATING
+#elif NDNBOOST_FT_ARITY_LOOP_IS_ITERATING
 
-template< BOOST_FT_tplargs(BOOST_PP_IDENTITY(typename)) >
-struct BOOST_FT_make_type(BOOST_FT_flags,BOOST_FT_cc_id,BOOST_FT_arity)
+template< NDNBOOST_FT_tplargs(NDNBOOST_PP_IDENTITY(typename)) >
+struct NDNBOOST_FT_make_type(NDNBOOST_FT_flags,NDNBOOST_FT_cc_id,NDNBOOST_FT_arity)
 {
-  typedef BOOST_FT_type ;
+  typedef NDNBOOST_FT_type ;
 };
 
 template<> 
-struct synthesize_impl_o< BOOST_FT_flags, BOOST_FT_cc_id, BOOST_FT_n > 
+struct synthesize_impl_o< NDNBOOST_FT_flags, NDNBOOST_FT_cc_id, NDNBOOST_FT_n > 
 { 
   template<typename S> struct synthesize_impl_i
   {
   private:
-    typedef typename mpl::begin<S>::type BOOST_FT_iter(0);
-#   if BOOST_FT_n > 1
-#     define BOOST_PP_LOCAL_MACRO(i) typedef typename mpl::next< \
-          BOOST_FT_iter(BOOST_PP_DEC(i)) >::type BOOST_FT_iter(i);
-#     define BOOST_PP_LOCAL_LIMITS (1,BOOST_FT_n-1)
-#     include BOOST_PP_LOCAL_ITERATE()
+    typedef typename mpl::begin<S>::type NDNBOOST_FT_iter(0);
+#   if NDNBOOST_FT_n > 1
+#     define NDNBOOST_PP_LOCAL_MACRO(i) typedef typename mpl::next< \
+          NDNBOOST_FT_iter(NDNBOOST_PP_DEC(i)) >::type NDNBOOST_FT_iter(i);
+#     define NDNBOOST_PP_LOCAL_LIMITS (1,NDNBOOST_FT_n-1)
+#     include NDNBOOST_PP_LOCAL_ITERATE()
 #   endif
   public:
-    typedef typename detail::BOOST_FT_make_type(BOOST_FT_flags,BOOST_FT_cc_id,BOOST_FT_arity) 
-    < typename mpl::deref< BOOST_FT_iter(0) >::type 
-#   if BOOST_FT_mfp
+    typedef typename detail::NDNBOOST_FT_make_type(NDNBOOST_FT_flags,NDNBOOST_FT_cc_id,NDNBOOST_FT_arity) 
+    < typename mpl::deref< NDNBOOST_FT_iter(0) >::type 
+#   if NDNBOOST_FT_mfp
     , typename detail::cv_traits< 
-          typename mpl::deref< BOOST_FT_iter(1) >::type >::type
+          typename mpl::deref< NDNBOOST_FT_iter(1) >::type >::type
 #   endif
-#   if BOOST_FT_n > (BOOST_FT_mfp+1)
-#     define BOOST_PP_LOCAL_LIMITS (BOOST_FT_mfp+1,BOOST_FT_n-1)
-#     define BOOST_PP_LOCAL_MACRO(i) \
-        , typename mpl::deref< BOOST_FT_iter(i) >::type
-#     include BOOST_PP_LOCAL_ITERATE()
+#   if NDNBOOST_FT_n > (NDNBOOST_FT_mfp+1)
+#     define NDNBOOST_PP_LOCAL_LIMITS (NDNBOOST_FT_mfp+1,NDNBOOST_FT_n-1)
+#     define NDNBOOST_PP_LOCAL_MACRO(i) \
+        , typename mpl::deref< NDNBOOST_FT_iter(i) >::type
+#     include NDNBOOST_PP_LOCAL_ITERATE()
 #   endif
     >::type type;
   };
 };
 
-#elif BOOST_FT_ARITY_LOOP_SUFFIX
+#elif NDNBOOST_FT_ARITY_LOOP_SUFFIX
 
-#   ifdef BOOST_FT_flags
-#     undef BOOST_FT_make_type
-#     undef BOOST_FT_make_type_impl
+#   ifdef NDNBOOST_FT_flags
+#     undef NDNBOOST_FT_make_type
+#     undef NDNBOOST_FT_make_type_impl
 #   else
-BOOST_PP_EXPAND(#) undef BOOST_FT_make_type
-BOOST_PP_EXPAND(#) undef BOOST_FT_make_type_impl
+NDNBOOST_PP_EXPAND(#) undef NDNBOOST_FT_make_type
+NDNBOOST_PP_EXPAND(#) undef NDNBOOST_FT_make_type_impl
 #   endif
-#   undef BOOST_FT_iter
-#   undef BOOST_FT_type_name
+#   undef NDNBOOST_FT_iter
+#   undef NDNBOOST_FT_type_name
 
 #else
 #   error "attempt to use arity loop master file without loop"

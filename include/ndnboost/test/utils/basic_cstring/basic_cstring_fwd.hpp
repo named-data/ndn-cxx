@@ -13,8 +13,8 @@
 //                interface
 // ***************************************************************************
 
-#ifndef BOOST_TEST_BASIC_CSTRING_FWD_HPP_071894GER
-#define BOOST_TEST_BASIC_CSTRING_FWD_HPP_071894GER
+#ifndef NDNBOOST_TEST_BASIC_CSTRING_FWD_HPP_071894GER
+#define NDNBOOST_TEST_BASIC_CSTRING_FWD_HPP_071894GER
 
 #include <ndnboost/detail/workaround.hpp>
 
@@ -24,7 +24,7 @@ namespace unit_test {
 
 template<typename CharT> class      basic_cstring;
 typedef basic_cstring<char const>   const_string;
-#if BOOST_WORKAROUND(__DECCXX_VER, BOOST_TESTED_AT(60590041))
+#if NDNBOOST_WORKAROUND(__DECCXX_VER, NDNBOOST_TESTED_AT(60590041))
 typedef const_string                literal_string;
 #else
 typedef const_string const          literal_string;
@@ -36,5 +36,5 @@ typedef char const* const           c_literal_string;
 
 } // namespace ndnboost
 
-#endif // BOOST_TEST_BASIC_CSTRING_FWD_HPP_071894GER
+#endif // NDNBOOST_TEST_BASIC_CSTRING_FWD_HPP_071894GER
 

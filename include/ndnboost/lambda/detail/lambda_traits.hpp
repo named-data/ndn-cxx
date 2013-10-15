@@ -9,8 +9,8 @@
 // For more information, see www.boost.org
 // -------------------------------------------------------------------------
 
-#ifndef BOOST_LAMBDA_LAMBDA_TRAITS_HPP
-#define BOOST_LAMBDA_LAMBDA_TRAITS_HPP
+#ifndef NDNBOOST_LAMBDA_LAMBDA_TRAITS_HPP
+#define NDNBOOST_LAMBDA_LAMBDA_TRAITS_HPP
 
 #include "ndnboost/type_traits/transform_traits.hpp"
 #include "ndnboost/type_traits/cv_traits.hpp"
@@ -65,14 +65,14 @@ template <class T> struct identity_mapping { typedef T type; };
 template<class T>
 struct IF_value_
 {
-  BOOST_STATIC_CONSTANT(int, value = T::value);
+  NDNBOOST_STATIC_CONSTANT(int, value = T::value);
 };
 
 
 template<bool C, class T, class E>
 struct IF_value
 {
-  BOOST_STATIC_CONSTANT(int, value = (IF_value_<typename IF<C, T, E>::RET>::value));
+  NDNBOOST_STATIC_CONSTANT(int, value = (IF_value_<typename IF<C, T, E>::RET>::value));
 };
 
 
@@ -120,18 +120,18 @@ template<int N, class T> struct tuple_element_stripped {
 // is_lambda_functor -------------------------------------------------   
 
 template <class T> struct is_lambda_functor_ {
-  BOOST_STATIC_CONSTANT(bool, value = false);
+  NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
    
 template <class Arg> struct is_lambda_functor_<lambda_functor<Arg> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
    
 } // end detail
 
    
 template <class T> struct is_lambda_functor {
-  BOOST_STATIC_CONSTANT(bool, 
+  NDNBOOST_STATIC_CONSTANT(bool, 
      value = 
        detail::is_lambda_functor_<
          typename detail::remove_reference_and_cv<T>::type
@@ -544,7 +544,7 @@ class bind_type_generator {
     T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
   >::type args_t;
 
-  BOOST_STATIC_CONSTANT(int, nof_elems = ndnboost::tuples::length<args_t>::value);
+  NDNBOOST_STATIC_CONSTANT(int, nof_elems = ndnboost::tuples::length<args_t>::value);
 
   typedef 
     action<
@@ -575,4 +575,4 @@ template <class T> inline const T&  make_const(const T& t) { return t; }
 
 
    
-#endif // BOOST_LAMBDA_TRAITS_HPP
+#endif // NDNBOOST_LAMBDA_TRAITS_HPP

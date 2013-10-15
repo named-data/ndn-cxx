@@ -10,16 +10,16 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_FACILITIES_OVERLOAD_HPP
-# define BOOST_PREPROCESSOR_FACILITIES_OVERLOAD_HPP
+# ifndef NDNBOOST_PREPROCESSOR_FACILITIES_OVERLOAD_HPP
+# define NDNBOOST_PREPROCESSOR_FACILITIES_OVERLOAD_HPP
 #
 # include <ndnboost/preprocessor/cat.hpp>
 # include <ndnboost/preprocessor/variadic/size.hpp>
 #
-# /* BOOST_PP_OVERLOAD */
+# /* NDNBOOST_PP_OVERLOAD */
 #
-# if BOOST_PP_VARIADICS
-#    define BOOST_PP_OVERLOAD(prefix, ...) BOOST_PP_CAT(prefix, BOOST_PP_VARIADIC_SIZE(__VA_ARGS__))
+# if NDNBOOST_PP_VARIADICS
+#    define NDNBOOST_PP_OVERLOAD(prefix, ...) NDNBOOST_PP_CAT(prefix, NDNBOOST_PP_VARIADIC_SIZE(__VA_ARGS__))
 # endif
 #
 # endif

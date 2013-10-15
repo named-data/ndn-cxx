@@ -32,9 +32,9 @@
 #   include <ndnboost/mpl/aux_/preprocessor/repeat.hpp>
 #   include <ndnboost/mpl/aux_/preprocessor/params.hpp>
 
-#   define AUX778076_COUNT_ARGS_REPEAT BOOST_MPL_PP_REPEAT
+#   define AUX778076_COUNT_ARGS_REPEAT NDNBOOST_MPL_PP_REPEAT
 #   define AUX778076_COUNT_ARGS_PARAMS(param) \
-    BOOST_MPL_PP_PARAMS( \
+    NDNBOOST_MPL_PP_PARAMS( \
           AUX778076_COUNT_ARGS_ARITY \
         , param \
         ) \
@@ -46,10 +46,10 @@
 #   include <ndnboost/preprocessor/repeat.hpp>
 #   include <ndnboost/preprocessor/inc.hpp>
 
-#   define AUX778076_COUNT_ARGS_REPEAT BOOST_PP_REPEAT
+#   define AUX778076_COUNT_ARGS_REPEAT NDNBOOST_PP_REPEAT
 #   define AUX778076_COUNT_ARGS_PARAMS(param) \
-    BOOST_PP_ENUM_SHIFTED_PARAMS( \
-          BOOST_PP_INC(AUX778076_COUNT_ARGS_ARITY) \
+    NDNBOOST_PP_ENUM_SHIFTED_PARAMS( \
+          NDNBOOST_PP_INC(AUX778076_COUNT_ARGS_ARITY) \
         , param \
         ) \
     /**/
@@ -58,34 +58,34 @@
 
 
 #define AUX778076_IS_ARG_TEMPLATE_NAME \
-    BOOST_PP_CAT(is_,BOOST_PP_CAT(AUX778076_COUNT_ARGS_PREFIX,_arg)) \
+    NDNBOOST_PP_CAT(is_,NDNBOOST_PP_CAT(AUX778076_COUNT_ARGS_PREFIX,_arg)) \
 /**/
 
 #define AUX778076_COUNT_ARGS_FUNC(unused, i, param) \
-    BOOST_PP_EXPR_IF(i, +) \
-    AUX778076_IS_ARG_TEMPLATE_NAME<BOOST_PP_CAT(param,BOOST_PP_INC(i))>::value \
+    NDNBOOST_PP_EXPR_IF(i, +) \
+    AUX778076_IS_ARG_TEMPLATE_NAME<NDNBOOST_PP_CAT(param,NDNBOOST_PP_INC(i))>::value \
 /**/
 
 // is_<xxx>_arg
 template< AUX778076_COUNT_ARGS_TEMPLATE_PARAM >
 struct AUX778076_IS_ARG_TEMPLATE_NAME
 {
-    BOOST_STATIC_CONSTANT(bool, value = true);
+    NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 
 template<>
 struct AUX778076_IS_ARG_TEMPLATE_NAME<AUX778076_COUNT_ARGS_DEFAULT>
 {
-    BOOST_STATIC_CONSTANT(bool, value = false);
+    NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
 
 // <xxx>_count_args
 template<
       AUX778076_COUNT_ARGS_PARAMS(AUX778076_COUNT_ARGS_TEMPLATE_PARAM)
     >
-struct BOOST_PP_CAT(AUX778076_COUNT_ARGS_PREFIX,_count_args)
+struct NDNBOOST_PP_CAT(AUX778076_COUNT_ARGS_PREFIX,_count_args)
 {
-    BOOST_STATIC_CONSTANT(int, value = AUX778076_COUNT_ARGS_REPEAT(
+    NDNBOOST_STATIC_CONSTANT(int, value = AUX778076_COUNT_ARGS_REPEAT(
           AUX778076_COUNT_ARGS_ARITY
         , AUX778076_COUNT_ARGS_FUNC
         , AUX778076_COUNT_ARGS_PARAM_NAME

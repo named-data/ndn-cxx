@@ -1,10 +1,10 @@
 
-#if !defined(BOOST_PP_IS_ITERATING)
+#if !defined(NDNBOOST_PP_IS_ITERATING)
 
 ///// header body
 
-#ifndef BOOST_MPL_AUX_TEMPLATE_ARITY_HPP_INCLUDED
-#define BOOST_MPL_AUX_TEMPLATE_ARITY_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_TEMPLATE_ARITY_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_TEMPLATE_ARITY_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -21,11 +21,11 @@
 #include <ndnboost/mpl/aux_/config/ttp.hpp>
 #include <ndnboost/mpl/aux_/config/lambda.hpp>
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   include <ndnboost/mpl/aux_/template_arity_fwd.hpp>
 #   include <ndnboost/mpl/int.hpp>
-#   if !defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
-#   if defined(BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
+#   if !defined(NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
+#   if defined(NDNBOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
 #       include <ndnboost/mpl/aux_/type_wrapper.hpp>
 #   endif
 #   else
@@ -36,16 +36,16 @@
 #include <ndnboost/mpl/aux_/config/static_constant.hpp>
 #include <ndnboost/mpl/aux_/config/use_preprocessed.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
-    && !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+    && !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
-#   define BOOST_MPL_PREPROCESSED_HEADER template_arity.hpp
+#   define NDNBOOST_MPL_PREPROCESSED_HEADER template_arity.hpp
 #   include <ndnboost/mpl/aux_/include_preprocessed.hpp>
 
 #else
 
-#   if !defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
-#   if defined(BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
+#   if !defined(NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
+#   if defined(NDNBOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
 
 #   include <ndnboost/mpl/limits/arity.hpp>
 #   include <ndnboost/mpl/aux_/preprocessor/range.hpp>
@@ -59,29 +59,29 @@
 #   include <ndnboost/preprocessor/inc.hpp>
 #   include <ndnboost/preprocessor/cat.hpp>
 
-#   define AUX778076_ARITY BOOST_PP_INC(BOOST_MPL_LIMIT_METAFUNCTION_ARITY)
+#   define AUX778076_ARITY NDNBOOST_PP_INC(NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY)
 
 namespace ndnboost { namespace mpl { namespace aux {
 
-template< BOOST_MPL_AUX_NTTP_DECL(int, N) > struct arity_tag
+template< NDNBOOST_MPL_AUX_NTTP_DECL(int, N) > struct arity_tag
 {
     typedef char (&type)[N + 1];
 };
 
 #   define AUX778076_MAX_ARITY_OP(unused, state, i_) \
-    ( BOOST_PP_CAT(C,i_) > 0 ? BOOST_PP_CAT(C,i_) : state ) \
+    ( NDNBOOST_PP_CAT(C,i_) > 0 ? NDNBOOST_PP_CAT(C,i_) : state ) \
 /**/
 
 template<
-      BOOST_MPL_PP_PARAMS(AUX778076_ARITY, BOOST_MPL_AUX_NTTP_DECL(int, C))
+      NDNBOOST_MPL_PP_PARAMS(AUX778076_ARITY, NDNBOOST_MPL_AUX_NTTP_DECL(int, C))
     >
 struct max_arity
 {
-    BOOST_STATIC_CONSTANT(int, value = 
-          BOOST_PP_SEQ_FOLD_LEFT(
+    NDNBOOST_STATIC_CONSTANT(int, value = 
+          NDNBOOST_PP_SEQ_FOLD_LEFT(
               AUX778076_MAX_ARITY_OP
             , -1
-            , BOOST_MPL_PP_RANGE(1, AUX778076_ARITY)
+            , NDNBOOST_MPL_PP_RANGE(1, AUX778076_ARITY)
             )
         );
 };
@@ -90,27 +90,27 @@ struct max_arity
 
 arity_tag<0>::type arity_helper(...);
 
-#   define BOOST_PP_ITERATION_LIMITS (1, AUX778076_ARITY)
-#   define BOOST_PP_FILENAME_1 <ndnboost/mpl/aux_/template_arity.hpp>
-#   include BOOST_PP_ITERATE()
+#   define NDNBOOST_PP_ITERATION_LIMITS (1, AUX778076_ARITY)
+#   define NDNBOOST_PP_FILENAME_1 <ndnboost/mpl/aux_/template_arity.hpp>
+#   include NDNBOOST_PP_ITERATE()
 
-template< typename F, BOOST_MPL_AUX_NTTP_DECL(int, N) >
+template< typename F, NDNBOOST_MPL_AUX_NTTP_DECL(int, N) >
 struct template_arity_impl
 {
-    BOOST_STATIC_CONSTANT(int, value = 
+    NDNBOOST_STATIC_CONSTANT(int, value = 
           sizeof(::ndnboost::mpl::aux::arity_helper(type_wrapper<F>(),arity_tag<N>())) - 1
         );
 };
 
 #   define AUX778076_TEMPLATE_ARITY_IMPL_INVOCATION(unused, i_, F) \
-    BOOST_PP_COMMA_IF(i_) template_arity_impl<F,BOOST_PP_INC(i_)>::value \
+    NDNBOOST_PP_COMMA_IF(i_) template_arity_impl<F,NDNBOOST_PP_INC(i_)>::value \
 /**/
 
 template< typename F >
 struct template_arity
 {
-    BOOST_STATIC_CONSTANT(int, value = (
-          max_arity< BOOST_MPL_PP_REPEAT(
+    NDNBOOST_STATIC_CONSTANT(int, value = (
+          max_arity< NDNBOOST_MPL_PP_REPEAT(
               AUX778076_ARITY
             , AUX778076_TEMPLATE_ARITY_IMPL_INVOCATION
             , F
@@ -126,8 +126,8 @@ struct template_arity
 
 }}}
 
-#   endif // BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING
-#   else // BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT
+#   endif // NDNBOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING
+#   else // NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT
 
 #   include <ndnboost/mpl/aux_/config/eti.hpp>
 
@@ -158,7 +158,7 @@ struct template_arity
 {
 };
 
-#if defined(BOOST_MPL_CFG_MSVC_ETI_BUG)
+#if defined(NDNBOOST_MPL_CFG_MSVC_ETI_BUG)
 template<>
 struct template_arity<int>
     : mpl::int_<-1>
@@ -168,22 +168,22 @@ struct template_arity<int>
 
 }}}
 
-#   endif // BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT
+#   endif // NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#endif // BOOST_MPL_AUX_TEMPLATE_ARITY_HPP_INCLUDED
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_AUX_TEMPLATE_ARITY_HPP_INCLUDED
 
 ///// iteration
 
 #else
-#define i_ BOOST_PP_FRAME_ITERATION(1)
+#define i_ NDNBOOST_PP_FRAME_ITERATION(1)
 
 template<
-      template< BOOST_MPL_PP_PARAMS(i_, typename P) > class F
-    , BOOST_MPL_PP_PARAMS(i_, typename T)
+      template< NDNBOOST_MPL_PP_PARAMS(i_, typename P) > class F
+    , NDNBOOST_MPL_PP_PARAMS(i_, typename T)
     >
 typename arity_tag<i_>::type
-arity_helper(type_wrapper< F<BOOST_MPL_PP_PARAMS(i_, T)> >, arity_tag<i_>);
+arity_helper(type_wrapper< F<NDNBOOST_MPL_PP_PARAMS(i_, T)> >, arity_tag<i_>);
 
 #undef i_
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_IS_ITERATING

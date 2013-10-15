@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-#ifndef BOOST_ENABLE_IF_23022003THW_HPP
-#define BOOST_ENABLE_IF_23022003THW_HPP
+#ifndef NDNBOOST_ENABLE_IF_23022003THW_HPP
+#define NDNBOOST_ENABLE_IF_23022003THW_HPP
 
 #include <ndnboost/detail/workaround.hpp>
 #include <ndnboost/mpl/identity.hpp>
@@ -47,7 +47,7 @@ namespace ndnboost
       template<typename T>
       struct base
       {
-#ifdef BOOST_NO_SFINAE
+#ifdef NDNBOOST_NO_SFINAE
 
         typedef T type;
 
@@ -66,13 +66,13 @@ namespace ndnboost
     template <class Cond,
               class Return>
     struct enable_if
-# if !defined(BOOST_NO_SFINAE) && !defined(BOOST_NO_IS_CONVERTIBLE)
+# if !defined(NDNBOOST_NO_SFINAE) && !defined(NDNBOOST_NO_IS_CONVERTIBLE)
       : enabled<(Cond::value)>::template base<Return>
 # else
       : mpl::identity<Return>
 # endif 
     {
-# if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
         typedef Return type;
 # endif 
     };
@@ -83,4 +83,4 @@ namespace ndnboost
 
 #include <ndnboost/iterator/detail/config_undef.hpp>
 
-#endif // BOOST_ENABLE_IF_23022003THW_HPP
+#endif // NDNBOOST_ENABLE_IF_23022003THW_HPP

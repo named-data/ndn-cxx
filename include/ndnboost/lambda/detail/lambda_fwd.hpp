@@ -10,8 +10,8 @@
 
 // -------------------------------------------------------
 
-#ifndef BOOST_LAMBDA_FWD_HPP
-#define BOOST_LAMBDA_FWD_HPP
+#ifndef NDNBOOST_LAMBDA_FWD_HPP
+#define NDNBOOST_LAMBDA_FWD_HPP
 
 namespace ndnboost { 
 namespace lambda { 

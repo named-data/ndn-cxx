@@ -6,14 +6,14 @@
 
 //  See <http://www.boost.org/libs/io/> for the library's home page.
 
-#ifndef BOOST_IO_IOS_STATE_HPP
-#define BOOST_IO_IOS_STATE_HPP
+#ifndef NDNBOOST_IO_IOS_STATE_HPP
+#define NDNBOOST_IO_IOS_STATE_HPP
 
 #include <ndnboost/io_fwd.hpp>  // self include
 #include <ndnboost/detail/workaround.hpp>
 
 #include <ios>        // for std::ios_base, std::basic_ios, etc.
-#ifndef BOOST_NO_STD_LOCALE
+#ifndef NDNBOOST_NO_STD_LOCALE
 #include <locale>     // for std::locale
 #endif
 #include <ostream>    // for std::basic_ostream
@@ -141,7 +141,7 @@ public:
     explicit  basic_ios_exception_saver( state_type &s )
         : s_save_( s ), a_save_( s.exceptions() )
         {}
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x582))
     basic_ios_exception_saver( state_type &s, aspect_type a )
 #else
     basic_ios_exception_saver( state_type &s, aspect_type const &a )
@@ -235,7 +235,7 @@ private:
     basic_ios_fill_saver& operator=(const basic_ios_fill_saver&);
 };
 
-#ifndef BOOST_NO_STD_LOCALE
+#ifndef NDNBOOST_NO_STD_LOCALE
 template < typename Ch, class Tr >
 class basic_ios_locale_saver
 {
@@ -362,7 +362,7 @@ public:
         , a3_save_( s.width() ), a4_save_( s.rdstate() )
         , a5_save_( s.exceptions() ), a6_save_( s.tie() )
         , a7_save_( s.rdbuf() ), a8_save_( s.fill() )
-        #ifndef BOOST_NO_STD_LOCALE
+        #ifndef NDNBOOST_NO_STD_LOCALE
         , a9_save_( s.getloc() )
         #endif
         {}
@@ -372,7 +372,7 @@ public:
 
     void  restore()
     {
-        #ifndef BOOST_NO_STD_LOCALE
+        #ifndef NDNBOOST_NO_STD_LOCALE
         s_save_.imbue( a9_save_ );
         #endif
         s_save_.fill( a8_save_ );
@@ -395,7 +395,7 @@ private:
     ::std::basic_ostream<Ch, Tr> * const    a6_save_;
     ::std::basic_streambuf<Ch, Tr> * const  a7_save_;
     typename state_type::char_type const    a8_save_;
-    #ifndef BOOST_NO_STD_LOCALE
+    #ifndef NDNBOOST_NO_STD_LOCALE
     ::std::locale const                     a9_save_;
     #endif
 
@@ -436,4 +436,4 @@ private:
 }  // namespace ndnboost
 
 
-#endif  // BOOST_IO_IOS_STATE_HPP
+#endif  // NDNBOOST_IO_IOS_STATE_HPP

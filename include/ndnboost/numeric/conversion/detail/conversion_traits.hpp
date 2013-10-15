@@ -7,8 +7,8 @@
 //
 // Contact the author at: fernando_cacciola@hotmail.com
 // 
-#ifndef BOOST_NUMERIC_CONVERSION_DETAIL_CONVERSION_TRAITS_FLC_12NOV2002_HPP
-#define BOOST_NUMERIC_CONVERSION_DETAIL_CONVERSION_TRAITS_FLC_12NOV2002_HPP
+#ifndef NDNBOOST_NUMERIC_CONVERSION_DETAIL_CONVERSION_TRAITS_FLC_12NOV2002_HPP
+#define NDNBOOST_NUMERIC_CONVERSION_DETAIL_CONVERSION_TRAITS_FLC_12NOV2002_HPP
 
 #include "ndnboost/type_traits/is_arithmetic.hpp"
 #include "ndnboost/type_traits/is_same.hpp"

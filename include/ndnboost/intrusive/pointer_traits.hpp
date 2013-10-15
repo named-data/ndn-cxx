@@ -14,8 +14,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_INTRUSIVE_POINTER_TRAITS_HPP
-#define BOOST_INTRUSIVE_POINTER_TRAITS_HPP
+#ifndef NDNBOOST_INTRUSIVE_POINTER_TRAITS_HPP
+#define NDNBOOST_INTRUSIVE_POINTER_TRAITS_HPP
 
 #if (defined _MSC_VER) && (_MSC_VER >= 1200)
 #  pragma once
@@ -37,7 +37,7 @@ namespace intrusive {
 template <typename Ptr>
 struct pointer_traits
 {
-   #ifdef BOOST_INTRUSIVE_DOXYGEN_INVOKED
+   #ifdef NDNBOOST_INTRUSIVE_DOXYGEN_INVOKED
       //!The pointer type
       //!queried by this pointer_traits instantiation
       typedef Ptr             pointer;
@@ -67,11 +67,11 @@ struct pointer_traits
    #else
       typedef Ptr                                                             pointer;
       //
-      typedef BOOST_INTRUSIVE_OBTAIN_TYPE_WITH_EVAL_DEFAULT
+      typedef NDNBOOST_INTRUSIVE_OBTAIN_TYPE_WITH_EVAL_DEFAULT
          ( ndnboost::intrusive::detail::, Ptr, element_type
          , ndnboost::intrusive::detail::first_param<Ptr>)                        element_type;
       //
-      typedef BOOST_INTRUSIVE_OBTAIN_TYPE_WITH_DEFAULT
+      typedef NDNBOOST_INTRUSIVE_OBTAIN_TYPE_WITH_DEFAULT
          (ndnboost::intrusive::detail::, Ptr, difference_type, std::ptrdiff_t)   difference_type;
       //
       typedef typename ndnboost::intrusive::detail::unvoid<element_type>::type&  reference;
@@ -81,10 +81,10 @@ struct pointer_traits
          typedef typename ndnboost::intrusive::detail::type_rebinder<Ptr, U>::type  type;
       };
 
-      #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+      #if !defined(NDNBOOST_NO_CXX11_TEMPLATE_ALIASES)
          template <class U> using rebind = typename ndnboost::intrusive::detail::type_rebinder<Ptr, U>::type;
       #endif
-   #endif   //#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+   #endif   //#if !defined(NDNBOOST_NO_CXX11_TEMPLATE_ALIASES)
 
    //! <b>Remark</b>: If element_type is (possibly cv-qualified) void, r type is unspecified; otherwise,
    //!   it is element_type &.
@@ -216,7 +216,7 @@ struct pointer_traits<T*>
    typedef T*           pointer;
    typedef std::ptrdiff_t difference_type;
 
-   #ifdef BOOST_INTRUSIVE_DOXYGEN_INVOKED
+   #ifdef NDNBOOST_INTRUSIVE_DOXYGEN_INVOKED
       typedef T &          reference;
       //!typedef for <pre>U *</pre>
       //!
@@ -225,7 +225,7 @@ struct pointer_traits<T*>
       template <class U> using rebind = U*;
    #else
       typedef typename ndnboost::intrusive::detail::unvoid<element_type>::type& reference;
-      #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+      #if !defined(NDNBOOST_NO_CXX11_TEMPLATE_ALIASES)
          template <class U> using rebind = U*;
       #endif
    #endif
@@ -262,4 +262,4 @@ struct pointer_traits<T*>
 
 #include <ndnboost/intrusive/detail/config_end.hpp>
 
-#endif // ! defined(BOOST_INTRUSIVE_POINTER_TRAITS_HPP)
+#endif // ! defined(NDNBOOST_INTRUSIVE_POINTER_TRAITS_HPP)

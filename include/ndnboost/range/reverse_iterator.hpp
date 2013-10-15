@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_REVERSE_ITERATOR_HPP
-#define BOOST_RANGE_REVERSE_ITERATOR_HPP
+#ifndef NDNBOOST_RANGE_REVERSE_ITERATOR_HPP
+#define NDNBOOST_RANGE_REVERSE_ITERATOR_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
@@ -30,7 +30,7 @@ namespace ndnboost
     struct range_reverse_iterator
     {
         typedef reverse_iterator< 
-            BOOST_DEDUCED_TYPENAME range_iterator<C>::type > type;
+            NDNBOOST_DEDUCED_TYPENAME range_iterator<C>::type > type;
     };
     
 

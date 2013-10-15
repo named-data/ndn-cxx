@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_DEREF_HPP_INCLUDED
-#define BOOST_MPL_DEREF_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_DEREF_HPP_INCLUDED
+#define NDNBOOST_MPL_DEREF_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2002-2004
 //
@@ -22,20 +22,20 @@
 namespace ndnboost { namespace mpl {
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Iterator)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Iterator)
     >
 struct deref
 {
-#if !defined(BOOST_MPL_CFG_MSVC_70_ETI_BUG)
+#if !defined(NDNBOOST_MPL_CFG_MSVC_70_ETI_BUG)
     typedef typename Iterator::type type;
 #else
     typedef typename aux::msvc_type<Iterator>::type type;
 #endif
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1,deref,(Iterator))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,deref,(Iterator))
 };
 
-BOOST_MPL_AUX_NA_SPEC(1, deref)
+NDNBOOST_MPL_AUX_NA_SPEC(1, deref)
 
 }}
 
-#endif // BOOST_MPL_DEREF_HPP_INCLUDED
+#endif // NDNBOOST_MPL_DEREF_HPP_INCLUDED

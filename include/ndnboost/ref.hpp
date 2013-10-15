@@ -1,5 +1,5 @@
-#ifndef BOOST_REF_HPP_INCLUDED
-#define BOOST_REF_HPP_INCLUDED
+#ifndef NDNBOOST_REF_HPP_INCLUDED
+#define NDNBOOST_REF_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -34,7 +34,7 @@ template<class T> class reference_wrapper
 public:
     typedef T type;
 
-#if defined( BOOST_MSVC ) && BOOST_WORKAROUND( BOOST_MSVC, < 1300 )
+#if defined( NDNBOOST_MSVC ) && NDNBOOST_WORKAROUND( NDNBOOST_MSVC, < 1300 )
 
     explicit reference_wrapper(T& t): t_(&t) {}
 
@@ -55,25 +55,25 @@ private:
     T* t_;
 };
 
-# if defined( __BORLANDC__ ) && BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x581) )
-#  define BOOST_REF_CONST
+# if defined( __BORLANDC__ ) && NDNBOOST_WORKAROUND( __BORLANDC__, NDNBOOST_TESTED_AT(0x581) )
+#  define NDNBOOST_REF_CONST
 # else
-#  define BOOST_REF_CONST const
+#  define NDNBOOST_REF_CONST const
 # endif
 
-template<class T> inline reference_wrapper<T> BOOST_REF_CONST ref(T & t)
+template<class T> inline reference_wrapper<T> NDNBOOST_REF_CONST ref(T & t)
 { 
     return reference_wrapper<T>(t);
 }
 
-template<class T> inline reference_wrapper<T const> BOOST_REF_CONST cref(T const & t)
+template<class T> inline reference_wrapper<T const> NDNBOOST_REF_CONST cref(T const & t)
 {
     return reference_wrapper<T const>(t);
 }
 
-# undef BOOST_REF_CONST
+# undef NDNBOOST_REF_CONST
 
-# ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+# ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 template<typename T>
 class is_reference_wrapper
@@ -104,7 +104,7 @@ class unwrap_reference< X > \
 /**/
 
 AUX_REFERENCE_WRAPPER_METAFUNCTIONS_DEF(reference_wrapper<T>)
-#if !defined(BOOST_NO_CV_SPECIALIZATIONS)
+#if !defined(NDNBOOST_NO_CV_SPECIALIZATIONS)
 AUX_REFERENCE_WRAPPER_METAFUNCTIONS_DEF(reference_wrapper<T> const)
 AUX_REFERENCE_WRAPPER_METAFUNCTIONS_DEF(reference_wrapper<T> volatile)
 AUX_REFERENCE_WRAPPER_METAFUNCTIONS_DEF(reference_wrapper<T> const volatile)
@@ -156,7 +156,7 @@ template<typename T>
 class is_reference_wrapper
 {
  public:
-    BOOST_STATIC_CONSTANT(
+    NDNBOOST_STATIC_CONSTANT(
         bool, value = (
              sizeof(detail::is_reference_wrapper_test(type<T>()))
             == sizeof(detail::yes_reference_wrapper_t)));
@@ -171,7 +171,7 @@ class unwrap_reference
       >::template apply<T>
 {};
 
-# endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+# endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 template <class T> inline typename unwrap_reference<T>::type&
 unwrap_ref(T& t)
@@ -186,4 +186,4 @@ template<class T> inline T* get_pointer( reference_wrapper<T> const & r )
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_REF_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_REF_HPP_INCLUDED

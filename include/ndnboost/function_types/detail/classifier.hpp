@@ -6,8 +6,8 @@
 
 //------------------------------------------------------------------------------
 
-#ifndef BOOST_FT_DETAIL_CLASSIFIER_HPP_INCLUDED
-#define BOOST_FT_DETAIL_CLASSIFIER_HPP_INCLUDED
+#ifndef NDNBOOST_FT_DETAIL_CLASSIFIER_HPP_INCLUDED
+#define NDNBOOST_FT_DETAIL_CLASSIFIER_HPP_INCLUDED
 
 #include <ndnboost/type.hpp>
 #include <ndnboost/config.hpp>
@@ -31,28 +31,28 @@ template<bits_t Flags, bits_t CCID, std::size_t Arity> struct encode_charr
   >::type type;
 };
 
-char BOOST_TT_DECL classifier_impl(...);
+char NDNBOOST_TT_DECL classifier_impl(...);
 
-#define BOOST_FT_variations BOOST_FT_function|BOOST_FT_pointer|\
-                            BOOST_FT_member_pointer
+#define NDNBOOST_FT_variations NDNBOOST_FT_function|NDNBOOST_FT_pointer|\
+                            NDNBOOST_FT_member_pointer
 
-#define BOOST_FT_type_function(cc,name) BOOST_FT_SYNTAX( \
-    R BOOST_PP_EMPTY,BOOST_PP_LPAREN,cc,* BOOST_PP_EMPTY,name,BOOST_PP_RPAREN)
+#define NDNBOOST_FT_type_function(cc,name) NDNBOOST_FT_SYNTAX( \
+    R NDNBOOST_PP_EMPTY,NDNBOOST_PP_LPAREN,cc,* NDNBOOST_PP_EMPTY,name,NDNBOOST_PP_RPAREN)
 
-#define BOOST_FT_type_function_pointer(cc,name) BOOST_FT_SYNTAX( \
-    R BOOST_PP_EMPTY,BOOST_PP_LPAREN,cc,** BOOST_PP_EMPTY,name,BOOST_PP_RPAREN)
+#define NDNBOOST_FT_type_function_pointer(cc,name) NDNBOOST_FT_SYNTAX( \
+    R NDNBOOST_PP_EMPTY,NDNBOOST_PP_LPAREN,cc,** NDNBOOST_PP_EMPTY,name,NDNBOOST_PP_RPAREN)
 
-#define BOOST_FT_type_member_function_pointer(cc,name) BOOST_FT_SYNTAX( \
-    R BOOST_PP_EMPTY,BOOST_PP_LPAREN,cc,T0::** BOOST_PP_EMPTY,name,BOOST_PP_RPAREN)
+#define NDNBOOST_FT_type_member_function_pointer(cc,name) NDNBOOST_FT_SYNTAX( \
+    R NDNBOOST_PP_EMPTY,NDNBOOST_PP_LPAREN,cc,T0::** NDNBOOST_PP_EMPTY,name,NDNBOOST_PP_RPAREN)
 
-#define BOOST_FT_al_path ndnboost/function_types/detail/classifier_impl
+#define NDNBOOST_FT_al_path ndnboost/function_types/detail/classifier_impl
 #include <ndnboost/function_types/detail/pp_loop.hpp>
 
 template<typename T> struct classifier_bits
 {
   static typename ndnboost::add_reference<T>::type tester;
 
-  BOOST_STATIC_CONSTANT(bits_t,value = (bits_t)sizeof(
+  NDNBOOST_STATIC_CONSTANT(bits_t,value = (bits_t)sizeof(
     ndnboost::function_types::detail::classifier_impl(& tester) 
   )-1);
 };

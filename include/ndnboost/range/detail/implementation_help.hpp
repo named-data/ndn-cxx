@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DETAIL_IMPLEMENTATION_HELP_HPP
-#define BOOST_RANGE_DETAIL_IMPLEMENTATION_HELP_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_IMPLEMENTATION_HELP_HPP
+#define NDNBOOST_RANGE_DETAIL_IMPLEMENTATION_HELP_HPP
 
 #include <ndnboost/range/config.hpp>
 #include <ndnboost/range/detail/common.hpp>
@@ -17,7 +17,7 @@
 #include <cstddef>
 #include <string.h>
 
-#ifndef BOOST_NO_CWCHAR
+#ifndef NDNBOOST_NO_CWCHAR
 #include <wchar.h>
 #endif
 
@@ -37,7 +37,7 @@ namespace ndnboost
             return s + strlen( s );
         }
 
-#ifndef BOOST_NO_CWCHAR
+#ifndef NDNBOOST_NO_CWCHAR
         inline const wchar_t* str_end( const wchar_t* s, const wchar_t* )
         {
             return s + wcslen( s );
@@ -60,13 +60,13 @@ namespace ndnboost
         }
 
         template< class T, std::size_t sz >
-        inline T* array_end( T BOOST_RANGE_ARRAY_REF()[sz] )
+        inline T* array_end( T NDNBOOST_RANGE_ARRAY_REF()[sz] )
         {
             return boost_range_array + sz;
         }
 
         template< class T, std::size_t sz >
-        inline const T* array_end( const T BOOST_RANGE_ARRAY_REF()[sz] )
+        inline const T* array_end( const T NDNBOOST_RANGE_ARRAY_REF()[sz] )
         {
             return boost_range_array + sz;
         }
@@ -82,14 +82,14 @@ namespace ndnboost
         }
 
         template< class T, std::size_t sz >
-        inline std::size_t array_size( T BOOST_RANGE_ARRAY_REF()[sz] )
+        inline std::size_t array_size( T NDNBOOST_RANGE_ARRAY_REF()[sz] )
         {
             boost_range_silence_warning( boost_range_array );
             return sz;
         }
 
         template< class T, std::size_t sz >
-        inline std::size_t array_size( const T BOOST_RANGE_ARRAY_REF()[sz] )
+        inline std::size_t array_size( const T NDNBOOST_RANGE_ARRAY_REF()[sz] )
         {
             boost_range_silence_warning( boost_range_array );
             return sz;

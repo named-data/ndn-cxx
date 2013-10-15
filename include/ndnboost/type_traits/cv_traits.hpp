@@ -9,8 +9,8 @@
 //  defines traits classes for cv-qualified types:
 //  is_const, is_volatile, remove_const, remove_volatile, remove_cv.
 
-#ifndef BOOST_TT_CV_TRAITS_HPP_INCLUDED
-#define BOOST_TT_CV_TRAITS_HPP_INCLUDED
+#ifndef NDNBOOST_TT_CV_TRAITS_HPP_INCLUDED
+#define NDNBOOST_TT_CV_TRAITS_HPP_INCLUDED
 
 #include <ndnboost/type_traits/add_const.hpp>
 #include <ndnboost/type_traits/add_volatile.hpp>
@@ -21,4 +21,4 @@
 #include <ndnboost/type_traits/remove_volatile.hpp>
 #include <ndnboost/type_traits/remove_cv.hpp>
 
-#endif // BOOST_TT_CV_TRAITS_HPP_INCLUDED
+#endif // NDNBOOST_TT_CV_TRAITS_HPP_INCLUDED

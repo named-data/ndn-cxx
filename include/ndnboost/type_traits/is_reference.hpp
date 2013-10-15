@@ -9,8 +9,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_REFERENCE_HPP_INCLUDED
-#define BOOST_TT_IS_REFERENCE_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_REFERENCE_HPP_INCLUDED
+#define NDNBOOST_TT_IS_REFERENCE_HPP_INCLUDED
 
 #include <ndnboost/type_traits/config.hpp>
 #include <ndnboost/type_traits/is_lvalue_reference.hpp>
@@ -27,7 +27,7 @@ namespace detail {
 template <typename T>
 struct is_reference_impl
 {
-   BOOST_STATIC_CONSTANT(bool, value =
+   NDNBOOST_STATIC_CONSTANT(bool, value =
       (::ndnboost::type_traits::ice_or<
          ::ndnboost::is_lvalue_reference<T>::value, ::ndnboost::is_rvalue_reference<T>::value
        >::value));
@@ -35,11 +35,11 @@ struct is_reference_impl
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_reference,T,::ndnboost::detail::is_reference_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_reference,T,::ndnboost::detail::is_reference_impl<T>::value)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_REFERENCE_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_REFERENCE_HPP_INCLUDED
 

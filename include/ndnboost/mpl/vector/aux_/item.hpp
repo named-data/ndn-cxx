@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_VECTOR_AUX_ITEM_HPP_INCLUDED
-#define BOOST_MPL_VECTOR_AUX_ITEM_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_VECTOR_AUX_ITEM_HPP_INCLUDED
+#define NDNBOOST_MPL_VECTOR_AUX_ITEM_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -23,7 +23,7 @@
 
 namespace ndnboost { namespace mpl {
 
-#if defined(BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
+#if defined(NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
 
 template< 
       typename T
@@ -96,8 +96,8 @@ struct v_mask<Base,1>
     using Base::item_;
 };
 
-#endif // BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
+#endif // NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
 
 }}
 
-#endif // BOOST_MPL_VECTOR_AUX_ITEM_HPP_INCLUDED
+#endif // NDNBOOST_MPL_VECTOR_AUX_ITEM_HPP_INCLUDED

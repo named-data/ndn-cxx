@@ -5,10 +5,10 @@
 
 #ifndef UUID_1A590226753311DD9E4CCF6156D89593
 #define UUID_1A590226753311DD9E4CCF6156D89593
-#if (__GNUC__*100+__GNUC_MINOR__>301) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#if (__GNUC__*100+__GNUC_MINOR__>301) && !defined(NDNBOOST_EXCEPTION_ENABLE_WARNINGS)
 #pragma GCC system_header
 #endif
-#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#if defined(_MSC_VER) && !defined(NDNBOOST_EXCEPTION_ENABLE_WARNINGS)
 #pragma warning(push,1)
 #endif
 
@@ -32,10 +32,10 @@ ndnboost
             get( exception const & x )
                 {
                 if( exception_detail::error_info_container * c=x.data_.get() )
-                    if( shared_ptr<exception_detail::error_info_base> eib = c->get(BOOST_EXCEPTION_STATIC_TYPEID(ErrorInfo)) )
+                    if( shared_ptr<exception_detail::error_info_base> eib = c->get(NDNBOOST_EXCEPTION_STATIC_TYPEID(ErrorInfo)) )
                         {
-#ifndef BOOST_NO_RTTI
-                        BOOST_ASSERT( 0!=dynamic_cast<ErrorInfo *>(eib.get()) );
+#ifndef NDNBOOST_NO_RTTI
+                        NDNBOOST_ASSERT( 0!=dynamic_cast<ErrorInfo *>(eib.get()) );
 #endif
                         ErrorInfo * w = static_cast<ErrorInfo *>(eib.get());
                         return &w->value();
@@ -95,7 +95,7 @@ ndnboost
             };
         }
 
-#ifdef BOOST_NO_RTTI
+#ifdef NDNBOOST_NO_RTTI
     template <class ErrorInfo>
     inline
     typename ErrorInfo::value_type const *
@@ -124,7 +124,7 @@ ndnboost
 #endif
     }
 
-#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#if defined(_MSC_VER) && !defined(NDNBOOST_EXCEPTION_ENABLE_WARNINGS)
 #pragma warning(pop)
 #endif
 #endif

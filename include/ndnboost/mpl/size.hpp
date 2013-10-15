@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_SIZE_HPP_INCLUDED
-#define BOOST_MPL_SIZE_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_SIZE_HPP_INCLUDED
+#define NDNBOOST_MPL_SIZE_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -24,7 +24,7 @@
 namespace ndnboost { namespace mpl {
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
     >
 struct size
     : aux::msvc_eti_base<
@@ -32,11 +32,11 @@ struct size
             ::template apply< Sequence >::type
       >::type
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1, size, (Sequence))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1, size, (Sequence))
 };
 
-BOOST_MPL_AUX_NA_SPEC(1, size)
+NDNBOOST_MPL_AUX_NA_SPEC(1, size)
 
 }}
 
-#endif // BOOST_MPL_SIZE_HPP_INCLUDED
+#endif // NDNBOOST_MPL_SIZE_HPP_INCLUDED

@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_CONCEPT_HPP
-#define BOOST_STRING_CONCEPT_HPP
+#ifndef NDNBOOST_STRING_CONCEPT_HPP
+#define NDNBOOST_STRING_CONCEPT_HPP
 
 #include <ndnboost/concept_check.hpp>
 #include <ndnboost/range/iterator_range.hpp>
@@ -80,4 +80,4 @@ namespace ndnboost {
 
 
 
-#endif  // BOOST_STRING_CONCEPT_HPP
+#endif  // NDNBOOST_STRING_CONCEPT_HPP

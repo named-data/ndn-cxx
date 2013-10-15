@@ -8,18 +8,18 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_DETAIL_CV_TRAITS_IMPL_HPP_INCLUDED
-#define BOOST_TT_DETAIL_CV_TRAITS_IMPL_HPP_INCLUDED
+#ifndef NDNBOOST_TT_DETAIL_CV_TRAITS_IMPL_HPP_INCLUDED
+#define NDNBOOST_TT_DETAIL_CV_TRAITS_IMPL_HPP_INCLUDED
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/detail/workaround.hpp>
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 // implementation helper:
 
 
-#if !(BOOST_WORKAROUND(__GNUC__,== 3) && BOOST_WORKAROUND(__GNUC_MINOR__, <= 2))
+#if !(NDNBOOST_WORKAROUND(__GNUC__,== 3) && NDNBOOST_WORKAROUND(__GNUC_MINOR__, <= 2))
 namespace ndnboost {
 namespace detail {
 #else
@@ -34,36 +34,36 @@ template <typename T> struct cv_traits_imp {};
 template <typename T>
 struct cv_traits_imp<T*>
 {
-    BOOST_STATIC_CONSTANT(bool, is_const = false);
-    BOOST_STATIC_CONSTANT(bool, is_volatile = false);
+    NDNBOOST_STATIC_CONSTANT(bool, is_const = false);
+    NDNBOOST_STATIC_CONSTANT(bool, is_volatile = false);
     typedef T unqualified_type;
 };
 
 template <typename T>
 struct cv_traits_imp<const T*>
 {
-    BOOST_STATIC_CONSTANT(bool, is_const = true);
-    BOOST_STATIC_CONSTANT(bool, is_volatile = false);
+    NDNBOOST_STATIC_CONSTANT(bool, is_const = true);
+    NDNBOOST_STATIC_CONSTANT(bool, is_volatile = false);
     typedef T unqualified_type;
 };
 
 template <typename T>
 struct cv_traits_imp<volatile T*>
 {
-    BOOST_STATIC_CONSTANT(bool, is_const = false);
-    BOOST_STATIC_CONSTANT(bool, is_volatile = true);
+    NDNBOOST_STATIC_CONSTANT(bool, is_const = false);
+    NDNBOOST_STATIC_CONSTANT(bool, is_volatile = true);
     typedef T unqualified_type;
 };
 
 template <typename T>
 struct cv_traits_imp<const volatile T*>
 {
-    BOOST_STATIC_CONSTANT(bool, is_const = true);
-    BOOST_STATIC_CONSTANT(bool, is_volatile = true);
+    NDNBOOST_STATIC_CONSTANT(bool, is_const = true);
+    NDNBOOST_STATIC_CONSTANT(bool, is_volatile = true);
     typedef T unqualified_type;
 };
 
-#if BOOST_WORKAROUND(__GNUC__,== 3) && BOOST_WORKAROUND(__GNUC_MINOR__, <= 2)
+#if NDNBOOST_WORKAROUND(__GNUC__,== 3) && NDNBOOST_WORKAROUND(__GNUC_MINOR__, <= 2)
 // We have to exclude function pointers 
 // (see http://gcc.gnu.org/bugzilla/show_bug.cgi?8503)
 yes_type mini_funcptr_tester(...);
@@ -82,8 +82,8 @@ struct cv_traits_imp : public ::ndnboost::type_traits::gcc8503::cv_traits_imp<T>
 // Functions are never cv-qualified
 template <typename T> struct cv_traits_imp<T*,1>
 {
-    BOOST_STATIC_CONSTANT(bool, is_const = false);
-    BOOST_STATIC_CONSTANT(bool, is_volatile = false);
+    NDNBOOST_STATIC_CONSTANT(bool, is_const = false);
+    NDNBOOST_STATIC_CONSTANT(bool, is_volatile = false);
     typedef T unqualified_type;
 };
 
@@ -92,6 +92,6 @@ template <typename T> struct cv_traits_imp<T*,1>
 } // namespace detail
 } // namespace ndnboost 
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
-#endif // BOOST_TT_DETAIL_CV_TRAITS_IMPL_HPP_INCLUDED
+#endif // NDNBOOST_TT_DETAIL_CV_TRAITS_IMPL_HPP_INCLUDED

@@ -11,31 +11,31 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_REPETITION_ENUM_PARAMS_HPP
-# define BOOST_PREPROCESSOR_REPETITION_ENUM_PARAMS_HPP
+# ifndef NDNBOOST_PREPROCESSOR_REPETITION_ENUM_PARAMS_HPP
+# define NDNBOOST_PREPROCESSOR_REPETITION_ENUM_PARAMS_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 # include <ndnboost/preprocessor/punctuation/comma_if.hpp>
 # include <ndnboost/preprocessor/repetition/repeat.hpp>
 #
-# /* BOOST_PP_ENUM_PARAMS */
+# /* NDNBOOST_PP_ENUM_PARAMS */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_ENUM_PARAMS(count, param) BOOST_PP_REPEAT(count, BOOST_PP_ENUM_PARAMS_M, param)
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_ENUM_PARAMS(count, param) NDNBOOST_PP_REPEAT(count, NDNBOOST_PP_ENUM_PARAMS_M, param)
 # else
-#    define BOOST_PP_ENUM_PARAMS(count, param) BOOST_PP_ENUM_PARAMS_I(count, param)
-#    define BOOST_PP_ENUM_PARAMS_I(count, param) BOOST_PP_REPEAT(count, BOOST_PP_ENUM_PARAMS_M, param)
+#    define NDNBOOST_PP_ENUM_PARAMS(count, param) NDNBOOST_PP_ENUM_PARAMS_I(count, param)
+#    define NDNBOOST_PP_ENUM_PARAMS_I(count, param) NDNBOOST_PP_REPEAT(count, NDNBOOST_PP_ENUM_PARAMS_M, param)
 # endif
 #
-# define BOOST_PP_ENUM_PARAMS_M(z, n, param) BOOST_PP_COMMA_IF(n) param ## n
+# define NDNBOOST_PP_ENUM_PARAMS_M(z, n, param) NDNBOOST_PP_COMMA_IF(n) param ## n
 #
-# /* BOOST_PP_ENUM_PARAMS_Z */
+# /* NDNBOOST_PP_ENUM_PARAMS_Z */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_ENUM_PARAMS_Z(z, count, param) BOOST_PP_REPEAT_ ## z(count, BOOST_PP_ENUM_PARAMS_M, param)
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_ENUM_PARAMS_Z(z, count, param) NDNBOOST_PP_REPEAT_ ## z(count, NDNBOOST_PP_ENUM_PARAMS_M, param)
 # else
-#    define BOOST_PP_ENUM_PARAMS_Z(z, count, param) BOOST_PP_ENUM_PARAMS_Z_I(z, count, param)
-#    define BOOST_PP_ENUM_PARAMS_Z_I(z, count, param) BOOST_PP_REPEAT_ ## z(count, BOOST_PP_ENUM_PARAMS_M, param)
+#    define NDNBOOST_PP_ENUM_PARAMS_Z(z, count, param) NDNBOOST_PP_ENUM_PARAMS_Z_I(z, count, param)
+#    define NDNBOOST_PP_ENUM_PARAMS_Z_I(z, count, param) NDNBOOST_PP_REPEAT_ ## z(count, NDNBOOST_PP_ENUM_PARAMS_M, param)
 # endif
 #
 # endif

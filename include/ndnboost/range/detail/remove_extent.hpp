@@ -9,8 +9,8 @@
 //
 
 
-#ifndef BOOST_RANGE_DETAIL_REMOVE_BOUNDS_HPP
-#define BOOST_RANGE_DETAIL_REMOVE_BOUNDS_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_REMOVE_BOUNDS_HPP
+#define NDNBOOST_RANGE_DETAIL_REMOVE_BOUNDS_HPP
 
 #include <ndnboost/config.hpp>  // MSVC, NO_INTRINSIC_WCHAR_T, put size_t in std.
 #include <cstddef>
@@ -101,7 +101,7 @@ namespace ndnboost
         template<typename T>
         struct remove_extent {
             static T* ar;
-            BOOST_STATIC_CONSTANT(std::size_t, size = sizeof(*ar) / sizeof((*ar)[0]));
+            NDNBOOST_STATIC_CONSTANT(std::size_t, size = sizeof(*ar) / sizeof((*ar)[0]));
 
             typedef typename
                     select<
@@ -109,7 +109,7 @@ namespace ndnboost
                         is_same<T, char[size]>,                  char,
                         is_same<T, signed char[size]>,           signed char,
                         is_same<T, unsigned char[size]>,         unsigned char,
-                    #ifndef BOOST_NO_INTRINSIC_WCHAR_T
+                    #ifndef NDNBOOST_NO_INTRINSIC_WCHAR_T
                         is_same<T, wchar_t[size]>,               wchar_t,
                     #endif
                         is_same<T, short[size]>,                 short,
@@ -128,7 +128,7 @@ namespace ndnboost
                         is_same<T, const char[size]>,            const char,
                         is_same<T, const signed char[size]>,     const signed char,
                         is_same<T, const unsigned char[size]>,   const unsigned char,
-                    #ifndef BOOST_NO_INTRINSIC_WCHAR_T
+                    #ifndef NDNBOOST_NO_INTRINSIC_WCHAR_T
                         is_same<T, const wchar_t[size]>,         const wchar_t,
                     #endif
                         is_same<T, const short[size]>,           const short,

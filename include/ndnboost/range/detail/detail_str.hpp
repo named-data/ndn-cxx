@@ -8,10 +8,10 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DETAIL_DETAIL_STR_HPP
-#define BOOST_RANGE_DETAIL_DETAIL_STR_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_DETAIL_STR_HPP
+#define NDNBOOST_RANGE_DETAIL_DETAIL_STR_HPP
 
-#include <ndnboost/config.hpp> // BOOST_MSVC
+#include <ndnboost/config.hpp> // NDNBOOST_MSVC
 #include <ndnboost/range/iterator.hpp>
 
 namespace ndnboost 
@@ -29,7 +29,7 @@ namespace ndnboost
             template< typename T >
             struct pts
             {
-                 typedef BOOST_RANGE_DEDUCED_TYPENAME 
+                 typedef NDNBOOST_RANGE_DEDUCED_TYPENAME 
                     remove_extent<T>::type* type;
             };
         };
@@ -85,7 +85,7 @@ namespace ndnboost
             template< typename T >
             struct pts
             {
-                typedef const BOOST_RANGE_DEDUCED_TYPENAME 
+                typedef const NDNBOOST_RANGE_DEDUCED_TYPENAME 
                     remove_extent<T>::type* type;
             };
         };
@@ -184,10 +184,10 @@ namespace ndnboost
         };
         
         template< typename C >
-        inline BOOST_RANGE_DEDUCED_TYPENAME range_iterator<C>::type 
+        inline NDNBOOST_RANGE_DEDUCED_TYPENAME range_iterator<C>::type 
         str_begin( C& c )
         {
-            return range_detail::range_begin< BOOST_RANGE_DEDUCED_TYPENAME 
+            return range_detail::range_begin< NDNBOOST_RANGE_DEDUCED_TYPENAME 
                 range_detail::range<C>::type >::fun( c );
         }
 
@@ -199,7 +199,7 @@ namespace ndnboost
         struct range_end<char_array_>
         {
             template< typename T, std::size_t sz >
-            static T* fun( T BOOST_RANGE_ARRAY_REF()[sz] )
+            static T* fun( T NDNBOOST_RANGE_ARRAY_REF()[sz] )
             {
                 return ndnboost::range_detail::array_end( boost_range_array );
             }
@@ -209,7 +209,7 @@ namespace ndnboost
         struct range_end<wchar_t_array_>
         {
             template< typename T, std::size_t sz >
-            static T* fun( T BOOST_RANGE_ARRAY_REF()[sz] )
+            static T* fun( T NDNBOOST_RANGE_ARRAY_REF()[sz] )
             {
                 return ndnboost::range_detail::array_end( boost_range_array );
             }
@@ -253,10 +253,10 @@ namespace ndnboost
         };
 
         template< typename C >
-        inline BOOST_RANGE_DEDUCED_TYPENAME range_iterator<C>::type 
+        inline NDNBOOST_RANGE_DEDUCED_TYPENAME range_iterator<C>::type 
         str_end( C& c )
         {
-            return range_detail::range_end< BOOST_RANGE_DEDUCED_TYPENAME 
+            return range_detail::range_end< NDNBOOST_RANGE_DEDUCED_TYPENAME 
                 range_detail::range<C>::type >::fun( c );
         }
 

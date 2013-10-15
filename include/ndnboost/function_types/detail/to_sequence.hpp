@@ -6,8 +6,8 @@
 
 //------------------------------------------------------------------------------
 
-#ifndef BOOST_FT_DETAIL_TO_SEQUENCE_HPP_INCLUDED
-#define BOOST_FT_DETAIL_TO_SEQUENCE_HPP_INCLUDED
+#ifndef NDNBOOST_FT_DETAIL_TO_SEQUENCE_HPP_INCLUDED
+#define NDNBOOST_FT_DETAIL_TO_SEQUENCE_HPP_INCLUDED
 
 #include <ndnboost/mpl/eval_if.hpp>
 #include <ndnboost/mpl/identity.hpp>
@@ -32,7 +32,7 @@ struct to_sequence
   type;
 };
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 // reduce template instantiations, if possible
 template<typename T, typename U>
 struct to_sequence< components<T,U> > 

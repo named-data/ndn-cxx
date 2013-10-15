@@ -12,8 +12,8 @@
 //  Description : simple helpers for creating cusom output manipulators
 // ***************************************************************************
 
-#ifndef BOOST_TEST_TRIVIAL_SIGNLETON_HPP_020505GER
-#define BOOST_TEST_TRIVIAL_SIGNLETON_HPP_020505GER
+#ifndef NDNBOOST_TEST_TRIVIAL_SIGNLETON_HPP_020505GER
+#define NDNBOOST_TEST_TRIVIAL_SIGNLETON_HPP_020505GER
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/detail/workaround.hpp>
@@ -43,25 +43,25 @@ protected:
 
 } // namespace unit_test
 
-#define BOOST_TEST_SINGLETON_CONS( type )       \
+#define NDNBOOST_TEST_SINGLETON_CONS( type )       \
 friend class ndnboost::unit_test::singleton<type>; \
 type() {}                                       \
 /**/
 
-#if BOOST_WORKAROUND(__DECCXX_VER, BOOST_TESTED_AT(60590042))
+#if NDNBOOST_WORKAROUND(__DECCXX_VER, NDNBOOST_TESTED_AT(60590042))
 
-#define BOOST_TEST_SINGLETON_INST( inst ) \
-template class unit_test::singleton< BOOST_JOIN( inst, _t ) > ; \
-namespace { BOOST_JOIN( inst, _t)& inst = BOOST_JOIN( inst, _t)::instance(); }
+#define NDNBOOST_TEST_SINGLETON_INST( inst ) \
+template class unit_test::singleton< NDNBOOST_JOIN( inst, _t ) > ; \
+namespace { NDNBOOST_JOIN( inst, _t)& inst = NDNBOOST_JOIN( inst, _t)::instance(); }
 
 #elif defined(__APPLE_CC__) && defined(__GNUC__) && __GNUC__ < 4
-#define BOOST_TEST_SINGLETON_INST( inst ) \
-static BOOST_JOIN( inst, _t)& inst = BOOST_JOIN (inst, _t)::instance();
+#define NDNBOOST_TEST_SINGLETON_INST( inst ) \
+static NDNBOOST_JOIN( inst, _t)& inst = NDNBOOST_JOIN (inst, _t)::instance();
 
 #else
 
-#define BOOST_TEST_SINGLETON_INST( inst ) \
-namespace { BOOST_JOIN( inst, _t)& inst = BOOST_JOIN( inst, _t)::instance(); }
+#define NDNBOOST_TEST_SINGLETON_INST( inst ) \
+namespace { NDNBOOST_JOIN( inst, _t)& inst = NDNBOOST_JOIN( inst, _t)::instance(); }
 
 #endif
 
@@ -71,4 +71,4 @@ namespace { BOOST_JOIN( inst, _t)& inst = BOOST_JOIN( inst, _t)::instance(); }
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_TRIVIAL_SIGNLETON_HPP_020505GER
+#endif // NDNBOOST_TEST_TRIVIAL_SIGNLETON_HPP_020505GER

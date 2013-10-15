@@ -13,7 +13,7 @@ namespace ndnboost { namespace mpl {
 
 namespace aux {
 
-template< BOOST_MPL_AUX_NTTP_DECL(int, size) > struct unpack_args_impl
+template< NDNBOOST_MPL_AUX_NTTP_DECL(int, size) > struct unpack_args_impl
 {
     template< typename F, typename Args > struct apply;
 };
@@ -103,7 +103,7 @@ struct unpack_args
     };
 };
 
-BOOST_MPL_AUX_PASS_THROUGH_LAMBDA_SPEC(1, unpack_args)
+NDNBOOST_MPL_AUX_PASS_THROUGH_LAMBDA_SPEC(1, unpack_args)
 
 }}
 

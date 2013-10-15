@@ -6,11 +6,11 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
  
-#ifndef BOOST_TT_IS_BASE_AND_DERIVED_HPP_INCLUDED
-#define BOOST_TT_IS_BASE_AND_DERIVED_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_BASE_AND_DERIVED_HPP_INCLUDED
+#define NDNBOOST_TT_IS_BASE_AND_DERIVED_HPP_INCLUDED
 
 #include <ndnboost/type_traits/intrinsics.hpp>
-#ifndef BOOST_IS_BASE_OF
+#ifndef NDNBOOST_IS_BASE_OF
 #include <ndnboost/type_traits/is_class.hpp>
 #include <ndnboost/type_traits/is_same.hpp>
 #include <ndnboost/type_traits/is_convertible.hpp>
@@ -27,11 +27,11 @@ namespace ndnboost {
 
 namespace detail {
 
-#ifndef BOOST_IS_BASE_OF
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581)) \
- && !BOOST_WORKAROUND(__SUNPRO_CC , <= 0x540) \
- && !BOOST_WORKAROUND(__EDG_VERSION__, <= 243) \
- && !BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
+#ifndef NDNBOOST_IS_BASE_OF
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x581)) \
+ && !NDNBOOST_WORKAROUND(__SUNPRO_CC , <= 0x540) \
+ && !NDNBOOST_WORKAROUND(__EDG_VERSION__, <= 243) \
+ && !NDNBOOST_WORKAROUND(__DMC__, NDNBOOST_TESTED_AT(0x840))
 
                              // The EDG version number is a lower estimate.
                              // It is not currently known which EDG version
@@ -120,7 +120,7 @@ struct bd_helper
    // an internal compiler error when compiling with /vmg (thanks to
    // Aleksey Gurtovoy for figuring out the workaround).
    //
-#if !BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+#if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1310)
     template <typename T>
     static type_traits::yes_type check_sig(D const volatile *, T);
     static type_traits::no_type  check_sig(B const volatile *, int);
@@ -133,7 +133,7 @@ struct bd_helper
 template<typename B, typename D>
 struct is_base_and_derived_impl2
 {
-#if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC_FULL_VER, >= 140050000)
 #pragma warning(push)
 #pragma warning(disable:6334)
 #endif
@@ -141,12 +141,12 @@ struct is_base_and_derived_impl2
     // May silently do the wrong thing with incomplete types
     // unless we trap them here:
     //
-    BOOST_STATIC_ASSERT(sizeof(B) != 0);
-    BOOST_STATIC_ASSERT(sizeof(D) != 0);
+    NDNBOOST_STATIC_ASSERT(sizeof(B) != 0);
+    NDNBOOST_STATIC_ASSERT(sizeof(D) != 0);
 
     struct Host
     {
-#if !BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+#if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1310)
         operator B const volatile *() const;
 #else
         operator B const volatile * const&() const;
@@ -154,9 +154,9 @@ struct is_base_and_derived_impl2
         operator D const volatile *();
     };
 
-    BOOST_STATIC_CONSTANT(bool, value =
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         sizeof(bd_helper<B,D>::check_sig(Host(), 0)) == sizeof(type_traits::yes_type));
-#if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC_FULL_VER, >= 140050000)
 #pragma warning(pop)
 #endif
 };
@@ -169,18 +169,18 @@ struct is_base_and_derived_impl2
 template<typename B, typename D>
 struct is_base_and_derived_impl2
 {
-    BOOST_STATIC_CONSTANT(bool, value =
+    NDNBOOST_STATIC_CONSTANT(bool, value =
         (::ndnboost::is_convertible<D*,B*>::value));
 };
 
-#define BOOST_BROKEN_IS_BASE_AND_DERIVED
+#define NDNBOOST_BROKEN_IS_BASE_AND_DERIVED
 
 #endif
 
 template <typename B, typename D>
 struct is_base_and_derived_impl3
 {
-    BOOST_STATIC_CONSTANT(bool, value = false);
+    NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
 
 template <bool ic1, bool ic2, bool iss>
@@ -216,7 +216,7 @@ struct is_base_and_derived_impl
     typedef typename selector::template rebind<ncvB,ncvD> binder;
     typedef typename binder::type bound_type;
 
-    BOOST_STATIC_CONSTANT(bool, value = bound_type::value);
+    NDNBOOST_STATIC_CONSTANT(bool, value = bound_type::value);
 };
 #else
 template <typename B, typename D>
@@ -225,30 +225,30 @@ struct is_base_and_derived_impl
     typedef typename remove_cv<B>::type ncvB;
     typedef typename remove_cv<D>::type ncvD;
 
-    BOOST_STATIC_CONSTANT(bool, value = (BOOST_IS_BASE_OF(B,D) && ! ::ndnboost::is_same<ncvB,ncvD>::value));
+    NDNBOOST_STATIC_CONSTANT(bool, value = (NDNBOOST_IS_BASE_OF(B,D) && ! ::ndnboost::is_same<ncvB,ncvD>::value));
 };
 #endif
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF2(
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF2(
       is_base_and_derived
     , Base
     , Derived
     , (::ndnboost::detail::is_base_and_derived_impl<Base,Derived>::value)
     )
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_base_and_derived,Base&,Derived,false)
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_base_and_derived,Base,Derived&,false)
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_base_and_derived,Base&,Derived&,false)
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_base_and_derived,Base&,Derived,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_base_and_derived,Base,Derived&,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_base_and_derived,Base&,Derived&,false)
 #endif
 
-#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x610))
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_1(typename Base,is_base_and_derived,Base,Base,false)
+#if NDNBOOST_WORKAROUND(__CODEGEARC__, NDNBOOST_TESTED_AT(0x610))
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_1(typename Base,is_base_and_derived,Base,Base,false)
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_BASE_AND_DERIVED_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_BASE_AND_DERIVED_HPP_INCLUDED

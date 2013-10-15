@@ -17,7 +17,7 @@
 
 // local macros, #undef-ined at the end of the header
 #define AUX778076_DTW_PARAMS(param) \
-    BOOST_MPL_PP_PARAMS(AUX778076_MSVC_DTW_ARITY, param) \
+    NDNBOOST_MPL_PP_PARAMS(AUX778076_MSVC_DTW_ARITY, param) \
 /**/
 
 #define AUX778076_DTW_ORIGINAL_NAME \

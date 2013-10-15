@@ -5,11 +5,11 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_POLYMORPHIC_HPP
-#define BOOST_TT_IS_POLYMORPHIC_HPP
+#ifndef NDNBOOST_TT_IS_POLYMORPHIC_HPP
+#define NDNBOOST_TT_IS_POLYMORPHIC_HPP
 
 #include <ndnboost/type_traits/intrinsics.hpp>
-#ifndef BOOST_IS_POLYMORPHIC
+#ifndef NDNBOOST_IS_POLYMORPHIC
 #include <ndnboost/type_traits/is_class.hpp>
 #include <ndnboost/type_traits/remove_cv.hpp>
 #endif
@@ -19,14 +19,14 @@
 
 namespace ndnboost{
 
-#ifndef BOOST_IS_POLYMORPHIC
+#ifndef NDNBOOST_IS_POLYMORPHIC
 
 namespace detail{
 
 template <class T>
 struct is_polymorphic_imp1
 {
-# if BOOST_WORKAROUND(__MWERKS__, <= 0x2407) // CWPro7 should return false always.
+# if NDNBOOST_WORKAROUND(__MWERKS__, <= 0x2407) // CWPro7 should return false always.
     typedef char d1, (&d2)[2];
 # else 
    typedef typename remove_cv<T>::type ncvT;
@@ -46,7 +46,7 @@ struct is_polymorphic_imp1
    {
       d2();
       virtual ~d2()throw();
-#  if !defined(BOOST_MSVC) && !defined(__ICL)
+#  if !defined(NDNBOOST_MSVC) && !defined(__ICL)
       // for some reason this messes up VC++ when T has virtual bases,
       // probably likewise for compilers that use the same ABI:
       struct unique{};
@@ -59,13 +59,13 @@ struct is_polymorphic_imp1
       d2& operator=(const d2&);
    };
 # endif 
-   BOOST_STATIC_CONSTANT(bool, value = (sizeof(d2) == sizeof(d1)));
+   NDNBOOST_STATIC_CONSTANT(bool, value = (sizeof(d2) == sizeof(d1)));
 };
 
 template <class T>
 struct is_polymorphic_imp2
 {
-   BOOST_STATIC_CONSTANT(bool, value = false);
+   NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
 
 template <bool is_class>
@@ -94,16 +94,16 @@ struct is_polymorphic_imp
    typedef is_polymorphic_selector< ::ndnboost::is_class<T>::value> selector;
    typedef typename selector::template rebind<T> binder;
    typedef typename binder::type imp_type;
-   BOOST_STATIC_CONSTANT(bool, value = imp_type::value);
+   NDNBOOST_STATIC_CONSTANT(bool, value = imp_type::value);
 };
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_polymorphic,T,::ndnboost::detail::is_polymorphic_imp<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_polymorphic,T,::ndnboost::detail::is_polymorphic_imp<T>::value)
 
-#else // BOOST_IS_POLYMORPHIC
+#else // NDNBOOST_IS_POLYMORPHIC
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_polymorphic,T,BOOST_IS_POLYMORPHIC(T))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_polymorphic,T,NDNBOOST_IS_POLYMORPHIC(T))
 
 #endif
 

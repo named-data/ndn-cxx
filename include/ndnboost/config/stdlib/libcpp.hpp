@@ -15,23 +15,23 @@
 #  endif
 #endif
 
-#define BOOST_STDLIB "libc++ version " BOOST_STRINGIZE(_LIBCPP_VERSION)
+#define NDNBOOST_STDLIB "libc++ version " NDNBOOST_STRINGIZE(_LIBCPP_VERSION)
 
-#define BOOST_HAS_THREADS
+#define NDNBOOST_HAS_THREADS
 
 #ifdef _LIBCPP_HAS_NO_VARIADICS
-#    define BOOST_NO_CXX11_HDR_TUPLE
+#    define NDNBOOST_NO_CXX11_HDR_TUPLE
 #endif
 
 //
 // These appear to be unusable/incomplete so far:
 //
-#  define BOOST_NO_CXX11_HDR_CHRONO
-#  define BOOST_NO_CXX11_HDR_FUTURE
-#  define BOOST_NO_CXX11_HDR_TYPE_TRAITS
-#  define BOOST_NO_CXX11_ATOMIC_SMART_PTR
+#  define NDNBOOST_NO_CXX11_HDR_CHRONO
+#  define NDNBOOST_NO_CXX11_HDR_FUTURE
+#  define NDNBOOST_NO_CXX11_HDR_TYPE_TRAITS
+#  define NDNBOOST_NO_CXX11_ATOMIC_SMART_PTR
 
 // libc++ uses a non-standard messages_base
-#define BOOST_NO_STD_MESSAGES
+#define NDNBOOST_NO_STD_MESSAGES
 
 //  --- end ---

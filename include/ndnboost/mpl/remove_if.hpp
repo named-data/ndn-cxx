@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_REMOVE_IF_HPP_INCLUDED
-#define BOOST_MPL_REMOVE_IF_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_REMOVE_IF_HPP_INCLUDED
+#define NDNBOOST_MPL_REMOVE_IF_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 // Copyright David Abrahams 2003-2004
@@ -76,8 +76,8 @@ struct reverse_remove_if_impl
 
 } // namespace aux
 
-BOOST_MPL_AUX_INSERTER_ALGORITHM_DEF(3, remove_if)
+NDNBOOST_MPL_AUX_INSERTER_ALGORITHM_DEF(3, remove_if)
 
 }}
 
-#endif // BOOST_MPL_REMOVE_IF_HPP_INCLUDED
+#endif // NDNBOOST_MPL_REMOVE_IF_HPP_INCLUDED

@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_CONTAINS_IMPL_HPP_INCLUDED
-#define BOOST_MPL_AUX_CONTAINS_IMPL_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_CONTAINS_IMPL_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_CONTAINS_IMPL_HPP_INCLUDED
 
 // Copyright Eric Friedman 2002
 // Copyright Aleksey Gurtovoy 2004
@@ -31,7 +31,7 @@ template< typename Tag >
 struct contains_impl
 {
     template< typename Sequence, typename T > struct apply
-#if !defined(BOOST_MPL_CFG_NO_NESTED_FORWARDING)
+#if !defined(NDNBOOST_MPL_CFG_NO_NESTED_FORWARDING)
         : not_< is_same<
               typename find<Sequence,T>::type
             , typename end<Sequence>::type
@@ -44,7 +44,7 @@ struct contains_impl
             , typename end<Sequence>::type
             > > type;
 
-        BOOST_STATIC_CONSTANT(bool, value = 
+        NDNBOOST_STATIC_CONSTANT(bool, value = 
               (not_< is_same<
                   typename find<Sequence,T>::type
                 , typename end<Sequence>::type
@@ -54,8 +54,8 @@ struct contains_impl
     };
 };
 
-BOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC(2,contains_impl)
+NDNBOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC(2,contains_impl)
 
 }}
 
-#endif // BOOST_MPL_AUX_CONTAINS_IMPL_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_CONTAINS_IMPL_HPP_INCLUDED

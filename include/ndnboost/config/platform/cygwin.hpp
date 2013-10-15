@@ -7,28 +7,28 @@
 
 //  cygwin specific config options:
 
-#define BOOST_PLATFORM "Cygwin"
-#define BOOST_HAS_DIRENT_H
-#define BOOST_HAS_LOG1P
-#define BOOST_HAS_EXPM1
+#define NDNBOOST_PLATFORM "Cygwin"
+#define NDNBOOST_HAS_DIRENT_H
+#define NDNBOOST_HAS_LOG1P
+#define NDNBOOST_HAS_EXPM1
 
 //
 // Threading API:
 // See if we have POSIX threads, if we do use them, otherwise
 // revert to native Win threads.
-#define BOOST_HAS_UNISTD_H
+#define NDNBOOST_HAS_UNISTD_H
 #include <unistd.h>
-#if defined(_POSIX_THREADS) && (_POSIX_THREADS+0 >= 0) && !defined(BOOST_HAS_WINTHREADS)
-#  define BOOST_HAS_PTHREADS
-#  define BOOST_HAS_SCHED_YIELD
-#  define BOOST_HAS_GETTIMEOFDAY
-#  define BOOST_HAS_PTHREAD_MUTEXATTR_SETTYPE
-#  define BOOST_HAS_SIGACTION
+#if defined(_POSIX_THREADS) && (_POSIX_THREADS+0 >= 0) && !defined(NDNBOOST_HAS_WINTHREADS)
+#  define NDNBOOST_HAS_PTHREADS
+#  define NDNBOOST_HAS_SCHED_YIELD
+#  define NDNBOOST_HAS_GETTIMEOFDAY
+#  define NDNBOOST_HAS_PTHREAD_MUTEXATTR_SETTYPE
+#  define NDNBOOST_HAS_SIGACTION
 #else
-#  if !defined(BOOST_HAS_WINTHREADS)
-#     define BOOST_HAS_WINTHREADS
+#  if !defined(NDNBOOST_HAS_WINTHREADS)
+#     define NDNBOOST_HAS_WINTHREADS
 #  endif
-#  define BOOST_HAS_FTIME
+#  define NDNBOOST_HAS_FTIME
 #endif
 
 //
@@ -36,11 +36,11 @@
 //
 #include <sys/types.h>
 #ifdef _STDINT_H
-#define BOOST_HAS_STDINT_H
+#define NDNBOOST_HAS_STDINT_H
 #endif
 
 /// Cygwin has no fenv.h
-#define BOOST_NO_FENV_H
+#define NDNBOOST_NO_FENV_H
 
 // boilerplate code:
 #include <ndnboost/config/posix_features.hpp>
@@ -48,8 +48,8 @@
 //
 // Cygwin lies about XSI conformance, there is no nl_types.h:
 //
-#ifdef BOOST_HAS_NL_TYPES_H
-#  undef BOOST_HAS_NL_TYPES_H
+#ifdef NDNBOOST_HAS_NL_TYPES_H
+#  undef NDNBOOST_HAS_NL_TYPES_H
 #endif
  
 

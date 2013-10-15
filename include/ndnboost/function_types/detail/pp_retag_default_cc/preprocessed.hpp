@@ -14,7 +14,7 @@ namespace detail
 {
 template<class Tag, class RefTag> struct selector_bits
 {
-BOOST_STATIC_CONSTANT(bits_t, value = (
+NDNBOOST_STATIC_CONSTANT(bits_t, value = (
 (::ndnboost::function_types::detail::bits<Tag> ::value & 0x00008000) 
 | (::ndnboost::function_types::detail::bits<RefTag> ::value & 802)
 ));

@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_LAMBDA_HPP_INCLUDED
-#define BOOST_MPL_LAMBDA_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_LAMBDA_HPP_INCLUDED
+#define NDNBOOST_MPL_LAMBDA_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -18,12 +18,12 @@
 #include <ndnboost/mpl/bind.hpp>
 #include <ndnboost/mpl/aux_/config/lambda.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
+#if !defined(NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
 #   include <ndnboost/mpl/aux_/full_lambda.hpp>
 #else
 #   include <ndnboost/mpl/aux_/lambda_no_ctps.hpp>
 #   include <ndnboost/mpl/aux_/lambda_support.hpp>
-#   define BOOST_MPL_CFG_NO_IMPLICIT_METAFUNCTIONS
+#   define NDNBOOST_MPL_CFG_NO_IMPLICIT_METAFUNCTIONS
 #endif
 
-#endif // BOOST_MPL_LAMBDA_HPP_INCLUDED
+#endif // NDNBOOST_MPL_LAMBDA_HPP_INCLUDED

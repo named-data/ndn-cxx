@@ -11,8 +11,8 @@
 //  28 Jun 00 Workarounds to deal with known MSVC bugs (David Abrahams)
 //  26 Jun 00 Initial version (Jeremy Siek)
 
-#ifndef BOOST_ITERATOR_HPP
-#define BOOST_ITERATOR_HPP
+#ifndef NDNBOOST_ITERATOR_HPP
+#define NDNBOOST_ITERATOR_HPP
 
 #include <iterator>
 #include <cstddef>           // std::ptrdiff_t
@@ -20,7 +20,7 @@
 
 namespace ndnboost
 {
-# if defined(BOOST_NO_STD_ITERATOR) && !defined(BOOST_MSVC_STD_ITERATOR)
+# if defined(NDNBOOST_NO_STD_ITERATOR) && !defined(NDNBOOST_MSVC_STD_ITERATOR)
   template <class Category, class T,
     class Distance = std::ptrdiff_t,
     class Pointer = T*, class Reference = T&>
@@ -38,7 +38,7 @@ namespace ndnboost
   // prevent derivation from an identically-named class in a different namespace.
   namespace detail {
    template <class Category, class T, class Distance, class Pointer, class Reference>
-#  if !defined(BOOST_MSVC_STD_ITERATOR)
+#  if !defined(NDNBOOST_MSVC_STD_ITERATOR)
    struct iterator_base : std::iterator<Category, T, Distance, Pointer, Reference> {};
 #  else
    struct iterator_base : std::iterator<Category, T, Distance>
@@ -56,4 +56,4 @@ namespace ndnboost
 # endif
 } // namespace ndnboost
 
-#endif // BOOST_ITERATOR_HPP
+#endif // NDNBOOST_ITERATOR_HPP

@@ -6,46 +6,46 @@
 //  Distributed under the Boost Software License, Version 1.0.
 //  See http://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_TYPE_TRAITS_COMMON_TYPE_HPP
-#define BOOST_TYPE_TRAITS_COMMON_TYPE_HPP
+#ifndef NDNBOOST_TYPE_TRAITS_COMMON_TYPE_HPP
+#define NDNBOOST_TYPE_TRAITS_COMMON_TYPE_HPP
 
 #include <ndnboost/config.hpp>
 
-#if defined(__SUNPRO_CC) && !defined(BOOST_COMMON_TYPE_DONT_USE_TYPEOF)
-#  define BOOST_COMMON_TYPE_DONT_USE_TYPEOF
+#if defined(__SUNPRO_CC) && !defined(NDNBOOST_COMMON_TYPE_DONT_USE_TYPEOF)
+#  define NDNBOOST_COMMON_TYPE_DONT_USE_TYPEOF
 #endif
-#if defined(__IBMCPP__) && !defined(BOOST_COMMON_TYPE_DONT_USE_TYPEOF)
-#  define BOOST_COMMON_TYPE_DONT_USE_TYPEOF
-#endif
-
-//----------------------------------------------------------------------------//
-#if defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) && !defined(BOOST_COMMON_TYPE_ARITY)
-#define BOOST_COMMON_TYPE_ARITY 3
+#if defined(__IBMCPP__) && !defined(NDNBOOST_COMMON_TYPE_DONT_USE_TYPEOF)
+#  define NDNBOOST_COMMON_TYPE_DONT_USE_TYPEOF
 #endif
 
 //----------------------------------------------------------------------------//
-#if defined(BOOST_NO_CXX11_DECLTYPE) && !defined(BOOST_COMMON_TYPE_DONT_USE_TYPEOF)
+#if defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES) && !defined(NDNBOOST_COMMON_TYPE_ARITY)
+#define NDNBOOST_COMMON_TYPE_ARITY 3
+#endif
+
+//----------------------------------------------------------------------------//
+#if defined(NDNBOOST_NO_CXX11_DECLTYPE) && !defined(NDNBOOST_COMMON_TYPE_DONT_USE_TYPEOF)
 #include <ndnboost/typeof/typeof.hpp>   // boost wonders never cease!
 #endif
 
 //----------------------------------------------------------------------------//
-#ifndef BOOST_NO_CXX11_STATIC_ASSERT
-#define BOOST_COMMON_TYPE_STATIC_ASSERT(CND, MSG, TYPES) static_assert(CND,MSG)
-#elif defined(BOOST_COMMON_TYPE_USES_MPL_ASSERT)
+#ifndef NDNBOOST_NO_CXX11_STATIC_ASSERT
+#define NDNBOOST_COMMON_TYPE_STATIC_ASSERT(CND, MSG, TYPES) static_assert(CND,MSG)
+#elif defined(NDNBOOST_COMMON_TYPE_USES_MPL_ASSERT)
 #include <ndnboost/mpl/assert.hpp>
 #include <ndnboost/mpl/bool.hpp>
-#define BOOST_COMMON_TYPE_STATIC_ASSERT(CND, MSG, TYPES)                                 \
-    BOOST_MPL_ASSERT_MSG(ndnboost::mpl::bool_< (CND) >::type::value, MSG, TYPES)
+#define NDNBOOST_COMMON_TYPE_STATIC_ASSERT(CND, MSG, TYPES)                                 \
+    NDNBOOST_MPL_ASSERT_MSG(ndnboost::mpl::bool_< (CND) >::type::value, MSG, TYPES)
 #else
 #include <ndnboost/static_assert.hpp>
-#define BOOST_COMMON_TYPE_STATIC_ASSERT(CND, MSG, TYPES) BOOST_STATIC_ASSERT(CND)
+#define NDNBOOST_COMMON_TYPE_STATIC_ASSERT(CND, MSG, TYPES) NDNBOOST_STATIC_ASSERT(CND)
 #endif
 
-#if !defined(BOOST_NO_CXX11_STATIC_ASSERT) || !defined(BOOST_COMMON_TYPE_USES_MPL_ASSERT)
-#define BOOST_COMMON_TYPE_MUST_BE_A_COMPLE_TYPE "must be complete type"
+#if !defined(NDNBOOST_NO_CXX11_STATIC_ASSERT) || !defined(NDNBOOST_COMMON_TYPE_USES_MPL_ASSERT)
+#define NDNBOOST_COMMON_TYPE_MUST_BE_A_COMPLE_TYPE "must be complete type"
 #endif
 
-#if defined(BOOST_NO_CXX11_DECLTYPE) && defined(BOOST_COMMON_TYPE_DONT_USE_TYPEOF)
+#if defined(NDNBOOST_NO_CXX11_DECLTYPE) && defined(NDNBOOST_COMMON_TYPE_DONT_USE_TYPEOF)
 #include <ndnboost/type_traits/detail/common_type_imp.hpp>
 #include <ndnboost/type_traits/remove_cv.hpp>
 #endif
@@ -65,7 +65,7 @@
 namespace ndnboost {
 
 // prototype
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
     template<typename... T>
     struct common_type;
 #else // or no specialization
@@ -80,14 +80,14 @@ namespace ndnboost {
 
 // 1 arg
     template<typename T>
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
     struct common_type<T>
 #else
     struct common_type<T, void, void>
 
 #endif
     {
-        BOOST_COMMON_TYPE_STATIC_ASSERT(sizeof(T) > 0, BOOST_COMMON_TYPE_MUST_BE_A_COMPLE_TYPE, (T));
+        NDNBOOST_COMMON_TYPE_STATIC_ASSERT(sizeof(T) > 0, NDNBOOST_COMMON_TYPE_MUST_BE_A_COMPLE_TYPE, (T));
     public:
         typedef T type;
     };
@@ -99,17 +99,17 @@ namespace type_traits_detail {
     struct common_type_2
     {
     private:
-        BOOST_COMMON_TYPE_STATIC_ASSERT(sizeof(T) > 0, BOOST_COMMON_TYPE_MUST_BE_A_COMPLE_TYPE, (T));
-        BOOST_COMMON_TYPE_STATIC_ASSERT(sizeof(U) > 0, BOOST_COMMON_TYPE_MUST_BE_A_COMPLE_TYPE, (U));
+        NDNBOOST_COMMON_TYPE_STATIC_ASSERT(sizeof(T) > 0, NDNBOOST_COMMON_TYPE_MUST_BE_A_COMPLE_TYPE, (T));
+        NDNBOOST_COMMON_TYPE_STATIC_ASSERT(sizeof(U) > 0, NDNBOOST_COMMON_TYPE_MUST_BE_A_COMPLE_TYPE, (U));
         static bool declval_bool();  // workaround gcc bug; not required by std
         static typename add_rvalue_reference<T>::type declval_T();  // workaround gcc bug; not required by std
         static typename add_rvalue_reference<U>::type declval_U();  // workaround gcc bug; not required by std
         static typename add_rvalue_reference<bool>::type declval_b();  
 
-#if !defined(BOOST_NO_CXX11_DECLTYPE)
+#if !defined(NDNBOOST_NO_CXX11_DECLTYPE)
     public:
         typedef decltype(declval<bool>() ? declval<T>() : declval<U>()) type;
-#elif defined(BOOST_COMMON_TYPE_DONT_USE_TYPEOF)
+#elif defined(NDNBOOST_COMMON_TYPE_DONT_USE_TYPEOF)
     public:
     typedef typename detail_type_traits_common_type::common_type_impl<
           typename remove_cv<T>::type,
@@ -117,7 +117,7 @@ namespace type_traits_detail {
       >::type type;
 #else
     public:
-        typedef BOOST_TYPEOF_TPL(declval_b() ? declval_T() : declval_U()) type;
+        typedef NDNBOOST_TYPEOF_TPL(declval_b() ? declval_T() : declval_U()) type;
 #endif
 
 #if defined(__GNUC__) && __GNUC__ == 3 && (__GNUC_MINOR__ == 2 || __GNUC_MINOR__ == 3)
@@ -133,7 +133,7 @@ namespace type_traits_detail {
     };
     }
 
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
     template <class T, class U>
     struct common_type<T, U>
 #else
@@ -145,7 +145,7 @@ namespace type_traits_detail {
 
 
 // 3 or more args
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
     template<typename T, typename U, typename... V>
     struct common_type<T, U, V...> {
     public:
@@ -154,4 +154,4 @@ namespace type_traits_detail {
 #endif
 }  // namespace ndnboost
 
-#endif  // BOOST_TYPE_TRAITS_COMMON_TYPE_HPP
+#endif  // NDNBOOST_TYPE_TRAITS_COMMON_TYPE_HPP

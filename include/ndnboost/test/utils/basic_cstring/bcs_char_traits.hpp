@@ -12,8 +12,8 @@
 //  Description : generic char traits class; wraps std::char_traits
 // ***************************************************************************
 
-#ifndef BOOST_TEST_BCS_CHAR_TRAITS_HPP_071894GER
-#define BOOST_TEST_BCS_CHAR_TRAITS_HPP_071894GER
+#ifndef NDNBOOST_TEST_BCS_CHAR_TRAITS_HPP_071894GER
+#define NDNBOOST_TEST_BCS_CHAR_TRAITS_HPP_071894GER
 
 // Boost
 #include <ndnboost/config.hpp>
@@ -39,7 +39,7 @@ template<typename CharT> struct bcs_base_char           { typedef CharT type; };
 
 template<> struct bcs_base_char<char const>             { typedef char type; };
 template<> struct bcs_base_char<unsigned char>          { typedef char type; };
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x551))
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x551))
 template<> struct bcs_base_char<unsigned char const>    { typedef char type; };
 #endif
 
@@ -52,7 +52,7 @@ template<> struct bcs_base_char<wchar_t const>          { typedef wchar_t type; 
 template<typename CharT>
 struct bcs_char_traits_impl
 {
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564))
     typedef CharT const const_char;
 #else
     typedef typename ndnboost::add_const<CharT>::type const_char;
@@ -103,7 +103,7 @@ struct bcs_char_traits_impl
     }
 };
 
-#ifdef BOOST_CLASSIC_IOSTREAMS
+#ifdef NDNBOOST_CLASSIC_IOSTREAMS
 template<typename CharT>
 struct char_traits_with_find : std::string_char_traits<CharT> {
     static CharT const* find( CharT const* s, std::size_t n, CharT c )
@@ -130,7 +130,7 @@ template<typename CharT>
 class bcs_char_traits : public bcs_char_traits_impl<CharT> {
     typedef typename ut_detail::bcs_base_char<CharT>::type                              the_base_char;
 public:
-#ifdef BOOST_CLASSIC_IOSTREAMS
+#ifdef NDNBOOST_CLASSIC_IOSTREAMS
     typedef std::basic_string<the_base_char, std::string_char_traits<the_base_char> >   std_string;
 #else
     typedef std::basic_string<the_base_char, std::char_traits<the_base_char> >          std_string;
@@ -147,4 +147,4 @@ public:
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_BCS_CHAR_TRAITS_HPP_071894GER
+#endif // NDNBOOST_TEST_BCS_CHAR_TRAITS_HPP_071894GER

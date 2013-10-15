@@ -6,8 +6,8 @@
 // For more information, see http://www.boost.org
 
 
-#ifndef BOOST_UTILITY_SWAP_HPP
-#define BOOST_UTILITY_SWAP_HPP
+#ifndef NDNBOOST_UTILITY_SWAP_HPP
+#define NDNBOOST_UTILITY_SWAP_HPP
 
 // Note: the implementation of this utility contains various workarounds:
 // - swap_impl is put outside the boost namespace, to avoid infinite

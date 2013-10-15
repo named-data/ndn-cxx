@@ -2,8 +2,8 @@
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_TYPE_TRAITS_MSVC_REMOVE_CV_HOLT_2004_0901
-#define BOOST_TYPE_TRAITS_MSVC_REMOVE_CV_HOLT_2004_0901
+#ifndef NDNBOOST_TYPE_TRAITS_MSVC_REMOVE_CV_HOLT_2004_0901
+#define NDNBOOST_TYPE_TRAITS_MSVC_REMOVE_CV_HOLT_2004_0901
 
 #include <ndnboost/type_traits/msvc/typeof.hpp>
 #include <ndnboost/type_traits/is_volatile.hpp>
@@ -31,7 +31,7 @@ namespace ndnboost {
                 template<typename U>
                 static msvc_register_type<U,ID> test(U volatile&(*)());
                 static msvc_register_type<T,ID> test(...);
-                BOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (T(*)())(NULL) ) ));
+                NDNBOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (T(*)())(NULL) ) ));
                 typedef typename msvc_extract_type<ID>::id2type::type type;
             };
             template<typename T>
@@ -46,7 +46,7 @@ namespace ndnboost {
                 template<typename U>
                 static msvc_register_type<U,ID> test(U const&(*)());
                 static msvc_register_type<T,ID> test(...);
-                BOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (T(*)())(NULL) ) ));
+                NDNBOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (T(*)())(NULL) ) ));
                 typedef typename msvc_extract_type<ID>::id2type::type type;
             };
             template<typename T>
@@ -61,7 +61,7 @@ namespace ndnboost {
                 template<typename U>
                 static msvc_register_type<U,ID> test(U const volatile&(*)());
                 static msvc_register_type<T,ID> test(...);
-                BOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (T(*)())(NULL) ) ));
+                NDNBOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (T(*)())(NULL) ) ));
                 typedef typename msvc_extract_type<ID>::id2type::type type;
             };
             template<typename T>
@@ -76,7 +76,7 @@ namespace ndnboost {
                 template<typename U>
                 static msvc_register_type<U,ID> test(void(*)(U volatile[]));
                 static msvc_register_type<T,ID> test(...);
-                BOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
+                NDNBOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
                 typedef typename msvc_extract_type<ID>::id2type::type type;
             };
             template<typename T>
@@ -91,7 +91,7 @@ namespace ndnboost {
                 template<typename U>
                 static msvc_register_type<U,ID> test(void(*)(U const[]));
                 static msvc_register_type<T,ID> test(...);
-                BOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
+                NDNBOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
                 typedef typename msvc_extract_type<ID>::id2type::type type;
             };
             template<typename T>
@@ -106,7 +106,7 @@ namespace ndnboost {
                 template<typename U>
                 static msvc_register_type<U,ID> test(void(*)(U const volatile[]));
                 static msvc_register_type<T,ID> test(...);
-                BOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
+                NDNBOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
                 typedef typename msvc_extract_type<ID>::id2type::type type;
             };
             template<typename T>
@@ -118,12 +118,12 @@ namespace ndnboost {
         struct remove_cv_impl_typeof<false,true,false,true> {
             template<typename T,typename ID>
             struct inner {
-                BOOST_STATIC_CONSTANT(unsigned,value=(sizeof(T)/sizeof((*((T*)NULL))[0])));
+                NDNBOOST_STATIC_CONSTANT(unsigned,value=(sizeof(T)/sizeof((*((T*)NULL))[0])));
 
                 template<typename U>
                 static msvc_register_type<U[value],ID> test(void(*)(U volatile[]));
                 static msvc_register_type<T,ID> test(...);
-                BOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
+                NDNBOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
                 typedef typename msvc_extract_type<ID>::id2type::type type;
             };
             template<typename T>
@@ -135,12 +135,12 @@ namespace ndnboost {
         struct remove_cv_impl_typeof<false,true,true,false> {
             template<typename T,typename ID>
             struct inner {
-                BOOST_STATIC_CONSTANT(unsigned,value=(sizeof(T)/sizeof((*((T*)NULL))[0])));
+                NDNBOOST_STATIC_CONSTANT(unsigned,value=(sizeof(T)/sizeof((*((T*)NULL))[0])));
 
                 template<typename U>
                 static msvc_register_type<U[value],ID> test(void(*)(U const[]));
                 static msvc_register_type<T,ID> test(...);
-                BOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
+                NDNBOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
                 typedef typename msvc_extract_type<ID>::id2type::type type;
             };
             template<typename T>
@@ -153,12 +153,12 @@ namespace ndnboost {
         struct remove_cv_impl_typeof<false,true,true,true> {
             template<typename T,typename ID>
             struct inner {
-                BOOST_STATIC_CONSTANT(unsigned,value=(sizeof(T)/sizeof((*((T*)NULL))[0])));
+                NDNBOOST_STATIC_CONSTANT(unsigned,value=(sizeof(T)/sizeof((*((T*)NULL))[0])));
 
                 template<typename U>
                 static msvc_register_type<U[value],ID> test(void(*)(U const volatile[]));
                 static msvc_register_type<T,ID> test(...);
-                BOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
+                NDNBOOST_STATIC_CONSTANT(unsigned,register_test=sizeof(test( (void(*)(T))(NULL) ) ));
                 typedef typename msvc_extract_type<ID>::id2type::type type;
             };
             template<typename T>
@@ -183,8 +183,8 @@ namespace ndnboost {
                 remove_cv<T>
             >::type
         type;
-        BOOST_MPL_AUX_LAMBDA_SUPPORT(1,remove_cv,T)
+        NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,remove_cv,T)
     };
 }//namespace ndnboost
 
-#endif //BOOST_TYPE_TRAITS_MSVC_REMOVE_CV_HOLT_2004_0901
+#endif //NDNBOOST_TYPE_TRAITS_MSVC_REMOVE_CV_HOLT_2004_0901

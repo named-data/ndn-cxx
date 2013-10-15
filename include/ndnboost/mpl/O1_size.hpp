@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_O1_SIZE_HPP_INCLUDED
-#define BOOST_MPL_O1_SIZE_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_O1_SIZE_HPP_INCLUDED
+#define NDNBOOST_MPL_O1_SIZE_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -24,17 +24,17 @@ namespace ndnboost { namespace mpl {
 
 // returns sequence size if it's an O(1) operation; otherwise returns -1
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
     >
 struct O1_size
     : O1_size_impl< typename sequence_tag<Sequence>::type >
         ::template apply< Sequence >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1, O1_size, (Sequence))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1, O1_size, (Sequence))
 };
 
-BOOST_MPL_AUX_NA_SPEC(1, O1_size)
+NDNBOOST_MPL_AUX_NA_SPEC(1, O1_size)
 
 }}
 
-#endif // BOOST_MPL_O1_SIZE_HPP_INCLUDED
+#endif // NDNBOOST_MPL_O1_SIZE_HPP_INCLUDED

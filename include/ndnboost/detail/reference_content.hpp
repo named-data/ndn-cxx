@@ -10,12 +10,12 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_DETAIL_REFERENCE_CONTENT_HPP
-#define BOOST_DETAIL_REFERENCE_CONTENT_HPP
+#ifndef NDNBOOST_DETAIL_REFERENCE_CONTENT_HPP
+#define NDNBOOST_DETAIL_REFERENCE_CONTENT_HPP
 
 #include "ndnboost/config.hpp"
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 #   include "ndnboost/mpl/bool.hpp"
 #   include "ndnboost/type_traits/has_nothrow_copy.hpp"
 #else
@@ -78,7 +78,7 @@ public: // queries
 
 template <typename T = mpl::void_> struct make_reference_content;
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template <typename T>
 struct make_reference_content
@@ -92,7 +92,7 @@ struct make_reference_content< T& >
     typedef reference_content<T&> type;
 };
 
-#else // defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#else // defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template <typename T>
 struct make_reference_content
@@ -104,7 +104,7 @@ struct make_reference_content
 {
 };
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION workaround
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION workaround
 
 template <>
 struct make_reference_content< mpl::void_ >
@@ -124,7 +124,7 @@ struct make_reference_content< mpl::void_ >
 // reference_content<T&> type traits specializations
 //
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template <typename T>
 struct has_nothrow_copy<
@@ -134,8 +134,8 @@ struct has_nothrow_copy<
 {
 };
 
-#endif // !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#endif // !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 } // namespace ndnboost
 
-#endif // BOOST_DETAIL_REFERENCE_CONTENT_HPP
+#endif // NDNBOOST_DETAIL_REFERENCE_CONTENT_HPP

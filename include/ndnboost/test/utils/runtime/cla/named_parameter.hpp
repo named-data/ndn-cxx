@@ -12,8 +12,8 @@
 //  Description : defines model of named parameter
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_NAMED_PARAMETER_HPP_062604GER
-#define BOOST_RT_CLA_NAMED_PARAMETER_HPP_062604GER
+#ifndef NDNBOOST_RT_CLA_NAMED_PARAMETER_HPP_062604GER
+#define NDNBOOST_RT_CLA_NAMED_PARAMETER_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -23,7 +23,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -35,7 +35,7 @@ class string_name_policy : public basic_naming_policy {
 public:
     // Constructor
     string_name_policy();
-    BOOST_RT_PARAM_UNNEEDED_VIRTUAL ~string_name_policy() {}
+    NDNBOOST_RT_PARAM_UNNEEDED_VIRTUAL ~string_name_policy() {}
 
     // policy interface
     virtual bool    responds_to( cstring name ) const;
@@ -73,21 +73,21 @@ public:
 
 //____________________________________________________________________________//
 
-BOOST_RT_CLA_NAMED_PARAM_GENERATORS( named_parameter )
+NDNBOOST_RT_CLA_NAMED_PARAM_GENERATORS( named_parameter )
 
 //____________________________________________________________________________//
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#ifndef BOOST_RT_PARAM_OFFLINE
+#ifndef NDNBOOST_RT_PARAM_OFFLINE
 
-#  define BOOST_RT_PARAM_INLINE inline
+#  define NDNBOOST_RT_PARAM_INLINE inline
 #  include <ndnboost/test/utils/runtime/cla/named_parameter.ipp>
 
 #endif
 
-#endif // BOOST_RT_CLA_NAMED_PARAMETER_HPP_062604GER
+#endif // NDNBOOST_RT_CLA_NAMED_PARAMETER_HPP_062604GER

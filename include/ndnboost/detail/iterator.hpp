@@ -26,7 +26,7 @@
 // 03 Mar 2001 - Put all implementation into namespace
 //               ndnboost::detail::iterator_traits_. Some progress made on fixes
 //               for Intel compiler. (David Abrahams)
-// 02 Mar 2001 - Changed BOOST_MSVC to BOOST_MSVC_STD_ITERATOR in a few
+// 02 Mar 2001 - Changed NDNBOOST_MSVC to NDNBOOST_MSVC_STD_ITERATOR in a few
 //               places. (Jeremy Siek)
 // 19 Feb 2001 - Improved workarounds for stock MSVC6; use yes_type and
 //               no_type from type_traits.hpp; stopped trying to remove_cv
@@ -63,16 +63,16 @@
 # if defined(__SGI_STL_PORT)
 
 #  if (__SGI_STL_PORT <= 0x410) && !defined(__STL_CLASS_PARTIAL_SPECIALIZATION) && defined(__STL_DEBUG)
-#   define BOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF
+#   define NDNBOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF
 #  endif
 
-#  define BOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
+#  define NDNBOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
 
 # endif // STLPort <= 4.1b4 && no partial specialization
 
-# if !defined(BOOST_NO_STD_ITERATOR_TRAITS)             \
-  && !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
-  && !defined(BOOST_MSVC_STD_ITERATOR)
+# if !defined(NDNBOOST_NO_STD_ITERATOR_TRAITS)             \
+  && !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
+  && !defined(NDNBOOST_MSVC_STD_ITERATOR)
     
 namespace ndnboost { namespace detail {
 
@@ -87,10 +87,10 @@ using std::distance;
 
 # else
 
-#  if  !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)  \
-    && !defined(BOOST_MSVC_STD_ITERATOR)
+#  if  !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)  \
+    && !defined(NDNBOOST_MSVC_STD_ITERATOR)
 
-// This is the case where everything conforms except BOOST_NO_STD_ITERATOR_TRAITS
+// This is the case where everything conforms except NDNBOOST_NO_STD_ITERATOR_TRAITS
 
 namespace ndnboost { namespace detail {
 
@@ -135,11 +135,11 @@ struct iterator_traits<T const*>
 # include <ndnboost/type_traits/detail/yes_no_type.hpp>
 # include <ndnboost/type_traits/is_pointer.hpp>
 
-# ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+# ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 #  include <ndnboost/type_traits/is_same.hpp>
 #  include <ndnboost/type_traits/remove_pointer.hpp>
 # endif
-# ifdef BOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
+# ifdef NDNBOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
 #  include <ndnboost/type_traits/is_base_and_derived.hpp>
 # endif
 
@@ -152,11 +152,11 @@ struct iterator_traits<T const*>
 
 namespace ndnboost { namespace detail {
 
-BOOST_MPL_HAS_XXX_TRAIT_DEF(value_type)
-BOOST_MPL_HAS_XXX_TRAIT_DEF(reference)
-BOOST_MPL_HAS_XXX_TRAIT_DEF(pointer)
-BOOST_MPL_HAS_XXX_TRAIT_DEF(difference_type)
-BOOST_MPL_HAS_XXX_TRAIT_DEF(iterator_category)
+NDNBOOST_MPL_HAS_XXX_TRAIT_DEF(value_type)
+NDNBOOST_MPL_HAS_XXX_TRAIT_DEF(reference)
+NDNBOOST_MPL_HAS_XXX_TRAIT_DEF(pointer)
+NDNBOOST_MPL_HAS_XXX_TRAIT_DEF(difference_type)
+NDNBOOST_MPL_HAS_XXX_TRAIT_DEF(iterator_category)
 
 // is_mutable_iterator --
 //
@@ -170,7 +170,7 @@ BOOST_MPL_HAS_XXX_TRAIT_DEF(iterator_category)
 // This one detects ordinary mutable iterators - the result of
 // operator* is convertible to the value_type.
 template <class T>
-type_traits::yes_type is_mutable_iterator_helper(T const*, BOOST_DEDUCED_TYPENAME T::value_type*);
+type_traits::yes_type is_mutable_iterator_helper(T const*, NDNBOOST_DEDUCED_TYPENAME T::value_type*);
 
 // Since you can't take the address of an rvalue, the guts of
 // is_mutable_iterator_impl will fail if we use &*t directly.  This
@@ -191,7 +191,7 @@ struct is_mutable_iterator_impl
 {
     static T t;
     
-    BOOST_STATIC_CONSTANT(
+    NDNBOOST_STATIC_CONSTANT(
         bool, value = sizeof(
             detail::is_mutable_iterator_helper(
                 (T*)0
@@ -201,7 +201,7 @@ struct is_mutable_iterator_impl
     );
 };
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(
     is_mutable_iterator,T,::ndnboost::detail::is_mutable_iterator_impl<T>::value)
 
 
@@ -222,12 +222,12 @@ struct is_full_iterator_traits_impl
     };
 };
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(
     is_full_iterator_traits,T,::ndnboost::detail::is_full_iterator_traits_impl<T>::value)
 
 
-#   ifdef BOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF
-BOOST_MPL_HAS_XXX_TRAIT_DEF(_Iterator_category)
+#   ifdef NDNBOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF
+NDNBOOST_MPL_HAS_XXX_TRAIT_DEF(_Iterator_category)
     
 // is_stlport_40_debug_iterator --
 //
@@ -246,7 +246,7 @@ struct is_stlport_40_debug_iterator_impl
     };
 };
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(
     is_stlport_40_debug_iterator,T,::ndnboost::detail::is_stlport_40_debug_iterator_impl<T>::value)
 
 template <class T>
@@ -258,11 +258,11 @@ struct stlport_40_debug_iterator_traits
     typedef typename T::difference_type difference_type;
     typedef typename T::_Iterator_category iterator_category;
 };
-#   endif // BOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF 
+#   endif // NDNBOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF 
 
 template <class T> struct pointer_iterator_traits;
 
-#   ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#   ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template <class T>
 struct pointer_iterator_traits<T*>
 {
@@ -279,13 +279,13 @@ struct pointer_iterator_traits<T*>
 // some basic types, remove_pointer is manually defined in
 // type_traits/broken_compiler_spec.hpp. For others, do it yourself.
 
-template<class P> class please_invoke_BOOST_TT_BROKEN_COMPILER_SPEC_on_cv_unqualified_pointee;
+template<class P> class please_invoke_NDNBOOST_TT_BROKEN_COMPILER_SPEC_on_cv_unqualified_pointee;
 
 template<class P>
 struct pointer_value_type
   : mpl::if_<
         is_same<P, typename remove_pointer<P>::type>
-      , please_invoke_BOOST_TT_BROKEN_COMPILER_SPEC_on_cv_unqualified_pointee<P>
+      , please_invoke_NDNBOOST_TT_BROKEN_COMPILER_SPEC_on_cv_unqualified_pointee<P>
       , typename remove_const<
             typename remove_pointer<P>::type
         >::type
@@ -298,7 +298,7 @@ template<class P>
 struct pointer_reference
   : mpl::if_<
         is_same<P, typename remove_pointer<P>::type>
-      , please_invoke_BOOST_TT_BROKEN_COMPILER_SPEC_on_cv_unqualified_pointee<P>
+      , please_invoke_NDNBOOST_TT_BROKEN_COMPILER_SPEC_on_cv_unqualified_pointee<P>
       , typename remove_pointer<P>::type&
     >
 {
@@ -315,7 +315,7 @@ struct pointer_iterator_traits
     typedef typename pointer_reference<T>::type reference;
 };
 
-#   endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#   endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 // We'll sort iterator types into one of these classifications, from which we
 // can determine the difference_type, pointer, reference, and value_type
@@ -347,7 +347,7 @@ struct msvc_stdlib_const_traits
     typedef const typename std::iterator_traits<Iterator>::value_type& reference;
 };
 
-#   ifdef BOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
+#   ifdef NDNBOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
 template <class Iterator>
 struct is_bad_output_iterator
     : is_base_and_derived<
@@ -384,7 +384,7 @@ struct non_pointer_iterator_traits
         is_full_iterator_traits<Iterator>
         // Use a standard iterator_traits implementation
         , standard_iterator_traits<Iterator>
-#   ifdef BOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF
+#   ifdef NDNBOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF
         // Check for STLPort 4.0 broken _Iterator_category type
         , mpl::if_<
              is_stlport_40_debug_iterator<Iterator>
@@ -392,7 +392,7 @@ struct non_pointer_iterator_traits
 #   endif
         // Otherwise, assume it's a Dinkum iterator
         , msvc_stdlib_iterator_traits<Iterator>
-#   ifdef BOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF
+#   ifdef NDNBOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF
         >::type
 #   endif 
     >::type
@@ -415,7 +415,7 @@ struct iterator_traits
     // Explicit forwarding from base class needed to keep MSVC6 happy
     // under some circumstances.
  private:
-#   ifdef BOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
+#   ifdef NDNBOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
     typedef 
     typename mpl::if_<
         is_bad_output_iterator<Iterator>
@@ -488,7 +488,7 @@ distance(Iterator first, Iterator last)
 # endif
 
 
-# undef BOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF
-# undef BOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
+# undef NDNBOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF
+# undef NDNBOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
 
 #endif // ITERATOR_DWA122600_HPP_

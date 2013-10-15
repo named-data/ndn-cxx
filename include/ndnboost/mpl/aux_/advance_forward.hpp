@@ -1,10 +1,10 @@
 
-#if !defined(BOOST_PP_IS_ITERATING)
+#if !defined(NDNBOOST_PP_IS_ITERATING)
 
 ///// header body
 
-#ifndef BOOST_MPL_AUX_ADVANCE_FORWARD_HPP_INCLUDED
-#define BOOST_MPL_AUX_ADVANCE_FORWARD_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_ADVANCE_FORWARD_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_ADVANCE_FORWARD_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -18,17 +18,17 @@
 // $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
 // $Revision: 49267 $
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   include <ndnboost/mpl/next.hpp>
 #   include <ndnboost/mpl/apply_wrap.hpp>
 #endif
 
 #include <ndnboost/mpl/aux_/config/use_preprocessed.hpp>
 
-#if    !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
-    && !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if    !defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+    && !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
-#   define BOOST_MPL_PREPROCESSED_HEADER advance_forward.hpp
+#   define NDNBOOST_MPL_PREPROCESSED_HEADER advance_forward.hpp
 #   include <ndnboost/mpl/aux_/include_preprocessed.hpp>
 
 #else
@@ -44,28 +44,28 @@
 namespace ndnboost { namespace mpl { namespace aux {
 
 // forward declaration
-template< BOOST_MPL_AUX_NTTP_DECL(long, N) > struct advance_forward;
+template< NDNBOOST_MPL_AUX_NTTP_DECL(long, N) > struct advance_forward;
 
-#   define BOOST_PP_ITERATION_PARAMS_1 \
-    (3,(0, BOOST_MPL_LIMIT_UNROLLING, <ndnboost/mpl/aux_/advance_forward.hpp>))
-#   include BOOST_PP_ITERATE()
+#   define NDNBOOST_PP_ITERATION_PARAMS_1 \
+    (3,(0, NDNBOOST_MPL_LIMIT_UNROLLING, <ndnboost/mpl/aux_/advance_forward.hpp>))
+#   include NDNBOOST_PP_ITERATE()
 
-// implementation for N that exceeds BOOST_MPL_LIMIT_UNROLLING
-template< BOOST_MPL_AUX_NTTP_DECL(long, N) > 
+// implementation for N that exceeds NDNBOOST_MPL_LIMIT_UNROLLING
+template< NDNBOOST_MPL_AUX_NTTP_DECL(long, N) > 
 struct advance_forward
 {
     template< typename Iterator > struct apply
     {
         typedef typename apply_wrap1<
-              advance_forward<BOOST_MPL_LIMIT_UNROLLING>
+              advance_forward<NDNBOOST_MPL_LIMIT_UNROLLING>
             , Iterator
             >::type chunk_result_;
 
         typedef typename apply_wrap1<
               advance_forward<(
-                (N - BOOST_MPL_LIMIT_UNROLLING) < 0
+                (N - NDNBOOST_MPL_LIMIT_UNROLLING) < 0
                     ? 0
-                    : N - BOOST_MPL_LIMIT_UNROLLING
+                    : N - NDNBOOST_MPL_LIMIT_UNROLLING
                     )>
             , chunk_result_
             >::type type;
@@ -74,33 +74,33 @@ struct advance_forward
 
 }}}
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#endif // BOOST_MPL_AUX_ADVANCE_FORWARD_HPP_INCLUDED
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_AUX_ADVANCE_FORWARD_HPP_INCLUDED
 
 ///// iteration, depth == 1
 
 // For gcc 4.4 compatability, we must include the
-// BOOST_PP_ITERATION_DEPTH test inside an #else clause.
-#else // BOOST_PP_IS_ITERATING
-#if BOOST_PP_ITERATION_DEPTH() == 1
-#define i_ BOOST_PP_FRAME_ITERATION(1)
+// NDNBOOST_PP_ITERATION_DEPTH test inside an #else clause.
+#else // NDNBOOST_PP_IS_ITERATING
+#if NDNBOOST_PP_ITERATION_DEPTH() == 1
+#define i_ NDNBOOST_PP_FRAME_ITERATION(1)
 
 template<>
-struct advance_forward< BOOST_PP_FRAME_ITERATION(1) >
+struct advance_forward< NDNBOOST_PP_FRAME_ITERATION(1) >
 {
     template< typename Iterator > struct apply
     {
         typedef Iterator iter0;
 
 #if i_ > 0
-#   define BOOST_PP_ITERATION_PARAMS_2 \
+#   define NDNBOOST_PP_ITERATION_PARAMS_2 \
     (3,(1, i_, <ndnboost/mpl/aux_/advance_forward.hpp>))
-#   include BOOST_PP_ITERATE()
+#   include NDNBOOST_PP_ITERATE()
 #endif
-        typedef BOOST_PP_CAT(iter,i_) type;
+        typedef NDNBOOST_PP_CAT(iter,i_) type;
     };
 
-#if defined(BOOST_MPL_CFG_MSVC_60_ETI_BUG)
+#if defined(NDNBOOST_MPL_CFG_MSVC_60_ETI_BUG)
     /// ETI workaround
     template<> struct apply<int>
     {
@@ -113,15 +113,15 @@ struct advance_forward< BOOST_PP_FRAME_ITERATION(1) >
 
 ///// iteration, depth == 2
 
-#elif BOOST_PP_ITERATION_DEPTH() == 2
+#elif NDNBOOST_PP_ITERATION_DEPTH() == 2
 
-#   define AUX778076_ITER_0 BOOST_PP_CAT(iter,BOOST_PP_DEC(BOOST_PP_FRAME_ITERATION(2)))
-#   define AUX778076_ITER_1 BOOST_PP_CAT(iter,BOOST_PP_FRAME_ITERATION(2))
+#   define AUX778076_ITER_0 NDNBOOST_PP_CAT(iter,NDNBOOST_PP_DEC(NDNBOOST_PP_FRAME_ITERATION(2)))
+#   define AUX778076_ITER_1 NDNBOOST_PP_CAT(iter,NDNBOOST_PP_FRAME_ITERATION(2))
 
         typedef typename next<AUX778076_ITER_0>::type AUX778076_ITER_1;
         
 #   undef AUX778076_ITER_1
 #   undef AUX778076_ITER_0
 
-#endif // BOOST_PP_ITERATION_DEPTH()
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_ITERATION_DEPTH()
+#endif // NDNBOOST_PP_IS_ITERATING

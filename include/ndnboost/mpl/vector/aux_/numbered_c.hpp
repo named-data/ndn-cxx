@@ -1,7 +1,7 @@
 
 // NO INCLUDE GUARDS, THE HEADER IS INTENDED FOR MULTIPLE INCLUSION
 
-#if defined(BOOST_PP_IS_ITERATING)
+#if defined(NDNBOOST_PP_IS_ITERATING)
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -22,28 +22,28 @@
 #include <ndnboost/preprocessor/dec.hpp>
 #include <ndnboost/preprocessor/cat.hpp>
 
-#define i_ BOOST_PP_FRAME_ITERATION(1)
+#define i_ NDNBOOST_PP_FRAME_ITERATION(1)
 
-#if defined(BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
+#if defined(NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
 
 #   define AUX778076_VECTOR_TAIL(vector, i_, C) \
-    BOOST_PP_CAT(BOOST_PP_CAT(vector,i_),_c)<T \
-          BOOST_PP_COMMA_IF(i_) BOOST_PP_ENUM_PARAMS(i_, C) \
+    NDNBOOST_PP_CAT(NDNBOOST_PP_CAT(vector,i_),_c)<T \
+          NDNBOOST_PP_COMMA_IF(i_) NDNBOOST_PP_ENUM_PARAMS(i_, C) \
         > \
     /**/
 
 #if i_ > 0
 template<
       typename T
-    , BOOST_PP_ENUM_PARAMS(i_, T C)
+    , NDNBOOST_PP_ENUM_PARAMS(i_, T C)
     >
-struct BOOST_PP_CAT(BOOST_PP_CAT(vector,i_),_c)
+struct NDNBOOST_PP_CAT(NDNBOOST_PP_CAT(vector,i_),_c)
     : v_item<
-          integral_c<T,BOOST_PP_CAT(C,BOOST_PP_DEC(i_))>
-        , AUX778076_VECTOR_TAIL(vector,BOOST_PP_DEC(i_),C)
+          integral_c<T,NDNBOOST_PP_CAT(C,NDNBOOST_PP_DEC(i_))>
+        , AUX778076_VECTOR_TAIL(vector,NDNBOOST_PP_DEC(i_),C)
         >
 {
-    typedef BOOST_PP_CAT(BOOST_PP_CAT(vector,i_),_c) type;
+    typedef NDNBOOST_PP_CAT(NDNBOOST_PP_CAT(vector,i_),_c) type;
     typedef T value_type;
 };
 #endif
@@ -53,25 +53,25 @@ struct BOOST_PP_CAT(BOOST_PP_CAT(vector,i_),_c)
 #else // "brute force" implementation
 
 #   define AUX778076_VECTOR_C_PARAM_FUNC(unused, i_, param) \
-    BOOST_PP_COMMA_IF(i_) \
-    integral_c<T,BOOST_PP_CAT(param,i_)> \
+    NDNBOOST_PP_COMMA_IF(i_) \
+    integral_c<T,NDNBOOST_PP_CAT(param,i_)> \
     /**/
 
 template<
       typename T
-    , BOOST_PP_ENUM_PARAMS(i_, T C)
+    , NDNBOOST_PP_ENUM_PARAMS(i_, T C)
     >
-struct BOOST_PP_CAT(BOOST_PP_CAT(vector,i_),_c)
-    : BOOST_PP_CAT(vector,i_)< BOOST_PP_REPEAT(i_,AUX778076_VECTOR_C_PARAM_FUNC,C) >
+struct NDNBOOST_PP_CAT(NDNBOOST_PP_CAT(vector,i_),_c)
+    : NDNBOOST_PP_CAT(vector,i_)< NDNBOOST_PP_REPEAT(i_,AUX778076_VECTOR_C_PARAM_FUNC,C) >
 {
-    typedef BOOST_PP_CAT(BOOST_PP_CAT(vector,i_),_c) type;
+    typedef NDNBOOST_PP_CAT(NDNBOOST_PP_CAT(vector,i_),_c) type;
     typedef T value_type;
 };
 
 #   undef AUX778076_VECTOR_C_PARAM_FUNC
 
-#endif // BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
+#endif // NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
 
 #undef i_
 
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_IS_ITERATING

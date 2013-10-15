@@ -12,8 +12,8 @@
 //  Description : storage for unit test framework parameters information
 // ***************************************************************************
 
-#ifndef BOOST_TEST_UNIT_TEST_PARAMETERS_HPP_071894GER
-#define BOOST_TEST_UNIT_TEST_PARAMETERS_HPP_071894GER
+#ifndef NDNBOOST_TEST_UNIT_TEST_PARAMETERS_HPP_071894GER
+#define NDNBOOST_TEST_UNIT_TEST_PARAMETERS_HPP_071894GER
 
 #include <ndnboost/test/detail/global_typedef.hpp>
 #include <ndnboost/test/detail/log_level.hpp>
@@ -35,26 +35,26 @@ namespace unit_test {
 
 namespace runtime_config {
 
-BOOST_TEST_DECL void                     init( int& argc, char** argv );
+NDNBOOST_TEST_DECL void                     init( int& argc, char** argv );
 
-BOOST_TEST_DECL unit_test::log_level     log_level();
-BOOST_TEST_DECL bool                     no_result_code();
-BOOST_TEST_DECL unit_test::report_level  report_level();
-BOOST_TEST_DECL const_string             test_to_run();
-BOOST_TEST_DECL const_string             break_exec_path();
-BOOST_TEST_DECL bool                     save_pattern();
-BOOST_TEST_DECL bool                     show_build_info();
-BOOST_TEST_DECL bool                     show_progress();
-BOOST_TEST_DECL bool                     catch_sys_errors();
-BOOST_TEST_DECL bool                     auto_start_dbg();
-BOOST_TEST_DECL bool                     use_alt_stack();
-BOOST_TEST_DECL bool                     detect_fp_exceptions();
-BOOST_TEST_DECL output_format            report_format();
-BOOST_TEST_DECL output_format            log_format();
-BOOST_TEST_DECL std::ostream*            report_sink();
-BOOST_TEST_DECL std::ostream*            log_sink();
-BOOST_TEST_DECL long                     detect_memory_leaks();
-BOOST_TEST_DECL int                      random_seed();
+NDNBOOST_TEST_DECL unit_test::log_level     log_level();
+NDNBOOST_TEST_DECL bool                     no_result_code();
+NDNBOOST_TEST_DECL unit_test::report_level  report_level();
+NDNBOOST_TEST_DECL const_string             test_to_run();
+NDNBOOST_TEST_DECL const_string             break_exec_path();
+NDNBOOST_TEST_DECL bool                     save_pattern();
+NDNBOOST_TEST_DECL bool                     show_build_info();
+NDNBOOST_TEST_DECL bool                     show_progress();
+NDNBOOST_TEST_DECL bool                     catch_sys_errors();
+NDNBOOST_TEST_DECL bool                     auto_start_dbg();
+NDNBOOST_TEST_DECL bool                     use_alt_stack();
+NDNBOOST_TEST_DECL bool                     detect_fp_exceptions();
+NDNBOOST_TEST_DECL output_format            report_format();
+NDNBOOST_TEST_DECL output_format            log_format();
+NDNBOOST_TEST_DECL std::ostream*            report_sink();
+NDNBOOST_TEST_DECL std::ostream*            log_sink();
+NDNBOOST_TEST_DECL long                     detect_memory_leaks();
+NDNBOOST_TEST_DECL int                      random_seed();
 
 } // namespace runtime_config
 
@@ -66,4 +66,4 @@ BOOST_TEST_DECL int                      random_seed();
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_UNIT_TEST_PARAMETERS_HPP_071894GER
+#endif // NDNBOOST_TEST_UNIT_TEST_PARAMETERS_HPP_071894GER

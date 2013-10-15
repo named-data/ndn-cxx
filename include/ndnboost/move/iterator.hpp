@@ -11,8 +11,8 @@
 
 //! \file
 
-#ifndef BOOST_MOVE_ITERATOR_HPP
-#define BOOST_MOVE_ITERATOR_HPP
+#ifndef NDNBOOST_MOVE_ITERATOR_HPP
+#define NDNBOOST_MOVE_ITERATOR_HPP
 
 #include <ndnboost/move/detail/config_begin.hpp>
 #include <ndnboost/move/utility.hpp>
@@ -37,7 +37,7 @@ class move_iterator
    public:
    typedef It                                                              iterator_type;
    typedef typename std::iterator_traits<iterator_type>::value_type        value_type;
-   #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) || defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   #if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES) || defined(NDNBOOST_MOVE_DOXYGEN_INVOKED)
    typedef value_type &&                                                   reference;
    #else
    typedef typename ::ndnboost::move_detail::if_
@@ -66,7 +66,7 @@ class move_iterator
 
    reference operator*() const
    {
-      #if defined(BOOST_NO_CXX11_RVALUE_REFERENCES) || defined(BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES)
+      #if defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES) || defined(NDNBOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES)
       return *m_it;
       #else
       return ::ndnboost::move(*m_it);
@@ -102,7 +102,7 @@ class move_iterator
 
    reference operator[](difference_type n) const
    {
-      #if defined(BOOST_NO_CXX11_RVALUE_REFERENCES) || defined(BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES)
+      #if defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES) || defined(NDNBOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES)
       return m_it[n];
       #else
       return ::ndnboost::move(m_it[n]);
@@ -191,7 +191,7 @@ class back_move_insert_iterator
    back_move_insert_iterator& operator=(reference x)
    { container_m->push_back(ndnboost::move(x)); return *this; }
 
-   back_move_insert_iterator& operator=(BOOST_RV_REF(value_type) x)
+   back_move_insert_iterator& operator=(NDNBOOST_RV_REF(value_type) x)
    {  reference rx = x; return this->operator=(rx);  }
 
    back_move_insert_iterator& operator*()     { return *this; }
@@ -231,7 +231,7 @@ public:
    front_move_insert_iterator& operator=(reference x)
    { container_m->push_front(ndnboost::move(x)); return *this; }
 
-   front_move_insert_iterator& operator=(BOOST_RV_REF(value_type) x)
+   front_move_insert_iterator& operator=(NDNBOOST_RV_REF(value_type) x)
    {  reference rx = x; return this->operator=(rx);  }
 
    front_move_insert_iterator& operator*()     { return *this; }
@@ -275,7 +275,7 @@ class move_insert_iterator
       return *this;
    }
 
-   move_insert_iterator& operator=(BOOST_RV_REF(value_type) x)
+   move_insert_iterator& operator=(NDNBOOST_RV_REF(value_type) x)
    {  reference rx = x; return this->operator=(rx);  }
 
    move_insert_iterator& operator*()     { return *this; }
@@ -295,4 +295,4 @@ inline move_insert_iterator<C> move_inserter(C& x, typename C::iterator it)
 
 #include <ndnboost/move/detail/config_end.hpp>
 
-#endif //#ifndef BOOST_MOVE_ITERATOR_HPP
+#endif //#ifndef NDNBOOST_MOVE_ITERATOR_HPP

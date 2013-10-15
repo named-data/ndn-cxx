@@ -11,29 +11,29 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_COMPARISON_LESS_EQUAL_HPP
-# define BOOST_PREPROCESSOR_COMPARISON_LESS_EQUAL_HPP
+# ifndef NDNBOOST_PREPROCESSOR_COMPARISON_LESS_EQUAL_HPP
+# define NDNBOOST_PREPROCESSOR_COMPARISON_LESS_EQUAL_HPP
 #
 # include <ndnboost/preprocessor/arithmetic/sub.hpp>
 # include <ndnboost/preprocessor/config/config.hpp>
 # include <ndnboost/preprocessor/logical/not.hpp>
 #
-# /* BOOST_PP_LESS_EQUAL */
+# /* NDNBOOST_PP_LESS_EQUAL */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_LESS_EQUAL(x, y) BOOST_PP_NOT(BOOST_PP_SUB(x, y))
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_LESS_EQUAL(x, y) NDNBOOST_PP_NOT(NDNBOOST_PP_SUB(x, y))
 # else
-#    define BOOST_PP_LESS_EQUAL(x, y) BOOST_PP_LESS_EQUAL_I(x, y)
-#    define BOOST_PP_LESS_EQUAL_I(x, y) BOOST_PP_NOT(BOOST_PP_SUB(x, y))
+#    define NDNBOOST_PP_LESS_EQUAL(x, y) NDNBOOST_PP_LESS_EQUAL_I(x, y)
+#    define NDNBOOST_PP_LESS_EQUAL_I(x, y) NDNBOOST_PP_NOT(NDNBOOST_PP_SUB(x, y))
 # endif
 #
-# /* BOOST_PP_LESS_EQUAL_D */
+# /* NDNBOOST_PP_LESS_EQUAL_D */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_LESS_EQUAL_D(d, x, y) BOOST_PP_NOT(BOOST_PP_SUB_D(d, x, y))
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_LESS_EQUAL_D(d, x, y) NDNBOOST_PP_NOT(NDNBOOST_PP_SUB_D(d, x, y))
 # else
-#    define BOOST_PP_LESS_EQUAL_D(d, x, y) BOOST_PP_LESS_EQUAL_D_I(d, x, y)
-#    define BOOST_PP_LESS_EQUAL_D_I(d, x, y) BOOST_PP_NOT(BOOST_PP_SUB_D(d, x, y))
+#    define NDNBOOST_PP_LESS_EQUAL_D(d, x, y) NDNBOOST_PP_LESS_EQUAL_D_I(d, x, y)
+#    define NDNBOOST_PP_LESS_EQUAL_D_I(d, x, y) NDNBOOST_PP_NOT(NDNBOOST_PP_SUB_D(d, x, y))
 # endif
 #
 # endif

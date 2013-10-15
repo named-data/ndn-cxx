@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_LONG_HPP_INCLUDED
-#define BOOST_MPL_LONG_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_LONG_HPP_INCLUDED
+#define NDNBOOST_MPL_LONG_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -19,4 +19,4 @@
 #define AUX_WRAPPER_VALUE_TYPE long
 #include <ndnboost/mpl/aux_/integral_wrapper.hpp>
 
-#endif // BOOST_MPL_LONG_HPP_INCLUDED
+#endif // NDNBOOST_MPL_LONG_HPP_INCLUDED

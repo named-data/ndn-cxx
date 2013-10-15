@@ -18,43 +18,43 @@
 
 #include <cstddef>
 
-#if !defined(BOOST_MSVC) || BOOST_MSVC >= 1300
-#   define BOOST_TT_AUX_SIZE_T_BASE(C) public ::ndnboost::integral_constant<std::size_t,C>
-#   define BOOST_TT_AUX_SIZE_T_TRAIT_VALUE_DECL(C) /**/
+#if !defined(NDNBOOST_MSVC) || NDNBOOST_MSVC >= 1300
+#   define NDNBOOST_TT_AUX_SIZE_T_BASE(C) public ::ndnboost::integral_constant<std::size_t,C>
+#   define NDNBOOST_TT_AUX_SIZE_T_TRAIT_VALUE_DECL(C) /**/
 #else
-#   define BOOST_TT_AUX_SIZE_T_BASE(C) public ::ndnboost::mpl::size_t<C>
-#   define BOOST_TT_AUX_SIZE_T_TRAIT_VALUE_DECL(C) \
+#   define NDNBOOST_TT_AUX_SIZE_T_BASE(C) public ::ndnboost::mpl::size_t<C>
+#   define NDNBOOST_TT_AUX_SIZE_T_TRAIT_VALUE_DECL(C) \
     typedef ::ndnboost::mpl::size_t<C> base_; \
     using base_::value; \
     /**/
 #endif
 
 
-#define BOOST_TT_AUX_SIZE_T_TRAIT_DEF1(trait,T,C) \
+#define NDNBOOST_TT_AUX_SIZE_T_TRAIT_DEF1(trait,T,C) \
 template< typename T > struct trait \
-    : BOOST_TT_AUX_SIZE_T_BASE(C) \
+    : NDNBOOST_TT_AUX_SIZE_T_BASE(C) \
 { \
 public:\
-    BOOST_TT_AUX_SIZE_T_TRAIT_VALUE_DECL(C) \
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1,trait,(T)) \
+    NDNBOOST_TT_AUX_SIZE_T_TRAIT_VALUE_DECL(C) \
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,trait,(T)) \
 }; \
 \
-BOOST_TT_AUX_TEMPLATE_ARITY_SPEC(1,trait) \
+NDNBOOST_TT_AUX_TEMPLATE_ARITY_SPEC(1,trait) \
 /**/
 
-#define BOOST_TT_AUX_SIZE_T_TRAIT_SPEC1(trait,spec,C) \
+#define NDNBOOST_TT_AUX_SIZE_T_TRAIT_SPEC1(trait,spec,C) \
 template<> struct trait<spec> \
-    : BOOST_TT_AUX_SIZE_T_BASE(C) \
+    : NDNBOOST_TT_AUX_SIZE_T_BASE(C) \
 { \
 public:\
-    BOOST_TT_AUX_SIZE_T_TRAIT_VALUE_DECL(C) \
-    BOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(1,trait,(spec)) \
+    NDNBOOST_TT_AUX_SIZE_T_TRAIT_VALUE_DECL(C) \
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(1,trait,(spec)) \
 }; \
 /**/
 
-#define BOOST_TT_AUX_SIZE_T_TRAIT_PARTIAL_SPEC1_1(param,trait,spec,C) \
+#define NDNBOOST_TT_AUX_SIZE_T_TRAIT_PARTIAL_SPEC1_1(param,trait,spec,C) \
 template< param > struct trait<spec> \
-    : BOOST_TT_AUX_SIZE_T_BASE(C) \
+    : NDNBOOST_TT_AUX_SIZE_T_BASE(C) \
 { \
 }; \
 /**/

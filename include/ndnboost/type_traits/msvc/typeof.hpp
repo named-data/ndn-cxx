@@ -2,14 +2,14 @@
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_TYPETRAITS_MSVC_TYPEOF_HPP
-#define BOOST_TYPETRAITS_MSVC_TYPEOF_HPP
+#ifndef NDNBOOST_TYPETRAITS_MSVC_TYPEOF_HPP
+#define NDNBOOST_TYPETRAITS_MSVC_TYPEOF_HPP
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/detail/workaround.hpp>
 
 namespace ndnboost { namespace detail {
-# if BOOST_WORKAROUND(BOOST_MSVC,==1300)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC,==1300)
         template<typename ID>
         struct msvc_extract_type
         {
@@ -47,4 +47,4 @@ namespace ndnboost { namespace detail {
 # endif
 }}
 
-#endif //BOOST_TYPETRAITS_MSVC_TYPEOF_IMPL_HPP
+#endif //NDNBOOST_TYPETRAITS_MSVC_TYPEOF_IMPL_HPP

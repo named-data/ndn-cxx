@@ -12,19 +12,19 @@
 //  Description : optional internal tracing
 // ***************************************************************************
 
-#ifndef BOOST_RT_TRACE_HPP_062604GER
-#define BOOST_RT_TRACE_HPP_062604GER
+#ifndef NDNBOOST_RT_TRACE_HPP_062604GER
+#define NDNBOOST_RT_TRACE_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
 
-#ifdef BOOST_RT_PARAM_DEBUG
+#ifdef NDNBOOST_RT_PARAM_DEBUG
 
 #include <iostream>
 
-#  define BOOST_RT_PARAM_TRACE( str ) std::cerr << str << std::endl
+#  define NDNBOOST_RT_PARAM_TRACE( str ) std::cerr << str << std::endl
 #else
-#  define BOOST_RT_PARAM_TRACE( str )
+#  define NDNBOOST_RT_PARAM_TRACE( str )
 #endif
 
-#endif // BOOST_RT_TRACE_HPP_062604GER
+#endif // NDNBOOST_RT_TRACE_HPP_062604GER

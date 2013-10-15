@@ -9,8 +9,8 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_SEQ_TRANSFORM_HPP
-# define BOOST_PREPROCESSOR_SEQ_TRANSFORM_HPP
+# ifndef NDNBOOST_PREPROCESSOR_SEQ_TRANSFORM_HPP
+# define NDNBOOST_PREPROCESSOR_SEQ_TRANSFORM_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 # include <ndnboost/preprocessor/seq/fold_left.hpp>
@@ -18,31 +18,31 @@
 # include <ndnboost/preprocessor/tuple/elem.hpp>
 # include <ndnboost/preprocessor/tuple/rem.hpp>
 #
-# /* BOOST_PP_SEQ_TRANSFORM */
+# /* NDNBOOST_PP_SEQ_TRANSFORM */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_SEQ_TRANSFORM(op, data, seq) BOOST_PP_SEQ_TAIL(BOOST_PP_TUPLE_ELEM(3, 2, BOOST_PP_SEQ_FOLD_LEFT(BOOST_PP_SEQ_TRANSFORM_O, (op, data, (nil)), seq)))
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_SEQ_TRANSFORM(op, data, seq) NDNBOOST_PP_SEQ_TAIL(NDNBOOST_PP_TUPLE_ELEM(3, 2, NDNBOOST_PP_SEQ_FOLD_LEFT(NDNBOOST_PP_SEQ_TRANSFORM_O, (op, data, (nil)), seq)))
 # else
-#    define BOOST_PP_SEQ_TRANSFORM(op, data, seq) BOOST_PP_SEQ_TRANSFORM_I(op, data, seq)
-#    define BOOST_PP_SEQ_TRANSFORM_I(op, data, seq) BOOST_PP_SEQ_TAIL(BOOST_PP_TUPLE_ELEM(3, 2, BOOST_PP_SEQ_FOLD_LEFT(BOOST_PP_SEQ_TRANSFORM_O, (op, data, (nil)), seq)))
+#    define NDNBOOST_PP_SEQ_TRANSFORM(op, data, seq) NDNBOOST_PP_SEQ_TRANSFORM_I(op, data, seq)
+#    define NDNBOOST_PP_SEQ_TRANSFORM_I(op, data, seq) NDNBOOST_PP_SEQ_TAIL(NDNBOOST_PP_TUPLE_ELEM(3, 2, NDNBOOST_PP_SEQ_FOLD_LEFT(NDNBOOST_PP_SEQ_TRANSFORM_O, (op, data, (nil)), seq)))
 # endif
 #
-# if BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
-#    define BOOST_PP_SEQ_TRANSFORM_O(s, state, elem) BOOST_PP_SEQ_TRANSFORM_O_IM(s, BOOST_PP_TUPLE_REM_3 state, elem)
-#    define BOOST_PP_SEQ_TRANSFORM_O_IM(s, im, elem) BOOST_PP_SEQ_TRANSFORM_O_I(s, im, elem)
+# if NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_STRICT()
+#    define NDNBOOST_PP_SEQ_TRANSFORM_O(s, state, elem) NDNBOOST_PP_SEQ_TRANSFORM_O_IM(s, NDNBOOST_PP_TUPLE_REM_3 state, elem)
+#    define NDNBOOST_PP_SEQ_TRANSFORM_O_IM(s, im, elem) NDNBOOST_PP_SEQ_TRANSFORM_O_I(s, im, elem)
 # else
-#    define BOOST_PP_SEQ_TRANSFORM_O(s, state, elem) BOOST_PP_SEQ_TRANSFORM_O_I(s, BOOST_PP_TUPLE_ELEM(3, 0, state), BOOST_PP_TUPLE_ELEM(3, 1, state), BOOST_PP_TUPLE_ELEM(3, 2, state), elem)
+#    define NDNBOOST_PP_SEQ_TRANSFORM_O(s, state, elem) NDNBOOST_PP_SEQ_TRANSFORM_O_I(s, NDNBOOST_PP_TUPLE_ELEM(3, 0, state), NDNBOOST_PP_TUPLE_ELEM(3, 1, state), NDNBOOST_PP_TUPLE_ELEM(3, 2, state), elem)
 # endif
 #
-# define BOOST_PP_SEQ_TRANSFORM_O_I(s, op, data, res, elem) (op, data, res (op(s, data, elem)))
+# define NDNBOOST_PP_SEQ_TRANSFORM_O_I(s, op, data, res, elem) (op, data, res (op(s, data, elem)))
 #
-# /* BOOST_PP_SEQ_TRANSFORM_S */
+# /* NDNBOOST_PP_SEQ_TRANSFORM_S */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_SEQ_TRANSFORM_S(s, op, data, seq) BOOST_PP_SEQ_TAIL(BOOST_PP_TUPLE_ELEM(3, 2, BOOST_PP_SEQ_FOLD_LEFT_ ## s(BOOST_PP_SEQ_TRANSFORM_O, (op, data, (nil)), seq)))
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_SEQ_TRANSFORM_S(s, op, data, seq) NDNBOOST_PP_SEQ_TAIL(NDNBOOST_PP_TUPLE_ELEM(3, 2, NDNBOOST_PP_SEQ_FOLD_LEFT_ ## s(NDNBOOST_PP_SEQ_TRANSFORM_O, (op, data, (nil)), seq)))
 # else
-#    define BOOST_PP_SEQ_TRANSFORM_S(s, op, data, seq) BOOST_PP_SEQ_TRANSFORM_S_I(s, op, data, seq)
-#    define BOOST_PP_SEQ_TRANSFORM_S_I(s, op, data, seq) BOOST_PP_SEQ_TAIL(BOOST_PP_TUPLE_ELEM(3, 2, BOOST_PP_SEQ_FOLD_LEFT_ ## s(BOOST_PP_SEQ_TRANSFORM_O, (op, data, (nil)), seq)))
+#    define NDNBOOST_PP_SEQ_TRANSFORM_S(s, op, data, seq) NDNBOOST_PP_SEQ_TRANSFORM_S_I(s, op, data, seq)
+#    define NDNBOOST_PP_SEQ_TRANSFORM_S_I(s, op, data, seq) NDNBOOST_PP_SEQ_TAIL(NDNBOOST_PP_TUPLE_ELEM(3, 2, NDNBOOST_PP_SEQ_FOLD_LEFT_ ## s(NDNBOOST_PP_SEQ_TRANSFORM_O, (op, data, (nil)), seq)))
 # endif
 #
 # endif

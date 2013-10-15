@@ -12,8 +12,8 @@
 //  Description : contains forward eclarations for Boost.Test data types
 // ***************************************************************************
 
-#ifndef BOOST_TEST_FWD_DECL_HPP_011605GER
-#define BOOST_TEST_FWD_DECL_HPP_011605GER
+#ifndef NDNBOOST_TEST_FWD_DECL_HPP_011605GER
+#define NDNBOOST_TEST_FWD_DECL_HPP_011605GER
 
 namespace ndnboost {
 
@@ -44,5 +44,5 @@ class lazy_ostream;
 
 } // namespace ndnboost
 
-#endif // BOOST_TEST_FWD_DECL_HPP_011605GER
+#endif // NDNBOOST_TEST_FWD_DECL_HPP_011605GER
 

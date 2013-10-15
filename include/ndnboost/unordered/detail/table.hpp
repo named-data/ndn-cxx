@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_UNORDERED_DETAIL_ALL_HPP_INCLUDED
-#define BOOST_UNORDERED_DETAIL_ALL_HPP_INCLUDED
+#ifndef NDNBOOST_UNORDERED_DETAIL_ALL_HPP_INCLUDED
+#define NDNBOOST_UNORDERED_DETAIL_ALL_HPP_INCLUDED
 
 #include <ndnboost/unordered/detail/buckets.hpp>
 #include <ndnboost/unordered/detail/util.hpp>
@@ -13,19 +13,19 @@
 #include <ndnboost/type_traits/alignment_of.hpp>
 #include <cmath>
 
-#if defined(BOOST_MSVC)
+#if defined(NDNBOOST_MSVC)
 #pragma warning(push)
 #pragma warning(disable:4127) // conditional expression is constant
 #endif
 
-#if defined(BOOST_UNORDERED_DEPRECATED_EQUALITY)
+#if defined(NDNBOOST_UNORDERED_DEPRECATED_EQUALITY)
 
 #if defined(__EDG__)
 #elif defined(_MSC_VER) || defined(__BORLANDC__) || defined(__DMC__)
-#pragma message("Warning: BOOST_UNORDERED_DEPRECATED_EQUALITY is no longer supported.")
+#pragma message("Warning: NDNBOOST_UNORDERED_DEPRECATED_EQUALITY is no longer supported.")
 #elif defined(__GNUC__) || defined(__HP_aCC) || \
     defined(__SUNPRO_CC) || defined(__IBMCPP__)
-#warning "BOOST_UNORDERED_DEPRECATED_EQUALITY is no longer supported."
+#warning "NDNBOOST_UNORDERED_DEPRECATED_EQUALITY is no longer supported."
 #endif
 
 #endif
@@ -231,7 +231,7 @@ namespace ndnboost { namespace unordered { namespace detail {
 
         bucket_pointer get_bucket(std::size_t bucket_index) const
         {
-            BOOST_ASSERT(buckets_);
+            NDNBOOST_ASSERT(buckets_);
             return buckets_ + static_cast<std::ptrdiff_t>(bucket_index);
         }
 
@@ -264,7 +264,7 @@ namespace ndnboost { namespace unordered { namespace detail {
 
         float load_factor() const
         {
-            BOOST_ASSERT(bucket_count_ != 0);
+            NDNBOOST_ASSERT(bucket_count_ != 0);
             return static_cast<float>(size_)
                 / static_cast<float>(bucket_count_);
         }
@@ -313,14 +313,14 @@ namespace ndnboost { namespace unordered { namespace detail {
 
         void max_load_factor(float z)
         {
-            BOOST_ASSERT(z > 0);
+            NDNBOOST_ASSERT(z > 0);
             mlf_ = (std::max)(z, minimum_max_load_factor);
             recalculate_max_load();
         }
 
         std::size_t min_buckets_for_size(std::size_t size) const
         {
-            BOOST_ASSERT(mlf_ >= minimum_max_load_factor);
+            NDNBOOST_ASSERT(mlf_ >= minimum_max_load_factor);
     
             using namespace std;
     
@@ -459,7 +459,7 @@ namespace ndnboost { namespace unordered { namespace detail {
             // According to 23.2.1.8, if propagate_on_container_swap is
             // false the behaviour is undefined unless the allocators
             // are equal.
-            BOOST_ASSERT(node_alloc() == other.node_alloc());
+            NDNBOOST_ASSERT(node_alloc() == other.node_alloc());
         }
 
         void swap_allocators(table& other, true_type)
@@ -491,8 +491,8 @@ namespace ndnboost { namespace unordered { namespace detail {
 
         void move_buckets_from(table& other)
         {
-            BOOST_ASSERT(node_alloc() == other.node_alloc());
-            BOOST_ASSERT(!buckets_);
+            NDNBOOST_ASSERT(node_alloc() == other.node_alloc());
+            NDNBOOST_ASSERT(!buckets_);
             buckets_ = other.buckets_;
             bucket_count_ = other.bucket_count_;
             size_ = other.size_;
@@ -524,7 +524,7 @@ namespace ndnboost { namespace unordered { namespace detail {
 
         std::size_t delete_nodes(link_pointer prev, link_pointer end)
         {
-            BOOST_ASSERT(prev->next_ != end);
+            NDNBOOST_ASSERT(prev->next_ != end);
 
             std::size_t count = 0;
 
@@ -554,7 +554,7 @@ namespace ndnboost { namespace unordered { namespace detail {
                 max_load_ = 0;
             }
 
-            BOOST_ASSERT(!size_);
+            NDNBOOST_ASSERT(!size_);
         }
 
         void clear()
@@ -564,7 +564,7 @@ namespace ndnboost { namespace unordered { namespace detail {
             delete_nodes(get_previous_start(), link_pointer());
             clear_buckets();
 
-            BOOST_ASSERT(!size_);
+            NDNBOOST_ASSERT(!size_);
         }
 
         void clear_buckets()
@@ -854,7 +854,7 @@ namespace ndnboost { namespace unordered { namespace detail {
     }
 }}}
 
-#if defined(BOOST_MSVC)
+#if defined(NDNBOOST_MSVC)
 #pragma warning(pop)
 #endif
 

@@ -6,8 +6,8 @@
 
 //------------------------------------------------------------------------------
 
-#ifndef BOOST_FT_IS_FUNCTION_POINTER_HPP_INCLUDED
-#define BOOST_FT_IS_FUNCTION_POINTER_HPP_INCLUDED
+#ifndef NDNBOOST_FT_IS_FUNCTION_POINTER_HPP_INCLUDED
+#define NDNBOOST_FT_IS_FUNCTION_POINTER_HPP_INCLUDED
 
 #include <ndnboost/mpl/aux_/lambda_support.hpp>
 #include <ndnboost/type_traits/detail/template_arity_spec.hpp>
@@ -25,10 +25,10 @@ namespace ndnboost
         , function_types::tag<Tag ,detail::pointer_tag> 
         >
     { 
-      BOOST_MPL_AUX_LAMBDA_SUPPORT(2,is_function_pointer,(T,Tag))
+      NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2,is_function_pointer,(T,Tag))
     };
   }
-  BOOST_TT_AUX_TEMPLATE_ARITY_SPEC(2,function_types::is_function_pointer)
+  NDNBOOST_TT_AUX_TEMPLATE_ARITY_SPEC(2,function_types::is_function_pointer)
 }
 
 #endif

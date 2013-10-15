@@ -7,8 +7,8 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_RANK_HPP_INCLUDED
-#define BOOST_TT_RANK_HPP_INCLUDED
+#ifndef NDNBOOST_TT_RANK_HPP_INCLUDED
+#define NDNBOOST_TT_RANK_HPP_INCLUDED
 
 // should be the last #include
 #include <ndnboost/type_traits/detail/size_t_trait_def.hpp>
@@ -22,53 +22,53 @@ namespace detail{
 template <class T, std::size_t N>
 struct rank_imp
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = N);
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = N);
 };
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(NDNBOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
 template <class T, std::size_t R, std::size_t N>
 struct rank_imp<T[R], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
 };
 
 template <class T, std::size_t R, std::size_t N>
 struct rank_imp<T const[R], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
 };
 
 template <class T, std::size_t R, std::size_t N>
 struct rank_imp<T volatile[R], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
 };
 
 template <class T, std::size_t R, std::size_t N>
 struct rank_imp<T const volatile[R], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
 };
 
-#if !BOOST_WORKAROUND(__BORLANDC__, < 0x600) && !defined(__IBMCPP__) &&  !BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, < 0x600) && !defined(__IBMCPP__) &&  !NDNBOOST_WORKAROUND(__DMC__, NDNBOOST_TESTED_AT(0x840))
 template <class T, std::size_t N>
 struct rank_imp<T[], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
 };
 template <class T, std::size_t N>
 struct rank_imp<T const[], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
 };
 template <class T, std::size_t N>
 struct rank_imp<T volatile[], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
 };
 template <class T, std::size_t N>
 struct rank_imp<T const volatile[], N>
 {
-   BOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, value = (::ndnboost::detail::rank_imp<T, N+1>::value));
 };
 #endif
 #endif
@@ -77,13 +77,13 @@ struct rank_imp<T const volatile[], N>
 #endif // !defined( __CODEGEARC__ )
 
 #if defined( __CODEGEARC__ )
-BOOST_TT_AUX_SIZE_T_TRAIT_DEF1(rank,T,__array_rank(T))
+NDNBOOST_TT_AUX_SIZE_T_TRAIT_DEF1(rank,T,__array_rank(T))
 #else
-BOOST_TT_AUX_SIZE_T_TRAIT_DEF1(rank,T,(::ndnboost::detail::rank_imp<T,0>::value))
+NDNBOOST_TT_AUX_SIZE_T_TRAIT_DEF1(rank,T,(::ndnboost::detail::rank_imp<T,0>::value))
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/size_t_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_MEMBER_FUNCTION_POINTER_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_MEMBER_FUNCTION_POINTER_HPP_INCLUDED

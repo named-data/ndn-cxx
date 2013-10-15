@@ -25,40 +25,40 @@ namespace detail {
 typedef constant<0x00ff0fff> full_mask;
 template <bits_t Flags, bits_t CCID> struct encode_bits_impl
 {
-BOOST_STATIC_CONSTANT( bits_t, value = 
+NDNBOOST_STATIC_CONSTANT( bits_t, value = 
 Flags | (0x00008000 * CCID) << 1 );
 };
 template <bits_t Flags, bits_t CCID, std::size_t Arity> 
 struct encode_charr_impl
 {
-BOOST_STATIC_CONSTANT(std::size_t, value = (std::size_t)(1+
+NDNBOOST_STATIC_CONSTANT(std::size_t, value = (std::size_t)(1+
 Flags | (0x00008000 * CCID) << 1 | Arity << 24
 ));
 };
 template <bits_t Bits> struct decode_bits
 {
-BOOST_STATIC_CONSTANT(bits_t, flags = Bits & 0x00000fff);
-BOOST_STATIC_CONSTANT(bits_t, cc_id = 
+NDNBOOST_STATIC_CONSTANT(bits_t, flags = Bits & 0x00000fff);
+NDNBOOST_STATIC_CONSTANT(bits_t, cc_id = 
 ( (Bits & 0x00ff0fff) / 0x00008000) >> 1 
 );
-BOOST_STATIC_CONSTANT(bits_t, tag_bits = (Bits & 0x00ff0fff));
-BOOST_STATIC_CONSTANT(std::size_t, arity = (std::size_t)
+NDNBOOST_STATIC_CONSTANT(bits_t, tag_bits = (Bits & 0x00ff0fff));
+NDNBOOST_STATIC_CONSTANT(std::size_t, arity = (std::size_t)
 (Bits >> 24) 
 );
 };
 template <bits_t LHS_bits, bits_t LHS_mask, bits_t RHS_bits, bits_t RHS_mask>
 struct tag_ice
 {
-BOOST_STATIC_CONSTANT(bool, match =
+NDNBOOST_STATIC_CONSTANT(bool, match =
 RHS_bits == (LHS_bits & RHS_mask & (RHS_bits | ~0x000000ff))
 );
-BOOST_STATIC_CONSTANT(bits_t, combined_bits = 
+NDNBOOST_STATIC_CONSTANT(bits_t, combined_bits = 
 (LHS_bits & ~RHS_mask) | RHS_bits
 );
-BOOST_STATIC_CONSTANT(bits_t, combined_mask =
+NDNBOOST_STATIC_CONSTANT(bits_t, combined_mask =
 LHS_mask | RHS_mask
 );
-BOOST_STATIC_CONSTANT(bits_t, extracted_bits =
+NDNBOOST_STATIC_CONSTANT(bits_t, extracted_bits =
 LHS_bits & RHS_mask
 );
 };

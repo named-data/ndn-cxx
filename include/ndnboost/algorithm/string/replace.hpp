@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_REPLACE_HPP
-#define BOOST_STRING_REPLACE_HPP
+#ifndef NDNBOOST_STRING_REPLACE_HPP
+#define NDNBOOST_STRING_REPLACE_HPP
 
 #include <ndnboost/algorithm/string/config.hpp>
 
@@ -57,7 +57,7 @@ namespace ndnboost {
             OutputIteratorT Output,
             const Range1T& Input,
             const iterator_range<
-                BOOST_STRING_TYPENAME 
+                NDNBOOST_STRING_TYPENAME 
                     range_const_iterator<Range1T>::type>& SearchRange,
             const Range2T& Format)
         {
@@ -76,7 +76,7 @@ namespace ndnboost {
         inline SequenceT replace_range_copy( 
             const SequenceT& Input,
             const iterator_range<
-                BOOST_STRING_TYPENAME 
+                NDNBOOST_STRING_TYPENAME 
                     range_const_iterator<SequenceT>::type>& SearchRange,
             const RangeT& Format)
         {
@@ -99,7 +99,7 @@ namespace ndnboost {
         inline void replace_range( 
             SequenceT& Input,
             const iterator_range<
-                BOOST_STRING_TYPENAME 
+                NDNBOOST_STRING_TYPENAME 
                     range_iterator<SequenceT>::type>& SearchRange,
             const RangeT& Format)
         {
@@ -925,4 +925,4 @@ namespace ndnboost {
 
 } // namespace ndnboost
 
-#endif  // BOOST_REPLACE_HPP
+#endif  // NDNBOOST_REPLACE_HPP

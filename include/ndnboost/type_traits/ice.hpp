@@ -8,8 +8,8 @@
 //
 //  macros and helpers for working with integral-constant-expressions.
 
-#ifndef BOOST_TT_ICE_HPP_INCLUDED
-#define BOOST_TT_ICE_HPP_INCLUDED
+#ifndef NDNBOOST_TT_ICE_HPP_INCLUDED
+#define NDNBOOST_TT_ICE_HPP_INCLUDED
 
 #include <ndnboost/type_traits/detail/yes_no_type.hpp>
 #include <ndnboost/type_traits/detail/ice_or.hpp>
@@ -17,4 +17,4 @@
 #include <ndnboost/type_traits/detail/ice_not.hpp>
 #include <ndnboost/type_traits/detail/ice_eq.hpp>
 
-#endif // BOOST_TT_ICE_HPP_INCLUDED
+#endif // NDNBOOST_TT_ICE_HPP_INCLUDED

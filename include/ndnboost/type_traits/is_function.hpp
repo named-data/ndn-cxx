@@ -8,14 +8,14 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_FUNCTION_HPP_INCLUDED
-#define BOOST_TT_IS_FUNCTION_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_FUNCTION_HPP_INCLUDED
+#define NDNBOOST_TT_IS_FUNCTION_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_reference.hpp>
 #include <ndnboost/type_traits/detail/false_result.hpp>
 #include <ndnboost/config.hpp>
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_TT_TEST_MS_FUNC_SIGS)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(NDNBOOST_TT_TEST_MS_FUNC_SIGS)
 #   include <ndnboost/type_traits/detail/is_function_ptr_helper.hpp>
 #else
 #   include <ndnboost/type_traits/detail/is_function_ptr_tester.hpp>
@@ -37,7 +37,7 @@ namespace ndnboost {
 
 namespace detail {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_TT_TEST_MS_FUNC_SIGS)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(NDNBOOST_TT_TEST_MS_FUNC_SIGS)
 template<bool is_ref = true>
 struct is_function_chooser
     : public ::ndnboost::type_traits::false_result
@@ -56,7 +56,7 @@ struct is_function_chooser<false>
 template <typename T>
 struct is_function_impl
     : public is_function_chooser< ::ndnboost::is_reference<T>::value >
-        ::BOOST_NESTED_TEMPLATE result_<T>
+        ::NDNBOOST_NESTED_TEMPLATE result_<T>
 {
 };
 
@@ -65,25 +65,25 @@ struct is_function_impl
 template <typename T>
 struct is_function_impl
 {
-#if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC_FULL_VER, >= 140050000)
 #pragma warning(push)
 #pragma warning(disable:6334)
 #endif
     static T* t;
-    BOOST_STATIC_CONSTANT(
+    NDNBOOST_STATIC_CONSTANT(
         bool, value = sizeof(::ndnboost::type_traits::is_function_ptr_tester(t))
         == sizeof(::ndnboost::type_traits::yes_type)
         );
-#if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC_FULL_VER, >= 140050000)
 #pragma warning(pop)
 #endif
 };
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 template <typename T>
 struct is_function_impl<T&> : public false_type
 {};
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 template <typename T>
 struct is_function_impl<T&&> : public false_type
 {};
@@ -97,15 +97,15 @@ struct is_function_impl<T&&> : public false_type
 #endif // !defined( __CODEGEARC__ )
 
 #if defined( __CODEGEARC__ )
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_function,T,__is_function(T))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_function,T,__is_function(T))
 #else
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_function,T,::ndnboost::detail::is_function_impl<T>::value)
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_function,T&&,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_function,T,::ndnboost::detail::is_function_impl<T>::value)
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_function,T&&,false)
 #endif
 #endif
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_FUNCTION_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_FUNCTION_HPP_INCLUDED

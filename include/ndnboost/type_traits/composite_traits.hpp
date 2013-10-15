@@ -10,8 +10,8 @@
 //  is_array, is_pointer, is_reference, is_member_pointer, is_enum, is_union.
 //
 
-#ifndef BOOST_TT_COMPOSITE_TRAITS_HPP_INCLUDED
-#define BOOST_TT_COMPOSITE_TRAITS_HPP_INCLUDED
+#ifndef NDNBOOST_TT_COMPOSITE_TRAITS_HPP_INCLUDED
+#define NDNBOOST_TT_COMPOSITE_TRAITS_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_array.hpp>
 #include <ndnboost/type_traits/is_enum.hpp>
@@ -21,7 +21,7 @@
 #include <ndnboost/type_traits/is_reference.hpp>
 #include <ndnboost/type_traits/is_union.hpp>
 
-#endif // BOOST_TT_COMPOSITE_TRAITS_HPP_INCLUDED
+#endif // NDNBOOST_TT_COMPOSITE_TRAITS_HPP_INCLUDED
 
 
 

@@ -6,8 +6,8 @@
 
 //------------------------------------------------------------------------------
 
-#ifndef BOOST_FT_DETAIL_SYNTHESIZE_HPP_INCLUDED
-#define BOOST_FT_DETAIL_SYNTHESIZE_HPP_INCLUDED
+#ifndef NDNBOOST_FT_DETAIL_SYNTHESIZE_HPP_INCLUDED
+#define NDNBOOST_FT_DETAIL_SYNTHESIZE_HPP_INCLUDED
 
 #include <cstddef>
 
@@ -69,8 +69,8 @@ struct synthesize_mop
   typedef R C::* type;
 };
 
-#define BOOST_FT_variations BOOST_FT_function|BOOST_FT_member_pointer
-#define BOOST_FT_al_path ndnboost/function_types/detail/synthesize_impl
+#define NDNBOOST_FT_variations NDNBOOST_FT_function|NDNBOOST_FT_member_pointer
+#define NDNBOOST_FT_al_path ndnboost/function_types/detail/synthesize_impl
 #include <ndnboost/function_types/detail/pp_loop.hpp>
 
 } } } // namespace ::ndnboost::function_types::detail

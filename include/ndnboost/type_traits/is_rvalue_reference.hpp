@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_RVALUE_REFERENCE_HPP_INCLUDED
-#define BOOST_TT_IS_RVALUE_REFERENCE_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_RVALUE_REFERENCE_HPP_INCLUDED
+#define NDNBOOST_TT_IS_RVALUE_REFERENCE_HPP_INCLUDED
 
 #include <ndnboost/type_traits/config.hpp>
 
@@ -16,14 +16,14 @@
 
 namespace ndnboost {
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_rvalue_reference,T,false)
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_rvalue_reference,T&&,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_rvalue_reference,T,false)
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_rvalue_reference,T&&,true)
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_REFERENCE_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_REFERENCE_HPP_INCLUDED
 

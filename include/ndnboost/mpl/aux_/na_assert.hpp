@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_NA_ASSERT_HPP_INCLUDED
-#define BOOST_MPL_AUX_NA_ASSERT_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_NA_ASSERT_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_NA_ASSERT_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -18,17 +18,17 @@
 #include <ndnboost/mpl/aux_/config/msvc.hpp>
 #include <ndnboost/mpl/aux_/config/workaround.hpp>
 
-#if !BOOST_WORKAROUND(_MSC_FULL_VER, <= 140050601)    \
-    && !BOOST_WORKAROUND(__EDG_VERSION__, <= 243)
+#if !NDNBOOST_WORKAROUND(_MSC_FULL_VER, <= 140050601)    \
+    && !NDNBOOST_WORKAROUND(__EDG_VERSION__, <= 243)
 #   include <ndnboost/mpl/assert.hpp>
-#   define BOOST_MPL_AUX_ASSERT_NOT_NA(x) \
-    BOOST_MPL_ASSERT_NOT((ndnboost::mpl::is_na<type>)) \
+#   define NDNBOOST_MPL_AUX_ASSERT_NOT_NA(x) \
+    NDNBOOST_MPL_ASSERT_NOT((ndnboost::mpl::is_na<type>)) \
 /**/
 #else
 #   include <ndnboost/static_assert.hpp>
-#   define BOOST_MPL_AUX_ASSERT_NOT_NA(x) \
-    BOOST_STATIC_ASSERT(!ndnboost::mpl::is_na<x>::value) \
+#   define NDNBOOST_MPL_AUX_ASSERT_NOT_NA(x) \
+    NDNBOOST_STATIC_ASSERT(!ndnboost::mpl::is_na<x>::value) \
 /**/
 #endif
 
-#endif // BOOST_MPL_AUX_NA_ASSERT_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_NA_ASSERT_HPP_INCLUDED

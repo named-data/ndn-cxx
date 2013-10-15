@@ -10,8 +10,8 @@
 
 // ------------------------------------------------------------
 
-#ifndef BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_HPP
-#define BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_HPP
+#ifndef NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_HPP
+#define NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_HPP
 
 #include "ndnboost/type_traits/add_reference.hpp"
 #include "ndnboost/type_traits/add_const.hpp"
@@ -22,7 +22,7 @@
 namespace ndnboost { 
 namespace lambda {
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, >= 1400)
 #pragma warning(push)
 #pragma warning(disable:4512) //assignment operator could not be generated
 #endif
@@ -52,7 +52,7 @@ public:
   RET call(CALL_FORMAL_ARGS) const { CALL_USE_ARGS; return elem; }
 };
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, >= 1400)
 #pragma warning(pop)
 #endif
 
@@ -156,16 +156,16 @@ template <class T> struct constify_rvals<T&> {
   // sig template for nullary case even if the nullary operator() is not
   // called
 template <class T> struct is_null_type 
-{ BOOST_STATIC_CONSTANT(bool, value = false); };
+{ NDNBOOST_STATIC_CONSTANT(bool, value = false); };
 
 template <> struct is_null_type<null_type> 
-{ BOOST_STATIC_CONSTANT(bool, value = true); };
+{ NDNBOOST_STATIC_CONSTANT(bool, value = true); };
 
 template<class Tuple> struct has_null_type {
-  BOOST_STATIC_CONSTANT(bool, value = (is_null_type<typename Tuple::head_type>::value || has_null_type<typename Tuple::tail_type>::value));
+  NDNBOOST_STATIC_CONSTANT(bool, value = (is_null_type<typename Tuple::head_type>::value || has_null_type<typename Tuple::tail_type>::value));
 };
 template<> struct has_null_type<null_type> {
-  BOOST_STATIC_CONSTANT(bool, value = false);
+  NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
 
 
@@ -367,12 +367,12 @@ public:
 };
 
 
-#if defined BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART  
-#error "Multiple defines of BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART"  
+#if defined NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART  
+#error "Multiple defines of NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART"  
 #endif  
   
   
-#define BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(ARITY)             \
+#define NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(ARITY)             \
 template<class Act, class Args>                                        \
 class lambda_functor_base<action<ARITY, Act>, Args>                    \
 {                                                                      \
@@ -398,7 +398,7 @@ public:                                                                \
     using detail::element_or_null;                                     \
     using detail::deduce_argument_types;                                
 
-BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(1)
+NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(1)
 
   typedef typename
     deduce_argument_types<Args, tuple<CALL_REFERENCE_TYPES> >::type rets_t;
@@ -411,7 +411,7 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(1)
 };
 
 
-BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(2)
+NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(2)
   
   typedef typename 
     deduce_argument_types<Args, tuple<CALL_REFERENCE_TYPES> >::type rets_t;
@@ -425,7 +425,7 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(2)
   }
 };
 
-BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(3)
+NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(3)
 
   typedef typename 
     deduce_argument_types<Args, tuple<CALL_REFERENCE_TYPES> >::type rets_t;
@@ -442,7 +442,7 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(3)
   }
 };
 
-BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(4)
+NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(4)
   typedef typename 
     deduce_argument_types<Args, tuple<CALL_REFERENCE_TYPES> >::type rets_t;
   typedef typename element_or_null<0, rets_t>::type rt0;
@@ -459,7 +459,7 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(4)
   }
 };
 
-BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(5)
+NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(5)
   typedef typename 
     deduce_argument_types<Args, tuple<CALL_REFERENCE_TYPES> >::type rets_t;
   typedef typename element_or_null<0, rets_t>::type rt0;
@@ -478,7 +478,7 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(5)
   }
 };
 
-BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(6)
+NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(6)
 
   typedef typename 
     deduce_argument_types<Args, tuple<CALL_REFERENCE_TYPES> >::type rets_t;
@@ -501,7 +501,7 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(6)
   }
 };
 
-BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(7)
+NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(7)
   typedef typename 
     deduce_argument_types<Args, tuple<CALL_REFERENCE_TYPES> >::type rets_t;
   typedef typename element_or_null<0, rets_t>::type rt0;
@@ -525,7 +525,7 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(7)
   }
 };
 
-BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(8)
+NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(8)
   typedef typename 
     deduce_argument_types<Args, tuple<CALL_REFERENCE_TYPES> >::type rets_t;
   typedef typename element_or_null<0, rets_t>::type rt0;
@@ -550,7 +550,7 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(8)
   }
 };
 
-BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(9)
+NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(9)
   typedef typename 
     deduce_argument_types<Args, tuple<CALL_REFERENCE_TYPES> >::type rets_t;
   typedef typename element_or_null<0, rets_t>::type rt0;
@@ -577,7 +577,7 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(9)
   }
 };
 
-BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(10) 
+NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(10) 
   typedef typename 
     deduce_argument_types<Args, tuple<CALL_REFERENCE_TYPES> >::type rets_t;
   typedef typename element_or_null<0, rets_t>::type rt0;
@@ -606,7 +606,7 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART(10)
   }
 };
 
-#undef BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART
+#undef NDNBOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART
 
 
 } // namespace lambda

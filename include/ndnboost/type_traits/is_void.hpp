@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_VOID_HPP_INCLUDED
-#define BOOST_TT_IS_VOID_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_VOID_HPP_INCLUDED
+#define NDNBOOST_TT_IS_VOID_HPP_INCLUDED
 
 #include <ndnboost/config.hpp>
 
@@ -18,15 +18,15 @@ namespace ndnboost {
 
 //* is a type T void - is_void<T>
 #if defined( __CODEGEARC__ )
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_void,T,__is_void(T))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_void,T,__is_void(T))
 #else
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_void,T,false)
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(is_void,void,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_void,T,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(is_void,void,true)
 
-#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(is_void,void const,true)
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(is_void,void volatile,true)
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(is_void,void const volatile,true)
+#ifndef NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(is_void,void const,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(is_void,void volatile,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(is_void,void const volatile,true)
 #endif
 
 #endif  // non-CodeGear implementation
@@ -35,4 +35,4 @@ BOOST_TT_AUX_BOOL_TRAIT_SPEC1(is_void,void const volatile,true)
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_VOID_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_VOID_HPP_INCLUDED

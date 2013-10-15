@@ -8,21 +8,21 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_CONFIG_HPP
-#define BOOST_STRING_CONFIG_HPP
+#ifndef NDNBOOST_STRING_CONFIG_HPP
+#define NDNBOOST_STRING_CONFIG_HPP
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/detail/workaround.hpp>
 
-#ifdef BOOST_STRING_DEDUCED_TYPENAME
+#ifdef NDNBOOST_STRING_DEDUCED_TYPENAME
 #   error "macro already defined!"
 #endif
 
-#define BOOST_STRING_TYPENAME BOOST_DEDUCED_TYPENAME
+#define NDNBOOST_STRING_TYPENAME NDNBOOST_DEDUCED_TYPENAME
 
 // Metrowerks workaround
-#if BOOST_WORKAROUND(__MWERKS__, <= 0x3003) // 8.x
+#if NDNBOOST_WORKAROUND(__MWERKS__, <= 0x3003) // 8.x
 #pragma parse_func_templ off
 #endif
 
-#endif  // BOOST_STRING_CONFIG_HPP
+#endif  // NDNBOOST_STRING_CONFIG_HPP

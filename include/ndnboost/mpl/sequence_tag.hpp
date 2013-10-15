@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_SEQUENCE_TAG_HPP_INCLUDED
-#define BOOST_MPL_SEQUENCE_TAG_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_SEQUENCE_TAG_HPP_INCLUDED
+#define NDNBOOST_MPL_SEQUENCE_TAG_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -27,18 +27,18 @@ namespace ndnboost { namespace mpl {
 
 // agurt, 27/nov/02: have to use a simplistic 'sequence_tag' implementation
 // on MSVC to avoid dreadful "internal structure overflow" error
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300) \
-    || defined(BOOST_MPL_CFG_NO_HAS_XXX)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300) \
+    || defined(NDNBOOST_MPL_CFG_NO_HAS_XXX)
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
     >
 struct sequence_tag
 {
     typedef typename Sequence::tag type;
 };
 
-#elif BOOST_WORKAROUND(BOOST_MSVC, == 1300)
+#elif NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1300)
 
 // agurt, 07/feb/03: workaround for what seems to be MSVC 7.0-specific ETI issue
 
@@ -65,7 +65,7 @@ struct sequence_tag_impl<false>
 } // namespace aux
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
     >
 struct sequence_tag
     : aux::sequence_tag_impl< !aux::is_msvc_eti_arg<Sequence>::value >
@@ -105,7 +105,7 @@ AUX_CLASS_SEQUENCE_TAG_SPEC(false, false, non_sequence_tag)
 } // namespace aux
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
     >
 struct sequence_tag
     : aux::sequence_tag_impl<
@@ -115,10 +115,10 @@ struct sequence_tag
 {
 };
 
-#endif // BOOST_MSVC
+#endif // NDNBOOST_MSVC
 
-BOOST_MPL_AUX_NA_SPEC(1, sequence_tag)
+NDNBOOST_MPL_AUX_NA_SPEC(1, sequence_tag)
 
 }}
 
-#endif // BOOST_MPL_SEQUENCE_TAG_HPP_INCLUDED
+#endif // NDNBOOST_MPL_SEQUENCE_TAG_HPP_INCLUDED

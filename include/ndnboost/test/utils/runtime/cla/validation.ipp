@@ -12,15 +12,15 @@
 //  Description : input validation helpers implementation
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_VALIDATION_IPP_070604GER
-#define BOOST_RT_CLA_VALIDATION_IPP_070604GER
+#ifndef NDNBOOST_RT_CLA_VALIDATION_IPP_070604GER
+#define NDNBOOST_RT_CLA_VALIDATION_IPP_070604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
 
 #include <ndnboost/test/utils/runtime/cla/argv_traverser.hpp>
 #include <ndnboost/test/utils/runtime/cla/validation.hpp>
-#include <ndnboost/test/utils/runtime/validation.hpp> // BOOST_RT_PARAM_NAMESPACE::logic_error
+#include <ndnboost/test/utils/runtime/validation.hpp> // NDNBOOST_RT_PARAM_NAMESPACE::logic_error
 
 // Boost
 #include <ndnboost/test/utils/basic_cstring/io.hpp>
@@ -29,7 +29,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -37,29 +37,29 @@ namespace cla {
 // **************           runtime::cla::validation           ************** //
 // ************************************************************************** //
 
-BOOST_RT_PARAM_INLINE void
+NDNBOOST_RT_PARAM_INLINE void
 report_input_error( argv_traverser const& tr, format_stream& msg )
 {
     if( tr.eoi() )
-        msg << BOOST_RT_PARAM_LITERAL( " at the end of input" );
+        msg << NDNBOOST_RT_PARAM_LITERAL( " at the end of input" );
     else {
-        msg << BOOST_RT_PARAM_LITERAL( " in the following position: " );
+        msg << NDNBOOST_RT_PARAM_LITERAL( " in the following position: " );
 
         if( tr.input().size() > 5 )
-            msg << tr.input().substr( 0, 5 ) << BOOST_RT_PARAM_LITERAL( "..." );
+            msg << tr.input().substr( 0, 5 ) << NDNBOOST_RT_PARAM_LITERAL( "..." );
         else
             msg << tr.input();
     }
 
-    throw BOOST_RT_PARAM_NAMESPACE::logic_error( msg.str() );
+    throw NDNBOOST_RT_PARAM_NAMESPACE::logic_error( msg.str() );
 }
 
 //____________________________________________________________________________//
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_CLA_VALIDATION_IPP_070604GER
+#endif // NDNBOOST_RT_CLA_VALIDATION_IPP_070604GER

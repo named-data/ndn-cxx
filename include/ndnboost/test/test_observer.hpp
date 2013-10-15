@@ -12,8 +12,8 @@
 //  Description : defines abstract interface for test observer
 // ***************************************************************************
 
-#ifndef BOOST_TEST_TEST_OBSERVER_HPP_021005GER
-#define BOOST_TEST_TEST_OBSERVER_HPP_021005GER
+#ifndef NDNBOOST_TEST_TEST_OBSERVER_HPP_021005GER
+#define NDNBOOST_TEST_TEST_OBSERVER_HPP_021005GER
 
 // Boost.Test
 #include <ndnboost/test/detail/fwd_decl.hpp>
@@ -32,7 +32,7 @@ namespace unit_test {
 // **************                 test_observer                ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL test_observer {
+class NDNBOOST_TEST_DECL test_observer {
 public:
     // test observer interface
     virtual void    test_start( counter_t /* test_cases_amount */ ) {}
@@ -50,7 +50,7 @@ public:
     virtual int     priority() { return 0; }
 
 protected:
-    BOOST_TEST_PROTECTED_VIRTUAL ~test_observer() {}
+    NDNBOOST_TEST_PROTECTED_VIRTUAL ~test_observer() {}
 };
 
 } // unit_test
@@ -61,5 +61,5 @@ protected:
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_TEST_OBSERVER_HPP_021005GER
+#endif // NDNBOOST_TEST_TEST_OBSERVER_HPP_021005GER
 

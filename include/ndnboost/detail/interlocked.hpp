@@ -1,5 +1,5 @@
-#ifndef BOOST_DETAIL_INTERLOCKED_HPP_INCLUDED
-#define BOOST_DETAIL_INTERLOCKED_HPP_INCLUDED
+#ifndef NDNBOOST_DETAIL_INTERLOCKED_HPP_INCLUDED
+#define NDNBOOST_DETAIL_INTERLOCKED_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -19,17 +19,17 @@
 
 #include <ndnboost/config.hpp>
 
-#if defined( BOOST_USE_WINDOWS_H )
+#if defined( NDNBOOST_USE_WINDOWS_H )
 
 # include <windows.h>
 
-# define BOOST_INTERLOCKED_INCREMENT InterlockedIncrement
-# define BOOST_INTERLOCKED_DECREMENT InterlockedDecrement
-# define BOOST_INTERLOCKED_COMPARE_EXCHANGE InterlockedCompareExchange
-# define BOOST_INTERLOCKED_EXCHANGE InterlockedExchange
-# define BOOST_INTERLOCKED_EXCHANGE_ADD InterlockedExchangeAdd
-# define BOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER InterlockedCompareExchangePointer
-# define BOOST_INTERLOCKED_EXCHANGE_POINTER InterlockedExchangePointer
+# define NDNBOOST_INTERLOCKED_INCREMENT InterlockedIncrement
+# define NDNBOOST_INTERLOCKED_DECREMENT InterlockedDecrement
+# define NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE InterlockedCompareExchange
+# define NDNBOOST_INTERLOCKED_EXCHANGE InterlockedExchange
+# define NDNBOOST_INTERLOCKED_EXCHANGE_ADD InterlockedExchangeAdd
+# define NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER InterlockedCompareExchangePointer
+# define NDNBOOST_INTERLOCKED_EXCHANGE_POINTER InterlockedExchangePointer
 
 #elif defined(_WIN32_WCE)
 
@@ -41,11 +41,11 @@ extern "C" long __cdecl _InterlockedCompareExchange( long volatile *, long, long
 extern "C" long __cdecl _InterlockedExchange( long volatile *, long );
 extern "C" long __cdecl _InterlockedExchangeAdd( long volatile *, long );
 
-# define BOOST_INTERLOCKED_INCREMENT _InterlockedIncrement
-# define BOOST_INTERLOCKED_DECREMENT _InterlockedDecrement
-# define BOOST_INTERLOCKED_COMPARE_EXCHANGE _InterlockedCompareExchange
-# define BOOST_INTERLOCKED_EXCHANGE _InterlockedExchange
-# define BOOST_INTERLOCKED_EXCHANGE_ADD _InterlockedExchangeAdd
+# define NDNBOOST_INTERLOCKED_INCREMENT _InterlockedIncrement
+# define NDNBOOST_INTERLOCKED_DECREMENT _InterlockedDecrement
+# define NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE _InterlockedCompareExchange
+# define NDNBOOST_INTERLOCKED_EXCHANGE _InterlockedExchange
+# define NDNBOOST_INTERLOCKED_EXCHANGE_ADD _InterlockedExchangeAdd
 
 #else
 // under Windows CE we still have old-style Interlocked* functions
@@ -56,22 +56,22 @@ extern "C" long __cdecl InterlockedCompareExchange( long*, long, long );
 extern "C" long __cdecl InterlockedExchange( long*, long );
 extern "C" long __cdecl InterlockedExchangeAdd( long*, long );
 
-# define BOOST_INTERLOCKED_INCREMENT InterlockedIncrement
-# define BOOST_INTERLOCKED_DECREMENT InterlockedDecrement
-# define BOOST_INTERLOCKED_COMPARE_EXCHANGE InterlockedCompareExchange
-# define BOOST_INTERLOCKED_EXCHANGE InterlockedExchange
-# define BOOST_INTERLOCKED_EXCHANGE_ADD InterlockedExchangeAdd
+# define NDNBOOST_INTERLOCKED_INCREMENT InterlockedIncrement
+# define NDNBOOST_INTERLOCKED_DECREMENT InterlockedDecrement
+# define NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE InterlockedCompareExchange
+# define NDNBOOST_INTERLOCKED_EXCHANGE InterlockedExchange
+# define NDNBOOST_INTERLOCKED_EXCHANGE_ADD InterlockedExchangeAdd
 
 #endif
 
-# define BOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER(dest,exchange,compare) \
-    ((void*)BOOST_INTERLOCKED_COMPARE_EXCHANGE((long*)(dest),(long)(exchange),(long)(compare)))
-# define BOOST_INTERLOCKED_EXCHANGE_POINTER(dest,exchange) \
-    ((void*)BOOST_INTERLOCKED_EXCHANGE((long*)(dest),(long)(exchange)))
+# define NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER(dest,exchange,compare) \
+    ((void*)NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE((long*)(dest),(long)(exchange),(long)(compare)))
+# define NDNBOOST_INTERLOCKED_EXCHANGE_POINTER(dest,exchange) \
+    ((void*)NDNBOOST_INTERLOCKED_EXCHANGE((long*)(dest),(long)(exchange)))
 
-#elif defined( BOOST_MSVC ) || defined( BOOST_INTEL_WIN )
+#elif defined( NDNBOOST_MSVC ) || defined( NDNBOOST_INTEL_WIN )
 
-#if defined( BOOST_MSVC ) && BOOST_MSVC >= 1600
+#if defined( NDNBOOST_MSVC ) && NDNBOOST_MSVC >= 1600
 
 #include <intrin.h>
 
@@ -107,30 +107,30 @@ extern "C" void* __cdecl _InterlockedExchangePointer( void* volatile *, void* );
 #  pragma intrinsic( _InterlockedCompareExchangePointer )
 #  pragma intrinsic( _InterlockedExchangePointer )
 
-#  define BOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER _InterlockedCompareExchangePointer
-#  define BOOST_INTERLOCKED_EXCHANGE_POINTER _InterlockedExchangePointer
+#  define NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER _InterlockedCompareExchangePointer
+#  define NDNBOOST_INTERLOCKED_EXCHANGE_POINTER _InterlockedExchangePointer
 
 # else
 
-#  define BOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER(dest,exchange,compare) \
-    ((void*)BOOST_INTERLOCKED_COMPARE_EXCHANGE((long volatile*)(dest),(long)(exchange),(long)(compare)))
-#  define BOOST_INTERLOCKED_EXCHANGE_POINTER(dest,exchange) \
-    ((void*)BOOST_INTERLOCKED_EXCHANGE((long volatile*)(dest),(long)(exchange)))
+#  define NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER(dest,exchange,compare) \
+    ((void*)NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE((long volatile*)(dest),(long)(exchange),(long)(compare)))
+#  define NDNBOOST_INTERLOCKED_EXCHANGE_POINTER(dest,exchange) \
+    ((void*)NDNBOOST_INTERLOCKED_EXCHANGE((long volatile*)(dest),(long)(exchange)))
 
 # endif
 
-# define BOOST_INTERLOCKED_INCREMENT _InterlockedIncrement
-# define BOOST_INTERLOCKED_DECREMENT _InterlockedDecrement
-# define BOOST_INTERLOCKED_COMPARE_EXCHANGE _InterlockedCompareExchange
-# define BOOST_INTERLOCKED_EXCHANGE _InterlockedExchange
-# define BOOST_INTERLOCKED_EXCHANGE_ADD _InterlockedExchangeAdd
+# define NDNBOOST_INTERLOCKED_INCREMENT _InterlockedIncrement
+# define NDNBOOST_INTERLOCKED_DECREMENT _InterlockedDecrement
+# define NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE _InterlockedCompareExchange
+# define NDNBOOST_INTERLOCKED_EXCHANGE _InterlockedExchange
+# define NDNBOOST_INTERLOCKED_EXCHANGE_ADD _InterlockedExchangeAdd
 
 #elif defined( WIN32 ) || defined( _WIN32 ) || defined( __WIN32__ ) || defined( __CYGWIN__ )
 
 #if defined(__MINGW64__)
-#define BOOST_INTERLOCKED_IMPORT
+#define NDNBOOST_INTERLOCKED_IMPORT
 #else
-#define BOOST_INTERLOCKED_IMPORT __declspec(dllimport)
+#define NDNBOOST_INTERLOCKED_IMPORT __declspec(dllimport)
 #endif
 
 
@@ -140,35 +140,35 @@ namespace ndnboost
 namespace detail
 {
 
-extern "C" BOOST_INTERLOCKED_IMPORT long __stdcall InterlockedIncrement( long volatile * );
-extern "C" BOOST_INTERLOCKED_IMPORT long __stdcall InterlockedDecrement( long volatile * );
-extern "C" BOOST_INTERLOCKED_IMPORT long __stdcall InterlockedCompareExchange( long volatile *, long, long );
-extern "C" BOOST_INTERLOCKED_IMPORT long __stdcall InterlockedExchange( long volatile *, long );
-extern "C" BOOST_INTERLOCKED_IMPORT long __stdcall InterlockedExchangeAdd( long volatile *, long );
+extern "C" NDNBOOST_INTERLOCKED_IMPORT long __stdcall InterlockedIncrement( long volatile * );
+extern "C" NDNBOOST_INTERLOCKED_IMPORT long __stdcall InterlockedDecrement( long volatile * );
+extern "C" NDNBOOST_INTERLOCKED_IMPORT long __stdcall InterlockedCompareExchange( long volatile *, long, long );
+extern "C" NDNBOOST_INTERLOCKED_IMPORT long __stdcall InterlockedExchange( long volatile *, long );
+extern "C" NDNBOOST_INTERLOCKED_IMPORT long __stdcall InterlockedExchangeAdd( long volatile *, long );
 
 # if defined(_M_IA64) || defined(_M_AMD64)
-extern "C" BOOST_INTERLOCKED_IMPORT void* __stdcall InterlockedCompareExchangePointer( void* volatile *, void*, void* );
-extern "C" BOOST_INTERLOCKED_IMPORT void* __stdcall InterlockedExchangePointer( void* volatile *, void* );
+extern "C" NDNBOOST_INTERLOCKED_IMPORT void* __stdcall InterlockedCompareExchangePointer( void* volatile *, void*, void* );
+extern "C" NDNBOOST_INTERLOCKED_IMPORT void* __stdcall InterlockedExchangePointer( void* volatile *, void* );
 # endif
 
 } // namespace detail
 
 } // namespace ndnboost
 
-# define BOOST_INTERLOCKED_INCREMENT ::ndnboost::detail::InterlockedIncrement
-# define BOOST_INTERLOCKED_DECREMENT ::ndnboost::detail::InterlockedDecrement
-# define BOOST_INTERLOCKED_COMPARE_EXCHANGE ::ndnboost::detail::InterlockedCompareExchange
-# define BOOST_INTERLOCKED_EXCHANGE ::ndnboost::detail::InterlockedExchange
-# define BOOST_INTERLOCKED_EXCHANGE_ADD ::ndnboost::detail::InterlockedExchangeAdd
+# define NDNBOOST_INTERLOCKED_INCREMENT ::ndnboost::detail::InterlockedIncrement
+# define NDNBOOST_INTERLOCKED_DECREMENT ::ndnboost::detail::InterlockedDecrement
+# define NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE ::ndnboost::detail::InterlockedCompareExchange
+# define NDNBOOST_INTERLOCKED_EXCHANGE ::ndnboost::detail::InterlockedExchange
+# define NDNBOOST_INTERLOCKED_EXCHANGE_ADD ::ndnboost::detail::InterlockedExchangeAdd
 
 # if defined(_M_IA64) || defined(_M_AMD64)
-#  define BOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER ::ndnboost::detail::InterlockedCompareExchangePointer
-#  define BOOST_INTERLOCKED_EXCHANGE_POINTER ::ndnboost::detail::InterlockedExchangePointer
+#  define NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER ::ndnboost::detail::InterlockedCompareExchangePointer
+#  define NDNBOOST_INTERLOCKED_EXCHANGE_POINTER ::ndnboost::detail::InterlockedExchangePointer
 # else
-#  define BOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER(dest,exchange,compare) \
-    ((void*)BOOST_INTERLOCKED_COMPARE_EXCHANGE((long volatile*)(dest),(long)(exchange),(long)(compare)))
-#  define BOOST_INTERLOCKED_EXCHANGE_POINTER(dest,exchange) \
-    ((void*)BOOST_INTERLOCKED_EXCHANGE((long volatile*)(dest),(long)(exchange)))
+#  define NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER(dest,exchange,compare) \
+    ((void*)NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE((long volatile*)(dest),(long)(exchange),(long)(compare)))
+#  define NDNBOOST_INTERLOCKED_EXCHANGE_POINTER(dest,exchange) \
+    ((void*)NDNBOOST_INTERLOCKED_EXCHANGE((long volatile*)(dest),(long)(exchange)))
 # endif
 
 #else
@@ -177,4 +177,4 @@ extern "C" BOOST_INTERLOCKED_IMPORT void* __stdcall InterlockedExchangePointer( 
 
 #endif
 
-#endif // #ifndef BOOST_DETAIL_INTERLOCKED_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_DETAIL_INTERLOCKED_HPP_INCLUDED

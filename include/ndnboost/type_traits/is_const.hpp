@@ -18,18 +18,18 @@
 //    by Andrei Alexandrescu (see http://www.cuj.com/experts/1810/alexandr.html).
 
 
-#ifndef BOOST_TT_IS_CONST_HPP_INCLUDED
-#define BOOST_TT_IS_CONST_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_CONST_HPP_INCLUDED
+#define NDNBOOST_TT_IS_CONST_HPP_INCLUDED
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/detail/workaround.hpp>
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 #   include <ndnboost/type_traits/detail/cv_traits_impl.hpp>
 #   ifdef __GNUC__
 #       include <ndnboost/type_traits/is_reference.hpp>
 #   endif
-#   if BOOST_WORKAROUND(BOOST_MSVC, < 1400)
+#   if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1400)
 #       include <ndnboost/type_traits/remove_bounds.hpp>
 #   endif
 #else
@@ -46,9 +46,9 @@ namespace ndnboost {
 
 #if defined( __CODEGEARC__ )
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_const,T,__is_const(T))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_const,T,__is_const(T))
 
-#elif !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#elif !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 namespace detail{
 //
@@ -58,40 +58,40 @@ namespace detail{
 template <class T>
 struct is_const_rvalue_filter
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1400)
-   BOOST_STATIC_CONSTANT(bool, value = ::ndnboost::detail::cv_traits_imp<typename ndnboost::remove_bounds<T>::type*>::is_const);
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1400)
+   NDNBOOST_STATIC_CONSTANT(bool, value = ::ndnboost::detail::cv_traits_imp<typename ndnboost::remove_bounds<T>::type*>::is_const);
 #else
-   BOOST_STATIC_CONSTANT(bool, value = ::ndnboost::detail::cv_traits_imp<T*>::is_const);
+   NDNBOOST_STATIC_CONSTANT(bool, value = ::ndnboost::detail::cv_traits_imp<T*>::is_const);
 #endif
 };
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 template <class T>
 struct is_const_rvalue_filter<T&&>
 {
-   BOOST_STATIC_CONSTANT(bool, value = false);
+   NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
 #endif
 }
 
 //* is a type T  declared const - is_const<T>
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_const,T,::ndnboost::detail::is_const_rvalue_filter<T>::value)
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T&,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_const,T,::ndnboost::detail::is_const_rvalue_filter<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T&,false)
 
-#if  defined(BOOST_ILLEGAL_CV_REFERENCES)
+#if  defined(NDNBOOST_ILLEGAL_CV_REFERENCES)
 // these are illegal specialisations; cv-qualifies applied to
 // references have no effect according to [8.3.2p1],
 // C++ Builder requires them though as it treats cv-qualified
 // references as distinct types...
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T& const,false)
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T& volatile,false)
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T& const volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T& const,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T& volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T& const volatile,false)
 #endif
 
 #if defined(__GNUC__) && (__GNUC__ < 3)
 // special case for gcc where illegally cv-qualified reference types can be
 // generated in some corner cases:
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T const,!(::ndnboost::is_reference<T>::value))
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T volatile const,!(::ndnboost::is_reference<T>::value))
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T const,!(::ndnboost::is_reference<T>::value))
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC1_1(typename T,is_const,T volatile const,!(::ndnboost::is_reference<T>::value))
 #endif
 
 #else
@@ -116,7 +116,7 @@ struct is_const_helper<false,false>
     template <typename T> struct result_
     {
         static T* t;
-        BOOST_STATIC_CONSTANT(bool, value = (
+        NDNBOOST_STATIC_CONSTANT(bool, value = (
             sizeof(ndnboost::detail::yes_type) == sizeof(ndnboost::detail::is_const_tester(t))
             ));
     };
@@ -128,7 +128,7 @@ struct is_const_helper<false,true>
     template <typename T> struct result_
     {
         static T t;
-        BOOST_STATIC_CONSTANT(bool, value = (
+        NDNBOOST_STATIC_CONSTANT(bool, value = (
             sizeof(ndnboost::detail::yes_type) == sizeof(ndnboost::detail::is_const_tester(&t))
             ));
     };
@@ -143,23 +143,23 @@ struct is_const_impl
 {
 };
 
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_const,void,false)
-#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_const,void const,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_const,void volatile,false)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_const,void const volatile,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_const,void,false)
+#ifndef NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_const,void const,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_const,void volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_const,void const volatile,true)
 #endif
 
 } // namespace detail
 
 //* is a type T  declared const - is_const<T>
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_const,T,::ndnboost::detail::is_const_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_const,T,::ndnboost::detail::is_const_impl<T>::value)
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_CONST_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_CONST_HPP_INCLUDED
 

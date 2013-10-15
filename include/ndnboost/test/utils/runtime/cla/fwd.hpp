@@ -12,8 +12,8 @@
 //  Description : cla subsystem forward declarations
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_FWD_HPP_062604GER
-#define BOOST_RT_CLA_FWD_HPP_062604GER
+#ifndef NDNBOOST_RT_CLA_FWD_HPP_062604GER
+#define NDNBOOST_RT_CLA_FWD_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -23,7 +23,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -48,8 +48,8 @@ class positional_parameter_base;
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_CLA_FWD_HPP_062604GER
+#endif // NDNBOOST_RT_CLA_FWD_HPP_062604GER

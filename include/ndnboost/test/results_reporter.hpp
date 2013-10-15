@@ -13,8 +13,8 @@
 //  gathering test results and presenting this information to end-user
 // ***************************************************************************
 
-#ifndef BOOST_TEST_RESULTS_REPORTER_HPP_021205GER
-#define BOOST_TEST_RESULTS_REPORTER_HPP_021205GER
+#ifndef NDNBOOST_TEST_RESULTS_REPORTER_HPP_021205GER
+#define NDNBOOST_TEST_RESULTS_REPORTER_HPP_021205GER
 
 // Boost.Test
 #include <ndnboost/test/detail/global_typedef.hpp>
@@ -37,7 +37,7 @@ namespace results_reporter {
 // **************              formatter interface             ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL format {
+class NDNBOOST_TEST_DECL format {
 public:
     // Destructor
     virtual ~format() {}
@@ -55,18 +55,18 @@ public:
 // **************              report configuration            ************** //
 // ************************************************************************** //
 
-BOOST_TEST_DECL void    set_level( report_level );
-BOOST_TEST_DECL void    set_stream( std::ostream& );
-BOOST_TEST_DECL void    set_format( output_format );
-BOOST_TEST_DECL void    set_format( results_reporter::format* );
+NDNBOOST_TEST_DECL void    set_level( report_level );
+NDNBOOST_TEST_DECL void    set_stream( std::ostream& );
+NDNBOOST_TEST_DECL void    set_format( output_format );
+NDNBOOST_TEST_DECL void    set_format( results_reporter::format* );
 
-BOOST_TEST_DECL std::ostream& get_stream();
+NDNBOOST_TEST_DECL std::ostream& get_stream();
 
 // ************************************************************************** //
 // **************               report initiation              ************** //
 // ************************************************************************** //
 
-BOOST_TEST_DECL void    make_report( report_level l = INV_REPORT_LEVEL, test_unit_id = INV_TEST_UNIT_ID );
+NDNBOOST_TEST_DECL void    make_report( report_level l = INV_REPORT_LEVEL, test_unit_id = INV_TEST_UNIT_ID );
 inline void             confirmation_report( test_unit_id id = INV_TEST_UNIT_ID )   
 { make_report( CONFIRMATION_REPORT, id ); }
 inline void             short_report( test_unit_id id = INV_TEST_UNIT_ID )
@@ -84,5 +84,5 @@ inline void             detailed_report( test_unit_id id = INV_TEST_UNIT_ID )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_RESULTS_REPORTER_HPP_021205GER
+#endif // NDNBOOST_TEST_RESULTS_REPORTER_HPP_021205GER
 

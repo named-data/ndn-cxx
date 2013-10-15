@@ -7,7 +7,7 @@
 
 //  Greenhills C++ compiler setup:
 
-#define BOOST_COMPILER "Greenhills C++ version " BOOST_STRINGIZE(__ghs)
+#define NDNBOOST_COMPILER "Greenhills C++ version " NDNBOOST_STRINGIZE(__ghs)
 
 #include "ndnboost/config/compiler/common_edg.hpp"
 
@@ -20,7 +20,7 @@
 //
 // last known and checked version is 0:
 #if (__ghs > 0)
-#  if defined(BOOST_ASSERT_CONFIG)
+#  if defined(NDNBOOST_ASSERT_CONFIG)
 #     error "Unknown compiler version - please run the configure tests and report the results"
 #  endif
 #endif

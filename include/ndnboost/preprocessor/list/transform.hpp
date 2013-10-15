@@ -11,39 +11,39 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_LIST_TRANSFORM_HPP
-# define BOOST_PREPROCESSOR_LIST_TRANSFORM_HPP
+# ifndef NDNBOOST_PREPROCESSOR_LIST_TRANSFORM_HPP
+# define NDNBOOST_PREPROCESSOR_LIST_TRANSFORM_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 # include <ndnboost/preprocessor/list/fold_right.hpp>
 # include <ndnboost/preprocessor/tuple/elem.hpp>
 # include <ndnboost/preprocessor/tuple/rem.hpp>
 #
-# /* BOOST_PP_LIST_TRANSFORM */
+# /* NDNBOOST_PP_LIST_TRANSFORM */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_LIST_TRANSFORM(op, data, list) BOOST_PP_TUPLE_ELEM(3, 2, BOOST_PP_LIST_FOLD_RIGHT(BOOST_PP_LIST_TRANSFORM_O, (op, data, BOOST_PP_NIL), list))
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_LIST_TRANSFORM(op, data, list) NDNBOOST_PP_TUPLE_ELEM(3, 2, NDNBOOST_PP_LIST_FOLD_RIGHT(NDNBOOST_PP_LIST_TRANSFORM_O, (op, data, NDNBOOST_PP_NIL), list))
 # else
-#    define BOOST_PP_LIST_TRANSFORM(op, data, list) BOOST_PP_LIST_TRANSFORM_I(op, data, list)
-#    define BOOST_PP_LIST_TRANSFORM_I(op, data, list) BOOST_PP_TUPLE_ELEM(3, 2, BOOST_PP_LIST_FOLD_RIGHT(BOOST_PP_LIST_TRANSFORM_O, (op, data, BOOST_PP_NIL), list))
+#    define NDNBOOST_PP_LIST_TRANSFORM(op, data, list) NDNBOOST_PP_LIST_TRANSFORM_I(op, data, list)
+#    define NDNBOOST_PP_LIST_TRANSFORM_I(op, data, list) NDNBOOST_PP_TUPLE_ELEM(3, 2, NDNBOOST_PP_LIST_FOLD_RIGHT(NDNBOOST_PP_LIST_TRANSFORM_O, (op, data, NDNBOOST_PP_NIL), list))
 # endif
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_LIST_TRANSFORM_O(d, odr, elem) BOOST_PP_LIST_TRANSFORM_O_D(d, BOOST_PP_TUPLE_ELEM(3, 0, odr), BOOST_PP_TUPLE_ELEM(3, 1, odr), BOOST_PP_TUPLE_ELEM(3, 2, odr), elem)
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_LIST_TRANSFORM_O(d, odr, elem) NDNBOOST_PP_LIST_TRANSFORM_O_D(d, NDNBOOST_PP_TUPLE_ELEM(3, 0, odr), NDNBOOST_PP_TUPLE_ELEM(3, 1, odr), NDNBOOST_PP_TUPLE_ELEM(3, 2, odr), elem)
 # else
-#    define BOOST_PP_LIST_TRANSFORM_O(d, odr, elem) BOOST_PP_LIST_TRANSFORM_O_I(d, BOOST_PP_TUPLE_REM_3 odr, elem)
-#    define BOOST_PP_LIST_TRANSFORM_O_I(d, im, elem) BOOST_PP_LIST_TRANSFORM_O_D(d, im, elem)
+#    define NDNBOOST_PP_LIST_TRANSFORM_O(d, odr, elem) NDNBOOST_PP_LIST_TRANSFORM_O_I(d, NDNBOOST_PP_TUPLE_REM_3 odr, elem)
+#    define NDNBOOST_PP_LIST_TRANSFORM_O_I(d, im, elem) NDNBOOST_PP_LIST_TRANSFORM_O_D(d, im, elem)
 # endif
 #
-# define BOOST_PP_LIST_TRANSFORM_O_D(d, op, data, res, elem) (op, data, (op(d, data, elem), res))
+# define NDNBOOST_PP_LIST_TRANSFORM_O_D(d, op, data, res, elem) (op, data, (op(d, data, elem), res))
 #
-# /* BOOST_PP_LIST_TRANSFORM_D */
+# /* NDNBOOST_PP_LIST_TRANSFORM_D */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_LIST_TRANSFORM_D(d, op, data, list) BOOST_PP_TUPLE_ELEM(3, 2, BOOST_PP_LIST_FOLD_RIGHT_ ## d(BOOST_PP_LIST_TRANSFORM_O, (op, data, BOOST_PP_NIL), list))
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_LIST_TRANSFORM_D(d, op, data, list) NDNBOOST_PP_TUPLE_ELEM(3, 2, NDNBOOST_PP_LIST_FOLD_RIGHT_ ## d(NDNBOOST_PP_LIST_TRANSFORM_O, (op, data, NDNBOOST_PP_NIL), list))
 # else
-#    define BOOST_PP_LIST_TRANSFORM_D(d, op, data, list) BOOST_PP_LIST_TRANSFORM_D_I(d, op, data, list)
-#    define BOOST_PP_LIST_TRANSFORM_D_I(d, op, data, list) BOOST_PP_TUPLE_ELEM(3, 2, BOOST_PP_LIST_FOLD_RIGHT_ ## d(BOOST_PP_LIST_TRANSFORM_O, (op, data, BOOST_PP_NIL), list))
+#    define NDNBOOST_PP_LIST_TRANSFORM_D(d, op, data, list) NDNBOOST_PP_LIST_TRANSFORM_D_I(d, op, data, list)
+#    define NDNBOOST_PP_LIST_TRANSFORM_D_I(d, op, data, list) NDNBOOST_PP_TUPLE_ELEM(3, 2, NDNBOOST_PP_LIST_FOLD_RIGHT_ ## d(NDNBOOST_PP_LIST_TRANSFORM_O, (op, data, NDNBOOST_PP_NIL), list))
 # endif
 #
 # endif

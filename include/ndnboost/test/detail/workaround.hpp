@@ -12,8 +12,8 @@
 //  Description : contains mics. workarounds 
 // ***************************************************************************
 
-#ifndef BOOST_TEST_WORKAROUND_HPP_021005GER
-#define BOOST_TEST_WORKAROUND_HPP_021005GER
+#ifndef NDNBOOST_TEST_WORKAROUND_HPP_021005GER
+#define NDNBOOST_TEST_WORKAROUND_HPP_021005GER
 
 // Boost
 #include <ndnboost/config.hpp> // compilers workarounds and std::ptrdiff_t
@@ -31,7 +31,7 @@ namespace unit_test {
 
 namespace ut_detail {
 
-#ifdef BOOST_NO_STD_DISTANCE
+#ifdef NDNBOOST_NO_STD_DISTANCE
 template <class T>
 std::ptrdiff_t distance( T const& x_, T const& y_ )
 { 
@@ -62,4 +62,4 @@ namespace unit_test_framework = unit_test;
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_WORKAROUND_HPP_021005GER
+#endif // NDNBOOST_TEST_WORKAROUND_HPP_021005GER

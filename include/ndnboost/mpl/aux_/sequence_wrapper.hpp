@@ -1,7 +1,7 @@
 
 // NO INCLUDE GUARDS, THE HEADER IS INTENDED FOR MULTIPLE INCLUSION
 
-#if !defined(BOOST_PP_IS_ITERATING)
+#if !defined(NDNBOOST_PP_IS_ITERATING)
 
 ///// header body
 
@@ -30,7 +30,7 @@
 #   include <ndnboost/preprocessor/comma_if.hpp>
 #   include <ndnboost/preprocessor/iterate.hpp>
 
-#if defined(BOOST_MPL_PREPROCESSING_MODE)
+#if defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   undef LONG_MAX
 #endif
 
@@ -47,25 +47,25 @@ namespace ndnboost { namespace mpl {
 #   define AUX778076_SEQUENCE_DEFAULT na
 
 #   define AUX778076_SEQUENCE_NAME_N(n) \
-    BOOST_PP_CAT(AUX778076_SEQUENCE_BASE_NAME,n) \
+    NDNBOOST_PP_CAT(AUX778076_SEQUENCE_BASE_NAME,n) \
     /**/
 
 #   define AUX778076_SEQUENCE_PARAMS() \
-    BOOST_PP_ENUM_PARAMS( \
+    NDNBOOST_PP_ENUM_PARAMS( \
           AUX778076_SEQUENCE_LIMIT \
         , AUX778076_SEQUENCE_TEMPLATE_PARAM \
         ) \
     /**/
 
 #   define AUX778076_SEQUENCE_ARGS() \
-    BOOST_PP_ENUM_PARAMS( \
+    NDNBOOST_PP_ENUM_PARAMS( \
           AUX778076_SEQUENCE_LIMIT \
         , T \
         ) \
     /**/
 
 #   define AUX778076_SEQUENCE_DEFAULT_PARAMS() \
-     BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT( \
+     NDNBOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT( \
           AUX778076_SEQUENCE_LIMIT \
         , AUX778076_SEQUENCE_TEMPLATE_PARAM \
         , AUX778076_SEQUENCE_DEFAULT \
@@ -73,19 +73,19 @@ namespace ndnboost { namespace mpl {
     /**/
 
 #   define AUX778076_SEQUENCE_N_PARAMS(n) \
-    BOOST_PP_ENUM_PARAMS(n, AUX778076_SEQUENCE_TEMPLATE_PARAM) \
+    NDNBOOST_PP_ENUM_PARAMS(n, AUX778076_SEQUENCE_TEMPLATE_PARAM) \
     /**/
 
 #   define AUX778076_SEQUENCE_N_ARGS(n) \
-    BOOST_PP_ENUM_PARAMS(n, T) \
+    NDNBOOST_PP_ENUM_PARAMS(n, T) \
     /**/
 
 #   define AUX778076_SEQUENCE_N_PARTIAL_SPEC_ARGS(n) \
-    BOOST_PP_ENUM_PARAMS(n, T) \
-    BOOST_PP_COMMA_IF(n) \
-    BOOST_PP_ENUM( \
-          BOOST_PP_SUB_D(1,AUX778076_SEQUENCE_LIMIT,n) \
-        , BOOST_PP_TUPLE_ELEM_3_2 \
+    NDNBOOST_PP_ENUM_PARAMS(n, T) \
+    NDNBOOST_PP_COMMA_IF(n) \
+    NDNBOOST_PP_ENUM( \
+          NDNBOOST_PP_SUB_D(1,AUX778076_SEQUENCE_LIMIT,n) \
+        , NDNBOOST_PP_TUPLE_ELEM_3_2 \
         , AUX778076_SEQUENCE_DEFAULT \
         ) \
     /**/
@@ -93,18 +93,18 @@ namespace ndnboost { namespace mpl {
 #else // AUX778076_SEQUENCE_INTEGRAL_WRAPPER
 
 #   define AUX778076_SEQUENCE_PARAM_NAME C
-#   define AUX778076_SEQUENCE_TEMPLATE_PARAM BOOST_MPL_AUX_NTTP_DECL(long, C)
+#   define AUX778076_SEQUENCE_TEMPLATE_PARAM NDNBOOST_MPL_AUX_NTTP_DECL(long, C)
 #   define AUX778076_SEQUENCE_DEFAULT LONG_MAX
 
 #   define AUX778076_SEQUENCE_PARAMS() \
-    typename T, BOOST_PP_ENUM_PARAMS( \
+    typename T, NDNBOOST_PP_ENUM_PARAMS( \
           AUX778076_SEQUENCE_LIMIT \
         , AUX778076_SEQUENCE_TEMPLATE_PARAM \
         ) \
     /**/
 
 #   define AUX778076_SEQUENCE_ARGS() \
-    T, BOOST_PP_ENUM_PARAMS( \
+    T, NDNBOOST_PP_ENUM_PARAMS( \
           AUX778076_SEQUENCE_LIMIT \
         , C \
         ) \
@@ -112,7 +112,7 @@ namespace ndnboost { namespace mpl {
 
 #   define AUX778076_SEQUENCE_DEFAULT_PARAMS() \
     typename T, \
-    BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT( \
+    NDNBOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT( \
           AUX778076_SEQUENCE_LIMIT \
         , AUX778076_SEQUENCE_TEMPLATE_PARAM \
         , AUX778076_SEQUENCE_DEFAULT \
@@ -120,25 +120,25 @@ namespace ndnboost { namespace mpl {
     /**/
 
 #   define AUX778076_SEQUENCE_N_PARAMS(n) \
-    typename T BOOST_PP_COMMA_IF(n) \
-    BOOST_PP_ENUM_PARAMS(n, AUX778076_SEQUENCE_TEMPLATE_PARAM) \
+    typename T NDNBOOST_PP_COMMA_IF(n) \
+    NDNBOOST_PP_ENUM_PARAMS(n, AUX778076_SEQUENCE_TEMPLATE_PARAM) \
     /**/
 
 #   if !defined(AUX778076_SEQUENCE_CONVERT_CN_TO)
-#       define AUX778076_SEQUENCE_CONVERT_CN_TO(z,n,TARGET) BOOST_PP_CAT(C,n)
+#       define AUX778076_SEQUENCE_CONVERT_CN_TO(z,n,TARGET) NDNBOOST_PP_CAT(C,n)
 #   endif
 
 #   define AUX778076_SEQUENCE_N_ARGS(n) \
-    T BOOST_PP_COMMA_IF(n) \
-    BOOST_PP_ENUM(n,AUX778076_SEQUENCE_CONVERT_CN_TO,T) \
+    T NDNBOOST_PP_COMMA_IF(n) \
+    NDNBOOST_PP_ENUM(n,AUX778076_SEQUENCE_CONVERT_CN_TO,T) \
     /**/
 
 #   define AUX778076_SEQUENCE_N_PARTIAL_SPEC_ARGS(n) \
-    T, BOOST_PP_ENUM_PARAMS(n, C) \
-    BOOST_PP_COMMA_IF(n) \
-    BOOST_PP_ENUM( \
-          BOOST_PP_SUB_D(1,AUX778076_SEQUENCE_LIMIT,n) \
-        , BOOST_PP_TUPLE_ELEM_3_2 \
+    T, NDNBOOST_PP_ENUM_PARAMS(n, C) \
+    NDNBOOST_PP_COMMA_IF(n) \
+    NDNBOOST_PP_ENUM( \
+          NDNBOOST_PP_SUB_D(1,AUX778076_SEQUENCE_LIMIT,n) \
+        , NDNBOOST_PP_TUPLE_ELEM_3_2 \
         , AUX778076_SEQUENCE_DEFAULT \
         ) \
     /**/
@@ -146,7 +146,7 @@ namespace ndnboost { namespace mpl {
 #endif // AUX778076_SEQUENCE_INTEGRAL_WRAPPER
 
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 // forward declaration
 template<
       AUX778076_SEQUENCE_DEFAULT_PARAMS()
@@ -154,17 +154,17 @@ template<
 struct AUX778076_SEQUENCE_NAME;
 #else
 namespace aux {
-template< BOOST_MPL_AUX_NTTP_DECL(int, N) > 
-struct BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_chooser);
+template< NDNBOOST_MPL_AUX_NTTP_DECL(int, N) > 
+struct NDNBOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_chooser);
 }
 #endif
 
-#define BOOST_PP_ITERATION_PARAMS_1 \
+#define NDNBOOST_PP_ITERATION_PARAMS_1 \
     (3,(0, AUX778076_SEQUENCE_LIMIT, <ndnboost/mpl/aux_/sequence_wrapper.hpp>))
-#include BOOST_PP_ITERATE()
+#include NDNBOOST_PP_ITERATE()
 
 // real C++ version is already taken care of
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 namespace aux {
 // ???_count_args
@@ -179,13 +179,13 @@ namespace aux {
 template<
       AUX778076_SEQUENCE_PARAMS()
     >
-struct BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_impl)
+struct NDNBOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_impl)
 {
-    typedef aux::BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_count_args)<
-          BOOST_PP_ENUM_PARAMS(AUX778076_SEQUENCE_LIMIT, AUX778076_SEQUENCE_PARAM_NAME)
+    typedef aux::NDNBOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_count_args)<
+          NDNBOOST_PP_ENUM_PARAMS(AUX778076_SEQUENCE_LIMIT, AUX778076_SEQUENCE_PARAM_NAME)
         > arg_num_;
     
-    typedef typename aux::BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_chooser)< arg_num_::value >
+    typedef typename aux::NDNBOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_chooser)< arg_num_::value >
         ::template result_< AUX778076_SEQUENCE_ARGS() >::type type;
 };
 
@@ -195,16 +195,16 @@ template<
       AUX778076_SEQUENCE_DEFAULT_PARAMS()
     >
 struct AUX778076_SEQUENCE_NAME
-    : aux::BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_impl)<
+    : aux::NDNBOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_impl)<
           AUX778076_SEQUENCE_ARGS()
         >::type
 {
-    typedef typename aux::BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_impl)<
+    typedef typename aux::NDNBOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_impl)<
           AUX778076_SEQUENCE_ARGS()
         >::type type;
 };
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 #   undef AUX778076_SEQUENCE_N_PARTIAL_SPEC_ARGS
 #   undef AUX778076_SEQUENCE_N_ARGS
@@ -227,9 +227,9 @@ struct AUX778076_SEQUENCE_NAME
 ///// iteration
 
 #else
-#define i_ BOOST_PP_FRAME_ITERATION(1)
+#define i_ NDNBOOST_PP_FRAME_ITERATION(1)
 
-#   if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#   if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 #if i_ == AUX778076_SEQUENCE_LIMIT
 
@@ -265,7 +265,7 @@ struct AUX778076_SEQUENCE_NAME< AUX778076_SEQUENCE_N_PARTIAL_SPEC_ARGS(i_) >
 namespace aux {
 
 template<>
-struct BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_chooser)<i_>
+struct NDNBOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_chooser)<i_>
 {
     template<
           AUX778076_SEQUENCE_PARAMS()
@@ -286,7 +286,7 @@ struct BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_chooser)<i_>
 
 } // namespace aux
 
-#   endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#   endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 #undef i_
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_IS_ITERATING

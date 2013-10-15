@@ -9,19 +9,19 @@
 //  config for libstdc++ v3
 //  not much to go in here:
 
-#define BOOST_GNU_STDLIB 1
+#define NDNBOOST_GNU_STDLIB 1
 
 #ifdef __GLIBCXX__
-#define BOOST_STDLIB "GNU libstdc++ version " BOOST_STRINGIZE(__GLIBCXX__)
+#define NDNBOOST_STDLIB "GNU libstdc++ version " NDNBOOST_STRINGIZE(__GLIBCXX__)
 #else
-#define BOOST_STDLIB "GNU libstdc++ version " BOOST_STRINGIZE(__GLIBCPP__)
+#define NDNBOOST_STDLIB "GNU libstdc++ version " NDNBOOST_STRINGIZE(__GLIBCPP__)
 #endif
 
 #if !defined(_GLIBCPP_USE_WCHAR_T) && !defined(_GLIBCXX_USE_WCHAR_T)
-#  define BOOST_NO_CWCHAR
-#  define BOOST_NO_CWCTYPE
-#  define BOOST_NO_STD_WSTRING
-#  define BOOST_NO_STD_WSTREAMBUF
+#  define NDNBOOST_NO_CWCHAR
+#  define NDNBOOST_NO_CWCTYPE
+#  define NDNBOOST_NO_STD_WSTRING
+#  define NDNBOOST_NO_STD_WSTREAMBUF
 #endif
 
 #if defined(__osf__) && !defined(_REENTRANT) \
@@ -42,29 +42,29 @@
       // as well.  We do this because some gcc-3.4 std lib headers define _REENTANT
       // while others do not...
       //
-#     define BOOST_HAS_THREADS
+#     define NDNBOOST_HAS_THREADS
 #  else
-#     define BOOST_DISABLE_THREADS
+#     define NDNBOOST_DISABLE_THREADS
 #  endif
 #elif defined(__GLIBCPP__) \
         && !defined(_GLIBCPP_HAVE_GTHR_DEFAULT) \
         && !defined(_GLIBCPP__PTHREADS)
    // disable thread support if the std lib was built single threaded:
-#  define BOOST_DISABLE_THREADS
+#  define NDNBOOST_DISABLE_THREADS
 #endif
 
 #if (defined(linux) || defined(__linux) || defined(__linux__)) && defined(__arm__) && defined(_GLIBCPP_HAVE_GTHR_DEFAULT)
 // linux on arm apparently doesn't define _REENTRANT
 // so just turn on threading support whenever the std lib is thread safe:
-#  define BOOST_HAS_THREADS
+#  define NDNBOOST_HAS_THREADS
 #endif
 
 #if !defined(_GLIBCPP_USE_LONG_LONG) \
     && !defined(_GLIBCXX_USE_LONG_LONG)\
-    && defined(BOOST_HAS_LONG_LONG)
+    && defined(NDNBOOST_HAS_LONG_LONG)
 // May have been set by compiler/*.hpp, but "long long" without library
 // support is useless.
-#  undef BOOST_HAS_LONG_LONG
+#  undef NDNBOOST_HAS_LONG_LONG
 #endif
 
 // Apple doesn't seem to reliably defined a *unix* macro
@@ -78,16 +78,16 @@
 #endif
 
 #if defined(__GLIBCXX__) || (defined(__GLIBCPP__) && __GLIBCPP__>=20020514) // GCC >= 3.1.0
-#  define BOOST_STD_EXTENSION_NAMESPACE __gnu_cxx
-#  define BOOST_HAS_SLIST
-#  define BOOST_HAS_HASH
-#  define BOOST_SLIST_HEADER <ext/slist>
+#  define NDNBOOST_STD_EXTENSION_NAMESPACE __gnu_cxx
+#  define NDNBOOST_HAS_SLIST
+#  define NDNBOOST_HAS_HASH
+#  define NDNBOOST_SLIST_HEADER <ext/slist>
 # if !defined(__GNUC__) || __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 3)
-#   define BOOST_HASH_SET_HEADER <ext/hash_set>
-#   define BOOST_HASH_MAP_HEADER <ext/hash_map>
+#   define NDNBOOST_HASH_SET_HEADER <ext/hash_set>
+#   define NDNBOOST_HASH_MAP_HEADER <ext/hash_map>
 # else
-#   define BOOST_HASH_SET_HEADER <backward/hash_set>
-#   define BOOST_HASH_MAP_HEADER <backward/hash_map>
+#   define NDNBOOST_HASH_SET_HEADER <backward/hash_set>
+#   define NDNBOOST_HASH_MAP_HEADER <backward/hash_map>
 # endif
 #endif
 
@@ -106,46 +106,46 @@
 //  C++0x headers in GCC 4.3.0 and later
 //
 #if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 3) || !defined(__GXX_EXPERIMENTAL_CXX0X__)
-#  define BOOST_NO_CXX11_HDR_ARRAY
-#  define BOOST_NO_CXX11_HDR_REGEX
-#  define BOOST_NO_CXX11_HDR_TUPLE
-#  define BOOST_NO_CXX11_HDR_UNORDERED_MAP
-#  define BOOST_NO_CXX11_HDR_UNORDERED_SET
-#  define BOOST_NO_CXX11_HDR_FUNCTIONAL
+#  define NDNBOOST_NO_CXX11_HDR_ARRAY
+#  define NDNBOOST_NO_CXX11_HDR_REGEX
+#  define NDNBOOST_NO_CXX11_HDR_TUPLE
+#  define NDNBOOST_NO_CXX11_HDR_UNORDERED_MAP
+#  define NDNBOOST_NO_CXX11_HDR_UNORDERED_SET
+#  define NDNBOOST_NO_CXX11_HDR_FUNCTIONAL
 #endif
 
 //  C++0x headers in GCC 4.4.0 and later
 //
 #if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4) || !defined(__GXX_EXPERIMENTAL_CXX0X__)
-#  define BOOST_NO_CXX11_HDR_CONDITION_VARIABLE
-#  define BOOST_NO_CXX11_HDR_FORWARD_LIST
-#  define BOOST_NO_CXX11_HDR_INITIALIZER_LIST
-#  define BOOST_NO_CXX11_HDR_MUTEX
-#  define BOOST_NO_CXX11_HDR_RATIO
-#  define BOOST_NO_CXX11_HDR_SYSTEM_ERROR
-#  define BOOST_NO_CXX11_SMART_PTR
+#  define NDNBOOST_NO_CXX11_HDR_CONDITION_VARIABLE
+#  define NDNBOOST_NO_CXX11_HDR_FORWARD_LIST
+#  define NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#  define NDNBOOST_NO_CXX11_HDR_MUTEX
+#  define NDNBOOST_NO_CXX11_HDR_RATIO
+#  define NDNBOOST_NO_CXX11_HDR_SYSTEM_ERROR
+#  define NDNBOOST_NO_CXX11_SMART_PTR
 #else
-#  define BOOST_HAS_TR1_COMPLEX_INVERSE_TRIG 
-#  define BOOST_HAS_TR1_COMPLEX_OVERLOADS 
+#  define NDNBOOST_HAS_TR1_COMPLEX_INVERSE_TRIG 
+#  define NDNBOOST_HAS_TR1_COMPLEX_OVERLOADS 
 #endif
 
-#if (!defined(_GLIBCXX_HAS_GTHREADS) || !defined(_GLIBCXX_USE_C99_STDINT_TR1)) && (!defined(BOOST_NO_CXX11_HDR_CONDITION_VARIABLE) || !defined(BOOST_NO_CXX11_HDR_MUTEX))
-#  define BOOST_NO_CXX11_HDR_CONDITION_VARIABLE
-#  define BOOST_NO_CXX11_HDR_MUTEX
+#if (!defined(_GLIBCXX_HAS_GTHREADS) || !defined(_GLIBCXX_USE_C99_STDINT_TR1)) && (!defined(NDNBOOST_NO_CXX11_HDR_CONDITION_VARIABLE) || !defined(NDNBOOST_NO_CXX11_HDR_MUTEX))
+#  define NDNBOOST_NO_CXX11_HDR_CONDITION_VARIABLE
+#  define NDNBOOST_NO_CXX11_HDR_MUTEX
 #endif
 
 //  C++0x features in GCC 4.5.0 and later
 //
 #if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 5) || !defined(__GXX_EXPERIMENTAL_CXX0X__)
-#  define BOOST_NO_CXX11_NUMERIC_LIMITS
-#  define BOOST_NO_CXX11_HDR_FUTURE
-#  define BOOST_NO_CXX11_HDR_RANDOM
+#  define NDNBOOST_NO_CXX11_NUMERIC_LIMITS
+#  define NDNBOOST_NO_CXX11_HDR_FUTURE
+#  define NDNBOOST_NO_CXX11_HDR_RANDOM
 #endif
 
 //  C++0x features in GCC 4.6.0 and later
 //
 #if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 6) || !defined(__GXX_EXPERIMENTAL_CXX0X__)
-#  define BOOST_NO_CXX11_HDR_TYPEINDEX
+#  define NDNBOOST_NO_CXX11_HDR_TYPEINDEX
 #endif
 
 //  C++0x features in GCC 4.7.0 and later
@@ -153,14 +153,14 @@
 #if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 7) || !defined(__GXX_EXPERIMENTAL_CXX0X__)
 // Note that although <chrono> existed prior to 4.7, "stead_clock" is spelled "monotonic_clock"
 // so 4.7.0 is the first truely conforming one.
-#  define BOOST_NO_CXX11_HDR_CHRONO
-#  define BOOST_NO_CXX11_ALLOCATOR
+#  define NDNBOOST_NO_CXX11_HDR_CHRONO
+#  define NDNBOOST_NO_CXX11_ALLOCATOR
 #endif
 //  C++0x headers not yet (fully!) implemented
 //
-#  define BOOST_NO_CXX11_HDR_THREAD
-#  define BOOST_NO_CXX11_HDR_TYPE_TRAITS
-#  define BOOST_NO_CXX11_HDR_CODECVT
-#  define BOOST_NO_CXX11_ATOMIC_SMART_PTR
+#  define NDNBOOST_NO_CXX11_HDR_THREAD
+#  define NDNBOOST_NO_CXX11_HDR_TYPE_TRAITS
+#  define NDNBOOST_NO_CXX11_HDR_CODECVT
+#  define NDNBOOST_NO_CXX11_ATOMIC_SMART_PTR
 
 //  --- end ---

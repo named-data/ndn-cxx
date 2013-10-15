@@ -9,8 +9,8 @@
 //  Revision History
 //  13 Dec 2003  Added next(x, n) and prior(x, n) (Daniel Walker)
 
-#ifndef BOOST_NEXT_PRIOR_HPP_INCLUDED
-#define BOOST_NEXT_PRIOR_HPP_INCLUDED
+#ifndef NDNBOOST_NEXT_PRIOR_HPP_INCLUDED
+#define NDNBOOST_NEXT_PRIOR_HPP_INCLUDED
 
 #include <iterator>
 
@@ -48,4 +48,4 @@ inline T prior(T x, Distance n)
 
 } // namespace ndnboost
 
-#endif  // BOOST_NEXT_PRIOR_HPP_INCLUDED
+#endif  // NDNBOOST_NEXT_PRIOR_HPP_INCLUDED

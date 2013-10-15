@@ -484,13 +484,13 @@ namespace aux {
 template< typename T >
 struct is_set_arg
 {
-    BOOST_STATIC_CONSTANT(bool, value  = true);
+    NDNBOOST_STATIC_CONSTANT(bool, value  = true);
 };
 
 template<>
 struct is_set_arg<na>
 {
-    BOOST_STATIC_CONSTANT(bool, value  = false);
+    NDNBOOST_STATIC_CONSTANT(bool, value  = false);
 };
 
 template<
@@ -501,7 +501,7 @@ template<
     >
 struct set_count_args
 {
-    BOOST_STATIC_CONSTANT(int, value =
+    NDNBOOST_STATIC_CONSTANT(int, value =
           is_set_arg<T1>::value + is_set_arg<T2>::value 
         + is_set_arg<T3>::value + is_set_arg<T4>::value 
         + is_set_arg<T5>::value + is_set_arg<T6>::value 

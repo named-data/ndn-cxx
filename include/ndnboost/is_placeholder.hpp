@@ -1,5 +1,5 @@
-#ifndef BOOST_IS_PLACEHOLDER_HPP_INCLUDED
-#define BOOST_IS_PLACEHOLDER_HPP_INCLUDED
+#ifndef NDNBOOST_IS_PLACEHOLDER_HPP_INCLUDED
+#define NDNBOOST_IS_PLACEHOLDER_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -28,4 +28,4 @@ template< class T > struct is_placeholder
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_IS_PLACEHOLDER_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_IS_PLACEHOLDER_HPP_INCLUDED

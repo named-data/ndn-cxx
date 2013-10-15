@@ -9,23 +9,23 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_CONTROL_EXPR_IIF_HPP
-# define BOOST_PREPROCESSOR_CONTROL_EXPR_IIF_HPP
+# ifndef NDNBOOST_PREPROCESSOR_CONTROL_EXPR_IIF_HPP
+# define NDNBOOST_PREPROCESSOR_CONTROL_EXPR_IIF_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 #
-# /* BOOST_PP_EXPR_IIF */
+# /* NDNBOOST_PP_EXPR_IIF */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_MWCC()
-#    define BOOST_PP_EXPR_IIF(bit, expr) BOOST_PP_EXPR_IIF_I(bit, expr)
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_MWCC()
+#    define NDNBOOST_PP_EXPR_IIF(bit, expr) NDNBOOST_PP_EXPR_IIF_I(bit, expr)
 # else
-#    define BOOST_PP_EXPR_IIF(bit, expr) BOOST_PP_EXPR_IIF_OO((bit, expr))
-#    define BOOST_PP_EXPR_IIF_OO(par) BOOST_PP_EXPR_IIF_I ## par
+#    define NDNBOOST_PP_EXPR_IIF(bit, expr) NDNBOOST_PP_EXPR_IIF_OO((bit, expr))
+#    define NDNBOOST_PP_EXPR_IIF_OO(par) NDNBOOST_PP_EXPR_IIF_I ## par
 # endif
 #
-# define BOOST_PP_EXPR_IIF_I(bit, expr) BOOST_PP_EXPR_IIF_ ## bit(expr)
+# define NDNBOOST_PP_EXPR_IIF_I(bit, expr) NDNBOOST_PP_EXPR_IIF_ ## bit(expr)
 #
-# define BOOST_PP_EXPR_IIF_0(expr)
-# define BOOST_PP_EXPR_IIF_1(expr) expr
+# define NDNBOOST_PP_EXPR_IIF_0(expr)
+# define NDNBOOST_PP_EXPR_IIF_1(expr) expr
 #
 # endif

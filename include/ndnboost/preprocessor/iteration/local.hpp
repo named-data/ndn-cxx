@@ -9,18 +9,18 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_ITERATION_LOCAL_HPP
-# define BOOST_PREPROCESSOR_ITERATION_LOCAL_HPP
+# ifndef NDNBOOST_PREPROCESSOR_ITERATION_LOCAL_HPP
+# define NDNBOOST_PREPROCESSOR_ITERATION_LOCAL_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 # include <ndnboost/preprocessor/slot/slot.hpp>
 # include <ndnboost/preprocessor/tuple/elem.hpp>
 #
-# /* BOOST_PP_LOCAL_ITERATE */
+# /* NDNBOOST_PP_LOCAL_ITERATE */
 #
-# define BOOST_PP_LOCAL_ITERATE() <ndnboost/preprocessor/iteration/detail/local.hpp>
+# define NDNBOOST_PP_LOCAL_ITERATE() <ndnboost/preprocessor/iteration/detail/local.hpp>
 #
-# define BOOST_PP_LOCAL_C(n) (BOOST_PP_LOCAL_S) <= n && (BOOST_PP_LOCAL_F) >= n
-# define BOOST_PP_LOCAL_R(n) (BOOST_PP_LOCAL_F) <= n && (BOOST_PP_LOCAL_S) >= n
+# define NDNBOOST_PP_LOCAL_C(n) (NDNBOOST_PP_LOCAL_S) <= n && (NDNBOOST_PP_LOCAL_F) >= n
+# define NDNBOOST_PP_LOCAL_R(n) (NDNBOOST_PP_LOCAL_F) <= n && (NDNBOOST_PP_LOCAL_S) >= n
 #
 # endif

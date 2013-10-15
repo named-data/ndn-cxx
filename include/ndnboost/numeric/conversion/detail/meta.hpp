@@ -7,8 +7,8 @@
 //
 // Contact the author at: fernando_cacciola@hotmail.com
 // 
-#ifndef BOOST_NUMERIC_CONVERSION_DETAIL_META_FLC_12NOV2002_HPP
-#define BOOST_NUMERIC_CONVERSION_DETAIL_META_FLC_12NOV2002_HPP
+#ifndef NDNBOOST_NUMERIC_CONVERSION_DETAIL_META_FLC_12NOV2002_HPP
+#define NDNBOOST_NUMERIC_CONVERSION_DETAIL_META_FLC_12NOV2002_HPP
 
 #include "ndnboost/type_traits/remove_cv.hpp"
 
@@ -27,22 +27,22 @@ namespace ndnboost { namespace numeric { namespace convdetail
    {
    #if !defined(__BORLANDC__)
    
-       enum { x = ( BOOST_MPL_AUX_VALUE_WKND(T1)::value == BOOST_MPL_AUX_VALUE_WKND(T2)::value ) };
+       enum { x = ( NDNBOOST_MPL_AUX_VALUE_WKND(T1)::value == NDNBOOST_MPL_AUX_VALUE_WKND(T2)::value ) };
            
-       BOOST_STATIC_CONSTANT(bool, value = x);
+       NDNBOOST_STATIC_CONSTANT(bool, value = x);
            
        typedef mpl::bool_<value> type;
        
    #else
    
-       BOOST_STATIC_CONSTANT(bool, value = (
-             BOOST_MPL_AUX_VALUE_WKND(T1)::value 
-               == BOOST_MPL_AUX_VALUE_WKND(T2)::value
+       NDNBOOST_STATIC_CONSTANT(bool, value = (
+             NDNBOOST_MPL_AUX_VALUE_WKND(T1)::value 
+               == NDNBOOST_MPL_AUX_VALUE_WKND(T2)::value
            ));
            
        typedef mpl::bool_<(
-             BOOST_MPL_AUX_VALUE_WKND(T1)::value 
-               == BOOST_MPL_AUX_VALUE_WKND(T2)::value
+             NDNBOOST_MPL_AUX_VALUE_WKND(T1)::value 
+               == NDNBOOST_MPL_AUX_VALUE_WKND(T2)::value
            )> type;
    #endif
    };

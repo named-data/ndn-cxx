@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_FUNCTIONS_HPP
-#define BOOST_RANGE_FUNCTIONS_HPP
+#ifndef NDNBOOST_RANGE_FUNCTIONS_HPP
+#define NDNBOOST_RANGE_FUNCTIONS_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once

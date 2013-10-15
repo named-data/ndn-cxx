@@ -12,8 +12,8 @@
 //  Description : implements parser - public interface for CLA parsing and accessing
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_PARSER_IPP_062904GER
-#define BOOST_RT_CLA_PARSER_IPP_062904GER
+#ifndef NDNBOOST_RT_CLA_PARSER_IPP_062904GER
+#define NDNBOOST_RT_CLA_PARSER_IPP_062904GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -35,7 +35,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -43,7 +43,7 @@ namespace cla {
 // **************             runtime::cla::parser             ************** //
 // ************************************************************************** //
 
-BOOST_RT_PARAM_INLINE
+NDNBOOST_RT_PARAM_INLINE
 parser::parser( cstring program_name )
 {
     assign_op( m_program_name, program_name, 0 );
@@ -51,7 +51,7 @@ parser::parser( cstring program_name )
 
 //____________________________________________________________________________//
 
-BOOST_RT_PARAM_INLINE parser::param_iterator
+NDNBOOST_RT_PARAM_INLINE parser::param_iterator
 parser::first_param() const
 {
     return m_parameters.begin();
@@ -59,7 +59,7 @@ parser::first_param() const
 
 //____________________________________________________________________________//
 
-BOOST_RT_PARAM_INLINE parser::param_iterator
+NDNBOOST_RT_PARAM_INLINE parser::param_iterator
 parser::last_param() const
 {
     return m_parameters.end();
@@ -67,25 +67,25 @@ parser::last_param() const
 
 //____________________________________________________________________________//
 
-BOOST_RT_PARAM_INLINE argument const&
+NDNBOOST_RT_PARAM_INLINE argument const&
 parser::valid_argument( cstring string_id ) const
 {
     const_argument_ptr arg = (*this)[string_id];
 
-    BOOST_RT_PARAM_VALIDATE_LOGIC( !!arg, "Actual argument for parameter " << string_id << " is not present" );
+    NDNBOOST_RT_PARAM_VALIDATE_LOGIC( !!arg, "Actual argument for parameter " << string_id << " is not present" );
 
     return *arg;
 }
 
 //____________________________________________________________________________//
 
-BOOST_RT_PARAM_INLINE parser&
+NDNBOOST_RT_PARAM_INLINE parser&
 parser::operator<<( parameter_ptr new_param )
 {
-    BOOST_TEST_FOREACH( parameter_ptr, old_param, m_parameters ) {
-        BOOST_RT_PARAM_VALIDATE_LOGIC( !old_param->conflict_with( *new_param ),
-            BOOST_RT_PARAM_LITERAL( "Definition of parameter " )                << new_param->id_2_report() << 
-            BOOST_RT_PARAM_LITERAL( " conflicts with defintion of parameter " ) << old_param->id_2_report() );
+    NDNBOOST_TEST_FOREACH( parameter_ptr, old_param, m_parameters ) {
+        NDNBOOST_RT_PARAM_VALIDATE_LOGIC( !old_param->conflict_with( *new_param ),
+            NDNBOOST_RT_PARAM_LITERAL( "Definition of parameter " )                << new_param->id_2_report() << 
+            NDNBOOST_RT_PARAM_LITERAL( " conflicts with defintion of parameter " ) << old_param->id_2_report() );
     }
 
     m_parameters.push_back( new_param );
@@ -95,12 +95,12 @@ parser::operator<<( parameter_ptr new_param )
 
 //____________________________________________________________________________//
 
-BOOST_RT_PARAM_INLINE void
+NDNBOOST_RT_PARAM_INLINE void
 parser::parse( int& argc, char_type** argv )
 {
     if( m_program_name.empty() ) {
         m_program_name.assign( argv[0] );
-        dstring::size_type pos = m_program_name.find_last_of( BOOST_RT_PARAM_LITERAL( "/\\" ) );
+        dstring::size_type pos = m_program_name.find_last_of( NDNBOOST_RT_PARAM_LITERAL( "/\\" ) );
 
         if( pos != static_cast<dstring::size_type>(cstring::npos) )
             m_program_name.erase( 0, pos+1 );
@@ -112,14 +112,14 @@ parser::parse( int& argc, char_type** argv )
         while( !m_traverser.eoi() ) {
             parameter_ptr found_param;
 
-            BOOST_RT_PARAM_TRACE( "Total " << m_parameters.size() << " parameters registered" );
+            NDNBOOST_RT_PARAM_TRACE( "Total " << m_parameters.size() << " parameters registered" );
 
-            BOOST_TEST_FOREACH( parameter_ptr const&, curr_param, m_parameters ) {
-                BOOST_RT_PARAM_TRACE( "Try parameter " << curr_param->id_2_report() );
+            NDNBOOST_TEST_FOREACH( parameter_ptr const&, curr_param, m_parameters ) {
+                NDNBOOST_RT_PARAM_TRACE( "Try parameter " << curr_param->id_2_report() );
 
                 if( curr_param->matching( m_traverser, !found_param ) ) {
-                    BOOST_RT_PARAM_TRACE( "Match found" );
-                    BOOST_RT_CLA_VALIDATE_INPUT( !found_param, (m_traverser.rollback(),m_traverser), "Ambiguous input" );
+                    NDNBOOST_RT_PARAM_TRACE( "Match found" );
+                    NDNBOOST_RT_CLA_VALIDATE_INPUT( !found_param, (m_traverser.rollback(),m_traverser), "Ambiguous input" );
 
                     found_param = curr_param;
                 }
@@ -128,32 +128,32 @@ parser::parse( int& argc, char_type** argv )
             }
 
             if( !found_param ) {
-                BOOST_RT_PARAM_TRACE( "No match found" );
-                BOOST_RT_CLA_VALIDATE_INPUT( m_traverser.handle_mismatch(), m_traverser,
-                                             BOOST_RT_PARAM_LITERAL( "Unexpected input" ) );
+                NDNBOOST_RT_PARAM_TRACE( "No match found" );
+                NDNBOOST_RT_CLA_VALIDATE_INPUT( m_traverser.handle_mismatch(), m_traverser,
+                                             NDNBOOST_RT_PARAM_LITERAL( "Unexpected input" ) );
 
                 continue;
             }
 
-            BOOST_RT_PARAM_TRACE( "Parse argument value" );
+            NDNBOOST_RT_PARAM_TRACE( "Parse argument value" );
             found_param->produce_argument( m_traverser );
 
             m_traverser.commit();
         }
 
-        BOOST_TEST_FOREACH( parameter_ptr const&, curr_param, m_parameters ) {
+        NDNBOOST_TEST_FOREACH( parameter_ptr const&, curr_param, m_parameters ) {
             if( !curr_param->p_optional && !curr_param->actual_argument() ) {
                 curr_param->produce_argument( *this );
 
-                BOOST_RT_PARAM_VALIDATE_LOGIC( curr_param->actual_argument(),
-                    BOOST_RT_PARAM_LITERAL( "Required argument for parameter " ) << curr_param->id_2_report()
-                        << BOOST_RT_PARAM_LITERAL( " is missing" ) );
+                NDNBOOST_RT_PARAM_VALIDATE_LOGIC( curr_param->actual_argument(),
+                    NDNBOOST_RT_PARAM_LITERAL( "Required argument for parameter " ) << curr_param->id_2_report()
+                        << NDNBOOST_RT_PARAM_LITERAL( " is missing" ) );
             }
         }
     }
     catch( bad_lexical_cast const& ) {
-        BOOST_RT_PARAM_REPORT_LOGIC_ERROR( 
-            BOOST_RT_PARAM_LITERAL( "String to value convertion error during input parsing" ) );
+        NDNBOOST_RT_PARAM_REPORT_LOGIC_ERROR( 
+            NDNBOOST_RT_PARAM_LITERAL( "String to value convertion error during input parsing" ) );
     }
 
     m_traverser.remainder( argc, argv );
@@ -161,15 +161,15 @@ parser::parse( int& argc, char_type** argv )
 
 //____________________________________________________________________________//
 
-BOOST_RT_PARAM_INLINE const_argument_ptr
+NDNBOOST_RT_PARAM_INLINE const_argument_ptr
 parser::operator[]( cstring string_id ) const
 {
     parameter_ptr found_param;
 
-    BOOST_TEST_FOREACH( parameter_ptr const&, curr_param, m_parameters ) {
+    NDNBOOST_TEST_FOREACH( parameter_ptr const&, curr_param, m_parameters ) {
         if( curr_param->responds_to( string_id ) ) {
-            BOOST_RT_PARAM_VALIDATE_LOGIC( !found_param,
-                                           BOOST_RT_PARAM_LITERAL( "Ambiguous parameter string id: " ) << string_id );
+            NDNBOOST_RT_PARAM_VALIDATE_LOGIC( !found_param,
+                                           NDNBOOST_RT_PARAM_LITERAL( "Ambiguous parameter string id: " ) << string_id );
 
             found_param = curr_param;
         }
@@ -180,7 +180,7 @@ parser::operator[]( cstring string_id ) const
 
 //____________________________________________________________________________//
 
-BOOST_RT_PARAM_INLINE cstring
+NDNBOOST_RT_PARAM_INLINE cstring
 parser::get( cstring string_id ) const
 {
     return get<cstring>( string_id );
@@ -188,62 +188,62 @@ parser::get( cstring string_id ) const
 
 //____________________________________________________________________________//
 
-BOOST_RT_PARAM_INLINE void
+NDNBOOST_RT_PARAM_INLINE void
 parser::usage( out_stream& ostr )
 {
     if( m_program_name.empty() )
-        assign_op( m_program_name, BOOST_RT_PARAM_CSTRING_LITERAL( "<program>" ), 0 );
+        assign_op( m_program_name, NDNBOOST_RT_PARAM_CSTRING_LITERAL( "<program>" ), 0 );
 
     format_stream fs;
 
     fs << m_program_name;
 
-    BOOST_TEST_FOREACH( parameter_ptr const&, curr_param, m_parameters ) {
-        fs << BOOST_RT_PARAM_LITERAL( ' ' );
+    NDNBOOST_TEST_FOREACH( parameter_ptr const&, curr_param, m_parameters ) {
+        fs << NDNBOOST_RT_PARAM_LITERAL( ' ' );
 
         if( curr_param->p_optional )
-            fs << BOOST_RT_PARAM_LITERAL( '[' );
+            fs << NDNBOOST_RT_PARAM_LITERAL( '[' );
 
         curr_param->usage_info( fs );
 
         if( curr_param->p_optional )
-            fs << BOOST_RT_PARAM_LITERAL( ']' );
+            fs << NDNBOOST_RT_PARAM_LITERAL( ']' );
 
         if( curr_param->p_multiplicable ) {
-            fs << BOOST_RT_PARAM_CSTRING_LITERAL( " ... " );
+            fs << NDNBOOST_RT_PARAM_CSTRING_LITERAL( " ... " );
             
             if( curr_param->p_optional )
-                fs << BOOST_RT_PARAM_LITERAL( '[' );
+                fs << NDNBOOST_RT_PARAM_LITERAL( '[' );
 
             curr_param->usage_info( fs );
 
             if( curr_param->p_optional )
-                fs << BOOST_RT_PARAM_LITERAL( ']' );
+                fs << NDNBOOST_RT_PARAM_LITERAL( ']' );
         }
     }
 
-    ostr << BOOST_RT_PARAM_CSTRING_LITERAL( "Usage:\n" ) << fs.str() << std::endl;
+    ostr << NDNBOOST_RT_PARAM_CSTRING_LITERAL( "Usage:\n" ) << fs.str() << std::endl;
 }
 
 //____________________________________________________________________________//
 
-BOOST_RT_PARAM_INLINE void
+NDNBOOST_RT_PARAM_INLINE void
 parser::help( out_stream& ostr )
 {
     usage( ostr );
 
     bool need_where = true;
 
-    BOOST_TEST_FOREACH( parameter_ptr const&, curr_param, m_parameters ) {
+    NDNBOOST_TEST_FOREACH( parameter_ptr const&, curr_param, m_parameters ) {
         if( curr_param->p_description->empty() )
             continue;
 
         if( need_where ) {
-            ostr << BOOST_RT_PARAM_CSTRING_LITERAL( "where:\n" );
+            ostr << NDNBOOST_RT_PARAM_CSTRING_LITERAL( "where:\n" );
             need_where = false;
         }
 
-        ostr << curr_param->id_2_report() << BOOST_RT_PARAM_CSTRING_LITERAL( " - " ) << curr_param->p_description << std::endl;
+        ostr << curr_param->id_2_report() << NDNBOOST_RT_PARAM_CSTRING_LITERAL( " - " ) << curr_param->p_description << std::endl;
     }
 }
 
@@ -251,8 +251,8 @@ parser::help( out_stream& ostr )
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_CLA_PARSER_IPP_062904GER
+#endif // NDNBOOST_RT_CLA_PARSER_IPP_062904GER

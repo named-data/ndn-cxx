@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_UNORDERED_DETAIL_MANAGER_HPP_INCLUDED
-#define BOOST_UNORDERED_DETAIL_MANAGER_HPP_INCLUDED
+#ifndef NDNBOOST_UNORDERED_DETAIL_MANAGER_HPP_INCLUDED
+#define NDNBOOST_UNORDERED_DETAIL_MANAGER_HPP_INCLUDED
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
@@ -58,7 +58,7 @@ namespace ndnboost { namespace unordered { namespace iterator_detail {
             typename Node::node_pointer,
             typename Node::value_type&>
     {
-#if !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+#if !defined(NDNBOOST_NO_MEMBER_TEMPLATE_FRIENDS)
         template <typename Node2, typename ConstNodePointer, typename Policy2>
         friend struct ndnboost::unordered::iterator_detail::cl_iterator;
     private:
@@ -182,7 +182,7 @@ namespace ndnboost { namespace unordered { namespace iterator_detail {
             typename Node::node_pointer,
             typename Node::value_type&>
     {
-#if !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+#if !defined(NDNBOOST_NO_MEMBER_TEMPLATE_FRIENDS)
         template <typename, typename>
         friend struct ndnboost::unordered::iterator_detail::c_iterator;
         template <typename, typename>
@@ -248,7 +248,7 @@ namespace ndnboost { namespace unordered { namespace iterator_detail {
     {
         friend struct ndnboost::unordered::iterator_detail::iterator<Node>;
 
-#if !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+#if !defined(NDNBOOST_NO_MEMBER_TEMPLATE_FRIENDS)
         template <typename>
         friend struct ndnboost::unordered::detail::table;
         template <typename>
@@ -341,34 +341,34 @@ namespace ndnboost { namespace unordered { namespace detail {
 
         void construct();
 
-        template <BOOST_UNORDERED_EMPLACE_TEMPLATE>
-        void construct_with_value(BOOST_UNORDERED_EMPLACE_ARGS)
+        template <NDNBOOST_UNORDERED_EMPLACE_TEMPLATE>
+        void construct_with_value(NDNBOOST_UNORDERED_EMPLACE_ARGS)
         {
             construct();
             ndnboost::unordered::detail::construct_value_impl(
-                alloc_, node_->value_ptr(), BOOST_UNORDERED_EMPLACE_FORWARD);
+                alloc_, node_->value_ptr(), NDNBOOST_UNORDERED_EMPLACE_FORWARD);
             value_constructed_ = true;
         }
 
         template <typename A0>
-        void construct_with_value2(BOOST_FWD_REF(A0) a0)
+        void construct_with_value2(NDNBOOST_FWD_REF(A0) a0)
         {
             construct();
             ndnboost::unordered::detail::construct_value_impl(
                 alloc_, node_->value_ptr(),
-                BOOST_UNORDERED_EMPLACE_ARGS1(ndnboost::forward<A0>(a0)));
+                NDNBOOST_UNORDERED_EMPLACE_ARGS1(ndnboost::forward<A0>(a0)));
             value_constructed_ = true;
         }
 
         value_type const& value() const {
-            BOOST_ASSERT(node_ && node_constructed_ && value_constructed_);
+            NDNBOOST_ASSERT(node_ && node_constructed_ && value_constructed_);
             return node_->value();
         }
 
         // no throw
         node_pointer release()
         {
-            BOOST_ASSERT(node_ && node_constructed_);
+            NDNBOOST_ASSERT(node_ && node_constructed_);
             node_pointer p = node_;
             node_ = node_pointer();
             return p;
@@ -412,7 +412,7 @@ namespace ndnboost { namespace unordered { namespace detail {
             node_constructed_ = true;
         }
         else {
-            BOOST_ASSERT(node_constructed_);
+            NDNBOOST_ASSERT(node_constructed_);
 
             if (value_constructed_)
             {
@@ -843,11 +843,11 @@ namespace ndnboost { namespace unordered { namespace detail {
     };
     
     ////////////////////////////////////////////////////////////////////////////
-    // rvalue parameters when type can't be a BOOST_RV_REF(T) parameter
+    // rvalue parameters when type can't be a NDNBOOST_RV_REF(T) parameter
     // e.g. for int
 
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-#   define BOOST_UNORDERED_RV_REF(T) BOOST_RV_REF(T)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
+#   define NDNBOOST_UNORDERED_RV_REF(T) NDNBOOST_RV_REF(T)
 #else
     struct please_ignore_this_overload {
         typedef please_ignore_this_overload type;
@@ -855,20 +855,20 @@ namespace ndnboost { namespace unordered { namespace detail {
 
     template <typename T>
     struct rv_ref_impl {
-        typedef BOOST_RV_REF(T) type;
+        typedef NDNBOOST_RV_REF(T) type;
     };
 
     template <typename T>
     struct rv_ref :
         ndnboost::detail::if_true<
             ndnboost::is_class<T>::value
-        >::BOOST_NESTED_TEMPLATE then <
+        >::NDNBOOST_NESTED_TEMPLATE then <
             ndnboost::unordered::detail::rv_ref_impl<T>,
             please_ignore_this_overload
         >::type
     {};
 
-#   define BOOST_UNORDERED_RV_REF(T) \
+#   define NDNBOOST_UNORDERED_RV_REF(T) \
         typename ndnboost::unordered::detail::rv_ref<T>::type
 #endif
 }}}

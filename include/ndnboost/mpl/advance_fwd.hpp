@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_ADVANCE_FWD_HPP_INCLUDED
-#define BOOST_MPL_ADVANCE_FWD_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_ADVANCE_FWD_HPP_INCLUDED
+#define NDNBOOST_MPL_ADVANCE_FWD_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -18,11 +18,11 @@
 
 namespace ndnboost { namespace mpl {
 
-BOOST_MPL_AUX_COMMON_NAME_WKND(advance)
+NDNBOOST_MPL_AUX_COMMON_NAME_WKND(advance)
 
 template< typename Tag > struct advance_impl;
 template< typename Iterator, typename N > struct advance;
 
 }}
 
-#endif // BOOST_MPL_ADVANCE_FWD_HPP_INCLUDED
+#endif // NDNBOOST_MPL_ADVANCE_FWD_HPP_INCLUDED

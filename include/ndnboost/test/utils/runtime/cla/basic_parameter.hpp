@@ -12,8 +12,8 @@
 //  Description : generic custom parameter generator
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_BASIC_PARAMETER_HPP_062604GER
-#define BOOST_RT_CLA_BASIC_PARAMETER_HPP_062604GER
+#ifndef NDNBOOST_RT_CLA_BASIC_PARAMETER_HPP_062604GER
+#define NDNBOOST_RT_CLA_BASIC_PARAMETER_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -28,7 +28,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -59,7 +59,7 @@ public:
 
 //____________________________________________________________________________//
 
-#define BOOST_RT_CLA_NAMED_PARAM_GENERATORS( param_type )                                       \
+#define NDNBOOST_RT_CLA_NAMED_PARAM_GENERATORS( param_type )                                       \
 template<typename T>                                                                            \
 inline shared_ptr<param_type ## _t<T> >                                                         \
 param_type( cstring name = cstring() )                                                          \
@@ -78,8 +78,8 @@ param_type( cstring name = cstring() )                                          
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_CLA_BASIC_PARAMETER_HPP_062604GER
+#endif // NDNBOOST_RT_CLA_BASIC_PARAMETER_HPP_062604GER

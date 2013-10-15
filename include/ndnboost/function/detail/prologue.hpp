@@ -7,8 +7,8 @@
 
 // For more information, see http://www.boost.org
 
-#ifndef BOOST_FUNCTION_PROLOGUE_HPP
-#define BOOST_FUNCTION_PROLOGUE_HPP
+#ifndef NDNBOOST_FUNCTION_PROLOGUE_HPP
+#define NDNBOOST_FUNCTION_PROLOGUE_HPP
 #  include <cassert>
 #  include <algorithm>
 #  include <ndnboost/config/no_tr1/functional.hpp> // unary_function, binary_function
@@ -23,4 +23,4 @@
 #  include <ndnboost/preprocessor/repeat.hpp>
 #  include <ndnboost/preprocessor/inc.hpp>
 #  include <ndnboost/type_traits/is_void.hpp>
-#endif // BOOST_FUNCTION_PROLOGUE_HPP
+#endif // NDNBOOST_FUNCTION_PROLOGUE_HPP

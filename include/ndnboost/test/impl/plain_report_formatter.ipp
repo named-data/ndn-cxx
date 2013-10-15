@@ -12,8 +12,8 @@
 //  Description : plain report formatter definition
 // ***************************************************************************
 
-#ifndef BOOST_TEST_PLAIN_REPORT_FORMATTER_IPP_020105GER
-#define BOOST_TEST_PLAIN_REPORT_FORMATTER_IPP_020105GER
+#ifndef NDNBOOST_TEST_PLAIN_REPORT_FORMATTER_IPP_020105GER
+#define NDNBOOST_TEST_PLAIN_REPORT_FORMATTER_IPP_020105GER
 
 // Boost.Test
 #include <ndnboost/test/output/plain_report_formatter.hpp>
@@ -30,7 +30,7 @@
 
 #include <ndnboost/test/detail/suppress_warnings.hpp>
 
-# ifdef BOOST_NO_STDC_NAMESPACE
+# ifdef NDNBOOST_NO_STDC_NAMESPACE
 namespace std { using ::log10; }
 # endif
 
@@ -195,4 +195,4 @@ plain_report_formatter::do_confirmation_report( test_unit const& tu, std::ostrea
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_PLAIN_REPORT_FORMATTER_IPP_020105GER
+#endif // NDNBOOST_TEST_PLAIN_REPORT_FORMATTER_IPP_020105GER

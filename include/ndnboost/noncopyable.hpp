@@ -6,8 +6,8 @@
 
 //  See http://www.boost.org/libs/utility for documentation.
 
-#ifndef BOOST_NONCOPYABLE_HPP_INCLUDED
-#define BOOST_NONCOPYABLE_HPP_INCLUDED
+#ifndef NDNBOOST_NONCOPYABLE_HPP_INCLUDED
+#define NDNBOOST_NONCOPYABLE_HPP_INCLUDED
 
 #include <ndnboost/config.hpp>
 
@@ -23,14 +23,14 @@ namespace noncopyable_  // protection from unintended ADL
   class noncopyable
   {
    protected:
-#ifndef BOOST_NO_DEFAULTED_FUNCTIONS
-    BOOST_CONSTEXPR noncopyable() = default;
+#ifndef NDNBOOST_NO_DEFAULTED_FUNCTIONS
+    NDNBOOST_CONSTEXPR noncopyable() = default;
     ~noncopyable() = default;
 #else
     noncopyable() {}
       ~noncopyable() {}
 #endif
-#ifndef BOOST_NO_DELETED_FUNCTIONS
+#ifndef NDNBOOST_NO_DELETED_FUNCTIONS
         noncopyable( const noncopyable& ) = delete;
         noncopyable& operator=( const noncopyable& ) = delete;
 #else
@@ -45,4 +45,4 @@ typedef noncopyable_::noncopyable noncopyable;
 
 } // namespace ndnboost
 
-#endif  // BOOST_NONCOPYABLE_HPP_INCLUDED
+#endif  // NDNBOOST_NONCOPYABLE_HPP_INCLUDED

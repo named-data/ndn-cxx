@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_CONFIG_MSVC_HPP_INCLUDED
-#define BOOST_MPL_AUX_CONFIG_MSVC_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_CONFIG_MSVC_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_CONFIG_MSVC_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2002-2004
 //
@@ -15,7 +15,7 @@
 // $Revision: 49267 $
 
 
-// BOOST_MSVC is defined here:
+// NDNBOOST_MSVC is defined here:
 #include <ndnboost/config.hpp>
 
-#endif // BOOST_MPL_AUX_CONFIG_MSVC_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_CONFIG_MSVC_HPP_INCLUDED

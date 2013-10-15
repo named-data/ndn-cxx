@@ -11,8 +11,8 @@
 
 // --------------------------------------------------------------------------
 
-#if !defined(BOOST_LAMBDA_MEMBER_PTR_HPP)
-#define BOOST_LAMBDA_MEMBER_PTR_HPP
+#if !defined(NDNBOOST_LAMBDA_MEMBER_PTR_HPP)
+#define NDNBOOST_LAMBDA_MEMBER_PTR_HPP
 
 namespace ndnboost { 
 namespace lambda {
@@ -30,8 +30,8 @@ struct member_pointer {
   typedef typename ndnboost::add_reference<T>::type type;
   typedef detail::unspecified class_type;
   typedef detail::unspecified qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = false);
 };
 
 template<class T, class U>
@@ -39,8 +39,8 @@ struct member_pointer<T U::*> {
   typedef typename ndnboost::add_reference<T>::type type;
   typedef U class_type;
   typedef U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = true);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = false);
 };
 
 template<class T, class U>
@@ -48,8 +48,8 @@ struct member_pointer<const T U::*> {
   typedef typename ndnboost::add_reference<const T>::type type;
   typedef U class_type;
   typedef const U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = true);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = false);
 };
 
 template<class T, class U>
@@ -57,8 +57,8 @@ struct member_pointer<volatile T U::*> {
   typedef typename ndnboost::add_reference<volatile T>::type type;
   typedef U class_type;
   typedef volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = true);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = false);
 };
 
 template<class T, class U>
@@ -66,8 +66,8 @@ struct member_pointer<const volatile T U::*> {
   typedef typename ndnboost::add_reference<const volatile T>::type type;
   typedef U class_type;
   typedef const volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = true);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = false);
 };
 
 // -- nonconst member functions --
@@ -76,48 +76,48 @@ struct member_pointer<T (U::*)()> {
   typedef T type;
   typedef U class_type;
   typedef U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1>
 struct member_pointer<T (U::*)(A1)> {
   typedef T type;
   typedef U class_type;
   typedef U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2>
 struct member_pointer<T (U::*)(A1, A2)> {
   typedef T type;
   typedef U class_type;
   typedef U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3>
 struct member_pointer<T (U::*)(A1, A2, A3)> {
   typedef T type;
   typedef U class_type;
   typedef U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4>
 struct member_pointer<T (U::*)(A1, A2, A3, A4)> {
   typedef T type;
   typedef U class_type;
   typedef U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5>
 struct member_pointer<T (U::*)(A1, A2, A3, A4, A5)> {
   typedef T type;
   typedef U class_type;
   typedef U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6>
@@ -125,8 +125,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6)> {
   typedef T type;
   typedef U class_type;
   typedef U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7>
@@ -134,8 +134,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7)> {
   typedef T type;
   typedef U class_type;
   typedef U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7, class A8>
@@ -143,8 +143,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7, A8)> {
   typedef T type;
   typedef U class_type;
   typedef U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7, class A8, class A9>
@@ -152,8 +152,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7, A8, A9)> {
   typedef T type;
   typedef U class_type;
   typedef U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 // -- const member functions --
 template<class T, class U>
@@ -161,48 +161,48 @@ struct member_pointer<T (U::*)() const> {
   typedef T type;
   typedef U class_type;
   typedef const U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1>
 struct member_pointer<T (U::*)(A1) const> {
   typedef T type;
   typedef U class_type;
   typedef const U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2>
 struct member_pointer<T (U::*)(A1, A2) const> {
   typedef T type;
   typedef U class_type;
   typedef const U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3>
 struct member_pointer<T (U::*)(A1, A2, A3) const> {
   typedef T type;
   typedef U class_type;
   typedef const U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4>
 struct member_pointer<T (U::*)(A1, A2, A3, A4) const> {
   typedef T type;
   typedef U class_type;
   typedef const U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5>
 struct member_pointer<T (U::*)(A1, A2, A3, A4, A5) const> {
   typedef T type;
   typedef U class_type;
   typedef const U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6>
@@ -210,8 +210,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6) const> {
   typedef T type;
   typedef U class_type;
   typedef const U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7>
@@ -219,8 +219,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7) const> {
   typedef T type;
   typedef U class_type;
   typedef const U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7, class A8>
@@ -228,8 +228,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7, A8) const> {
   typedef T type;
   typedef U class_type;
   typedef const U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7, class A8, class A9>
@@ -237,8 +237,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7, A8, A9) const> {
   typedef T type;
   typedef U class_type;
   typedef const U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
   // -- volatile --
 template<class T, class U>
@@ -246,48 +246,48 @@ struct member_pointer<T (U::*)() volatile> {
   typedef T type;
   typedef U class_type;
   typedef volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1>
 struct member_pointer<T (U::*)(A1) volatile> {
   typedef T type;
   typedef U class_type;
   typedef volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2>
 struct member_pointer<T (U::*)(A1, A2) volatile> {
   typedef T type;
   typedef U class_type;
   typedef volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3>
 struct member_pointer<T (U::*)(A1, A2, A3) volatile> {
   typedef T type;
   typedef U class_type;
   typedef volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4>
 struct member_pointer<T (U::*)(A1, A2, A3, A4) volatile> {
   typedef T type;
   typedef U class_type;
   typedef volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5>
 struct member_pointer<T (U::*)(A1, A2, A3, A4, A5) volatile> {
   typedef T type;
   typedef U class_type;
   typedef volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6>
@@ -295,8 +295,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6) volatile> {
   typedef T type;
   typedef U class_type;
   typedef volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7>
@@ -304,8 +304,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7) volatile> {
   typedef T type;
   typedef U class_type;
   typedef volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7, class A8>
@@ -313,8 +313,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7, A8) volatile> {
   typedef T type;
   typedef U class_type;
   typedef volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7, class A8, class A9>
@@ -322,8 +322,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7, A8, A9) volatile> {
   typedef T type;
   typedef U class_type;
   typedef volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
   // -- const volatile
 template<class T, class U>
@@ -331,32 +331,32 @@ struct member_pointer<T (U::*)() const volatile> {
   typedef T type;
   typedef U class_type;
   typedef const volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1>
 struct member_pointer<T (U::*)(A1) const volatile> {
   typedef T type;
   typedef U class_type;
   typedef const volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2>
 struct member_pointer<T (U::*)(A1, A2) const volatile> {
   typedef T type;
   typedef U class_type;
   typedef const volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3>
 struct member_pointer<T (U::*)(A1, A2, A3) const volatile> {
   typedef T type;
   typedef U class_type;
   typedef const volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4>
 struct member_pointer<T (U::*)(A1, A2, A3, A4) const volatile> {
@@ -369,8 +369,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5) const volatile> {
   typedef T type;
   typedef U class_type;
   typedef const volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6>
@@ -378,8 +378,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6) const volatile> {
   typedef T type;
   typedef U class_type;
   typedef const volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7>
@@ -387,8 +387,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7) const volatile> {
   typedef T type;
   typedef U class_type;
   typedef const volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7, class A8>
@@ -396,8 +396,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7, A8) const volatile> {
   typedef T type;
   typedef U class_type;
   typedef const volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 template<class T, class U, class A1, class A2, class A3, class A4, class A5,
          class A6, class A7, class A8, class A9>
@@ -405,8 +405,8 @@ struct member_pointer<T (U::*)(A1, A2, A3, A4, A5, A6, A7, A8, A9) const volatil
   typedef T type;
   typedef U class_type;
   typedef const volatile U qualified_class_type;
-  BOOST_STATIC_CONSTANT(bool, is_data_member = false);
-  BOOST_STATIC_CONSTANT(bool, is_function_member = true);
+  NDNBOOST_STATIC_CONSTANT(bool, is_data_member = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_function_member = true);
 };
 
 } // detail

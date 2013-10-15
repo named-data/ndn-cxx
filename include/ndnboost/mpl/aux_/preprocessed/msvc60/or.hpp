@@ -30,7 +30,7 @@ template<> struct or_impl<false>
         >
     struct result_
         : or_impl<
-              BOOST_MPL_AUX_NESTED_TYPE_WKND(T1)::value
+              NDNBOOST_MPL_AUX_NESTED_TYPE_WKND(T1)::value
             >::template result_< T2,T3,T4,false_ >
     {
     };
@@ -46,25 +46,25 @@ struct or_impl<false>
 } // namespace aux
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(T1)
-    , typename BOOST_MPL_AUX_NA_PARAM(T2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(T1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(T2)
     , typename T3 = false_, typename T4 = false_, typename T5 = false_
     >
 struct or_
 
     : aux::or_impl<
-          BOOST_MPL_AUX_NESTED_TYPE_WKND(T1)::value
+          NDNBOOST_MPL_AUX_NESTED_TYPE_WKND(T1)::value
         >::template result_< T2,T3,T4,T5 >
 
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           5
         , or_
         , ( T1, T2, T3, T4, T5)
         )
 };
 
-BOOST_MPL_AUX_NA_SPEC2(
+NDNBOOST_MPL_AUX_NA_SPEC2(
       2
     , 5
     , or_

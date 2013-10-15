@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_ARITY_SPEC_HPP_INCLUDED
-#define BOOST_MPL_AUX_ARITY_SPEC_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_ARITY_SPEC_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_ARITY_SPEC_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -24,44 +24,44 @@
 #include <ndnboost/mpl/aux_/config/lambda.hpp>
 #include <ndnboost/mpl/aux_/config/static_constant.hpp>
 
-#if defined(BOOST_MPL_CFG_BROKEN_DEFAULT_PARAMETERS_IN_NESTED_TEMPLATES)
-#   define BOOST_MPL_AUX_NONTYPE_ARITY_SPEC(i,type,name) \
+#if defined(NDNBOOST_MPL_CFG_BROKEN_DEFAULT_PARAMETERS_IN_NESTED_TEMPLATES)
+#   define NDNBOOST_MPL_AUX_NONTYPE_ARITY_SPEC(i,type,name) \
 namespace aux { \
-template< BOOST_MPL_AUX_NTTP_DECL(int, N), BOOST_MPL_PP_PARAMS(i,type T) > \
+template< NDNBOOST_MPL_AUX_NTTP_DECL(int, N), NDNBOOST_MPL_PP_PARAMS(i,type T) > \
 struct arity< \
-      name< BOOST_MPL_PP_PARAMS(i,T) > \
+      name< NDNBOOST_MPL_PP_PARAMS(i,T) > \
     , N \
     > \
 { \
-    BOOST_STATIC_CONSTANT(int \
-        , value = BOOST_MPL_LIMIT_METAFUNCTION_ARITY \
+    NDNBOOST_STATIC_CONSTANT(int \
+        , value = NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY \
         ); \
 }; \
 } \
 /**/
 #else
-#   define BOOST_MPL_AUX_NONTYPE_ARITY_SPEC(i,type,name) /**/
+#   define NDNBOOST_MPL_AUX_NONTYPE_ARITY_SPEC(i,type,name) /**/
 #endif
 
-#   define BOOST_MPL_AUX_ARITY_SPEC(i,name) \
-    BOOST_MPL_AUX_NONTYPE_ARITY_SPEC(i,typename,name) \
+#   define NDNBOOST_MPL_AUX_ARITY_SPEC(i,name) \
+    NDNBOOST_MPL_AUX_NONTYPE_ARITY_SPEC(i,typename,name) \
 /**/
 
 
-#if defined(BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING) \
-    && !defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
-#   define BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(i, name) \
+#if defined(NDNBOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING) \
+    && !defined(NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
+#   define NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(i, name) \
 namespace aux { \
-template< BOOST_MPL_PP_PARAMS(i,typename T) > \
-struct template_arity< name<BOOST_MPL_PP_PARAMS(i,T)> > \
+template< NDNBOOST_MPL_PP_PARAMS(i,typename T) > \
+struct template_arity< name<NDNBOOST_MPL_PP_PARAMS(i,T)> > \
     : int_<i> \
 { \
 }; \
 } \
 /**/
 #else
-#   define BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(i, name) /**/
+#   define NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(i, name) /**/
 #endif
 
 
-#endif // BOOST_MPL_AUX_ARITY_SPEC_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_ARITY_SPEC_HPP_INCLUDED

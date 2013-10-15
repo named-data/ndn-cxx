@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_LIST_AUX_ITERATOR_HPP_INCLUDED
-#define BOOST_MPL_LIST_AUX_ITERATOR_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_LIST_AUX_ITERATOR_HPP_INCLUDED
+#define NDNBOOST_MPL_LIST_AUX_ITERATOR_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -24,7 +24,7 @@
 
 namespace ndnboost { namespace mpl {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template< typename Node >
 struct l_iter
@@ -45,7 +45,7 @@ struct next< l_iter<Node> >
     typedef l_iter< typename Node::next > type;
 };
 
-#else // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#else // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 template< typename Node >
 struct l_iter
@@ -63,14 +63,14 @@ template<> struct l_iter<l_end>
 {
     typedef aux::l_iter_tag tag;
     typedef forward_iterator_tag category;
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
     typedef na type;
     typedef l_iter next;
 #endif
 };
 
-BOOST_MPL_AUX_PASS_THROUGH_LAMBDA_SPEC(1, l_iter)
+NDNBOOST_MPL_AUX_PASS_THROUGH_LAMBDA_SPEC(1, l_iter)
 
 }}
 
-#endif // BOOST_MPL_LIST_AUX_ITERATOR_HPP_INCLUDED
+#endif // NDNBOOST_MPL_LIST_AUX_ITERATOR_HPP_INCLUDED

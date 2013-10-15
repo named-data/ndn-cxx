@@ -9,15 +9,15 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_PUNCTUATION_PAREN_HPP
-# define BOOST_PREPROCESSOR_PUNCTUATION_PAREN_HPP
+# ifndef NDNBOOST_PREPROCESSOR_PUNCTUATION_PAREN_HPP
+# define NDNBOOST_PREPROCESSOR_PUNCTUATION_PAREN_HPP
 #
-# /* BOOST_PP_LPAREN */
+# /* NDNBOOST_PP_LPAREN */
 #
-# define BOOST_PP_LPAREN() (
+# define NDNBOOST_PP_LPAREN() (
 #
-# /* BOOST_PP_RPAREN */
+# /* NDNBOOST_PP_RPAREN */
 #
-# define BOOST_PP_RPAREN() )
+# define NDNBOOST_PP_RPAREN() )
 #
 # endif

@@ -1,13 +1,13 @@
 // Copyright David Abrahams 2006. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-#ifndef BOOST_CONCEPT_DETAIL_GENERAL_DWA2006429_HPP
-# define BOOST_CONCEPT_DETAIL_GENERAL_DWA2006429_HPP
+#ifndef NDNBOOST_CONCEPT_DETAIL_GENERAL_DWA2006429_HPP
+# define NDNBOOST_CONCEPT_DETAIL_GENERAL_DWA2006429_HPP
 
 # include <ndnboost/preprocessor/cat.hpp>
 # include <ndnboost/concept/detail/backward_compatibility.hpp>
 
-# ifdef BOOST_OLD_CONCEPT_SUPPORT
+# ifdef NDNBOOST_OLD_CONCEPT_SUPPORT
 #  include <ndnboost/concept/detail/has_constraints.hpp>
 #  include <ndnboost/mpl/if.hpp>
 # endif
@@ -38,7 +38,7 @@ struct requirement<failed ************ Model::************>
     static void failed() { ((Model*)0)->~Model(); }
 };
 
-# ifdef BOOST_OLD_CONCEPT_SUPPORT
+# ifdef NDNBOOST_OLD_CONCEPT_SUPPORT
 
 template <class Model>
 struct constraint
@@ -65,11 +65,11 @@ struct requirement_<void(*)(Model)>
   
 # endif
 
-#  define BOOST_CONCEPT_ASSERT_FN( ModelFnPtr )             \
+#  define NDNBOOST_CONCEPT_ASSERT_FN( ModelFnPtr )             \
     typedef ::ndnboost::concepts::detail::instantiate<          \
     &::ndnboost::concepts::requirement_<ModelFnPtr>::failed>    \
-      BOOST_PP_CAT(boost_concept_check,__LINE__)
+      NDNBOOST_PP_CAT(boost_concept_check,__LINE__)
 
 }}
 
-#endif // BOOST_CONCEPT_DETAIL_GENERAL_DWA2006429_HPP
+#endif // NDNBOOST_CONCEPT_DETAIL_GENERAL_DWA2006429_HPP

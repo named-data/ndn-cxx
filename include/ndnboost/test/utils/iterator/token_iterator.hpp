@@ -12,8 +12,8 @@
 //  Description : token iterator for string and range tokenization
 // ***************************************************************************
 
-#ifndef BOOST_TOKEN_ITERATOR_HPP_071894GER
-#define BOOST_TOKEN_ITERATOR_HPP_071894GER
+#ifndef NDNBOOST_TOKEN_ITERATOR_HPP_071894GER
+#define NDNBOOST_TOKEN_ITERATOR_HPP_071894GER
 
 // Boost
 #include <ndnboost/config.hpp>
@@ -35,7 +35,7 @@
 
 //____________________________________________________________________________//
 
-#ifdef BOOST_NO_STDC_NAMESPACE
+#ifdef NDNBOOST_NO_STDC_NAMESPACE
 namespace std{ using ::ispunct; using ::isspace; }
 #endif
 
@@ -65,7 +65,7 @@ class default_char_compare {
 public:
     bool operator()( CharT c1, CharT c2 )
     {
-#ifdef BOOST_CLASSIC_IOSTREAMS
+#ifdef NDNBOOST_CLASSIC_IOSTREAMS
         return std::string_char_traits<CharT>::eq( c1, c2 );
 #else
         return std::char_traits<CharT>::eq( c1, c2 );
@@ -102,7 +102,7 @@ public:
     {
         switch( m_type ) {
         case dt_char: {
-            BOOST_TEST_FOREACH( CharT, delim, m_delimeters )
+            NDNBOOST_TEST_FOREACH( CharT, delim, m_delimeters )
                 if( CharCompare()( delim, c ) )
                     return true;
 
@@ -131,7 +131,7 @@ private:
 
 template<typename TraversalTag>
 struct token_assigner {
-#if BOOST_WORKAROUND( BOOST_DINKUMWARE_STDLIB, < 306 )
+#if NDNBOOST_WORKAROUND( NDNBOOST_DINKUMWARE_STDLIB, < 306 )
     template<typename Iterator, typename C, typename T>
     static void assign( Iterator b, Iterator e, std::basic_string<C,T>& t )
     { for( ; b != e; ++b ) t += *b; }
@@ -216,7 +216,7 @@ protected:
     template<typename Iter> 
     bool                    get( Iter& begin, Iter end )
     {
-        typedef ut_detail::token_assigner<BOOST_DEDUCED_TYPENAME iterator_traversal<Iter>::type> Assigner;
+        typedef ut_detail::token_assigner<NDNBOOST_DEDUCED_TYPENAME iterator_traversal<Iter>::type> Assigner;
         Iter check_point;
 
         this->m_value.clear();
@@ -336,8 +336,8 @@ typedef basic_string_token_iterator<wchar_t>    wstring_token_iterator;
 // ************************************************************************** //
 
 template<typename Iter,
-         typename CharCompare = ut_detail::default_char_compare<BOOST_DEDUCED_TYPENAME iterator_value<Iter>::type>,
-         typename ValueType   = std::basic_string<BOOST_DEDUCED_TYPENAME iterator_value<Iter>::type>,
+         typename CharCompare = ut_detail::default_char_compare<NDNBOOST_DEDUCED_TYPENAME iterator_value<Iter>::type>,
+         typename ValueType   = std::basic_string<NDNBOOST_DEDUCED_TYPENAME iterator_value<Iter>::type>,
          typename Reference   = ValueType const&>
 class range_token_iterator
 : public token_iterator_base<range_token_iterator<Iter,CharCompare,ValueType,Reference>,
@@ -414,5 +414,5 @@ make_range_token_iterator( Iter begin, Iter end, Modifier const& m )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TOKEN_ITERATOR_HPP_071894GER
+#endif // NDNBOOST_TOKEN_ITERATOR_HPP_071894GER
 

@@ -7,8 +7,8 @@
 
 //  See <http://www.boost.org/libs/utility/> for the library's home page.
 
-#ifndef BOOST_UTILITY_BASE_FROM_MEMBER_HPP
-#define BOOST_UTILITY_BASE_FROM_MEMBER_HPP
+#ifndef NDNBOOST_UTILITY_BASE_FROM_MEMBER_HPP
+#define NDNBOOST_UTILITY_BASE_FROM_MEMBER_HPP
 
 #include <ndnboost/preprocessor/arithmetic/inc.hpp>
 #include <ndnboost/preprocessor/repetition/enum_binary_params.hpp>
@@ -28,8 +28,8 @@
 
 // Contributed by Jonathan Turkanis
 
-#ifndef BOOST_BASE_FROM_MEMBER_MAX_ARITY
-#define BOOST_BASE_FROM_MEMBER_MAX_ARITY  10
+#ifndef NDNBOOST_BASE_FROM_MEMBER_MAX_ARITY
+#define NDNBOOST_BASE_FROM_MEMBER_MAX_ARITY  10
 #endif
 
 
@@ -42,10 +42,10 @@
 //         {}
 // This macro should only persist within this file.
 
-#define BOOST_PRIVATE_CTR_DEF( z, n, data )                            \
-    template < BOOST_PP_ENUM_PARAMS(n, typename T) >                   \
-    explicit base_from_member( BOOST_PP_ENUM_BINARY_PARAMS(n, T, x) )  \
-        : member( BOOST_PP_ENUM_PARAMS(n, x) )                         \
+#define NDNBOOST_PRIVATE_CTR_DEF( z, n, data )                            \
+    template < NDNBOOST_PP_ENUM_PARAMS(n, typename T) >                   \
+    explicit base_from_member( NDNBOOST_PP_ENUM_BINARY_PARAMS(n, T, x) )  \
+        : member( NDNBOOST_PP_ENUM_PARAMS(n, x) )                         \
         {}                                                             \
     /**/
 
@@ -72,8 +72,8 @@ protected:
         : member()
         {}
 
-    BOOST_PP_REPEAT_FROM_TO( 1, BOOST_PP_INC(BOOST_BASE_FROM_MEMBER_MAX_ARITY),
-     BOOST_PRIVATE_CTR_DEF, _ )
+    NDNBOOST_PP_REPEAT_FROM_TO( 1, NDNBOOST_PP_INC(NDNBOOST_BASE_FROM_MEMBER_MAX_ARITY),
+     NDNBOOST_PRIVATE_CTR_DEF, _ )
 
 };  // ndnboost::base_from_member
 
@@ -81,7 +81,7 @@ protected:
 
 
 // Undo any private macros
-#undef BOOST_PRIVATE_CTR_DEF
+#undef NDNBOOST_PRIVATE_CTR_DEF
 
 
-#endif  // BOOST_UTILITY_BASE_FROM_MEMBER_HPP
+#endif  // NDNBOOST_UTILITY_BASE_FROM_MEMBER_HPP

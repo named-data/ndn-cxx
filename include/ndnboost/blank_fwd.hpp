@@ -10,8 +10,8 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_BLANK_FWD_HPP
-#define BOOST_BLANK_FWD_HPP
+#ifndef NDNBOOST_BLANK_FWD_HPP
+#define NDNBOOST_BLANK_FWD_HPP
 
 namespace ndnboost {
 
@@ -19,4 +19,4 @@ struct blank;
 
 } // namespace ndnboost
 
-#endif // BOOST_BLANK_FWD_HPP
+#endif // NDNBOOST_BLANK_FWD_HPP

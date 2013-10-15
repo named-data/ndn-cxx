@@ -9,8 +9,8 @@
 // For more information, see www.boost.org
 
 
-#ifndef BOOST_LAMBDA_RET_HPP
-#define BOOST_LAMBDA_RET_HPP
+#ifndef NDNBOOST_LAMBDA_RET_HPP
+#define NDNBOOST_LAMBDA_RET_HPP
 
 namespace ndnboost { 
 namespace lambda {

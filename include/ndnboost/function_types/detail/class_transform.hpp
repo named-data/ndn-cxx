@@ -6,8 +6,8 @@
 
 //------------------------------------------------------------------------------
 
-#ifndef BOOST_FT_DETAIL_CLASS_TRANSFORM_HPP_INCLUDED
-#define BOOST_FT_DETAIL_CLASS_TRANSFORM_HPP_INCLUDED
+#ifndef NDNBOOST_FT_DETAIL_CLASS_TRANSFORM_HPP_INCLUDED
+#define NDNBOOST_FT_DETAIL_CLASS_TRANSFORM_HPP_INCLUDED
 
 #include <ndnboost/mpl/apply.hpp>
 #include <ndnboost/mpl/always.hpp>
@@ -28,7 +28,7 @@ struct class_transform
 { typedef typename mpl::apply1<L,T>::type type; };
 
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 // We can short-circuit the mechanism implemented in the primary template for 
 // the most common lambda expression and save both the "un-lambdaing" and the
 // type traits invocation (we know that T can only be a class type).

@@ -1,8 +1,8 @@
 // Copyright David Abrahams 2006. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-#ifndef BOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_DWA2006429_HPP
-# define BOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_DWA2006429_HPP
+#ifndef NDNBOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_DWA2006429_HPP
+# define NDNBOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_DWA2006429_HPP
 
 # include <ndnboost/mpl/bool.hpp>
 # include <ndnboost/detail/workaround.hpp>
@@ -21,7 +21,7 @@ namespace detail
   template <class Model, void (Model::*)()>
   struct wrap_constraints {};
     
-#if BOOST_WORKAROUND(__SUNPRO_CC, <= 0x580) || defined(__CUDACC__)
+#if NDNBOOST_WORKAROUND(__SUNPRO_CC, <= 0x580) || defined(__CUDACC__)
   // Work around the following bogus error in Sun Studio 11, by
   // turning off the has_constraints function entirely:
   //    Error: complex expression not allowed in dependent template
@@ -39,7 +39,7 @@ namespace detail
 template <class Model>
 struct not_satisfied
 {
-    BOOST_STATIC_CONSTANT(
+    NDNBOOST_STATIC_CONSTANT(
         bool
       , value = sizeof( detail::has_constraints_((Model*)0) ) == sizeof(detail::yes) );
     typedef mpl::bool_<value> type;
@@ -47,4 +47,4 @@ struct not_satisfied
 
 }} // namespace ndnboost::concepts::detail
 
-#endif // BOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_DWA2006429_HPP
+#endif // NDNBOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_DWA2006429_HPP

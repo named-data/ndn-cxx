@@ -12,8 +12,8 @@
 //  Description : Facilities to perform exception safety_tests
 // ***************************************************************************
 
-#ifndef BOOST_TEST_MOCK_OBJECT_HPP_112205GER
-#define BOOST_TEST_MOCK_OBJECT_HPP_112205GER
+#ifndef NDNBOOST_TEST_MOCK_OBJECT_HPP_112205GER
+#define NDNBOOST_TEST_MOCK_OBJECT_HPP_112205GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
@@ -59,8 +59,8 @@ public:
 // ************************************************************************** //
 
 #define MO_OP_IMPL( op, descr, ret )                        \
-    BOOST_ITEST_SCOPE( mock_object::operator op );          \
-    BOOST_ITEST_EPOINT( descr );                            \
+    NDNBOOST_ITEST_SCOPE( mock_object::operator op );          \
+    NDNBOOST_ITEST_EPOINT( descr );                            \
     return ret                                              \
 /**/
 
@@ -74,7 +74,7 @@ self_type const& operator op() const                        \
 #define MO_UNARY_BOOL_OP( op, descr )                       \
 bool operator op() const                                    \
 {                                                           \
-    MO_OP_IMPL( op, descr, (!!BOOST_ITEST_DPOINT()) );      \
+    MO_OP_IMPL( op, descr, (!!NDNBOOST_ITEST_DPOINT()) );      \
 }                                                           \
 /**/
 
@@ -108,21 +108,21 @@ inline bool                                                 \
 operator op( mock_object<i1,Base1> const&,                  \
              mock_object<i2,Base2> const& )                 \
 {                                                           \
-    MO_OP_IMPL( op, descr, BOOST_ITEST_DPOINT() );          \
+    MO_OP_IMPL( op, descr, NDNBOOST_ITEST_DPOINT() );          \
 }                                                           \
                                                             \
 template<int i, typename Base, typename T>                  \
 inline bool                                                 \
 operator op( mock_object<i,Base> const&, T const& )         \
 {                                                           \
-    MO_OP_IMPL( op, descr, BOOST_ITEST_DPOINT() );          \
+    MO_OP_IMPL( op, descr, NDNBOOST_ITEST_DPOINT() );          \
 }                                                           \
                                                             \
 template<int i, typename Base, typename T>                  \
 inline bool                                                 \
 operator op( T const&, mock_object<i,Base> const& )         \
 {                                                           \
-    MO_OP_IMPL( op, descr, BOOST_ITEST_DPOINT() );          \
+    MO_OP_IMPL( op, descr, NDNBOOST_ITEST_DPOINT() );          \
 }                                                           \
 /**/
 
@@ -153,54 +153,54 @@ public:
     // Constructors
     mock_object()
     {
-        BOOST_ITEST_SCOPE( mock_object::mock_object );
-        BOOST_ITEST_EPOINT( "Mock object default constructor" );
+        NDNBOOST_ITEST_SCOPE( mock_object::mock_object );
+        NDNBOOST_ITEST_EPOINT( "Mock object default constructor" );
     }
 
     template<typename T1>
     mock_object( T1 const& arg1 )
     : mock_object_base( arg1 )
     {
-        BOOST_ITEST_SCOPE( mock_object::mock_object );
-        BOOST_ITEST_EPOINT( "Mock object constructor" );
+        NDNBOOST_ITEST_SCOPE( mock_object::mock_object );
+        NDNBOOST_ITEST_EPOINT( "Mock object constructor" );
     }
 
     template<typename T1, typename T2>
     mock_object( T1 const& arg1, T2 const& arg2 )
     : mock_object_base( arg1, arg2 )
     {
-        BOOST_ITEST_SCOPE( mock_object::mock_object );
-        BOOST_ITEST_EPOINT( "Mock object constructor" );
+        NDNBOOST_ITEST_SCOPE( mock_object::mock_object );
+        NDNBOOST_ITEST_EPOINT( "Mock object constructor" );
     }
 
     template<typename T1, typename T2, typename T3>
     mock_object( T1 const& arg1, T2 const& arg2, T3 const& arg3 )
     : mock_object_base( arg1, arg2, arg3 )
     {
-        BOOST_ITEST_SCOPE( mock_object::mock_object );
-        BOOST_ITEST_EPOINT( "Mock object constructor" );
+        NDNBOOST_ITEST_SCOPE( mock_object::mock_object );
+        NDNBOOST_ITEST_EPOINT( "Mock object constructor" );
     }
 
     template<typename T1, typename T2, typename T3, typename T4>
     mock_object( T1 const& arg1, T2 const& arg2, T3 const& arg3, T4 const& arg4 )
     : mock_object_base( arg1, arg2, arg3, arg4 )
     {
-        BOOST_ITEST_SCOPE( mock_object::mock_object );
-        BOOST_ITEST_EPOINT( "Mock object constructor" );
+        NDNBOOST_ITEST_SCOPE( mock_object::mock_object );
+        NDNBOOST_ITEST_EPOINT( "Mock object constructor" );
     }
 
     template<typename T1, typename T2, typename T3, typename T4, typename T5>
     mock_object( T1 const& arg1, T2 const& arg2, T3 const& arg3, T4 const& arg4, T5 const& arg5 )
     : mock_object_base( arg1, arg2, arg3, arg4, arg5 )
     {
-        BOOST_ITEST_SCOPE( mock_object::mock_object );
-        BOOST_ITEST_EPOINT( "Mock object constructor" );
+        NDNBOOST_ITEST_SCOPE( mock_object::mock_object );
+        NDNBOOST_ITEST_EPOINT( "Mock object constructor" );
     }
 
     mock_object( mock_object const& )
     {
-        BOOST_ITEST_SCOPE( mock_object::mock_object );
-        BOOST_ITEST_EPOINT( "Mock object copy constructor" );
+        NDNBOOST_ITEST_SCOPE( mock_object::mock_object );
+        NDNBOOST_ITEST_EPOINT( "Mock object copy constructor" );
     }
 
     // assignment
@@ -238,7 +238,7 @@ public:
     operator safe_bool() const
     {
         MO_OP_IMPL( safe_bool, "Bool context conversion",
-                    (BOOST_ITEST_DPOINT() ? 0 : &dummy::nonnull) );
+                    (NDNBOOST_ITEST_DPOINT() ? 0 : &dummy::nonnull) );
     }
 
     // Function-call operators
@@ -286,7 +286,7 @@ public:
     }
 };
 
-// !! MO_BINARY_OP( BOOST_PP_COMMA(), "Comma operator" )
+// !! MO_BINARY_OP( NDNBOOST_PP_COMMA(), "Comma operator" )
 
 MO_BINARY_BOOL_OP( !=, "Inequality" )
 MO_BINARY_OP( %, "Modulus" )
@@ -325,4 +325,4 @@ MO_BINARY_OP( >>, "Right shift" )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_MOCK_OBJECT_HPP_112205GER
+#endif // NDNBOOST_TEST_MOCK_OBJECT_HPP_112205GER

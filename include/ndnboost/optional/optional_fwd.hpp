@@ -12,8 +12,8 @@
 // Revisions:
 // 10 May 2008 (added swap related forward declaration) Niels Dekker
 // 
-#ifndef BOOST_OPTIONAL_OPTIONAL_FWD_FLC_19NOV2002_HPP
-#define BOOST_OPTIONAL_OPTIONAL_FWD_FLC_19NOV2002_HPP
+#ifndef NDNBOOST_OPTIONAL_OPTIONAL_FWD_FLC_19NOV2002_HPP
+#define NDNBOOST_OPTIONAL_OPTIONAL_FWD_FLC_19NOV2002_HPP
 
 namespace ndnboost {
 

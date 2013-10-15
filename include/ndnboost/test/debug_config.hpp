@@ -12,13 +12,13 @@
 //  Description : user's config for Boost.Test debugging support
 // ***************************************************************************
 
-#ifndef BOOST_TEST_DEBUG_CONFIG_HPP_112006GER
-#define BOOST_TEST_DEBUG_CONFIG_HPP_112006GER
+#ifndef NDNBOOST_TEST_DEBUG_CONFIG_HPP_112006GER
+#define NDNBOOST_TEST_DEBUG_CONFIG_HPP_112006GER
 
 // ';' separated list of supported debuggers
-// #define BOOST_TEST_DBG_LIST gdb;dbx
+// #define NDNBOOST_TEST_DBG_LIST gdb;dbx
 
 // maximum size of /proc/pid/stat file
-// #define BOOST_TEST_STAT_LINE_MAX
+// #define NDNBOOST_TEST_STAT_LINE_MAX
 
 #endif

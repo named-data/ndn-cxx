@@ -2,8 +2,8 @@
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_TYPEOF_INT_ENCODING_HPP_INCLUDED
-#define BOOST_TYPEOF_INT_ENCODING_HPP_INCLUDED
+#ifndef NDNBOOST_TYPEOF_INT_ENCODING_HPP_INCLUDED
+#define NDNBOOST_TYPEOF_INT_ENCODING_HPP_INCLUDED
 
 #include <ndnboost/mpl/if.hpp>
 #include <ndnboost/mpl/size_t.hpp>
@@ -41,14 +41,14 @@ namespace ndnboost { namespace type_of {
     template<std::size_t n, bool Overflow>
     struct pack
     {
-        BOOST_STATIC_CONSTANT(std::size_t , value=((n + 1) * 2 + (Overflow ? 1 : 0)));
+        NDNBOOST_STATIC_CONSTANT(std::size_t , value=((n + 1) * 2 + (Overflow ? 1 : 0)));
     };
 
     template<std::size_t m>
     struct unpack
     {
-        BOOST_STATIC_CONSTANT(std::size_t, value = (m / 2) - 1);
-        BOOST_STATIC_CONSTANT(std::size_t, overflow = (m % 2 == 1));
+        NDNBOOST_STATIC_CONSTANT(std::size_t, value = (m / 2) - 1);
+        NDNBOOST_STATIC_CONSTANT(std::size_t, overflow = (m % 2 == 1));
     };
 
     ////////////////////////////////
@@ -83,16 +83,16 @@ namespace ndnboost { namespace type_of {
     template<std::size_t n, class Iter>
     struct decode_size_t<n, Iter, false>
     {
-        BOOST_STATIC_CONSTANT(std::size_t,value = n);
+        NDNBOOST_STATIC_CONSTANT(std::size_t,value = n);
         typedef Iter iter;
     };
 
     template<std::size_t n, class Iter>
     struct decode_size_t<n, Iter, true>
     {
-        BOOST_STATIC_CONSTANT(std::size_t,m = Iter::type::value);
+        NDNBOOST_STATIC_CONSTANT(std::size_t,m = Iter::type::value);
 
-        BOOST_STATIC_CONSTANT(std::size_t,value = (std::size_t)m * 0x3ffffffe + n);
+        NDNBOOST_STATIC_CONSTANT(std::size_t,value = (std::size_t)m * 0x3ffffffe + n);
         typedef typename Iter::next iter;
     };
 
@@ -100,11 +100,11 @@ namespace ndnboost { namespace type_of {
     struct decode_integral
     {
         typedef decode_integral<T,Iter> self_t;
-        BOOST_STATIC_CONSTANT(std::size_t,m = Iter::type::value);
+        NDNBOOST_STATIC_CONSTANT(std::size_t,m = Iter::type::value);
 
-        BOOST_STATIC_CONSTANT(std::size_t,n = unpack<m>::value);
+        NDNBOOST_STATIC_CONSTANT(std::size_t,n = unpack<m>::value);
 
-        BOOST_STATIC_CONSTANT(std::size_t,overflow = unpack<m>::overflow);
+        NDNBOOST_STATIC_CONSTANT(std::size_t,overflow = unpack<m>::overflow);
 
         typedef typename Iter::next nextpos;
 
@@ -115,4 +115,4 @@ namespace ndnboost { namespace type_of {
 
 }}//namespace
 
-#endif//BOOST_TYPEOF_INT_ENCODING_HPP_INCLUDED
+#endif//NDNBOOST_TYPEOF_INT_ENCODING_HPP_INCLUDED

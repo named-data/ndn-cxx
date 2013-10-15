@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_PUSH_FRONT_HPP_INCLUDED
-#define BOOST_MPL_PUSH_FRONT_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_PUSH_FRONT_HPP_INCLUDED
+#define NDNBOOST_MPL_PUSH_FRONT_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -23,30 +23,30 @@
 namespace ndnboost { namespace mpl {
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
-    , typename BOOST_MPL_AUX_NA_PARAM(T)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(T)
     >
 struct push_front
     : push_front_impl< typename sequence_tag<Sequence>::type >
         ::template apply< Sequence,T >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(2,push_front,(Sequence,T))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2,push_front,(Sequence,T))
 };
 
 
 template< 
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
     >
 struct has_push_front
     : has_push_front_impl< typename sequence_tag<Sequence>::type >
         ::template apply< Sequence >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1,has_push_front,(Sequence))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,has_push_front,(Sequence))
 };
 
-BOOST_MPL_AUX_NA_SPEC(2, push_front)
-BOOST_MPL_AUX_NA_SPEC(1, has_push_front)
+NDNBOOST_MPL_AUX_NA_SPEC(2, push_front)
+NDNBOOST_MPL_AUX_NA_SPEC(1, has_push_front)
 
 }}
 
-#endif // BOOST_MPL_PUSH_FRONT_HPP_INCLUDED
+#endif // NDNBOOST_MPL_PUSH_FRONT_HPP_INCLUDED

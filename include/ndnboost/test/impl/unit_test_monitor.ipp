@@ -13,8 +13,8 @@
 //  Test Framework to monitor test cases run.
 // ***************************************************************************
 
-#ifndef BOOST_TEST_UNIT_TEST_MONITOR_IPP_012205GER
-#define BOOST_TEST_UNIT_TEST_MONITOR_IPP_012205GER
+#ifndef NDNBOOST_TEST_UNIT_TEST_MONITOR_IPP_012205GER
+#define NDNBOOST_TEST_UNIT_TEST_MONITOR_IPP_012205GER
 
 // Boost.Test
 #include <ndnboost/test/unit_test_monitor.hpp>
@@ -98,4 +98,4 @@ unit_test_monitor_t::execute_and_translate( test_case const& tc )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_UNIT_TEST_MONITOR_IPP_012205GER
+#endif // NDNBOOST_TEST_UNIT_TEST_MONITOR_IPP_012205GER

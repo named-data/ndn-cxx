@@ -9,8 +9,8 @@
 // You are welcome to contact the author at:
 //  fernando_cacciola@hotmail.com
 //
-#ifndef BOOST_NONE_T_17SEP2003_HPP
-#define BOOST_NONE_T_17SEP2003_HPP
+#ifndef NDNBOOST_NONE_T_17SEP2003_HPP
+#define NDNBOOST_NONE_T_17SEP2003_HPP
 
 namespace ndnboost {
 

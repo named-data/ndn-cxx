@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_YES_NO_HPP_INCLUDED
-#define BOOST_MPL_AUX_YES_NO_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_YES_NO_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_YES_NO_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -36,9 +36,9 @@ template<> struct yes_no_tag<true>
 };
 
 
-template< BOOST_MPL_AUX_NTTP_DECL(long, n) > struct weighted_tag
+template< NDNBOOST_MPL_AUX_NTTP_DECL(long, n) > struct weighted_tag
 {
-#if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
     typedef char (&type)[n];
 #else
     char buf[n];
@@ -46,7 +46,7 @@ template< BOOST_MPL_AUX_NTTP_DECL(long, n) > struct weighted_tag
 #endif
 };
 
-#if defined(BOOST_MPL_CFG_NO_DEPENDENT_ARRAY_TYPES)
+#if defined(NDNBOOST_MPL_CFG_NO_DEPENDENT_ARRAY_TYPES)
 template<> struct weighted_tag<0>
 {
     typedef char (&type)[1];
@@ -55,4 +55,4 @@ template<> struct weighted_tag<0>
 
 }}}
 
-#endif // BOOST_MPL_AUX_YES_NO_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_YES_NO_HPP_INCLUDED

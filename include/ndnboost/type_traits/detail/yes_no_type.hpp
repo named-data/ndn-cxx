@@ -8,8 +8,8 @@
 //
 //  macros and helpers for working with integral-constant-expressions.
 
-#ifndef BOOST_TT_DETAIL_YES_NO_TYPE_HPP_INCLUDED
-#define BOOST_TT_DETAIL_YES_NO_TYPE_HPP_INCLUDED
+#ifndef NDNBOOST_TT_DETAIL_YES_NO_TYPE_HPP_INCLUDED
+#define NDNBOOST_TT_DETAIL_YES_NO_TYPE_HPP_INCLUDED
 
 namespace ndnboost {
 namespace type_traits {
@@ -23,4 +23,4 @@ struct no_type
 } // namespace type_traits
 } // namespace ndnboost
 
-#endif // BOOST_TT_DETAIL_YES_NO_TYPE_HPP_INCLUDED
+#endif // NDNBOOST_TT_DETAIL_YES_NO_TYPE_HPP_INCLUDED

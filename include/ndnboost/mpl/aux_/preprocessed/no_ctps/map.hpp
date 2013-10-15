@@ -484,13 +484,13 @@ namespace aux {
 template< typename T >
 struct is_map_arg
 {
-    BOOST_STATIC_CONSTANT(bool, value  = true);
+    NDNBOOST_STATIC_CONSTANT(bool, value  = true);
 };
 
 template<>
 struct is_map_arg<na>
 {
-    BOOST_STATIC_CONSTANT(bool, value  = false);
+    NDNBOOST_STATIC_CONSTANT(bool, value  = false);
 };
 
 template<
@@ -501,7 +501,7 @@ template<
     >
 struct map_count_args
 {
-    BOOST_STATIC_CONSTANT(int, value =
+    NDNBOOST_STATIC_CONSTANT(int, value =
           is_map_arg<T1>::value + is_map_arg<T2>::value 
         + is_map_arg<T3>::value + is_map_arg<T4>::value 
         + is_map_arg<T5>::value + is_map_arg<T6>::value 

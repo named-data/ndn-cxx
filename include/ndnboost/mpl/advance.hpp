@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_ADVANCE_HPP_INCLUDED
-#define BOOST_MPL_ADVANCE_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_ADVANCE_HPP_INCLUDED
+#define NDNBOOST_MPL_ADVANCE_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -40,8 +40,8 @@ struct advance_impl
 
         typedef typename if_<
               backward_
-            , aux::advance_backward< BOOST_MPL_AUX_VALUE_WKND(offset_)::value >
-            , aux::advance_forward< BOOST_MPL_AUX_VALUE_WKND(offset_)::value >
+            , aux::advance_backward< NDNBOOST_MPL_AUX_VALUE_WKND(offset_)::value >
+            , aux::advance_forward< NDNBOOST_MPL_AUX_VALUE_WKND(offset_)::value >
             >::type f_;
 
         typedef typename apply_wrap1<f_,Iterator>::type type;
@@ -50,8 +50,8 @@ struct advance_impl
 
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Iterator)
-    , typename BOOST_MPL_AUX_NA_PARAM(N)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Iterator)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N)
     >
 struct advance
     : advance_impl< typename tag<Iterator>::type >
@@ -61,7 +61,7 @@ struct advance
 
 template<
       typename Iterator
-    , BOOST_MPL_AUX_NTTP_DECL(long, N)
+    , NDNBOOST_MPL_AUX_NTTP_DECL(long, N)
     >
 struct advance_c
     : advance_impl< typename tag<Iterator>::type >
@@ -69,8 +69,8 @@ struct advance_c
 {
 };
 
-BOOST_MPL_AUX_NA_SPEC(2, advance)
+NDNBOOST_MPL_AUX_NA_SPEC(2, advance)
 
 }}
 
-#endif // BOOST_MPL_ADVANCE_HPP_INCLUDED
+#endif // NDNBOOST_MPL_ADVANCE_HPP_INCLUDED

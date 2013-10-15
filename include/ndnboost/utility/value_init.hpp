@@ -12,8 +12,8 @@
 // 03 Apr 2010 (Added initialized<T>, suggested by Jeffrey Hellrung, fixing #3472) Niels Dekker
 // 30 May 2010 (Made memset call conditional, fixing #3869) Niels Dekker
 //
-#ifndef BOOST_UTILITY_VALUE_INIT_21AGO2002_HPP
-#define BOOST_UTILITY_VALUE_INIT_21AGO2002_HPP
+#ifndef NDNBOOST_UTILITY_VALUE_INIT_21AGO2002_HPP
+#define NDNBOOST_UTILITY_VALUE_INIT_21AGO2002_HPP
 
 // Note: The implementation of ndnboost::value_initialized had to deal with the
 // fact that various compilers haven't fully implemented value-initialization.
@@ -22,7 +22,7 @@
 // contains. More details on these issues are at libs/utility/value_init.htm
 
 #include <ndnboost/aligned_storage.hpp>
-#include <ndnboost/config.hpp> // For BOOST_NO_COMPLETE_VALUE_INITIALIZATION.
+#include <ndnboost/config.hpp> // For NDNBOOST_NO_COMPLETE_VALUE_INITIALIZATION.
 #include <ndnboost/detail/workaround.hpp>
 #include <ndnboost/static_assert.hpp>
 #include <ndnboost/type_traits/cv_traits.hpp>
@@ -31,7 +31,7 @@
 #include <cstring>
 #include <new>
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(push)
 #if _MSC_VER >= 1310
 // It is safe to ignore the following warning from MSVC 7.1 or higher:
@@ -43,20 +43,20 @@
 #endif
 #endif
 
-#ifdef BOOST_NO_COMPLETE_VALUE_INITIALIZATION
-  // Implementation detail: The macro BOOST_DETAIL_VALUE_INIT_WORKAROUND_SUGGESTED 
+#ifdef NDNBOOST_NO_COMPLETE_VALUE_INITIALIZATION
+  // Implementation detail: The macro NDNBOOST_DETAIL_VALUE_INIT_WORKAROUND_SUGGESTED 
   // suggests that a workaround should be applied, because of compiler issues 
   // regarding value-initialization.
-  #define BOOST_DETAIL_VALUE_INIT_WORKAROUND_SUGGESTED
+  #define NDNBOOST_DETAIL_VALUE_INIT_WORKAROUND_SUGGESTED
 #endif
 
-// Implementation detail: The macro BOOST_DETAIL_VALUE_INIT_WORKAROUND
+// Implementation detail: The macro NDNBOOST_DETAIL_VALUE_INIT_WORKAROUND
 // switches the value-initialization workaround either on or off.
-#ifndef BOOST_DETAIL_VALUE_INIT_WORKAROUND
-  #ifdef BOOST_DETAIL_VALUE_INIT_WORKAROUND_SUGGESTED
-  #define BOOST_DETAIL_VALUE_INIT_WORKAROUND 1
+#ifndef NDNBOOST_DETAIL_VALUE_INIT_WORKAROUND
+  #ifdef NDNBOOST_DETAIL_VALUE_INIT_WORKAROUND_SUGGESTED
+  #define NDNBOOST_DETAIL_VALUE_INIT_WORKAROUND 1
   #else
-  #define BOOST_DETAIL_VALUE_INIT_WORKAROUND 0
+  #define NDNBOOST_DETAIL_VALUE_INIT_WORKAROUND 0
   #endif
 #endif
 
@@ -68,7 +68,7 @@ class initialized
   private :
     struct wrapper
     {
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x592))
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x592))
       typename
 #endif 
       remove_const<T>::type data;
@@ -87,7 +87,7 @@ class initialized
     };
 
     mutable
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x592))
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x592))
       typename
 #endif 
       aligned_storage<sizeof(wrapper), alignment_of<wrapper>::value>::type x;
@@ -101,7 +101,7 @@ class initialized
 
     initialized()
     {
-#if BOOST_DETAIL_VALUE_INIT_WORKAROUND
+#if NDNBOOST_DETAIL_VALUE_INIT_WORKAROUND
       std::memset(&x, 0, sizeof(x));
 #endif
       new (wrapper_address()) wrapper();
@@ -120,7 +120,7 @@ class initialized
     initialized & operator=(initialized const & arg)
     {
       // Assignment is only allowed when T is non-const.
-      BOOST_STATIC_ASSERT( ! is_const<T>::value );
+      NDNBOOST_STATIC_ASSERT( ! is_const<T>::value );
       *wrapper_address() = static_cast<wrapper const &>(*(arg.wrapper_address()));
       return *this;
     }
@@ -251,7 +251,7 @@ initialized_value_t const initialized_value = {} ;
 
 } // namespace ndnboost
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(pop)
 #endif
 

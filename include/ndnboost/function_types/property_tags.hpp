@@ -6,8 +6,8 @@
 
 //------------------------------------------------------------------------------
 
-#ifndef BOOST_FT_DETAIL_TAGS_HPP_INCLUDED
-#define BOOST_FT_DETAIL_TAGS_HPP_INCLUDED
+#ifndef NDNBOOST_FT_DETAIL_TAGS_HPP_INCLUDED
+#define NDNBOOST_FT_DETAIL_TAGS_HPP_INCLUDED
 
 #include <cstddef>
 
@@ -102,7 +102,7 @@ struct tag
         detail::compound_tag<Tag3,Tag4> >
 { };
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template<class Tag1, class Tag2, class Tag3> struct tag<Tag1,Tag2,Tag3,null_tag>
   : detail::compound_tag<detail::compound_tag<Tag1,Tag2>,Tag3>
 { };
@@ -141,7 +141,7 @@ template<class Tag, class QueryTag> struct extract
 #include <ndnboost/function_types/detail/pp_tags/preprocessed.hpp>
 
 namespace ndnboost { namespace function_types {
-#define BOOST_FT_cc_file <ndnboost/function_types/detail/pp_tags/cc_tag.hpp>
+#define NDNBOOST_FT_cc_file <ndnboost/function_types/detail/pp_tags/cc_tag.hpp>
 #include <ndnboost/function_types/detail/pp_loop.hpp>
 } } // namespace ndnboost::function_types
 

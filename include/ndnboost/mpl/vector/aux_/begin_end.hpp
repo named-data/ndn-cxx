@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_VECTOR_AUX_BEGIN_END_HPP_INCLUDED
-#define BOOST_MPL_VECTOR_AUX_BEGIN_END_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_VECTOR_AUX_BEGIN_END_HPP_INCLUDED
+#define NDNBOOST_MPL_VECTOR_AUX_BEGIN_END_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -16,7 +16,7 @@
 
 #include <ndnboost/mpl/aux_/config/typeof.hpp>
 
-#if defined(BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
+#if defined(NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
 
 #   include <ndnboost/mpl/begin_end_fwd.hpp>
 #   include <ndnboost/mpl/vector/aux_/iterator.hpp>
@@ -44,6 +44,6 @@ struct end_impl< aux::vector_tag >
 
 }}
 
-#endif // BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
+#endif // NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
 
-#endif // BOOST_MPL_VECTOR_AUX_BEGIN_END_HPP_INCLUDED
+#endif // NDNBOOST_MPL_VECTOR_AUX_BEGIN_END_HPP_INCLUDED

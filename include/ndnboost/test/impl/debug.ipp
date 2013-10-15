@@ -12,8 +12,8 @@
 //  Description : debug interfaces implementation
 // ***************************************************************************
 
-#ifndef BOOST_TEST_DEBUG_API_IPP_112006GER
-#define BOOST_TEST_DEBUG_API_IPP_112006GER
+#ifndef NDNBOOST_TEST_DEBUG_API_IPP_112006GER
+#define NDNBOOST_TEST_DEBUG_API_IPP_112006GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
@@ -24,9 +24,9 @@
 #include <ndnboost/test/debug_config.hpp>
 
 // Implementation on Windows
-#if defined(_WIN32) && !defined(UNDER_CE) && !defined(BOOST_DISABLE_WIN32) // ******* WIN32
+#if defined(_WIN32) && !defined(UNDER_CE) && !defined(NDNBOOST_DISABLE_WIN32) // ******* WIN32
 
-#  define BOOST_WIN32_BASED_DEBUG
+#  define NDNBOOST_WIN32_BASED_DEBUG
 
 // SYSTEM API
 #  include <windows.h>
@@ -35,22 +35,22 @@
 #  include <cstring>
 
 #  if !defined(NDEBUG) && defined(_MSC_VER)
-#    define BOOST_MS_CRT_BASED_DEBUG
+#    define NDNBOOST_MS_CRT_BASED_DEBUG
 #    include <crtdbg.h>
 #  endif
 
 
-#  if BOOST_WORKAROUND( BOOST_MSVC, <1300)
+#  if NDNBOOST_WORKAROUND( NDNBOOST_MSVC, <1300)
 #    define snprintf _snprintf
 #  endif
 
-#  ifdef BOOST_NO_STDC_NAMESPACE
+#  ifdef NDNBOOST_NO_STDC_NAMESPACE
 namespace std { using ::memset; using ::sprintf; }
 #  endif
 
 #elif defined(unix) || defined(__unix) // ********************* UNIX
 
-#  define BOOST_UNIX_BASED_DEBUG
+#  define NDNBOOST_UNIX_BASED_DEBUG
 
 // Boost.Test
 #include <ndnboost/test/utils/class_properties.hpp>
@@ -76,33 +76,33 @@ namespace std { using ::memset; using ::sprintf; }
 
 #  if defined(sun) || defined(__sun)
 
-#    define BOOST_SUN_BASED_DEBUG
+#    define NDNBOOST_SUN_BASED_DEBUG
 
-#    ifndef BOOST_TEST_DBG_LIST
-#      define BOOST_TEST_DBG_LIST dbx;gdb
+#    ifndef NDNBOOST_TEST_DBG_LIST
+#      define NDNBOOST_TEST_DBG_LIST dbx;gdb
 #    endif
 
-#    define BOOST_TEST_CNL_DBG  dbx
-#    define BOOST_TEST_GUI_DBG  dbx-ddd
+#    define NDNBOOST_TEST_CNL_DBG  dbx
+#    define NDNBOOST_TEST_GUI_DBG  dbx-ddd
 
 #    include <procfs.h>
 
 #  elif defined(linux) || defined(__linux)
 
-#    define BOOST_LINUX_BASED_DEBUG
+#    define NDNBOOST_LINUX_BASED_DEBUG
 
 #    include <sys/ptrace.h>
 
-#    ifndef BOOST_TEST_STAT_LINE_MAX
-#      define BOOST_TEST_STAT_LINE_MAX 500
+#    ifndef NDNBOOST_TEST_STAT_LINE_MAX
+#      define NDNBOOST_TEST_STAT_LINE_MAX 500
 #    endif
 
-#    ifndef BOOST_TEST_DBG_LIST
-#      define BOOST_TEST_DBG_LIST gdb
+#    ifndef NDNBOOST_TEST_DBG_LIST
+#      define NDNBOOST_TEST_DBG_LIST gdb
 #    endif
 
-#    define BOOST_TEST_CNL_DBG  gdb
-#    define BOOST_TEST_GUI_DBG  gdb-xterm
+#    define NDNBOOST_TEST_CNL_DBG  gdb
+#    define NDNBOOST_TEST_GUI_DBG  gdb-xterm
 
 #  endif
 
@@ -124,7 +124,7 @@ using unit_test::const_string;
 
 namespace {
 
-#if defined(BOOST_WIN32_BASED_DEBUG) // *********************** WIN32
+#if defined(NDNBOOST_WIN32_BASED_DEBUG) // *********************** WIN32
 
 template<typename T>
 inline void
@@ -167,7 +167,7 @@ info_t::info_t()
 
 //____________________________________________________________________________//
 
-#elif defined(BOOST_UNIX_BASED_DEBUG)
+#elif defined(NDNBOOST_UNIX_BASED_DEBUG)
 
 // ************************************************************************** //
 // **************                   fd_holder                  ************** //
@@ -208,10 +208,10 @@ private:
     const_string    m_binary_name;
     const_string    m_binary_path;
 
-#if defined(BOOST_SUN_BASED_DEBUG)
+#if defined(NDNBOOST_SUN_BASED_DEBUG)
     struct psinfo   m_psi;
-#elif defined(BOOST_LINUX_BASED_DEBUG)
-    char            m_stat_line[BOOST_TEST_STAT_LINE_MAX+1];
+#elif defined(NDNBOOST_LINUX_BASED_DEBUG)
+    char            m_stat_line[NDNBOOST_TEST_STAT_LINE_MAX+1];
 #endif
     char            m_binary_path_buff[500+1]; // !! ??
 };
@@ -221,7 +221,7 @@ private:
 process_info::process_info( int pid )
 : m_parent_pid( 0 )
 {
-#if defined(BOOST_SUN_BASED_DEBUG)
+#if defined(NDNBOOST_SUN_BASED_DEBUG)
     char fname_buff[30];
 
     ::snprintf( fname_buff, sizeof(fname_buff), "/proc/%d/psinfo", pid );
@@ -255,7 +255,7 @@ process_info::process_info( int pid )
         
     m_binary_path.assign( m_binary_path_buff );
         
-#elif defined(BOOST_LINUX_BASED_DEBUG)
+#elif defined(NDNBOOST_LINUX_BASED_DEBUG)
     char fname_buff[30];
 
     ::snprintf( fname_buff, sizeof(fname_buff), "/proc/%d/stat", pid );
@@ -607,8 +607,8 @@ static struct info_t {
 info_t::info_t()
 {
     p_dbg.value = ::getenv( "DISPLAY" )
-        ? std::string( BOOST_STRINGIZE( BOOST_TEST_GUI_DBG ) )
-        : std::string( BOOST_STRINGIZE( BOOST_TEST_CNL_DBG ) );
+        ? std::string( NDNBOOST_STRINGIZE( NDNBOOST_TEST_GUI_DBG ) )
+        : std::string( NDNBOOST_STRINGIZE( NDNBOOST_TEST_CNL_DBG ) );
         
     m_dbg_starter_reg[std::string("gdb")]           = &start_gdb_in_console;
     m_dbg_starter_reg[std::string("gdb-emacs")]     = &start_gdb_in_emacs;
@@ -635,14 +635,14 @@ info_t::info_t()
 bool
 under_debugger()
 {
-#if defined(BOOST_WIN32_BASED_DEBUG) // *********************** WIN32
+#if defined(NDNBOOST_WIN32_BASED_DEBUG) // *********************** WIN32
 
     return !!s_info.m_is_debugger_present && s_info.m_is_debugger_present();
 
-#elif defined(BOOST_UNIX_BASED_DEBUG) // ********************** UNIX
+#elif defined(NDNBOOST_UNIX_BASED_DEBUG) // ********************** UNIX
 
     // !! ?? could/should we cache the result somehow?
-    const_string    dbg_list = BOOST_TEST_STRINGIZE( BOOST_TEST_DBG_LIST );
+    const_string    dbg_list = NDNBOOST_TEST_STRINGIZE( NDNBOOST_TEST_DBG_LIST );
 
     pid_t pid = ::getpid();
 
@@ -677,21 +677,21 @@ debugger_break()
 {
     // !! ?? auto-start debugger?
 
-#if defined(BOOST_WIN32_BASED_DEBUG) // *********************** WIN32
+#if defined(NDNBOOST_WIN32_BASED_DEBUG) // *********************** WIN32
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1300)                       ||  \
-    BOOST_WORKAROUND(__GNUC__, >= 3) && !defined(__MINGW32__)   ||  \
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, >= 1300)                       ||  \
+    NDNBOOST_WORKAROUND(__GNUC__, >= 3) && !defined(__MINGW32__)   ||  \
     defined(__INTEL_COMPILER)
-#   define BOOST_DEBUG_BREAK    __debugbreak
+#   define NDNBOOST_DEBUG_BREAK    __debugbreak
 #else
-#   define BOOST_DEBUG_BREAK    DebugBreak
+#   define NDNBOOST_DEBUG_BREAK    DebugBreak
 #endif
 
 #ifndef __MINGW32__
     if( !under_debugger() ) {
         __try {
             __try {
-                BOOST_DEBUG_BREAK();
+                NDNBOOST_DEBUG_BREAK();
             }
             __except( UnhandledExceptionFilter(GetExceptionInformation()) )
             {
@@ -702,14 +702,14 @@ debugger_break()
         __except (EXCEPTION_EXECUTE_HANDLER)
         {
             // If we got here, the user has pushed Debug. Debugger is already attached to our process and we
-            // continue to let the another BOOST_DEBUG_BREAK to be called.
+            // continue to let the another NDNBOOST_DEBUG_BREAK to be called.
         }
     }
 #endif
 
-    BOOST_DEBUG_BREAK();
+    NDNBOOST_DEBUG_BREAK();
 
-#elif defined(BOOST_UNIX_BASED_DEBUG) // ********************** UNIX
+#elif defined(NDNBOOST_UNIX_BASED_DEBUG) // ********************** UNIX
 
     ::kill( ::getpid(), SIGTRAP );
 
@@ -724,7 +724,7 @@ debugger_break()
 // **************            console debugger setup            ************** //
 // ************************************************************************** //
 
-#if defined(BOOST_UNIX_BASED_DEBUG) // ************************ UNIX
+#if defined(NDNBOOST_UNIX_BASED_DEBUG) // ************************ UNIX
 
 std::string
 set_debugger( unit_test::const_string dbg_id, dbg_starter s )
@@ -761,7 +761,7 @@ attach_debugger( bool break_or_continue )
     if( under_debugger() )
         return false;
 
-#if defined(BOOST_WIN32_BASED_DEBUG) // *********************** WIN32
+#if defined(NDNBOOST_WIN32_BASED_DEBUG) // *********************** WIN32
 
     const int MAX_CMD_LINE = 200;
 
@@ -857,7 +857,7 @@ attach_debugger( bool break_or_continue )
 
     return true;
 
-#elif defined(BOOST_UNIX_BASED_DEBUG) // ********************** UNIX
+#elif defined(NDNBOOST_UNIX_BASED_DEBUG) // ********************** UNIX
 
     char init_done_lock_fn[] = "/tmp/btl_dbg_init_done_XXXXXX";
     fd_holder init_done_lock_fd( ::mkstemp( init_done_lock_fn ) );
@@ -926,7 +926,7 @@ detect_memory_leaks( bool on_off )
 {
     unit_test::ut_detail::ignore_unused_variable_warning( on_off );
 
-#ifdef BOOST_MS_CRT_BASED_DEBUG
+#ifdef NDNBOOST_MS_CRT_BASED_DEBUG
     int flags = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
 
     if( !on_off )
@@ -938,7 +938,7 @@ detect_memory_leaks( bool on_off )
     }
 
     _CrtSetDbgFlag ( flags );
-#endif // BOOST_MS_CRT_BASED_DEBUG
+#endif // NDNBOOST_MS_CRT_BASED_DEBUG
 }
 
 //____________________________________________________________________________//
@@ -953,9 +953,9 @@ break_memory_alloc( long mem_alloc_order_num )
 {
     unit_test::ut_detail::ignore_unused_variable_warning( mem_alloc_order_num );
 
-#ifdef BOOST_MS_CRT_BASED_DEBUG
+#ifdef NDNBOOST_MS_CRT_BASED_DEBUG
     _CrtSetBreakAlloc( mem_alloc_order_num );
-#endif // BOOST_MS_CRT_BASED_DEBUG
+#endif // NDNBOOST_MS_CRT_BASED_DEBUG
 }
 
 } // namespace debug
@@ -966,5 +966,5 @@ break_memory_alloc( long mem_alloc_order_num )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_DEBUG_API_IPP_112006GER
+#endif // NDNBOOST_TEST_DEBUG_API_IPP_112006GER
 

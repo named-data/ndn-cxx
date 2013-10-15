@@ -11,8 +11,8 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_REPETITION_ENUM_SHIFTED_PARAMS_HPP
-# define BOOST_PREPROCESSOR_REPETITION_ENUM_SHIFTED_PARAMS_HPP
+# ifndef NDNBOOST_PREPROCESSOR_REPETITION_ENUM_SHIFTED_PARAMS_HPP
+# define NDNBOOST_PREPROCESSOR_REPETITION_ENUM_SHIFTED_PARAMS_HPP
 #
 # include <ndnboost/preprocessor/arithmetic/dec.hpp>
 # include <ndnboost/preprocessor/arithmetic/inc.hpp>
@@ -21,24 +21,24 @@
 # include <ndnboost/preprocessor/punctuation/comma_if.hpp>
 # include <ndnboost/preprocessor/repetition/repeat.hpp>
 #
-# /* BOOST_PP_ENUM_SHIFTED_PARAMS */
+# /* NDNBOOST_PP_ENUM_SHIFTED_PARAMS */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_ENUM_SHIFTED_PARAMS(count, param) BOOST_PP_REPEAT(BOOST_PP_DEC(count), BOOST_PP_ENUM_SHIFTED_PARAMS_M, param)
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_ENUM_SHIFTED_PARAMS(count, param) NDNBOOST_PP_REPEAT(NDNBOOST_PP_DEC(count), NDNBOOST_PP_ENUM_SHIFTED_PARAMS_M, param)
 # else
-#    define BOOST_PP_ENUM_SHIFTED_PARAMS(count, param) BOOST_PP_ENUM_SHIFTED_PARAMS_I(count, param)
-#    define BOOST_PP_ENUM_SHIFTED_PARAMS_I(count, param) BOOST_PP_REPEAT(BOOST_PP_DEC(count), BOOST_PP_ENUM_SHIFTED_PARAMS_M, param)
+#    define NDNBOOST_PP_ENUM_SHIFTED_PARAMS(count, param) NDNBOOST_PP_ENUM_SHIFTED_PARAMS_I(count, param)
+#    define NDNBOOST_PP_ENUM_SHIFTED_PARAMS_I(count, param) NDNBOOST_PP_REPEAT(NDNBOOST_PP_DEC(count), NDNBOOST_PP_ENUM_SHIFTED_PARAMS_M, param)
 # endif
 #
-# define BOOST_PP_ENUM_SHIFTED_PARAMS_M(z, n, param) BOOST_PP_COMMA_IF(n) BOOST_PP_CAT(param, BOOST_PP_INC(n))
+# define NDNBOOST_PP_ENUM_SHIFTED_PARAMS_M(z, n, param) NDNBOOST_PP_COMMA_IF(n) NDNBOOST_PP_CAT(param, NDNBOOST_PP_INC(n))
 #
-# /* BOOST_PP_ENUM_SHIFTED_PARAMS_Z */
+# /* NDNBOOST_PP_ENUM_SHIFTED_PARAMS_Z */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_ENUM_SHIFTED_PARAMS_Z(z, count, param) BOOST_PP_REPEAT_ ## z(BOOST_PP_DEC(count), BOOST_PP_ENUM_SHIFTED_PARAMS_M, param)
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_ENUM_SHIFTED_PARAMS_Z(z, count, param) NDNBOOST_PP_REPEAT_ ## z(NDNBOOST_PP_DEC(count), NDNBOOST_PP_ENUM_SHIFTED_PARAMS_M, param)
 # else
-#    define BOOST_PP_ENUM_SHIFTED_PARAMS_Z(z, count, param) BOOST_PP_ENUM_SHIFTED_PARAMS_Z_I(z, count, param)
-#    define BOOST_PP_ENUM_SHIFTED_PARAMS_Z_I(z, count, param) BOOST_PP_REPEAT_ ## z(BOOST_PP_DEC(count), BOOST_PP_ENUM_SHIFTED_PARAMS_M, param)
+#    define NDNBOOST_PP_ENUM_SHIFTED_PARAMS_Z(z, count, param) NDNBOOST_PP_ENUM_SHIFTED_PARAMS_Z_I(z, count, param)
+#    define NDNBOOST_PP_ENUM_SHIFTED_PARAMS_Z_I(z, count, param) NDNBOOST_PP_REPEAT_ ## z(NDNBOOST_PP_DEC(count), NDNBOOST_PP_ENUM_SHIFTED_PARAMS_M, param)
 # endif
 #
 # endif

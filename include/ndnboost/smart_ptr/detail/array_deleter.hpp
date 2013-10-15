@@ -6,8 +6,8 @@
  * Version 1.0. (See accompanying file LICENSE_1_0.txt
  * or copy at http://boost.org/LICENSE_1_0.txt)
  */
-#ifndef BOOST_SMART_PTR_DETAIL_ARRAY_DELETER_HPP
-#define BOOST_SMART_PTR_DETAIL_ARRAY_DELETER_HPP
+#ifndef NDNBOOST_SMART_PTR_DETAIL_ARRAY_DELETER_HPP
+#define NDNBOOST_SMART_PTR_DETAIL_ARRAY_DELETER_HPP
 
 #include <ndnboost/smart_ptr/detail/array_utility.hpp>
 #include <ndnboost/smart_ptr/detail/sp_forward.hpp>
@@ -32,12 +32,12 @@ namespace ndnboost {
                 array_init(memory, size);
                 object = memory;
             }
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
             void init(T* memory, T&& value) {
                 array_init_value(memory, size, sp_forward<T>(value));
                 object = memory;                
             }
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
             template<typename... Args>
             void init(T* memory, Args&&... args) {
                 array_init_args(memory, size, sp_forward<Args>(args)...);
@@ -83,12 +83,12 @@ namespace ndnboost {
                 array_init(memory, N);
                 object = memory;
             }
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
             void init(T* memory, T&& value) {
                 array_init_value(memory, N, sp_forward<T>(value));
                 object = memory;                
             }
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
             template<typename... Args>
             void init(T* memory, Args&&... args) {
                 array_init_args(memory, N, sp_forward<Args>(args)...);

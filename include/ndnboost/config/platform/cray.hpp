@@ -8,10 +8,10 @@
 
 //  SGI Irix specific config options:
 
-#define BOOST_PLATFORM "Cray"
+#define NDNBOOST_PLATFORM "Cray"
 
 // boilerplate code:
-#define BOOST_HAS_UNISTD_H
+#define NDNBOOST_HAS_UNISTD_H
 #include <ndnboost/config/posix_features.hpp>
 
 

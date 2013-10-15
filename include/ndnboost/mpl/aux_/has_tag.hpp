@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_HAS_TAG_HPP_INCLUDED
-#define BOOST_MPL_AUX_HAS_TAG_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_HAS_TAG_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_HAS_TAG_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2002-2004
 //
@@ -17,7 +17,7 @@
 #include <ndnboost/mpl/has_xxx.hpp>
 
 namespace ndnboost { namespace mpl { namespace aux {
-BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(has_tag, tag, false)
+NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(has_tag, tag, false)
 }}}
 
-#endif // BOOST_MPL_AUX_HAS_TAG_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_HAS_TAG_HPP_INCLUDED

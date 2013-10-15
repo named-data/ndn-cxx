@@ -151,7 +151,7 @@ struct at_impl< aux::vector_tag<21> >
 {
     template< typename V_, typename N > struct apply
     {
-        typedef typename aux::v_at_impl<BOOST_MPL_AUX_VALUE_WKND(N)::value>
+        typedef typename aux::v_at_impl<NDNBOOST_MPL_AUX_VALUE_WKND(N)::value>
             ::template result_<V_>::type type;
     };
 };
@@ -352,7 +352,7 @@ struct at_impl< aux::vector_tag<22> >
 {
     template< typename V_, typename N > struct apply
     {
-        typedef typename aux::v_at_impl<BOOST_MPL_AUX_VALUE_WKND(N)::value>
+        typedef typename aux::v_at_impl<NDNBOOST_MPL_AUX_VALUE_WKND(N)::value>
             ::template result_<V_>::type type;
     };
 };
@@ -554,7 +554,7 @@ struct at_impl< aux::vector_tag<23> >
 {
     template< typename V_, typename N > struct apply
     {
-        typedef typename aux::v_at_impl<BOOST_MPL_AUX_VALUE_WKND(N)::value>
+        typedef typename aux::v_at_impl<NDNBOOST_MPL_AUX_VALUE_WKND(N)::value>
             ::template result_<V_>::type type;
     };
 };
@@ -761,7 +761,7 @@ struct at_impl< aux::vector_tag<24> >
 {
     template< typename V_, typename N > struct apply
     {
-        typedef typename aux::v_at_impl<BOOST_MPL_AUX_VALUE_WKND(N)::value>
+        typedef typename aux::v_at_impl<NDNBOOST_MPL_AUX_VALUE_WKND(N)::value>
             ::template result_<V_>::type type;
     };
 };
@@ -969,7 +969,7 @@ struct at_impl< aux::vector_tag<25> >
 {
     template< typename V_, typename N > struct apply
     {
-        typedef typename aux::v_at_impl<BOOST_MPL_AUX_VALUE_WKND(N)::value>
+        typedef typename aux::v_at_impl<NDNBOOST_MPL_AUX_VALUE_WKND(N)::value>
             ::template result_<V_>::type type;
     };
 };
@@ -1183,7 +1183,7 @@ struct at_impl< aux::vector_tag<26> >
 {
     template< typename V_, typename N > struct apply
     {
-        typedef typename aux::v_at_impl<BOOST_MPL_AUX_VALUE_WKND(N)::value>
+        typedef typename aux::v_at_impl<NDNBOOST_MPL_AUX_VALUE_WKND(N)::value>
             ::template result_<V_>::type type;
     };
 };
@@ -1398,7 +1398,7 @@ struct at_impl< aux::vector_tag<27> >
 {
     template< typename V_, typename N > struct apply
     {
-        typedef typename aux::v_at_impl<BOOST_MPL_AUX_VALUE_WKND(N)::value>
+        typedef typename aux::v_at_impl<NDNBOOST_MPL_AUX_VALUE_WKND(N)::value>
             ::template result_<V_>::type type;
     };
 };
@@ -1618,7 +1618,7 @@ struct at_impl< aux::vector_tag<28> >
 {
     template< typename V_, typename N > struct apply
     {
-        typedef typename aux::v_at_impl<BOOST_MPL_AUX_VALUE_WKND(N)::value>
+        typedef typename aux::v_at_impl<NDNBOOST_MPL_AUX_VALUE_WKND(N)::value>
             ::template result_<V_>::type type;
     };
 };
@@ -1839,7 +1839,7 @@ struct at_impl< aux::vector_tag<29> >
 {
     template< typename V_, typename N > struct apply
     {
-        typedef typename aux::v_at_impl<BOOST_MPL_AUX_VALUE_WKND(N)::value>
+        typedef typename aux::v_at_impl<NDNBOOST_MPL_AUX_VALUE_WKND(N)::value>
             ::template result_<V_>::type type;
     };
 };
@@ -2065,7 +2065,7 @@ struct at_impl< aux::vector_tag<30> >
 {
     template< typename V_, typename N > struct apply
     {
-        typedef typename aux::v_at_impl<BOOST_MPL_AUX_VALUE_WKND(N)::value>
+        typedef typename aux::v_at_impl<NDNBOOST_MPL_AUX_VALUE_WKND(N)::value>
             ::template result_<V_>::type type;
     };
 };

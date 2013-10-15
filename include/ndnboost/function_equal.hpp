@@ -7,8 +7,8 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 
 // For more information, see http://www.boost.org
-#ifndef BOOST_FUNCTION_EQUAL_HPP
-#define BOOST_FUNCTION_EQUAL_HPP
+#ifndef NDNBOOST_FUNCTION_EQUAL_HPP
+#define NDNBOOST_FUNCTION_EQUAL_HPP
 
 namespace ndnboost {
 
@@ -25,4 +25,4 @@ template<typename F, typename G>
 
 } // end namespace ndnboost
 
-#endif // BOOST_FUNCTION_EQUAL_HPP
+#endif // NDNBOOST_FUNCTION_EQUAL_HPP

@@ -1,5 +1,5 @@
-#ifndef BOOST_SHARED_ARRAY_HPP_INCLUDED
-#define BOOST_SHARED_ARRAY_HPP_INCLUDED
+#ifndef NDNBOOST_SHARED_ARRAY_HPP_INCLUDED
+#define NDNBOOST_SHARED_ARRAY_HPP_INCLUDED
 
 //
 //  shared_array.hpp
@@ -16,4 +16,4 @@
 
 #include <ndnboost/smart_ptr/shared_array.hpp>
 
-#endif  // #ifndef BOOST_SHARED_ARRAY_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SHARED_ARRAY_HPP_INCLUDED

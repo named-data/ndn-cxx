@@ -10,8 +10,8 @@
 
 // --------------------------------------------------
 
-#ifndef BOOST_LAMBDA_ARITY_CODE_HPP
-#define BOOST_LAMBDA_ARITY_CODE_HPP
+#ifndef NDNBOOST_LAMBDA_ARITY_CODE_HPP
+#define NDNBOOST_LAMBDA_ARITY_CODE_HPP
 
 #include "ndnboost/type_traits/cv_traits.hpp"
 #include "ndnboost/type_traits/transform_traits.hpp"
@@ -46,7 +46,7 @@ template <class T> struct get_arity_;
 
 template <class T> struct get_arity {
 
-  BOOST_STATIC_CONSTANT(int, value = detail::get_arity_<typename ndnboost::remove_cv<typename ndnboost::remove_reference<T>::type>::type>::value);
+  NDNBOOST_STATIC_CONSTANT(int, value = detail::get_arity_<typename ndnboost::remove_cv<typename ndnboost::remove_reference<T>::type>::type>::value);
 
 };
 
@@ -54,35 +54,35 @@ namespace detail {
 
 template<class T>
 struct get_arity_ {
-  BOOST_STATIC_CONSTANT(int, value = 0);
+  NDNBOOST_STATIC_CONSTANT(int, value = 0);
 };
 
 template<class T>
 struct get_arity_<lambda_functor<T> > {
-  BOOST_STATIC_CONSTANT(int, value = get_arity<T>::value);
+  NDNBOOST_STATIC_CONSTANT(int, value = get_arity<T>::value);
 };
 
 template<class Action, class Args>
 struct get_arity_<lambda_functor_base<Action, Args> > {
-  BOOST_STATIC_CONSTANT(int, value = get_tuple_arity<Args>::value);
+  NDNBOOST_STATIC_CONSTANT(int, value = get_tuple_arity<Args>::value);
 };
 
 template<int I>
 struct get_arity_<placeholder<I> > {
-  BOOST_STATIC_CONSTANT(int, value = I);
+  NDNBOOST_STATIC_CONSTANT(int, value = I);
 };
 
 } // detail 
 
 template<class T>
 struct get_tuple_arity {
-  BOOST_STATIC_CONSTANT(int, value = get_arity<typename T::head_type>::value | get_tuple_arity<typename T::tail_type>::value);
+  NDNBOOST_STATIC_CONSTANT(int, value = get_arity<typename T::head_type>::value | get_tuple_arity<typename T::tail_type>::value);
 };
 
 
 template<>
 struct get_tuple_arity<null_type> {
-  BOOST_STATIC_CONSTANT(int, value = 0);
+  NDNBOOST_STATIC_CONSTANT(int, value = 0);
 };
 
 
@@ -90,17 +90,17 @@ struct get_tuple_arity<null_type> {
 
 template<class T, int I>
 struct has_placeholder {
-  BOOST_STATIC_CONSTANT(bool, value = (get_arity<T>::value & I) != 0);
+  NDNBOOST_STATIC_CONSTANT(bool, value = (get_arity<T>::value & I) != 0);
 }; 
 
 template<int I, int J>
 struct includes_placeholder {
-  BOOST_STATIC_CONSTANT(bool, value = (J & I) != 0);
+  NDNBOOST_STATIC_CONSTANT(bool, value = (J & I) != 0);
 };
 
 template<int I, int J>
 struct lacks_placeholder {
-  BOOST_STATIC_CONSTANT(bool, value = ((J & I) == 0));
+  NDNBOOST_STATIC_CONSTANT(bool, value = ((J & I) == 0));
 };
 
 

@@ -6,11 +6,11 @@
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 // For more information, see http://www.boost.org
-#ifndef BOOST_FUNCTION_FWD_HPP
-#define BOOST_FUNCTION_FWD_HPP
+#ifndef NDNBOOST_FUNCTION_FWD_HPP
+#define NDNBOOST_FUNCTION_FWD_HPP
 #include <ndnboost/config.hpp>
 
-#if defined(__sgi) && defined(_COMPILER_VERSION) && _COMPILER_VERSION <= 730 && !defined(BOOST_STRICT_CONFIG)
+#if defined(__sgi) && defined(_COMPILER_VERSION) && _COMPILER_VERSION <= 730 && !defined(NDNBOOST_STRICT_CONFIG)
 // Work around a compiler bug.
 // ndnboost::python::objects::function has to be seen by the compiler before the
 // ndnboost::function class template.
@@ -19,16 +19,16 @@ namespace ndnboost { namespace python { namespace objects {
 }}}
 #endif
 
-#if defined (BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)                    \
- || defined(BOOST_BCB_PARTIAL_SPECIALIZATION_BUG)                         \
- || !(defined(BOOST_STRICT_CONFIG) || !defined(__SUNPRO_CC) || __SUNPRO_CC > 0x540)
-#  define BOOST_FUNCTION_NO_FUNCTION_TYPE_SYNTAX
+#if defined (NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)                    \
+ || defined(NDNBOOST_BCB_PARTIAL_SPECIALIZATION_BUG)                         \
+ || !(defined(NDNBOOST_STRICT_CONFIG) || !defined(__SUNPRO_CC) || __SUNPRO_CC > 0x540)
+#  define NDNBOOST_FUNCTION_NO_FUNCTION_TYPE_SYNTAX
 #endif
 
 namespace ndnboost {
   class bad_function_call;
 
-#if !defined(BOOST_FUNCTION_NO_FUNCTION_TYPE_SYNTAX)
+#if !defined(NDNBOOST_FUNCTION_NO_FUNCTION_TYPE_SYNTAX)
   // Preferred syntax
   template<typename Signature> class function;
 

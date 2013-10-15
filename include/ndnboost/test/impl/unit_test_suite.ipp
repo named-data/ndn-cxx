@@ -13,8 +13,8 @@
 //                Extensions can be provided in separate files
 // ***************************************************************************
 
-#ifndef BOOST_TEST_UNIT_TEST_SUITE_IPP_012205GER
-#define BOOST_TEST_UNIT_TEST_SUITE_IPP_012205GER
+#ifndef NDNBOOST_TEST_UNIT_TEST_SUITE_IPP_012205GER
+#define NDNBOOST_TEST_UNIT_TEST_SUITE_IPP_012205GER
 
 // Boost.Test
 #include <ndnboost/detail/workaround.hpp>
@@ -33,8 +33,8 @@
 
 #include <ndnboost/test/detail/suppress_warnings.hpp>
 
-#if BOOST_WORKAROUND(__BORLANDC__, < 0x600) && \
-    BOOST_WORKAROUND(_STLPORT_VERSION, <= 0x450) \
+#if NDNBOOST_WORKAROUND(__BORLANDC__, < 0x600) && \
+    NDNBOOST_WORKAROUND(_STLPORT_VERSION, <= 0x450) \
     /**/
     using std::rand; // rand is in std and random_shuffle is in _STL
 #endif
@@ -78,7 +78,7 @@ test_unit::depends_on( test_unit* tu )
 bool
 test_unit::check_dependencies() const
 {
-    BOOST_TEST_FOREACH( test_unit_id, tu_id, m_dependencies ) {
+    NDNBOOST_TEST_FOREACH( test_unit_id, tu_id, m_dependencies ) {
         if( !unit_test::results_collector.results( tu_id ).passed() )
             return false;
     }
@@ -108,7 +108,7 @@ test_case::test_case( const_string name, callback0<> const& test_func )
 , m_test_func( test_func )
 {
      // !! weirdest MSVC BUG; try to remove this statement; looks like it eats first token of next statement   
-#if BOOST_WORKAROUND(BOOST_MSVC,<1300)   
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC,<1300)   
      0;   
 #endif 
     framework::register_test_unit( this );
@@ -172,7 +172,7 @@ test_suite::remove( test_unit_id id )
 test_unit_id
 test_suite::get( const_string tu_name ) const
 {
-    BOOST_TEST_FOREACH( test_unit_id, id, m_members ) {
+    NDNBOOST_TEST_FOREACH( test_unit_id, id, m_members ) {
         if( tu_name == framework::get( id, ut_detail::test_id_2_unit_type( id ) ).p_name.get() )
             return id;
     }
@@ -203,13 +203,13 @@ traverse_test_tree( test_suite const& suite, test_tree_visitor& V )
 
     try {
         if( runtime_config::random_seed() == 0 ) {
-            BOOST_TEST_FOREACH( test_unit_id, id, suite.m_members )
+            NDNBOOST_TEST_FOREACH( test_unit_id, id, suite.m_members )
                 traverse_test_tree( id, V );
         }
         else {
             std::vector<test_unit_id> members( suite.m_members );
             std::random_shuffle( members.begin(), members.end() );
-            BOOST_TEST_FOREACH( test_unit_id, id, members )
+            NDNBOOST_TEST_FOREACH( test_unit_id, id, members )
                 traverse_test_tree( id, V );
         }
         
@@ -284,7 +284,7 @@ auto_test_unit_registrar::auto_test_unit_registrar( const_string ts_name )
 
     if( id != INV_TEST_UNIT_ID ) {
         ts = &framework::get<test_suite>( id ); // !! test for invalid tu type
-        BOOST_ASSERT( ts->p_parent_id == curr_ts_store().back()->p_id );
+        NDNBOOST_ASSERT( ts->p_parent_id == curr_ts_store().back()->p_id );
     }
     else {
         ts = new test_suite( ts_name );
@@ -343,4 +343,4 @@ global_fixture::global_fixture()
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_UNIT_TEST_SUITE_IPP_012205GER
+#endif // NDNBOOST_TEST_UNIT_TEST_SUITE_IPP_012205GER

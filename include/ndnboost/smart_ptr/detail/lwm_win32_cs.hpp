@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_LWM_WIN32_CS_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_LWM_WIN32_CS_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_LWM_WIN32_CS_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_LWM_WIN32_CS_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -17,7 +17,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifdef BOOST_USE_WINDOWS_H
+#ifdef NDNBOOST_USE_WINDOWS_H
 #  include <windows.h>
 #endif
 
@@ -27,7 +27,7 @@ namespace ndnboost
 namespace detail
 {
 
-#ifndef BOOST_USE_WINDOWS_H
+#ifndef NDNBOOST_USE_WINDOWS_H
 
 struct critical_section
 {
@@ -52,7 +52,7 @@ extern "C" __declspec(dllimport) void __stdcall DeleteCriticalSection(critical_s
 
 typedef ::CRITICAL_SECTION critical_section;
 
-#endif // #ifndef BOOST_USE_WINDOWS_H
+#endif // #ifndef NDNBOOST_USE_WINDOWS_H
 
 class lightweight_mutex
 {
@@ -105,4 +105,4 @@ public:
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_SMART_PTR_DETAIL_LWM_WIN32_CS_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_SMART_PTR_DETAIL_LWM_WIN32_CS_HPP_INCLUDED

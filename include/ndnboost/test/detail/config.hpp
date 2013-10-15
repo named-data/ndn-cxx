@@ -12,8 +12,8 @@
 //  Description : as a central place for global configuration switches
 // ***************************************************************************
 
-#ifndef BOOST_TEST_CONFIG_HPP_071894GER
-#define BOOST_TEST_CONFIG_HPP_071894GER
+#ifndef NDNBOOST_TEST_CONFIG_HPP_071894GER
+#define NDNBOOST_TEST_CONFIG_HPP_071894GER
 
 // Boost
 #include <ndnboost/config.hpp> // compilers workarounds
@@ -21,84 +21,84 @@
 
 //____________________________________________________________________________//
 
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x570)) || \
-    BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(600))     || \
-    (defined __sgi && BOOST_WORKAROUND(_COMPILER_VERSION, BOOST_TESTED_AT(730)))
-#  define BOOST_TEST_SHIFTED_LINE
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x570)) || \
+    NDNBOOST_WORKAROUND(__IBMCPP__, NDNBOOST_TESTED_AT(600))     || \
+    (defined __sgi && NDNBOOST_WORKAROUND(_COMPILER_VERSION, NDNBOOST_TESTED_AT(730)))
+#  define NDNBOOST_TEST_SHIFTED_LINE
 #endif
 
 //____________________________________________________________________________//
 
-#if defined(BOOST_MSVC) || (defined(__BORLANDC__) && !defined(BOOST_DISABLE_WIN32))
-#  define BOOST_TEST_CALL_DECL __cdecl
+#if defined(NDNBOOST_MSVC) || (defined(__BORLANDC__) && !defined(NDNBOOST_DISABLE_WIN32))
+#  define NDNBOOST_TEST_CALL_DECL __cdecl
 #else
-#  define BOOST_TEST_CALL_DECL /**/
+#  define NDNBOOST_TEST_CALL_DECL /**/
 #endif
 
 //____________________________________________________________________________//
 
-#if !defined(BOOST_NO_STD_LOCALE) &&            \
-    !BOOST_WORKAROUND(BOOST_MSVC, < 1310)  &&   \
+#if !defined(NDNBOOST_NO_STD_LOCALE) &&            \
+    !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1310)  &&   \
     !defined(__MWERKS__) 
-#  define BOOST_TEST_USE_STD_LOCALE 1
+#  define NDNBOOST_TEST_USE_STD_LOCALE 1
 #endif
 
 //____________________________________________________________________________//
 
-#if BOOST_WORKAROUND(__BORLANDC__, <= 0x570)            || \
-    BOOST_WORKAROUND( __COMO__, <= 0x433 )              || \
-    BOOST_WORKAROUND( __INTEL_COMPILER, <= 800 )        || \
+#if NDNBOOST_WORKAROUND(__BORLANDC__, <= 0x570)            || \
+    NDNBOOST_WORKAROUND( __COMO__, <= 0x433 )              || \
+    NDNBOOST_WORKAROUND( __INTEL_COMPILER, <= 800 )        || \
     defined(__sgi) && _COMPILER_VERSION <= 730          || \
-    BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(600))  || \
+    NDNBOOST_WORKAROUND(__IBMCPP__, NDNBOOST_TESTED_AT(600))  || \
     defined(__DECCXX)                                   || \
     defined(__DMC__)
-#  define BOOST_TEST_NO_PROTECTED_USING
+#  define NDNBOOST_TEST_NO_PROTECTED_USING
 #endif
 
 //____________________________________________________________________________//
 
-#if defined(__GNUC__) || BOOST_WORKAROUND(BOOST_MSVC, == 1400)
-#define BOOST_TEST_PROTECTED_VIRTUAL virtual
+#if defined(__GNUC__) || NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1400)
+#define NDNBOOST_TEST_PROTECTED_VIRTUAL virtual
 #else
-#define BOOST_TEST_PROTECTED_VIRTUAL
+#define NDNBOOST_TEST_PROTECTED_VIRTUAL
 #endif
 
 //____________________________________________________________________________//
 
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564)) && \
-    !BOOST_WORKAROUND(BOOST_MSVC, <1310) && \
-    !BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x530))
-#  define BOOST_TEST_SUPPORT_INTERACTION_TESTING 1
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564)) && \
+    !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <1310) && \
+    !NDNBOOST_WORKAROUND(__SUNPRO_CC, NDNBOOST_TESTED_AT(0x530))
+#  define NDNBOOST_TEST_SUPPORT_INTERACTION_TESTING 1
 #endif
 
 //____________________________________________________________________________//
 
-#if defined(BOOST_ALL_DYN_LINK) && !defined(BOOST_TEST_DYN_LINK)
-#  define BOOST_TEST_DYN_LINK
+#if defined(NDNBOOST_ALL_DYN_LINK) && !defined(NDNBOOST_TEST_DYN_LINK)
+#  define NDNBOOST_TEST_DYN_LINK
 #endif
 
-#if defined(BOOST_TEST_INCLUDED)
-#  undef BOOST_TEST_DYN_LINK
+#if defined(NDNBOOST_TEST_INCLUDED)
+#  undef NDNBOOST_TEST_DYN_LINK
 #endif
 
-#if defined(BOOST_TEST_DYN_LINK)
-#  define BOOST_TEST_ALTERNATIVE_INIT_API
+#if defined(NDNBOOST_TEST_DYN_LINK)
+#  define NDNBOOST_TEST_ALTERNATIVE_INIT_API
 
-#  ifdef BOOST_TEST_SOURCE
-#    define BOOST_TEST_DECL BOOST_SYMBOL_EXPORT
+#  ifdef NDNBOOST_TEST_SOURCE
+#    define NDNBOOST_TEST_DECL NDNBOOST_SYMBOL_EXPORT
 #  else
-#    define BOOST_TEST_DECL BOOST_SYMBOL_IMPORT
-#  endif  // BOOST_TEST_SOURCE
+#    define NDNBOOST_TEST_DECL NDNBOOST_SYMBOL_IMPORT
+#  endif  // NDNBOOST_TEST_SOURCE
 #else
-#  define BOOST_TEST_DECL
+#  define NDNBOOST_TEST_DECL
 #endif
 
-#if !defined(BOOST_TEST_MAIN) && defined(BOOST_AUTO_TEST_MAIN)
-#define BOOST_TEST_MAIN BOOST_AUTO_TEST_MAIN
+#if !defined(NDNBOOST_TEST_MAIN) && defined(NDNBOOST_AUTO_TEST_MAIN)
+#define NDNBOOST_TEST_MAIN NDNBOOST_AUTO_TEST_MAIN
 #endif
 
-#if !defined(BOOST_TEST_MAIN) && defined(BOOST_TEST_MODULE)
-#define BOOST_TEST_MAIN BOOST_TEST_MODULE
+#if !defined(NDNBOOST_TEST_MAIN) && defined(NDNBOOST_TEST_MODULE)
+#define NDNBOOST_TEST_MAIN NDNBOOST_TEST_MODULE
 #endif
 
-#endif // BOOST_TEST_CONFIG_HPP_071894GER
+#endif // NDNBOOST_TEST_CONFIG_HPP_071894GER

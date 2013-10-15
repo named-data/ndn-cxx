@@ -7,8 +7,8 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_HAS_VIRTUAL_DESTRUCTOR_HPP_INCLUDED
-#define BOOST_TT_HAS_VIRTUAL_DESTRUCTOR_HPP_INCLUDED
+#ifndef NDNBOOST_TT_HAS_VIRTUAL_DESTRUCTOR_HPP_INCLUDED
+#define NDNBOOST_TT_HAS_VIRTUAL_DESTRUCTOR_HPP_INCLUDED
 
 #include <ndnboost/type_traits/intrinsics.hpp>
 // should be the last #include
@@ -16,14 +16,14 @@
 
 namespace ndnboost {
 
-#ifdef BOOST_HAS_VIRTUAL_DESTRUCTOR
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(has_virtual_destructor,T,BOOST_HAS_VIRTUAL_DESTRUCTOR(T))
+#ifdef NDNBOOST_HAS_VIRTUAL_DESTRUCTOR
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(has_virtual_destructor,T,NDNBOOST_HAS_VIRTUAL_DESTRUCTOR(T))
 #else
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(has_virtual_destructor,T,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(has_virtual_destructor,T,false)
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_MEMBER_FUNCTION_POINTER_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_MEMBER_FUNCTION_POINTER_HPP_INCLUDED

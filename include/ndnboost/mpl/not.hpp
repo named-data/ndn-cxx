@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_NOT_HPP_INCLUDED
-#define BOOST_MPL_NOT_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_NOT_HPP_INCLUDED
+#define NDNBOOST_MPL_NOT_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -24,7 +24,7 @@ namespace ndnboost { namespace mpl {
 
 namespace aux {
 
-template< BOOST_MPL_AUX_NTTP_DECL(long, C_) > // 'long' is intentional here
+template< NDNBOOST_MPL_AUX_NTTP_DECL(long, C_) > // 'long' is intentional here
 struct not_impl
     : bool_<!C_>
 {
@@ -34,18 +34,18 @@ struct not_impl
 
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(T)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(T)
     >
 struct not_
     : aux::not_impl<
-          BOOST_MPL_AUX_NESTED_TYPE_WKND(T)::value
+          NDNBOOST_MPL_AUX_NESTED_TYPE_WKND(T)::value
         >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1,not_,(T))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,not_,(T))
 };
 
-BOOST_MPL_AUX_NA_SPEC(1,not_)
+NDNBOOST_MPL_AUX_NA_SPEC(1,not_)
 
 }}
 
-#endif // BOOST_MPL_NOT_HPP_INCLUDED
+#endif // NDNBOOST_MPL_NOT_HPP_INCLUDED

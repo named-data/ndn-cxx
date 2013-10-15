@@ -10,8 +10,8 @@ Wrap type expressions with round parenthesis so they can be passed to macros
 even if they contain commas.
 */
 
-#ifndef BOOST_IDENTITY_TYPE_HPP_
-#define BOOST_IDENTITY_TYPE_HPP_
+#ifndef NDNBOOST_IDENTITY_TYPE_HPP_
+#define NDNBOOST_IDENTITY_TYPE_HPP_
 
 #include <ndnboost/type_traits/function_traits.hpp>
 
@@ -38,7 +38,7 @@ need to be explicitly specified when calling the function template).
 On some compilers (like GCC), using this macro on abstract types requires to
 add and remove a reference to the specified type.
 */
-#define BOOST_IDENTITY_TYPE(parenthesized_type) \
+#define NDNBOOST_IDENTITY_TYPE(parenthesized_type) \
     /* must NOT prefix this with `::` to work with parenthesized syntax */ \
     ndnboost::function_traits< void parenthesized_type >::arg1_type
 

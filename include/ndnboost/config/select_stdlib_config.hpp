@@ -9,7 +9,7 @@
 
 //  See http://www.boost.org for most recent version.
 
-// locate which std lib we are using and define BOOST_STDLIB_CONFIG as needed:
+// locate which std lib we are using and define NDNBOOST_STDLIB_CONFIG as needed:
 
 // First include <cstddef> to determine if some version of STLport is in use as the std lib
 // (do not rely on this header being included since users can short-circuit this header 
@@ -24,7 +24,7 @@
 // STLPort library; this _must_ come first, otherwise since
 // STLport typically sits on top of some other library, we
 // can end up detecting that first rather than STLport:
-#  define BOOST_STDLIB_CONFIG "ndnboost/config/stdlib/stlport.hpp"
+#  define NDNBOOST_STDLIB_CONFIG "ndnboost/config/stdlib/stlport.hpp"
 
 #else
 
@@ -38,41 +38,41 @@
 
 #if defined(__LIBCOMO__)
 // Comeau STL:
-#define BOOST_STDLIB_CONFIG "ndnboost/config/stdlib/libcomo.hpp"
+#define NDNBOOST_STDLIB_CONFIG "ndnboost/config/stdlib/libcomo.hpp"
 
 #elif defined(__STD_RWCOMPILER_H__) || defined(_RWSTD_VER)
 // Rogue Wave library:
-#  define BOOST_STDLIB_CONFIG "ndnboost/config/stdlib/roguewave.hpp"
+#  define NDNBOOST_STDLIB_CONFIG "ndnboost/config/stdlib/roguewave.hpp"
 
 #elif defined(_LIBCPP_VERSION)
 // libc++
-#  define BOOST_STDLIB_CONFIG "ndnboost/config/stdlib/libcpp.hpp"
+#  define NDNBOOST_STDLIB_CONFIG "ndnboost/config/stdlib/libcpp.hpp"
 
 #elif defined(__GLIBCPP__) || defined(__GLIBCXX__)
 // GNU libstdc++ 3
-#  define BOOST_STDLIB_CONFIG "ndnboost/config/stdlib/libstdcpp3.hpp"
+#  define NDNBOOST_STDLIB_CONFIG "ndnboost/config/stdlib/libstdcpp3.hpp"
 
 #elif defined(__STL_CONFIG_H)
 // generic SGI STL
-#  define BOOST_STDLIB_CONFIG "ndnboost/config/stdlib/sgi.hpp"
+#  define NDNBOOST_STDLIB_CONFIG "ndnboost/config/stdlib/sgi.hpp"
 
 #elif defined(__MSL_CPP__)
 // MSL standard lib:
-#  define BOOST_STDLIB_CONFIG "ndnboost/config/stdlib/msl.hpp"
+#  define NDNBOOST_STDLIB_CONFIG "ndnboost/config/stdlib/msl.hpp"
 
 #elif defined(__IBMCPP__)
 // take the default VACPP std lib
-#  define BOOST_STDLIB_CONFIG "ndnboost/config/stdlib/vacpp.hpp"
+#  define NDNBOOST_STDLIB_CONFIG "ndnboost/config/stdlib/vacpp.hpp"
 
 #elif defined(MSIPL_COMPILE_H)
 // Modena C++ standard library
-#  define BOOST_STDLIB_CONFIG "ndnboost/config/stdlib/modena.hpp"
+#  define NDNBOOST_STDLIB_CONFIG "ndnboost/config/stdlib/modena.hpp"
 
 #elif (defined(_YVALS) && !defined(__IBMCPP__)) || defined(_CPPLIB_VER)
 // Dinkumware Library (this has to appear after any possible replacement libraries):
-#  define BOOST_STDLIB_CONFIG "ndnboost/config/stdlib/dinkumware.hpp"
+#  define NDNBOOST_STDLIB_CONFIG "ndnboost/config/stdlib/dinkumware.hpp"
 
-#elif defined (BOOST_ASSERT_CONFIG)
+#elif defined (NDNBOOST_ASSERT_CONFIG)
 // this must come last - generate an error if we don't
 // recognise the library:
 #  error "Unknown standard library - please configure and report the results to boost.org"

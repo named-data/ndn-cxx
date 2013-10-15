@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DETAIL_VALUE_TYPE_HPP
-#define BOOST_RANGE_DETAIL_VALUE_TYPE_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_VALUE_TYPE_HPP
+#define NDNBOOST_RANGE_DETAIL_VALUE_TYPE_HPP
 
 #include <ndnboost/range/detail/common.hpp>
 #include <ndnboost/range/detail/remove_extent.hpp>
@@ -32,7 +32,7 @@ namespace ndnboost
             template< typename C >
             struct pts
             {
-                typedef BOOST_RANGE_DEDUCED_TYPENAME C::value_type type;
+                typedef NDNBOOST_RANGE_DEDUCED_TYPENAME C::value_type type;
             };
         };
 
@@ -42,7 +42,7 @@ namespace ndnboost
             template< typename P >
             struct pts
             {
-                typedef BOOST_RANGE_DEDUCED_TYPENAME ndnboost::iterator_value< BOOST_RANGE_DEDUCED_TYPENAME P::first_type >::type type;
+                typedef NDNBOOST_RANGE_DEDUCED_TYPENAME ndnboost::iterator_value< NDNBOOST_RANGE_DEDUCED_TYPENAME P::first_type >::type type;
             };
         };
 
@@ -52,7 +52,7 @@ namespace ndnboost
             template< typename T >
             struct pts
             {
-                typedef BOOST_DEDUCED_TYPENAME remove_extent<T>::type type;
+                typedef NDNBOOST_DEDUCED_TYPENAME remove_extent<T>::type type;
             };
         };
         
@@ -61,9 +61,9 @@ namespace ndnboost
     template< typename C >
     class range_value
     {
-        typedef BOOST_DEDUCED_TYPENAME range_detail::range<C>::type c_type;
+        typedef NDNBOOST_DEDUCED_TYPENAME range_detail::range<C>::type c_type;
     public:
-        typedef BOOST_DEDUCED_TYPENAME range_detail::range_value_type_<c_type>::BOOST_NESTED_TEMPLATE pts<C>::type type; 
+        typedef NDNBOOST_DEDUCED_TYPENAME range_detail::range_value_type_<c_type>::NDNBOOST_NESTED_TEMPLATE pts<C>::type type; 
     };
 
 }

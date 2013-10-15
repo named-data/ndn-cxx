@@ -11,20 +11,20 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_LOGICAL_AND_HPP
-# define BOOST_PREPROCESSOR_LOGICAL_AND_HPP
+# ifndef NDNBOOST_PREPROCESSOR_LOGICAL_AND_HPP
+# define NDNBOOST_PREPROCESSOR_LOGICAL_AND_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 # include <ndnboost/preprocessor/logical/bool.hpp>
 # include <ndnboost/preprocessor/logical/bitand.hpp>
 #
-# /* BOOST_PP_AND */
+# /* NDNBOOST_PP_AND */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_AND(p, q) BOOST_PP_BITAND(BOOST_PP_BOOL(p), BOOST_PP_BOOL(q))
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_AND(p, q) NDNBOOST_PP_BITAND(NDNBOOST_PP_BOOL(p), NDNBOOST_PP_BOOL(q))
 # else
-#    define BOOST_PP_AND(p, q) BOOST_PP_AND_I(p, q)
-#    define BOOST_PP_AND_I(p, q) BOOST_PP_BITAND(BOOST_PP_BOOL(p), BOOST_PP_BOOL(q))
+#    define NDNBOOST_PP_AND(p, q) NDNBOOST_PP_AND_I(p, q)
+#    define NDNBOOST_PP_AND_I(p, q) NDNBOOST_PP_BITAND(NDNBOOST_PP_BOOL(p), NDNBOOST_PP_BOOL(q))
 # endif
 #
 # endif

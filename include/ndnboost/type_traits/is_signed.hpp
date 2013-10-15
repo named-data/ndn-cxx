@@ -7,8 +7,8 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_IS_SIGNED_HPP_INCLUDED
-#define BOOST_TT_IS_SIGNED_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_SIGNED_HPP_INCLUDED
+#define NDNBOOST_TT_IS_SIGNED_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_integral.hpp>
 #include <ndnboost/type_traits/remove_cv.hpp>
@@ -24,13 +24,13 @@ namespace ndnboost {
 
 namespace detail{
 
-#if !(defined(__EDG_VERSION__) && __EDG_VERSION__ <= 238) && !defined(BOOST_NO_INCLASS_MEMBER_INITIALIZATION)
+#if !(defined(__EDG_VERSION__) && __EDG_VERSION__ <= 238) && !defined(NDNBOOST_NO_INCLASS_MEMBER_INITIALIZATION)
 
 template <class T>
 struct is_signed_values
 {
    //
-   // Note that we cannot use BOOST_STATIC_CONSTANT here, using enum's
+   // Note that we cannot use NDNBOOST_STATIC_CONSTANT here, using enum's
    // rather than "real" static constants simply doesn't work or give
    // the correct answer.
    //
@@ -43,7 +43,7 @@ template <class T>
 struct is_signed_helper
 {
    typedef typename remove_cv<T>::type no_cv_t;
-   BOOST_STATIC_CONSTANT(bool, value = (!(::ndnboost::detail::is_signed_values<T>::minus_one  > ndnboost::detail::is_signed_values<T>::zero)));
+   NDNBOOST_STATIC_CONSTANT(bool, value = (!(::ndnboost::detail::is_signed_values<T>::minus_one  > ndnboost::detail::is_signed_values<T>::zero)));
 };
 
 template <bool integral_type>
@@ -76,10 +76,10 @@ struct is_signed_imp
    > selector;
    typedef typename selector::template rebind<T> binder;
    typedef typename binder::type type;
-#if defined(BOOST_MSVC) && (BOOST_MSVC < 1300)
-   BOOST_STATIC_CONSTANT(bool, value = is_signed_imp<T>::type::value);
+#if defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC < 1300)
+   NDNBOOST_STATIC_CONSTANT(bool, value = is_signed_imp<T>::type::value);
 #else
-   BOOST_STATIC_CONSTANT(bool, value = type::value);
+   NDNBOOST_STATIC_CONSTANT(bool, value = type::value);
 #endif
 };
 
@@ -102,7 +102,7 @@ template <> struct is_signed_imp<long> : public true_type{};
 template <> struct is_signed_imp<const long> : public true_type{};
 template <> struct is_signed_imp<volatile long> : public true_type{};
 template <> struct is_signed_imp<const volatile long> : public true_type{};
-#ifdef BOOST_HAS_LONG_LONG
+#ifdef NDNBOOST_HAS_LONG_LONG
 template <> struct is_signed_imp<long long> : public true_type{};
 template <> struct is_signed_imp<const long long> : public true_type{};
 template <> struct is_signed_imp<volatile long long> : public true_type{};
@@ -128,13 +128,13 @@ template <> struct is_signed_imp<const volatile wchar_t> : public true_type{};
 #endif // !defined( __CODEGEARC__ )
 
 #if defined( __CODEGEARC__ )
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_signed,T,__is_signed(T))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_signed,T,__is_signed(T))
 #else
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_signed,T,::ndnboost::detail::is_signed_imp<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_signed,T,::ndnboost::detail::is_signed_imp<T>::value)
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_MEMBER_FUNCTION_POINTER_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_MEMBER_FUNCTION_POINTER_HPP_INCLUDED

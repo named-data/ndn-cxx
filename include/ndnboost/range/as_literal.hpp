@@ -8,14 +8,14 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_AS_LITERAL_HPP
-#define BOOST_RANGE_AS_LITERAL_HPP
+#ifndef NDNBOOST_RANGE_AS_LITERAL_HPP
+#define NDNBOOST_RANGE_AS_LITERAL_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
 #endif
 
-#ifdef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+#ifdef NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING
 #include <ndnboost/range/detail/as_literal.hpp>
 #else
 
@@ -25,7 +25,7 @@
 #include <ndnboost/detail/workaround.hpp>
 
 #include <cstring>
-#ifndef BOOST_NO_CWCHAR
+#ifndef NDNBOOST_NO_CWCHAR
 #include <cwchar>
 #endif
 
@@ -38,7 +38,7 @@ namespace ndnboost
             return strlen( s );
         }
 
-#ifndef BOOST_NO_CWCHAR
+#ifndef NDNBOOST_NO_CWCHAR
         inline std::size_t length( const wchar_t* s )
         {
             return wcslen( s );
@@ -61,7 +61,7 @@ namespace ndnboost
             return true;
         }
 
-#ifndef BOOST_NO_CWCHAR
+#ifndef NDNBOOST_NO_CWCHAR
         inline bool is_char_ptr( wchar_t* )
         {
             return true;
@@ -87,7 +87,7 @@ namespace ndnboost
         }
 
         template< class T >
-        inline iterator_range<BOOST_DEDUCED_TYPENAME range_iterator<T>::type>
+        inline iterator_range<NDNBOOST_DEDUCED_TYPENAME range_iterator<T>::type>
         make_range( T& r, long )
         {
             return ndnboost::make_iterator_range( r );
@@ -96,14 +96,14 @@ namespace ndnboost
     }
 
     template< class Range >
-    inline iterator_range<BOOST_DEDUCED_TYPENAME range_iterator<Range>::type>
+    inline iterator_range<NDNBOOST_DEDUCED_TYPENAME range_iterator<Range>::type>
     as_literal( Range& r )
     {
         return range_detail::make_range( r, range_detail::is_char_ptr(r) );
     }
 
     template< class Range >
-    inline iterator_range<BOOST_DEDUCED_TYPENAME range_iterator<const Range>::type>
+    inline iterator_range<NDNBOOST_DEDUCED_TYPENAME range_iterator<const Range>::type>
     as_literal( const Range& r )
     {
         return range_detail::make_range( r, range_detail::is_char_ptr(r) );
@@ -122,6 +122,6 @@ namespace ndnboost
     }
 }
 
-#endif // BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+#endif // NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING
 
 #endif

@@ -9,8 +9,8 @@
 // For more information, see www.boost.org
 
 
-#ifndef BOOST_LAMBDA_RETURN_TYPE_TRAITS_HPP
-#define BOOST_LAMBDA_RETURN_TYPE_TRAITS_HPP
+#ifndef NDNBOOST_LAMBDA_RETURN_TYPE_TRAITS_HPP
+#define NDNBOOST_LAMBDA_RETURN_TYPE_TRAITS_HPP
 
 #include "ndnboost/mpl/has_xxx.hpp"
 
@@ -239,7 +239,7 @@ struct return_type_N<function_action<I, Ret>, Args> {
 namespace detail
 {
 
-BOOST_MPL_HAS_XXX_TRAIT_DEF(result_type)
+NDNBOOST_MPL_HAS_XXX_TRAIT_DEF(result_type)
 
 template<class F> struct get_result_type
 {

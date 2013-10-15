@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_SHARED_PTR_HPP_INCLUDED
-#define BOOST_SMART_PTR_SHARED_PTR_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_SHARED_PTR_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_SHARED_PTR_HPP_INCLUDED
 
 //
 //  shared_ptr.hpp
@@ -16,7 +16,7 @@
 
 #include <ndnboost/config.hpp>   // for broken compiler workarounds
 
-#if defined(BOOST_NO_MEMBER_TEMPLATES) && !defined(BOOST_MSVC6_MEMBER_TEMPLATES)
+#if defined(NDNBOOST_NO_MEMBER_TEMPLATES) && !defined(NDNBOOST_MSVC6_MEMBER_TEMPLATES)
 #include <ndnboost/smart_ptr/detail/shared_ptr_nmt.hpp>
 #else
 
@@ -34,7 +34,7 @@
 #include <ndnboost/smart_ptr/detail/sp_convertible.hpp>
 #include <ndnboost/smart_ptr/detail/sp_nullptr_t.hpp>
 
-#if !defined(BOOST_SP_NO_ATOMIC_ACCESS)
+#if !defined(NDNBOOST_SP_NO_ATOMIC_ACCESS)
 #include <ndnboost/smart_ptr/detail/spinlock_pool.hpp>
 #include <ndnboost/memory_order.hpp>
 #endif
@@ -44,8 +44,8 @@
 #include <typeinfo>             // for std::bad_cast
 #include <cstddef>              // for std::size_t
 
-#if !defined(BOOST_NO_IOSTREAM)
-#if !defined(BOOST_NO_IOSFWD)
+#if !defined(NDNBOOST_NO_IOSTREAM)
+#if !defined(NDNBOOST_NO_IOSFWD)
 #include <iosfwd>               // for std::basic_ostream
 #else
 #include <ostream>
@@ -70,14 +70,14 @@ template< class T > struct sp_element
     typedef T type;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#if !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template< class T > struct sp_element< T[] >
 {
     typedef T type;
 };
 
-#if !defined( __BORLANDC__ ) || !BOOST_WORKAROUND( __BORLANDC__, < 0x600 )
+#if !defined( __BORLANDC__ ) || !NDNBOOST_WORKAROUND( __BORLANDC__, < 0x600 )
 
 template< class T, std::size_t N > struct sp_element< T[N] >
 {
@@ -86,7 +86,7 @@ template< class T, std::size_t N > struct sp_element< T[N] >
 
 #endif
 
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#endif // !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 // sp_dereference, return type of operator*
 
@@ -100,7 +100,7 @@ template<> struct sp_dereference< void >
     typedef void type;
 };
 
-#if !defined(BOOST_NO_CV_VOID_SPECIALIZATIONS)
+#if !defined(NDNBOOST_NO_CV_VOID_SPECIALIZATIONS)
 
 template<> struct sp_dereference< void const >
 {
@@ -117,16 +117,16 @@ template<> struct sp_dereference< void const volatile >
     typedef void type;
 };
 
-#endif // !defined(BOOST_NO_CV_VOID_SPECIALIZATIONS)
+#endif // !defined(NDNBOOST_NO_CV_VOID_SPECIALIZATIONS)
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#if !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template< class T > struct sp_dereference< T[] >
 {
     typedef void type;
 };
 
-#if !defined( __BORLANDC__ ) || !BOOST_WORKAROUND( __BORLANDC__, < 0x600 )
+#if !defined( __BORLANDC__ ) || !NDNBOOST_WORKAROUND( __BORLANDC__, < 0x600 )
 
 template< class T, std::size_t N > struct sp_dereference< T[N] >
 {
@@ -135,7 +135,7 @@ template< class T, std::size_t N > struct sp_dereference< T[N] >
 
 #endif
 
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#endif // !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 // sp_member_access, return type of operator->
 
@@ -144,14 +144,14 @@ template< class T > struct sp_member_access
     typedef T * type;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#if !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template< class T > struct sp_member_access< T[] >
 {
     typedef void type;
 };
 
-#if !defined( __BORLANDC__ ) || !BOOST_WORKAROUND( __BORLANDC__, < 0x600 )
+#if !defined( __BORLANDC__ ) || !NDNBOOST_WORKAROUND( __BORLANDC__, < 0x600 )
 
 template< class T, std::size_t N > struct sp_member_access< T[N] >
 {
@@ -160,7 +160,7 @@ template< class T, std::size_t N > struct sp_member_access< T[N] >
 
 #endif
 
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#endif // !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 // sp_array_access, return type of operator[]
 
@@ -169,14 +169,14 @@ template< class T > struct sp_array_access
     typedef void type;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#if !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template< class T > struct sp_array_access< T[] >
 {
     typedef T & type;
 };
 
-#if !defined( __BORLANDC__ ) || !BOOST_WORKAROUND( __BORLANDC__, < 0x600 )
+#if !defined( __BORLANDC__ ) || !NDNBOOST_WORKAROUND( __BORLANDC__, < 0x600 )
 
 template< class T, std::size_t N > struct sp_array_access< T[N] >
 {
@@ -185,7 +185,7 @@ template< class T, std::size_t N > struct sp_array_access< T[N] >
 
 #endif
 
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#endif // !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 // sp_extent, for operator[] index check
 
@@ -194,14 +194,14 @@ template< class T > struct sp_extent
     enum _vt { value = 0 };
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#if !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template< class T, std::size_t N > struct sp_extent< T[N] >
 {
     enum _vt { value = N };
 };
 
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#endif // !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 // enable_shared_from_this support
 
@@ -236,7 +236,7 @@ inline void sp_enable_shared_from_this( ... )
 
 #endif // _MANAGED
 
-#if !defined( BOOST_NO_SFINAE ) && !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION ) && !defined( BOOST_NO_AUTO_PTR )
+#if !defined( NDNBOOST_NO_SFINAE ) && !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION ) && !defined( NDNBOOST_NO_AUTO_PTR )
 
 // rvalue auto_ptr support based on a technique by Dave Abrahams
 
@@ -255,7 +255,7 @@ template< class T, class R > struct sp_enable_if_auto_ptr< std::auto_ptr< T >, R
 
 template< class Y, class T > inline void sp_assert_convertible()
 {
-#if !defined( BOOST_SP_NO_SP_CONVERTIBLE )
+#if !defined( NDNBOOST_SP_NO_SP_CONVERTIBLE )
 
     // static_assert( sp_convertible< Y, T >::value );
     typedef char tmp[ sp_convertible< Y, T >::value? 1: -1 ];
@@ -277,7 +277,7 @@ template< class T, class Y > inline void sp_pointer_construct( ndnboost::shared_
     ndnboost::detail::sp_enable_shared_from_this( ppx, p, p );
 }
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#if !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template< class T, class Y > inline void sp_pointer_construct( ndnboost::shared_ptr< T[] > * /*ppx*/, Y * p, ndnboost::detail::shared_count & pn )
 {
@@ -291,7 +291,7 @@ template< class T, std::size_t N, class Y > inline void sp_pointer_construct( nd
     ndnboost::detail::shared_count( p, ndnboost::checked_array_deleter< T >() ).swap( pn );
 }
 
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#endif // !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 // deleter constructor helper
 
@@ -300,7 +300,7 @@ template< class T, class Y > inline void sp_deleter_construct( ndnboost::shared_
     ndnboost::detail::sp_enable_shared_from_this( ppx, p, p );
 }
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#if !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template< class T, class Y > inline void sp_deleter_construct( ndnboost::shared_ptr< T[] > * /*ppx*/, Y * /*p*/ )
 {
@@ -312,7 +312,7 @@ template< class T, std::size_t N, class Y > inline void sp_deleter_construct( nd
     sp_assert_convertible< Y[N], T[N] >();
 }
 
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#endif // !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 } // namespace detail
 
@@ -336,13 +336,13 @@ public:
 
     typedef typename ndnboost::detail::sp_element< T >::type element_type;
 
-    shared_ptr() BOOST_NOEXCEPT : px( 0 ), pn() // never throws in 1.30+
+    shared_ptr() NDNBOOST_NOEXCEPT : px( 0 ), pn() // never throws in 1.30+
     {
     }
 
-#if !defined( BOOST_NO_CXX11_NULLPTR )
+#if !defined( NDNBOOST_NO_CXX11_NULLPTR )
 
-    shared_ptr( ndnboost::detail::sp_nullptr_t ) BOOST_NOEXCEPT : px( 0 ), pn() // never throws
+    shared_ptr( ndnboost::detail::sp_nullptr_t ) NDNBOOST_NOEXCEPT : px( 0 ), pn() // never throws
     {
     }
 
@@ -365,7 +365,7 @@ public:
         ndnboost::detail::sp_deleter_construct( this, p );
     }
 
-#if !defined( BOOST_NO_CXX11_NULLPTR )
+#if !defined( NDNBOOST_NO_CXX11_NULLPTR )
 
     template<class D> shared_ptr( ndnboost::detail::sp_nullptr_t p, D d ): px( p ), pn( p, d )
     {
@@ -380,7 +380,7 @@ public:
         ndnboost::detail::sp_deleter_construct( this, p );
     }
 
-#if !defined( BOOST_NO_CXX11_NULLPTR )
+#if !defined( NDNBOOST_NO_CXX11_NULLPTR )
 
     template<class D, class A> shared_ptr( ndnboost::detail::sp_nullptr_t p, D d, A a ): px( p ), pn( p, d, a )
     {
@@ -390,11 +390,11 @@ public:
 
 //  generated copy constructor, destructor are fine...
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
 // ... except in C++0x, move disables the implicit copy
 
-    shared_ptr( shared_ptr const & r ) BOOST_NOEXCEPT : px( r.px ), pn( r.pn )
+    shared_ptr( shared_ptr const & r ) NDNBOOST_NOEXCEPT : px( r.px ), pn( r.pn )
     {
     }
 
@@ -411,7 +411,7 @@ public:
 
     template<class Y>
     shared_ptr( weak_ptr<Y> const & r, ndnboost::detail::sp_nothrow_tag )
-    BOOST_NOEXCEPT : px( 0 ), pn( r.pn, ndnboost::detail::sp_nothrow_tag() )
+    NDNBOOST_NOEXCEPT : px( 0 ), pn( r.pn, ndnboost::detail::sp_nothrow_tag() )
     {
         if( !pn.empty() )
         {
@@ -420,7 +420,7 @@ public:
     }
 
     template<class Y>
-#if !defined( BOOST_SP_NO_SP_CONVERTIBLE )
+#if !defined( NDNBOOST_SP_NO_SP_CONVERTIBLE )
 
     shared_ptr( shared_ptr<Y> const & r, typename ndnboost::detail::sp_enable_if_convertible<Y,T>::type = ndnboost::detail::sp_empty() )
 
@@ -429,18 +429,18 @@ public:
     shared_ptr( shared_ptr<Y> const & r )
 
 #endif
-    BOOST_NOEXCEPT : px( r.px ), pn( r.pn )
+    NDNBOOST_NOEXCEPT : px( r.px ), pn( r.pn )
     {
         ndnboost::detail::sp_assert_convertible< Y, T >();
     }
 
     // aliasing
     template< class Y >
-    shared_ptr( shared_ptr<Y> const & r, element_type * p ) BOOST_NOEXCEPT : px( p ), pn( r.pn )
+    shared_ptr( shared_ptr<Y> const & r, element_type * p ) NDNBOOST_NOEXCEPT : px( p ), pn( r.pn )
     {
     }
 
-#ifndef BOOST_NO_AUTO_PTR
+#ifndef NDNBOOST_NO_AUTO_PTR
 
     template<class Y>
     explicit shared_ptr( std::auto_ptr<Y> & r ): px(r.get()), pn()
@@ -453,7 +453,7 @@ public:
         ndnboost::detail::sp_deleter_construct( this, tmp );
     }
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
     template<class Y>
     shared_ptr( std::auto_ptr<Y> && r ): px(r.get()), pn()
@@ -466,7 +466,7 @@ public:
         ndnboost::detail::sp_deleter_construct( this, tmp );
     }
 
-#elif !defined( BOOST_NO_SFINAE ) && !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#elif !defined( NDNBOOST_NO_SFINAE ) && !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
     template<class Ap>
     explicit shared_ptr( Ap r, typename ndnboost::detail::sp_enable_if_auto_ptr<Ap, int>::type = 0 ): px( r.get() ), pn()
@@ -481,11 +481,11 @@ public:
         ndnboost::detail::sp_deleter_construct( this, tmp );
     }
 
-#endif // BOOST_NO_SFINAE, BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_SFINAE, NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
-#endif // BOOST_NO_AUTO_PTR
+#endif // NDNBOOST_NO_AUTO_PTR
 
-#if !defined( BOOST_NO_CXX11_SMART_PTR ) && !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_SMART_PTR ) && !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
     template< class Y, class D >
     shared_ptr( std::unique_ptr< Y, D > && r ): px( r.get() ), pn()
@@ -502,16 +502,16 @@ public:
 
     // assignment
 
-    shared_ptr & operator=( shared_ptr const & r ) BOOST_NOEXCEPT
+    shared_ptr & operator=( shared_ptr const & r ) NDNBOOST_NOEXCEPT
     {
         this_type(r).swap(*this);
         return *this;
     }
 
-#if !defined(BOOST_MSVC) || (BOOST_MSVC >= 1400)
+#if !defined(NDNBOOST_MSVC) || (NDNBOOST_MSVC >= 1400)
 
     template<class Y>
-    shared_ptr & operator=(shared_ptr<Y> const & r) BOOST_NOEXCEPT
+    shared_ptr & operator=(shared_ptr<Y> const & r) NDNBOOST_NOEXCEPT
     {
         this_type(r).swap(*this);
         return *this;
@@ -519,7 +519,7 @@ public:
 
 #endif
 
-#ifndef BOOST_NO_AUTO_PTR
+#ifndef NDNBOOST_NO_AUTO_PTR
 
     template<class Y>
     shared_ptr & operator=( std::auto_ptr<Y> & r )
@@ -528,7 +528,7 @@ public:
         return *this;
     }
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
     template<class Y>
     shared_ptr & operator=( std::auto_ptr<Y> && r )
@@ -537,7 +537,7 @@ public:
         return *this;
     }
 
-#elif !defined( BOOST_NO_SFINAE ) && !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#elif !defined( NDNBOOST_NO_SFINAE ) && !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
     template<class Ap>
     typename ndnboost::detail::sp_enable_if_auto_ptr< Ap, shared_ptr & >::type operator=( Ap r )
@@ -546,11 +546,11 @@ public:
         return *this;
     }
 
-#endif // BOOST_NO_SFINAE, BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_SFINAE, NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
-#endif // BOOST_NO_AUTO_PTR
+#endif // NDNBOOST_NO_AUTO_PTR
 
-#if !defined( BOOST_NO_CXX11_SMART_PTR ) && !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_SMART_PTR ) && !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
     template<class Y, class D>
     shared_ptr & operator=( std::unique_ptr<Y, D> && r )
@@ -563,16 +563,16 @@ public:
 
 // Move support
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
-    shared_ptr( shared_ptr && r ) BOOST_NOEXCEPT : px( r.px ), pn()
+    shared_ptr( shared_ptr && r ) NDNBOOST_NOEXCEPT : px( r.px ), pn()
     {
         pn.swap( r.pn );
         r.px = 0;
     }
 
     template<class Y>
-#if !defined( BOOST_SP_NO_SP_CONVERTIBLE )
+#if !defined( NDNBOOST_SP_NO_SP_CONVERTIBLE )
 
     shared_ptr( shared_ptr<Y> && r, typename ndnboost::detail::sp_enable_if_convertible<Y,T>::type = ndnboost::detail::sp_empty() )
 
@@ -581,7 +581,7 @@ public:
     shared_ptr( shared_ptr<Y> && r )
 
 #endif
-    BOOST_NOEXCEPT : px( r.px ), pn()
+    NDNBOOST_NOEXCEPT : px( r.px ), pn()
     {
         ndnboost::detail::sp_assert_convertible< Y, T >();
 
@@ -589,14 +589,14 @@ public:
         r.px = 0;
     }
 
-    shared_ptr & operator=( shared_ptr && r ) BOOST_NOEXCEPT
+    shared_ptr & operator=( shared_ptr && r ) NDNBOOST_NOEXCEPT
     {
         this_type( static_cast< shared_ptr && >( r ) ).swap( *this );
         return *this;
     }
 
     template<class Y>
-    shared_ptr & operator=( shared_ptr<Y> && r ) BOOST_NOEXCEPT
+    shared_ptr & operator=( shared_ptr<Y> && r ) NDNBOOST_NOEXCEPT
     {
         this_type( static_cast< shared_ptr<Y> && >( r ) ).swap( *this );
         return *this;
@@ -604,9 +604,9 @@ public:
 
 #endif
 
-#if !defined( BOOST_NO_CXX11_NULLPTR )
+#if !defined( NDNBOOST_NO_CXX11_NULLPTR )
 
-    shared_ptr & operator=( ndnboost::detail::sp_nullptr_t ) BOOST_NOEXCEPT // never throws
+    shared_ptr & operator=( ndnboost::detail::sp_nullptr_t ) NDNBOOST_NOEXCEPT // never throws
     {
         this_type().swap(*this);
         return *this;
@@ -614,14 +614,14 @@ public:
 
 #endif
 
-    void reset() BOOST_NOEXCEPT // never throws in 1.30+
+    void reset() NDNBOOST_NOEXCEPT // never throws in 1.30+
     {
         this_type().swap(*this);
     }
 
     template<class Y> void reset( Y * p ) // Y must be complete
     {
-        BOOST_ASSERT( p == 0 || p != px ); // catch self-reset errors
+        NDNBOOST_ASSERT( p == 0 || p != px ); // catch self-reset errors
         this_type( p ).swap( *this );
     }
 
@@ -640,30 +640,30 @@ public:
         this_type( r, p ).swap( *this );
     }
     
-    // never throws (but has a BOOST_ASSERT in it, so not marked with BOOST_NOEXCEPT)
+    // never throws (but has a NDNBOOST_ASSERT in it, so not marked with NDNBOOST_NOEXCEPT)
     typename ndnboost::detail::sp_dereference< T >::type operator* () const
     {
-        BOOST_ASSERT( px != 0 );
+        NDNBOOST_ASSERT( px != 0 );
         return *px;
     }
     
-    // never throws (but has a BOOST_ASSERT in it, so not marked with BOOST_NOEXCEPT)
+    // never throws (but has a NDNBOOST_ASSERT in it, so not marked with NDNBOOST_NOEXCEPT)
     typename ndnboost::detail::sp_member_access< T >::type operator-> () const 
     {
-        BOOST_ASSERT( px != 0 );
+        NDNBOOST_ASSERT( px != 0 );
         return px;
     }
     
-    // never throws (but has a BOOST_ASSERT in it, so not marked with BOOST_NOEXCEPT)
+    // never throws (but has a NDNBOOST_ASSERT in it, so not marked with NDNBOOST_NOEXCEPT)
     typename ndnboost::detail::sp_array_access< T >::type operator[] ( std::ptrdiff_t i ) const
     {
-        BOOST_ASSERT( px != 0 );
-        BOOST_ASSERT( i >= 0 && ( i < ndnboost::detail::sp_extent< T >::value || ndnboost::detail::sp_extent< T >::value == 0 ) );
+        NDNBOOST_ASSERT( px != 0 );
+        NDNBOOST_ASSERT( i >= 0 && ( i < ndnboost::detail::sp_extent< T >::value || ndnboost::detail::sp_extent< T >::value == 0 ) );
 
         return px[ i ];
     }
 
-    element_type * get() const BOOST_NOEXCEPT
+    element_type * get() const NDNBOOST_NOEXCEPT
     {
         return px;
     }
@@ -671,43 +671,43 @@ public:
 // implicit conversion to "bool"
 #include <ndnboost/smart_ptr/detail/operator_bool.hpp>
 
-    bool unique() const BOOST_NOEXCEPT
+    bool unique() const NDNBOOST_NOEXCEPT
     {
         return pn.unique();
     }
 
-    long use_count() const BOOST_NOEXCEPT
+    long use_count() const NDNBOOST_NOEXCEPT
     {
         return pn.use_count();
     }
 
-    void swap( shared_ptr & other ) BOOST_NOEXCEPT
+    void swap( shared_ptr & other ) NDNBOOST_NOEXCEPT
     {
         std::swap(px, other.px);
         pn.swap(other.pn);
     }
 
-    template<class Y> bool owner_before( shared_ptr<Y> const & rhs ) const BOOST_NOEXCEPT
+    template<class Y> bool owner_before( shared_ptr<Y> const & rhs ) const NDNBOOST_NOEXCEPT
     {
         return pn < rhs.pn;
     }
 
-    template<class Y> bool owner_before( weak_ptr<Y> const & rhs ) const BOOST_NOEXCEPT
+    template<class Y> bool owner_before( weak_ptr<Y> const & rhs ) const NDNBOOST_NOEXCEPT
     {
         return pn < rhs.pn;
     }
 
-    void * _internal_get_deleter( ndnboost::detail::sp_typeinfo const & ti ) const BOOST_NOEXCEPT
+    void * _internal_get_deleter( ndnboost::detail::sp_typeinfo const & ti ) const NDNBOOST_NOEXCEPT
     {
         return pn.get_deleter( ti );
     }
 
-    void * _internal_get_untyped_deleter() const BOOST_NOEXCEPT
+    void * _internal_get_untyped_deleter() const NDNBOOST_NOEXCEPT
     {
         return pn.get_untyped_deleter();
     }
 
-    bool _internal_equiv( shared_ptr const & r ) const BOOST_NOEXCEPT
+    bool _internal_equiv( shared_ptr const & r ) const NDNBOOST_NOEXCEPT
     {
         return px == r.px && pn == r.pn;
     }
@@ -715,7 +715,7 @@ public:
 // Tasteless as this may seem, making all members public allows member templates
 // to work in the absence of member template friends. (Matthew Langston)
 
-#ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
+#ifndef NDNBOOST_NO_MEMBER_TEMPLATE_FRIENDS
 
 private:
 
@@ -730,12 +730,12 @@ private:
 
 };  // shared_ptr
 
-template<class T, class U> inline bool operator==(shared_ptr<T> const & a, shared_ptr<U> const & b) BOOST_NOEXCEPT
+template<class T, class U> inline bool operator==(shared_ptr<T> const & a, shared_ptr<U> const & b) NDNBOOST_NOEXCEPT
 {
     return a.get() == b.get();
 }
 
-template<class T, class U> inline bool operator!=(shared_ptr<T> const & a, shared_ptr<U> const & b) BOOST_NOEXCEPT
+template<class T, class U> inline bool operator!=(shared_ptr<T> const & a, shared_ptr<U> const & b) NDNBOOST_NOEXCEPT
 {
     return a.get() != b.get();
 }
@@ -744,48 +744,48 @@ template<class T, class U> inline bool operator!=(shared_ptr<T> const & a, share
 
 // Resolve the ambiguity between our op!= and the one in rel_ops
 
-template<class T> inline bool operator!=(shared_ptr<T> const & a, shared_ptr<T> const & b) BOOST_NOEXCEPT
+template<class T> inline bool operator!=(shared_ptr<T> const & a, shared_ptr<T> const & b) NDNBOOST_NOEXCEPT
 {
     return a.get() != b.get();
 }
 
 #endif
 
-#if !defined( BOOST_NO_CXX11_NULLPTR )
+#if !defined( NDNBOOST_NO_CXX11_NULLPTR )
 
-template<class T> inline bool operator==( shared_ptr<T> const & p, ndnboost::detail::sp_nullptr_t ) BOOST_NOEXCEPT
+template<class T> inline bool operator==( shared_ptr<T> const & p, ndnboost::detail::sp_nullptr_t ) NDNBOOST_NOEXCEPT
 {
     return p.get() == 0;
 }
 
-template<class T> inline bool operator==( ndnboost::detail::sp_nullptr_t, shared_ptr<T> const & p ) BOOST_NOEXCEPT
+template<class T> inline bool operator==( ndnboost::detail::sp_nullptr_t, shared_ptr<T> const & p ) NDNBOOST_NOEXCEPT
 {
     return p.get() == 0;
 }
 
-template<class T> inline bool operator!=( shared_ptr<T> const & p, ndnboost::detail::sp_nullptr_t ) BOOST_NOEXCEPT
+template<class T> inline bool operator!=( shared_ptr<T> const & p, ndnboost::detail::sp_nullptr_t ) NDNBOOST_NOEXCEPT
 {
     return p.get() != 0;
 }
 
-template<class T> inline bool operator!=( ndnboost::detail::sp_nullptr_t, shared_ptr<T> const & p ) BOOST_NOEXCEPT
+template<class T> inline bool operator!=( ndnboost::detail::sp_nullptr_t, shared_ptr<T> const & p ) NDNBOOST_NOEXCEPT
 {
     return p.get() != 0;
 }
 
 #endif
 
-template<class T, class U> inline bool operator<(shared_ptr<T> const & a, shared_ptr<U> const & b) BOOST_NOEXCEPT
+template<class T, class U> inline bool operator<(shared_ptr<T> const & a, shared_ptr<U> const & b) NDNBOOST_NOEXCEPT
 {
     return a.owner_before( b );
 }
 
-template<class T> inline void swap(shared_ptr<T> & a, shared_ptr<T> & b) BOOST_NOEXCEPT
+template<class T> inline void swap(shared_ptr<T> & a, shared_ptr<T> & b) NDNBOOST_NOEXCEPT
 {
     a.swap(b);
 }
 
-template<class T, class U> shared_ptr<T> static_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT
+template<class T, class U> shared_ptr<T> static_pointer_cast( shared_ptr<U> const & r ) NDNBOOST_NOEXCEPT
 {
     (void) static_cast< T* >( static_cast< U* >( 0 ) );
 
@@ -795,7 +795,7 @@ template<class T, class U> shared_ptr<T> static_pointer_cast( shared_ptr<U> cons
     return shared_ptr<T>( r, p );
 }
 
-template<class T, class U> shared_ptr<T> const_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT
+template<class T, class U> shared_ptr<T> const_pointer_cast( shared_ptr<U> const & r ) NDNBOOST_NOEXCEPT
 {
     (void) const_cast< T* >( static_cast< U* >( 0 ) );
 
@@ -805,7 +805,7 @@ template<class T, class U> shared_ptr<T> const_pointer_cast( shared_ptr<U> const
     return shared_ptr<T>( r, p );
 }
 
-template<class T, class U> shared_ptr<T> dynamic_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT
+template<class T, class U> shared_ptr<T> dynamic_pointer_cast( shared_ptr<U> const & r ) NDNBOOST_NOEXCEPT
 {
     (void) dynamic_cast< T* >( static_cast< U* >( 0 ) );
 
@@ -815,7 +815,7 @@ template<class T, class U> shared_ptr<T> dynamic_pointer_cast( shared_ptr<U> con
     return p? shared_ptr<T>( r, p ): shared_ptr<T>();
 }
 
-template<class T, class U> shared_ptr<T> reinterpret_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT
+template<class T, class U> shared_ptr<T> reinterpret_pointer_cast( shared_ptr<U> const & r ) NDNBOOST_NOEXCEPT
 {
     (void) reinterpret_cast< T* >( static_cast< U* >( 0 ) );
 
@@ -827,16 +827,16 @@ template<class T, class U> shared_ptr<T> reinterpret_pointer_cast( shared_ptr<U>
 
 // get_pointer() enables ndnboost::mem_fn to recognize shared_ptr
 
-template<class T> inline typename shared_ptr<T>::element_type * get_pointer(shared_ptr<T> const & p) BOOST_NOEXCEPT
+template<class T> inline typename shared_ptr<T>::element_type * get_pointer(shared_ptr<T> const & p) NDNBOOST_NOEXCEPT
 {
     return p.get();
 }
 
 // operator<<
 
-#if !defined(BOOST_NO_IOSTREAM)
+#if !defined(NDNBOOST_NO_IOSTREAM)
 
-#if defined(BOOST_NO_TEMPLATED_IOSTREAMS) || ( defined(__GNUC__) &&  (__GNUC__ < 3) )
+#if defined(NDNBOOST_NO_TEMPLATED_IOSTREAMS) || ( defined(__GNUC__) &&  (__GNUC__ < 3) )
 
 template<class Y> std::ostream & operator<< (std::ostream & os, shared_ptr<Y> const & p)
 {
@@ -849,7 +849,7 @@ template<class Y> std::ostream & operator<< (std::ostream & os, shared_ptr<Y> co
 // in STLport's no-iostreams mode no iostream symbols can be used
 #ifndef _STLP_NO_IOSTREAMS
 
-# if defined(BOOST_MSVC) && BOOST_WORKAROUND(BOOST_MSVC, < 1300 && __SGI_STL_PORT)
+# if defined(NDNBOOST_MSVC) && NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300 && __SGI_STL_PORT)
 // MSVC6 has problems finding std::basic_ostream through the using declaration in namespace _STL
 using std::basic_ostream;
 template<class E, class T, class Y> basic_ostream<E, T> & operator<< (basic_ostream<E, T> & os, shared_ptr<Y> const & p)
@@ -865,31 +865,31 @@ template<class E, class T, class Y> std::basic_ostream<E, T> & operator<< (std::
 
 #endif // __GNUC__ < 3
 
-#endif // !defined(BOOST_NO_IOSTREAM)
+#endif // !defined(NDNBOOST_NO_IOSTREAM)
 
 // get_deleter
 
 namespace detail
 {
 
-#if ( defined(__GNUC__) && BOOST_WORKAROUND(__GNUC__, < 3) ) || \
-    ( defined(__EDG_VERSION__) && BOOST_WORKAROUND(__EDG_VERSION__, <= 238) ) || \
-    ( defined(__HP_aCC) && BOOST_WORKAROUND(__HP_aCC, <= 33500) )
+#if ( defined(__GNUC__) && NDNBOOST_WORKAROUND(__GNUC__, < 3) ) || \
+    ( defined(__EDG_VERSION__) && NDNBOOST_WORKAROUND(__EDG_VERSION__, <= 238) ) || \
+    ( defined(__HP_aCC) && NDNBOOST_WORKAROUND(__HP_aCC, <= 33500) )
 
 // g++ 2.9x doesn't allow static_cast<X const *>(void *)
 // apparently EDG 2.38 and HP aCC A.03.35 also don't accept it
 
 template<class D, class T> D * basic_get_deleter(shared_ptr<T> const & p)
 {
-    void const * q = p._internal_get_deleter(BOOST_SP_TYPEID(D));
+    void const * q = p._internal_get_deleter(NDNBOOST_SP_TYPEID(D));
     return const_cast<D *>(static_cast<D const *>(q));
 }
 
 #else
 
-template<class D, class T> D * basic_get_deleter( shared_ptr<T> const & p ) BOOST_NOEXCEPT
+template<class D, class T> D * basic_get_deleter( shared_ptr<T> const & p ) NDNBOOST_NOEXCEPT
 {
-    return static_cast<D *>( p._internal_get_deleter(BOOST_SP_TYPEID(D)) );
+    return static_cast<D *>( p._internal_get_deleter(NDNBOOST_SP_TYPEID(D)) );
 }
 
 #endif
@@ -911,21 +911,21 @@ public:
         deleter_ = deleter;
     }
 
-    template<typename D> D* get_deleter() const BOOST_NOEXCEPT
+    template<typename D> D* get_deleter() const NDNBOOST_NOEXCEPT
     {
         return ndnboost::detail::basic_get_deleter<D>( deleter_ );
     }
 
     template< class T> void operator()( T* )
     {
-        BOOST_ASSERT( deleter_.use_count() <= 1 );
+        NDNBOOST_ASSERT( deleter_.use_count() <= 1 );
         deleter_.reset();
     }
 };
 
 } // namespace detail
 
-template<class D, class T> D * get_deleter( shared_ptr<T> const & p ) BOOST_NOEXCEPT
+template<class D, class T> D * get_deleter( shared_ptr<T> const & p ) NDNBOOST_NOEXCEPT
 {
     D *del = ndnboost::detail::basic_get_deleter<D>(p);
 
@@ -942,9 +942,9 @@ template<class D, class T> D * get_deleter( shared_ptr<T> const & p ) BOOST_NOEX
 
 // atomic access
 
-#if !defined(BOOST_SP_NO_ATOMIC_ACCESS)
+#if !defined(NDNBOOST_SP_NO_ATOMIC_ACCESS)
 
-template<class T> inline bool atomic_is_lock_free( shared_ptr<T> const * /*p*/ ) BOOST_NOEXCEPT
+template<class T> inline bool atomic_is_lock_free( shared_ptr<T> const * /*p*/ ) NDNBOOST_NOEXCEPT
 {
     return false;
 }
@@ -1017,19 +1017,19 @@ template<class T> inline bool atomic_compare_exchange_explicit( shared_ptr<T> * 
     return atomic_compare_exchange( p, v, w ); // std::move( w )
 }
 
-#endif // !defined(BOOST_SP_NO_ATOMIC_ACCESS)
+#endif // !defined(NDNBOOST_SP_NO_ATOMIC_ACCESS)
 
 // hash_value
 
 template< class T > struct hash;
 
-template< class T > std::size_t hash_value( ndnboost::shared_ptr<T> const & p ) BOOST_NOEXCEPT
+template< class T > std::size_t hash_value( ndnboost::shared_ptr<T> const & p ) NDNBOOST_NOEXCEPT
 {
     return ndnboost::hash< T* >()( p.get() );
 }
 
 } // namespace ndnboost
 
-#endif  // #if defined(BOOST_NO_MEMBER_TEMPLATES) && !defined(BOOST_MSVC6_MEMBER_TEMPLATES)
+#endif  // #if defined(NDNBOOST_NO_MEMBER_TEMPLATES) && !defined(NDNBOOST_MSVC6_MEMBER_TEMPLATES)
 
-#endif  // #ifndef BOOST_SMART_PTR_SHARED_PTR_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_SHARED_PTR_HPP_INCLUDED

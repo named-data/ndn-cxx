@@ -12,8 +12,8 @@
 //  Description : defines model of generic parameter with dual naming
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_DUAL_NAME_PARAMETER_HPP_062604GER
-#define BOOST_RT_CLA_DUAL_NAME_PARAMETER_HPP_062604GER
+#ifndef NDNBOOST_RT_CLA_DUAL_NAME_PARAMETER_HPP_062604GER
+#define NDNBOOST_RT_CLA_DUAL_NAME_PARAMETER_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -23,7 +23,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -76,21 +76,21 @@ public:
 
 //____________________________________________________________________________//
 
-BOOST_RT_CLA_NAMED_PARAM_GENERATORS( dual_name_parameter )
+NDNBOOST_RT_CLA_NAMED_PARAM_GENERATORS( dual_name_parameter )
 
 //____________________________________________________________________________//
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#ifndef BOOST_RT_PARAM_OFFLINE
+#ifndef NDNBOOST_RT_PARAM_OFFLINE
 
-#  define BOOST_RT_PARAM_INLINE inline
+#  define NDNBOOST_RT_PARAM_INLINE inline
 #  include <ndnboost/test/utils/runtime/cla/dual_name_parameter.ipp>
 
 #endif
 
-#endif // BOOST_RT_CLA_DUAL_NAME_PARAMETER_HPP_062604GER
+#endif // NDNBOOST_RT_CLA_DUAL_NAME_PARAMETER_HPP_062604GER

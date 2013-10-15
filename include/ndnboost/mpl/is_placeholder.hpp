@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_IS_PLACEHOLDER_HPP_INCLUDED
-#define BOOST_MPL_IS_PLACEHOLDER_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_IS_PLACEHOLDER_HPP_INCLUDED
+#define NDNBOOST_MPL_IS_PLACEHOLDER_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -24,7 +24,7 @@
 
 namespace ndnboost { namespace mpl {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template< typename T >
 struct is_placeholder
@@ -32,7 +32,7 @@ struct is_placeholder
 {
 };
 
-template< BOOST_MPL_AUX_NTTP_DECL(int, N) >
+template< NDNBOOST_MPL_AUX_NTTP_DECL(int, N) >
 struct is_placeholder< arg<N> >
     : bool_<true>
 {
@@ -44,7 +44,7 @@ namespace aux {
 
 aux::no_tag is_placeholder_helper(...);
 
-template< BOOST_MPL_AUX_NTTP_DECL(int, N) >
+template< NDNBOOST_MPL_AUX_NTTP_DECL(int, N) >
 aux::yes_tag is_placeholder_helper(aux::type_wrapper< arg<N> >*);
 
 } // namespace aux
@@ -53,15 +53,15 @@ template< typename T >
 struct is_placeholder
 {
     static aux::type_wrapper<T>* get();
-    BOOST_STATIC_CONSTANT(bool, value = 
+    NDNBOOST_STATIC_CONSTANT(bool, value = 
           sizeof(aux::is_placeholder_helper(get())) == sizeof(aux::yes_tag)
         );
     
     typedef bool_<value> type;
 };
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 }}
 
-#endif // BOOST_MPL_IS_PLACEHOLDER_HPP_INCLUDED
+#endif // NDNBOOST_MPL_IS_PLACEHOLDER_HPP_INCLUDED

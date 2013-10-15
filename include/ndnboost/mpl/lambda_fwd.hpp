@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_LAMBDA_FWD_HPP_INCLUDED
-#define BOOST_MPL_LAMBDA_FWD_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_LAMBDA_FWD_HPP_INCLUDED
+#define NDNBOOST_MPL_LAMBDA_FWD_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -18,7 +18,7 @@
 #include <ndnboost/mpl/aux_/na.hpp>
 #include <ndnboost/mpl/aux_/config/lambda.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
+#if !defined(NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
 
 #   include <ndnboost/mpl/int.hpp>
 #   include <ndnboost/mpl/aux_/lambda_arity_param.hpp>
@@ -29,7 +29,7 @@ namespace ndnboost { namespace mpl {
 template< 
       typename T = na
     , typename Tag = void_
-    BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(
+    NDNBOOST_MPL_AUX_LAMBDA_ARITY_PARAM(
           typename Arity = int_< aux::template_arity<T>::value >
         )
     >
@@ -37,7 +37,7 @@ struct lambda;
 
 }}
 
-#else // BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT
+#else // NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT
 
 #   include <ndnboost/mpl/bool.hpp>
 
@@ -54,4 +54,4 @@ struct lambda;
 
 #endif
 
-#endif // BOOST_MPL_LAMBDA_FWD_HPP_INCLUDED
+#endif // NDNBOOST_MPL_LAMBDA_FWD_HPP_INCLUDED

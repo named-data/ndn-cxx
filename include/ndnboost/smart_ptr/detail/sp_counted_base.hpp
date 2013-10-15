@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -20,16 +20,16 @@
 #include <ndnboost/config.hpp>
 #include <ndnboost/smart_ptr/detail/sp_has_sync.hpp>
 
-#if defined( BOOST_SP_DISABLE_THREADS )
+#if defined( NDNBOOST_SP_DISABLE_THREADS )
 # include <ndnboost/smart_ptr/detail/sp_counted_base_nt.hpp>
 
-#elif defined( BOOST_SP_USE_SPINLOCK )
+#elif defined( NDNBOOST_SP_USE_SPINLOCK )
 # include <ndnboost/smart_ptr/detail/sp_counted_base_spin.hpp>
 
-#elif defined( BOOST_SP_USE_PTHREADS )
+#elif defined( NDNBOOST_SP_USE_PTHREADS )
 # include <ndnboost/smart_ptr/detail/sp_counted_base_pt.hpp>
 
-#elif defined( BOOST_DISABLE_THREADS ) && !defined( BOOST_SP_ENABLE_THREADS ) && !defined( BOOST_DISABLE_WIN32 )
+#elif defined( NDNBOOST_DISABLE_THREADS ) && !defined( NDNBOOST_SP_ENABLE_THREADS ) && !defined( NDNBOOST_DISABLE_WIN32 )
 # include <ndnboost/smart_ptr/detail/sp_counted_base_nt.hpp>
 
 #elif defined( __SNC__ )
@@ -56,7 +56,7 @@
 #elif defined( __GNUC__ ) && ( defined( __mips__ ) || defined( _mips ) ) && !defined(__PATHSCALE__)
 # include <ndnboost/smart_ptr/detail/sp_counted_base_gcc_mips.hpp>
 
-#elif defined( BOOST_SP_HAS_SYNC )
+#elif defined( NDNBOOST_SP_HAS_SYNC )
 # include <ndnboost/smart_ptr/detail/sp_counted_base_sync.hpp>
 
 #elif defined(__GNUC__) && ( defined( __sparcv9 ) || ( defined( __sparcv8 ) && ( __GNUC__ * 100 + __GNUC_MINOR__ >= 402 ) ) )
@@ -68,7 +68,7 @@
 #elif defined( _AIX )
 # include <ndnboost/smart_ptr/detail/sp_counted_base_aix.hpp>
 
-#elif !defined( BOOST_HAS_THREADS )
+#elif !defined( NDNBOOST_HAS_THREADS )
 # include <ndnboost/smart_ptr/detail/sp_counted_base_nt.hpp>
 
 #else
@@ -76,4 +76,4 @@
 
 #endif
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_HPP_INCLUDED

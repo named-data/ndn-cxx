@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_CONTAINS_FWD_HPP_INCLUDED
-#define BOOST_MPL_CONTAINS_FWD_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_CONTAINS_FWD_HPP_INCLUDED
+#define NDNBOOST_MPL_CONTAINS_FWD_HPP_INCLUDED
 
 // Copyright Eric Friedman 2002
 // Copyright Aleksey Gurtovoy 2004
@@ -22,4 +22,4 @@ template< typename Sequence, typename T > struct contains;
 
 }}
 
-#endif // BOOST_MPL_CONTAINS_FWD_HPP_INCLUDED
+#endif // NDNBOOST_MPL_CONTAINS_FWD_HPP_INCLUDED

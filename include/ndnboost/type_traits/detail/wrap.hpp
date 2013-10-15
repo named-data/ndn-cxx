@@ -5,8 +5,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_DETAIL_WRAP_HPP_INCLUDED
-#define BOOST_TT_DETAIL_WRAP_HPP_INCLUDED
+#ifndef NDNBOOST_TT_DETAIL_WRAP_HPP_INCLUDED
+#define NDNBOOST_TT_DETAIL_WRAP_HPP_INCLUDED
 
 namespace ndnboost {
 namespace type_traits {
@@ -15,4 +15,4 @@ template <class T> struct wrap {};
 
 }} // namespace ndnboost::type_traits
 
-#endif // BOOST_TT_DETAIL_WRAP_HPP_INCLUDED
+#endif // NDNBOOST_TT_DETAIL_WRAP_HPP_INCLUDED

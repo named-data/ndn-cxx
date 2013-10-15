@@ -7,9 +7,9 @@
 //
 //  defines is_same:
 
-#ifndef BOOST_TT_SAME_TRAITS_HPP_INCLUDED
-#define BOOST_TT_SAME_TRAITS_HPP_INCLUDED
+#ifndef NDNBOOST_TT_SAME_TRAITS_HPP_INCLUDED
+#define NDNBOOST_TT_SAME_TRAITS_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_same.hpp>
 
-#endif  // BOOST_TT_SAME_TRAITS_HPP_INCLUDED
+#endif  // NDNBOOST_TT_SAME_TRAITS_HPP_INCLUDED

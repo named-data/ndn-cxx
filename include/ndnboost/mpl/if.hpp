@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_IF_HPP_INCLUDED
-#define BOOST_MPL_IF_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_IF_HPP_INCLUDED
+#define NDNBOOST_MPL_IF_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -24,7 +24,7 @@
 
 namespace ndnboost { namespace mpl {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template<
       bool C
@@ -48,19 +48,19 @@ struct if_c<false,T1,T2>
 // agurt, 05/sep/04: nondescriptive parameter names for the sake of DigitalMars
 // (and possibly MWCW < 8.0); see http://article.gmane.org/gmane.comp.lib.boost.devel/108959
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(T1)
-    , typename BOOST_MPL_AUX_NA_PARAM(T2)
-    , typename BOOST_MPL_AUX_NA_PARAM(T3)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(T1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(T2)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(T3)
     >
 struct if_
 {
  private:
     // agurt, 02/jan/03: two-step 'type' definition for the sake of aCC 
     typedef if_c<
-#if defined(BOOST_MPL_CFG_BCC_INTEGRAL_CONSTANTS)
-          BOOST_MPL_AUX_VALUE_WKND(T1)::value
+#if defined(NDNBOOST_MPL_CFG_BCC_INTEGRAL_CONSTANTS)
+          NDNBOOST_MPL_AUX_VALUE_WKND(T1)::value
 #else
-          BOOST_MPL_AUX_STATIC_CAST(bool, BOOST_MPL_AUX_VALUE_WKND(T1)::value)
+          NDNBOOST_MPL_AUX_STATIC_CAST(bool, NDNBOOST_MPL_AUX_VALUE_WKND(T1)::value)
 #endif
         , T2
         , T3
@@ -69,7 +69,7 @@ struct if_
  public:
     typedef typename almost_type_::type type;
     
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(3,if_,(T1,T2,T3))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(3,if_,(T1,T2,T3))
 };
 
 #else
@@ -112,24 +112,24 @@ struct if_c
 // (almost) copy & paste in order to save one more 
 // recursively nested template instantiation to user
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(C_)
-    , typename BOOST_MPL_AUX_NA_PARAM(T1)
-    , typename BOOST_MPL_AUX_NA_PARAM(T2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(C_)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(T1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(T2)
     >
 struct if_
 {
-    enum { msvc_wknd_ = BOOST_MPL_AUX_MSVC_VALUE_WKND(C_)::value };
+    enum { msvc_wknd_ = NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(C_)::value };
 
-    typedef typename aux::if_impl< BOOST_MPL_AUX_STATIC_CAST(bool, msvc_wknd_) >
+    typedef typename aux::if_impl< NDNBOOST_MPL_AUX_STATIC_CAST(bool, msvc_wknd_) >
         ::template result_<T1,T2>::type type;
 
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(3,if_,(C_,T1,T2))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(3,if_,(C_,T1,T2))
 };
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
-BOOST_MPL_AUX_NA_SPEC(3, if_)
+NDNBOOST_MPL_AUX_NA_SPEC(3, if_)
 
 }}
 
-#endif // BOOST_MPL_IF_HPP_INCLUDED
+#endif // NDNBOOST_MPL_IF_HPP_INCLUDED

@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_NUMERIC_CAST_HPP_INCLUDED
-#define BOOST_MPL_AUX_NUMERIC_CAST_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_NUMERIC_CAST_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_NUMERIC_CAST_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2003-2004
 //
@@ -28,10 +28,10 @@ template<
 struct cast1st_impl
 {
     template< typename N1, typename N2 > struct apply
-#if !defined(BOOST_MPL_CFG_NO_NESTED_FORWARDING)
+#if !defined(NDNBOOST_MPL_CFG_NO_NESTED_FORWARDING)
         : apply_wrap2< 
               F
-            , typename apply_wrap1< BOOST_MPL_AUX_NUMERIC_CAST<Tag1,Tag2>,N1 >::type
+            , typename apply_wrap1< NDNBOOST_MPL_AUX_NUMERIC_CAST<Tag1,Tag2>,N1 >::type
             , N2
             >
     {
@@ -39,7 +39,7 @@ struct cast1st_impl
     {
     typedef typename apply_wrap2< 
               F
-            , typename apply_wrap1< BOOST_MPL_AUX_NUMERIC_CAST<Tag1,Tag2>,N1 >::type
+            , typename apply_wrap1< NDNBOOST_MPL_AUX_NUMERIC_CAST<Tag1,Tag2>,N1 >::type
             , N2
             >::type type;
 #endif
@@ -54,11 +54,11 @@ template<
 struct cast2nd_impl
 {
     template< typename N1, typename N2 > struct apply
-#if !defined(BOOST_MPL_CFG_NO_NESTED_FORWARDING)
+#if !defined(NDNBOOST_MPL_CFG_NO_NESTED_FORWARDING)
         : apply_wrap2< 
               F
             , N1
-            , typename apply_wrap1< BOOST_MPL_AUX_NUMERIC_CAST<Tag2,Tag1>,N2 >::type
+            , typename apply_wrap1< NDNBOOST_MPL_AUX_NUMERIC_CAST<Tag2,Tag1>,N2 >::type
             >
     {
 #else
@@ -66,7 +66,7 @@ struct cast2nd_impl
         typedef typename apply_wrap2< 
               F
             , N1
-            , typename apply_wrap1< BOOST_MPL_AUX_NUMERIC_CAST<Tag2,Tag1>,N2 >::type
+            , typename apply_wrap1< NDNBOOST_MPL_AUX_NUMERIC_CAST<Tag2,Tag1>,N2 >::type
             >::type type;
 #endif
     };
@@ -74,4 +74,4 @@ struct cast2nd_impl
 
 }}}
 
-#endif // BOOST_MPL_AUX_NUMERIC_CAST_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_NUMERIC_CAST_HPP_INCLUDED

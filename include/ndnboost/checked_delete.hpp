@@ -1,5 +1,5 @@
-#ifndef BOOST_CHECKED_DELETE_HPP_INCLUDED
-#define BOOST_CHECKED_DELETE_HPP_INCLUDED
+#ifndef NDNBOOST_CHECKED_DELETE_HPP_INCLUDED
+#define NDNBOOST_CHECKED_DELETE_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -66,4 +66,4 @@ template<class T> struct checked_array_deleter
 
 } // namespace ndnboost
 
-#endif  // #ifndef BOOST_CHECKED_DELETE_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_CHECKED_DELETE_HPP_INCLUDED

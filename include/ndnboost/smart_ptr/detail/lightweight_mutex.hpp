@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -28,15 +28,15 @@
 
 #include <ndnboost/config.hpp>
 
-#if !defined(BOOST_HAS_THREADS)
+#if !defined(NDNBOOST_HAS_THREADS)
 #  include <ndnboost/smart_ptr/detail/lwm_nop.hpp>
-#elif defined(BOOST_HAS_PTHREADS)
+#elif defined(NDNBOOST_HAS_PTHREADS)
 #  include <ndnboost/smart_ptr/detail/lwm_pthreads.hpp>
-#elif defined(BOOST_HAS_WINTHREADS) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+#elif defined(NDNBOOST_HAS_WINTHREADS) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
 #  include <ndnboost/smart_ptr/detail/lwm_win32_cs.hpp>
 #else
-// Use #define BOOST_DISABLE_THREADS to avoid the error
+// Use #define NDNBOOST_DISABLE_THREADS to avoid the error
 #  error Unrecognized threading platform
 #endif
 
-#endif // #ifndef BOOST_SMART_PTR_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_SMART_PTR_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED

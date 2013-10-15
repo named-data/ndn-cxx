@@ -5,8 +5,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_DETAIL_ICE_EQ_HPP_INCLUDED
-#define BOOST_TT_DETAIL_ICE_EQ_HPP_INCLUDED
+#ifndef NDNBOOST_TT_DETAIL_ICE_EQ_HPP_INCLUDED
+#define NDNBOOST_TT_DETAIL_ICE_EQ_HPP_INCLUDED
 
 #include <ndnboost/config.hpp>
 
@@ -16,16 +16,16 @@ namespace type_traits {
 template <int b1, int b2>
 struct ice_eq
 {
-    BOOST_STATIC_CONSTANT(bool, value = (b1 == b2));
+    NDNBOOST_STATIC_CONSTANT(bool, value = (b1 == b2));
 };
 
 template <int b1, int b2>
 struct ice_ne
 {
-    BOOST_STATIC_CONSTANT(bool, value = (b1 != b2));
+    NDNBOOST_STATIC_CONSTANT(bool, value = (b1 != b2));
 };
 
-#ifndef BOOST_NO_INCLASS_MEMBER_INITIALIZATION
+#ifndef NDNBOOST_NO_INCLASS_MEMBER_INITIALIZATION
 template <int b1, int b2> bool const ice_eq<b1,b2>::value;
 template <int b1, int b2> bool const ice_ne<b1,b2>::value;
 #endif
@@ -33,4 +33,4 @@ template <int b1, int b2> bool const ice_ne<b1,b2>::value;
 } // namespace type_traits
 } // namespace ndnboost
 
-#endif // BOOST_TT_DETAIL_ICE_EQ_HPP_INCLUDED
+#endif // NDNBOOST_TT_DETAIL_ICE_EQ_HPP_INCLUDED

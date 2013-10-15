@@ -10,12 +10,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_INTRUSIVE_CONFIG_INCLUDED
-#define BOOST_INTRUSIVE_CONFIG_INCLUDED
+#ifndef NDNBOOST_INTRUSIVE_CONFIG_INCLUDED
+#define NDNBOOST_INTRUSIVE_CONFIG_INCLUDED
 #include <ndnboost/config.hpp>
 #endif
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 
    #pragma warning (push)
    //
@@ -48,5 +48,5 @@
    #pragma warning (disable : 4512) //'typeid' used on polymorphic type 'ndnboost::exception' with /GR-
 #endif
 
-//#define BOOST_INTRUSIVE_USE_ITERATOR_FACADE
-//#define BOOST_INTRUSIVE_USE_ITERATOR_ENABLE_IF_CONVERTIBLE
+//#define NDNBOOST_INTRUSIVE_USE_ITERATOR_FACADE
+//#define NDNBOOST_INTRUSIVE_USE_ITERATOR_ENABLE_IF_CONVERTIBLE

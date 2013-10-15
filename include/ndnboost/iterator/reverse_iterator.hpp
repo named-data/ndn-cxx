@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-#ifndef BOOST_REVERSE_ITERATOR_23022003THW_HPP
-#define BOOST_REVERSE_ITERATOR_23022003THW_HPP
+#ifndef NDNBOOST_REVERSE_ITERATOR_23022003THW_HPP
+#define NDNBOOST_REVERSE_ITERATOR_23022003THW_HPP
 
 #include <ndnboost/next_prior.hpp>
 #include <ndnboost/iterator.hpp>
@@ -66,4 +66,4 @@ namespace ndnboost
 
 } // namespace ndnboost
 
-#endif // BOOST_REVERSE_ITERATOR_23022003THW_HPP
+#endif // NDNBOOST_REVERSE_ITERATOR_23022003THW_HPP

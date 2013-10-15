@@ -3,8 +3,8 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_TYPE_DWA20010120_HPP
-# define BOOST_TYPE_DWA20010120_HPP
+#ifndef NDNBOOST_TYPE_DWA20010120_HPP
+# define NDNBOOST_TYPE_DWA20010120_HPP
 
 namespace ndnboost {
 
@@ -15,4 +15,4 @@ namespace ndnboost {
 
 }
 
-#endif // BOOST_TYPE_DWA20010120_HPP
+#endif // NDNBOOST_TYPE_DWA20010120_HPP

@@ -14,8 +14,8 @@
 //  completely hidden with pimple idiom
 // ***************************************************************************
 
-#ifndef BOOST_TEST_UNIT_TEST_LOG_HPP_071894GER
-#define BOOST_TEST_UNIT_TEST_LOG_HPP_071894GER
+#ifndef NDNBOOST_TEST_UNIT_TEST_LOG_HPP_071894GER
+#define NDNBOOST_TEST_UNIT_TEST_LOG_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/test_observer.hpp>
@@ -48,7 +48,7 @@ namespace unit_test {
 
 namespace log {
 
-struct BOOST_TEST_DECL begin {
+struct NDNBOOST_TEST_DECL begin {
     begin( const_string fn, std::size_t ln )
     : m_file_name( fn )
     , m_line_num( ln )
@@ -68,7 +68,7 @@ struct end {};
 
 namespace ut_detail {
 
-class BOOST_TEST_DECL entry_value_collector {
+class NDNBOOST_TEST_DECL entry_value_collector {
 public:
     // Constructors
     entry_value_collector() : m_last( true ) {}
@@ -90,7 +90,7 @@ private:
 // **************                 unit_test_log                ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL unit_test_log_t : public test_observer, public singleton<unit_test_log_t> {
+class NDNBOOST_TEST_DECL unit_test_log_t : public test_observer, public singleton<unit_test_log_t> {
 public:
     // test_observer interface implementation
     void                test_start( counter_t test_cases_amount );
@@ -128,15 +128,15 @@ public:
 private:
     bool            log_entry_start();
 
-    BOOST_TEST_SINGLETON_CONS( unit_test_log_t );
+    NDNBOOST_TEST_SINGLETON_CONS( unit_test_log_t );
 }; // unit_test_log_t
 
-BOOST_TEST_SINGLETON_INST( unit_test_log )
+NDNBOOST_TEST_SINGLETON_INST( unit_test_log )
 
 // helper macros
-#define BOOST_TEST_LOG_ENTRY( ll )                                                  \
+#define NDNBOOST_TEST_LOG_ENTRY( ll )                                                  \
     (::ndnboost::unit_test::unit_test_log                                              \
-        << ::ndnboost::unit_test::log::begin( BOOST_TEST_L(__FILE__), __LINE__ ))(ll)  \
+        << ::ndnboost::unit_test::log::begin( NDNBOOST_TEST_L(__FILE__), __LINE__ ))(ll)  \
 /**/
 
 } // namespace unit_test
@@ -147,24 +147,24 @@ BOOST_TEST_SINGLETON_INST( unit_test_log )
 // **************       Unit test log interface helpers        ************** //
 // ************************************************************************** //
 
-#define BOOST_TEST_MESSAGE( M )                                 \
-    BOOST_TEST_LOG_ENTRY( ::ndnboost::unit_test::log_messages )    \
+#define NDNBOOST_TEST_MESSAGE( M )                                 \
+    NDNBOOST_TEST_LOG_ENTRY( ::ndnboost::unit_test::log_messages )    \
     << (::ndnboost::unit_test::lazy_ostream::instance() << M)      \
 /**/
 
 //____________________________________________________________________________//
 
-#define BOOST_TEST_PASSPOINT()                                  \
+#define NDNBOOST_TEST_PASSPOINT()                                  \
     ::ndnboost::unit_test::unit_test_log.set_checkpoint(           \
-        BOOST_TEST_L(__FILE__),                                 \
+        NDNBOOST_TEST_L(__FILE__),                                 \
         static_cast<std::size_t>(__LINE__) )                    \
 /**/
 
 //____________________________________________________________________________//
 
-#define BOOST_TEST_CHECKPOINT( M )                              \
+#define NDNBOOST_TEST_CHECKPOINT( M )                              \
     ::ndnboost::unit_test::unit_test_log.set_checkpoint(           \
-        BOOST_TEST_L(__FILE__),                                 \
+        NDNBOOST_TEST_L(__FILE__),                                 \
         static_cast<std::size_t>(__LINE__),                     \
         (::ndnboost::wrap_stringstream().ref() << M).str() )       \
 /**/
@@ -173,5 +173,5 @@ BOOST_TEST_SINGLETON_INST( unit_test_log )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_UNIT_TEST_LOG_HPP_071894GER
+#endif // NDNBOOST_TEST_UNIT_TEST_LOG_HPP_071894GER
 

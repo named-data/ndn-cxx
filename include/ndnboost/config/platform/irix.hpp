@@ -9,22 +9,22 @@
 
 //  SGI Irix specific config options:
 
-#define BOOST_PLATFORM "SGI Irix"
+#define NDNBOOST_PLATFORM "SGI Irix"
 
-#define BOOST_NO_SWPRINTF 
+#define NDNBOOST_NO_SWPRINTF 
 //
 // these are not auto detected by POSIX feature tests:
 //
-#define BOOST_HAS_GETTIMEOFDAY
-#define BOOST_HAS_PTHREAD_MUTEXATTR_SETTYPE
+#define NDNBOOST_HAS_GETTIMEOFDAY
+#define NDNBOOST_HAS_PTHREAD_MUTEXATTR_SETTYPE
 
 #ifdef __GNUC__
    // GNU C on IRIX does not support threads (checked up to gcc 3.3)
-#  define BOOST_DISABLE_THREADS
+#  define NDNBOOST_DISABLE_THREADS
 #endif
 
 // boilerplate code:
-#define BOOST_HAS_UNISTD_H
+#define NDNBOOST_HAS_UNISTD_H
 #include <ndnboost/config/posix_features.hpp>
 
 

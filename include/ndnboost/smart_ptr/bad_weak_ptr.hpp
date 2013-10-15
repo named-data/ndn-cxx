@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_BAD_WEAK_PTR_HPP_INCLUDED
-#define BOOST_SMART_PTR_BAD_WEAK_PTR_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_BAD_WEAK_PTR_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_BAD_WEAK_PTR_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -56,4 +56,4 @@ public:
 # pragma warn .8026     // Functions with excep. spec. are not expanded inline
 #endif
 
-#endif  // #ifndef BOOST_SMART_PTR_BAD_WEAK_PTR_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_BAD_WEAK_PTR_HPP_INCLUDED

@@ -8,8 +8,8 @@
 //
 // For more information, see www.boost.org
 
-#ifndef BOOST_LAMBDA_OPERATOR_RETURN_TYPE_TRAITS_HPP
-#define BOOST_LAMBDA_OPERATOR_RETURN_TYPE_TRAITS_HPP
+#ifndef NDNBOOST_LAMBDA_OPERATOR_RETURN_TYPE_TRAITS_HPP
+#define NDNBOOST_LAMBDA_OPERATOR_RETURN_TYPE_TRAITS_HPP
 
 #include "ndnboost/lambda/detail/is_instance_of.hpp"
 #include "ndnboost/type_traits/same_traits.hpp"
@@ -530,13 +530,13 @@ struct return_type_2<bitwise_action<Act>, A, B>
   // bitwise operators not defined for floating point types
   // these test are not strictly needed here, since the error will be caught in
   // the apply function
-  BOOST_STATIC_ASSERT(!(ndnboost::is_float<plain_A>::value && ndnboost::is_float<plain_B>::value));
+  NDNBOOST_STATIC_ASSERT(!(ndnboost::is_float<plain_A>::value && ndnboost::is_float<plain_B>::value));
 
 };
 
 namespace detail {
 
-#ifdef BOOST_NO_TEMPLATED_STREAMS
+#ifdef NDNBOOST_NO_TEMPLATED_STREAMS
 
 template<class A, class B>
 struct leftshift_type {

@@ -12,8 +12,8 @@
 //  Description : simple facilities for accessing type information at runtime
 // ***************************************************************************
 
-#ifndef BOOST_TEST_RTTI_HPP_062604GER
-#define BOOST_TEST_RTTI_HPP_062604GER
+#ifndef NDNBOOST_TEST_RTTI_HPP_062604GER
+#define NDNBOOST_TEST_RTTI_HPP_062604GER
 
 #include <cstddef>
 
@@ -52,8 +52,8 @@ type_id()
 
 //____________________________________________________________________________//
 
-#define BOOST_RTTI_SWITCH( type_id_ ) if( ::ndnboost::rtti::id_t switch_by_id = type_id_ )
-#define BOOST_RTTI_CASE( type )       if( switch_by_id == ::ndnboost::rtti::type_id<type>() )
+#define NDNBOOST_RTTI_SWITCH( type_id_ ) if( ::ndnboost::rtti::id_t switch_by_id = type_id_ )
+#define NDNBOOST_RTTI_CASE( type )       if( switch_by_id == ::ndnboost::rtti::type_id<type>() )
 
 //____________________________________________________________________________//
 
@@ -61,4 +61,4 @@ type_id()
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_RTTI_HPP_062604GER
+#endif // NDNBOOST_RT_RTTI_HPP_062604GER

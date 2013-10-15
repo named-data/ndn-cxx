@@ -12,7 +12,7 @@
 //  Description : suppress some warnings 
 // ***************************************************************************
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 # pragma warning(push)
 # pragma warning(disable: 4511) // copy constructor can't not be generated
 # pragma warning(disable: 4512) // assignment operator can't not be generated

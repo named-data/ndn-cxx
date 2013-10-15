@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_COMPARE_HPP
-#define BOOST_STRING_COMPARE_HPP
+#ifndef NDNBOOST_STRING_COMPARE_HPP
+#define NDNBOOST_STRING_COMPARE_HPP
 
 #include <ndnboost/algorithm/string/config.hpp>
 #include <locale>
@@ -196,4 +196,4 @@ namespace ndnboost {
 } // namespace ndnboost
 
 
-#endif  // BOOST_STRING_COMPARE_HPP
+#endif  // NDNBOOST_STRING_COMPARE_HPP

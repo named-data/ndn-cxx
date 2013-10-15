@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_VECTOR_AUX_AT_HPP_INCLUDED
-#define BOOST_MPL_VECTOR_AUX_AT_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_VECTOR_AUX_AT_HPP_INCLUDED
+#define NDNBOOST_MPL_VECTOR_AUX_AT_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -26,7 +26,7 @@
 
 namespace ndnboost { namespace mpl {
 
-#if defined(BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
+#if defined(NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
 
 template< typename Vector, long n_ >
 struct v_at_impl
@@ -48,7 +48,7 @@ struct at_impl< aux::vector_tag >
     template< typename Vector, typename N > struct apply
         : v_at<
               Vector
-            , BOOST_MPL_AUX_VALUE_WKND(N)::value
+            , NDNBOOST_MPL_AUX_VALUE_WKND(N)::value
             >
     {
     };
@@ -56,26 +56,26 @@ struct at_impl< aux::vector_tag >
 
 #else
 
-#   if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
-    && !defined(BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC)
+#   if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
+    && !defined(NDNBOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC)
 
-template< typename Vector, BOOST_MPL_AUX_NTTP_DECL(long, n_) > struct v_at;
+template< typename Vector, NDNBOOST_MPL_AUX_NTTP_DECL(long, n_) > struct v_at;
 
-template< BOOST_MPL_AUX_NTTP_DECL(long, n_) >
+template< NDNBOOST_MPL_AUX_NTTP_DECL(long, n_) >
 struct at_impl< aux::vector_tag<n_> >
 {
     template< typename Vector, typename N > struct apply
 #if !defined(__BORLANDC__)
         : v_at<
               Vector
-            , BOOST_MPL_AUX_VALUE_WKND(N)::value
+            , NDNBOOST_MPL_AUX_VALUE_WKND(N)::value
             >
     {
 #else
     {
         typedef typename v_at<
               Vector
-            , BOOST_MPL_AUX_VALUE_WKND(N)::value
+            , NDNBOOST_MPL_AUX_VALUE_WKND(N)::value
             >::type type;
 #endif
     };
@@ -85,7 +85,7 @@ struct at_impl< aux::vector_tag<n_> >
 
 namespace aux {
 
-template< BOOST_MPL_AUX_NTTP_DECL(long, n_) > struct v_at_impl
+template< NDNBOOST_MPL_AUX_NTTP_DECL(long, n_) > struct v_at_impl
 {
     template< typename V > struct result_;
 };
@@ -101,16 +101,16 @@ template<> struct v_at_impl<-1>
 
 } // namespace aux
 
-template< typename T, BOOST_MPL_AUX_NTTP_DECL(long, n_) >
+template< typename T, NDNBOOST_MPL_AUX_NTTP_DECL(long, n_) >
 struct v_at
     : aux::v_at_impl<n_>::template result_<T>
 {
 };
 
-#   endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#   endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
-#endif // BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
+#endif // NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
 
 }}
 
-#endif // BOOST_MPL_VECTOR_AUX_AT_HPP_INCLUDED
+#endif // NDNBOOST_MPL_VECTOR_AUX_AT_HPP_INCLUDED

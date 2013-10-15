@@ -8,8 +8,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_HAS_TRIVIAL_MOVE_CONSTRUCTOR_HPP_INCLUDED
-#define BOOST_TT_HAS_TRIVIAL_MOVE_CONSTRUCTOR_HPP_INCLUDED
+#ifndef NDNBOOST_TT_HAS_TRIVIAL_MOVE_CONSTRUCTOR_HPP_INCLUDED
+#define NDNBOOST_TT_HAS_TRIVIAL_MOVE_CONSTRUCTOR_HPP_INCLUDED
 
 #include <ndnboost/type_traits/config.hpp>
 #include <ndnboost/type_traits/intrinsics.hpp>
@@ -28,10 +28,10 @@ namespace detail {
 template <typename T>
 struct has_trivial_move_ctor_impl
 {
-#ifdef BOOST_HAS_TRIVIAL_MOVE_CONSTRUCTOR
-   BOOST_STATIC_CONSTANT(bool, value = (BOOST_HAS_TRIVIAL_MOVE_CONSTRUCTOR(T)));
+#ifdef NDNBOOST_HAS_TRIVIAL_MOVE_CONSTRUCTOR
+   NDNBOOST_STATIC_CONSTANT(bool, value = (NDNBOOST_HAS_TRIVIAL_MOVE_CONSTRUCTOR(T)));
 #else
-   BOOST_STATIC_CONSTANT(bool, value =
+   NDNBOOST_STATIC_CONSTANT(bool, value =
            (::ndnboost::type_traits::ice_and<
               ::ndnboost::is_pod<T>::value,
               ::ndnboost::type_traits::ice_not< ::ndnboost::is_volatile<T>::value >::value
@@ -41,17 +41,17 @@ struct has_trivial_move_ctor_impl
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(has_trivial_move_constructor,T,::ndnboost::detail::has_trivial_move_ctor_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(has_trivial_move_constructor,T,::ndnboost::detail::has_trivial_move_ctor_impl<T>::value)
 
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_trivial_move_constructor,void,false)
-#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_trivial_move_constructor,void const,false)
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_trivial_move_constructor,void const volatile,false)
-BOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_trivial_move_constructor,void volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_trivial_move_constructor,void,false)
+#ifndef NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_trivial_move_constructor,void const,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_trivial_move_constructor,void const volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_SPEC1(has_trivial_move_constructor,void volatile,false)
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_HAS_TRIVIAL_MOVE_CONSTRUCTOR_HPP_INCLUDED
+#endif // NDNBOOST_TT_HAS_TRIVIAL_MOVE_CONSTRUCTOR_HPP_INCLUDED

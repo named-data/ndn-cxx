@@ -8,8 +8,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_CONTAINER_CONTAINER_FWD_HPP
-#define BOOST_CONTAINER_CONTAINER_FWD_HPP
+#ifndef NDNBOOST_CONTAINER_CONTAINER_FWD_HPP
+#define NDNBOOST_CONTAINER_CONTAINER_FWD_HPP
 
 #if (defined _MSC_VER) && (_MSC_VER >= 1200)
 #  pragma once
@@ -170,4 +170,4 @@ struct dummy
 
 }}  //namespace ndnboost { namespace container {
 
-#endif //#ifndef BOOST_CONTAINER_CONTAINER_FWD_HPP
+#endif //#ifndef NDNBOOST_CONTAINER_CONTAINER_FWD_HPP

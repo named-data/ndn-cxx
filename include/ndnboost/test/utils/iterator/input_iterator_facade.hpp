@@ -12,8 +12,8 @@
 //  Description : Input iterator facade 
 // ***************************************************************************
 
-#ifndef BOOST_INPUT_ITERATOR_FACADE_HPP_071894GER
-#define BOOST_INPUT_ITERATOR_FACADE_HPP_071894GER
+#ifndef NDNBOOST_INPUT_ITERATOR_FACADE_HPP_071894GER
+#define NDNBOOST_INPUT_ITERATOR_FACADE_HPP_071894GER
 
 // Boost
 #include <ndnboost/iterator/iterator_facade.hpp>
@@ -32,7 +32,7 @@ namespace unit_test {
 
 class input_iterator_core_access
 {
-#if defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS) || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x551))
+#if defined(NDNBOOST_NO_MEMBER_TEMPLATE_FRIENDS) || NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x551))
 public:
 #else
     template <class I, class V, class R, class TC> friend class input_iterator_facade;
@@ -105,5 +105,5 @@ private:
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_INPUT_ITERATOR_FACADE_HPP_071894GER
+#endif // NDNBOOST_INPUT_ITERATOR_FACADE_HPP_071894GER
 

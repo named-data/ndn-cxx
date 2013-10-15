@@ -12,8 +12,8 @@
 //  Description : defines model of program environment variable
 // ***************************************************************************
 
-#ifndef BOOST_RT_ENV_VARIABLE_HPP_062604GER
-#define BOOST_RT_ENV_VARIABLE_HPP_062604GER
+#ifndef NDNBOOST_RT_ENV_VARIABLE_HPP_062604GER
+#define NDNBOOST_RT_ENV_VARIABLE_HPP_062604GER
 
 #ifdef UNDER_CE
 #error Windows CE does not support environment variables.
@@ -32,7 +32,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace environment {
 
@@ -104,8 +104,8 @@ public:
     // access methods
     T const&    value() const                               { return variable_base::value<T>(); }
 
-#if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3206)) || \
-    BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0593))
+#if NDNBOOST_WORKAROUND(__MWERKS__, NDNBOOST_TESTED_AT(0x3206)) || \
+    NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x0593))
     template<typename T>
     void        value( ndnboost::optional<T>& res ) const      { variable_base::value( res ); }
 #else
@@ -179,7 +179,7 @@ operator!=( V const& v, variable<T> ev )
 
 } // namespace environment
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
@@ -195,7 +195,7 @@ operator!=( V const& v, variable<T> ev )
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace environment {
 
@@ -216,8 +216,8 @@ variable<T>::variable( cstring var_name, Modifiers const& m )
 
 } // namespace environment
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_ENV_VARIABLE_HPP_062604GER
+#endif // NDNBOOST_RT_ENV_VARIABLE_HPP_062604GER

@@ -44,7 +44,7 @@ template<> struct lambda_impl< int_<1> >
         typedef lambda< typename F::arg1, Tag, false_ > l1;
         typedef typename l1::is_le is_le1;
         typedef aux::lambda_or<
-              BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le1)::value
+              NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le1)::value
             > is_le;
 
         typedef bind1<
@@ -74,7 +74,7 @@ template<> struct lambda_impl< int_<2> >
         
 
         typedef aux::lambda_or<
-              BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le1)::value, BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le2)::value
+              NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le1)::value, NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le2)::value
             > is_le;
 
         typedef bind2<
@@ -106,7 +106,7 @@ template<> struct lambda_impl< int_<3> >
         
 
         typedef aux::lambda_or<
-              BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le1)::value, BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le2)::value, BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le3)::value
+              NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le1)::value, NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le2)::value, NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le3)::value
             > is_le;
 
         typedef bind3<
@@ -140,7 +140,7 @@ template<> struct lambda_impl< int_<4> >
         
 
         typedef aux::lambda_or<
-              BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le1)::value, BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le2)::value, BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le3)::value, BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le4)::value
+              NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le1)::value, NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le2)::value, NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le3)::value, NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le4)::value
             > is_le;
 
         typedef bind4<
@@ -177,7 +177,7 @@ template<> struct lambda_impl< int_<5> >
         
 
         typedef aux::lambda_or<
-              BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le1)::value, BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le2)::value, BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le3)::value, BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le4)::value, BOOST_MPL_AUX_MSVC_VALUE_WKND(is_le5)::value
+              NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le1)::value, NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le2)::value, NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le3)::value, NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le4)::value, NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(is_le5)::value
             > is_le;
 
         typedef bind5<
@@ -212,10 +212,10 @@ struct lambda
 
     typedef typename l_::type type;
     typedef typename l_::is_le is_le;
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(3, lambda, (T, Tag, Protect))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(3, lambda, (T, Tag, Protect))
 };
 
-BOOST_MPL_AUX_NA_SPEC2(1, 3, lambda)
+NDNBOOST_MPL_AUX_NA_SPEC2(1, 3, lambda)
 
 template<
       typename T

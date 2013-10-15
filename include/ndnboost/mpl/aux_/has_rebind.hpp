@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_HAS_REBIND_HPP_INCLUDED
-#define BOOST_MPL_AUX_HAS_REBIND_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_HAS_REBIND_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_HAS_REBIND_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2002-2004
 //
@@ -18,14 +18,14 @@
 #include <ndnboost/mpl/aux_/config/intel.hpp>
 #include <ndnboost/mpl/aux_/config/workaround.hpp>
 
-#if BOOST_WORKAROUND(__EDG_VERSION__, <= 244) && !defined(BOOST_INTEL_CXX_VERSION)
+#if NDNBOOST_WORKAROUND(__EDG_VERSION__, <= 244) && !defined(NDNBOOST_INTEL_CXX_VERSION)
 #   include <ndnboost/mpl/has_xxx.hpp>
-#elif BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#elif NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
 #   include <ndnboost/mpl/has_xxx.hpp>
 #   include <ndnboost/mpl/if.hpp>
 #   include <ndnboost/mpl/bool.hpp>
 #   include <ndnboost/mpl/aux_/msvc_is_class.hpp>
-#elif BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x610))
+#elif NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x610))
 #   include <ndnboost/mpl/if.hpp>
 #   include <ndnboost/mpl/bool.hpp>
 #   include <ndnboost/mpl/aux_/yes_no.hpp>
@@ -39,13 +39,13 @@
 
 namespace ndnboost { namespace mpl { namespace aux {
 
-#if BOOST_WORKAROUND(__EDG_VERSION__, <= 244) && !defined(BOOST_INTEL_CXX_VERSION)
+#if NDNBOOST_WORKAROUND(__EDG_VERSION__, <= 244) && !defined(NDNBOOST_INTEL_CXX_VERSION)
 
-BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(has_rebind, rebind, false)
+NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(has_rebind, rebind, false)
 
-#elif BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#elif NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
 
-BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(has_rebind_impl, rebind, false)
+NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(has_rebind_impl, rebind, false)
 
 template< typename T >
 struct has_rebind
@@ -62,12 +62,12 @@ struct has_rebind
 template< typename T > struct has_rebind_tag {};
 no_tag operator|(has_rebind_tag<int>, void const volatile*);
 
-#   if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x610))
+#   if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x610))
 template< typename T >
 struct has_rebind
 {
     static has_rebind_tag<T>* get();
-    BOOST_STATIC_CONSTANT(bool, value = 
+    NDNBOOST_STATIC_CONSTANT(bool, value = 
           sizeof(has_rebind_tag<int>() | get()) == sizeof(yes_tag)
         );
 };
@@ -76,7 +76,7 @@ template< typename T >
 struct has_rebind_impl
 {
     static T* get();
-    BOOST_STATIC_CONSTANT(bool, value = 
+    NDNBOOST_STATIC_CONSTANT(bool, value = 
           sizeof(has_rebind_tag<int>() | get()) == sizeof(yes_tag)
         );
 };
@@ -96,4 +96,4 @@ struct has_rebind
 
 }}}
 
-#endif // BOOST_MPL_AUX_HAS_REBIND_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_HAS_REBIND_HPP_INCLUDED

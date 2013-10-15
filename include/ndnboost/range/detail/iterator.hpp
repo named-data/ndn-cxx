@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DETAIL_ITERATOR_HPP
-#define BOOST_RANGE_DETAIL_ITERATOR_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_ITERATOR_HPP
+#define NDNBOOST_RANGE_DETAIL_ITERATOR_HPP
 
 #include <ndnboost/range/detail/common.hpp>
 #include <ndnboost/range/detail/remove_extent.hpp>
@@ -39,7 +39,7 @@ namespace ndnboost
             template< typename C >
             struct pts
             {
-                typedef BOOST_RANGE_DEDUCED_TYPENAME C::iterator type;
+                typedef NDNBOOST_RANGE_DEDUCED_TYPENAME C::iterator type;
             };
         };
 
@@ -49,7 +49,7 @@ namespace ndnboost
             template< typename P >
             struct pts
             {
-                typedef BOOST_RANGE_DEDUCED_TYPENAME P::first_type type;
+                typedef NDNBOOST_RANGE_DEDUCED_TYPENAME P::first_type type;
             };
         };
 
@@ -59,7 +59,7 @@ namespace ndnboost
             template< typename T >
             struct pts
             {
-                typedef BOOST_RANGE_DEDUCED_TYPENAME 
+                typedef NDNBOOST_RANGE_DEDUCED_TYPENAME 
                     remove_extent<T>::type* type;
             };
         };
@@ -69,9 +69,9 @@ namespace ndnboost
     template< typename C >
     class range_mutable_iterator
     {
-        typedef BOOST_RANGE_DEDUCED_TYPENAME range_detail::range<C>::type c_type;
+        typedef NDNBOOST_RANGE_DEDUCED_TYPENAME range_detail::range<C>::type c_type;
     public:
-        typedef typename range_detail::range_iterator_<c_type>::BOOST_NESTED_TEMPLATE pts<C>::type type; 
+        typedef typename range_detail::range_iterator_<c_type>::NDNBOOST_NESTED_TEMPLATE pts<C>::type type; 
     };
 }
 

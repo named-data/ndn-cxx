@@ -5,8 +5,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_TYPE_WITH_ALIGNMENT_INCLUDED
-#define BOOST_TT_TYPE_WITH_ALIGNMENT_INCLUDED
+#ifndef NDNBOOST_TT_TYPE_WITH_ALIGNMENT_INCLUDED
+#define NDNBOOST_TT_TYPE_WITH_ALIGNMENT_INCLUDED
 
 #include <ndnboost/mpl/if.hpp>
 #include <ndnboost/preprocessor/list/for_each_i.hpp>
@@ -24,7 +24,7 @@
 
 #include <cstddef>
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #   pragma warning(push)
 #   pragma warning(disable: 4121) // alignment is sensitive to packing
 #endif
@@ -40,28 +40,28 @@ typedef void (*function_ptr)();
 typedef int (alignment_dummy::*member_ptr);
 typedef int (alignment_dummy::*member_function_ptr)();
 
-#ifdef BOOST_HAS_LONG_LONG
-#define BOOST_TT_ALIGNMENT_BASE_TYPES BOOST_PP_TUPLE_TO_LIST( \
+#ifdef NDNBOOST_HAS_LONG_LONG
+#define NDNBOOST_TT_ALIGNMENT_BASE_TYPES NDNBOOST_PP_TUPLE_TO_LIST( \
         12, ( \
         char, short, int, long,  ::ndnboost::long_long_type, float, double, long double \
         , void*, function_ptr, member_ptr, member_function_ptr))
 #else
-#define BOOST_TT_ALIGNMENT_BASE_TYPES BOOST_PP_TUPLE_TO_LIST( \
+#define NDNBOOST_TT_ALIGNMENT_BASE_TYPES NDNBOOST_PP_TUPLE_TO_LIST( \
         11, ( \
         char, short, int, long, float, double, long double \
         , void*, function_ptr, member_ptr, member_function_ptr))
 #endif
 
-#define BOOST_TT_HAS_ONE_T(D,Data,T) ndnboost::detail::has_one_T< T >
+#define NDNBOOST_TT_HAS_ONE_T(D,Data,T) ndnboost::detail::has_one_T< T >
 
-#define BOOST_TT_ALIGNMENT_STRUCT_TYPES                         \
-        BOOST_PP_LIST_TRANSFORM(BOOST_TT_HAS_ONE_T,             \
+#define NDNBOOST_TT_ALIGNMENT_STRUCT_TYPES                         \
+        NDNBOOST_PP_LIST_TRANSFORM(NDNBOOST_TT_HAS_ONE_T,             \
                                 X,                              \
-                                BOOST_TT_ALIGNMENT_BASE_TYPES)
+                                NDNBOOST_TT_ALIGNMENT_BASE_TYPES)
 
-#define BOOST_TT_ALIGNMENT_TYPES                                \
-        BOOST_PP_LIST_APPEND(BOOST_TT_ALIGNMENT_BASE_TYPES,     \
-                             BOOST_TT_ALIGNMENT_STRUCT_TYPES)
+#define NDNBOOST_TT_ALIGNMENT_TYPES                                \
+        NDNBOOST_PP_LIST_APPEND(NDNBOOST_TT_ALIGNMENT_BASE_TYPES,     \
+                             NDNBOOST_TT_ALIGNMENT_STRUCT_TYPES)
 
 //
 // lower_alignment_helper --
@@ -69,7 +69,7 @@ typedef int (alignment_dummy::*member_function_ptr)();
 // This template gets instantiated a lot, so use partial
 // specialization when available to reduce the compiler burden.
 //
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template <bool found = true>
 struct lower_alignment_helper_impl
 {
@@ -113,16 +113,16 @@ struct lower_alignment_helper<false,target,TestType>
 };
 #endif
 
-#define BOOST_TT_CHOOSE_MIN_ALIGNMENT(R,P,I,T)                                  \
+#define NDNBOOST_TT_CHOOSE_MIN_ALIGNMENT(R,P,I,T)                                  \
         typename lower_alignment_helper<                                        \
-          BOOST_PP_CAT(found,I),target,T                                        \
-        >::type BOOST_PP_CAT(t,I);                                              \
+          NDNBOOST_PP_CAT(found,I),target,T                                        \
+        >::type NDNBOOST_PP_CAT(t,I);                                              \
         enum {                                                                  \
-            BOOST_PP_CAT(found,BOOST_PP_INC(I))                                 \
-              = lower_alignment_helper<BOOST_PP_CAT(found,I),target,T >::value  \
+            NDNBOOST_PP_CAT(found,NDNBOOST_PP_INC(I))                                 \
+              = lower_alignment_helper<NDNBOOST_PP_CAT(found,I),target,T >::value  \
         };
 
-#define BOOST_TT_CHOOSE_T(R,P,I,T) T BOOST_PP_CAT(t,I);
+#define NDNBOOST_TT_CHOOSE_T(R,P,I,T) T NDNBOOST_PP_CAT(t,I);
 
 template <typename T>
 struct has_one_T
@@ -135,55 +135,55 @@ union lower_alignment
 {
     enum { found0 = false };
 
-    BOOST_PP_LIST_FOR_EACH_I(
-          BOOST_TT_CHOOSE_MIN_ALIGNMENT
+    NDNBOOST_PP_LIST_FOR_EACH_I(
+          NDNBOOST_TT_CHOOSE_MIN_ALIGNMENT
         , ignored
-        , BOOST_TT_ALIGNMENT_TYPES
+        , NDNBOOST_TT_ALIGNMENT_TYPES
         )
 };
 
 union max_align
 {
-    BOOST_PP_LIST_FOR_EACH_I(
-          BOOST_TT_CHOOSE_T
+    NDNBOOST_PP_LIST_FOR_EACH_I(
+          NDNBOOST_TT_CHOOSE_T
         , ignored
-        , BOOST_TT_ALIGNMENT_TYPES
+        , NDNBOOST_TT_ALIGNMENT_TYPES
         )
 };
 
-#undef BOOST_TT_ALIGNMENT_BASE_TYPES
-#undef BOOST_TT_HAS_ONE_T
-#undef BOOST_TT_ALIGNMENT_STRUCT_TYPES
-#undef BOOST_TT_ALIGNMENT_TYPES
-#undef BOOST_TT_CHOOSE_MIN_ALIGNMENT
-#undef BOOST_TT_CHOOSE_T
+#undef NDNBOOST_TT_ALIGNMENT_BASE_TYPES
+#undef NDNBOOST_TT_HAS_ONE_T
+#undef NDNBOOST_TT_ALIGNMENT_STRUCT_TYPES
+#undef NDNBOOST_TT_ALIGNMENT_TYPES
+#undef NDNBOOST_TT_CHOOSE_MIN_ALIGNMENT
+#undef NDNBOOST_TT_CHOOSE_T
 
 template<std::size_t TAlign, std::size_t Align>
 struct is_aligned
 {
-    BOOST_STATIC_CONSTANT(bool,
+    NDNBOOST_STATIC_CONSTANT(bool,
         value = (TAlign >= Align) & (TAlign % Align == 0)
         );
 };
 
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::max_align,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<1> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<2> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<4> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<8> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<10> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<16> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<32> ,true)
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::max_align,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<1> ,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<2> ,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<4> ,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<8> ,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<10> ,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<16> ,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::detail::lower_alignment<32> ,true)
 #endif
 
 } // namespace detail
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template<std::size_t Align>
 struct is_pod< ::ndnboost::detail::lower_alignment<Align> >
 {
-        BOOST_STATIC_CONSTANT(std::size_t, value = true);
+        NDNBOOST_STATIC_CONSTANT(std::size_t, value = true);
 };
 #endif
 
@@ -201,10 +201,10 @@ class type_with_alignment_imp
         , ::ndnboost::detail::max_align
         >::type align_t;
 
-    BOOST_STATIC_CONSTANT(std::size_t, found = alignment_of<align_t>::value);
+    NDNBOOST_STATIC_CONSTANT(std::size_t, found = alignment_of<align_t>::value);
 
-    BOOST_STATIC_ASSERT(found >= Align);
-    BOOST_STATIC_ASSERT(found % Align == 0);
+    NDNBOOST_STATIC_ASSERT(found >= Align);
+    NDNBOOST_STATIC_ASSERT(found % Align == 0);
 
  public:
     typedef align_t type;
@@ -239,16 +239,16 @@ template<> class type_with_alignment<64> { public: typedef align::a64 type; };
 template<> class type_with_alignment<128> { public: typedef align::a128 type; };
 
 namespace detail {
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a2,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a4,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a8,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a16,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a32,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a64,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a128,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a2,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a4,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a8,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a16,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a32,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a64,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a128,true)
 }
 #endif
-#if (defined(BOOST_MSVC) || (defined(BOOST_INTEL) && defined(_MSC_VER))) && _MSC_VER >= 1300
+#if (defined(NDNBOOST_MSVC) || (defined(NDNBOOST_INTEL) && defined(_MSC_VER))) && _MSC_VER >= 1300
 //
 // MSVC supports types which have alignments greater than the normal
 // maximum: these are used for example in the types __m64 and __m128
@@ -334,11 +334,11 @@ public:
 };
 
 namespace detail {
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a8,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a16,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a32,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a64,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a128,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a8,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a16,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a32,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a64,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a128,true)
 }
 #endif
 
@@ -363,11 +363,11 @@ namespace detail {
 
 typedef ::ndnboost::align::a16 max_align;
 
-//#if ! BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x610))
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a2,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a4,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a8,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a16,true)
+//#if ! NDNBOOST_WORKAROUND(__CODEGEARC__, NDNBOOST_TESTED_AT(0x610))
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a2,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a4,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a8,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::ndnboost::align::a16,true)
 //#endif
 }
 
@@ -375,7 +375,7 @@ template <std::size_t N> struct type_with_alignment
 {
    // We should never get to here, but if we do use the maximally
    // aligned type:
-   // BOOST_STATIC_ASSERT(0);
+   // NDNBOOST_STATIC_ASSERT(0);
    typedef align::a16 type;
 };
 template <> struct type_with_alignment<1>{ typedef char type; };
@@ -388,12 +388,12 @@ template <> struct type_with_alignment<16>{ typedef align::a16 type; };
 
 } // namespace ndnboost
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #   pragma warning(pop)
 #endif
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_TYPE_WITH_ALIGNMENT_INCLUDED
+#endif // NDNBOOST_TT_TYPE_WITH_ALIGNMENT_INCLUDED
 
 

@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_ALIGNED_STORAGE_HPP_INCLUDED
-#  define BOOST_TT_ALIGNED_STORAGE_HPP_INCLUDED
+#ifndef NDNBOOST_TT_ALIGNED_STORAGE_HPP_INCLUDED
+#  define NDNBOOST_TT_ALIGNED_STORAGE_HPP_INCLUDED
 #  include <ndnboost/aligned_storage.hpp>
-#endif // BOOST_TT_ALIGNED_STORAGE_HPP_INCLUDED
+#endif // NDNBOOST_TT_ALIGNED_STORAGE_HPP_INCLUDED
 

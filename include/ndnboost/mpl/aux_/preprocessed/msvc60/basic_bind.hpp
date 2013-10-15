@@ -67,7 +67,7 @@ struct is_bind_template_impl
 {
     template< typename T > struct result_
     {
-        BOOST_STATIC_CONSTANT(bool, value  = false);
+        NDNBOOST_STATIC_CONSTANT(bool, value  = false);
     };
 };
 
@@ -76,7 +76,7 @@ struct is_bind_template_impl<false>
 {
     template< typename T > struct result_
     {
-        BOOST_STATIC_CONSTANT(bool, value =
+        NDNBOOST_STATIC_CONSTANT(bool, value =
               sizeof(aux::is_bind_helper(static_cast<T*>(0)))
                 == sizeof(aux::yes_tag)
             );
@@ -123,8 +123,8 @@ is_bind_helper(bind0<F>*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(1, bind0)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(1, bind0)
+NDNBOOST_MPL_AUX_ARITY_SPEC(1, bind0)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(1, bind0)
 
 template<
       typename F, typename T1
@@ -160,8 +160,8 @@ is_bind_helper(bind1< F,T1 >*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(2, bind1)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(2, bind1)
+NDNBOOST_MPL_AUX_ARITY_SPEC(2, bind1)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(2, bind1)
 
 template<
       typename F, typename T1, typename T2
@@ -198,8 +198,8 @@ is_bind_helper(bind2< F,T1,T2 >*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(3, bind2)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(3, bind2)
+NDNBOOST_MPL_AUX_ARITY_SPEC(3, bind2)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(3, bind2)
 
 template<
       typename F, typename T1, typename T2, typename T3
@@ -237,8 +237,8 @@ is_bind_helper(bind3< F,T1,T2,T3 >*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(4, bind3)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(4, bind3)
+NDNBOOST_MPL_AUX_ARITY_SPEC(4, bind3)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(4, bind3)
 
 template<
       typename F, typename T1, typename T2, typename T3, typename T4
@@ -278,8 +278,8 @@ is_bind_helper(bind4< F,T1,T2,T3,T4 >*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(5, bind4)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(5, bind4)
+NDNBOOST_MPL_AUX_ARITY_SPEC(5, bind4)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(5, bind4)
 
 template<
       typename F, typename T1, typename T2, typename T3, typename T4
@@ -322,7 +322,7 @@ is_bind_helper(bind5< F,T1,T2,T3,T4,T5 >*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(6, bind5)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(6, bind5)
+NDNBOOST_MPL_AUX_ARITY_SPEC(6, bind5)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(6, bind5)
 }}
 

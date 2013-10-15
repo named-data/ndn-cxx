@@ -12,8 +12,8 @@
 //  Description : common code used by any agent serving as XML printer
 // ***************************************************************************
 
-#ifndef BOOST_TEST_XML_PRINTER_HPP_071894GER
-#define BOOST_TEST_XML_PRINTER_HPP_071894GER
+#ifndef NDNBOOST_TEST_XML_PRINTER_HPP_071894GER
+#define NDNBOOST_TEST_XML_PRINTER_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/utils/basic_cstring/basic_cstring.hpp>
@@ -53,7 +53,7 @@ print_escaped( std::ostream& where_to, const_string value )
         0
     );
 
-    BOOST_TEST_FOREACH( char, c, value ) {
+    NDNBOOST_TEST_FOREACH( char, c, value ) {
         char const* ref = char_type[c];
 
         if( ref )
@@ -102,7 +102,7 @@ typedef custom_manip<struct cdata_t> cdata;
 inline std::ostream&
 operator<<( custom_printer<cdata> const& p, const_string value )
 {
-    return *p << BOOST_TEST_L( "<![CDATA[" ) << value << BOOST_TEST_L( "]]>" );
+    return *p << NDNBOOST_TEST_L( "<![CDATA[" ) << value << NDNBOOST_TEST_L( "]]>" );
 }
 
 //____________________________________________________________________________//
@@ -115,4 +115,4 @@ operator<<( custom_printer<cdata> const& p, const_string value )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_XML_PRINTER_HPP_071894GER
+#endif // NDNBOOST_TEST_XML_PRINTER_HPP_071894GER

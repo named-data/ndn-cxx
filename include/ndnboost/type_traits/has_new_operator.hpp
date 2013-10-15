@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_HAS_NEW_OPERATOR_HPP_INCLUDED
-#define BOOST_TT_HAS_NEW_OPERATOR_HPP_INCLUDED
+#ifndef NDNBOOST_TT_HAS_NEW_OPERATOR_HPP_INCLUDED
+#define NDNBOOST_TT_HAS_NEW_OPERATOR_HPP_INCLUDED
 
 #include <new> // std::nothrow_t
 #include <cstddef> // std::size_t
@@ -95,30 +95,30 @@ namespace detail {
         // GCC2 won't even parse this template if we embed the computation
         // of s1 in the computation of value.
         #ifdef __GNUC__
-            BOOST_STATIC_CONSTANT(unsigned, s1 = sizeof(has_new_operator_impl<T>::template check_sig1<T>(0)));
-            BOOST_STATIC_CONSTANT(unsigned, s2 = sizeof(has_new_operator_impl<T>::template check_sig2<T>(0)));
-            BOOST_STATIC_CONSTANT(unsigned, s3 = sizeof(has_new_operator_impl<T>::template check_sig3<T>(0)));
-            BOOST_STATIC_CONSTANT(unsigned, s4 = sizeof(has_new_operator_impl<T>::template check_sig4<T>(0)));
-            BOOST_STATIC_CONSTANT(unsigned, s5 = sizeof(has_new_operator_impl<T>::template check_sig5<T>(0)));
-            BOOST_STATIC_CONSTANT(unsigned, s6 = sizeof(has_new_operator_impl<T>::template check_sig6<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s1 = sizeof(has_new_operator_impl<T>::template check_sig1<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s2 = sizeof(has_new_operator_impl<T>::template check_sig2<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s3 = sizeof(has_new_operator_impl<T>::template check_sig3<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s4 = sizeof(has_new_operator_impl<T>::template check_sig4<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s5 = sizeof(has_new_operator_impl<T>::template check_sig5<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s6 = sizeof(has_new_operator_impl<T>::template check_sig6<T>(0)));
         #else
-            #if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
+            #if NDNBOOST_WORKAROUND(NDNBOOST_MSVC_FULL_VER, >= 140050000)
                 #pragma warning(push)
                 #pragma warning(disable:6334)
             #endif
 
-            BOOST_STATIC_CONSTANT(unsigned, s1 = sizeof(check_sig1<T>(0)));
-            BOOST_STATIC_CONSTANT(unsigned, s2 = sizeof(check_sig2<T>(0)));
-            BOOST_STATIC_CONSTANT(unsigned, s3 = sizeof(check_sig3<T>(0)));
-            BOOST_STATIC_CONSTANT(unsigned, s4 = sizeof(check_sig4<T>(0)));
-            BOOST_STATIC_CONSTANT(unsigned, s5 = sizeof(check_sig5<T>(0)));
-            BOOST_STATIC_CONSTANT(unsigned, s6 = sizeof(check_sig6<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s1 = sizeof(check_sig1<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s2 = sizeof(check_sig2<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s3 = sizeof(check_sig3<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s4 = sizeof(check_sig4<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s5 = sizeof(check_sig5<T>(0)));
+            NDNBOOST_STATIC_CONSTANT(unsigned, s6 = sizeof(check_sig6<T>(0)));
 
-            #if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
+            #if NDNBOOST_WORKAROUND(NDNBOOST_MSVC_FULL_VER, >= 140050000)
                 #pragma warning(pop)
             #endif
         #endif
-        BOOST_STATIC_CONSTANT(bool, value = 
+        NDNBOOST_STATIC_CONSTANT(bool, value = 
            (::ndnboost::type_traits::ice_or<
             (s1 == sizeof(type_traits::yes_type)),
             (s2 == sizeof(type_traits::yes_type)),
@@ -131,10 +131,10 @@ namespace detail {
     };
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(has_new_operator,T,::ndnboost::detail::has_new_operator_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(has_new_operator,T,::ndnboost::detail::has_new_operator_impl<T>::value)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_HAS_NEW_OPERATOR_HPP_INCLUDED
+#endif // NDNBOOST_TT_HAS_NEW_OPERATOR_HPP_INCLUDED

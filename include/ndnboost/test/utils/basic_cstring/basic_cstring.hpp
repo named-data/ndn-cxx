@@ -13,8 +13,8 @@
 //                interface
 // ***************************************************************************
 
-#ifndef BOOST_TEST_BASIC_CSTRING_HPP_071894GER
-#define BOOST_TEST_BASIC_CSTRING_HPP_071894GER
+#ifndef NDNBOOST_TEST_BASIC_CSTRING_HPP_071894GER
+#define NDNBOOST_TEST_BASIC_CSTRING_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/utils/basic_cstring/basic_cstring_fwd.hpp>
@@ -56,7 +56,7 @@ public:
 
     // !! should also present reverse_iterator, const_reverse_iterator
 
-#if !BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(600))
+#if !NDNBOOST_WORKAROUND(__IBMCPP__, NDNBOOST_TESTED_AT(600))
     enum npos_type { npos = static_cast<size_type>(-1) };
 #else
     // IBM/VisualAge version 6 is not able to handle enums larger than 4 bytes.
@@ -728,4 +728,4 @@ assign_op( std::basic_string<CharT1>& target, basic_cstring<CharT2> src, int )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_BASIC_CSTRING_HPP_071894GER
+#endif // NDNBOOST_TEST_BASIC_CSTRING_HPP_071894GER

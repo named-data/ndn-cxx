@@ -12,8 +12,8 @@
 //  Description : implemets Unit Test Log
 // ***************************************************************************
 
-#ifndef BOOST_TEST_UNIT_TEST_LOG_IPP_012205GER
-#define BOOST_TEST_UNIT_TEST_LOG_IPP_012205GER
+#ifndef NDNBOOST_TEST_UNIT_TEST_LOG_IPP_012205GER
+#define NDNBOOST_TEST_UNIT_TEST_LOG_IPP_012205GER
 
 // Boost.Test
 #include <ndnboost/test/unit_test_log.hpp>
@@ -158,7 +158,7 @@ unit_test_log_t::test_finish()
 void
 unit_test_log_t::test_aborted()
 {
-    BOOST_TEST_LOG_ENTRY( log_messages ) << "Test is aborted";
+    NDNBOOST_TEST_LOG_ENTRY( log_messages ) << "Test is aborted";
 }
 
 //____________________________________________________________________________//
@@ -321,25 +321,25 @@ unit_test_log_t::log_entry_start()
     switch( s_log_impl().m_entry_data.m_level ) {
     case log_successful_tests:
         s_log_impl().m_log_formatter->log_entry_start( s_log_impl().stream(), s_log_impl().m_entry_data,
-                                                       unit_test_log_formatter::BOOST_UTL_ET_INFO );
+                                                       unit_test_log_formatter::NDNBOOST_UTL_ET_INFO );
         break;
     case log_messages:
         s_log_impl().m_log_formatter->log_entry_start( s_log_impl().stream(), s_log_impl().m_entry_data,
-                                                       unit_test_log_formatter::BOOST_UTL_ET_MESSAGE );
+                                                       unit_test_log_formatter::NDNBOOST_UTL_ET_MESSAGE );
         break;
     case log_warnings:
         s_log_impl().m_log_formatter->log_entry_start( s_log_impl().stream(), s_log_impl().m_entry_data,
-                                                       unit_test_log_formatter::BOOST_UTL_ET_WARNING );
+                                                       unit_test_log_formatter::NDNBOOST_UTL_ET_WARNING );
         break;
     case log_all_errors:
     case log_cpp_exception_errors:
     case log_system_errors:
         s_log_impl().m_log_formatter->log_entry_start( s_log_impl().stream(), s_log_impl().m_entry_data,
-                                                       unit_test_log_formatter::BOOST_UTL_ET_ERROR );
+                                                       unit_test_log_formatter::NDNBOOST_UTL_ET_ERROR );
         break;
     case log_fatal_errors:
         s_log_impl().m_log_formatter->log_entry_start( s_log_impl().stream(), s_log_impl().m_entry_data,
-                                                       unit_test_log_formatter::BOOST_UTL_ET_FATAL_ERROR );
+                                                       unit_test_log_formatter::NDNBOOST_UTL_ET_FATAL_ERROR );
         break;
     case log_nothing:
     case log_test_units:
@@ -441,4 +441,4 @@ unit_test_log_formatter::log_entry_value( std::ostream& ostr, lazy_ostream const
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_UNIT_TEST_LOG_IPP_012205GER
+#endif // NDNBOOST_TEST_UNIT_TEST_LOG_IPP_012205GER

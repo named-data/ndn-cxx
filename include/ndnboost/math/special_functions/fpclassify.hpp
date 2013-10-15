@@ -4,8 +4,8 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_MATH_FPCLASSIFY_HPP
-#define BOOST_MATH_FPCLASSIFY_HPP
+#ifndef NDNBOOST_MATH_FPCLASSIFY_HPP
+#define NDNBOOST_MATH_FPCLASSIFY_HPP
 
 #ifdef _MSC_VER
 #pragma once
@@ -81,7 +81,7 @@ is used.
 #include <float.h>
 #endif
 
-#ifdef BOOST_NO_STDC_NAMESPACE
+#ifdef NDNBOOST_NO_STDC_NAMESPACE
   namespace std{ using ::abs; using ::fabs; }
 #endif
 
@@ -94,7 +94,7 @@ namespace ndnboost{
 //
 namespace math_detail{
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(push)
 #pragma warning(disable:4800)
 #endif
@@ -104,15 +104,15 @@ inline bool is_nan_helper(T t, const ndnboost::true_type&)
 {
 #ifdef isnan
    return isnan(t);
-#elif defined(BOOST_MATH_DISABLE_STD_FPCLASSIFY) || !defined(BOOST_HAS_FPCLASSIFY)
+#elif defined(NDNBOOST_MATH_DISABLE_STD_FPCLASSIFY) || !defined(NDNBOOST_HAS_FPCLASSIFY)
    (void)t;
    return false;
-#else // BOOST_HAS_FPCLASSIFY
-   return (BOOST_FPCLASSIFY_PREFIX fpclassify(t) == (int)FP_NAN);
+#else // NDNBOOST_HAS_FPCLASSIFY
+   return (NDNBOOST_FPCLASSIFY_PREFIX fpclassify(t) == (int)FP_NAN);
 #endif
 }
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(pop)
 #endif
 
@@ -128,21 +128,21 @@ namespace math{
 
 namespace detail{
 
-#ifdef BOOST_MATH_USE_STD_FPCLASSIFY
+#ifdef NDNBOOST_MATH_USE_STD_FPCLASSIFY
 template <class T>
-inline int fpclassify_imp BOOST_NO_MACRO_EXPAND(T t, const native_tag&)
+inline int fpclassify_imp NDNBOOST_NO_MACRO_EXPAND(T t, const native_tag&)
 {
    return (std::fpclassify)(t);
 }
 #endif
 
 template <class T>
-inline int fpclassify_imp BOOST_NO_MACRO_EXPAND(T t, const generic_tag<true>&)
+inline int fpclassify_imp NDNBOOST_NO_MACRO_EXPAND(T t, const generic_tag<true>&)
 {
-   BOOST_MATH_INSTRUMENT_VARIABLE(t);
+   NDNBOOST_MATH_INSTRUMENT_VARIABLE(t);
 
    // whenever possible check for Nan's first:
-#if defined(BOOST_HAS_FPCLASSIFY)  && !defined(BOOST_MATH_DISABLE_STD_FPCLASSIFY)
+#if defined(NDNBOOST_HAS_FPCLASSIFY)  && !defined(NDNBOOST_MATH_DISABLE_STD_FPCLASSIFY)
    if(::ndnboost::math_detail::is_nan_helper(t, ::ndnboost::is_floating_point<T>()))
       return FP_NAN;
 #elif defined(isnan)
@@ -173,9 +173,9 @@ inline int fpclassify_imp BOOST_NO_MACRO_EXPAND(T t, const generic_tag<true>&)
 }
 
 template <class T>
-inline int fpclassify_imp BOOST_NO_MACRO_EXPAND(T t, const generic_tag<false>&)
+inline int fpclassify_imp NDNBOOST_NO_MACRO_EXPAND(T t, const generic_tag<false>&)
 {
-#ifdef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+#ifdef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
    if(std::numeric_limits<T>::is_specialized)
       return fpclassify_imp(t, generic_tag<true>());
 #endif
@@ -183,24 +183,24 @@ inline int fpclassify_imp BOOST_NO_MACRO_EXPAND(T t, const generic_tag<false>&)
    // An unknown type with no numeric_limits support,
    // so what are we supposed to do we do here?
    //
-   BOOST_MATH_INSTRUMENT_VARIABLE(t);
+   NDNBOOST_MATH_INSTRUMENT_VARIABLE(t);
 
    return t == 0 ? FP_ZERO : FP_NORMAL;
 }
 
 template<class T>
-int fpclassify_imp BOOST_NO_MACRO_EXPAND(T x, ieee_copy_all_bits_tag)
+int fpclassify_imp NDNBOOST_NO_MACRO_EXPAND(T x, ieee_copy_all_bits_tag)
 {
-   typedef BOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
+   typedef NDNBOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
 
-   BOOST_MATH_INSTRUMENT_VARIABLE(x);
+   NDNBOOST_MATH_INSTRUMENT_VARIABLE(x);
 
-   BOOST_DEDUCED_TYPENAME traits::bits a;
+   NDNBOOST_DEDUCED_TYPENAME traits::bits a;
    traits::get_bits(x,a);
-   BOOST_MATH_INSTRUMENT_VARIABLE(a);
+   NDNBOOST_MATH_INSTRUMENT_VARIABLE(a);
    a &= traits::exponent | traits::flag | traits::significand;
-   BOOST_MATH_INSTRUMENT_VARIABLE((traits::exponent | traits::flag | traits::significand));
-   BOOST_MATH_INSTRUMENT_VARIABLE(a);
+   NDNBOOST_MATH_INSTRUMENT_VARIABLE((traits::exponent | traits::flag | traits::significand));
+   NDNBOOST_MATH_INSTRUMENT_VARIABLE(a);
 
    if(a <= traits::significand) {
       if(a == 0)
@@ -218,13 +218,13 @@ int fpclassify_imp BOOST_NO_MACRO_EXPAND(T x, ieee_copy_all_bits_tag)
 }
 
 template<class T>
-int fpclassify_imp BOOST_NO_MACRO_EXPAND(T x, ieee_copy_leading_bits_tag)
+int fpclassify_imp NDNBOOST_NO_MACRO_EXPAND(T x, ieee_copy_leading_bits_tag)
 {
-   typedef BOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
+   typedef NDNBOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
 
-   BOOST_MATH_INSTRUMENT_VARIABLE(x);
+   NDNBOOST_MATH_INSTRUMENT_VARIABLE(x);
 
-   BOOST_DEDUCED_TYPENAME traits::bits a;
+   NDNBOOST_DEDUCED_TYPENAME traits::bits a;
    traits::get_bits(x,a);
    a &= traits::exponent | traits::flag | traits::significand;
 
@@ -244,8 +244,8 @@ int fpclassify_imp BOOST_NO_MACRO_EXPAND(T x, ieee_copy_leading_bits_tag)
    return FP_NAN;
 }
 
-#if defined(BOOST_MATH_USE_STD_FPCLASSIFY) && (defined(BOOST_MATH_NO_NATIVE_LONG_DOUBLE_FP_CLASSIFY) || defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS))
-inline int fpclassify_imp BOOST_NO_MACRO_EXPAND(long double t, const native_tag&)
+#if defined(NDNBOOST_MATH_USE_STD_FPCLASSIFY) && (defined(NDNBOOST_MATH_NO_NATIVE_LONG_DOUBLE_FP_CLASSIFY) || defined(NDNBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS))
+inline int fpclassify_imp NDNBOOST_NO_MACRO_EXPAND(long double t, const native_tag&)
 {
    return ndnboost::math::detail::fpclassify_imp(t, generic_tag<true>());
 }
@@ -254,12 +254,12 @@ inline int fpclassify_imp BOOST_NO_MACRO_EXPAND(long double t, const native_tag&
 }  // namespace detail
 
 template <class T>
-inline int fpclassify BOOST_NO_MACRO_EXPAND(T t)
+inline int fpclassify NDNBOOST_NO_MACRO_EXPAND(T t)
 {
    typedef typename detail::fp_traits<T>::type traits;
    typedef typename traits::method method;
    typedef typename tools::promote_args<T>::type value_type;
-#ifdef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+#ifdef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
    if(std::numeric_limits<T>::is_specialized && detail::is_generic_tag_false(static_cast<method*>(0)))
       return detail::fpclassify_imp(static_cast<value_type>(t), detail::generic_tag<true>());
    return detail::fpclassify_imp(static_cast<value_type>(t), method());
@@ -268,14 +268,14 @@ inline int fpclassify BOOST_NO_MACRO_EXPAND(T t)
 #endif
 }
 
-#ifdef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+#ifdef NDNBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 template <>
-inline int fpclassify<long double> BOOST_NO_MACRO_EXPAND(long double t)
+inline int fpclassify<long double> NDNBOOST_NO_MACRO_EXPAND(long double t)
 {
    typedef detail::fp_traits<long double>::type traits;
    typedef traits::method method;
    typedef long double value_type;
-#ifdef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+#ifdef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
    if(std::numeric_limits<long double>::is_specialized && detail::is_generic_tag_false(static_cast<method*>(0)))
       return detail::fpclassify_imp(static_cast<value_type>(t), detail::generic_tag<true>());
    return detail::fpclassify_imp(static_cast<value_type>(t), method());
@@ -287,7 +287,7 @@ inline int fpclassify<long double> BOOST_NO_MACRO_EXPAND(long double t)
 
 namespace detail {
 
-#ifdef BOOST_MATH_USE_STD_FPCLASSIFY
+#ifdef NDNBOOST_MATH_USE_STD_FPCLASSIFY
     template<class T>
     inline bool isfinite_impl(T x, native_tag const&)
     {
@@ -305,7 +305,7 @@ namespace detail {
     template<class T>
     inline bool isfinite_impl(T x, generic_tag<false> const&)
     {
-#ifdef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+#ifdef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
       if(std::numeric_limits<T>::is_specialized)
          return isfinite_impl(x, generic_tag<true>());
 #endif
@@ -316,15 +316,15 @@ namespace detail {
     template<class T>
     inline bool isfinite_impl(T x, ieee_tag const&)
     {
-        typedef BOOST_DEDUCED_TYPENAME detail::fp_traits<T>::type traits;
-        BOOST_DEDUCED_TYPENAME traits::bits a;
+        typedef NDNBOOST_DEDUCED_TYPENAME detail::fp_traits<T>::type traits;
+        NDNBOOST_DEDUCED_TYPENAME traits::bits a;
         traits::get_bits(x,a);
         a &= traits::exponent;
         return a != traits::exponent;
     }
 
-#if defined(BOOST_MATH_USE_STD_FPCLASSIFY) && defined(BOOST_MATH_NO_NATIVE_LONG_DOUBLE_FP_CLASSIFY)
-inline bool isfinite_impl BOOST_NO_MACRO_EXPAND(long double t, const native_tag&)
+#if defined(NDNBOOST_MATH_USE_STD_FPCLASSIFY) && defined(NDNBOOST_MATH_NO_NATIVE_LONG_DOUBLE_FP_CLASSIFY)
+inline bool isfinite_impl NDNBOOST_NO_MACRO_EXPAND(long double t, const native_tag&)
 {
    return ndnboost::math::detail::isfinite_impl(t, generic_tag<true>());
 }
@@ -342,7 +342,7 @@ inline bool (isfinite)(T x)
    return detail::isfinite_impl(static_cast<value_type>(x), method());
 }
 
-#ifdef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+#ifdef NDNBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 template<>
 inline bool (isfinite)(long double x)
 { //!< \brief return true if floating-point type t is finite.
@@ -358,7 +358,7 @@ inline bool (isfinite)(long double x)
 
 namespace detail {
 
-#ifdef BOOST_MATH_USE_STD_FPCLASSIFY
+#ifdef NDNBOOST_MATH_USE_STD_FPCLASSIFY
     template<class T>
     inline bool isnormal_impl(T x, native_tag const&)
     {
@@ -377,7 +377,7 @@ namespace detail {
     template<class T>
     inline bool isnormal_impl(T x, generic_tag<false> const&)
     {
-#ifdef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+#ifdef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
       if(std::numeric_limits<T>::is_specialized)
          return isnormal_impl(x, generic_tag<true>());
 #endif
@@ -387,15 +387,15 @@ namespace detail {
     template<class T>
     inline bool isnormal_impl(T x, ieee_tag const&)
     {
-        typedef BOOST_DEDUCED_TYPENAME detail::fp_traits<T>::type traits;
-        BOOST_DEDUCED_TYPENAME traits::bits a;
+        typedef NDNBOOST_DEDUCED_TYPENAME detail::fp_traits<T>::type traits;
+        NDNBOOST_DEDUCED_TYPENAME traits::bits a;
         traits::get_bits(x,a);
         a &= traits::exponent | traits::flag;
         return (a != 0) && (a < traits::exponent);
     }
 
-#if defined(BOOST_MATH_USE_STD_FPCLASSIFY) && defined(BOOST_MATH_NO_NATIVE_LONG_DOUBLE_FP_CLASSIFY)
-inline bool isnormal_impl BOOST_NO_MACRO_EXPAND(long double t, const native_tag&)
+#if defined(NDNBOOST_MATH_USE_STD_FPCLASSIFY) && defined(NDNBOOST_MATH_NO_NATIVE_LONG_DOUBLE_FP_CLASSIFY)
+inline bool isnormal_impl NDNBOOST_NO_MACRO_EXPAND(long double t, const native_tag&)
 {
    return ndnboost::math::detail::isnormal_impl(t, generic_tag<true>());
 }
@@ -413,7 +413,7 @@ inline bool (isnormal)(T x)
    return detail::isnormal_impl(static_cast<value_type>(x), method());
 }
 
-#ifdef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+#ifdef NDNBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 template<>
 inline bool (isnormal)(long double x)
 {
@@ -429,7 +429,7 @@ inline bool (isnormal)(long double x)
 
 namespace detail {
 
-#ifdef BOOST_MATH_USE_STD_FPCLASSIFY
+#ifdef NDNBOOST_MATH_USE_STD_FPCLASSIFY
     template<class T>
     inline bool isinf_impl(T x, native_tag const&)
     {
@@ -449,7 +449,7 @@ namespace detail {
     template<class T>
     inline bool isinf_impl(T x, generic_tag<false> const&)
     {
-#ifdef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+#ifdef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
       if(std::numeric_limits<T>::is_specialized)
          return isinf_impl(x, generic_tag<true>());
 #endif
@@ -460,9 +460,9 @@ namespace detail {
     template<class T>
     inline bool isinf_impl(T x, ieee_copy_all_bits_tag const&)
     {
-        typedef BOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
+        typedef NDNBOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
 
-        BOOST_DEDUCED_TYPENAME traits::bits a;
+        NDNBOOST_DEDUCED_TYPENAME traits::bits a;
         traits::get_bits(x,a);
         a &= traits::exponent | traits::significand;
         return a == traits::exponent;
@@ -471,9 +471,9 @@ namespace detail {
     template<class T>
     inline bool isinf_impl(T x, ieee_copy_leading_bits_tag const&)
     {
-        typedef BOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
+        typedef NDNBOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
 
-        BOOST_DEDUCED_TYPENAME traits::bits a;
+        NDNBOOST_DEDUCED_TYPENAME traits::bits a;
         traits::get_bits(x,a);
         a &= traits::exponent | traits::significand;
         if(a != traits::exponent)
@@ -483,8 +483,8 @@ namespace detail {
         return x == 0;
     }
 
-#if defined(BOOST_MATH_USE_STD_FPCLASSIFY) && defined(BOOST_MATH_NO_NATIVE_LONG_DOUBLE_FP_CLASSIFY)
-inline bool isinf_impl BOOST_NO_MACRO_EXPAND(long double t, const native_tag&)
+#if defined(NDNBOOST_MATH_USE_STD_FPCLASSIFY) && defined(NDNBOOST_MATH_NO_NATIVE_LONG_DOUBLE_FP_CLASSIFY)
+inline bool isinf_impl NDNBOOST_NO_MACRO_EXPAND(long double t, const native_tag&)
 {
    return ndnboost::math::detail::isinf_impl(t, generic_tag<true>());
 }
@@ -502,7 +502,7 @@ inline bool (isinf)(T x)
    return detail::isinf_impl(static_cast<value_type>(x), method());
 }
 
-#ifdef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+#ifdef NDNBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 template<>
 inline bool (isinf)(long double x)
 {
@@ -518,7 +518,7 @@ inline bool (isinf)(long double x)
 
 namespace detail {
 
-#ifdef BOOST_MATH_USE_STD_FPCLASSIFY
+#ifdef NDNBOOST_MATH_USE_STD_FPCLASSIFY
     template<class T>
     inline bool isnan_impl(T x, native_tag const&)
     {
@@ -537,7 +537,7 @@ namespace detail {
     template<class T>
     inline bool isnan_impl(T x, generic_tag<false> const&)
     {
-#ifdef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+#ifdef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
       if(std::numeric_limits<T>::is_specialized)
          return isnan_impl(x, generic_tag<true>());
 #endif
@@ -548,9 +548,9 @@ namespace detail {
     template<class T>
     inline bool isnan_impl(T x, ieee_copy_all_bits_tag const&)
     {
-        typedef BOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
+        typedef NDNBOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
 
-        BOOST_DEDUCED_TYPENAME traits::bits a;
+        NDNBOOST_DEDUCED_TYPENAME traits::bits a;
         traits::get_bits(x,a);
         a &= traits::exponent | traits::significand;
         return a > traits::exponent;
@@ -559,9 +559,9 @@ namespace detail {
     template<class T>
     inline bool isnan_impl(T x, ieee_copy_leading_bits_tag const&)
     {
-        typedef BOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
+        typedef NDNBOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
 
-        BOOST_DEDUCED_TYPENAME traits::bits a;
+        NDNBOOST_DEDUCED_TYPENAME traits::bits a;
         traits::get_bits(x,a);
 
         a &= traits::exponent | traits::significand;
@@ -585,10 +585,10 @@ inline bool (isnan)(T x)
 }
 
 #ifdef isnan
-template <> inline bool isnan BOOST_NO_MACRO_EXPAND<float>(float t){ return ::ndnboost::math_detail::is_nan_helper(t, ndnboost::true_type()); }
-template <> inline bool isnan BOOST_NO_MACRO_EXPAND<double>(double t){ return ::ndnboost::math_detail::is_nan_helper(t, ndnboost::true_type()); }
-template <> inline bool isnan BOOST_NO_MACRO_EXPAND<long double>(long double t){ return ::ndnboost::math_detail::is_nan_helper(t, ndnboost::true_type()); }
-#elif defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS)
+template <> inline bool isnan NDNBOOST_NO_MACRO_EXPAND<float>(float t){ return ::ndnboost::math_detail::is_nan_helper(t, ndnboost::true_type()); }
+template <> inline bool isnan NDNBOOST_NO_MACRO_EXPAND<double>(double t){ return ::ndnboost::math_detail::is_nan_helper(t, ndnboost::true_type()); }
+template <> inline bool isnan NDNBOOST_NO_MACRO_EXPAND<long double>(long double t){ return ::ndnboost::math_detail::is_nan_helper(t, ndnboost::true_type()); }
+#elif defined(NDNBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS)
 template<>
 inline bool (isnan)(long double x)
 { //!< \brief return true if floating-point type t is NaN (Not A Number).
@@ -602,5 +602,5 @@ inline bool (isnan)(long double x)
 } // namespace math
 } // namespace ndnboost
 
-#endif // BOOST_MATH_FPCLASSIFY_HPP
+#endif // NDNBOOST_MATH_FPCLASSIFY_HPP
 

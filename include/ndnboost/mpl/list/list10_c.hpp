@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_LIST_LIST10_C_HPP_INCLUDED
-#define BOOST_MPL_LIST_LIST10_C_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_LIST_LIST10_C_HPP_INCLUDED
+#define NDNBOOST_MPL_LIST_LIST10_C_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -14,16 +14,16 @@
 // $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
 // $Revision: 49267 $
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   include <ndnboost/mpl/list/list0_c.hpp>
 #endif
 
 #include <ndnboost/mpl/aux_/config/use_preprocessed.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
- && !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+ && !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
-#   define BOOST_MPL_PREPROCESSED_HEADER list10_c.hpp
+#   define NDNBOOST_MPL_PREPROCESSED_HEADER list10_c.hpp
 #   include <ndnboost/mpl/list/aux_/include_preprocessed.hpp>
 
 #else
@@ -32,12 +32,12 @@
 
 namespace ndnboost { namespace mpl {
 
-#   define BOOST_PP_ITERATION_PARAMS_1 \
+#   define NDNBOOST_PP_ITERATION_PARAMS_1 \
     (3,(1, 10, <ndnboost/mpl/list/aux_/numbered_c.hpp>))
-#   include BOOST_PP_ITERATE()
+#   include NDNBOOST_PP_ITERATE()
 
 }}
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 
-#endif // BOOST_MPL_LIST_LIST10_C_HPP_INCLUDED
+#endif // NDNBOOST_MPL_LIST_LIST10_C_HPP_INCLUDED

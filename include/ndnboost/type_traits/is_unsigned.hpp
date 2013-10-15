@@ -7,8 +7,8 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_IS_UNSIGNED_HPP_INCLUDED
-#define BOOST_TT_IS_UNSIGNED_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_UNSIGNED_HPP_INCLUDED
+#define NDNBOOST_TT_IS_UNSIGNED_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_integral.hpp>
 #include <ndnboost/type_traits/is_enum.hpp>
@@ -24,13 +24,13 @@ namespace ndnboost {
 
 namespace detail{
 
-#if !(defined(__EDG_VERSION__) && __EDG_VERSION__ <= 238) && !defined(BOOST_NO_INCLASS_MEMBER_INITIALIZATION)
+#if !(defined(__EDG_VERSION__) && __EDG_VERSION__ <= 238) && !defined(NDNBOOST_NO_INCLASS_MEMBER_INITIALIZATION)
 
 template <class T>
 struct is_unsigned_values
 {
    //
-   // Note that we cannot use BOOST_STATIC_CONSTANT here, using enum's
+   // Note that we cannot use NDNBOOST_STATIC_CONSTANT here, using enum's
    // rather than "real" static constants simply doesn't work or give
    // the correct answer.
    //
@@ -42,7 +42,7 @@ struct is_unsigned_values
 template <class T>
 struct is_ununsigned_helper
 {
-   BOOST_STATIC_CONSTANT(bool, value = (::ndnboost::detail::is_unsigned_values<T>::minus_one > ::ndnboost::detail::is_unsigned_values<T>::zero));
+   NDNBOOST_STATIC_CONSTANT(bool, value = (::ndnboost::detail::is_unsigned_values<T>::minus_one > ::ndnboost::detail::is_unsigned_values<T>::zero));
 };
 
 template <bool integral_type>
@@ -75,7 +75,7 @@ struct is_unsigned_imp
    > selector;
    typedef typename selector::template rebind<T> binder;
    typedef typename binder::type type;
-   BOOST_STATIC_CONSTANT(bool, value = type::value);
+   NDNBOOST_STATIC_CONSTANT(bool, value = type::value);
 };
 
 #else
@@ -97,7 +97,7 @@ template <> struct is_unsigned_imp<unsigned long> : public true_type{};
 template <> struct is_unsigned_imp<const unsigned long> : public true_type{};
 template <> struct is_unsigned_imp<volatile unsigned long> : public true_type{};
 template <> struct is_unsigned_imp<const volatile unsigned long> : public true_type{};
-#ifdef BOOST_HAS_LONG_LONG
+#ifdef NDNBOOST_HAS_LONG_LONG
 template <> struct is_unsigned_imp<unsigned long long> : public true_type{};
 template <> struct is_unsigned_imp<const unsigned long long> : public true_type{};
 template <> struct is_unsigned_imp<volatile unsigned long long> : public true_type{};
@@ -109,7 +109,7 @@ template <> struct is_unsigned_imp<const char> : public true_type{};
 template <> struct is_unsigned_imp<volatile char> : public true_type{};
 template <> struct is_unsigned_imp<const volatile char> : public true_type{};
 #endif
-#if defined(WCHAR_MIN) && (WCHAR_MIN == 0) && !defined(BOOST_NO_INTRINSIC_WCHAR_T)
+#if defined(WCHAR_MIN) && (WCHAR_MIN == 0) && !defined(NDNBOOST_NO_INTRINSIC_WCHAR_T)
 template <> struct is_unsigned_imp<wchar_t> : public true_type{};
 template <> struct is_unsigned_imp<const wchar_t> : public true_type{};
 template <> struct is_unsigned_imp<volatile wchar_t> : public true_type{};
@@ -123,13 +123,13 @@ template <> struct is_unsigned_imp<const volatile wchar_t> : public true_type{};
 #endif // !defined( __CODEGEARC__ )
 
 #if defined( __CODEGEARC__ )
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_unsigned,T,__is_unsigned(T))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_unsigned,T,__is_unsigned(T))
 #else
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_unsigned,T,::ndnboost::detail::is_unsigned_imp<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_unsigned,T,::ndnboost::detail::is_unsigned_imp<T>::value)
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_MEMBER_FUNCTION_POINTER_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_MEMBER_FUNCTION_POINTER_HPP_INCLUDED

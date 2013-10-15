@@ -17,15 +17,15 @@ USAGE:
 
 Before including this header you must define one or more of define the following macros:
 
-BOOST_LIB_NAME:           Required: A string containing the basename of the library,
+NDNBOOST_LIB_NAME:           Required: A string containing the basename of the library,
                           for example boost_regex.
-BOOST_LIB_TOOLSET:        Optional: the base name of the toolset.
-BOOST_DYN_LINK:           Optional: when set link to dll rather than static library.
-BOOST_LIB_DIAGNOSTIC:     Optional: when set the header will print out the name
+NDNBOOST_LIB_TOOLSET:        Optional: the base name of the toolset.
+NDNBOOST_DYN_LINK:           Optional: when set link to dll rather than static library.
+NDNBOOST_LIB_DIAGNOSTIC:     Optional: when set the header will print out the name
                           of the library selected (useful for debugging).
-BOOST_AUTO_LINK_NOMANGLE: Specifies that we should link to BOOST_LIB_NAME.lib,
+NDNBOOST_AUTO_LINK_NOMANGLE: Specifies that we should link to NDNBOOST_LIB_NAME.lib,
                           rather than a mangled-name version.
-BOOST_AUTO_LINK_TAGGED:   Specifies that we link to libraries built with the --layout=tagged option.
+NDNBOOST_AUTO_LINK_TAGGED:   Specifies that we link to libraries built with the --layout=tagged option.
                           This is essentially the same as the default name-mangled version, but without
                           the compiler name and version, or the Boost version.  Just the build options.
 
@@ -39,26 +39,26 @@ Libraries for Borland and Microsoft compilers are automatically
 selected here, the name of the lib is selected according to the following
 formula:
 
-BOOST_LIB_PREFIX
-   + BOOST_LIB_NAME
+NDNBOOST_LIB_PREFIX
+   + NDNBOOST_LIB_NAME
    + "_"
-   + BOOST_LIB_TOOLSET
-   + BOOST_LIB_THREAD_OPT
-   + BOOST_LIB_RT_OPT
+   + NDNBOOST_LIB_TOOLSET
+   + NDNBOOST_LIB_THREAD_OPT
+   + NDNBOOST_LIB_RT_OPT
    "-"
-   + BOOST_LIB_VERSION
+   + NDNBOOST_LIB_VERSION
 
 These are defined as:
 
-BOOST_LIB_PREFIX:     "lib" for static libraries otherwise "".
+NDNBOOST_LIB_PREFIX:     "lib" for static libraries otherwise "".
 
-BOOST_LIB_NAME:       The base name of the lib ( for example boost_regex).
+NDNBOOST_LIB_NAME:       The base name of the lib ( for example boost_regex).
 
-BOOST_LIB_TOOLSET:    The compiler toolset name (vc6, vc7, bcb5 etc).
+NDNBOOST_LIB_TOOLSET:    The compiler toolset name (vc6, vc7, bcb5 etc).
 
-BOOST_LIB_THREAD_OPT: "-mt" for multithread builds, otherwise nothing.
+NDNBOOST_LIB_THREAD_OPT: "-mt" for multithread builds, otherwise nothing.
 
-BOOST_LIB_RT_OPT:     A suffix that indicates the runtime library used,
+NDNBOOST_LIB_RT_OPT:     A suffix that indicates the runtime library used,
                       contains one or more of the following letters after
                       a hyphen:
 
@@ -69,37 +69,37 @@ BOOST_LIB_RT_OPT:     A suffix that indicates the runtime library used,
                       p      STLport build.
                       n      STLport build without its IOStreams.
 
-BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
+NDNBOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 
 ***************************************************************************/
 
 #ifdef __cplusplus
-#  ifndef BOOST_CONFIG_HPP
+#  ifndef NDNBOOST_CONFIG_HPP
 #     include <ndnboost/config.hpp>
 #  endif
 #elif defined(_MSC_VER) && !defined(__MWERKS__) && !defined(__EDG_VERSION__)
 //
 // C language compatability (no, honestly)
 //
-#  define BOOST_MSVC _MSC_VER
-#  define BOOST_STRINGIZE(X) BOOST_DO_STRINGIZE(X)
-#  define BOOST_DO_STRINGIZE(X) #X
+#  define NDNBOOST_MSVC _MSC_VER
+#  define NDNBOOST_STRINGIZE(X) NDNBOOST_DO_STRINGIZE(X)
+#  define NDNBOOST_DO_STRINGIZE(X) #X
 #endif
 //
 // Only include what follows for known and supported compilers:
 //
-#if defined(BOOST_MSVC) \
+#if defined(NDNBOOST_MSVC) \
     || defined(__BORLANDC__) \
     || (defined(__MWERKS__) && defined(_WIN32) && (__MWERKS__ >= 0x3000)) \
     || (defined(__ICL) && defined(_MSC_EXTENSIONS) && (_MSC_VER >= 1200))
 
-#ifndef BOOST_VERSION_HPP
+#ifndef NDNBOOST_VERSION_HPP
 #  include <ndnboost/version.hpp>
 #endif
 
-#ifndef BOOST_LIB_NAME
-#  error "Macro BOOST_LIB_NAME not set (internal error)"
+#ifndef NDNBOOST_LIB_NAME
+#  error "Macro NDNBOOST_LIB_NAME not set (internal error)"
 #endif
 
 //
@@ -113,79 +113,79 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 //
 // select toolset if not defined already:
 //
-#ifndef BOOST_LIB_TOOLSET
-#  if defined(BOOST_MSVC) && (BOOST_MSVC < 1200)
+#ifndef NDNBOOST_LIB_TOOLSET
+#  if defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC < 1200)
     // Note: no compilers before 1200 are supported
-#  elif defined(BOOST_MSVC) && (BOOST_MSVC < 1300)
+#  elif defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC < 1300)
 
 #    ifdef UNDER_CE
        // eVC4:
-#      define BOOST_LIB_TOOLSET "evc4"
+#      define NDNBOOST_LIB_TOOLSET "evc4"
 #    else
        // vc6:
-#      define BOOST_LIB_TOOLSET "vc6"
+#      define NDNBOOST_LIB_TOOLSET "vc6"
 #    endif
 
-#  elif defined(BOOST_MSVC) && (BOOST_MSVC < 1310)
+#  elif defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC < 1310)
 
      // vc7:
-#    define BOOST_LIB_TOOLSET "vc7"
+#    define NDNBOOST_LIB_TOOLSET "vc7"
 
-#  elif defined(BOOST_MSVC) && (BOOST_MSVC < 1400)
+#  elif defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC < 1400)
 
      // vc71:
-#    define BOOST_LIB_TOOLSET "vc71"
+#    define NDNBOOST_LIB_TOOLSET "vc71"
 
-#  elif defined(BOOST_MSVC) && (BOOST_MSVC < 1500)
+#  elif defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC < 1500)
 
      // vc80:
-#    define BOOST_LIB_TOOLSET "vc80"
+#    define NDNBOOST_LIB_TOOLSET "vc80"
 
-#  elif defined(BOOST_MSVC) && (BOOST_MSVC < 1600)
+#  elif defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC < 1600)
 
      // vc90:
-#    define BOOST_LIB_TOOLSET "vc90"
+#    define NDNBOOST_LIB_TOOLSET "vc90"
 
-#  elif defined(BOOST_MSVC) && (BOOST_MSVC < 1700)
+#  elif defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC < 1700)
 
      // vc10:
-#    define BOOST_LIB_TOOLSET "vc100"
+#    define NDNBOOST_LIB_TOOLSET "vc100"
 
-#  elif defined(BOOST_MSVC)
+#  elif defined(NDNBOOST_MSVC)
 
      // vc11:
-#    define BOOST_LIB_TOOLSET "vc110"
+#    define NDNBOOST_LIB_TOOLSET "vc110"
 
 #  elif defined(__BORLANDC__)
 
      // CBuilder 6:
-#    define BOOST_LIB_TOOLSET "bcb"
+#    define NDNBOOST_LIB_TOOLSET "bcb"
 
 #  elif defined(__ICL)
 
      // Intel C++, no version number:
-#    define BOOST_LIB_TOOLSET "iw"
+#    define NDNBOOST_LIB_TOOLSET "iw"
 
 #  elif defined(__MWERKS__) && (__MWERKS__ <= 0x31FF )
 
      // Metrowerks CodeWarrior 8.x
-#    define BOOST_LIB_TOOLSET "cw8"
+#    define NDNBOOST_LIB_TOOLSET "cw8"
 
 #  elif defined(__MWERKS__) && (__MWERKS__ <= 0x32FF )
 
      // Metrowerks CodeWarrior 9.x
-#    define BOOST_LIB_TOOLSET "cw9"
+#    define NDNBOOST_LIB_TOOLSET "cw9"
 
 #  endif
-#endif // BOOST_LIB_TOOLSET
+#endif // NDNBOOST_LIB_TOOLSET
 
 //
 // select thread opt:
 //
 #if defined(_MT) || defined(__MT__)
-#  define BOOST_LIB_THREAD_OPT "-mt"
+#  define NDNBOOST_LIB_THREAD_OPT "-mt"
 #else
-#  define BOOST_LIB_THREAD_OPT
+#  define NDNBOOST_LIB_THREAD_OPT
 #endif
 
 #if defined(_MSC_VER) || defined(__MWERKS__)
@@ -195,51 +195,51 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 #     if (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)) && (defined(_STLP_OWN_IOSTREAMS) || defined(__STL_OWN_IOSTREAMS))
 
 #        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))\
-               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#            define BOOST_LIB_RT_OPT "-gydp"
+               && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#            define NDNBOOST_LIB_RT_OPT "-gydp"
 #        elif defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
-#            define BOOST_LIB_RT_OPT "-gdp"
+#            define NDNBOOST_LIB_RT_OPT "-gdp"
 #        elif defined(_DEBUG)\
-               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#            define BOOST_LIB_RT_OPT "-gydp"
+               && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#            define NDNBOOST_LIB_RT_OPT "-gydp"
 #            pragma message("warning: STLport debug versions are built with /D_STLP_DEBUG=1")
 #            error "Build options aren't compatible with pre-built libraries"
 #        elif defined(_DEBUG)
-#            define BOOST_LIB_RT_OPT "-gdp"
+#            define NDNBOOST_LIB_RT_OPT "-gdp"
 #            pragma message("warning: STLport debug versions are built with /D_STLP_DEBUG=1")
 #            error "Build options aren't compatible with pre-built libraries"
 #        else
-#            define BOOST_LIB_RT_OPT "-p"
+#            define NDNBOOST_LIB_RT_OPT "-p"
 #        endif
 
 #     elif defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)
 
 #        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))\
-               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#            define BOOST_LIB_RT_OPT "-gydpn"
+               && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#            define NDNBOOST_LIB_RT_OPT "-gydpn"
 #        elif defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
-#            define BOOST_LIB_RT_OPT "-gdpn"
+#            define NDNBOOST_LIB_RT_OPT "-gdpn"
 #        elif defined(_DEBUG)\
-               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#            define BOOST_LIB_RT_OPT "-gydpn"
+               && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#            define NDNBOOST_LIB_RT_OPT "-gydpn"
 #            pragma message("warning: STLport debug versions are built with /D_STLP_DEBUG=1")
 #            error "Build options aren't compatible with pre-built libraries"
 #        elif defined(_DEBUG)
-#            define BOOST_LIB_RT_OPT "-gdpn"
+#            define NDNBOOST_LIB_RT_OPT "-gdpn"
 #            pragma message("warning: STLport debug versions are built with /D_STLP_DEBUG=1")
 #            error "Build options aren't compatible with pre-built libraries"
 #        else
-#            define BOOST_LIB_RT_OPT "-pn"
+#            define NDNBOOST_LIB_RT_OPT "-pn"
 #        endif
 
 #     else
 
-#        if defined(_DEBUG) && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#            define BOOST_LIB_RT_OPT "-gyd"
+#        if defined(_DEBUG) && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#            define NDNBOOST_LIB_RT_OPT "-gyd"
 #        elif defined(_DEBUG)
-#            define BOOST_LIB_RT_OPT "-gd"
+#            define NDNBOOST_LIB_RT_OPT "-gd"
 #        else
-#            define BOOST_LIB_RT_OPT
+#            define NDNBOOST_LIB_RT_OPT
 #        endif
 
 #     endif
@@ -249,52 +249,52 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 #     if (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)) && (defined(_STLP_OWN_IOSTREAMS) || defined(__STL_OWN_IOSTREAMS))
 
 #        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))\
-               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#            define BOOST_LIB_RT_OPT "-sgydp"
+               && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#            define NDNBOOST_LIB_RT_OPT "-sgydp"
 #        elif defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
-#            define BOOST_LIB_RT_OPT "-sgdp"
+#            define NDNBOOST_LIB_RT_OPT "-sgdp"
 #        elif defined(_DEBUG)\
-               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#             define BOOST_LIB_RT_OPT "-sgydp"
+               && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#             define NDNBOOST_LIB_RT_OPT "-sgydp"
 #            pragma message("warning: STLport debug versions are built with /D_STLP_DEBUG=1")
 #            error "Build options aren't compatible with pre-built libraries"
 #        elif defined(_DEBUG)
-#             define BOOST_LIB_RT_OPT "-sgdp"
+#             define NDNBOOST_LIB_RT_OPT "-sgdp"
 #            pragma message("warning: STLport debug versions are built with /D_STLP_DEBUG=1")
 #            error "Build options aren't compatible with pre-built libraries"
 #        else
-#            define BOOST_LIB_RT_OPT "-sp"
+#            define NDNBOOST_LIB_RT_OPT "-sp"
 #        endif
 
 #     elif defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)
 
 #        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))\
-               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#            define BOOST_LIB_RT_OPT "-sgydpn"
+               && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#            define NDNBOOST_LIB_RT_OPT "-sgydpn"
 #        elif defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
-#            define BOOST_LIB_RT_OPT "-sgdpn"
+#            define NDNBOOST_LIB_RT_OPT "-sgdpn"
 #        elif defined(_DEBUG)\
-               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#             define BOOST_LIB_RT_OPT "-sgydpn"
+               && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#             define NDNBOOST_LIB_RT_OPT "-sgydpn"
 #            pragma message("warning: STLport debug versions are built with /D_STLP_DEBUG=1")
 #            error "Build options aren't compatible with pre-built libraries"
 #        elif defined(_DEBUG)
-#             define BOOST_LIB_RT_OPT "-sgdpn"
+#             define NDNBOOST_LIB_RT_OPT "-sgdpn"
 #            pragma message("warning: STLport debug versions are built with /D_STLP_DEBUG=1")
 #            error "Build options aren't compatible with pre-built libraries"
 #        else
-#            define BOOST_LIB_RT_OPT "-spn"
+#            define NDNBOOST_LIB_RT_OPT "-spn"
 #        endif
 
 #     else
 
 #        if defined(_DEBUG)\
-               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#             define BOOST_LIB_RT_OPT "-sgyd"
+               && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#             define NDNBOOST_LIB_RT_OPT "-sgyd"
 #        elif defined(_DEBUG)
-#             define BOOST_LIB_RT_OPT "-sgd"
+#             define NDNBOOST_LIB_RT_OPT "-sgd"
 #        else
-#            define BOOST_LIB_RT_OPT "-s"
+#            define NDNBOOST_LIB_RT_OPT "-s"
 #        endif
 
 #     endif
@@ -307,7 +307,7 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 // figure out whether we want the debug builds or not:
 //
 #if __BORLANDC__ > 0x561
-#pragma defineonoption BOOST_BORLAND_DEBUG -v
+#pragma defineonoption NDNBOOST_BORLAND_DEBUG -v
 #endif
 //
 // sanity check:
@@ -318,28 +318,28 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 #  ifdef _RTLDLL
 
-#     if defined(BOOST_BORLAND_DEBUG)\
-               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#         define BOOST_LIB_RT_OPT "-yd"
-#     elif defined(BOOST_BORLAND_DEBUG)
-#         define BOOST_LIB_RT_OPT "-d"
-#     elif defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#         define BOOST_LIB_RT_OPT -y
+#     if defined(NDNBOOST_BORLAND_DEBUG)\
+               && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#         define NDNBOOST_LIB_RT_OPT "-yd"
+#     elif defined(NDNBOOST_BORLAND_DEBUG)
+#         define NDNBOOST_LIB_RT_OPT "-d"
+#     elif defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#         define NDNBOOST_LIB_RT_OPT -y
 #     else
-#         define BOOST_LIB_RT_OPT
+#         define NDNBOOST_LIB_RT_OPT
 #     endif
 
 #  else
 
-#     if defined(BOOST_BORLAND_DEBUG)\
-               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#         define BOOST_LIB_RT_OPT "-syd"
-#     elif defined(BOOST_BORLAND_DEBUG)
-#         define BOOST_LIB_RT_OPT "-sd"
-#     elif defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
-#         define BOOST_LIB_RT_OPT "-sy"
+#     if defined(NDNBOOST_BORLAND_DEBUG)\
+               && defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#         define NDNBOOST_LIB_RT_OPT "-syd"
+#     elif defined(NDNBOOST_BORLAND_DEBUG)
+#         define NDNBOOST_LIB_RT_OPT "-sd"
+#     elif defined(NDNBOOST_DEBUG_PYTHON) && defined(NDNBOOST_LINKING_PYTHON)
+#         define NDNBOOST_LIB_RT_OPT "-sy"
 #     else
-#         define BOOST_LIB_RT_OPT "-s"
+#         define NDNBOOST_LIB_RT_OPT "-s"
 #     endif
 
 #  endif
@@ -349,38 +349,38 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 //
 // select linkage opt:
 //
-#if (defined(_DLL) || defined(_RTLDLL)) && defined(BOOST_DYN_LINK)
-#  define BOOST_LIB_PREFIX
-#elif defined(BOOST_DYN_LINK)
+#if (defined(_DLL) || defined(_RTLDLL)) && defined(NDNBOOST_DYN_LINK)
+#  define NDNBOOST_LIB_PREFIX
+#elif defined(NDNBOOST_DYN_LINK)
 #  error "Mixing a dll boost library with a static runtime is a really bad idea..."
 #else
-#  define BOOST_LIB_PREFIX "lib"
+#  define NDNBOOST_LIB_PREFIX "lib"
 #endif
 
 //
 // now include the lib:
 //
-#if defined(BOOST_LIB_NAME) \
-      && defined(BOOST_LIB_PREFIX) \
-      && defined(BOOST_LIB_TOOLSET) \
-      && defined(BOOST_LIB_THREAD_OPT) \
-      && defined(BOOST_LIB_RT_OPT) \
-      && defined(BOOST_LIB_VERSION)
+#if defined(NDNBOOST_LIB_NAME) \
+      && defined(NDNBOOST_LIB_PREFIX) \
+      && defined(NDNBOOST_LIB_TOOLSET) \
+      && defined(NDNBOOST_LIB_THREAD_OPT) \
+      && defined(NDNBOOST_LIB_RT_OPT) \
+      && defined(NDNBOOST_LIB_VERSION)
 
-#ifdef BOOST_AUTO_LINK_TAGGED
-#  pragma comment(lib, BOOST_LIB_PREFIX BOOST_STRINGIZE(BOOST_LIB_NAME) BOOST_LIB_THREAD_OPT BOOST_LIB_RT_OPT ".lib")
-#  ifdef BOOST_LIB_DIAGNOSTIC
-#     pragma message ("Linking to lib file: " BOOST_LIB_PREFIX BOOST_STRINGIZE(BOOST_LIB_NAME) BOOST_LIB_THREAD_OPT BOOST_LIB_RT_OPT ".lib")
+#ifdef NDNBOOST_AUTO_LINK_TAGGED
+#  pragma comment(lib, NDNBOOST_LIB_PREFIX NDNBOOST_STRINGIZE(NDNBOOST_LIB_NAME) NDNBOOST_LIB_THREAD_OPT NDNBOOST_LIB_RT_OPT ".lib")
+#  ifdef NDNBOOST_LIB_DIAGNOSTIC
+#     pragma message ("Linking to lib file: " NDNBOOST_LIB_PREFIX NDNBOOST_STRINGIZE(NDNBOOST_LIB_NAME) NDNBOOST_LIB_THREAD_OPT NDNBOOST_LIB_RT_OPT ".lib")
 #  endif
-#elif defined(BOOST_AUTO_LINK_NOMANGLE)
-#  pragma comment(lib, BOOST_STRINGIZE(BOOST_LIB_NAME) ".lib")
-#  ifdef BOOST_LIB_DIAGNOSTIC
-#     pragma message ("Linking to lib file: " BOOST_STRINGIZE(BOOST_LIB_NAME) ".lib")
+#elif defined(NDNBOOST_AUTO_LINK_NOMANGLE)
+#  pragma comment(lib, NDNBOOST_STRINGIZE(NDNBOOST_LIB_NAME) ".lib")
+#  ifdef NDNBOOST_LIB_DIAGNOSTIC
+#     pragma message ("Linking to lib file: " NDNBOOST_STRINGIZE(NDNBOOST_LIB_NAME) ".lib")
 #  endif
 #else
-#  pragma comment(lib, BOOST_LIB_PREFIX BOOST_STRINGIZE(BOOST_LIB_NAME) "-" BOOST_LIB_TOOLSET BOOST_LIB_THREAD_OPT BOOST_LIB_RT_OPT "-" BOOST_LIB_VERSION ".lib")
-#  ifdef BOOST_LIB_DIAGNOSTIC
-#     pragma message ("Linking to lib file: " BOOST_LIB_PREFIX BOOST_STRINGIZE(BOOST_LIB_NAME) "-" BOOST_LIB_TOOLSET BOOST_LIB_THREAD_OPT BOOST_LIB_RT_OPT "-" BOOST_LIB_VERSION ".lib")
+#  pragma comment(lib, NDNBOOST_LIB_PREFIX NDNBOOST_STRINGIZE(NDNBOOST_LIB_NAME) "-" NDNBOOST_LIB_TOOLSET NDNBOOST_LIB_THREAD_OPT NDNBOOST_LIB_RT_OPT "-" NDNBOOST_LIB_VERSION ".lib")
+#  ifdef NDNBOOST_LIB_DIAGNOSTIC
+#     pragma message ("Linking to lib file: " NDNBOOST_LIB_PREFIX NDNBOOST_STRINGIZE(NDNBOOST_LIB_NAME) "-" NDNBOOST_LIB_TOOLSET NDNBOOST_LIB_THREAD_OPT NDNBOOST_LIB_RT_OPT "-" NDNBOOST_LIB_VERSION ".lib")
 #  endif
 #endif
 
@@ -394,30 +394,30 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 //
 // finally undef any macros we may have set:
 //
-#ifdef BOOST_LIB_PREFIX
-#  undef BOOST_LIB_PREFIX
+#ifdef NDNBOOST_LIB_PREFIX
+#  undef NDNBOOST_LIB_PREFIX
 #endif
-#if defined(BOOST_LIB_NAME)
-#  undef BOOST_LIB_NAME
+#if defined(NDNBOOST_LIB_NAME)
+#  undef NDNBOOST_LIB_NAME
 #endif
 // Don't undef this one: it can be set by the user and should be the 
 // same for all libraries:
-//#if defined(BOOST_LIB_TOOLSET)
-//#  undef BOOST_LIB_TOOLSET
+//#if defined(NDNBOOST_LIB_TOOLSET)
+//#  undef NDNBOOST_LIB_TOOLSET
 //#endif
-#if defined(BOOST_LIB_THREAD_OPT)
-#  undef BOOST_LIB_THREAD_OPT
+#if defined(NDNBOOST_LIB_THREAD_OPT)
+#  undef NDNBOOST_LIB_THREAD_OPT
 #endif
-#if defined(BOOST_LIB_RT_OPT)
-#  undef BOOST_LIB_RT_OPT
+#if defined(NDNBOOST_LIB_RT_OPT)
+#  undef NDNBOOST_LIB_RT_OPT
 #endif
-#if defined(BOOST_LIB_LINK_OPT)
-#  undef BOOST_LIB_LINK_OPT
+#if defined(NDNBOOST_LIB_LINK_OPT)
+#  undef NDNBOOST_LIB_LINK_OPT
 #endif
-#if defined(BOOST_LIB_DEBUG_OPT)
-#  undef BOOST_LIB_DEBUG_OPT
+#if defined(NDNBOOST_LIB_DEBUG_OPT)
+#  undef NDNBOOST_LIB_DEBUG_OPT
 #endif
-#if defined(BOOST_DYN_LINK)
-#  undef BOOST_DYN_LINK
+#if defined(NDNBOOST_DYN_LINK)
+#  undef NDNBOOST_DYN_LINK
 #endif
 

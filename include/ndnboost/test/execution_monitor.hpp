@@ -29,8 +29,8 @@
 //  design presented here.
 // ***************************************************************************
 
-#ifndef BOOST_TEST_EXECUTION_MONITOR_HPP_071894GER
-#define BOOST_TEST_EXECUTION_MONITOR_HPP_071894GER
+#ifndef NDNBOOST_TEST_EXECUTION_MONITOR_HPP_071894GER
+#define NDNBOOST_TEST_EXECUTION_MONITOR_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/detail/global_typedef.hpp>
@@ -56,7 +56,7 @@ namespace detail {
 // **************       detail::translate_exception_base       ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL translate_exception_base {
+class NDNBOOST_TEST_DECL translate_exception_base {
 public:
     // Constructor
     explicit    translate_exception_base( ndnboost::scoped_ptr<translate_exception_base>& next )
@@ -82,7 +82,7 @@ protected:
     
 //  design rationale: fear of being out (or nearly out) of memory.
     
-class BOOST_TEST_DECL execution_exception {
+class NDNBOOST_TEST_DECL execution_exception {
     typedef ndnboost::unit_test::const_string const_string;
 public:
     enum error_code {
@@ -113,7 +113,7 @@ public:
         //  is unreasonable to continue execution.
     };
     
-    struct BOOST_TEST_DECL location {
+    struct NDNBOOST_TEST_DECL location {
         explicit    location( char const* file_name = 0, size_t line_num = 0, char const* func = 0 );
 
         const_string    m_file_name;
@@ -140,7 +140,7 @@ private:
 // **************               execution_monitor              ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL execution_monitor {
+class NDNBOOST_TEST_DECL execution_monitor {
 public:
     // Constructor
     execution_monitor()
@@ -252,7 +252,7 @@ public:
     unit_test::readonly_property<char const*>   p_failed_exp; 
 };
 
-#define BOOST_TEST_SYS_ASSERT( exp ) if( (exp) ) ; else throw ::ndnboost::system_error( BOOST_STRINGIZE( exp ) )
+#define NDNBOOST_TEST_SYS_ASSERT( exp ) if( (exp) ) ; else throw ::ndnboost::system_error( NDNBOOST_STRINGIZE( exp ) )
 
 }  // namespace ndnboost
 

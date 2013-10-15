@@ -12,8 +12,8 @@
 //  Description : implements XML Log formatter
 // ***************************************************************************
 
-#ifndef BOOST_TEST_XML_LOG_FORMATTER_IPP_020105GER
-#define BOOST_TEST_XML_LOG_FORMATTER_IPP_020105GER
+#ifndef NDNBOOST_TEST_XML_LOG_FORMATTER_IPP_020105GER
+#define NDNBOOST_TEST_XML_LOG_FORMATTER_IPP_020105GER
 
 // Boost.Test
 #include <ndnboost/test/output/xml_log_formatter.hpp>
@@ -68,12 +68,12 @@ void
 xml_log_formatter::log_build_info( std::ostream& ostr )
 {
     ostr  << "<BuildInfo"
-            << " platform"  << attr_value() << BOOST_PLATFORM
-            << " compiler"  << attr_value() << BOOST_COMPILER
-            << " stl"       << attr_value() << BOOST_STDLIB
-            << " boost=\""  << BOOST_VERSION/100000     << "."
-                            << BOOST_VERSION/100 % 1000 << "."
-                            << BOOST_VERSION % 100      << '\"'
+            << " platform"  << attr_value() << NDNBOOST_PLATFORM
+            << " compiler"  << attr_value() << NDNBOOST_COMPILER
+            << " stl"       << attr_value() << NDNBOOST_STDLIB
+            << " boost=\""  << NDNBOOST_VERSION/100000     << "."
+                            << NDNBOOST_VERSION/100 % 1000 << "."
+                            << NDNBOOST_VERSION % 100      << '\"'
             << "/>";
 }
 
@@ -142,9 +142,9 @@ xml_log_formatter::log_entry_start( std::ostream& ostr, log_entry_data const& en
 
     m_curr_tag = xml_tags[let];
     ostr << '<' << m_curr_tag
-         << BOOST_TEST_L( " file" ) << attr_value() << entry_data.m_file_name
-         << BOOST_TEST_L( " line" ) << attr_value() << entry_data.m_line_num
-         << BOOST_TEST_L( "><![CDATA[" );
+         << NDNBOOST_TEST_L( " file" ) << attr_value() << entry_data.m_file_name
+         << NDNBOOST_TEST_L( " line" ) << attr_value() << entry_data.m_line_num
+         << NDNBOOST_TEST_L( "><![CDATA[" );
 }
 
 //____________________________________________________________________________//
@@ -160,7 +160,7 @@ xml_log_formatter::log_entry_value( std::ostream& ostr, const_string value )
 void
 xml_log_formatter::log_entry_finish( std::ostream& ostr )
 {
-    ostr << BOOST_TEST_L( "]]></" ) << m_curr_tag << BOOST_TEST_L( ">" );
+    ostr << NDNBOOST_TEST_L( "]]></" ) << m_curr_tag << NDNBOOST_TEST_L( ">" );
 
     m_curr_tag.clear();
 }
@@ -177,4 +177,4 @@ xml_log_formatter::log_entry_finish( std::ostream& ostr )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_XML_LOG_FORMATTER_IPP_020105GER
+#endif // NDNBOOST_TEST_XML_LOG_FORMATTER_IPP_020105GER

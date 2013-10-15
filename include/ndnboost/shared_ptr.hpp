@@ -1,5 +1,5 @@
-#ifndef BOOST_SHARED_PTR_HPP_INCLUDED
-#define BOOST_SHARED_PTR_HPP_INCLUDED
+#ifndef NDNBOOST_SHARED_PTR_HPP_INCLUDED
+#define NDNBOOST_SHARED_PTR_HPP_INCLUDED
 
 //
 //  shared_ptr.hpp
@@ -16,4 +16,4 @@
 
 #include <ndnboost/smart_ptr/shared_ptr.hpp>
 
-#endif  // #ifndef BOOST_SHARED_PTR_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SHARED_PTR_HPP_INCLUDED

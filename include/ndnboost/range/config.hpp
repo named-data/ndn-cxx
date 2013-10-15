@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_CONFIG_HPP
-#define BOOST_RANGE_CONFIG_HPP
+#ifndef NDNBOOST_RANGE_CONFIG_HPP
+#define NDNBOOST_RANGE_CONFIG_HPP
 
 #include <ndnboost/detail/workaround.hpp>
 
@@ -19,33 +19,33 @@
 
 #include <ndnboost/config.hpp>
 
-#ifdef BOOST_RANGE_DEDUCED_TYPENAME
+#ifdef NDNBOOST_RANGE_DEDUCED_TYPENAME
 #error "macro already defined!"
 #endif
 
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
-# define BOOST_RANGE_DEDUCED_TYPENAME typename
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564))
+# define NDNBOOST_RANGE_DEDUCED_TYPENAME typename
 #else
-# if BOOST_WORKAROUND(BOOST_MSVC, == 1300) && !defined(_MSC_EXTENSIONS)
-#  define BOOST_RANGE_DEDUCED_TYPENAME typename
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1300) && !defined(_MSC_EXTENSIONS)
+#  define NDNBOOST_RANGE_DEDUCED_TYPENAME typename
 # else
-#  define BOOST_RANGE_DEDUCED_TYPENAME BOOST_DEDUCED_TYPENAME
+#  define NDNBOOST_RANGE_DEDUCED_TYPENAME NDNBOOST_DEDUCED_TYPENAME
 # endif
 #endif
 
-#ifdef BOOST_RANGE_NO_ARRAY_SUPPORT
+#ifdef NDNBOOST_RANGE_NO_ARRAY_SUPPORT
 #error "macro already defined!"
 #endif
 
-#if BOOST_WORKAROUND( BOOST_MSVC, < 1300 ) || BOOST_WORKAROUND( __MWERKS__, <= 0x3003 )
-#define BOOST_RANGE_NO_ARRAY_SUPPORT 1
+#if NDNBOOST_WORKAROUND( NDNBOOST_MSVC, < 1300 ) || NDNBOOST_WORKAROUND( __MWERKS__, <= 0x3003 )
+#define NDNBOOST_RANGE_NO_ARRAY_SUPPORT 1
 #endif
 
-#ifdef BOOST_RANGE_NO_ARRAY_SUPPORT
-#define BOOST_RANGE_ARRAY_REF() (boost_range_array)
-#define BOOST_RANGE_NO_STATIC_ASSERT
+#ifdef NDNBOOST_RANGE_NO_ARRAY_SUPPORT
+#define NDNBOOST_RANGE_ARRAY_REF() (boost_range_array)
+#define NDNBOOST_RANGE_NO_STATIC_ASSERT
 #else
-#define BOOST_RANGE_ARRAY_REF() (&boost_range_array)
+#define NDNBOOST_RANGE_ARRAY_REF() (&boost_range_array)
 #endif
 
 

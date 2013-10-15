@@ -19,8 +19,8 @@ if ($#ARGV < 0) {
 $totalNumArgs = $ARGV[0];
 for ($numArgs = 0; $numArgs <= $totalNumArgs; ++$numArgs) {
   open OUT, ">function$numArgs.hpp";
-  print OUT "#define BOOST_FUNCTION_NUM_ARGS $numArgs\n";
+  print OUT "#define NDNBOOST_FUNCTION_NUM_ARGS $numArgs\n";
   print OUT "#include <ndnboost/function/detail/maybe_include.hpp>\n";
-  print OUT "#undef BOOST_FUNCTION_NUM_ARGS\n";
+  print OUT "#undef NDNBOOST_FUNCTION_NUM_ARGS\n";
   close OUT;
 }

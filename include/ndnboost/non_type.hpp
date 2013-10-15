@@ -8,8 +8,8 @@
 //
 // ------------------------------------------------------
 
-#ifndef BOOST_NON_TYPE_HPP_GP_20030417
-#define BOOST_NON_TYPE_HPP_GP_20030417
+#ifndef NDNBOOST_NON_TYPE_HPP_GP_20030417
+#define NDNBOOST_NON_TYPE_HPP_GP_20030417
 
 
 namespace ndnboost {

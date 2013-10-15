@@ -6,8 +6,8 @@
  * Version 1.0. (See accompanying file LICENSE_1_0.txt 
  * or copy at http://boost.org/LICENSE_1_0.txt)
  */
-#ifndef BOOST_SMART_PTR_DETAIL_ARRAY_UTILITY_HPP
-#define BOOST_SMART_PTR_DETAIL_ARRAY_UTILITY_HPP
+#ifndef NDNBOOST_SMART_PTR_DETAIL_ARRAY_UTILITY_HPP
+#define NDNBOOST_SMART_PTR_DETAIL_ARRAY_UTILITY_HPP
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/type_traits/has_trivial_constructor.hpp>
@@ -37,7 +37,7 @@ namespace ndnboost {
         }
         template<typename T>
         inline void array_init(T* memory, std::size_t size, ndnboost::false_type) {
-#if !defined(BOOST_NO_EXCEPTIONS)
+#if !defined(NDNBOOST_NO_EXCEPTIONS)
             std::size_t i = 0;
             try {
                 for (; i < size; i++) {
@@ -60,10 +60,10 @@ namespace ndnboost {
             ndnboost::has_trivial_default_constructor<T> type;            
             array_init(memory, size, type);
         }
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
         template<typename T>
         inline void array_init_value(T* memory, std::size_t size, T&& value) {
-#if !defined(BOOST_NO_EXCEPTIONS)
+#if !defined(NDNBOOST_NO_EXCEPTIONS)
             std::size_t i = 0;
             try {
                 for (; i < size; i++) {
@@ -81,10 +81,10 @@ namespace ndnboost {
             }
 #endif
         }
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
         template<typename T, typename... Args>
         inline void array_init_args(T* memory, std::size_t size, Args&&... args) {
-#if !defined(BOOST_NO_EXCEPTIONS)
+#if !defined(NDNBOOST_NO_EXCEPTIONS)
             std::size_t i = 0;
             try {
                 for (; i < size; i++) {
@@ -106,7 +106,7 @@ namespace ndnboost {
 #endif
         template<typename T>
         inline void array_init_list(T* memory, std::size_t size, const T* list) {
-#if !defined(BOOST_NO_EXCEPTIONS)
+#if !defined(NDNBOOST_NO_EXCEPTIONS)
             std::size_t i = 0;
             try {
                 for (; i < size; i++) {
@@ -126,7 +126,7 @@ namespace ndnboost {
         }
         template<typename T, std::size_t N>
         inline void array_init_list(T* memory, std::size_t size, const T* list) {
-#if !defined(BOOST_NO_EXCEPTIONS)
+#if !defined(NDNBOOST_NO_EXCEPTIONS)
             std::size_t i = 0;
             try {
                 for (; i < size; i++) {
@@ -149,7 +149,7 @@ namespace ndnboost {
         }
         template<typename T>
         inline void array_noinit(T* memory, std::size_t size, ndnboost::false_type) {
-#if !defined(BOOST_NO_EXCEPTIONS)
+#if !defined(NDNBOOST_NO_EXCEPTIONS)
             std::size_t i = 0;
             try {
                 for (; i < size; i++) {

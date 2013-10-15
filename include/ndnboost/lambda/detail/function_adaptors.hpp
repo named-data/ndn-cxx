@@ -9,8 +9,8 @@
 // For more information, see www.boost.org
 
 
-#ifndef BOOST_LAMBDA_FUNCTION_ADAPTORS_HPP
-#define BOOST_LAMBDA_FUNCTION_ADAPTORS_HPP
+#ifndef NDNBOOST_LAMBDA_FUNCTION_ADAPTORS_HPP
+#define NDNBOOST_LAMBDA_FUNCTION_ADAPTORS_HPP
 
 #include "ndnboost/mpl/has_xxx.hpp"
 #include "ndnboost/tuple/tuple.hpp"
@@ -26,7 +26,7 @@ namespace lambda {
 
 namespace detail {
 
-BOOST_MPL_HAS_XXX_TEMPLATE_DEF(sig)
+NDNBOOST_MPL_HAS_XXX_TEMPLATE_DEF(sig)
 
 template<class Tuple>
 struct remove_references_from_elements {
@@ -47,7 +47,7 @@ template <class Func> struct function_adaptor {
 
   typedef typename detail::remove_reference_and_cv<Func>::type plainF;
 
-#if !defined(BOOST_NO_RESULT_OF)
+#if !defined(NDNBOOST_NO_RESULT_OF)
   // Support functors that use the ndnboost::result_of return type convention.
   template<class Tuple, int Length, bool HasSig>
   struct result_converter;
@@ -166,7 +166,7 @@ template <class Func> struct function_adaptor {
       , detail::has_sig<plainF>::value
       >
   {};
-#else // BOOST_NO_RESULT_OF
+#else // NDNBOOST_NO_RESULT_OF
 
   template <class Args> class sig {
     typedef typename detail::remove_reference_and_cv<Func>::type plainF;

@@ -4,8 +4,8 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_SWAP_HPP
-#define BOOST_SWAP_HPP
+#ifndef NDNBOOST_SWAP_HPP
+#define NDNBOOST_SWAP_HPP
 
 #include "ndnboost/utility/swap.hpp"
 

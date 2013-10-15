@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_REND_HPP
-#define BOOST_RANGE_REND_HPP
+#ifndef NDNBOOST_RANGE_REND_HPP
+#define NDNBOOST_RANGE_REND_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
@@ -21,31 +21,31 @@
 namespace ndnboost
 {
 
-#ifdef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+#ifdef NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING
 
 template< class C >
-inline BOOST_DEDUCED_TYPENAME range_reverse_iterator<C>::type
+inline NDNBOOST_DEDUCED_TYPENAME range_reverse_iterator<C>::type
 rend( C& c )
 {
-    return BOOST_DEDUCED_TYPENAME range_reverse_iterator<C>::type( ndnboost::begin( c ) );
+    return NDNBOOST_DEDUCED_TYPENAME range_reverse_iterator<C>::type( ndnboost::begin( c ) );
 }
 
 #else
 
 template< class C >
-inline BOOST_DEDUCED_TYPENAME range_reverse_iterator<C>::type
+inline NDNBOOST_DEDUCED_TYPENAME range_reverse_iterator<C>::type
 rend( C& c )
 {
-    typedef BOOST_DEDUCED_TYPENAME range_reverse_iterator<C>::type
+    typedef NDNBOOST_DEDUCED_TYPENAME range_reverse_iterator<C>::type
                iter_type;
     return iter_type( ndnboost::begin( c ) );
 }
 
 template< class C >
-inline BOOST_DEDUCED_TYPENAME range_reverse_iterator<const C>::type
+inline NDNBOOST_DEDUCED_TYPENAME range_reverse_iterator<const C>::type
 rend( const C& c )
 {
-    typedef BOOST_DEDUCED_TYPENAME range_reverse_iterator<const C>::type
+    typedef NDNBOOST_DEDUCED_TYPENAME range_reverse_iterator<const C>::type
         iter_type;
     return iter_type( ndnboost::begin( c ) );
 }
@@ -53,7 +53,7 @@ rend( const C& c )
 #endif
 
 template< class T >
-inline BOOST_DEDUCED_TYPENAME range_reverse_iterator<const T>::type
+inline NDNBOOST_DEDUCED_TYPENAME range_reverse_iterator<const T>::type
 const_rend( const T& r )
 {
     return ndnboost::rend( r );

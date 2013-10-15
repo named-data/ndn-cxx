@@ -1,5 +1,5 @@
-#ifndef BOOST_MEMORY_ORDER_HPP_INCLUDED
-#define BOOST_MEMORY_ORDER_HPP_INCLUDED
+#ifndef NDNBOOST_MEMORY_ORDER_HPP_INCLUDED
+#define NDNBOOST_MEMORY_ORDER_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -50,4 +50,4 @@ enum memory_order
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_MEMORY_ORDER_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_MEMORY_ORDER_HPP_INCLUDED

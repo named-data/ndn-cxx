@@ -13,8 +13,8 @@
 //  Description : main function implementation for Program Executon Monitor
 // ***************************************************************************
 
-#ifndef BOOST_TEST_CPP_MAIN_IPP_012205GER
-#define BOOST_TEST_CPP_MAIN_IPP_012205GER
+#ifndef NDNBOOST_TEST_CPP_MAIN_IPP_012205GER
+#define NDNBOOST_TEST_CPP_MAIN_IPP_012205GER
 
 // Boost.Test
 #include <ndnboost/test/execution_monitor.hpp>
@@ -34,7 +34,7 @@
 
 //____________________________________________________________________________//
 
-#ifdef BOOST_NO_STDC_NAMESPACE
+#ifdef NDNBOOST_NO_STDC_NAMESPACE
 namespace std { using ::getenv; using ::strerror; }
 #endif
 
@@ -63,13 +63,13 @@ private:
 
 namespace ndnboost {
 
-int BOOST_TEST_DECL
+int NDNBOOST_TEST_DECL
 prg_exec_monitor_main( int (*cpp_main)( int argc, char* argv[] ), int argc, char* argv[] )
 {
     int result = 0;
 
     try {
-        ndnboost::unit_test::const_string p( std::getenv( "BOOST_TEST_CATCH_SYSTEM_ERRORS" ) );
+        ndnboost::unit_test::const_string p( std::getenv( "NDNBOOST_TEST_CATCH_SYSTEM_ERRORS" ) );
         ::ndnboost::execution_monitor ex_mon;
 
         ex_mon.p_catch_system_errors.value = p != "no";
@@ -103,7 +103,7 @@ prg_exec_monitor_main( int (*cpp_main)( int argc, char* argv[] ), int argc, char
         //  like the clutter.  Use an environment variable to avoid command
         //  line argument modifications; for use in production programs
         //  that's a no-no in some organizations.
-        ::ndnboost::unit_test::const_string p( std::getenv( "BOOST_PRG_MON_CONFIRM" ) );
+        ::ndnboost::unit_test::const_string p( std::getenv( "NDNBOOST_PRG_MON_CONFIRM" ) );
         if( p != "no" ) { 
             std::cerr << std::flush << "no errors detected" << std::endl; 
         }
@@ -114,7 +114,7 @@ prg_exec_monitor_main( int (*cpp_main)( int argc, char* argv[] ), int argc, char
 
 } // namespace ndnboost
 
-#if !defined(BOOST_TEST_DYN_LINK) && !defined(BOOST_TEST_NO_MAIN)
+#if !defined(NDNBOOST_TEST_DYN_LINK) && !defined(NDNBOOST_TEST_NO_MAIN)
 
 // ************************************************************************** //
 // **************        main function for tests using lib     ************** //
@@ -122,7 +122,7 @@ prg_exec_monitor_main( int (*cpp_main)( int argc, char* argv[] ), int argc, char
 
 int cpp_main( int argc, char* argv[] );  // prototype for user's cpp_main()
 
-int BOOST_TEST_CALL_DECL
+int NDNBOOST_TEST_CALL_DECL
 main( int argc, char* argv[] )
 {
     return ::ndnboost::prg_exec_monitor_main( &cpp_main, argc, argv );
@@ -130,10 +130,10 @@ main( int argc, char* argv[] )
 
 //____________________________________________________________________________//
 
-#endif // !BOOST_TEST_DYN_LINK && !BOOST_TEST_NO_MAIN
+#endif // !NDNBOOST_TEST_DYN_LINK && !NDNBOOST_TEST_NO_MAIN
 
 //____________________________________________________________________________//
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_CPP_MAIN_IPP_012205GER
+#endif // NDNBOOST_TEST_CPP_MAIN_IPP_012205GER

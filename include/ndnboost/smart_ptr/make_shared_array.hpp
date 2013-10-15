@@ -6,15 +6,15 @@
  * Version 1.0. (See accompanying file LICENSE_1_0.txt
  * or copy at http://boost.org/LICENSE_1_0.txt)
  */
-#ifndef BOOST_SMART_PTR_MAKE_SHARED_ARRAY_HPP
-#define BOOST_SMART_PTR_MAKE_SHARED_ARRAY_HPP
+#ifndef NDNBOOST_SMART_PTR_MAKE_SHARED_ARRAY_HPP
+#define NDNBOOST_SMART_PTR_MAKE_SHARED_ARRAY_HPP
 
 #include <ndnboost/smart_ptr/shared_ptr.hpp>
 #include <ndnboost/smart_ptr/detail/array_deleter.hpp>
 #include <ndnboost/smart_ptr/detail/array_traits.hpp>
 #include <ndnboost/smart_ptr/detail/make_array_helper.hpp>
 #include <ndnboost/smart_ptr/detail/sp_if_array.hpp>
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
 #include <initializer_list>
 #endif
 
@@ -36,7 +36,7 @@ namespace ndnboost {
         d2->init(p2);
         return ndnboost::shared_ptr<T>(s1, p1);
     }
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) && !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES) && !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
     template<typename T, typename... Args>
     inline typename ndnboost::detail::sp_if_array<T>::type
     make_shared(std::size_t size, Args&&... args) {
@@ -74,7 +74,7 @@ namespace ndnboost {
         return ndnboost::shared_ptr<T>(s1, p1);
     }
 #endif
-#if !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX)
+#if !defined(NDNBOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX)
     template<typename T>
     inline typename ndnboost::detail::sp_if_size_array<T>::type
     make_shared(const T& list) {
@@ -144,7 +144,7 @@ namespace ndnboost {
         d2->template init_list<M>(p2, p3);
         return ndnboost::shared_ptr<T>(s1, p1);
     }
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
     template<typename T>
     inline typename ndnboost::detail::sp_if_array<T>::type
     make_shared(std::initializer_list<typename ndnboost::detail::array_inner<T>::type> list) {
@@ -166,7 +166,7 @@ namespace ndnboost {
         return ndnboost::shared_ptr<T>(s1, p1);
     }
 #endif
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
     template<typename T>
     inline typename ndnboost::detail::sp_if_array<T>::type
     make_shared(std::size_t size,

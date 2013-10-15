@@ -16,18 +16,18 @@
 #include <ndnboost/config.hpp> // for prior
 #include <ndnboost/detail/workaround.hpp>
 
-#ifdef BOOST_ITERATOR_CONFIG_DEF
+#ifdef NDNBOOST_ITERATOR_CONFIG_DEF
 # error you have nested config_def #inclusion.
 #else 
-# define BOOST_ITERATOR_CONFIG_DEF
+# define NDNBOOST_ITERATOR_CONFIG_DEF
 #endif 
 
 // We enable this always now.  Otherwise, the simple case in
 // libs/iterator/test/constant_iterator_arrow.cpp fails to compile
 // because the operator-> return is improperly deduced as a non-const
 // pointer.
-#if 1 || defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)           \
-    || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x531))
+#if 1 || defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)           \
+    || NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x531))
 
 // Recall that in general, compilers without partial specialization
 // can't strip constness.  Consider counting_iterator, which normally
@@ -42,17 +42,17 @@
 // return the value_type from operator[] directly, but is not
 // strictly necessary.  Not sure how best to resolve this one.
 
-# define BOOST_ITERATOR_REF_CONSTNESS_KILLS_WRITABILITY 1
+# define NDNBOOST_ITERATOR_REF_CONSTNESS_KILLS_WRITABILITY 1
 
 #endif
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)                                       \
-    || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x5A0))                   \
-    || (BOOST_WORKAROUND(BOOST_INTEL_CXX_VERSION, <= 700) && defined(_MSC_VER)) \
-    || BOOST_WORKAROUND(__DECCXX_VER, BOOST_TESTED_AT(60590042))                \
-    || BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x590))
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)                                       \
+    || NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x5A0))                   \
+    || (NDNBOOST_WORKAROUND(NDNBOOST_INTEL_CXX_VERSION, <= 700) && defined(_MSC_VER)) \
+    || NDNBOOST_WORKAROUND(__DECCXX_VER, NDNBOOST_TESTED_AT(60590042))                \
+    || NDNBOOST_WORKAROUND(__SUNPRO_CC, NDNBOOST_TESTED_AT(0x590))
     
-# define BOOST_NO_LVALUE_RETURN_DETECTION
+# define NDNBOOST_NO_LVALUE_RETURN_DETECTION
 
 # if 0 // test code
   struct v  {};
@@ -84,14 +84,14 @@
 
 #endif
 
-#if BOOST_WORKAROUND(__MWERKS__, <=0x2407)
-#  define BOOST_NO_IS_CONVERTIBLE // "is_convertible doesn't work for simple types"
+#if NDNBOOST_WORKAROUND(__MWERKS__, <=0x2407)
+#  define NDNBOOST_NO_IS_CONVERTIBLE // "is_convertible doesn't work for simple types"
 #endif
 
-#if BOOST_WORKAROUND(__GNUC__, == 2)                                                                            \
-    || BOOST_WORKAROUND(__GNUC__, == 3) && BOOST_WORKAROUND(__GNUC_MINOR__, < 4) && !defined(__EDG_VERSION__)   \
-    || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x551))
-#  define BOOST_NO_IS_CONVERTIBLE_TEMPLATE // The following program fails to compile:
+#if NDNBOOST_WORKAROUND(__GNUC__, == 2)                                                                            \
+    || NDNBOOST_WORKAROUND(__GNUC__, == 3) && NDNBOOST_WORKAROUND(__GNUC_MINOR__, < 4) && !defined(__EDG_VERSION__)   \
+    || NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x551))
+#  define NDNBOOST_NO_IS_CONVERTIBLE_TEMPLATE // The following program fails to compile:
 
 #  if 0 // test code
     #include <ndnboost/type_traits/is_convertible.hpp>
@@ -112,18 +112,18 @@
 #endif
 
 
-#if !defined(BOOST_MSVC) && (defined(BOOST_NO_SFINAE) || defined(BOOST_NO_IS_CONVERTIBLE) || defined(BOOST_NO_IS_CONVERTIBLE_TEMPLATE))
-# define BOOST_NO_STRICT_ITERATOR_INTEROPERABILITY
+#if !defined(NDNBOOST_MSVC) && (defined(NDNBOOST_NO_SFINAE) || defined(NDNBOOST_NO_IS_CONVERTIBLE) || defined(NDNBOOST_NO_IS_CONVERTIBLE_TEMPLATE))
+# define NDNBOOST_NO_STRICT_ITERATOR_INTEROPERABILITY
 #endif 
 
-# if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-#  define BOOST_ARG_DEPENDENT_TYPENAME typename
+# if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
+#  define NDNBOOST_ARG_DEPENDENT_TYPENAME typename
 # else
-#  define BOOST_ARG_DEPENDENT_TYPENAME
+#  define NDNBOOST_ARG_DEPENDENT_TYPENAME
 # endif
 
-# if BOOST_WORKAROUND(__GNUC__, == 2) && BOOST_WORKAROUND(__GNUC_MINOR__, BOOST_TESTED_AT(95)) \
-    || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
+# if NDNBOOST_WORKAROUND(__GNUC__, == 2) && NDNBOOST_WORKAROUND(__GNUC_MINOR__, NDNBOOST_TESTED_AT(95)) \
+    || NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564))
 
 // GCC-2.95 eagerly instantiates templated constructors and conversion
 // operators in convertibility checks, causing premature errors.
@@ -131,7 +131,7 @@
 // Borland's problems are harder to diagnose due to lack of an
 // instantiation stack backtrace.  They may be due in part to the fact
 // that it drops cv-qualification willy-nilly in templates.
-#  define BOOST_NO_ONE_WAY_ITERATOR_INTEROP
+#  define NDNBOOST_NO_ONE_WAY_ITERATOR_INTEROP
 # endif 
 
 // no include guard; multiple inclusion intended

@@ -45,10 +45,10 @@ namespace detail
           static Iterator& x;
       };
       
-      BOOST_STATIC_CONSTANT(bool, is_constant = sizeof(impl::test(*impl::x)) == 1);
+      NDNBOOST_STATIC_CONSTANT(bool, is_constant = sizeof(impl::test(*impl::x)) == 1);
       
       typedef typename mpl::if_c<
-#  if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x551))
+#  if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x551))
           ::ndnboost::detail::iterator_pointee<Iterator>::is_constant
 #  else
           is_constant

@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_SHARED_COUNT_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_SHARED_COUNT_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_SHARED_COUNT_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_SHARED_COUNT_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -36,11 +36,11 @@
 #include <ndnboost/config/no_tr1/memory.hpp>  // std::auto_ptr
 #include <functional>       // std::less
 
-#ifdef BOOST_NO_EXCEPTIONS
+#ifdef NDNBOOST_NO_EXCEPTIONS
 # include <new>              // std::bad_alloc
 #endif
 
-#if !defined( BOOST_NO_CXX11_SMART_PTR )
+#if !defined( NDNBOOST_NO_CXX11_SMART_PTR )
 # include <ndnboost/utility/addressof.hpp>
 #endif
 
@@ -50,7 +50,7 @@ namespace ndnboost
 namespace detail
 {
 
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
 
 int const shared_count_id = 0x2C35F101;
 int const   weak_count_id = 0x298C38A4;
@@ -63,7 +63,7 @@ template< class D > struct sp_inplace_tag
 {
 };
 
-#if !defined( BOOST_NO_CXX11_SMART_PTR )
+#if !defined( NDNBOOST_NO_CXX11_SMART_PTR )
 
 template< class T > class sp_reference_wrapper
 { 
@@ -103,7 +103,7 @@ private:
 
     sp_counted_base * pi_;
 
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
     int id_;
 #endif
 
@@ -112,18 +112,18 @@ private:
 public:
 
     shared_count(): pi_(0) // nothrow
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
     {
     }
 
     template<class Y> explicit shared_count( Y * p ): pi_( 0 )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
     {
-#ifndef BOOST_NO_EXCEPTIONS
+#ifndef NDNBOOST_NO_EXCEPTIONS
 
         try
         {
@@ -148,19 +148,19 @@ public:
 #endif
     }
 
-#if defined( BOOST_MSVC ) && BOOST_WORKAROUND( BOOST_MSVC, <= 1200 )
+#if defined( NDNBOOST_MSVC ) && NDNBOOST_WORKAROUND( NDNBOOST_MSVC, <= 1200 )
     template<class Y, class D> shared_count( Y * p, D d ): pi_(0)
 #else
     template<class P, class D> shared_count( P p, D d ): pi_(0)
 #endif
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
     {
-#if defined( BOOST_MSVC ) && BOOST_WORKAROUND( BOOST_MSVC, <= 1200 )
+#if defined( NDNBOOST_MSVC ) && NDNBOOST_WORKAROUND( NDNBOOST_MSVC, <= 1200 )
         typedef Y* P;
 #endif
-#ifndef BOOST_NO_EXCEPTIONS
+#ifndef NDNBOOST_NO_EXCEPTIONS
 
         try
         {
@@ -185,14 +185,14 @@ public:
 #endif
     }
 
-#if !defined( BOOST_NO_FUNCTION_TEMPLATE_ORDERING )
+#if !defined( NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING )
 
     template< class P, class D > shared_count( P p, sp_inplace_tag<D> ): pi_( 0 )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
     {
-#ifndef BOOST_NO_EXCEPTIONS
+#ifndef NDNBOOST_NO_EXCEPTIONS
 
         try
         {
@@ -214,13 +214,13 @@ public:
             ndnboost::throw_exception( std::bad_alloc() );
         }
 
-#endif // #ifndef BOOST_NO_EXCEPTIONS
+#endif // #ifndef NDNBOOST_NO_EXCEPTIONS
     }
 
-#endif // !defined( BOOST_NO_FUNCTION_TEMPLATE_ORDERING )
+#endif // !defined( NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING )
 
     template<class P, class D, class A> shared_count( P p, D d, A a ): pi_( 0 )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
     {
@@ -229,7 +229,7 @@ public:
 
         A2 a2( a );
 
-#ifndef BOOST_NO_EXCEPTIONS
+#ifndef NDNBOOST_NO_EXCEPTIONS
 
         try
         {
@@ -265,10 +265,10 @@ public:
 #endif
     }
 
-#if !defined( BOOST_NO_FUNCTION_TEMPLATE_ORDERING )
+#if !defined( NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING )
 
     template< class P, class D, class A > shared_count( P p, sp_inplace_tag< D >, A a ): pi_( 0 )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
     {
@@ -277,7 +277,7 @@ public:
 
         A2 a2( a );
 
-#ifndef BOOST_NO_EXCEPTIONS
+#ifndef NDNBOOST_NO_EXCEPTIONS
 
         try
         {
@@ -310,22 +310,22 @@ public:
             ndnboost::throw_exception( std::bad_alloc() );
         }
 
-#endif // #ifndef BOOST_NO_EXCEPTIONS
+#endif // #ifndef NDNBOOST_NO_EXCEPTIONS
     }
 
-#endif // !defined( BOOST_NO_FUNCTION_TEMPLATE_ORDERING )
+#endif // !defined( NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING )
 
-#ifndef BOOST_NO_AUTO_PTR
+#ifndef NDNBOOST_NO_AUTO_PTR
 
     // auto_ptr<Y> is special cased to provide the strong guarantee
 
     template<class Y>
     explicit shared_count( std::auto_ptr<Y> & r ): pi_( new sp_counted_impl_p<Y>( r.get() ) )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
     {
-#ifdef BOOST_NO_EXCEPTIONS
+#ifdef NDNBOOST_NO_EXCEPTIONS
 
         if( pi_ == 0 )
         {
@@ -339,11 +339,11 @@ public:
 
 #endif 
 
-#if !defined( BOOST_NO_CXX11_SMART_PTR )
+#if !defined( NDNBOOST_NO_CXX11_SMART_PTR )
 
     template<class Y, class D>
     explicit shared_count( std::unique_ptr<Y, D> & r ): pi_( 0 )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
     {
@@ -352,7 +352,7 @@ public:
         D2 d2( r.get_deleter() );
         pi_ = new sp_counted_impl_pd< typename std::unique_ptr<Y, D>::pointer, D2 >( r.get(), d2 );
 
-#ifdef BOOST_NO_EXCEPTIONS
+#ifdef NDNBOOST_NO_EXCEPTIONS
 
         if( pi_ == 0 )
         {
@@ -369,23 +369,23 @@ public:
     ~shared_count() // nothrow
     {
         if( pi_ != 0 ) pi_->release();
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         id_ = 0;
 #endif
     }
 
     shared_count(shared_count const & r): pi_(r.pi_) // nothrow
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
     {
         if( pi_ != 0 ) pi_->add_ref_copy();
     }
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
     shared_count(shared_count && r): pi_(r.pi_) // nothrow
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
     {
@@ -461,7 +461,7 @@ private:
 
     sp_counted_base * pi_;
 
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
     int id_;
 #endif
 
@@ -470,14 +470,14 @@ private:
 public:
 
     weak_count(): pi_(0) // nothrow
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(weak_count_id)
 #endif
     {
     }
 
     weak_count(shared_count const & r): pi_(r.pi_) // nothrow
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(weak_count_id)
 #endif
     {
@@ -485,7 +485,7 @@ public:
     }
 
     weak_count(weak_count const & r): pi_(r.pi_) // nothrow
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(weak_count_id)
 #endif
     {
@@ -494,10 +494,10 @@ public:
 
 // Move support
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
     weak_count(weak_count && r): pi_(r.pi_) // nothrow
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(weak_count_id)
 #endif
     {
@@ -509,7 +509,7 @@ public:
     ~weak_count() // nothrow
     {
         if(pi_ != 0) pi_->weak_release();
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         id_ = 0;
 #endif
     }
@@ -571,7 +571,7 @@ public:
 };
 
 inline shared_count::shared_count( weak_count const & r ): pi_( r.pi_ )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
 {
@@ -582,7 +582,7 @@ inline shared_count::shared_count( weak_count const & r ): pi_( r.pi_ )
 }
 
 inline shared_count::shared_count( weak_count const & r, sp_nothrow_tag ): pi_( r.pi_ )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
 {
@@ -600,4 +600,4 @@ inline shared_count::shared_count( weak_count const & r, sp_nothrow_tag ): pi_( 
 # pragma warn .8027     // Functions containing try are not expanded inline
 #endif
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SHARED_COUNT_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_DETAIL_SHARED_COUNT_HPP_INCLUDED

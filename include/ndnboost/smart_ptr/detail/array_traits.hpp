@@ -6,8 +6,8 @@
  * Version 1.0. (See accompanying file LICENSE_1_0.txt 
  * or copy at http://boost.org/LICENSE_1_0.txt)
  */
-#ifndef BOOST_SMART_PTR_DETAIL_ARRAY_TRAITS_HPP
-#define BOOST_SMART_PTR_DETAIL_ARRAY_TRAITS_HPP
+#ifndef NDNBOOST_SMART_PTR_DETAIL_ARRAY_TRAITS_HPP
+#define NDNBOOST_SMART_PTR_DETAIL_ARRAY_TRAITS_HPP
 
 #include <ndnboost/type_traits/remove_cv.hpp>
 

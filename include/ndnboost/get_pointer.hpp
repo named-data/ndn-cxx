@@ -29,7 +29,7 @@ template<class T> T * get_pointer(std::auto_ptr<T> const& p)
     return p.get();
 }
 
-#if !defined( BOOST_NO_CXX11_SMART_PTR )
+#if !defined( NDNBOOST_NO_CXX11_SMART_PTR )
 
 template<class T> T * get_pointer( std::unique_ptr<T> const& p )
 {

@@ -6,8 +6,8 @@
 
 //  See <http://www.boost.org/libs/io/> for the library's home page.
 
-#ifndef BOOST_IO_FWD_HPP
-#define BOOST_IO_FWD_HPP
+#ifndef NDNBOOST_IO_FWD_HPP
+#define NDNBOOST_IO_FWD_HPP
 
 #include <iosfwd>  // for std::char_traits (declaration)
 
@@ -64,4 +64,4 @@ class ios_all_word_saver;
 }  // namespace ndnboost
 
 
-#endif  // BOOST_IO_FWD_HPP
+#endif  // NDNBOOST_IO_FWD_HPP

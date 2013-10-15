@@ -27,8 +27,8 @@
 //  before or by this one :-(
 //
 
-#ifndef BOOST_CONFIG_WARNING_DISABLE_HPP
-#define BOOST_CONFIG_WARNING_DISABLE_HPP
+#ifndef NDNBOOST_CONFIG_WARNING_DISABLE_HPP
+#define NDNBOOST_CONFIG_WARNING_DISABLE_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1400) 
    // Error 'function': was declared deprecated
@@ -44,4 +44,4 @@
 #  pragma warning(disable:1786)
 #endif
 
-#endif // BOOST_CONFIG_WARNING_DISABLE_HPP
+#endif // NDNBOOST_CONFIG_WARNING_DISABLE_HPP

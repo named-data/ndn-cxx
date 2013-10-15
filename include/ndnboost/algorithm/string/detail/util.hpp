@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_UTIL_DETAIL_HPP
-#define BOOST_STRING_UTIL_DETAIL_HPP
+#ifndef NDNBOOST_STRING_UTIL_DETAIL_HPP
+#define NDNBOOST_STRING_UTIL_DETAIL_HPP
 
 #include <ndnboost/algorithm/string/config.hpp>
 #include <functional>
@@ -88,7 +88,7 @@ namespace ndnboost {
             // copy range functor
             template< 
                 typename SeqT, 
-                typename IteratorT=BOOST_STRING_TYPENAME SeqT::const_iterator >
+                typename IteratorT=NDNBOOST_STRING_TYPENAME SeqT::const_iterator >
             struct copy_iterator_rangeF : 
                 public std::unary_function< iterator_range<IteratorT>, SeqT >
             {
@@ -103,4 +103,4 @@ namespace ndnboost {
 } // namespace ndnboost
 
 
-#endif  // BOOST_STRING_UTIL_DETAIL_HPP
+#endif  // NDNBOOST_STRING_UTIL_DETAIL_HPP

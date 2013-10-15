@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_NESTED_TYPE_WKND_HPP_INCLUDED
-#define BOOST_MPL_AUX_NESTED_TYPE_WKND_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_NESTED_TYPE_WKND_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_NESTED_TYPE_WKND_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -17,10 +17,10 @@
 #include <ndnboost/mpl/aux_/config/gcc.hpp>
 #include <ndnboost/mpl/aux_/config/workaround.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MPL_CFG_GCC, BOOST_TESTED_AT(0x0302)) \
-    || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x561)) \
-    || BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x530)) \
-    || BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
+#if NDNBOOST_WORKAROUND(NDNBOOST_MPL_CFG_GCC, NDNBOOST_TESTED_AT(0x0302)) \
+    || NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x561)) \
+    || NDNBOOST_WORKAROUND(__SUNPRO_CC, NDNBOOST_TESTED_AT(0x530)) \
+    || NDNBOOST_WORKAROUND(__DMC__, NDNBOOST_TESTED_AT(0x840))
 
 namespace ndnboost { namespace mpl { namespace aux {
 template< typename T > struct nested_type_wknd
@@ -29,20 +29,20 @@ template< typename T > struct nested_type_wknd
 };
 }}}
 
-#if BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
-#   define BOOST_MPL_AUX_NESTED_TYPE_WKND(T) \
+#if NDNBOOST_WORKAROUND(__DMC__, NDNBOOST_TESTED_AT(0x840))
+#   define NDNBOOST_MPL_AUX_NESTED_TYPE_WKND(T) \
     aux::nested_type_wknd<T> \
 /**/
 #else
-#   define BOOST_MPL_AUX_NESTED_TYPE_WKND(T) \
+#   define NDNBOOST_MPL_AUX_NESTED_TYPE_WKND(T) \
     ::ndnboost::mpl::aux::nested_type_wknd<T> \
 /**/
 #endif
 
-#else // !BOOST_MPL_CFG_GCC et al.
+#else // !NDNBOOST_MPL_CFG_GCC et al.
 
-#   define BOOST_MPL_AUX_NESTED_TYPE_WKND(T) T::type
+#   define NDNBOOST_MPL_AUX_NESTED_TYPE_WKND(T) T::type
 
 #endif 
 
-#endif // BOOST_MPL_AUX_NESTED_TYPE_WKND_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_NESTED_TYPE_WKND_HPP_INCLUDED

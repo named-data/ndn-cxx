@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_ITER_FOLD_IF_HPP_INCLUDED
-#define BOOST_MPL_ITER_FOLD_IF_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_ITER_FOLD_IF_HPP_INCLUDED
+#define NDNBOOST_MPL_ITER_FOLD_IF_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2003-2004
 // Copyright Eric Friedman 2003
@@ -38,7 +38,7 @@ template< typename Predicate, typename LastIterator >
 struct iter_fold_if_pred
 {
     template< typename State, typename Iterator > struct apply
-#if !defined(BOOST_MPL_CFG_NO_NESTED_FORWARDING)
+#if !defined(NDNBOOST_MPL_CFG_NO_NESTED_FORWARDING)
         : and_<
               not_< is_same<Iterator,LastIterator> >
             , apply1<Predicate,Iterator>
@@ -57,12 +57,12 @@ struct iter_fold_if_pred
 } // namespace aux
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
-    , typename BOOST_MPL_AUX_NA_PARAM(State)
-    , typename BOOST_MPL_AUX_NA_PARAM(ForwardOp)
-    , typename BOOST_MPL_AUX_NA_PARAM(ForwardPredicate)
-    , typename BOOST_MPL_AUX_NA_PARAM(BackwardOp)
-    , typename BOOST_MPL_AUX_NA_PARAM(BackwardPredicate)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(State)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(ForwardOp)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(ForwardPredicate)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(BackwardOp)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(BackwardPredicate)
     >
 struct iter_fold_if
 {
@@ -77,7 +77,7 @@ struct iter_fold_if
         >::type backward_pred_;
 
 // cwpro8 doesn't like 'cut-off' type here (use typedef instead)
-#if !BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3003)) && !BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(600))
+#if !NDNBOOST_WORKAROUND(__MWERKS__, NDNBOOST_TESTED_AT(0x3003)) && !NDNBOOST_WORKAROUND(__IBMCPP__, NDNBOOST_TESTED_AT(600))
     struct result_ :
 #else
     typedef
@@ -90,7 +90,7 @@ struct iter_fold_if
         , BackwardOp
         , backward_pred_
         >
-#if !BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3003)) && !BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(600))
+#if !NDNBOOST_WORKAROUND(__MWERKS__, NDNBOOST_TESTED_AT(0x3003)) && !NDNBOOST_WORKAROUND(__IBMCPP__, NDNBOOST_TESTED_AT(600))
     { };
 #else
     result_;
@@ -103,15 +103,15 @@ public:
         , typename result_::iterator
         > type;
 
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           6
         , iter_fold_if
         , (Sequence,State,ForwardOp,ForwardPredicate,BackwardOp,BackwardPredicate)
         )
 };
 
-BOOST_MPL_AUX_NA_SPEC(6, iter_fold_if)
+NDNBOOST_MPL_AUX_NA_SPEC(6, iter_fold_if)
 
 }}
 
-#endif // BOOST_MPL_ITER_FOLD_IF_HPP_INCLUDED
+#endif // NDNBOOST_MPL_ITER_FOLD_IF_HPP_INCLUDED

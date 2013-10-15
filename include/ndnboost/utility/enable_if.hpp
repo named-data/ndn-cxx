@@ -11,15 +11,15 @@
 //             Andrew Lumsdaine (lums at osl.iu.edu)
 
 
-#ifndef BOOST_UTILITY_ENABLE_IF_HPP
-#define BOOST_UTILITY_ENABLE_IF_HPP
+#ifndef NDNBOOST_UTILITY_ENABLE_IF_HPP
+#define NDNBOOST_UTILITY_ENABLE_IF_HPP
 
 #include "ndnboost/config.hpp"
 
 // Even the definition of enable_if causes problems on some compilers,
 // so it's macroed out for all compilers that do not support SFINAE
 
-#ifndef BOOST_NO_SFINAE
+#ifndef NDNBOOST_NO_SFINAE
 
 namespace ndnboost
 {
@@ -114,6 +114,6 @@ namespace ndnboost {
 
 } // namespace ndnboost
 
-#endif // BOOST_NO_SFINAE
+#endif // NDNBOOST_NO_SFINAE
 
 #endif

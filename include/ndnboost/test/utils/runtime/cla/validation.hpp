@@ -12,8 +12,8 @@
 //  Description : input validation helpers definition
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_VALIDATION_HPP_062604GER
-#define BOOST_RT_CLA_VALIDATION_HPP_062604GER
+#ifndef NDNBOOST_RT_CLA_VALIDATION_HPP_062604GER
+#define NDNBOOST_RT_CLA_VALIDATION_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -22,7 +22,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -34,22 +34,22 @@ void report_input_error( argv_traverser const& tr, format_stream& msg );
 
 //____________________________________________________________________________//
 
-#define BOOST_RT_CLA_VALIDATE_INPUT( b, tr, msg ) \
-    if( b ) ; else ::ndnboost::BOOST_RT_PARAM_NAMESPACE::cla::report_input_error( tr, format_stream().ref() << msg )
+#define NDNBOOST_RT_CLA_VALIDATE_INPUT( b, tr, msg ) \
+    if( b ) ; else ::ndnboost::NDNBOOST_RT_PARAM_NAMESPACE::cla::report_input_error( tr, format_stream().ref() << msg )
 
 //____________________________________________________________________________//
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#ifndef BOOST_RT_PARAM_OFFLINE
+#ifndef NDNBOOST_RT_PARAM_OFFLINE
 
-#  define BOOST_RT_PARAM_INLINE inline
+#  define NDNBOOST_RT_PARAM_INLINE inline
 #  include <ndnboost/test/utils/runtime/cla/validation.ipp>
 
 #endif
 
-#endif // BOOST_RT_CLA_VALIDATION_HPP_062604GER
+#endif // NDNBOOST_RT_CLA_VALIDATION_HPP_062604GER

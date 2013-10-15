@@ -11,20 +11,20 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_LOGICAL_NOT_HPP
-# define BOOST_PREPROCESSOR_LOGICAL_NOT_HPP
+# ifndef NDNBOOST_PREPROCESSOR_LOGICAL_NOT_HPP
+# define NDNBOOST_PREPROCESSOR_LOGICAL_NOT_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 # include <ndnboost/preprocessor/logical/bool.hpp>
 # include <ndnboost/preprocessor/logical/compl.hpp>
 #
-# /* BOOST_PP_NOT */
+# /* NDNBOOST_PP_NOT */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_NOT(x) BOOST_PP_COMPL(BOOST_PP_BOOL(x))
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_NOT(x) NDNBOOST_PP_COMPL(NDNBOOST_PP_BOOL(x))
 # else
-#    define BOOST_PP_NOT(x) BOOST_PP_NOT_I(x)
-#    define BOOST_PP_NOT_I(x) BOOST_PP_COMPL(BOOST_PP_BOOL(x))
+#    define NDNBOOST_PP_NOT(x) NDNBOOST_PP_NOT_I(x)
+#    define NDNBOOST_PP_NOT_I(x) NDNBOOST_PP_COMPL(NDNBOOST_PP_BOOL(x))
 # endif
 #
 # endif

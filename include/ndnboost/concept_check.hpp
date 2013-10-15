@@ -14,8 +14,8 @@
 
 // See http://www.boost.org/libs/concept_check for documentation.
 
-#ifndef BOOST_CONCEPT_CHECKS_HPP
-# define BOOST_CONCEPT_CHECKS_HPP
+#ifndef NDNBOOST_CONCEPT_CHECKS_HPP
+# define NDNBOOST_CONCEPT_CHECKS_HPP
 
 # include <ndnboost/concept/assert.hpp>
 
@@ -42,29 +42,29 @@ namespace ndnboost
   template <class Model>
   inline void function_requires(Model* = 0)
   {
-      BOOST_CONCEPT_ASSERT((Model));
+      NDNBOOST_CONCEPT_ASSERT((Model));
   }
   template <class T> inline void ignore_unused_variable_warning(T const&) {}
 
-#  define BOOST_CLASS_REQUIRE(type_var, ns, concept)    \
-    BOOST_CONCEPT_ASSERT((ns::concept<type_var>))
+#  define NDNBOOST_CLASS_REQUIRE(type_var, ns, concept)    \
+    NDNBOOST_CONCEPT_ASSERT((ns::concept<type_var>))
 
-#  define BOOST_CLASS_REQUIRE2(type_var1, type_var2, ns, concept)   \
-    BOOST_CONCEPT_ASSERT((ns::concept<type_var1,type_var2>))
+#  define NDNBOOST_CLASS_REQUIRE2(type_var1, type_var2, ns, concept)   \
+    NDNBOOST_CONCEPT_ASSERT((ns::concept<type_var1,type_var2>))
 
-#  define BOOST_CLASS_REQUIRE3(tv1, tv2, tv3, ns, concept)  \
-    BOOST_CONCEPT_ASSERT((ns::concept<tv1,tv2,tv3>))
+#  define NDNBOOST_CLASS_REQUIRE3(tv1, tv2, tv3, ns, concept)  \
+    NDNBOOST_CONCEPT_ASSERT((ns::concept<tv1,tv2,tv3>))
 
-#  define BOOST_CLASS_REQUIRE4(tv1, tv2, tv3, tv4, ns, concept) \
-    BOOST_CONCEPT_ASSERT((ns::concept<tv1,tv2,tv3,tv4>))
+#  define NDNBOOST_CLASS_REQUIRE4(tv1, tv2, tv3, tv4, ns, concept) \
+    NDNBOOST_CONCEPT_ASSERT((ns::concept<tv1,tv2,tv3,tv4>))
 
 
   //
   // Begin concept definitions
   //
-  BOOST_concept(Integer, (T))
+  NDNBOOST_concept(Integer, (T))
   {
-      BOOST_CONCEPT_USAGE(Integer)
+      NDNBOOST_CONCEPT_USAGE(Integer)
         {
             x.error_type_must_be_an_integer_type();
         }
@@ -81,16 +81,16 @@ namespace ndnboost
   template <> struct Integer<unsigned int> {};
   template <> struct Integer<long> {};
   template <> struct Integer<unsigned long> {};
-# if defined(BOOST_HAS_LONG_LONG)
+# if defined(NDNBOOST_HAS_LONG_LONG)
   template <> struct Integer< ::ndnboost::long_long_type> {};
   template <> struct Integer< ::ndnboost::ulong_long_type> {};
-# elif defined(BOOST_HAS_MS_INT64)
+# elif defined(NDNBOOST_HAS_MS_INT64)
   template <> struct Integer<__int64> {};
   template <> struct Integer<unsigned __int64> {};
 # endif
 
-  BOOST_concept(SignedInteger,(T)) {
-    BOOST_CONCEPT_USAGE(SignedInteger) {
+  NDNBOOST_concept(SignedInteger,(T)) {
+    NDNBOOST_CONCEPT_USAGE(SignedInteger) {
       x.error_type_must_be_a_signed_integer_type();
     }
    private:
@@ -100,14 +100,14 @@ namespace ndnboost
   template <> struct SignedInteger<short> {};
   template <> struct SignedInteger<int> {};
   template <> struct SignedInteger<long> {};
-# if defined(BOOST_HAS_LONG_LONG)
+# if defined(NDNBOOST_HAS_LONG_LONG)
   template <> struct SignedInteger< ::ndnboost::long_long_type> {};
-# elif defined(BOOST_HAS_MS_INT64)
+# elif defined(NDNBOOST_HAS_MS_INT64)
   template <> struct SignedInteger<__int64> {};
 # endif
 
-  BOOST_concept(UnsignedInteger,(T)) {
-    BOOST_CONCEPT_USAGE(UnsignedInteger) {
+  NDNBOOST_concept(UnsignedInteger,(T)) {
+    NDNBOOST_CONCEPT_USAGE(UnsignedInteger) {
       x.error_type_must_be_an_unsigned_integer_type();
     }
    private:
@@ -118,26 +118,26 @@ namespace ndnboost
   template <> struct UnsignedInteger<unsigned short> {};
   template <> struct UnsignedInteger<unsigned int> {};
   template <> struct UnsignedInteger<unsigned long> {};
-# if defined(BOOST_HAS_LONG_LONG)
+# if defined(NDNBOOST_HAS_LONG_LONG)
   template <> struct UnsignedInteger< ::ndnboost::ulong_long_type> {};
-# elif defined(BOOST_HAS_MS_INT64)
+# elif defined(NDNBOOST_HAS_MS_INT64)
   template <> struct UnsignedInteger<unsigned __int64> {};
 # endif
 
   //===========================================================================
   // Basic Concepts
 
-  BOOST_concept(DefaultConstructible,(TT))
+  NDNBOOST_concept(DefaultConstructible,(TT))
   {
-    BOOST_CONCEPT_USAGE(DefaultConstructible) {
+    NDNBOOST_CONCEPT_USAGE(DefaultConstructible) {
       TT a;               // require default constructor
       ignore_unused_variable_warning(a);
     }
   };
 
-  BOOST_concept(Assignable,(TT))
+  NDNBOOST_concept(Assignable,(TT))
   {
-    BOOST_CONCEPT_USAGE(Assignable) {
+    NDNBOOST_CONCEPT_USAGE(Assignable) {
 #if !defined(_ITERATOR_) // back_insert_iterator broken for VC++ STL
       a = b;             // require assignment operator
 #endif
@@ -157,9 +157,9 @@ namespace ndnboost
   };
 
 
-  BOOST_concept(CopyConstructible,(TT))
+  NDNBOOST_concept(CopyConstructible,(TT))
   {
-    BOOST_CONCEPT_USAGE(CopyConstructible) {
+    NDNBOOST_CONCEPT_USAGE(CopyConstructible) {
       TT a(b);            // require copy constructor
       TT* ptr = &a;       // require address of operator
       const_constraints(a);
@@ -181,9 +181,9 @@ namespace ndnboost
 # pragma warning( disable : 4610 ) // object 'class' can never be instantiated - user-defined constructor required
 #endif
   // The SGI STL version of Assignable requires copy constructor and operator=
-  BOOST_concept(SGIAssignable,(TT))
+  NDNBOOST_concept(SGIAssignable,(TT))
   {
-    BOOST_CONCEPT_USAGE(SGIAssignable) {
+    NDNBOOST_CONCEPT_USAGE(SGIAssignable) {
       TT c(a);
 #if !defined(_ITERATOR_) // back_insert_iterator broken for VC++ STL
       a = b;              // require assignment operator
@@ -206,9 +206,9 @@ namespace ndnboost
 # pragma warning( pop )
 #endif
 
-  BOOST_concept(Convertible,(X)(Y))
+  NDNBOOST_concept(Convertible,(X)(Y))
   {
-    BOOST_CONCEPT_USAGE(Convertible) {
+    NDNBOOST_CONCEPT_USAGE(Convertible) {
       Y y = x;
       ignore_unused_variable_warning(y);
     }
@@ -231,9 +231,9 @@ namespace ndnboost
     ignore_unused_variable_warning(x);
   }
 
-  BOOST_concept(EqualityComparable,(TT))
+  NDNBOOST_concept(EqualityComparable,(TT))
   {
-    BOOST_CONCEPT_USAGE(EqualityComparable) {
+    NDNBOOST_CONCEPT_USAGE(EqualityComparable) {
       require_boolean_expr(a == b);
       require_boolean_expr(a != b);
     }
@@ -241,9 +241,9 @@ namespace ndnboost
     TT a, b;
   };
 
-  BOOST_concept(LessThanComparable,(TT))
+  NDNBOOST_concept(LessThanComparable,(TT))
   {
-    BOOST_CONCEPT_USAGE(LessThanComparable) {
+    NDNBOOST_CONCEPT_USAGE(LessThanComparable) {
       require_boolean_expr(a < b);
     }
    private:
@@ -251,9 +251,9 @@ namespace ndnboost
   };
 
   // This is equivalent to SGI STL's LessThanComparable.
-  BOOST_concept(Comparable,(TT))
+  NDNBOOST_concept(Comparable,(TT))
   {
-    BOOST_CONCEPT_USAGE(Comparable) {
+    NDNBOOST_CONCEPT_USAGE(Comparable) {
       require_boolean_expr(a < b);
       require_boolean_expr(a > b);
       require_boolean_expr(a <= b);
@@ -263,45 +263,45 @@ namespace ndnboost
     TT a, b;
   };
 
-#define BOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(OP,NAME)    \
-  BOOST_concept(NAME, (First)(Second))                          \
+#define NDNBOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(OP,NAME)    \
+  NDNBOOST_concept(NAME, (First)(Second))                          \
   {                                                             \
-      BOOST_CONCEPT_USAGE(NAME) { (void)constraints_(); }                         \
+      NDNBOOST_CONCEPT_USAGE(NAME) { (void)constraints_(); }                         \
      private:                                                   \
         bool constraints_() { return a OP b; }                  \
         First a;                                                \
         Second b;                                               \
   }
 
-#define BOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(OP,NAME)    \
-  BOOST_concept(NAME, (Ret)(First)(Second))                 \
+#define NDNBOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(OP,NAME)    \
+  NDNBOOST_concept(NAME, (Ret)(First)(Second))                 \
   {                                                         \
-      BOOST_CONCEPT_USAGE(NAME) { (void)constraints_(); }                     \
+      NDNBOOST_CONCEPT_USAGE(NAME) { (void)constraints_(); }                     \
   private:                                                  \
       Ret constraints_() { return a OP b; }                 \
       First a;                                              \
       Second b;                                             \
   }
 
-  BOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(==, EqualOp);
-  BOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(!=, NotEqualOp);
-  BOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(<, LessThanOp);
-  BOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(<=, LessEqualOp);
-  BOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(>, GreaterThanOp);
-  BOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(>=, GreaterEqualOp);
+  NDNBOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(==, EqualOp);
+  NDNBOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(!=, NotEqualOp);
+  NDNBOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(<, LessThanOp);
+  NDNBOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(<=, LessEqualOp);
+  NDNBOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(>, GreaterThanOp);
+  NDNBOOST_DEFINE_BINARY_PREDICATE_OP_CONSTRAINT(>=, GreaterEqualOp);
 
-  BOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(+, PlusOp);
-  BOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(*, TimesOp);
-  BOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(/, DivideOp);
-  BOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(-, SubtractOp);
-  BOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(%, ModOp);
+  NDNBOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(+, PlusOp);
+  NDNBOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(*, TimesOp);
+  NDNBOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(/, DivideOp);
+  NDNBOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(-, SubtractOp);
+  NDNBOOST_DEFINE_BINARY_OPERATOR_CONSTRAINT(%, ModOp);
 
   //===========================================================================
   // Function Object Concepts
 
-  BOOST_concept(Generator,(Func)(Return))
+  NDNBOOST_concept(Generator,(Func)(Return))
   {
-      BOOST_CONCEPT_USAGE(Generator) { test(is_void<Return>()); }
+      NDNBOOST_CONCEPT_USAGE(Generator) { test(is_void<Return>()); }
 
    private:
       void test(ndnboost::mpl::false_)
@@ -319,9 +319,9 @@ namespace ndnboost
       Func f;
   };
 
-  BOOST_concept(UnaryFunction,(Func)(Return)(Arg))
+  NDNBOOST_concept(UnaryFunction,(Func)(Return)(Arg))
   {
-      BOOST_CONCEPT_USAGE(UnaryFunction) { test(is_void<Return>()); }
+      NDNBOOST_CONCEPT_USAGE(UnaryFunction) { test(is_void<Return>()); }
 
    private:
       void test(ndnboost::mpl::false_)
@@ -336,8 +336,8 @@ namespace ndnboost
           f(arg);
       }
 
-#if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
-                      && BOOST_WORKAROUND(__GNUC__, > 3)))
+#if (NDNBOOST_WORKAROUND(__GNUC__, NDNBOOST_TESTED_AT(4) \
+                      && NDNBOOST_WORKAROUND(__GNUC__, > 3)))
       // Declare a dummy construktor to make gcc happy.
       // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
       // (warning: non-static reference "const double& ndnboost::UnaryFunction<YourClassHere>::arg"
@@ -349,9 +349,9 @@ namespace ndnboost
       Arg arg;
   };
 
-  BOOST_concept(BinaryFunction,(Func)(Return)(First)(Second))
+  NDNBOOST_concept(BinaryFunction,(Func)(Return)(First)(Second))
   {
-      BOOST_CONCEPT_USAGE(BinaryFunction) { test(is_void<Return>()); }
+      NDNBOOST_CONCEPT_USAGE(BinaryFunction) { test(is_void<Return>()); }
    private:
       void test(ndnboost::mpl::false_)
       {
@@ -365,8 +365,8 @@ namespace ndnboost
           f(first,second);
       }
 
-#if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
-                      && BOOST_WORKAROUND(__GNUC__, > 3)))
+#if (NDNBOOST_WORKAROUND(__GNUC__, NDNBOOST_TESTED_AT(4) \
+                      && NDNBOOST_WORKAROUND(__GNUC__, > 3)))
       // Declare a dummy constructor to make gcc happy.
       // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
       // (warning: non-static reference "const double& ndnboost::BinaryFunction<YourClassHere>::arg"
@@ -379,14 +379,14 @@ namespace ndnboost
       Second second;
   };
 
-  BOOST_concept(UnaryPredicate,(Func)(Arg))
+  NDNBOOST_concept(UnaryPredicate,(Func)(Arg))
   {
-    BOOST_CONCEPT_USAGE(UnaryPredicate) {
+    NDNBOOST_CONCEPT_USAGE(UnaryPredicate) {
       require_boolean_expr(f(arg)); // require operator() returning bool
     }
    private:
-#if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
-                      && BOOST_WORKAROUND(__GNUC__, > 3)))
+#if (NDNBOOST_WORKAROUND(__GNUC__, NDNBOOST_TESTED_AT(4) \
+                      && NDNBOOST_WORKAROUND(__GNUC__, > 3)))
       // Declare a dummy constructor to make gcc happy.
       // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
       // (warning: non-static reference "const double& ndnboost::UnaryPredicate<YourClassHere>::arg"
@@ -398,14 +398,14 @@ namespace ndnboost
     Arg arg;
   };
 
-  BOOST_concept(BinaryPredicate,(Func)(First)(Second))
+  NDNBOOST_concept(BinaryPredicate,(Func)(First)(Second))
   {
-    BOOST_CONCEPT_USAGE(BinaryPredicate) {
+    NDNBOOST_CONCEPT_USAGE(BinaryPredicate) {
       require_boolean_expr(f(a, b)); // require operator() returning bool
     }
    private:
-#if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
-                      && BOOST_WORKAROUND(__GNUC__, > 3)))
+#if (NDNBOOST_WORKAROUND(__GNUC__, NDNBOOST_TESTED_AT(4) \
+                      && NDNBOOST_WORKAROUND(__GNUC__, > 3)))
       // Declare a dummy constructor to make gcc happy.
       // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
       // (warning: non-static reference "const double& ndnboost::BinaryPredicate<YourClassHere>::arg"
@@ -418,10 +418,10 @@ namespace ndnboost
   };
 
   // use this when functor is used inside a container class like std::set
-  BOOST_concept(Const_BinaryPredicate,(Func)(First)(Second))
+  NDNBOOST_concept(Const_BinaryPredicate,(Func)(First)(Second))
     : BinaryPredicate<Func, First, Second>
   {
-    BOOST_CONCEPT_USAGE(Const_BinaryPredicate) {
+    NDNBOOST_CONCEPT_USAGE(Const_BinaryPredicate) {
       const_constraints(f);
     }
    private:
@@ -429,8 +429,8 @@ namespace ndnboost
       // operator() must be a const member function
       require_boolean_expr(fun(a, b));
     }
-#if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
-                      && BOOST_WORKAROUND(__GNUC__, > 3)))
+#if (NDNBOOST_WORKAROUND(__GNUC__, NDNBOOST_TESTED_AT(4) \
+                      && NDNBOOST_WORKAROUND(__GNUC__, > 3)))
       // Declare a dummy constructor to make gcc happy.
       // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
       // (warning: non-static reference "const double& ndnboost::Const_BinaryPredicate<YourClassHere>::arg"
@@ -443,18 +443,18 @@ namespace ndnboost
     Second b;
   };
 
-  BOOST_concept(AdaptableGenerator,(Func)(Return))
+  NDNBOOST_concept(AdaptableGenerator,(Func)(Return))
     : Generator<Func, typename Func::result_type>
   {
       typedef typename Func::result_type result_type;
 
-      BOOST_CONCEPT_USAGE(AdaptableGenerator)
+      NDNBOOST_CONCEPT_USAGE(AdaptableGenerator)
       {
-          BOOST_CONCEPT_ASSERT((Convertible<result_type, Return>));
+          NDNBOOST_CONCEPT_ASSERT((Convertible<result_type, Return>));
       }
   };
 
-  BOOST_concept(AdaptableUnaryFunction,(Func)(Return)(Arg))
+  NDNBOOST_concept(AdaptableUnaryFunction,(Func)(Return)(Arg))
     : UnaryFunction<Func, typename Func::result_type, typename Func::argument_type>
   {
       typedef typename Func::argument_type argument_type;
@@ -462,12 +462,12 @@ namespace ndnboost
 
       ~AdaptableUnaryFunction()
       {
-          BOOST_CONCEPT_ASSERT((Convertible<result_type, Return>));
-          BOOST_CONCEPT_ASSERT((Convertible<Arg, argument_type>));
+          NDNBOOST_CONCEPT_ASSERT((Convertible<result_type, Return>));
+          NDNBOOST_CONCEPT_ASSERT((Convertible<Arg, argument_type>));
       }
   };
 
-  BOOST_concept(AdaptableBinaryFunction,(Func)(Return)(First)(Second))
+  NDNBOOST_concept(AdaptableBinaryFunction,(Func)(Return)(First)(Second))
     : BinaryFunction<
           Func
         , typename Func::result_type
@@ -481,19 +481,19 @@ namespace ndnboost
 
       ~AdaptableBinaryFunction()
       {
-          BOOST_CONCEPT_ASSERT((Convertible<result_type, Return>));
-          BOOST_CONCEPT_ASSERT((Convertible<First, first_argument_type>));
-          BOOST_CONCEPT_ASSERT((Convertible<Second, second_argument_type>));
+          NDNBOOST_CONCEPT_ASSERT((Convertible<result_type, Return>));
+          NDNBOOST_CONCEPT_ASSERT((Convertible<First, first_argument_type>));
+          NDNBOOST_CONCEPT_ASSERT((Convertible<Second, second_argument_type>));
       }
   };
 
-  BOOST_concept(AdaptablePredicate,(Func)(Arg))
+  NDNBOOST_concept(AdaptablePredicate,(Func)(Arg))
     : UnaryPredicate<Func, Arg>
     , AdaptableUnaryFunction<Func, bool, Arg>
   {
   };
 
-  BOOST_concept(AdaptableBinaryPredicate,(Func)(First)(Second))
+  NDNBOOST_concept(AdaptableBinaryPredicate,(Func)(First)(Second))
     : BinaryPredicate<Func, First, Second>
     , AdaptableBinaryFunction<Func, bool, First, Second>
   {
@@ -502,7 +502,7 @@ namespace ndnboost
   //===========================================================================
   // Iterator Concepts
 
-  BOOST_concept(InputIterator,(TT))
+  NDNBOOST_concept(InputIterator,(TT))
     : Assignable<TT>
     , EqualityComparable<TT>
   {
@@ -512,10 +512,10 @@ namespace ndnboost
       typedef typename ndnboost::detail::iterator_traits<TT>::pointer pointer;
       typedef typename ndnboost::detail::iterator_traits<TT>::iterator_category iterator_category;
 
-      BOOST_CONCEPT_USAGE(InputIterator)
+      NDNBOOST_CONCEPT_USAGE(InputIterator)
       {
-        BOOST_CONCEPT_ASSERT((SignedInteger<difference_type>));
-        BOOST_CONCEPT_ASSERT((Convertible<iterator_category, std::input_iterator_tag>));
+        NDNBOOST_CONCEPT_ASSERT((SignedInteger<difference_type>));
+        NDNBOOST_CONCEPT_ASSERT((Convertible<iterator_category, std::input_iterator_tag>));
 
         TT j(i);
         (void)*i;           // require dereference operator
@@ -526,10 +526,10 @@ namespace ndnboost
     TT i;
   };
 
-  BOOST_concept(OutputIterator,(TT)(ValueT))
+  NDNBOOST_concept(OutputIterator,(TT)(ValueT))
     : Assignable<TT>
   {
-    BOOST_CONCEPT_USAGE(OutputIterator) {
+    NDNBOOST_CONCEPT_USAGE(OutputIterator) {
 
       ++i;                // require preincrement operator
       i++;                // require postincrement operator
@@ -540,13 +540,13 @@ namespace ndnboost
     ValueT t;
   };
 
-  BOOST_concept(ForwardIterator,(TT))
+  NDNBOOST_concept(ForwardIterator,(TT))
     : InputIterator<TT>
   {
-      BOOST_CONCEPT_USAGE(ForwardIterator)
+      NDNBOOST_CONCEPT_USAGE(ForwardIterator)
       {
-          BOOST_CONCEPT_ASSERT((Convertible<
-              BOOST_DEDUCED_TYPENAME ForwardIterator::iterator_category
+          NDNBOOST_CONCEPT_ASSERT((Convertible<
+              NDNBOOST_DEDUCED_TYPENAME ForwardIterator::iterator_category
             , std::forward_iterator_tag
           >));
 
@@ -558,23 +558,23 @@ namespace ndnboost
       TT i;
   };
 
-  BOOST_concept(Mutable_ForwardIterator,(TT))
+  NDNBOOST_concept(Mutable_ForwardIterator,(TT))
     : ForwardIterator<TT>
   {
-      BOOST_CONCEPT_USAGE(Mutable_ForwardIterator) {
+      NDNBOOST_CONCEPT_USAGE(Mutable_ForwardIterator) {
         *i++ = *i;         // require postincrement and assignment
       }
    private:
       TT i;
   };
 
-  BOOST_concept(BidirectionalIterator,(TT))
+  NDNBOOST_concept(BidirectionalIterator,(TT))
     : ForwardIterator<TT>
   {
-      BOOST_CONCEPT_USAGE(BidirectionalIterator)
+      NDNBOOST_CONCEPT_USAGE(BidirectionalIterator)
       {
-          BOOST_CONCEPT_ASSERT((Convertible<
-              BOOST_DEDUCED_TYPENAME BidirectionalIterator::iterator_category
+          NDNBOOST_CONCEPT_ASSERT((Convertible<
+              NDNBOOST_DEDUCED_TYPENAME BidirectionalIterator::iterator_category
             , std::bidirectional_iterator_tag
           >));
 
@@ -585,11 +585,11 @@ namespace ndnboost
       TT i;
   };
 
-  BOOST_concept(Mutable_BidirectionalIterator,(TT))
+  NDNBOOST_concept(Mutable_BidirectionalIterator,(TT))
     : BidirectionalIterator<TT>
     , Mutable_ForwardIterator<TT>
   {
-      BOOST_CONCEPT_USAGE(Mutable_BidirectionalIterator)
+      NDNBOOST_CONCEPT_USAGE(Mutable_BidirectionalIterator)
       {
           *i-- = *i;                  // require postdecrement and assignment
       }
@@ -597,14 +597,14 @@ namespace ndnboost
       TT i;
   };
 
-  BOOST_concept(RandomAccessIterator,(TT))
+  NDNBOOST_concept(RandomAccessIterator,(TT))
     : BidirectionalIterator<TT>
     , Comparable<TT>
   {
-      BOOST_CONCEPT_USAGE(RandomAccessIterator)
+      NDNBOOST_CONCEPT_USAGE(RandomAccessIterator)
       {
-          BOOST_CONCEPT_ASSERT((Convertible<
-              BOOST_DEDUCED_TYPENAME BidirectionalIterator<TT>::iterator_category
+          NDNBOOST_CONCEPT_ASSERT((Convertible<
+              NDNBOOST_DEDUCED_TYPENAME BidirectionalIterator<TT>::iterator_category
             , std::random_access_iterator_tag
           >));
 
@@ -622,11 +622,11 @@ namespace ndnboost
       typename ndnboost::detail::iterator_traits<TT>::difference_type n;
   };
 
-  BOOST_concept(Mutable_RandomAccessIterator,(TT))
+  NDNBOOST_concept(Mutable_RandomAccessIterator,(TT))
     : RandomAccessIterator<TT>
     , Mutable_BidirectionalIterator<TT>
   {
-      BOOST_CONCEPT_USAGE(Mutable_RandomAccessIterator)
+      NDNBOOST_CONCEPT_USAGE(Mutable_RandomAccessIterator)
       {
           i[n] = *i;                  // require element access and assignment
       }
@@ -638,7 +638,7 @@ namespace ndnboost
   //===========================================================================
   // Container s
 
-  BOOST_concept(Container,(C))
+  NDNBOOST_concept(Container,(C))
     : Assignable<C>
   {
     typedef typename C::value_type value_type;
@@ -648,9 +648,9 @@ namespace ndnboost
     typedef typename C::const_pointer const_pointer;
     typedef typename C::const_iterator const_iterator;
 
-      BOOST_CONCEPT_USAGE(Container)
+      NDNBOOST_CONCEPT_USAGE(Container)
       {
-          BOOST_CONCEPT_ASSERT((InputIterator<const_iterator>));
+          NDNBOOST_CONCEPT_ASSERT((InputIterator<const_iterator>));
           const_constraints(c);
       }
 
@@ -668,19 +668,19 @@ namespace ndnboost
       size_type n;
   };
 
-  BOOST_concept(Mutable_Container,(C))
+  NDNBOOST_concept(Mutable_Container,(C))
     : Container<C>
   {
       typedef typename C::reference reference;
       typedef typename C::iterator iterator;
       typedef typename C::pointer pointer;
 
-      BOOST_CONCEPT_USAGE(Mutable_Container)
+      NDNBOOST_CONCEPT_USAGE(Mutable_Container)
       {
-          BOOST_CONCEPT_ASSERT((
+          NDNBOOST_CONCEPT_ASSERT((
                Assignable<typename Mutable_Container::value_type>));
 
-          BOOST_CONCEPT_ASSERT((InputIterator<iterator>));
+          NDNBOOST_CONCEPT_ASSERT((InputIterator<iterator>));
 
           i = c.begin();
           i = c.end();
@@ -692,45 +692,45 @@ namespace ndnboost
       C c, c2;
   };
 
-  BOOST_concept(ForwardContainer,(C))
+  NDNBOOST_concept(ForwardContainer,(C))
     : Container<C>
   {
-      BOOST_CONCEPT_USAGE(ForwardContainer)
+      NDNBOOST_CONCEPT_USAGE(ForwardContainer)
       {
-          BOOST_CONCEPT_ASSERT((
+          NDNBOOST_CONCEPT_ASSERT((
                ForwardIterator<
                     typename ForwardContainer::const_iterator
                >));
       }
   };
 
-  BOOST_concept(Mutable_ForwardContainer,(C))
+  NDNBOOST_concept(Mutable_ForwardContainer,(C))
     : ForwardContainer<C>
     , Mutable_Container<C>
   {
-      BOOST_CONCEPT_USAGE(Mutable_ForwardContainer)
+      NDNBOOST_CONCEPT_USAGE(Mutable_ForwardContainer)
       {
-          BOOST_CONCEPT_ASSERT((
+          NDNBOOST_CONCEPT_ASSERT((
                Mutable_ForwardIterator<
                    typename Mutable_ForwardContainer::iterator
                >));
       }
   };
 
-  BOOST_concept(ReversibleContainer,(C))
+  NDNBOOST_concept(ReversibleContainer,(C))
     : ForwardContainer<C>
   {
       typedef typename
         C::const_reverse_iterator
       const_reverse_iterator;
 
-      BOOST_CONCEPT_USAGE(ReversibleContainer)
+      NDNBOOST_CONCEPT_USAGE(ReversibleContainer)
       {
-          BOOST_CONCEPT_ASSERT((
+          NDNBOOST_CONCEPT_ASSERT((
               BidirectionalIterator<
                   typename ReversibleContainer::const_iterator>));
 
-          BOOST_CONCEPT_ASSERT((BidirectionalIterator<const_reverse_iterator>));
+          NDNBOOST_CONCEPT_ASSERT((BidirectionalIterator<const_reverse_iterator>));
 
           const_constraints(c);
       }
@@ -743,17 +743,17 @@ namespace ndnboost
       C c;
   };
 
-  BOOST_concept(Mutable_ReversibleContainer,(C))
+  NDNBOOST_concept(Mutable_ReversibleContainer,(C))
     : Mutable_ForwardContainer<C>
     , ReversibleContainer<C>
   {
       typedef typename C::reverse_iterator reverse_iterator;
 
-      BOOST_CONCEPT_USAGE(Mutable_ReversibleContainer)
+      NDNBOOST_CONCEPT_USAGE(Mutable_ReversibleContainer)
       {
           typedef typename Mutable_ForwardContainer<C>::iterator iterator;
-          BOOST_CONCEPT_ASSERT((Mutable_BidirectionalIterator<iterator>));
-          BOOST_CONCEPT_ASSERT((Mutable_BidirectionalIterator<reverse_iterator>));
+          NDNBOOST_CONCEPT_ASSERT((Mutable_BidirectionalIterator<iterator>));
+          NDNBOOST_CONCEPT_ASSERT((Mutable_BidirectionalIterator<reverse_iterator>));
 
           reverse_iterator i = c.rbegin();
           i = c.rend();
@@ -762,15 +762,15 @@ namespace ndnboost
       C c;
   };
 
-  BOOST_concept(RandomAccessContainer,(C))
+  NDNBOOST_concept(RandomAccessContainer,(C))
     : ReversibleContainer<C>
   {
       typedef typename C::size_type size_type;
       typedef typename C::const_reference const_reference;
 
-      BOOST_CONCEPT_USAGE(RandomAccessContainer)
+      NDNBOOST_CONCEPT_USAGE(RandomAccessContainer)
       {
-          BOOST_CONCEPT_ASSERT((
+          NDNBOOST_CONCEPT_ASSERT((
               RandomAccessIterator<
                   typename RandomAccessContainer::const_iterator
               >));
@@ -788,17 +788,17 @@ namespace ndnboost
       size_type n;
   };
 
-  BOOST_concept(Mutable_RandomAccessContainer,(C))
+  NDNBOOST_concept(Mutable_RandomAccessContainer,(C))
     : Mutable_ReversibleContainer<C>
     , RandomAccessContainer<C>
   {
    private:
       typedef Mutable_RandomAccessContainer self;
    public:
-      BOOST_CONCEPT_USAGE(Mutable_RandomAccessContainer)
+      NDNBOOST_CONCEPT_USAGE(Mutable_RandomAccessContainer)
       {
-          BOOST_CONCEPT_ASSERT((Mutable_RandomAccessIterator<typename self::iterator>));
-          BOOST_CONCEPT_ASSERT((Mutable_RandomAccessIterator<typename self::reverse_iterator>));
+          NDNBOOST_CONCEPT_ASSERT((Mutable_RandomAccessIterator<typename self::iterator>));
+          NDNBOOST_CONCEPT_ASSERT((Mutable_RandomAccessIterator<typename self::reverse_iterator>));
 
           typename self::reference r = c[i];
           ignore_unused_variable_warning(r);
@@ -810,14 +810,14 @@ namespace ndnboost
   };
 
   // A Sequence is inherently mutable
-  BOOST_concept(Sequence,(S))
+  NDNBOOST_concept(Sequence,(S))
     : Mutable_ForwardContainer<S>
       // Matt Austern's book puts DefaultConstructible here, the C++
       // standard places it in Container --JGS
       // ... so why aren't we following the standard?  --DWA
     , DefaultConstructible<S>
   {
-      BOOST_CONCEPT_USAGE(Sequence)
+      NDNBOOST_CONCEPT_USAGE(Sequence)
       {
           S
               c(n),
@@ -851,10 +851,10 @@ namespace ndnboost
       typename S::iterator p, q;
   };
 
-  BOOST_concept(FrontInsertionSequence,(S))
+  NDNBOOST_concept(FrontInsertionSequence,(S))
     : Sequence<S>
   {
-      BOOST_CONCEPT_USAGE(FrontInsertionSequence)
+      NDNBOOST_CONCEPT_USAGE(FrontInsertionSequence)
       {
           c.push_front(t);
           c.pop_front();
@@ -864,10 +864,10 @@ namespace ndnboost
       typename S::value_type t;
   };
 
-  BOOST_concept(BackInsertionSequence,(S))
+  NDNBOOST_concept(BackInsertionSequence,(S))
     : Sequence<S>
   {
-      BOOST_CONCEPT_USAGE(BackInsertionSequence)
+      NDNBOOST_CONCEPT_USAGE(BackInsertionSequence)
       {
           c.push_back(t);
           c.pop_back();
@@ -885,7 +885,7 @@ namespace ndnboost
       typename S::value_type t;
   };
 
-  BOOST_concept(AssociativeContainer,(C))
+  NDNBOOST_concept(AssociativeContainer,(C))
     : ForwardContainer<C>
     , DefaultConstructible<C>
   {
@@ -894,7 +894,7 @@ namespace ndnboost
       typedef typename C::value_compare value_compare;
       typedef typename C::iterator iterator;
 
-      BOOST_CONCEPT_USAGE(AssociativeContainer)
+      NDNBOOST_CONCEPT_USAGE(AssociativeContainer)
       {
           i = c.find(k);
           r = c.equal_range(k);
@@ -902,10 +902,10 @@ namespace ndnboost
           c.erase(i);
           c.erase(r.first, r.second);
           const_constraints(c);
-          BOOST_CONCEPT_ASSERT((BinaryPredicate<key_compare,key_type,key_type>));
+          NDNBOOST_CONCEPT_ASSERT((BinaryPredicate<key_compare,key_type,key_type>));
 
           typedef typename AssociativeContainer::value_type value_type_;
-          BOOST_CONCEPT_ASSERT((BinaryPredicate<value_compare,value_type_,value_type_>));
+          NDNBOOST_CONCEPT_ASSERT((BinaryPredicate<value_compare,value_type_,value_type_>));
       }
 
       // Redundant with the base concept, but it helps below.
@@ -927,10 +927,10 @@ namespace ndnboost
       typename C::size_type n;
   };
 
-  BOOST_concept(UniqueAssociativeContainer,(C))
+  NDNBOOST_concept(UniqueAssociativeContainer,(C))
     : AssociativeContainer<C>
   {
-      BOOST_CONCEPT_USAGE(UniqueAssociativeContainer)
+      NDNBOOST_CONCEPT_USAGE(UniqueAssociativeContainer)
       {
           C c(first, last);
 
@@ -945,10 +945,10 @@ namespace ndnboost
       typename C::value_type* first, *last;
   };
 
-  BOOST_concept(MultipleAssociativeContainer,(C))
+  NDNBOOST_concept(MultipleAssociativeContainer,(C))
     : AssociativeContainer<C>
   {
-      BOOST_CONCEPT_USAGE(MultipleAssociativeContainer)
+      NDNBOOST_CONCEPT_USAGE(MultipleAssociativeContainer)
       {
           C c(first, last);
 
@@ -964,35 +964,35 @@ namespace ndnboost
       typename C::value_type* first, *last;
   };
 
-  BOOST_concept(SimpleAssociativeContainer,(C))
+  NDNBOOST_concept(SimpleAssociativeContainer,(C))
     : AssociativeContainer<C>
   {
-      BOOST_CONCEPT_USAGE(SimpleAssociativeContainer)
+      NDNBOOST_CONCEPT_USAGE(SimpleAssociativeContainer)
       {
           typedef typename C::key_type key_type;
           typedef typename C::value_type value_type;
-          BOOST_MPL_ASSERT((ndnboost::is_same<key_type,value_type>));
+          NDNBOOST_MPL_ASSERT((ndnboost::is_same<key_type,value_type>));
       }
   };
 
-  BOOST_concept(PairAssociativeContainer,(C))
+  NDNBOOST_concept(PairAssociativeContainer,(C))
     : AssociativeContainer<C>
   {
-      BOOST_CONCEPT_USAGE(PairAssociativeContainer)
+      NDNBOOST_CONCEPT_USAGE(PairAssociativeContainer)
       {
           typedef typename C::key_type key_type;
           typedef typename C::value_type value_type;
           typedef typename C::mapped_type mapped_type;
           typedef std::pair<const key_type, mapped_type> required_value_type;
-          BOOST_MPL_ASSERT((ndnboost::is_same<value_type,required_value_type>));
+          NDNBOOST_MPL_ASSERT((ndnboost::is_same<value_type,required_value_type>));
       }
   };
 
-  BOOST_concept(SortedAssociativeContainer,(C))
+  NDNBOOST_concept(SortedAssociativeContainer,(C))
     : AssociativeContainer<C>
     , ReversibleContainer<C>
   {
-      BOOST_CONCEPT_USAGE(SortedAssociativeContainer)
+      NDNBOOST_CONCEPT_USAGE(SortedAssociativeContainer)
       {
           C
               c(kc),
@@ -1039,9 +1039,9 @@ namespace ndnboost
 
   // HashedAssociativeContainer
 
-  BOOST_concept(Collection,(C))
+  NDNBOOST_concept(Collection,(C))
   {
-      BOOST_CONCEPT_USAGE(Collection)
+      NDNBOOST_CONCEPT_USAGE(Collection)
       {
         ndnboost::function_requires<ndnboost::InputIteratorConcept<iterator> >();
         ndnboost::function_requires<ndnboost::InputIteratorConcept<const_iterator> >();
@@ -1079,5 +1079,5 @@ namespace ndnboost
 
 # include <ndnboost/concept/detail/concept_undef.hpp>
 
-#endif // BOOST_CONCEPT_CHECKS_HPP
+#endif // NDNBOOST_CONCEPT_CHECKS_HPP
 

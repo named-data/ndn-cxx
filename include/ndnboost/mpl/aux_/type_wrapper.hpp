@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_TYPE_WRAPPER_HPP_INCLUDED
-#define BOOST_MPL_AUX_TYPE_WRAPPER_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_TYPE_WRAPPER_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_TYPE_WRAPPER_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 // Copyright Peter Dimov 2000-2003
@@ -24,7 +24,7 @@ template< typename T > struct type_wrapper
     typedef T type;
 };
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 // agurt 08/may/03: a complicated way to extract the wrapped type; need it 
 // mostly for the sake of GCC (3.2.x), which ICEs if you try to extract the 
 // nested 'type' from 'type_wrapper<T>' when the latter was the result of a
@@ -44,4 +44,4 @@ template< typename W > struct wrapped_type
 
 }}}
 
-#endif // BOOST_MPL_AUX_TYPE_WRAPPER_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_TYPE_WRAPPER_HPP_INCLUDED

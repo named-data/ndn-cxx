@@ -19,8 +19,8 @@
 // call operator for placeholder variables.
 // -------------------------------------------------------------------------
 
-#ifndef BOOST_LAMBDA_CORE_HPP
-#define BOOST_LAMBDA_CORE_HPP
+#ifndef NDNBOOST_LAMBDA_CORE_HPP
+#define NDNBOOST_LAMBDA_CORE_HPP
 
 #include "ndnboost/type_traits/transform_traits.hpp"
 #include "ndnboost/type_traits/cv_traits.hpp"
@@ -76,4 +76,4 @@ namespace {
 } // boost
    
    
-#endif //BOOST_LAMBDA_CORE_HPP
+#endif //NDNBOOST_LAMBDA_CORE_HPP

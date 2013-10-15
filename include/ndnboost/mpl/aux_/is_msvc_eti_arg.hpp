@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_IS_MSVC_ETI_ARG_HPP_INCLUDED
-#define BOOST_MPL_AUX_IS_MSVC_ETI_ARG_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_IS_MSVC_ETI_ARG_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_IS_MSVC_ETI_ARG_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -20,17 +20,17 @@
 
 namespace ndnboost { namespace mpl { namespace aux {
 
-#if defined(BOOST_MPL_CFG_MSVC_ETI_BUG)
+#if defined(NDNBOOST_MPL_CFG_MSVC_ETI_BUG)
 
-#if defined(BOOST_MPL_CFG_MSVC_60_ETI_BUG)
+#if defined(NDNBOOST_MPL_CFG_MSVC_60_ETI_BUG)
 
 template< typename T >
 struct is_msvc_eti_arg
 { 
-    BOOST_STATIC_CONSTANT(bool, value = false);
+    NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
 
-#else // BOOST_MPL_CFG_MSVC_60_ETI_BUG
+#else // NDNBOOST_MPL_CFG_MSVC_60_ETI_BUG
 
 struct eti_int_convertible
 {
@@ -44,7 +44,7 @@ struct is_msvc_eti_arg
     static yes_tag test(eti_int_convertible);
     static T& get();
 
-    BOOST_STATIC_CONSTANT(bool, value = 
+    NDNBOOST_STATIC_CONSTANT(bool, value = 
           sizeof(test(get())) == sizeof(yes_tag)
         );
 };
@@ -54,11 +54,11 @@ struct is_msvc_eti_arg
 template<>
 struct is_msvc_eti_arg<int>
 { 
-    BOOST_STATIC_CONSTANT(bool, value = true);
+    NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 
-#endif // BOOST_MPL_CFG_MSVC_ETI_BUG
+#endif // NDNBOOST_MPL_CFG_MSVC_ETI_BUG
 
 }}}
 
-#endif // BOOST_MPL_AUX_IS_MSVC_ETI_ARG_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_IS_MSVC_ETI_ARG_HPP_INCLUDED

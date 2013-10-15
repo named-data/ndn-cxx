@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_O1_SIZE_FWD_HPP_INCLUDED
-#define BOOST_MPL_O1_SIZE_FWD_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_O1_SIZE_FWD_HPP_INCLUDED
+#define NDNBOOST_MPL_O1_SIZE_FWD_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -21,4 +21,4 @@ template< typename Sequence > struct O1_size;
 
 }}
 
-#endif // BOOST_MPL_O1_SIZE_FWD_HPP_INCLUDED
+#endif // NDNBOOST_MPL_O1_SIZE_FWD_HPP_INCLUDED

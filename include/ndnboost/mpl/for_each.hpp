@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_FOR_EACH_HPP_INCLUDED
-#define BOOST_MPL_FOR_EACH_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_FOR_EACH_HPP_INCLUDED
+#define NDNBOOST_MPL_FOR_EACH_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2008
 //
@@ -92,7 +92,7 @@ template<
 inline
 void for_each(F f, Sequence* = 0, TransformOp* = 0)
 {
-    BOOST_MPL_ASSERT(( is_sequence<Sequence> ));
+    NDNBOOST_MPL_ASSERT(( is_sequence<Sequence> ));
 
     typedef typename begin<Sequence>::type first;
     typedef typename end<Sequence>::type last;
@@ -113,4 +113,4 @@ void for_each(F f, Sequence* = 0)
 
 }}
 
-#endif // BOOST_MPL_FOR_EACH_HPP_INCLUDED
+#endif // NDNBOOST_MPL_FOR_EACH_HPP_INCLUDED

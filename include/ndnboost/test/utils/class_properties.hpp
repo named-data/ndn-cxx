@@ -13,14 +13,14 @@
 //  properties in C++ classes. Original idea by Henrik Ravn.
 // ***************************************************************************
 
-#ifndef BOOST_TEST_CLASS_PROPERTIES_HPP_071894GER
-#define BOOST_TEST_CLASS_PROPERTIES_HPP_071894GER
+#ifndef NDNBOOST_TEST_CLASS_PROPERTIES_HPP_071894GER
+#define NDNBOOST_TEST_CLASS_PROPERTIES_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
 
 // Boost
-#if !BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(600))
+#if !NDNBOOST_WORKAROUND(__IBMCPP__, NDNBOOST_TESTED_AT(600))
 #include <ndnboost/preprocessor/seq/for_each.hpp>
 #endif
 #include <ndnboost/call_traits.hpp>
@@ -62,7 +62,7 @@ public:
     address_res_t   operator&() const       { return &value; }
 
     // Data members
-#ifndef BOOST_TEST_NO_PROTECTED_USING
+#ifndef NDNBOOST_TEST_NO_PROTECTED_USING
 protected:
 #endif
     PropertyType        value;
@@ -70,7 +70,7 @@ protected:
 
 //____________________________________________________________________________//
 
-#ifdef BOOST_CLASSIC_IOSTREAMS
+#ifdef NDNBOOST_CLASSIC_IOSTREAMS
 
 template<class PropertyType>
 inline std::ostream&
@@ -116,7 +116,7 @@ DEFINE_PROPERTY_FREE_BINARY_OPERATOR( != )
 
 #undef DEFINE_PROPERTY_FREE_BINARY_OPERATOR
 
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
 
 #define DEFINE_PROPERTY_LOGICAL_OPERATOR( op )                                  \
 template<class PropertyType>                                                    \
@@ -159,23 +159,23 @@ public:
 
 //____________________________________________________________________________//
 
-#if BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(600))
+#if NDNBOOST_WORKAROUND(__IBMCPP__, NDNBOOST_TESTED_AT(600))
 
-#define BOOST_READONLY_PROPERTY( property_type, friends ) ndnboost::unit_test::readwrite_property<property_type >
+#define NDNBOOST_READONLY_PROPERTY( property_type, friends ) ndnboost::unit_test::readwrite_property<property_type >
 
 #else
 
-#define BOOST_READONLY_PROPERTY_DECLARE_FRIEND(r, data, elem) friend class elem;
+#define NDNBOOST_READONLY_PROPERTY_DECLARE_FRIEND(r, data, elem) friend class elem;
 
-#define BOOST_READONLY_PROPERTY( property_type, friends )                           \
-class BOOST_JOIN( readonly_property, __LINE__ )                                     \
+#define NDNBOOST_READONLY_PROPERTY( property_type, friends )                           \
+class NDNBOOST_JOIN( readonly_property, __LINE__ )                                     \
 : public ndnboost::unit_test::readonly_property<property_type > {                      \
     typedef ndnboost::unit_test::readonly_property<property_type > base_prop;          \
-    BOOST_PP_SEQ_FOR_EACH( BOOST_READONLY_PROPERTY_DECLARE_FRIEND, ' ', friends )   \
+    NDNBOOST_PP_SEQ_FOR_EACH( NDNBOOST_READONLY_PROPERTY_DECLARE_FRIEND, ' ', friends )   \
     typedef base_prop::write_param_t  write_param_t;                                \
 public:                                                                             \
-                BOOST_JOIN( readonly_property, __LINE__ )() {}                      \
-    explicit    BOOST_JOIN( readonly_property, __LINE__ )( write_param_t init_v  )  \
+                NDNBOOST_JOIN( readonly_property, __LINE__ )() {}                      \
+    explicit    NDNBOOST_JOIN( readonly_property, __LINE__ )( write_param_t init_v  )  \
     : base_prop( init_v ) {}                                                        \
 }                                                                                   \
 /**/
@@ -201,7 +201,7 @@ public:
     arrow_res_t     operator->()            { return ndnboost::addressof( base_prop::value ); }
     const_arrow_res_t operator->() const    { return ndnboost::addressof( base_prop::value ); }
 
-#ifndef BOOST_TEST_NO_PROTECTED_USING
+#ifndef NDNBOOST_TEST_NO_PROTECTED_USING
     using           base_prop::value;
 #endif
 };
@@ -216,6 +216,6 @@ public:
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#undef BOOST_TEST_NO_PROTECTED_USING
+#undef NDNBOOST_TEST_NO_PROTECTED_USING
 
-#endif // BOOST_TEST_CLASS_PROPERTIES_HPP_071894GER
+#endif // NDNBOOST_TEST_CLASS_PROPERTIES_HPP_071894GER

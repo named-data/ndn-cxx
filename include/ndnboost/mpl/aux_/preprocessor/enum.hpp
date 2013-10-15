@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_PREPROCESSOR_ENUM_HPP_INCLUDED
-#define BOOST_MPL_AUX_PREPROCESSOR_ENUM_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_PREPROCESSOR_ENUM_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_PREPROCESSOR_ENUM_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -16,47 +16,47 @@
 
 #include <ndnboost/mpl/aux_/config/preprocessor.hpp>
 
-// BOOST_MPL_PP_ENUM(0,int): <nothing>
-// BOOST_MPL_PP_ENUM(1,int): int
-// BOOST_MPL_PP_ENUM(2,int): int, int
-// BOOST_MPL_PP_ENUM(n,int): int, int, .., int
+// NDNBOOST_MPL_PP_ENUM(0,int): <nothing>
+// NDNBOOST_MPL_PP_ENUM(1,int): int
+// NDNBOOST_MPL_PP_ENUM(2,int): int, int
+// NDNBOOST_MPL_PP_ENUM(n,int): int, int, .., int
 
-#if !defined(BOOST_MPL_CFG_NO_OWN_PP_PRIMITIVES)
+#if !defined(NDNBOOST_MPL_CFG_NO_OWN_PP_PRIMITIVES)
 
 #   include <ndnboost/preprocessor/cat.hpp>
 
-#   define BOOST_MPL_PP_ENUM(n, param) \
-    BOOST_PP_CAT(BOOST_MPL_PP_ENUM_,n)(param) \
+#   define NDNBOOST_MPL_PP_ENUM(n, param) \
+    NDNBOOST_PP_CAT(NDNBOOST_MPL_PP_ENUM_,n)(param) \
     /**/
     
-#   define BOOST_MPL_PP_ENUM_0(p)
-#   define BOOST_MPL_PP_ENUM_1(p) p
-#   define BOOST_MPL_PP_ENUM_2(p) p,p
-#   define BOOST_MPL_PP_ENUM_3(p) p,p,p
-#   define BOOST_MPL_PP_ENUM_4(p) p,p,p,p
-#   define BOOST_MPL_PP_ENUM_5(p) p,p,p,p,p
-#   define BOOST_MPL_PP_ENUM_6(p) p,p,p,p,p,p
-#   define BOOST_MPL_PP_ENUM_7(p) p,p,p,p,p,p,p
-#   define BOOST_MPL_PP_ENUM_8(p) p,p,p,p,p,p,p,p
-#   define BOOST_MPL_PP_ENUM_9(p) p,p,p,p,p,p,p,p,p
+#   define NDNBOOST_MPL_PP_ENUM_0(p)
+#   define NDNBOOST_MPL_PP_ENUM_1(p) p
+#   define NDNBOOST_MPL_PP_ENUM_2(p) p,p
+#   define NDNBOOST_MPL_PP_ENUM_3(p) p,p,p
+#   define NDNBOOST_MPL_PP_ENUM_4(p) p,p,p,p
+#   define NDNBOOST_MPL_PP_ENUM_5(p) p,p,p,p,p
+#   define NDNBOOST_MPL_PP_ENUM_6(p) p,p,p,p,p,p
+#   define NDNBOOST_MPL_PP_ENUM_7(p) p,p,p,p,p,p,p
+#   define NDNBOOST_MPL_PP_ENUM_8(p) p,p,p,p,p,p,p,p
+#   define NDNBOOST_MPL_PP_ENUM_9(p) p,p,p,p,p,p,p,p,p
 
 #else
 
 #   include <ndnboost/preprocessor/comma_if.hpp>
 #   include <ndnboost/preprocessor/repeat.hpp>
 
-#   define BOOST_MPL_PP_AUX_ENUM_FUNC(unused, i, param) \
-    BOOST_PP_COMMA_IF(i) param \
+#   define NDNBOOST_MPL_PP_AUX_ENUM_FUNC(unused, i, param) \
+    NDNBOOST_PP_COMMA_IF(i) param \
     /**/
 
-#   define BOOST_MPL_PP_ENUM(n, param) \
-    BOOST_PP_REPEAT( \
+#   define NDNBOOST_MPL_PP_ENUM(n, param) \
+    NDNBOOST_PP_REPEAT( \
           n \
-        , BOOST_MPL_PP_AUX_ENUM_FUNC \
+        , NDNBOOST_MPL_PP_AUX_ENUM_FUNC \
         , param \
         ) \
     /**/
 
 #endif
 
-#endif // BOOST_MPL_AUX_PREPROCESSOR_ENUM_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_PREPROCESSOR_ENUM_HPP_INCLUDED

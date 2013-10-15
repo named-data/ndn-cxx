@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_VALUE_TYPE_HPP
-#define BOOST_RANGE_VALUE_TYPE_HPP
+#ifndef NDNBOOST_RANGE_VALUE_TYPE_HPP
+#define NDNBOOST_RANGE_VALUE_TYPE_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
@@ -18,7 +18,7 @@
 #include <ndnboost/range/config.hpp>
 #include <ndnboost/range/iterator.hpp>
 
-//#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+//#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 //#include <ndnboost/range/detail/value_type.hpp>
 //#else
 

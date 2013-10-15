@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_BEGIN_HPP
-#define BOOST_RANGE_BEGIN_HPP
+#ifndef NDNBOOST_RANGE_BEGIN_HPP
+#define NDNBOOST_RANGE_BEGIN_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
@@ -17,7 +17,7 @@
 
 #include <ndnboost/range/config.hpp>
 
-#ifdef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+#ifdef NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING
 #include <ndnboost/range/detail/begin.hpp>
 #else
 
@@ -26,8 +26,8 @@
 namespace ndnboost
 {
 
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564)) && \
-    !BOOST_WORKAROUND(__GNUC__, < 3) \
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564)) && \
+    !NDNBOOST_WORKAROUND(__GNUC__, < 3) \
     /**/
 namespace range_detail
 {
@@ -38,7 +38,7 @@ namespace range_detail
     //////////////////////////////////////////////////////////////////////
 
     template< typename C >
-    inline BOOST_DEDUCED_TYPENAME range_iterator<C>::type
+    inline NDNBOOST_DEDUCED_TYPENAME range_iterator<C>::type
     range_begin( C& c )
     {
         //
@@ -85,8 +85,8 @@ namespace range_detail
     }
 
 
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564)) && \
-    !BOOST_WORKAROUND(__GNUC__, < 3) \
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564)) && \
+    !NDNBOOST_WORKAROUND(__GNUC__, < 3) \
     /**/
 } // namespace 'range_detail'
 #endif
@@ -98,10 +98,10 @@ namespace range_adl_barrier
 {
 
 template< class T >
-inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type begin( T& r )
+inline NDNBOOST_DEDUCED_TYPENAME range_iterator<T>::type begin( T& r )
 {
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564)) && \
-    !BOOST_WORKAROUND(__GNUC__, < 3) \
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564)) && \
+    !NDNBOOST_WORKAROUND(__GNUC__, < 3) \
     /**/
     using namespace range_detail;
 #endif
@@ -109,10 +109,10 @@ inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type begin( T& r )
 }
 
 template< class T >
-inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type begin( const T& r )
+inline NDNBOOST_DEDUCED_TYPENAME range_iterator<const T>::type begin( const T& r )
 {
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564)) && \
-    !BOOST_WORKAROUND(__GNUC__, < 3) \
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564)) && \
+    !NDNBOOST_WORKAROUND(__GNUC__, < 3) \
     /**/
     using namespace range_detail;
 #endif
@@ -122,14 +122,14 @@ inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type begin( const T& r )
     } // namespace range_adl_barrier
 } // namespace ndnboost
 
-#endif // BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+#endif // NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING
 
 namespace ndnboost
 {
     namespace range_adl_barrier
     {
         template< class T >
-        inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type
+        inline NDNBOOST_DEDUCED_TYPENAME range_iterator<const T>::type
         const_begin( const T& r )
         {
             return ndnboost::range_adl_barrier::begin( r );

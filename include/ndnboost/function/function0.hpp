@@ -7,6 +7,6 @@
 
 // For more information, see http://www.boost.org
 
-#define BOOST_FUNCTION_NUM_ARGS 0
+#define NDNBOOST_FUNCTION_NUM_ARGS 0
 #include <ndnboost/function/detail/maybe_include.hpp>
-#undef BOOST_FUNCTION_NUM_ARGS
+#undef NDNBOOST_FUNCTION_NUM_ARGS

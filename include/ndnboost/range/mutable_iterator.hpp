@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_MUTABLE_ITERATOR_HPP
-#define BOOST_RANGE_MUTABLE_ITERATOR_HPP
+#ifndef NDNBOOST_RANGE_MUTABLE_ITERATOR_HPP
+#define NDNBOOST_RANGE_MUTABLE_ITERATOR_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
@@ -17,7 +17,7 @@
 
 #include <ndnboost/range/config.hpp>
 
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 #include <ndnboost/range/detail/iterator.hpp>
 #else
 
@@ -33,7 +33,7 @@ namespace ndnboost
     //////////////////////////////////////////////////////////////////////////
     
     namespace range_detail {
-        BOOST_RANGE_EXTRACT_OPTIONAL_TYPE( iterator )
+        NDNBOOST_RANGE_EXTRACT_OPTIONAL_TYPE( iterator )
     }
 
     template< typename C >
@@ -62,6 +62,6 @@ namespace ndnboost
 
 } // namespace ndnboost
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 #endif

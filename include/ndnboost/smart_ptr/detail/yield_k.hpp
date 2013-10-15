@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_YIELD_K_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_YIELD_K_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_YIELD_K_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_YIELD_K_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -25,18 +25,18 @@
 
 #include <ndnboost/config.hpp>
 
-// BOOST_SMT_PAUSE
+// NDNBOOST_SMT_PAUSE
 
 #if defined(_MSC_VER) && _MSC_VER >= 1310 && ( defined(_M_IX86) || defined(_M_X64) )
 
 extern "C" void _mm_pause();
 #pragma intrinsic( _mm_pause )
 
-#define BOOST_SMT_PAUSE _mm_pause();
+#define NDNBOOST_SMT_PAUSE _mm_pause();
 
 #elif defined(__GNUC__) && ( defined(__i386__) || defined(__x86_64__) )
 
-#define BOOST_SMT_PAUSE __asm__ __volatile__( "rep; nop" : : : "memory" );
+#define NDNBOOST_SMT_PAUSE __asm__ __volatile__( "rep; nop" : : : "memory" );
 
 #endif
 
@@ -44,7 +44,7 @@ extern "C" void _mm_pause();
 
 #if defined( WIN32 ) || defined( _WIN32 ) || defined( __WIN32__ ) || defined( __CYGWIN__ )
 
-#if defined( BOOST_USE_WINDOWS_H )
+#if defined( NDNBOOST_USE_WINDOWS_H )
 # include <windows.h>
 #endif
 
@@ -54,7 +54,7 @@ namespace ndnboost
 namespace detail
 {
 
-#if !defined( BOOST_USE_WINDOWS_H )
+#if !defined( NDNBOOST_USE_WINDOWS_H )
   extern "C" void __stdcall Sleep( unsigned long ms );
 #endif
 
@@ -63,10 +63,10 @@ inline void yield( unsigned k )
     if( k < 4 )
     {
     }
-#if defined( BOOST_SMT_PAUSE )
+#if defined( NDNBOOST_SMT_PAUSE )
     else if( k < 16 )
     {
-        BOOST_SMT_PAUSE
+        NDNBOOST_SMT_PAUSE
     }
 #endif
     else if( k < 32 )
@@ -83,7 +83,7 @@ inline void yield( unsigned k )
 
 } // namespace ndnboost
 
-#elif defined( BOOST_HAS_PTHREADS )
+#elif defined( NDNBOOST_HAS_PTHREADS )
 
 #include <sched.h>
 #include <time.h>
@@ -99,10 +99,10 @@ inline void yield( unsigned k )
     if( k < 4 )
     {
     }
-#if defined( BOOST_SMT_PAUSE )
+#if defined( NDNBOOST_SMT_PAUSE )
     else if( k < 16 )
     {
-        BOOST_SMT_PAUSE
+        NDNBOOST_SMT_PAUSE
     }
 #endif
     else if( k < 32 || k & 1 )
@@ -146,4 +146,4 @@ inline void yield( unsigned )
 
 #endif
 
-#endif // #ifndef BOOST_SMART_PTR_DETAIL_YIELD_K_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_SMART_PTR_DETAIL_YIELD_K_HPP_INCLUDED

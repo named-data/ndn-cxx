@@ -5,17 +5,17 @@
 
 #ifndef UUID_C3E1741C754311DDB2834CCA55D89593
 #define UUID_C3E1741C754311DDB2834CCA55D89593
-#if (__GNUC__*100+__GNUC_MINOR__>301) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#if (__GNUC__*100+__GNUC_MINOR__>301) && !defined(NDNBOOST_EXCEPTION_ENABLE_WARNINGS)
 #pragma GCC system_header
 #endif
-#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#if defined(_MSC_VER) && !defined(NDNBOOST_EXCEPTION_ENABLE_WARNINGS)
 #pragma warning(push,1)
 #endif
 
 #include <ndnboost/detail/sp_typeinfo.hpp>
 #include <ndnboost/current_function.hpp>
 #include <ndnboost/config.hpp>
-#ifndef BOOST_NO_TYPEID
+#ifndef NDNBOOST_NO_TYPEID
 #include <ndnboost/units/detail/utility.hpp>
 #endif
 #include <string>
@@ -28,8 +28,8 @@ ndnboost
     std::string
     tag_type_name()
         {
-#ifdef BOOST_NO_TYPEID
-        return BOOST_CURRENT_FUNCTION;
+#ifdef NDNBOOST_NO_TYPEID
+        return NDNBOOST_CURRENT_FUNCTION;
 #else
         return units::detail::demangle(typeid(T*).name());
 #endif
@@ -40,8 +40,8 @@ ndnboost
     std::string
     type_name()
         {
-#ifdef BOOST_NO_TYPEID
-        return BOOST_CURRENT_FUNCTION;
+#ifdef NDNBOOST_NO_TYPEID
+        return NDNBOOST_CURRENT_FUNCTION;
 #else
         return units::detail::demangle(typeid(T).name());
 #endif
@@ -71,13 +71,13 @@ ndnboost
         }
     }
 
-#define BOOST_EXCEPTION_STATIC_TYPEID(T) ::ndnboost::exception_detail::type_info_(BOOST_SP_TYPEID(T))
+#define NDNBOOST_EXCEPTION_STATIC_TYPEID(T) ::ndnboost::exception_detail::type_info_(NDNBOOST_SP_TYPEID(T))
 
-#ifndef BOOST_NO_RTTI
-#define BOOST_EXCEPTION_DYNAMIC_TYPEID(x) ::ndnboost::exception_detail::type_info_(typeid(x))
+#ifndef NDNBOOST_NO_RTTI
+#define NDNBOOST_EXCEPTION_DYNAMIC_TYPEID(x) ::ndnboost::exception_detail::type_info_(typeid(x))
 #endif
 
-#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#if defined(_MSC_VER) && !defined(NDNBOOST_EXCEPTION_ENABLE_WARNINGS)
 #pragma warning(pop)
 #endif
 #endif

@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_PTHREADS_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_PTHREADS_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_PTHREADS_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_PTHREADS_HPP_INCLUDED
 
 //
 //  ndnboost/detail/atomic_count_pthreads.hpp
@@ -18,7 +18,7 @@
 //    inefficiencies. Example: a class with two atomic_count members
 //    can get away with a single mutex.
 //
-//  Users can detect this situation by checking BOOST_AC_USE_PTHREADS.
+//  Users can detect this situation by checking NDNBOOST_AC_USE_PTHREADS.
 //
 
 namespace ndnboost
@@ -93,4 +93,4 @@ private:
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_PTHREADS_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_PTHREADS_HPP_INCLUDED

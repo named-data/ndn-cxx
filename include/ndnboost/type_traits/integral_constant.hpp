@@ -3,8 +3,8 @@
 //  Boost Software License, Version 1.0. (See accompanying file 
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_TYPE_TRAITS_INTEGRAL_CONSTANT_HPP
-#define BOOST_TYPE_TRAITS_INTEGRAL_CONSTANT_HPP
+#ifndef NDNBOOST_TYPE_TRAITS_INTEGRAL_CONSTANT_HPP
+#define NDNBOOST_TYPE_TRAITS_INTEGRAL_CONSTANT_HPP
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/mpl/bool.hpp>
@@ -12,7 +12,7 @@
 
 namespace ndnboost{
 
-#if defined(BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS) || defined(__BORLANDC__)
+#if defined(NDNBOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS) || defined(__BORLANDC__)
 template <class T, int val>
 #else
 template <class T, T val>
@@ -24,7 +24,7 @@ struct integral_constant : public mpl::integral_c<T, val>
 
 template<> struct integral_constant<bool,true> : public mpl::true_ 
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
 # pragma warning(push)
 # pragma warning(disable:4097)
    typedef mpl::true_ base_;
@@ -35,7 +35,7 @@ template<> struct integral_constant<bool,true> : public mpl::true_
 };
 template<> struct integral_constant<bool,false> : public mpl::false_ 
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
 # pragma warning(push)
 # pragma warning(disable:4097)
    typedef mpl::false_ base_;

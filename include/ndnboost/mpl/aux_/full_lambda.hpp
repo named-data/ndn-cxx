@@ -1,10 +1,10 @@
 
-#if !defined(BOOST_PP_IS_ITERATING)
+#if !defined(NDNBOOST_PP_IS_ITERATING)
 
 ///// header body
 
-#ifndef BOOST_MPL_AUX_FULL_LAMBDA_HPP_INCLUDED
-#define BOOST_MPL_AUX_FULL_LAMBDA_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_FULL_LAMBDA_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_FULL_LAMBDA_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -18,7 +18,7 @@
 // $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
 // $Revision: 49267 $
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   include <ndnboost/mpl/lambda_fwd.hpp>
 #   include <ndnboost/mpl/bind_fwd.hpp>
 #   include <ndnboost/mpl/protect.hpp>
@@ -29,7 +29,7 @@
 #   include <ndnboost/mpl/aux_/template_arity.hpp>
 #   include <ndnboost/mpl/aux_/na_spec.hpp>
 #   include <ndnboost/mpl/aux_/config/ttp.hpp>
-#   if defined(BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
+#   if defined(NDNBOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
 #       include <ndnboost/mpl/if.hpp>
 #   endif
 #endif
@@ -37,10 +37,10 @@
 #include <ndnboost/mpl/aux_/lambda_arity_param.hpp>
 #include <ndnboost/mpl/aux_/config/use_preprocessed.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
-    && !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+    && !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
-#   define BOOST_MPL_PREPROCESSED_HEADER full_lambda.hpp
+#   define NDNBOOST_MPL_PREPROCESSED_HEADER full_lambda.hpp
 #   include <ndnboost/mpl/aux_/include_preprocessed.hpp>
 
 #else
@@ -61,31 +61,31 @@ namespace ndnboost { namespace mpl {
 
 // local macros, #undef-ined at the end of the header
 #   define AUX778076_LAMBDA_PARAMS(i_, param) \
-    BOOST_MPL_PP_PARAMS(i_, param) \
+    NDNBOOST_MPL_PP_PARAMS(i_, param) \
     /**/
 
 #   define AUX778076_BIND_PARAMS(param) \
-    BOOST_MPL_PP_PARAMS( \
-          BOOST_MPL_LIMIT_METAFUNCTION_ARITY \
+    NDNBOOST_MPL_PP_PARAMS( \
+          NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY \
         , param \
         ) \
     /**/
 
 #   define AUX778076_BIND_N_PARAMS(i_, param) \
-    BOOST_PP_COMMA_IF(i_) \
-    BOOST_MPL_PP_PARAMS(i_, param) \
+    NDNBOOST_PP_COMMA_IF(i_) \
+    NDNBOOST_MPL_PP_PARAMS(i_, param) \
     /**/
 
 #   define AUX778076_ARITY_PARAM(param) \
-    BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(param) \
+    NDNBOOST_MPL_AUX_LAMBDA_ARITY_PARAM(param) \
     /**/
 
 
-#define n_ BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+#define n_ NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY
 namespace aux {
 
 template<
-      BOOST_MPL_PP_DEFAULT_PARAMS(n_,bool C,false)
+      NDNBOOST_MPL_PP_DEFAULT_PARAMS(n_,bool C,false)
     >
 struct lambda_or
     : true_
@@ -93,7 +93,7 @@ struct lambda_or
 };
 
 template<>
-struct lambda_or< BOOST_MPL_PP_ENUM(n_,false) >
+struct lambda_or< NDNBOOST_MPL_PP_ENUM(n_,false) >
     : false_
 {
 };
@@ -131,9 +131,9 @@ struct lambda< arg<N>,Tag AUX778076_ARITY_PARAM(int_<-1>) >
 };
 
 
-#define BOOST_PP_ITERATION_PARAMS_1 \
-    (3,(0, BOOST_MPL_LIMIT_METAFUNCTION_ARITY, <ndnboost/mpl/aux_/full_lambda.hpp>))
-#include BOOST_PP_ITERATE()
+#define NDNBOOST_PP_ITERATION_PARAMS_1 \
+    (3,(0, NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY, <ndnboost/mpl/aux_/full_lambda.hpp>))
+#include NDNBOOST_PP_ITERATE()
 
 /// special case for 'protect'
 template< typename T, typename Tag >
@@ -152,7 +152,7 @@ template<
 struct lambda<
           bind<F,AUX778076_BIND_PARAMS(T)>
         , Tag
-        AUX778076_ARITY_PARAM(int_<BOOST_PP_INC(BOOST_MPL_LIMIT_METAFUNCTION_ARITY)>)
+        AUX778076_ARITY_PARAM(int_<NDNBOOST_PP_INC(NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY)>)
         >
 {
     typedef false_ is_le;
@@ -161,7 +161,7 @@ struct lambda<
 };
 
 
-#if defined(BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
+#if defined(NDNBOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
 
 template<
       typename F
@@ -187,7 +187,7 @@ struct lambda<
     typedef typename le_result_::type type;
 };
 
-#elif !defined(BOOST_MPL_CFG_DMC_AMBIGUOUS_CTPS)
+#elif !defined(NDNBOOST_MPL_CFG_DMC_AMBIGUOUS_CTPS)
 
 /// workaround for MWCW 8.3+/EDG < 303, leads to ambiguity on Digital Mars
 template<
@@ -214,37 +214,37 @@ struct lambda<
 #   undef AUX778076_BIND_PARAMS
 #   undef AUX778076_LAMBDA_PARAMS
 
-#if !defined(BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
-BOOST_MPL_AUX_NA_SPEC(2, lambda)
+#if !defined(NDNBOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
+NDNBOOST_MPL_AUX_NA_SPEC(2, lambda)
 #else
-BOOST_MPL_AUX_NA_SPEC2(2, 3, lambda)
+NDNBOOST_MPL_AUX_NA_SPEC2(2, 3, lambda)
 #endif
 
 }}
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#endif // BOOST_MPL_AUX_FULL_LAMBDA_HPP_INCLUDED
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_AUX_FULL_LAMBDA_HPP_INCLUDED
 
 ///// iteration, depth == 1
 
 // For gcc 4.4 compatability, we must include the
-// BOOST_PP_ITERATION_DEPTH test inside an #else clause.
-#else // BOOST_PP_IS_ITERATING
-#if BOOST_PP_ITERATION_DEPTH() == 1
-#define i_ BOOST_PP_FRAME_ITERATION(1)
+// NDNBOOST_PP_ITERATION_DEPTH test inside an #else clause.
+#else // NDNBOOST_PP_IS_ITERATING
+#if NDNBOOST_PP_ITERATION_DEPTH() == 1
+#define i_ NDNBOOST_PP_FRAME_ITERATION(1)
 
 #if i_ > 0
 
 namespace aux {
 
 #   define AUX778076_RESULT(unused, i_, T) \
-    BOOST_PP_COMMA_IF(i_) \
-    typename BOOST_PP_CAT(T, BOOST_PP_INC(i_))::result_ \
+    NDNBOOST_PP_COMMA_IF(i_) \
+    typename NDNBOOST_PP_CAT(T, NDNBOOST_PP_INC(i_))::result_ \
     /**/
 
 #   define AUX778076_TYPE(unused, i_, T) \
-    BOOST_PP_COMMA_IF(i_) \
-    typename BOOST_PP_CAT(T, BOOST_PP_INC(i_))::type \
+    NDNBOOST_PP_COMMA_IF(i_) \
+    typename NDNBOOST_PP_CAT(T, NDNBOOST_PP_INC(i_))::type \
     /**/
 
 template<
@@ -252,10 +252,10 @@ template<
     , template< AUX778076_LAMBDA_PARAMS(i_, typename P) > class F
     , AUX778076_LAMBDA_PARAMS(i_, typename L)
     >
-struct BOOST_PP_CAT(le_result,i_)
+struct NDNBOOST_PP_CAT(le_result,i_)
 {
     typedef F<
-          BOOST_MPL_PP_REPEAT(i_, AUX778076_TYPE, L)
+          NDNBOOST_MPL_PP_REPEAT(i_, AUX778076_TYPE, L)
         > result_;
     
     typedef result_ type;
@@ -266,11 +266,11 @@ template<
     , template< AUX778076_LAMBDA_PARAMS(i_, typename P) > class F
     , AUX778076_LAMBDA_PARAMS(i_, typename L)
     >
-struct BOOST_PP_CAT(le_result,i_)< true_,Tag,F,AUX778076_LAMBDA_PARAMS(i_, L) >
+struct NDNBOOST_PP_CAT(le_result,i_)< true_,Tag,F,AUX778076_LAMBDA_PARAMS(i_, L) >
 {
-    typedef BOOST_PP_CAT(bind,i_)<
-          BOOST_PP_CAT(quote,i_)<F,Tag>
-        , BOOST_MPL_PP_REPEAT(i_, AUX778076_RESULT, L)
+    typedef NDNBOOST_PP_CAT(bind,i_)<
+          NDNBOOST_PP_CAT(quote,i_)<F,Tag>
+        , NDNBOOST_MPL_PP_REPEAT(i_, AUX778076_RESULT, L)
         > result_;
 
     typedef mpl::protect<result_> type;
@@ -283,18 +283,18 @@ struct BOOST_PP_CAT(le_result,i_)< true_,Tag,F,AUX778076_LAMBDA_PARAMS(i_, L) >
 
 
 #   define AUX778076_LAMBDA_TYPEDEF(unused, i_, T) \
-    typedef lambda< BOOST_PP_CAT(T, BOOST_PP_INC(i_)), Tag > \
-        BOOST_PP_CAT(l,BOOST_PP_INC(i_)); \
+    typedef lambda< NDNBOOST_PP_CAT(T, NDNBOOST_PP_INC(i_)), Tag > \
+        NDNBOOST_PP_CAT(l,NDNBOOST_PP_INC(i_)); \
 /**/
 
 #   define AUX778076_IS_LE_TYPEDEF(unused, i_, unused2) \
-    typedef typename BOOST_PP_CAT(l,BOOST_PP_INC(i_))::is_le \
-        BOOST_PP_CAT(is_le,BOOST_PP_INC(i_)); \
+    typedef typename NDNBOOST_PP_CAT(l,NDNBOOST_PP_INC(i_))::is_le \
+        NDNBOOST_PP_CAT(is_le,NDNBOOST_PP_INC(i_)); \
 /**/
 
 #   define AUX778076_IS_LAMBDA_EXPR(unused, i_, unused2) \
-    BOOST_PP_COMMA_IF(i_) \
-    BOOST_PP_CAT(is_le,BOOST_PP_INC(i_))::value \
+    NDNBOOST_PP_COMMA_IF(i_) \
+    NDNBOOST_PP_CAT(is_le,NDNBOOST_PP_INC(i_))::value \
 /**/
 
 template<
@@ -308,14 +308,14 @@ struct lambda<
         AUX778076_ARITY_PARAM(int_<i_>)
         >
 {
-    BOOST_MPL_PP_REPEAT(i_, AUX778076_LAMBDA_TYPEDEF, T)
-    BOOST_MPL_PP_REPEAT(i_, AUX778076_IS_LE_TYPEDEF, unused)
+    NDNBOOST_MPL_PP_REPEAT(i_, AUX778076_LAMBDA_TYPEDEF, T)
+    NDNBOOST_MPL_PP_REPEAT(i_, AUX778076_IS_LE_TYPEDEF, unused)
 
     typedef typename aux::lambda_or<
-          BOOST_MPL_PP_REPEAT(i_, AUX778076_IS_LAMBDA_EXPR, unused)
+          NDNBOOST_MPL_PP_REPEAT(i_, AUX778076_IS_LAMBDA_EXPR, unused)
         >::type is_le;
 
-    typedef aux::BOOST_PP_CAT(le_result,i_)<
+    typedef aux::NDNBOOST_PP_CAT(le_result,i_)<
           is_le, Tag, F, AUX778076_LAMBDA_PARAMS(i_, l)
         > le_result_;
     
@@ -335,13 +335,13 @@ template<
     , typename Tag
     >
 struct lambda<
-          BOOST_PP_CAT(bind,i_)<F AUX778076_BIND_N_PARAMS(i_, T)>
+          NDNBOOST_PP_CAT(bind,i_)<F AUX778076_BIND_N_PARAMS(i_, T)>
         , Tag
-        AUX778076_ARITY_PARAM(int_<BOOST_PP_INC(i_)>)
+        AUX778076_ARITY_PARAM(int_<NDNBOOST_PP_INC(i_)>)
         >
 {
     typedef false_ is_le;
-    typedef BOOST_PP_CAT(bind,i_)<
+    typedef NDNBOOST_PP_CAT(bind,i_)<
           F
         AUX778076_BIND_N_PARAMS(i_, T)
         > result_;
@@ -350,5 +350,5 @@ struct lambda<
 };
 
 #undef i_
-#endif // BOOST_PP_ITERATION_DEPTH()
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_ITERATION_DEPTH()
+#endif // NDNBOOST_PP_IS_ITERATING

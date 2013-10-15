@@ -548,7 +548,7 @@ struct lambda<
     typedef typename le_result_::type type;
 };
 
-BOOST_MPL_AUX_NA_SPEC(2, lambda)
+NDNBOOST_MPL_AUX_NA_SPEC(2, lambda)
 
 }}
 

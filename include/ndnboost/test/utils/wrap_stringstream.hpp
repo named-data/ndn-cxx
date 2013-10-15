@@ -13,18 +13,18 @@
 //                to provide the unified interface
 // ***************************************************************************
 
-#ifndef BOOST_WRAP_STRINGSTREAM_HPP_071894GER
-#define BOOST_WRAP_STRINGSTREAM_HPP_071894GER
+#ifndef NDNBOOST_WRAP_STRINGSTREAM_HPP_071894GER
+#define NDNBOOST_WRAP_STRINGSTREAM_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
 
 // STL
-#ifdef BOOST_NO_STRINGSTREAM
+#ifdef NDNBOOST_NO_STRINGSTREAM
 #include <strstream>        // for std::ostrstream
 #else
 #include <sstream>          // for std::ostringstream
-#endif // BOOST_NO_STRINGSTREAM
+#endif // NDNBOOST_NO_STRINGSTREAM
 
 #include <ndnboost/test/detail/suppress_warnings.hpp>
 
@@ -39,13 +39,13 @@ namespace ndnboost {
 template<typename CharT>
 class basic_wrap_stringstream {
 public:
-#if defined(BOOST_CLASSIC_IOSTREAMS)
+#if defined(NDNBOOST_CLASSIC_IOSTREAMS)
     typedef std::ostringstream               wrapped_stream;
-#elif defined(BOOST_NO_STRINGSTREAM)
+#elif defined(NDNBOOST_NO_STRINGSTREAM)
     typedef std::basic_ostrstream<CharT>     wrapped_stream;
 #else
     typedef std::basic_ostringstream<CharT>  wrapped_stream;
-#endif // BOOST_NO_STRINGSTREAM
+#endif // NDNBOOST_NO_STRINGSTREAM
     // Access methods
     basic_wrap_stringstream&        ref();
     wrapped_stream&                 stream();
@@ -92,7 +92,7 @@ inline std::basic_string<CharT> const&
 basic_wrap_stringstream<CharT>::str()
 {
 
-#ifdef BOOST_NO_STRINGSTREAM
+#ifdef NDNBOOST_NO_STRINGSTREAM
     m_str.assign( m_stream.str(), m_stream.pcount() );
     m_stream.freeze( false );
 #else
@@ -114,11 +114,11 @@ operator<<( basic_wrap_stringstream<CharT>& targ, basic_wrap_stringstream<CharT>
 
 //____________________________________________________________________________//
 
-#if BOOST_TEST_USE_STD_LOCALE 
+#if NDNBOOST_TEST_USE_STD_LOCALE 
 
 template <typename CharT>
 inline basic_wrap_stringstream<CharT>&
-operator<<( basic_wrap_stringstream<CharT>& targ, std::ios_base& (BOOST_TEST_CALL_DECL *man)(std::ios_base&) )
+operator<<( basic_wrap_stringstream<CharT>& targ, std::ios_base& (NDNBOOST_TEST_CALL_DECL *man)(std::ios_base&) )
 {
     targ.stream() << man;
     return targ;
@@ -128,7 +128,7 @@ operator<<( basic_wrap_stringstream<CharT>& targ, std::ios_base& (BOOST_TEST_CAL
 
 template<typename CharT,typename Elem,typename Tr>
 inline basic_wrap_stringstream<CharT>&
-operator<<( basic_wrap_stringstream<CharT>& targ, std::basic_ostream<Elem,Tr>& (BOOST_TEST_CALL_DECL *man)(std::basic_ostream<Elem, Tr>&) )
+operator<<( basic_wrap_stringstream<CharT>& targ, std::basic_ostream<Elem,Tr>& (NDNBOOST_TEST_CALL_DECL *man)(std::basic_ostream<Elem, Tr>&) )
 {
     targ.stream() << man;
     return targ;
@@ -138,7 +138,7 @@ operator<<( basic_wrap_stringstream<CharT>& targ, std::basic_ostream<Elem,Tr>& (
 
 template<typename CharT,typename Elem,typename Tr>
 inline basic_wrap_stringstream<CharT>&
-operator<<( basic_wrap_stringstream<CharT>& targ, std::basic_ios<Elem, Tr>& (BOOST_TEST_CALL_DECL *man)(std::basic_ios<Elem, Tr>&) )
+operator<<( basic_wrap_stringstream<CharT>& targ, std::basic_ios<Elem, Tr>& (NDNBOOST_TEST_CALL_DECL *man)(std::basic_ios<Elem, Tr>&) )
 {
     targ.stream() << man;
     return targ;
@@ -161,4 +161,4 @@ typedef basic_wrap_stringstream<wchar_t>    wrap_wstringstream;
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif  // BOOST_WRAP_STRINGSTREAM_HPP_071894GER
+#endif  // NDNBOOST_WRAP_STRINGSTREAM_HPP_071894GER

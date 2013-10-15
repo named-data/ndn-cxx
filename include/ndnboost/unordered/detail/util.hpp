@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_UNORDERED_DETAIL_UTIL_HPP_INCLUDED
-#define BOOST_UNORDERED_DETAIL_UTIL_HPP_INCLUDED
+#ifndef NDNBOOST_UNORDERED_DETAIL_UTIL_HPP_INCLUDED
+#define NDNBOOST_UNORDERED_DETAIL_UTIL_HPP_INCLUDED
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
@@ -55,7 +55,7 @@ namespace ndnboost { namespace unordered { namespace detail {
     ////////////////////////////////////////////////////////////////////////////
     // primes
 
-#define BOOST_UNORDERED_PRIMES \
+#define NDNBOOST_UNORDERED_PRIMES \
     (17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
     (97ul)(131ul)(193ul)(257ul)(389ul)(521ul)(769ul) \
     (1031ul)(1543ul)(2053ul)(3079ul)(6151ul)(12289ul)(24593ul) \
@@ -72,22 +72,22 @@ namespace ndnboost { namespace unordered { namespace detail {
         static std::ptrdiff_t const length;
 #else
         static std::ptrdiff_t const length
-            = BOOST_PP_SEQ_SIZE(BOOST_UNORDERED_PRIMES);
+            = NDNBOOST_PP_SEQ_SIZE(NDNBOOST_UNORDERED_PRIMES);
 #endif
     };
 
     template<class T>
     std::size_t const prime_list_template<T>::value[] = {
-        BOOST_PP_SEQ_ENUM(BOOST_UNORDERED_PRIMES)
+        NDNBOOST_PP_SEQ_ENUM(NDNBOOST_UNORDERED_PRIMES)
     };
 
 #if !defined(SUNPRO_CC)
     template<class T>
     std::ptrdiff_t const prime_list_template<T>::length
-        = BOOST_PP_SEQ_SIZE(BOOST_UNORDERED_PRIMES);
+        = NDNBOOST_PP_SEQ_SIZE(NDNBOOST_UNORDERED_PRIMES);
 #endif
 
-#undef BOOST_UNORDERED_PRIMES
+#undef NDNBOOST_UNORDERED_PRIMES
 
     typedef prime_list_template<std::size_t> prime_list;
 
@@ -118,7 +118,7 @@ namespace ndnboost { namespace unordered { namespace detail {
     ////////////////////////////////////////////////////////////////////////////
     // insert_size/initial_size
 
-#if !defined(BOOST_NO_STD_DISTANCE)
+#if !defined(NDNBOOST_NO_STD_DISTANCE)
 
     using ::std::distance;
 
@@ -189,7 +189,7 @@ namespace ndnboost { namespace unordered { namespace detail {
     struct generate_base
       : ndnboost::detail::if_true<
             ndnboost::is_empty<T>::value
-        >:: BOOST_NESTED_TEMPLATE then<
+        >:: NDNBOOST_NESTED_TEMPLATE then<
             ndnboost::unordered::detail::compressed_base<T, Index>,
             ndnboost::unordered::detail::uncompressed_base<T, Index>
         >

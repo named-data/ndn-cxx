@@ -7,23 +7,23 @@
 
 //  IBM/Aix specific config options:
 
-#define BOOST_PLATFORM "IBM Aix"
+#define NDNBOOST_PLATFORM "IBM Aix"
 
-#define BOOST_HAS_UNISTD_H
-#define BOOST_HAS_NL_TYPES_H
-#define BOOST_HAS_NANOSLEEP
-#define BOOST_HAS_CLOCK_GETTIME
+#define NDNBOOST_HAS_UNISTD_H
+#define NDNBOOST_HAS_NL_TYPES_H
+#define NDNBOOST_HAS_NANOSLEEP
+#define NDNBOOST_HAS_CLOCK_GETTIME
 
 // This needs support in "ndnboost/cstdint.hpp" exactly like FreeBSD.
 // This platform has header named <inttypes.h> which includes all
 // the things needed.
-#define BOOST_HAS_STDINT_H
+#define NDNBOOST_HAS_STDINT_H
 
 // Threading API's:
-#define BOOST_HAS_PTHREADS
-#define BOOST_HAS_PTHREAD_DELAY_NP
-#define BOOST_HAS_SCHED_YIELD
-//#define BOOST_HAS_PTHREAD_YIELD
+#define NDNBOOST_HAS_PTHREADS
+#define NDNBOOST_HAS_PTHREAD_DELAY_NP
+#define NDNBOOST_HAS_SCHED_YIELD
+//#define NDNBOOST_HAS_PTHREAD_YIELD
 
 // boilerplate code:
 #include <ndnboost/config/posix_features.hpp>

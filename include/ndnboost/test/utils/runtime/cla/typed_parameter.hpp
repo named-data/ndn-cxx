@@ -12,8 +12,8 @@
 //  Description : generic typed parameter model
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_TYPED_PARAMETER_HPP_062604GER
-#define BOOST_RT_CLA_TYPED_PARAMETER_HPP_062604GER
+#ifndef NDNBOOST_RT_CLA_TYPED_PARAMETER_HPP_062604GER
+#define NDNBOOST_RT_CLA_TYPED_PARAMETER_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -29,7 +29,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -52,8 +52,8 @@ public:
 
         m_arg_factory.accept_modifier( m );
 
-        BOOST_RT_PARAM_VALIDATE_LOGIC( !p_optional || !m_arg_factory.m_value_generator,
-            BOOST_RT_PARAM_LITERAL( "can't define a value generator for optional parameter " ) << id_2_report() );
+        NDNBOOST_RT_PARAM_VALIDATE_LOGIC( !p_optional || !m_arg_factory.m_value_generator,
+            NDNBOOST_RT_PARAM_LITERAL( "can't define a value generator for optional parameter " ) << id_2_report() );
     }
 
 private:
@@ -63,8 +63,8 @@ private:
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_CLA_TYPED_PARAMETER_HPP_062604GER
+#endif // NDNBOOST_RT_CLA_TYPED_PARAMETER_HPP_062604GER

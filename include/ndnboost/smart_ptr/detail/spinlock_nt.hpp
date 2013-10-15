@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_SPINLOCK_NT_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_SPINLOCK_NT_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_SPINLOCK_NT_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_SPINLOCK_NT_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -46,13 +46,13 @@ public:
 
     inline void lock()
     {
-        BOOST_ASSERT( !locked_ );
+        NDNBOOST_ASSERT( !locked_ );
         locked_ = true;
     }
 
     inline void unlock()
     {
-        BOOST_ASSERT( locked_ );
+        NDNBOOST_ASSERT( locked_ );
         locked_ = false;
     }
 
@@ -84,6 +84,6 @@ public:
 } // namespace detail
 } // namespace ndnboost
 
-#define BOOST_DETAIL_SPINLOCK_INIT { false }
+#define NDNBOOST_DETAIL_SPINLOCK_INIT { false }
 
-#endif // #ifndef BOOST_SMART_PTR_DETAIL_SPINLOCK_NT_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_SMART_PTR_DETAIL_SPINLOCK_NT_HPP_INCLUDED

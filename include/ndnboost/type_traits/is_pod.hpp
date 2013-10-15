@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_POD_HPP_INCLUDED
-#define BOOST_TT_IS_POD_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_POD_HPP_INCLUDED
+#define NDNBOOST_TT_IS_POD_HPP_INCLUDED
 
 #include <ndnboost/type_traits/config.hpp>
 #include <ndnboost/type_traits/is_void.hpp>
@@ -20,10 +20,10 @@
 // should be the last #include
 #include <ndnboost/type_traits/detail/bool_trait_def.hpp>
 
-#ifndef BOOST_IS_POD
-#define BOOST_INTERNAL_IS_POD(T) false
+#ifndef NDNBOOST_IS_POD
+#define NDNBOOST_INTERNAL_IS_POD(T) false
 #else
-#define BOOST_INTERNAL_IS_POD(T) BOOST_IS_POD(T)
+#define NDNBOOST_INTERNAL_IS_POD(T) NDNBOOST_IS_POD(T)
 #endif
 
 namespace ndnboost {
@@ -33,20 +33,20 @@ template< typename T > struct is_POD;
 
 namespace detail {
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 template <typename T> struct is_pod_impl
 { 
-    BOOST_STATIC_CONSTANT(
+    NDNBOOST_STATIC_CONSTANT(
         bool, value =
         (::ndnboost::type_traits::ice_or<
             ::ndnboost::is_scalar<T>::value,
             ::ndnboost::is_void<T>::value,
-            BOOST_INTERNAL_IS_POD(T)
+            NDNBOOST_INTERNAL_IS_POD(T)
          >::value));
 };
 
-#if !defined(BOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
+#if !defined(NDNBOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
 template <typename T, std::size_t sz>
 struct is_pod_impl<T[sz]>
     : public is_pod_impl<T>
@@ -61,12 +61,12 @@ struct is_pod_helper
 {
     template <typename T> struct result_
     {
-        BOOST_STATIC_CONSTANT(
+        NDNBOOST_STATIC_CONSTANT(
             bool, value =
             (::ndnboost::type_traits::ice_or<
                 ::ndnboost::is_scalar<T>::value,
                 ::ndnboost::is_void<T>::value,
-                BOOST_INTERNAL_IS_POD(T)
+                NDNBOOST_INTERNAL_IS_POD(T)
             >::value));
     };
 };
@@ -100,7 +100,7 @@ struct is_pod_helper<true>
     template <typename T> struct result_
     {
         static T& help();
-        BOOST_STATIC_CONSTANT(bool, value =
+        NDNBOOST_STATIC_CONSTANT(bool, value =
             sizeof(is_POD_array(help()).instance()) == sizeof(::ndnboost::type_traits::yes_type)
             );
     };
@@ -109,7 +109,7 @@ struct is_pod_helper<true>
 
 template <typename T> struct is_pod_impl
 { 
-   BOOST_STATIC_CONSTANT(
+   NDNBOOST_STATIC_CONSTANT(
        bool, value = (
            ::ndnboost::detail::is_pod_helper<
               ::ndnboost::is_array<T>::value
@@ -118,28 +118,28 @@ template <typename T> struct is_pod_impl
        );
 };
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 // the following help compilers without partial specialization support:
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,void,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,void,true)
 
-#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,void const,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,void volatile,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,void const volatile,true)
+#ifndef NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,void const,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,void volatile,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,void const volatile,true)
 #endif
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_pod,T,::ndnboost::detail::is_pod_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_pod,T,::ndnboost::detail::is_pod_impl<T>::value)
 // is_POD is the old depricated name for this trait, do not use this as it may
 // be removed in future without warning!!
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_POD,T,::ndnboost::is_pod<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_POD,T,::ndnboost::is_pod<T>::value)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#undef BOOST_INTERNAL_IS_POD
+#undef NDNBOOST_INTERNAL_IS_POD
 
-#endif // BOOST_TT_IS_POD_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_POD_HPP_INCLUDED

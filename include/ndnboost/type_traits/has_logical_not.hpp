@@ -6,18 +6,18 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_HAS_LOGICAL_NOT_HPP_INCLUDED
-#define BOOST_TT_HAS_LOGICAL_NOT_HPP_INCLUDED
+#ifndef NDNBOOST_TT_HAS_LOGICAL_NOT_HPP_INCLUDED
+#define NDNBOOST_TT_HAS_LOGICAL_NOT_HPP_INCLUDED
 
-#define BOOST_TT_TRAIT_NAME has_logical_not
-#define BOOST_TT_TRAIT_OP !
-#define BOOST_TT_FORBIDDEN_IF\
+#define NDNBOOST_TT_TRAIT_NAME has_logical_not
+#define NDNBOOST_TT_TRAIT_OP !
+#define NDNBOOST_TT_FORBIDDEN_IF\
    false
 
 #include <ndnboost/type_traits/detail/has_prefix_operator.hpp>
 
-#undef BOOST_TT_TRAIT_NAME
-#undef BOOST_TT_TRAIT_OP
-#undef BOOST_TT_FORBIDDEN_IF
+#undef NDNBOOST_TT_TRAIT_NAME
+#undef NDNBOOST_TT_TRAIT_OP
+#undef NDNBOOST_TT_FORBIDDEN_IF
 
 #endif

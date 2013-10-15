@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DETAIL_SFINAE_HPP
-#define BOOST_RANGE_DETAIL_SFINAE_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_SFINAE_HPP
+#define NDNBOOST_RANGE_DETAIL_SFINAE_HPP
 
 #include <ndnboost/range/config.hpp>
 #include <ndnboost/type_traits/is_array.hpp>
@@ -33,15 +33,15 @@ namespace ndnboost
         no_type  is_string_impl( ... );
         
         template< std::size_t sz >
-        yes_type is_char_array_impl( char BOOST_RANGE_ARRAY_REF()[sz] );
+        yes_type is_char_array_impl( char NDNBOOST_RANGE_ARRAY_REF()[sz] );
         template< std::size_t sz >
-        yes_type is_char_array_impl( const char BOOST_RANGE_ARRAY_REF()[sz] );
+        yes_type is_char_array_impl( const char NDNBOOST_RANGE_ARRAY_REF()[sz] );
         no_type  is_char_array_impl( ... );
         
         template< std::size_t sz >
-        yes_type is_wchar_t_array_impl( wchar_t BOOST_RANGE_ARRAY_REF()[sz] );
+        yes_type is_wchar_t_array_impl( wchar_t NDNBOOST_RANGE_ARRAY_REF()[sz] );
         template< std::size_t sz >
-        yes_type is_wchar_t_array_impl( const wchar_t BOOST_RANGE_ARRAY_REF()[sz] );
+        yes_type is_wchar_t_array_impl( const wchar_t NDNBOOST_RANGE_ARRAY_REF()[sz] );
         no_type  is_wchar_t_array_impl( ... );
                                      
         yes_type is_char_ptr_impl( char* const );

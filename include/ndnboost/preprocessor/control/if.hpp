@@ -11,20 +11,20 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_CONTROL_IF_HPP
-# define BOOST_PREPROCESSOR_CONTROL_IF_HPP
+# ifndef NDNBOOST_PREPROCESSOR_CONTROL_IF_HPP
+# define NDNBOOST_PREPROCESSOR_CONTROL_IF_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 # include <ndnboost/preprocessor/control/iif.hpp>
 # include <ndnboost/preprocessor/logical/bool.hpp>
 #
-# /* BOOST_PP_IF */
+# /* NDNBOOST_PP_IF */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_IF(cond, t, f) BOOST_PP_IIF(BOOST_PP_BOOL(cond), t, f)
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_IF(cond, t, f) NDNBOOST_PP_IIF(NDNBOOST_PP_BOOL(cond), t, f)
 # else
-#    define BOOST_PP_IF(cond, t, f) BOOST_PP_IF_I(cond, t, f)
-#    define BOOST_PP_IF_I(cond, t, f) BOOST_PP_IIF(BOOST_PP_BOOL(cond), t, f)
+#    define NDNBOOST_PP_IF(cond, t, f) NDNBOOST_PP_IF_I(cond, t, f)
+#    define NDNBOOST_PP_IF_I(cond, t, f) NDNBOOST_PP_IIF(NDNBOOST_PP_BOOL(cond), t, f)
 # endif
 #
 # endif

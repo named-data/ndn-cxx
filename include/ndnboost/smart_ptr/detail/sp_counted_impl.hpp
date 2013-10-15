@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_IMPL_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_SP_COUNTED_IMPL_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_SP_COUNTED_IMPL_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_SP_COUNTED_IMPL_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -20,18 +20,18 @@
 
 #include <ndnboost/config.hpp>
 
-#if defined(BOOST_SP_USE_STD_ALLOCATOR) && defined(BOOST_SP_USE_QUICK_ALLOCATOR)
-# error BOOST_SP_USE_STD_ALLOCATOR and BOOST_SP_USE_QUICK_ALLOCATOR are incompatible.
+#if defined(NDNBOOST_SP_USE_STD_ALLOCATOR) && defined(NDNBOOST_SP_USE_QUICK_ALLOCATOR)
+# error NDNBOOST_SP_USE_STD_ALLOCATOR and NDNBOOST_SP_USE_QUICK_ALLOCATOR are incompatible.
 #endif
 
 #include <ndnboost/checked_delete.hpp>
 #include <ndnboost/smart_ptr/detail/sp_counted_base.hpp>
 
-#if defined(BOOST_SP_USE_QUICK_ALLOCATOR)
+#if defined(NDNBOOST_SP_USE_QUICK_ALLOCATOR)
 #include <ndnboost/smart_ptr/detail/quick_allocator.hpp>
 #endif
 
-#if defined(BOOST_SP_USE_STD_ALLOCATOR)
+#if defined(NDNBOOST_SP_USE_STD_ALLOCATOR)
 #include <memory>           // std::allocator
 #endif
 
@@ -40,7 +40,7 @@
 namespace ndnboost
 {
 
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
 
 void sp_scalar_constructor_hook( void * px, std::size_t size, void * pn );
 void sp_scalar_destructor_hook( void * px, std::size_t size, void * pn );
@@ -65,14 +65,14 @@ public:
 
     explicit sp_counted_impl_p( X * px ): px_( px )
     {
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         ndnboost::sp_scalar_constructor_hook( px, sizeof(X), this );
 #endif
     }
 
     virtual void dispose() // nothrow
     {
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         ndnboost::sp_scalar_destructor_hook( px_, sizeof(X), this );
 #endif
         ndnboost::checked_delete( px_ );
@@ -88,7 +88,7 @@ public:
         return 0;
     }
 
-#if defined(BOOST_SP_USE_STD_ALLOCATOR)
+#if defined(NDNBOOST_SP_USE_STD_ALLOCATOR)
 
     void * operator new( std::size_t )
     {
@@ -102,7 +102,7 @@ public:
 
 #endif
 
-#if defined(BOOST_SP_USE_QUICK_ALLOCATOR)
+#if defined(NDNBOOST_SP_USE_QUICK_ALLOCATOR)
 
     void * operator new( std::size_t )
     {
@@ -155,7 +155,7 @@ public:
 
     virtual void * get_deleter( detail::sp_typeinfo const & ti )
     {
-        return ti == BOOST_SP_TYPEID(D)? &reinterpret_cast<char&>( del ): 0;
+        return ti == NDNBOOST_SP_TYPEID(D)? &reinterpret_cast<char&>( del ): 0;
     }
 
     virtual void * get_untyped_deleter()
@@ -163,7 +163,7 @@ public:
         return &reinterpret_cast<char&>( del );
     }
 
-#if defined(BOOST_SP_USE_STD_ALLOCATOR)
+#if defined(NDNBOOST_SP_USE_STD_ALLOCATOR)
 
     void * operator new( std::size_t )
     {
@@ -177,7 +177,7 @@ public:
 
 #endif
 
-#if defined(BOOST_SP_USE_QUICK_ALLOCATOR)
+#if defined(NDNBOOST_SP_USE_QUICK_ALLOCATOR)
 
     void * operator new( std::size_t )
     {
@@ -234,7 +234,7 @@ public:
 
     virtual void * get_deleter( detail::sp_typeinfo const & ti )
     {
-        return ti == BOOST_SP_TYPEID( D )? &reinterpret_cast<char&>( d_ ): 0;
+        return ti == NDNBOOST_SP_TYPEID( D )? &reinterpret_cast<char&>( d_ ): 0;
     }
 
     virtual void * get_untyped_deleter()
@@ -251,4 +251,4 @@ public:
 
 } // namespace ndnboost
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_IMPL_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_DETAIL_SP_COUNTED_IMPL_HPP_INCLUDED

@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-#ifndef BOOST_INTEROPERABLE_23022003THW_HPP
-# define BOOST_INTEROPERABLE_23022003THW_HPP
+#ifndef NDNBOOST_INTEROPERABLE_23022003THW_HPP
+# define NDNBOOST_INTEROPERABLE_23022003THW_HPP
 
 # include <ndnboost/mpl/bool.hpp>
 # include <ndnboost/mpl/or.hpp>
@@ -33,7 +33,7 @@ namespace ndnboost
   //
   template <typename A, typename B>
   struct is_interoperable
-# ifdef BOOST_NO_STRICT_ITERATOR_INTEROPERABILITY
+# ifdef NDNBOOST_NO_STRICT_ITERATOR_INTEROPERABILITY
     : mpl::true_
 # else
     : mpl::or_<
@@ -47,4 +47,4 @@ namespace ndnboost
 
 # include <ndnboost/iterator/detail/config_undef.hpp>
 
-#endif // BOOST_INTEROPERABLE_23022003THW_HPP
+#endif // NDNBOOST_INTEROPERABLE_23022003THW_HPP

@@ -1,8 +1,8 @@
 // Copyright David Abrahams 2006. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-#ifndef BOOST_CONCEPT_ASSERT_DWA2006430_HPP
-# define BOOST_CONCEPT_ASSERT_DWA2006430_HPP
+#ifndef NDNBOOST_CONCEPT_ASSERT_DWA2006430_HPP
+# define NDNBOOST_CONCEPT_ASSERT_DWA2006430_HPP
 
 # include <ndnboost/config.hpp>
 # include <ndnboost/detail/workaround.hpp>
@@ -15,22 +15,22 @@
 // The old protocol is deprecated, though, and backward compatibility
 // will no longer be the default in the next release.
 
-# if !defined(BOOST_NO_OLD_CONCEPT_SUPPORT)                                         \
-    && !defined(BOOST_NO_SFINAE)                                                    \
+# if !defined(NDNBOOST_NO_OLD_CONCEPT_SUPPORT)                                         \
+    && !defined(NDNBOOST_NO_SFINAE)                                                    \
                                                                                     \
-    && !(BOOST_WORKAROUND(__GNUC__, == 3) && BOOST_WORKAROUND(__GNUC_MINOR__, < 4)) \
-    && !(BOOST_WORKAROUND(__GNUC__, == 2))
+    && !(NDNBOOST_WORKAROUND(__GNUC__, == 3) && NDNBOOST_WORKAROUND(__GNUC_MINOR__, < 4)) \
+    && !(NDNBOOST_WORKAROUND(__GNUC__, == 2))
 
 // Note: gcc-2.96 through 3.3.x have some SFINAE, but no ability to
 // check for the presence of particularmember functions.
 
-#  define BOOST_OLD_CONCEPT_SUPPORT
+#  define NDNBOOST_OLD_CONCEPT_SUPPORT
 
 # endif
 
-# ifdef BOOST_MSVC
+# ifdef NDNBOOST_MSVC
 #  include <ndnboost/concept/detail/msvc.hpp>
-# elif BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
+# elif NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564))
 #  include <ndnboost/concept/detail/borland.hpp>
 # else 
 #  include <ndnboost/concept/detail/general.hpp>
@@ -38,9 +38,9 @@
 
   // Usage, in class or function context:
   //
-  //     BOOST_CONCEPT_ASSERT((UnaryFunctionConcept<F,bool,int>));
+  //     NDNBOOST_CONCEPT_ASSERT((UnaryFunctionConcept<F,bool,int>));
   //
-# define BOOST_CONCEPT_ASSERT(ModelInParens) \
-    BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+# define NDNBOOST_CONCEPT_ASSERT(ModelInParens) \
+    NDNBOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
 
-#endif // BOOST_CONCEPT_ASSERT_DWA2006430_HPP
+#endif // NDNBOOST_CONCEPT_ASSERT_DWA2006430_HPP

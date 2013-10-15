@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_COMMON_NAME_WKND_HPP_INCLUDED
-#define BOOST_MPL_AUX_COMMON_NAME_WKND_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_COMMON_NAME_WKND_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_COMMON_NAME_WKND_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2002-2004
 //
@@ -16,10 +16,10 @@
 
 #include <ndnboost/mpl/aux_/config/workaround.hpp>
 
-#if BOOST_WORKAROUND(__BORLANDC__, < 0x561)
+#if NDNBOOST_WORKAROUND(__BORLANDC__, < 0x561)
 // agurt, 12/nov/02: to suppress the bogus "Cannot have both a template class 
 // and function named 'xxx'" diagnostic
-#   define BOOST_MPL_AUX_COMMON_NAME_WKND(name) \
+#   define NDNBOOST_MPL_AUX_COMMON_NAME_WKND(name) \
 namespace name_##wknd { \
 template< typename > void name(); \
 } \
@@ -27,8 +27,8 @@ template< typename > void name(); \
 
 #else
 
-#   define BOOST_MPL_AUX_COMMON_NAME_WKND(name) /**/
+#   define NDNBOOST_MPL_AUX_COMMON_NAME_WKND(name) /**/
 
 #endif // __BORLANDC__
 
-#endif // BOOST_MPL_AUX_COMMON_NAME_WKND_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_COMMON_NAME_WKND_HPP_INCLUDED

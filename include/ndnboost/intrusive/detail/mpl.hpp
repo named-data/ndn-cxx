@@ -10,8 +10,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_INTRUSIVE_DETAIL_MPL_HPP
-#define BOOST_INTRUSIVE_DETAIL_MPL_HPP
+#ifndef NDNBOOST_INTRUSIVE_DETAIL_MPL_HPP
+#define NDNBOOST_INTRUSIVE_DETAIL_MPL_HPP
 
 #include <ndnboost/intrusive/detail/config_begin.hpp>
 #include <cstddef>
@@ -124,14 +124,14 @@ struct identity
    typedef T type;
 };
 
-#if defined(BOOST_MSVC) || defined(__BORLANDC_)
-#define BOOST_INTRUSIVE_TT_DECL __cdecl
+#if defined(NDNBOOST_MSVC) || defined(__BORLANDC_)
+#define NDNBOOST_INTRUSIVE_TT_DECL __cdecl
 #else
-#define BOOST_INTRUSIVE_TT_DECL
+#define NDNBOOST_INTRUSIVE_TT_DECL
 #endif
 
 #if defined(_MSC_EXTENSIONS) && !defined(__BORLAND__) && !defined(_WIN64) && !defined(UNDER_CE)
-#define BOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
+#define NDNBOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
 #endif
 
 template <typename T>
@@ -140,7 +140,7 @@ struct is_unary_or_binary_function_impl
 
 // see boost ticket #4094
 // avoid duplicate definitions of is_unary_or_binary_function_impl
-#ifndef BOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
+#ifndef NDNBOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
 
 template <typename R>
 struct is_unary_or_binary_function_impl<R (*)()>
@@ -150,7 +150,7 @@ template <typename R>
 struct is_unary_or_binary_function_impl<R (*)(...)>
 {  static const bool value = true;  };
 
-#else // BOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
+#else // NDNBOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
 
 template <typename R>
 struct is_unary_or_binary_function_impl<R (__stdcall*)()>
@@ -176,7 +176,7 @@ struct is_unary_or_binary_function_impl<R (__cdecl*)(...)>
 
 // see boost ticket #4094
 // avoid duplicate definitions of is_unary_or_binary_function_impl
-#ifndef BOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
+#ifndef NDNBOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
 
 template <typename R, class T0>
 struct is_unary_or_binary_function_impl<R (*)(T0)>
@@ -186,7 +186,7 @@ template <typename R, class T0>
 struct is_unary_or_binary_function_impl<R (*)(T0...)>
 {  static const bool value = true;  };
 
-#else // BOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
+#else // NDNBOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
 
 template <typename R, class T0>
 struct is_unary_or_binary_function_impl<R (__stdcall*)(T0)>
@@ -212,7 +212,7 @@ struct is_unary_or_binary_function_impl<R (__cdecl*)(T0...)>
 
 // see boost ticket #4094
 // avoid duplicate definitions of is_unary_or_binary_function_impl
-#ifndef BOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
+#ifndef NDNBOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
 
 template <typename R, class T0, class T1>
 struct is_unary_or_binary_function_impl<R (*)(T0, T1)>
@@ -222,7 +222,7 @@ template <typename R, class T0, class T1>
 struct is_unary_or_binary_function_impl<R (*)(T0, T1...)>
 {  static const bool value = true;  };
 
-#else // BOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
+#else // NDNBOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
 
 template <typename R, class T0, class T1>
 struct is_unary_or_binary_function_impl<R (__stdcall*)(T0, T1)>
@@ -380,4 +380,4 @@ struct ls_zeros<1>
 
 #include <ndnboost/intrusive/detail/config_end.hpp>
 
-#endif //BOOST_INTRUSIVE_DETAIL_MPL_HPP
+#endif //NDNBOOST_INTRUSIVE_DETAIL_MPL_HPP

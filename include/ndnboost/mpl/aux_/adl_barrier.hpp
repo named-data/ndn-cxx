@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_ADL_BARRIER_HPP_INCLUDED
-#define BOOST_MPL_AUX_ADL_BARRIER_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_ADL_BARRIER_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_ADL_BARRIER_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2002-2004
 //
@@ -18,31 +18,31 @@
 #include <ndnboost/mpl/aux_/config/gcc.hpp>
 #include <ndnboost/mpl/aux_/config/workaround.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_ADL_BARRIER_NAMESPACE)
+#if !defined(NDNBOOST_MPL_CFG_NO_ADL_BARRIER_NAMESPACE)
 
-#   define BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE mpl_
-#   define BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN namespace mpl_ {
-#   define BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE }
-#   define BOOST_MPL_AUX_ADL_BARRIER_DECL(type) \
+#   define NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE mpl_
+#   define NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN namespace mpl_ {
+#   define NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE }
+#   define NDNBOOST_MPL_AUX_ADL_BARRIER_DECL(type) \
     namespace ndnboost { namespace mpl { \
-    using ::BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE::type; \
+    using ::NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE::type; \
     } } \
 /**/
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
-namespace BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE { namespace aux {} }
-namespace ndnboost { namespace mpl { using namespace BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE; 
-namespace aux { using namespace BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE::aux; }
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
+namespace NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE { namespace aux {} }
+namespace ndnboost { namespace mpl { using namespace NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE; 
+namespace aux { using namespace NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE::aux; }
 }}
 #endif
 
-#else // BOOST_MPL_CFG_NO_ADL_BARRIER_NAMESPACE
+#else // NDNBOOST_MPL_CFG_NO_ADL_BARRIER_NAMESPACE
 
-#   define BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE ndnboost::mpl
-#   define BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN namespace ndnboost { namespace mpl {
-#   define BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE }}
-#   define BOOST_MPL_AUX_ADL_BARRIER_DECL(type) /**/
+#   define NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE ndnboost::mpl
+#   define NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN namespace ndnboost { namespace mpl {
+#   define NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE }}
+#   define NDNBOOST_MPL_AUX_ADL_BARRIER_DECL(type) /**/
 
 #endif
 
-#endif // BOOST_MPL_AUX_ADL_BARRIER_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_ADL_BARRIER_HPP_INCLUDED

@@ -55,8 +55,8 @@ struct inherit2_impl< true,true >
 } // namespace aux
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(T1)
-    , typename BOOST_MPL_AUX_NA_PARAM(T2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(T1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(T2)
     >
 struct inherit2
     : aux::inherit2_impl<
@@ -65,10 +65,10 @@ struct inherit2
         >::template result_< inherit2< T1,T2 >,T1, T2 >
 {
     typedef typename inherit2::type_ type;
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(2, inherit2, (T1, T2))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2, inherit2, (T1, T2))
 };
 
-BOOST_MPL_AUX_NA_SPEC(2, inherit2)
+NDNBOOST_MPL_AUX_NA_SPEC(2, inherit2)
 
 template<
       typename T1 = na, typename T2 = na, typename T3 = na
@@ -81,14 +81,14 @@ struct inherit3
         , T3
         >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           3
         , inherit3
         , ( T1, T2, T3)
         )
 };
 
-BOOST_MPL_AUX_NA_SPEC(3, inherit3)
+NDNBOOST_MPL_AUX_NA_SPEC(3, inherit3)
 
 template<
       typename T1 = na, typename T2 = na, typename T3 = na, typename T4 = na
@@ -101,14 +101,14 @@ struct inherit4
         , T4
         >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           4
         , inherit4
         , ( T1, T2, T3, T4)
         )
 };
 
-BOOST_MPL_AUX_NA_SPEC(4, inherit4)
+NDNBOOST_MPL_AUX_NA_SPEC(4, inherit4)
 
 template<
       typename T1 = na, typename T2 = na, typename T3 = na, typename T4 = na
@@ -122,14 +122,14 @@ struct inherit5
         , T5
         >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           5
         , inherit5
         , ( T1, T2, T3, T4, T5)
         )
 };
 
-BOOST_MPL_AUX_NA_SPEC(5, inherit5)
+NDNBOOST_MPL_AUX_NA_SPEC(5, inherit5)
 
 /// primary template
 
@@ -159,8 +159,8 @@ struct inherit< na,na,na,na,na >
     };
 };
 
-BOOST_MPL_AUX_NA_SPEC_LAMBDA(5, inherit)
-BOOST_MPL_AUX_NA_SPEC_ARITY(5, inherit)
-BOOST_MPL_AUX_NA_SPEC_TEMPLATE_ARITY(5, 5, inherit)
+NDNBOOST_MPL_AUX_NA_SPEC_LAMBDA(5, inherit)
+NDNBOOST_MPL_AUX_NA_SPEC_ARITY(5, inherit)
+NDNBOOST_MPL_AUX_NA_SPEC_TEMPLATE_ARITY(5, 5, inherit)
 }}
 

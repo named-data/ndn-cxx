@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_FIND_IF_HPP_INCLUDED
-#define BOOST_MPL_FIND_IF_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_FIND_IF_HPP_INCLUDED
+#define NDNBOOST_MPL_FIND_IF_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -23,11 +23,11 @@
 
 namespace ndnboost { namespace mpl {
 
-BOOST_MPL_AUX_COMMON_NAME_WKND(find_if)
+NDNBOOST_MPL_AUX_COMMON_NAME_WKND(find_if)
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
-    , typename BOOST_MPL_AUX_NA_PARAM(Predicate)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(Predicate)
     >
 struct find_if
 {
@@ -40,11 +40,11 @@ struct find_if
 
     typedef typename second<result_>::type type;
 
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(2,find_if,(Sequence,Predicate))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2,find_if,(Sequence,Predicate))
 };
 
-BOOST_MPL_AUX_NA_SPEC(2,find_if)
+NDNBOOST_MPL_AUX_NA_SPEC(2,find_if)
 
 }}
 
-#endif // BOOST_MPL_FIND_IF_HPP_INCLUDED
+#endif // NDNBOOST_MPL_FIND_IF_HPP_INCLUDED

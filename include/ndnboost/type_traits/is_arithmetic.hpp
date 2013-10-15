@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_ARITHMETIC_HPP_INCLUDED
-#define BOOST_TT_IS_ARITHMETIC_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_ARITHMETIC_HPP_INCLUDED
+#define NDNBOOST_TT_IS_ARITHMETIC_HPP_INCLUDED
 
 #if !defined( __CODEGEARC__ )
 #include <ndnboost/type_traits/is_integral.hpp>
@@ -27,7 +27,7 @@ namespace detail {
 template< typename T >
 struct is_arithmetic_impl
 { 
-    BOOST_STATIC_CONSTANT(bool, value = 
+    NDNBOOST_STATIC_CONSTANT(bool, value = 
         (::ndnboost::type_traits::ice_or< 
             ::ndnboost::is_integral<T>::value,
             ::ndnboost::is_float<T>::value
@@ -39,13 +39,13 @@ struct is_arithmetic_impl
 
 //* is a type T an arithmetic type described in the standard (3.9.1p8)
 #if defined(__CODEGEARC__)
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_arithmetic,T,__is_arithmetic(T))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_arithmetic,T,__is_arithmetic(T))
 #else
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_arithmetic,T,::ndnboost::detail::is_arithmetic_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_arithmetic,T,::ndnboost::detail::is_arithmetic_impl<T>::value)
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_ARITHMETIC_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_ARITHMETIC_HPP_INCLUDED

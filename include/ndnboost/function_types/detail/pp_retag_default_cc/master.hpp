@@ -13,7 +13,7 @@
 #   pragma wave option(preserve: 0)
 #endif
 
-#if !defined(BOOST_PP_VALUE)
+#if !defined(NDNBOOST_PP_VALUE)
 #   include <ndnboost/preprocessor/slot/slot.hpp>
 #   include <ndnboost/preprocessor/iteration/self.hpp>
 
@@ -26,12 +26,12 @@ namespace detail
 {
   template<class Tag, class RefTag> struct selector_bits
   {
-#   define  BOOST_PP_VALUE non_member|member|non_variadic|variadic
-#   include BOOST_PP_ASSIGN_SLOT(1)
+#   define  NDNBOOST_PP_VALUE non_member|member|non_variadic|variadic
+#   include NDNBOOST_PP_ASSIGN_SLOT(1)
 
-    BOOST_STATIC_CONSTANT(bits_t, value = (
-        (::ndnboost::function_types::detail::bits<Tag>::value & BOOST_FT_default_cc) 
-      | (::ndnboost::function_types::detail::bits<RefTag>::value & BOOST_PP_SLOT(1))
+    NDNBOOST_STATIC_CONSTANT(bits_t, value = (
+        (::ndnboost::function_types::detail::bits<Tag>::value & NDNBOOST_FT_default_cc) 
+      | (::ndnboost::function_types::detail::bits<RefTag>::value & NDNBOOST_PP_SLOT(1))
     ));
   };
 
@@ -50,54 +50,54 @@ namespace detail
   };
 
   class test_class;
-  typedef constant<BOOST_FT_cc_mask> cc_mask_constant;
+  typedef constant<NDNBOOST_FT_cc_mask> cc_mask_constant;
 
-#   define BOOST_FT_self \
+#   define NDNBOOST_FT_self \
       <ndnboost/function_types/detail/pp_retag_default_cc/master.hpp>
 
-#   define  default_cc_ BOOST_FT_default_cc
+#   define  default_cc_ NDNBOOST_FT_default_cc
 
-#   define  BOOST_PP_VALUE default_cc_|non_member|non_variadic
-#   define  BOOST_FT_tester void (*tester)()
-#   define  BOOST_PP_INDIRECT_SELF BOOST_FT_self
-#   include BOOST_PP_INCLUDE_SELF()
+#   define  NDNBOOST_PP_VALUE default_cc_|non_member|non_variadic
+#   define  NDNBOOST_FT_tester void (*tester)()
+#   define  NDNBOOST_PP_INDIRECT_SELF NDNBOOST_FT_self
+#   include NDNBOOST_PP_INCLUDE_SELF()
 
-#   define  BOOST_PP_VALUE default_cc_|non_member|variadic
-#   define  BOOST_FT_tester void (*tester)(...)
-#   define  BOOST_PP_INDIRECT_SELF BOOST_FT_self
-#   include BOOST_PP_INCLUDE_SELF()
+#   define  NDNBOOST_PP_VALUE default_cc_|non_member|variadic
+#   define  NDNBOOST_FT_tester void (*tester)(...)
+#   define  NDNBOOST_PP_INDIRECT_SELF NDNBOOST_FT_self
+#   include NDNBOOST_PP_INCLUDE_SELF()
 
-#   define  BOOST_PP_VALUE default_cc_|member|non_variadic
-#   define  BOOST_FT_tester void (test_class::*tester)()
-#   define  BOOST_PP_INDIRECT_SELF BOOST_FT_self
-#   include BOOST_PP_INCLUDE_SELF()
+#   define  NDNBOOST_PP_VALUE default_cc_|member|non_variadic
+#   define  NDNBOOST_FT_tester void (test_class::*tester)()
+#   define  NDNBOOST_PP_INDIRECT_SELF NDNBOOST_FT_self
+#   include NDNBOOST_PP_INCLUDE_SELF()
 
-#   define  BOOST_PP_VALUE default_cc_|member|variadic
-#   define  BOOST_FT_tester void (test_class::*tester)(...)
-#   define  BOOST_PP_INDIRECT_SELF BOOST_FT_self
-#   include BOOST_PP_INCLUDE_SELF()
+#   define  NDNBOOST_PP_VALUE default_cc_|member|variadic
+#   define  NDNBOOST_FT_tester void (test_class::*tester)(...)
+#   define  NDNBOOST_PP_INDIRECT_SELF NDNBOOST_FT_self
+#   include NDNBOOST_PP_INCLUDE_SELF()
 
 #   undef   default_cc_
 
-#   undef BOOST_FT_self
+#   undef NDNBOOST_FT_self
 
 } } } // namespace ::ndnboost::function_types::detail
 
 #   include <ndnboost/function_types/detail/encoding/aliases_undef.hpp>
 #   include <ndnboost/function_types/detail/encoding/undef.hpp>
 
-#else // if defined(BOOST_PP_VALUE)
+#else // if defined(NDNBOOST_PP_VALUE)
 
-#   include BOOST_PP_ASSIGN_SLOT(1)
+#   include NDNBOOST_PP_ASSIGN_SLOT(1)
 
-  template<> struct default_cc_tag<BOOST_PP_SLOT(1)> 
+  template<> struct default_cc_tag<NDNBOOST_PP_SLOT(1)> 
   {
-    typedef BOOST_FT_tester;
+    typedef NDNBOOST_FT_tester;
     typedef mpl::bitand_<components<tester>::bits,cc_mask_constant> bits;
     typedef cc_mask_constant mask;
   };
 
-#   undef BOOST_FT_tester
+#   undef NDNBOOST_FT_tester
 
 #endif
 

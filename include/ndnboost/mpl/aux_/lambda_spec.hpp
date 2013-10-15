@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_LAMBDA_SPEC_HPP_INCLUDED
-#define BOOST_MPL_AUX_LAMBDA_SPEC_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_LAMBDA_SPEC_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_LAMBDA_SPEC_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2007
 //
@@ -21,29 +21,29 @@
 #include <ndnboost/mpl/aux_/lambda_arity_param.hpp>
 #include <ndnboost/mpl/aux_/config/lambda.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
+#if !defined(NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
 
-#   define BOOST_MPL_AUX_PASS_THROUGH_LAMBDA_SPEC(i, name) \
+#   define NDNBOOST_MPL_AUX_PASS_THROUGH_LAMBDA_SPEC(i, name) \
 template< \
-      BOOST_MPL_PP_PARAMS(i, typename T) \
+      NDNBOOST_MPL_PP_PARAMS(i, typename T) \
     , typename Tag \
     > \
 struct lambda< \
-      name< BOOST_MPL_PP_PARAMS(i, T) > \
+      name< NDNBOOST_MPL_PP_PARAMS(i, T) > \
     , Tag \
-    BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(int_<i>) \
+    NDNBOOST_MPL_AUX_LAMBDA_ARITY_PARAM(int_<i>) \
     > \
 { \
     typedef false_ is_le; \
-    typedef name< BOOST_MPL_PP_PARAMS(i, T) > result_; \
+    typedef name< NDNBOOST_MPL_PP_PARAMS(i, T) > result_; \
     typedef result_ type; \
 }; \
 /**/
 
 #else
 
-#   define BOOST_MPL_AUX_PASS_THROUGH_LAMBDA_SPEC(i, name) /**/
+#   define NDNBOOST_MPL_AUX_PASS_THROUGH_LAMBDA_SPEC(i, name) /**/
 
 #endif
 
-#endif // BOOST_MPL_AUX_LAMBDA_SPEC_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_LAMBDA_SPEC_HPP_INCLUDED

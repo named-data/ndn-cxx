@@ -21,7 +21,7 @@ struct apply0
        
         >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           1
         , apply0
         , (F )
@@ -46,7 +46,7 @@ struct apply1
         , T1
         >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           2
         , apply1
         , (F, T1)
@@ -71,7 +71,7 @@ struct apply2
         , T1, T2
         >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           3
         , apply2
         , (F, T1, T2)
@@ -96,7 +96,7 @@ struct apply3
         , T1, T2, T3
         >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           4
         , apply3
         , (F, T1, T2, T3)
@@ -121,7 +121,7 @@ struct apply4
         , T1, T2, T3, T4
         >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           5
         , apply4
         , (F, T1, T2, T3, T4)
@@ -147,7 +147,7 @@ struct apply5
         , T1, T2, T3, T4, T5
         >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           6
         , apply5
         , (F, T1, T2, T3, T4, T5)

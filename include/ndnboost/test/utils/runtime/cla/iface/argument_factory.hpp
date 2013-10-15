@@ -12,8 +12,8 @@
 //  Description : defines interface for argument_factory
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_IFACE_ARGUMENT_FACTORY_HPP_062604GER
-#define BOOST_RT_CLA_IFACE_ARGUMENT_FACTORY_HPP_062604GER
+#ifndef NDNBOOST_RT_CLA_IFACE_ARGUMENT_FACTORY_HPP_062604GER
+#define NDNBOOST_RT_CLA_IFACE_ARGUMENT_FACTORY_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -23,7 +23,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -39,13 +39,13 @@ public:
     virtual argument_ptr produce_using( parameter& p, parser const& )      = 0;  /// produce argument based on internal generator and/or values of other parameters
     virtual void         argument_usage_info( format_stream& fs )          = 0;  /// argument value format information
 protected:
-    BOOST_TEST_PROTECTED_VIRTUAL ~argument_factory() {}
+    NDNBOOST_TEST_PROTECTED_VIRTUAL ~argument_factory() {}
 };
 
 } // namespace ndnboost
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace cla
 
-#endif // BOOST_RT_CLA_IFACE_ARGUMENT_FACTORY_HPP_062604GER
+#endif // NDNBOOST_RT_CLA_IFACE_ARGUMENT_FACTORY_HPP_062604GER

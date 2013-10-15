@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_UNORDERED_DETAIL_EQUIVALENT_HPP_INCLUDED
-#define BOOST_UNORDERED_DETAIL_EQUIVALENT_HPP_INCLUDED
+#ifndef NDNBOOST_UNORDERED_DETAIL_EQUIVALENT_HPP_INCLUDED
+#define NDNBOOST_UNORDERED_DETAIL_EQUIVALENT_HPP_INCLUDED
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
@@ -438,29 +438,29 @@ namespace ndnboost { namespace unordered { namespace detail {
             this->add_node(a, key_hash, this->find_node(key_hash, k));
         }
 
-#if defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-#   if defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
+#   if defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
         iterator emplace(ndnboost::unordered::detail::emplace_args1<
                 ndnboost::unordered::detail::please_ignore_this_overload> const&)
         {
-            BOOST_ASSERT(false);
+            NDNBOOST_ASSERT(false);
             return iterator();
         }
 #   else
         iterator emplace(
                 ndnboost::unordered::detail::please_ignore_this_overload const&)
         {
-            BOOST_ASSERT(false);
+            NDNBOOST_ASSERT(false);
             return iterator();
         }
 #   endif
 #endif
 
-        template <BOOST_UNORDERED_EMPLACE_TEMPLATE>
-        iterator emplace(BOOST_UNORDERED_EMPLACE_ARGS)
+        template <NDNBOOST_UNORDERED_EMPLACE_TEMPLATE>
+        iterator emplace(NDNBOOST_UNORDERED_EMPLACE_ARGS)
         {
             node_constructor a(this->node_alloc());
-            a.construct_with_value(BOOST_UNORDERED_EMPLACE_FORWARD);
+            a.construct_with_value(NDNBOOST_UNORDERED_EMPLACE_FORWARD);
 
             return iterator(emplace_impl(a));
         }
@@ -543,7 +543,7 @@ namespace ndnboost { namespace unordered { namespace detail {
 
         iterator erase(c_iterator r)
         {
-            BOOST_ASSERT(r.node_);
+            NDNBOOST_ASSERT(r.node_);
             iterator next(r.node_);
             ++next;
             erase_nodes(r.node_, next.node_);
@@ -646,7 +646,7 @@ namespace ndnboost { namespace unordered { namespace detail {
         // strong otherwise exception safety
         void rehash_impl(std::size_t num_buckets)
         {
-            BOOST_ASSERT(this->buckets_);
+            NDNBOOST_ASSERT(this->buckets_);
 
             this->create_buckets(num_buckets);
             link_pointer prev = this->get_previous_start();

@@ -1,13 +1,13 @@
 // Copyright David Abrahams 2006. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-#ifndef BOOST_CONCEPT_CHECK_MSVC_DWA2006429_HPP
-# define BOOST_CONCEPT_CHECK_MSVC_DWA2006429_HPP
+#ifndef NDNBOOST_CONCEPT_CHECK_MSVC_DWA2006429_HPP
+# define NDNBOOST_CONCEPT_CHECK_MSVC_DWA2006429_HPP
 
 # include <ndnboost/preprocessor/cat.hpp>
 # include <ndnboost/concept/detail/backward_compatibility.hpp>
 
-# ifdef BOOST_OLD_CONCEPT_SUPPORT
+# ifdef NDNBOOST_OLD_CONCEPT_SUPPORT
 #  include <ndnboost/concept/detail/has_constraints.hpp>
 #  include <ndnboost/mpl/if.hpp>
 # endif
@@ -25,7 +25,7 @@ struct check
     }
 };
 
-# ifndef BOOST_NO_PARTIAL_SPECIALIZATION
+# ifndef NDNBOOST_NO_PARTIAL_SPECIALIZATION
 struct failed {};
 template <class Model>
 struct check<failed ************ Model::************>
@@ -37,7 +37,7 @@ struct check<failed ************ Model::************>
 };
 # endif
 
-# ifdef BOOST_OLD_CONCEPT_SUPPORT
+# ifdef NDNBOOST_OLD_CONCEPT_SUPPORT
   
 namespace detail
 {
@@ -52,7 +52,7 @@ struct require
   : mpl::if_c<
         not_satisfied<Model>::value
       , detail::constraint
-# ifndef BOOST_NO_PARTIAL_SPECIALIZATION
+# ifndef NDNBOOST_NO_PARTIAL_SPECIALIZATION
       , check<Model>
 # else
       , check<failed ************ Model::************>
@@ -64,7 +64,7 @@ struct require
   
 template <class Model>
 struct require
-# ifndef BOOST_NO_PARTIAL_SPECIALIZATION
+# ifndef NDNBOOST_NO_PARTIAL_SPECIALIZATION
     : check<Model>
 # else
     : check<failed ************ Model::************>
@@ -73,7 +73,7 @@ struct require
   
 # endif
     
-# if BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1310)
 
 //
 // The iterator library sees some really strange errors unless we
@@ -88,10 +88,10 @@ struct require<void(*)(Model)>
     }
 };
 
-# define BOOST_CONCEPT_ASSERT_FN( ModelFnPtr )      \
+# define NDNBOOST_CONCEPT_ASSERT_FN( ModelFnPtr )      \
 enum                                                \
 {                                                   \
-    BOOST_PP_CAT(boost_concept_check,__LINE__) =    \
+    NDNBOOST_PP_CAT(boost_concept_check,__LINE__) =    \
     sizeof(::ndnboost::concepts::require<ModelFnPtr>)    \
 }
   
@@ -101,14 +101,14 @@ template <class Model>
 require<Model>
 require_(void(*)(Model));
   
-# define BOOST_CONCEPT_ASSERT_FN( ModelFnPtr )          \
+# define NDNBOOST_CONCEPT_ASSERT_FN( ModelFnPtr )          \
 enum                                                    \
 {                                                       \
-    BOOST_PP_CAT(boost_concept_check,__LINE__) =        \
+    NDNBOOST_PP_CAT(boost_concept_check,__LINE__) =        \
       sizeof(::ndnboost::concepts::require_((ModelFnPtr)0)) \
 }
   
 # endif
 }}
 
-#endif // BOOST_CONCEPT_CHECK_MSVC_DWA2006429_HPP
+#endif // NDNBOOST_CONCEPT_CHECK_MSVC_DWA2006429_HPP

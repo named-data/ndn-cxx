@@ -16,23 +16,23 @@
       & Ulrich Eisenecker.
 */
 
-#ifndef BOOST_OB_CALL_TRAITS_HPP
-#define BOOST_OB_CALL_TRAITS_HPP
+#ifndef NDNBOOST_OB_CALL_TRAITS_HPP
+#define NDNBOOST_OB_CALL_TRAITS_HPP
 
-#ifndef BOOST_CONFIG_HPP
+#ifndef NDNBOOST_CONFIG_HPP
 #include <ndnboost/config.hpp>
 #endif
 
-#ifndef BOOST_ARITHMETIC_TYPE_TRAITS_HPP
+#ifndef NDNBOOST_ARITHMETIC_TYPE_TRAITS_HPP
 #include <ndnboost/type_traits/arithmetic_traits.hpp>
 #endif
-#ifndef BOOST_COMPOSITE_TYPE_TRAITS_HPP
+#ifndef NDNBOOST_COMPOSITE_TYPE_TRAITS_HPP
 #include <ndnboost/type_traits/composite_traits.hpp>
 #endif
 
 namespace ndnboost{
 
-#ifdef BOOST_MSVC6_MEMBER_TEMPLATES
+#ifdef NDNBOOST_MSVC6_MEMBER_TEMPLATES
 //
 // use member templates to emulate
 // partial specialisation:
@@ -165,4 +165,4 @@ struct call_traits
 
 }
 
-#endif // BOOST_OB_CALL_TRAITS_HPP
+#endif // NDNBOOST_OB_CALL_TRAITS_HPP

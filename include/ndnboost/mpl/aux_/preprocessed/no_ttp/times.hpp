@@ -17,8 +17,8 @@ template<
     >
 struct times_impl
     : if_c<
-          ( BOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag1)
-              > BOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag2)
+          ( NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag1)
+              > NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag2)
             )
 
         , aux::cast2nd_impl< times_impl< Tag1,Tag1 >,Tag1, Tag2 >
@@ -33,7 +33,7 @@ template<> struct times_impl< na,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -42,7 +42,7 @@ template< typename Tag > struct times_impl< na,Tag >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -51,7 +51,7 @@ template< typename Tag > struct times_impl< Tag,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -61,14 +61,14 @@ template< typename T > struct times_tag
 };
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
     , typename N3 = na, typename N4 = na, typename N5 = na
     >
 struct times
     : times< times< times< times< N1,N2 >, N3>, N4>, N5>
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           5
         , times
         , ( N1, N2, N3, N4, N5 )
@@ -82,7 +82,7 @@ struct times< N1,N2,N3,N4,na >
 
     : times< times< times< N1,N2 >, N3>, N4>
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
           5
         , times
         , ( N1, N2, N3, N4, na )
@@ -96,7 +96,7 @@ struct times< N1,N2,N3,na,na >
 
     : times< times< N1,N2 >, N3>
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
           5
         , times
         , ( N1, N2, N3, na, na )
@@ -112,7 +112,7 @@ struct times< N1,N2,na,na,na >
         , typename times_tag<N2>::type
         >::template apply< N1,N2 >::type
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
           5
         , times
         , ( N1, N2, na, na, na )
@@ -120,7 +120,7 @@ struct times< N1,N2,na,na,na >
 
 };
 
-BOOST_MPL_AUX_NA_SPEC2(2, 5, times)
+NDNBOOST_MPL_AUX_NA_SPEC2(2, 5, times)
 
 }}
 
@@ -130,7 +130,7 @@ namespace aux {
 template< typename T, T n1, T n2 >
 struct times_wknd
 {
-    BOOST_STATIC_CONSTANT(T, value  = (n1 * n2));
+    NDNBOOST_STATIC_CONSTANT(T, value  = (n1 * n2));
     typedef integral_c< T,value > type;
 };
 

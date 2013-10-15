@@ -12,12 +12,12 @@
 //  Description : Runtime.Param library configuration
 // ***************************************************************************
 
-#ifndef BOOST_RT_CONFIG_HPP_062604GER
-#define BOOST_RT_CONFIG_HPP_062604GER
+#ifndef NDNBOOST_RT_CONFIG_HPP_062604GER
+#define NDNBOOST_RT_CONFIG_HPP_062604GER
 
 // Boost
 #include <ndnboost/config.hpp>
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 # pragma warning(disable: 4511) // copy constructor could not be generated
 # pragma warning(disable: 4512) // assignment operator could not be generated
 # pragma warning(disable: 4181) // qualifier applied to reference type; ignored
@@ -36,11 +36,11 @@
 
 //____________________________________________________________________________//
 
-#ifndef BOOST_RT_PARAM_CUSTOM_STRING
-#  ifndef BOOST_RT_PARAM_WIDE_STRING
-#    define BOOST_RT_PARAM_NAMESPACE                            runtime
+#ifndef NDNBOOST_RT_PARAM_CUSTOM_STRING
+#  ifndef NDNBOOST_RT_PARAM_WIDE_STRING
+#    define NDNBOOST_RT_PARAM_NAMESPACE                            runtime
 #  else
-#    define BOOST_RT_PARAM_NAMESPACE                            wide_runtime
+#    define NDNBOOST_RT_PARAM_NAMESPACE                            wide_runtime
 #  endif
 #endif
 
@@ -50,10 +50,10 @@ extern int putenv(char*);
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
-#ifndef BOOST_RT_PARAM_CUSTOM_STRING
-#  ifndef BOOST_RT_PARAM_WIDE_STRING
+#ifndef NDNBOOST_RT_PARAM_CUSTOM_STRING
+#  ifndef NDNBOOST_RT_PARAM_WIDE_STRING
 
 typedef char                                                    char_type;
 typedef std::string                                             dstring;
@@ -61,13 +61,13 @@ typedef unit_test::const_string                                 cstring;
 typedef unit_test::literal_string                               literal_cstring;
 typedef wrap_stringstream                                       format_stream;
 
-#ifdef BOOST_CLASSIC_IOSTREAMS
+#ifdef NDNBOOST_CLASSIC_IOSTREAMS
 typedef std::ostream                                            out_stream;
 #else
 typedef std::basic_ostream<char_type>                           out_stream;
 #endif
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(push)
 #pragma warning(disable:4996) // putenv
 #endif
@@ -97,15 +97,15 @@ putenv_impl( cstring name, cstring value )
 #endif
 #endif
 
-#ifdef BOOST_MSVC 
+#ifdef NDNBOOST_MSVC 
 #pragma warning(pop) 
 #endif 
 
-#define BOOST_RT_PARAM_LITERAL( l ) l
-#define BOOST_RT_PARAM_CSTRING_LITERAL( l ) cstring( l, sizeof( l ) - 1 )
-#define BOOST_RT_PARAM_GETENV getenv
-#define BOOST_RT_PARAM_PUTENV ::ndnboost::BOOST_RT_PARAM_NAMESPACE::putenv_impl
-#define BOOST_RT_PARAM_EXCEPTION_INHERIT_STD
+#define NDNBOOST_RT_PARAM_LITERAL( l ) l
+#define NDNBOOST_RT_PARAM_CSTRING_LITERAL( l ) cstring( l, sizeof( l ) - 1 )
+#define NDNBOOST_RT_PARAM_GETENV getenv
+#define NDNBOOST_RT_PARAM_PUTENV ::ndnboost::NDNBOOST_RT_PARAM_NAMESPACE::putenv_impl
+#define NDNBOOST_RT_PARAM_EXCEPTION_INHERIT_STD
 
 //____________________________________________________________________________//
 
@@ -133,24 +133,24 @@ putenv_impl( cstring name, cstring value )
 }
 #endif
 
-#define BOOST_RT_PARAM_LITERAL( l ) L ## l
-#define BOOST_RT_PARAM_CSTRING_LITERAL( l ) cstring( L ## l, sizeof( L ## l )/sizeof(wchar_t) - 1 )
-#define BOOST_RT_PARAM_GETENV wgetenv
-#define BOOST_RT_PARAM_PUTENV putenv_impl
+#define NDNBOOST_RT_PARAM_LITERAL( l ) L ## l
+#define NDNBOOST_RT_PARAM_CSTRING_LITERAL( l ) cstring( L ## l, sizeof( L ## l )/sizeof(wchar_t) - 1 )
+#define NDNBOOST_RT_PARAM_GETENV wgetenv
+#define NDNBOOST_RT_PARAM_PUTENV putenv_impl
 
 #  endif
 #endif
 
 #ifdef __GNUC__
-#define BOOST_RT_PARAM_UNNEEDED_VIRTUAL virtual
+#define NDNBOOST_RT_PARAM_UNNEEDED_VIRTUAL virtual
 #else
-#define BOOST_RT_PARAM_UNNEEDED_VIRTUAL
+#define NDNBOOST_RT_PARAM_UNNEEDED_VIRTUAL
 #endif
 
 //____________________________________________________________________________//
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_CONFIG_HPP_062604GER
+#endif // NDNBOOST_RT_CONFIG_HPP_062604GER

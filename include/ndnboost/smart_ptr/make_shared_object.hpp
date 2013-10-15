@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_MAKE_SHARED_OBJECT_HPP_INCLUDED
-#define BOOST_SMART_PTR_MAKE_SHARED_OBJECT_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_MAKE_SHARED_OBJECT_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_MAKE_SHARED_OBJECT_HPP_INCLUDED
 
 //  make_shared_object.hpp
 //
@@ -68,12 +68,12 @@ private:
 
 public:
 
-    sp_ms_deleter() BOOST_NOEXCEPT : initialized_( false )
+    sp_ms_deleter() NDNBOOST_NOEXCEPT : initialized_( false )
     {
     }
 
     // optimization: do not copy storage_
-    sp_ms_deleter( sp_ms_deleter const & ) BOOST_NOEXCEPT : initialized_( false )
+    sp_ms_deleter( sp_ms_deleter const & ) NDNBOOST_NOEXCEPT : initialized_( false )
     {
     }
 
@@ -91,12 +91,12 @@ public:
     {
     }
 
-    void * address() BOOST_NOEXCEPT
+    void * address() NDNBOOST_NOEXCEPT
     {
         return storage_.data_;
     }
 
-    void set_initialized() BOOST_NOEXCEPT
+    void set_initialized() NDNBOOST_NOEXCEPT
     {
         initialized_ = true;
     }
@@ -107,13 +107,13 @@ template< class T > struct sp_if_not_array
     typedef ndnboost::shared_ptr< T > type;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#if !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template< class T > struct sp_if_not_array< T[] >
 {
 };
 
-#if !defined( __BORLANDC__ ) || !BOOST_WORKAROUND( __BORLANDC__, < 0x600 )
+#if !defined( __BORLANDC__ ) || !NDNBOOST_WORKAROUND( __BORLANDC__, < 0x600 )
 
 template< class T, std::size_t N > struct sp_if_not_array< T[N] >
 {
@@ -125,10 +125,10 @@ template< class T, std::size_t N > struct sp_if_not_array< T[N] >
 
 } // namespace detail
 
-#if !defined( BOOST_NO_FUNCTION_TEMPLATE_ORDERING )
-# define BOOST_SP_MSD( T ) ndnboost::detail::sp_inplace_tag< ndnboost::detail::sp_ms_deleter< T > >()
+#if !defined( NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING )
+# define NDNBOOST_SP_MSD( T ) ndnboost::detail::sp_inplace_tag< ndnboost::detail::sp_ms_deleter< T > >()
 #else
-# define BOOST_SP_MSD( T ) ndnboost::detail::sp_ms_deleter< T >()
+# define NDNBOOST_SP_MSD( T ) ndnboost::detail::sp_ms_deleter< T >()
 #endif
 
 // Zero-argument versions
@@ -137,7 +137,7 @@ template< class T, std::size_t N > struct sp_if_not_array< T[N] >
 
 template< class T > typename ndnboost::detail::sp_if_not_array< T >::type make_shared()
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -154,7 +154,7 @@ template< class T > typename ndnboost::detail::sp_if_not_array< T >::type make_s
 
 template< class T > typename ndnboost::detail::sp_if_not_array< T >::type make_shared_noinit()
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -171,7 +171,7 @@ template< class T > typename ndnboost::detail::sp_if_not_array< T >::type make_s
 
 template< class T, class A > typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -188,7 +188,7 @@ template< class T, class A > typename ndnboost::detail::sp_if_not_array< T >::ty
 
 template< class T, class A > typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared_noinit( A const & a )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -203,13 +203,13 @@ template< class T, class A > typename ndnboost::detail::sp_if_not_array< T >::ty
     return ndnboost::shared_ptr< T >( pt, pt2 );
 }
 
-#if !defined( BOOST_NO_CXX11_VARIADIC_TEMPLATES ) && !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES ) && !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
 // Variadic templates, rvalue reference
 
 template< class T, class Arg1, class... Args > typename ndnboost::detail::sp_if_not_array< T >::type make_shared( Arg1 && arg1, Args && ... args )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -226,7 +226,7 @@ template< class T, class Arg1, class... Args > typename ndnboost::detail::sp_if_
 
 template< class T, class A, class Arg1, class... Args > typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, Arg1 && arg1, Args && ... args )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -241,14 +241,14 @@ template< class T, class A, class Arg1, class... Args > typename ndnboost::detai
     return ndnboost::shared_ptr< T >( pt, pt2 );
 }
 
-#elif !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#elif !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
 // For example MSVC 10.0
 
 template< class T, class A1 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -269,7 +269,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1 )
 template< class T, class A, class A1 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -290,7 +290,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -312,7 +312,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 
 template< class T, class A, class A1, class A2 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -334,7 +334,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -357,7 +357,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 
 template< class T, class A, class A1, class A2, class A3 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -380,7 +380,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -404,7 +404,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 
 template< class T, class A, class A1, class A2, class A3, class A4 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -428,7 +428,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4, class A5 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -453,7 +453,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 
 template< class T, class A, class A1, class A2, class A3, class A4, class A5 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -478,7 +478,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -504,7 +504,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -530,7 +530,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -557,7 +557,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -584,7 +584,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7, A8 && a8 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -612,7 +612,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7, A8 && a8 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -640,7 +640,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7, A8 && a8, A9 && a9 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -669,7 +669,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7, A8 && a8, A9 && a9 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -702,7 +702,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -720,7 +720,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1
 template< class T, class A, class A1 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -738,7 +738,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -756,7 +756,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1
 template< class T, class A, class A1, class A2 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -774,7 +774,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -792,7 +792,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1
 template< class T, class A, class A1, class A2, class A3 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -810,7 +810,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -828,7 +828,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1
 template< class T, class A, class A1, class A2, class A3, class A4 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -846,7 +846,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4, class A5 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -864,7 +864,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1
 template< class T, class A, class A1, class A2, class A3, class A4, class A5 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -882,7 +882,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -900,7 +900,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -918,7 +918,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -936,7 +936,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -954,7 +954,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7, A8 const & a8 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -972,7 +972,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7, A8 const & a8 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -990,7 +990,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9 >
 typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7, A8 const & a8, A9 const & a9 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ) );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -1008,7 +1008,7 @@ typename ndnboost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9 >
 typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7, A8 const & a8, A9 const & a9 )
 {
-    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
+    ndnboost::shared_ptr< T > pt( static_cast< T* >( 0 ), NDNBOOST_SP_MSD( T ), a );
 
     ndnboost::detail::sp_ms_deleter< T > * pd = static_cast<ndnboost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
@@ -1025,8 +1025,8 @@ typename ndnboost::detail::sp_if_not_array< T >::type allocate_shared( A const &
 
 #endif
 
-#undef BOOST_SP_MSD
+#undef NDNBOOST_SP_MSD
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_SMART_PTR_MAKE_SHARED_OBJECT_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_SMART_PTR_MAKE_SHARED_OBJECT_HPP_INCLUDED

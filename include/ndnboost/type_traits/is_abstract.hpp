@@ -1,5 +1,5 @@
-#ifndef BOOST_TT_IS_ABSTRACT_CLASS_HPP
-#define BOOST_TT_IS_ABSTRACT_CLASS_HPP
+#ifndef NDNBOOST_TT_IS_ABSTRACT_CLASS_HPP
+#define NDNBOOST_TT_IS_ABSTRACT_CLASS_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
@@ -44,17 +44,17 @@
 //  - Nov 2004: Christoph Ludwig found that the implementation did not work with
 //              template types and gcc-3.4 or VC7.1, fix due to Christoph Ludwig
 //              and John Maddock.
-//  - Dec 2004: Added new config macro BOOST_NO_IS_ABSTRACT which causes the template
+//  - Dec 2004: Added new config macro NDNBOOST_NO_IS_ABSTRACT which causes the template
 //              to degrade gracefully, rather than trash the compiler (John Maddock).
 //
 
 #include <ndnboost/type_traits/intrinsics.hpp>
-#ifndef BOOST_IS_ABSTRACT
+#ifndef NDNBOOST_IS_ABSTRACT
 #include <ndnboost/static_assert.hpp>
 #include <ndnboost/type_traits/detail/yes_no_type.hpp>
 #include <ndnboost/type_traits/is_class.hpp>
 #include <ndnboost/type_traits/detail/ice_and.hpp>
-#ifdef BOOST_NO_IS_ABSTRACT
+#ifdef NDNBOOST_NO_IS_ABSTRACT
 #include <ndnboost/type_traits/is_polymorphic.hpp>
 #endif
 #endif
@@ -65,13 +65,13 @@
 namespace ndnboost {
 namespace detail{
 
-#ifdef BOOST_IS_ABSTRACT
+#ifdef NDNBOOST_IS_ABSTRACT
 template <class T>
 struct is_abstract_imp
 {
-   BOOST_STATIC_CONSTANT(bool, value = BOOST_IS_ABSTRACT(T));
+   NDNBOOST_STATIC_CONSTANT(bool, value = NDNBOOST_IS_ABSTRACT(T));
 };
-#elif !defined(BOOST_NO_IS_ABSTRACT)
+#elif !defined(NDNBOOST_NO_IS_ABSTRACT)
 template<class T>
 struct is_abstract_imp2
 {
@@ -87,24 +87,24 @@ struct is_abstract_imp2
    // T must be a complete type, further if T is a template then
    // it must be instantiated in order for us to get the right answer:
    //
-   BOOST_STATIC_ASSERT(sizeof(T) != 0);
+   NDNBOOST_STATIC_ASSERT(sizeof(T) != 0);
 
    // GCC2 won't even parse this template if we embed the computation
    // of s1 in the computation of value.
 #ifdef __GNUC__
-   BOOST_STATIC_CONSTANT(std::size_t, s1 = sizeof(is_abstract_imp2<T>::template check_sig<T>(0)));
+   NDNBOOST_STATIC_CONSTANT(std::size_t, s1 = sizeof(is_abstract_imp2<T>::template check_sig<T>(0)));
 #else
-#if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC_FULL_VER, >= 140050000)
 #pragma warning(push)
 #pragma warning(disable:6334)
 #endif
-   BOOST_STATIC_CONSTANT(std::size_t, s1 = sizeof(check_sig<T>(0)));
-#if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
+   NDNBOOST_STATIC_CONSTANT(std::size_t, s1 = sizeof(check_sig<T>(0)));
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC_FULL_VER, >= 140050000)
 #pragma warning(pop)
 #endif
 #endif
     
-   BOOST_STATIC_CONSTANT(bool, value = 
+   NDNBOOST_STATIC_CONSTANT(bool, value = 
       (s1 == sizeof(type_traits::yes_type)));
 };
 
@@ -134,20 +134,20 @@ struct is_abstract_imp
    typedef typename selector::template rebind<T> binder;
    typedef typename binder::type type;
 
-   BOOST_STATIC_CONSTANT(bool, value = type::value);
+   NDNBOOST_STATIC_CONSTANT(bool, value = type::value);
 };
 
 #endif
 }
 
-#ifndef BOOST_NO_IS_ABSTRACT
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_abstract,T,::ndnboost::detail::is_abstract_imp<T>::value)
+#ifndef NDNBOOST_NO_IS_ABSTRACT
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_abstract,T,::ndnboost::detail::is_abstract_imp<T>::value)
 #else
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_abstract,T,::ndnboost::detail::is_polymorphic_imp<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_abstract,T,::ndnboost::detail::is_polymorphic_imp<T>::value)
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif //BOOST_TT_IS_ABSTRACT_CLASS_HPP
+#endif //NDNBOOST_TT_IS_ABSTRACT_CLASS_HPP

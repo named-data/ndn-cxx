@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_OBJECT_HPP_INCLUDED
-#define BOOST_TT_IS_OBJECT_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_OBJECT_HPP_INCLUDED
+#define NDNBOOST_TT_IS_OBJECT_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_reference.hpp>
 #include <ndnboost/type_traits/is_void.hpp>
@@ -26,15 +26,15 @@ namespace detail {
 template <typename T>
 struct is_object_impl
 {
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-   BOOST_STATIC_CONSTANT(bool, value =
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+   NDNBOOST_STATIC_CONSTANT(bool, value =
       (::ndnboost::type_traits::ice_and<
          ::ndnboost::type_traits::ice_not< ::ndnboost::is_reference<T>::value>::value,
          ::ndnboost::type_traits::ice_not< ::ndnboost::is_void<T>::value>::value,
          ::ndnboost::type_traits::ice_not< ::ndnboost::is_function<T>::value>::value
       >::value));
 #else
-   BOOST_STATIC_CONSTANT(bool, value =
+   NDNBOOST_STATIC_CONSTANT(bool, value =
       (::ndnboost::type_traits::ice_and<
          ::ndnboost::type_traits::ice_not< ::ndnboost::is_reference<T>::value>::value,
          ::ndnboost::type_traits::ice_not< ::ndnboost::is_void<T>::value>::value
@@ -44,10 +44,10 @@ struct is_object_impl
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_object,T,::ndnboost::detail::is_object_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_object,T,::ndnboost::detail::is_object_impl<T>::value)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_OBJECT_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_OBJECT_HPP_INCLUDED

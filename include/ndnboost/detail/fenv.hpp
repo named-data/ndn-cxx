@@ -7,12 +7,12 @@
 
 #include <ndnboost/config.hpp>
 
-#if defined(BOOST_NO_FENV_H)
+#if defined(NDNBOOST_NO_FENV_H)
   #error This platform does not have a floating point environment
 #endif
 
-#if !defined(BOOST_DETAIL_FENV_HPP)
-#define BOOST_DETAIL_FENV_HPP
+#if !defined(NDNBOOST_DETAIL_FENV_HPP)
+#define NDNBOOST_DETAIL_FENV_HPP
 
 /* If we're using clang + glibc, we have to get hacky. 
  * See http://llvm.org/bugs/show_bug.cgi?id=6907 */
@@ -70,5 +70,5 @@
 
 #endif
 
-#endif /* BOOST_DETAIL_FENV_HPP */
+#endif /* NDNBOOST_DETAIL_FENV_HPP */
  

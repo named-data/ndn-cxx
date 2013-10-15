@@ -7,16 +7,16 @@
 
 //  BeOS specific config options:
 
-#define BOOST_PLATFORM "BeOS"
+#define NDNBOOST_PLATFORM "BeOS"
 
-#define BOOST_NO_CWCHAR
-#define BOOST_NO_CWCTYPE
-#define BOOST_HAS_UNISTD_H
+#define NDNBOOST_NO_CWCHAR
+#define NDNBOOST_NO_CWCTYPE
+#define NDNBOOST_HAS_UNISTD_H
 
-#define BOOST_HAS_BETHREADS
+#define NDNBOOST_HAS_BETHREADS
 
-#ifndef BOOST_DISABLE_THREADS
-#  define BOOST_HAS_THREADS
+#ifndef NDNBOOST_DISABLE_THREADS
+#  define NDNBOOST_HAS_THREADS
 #endif
 
 // boilerplate code:

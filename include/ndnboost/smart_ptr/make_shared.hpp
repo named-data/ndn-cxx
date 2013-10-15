@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_MAKE_SHARED_HPP_INCLUDED
-#define BOOST_SMART_PTR_MAKE_SHARED_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_MAKE_SHARED_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_MAKE_SHARED_HPP_INCLUDED
 
 //  make_shared.hpp
 //
@@ -14,9 +14,9 @@
 
 #include <ndnboost/smart_ptr/make_shared_object.hpp>
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION ) && !defined( BOOST_NO_SFINAE )
+#if !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION ) && !defined( NDNBOOST_NO_SFINAE )
 # include <ndnboost/smart_ptr/make_shared_array.hpp>
 # include <ndnboost/smart_ptr/allocate_shared_array.hpp>
 #endif
 
-#endif // #ifndef BOOST_SMART_PTR_MAKE_SHARED_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_SMART_PTR_MAKE_SHARED_HPP_INCLUDED

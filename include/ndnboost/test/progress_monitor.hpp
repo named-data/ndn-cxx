@@ -12,8 +12,8 @@
 //  Description : defines simple text based progress monitor
 // ***************************************************************************
 
-#ifndef BOOST_TEST_PROGRESS_MONITOR_HPP_020105GER
-#define BOOST_TEST_PROGRESS_MONITOR_HPP_020105GER
+#ifndef NDNBOOST_TEST_PROGRESS_MONITOR_HPP_020105GER
+#define NDNBOOST_TEST_PROGRESS_MONITOR_HPP_020105GER
 
 // Boost.Test
 #include <ndnboost/test/test_observer.hpp>
@@ -34,7 +34,7 @@ namespace unit_test {
 // **************                progress_monitor              ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL progress_monitor_t : public test_observer, public singleton<progress_monitor_t> {
+class NDNBOOST_TEST_DECL progress_monitor_t : public test_observer, public singleton<progress_monitor_t> {
 public:
     // test observer interface
     void    test_start( counter_t test_cases_amount );
@@ -53,10 +53,10 @@ public:
     void    set_stream( std::ostream& );
 
 private:
-    BOOST_TEST_SINGLETON_CONS( progress_monitor_t );
+    NDNBOOST_TEST_SINGLETON_CONS( progress_monitor_t );
 }; // progress_monitor_t
 
-BOOST_TEST_SINGLETON_INST( progress_monitor )
+NDNBOOST_TEST_SINGLETON_INST( progress_monitor )
 
 } // namespace unit_test
 
@@ -66,5 +66,5 @@ BOOST_TEST_SINGLETON_INST( progress_monitor )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_PROGRESS_MONITOR_HPP_020105GER
+#endif // NDNBOOST_TEST_PROGRESS_MONITOR_HPP_020105GER
 

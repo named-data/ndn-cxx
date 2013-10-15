@@ -12,8 +12,8 @@
 //  Description : Facilities to perform interaction-based testing
 // ***************************************************************************
 
-#ifndef BOOST_TEST_INTERACTION_BASED_HPP_112105GER
-#define BOOST_TEST_INTERACTION_BASED_HPP_112105GER
+#ifndef NDNBOOST_TEST_INTERACTION_BASED_HPP_112105GER
+#define NDNBOOST_TEST_INTERACTION_BASED_HPP_112105GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
@@ -29,60 +29,60 @@
 //____________________________________________________________________________//
 
 // ************************************************************************** //
-// **************               BOOST_ITEST_EPOINT             ************** //
+// **************               NDNBOOST_ITEST_EPOINT             ************** //
 // ************************************************************************** //
 
-#define BOOST_ITEST_EPOINT( description ) \
-    ::ndnboost::itest::manager::instance().exception_point( BOOST_TEST_L(__FILE__), __LINE__, description )
+#define NDNBOOST_ITEST_EPOINT( description ) \
+    ::ndnboost::itest::manager::instance().exception_point( NDNBOOST_TEST_L(__FILE__), __LINE__, description )
 /**/
 
 // ************************************************************************** //
-// **************               BOOST_ITEST_DPOINT             ************** //
+// **************               NDNBOOST_ITEST_DPOINT             ************** //
 // ************************************************************************** //
 
-#define BOOST_ITEST_DPOINT() \
-    ::ndnboost::itest::manager::instance().decision_point( BOOST_TEST_L(__FILE__), __LINE__ )
+#define NDNBOOST_ITEST_DPOINT() \
+    ::ndnboost::itest::manager::instance().decision_point( NDNBOOST_TEST_L(__FILE__), __LINE__ )
 /**/
 
 // ************************************************************************** //
-// **************                BOOST_ITEST_SCOPE             ************** //
+// **************                NDNBOOST_ITEST_SCOPE             ************** //
 // ************************************************************************** //
 
-#define BOOST_ITEST_SCOPE( scope_name ) \
-    ::ndnboost::itest::scope_guard itest_scope_guard ## __LINE__( BOOST_TEST_L(__FILE__), __LINE__, BOOST_STRINGIZE(scope_name) )
+#define NDNBOOST_ITEST_SCOPE( scope_name ) \
+    ::ndnboost::itest::scope_guard itest_scope_guard ## __LINE__( NDNBOOST_TEST_L(__FILE__), __LINE__, NDNBOOST_STRINGIZE(scope_name) )
 /**/
 
 // ************************************************************************** //
-// **************                 BOOST_ITEST_NEW              ************** //
+// **************                 NDNBOOST_ITEST_NEW              ************** //
 // ************************************************************************** //
 
-#define BOOST_ITEST_NEW( type_name ) \
-    new ( ::ndnboost::itest::location( BOOST_TEST_L(__FILE__), __LINE__ ) ) type_name
+#define NDNBOOST_ITEST_NEW( type_name ) \
+    new ( ::ndnboost::itest::location( NDNBOOST_TEST_L(__FILE__), __LINE__ ) ) type_name
 /**/
 
 // ************************************************************************** //
-// **************              BOOST_ITEST_DATA_FLOW           ************** //
+// **************              NDNBOOST_ITEST_DATA_FLOW           ************** //
 // ************************************************************************** //
 
-#define BOOST_ITEST_DATA_FLOW( v ) \
+#define NDNBOOST_ITEST_DATA_FLOW( v ) \
     ::ndnboost::itest::manager::instance().generic_data_flow( v )
 /**/
 
 // ************************************************************************** //
-// **************               BOOST_ITEST_RETURN             ************** //
+// **************               NDNBOOST_ITEST_RETURN             ************** //
 // ************************************************************************** //
 
-#define BOOST_ITEST_RETURN( type, default_value ) \
+#define NDNBOOST_ITEST_RETURN( type, default_value ) \
     ::ndnboost::itest::manager::instance().generic_return<type>( default_value )
 /**/
 
 // ************************************************************************** //
-// **************              BOOST_ITEST_MOCK_FUNC           ************** //
+// **************              NDNBOOST_ITEST_MOCK_FUNC           ************** //
 // ************************************************************************** //
 
-#define BOOST_ITEST_MOCK_FUNC( function_name )          \
-    BOOST_ITEST_SCOPE( function_name );                 \
-    BOOST_ITEST_EPOINT( 0 );                            \
+#define NDNBOOST_ITEST_MOCK_FUNC( function_name )          \
+    NDNBOOST_ITEST_SCOPE( function_name );                 \
+    NDNBOOST_ITEST_EPOINT( 0 );                            \
     return ::ndnboost::itest::mock_object<>::prototype();  \
 /**/
 
@@ -96,7 +96,7 @@ using unit_test::const_string;
 // **************                    manager                   ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL manager {
+class NDNBOOST_TEST_DECL manager {
 public:
     // instance access
     static manager&     instance() { return *instance_ptr(); }
@@ -140,10 +140,10 @@ public:
 
 protected:
     manager();
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564)) 
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564)) 
 public:
 #endif
-    BOOST_TEST_PROTECTED_VIRTUAL ~manager();
+    NDNBOOST_TEST_PROTECTED_VIRTUAL ~manager();
 
 private:
     struct dummy_constr{};
@@ -193,12 +193,12 @@ struct location {
 // **************              operator new overload           ************** //
 // ************************************************************************** //
 
-#if !defined(BOOST_ITEST_NO_NEW_OVERLOADS)
+#if !defined(NDNBOOST_ITEST_NO_NEW_OVERLOADS)
 
 // STL
 #include <cstdlib>
 
-# ifdef BOOST_NO_STDC_NAMESPACE
+# ifdef NDNBOOST_NO_STDC_NAMESPACE
 namespace std { using ::malloc; using ::free; }
 # endif
 # ifdef _CRTDBG_MAP_ALLOC
@@ -259,4 +259,4 @@ operator delete[]( void* p, ::ndnboost::itest::location const& )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_INTERACTION_BASED_HPP_112105GER
+#endif // NDNBOOST_TEST_INTERACTION_BASED_HPP_112105GER

@@ -11,8 +11,8 @@
 
 //! \file
 
-#ifndef BOOST_MOVE_DETAIL_META_UTILS_HPP
-#define BOOST_MOVE_DETAIL_META_UTILS_HPP
+#ifndef NDNBOOST_MOVE_DETAIL_META_UTILS_HPP
+#define NDNBOOST_MOVE_DETAIL_META_UTILS_HPP
 
 #include <ndnboost/move/detail/config_begin.hpp>
 
@@ -155,4 +155,4 @@ inline T * addressof( T & v )
 
 #include <ndnboost/move/detail/config_end.hpp>
 
-#endif //#ifndef BOOST_MOVE_DETAIL_META_UTILS_HPP
+#endif //#ifndef NDNBOOST_MOVE_DETAIL_META_UTILS_HPP

@@ -12,13 +12,13 @@
 //  Description : Facilities to perform interaction based testng of logged expectations
 // ***************************************************************************
 
-#ifndef BOOST_TEST_LOGGED_EXPECTATIONS_IPP_120905GER
-#define BOOST_TEST_LOGGED_EXPECTATIONS_IPP_120905GER
+#ifndef NDNBOOST_TEST_LOGGED_EXPECTATIONS_IPP_120905GER
+#define NDNBOOST_TEST_LOGGED_EXPECTATIONS_IPP_120905GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
 
-#if BOOST_TEST_SUPPORT_INTERACTION_TESTING
+#if NDNBOOST_TEST_SUPPORT_INTERACTION_TESTING
 
 #include <ndnboost/test/detail/global_typedef.hpp>
 
@@ -80,11 +80,11 @@ literal_string RETURN_SIG   = "RETURN";
 expectations_logger::expectations_logger( const_string log_file_name, bool test_or_log )
 : m_test_or_log( test_or_log )
 {
-    BOOST_REQUIRE_MESSAGE( !log_file_name.is_empty(), "Empty expectations log file name" );
+    NDNBOOST_REQUIRE_MESSAGE( !log_file_name.is_empty(), "Empty expectations log file name" );
 
     m_log_file.open( log_file_name.begin(), test_or_log ? std::ios::in : std::ios::out );
 
-    BOOST_REQUIRE_MESSAGE( m_log_file.is_open(),
+    NDNBOOST_REQUIRE_MESSAGE( m_log_file.is_open(),
                            "Can't open expectations log file " << log_file_name
                                 << " for " << ( m_test_or_log ? "reading" : "writing") );
 
@@ -96,9 +96,9 @@ expectations_logger::expectations_logger( const_string log_file_name, bool test_
         const_string cline( line );
         string_token_iterator tit( cline, (dropped_delimeters = CLMN_SEP, kept_delimeters = dt_none));
 
-        BOOST_CHECK_EQUAL( *tit, FILE_SIG ); 
+        NDNBOOST_CHECK_EQUAL( *tit, FILE_SIG ); 
         ++tit;
-        BOOST_CHECK_EQUAL( *tit, ELOG_VER );
+        NDNBOOST_CHECK_EQUAL( *tit, ELOG_VER );
     }
     else {
         m_log_file << FILE_SIG << CLMN_SEP << ELOG_VER << LINE_SEP;
@@ -118,7 +118,7 @@ expectations_logger::decision_point( const_string, std::size_t )
         const_string cline( line );
         string_token_iterator tit( cline, (dropped_delimeters = CLMN_SEP, kept_delimeters = dt_none));
         
-        BOOST_CHECK_EQUAL( *tit, DP_SIG ); ++tit;
+        NDNBOOST_CHECK_EQUAL( *tit, DP_SIG ); ++tit;
         return lexical_cast<bool>( *tit );
     }
     else {
@@ -141,8 +141,8 @@ expectations_logger::enter_scope( const_string, std::size_t, const_string scope_
         const_string cline( line );
         string_token_iterator tit( cline, (dropped_delimeters = CLMN_SEP, kept_delimeters = dt_none));
         
-        BOOST_CHECK_EQUAL( *tit, SCOPE_SIG ); ++tit;
-        BOOST_CHECK_EQUAL( *tit, scope_name );
+        NDNBOOST_CHECK_EQUAL( *tit, SCOPE_SIG ); ++tit;
+        NDNBOOST_CHECK_EQUAL( *tit, scope_name );
     }
     else {
         m_log_file << SCOPE_SIG << CLMN_SEP << scope_name << LINE_SEP;
@@ -164,8 +164,8 @@ expectations_logger::allocated( const_string, std::size_t, void*, std::size_t s 
         const_string cline( line );
         string_token_iterator tit( cline, (dropped_delimeters = CLMN_SEP, kept_delimeters = dt_none));
         
-        BOOST_CHECK_EQUAL( *tit, ALLOC_SIG ); ++tit;
-        BOOST_CHECK_EQUAL( lexical_cast<std::size_t>( *tit ), s );
+        NDNBOOST_CHECK_EQUAL( *tit, ALLOC_SIG ); ++tit;
+        NDNBOOST_CHECK_EQUAL( lexical_cast<std::size_t>( *tit ), s );
     }
     else {
         m_log_file << ALLOC_SIG << CLMN_SEP << s << LINE_SEP;
@@ -185,8 +185,8 @@ expectations_logger::data_flow( const_string d )
         const_string cline( line );
         string_token_iterator tit( cline, (dropped_delimeters = CLMN_SEP, kept_delimeters = dt_none));
         
-        BOOST_CHECK_EQUAL( *tit, DATA_SIG ); ++tit;
-        BOOST_CHECK_EQUAL( *tit, d );
+        NDNBOOST_CHECK_EQUAL( *tit, DATA_SIG ); ++tit;
+        NDNBOOST_CHECK_EQUAL( *tit, d );
     }
     else {
         m_log_file << DATA_SIG << CLMN_SEP << d << LINE_SEP;
@@ -206,7 +206,7 @@ expectations_logger::return_value( const_string default_value )
         const_string cline( line );
         string_token_iterator tit( cline, (dropped_delimeters = CLMN_SEP, kept_delimeters = dt_none));
         
-        BOOST_CHECK_EQUAL( *tit, RETURN_SIG ); ++tit;
+        NDNBOOST_CHECK_EQUAL( *tit, RETURN_SIG ); ++tit;
         
         return std::string( tit->begin(), tit->size() );
     }
@@ -223,7 +223,7 @@ expectations_logger::return_value( const_string default_value )
 // **************           logged expectations test           ************** //
 // ************************************************************************** //
 
-void BOOST_TEST_DECL
+void NDNBOOST_TEST_DECL
 logged_expectations( callback0<> const& F, const_string log_file_name, bool test_or_log )
 {
     expectations_logger el( log_file_name, test_or_log );
@@ -243,4 +243,4 @@ logged_expectations( callback0<> const& F, const_string log_file_name, bool test
 
 #endif // not ancient compiler
 
-#endif // BOOST_TEST_LOGGED_EXPECTATIONS_IPP_120905GER
+#endif // NDNBOOST_TEST_LOGGED_EXPECTATIONS_IPP_120905GER

@@ -11,8 +11,8 @@
 //  has_trivial_destructor, is_empty.
 //
 
-#ifndef BOOST_TT_OBJECT_TRAITS_HPP_INLCUDED
-#define BOOST_TT_OBJECT_TRAITS_HPP_INLCUDED
+#ifndef NDNBOOST_TT_OBJECT_TRAITS_HPP_INLCUDED
+#define NDNBOOST_TT_OBJECT_TRAITS_HPP_INLCUDED
 
 #include <ndnboost/type_traits/has_trivial_assign.hpp>
 #include <ndnboost/type_traits/has_trivial_constructor.hpp>
@@ -30,4 +30,4 @@
 #include <ndnboost/type_traits/is_scalar.hpp>
 #include <ndnboost/type_traits/is_stateless.hpp>
 
-#endif // BOOST_TT_OBJECT_TRAITS_HPP_INLCUDED
+#endif // NDNBOOST_TT_OBJECT_TRAITS_HPP_INLCUDED

@@ -6,8 +6,8 @@
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_TYPEOF_MSVC_TYPEOF_IMPL_HPP_INCLUDED
-# define BOOST_TYPEOF_MSVC_TYPEOF_IMPL_HPP_INCLUDED
+#ifndef NDNBOOST_TYPEOF_MSVC_TYPEOF_IMPL_HPP_INCLUDED
+# define NDNBOOST_TYPEOF_MSVC_TYPEOF_IMPL_HPP_INCLUDED
 
 # include <ndnboost/config.hpp>
 # include <ndnboost/detail/workaround.hpp>
@@ -15,7 +15,7 @@
 # include <ndnboost/type_traits/is_function.hpp>
 # include <ndnboost/utility/enable_if.hpp>
 
-# if BOOST_WORKAROUND(BOOST_MSVC,>=1310)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC,>=1310)
 #  include <typeinfo>
 # endif
 
@@ -25,7 +25,7 @@ namespace ndnboost
     {
 
         //Compile time constant code
-# if BOOST_WORKAROUND(BOOST_MSVC,>=1300) && defined(_MSC_EXTENSIONS)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC,>=1300) && defined(_MSC_EXTENSIONS)
         template<int N> struct the_counter;
 
         template<typename T,int N = 5/*for similarity*/>
@@ -33,35 +33,35 @@ namespace ndnboost
         {
             __if_exists(the_counter<N + 256>)
             {
-                BOOST_STATIC_CONSTANT(unsigned,count=(encode_counter<T,N + 257>::count));
+                NDNBOOST_STATIC_CONSTANT(unsigned,count=(encode_counter<T,N + 257>::count));
             }
             __if_not_exists(the_counter<N + 256>)
             {
                 __if_exists(the_counter<N + 64>)
                 {
-                    BOOST_STATIC_CONSTANT(unsigned,count=(encode_counter<T,N + 65>::count));
+                    NDNBOOST_STATIC_CONSTANT(unsigned,count=(encode_counter<T,N + 65>::count));
                 }
                 __if_not_exists(the_counter<N + 64>)
                 {
                     __if_exists(the_counter<N + 16>)
                     {
-                        BOOST_STATIC_CONSTANT(unsigned,count=(encode_counter<T,N + 17>::count));
+                        NDNBOOST_STATIC_CONSTANT(unsigned,count=(encode_counter<T,N + 17>::count));
                     }
                     __if_not_exists(the_counter<N + 16>)
                     {
                         __if_exists(the_counter<N + 4>)
                         {
-                            BOOST_STATIC_CONSTANT(unsigned,count=(encode_counter<T,N + 5>::count));
+                            NDNBOOST_STATIC_CONSTANT(unsigned,count=(encode_counter<T,N + 5>::count));
                         }
                         __if_not_exists(the_counter<N + 4>)
                         {
                             __if_exists(the_counter<N>)
                             {
-                                BOOST_STATIC_CONSTANT(unsigned,count=(encode_counter<T,N + 1>::count));
+                                NDNBOOST_STATIC_CONSTANT(unsigned,count=(encode_counter<T,N + 1>::count));
                             }
                             __if_not_exists(the_counter<N>)
                             {
-                                BOOST_STATIC_CONSTANT(unsigned,count=N);
+                                NDNBOOST_STATIC_CONSTANT(unsigned,count=N);
                                 typedef the_counter<N> type;
                             }
                         }
@@ -70,8 +70,8 @@ namespace ndnboost
             }
         };
 
-# define BOOST_TYPEOF_INDEX(T) (encode_counter<T>::count)
-# define BOOST_TYPEOF_NEXT_INDEX(next)
+# define NDNBOOST_TYPEOF_INDEX(T) (encode_counter<T>::count)
+# define NDNBOOST_TYPEOF_NEXT_INDEX(next)
 # else
         template<int N> struct encode_counter : encode_counter<N - 1> {};
         template<> struct encode_counter<0> {};
@@ -79,13 +79,13 @@ namespace ndnboost
         //Need to default to a larger value than 4, as due to MSVC's ETI errors. (sizeof(int)==4)
         char (*encode_index(...))[5];
 
-# define BOOST_TYPEOF_INDEX(T) (sizeof(*ndnboost::type_of::encode_index((ndnboost::type_of::encode_counter<1005>*)0)))
-# define BOOST_TYPEOF_NEXT_INDEX(next) friend char (*encode_index(encode_counter<next>*))[next];
+# define NDNBOOST_TYPEOF_INDEX(T) (sizeof(*ndnboost::type_of::encode_index((ndnboost::type_of::encode_counter<1005>*)0)))
+# define NDNBOOST_TYPEOF_NEXT_INDEX(next) friend char (*encode_index(encode_counter<next>*))[next];
 # endif
 
         //Typeof code
 
-# if BOOST_WORKAROUND(BOOST_MSVC,==1300)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC,==1300)
         template<typename ID>
         struct msvc_extract_type
         {
@@ -104,7 +104,7 @@ namespace ndnboost
                 typedef T type;
             };
         };
-#elif BOOST_WORKAROUND(BOOST_MSVC,>=1400)
+#elif NDNBOOST_WORKAROUND(NDNBOOST_MSVC,>=1400)
         struct msvc_extract_type_default_param {};
 
         template<typename ID, typename T = msvc_extract_type_default_param>
@@ -155,7 +155,7 @@ namespace ndnboost
 # endif
 // EAN: preprocess this block out on advice of Peder Holt
 // to eliminate errors in type_traits/common_type.hpp
-# if 0 //BOOST_WORKAROUND(BOOST_MSVC,==1310)
+# if 0 //NDNBOOST_WORKAROUND(NDNBOOST_MSVC,==1310)
         template<const std::type_info& ref_type_info>
         struct msvc_typeid_wrapper {
             typedef typename msvc_extract_type<msvc_typeid_wrapper>::id2type id2type;
@@ -187,19 +187,19 @@ namespace ndnboost
         msvc_register_type<T,Organizer> typeof_register_type(const T&);
 
 
-# define BOOST_TYPEOF(expr) \
+# define NDNBOOST_TYPEOF(expr) \
     ndnboost::type_of::msvc_typeid_wrapper<typeid(ndnboost::type_of::encode_start(expr))>::type
 
-# define BOOST_TYPEOF_TPL(expr) typename BOOST_TYPEOF(expr)
+# define NDNBOOST_TYPEOF_TPL(expr) typename NDNBOOST_TYPEOF(expr)
 
-# define BOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) \
+# define NDNBOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) \
 struct name {\
     enum {_typeof_register_value=sizeof(typeid(ndnboost::type_of::typeof_register_type<name>(expr)))};\
     typedef typename ndnboost::type_of::msvc_extract_type<name>::id2type id2type;\
     typedef typename id2type::type type;\
 };
 
-# define BOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
+# define NDNBOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
 struct name {\
     enum {_typeof_register_value=sizeof(typeid(ndnboost::type_of::typeof_register_type<name>(expr)))};\
     typedef ndnboost::type_of::msvc_extract_type<name>::id2type id2type;\
@@ -228,13 +228,13 @@ struct name {\
         struct encode_type
         {
             //Get the next available compile time constants index
-            BOOST_STATIC_CONSTANT(unsigned,value=BOOST_TYPEOF_INDEX(T));
+            NDNBOOST_STATIC_CONSTANT(unsigned,value=NDNBOOST_TYPEOF_INDEX(T));
             //Instantiate the template
             typedef typename msvc_register_type<T,mpl::int_<value> >::id2type type;
             //Set the next compile time constants index
-            BOOST_STATIC_CONSTANT(unsigned,next=value+1);
+            NDNBOOST_STATIC_CONSTANT(unsigned,next=value+1);
             //Increment the compile time constant (only needed when extensions are not active
-            BOOST_TYPEOF_NEXT_INDEX(next);
+            NDNBOOST_TYPEOF_NEXT_INDEX(next);
         };
 
         template<class T>
@@ -242,7 +242,7 @@ struct name {\
         {
             typedef char(*type)[encode_type<T>::value];
         };
-# if BOOST_WORKAROUND(BOOST_MSVC,>=1310)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC,>=1310)
         template<typename T> typename disable_if<
             typename is_function<T>::type,
             typename sizer<T>::type>::type encode_start(T const&);
@@ -257,21 +257,21 @@ struct name {\
         template<typename Organizer, typename T>
         msvc_register_type<T,Organizer> typeof_register_type(const T&,Organizer* =0);
 
-# define BOOST_TYPEOF(expr) \
+# define NDNBOOST_TYPEOF(expr) \
     ndnboost::type_of::msvc_typeid_wrapper<sizeof(*ndnboost::type_of::encode_start(expr))>::type
 
-# define BOOST_TYPEOF_TPL(expr) typename BOOST_TYPEOF(expr)
+# define NDNBOOST_TYPEOF_TPL(expr) typename NDNBOOST_TYPEOF(expr)
 
-# define BOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) \
+# define NDNBOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) \
     struct name {\
-        BOOST_STATIC_CONSTANT(int,_typeof_register_value=sizeof(ndnboost::type_of::typeof_register_type<name>(expr)));\
+        NDNBOOST_STATIC_CONSTANT(int,_typeof_register_value=sizeof(ndnboost::type_of::typeof_register_type<name>(expr)));\
         typedef typename ndnboost::type_of::msvc_extract_type<name>::id2type id2type;\
         typedef typename id2type::type type;\
     };
 
-# define BOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
+# define NDNBOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
     struct name {\
-        BOOST_STATIC_CONSTANT(int,_typeof_register_value=sizeof(ndnboost::type_of::typeof_register_type<name>(expr)));\
+        NDNBOOST_STATIC_CONSTANT(int,_typeof_register_value=sizeof(ndnboost::type_of::typeof_register_type<name>(expr)));\
         typedef ndnboost::type_of::msvc_extract_type<name>::id2type id2type;\
         typedef id2type::type type;\
     };
@@ -280,4 +280,4 @@ struct name {\
     }
 }
 
-#endif//BOOST_TYPEOF_MSVC_TYPEOF_IMPL_HPP_INCLUDED
+#endif//NDNBOOST_TYPEOF_MSVC_TYPEOF_IMPL_HPP_INCLUDED

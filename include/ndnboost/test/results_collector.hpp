@@ -13,8 +13,8 @@
 //  gathering test results and presenting this information to end-user
 // ***************************************************************************
 
-#ifndef BOOST_TEST_RESULTS_COLLECTOR_HPP_071894GER
-#define BOOST_TEST_RESULTS_COLLECTOR_HPP_071894GER
+#ifndef NDNBOOST_TEST_RESULTS_COLLECTOR_HPP_071894GER
+#define NDNBOOST_TEST_RESULTS_COLLECTOR_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/test_observer.hpp>
@@ -45,12 +45,12 @@ inline void first_failed_assertion() {}
 // **************                 test_results                 ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL test_results {
+class NDNBOOST_TEST_DECL test_results {
 public:
     test_results();
 
-    typedef BOOST_READONLY_PROPERTY( counter_t, (results_collector_t)(test_results)(results_collect_helper) ) counter_prop;
-    typedef BOOST_READONLY_PROPERTY( bool,      (results_collector_t)(test_results)(results_collect_helper) ) bool_prop;
+    typedef NDNBOOST_READONLY_PROPERTY( counter_t, (results_collector_t)(test_results)(results_collect_helper) ) counter_prop;
+    typedef NDNBOOST_READONLY_PROPERTY( bool,      (results_collector_t)(test_results)(results_collect_helper) ) bool_prop;
 
     counter_prop    p_assertions_passed;
     counter_prop    p_assertions_failed;
@@ -76,7 +76,7 @@ public:
 // **************               results_collector              ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL results_collector_t : public test_observer, public singleton<results_collector_t> {
+class NDNBOOST_TEST_DECL results_collector_t : public test_observer, public singleton<results_collector_t> {
 public:
     // test_observer interface implementation
     void                test_start( counter_t test_cases_amount );
@@ -95,10 +95,10 @@ public:
     test_results const& results( test_unit_id ) const;
 
 private:
-    BOOST_TEST_SINGLETON_CONS( results_collector_t );
+    NDNBOOST_TEST_SINGLETON_CONS( results_collector_t );
 };
 
-BOOST_TEST_SINGLETON_INST( results_collector )
+NDNBOOST_TEST_SINGLETON_INST( results_collector )
 
 } // namespace unit_test
 
@@ -108,5 +108,5 @@ BOOST_TEST_SINGLETON_INST( results_collector )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_RESULTS_COLLECTOR_HPP_071894GER
+#endif // NDNBOOST_TEST_RESULTS_COLLECTOR_HPP_071894GER
 

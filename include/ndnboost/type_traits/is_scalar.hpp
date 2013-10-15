@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_SCALAR_HPP_INCLUDED
-#define BOOST_TT_IS_SCALAR_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_SCALAR_HPP_INCLUDED
+#define NDNBOOST_TT_IS_SCALAR_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_arithmetic.hpp>
 #include <ndnboost/type_traits/is_enum.hpp>
@@ -26,7 +26,7 @@ namespace detail {
 template <typename T>
 struct is_scalar_impl
 { 
-   BOOST_STATIC_CONSTANT(bool, value =
+   NDNBOOST_STATIC_CONSTANT(bool, value =
       (::ndnboost::type_traits::ice_or<
          ::ndnboost::is_arithmetic<T>::value,
          ::ndnboost::is_enum<T>::value,
@@ -37,19 +37,19 @@ struct is_scalar_impl
 
 // these specializations are only really needed for compilers 
 // without partial specialization support:
-template <> struct is_scalar_impl<void>{ BOOST_STATIC_CONSTANT(bool, value = false ); };
-#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
-template <> struct is_scalar_impl<void const>{ BOOST_STATIC_CONSTANT(bool, value = false ); };
-template <> struct is_scalar_impl<void volatile>{ BOOST_STATIC_CONSTANT(bool, value = false ); };
-template <> struct is_scalar_impl<void const volatile>{ BOOST_STATIC_CONSTANT(bool, value = false ); };
+template <> struct is_scalar_impl<void>{ NDNBOOST_STATIC_CONSTANT(bool, value = false ); };
+#ifndef NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
+template <> struct is_scalar_impl<void const>{ NDNBOOST_STATIC_CONSTANT(bool, value = false ); };
+template <> struct is_scalar_impl<void volatile>{ NDNBOOST_STATIC_CONSTANT(bool, value = false ); };
+template <> struct is_scalar_impl<void const volatile>{ NDNBOOST_STATIC_CONSTANT(bool, value = false ); };
 #endif
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_scalar,T,::ndnboost::detail::is_scalar_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_scalar,T,::ndnboost::detail::is_scalar_impl<T>::value)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_SCALAR_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_SCALAR_HPP_INCLUDED

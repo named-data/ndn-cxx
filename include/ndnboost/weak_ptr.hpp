@@ -1,5 +1,5 @@
-#ifndef BOOST_WEAK_PTR_HPP_INCLUDED
-#define BOOST_WEAK_PTR_HPP_INCLUDED
+#ifndef NDNBOOST_WEAK_PTR_HPP_INCLUDED
+#define NDNBOOST_WEAK_PTR_HPP_INCLUDED
 
 //
 //  weak_ptr.hpp
@@ -15,4 +15,4 @@
 
 #include <ndnboost/smart_ptr/weak_ptr.hpp>
 
-#endif  // #ifndef BOOST_WEAK_PTR_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_WEAK_PTR_HPP_INCLUDED

@@ -12,8 +12,8 @@
 //  Description : implements model of named parameter
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_NAMED_PARAMETER_IPP_062904GER
-#define BOOST_RT_CLA_NAMED_PARAMETER_IPP_062904GER
+#ifndef NDNBOOST_RT_CLA_NAMED_PARAMETER_IPP_062904GER
+#define NDNBOOST_RT_CLA_NAMED_PARAMETER_IPP_062904GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -26,7 +26,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -34,17 +34,17 @@ namespace cla {
 // **************              string_name_policy              ************** //
 // ************************************************************************** //
 
-BOOST_RT_PARAM_INLINE 
+NDNBOOST_RT_PARAM_INLINE 
 string_name_policy::string_name_policy()
 : basic_naming_policy( rtti::type_id<string_name_policy>() )
 , m_guess_name( false )
 {
-    assign_op( p_prefix.value, BOOST_RT_PARAM_CSTRING_LITERAL( "-" ), 0 );
+    assign_op( p_prefix.value, NDNBOOST_RT_PARAM_CSTRING_LITERAL( "-" ), 0 );
 }
 
 //____________________________________________________________________________//
 
-BOOST_RT_PARAM_INLINE bool
+NDNBOOST_RT_PARAM_INLINE bool
 string_name_policy::responds_to( cstring name ) const
 {
     std::pair<cstring::iterator,dstring::const_iterator> mm_pos;
@@ -56,12 +56,12 @@ string_name_policy::responds_to( cstring name ) const
 
 //____________________________________________________________________________//
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #  pragma warning(push)
 #  pragma warning(disable:4244)
 #endif
 
-BOOST_RT_PARAM_INLINE bool
+NDNBOOST_RT_PARAM_INLINE bool
 string_name_policy::conflict_with( identification_policy const& id ) const
 {
     if( id.p_type_id == p_type_id ) {
@@ -92,13 +92,13 @@ string_name_policy::conflict_with( identification_policy const& id ) const
     return false;    
 }
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #  pragma warning(pop)
 #endif
 
 //____________________________________________________________________________//
 
-BOOST_RT_PARAM_INLINE bool
+NDNBOOST_RT_PARAM_INLINE bool
 string_name_policy::match_name( argv_traverser& tr ) const
 {
     if( !m_guess_name )
@@ -122,8 +122,8 @@ string_name_policy::match_name( argv_traverser& tr ) const
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_CLA_NAMED_PARAMETER_IPP_062904GER
+#endif // NDNBOOST_RT_CLA_NAMED_PARAMETER_IPP_062904GER

@@ -9,8 +9,8 @@
 
 // For more information, see http://www.boost.org
 
-#ifndef BOOST_UTILITY_ADDRESSOF_HPP
-# define BOOST_UTILITY_ADDRESSOF_HPP
+#ifndef NDNBOOST_UTILITY_ADDRESSOF_HPP
+# define NDNBOOST_UTILITY_ADDRESSOF_HPP
 
 # include <ndnboost/config.hpp>
 # include <ndnboost/detail/workaround.hpp>
@@ -50,7 +50,7 @@ template<class T> struct addressof_impl
 
 template<class T> T * addressof( T & v )
 {
-#if (defined( __BORLANDC__ ) && BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT( 0x610 ) ) ) || defined( __SUNPRO_CC )
+#if (defined( __BORLANDC__ ) && NDNBOOST_WORKAROUND( __BORLANDC__, NDNBOOST_TESTED_AT( 0x610 ) ) ) || defined( __SUNPRO_CC )
 
     return ndnboost::detail::addressof_impl<T>::f( v, 0 );
 
@@ -61,7 +61,7 @@ template<class T> T * addressof( T & v )
 #endif
 }
 
-#if defined( __SUNPRO_CC ) && BOOST_WORKAROUND( __SUNPRO_CC, BOOST_TESTED_AT( 0x590 ) )
+#if defined( __SUNPRO_CC ) && NDNBOOST_WORKAROUND( __SUNPRO_CC, NDNBOOST_TESTED_AT( 0x590 ) )
 
 namespace detail
 {
@@ -83,7 +83,7 @@ typename detail::addressof_addp< T[N] >::type addressof( T (&t)[N] )
 
 // Borland doesn't like casting an array reference to a char reference
 // but these overloads work around the problem.
-#if defined( __BORLANDC__ ) && BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
+#if defined( __BORLANDC__ ) && NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564))
 template<typename T,std::size_t N>
 T (*addressof(T (&t)[N]))[N]
 {
@@ -99,4 +99,4 @@ const T (*addressof(const T (&t)[N]))[N]
 
 } // namespace ndnboost
 
-#endif // BOOST_UTILITY_ADDRESSOF_HPP
+#endif // NDNBOOST_UTILITY_ADDRESSOF_HPP

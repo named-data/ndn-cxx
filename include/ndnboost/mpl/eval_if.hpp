@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_EVAL_IF_HPP_INCLUDED
-#define BOOST_MPL_EVAL_IF_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_EVAL_IF_HPP_INCLUDED
+#define NDNBOOST_MPL_EVAL_IF_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -24,14 +24,14 @@
 namespace ndnboost { namespace mpl {
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(C)
-    , typename BOOST_MPL_AUX_NA_PARAM(F1)
-    , typename BOOST_MPL_AUX_NA_PARAM(F2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(C)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(F1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(F2)
     >
 struct eval_if
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) \
-     || ( BOOST_WORKAROUND(BOOST_MPL_CFG_GCC, >= 0x0300) \
-        && BOOST_WORKAROUND(BOOST_MPL_CFG_GCC, BOOST_TESTED_AT(0x0304)) \
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300) \
+     || ( NDNBOOST_WORKAROUND(NDNBOOST_MPL_CFG_GCC, >= 0x0300) \
+        && NDNBOOST_WORKAROUND(NDNBOOST_MPL_CFG_GCC, NDNBOOST_TESTED_AT(0x0304)) \
         )
 {
     typedef typename if_<C,F1,F2>::type f_;
@@ -40,7 +40,7 @@ struct eval_if
     : if_<C,F1,F2>::type
 {
 #endif
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(3,eval_if,(C,F1,F2))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(3,eval_if,(C,F1,F2))
 };
 
 // (almost) copy & paste in order to save one more 
@@ -51,9 +51,9 @@ template<
     , typename F2
     >
 struct eval_if_c
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) \
-     || ( BOOST_WORKAROUND(BOOST_MPL_CFG_GCC, >= 0x0300) \
-        && BOOST_WORKAROUND(BOOST_MPL_CFG_GCC, BOOST_TESTED_AT(0x0304)) \
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300) \
+     || ( NDNBOOST_WORKAROUND(NDNBOOST_MPL_CFG_GCC, >= 0x0300) \
+        && NDNBOOST_WORKAROUND(NDNBOOST_MPL_CFG_GCC, NDNBOOST_TESTED_AT(0x0304)) \
         )
 {
     typedef typename if_c<C,F1,F2>::type f_;
@@ -64,8 +64,8 @@ struct eval_if_c
 #endif
 };
 
-BOOST_MPL_AUX_NA_SPEC(3, eval_if)
+NDNBOOST_MPL_AUX_NA_SPEC(3, eval_if)
 
 }}
 
-#endif // BOOST_MPL_EVAL_IF_HPP_INCLUDED
+#endif // NDNBOOST_MPL_EVAL_IF_HPP_INCLUDED

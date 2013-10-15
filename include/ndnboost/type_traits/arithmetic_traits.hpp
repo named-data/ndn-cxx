@@ -8,8 +8,8 @@
 //  defines traits classes for arithmetic types:
 //  is_void, is_integral, is_float, is_arithmetic, is_fundamental.
 
-#ifndef BOOST_TT_ARITHMETIC_TRAITS_HPP_INCLUDED
-#define BOOST_TT_ARITHMETIC_TRAITS_HPP_INCLUDED
+#ifndef NDNBOOST_TT_ARITHMETIC_TRAITS_HPP_INCLUDED
+#define NDNBOOST_TT_ARITHMETIC_TRAITS_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_arithmetic.hpp>
 #include <ndnboost/type_traits/is_float.hpp>
@@ -17,4 +17,4 @@
 #include <ndnboost/type_traits/is_integral.hpp>
 #include <ndnboost/type_traits/is_void.hpp>
 
-#endif // BOOST_TT_ARITHMETIC_TRAITS_HPP_INCLUDED
+#endif // NDNBOOST_TT_ARITHMETIC_TRAITS_HPP_INCLUDED

@@ -12,8 +12,8 @@
 //  Description : defines portable debug interfaces
 // ***************************************************************************
 
-#ifndef BOOST_TEST_DEBUG_API_HPP_112006GER
-#define BOOST_TEST_DEBUG_API_HPP_112006GER
+#ifndef NDNBOOST_TEST_DEBUG_API_HPP_112006GER
+#define NDNBOOST_TEST_DEBUG_API_HPP_112006GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
@@ -35,14 +35,14 @@ namespace debug {
 // **************  check if program is running under debugger  ************** //
 // ************************************************************************** //
 
-bool BOOST_TEST_DECL under_debugger();
+bool NDNBOOST_TEST_DECL under_debugger();
 
 // ************************************************************************** //
 // **************       cause program to break execution       ************** //
 // **************           in debugger at call point          ************** //
 // ************************************************************************** //
 
-void BOOST_TEST_DECL debugger_break();
+void NDNBOOST_TEST_DECL debugger_break();
 
 // ************************************************************************** //
 // **************              gui debugger setup              ************** //
@@ -62,13 +62,13 @@ typedef unit_test::callback1<dbg_startup_info const&> dbg_starter;
 // **************                debugger setup                ************** //
 // ************************************************************************** //
 
-#if BOOST_WORKAROUND( BOOST_MSVC, <1300)
+#if NDNBOOST_WORKAROUND( NDNBOOST_MSVC, <1300)
 
-std::string BOOST_TEST_DECL set_debugger( unit_test::const_string dbg_id );
+std::string NDNBOOST_TEST_DECL set_debugger( unit_test::const_string dbg_id );
 
 #else 
 
-std::string BOOST_TEST_DECL set_debugger( unit_test::const_string dbg_id, dbg_starter s = dbg_starter() );
+std::string NDNBOOST_TEST_DECL set_debugger( unit_test::const_string dbg_id, dbg_starter s = dbg_starter() );
 
 #endif
 
@@ -77,20 +77,20 @@ std::string BOOST_TEST_DECL set_debugger( unit_test::const_string dbg_id, dbg_st
 // **************    attach debugger to the current process    ************** //
 // ************************************************************************** //
 
-bool BOOST_TEST_DECL attach_debugger( bool break_or_continue = true );
+bool NDNBOOST_TEST_DECL attach_debugger( bool break_or_continue = true );
 
 // ************************************************************************** //
 // **************   switch on/off detect memory leaks feature  ************** //
 // ************************************************************************** //
 
-void BOOST_TEST_DECL detect_memory_leaks( bool on_off );
+void NDNBOOST_TEST_DECL detect_memory_leaks( bool on_off );
 
 // ************************************************************************** //
 // **************      cause program to break execution in     ************** //
 // **************     debugger at specific allocation point    ************** //
 // ************************************************************************** //
 
-void BOOST_TEST_DECL break_memory_alloc( long mem_alloc_order_num );
+void NDNBOOST_TEST_DECL break_memory_alloc( long mem_alloc_order_num );
 
 } // namespace debug
 

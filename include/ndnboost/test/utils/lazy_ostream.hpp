@@ -12,8 +12,8 @@
 //  Description : contains definition for all test tools in test toolbox
 // ***************************************************************************
 
-#ifndef BOOST_TEST_LAZY_OSTREAM_HPP_070708GER
-#define BOOST_TEST_LAZY_OSTREAM_HPP_070708GER
+#ifndef NDNBOOST_TEST_LAZY_OSTREAM_HPP_070708GER
+#define NDNBOOST_TEST_LAZY_OSTREAM_HPP_070708GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
@@ -48,10 +48,10 @@ protected:
     explicit                lazy_ostream( bool empty = true ) : m_empty( empty )    {}
 
     // protected destructor to make sure right one is called
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x582))
 public:
 #endif
-    BOOST_TEST_PROTECTED_VIRTUAL ~lazy_ostream()                                    {}
+    NDNBOOST_TEST_PROTECTED_VIRTUAL ~lazy_ostream()                                    {}
 
 private:
     // Data members
@@ -90,13 +90,13 @@ operator<<( lazy_ostream const& prev, T const& v )
 
 //____________________________________________________________________________//
 
-#if BOOST_TEST_USE_STD_LOCALE
+#if NDNBOOST_TEST_USE_STD_LOCALE
 
 template<typename R,typename S>
-inline lazy_ostream_impl<R& (BOOST_TEST_CALL_DECL *)(S&)>
-operator<<( lazy_ostream const& prev, R& (BOOST_TEST_CALL_DECL *man)(S&) )
+inline lazy_ostream_impl<R& (NDNBOOST_TEST_CALL_DECL *)(S&)>
+operator<<( lazy_ostream const& prev, R& (NDNBOOST_TEST_CALL_DECL *man)(S&) )
 {
-    return lazy_ostream_impl<R& (BOOST_TEST_CALL_DECL *)(S&)>( prev, man );
+    return lazy_ostream_impl<R& (NDNBOOST_TEST_CALL_DECL *)(S&)>( prev, man );
 }
 
 //____________________________________________________________________________//
@@ -111,4 +111,4 @@ operator<<( lazy_ostream const& prev, R& (BOOST_TEST_CALL_DECL *man)(S&) )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_LAZY_OSTREAM_HPP_070708GER
+#endif // NDNBOOST_TEST_LAZY_OSTREAM_HPP_070708GER

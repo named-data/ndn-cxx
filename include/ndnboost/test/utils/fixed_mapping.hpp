@@ -12,8 +12,8 @@
 //  Description : fixed sized mapping with specified invalid value
 // ***************************************************************************
 
-#ifndef BOOST_TEST_FIXED_MAPPING_HPP_071894GER
-#define BOOST_TEST_FIXED_MAPPING_HPP_071894GER
+#ifndef NDNBOOST_TEST_FIXED_MAPPING_HPP_071894GER
+#define NDNBOOST_TEST_FIXED_MAPPING_HPP_071894GER
 
 // Boost
 #include <ndnboost/preprocessor/repetition/repeat.hpp>
@@ -45,16 +45,16 @@ namespace unit_test {
 #define CONSTR_BODY_MID( z, i, dummy1 ) add_pair( key##i, v##i );
 
 #define CONSTR_DECL( z, n, dummy1 )                                 \
-    fixed_mapping( BOOST_PP_REPEAT_ ## z( n, CONSTR_DECL_MID, "" )  \
+    fixed_mapping( NDNBOOST_PP_REPEAT_ ## z( n, CONSTR_DECL_MID, "" )  \
                          value_param_type invalid_value )           \
     : m_invalid_value( invalid_value )                              \
     {                                                               \
-        BOOST_PP_REPEAT_ ## z( n, CONSTR_BODY_MID, "" )             \
+        NDNBOOST_PP_REPEAT_ ## z( n, CONSTR_BODY_MID, "" )             \
         init();                                                     \
     }                                                               \
 /**/
 
-#define CONTRUCTORS( n ) BOOST_PP_REPEAT( n, CONSTR_DECL, "" )
+#define CONTRUCTORS( n ) NDNBOOST_PP_REPEAT( n, CONSTR_DECL, "" )
 
 template<typename Key, typename Value, typename Compare = std::less<Key> >
 class fixed_mapping
@@ -67,7 +67,7 @@ class fixed_mapping
     typedef typename call_traits<Value>::param_type         value_param_type;
     typedef typename call_traits<Value>::const_reference    value_ref_type;
 
-#if BOOST_WORKAROUND(__DECCXX_VER, BOOST_TESTED_AT(60590042))
+#if NDNBOOST_WORKAROUND(__DECCXX_VER, NDNBOOST_TESTED_AT(60590042))
     struct p1; friend struct p1;
     struct p2; friend struct p2;
 #endif
@@ -86,7 +86,7 @@ class fixed_mapping
 
 public:
     // Constructors
-    CONTRUCTORS( BOOST_PP_ADD( MAX_MAP_SIZE, 1 ) )
+    CONTRUCTORS( NDNBOOST_PP_ADD( MAX_MAP_SIZE, 1 ) )
 
     // key -> value access
     value_ref_type  operator[]( key_param_type key ) const
@@ -120,5 +120,5 @@ private:
 #undef CONSTR_DECL
 #undef CONTRUCTORS
 
-#endif // BOOST_TEST_FIXED_MAPPING_HPP_071894GER
+#endif // NDNBOOST_TEST_FIXED_MAPPING_HPP_071894GER
 

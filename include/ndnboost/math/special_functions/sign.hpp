@@ -6,8 +6,8 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_MATH_TOOLS_SIGN_HPP
-#define BOOST_MATH_TOOLS_SIGN_HPP
+#ifndef NDNBOOST_MATH_TOOLS_SIGN_HPP
+#define NDNBOOST_MATH_TOOLS_SIGN_HPP
 
 #ifdef _MSC_VER
 #pragma once
@@ -23,7 +23,7 @@ namespace detail {
 
   // signbit
 
-#ifdef BOOST_MATH_USE_STD_FPCLASSIFY
+#ifdef NDNBOOST_MATH_USE_STD_FPCLASSIFY
     template<class T> 
     inline int signbit_impl(T x, native_tag const&)
     {
@@ -46,9 +46,9 @@ namespace detail {
     template<class T> 
     inline int signbit_impl(T x, ieee_copy_all_bits_tag const&)
     {
-        typedef BOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
+        typedef NDNBOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
 
-        BOOST_DEDUCED_TYPENAME traits::bits a;
+        NDNBOOST_DEDUCED_TYPENAME traits::bits a;
         traits::get_bits(x,a);
         return a & traits::sign ? 1 : 0;
     }
@@ -56,9 +56,9 @@ namespace detail {
     template<class T> 
     inline int signbit_impl(T x, ieee_copy_leading_bits_tag const&)
     {
-        typedef BOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
+        typedef NDNBOOST_DEDUCED_TYPENAME fp_traits<T>::type traits;
 
-        BOOST_DEDUCED_TYPENAME traits::bits a;
+        NDNBOOST_DEDUCED_TYPENAME traits::bits a;
         traits::get_bits(x,a);
 
         return a & traits::sign ? 1 : 0;
@@ -82,9 +82,9 @@ namespace detail {
     template<class T>
     inline T changesign_impl(T x, ieee_copy_all_bits_tag const&)
     {
-        typedef BOOST_DEDUCED_TYPENAME fp_traits<T>::sign_change_type traits;
+        typedef NDNBOOST_DEDUCED_TYPENAME fp_traits<T>::sign_change_type traits;
 
-        BOOST_DEDUCED_TYPENAME traits::bits a;
+        NDNBOOST_DEDUCED_TYPENAME traits::bits a;
         traits::get_bits(x,a);
         a ^= traits::sign;
         traits::set_bits(x,a);
@@ -94,9 +94,9 @@ namespace detail {
     template<class T>
     inline T (changesign_impl)(T x, ieee_copy_leading_bits_tag const&)
     {
-        typedef BOOST_DEDUCED_TYPENAME fp_traits<T>::sign_change_type traits;
+        typedef NDNBOOST_DEDUCED_TYPENAME fp_traits<T>::sign_change_type traits;
 
-        BOOST_DEDUCED_TYPENAME traits::bits a;
+        NDNBOOST_DEDUCED_TYPENAME traits::bits a;
         traits::get_bits(x,a);
         a ^= traits::sign;
         traits::set_bits(x,a);
@@ -116,7 +116,7 @@ template<class T> int (signbit)(T x)
 }
 
 template <class T>
-inline int sign BOOST_NO_MACRO_EXPAND(const T& z)
+inline int sign NDNBOOST_NO_MACRO_EXPAND(const T& z)
 {
    return (z == 0) ? 0 : (ndnboost::math::signbit)(z) ? -1 : 1;
 }
@@ -133,9 +133,9 @@ template <class T> typename tools::promote_args<T>::type (changesign)(const T& x
 
 template <class T, class U>
 inline typename tools::promote_args<T, U>::type 
-   copysign BOOST_NO_MACRO_EXPAND(const T& x, const U& y)
+   copysign NDNBOOST_NO_MACRO_EXPAND(const T& x, const U& y)
 {
-   BOOST_MATH_STD_USING
+   NDNBOOST_MATH_STD_USING
    typedef typename tools::promote_args<T, U>::type result_type;
    return (ndnboost::math::signbit)(static_cast<result_type>(x)) != (ndnboost::math::signbit)(static_cast<result_type>(y)) 
       ? (ndnboost::math::changesign)(static_cast<result_type>(x)) : static_cast<result_type>(x);
@@ -145,6 +145,6 @@ inline typename tools::promote_args<T, U>::type
 } // namespace ndnboost
 
 
-#endif // BOOST_MATH_TOOLS_SIGN_HPP
+#endif // NDNBOOST_MATH_TOOLS_SIGN_HPP
 
 

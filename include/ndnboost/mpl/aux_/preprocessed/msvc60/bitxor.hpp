@@ -16,8 +16,8 @@ template<
       typename Tag1
     , typename Tag2
 
-    , BOOST_MPL_AUX_NTTP_DECL(int, tag1_)  = BOOST_MPL_AUX_MSVC_VALUE_WKND(Tag1)::value
-    , BOOST_MPL_AUX_NTTP_DECL(int, tag2_)  = BOOST_MPL_AUX_MSVC_VALUE_WKND(Tag2)::value
+    , NDNBOOST_MPL_AUX_NTTP_DECL(int, tag1_)  = NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(Tag1)::value
+    , NDNBOOST_MPL_AUX_NTTP_DECL(int, tag2_)  = NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(Tag2)::value
     >
 struct bitxor_impl
     : if_c<
@@ -34,7 +34,7 @@ template<> struct bitxor_impl< na,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -43,7 +43,7 @@ template<> struct bitxor_impl< na,integral_c_tag >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -52,7 +52,7 @@ template<> struct bitxor_impl< integral_c_tag,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -64,14 +64,14 @@ template< typename T > struct bitxor_tag
 /// forward declaration
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
     >
 struct bitxor_2;
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
     , typename N3 = na, typename N4 = na, typename N5 = na
     >
 struct bitxor_
@@ -87,7 +87,7 @@ struct bitxor_
         >::type
 
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           5
         , bitxor_
         , ( N1, N2, N3, N4, N5 )
@@ -109,11 +109,11 @@ struct bitxor_2
         >::type >::type
 
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(2, bitxor_2, (N1, N2))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2, bitxor_2, (N1, N2))
 
 };
 
-BOOST_MPL_AUX_NA_SPEC2(2, 5, bitxor_)
+NDNBOOST_MPL_AUX_NA_SPEC2(2, 5, bitxor_)
 
 }}
 
@@ -123,7 +123,7 @@ namespace aux {
 template< typename T, T n1, T n2 >
 struct bitxor_wknd
 {
-    BOOST_STATIC_CONSTANT(T, value  = (n1 ^ n2));
+    NDNBOOST_STATIC_CONSTANT(T, value  = (n1 ^ n2));
     typedef integral_c< T,value > type;
 };
 

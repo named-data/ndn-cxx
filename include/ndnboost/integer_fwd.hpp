@@ -6,13 +6,13 @@
 
 //  See http://www.boost.org/libs/integer for documentation.
 
-#ifndef BOOST_INTEGER_FWD_HPP
-#define BOOST_INTEGER_FWD_HPP
+#ifndef NDNBOOST_INTEGER_FWD_HPP
+#define NDNBOOST_INTEGER_FWD_HPP
 
 #include <climits>  // for UCHAR_MAX, etc.
 #include <cstddef>  // for std::size_t
 
-#include <ndnboost/config.hpp>  // for BOOST_NO_INTRINSIC_WCHAR_T
+#include <ndnboost/config.hpp>  // for NDNBOOST_NO_INTRINSIC_WCHAR_T
 #include <ndnboost/limits.hpp>  // for std::numeric_limits
 #include <ndnboost/cstdint.hpp>  // For intmax_t
 
@@ -20,7 +20,7 @@
 namespace ndnboost
 {
 
-#ifdef BOOST_NO_INTEGRAL_INT64_T
+#ifdef NDNBOOST_NO_INTEGRAL_INT64_T
      typedef unsigned long static_log2_argument_type;
      typedef          int  static_log2_result_type;
      typedef long          static_min_max_signed_type;
@@ -54,7 +54,7 @@ template <  >
 template <  >
     class integer_traits< unsigned char >;
 
-#ifndef BOOST_NO_INTRINSIC_WCHAR_T
+#ifndef NDNBOOST_NO_INTRINSIC_WCHAR_T
 template <  >
     class integer_traits< wchar_t >;
 #endif
@@ -77,13 +77,13 @@ template <  >
 template <  >
     class integer_traits< unsigned long >;
 
-#if !defined(BOOST_NO_INTEGRAL_INT64_T) && !defined(BOOST_NO_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+#if !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && !defined(NDNBOOST_NO_INT64_T) && defined(NDNBOOST_HAS_LONG_LONG)
 template <  >
 class integer_traits<  ::ndnboost::long_long_type>;
 
 template <  >
 class integer_traits<  ::ndnboost::ulong_long_type >;
-#elif !defined(BOOST_NO_INTEGRAL_INT64_T) && !defined(BOOST_NO_INT64_T) && defined(BOOST_HAS_MS_INT64)
+#elif !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && !defined(NDNBOOST_NO_INT64_T) && defined(NDNBOOST_HAS_MS_INT64)
 template <  >
 class integer_traits<__int64>;
 
@@ -103,21 +103,21 @@ template< int Bits >
 template< int Bits >
     struct uint_t;
 
-#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+#if !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && defined(NDNBOOST_HAS_LONG_LONG)
     template< ndnboost::long_long_type MaxValue >   // maximum value to require support
 #else
   template< long MaxValue >   // maximum value to require support
 #endif
     struct int_max_value_t;
 
-#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+#if !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && defined(NDNBOOST_HAS_LONG_LONG)
   template< ndnboost::long_long_type MinValue >   // minimum value to require support
 #else
   template< long MinValue >   // minimum value to require support
 #endif
     struct int_min_value_t;
 
-#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+#if !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && defined(NDNBOOST_HAS_LONG_LONG)
   template< ndnboost::ulong_long_type MaxValue >   // maximum value to require support
 #else
   template< unsigned long MaxValue >   // maximum value to require support
@@ -161,4 +161,4 @@ template <static_min_max_unsigned_type Value1, static_min_max_unsigned_type Valu
 }  // namespace ndnboost
 
 
-#endif  // BOOST_INTEGER_FWD_HPP
+#endif  // NDNBOOST_INTEGER_FWD_HPP

@@ -10,8 +10,8 @@
 
 // ----------------------------------------------------------------- 
 
-#ifndef BOOST_TUPLE_HPP
-#define BOOST_TUPLE_HPP
+#ifndef NDNBOOST_TUPLE_HPP
+#define NDNBOOST_TUPLE_HPP
 
 #if defined(__sgi) && defined(_COMPILER_VERSION) && _COMPILER_VERSION <= 730
 // Work around a compiler bug.
@@ -23,7 +23,7 @@ namespace ndnboost { namespace python { class tuple; }}
 #include "ndnboost/config.hpp"
 #include "ndnboost/static_assert.hpp"
 
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 // The MSVC version
 #include "ndnboost/tuple/detail/tuple_basic_no_partial_spec.hpp"
 
@@ -32,16 +32,16 @@ namespace ndnboost { namespace python { class tuple; }}
 #include "ndnboost/ref.hpp"
 #include "ndnboost/tuple/detail/tuple_basic.hpp"
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 namespace ndnboost {    
 
 using tuples::tuple;
 using tuples::make_tuple;
 using tuples::tie;
-#if !defined(BOOST_NO_USING_TEMPLATE)
+#if !defined(NDNBOOST_NO_USING_TEMPLATE)
 using tuples::get;
-#elif !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#elif !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 //
 // The "using tuples::get" statement causes the
 // Borland compiler to ICE, use forwarding
@@ -64,7 +64,7 @@ inline typename tuples::access_traits<
 get(const tuples::cons<HT, TT>& c) {
   return tuples::get<N,HT,TT>(c);
 }
-#else  // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#else  // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 //
 // MSVC, using declarations don't mix with templates well,
 // so use forwarding functions instead:
@@ -82,9 +82,9 @@ get(const tuples::cons<Head, Tail>& t, tuples::detail::workaround_holder<N>* = 0
 {
    return tuples::detail::get_class<N>::get(t);
 }
-#endif // BOOST_NO_USING_TEMPLATE
+#endif // NDNBOOST_NO_USING_TEMPLATE
    
 } // end namespace ndnboost
 
 
-#endif // BOOST_TUPLE_HPP
+#endif // NDNBOOST_TUPLE_HPP

@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_TRAITS_LAMBDA_SPEC_HPP_INCLUDED
-#define BOOST_MPL_AUX_TRAITS_LAMBDA_SPEC_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_TRAITS_LAMBDA_SPEC_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_TRAITS_LAMBDA_SPEC_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2008
 //
@@ -19,16 +19,16 @@
 #include <ndnboost/mpl/aux_/preprocessor/params.hpp>
 #include <ndnboost/mpl/aux_/config/lambda.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
+#if !defined(NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
 
-#   define BOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC_IMPL(i, trait) /**/
+#   define NDNBOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC_IMPL(i, trait) /**/
 
-#elif !defined(BOOST_MPL_CFG_MSVC_ETI_BUG)
+#elif !defined(NDNBOOST_MPL_CFG_MSVC_ETI_BUG)
 
-#   define BOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC_IMPL(i, trait) \
+#   define NDNBOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC_IMPL(i, trait) \
 template<> struct trait<void_> \
 { \
-    template< BOOST_MPL_PP_PARAMS(i, typename T) > struct apply \
+    template< NDNBOOST_MPL_PP_PARAMS(i, typename T) > struct apply \
     { \
     }; \
 }; \
@@ -36,28 +36,28 @@ template<> struct trait<void_> \
 
 #else
 
-#   define BOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC_IMPL(i, trait) \
+#   define NDNBOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC_IMPL(i, trait) \
 template<> struct trait<void_> \
 { \
-    template< BOOST_MPL_PP_PARAMS(i, typename T) > struct apply \
+    template< NDNBOOST_MPL_PP_PARAMS(i, typename T) > struct apply \
     { \
     }; \
 }; \
 template<> struct trait<int> \
 { \
-    template< BOOST_MPL_PP_PARAMS(i, typename T) > struct apply \
+    template< NDNBOOST_MPL_PP_PARAMS(i, typename T) > struct apply \
     { \
         typedef int type; \
     }; \
 }; \
 /**/
 
-#endif // BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT
+#endif // NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT
 
 
-#define BOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC(i, trait) \
-    BOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC_IMPL(i, trait) \
+#define NDNBOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC(i, trait) \
+    NDNBOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC_IMPL(i, trait) \
     template<> struct trait<non_sequence_tag> {}; \
 /**/
 
-#endif // BOOST_MPL_AUX_TRAITS_LAMBDA_SPEC_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_TRAITS_LAMBDA_SPEC_HPP_INCLUDED

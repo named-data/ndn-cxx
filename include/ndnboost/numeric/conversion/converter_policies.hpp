@@ -7,8 +7,8 @@
 //
 // Contact the author at: fernando_cacciola@hotmail.com
 //
-#ifndef BOOST_NUMERIC_CONVERSION_CONVERTER_POLICIES_FLC_12NOV2002_HPP
-#define BOOST_NUMERIC_CONVERSION_CONVERTER_POLICIES_FLC_12NOV2002_HPP
+#ifndef NDNBOOST_NUMERIC_CONVERSION_CONVERTER_POLICIES_FLC_12NOV2002_HPP
+#define NDNBOOST_NUMERIC_CONVERSION_CONVERTER_POLICIES_FLC_12NOV2002_HPP
 
 #include <typeinfo> // for std::bad_cast
 
@@ -34,7 +34,7 @@ struct Trunc
 
   static source_type nearbyint ( argument_type s )
   {
-#if !defined(BOOST_NO_STDC_NAMESPACE)
+#if !defined(NDNBOOST_NO_STDC_NAMESPACE)
     using std::floor ;
     using std::ceil  ;
 #endif
@@ -56,7 +56,7 @@ struct Floor
 
   static source_type nearbyint ( argument_type s )
   {
-#if !defined(BOOST_NO_STDC_NAMESPACE)
+#if !defined(NDNBOOST_NO_STDC_NAMESPACE)
     using std::floor ;
 #endif
 
@@ -75,7 +75,7 @@ struct Ceil
 
   static source_type nearbyint ( argument_type s )
   {
-#if !defined(BOOST_NO_STDC_NAMESPACE)
+#if !defined(NDNBOOST_NO_STDC_NAMESPACE)
     using std::ceil ;
 #endif
 
@@ -96,7 +96,7 @@ struct RoundEven
   {
     // Algorithm contributed by Guillaume Melquiond
 
-#if !defined(BOOST_NO_STDC_NAMESPACE)
+#if !defined(NDNBOOST_NO_STDC_NAMESPACE)
     using std::floor ;
     using std::ceil  ;
 #endif
@@ -159,7 +159,7 @@ struct def_overflow_handler
 {
   void operator() ( range_check_result r ) // throw(negative_overflow,positive_overflow)
   {
-#ifndef BOOST_NO_EXCEPTIONS
+#ifndef NDNBOOST_NO_EXCEPTIONS
     if ( r == cNegOverflow )
       throw negative_overflow() ;
     else if ( r == cPosOverflow )

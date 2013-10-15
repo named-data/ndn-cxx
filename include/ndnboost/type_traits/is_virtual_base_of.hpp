@@ -5,8 +5,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
  
-#ifndef BOOST_TT_IS_VIRTUAL_BASE_OF_HPP_INCLUDED
-#define BOOST_TT_IS_VIRTUAL_BASE_OF_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_VIRTUAL_BASE_OF_HPP_INCLUDED
+#define NDNBOOST_TT_IS_VIRTUAL_BASE_OF_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_base_of.hpp>
 #include <ndnboost/type_traits/is_same.hpp>
@@ -20,7 +20,7 @@ namespace ndnboost {
 namespace detail {
 
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning( push )
 #pragma warning( disable : 4584 4250)
 #elif defined(__GNUC__) && (__GNUC__ >= 4)
@@ -30,7 +30,7 @@ namespace detail {
 template<typename Base, typename Derived, typename tag>
 struct is_virtual_base_of_impl
 {
-    BOOST_STATIC_CONSTANT(bool, value = false);
+    NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
 
 template<typename Base, typename Derived>
@@ -67,7 +67,7 @@ struct is_virtual_base_of_impl<Base, Derived, mpl::true_>
        ~boost_type_traits_internal_struct_Y()throw();
     };
 #endif
-    BOOST_STATIC_CONSTANT(bool, value = (sizeof(boost_type_traits_internal_struct_X)==sizeof(boost_type_traits_internal_struct_Y)));
+    NDNBOOST_STATIC_CONSTANT(bool, value = (sizeof(boost_type_traits_internal_struct_X)==sizeof(boost_type_traits_internal_struct_Y)));
 };
 
 template<typename Base, typename Derived>
@@ -75,26 +75,26 @@ struct is_virtual_base_of_impl2
 {
    typedef typename mpl::and_<is_base_of<Base, Derived>, mpl::not_<is_same<Base, Derived> > >::type tag_type;
    typedef is_virtual_base_of_impl<Base, Derived, tag_type> imp;
-   BOOST_STATIC_CONSTANT(bool, value = imp::value);
+   NDNBOOST_STATIC_CONSTANT(bool, value = imp::value);
 };
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning( pop )
 #endif
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF2(
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF2(
       is_virtual_base_of
        , Base
        , Derived
        , (::ndnboost::detail::is_virtual_base_of_impl2<Base,Derived>::value) 
 )
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_virtual_base_of,Base&,Derived,false)
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_virtual_base_of,Base,Derived&,false)
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_virtual_base_of,Base&,Derived&,false)
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_virtual_base_of,Base&,Derived,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_virtual_base_of,Base,Derived&,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_2(typename Base,typename Derived,is_virtual_base_of,Base&,Derived&,false)
 #endif
 
 } // namespace ndnboost

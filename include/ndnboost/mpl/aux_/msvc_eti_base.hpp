@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_MSVC_ETI_BASE_HPP_INCLUDED
-#define BOOST_MPL_AUX_MSVC_ETI_BASE_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_MSVC_ETI_BASE_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_MSVC_ETI_BASE_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -21,7 +21,7 @@
 
 namespace ndnboost { namespace mpl { namespace aux {
 
-#if defined(BOOST_MPL_CFG_MSVC_70_ETI_BUG)
+#if defined(NDNBOOST_MPL_CFG_MSVC_70_ETI_BUG)
 
 template< bool > struct msvc_eti_base_impl
 {
@@ -50,12 +50,12 @@ template< typename T > struct msvc_eti_base
 {
 };
 
-#else // !BOOST_MPL_CFG_MSVC_70_ETI_BUG
+#else // !NDNBOOST_MPL_CFG_MSVC_70_ETI_BUG
 
 template< typename T > struct msvc_eti_base
     : T
 {
-#if BOOST_WORKAROUND(BOOST_MPL_CFG_GCC, BOOST_TESTED_AT(0x0304))
+#if NDNBOOST_WORKAROUND(NDNBOOST_MPL_CFG_GCC, NDNBOOST_TESTED_AT(0x0304))
     msvc_eti_base();
 #endif
     typedef T type;
@@ -74,4 +74,4 @@ template<> struct msvc_eti_base<int>
 
 }}}
 
-#endif // BOOST_MPL_AUX_MSVC_ETI_BASE_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_MSVC_ETI_BASE_HPP_INCLUDED

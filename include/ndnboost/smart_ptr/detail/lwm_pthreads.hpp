@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_LWM_PTHREADS_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_LWM_PTHREADS_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_LWM_PTHREADS_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_LWM_PTHREADS_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -43,15 +43,15 @@ public:
 // HPUX 10.20 / DCE has a nonstandard pthread_mutex_init
 
 #if defined(__hpux) && defined(_DECTHREADS_)
-        BOOST_VERIFY( pthread_mutex_init( &m_, pthread_mutexattr_default ) == 0 );
+        NDNBOOST_VERIFY( pthread_mutex_init( &m_, pthread_mutexattr_default ) == 0 );
 #else
-        BOOST_VERIFY( pthread_mutex_init( &m_, 0 ) == 0 );
+        NDNBOOST_VERIFY( pthread_mutex_init( &m_, 0 ) == 0 );
 #endif
     }
 
     ~lightweight_mutex()
     {
-        BOOST_VERIFY( pthread_mutex_destroy( &m_ ) == 0 );
+        NDNBOOST_VERIFY( pthread_mutex_destroy( &m_ ) == 0 );
     }
 
     class scoped_lock;
@@ -70,12 +70,12 @@ public:
 
         scoped_lock(lightweight_mutex & m): m_(m.m_)
         {
-            BOOST_VERIFY( pthread_mutex_lock( &m_ ) == 0 );
+            NDNBOOST_VERIFY( pthread_mutex_lock( &m_ ) == 0 );
         }
 
         ~scoped_lock()
         {
-            BOOST_VERIFY( pthread_mutex_unlock( &m_ ) == 0 );
+            NDNBOOST_VERIFY( pthread_mutex_unlock( &m_ ) == 0 );
         }
     };
 };
@@ -84,4 +84,4 @@ public:
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_SMART_PTR_DETAIL_LWM_PTHREADS_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_SMART_PTR_DETAIL_LWM_PTHREADS_HPP_INCLUDED

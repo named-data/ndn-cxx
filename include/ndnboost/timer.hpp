@@ -14,14 +14,14 @@
 //  16 Jul 99  Second beta
 //   6 Jul 99  Initial boost version
 
-#ifndef BOOST_TIMER_HPP
-#define BOOST_TIMER_HPP
+#ifndef NDNBOOST_TIMER_HPP
+#define NDNBOOST_TIMER_HPP
 
 #include <ndnboost/config.hpp>
 #include <ctime>
 #include <ndnboost/limits.hpp>
 
-# ifdef BOOST_NO_STDC_NAMESPACE
+# ifdef NDNBOOST_NO_STDC_NAMESPACE
     namespace std { using ::clock_t; using ::clock; }
 # endif
 
@@ -69,4 +69,4 @@ class timer
 
 } // namespace ndnboost
 
-#endif  // BOOST_TIMER_HPP
+#endif  // NDNBOOST_TIMER_HPP

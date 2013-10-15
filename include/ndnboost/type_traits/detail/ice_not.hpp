@@ -5,8 +5,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_DETAIL_ICE_NOT_HPP_INCLUDED
-#define BOOST_TT_DETAIL_ICE_NOT_HPP_INCLUDED
+#ifndef NDNBOOST_TT_DETAIL_ICE_NOT_HPP_INCLUDED
+#define NDNBOOST_TT_DETAIL_ICE_NOT_HPP_INCLUDED
 
 #include <ndnboost/config.hpp>
 
@@ -16,16 +16,16 @@ namespace type_traits {
 template <bool b>
 struct ice_not
 {
-    BOOST_STATIC_CONSTANT(bool, value = true);
+    NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 
 template <>
 struct ice_not<true>
 {
-    BOOST_STATIC_CONSTANT(bool, value = false);
+    NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
 
 } // namespace type_traits
 } // namespace ndnboost
 
-#endif // BOOST_TT_DETAIL_ICE_NOT_HPP_INCLUDED
+#endif // NDNBOOST_TT_DETAIL_ICE_NOT_HPP_INCLUDED

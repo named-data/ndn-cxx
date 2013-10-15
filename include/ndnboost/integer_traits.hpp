@@ -13,8 +13,8 @@
 //  See http://www.boost.org/libs/integer for documentation.
 
 
-#ifndef BOOST_INTEGER_TRAITS_HPP
-#define BOOST_INTEGER_TRAITS_HPP
+#ifndef NDNBOOST_INTEGER_TRAITS_HPP
+#define NDNBOOST_INTEGER_TRAITS_HPP
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/limits.hpp>
@@ -23,7 +23,7 @@
 #include <limits.h>
 // we need wchar.h for WCHAR_MAX/MIN but not all platforms provide it,
 // and some may have <wchar.h> but not <cwchar> ...
-#if !defined(BOOST_NO_INTRINSIC_WCHAR_T) && (!defined(BOOST_NO_CWCHAR) || defined(sun) || defined(__sun) || defined(__QNX__))
+#if !defined(NDNBOOST_NO_INTRINSIC_WCHAR_T) && (!defined(NDNBOOST_NO_CWCHAR) || defined(sun) || defined(__sun) || defined(__QNX__))
 #include <wchar.h>
 #endif
 
@@ -44,7 +44,7 @@ template<class T>
 class integer_traits : public std::numeric_limits<T>
 {
 public:
-  BOOST_STATIC_CONSTANT(bool, is_integral = false);
+  NDNBOOST_STATIC_CONSTANT(bool, is_integral = false);
 };
 
 namespace detail {
@@ -52,12 +52,12 @@ template<class T, T min_val, T max_val>
 class integer_traits_base
 {
 public:
-  BOOST_STATIC_CONSTANT(bool, is_integral = true);
-  BOOST_STATIC_CONSTANT(T, const_min = min_val);
-  BOOST_STATIC_CONSTANT(T, const_max = max_val);
+  NDNBOOST_STATIC_CONSTANT(bool, is_integral = true);
+  NDNBOOST_STATIC_CONSTANT(T, const_min = min_val);
+  NDNBOOST_STATIC_CONSTANT(T, const_max = max_val);
 };
 
-#ifndef BOOST_NO_INCLASS_MEMBER_INITIALIZATION
+#ifndef NDNBOOST_NO_INCLASS_MEMBER_INITIALIZATION
 //  A definition is required even for integral static constants
 template<class T, T min_val, T max_val>
 const bool integer_traits_base<T, min_val, max_val>::is_integral;
@@ -95,7 +95,7 @@ class integer_traits<unsigned char>
     public detail::integer_traits_base<unsigned char, 0, UCHAR_MAX>
 { };
 
-#ifndef BOOST_NO_INTRINSIC_WCHAR_T
+#ifndef NDNBOOST_NO_INTRINSIC_WCHAR_T
 template<>
 class integer_traits<wchar_t>
   : public std::numeric_limits<wchar_t>,
@@ -128,7 +128,7 @@ class integer_traits<wchar_t>
 #error No WCHAR_MIN and WCHAR_MAX present, please adjust integer_traits<> for your compiler.
 #endif
 { };
-#endif // BOOST_NO_INTRINSIC_WCHAR_T
+#endif // NDNBOOST_NO_INTRINSIC_WCHAR_T
 
 template<>
 class integer_traits<short>
@@ -166,8 +166,8 @@ class integer_traits<unsigned long>
     public detail::integer_traits_base<unsigned long, 0, ULONG_MAX>
 { };
 
-#if !defined(BOOST_NO_INTEGRAL_INT64_T) && !defined(BOOST_NO_INT64_T)
-#if defined(ULLONG_MAX) && defined(BOOST_HAS_LONG_LONG)
+#if !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && !defined(NDNBOOST_NO_INT64_T)
+#if defined(ULLONG_MAX) && defined(NDNBOOST_HAS_LONG_LONG)
 
 template<>
 class integer_traits< ::ndnboost::long_long_type>
@@ -181,7 +181,7 @@ class integer_traits< ::ndnboost::ulong_long_type>
     public detail::integer_traits_base< ::ndnboost::ulong_long_type, 0, ULLONG_MAX>
 { };
 
-#elif defined(ULONG_LONG_MAX) && defined(BOOST_HAS_LONG_LONG)
+#elif defined(ULONG_LONG_MAX) && defined(NDNBOOST_HAS_LONG_LONG)
 
 template<>
 class integer_traits< ::ndnboost::long_long_type>  : public std::numeric_limits< ::ndnboost::long_long_type>,    public detail::integer_traits_base< ::ndnboost::long_long_type, LONG_LONG_MIN, LONG_LONG_MAX>{ };
@@ -191,7 +191,7 @@ class integer_traits< ::ndnboost::ulong_long_type>
     public detail::integer_traits_base< ::ndnboost::ulong_long_type, 0, ULONG_LONG_MAX>
 { };
 
-#elif defined(ULONGLONG_MAX) && defined(BOOST_HAS_LONG_LONG)
+#elif defined(ULONGLONG_MAX) && defined(NDNBOOST_HAS_LONG_LONG)
 
 template<>
 class integer_traits< ::ndnboost::long_long_type>
@@ -205,7 +205,7 @@ class integer_traits< ::ndnboost::ulong_long_type>
     public detail::integer_traits_base< ::ndnboost::ulong_long_type, 0, ULONGLONG_MAX>
 { };
 
-#elif defined(_LLONG_MAX) && defined(_C2) && defined(BOOST_HAS_LONG_LONG)
+#elif defined(_LLONG_MAX) && defined(_C2) && defined(NDNBOOST_HAS_LONG_LONG)
 
 template<>
 class integer_traits< ::ndnboost::long_long_type>
@@ -219,7 +219,7 @@ class integer_traits< ::ndnboost::ulong_long_type>
     public detail::integer_traits_base< ::ndnboost::ulong_long_type, 0, _ULLONG_MAX>
 { };
 
-#elif defined(BOOST_HAS_LONG_LONG)
+#elif defined(NDNBOOST_HAS_LONG_LONG)
 //
 // we have long long but no constants, this happens for example with gcc in -ansi mode,
 // we'll just have to work out the values for ourselves (assumes 2's compliment representation):
@@ -236,7 +236,7 @@ class integer_traits< ::ndnboost::ulong_long_type>
     public detail::integer_traits_base< ::ndnboost::ulong_long_type, 0, ~0uLL>
 { };
 
-#elif defined(BOOST_HAS_MS_INT64)
+#elif defined(NDNBOOST_HAS_MS_INT64)
 
 template<>
 class integer_traits< __int64>
@@ -255,7 +255,7 @@ class integer_traits< unsigned __int64>
 
 } // namespace ndnboost
 
-#endif /* BOOST_INTEGER_TRAITS_HPP */
+#endif /* NDNBOOST_INTEGER_TRAITS_HPP */
 
 
 

@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_LIST_AUX_NODE_HPP_INCLUDED
-#define BOOST_MPL_LIST_AUX_NODE_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_LIST_AUX_NODE_HPP_INCLUDED
+#define NDNBOOST_MPL_LIST_AUX_NODE_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -29,7 +29,7 @@ template<
 struct l_item
 {
 // agurt, 17/jul/03: to facilitate the deficient 'is_sequence' implementation 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
     typedef int begin;
 #endif
     typedef aux::list_tag tag;
@@ -42,7 +42,7 @@ struct l_item
 
 struct l_end
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
     typedef int begin;
 #endif
     typedef aux::list_tag tag;
@@ -52,4 +52,4 @@ struct l_end
 
 }}
 
-#endif // BOOST_MPL_LIST_AUX_NODE_HPP_INCLUDED
+#endif // NDNBOOST_MPL_LIST_AUX_NODE_HPP_INCLUDED

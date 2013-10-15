@@ -10,8 +10,8 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_ALIGNED_STORAGE_HPP
-#define BOOST_ALIGNED_STORAGE_HPP
+#ifndef NDNBOOST_ALIGNED_STORAGE_HPP
+#define NDNBOOST_ALIGNED_STORAGE_HPP
 
 #include <cstddef> // for std::size_t
 
@@ -30,7 +30,7 @@ namespace ndnboost {
 
 namespace detail { namespace aligned_storage {
 
-BOOST_STATIC_CONSTANT(
+NDNBOOST_STATIC_CONSTANT(
       std::size_t
     , alignment_of_max_align = ::ndnboost::alignment_of<max_align>::value
     );
@@ -83,11 +83,11 @@ public: // constants
 
     typedef detail::aligned_storage::aligned_storage_imp<size_, alignment_> type;
 
-    BOOST_STATIC_CONSTANT(
+    NDNBOOST_STATIC_CONSTANT(
           std::size_t
         , size = size_
         );
-    BOOST_STATIC_CONSTANT(
+    NDNBOOST_STATIC_CONSTANT(
           std::size_t
         , alignment = (
               alignment_ == std::size_t(-1)
@@ -132,7 +132,7 @@ public: // accessors
         return static_cast<type*>(this)->address();
     }
 
-#if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
 
     const void* address() const
     {
@@ -147,7 +147,7 @@ public: // accessors
 
 };
 
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
 
 // MSVC6 seems not to like inline functions with const void* returns, so we
 // declare the following here:
@@ -160,16 +160,16 @@ const void* aligned_storage<S,A>::address() const
 
 #endif // MSVC6 workaround
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 //
 // Make sure that is_pod recognises aligned_storage<>::type
 // as a POD (Note that aligned_storage<> itself is not a POD):
 //
 template <std::size_t size_, std::size_t alignment_>
 struct is_pod<ndnboost::detail::aligned_storage::aligned_storage_imp<size_,alignment_> >
-   BOOST_TT_AUX_BOOL_C_BASE(true)
+   NDNBOOST_TT_AUX_BOOL_C_BASE(true)
 { 
-    BOOST_TT_AUX_BOOL_TRAIT_VALUE_DECL(true)
+    NDNBOOST_TT_AUX_BOOL_TRAIT_VALUE_DECL(true)
 }; 
 #endif
 
@@ -178,4 +178,4 @@ struct is_pod<ndnboost::detail::aligned_storage::aligned_storage_imp<size_,align
 
 #include "ndnboost/type_traits/detail/bool_trait_undef.hpp"
 
-#endif // BOOST_ALIGNED_STORAGE_HPP
+#endif // NDNBOOST_ALIGNED_STORAGE_HPP

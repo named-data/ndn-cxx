@@ -12,8 +12,8 @@
 //  Description : implements framework API - main driver for the test
 // ***************************************************************************
 
-#ifndef BOOST_TEST_FRAMEWORK_IPP_021005GER
-#define BOOST_TEST_FRAMEWORK_IPP_021005GER
+#ifndef NDNBOOST_TEST_FRAMEWORK_IPP_021005GER
+#define NDNBOOST_TEST_FRAMEWORK_IPP_021005GER
 
 // Boost.Test
 #include <ndnboost/test/framework.hpp>
@@ -42,7 +42,7 @@
 #include <cstdlib>
 #include <ctime>
 
-#ifdef BOOST_NO_STDC_NAMESPACE
+#ifdef NDNBOOST_NO_STDC_NAMESPACE
 namespace std { using ::time; using ::srand; }
 #endif
 
@@ -86,7 +86,7 @@ struct test_init_caller {
     {}
     int         operator()()
     {
-#ifdef BOOST_TEST_ALTERNATIVE_INIT_API
+#ifdef NDNBOOST_TEST_ALTERNATIVE_INIT_API
         if( !(*m_init_func)() )
             throw std::runtime_error( "test module initialization failed" );
 #else
@@ -141,13 +141,13 @@ public:
     void            visit( test_case const& tc )
     {
         if( !tc.check_dependencies() ) {
-            BOOST_TEST_FOREACH( test_observer*, to, m_observers )
+            NDNBOOST_TEST_FOREACH( test_observer*, to, m_observers )
                 to->test_unit_skipped( tc );
 
             return;
         }
 
-        BOOST_TEST_FOREACH( test_observer*, to, m_observers )
+        NDNBOOST_TEST_FOREACH( test_observer*, to, m_observers )
             to->test_unit_start( tc );
 
         ndnboost::timer tc_timer;
@@ -158,11 +158,11 @@ public:
         unsigned long elapsed = static_cast<unsigned long>( tc_timer.elapsed() * 1e6 );
 
         if( unit_test_monitor.is_critical_error( run_result ) ) {
-            BOOST_TEST_FOREACH( test_observer*, to, m_observers )
+            NDNBOOST_TEST_FOREACH( test_observer*, to, m_observers )
                 to->test_aborted();
         }
 
-        BOOST_TEST_FOREACH( test_observer*, to, m_observers )
+        NDNBOOST_TEST_FOREACH( test_observer*, to, m_observers )
             to->test_unit_finish( tc, elapsed );
 
         m_curr_test_case = bkup;
@@ -174,13 +174,13 @@ public:
     bool            test_suite_start( test_suite const& ts )
     {
         if( !ts.check_dependencies() ) {
-            BOOST_TEST_FOREACH( test_observer*, to, m_observers )
+            NDNBOOST_TEST_FOREACH( test_observer*, to, m_observers )
                 to->test_unit_skipped( ts );
 
             return false;
         }
 
-        BOOST_TEST_FOREACH( test_observer*, to, m_observers )
+        NDNBOOST_TEST_FOREACH( test_observer*, to, m_observers )
             to->test_unit_start( ts );
 
         return true;
@@ -188,7 +188,7 @@ public:
 
     void            test_suite_finish( test_suite const& ts )
     {
-        BOOST_TEST_FOREACH( test_observer*, to, m_observers )
+        NDNBOOST_TEST_FOREACH( test_observer*, to, m_observers )
             to->test_unit_finish( ts, 0 );
     }
 
@@ -287,11 +287,11 @@ is_initialized()
 void
 register_test_unit( test_case* tc )
 {
-    BOOST_TEST_SETUP_ASSERT( tc->p_id == INV_TEST_UNIT_ID, BOOST_TEST_L( "test case already registered" ) );
+    NDNBOOST_TEST_SETUP_ASSERT( tc->p_id == INV_TEST_UNIT_ID, NDNBOOST_TEST_L( "test case already registered" ) );
 
     test_unit_id new_id = s_frk_impl().m_next_test_case_id;
 
-    BOOST_TEST_SETUP_ASSERT( new_id != MAX_TEST_CASE_ID, BOOST_TEST_L( "too many test cases" ) );
+    NDNBOOST_TEST_SETUP_ASSERT( new_id != MAX_TEST_CASE_ID, NDNBOOST_TEST_L( "too many test cases" ) );
 
     typedef framework_impl::test_unit_store::value_type map_value_type;
 
@@ -306,11 +306,11 @@ register_test_unit( test_case* tc )
 void
 register_test_unit( test_suite* ts )
 {
-    BOOST_TEST_SETUP_ASSERT( ts->p_id == INV_TEST_UNIT_ID, BOOST_TEST_L( "test suite already registered" ) );
+    NDNBOOST_TEST_SETUP_ASSERT( ts->p_id == INV_TEST_UNIT_ID, NDNBOOST_TEST_L( "test suite already registered" ) );
 
     test_unit_id new_id = s_frk_impl().m_next_test_suite_id;
 
-    BOOST_TEST_SETUP_ASSERT( new_id != MAX_TEST_SUITE_ID, BOOST_TEST_L( "too many test suites" ) );
+    NDNBOOST_TEST_SETUP_ASSERT( new_id != MAX_TEST_SUITE_ID, NDNBOOST_TEST_L( "too many test suites" ) );
 
     typedef framework_impl::test_unit_store::value_type map_value_type;
     s_frk_impl().m_test_units.insert( map_value_type( new_id, ts ) );
@@ -402,9 +402,9 @@ run( test_unit_id id, bool continue_test )
     test_case_counter tcc;
     traverse_test_tree( id, tcc );
 
-    BOOST_TEST_SETUP_ASSERT( tcc.p_count != 0 , runtime_config::test_to_run().is_empty() 
-        ? BOOST_TEST_L( "test tree is empty" ) 
-        : BOOST_TEST_L( "no test cases matching filter" ) );
+    NDNBOOST_TEST_SETUP_ASSERT( tcc.p_count != 0 , runtime_config::test_to_run().is_empty() 
+        ? NDNBOOST_TEST_L( "test tree is empty" ) 
+        : NDNBOOST_TEST_L( "no test cases matching filter" ) );
 
     bool    call_start_finish   = !continue_test || !s_frk_impl().m_test_in_progress;
     bool    was_in_progress     = s_frk_impl().m_test_in_progress;
@@ -412,7 +412,7 @@ run( test_unit_id id, bool continue_test )
     s_frk_impl().m_test_in_progress = true;
 
     if( call_start_finish ) {
-        BOOST_TEST_FOREACH( test_observer*, to, s_frk_impl().m_observers ) {
+        NDNBOOST_TEST_FOREACH( test_observer*, to, s_frk_impl().m_observers ) {
             ndnboost::execution_monitor em;
 
             try {
@@ -429,12 +429,12 @@ run( test_unit_id id, bool continue_test )
         break;
     case 1: {
         unsigned int seed = static_cast<unsigned int>( std::time( 0 ) );
-        BOOST_TEST_MESSAGE( "Test cases order is shuffled using seed: " << seed );
+        NDNBOOST_TEST_MESSAGE( "Test cases order is shuffled using seed: " << seed );
         std::srand( seed );
         break;
     }
     default:
-        BOOST_TEST_MESSAGE( "Test cases order is shuffled using seed: " << runtime_config::random_seed() );
+        NDNBOOST_TEST_MESSAGE( "Test cases order is shuffled using seed: " << runtime_config::random_seed() );
         std::srand( runtime_config::random_seed() );
     }
 
@@ -446,7 +446,7 @@ run( test_unit_id id, bool continue_test )
     }
 
     if( call_start_finish ) {
-        BOOST_TEST_FOREACH( test_observer*, to, s_frk_impl().m_observers )
+        NDNBOOST_TEST_FOREACH( test_observer*, to, s_frk_impl().m_observers )
             to->test_finish();
     }
 
@@ -466,7 +466,7 @@ run( test_unit const* tu, bool continue_test )
 void
 assertion_result( bool passed )
 {
-    BOOST_TEST_FOREACH( test_observer*, to, s_frk_impl().m_observers )
+    NDNBOOST_TEST_FOREACH( test_observer*, to, s_frk_impl().m_observers )
         to->assertion_result( passed );
 }
 
@@ -475,7 +475,7 @@ assertion_result( bool passed )
 void
 exception_caught( execution_exception const& ex )
 {
-    BOOST_TEST_FOREACH( test_observer*, to, s_frk_impl().m_observers )
+    NDNBOOST_TEST_FOREACH( test_observer*, to, s_frk_impl().m_observers )
         to->exception_caught( ex );
 }
 
@@ -484,7 +484,7 @@ exception_caught( execution_exception const& ex )
 void
 test_unit_aborted( test_unit const& tu )
 {
-    BOOST_TEST_FOREACH( test_observer*, to, s_frk_impl().m_observers )
+    NDNBOOST_TEST_FOREACH( test_observer*, to, s_frk_impl().m_observers )
         to->test_unit_aborted( tu );
 }
 
@@ -500,4 +500,4 @@ test_unit_aborted( test_unit const& tu )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_FRAMEWORK_IPP_021005GER
+#endif // NDNBOOST_TEST_FRAMEWORK_IPP_021005GER

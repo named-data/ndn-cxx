@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_FOLD_IMPL_HPP_INCLUDED
-#define BOOST_MPL_AUX_FOLD_IMPL_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_FOLD_IMPL_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_FOLD_IMPL_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -14,12 +14,12 @@
 // $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
 // $Revision: 49267 $
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   include <ndnboost/mpl/next_prior.hpp>
 #   include <ndnboost/mpl/apply.hpp>
 #   include <ndnboost/mpl/deref.hpp>
 #   include <ndnboost/mpl/aux_/config/ctps.hpp>
-#   if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#   if defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 #       include <ndnboost/mpl/if.hpp>
 #       include <ndnboost/type_traits/is_same.hpp>
 #   endif
@@ -27,10 +27,10 @@
 
 #include <ndnboost/mpl/aux_/config/use_preprocessed.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
-    && !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+    && !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
-#   define BOOST_MPL_PREPROCESSED_HEADER fold_impl.hpp
+#   define NDNBOOST_MPL_PREPROCESSED_HEADER fold_impl.hpp
 #   include <ndnboost/mpl/aux_/include_preprocessed.hpp>
 
 #else
@@ -39,5 +39,5 @@
 #   define AUX778076_FOLD_IMPL_NAME_PREFIX fold
 #   include <ndnboost/mpl/aux_/fold_impl_body.hpp>
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#endif // BOOST_MPL_AUX_FOLD_IMPL_HPP_INCLUDED
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_AUX_FOLD_IMPL_HPP_INCLUDED

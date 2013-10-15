@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_CONSTANTS_HPP
-#define BOOST_STRING_CONSTANTS_HPP
+#ifndef NDNBOOST_STRING_CONSTANTS_HPP
+#define NDNBOOST_STRING_CONSTANTS_HPP
 
 namespace ndnboost {
     namespace algorithm {
@@ -32,5 +32,5 @@ namespace ndnboost {
 
 } // namespace ndnboost
 
-#endif  // BOOST_STRING_CONSTANTS_HPP
+#endif  // NDNBOOST_STRING_CONSTANTS_HPP
 

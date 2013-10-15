@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DISTANCE_HPP
-#define BOOST_RANGE_DISTANCE_HPP
+#ifndef NDNBOOST_RANGE_DISTANCE_HPP
+#define NDNBOOST_RANGE_DISTANCE_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
@@ -23,7 +23,7 @@ namespace ndnboost
 {
 
     template< class T >
-    inline BOOST_DEDUCED_TYPENAME range_difference<T>::type 
+    inline NDNBOOST_DEDUCED_TYPENAME range_difference<T>::type 
     distance( const T& r )
     {
         return std::distance( ndnboost::begin( r ), ndnboost::end( r ) );

@@ -7,8 +7,8 @@
 //
 // For more information, see http://www.boost.org/libs/range/
 //
-#ifndef BOOST_RANGE_ALGORITHM_EQUAL_HPP_INCLUDED
-#define BOOST_RANGE_ALGORITHM_EQUAL_HPP_INCLUDED
+#ifndef NDNBOOST_RANGE_ALGORITHM_EQUAL_HPP_INCLUDED
+#define NDNBOOST_RANGE_ALGORITHM_EQUAL_HPP_INCLUDED
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/range/concepts.hpp>
@@ -133,8 +133,8 @@ namespace ndnboost
                            SinglePassTraversalReadableIterator2 first2,
                            SinglePassTraversalReadableIterator2 last2 )
         {
-            BOOST_DEDUCED_TYPENAME std::iterator_traits< SinglePassTraversalReadableIterator1 >::iterator_category tag1;
-            BOOST_DEDUCED_TYPENAME std::iterator_traits< SinglePassTraversalReadableIterator2 >::iterator_category tag2;
+            NDNBOOST_DEDUCED_TYPENAME std::iterator_traits< SinglePassTraversalReadableIterator1 >::iterator_category tag1;
+            NDNBOOST_DEDUCED_TYPENAME std::iterator_traits< SinglePassTraversalReadableIterator2 >::iterator_category tag2;
 
             return equal_impl(first1, last1, first2, last2, tag1, tag2);
         }
@@ -148,8 +148,8 @@ namespace ndnboost
                            SinglePassTraversalReadableIterator2 last2,
                            BinaryPredicate                      pred )
         {
-            BOOST_DEDUCED_TYPENAME std::iterator_traits< SinglePassTraversalReadableIterator1 >::iterator_category tag1;
-            BOOST_DEDUCED_TYPENAME std::iterator_traits< SinglePassTraversalReadableIterator2 >::iterator_category tag2;
+            NDNBOOST_DEDUCED_TYPENAME std::iterator_traits< SinglePassTraversalReadableIterator1 >::iterator_category tag1;
+            NDNBOOST_DEDUCED_TYPENAME std::iterator_traits< SinglePassTraversalReadableIterator2 >::iterator_category tag2;
 
             return equal_impl(first1, last1, first2, last2, pred, tag1, tag2);
         }
@@ -169,8 +169,8 @@ namespace ndnboost
         template< class SinglePassRange1, class SinglePassRange2 >
         inline bool equal( const SinglePassRange1& rng1, const SinglePassRange2& rng2 )
         {
-            BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange1> ));
-            BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange2> ));
+            NDNBOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange1> ));
+            NDNBOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange2> ));
 
             return ::ndnboost::range_detail::equal(
                 ::ndnboost::begin(rng1), ::ndnboost::end(rng1),
@@ -182,8 +182,8 @@ namespace ndnboost
         inline bool equal( const SinglePassRange1& rng1, const SinglePassRange2& rng2,
                            BinaryPredicate pred )
         {
-            BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange1> ));
-            BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange2> ));
+            NDNBOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange1> ));
+            NDNBOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange2> ));
 
             return ::ndnboost::range_detail::equal(
                 ::ndnboost::begin(rng1), ::ndnboost::end(rng1),

@@ -7,8 +7,8 @@
 //
 // For more information, see http://www.boost.org/libs/range/
 //
-#ifndef BOOST_RANGE_ITERATOR_RANGE_HPP_INCLUDED
-#define BOOST_RANGE_ITERATOR_RANGE_HPP_INCLUDED
+#ifndef NDNBOOST_RANGE_ITERATOR_RANGE_HPP_INCLUDED
+#define NDNBOOST_RANGE_ITERATOR_RANGE_HPP_INCLUDED
 
 #include "ndnboost/range/iterator_range_core.hpp"
 #include "ndnboost/range/iterator_range_io.hpp"

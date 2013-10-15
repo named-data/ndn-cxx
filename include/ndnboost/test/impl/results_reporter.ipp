@@ -12,8 +12,8 @@
 //  Description : result reporting facilties
 // ***************************************************************************
 
-#ifndef BOOST_TEST_RESULTS_REPORTER_IPP_020105GER
-#define BOOST_TEST_RESULTS_REPORTER_IPP_020105GER
+#ifndef NDNBOOST_TEST_RESULTS_REPORTER_IPP_020105GER
+#define NDNBOOST_TEST_RESULTS_REPORTER_IPP_020105GER
 
 // Boost.Test
 #include <ndnboost/test/results_reporter.hpp>
@@ -199,4 +199,4 @@ make_report( report_level l, test_unit_id id )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_RESULTS_REPORTER_IPP_020105GER
+#endif // NDNBOOST_TEST_RESULTS_REPORTER_IPP_020105GER

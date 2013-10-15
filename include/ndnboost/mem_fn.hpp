@@ -1,5 +1,5 @@
-#ifndef BOOST_MEM_FN_HPP_INCLUDED
-#define BOOST_MEM_FN_HPP_INCLUDED
+#ifndef NDNBOOST_MEM_FN_HPP_INCLUDED
+#define NDNBOOST_MEM_FN_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -21,4 +21,4 @@
 
 #include <ndnboost/bind/mem_fn.hpp>
 
-#endif // #ifndef BOOST_MEM_FN_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_MEM_FN_HPP_INCLUDED

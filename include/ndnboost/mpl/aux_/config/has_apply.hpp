@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_CONFIG_HAS_APPLY_HPP_INCLUDED
-#define BOOST_MPL_AUX_CONFIG_HAS_APPLY_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_CONFIG_HAS_APPLY_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_CONFIG_HAS_APPLY_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2004
 //
@@ -18,15 +18,15 @@
 #include <ndnboost/mpl/aux_/config/msvc.hpp>
 #include <ndnboost/mpl/aux_/config/workaround.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_HAS_APPLY) \
-    && (   defined(BOOST_MPL_CFG_NO_HAS_XXX) \
-        || BOOST_WORKAROUND(__EDG_VERSION__, < 300) \
-        || BOOST_WORKAROUND(BOOST_MSVC, <= 1300) \
-        || BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3202)) \
+#if !defined(NDNBOOST_MPL_CFG_NO_HAS_APPLY) \
+    && (   defined(NDNBOOST_MPL_CFG_NO_HAS_XXX) \
+        || NDNBOOST_WORKAROUND(__EDG_VERSION__, < 300) \
+        || NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300) \
+        || NDNBOOST_WORKAROUND(__MWERKS__, NDNBOOST_TESTED_AT(0x3202)) \
         )
 
-#   define BOOST_MPL_CFG_NO_HAS_APPLY
+#   define NDNBOOST_MPL_CFG_NO_HAS_APPLY
 
 #endif
 
-#endif // BOOST_MPL_AUX_CONFIG_HAS_APPLY_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_CONFIG_HAS_APPLY_HPP_INCLUDED

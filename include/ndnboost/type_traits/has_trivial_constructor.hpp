@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_HAS_TRIVIAL_CONSTRUCTOR_HPP_INCLUDED
-#define BOOST_TT_HAS_TRIVIAL_CONSTRUCTOR_HPP_INCLUDED
+#ifndef NDNBOOST_TT_HAS_TRIVIAL_CONSTRUCTOR_HPP_INCLUDED
+#define NDNBOOST_TT_HAS_TRIVIAL_CONSTRUCTOR_HPP_INCLUDED
 
 #include <ndnboost/type_traits/config.hpp>
 #include <ndnboost/type_traits/intrinsics.hpp>
@@ -24,14 +24,14 @@ namespace detail {
 template <typename T>
 struct has_trivial_ctor_impl
 {
-#ifdef BOOST_HAS_TRIVIAL_CONSTRUCTOR
-   BOOST_STATIC_CONSTANT(bool, value =
+#ifdef NDNBOOST_HAS_TRIVIAL_CONSTRUCTOR
+   NDNBOOST_STATIC_CONSTANT(bool, value =
       (::ndnboost::type_traits::ice_or<
          ::ndnboost::is_pod<T>::value,
-         BOOST_HAS_TRIVIAL_CONSTRUCTOR(T)
+         NDNBOOST_HAS_TRIVIAL_CONSTRUCTOR(T)
       >::value));
 #else
-   BOOST_STATIC_CONSTANT(bool, value =
+   NDNBOOST_STATIC_CONSTANT(bool, value =
       (::ndnboost::type_traits::ice_or<
          ::ndnboost::is_pod<T>::value,
          false
@@ -41,11 +41,11 @@ struct has_trivial_ctor_impl
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(has_trivial_constructor,T,::ndnboost::detail::has_trivial_ctor_impl<T>::value)
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(has_trivial_default_constructor,T,::ndnboost::detail::has_trivial_ctor_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(has_trivial_constructor,T,::ndnboost::detail::has_trivial_ctor_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(has_trivial_default_constructor,T,::ndnboost::detail::has_trivial_ctor_impl<T>::value)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_HAS_TRIVIAL_CONSTRUCTOR_HPP_INCLUDED
+#endif // NDNBOOST_TT_HAS_TRIVIAL_CONSTRUCTOR_HPP_INCLUDED

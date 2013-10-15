@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_NA_HPP_INCLUDED
-#define BOOST_MPL_AUX_NA_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_NA_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_NA_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -25,7 +25,7 @@ template< typename T >
 struct is_na
     : false_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
     using false_::value;
 #endif
 };
@@ -34,7 +34,7 @@ template<>
 struct is_na<na>
     : true_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
     using true_::value;
 #endif
 };
@@ -43,7 +43,7 @@ template< typename T >
 struct is_not_na
     : true_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
     using true_::value;
 #endif
 };
@@ -52,12 +52,12 @@ template<>
 struct is_not_na<na>
     : false_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
     using false_::value;
 #endif
 };
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 template< typename T, typename U > struct if_na
 {
     typedef T type;
@@ -92,4 +92,4 @@ template< typename T, typename U > struct if_na
 
 }}
 
-#endif // BOOST_MPL_AUX_NA_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_NA_HPP_INCLUDED

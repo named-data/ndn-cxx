@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_SHARED_ARRAY_HPP_INCLUDED
-#define BOOST_SMART_PTR_SHARED_ARRAY_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_SHARED_ARRAY_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_SHARED_ARRAY_HPP_INCLUDED
 
 //
 //  shared_array.hpp
@@ -16,7 +16,7 @@
 
 #include <ndnboost/config.hpp>   // for broken compiler workarounds
 
-#if defined(BOOST_NO_MEMBER_TEMPLATES) && !defined(BOOST_MSVC6_MEMBER_TEMPLATES)
+#if defined(NDNBOOST_NO_MEMBER_TEMPLATES) && !defined(NDNBOOST_MSVC6_MEMBER_TEMPLATES)
 #include <ndnboost/smart_ptr/detail/shared_array_nmt.hpp>
 #else
 
@@ -57,7 +57,7 @@ public:
 
     typedef T element_type;
 
-    shared_array() BOOST_NOEXCEPT : px( 0 ), pn()
+    shared_array() NDNBOOST_NOEXCEPT : px( 0 ), pn()
     {
     }
 
@@ -87,15 +87,15 @@ public:
 
 //  generated copy constructor, destructor are fine...
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
 // ... except in C++0x, move disables the implicit copy
 
-    shared_array( shared_array const & r ) BOOST_NOEXCEPT : px( r.px ), pn( r.pn )
+    shared_array( shared_array const & r ) NDNBOOST_NOEXCEPT : px( r.px ), pn( r.pn )
     {
     }
 
-    shared_array( shared_array && r ) BOOST_NOEXCEPT : px( r.px ), pn()
+    shared_array( shared_array && r ) NDNBOOST_NOEXCEPT : px( r.px ), pn()
     {
         pn.swap( r.pn );
         r.px = 0;
@@ -106,7 +106,7 @@ public:
     // conversion
 
     template<class Y>
-#if !defined( BOOST_SP_NO_SP_CONVERTIBLE )
+#if !defined( NDNBOOST_SP_NO_SP_CONVERTIBLE )
 
     shared_array( shared_array<Y> const & r, typename ndnboost::detail::sp_enable_if_convertible< Y[], T[] >::type = ndnboost::detail::sp_empty() )
 
@@ -115,7 +115,7 @@ public:
     shared_array( shared_array<Y> const & r )
 
 #endif
-    BOOST_NOEXCEPT : px( r.px ), pn( r.pn ) // never throws
+    NDNBOOST_NOEXCEPT : px( r.px ), pn( r.pn ) // never throws
     {
         ndnboost::detail::sp_assert_convertible< Y[], T[] >();
     }
@@ -123,22 +123,22 @@ public:
     // aliasing
 
     template< class Y >
-    shared_array( shared_array<Y> const & r, element_type * p ) BOOST_NOEXCEPT : px( p ), pn( r.pn )
+    shared_array( shared_array<Y> const & r, element_type * p ) NDNBOOST_NOEXCEPT : px( p ), pn( r.pn )
     {
     }
 
     // assignment
 
-    shared_array & operator=( shared_array const & r ) BOOST_NOEXCEPT
+    shared_array & operator=( shared_array const & r ) NDNBOOST_NOEXCEPT
     {
         this_type( r ).swap( *this );
         return *this;
     }
 
-#if !defined(BOOST_MSVC) || (BOOST_MSVC >= 1400)
+#if !defined(NDNBOOST_MSVC) || (NDNBOOST_MSVC >= 1400)
 
     template<class Y>
-    shared_array & operator=( shared_array<Y> const & r ) BOOST_NOEXCEPT
+    shared_array & operator=( shared_array<Y> const & r ) NDNBOOST_NOEXCEPT
     {
         this_type( r ).swap( *this );
         return *this;
@@ -146,16 +146,16 @@ public:
 
 #endif
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined( NDNBOOST_NO_CXX11_RVALUE_REFERENCES )
 
-    shared_array & operator=( shared_array && r ) BOOST_NOEXCEPT
+    shared_array & operator=( shared_array && r ) NDNBOOST_NOEXCEPT
     {
         this_type( static_cast< shared_array && >( r ) ).swap( *this );
         return *this;
     }
 
     template<class Y>
-    shared_array & operator=( shared_array<Y> && r ) BOOST_NOEXCEPT
+    shared_array & operator=( shared_array<Y> && r ) NDNBOOST_NOEXCEPT
     {
         this_type( static_cast< shared_array<Y> && >( r ) ).swap( *this );
         return *this;
@@ -163,14 +163,14 @@ public:
 
 #endif
 
-    void reset() BOOST_NOEXCEPT
+    void reset() NDNBOOST_NOEXCEPT
     {
         this_type().swap( *this );
     }
 
     template<class Y> void reset( Y * p ) // Y must be complete
     {
-        BOOST_ASSERT( p == 0 || p != px ); // catch self-reset errors
+        NDNBOOST_ASSERT( p == 0 || p != px ); // catch self-reset errors
         this_type( p ).swap( *this );
     }
 
@@ -189,14 +189,14 @@ public:
         this_type( r, p ).swap( *this );
     }
 
-    T & operator[] (std::ptrdiff_t i) const // never throws (but has a BOOST_ASSERT in it, so not marked with BOOST_NOEXCEPT)
+    T & operator[] (std::ptrdiff_t i) const // never throws (but has a NDNBOOST_ASSERT in it, so not marked with NDNBOOST_NOEXCEPT)
     {
-        BOOST_ASSERT(px != 0);
-        BOOST_ASSERT(i >= 0);
+        NDNBOOST_ASSERT(px != 0);
+        NDNBOOST_ASSERT(i >= 0);
         return px[i];
     }
     
-    T * get() const BOOST_NOEXCEPT
+    T * get() const NDNBOOST_NOEXCEPT
     {
         return px;
     }
@@ -204,17 +204,17 @@ public:
 // implicit conversion to "bool"
 #include <ndnboost/smart_ptr/detail/operator_bool.hpp>
 
-    bool unique() const BOOST_NOEXCEPT
+    bool unique() const NDNBOOST_NOEXCEPT
     {
         return pn.unique();
     }
 
-    long use_count() const BOOST_NOEXCEPT
+    long use_count() const NDNBOOST_NOEXCEPT
     {
         return pn.use_count();
     }
 
-    void swap(shared_array<T> & other) BOOST_NOEXCEPT
+    void swap(shared_array<T> & other) NDNBOOST_NOEXCEPT
     {
         std::swap(px, other.px);
         pn.swap(other.pn);
@@ -234,57 +234,57 @@ private:
 
 };  // shared_array
 
-template<class T> inline bool operator==(shared_array<T> const & a, shared_array<T> const & b) BOOST_NOEXCEPT
+template<class T> inline bool operator==(shared_array<T> const & a, shared_array<T> const & b) NDNBOOST_NOEXCEPT
 {
     return a.get() == b.get();
 }
 
-template<class T> inline bool operator!=(shared_array<T> const & a, shared_array<T> const & b) BOOST_NOEXCEPT
+template<class T> inline bool operator!=(shared_array<T> const & a, shared_array<T> const & b) NDNBOOST_NOEXCEPT
 {
     return a.get() != b.get();
 }
 
-#if !defined( BOOST_NO_CXX11_NULLPTR )
+#if !defined( NDNBOOST_NO_CXX11_NULLPTR )
 
-template<class T> inline bool operator==( shared_array<T> const & p, ndnboost::detail::sp_nullptr_t ) BOOST_NOEXCEPT
+template<class T> inline bool operator==( shared_array<T> const & p, ndnboost::detail::sp_nullptr_t ) NDNBOOST_NOEXCEPT
 {
     return p.get() == 0;
 }
 
-template<class T> inline bool operator==( ndnboost::detail::sp_nullptr_t, shared_array<T> const & p ) BOOST_NOEXCEPT
+template<class T> inline bool operator==( ndnboost::detail::sp_nullptr_t, shared_array<T> const & p ) NDNBOOST_NOEXCEPT
 {
     return p.get() == 0;
 }
 
-template<class T> inline bool operator!=( shared_array<T> const & p, ndnboost::detail::sp_nullptr_t ) BOOST_NOEXCEPT
+template<class T> inline bool operator!=( shared_array<T> const & p, ndnboost::detail::sp_nullptr_t ) NDNBOOST_NOEXCEPT
 {
     return p.get() != 0;
 }
 
-template<class T> inline bool operator!=( ndnboost::detail::sp_nullptr_t, shared_array<T> const & p ) BOOST_NOEXCEPT
+template<class T> inline bool operator!=( ndnboost::detail::sp_nullptr_t, shared_array<T> const & p ) NDNBOOST_NOEXCEPT
 {
     return p.get() != 0;
 }
 
 #endif
 
-template<class T> inline bool operator<(shared_array<T> const & a, shared_array<T> const & b) BOOST_NOEXCEPT
+template<class T> inline bool operator<(shared_array<T> const & a, shared_array<T> const & b) NDNBOOST_NOEXCEPT
 {
     return std::less<T*>()(a.get(), b.get());
 }
 
-template<class T> void swap(shared_array<T> & a, shared_array<T> & b) BOOST_NOEXCEPT
+template<class T> void swap(shared_array<T> & a, shared_array<T> & b) NDNBOOST_NOEXCEPT
 {
     a.swap(b);
 }
 
 template< class D, class T > D * get_deleter( shared_array<T> const & p )
 {
-    return static_cast< D * >( p._internal_get_deleter( BOOST_SP_TYPEID(D) ) );
+    return static_cast< D * >( p._internal_get_deleter( NDNBOOST_SP_TYPEID(D) ) );
 }
 
 } // namespace ndnboost
 
-#endif  // #if defined(BOOST_NO_MEMBER_TEMPLATES) && !defined(BOOST_MSVC6_MEMBER_TEMPLATES)
+#endif  // #if defined(NDNBOOST_NO_MEMBER_TEMPLATES) && !defined(NDNBOOST_MSVC6_MEMBER_TEMPLATES)
 
-#endif  // #ifndef BOOST_SMART_PTR_SHARED_ARRAY_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_SHARED_ARRAY_HPP_INCLUDED

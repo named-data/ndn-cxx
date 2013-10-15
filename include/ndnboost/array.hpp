@@ -19,7 +19,7 @@
  *      See <http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-defects.html#776> or Trac issue #3168
  *      Eventually, we should remove "assign" which is now a synonym for "fill" (Marshall Clow)
  * 10 Mar 2010 - added workaround for SUNCC and !STLPort [trac #3893] (Marshall Clow)
- * 29 Jan 2004 - c_array() added, BOOST_NO_PRIVATE_IN_AGGREGATE removed (Nico Josuttis)
+ * 29 Jan 2004 - c_array() added, NDNBOOST_NO_PRIVATE_IN_AGGREGATE removed (Nico Josuttis)
  * 23 Aug 2002 - fix for Non-MSVC compilers combined with MSVC libraries.
  * 05 Aug 2001 - minor update (Nico Josuttis)
  * 20 Jan 2001 - STLport fix (Beman Dawes)
@@ -27,12 +27,12 @@
  *
  * Jan 29, 2004
  */
-#ifndef BOOST_ARRAY_HPP
-#define BOOST_ARRAY_HPP
+#ifndef NDNBOOST_ARRAY_HPP
+#define NDNBOOST_ARRAY_HPP
 
 #include <ndnboost/detail/workaround.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)  
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, >= 1400)  
 # pragma warning(push)  
 # pragma warning(disable:4996) // 'std::equal': Function call with parameters that may be unsafe
 # pragma warning(disable:4510) // ndnboost::array<T,N>' : default constructor could not be generated 
@@ -81,10 +81,10 @@ namespace ndnboost {
         const_iterator cend() const { return elems+N; }
 
         // reverse iterator support
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_MSVC_STD_ITERATOR) && !defined(BOOST_NO_STD_ITERATOR_TRAITS)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(NDNBOOST_MSVC_STD_ITERATOR) && !defined(NDNBOOST_NO_STD_ITERATOR_TRAITS)
         typedef std::reverse_iterator<iterator> reverse_iterator;
         typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-#elif defined(_MSC_VER) && (_MSC_VER == 1300) && defined(BOOST_DINKUMWARE_STDLIB) && (BOOST_DINKUMWARE_STDLIB == 310)
+#elif defined(_MSC_VER) && (_MSC_VER == 1300) && defined(NDNBOOST_DINKUMWARE_STDLIB) && (NDNBOOST_DINKUMWARE_STDLIB == 310)
         // workaround for broken reverse_iterator in VC7
         typedef std::reverse_iterator<std::_Ptrit<value_type, difference_type, iterator,
                                       reference, iterator, reference> > reverse_iterator;
@@ -120,13 +120,13 @@ namespace ndnboost {
         // operator[]
         reference operator[](size_type i) 
         { 
-            BOOST_ASSERT_MSG( i < N, "out of range" );
+            NDNBOOST_ASSERT_MSG( i < N, "out of range" );
             return elems[i];
         }
         
         const_reference operator[](size_type i) const 
         {     
-            BOOST_ASSERT_MSG( i < N, "out of range" );
+            NDNBOOST_ASSERT_MSG( i < N, "out of range" );
             return elems[i]; 
         }
 
@@ -198,7 +198,7 @@ namespace ndnboost {
 
     };
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
     template< class T >
     class array< T, 0 > {
 
@@ -222,10 +222,10 @@ namespace ndnboost {
         const_iterator cend() const { return cbegin(); }
 
         // reverse iterator support
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_MSVC_STD_ITERATOR) && !defined(BOOST_NO_STD_ITERATOR_TRAITS)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(NDNBOOST_MSVC_STD_ITERATOR) && !defined(NDNBOOST_NO_STD_ITERATOR_TRAITS)
         typedef std::reverse_iterator<iterator> reverse_iterator;
         typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-#elif defined(_MSC_VER) && (_MSC_VER == 1300) && defined(BOOST_DINKUMWARE_STDLIB) && (BOOST_DINKUMWARE_STDLIB == 310)
+#elif defined(_MSC_VER) && (_MSC_VER == 1300) && defined(NDNBOOST_DINKUMWARE_STDLIB) && (NDNBOOST_DINKUMWARE_STDLIB == 310)
         // workaround for broken reverse_iterator in VC7
         typedef std::reverse_iterator<std::_Ptrit<value_type, difference_type, iterator,
                                       reference, iterator, reference> > reverse_iterator;
@@ -324,7 +324,7 @@ namespace ndnboost {
         static reference failed_rangecheck () {
                 std::out_of_range e("attempt to access element of an empty array");
                 ndnboost::throw_exception(e);
-#if defined(BOOST_NO_EXCEPTIONS) || (!defined(BOOST_MSVC) && !defined(__PATHSCALE__))
+#if defined(NDNBOOST_NO_EXCEPTIONS) || (!defined(NDNBOOST_MSVC) && !defined(__PATHSCALE__))
                 //
                 // We need to return something here to keep
                 // some compilers happy: however we will never
@@ -439,8 +439,8 @@ namespace ndnboost {
 } /* namespace ndnboost */
 
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)  
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, >= 1400)  
 # pragma warning(pop)  
 #endif 
 
-#endif /*BOOST_ARRAY_HPP*/
+#endif /*NDNBOOST_ARRAY_HPP*/

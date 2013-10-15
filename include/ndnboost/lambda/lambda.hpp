@@ -7,13 +7,13 @@
 //
 // For more information, see http://lambda.cs.utu.fi 
 
-#ifndef BOOST_LAMBDA_LAMBDA_HPP
-#define BOOST_LAMBDA_LAMBDA_HPP
+#ifndef NDNBOOST_LAMBDA_LAMBDA_HPP
+#define NDNBOOST_LAMBDA_LAMBDA_HPP
 
 
 #include "ndnboost/lambda/core.hpp"
 
-#ifdef BOOST_NO_FDECL_TEMPLATES_AS_TEMPLATE_TEMPLATE_PARAMS
+#ifdef NDNBOOST_NO_FDECL_TEMPLATES_AS_TEMPLATE_TEMPLATE_PARAMS
 #include <istream>
 #include <ostream>
 #endif
@@ -25,7 +25,7 @@
 
 #include "ndnboost/lambda/detail/operators.hpp"
 
-#ifndef BOOST_LAMBDA_FAILS_IN_TEMPLATE_KEYWORD_AFTER_SCOPE_OPER
+#ifndef NDNBOOST_LAMBDA_FAILS_IN_TEMPLATE_KEYWORD_AFTER_SCOPE_OPER
 // sorry, member ptr does not work with gcc2.95
 #include "ndnboost/lambda/detail/member_ptr.hpp"
 #endif

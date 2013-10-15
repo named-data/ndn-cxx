@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_SIZE_TYPE_HPP
-#define BOOST_RANGE_SIZE_TYPE_HPP
+#ifndef NDNBOOST_RANGE_SIZE_TYPE_HPP
+#define NDNBOOST_RANGE_SIZE_TYPE_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
@@ -17,7 +17,7 @@
 
 #include <ndnboost/range/config.hpp>
 #include <ndnboost/range/difference_type.hpp>
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 #include <ndnboost/range/detail/size_type.hpp>
 #else
 
@@ -43,7 +43,7 @@ namespace ndnboost
             struct yes_type { char dummy[2]; };
 
             template<typename C>
-            static yes_type test(BOOST_DEDUCED_TYPENAME C::size_type x);
+            static yes_type test(NDNBOOST_DEDUCED_TYPENAME C::size_type x);
 
             template<typename C, typename Arg>
             static no_type test(Arg x);
@@ -55,18 +55,18 @@ namespace ndnboost
         template<typename C, typename Enabler=void>
         struct range_size
         {
-            typedef BOOST_DEDUCED_TYPENAME make_unsigned<
-                BOOST_DEDUCED_TYPENAME range_difference<C>::type
+            typedef NDNBOOST_DEDUCED_TYPENAME make_unsigned<
+                NDNBOOST_DEDUCED_TYPENAME range_difference<C>::type
             >::type type;
         };
 
         template<typename C>
         struct range_size<
             C,
-            BOOST_DEDUCED_TYPENAME enable_if<has_size_type<C>, void>::type
+            NDNBOOST_DEDUCED_TYPENAME enable_if<has_size_type<C>, void>::type
         >
         {
-            typedef BOOST_DEDUCED_TYPENAME C::size_type type;
+            typedef NDNBOOST_DEDUCED_TYPENAME C::size_type type;
         };
 
     }
@@ -83,7 +83,7 @@ namespace ndnboost
 
 } // namespace ndnboost
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 
 #endif

@@ -12,8 +12,8 @@
 //  Description : output_test_stream class definition
 // ***************************************************************************
 
-#ifndef BOOST_TEST_OUTPUT_TEST_STREAM_HPP_012705GER
-#define BOOST_TEST_OUTPUT_TEST_STREAM_HPP_012705GER
+#ifndef NDNBOOST_TEST_OUTPUT_TEST_STREAM_HPP_012705GER
+#define NDNBOOST_TEST_OUTPUT_TEST_STREAM_HPP_012705GER
 
 // Boost.Test
 #include <ndnboost/test/detail/global_typedef.hpp>
@@ -37,7 +37,7 @@ namespace ndnboost {
 
 namespace test_tools {
 
-class BOOST_TEST_DECL output_test_stream : public wrap_stringstream::wrapped_stream {
+class NDNBOOST_TEST_DECL output_test_stream : public wrap_stringstream::wrapped_stream {
     typedef unit_test::const_string const_string;
     typedef predicate_result        result_type;
 public:
@@ -75,4 +75,4 @@ private:
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_OUTPUT_TEST_STREAM_HPP_012705GER
+#endif // NDNBOOST_TEST_OUTPUT_TEST_STREAM_HPP_012705GER

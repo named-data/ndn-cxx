@@ -7,14 +7,14 @@
 // See http://www.boost.org/libs/container for documentation.
 //
 //////////////////////////////////////////////////////////////////////////////
-#if defined BOOST_MSVC
+#if defined NDNBOOST_MSVC
    #pragma warning (pop)
-   #ifdef BOOST_MOVE_DETAIL_CRT_SECURE_NO_DEPRECATE
-      #undef BOOST_MOVE_DETAIL_CRT_SECURE_NO_DEPRECATE
+   #ifdef NDNBOOST_MOVE_DETAIL_CRT_SECURE_NO_DEPRECATE
+      #undef NDNBOOST_MOVE_DETAIL_CRT_SECURE_NO_DEPRECATE
       #undef _CRT_SECURE_NO_DEPRECATE
    #endif
-   #ifndef BOOST_MOVE_SCL_SECURE_NO_WARNINGS
-      #undef  BOOST_MOVE_SCL_SECURE_NO_WARNINGS
+   #ifndef NDNBOOST_MOVE_SCL_SECURE_NO_WARNINGS
+      #undef  NDNBOOST_MOVE_SCL_SECURE_NO_WARNINGS
       #undef _SCL_SECURE_NO_WARNINGS
    #endif
 #endif

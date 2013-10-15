@@ -12,8 +12,8 @@
 //  Description : class basic_cstring comparisons implementation
 // ***************************************************************************
 
-#ifndef  BOOST_TEST_BASIC_CSTRING_COMPARE_HPP_071894GER
-#define  BOOST_TEST_BASIC_CSTRING_COMPARE_HPP_071894GER
+#ifndef  NDNBOOST_TEST_BASIC_CSTRING_COMPARE_HPP_071894GER
+#define  NDNBOOST_TEST_BASIC_CSTRING_COMPARE_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/utils/basic_cstring/basic_cstring.hpp>
@@ -26,7 +26,7 @@
 
 //____________________________________________________________________________//
 
-# if defined(BOOST_NO_STDC_NAMESPACE) && !BOOST_WORKAROUND(__BORLANDC__, <= 0x570)
+# if defined(NDNBOOST_NO_STDC_NAMESPACE) && !NDNBOOST_WORKAROUND(__BORLANDC__, <= 0x570)
 namespace std { using ::toupper; }
 # endif
 
@@ -112,4 +112,4 @@ operator <( ndnboost::unit_test::basic_cstring<CharT> const& x,
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_BASIC_CSTRING_COMPARE_HPP_071894GER
+#endif // NDNBOOST_TEST_BASIC_CSTRING_COMPARE_HPP_071894GER

@@ -7,8 +7,8 @@
 //
 // Contact the author at: fernando_cacciola@hotmail.com
 // 
-#ifndef BOOST_NUMERIC_CONVERSION_BOUNDS_DETAIL_FLC_12NOV2002_HPP
-#define BOOST_NUMERIC_CONVERSION_BOUNDS_DETAIL_FLC_12NOV2002_HPP
+#ifndef NDNBOOST_NUMERIC_CONVERSION_BOUNDS_DETAIL_FLC_12NOV2002_HPP
+#define NDNBOOST_NUMERIC_CONVERSION_BOUNDS_DETAIL_FLC_12NOV2002_HPP
 
 #include "ndnboost/limits.hpp"
 #include "ndnboost/config.hpp"
@@ -23,8 +23,8 @@ namespace ndnboost { namespace numeric { namespace boundsdetail
 
     public :
     
-      static N lowest  () { return limits::min BOOST_PREVENT_MACRO_SUBSTITUTION (); }
-      static N highest () { return limits::max BOOST_PREVENT_MACRO_SUBSTITUTION (); }
+      static N lowest  () { return limits::min NDNBOOST_PREVENT_MACRO_SUBSTITUTION (); }
+      static N highest () { return limits::max NDNBOOST_PREVENT_MACRO_SUBSTITUTION (); }
       static N smallest() { return static_cast<N>(1); }
   } ;
 
@@ -35,9 +35,9 @@ namespace ndnboost { namespace numeric { namespace boundsdetail
 
     public :
     
-      static N lowest  () { return static_cast<N>(-limits::max BOOST_PREVENT_MACRO_SUBSTITUTION ()) ; }
-      static N highest () { return limits::max BOOST_PREVENT_MACRO_SUBSTITUTION (); }
-      static N smallest() { return limits::min BOOST_PREVENT_MACRO_SUBSTITUTION (); }
+      static N lowest  () { return static_cast<N>(-limits::max NDNBOOST_PREVENT_MACRO_SUBSTITUTION ()) ; }
+      static N highest () { return limits::max NDNBOOST_PREVENT_MACRO_SUBSTITUTION (); }
+      static N smallest() { return limits::min NDNBOOST_PREVENT_MACRO_SUBSTITUTION (); }
   } ;
 
   template<class N>

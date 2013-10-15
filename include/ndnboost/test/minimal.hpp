@@ -12,23 +12,23 @@
 //  Description : simple minimal testing definitions and implementation
 // ***************************************************************************
 
-#ifndef BOOST_TEST_MINIMAL_HPP_071894GER
-#define BOOST_TEST_MINIMAL_HPP_071894GER
+#ifndef NDNBOOST_TEST_MINIMAL_HPP_071894GER
+#define NDNBOOST_TEST_MINIMAL_HPP_071894GER
 
-#define BOOST_CHECK(exp)       \
+#define NDNBOOST_CHECK(exp)       \
   ( (exp)                      \
       ? static_cast<void>(0)   \
-      : ndnboost::minimal_test::report_error(#exp,__FILE__,__LINE__, BOOST_CURRENT_FUNCTION) )
+      : ndnboost::minimal_test::report_error(#exp,__FILE__,__LINE__, NDNBOOST_CURRENT_FUNCTION) )
 
-#define BOOST_REQUIRE(exp)     \
+#define NDNBOOST_REQUIRE(exp)     \
   ( (exp)                      \
       ? static_cast<void>(0)   \
-      : ndnboost::minimal_test::report_critical_error(#exp,__FILE__,__LINE__,BOOST_CURRENT_FUNCTION))
+      : ndnboost::minimal_test::report_critical_error(#exp,__FILE__,__LINE__,NDNBOOST_CURRENT_FUNCTION))
 
-#define BOOST_ERROR( msg_ )    \
-        ndnboost::minimal_test::report_error( (msg_),__FILE__,__LINE__, BOOST_CURRENT_FUNCTION, true )
-#define BOOST_FAIL( msg_ )     \
-        ndnboost::minimal_test::report_critical_error( (msg_),__FILE__,__LINE__, BOOST_CURRENT_FUNCTION, true )
+#define NDNBOOST_ERROR( msg_ )    \
+        ndnboost::minimal_test::report_error( (msg_),__FILE__,__LINE__, NDNBOOST_CURRENT_FUNCTION, true )
+#define NDNBOOST_FAIL( msg_ )     \
+        ndnboost::minimal_test::report_critical_error( (msg_),__FILE__,__LINE__, NDNBOOST_CURRENT_FUNCTION, true )
 
 //____________________________________________________________________________//
 
@@ -41,7 +41,7 @@
 
 // Boost
 #include <ndnboost/cstdlib.hpp>            // for exit codes#include <ndnboost/cstdlib.hpp>            // for exit codes
-#include <ndnboost/current_function.hpp>   // for BOOST_CURRENT_FUNCTION
+#include <ndnboost/current_function.hpp>   // for NDNBOOST_CURRENT_FUNCTION
 
 // STL
 #include <iostream>                     // std::cerr, std::endl
@@ -106,7 +106,7 @@ private:
 
 //____________________________________________________________________________//
 
-int BOOST_TEST_CALL_DECL main( int argc, char* argv[] )
+int NDNBOOST_TEST_CALL_DECL main( int argc, char* argv[] )
 {
     using namespace ndnboost::minimal_test;
 
@@ -114,11 +114,11 @@ int BOOST_TEST_CALL_DECL main( int argc, char* argv[] )
         ::ndnboost::execution_monitor ex_mon;
         int run_result = ex_mon.execute( caller( argc, argv ) );
 
-        BOOST_CHECK( run_result == 0 || run_result == ndnboost::exit_success );
+        NDNBOOST_CHECK( run_result == 0 || run_result == ndnboost::exit_success );
     }
     catch( ndnboost::execution_exception const& exex ) {
         if( exex.code() != ndnboost::execution_exception::no_error )
-            BOOST_ERROR( (std::string( "exception \"" ).
+            NDNBOOST_ERROR( (std::string( "exception \"" ).
                             append( exex.what().begin(), exex.what().end() ).
                             append( "\" caught" ) ).c_str() );
         std::cerr << "\n**** Testing aborted.";
@@ -140,4 +140,4 @@ int BOOST_TEST_CALL_DECL main( int argc, char* argv[] )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_MINIMAL_HPP_071894GER
+#endif // NDNBOOST_TEST_MINIMAL_HPP_071894GER

@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_UNWRAP_HPP_INCLUDED
-#define BOOST_MPL_AUX_UNWRAP_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_UNWRAP_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_UNWRAP_HPP_INCLUDED
 
 // Copyright Peter Dimov and Multi Media Ltd 2001, 2002
 // Copyright David Abrahams 2001
@@ -44,4 +44,4 @@ unwrap(reference_wrapper<F> const& f, int)
 
 }}}
 
-#endif // BOOST_MPL_AUX_UNWRAP_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_UNWRAP_HPP_INCLUDED

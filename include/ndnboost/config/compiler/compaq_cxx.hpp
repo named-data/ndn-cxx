@@ -7,7 +7,7 @@
 
 //  Tru64 C++ compiler setup (now HP):
 
-#define BOOST_COMPILER "HP Tru64 C++ " BOOST_STRINGIZE(__DECCXX_VER)
+#define NDNBOOST_COMPILER "HP Tru64 C++ " NDNBOOST_STRINGIZE(__DECCXX_VER)
 
 #include "ndnboost/config/compiler/common_edg.hpp"
 

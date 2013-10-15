@@ -12,8 +12,8 @@
 //  Description : implements Unit Test results collecting facility.
 // ***************************************************************************
 
-#ifndef BOOST_TEST_RESULTS_COLLECTOR_IPP_021105GER
-#define BOOST_TEST_RESULTS_COLLECTOR_IPP_021105GER
+#ifndef NDNBOOST_TEST_RESULTS_COLLECTOR_IPP_021105GER
+#define NDNBOOST_TEST_RESULTS_COLLECTOR_IPP_021105GER
 
 // Boost.Test
 #include <ndnboost/test/unit_test_suite_impl.hpp>
@@ -101,7 +101,7 @@ test_results::clear()
 // **************               results_collector              ************** //
 // ************************************************************************** //
 
-#if !BOOST_WORKAROUND(BOOST_MSVC, <1300)
+#if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <1300)
 
 namespace {
 
@@ -213,11 +213,11 @@ results_collector_t::test_unit_finish( test_unit const& tu, unsigned long )
         
         bool num_failures_match = tr.p_aborted || tr.p_assertions_failed >= tr.p_expected_failures;
         if( !num_failures_match )
-            BOOST_TEST_MESSAGE( "Test case " << tu.p_name << " has fewer failures than expected" );
+            NDNBOOST_TEST_MESSAGE( "Test case " << tu.p_name << " has fewer failures than expected" );
 
         bool check_any_assertions = tr.p_aborted || (tr.p_assertions_failed != 0) || (tr.p_assertions_passed != 0);
         if( !check_any_assertions )
-            BOOST_TEST_MESSAGE( "Test case " << tu.p_name << " did not check any assertions" );
+            NDNBOOST_TEST_MESSAGE( "Test case " << tu.p_name << " did not check any assertions" );
     }
 }
 
@@ -291,4 +291,4 @@ results_collector_t::results( test_unit_id id ) const
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_RESULTS_COLLECTOR_IPP_021105GER
+#endif // NDNBOOST_TEST_RESULTS_COLLECTOR_IPP_021105GER

@@ -14,8 +14,8 @@
 //! A general library header that includes
 //! the rest of top-level headers.
 
-#ifndef BOOST_MOVE_MOVE_HPP
-#define BOOST_MOVE_MOVE_HPP
+#ifndef NDNBOOST_MOVE_MOVE_HPP
+#define NDNBOOST_MOVE_MOVE_HPP
 
 #include <ndnboost/move/detail/config_begin.hpp>
 #include <ndnboost/move/utility.hpp>
@@ -24,4 +24,4 @@
 #include <ndnboost/move/algorithm.hpp>
 #include <ndnboost/move/detail/config_end.hpp>
 
-#endif //#ifndef BOOST_MOVE_MOVE_HPP
+#endif //#ifndef NDNBOOST_MOVE_MOVE_HPP

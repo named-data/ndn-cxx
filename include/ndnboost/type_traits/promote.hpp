@@ -20,17 +20,17 @@ namespace detail {
 template<class T>
 struct promote_impl
   : public integral_promotion<
-        BOOST_DEDUCED_TYPENAME floating_point_promotion<T>::type
+        NDNBOOST_DEDUCED_TYPENAME floating_point_promotion<T>::type
       >
 {
 };
 
 }
 
-BOOST_TT_AUX_TYPE_TRAIT_DEF1(
+NDNBOOST_TT_AUX_TYPE_TRAIT_DEF1(
       promote
     , T
-    , BOOST_DEDUCED_TYPENAME ndnboost::detail::promote_impl<T>::type
+    , NDNBOOST_DEDUCED_TYPENAME ndnboost::detail::promote_impl<T>::type
     )
 }
 

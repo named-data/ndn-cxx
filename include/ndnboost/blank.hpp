@@ -10,15 +10,15 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_BLANK_HPP
-#define BOOST_BLANK_HPP
+#ifndef NDNBOOST_BLANK_HPP
+#define NDNBOOST_BLANK_HPP
 
 #include "ndnboost/blank_fwd.hpp"
 
-#if !defined(BOOST_NO_IOSTREAM)
+#if !defined(NDNBOOST_NO_IOSTREAM)
 #include <iosfwd> // for std::basic_ostream forward declare
 #include "ndnboost/detail/templated_streams.hpp"
-#endif // BOOST_NO_IOSTREAM
+#endif // NDNBOOST_NO_IOSTREAM
 
 #include "ndnboost/mpl/bool.hpp"
 #include "ndnboost/type_traits/is_empty.hpp"
@@ -87,11 +87,11 @@ inline bool operator>(const blank&, const blank&)
 
 // streaming support
 //
-#if !defined(BOOST_NO_IOSTREAM)
+#if !defined(NDNBOOST_NO_IOSTREAM)
 
-BOOST_TEMPLATED_STREAM_TEMPLATE(E,T)
-inline BOOST_TEMPLATED_STREAM(ostream, E,T)& operator<<(
-      BOOST_TEMPLATED_STREAM(ostream, E,T)& out
+NDNBOOST_TEMPLATED_STREAM_TEMPLATE(E,T)
+inline NDNBOOST_TEMPLATED_STREAM(ostream, E,T)& operator<<(
+      NDNBOOST_TEMPLATED_STREAM(ostream, E,T)& out
     , const blank&
     )
 {
@@ -99,8 +99,8 @@ inline BOOST_TEMPLATED_STREAM(ostream, E,T)& operator<<(
     return out;
 }
 
-#endif // BOOST_NO_IOSTREAM
+#endif // NDNBOOST_NO_IOSTREAM
 
 } // namespace ndnboost
 
-#endif // BOOST_BLANK_HPP
+#endif // NDNBOOST_BLANK_HPP

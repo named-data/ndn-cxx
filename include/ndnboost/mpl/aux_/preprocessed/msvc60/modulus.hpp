@@ -15,8 +15,8 @@ template<
       typename Tag1
     , typename Tag2
 
-    , BOOST_MPL_AUX_NTTP_DECL(int, tag1_)  = BOOST_MPL_AUX_MSVC_VALUE_WKND(Tag1)::value
-    , BOOST_MPL_AUX_NTTP_DECL(int, tag2_)  = BOOST_MPL_AUX_MSVC_VALUE_WKND(Tag2)::value
+    , NDNBOOST_MPL_AUX_NTTP_DECL(int, tag1_)  = NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(Tag1)::value
+    , NDNBOOST_MPL_AUX_NTTP_DECL(int, tag2_)  = NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(Tag2)::value
     >
 struct modulus_impl
     : if_c<
@@ -33,7 +33,7 @@ template<> struct modulus_impl< na,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -42,7 +42,7 @@ template<> struct modulus_impl< na,integral_c_tag >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -51,7 +51,7 @@ template<> struct modulus_impl< integral_c_tag,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -61,8 +61,8 @@ template< typename T > struct modulus_tag
 };
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
     >
 struct modulus
     : aux::msvc_eti_base< typename apply_wrap2<
@@ -75,11 +75,11 @@ struct modulus
         >::type >::type
 
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(2, modulus, (N1, N2))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2, modulus, (N1, N2))
 
 };
 
-BOOST_MPL_AUX_NA_SPEC2(2, 2, modulus)
+NDNBOOST_MPL_AUX_NA_SPEC2(2, 2, modulus)
 
 }}
 
@@ -89,7 +89,7 @@ namespace aux {
 template< typename T, T n1, T n2 >
 struct modulus_wknd
 {
-    BOOST_STATIC_CONSTANT(T, value  = (n1 % n2));
+    NDNBOOST_STATIC_CONSTANT(T, value  = (n1 % n2));
     typedef integral_c< T,value > type;
 };
 

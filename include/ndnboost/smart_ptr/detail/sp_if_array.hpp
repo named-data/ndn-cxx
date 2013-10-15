@@ -6,8 +6,8 @@
  * Version 1.0. (See accompanying file LICENSE_1_0.txt 
  * or copy at http://boost.org/LICENSE_1_0.txt)
  */
-#ifndef BOOST_SMART_PTR_DETAIL_SP_IF_ARRAY_HPP
-#define BOOST_SMART_PTR_DETAIL_SP_IF_ARRAY_HPP
+#ifndef NDNBOOST_SMART_PTR_DETAIL_SP_IF_ARRAY_HPP
+#define NDNBOOST_SMART_PTR_DETAIL_SP_IF_ARRAY_HPP
 
 #include <ndnboost/smart_ptr/shared_ptr.hpp>
 

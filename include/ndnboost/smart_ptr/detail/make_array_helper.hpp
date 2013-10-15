@@ -6,8 +6,8 @@
  * Version 1.0. (See accompanying file LICENSE_1_0.txt 
  * or copy at http://boost.org/LICENSE_1_0.txt)
  */
-#ifndef BOOST_SMART_PTR_DETAIL_MAKE_ARRAY_HELPER_HPP
-#define BOOST_SMART_PTR_DETAIL_MAKE_ARRAY_HELPER_HPP
+#ifndef NDNBOOST_SMART_PTR_DETAIL_MAKE_ARRAY_HELPER_HPP
+#define NDNBOOST_SMART_PTR_DETAIL_MAKE_ARRAY_HELPER_HPP
 
 #include <ndnboost/type_traits/alignment_of.hpp>
 

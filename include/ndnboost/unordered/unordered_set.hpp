@@ -6,8 +6,8 @@
 
 //  See http://www.boost.org/libs/unordered for documentation
 
-#ifndef BOOST_UNORDERED_UNORDERED_SET_HPP_INCLUDED
-#define BOOST_UNORDERED_UNORDERED_SET_HPP_INCLUDED
+#ifndef NDNBOOST_UNORDERED_UNORDERED_SET_HPP_INCLUDED
+#define NDNBOOST_UNORDERED_UNORDERED_SET_HPP_INCLUDED
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
@@ -20,13 +20,13 @@
 #include <ndnboost/functional/hash.hpp>
 #include <ndnboost/move/move.hpp>
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
 #include <initializer_list>
 #endif
 
-#if defined(BOOST_MSVC)
+#if defined(NDNBOOST_MSVC)
 #pragma warning(push)
-#if BOOST_MSVC >= 1400
+#if NDNBOOST_MSVC >= 1400
 #pragma warning(disable:4396) //the inline specifier cannot be used when a
                               // friend declaration refers to a specialization
                               // of a function template
@@ -40,8 +40,8 @@ namespace unordered
     template <class T, class H, class P, class A>
     class unordered_set
     {
-#if defined(BOOST_UNORDERED_USE_MOVE)
-        BOOST_COPYABLE_AND_MOVABLE(unordered_set)
+#if defined(NDNBOOST_UNORDERED_USE_MOVE)
+        NDNBOOST_COPYABLE_AND_MOVABLE(unordered_set)
 #endif
     public:
 
@@ -113,23 +113,23 @@ namespace unordered
 
         unordered_set(unordered_set const&, allocator_type const&);
 
-#if defined(BOOST_UNORDERED_USE_MOVE)
-        unordered_set(BOOST_RV_REF(unordered_set) other)
+#if defined(NDNBOOST_UNORDERED_USE_MOVE)
+        unordered_set(NDNBOOST_RV_REF(unordered_set) other)
             : table_(other.table_, ndnboost::unordered::detail::move_tag())
         {
         }
-#elif !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#elif !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
         unordered_set(unordered_set&& other)
             : table_(other.table_, ndnboost::unordered::detail::move_tag())
         {
         }
 #endif
 
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
         unordered_set(unordered_set&&, allocator_type const&);
 #endif
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
         unordered_set(
                 std::initializer_list<value_type>,
                 size_type = ndnboost::unordered::detail::default_bucket_count,
@@ -144,14 +144,14 @@ namespace unordered
 
         // Assign
 
-#if defined(BOOST_UNORDERED_USE_MOVE)
-        unordered_set& operator=(BOOST_COPY_ASSIGN_REF(unordered_set) x)
+#if defined(NDNBOOST_UNORDERED_USE_MOVE)
+        unordered_set& operator=(NDNBOOST_COPY_ASSIGN_REF(unordered_set) x)
         {
             table_.assign(x.table_);
             return *this;
         }
 
-        unordered_set& operator=(BOOST_RV_REF(unordered_set) x)
+        unordered_set& operator=(NDNBOOST_RV_REF(unordered_set) x)
         {
             table_.move_assign(x.table_);
             return *this;
@@ -163,7 +163,7 @@ namespace unordered
             return *this;
         }
 
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
         unordered_set& operator=(unordered_set&& x)
         {
             table_.move_assign(x.table_);
@@ -172,78 +172,78 @@ namespace unordered
 #endif
 #endif
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
         unordered_set& operator=(std::initializer_list<value_type>);
 #endif
 
-        allocator_type get_allocator() const BOOST_NOEXCEPT
+        allocator_type get_allocator() const NDNBOOST_NOEXCEPT
         {
             return table_.node_alloc();
         }
 
         // size and capacity
 
-        bool empty() const BOOST_NOEXCEPT
+        bool empty() const NDNBOOST_NOEXCEPT
         {
             return table_.size_ == 0;
         }
 
-        size_type size() const BOOST_NOEXCEPT
+        size_type size() const NDNBOOST_NOEXCEPT
         {
             return table_.size_;
         }
 
-        size_type max_size() const BOOST_NOEXCEPT;
+        size_type max_size() const NDNBOOST_NOEXCEPT;
 
         // iterators
 
-        iterator begin() BOOST_NOEXCEPT
+        iterator begin() NDNBOOST_NOEXCEPT
         {
             return table_.begin();
         }
 
-        const_iterator begin() const BOOST_NOEXCEPT
+        const_iterator begin() const NDNBOOST_NOEXCEPT
         {
             return table_.begin();
         }
 
-        iterator end() BOOST_NOEXCEPT
+        iterator end() NDNBOOST_NOEXCEPT
         {
             return iterator();
         }
 
-        const_iterator end() const BOOST_NOEXCEPT
+        const_iterator end() const NDNBOOST_NOEXCEPT
         {
             return const_iterator();
         }
 
-        const_iterator cbegin() const BOOST_NOEXCEPT
+        const_iterator cbegin() const NDNBOOST_NOEXCEPT
         {
             return table_.begin();
         }
 
-        const_iterator cend() const BOOST_NOEXCEPT
+        const_iterator cend() const NDNBOOST_NOEXCEPT
         {
             return const_iterator();
         }
 
         // emplace
 
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
         template <class... Args>
-        std::pair<iterator, bool> emplace(BOOST_FWD_REF(Args)... args)
+        std::pair<iterator, bool> emplace(NDNBOOST_FWD_REF(Args)... args)
         {
             return table_.emplace(ndnboost::forward<Args>(args)...);
         }
 
         template <class... Args>
-        iterator emplace_hint(const_iterator, BOOST_FWD_REF(Args)... args)
+        iterator emplace_hint(const_iterator, NDNBOOST_FWD_REF(Args)... args)
         {
             return table_.emplace(ndnboost::forward<Args>(args)...).first;
         }
 #else
 
-#if !BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x5100))
+#if !NDNBOOST_WORKAROUND(__SUNPRO_CC, NDNBOOST_TESTED_AT(0x5100))
 
         // 0 argument emplace requires special treatment in case
         // the container is instantiated with a value type that
@@ -269,7 +269,7 @@ namespace unordered
 #endif
 
         template <typename A0>
-        std::pair<iterator, bool> emplace(BOOST_FWD_REF(A0) a0)
+        std::pair<iterator, bool> emplace(NDNBOOST_FWD_REF(A0) a0)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -278,7 +278,7 @@ namespace unordered
         }
 
         template <typename A0>
-        iterator emplace_hint(const_iterator, BOOST_FWD_REF(A0) a0)
+        iterator emplace_hint(const_iterator, NDNBOOST_FWD_REF(A0) a0)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -288,8 +288,8 @@ namespace unordered
 
         template <typename A0, typename A1>
         std::pair<iterator, bool> emplace(
-            BOOST_FWD_REF(A0) a0,
-            BOOST_FWD_REF(A1) a1)
+            NDNBOOST_FWD_REF(A0) a0,
+            NDNBOOST_FWD_REF(A1) a1)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -300,8 +300,8 @@ namespace unordered
 
         template <typename A0, typename A1>
         iterator emplace_hint(const_iterator,
-            BOOST_FWD_REF(A0) a0,
-            BOOST_FWD_REF(A1) a1)
+            NDNBOOST_FWD_REF(A0) a0,
+            NDNBOOST_FWD_REF(A1) a1)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -312,9 +312,9 @@ namespace unordered
 
         template <typename A0, typename A1, typename A2>
         std::pair<iterator, bool> emplace(
-            BOOST_FWD_REF(A0) a0,
-            BOOST_FWD_REF(A1) a1,
-            BOOST_FWD_REF(A2) a2)
+            NDNBOOST_FWD_REF(A0) a0,
+            NDNBOOST_FWD_REF(A1) a1,
+            NDNBOOST_FWD_REF(A2) a2)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -326,9 +326,9 @@ namespace unordered
 
         template <typename A0, typename A1, typename A2>
         iterator emplace_hint(const_iterator,
-            BOOST_FWD_REF(A0) a0,
-            BOOST_FWD_REF(A1) a1,
-            BOOST_FWD_REF(A2) a2)
+            NDNBOOST_FWD_REF(A0) a0,
+            NDNBOOST_FWD_REF(A1) a1,
+            NDNBOOST_FWD_REF(A2) a2)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -338,40 +338,40 @@ namespace unordered
             ).first;
         }
 
-#define BOOST_UNORDERED_EMPLACE(z, n, _)                                    \
+#define NDNBOOST_UNORDERED_EMPLACE(z, n, _)                                    \
             template <                                                      \
-                BOOST_PP_ENUM_PARAMS_Z(z, n, typename A)                    \
+                NDNBOOST_PP_ENUM_PARAMS_Z(z, n, typename A)                    \
             >                                                               \
             std::pair<iterator, bool> emplace(                              \
-                    BOOST_PP_ENUM_##z(n, BOOST_UNORDERED_FWD_PARAM, a)      \
+                    NDNBOOST_PP_ENUM_##z(n, NDNBOOST_UNORDERED_FWD_PARAM, a)      \
             )                                                               \
             {                                                               \
                 return table_.emplace(                                      \
                     ndnboost::unordered::detail::create_emplace_args(          \
-                        BOOST_PP_ENUM_##z(n, BOOST_UNORDERED_CALL_FORWARD,  \
+                        NDNBOOST_PP_ENUM_##z(n, NDNBOOST_UNORDERED_CALL_FORWARD,  \
                             a)                                              \
                 ));                                                         \
             }                                                               \
                                                                             \
             template <                                                      \
-                BOOST_PP_ENUM_PARAMS_Z(z, n, typename A)                    \
+                NDNBOOST_PP_ENUM_PARAMS_Z(z, n, typename A)                    \
             >                                                               \
             iterator emplace_hint(                                          \
                     const_iterator,                                         \
-                    BOOST_PP_ENUM_##z(n, BOOST_UNORDERED_FWD_PARAM, a)      \
+                    NDNBOOST_PP_ENUM_##z(n, NDNBOOST_UNORDERED_FWD_PARAM, a)      \
             )                                                               \
             {                                                               \
                 return table_.emplace(                                      \
                     ndnboost::unordered::detail::create_emplace_args(          \
-                        BOOST_PP_ENUM_##z(n, BOOST_UNORDERED_CALL_FORWARD,  \
+                        NDNBOOST_PP_ENUM_##z(n, NDNBOOST_UNORDERED_CALL_FORWARD,  \
                             a)                                              \
                 )).first;                                                   \
             }
 
-        BOOST_PP_REPEAT_FROM_TO(4, BOOST_UNORDERED_EMPLACE_LIMIT,
-            BOOST_UNORDERED_EMPLACE, _)
+        NDNBOOST_PP_REPEAT_FROM_TO(4, NDNBOOST_UNORDERED_EMPLACE_LIMIT,
+            NDNBOOST_UNORDERED_EMPLACE, _)
 
-#undef BOOST_UNORDERED_EMPLACE
+#undef NDNBOOST_UNORDERED_EMPLACE
 
 #endif
 
@@ -380,7 +380,7 @@ namespace unordered
             return this->emplace(x);
         }
 
-        std::pair<iterator, bool> insert(BOOST_UNORDERED_RV_REF(value_type) x)
+        std::pair<iterator, bool> insert(NDNBOOST_UNORDERED_RV_REF(value_type) x)
         {
             return this->emplace(ndnboost::move(x));
         }
@@ -391,14 +391,14 @@ namespace unordered
         }
 
         iterator insert(const_iterator hint,
-                BOOST_UNORDERED_RV_REF(value_type) x)
+                NDNBOOST_UNORDERED_RV_REF(value_type) x)
         {
             return this->emplace_hint(hint, ndnboost::move(x));
         }
 
         template <class InputIt> void insert(InputIt, InputIt);
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
         void insert(std::initializer_list<value_type>);
 #endif
 
@@ -434,12 +434,12 @@ namespace unordered
 
         // bucket interface
 
-        size_type bucket_count() const BOOST_NOEXCEPT
+        size_type bucket_count() const NDNBOOST_NOEXCEPT
         {
             return table_.bucket_count_;
         }
 
-        size_type max_bucket_count() const BOOST_NOEXCEPT
+        size_type max_bucket_count() const NDNBOOST_NOEXCEPT
         {
             return table_.max_bucket_count();
         }
@@ -486,17 +486,17 @@ namespace unordered
 
         // hash policy
 
-        float max_load_factor() const BOOST_NOEXCEPT
+        float max_load_factor() const NDNBOOST_NOEXCEPT
         {
             return table_.mlf_;
         }
 
-        float load_factor() const BOOST_NOEXCEPT;
-        void max_load_factor(float) BOOST_NOEXCEPT;
+        float load_factor() const NDNBOOST_NOEXCEPT;
+        void max_load_factor(float) NDNBOOST_NOEXCEPT;
         void rehash(size_type);
         void reserve(size_type);
 
-#if !BOOST_WORKAROUND(__BORLANDC__, < 0x0582)
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, < 0x0582)
         friend bool operator==<T,H,P,A>(
                 unordered_set const&, unordered_set const&);
         friend bool operator!=<T,H,P,A>(
@@ -507,8 +507,8 @@ namespace unordered
     template <class T, class H, class P, class A>
     class unordered_multiset
     {
-#if defined(BOOST_UNORDERED_USE_MOVE)
-        BOOST_COPYABLE_AND_MOVABLE(unordered_multiset)
+#if defined(NDNBOOST_UNORDERED_USE_MOVE)
+        NDNBOOST_COPYABLE_AND_MOVABLE(unordered_multiset)
 #endif
     public:
 
@@ -580,23 +580,23 @@ namespace unordered
 
         unordered_multiset(unordered_multiset const&, allocator_type const&);
 
-#if defined(BOOST_UNORDERED_USE_MOVE)
-        unordered_multiset(BOOST_RV_REF(unordered_multiset) other)
+#if defined(NDNBOOST_UNORDERED_USE_MOVE)
+        unordered_multiset(NDNBOOST_RV_REF(unordered_multiset) other)
             : table_(other.table_, ndnboost::unordered::detail::move_tag())
         {
         }
-#elif !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#elif !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
         unordered_multiset(unordered_multiset&& other)
             : table_(other.table_, ndnboost::unordered::detail::move_tag())
         {
         }
 #endif
 
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
         unordered_multiset(unordered_multiset&&, allocator_type const&);
 #endif
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
         unordered_multiset(
                 std::initializer_list<value_type>,
                 size_type = ndnboost::unordered::detail::default_bucket_count,
@@ -611,15 +611,15 @@ namespace unordered
 
         // Assign
 
-#if defined(BOOST_UNORDERED_USE_MOVE)
+#if defined(NDNBOOST_UNORDERED_USE_MOVE)
         unordered_multiset& operator=(
-                BOOST_COPY_ASSIGN_REF(unordered_multiset) x)
+                NDNBOOST_COPY_ASSIGN_REF(unordered_multiset) x)
         {
             table_.assign(x.table_);
             return *this;
         }
 
-        unordered_multiset& operator=(BOOST_RV_REF(unordered_multiset) x)
+        unordered_multiset& operator=(NDNBOOST_RV_REF(unordered_multiset) x)
         {
             table_.move_assign(x.table_);
             return *this;
@@ -631,7 +631,7 @@ namespace unordered
             return *this;
         }
 
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
         unordered_multiset& operator=(unordered_multiset&& x)
         {
             table_.move_assign(x.table_);
@@ -640,78 +640,78 @@ namespace unordered
 #endif
 #endif
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
         unordered_multiset& operator=(std::initializer_list<value_type>);
 #endif
 
-        allocator_type get_allocator() const BOOST_NOEXCEPT
+        allocator_type get_allocator() const NDNBOOST_NOEXCEPT
         {
             return table_.node_alloc();
         }
 
         // size and capacity
 
-        bool empty() const BOOST_NOEXCEPT
+        bool empty() const NDNBOOST_NOEXCEPT
         {
             return table_.size_ == 0;
         }
 
-        size_type size() const BOOST_NOEXCEPT
+        size_type size() const NDNBOOST_NOEXCEPT
         {
             return table_.size_;
         }
 
-        size_type max_size() const BOOST_NOEXCEPT;
+        size_type max_size() const NDNBOOST_NOEXCEPT;
 
         // iterators
 
-        iterator begin() BOOST_NOEXCEPT
+        iterator begin() NDNBOOST_NOEXCEPT
         {
             return iterator(table_.begin());
         }
 
-        const_iterator begin() const BOOST_NOEXCEPT
+        const_iterator begin() const NDNBOOST_NOEXCEPT
         {
             return const_iterator(table_.begin());
         }
 
-        iterator end() BOOST_NOEXCEPT
+        iterator end() NDNBOOST_NOEXCEPT
         {
             return iterator();
         }
 
-        const_iterator end() const BOOST_NOEXCEPT
+        const_iterator end() const NDNBOOST_NOEXCEPT
         {
             return const_iterator();
         }
 
-        const_iterator cbegin() const BOOST_NOEXCEPT
+        const_iterator cbegin() const NDNBOOST_NOEXCEPT
         {
             return const_iterator(table_.begin());
         }
 
-        const_iterator cend() const BOOST_NOEXCEPT
+        const_iterator cend() const NDNBOOST_NOEXCEPT
         {
             return const_iterator();
         }
 
         // emplace
 
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
         template <class... Args>
-        iterator emplace(BOOST_FWD_REF(Args)... args)
+        iterator emplace(NDNBOOST_FWD_REF(Args)... args)
         {
             return table_.emplace(ndnboost::forward<Args>(args)...);
         }
 
         template <class... Args>
-        iterator emplace_hint(const_iterator, BOOST_FWD_REF(Args)... args)
+        iterator emplace_hint(const_iterator, NDNBOOST_FWD_REF(Args)... args)
         {
             return table_.emplace(ndnboost::forward<Args>(args)...);
         }
 #else
 
-#if !BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x5100))
+#if !NDNBOOST_WORKAROUND(__SUNPRO_CC, NDNBOOST_TESTED_AT(0x5100))
 
         // 0 argument emplace requires special treatment in case
         // the container is instantiated with a value type that
@@ -737,7 +737,7 @@ namespace unordered
 #endif
 
         template <typename A0>
-        iterator emplace(BOOST_FWD_REF(A0) a0)
+        iterator emplace(NDNBOOST_FWD_REF(A0) a0)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -746,7 +746,7 @@ namespace unordered
         }
 
         template <typename A0>
-        iterator emplace_hint(const_iterator, BOOST_FWD_REF(A0) a0)
+        iterator emplace_hint(const_iterator, NDNBOOST_FWD_REF(A0) a0)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -756,8 +756,8 @@ namespace unordered
 
         template <typename A0, typename A1>
         iterator emplace(
-            BOOST_FWD_REF(A0) a0,
-            BOOST_FWD_REF(A1) a1)
+            NDNBOOST_FWD_REF(A0) a0,
+            NDNBOOST_FWD_REF(A1) a1)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -768,8 +768,8 @@ namespace unordered
 
         template <typename A0, typename A1>
         iterator emplace_hint(const_iterator,
-            BOOST_FWD_REF(A0) a0,
-            BOOST_FWD_REF(A1) a1)
+            NDNBOOST_FWD_REF(A0) a0,
+            NDNBOOST_FWD_REF(A1) a1)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -780,9 +780,9 @@ namespace unordered
 
         template <typename A0, typename A1, typename A2>
         iterator emplace(
-            BOOST_FWD_REF(A0) a0,
-            BOOST_FWD_REF(A1) a1,
-            BOOST_FWD_REF(A2) a2)
+            NDNBOOST_FWD_REF(A0) a0,
+            NDNBOOST_FWD_REF(A1) a1,
+            NDNBOOST_FWD_REF(A2) a2)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -794,9 +794,9 @@ namespace unordered
 
         template <typename A0, typename A1, typename A2>
         iterator emplace_hint(const_iterator,
-            BOOST_FWD_REF(A0) a0,
-            BOOST_FWD_REF(A1) a1,
-            BOOST_FWD_REF(A2) a2)
+            NDNBOOST_FWD_REF(A0) a0,
+            NDNBOOST_FWD_REF(A1) a1,
+            NDNBOOST_FWD_REF(A2) a2)
         {
             return table_.emplace(
                 ndnboost::unordered::detail::create_emplace_args(
@@ -806,40 +806,40 @@ namespace unordered
             );
         }
 
-#define BOOST_UNORDERED_EMPLACE(z, n, _)                                    \
+#define NDNBOOST_UNORDERED_EMPLACE(z, n, _)                                    \
             template <                                                      \
-                BOOST_PP_ENUM_PARAMS_Z(z, n, typename A)                    \
+                NDNBOOST_PP_ENUM_PARAMS_Z(z, n, typename A)                    \
             >                                                               \
             iterator emplace(                                               \
-                    BOOST_PP_ENUM_##z(n, BOOST_UNORDERED_FWD_PARAM, a)      \
+                    NDNBOOST_PP_ENUM_##z(n, NDNBOOST_UNORDERED_FWD_PARAM, a)      \
             )                                                               \
             {                                                               \
                 return table_.emplace(                                      \
                     ndnboost::unordered::detail::create_emplace_args(          \
-                        BOOST_PP_ENUM_##z(n, BOOST_UNORDERED_CALL_FORWARD,  \
+                        NDNBOOST_PP_ENUM_##z(n, NDNBOOST_UNORDERED_CALL_FORWARD,  \
                             a)                                              \
                 ));                                                         \
             }                                                               \
                                                                             \
             template <                                                      \
-                BOOST_PP_ENUM_PARAMS_Z(z, n, typename A)                    \
+                NDNBOOST_PP_ENUM_PARAMS_Z(z, n, typename A)                    \
             >                                                               \
             iterator emplace_hint(                                          \
                     const_iterator,                                         \
-                    BOOST_PP_ENUM_##z(n, BOOST_UNORDERED_FWD_PARAM, a)      \
+                    NDNBOOST_PP_ENUM_##z(n, NDNBOOST_UNORDERED_FWD_PARAM, a)      \
             )                                                               \
             {                                                               \
                 return table_.emplace(                                      \
                     ndnboost::unordered::detail::create_emplace_args(          \
-                        BOOST_PP_ENUM_##z(n, BOOST_UNORDERED_CALL_FORWARD,  \
+                        NDNBOOST_PP_ENUM_##z(n, NDNBOOST_UNORDERED_CALL_FORWARD,  \
                             a)                                              \
                 ));                                                         \
             }
 
-        BOOST_PP_REPEAT_FROM_TO(4, BOOST_UNORDERED_EMPLACE_LIMIT,
-            BOOST_UNORDERED_EMPLACE, _)
+        NDNBOOST_PP_REPEAT_FROM_TO(4, NDNBOOST_UNORDERED_EMPLACE_LIMIT,
+            NDNBOOST_UNORDERED_EMPLACE, _)
 
-#undef BOOST_UNORDERED_EMPLACE
+#undef NDNBOOST_UNORDERED_EMPLACE
 
 #endif
 
@@ -848,7 +848,7 @@ namespace unordered
             return this->emplace(x);
         }
 
-        iterator insert(BOOST_UNORDERED_RV_REF(value_type) x)
+        iterator insert(NDNBOOST_UNORDERED_RV_REF(value_type) x)
         {
             return this->emplace(ndnboost::move(x));
         }
@@ -859,14 +859,14 @@ namespace unordered
         }
 
         iterator insert(const_iterator hint,
-                BOOST_UNORDERED_RV_REF(value_type) x)
+                NDNBOOST_UNORDERED_RV_REF(value_type) x)
         {
             return this->emplace_hint(hint, ndnboost::move(x));
         }
 
         template <class InputIt> void insert(InputIt, InputIt);
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
         void insert(std::initializer_list<value_type>);
 #endif
 
@@ -902,12 +902,12 @@ namespace unordered
 
         // bucket interface
 
-        size_type bucket_count() const BOOST_NOEXCEPT
+        size_type bucket_count() const NDNBOOST_NOEXCEPT
         {
             return table_.bucket_count_;
         }
 
-        size_type max_bucket_count() const BOOST_NOEXCEPT
+        size_type max_bucket_count() const NDNBOOST_NOEXCEPT
         {
             return table_.max_bucket_count();
         }
@@ -954,17 +954,17 @@ namespace unordered
 
         // hash policy
 
-        float max_load_factor() const BOOST_NOEXCEPT
+        float max_load_factor() const NDNBOOST_NOEXCEPT
         {
             return table_.mlf_;
         }
 
-        float load_factor() const BOOST_NOEXCEPT;
-        void max_load_factor(float) BOOST_NOEXCEPT;
+        float load_factor() const NDNBOOST_NOEXCEPT;
+        void max_load_factor(float) NDNBOOST_NOEXCEPT;
         void rehash(size_type);
         void reserve(size_type);
 
-#if !BOOST_WORKAROUND(__BORLANDC__, < 0x0582)
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, < 0x0582)
         friend bool operator==<T,H,P,A>(
                 unordered_multiset const&, unordered_multiset const&);
         friend bool operator!=<T,H,P,A>(
@@ -1041,7 +1041,7 @@ namespace unordered
     {
     }
 
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
 
     template <class T, class H, class P, class A>
     unordered_set<T,H,P,A>::unordered_set(
@@ -1052,7 +1052,7 @@ namespace unordered
 
 #endif
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
 
     template <class T, class H, class P, class A>
     unordered_set<T,H,P,A>::unordered_set(
@@ -1080,7 +1080,7 @@ namespace unordered
     // size and capacity
 
     template <class T, class H, class P, class A>
-    std::size_t unordered_set<T,H,P,A>::max_size() const BOOST_NOEXCEPT
+    std::size_t unordered_set<T,H,P,A>::max_size() const NDNBOOST_NOEXCEPT
     {
         return table_.max_size();
     }
@@ -1094,7 +1094,7 @@ namespace unordered
         table_.insert_range(first, last);
     }
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
     template <class T, class H, class P, class A>
     void unordered_set<T,H,P,A>::insert(
             std::initializer_list<value_type> list)
@@ -1200,13 +1200,13 @@ namespace unordered
     // hash policy
 
     template <class T, class H, class P, class A>
-    float unordered_set<T,H,P,A>::load_factor() const BOOST_NOEXCEPT
+    float unordered_set<T,H,P,A>::load_factor() const NDNBOOST_NOEXCEPT
     {
         return table_.load_factor();
     }
 
     template <class T, class H, class P, class A>
-    void unordered_set<T,H,P,A>::max_load_factor(float m) BOOST_NOEXCEPT
+    void unordered_set<T,H,P,A>::max_load_factor(float m) NDNBOOST_NOEXCEPT
     {
         table_.max_load_factor(m);
     }
@@ -1228,7 +1228,7 @@ namespace unordered
             unordered_set<T,H,P,A> const& m1,
             unordered_set<T,H,P,A> const& m2)
     {
-#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+#if NDNBOOST_WORKAROUND(__CODEGEARC__, NDNBOOST_TESTED_AT(0x0613))
         struct dummy { unordered_set<T,H,P,A> x; };
 #endif
         return m1.table_.equals(m2.table_);
@@ -1239,7 +1239,7 @@ namespace unordered
             unordered_set<T,H,P,A> const& m1,
             unordered_set<T,H,P,A> const& m2)
     {
-#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+#if NDNBOOST_WORKAROUND(__CODEGEARC__, NDNBOOST_TESTED_AT(0x0613))
         struct dummy { unordered_set<T,H,P,A> x; };
 #endif
         return !m1.table_.equals(m2.table_);
@@ -1250,7 +1250,7 @@ namespace unordered
             unordered_set<T,H,P,A> &m1,
             unordered_set<T,H,P,A> &m2)
     {
-#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+#if NDNBOOST_WORKAROUND(__CODEGEARC__, NDNBOOST_TESTED_AT(0x0613))
         struct dummy { unordered_set<T,H,P,A> x; };
 #endif
         m1.swap(m2);
@@ -1325,7 +1325,7 @@ namespace unordered
     {
     }
 
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
 
     template <class T, class H, class P, class A>
     unordered_multiset<T,H,P,A>::unordered_multiset(
@@ -1336,7 +1336,7 @@ namespace unordered
 
 #endif
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
 
     template <class T, class H, class P, class A>
     unordered_multiset<T,H,P,A>::unordered_multiset(
@@ -1364,7 +1364,7 @@ namespace unordered
     // size and capacity
 
     template <class T, class H, class P, class A>
-    std::size_t unordered_multiset<T,H,P,A>::max_size() const BOOST_NOEXCEPT
+    std::size_t unordered_multiset<T,H,P,A>::max_size() const NDNBOOST_NOEXCEPT
     {
         return table_.max_size();
     }
@@ -1378,7 +1378,7 @@ namespace unordered
         table_.insert_range(first, last);
     }
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+#if !defined(NDNBOOST_NO_CXX11_HDR_INITIALIZER_LIST)
     template <class T, class H, class P, class A>
     void unordered_multiset<T,H,P,A>::insert(
             std::initializer_list<value_type> list)
@@ -1484,13 +1484,13 @@ namespace unordered
     // hash policy
 
     template <class T, class H, class P, class A>
-    float unordered_multiset<T,H,P,A>::load_factor() const BOOST_NOEXCEPT
+    float unordered_multiset<T,H,P,A>::load_factor() const NDNBOOST_NOEXCEPT
     {
         return table_.load_factor();
     }
 
     template <class T, class H, class P, class A>
-    void unordered_multiset<T,H,P,A>::max_load_factor(float m) BOOST_NOEXCEPT
+    void unordered_multiset<T,H,P,A>::max_load_factor(float m) NDNBOOST_NOEXCEPT
     {
         table_.max_load_factor(m);
     }
@@ -1512,7 +1512,7 @@ namespace unordered
             unordered_multiset<T,H,P,A> const& m1,
             unordered_multiset<T,H,P,A> const& m2)
     {
-#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+#if NDNBOOST_WORKAROUND(__CODEGEARC__, NDNBOOST_TESTED_AT(0x0613))
         struct dummy { unordered_multiset<T,H,P,A> x; };
 #endif
         return m1.table_.equals(m2.table_);
@@ -1523,7 +1523,7 @@ namespace unordered
             unordered_multiset<T,H,P,A> const& m1,
             unordered_multiset<T,H,P,A> const& m2)
     {
-#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+#if NDNBOOST_WORKAROUND(__CODEGEARC__, NDNBOOST_TESTED_AT(0x0613))
         struct dummy { unordered_multiset<T,H,P,A> x; };
 #endif
         return !m1.table_.equals(m2.table_);
@@ -1534,7 +1534,7 @@ namespace unordered
             unordered_multiset<T,H,P,A> &m1,
             unordered_multiset<T,H,P,A> &m2)
     {
-#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+#if NDNBOOST_WORKAROUND(__CODEGEARC__, NDNBOOST_TESTED_AT(0x0613))
         struct dummy { unordered_multiset<T,H,P,A> x; };
 #endif
         m1.swap(m2);
@@ -1542,8 +1542,8 @@ namespace unordered
 } // namespace unordered
 } // namespace ndnboost
 
-#if defined(BOOST_MSVC)
+#if defined(NDNBOOST_MSVC)
 #pragma warning(pop)
 #endif
 
-#endif // BOOST_UNORDERED_UNORDERED_SET_HPP_INCLUDED
+#endif // NDNBOOST_UNORDERED_UNORDERED_SET_HPP_INCLUDED

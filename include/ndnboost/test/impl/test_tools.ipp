@@ -12,8 +12,8 @@
 //  Description : supplies offline implementation for the Test Tools
 // ***************************************************************************
 
-#ifndef BOOST_TEST_TEST_TOOLS_IPP_012205GER
-#define BOOST_TEST_TEST_TOOLS_IPP_012205GER
+#ifndef NDNBOOST_TEST_TEST_TOOLS_IPP_012205GER
+#define NDNBOOST_TEST_TEST_TOOLS_IPP_012205GER
 
 // Boost.Test
 #include <ndnboost/test/test_tools.hpp>
@@ -42,9 +42,9 @@
 
 //____________________________________________________________________________//
 
-# ifdef BOOST_NO_STDC_NAMESPACE
+# ifdef NDNBOOST_NO_STDC_NAMESPACE
 namespace std { using ::strcmp; using ::strlen; using ::isprint; }
-#if !defined( BOOST_NO_CWCHAR )
+#if !defined( NDNBOOST_NO_CWCHAR )
 namespace std { using ::wcscmp; }
 #endif
 # endif
@@ -64,7 +64,7 @@ print_log_value<char>::operator()( std::ostream& ostr, char t )
         ostr << '\'' << t << '\'';
     else
         ostr << std::hex
-#if BOOST_TEST_USE_STD_LOCALE
+#if NDNBOOST_TEST_USE_STD_LOCALE
         << std::showbase
 #else
         << "0x"
@@ -79,7 +79,7 @@ print_log_value<unsigned char>::operator()( std::ostream& ostr, unsigned char t 
 {
     ostr << std::hex
         // showbase is only available for new style streams:
-#if BOOST_TEST_USE_STD_LOCALE
+#if NDNBOOST_TEST_USE_STD_LOCALE
         << std::showbase
 #else
         << "0x"
@@ -385,7 +385,7 @@ equal_impl( char const* left, char const* right )
 
 //____________________________________________________________________________//
 
-#if !defined( BOOST_NO_CWCHAR )
+#if !defined( NDNBOOST_NO_CWCHAR )
 
 predicate_result
 equal_impl( wchar_t const* left, wchar_t const* right )
@@ -393,7 +393,7 @@ equal_impl( wchar_t const* left, wchar_t const* right )
     return (left && right) ? std::wcscmp( left, right ) == 0 : (left == right);
 }
 
-#endif // !defined( BOOST_NO_CWCHAR )
+#endif // !defined( NDNBOOST_NO_CWCHAR )
 
 //____________________________________________________________________________//
 
@@ -448,7 +448,7 @@ output_test_stream::output_test_stream( const_string pattern_file_name, bool mat
 
         m_pimpl->m_pattern.open( pattern_file_name.begin(), m );
 
-        BOOST_WARN_MESSAGE( m_pimpl->m_pattern.is_open(),
+        NDNBOOST_WARN_MESSAGE( m_pimpl->m_pattern.is_open(),
                              "Can't open pattern file " << pattern_file_name
                                 << " for " << (match_or_save ? "reading" : "writing") );
     }
@@ -585,7 +585,7 @@ output_test_stream::flush()
 {
     m_pimpl->m_synced_string.erase();
 
-#ifndef BOOST_NO_STRINGSTREAM
+#ifndef NDNBOOST_NO_STRINGSTREAM
     str( std::string() );
 #else
     seekp( 0, std::ios::beg );
@@ -607,7 +607,7 @@ output_test_stream::length()
 void
 output_test_stream::sync()
 {
-#ifdef BOOST_NO_STRINGSTREAM
+#ifdef NDNBOOST_NO_STRINGSTREAM
     m_pimpl->m_synced_string.assign( str(), pcount() );
     freeze( false );
 #else
@@ -625,4 +625,4 @@ output_test_stream::sync()
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_TEST_TOOLS_IPP_012205GER
+#endif // NDNBOOST_TEST_TEST_TOOLS_IPP_012205GER

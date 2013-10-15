@@ -3,8 +3,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_UNORDERED_DETAIL_EXTRACT_KEY_HPP_INCLUDED
-#define BOOST_UNORDERED_DETAIL_EXTRACT_KEY_HPP_INCLUDED
+#ifndef NDNBOOST_UNORDERED_DETAIL_EXTRACT_KEY_HPP_INCLUDED
+#define NDNBOOST_UNORDERED_DETAIL_EXTRACT_KEY_HPP_INCLUDED
 
 #include <ndnboost/unordered/detail/table.hpp>
 
@@ -37,7 +37,7 @@ namespace detail {
             sizeof(choice2::type) };
         
         typedef typename ndnboost::detail::if_true<value>::
-            BOOST_NESTED_TEMPLATE then<Key const&, no_key>::type type;
+            NDNBOOST_NESTED_TEMPLATE then<Key const&, no_key>::type type;
     };
 
     template <class ValueType>
@@ -56,7 +56,7 @@ namespace detail {
             return no_key();
         }
         
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
         template <class... Args>
         static no_key extract(Args const&...)
         {
@@ -107,7 +107,7 @@ namespace detail {
             return k;
         }
 
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
         template <class... Args>
         static no_key extract(Args const&...)
         {
@@ -133,9 +133,9 @@ namespace detail {
         }
 #endif
 
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
 
-#define BOOST_UNORDERED_KEY_FROM_TUPLE(namespace_)                          \
+#define NDNBOOST_UNORDERED_KEY_FROM_TUPLE(namespace_)                          \
         template <typename T2>                                              \
         static no_key extract(ndnboost::unordered::piecewise_construct_t,      \
                 namespace_ tuple<> const&, T2 const&)                       \
@@ -154,7 +154,7 @@ namespace detail {
 
 #else
 
-#define BOOST_UNORDERED_KEY_FROM_TUPLE(namespace_)                          \
+#define NDNBOOST_UNORDERED_KEY_FROM_TUPLE(namespace_)                          \
         static no_key extract(ndnboost::unordered::piecewise_construct_t,      \
                 namespace_ tuple<> const&)                                  \
         {                                                                   \
@@ -172,10 +172,10 @@ namespace detail {
 
 #endif
 
-BOOST_UNORDERED_KEY_FROM_TUPLE(ndnboost::)
+NDNBOOST_UNORDERED_KEY_FROM_TUPLE(ndnboost::)
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE)
-BOOST_UNORDERED_KEY_FROM_TUPLE(std::)
+#if !defined(NDNBOOST_NO_CXX11_HDR_TUPLE)
+NDNBOOST_UNORDERED_KEY_FROM_TUPLE(std::)
 #endif
     };
 }}}

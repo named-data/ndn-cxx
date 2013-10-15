@@ -9,8 +9,8 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_EXPR_IF_HPP
-# define BOOST_PREPROCESSOR_EXPR_IF_HPP
+# ifndef NDNBOOST_PREPROCESSOR_EXPR_IF_HPP
+# define NDNBOOST_PREPROCESSOR_EXPR_IF_HPP
 #
 # include <ndnboost/preprocessor/control/expr_if.hpp>
 #

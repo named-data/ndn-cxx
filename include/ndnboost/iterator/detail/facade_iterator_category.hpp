@@ -22,7 +22,7 @@
 
 # include <ndnboost/iterator/detail/config_def.hpp> // try to keep this last
 
-# ifdef BOOST_ITERATOR_REF_CONSTNESS_KILLS_WRITABILITY
+# ifdef NDNBOOST_ITERATOR_REF_CONSTNESS_KILLS_WRITABILITY
 #  include <ndnboost/detail/indirect_traits.hpp>
 # endif
 
@@ -57,7 +57,7 @@ struct input_output_iterator_tag
 //
 template <class ValueParam, class Reference>
 struct iterator_writability_disabled
-# ifdef BOOST_ITERATOR_REF_CONSTNESS_KILLS_WRITABILITY // Adding Thomas' logic?
+# ifdef NDNBOOST_ITERATOR_REF_CONSTNESS_KILLS_WRITABILITY // Adding Thomas' logic?
   : mpl::or_<
         is_const<Reference>
       , ndnboost::detail::indirect_traits::is_reference_to_const<Reference>
@@ -138,21 +138,21 @@ template <class Category, class Traversal>
 struct iterator_category_with_traversal
   : Category, Traversal
 {
-# if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+# if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
     // Make sure this isn't used to build any categories where
     // convertibility to Traversal is redundant.  Should just use the
     // Category element in that case.
-    BOOST_MPL_ASSERT_NOT((
+    NDNBOOST_MPL_ASSERT_NOT((
         is_convertible<
               typename iterator_category_to_traversal<Category>::type
             , Traversal
           >));
 
-    BOOST_MPL_ASSERT((is_iterator_category<Category>));
-    BOOST_MPL_ASSERT_NOT((is_iterator_category<Traversal>));
-    BOOST_MPL_ASSERT_NOT((is_iterator_traversal<Category>));
-#  if !BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1310))
-    BOOST_MPL_ASSERT((is_iterator_traversal<Traversal>));
+    NDNBOOST_MPL_ASSERT((is_iterator_category<Category>));
+    NDNBOOST_MPL_ASSERT_NOT((is_iterator_category<Traversal>));
+    NDNBOOST_MPL_ASSERT_NOT((is_iterator_traversal<Category>));
+#  if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, NDNBOOST_TESTED_AT(1310))
+    NDNBOOST_MPL_ASSERT((is_iterator_traversal<Traversal>));
 #  endif 
 # endif 
 };
@@ -162,8 +162,8 @@ struct iterator_category_with_traversal
 template <class Traversal, class ValueParam, class Reference>
 struct facade_iterator_category_impl
 {
-# if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-    BOOST_MPL_ASSERT_NOT((is_iterator_category<Traversal>));
+# if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
+    NDNBOOST_MPL_ASSERT_NOT((is_iterator_category<Traversal>));
 # endif 
     
     typedef typename iterator_facade_default_category<

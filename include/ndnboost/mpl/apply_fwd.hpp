@@ -1,10 +1,10 @@
 
-#if !defined(BOOST_PP_IS_ITERATING)
+#if !defined(NDNBOOST_PP_IS_ITERATING)
 
 ///// header body
 
-#ifndef BOOST_MPL_APPLY_FWD_HPP_INCLUDED
-#define BOOST_MPL_APPLY_FWD_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_APPLY_FWD_HPP_INCLUDED
+#define NDNBOOST_MPL_APPLY_FWD_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -18,16 +18,16 @@
 // $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
 // $Revision: 49267 $
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   include <ndnboost/mpl/aux_/na.hpp>
 #endif
 
 #include <ndnboost/mpl/aux_/config/use_preprocessed.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
-    && !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+    && !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
-#   define BOOST_MPL_PREPROCESSED_HEADER apply_fwd.hpp
+#   define NDNBOOST_MPL_PREPROCESSED_HEADER apply_fwd.hpp
 #   include <ndnboost/mpl/aux_/include_preprocessed.hpp>
 
 #else
@@ -44,29 +44,29 @@
 
 // agurt, 15/jan/02: top-level 'apply' template gives an ICE on MSVC
 // (for known reasons)
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-#   define BOOST_MPL_CFG_NO_APPLY_TEMPLATE
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
+#   define NDNBOOST_MPL_CFG_NO_APPLY_TEMPLATE
 #endif
 
 namespace ndnboost { namespace mpl {
 
 // local macro, #undef-ined at the end of the header
 #   define AUX778076_APPLY_DEF_PARAMS(param, value) \
-    BOOST_MPL_PP_DEFAULT_PARAMS( \
-          BOOST_MPL_LIMIT_METAFUNCTION_ARITY \
+    NDNBOOST_MPL_PP_DEFAULT_PARAMS( \
+          NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY \
         , param \
         , value \
         ) \
     /**/
 
 #   define AUX778076_APPLY_N_COMMA_PARAMS(n, param) \
-    BOOST_PP_COMMA_IF(n) \
-    BOOST_MPL_PP_PARAMS(n, param) \
+    NDNBOOST_PP_COMMA_IF(n) \
+    NDNBOOST_MPL_PP_PARAMS(n, param) \
     /**/
 
-#   if !defined(BOOST_MPL_CFG_NO_APPLY_TEMPLATE)
+#   if !defined(NDNBOOST_MPL_CFG_NO_APPLY_TEMPLATE)
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 // forward declaration
 template<
       typename F, AUX778076_APPLY_DEF_PARAMS(typename T, na)
@@ -74,15 +74,15 @@ template<
 struct apply;
 #else
 namespace aux {
-template< BOOST_AUX_NTTP_DECL(int, arity_) > struct apply_chooser;
+template< NDNBOOST_AUX_NTTP_DECL(int, arity_) > struct apply_chooser;
 }
 #endif
 
-#   endif // BOOST_MPL_CFG_NO_APPLY_TEMPLATE
+#   endif // NDNBOOST_MPL_CFG_NO_APPLY_TEMPLATE
 
-#define BOOST_PP_ITERATION_PARAMS_1 \
-    (3,(0, BOOST_MPL_LIMIT_METAFUNCTION_ARITY, <ndnboost/mpl/apply_fwd.hpp>))
-#include BOOST_PP_ITERATE()
+#define NDNBOOST_PP_ITERATION_PARAMS_1 \
+    (3,(0, NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY, <ndnboost/mpl/apply_fwd.hpp>))
+#include NDNBOOST_PP_ITERATE()
 
 
 #   undef AUX778076_APPLY_N_COMMA_PARAMS
@@ -90,18 +90,18 @@ template< BOOST_AUX_NTTP_DECL(int, arity_) > struct apply_chooser;
 
 }}
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#endif // BOOST_MPL_APPLY_FWD_HPP_INCLUDED
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_APPLY_FWD_HPP_INCLUDED
 
 ///// iteration
 
 #else
-#define i_ BOOST_PP_FRAME_ITERATION(1)
+#define i_ NDNBOOST_PP_FRAME_ITERATION(1)
 
 template<
       typename F AUX778076_APPLY_N_COMMA_PARAMS(i_, typename T)
     >
-struct BOOST_PP_CAT(apply,i_);
+struct NDNBOOST_PP_CAT(apply,i_);
 
 #undef i_
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_IS_ITERATING

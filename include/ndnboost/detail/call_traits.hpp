@@ -15,10 +15,10 @@
       (issue raised by Steve Cleary).
 */
 
-#ifndef BOOST_DETAIL_CALL_TRAITS_HPP
-#define BOOST_DETAIL_CALL_TRAITS_HPP
+#ifndef NDNBOOST_DETAIL_CALL_TRAITS_HPP
+#define NDNBOOST_DETAIL_CALL_TRAITS_HPP
 
-#ifndef BOOST_CONFIG_HPP
+#ifndef NDNBOOST_CONFIG_HPP
 #include <ndnboost/config.hpp>
 #endif
 #include <cstddef>
@@ -100,7 +100,7 @@ struct call_traits<T&>
    typedef T& param_type;  // hh removed const
 };
 
-#if BOOST_WORKAROUND( __BORLANDC__,  < 0x5A0 )
+#if NDNBOOST_WORKAROUND( __BORLANDC__,  < 0x5A0 )
 // these are illegal specialisations; cv-qualifies applied to
 // references have no effect according to [8.3.2p1],
 // C++ Builder requires them though as it treats cv-qualified
@@ -139,7 +139,7 @@ struct call_traits< T * >
    typedef T * const param_type;  // hh removed const
 };
 #endif
-#if !defined(BOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
+#if !defined(NDNBOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
 template <typename T, std::size_t N>
 struct call_traits<T [N]>
 {
@@ -169,4 +169,4 @@ public:
 
 }
 
-#endif // BOOST_DETAIL_CALL_TRAITS_HPP
+#endif // NDNBOOST_DETAIL_CALL_TRAITS_HPP

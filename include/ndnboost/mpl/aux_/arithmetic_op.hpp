@@ -13,7 +13,7 @@
 // $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
 // $Revision: 49267 $
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   include <ndnboost/mpl/integral_c.hpp>
 #   include <ndnboost/mpl/aux_/largest_int.hpp>
 #   include <ndnboost/mpl/aux_/value_wknd.hpp>
@@ -27,10 +27,10 @@
 #include <ndnboost/mpl/aux_/config/static_constant.hpp>
 #include <ndnboost/mpl/aux_/config/use_preprocessed.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
-    && !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+    && !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
-#   define BOOST_MPL_PREPROCESSED_HEADER AUX778076_OP_PREFIX.hpp
+#   define NDNBOOST_MPL_PREPROCESSED_HEADER AUX778076_OP_PREFIX.hpp
 #   include <ndnboost/mpl/aux_/include_preprocessed.hpp>
 
 #else
@@ -41,12 +41,12 @@
 
 namespace ndnboost { namespace mpl {
 
-#if defined(BOOST_MPL_CFG_NO_NESTED_VALUE_ARITHMETIC)
+#if defined(NDNBOOST_MPL_CFG_NO_NESTED_VALUE_ARITHMETIC)
 namespace aux {
 template< typename T, T n1, T n2 >
-struct BOOST_PP_CAT(AUX778076_OP_PREFIX,_wknd)
+struct NDNBOOST_PP_CAT(AUX778076_OP_PREFIX,_wknd)
 {
-    BOOST_STATIC_CONSTANT(T, value = (n1 AUX778076_OP_TOKEN n2));
+    NDNBOOST_STATIC_CONSTANT(T, value = (n1 AUX778076_OP_TOKEN n2));
     typedef integral_c<T,value> type;
 };
 }
@@ -56,18 +56,18 @@ template<>
 struct AUX778076_OP_IMPL_NAME<integral_c_tag,integral_c_tag>
 {
     template< typename N1, typename N2 > struct apply
-#if !defined(BOOST_MPL_CFG_NO_NESTED_VALUE_ARITHMETIC)
+#if !defined(NDNBOOST_MPL_CFG_NO_NESTED_VALUE_ARITHMETIC)
         : integral_c<
               typename aux::largest_int<
                   typename N1::value_type
                 , typename N2::value_type
                 >::type
-            , ( BOOST_MPL_AUX_VALUE_WKND(N1)::value
-                  AUX778076_OP_TOKEN BOOST_MPL_AUX_VALUE_WKND(N2)::value
+            , ( NDNBOOST_MPL_AUX_VALUE_WKND(N1)::value
+                  AUX778076_OP_TOKEN NDNBOOST_MPL_AUX_VALUE_WKND(N2)::value
                 )
             >
 #else
-        : aux::BOOST_PP_CAT(AUX778076_OP_PREFIX,_wknd)<
+        : aux::NDNBOOST_PP_CAT(AUX778076_OP_PREFIX,_wknd)<
               typename aux::largest_int<
                   typename N1::value_type
                 , typename N2::value_type
@@ -82,7 +82,7 @@ struct AUX778076_OP_IMPL_NAME<integral_c_tag,integral_c_tag>
 
 }}
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 
 #undef AUX778076_OP_TAG_NAME
 #undef AUX778076_OP_IMPL_NAME

@@ -1,5 +1,5 @@
-#ifndef BOOST_BIND_PLACEHOLDERS_HPP_INCLUDED
-#define BOOST_BIND_PLACEHOLDERS_HPP_INCLUDED
+#ifndef NDNBOOST_BIND_PLACEHOLDERS_HPP_INCLUDED
+#define NDNBOOST_BIND_PLACEHOLDERS_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -37,7 +37,7 @@ static inline ndnboost::arg<7> _7() { return ndnboost::arg<7>(); }
 static inline ndnboost::arg<8> _8() { return ndnboost::arg<8>(); }
 static inline ndnboost::arg<9> _9() { return ndnboost::arg<9>(); }
 
-#elif defined(BOOST_MSVC) || (defined(__DECCXX_VER) && __DECCXX_VER <= 60590031) || defined(__MWERKS__) || \
+#elif defined(NDNBOOST_MSVC) || (defined(__DECCXX_VER) && __DECCXX_VER <= 60590031) || defined(__MWERKS__) || \
     defined(__GNUC__) && (__GNUC__ == 4 && __GNUC_MINOR__ < 2)  
 
 static ndnboost::arg<1> _1;
@@ -66,4 +66,4 @@ ndnboost::arg<9> _9;
 
 } // unnamed namespace
 
-#endif // #ifndef BOOST_BIND_PLACEHOLDERS_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_BIND_PLACEHOLDERS_HPP_INCLUDED

@@ -11,25 +11,25 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_CAT_HPP
-# define BOOST_PREPROCESSOR_CAT_HPP
+# ifndef NDNBOOST_PREPROCESSOR_CAT_HPP
+# define NDNBOOST_PREPROCESSOR_CAT_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 #
-# /* BOOST_PP_CAT */
+# /* NDNBOOST_PP_CAT */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_MWCC()
-#    define BOOST_PP_CAT(a, b) BOOST_PP_CAT_I(a, b)
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_MWCC()
+#    define NDNBOOST_PP_CAT(a, b) NDNBOOST_PP_CAT_I(a, b)
 # else
-#    define BOOST_PP_CAT(a, b) BOOST_PP_CAT_OO((a, b))
-#    define BOOST_PP_CAT_OO(par) BOOST_PP_CAT_I ## par
+#    define NDNBOOST_PP_CAT(a, b) NDNBOOST_PP_CAT_OO((a, b))
+#    define NDNBOOST_PP_CAT_OO(par) NDNBOOST_PP_CAT_I ## par
 # endif
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_MSVC()
-#    define BOOST_PP_CAT_I(a, b) a ## b
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_MSVC()
+#    define NDNBOOST_PP_CAT_I(a, b) a ## b
 # else
-#    define BOOST_PP_CAT_I(a, b) BOOST_PP_CAT_II(~, a ## b)
-#    define BOOST_PP_CAT_II(p, res) res
+#    define NDNBOOST_PP_CAT_I(a, b) NDNBOOST_PP_CAT_II(~, a ## b)
+#    define NDNBOOST_PP_CAT_II(p, res) res
 # endif
 #
 # endif

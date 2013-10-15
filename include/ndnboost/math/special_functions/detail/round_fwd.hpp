@@ -5,8 +5,8 @@
 // (See accompanying file LICENSE_1_0.txt
 // or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_MATH_SPECIAL_ROUND_FWD_HPP
-#define BOOST_MATH_SPECIAL_ROUND_FWD_HPP
+#ifndef NDNBOOST_MATH_SPECIAL_ROUND_FWD_HPP
+#define NDNBOOST_MATH_SPECIAL_ROUND_FWD_HPP
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/math/tools/promotion.hpp>
@@ -32,7 +32,7 @@ namespace ndnboost
    long ltrunc(const T& v, const Policy& pol);
    template <class T>
    long ltrunc(const T& v);
-#ifdef BOOST_HAS_LONG_LONG
+#ifdef NDNBOOST_HAS_LONG_LONG
    template <class T, class Policy>
    ndnboost::long_long_type lltrunc(const T& v, const Policy& pol);
    template <class T>
@@ -50,7 +50,7 @@ namespace ndnboost
    long lround(const T& v, const Policy& pol);
    template <class T>
    long lround(const T& v);
-#ifdef BOOST_HAS_LONG_LONG
+#ifdef NDNBOOST_HAS_LONG_LONG
    template <class T, class Policy>
    ndnboost::long_long_type llround(const T& v, const Policy& pol);
    template <class T>
@@ -68,7 +68,7 @@ namespace ndnboost
    T modf(const T& v, long* ipart, const Policy& pol);
    template <class T>
    T modf(const T& v, long* ipart);
-#ifdef BOOST_HAS_LONG_LONG
+#ifdef NDNBOOST_HAS_LONG_LONG
    template <class T, class Policy>
    T modf(const T& v, ndnboost::long_long_type* ipart, const Policy& pol);
    template <class T>
@@ -78,8 +78,8 @@ namespace ndnboost
    }
 }
 
-#undef BOOST_MATH_STD_USING
-#define BOOST_MATH_STD_USING BOOST_MATH_STD_USING_CORE\
+#undef NDNBOOST_MATH_STD_USING
+#define NDNBOOST_MATH_STD_USING NDNBOOST_MATH_STD_USING_CORE\
    using ndnboost::math::round;\
    using ndnboost::math::iround;\
    using ndnboost::math::lround;\
@@ -89,5 +89,5 @@ namespace ndnboost
    using ndnboost::math::modf;
 
 
-#endif // BOOST_MATH_SPECIAL_ROUND_FWD_HPP
+#endif // NDNBOOST_MATH_SPECIAL_ROUND_FWD_HPP
 

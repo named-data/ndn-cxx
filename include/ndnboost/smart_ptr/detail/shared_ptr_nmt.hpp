@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_SHARED_PTR_NMT_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_SHARED_PTR_NMT_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_SHARED_PTR_NMT_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_SHARED_PTR_NMT_HPP_INCLUDED
 
 //
 //  detail/shared_ptr_nmt.hpp - shared_ptr.hpp without member templates
@@ -19,7 +19,7 @@
 #include <ndnboost/throw_exception.hpp>
 #include <ndnboost/smart_ptr/detail/atomic_count.hpp>
 
-#ifndef BOOST_NO_AUTO_PTR
+#ifndef NDNBOOST_NO_AUTO_PTR
 # include <memory>          // for std::auto_ptr
 #endif
 
@@ -43,7 +43,7 @@ public:
 
     explicit shared_ptr(T * p = 0): px(p)
     {
-#ifndef BOOST_NO_EXCEPTIONS
+#ifndef NDNBOOST_NO_EXCEPTIONS
 
         try  // prevent leak if new throws
         {
@@ -89,7 +89,7 @@ public:
         return *this;
     }
 
-#ifndef BOOST_NO_AUTO_PTR
+#ifndef NDNBOOST_NO_AUTO_PTR
 
     explicit shared_ptr(std::auto_ptr<T> & r)
     { 
@@ -107,19 +107,19 @@ public:
 
     void reset(T * p = 0)
     {
-        BOOST_ASSERT(p == 0 || p != px);
+        NDNBOOST_ASSERT(p == 0 || p != px);
         shared_ptr(p).swap(*this);
     }
 
     T & operator*() const  // never throws
     {
-        BOOST_ASSERT(px != 0);
+        NDNBOOST_ASSERT(px != 0);
         return *px;
     }
 
     T * operator->() const  // never throws
     {
-        BOOST_ASSERT(px != 0);
+        NDNBOOST_ASSERT(px != 0);
         return px;
     }
 
@@ -179,4 +179,4 @@ template<class T> inline T * get_pointer(shared_ptr<T> const & p)
 
 } // namespace ndnboost
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SHARED_PTR_NMT_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_DETAIL_SHARED_PTR_NMT_HPP_INCLUDED

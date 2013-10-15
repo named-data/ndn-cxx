@@ -11,21 +11,21 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_PUNCTUATION_COMMA_IF_HPP
-# define BOOST_PREPROCESSOR_PUNCTUATION_COMMA_IF_HPP
+# ifndef NDNBOOST_PREPROCESSOR_PUNCTUATION_COMMA_IF_HPP
+# define NDNBOOST_PREPROCESSOR_PUNCTUATION_COMMA_IF_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 # include <ndnboost/preprocessor/control/if.hpp>
 # include <ndnboost/preprocessor/facilities/empty.hpp>
 # include <ndnboost/preprocessor/punctuation/comma.hpp>
 #
-# /* BOOST_PP_COMMA_IF */
+# /* NDNBOOST_PP_COMMA_IF */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_COMMA_IF(cond) BOOST_PP_IF(cond, BOOST_PP_COMMA, BOOST_PP_EMPTY)()
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_COMMA_IF(cond) NDNBOOST_PP_IF(cond, NDNBOOST_PP_COMMA, NDNBOOST_PP_EMPTY)()
 # else
-#    define BOOST_PP_COMMA_IF(cond) BOOST_PP_COMMA_IF_I(cond)
-#    define BOOST_PP_COMMA_IF_I(cond) BOOST_PP_IF(cond, BOOST_PP_COMMA, BOOST_PP_EMPTY)()
+#    define NDNBOOST_PP_COMMA_IF(cond) NDNBOOST_PP_COMMA_IF_I(cond)
+#    define NDNBOOST_PP_COMMA_IF_I(cond) NDNBOOST_PP_IF(cond, NDNBOOST_PP_COMMA, NDNBOOST_PP_EMPTY)()
 # endif
 #
 # endif

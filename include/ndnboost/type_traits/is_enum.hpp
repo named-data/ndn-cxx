@@ -8,11 +8,11 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_IS_ENUM_HPP_INCLUDED
-#define BOOST_TT_IS_ENUM_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_ENUM_HPP_INCLUDED
+#define NDNBOOST_TT_IS_ENUM_HPP_INCLUDED
 
 #include <ndnboost/type_traits/intrinsics.hpp>
-#ifndef BOOST_IS_ENUM
+#ifndef NDNBOOST_IS_ENUM
 #include <ndnboost/type_traits/add_reference.hpp>
 #include <ndnboost/type_traits/is_arithmetic.hpp>
 #include <ndnboost/type_traits/is_reference.hpp>
@@ -22,7 +22,7 @@
 #include <ndnboost/type_traits/is_function.hpp>
 #endif
 #include <ndnboost/type_traits/config.hpp>
-#if defined(BOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION) 
+#if defined(NDNBOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION) 
 #  include <ndnboost/type_traits/is_class.hpp>
 #  include <ndnboost/type_traits/is_union.hpp>
 #endif
@@ -33,17 +33,17 @@
 
 namespace ndnboost {
 
-#ifndef BOOST_IS_ENUM
+#ifndef NDNBOOST_IS_ENUM
 #if !(defined(__BORLANDC__) && (__BORLANDC__ <= 0x551))
 
 namespace detail {
 
-#if defined(BOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION) 
+#if defined(NDNBOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION) 
 
 template <typename T>
 struct is_class_or_union
 {
-   BOOST_STATIC_CONSTANT(bool, value =
+   NDNBOOST_STATIC_CONSTANT(bool, value =
       (::ndnboost::type_traits::ice_or<
            ::ndnboost::is_class<T>::value
          , ::ndnboost::is_union<T>::value
@@ -55,20 +55,20 @@ struct is_class_or_union
 template <typename T>
 struct is_class_or_union
 {
-# if BOOST_WORKAROUND(BOOST_MSVC, < 1300) || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))// we simply can't detect it this way.
-    BOOST_STATIC_CONSTANT(bool, value = false);
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300) || NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x581))// we simply can't detect it this way.
+    NDNBOOST_STATIC_CONSTANT(bool, value = false);
 # else
     template <class U> static ::ndnboost::type_traits::yes_type is_class_or_union_tester(void(U::*)(void));
 
-#  if BOOST_WORKAROUND(BOOST_MSVC, == 1300)                 \
-    || BOOST_WORKAROUND(__MWERKS__, <= 0x3000) // no SFINAE
+#  if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1300)                 \
+    || NDNBOOST_WORKAROUND(__MWERKS__, <= 0x3000) // no SFINAE
     static ::ndnboost::type_traits::no_type is_class_or_union_tester(...);
-    BOOST_STATIC_CONSTANT(
+    NDNBOOST_STATIC_CONSTANT(
         bool, value = sizeof(is_class_or_union_tester(0)) == sizeof(::ndnboost::type_traits::yes_type));
 #  else
     template <class U>
     static ::ndnboost::type_traits::no_type is_class_or_union_tester(...);
-    BOOST_STATIC_CONSTANT(
+    NDNBOOST_STATIC_CONSTANT(
         bool, value = sizeof(is_class_or_union_tester<T>(0)) == sizeof(::ndnboost::type_traits::yes_type));
 #  endif
 # endif
@@ -87,7 +87,7 @@ struct is_enum_helper
 {
     template <typename T> struct type
     {
-        BOOST_STATIC_CONSTANT(bool, value = false);
+        NDNBOOST_STATIC_CONSTANT(bool, value = false);
     };
 };
 
@@ -107,12 +107,12 @@ template <typename T> struct is_enum_impl
 
 #if defined(__GNUC__)
 
-#ifdef BOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION
+#ifdef NDNBOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION
     
    // We MUST check for is_class_or_union on conforming compilers in
    // order to correctly deduce that noncopyable types are not enums
    // (dwa 2002/04/15)...
-   BOOST_STATIC_CONSTANT(bool, selector =
+   NDNBOOST_STATIC_CONSTANT(bool, selector =
       (::ndnboost::type_traits::ice_or<
            ::ndnboost::is_arithmetic<T>::value
          , ::ndnboost::is_reference<T>::value
@@ -123,18 +123,18 @@ template <typename T> struct is_enum_impl
 #else
    // ...however, not checking is_class_or_union on non-conforming
    // compilers prevents a dependency recursion.
-   BOOST_STATIC_CONSTANT(bool, selector =
+   NDNBOOST_STATIC_CONSTANT(bool, selector =
       (::ndnboost::type_traits::ice_or<
            ::ndnboost::is_arithmetic<T>::value
          , ::ndnboost::is_reference<T>::value
          , ::ndnboost::is_function<T>::value
          , is_array<T>::value
       >::value));
-#endif // BOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION
+#endif // NDNBOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION
 
 #else // !defined(__GNUC__):
     
-   BOOST_STATIC_CONSTANT(bool, selector =
+   NDNBOOST_STATIC_CONSTANT(bool, selector =
       (::ndnboost::type_traits::ice_or<
            ::ndnboost::is_arithmetic<T>::value
          , ::ndnboost::is_reference<T>::value
@@ -144,7 +144,7 @@ template <typename T> struct is_enum_impl
     
 #endif
 
-#if BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+#if NDNBOOST_WORKAROUND(__BORLANDC__, < 0x600)
     typedef ::ndnboost::detail::is_enum_helper<
           ::ndnboost::detail::is_enum_impl<T>::selector
         > se_t;
@@ -153,32 +153,32 @@ template <typename T> struct is_enum_impl
 #endif
 
     typedef typename se_t::template type<T> helper;
-    BOOST_STATIC_CONSTANT(bool, value = helper::value);
+    NDNBOOST_STATIC_CONSTANT(bool, value = helper::value);
 };
 
 // these help on compilers with no partial specialization support:
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_enum,void,false)
-#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_enum,void const,false)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_enum,void volatile,false)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_enum,void const volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_enum,void,false)
+#ifndef NDNBOOST_NO_CV_VOID_SPECIALIZATIONS
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_enum,void const,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_enum,void volatile,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_enum,void const volatile,false)
 #endif
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_enum,T,::ndnboost::detail::is_enum_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_enum,T,::ndnboost::detail::is_enum_impl<T>::value)
 
 #else // __BORLANDC__
 //
 // buggy is_convertible prevents working
 // implementation of is_enum:
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_enum,T,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_enum,T,false)
 
 #endif
 
-#else // BOOST_IS_ENUM
+#else // NDNBOOST_IS_ENUM
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_enum,T,BOOST_IS_ENUM(T))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_enum,T,NDNBOOST_IS_ENUM(T))
 
 #endif
 
@@ -186,4 +186,4 @@ BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_enum,T,BOOST_IS_ENUM(T))
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_ENUM_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_ENUM_HPP_INCLUDED

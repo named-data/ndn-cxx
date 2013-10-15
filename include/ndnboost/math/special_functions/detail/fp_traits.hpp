@@ -1,7 +1,7 @@
 // fp_traits.hpp
 
-#ifndef BOOST_MATH_FP_TRAITS_HPP
-#define BOOST_MATH_FP_TRAITS_HPP
+#ifndef NDNBOOST_MATH_FP_TRAITS_HPP
+#define NDNBOOST_MATH_FP_TRAITS_HPP
 
 // Copyright (c) 2006 Johan Rade
 
@@ -17,7 +17,7 @@ With these techniques, the code could be simplified.
 
 #if defined(__vms) && defined(__DECCXX) && !__IEEE_FLOAT
 // The VAX floating point formats are used (for float and double)
-#   define BOOST_FPCLASSIFY_VAX_FORMAT
+#   define NDNBOOST_FPCLASSIFY_VAX_FORMAT
 #endif
 
 #include <cstring>
@@ -28,7 +28,7 @@ With these techniques, the code could be simplified.
 #include <ndnboost/static_assert.hpp>
 #include <ndnboost/type_traits/is_floating_point.hpp>
 
-#ifdef BOOST_NO_STDC_NAMESPACE
+#ifdef NDNBOOST_NO_STDC_NAMESPACE
   namespace std{ using ::memcpy; }
 #endif
 
@@ -42,7 +42,7 @@ With these techniques, the code could be simplified.
 
 #else
 
-#define BOOST_HAS_FPCLASSIFY
+#define NDNBOOST_HAS_FPCLASSIFY
 
 #ifndef fpclassify
 #  if (defined(__GLIBCPP__) || defined(__GLIBCXX__)) \
@@ -51,26 +51,26 @@ With these techniques, the code could be simplified.
          && (_GLIBCXX_USE_C99_FP_MACROS_DYNAMIC != 0))
 #     ifdef _STLP_VENDOR_CSTD
 #        if _STLPORT_VERSION >= 0x520
-#           define BOOST_FPCLASSIFY_PREFIX ::__std_alias:: 
+#           define NDNBOOST_FPCLASSIFY_PREFIX ::__std_alias:: 
 #        else
-#           define BOOST_FPCLASSIFY_PREFIX ::_STLP_VENDOR_CSTD:: 
+#           define NDNBOOST_FPCLASSIFY_PREFIX ::_STLP_VENDOR_CSTD:: 
 #        endif
 #     else
-#        define BOOST_FPCLASSIFY_PREFIX ::std::
+#        define NDNBOOST_FPCLASSIFY_PREFIX ::std::
 #     endif
 #  else
-#     undef BOOST_HAS_FPCLASSIFY
-#     define BOOST_FPCLASSIFY_PREFIX
+#     undef NDNBOOST_HAS_FPCLASSIFY
+#     define NDNBOOST_FPCLASSIFY_PREFIX
 #  endif
 #elif (defined(__HP_aCC) && !defined(__hppa))
 // aCC 6 appears to do "#define fpclassify fpclassify" which messes us up a bit!
-#  define BOOST_FPCLASSIFY_PREFIX ::
+#  define NDNBOOST_FPCLASSIFY_PREFIX ::
 #else
-#  define BOOST_FPCLASSIFY_PREFIX
+#  define NDNBOOST_FPCLASSIFY_PREFIX
 #endif
 
 #ifdef __MINGW32__
-#  undef BOOST_HAS_FPCLASSIFY
+#  undef NDNBOOST_HAS_FPCLASSIFY
 #endif
 
 #endif
@@ -96,7 +96,7 @@ struct ieee_tag {};
 struct ieee_copy_all_bits_tag : public ieee_tag {};
 struct ieee_copy_leading_bits_tag : public ieee_tag {};
 
-#ifdef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+#ifdef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
 //
 // These helper functions are used only when numeric_limits<>
 // members are not compile time constants:
@@ -138,7 +138,7 @@ template<class T> struct fp_traits_native
 
 template<class T, class U> struct fp_traits_non_native
 {
-#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+#ifndef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
    typedef generic_tag<std::numeric_limits<T>::is_specialized> method;
 #else
    typedef generic_tag<false> method;
@@ -172,16 +172,16 @@ Static function members:
 
 // ieee_tag version, float (32 bits) -----------------------------------------------
 
-#ifndef BOOST_FPCLASSIFY_VAX_FORMAT
+#ifndef NDNBOOST_FPCLASSIFY_VAX_FORMAT
 
 template<> struct fp_traits_non_native<float, single_precision>
 {
     typedef ieee_copy_all_bits_tag method;
 
-    BOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
-    BOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7f800000);
-    BOOST_STATIC_CONSTANT(uint32_t, flag        = 0x00000000);
-    BOOST_STATIC_CONSTANT(uint32_t, significand = 0x007fffff);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7f800000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, flag        = 0x00000000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, significand = 0x007fffff);
 
     typedef uint32_t bits;
     static void get_bits(float x, uint32_t& a) { std::memcpy(&a, &x, 4); }
@@ -190,17 +190,17 @@ template<> struct fp_traits_non_native<float, single_precision>
 
 // ieee_tag version, double (64 bits) ----------------------------------------------
 
-#if defined(BOOST_NO_INT64_T) || defined(BOOST_NO_INCLASS_MEMBER_INITIALIZATION) \
+#if defined(NDNBOOST_NO_INT64_T) || defined(NDNBOOST_NO_INCLASS_MEMBER_INITIALIZATION) \
    || defined(__BORLANDC__) || defined(__CODEGEAR__)
 
 template<> struct fp_traits_non_native<double, double_precision>
 {
     typedef ieee_copy_leading_bits_tag method;
 
-    BOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
-    BOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7ff00000);
-    BOOST_STATIC_CONSTANT(uint32_t, flag        = 0);
-    BOOST_STATIC_CONSTANT(uint32_t, significand = 0x000fffff);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7ff00000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, flag        = 0);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, significand = 0x000fffff);
 
     typedef uint32_t bits;
 
@@ -216,12 +216,12 @@ template<> struct fp_traits_non_native<double, double_precision>
 
 private:
 
-#if defined(BOOST_BIG_ENDIAN)
-    BOOST_STATIC_CONSTANT(int, offset_ = 0);
-#elif defined(BOOST_LITTLE_ENDIAN)
-    BOOST_STATIC_CONSTANT(int, offset_ = 4);
+#if defined(NDNBOOST_BIG_ENDIAN)
+    NDNBOOST_STATIC_CONSTANT(int, offset_ = 0);
+#elif defined(NDNBOOST_LITTLE_ENDIAN)
+    NDNBOOST_STATIC_CONSTANT(int, offset_ = 4);
 #else
-    BOOST_STATIC_ASSERT(false);
+    NDNBOOST_STATIC_ASSERT(false);
 #endif
 };
 
@@ -246,21 +246,21 @@ template<> struct fp_traits_non_native<double, double_precision>
 
 #endif
 
-#endif  // #ifndef BOOST_FPCLASSIFY_VAX_FORMAT
+#endif  // #ifndef NDNBOOST_FPCLASSIFY_VAX_FORMAT
 
 // long double (64 bits) -------------------------------------------------------
 
-#if defined(BOOST_NO_INT64_T) || defined(BOOST_NO_INCLASS_MEMBER_INITIALIZATION)\
+#if defined(NDNBOOST_NO_INT64_T) || defined(NDNBOOST_NO_INCLASS_MEMBER_INITIALIZATION)\
    || defined(__BORLANDC__) || defined(__CODEGEAR__)
 
 template<> struct fp_traits_non_native<long double, double_precision>
 {
     typedef ieee_copy_leading_bits_tag method;
 
-    BOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
-    BOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7ff00000);
-    BOOST_STATIC_CONSTANT(uint32_t, flag        = 0);
-    BOOST_STATIC_CONSTANT(uint32_t, significand = 0x000fffff);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7ff00000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, flag        = 0);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, significand = 0x000fffff);
 
     typedef uint32_t bits;
 
@@ -276,12 +276,12 @@ template<> struct fp_traits_non_native<long double, double_precision>
 
 private:
 
-#if defined(BOOST_BIG_ENDIAN)
-    BOOST_STATIC_CONSTANT(int, offset_ = 0);
-#elif defined(BOOST_LITTLE_ENDIAN)
-    BOOST_STATIC_CONSTANT(int, offset_ = 4);
+#if defined(NDNBOOST_BIG_ENDIAN)
+    NDNBOOST_STATIC_CONSTANT(int, offset_ = 0);
+#elif defined(NDNBOOST_LITTLE_ENDIAN)
+    NDNBOOST_STATIC_CONSTANT(int, offset_ = 4);
 #else
-    BOOST_STATIC_ASSERT(false);
+    NDNBOOST_STATIC_ASSERT(false);
 #endif
 };
 
@@ -320,10 +320,10 @@ struct fp_traits_non_native<long double, extended_double_precision>
 {
     typedef ieee_copy_leading_bits_tag method;
 
-    BOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
-    BOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7fff0000);
-    BOOST_STATIC_CONSTANT(uint32_t, flag        = 0x00008000);
-    BOOST_STATIC_CONSTANT(uint32_t, significand = 0x00007fff);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7fff0000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, flag        = 0x00008000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, significand = 0x00007fff);
 
     typedef uint32_t bits;
 
@@ -364,10 +364,10 @@ struct fp_traits_non_native<long double, extended_double_precision>
 {
     typedef ieee_copy_leading_bits_tag method;
 
-    BOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
-    BOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7ff00000);
-    BOOST_STATIC_CONSTANT(uint32_t, flag        = 0x00000000);
-    BOOST_STATIC_CONSTANT(uint32_t, significand = 0x000fffff);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7ff00000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, flag        = 0x00000000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, significand = 0x000fffff);
 
     typedef uint32_t bits;
 
@@ -383,12 +383,12 @@ struct fp_traits_non_native<long double, extended_double_precision>
 
 private:
 
-#if defined(BOOST_BIG_ENDIAN)
-    BOOST_STATIC_CONSTANT(int, offset_ = 0);
-#elif defined(BOOST_LITTLE_ENDIAN)
-    BOOST_STATIC_CONSTANT(int, offset_ = 12);
+#if defined(NDNBOOST_BIG_ENDIAN)
+    NDNBOOST_STATIC_CONSTANT(int, offset_ = 0);
+#elif defined(NDNBOOST_LITTLE_ENDIAN)
+    NDNBOOST_STATIC_CONSTANT(int, offset_ = 12);
 #else
-    BOOST_STATIC_ASSERT(false);
+    NDNBOOST_STATIC_ASSERT(false);
 #endif
 };
 
@@ -409,10 +409,10 @@ struct fp_traits_non_native<long double, extended_double_precision>
 {
     typedef ieee_copy_leading_bits_tag method;
 
-    BOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
-    BOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7fff0000);
-    BOOST_STATIC_CONSTANT(uint32_t, flag        = 0x00008000);
-    BOOST_STATIC_CONSTANT(uint32_t, significand = 0x00007fff);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7fff0000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, flag        = 0x00008000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, significand = 0x00007fff);
 
     // copy 1st, 2nd, 5th and 6th byte. 3rd and 4th byte are padding.
 
@@ -445,10 +445,10 @@ struct fp_traits_non_native<long double, extended_double_precision>
 {
     typedef ieee_copy_leading_bits_tag method;
 
-    BOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
-    BOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7fff0000);
-    BOOST_STATIC_CONSTANT(uint32_t, flag        = 0x00000000);
-    BOOST_STATIC_CONSTANT(uint32_t, significand = 0x0000ffff);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, sign        = 0x80000000u);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, exponent    = 0x7fff0000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, flag        = 0x00000000);
+    NDNBOOST_STATIC_CONSTANT(uint32_t, significand = 0x0000ffff);
 
     typedef uint32_t bits;
 
@@ -464,12 +464,12 @@ struct fp_traits_non_native<long double, extended_double_precision>
 
 private:
 
-#if defined(BOOST_BIG_ENDIAN)
-    BOOST_STATIC_CONSTANT(int, offset_ = 0);
-#elif defined(BOOST_LITTLE_ENDIAN)
-    BOOST_STATIC_CONSTANT(int, offset_ = 12);
+#if defined(NDNBOOST_BIG_ENDIAN)
+    NDNBOOST_STATIC_CONSTANT(int, offset_ = 0);
+#elif defined(NDNBOOST_LITTLE_ENDIAN)
+    NDNBOOST_STATIC_CONSTANT(int, offset_ = 12);
 #else
-    BOOST_STATIC_ASSERT(false);
+    NDNBOOST_STATIC_ASSERT(false);
 #endif
 };
 
@@ -518,7 +518,7 @@ template<> struct size_to_precision<16, true>
 template <class T>
 struct select_native
 {
-    typedef BOOST_DEDUCED_TYPENAME size_to_precision<sizeof(T), ::ndnboost::is_floating_point<T>::value>::type precision;
+    typedef NDNBOOST_DEDUCED_TYPENAME size_to_precision<sizeof(T), ::ndnboost::is_floating_point<T>::value>::type precision;
     typedef fp_traits_non_native<T, precision> type;
 };
 template<>
@@ -541,19 +541,19 @@ struct select_native<long double>
 
 // fp_traits is a type switch that selects the right fp_traits_non_native
 
-#if (defined(BOOST_MATH_USE_C99) && !(defined(__GNUC__) && (__GNUC__ < 4))) \
+#if (defined(NDNBOOST_MATH_USE_C99) && !(defined(__GNUC__) && (__GNUC__ < 4))) \
    && !defined(__hpux) \
    && !defined(__DECCXX)\
    && !defined(__osf__) \
    && !defined(__SGI_STL_PORT) && !defined(_STLPORT_VERSION)\
-   && !defined(BOOST_MATH_DISABLE_STD_FPCLASSIFY)
-#  define BOOST_MATH_USE_STD_FPCLASSIFY
+   && !defined(NDNBOOST_MATH_DISABLE_STD_FPCLASSIFY)
+#  define NDNBOOST_MATH_USE_STD_FPCLASSIFY
 #endif
 
 template<class T> struct fp_traits
 {
-    typedef BOOST_DEDUCED_TYPENAME size_to_precision<sizeof(T), ::ndnboost::is_floating_point<T>::value>::type precision;
-#if defined(BOOST_MATH_USE_STD_FPCLASSIFY) && !defined(BOOST_MATH_DISABLE_STD_FPCLASSIFY)
+    typedef NDNBOOST_DEDUCED_TYPENAME size_to_precision<sizeof(T), ::ndnboost::is_floating_point<T>::value>::type precision;
+#if defined(NDNBOOST_MATH_USE_STD_FPCLASSIFY) && !defined(NDNBOOST_MATH_DISABLE_STD_FPCLASSIFY)
     typedef typename select_native<T>::type type;
 #else
     typedef fp_traits_non_native<T, precision> type;

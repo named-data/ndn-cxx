@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_FIND_FORMAT_HPP
-#define BOOST_STRING_FIND_FORMAT_HPP
+#ifndef NDNBOOST_STRING_FIND_FORMAT_HPP
+#define NDNBOOST_STRING_FIND_FORMAT_HPP
 
 #include <deque>
 #include <ndnboost/detail/iterator.hpp>
@@ -62,18 +62,18 @@ namespace ndnboost {
             FormatterT Formatter )
         {
             // Concept check
-            BOOST_CONCEPT_ASSERT((
+            NDNBOOST_CONCEPT_ASSERT((
                 FinderConcept<
                     FinderT,
-                    BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type>
+                    NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type>
                 ));
-            BOOST_CONCEPT_ASSERT((
+            NDNBOOST_CONCEPT_ASSERT((
                 FormatterConcept<
                     FormatterT,
-                    FinderT,BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type>
+                    FinderT,NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type>
                 ));
 
-            iterator_range<BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> lit_input(::ndnboost::as_literal(Input));
+            iterator_range<NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> lit_input(::ndnboost::as_literal(Input));
 
             return detail::find_format_copy_impl(
                 Output,
@@ -96,15 +96,15 @@ namespace ndnboost {
             FormatterT Formatter )
         {
             // Concept check
-            BOOST_CONCEPT_ASSERT((
+            NDNBOOST_CONCEPT_ASSERT((
                 FinderConcept<
                     FinderT,
-                    BOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
+                    NDNBOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
                 ));
-            BOOST_CONCEPT_ASSERT((
+            NDNBOOST_CONCEPT_ASSERT((
                 FormatterConcept<
                     FormatterT,
-                    FinderT,BOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
+                    FinderT,NDNBOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
                 ));
 
             return detail::find_format_copy_impl(
@@ -132,15 +132,15 @@ namespace ndnboost {
             FormatterT Formatter)
         {
             // Concept check
-            BOOST_CONCEPT_ASSERT((
+            NDNBOOST_CONCEPT_ASSERT((
                 FinderConcept<
                     FinderT,
-                    BOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
+                    NDNBOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
                 ));
-            BOOST_CONCEPT_ASSERT(( 
+            NDNBOOST_CONCEPT_ASSERT(( 
                 FormatterConcept<
                     FormatterT,
-                    FinderT,BOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
+                    FinderT,NDNBOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
                 ));
 
             detail::find_format_impl(
@@ -181,18 +181,18 @@ namespace ndnboost {
             FormatterT Formatter)
         {
             // Concept check
-            BOOST_CONCEPT_ASSERT(( 
+            NDNBOOST_CONCEPT_ASSERT(( 
                 FinderConcept<
                     FinderT,
-                    BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type>
+                    NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type>
                 ));
-            BOOST_CONCEPT_ASSERT(( 
+            NDNBOOST_CONCEPT_ASSERT(( 
                 FormatterConcept<
                     FormatterT,
-                    FinderT,BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type>
+                    FinderT,NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type>
                 ));
 
-            iterator_range<BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> lit_input(::ndnboost::as_literal(Input));
+            iterator_range<NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> lit_input(::ndnboost::as_literal(Input));
 
             return detail::find_format_all_copy_impl(
                 Output,
@@ -216,15 +216,15 @@ namespace ndnboost {
             FormatterT Formatter )
         {
             // Concept check
-            BOOST_CONCEPT_ASSERT((
+            NDNBOOST_CONCEPT_ASSERT((
                 FinderConcept<
                     FinderT,
-                    BOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
+                    NDNBOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
                 ));
-            BOOST_CONCEPT_ASSERT((
+            NDNBOOST_CONCEPT_ASSERT((
                 FormatterConcept<
                     FormatterT,
-                    FinderT,BOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
+                    FinderT,NDNBOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
                 ));
 
             return detail::find_format_all_copy_impl(
@@ -254,15 +254,15 @@ namespace ndnboost {
             FormatterT Formatter )
         {
             // Concept check
-            BOOST_CONCEPT_ASSERT((
+            NDNBOOST_CONCEPT_ASSERT((
                 FinderConcept<
                     FinderT,
-                    BOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
+                    NDNBOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
                 ));
-            BOOST_CONCEPT_ASSERT((
+            NDNBOOST_CONCEPT_ASSERT((
                 FormatterConcept<
                     FormatterT,
-                    FinderT,BOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
+                    FinderT,NDNBOOST_STRING_TYPENAME range_const_iterator<SequenceT>::type>
                 ));
 
             detail::find_format_all_impl(
@@ -284,4 +284,4 @@ namespace ndnboost {
 } // namespace ndnboost
 
 
-#endif  // BOOST_STRING_FIND_FORMAT_HPP
+#endif  // NDNBOOST_STRING_FIND_FORMAT_HPP

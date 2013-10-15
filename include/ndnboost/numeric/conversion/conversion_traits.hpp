@@ -7,8 +7,8 @@
 //
 // Contact the author at: fernando_cacciola@hotmail.com
 // 
-#ifndef BOOST_NUMERIC_CONVERSION_CONVERSION_TRAITS_FLC_12NOV2002_HPP
-#define BOOST_NUMERIC_CONVERSION_CONVERSION_TRAITS_FLC_12NOV2002_HPP
+#ifndef NDNBOOST_NUMERIC_CONVERSION_CONVERSION_TRAITS_FLC_12NOV2002_HPP
+#define NDNBOOST_NUMERIC_CONVERSION_CONVERSION_TRAITS_FLC_12NOV2002_HPP
 
 #include "ndnboost/numeric/conversion/detail/conversion_traits.hpp"
 #include "ndnboost/detail/workaround.hpp"
@@ -21,7 +21,7 @@ template<class T, class S>
 struct conversion_traits 
     : convdetail::get_conversion_traits<T,S>::type 
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
     typedef typename convdetail::get_conversion_traits<T,S>::type base_;
     typedef typename base_::target_type     target_type;
     typedef typename base_::source_type     source_type;

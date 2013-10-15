@@ -22,11 +22,11 @@
  * which this code was originally taken.
  *
  * Modified by Caleb Epstein to use <endian.h> with GNU libc and to
- * defined the BOOST_ENDIAN macro.
+ * defined the NDNBOOST_ENDIAN macro.
  */
 
-#ifndef BOOST_DETAIL_ENDIAN_HPP
-#define BOOST_DETAIL_ENDIAN_HPP
+#ifndef NDNBOOST_DETAIL_ENDIAN_HPP
+#define NDNBOOST_DETAIL_ENDIAN_HPP
 
 //
 // Special cases come first:
@@ -36,15 +36,15 @@
 // __BYTE_ORDER
 # include <endian.h>
 # if (__BYTE_ORDER == __LITTLE_ENDIAN)
-#  define BOOST_LITTLE_ENDIAN
+#  define NDNBOOST_LITTLE_ENDIAN
 # elif (__BYTE_ORDER == __BIG_ENDIAN)
-#  define BOOST_BIG_ENDIAN
+#  define NDNBOOST_BIG_ENDIAN
 # elif (__BYTE_ORDER == __PDP_ENDIAN)
-#  define BOOST_PDP_ENDIAN
+#  define NDNBOOST_PDP_ENDIAN
 # else
 #  error Unknown machine endianness detected.
 # endif
-# define BOOST_BYTE_ORDER __BYTE_ORDER
+# define NDNBOOST_BYTE_ORDER __BYTE_ORDER
 
 #elif defined(__NetBSD__) || defined(__FreeBSD__) || \
     defined(__OpenBSD__) || (__DragonFly__)
@@ -56,15 +56,15 @@
 #  include <sys/endian.h>
 #  endif
 # if (_BYTE_ORDER == _LITTLE_ENDIAN)
-#  define BOOST_LITTLE_ENDIAN
+#  define NDNBOOST_LITTLE_ENDIAN
 # elif (_BYTE_ORDER == _BIG_ENDIAN)
-#  define BOOST_BIG_ENDIAN
+#  define NDNBOOST_BIG_ENDIAN
 # elif (_BYTE_ORDER == _PDP_ENDIAN)
-#  define BOOST_PDP_ENDIAN
+#  define NDNBOOST_PDP_ENDIAN
 # else
 #  error Unknown machine endianness detected.
 # endif
-# define BOOST_BYTE_ORDER _BYTE_ORDER
+# define NDNBOOST_BYTE_ORDER _BYTE_ORDER
 
 #elif defined( __ANDROID__ )
 // Adroid specific code, see: https://svn.boost.org/trac/boost/ticket/7528
@@ -72,39 +72,39 @@
 // http://stackoverflow.com/questions/6212951/endianness-of-android-ndk
 # include "machine/_types.h"
 # ifdef __ARMEB__
-#  define BOOST_BIG_ENDIAN
-#  define BOOST_BYTE_ORDER 4321
+#  define NDNBOOST_BIG_ENDIAN
+#  define NDNBOOST_BYTE_ORDER 4321
 # else
-#  define BOOST_LITTLE_ENDIAN
-#  define BOOST_BYTE_ORDER 1234
+#  define NDNBOOST_LITTLE_ENDIAN
+#  define NDNBOOST_BYTE_ORDER 1234
 # endif // __ARMEB__
 
 #elif defined( _XBOX )
 //
 // XBox is always big endian??
 //
-# define BOOST_BIG_ENDIAN
-# define BOOST_BYTE_ORDER 4321
+# define NDNBOOST_BIG_ENDIAN
+# define NDNBOOST_BYTE_ORDER 4321
 
 #elif defined(_BIG_ENDIAN) && !defined(_LITTLE_ENDIAN) || \
     defined(__BIG_ENDIAN__) && !defined(__LITTLE_ENDIAN__) || \
     defined(__BIGENDIAN__) && !defined(__LITTLEENDIAN__) || \
     defined(_STLP_BIG_ENDIAN) && !defined(_STLP_LITTLE_ENDIAN)
-# define BOOST_BIG_ENDIAN
-# define BOOST_BYTE_ORDER 4321
+# define NDNBOOST_BIG_ENDIAN
+# define NDNBOOST_BYTE_ORDER 4321
 #elif defined(_LITTLE_ENDIAN) && !defined(_BIG_ENDIAN) || \
     defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__) || \
     defined(__LITTLEENDIAN__) && !defined(__BIGENDIAN__) || \
     defined(_STLP_LITTLE_ENDIAN) && !defined(_STLP_BIG_ENDIAN)
-# define BOOST_LITTLE_ENDIAN
-# define BOOST_BYTE_ORDER 1234
+# define NDNBOOST_LITTLE_ENDIAN
+# define NDNBOOST_BYTE_ORDER 1234
 #elif defined(__sparc) || defined(__sparc__) \
    || defined(_POWER) || defined(__powerpc__) \
    || defined(__ppc__) || defined(__hpux) || defined(__hppa) \
    || defined(_MIPSEB) || defined(_POWER) \
    || defined(__s390__) || defined(__ARMEB__)
-# define BOOST_BIG_ENDIAN
-# define BOOST_BYTE_ORDER 4321
+# define NDNBOOST_BIG_ENDIAN
+# define NDNBOOST_BYTE_ORDER 4321
 #elif defined(__i386__) || defined(__alpha__) \
    || defined(__ia64) || defined(__ia64__) \
    || defined(_M_IX86) || defined(_M_IA64) \
@@ -115,8 +115,8 @@
    || defined(__ARMEL__) \
    || (defined(_WIN32) && defined(__ARM__) && defined(_MSC_VER)) // ARM Windows CE don't define anything reasonably unique, but there are no big-endian Windows versions 
 
-# define BOOST_LITTLE_ENDIAN
-# define BOOST_BYTE_ORDER 1234
+# define NDNBOOST_LITTLE_ENDIAN
+# define NDNBOOST_BYTE_ORDER 1234
 #else
 # error The file ndnboost/detail/endian.hpp needs to be set up for your CPU type.
 #endif

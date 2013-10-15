@@ -8,7 +8,7 @@
 
 #include <ndnboost/config.hpp>
 
-#ifdef BOOST_NO_CV_SPECIALIZATIONS
+#ifdef NDNBOOST_NO_CV_SPECIALIZATIONS
 #include <ndnboost/mpl/at.hpp>
 #include <ndnboost/mpl/int.hpp>
 #include <ndnboost/mpl/multiplies.hpp>
@@ -24,7 +24,7 @@ namespace ndnboost {
 
 namespace type_traits { namespace detail {
 
-#ifndef BOOST_NO_CV_SPECIALIZATIONS
+#ifndef NDNBOOST_NO_CV_SPECIALIZATIONS
 
 template<class T>
 struct floating_point_promotion
@@ -77,10 +77,10 @@ struct floating_point_promotion
 
 } }
 
-BOOST_TT_AUX_TYPE_TRAIT_DEF1(
+NDNBOOST_TT_AUX_TYPE_TRAIT_DEF1(
       floating_point_promotion
     , T
-    , BOOST_DEDUCED_TYPENAME
+    , NDNBOOST_DEDUCED_TYPENAME
         ndnboost::type_traits::detail::floating_point_promotion<T>::type
     )
 }

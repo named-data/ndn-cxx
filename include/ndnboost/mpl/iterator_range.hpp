@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_ITERATOR_RANGE_HPP_INCLUDED
-#define BOOST_MPL_ITERATOR_RANGE_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_ITERATOR_RANGE_HPP_INCLUDED
+#define NDNBOOST_MPL_ITERATOR_RANGE_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -22,8 +22,8 @@ namespace ndnboost { namespace mpl {
 struct iterator_range_tag;
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(First)
-    , typename BOOST_MPL_AUX_NA_PARAM(Last)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(First)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(Last)
     >
 struct iterator_range
 {
@@ -32,11 +32,11 @@ struct iterator_range
     typedef First begin;
     typedef Last end;
 
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(2,iterator_range,(First,Last))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2,iterator_range,(First,Last))
 };
 
-BOOST_MPL_AUX_NA_SPEC(2, iterator_range)
+NDNBOOST_MPL_AUX_NA_SPEC(2, iterator_range)
 
 }}
 
-#endif // BOOST_MPL_ITERATOR_RANGE_HPP_INCLUDED
+#endif // NDNBOOST_MPL_ITERATOR_RANGE_HPP_INCLUDED

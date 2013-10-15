@@ -7,8 +7,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_ADD_VOLATILE_HPP_INCLUDED
-#define BOOST_TT_ADD_VOLATILE_HPP_INCLUDED
+#ifndef NDNBOOST_TT_ADD_VOLATILE_HPP_INCLUDED
+#define NDNBOOST_TT_ADD_VOLATILE_HPP_INCLUDED
 
 #include <ndnboost/config.hpp>
 
@@ -22,7 +22,7 @@ namespace ndnboost {
 // the same as "T volatile", but it does suppress warnings
 // from some compilers:
 
-#if defined(BOOST_MSVC)
+#if defined(NDNBOOST_MSVC)
 // This bogus warning will appear when add_volatile is applied to a
 // const volatile reference because we can't detect const volatile
 // references with MSVC6.
@@ -30,18 +30,18 @@ namespace ndnboost {
 #   pragma warning(disable:4181) // warning C4181: qualifier applied to reference type ignored
 #endif 
 
-BOOST_TT_AUX_TYPE_TRAIT_DEF1(add_volatile,T,T volatile)
+NDNBOOST_TT_AUX_TYPE_TRAIT_DEF1(add_volatile,T,T volatile)
 
-#if defined(BOOST_MSVC)
+#if defined(NDNBOOST_MSVC)
 #   pragma warning(pop)
 #endif 
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-BOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_1(typename T,add_volatile,T&,T&)
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+NDNBOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_1(typename T,add_volatile,T&,T&)
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/type_trait_undef.hpp>
 
-#endif // BOOST_TT_ADD_VOLATILE_HPP_INCLUDED
+#endif // NDNBOOST_TT_ADD_VOLATILE_HPP_INCLUDED

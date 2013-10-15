@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_VECTOR_VECTOR0_HPP_INCLUDED
-#define BOOST_MPL_VECTOR_VECTOR0_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_VECTOR_VECTOR0_HPP_INCLUDED
+#define NDNBOOST_MPL_VECTOR_VECTOR0_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -31,4 +31,4 @@
 #include <ndnboost/mpl/vector/aux_/begin_end.hpp>
 #include <ndnboost/mpl/vector/aux_/tag.hpp>
 
-#endif // BOOST_MPL_VECTOR_VECTOR0_HPP_INCLUDED
+#endif // NDNBOOST_MPL_VECTOR_VECTOR0_HPP_INCLUDED

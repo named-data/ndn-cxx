@@ -1,5 +1,5 @@
-#ifndef BOOST_POINTER_TO_OTHER_HPP_INCLUDED
-#define BOOST_POINTER_TO_OTHER_HPP_INCLUDED
+#ifndef NDNBOOST_POINTER_TO_OTHER_HPP_INCLUDED
+#define NDNBOOST_POINTER_TO_OTHER_HPP_INCLUDED
 
 //
 //  pointer_to_other.hpp
@@ -52,4 +52,4 @@ struct pointer_to_other< T*, U >
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_POINTER_TO_OTHER_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_POINTER_TO_OTHER_HPP_INCLUDED

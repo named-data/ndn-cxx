@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_FIND_FORMAT_STORE_DETAIL_HPP
-#define BOOST_STRING_FIND_FORMAT_STORE_DETAIL_HPP
+#ifndef NDNBOOST_STRING_FIND_FORMAT_STORE_DETAIL_HPP
+#define NDNBOOST_STRING_FIND_FORMAT_STORE_DETAIL_HPP
 
 #include <ndnboost/algorithm/string/config.hpp>
 #include <ndnboost/range/iterator_range.hpp>
@@ -20,7 +20,7 @@ namespace ndnboost {
 
 //  temporary format and find result storage --------------------------------//
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, >= 1400)
 #pragma warning(push)
 #pragma warning(disable:4512) //assignment operator could not be generated
 #endif
@@ -73,17 +73,17 @@ namespace ndnboost {
             template<typename InputT, typename FindResultT>
             bool check_find_result(InputT&, FindResultT& FindResult)
             {
-                typedef BOOST_STRING_TYPENAME 
+                typedef NDNBOOST_STRING_TYPENAME 
                     range_const_iterator<InputT>::type input_iterator_type; 
                 iterator_range<input_iterator_type> ResultRange(FindResult);
                 return !ResultRange.empty();
             }
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, >= 1400)
 #pragma warning(pop)
 #endif
         } // namespace detail
     } // namespace algorithm
 } // namespace ndnboost
 
-#endif  // BOOST_STRING_FIND_FORMAT_STORE_DETAIL_HPP
+#endif  // NDNBOOST_STRING_FIND_FORMAT_STORE_DETAIL_HPP

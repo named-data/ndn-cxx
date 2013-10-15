@@ -12,8 +12,8 @@
 //  Description : XML report formatter implementation
 // ***************************************************************************
 
-#ifndef BOOST_TEST_XML_REPORT_FORMATTER_HPP_020105GER
-#define BOOST_TEST_XML_REPORT_FORMATTER_HPP_020105GER
+#ifndef NDNBOOST_TEST_XML_REPORT_FORMATTER_HPP_020105GER
+#define NDNBOOST_TEST_XML_REPORT_FORMATTER_HPP_020105GER
 
 // Boost.Test
 #include <ndnboost/test/detail/global_typedef.hpp>
@@ -55,4 +55,4 @@ public:
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_XML_REPORT_FORMATTER_HPP_020105GER
+#endif // NDNBOOST_TEST_XML_REPORT_FORMATTER_HPP_020105GER

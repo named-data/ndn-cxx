@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_FORMATTER_DETAIL_HPP
-#define BOOST_STRING_FORMATTER_DETAIL_HPP
+#ifndef NDNBOOST_STRING_FORMATTER_DETAIL_HPP
+#define NDNBOOST_STRING_FORMATTER_DETAIL_HPP
 
 
 #include <ndnboost/range/iterator_range.hpp>
@@ -32,7 +32,7 @@ namespace ndnboost {
             struct const_formatF
             {
             private:
-                typedef BOOST_STRING_TYPENAME
+                typedef NDNBOOST_STRING_TYPENAME
                     range_const_iterator<RangeT>::type format_iterator;
                 typedef iterator_range<format_iterator> result_type;
             
@@ -42,7 +42,7 @@ namespace ndnboost {
                     m_Format(::ndnboost::begin(Format), ::ndnboost::end(Format)) {}
 
                 // Operation
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564))
                 template<typename Range2T>
                 result_type& operator()(const Range2T&)
                 {
@@ -101,7 +101,7 @@ namespace ndnboost {
                   // Operation
                   template<typename RangeT>
                   inline iterator_range< 
-                      BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type>
+                      NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type>
                   operator()(const RangeT& Replace) const
                   {
                       return m_Finder(::ndnboost::begin(Replace), ::ndnboost::end(Replace));
@@ -116,4 +116,4 @@ namespace ndnboost {
     } // namespace algorithm
 } // namespace ndnboost
 
-#endif  // BOOST_STRING_FORMATTER_DETAIL_HPP
+#endif  // NDNBOOST_STRING_FORMATTER_DETAIL_HPP

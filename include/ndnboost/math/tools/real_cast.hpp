@@ -3,8 +3,8 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_MATH_TOOLS_REAL_CAST_HPP
-#define BOOST_MATH_TOOLS_REAL_CAST_HPP
+#ifndef NDNBOOST_MATH_TOOLS_REAL_CAST_HPP
+#define NDNBOOST_MATH_TOOLS_REAL_CAST_HPP
 
 #ifdef _MSC_VER
 #pragma once
@@ -23,7 +23,7 @@ namespace ndnboost{ namespace math
 } // namespace math
 } // namespace ndnboost
 
-#endif // BOOST_MATH_TOOLS_REAL_CAST_HPP
+#endif // NDNBOOST_MATH_TOOLS_REAL_CAST_HPP
 
 
 

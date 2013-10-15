@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_ARG_TYPEDEF_HPP_INCLUDED
-#define BOOST_MPL_AUX_ARG_TYPEDEF_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_ARG_TYPEDEF_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_ARG_TYPEDEF_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -17,15 +17,15 @@
 #include <ndnboost/mpl/aux_/config/lambda.hpp>
 #include <ndnboost/mpl/aux_/config/workaround.hpp>
 
-#if defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT) \
-    || BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
+#if defined(NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT) \
+    || NDNBOOST_WORKAROUND(__DMC__, NDNBOOST_TESTED_AT(0x840))
     
-#   define BOOST_MPL_AUX_ARG_TYPEDEF(T, name) typedef T name;
+#   define NDNBOOST_MPL_AUX_ARG_TYPEDEF(T, name) typedef T name;
 
 #else
 
-#   define BOOST_MPL_AUX_ARG_TYPEDEF(T, name) /**/
+#   define NDNBOOST_MPL_AUX_ARG_TYPEDEF(T, name) /**/
 
 #endif
 
-#endif // BOOST_MPL_AUX_ARG_TYPEDEF_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_ARG_TYPEDEF_HPP_INCLUDED

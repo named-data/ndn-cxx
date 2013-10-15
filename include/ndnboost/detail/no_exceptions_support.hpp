@@ -1,5 +1,5 @@
-#ifndef BOOST_DETAIL_NO_EXCEPTIONS_SUPPORT_HPP_
-#define BOOST_DETAIL_NO_EXCEPTIONS_SUPPORT_HPP_
+#ifndef NDNBOOST_DETAIL_NO_EXCEPTIONS_SUPPORT_HPP_
+#define NDNBOOST_DETAIL_NO_EXCEPTIONS_SUPPORT_HPP_
 
 #if (defined _MSC_VER) && (_MSC_VER >= 1200)
 #  pragma once
@@ -13,7 +13,7 @@
 //
 //
 // This file contains helper macros used when exception support may be
-// disabled (as indicated by macro BOOST_NO_EXCEPTIONS).
+// disabled (as indicated by macro NDNBOOST_NO_EXCEPTIONS).
 //
 // Before picking up these macros you may consider using RAII techniques
 // to deal with exceptions - their syntax can be always the same with 
@@ -23,15 +23,15 @@
 /* Example of use:
 
 void foo() {
-  BOOST_TRY {
+  NDNBOOST_TRY {
     ...
-  } BOOST_CATCH(const std::bad_alloc&) {
+  } NDNBOOST_CATCH(const std::bad_alloc&) {
       ...
-      BOOST_RETHROW
-  } BOOST_CATCH(const std::exception& e) {
+      NDNBOOST_RETHROW
+  } NDNBOOST_CATCH(const std::exception& e) {
       ...
   }
-  BOOST_CATCH_END
+  NDNBOOST_CATCH_END
 }
 
 With exception support enabled it will expand into:
@@ -66,21 +66,21 @@ void foo() {
 #include <ndnboost/config.hpp>
 #include <ndnboost/detail/workaround.hpp>
 
-#if !(defined BOOST_NO_EXCEPTIONS)
-#    define BOOST_TRY { try
-#    define BOOST_CATCH(x) catch(x)
-#    define BOOST_RETHROW throw;
-#    define BOOST_CATCH_END }
+#if !(defined NDNBOOST_NO_EXCEPTIONS)
+#    define NDNBOOST_TRY { try
+#    define NDNBOOST_CATCH(x) catch(x)
+#    define NDNBOOST_RETHROW throw;
+#    define NDNBOOST_CATCH_END }
 #else
-#    if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
-#        define BOOST_TRY { if ("")
-#        define BOOST_CATCH(x) else if (!"")
+#    if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564))
+#        define NDNBOOST_TRY { if ("")
+#        define NDNBOOST_CATCH(x) else if (!"")
 #    else
-#        define BOOST_TRY { if (true)
-#        define BOOST_CATCH(x) else if (false)
+#        define NDNBOOST_TRY { if (true)
+#        define NDNBOOST_CATCH(x) else if (false)
 #    endif
-#    define BOOST_RETHROW
-#    define BOOST_CATCH_END }
+#    define NDNBOOST_RETHROW
+#    define NDNBOOST_CATCH_END }
 #endif
 
 

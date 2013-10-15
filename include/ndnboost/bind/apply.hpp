@@ -1,5 +1,5 @@
-#ifndef BOOST_BIND_APPLY_HPP_INCLUDED
-#define BOOST_BIND_APPLY_HPP_INCLUDED
+#ifndef NDNBOOST_BIND_APPLY_HPP_INCLUDED
+#define NDNBOOST_BIND_APPLY_HPP_INCLUDED
 
 //
 //  apply.hpp
@@ -71,4 +71,4 @@ template<class R> struct apply
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_BIND_APPLY_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_BIND_APPLY_HPP_INCLUDED

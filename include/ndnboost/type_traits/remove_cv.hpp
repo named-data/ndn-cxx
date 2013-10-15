@@ -8,8 +8,8 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_REMOVE_CV_HPP_INCLUDED
-#define BOOST_TT_REMOVE_CV_HPP_INCLUDED
+#ifndef NDNBOOST_TT_REMOVE_CV_HPP_INCLUDED
+#define NDNBOOST_TT_REMOVE_CV_HPP_INCLUDED
 
 #include <ndnboost/type_traits/broken_compiler_spec.hpp>
 #include <ndnboost/type_traits/detail/cv_traits_impl.hpp>
@@ -18,7 +18,7 @@
 
 #include <cstddef>
 
-#if BOOST_WORKAROUND(BOOST_MSVC,<=1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC,<=1300)
 #include <ndnboost/type_traits/msvc/remove_cv.hpp>
 #endif
 
@@ -27,7 +27,7 @@
 
 namespace ndnboost {
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 namespace detail{
 
@@ -37,7 +37,7 @@ struct rvalue_ref_filter_rem_cv
    typedef typename ndnboost::detail::cv_traits_imp<T*>::unqualified_type type;
 };
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 //
 // We can't filter out rvalue_references at the same level as
 // references or we get ambiguities from msvc:
@@ -53,15 +53,15 @@ struct rvalue_ref_filter_rem_cv<T&&>
 
 
 //  convert a type T to a non-cv-qualified type - remove_cv<T>
-BOOST_TT_AUX_TYPE_TRAIT_DEF1(remove_cv,T,typename ndnboost::detail::rvalue_ref_filter_rem_cv<T>::type)
-BOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_1(typename T,remove_cv,T&,T&)
-#if !defined(BOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
-BOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_2(typename T,std::size_t N,remove_cv,T const[N],T type[N])
-BOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_2(typename T,std::size_t N,remove_cv,T volatile[N],T type[N])
-BOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_2(typename T,std::size_t N,remove_cv,T const volatile[N],T type[N])
+NDNBOOST_TT_AUX_TYPE_TRAIT_DEF1(remove_cv,T,typename ndnboost::detail::rvalue_ref_filter_rem_cv<T>::type)
+NDNBOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_1(typename T,remove_cv,T&,T&)
+#if !defined(NDNBOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
+NDNBOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_2(typename T,std::size_t N,remove_cv,T const[N],T type[N])
+NDNBOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_2(typename T,std::size_t N,remove_cv,T volatile[N],T type[N])
+NDNBOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_2(typename T,std::size_t N,remove_cv,T const volatile[N],T type[N])
 #endif
 
-#elif !BOOST_WORKAROUND(BOOST_MSVC,<=1300)
+#elif !NDNBOOST_WORKAROUND(NDNBOOST_MSVC,<=1300)
 
 namespace detail {
 template <typename T>
@@ -73,12 +73,12 @@ struct remove_cv_impl
 };
 }
 
-BOOST_TT_AUX_TYPE_TRAIT_DEF1(remove_cv,T,typename ndnboost::detail::remove_cv_impl<T>::type)
+NDNBOOST_TT_AUX_TYPE_TRAIT_DEF1(remove_cv,T,typename ndnboost::detail::remove_cv_impl<T>::type)
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/type_trait_undef.hpp>
 
-#endif // BOOST_TT_REMOVE_CV_HPP_INCLUDED
+#endif // NDNBOOST_TT_REMOVE_CV_HPP_INCLUDED

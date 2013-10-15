@@ -14,13 +14,13 @@ namespace ndnboost {
 // iterator_category which has the same name as its
 // std::iterator_category() function, probably due in part to the
 // "std:: is visible globally" hack it uses.  Use
-// BOOST_ITERATOR_CATEGORY to write code that's portable to older
+// NDNBOOST_ITERATOR_CATEGORY to write code that's portable to older
 // GCCs.
 
-# if BOOST_WORKAROUND(__GNUC__, <= 2)
-#  define BOOST_ITERATOR_CATEGORY iterator_category_
+# if NDNBOOST_WORKAROUND(__GNUC__, <= 2)
+#  define NDNBOOST_ITERATOR_CATEGORY iterator_category_
 # else
-#  define BOOST_ITERATOR_CATEGORY iterator_category
+#  define NDNBOOST_ITERATOR_CATEGORY iterator_category
 # endif
 
 
@@ -50,12 +50,12 @@ struct iterator_difference
 };
 
 template <class Iterator>
-struct BOOST_ITERATOR_CATEGORY
+struct NDNBOOST_ITERATOR_CATEGORY
 {
     typedef typename ndnboost::detail::iterator_traits<Iterator>::iterator_category type;
 };
 
-# if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
 template <>
 struct iterator_value<int>
 {
@@ -81,7 +81,7 @@ struct iterator_difference<int>
 };
   
 template <>
-struct BOOST_ITERATOR_CATEGORY<int>
+struct NDNBOOST_ITERATOR_CATEGORY<int>
 {
     typedef void type;
 };

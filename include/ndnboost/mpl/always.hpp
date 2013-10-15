@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_ALWAYS_HPP_INCLUDED
-#define BOOST_MPL_ALWAYS_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_ALWAYS_HPP_INCLUDED
+#define NDNBOOST_MPL_ALWAYS_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -24,7 +24,7 @@ template< typename Value > struct always
 {
     template<
           typename T
-        BOOST_MPL_PP_NESTED_DEF_PARAMS_TAIL(1, typename T, na)
+        NDNBOOST_MPL_PP_NESTED_DEF_PARAMS_TAIL(1, typename T, na)
         >
     struct apply
     {
@@ -32,8 +32,8 @@ template< typename Value > struct always
     };
 };
 
-BOOST_MPL_AUX_ARITY_SPEC(1, always)
+NDNBOOST_MPL_AUX_ARITY_SPEC(1, always)
 
 }}
 
-#endif // BOOST_MPL_ALWAYS_HPP_INCLUDED
+#endif // NDNBOOST_MPL_ALWAYS_HPP_INCLUDED

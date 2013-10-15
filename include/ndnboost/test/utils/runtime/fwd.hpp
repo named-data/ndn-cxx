@@ -12,8 +12,8 @@
 //  Description : global framework level forward declaration
 // ***************************************************************************
 
-#ifndef BOOST_RT_FWD_HPP_062604GER
-#define BOOST_RT_FWD_HPP_062604GER
+#ifndef NDNBOOST_RT_FWD_HPP_062604GER
+#define NDNBOOST_RT_FWD_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -23,7 +23,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 class parameter;
 
@@ -34,8 +34,8 @@ typedef shared_ptr<argument const> const_argument_ptr;
 template<typename T> class value_interpreter;
 template<typename T> class typed_argument;
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_FWD_HPP_062604GER
+#endif // NDNBOOST_RT_FWD_HPP_062604GER

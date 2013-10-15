@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_SP_CONVERTIBLE_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_SP_CONVERTIBLE_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_SP_CONVERTIBLE_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_SP_CONVERTIBLE_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -17,19 +17,19 @@
 
 #include <ndnboost/config.hpp>
 
-#if !defined( BOOST_SP_NO_SP_CONVERTIBLE ) && defined( BOOST_NO_SFINAE )
-# define BOOST_SP_NO_SP_CONVERTIBLE
+#if !defined( NDNBOOST_SP_NO_SP_CONVERTIBLE ) && defined( NDNBOOST_NO_SFINAE )
+# define NDNBOOST_SP_NO_SP_CONVERTIBLE
 #endif
 
-#if !defined( BOOST_SP_NO_SP_CONVERTIBLE ) && defined( __GNUC__ ) && ( __GNUC__ * 100 + __GNUC_MINOR__ < 303 )
-# define BOOST_SP_NO_SP_CONVERTIBLE
+#if !defined( NDNBOOST_SP_NO_SP_CONVERTIBLE ) && defined( __GNUC__ ) && ( __GNUC__ * 100 + __GNUC_MINOR__ < 303 )
+# define NDNBOOST_SP_NO_SP_CONVERTIBLE
 #endif
 
-#if !defined( BOOST_SP_NO_SP_CONVERTIBLE ) && defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x630 )
-# define BOOST_SP_NO_SP_CONVERTIBLE
+#if !defined( NDNBOOST_SP_NO_SP_CONVERTIBLE ) && defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x630 )
+# define NDNBOOST_SP_NO_SP_CONVERTIBLE
 #endif
 
-#if !defined( BOOST_SP_NO_SP_CONVERTIBLE )
+#if !defined( NDNBOOST_SP_NO_SP_CONVERTIBLE )
 
 namespace ndnboost
 {
@@ -86,6 +86,6 @@ template< class Y, class T > struct sp_enable_if_convertible: public sp_enable_i
 
 } // namespace ndnboost
 
-#endif // !defined( BOOST_SP_NO_SP_CONVERTIBLE )
+#endif // !defined( NDNBOOST_SP_NO_SP_CONVERTIBLE )
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_CONVERTIBLE_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_DETAIL_SP_CONVERTIBLE_HPP_INCLUDED

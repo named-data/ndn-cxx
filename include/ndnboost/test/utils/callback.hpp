@@ -12,8 +12,8 @@
 //  Description : 
 // ***************************************************************************
 
-#ifndef BOOST_TEST_CALLBACK_020505GER
-#define BOOST_TEST_CALLBACK_020505GER
+#ifndef NDNBOOST_TEST_CALLBACK_020505GER
+#define NDNBOOST_TEST_CALLBACK_020505GER
 
 // Boost
 #include <ndnboost/config.hpp>
@@ -22,8 +22,8 @@
 
 #include <ndnboost/test/detail/suppress_warnings.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300) || BOOST_WORKAROUND(BOOST_INTEL, <= 700)
-#  define BOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300) || NDNBOOST_WORKAROUND(NDNBOOST_INTEL, <= 700)
+#  define NDNBOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
 #endif
 
 //____________________________________________________________________________//
@@ -102,7 +102,7 @@ class callback0 {
 public:
     // Constructors
     callback0() {}
-#ifdef BOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
+#ifdef NDNBOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
     callback0( callback0 const& rhs ) : m_impl( rhs.m_impl ) {}
 #endif
 
@@ -160,7 +160,7 @@ class callback1 {
 public:
     // Constructors
     callback1() {}
-#ifdef BOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
+#ifdef NDNBOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
     callback1( callback1 const& rhs ) : m_impl( rhs.m_impl ) {}
 #endif
 
@@ -218,7 +218,7 @@ class callback2 {
 public:
     // Constructors
     callback2() {}
-#ifdef BOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
+#ifdef NDNBOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
     callback2( callback2 const& rhs ) : m_impl( rhs.m_impl ) {}
 #endif
 
@@ -275,7 +275,7 @@ class callback3 {
 public:
     // Constructors
     callback3() {}
-#ifdef BOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
+#ifdef NDNBOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
     callback3( callback3 const& rhs ) : m_impl( rhs.m_impl ) {}
 #endif
 
@@ -301,10 +301,10 @@ private:
 
 } // namespace ndnboost
 
-#undef BOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
+#undef NDNBOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR
 
 //____________________________________________________________________________//
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_CALLBACK_020505GER
+#endif // NDNBOOST_TEST_CALLBACK_020505GER

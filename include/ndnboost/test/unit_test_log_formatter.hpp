@@ -12,8 +12,8 @@
 //  Description : 
 // ***************************************************************************
 
-#ifndef BOOST_TEST_UNIT_TEST_LOG_FORMATTER_HPP_071894GER
-#define BOOST_TEST_UNIT_TEST_LOG_FORMATTER_HPP_071894GER
+#ifndef NDNBOOST_TEST_UNIT_TEST_LOG_FORMATTER_HPP_071894GER
+#define NDNBOOST_TEST_UNIT_TEST_LOG_FORMATTER_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/detail/global_typedef.hpp>
@@ -38,7 +38,7 @@ namespace unit_test {
 // **************                log_entry_data                ************** //
 // ************************************************************************** //
 
-struct BOOST_TEST_DECL log_entry_data {
+struct NDNBOOST_TEST_DECL log_entry_data {
     log_entry_data()
     {
         m_file_name.reserve( 200 );
@@ -60,7 +60,7 @@ struct BOOST_TEST_DECL log_entry_data {
 // **************                checkpoint_data               ************** //
 // ************************************************************************** //
 
-struct BOOST_TEST_DECL log_checkpoint_data
+struct NDNBOOST_TEST_DECL log_checkpoint_data
 {
     const_string    m_file_name;
     std::size_t     m_line_num;
@@ -78,13 +78,13 @@ struct BOOST_TEST_DECL log_checkpoint_data
 // **************            unit_test_log_formatter           ************** //
 // ************************************************************************** //
 
-class BOOST_TEST_DECL unit_test_log_formatter {
+class NDNBOOST_TEST_DECL unit_test_log_formatter {
 public:
-    enum log_entry_types { BOOST_UTL_ET_INFO, 
-                           BOOST_UTL_ET_MESSAGE,
-                           BOOST_UTL_ET_WARNING,
-                           BOOST_UTL_ET_ERROR,
-                           BOOST_UTL_ET_FATAL_ERROR };
+    enum log_entry_types { NDNBOOST_UTL_ET_INFO, 
+                           NDNBOOST_UTL_ET_MESSAGE,
+                           NDNBOOST_UTL_ET_WARNING,
+                           NDNBOOST_UTL_ET_ERROR,
+                           NDNBOOST_UTL_ET_FATAL_ERROR };
 
     // Destructor
     virtual             ~unit_test_log_formatter() {}
@@ -119,5 +119,5 @@ public:
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_UNIT_TEST_LOG_FORMATTER_HPP_071894GER
+#endif // NDNBOOST_TEST_UNIT_TEST_LOG_FORMATTER_HPP_071894GER
 

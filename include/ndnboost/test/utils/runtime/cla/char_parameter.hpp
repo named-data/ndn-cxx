@@ -12,8 +12,8 @@
 //  Description : defines model of parameter with single char name
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_CHAR_PARAMETER_HPP_062604GER
-#define BOOST_RT_CLA_CHAR_PARAMETER_HPP_062604GER
+#ifndef NDNBOOST_RT_CLA_CHAR_PARAMETER_HPP_062604GER
+#define NDNBOOST_RT_CLA_CHAR_PARAMETER_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -24,7 +24,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -36,7 +36,7 @@ class char_name_policy : public basic_naming_policy {
 public:
     // Constructor
     char_name_policy();
-    BOOST_RT_PARAM_UNNEEDED_VIRTUAL ~char_name_policy() {}
+    NDNBOOST_RT_PARAM_UNNEEDED_VIRTUAL ~char_name_policy() {}
 
     // policy interface
     virtual bool    conflict_with( identification_policy const& ) const;
@@ -47,7 +47,7 @@ public:
     {
         basic_naming_policy::accept_modifier( m );
 
-        BOOST_RT_PARAM_VALIDATE_LOGIC( p_name->size() <= 1, "Invalid parameter name "  << p_name );
+        NDNBOOST_RT_PARAM_VALIDATE_LOGIC( p_name->size() <= 1, "Invalid parameter name "  << p_name );
     }
 };
 
@@ -84,15 +84,15 @@ char_parameter( char_type name )
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#ifndef BOOST_RT_PARAM_OFFLINE
+#ifndef NDNBOOST_RT_PARAM_OFFLINE
 
-#  define BOOST_RT_PARAM_INLINE inline
+#  define NDNBOOST_RT_PARAM_INLINE inline
 #  include <ndnboost/test/utils/runtime/cla/char_parameter.ipp>
 
 #endif
 
-#endif // BOOST_RT_CLA_CHAR_PARAMETER_HPP_062604GER
+#endif // NDNBOOST_RT_CLA_CHAR_PARAMETER_HPP_062604GER

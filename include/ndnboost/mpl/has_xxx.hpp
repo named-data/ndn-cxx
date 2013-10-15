@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_HAS_XXX_HPP_INCLUDED
-#define BOOST_MPL_HAS_XXX_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_HAS_XXX_HPP_INCLUDED
+#define NDNBOOST_MPL_HAS_XXX_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2002-2006
 // Copyright David Abrahams 2002-2003
@@ -33,13 +33,13 @@
 #include <ndnboost/preprocessor/repetition/enum_params.hpp>
 #include <ndnboost/preprocessor/repetition/enum_trailing_params.hpp>
 
-#if BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x590) )
+#if NDNBOOST_WORKAROUND( __BORLANDC__, NDNBOOST_TESTED_AT(0x590) )
 # include <ndnboost/type_traits/is_class.hpp>
 #endif
 
-#if !defined(BOOST_MPL_CFG_NO_HAS_XXX)
+#if !defined(NDNBOOST_MPL_CFG_NO_HAS_XXX)
 
-#   if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+#   if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
 
 // agurt, 11/sep/02: MSVC-specific version (< 7.1), based on a USENET 
 // newsgroup's posting by John Madsen (comp.lang.c++.moderated, 
@@ -55,7 +55,7 @@ namespace ndnboost { namespace mpl { namespace aux {
 
 struct has_xxx_tag;
 
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1300)
 template< typename U > struct msvc_incomplete_array
 {
     typedef char (&type)[sizeof(U) + 1];
@@ -69,7 +69,7 @@ struct msvc_is_incomplete
     // type, it won't pick the second overload
     static char tester(...);
 
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1300)
     template< typename U >
     static typename msvc_incomplete_array<U>::type tester(type_wrapper<U>);
 #else
@@ -77,7 +77,7 @@ struct msvc_is_incomplete
     static char (& tester(type_wrapper<U>) )[sizeof(U)+1];
 #endif 
     
-    BOOST_STATIC_CONSTANT(bool, value = 
+    NDNBOOST_STATIC_CONSTANT(bool, value = 
           sizeof(tester(type_wrapper<T>())) == 1
         );
 };
@@ -85,21 +85,21 @@ struct msvc_is_incomplete
 template<>
 struct msvc_is_incomplete<int>
 {
-    BOOST_STATIC_CONSTANT(bool, value = false);
+    NDNBOOST_STATIC_CONSTANT(bool, value = false);
 };
 
 }}}
 
-#   define BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF_(trait, name, default_) \
+#   define NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF_(trait, name, default_) \
 template< typename T, typename name = ::ndnboost::mpl::aux::has_xxx_tag > \
-struct BOOST_PP_CAT(trait,_impl) : T \
+struct NDNBOOST_PP_CAT(trait,_impl) : T \
 { \
     static ndnboost::mpl::aux::no_tag \
     test(void(*)(::ndnboost::mpl::aux::has_xxx_tag)); \
     \
     static ndnboost::mpl::aux::yes_tag test(...); \
     \
-    BOOST_STATIC_CONSTANT(bool, value = \
+    NDNBOOST_STATIC_CONSTANT(bool, value = \
           sizeof(test(static_cast<void(*)(name)>(0))) \
             != sizeof(ndnboost::mpl::aux::no_tag) \
         ); \
@@ -111,43 +111,43 @@ struct trait \
     : ndnboost::mpl::if_c< \
           ndnboost::mpl::aux::msvc_is_incomplete<T>::value \
         , ndnboost::mpl::bool_<false> \
-        , BOOST_PP_CAT(trait,_impl)<T> \
+        , NDNBOOST_PP_CAT(trait,_impl)<T> \
         >::type \
 { \
 }; \
 \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, void) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, bool) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, char) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, signed char) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, unsigned char) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, signed short) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, unsigned short) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, signed int) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, unsigned int) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, signed long) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, unsigned long) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, float) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, double) \
-BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, long double) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, void) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, bool) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, char) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, signed char) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, unsigned char) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, signed short) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, unsigned short) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, signed int) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, unsigned int) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, signed long) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, unsigned long) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, float) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, double) \
+NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, long double) \
 /**/
 
-#   define BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, T) \
+#   define NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, T) \
 template<> struct trait<T> \
 { \
-    BOOST_STATIC_CONSTANT(bool, value = false); \
+    NDNBOOST_STATIC_CONSTANT(bool, value = false); \
     typedef ndnboost::mpl::bool_<false> type; \
 }; \
 /**/
 
-#if !defined(BOOST_NO_INTRINSIC_WCHAR_T)
-#   define BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, unused) \
-    BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF_(trait, name, unused) \
-    BOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, wchar_t) \
+#if !defined(NDNBOOST_NO_INTRINSIC_WCHAR_T)
+#   define NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, unused) \
+    NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF_(trait, name, unused) \
+    NDNBOOST_MPL_AUX_HAS_XXX_TRAIT_SPEC(trait, wchar_t) \
 /**/
 #else
-#   define BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, unused) \
-    BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF_(trait, name, unused) \
+#   define NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, unused) \
+    NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF_(trait, name, unused) \
 /**/
 #endif
 
@@ -155,8 +155,8 @@ template<> struct trait<T> \
 // SFINAE-based implementations below are derived from a USENET newsgroup's 
 // posting by Rani Sharoni (comp.lang.c++.moderated, 2002-03-17 07:45:09 PST)
 
-#   elif BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1400)) \
-      || BOOST_WORKAROUND(__IBMCPP__, <= 700)
+#   elif NDNBOOST_WORKAROUND(NDNBOOST_MSVC, NDNBOOST_TESTED_AT(1400)) \
+      || NDNBOOST_WORKAROUND(__IBMCPP__, <= 700)
 
 // MSVC 7.1+ & VACPP
 
@@ -164,44 +164,44 @@ template<> struct trait<T> \
 // applied to partial specialization to fix some apparently random failures 
 // (thanks to Daniel Wallin for researching this!)
 
-#   define BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, default_) \
+#   define NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, default_) \
 template< typename T > \
-struct BOOST_PP_CAT(trait, _msvc_sfinae_helper) \
+struct NDNBOOST_PP_CAT(trait, _msvc_sfinae_helper) \
 { \
     typedef void type; \
 };\
 \
 template< typename T, typename U = void > \
-struct BOOST_PP_CAT(trait,_impl_) \
+struct NDNBOOST_PP_CAT(trait,_impl_) \
 { \
-    BOOST_STATIC_CONSTANT(bool, value = false); \
+    NDNBOOST_STATIC_CONSTANT(bool, value = false); \
     typedef ndnboost::mpl::bool_<value> type; \
 }; \
 \
 template< typename T > \
-struct BOOST_PP_CAT(trait,_impl_)< \
+struct NDNBOOST_PP_CAT(trait,_impl_)< \
       T \
-    , typename BOOST_PP_CAT(trait, _msvc_sfinae_helper)< typename T::name >::type \
+    , typename NDNBOOST_PP_CAT(trait, _msvc_sfinae_helper)< typename T::name >::type \
     > \
 { \
-    BOOST_STATIC_CONSTANT(bool, value = true); \
+    NDNBOOST_STATIC_CONSTANT(bool, value = true); \
     typedef ndnboost::mpl::bool_<value> type; \
 }; \
 \
 template< typename T, typename fallback_ = ndnboost::mpl::bool_<default_> > \
 struct trait \
-    : BOOST_PP_CAT(trait,_impl_)<T> \
+    : NDNBOOST_PP_CAT(trait,_impl_)<T> \
 { \
 }; \
 /**/
 
-#   elif BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x590) )
+#   elif NDNBOOST_WORKAROUND( __BORLANDC__, NDNBOOST_TESTED_AT(0x590) )
 
-#   define BOOST_MPL_HAS_XXX_TRAIT_NAMED_BCB_DEF(trait, trait_tester, name, default_) \
+#   define NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_BCB_DEF(trait, trait_tester, name, default_) \
 template< typename T, bool IS_CLASS > \
 struct trait_tester \
 { \
-    BOOST_STATIC_CONSTANT( bool,  value = false ); \
+    NDNBOOST_STATIC_CONSTANT( bool,  value = false ); \
 }; \
 template< typename T > \
 struct trait_tester< T, true > \
@@ -214,25 +214,25 @@ struct trait_tester< T, true > \
         static char resolve( ... ); \
     }; \
     typedef ndnboost::mpl::aux::type_wrapper<T> t_; \
-    BOOST_STATIC_CONSTANT( bool, value = ( sizeof( trait_tester_impl::resolve( static_cast< t_ * >(0) ) ) == sizeof(int) ) ); \
+    NDNBOOST_STATIC_CONSTANT( bool, value = ( sizeof( trait_tester_impl::resolve( static_cast< t_ * >(0) ) ) == sizeof(int) ) ); \
 }; \
 template< typename T, typename fallback_ = ndnboost::mpl::bool_<default_> > \
 struct trait           \
 {                      \
-    BOOST_STATIC_CONSTANT( bool, value = (trait_tester< T, ndnboost::is_class< T >::value >::value) );     \
+    NDNBOOST_STATIC_CONSTANT( bool, value = (trait_tester< T, ndnboost::is_class< T >::value >::value) );     \
     typedef ndnboost::mpl::bool_< trait< T, fallback_ >::value > type; \
 };
 
-#   define BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, default_) \
-    BOOST_MPL_HAS_XXX_TRAIT_NAMED_BCB_DEF( trait \
-                                         , BOOST_PP_CAT(trait,_tester)      \
+#   define NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, default_) \
+    NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_BCB_DEF( trait \
+                                         , NDNBOOST_PP_CAT(trait,_tester)      \
                                          , name       \
                                          , default_ ) \
 /**/
 
 #   else // other SFINAE-capable compilers
 
-#   define BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, default_) \
+#   define NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, default_) \
 template< typename T, typename fallback_ = ndnboost::mpl::bool_<default_> > \
 struct trait \
 { \
@@ -241,14 +241,14 @@ struct trait \
         template< typename U > \
         static ndnboost::mpl::aux::yes_tag test( \
               ndnboost::mpl::aux::type_wrapper<U> const volatile* \
-            , ndnboost::mpl::aux::type_wrapper<BOOST_MSVC_TYPENAME U::name>* = 0 \
+            , ndnboost::mpl::aux::type_wrapper<NDNBOOST_MSVC_TYPENAME U::name>* = 0 \
             ); \
     \
         static ndnboost::mpl::aux::no_tag test(...); \
     }; \
     \
     typedef ndnboost::mpl::aux::type_wrapper<T> t_; \
-    BOOST_STATIC_CONSTANT(bool, value = \
+    NDNBOOST_STATIC_CONSTANT(bool, value = \
           sizeof(gcc_3_2_wknd::test(static_cast<t_*>(0))) \
             == sizeof(ndnboost::mpl::aux::yes_tag) \
         ); \
@@ -256,30 +256,30 @@ struct trait \
 }; \
 /**/
 
-#   endif // BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+#   endif // NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
 
 
-#else // BOOST_MPL_CFG_NO_HAS_XXX
+#else // NDNBOOST_MPL_CFG_NO_HAS_XXX
 
 // placeholder implementation
 
-#   define BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, default_) \
+#   define NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(trait, name, default_) \
 template< typename T, typename fallback_ = ndnboost::mpl::bool_<default_> > \
 struct trait \
 { \
-    BOOST_STATIC_CONSTANT(bool, value = fallback_::value); \
+    NDNBOOST_STATIC_CONSTANT(bool, value = fallback_::value); \
     typedef fallback_ type; \
 }; \
 /**/
 
 #endif
 
-#define BOOST_MPL_HAS_XXX_TRAIT_DEF(name) \
-    BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(BOOST_PP_CAT(has_,name), name, false) \
+#define NDNBOOST_MPL_HAS_XXX_TRAIT_DEF(name) \
+    NDNBOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(NDNBOOST_PP_CAT(has_,name), name, false) \
 /**/
 
 
-#if !defined(BOOST_MPL_CFG_NO_HAS_XXX_TEMPLATE)
+#if !defined(NDNBOOST_MPL_CFG_NO_HAS_XXX_TEMPLATE)
 
 // Create a boolean Metafunction to detect a nested template
 // member. This implementation is based on a USENET newsgroup's
@@ -287,21 +287,21 @@ struct trait \
 // Rani Sharoni's USENET posting cited above, the non-template has_xxx
 // implementations above, and discussion on the Boost mailing list.
 
-#   if !defined(BOOST_MPL_HAS_XXX_NO_WRAPPED_TYPES)
-#     if BOOST_WORKAROUND(BOOST_MSVC, <= 1400)
-#       define BOOST_MPL_HAS_XXX_NO_WRAPPED_TYPES 1
+#   if !defined(NDNBOOST_MPL_HAS_XXX_NO_WRAPPED_TYPES)
+#     if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1400)
+#       define NDNBOOST_MPL_HAS_XXX_NO_WRAPPED_TYPES 1
 #     endif
 #   endif
 
-#   if !defined(BOOST_MPL_HAS_XXX_NO_EXPLICIT_TEST_FUNCTION)
-#     if (defined(BOOST_NO_EXPLICIT_FUNCTION_TEMPLATE_ARGUMENTS))
-#       define BOOST_MPL_HAS_XXX_NO_EXPLICIT_TEST_FUNCTION 1
+#   if !defined(NDNBOOST_MPL_HAS_XXX_NO_EXPLICIT_TEST_FUNCTION)
+#     if (defined(NDNBOOST_NO_EXPLICIT_FUNCTION_TEMPLATE_ARGUMENTS))
+#       define NDNBOOST_MPL_HAS_XXX_NO_EXPLICIT_TEST_FUNCTION 1
 #     endif
 #   endif
 
-#   if !defined(BOOST_MPL_HAS_XXX_NEEDS_TEMPLATE_SFINAE)
-#     if BOOST_WORKAROUND(BOOST_MSVC, <= 1400)
-#       define BOOST_MPL_HAS_XXX_NEEDS_TEMPLATE_SFINAE 1
+#   if !defined(NDNBOOST_MPL_HAS_XXX_NEEDS_TEMPLATE_SFINAE)
+#     if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1400)
+#       define NDNBOOST_MPL_HAS_XXX_NEEDS_TEMPLATE_SFINAE 1
 #     endif
 #   endif
 
@@ -309,98 +309,98 @@ struct trait \
 // array argument called args which is of the following form.
 //           ( 4, ( trait, name, max_arity, default_ ) )
 
-#   define BOOST_MPL_HAS_MEMBER_INTROSPECTION_NAME(args) \
-      BOOST_PP_CAT(BOOST_PP_ARRAY_ELEM(0, args) , _introspect) \
+#   define NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_NAME(args) \
+      NDNBOOST_PP_CAT(NDNBOOST_PP_ARRAY_ELEM(0, args) , _introspect) \
     /**/
 
-#   define BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME(args, n) \
-      BOOST_PP_CAT(BOOST_PP_CAT(BOOST_PP_ARRAY_ELEM(0, args) , _substitute), n) \
+#   define NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME(args, n) \
+      NDNBOOST_PP_CAT(NDNBOOST_PP_CAT(NDNBOOST_PP_ARRAY_ELEM(0, args) , _substitute), n) \
     /**/
 
-#   define BOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args) \
-      BOOST_PP_CAT(BOOST_PP_ARRAY_ELEM(0, args) , _test) \
+#   define NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args) \
+      NDNBOOST_PP_CAT(NDNBOOST_PP_ARRAY_ELEM(0, args) , _test) \
     /**/
 
 // Thanks to Guillaume Melquiond for pointing out the need for the
 // "substitute" template as an argument to the overloaded test
 // functions to get SFINAE to work for member templates with the
 // correct name but different number of arguments.
-#   define BOOST_MPL_HAS_MEMBER_MULTI_SUBSTITUTE(z, n, args) \
+#   define NDNBOOST_MPL_HAS_MEMBER_MULTI_SUBSTITUTE(z, n, args) \
       template< \
-          template< BOOST_PP_ENUM_PARAMS(BOOST_PP_INC(n), typename V) > class V \
+          template< NDNBOOST_PP_ENUM_PARAMS(NDNBOOST_PP_INC(n), typename V) > class V \
        > \
-      struct BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME(args, n) { \
+      struct NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME(args, n) { \
       }; \
     /**/
 
-#   define BOOST_MPL_HAS_MEMBER_SUBSTITUTE(args, substitute_macro) \
-      BOOST_PP_REPEAT( \
-          BOOST_PP_ARRAY_ELEM(2, args) \
-        , BOOST_MPL_HAS_MEMBER_MULTI_SUBSTITUTE \
+#   define NDNBOOST_MPL_HAS_MEMBER_SUBSTITUTE(args, substitute_macro) \
+      NDNBOOST_PP_REPEAT( \
+          NDNBOOST_PP_ARRAY_ELEM(2, args) \
+        , NDNBOOST_MPL_HAS_MEMBER_MULTI_SUBSTITUTE \
         , args \
       ) \
     /**/
 
-#   if !BOOST_MPL_HAS_XXX_NO_EXPLICIT_TEST_FUNCTION
-#     define BOOST_MPL_HAS_MEMBER_REJECT(args, member_macro) \
+#   if !NDNBOOST_MPL_HAS_XXX_NO_EXPLICIT_TEST_FUNCTION
+#     define NDNBOOST_MPL_HAS_MEMBER_REJECT(args, member_macro) \
         template< typename V > \
         static ndnboost::mpl::aux::no_tag \
-        BOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)(...); \
+        NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)(...); \
       /**/
 #   else
-#     define BOOST_MPL_HAS_MEMBER_REJECT(args, member_macro) \
+#     define NDNBOOST_MPL_HAS_MEMBER_REJECT(args, member_macro) \
         static ndnboost::mpl::aux::no_tag \
-        BOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)(...); \
+        NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)(...); \
       /**/
 #   endif
 
-#   if !BOOST_MPL_HAS_XXX_NO_WRAPPED_TYPES
-#     define BOOST_MPL_HAS_MEMBER_MULTI_ACCEPT(z, n, args) \
+#   if !NDNBOOST_MPL_HAS_XXX_NO_WRAPPED_TYPES
+#     define NDNBOOST_MPL_HAS_MEMBER_MULTI_ACCEPT(z, n, args) \
         template< typename V > \
         static ndnboost::mpl::aux::yes_tag \
-        BOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)( \
+        NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)( \
             ndnboost::mpl::aux::type_wrapper< V > const volatile* \
-          , BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME(args, n) < \
-                V::template BOOST_PP_ARRAY_ELEM(1, args) \
+          , NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME(args, n) < \
+                V::template NDNBOOST_PP_ARRAY_ELEM(1, args) \
             >* = 0 \
         ); \
       /**/
-#     define BOOST_MPL_HAS_MEMBER_ACCEPT(args, member_macro) \
-        BOOST_PP_REPEAT( \
-            BOOST_PP_ARRAY_ELEM(2, args) \
-          , BOOST_MPL_HAS_MEMBER_MULTI_ACCEPT \
+#     define NDNBOOST_MPL_HAS_MEMBER_ACCEPT(args, member_macro) \
+        NDNBOOST_PP_REPEAT( \
+            NDNBOOST_PP_ARRAY_ELEM(2, args) \
+          , NDNBOOST_MPL_HAS_MEMBER_MULTI_ACCEPT \
           , args \
         ) \
       /**/
 #   else
-#     define BOOST_MPL_HAS_MEMBER_ACCEPT(args, member_macro) \
+#     define NDNBOOST_MPL_HAS_MEMBER_ACCEPT(args, member_macro) \
         template< typename V > \
         static ndnboost::mpl::aux::yes_tag \
-        BOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)( \
+        NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)( \
             V const volatile* \
           , member_macro(args, V, T)* = 0 \
         ); \
       /**/
 #   endif
 
-#   if !BOOST_MPL_HAS_XXX_NO_EXPLICIT_TEST_FUNCTION
-#     define BOOST_MPL_HAS_MEMBER_TEST(args) \
-          sizeof(BOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)< U >(0)) \
+#   if !NDNBOOST_MPL_HAS_XXX_NO_EXPLICIT_TEST_FUNCTION
+#     define NDNBOOST_MPL_HAS_MEMBER_TEST(args) \
+          sizeof(NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)< U >(0)) \
               == sizeof(ndnboost::mpl::aux::yes_tag) \
       /**/
 #   else
-#     if !BOOST_MPL_HAS_XXX_NO_WRAPPED_TYPES
-#       define BOOST_MPL_HAS_MEMBER_TEST(args) \
+#     if !NDNBOOST_MPL_HAS_XXX_NO_WRAPPED_TYPES
+#       define NDNBOOST_MPL_HAS_MEMBER_TEST(args) \
           sizeof( \
-              BOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)( \
+              NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)( \
                   static_cast< ndnboost::mpl::aux::type_wrapper< U >* >(0) \
               ) \
           ) == sizeof(ndnboost::mpl::aux::yes_tag) \
         /**/
 #     else
-#       define BOOST_MPL_HAS_MEMBER_TEST(args) \
+#       define NDNBOOST_MPL_HAS_MEMBER_TEST(args) \
           sizeof( \
-              BOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)( \
+              NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)( \
                   static_cast< U* >(0) \
               ) \
           ) == sizeof(ndnboost::mpl::aux::yes_tag) \
@@ -408,233 +408,233 @@ struct trait \
 #     endif
 #   endif
 
-#   define BOOST_MPL_HAS_MEMBER_INTROSPECT( \
+#   define NDNBOOST_MPL_HAS_MEMBER_INTROSPECT( \
                args, substitute_macro, member_macro \
            ) \
       template< typename U > \
-      struct BOOST_MPL_HAS_MEMBER_INTROSPECTION_NAME(args) { \
-          BOOST_MPL_HAS_MEMBER_SUBSTITUTE(args, substitute_macro) \
-          BOOST_MPL_HAS_MEMBER_REJECT(args, member_macro) \
-          BOOST_MPL_HAS_MEMBER_ACCEPT(args, member_macro) \
-          BOOST_STATIC_CONSTANT( \
-              bool, value = BOOST_MPL_HAS_MEMBER_TEST(args) \
+      struct NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_NAME(args) { \
+          NDNBOOST_MPL_HAS_MEMBER_SUBSTITUTE(args, substitute_macro) \
+          NDNBOOST_MPL_HAS_MEMBER_REJECT(args, member_macro) \
+          NDNBOOST_MPL_HAS_MEMBER_ACCEPT(args, member_macro) \
+          NDNBOOST_STATIC_CONSTANT( \
+              bool, value = NDNBOOST_MPL_HAS_MEMBER_TEST(args) \
           ); \
           typedef ndnboost::mpl::bool_< value > type; \
       }; \
     /**/
 
-#   define BOOST_MPL_HAS_MEMBER_IMPLEMENTATION( \
+#   define NDNBOOST_MPL_HAS_MEMBER_IMPLEMENTATION( \
                args, introspect_macro, substitute_macro, member_macro \
            ) \
       template< \
           typename T \
         , typename fallback_ \
-              = ndnboost::mpl::bool_< BOOST_PP_ARRAY_ELEM(3, args) > \
+              = ndnboost::mpl::bool_< NDNBOOST_PP_ARRAY_ELEM(3, args) > \
       > \
-      class BOOST_PP_ARRAY_ELEM(0, args) { \
+      class NDNBOOST_PP_ARRAY_ELEM(0, args) { \
           introspect_macro(args, substitute_macro, member_macro) \
       public: \
           static const bool value \
-              = BOOST_MPL_HAS_MEMBER_INTROSPECTION_NAME(args)< T >::value; \
-          typedef typename BOOST_MPL_HAS_MEMBER_INTROSPECTION_NAME(args)< \
+              = NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_NAME(args)< T >::value; \
+          typedef typename NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_NAME(args)< \
               T \
           >::type type; \
       }; \
     /**/
 
-// BOOST_MPL_HAS_MEMBER_WITH_FUNCTION_SFINAE expands to the full
+// NDNBOOST_MPL_HAS_MEMBER_WITH_FUNCTION_SFINAE expands to the full
 // implementation of the function-based metafunction. Compile with -E
 // to see the preprocessor output for this macro.
-#   define BOOST_MPL_HAS_MEMBER_WITH_FUNCTION_SFINAE( \
+#   define NDNBOOST_MPL_HAS_MEMBER_WITH_FUNCTION_SFINAE( \
                args, substitute_macro, member_macro \
            ) \
-      BOOST_MPL_HAS_MEMBER_IMPLEMENTATION( \
+      NDNBOOST_MPL_HAS_MEMBER_IMPLEMENTATION( \
           args \
-        , BOOST_MPL_HAS_MEMBER_INTROSPECT \
+        , NDNBOOST_MPL_HAS_MEMBER_INTROSPECT \
         , substitute_macro \
         , member_macro \
       ) \
     /**/
 
-#   if BOOST_MPL_HAS_XXX_NEEDS_TEMPLATE_SFINAE
+#   if NDNBOOST_MPL_HAS_XXX_NEEDS_TEMPLATE_SFINAE
 
-#     if !defined(BOOST_MPL_HAS_XXX_NEEDS_NAMESPACE_LEVEL_SUBSTITUTE)
-#       if BOOST_WORKAROUND(BOOST_MSVC, <= 1400)
-#         define BOOST_MPL_HAS_XXX_NEEDS_NAMESPACE_LEVEL_SUBSTITUTE 1
+#     if !defined(NDNBOOST_MPL_HAS_XXX_NEEDS_NAMESPACE_LEVEL_SUBSTITUTE)
+#       if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1400)
+#         define NDNBOOST_MPL_HAS_XXX_NEEDS_NAMESPACE_LEVEL_SUBSTITUTE 1
 #       endif
 #     endif
 
-#     if !BOOST_MPL_HAS_XXX_NEEDS_NAMESPACE_LEVEL_SUBSTITUTE
-#       define BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME_WITH_TEMPLATE_SFINAE( \
+#     if !NDNBOOST_MPL_HAS_XXX_NEEDS_NAMESPACE_LEVEL_SUBSTITUTE
+#       define NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME_WITH_TEMPLATE_SFINAE( \
                    args, n \
                ) \
-          BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME(args, n) \
+          NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME(args, n) \
         /**/
 #     else
-#       define BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME_WITH_TEMPLATE_SFINAE( \
+#       define NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME_WITH_TEMPLATE_SFINAE( \
                    args, n \
                ) \
-          BOOST_PP_CAT( \
+          NDNBOOST_PP_CAT( \
               boost_mpl_has_xxx_ \
-            , BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME(args, n) \
+            , NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME(args, n) \
           ) \
         /**/
 #     endif
 
-#     define BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_TAG_NAME( \
+#     define NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_TAG_NAME( \
                  args \
              ) \
-        BOOST_PP_CAT( \
-            BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME_WITH_TEMPLATE_SFINAE( \
+        NDNBOOST_PP_CAT( \
+            NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME_WITH_TEMPLATE_SFINAE( \
                 args, 0 \
             ) \
           , _tag \
         ) \
       /**/
 
-#     define BOOST_MPL_HAS_MEMBER_MULTI_SUBSTITUTE_WITH_TEMPLATE_SFINAE( \
+#     define NDNBOOST_MPL_HAS_MEMBER_MULTI_SUBSTITUTE_WITH_TEMPLATE_SFINAE( \
                  z, n, args \
              ) \
         template< \
-             template< BOOST_PP_ENUM_PARAMS(BOOST_PP_INC(n), typename U) > class U \
+             template< NDNBOOST_PP_ENUM_PARAMS(NDNBOOST_PP_INC(n), typename U) > class U \
         > \
-        struct BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME_WITH_TEMPLATE_SFINAE( \
+        struct NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME_WITH_TEMPLATE_SFINAE( \
                 args, n \
                ) { \
             typedef \
-                BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_TAG_NAME(args) \
+                NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_TAG_NAME(args) \
                 type; \
         }; \
       /**/
 
-#     define BOOST_MPL_HAS_MEMBER_SUBSTITUTE_WITH_TEMPLATE_SFINAE( \
+#     define NDNBOOST_MPL_HAS_MEMBER_SUBSTITUTE_WITH_TEMPLATE_SFINAE( \
                  args, substitute_macro \
              ) \
         typedef void \
-            BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_TAG_NAME(args); \
-        BOOST_PP_REPEAT( \
-            BOOST_PP_ARRAY_ELEM(2, args) \
-          , BOOST_MPL_HAS_MEMBER_MULTI_SUBSTITUTE_WITH_TEMPLATE_SFINAE \
+            NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_TAG_NAME(args); \
+        NDNBOOST_PP_REPEAT( \
+            NDNBOOST_PP_ARRAY_ELEM(2, args) \
+          , NDNBOOST_MPL_HAS_MEMBER_MULTI_SUBSTITUTE_WITH_TEMPLATE_SFINAE \
           , args \
         ) \
       /**/
 
-#     define BOOST_MPL_HAS_MEMBER_REJECT_WITH_TEMPLATE_SFINAE( \
+#     define NDNBOOST_MPL_HAS_MEMBER_REJECT_WITH_TEMPLATE_SFINAE( \
                  args, member_macro \
              ) \
         template< \
             typename U \
           , typename V \
-                = BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_TAG_NAME(args) \
+                = NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_TAG_NAME(args) \
         > \
-        struct BOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args) { \
-            BOOST_STATIC_CONSTANT(bool, value = false); \
+        struct NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args) { \
+            NDNBOOST_STATIC_CONSTANT(bool, value = false); \
             typedef ndnboost::mpl::bool_< value > type; \
         }; \
       /**/
 
-#     define BOOST_MPL_HAS_MEMBER_MULTI_ACCEPT_WITH_TEMPLATE_SFINAE( \
+#     define NDNBOOST_MPL_HAS_MEMBER_MULTI_ACCEPT_WITH_TEMPLATE_SFINAE( \
                  z, n, args \
              ) \
         template< typename U > \
-        struct BOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)< \
+        struct NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)< \
             U \
           , typename \
-                BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME_WITH_TEMPLATE_SFINAE( \
+                NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME_WITH_TEMPLATE_SFINAE( \
                     args, n \
                 )< \
-                    BOOST_MSVC_TYPENAME U::BOOST_PP_ARRAY_ELEM(1, args)< > \
+                    NDNBOOST_MSVC_TYPENAME U::NDNBOOST_PP_ARRAY_ELEM(1, args)< > \
                 >::type \
         > { \
-            BOOST_STATIC_CONSTANT(bool, value = true); \
+            NDNBOOST_STATIC_CONSTANT(bool, value = true); \
             typedef ndnboost::mpl::bool_< value > type; \
         }; \
       /**/
 
-#     define BOOST_MPL_HAS_MEMBER_ACCEPT_WITH_TEMPLATE_SFINAE( \
+#     define NDNBOOST_MPL_HAS_MEMBER_ACCEPT_WITH_TEMPLATE_SFINAE( \
                  args, member_macro \
              ) \
-        BOOST_PP_REPEAT( \
-            BOOST_PP_ARRAY_ELEM(2, args) \
-          , BOOST_MPL_HAS_MEMBER_MULTI_ACCEPT_WITH_TEMPLATE_SFINAE \
+        NDNBOOST_PP_REPEAT( \
+            NDNBOOST_PP_ARRAY_ELEM(2, args) \
+          , NDNBOOST_MPL_HAS_MEMBER_MULTI_ACCEPT_WITH_TEMPLATE_SFINAE \
           , args \
         ) \
       /**/
 
-#     define BOOST_MPL_HAS_MEMBER_INTROSPECT_WITH_TEMPLATE_SFINAE( \
+#     define NDNBOOST_MPL_HAS_MEMBER_INTROSPECT_WITH_TEMPLATE_SFINAE( \
                  args, substitute_macro, member_macro \
              ) \
-        BOOST_MPL_HAS_MEMBER_REJECT_WITH_TEMPLATE_SFINAE(args, member_macro) \
-        BOOST_MPL_HAS_MEMBER_ACCEPT_WITH_TEMPLATE_SFINAE(args, member_macro) \
+        NDNBOOST_MPL_HAS_MEMBER_REJECT_WITH_TEMPLATE_SFINAE(args, member_macro) \
+        NDNBOOST_MPL_HAS_MEMBER_ACCEPT_WITH_TEMPLATE_SFINAE(args, member_macro) \
         template< typename U > \
-        struct BOOST_MPL_HAS_MEMBER_INTROSPECTION_NAME(args) \
-            : BOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)< U > { \
+        struct NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_NAME(args) \
+            : NDNBOOST_MPL_HAS_MEMBER_INTROSPECTION_TEST_NAME(args)< U > { \
         }; \
       /**/
  
-// BOOST_MPL_HAS_MEMBER_WITH_TEMPLATE_SFINAE expands to the full
+// NDNBOOST_MPL_HAS_MEMBER_WITH_TEMPLATE_SFINAE expands to the full
 // implementation of the template-based metafunction. Compile with -E
 // to see the preprocessor output for this macro.
 //
-// Note that if BOOST_MPL_HAS_XXX_NEEDS_NAMESPACE_LEVEL_SUBSTITUTE is
-// defined BOOST_MPL_HAS_MEMBER_SUBSTITUTE_WITH_TEMPLATE_SFINAE needs
+// Note that if NDNBOOST_MPL_HAS_XXX_NEEDS_NAMESPACE_LEVEL_SUBSTITUTE is
+// defined NDNBOOST_MPL_HAS_MEMBER_SUBSTITUTE_WITH_TEMPLATE_SFINAE needs
 // to be expanded at namespace level before
-// BOOST_MPL_HAS_MEMBER_WITH_TEMPLATE_SFINAE can be used.
-#     define BOOST_MPL_HAS_MEMBER_WITH_TEMPLATE_SFINAE( \
+// NDNBOOST_MPL_HAS_MEMBER_WITH_TEMPLATE_SFINAE can be used.
+#     define NDNBOOST_MPL_HAS_MEMBER_WITH_TEMPLATE_SFINAE( \
                  args, substitute_macro, member_macro \
              ) \
-        BOOST_MPL_HAS_MEMBER_SUBSTITUTE_WITH_TEMPLATE_SFINAE( \
+        NDNBOOST_MPL_HAS_MEMBER_SUBSTITUTE_WITH_TEMPLATE_SFINAE( \
             args, substitute_macro \
         ) \
-        BOOST_MPL_HAS_MEMBER_IMPLEMENTATION( \
+        NDNBOOST_MPL_HAS_MEMBER_IMPLEMENTATION( \
             args \
-          , BOOST_MPL_HAS_MEMBER_INTROSPECT_WITH_TEMPLATE_SFINAE \
+          , NDNBOOST_MPL_HAS_MEMBER_INTROSPECT_WITH_TEMPLATE_SFINAE \
           , substitute_macro \
           , member_macro \
         ) \
       /**/
 
-#   endif // BOOST_MPL_HAS_XXX_NEEDS_TEMPLATE_SFINAE
+#   endif // NDNBOOST_MPL_HAS_XXX_NEEDS_TEMPLATE_SFINAE
 
 // Note: In the current implementation the parameter and access macros
 // are no longer expanded.
-#   if !BOOST_WORKAROUND(BOOST_MSVC, <= 1400)
-#     define BOOST_MPL_HAS_XXX_TEMPLATE_NAMED_DEF(trait, name, default_) \
-        BOOST_MPL_HAS_MEMBER_WITH_FUNCTION_SFINAE( \
-            ( 4, ( trait, name, BOOST_MPL_LIMIT_METAFUNCTION_ARITY, default_ ) ) \
-          , BOOST_MPL_HAS_MEMBER_TEMPLATE_SUBSTITUTE_PARAMETER \
-          , BOOST_MPL_HAS_MEMBER_TEMPLATE_ACCESS \
+#   if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1400)
+#     define NDNBOOST_MPL_HAS_XXX_TEMPLATE_NAMED_DEF(trait, name, default_) \
+        NDNBOOST_MPL_HAS_MEMBER_WITH_FUNCTION_SFINAE( \
+            ( 4, ( trait, name, NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY, default_ ) ) \
+          , NDNBOOST_MPL_HAS_MEMBER_TEMPLATE_SUBSTITUTE_PARAMETER \
+          , NDNBOOST_MPL_HAS_MEMBER_TEMPLATE_ACCESS \
         ) \
       /**/
 #   else
-#     define BOOST_MPL_HAS_XXX_TEMPLATE_NAMED_DEF(trait, name, default_) \
-        BOOST_MPL_HAS_MEMBER_WITH_TEMPLATE_SFINAE( \
-            ( 4, ( trait, name, BOOST_MPL_LIMIT_METAFUNCTION_ARITY, default_ ) ) \
-          , BOOST_MPL_HAS_MEMBER_TEMPLATE_SUBSTITUTE_PARAMETER \
-          , BOOST_MPL_HAS_MEMBER_TEMPLATE_ACCESS \
+#     define NDNBOOST_MPL_HAS_XXX_TEMPLATE_NAMED_DEF(trait, name, default_) \
+        NDNBOOST_MPL_HAS_MEMBER_WITH_TEMPLATE_SFINAE( \
+            ( 4, ( trait, name, NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY, default_ ) ) \
+          , NDNBOOST_MPL_HAS_MEMBER_TEMPLATE_SUBSTITUTE_PARAMETER \
+          , NDNBOOST_MPL_HAS_MEMBER_TEMPLATE_ACCESS \
         ) \
       /**/
 #   endif
 
-#else // BOOST_MPL_CFG_NO_HAS_XXX_TEMPLATE
+#else // NDNBOOST_MPL_CFG_NO_HAS_XXX_TEMPLATE
 
 // placeholder implementation
 
-#   define BOOST_MPL_HAS_XXX_TEMPLATE_NAMED_DEF(trait, name, default_) \
+#   define NDNBOOST_MPL_HAS_XXX_TEMPLATE_NAMED_DEF(trait, name, default_) \
       template< typename T \
               , typename fallback_ = ndnboost::mpl::bool_< default_ > > \
       struct trait { \
-          BOOST_STATIC_CONSTANT(bool, value = fallback_::value); \
+          NDNBOOST_STATIC_CONSTANT(bool, value = fallback_::value); \
           typedef fallback_ type; \
       }; \
     /**/
 
-#endif // BOOST_MPL_CFG_NO_HAS_XXX_TEMPLATE
+#endif // NDNBOOST_MPL_CFG_NO_HAS_XXX_TEMPLATE
 
-#   define BOOST_MPL_HAS_XXX_TEMPLATE_DEF(name) \
-      BOOST_MPL_HAS_XXX_TEMPLATE_NAMED_DEF( \
-          BOOST_PP_CAT(has_, name), name, false \
+#   define NDNBOOST_MPL_HAS_XXX_TEMPLATE_DEF(name) \
+      NDNBOOST_MPL_HAS_XXX_TEMPLATE_NAMED_DEF( \
+          NDNBOOST_PP_CAT(has_, name), name, false \
       ) \
     /**/
 
-#endif // BOOST_MPL_HAS_XXX_HPP_INCLUDED
+#endif // NDNBOOST_MPL_HAS_XXX_HPP_INCLUDED

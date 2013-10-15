@@ -12,8 +12,8 @@
 //  Description : main function implementation for Unit Test Framework
 // ***************************************************************************
 
-#ifndef BOOST_TEST_UNIT_TEST_MAIN_IPP_012205GER
-#define BOOST_TEST_UNIT_TEST_MAIN_IPP_012205GER
+#ifndef NDNBOOST_TEST_UNIT_TEST_MAIN_IPP_012205GER
+#define NDNBOOST_TEST_UNIT_TEST_MAIN_IPP_012205GER
 
 // Boost.Test
 #include <ndnboost/test/framework.hpp>
@@ -23,8 +23,8 @@
 
 #include <ndnboost/test/detail/unit_test_parameters.hpp>
 
-#if !defined(__BORLANDC__) && !BOOST_WORKAROUND( BOOST_MSVC, < 1300 ) && !BOOST_WORKAROUND( __SUNPRO_CC, < 0x5100 )
-#define BOOST_TEST_SUPPORT_RUN_BY_NAME
+#if !defined(__BORLANDC__) && !NDNBOOST_WORKAROUND( NDNBOOST_MSVC, < 1300 ) && !NDNBOOST_WORKAROUND( __SUNPRO_CC, < 0x5100 )
+#define NDNBOOST_TEST_SUPPORT_RUN_BY_NAME
 #include <ndnboost/test/utils/iterator/token_iterator.hpp>
 #endif
 
@@ -101,7 +101,7 @@ public:
         const_string    m_value;
     };
     // Constructor
-#ifndef BOOST_TEST_SUPPORT_RUN_BY_NAME
+#ifndef NDNBOOST_TEST_SUPPORT_RUN_BY_NAME
     explicit        test_case_filter( const_string ) : m_depth( 0 ) {}
 #else
     explicit        test_case_filter( const_string tc_to_run ) 
@@ -170,7 +170,7 @@ private:
 // **************                  unit_test_main              ************** //
 // ************************************************************************** //
 
-int BOOST_TEST_DECL
+int NDNBOOST_TEST_DECL
 unit_test_main( init_unit_test_func init_func, int argc, char* argv[] )
 {
     try {
@@ -214,17 +214,17 @@ unit_test_main( init_unit_test_func init_func, int argc, char* argv[] )
 
 } // namespace ndnboost
 
-#if !defined(BOOST_TEST_DYN_LINK) && !defined(BOOST_TEST_NO_MAIN)
+#if !defined(NDNBOOST_TEST_DYN_LINK) && !defined(NDNBOOST_TEST_NO_MAIN)
 
 // ************************************************************************** //
 // **************        main function for tests using lib     ************** //
 // ************************************************************************** //
 
-int BOOST_TEST_CALL_DECL
+int NDNBOOST_TEST_CALL_DECL
 main( int argc, char* argv[] )
 {
     // prototype for user's unit test init function
-#ifdef BOOST_TEST_ALTERNATIVE_INIT_API
+#ifdef NDNBOOST_TEST_ALTERNATIVE_INIT_API
     extern bool init_unit_test();
 
     ndnboost::unit_test::init_unit_test_func init_func = &init_unit_test;
@@ -237,10 +237,10 @@ main( int argc, char* argv[] )
     return ::ndnboost::unit_test::unit_test_main( init_func, argc, argv );
 }
 
-#endif // !BOOST_TEST_DYN_LINK && !BOOST_TEST_NO_MAIN
+#endif // !NDNBOOST_TEST_DYN_LINK && !NDNBOOST_TEST_NO_MAIN
 
 //____________________________________________________________________________//
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_UNIT_TEST_MAIN_IPP_012205GER
+#endif // NDNBOOST_TEST_UNIT_TEST_MAIN_IPP_012205GER

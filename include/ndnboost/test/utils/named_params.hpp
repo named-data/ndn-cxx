@@ -12,8 +12,8 @@
 //  Description : facilities for named function parameters support
 // ***************************************************************************
 
-#ifndef BOOST_TEST_NAMED_PARAM_022505GER
-#define BOOST_TEST_NAMED_PARAM_022505GER
+#ifndef NDNBOOST_TEST_NAMED_PARAM_022505GER
+#define NDNBOOST_TEST_NAMED_PARAM_022505GER
 
 // Boost
 #include <ndnboost/config.hpp>
@@ -139,8 +139,8 @@ struct named_parameter_combine
     void        erase( keyword<typename NP::id,false> kw ) const        { m_param.erase( kw ); }
     using       Rest::erase;
 
-#if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3206)) || \
-    BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0610))
+#if NDNBOOST_WORKAROUND(__MWERKS__, NDNBOOST_TESTED_AT(0x3206)) || \
+    NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x0610))
     template<typename NP>
     named_parameter_combine<NP,self_type> operator,( NP const& np ) const
     { return named_parameter_combine<NP,self_type>( np, *this ); }
@@ -295,8 +295,8 @@ optionally_assign( T&, nfp_detail::nil )
 
 template<typename T, typename Source>
 inline void
-#if BOOST_WORKAROUND( __MWERKS__, BOOST_TESTED_AT( 0x3003 ) ) \
-    || BOOST_WORKAROUND( __DECCXX_VER, BOOST_TESTED_AT(60590042) )
+#if NDNBOOST_WORKAROUND( __MWERKS__, NDNBOOST_TESTED_AT( 0x3003 ) ) \
+    || NDNBOOST_WORKAROUND( __DECCXX_VER, NDNBOOST_TESTED_AT(60590042) )
 optionally_assign( T& target, Source src )
 #else
 optionally_assign( T& target, Source const& src )
@@ -325,5 +325,5 @@ optionally_assign( T& target, Params const& p, Keyword k )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_NAMED_PARAM_022505GER
+#endif // NDNBOOST_TEST_NAMED_PARAM_022505GER
 

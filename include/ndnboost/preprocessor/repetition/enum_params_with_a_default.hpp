@@ -11,15 +11,15 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_REPETITION_ENUM_PARAMS_WITH_A_DEFAULT_HPP
-# define BOOST_PREPROCESSOR_REPETITION_ENUM_PARAMS_WITH_A_DEFAULT_HPP
+# ifndef NDNBOOST_PREPROCESSOR_REPETITION_ENUM_PARAMS_WITH_A_DEFAULT_HPP
+# define NDNBOOST_PREPROCESSOR_REPETITION_ENUM_PARAMS_WITH_A_DEFAULT_HPP
 #
 # include <ndnboost/preprocessor/config/config.hpp>
 # include <ndnboost/preprocessor/facilities/intercept.hpp>
 # include <ndnboost/preprocessor/repetition/enum_binary_params.hpp>
 #
-# /* BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT */
+# /* NDNBOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT */
 #
-# define BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(count, param, def) BOOST_PP_ENUM_BINARY_PARAMS(count, param, = def BOOST_PP_INTERCEPT)
+# define NDNBOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(count, param, def) NDNBOOST_PP_ENUM_BINARY_PARAMS(count, param, = def NDNBOOST_PP_INTERCEPT)
 #
 # endif

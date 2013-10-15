@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_OR_HPP_INCLUDED
-#define BOOST_MPL_OR_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_OR_HPP_INCLUDED
+#define NDNBOOST_MPL_OR_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -16,8 +16,8 @@
 
 #include <ndnboost/mpl/aux_/config/use_preprocessed.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
-    && !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+    && !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
 #   include <ndnboost/mpl/bool.hpp>
 #   include <ndnboost/mpl/aux_/nested_type_wknd.hpp>
@@ -39,7 +39,7 @@
 #endif
 #endif
 
-#   define BOOST_MPL_PREPROCESSED_HEADER or.hpp
+#   define NDNBOOST_MPL_PREPROCESSED_HEADER or.hpp
 #   include <ndnboost/mpl/aux_/include_preprocessed.hpp>
 
 #if defined(_MSC_VER) 
@@ -57,5 +57,5 @@
 #   define AUX778076_OP_VALUE2 false
 #   include <ndnboost/mpl/aux_/logical_op.hpp>
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#endif // BOOST_MPL_OR_HPP_INCLUDED
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_OR_HPP_INCLUDED

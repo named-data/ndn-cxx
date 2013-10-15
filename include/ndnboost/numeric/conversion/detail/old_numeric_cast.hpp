@@ -12,15 +12,15 @@
 //             Keeps this legacy version of numeric_cast<> for old compilers
 //             wich can't compile the new version in /boost/numeric/conversion/cast.hpp
 //             (Fernando Cacciola)
-//  02 Apr 01  Removed BOOST_NO_LIMITS workarounds and included
+//  02 Apr 01  Removed NDNBOOST_NO_LIMITS workarounds and included
 //             <ndnboost/limits.hpp> instead (the workaround did not
-//             actually compile when BOOST_NO_LIMITS was defined in
+//             actually compile when NDNBOOST_NO_LIMITS was defined in
 //             any case, so we loose nothing). (John Maddock)
 //  21 Jan 01  Undid a bug I introduced yesterday. numeric_cast<> never
 //             worked with stock GCC; trying to get it to do that broke
 //             vc-stlport.
-//  20 Jan 01  Moved BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS to config.hpp.
-//             Removed unused BOOST_EXPLICIT_TARGET macro. Moved
+//  20 Jan 01  Moved NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS to config.hpp.
+//             Removed unused NDNBOOST_EXPLICIT_TARGET macro. Moved
 //             ndnboost::detail::type to ndnboost/type.hpp. Made it compile with
 //             stock gcc again (Dave Abrahams)
 //  29 Nov 00  Remove nested namespace cast, cleanup spacing before Formal
@@ -43,8 +43,8 @@
 //             place in nested namespace.
 //   3 Aug 99  Initial version
 
-#ifndef BOOST_OLD_NUMERIC_CAST_HPP
-#define BOOST_OLD_NUMERIC_CAST_HPP
+#ifndef NDNBOOST_OLD_NUMERIC_CAST_HPP
+#define NDNBOOST_OLD_NUMERIC_CAST_HPP
 
 # include <ndnboost/config.hpp>
 # include <cassert>
@@ -60,10 +60,10 @@
 //  TODO: Add this to config.hpp?
 //  FLC: This macro is repeated in ndnboost/cast.hpp but only locally (is undefined at the bottom)
 //       so is OK to reproduce it here.
-# if defined(BOOST_MSVC) && BOOST_MSVC < 1300
-#  define BOOST_EXPLICIT_DEFAULT_TARGET , ::ndnboost::type<Target>* = 0
+# if defined(NDNBOOST_MSVC) && NDNBOOST_MSVC < 1300
+#  define NDNBOOST_EXPLICIT_DEFAULT_TARGET , ::ndnboost::type<Target>* = 0
 # else
-#  define BOOST_EXPLICIT_DEFAULT_TARGET
+#  define NDNBOOST_EXPLICIT_DEFAULT_TARGET
 # endif
 
 namespace ndnboost
@@ -76,14 +76,14 @@ namespace ndnboost
 
 //  numeric_cast  ------------------------------------------------------------//
 
-#if !defined(BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS) || defined(BOOST_SGI_CPP_LIMITS)
+#if !defined(NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS) || defined(NDNBOOST_SGI_CPP_LIMITS)
 
     namespace detail
     {
       template <class T>
       struct signed_numeric_limits : std::numeric_limits<T>
       {
-             static inline T min BOOST_PREVENT_MACRO_SUBSTITUTION ()
+             static inline T min NDNBOOST_PREVENT_MACRO_SUBSTITUTION ()
          {
              return (std::numeric_limits<T>::min)() >= 0
                      // unary minus causes integral promotion, thus the static_cast<>
@@ -96,7 +96,7 @@ namespace ndnboost
       template <class T, bool specialized>
       struct fixed_numeric_limits_base
           : public if_true< std::numeric_limits<T>::is_signed >
-           ::BOOST_NESTED_TEMPLATE then< signed_numeric_limits<T>,
+           ::NDNBOOST_NESTED_TEMPLATE then< signed_numeric_limits<T>,
                             std::numeric_limits<T>
                    >::type
       {};
@@ -106,16 +106,16 @@ namespace ndnboost
           : fixed_numeric_limits_base<T,(std::numeric_limits<T>::is_specialized)>
       {};
 
-# ifdef BOOST_HAS_LONG_LONG
+# ifdef NDNBOOST_HAS_LONG_LONG
       // cover implementations which supply no specialization for long
       // long / unsigned long long. Not intended to be full
       // numeric_limits replacements, but good enough for numeric_cast<>
       template <>
       struct fixed_numeric_limits_base< ::ndnboost::long_long_type, false>
       {
-          BOOST_STATIC_CONSTANT(bool, is_specialized = true);
-          BOOST_STATIC_CONSTANT(bool, is_signed = true);
-          static  ::ndnboost::long_long_type max BOOST_PREVENT_MACRO_SUBSTITUTION ()
+          NDNBOOST_STATIC_CONSTANT(bool, is_specialized = true);
+          NDNBOOST_STATIC_CONSTANT(bool, is_signed = true);
+          static  ::ndnboost::long_long_type max NDNBOOST_PREVENT_MACRO_SUBSTITUTION ()
           {
 #  ifdef LONGLONG_MAX
               return LONGLONG_MAX;
@@ -124,7 +124,7 @@ namespace ndnboost
 #  endif
           }
 
-          static  ::ndnboost::long_long_type min BOOST_PREVENT_MACRO_SUBSTITUTION ()
+          static  ::ndnboost::long_long_type min NDNBOOST_PREVENT_MACRO_SUBSTITUTION ()
           {
 #  ifdef LONGLONG_MIN
               return LONGLONG_MIN;
@@ -137,9 +137,9 @@ namespace ndnboost
       template <>
       struct fixed_numeric_limits_base< ::ndnboost::ulong_long_type, false>
       {
-          BOOST_STATIC_CONSTANT(bool, is_specialized = true);
-          BOOST_STATIC_CONSTANT(bool, is_signed = false);
-          static  ::ndnboost::ulong_long_type max BOOST_PREVENT_MACRO_SUBSTITUTION ()
+          NDNBOOST_STATIC_CONSTANT(bool, is_specialized = true);
+          NDNBOOST_STATIC_CONSTANT(bool, is_signed = false);
+          static  ::ndnboost::ulong_long_type max NDNBOOST_PREVENT_MACRO_SUBSTITUTION ()
           {
 #  ifdef ULONGLONG_MAX
               return ULONGLONG_MAX;
@@ -148,7 +148,7 @@ namespace ndnboost
 #  endif
           }
 
-          static  ::ndnboost::ulong_long_type min BOOST_PREVENT_MACRO_SUBSTITUTION () { return 0; }
+          static  ::ndnboost::ulong_long_type min NDNBOOST_PREVENT_MACRO_SUBSTITUTION () { return 0; }
       };
 # endif
     } // namespace detail
@@ -215,9 +215,9 @@ namespace ndnboost
         static inline bool check(X x, Y)
             { return x >= 0 && static_cast<X>(static_cast<Y>(x)) != x; }
 
-# if defined(BOOST_MSVC) && BOOST_MSVC < 1300
+# if defined(NDNBOOST_MSVC) && NDNBOOST_MSVC < 1300
         // MSVC6 can't static_cast  unsigned __int64 -> floating types
-#  define BOOST_UINT64_CAST(src_type)                                   \
+#  define NDNBOOST_UINT64_CAST(src_type)                                   \
         static inline bool check(src_type x, unsigned __int64)          \
         {                                                               \
             if (x < 0) return false;                                    \
@@ -227,10 +227,10 @@ namespace ndnboost
             return ((static_cast<src_type>(div2) * 2.0) + odd) != x;    \
         }
 
-        BOOST_UINT64_CAST(long double);
-        BOOST_UINT64_CAST(double);
-        BOOST_UINT64_CAST(float);
-#  undef BOOST_UINT64_CAST
+        NDNBOOST_UINT64_CAST(long double);
+        NDNBOOST_UINT64_CAST(double);
+        NDNBOOST_UINT64_CAST(float);
+#  undef NDNBOOST_UINT64_CAST
 # endif
     };
 
@@ -256,7 +256,7 @@ namespace ndnboost
 
   namespace detail
   {
-# if BOOST_MSVC
+# if NDNBOOST_MSVC
 #  pragma warning(push)
 #  pragma warning(disable : 4018)
 #  pragma warning(disable : 4146)
@@ -268,14 +268,14 @@ namespace ndnboost
        template <class T>
        struct fixed_numeric_limits : public std::numeric_limits<T>
        {
-           static inline T min BOOST_PREVENT_MACRO_SUBSTITUTION ()
+           static inline T min NDNBOOST_PREVENT_MACRO_SUBSTITUTION ()
            {
                return std::numeric_limits<T>::is_signed && (std::numeric_limits<T>::min)() >= 0
                    ? T(-(std::numeric_limits<T>::max)()) : (std::numeric_limits<T>::min)();
            }
        };
 
-# if BOOST_MSVC
+# if NDNBOOST_MSVC
 #  pragma warning(pop)
 #elif defined(__BORLANDC__)
 #  pragma option pop
@@ -285,16 +285,16 @@ namespace ndnboost
 #endif
 
     template<typename Target, typename Source>
-    inline Target numeric_cast(Source arg BOOST_EXPLICIT_DEFAULT_TARGET)
+    inline Target numeric_cast(Source arg NDNBOOST_EXPLICIT_DEFAULT_TARGET)
     {
         // typedefs abbreviating respective trait classes
         typedef detail::fixed_numeric_limits<Source> arg_traits;
         typedef detail::fixed_numeric_limits<Target> result_traits;
 
-#if defined(BOOST_STRICT_CONFIG) \
+#if defined(NDNBOOST_STRICT_CONFIG) \
     || (!defined(__HP_aCC) || __HP_aCC > 33900) \
-         && (!defined(BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS) \
-             || defined(BOOST_SGI_CPP_LIMITS))
+         && (!defined(NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS) \
+             || defined(NDNBOOST_SGI_CPP_LIMITS))
         // typedefs that act as compile time assertions
         // (to be replaced by boost compile time assertions
         // as and when they become available and are stable)
@@ -311,7 +311,7 @@ namespace ndnboost
 
 #else // We need to use #pragma hacks if available
 
-# if BOOST_MSVC
+# if NDNBOOST_MSVC
 #  pragma warning(push)
 #  pragma warning(disable : 4018)
 #elif defined(__BORLANDC__)
@@ -320,7 +320,7 @@ namespace ndnboost
         if ((arg < 0 && !result_traits::is_signed)  // loss of negative range
              || (arg_traits::is_signed && arg < (result_traits::min)())  // underflow
              || arg > (result_traits::max)())            // overflow
-# if BOOST_MSVC
+# if NDNBOOST_MSVC
 #  pragma warning(pop)
 #elif defined(__BORLANDC__)
 #pragma option pop
@@ -332,8 +332,8 @@ namespace ndnboost
         return static_cast<Target>(arg);
     } // numeric_cast
 
-#  undef BOOST_EXPLICIT_DEFAULT_TARGET
+#  undef NDNBOOST_EXPLICIT_DEFAULT_TARGET
 
 } // namespace ndnboost
 
-#endif  // BOOST_OLD_NUMERIC_CAST_HPP
+#endif  // NDNBOOST_OLD_NUMERIC_CAST_HPP

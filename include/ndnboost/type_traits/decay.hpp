@@ -6,8 +6,8 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_DECAY_HPP_INCLUDED
-#define BOOST_TT_DECAY_HPP_INCLUDED
+#ifndef NDNBOOST_TT_DECAY_HPP_INCLUDED
+#define NDNBOOST_TT_DECAY_HPP_INCLUDED
 
 #include <ndnboost/type_traits/config.hpp>
 #include <ndnboost/type_traits/is_array.hpp>
@@ -25,12 +25,12 @@ namespace ndnboost
     struct decay
     {
     private:
-        typedef BOOST_DEDUCED_TYPENAME remove_reference<T>::type Ty;
+        typedef NDNBOOST_DEDUCED_TYPENAME remove_reference<T>::type Ty;
     public:
-        typedef BOOST_DEDUCED_TYPENAME mpl::eval_if< 
+        typedef NDNBOOST_DEDUCED_TYPENAME mpl::eval_if< 
             is_array<Ty>,
-            mpl::identity<BOOST_DEDUCED_TYPENAME remove_bounds<Ty>::type*>,
-            BOOST_DEDUCED_TYPENAME mpl::eval_if< 
+            mpl::identity<NDNBOOST_DEDUCED_TYPENAME remove_bounds<Ty>::type*>,
+            NDNBOOST_DEDUCED_TYPENAME mpl::eval_if< 
                 is_function<Ty>,
                 add_pointer<Ty>,
                 mpl::identity<Ty>
@@ -41,4 +41,4 @@ namespace ndnboost
 } // namespace ndnboost
 
 
-#endif // BOOST_TT_DECAY_HPP_INCLUDED
+#endif // NDNBOOST_TT_DECAY_HPP_INCLUDED

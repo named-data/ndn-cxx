@@ -18,11 +18,11 @@
 //    by Andrei Alexandrescu (see http://www.cuj.com/experts/1810/alexandr.html).
 
 
-#ifndef BOOST_TT_IS_SAME_HPP_INCLUDED
-#define BOOST_TT_IS_SAME_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_SAME_HPP_INCLUDED
+#define NDNBOOST_TT_IS_SAME_HPP_INCLUDED
 
 #include <ndnboost/type_traits/config.hpp>
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 #include <ndnboost/type_traits/detail/yes_no_type.hpp>
 #include <ndnboost/type_traits/detail/ice_and.hpp>
 #include <ndnboost/type_traits/is_reference.hpp>
@@ -32,21 +32,21 @@
 
 namespace ndnboost {
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF2(is_same,T,U,false)
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_1(typename T,is_same,T,T,true)
-#if BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF2(is_same,T,U,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_1(typename T,is_same,T,T,true)
+#if NDNBOOST_WORKAROUND(__BORLANDC__, < 0x600)
 // without this, Borland's compiler gives the wrong answer for
 // references to arrays:
-BOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_1(typename T,is_same,T&,T&,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_PARTIAL_SPEC2_1(typename T,is_same,T&,T&,true)
 #endif
 
-#else // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#else // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 namespace detail {
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 // the following VC6 specific implementation is *NOT* legal
 // C++, but has the advantage that it works for incomplete
 // types.
@@ -68,10 +68,10 @@ struct is_same_impl
 
 template <typename T>
 ::ndnboost::type_traits::yes_type
-BOOST_TT_DECL is_same_tester(T*, T*);
+NDNBOOST_TT_DECL is_same_tester(T*, T*);
 
 ::ndnboost::type_traits::no_type
-BOOST_TT_DECL is_same_tester(...);
+NDNBOOST_TT_DECL is_same_tester(...);
 
 template <typename T, typename U>
 struct is_same_impl
@@ -79,7 +79,7 @@ struct is_same_impl
    static T t;
    static U u;
 
-   BOOST_STATIC_CONSTANT(bool, value =
+   NDNBOOST_STATIC_CONSTANT(bool, value =
       (::ndnboost::type_traits::ice_and<
          (sizeof(type_traits::yes_type) == sizeof(ndnboost::detail::is_same_tester(&t,&u))),
          (::ndnboost::is_reference<T>::value == ::ndnboost::is_reference<U>::value),
@@ -87,17 +87,17 @@ struct is_same_impl
         >::value));
 };
 
-#endif // BOOST_MSVC
+#endif // NDNBOOST_MSVC
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF2(is_same,T,U,(::ndnboost::detail::is_same_impl<T,U>::value))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF2(is_same,T,U,(::ndnboost::detail::is_same_impl<T,U>::value))
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif  // BOOST_TT_IS_SAME_HPP_INCLUDED
+#endif  // NDNBOOST_TT_IS_SAME_HPP_INCLUDED
 

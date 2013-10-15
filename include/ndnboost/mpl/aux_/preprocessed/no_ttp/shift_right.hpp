@@ -18,8 +18,8 @@ template<
     >
 struct shift_right_impl
     : if_c<
-          ( BOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag1)
-              > BOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag2)
+          ( NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag1)
+              > NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag2)
             )
 
         , aux::cast2nd_impl< shift_right_impl< Tag1,Tag1 >,Tag1, Tag2 >
@@ -34,7 +34,7 @@ template<> struct shift_right_impl< na,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -43,7 +43,7 @@ template< typename Tag > struct shift_right_impl< na,Tag >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -52,7 +52,7 @@ template< typename Tag > struct shift_right_impl< Tag,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -62,8 +62,8 @@ template< typename T > struct shift_right_tag
 };
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
     >
 struct shift_right
 
@@ -72,11 +72,11 @@ struct shift_right
         , typename shift_right_tag<N2>::type
         >::template apply< N1,N2 >::type
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(2, shift_right, (N1, N2))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2, shift_right, (N1, N2))
 
 };
 
-BOOST_MPL_AUX_NA_SPEC2(2, 2, shift_right)
+NDNBOOST_MPL_AUX_NA_SPEC2(2, 2, shift_right)
 
 }}
 
@@ -86,7 +86,7 @@ namespace aux {
 template< typename T, typename Shift, T n, Shift s >
 struct shift_right_wknd
 {
-    BOOST_STATIC_CONSTANT(T, value  = (n >> s));
+    NDNBOOST_STATIC_CONSTANT(T, value  = (n >> s));
     typedef integral_c< T,value > type;
 };
 

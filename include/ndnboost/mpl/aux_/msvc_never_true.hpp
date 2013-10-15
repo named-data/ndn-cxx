@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_MSVC_NEVER_TRUE_HPP_INCLUDED
-#define BOOST_MPL_AUX_MSVC_NEVER_TRUE_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_MSVC_NEVER_TRUE_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_MSVC_NEVER_TRUE_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -17,7 +17,7 @@
 #include <ndnboost/mpl/aux_/config/msvc.hpp>
 #include <ndnboost/mpl/aux_/config/workaround.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
 
 namespace ndnboost { namespace mpl { namespace aux {
 
@@ -29,6 +29,6 @@ struct msvc_never_true
 
 }}}
 
-#endif // BOOST_MSVC
+#endif // NDNBOOST_MSVC
 
-#endif // BOOST_MPL_AUX_MSVC_NEVER_TRUE_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_MSVC_NEVER_TRUE_HPP_INCLUDED

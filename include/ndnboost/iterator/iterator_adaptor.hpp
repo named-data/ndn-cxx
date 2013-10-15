@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-#ifndef BOOST_ITERATOR_ADAPTOR_23022003THW_HPP
-#define BOOST_ITERATOR_ADAPTOR_23022003THW_HPP
+#ifndef NDNBOOST_ITERATOR_ADAPTOR_23022003THW_HPP
+#define NDNBOOST_ITERATOR_ADAPTOR_23022003THW_HPP
 
 #include <ndnboost/static_assert.hpp>
 #include <ndnboost/iterator.hpp>
@@ -22,7 +22,7 @@
 #include <ndnboost/type_traits/is_same.hpp>
 #include <ndnboost/type_traits/is_convertible.hpp>
 
-#ifdef BOOST_ITERATOR_REF_CONSTNESS_KILLS_WRITABILITY
+#ifdef NDNBOOST_ITERATOR_REF_CONSTNESS_KILLS_WRITABILITY
 # include <ndnboost/type_traits/remove_reference.hpp>
 #endif
 
@@ -38,7 +38,7 @@ namespace ndnboost
   // explicitly in order to specify that the default should be used.
   struct use_default;
   
-# ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+# ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
   // the incompleteness of use_default causes massive problems for
   // is_convertible (naturally).  This workaround is fortunately not
   // needed for vc6/vc7.
@@ -99,7 +99,7 @@ namespace ndnboost
   // false positives for user/library defined iterator types. See comments
   // on operator implementation for consequences.
   //
-#  if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+#  if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
   
   template<typename From, typename To>
   struct enable_if_convertible
@@ -114,7 +114,7 @@ namespace ndnboost
      >::type type;
   };
   
-#  elif defined(BOOST_NO_IS_CONVERTIBLE) || defined(BOOST_NO_SFINAE)
+#  elif defined(NDNBOOST_NO_IS_CONVERTIBLE) || defined(NDNBOOST_NO_SFINAE)
   
   template <class From, class To>
   struct enable_if_convertible
@@ -122,7 +122,7 @@ namespace ndnboost
       typedef ndnboost::detail::enable_type type;
   };
   
-#  elif BOOST_WORKAROUND(_MSC_FULL_VER, BOOST_TESTED_AT(13102292)) && BOOST_MSVC > 1300
+#  elif NDNBOOST_WORKAROUND(_MSC_FULL_VER, NDNBOOST_TESTED_AT(13102292)) && NDNBOOST_MSVC > 1300
   
   // For some reason vc7.1 needs us to "cut off" instantiation
   // of is_convertible in a few cases.
@@ -181,7 +181,7 @@ namespace ndnboost
         typedef iterator_facade<
             Derived
             
-# ifdef BOOST_ITERATOR_REF_CONSTNESS_KILLS_WRITABILITY
+# ifdef NDNBOOST_ITERATOR_REF_CONSTNESS_KILLS_WRITABILITY
           , typename ndnboost::detail::ia_dflt_help<
                 Value
               , mpl::eval_if<
@@ -221,7 +221,7 @@ namespace ndnboost
     template <class Tr1, class Tr2>
     inline void iterator_adaptor_assert_traversal ()
     {
-      BOOST_STATIC_ASSERT((is_convertible<Tr1, Tr2>::value));
+      NDNBOOST_STATIC_ASSERT((is_convertible<Tr1, Tr2>::value));
     }
   }
   
@@ -311,7 +311,7 @@ namespace ndnboost
       bool equal(iterator_adaptor<OtherDerived, OtherIterator, V, C, R, D> const& x) const
       {
         // Maybe readd with same_distance
-        //           BOOST_STATIC_ASSERT(
+        //           NDNBOOST_STATIC_ASSERT(
         //               (detail::same_category_and_difference<Derived,OtherDerived>::value)
         //               );
           return m_iterator == x.base();
@@ -321,12 +321,12 @@ namespace ndnboost
           typename super_t::iterator_category
       >::type my_traversal;
 
-# define BOOST_ITERATOR_ADAPTOR_ASSERT_TRAVERSAL(cat) \
+# define NDNBOOST_ITERATOR_ADAPTOR_ASSERT_TRAVERSAL(cat) \
       ndnboost::detail::iterator_adaptor_assert_traversal<my_traversal, cat>();
 
       void advance(typename super_t::difference_type n)
       {
-          BOOST_ITERATOR_ADAPTOR_ASSERT_TRAVERSAL(random_access_traversal_tag)
+          NDNBOOST_ITERATOR_ADAPTOR_ASSERT_TRAVERSAL(random_access_traversal_tag)
           m_iterator += n;
       }
   
@@ -334,7 +334,7 @@ namespace ndnboost
 
       void decrement() 
       {
-          BOOST_ITERATOR_ADAPTOR_ASSERT_TRAVERSAL(bidirectional_traversal_tag)
+          NDNBOOST_ITERATOR_ADAPTOR_ASSERT_TRAVERSAL(bidirectional_traversal_tag)
            --m_iterator;
       }
 
@@ -344,15 +344,15 @@ namespace ndnboost
       typename super_t::difference_type distance_to(
           iterator_adaptor<OtherDerived, OtherIterator, V, C, R, D> const& y) const
       {
-          BOOST_ITERATOR_ADAPTOR_ASSERT_TRAVERSAL(random_access_traversal_tag)
+          NDNBOOST_ITERATOR_ADAPTOR_ASSERT_TRAVERSAL(random_access_traversal_tag)
           // Maybe readd with same_distance
-          //           BOOST_STATIC_ASSERT(
+          //           NDNBOOST_STATIC_ASSERT(
           //               (detail::same_category_and_difference<Derived,OtherDerived>::value)
           //               );
           return y.base() - m_iterator;
       }
 
-# undef BOOST_ITERATOR_ADAPTOR_ASSERT_TRAVERSAL
+# undef NDNBOOST_ITERATOR_ADAPTOR_ASSERT_TRAVERSAL
       
    private: // data members
       Base m_iterator;
@@ -362,4 +362,4 @@ namespace ndnboost
 
 #include <ndnboost/iterator/detail/config_undef.hpp>
 
-#endif // BOOST_ITERATOR_ADAPTOR_23022003THW_HPP
+#endif // NDNBOOST_ITERATOR_ADAPTOR_23022003THW_HPP

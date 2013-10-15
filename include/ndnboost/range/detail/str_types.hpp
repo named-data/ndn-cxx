@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DETAIL_STR_TYPES_HPP
-#define BOOST_RANGE_DETAIL_STR_TYPES_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_STR_TYPES_HPP
+#define NDNBOOST_RANGE_DETAIL_STR_TYPES_HPP
 
 #include <ndnboost/range/size_type.hpp>
 #include <ndnboost/range/iterator.hpp>

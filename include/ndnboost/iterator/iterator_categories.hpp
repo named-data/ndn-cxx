@@ -3,8 +3,8 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_ITERATOR_CATEGORIES_HPP
-# define BOOST_ITERATOR_CATEGORIES_HPP
+#ifndef NDNBOOST_ITERATOR_CATEGORIES_HPP
+# define NDNBOOST_ITERATOR_CATEGORIES_HPP
 
 # include <ndnboost/config.hpp>
 # include <ndnboost/detail/iterator.hpp>
@@ -97,7 +97,7 @@ namespace detail
       >
   {};
 
-# if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
   template <>
   struct old_category_to_traversal<int>
   {
@@ -131,7 +131,7 @@ namespace detail
   {
   };
   
-# if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
   template <>
   struct pure_traversal_tag<int>
   {
@@ -162,8 +162,8 @@ struct iterator_traversal
     >
 {};
 
-# ifdef BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT
-// Hack because BOOST_MPL_AUX_LAMBDA_SUPPORT doesn't seem to work
+# ifdef NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT
+// Hack because NDNBOOST_MPL_AUX_LAMBDA_SUPPORT doesn't seem to work
 // out well.  Instantiating the nested apply template also
 // requires instantiating iterator_traits on the
 // placeholder. Instead we just specialize it as a metafunction
@@ -185,4 +185,4 @@ struct iterator_traversal<mpl::_>
 
 #include <ndnboost/iterator/detail/config_undef.hpp>
 
-#endif // BOOST_ITERATOR_CATEGORIES_HPP
+#endif // NDNBOOST_ITERATOR_CATEGORIES_HPP

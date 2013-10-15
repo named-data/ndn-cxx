@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_SIZE_HPP
-#define BOOST_RANGE_SIZE_HPP
+#ifndef NDNBOOST_RANGE_SIZE_HPP
+#define NDNBOOST_RANGE_SIZE_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
@@ -26,21 +26,21 @@ namespace ndnboost
     namespace range_detail
     {
         template<class SinglePassRange>
-        inline BOOST_DEDUCED_TYPENAME range_size<const SinglePassRange>::type
+        inline NDNBOOST_DEDUCED_TYPENAME range_size<const SinglePassRange>::type
         range_calculate_size(const SinglePassRange& rng)
         {
-            BOOST_ASSERT( (ndnboost::end(rng) - ndnboost::begin(rng)) >= 0 &&
+            NDNBOOST_ASSERT( (ndnboost::end(rng) - ndnboost::begin(rng)) >= 0 &&
                           "reachability invariant broken!" );
             return ndnboost::end(rng) - ndnboost::begin(rng);
         }
     }
 
     template<class SinglePassRange>
-    inline BOOST_DEDUCED_TYPENAME range_size<const SinglePassRange>::type
+    inline NDNBOOST_DEDUCED_TYPENAME range_size<const SinglePassRange>::type
     size(const SinglePassRange& rng)
     {
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564)) && \
-    !BOOST_WORKAROUND(__GNUC__, < 3) \
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564)) && \
+    !NDNBOOST_WORKAROUND(__GNUC__, < 3) \
     /**/
         using namespace range_detail;
 #endif

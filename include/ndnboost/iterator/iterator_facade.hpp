@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-#ifndef BOOST_ITERATOR_FACADE_23022003THW_HPP
-#define BOOST_ITERATOR_FACADE_23022003THW_HPP
+#ifndef NDNBOOST_ITERATOR_FACADE_23022003THW_HPP
+#define NDNBOOST_ITERATOR_FACADE_23022003THW_HPP
 
 #include <ndnboost/iterator.hpp>
 #include <ndnboost/iterator/interoperable.hpp>
@@ -65,7 +65,7 @@ namespace ndnboost
       , class Return
     >
     struct enable_if_interoperable
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
     {
         typedef typename mpl::if_<
             mpl::or_<
@@ -112,17 +112,17 @@ namespace ndnboost
           , add_pointer<value_type>
         >::type pointer;
       
-# if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)                          \
-    && (BOOST_WORKAROUND(_STLPORT_VERSION, BOOST_TESTED_AT(0x452))              \
-        || BOOST_WORKAROUND(BOOST_DINKUMWARE_STDLIB, BOOST_TESTED_AT(310)))     \
-    || BOOST_WORKAROUND(BOOST_RWSTD_VER, BOOST_TESTED_AT(0x20101))              \
-    || BOOST_WORKAROUND(BOOST_DINKUMWARE_STDLIB, <= 310)
+# if defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)                          \
+    && (NDNBOOST_WORKAROUND(_STLPORT_VERSION, NDNBOOST_TESTED_AT(0x452))              \
+        || NDNBOOST_WORKAROUND(NDNBOOST_DINKUMWARE_STDLIB, NDNBOOST_TESTED_AT(310)))     \
+    || NDNBOOST_WORKAROUND(NDNBOOST_RWSTD_VER, NDNBOOST_TESTED_AT(0x20101))              \
+    || NDNBOOST_WORKAROUND(NDNBOOST_DINKUMWARE_STDLIB, <= 310)
 
         // To interoperate with some broken library/compiler
         // combinations, user-defined iterators must be derived from
         // std::iterator.  It is possible to implement a standard
         // library for broken compilers without this limitation.
-#  define BOOST_ITERATOR_FACADE_NEEDS_ITERATOR_BASE 1
+#  define NDNBOOST_ITERATOR_FACADE_NEEDS_ITERATOR_BASE 1
 
         typedef
            iterator<iterator_category, value_type, Difference, pointer, Reference>
@@ -215,7 +215,7 @@ namespace ndnboost
         Iterator stored_iterator;
     };
 
-# ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+# ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
     template <class Reference, class Value>
     struct is_non_proxy_reference_impl
@@ -232,7 +232,7 @@ namespace ndnboost
           , char[2]
         >::type& helper(R const&);
         
-        BOOST_STATIC_CONSTANT(bool, value = sizeof(helper(r)) == 1);
+        NDNBOOST_STATIC_CONSTANT(bool, value = sizeof(helper(r)) == 1);
     };
         
     template <class Reference, class Value>
@@ -325,7 +325,7 @@ namespace ndnboost
         }
     };
 
-# if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
     // Deal with ETI
     template<>
     struct operator_arrow_dispatch<int, int>
@@ -406,9 +406,9 @@ namespace ndnboost
         template <class I1, class I2>
         struct apply
           :
-# ifdef BOOST_NO_ONE_WAY_ITERATOR_INTEROP
+# ifdef NDNBOOST_NO_ONE_WAY_ITERATOR_INTEROP
           iterator_difference<I1>
-# elif BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+# elif NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
           mpl::if_<
               is_convertible<I2,I1>
             , typename I1::difference_type
@@ -428,8 +428,8 @@ namespace ndnboost
 
 
   // Macros which describe the declarations of binary operators
-# ifdef BOOST_NO_STRICT_ITERATOR_INTEROPERABILITY
-#  define BOOST_ITERATOR_FACADE_INTEROP_HEAD(prefix, op, result_type)       \
+# ifdef NDNBOOST_NO_STRICT_ITERATOR_INTEROPERABILITY
+#  define NDNBOOST_ITERATOR_FACADE_INTEROP_HEAD(prefix, op, result_type)       \
     template <                                                              \
         class Derived1, class V1, class TC1, class Reference1, class Difference1 \
       , class Derived2, class V2, class TC2, class Reference2, class Difference2 \
@@ -439,7 +439,7 @@ namespace ndnboost
         iterator_facade<Derived1, V1, TC1, Reference1, Difference1> const& lhs   \
       , iterator_facade<Derived2, V2, TC2, Reference2, Difference2> const& rhs)
 # else 
-#  define BOOST_ITERATOR_FACADE_INTEROP_HEAD(prefix, op, result_type)   \
+#  define NDNBOOST_ITERATOR_FACADE_INTEROP_HEAD(prefix, op, result_type)   \
     template <                                                          \
         class Derived1, class V1, class TC1, class Reference1, class Difference1 \
       , class Derived2, class V2, class TC2, class Reference2, class Difference2 \
@@ -453,7 +453,7 @@ namespace ndnboost
       , iterator_facade<Derived2, V2, TC2, Reference2, Difference2> const& rhs)
 # endif 
 
-#  define BOOST_ITERATOR_FACADE_PLUS_HEAD(prefix,args)              \
+#  define NDNBOOST_ITERATOR_FACADE_PLUS_HEAD(prefix,args)              \
     template <class Derived, class V, class TC, class R, class D>   \
     prefix Derived operator+ args
 
@@ -468,7 +468,7 @@ namespace ndnboost
   //
   class iterator_core_access
   {
-# if defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)                  
+# if defined(NDNBOOST_NO_MEMBER_TEMPLATE_FRIENDS)                  
       // Tasteless as this may seem, making all members public allows member templates
       // to work in the absence of member template friends.
    public:
@@ -476,30 +476,30 @@ namespace ndnboost
       
       template <class I, class V, class TC, class R, class D> friend class iterator_facade;
 
-#  define BOOST_ITERATOR_FACADE_RELATION(op)                                \
-      BOOST_ITERATOR_FACADE_INTEROP_HEAD(friend,op, ndnboost::detail::always_bool2);
+#  define NDNBOOST_ITERATOR_FACADE_RELATION(op)                                \
+      NDNBOOST_ITERATOR_FACADE_INTEROP_HEAD(friend,op, ndnboost::detail::always_bool2);
 
-      BOOST_ITERATOR_FACADE_RELATION(==)
-      BOOST_ITERATOR_FACADE_RELATION(!=)
+      NDNBOOST_ITERATOR_FACADE_RELATION(==)
+      NDNBOOST_ITERATOR_FACADE_RELATION(!=)
 
-      BOOST_ITERATOR_FACADE_RELATION(<)
-      BOOST_ITERATOR_FACADE_RELATION(>)
-      BOOST_ITERATOR_FACADE_RELATION(<=)
-      BOOST_ITERATOR_FACADE_RELATION(>=)
-#  undef BOOST_ITERATOR_FACADE_RELATION
+      NDNBOOST_ITERATOR_FACADE_RELATION(<)
+      NDNBOOST_ITERATOR_FACADE_RELATION(>)
+      NDNBOOST_ITERATOR_FACADE_RELATION(<=)
+      NDNBOOST_ITERATOR_FACADE_RELATION(>=)
+#  undef NDNBOOST_ITERATOR_FACADE_RELATION
 
-      BOOST_ITERATOR_FACADE_INTEROP_HEAD(
+      NDNBOOST_ITERATOR_FACADE_INTEROP_HEAD(
           friend, -, ndnboost::detail::choose_difference_type)
       ;
 
-      BOOST_ITERATOR_FACADE_PLUS_HEAD(
+      NDNBOOST_ITERATOR_FACADE_PLUS_HEAD(
           friend inline
           , (iterator_facade<Derived, V, TC, R, D> const&
            , typename Derived::difference_type)
       )
       ;
 
-      BOOST_ITERATOR_FACADE_PLUS_HEAD(
+      NDNBOOST_ITERATOR_FACADE_PLUS_HEAD(
           friend inline
         , (typename Derived::difference_type
            , iterator_facade<Derived, V, TC, R, D> const&)
@@ -590,11 +590,11 @@ namespace ndnboost
     , class Difference  = std::ptrdiff_t
   >
   class iterator_facade
-# ifdef BOOST_ITERATOR_FACADE_NEEDS_ITERATOR_BASE
+# ifdef NDNBOOST_ITERATOR_FACADE_NEEDS_ITERATOR_BASE
     : public ndnboost::detail::iterator_facade_types<
          Value, CategoryOrTraversal, Reference, Difference
       >::base
-#  undef BOOST_ITERATOR_FACADE_NEEDS_ITERATOR_BASE
+#  undef NDNBOOST_ITERATOR_FACADE_NEEDS_ITERATOR_BASE
 # endif
   {
    private:
@@ -661,7 +661,7 @@ namespace ndnboost
           return this->derived();
       }
 
-# if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
       typename ndnboost::detail::postfix_increment_result<Derived,Value,Reference,CategoryOrTraversal>::type
       operator++(int)
       {
@@ -703,7 +703,7 @@ namespace ndnboost
           return result -= x;
       }
 
-# if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+# if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
       // There appears to be a bug which trashes the data of classes
       // derived from iterator_facade when they are assigned unless we
       // define this assignment operator.  This bug is only revealed
@@ -716,7 +716,7 @@ namespace ndnboost
 # endif
   };
 
-# if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+# if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
   template <class I, class V, class TC, class R, class D>
   inline typename ndnboost::detail::postfix_increment_result<I,V,R,TC>::type
   operator++(
@@ -748,7 +748,7 @@ namespace ndnboost
   // that do not provide them. (Actually it's even worse, they do not provide
   // them for only a few iterators.)
   //
-  // ?? Maybe a BOOST_ITERATOR_NO_FULL_INTEROPERABILITY macro should
+  // ?? Maybe a NDNBOOST_ITERATOR_NO_FULL_INTEROPERABILITY macro should
   //    enable the user to turn off mixed type operators
   //
   // The library takes care to provide only the right operator overloads.
@@ -801,74 +801,74 @@ namespace ndnboost
   // ----------------
   //
 
-# ifdef BOOST_NO_ONE_WAY_ITERATOR_INTEROP
-#  define BOOST_ITERATOR_CONVERTIBLE(a,b) mpl::true_()
+# ifdef NDNBOOST_NO_ONE_WAY_ITERATOR_INTEROP
+#  define NDNBOOST_ITERATOR_CONVERTIBLE(a,b) mpl::true_()
 # else
-#  define BOOST_ITERATOR_CONVERTIBLE(a,b) is_convertible<a,b>()
+#  define NDNBOOST_ITERATOR_CONVERTIBLE(a,b) is_convertible<a,b>()
 # endif
 
-# define BOOST_ITERATOR_FACADE_INTEROP(op, result_type, return_prefix, base_op) \
-  BOOST_ITERATOR_FACADE_INTEROP_HEAD(inline, op, result_type)                   \
+# define NDNBOOST_ITERATOR_FACADE_INTEROP(op, result_type, return_prefix, base_op) \
+  NDNBOOST_ITERATOR_FACADE_INTEROP_HEAD(inline, op, result_type)                   \
   {                                                                             \
       /* For those compilers that do not support enable_if */                   \
-      BOOST_STATIC_ASSERT((                                                     \
+      NDNBOOST_STATIC_ASSERT((                                                     \
           is_interoperable< Derived1, Derived2 >::value                         \
       ));                                                                       \
       return_prefix iterator_core_access::base_op(                              \
           *static_cast<Derived1 const*>(&lhs)                                   \
         , *static_cast<Derived2 const*>(&rhs)                                   \
-        , BOOST_ITERATOR_CONVERTIBLE(Derived2,Derived1)                         \
+        , NDNBOOST_ITERATOR_CONVERTIBLE(Derived2,Derived1)                         \
       );                                                                        \
   }
 
-# define BOOST_ITERATOR_FACADE_RELATION(op, return_prefix, base_op) \
-  BOOST_ITERATOR_FACADE_INTEROP(                                    \
+# define NDNBOOST_ITERATOR_FACADE_RELATION(op, return_prefix, base_op) \
+  NDNBOOST_ITERATOR_FACADE_INTEROP(                                    \
       op                                                            \
     , ndnboost::detail::always_bool2                                   \
     , return_prefix                                                 \
     , base_op                                                       \
   )
 
-  BOOST_ITERATOR_FACADE_RELATION(==, return, equal)
-  BOOST_ITERATOR_FACADE_RELATION(!=, return !, equal)
+  NDNBOOST_ITERATOR_FACADE_RELATION(==, return, equal)
+  NDNBOOST_ITERATOR_FACADE_RELATION(!=, return !, equal)
 
-  BOOST_ITERATOR_FACADE_RELATION(<, return 0 >, distance_from)
-  BOOST_ITERATOR_FACADE_RELATION(>, return 0 <, distance_from)
-  BOOST_ITERATOR_FACADE_RELATION(<=, return 0 >=, distance_from)
-  BOOST_ITERATOR_FACADE_RELATION(>=, return 0 <=, distance_from)
-# undef BOOST_ITERATOR_FACADE_RELATION
+  NDNBOOST_ITERATOR_FACADE_RELATION(<, return 0 >, distance_from)
+  NDNBOOST_ITERATOR_FACADE_RELATION(>, return 0 <, distance_from)
+  NDNBOOST_ITERATOR_FACADE_RELATION(<=, return 0 >=, distance_from)
+  NDNBOOST_ITERATOR_FACADE_RELATION(>=, return 0 <=, distance_from)
+# undef NDNBOOST_ITERATOR_FACADE_RELATION
 
   // operator- requires an additional part in the static assertion
-  BOOST_ITERATOR_FACADE_INTEROP(
+  NDNBOOST_ITERATOR_FACADE_INTEROP(
       -
     , ndnboost::detail::choose_difference_type
     , return
     , distance_from
   )
-# undef BOOST_ITERATOR_FACADE_INTEROP
-# undef BOOST_ITERATOR_FACADE_INTEROP_HEAD
+# undef NDNBOOST_ITERATOR_FACADE_INTEROP
+# undef NDNBOOST_ITERATOR_FACADE_INTEROP_HEAD
 
-# define BOOST_ITERATOR_FACADE_PLUS(args)           \
-  BOOST_ITERATOR_FACADE_PLUS_HEAD(inline, args)     \
+# define NDNBOOST_ITERATOR_FACADE_PLUS(args)           \
+  NDNBOOST_ITERATOR_FACADE_PLUS_HEAD(inline, args)     \
   {                                                 \
       Derived tmp(static_cast<Derived const&>(i));  \
       return tmp += n;                              \
   }
 
-BOOST_ITERATOR_FACADE_PLUS((
+NDNBOOST_ITERATOR_FACADE_PLUS((
   iterator_facade<Derived, V, TC, R, D> const& i
   , typename Derived::difference_type n
 ))
 
-BOOST_ITERATOR_FACADE_PLUS((
+NDNBOOST_ITERATOR_FACADE_PLUS((
     typename Derived::difference_type n
     , iterator_facade<Derived, V, TC, R, D> const& i
 ))
-# undef BOOST_ITERATOR_FACADE_PLUS
-# undef BOOST_ITERATOR_FACADE_PLUS_HEAD
+# undef NDNBOOST_ITERATOR_FACADE_PLUS
+# undef NDNBOOST_ITERATOR_FACADE_PLUS_HEAD
 
 } // namespace ndnboost
 
 #include <ndnboost/iterator/detail/config_undef.hpp>
 
-#endif // BOOST_ITERATOR_FACADE_23022003THW_HPP
+#endif // NDNBOOST_ITERATOR_FACADE_23022003THW_HPP

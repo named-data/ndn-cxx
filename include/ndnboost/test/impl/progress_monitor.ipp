@@ -12,8 +12,8 @@
 //  Description : implements simple text based progress monitor
 // ***************************************************************************
 
-#ifndef BOOST_TEST_PROGRESS_MONITOR_IPP_020105GER
-#define BOOST_TEST_PROGRESS_MONITOR_IPP_020105GER
+#ifndef NDNBOOST_TEST_PROGRESS_MONITOR_IPP_020105GER
+#define NDNBOOST_TEST_PROGRESS_MONITOR_IPP_020105GER
 
 // Boost.Test
 #include <ndnboost/test/progress_monitor.hpp>
@@ -107,4 +107,4 @@ progress_monitor_t::set_stream( std::ostream& ostr )
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_PROGRESS_MONITOR_IPP_020105GER
+#endif // NDNBOOST_TEST_PROGRESS_MONITOR_IPP_020105GER

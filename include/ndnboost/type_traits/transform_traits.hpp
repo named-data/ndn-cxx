@@ -9,8 +9,8 @@
 //  remove_reference, add_reference, remove_bounds, remove_pointer.
 //
 
-#ifndef BOOST_TT_TRANSFORM_TRAITS_HPP_INCLUDED
-#define BOOST_TT_TRANSFORM_TRAITS_HPP_INCLUDED
+#ifndef NDNBOOST_TT_TRANSFORM_TRAITS_HPP_INCLUDED
+#define NDNBOOST_TT_TRANSFORM_TRAITS_HPP_INCLUDED
 
 #include <ndnboost/type_traits/add_pointer.hpp>
 #include <ndnboost/type_traits/add_reference.hpp>
@@ -18,4 +18,4 @@
 #include <ndnboost/type_traits/remove_pointer.hpp>
 #include <ndnboost/type_traits/remove_reference.hpp>
 
-#endif // BOOST_TT_TRANSFORM_TRAITS_HPP_INCLUDED
+#endif // NDNBOOST_TT_TRANSFORM_TRAITS_HPP_INCLUDED

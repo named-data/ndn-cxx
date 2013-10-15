@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DETAIL_SIZE_TYPE_HPP
-#define BOOST_RANGE_DETAIL_SIZE_TYPE_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_SIZE_TYPE_HPP
+#define NDNBOOST_RANGE_DETAIL_SIZE_TYPE_HPP
 
 #include <ndnboost/range/detail/common.hpp>
 
@@ -37,7 +37,7 @@ namespace ndnboost
             template< typename C >
             struct pts
             {
-                typedef BOOST_RANGE_DEDUCED_TYPENAME C::size_type type;
+                typedef NDNBOOST_RANGE_DEDUCED_TYPENAME C::size_type type;
             };
         };
     }
@@ -47,7 +47,7 @@ namespace ndnboost
     {
         typedef typename range_detail::range<C>::type c_type;
     public:
-        typedef typename range_detail::range_size_type_<c_type>::BOOST_NESTED_TEMPLATE pts<C>::type type;
+        typedef typename range_detail::range_size_type_<c_type>::NDNBOOST_NESTED_TEMPLATE pts<C>::type type;
     };
 }
 

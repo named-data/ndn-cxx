@@ -17,8 +17,8 @@ template<
     >
 struct plus_impl
     : if_c<
-          ( BOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag1)
-              > BOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag2)
+          ( NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag1)
+              > NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag2)
             )
 
         , aux::cast2nd_impl< plus_impl< Tag1,Tag1 >,Tag1, Tag2 >
@@ -33,7 +33,7 @@ template<> struct plus_impl< na,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -42,7 +42,7 @@ template<> struct plus_impl< na,integral_c_tag >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -51,7 +51,7 @@ template<> struct plus_impl< integral_c_tag,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -63,14 +63,14 @@ template< typename T > struct plus_tag
 /// forward declaration
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
     >
 struct plus2;
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
     , typename N3 = na, typename N4 = na, typename N5 = na
     >
 struct plus
@@ -86,7 +86,7 @@ struct plus
         >::type
 
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           5
         , plus
         , ( N1, N2, N3, N4, N5 )
@@ -103,11 +103,11 @@ struct plus2
         , typename plus_tag<N2>::type
         >::template apply< N1,N2 >::type
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(2, plus2, (N1, N2))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2, plus2, (N1, N2))
 
 };
 
-BOOST_MPL_AUX_NA_SPEC2(2, 5, plus)
+NDNBOOST_MPL_AUX_NA_SPEC2(2, 5, plus)
 
 }}
 
@@ -122,8 +122,8 @@ struct plus_impl< integral_c_tag,integral_c_tag >
                   typename N1::value_type
                 , typename N2::value_type
                 >::type
-            , ( BOOST_MPL_AUX_VALUE_WKND(N1)::value
-                  + BOOST_MPL_AUX_VALUE_WKND(N2)::value
+            , ( NDNBOOST_MPL_AUX_VALUE_WKND(N1)::value
+                  + NDNBOOST_MPL_AUX_VALUE_WKND(N2)::value
                 )
             >
     {

@@ -12,14 +12,14 @@
 //   30 Jul 00  Add typename syntax fix (Jens Maurer)
 //   28 Aug 99  Initial version
 
-#ifndef BOOST_INTEGER_HPP
-#define BOOST_INTEGER_HPP
+#ifndef NDNBOOST_INTEGER_HPP
+#define NDNBOOST_INTEGER_HPP
 
 #include <ndnboost/integer_fwd.hpp>  // self include
 
 #include <ndnboost/integer_traits.hpp>  // for ndnboost::::ndnboost::integer_traits
 #include <ndnboost/limits.hpp>          // for ::std::numeric_limits
-#include <ndnboost/cstdint.hpp>         // for ndnboost::int64_t and BOOST_NO_INTEGRAL_INT64_T
+#include <ndnboost/cstdint.hpp>         // for ndnboost::int64_t and NDNBOOST_NO_INTEGRAL_INT64_T
 #include <ndnboost/static_assert.hpp>
 
 //
@@ -57,18 +57,18 @@ namespace ndnboost
   //  specializatons: 1=long, 2=int, 3=short, 4=signed char,
   //     6=unsigned long, 7=unsigned int, 8=unsigned short, 9=unsigned char
   //  no specializations for 0 and 5: requests for a type > long are in error
-#ifdef BOOST_HAS_LONG_LONG
+#ifdef NDNBOOST_HAS_LONG_LONG
   template<> struct int_least_helper<1> { typedef ndnboost::long_long_type least; };
-#elif defined(BOOST_HAS_MS_INT64)
+#elif defined(NDNBOOST_HAS_MS_INT64)
   template<> struct int_least_helper<1> { typedef __int64 least; };
 #endif
   template<> struct int_least_helper<2> { typedef long least; };
   template<> struct int_least_helper<3> { typedef int least; };
   template<> struct int_least_helper<4> { typedef short least; };
   template<> struct int_least_helper<5> { typedef signed char least; };
-#ifdef BOOST_HAS_LONG_LONG
+#ifdef NDNBOOST_HAS_LONG_LONG
   template<> struct uint_least_helper<1> { typedef ndnboost::ulong_long_type least; };
-#elif defined(BOOST_HAS_MS_INT64)
+#elif defined(NDNBOOST_HAS_MS_INT64)
   template<> struct uint_least_helper<1> { typedef unsigned __int64 least; };
 #endif
   template<> struct uint_least_helper<2> { typedef unsigned long least; };
@@ -95,7 +95,7 @@ namespace ndnboost
   template <> struct exact_signed_base_helper<sizeof(long)* CHAR_BIT> { typedef long exact; };
   template <> struct exact_unsigned_base_helper<sizeof(unsigned long)* CHAR_BIT> { typedef unsigned long exact; };
 #endif
-#if defined(BOOST_HAS_LONG_LONG) &&\
+#if defined(NDNBOOST_HAS_LONG_LONG) &&\
    ((defined(ULLONG_MAX) && (ULLONG_MAX != ULONG_MAX)) ||\
     (defined(ULONG_LONG_MAX) && (ULONG_LONG_MAX != ULONG_MAX)) ||\
     (defined(ULONGLONG_MAX) && (ULONGLONG_MAX != ULONG_MAX)) ||\
@@ -113,11 +113,11 @@ namespace ndnboost
   template< int Bits >   // bits (including sign) required
   struct int_t : public detail::exact_signed_base_helper<Bits>
   {
-      BOOST_STATIC_ASSERT_MSG(Bits <= (int)(sizeof(ndnboost::intmax_t) * CHAR_BIT),
+      NDNBOOST_STATIC_ASSERT_MSG(Bits <= (int)(sizeof(ndnboost::intmax_t) * CHAR_BIT),
          "No suitable signed integer type with the requested number of bits is available.");
       typedef typename detail::int_least_helper
         <
-#ifdef BOOST_HAS_LONG_LONG
+#ifdef NDNBOOST_HAS_LONG_LONG
           (Bits <= (int)(sizeof(ndnboost::long_long_type) * CHAR_BIT)) +
 #else
            1 +
@@ -134,11 +134,11 @@ namespace ndnboost
   template< int Bits >   // bits required
   struct uint_t : public detail::exact_unsigned_base_helper<Bits>
   {
-     BOOST_STATIC_ASSERT_MSG(Bits <= (int)(sizeof(ndnboost::uintmax_t) * CHAR_BIT),
+     NDNBOOST_STATIC_ASSERT_MSG(Bits <= (int)(sizeof(ndnboost::uintmax_t) * CHAR_BIT),
          "No suitable unsigned integer type with the requested number of bits is available.");
-#if (defined(__BORLANDC__) || defined(__CODEGEAR__)) && defined(BOOST_NO_INTEGRAL_INT64_T)
+#if (defined(__BORLANDC__) || defined(__CODEGEAR__)) && defined(NDNBOOST_NO_INTEGRAL_INT64_T)
      // It's really not clear why this workaround should be needed... shrug I guess!  JM
-     BOOST_STATIC_CONSTANT(int, s = 
+     NDNBOOST_STATIC_CONSTANT(int, s = 
            6 +
           (Bits <= ::std::numeric_limits<unsigned long>::digits) +
           (Bits <= ::std::numeric_limits<unsigned int>::digits) +
@@ -148,7 +148,7 @@ namespace ndnboost
 #else
       typedef typename detail::uint_least_helper
         < 
-#ifdef BOOST_HAS_LONG_LONG
+#ifdef NDNBOOST_HAS_LONG_LONG
           (Bits <= (int)(sizeof(ndnboost::long_long_type) * CHAR_BIT)) +
 #else
            1 +
@@ -166,7 +166,7 @@ namespace ndnboost
   //  integer templates specifying extreme value  ----------------------------//
 
   //  signed
-#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+#if !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && defined(NDNBOOST_HAS_LONG_LONG)
   template< ndnboost::long_long_type MaxValue >   // maximum value to require support
 #else
   template< long MaxValue >   // maximum value to require support
@@ -175,7 +175,7 @@ namespace ndnboost
   {
       typedef typename detail::int_least_helper
         <
-#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+#if !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && defined(NDNBOOST_HAS_LONG_LONG)
           (MaxValue <= ::ndnboost::integer_traits<ndnboost::long_long_type>::const_max) +
 #else
            1 +
@@ -188,7 +188,7 @@ namespace ndnboost
       typedef typename int_fast_t<least>::type  fast;
   };
 
-#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+#if !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && defined(NDNBOOST_HAS_LONG_LONG)
   template< ndnboost::long_long_type MinValue >   // minimum value to require support
 #else
   template< long MinValue >   // minimum value to require support
@@ -197,7 +197,7 @@ namespace ndnboost
   {
       typedef typename detail::int_least_helper
         <
-#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+#if !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && defined(NDNBOOST_HAS_LONG_LONG)
           (MinValue >= ::ndnboost::integer_traits<ndnboost::long_long_type>::const_min) +
 #else
            1 +
@@ -211,7 +211,7 @@ namespace ndnboost
   };
 
   //  unsigned
-#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+#if !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && defined(NDNBOOST_HAS_LONG_LONG)
   template< ndnboost::ulong_long_type MaxValue >   // minimum value to require support
 #else
   template< unsigned long MaxValue >   // minimum value to require support
@@ -220,16 +220,16 @@ namespace ndnboost
   {
 #if (defined(__BORLANDC__) || defined(__CODEGEAR__))
      // It's really not clear why this workaround should be needed... shrug I guess!  JM
-#if defined(BOOST_NO_INTEGRAL_INT64_T)
-      BOOST_STATIC_CONSTANT(unsigned, which = 
+#if defined(NDNBOOST_NO_INTEGRAL_INT64_T)
+      NDNBOOST_STATIC_CONSTANT(unsigned, which = 
            1 +
           (MaxValue <= ::ndnboost::integer_traits<unsigned long>::const_max) +
           (MaxValue <= ::ndnboost::integer_traits<unsigned int>::const_max) +
           (MaxValue <= ::ndnboost::integer_traits<unsigned short>::const_max) +
           (MaxValue <= ::ndnboost::integer_traits<unsigned char>::const_max));
       typedef typename detail::int_least_helper< ::ndnboost::uint_value_t<MaxValue>::which>::least least;
-#else // BOOST_NO_INTEGRAL_INT64_T
-      BOOST_STATIC_CONSTANT(unsigned, which = 
+#else // NDNBOOST_NO_INTEGRAL_INT64_T
+      NDNBOOST_STATIC_CONSTANT(unsigned, which = 
            1 +
           (MaxValue <= ::ndnboost::integer_traits<ndnboost::ulong_long_type>::const_max) +
           (MaxValue <= ::ndnboost::integer_traits<unsigned long>::const_max) +
@@ -237,11 +237,11 @@ namespace ndnboost
           (MaxValue <= ::ndnboost::integer_traits<unsigned short>::const_max) +
           (MaxValue <= ::ndnboost::integer_traits<unsigned char>::const_max));
       typedef typename detail::uint_least_helper< ::ndnboost::uint_value_t<MaxValue>::which>::least least;
-#endif // BOOST_NO_INTEGRAL_INT64_T
+#endif // NDNBOOST_NO_INTEGRAL_INT64_T
 #else
       typedef typename detail::uint_least_helper
         < 
-#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+#if !defined(NDNBOOST_NO_INTEGRAL_INT64_T) && defined(NDNBOOST_HAS_LONG_LONG)
           (MaxValue <= ::ndnboost::integer_traits<ndnboost::ulong_long_type>::const_max) +
 #else
            1 +
@@ -258,4 +258,4 @@ namespace ndnboost
 
 } // namespace ndnboost
 
-#endif  // BOOST_INTEGER_HPP
+#endif  // NDNBOOST_INTEGER_HPP

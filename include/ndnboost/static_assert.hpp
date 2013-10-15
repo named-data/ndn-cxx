@@ -11,8 +11,8 @@
       Initial version.
 */
 
-#ifndef BOOST_STATIC_ASSERT_HPP
-#define BOOST_STATIC_ASSERT_HPP
+#ifndef NDNBOOST_STATIC_ASSERT_HPP
+#define NDNBOOST_STATIC_ASSERT_HPP
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/detail/workaround.hpp>
@@ -26,25 +26,25 @@
 #pragma GCC system_header
 #endif
 
-#ifndef BOOST_NO_CXX11_STATIC_ASSERT
-#  ifndef BOOST_NO_CXX11_VARIADIC_MACROS
-#     define BOOST_STATIC_ASSERT_MSG( ... ) static_assert(__VA_ARGS__)
+#ifndef NDNBOOST_NO_CXX11_STATIC_ASSERT
+#  ifndef NDNBOOST_NO_CXX11_VARIADIC_MACROS
+#     define NDNBOOST_STATIC_ASSERT_MSG( ... ) static_assert(__VA_ARGS__)
 #  else
-#     define BOOST_STATIC_ASSERT_MSG( B, Msg ) BOOST_STATIC_ASSERT( B )
+#     define NDNBOOST_STATIC_ASSERT_MSG( B, Msg ) NDNBOOST_STATIC_ASSERT( B )
 #  endif
 #else
-#     define BOOST_STATIC_ASSERT_MSG( B, Msg ) BOOST_STATIC_ASSERT( B )
+#     define NDNBOOST_STATIC_ASSERT_MSG( B, Msg ) NDNBOOST_STATIC_ASSERT( B )
 #endif
 
 #ifdef __BORLANDC__
 //
 // workaround for buggy integral-constant expression support:
-#define BOOST_BUGGY_INTEGRAL_CONSTANT_EXPRESSIONS
+#define NDNBOOST_BUGGY_INTEGRAL_CONSTANT_EXPRESSIONS
 #endif
 
 #if defined(__GNUC__) && (__GNUC__ == 3) && ((__GNUC_MINOR__ == 3) || (__GNUC_MINOR__ == 4))
 // gcc 3.3 and 3.4 don't produce good error messages with the default version:
-#  define BOOST_SA_GCC_WORKAROUND
+#  define NDNBOOST_SA_GCC_WORKAROUND
 #endif
 
 //
@@ -52,32 +52,32 @@
 // then enable this:
 //
 #if defined(__GNUC__) && ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4)))
-#  ifndef BOOST_NO_CXX11_VARIADIC_MACROS
-#     define BOOST_STATIC_ASSERT_BOOL_CAST( ... ) ((__VA_ARGS__) == 0 ? false : true)
+#  ifndef NDNBOOST_NO_CXX11_VARIADIC_MACROS
+#     define NDNBOOST_STATIC_ASSERT_BOOL_CAST( ... ) ((__VA_ARGS__) == 0 ? false : true)
 #  else
-#     define BOOST_STATIC_ASSERT_BOOL_CAST( x ) ((x) == 0 ? false : true)
+#     define NDNBOOST_STATIC_ASSERT_BOOL_CAST( x ) ((x) == 0 ? false : true)
 #  endif
 #else
-#  ifndef BOOST_NO_CXX11_VARIADIC_MACROS
-#     define BOOST_STATIC_ASSERT_BOOL_CAST( ... ) (bool)(__VA_ARGS__)
+#  ifndef NDNBOOST_NO_CXX11_VARIADIC_MACROS
+#     define NDNBOOST_STATIC_ASSERT_BOOL_CAST( ... ) (bool)(__VA_ARGS__)
 #  else
-#     define BOOST_STATIC_ASSERT_BOOL_CAST(x) (bool)(x)
+#     define NDNBOOST_STATIC_ASSERT_BOOL_CAST(x) (bool)(x)
 #  endif
 #endif
 //
 // If the compiler warns about unused typedefs then enable this:
 //
 #if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
-#  define BOOST_STATIC_ASSERT_UNUSED_ATTRIBUTE __attribute__((unused))
+#  define NDNBOOST_STATIC_ASSERT_UNUSED_ATTRIBUTE __attribute__((unused))
 #else
-#  define BOOST_STATIC_ASSERT_UNUSED_ATTRIBUTE
+#  define NDNBOOST_STATIC_ASSERT_UNUSED_ATTRIBUTE
 #endif
 
-#ifndef BOOST_NO_CXX11_STATIC_ASSERT
-#  ifndef BOOST_NO_CXX11_VARIADIC_MACROS
-#     define BOOST_STATIC_ASSERT( ... ) static_assert(__VA_ARGS__, #__VA_ARGS__)
+#ifndef NDNBOOST_NO_CXX11_STATIC_ASSERT
+#  ifndef NDNBOOST_NO_CXX11_VARIADIC_MACROS
+#     define NDNBOOST_STATIC_ASSERT( ... ) static_assert(__VA_ARGS__, #__VA_ARGS__)
 #  else
-#     define BOOST_STATIC_ASSERT( B ) static_assert(B, #B)
+#     define NDNBOOST_STATIC_ASSERT( B ) static_assert(B, #B)
 #  endif
 #else
 
@@ -101,7 +101,7 @@ template<int x> struct static_assert_test{};
 // both are described as declarations [7.1.3] and [7.2] in the standard,
 // however some compilers use "delayed evaluation" of one or more of
 // these when implicitly instantiating templates.  We use typedef declarations
-// by default, but try defining BOOST_USE_ENUM_STATIC_ASSERT if the enum
+// by default, but try defining NDNBOOST_USE_ENUM_STATIC_ASSERT if the enum
 // version gets better results from your compiler...
 //
 // Implementation:
@@ -115,81 +115,81 @@ template<int x> struct static_assert_test{};
 // style casts: too many compilers currently have problems with static_cast
 // when used inside integral constant expressions.
 //
-#if !defined(BOOST_BUGGY_INTEGRAL_CONSTANT_EXPRESSIONS)
+#if !defined(NDNBOOST_BUGGY_INTEGRAL_CONSTANT_EXPRESSIONS)
 
-#if defined(BOOST_MSVC) && (BOOST_MSVC < 1300)
+#if defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC < 1300)
 // __LINE__ macro broken when -ZI is used see Q199057
 // fortunately MSVC ignores duplicate typedef's.
-#define BOOST_STATIC_ASSERT( B ) \
+#define NDNBOOST_STATIC_ASSERT( B ) \
    typedef ::ndnboost::static_assert_test<\
       sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< (bool)( B ) >)\
       > boost_static_assert_typedef_
-#elif defined(BOOST_MSVC) && defined(BOOST_NO_CXX11_VARIADIC_MACROS)
-#define BOOST_STATIC_ASSERT( B ) \
+#elif defined(NDNBOOST_MSVC) && defined(NDNBOOST_NO_CXX11_VARIADIC_MACROS)
+#define NDNBOOST_STATIC_ASSERT( B ) \
    typedef ::ndnboost::static_assert_test<\
-      sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< BOOST_STATIC_ASSERT_BOOL_CAST ( B ) >)>\
-         BOOST_JOIN(boost_static_assert_typedef_, __COUNTER__)
-#elif defined(BOOST_MSVC)
-#define BOOST_STATIC_ASSERT(...) \
+      sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< NDNBOOST_STATIC_ASSERT_BOOL_CAST ( B ) >)>\
+         NDNBOOST_JOIN(boost_static_assert_typedef_, __COUNTER__)
+#elif defined(NDNBOOST_MSVC)
+#define NDNBOOST_STATIC_ASSERT(...) \
    typedef ::ndnboost::static_assert_test<\
-      sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< BOOST_STATIC_ASSERT_BOOL_CAST (__VA_ARGS__) >)>\
-         BOOST_JOIN(boost_static_assert_typedef_, __COUNTER__)
-#elif (defined(BOOST_INTEL_CXX_VERSION) || defined(BOOST_SA_GCC_WORKAROUND))  && defined(BOOST_NO_CXX11_VARIADIC_MACROS)
+      sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< NDNBOOST_STATIC_ASSERT_BOOL_CAST (__VA_ARGS__) >)>\
+         NDNBOOST_JOIN(boost_static_assert_typedef_, __COUNTER__)
+#elif (defined(NDNBOOST_INTEL_CXX_VERSION) || defined(NDNBOOST_SA_GCC_WORKAROUND))  && defined(NDNBOOST_NO_CXX11_VARIADIC_MACROS)
 // agurt 15/sep/02: a special care is needed to force Intel C++ issue an error 
 // instead of warning in case of failure
-# define BOOST_STATIC_ASSERT( B ) \
-    typedef char BOOST_JOIN(boost_static_assert_typedef_, __LINE__) \
-        [ ::ndnboost::STATIC_ASSERTION_FAILURE< BOOST_STATIC_ASSERT_BOOL_CAST( B ) >::value ]
-#elif (defined(BOOST_INTEL_CXX_VERSION) || defined(BOOST_SA_GCC_WORKAROUND))  && !defined(BOOST_NO_CXX11_VARIADIC_MACROS)
+# define NDNBOOST_STATIC_ASSERT( B ) \
+    typedef char NDNBOOST_JOIN(boost_static_assert_typedef_, __LINE__) \
+        [ ::ndnboost::STATIC_ASSERTION_FAILURE< NDNBOOST_STATIC_ASSERT_BOOL_CAST( B ) >::value ]
+#elif (defined(NDNBOOST_INTEL_CXX_VERSION) || defined(NDNBOOST_SA_GCC_WORKAROUND))  && !defined(NDNBOOST_NO_CXX11_VARIADIC_MACROS)
 // agurt 15/sep/02: a special care is needed to force Intel C++ issue an error 
 // instead of warning in case of failure
-# define BOOST_STATIC_ASSERT(...) \
-    typedef char BOOST_JOIN(boost_static_assert_typedef_, __LINE__) \
-        [ ::ndnboost::STATIC_ASSERTION_FAILURE< BOOST_STATIC_ASSERT_BOOL_CAST( __VA_ARGS__ ) >::value ]
+# define NDNBOOST_STATIC_ASSERT(...) \
+    typedef char NDNBOOST_JOIN(boost_static_assert_typedef_, __LINE__) \
+        [ ::ndnboost::STATIC_ASSERTION_FAILURE< NDNBOOST_STATIC_ASSERT_BOOL_CAST( __VA_ARGS__ ) >::value ]
 #elif defined(__sgi)
 // special version for SGI MIPSpro compiler
-#define BOOST_STATIC_ASSERT( B ) \
-   BOOST_STATIC_CONSTANT(bool, \
-     BOOST_JOIN(boost_static_assert_test_, __LINE__) = ( B )); \
+#define NDNBOOST_STATIC_ASSERT( B ) \
+   NDNBOOST_STATIC_CONSTANT(bool, \
+     NDNBOOST_JOIN(boost_static_assert_test_, __LINE__) = ( B )); \
    typedef ::ndnboost::static_assert_test<\
      sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< \
-       BOOST_JOIN(boost_static_assert_test_, __LINE__) >)>\
-         BOOST_JOIN(boost_static_assert_typedef_, __LINE__)
-#elif BOOST_WORKAROUND(__MWERKS__, <= 0x3003)
+       NDNBOOST_JOIN(boost_static_assert_test_, __LINE__) >)>\
+         NDNBOOST_JOIN(boost_static_assert_typedef_, __LINE__)
+#elif NDNBOOST_WORKAROUND(__MWERKS__, <= 0x3003)
 // special version for CodeWarrior <= 8.x
-#define BOOST_STATIC_ASSERT( B ) \
-   BOOST_STATIC_CONSTANT(int, \
-     BOOST_JOIN(boost_static_assert_test_, __LINE__) = \
-       sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< BOOST_STATIC_ASSERT_BOOL_CAST( B ) >) )
+#define NDNBOOST_STATIC_ASSERT( B ) \
+   NDNBOOST_STATIC_CONSTANT(int, \
+     NDNBOOST_JOIN(boost_static_assert_test_, __LINE__) = \
+       sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< NDNBOOST_STATIC_ASSERT_BOOL_CAST( B ) >) )
 #else
 // generic version
-#  ifndef BOOST_NO_CXX11_VARIADIC_MACROS
-#     define BOOST_STATIC_ASSERT( ... ) \
+#  ifndef NDNBOOST_NO_CXX11_VARIADIC_MACROS
+#     define NDNBOOST_STATIC_ASSERT( ... ) \
          typedef ::ndnboost::static_assert_test<\
-            sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< BOOST_STATIC_ASSERT_BOOL_CAST( __VA_ARGS__ ) >)>\
-               BOOST_JOIN(boost_static_assert_typedef_, __LINE__) BOOST_STATIC_ASSERT_UNUSED_ATTRIBUTE
+            sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< NDNBOOST_STATIC_ASSERT_BOOL_CAST( __VA_ARGS__ ) >)>\
+               NDNBOOST_JOIN(boost_static_assert_typedef_, __LINE__) NDNBOOST_STATIC_ASSERT_UNUSED_ATTRIBUTE
 #  else
-#     define BOOST_STATIC_ASSERT( B ) \
+#     define NDNBOOST_STATIC_ASSERT( B ) \
          typedef ::ndnboost::static_assert_test<\
-            sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< BOOST_STATIC_ASSERT_BOOL_CAST( B ) >)>\
-               BOOST_JOIN(boost_static_assert_typedef_, __LINE__) BOOST_STATIC_ASSERT_UNUSED_ATTRIBUTE
+            sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< NDNBOOST_STATIC_ASSERT_BOOL_CAST( B ) >)>\
+               NDNBOOST_JOIN(boost_static_assert_typedef_, __LINE__) NDNBOOST_STATIC_ASSERT_UNUSED_ATTRIBUTE
 #  endif
 #endif
 
 #else
 // alternative enum based implementation:
-#  ifndef BOOST_NO_CXX11_VARIADIC_MACROS
-#    define BOOST_STATIC_ASSERT( ... ) \
-         enum { BOOST_JOIN(boost_static_assert_enum_, __LINE__) \
+#  ifndef NDNBOOST_NO_CXX11_VARIADIC_MACROS
+#    define NDNBOOST_STATIC_ASSERT( ... ) \
+         enum { NDNBOOST_JOIN(boost_static_assert_enum_, __LINE__) \
             = sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< (bool)( __VA_ARGS__ ) >) }
 #  else
-#    define BOOST_STATIC_ASSERT(B) \
-         enum { BOOST_JOIN(boost_static_assert_enum_, __LINE__) \
+#    define NDNBOOST_STATIC_ASSERT(B) \
+         enum { NDNBOOST_JOIN(boost_static_assert_enum_, __LINE__) \
             = sizeof(::ndnboost::STATIC_ASSERTION_FAILURE< (bool)( B ) >) }
 #  endif
 #endif
-#endif // defined(BOOST_NO_CXX11_STATIC_ASSERT)
+#endif // defined(NDNBOOST_NO_CXX11_STATIC_ASSERT)
 
-#endif // BOOST_STATIC_ASSERT_HPP
+#endif // NDNBOOST_STATIC_ASSERT_HPP
 
 

@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_PUSH_BACK_IMPL_HPP_INCLUDED
-#define BOOST_MPL_AUX_PUSH_BACK_IMPL_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_PUSH_BACK_IMPL_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_PUSH_BACK_IMPL_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2008
 //
@@ -37,7 +37,7 @@ struct push_back_impl
         // should be instantiated only in the context of 'has_push_back_impl';
         // if you've got an assert here, you are requesting a 'push_back' 
         // specialization that doesn't exist.
-        BOOST_MPL_ASSERT_MSG(
+        NDNBOOST_MPL_ASSERT_MSG(
               ( ndnboost::is_same< T, has_push_back_arg >::value )
             , REQUESTED_PUSH_BACK_SPECIALIZATION_FOR_SEQUENCE_DOES_NOT_EXIST
             , ( Sequence )
@@ -49,22 +49,22 @@ template< typename Tag >
 struct has_push_back_impl
 {
     template< typename Seq > struct apply
-#if !defined(BOOST_MPL_CFG_NO_NESTED_FORWARDING)
+#if !defined(NDNBOOST_MPL_CFG_NO_NESTED_FORWARDING)
         : aux::has_type< push_back< Seq, has_push_back_arg > >
     {
 #else
     {
         typedef aux::has_type< push_back< Seq, has_push_back_arg > > type;
-        BOOST_STATIC_CONSTANT(bool, value = 
+        NDNBOOST_STATIC_CONSTANT(bool, value = 
               (aux::has_type< push_back< Seq, has_push_back_arg > >::value)
             );
 #endif
     };
 };
 
-BOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC(2, push_back_impl)
-BOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC(1, has_push_back_impl)
+NDNBOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC(2, push_back_impl)
+NDNBOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC(1, has_push_back_impl)
 
 }}
 
-#endif // BOOST_MPL_AUX_PUSH_BACK_IMPL_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_PUSH_BACK_IMPL_HPP_INCLUDED

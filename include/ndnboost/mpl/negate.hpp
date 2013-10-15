@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_NEGATE_HPP_INCLUDED
-#define BOOST_MPL_NEGATE_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_NEGATE_HPP_INCLUDED
+#define NDNBOOST_MPL_NEGATE_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -32,10 +32,10 @@ template< typename T > struct negate_tag
 };
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(N)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N)
     >
 struct negate
-#if !defined(BOOST_MPL_CFG_MSVC_ETI_BUG)
+#if !defined(NDNBOOST_MPL_CFG_MSVC_ETI_BUG)
     : negate_impl<
           typename negate_tag<N>::type
         >::template apply<N>::type
@@ -46,17 +46,17 @@ struct negate
         >::type >::type
 #endif
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1, negate, (N))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1, negate, (N))
 };
 
-BOOST_MPL_AUX_NA_SPEC(1, negate)
+NDNBOOST_MPL_AUX_NA_SPEC(1, negate)
 
 
-#if defined(BOOST_MPL_CFG_NO_NESTED_VALUE_ARITHMETIC)
+#if defined(NDNBOOST_MPL_CFG_NO_NESTED_VALUE_ARITHMETIC)
 namespace aux {
 template< typename T, T n > struct negate_wknd
 {
-    BOOST_STATIC_CONSTANT(T, value = -n);
+    NDNBOOST_STATIC_CONSTANT(T, value = -n);
     typedef integral_c<T,value> type;
 };
 }
@@ -65,7 +65,7 @@ template< typename T, T n > struct negate_wknd
 template<>
 struct negate_impl<integral_c_tag>
 {
-#if defined(BOOST_MPL_CFG_NO_NESTED_VALUE_ARITHMETIC)
+#if defined(NDNBOOST_MPL_CFG_NO_NESTED_VALUE_ARITHMETIC)
     template< typename N > struct apply
         : aux::negate_wknd< typename N::value_type, N::value >
 #else
@@ -78,4 +78,4 @@ struct negate_impl<integral_c_tag>
 
 }}
 
-#endif // BOOST_MPL_NEGATE_HPP_INCLUDED
+#endif // NDNBOOST_MPL_NEGATE_HPP_INCLUDED

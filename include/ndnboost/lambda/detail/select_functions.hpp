@@ -9,8 +9,8 @@
 // For more information, see http://www.boost.org
 
 
-#ifndef BOOST_LAMBDA_SELECT_FUNCTIONS_HPP
-#define BOOST_LAMBDA_SELECT_FUNCTIONS_HPP
+#ifndef NDNBOOST_LAMBDA_SELECT_FUNCTIONS_HPP
+#define NDNBOOST_LAMBDA_SELECT_FUNCTIONS_HPP
 
 namespace ndnboost { 
 namespace lambda {

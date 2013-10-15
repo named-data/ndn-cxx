@@ -1,5 +1,5 @@
-#ifndef BOOST_BIND_MEM_FN_HPP_INCLUDED
-#define BOOST_BIND_MEM_FN_HPP_INCLUDED
+#ifndef NDNBOOST_BIND_MEM_FN_HPP_INCLUDED
+#define NDNBOOST_BIND_MEM_FN_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -28,10 +28,10 @@
 namespace ndnboost
 {
 
-#if defined(BOOST_NO_VOID_RETURNS)
+#if defined(NDNBOOST_NO_VOID_RETURNS)
 
-#define BOOST_MEM_FN_CLASS_F , class F
-#define BOOST_MEM_FN_TYPEDEF(X)
+#define NDNBOOST_MEM_FN_CLASS_F , class F
+#define NDNBOOST_MEM_FN_TYPEDEF(X)
 
 namespace _mfi // mem_fun_impl
 {
@@ -39,270 +39,270 @@ namespace _mfi // mem_fun_impl
 template<class V> struct mf
 {
 
-#define BOOST_MEM_FN_RETURN return
+#define NDNBOOST_MEM_FN_RETURN return
 
-#define BOOST_MEM_FN_NAME(X) inner_##X
-#define BOOST_MEM_FN_CC
-
-#include <ndnboost/bind/mem_fn_template.hpp>
-
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
-
-#ifdef BOOST_MEM_FN_ENABLE_CDECL
-
-#define BOOST_MEM_FN_NAME(X) inner_##X##_cdecl
-#define BOOST_MEM_FN_CC __cdecl
+#define NDNBOOST_MEM_FN_NAME(X) inner_##X
+#define NDNBOOST_MEM_FN_CC
 
 #include <ndnboost/bind/mem_fn_template.hpp>
 
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+
+#ifdef NDNBOOST_MEM_FN_ENABLE_CDECL
+
+#define NDNBOOST_MEM_FN_NAME(X) inner_##X##_cdecl
+#define NDNBOOST_MEM_FN_CC __cdecl
+
+#include <ndnboost/bind/mem_fn_template.hpp>
+
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
 
 #endif
 
-#ifdef BOOST_MEM_FN_ENABLE_STDCALL
+#ifdef NDNBOOST_MEM_FN_ENABLE_STDCALL
 
-#define BOOST_MEM_FN_NAME(X) inner_##X##_stdcall
-#define BOOST_MEM_FN_CC __stdcall
-
-#include <ndnboost/bind/mem_fn_template.hpp>
-
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
-
-#endif
-
-#ifdef BOOST_MEM_FN_ENABLE_FASTCALL
-
-#define BOOST_MEM_FN_NAME(X) inner_##X##_fastcall
-#define BOOST_MEM_FN_CC __fastcall
+#define NDNBOOST_MEM_FN_NAME(X) inner_##X##_stdcall
+#define NDNBOOST_MEM_FN_CC __stdcall
 
 #include <ndnboost/bind/mem_fn_template.hpp>
 
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
 
 #endif
 
-#undef BOOST_MEM_FN_RETURN
+#ifdef NDNBOOST_MEM_FN_ENABLE_FASTCALL
+
+#define NDNBOOST_MEM_FN_NAME(X) inner_##X##_fastcall
+#define NDNBOOST_MEM_FN_CC __fastcall
+
+#include <ndnboost/bind/mem_fn_template.hpp>
+
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+
+#endif
+
+#undef NDNBOOST_MEM_FN_RETURN
 
 }; // struct mf<V>
 
 template<> struct mf<void>
 {
 
-#define BOOST_MEM_FN_RETURN
+#define NDNBOOST_MEM_FN_RETURN
 
-#define BOOST_MEM_FN_NAME(X) inner_##X
-#define BOOST_MEM_FN_CC
-
-#include <ndnboost/bind/mem_fn_template.hpp>
-
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
-
-#ifdef BOOST_MEM_FN_ENABLE_CDECL
-
-#define BOOST_MEM_FN_NAME(X) inner_##X##_cdecl
-#define BOOST_MEM_FN_CC __cdecl
+#define NDNBOOST_MEM_FN_NAME(X) inner_##X
+#define NDNBOOST_MEM_FN_CC
 
 #include <ndnboost/bind/mem_fn_template.hpp>
 
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+
+#ifdef NDNBOOST_MEM_FN_ENABLE_CDECL
+
+#define NDNBOOST_MEM_FN_NAME(X) inner_##X##_cdecl
+#define NDNBOOST_MEM_FN_CC __cdecl
+
+#include <ndnboost/bind/mem_fn_template.hpp>
+
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
 
 #endif
 
-#ifdef BOOST_MEM_FN_ENABLE_STDCALL
+#ifdef NDNBOOST_MEM_FN_ENABLE_STDCALL
 
-#define BOOST_MEM_FN_NAME(X) inner_##X##_stdcall
-#define BOOST_MEM_FN_CC __stdcall
-
-#include <ndnboost/bind/mem_fn_template.hpp>
-
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
-
-#endif
-
-#ifdef BOOST_MEM_FN_ENABLE_FASTCALL
-
-#define BOOST_MEM_FN_NAME(X) inner_##X##_fastcall
-#define BOOST_MEM_FN_CC __fastcall
+#define NDNBOOST_MEM_FN_NAME(X) inner_##X##_stdcall
+#define NDNBOOST_MEM_FN_CC __stdcall
 
 #include <ndnboost/bind/mem_fn_template.hpp>
 
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
 
 #endif
 
-#undef BOOST_MEM_FN_RETURN
+#ifdef NDNBOOST_MEM_FN_ENABLE_FASTCALL
+
+#define NDNBOOST_MEM_FN_NAME(X) inner_##X##_fastcall
+#define NDNBOOST_MEM_FN_CC __fastcall
+
+#include <ndnboost/bind/mem_fn_template.hpp>
+
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+
+#endif
+
+#undef NDNBOOST_MEM_FN_RETURN
 
 }; // struct mf<void>
 
-#undef BOOST_MEM_FN_CLASS_F
-#undef BOOST_MEM_FN_TYPEDEF_F
+#undef NDNBOOST_MEM_FN_CLASS_F
+#undef NDNBOOST_MEM_FN_TYPEDEF_F
 
-#define BOOST_MEM_FN_NAME(X) X
-#define BOOST_MEM_FN_NAME2(X) inner_##X
-#define BOOST_MEM_FN_CC
-
-#include <ndnboost/bind/mem_fn_vw.hpp>
-
-#undef BOOST_MEM_FN_NAME
-#undef BOOST_MEM_FN_NAME2
-#undef BOOST_MEM_FN_CC
-
-#ifdef BOOST_MEM_FN_ENABLE_CDECL
-
-#define BOOST_MEM_FN_NAME(X) X##_cdecl
-#define BOOST_MEM_FN_NAME2(X) inner_##X##_cdecl
-#define BOOST_MEM_FN_CC __cdecl
+#define NDNBOOST_MEM_FN_NAME(X) X
+#define NDNBOOST_MEM_FN_NAME2(X) inner_##X
+#define NDNBOOST_MEM_FN_CC
 
 #include <ndnboost/bind/mem_fn_vw.hpp>
 
-#undef BOOST_MEM_FN_NAME
-#undef BOOST_MEM_FN_NAME2
-#undef BOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_NAME2
+#undef NDNBOOST_MEM_FN_CC
+
+#ifdef NDNBOOST_MEM_FN_ENABLE_CDECL
+
+#define NDNBOOST_MEM_FN_NAME(X) X##_cdecl
+#define NDNBOOST_MEM_FN_NAME2(X) inner_##X##_cdecl
+#define NDNBOOST_MEM_FN_CC __cdecl
+
+#include <ndnboost/bind/mem_fn_vw.hpp>
+
+#undef NDNBOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_NAME2
+#undef NDNBOOST_MEM_FN_CC
 
 #endif
 
-#ifdef BOOST_MEM_FN_ENABLE_STDCALL
+#ifdef NDNBOOST_MEM_FN_ENABLE_STDCALL
 
-#define BOOST_MEM_FN_NAME(X) X##_stdcall
-#define BOOST_MEM_FN_NAME2(X) inner_##X##_stdcall
-#define BOOST_MEM_FN_CC __stdcall
+#define NDNBOOST_MEM_FN_NAME(X) X##_stdcall
+#define NDNBOOST_MEM_FN_NAME2(X) inner_##X##_stdcall
+#define NDNBOOST_MEM_FN_CC __stdcall
 
 #include <ndnboost/bind/mem_fn_vw.hpp>
 
-#undef BOOST_MEM_FN_NAME
-#undef BOOST_MEM_FN_NAME2
-#undef BOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_NAME2
+#undef NDNBOOST_MEM_FN_CC
 
 #endif
 
-#ifdef BOOST_MEM_FN_ENABLE_FASTCALL
+#ifdef NDNBOOST_MEM_FN_ENABLE_FASTCALL
 
-#define BOOST_MEM_FN_NAME(X) X##_fastcall
-#define BOOST_MEM_FN_NAME2(X) inner_##X##_fastcall
-#define BOOST_MEM_FN_CC __fastcall
+#define NDNBOOST_MEM_FN_NAME(X) X##_fastcall
+#define NDNBOOST_MEM_FN_NAME2(X) inner_##X##_fastcall
+#define NDNBOOST_MEM_FN_CC __fastcall
 
 #include <ndnboost/bind/mem_fn_vw.hpp>
 
-#undef BOOST_MEM_FN_NAME
-#undef BOOST_MEM_FN_NAME2
-#undef BOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_NAME2
+#undef NDNBOOST_MEM_FN_CC
 
 #endif
 
 } // namespace _mfi
 
-#else // #ifdef BOOST_NO_VOID_RETURNS
+#else // #ifdef NDNBOOST_NO_VOID_RETURNS
 
-#define BOOST_MEM_FN_CLASS_F
-#define BOOST_MEM_FN_TYPEDEF(X) typedef X;
+#define NDNBOOST_MEM_FN_CLASS_F
+#define NDNBOOST_MEM_FN_TYPEDEF(X) typedef X;
 
 namespace _mfi
 {
 
-#define BOOST_MEM_FN_RETURN return
+#define NDNBOOST_MEM_FN_RETURN return
 
-#define BOOST_MEM_FN_NAME(X) X
-#define BOOST_MEM_FN_CC
-
-#include <ndnboost/bind/mem_fn_template.hpp>
-
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
-
-#ifdef BOOST_MEM_FN_ENABLE_CDECL
-
-#define BOOST_MEM_FN_NAME(X) X##_cdecl
-#define BOOST_MEM_FN_CC __cdecl
+#define NDNBOOST_MEM_FN_NAME(X) X
+#define NDNBOOST_MEM_FN_CC
 
 #include <ndnboost/bind/mem_fn_template.hpp>
 
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+
+#ifdef NDNBOOST_MEM_FN_ENABLE_CDECL
+
+#define NDNBOOST_MEM_FN_NAME(X) X##_cdecl
+#define NDNBOOST_MEM_FN_CC __cdecl
+
+#include <ndnboost/bind/mem_fn_template.hpp>
+
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
 
 #endif
 
-#ifdef BOOST_MEM_FN_ENABLE_STDCALL
+#ifdef NDNBOOST_MEM_FN_ENABLE_STDCALL
 
-#define BOOST_MEM_FN_NAME(X) X##_stdcall
-#define BOOST_MEM_FN_CC __stdcall
-
-#include <ndnboost/bind/mem_fn_template.hpp>
-
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
-
-#endif
-
-#ifdef BOOST_MEM_FN_ENABLE_FASTCALL
-
-#define BOOST_MEM_FN_NAME(X) X##_fastcall
-#define BOOST_MEM_FN_CC __fastcall
+#define NDNBOOST_MEM_FN_NAME(X) X##_stdcall
+#define NDNBOOST_MEM_FN_CC __stdcall
 
 #include <ndnboost/bind/mem_fn_template.hpp>
 
-#undef BOOST_MEM_FN_CC
-#undef BOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
 
 #endif
 
-#undef BOOST_MEM_FN_RETURN
+#ifdef NDNBOOST_MEM_FN_ENABLE_FASTCALL
+
+#define NDNBOOST_MEM_FN_NAME(X) X##_fastcall
+#define NDNBOOST_MEM_FN_CC __fastcall
+
+#include <ndnboost/bind/mem_fn_template.hpp>
+
+#undef NDNBOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+
+#endif
+
+#undef NDNBOOST_MEM_FN_RETURN
 
 } // namespace _mfi
 
-#undef BOOST_MEM_FN_CLASS_F
-#undef BOOST_MEM_FN_TYPEDEF
+#undef NDNBOOST_MEM_FN_CLASS_F
+#undef NDNBOOST_MEM_FN_TYPEDEF
 
-#endif // #ifdef BOOST_NO_VOID_RETURNS
+#endif // #ifdef NDNBOOST_NO_VOID_RETURNS
 
-#define BOOST_MEM_FN_NAME(X) X
-#define BOOST_MEM_FN_CC
-
-#include <ndnboost/bind/mem_fn_cc.hpp>
-
-#undef BOOST_MEM_FN_NAME
-#undef BOOST_MEM_FN_CC
-
-#ifdef BOOST_MEM_FN_ENABLE_CDECL
-
-#define BOOST_MEM_FN_NAME(X) X##_cdecl
-#define BOOST_MEM_FN_CC __cdecl
+#define NDNBOOST_MEM_FN_NAME(X) X
+#define NDNBOOST_MEM_FN_CC
 
 #include <ndnboost/bind/mem_fn_cc.hpp>
 
-#undef BOOST_MEM_FN_NAME
-#undef BOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_CC
+
+#ifdef NDNBOOST_MEM_FN_ENABLE_CDECL
+
+#define NDNBOOST_MEM_FN_NAME(X) X##_cdecl
+#define NDNBOOST_MEM_FN_CC __cdecl
+
+#include <ndnboost/bind/mem_fn_cc.hpp>
+
+#undef NDNBOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_CC
 
 #endif
 
-#ifdef BOOST_MEM_FN_ENABLE_STDCALL
+#ifdef NDNBOOST_MEM_FN_ENABLE_STDCALL
 
-#define BOOST_MEM_FN_NAME(X) X##_stdcall
-#define BOOST_MEM_FN_CC __stdcall
+#define NDNBOOST_MEM_FN_NAME(X) X##_stdcall
+#define NDNBOOST_MEM_FN_CC __stdcall
 
 #include <ndnboost/bind/mem_fn_cc.hpp>
 
-#undef BOOST_MEM_FN_NAME
-#undef BOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_CC
 
 #endif
 
-#ifdef BOOST_MEM_FN_ENABLE_FASTCALL
+#ifdef NDNBOOST_MEM_FN_ENABLE_FASTCALL
 
-#define BOOST_MEM_FN_NAME(X) X##_fastcall
-#define BOOST_MEM_FN_CC __fastcall
+#define NDNBOOST_MEM_FN_NAME(X) X##_fastcall
+#define NDNBOOST_MEM_FN_CC __fastcall
 
 #include <ndnboost/bind/mem_fn_cc.hpp>
 
-#undef BOOST_MEM_FN_NAME
-#undef BOOST_MEM_FN_CC
+#undef NDNBOOST_MEM_FN_NAME
+#undef NDNBOOST_MEM_FN_CC
 
 #endif
 
@@ -352,7 +352,7 @@ public:
         return call(u, &u);
     }
 
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300) && !BOOST_WORKAROUND(__MWERKS__, < 0x3200)
+#if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300) && !NDNBOOST_WORKAROUND(__MWERKS__, < 0x3200)
 
     R & operator()(T & t) const
     {
@@ -386,4 +386,4 @@ template<class R, class T> _mfi::dm<R, T> mem_fn(R T::*f)
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_BIND_MEM_FN_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_BIND_MEM_FN_HPP_INCLUDED

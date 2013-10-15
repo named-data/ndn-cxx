@@ -9,8 +9,8 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_ENUM_PARAMS_WITH_A_DEFAULT_HPP
-# define BOOST_PREPROCESSOR_ENUM_PARAMS_WITH_A_DEFAULT_HPP
+# ifndef NDNBOOST_PREPROCESSOR_ENUM_PARAMS_WITH_A_DEFAULT_HPP
+# define NDNBOOST_PREPROCESSOR_ENUM_PARAMS_WITH_A_DEFAULT_HPP
 #
 # include <ndnboost/preprocessor/repetition/enum_params_with_a_default.hpp>
 #

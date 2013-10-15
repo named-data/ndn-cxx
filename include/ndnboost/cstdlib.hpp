@@ -9,8 +9,8 @@
 //  Revision History
 //   26 Feb 01  Initial version (Beman Dawes)
 
-#ifndef BOOST_CSTDLIB_HPP
-#define BOOST_CSTDLIB_HPP
+#ifndef NDNBOOST_CSTDLIB_HPP
+#define NDNBOOST_CSTDLIB_HPP
 
 #include <cstdlib>
 

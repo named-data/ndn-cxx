@@ -9,8 +9,8 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_DEC_HPP
-# define BOOST_PREPROCESSOR_DEC_HPP
+# ifndef NDNBOOST_PREPROCESSOR_DEC_HPP
+# define NDNBOOST_PREPROCESSOR_DEC_HPP
 #
 # include <ndnboost/preprocessor/arithmetic/dec.hpp>
 #

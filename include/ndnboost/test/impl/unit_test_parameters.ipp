@@ -15,8 +15,8 @@
 //  facility
 // ***************************************************************************
 
-#ifndef BOOST_TEST_UNIT_TEST_PARAMETERS_IPP_012205GER
-#define BOOST_TEST_UNIT_TEST_PARAMETERS_IPP_012205GER
+#ifndef NDNBOOST_TEST_UNIT_TEST_PARAMETERS_IPP_012205GER
+#define NDNBOOST_TEST_UNIT_TEST_PARAMETERS_IPP_012205GER
 
 // Boost.Test
 #include <ndnboost/test/detail/unit_test_parameters.hpp>
@@ -58,7 +58,7 @@ namespace env = rt::env;
 
 //____________________________________________________________________________//
 
-# ifdef BOOST_NO_STDC_NAMESPACE
+# ifdef NDNBOOST_NO_STDC_NAMESPACE
 namespace std { using ::getenv; using ::strncmp; using ::strcmp; }
 # endif
 
@@ -93,7 +93,7 @@ operator>>( std::istream& in, unit_test::log_level& ll )
     in >> val;
 
     ll = log_level_name[val];
-    BOOST_TEST_SETUP_ASSERT( ll != unit_test::invalid_log_level, "invalid log level " + val );
+    NDNBOOST_TEST_SETUP_ASSERT( ll != unit_test::invalid_log_level, "invalid log level " + val );
 
     return in;
 }
@@ -116,7 +116,7 @@ operator>>( std::istream& in, unit_test::report_level& rl )
     in >> val;
 
     rl = report_level_name[val];
-    BOOST_TEST_SETUP_ASSERT( rl != INV_REPORT_LEVEL, "invalid report level " + val );
+    NDNBOOST_TEST_SETUP_ASSERT( rl != INV_REPORT_LEVEL, "invalid report level " + val );
 
     return in;
 }
@@ -138,7 +138,7 @@ operator>>( std::istream& in, unit_test::output_format& of )
     in >> val;
 
     of = output_format_name[val];
-    BOOST_TEST_SETUP_ASSERT( of != unit_test::INV_OF, "invalid output format " + val );
+    NDNBOOST_TEST_SETUP_ASSERT( of != unit_test::INV_OF, "invalid output format " + val );
 
     return in;
 }
@@ -175,25 +175,25 @@ std::string SHOW_PROGRESS     = "show_progress";
 std::string USE_ALT_STACK     = "use_alt_stack";
 
 fixed_mapping<const_string,const_string> parameter_2_env_var(
-    AUTO_START_DBG    , "BOOST_TEST_AUTO_START_DBG",
-    BREAK_EXEC_PATH   , "BOOST_TEST_BREAK_EXEC_PATH",
-    BUILD_INFO        , "BOOST_TEST_BUILD_INFO",
-    CATCH_SYS_ERRORS  , "BOOST_TEST_CATCH_SYSTEM_ERRORS",
-    DETECT_FP_EXCEPT  , "BOOST_TEST_DETECT_FP_EXCEPTIONS",
-    DETECT_MEM_LEAKS  , "BOOST_TEST_DETECT_MEMORY_LEAK",
-    LOG_FORMAT        , "BOOST_TEST_LOG_FORMAT",
-    LOG_LEVEL         , "BOOST_TEST_LOG_LEVEL",
-    LOG_SINK          , "BOOST_TEST_LOG_SINK",
-    OUTPUT_FORMAT     , "BOOST_TEST_OUTPUT_FORMAT",
-    RANDOM_SEED       , "BOOST_TEST_RANDOM",
-    REPORT_FORMAT     , "BOOST_TEST_REPORT_FORMAT",
-    REPORT_LEVEL      , "BOOST_TEST_REPORT_LEVEL",
-    REPORT_SINK       , "BOOST_TEST_REPORT_SINK",
-    RESULT_CODE       , "BOOST_TEST_RESULT_CODE",
-    TESTS_TO_RUN      , "BOOST_TESTS_TO_RUN",
-    SAVE_TEST_PATTERN , "BOOST_TEST_SAVE_PATTERN",
-    SHOW_PROGRESS     , "BOOST_TEST_SHOW_PROGRESS",
-    USE_ALT_STACK     , "BOOST_TEST_USE_ALT_STACK",
+    AUTO_START_DBG    , "NDNBOOST_TEST_AUTO_START_DBG",
+    BREAK_EXEC_PATH   , "NDNBOOST_TEST_BREAK_EXEC_PATH",
+    BUILD_INFO        , "NDNBOOST_TEST_BUILD_INFO",
+    CATCH_SYS_ERRORS  , "NDNBOOST_TEST_CATCH_SYSTEM_ERRORS",
+    DETECT_FP_EXCEPT  , "NDNBOOST_TEST_DETECT_FP_EXCEPTIONS",
+    DETECT_MEM_LEAKS  , "NDNBOOST_TEST_DETECT_MEMORY_LEAK",
+    LOG_FORMAT        , "NDNBOOST_TEST_LOG_FORMAT",
+    LOG_LEVEL         , "NDNBOOST_TEST_LOG_LEVEL",
+    LOG_SINK          , "NDNBOOST_TEST_LOG_SINK",
+    OUTPUT_FORMAT     , "NDNBOOST_TEST_OUTPUT_FORMAT",
+    RANDOM_SEED       , "NDNBOOST_TEST_RANDOM",
+    REPORT_FORMAT     , "NDNBOOST_TEST_REPORT_FORMAT",
+    REPORT_LEVEL      , "NDNBOOST_TEST_REPORT_LEVEL",
+    REPORT_SINK       , "NDNBOOST_TEST_REPORT_SINK",
+    RESULT_CODE       , "NDNBOOST_TEST_RESULT_CODE",
+    TESTS_TO_RUN      , "NDNBOOST_TESTS_TO_RUN",
+    SAVE_TEST_PATTERN , "NDNBOOST_TEST_SAVE_PATTERN",
+    SHOW_PROGRESS     , "NDNBOOST_TEST_SHOW_PROGRESS",
+    USE_ALT_STACK     , "NDNBOOST_TEST_USE_ALT_STACK",
 
     ""
 );
@@ -412,7 +412,7 @@ bool
 catch_sys_errors()
 {
     return retrieve_parameter( CATCH_SYS_ERRORS, s_cla_parser, 
-#ifdef BOOST_TEST_DEFAULTS_TO_CORE_DUMP
+#ifdef NDNBOOST_TEST_DEFAULTS_TO_CORE_DUMP
         false
 #else
         true 
@@ -524,4 +524,4 @@ random_seed()
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_UNIT_TEST_PARAMETERS_IPP_012205GER
+#endif // NDNBOOST_TEST_UNIT_TEST_PARAMETERS_IPP_012205GER

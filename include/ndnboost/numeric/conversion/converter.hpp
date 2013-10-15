@@ -7,8 +7,8 @@
 //
 // Contact the author at: fernando_cacciola@hotmail.com
 // 
-#ifndef BOOST_NUMERIC_CONVERSION_CONVERTER_FLC_12NOV2002_HPP
-#define BOOST_NUMERIC_CONVERSION_CONVERTER_FLC_12NOV2002_HPP
+#ifndef NDNBOOST_NUMERIC_CONVERSION_CONVERTER_FLC_12NOV2002_HPP
+#define NDNBOOST_NUMERIC_CONVERSION_CONVERTER_FLC_12NOV2002_HPP
 
 #include "ndnboost/numeric/conversion/conversion_traits.hpp"
 #include "ndnboost/numeric/conversion/converter_policies.hpp"
@@ -22,7 +22,7 @@ template<class T,
          class S,
          class Traits           = conversion_traits<T,S>,
          class OverflowHandler  = def_overflow_handler,
-         class Float2IntRounder = Trunc< BOOST_DEDUCED_TYPENAME Traits::source_type>  ,
+         class Float2IntRounder = Trunc< NDNBOOST_DEDUCED_TYPENAME Traits::source_type>  ,
          class RawConverter     = raw_converter<Traits>,
          class UserRangeChecker = UseInternalRangeChecker
         >

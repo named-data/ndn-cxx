@@ -10,31 +10,31 @@
 
 // ------------------------------------------------
 
-#ifndef BOOST_LAMBDA_LAMBDA_FUNCTORS_HPP
-#define BOOST_LAMBDA_LAMBDA_FUNCTORS_HPP
+#ifndef NDNBOOST_LAMBDA_LAMBDA_FUNCTORS_HPP
+#define NDNBOOST_LAMBDA_LAMBDA_FUNCTORS_HPP
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/detail/workaround.hpp>
 #include <ndnboost/utility/result_of.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1310)
 
 #include <ndnboost/mpl/or.hpp>
 #include <ndnboost/utility/enable_if.hpp>
 #include <ndnboost/type_traits/is_array.hpp>
 
-#define BOOST_LAMBDA_DISABLE_IF_ARRAY1(A1, R1)\
+#define NDNBOOST_LAMBDA_DISABLE_IF_ARRAY1(A1, R1)\
   typename lazy_disable_if<is_array<A1>, typename R1 >::type
-#define BOOST_LAMBDA_DISABLE_IF_ARRAY2(A1, A2, R1, R2) \
+#define NDNBOOST_LAMBDA_DISABLE_IF_ARRAY2(A1, A2, R1, R2) \
   typename lazy_disable_if<mpl::or_<is_array<A1>, is_array<A2> >, typename R1, R2 >::type
-#define BOOST_LAMBDA_DISABLE_IF_ARRAY3(A1, A2, A3, R1, R2, R3) \
+#define NDNBOOST_LAMBDA_DISABLE_IF_ARRAY3(A1, A2, A3, R1, R2, R3) \
   typename lazy_disable_if<mpl::or_<is_array<A1>, is_array<A2>, is_array<A3> >, typename R1, R2, R3 >::type
 
 #else
 
-#define BOOST_LAMBDA_DISABLE_IF_ARRAY1(A1, R1) typename R1::type
-#define BOOST_LAMBDA_DISABLE_IF_ARRAY2(A1, A2, R1, R2) typename R1, R2::type
-#define BOOST_LAMBDA_DISABLE_IF_ARRAY3(A1, A2, A3, R1, R2, R3) typename R1, R2, R3::type
+#define NDNBOOST_LAMBDA_DISABLE_IF_ARRAY1(A1, R1) typename R1::type
+#define NDNBOOST_LAMBDA_DISABLE_IF_ARRAY2(A1, A2, R1, R2) typename R1, R2::type
+#define NDNBOOST_LAMBDA_DISABLE_IF_ARRAY3(A1, A2, A3, R1, R2, R3) typename R1, R2, R3::type
 
 #endif
 
@@ -82,7 +82,7 @@ template<> struct placeholder<FIRST> {
 
   template<class RET, CALL_TEMPLATE_ARGS> 
   RET call(CALL_FORMAL_ARGS) const { 
-    BOOST_STATIC_ASSERT(ndnboost::is_reference<RET>::value); 
+    NDNBOOST_STATIC_ASSERT(ndnboost::is_reference<RET>::value); 
     CALL_USE_ARGS; // does nothing, prevents warnings for unused args
     return a; 
   }
@@ -130,7 +130,7 @@ typedef const lambda_functor<placeholder<THIRD> >  placeholder3_type;
 // other lambda_functors.
 // -------------------------------------------------------------------
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, >= 1400)
 #pragma warning(push)
 #pragma warning(disable:4512) //assignment operator could not be generated
 #endif
@@ -140,7 +140,7 @@ template <class T>
 class lambda_functor : public T 
 {
 
-BOOST_STATIC_CONSTANT(int, arity_bits = get_arity<T>::value);
+NDNBOOST_STATIC_CONSTANT(int, arity_bits = get_arity<T>::value);
  
 public:
   typedef T inherited;
@@ -196,7 +196,7 @@ public:
   }
 
   template<class A>
-  BOOST_LAMBDA_DISABLE_IF_ARRAY1(A, inherited::template sig<tuple<A const&> >)
+  NDNBOOST_LAMBDA_DISABLE_IF_ARRAY1(A, inherited::template sig<tuple<A const&> >)
   operator()(A const& a) const { 
     return inherited::template call<
       typename inherited::template sig<tuple<A const&> >::type
@@ -212,7 +212,7 @@ public:
   }
 
   template<class A, class B>
-  BOOST_LAMBDA_DISABLE_IF_ARRAY2(A, B, inherited::template sig<tuple<A const&, B&> >)
+  NDNBOOST_LAMBDA_DISABLE_IF_ARRAY2(A, B, inherited::template sig<tuple<A const&, B&> >)
   operator()(A const& a, B& b) const { 
     return inherited::template call<
       typename inherited::template sig<tuple<A const&, B&> >::type
@@ -220,7 +220,7 @@ public:
   }
 
   template<class A, class B>
-  BOOST_LAMBDA_DISABLE_IF_ARRAY2(A, B, inherited::template sig<tuple<A&, B const&> >)
+  NDNBOOST_LAMBDA_DISABLE_IF_ARRAY2(A, B, inherited::template sig<tuple<A&, B const&> >)
   operator()(A& a, B const& b) const { 
     return inherited::template call<
       typename inherited::template sig<tuple<A&, B const&> >::type
@@ -228,7 +228,7 @@ public:
   }
 
   template<class A, class B>
-  BOOST_LAMBDA_DISABLE_IF_ARRAY2(A, B, inherited::template sig<tuple<A const&, B const&> >)
+  NDNBOOST_LAMBDA_DISABLE_IF_ARRAY2(A, B, inherited::template sig<tuple<A const&, B const&> >)
   operator()(A const& a, B const& b) const { 
     return inherited::template call<
       typename inherited::template sig<tuple<A const&, B const&> >::type
@@ -245,7 +245,7 @@ public:
   }
 
   template<class A, class B, class C>
-  BOOST_LAMBDA_DISABLE_IF_ARRAY3(A, B, C, inherited::template sig<tuple<A const&, B const&, C const&> >)
+  NDNBOOST_LAMBDA_DISABLE_IF_ARRAY3(A, B, C, inherited::template sig<tuple<A const&, B const&, C const&> >)
   operator()(A const& a, B const& b, C const& c) const
   { 
     return inherited::template call<
@@ -291,7 +291,7 @@ public:
   } 
 };
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, >= 1400)
 #pragma warning(pop)
 #endif
 
@@ -300,7 +300,7 @@ public:
 
 namespace ndnboost {
 
-#if !defined(BOOST_RESULT_OF_USE_DECLTYPE) || defined(BOOST_NO_DECLTYPE)
+#if !defined(NDNBOOST_RESULT_OF_USE_DECLTYPE) || defined(NDNBOOST_NO_DECLTYPE)
 
 template<class T>
 struct result_of<ndnboost::lambda::lambda_functor<T>()>

@@ -5,8 +5,8 @@
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
-#ifndef BOOST_RANGE_DETAIL_MISC_CONCEPT_HPP_INCLUDED
-#define BOOST_RANGE_DETAIL_MISC_CONCEPT_HPP_INCLUDED
+#ifndef NDNBOOST_RANGE_DETAIL_MISC_CONCEPT_HPP_INCLUDED
+#define NDNBOOST_RANGE_DETAIL_MISC_CONCEPT_HPP_INCLUDED
 
 #include <ndnboost/concept_check.hpp>
 
@@ -18,7 +18,7 @@ namespace ndnboost
         class SameTypeConcept
         {
         public:
-            BOOST_CONCEPT_USAGE(SameTypeConcept)
+            NDNBOOST_CONCEPT_USAGE(SameTypeConcept)
             {
                 same_type(a,b);
             }

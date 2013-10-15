@@ -61,7 +61,7 @@ struct iter_fold_if_forward_step
 {
     typedef typename apply2< Predicate,State,Iterator >::type not_last;
     typedef typename iter_fold_if_step_impl<
-          BOOST_MPL_AUX_MSVC_VALUE_WKND(not_last)::value
+          NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(not_last)::value
         >::template result_< Iterator,State,ForwardOp, mpl::next<Iterator> > impl_;
 
     typedef typename impl_::state state;
@@ -78,7 +78,7 @@ struct iter_fold_if_backward_step
 {
     typedef typename apply2< Predicate,State,Iterator >::type not_last;
     typedef typename iter_fold_if_step_impl<
-          BOOST_MPL_AUX_MSVC_VALUE_WKND(not_last)::value
+          NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(not_last)::value
         >::template result_< Iterator,State,BackwardOp, identity<Iterator> > impl_;
 
     typedef typename impl_::state state;

@@ -6,40 +6,40 @@
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 // For more information, see http://www.boost.org
-#ifndef BOOST_FUNCTION_TYPEOF_HPP
-#define BOOST_FUNCTION_TYPEOF_HPP
+#ifndef NDNBOOST_FUNCTION_TYPEOF_HPP
+#define NDNBOOST_FUNCTION_TYPEOF_HPP
 #include <ndnboost/function/function_fwd.hpp>
 #include <ndnboost/typeof/typeof.hpp>
 
-#include BOOST_TYPEOF_INCREMENT_REGISTRATION_GROUP()
+#include NDNBOOST_TYPEOF_INCREMENT_REGISTRATION_GROUP()
 
-BOOST_TYPEOF_REGISTER_TYPE(ndnboost::bad_function_call)
+NDNBOOST_TYPEOF_REGISTER_TYPE(ndnboost::bad_function_call)
 
-#if !defined(BOOST_FUNCTION_NO_FUNCTION_TYPE_SYNTAX)
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function, (typename))
+#if !defined(NDNBOOST_FUNCTION_NO_FUNCTION_TYPE_SYNTAX)
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function, (typename))
 #endif
 
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function0, (typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function1, (typename)(typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function2, (typename)(typename)(typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function3, 
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function0, (typename))
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function1, (typename)(typename))
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function2, (typename)(typename)(typename))
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function3, 
   (typename)(typename)(typename)(typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function4, 
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function4, 
   (typename)(typename)(typename)(typename)(typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function5, 
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function5, 
   (typename)(typename)(typename)(typename)(typename)(typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function6, 
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function6, 
   (typename)(typename)(typename)(typename)(typename)(typename)(typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function7, 
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function7, 
   (typename)(typename)(typename)(typename)(typename)(typename)(typename)
   (typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function8, 
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function8, 
   (typename)(typename)(typename)(typename)(typename)(typename)(typename)
   (typename)(typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function9, 
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function9, 
   (typename)(typename)(typename)(typename)(typename)(typename)(typename)
   (typename)(typename)(typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function10, 
+NDNBOOST_TYPEOF_REGISTER_TEMPLATE(ndnboost::function10, 
   (typename)(typename)(typename)(typename)(typename)(typename)(typename)
   (typename)(typename)(typename)(typename))
 #endif

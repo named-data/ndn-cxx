@@ -6,8 +6,8 @@
 
 //  See http://www.boost.org/libs/unordered for documentation
 
-#ifndef BOOST_UNORDERED_SET_HPP_INCLUDED
-#define BOOST_UNORDERED_SET_HPP_INCLUDED
+#ifndef NDNBOOST_UNORDERED_SET_HPP_INCLUDED
+#define NDNBOOST_UNORDERED_SET_HPP_INCLUDED
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
@@ -15,4 +15,4 @@
 
 #include <ndnboost/unordered/unordered_set.hpp>
 
-#endif // BOOST_UNORDERED_SET_HPP_INCLUDED
+#endif // NDNBOOST_UNORDERED_SET_HPP_INCLUDED

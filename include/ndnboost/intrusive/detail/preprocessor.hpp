@@ -8,8 +8,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_INTRUSIVE_DETAIL_PREPROCESSOR_HPP
-#define BOOST_INTRUSIVE_DETAIL_PREPROCESSOR_HPP
+#ifndef NDNBOOST_INTRUSIVE_DETAIL_PREPROCESSOR_HPP
+#define NDNBOOST_INTRUSIVE_DETAIL_PREPROCESSOR_HPP
 
 #if (defined _MSC_VER) && (_MSC_VER >= 1200)
 #  pragma once
@@ -35,18 +35,18 @@
 #include <ndnboost/preprocessor/arithmetic/add.hpp>
 #include <ndnboost/preprocessor/iteration/iterate.hpp>
 
-#define BOOST_INTRUSIVE_MAX_CONSTRUCTOR_PARAMETERS 10
+#define NDNBOOST_INTRUSIVE_MAX_CONSTRUCTOR_PARAMETERS 10
 
-#define BOOST_INTRUSIVE_PP_IDENTITY(z, n, data) data
+#define NDNBOOST_INTRUSIVE_PP_IDENTITY(z, n, data) data
 
-#define BOOST_INTRUSIVE_PP_DECLVAL(z, n, data) \
-ndnboost::move_detail::declval< BOOST_PP_CAT(P, n) >() \
+#define NDNBOOST_INTRUSIVE_PP_DECLVAL(z, n, data) \
+ndnboost::move_detail::declval< NDNBOOST_PP_CAT(P, n) >() \
 //!
 
-#define BOOST_INTRUSIVE_PP_TEMPLATE_PARAM_VOID_DEFAULT(z, n, data)   \
-  BOOST_PP_CAT(class P, n) = void                                      \
+#define NDNBOOST_INTRUSIVE_PP_TEMPLATE_PARAM_VOID_DEFAULT(z, n, data)   \
+  NDNBOOST_PP_CAT(class P, n) = void                                      \
 //!
 
 #include <ndnboost/intrusive/detail/config_end.hpp>
 
-#endif //#ifndef BOOST_INTRUSIVE_DETAIL_PREPROCESSOR_HPP
+#endif //#ifndef NDNBOOST_INTRUSIVE_DETAIL_PREPROCESSOR_HPP

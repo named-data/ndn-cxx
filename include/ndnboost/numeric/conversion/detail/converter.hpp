@@ -7,8 +7,8 @@
 //
 // Contact the author at: fernando_cacciola@hotmail.com
 //
-#ifndef BOOST_NUMERIC_CONVERSION_DETAIL_CONVERTER_FLC_12NOV2002_HPP
-#define BOOST_NUMERIC_CONVERSION_DETAIL_CONVERTER_FLC_12NOV2002_HPP
+#ifndef NDNBOOST_NUMERIC_CONVERSION_DETAIL_CONVERTER_FLC_12NOV2002_HPP
+#define NDNBOOST_NUMERIC_CONVERSION_DETAIL_CONVERTER_FLC_12NOV2002_HPP
 
 #include <functional>
 
@@ -450,8 +450,8 @@ namespace ndnboost { namespace numeric { namespace convdetail
   // Trivial Converter : used when (cv-unqualified) T == (cv-unqualified)  S
   //
   template<class Traits>
-  struct trivial_converter_impl : public std::unary_function<  BOOST_DEDUCED_TYPENAME Traits::argument_type
-                                                              ,BOOST_DEDUCED_TYPENAME Traits::result_type
+  struct trivial_converter_impl : public std::unary_function<  NDNBOOST_DEDUCED_TYPENAME Traits::argument_type
+                                                              ,NDNBOOST_DEDUCED_TYPENAME Traits::result_type
                                                             >
                                  ,public dummy_range_checker<Traits>
   {
@@ -471,8 +471,8 @@ namespace ndnboost { namespace numeric { namespace convdetail
   // Rounding Converter : used for float to integral conversions.
   //
   template<class Traits,class RangeChecker,class RawConverter,class Float2IntRounder>
-  struct rounding_converter : public std::unary_function<  BOOST_DEDUCED_TYPENAME Traits::argument_type
-                                                          ,BOOST_DEDUCED_TYPENAME Traits::result_type
+  struct rounding_converter : public std::unary_function<  NDNBOOST_DEDUCED_TYPENAME Traits::argument_type
+                                                          ,NDNBOOST_DEDUCED_TYPENAME Traits::result_type
                                                         >
                              ,public RangeChecker
                              ,public Float2IntRounder
@@ -501,8 +501,8 @@ namespace ndnboost { namespace numeric { namespace convdetail
   // Non-Rounding Converter : used for all other conversions.
   //
   template<class Traits,class RangeChecker,class RawConverter>
-  struct non_rounding_converter : public std::unary_function< BOOST_DEDUCED_TYPENAME Traits::argument_type
-                                                             ,BOOST_DEDUCED_TYPENAME Traits::result_type
+  struct non_rounding_converter : public std::unary_function< NDNBOOST_DEDUCED_TYPENAME Traits::argument_type
+                                                             ,NDNBOOST_DEDUCED_TYPENAME Traits::result_type
                                                            >
                                  ,public RangeChecker
                                  ,public RawConverter
@@ -570,7 +570,7 @@ namespace ndnboost { namespace numeric { namespace convdetail
           >
   struct get_converter_impl
   {
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT( 0x0561 ) )
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT( 0x0561 ) )
     // bcc55 prefers sometimes template parameters to be explicit local types.
     // (notice that is is illegal to reuse the names like this)
     typedef Traits           Traits ;

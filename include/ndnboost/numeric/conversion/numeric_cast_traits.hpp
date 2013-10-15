@@ -6,8 +6,8 @@
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
-#ifndef BOOST_NUMERIC_CAST_TRAITS_HPP
-#define BOOST_NUMERIC_CAST_TRAITS_HPP
+#ifndef NDNBOOST_NUMERIC_CAST_TRAITS_HPP
+#define NDNBOOST_NUMERIC_CAST_TRAITS_HPP
 
 #include <ndnboost/numeric/conversion/converter_policies.hpp>
 
@@ -23,9 +23,9 @@ namespace ndnboost { namespace numeric {
 
 }}//namespace ndnboost::numeric;
 
-#if !defined( BOOST_NUMERIC_CONVERSION_RELAX_BUILT_IN_CAST_TRAITS )
+#if !defined( NDNBOOST_NUMERIC_CONVERSION_RELAX_BUILT_IN_CAST_TRAITS )
 #include <ndnboost/cstdint.hpp>
 #include <ndnboost/numeric/conversion/detail/numeric_cast_traits.hpp>
-#endif//!defined BOOST_NUMERIC_CONVERSION_RELAX_BUILT_IN_CAST_TRAITS
+#endif//!defined NDNBOOST_NUMERIC_CONVERSION_RELAX_BUILT_IN_CAST_TRAITS
 
-#endif//BOOST_NUMERIC_CAST_TRAITS_HPP
+#endif//NDNBOOST_NUMERIC_CAST_TRAITS_HPP

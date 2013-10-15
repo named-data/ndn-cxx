@@ -9,14 +9,14 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_CONTROL_DEDUCE_D_HPP
-# define BOOST_PREPROCESSOR_CONTROL_DEDUCE_D_HPP
+# ifndef NDNBOOST_PREPROCESSOR_CONTROL_DEDUCE_D_HPP
+# define NDNBOOST_PREPROCESSOR_CONTROL_DEDUCE_D_HPP
 #
 # include <ndnboost/preprocessor/control/while.hpp>
 # include <ndnboost/preprocessor/detail/auto_rec.hpp>
 #
-# /* BOOST_PP_DEDUCE_D */
+# /* NDNBOOST_PP_DEDUCE_D */
 #
-# define BOOST_PP_DEDUCE_D() BOOST_PP_AUTO_REC(BOOST_PP_WHILE_P, 256)
+# define NDNBOOST_PP_DEDUCE_D() NDNBOOST_PP_AUTO_REC(NDNBOOST_PP_WHILE_P, 256)
 #
 # endif

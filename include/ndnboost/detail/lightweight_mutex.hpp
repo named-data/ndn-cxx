@@ -1,5 +1,5 @@
-#ifndef BOOST_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED
-#define BOOST_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED
+#ifndef NDNBOOST_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED
+#define NDNBOOST_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -19,4 +19,4 @@
 
 #include <ndnboost/smart_ptr/detail/lightweight_mutex.hpp>
 
-#endif // #ifndef BOOST_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_DETAIL_LIGHTWEIGHT_MUTEX_HPP_INCLUDED

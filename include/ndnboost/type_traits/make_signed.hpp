@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_MAKE_SIGNED_HPP_INCLUDED
-#define BOOST_TT_MAKE_SIGNED_HPP_INCLUDED
+#ifndef NDNBOOST_TT_MAKE_SIGNED_HPP_INCLUDED
+#define NDNBOOST_TT_MAKE_SIGNED_HPP_INCLUDED
 
 #include <ndnboost/mpl/if.hpp>
 #include <ndnboost/type_traits/is_integral.hpp>
@@ -35,10 +35,10 @@ namespace detail {
 template <class T>
 struct make_signed_imp
 {
-   BOOST_STATIC_ASSERT(
+   NDNBOOST_STATIC_ASSERT(
       (::ndnboost::type_traits::ice_or< ::ndnboost::is_integral<T>::value, ::ndnboost::is_enum<T>::value>::value));
-#if !BOOST_WORKAROUND(BOOST_MSVC, <=1300)
-   BOOST_STATIC_ASSERT(
+#if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <=1300)
+   NDNBOOST_STATIC_ASSERT(
       (::ndnboost::type_traits::ice_not< ::ndnboost::is_same<
          typename remove_cv<T>::type, bool>::value>::value));
 #endif
@@ -71,8 +71,8 @@ struct make_signed_imp
                   typename mpl::if_<
                      is_same<t_no_cv, unsigned long>,
                      long,
-#if defined(BOOST_HAS_LONG_LONG)
-#ifdef BOOST_HAS_INT128
+#if defined(NDNBOOST_HAS_LONG_LONG)
+#ifdef NDNBOOST_HAS_INT128
                      typename mpl::if_c<
                         sizeof(t_no_cv) == sizeof(ndnboost::long_long_type), 
                         ndnboost::long_long_type, 
@@ -81,7 +81,7 @@ struct make_signed_imp
 #else
                      ndnboost::long_long_type
 #endif
-#elif defined(BOOST_HAS_MS_INT64)
+#elif defined(NDNBOOST_HAS_MS_INT64)
                      __int64
 #else
                      long
@@ -103,8 +103,8 @@ struct make_signed_imp
                   typename mpl::if_c<
                      sizeof(t_no_cv) == sizeof(unsigned long),
                      long,
-#if defined(BOOST_HAS_LONG_LONG)
-#ifdef BOOST_HAS_INT128
+#if defined(NDNBOOST_HAS_LONG_LONG)
+#ifdef NDNBOOST_HAS_INT128
                      typename mpl::if_c<
                         sizeof(t_no_cv) == sizeof(ndnboost::long_long_type), 
                         ndnboost::long_long_type, 
@@ -113,7 +113,7 @@ struct make_signed_imp
 #else
                      ndnboost::long_long_type
 #endif
-#elif defined(BOOST_HAS_MS_INT64)
+#elif defined(NDNBOOST_HAS_MS_INT64)
                      __int64
 #else
                      long
@@ -143,11 +143,11 @@ struct make_signed_imp
 
 } // namespace detail
 
-BOOST_TT_AUX_TYPE_TRAIT_DEF1(make_signed,T,typename ndnboost::detail::make_signed_imp<T>::type)
+NDNBOOST_TT_AUX_TYPE_TRAIT_DEF1(make_signed,T,typename ndnboost::detail::make_signed_imp<T>::type)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/type_trait_undef.hpp>
 
-#endif // BOOST_TT_ADD_REFERENCE_HPP_INCLUDED
+#endif // NDNBOOST_TT_ADD_REFERENCE_HPP_INCLUDED
 

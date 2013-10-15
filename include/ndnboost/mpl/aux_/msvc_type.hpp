@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_MSVC_TYPE_HPP_INCLUDED
-#define BOOST_MPL_AUX_MSVC_TYPE_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_MSVC_TYPE_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_MSVC_TYPE_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 //
@@ -19,7 +19,7 @@
 
 namespace ndnboost { namespace mpl { namespace aux {
 
-#if defined(BOOST_MPL_CFG_MSVC_70_ETI_BUG)
+#if defined(NDNBOOST_MPL_CFG_MSVC_70_ETI_BUG)
 
 template< bool > struct msvc_type_impl
 {
@@ -43,7 +43,7 @@ template< typename T > struct msvc_type
 {
 };
 
-#else // BOOST_MPL_CFG_MSVC_70_ETI_BUG
+#else // NDNBOOST_MPL_CFG_MSVC_70_ETI_BUG
 
 template< typename T > struct msvc_type 
 {
@@ -59,4 +59,4 @@ template<> struct msvc_type<int>
 
 }}}
 
-#endif // BOOST_MPL_AUX_MSVC_TYPE_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_MSVC_TYPE_HPP_INCLUDED

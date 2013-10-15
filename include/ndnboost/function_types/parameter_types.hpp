@@ -6,8 +6,8 @@
 
 //------------------------------------------------------------------------------
 
-#ifndef BOOST_FT_PARAMETER_TYPES_HPP_INCLUDED
-#define BOOST_FT_PARAMETER_TYPES_HPP_INCLUDED
+#ifndef NDNBOOST_FT_PARAMETER_TYPES_HPP_INCLUDED
+#define NDNBOOST_FT_PARAMETER_TYPES_HPP_INCLUDED
 
 #include <ndnboost/blank.hpp>
 #include <ndnboost/mpl/if.hpp>
@@ -45,10 +45,10 @@ namespace ndnboost
         , detail::parameter_types_impl<T,ClassTypeTransform>, ndnboost::blank
         >::type
     {
-      BOOST_MPL_AUX_LAMBDA_SUPPORT(2,parameter_types,(T,ClassTypeTransform)) 
+      NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2,parameter_types,(T,ClassTypeTransform)) 
     };
   }
-  BOOST_TT_AUX_TEMPLATE_ARITY_SPEC(2,function_types::parameter_types)
+  NDNBOOST_TT_AUX_TEMPLATE_ARITY_SPEC(2,function_types::parameter_types)
 }
 
 #endif

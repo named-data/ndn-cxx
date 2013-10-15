@@ -26,9 +26,9 @@ for($on_arg = 0; $on_arg <= $max_args; ++$on_arg) {
     else {
 	print OUT "#elif";
     }
-    print OUT " BOOST_FUNCTION_NUM_ARGS == $on_arg\n";
-    print OUT "#  ifndef BOOST_FUNCTION_$on_arg\n";
-    print OUT "#    define BOOST_FUNCTION_$on_arg\n";
+    print OUT " NDNBOOST_FUNCTION_NUM_ARGS == $on_arg\n";
+    print OUT "#  ifndef NDNBOOST_FUNCTION_$on_arg\n";
+    print OUT "#    define NDNBOOST_FUNCTION_$on_arg\n";
     print OUT "#    include <ndnboost/function/function_template.hpp>\n";
     print OUT "#  endif\n";
 }

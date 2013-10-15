@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_SP_NULLPTR_T_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_SP_NULLPTR_T_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_SP_NULLPTR_T_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_SP_NULLPTR_T_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -18,7 +18,7 @@
 #include <ndnboost/config.hpp>
 #include <cstddef>
 
-#if !defined( BOOST_NO_CXX11_NULLPTR )
+#if !defined( NDNBOOST_NO_CXX11_NULLPTR )
 
 namespace ndnboost
 {
@@ -26,7 +26,7 @@ namespace ndnboost
 namespace detail
 {
 
-#if defined( __clang__ ) && !defined( _LIBCPP_VERSION ) && !defined( BOOST_NO_CXX11_DECLTYPE )
+#if defined( __clang__ ) && !defined( _LIBCPP_VERSION ) && !defined( NDNBOOST_NO_CXX11_DECLTYPE )
 
     typedef decltype(nullptr) sp_nullptr_t;
 
@@ -40,6 +40,6 @@ namespace detail
 
 } // namespace ndnboost
 
-#endif // !defined( BOOST_NO_CXX11_NULLPTR )
+#endif // !defined( NDNBOOST_NO_CXX11_NULLPTR )
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_NULLPTR_T_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_DETAIL_SP_NULLPTR_T_HPP_INCLUDED

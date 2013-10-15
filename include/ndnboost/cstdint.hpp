@@ -10,7 +10,7 @@
 //  See http://www.boost.org/libs/integer for documentation.
 
 //  Revision History
-//   31 Oct 01  use BOOST_HAS_LONG_LONG to check for "long long" (Jens M.)
+//   31 Oct 01  use NDNBOOST_HAS_LONG_LONG to check for "long long" (Jens M.)
 //   16 Apr 01  check LONGLONG_MAX when looking for "long long" (Jens Maurer)
 //   23 Jan 01  prefer "long" over "int" for int32_t and intmax_t (Jens Maurer)
 //   12 Nov 00  Merged <ndnboost/stdint.h> (Jens Maurer)
@@ -20,8 +20,8 @@
 //    8 Aug 99  Initial version (Beman Dawes)
 
 
-#ifndef BOOST_CSTDINT_HPP
-#define BOOST_CSTDINT_HPP
+#ifndef NDNBOOST_CSTDINT_HPP
+#define NDNBOOST_CSTDINT_HPP
 
 //
 // Since we always define the INT#_C macros as per C++0x, 
@@ -41,7 +41,7 @@
 // so we disable use of stdint.h when GLIBC does not define __GLIBC_HAVE_LONG_LONG.
 // See https://svn.boost.org/trac/boost/ticket/3548 and http://sources.redhat.com/bugzilla/show_bug.cgi?id=10990
 //
-#if defined(BOOST_HAS_STDINT_H) && (!defined(__GLIBC__) || defined(__GLIBC_HAVE_LONG_LONG))
+#if defined(NDNBOOST_HAS_STDINT_H) && (!defined(__GLIBC__) || defined(__GLIBC_HAVE_LONG_LONG))
 
 // The following #include is an implementation artifact; not part of interface.
 # ifdef __hpux
@@ -49,7 +49,7 @@
 #   include <inttypes.h>
 #   ifdef __STDC_32_MODE__
       // this is triggered with GCC, because it defines __cplusplus < 199707L
-#     define BOOST_NO_INT64_T
+#     define NDNBOOST_NO_INT64_T
 #   endif 
 # elif defined(__FreeBSD__) || defined(__IBMCPP__) || defined(_AIX)
 #   include <inttypes.h>
@@ -86,7 +86,7 @@ typedef ::intfast32_t int_fast32_t;
 typedef ::uintleast32_t uint_least32_t;
 typedef ::uintfast32_t uint_fast32_t;
 
-# ifndef BOOST_NO_INT64_T
+# ifndef NDNBOOST_NO_INT64_T
 
 typedef ::intleast64_t int_least64_t;
 typedef ::intfast64_t int_fast64_t;
@@ -121,7 +121,7 @@ namespace ndnboost
   using ::uint_least32_t;     
   using ::uint_fast32_t;      
                      
-# ifndef BOOST_NO_INT64_T
+# ifndef NDNBOOST_NO_INT64_T
 
   using ::int64_t;            
   using ::int_least64_t;      
@@ -164,7 +164,7 @@ namespace ndnboost {
   typedef uint32_t uint_least32_t;     
   typedef uint32_t uint_fast32_t;      
          
-# ifndef BOOST_NO_INT64_T          
+# ifndef NDNBOOST_NO_INT64_T          
 
   using ::int64_t;            
   typedef int64_t int_least64_t;      
@@ -185,7 +185,7 @@ namespace ndnboost {
 
 } // namespace ndnboost
 
-#else  // BOOST_HAS_STDINT_H
+#else  // NDNBOOST_HAS_STDINT_H
 
 # include <ndnboost/limits.hpp> // implementation artifact; not part of interface
 # include <limits.h>         // needed for limits macros
@@ -291,8 +291,8 @@ namespace ndnboost
 
 //  64-bit types + intmax_t and uintmax_t  ----------------------------------//
 
-# if defined(BOOST_HAS_LONG_LONG) && \
-   !defined(BOOST_MSVC) && !defined(__BORLANDC__) && \
+# if defined(NDNBOOST_HAS_LONG_LONG) && \
+   !defined(NDNBOOST_MSVC) && !defined(__BORLANDC__) && \
    (!defined(__GLIBCPP__) || defined(_GLIBCPP_USE_LONG_LONG)) && \
    (defined(ULLONG_MAX) || defined(ULONG_LONG_MAX) || defined(ULONGLONG_MAX))
 #    if defined(__hpux)
@@ -326,7 +326,7 @@ namespace ndnboost
 #    else
 #       error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 #    endif
-# elif defined(__GNUC__) && defined(BOOST_HAS_LONG_LONG)
+# elif defined(__GNUC__) && defined(NDNBOOST_HAS_LONG_LONG)
      __extension__ typedef long long            intmax_t;
      __extension__ typedef unsigned long long   uintmax_t;
      __extension__ typedef long long            int64_t;
@@ -335,7 +335,7 @@ namespace ndnboost
      __extension__ typedef unsigned long long   uint64_t;
      __extension__ typedef unsigned long long   uint_least64_t;
      __extension__ typedef unsigned long long   uint_fast64_t;
-# elif defined(BOOST_HAS_MS_INT64)
+# elif defined(NDNBOOST_HAS_MS_INT64)
      //
      // we have Borland/Intel/Microsoft __int64:
      //
@@ -348,7 +348,7 @@ namespace ndnboost
      typedef unsigned __int64    uint_least64_t;
      typedef unsigned __int64    uint_fast64_t;
 # else // assume no 64-bit integers
-#  define BOOST_NO_INT64_T
+#  define NDNBOOST_NO_INT64_T
      typedef int32_t              intmax_t;
      typedef uint32_t             uintmax_t;
 # endif
@@ -356,9 +356,9 @@ namespace ndnboost
 } // namespace ndnboost
 
 
-#endif // BOOST_HAS_STDINT_H
+#endif // NDNBOOST_HAS_STDINT_H
 
-#endif // BOOST_CSTDINT_HPP
+#endif // NDNBOOST_CSTDINT_HPP
 
 
 /****************************************************
@@ -367,13 +367,13 @@ Macro definition section:
 
 Added 23rd September 2000 (John Maddock).
 Modified 11th September 2001 to be excluded when
-BOOST_HAS_STDINT_H is defined (John Maddock).
+NDNBOOST_HAS_STDINT_H is defined (John Maddock).
 Modified 11th Dec 2009 to always define the
 INT#_C macros if they're not already defined (John Maddock).
 
 ******************************************************/
 
-#if !defined(BOOST__STDC_CONSTANT_MACROS_DEFINED) && \
+#if !defined(NDNBOOST__STDC_CONSTANT_MACROS_DEFINED) && \
    (!defined(INT8_C) || !defined(INT16_C) || !defined(INT32_C) || !defined(INT64_C))
 //
 // For the following code we get several warnings along the lines of: 
@@ -387,8 +387,8 @@ INT#_C macros if they're not already defined (John Maddock).
 #endif 
 
 #include <limits.h>
-# define BOOST__STDC_CONSTANT_MACROS_DEFINED
-# if defined(BOOST_HAS_MS_INT64)
+# define NDNBOOST__STDC_CONSTANT_MACROS_DEFINED
+# if defined(NDNBOOST_HAS_MS_INT64)
 //
 // Borland/Intel/Microsoft compilers have width specific suffixes:
 //
@@ -454,7 +454,7 @@ INT#_C macros if they're not already defined (John Maddock).
 
 //  64-bit types + intmax_t and uintmax_t  ----------------------------------//
 #ifndef INT64_C
-#  if defined(BOOST_HAS_LONG_LONG) && \
+#  if defined(NDNBOOST_HAS_LONG_LONG) && \
     (defined(ULLONG_MAX) || defined(ULONG_LONG_MAX) || defined(ULONGLONG_MAX) || defined(_LLONG_MAX))
 
 #    if defined(__hpux)
@@ -479,7 +479,7 @@ INT#_C macros if they're not already defined (John Maddock).
 #    else
 #       error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 #    endif
-#  elif defined(BOOST_HAS_LONG_LONG)
+#  elif defined(NDNBOOST_HAS_LONG_LONG)
      // Usual macros not defined, work things out for ourselves:
 #    if(~0uLL == 18446744073709551615ULL)
 #       define INT64_C(value) value##LL
@@ -491,7 +491,7 @@ INT#_C macros if they're not already defined (John Maddock).
 #    error defaults not correct; you must hand modify ndnboost/cstdint.hpp
 #  endif
 
-#  ifdef BOOST_NO_INT64_T
+#  ifdef NDNBOOST_NO_INT64_T
 #   define INTMAX_C(value) INT32_C(value)
 #   define UINTMAX_C(value) UINT32_C(value)
 #  else

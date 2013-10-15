@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DETAIL_COMMON_HPP
-#define BOOST_RANGE_DETAIL_COMMON_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_COMMON_HPP
+#define NDNBOOST_RANGE_DETAIL_COMMON_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
@@ -63,50 +63,50 @@ namespace ndnboost
             static C* c;
             static C  ptr;
 
-            BOOST_STATIC_CONSTANT( bool, is_pair_                = sizeof( ndnboost::range_detail::is_pair_impl( c ) ) == sizeof( yes_type ) );
-            BOOST_STATIC_CONSTANT( bool, is_char_ptr_            = sizeof( ndnboost::range_detail::is_char_ptr_impl( ptr ) ) == sizeof( yes_type ) );
-            BOOST_STATIC_CONSTANT( bool, is_const_char_ptr_      = sizeof( ndnboost::range_detail::is_const_char_ptr_impl( ptr ) ) == sizeof( yes_type ) );
-            BOOST_STATIC_CONSTANT( bool, is_wchar_t_ptr_         = sizeof( ndnboost::range_detail::is_wchar_t_ptr_impl( ptr ) ) == sizeof( yes_type ) );
-            BOOST_STATIC_CONSTANT( bool, is_const_wchar_t_ptr_   = sizeof( ndnboost::range_detail::is_const_wchar_t_ptr_impl( ptr ) ) == sizeof( yes_type ) );
-            BOOST_STATIC_CONSTANT( bool, is_char_array_          = sizeof( ndnboost::range_detail::is_char_array_impl( ptr ) ) == sizeof( yes_type ) );
-            BOOST_STATIC_CONSTANT( bool, is_wchar_t_array_       = sizeof( ndnboost::range_detail::is_wchar_t_array_impl( ptr ) ) == sizeof( yes_type ) );
-            BOOST_STATIC_CONSTANT( bool, is_string_              = (ndnboost::type_traits::ice_or<is_const_char_ptr_, is_const_wchar_t_ptr_>::value ));
-            BOOST_STATIC_CONSTANT( bool, is_array_               = ndnboost::is_array<C>::value );
+            NDNBOOST_STATIC_CONSTANT( bool, is_pair_                = sizeof( ndnboost::range_detail::is_pair_impl( c ) ) == sizeof( yes_type ) );
+            NDNBOOST_STATIC_CONSTANT( bool, is_char_ptr_            = sizeof( ndnboost::range_detail::is_char_ptr_impl( ptr ) ) == sizeof( yes_type ) );
+            NDNBOOST_STATIC_CONSTANT( bool, is_const_char_ptr_      = sizeof( ndnboost::range_detail::is_const_char_ptr_impl( ptr ) ) == sizeof( yes_type ) );
+            NDNBOOST_STATIC_CONSTANT( bool, is_wchar_t_ptr_         = sizeof( ndnboost::range_detail::is_wchar_t_ptr_impl( ptr ) ) == sizeof( yes_type ) );
+            NDNBOOST_STATIC_CONSTANT( bool, is_const_wchar_t_ptr_   = sizeof( ndnboost::range_detail::is_const_wchar_t_ptr_impl( ptr ) ) == sizeof( yes_type ) );
+            NDNBOOST_STATIC_CONSTANT( bool, is_char_array_          = sizeof( ndnboost::range_detail::is_char_array_impl( ptr ) ) == sizeof( yes_type ) );
+            NDNBOOST_STATIC_CONSTANT( bool, is_wchar_t_array_       = sizeof( ndnboost::range_detail::is_wchar_t_array_impl( ptr ) ) == sizeof( yes_type ) );
+            NDNBOOST_STATIC_CONSTANT( bool, is_string_              = (ndnboost::type_traits::ice_or<is_const_char_ptr_, is_const_wchar_t_ptr_>::value ));
+            NDNBOOST_STATIC_CONSTANT( bool, is_array_               = ndnboost::is_array<C>::value );
             
         };
         
         template< typename C >
         class range
         {
-            typedef BOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_pair_,
+            typedef NDNBOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_pair_,
                                                                   ndnboost::range_detail::std_pair_,
                                                                   void >::type pair_t;
-            typedef BOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_array_,
+            typedef NDNBOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_array_,
                                                                     ndnboost::range_detail::array_,
                                                                     pair_t >::type array_t;
-            typedef BOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_string_,
+            typedef NDNBOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_string_,
                                                                     ndnboost::range_detail::string_,
                                                                     array_t >::type string_t;
-            typedef BOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_const_char_ptr_,
+            typedef NDNBOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_const_char_ptr_,
                                                                     ndnboost::range_detail::const_char_ptr_,
                                                                     string_t >::type const_char_ptr_t;
-            typedef BOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_char_ptr_,
+            typedef NDNBOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_char_ptr_,
                                                                     ndnboost::range_detail::char_ptr_,
                                                                     const_char_ptr_t >::type char_ptr_t;
-            typedef BOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_const_wchar_t_ptr_,
+            typedef NDNBOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_const_wchar_t_ptr_,
                                                                     ndnboost::range_detail::const_wchar_t_ptr_,
                                                                     char_ptr_t >::type const_wchar_ptr_t;
-            typedef BOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_wchar_t_ptr_,
+            typedef NDNBOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_wchar_t_ptr_,
                                                                     ndnboost::range_detail::wchar_t_ptr_,
                                                                     const_wchar_ptr_t >::type wchar_ptr_t;
-            typedef BOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_wchar_t_array_,
+            typedef NDNBOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_wchar_t_array_,
                                                                     ndnboost::range_detail::wchar_t_array_,
                                                                     wchar_ptr_t >::type wchar_array_t;
-            typedef BOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_char_array_,
+            typedef NDNBOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::range_detail::range_helper<C>::is_char_array_,
                                                                     ndnboost::range_detail::char_array_,
                                                                     wchar_array_t >::type char_array_t;
         public:
-            typedef BOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::is_void<char_array_t>::value,
+            typedef NDNBOOST_RANGE_DEDUCED_TYPENAME   ndnboost::mpl::if_c< ::ndnboost::is_void<char_array_t>::value,
                                                                     ndnboost::range_detail::std_container_,
                                                                     char_array_t >::type type;  
         }; // class 'range' 

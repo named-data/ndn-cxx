@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_FINDER_HPP
-#define BOOST_STRING_FINDER_HPP
+#ifndef NDNBOOST_STRING_FINDER_HPP
+#define NDNBOOST_STRING_FINDER_HPP
 
 #include <ndnboost/algorithm/string/config.hpp>
 
@@ -48,13 +48,13 @@ namespace ndnboost {
         */
         template<typename RangeT>
         inline detail::first_finderF<
-            BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
+            NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
             is_equal>
         first_finder( const RangeT& Search )
         {
             return 
                 detail::first_finderF<
-                    BOOST_STRING_TYPENAME 
+                    NDNBOOST_STRING_TYPENAME 
                         range_const_iterator<RangeT>::type,
                         is_equal>( ::ndnboost::as_literal(Search), is_equal() ) ;
         }
@@ -65,14 +65,14 @@ namespace ndnboost {
         */
         template<typename RangeT,typename PredicateT>
         inline detail::first_finderF<
-            BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
+            NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
             PredicateT>
         first_finder( 
             const RangeT& Search, PredicateT Comp )
         {
             return 
                 detail::first_finderF<
-                    BOOST_STRING_TYPENAME 
+                    NDNBOOST_STRING_TYPENAME 
                         range_const_iterator<RangeT>::type,
                     PredicateT>( ::ndnboost::as_literal(Search), Comp );
         }
@@ -89,13 +89,13 @@ namespace ndnboost {
         */
         template<typename RangeT>
         inline detail::last_finderF<
-            BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
+            NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
             is_equal>
         last_finder( const RangeT& Search )
         {
             return 
                 detail::last_finderF<
-                    BOOST_STRING_TYPENAME 
+                    NDNBOOST_STRING_TYPENAME 
                         range_const_iterator<RangeT>::type,
                     is_equal>( ::ndnboost::as_literal(Search), is_equal() );
         }
@@ -105,13 +105,13 @@ namespace ndnboost {
         */
         template<typename RangeT, typename PredicateT>
         inline detail::last_finderF<
-            BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
+            NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
             PredicateT>
         last_finder( const RangeT& Search, PredicateT Comp )
         {
             return 
                 detail::last_finderF<
-                    BOOST_STRING_TYPENAME 
+                    NDNBOOST_STRING_TYPENAME 
                         range_const_iterator<RangeT>::type,
                     PredicateT>( ::ndnboost::as_literal(Search), Comp ) ;
         }
@@ -129,7 +129,7 @@ namespace ndnboost {
         */
         template<typename RangeT>
         inline detail::nth_finderF<
-            BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
+            NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
             is_equal>
         nth_finder( 
             const RangeT& Search, 
@@ -137,7 +137,7 @@ namespace ndnboost {
         {
             return 
                 detail::nth_finderF<
-                    BOOST_STRING_TYPENAME 
+                    NDNBOOST_STRING_TYPENAME 
                         range_const_iterator<RangeT>::type,
                     is_equal>( ::ndnboost::as_literal(Search), Nth, is_equal() ) ;
         }
@@ -147,7 +147,7 @@ namespace ndnboost {
         */
         template<typename RangeT, typename PredicateT>
         inline detail::nth_finderF<
-            BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
+            NDNBOOST_STRING_TYPENAME range_const_iterator<RangeT>::type,
             PredicateT>
         nth_finder( 
             const RangeT& Search, 
@@ -156,7 +156,7 @@ namespace ndnboost {
         {
             return 
                 detail::nth_finderF<
-                    BOOST_STRING_TYPENAME 
+                    NDNBOOST_STRING_TYPENAME 
                         range_const_iterator<RangeT>::type,
                     PredicateT>( ::ndnboost::as_literal(Search), Nth, Comp );
         }
@@ -267,4 +267,4 @@ namespace ndnboost {
 } // namespace ndnboost
 
 
-#endif  // BOOST_STRING_FINDER_HPP
+#endif  // NDNBOOST_STRING_FINDER_HPP

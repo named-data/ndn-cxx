@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_ASSERT_HPP_INCLUDED
-#define BOOST_MPL_ASSERT_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_ASSERT_HPP_INCLUDED
+#define NDNBOOST_MPL_ASSERT_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2006
 //
@@ -34,42 +34,42 @@
 #include <ndnboost/config.hpp> // make sure 'size_t' is placed into 'std'
 #include <cstddef>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1700)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1700)
 #include <ndnboost/mpl/if.hpp>
 #endif
 
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x610)) \
-    || (BOOST_MPL_CFG_GCC != 0) \
-    || BOOST_WORKAROUND(__IBMCPP__, <= 600)
-#   define BOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x610)) \
+    || (NDNBOOST_MPL_CFG_GCC != 0) \
+    || NDNBOOST_WORKAROUND(__IBMCPP__, <= 600)
+#   define NDNBOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES
 #endif
 
-#if BOOST_WORKAROUND(__MWERKS__, < 0x3202) \
-    || BOOST_WORKAROUND(__EDG_VERSION__, <= 238) \
-    || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x610)) \
-    || BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
-#   define BOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER
+#if NDNBOOST_WORKAROUND(__MWERKS__, < 0x3202) \
+    || NDNBOOST_WORKAROUND(__EDG_VERSION__, <= 238) \
+    || NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x610)) \
+    || NDNBOOST_WORKAROUND(__DMC__, NDNBOOST_TESTED_AT(0x840))
+#   define NDNBOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER
 #endif
 
 // agurt, 10/nov/06: use enums for Borland (which cannot cope with static constants) 
 // and GCC (which issues "unused variable" warnings when static constants are used 
 // at a function scope)
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x610)) \
-    || (BOOST_MPL_CFG_GCC != 0)
-#   define BOOST_MPL_AUX_ASSERT_CONSTANT(T, expr) enum { expr }
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x610)) \
+    || (NDNBOOST_MPL_CFG_GCC != 0)
+#   define NDNBOOST_MPL_AUX_ASSERT_CONSTANT(T, expr) enum { expr }
 #else
-#   define BOOST_MPL_AUX_ASSERT_CONSTANT(T, expr) BOOST_STATIC_CONSTANT(T, expr)
+#   define NDNBOOST_MPL_AUX_ASSERT_CONSTANT(T, expr) NDNBOOST_STATIC_CONSTANT(T, expr)
 #endif
 
 
-BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
+NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
 
 struct failed {};
 
 // agurt, 24/aug/04: MSVC 7.1 workaround here and below: return/accept 
 // 'assert<false>' by reference; can't apply it unconditionally -- apparently it
 // degrades the quality of GCC diagnostics
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1310)
 #   define AUX778076_ASSERT_ARG(x) x&
 #else
 #   define AUX778076_ASSERT_ARG(x) x
@@ -95,7 +95,7 @@ struct assertion<true>
 
 struct assert_
 {
-#if !defined(BOOST_MPL_CFG_NO_DEFAULT_PARAMETERS_IN_NESTED_TEMPLATES)
+#if !defined(NDNBOOST_MPL_CFG_NO_DEFAULT_PARAMETERS_IN_NESTED_TEMPLATES)
     template< typename T1, typename T2 = na, typename T3 = na, typename T4 = na > struct types {};
 #endif
     static assert_ const arg;
@@ -103,7 +103,7 @@ struct assert_
 };
 
 
-#if !defined(BOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES)
+#if !defined(NDNBOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES)
 
 bool operator==( failed, failed );
 bool operator!=( failed, failed );
@@ -114,14 +114,14 @@ bool operator<=( failed, failed );
 
 #if defined(__EDG_VERSION__)
 template< bool (*)(failed, failed), long x, long y > struct assert_relation {};
-#   define BOOST_MPL_AUX_ASSERT_RELATION(x, y, r) assert_relation<r,x,y>
+#   define NDNBOOST_MPL_AUX_ASSERT_RELATION(x, y, r) assert_relation<r,x,y>
 #else
-template< BOOST_MPL_AUX_NTTP_DECL(long, x), BOOST_MPL_AUX_NTTP_DECL(long, y), bool (*)(failed, failed) > 
+template< NDNBOOST_MPL_AUX_NTTP_DECL(long, x), NDNBOOST_MPL_AUX_NTTP_DECL(long, y), bool (*)(failed, failed) > 
 struct assert_relation {};
-#   define BOOST_MPL_AUX_ASSERT_RELATION(x, y, r) assert_relation<x,y,r>
+#   define NDNBOOST_MPL_AUX_ASSERT_RELATION(x, y, r) assert_relation<x,y,r>
 #endif
 
-#else // BOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES
+#else // NDNBOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES
 
 ndnboost::mpl::aux::weighted_tag<1>::type operator==( assert_, assert_ );
 ndnboost::mpl::aux::weighted_tag<2>::type operator!=( assert_, assert_ );
@@ -134,7 +134,7 @@ template< assert_::relations r, long x, long y > struct assert_relation {};
 
 #endif 
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1700)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, >= 1700)
 
 template<class Pred>
 struct extract_assert_pred;
@@ -165,7 +165,7 @@ struct eval_assert_not {
 template< typename T >
 T make_assert_arg();
 
-#elif !defined(BOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER)
+#elif !defined(NDNBOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER)
 
 template< bool > struct assert_arg_pred_impl { typedef int type; };
 template<> struct assert_arg_pred_impl<true> { typedef void* type; };
@@ -179,7 +179,7 @@ template< typename P > struct assert_arg_pred
 template< typename P > struct assert_arg_pred_not
 {
     typedef typename P::type p_type;
-    BOOST_MPL_AUX_ASSERT_CONSTANT( bool, p = !p_type::value );
+    NDNBOOST_MPL_AUX_ASSERT_CONSTANT( bool, p = !p_type::value );
     typedef typename assert_arg_pred_impl<p>::type type;
 };
 
@@ -202,7 +202,7 @@ AUX778076_ASSERT_ARG(assert<false>)
 assert_not_arg( void (*)(Pred), typename assert_arg_pred<Pred>::type );
 
 
-#else // BOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER
+#else // NDNBOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER
         
 template< bool c, typename Pred > struct assert_arg_type_impl
 {
@@ -216,7 +216,7 @@ template< typename Pred > struct assert_arg_type_impl<true,Pred>
 };
 
 template< typename Pred > struct assert_arg_type
-    : assert_arg_type_impl< BOOST_MPL_AUX_VALUE_WKND(BOOST_MPL_AUX_NESTED_TYPE_WKND(Pred))::value, Pred >
+    : assert_arg_type_impl< NDNBOOST_MPL_AUX_VALUE_WKND(NDNBOOST_MPL_AUX_NESTED_TYPE_WKND(Pred))::value, Pred >
 {
 };
 
@@ -228,30 +228,30 @@ template< typename Pred >
 typename assert_arg_type< ndnboost::mpl::not_<Pred> >::type 
 assert_not_arg(void (*)(Pred), int);
 
-#   if !defined(BOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES)
+#   if !defined(NDNBOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES)
 template< long x, long y, bool (*r)(failed, failed) >
-typename assert_arg_type_impl< false,BOOST_MPL_AUX_ASSERT_RELATION(x,y,r) >::type
-assert_rel_arg( BOOST_MPL_AUX_ASSERT_RELATION(x,y,r) );
+typename assert_arg_type_impl< false,NDNBOOST_MPL_AUX_ASSERT_RELATION(x,y,r) >::type
+assert_rel_arg( NDNBOOST_MPL_AUX_ASSERT_RELATION(x,y,r) );
 #   else
 template< assert_::relations r, long x, long y >
 typename assert_arg_type_impl< false,assert_relation<r,x,y> >::type
 assert_rel_arg( assert_relation<r,x,y> );
 #   endif
 
-#endif // BOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER
+#endif // NDNBOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER
 
 #undef AUX778076_ASSERT_ARG
 
-BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE
+NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE
 
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1700)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1700)
 
-// BOOST_MPL_ASSERT((pred<x,...>))
+// NDNBOOST_MPL_ASSERT((pred<x,...>))
 
-#define BOOST_MPL_ASSERT(pred) \
-BOOST_MPL_AUX_ASSERT_CONSTANT( \
+#define NDNBOOST_MPL_ASSERT(pred) \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( \
       std::size_t \
-    , BOOST_PP_CAT(mpl_assertion_in_line_,BOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
+    , NDNBOOST_PP_CAT(mpl_assertion_in_line_,NDNBOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
           ndnboost::mpl::assertion_failed<false>( \
               ndnboost::mpl::make_assert_arg< \
                   typename ndnboost::mpl::eval_assert<void pred>::type \
@@ -261,12 +261,12 @@ BOOST_MPL_AUX_ASSERT_CONSTANT( \
     ) \
 /**/
 
-// BOOST_MPL_ASSERT_NOT((pred<x,...>))
+// NDNBOOST_MPL_ASSERT_NOT((pred<x,...>))
 
-#define BOOST_MPL_ASSERT_NOT(pred) \
-BOOST_MPL_AUX_ASSERT_CONSTANT( \
+#define NDNBOOST_MPL_ASSERT_NOT(pred) \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( \
       std::size_t \
-    , BOOST_PP_CAT(mpl_assertion_in_line_,BOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
+    , NDNBOOST_PP_CAT(mpl_assertion_in_line_,NDNBOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
           ndnboost::mpl::assertion_failed<false>( \
               ndnboost::mpl::make_assert_arg< \
                   typename ndnboost::mpl::eval_assert_not<void pred>::type \
@@ -278,12 +278,12 @@ BOOST_MPL_AUX_ASSERT_CONSTANT( \
 
 #else
 
-// BOOST_MPL_ASSERT((pred<x,...>))
+// NDNBOOST_MPL_ASSERT((pred<x,...>))
 
-#define BOOST_MPL_ASSERT(pred) \
-BOOST_MPL_AUX_ASSERT_CONSTANT( \
+#define NDNBOOST_MPL_ASSERT(pred) \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( \
       std::size_t \
-    , BOOST_PP_CAT(mpl_assertion_in_line_,BOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
+    , NDNBOOST_PP_CAT(mpl_assertion_in_line_,NDNBOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
           ndnboost::mpl::assertion_failed<false>( \
               ndnboost::mpl::assert_arg( (void (*) pred)0, 1 ) \
             ) \
@@ -291,12 +291,12 @@ BOOST_MPL_AUX_ASSERT_CONSTANT( \
     ) \
 /**/
 
-// BOOST_MPL_ASSERT_NOT((pred<x,...>))
+// NDNBOOST_MPL_ASSERT_NOT((pred<x,...>))
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-#   define BOOST_MPL_ASSERT_NOT(pred) \
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
+#   define NDNBOOST_MPL_ASSERT_NOT(pred) \
 enum { \
-      BOOST_PP_CAT(mpl_assertion_in_line_,BOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
+      NDNBOOST_PP_CAT(mpl_assertion_in_line_,NDNBOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
           ndnboost::mpl::assertion<false>::failed( \
               ndnboost::mpl::assert_not_arg( (void (*) pred)0, 1 ) \
             ) \
@@ -304,10 +304,10 @@ enum { \
 }\
 /**/
 #else
-#   define BOOST_MPL_ASSERT_NOT(pred) \
-BOOST_MPL_AUX_ASSERT_CONSTANT( \
+#   define NDNBOOST_MPL_ASSERT_NOT(pred) \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( \
       std::size_t \
-    , BOOST_PP_CAT(mpl_assertion_in_line_,BOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
+    , NDNBOOST_PP_CAT(mpl_assertion_in_line_,NDNBOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
           ndnboost::mpl::assertion_failed<false>( \
               ndnboost::mpl::assert_not_arg( (void (*) pred)0, 1 ) \
             ) \
@@ -318,18 +318,18 @@ BOOST_MPL_AUX_ASSERT_CONSTANT( \
 
 #endif
 
-// BOOST_MPL_ASSERT_RELATION(x, ==|!=|<=|<|>=|>, y)
+// NDNBOOST_MPL_ASSERT_RELATION(x, ==|!=|<=|<|>=|>, y)
 
-#if defined(BOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES)
+#if defined(NDNBOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES)
 
-#   if !defined(BOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER)
+#   if !defined(NDNBOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER)
 // agurt, 9/nov/06: 'enum' below is a workaround for gcc 4.0.4/4.1.1 bugs #29522 and #29518
-#   define BOOST_MPL_ASSERT_RELATION_IMPL(counter, x, rel, y)      \
-enum { BOOST_PP_CAT(mpl_assert_rel_value,counter) = (x rel y) }; \
-BOOST_MPL_AUX_ASSERT_CONSTANT( \
+#   define NDNBOOST_MPL_ASSERT_RELATION_IMPL(counter, x, rel, y)      \
+enum { NDNBOOST_PP_CAT(mpl_assert_rel_value,counter) = (x rel y) }; \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( \
       std::size_t \
-    , BOOST_PP_CAT(mpl_assertion_in_line_,counter) = sizeof( \
-        ndnboost::mpl::assertion_failed<BOOST_PP_CAT(mpl_assert_rel_value,counter)>( \
+    , NDNBOOST_PP_CAT(mpl_assertion_in_line_,counter) = sizeof( \
+        ndnboost::mpl::assertion_failed<NDNBOOST_PP_CAT(mpl_assert_rel_value,counter)>( \
             (ndnboost::mpl::failed ************ ( ndnboost::mpl::assert_relation< \
                   ndnboost::mpl::assert_::relations( sizeof( \
                       ndnboost::mpl::assert_::arg rel ndnboost::mpl::assert_::arg \
@@ -341,20 +341,20 @@ BOOST_MPL_AUX_ASSERT_CONSTANT( \
     ) \
 /**/
 #   else
-#   define BOOST_MPL_ASSERT_RELATION_IMPL(counter, x, rel, y)    \
-BOOST_MPL_AUX_ASSERT_CONSTANT( \
+#   define NDNBOOST_MPL_ASSERT_RELATION_IMPL(counter, x, rel, y)    \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( \
       std::size_t \
-    , BOOST_PP_CAT(mpl_assert_rel,counter) = sizeof( \
+    , NDNBOOST_PP_CAT(mpl_assert_rel,counter) = sizeof( \
           ndnboost::mpl::assert_::arg rel ndnboost::mpl::assert_::arg \
         ) \
     ); \
-BOOST_MPL_AUX_ASSERT_CONSTANT( bool, BOOST_PP_CAT(mpl_assert_rel_value,counter) = (x rel y) ); \
-BOOST_MPL_AUX_ASSERT_CONSTANT( \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( bool, NDNBOOST_PP_CAT(mpl_assert_rel_value,counter) = (x rel y) ); \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( \
       std::size_t \
-    , BOOST_PP_CAT(mpl_assertion_in_line_,counter) = sizeof( \
-        ndnboost::mpl::assertion_failed<BOOST_PP_CAT(mpl_assert_rel_value,counter)>( \
+    , NDNBOOST_PP_CAT(mpl_assertion_in_line_,counter) = sizeof( \
+        ndnboost::mpl::assertion_failed<NDNBOOST_PP_CAT(mpl_assert_rel_value,counter)>( \
               ndnboost::mpl::assert_rel_arg( ndnboost::mpl::assert_relation< \
-                  ndnboost::mpl::assert_::relations(BOOST_PP_CAT(mpl_assert_rel,counter)) \
+                  ndnboost::mpl::assert_::relations(NDNBOOST_PP_CAT(mpl_assert_rel,counter)) \
                 , x \
                 , y \
                 >() ) \
@@ -364,30 +364,30 @@ BOOST_MPL_AUX_ASSERT_CONSTANT( \
 /**/
 #   endif
 
-#   define BOOST_MPL_ASSERT_RELATION(x, rel, y) \
-BOOST_MPL_ASSERT_RELATION_IMPL(BOOST_MPL_AUX_PP_COUNTER(), x, rel, y) \
+#   define NDNBOOST_MPL_ASSERT_RELATION(x, rel, y) \
+NDNBOOST_MPL_ASSERT_RELATION_IMPL(NDNBOOST_MPL_AUX_PP_COUNTER(), x, rel, y) \
 /**/
 
-#else // !BOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES
+#else // !NDNBOOST_MPL_CFG_ASSERT_USE_RELATION_NAMES
 
-#   if defined(BOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER)
-#   define BOOST_MPL_ASSERT_RELATION(x, rel, y) \
-BOOST_MPL_AUX_ASSERT_CONSTANT( \
+#   if defined(NDNBOOST_MPL_CFG_ASSERT_BROKEN_POINTER_TO_POINTER_TO_MEMBER)
+#   define NDNBOOST_MPL_ASSERT_RELATION(x, rel, y) \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( \
       std::size_t \
-    , BOOST_PP_CAT(mpl_assertion_in_line_,BOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
+    , NDNBOOST_PP_CAT(mpl_assertion_in_line_,NDNBOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
         ndnboost::mpl::assertion_failed<(x rel y)>( ndnboost::mpl::assert_rel_arg( \
-              ndnboost::mpl::BOOST_MPL_AUX_ASSERT_RELATION(x,y,(&ndnboost::mpl::operator rel))() \
+              ndnboost::mpl::NDNBOOST_MPL_AUX_ASSERT_RELATION(x,y,(&ndnboost::mpl::operator rel))() \
             ) ) \
         ) \
     ) \
 /**/
 #   else
-#   define BOOST_MPL_ASSERT_RELATION(x, rel, y) \
-BOOST_MPL_AUX_ASSERT_CONSTANT( \
+#   define NDNBOOST_MPL_ASSERT_RELATION(x, rel, y) \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( \
       std::size_t \
-    , BOOST_PP_CAT(mpl_assertion_in_line_,BOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
+    , NDNBOOST_PP_CAT(mpl_assertion_in_line_,NDNBOOST_MPL_AUX_PP_COUNTER()) = sizeof( \
         ndnboost::mpl::assertion_failed<(x rel y)>( (ndnboost::mpl::failed ************ ( \
-            ndnboost::mpl::BOOST_MPL_AUX_ASSERT_RELATION(x,y,(&ndnboost::mpl::operator rel))::************))0 ) \
+            ndnboost::mpl::NDNBOOST_MPL_AUX_ASSERT_RELATION(x,y,(&ndnboost::mpl::operator rel))::************))0 ) \
         ) \
     ) \
 /**/
@@ -396,43 +396,43 @@ BOOST_MPL_AUX_ASSERT_CONSTANT( \
 #endif
 
 
-// BOOST_MPL_ASSERT_MSG( (pred<x,...>::value), USER_PROVIDED_MESSAGE, (types<x,...>) ) 
+// NDNBOOST_MPL_ASSERT_MSG( (pred<x,...>::value), USER_PROVIDED_MESSAGE, (types<x,...>) ) 
 
-#if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3202))
-#   define BOOST_MPL_ASSERT_MSG_IMPL( counter, c, msg, types_ ) \
+#if NDNBOOST_WORKAROUND(__MWERKS__, NDNBOOST_TESTED_AT(0x3202))
+#   define NDNBOOST_MPL_ASSERT_MSG_IMPL( counter, c, msg, types_ ) \
 struct msg; \
-typedef struct BOOST_PP_CAT(msg,counter) : ndnboost::mpl::assert_ \
+typedef struct NDNBOOST_PP_CAT(msg,counter) : ndnboost::mpl::assert_ \
 { \
     using ndnboost::mpl::assert_::types; \
     static ndnboost::mpl::failed ************ (msg::************ assert_arg()) types_ \
     { return 0; } \
-} BOOST_PP_CAT(mpl_assert_arg,counter); \
-BOOST_MPL_AUX_ASSERT_CONSTANT( \
+} NDNBOOST_PP_CAT(mpl_assert_arg,counter); \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( \
       std::size_t \
-    , BOOST_PP_CAT(mpl_assertion_in_line_,counter) = sizeof( \
-        ndnboost::mpl::assertion<(c)>::failed( BOOST_PP_CAT(mpl_assert_arg,counter)::assert_arg() ) \
+    , NDNBOOST_PP_CAT(mpl_assertion_in_line_,counter) = sizeof( \
+        ndnboost::mpl::assertion<(c)>::failed( NDNBOOST_PP_CAT(mpl_assert_arg,counter)::assert_arg() ) \
         ) \
     ) \
 /**/
 #else
-#   define BOOST_MPL_ASSERT_MSG_IMPL( counter, c, msg, types_ )  \
+#   define NDNBOOST_MPL_ASSERT_MSG_IMPL( counter, c, msg, types_ )  \
 struct msg; \
-typedef struct BOOST_PP_CAT(msg,counter) : ndnboost::mpl::assert_ \
+typedef struct NDNBOOST_PP_CAT(msg,counter) : ndnboost::mpl::assert_ \
 { \
     static ndnboost::mpl::failed ************ (msg::************ assert_arg()) types_ \
     { return 0; } \
-} BOOST_PP_CAT(mpl_assert_arg,counter); \
-BOOST_MPL_AUX_ASSERT_CONSTANT( \
+} NDNBOOST_PP_CAT(mpl_assert_arg,counter); \
+NDNBOOST_MPL_AUX_ASSERT_CONSTANT( \
       std::size_t \
-    , BOOST_PP_CAT(mpl_assertion_in_line_,counter) = sizeof( \
-        ndnboost::mpl::assertion_failed<(c)>( BOOST_PP_CAT(mpl_assert_arg,counter)::assert_arg() ) \
+    , NDNBOOST_PP_CAT(mpl_assertion_in_line_,counter) = sizeof( \
+        ndnboost::mpl::assertion_failed<(c)>( NDNBOOST_PP_CAT(mpl_assert_arg,counter)::assert_arg() ) \
         ) \
     ) \
 /**/
 #endif
 
-#define BOOST_MPL_ASSERT_MSG( c, msg, types_ ) \
-BOOST_MPL_ASSERT_MSG_IMPL( BOOST_MPL_AUX_PP_COUNTER(), c, msg, types_ ) \
+#define NDNBOOST_MPL_ASSERT_MSG( c, msg, types_ ) \
+NDNBOOST_MPL_ASSERT_MSG_IMPL( NDNBOOST_MPL_AUX_PP_COUNTER(), c, msg, types_ ) \
 /**/
 
-#endif // BOOST_MPL_ASSERT_HPP_INCLUDED
+#endif // NDNBOOST_MPL_ASSERT_HPP_INCLUDED

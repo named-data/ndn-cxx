@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_CLEAR_HPP_INCLUDED
-#define BOOST_MPL_CLEAR_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_CLEAR_HPP_INCLUDED
+#define NDNBOOST_MPL_CLEAR_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -23,17 +23,17 @@
 namespace ndnboost { namespace mpl {
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
     >
 struct clear
     : clear_impl< typename sequence_tag<Sequence>::type >
         ::template apply< Sequence >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1,clear,(Sequence))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,clear,(Sequence))
 };
 
-BOOST_MPL_AUX_NA_SPEC(1, clear)
+NDNBOOST_MPL_AUX_NA_SPEC(1, clear)
 
 }}
 
-#endif // BOOST_MPL_CLEAR_HPP_INCLUDED
+#endif // NDNBOOST_MPL_CLEAR_HPP_INCLUDED

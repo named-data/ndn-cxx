@@ -18,8 +18,8 @@ template<
     >
 struct bitxor_impl
     : if_c<
-          ( BOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag1)
-              > BOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag2)
+          ( NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag1)
+              > NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag2)
             )
 
         , aux::cast2nd_impl< bitxor_impl< Tag1,Tag1 >,Tag1, Tag2 >
@@ -34,7 +34,7 @@ template<> struct bitxor_impl< na,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -43,7 +43,7 @@ template< typename Tag > struct bitxor_impl< na,Tag >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -52,7 +52,7 @@ template< typename Tag > struct bitxor_impl< Tag,na >
     template< typename U1, typename U2 > struct apply
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value  = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value  = 0);
     };
 };
 
@@ -62,8 +62,8 @@ template< typename T > struct bitxor_tag
 };
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
     , typename N3 = na, typename N4 = na, typename N5 = na
     >
 struct bitxor_
@@ -78,7 +78,7 @@ struct bitxor_< N1,N2,N3,N4,na >
 
     : bitxor_< bitxor_< bitxor_< N1,N2 >, N3>, N4>
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
           5
         , bitxor_
         , ( N1, N2, N3, N4, na )
@@ -92,7 +92,7 @@ struct bitxor_< N1,N2,N3,na,na >
 
     : bitxor_< bitxor_< N1,N2 >, N3>
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
           5
         , bitxor_
         , ( N1, N2, N3, na, na )
@@ -108,7 +108,7 @@ struct bitxor_< N1,N2,na,na,na >
         , typename bitxor_tag<N2>::type
         >::template apply< N1,N2 >::type
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
           5
         , bitxor_
         , ( N1, N2, na, na, na )
@@ -116,7 +116,7 @@ struct bitxor_< N1,N2,na,na,na >
 
 };
 
-BOOST_MPL_AUX_NA_SPEC2(2, 5, bitxor_)
+NDNBOOST_MPL_AUX_NA_SPEC2(2, 5, bitxor_)
 
 }}
 
@@ -131,8 +131,8 @@ struct bitxor_impl< integral_c_tag,integral_c_tag >
                   typename N1::value_type
                 , typename N2::value_type
                 >::type
-            , ( BOOST_MPL_AUX_VALUE_WKND(N1)::value
-                  ^ BOOST_MPL_AUX_VALUE_WKND(N2)::value
+            , ( NDNBOOST_MPL_AUX_VALUE_WKND(N1)::value
+                  ^ NDNBOOST_MPL_AUX_VALUE_WKND(N2)::value
                 )
             >
     {

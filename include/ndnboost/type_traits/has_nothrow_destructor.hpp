@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_HAS_NOTHROW_DESTRUCTOR_HPP_INCLUDED
-#define BOOST_TT_HAS_NOTHROW_DESTRUCTOR_HPP_INCLUDED
+#ifndef NDNBOOST_TT_HAS_NOTHROW_DESTRUCTOR_HPP_INCLUDED
+#define NDNBOOST_TT_HAS_NOTHROW_DESTRUCTOR_HPP_INCLUDED
 
 #include <ndnboost/type_traits/has_trivial_destructor.hpp>
 
@@ -16,10 +16,10 @@
 
 namespace ndnboost {
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(has_nothrow_destructor,T,::ndnboost::has_trivial_destructor<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(has_nothrow_destructor,T,::ndnboost::has_trivial_destructor<T>::value)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_HAS_NOTHROW_DESTRUCTOR_HPP_INCLUDED
+#endif // NDNBOOST_TT_HAS_NOTHROW_DESTRUCTOR_HPP_INCLUDED

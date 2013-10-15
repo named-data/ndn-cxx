@@ -7,8 +7,8 @@
 
 //  See ndnboost/type_traits/*.hpp for full copyright notices.
 
-#ifndef BOOST_TYPE_TRAITS_HPP
-#define BOOST_TYPE_TRAITS_HPP
+#ifndef NDNBOOST_TYPE_TRAITS_HPP
+#define NDNBOOST_TYPE_TRAITS_HPP
 
 #include "ndnboost/type_traits/add_const.hpp"
 #include "ndnboost/type_traits/add_cv.hpp"
@@ -97,4 +97,4 @@
 
 #include "ndnboost/type_traits/ice.hpp"
 
-#endif // BOOST_TYPE_TRAITS_HPP
+#endif // NDNBOOST_TYPE_TRAITS_HPP

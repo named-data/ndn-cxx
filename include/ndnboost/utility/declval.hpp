@@ -5,8 +5,8 @@
 //  Distributed under the Boost Software License, Version 1.0.
 //  See http://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_TYPE_TRAITS_EXT_DECLVAL__HPP
-#define BOOST_TYPE_TRAITS_EXT_DECLVAL__HPP
+#ifndef NDNBOOST_TYPE_TRAITS_EXT_DECLVAL__HPP
+#define NDNBOOST_TYPE_TRAITS_EXT_DECLVAL__HPP
 
 #include <ndnboost/config.hpp>
 
@@ -37,13 +37,13 @@
 
 namespace ndnboost {
 
-//#if !defined(BOOST_NO_RVALUE_REFERENCES)
+//#if !defined(NDNBOOST_NO_RVALUE_REFERENCES)
     template <typename T>
-    typename add_rvalue_reference<T>::type declval() BOOST_NOEXCEPT; // as unevaluated operand
+    typename add_rvalue_reference<T>::type declval() NDNBOOST_NOEXCEPT; // as unevaluated operand
 //#else
 //    template <typename T>
-//    typename add_lvalue_reference<T>::type declval() BOOST_NOEXCEPT; // as unevaluated operand
+//    typename add_lvalue_reference<T>::type declval() NDNBOOST_NOEXCEPT; // as unevaluated operand
 //#endif
 }  // namespace ndnboost
 
-#endif  // BOOST_TYPE_TRAITS_EXT_DECLVAL__HPP
+#endif  // NDNBOOST_TYPE_TRAITS_EXT_DECLVAL__HPP

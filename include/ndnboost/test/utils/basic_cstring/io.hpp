@@ -12,8 +12,8 @@
 //  Description : basic_cstring i/o implementation
 // ***************************************************************************
 
-#ifndef  BOOST_TEST_BASIC_CSTRING_IO_HPP_071894GER
-#define  BOOST_TEST_BASIC_CSTRING_IO_HPP_071894GER
+#ifndef  NDNBOOST_TEST_BASIC_CSTRING_IO_HPP_071894GER
+#define  NDNBOOST_TEST_BASIC_CSTRING_IO_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/utils/basic_cstring/basic_cstring.hpp>
@@ -30,7 +30,7 @@ namespace ndnboost {
 
 namespace unit_test {
 
-#ifdef BOOST_CLASSIC_IOSTREAMS
+#ifdef NDNBOOST_CLASSIC_IOSTREAMS
 
 template<typename CharT>
 inline std::ostream&
@@ -70,4 +70,4 @@ operator<<( std::basic_ostream<CharT1,Tr>& os, basic_cstring<CharT2> const& str 
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_BASIC_CSTRING_IO_HPP_071894GER
+#endif // NDNBOOST_TEST_BASIC_CSTRING_IO_HPP_071894GER

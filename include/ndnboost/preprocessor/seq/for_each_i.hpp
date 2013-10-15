@@ -9,8 +9,8 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_SEQ_FOR_EACH_I_HPP
-# define BOOST_PREPROCESSOR_SEQ_FOR_EACH_I_HPP
+# ifndef NDNBOOST_PREPROCESSOR_SEQ_FOR_EACH_I_HPP
+# define NDNBOOST_PREPROCESSOR_SEQ_FOR_EACH_I_HPP
 #
 # include <ndnboost/preprocessor/arithmetic/dec.hpp>
 # include <ndnboost/preprocessor/arithmetic/inc.hpp>
@@ -21,41 +21,41 @@
 # include <ndnboost/preprocessor/tuple/elem.hpp>
 # include <ndnboost/preprocessor/tuple/rem.hpp>
 #
-# /* BOOST_PP_SEQ_FOR_EACH_I */
+# /* NDNBOOST_PP_SEQ_FOR_EACH_I */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_SEQ_FOR_EACH_I(macro, data, seq) BOOST_PP_FOR((macro, data, seq (nil), 0), BOOST_PP_SEQ_FOR_EACH_I_P, BOOST_PP_SEQ_FOR_EACH_I_O, BOOST_PP_SEQ_FOR_EACH_I_M)
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_SEQ_FOR_EACH_I(macro, data, seq) NDNBOOST_PP_FOR((macro, data, seq (nil), 0), NDNBOOST_PP_SEQ_FOR_EACH_I_P, NDNBOOST_PP_SEQ_FOR_EACH_I_O, NDNBOOST_PP_SEQ_FOR_EACH_I_M)
 # else
-#    define BOOST_PP_SEQ_FOR_EACH_I(macro, data, seq) BOOST_PP_SEQ_FOR_EACH_I_I(macro, data, seq)
-#    define BOOST_PP_SEQ_FOR_EACH_I_I(macro, data, seq) BOOST_PP_FOR((macro, data, seq (nil), 0), BOOST_PP_SEQ_FOR_EACH_I_P, BOOST_PP_SEQ_FOR_EACH_I_O, BOOST_PP_SEQ_FOR_EACH_I_M)
+#    define NDNBOOST_PP_SEQ_FOR_EACH_I(macro, data, seq) NDNBOOST_PP_SEQ_FOR_EACH_I_I(macro, data, seq)
+#    define NDNBOOST_PP_SEQ_FOR_EACH_I_I(macro, data, seq) NDNBOOST_PP_FOR((macro, data, seq (nil), 0), NDNBOOST_PP_SEQ_FOR_EACH_I_P, NDNBOOST_PP_SEQ_FOR_EACH_I_O, NDNBOOST_PP_SEQ_FOR_EACH_I_M)
 # endif
 #
-# define BOOST_PP_SEQ_FOR_EACH_I_P(r, x) BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(BOOST_PP_TUPLE_ELEM(4, 2, x)))
+# define NDNBOOST_PP_SEQ_FOR_EACH_I_P(r, x) NDNBOOST_PP_DEC(NDNBOOST_PP_SEQ_SIZE(NDNBOOST_PP_TUPLE_ELEM(4, 2, x)))
 #
-# if BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
-#    define BOOST_PP_SEQ_FOR_EACH_I_O(r, x) BOOST_PP_SEQ_FOR_EACH_I_O_I x
+# if NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_STRICT()
+#    define NDNBOOST_PP_SEQ_FOR_EACH_I_O(r, x) NDNBOOST_PP_SEQ_FOR_EACH_I_O_I x
 # else
-#    define BOOST_PP_SEQ_FOR_EACH_I_O(r, x) BOOST_PP_SEQ_FOR_EACH_I_O_I(BOOST_PP_TUPLE_ELEM(4, 0, x), BOOST_PP_TUPLE_ELEM(4, 1, x), BOOST_PP_TUPLE_ELEM(4, 2, x), BOOST_PP_TUPLE_ELEM(4, 3, x))
+#    define NDNBOOST_PP_SEQ_FOR_EACH_I_O(r, x) NDNBOOST_PP_SEQ_FOR_EACH_I_O_I(NDNBOOST_PP_TUPLE_ELEM(4, 0, x), NDNBOOST_PP_TUPLE_ELEM(4, 1, x), NDNBOOST_PP_TUPLE_ELEM(4, 2, x), NDNBOOST_PP_TUPLE_ELEM(4, 3, x))
 # endif
 #
-# define BOOST_PP_SEQ_FOR_EACH_I_O_I(macro, data, seq, i) (macro, data, BOOST_PP_SEQ_TAIL(seq), BOOST_PP_INC(i))
+# define NDNBOOST_PP_SEQ_FOR_EACH_I_O_I(macro, data, seq, i) (macro, data, NDNBOOST_PP_SEQ_TAIL(seq), NDNBOOST_PP_INC(i))
 #
-# if BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
-#    define BOOST_PP_SEQ_FOR_EACH_I_M(r, x) BOOST_PP_SEQ_FOR_EACH_I_M_IM(r, BOOST_PP_TUPLE_REM_4 x)
-#    define BOOST_PP_SEQ_FOR_EACH_I_M_IM(r, im) BOOST_PP_SEQ_FOR_EACH_I_M_I(r, im)
+# if NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_STRICT()
+#    define NDNBOOST_PP_SEQ_FOR_EACH_I_M(r, x) NDNBOOST_PP_SEQ_FOR_EACH_I_M_IM(r, NDNBOOST_PP_TUPLE_REM_4 x)
+#    define NDNBOOST_PP_SEQ_FOR_EACH_I_M_IM(r, im) NDNBOOST_PP_SEQ_FOR_EACH_I_M_I(r, im)
 # else
-#    define BOOST_PP_SEQ_FOR_EACH_I_M(r, x) BOOST_PP_SEQ_FOR_EACH_I_M_I(r, BOOST_PP_TUPLE_ELEM(4, 0, x), BOOST_PP_TUPLE_ELEM(4, 1, x), BOOST_PP_TUPLE_ELEM(4, 2, x), BOOST_PP_TUPLE_ELEM(4, 3, x))
+#    define NDNBOOST_PP_SEQ_FOR_EACH_I_M(r, x) NDNBOOST_PP_SEQ_FOR_EACH_I_M_I(r, NDNBOOST_PP_TUPLE_ELEM(4, 0, x), NDNBOOST_PP_TUPLE_ELEM(4, 1, x), NDNBOOST_PP_TUPLE_ELEM(4, 2, x), NDNBOOST_PP_TUPLE_ELEM(4, 3, x))
 # endif
 #
-# define BOOST_PP_SEQ_FOR_EACH_I_M_I(r, macro, data, seq, i) macro(r, data, i, BOOST_PP_SEQ_HEAD(seq))
+# define NDNBOOST_PP_SEQ_FOR_EACH_I_M_I(r, macro, data, seq, i) macro(r, data, i, NDNBOOST_PP_SEQ_HEAD(seq))
 #
-# /* BOOST_PP_SEQ_FOR_EACH_I_R */
+# /* NDNBOOST_PP_SEQ_FOR_EACH_I_R */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_SEQ_FOR_EACH_I_R(r, macro, data, seq) BOOST_PP_FOR_ ## r((macro, data, seq (nil), 0), BOOST_PP_SEQ_FOR_EACH_I_P, BOOST_PP_SEQ_FOR_EACH_I_O, BOOST_PP_SEQ_FOR_EACH_I_M)
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_SEQ_FOR_EACH_I_R(r, macro, data, seq) NDNBOOST_PP_FOR_ ## r((macro, data, seq (nil), 0), NDNBOOST_PP_SEQ_FOR_EACH_I_P, NDNBOOST_PP_SEQ_FOR_EACH_I_O, NDNBOOST_PP_SEQ_FOR_EACH_I_M)
 # else
-#    define BOOST_PP_SEQ_FOR_EACH_I_R(r, macro, data, seq) BOOST_PP_SEQ_FOR_EACH_I_R_I(r, macro, data, seq)
-#    define BOOST_PP_SEQ_FOR_EACH_I_R_I(r, macro, data, seq) BOOST_PP_FOR_ ## r((macro, data, seq (nil), 0), BOOST_PP_SEQ_FOR_EACH_I_P, BOOST_PP_SEQ_FOR_EACH_I_O, BOOST_PP_SEQ_FOR_EACH_I_M)
+#    define NDNBOOST_PP_SEQ_FOR_EACH_I_R(r, macro, data, seq) NDNBOOST_PP_SEQ_FOR_EACH_I_R_I(r, macro, data, seq)
+#    define NDNBOOST_PP_SEQ_FOR_EACH_I_R_I(r, macro, data, seq) NDNBOOST_PP_FOR_ ## r((macro, data, seq (nil), 0), NDNBOOST_PP_SEQ_FOR_EACH_I_P, NDNBOOST_PP_SEQ_FOR_EACH_I_O, NDNBOOST_PP_SEQ_FOR_EACH_I_M)
 # endif
 #
 # endif

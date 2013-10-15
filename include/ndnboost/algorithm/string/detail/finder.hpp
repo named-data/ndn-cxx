@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_FINDER_DETAIL_HPP
-#define BOOST_STRING_FINDER_DETAIL_HPP
+#ifndef NDNBOOST_STRING_FINDER_DETAIL_HPP
+#define NDNBOOST_STRING_FINDER_DETAIL_HPP
 
 #include <ndnboost/algorithm/string/config.hpp>
 #include <ndnboost/algorithm/string/constants.hpp>
@@ -127,7 +127,7 @@ namespace ndnboost {
                     if( ndnboost::empty(m_Search) )
                         return result_type( End, End );
 
-                    typedef BOOST_STRING_TYPENAME ndnboost::detail::
+                    typedef NDNBOOST_STRING_TYPENAME ndnboost::detail::
                         iterator_traits<ForwardIteratorT>::iterator_category category;
 
                     return findit( Begin, End, category() );
@@ -379,7 +379,7 @@ namespace ndnboost {
                 ForwardIteratorT End,
                 unsigned int N )
             {
-                typedef BOOST_STRING_TYPENAME ndnboost::detail::
+                typedef NDNBOOST_STRING_TYPENAME ndnboost::detail::
                     iterator_traits<ForwardIteratorT>::iterator_category category;
 
                 return ::ndnboost::algorithm::detail::find_head_impl( Begin, End, N, category() );
@@ -453,7 +453,7 @@ namespace ndnboost {
                 ForwardIteratorT End,
                 unsigned int N )
             {
-                typedef BOOST_STRING_TYPENAME ndnboost::detail::
+                typedef NDNBOOST_STRING_TYPENAME ndnboost::detail::
                     iterator_traits<ForwardIteratorT>::iterator_category category;
 
                 return ::ndnboost::algorithm::detail::find_tail_impl( Begin, End, N, category() );
@@ -625,9 +625,9 @@ namespace ndnboost {
                     ForwardIterator2T,
                     ForwardIterator2T ) const
                 {
-#if BOOST_WORKAROUND( __MWERKS__, <= 0x3003 ) 
+#if NDNBOOST_WORKAROUND( __MWERKS__, <= 0x3003 ) 
                     return iterator_range<const ForwardIterator2T>(this->m_Range);
-#elif BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+#elif NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
                     return iterator_range<ForwardIterator2T>(m_Range.begin(), m_Range.end());
 #else
                     return m_Range;
@@ -643,4 +643,4 @@ namespace ndnboost {
     } // namespace algorithm
 } // namespace ndnboost
 
-#endif  // BOOST_STRING_FINDER_DETAIL_HPP
+#endif  // NDNBOOST_STRING_FINDER_DETAIL_HPP

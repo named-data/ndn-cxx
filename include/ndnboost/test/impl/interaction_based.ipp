@@ -12,13 +12,13 @@
 //  Description : Facilities to perform interaction-based testing
 // ***************************************************************************
 
-#ifndef BOOST_TEST_INTERACTION_BASED_IPP_112105GER
-#define BOOST_TEST_INTERACTION_BASED_IPP_112105GER
+#ifndef NDNBOOST_TEST_INTERACTION_BASED_IPP_112105GER
+#define NDNBOOST_TEST_INTERACTION_BASED_IPP_112105GER
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
 
-#if BOOST_TEST_SUPPORT_INTERACTION_TESTING
+#if NDNBOOST_TEST_SUPPORT_INTERACTION_TESTING
 
 // Boost.Test
 #include <ndnboost/test/detail/config.hpp>
@@ -66,7 +66,7 @@ manager::instance_ptr( bool reset, manager* new_ptr )
     
     if( reset ) {
         if( new_ptr ) {
-            BOOST_TEST_SETUP_ASSERT( ptr == &dummy, BOOST_TEST_L( "Can't run two interation based test the same time" ) );
+            NDNBOOST_TEST_SETUP_ASSERT( ptr == &dummy, NDNBOOST_TEST_L( "Can't run two interation based test the same time" ) );
                 
             ptr = new_ptr;
         }
@@ -87,4 +87,4 @@ manager::instance_ptr( bool reset, manager* new_ptr )
 
 #endif // not ancient compiler
 
-#endif // BOOST_TEST_INTERACTION_BASED_IPP_112105GER
+#endif // NDNBOOST_TEST_INTERACTION_BASED_IPP_112105GER

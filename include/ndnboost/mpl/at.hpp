@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AT_HPP_INCLUDED
-#define BOOST_MPL_AT_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AT_HPP_INCLUDED
+#define NDNBOOST_MPL_AT_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -25,19 +25,19 @@
 namespace ndnboost { namespace mpl {
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
-    , typename BOOST_MPL_AUX_NA_PARAM(N)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N)
     >
 struct at
     : at_impl< typename sequence_tag<Sequence>::type >
         ::template apply< Sequence,N >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(2,at,(Sequence,N))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2,at,(Sequence,N))
 };
 
 template<
       typename Sequence
-    , BOOST_MPL_AUX_NTTP_DECL(long, N)
+    , NDNBOOST_MPL_AUX_NTTP_DECL(long, N)
     >
 struct at_c
     : at_impl< typename sequence_tag<Sequence>::type >
@@ -45,8 +45,8 @@ struct at_c
 {
 };
 
-BOOST_MPL_AUX_NA_SPEC(2, at)
+NDNBOOST_MPL_AUX_NA_SPEC(2, at)
 
 }}
 
-#endif // BOOST_MPL_AT_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AT_HPP_INCLUDED

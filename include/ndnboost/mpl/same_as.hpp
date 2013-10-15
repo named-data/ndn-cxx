@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_SAME_AS_HPP_INCLUDED
-#define BOOST_MPL_SAME_AS_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_SAME_AS_HPP_INCLUDED
+#define NDNBOOST_MPL_SAME_AS_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -26,7 +26,7 @@ template< typename T1 >
 struct same_as
 {
     template< typename T2 > struct apply
-#if !defined(BOOST_MPL_CFG_NO_NESTED_FORWARDING)
+#if !defined(NDNBOOST_MPL_CFG_NO_NESTED_FORWARDING)
         : is_same<T1,T2>
     {
 #else
@@ -40,7 +40,7 @@ template< typename T1 >
 struct not_same_as
 {
     template< typename T2 > struct apply
-#if !defined(BOOST_MPL_CFG_NO_NESTED_FORWARDING)
+#if !defined(NDNBOOST_MPL_CFG_NO_NESTED_FORWARDING)
         : not_< is_same<T1,T2> >
     {
 #else
@@ -52,4 +52,4 @@ struct not_same_as
 
 }}
 
-#endif // BOOST_MPL_SAME_AS_HPP_INCLUDED
+#endif // NDNBOOST_MPL_SAME_AS_HPP_INCLUDED

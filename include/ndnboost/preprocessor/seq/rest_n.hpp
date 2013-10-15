@@ -9,8 +9,8 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_SEQ_REST_N_HPP
-# define BOOST_PREPROCESSOR_SEQ_REST_N_HPP
+# ifndef NDNBOOST_PREPROCESSOR_SEQ_REST_N_HPP
+# define NDNBOOST_PREPROCESSOR_SEQ_REST_N_HPP
 #
 # include <ndnboost/preprocessor/arithmetic/inc.hpp>
 # include <ndnboost/preprocessor/config/config.hpp>
@@ -18,13 +18,13 @@
 # include <ndnboost/preprocessor/seq/detail/split.hpp>
 # include <ndnboost/preprocessor/tuple/elem.hpp>
 #
-# /* BOOST_PP_SEQ_REST_N */
+# /* NDNBOOST_PP_SEQ_REST_N */
 #
-# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_EDG()
-#    define BOOST_PP_SEQ_REST_N(n, seq) BOOST_PP_TUPLE_ELEM(2, 1, BOOST_PP_SEQ_SPLIT(BOOST_PP_INC(n), (nil) seq BOOST_PP_EMPTY))()
+# if ~NDNBOOST_PP_CONFIG_FLAGS() & NDNBOOST_PP_CONFIG_EDG()
+#    define NDNBOOST_PP_SEQ_REST_N(n, seq) NDNBOOST_PP_TUPLE_ELEM(2, 1, NDNBOOST_PP_SEQ_SPLIT(NDNBOOST_PP_INC(n), (nil) seq NDNBOOST_PP_EMPTY))()
 # else
-#    define BOOST_PP_SEQ_REST_N(n, seq) BOOST_PP_SEQ_REST_N_I(n, seq)
-#    define BOOST_PP_SEQ_REST_N_I(n, seq) BOOST_PP_TUPLE_ELEM(2, 1, BOOST_PP_SEQ_SPLIT(BOOST_PP_INC(n), (nil) seq BOOST_PP_EMPTY))()
+#    define NDNBOOST_PP_SEQ_REST_N(n, seq) NDNBOOST_PP_SEQ_REST_N_I(n, seq)
+#    define NDNBOOST_PP_SEQ_REST_N_I(n, seq) NDNBOOST_PP_TUPLE_ELEM(2, 1, NDNBOOST_PP_SEQ_SPLIT(NDNBOOST_PP_INC(n), (nil) seq NDNBOOST_PP_EMPTY))()
 # endif
 #
 # endif

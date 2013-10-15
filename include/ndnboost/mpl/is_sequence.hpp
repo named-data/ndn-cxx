@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_IS_SEQUENCE_HPP_INCLUDED
-#define BOOST_MPL_IS_SEQUENCE_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_IS_SEQUENCE_HPP_INCLUDED
+#define NDNBOOST_MPL_IS_SEQUENCE_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2002-2004
 //
@@ -29,9 +29,9 @@
 #include <ndnboost/mpl/aux_/config/eti.hpp>
 #include <ndnboost/mpl/aux_/config/msvc.hpp>
 #include <ndnboost/mpl/aux_/config/workaround.hpp>
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
 #   include <ndnboost/mpl/aux_/msvc_is_class.hpp>
-#elif BOOST_WORKAROUND(BOOST_MSVC, == 1300)
+#elif NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1300)
 #   include <ndnboost/type_traits/is_class.hpp>
 #endif
 
@@ -39,7 +39,7 @@
 
 namespace ndnboost { namespace mpl {
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
 
 namespace aux {
 
@@ -59,11 +59,11 @@ template< typename T > struct is_sequence_impl
 } // namespace aux
         
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(T)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(T)
     >
 struct is_sequence
     : if_<
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
           aux::msvc_is_class<T> 
 #else
           ndnboost::is_class<T> 
@@ -72,13 +72,13 @@ struct is_sequence
         , bool_<false>
         >::type
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1, is_sequence, (T))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1, is_sequence, (T))
 };
 
-#elif defined(BOOST_MPL_CFG_NO_HAS_XXX)
+#elif defined(NDNBOOST_MPL_CFG_NO_HAS_XXX)
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(T)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(T)
     >
 struct is_sequence
     : bool_<false>
@@ -88,25 +88,25 @@ struct is_sequence
 #else
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(T)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(T)
     >
 struct is_sequence
     : not_< is_same< typename begin<T>::type, void_ > >
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1, is_sequence, (T))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1, is_sequence, (T))
 };
 
-#endif // BOOST_MSVC
+#endif // NDNBOOST_MSVC
 
-#if defined(BOOST_MPL_CFG_MSVC_60_ETI_BUG)
+#if defined(NDNBOOST_MPL_CFG_MSVC_60_ETI_BUG)
 template<> struct is_sequence<int>
     : bool_<false>
 {
 };
 #endif
 
-BOOST_MPL_AUX_NA_SPEC_NO_ETI(1, is_sequence)
+NDNBOOST_MPL_AUX_NA_SPEC_NO_ETI(1, is_sequence)
 
 }}
 
-#endif // BOOST_MPL_IS_SEQUENCE_HPP_INCLUDED
+#endif // NDNBOOST_MPL_IS_SEQUENCE_HPP_INCLUDED

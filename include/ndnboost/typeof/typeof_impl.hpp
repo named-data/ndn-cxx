@@ -3,8 +3,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_TYPEOF_TYPEOF_IMPL_HPP_INCLUDED
-#define BOOST_TYPEOF_TYPEOF_IMPL_HPP_INCLUDED
+#ifndef NDNBOOST_TYPEOF_TYPEOF_IMPL_HPP_INCLUDED
+#define NDNBOOST_TYPEOF_TYPEOF_IMPL_HPP_INCLUDED
 
 #include <ndnboost/mpl/size_t.hpp>
 #include <ndnboost/preprocessor/repetition/enum.hpp>
@@ -13,9 +13,9 @@
 #include <ndnboost/type_traits/is_function.hpp>
 #include <ndnboost/utility/enable_if.hpp>
 
-#define BOOST_TYPEOF_VECTOR(n) BOOST_PP_CAT(ndnboost::type_of::vector, n)
+#define NDNBOOST_TYPEOF_VECTOR(n) NDNBOOST_PP_CAT(ndnboost::type_of::vector, n)
 
-#define BOOST_TYPEOF_sizer_item(z, n, _)\
+#define NDNBOOST_TYPEOF_sizer_item(z, n, _)\
     char item ## n[V::item ## n ::value];
 
 namespace ndnboost { namespace type_of {
@@ -26,15 +26,15 @@ namespace ndnboost { namespace type_of {
         // char item1[V::item1::value];
         // ...
 
-        BOOST_PP_REPEAT(BOOST_TYPEOF_LIMIT_SIZE, BOOST_TYPEOF_sizer_item, ~)
+        NDNBOOST_PP_REPEAT(NDNBOOST_TYPEOF_LIMIT_SIZE, NDNBOOST_TYPEOF_sizer_item, ~)
     };
 }}
 
-#undef BOOST_TYPEOF_sizer_item
+#undef NDNBOOST_TYPEOF_sizer_item
 
 //
 namespace ndnboost { namespace type_of {
-# ifdef BOOST_NO_SFINAE
+# ifdef NDNBOOST_NO_SFINAE
     template<class V, class T>
     sizer<typename encode_type<V, T>::type> encode(const T&);
 # else
@@ -59,18 +59,18 @@ namespace ndnboost { namespace type_of {
     };
 }}
 
-#define BOOST_TYPEOF_TYPEITEM(z, n, expr)\
-    ndnboost::mpl::size_t<sizeof(ndnboost::type_of::encode<BOOST_TYPEOF_VECTOR(0)<> >(expr).item ## n)>
+#define NDNBOOST_TYPEOF_TYPEITEM(z, n, expr)\
+    ndnboost::mpl::size_t<sizeof(ndnboost::type_of::encode<NDNBOOST_TYPEOF_VECTOR(0)<> >(expr).item ## n)>
 
-#define BOOST_TYPEOF_ENCODED_VECTOR(Expr)                                   \
-    BOOST_TYPEOF_VECTOR(BOOST_TYPEOF_LIMIT_SIZE)<                           \
-        BOOST_PP_ENUM(BOOST_TYPEOF_LIMIT_SIZE, BOOST_TYPEOF_TYPEITEM, Expr) \
+#define NDNBOOST_TYPEOF_ENCODED_VECTOR(Expr)                                   \
+    NDNBOOST_TYPEOF_VECTOR(NDNBOOST_TYPEOF_LIMIT_SIZE)<                           \
+        NDNBOOST_PP_ENUM(NDNBOOST_TYPEOF_LIMIT_SIZE, NDNBOOST_TYPEOF_TYPEITEM, Expr) \
     >
 
-#define BOOST_TYPEOF(Expr)\
-    ndnboost::type_of::decode_begin<BOOST_TYPEOF_ENCODED_VECTOR(Expr) >::type
+#define NDNBOOST_TYPEOF(Expr)\
+    ndnboost::type_of::decode_begin<NDNBOOST_TYPEOF_ENCODED_VECTOR(Expr) >::type
 
-#define BOOST_TYPEOF_TPL typename BOOST_TYPEOF
+#define NDNBOOST_TYPEOF_TPL typename NDNBOOST_TYPEOF
 
 //offset_vector is used to delay the insertion of data into the vector in order to allow
 //encoding to be done in many steps
@@ -90,19 +90,19 @@ namespace ndnboost { namespace type_of {
     };
 }}
 
-#define BOOST_TYPEOF_NESTED_TYPEITEM(z, n, expr)\
-    BOOST_STATIC_CONSTANT(int,BOOST_PP_CAT(value,n) = sizeof(ndnboost::type_of::encode<_typeof_start_vector>(expr).item ## n));\
-    typedef ndnboost::mpl::size_t<BOOST_PP_CAT(self_t::value,n)> BOOST_PP_CAT(item,n);
+#define NDNBOOST_TYPEOF_NESTED_TYPEITEM(z, n, expr)\
+    NDNBOOST_STATIC_CONSTANT(int,NDNBOOST_PP_CAT(value,n) = sizeof(ndnboost::type_of::encode<_typeof_start_vector>(expr).item ## n));\
+    typedef ndnboost::mpl::size_t<NDNBOOST_PP_CAT(self_t::value,n)> NDNBOOST_PP_CAT(item,n);
 
 #ifdef __DMC__
-#define BOOST_TYPEOF_NESTED_TYPEITEM_2(z,n,expr)\
-    typedef typename _typeof_encode_fraction<iteration>::BOOST_PP_CAT(item,n) BOOST_PP_CAT(item,n);
+#define NDNBOOST_TYPEOF_NESTED_TYPEITEM_2(z,n,expr)\
+    typedef typename _typeof_encode_fraction<iteration>::NDNBOOST_PP_CAT(item,n) NDNBOOST_PP_CAT(item,n);
 
-#define BOOST_TYPEOF_FRACTIONTYPE()\
-    BOOST_PP_REPEAT(BOOST_TYPEOF_LIMIT_SIZE,BOOST_TYPEOF_NESTED_TYPEITEM_2,_)\
+#define NDNBOOST_TYPEOF_FRACTIONTYPE()\
+    NDNBOOST_PP_REPEAT(NDNBOOST_TYPEOF_LIMIT_SIZE,NDNBOOST_TYPEOF_NESTED_TYPEITEM_2,_)\
     typedef _typeof_fraction_iter<Pos> fraction_type;
 #else
-#define BOOST_TYPEOF_FRACTIONTYPE()\
+#define NDNBOOST_TYPEOF_FRACTIONTYPE()\
     typedef _typeof_encode_fraction<self_t::iteration> fraction_type;
 #endif
 
@@ -119,13 +119,13 @@ namespace ndnboost { namespace type_of {
         typedef typename v_iter<fraction_type,mpl::int_<self_t::where> >::type type;
     };
 }}
-#define BOOST_TYPEOF_NESTED_TYPEDEF_IMPL(expr) \
+#define NDNBOOST_TYPEOF_NESTED_TYPEDEF_IMPL(expr) \
         template<int _Typeof_Iteration>\
         struct _typeof_encode_fraction {\
             typedef _typeof_encode_fraction<_Typeof_Iteration> self_t;\
-            BOOST_STATIC_CONSTANT(int,_typeof_encode_offset = (_Typeof_Iteration*BOOST_TYPEOF_LIMIT_SIZE));\
-            typedef ndnboost::type_of::offset_vector<BOOST_TYPEOF_VECTOR(0)<>,ndnboost::mpl::size_t<self_t::_typeof_encode_offset> > _typeof_start_vector;\
-            BOOST_PP_REPEAT(BOOST_TYPEOF_LIMIT_SIZE,BOOST_TYPEOF_NESTED_TYPEITEM,expr)\
+            NDNBOOST_STATIC_CONSTANT(int,_typeof_encode_offset = (_Typeof_Iteration*NDNBOOST_TYPEOF_LIMIT_SIZE));\
+            typedef ndnboost::type_of::offset_vector<NDNBOOST_TYPEOF_VECTOR(0)<>,ndnboost::mpl::size_t<self_t::_typeof_encode_offset> > _typeof_start_vector;\
+            NDNBOOST_PP_REPEAT(NDNBOOST_TYPEOF_LIMIT_SIZE,NDNBOOST_TYPEOF_NESTED_TYPEITEM,expr)\
             template<int Next>\
             struct _apply_next {\
                 typedef _typeof_encode_fraction<Next> type;\
@@ -138,49 +138,49 @@ namespace ndnboost { namespace type_of {
             typedef typename self_t::type type;\
         };
 #else
-#define BOOST_TYPEOF_NESTED_TYPEDEF_IMPL(expr) \
+#define NDNBOOST_TYPEOF_NESTED_TYPEDEF_IMPL(expr) \
         template<int _Typeof_Iteration>\
         struct _typeof_encode_fraction {\
             typedef _typeof_encode_fraction<_Typeof_Iteration> self_t;\
-            BOOST_STATIC_CONSTANT(int,_typeof_encode_offset = (_Typeof_Iteration*BOOST_TYPEOF_LIMIT_SIZE));\
-            typedef ndnboost::type_of::offset_vector<BOOST_TYPEOF_VECTOR(0)<>,ndnboost::mpl::size_t<self_t::_typeof_encode_offset> > _typeof_start_vector;\
-            BOOST_PP_REPEAT(BOOST_TYPEOF_LIMIT_SIZE,BOOST_TYPEOF_NESTED_TYPEITEM,expr)\
+            NDNBOOST_STATIC_CONSTANT(int,_typeof_encode_offset = (_Typeof_Iteration*NDNBOOST_TYPEOF_LIMIT_SIZE));\
+            typedef ndnboost::type_of::offset_vector<NDNBOOST_TYPEOF_VECTOR(0)<>,ndnboost::mpl::size_t<self_t::_typeof_encode_offset> > _typeof_start_vector;\
+            NDNBOOST_PP_REPEAT(NDNBOOST_TYPEOF_LIMIT_SIZE,NDNBOOST_TYPEOF_NESTED_TYPEITEM,expr)\
         };\
         template<typename Pos>\
         struct _typeof_fraction_iter {\
             typedef _typeof_fraction_iter<Pos> self_t;\
-            BOOST_STATIC_CONSTANT(int,pos=(Pos::value));\
-            BOOST_STATIC_CONSTANT(int,iteration=(pos/BOOST_TYPEOF_LIMIT_SIZE));\
-            BOOST_STATIC_CONSTANT(int,where=pos%BOOST_TYPEOF_LIMIT_SIZE);\
-            BOOST_TYPEOF_FRACTIONTYPE()\
+            NDNBOOST_STATIC_CONSTANT(int,pos=(Pos::value));\
+            NDNBOOST_STATIC_CONSTANT(int,iteration=(pos/NDNBOOST_TYPEOF_LIMIT_SIZE));\
+            NDNBOOST_STATIC_CONSTANT(int,where=pos%NDNBOOST_TYPEOF_LIMIT_SIZE);\
+            NDNBOOST_TYPEOF_FRACTIONTYPE()\
             typedef typename ndnboost::type_of::v_iter<fraction_type,ndnboost::mpl::int_<self_t::where> >::type type;\
             typedef _typeof_fraction_iter<typename Pos::next> next;\
         };
 #endif
 #ifdef __MWERKS__
 
-# define BOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
+# define NDNBOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
 template<typename T>\
-struct BOOST_PP_CAT(_typeof_template_,name) {\
-    BOOST_TYPEOF_NESTED_TYPEDEF_IMPL(expr)\
+struct NDNBOOST_PP_CAT(_typeof_template_,name) {\
+    NDNBOOST_TYPEOF_NESTED_TYPEDEF_IMPL(expr)\
     typedef typename ndnboost::type_of::decode_type<_typeof_fraction_iter<ndnboost::mpl::size_t<0> > >::type type;\
 };\
-typedef BOOST_PP_CAT(_typeof_template_,name)<int> name;
+typedef NDNBOOST_PP_CAT(_typeof_template_,name)<int> name;
 
-# define BOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) BOOST_TYPEOF_NESTED_TYPEDEF(name,expr)
+# define NDNBOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) NDNBOOST_TYPEOF_NESTED_TYPEDEF(name,expr)
 
 #else
-# define BOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) \
+# define NDNBOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) \
     struct name {\
-        BOOST_TYPEOF_NESTED_TYPEDEF_IMPL(expr)\
+        NDNBOOST_TYPEOF_NESTED_TYPEDEF_IMPL(expr)\
         typedef typename ndnboost::type_of::decode_type<_typeof_fraction_iter<ndnboost::mpl::size_t<0> > >::type type;\
     };
 
-# define BOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
+# define NDNBOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
     struct name {\
-        BOOST_TYPEOF_NESTED_TYPEDEF_IMPL(expr)\
+        NDNBOOST_TYPEOF_NESTED_TYPEDEF_IMPL(expr)\
         typedef ndnboost::type_of::decode_type<_typeof_fraction_iter<ndnboost::mpl::size_t<0> > >::type type;\
     };
 #endif
 
-#endif//BOOST_TYPEOF_COMPLIANT_TYPEOF_IMPL_HPP_INCLUDED
+#endif//NDNBOOST_TYPEOF_COMPLIANT_TYPEOF_IMPL_HPP_INCLUDED

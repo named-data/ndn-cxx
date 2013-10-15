@@ -12,8 +12,8 @@
 //  Description : defines Unit Test Framework public API
 // ***************************************************************************
 
-#ifndef BOOST_TEST_UNIT_TEST_SUITE_HPP_071894GER
-#define BOOST_TEST_UNIT_TEST_SUITE_HPP_071894GER
+#ifndef NDNBOOST_TEST_UNIT_TEST_SUITE_HPP_071894GER
+#define NDNBOOST_TEST_UNIT_TEST_SUITE_HPP_071894GER
 
 // Boost.Test
 #include <ndnboost/test/unit_test_suite_impl.hpp>
@@ -25,106 +25,106 @@
 // **************    Non-auto (explicit) test case interface   ************** //
 // ************************************************************************** //
 
-#define BOOST_TEST_CASE( test_function ) \
-ndnboost::unit_test::make_test_case( ndnboost::unit_test::callback0<>(test_function), BOOST_TEST_STRINGIZE( test_function ) )
-#define BOOST_CLASS_TEST_CASE( test_function, tc_instance ) \
-ndnboost::unit_test::make_test_case((test_function), BOOST_TEST_STRINGIZE( test_function ), tc_instance )
+#define NDNBOOST_TEST_CASE( test_function ) \
+ndnboost::unit_test::make_test_case( ndnboost::unit_test::callback0<>(test_function), NDNBOOST_TEST_STRINGIZE( test_function ) )
+#define NDNBOOST_CLASS_TEST_CASE( test_function, tc_instance ) \
+ndnboost::unit_test::make_test_case((test_function), NDNBOOST_TEST_STRINGIZE( test_function ), tc_instance )
 
 // ************************************************************************** //
-// **************               BOOST_TEST_SUITE               ************** //
+// **************               NDNBOOST_TEST_SUITE               ************** //
 // ************************************************************************** //
 
-#define BOOST_TEST_SUITE( testsuite_name ) \
+#define NDNBOOST_TEST_SUITE( testsuite_name ) \
 ( new ndnboost::unit_test::test_suite( testsuite_name ) )
 
 // ************************************************************************** //
-// **************             BOOST_AUTO_TEST_SUITE            ************** //
+// **************             NDNBOOST_AUTO_TEST_SUITE            ************** //
 // ************************************************************************** //
 
-#define BOOST_AUTO_TEST_SUITE( suite_name )                             \
+#define NDNBOOST_AUTO_TEST_SUITE( suite_name )                             \
 namespace suite_name {                                                  \
-BOOST_AUTO_TU_REGISTRAR( suite_name )( BOOST_STRINGIZE( suite_name ) ); \
+NDNBOOST_AUTO_TU_REGISTRAR( suite_name )( NDNBOOST_STRINGIZE( suite_name ) ); \
 /**/
 
 // ************************************************************************** //
-// **************            BOOST_FIXTURE_TEST_SUITE          ************** //
+// **************            NDNBOOST_FIXTURE_TEST_SUITE          ************** //
 // ************************************************************************** //
 
-#define BOOST_FIXTURE_TEST_SUITE( suite_name, F )                       \
-BOOST_AUTO_TEST_SUITE( suite_name )                                     \
-typedef F BOOST_AUTO_TEST_CASE_FIXTURE;                                 \
+#define NDNBOOST_FIXTURE_TEST_SUITE( suite_name, F )                       \
+NDNBOOST_AUTO_TEST_SUITE( suite_name )                                     \
+typedef F NDNBOOST_AUTO_TEST_CASE_FIXTURE;                                 \
 /**/
 
 // ************************************************************************** //
-// **************           BOOST_AUTO_TEST_SUITE_END          ************** //
+// **************           NDNBOOST_AUTO_TEST_SUITE_END          ************** //
 // ************************************************************************** //
 
-#define BOOST_AUTO_TEST_SUITE_END()                                     \
-BOOST_AUTO_TU_REGISTRAR( BOOST_JOIN( end_suite, __LINE__ ) )( 1 );      \
+#define NDNBOOST_AUTO_TEST_SUITE_END()                                     \
+NDNBOOST_AUTO_TU_REGISTRAR( NDNBOOST_JOIN( end_suite, __LINE__ ) )( 1 );      \
 }                                                                       \
 /**/
 
 // ************************************************************************** //
-// **************    BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES    ************** //
+// **************    NDNBOOST_AUTO_TEST_CASE_EXPECTED_FAILURES    ************** //
 // ************************************************************************** //
 
-#define BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES( test_name, n )          \
-struct BOOST_AUTO_TC_UNIQUE_ID( test_name );                            \
+#define NDNBOOST_AUTO_TEST_CASE_EXPECTED_FAILURES( test_name, n )          \
+struct NDNBOOST_AUTO_TC_UNIQUE_ID( test_name );                            \
                                                                         \
-static struct BOOST_JOIN( test_name, _exp_fail_num_spec )               \
+static struct NDNBOOST_JOIN( test_name, _exp_fail_num_spec )               \
 : ndnboost::unit_test::ut_detail::                                         \
-  auto_tc_exp_fail<BOOST_AUTO_TC_UNIQUE_ID( test_name ) >               \
+  auto_tc_exp_fail<NDNBOOST_AUTO_TC_UNIQUE_ID( test_name ) >               \
 {                                                                       \
-    BOOST_JOIN( test_name, _exp_fail_num_spec )()                       \
+    NDNBOOST_JOIN( test_name, _exp_fail_num_spec )()                       \
     : ndnboost::unit_test::ut_detail::                                     \
-      auto_tc_exp_fail<BOOST_AUTO_TC_UNIQUE_ID( test_name ) >( n )      \
+      auto_tc_exp_fail<NDNBOOST_AUTO_TC_UNIQUE_ID( test_name ) >( n )      \
     {}                                                                  \
-} BOOST_JOIN( test_name, _exp_fail_num_spec_inst );                     \
+} NDNBOOST_JOIN( test_name, _exp_fail_num_spec_inst );                     \
                                                                         \
 /**/
 
 // ************************************************************************** //
-// **************            BOOST_FIXTURE_TEST_CASE           ************** //
+// **************            NDNBOOST_FIXTURE_TEST_CASE           ************** //
 // ************************************************************************** //
 
-#define BOOST_FIXTURE_TEST_CASE( test_name, F )                         \
+#define NDNBOOST_FIXTURE_TEST_CASE( test_name, F )                         \
 struct test_name : public F { void test_method(); };                    \
                                                                         \
-static void BOOST_AUTO_TC_INVOKER( test_name )()                        \
+static void NDNBOOST_AUTO_TC_INVOKER( test_name )()                        \
 {                                                                       \
     test_name t;                                                        \
     t.test_method();                                                    \
 }                                                                       \
                                                                         \
-struct BOOST_AUTO_TC_UNIQUE_ID( test_name ) {};                         \
+struct NDNBOOST_AUTO_TC_UNIQUE_ID( test_name ) {};                         \
                                                                         \
-BOOST_AUTO_TU_REGISTRAR( test_name )(                                   \
+NDNBOOST_AUTO_TU_REGISTRAR( test_name )(                                   \
     ndnboost::unit_test::make_test_case(                                   \
-        &BOOST_AUTO_TC_INVOKER( test_name ), #test_name ),              \
+        &NDNBOOST_AUTO_TC_INVOKER( test_name ), #test_name ),              \
     ndnboost::unit_test::ut_detail::auto_tc_exp_fail<                      \
-        BOOST_AUTO_TC_UNIQUE_ID( test_name )>::instance()->value() );   \
+        NDNBOOST_AUTO_TC_UNIQUE_ID( test_name )>::instance()->value() );   \
                                                                         \
 void test_name::test_method()                                           \
 /**/
 
 // ************************************************************************** //
-// **************             BOOST_AUTO_TEST_CASE             ************** //
+// **************             NDNBOOST_AUTO_TEST_CASE             ************** //
 // ************************************************************************** //
 
-#define BOOST_AUTO_TEST_CASE( test_name )                               \
-BOOST_FIXTURE_TEST_CASE( test_name, BOOST_AUTO_TEST_CASE_FIXTURE )
+#define NDNBOOST_AUTO_TEST_CASE( test_name )                               \
+NDNBOOST_FIXTURE_TEST_CASE( test_name, NDNBOOST_AUTO_TEST_CASE_FIXTURE )
 /**/
 
 // ************************************************************************** //
-// **************       BOOST_FIXTURE_TEST_CASE_TEMPLATE       ************** //
+// **************       NDNBOOST_FIXTURE_TEST_CASE_TEMPLATE       ************** //
 // ************************************************************************** //
 
-#define BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_name, type_name, TL, F ) \
+#define NDNBOOST_FIXTURE_TEST_CASE_TEMPLATE( test_name, type_name, TL, F ) \
 template<typename type_name>                                            \
 struct test_name : public F                                             \
 { void test_method(); };                                                \
                                                                         \
-struct BOOST_AUTO_TC_INVOKER( test_name ) {                             \
+struct NDNBOOST_AUTO_TC_INVOKER( test_name ) {                             \
     template<typename TestType>                                         \
     static void run( ndnboost::type<TestType>* = 0 )                       \
     {                                                                   \
@@ -133,61 +133,61 @@ struct BOOST_AUTO_TC_INVOKER( test_name ) {                             \
     }                                                                   \
 };                                                                      \
                                                                         \
-BOOST_AUTO_TU_REGISTRAR( test_name )(                                   \
+NDNBOOST_AUTO_TU_REGISTRAR( test_name )(                                   \
     ndnboost::unit_test::ut_detail::template_test_case_gen<                \
-        BOOST_AUTO_TC_INVOKER( test_name ),TL >(                        \
-          BOOST_STRINGIZE( test_name ) ) );                             \
+        NDNBOOST_AUTO_TC_INVOKER( test_name ),TL >(                        \
+          NDNBOOST_STRINGIZE( test_name ) ) );                             \
                                                                         \
 template<typename type_name>                                            \
 void test_name<type_name>::test_method()                                \
 /**/
 
 // ************************************************************************** //
-// **************        BOOST_AUTO_TEST_CASE_TEMPLATE         ************** //
+// **************        NDNBOOST_AUTO_TEST_CASE_TEMPLATE         ************** //
 // ************************************************************************** //
 
-#define BOOST_AUTO_TEST_CASE_TEMPLATE( test_name, type_name, TL )       \
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_name, type_name, TL, BOOST_AUTO_TEST_CASE_FIXTURE )
+#define NDNBOOST_AUTO_TEST_CASE_TEMPLATE( test_name, type_name, TL )       \
+NDNBOOST_FIXTURE_TEST_CASE_TEMPLATE( test_name, type_name, TL, NDNBOOST_AUTO_TEST_CASE_FIXTURE )
 
 // ************************************************************************** //
-// **************           BOOST_TEST_CASE_TEMPLATE           ************** //
+// **************           NDNBOOST_TEST_CASE_TEMPLATE           ************** //
 // ************************************************************************** //
 
-#define BOOST_TEST_CASE_TEMPLATE( name, typelist )                          \
+#define NDNBOOST_TEST_CASE_TEMPLATE( name, typelist )                          \
     ndnboost::unit_test::ut_detail::template_test_case_gen<name,typelist >(    \
-        BOOST_TEST_STRINGIZE( name ) )                                      \
+        NDNBOOST_TEST_STRINGIZE( name ) )                                      \
 /**/
 
 // ************************************************************************** //
-// **************      BOOST_TEST_CASE_TEMPLATE_FUNCTION       ************** //
+// **************      NDNBOOST_TEST_CASE_TEMPLATE_FUNCTION       ************** //
 // ************************************************************************** //
 
-#define BOOST_TEST_CASE_TEMPLATE_FUNCTION( name, type_name )    \
+#define NDNBOOST_TEST_CASE_TEMPLATE_FUNCTION( name, type_name )    \
 template<typename type_name>                                    \
-void BOOST_JOIN( name, _impl )( ndnboost::type<type_name>* );      \
+void NDNBOOST_JOIN( name, _impl )( ndnboost::type<type_name>* );      \
                                                                 \
 struct name {                                                   \
     template<typename TestType>                                 \
     static void run( ndnboost::type<TestType>* frwrd = 0 )         \
     {                                                           \
-       BOOST_JOIN( name, _impl )( frwrd );                      \
+       NDNBOOST_JOIN( name, _impl )( frwrd );                      \
     }                                                           \
 };                                                              \
                                                                 \
 template<typename type_name>                                    \
-void BOOST_JOIN( name, _impl )( ndnboost::type<type_name>* )       \
+void NDNBOOST_JOIN( name, _impl )( ndnboost::type<type_name>* )       \
 /**/
 
 // ************************************************************************** //
-// **************              BOOST_GLOBAL_FIXURE             ************** //
+// **************              NDNBOOST_GLOBAL_FIXURE             ************** //
 // ************************************************************************** //
 
-#define BOOST_GLOBAL_FIXTURE( F ) \
-static ndnboost::unit_test::ut_detail::global_fixture_impl<F> BOOST_JOIN( gf_, F ) ; \
+#define NDNBOOST_GLOBAL_FIXTURE( F ) \
+static ndnboost::unit_test::ut_detail::global_fixture_impl<F> NDNBOOST_JOIN( gf_, F ) ; \
 /**/
 
 // ************************************************************************** //
-// **************         BOOST_AUTO_TEST_CASE_FIXTURE         ************** //
+// **************         NDNBOOST_AUTO_TEST_CASE_FIXTURE         ************** //
 // ************************************************************************** //
 
 namespace ndnboost { namespace unit_test { namespace ut_detail {
@@ -199,37 +199,37 @@ struct nil_t {};
 } // namespace ndnboost
 
 // Intentionally is in global namespace, so that FIXURE_TEST_SUITE can reset it in user code.
-typedef ::ndnboost::unit_test::ut_detail::nil_t BOOST_AUTO_TEST_CASE_FIXTURE;
+typedef ::ndnboost::unit_test::ut_detail::nil_t NDNBOOST_AUTO_TEST_CASE_FIXTURE;
 
 // ************************************************************************** //
 // **************   Auto registration facility helper macros   ************** //
 // ************************************************************************** //
 
-#define BOOST_AUTO_TU_REGISTRAR( test_name )    \
-static ndnboost::unit_test::ut_detail::auto_test_unit_registrar BOOST_JOIN( BOOST_JOIN( test_name, _registrar ), __LINE__ )
-#define BOOST_AUTO_TC_INVOKER( test_name )      BOOST_JOIN( test_name, _invoker )
-#define BOOST_AUTO_TC_UNIQUE_ID( test_name )    BOOST_JOIN( test_name, _id )
+#define NDNBOOST_AUTO_TU_REGISTRAR( test_name )    \
+static ndnboost::unit_test::ut_detail::auto_test_unit_registrar NDNBOOST_JOIN( NDNBOOST_JOIN( test_name, _registrar ), __LINE__ )
+#define NDNBOOST_AUTO_TC_INVOKER( test_name )      NDNBOOST_JOIN( test_name, _invoker )
+#define NDNBOOST_AUTO_TC_UNIQUE_ID( test_name )    NDNBOOST_JOIN( test_name, _id )
 
 // ************************************************************************** //
-// **************                BOOST_TEST_MAIN               ************** //
+// **************                NDNBOOST_TEST_MAIN               ************** //
 // ************************************************************************** //
 
-#if defined(BOOST_TEST_MAIN)
+#if defined(NDNBOOST_TEST_MAIN)
 
-#ifdef BOOST_TEST_ALTERNATIVE_INIT_API
+#ifdef NDNBOOST_TEST_ALTERNATIVE_INIT_API
 bool init_unit_test()                   {
 #else
 ::ndnboost::unit_test::test_suite*
 init_unit_test_suite( int, char* [] )   {
 #endif
 
-#ifdef BOOST_TEST_MODULE
+#ifdef NDNBOOST_TEST_MODULE
     using namespace ::ndnboost::unit_test;
-    assign_op( framework::master_test_suite().p_name.value, BOOST_TEST_STRINGIZE( BOOST_TEST_MODULE ).trim( "\"" ), 0 );
+    assign_op( framework::master_test_suite().p_name.value, NDNBOOST_TEST_STRINGIZE( NDNBOOST_TEST_MODULE ).trim( "\"" ), 0 );
     
 #endif
 
-#ifdef BOOST_TEST_ALTERNATIVE_INIT_API
+#ifdef NDNBOOST_TEST_ALTERNATIVE_INIT_API
     return true;
 }
 #else
@@ -241,5 +241,5 @@ init_unit_test_suite( int, char* [] )   {
 
 //____________________________________________________________________________//
 
-#endif // BOOST_TEST_UNIT_TEST_SUITE_HPP_071894GER
+#endif // NDNBOOST_TEST_UNIT_TEST_SUITE_HPP_071894GER
 

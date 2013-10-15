@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_NUMERIC_CAST_HPP_INCLUDED
-#define BOOST_MPL_NUMERIC_CAST_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_NUMERIC_CAST_HPP_INCLUDED
+#define NDNBOOST_MPL_NUMERIC_CAST_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2003-2004
 //
@@ -21,21 +21,21 @@
 // resolves conflicts with 'ndnboost::numeric_cast' function template.
 // use it in your own code _only_ if you care about compatibility with
 // these outdated compilers!
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x570) )
-#   define BOOST_MPL_AUX_NUMERIC_CAST numeric_cast_
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300) || NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x570) )
+#   define NDNBOOST_MPL_AUX_NUMERIC_CAST numeric_cast_
 #else
-#   define BOOST_MPL_AUX_NUMERIC_CAST numeric_cast
+#   define NDNBOOST_MPL_AUX_NUMERIC_CAST numeric_cast
 #endif
 
 namespace ndnboost { namespace mpl {
 
 // no default implementation; the definition is needed to make MSVC happy
 
-template< typename SourceTag, typename TargetTag > struct BOOST_MPL_AUX_NUMERIC_CAST
+template< typename SourceTag, typename TargetTag > struct NDNBOOST_MPL_AUX_NUMERIC_CAST
 {
     template< typename N > struct apply;
 };
 
 }}
 
-#endif // BOOST_MPL_NUMERIC_CAST_HPP_INCLUDED
+#endif // NDNBOOST_MPL_NUMERIC_CAST_HPP_INCLUDED

@@ -8,8 +8,8 @@
 
 // For more information, see http://lambda.cs.utu.fi 
 
-#ifndef BOOST_LAMBDA_OPERATOR_ACTIONS_HPP
-#define BOOST_LAMBDA_OPERATOR_ACTIONS_HPP
+#ifndef NDNBOOST_LAMBDA_OPERATOR_ACTIONS_HPP
+#define NDNBOOST_LAMBDA_OPERATOR_ACTIONS_HPP
 
 namespace ndnboost { 
 namespace lambda {
@@ -78,48 +78,48 @@ template <class Action> class post_increment_decrement_action;
   // deduction.
 
 template <class Act> struct is_protectable<arithmetic_action<Act> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 template <class Act> struct is_protectable<bitwise_action<Act> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 template <class Act> struct is_protectable<logical_action<Act> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 template <class Act> struct is_protectable<relational_action<Act> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 template <class Act> 
 struct is_protectable<arithmetic_assignment_action<Act> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 template <class Act> struct is_protectable<bitwise_assignment_action<Act> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 template <class Act> struct is_protectable<unary_arithmetic_action<Act> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 template <class Act> 
 struct is_protectable<pre_increment_decrement_action<Act> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 template <class Act> struct 
 is_protectable<post_increment_decrement_action<Act> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 
 template <> struct is_protectable<other_action<addressof_action> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 template <> struct is_protectable<other_action<contentsof_action> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 
 template<> struct is_protectable<other_action<subscript_action> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 template<> struct is_protectable<other_action<assignment_action> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
+  NDNBOOST_STATIC_CONSTANT(bool, value = true);
 };
 
 // NOTE: comma action is also protectable, but the specialization is

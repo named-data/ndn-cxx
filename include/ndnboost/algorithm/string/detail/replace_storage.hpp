@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_REPLACE_STORAGE_DETAIL_HPP
-#define BOOST_STRING_REPLACE_STORAGE_DETAIL_HPP
+#ifndef NDNBOOST_STRING_REPLACE_STORAGE_DETAIL_HPP
+#define NDNBOOST_STRING_REPLACE_STORAGE_DETAIL_HPP
 
 #include <ndnboost/algorithm/string/config.hpp>
 #include <algorithm>
@@ -156,4 +156,4 @@ namespace ndnboost {
     } // namespace algorithm
 } // namespace ndnboost
 
-#endif  // BOOST_STRING_REPLACE_STORAGE_DETAIL_HPP
+#endif  // NDNBOOST_STRING_REPLACE_STORAGE_DETAIL_HPP

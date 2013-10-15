@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_WIN32_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_WIN32_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_WIN32_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_WIN32_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -35,12 +35,12 @@ public:
 
     long operator++()
     {
-        return BOOST_INTERLOCKED_INCREMENT( &value_ );
+        return NDNBOOST_INTERLOCKED_INCREMENT( &value_ );
     }
 
     long operator--()
     {
-        return BOOST_INTERLOCKED_DECREMENT( &value_ );
+        return NDNBOOST_INTERLOCKED_DECREMENT( &value_ );
     }
 
     operator long() const
@@ -60,4 +60,4 @@ private:
 
 } // namespace ndnboost
 
-#endif // #ifndef BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_WIN32_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_WIN32_HPP_INCLUDED

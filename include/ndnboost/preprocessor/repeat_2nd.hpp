@@ -9,8 +9,8 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_REPEAT_2ND_HPP
-# define BOOST_PREPROCESSOR_REPEAT_2ND_HPP
+# ifndef NDNBOOST_PREPROCESSOR_REPEAT_2ND_HPP
+# define NDNBOOST_PREPROCESSOR_REPEAT_2ND_HPP
 #
 # include <ndnboost/preprocessor/repetition/repeat.hpp>
 #

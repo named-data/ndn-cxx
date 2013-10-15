@@ -1,5 +1,5 @@
-#ifndef BOOST_BIND_BIND_HPP_INCLUDED
-#define BOOST_BIND_BIND_HPP_INCLUDED
+#ifndef NDNBOOST_BIND_BIND_HPP_INCLUDED
+#define NDNBOOST_BIND_BIND_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -33,14 +33,14 @@
 // Borland-specific bug, visit_each() silently fails to produce code
 
 #if defined(__BORLANDC__)
-#  define BOOST_BIND_VISIT_EACH ndnboost::visit_each
+#  define NDNBOOST_BIND_VISIT_EACH ndnboost::visit_each
 #else
-#  define BOOST_BIND_VISIT_EACH visit_each
+#  define NDNBOOST_BIND_VISIT_EACH visit_each
 #endif
 
 #include <ndnboost/bind/storage.hpp>
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 # pragma warning(push)
 # pragma warning(disable: 4512) // assignment operator could not be generated
 #endif
@@ -60,7 +60,7 @@ template<class R, class F> struct result_traits
     typedef R type;
 };
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING)
 
 struct unspecified {};
 
@@ -207,7 +207,7 @@ public:
     }
 };
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 // MSVC is bright enough to realise that the parameter rhs 
 // in operator==may be unused for some template argument types:
 #pragma warning(push)
@@ -853,13 +853,13 @@ public:
     }
 };
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(pop)
 #endif
 
 // bind_t
 
-#ifndef BOOST_NO_VOID_RETURNS
+#ifndef NDNBOOST_NO_VOID_RETURNS
 
 template<class R, class F, class L> class bind_t
 {
@@ -869,9 +869,9 @@ public:
 
     bind_t(F f, L const & l): f_(f), l_(l) {}
 
-#define BOOST_BIND_RETURN return
+#define NDNBOOST_BIND_RETURN return
 #include <ndnboost/bind/bind_template.hpp>
-#undef BOOST_BIND_RETURN
+#undef NDNBOOST_BIND_RETURN
 
 };
 
@@ -888,9 +888,9 @@ public:
 
     implementation(F f, L const & l): f_(f), l_(l) {}
 
-#define BOOST_BIND_RETURN return
+#define NDNBOOST_BIND_RETURN return
 #include <ndnboost/bind/bind_template.hpp>
-#undef BOOST_BIND_RETURN
+#undef NDNBOOST_BIND_RETURN
 
 };
 
@@ -911,19 +911,19 @@ public:
 
     implementation(F f, L const & l): f_(f), l_(l) {}
 
-#define BOOST_BIND_RETURN
+#define NDNBOOST_BIND_RETURN
 #include <ndnboost/bind/bind_template.hpp>
-#undef BOOST_BIND_RETURN
+#undef NDNBOOST_BIND_RETURN
 
 };
 
 };
 
-template<class R2, class F, class L> class bind_t: public bind_t_generator<R2>::BOOST_NESTED_TEMPLATE implementation<F, L>
+template<class R2, class F, class L> class bind_t: public bind_t_generator<R2>::NDNBOOST_NESTED_TEMPLATE implementation<F, L>
 {
 public:
 
-    bind_t(F f, L const & l): bind_t_generator<R2>::BOOST_NESTED_TEMPLATE implementation<F, L>(f, l) {}
+    bind_t(F f, L const & l): bind_t_generator<R2>::NDNBOOST_NESTED_TEMPLATE implementation<F, L>(f, l) {}
 
 };
 
@@ -931,11 +931,11 @@ public:
 
 // function_equal
 
-#ifndef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
+#ifndef NDNBOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
 
 // put overloads in _bi, rely on ADL
 
-# ifndef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+# ifndef NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING
 
 template<class R, class F, class L> bool function_equal( bind_t<R, F, L> const & a, bind_t<R, F, L> const & b )
 {
@@ -949,15 +949,15 @@ template<class R, class F, class L> bool function_equal_impl( bind_t<R, F, L> co
     return a.compare(b);
 }
 
-# endif // #ifndef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+# endif // #ifndef NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING
 
-#else // BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
+#else // NDNBOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
 
 // put overloads in boost
 
 } // namespace _bi
 
-# ifndef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+# ifndef NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING
 
 template<class R, class F, class L> bool function_equal( _bi::bind_t<R, F, L> const & a, _bi::bind_t<R, F, L> const & b )
 {
@@ -971,18 +971,18 @@ template<class R, class F, class L> bool function_equal_impl( _bi::bind_t<R, F, 
     return a.compare(b);
 }
 
-# endif // #ifndef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+# endif // #ifndef NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING
 
 namespace _bi
 {
 
-#endif // BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
+#endif // NDNBOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
 
 // add_value
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) || (__SUNPRO_CC >= 0x530)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) || (__SUNPRO_CC >= 0x530)
 
-#if defined( __BORLANDC__ ) && BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x582) )
+#if defined( __BORLANDC__ ) && NDNBOOST_WORKAROUND( __BORLANDC__, NDNBOOST_TESTED_AT(0x582) )
 
 template<class T> struct add_value
 {
@@ -1181,7 +1181,7 @@ template<class R, class F, class L>
 
 // relational operators
 
-#define BOOST_BIND_OPERATOR( op, name ) \
+#define NDNBOOST_BIND_OPERATOR( op, name ) \
 \
 struct name \
 { \
@@ -1197,25 +1197,25 @@ template<class R, class F, class L, class A2> \
     return bind_t<bool, name, list_type> ( name(), list_type(f, a2) ); \
 }
 
-BOOST_BIND_OPERATOR( ==, equal )
-BOOST_BIND_OPERATOR( !=, not_equal )
+NDNBOOST_BIND_OPERATOR( ==, equal )
+NDNBOOST_BIND_OPERATOR( !=, not_equal )
 
-BOOST_BIND_OPERATOR( <, less )
-BOOST_BIND_OPERATOR( <=, less_equal )
+NDNBOOST_BIND_OPERATOR( <, less )
+NDNBOOST_BIND_OPERATOR( <=, less_equal )
 
-BOOST_BIND_OPERATOR( >, greater )
-BOOST_BIND_OPERATOR( >=, greater_equal )
+NDNBOOST_BIND_OPERATOR( >, greater )
+NDNBOOST_BIND_OPERATOR( >=, greater_equal )
 
-BOOST_BIND_OPERATOR( &&, logical_and )
-BOOST_BIND_OPERATOR( ||, logical_or )
+NDNBOOST_BIND_OPERATOR( &&, logical_and )
+NDNBOOST_BIND_OPERATOR( ||, logical_or )
 
-#undef BOOST_BIND_OPERATOR
+#undef NDNBOOST_BIND_OPERATOR
 
-#if defined(__GNUC__) && BOOST_WORKAROUND(__GNUC__, < 3)
+#if defined(__GNUC__) && NDNBOOST_WORKAROUND(__GNUC__, < 3)
 
 // resolve ambiguity with rel_ops
 
-#define BOOST_BIND_OPERATOR( op, name ) \
+#define NDNBOOST_BIND_OPERATOR( op, name ) \
 \
 template<class R, class F, class L> \
     bind_t< bool, name, list2< bind_t<R, F, L>, bind_t<R, F, L> > > \
@@ -1225,22 +1225,22 @@ template<class R, class F, class L> \
     return bind_t<bool, name, list_type> ( name(), list_type(f, g) ); \
 }
 
-BOOST_BIND_OPERATOR( !=, not_equal )
-BOOST_BIND_OPERATOR( <=, less_equal )
-BOOST_BIND_OPERATOR( >, greater )
-BOOST_BIND_OPERATOR( >=, greater_equal )
+NDNBOOST_BIND_OPERATOR( !=, not_equal )
+NDNBOOST_BIND_OPERATOR( <=, less_equal )
+NDNBOOST_BIND_OPERATOR( >, greater )
+NDNBOOST_BIND_OPERATOR( >=, greater_equal )
 
 #endif
 
 // visit_each, ADL
 
-#if !defined( BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) && !defined( __BORLANDC__ ) \
+#if !defined( NDNBOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) && !defined( __BORLANDC__ ) \
    && !(defined(__GNUC__) && __GNUC__ == 3 && __GNUC_MINOR__ <= 3)
 
 template<class V, class T> void visit_each( V & v, value<T> const & t, int )
 {
     using ndnboost::visit_each;
-    BOOST_BIND_VISIT_EACH( v, t.get(), 0 );
+    NDNBOOST_BIND_VISIT_EACH( v, t.get(), 0 );
 }
 
 template<class V, class R, class F, class L> void visit_each( V & v, bind_t<R, F, L> const & t, int )
@@ -1254,12 +1254,12 @@ template<class V, class R, class F, class L> void visit_each( V & v, bind_t<R, F
 
 // visit_each, no ADL
 
-#if defined( BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) || defined( __BORLANDC__ ) \
+#if defined( NDNBOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) || defined( __BORLANDC__ ) \
   || (defined(__GNUC__) && __GNUC__ == 3 && __GNUC_MINOR__ <= 3)
 
 template<class V, class T> void visit_each( V & v, _bi::value<T> const & t, int )
 {
-    BOOST_BIND_VISIT_EACH( v, t.get(), 0 );
+    NDNBOOST_BIND_VISIT_EACH( v, t.get(), 0 );
 }
 
 template<class V, class R, class F, class L> void visit_each( V & v, _bi::bind_t<R, F, L> const & t, int )
@@ -1276,7 +1276,7 @@ template< class T > struct is_bind_expression
     enum _vt { value = 0 };
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
+#if !defined( NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template< class R, class F, class L > struct is_bind_expression< _bi::bind_t< R, F, L > >
 {
@@ -1287,15 +1287,15 @@ template< class R, class F, class L > struct is_bind_expression< _bi::bind_t< R,
 
 // bind
 
-#ifndef BOOST_BIND
-#define BOOST_BIND bind
+#ifndef NDNBOOST_BIND
+#define NDNBOOST_BIND bind
 #endif
 
 // generic function objects
 
 template<class R, class F>
     _bi::bind_t<R, F, _bi::list0>
-    BOOST_BIND(F f)
+    NDNBOOST_BIND(F f)
 {
     typedef _bi::list0 list_type;
     return _bi::bind_t<R, F, list_type> (f, list_type());
@@ -1303,7 +1303,7 @@ template<class R, class F>
 
 template<class R, class F, class A1>
     _bi::bind_t<R, F, typename _bi::list_av_1<A1>::type>
-    BOOST_BIND(F f, A1 a1)
+    NDNBOOST_BIND(F f, A1 a1)
 {
     typedef typename _bi::list_av_1<A1>::type list_type;
     return _bi::bind_t<R, F, list_type> (f, list_type(a1));
@@ -1311,7 +1311,7 @@ template<class R, class F, class A1>
 
 template<class R, class F, class A1, class A2>
     _bi::bind_t<R, F, typename _bi::list_av_2<A1, A2>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2)
 {
     typedef typename _bi::list_av_2<A1, A2>::type list_type;
     return _bi::bind_t<R, F, list_type> (f, list_type(a1, a2));
@@ -1319,7 +1319,7 @@ template<class R, class F, class A1, class A2>
 
 template<class R, class F, class A1, class A2, class A3>
     _bi::bind_t<R, F, typename _bi::list_av_3<A1, A2, A3>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3)
 {
     typedef typename _bi::list_av_3<A1, A2, A3>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3));
@@ -1327,7 +1327,7 @@ template<class R, class F, class A1, class A2, class A3>
 
 template<class R, class F, class A1, class A2, class A3, class A4>
     _bi::bind_t<R, F, typename _bi::list_av_4<A1, A2, A3, A4>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4)
 {
     typedef typename _bi::list_av_4<A1, A2, A3, A4>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4));
@@ -1335,7 +1335,7 @@ template<class R, class F, class A1, class A2, class A3, class A4>
 
 template<class R, class F, class A1, class A2, class A3, class A4, class A5>
     _bi::bind_t<R, F, typename _bi::list_av_5<A1, A2, A3, A4, A5>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
 {
     typedef typename _bi::list_av_5<A1, A2, A3, A4, A5>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4, a5));
@@ -1343,7 +1343,7 @@ template<class R, class F, class A1, class A2, class A3, class A4, class A5>
 
 template<class R, class F, class A1, class A2, class A3, class A4, class A5, class A6>
     _bi::bind_t<R, F, typename _bi::list_av_6<A1, A2, A3, A4, A5, A6>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
 {
     typedef typename _bi::list_av_6<A1, A2, A3, A4, A5, A6>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6));
@@ -1351,7 +1351,7 @@ template<class R, class F, class A1, class A2, class A3, class A4, class A5, cla
 
 template<class R, class F, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
     _bi::bind_t<R, F, typename _bi::list_av_7<A1, A2, A3, A4, A5, A6, A7>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
 {
     typedef typename _bi::list_av_7<A1, A2, A3, A4, A5, A6, A7>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6, a7));
@@ -1359,7 +1359,7 @@ template<class R, class F, class A1, class A2, class A3, class A4, class A5, cla
 
 template<class R, class F, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
     _bi::bind_t<R, F, typename _bi::list_av_8<A1, A2, A3, A4, A5, A6, A7, A8>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
 {
     typedef typename _bi::list_av_8<A1, A2, A3, A4, A5, A6, A7, A8>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6, a7, a8));
@@ -1367,7 +1367,7 @@ template<class R, class F, class A1, class A2, class A3, class A4, class A5, cla
 
 template<class R, class F, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
     _bi::bind_t<R, F, typename _bi::list_av_9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)
 {
     typedef typename _bi::list_av_9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6, a7, a8, a9));
@@ -1377,7 +1377,7 @@ template<class R, class F, class A1, class A2, class A3, class A4, class A5, cla
 
 template<class R, class F>
     _bi::bind_t<R, F, _bi::list0>
-    BOOST_BIND(ndnboost::type<R>, F f)
+    NDNBOOST_BIND(ndnboost::type<R>, F f)
 {
     typedef _bi::list0 list_type;
     return _bi::bind_t<R, F, list_type> (f, list_type());
@@ -1385,7 +1385,7 @@ template<class R, class F>
 
 template<class R, class F, class A1>
     _bi::bind_t<R, F, typename _bi::list_av_1<A1>::type>
-    BOOST_BIND(ndnboost::type<R>, F f, A1 a1)
+    NDNBOOST_BIND(ndnboost::type<R>, F f, A1 a1)
 {
     typedef typename _bi::list_av_1<A1>::type list_type;
     return _bi::bind_t<R, F, list_type> (f, list_type(a1));
@@ -1393,7 +1393,7 @@ template<class R, class F, class A1>
 
 template<class R, class F, class A1, class A2>
     _bi::bind_t<R, F, typename _bi::list_av_2<A1, A2>::type>
-    BOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2)
+    NDNBOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2)
 {
     typedef typename _bi::list_av_2<A1, A2>::type list_type;
     return _bi::bind_t<R, F, list_type> (f, list_type(a1, a2));
@@ -1401,7 +1401,7 @@ template<class R, class F, class A1, class A2>
 
 template<class R, class F, class A1, class A2, class A3>
     _bi::bind_t<R, F, typename _bi::list_av_3<A1, A2, A3>::type>
-    BOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3)
+    NDNBOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3)
 {
     typedef typename _bi::list_av_3<A1, A2, A3>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3));
@@ -1409,7 +1409,7 @@ template<class R, class F, class A1, class A2, class A3>
 
 template<class R, class F, class A1, class A2, class A3, class A4>
     _bi::bind_t<R, F, typename _bi::list_av_4<A1, A2, A3, A4>::type>
-    BOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4)
+    NDNBOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4)
 {
     typedef typename _bi::list_av_4<A1, A2, A3, A4>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4));
@@ -1417,7 +1417,7 @@ template<class R, class F, class A1, class A2, class A3, class A4>
 
 template<class R, class F, class A1, class A2, class A3, class A4, class A5>
     _bi::bind_t<R, F, typename _bi::list_av_5<A1, A2, A3, A4, A5>::type>
-    BOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
+    NDNBOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
 {
     typedef typename _bi::list_av_5<A1, A2, A3, A4, A5>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4, a5));
@@ -1425,7 +1425,7 @@ template<class R, class F, class A1, class A2, class A3, class A4, class A5>
 
 template<class R, class F, class A1, class A2, class A3, class A4, class A5, class A6>
     _bi::bind_t<R, F, typename _bi::list_av_6<A1, A2, A3, A4, A5, A6>::type>
-    BOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
+    NDNBOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
 {
     typedef typename _bi::list_av_6<A1, A2, A3, A4, A5, A6>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6));
@@ -1433,7 +1433,7 @@ template<class R, class F, class A1, class A2, class A3, class A4, class A5, cla
 
 template<class R, class F, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
     _bi::bind_t<R, F, typename _bi::list_av_7<A1, A2, A3, A4, A5, A6, A7>::type>
-    BOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
+    NDNBOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
 {
     typedef typename _bi::list_av_7<A1, A2, A3, A4, A5, A6, A7>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6, a7));
@@ -1441,7 +1441,7 @@ template<class R, class F, class A1, class A2, class A3, class A4, class A5, cla
 
 template<class R, class F, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
     _bi::bind_t<R, F, typename _bi::list_av_8<A1, A2, A3, A4, A5, A6, A7, A8>::type>
-    BOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
+    NDNBOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
 {
     typedef typename _bi::list_av_8<A1, A2, A3, A4, A5, A6, A7, A8>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6, a7, a8));
@@ -1449,19 +1449,19 @@ template<class R, class F, class A1, class A2, class A3, class A4, class A5, cla
 
 template<class R, class F, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
     _bi::bind_t<R, F, typename _bi::list_av_9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::type>
-    BOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)
+    NDNBOOST_BIND(ndnboost::type<R>, F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)
 {
     typedef typename _bi::list_av_9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::type list_type;
     return _bi::bind_t<R, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6, a7, a8, a9));
 }
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING)
 
 // adaptable function objects
 
 template<class F>
     _bi::bind_t<_bi::unspecified, F, _bi::list0>
-    BOOST_BIND(F f)
+    NDNBOOST_BIND(F f)
 {
     typedef _bi::list0 list_type;
     return _bi::bind_t<_bi::unspecified, F, list_type> (f, list_type());
@@ -1469,7 +1469,7 @@ template<class F>
 
 template<class F, class A1>
     _bi::bind_t<_bi::unspecified, F, typename _bi::list_av_1<A1>::type>
-    BOOST_BIND(F f, A1 a1)
+    NDNBOOST_BIND(F f, A1 a1)
 {
     typedef typename _bi::list_av_1<A1>::type list_type;
     return _bi::bind_t<_bi::unspecified, F, list_type> (f, list_type(a1));
@@ -1477,7 +1477,7 @@ template<class F, class A1>
 
 template<class F, class A1, class A2>
     _bi::bind_t<_bi::unspecified, F, typename _bi::list_av_2<A1, A2>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2)
 {
     typedef typename _bi::list_av_2<A1, A2>::type list_type;
     return _bi::bind_t<_bi::unspecified, F, list_type> (f, list_type(a1, a2));
@@ -1485,7 +1485,7 @@ template<class F, class A1, class A2>
 
 template<class F, class A1, class A2, class A3>
     _bi::bind_t<_bi::unspecified, F, typename _bi::list_av_3<A1, A2, A3>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3)
 {
     typedef typename _bi::list_av_3<A1, A2, A3>::type list_type;
     return _bi::bind_t<_bi::unspecified, F, list_type>(f, list_type(a1, a2, a3));
@@ -1493,7 +1493,7 @@ template<class F, class A1, class A2, class A3>
 
 template<class F, class A1, class A2, class A3, class A4>
     _bi::bind_t<_bi::unspecified, F, typename _bi::list_av_4<A1, A2, A3, A4>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4)
 {
     typedef typename _bi::list_av_4<A1, A2, A3, A4>::type list_type;
     return _bi::bind_t<_bi::unspecified, F, list_type>(f, list_type(a1, a2, a3, a4));
@@ -1501,7 +1501,7 @@ template<class F, class A1, class A2, class A3, class A4>
 
 template<class F, class A1, class A2, class A3, class A4, class A5>
     _bi::bind_t<_bi::unspecified, F, typename _bi::list_av_5<A1, A2, A3, A4, A5>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
 {
     typedef typename _bi::list_av_5<A1, A2, A3, A4, A5>::type list_type;
     return _bi::bind_t<_bi::unspecified, F, list_type>(f, list_type(a1, a2, a3, a4, a5));
@@ -1509,7 +1509,7 @@ template<class F, class A1, class A2, class A3, class A4, class A5>
 
 template<class F, class A1, class A2, class A3, class A4, class A5, class A6>
     _bi::bind_t<_bi::unspecified, F, typename _bi::list_av_6<A1, A2, A3, A4, A5, A6>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
 {
     typedef typename _bi::list_av_6<A1, A2, A3, A4, A5, A6>::type list_type;
     return _bi::bind_t<_bi::unspecified, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6));
@@ -1517,7 +1517,7 @@ template<class F, class A1, class A2, class A3, class A4, class A5, class A6>
 
 template<class F, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
     _bi::bind_t<_bi::unspecified, F, typename _bi::list_av_7<A1, A2, A3, A4, A5, A6, A7>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
 {
     typedef typename _bi::list_av_7<A1, A2, A3, A4, A5, A6, A7>::type list_type;
     return _bi::bind_t<_bi::unspecified, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6, a7));
@@ -1525,7 +1525,7 @@ template<class F, class A1, class A2, class A3, class A4, class A5, class A6, cl
 
 template<class F, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
     _bi::bind_t<_bi::unspecified, F, typename _bi::list_av_8<A1, A2, A3, A4, A5, A6, A7, A8>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
 {
     typedef typename _bi::list_av_8<A1, A2, A3, A4, A5, A6, A7, A8>::type list_type;
     return _bi::bind_t<_bi::unspecified, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6, a7, a8));
@@ -1533,118 +1533,118 @@ template<class F, class A1, class A2, class A3, class A4, class A5, class A6, cl
 
 template<class F, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
     _bi::bind_t<_bi::unspecified, F, typename _bi::list_av_9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::type>
-    BOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)
+    NDNBOOST_BIND(F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)
 {
     typedef typename _bi::list_av_9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::type list_type;
     return _bi::bind_t<_bi::unspecified, F, list_type>(f, list_type(a1, a2, a3, a4, a5, a6, a7, a8, a9));
 }
 
-#endif // !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING)
+#endif // !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING)
 
 // function pointers
 
-#define BOOST_BIND_CC
-#define BOOST_BIND_ST
+#define NDNBOOST_BIND_CC
+#define NDNBOOST_BIND_ST
 
 #include <ndnboost/bind/bind_cc.hpp>
 
-#undef BOOST_BIND_CC
-#undef BOOST_BIND_ST
+#undef NDNBOOST_BIND_CC
+#undef NDNBOOST_BIND_ST
 
-#ifdef BOOST_BIND_ENABLE_STDCALL
+#ifdef NDNBOOST_BIND_ENABLE_STDCALL
 
-#define BOOST_BIND_CC __stdcall
-#define BOOST_BIND_ST
+#define NDNBOOST_BIND_CC __stdcall
+#define NDNBOOST_BIND_ST
 
 #include <ndnboost/bind/bind_cc.hpp>
 
-#undef BOOST_BIND_CC
-#undef BOOST_BIND_ST
+#undef NDNBOOST_BIND_CC
+#undef NDNBOOST_BIND_ST
 
 #endif
 
-#ifdef BOOST_BIND_ENABLE_FASTCALL
+#ifdef NDNBOOST_BIND_ENABLE_FASTCALL
 
-#define BOOST_BIND_CC __fastcall
-#define BOOST_BIND_ST
+#define NDNBOOST_BIND_CC __fastcall
+#define NDNBOOST_BIND_ST
 
 #include <ndnboost/bind/bind_cc.hpp>
 
-#undef BOOST_BIND_CC
-#undef BOOST_BIND_ST
+#undef NDNBOOST_BIND_CC
+#undef NDNBOOST_BIND_ST
 
 #endif
 
-#ifdef BOOST_BIND_ENABLE_PASCAL
+#ifdef NDNBOOST_BIND_ENABLE_PASCAL
 
-#define BOOST_BIND_ST pascal
-#define BOOST_BIND_CC
+#define NDNBOOST_BIND_ST pascal
+#define NDNBOOST_BIND_CC
 
 #include <ndnboost/bind/bind_cc.hpp>
 
-#undef BOOST_BIND_ST
-#undef BOOST_BIND_CC
+#undef NDNBOOST_BIND_ST
+#undef NDNBOOST_BIND_CC
 
 #endif
 
 // member function pointers
 
-#define BOOST_BIND_MF_NAME(X) X
-#define BOOST_BIND_MF_CC
+#define NDNBOOST_BIND_MF_NAME(X) X
+#define NDNBOOST_BIND_MF_CC
 
 #include <ndnboost/bind/bind_mf_cc.hpp>
 #include <ndnboost/bind/bind_mf2_cc.hpp>
 
-#undef BOOST_BIND_MF_NAME
-#undef BOOST_BIND_MF_CC
+#undef NDNBOOST_BIND_MF_NAME
+#undef NDNBOOST_BIND_MF_CC
 
-#ifdef BOOST_MEM_FN_ENABLE_CDECL
+#ifdef NDNBOOST_MEM_FN_ENABLE_CDECL
 
-#define BOOST_BIND_MF_NAME(X) X##_cdecl
-#define BOOST_BIND_MF_CC __cdecl
+#define NDNBOOST_BIND_MF_NAME(X) X##_cdecl
+#define NDNBOOST_BIND_MF_CC __cdecl
 
 #include <ndnboost/bind/bind_mf_cc.hpp>
 #include <ndnboost/bind/bind_mf2_cc.hpp>
 
-#undef BOOST_BIND_MF_NAME
-#undef BOOST_BIND_MF_CC
+#undef NDNBOOST_BIND_MF_NAME
+#undef NDNBOOST_BIND_MF_CC
 
 #endif
 
-#ifdef BOOST_MEM_FN_ENABLE_STDCALL
+#ifdef NDNBOOST_MEM_FN_ENABLE_STDCALL
 
-#define BOOST_BIND_MF_NAME(X) X##_stdcall
-#define BOOST_BIND_MF_CC __stdcall
+#define NDNBOOST_BIND_MF_NAME(X) X##_stdcall
+#define NDNBOOST_BIND_MF_CC __stdcall
 
 #include <ndnboost/bind/bind_mf_cc.hpp>
 #include <ndnboost/bind/bind_mf2_cc.hpp>
 
-#undef BOOST_BIND_MF_NAME
-#undef BOOST_BIND_MF_CC
+#undef NDNBOOST_BIND_MF_NAME
+#undef NDNBOOST_BIND_MF_CC
 
 #endif
 
-#ifdef BOOST_MEM_FN_ENABLE_FASTCALL
+#ifdef NDNBOOST_MEM_FN_ENABLE_FASTCALL
 
-#define BOOST_BIND_MF_NAME(X) X##_fastcall
-#define BOOST_BIND_MF_CC __fastcall
+#define NDNBOOST_BIND_MF_NAME(X) X##_fastcall
+#define NDNBOOST_BIND_MF_CC __fastcall
 
 #include <ndnboost/bind/bind_mf_cc.hpp>
 #include <ndnboost/bind/bind_mf2_cc.hpp>
 
-#undef BOOST_BIND_MF_NAME
-#undef BOOST_BIND_MF_CC
+#undef NDNBOOST_BIND_MF_NAME
+#undef NDNBOOST_BIND_MF_CC
 
 #endif
 
 // data member pointers
 
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) || defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING) \
-    || ( defined(__BORLANDC__) && BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT( 0x620 ) ) )
+#if defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) || defined(NDNBOOST_NO_FUNCTION_TEMPLATE_ORDERING) \
+    || ( defined(__BORLANDC__) && NDNBOOST_WORKAROUND( __BORLANDC__, NDNBOOST_TESTED_AT( 0x620 ) ) )
 
 template<class R, class T, class A1>
 _bi::bind_t< R, _mfi::dm<R, T>, typename _bi::list_av_1<A1>::type >
-    BOOST_BIND(R T::*f, A1 a1)
+    NDNBOOST_BIND(R T::*f, A1 a1)
 {
     typedef _mfi::dm<R, T> F;
     typedef typename _bi::list_av_1<A1>::type list_type;
@@ -1665,12 +1665,12 @@ template< class M, class T > struct add_cref< M T::*, 0 >
 
 template< class M, class T > struct add_cref< M T::*, 1 >
 {
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(push)
 #pragma warning(disable:4180)
 #endif
     typedef M const & type;
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(pop)
 #endif
 };
@@ -1725,7 +1725,7 @@ _bi::bind_t<
     typename _bi::list_av_1<A1>::type
 >
 
-BOOST_BIND( M T::*f, A1 a1 )
+NDNBOOST_BIND( M T::*f, A1 a1 )
 {
     typedef typename _bi::dm_result< M T::*, A1 >::type result_type;
     typedef _mfi::dm<M, T> F;
@@ -1737,15 +1737,15 @@ BOOST_BIND( M T::*f, A1 a1 )
 
 } // namespace ndnboost
 
-#ifndef BOOST_BIND_NO_PLACEHOLDERS
+#ifndef NDNBOOST_BIND_NO_PLACEHOLDERS
 
 # include <ndnboost/bind/placeholders.hpp>
 
 #endif
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 # pragma warning(default: 4512) // assignment operator could not be generated
 # pragma warning(pop)
 #endif
 
-#endif // #ifndef BOOST_BIND_BIND_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_BIND_BIND_HPP_INCLUDED

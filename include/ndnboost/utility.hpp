@@ -6,8 +6,8 @@
 
 //  See <http://www.boost.org/libs/utility/> for the library's home page.
 
-#ifndef BOOST_UTILITY_HPP
-#define BOOST_UTILITY_HPP
+#ifndef NDNBOOST_UTILITY_HPP
+#define NDNBOOST_UTILITY_HPP
 
 #include <ndnboost/utility/addressof.hpp>
 #include <ndnboost/utility/base_from_member.hpp>
@@ -18,4 +18,4 @@
 #include <ndnboost/next_prior.hpp>
 #include <ndnboost/noncopyable.hpp>
 
-#endif  // BOOST_UTILITY_HPP
+#endif  // NDNBOOST_UTILITY_HPP

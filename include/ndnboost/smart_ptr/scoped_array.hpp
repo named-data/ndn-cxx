@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_SCOPED_ARRAY_HPP_INCLUDED
-#define BOOST_SMART_PTR_SCOPED_ARRAY_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_SCOPED_ARRAY_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_SCOPED_ARRAY_HPP_INCLUDED
 
 //  (C) Copyright Greg Colvin and Beman Dawes 1998, 1999.
 //  Copyright (c) 2001, 2002 Peter Dimov
@@ -25,7 +25,7 @@ namespace ndnboost
 
 // Debug hooks
 
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
 
 void sp_array_constructor_hook(void * p);
 void sp_array_destructor_hook(void * p);
@@ -54,35 +54,35 @@ public:
 
     typedef T element_type;
 
-    explicit scoped_array( T * p = 0 ) BOOST_NOEXCEPT : px( p )
+    explicit scoped_array( T * p = 0 ) NDNBOOST_NOEXCEPT : px( p )
     {
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         ndnboost::sp_array_constructor_hook( px );
 #endif
     }
 
     ~scoped_array() // never throws
     {
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+#if defined(NDNBOOST_SP_ENABLE_DEBUG_HOOKS)
         ndnboost::sp_array_destructor_hook( px );
 #endif
         ndnboost::checked_array_delete( px );
     }
 
-    void reset(T * p = 0) // never throws (but has a BOOST_ASSERT in it, so not marked with BOOST_NOEXCEPT)
+    void reset(T * p = 0) // never throws (but has a NDNBOOST_ASSERT in it, so not marked with NDNBOOST_NOEXCEPT)
     {
-        BOOST_ASSERT( p == 0 || p != px ); // catch self-reset errors
+        NDNBOOST_ASSERT( p == 0 || p != px ); // catch self-reset errors
         this_type(p).swap(*this);
     }
 
-    T & operator[](std::ptrdiff_t i) const // never throws (but has a BOOST_ASSERT in it, so not marked with BOOST_NOEXCEPT)
+    T & operator[](std::ptrdiff_t i) const // never throws (but has a NDNBOOST_ASSERT in it, so not marked with NDNBOOST_NOEXCEPT)
     {
-        BOOST_ASSERT( px != 0 );
-        BOOST_ASSERT( i >= 0 );
+        NDNBOOST_ASSERT( px != 0 );
+        NDNBOOST_ASSERT( i >= 0 );
         return px[i];
     }
 
-    T * get() const BOOST_NOEXCEPT
+    T * get() const NDNBOOST_NOEXCEPT
     {
         return px;
     }
@@ -90,7 +90,7 @@ public:
 // implicit conversion to "bool"
 #include <ndnboost/smart_ptr/detail/operator_bool.hpp>
 
-    void swap(scoped_array & b) BOOST_NOEXCEPT
+    void swap(scoped_array & b) NDNBOOST_NOEXCEPT
     {
         T * tmp = b.px;
         b.px = px;
@@ -98,35 +98,35 @@ public:
     }
 };
 
-#if !defined( BOOST_NO_CXX11_NULLPTR )
+#if !defined( NDNBOOST_NO_CXX11_NULLPTR )
 
-template<class T> inline bool operator==( scoped_array<T> const & p, ndnboost::detail::sp_nullptr_t ) BOOST_NOEXCEPT
+template<class T> inline bool operator==( scoped_array<T> const & p, ndnboost::detail::sp_nullptr_t ) NDNBOOST_NOEXCEPT
 {
     return p.get() == 0;
 }
 
-template<class T> inline bool operator==( ndnboost::detail::sp_nullptr_t, scoped_array<T> const & p ) BOOST_NOEXCEPT
+template<class T> inline bool operator==( ndnboost::detail::sp_nullptr_t, scoped_array<T> const & p ) NDNBOOST_NOEXCEPT
 {
     return p.get() == 0;
 }
 
-template<class T> inline bool operator!=( scoped_array<T> const & p, ndnboost::detail::sp_nullptr_t ) BOOST_NOEXCEPT
+template<class T> inline bool operator!=( scoped_array<T> const & p, ndnboost::detail::sp_nullptr_t ) NDNBOOST_NOEXCEPT
 {
     return p.get() != 0;
 }
 
-template<class T> inline bool operator!=( ndnboost::detail::sp_nullptr_t, scoped_array<T> const & p ) BOOST_NOEXCEPT
+template<class T> inline bool operator!=( ndnboost::detail::sp_nullptr_t, scoped_array<T> const & p ) NDNBOOST_NOEXCEPT
 {
     return p.get() != 0;
 }
 
 #endif
 
-template<class T> inline void swap(scoped_array<T> & a, scoped_array<T> & b) BOOST_NOEXCEPT
+template<class T> inline void swap(scoped_array<T> & a, scoped_array<T> & b) NDNBOOST_NOEXCEPT
 {
     a.swap(b);
 }
 
 } // namespace ndnboost
 
-#endif  // #ifndef BOOST_SMART_PTR_SCOPED_ARRAY_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_SCOPED_ARRAY_HPP_INCLUDED

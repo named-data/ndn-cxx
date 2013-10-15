@@ -5,8 +5,8 @@
 // (See accompanying file LICENSE_1_0.txt
 // or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_DETAIL_LCAST_PRECISION_HPP_INCLUDED
-#define BOOST_DETAIL_LCAST_PRECISION_HPP_INCLUDED
+#ifndef NDNBOOST_DETAIL_LCAST_PRECISION_HPP_INCLUDED
+#define NDNBOOST_DETAIL_LCAST_PRECISION_HPP_INCLUDED
 
 #include <climits>
 #include <ios>
@@ -15,19 +15,19 @@
 #include <ndnboost/config.hpp>
 #include <ndnboost/integer_traits.hpp>
 
-#ifndef BOOST_NO_IS_ABSTRACT
+#ifndef NDNBOOST_NO_IS_ABSTRACT
 // Fix for SF:1358600 - lexical_cast & pure virtual functions & VC 8 STL
 #include <ndnboost/mpl/if.hpp>
 #include <ndnboost/type_traits/is_abstract.hpp>
 #endif
 
-#if defined(BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS) || \
-  (defined(BOOST_MSVC) && (BOOST_MSVC<1310))
+#if defined(NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS) || \
+  (defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC<1310))
 
-#define BOOST_LCAST_NO_COMPILE_TIME_PRECISION
+#define NDNBOOST_LCAST_NO_COMPILE_TIME_PRECISION
 #endif
 
-#ifdef BOOST_LCAST_NO_COMPILE_TIME_PRECISION
+#ifdef NDNBOOST_LCAST_NO_COMPILE_TIME_PRECISION
 #include <ndnboost/assert.hpp>
 #else
 #include <ndnboost/static_assert.hpp>
@@ -37,58 +37,58 @@ namespace ndnboost { namespace detail {
 
 class lcast_abstract_stub {};
 
-#ifndef BOOST_LCAST_NO_COMPILE_TIME_PRECISION
+#ifndef NDNBOOST_LCAST_NO_COMPILE_TIME_PRECISION
 // Calculate an argument to pass to std::ios_base::precision from
 // lexical_cast. See alternative implementation for broken standard
 // libraries in lcast_get_precision below. Keep them in sync, please.
 template<class T>
 struct lcast_precision
 {
-#ifdef BOOST_NO_IS_ABSTRACT
+#ifdef NDNBOOST_NO_IS_ABSTRACT
     typedef std::numeric_limits<T> limits; // No fix for SF:1358600.
 #else
-    typedef BOOST_DEDUCED_TYPENAME ndnboost::mpl::if_<
+    typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::mpl::if_<
         ndnboost::is_abstract<T>
       , std::numeric_limits<lcast_abstract_stub>
       , std::numeric_limits<T>
       >::type limits;
 #endif
 
-    BOOST_STATIC_CONSTANT(bool, use_default_precision =
+    NDNBOOST_STATIC_CONSTANT(bool, use_default_precision =
             !limits::is_specialized || limits::is_exact
         );
 
-    BOOST_STATIC_CONSTANT(bool, is_specialized_bin =
+    NDNBOOST_STATIC_CONSTANT(bool, is_specialized_bin =
             !use_default_precision &&
             limits::radix == 2 && limits::digits > 0
         );
 
-    BOOST_STATIC_CONSTANT(bool, is_specialized_dec =
+    NDNBOOST_STATIC_CONSTANT(bool, is_specialized_dec =
             !use_default_precision &&
             limits::radix == 10 && limits::digits10 > 0
         );
 
-    BOOST_STATIC_CONSTANT(std::streamsize, streamsize_max =
+    NDNBOOST_STATIC_CONSTANT(std::streamsize, streamsize_max =
             ndnboost::integer_traits<std::streamsize>::const_max
         );
 
-    BOOST_STATIC_CONSTANT(unsigned int, precision_dec = limits::digits10 + 1U);
+    NDNBOOST_STATIC_CONSTANT(unsigned int, precision_dec = limits::digits10 + 1U);
 
-    BOOST_STATIC_ASSERT(!is_specialized_dec ||
+    NDNBOOST_STATIC_ASSERT(!is_specialized_dec ||
             precision_dec <= streamsize_max + 0UL
         );
 
-    BOOST_STATIC_CONSTANT(unsigned long, precision_bin =
+    NDNBOOST_STATIC_CONSTANT(unsigned long, precision_bin =
             2UL + limits::digits * 30103UL / 100000UL
         );
 
-    BOOST_STATIC_ASSERT(!is_specialized_bin ||
+    NDNBOOST_STATIC_ASSERT(!is_specialized_bin ||
             (limits::digits + 0UL < ULONG_MAX / 30103UL &&
             precision_bin > limits::digits10 + 0UL &&
             precision_bin <= streamsize_max + 0UL)
         );
 
-    BOOST_STATIC_CONSTANT(std::streamsize, value =
+    NDNBOOST_STATIC_CONSTANT(std::streamsize, value =
             is_specialized_bin ? precision_bin
                                : is_specialized_dec ? precision_dec : 6
         );
@@ -98,14 +98,14 @@ struct lcast_precision
 template<class T>
 inline std::streamsize lcast_get_precision(T* = 0)
 {
-#ifndef BOOST_LCAST_NO_COMPILE_TIME_PRECISION
+#ifndef NDNBOOST_LCAST_NO_COMPILE_TIME_PRECISION
     return lcast_precision<T>::value;
 #else // Follow lcast_precision algorithm at run-time:
 
-#ifdef BOOST_NO_IS_ABSTRACT
+#ifdef NDNBOOST_NO_IS_ABSTRACT
     typedef std::numeric_limits<T> limits; // No fix for SF:1358600.
 #else
-    typedef BOOST_DEDUCED_TYPENAME ndnboost::mpl::if_<
+    typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::mpl::if_<
         ndnboost::is_abstract<T>
       , std::numeric_limits<lcast_abstract_stub>
       , std::numeric_limits<T>
@@ -134,7 +134,7 @@ inline std::streamsize lcast_get_precision(T* = 0)
             unsigned long const precision = 2UL + digits * 30103UL / 100000UL;
             // unsigned long is selected because it is at least 32-bits
             // and thus ULONG_MAX / 30103UL is big enough for all types.
-            BOOST_ASSERT(
+            NDNBOOST_ASSERT(
                     digits < ULONG_MAX / 30103UL &&
                     precision > limits::digits10 + 0UL &&
                     precision <= streamsize_max + 0UL
@@ -145,7 +145,7 @@ inline std::streamsize lcast_get_precision(T* = 0)
         {   // Decimal Floating-point type, most likely a User Defined Type
             // rather than a real floating-point hardware type.
             unsigned int const precision = limits::digits10 + 1U;
-            BOOST_ASSERT(precision <= streamsize_max + 0UL);
+            NDNBOOST_ASSERT(precision <= streamsize_max + 0UL);
             return precision;
         }
     }
@@ -180,5 +180,5 @@ inline void lcast_set_precision(std::ios_base& stream, Source*, Target*)
 
 }}
 
-#endif //  BOOST_DETAIL_LCAST_PRECISION_HPP_INCLUDED
+#endif //  NDNBOOST_DETAIL_LCAST_PRECISION_HPP_INCLUDED
 

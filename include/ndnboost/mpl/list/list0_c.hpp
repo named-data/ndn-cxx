@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_LIST_LIST0_C_HPP_INCLUDED
-#define BOOST_MPL_LIST_LIST0_C_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_LIST_LIST0_C_HPP_INCLUDED
+#define NDNBOOST_MPL_LIST_LIST0_C_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -28,4 +28,4 @@ template< typename T > struct list0_c
 
 }}
 
-#endif // BOOST_MPL_LIST_LIST0_C_HPP_INCLUDED
+#endif // NDNBOOST_MPL_LIST_LIST0_C_HPP_INCLUDED

@@ -11,13 +11,13 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_FACILITIES_IDENTITY_HPP
-# define BOOST_PREPROCESSOR_FACILITIES_IDENTITY_HPP
+# ifndef NDNBOOST_PREPROCESSOR_FACILITIES_IDENTITY_HPP
+# define NDNBOOST_PREPROCESSOR_FACILITIES_IDENTITY_HPP
 #
 # include <ndnboost/preprocessor/facilities/empty.hpp>
 #
-# /* BOOST_PP_IDENTITY */
+# /* NDNBOOST_PP_IDENTITY */
 #
-# define BOOST_PP_IDENTITY(item) item BOOST_PP_EMPTY
+# define NDNBOOST_PP_IDENTITY(item) item NDNBOOST_PP_EMPTY
 #
 # endif

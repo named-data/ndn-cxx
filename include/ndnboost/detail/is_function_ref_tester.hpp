@@ -5,17 +5,17 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#if !defined(BOOST_PP_IS_ITERATING)
+#if !defined(NDNBOOST_PP_IS_ITERATING)
 
 ///// header body
 
-#ifndef BOOST_DETAIL_IS_FUNCTION_REF_TESTER_HPP_INCLUDED
-#define BOOST_DETAIL_IS_FUNCTION_REF_TESTER_HPP_INCLUDED
+#ifndef NDNBOOST_DETAIL_IS_FUNCTION_REF_TESTER_HPP_INCLUDED
+#define NDNBOOST_DETAIL_IS_FUNCTION_REF_TESTER_HPP_INCLUDED
 
 #include "ndnboost/type_traits/detail/yes_no_type.hpp"
 #include "ndnboost/type_traits/config.hpp"
 
-#if defined(BOOST_TT_PREPROCESSING_MODE)
+#if defined(NDNBOOST_TT_PREPROCESSING_MODE)
 #   include "ndnboost/preprocessor/iterate.hpp"
 #   include "ndnboost/preprocessor/enum_params.hpp"
 #   include "ndnboost/preprocessor/comma_if.hpp"
@@ -26,9 +26,9 @@ namespace detail {
 namespace is_function_ref_tester_ {
 
 template <class T>
-ndnboost::type_traits::no_type BOOST_TT_DECL is_function_ref_tester(T& ...);
+ndnboost::type_traits::no_type NDNBOOST_TT_DECL is_function_ref_tester(T& ...);
 
-#if !defined(BOOST_TT_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_TT_PREPROCESSING_MODE)
 // preprocessor-generated part, don't edit by hand!
 
 template <class R>
@@ -111,26 +111,26 @@ ndnboost::type_traits::yes_type is_function_ref_tester(R (&)(T0,T1,T2,T3,T4,T5,T
 
 #else
 
-#define BOOST_PP_ITERATION_PARAMS_1 \
+#define NDNBOOST_PP_ITERATION_PARAMS_1 \
     (3, (0, 25, "ndnboost/detail/is_function_ref_tester.hpp"))
-#include BOOST_PP_ITERATE()
+#include NDNBOOST_PP_ITERATE()
 
-#endif // BOOST_TT_PREPROCESSING_MODE
+#endif // NDNBOOST_TT_PREPROCESSING_MODE
 
 } // namespace detail
 } // namespace python
 } // namespace ndnboost
 
-#endif // BOOST_DETAIL_IS_FUNCTION_REF_TESTER_HPP_INCLUDED
+#endif // NDNBOOST_DETAIL_IS_FUNCTION_REF_TESTER_HPP_INCLUDED
 
 ///// iteration
 
 #else
-#define i BOOST_PP_FRAME_ITERATION(1)
+#define i NDNBOOST_PP_FRAME_ITERATION(1)
 
-template <class R BOOST_PP_COMMA_IF(i) BOOST_PP_ENUM_PARAMS(i,class T) >
-ndnboost::type_traits::yes_type is_function_ref_tester(R (&)(BOOST_PP_ENUM_PARAMS(i,T)), int);
+template <class R NDNBOOST_PP_COMMA_IF(i) NDNBOOST_PP_ENUM_PARAMS(i,class T) >
+ndnboost::type_traits::yes_type is_function_ref_tester(R (&)(NDNBOOST_PP_ENUM_PARAMS(i,T)), int);
 
 #undef i
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_IS_ITERATING
 

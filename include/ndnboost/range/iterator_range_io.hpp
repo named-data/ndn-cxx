@@ -7,28 +7,28 @@
 //
 // For more information, see http://www.boost.org/libs/range/
 //
-#ifndef BOOST_RANGE_ITERATOR_RANGE_IO_HPP_INCLUDED
-#define BOOST_RANGE_ITERATOR_RANGE_IO_HPP_INCLUDED
+#ifndef NDNBOOST_RANGE_ITERATOR_RANGE_IO_HPP_INCLUDED
+#define NDNBOOST_RANGE_ITERATOR_RANGE_IO_HPP_INCLUDED
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/detail/workaround.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1500))
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, NDNBOOST_TESTED_AT(1500))
     #pragma warning( push )
     #pragma warning( disable : 4996 )
 #endif
 
 // From ndnboost/dynamic_bitset.hpp; thanks to Matthias Troyer for Cray X1 patch.
-#ifndef BOOST_OLD_IOSTREAMS 
+#ifndef NDNBOOST_OLD_IOSTREAMS 
 # if defined(__STL_CONFIG_H) && \
     !defined (__STL_USE_NEW_IOSTREAMS) && !defined(__crayx1) \
     /**/
-#  define BOOST_OLD_IOSTREAMS
+#  define NDNBOOST_OLD_IOSTREAMS
 # endif
-#endif // #ifndef BOOST_OLD_IOSTREAMS
+#endif // #ifndef NDNBOOST_OLD_IOSTREAMS
 
 #ifndef _STLP_NO_IOSTREAMS
-# ifndef BOOST_OLD_IOSTREAMS
+# ifndef NDNBOOST_OLD_IOSTREAMS
 #  include <ostream>
 # else
 #  include <ostream.h>
@@ -44,7 +44,7 @@ namespace ndnboost
 {
 
 #ifndef _STLP_NO_IOSTREAMS
-# ifndef BOOST_OLD_IOSTREAMS   
+# ifndef NDNBOOST_OLD_IOSTREAMS   
 
         //! iterator_range output operator
         /*!
@@ -57,7 +57,7 @@ namespace ndnboost
                     const iterator_range<IteratorT>& r )
         {
             std::copy( r.begin(), r.end(), 
-                       std::ostream_iterator< BOOST_DEDUCED_TYPENAME 
+                       std::ostream_iterator< NDNBOOST_DEDUCED_TYPENAME 
                                               iterator_value<IteratorT>::type, 
                                               Elem, Traits>(Os) );
             return Os;
@@ -84,9 +84,9 @@ namespace ndnboost
 
 } // namespace ndnboost
 
-#undef BOOST_OLD_IOSTREAMS
+#undef NDNBOOST_OLD_IOSTREAMS
 
-#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1500))
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, NDNBOOST_TESTED_AT(1500))
     #pragma warning(pop)
 #endif
 

@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_FIND_FORMAT_ALL_DETAIL_HPP
-#define BOOST_STRING_FIND_FORMAT_ALL_DETAIL_HPP
+#ifndef NDNBOOST_STRING_FIND_FORMAT_ALL_DETAIL_HPP
+#define NDNBOOST_STRING_FIND_FORMAT_ALL_DETAIL_HPP
 
 #include <ndnboost/algorithm/string/config.hpp>
 #include <ndnboost/range/iterator_range.hpp>
@@ -39,7 +39,7 @@ namespace ndnboost {
                 const FindResultT& FindResult,
                 const FormatResultT& FormatResult )
             {       
-                typedef BOOST_STRING_TYPENAME 
+                typedef NDNBOOST_STRING_TYPENAME 
                     range_const_iterator<InputT>::type input_iterator_type; 
 
                 typedef find_format_store<
@@ -113,7 +113,7 @@ namespace ndnboost {
                 const FindResultT& FindResult,
                 const FormatResultT& FormatResult)
             {
-                typedef BOOST_STRING_TYPENAME 
+                typedef NDNBOOST_STRING_TYPENAME 
                     range_const_iterator<InputT>::type input_iterator_type; 
 
                 typedef find_format_store<
@@ -187,7 +187,7 @@ namespace ndnboost {
                 FindResultT FindResult,
                 FormatResultT FormatResult)
             {
-                typedef BOOST_STRING_TYPENAME 
+                typedef NDNBOOST_STRING_TYPENAME 
                     range_iterator<InputT>::type input_iterator_type; 
                 typedef find_format_store<
                         input_iterator_type, 
@@ -199,7 +199,7 @@ namespace ndnboost {
           
                 // Instantiate replacement storage
                 std::deque<
-                    BOOST_STRING_TYPENAME range_value<InputT>::type> Storage;
+                    NDNBOOST_STRING_TYPENAME range_value<InputT>::type> Storage;
 
                 // Initialize replacement iterators
                 input_iterator_type InsertIt=::ndnboost::begin(Input);
@@ -270,4 +270,4 @@ namespace ndnboost {
     } // namespace algorithm
 } // namespace ndnboost
 
-#endif  // BOOST_STRING_FIND_FORMAT_ALL_DETAIL_HPP
+#endif  // NDNBOOST_STRING_FIND_FORMAT_ALL_DETAIL_HPP

@@ -34,7 +34,7 @@ namespace is_incrementable_
   struct any { template <class T> any(T const&); };
 
   // This is a last-resort operator++ for when none other is found
-# if BOOST_WORKAROUND(__GNUC__, == 4) && __GNUC_MINOR__ == 0 && __GNUC_PATCHLEVEL__ == 2
+# if NDNBOOST_WORKAROUND(__GNUC__, == 4) && __GNUC_MINOR__ == 0 && __GNUC_PATCHLEVEL__ == 2
   
 }
 
@@ -55,16 +55,16 @@ namespace is_incrementable_
   
 # endif 
 
-# if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3202)) \
-    || BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-#  define BOOST_comma(a,b) (a)
+# if NDNBOOST_WORKAROUND(__MWERKS__, NDNBOOST_TESTED_AT(0x3202)) \
+    || NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
+#  define NDNBOOST_comma(a,b) (a)
 # else 
   // In case an operator++ is found that returns void, we'll use ++x,0
   tag operator,(tag,int);  
-#  define BOOST_comma(a,b) (a,b)
+#  define NDNBOOST_comma(a,b) (a,b)
 # endif 
 
-# if defined(BOOST_MSVC)
+# if defined(NDNBOOST_MSVC)
 #  pragma warning(push)
 #  pragma warning(disable:4913) // Warning about operator,
 # endif 
@@ -81,9 +81,9 @@ namespace is_incrementable_
   {
       static typename ndnboost::remove_cv<T>::type& x;
 
-      BOOST_STATIC_CONSTANT(
+      NDNBOOST_STATIC_CONSTANT(
           bool
-        , value = sizeof(is_incrementable_::check_(BOOST_comma(++x,0))) == 1
+        , value = sizeof(is_incrementable_::check_(NDNBOOST_comma(++x,0))) == 1
       );
   };
 
@@ -92,40 +92,40 @@ namespace is_incrementable_
   {
       static typename ndnboost::remove_cv<T>::type& x;
 
-      BOOST_STATIC_CONSTANT(
+      NDNBOOST_STATIC_CONSTANT(
           bool
-        , value = sizeof(is_incrementable_::check_(BOOST_comma(x++,0))) == 1
+        , value = sizeof(is_incrementable_::check_(NDNBOOST_comma(x++,0))) == 1
       );
   };
 
-# if defined(BOOST_MSVC)
+# if defined(NDNBOOST_MSVC)
 #  pragma warning(pop)
 # endif 
 
 }
 
-# undef BOOST_comma
+# undef NDNBOOST_comma
 
 template<typename T> 
 struct is_incrementable 
-BOOST_TT_AUX_BOOL_C_BASE(::ndnboost::detail::is_incrementable_::impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_C_BASE(::ndnboost::detail::is_incrementable_::impl<T>::value)
 { 
-    BOOST_TT_AUX_BOOL_TRAIT_VALUE_DECL(::ndnboost::detail::is_incrementable_::impl<T>::value)
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1,is_incrementable,(T))
+    NDNBOOST_TT_AUX_BOOL_TRAIT_VALUE_DECL(::ndnboost::detail::is_incrementable_::impl<T>::value)
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,is_incrementable,(T))
 };
 
 template<typename T> 
 struct is_postfix_incrementable 
-BOOST_TT_AUX_BOOL_C_BASE(::ndnboost::detail::is_incrementable_::impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_C_BASE(::ndnboost::detail::is_incrementable_::impl<T>::value)
 { 
-    BOOST_TT_AUX_BOOL_TRAIT_VALUE_DECL(::ndnboost::detail::is_incrementable_::postfix_impl<T>::value)
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1,is_postfix_incrementable,(T))
+    NDNBOOST_TT_AUX_BOOL_TRAIT_VALUE_DECL(::ndnboost::detail::is_incrementable_::postfix_impl<T>::value)
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(1,is_postfix_incrementable,(T))
 };
 
 } // namespace detail
 
-BOOST_TT_AUX_TEMPLATE_ARITY_SPEC(1, ::ndnboost::detail::is_incrementable)
-BOOST_TT_AUX_TEMPLATE_ARITY_SPEC(1, ::ndnboost::detail::is_postfix_incrementable)
+NDNBOOST_TT_AUX_TEMPLATE_ARITY_SPEC(1, ::ndnboost::detail::is_incrementable)
+NDNBOOST_TT_AUX_TEMPLATE_ARITY_SPEC(1, ::ndnboost::detail::is_postfix_incrementable)
 
 } // namespace ndnboost
 

@@ -7,22 +7,22 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#if !defined(BOOST_NUMERIC_CONVERSION_DONT_USE_PREPROCESSED_FILES)
+#if !defined(NDNBOOST_NUMERIC_CONVERSION_DONT_USE_PREPROCESSED_FILES)
 
     #include <ndnboost/numeric/conversion/detail/preprocessed/numeric_cast_traits_common.hpp>
 	
-	#if !defined(BOOST_NO_LONG_LONG)
+	#if !defined(NDNBOOST_NO_LONG_LONG)
         #include <ndnboost/numeric/conversion/detail/preprocessed/numeric_cast_traits_long_long.hpp>
 	#endif
 	
 #else
-#if !BOOST_PP_IS_ITERATING
+#if !NDNBOOST_PP_IS_ITERATING
 
     #include <ndnboost/preprocessor/seq/elem.hpp>
     #include <ndnboost/preprocessor/seq/size.hpp>
     #include <ndnboost/preprocessor/iteration/iterate.hpp>
     
-    #if defined(__WAVE__) && defined(BOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
+    #if defined(__WAVE__) && defined(NDNBOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
         #pragma wave option(preserve: 2, line: 0, output: "preprocessed/numeric_cast_traits_common.hpp")
     #endif
 //
@@ -33,12 +33,12 @@
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
-    #if defined(__WAVE__) && defined(BOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
+    #if defined(__WAVE__) && defined(NDNBOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
         #pragma wave option(preserve: 1)
     #endif
 	
 	//! These are the assumed common built in fundamental types (not typedefs/macros.)
-	#define BOOST_NUMERIC_CONVERSION_BASE_BUILTIN_TYPES() \
+	#define NDNBOOST_NUMERIC_CONVERSION_BASE_BUILTIN_TYPES() \
         (char)                                            \
         (signed char)                                     \
         (unsigned char)                                   \
@@ -53,26 +53,26 @@
         (long double)                                     \
     /***/
 	
-    #define BOOST_NUMERIC_CONVERSION_SEQ_A() BOOST_NUMERIC_CONVERSION_BASE_BUILTIN_TYPES()
-	#define BOOST_NUMERIC_CONVERSION_SEQ_B() BOOST_NUMERIC_CONVERSION_BASE_BUILTIN_TYPES()
+    #define NDNBOOST_NUMERIC_CONVERSION_SEQ_A() NDNBOOST_NUMERIC_CONVERSION_BASE_BUILTIN_TYPES()
+	#define NDNBOOST_NUMERIC_CONVERSION_SEQ_B() NDNBOOST_NUMERIC_CONVERSION_BASE_BUILTIN_TYPES()
 
 namespace ndnboost { namespace numeric {
 
-    #define BOOST_PP_ITERATION_PARAMS_1 (3, (0, BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(BOOST_NUMERIC_CONVERSION_SEQ_A())), <ndnboost/numeric/conversion/detail/numeric_cast_traits.hpp>))
-    #include BOOST_PP_ITERATE()    
+    #define NDNBOOST_PP_ITERATION_PARAMS_1 (3, (0, NDNBOOST_PP_DEC(NDNBOOST_PP_SEQ_SIZE(NDNBOOST_NUMERIC_CONVERSION_SEQ_A())), <ndnboost/numeric/conversion/detail/numeric_cast_traits.hpp>))
+    #include NDNBOOST_PP_ITERATE()    
 
 }}//namespace ndnboost::numeric;
 
-    #if defined(__WAVE__) && defined(BOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
+    #if defined(__WAVE__) && defined(NDNBOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
         #pragma wave option(output: null)
     #endif   
 	
-	#if ( defined(__WAVE__) && defined(BOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES) ) || !defined(BOOST_NO_LONG_LONG)
+	#if ( defined(__WAVE__) && defined(NDNBOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES) ) || !defined(NDNBOOST_NO_LONG_LONG)
 	
-	    #undef BOOST_NUMERIC_CONVERSION_SEQ_A
-	    #undef BOOST_NUMERIC_CONVERSION_SEQ_B
+	    #undef NDNBOOST_NUMERIC_CONVERSION_SEQ_A
+	    #undef NDNBOOST_NUMERIC_CONVERSION_SEQ_B
 
-	    #if defined(__WAVE__) && defined(BOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
+	    #if defined(__WAVE__) && defined(NDNBOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
             #pragma wave option(preserve: 2, line: 0, output: "preprocessed/numeric_cast_traits_long_long.hpp")
         #endif
 
@@ -84,55 +84,55 @@ namespace ndnboost { namespace numeric {
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
-        #if defined(__WAVE__) && defined(BOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
+        #if defined(__WAVE__) && defined(NDNBOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
             #pragma wave option(preserve: 1)
         #endif
 
 namespace ndnboost { namespace numeric {
 
-    #define BOOST_NUMERIC_CONVERSION_SEQ_A() BOOST_NUMERIC_CONVERSION_BASE_BUILTIN_TYPES()(ndnboost::long_long_type)(ndnboost::ulong_long_type)
-	#define BOOST_NUMERIC_CONVERSION_SEQ_B() (ndnboost::long_long_type)(ndnboost::ulong_long_type)
+    #define NDNBOOST_NUMERIC_CONVERSION_SEQ_A() NDNBOOST_NUMERIC_CONVERSION_BASE_BUILTIN_TYPES()(ndnboost::long_long_type)(ndnboost::ulong_long_type)
+	#define NDNBOOST_NUMERIC_CONVERSION_SEQ_B() (ndnboost::long_long_type)(ndnboost::ulong_long_type)
     
-    #define BOOST_PP_ITERATION_PARAMS_1 (3, (0, BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(BOOST_NUMERIC_CONVERSION_SEQ_A())), <ndnboost/numeric/conversion/detail/numeric_cast_traits.hpp>))
-    #include BOOST_PP_ITERATE()    
+    #define NDNBOOST_PP_ITERATION_PARAMS_1 (3, (0, NDNBOOST_PP_DEC(NDNBOOST_PP_SEQ_SIZE(NDNBOOST_NUMERIC_CONVERSION_SEQ_A())), <ndnboost/numeric/conversion/detail/numeric_cast_traits.hpp>))
+    #include NDNBOOST_PP_ITERATE()    
 
 }}//namespace ndnboost::numeric;
 
-        #if defined(__WAVE__) && defined(BOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
+        #if defined(__WAVE__) && defined(NDNBOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
             #pragma wave option(output: null)
         #endif   
 	
 	#endif
 		
-    #undef BOOST_NUMERIC_CONVERSION_BASE_BUILTIN_TYPES
-	#undef BOOST_NUMERIC_CONVERSION_SEQ_A
-	#undef BOOST_NUMERIC_CONVERSION_SEQ_B
+    #undef NDNBOOST_NUMERIC_CONVERSION_BASE_BUILTIN_TYPES
+	#undef NDNBOOST_NUMERIC_CONVERSION_SEQ_A
+	#undef NDNBOOST_NUMERIC_CONVERSION_SEQ_B
     
-#elif BOOST_PP_ITERATION_DEPTH() == 1
+#elif NDNBOOST_PP_ITERATION_DEPTH() == 1
 
-    #define BOOST_PP_ITERATION_PARAMS_2 (3, (0, BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(BOOST_NUMERIC_CONVERSION_SEQ_B())), <ndnboost/numeric/conversion/detail/numeric_cast_traits.hpp>))
-    #include BOOST_PP_ITERATE()
+    #define NDNBOOST_PP_ITERATION_PARAMS_2 (3, (0, NDNBOOST_PP_DEC(NDNBOOST_PP_SEQ_SIZE(NDNBOOST_NUMERIC_CONVERSION_SEQ_B())), <ndnboost/numeric/conversion/detail/numeric_cast_traits.hpp>))
+    #include NDNBOOST_PP_ITERATE()
 
-#elif BOOST_PP_ITERATION_DEPTH() == 2
+#elif NDNBOOST_PP_ITERATION_DEPTH() == 2
 
     //! Generate default traits for the specified source and target.
-    #define BOOST_NUMERIC_CONVERSION_A BOOST_PP_FRAME_ITERATION(1)
-    #define BOOST_NUMERIC_CONVERSION_B BOOST_PP_FRAME_ITERATION(2)
+    #define NDNBOOST_NUMERIC_CONVERSION_A NDNBOOST_PP_FRAME_ITERATION(1)
+    #define NDNBOOST_NUMERIC_CONVERSION_B NDNBOOST_PP_FRAME_ITERATION(2)
 
     template <>
     struct numeric_cast_traits
         <
-            BOOST_PP_SEQ_ELEM(BOOST_NUMERIC_CONVERSION_A, BOOST_NUMERIC_CONVERSION_SEQ_A())
-          , BOOST_PP_SEQ_ELEM(BOOST_NUMERIC_CONVERSION_B, BOOST_NUMERIC_CONVERSION_SEQ_B())
+            NDNBOOST_PP_SEQ_ELEM(NDNBOOST_NUMERIC_CONVERSION_A, NDNBOOST_NUMERIC_CONVERSION_SEQ_A())
+          , NDNBOOST_PP_SEQ_ELEM(NDNBOOST_NUMERIC_CONVERSION_B, NDNBOOST_NUMERIC_CONVERSION_SEQ_B())
         >
     {
         typedef def_overflow_handler overflow_policy;
         typedef UseInternalRangeChecker range_checking_policy;
-        typedef Trunc<BOOST_PP_SEQ_ELEM(BOOST_NUMERIC_CONVERSION_B, BOOST_NUMERIC_CONVERSION_SEQ_B())> rounding_policy;
+        typedef Trunc<NDNBOOST_PP_SEQ_ELEM(NDNBOOST_NUMERIC_CONVERSION_B, NDNBOOST_NUMERIC_CONVERSION_SEQ_B())> rounding_policy;
     };     
 
-    #undef BOOST_NUMERIC_CONVERSION_A
-    #undef BOOST_NUMERIC_CONVERSION_B
+    #undef NDNBOOST_NUMERIC_CONVERSION_A
+    #undef NDNBOOST_NUMERIC_CONVERSION_B
 
 #endif//! Depth 2.
-#endif// BOOST_NUMERIC_CONVERSION_DONT_USE_PREPROCESSED_FILES
+#endif// NDNBOOST_NUMERIC_CONVERSION_DONT_USE_PREPROCESSED_FILES

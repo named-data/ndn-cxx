@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_PREPROCESSOR_SUB_HPP_INCLUDED
-#define BOOST_MPL_AUX_PREPROCESSOR_SUB_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_PREPROCESSOR_SUB_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_PREPROCESSOR_SUB_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2002-2004
 //
@@ -16,50 +16,50 @@
 
 #include <ndnboost/mpl/aux_/config/preprocessor.hpp>
 
-#if !defined(BOOST_MPL_CFG_NO_OWN_PP_PRIMITIVES)
+#if !defined(NDNBOOST_MPL_CFG_NO_OWN_PP_PRIMITIVES)
 
 #   include <ndnboost/mpl/aux_/preprocessor/tuple.hpp>
 
-#if defined(BOOST_MPL_CFG_BROKEN_PP_MACRO_EXPANSION)
+#if defined(NDNBOOST_MPL_CFG_BROKEN_PP_MACRO_EXPANSION)
 #   include <ndnboost/preprocessor/cat.hpp>
 
-#   define BOOST_MPL_PP_SUB(i,j) \
-    BOOST_MPL_PP_SUB_DELAY(i,j) \
+#   define NDNBOOST_MPL_PP_SUB(i,j) \
+    NDNBOOST_MPL_PP_SUB_DELAY(i,j) \
     /**/
 
-#   define BOOST_MPL_PP_SUB_DELAY(i,j) \
-    BOOST_PP_CAT(BOOST_MPL_PP_TUPLE_11_ELEM_##i,BOOST_MPL_PP_SUB_##j) \
+#   define NDNBOOST_MPL_PP_SUB_DELAY(i,j) \
+    NDNBOOST_PP_CAT(NDNBOOST_MPL_PP_TUPLE_11_ELEM_##i,NDNBOOST_MPL_PP_SUB_##j) \
     /**/
 #else
-#   define BOOST_MPL_PP_SUB(i,j) \
-    BOOST_MPL_PP_SUB_DELAY(i,j) \
+#   define NDNBOOST_MPL_PP_SUB(i,j) \
+    NDNBOOST_MPL_PP_SUB_DELAY(i,j) \
     /**/
 
-#   define BOOST_MPL_PP_SUB_DELAY(i,j) \
-    BOOST_MPL_PP_TUPLE_11_ELEM_##i BOOST_MPL_PP_SUB_##j \
+#   define NDNBOOST_MPL_PP_SUB_DELAY(i,j) \
+    NDNBOOST_MPL_PP_TUPLE_11_ELEM_##i NDNBOOST_MPL_PP_SUB_##j \
     /**/
 #endif
 
-#   define BOOST_MPL_PP_SUB_0 (0,1,2,3,4,5,6,7,8,9,10)
-#   define BOOST_MPL_PP_SUB_1 (0,0,1,2,3,4,5,6,7,8,9)
-#   define BOOST_MPL_PP_SUB_2 (0,0,0,1,2,3,4,5,6,7,8)
-#   define BOOST_MPL_PP_SUB_3 (0,0,0,0,1,2,3,4,5,6,7)
-#   define BOOST_MPL_PP_SUB_4 (0,0,0,0,0,1,2,3,4,5,6)
-#   define BOOST_MPL_PP_SUB_5 (0,0,0,0,0,0,1,2,3,4,5)
-#   define BOOST_MPL_PP_SUB_6 (0,0,0,0,0,0,0,1,2,3,4)
-#   define BOOST_MPL_PP_SUB_7 (0,0,0,0,0,0,0,0,1,2,3)
-#   define BOOST_MPL_PP_SUB_8 (0,0,0,0,0,0,0,0,0,1,2)
-#   define BOOST_MPL_PP_SUB_9 (0,0,0,0,0,0,0,0,0,0,1)
-#   define BOOST_MPL_PP_SUB_10 (0,0,0,0,0,0,0,0,0,0,0)
+#   define NDNBOOST_MPL_PP_SUB_0 (0,1,2,3,4,5,6,7,8,9,10)
+#   define NDNBOOST_MPL_PP_SUB_1 (0,0,1,2,3,4,5,6,7,8,9)
+#   define NDNBOOST_MPL_PP_SUB_2 (0,0,0,1,2,3,4,5,6,7,8)
+#   define NDNBOOST_MPL_PP_SUB_3 (0,0,0,0,1,2,3,4,5,6,7)
+#   define NDNBOOST_MPL_PP_SUB_4 (0,0,0,0,0,1,2,3,4,5,6)
+#   define NDNBOOST_MPL_PP_SUB_5 (0,0,0,0,0,0,1,2,3,4,5)
+#   define NDNBOOST_MPL_PP_SUB_6 (0,0,0,0,0,0,0,1,2,3,4)
+#   define NDNBOOST_MPL_PP_SUB_7 (0,0,0,0,0,0,0,0,1,2,3)
+#   define NDNBOOST_MPL_PP_SUB_8 (0,0,0,0,0,0,0,0,0,1,2)
+#   define NDNBOOST_MPL_PP_SUB_9 (0,0,0,0,0,0,0,0,0,0,1)
+#   define NDNBOOST_MPL_PP_SUB_10 (0,0,0,0,0,0,0,0,0,0,0)
 
 #else
 
 #   include <ndnboost/preprocessor/arithmetic/sub.hpp>
 
-#   define BOOST_MPL_PP_SUB(i,j) \
-    BOOST_PP_SUB(i,j) \
+#   define NDNBOOST_MPL_PP_SUB(i,j) \
+    NDNBOOST_PP_SUB(i,j) \
     /**/
     
 #endif
 
-#endif // BOOST_MPL_AUX_PREPROCESSOR_SUB_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_PREPROCESSOR_SUB_HPP_INCLUDED

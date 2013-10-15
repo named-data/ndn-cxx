@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_W32_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_W32_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_W32_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_W32_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -71,7 +71,7 @@ public:
 
     void add_ref_copy()
     {
-        BOOST_INTERLOCKED_INCREMENT( &use_count_ );
+        NDNBOOST_INTERLOCKED_INCREMENT( &use_count_ );
     }
 
     bool add_ref_lock() // true on success
@@ -81,16 +81,16 @@ public:
             long tmp = static_cast< long const volatile& >( use_count_ );
             if( tmp == 0 ) return false;
 
-#if defined( BOOST_MSVC ) && BOOST_WORKAROUND( BOOST_MSVC, == 1200 )
+#if defined( NDNBOOST_MSVC ) && NDNBOOST_WORKAROUND( NDNBOOST_MSVC, == 1200 )
 
             // work around a code generation bug
 
             long tmp2 = tmp + 1;
-            if( BOOST_INTERLOCKED_COMPARE_EXCHANGE( &use_count_, tmp2, tmp ) == tmp2 - 1 ) return true;
+            if( NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE( &use_count_, tmp2, tmp ) == tmp2 - 1 ) return true;
 
 #else
 
-            if( BOOST_INTERLOCKED_COMPARE_EXCHANGE( &use_count_, tmp + 1, tmp ) == tmp ) return true;
+            if( NDNBOOST_INTERLOCKED_COMPARE_EXCHANGE( &use_count_, tmp + 1, tmp ) == tmp ) return true;
 
 #endif
         }
@@ -98,7 +98,7 @@ public:
 
     void release() // nothrow
     {
-        if( BOOST_INTERLOCKED_DECREMENT( &use_count_ ) == 0 )
+        if( NDNBOOST_INTERLOCKED_DECREMENT( &use_count_ ) == 0 )
         {
             dispose();
             weak_release();
@@ -107,12 +107,12 @@ public:
 
     void weak_add_ref() // nothrow
     {
-        BOOST_INTERLOCKED_INCREMENT( &weak_count_ );
+        NDNBOOST_INTERLOCKED_INCREMENT( &weak_count_ );
     }
 
     void weak_release() // nothrow
     {
-        if( BOOST_INTERLOCKED_DECREMENT( &weak_count_ ) == 0 )
+        if( NDNBOOST_INTERLOCKED_DECREMENT( &weak_count_ ) == 0 )
         {
             destroy();
         }
@@ -128,4 +128,4 @@ public:
 
 } // namespace ndnboost
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_W32_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_W32_HPP_INCLUDED

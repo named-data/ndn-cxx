@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TT_IS_FUNDAMENTAL_HPP_INCLUDED
-#define BOOST_TT_IS_FUNDAMENTAL_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_FUNDAMENTAL_HPP_INCLUDED
+#define NDNBOOST_TT_IS_FUNDAMENTAL_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_arithmetic.hpp>
 #include <ndnboost/type_traits/is_void.hpp>
@@ -33,13 +33,13 @@ struct is_fundamental_impl
 
 //* is a type T a fundamental type described in the standard (3.9.1)
 #if defined( __CODEGEARC__ )
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_fundamental,T,__is_fundamental(T))
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_fundamental,T,__is_fundamental(T))
 #else
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_fundamental,T,::ndnboost::detail::is_fundamental_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_fundamental,T,::ndnboost::detail::is_fundamental_impl<T>::value)
 #endif
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_FUNDAMENTAL_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_FUNDAMENTAL_HPP_INCLUDED

@@ -11,14 +11,14 @@
 
 //! \file
 
-#ifndef BOOST_MOVE_MOVE_TRAITS_HPP
-#define BOOST_MOVE_MOVE_TRAITS_HPP
+#ifndef NDNBOOST_MOVE_MOVE_TRAITS_HPP
+#define NDNBOOST_MOVE_MOVE_TRAITS_HPP
 
 #include <ndnboost/move/detail/config_begin.hpp>
 #include <ndnboost/type_traits/has_trivial_destructor.hpp>
 #include <ndnboost/move/detail/meta_utils.hpp>
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 #include <ndnboost/move/core.hpp>
 #endif
 
@@ -49,9 +49,9 @@ namespace move_detail {
 
 // Code from Jeffrey Lee Hellrung, many thanks
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
    template< class T> struct forward_type { typedef T type; };
-#else // #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#else // #ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
    template< class T>
    struct forward_type
    { typedef const T &type; };
@@ -59,12 +59,12 @@ namespace move_detail {
    template< class T>
    struct forward_type< ndnboost::rv<T> >
    { typedef T type; };
-#endif // #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#endif // #ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 
 template< class T > struct is_rvalue_reference : ::ndnboost::move_detail::integral_constant<bool, false> { };
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
    template< class T > struct is_rvalue_reference< T&& > : ::ndnboost::move_detail::integral_constant<bool, true> { };
-#else // #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#else // #ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
    template< class T > struct is_rvalue_reference< ndnboost::rv<T>& >
       :  ::ndnboost::move_detail::integral_constant<bool, true>
    {};
@@ -72,11 +72,11 @@ template< class T > struct is_rvalue_reference : ::ndnboost::move_detail::integr
    template< class T > struct is_rvalue_reference< const ndnboost::rv<T>& >
       : ::ndnboost::move_detail::integral_constant<bool, true>
    {};
-#endif // #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#endif // #ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
    template< class T > struct add_rvalue_reference { typedef T&& type; };
-#else // #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#else // #ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
    namespace detail_add_rvalue_reference
    {
       template< class T
@@ -100,13 +100,13 @@ template< class T > struct is_rvalue_reference : ::ndnboost::move_detail::integr
    struct add_rvalue_reference<T &>
    {  typedef T & type; };
 
-#endif // #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#endif // #ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 
 template< class T > struct remove_rvalue_reference { typedef T type; };
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
    template< class T > struct remove_rvalue_reference< T&& >                  { typedef T type; };
-#else // #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#else // #ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
    template< class T > struct remove_rvalue_reference< rv<T> >                { typedef T type; };
    template< class T > struct remove_rvalue_reference< const rv<T> >          { typedef T type; };
    template< class T > struct remove_rvalue_reference< volatile rv<T> >       { typedef T type; };
@@ -115,7 +115,7 @@ template< class T > struct remove_rvalue_reference { typedef T type; };
    template< class T > struct remove_rvalue_reference< const rv<T>& >         { typedef T type; };
    template< class T > struct remove_rvalue_reference< volatile rv<T>& >      { typedef T type; };
    template< class T > struct remove_rvalue_reference< const volatile rv<T>& >{ typedef T type; };
-#endif // #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#endif // #ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 
 template <typename T>
 typename ndnboost::move_detail::add_rvalue_reference<T>::type declval();
@@ -139,4 +139,4 @@ typename ndnboost::move_detail::add_rvalue_reference<T>::type declval();
 
 #include <ndnboost/move/detail/config_end.hpp>
 
-#endif //#ifndef BOOST_MOVE_MOVE_TRAITS_HPP
+#endif //#ifndef NDNBOOST_MOVE_MOVE_TRAITS_HPP

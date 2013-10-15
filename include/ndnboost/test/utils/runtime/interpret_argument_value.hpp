@@ -12,8 +12,8 @@
 //  Description : default algorithms for string to specific type convertions
 // ***************************************************************************
 
-#ifndef BOOST_RT_INTERPRET_ARGUMENT_VALUE_HPP_062604GER
-#define BOOST_RT_INTERPRET_ARGUMENT_VALUE_HPP_062604GER
+#ifndef NDNBOOST_RT_INTERPRET_ARGUMENT_VALUE_HPP_062604GER
+#define NDNBOOST_RT_INTERPRET_ARGUMENT_VALUE_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -33,7 +33,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 // ************************************************************************** //
 // **************       runtime::interpret_argument_value      ************** //
@@ -45,11 +45,11 @@ template<typename T>
 struct interpret_argument_value_impl {
     static bool _( cstring source, ndnboost::optional<T>& res )
     {
-        BOOST_RT_PARAM_TRACE( "In interpret_argument_value_impl<" << typeid(T).name() << ">" );
+        NDNBOOST_RT_PARAM_TRACE( "In interpret_argument_value_impl<" << typeid(T).name() << ">" );
 
         res = lexical_cast<T>( source );
 
-        BOOST_RT_PARAM_TRACE( "String " << source << " is interpreted as " << *res );
+        NDNBOOST_RT_PARAM_TRACE( "String " << source << " is interpreted as " << *res );
         return true;
     }
 };
@@ -62,7 +62,7 @@ template<>
 struct interpret_argument_value_impl<dstring> {
     static bool _( cstring source, ndnboost::optional<dstring>& res )
     {
-        BOOST_RT_PARAM_TRACE( "In interpret_argument_value_impl<dstring>" );
+        NDNBOOST_RT_PARAM_TRACE( "In interpret_argument_value_impl<dstring>" );
 
         res = dstring();
         assign_op( *res, source, 0 );
@@ -78,7 +78,7 @@ template<>
 struct interpret_argument_value_impl<cstring> {
     static bool _( cstring source, ndnboost::optional<cstring>& res )
     {
-        BOOST_RT_PARAM_TRACE( "In interpret_argument_value_impl<cstring>" );
+        NDNBOOST_RT_PARAM_TRACE( "In interpret_argument_value_impl<cstring>" );
 
         res = source;
 
@@ -93,14 +93,14 @@ template<>
 struct interpret_argument_value_impl<bool> {
     static bool _( cstring source, ndnboost::optional<bool>& res )
     {
-        BOOST_RT_PARAM_TRACE( "In interpret_argument_value_impl<bool>" );
+        NDNBOOST_RT_PARAM_TRACE( "In interpret_argument_value_impl<bool>" );
 
-        static literal_cstring YES( BOOST_RT_PARAM_CSTRING_LITERAL( "YES" ) );
-        static literal_cstring Y( BOOST_RT_PARAM_CSTRING_LITERAL( "Y" ) );
-        static literal_cstring NO( BOOST_RT_PARAM_CSTRING_LITERAL( "NO" ) );
-        static literal_cstring N( BOOST_RT_PARAM_CSTRING_LITERAL( "N" ) );
-        static literal_cstring one( BOOST_RT_PARAM_CSTRING_LITERAL( "1" ) );
-        static literal_cstring zero( BOOST_RT_PARAM_CSTRING_LITERAL( "0" ) );
+        static literal_cstring YES( NDNBOOST_RT_PARAM_CSTRING_LITERAL( "YES" ) );
+        static literal_cstring Y( NDNBOOST_RT_PARAM_CSTRING_LITERAL( "Y" ) );
+        static literal_cstring NO( NDNBOOST_RT_PARAM_CSTRING_LITERAL( "NO" ) );
+        static literal_cstring N( NDNBOOST_RT_PARAM_CSTRING_LITERAL( "N" ) );
+        static literal_cstring one( NDNBOOST_RT_PARAM_CSTRING_LITERAL( "1" ) );
+        static literal_cstring zero( NDNBOOST_RT_PARAM_CSTRING_LITERAL( "0" ) );
 
         source.trim();
 
@@ -135,13 +135,13 @@ template<typename T>
 inline bool
 interpret_argument_value( cstring source, ndnboost::optional<std::list<T> >& res, int )
 {
-    BOOST_RT_PARAM_TRACE( "In interpret_argument_value<std::list<T>>" );
+    NDNBOOST_RT_PARAM_TRACE( "In interpret_argument_value<std::list<T>>" );
 
     res = std::list<T>();
 
     while( !source.is_empty() ) {
         // !! should we use token_iterator
-        cstring::iterator single_value_end = std::find( source.begin(), source.end(), BOOST_RT_PARAM_LITERAL( ',' ) );
+        cstring::iterator single_value_end = std::find( source.begin(), source.end(), NDNBOOST_RT_PARAM_LITERAL( ',' ) );
 
         ndnboost::optional<T> value;
         interpret_argument_value( cstring( source.begin(), single_value_end ), value, 0 );
@@ -156,8 +156,8 @@ interpret_argument_value( cstring source, ndnboost::optional<std::list<T> >& res
 
 //____________________________________________________________________________//
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_INTERPRET_ARGUMENT_VALUE_HPP_062604GER
+#endif // NDNBOOST_RT_INTERPRET_ARGUMENT_VALUE_HPP_062604GER

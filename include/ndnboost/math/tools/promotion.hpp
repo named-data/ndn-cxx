@@ -15,8 +15,8 @@
 // Allows creation of an inline wrapper that forwards to a foo(RT, RT) function,
 // so you never get to instantiate any mixed foo(RT, IT) functions.
 
-#ifndef BOOST_MATH_PROMOTION_HPP
-#define BOOST_MATH_PROMOTION_HPP
+#ifndef NDNBOOST_MATH_PROMOTION_HPP
+#define NDNBOOST_MATH_PROMOTION_HPP
 
 #ifdef _MSC_VER
 #pragma once
@@ -35,7 +35,7 @@
 #include <ndnboost/mpl/or.hpp> // for ndnboost::mpl::if_c.
 #include <ndnboost/mpl/not.hpp> // for ndnboost::mpl::if_c.
 
-#ifdef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+#ifdef NDNBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 #include <ndnboost/static_assert.hpp>
 #endif
 
@@ -134,11 +134,11 @@ namespace ndnboost
             >::type
          >::type type;
 
-#ifdef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+#ifdef NDNBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
          //
          // Guard against use of long double if it's not supported:
          //
-         BOOST_STATIC_ASSERT((0 == ::ndnboost::is_same<type, long double>::value));
+         NDNBOOST_STATIC_ASSERT((0 == ::ndnboost::is_same<type, long double>::value));
 #endif
       };
 
@@ -146,5 +146,5 @@ namespace ndnboost
   } // namespace math
 } // namespace ndnboost
 
-#endif // BOOST_MATH_PROMOTION_HPP
+#endif // NDNBOOST_MATH_PROMOTION_HPP
 

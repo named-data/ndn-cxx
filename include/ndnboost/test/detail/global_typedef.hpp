@@ -12,13 +12,13 @@
 //  Description : some trivial global typedefs
 // ***************************************************************************
 
-#ifndef BOOST_TEST_GLOBAL_TYPEDEF_HPP_021005GER
-#define BOOST_TEST_GLOBAL_TYPEDEF_HPP_021005GER
+#ifndef NDNBOOST_TEST_GLOBAL_TYPEDEF_HPP_021005GER
+#define NDNBOOST_TEST_GLOBAL_TYPEDEF_HPP_021005GER
 
 #include <ndnboost/test/utils/basic_cstring/basic_cstring.hpp>
-#define BOOST_TEST_L( s )         ndnboost::unit_test::const_string( s, sizeof( s ) - 1 )
-#define BOOST_TEST_STRINGIZE( s ) BOOST_TEST_L( BOOST_STRINGIZE( s ) )
-#define BOOST_TEST_EMPTY_STRING   BOOST_TEST_L( "" )
+#define NDNBOOST_TEST_L( s )         ndnboost::unit_test::const_string( s, sizeof( s ) - 1 )
+#define NDNBOOST_TEST_STRINGIZE( s ) NDNBOOST_TEST_L( NDNBOOST_STRINGIZE( s ) )
+#define NDNBOOST_TEST_EMPTY_STRING   NDNBOOST_TEST_L( "" )
 
 #include <ndnboost/test/detail/suppress_warnings.hpp>
 
@@ -85,4 +85,4 @@ T static_constant<T>::value;
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_TEST_GLOBAL_TYPEDEF_HPP_021005GER
+#endif // NDNBOOST_TEST_GLOBAL_TYPEDEF_HPP_021005GER

@@ -1,5 +1,5 @@
-#ifndef BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_HPP_INCLUDED
-#define BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_HPP_INCLUDED
+#ifndef NDNBOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_HPP_INCLUDED
+#define NDNBOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -75,7 +75,7 @@
 #include <ndnboost/config.hpp>
 #include <ndnboost/smart_ptr/detail/sp_has_sync.hpp>
 
-#ifndef BOOST_HAS_THREADS
+#ifndef NDNBOOST_HAS_THREADS
 
 namespace ndnboost
 {
@@ -89,7 +89,7 @@ typedef long atomic_count;
 
 }
 
-#elif defined(BOOST_AC_USE_PTHREADS)
+#elif defined(NDNBOOST_AC_USE_PTHREADS)
 #  include <ndnboost/smart_ptr/detail/atomic_count_pthreads.hpp>
 
 #elif defined( __GNUC__ ) && ( defined( __i386__ ) || defined( __x86_64__ ) )
@@ -98,22 +98,22 @@ typedef long atomic_count;
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
 #  include <ndnboost/smart_ptr/detail/atomic_count_win32.hpp>
 
-#elif defined( BOOST_SP_HAS_SYNC )
+#elif defined( NDNBOOST_SP_HAS_SYNC )
 #  include <ndnboost/smart_ptr/detail/atomic_count_sync.hpp>
 
 #elif defined(__GLIBCPP__) || defined(__GLIBCXX__)
 #  include <ndnboost/smart_ptr/detail/atomic_count_gcc.hpp>
 
-#elif defined(BOOST_HAS_PTHREADS)
+#elif defined(NDNBOOST_HAS_PTHREADS)
 
-#  define BOOST_AC_USE_PTHREADS
+#  define NDNBOOST_AC_USE_PTHREADS
 #  include <ndnboost/smart_ptr/detail/atomic_count_pthreads.hpp>
 
 #else
 
-// Use #define BOOST_DISABLE_THREADS to avoid the error
+// Use #define NDNBOOST_DISABLE_THREADS to avoid the error
 #error Unrecognized threading platform
 
 #endif
 
-#endif // #ifndef BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_HPP_INCLUDED
+#endif // #ifndef NDNBOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_HPP_INCLUDED

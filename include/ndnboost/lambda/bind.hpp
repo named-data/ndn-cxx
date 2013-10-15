@@ -9,8 +9,8 @@
 //
 // For more information, see http://www.boost.org 
 
-#ifndef BOOST_LAMBDA_BIND_HPP
-#define BOOST_LAMBDA_BIND_HPP
+#ifndef NDNBOOST_LAMBDA_BIND_HPP
+#define NDNBOOST_LAMBDA_BIND_HPP
 
 #include "ndnboost/lambda/core.hpp"
 

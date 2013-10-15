@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_SIZE_IMPL_HPP_INCLUDED
-#define BOOST_MPL_AUX_SIZE_IMPL_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_SIZE_IMPL_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_SIZE_IMPL_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -29,7 +29,7 @@ template< typename Tag >
 struct size_impl
 {
     template< typename Sequence > struct apply
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x561))
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x561))
         : distance<
               typename begin<Sequence>::type
             , typename end<Sequence>::type
@@ -45,8 +45,8 @@ struct size_impl
     };
 };
 
-BOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC(1, size_impl)
+NDNBOOST_MPL_ALGORITM_TRAITS_LAMBDA_SPEC(1, size_impl)
 
 }}
 
-#endif // BOOST_MPL_AUX_SIZE_IMPL_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_SIZE_IMPL_HPP_INCLUDED

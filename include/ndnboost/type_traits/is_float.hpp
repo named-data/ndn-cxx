@@ -6,8 +6,8 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-#ifndef BOOST_TYPE_TRAITS_IS_FLOAT_HPP_INCLUDED
-#define BOOST_TYPE_TRAITS_IS_FLOAT_HPP_INCLUDED
+#ifndef NDNBOOST_TYPE_TRAITS_IS_FLOAT_HPP_INCLUDED
+#define NDNBOOST_TYPE_TRAITS_IS_FLOAT_HPP_INCLUDED
 
 // should be the last #include
 #include <ndnboost/type_traits/detail/bool_trait_def.hpp>
@@ -15,13 +15,13 @@
 namespace ndnboost {
 
 //* is a type T a floating-point type described in the standard (3.9.1p8)
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_float,T,false)
-BOOST_TT_AUX_BOOL_TRAIT_CV_SPEC1(is_float,float,true)
-BOOST_TT_AUX_BOOL_TRAIT_CV_SPEC1(is_float,double,true)
-BOOST_TT_AUX_BOOL_TRAIT_CV_SPEC1(is_float,long double,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_float,T,false)
+NDNBOOST_TT_AUX_BOOL_TRAIT_CV_SPEC1(is_float,float,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_CV_SPEC1(is_float,double,true)
+NDNBOOST_TT_AUX_BOOL_TRAIT_CV_SPEC1(is_float,long double,true)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TYPE_TRAITS_IS_FLOAT_HPP_INCLUDED
+#endif // NDNBOOST_TYPE_TRAITS_IS_FLOAT_HPP_INCLUDED

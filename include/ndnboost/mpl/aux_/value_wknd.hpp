@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_AUX_VALUE_WKND_HPP_INCLUDED
-#define BOOST_MPL_AUX_VALUE_WKND_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_AUX_VALUE_WKND_HPP_INCLUDED
+#define NDNBOOST_MPL_AUX_VALUE_WKND_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -19,8 +19,8 @@
 #include <ndnboost/mpl/aux_/config/eti.hpp>
 #include <ndnboost/mpl/aux_/config/workaround.hpp>
 
-#if defined(BOOST_MPL_CFG_BCC_INTEGRAL_CONSTANTS) \
-    || defined(BOOST_MPL_CFG_MSVC_60_ETI_BUG)
+#if defined(NDNBOOST_MPL_CFG_BCC_INTEGRAL_CONSTANTS) \
+    || defined(NDNBOOST_MPL_CFG_MSVC_60_ETI_BUG)
 
 #   include <ndnboost/mpl/int.hpp>
 
@@ -30,7 +30,7 @@ template< typename C_ > struct value_wknd
 {
 };
 
-#if defined(BOOST_MPL_CFG_MSVC_60_ETI_BUG)
+#if defined(NDNBOOST_MPL_CFG_MSVC_60_ETI_BUG)
 template<> struct value_wknd<int>
     : int_<1>
 {
@@ -40,32 +40,32 @@ template<> struct value_wknd<int>
 }}}
 
 
-#if !defined(BOOST_MPL_CFG_MSVC_60_ETI_BUG)
-#   define BOOST_MPL_AUX_VALUE_WKND(C) \
-    ::BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE::aux::value_wknd< C > \
+#if !defined(NDNBOOST_MPL_CFG_MSVC_60_ETI_BUG)
+#   define NDNBOOST_MPL_AUX_VALUE_WKND(C) \
+    ::NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE::aux::value_wknd< C > \
 /**/
-#    define BOOST_MPL_AUX_MSVC_VALUE_WKND(C) BOOST_MPL_AUX_VALUE_WKND(C)
+#    define NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(C) NDNBOOST_MPL_AUX_VALUE_WKND(C)
 #else
-#   define BOOST_MPL_AUX_VALUE_WKND(C) C
-#   define BOOST_MPL_AUX_MSVC_VALUE_WKND(C) \
+#   define NDNBOOST_MPL_AUX_VALUE_WKND(C) C
+#   define NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(C) \
     ::ndnboost::mpl::aux::value_wknd< C > \
 /**/
 #endif
 
-#else // BOOST_MPL_CFG_BCC_INTEGRAL_CONSTANTS
+#else // NDNBOOST_MPL_CFG_BCC_INTEGRAL_CONSTANTS
 
-#   define BOOST_MPL_AUX_VALUE_WKND(C) C
-#   define BOOST_MPL_AUX_MSVC_VALUE_WKND(C) C
+#   define NDNBOOST_MPL_AUX_VALUE_WKND(C) C
+#   define NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(C) C
 
 #endif
 
-#if BOOST_WORKAROUND(__EDG_VERSION__, <= 238)
-#   define BOOST_MPL_AUX_NESTED_VALUE_WKND(T, C) \
-    BOOST_MPL_AUX_STATIC_CAST(T, C::value) \
+#if NDNBOOST_WORKAROUND(__EDG_VERSION__, <= 238)
+#   define NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(T, C) \
+    NDNBOOST_MPL_AUX_STATIC_CAST(T, C::value) \
 /**/
 #else
-#   define BOOST_MPL_AUX_NESTED_VALUE_WKND(T, C) \
-    BOOST_MPL_AUX_VALUE_WKND(C)::value \
+#   define NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(T, C) \
+    NDNBOOST_MPL_AUX_VALUE_WKND(C)::value \
 /**/
 #endif
 
@@ -77,7 +77,7 @@ template< typename T > struct value_type_wknd
     typedef typename T::value_type type;
 };
 
-#if defined(BOOST_MPL_CFG_MSVC_ETI_BUG)
+#if defined(NDNBOOST_MPL_CFG_MSVC_ETI_BUG)
 template<> struct value_type_wknd<int>
 {
     typedef int type;
@@ -86,4 +86,4 @@ template<> struct value_type_wknd<int>
 
 }}}
 
-#endif // BOOST_MPL_AUX_VALUE_WKND_HPP_INCLUDED
+#endif // NDNBOOST_MPL_AUX_VALUE_WKND_HPP_INCLUDED

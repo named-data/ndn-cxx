@@ -13,8 +13,8 @@
 // ------------------------------------------------------------------------- //
 
 
-#ifndef BOOST_INTEGER_STATIC_LOG2_HPP
-#define BOOST_INTEGER_STATIC_LOG2_HPP
+#ifndef NDNBOOST_INTEGER_STATIC_LOG2_HPP
+#define NDNBOOST_INTEGER_STATIC_LOG2_HPP
 
 #include "ndnboost/integer_fwd.hpp" // for ndnboost::intmax_t
 
@@ -47,8 +47,8 @@ namespace ndnboost {
      template <result_type n>
      struct choose_initial_n {
 
-         BOOST_STATIC_CONSTANT(bool, c = (argument_type(1) << n << n) != 0);
-         BOOST_STATIC_CONSTANT(
+         NDNBOOST_STATIC_CONSTANT(bool, c = (argument_type(1) << n << n) != 0);
+         NDNBOOST_STATIC_CONSTANT(
              result_type,
              value = !c*n + choose_initial_n<2*c*n>::value
          );
@@ -57,7 +57,7 @@ namespace ndnboost {
 
      template <>
      struct choose_initial_n<0> {
-         BOOST_STATIC_CONSTANT(result_type, value = 0);
+         NDNBOOST_STATIC_CONSTANT(result_type, value = 0);
      };
 
 
@@ -84,8 +84,8 @@ namespace ndnboost {
      template <argument_type x, result_type n = initial_n>
      struct static_log2_impl {
 
-         BOOST_STATIC_CONSTANT(bool, c = (x >> n) > 0); // x >= 2**n ?
-         BOOST_STATIC_CONSTANT(
+         NDNBOOST_STATIC_CONSTANT(bool, c = (x >> n) > 0); // x >= 2**n ?
+         NDNBOOST_STATIC_CONSTANT(
              result_type,
              value = c*n + (static_log2_impl< (x>>c*n), n/2 >::value)
          );
@@ -94,7 +94,7 @@ namespace ndnboost {
 
      template <>
      struct static_log2_impl<1, 0> {
-        BOOST_STATIC_CONSTANT(result_type, value = 0);
+        NDNBOOST_STATIC_CONSTANT(result_type, value = 0);
      };
 
      }
@@ -109,7 +109,7 @@ namespace ndnboost {
  template <static_log2_argument_type x>
  struct static_log2 {
 
-     BOOST_STATIC_CONSTANT(
+     NDNBOOST_STATIC_CONSTANT(
          static_log2_result_type,
          value = detail::static_log2_impl::static_log2_impl<x>::value
      );

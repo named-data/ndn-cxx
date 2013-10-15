@@ -1,5 +1,5 @@
-#ifndef BOOST_DETAIL_SP_TYPEINFO_HPP_INCLUDED
-#define BOOST_DETAIL_SP_TYPEINFO_HPP_INCLUDED
+#ifndef NDNBOOST_DETAIL_SP_TYPEINFO_HPP_INCLUDED
+#define NDNBOOST_DETAIL_SP_TYPEINFO_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -17,7 +17,7 @@
 
 #include <ndnboost/config.hpp>
 
-#if defined( BOOST_NO_TYPEID )
+#if defined( NDNBOOST_NO_TYPEID )
 
 #include <ndnboost/current_function.hpp>
 #include <functional>
@@ -70,7 +70,7 @@ template<class T> struct sp_typeid_
 
     static char const * name()
     {
-        return BOOST_CURRENT_FUNCTION;
+        return NDNBOOST_CURRENT_FUNCTION;
     }
 };
 
@@ -102,7 +102,7 @@ template<class T> struct sp_typeid_< T const volatile >: sp_typeid_< T >
 
 } // namespace ndnboost
 
-#define BOOST_SP_TYPEID(T) (ndnboost::detail::sp_typeid_<T>::ti_)
+#define NDNBOOST_SP_TYPEID(T) (ndnboost::detail::sp_typeid_<T>::ti_)
 
 #else
 
@@ -114,7 +114,7 @@ namespace ndnboost
 namespace detail
 {
 
-#if defined( BOOST_NO_STD_TYPEINFO )
+#if defined( NDNBOOST_NO_STD_TYPEINFO )
 
 typedef ::type_info sp_typeinfo;
 
@@ -128,8 +128,8 @@ typedef std::type_info sp_typeinfo;
 
 } // namespace ndnboost
 
-#define BOOST_SP_TYPEID(T) typeid(T)
+#define NDNBOOST_SP_TYPEID(T) typeid(T)
 
 #endif
 
-#endif  // #ifndef BOOST_DETAIL_SP_TYPEINFO_HPP_INCLUDED
+#endif  // #ifndef NDNBOOST_DETAIL_SP_TYPEINFO_HPP_INCLUDED

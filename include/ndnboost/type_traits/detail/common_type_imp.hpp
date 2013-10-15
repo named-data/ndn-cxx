@@ -16,8 +16,8 @@
  * Note that this evaluates to void if one or both of T and U is void.
  ******************************************************************************/
 
-#ifndef BOOST_TYPE_TRAITS_DETAIL_COMMON_TYPE_IMP_HPP
-#define BOOST_TYPE_TRAITS_DETAIL_COMMON_TYPE_IMP_HPP
+#ifndef NDNBOOST_TYPE_TRAITS_DETAIL_COMMON_TYPE_IMP_HPP
+#define NDNBOOST_TYPE_TRAITS_DETAIL_COMMON_TYPE_IMP_HPP
 
 #include <cstddef>
 
@@ -124,8 +124,8 @@ struct make_signed_soft< bool >
 template< std::size_t N > struct sizeof_t { char _dummy[N]; };
 typedef sizeof_t<1> yes_type;
 typedef sizeof_t<2> no_type;
-BOOST_MPL_ASSERT_RELATION( sizeof( yes_type ), ==, 1 );
-BOOST_MPL_ASSERT_RELATION( sizeof( no_type ), ==, 2 );
+NDNBOOST_MPL_ASSERT_RELATION( sizeof( yes_type ), ==, 1 );
+NDNBOOST_MPL_ASSERT_RELATION( sizeof( no_type ), ==, 2 );
 
 /*******************************************************************************
  * rvalue_test(T&) -> no_type
@@ -329,5 +329,5 @@ template<> struct common_type_impl< void, void > { typedef void type; };
 
 } // namespace ndnboost
 
-#endif // BOOST_TYPE_TRAITS_DETAIL_COMMON_TYPE_HPP
+#endif // NDNBOOST_TYPE_TRAITS_DETAIL_COMMON_TYPE_HPP
 

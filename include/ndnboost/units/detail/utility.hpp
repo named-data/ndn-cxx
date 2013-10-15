@@ -8,19 +8,19 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_UNITS_UTILITY_HPP
-#define BOOST_UNITS_UTILITY_HPP
+#ifndef NDNBOOST_UNITS_UTILITY_HPP
+#define NDNBOOST_UNITS_UTILITY_HPP
 
 #include <cstdlib>
 #include <typeinfo>
 #include <string>
 
 #if defined(__GLIBCXX__) || defined(__GLIBCPP__)
-#define BOOST_UNITS_USE_DEMANGLING
+#define NDNBOOST_UNITS_USE_DEMANGLING
 #include <cxxabi.h>
 #endif // __GNUC__
 
-#ifdef BOOST_UNITS_USE_DEMANGLING
+#ifdef NDNBOOST_UNITS_USE_DEMANGLING
 
 #include <ndnboost/algorithm/string/replace.hpp>
 
@@ -69,7 +69,7 @@ std::string simplify_typename(const L& /*source*/)
 
 } // namespace ndnboost
 
-#else // BOOST_UNITS_USE_DEMANGLING
+#else // NDNBOOST_UNITS_USE_DEMANGLING
 
 namespace ndnboost {
 
@@ -99,6 +99,6 @@ std::string simplify_typename(const L& /*source*/)
 // To get system-specific predefined macros:
 // gcc -arch ppc -dM -E - < /dev/null | sort 
 
-#endif // BOOST_UNITS_USE_DEMANGLING
+#endif // NDNBOOST_UNITS_USE_DEMANGLING
 
-#endif // BOOST_UNITS_UTILITY_HPP
+#endif // NDNBOOST_UNITS_UTILITY_HPP

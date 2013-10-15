@@ -12,8 +12,8 @@
 //  Description : addition to STL algorithms
 // ***************************************************************************
 
-#ifndef BOOST_ALGORITHM_HPP_062304GER
-#define BOOST_ALGORITHM_HPP_062304GER
+#ifndef NDNBOOST_ALGORITHM_HPP_062304GER
+#define NDNBOOST_ALGORITHM_HPP_062304GER
 
 #include <utility>
 #include <algorithm> // std::find
@@ -223,6 +223,6 @@ find_last_not_of( BidirectionalIterator1 first1, BidirectionalIterator1 last1,
 
 #include <ndnboost/test/detail/enable_warnings.hpp>
 
-#endif // BOOST_ALGORITHM_HPP_062304GER
+#endif // NDNBOOST_ALGORITHM_HPP_062304GER
 
 

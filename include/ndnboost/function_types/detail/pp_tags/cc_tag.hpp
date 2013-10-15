@@ -8,10 +8,10 @@
 
 // no include guards, this file is intended for multiple inclusions
 
-  struct BOOST_FT_cc_name
+  struct NDNBOOST_FT_cc_name
   {
-    typedef detail::encode_bits<0,BOOST_FT_cc_id> bits;
-    typedef detail::constant<BOOST_FT_cc_mask> mask;
+    typedef detail::encode_bits<0,NDNBOOST_FT_cc_id> bits;
+    typedef detail::constant<NDNBOOST_FT_cc_mask> mask;
   };
 
 

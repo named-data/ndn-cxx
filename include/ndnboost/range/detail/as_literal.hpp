@@ -8,8 +8,8 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DETAIL_AS_LITERAL_HPP
-#define BOOST_RANGE_DETAIL_AS_LITERAL_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_AS_LITERAL_HPP
+#define NDNBOOST_RANGE_DETAIL_AS_LITERAL_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
@@ -21,7 +21,7 @@
 namespace ndnboost
 {
     template< class Range >
-    inline iterator_range<BOOST_DEDUCED_TYPENAME range_iterator<Range>::type> 
+    inline iterator_range<NDNBOOST_DEDUCED_TYPENAME range_iterator<Range>::type> 
     as_literal( Range& r )
     {
         return ::ndnboost::make_iterator_range( ::ndnboost::range_detail::str_begin(r),

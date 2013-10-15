@@ -1,5 +1,5 @@
 
-#if !defined(BOOST_PP_IS_ITERATING)
+#if !defined(NDNBOOST_PP_IS_ITERATING)
 
 ///// header body
 
@@ -17,7 +17,7 @@
 // $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
 // $Revision: 49267 $
 
-#if !defined(BOOST_MPL_PREPROCESSING_MODE)
+#if !defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 #   include <ndnboost/mpl/numeric_cast.hpp>
 #   include <ndnboost/mpl/apply_wrap.hpp>
 #   include <ndnboost/mpl/if.hpp>
@@ -34,8 +34,8 @@
 
 #include <ndnboost/mpl/aux_/config/static_constant.hpp>
 
-#if defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
-    || defined(BOOST_MPL_PREPROCESSING_MODE)
+#if defined(NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
+    || defined(NDNBOOST_MPL_PREPROCESSING_MODE)
 
 #   include <ndnboost/mpl/limits/arity.hpp>
 #   include <ndnboost/mpl/aux_/preprocessor/partial_spec_params.hpp>
@@ -58,15 +58,15 @@
 
 
 #if !defined(AUX778076_OP_ARITY)
-#   define AUX778076_OP_ARITY BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+#   define AUX778076_OP_ARITY NDNBOOST_MPL_LIMIT_METAFUNCTION_ARITY
 #endif
 
 #if !defined(AUX778076_OP_IMPL_NAME)
-#   define AUX778076_OP_IMPL_NAME BOOST_PP_CAT(AUX778076_OP_PREFIX,_impl)
+#   define AUX778076_OP_IMPL_NAME NDNBOOST_PP_CAT(AUX778076_OP_PREFIX,_impl)
 #endif
 
 #if !defined(AUX778076_OP_TAG_NAME)
-#   define AUX778076_OP_TAG_NAME BOOST_PP_CAT(AUX778076_OP_PREFIX,_tag)
+#   define AUX778076_OP_TAG_NAME NDNBOOST_PP_CAT(AUX778076_OP_PREFIX,_tag)
 #endif
 
 namespace ndnboost { namespace mpl {
@@ -74,9 +74,9 @@ namespace ndnboost { namespace mpl {
 template< 
       typename Tag1
     , typename Tag2
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-    , BOOST_MPL_AUX_NTTP_DECL(int, tag1_) = BOOST_MPL_AUX_MSVC_VALUE_WKND(Tag1)::value 
-    , BOOST_MPL_AUX_NTTP_DECL(int, tag2_) = BOOST_MPL_AUX_MSVC_VALUE_WKND(Tag2)::value 
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300)
+    , NDNBOOST_MPL_AUX_NTTP_DECL(int, tag1_) = NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(Tag1)::value 
+    , NDNBOOST_MPL_AUX_NTTP_DECL(int, tag2_) = NDNBOOST_MPL_AUX_MSVC_VALUE_WKND(Tag2)::value 
     >
 struct AUX778076_OP_IMPL_NAME
     : if_c<
@@ -85,8 +85,8 @@ struct AUX778076_OP_IMPL_NAME
     >
 struct AUX778076_OP_IMPL_NAME
     : if_c<
-          ( BOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag1)
-              > BOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag2)
+          ( NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag1)
+              > NDNBOOST_MPL_AUX_NESTED_VALUE_WKND(int, Tag2)
             )
 #endif
         , aux::cast2nd_impl< AUX778076_OP_IMPL_NAME<Tag1,Tag1>,Tag1,Tag2 >
@@ -101,17 +101,17 @@ template<> struct AUX778076_OP_IMPL_NAME<na,na>
     template< typename U1, typename U2 > struct apply 
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value = 0);
     };
 };
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 template< typename Tag > struct AUX778076_OP_IMPL_NAME<na,Tag>
 {
     template< typename U1, typename U2 > struct apply 
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value = 0);
     };
 };
 
@@ -120,7 +120,7 @@ template< typename Tag > struct AUX778076_OP_IMPL_NAME<Tag,na>
     template< typename U1, typename U2 > struct apply 
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value = 0);
     };
 };
 #else
@@ -129,7 +129,7 @@ template<> struct AUX778076_OP_IMPL_NAME<na,integral_c_tag>
     template< typename U1, typename U2 > struct apply 
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value = 0);
     };
 };
 
@@ -138,14 +138,14 @@ template<> struct AUX778076_OP_IMPL_NAME<integral_c_tag,na>
     template< typename U1, typename U2 > struct apply 
     {
         typedef apply type;
-        BOOST_STATIC_CONSTANT(int, value = 0);
+        NDNBOOST_STATIC_CONSTANT(int, value = 0);
     };
 };
 #endif
 
 
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
-    && BOOST_WORKAROUND(BOOST_MSVC, >= 1300)
+#if defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
+    && NDNBOOST_WORKAROUND(NDNBOOST_MSVC, >= 1300)
 template< typename T > struct AUX778076_OP_TAG_NAME
     : tag<T,na>
 {
@@ -160,71 +160,71 @@ template< typename T > struct AUX778076_OP_TAG_NAME
 
 #if AUX778076_OP_ARITY != 2
 
-#   if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#   if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
-#   define AUX778076_OP_RIGHT_OPERAND(unused, i, N) , BOOST_PP_CAT(N, BOOST_MPL_PP_ADD(i, 2))>
+#   define AUX778076_OP_RIGHT_OPERAND(unused, i, N) , NDNBOOST_PP_CAT(N, NDNBOOST_MPL_PP_ADD(i, 2))>
 #   define AUX778076_OP_N_CALLS(i, N) \
-    BOOST_MPL_PP_REPEAT( BOOST_PP_DEC(i), BOOST_MPL_PP_REPEAT_IDENTITY_FUNC, AUX778076_OP_NAME< ) \
-    N1 BOOST_MPL_PP_REPEAT( BOOST_MPL_PP_SUB(i, 1), AUX778076_OP_RIGHT_OPERAND, N ) \
+    NDNBOOST_MPL_PP_REPEAT( NDNBOOST_PP_DEC(i), NDNBOOST_MPL_PP_REPEAT_IDENTITY_FUNC, AUX778076_OP_NAME< ) \
+    N1 NDNBOOST_MPL_PP_REPEAT( NDNBOOST_MPL_PP_SUB(i, 1), AUX778076_OP_RIGHT_OPERAND, N ) \
 /**/
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
-    BOOST_MPL_PP_DEF_PARAMS_TAIL(2, typename N, na)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
+    NDNBOOST_MPL_PP_DEF_PARAMS_TAIL(2, typename N, na)
     >
 struct AUX778076_OP_NAME
     : AUX778076_OP_N_CALLS(AUX778076_OP_ARITY, N)
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           AUX778076_OP_ARITY
         , AUX778076_OP_NAME
-        , ( BOOST_MPL_PP_PARAMS(AUX778076_OP_ARITY, N) )
+        , ( NDNBOOST_MPL_PP_PARAMS(AUX778076_OP_ARITY, N) )
         )
 };
 
-#define BOOST_PP_ITERATION_PARAMS_1 \
-    (3,( BOOST_PP_DEC(AUX778076_OP_ARITY), 2, <ndnboost/mpl/aux_/numeric_op.hpp> ))
-#include BOOST_PP_ITERATE()
+#define NDNBOOST_PP_ITERATION_PARAMS_1 \
+    (3,( NDNBOOST_PP_DEC(AUX778076_OP_ARITY), 2, <ndnboost/mpl/aux_/numeric_op.hpp> ))
+#include NDNBOOST_PP_ITERATE()
 
 #   undef AUX778076_OP_N_CALLS
 #   undef AUX778076_OP_RIGHT_OPERAND
 
-#   else // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#   else // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 /// forward declaration
 template< 
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
     >
-struct BOOST_PP_CAT(AUX778076_OP_NAME,2);
+struct NDNBOOST_PP_CAT(AUX778076_OP_NAME,2);
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
-    BOOST_MPL_PP_DEF_PARAMS_TAIL(2, typename N, na)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
+    NDNBOOST_MPL_PP_DEF_PARAMS_TAIL(2, typename N, na)
     >
 struct AUX778076_OP_NAME
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1300)
     : aux::msvc_eti_base< typename if_<
 #else
     : if_<
 #endif
           is_na<N3>
-        , BOOST_PP_CAT(AUX778076_OP_NAME,2)<N1,N2>
+        , NDNBOOST_PP_CAT(AUX778076_OP_NAME,2)<N1,N2>
         , AUX778076_OP_NAME<
-              BOOST_PP_CAT(AUX778076_OP_NAME,2)<N1,N2>
-            , BOOST_MPL_PP_EXT_PARAMS(3, BOOST_PP_INC(AUX778076_OP_ARITY), N)
+              NDNBOOST_PP_CAT(AUX778076_OP_NAME,2)<N1,N2>
+            , NDNBOOST_MPL_PP_EXT_PARAMS(3, NDNBOOST_PP_INC(AUX778076_OP_ARITY), N)
             >
         >::type
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1300)
     >
 #endif
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(
           AUX778076_OP_ARITY
         , AUX778076_OP_NAME
-        , ( BOOST_MPL_PP_PARAMS(AUX778076_OP_ARITY, N) )
+        , ( NDNBOOST_MPL_PP_PARAMS(AUX778076_OP_ARITY, N) )
         )
 };
 
@@ -232,21 +232,21 @@ template<
       typename N1
     , typename N2
     >
-struct BOOST_PP_CAT(AUX778076_OP_NAME,2)
+struct NDNBOOST_PP_CAT(AUX778076_OP_NAME,2)
 
 #endif
 
 #else // AUX778076_OP_ARITY == 2
 
 template< 
-      typename BOOST_MPL_AUX_NA_PARAM(N1)
-    , typename BOOST_MPL_AUX_NA_PARAM(N2)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(N1)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(N2)
     >
 struct AUX778076_OP_NAME
 
 #endif
 
-#if !defined(BOOST_MPL_CFG_MSVC_ETI_BUG)
+#if !defined(NDNBOOST_MPL_CFG_MSVC_ETI_BUG)
     : AUX778076_OP_IMPL_NAME<
           typename AUX778076_OP_TAG_NAME<N1>::type
         , typename AUX778076_OP_TAG_NAME<N2>::type
@@ -264,52 +264,52 @@ struct AUX778076_OP_NAME
 {
 #if AUX778076_OP_ARITY != 2
 
-#   if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
-    BOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
+#   if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
           AUX778076_OP_ARITY
         , AUX778076_OP_NAME
-        , ( BOOST_MPL_PP_PARTIAL_SPEC_PARAMS(2, N, na) )
+        , ( NDNBOOST_MPL_PP_PARTIAL_SPEC_PARAMS(2, N, na) )
         )
 #   else
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(2, BOOST_PP_CAT(AUX778076_OP_NAME,2), (N1, N2))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2, NDNBOOST_PP_CAT(AUX778076_OP_NAME,2), (N1, N2))
 #   endif
 
 #else
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(2, AUX778076_OP_NAME, (N1, N2))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(2, AUX778076_OP_NAME, (N1, N2))
 #endif
 };
 
-BOOST_MPL_AUX_NA_SPEC2(2, AUX778076_OP_ARITY, AUX778076_OP_NAME)
+NDNBOOST_MPL_AUX_NA_SPEC2(2, AUX778076_OP_ARITY, AUX778076_OP_NAME)
 
 }}
 
-#endif // BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#endif // NDNBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 
 ///// iteration, depth == 1
 
 // For gcc 4.4 compatability, we must include the
-// BOOST_PP_ITERATION_DEPTH test inside an #else clause.
-#else // BOOST_PP_IS_ITERATING
-#if BOOST_PP_ITERATION_DEPTH() == 1
+// NDNBOOST_PP_ITERATION_DEPTH test inside an #else clause.
+#else // NDNBOOST_PP_IS_ITERATING
+#if NDNBOOST_PP_ITERATION_DEPTH() == 1
 
-#   define i_ BOOST_PP_FRAME_ITERATION(1)
+#   define i_ NDNBOOST_PP_FRAME_ITERATION(1)
 
 template<
-      BOOST_MPL_PP_PARAMS(i_, typename N)
+      NDNBOOST_MPL_PP_PARAMS(i_, typename N)
     >
-struct AUX778076_OP_NAME<BOOST_MPL_PP_PARTIAL_SPEC_PARAMS(i_, N, na)>
+struct AUX778076_OP_NAME<NDNBOOST_MPL_PP_PARTIAL_SPEC_PARAMS(i_, N, na)>
 #if i_ != 2
     : AUX778076_OP_N_CALLS(i_, N)
 {
-    BOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT_SPEC(
           AUX778076_OP_ARITY
         , AUX778076_OP_NAME
-        , ( BOOST_MPL_PP_PARTIAL_SPEC_PARAMS(i_, N, na) )
+        , ( NDNBOOST_MPL_PP_PARTIAL_SPEC_PARAMS(i_, N, na) )
         )
 };
 #endif
 
 #   undef i_
 
-#endif // BOOST_PP_ITERATION_DEPTH()
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_ITERATION_DEPTH()
+#endif // NDNBOOST_PP_IS_ITERATING

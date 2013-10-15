@@ -16,8 +16,8 @@
 //  16 Jul 99  Second beta
 //   6 Jul 99  Initial boost version
 
-#ifndef BOOST_PROGRESS_HPP
-#define BOOST_PROGRESS_HPP
+#ifndef NDNBOOST_PROGRESS_HPP
+#define NDNBOOST_PROGRESS_HPP
 
 #include <ndnboost/timer.hpp>
 #include <ndnboost/utility.hpp>  // for noncopyable
@@ -140,4 +140,4 @@ class progress_display : private noncopyable
 
 } // namespace ndnboost
 
-#endif  // BOOST_PROGRESS_HPP
+#endif  // NDNBOOST_PROGRESS_HPP

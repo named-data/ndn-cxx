@@ -18,12 +18,12 @@
 //    23 Jan 2004 Inital add to cvs (post review)s
 //    22 Jun 2011 Added support for specializing cast policies via numeric_cast_traits (Brandon Kohn).
 //
-#ifndef BOOST_NUMERIC_CONVERSION_CAST_25OCT2001_HPP
-#define BOOST_NUMERIC_CONVERSION_CAST_25OCT2001_HPP
+#ifndef NDNBOOST_NUMERIC_CONVERSION_CAST_25OCT2001_HPP
+#define NDNBOOST_NUMERIC_CONVERSION_CAST_25OCT2001_HPP
 
 #include <ndnboost/detail/workaround.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300) || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300) || NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x582))
 
 #  include<ndnboost/numeric/conversion/detail/old_numeric_cast.hpp>
 

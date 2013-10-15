@@ -13,69 +13,69 @@
 #include <ndnboost/function/detail/prologue.hpp>
 #include <ndnboost/detail/no_exceptions_support.hpp>
 
-#if defined(BOOST_MSVC)
+#if defined(NDNBOOST_MSVC)
 #   pragma warning( push )
 #   pragma warning( disable : 4127 ) // "conditional expression is constant"
 #endif       
 
-#define BOOST_FUNCTION_TEMPLATE_PARMS BOOST_PP_ENUM_PARAMS(BOOST_FUNCTION_NUM_ARGS, typename T)
+#define NDNBOOST_FUNCTION_TEMPLATE_PARMS NDNBOOST_PP_ENUM_PARAMS(NDNBOOST_FUNCTION_NUM_ARGS, typename T)
 
-#define BOOST_FUNCTION_TEMPLATE_ARGS BOOST_PP_ENUM_PARAMS(BOOST_FUNCTION_NUM_ARGS, T)
+#define NDNBOOST_FUNCTION_TEMPLATE_ARGS NDNBOOST_PP_ENUM_PARAMS(NDNBOOST_FUNCTION_NUM_ARGS, T)
 
-#define BOOST_FUNCTION_PARM(J,I,D) BOOST_PP_CAT(T,I) BOOST_PP_CAT(a,I)
+#define NDNBOOST_FUNCTION_PARM(J,I,D) NDNBOOST_PP_CAT(T,I) NDNBOOST_PP_CAT(a,I)
 
-#define BOOST_FUNCTION_PARMS BOOST_PP_ENUM(BOOST_FUNCTION_NUM_ARGS,BOOST_FUNCTION_PARM,BOOST_PP_EMPTY)
+#define NDNBOOST_FUNCTION_PARMS NDNBOOST_PP_ENUM(NDNBOOST_FUNCTION_NUM_ARGS,NDNBOOST_FUNCTION_PARM,NDNBOOST_PP_EMPTY)
 
-#define BOOST_FUNCTION_ARGS BOOST_PP_ENUM_PARAMS(BOOST_FUNCTION_NUM_ARGS, a)
+#define NDNBOOST_FUNCTION_ARGS NDNBOOST_PP_ENUM_PARAMS(NDNBOOST_FUNCTION_NUM_ARGS, a)
 
-#define BOOST_FUNCTION_ARG_TYPE(J,I,D) \
-  typedef BOOST_PP_CAT(T,I) BOOST_PP_CAT(BOOST_PP_CAT(arg, BOOST_PP_INC(I)),_type);
+#define NDNBOOST_FUNCTION_ARG_TYPE(J,I,D) \
+  typedef NDNBOOST_PP_CAT(T,I) NDNBOOST_PP_CAT(NDNBOOST_PP_CAT(arg, NDNBOOST_PP_INC(I)),_type);
 
-#define BOOST_FUNCTION_ARG_TYPES BOOST_PP_REPEAT(BOOST_FUNCTION_NUM_ARGS,BOOST_FUNCTION_ARG_TYPE,BOOST_PP_EMPTY)
+#define NDNBOOST_FUNCTION_ARG_TYPES NDNBOOST_PP_REPEAT(NDNBOOST_FUNCTION_NUM_ARGS,NDNBOOST_FUNCTION_ARG_TYPE,NDNBOOST_PP_EMPTY)
 
 // Comma if nonzero number of arguments
-#if BOOST_FUNCTION_NUM_ARGS == 0
-#  define BOOST_FUNCTION_COMMA
+#if NDNBOOST_FUNCTION_NUM_ARGS == 0
+#  define NDNBOOST_FUNCTION_COMMA
 #else
-#  define BOOST_FUNCTION_COMMA ,
-#endif // BOOST_FUNCTION_NUM_ARGS > 0
+#  define NDNBOOST_FUNCTION_COMMA ,
+#endif // NDNBOOST_FUNCTION_NUM_ARGS > 0
 
 // Class names used in this version of the code
-#define BOOST_FUNCTION_FUNCTION BOOST_JOIN(function,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_FUNCTION_INVOKER \
-  BOOST_JOIN(function_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_VOID_FUNCTION_INVOKER \
-  BOOST_JOIN(void_function_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_FUNCTION_OBJ_INVOKER \
-  BOOST_JOIN(function_obj_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_VOID_FUNCTION_OBJ_INVOKER \
-  BOOST_JOIN(void_function_obj_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_FUNCTION_REF_INVOKER \
-  BOOST_JOIN(function_ref_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_VOID_FUNCTION_REF_INVOKER \
-  BOOST_JOIN(void_function_ref_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_MEMBER_INVOKER \
-  BOOST_JOIN(function_mem_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_VOID_MEMBER_INVOKER \
-  BOOST_JOIN(function_void_mem_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_GET_FUNCTION_INVOKER \
-  BOOST_JOIN(get_function_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_GET_FUNCTION_OBJ_INVOKER \
-  BOOST_JOIN(get_function_obj_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_GET_FUNCTION_REF_INVOKER \
-  BOOST_JOIN(get_function_ref_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_GET_MEMBER_INVOKER \
-  BOOST_JOIN(get_member_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_GET_INVOKER \
-  BOOST_JOIN(get_invoker,BOOST_FUNCTION_NUM_ARGS)
-#define BOOST_FUNCTION_VTABLE BOOST_JOIN(basic_vtable,BOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_FUNCTION NDNBOOST_JOIN(function,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_FUNCTION_INVOKER \
+  NDNBOOST_JOIN(function_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_VOID_FUNCTION_INVOKER \
+  NDNBOOST_JOIN(void_function_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_FUNCTION_OBJ_INVOKER \
+  NDNBOOST_JOIN(function_obj_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_VOID_FUNCTION_OBJ_INVOKER \
+  NDNBOOST_JOIN(void_function_obj_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_FUNCTION_REF_INVOKER \
+  NDNBOOST_JOIN(function_ref_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_VOID_FUNCTION_REF_INVOKER \
+  NDNBOOST_JOIN(void_function_ref_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_MEMBER_INVOKER \
+  NDNBOOST_JOIN(function_mem_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_VOID_MEMBER_INVOKER \
+  NDNBOOST_JOIN(function_void_mem_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_GET_FUNCTION_INVOKER \
+  NDNBOOST_JOIN(get_function_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_GET_FUNCTION_OBJ_INVOKER \
+  NDNBOOST_JOIN(get_function_obj_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_GET_FUNCTION_REF_INVOKER \
+  NDNBOOST_JOIN(get_function_ref_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_GET_MEMBER_INVOKER \
+  NDNBOOST_JOIN(get_member_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_GET_INVOKER \
+  NDNBOOST_JOIN(get_invoker,NDNBOOST_FUNCTION_NUM_ARGS)
+#define NDNBOOST_FUNCTION_VTABLE NDNBOOST_JOIN(basic_vtable,NDNBOOST_FUNCTION_NUM_ARGS)
 
-#ifndef BOOST_NO_VOID_RETURNS
-#  define BOOST_FUNCTION_VOID_RETURN_TYPE void
-#  define BOOST_FUNCTION_RETURN(X) X
+#ifndef NDNBOOST_NO_VOID_RETURNS
+#  define NDNBOOST_FUNCTION_VOID_RETURN_TYPE void
+#  define NDNBOOST_FUNCTION_RETURN(X) X
 #else
-#  define BOOST_FUNCTION_VOID_RETURN_TYPE ndnboost::detail::function::unusable
-#  define BOOST_FUNCTION_RETURN(X) X; return BOOST_FUNCTION_VOID_RETURN_TYPE ()
+#  define NDNBOOST_FUNCTION_VOID_RETURN_TYPE ndnboost::detail::function::unusable
+#  define NDNBOOST_FUNCTION_RETURN(X) X; return NDNBOOST_FUNCTION_VOID_RETURN_TYPE ()
 #endif
 
 namespace ndnboost {
@@ -83,45 +83,45 @@ namespace ndnboost {
     namespace function {
       template<
         typename FunctionPtr,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
         >
-      struct BOOST_FUNCTION_FUNCTION_INVOKER
+      struct NDNBOOST_FUNCTION_FUNCTION_INVOKER
       {
-        static R invoke(function_buffer& function_ptr BOOST_FUNCTION_COMMA
-                        BOOST_FUNCTION_PARMS)
+        static R invoke(function_buffer& function_ptr NDNBOOST_FUNCTION_COMMA
+                        NDNBOOST_FUNCTION_PARMS)
         {
           FunctionPtr f = reinterpret_cast<FunctionPtr>(function_ptr.func_ptr);
-          return f(BOOST_FUNCTION_ARGS);
+          return f(NDNBOOST_FUNCTION_ARGS);
         }
       };
 
       template<
         typename FunctionPtr,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
         >
-      struct BOOST_FUNCTION_VOID_FUNCTION_INVOKER
+      struct NDNBOOST_FUNCTION_VOID_FUNCTION_INVOKER
       {
-        static BOOST_FUNCTION_VOID_RETURN_TYPE
-        invoke(function_buffer& function_ptr BOOST_FUNCTION_COMMA
-               BOOST_FUNCTION_PARMS)
+        static NDNBOOST_FUNCTION_VOID_RETURN_TYPE
+        invoke(function_buffer& function_ptr NDNBOOST_FUNCTION_COMMA
+               NDNBOOST_FUNCTION_PARMS)
 
         {
           FunctionPtr f = reinterpret_cast<FunctionPtr>(function_ptr.func_ptr);
-          BOOST_FUNCTION_RETURN(f(BOOST_FUNCTION_ARGS));
+          NDNBOOST_FUNCTION_RETURN(f(NDNBOOST_FUNCTION_ARGS));
         }
       };
 
       template<
         typename FunctionObj,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
       >
-      struct BOOST_FUNCTION_FUNCTION_OBJ_INVOKER
+      struct NDNBOOST_FUNCTION_FUNCTION_OBJ_INVOKER
       {
-        static R invoke(function_buffer& function_obj_ptr BOOST_FUNCTION_COMMA
-                        BOOST_FUNCTION_PARMS)
+        static R invoke(function_buffer& function_obj_ptr NDNBOOST_FUNCTION_COMMA
+                        NDNBOOST_FUNCTION_PARMS)
 
         {
           FunctionObj* f;
@@ -129,20 +129,20 @@ namespace ndnboost {
             f = reinterpret_cast<FunctionObj*>(&function_obj_ptr.data);
           else
             f = reinterpret_cast<FunctionObj*>(function_obj_ptr.obj_ptr);
-          return (*f)(BOOST_FUNCTION_ARGS);
+          return (*f)(NDNBOOST_FUNCTION_ARGS);
         }
       };
 
       template<
         typename FunctionObj,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
       >
-      struct BOOST_FUNCTION_VOID_FUNCTION_OBJ_INVOKER
+      struct NDNBOOST_FUNCTION_VOID_FUNCTION_OBJ_INVOKER
       {
-        static BOOST_FUNCTION_VOID_RETURN_TYPE
-        invoke(function_buffer& function_obj_ptr BOOST_FUNCTION_COMMA
-               BOOST_FUNCTION_PARMS)
+        static NDNBOOST_FUNCTION_VOID_RETURN_TYPE
+        invoke(function_buffer& function_obj_ptr NDNBOOST_FUNCTION_COMMA
+               NDNBOOST_FUNCTION_PARMS)
 
         {
           FunctionObj* f;
@@ -150,165 +150,165 @@ namespace ndnboost {
             f = reinterpret_cast<FunctionObj*>(&function_obj_ptr.data);
           else
             f = reinterpret_cast<FunctionObj*>(function_obj_ptr.obj_ptr);
-          BOOST_FUNCTION_RETURN((*f)(BOOST_FUNCTION_ARGS));
+          NDNBOOST_FUNCTION_RETURN((*f)(NDNBOOST_FUNCTION_ARGS));
         }
       };
 
       template<
         typename FunctionObj,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
       >
-      struct BOOST_FUNCTION_FUNCTION_REF_INVOKER
+      struct NDNBOOST_FUNCTION_FUNCTION_REF_INVOKER
       {
-        static R invoke(function_buffer& function_obj_ptr BOOST_FUNCTION_COMMA
-                        BOOST_FUNCTION_PARMS)
+        static R invoke(function_buffer& function_obj_ptr NDNBOOST_FUNCTION_COMMA
+                        NDNBOOST_FUNCTION_PARMS)
 
         {
           FunctionObj* f = 
             reinterpret_cast<FunctionObj*>(function_obj_ptr.obj_ptr);
-          return (*f)(BOOST_FUNCTION_ARGS);
+          return (*f)(NDNBOOST_FUNCTION_ARGS);
         }
       };
 
       template<
         typename FunctionObj,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
       >
-      struct BOOST_FUNCTION_VOID_FUNCTION_REF_INVOKER
+      struct NDNBOOST_FUNCTION_VOID_FUNCTION_REF_INVOKER
       {
-        static BOOST_FUNCTION_VOID_RETURN_TYPE
-        invoke(function_buffer& function_obj_ptr BOOST_FUNCTION_COMMA
-               BOOST_FUNCTION_PARMS)
+        static NDNBOOST_FUNCTION_VOID_RETURN_TYPE
+        invoke(function_buffer& function_obj_ptr NDNBOOST_FUNCTION_COMMA
+               NDNBOOST_FUNCTION_PARMS)
 
         {
           FunctionObj* f = 
             reinterpret_cast<FunctionObj*>(function_obj_ptr.obj_ptr);
-          BOOST_FUNCTION_RETURN((*f)(BOOST_FUNCTION_ARGS));
+          NDNBOOST_FUNCTION_RETURN((*f)(NDNBOOST_FUNCTION_ARGS));
         }
       };
 
-#if BOOST_FUNCTION_NUM_ARGS > 0
+#if NDNBOOST_FUNCTION_NUM_ARGS > 0
       /* Handle invocation of member pointers. */
       template<
         typename MemberPtr,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
       >
-      struct BOOST_FUNCTION_MEMBER_INVOKER
+      struct NDNBOOST_FUNCTION_MEMBER_INVOKER
       {
-        static R invoke(function_buffer& function_obj_ptr BOOST_FUNCTION_COMMA
-                        BOOST_FUNCTION_PARMS)
+        static R invoke(function_buffer& function_obj_ptr NDNBOOST_FUNCTION_COMMA
+                        NDNBOOST_FUNCTION_PARMS)
 
         {
           MemberPtr* f = 
             reinterpret_cast<MemberPtr*>(&function_obj_ptr.data);
-          return ndnboost::mem_fn(*f)(BOOST_FUNCTION_ARGS);
+          return ndnboost::mem_fn(*f)(NDNBOOST_FUNCTION_ARGS);
         }
       };
 
       template<
         typename MemberPtr,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
       >
-      struct BOOST_FUNCTION_VOID_MEMBER_INVOKER
+      struct NDNBOOST_FUNCTION_VOID_MEMBER_INVOKER
       {
-        static BOOST_FUNCTION_VOID_RETURN_TYPE
-        invoke(function_buffer& function_obj_ptr BOOST_FUNCTION_COMMA
-               BOOST_FUNCTION_PARMS)
+        static NDNBOOST_FUNCTION_VOID_RETURN_TYPE
+        invoke(function_buffer& function_obj_ptr NDNBOOST_FUNCTION_COMMA
+               NDNBOOST_FUNCTION_PARMS)
 
         {
           MemberPtr* f = 
             reinterpret_cast<MemberPtr*>(&function_obj_ptr.data);
-          BOOST_FUNCTION_RETURN(ndnboost::mem_fn(*f)(BOOST_FUNCTION_ARGS));
+          NDNBOOST_FUNCTION_RETURN(ndnboost::mem_fn(*f)(NDNBOOST_FUNCTION_ARGS));
         }
       };
 #endif
 
       template<
         typename FunctionPtr,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
       >
-      struct BOOST_FUNCTION_GET_FUNCTION_INVOKER
+      struct NDNBOOST_FUNCTION_GET_FUNCTION_INVOKER
       {
         typedef typename mpl::if_c<(is_void<R>::value),
-                            BOOST_FUNCTION_VOID_FUNCTION_INVOKER<
+                            NDNBOOST_FUNCTION_VOID_FUNCTION_INVOKER<
                             FunctionPtr,
-                            R BOOST_FUNCTION_COMMA
-                            BOOST_FUNCTION_TEMPLATE_ARGS
+                            R NDNBOOST_FUNCTION_COMMA
+                            NDNBOOST_FUNCTION_TEMPLATE_ARGS
                           >,
-                          BOOST_FUNCTION_FUNCTION_INVOKER<
+                          NDNBOOST_FUNCTION_FUNCTION_INVOKER<
                             FunctionPtr,
-                            R BOOST_FUNCTION_COMMA
-                            BOOST_FUNCTION_TEMPLATE_ARGS
+                            R NDNBOOST_FUNCTION_COMMA
+                            NDNBOOST_FUNCTION_TEMPLATE_ARGS
                           >
                        >::type type;
       };
 
       template<
         typename FunctionObj,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
        >
-      struct BOOST_FUNCTION_GET_FUNCTION_OBJ_INVOKER
+      struct NDNBOOST_FUNCTION_GET_FUNCTION_OBJ_INVOKER
       {
         typedef typename mpl::if_c<(is_void<R>::value),
-                            BOOST_FUNCTION_VOID_FUNCTION_OBJ_INVOKER<
+                            NDNBOOST_FUNCTION_VOID_FUNCTION_OBJ_INVOKER<
                             FunctionObj,
-                            R BOOST_FUNCTION_COMMA
-                            BOOST_FUNCTION_TEMPLATE_ARGS
+                            R NDNBOOST_FUNCTION_COMMA
+                            NDNBOOST_FUNCTION_TEMPLATE_ARGS
                           >,
-                          BOOST_FUNCTION_FUNCTION_OBJ_INVOKER<
+                          NDNBOOST_FUNCTION_FUNCTION_OBJ_INVOKER<
                             FunctionObj,
-                            R BOOST_FUNCTION_COMMA
-                            BOOST_FUNCTION_TEMPLATE_ARGS
+                            R NDNBOOST_FUNCTION_COMMA
+                            NDNBOOST_FUNCTION_TEMPLATE_ARGS
                           >
                        >::type type;
       };
 
       template<
         typename FunctionObj,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
        >
-      struct BOOST_FUNCTION_GET_FUNCTION_REF_INVOKER
+      struct NDNBOOST_FUNCTION_GET_FUNCTION_REF_INVOKER
       {
         typedef typename mpl::if_c<(is_void<R>::value),
-                            BOOST_FUNCTION_VOID_FUNCTION_REF_INVOKER<
+                            NDNBOOST_FUNCTION_VOID_FUNCTION_REF_INVOKER<
                             FunctionObj,
-                            R BOOST_FUNCTION_COMMA
-                            BOOST_FUNCTION_TEMPLATE_ARGS
+                            R NDNBOOST_FUNCTION_COMMA
+                            NDNBOOST_FUNCTION_TEMPLATE_ARGS
                           >,
-                          BOOST_FUNCTION_FUNCTION_REF_INVOKER<
+                          NDNBOOST_FUNCTION_FUNCTION_REF_INVOKER<
                             FunctionObj,
-                            R BOOST_FUNCTION_COMMA
-                            BOOST_FUNCTION_TEMPLATE_ARGS
+                            R NDNBOOST_FUNCTION_COMMA
+                            NDNBOOST_FUNCTION_TEMPLATE_ARGS
                           >
                        >::type type;
       };
 
-#if BOOST_FUNCTION_NUM_ARGS > 0
+#if NDNBOOST_FUNCTION_NUM_ARGS > 0
       /* Retrieve the appropriate invoker for a member pointer.  */
       template<
         typename MemberPtr,
-        typename R BOOST_FUNCTION_COMMA
-        BOOST_FUNCTION_TEMPLATE_PARMS
+        typename R NDNBOOST_FUNCTION_COMMA
+        NDNBOOST_FUNCTION_TEMPLATE_PARMS
        >
-      struct BOOST_FUNCTION_GET_MEMBER_INVOKER
+      struct NDNBOOST_FUNCTION_GET_MEMBER_INVOKER
       {
         typedef typename mpl::if_c<(is_void<R>::value),
-                            BOOST_FUNCTION_VOID_MEMBER_INVOKER<
+                            NDNBOOST_FUNCTION_VOID_MEMBER_INVOKER<
                             MemberPtr,
-                            R BOOST_FUNCTION_COMMA
-                            BOOST_FUNCTION_TEMPLATE_ARGS
+                            R NDNBOOST_FUNCTION_COMMA
+                            NDNBOOST_FUNCTION_TEMPLATE_ARGS
                           >,
-                          BOOST_FUNCTION_MEMBER_INVOKER<
+                          NDNBOOST_FUNCTION_MEMBER_INVOKER<
                             MemberPtr,
-                            R BOOST_FUNCTION_COMMA
-                            BOOST_FUNCTION_TEMPLATE_ARGS
+                            R NDNBOOST_FUNCTION_COMMA
+                            NDNBOOST_FUNCTION_TEMPLATE_ARGS
                           >
                        >::type type;
       };
@@ -324,20 +324,20 @@ namespace ndnboost {
          contains two typedefs, "invoker_type" and "manager_type",
          which correspond to the invoker and manager types. */
       template<typename Tag>
-      struct BOOST_FUNCTION_GET_INVOKER { };
+      struct NDNBOOST_FUNCTION_GET_INVOKER { };
 
       /* Retrieve the invoker for a function pointer. */
       template<>
-      struct BOOST_FUNCTION_GET_INVOKER<function_ptr_tag>
+      struct NDNBOOST_FUNCTION_GET_INVOKER<function_ptr_tag>
       {
         template<typename FunctionPtr,
-                 typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS>
+                 typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS>
         struct apply
         {
-          typedef typename BOOST_FUNCTION_GET_FUNCTION_INVOKER<
+          typedef typename NDNBOOST_FUNCTION_GET_FUNCTION_INVOKER<
                              FunctionPtr,
-                             R BOOST_FUNCTION_COMMA
-                             BOOST_FUNCTION_TEMPLATE_ARGS
+                             R NDNBOOST_FUNCTION_COMMA
+                             NDNBOOST_FUNCTION_TEMPLATE_ARGS
                            >::type
             invoker_type;
 
@@ -345,14 +345,14 @@ namespace ndnboost {
         };
 
         template<typename FunctionPtr,
-                 typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS,
+                 typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS,
                  typename Allocator>
         struct apply_a
         {
-          typedef typename BOOST_FUNCTION_GET_FUNCTION_INVOKER<
+          typedef typename NDNBOOST_FUNCTION_GET_FUNCTION_INVOKER<
                              FunctionPtr,
-                             R BOOST_FUNCTION_COMMA
-                             BOOST_FUNCTION_TEMPLATE_ARGS
+                             R NDNBOOST_FUNCTION_COMMA
+                             NDNBOOST_FUNCTION_TEMPLATE_ARGS
                            >::type
             invoker_type;
 
@@ -360,19 +360,19 @@ namespace ndnboost {
         };
       };
 
-#if BOOST_FUNCTION_NUM_ARGS > 0
+#if NDNBOOST_FUNCTION_NUM_ARGS > 0
       /* Retrieve the invoker for a member pointer. */
       template<>
-      struct BOOST_FUNCTION_GET_INVOKER<member_ptr_tag>
+      struct NDNBOOST_FUNCTION_GET_INVOKER<member_ptr_tag>
       {
         template<typename MemberPtr,
-                 typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS>
+                 typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS>
         struct apply
         {
-          typedef typename BOOST_FUNCTION_GET_MEMBER_INVOKER<
+          typedef typename NDNBOOST_FUNCTION_GET_MEMBER_INVOKER<
                              MemberPtr,
-                             R BOOST_FUNCTION_COMMA
-                             BOOST_FUNCTION_TEMPLATE_ARGS
+                             R NDNBOOST_FUNCTION_COMMA
+                             NDNBOOST_FUNCTION_TEMPLATE_ARGS
                            >::type
             invoker_type;
 
@@ -380,14 +380,14 @@ namespace ndnboost {
         };
 
         template<typename MemberPtr,
-                 typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS,
+                 typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS,
                  typename Allocator>
         struct apply_a
         {
-          typedef typename BOOST_FUNCTION_GET_MEMBER_INVOKER<
+          typedef typename NDNBOOST_FUNCTION_GET_MEMBER_INVOKER<
                              MemberPtr,
-                             R BOOST_FUNCTION_COMMA
-                             BOOST_FUNCTION_TEMPLATE_ARGS
+                             R NDNBOOST_FUNCTION_COMMA
+                             NDNBOOST_FUNCTION_TEMPLATE_ARGS
                            >::type
             invoker_type;
 
@@ -398,16 +398,16 @@ namespace ndnboost {
 
       /* Retrieve the invoker for a function object. */
       template<>
-      struct BOOST_FUNCTION_GET_INVOKER<function_obj_tag>
+      struct NDNBOOST_FUNCTION_GET_INVOKER<function_obj_tag>
       {
         template<typename FunctionObj,
-                 typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS>
+                 typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS>
         struct apply
         {
-          typedef typename BOOST_FUNCTION_GET_FUNCTION_OBJ_INVOKER<
+          typedef typename NDNBOOST_FUNCTION_GET_FUNCTION_OBJ_INVOKER<
                              FunctionObj,
-                             R BOOST_FUNCTION_COMMA
-                             BOOST_FUNCTION_TEMPLATE_ARGS
+                             R NDNBOOST_FUNCTION_COMMA
+                             NDNBOOST_FUNCTION_TEMPLATE_ARGS
                            >::type
             invoker_type;
 
@@ -415,14 +415,14 @@ namespace ndnboost {
         };
 
         template<typename FunctionObj,
-                 typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS,
+                 typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS,
                  typename Allocator>
         struct apply_a
         {
-          typedef typename BOOST_FUNCTION_GET_FUNCTION_OBJ_INVOKER<
+          typedef typename NDNBOOST_FUNCTION_GET_FUNCTION_OBJ_INVOKER<
                              FunctionObj,
-                             R BOOST_FUNCTION_COMMA
-                             BOOST_FUNCTION_TEMPLATE_ARGS
+                             R NDNBOOST_FUNCTION_COMMA
+                             NDNBOOST_FUNCTION_TEMPLATE_ARGS
                            >::type
             invoker_type;
 
@@ -432,16 +432,16 @@ namespace ndnboost {
 
       /* Retrieve the invoker for a reference to a function object. */
       template<>
-      struct BOOST_FUNCTION_GET_INVOKER<function_obj_ref_tag>
+      struct NDNBOOST_FUNCTION_GET_INVOKER<function_obj_ref_tag>
       {
         template<typename RefWrapper,
-                 typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS>
+                 typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS>
         struct apply
         {
-          typedef typename BOOST_FUNCTION_GET_FUNCTION_REF_INVOKER<
+          typedef typename NDNBOOST_FUNCTION_GET_FUNCTION_REF_INVOKER<
                              typename RefWrapper::type,
-                             R BOOST_FUNCTION_COMMA
-                             BOOST_FUNCTION_TEMPLATE_ARGS
+                             R NDNBOOST_FUNCTION_COMMA
+                             NDNBOOST_FUNCTION_TEMPLATE_ARGS
                            >::type
             invoker_type;
 
@@ -449,14 +449,14 @@ namespace ndnboost {
         };
 
         template<typename RefWrapper,
-                 typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS,
+                 typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS,
                  typename Allocator>
         struct apply_a
         {
-          typedef typename BOOST_FUNCTION_GET_FUNCTION_REF_INVOKER<
+          typedef typename NDNBOOST_FUNCTION_GET_FUNCTION_REF_INVOKER<
                              typename RefWrapper::type,
-                             R BOOST_FUNCTION_COMMA
-                             BOOST_FUNCTION_TEMPLATE_ARGS
+                             R NDNBOOST_FUNCTION_COMMA
+                             NDNBOOST_FUNCTION_TEMPLATE_ARGS
                            >::type
             invoker_type;
 
@@ -472,18 +472,18 @@ namespace ndnboost {
        * members. It therefore cannot have any constructors,
        * destructors, base classes, etc.
        */
-      template<typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS>
-      struct BOOST_FUNCTION_VTABLE
+      template<typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS>
+      struct NDNBOOST_FUNCTION_VTABLE
       {
-#ifndef BOOST_NO_VOID_RETURNS
+#ifndef NDNBOOST_NO_VOID_RETURNS
         typedef R         result_type;
 #else
         typedef typename function_return_type<R>::type result_type;
-#endif // BOOST_NO_VOID_RETURNS
+#endif // NDNBOOST_NO_VOID_RETURNS
 
         typedef result_type (*invoker_type)(function_buffer&
-                                            BOOST_FUNCTION_COMMA
-                                            BOOST_FUNCTION_TEMPLATE_ARGS);
+                                            NDNBOOST_FUNCTION_COMMA
+                                            NDNBOOST_FUNCTION_TEMPLATE_ARGS);
 
         template<typename F>
         bool assign_to(F f, function_buffer& functor) const
@@ -528,7 +528,7 @@ namespace ndnboost {
         }
 
         // Member pointers
-#if BOOST_FUNCTION_NUM_ARGS > 0
+#if NDNBOOST_FUNCTION_NUM_ARGS > 0
         template<typename MemberPtr>
         bool assign_to(MemberPtr f, function_buffer& functor, member_ptr_tag) const
         {
@@ -555,7 +555,7 @@ namespace ndnboost {
             return false;
           }
         }
-#endif // BOOST_FUNCTION_NUM_ARGS > 0
+#endif // NDNBOOST_FUNCTION_NUM_ARGS > 0
 
         // Function objects
         // Assign to a function object using the small object optimization
@@ -646,16 +646,16 @@ namespace ndnboost {
   } // end namespace detail
 
   template<
-    typename R BOOST_FUNCTION_COMMA
-    BOOST_FUNCTION_TEMPLATE_PARMS
+    typename R NDNBOOST_FUNCTION_COMMA
+    NDNBOOST_FUNCTION_TEMPLATE_PARMS
   >
-  class BOOST_FUNCTION_FUNCTION : public function_base
+  class NDNBOOST_FUNCTION_FUNCTION : public function_base
 
-#if BOOST_FUNCTION_NUM_ARGS == 1
+#if NDNBOOST_FUNCTION_NUM_ARGS == 1
 
     , public std::unary_function<T0,R>
 
-#elif BOOST_FUNCTION_NUM_ARGS == 2
+#elif NDNBOOST_FUNCTION_NUM_ARGS == 2
 
     , public std::binary_function<T0,T1,R>
 
@@ -663,16 +663,16 @@ namespace ndnboost {
 
   {
   public:
-#ifndef BOOST_NO_VOID_RETURNS
+#ifndef NDNBOOST_NO_VOID_RETURNS
     typedef R         result_type;
 #else
     typedef  typename ndnboost::detail::function::function_return_type<R>::type
       result_type;
-#endif // BOOST_NO_VOID_RETURNS
+#endif // NDNBOOST_NO_VOID_RETURNS
 
   private:
-    typedef ndnboost::detail::function::BOOST_FUNCTION_VTABLE<
-              R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_ARGS>
+    typedef ndnboost::detail::function::NDNBOOST_FUNCTION_VTABLE<
+              R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_ARGS>
       vtable_type;
 
     vtable_type* get_vtable() const {
@@ -683,7 +683,7 @@ namespace ndnboost {
     struct clear_type {};
 
   public:
-    BOOST_STATIC_CONSTANT(int, args = BOOST_FUNCTION_NUM_ARGS);
+    NDNBOOST_STATIC_CONSTANT(int, args = NDNBOOST_FUNCTION_NUM_ARGS);
 
     // add signature for ndnboost::lambda
     template<typename Args>
@@ -692,178 +692,178 @@ namespace ndnboost {
       typedef result_type type;
     };
 
-#if BOOST_FUNCTION_NUM_ARGS == 1
+#if NDNBOOST_FUNCTION_NUM_ARGS == 1
     typedef T0 argument_type;
-#elif BOOST_FUNCTION_NUM_ARGS == 2
+#elif NDNBOOST_FUNCTION_NUM_ARGS == 2
     typedef T0 first_argument_type;
     typedef T1 second_argument_type;
 #endif
 
-    BOOST_STATIC_CONSTANT(int, arity = BOOST_FUNCTION_NUM_ARGS);
-    BOOST_FUNCTION_ARG_TYPES
+    NDNBOOST_STATIC_CONSTANT(int, arity = NDNBOOST_FUNCTION_NUM_ARGS);
+    NDNBOOST_FUNCTION_ARG_TYPES
 
-    typedef BOOST_FUNCTION_FUNCTION self_type;
+    typedef NDNBOOST_FUNCTION_FUNCTION self_type;
 
-    BOOST_FUNCTION_FUNCTION() : function_base() { }
+    NDNBOOST_FUNCTION_FUNCTION() : function_base() { }
 
     // MSVC chokes if the following two constructors are collapsed into
     // one with a default parameter.
     template<typename Functor>
-    BOOST_FUNCTION_FUNCTION(Functor BOOST_FUNCTION_TARGET_FIX(const &) f
-#ifndef BOOST_NO_SFINAE
+    NDNBOOST_FUNCTION_FUNCTION(Functor NDNBOOST_FUNCTION_TARGET_FIX(const &) f
+#ifndef NDNBOOST_NO_SFINAE
                             ,typename enable_if_c<
                             (ndnboost::type_traits::ice_not<
                              (is_integral<Functor>::value)>::value),
                                         int>::type = 0
-#endif // BOOST_NO_SFINAE
+#endif // NDNBOOST_NO_SFINAE
                             ) :
       function_base()
     {
       this->assign_to(f);
     }
     template<typename Functor,typename Allocator>
-    BOOST_FUNCTION_FUNCTION(Functor BOOST_FUNCTION_TARGET_FIX(const &) f, Allocator a
-#ifndef BOOST_NO_SFINAE
+    NDNBOOST_FUNCTION_FUNCTION(Functor NDNBOOST_FUNCTION_TARGET_FIX(const &) f, Allocator a
+#ifndef NDNBOOST_NO_SFINAE
                             ,typename enable_if_c<
                             (ndnboost::type_traits::ice_not<
                              (is_integral<Functor>::value)>::value),
                                         int>::type = 0
-#endif // BOOST_NO_SFINAE
+#endif // NDNBOOST_NO_SFINAE
                             ) :
       function_base()
     {
       this->assign_to_a(f,a);
     }
 
-#ifndef BOOST_NO_SFINAE
-    BOOST_FUNCTION_FUNCTION(clear_type*) : function_base() { }
+#ifndef NDNBOOST_NO_SFINAE
+    NDNBOOST_FUNCTION_FUNCTION(clear_type*) : function_base() { }
 #else
-    BOOST_FUNCTION_FUNCTION(int zero) : function_base()
+    NDNBOOST_FUNCTION_FUNCTION(int zero) : function_base()
     {
-      BOOST_ASSERT(zero == 0);
+      NDNBOOST_ASSERT(zero == 0);
     }
 #endif
 
-    BOOST_FUNCTION_FUNCTION(const BOOST_FUNCTION_FUNCTION& f) : function_base()
+    NDNBOOST_FUNCTION_FUNCTION(const NDNBOOST_FUNCTION_FUNCTION& f) : function_base()
     {
       this->assign_to_own(f);
     }
     
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-    BOOST_FUNCTION_FUNCTION(BOOST_FUNCTION_FUNCTION&& f) : function_base()
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
+    NDNBOOST_FUNCTION_FUNCTION(NDNBOOST_FUNCTION_FUNCTION&& f) : function_base()
     {
       this->move_assign(f);
     }
 #endif
     
-    ~BOOST_FUNCTION_FUNCTION() { clear(); }
+    ~NDNBOOST_FUNCTION_FUNCTION() { clear(); }
 
-    result_type operator()(BOOST_FUNCTION_PARMS) const
+    result_type operator()(NDNBOOST_FUNCTION_PARMS) const
     {
       if (this->empty())
         ndnboost::throw_exception(bad_function_call());
 
       return get_vtable()->invoker
-               (this->functor BOOST_FUNCTION_COMMA BOOST_FUNCTION_ARGS);
+               (this->functor NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_ARGS);
     }
 
-    // The distinction between when to use BOOST_FUNCTION_FUNCTION and
+    // The distinction between when to use NDNBOOST_FUNCTION_FUNCTION and
     // when to use self_type is obnoxious. MSVC cannot handle self_type as
     // the return type of these assignment operators, but Borland C++ cannot
-    // handle BOOST_FUNCTION_FUNCTION as the type of the temporary to
+    // handle NDNBOOST_FUNCTION_FUNCTION as the type of the temporary to
     // construct.
     template<typename Functor>
-#ifndef BOOST_NO_SFINAE
+#ifndef NDNBOOST_NO_SFINAE
     typename enable_if_c<
                (ndnboost::type_traits::ice_not<
                  (is_integral<Functor>::value)>::value),
-               BOOST_FUNCTION_FUNCTION&>::type
+               NDNBOOST_FUNCTION_FUNCTION&>::type
 #else
-    BOOST_FUNCTION_FUNCTION&
+    NDNBOOST_FUNCTION_FUNCTION&
 #endif
-    operator=(Functor BOOST_FUNCTION_TARGET_FIX(const &) f)
+    operator=(Functor NDNBOOST_FUNCTION_TARGET_FIX(const &) f)
     {
       this->clear();
-      BOOST_TRY  {
+      NDNBOOST_TRY  {
         this->assign_to(f);
-      } BOOST_CATCH (...) {
+      } NDNBOOST_CATCH (...) {
         vtable = 0;
-        BOOST_RETHROW;
+        NDNBOOST_RETHROW;
       }
-      BOOST_CATCH_END
+      NDNBOOST_CATCH_END
       return *this;
     }
     template<typename Functor,typename Allocator>
-    void assign(Functor BOOST_FUNCTION_TARGET_FIX(const &) f, Allocator a)
+    void assign(Functor NDNBOOST_FUNCTION_TARGET_FIX(const &) f, Allocator a)
     {
       this->clear();
-      BOOST_TRY{
+      NDNBOOST_TRY{
         this->assign_to_a(f,a);
-      } BOOST_CATCH (...) {
+      } NDNBOOST_CATCH (...) {
         vtable = 0;
-        BOOST_RETHROW;
+        NDNBOOST_RETHROW;
       }
-      BOOST_CATCH_END
+      NDNBOOST_CATCH_END
     }
 
-#ifndef BOOST_NO_SFINAE
-    BOOST_FUNCTION_FUNCTION& operator=(clear_type*)
+#ifndef NDNBOOST_NO_SFINAE
+    NDNBOOST_FUNCTION_FUNCTION& operator=(clear_type*)
     {
       this->clear();
       return *this;
     }
 #else
-    BOOST_FUNCTION_FUNCTION& operator=(int zero)
+    NDNBOOST_FUNCTION_FUNCTION& operator=(int zero)
     {
-      BOOST_ASSERT(zero == 0);
+      NDNBOOST_ASSERT(zero == 0);
       this->clear();
       return *this;
     }
 #endif
 
-    // Assignment from another BOOST_FUNCTION_FUNCTION
-    BOOST_FUNCTION_FUNCTION& operator=(const BOOST_FUNCTION_FUNCTION& f)
+    // Assignment from another NDNBOOST_FUNCTION_FUNCTION
+    NDNBOOST_FUNCTION_FUNCTION& operator=(const NDNBOOST_FUNCTION_FUNCTION& f)
     {
       if (&f == this)
         return *this;
 
       this->clear();
-      BOOST_TRY {
+      NDNBOOST_TRY {
         this->assign_to_own(f);
-      } BOOST_CATCH (...) {
+      } NDNBOOST_CATCH (...) {
         vtable = 0;
-        BOOST_RETHROW;
+        NDNBOOST_RETHROW;
       }
-      BOOST_CATCH_END
+      NDNBOOST_CATCH_END
       return *this;
     }
     
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-    // Move assignment from another BOOST_FUNCTION_FUNCTION
-    BOOST_FUNCTION_FUNCTION& operator=(BOOST_FUNCTION_FUNCTION&& f)
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
+    // Move assignment from another NDNBOOST_FUNCTION_FUNCTION
+    NDNBOOST_FUNCTION_FUNCTION& operator=(NDNBOOST_FUNCTION_FUNCTION&& f)
     {
       
       if (&f == this)
         return *this;
 
       this->clear();
-      BOOST_TRY {
+      NDNBOOST_TRY {
         this->move_assign(f);
-      } BOOST_CATCH (...) {
+      } NDNBOOST_CATCH (...) {
         vtable = 0;
-        BOOST_RETHROW;
+        NDNBOOST_RETHROW;
       }
-      BOOST_CATCH_END
+      NDNBOOST_CATCH_END
       return *this;
     }
 #endif
 
-    void swap(BOOST_FUNCTION_FUNCTION& other)
+    void swap(NDNBOOST_FUNCTION_FUNCTION& other)
     {
       if (&other == this)
         return;
 
-      BOOST_FUNCTION_FUNCTION tmp;
+      NDNBOOST_FUNCTION_FUNCTION tmp;
       tmp.move_assign(*this);
       this->move_assign(other);
       other.move_assign(tmp);
@@ -879,7 +879,7 @@ namespace ndnboost {
       }
     }
 
-#if (defined __SUNPRO_CC) && (__SUNPRO_CC <= 0x530) && !(defined BOOST_NO_COMPILER_CONFIG)
+#if (defined __SUNPRO_CC) && (__SUNPRO_CC <= 0x530) && !(defined NDNBOOST_NO_COMPILER_CONFIG)
     // Sun C++ 5.3 can't handle the safe_bool idiom, so don't use it
     operator bool () const { return !this->empty(); }
 #else
@@ -899,7 +899,7 @@ namespace ndnboost {
 #endif
 
   private:
-    void assign_to_own(const BOOST_FUNCTION_FUNCTION& f)
+    void assign_to_own(const NDNBOOST_FUNCTION_FUNCTION& f)
     {
       if (!f.empty()) {
         this->vtable = f.vtable;
@@ -917,10 +917,10 @@ namespace ndnboost {
       using detail::function::vtable_base;
 
       typedef typename detail::function::get_function_tag<Functor>::type tag;
-      typedef detail::function::BOOST_FUNCTION_GET_INVOKER<tag> get_invoker;
+      typedef detail::function::NDNBOOST_FUNCTION_GET_INVOKER<tag> get_invoker;
       typedef typename get_invoker::
-                         template apply<Functor, R BOOST_FUNCTION_COMMA 
-                        BOOST_FUNCTION_TEMPLATE_ARGS>
+                         template apply<Functor, R NDNBOOST_FUNCTION_COMMA 
+                        NDNBOOST_FUNCTION_TEMPLATE_ARGS>
         handler_type;
       
       typedef typename handler_type::invoker_type invoker_type;
@@ -950,10 +950,10 @@ namespace ndnboost {
       using detail::function::vtable_base;
 
       typedef typename detail::function::get_function_tag<Functor>::type tag;
-      typedef detail::function::BOOST_FUNCTION_GET_INVOKER<tag> get_invoker;
+      typedef detail::function::NDNBOOST_FUNCTION_GET_INVOKER<tag> get_invoker;
       typedef typename get_invoker::
-                         template apply_a<Functor, R BOOST_FUNCTION_COMMA 
-                         BOOST_FUNCTION_TEMPLATE_ARGS,
+                         template apply_a<Functor, R NDNBOOST_FUNCTION_COMMA 
+                         NDNBOOST_FUNCTION_TEMPLATE_ARGS,
                          Allocator>
         handler_type;
       
@@ -981,12 +981,12 @@ namespace ndnboost {
     // Moves the value from the specified argument to *this. If the argument 
     // has its function object allocated on the heap, move_assign will pass 
     // its buffer to *this, and set the argument's buffer pointer to NULL. 
-    void move_assign(BOOST_FUNCTION_FUNCTION& f) 
+    void move_assign(NDNBOOST_FUNCTION_FUNCTION& f) 
     { 
       if (&f == this)
         return;
 
-      BOOST_TRY {
+      NDNBOOST_TRY {
         if (!f.empty()) {
           this->vtable = f.vtable;
           if (this->has_trivial_copy_and_destroy())
@@ -998,57 +998,57 @@ namespace ndnboost {
         } else {
           clear();
         }
-      } BOOST_CATCH (...) {
+      } NDNBOOST_CATCH (...) {
         vtable = 0;
-        BOOST_RETHROW;
+        NDNBOOST_RETHROW;
       }
-      BOOST_CATCH_END
+      NDNBOOST_CATCH_END
     }
   };
 
-  template<typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS>
-  inline void swap(BOOST_FUNCTION_FUNCTION<
-                     R BOOST_FUNCTION_COMMA
-                     BOOST_FUNCTION_TEMPLATE_ARGS
+  template<typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS>
+  inline void swap(NDNBOOST_FUNCTION_FUNCTION<
+                     R NDNBOOST_FUNCTION_COMMA
+                     NDNBOOST_FUNCTION_TEMPLATE_ARGS
                    >& f1,
-                   BOOST_FUNCTION_FUNCTION<
-                     R BOOST_FUNCTION_COMMA
-                     BOOST_FUNCTION_TEMPLATE_ARGS
+                   NDNBOOST_FUNCTION_FUNCTION<
+                     R NDNBOOST_FUNCTION_COMMA
+                     NDNBOOST_FUNCTION_TEMPLATE_ARGS
                    >& f2)
   {
     f1.swap(f2);
   }
 
 // Poison comparisons between ndnboost::function objects of the same type.
-template<typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS>
-  void operator==(const BOOST_FUNCTION_FUNCTION<
-                          R BOOST_FUNCTION_COMMA
-                          BOOST_FUNCTION_TEMPLATE_ARGS>&,
-                  const BOOST_FUNCTION_FUNCTION<
-                          R BOOST_FUNCTION_COMMA
-                          BOOST_FUNCTION_TEMPLATE_ARGS>&);
-template<typename R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_PARMS>
-  void operator!=(const BOOST_FUNCTION_FUNCTION<
-                          R BOOST_FUNCTION_COMMA
-                          BOOST_FUNCTION_TEMPLATE_ARGS>&,
-                  const BOOST_FUNCTION_FUNCTION<
-                          R BOOST_FUNCTION_COMMA
-                          BOOST_FUNCTION_TEMPLATE_ARGS>& );
+template<typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS>
+  void operator==(const NDNBOOST_FUNCTION_FUNCTION<
+                          R NDNBOOST_FUNCTION_COMMA
+                          NDNBOOST_FUNCTION_TEMPLATE_ARGS>&,
+                  const NDNBOOST_FUNCTION_FUNCTION<
+                          R NDNBOOST_FUNCTION_COMMA
+                          NDNBOOST_FUNCTION_TEMPLATE_ARGS>&);
+template<typename R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_PARMS>
+  void operator!=(const NDNBOOST_FUNCTION_FUNCTION<
+                          R NDNBOOST_FUNCTION_COMMA
+                          NDNBOOST_FUNCTION_TEMPLATE_ARGS>&,
+                  const NDNBOOST_FUNCTION_FUNCTION<
+                          R NDNBOOST_FUNCTION_COMMA
+                          NDNBOOST_FUNCTION_TEMPLATE_ARGS>& );
 
-#if !defined(BOOST_FUNCTION_NO_FUNCTION_TYPE_SYNTAX)
+#if !defined(NDNBOOST_FUNCTION_NO_FUNCTION_TYPE_SYNTAX)
 
-#if BOOST_FUNCTION_NUM_ARGS == 0
-#define BOOST_FUNCTION_PARTIAL_SPEC R (void)
+#if NDNBOOST_FUNCTION_NUM_ARGS == 0
+#define NDNBOOST_FUNCTION_PARTIAL_SPEC R (void)
 #else
-#define BOOST_FUNCTION_PARTIAL_SPEC R (BOOST_PP_ENUM_PARAMS(BOOST_FUNCTION_NUM_ARGS,T))
+#define NDNBOOST_FUNCTION_PARTIAL_SPEC R (NDNBOOST_PP_ENUM_PARAMS(NDNBOOST_FUNCTION_NUM_ARGS,T))
 #endif
 
-template<typename R BOOST_FUNCTION_COMMA
-         BOOST_FUNCTION_TEMPLATE_PARMS>
-class function<BOOST_FUNCTION_PARTIAL_SPEC>
-  : public BOOST_FUNCTION_FUNCTION<R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_ARGS>
+template<typename R NDNBOOST_FUNCTION_COMMA
+         NDNBOOST_FUNCTION_TEMPLATE_PARMS>
+class function<NDNBOOST_FUNCTION_PARTIAL_SPEC>
+  : public NDNBOOST_FUNCTION_FUNCTION<R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_ARGS>
 {
-  typedef BOOST_FUNCTION_FUNCTION<R BOOST_FUNCTION_COMMA BOOST_FUNCTION_TEMPLATE_ARGS> base_type;
+  typedef NDNBOOST_FUNCTION_FUNCTION<R NDNBOOST_FUNCTION_COMMA NDNBOOST_FUNCTION_TEMPLATE_ARGS> base_type;
   typedef function self_type;
 
   struct clear_type {};
@@ -1059,7 +1059,7 @@ public:
 
   template<typename Functor>
   function(Functor f
-#ifndef BOOST_NO_SFINAE
+#ifndef NDNBOOST_NO_SFINAE
            ,typename enable_if_c<
                             (ndnboost::type_traits::ice_not<
                           (is_integral<Functor>::value)>::value),
@@ -1071,7 +1071,7 @@ public:
   }
   template<typename Functor,typename Allocator>
   function(Functor f, Allocator a
-#ifndef BOOST_NO_SFINAE
+#ifndef NDNBOOST_NO_SFINAE
            ,typename enable_if_c<
                             (ndnboost::type_traits::ice_not<
                           (is_integral<Functor>::value)>::value),
@@ -1082,7 +1082,7 @@ public:
   {
   }
 
-#ifndef BOOST_NO_SFINAE
+#ifndef NDNBOOST_NO_SFINAE
   function(clear_type*) : base_type() {}
 #endif
 
@@ -1090,7 +1090,7 @@ public:
 
   function(const base_type& f) : base_type(static_cast<const base_type&>(f)){}
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
   // Move constructors
   function(self_type&& f): base_type(static_cast<base_type&&>(f)){}
   function(base_type&& f): base_type(static_cast<base_type&&>(f)){}
@@ -1102,7 +1102,7 @@ public:
     return *this;
   }
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
   self_type& operator=(self_type&& f)
   {
     self_type(static_cast<self_type&&>(f)).swap(*this);
@@ -1111,7 +1111,7 @@ public:
 #endif  
 
   template<typename Functor>
-#ifndef BOOST_NO_SFINAE
+#ifndef NDNBOOST_NO_SFINAE
   typename enable_if_c<
                             (ndnboost::type_traits::ice_not<
                          (is_integral<Functor>::value)>::value),
@@ -1125,7 +1125,7 @@ public:
     return *this;
   }
 
-#ifndef BOOST_NO_SFINAE
+#ifndef NDNBOOST_NO_SFINAE
   self_type& operator=(clear_type*)
   {
     this->clear();
@@ -1139,7 +1139,7 @@ public:
     return *this;
   }
   
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
   self_type& operator=(base_type&& f)
   {
     self_type(static_cast<base_type&&>(f)).swap(*this);
@@ -1148,38 +1148,38 @@ public:
 #endif 
 };
 
-#undef BOOST_FUNCTION_PARTIAL_SPEC
+#undef NDNBOOST_FUNCTION_PARTIAL_SPEC
 #endif // have partial specialization
 
 } // end namespace ndnboost
 
 // Cleanup after ourselves...
-#undef BOOST_FUNCTION_VTABLE
-#undef BOOST_FUNCTION_COMMA
-#undef BOOST_FUNCTION_FUNCTION
-#undef BOOST_FUNCTION_FUNCTION_INVOKER
-#undef BOOST_FUNCTION_VOID_FUNCTION_INVOKER
-#undef BOOST_FUNCTION_FUNCTION_OBJ_INVOKER
-#undef BOOST_FUNCTION_VOID_FUNCTION_OBJ_INVOKER
-#undef BOOST_FUNCTION_FUNCTION_REF_INVOKER
-#undef BOOST_FUNCTION_VOID_FUNCTION_REF_INVOKER
-#undef BOOST_FUNCTION_MEMBER_INVOKER
-#undef BOOST_FUNCTION_VOID_MEMBER_INVOKER
-#undef BOOST_FUNCTION_GET_FUNCTION_INVOKER
-#undef BOOST_FUNCTION_GET_FUNCTION_OBJ_INVOKER
-#undef BOOST_FUNCTION_GET_FUNCTION_REF_INVOKER
-#undef BOOST_FUNCTION_GET_MEM_FUNCTION_INVOKER
-#undef BOOST_FUNCTION_GET_INVOKER
-#undef BOOST_FUNCTION_TEMPLATE_PARMS
-#undef BOOST_FUNCTION_TEMPLATE_ARGS
-#undef BOOST_FUNCTION_PARMS
-#undef BOOST_FUNCTION_PARM
-#undef BOOST_FUNCTION_ARGS
-#undef BOOST_FUNCTION_ARG_TYPE
-#undef BOOST_FUNCTION_ARG_TYPES
-#undef BOOST_FUNCTION_VOID_RETURN_TYPE
-#undef BOOST_FUNCTION_RETURN
+#undef NDNBOOST_FUNCTION_VTABLE
+#undef NDNBOOST_FUNCTION_COMMA
+#undef NDNBOOST_FUNCTION_FUNCTION
+#undef NDNBOOST_FUNCTION_FUNCTION_INVOKER
+#undef NDNBOOST_FUNCTION_VOID_FUNCTION_INVOKER
+#undef NDNBOOST_FUNCTION_FUNCTION_OBJ_INVOKER
+#undef NDNBOOST_FUNCTION_VOID_FUNCTION_OBJ_INVOKER
+#undef NDNBOOST_FUNCTION_FUNCTION_REF_INVOKER
+#undef NDNBOOST_FUNCTION_VOID_FUNCTION_REF_INVOKER
+#undef NDNBOOST_FUNCTION_MEMBER_INVOKER
+#undef NDNBOOST_FUNCTION_VOID_MEMBER_INVOKER
+#undef NDNBOOST_FUNCTION_GET_FUNCTION_INVOKER
+#undef NDNBOOST_FUNCTION_GET_FUNCTION_OBJ_INVOKER
+#undef NDNBOOST_FUNCTION_GET_FUNCTION_REF_INVOKER
+#undef NDNBOOST_FUNCTION_GET_MEM_FUNCTION_INVOKER
+#undef NDNBOOST_FUNCTION_GET_INVOKER
+#undef NDNBOOST_FUNCTION_TEMPLATE_PARMS
+#undef NDNBOOST_FUNCTION_TEMPLATE_ARGS
+#undef NDNBOOST_FUNCTION_PARMS
+#undef NDNBOOST_FUNCTION_PARM
+#undef NDNBOOST_FUNCTION_ARGS
+#undef NDNBOOST_FUNCTION_ARG_TYPE
+#undef NDNBOOST_FUNCTION_ARG_TYPES
+#undef NDNBOOST_FUNCTION_VOID_RETURN_TYPE
+#undef NDNBOOST_FUNCTION_RETURN
 
-#if defined(BOOST_MSVC)
+#if defined(NDNBOOST_MSVC)
 #   pragma warning( pop )
 #endif       

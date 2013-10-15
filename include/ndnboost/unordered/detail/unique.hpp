@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_UNORDERED_DETAIL_UNIQUE_HPP_INCLUDED
-#define BOOST_UNORDERED_DETAIL_UNIQUE_HPP_INCLUDED
+#ifndef NDNBOOST_UNORDERED_DETAIL_UNIQUE_HPP_INCLUDED
+#define NDNBOOST_UNORDERED_DETAIL_UNIQUE_HPP_INCLUDED
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
@@ -344,7 +344,7 @@ namespace ndnboost { namespace unordered { namespace detail {
             // Create the node before rehashing in case it throws an
             // exception (need strong safety in such a case).
             node_constructor a(this->node_alloc());
-            a.construct_with_value(BOOST_UNORDERED_EMPLACE_ARGS3(
+            a.construct_with_value(NDNBOOST_UNORDERED_EMPLACE_ARGS3(
                 ndnboost::unordered::piecewise_construct,
                 ndnboost::make_tuple(k),
                 ndnboost::make_tuple()));
@@ -353,39 +353,39 @@ namespace ndnboost { namespace unordered { namespace detail {
             return *add_node(a, key_hash);
         }
 
-#if defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-#   if defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES)
+#   if defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
         emplace_return emplace(ndnboost::unordered::detail::emplace_args1<
                 ndnboost::unordered::detail::please_ignore_this_overload> const&)
         {
-            BOOST_ASSERT(false);
+            NDNBOOST_ASSERT(false);
             return emplace_return(this->begin(), false);
         }
 #   else
         emplace_return emplace(
                 ndnboost::unordered::detail::please_ignore_this_overload const&)
         {
-            BOOST_ASSERT(false);
+            NDNBOOST_ASSERT(false);
             return emplace_return(this->begin(), false);
         }
 #   endif
 #endif
 
-        template <BOOST_UNORDERED_EMPLACE_TEMPLATE>
-        emplace_return emplace(BOOST_UNORDERED_EMPLACE_ARGS)
+        template <NDNBOOST_UNORDERED_EMPLACE_TEMPLATE>
+        emplace_return emplace(NDNBOOST_UNORDERED_EMPLACE_ARGS)
         {
-#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
             return emplace_impl(
-                extractor::extract(BOOST_UNORDERED_EMPLACE_FORWARD),
-                BOOST_UNORDERED_EMPLACE_FORWARD);
+                extractor::extract(NDNBOOST_UNORDERED_EMPLACE_FORWARD),
+                NDNBOOST_UNORDERED_EMPLACE_FORWARD);
 #else
             return emplace_impl(
                 extractor::extract(args.a0, args.a1),
-                BOOST_UNORDERED_EMPLACE_FORWARD);
+                NDNBOOST_UNORDERED_EMPLACE_FORWARD);
 #endif
         }
 
-#if defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if defined(NDNBOOST_NO_CXX11_VARIADIC_TEMPLATES)
         template <typename A0>
         emplace_return emplace(
                 ndnboost::unordered::detail::emplace_args1<A0> const& args)
@@ -394,9 +394,9 @@ namespace ndnboost { namespace unordered { namespace detail {
         }
 #endif
 
-        template <BOOST_UNORDERED_EMPLACE_TEMPLATE>
+        template <NDNBOOST_UNORDERED_EMPLACE_TEMPLATE>
         emplace_return emplace_impl(key_type const& k,
-            BOOST_UNORDERED_EMPLACE_ARGS)
+            NDNBOOST_UNORDERED_EMPLACE_ARGS)
         {
             std::size_t key_hash = this->hash(k);
             iterator pos = this->find_node(key_hash, k);
@@ -406,7 +406,7 @@ namespace ndnboost { namespace unordered { namespace detail {
             // Create the node before rehashing in case it throws an
             // exception (need strong safety in such a case).
             node_constructor a(this->node_alloc());
-            a.construct_with_value(BOOST_UNORDERED_EMPLACE_FORWARD);
+            a.construct_with_value(NDNBOOST_UNORDERED_EMPLACE_FORWARD);
     
             // reserve has basic exception safety if the hash function
             // throws, strong otherwise.
@@ -428,13 +428,13 @@ namespace ndnboost { namespace unordered { namespace detail {
             return emplace_return(this->add_node(a, key_hash), true);
         }
 
-        template <BOOST_UNORDERED_EMPLACE_TEMPLATE>
-        emplace_return emplace_impl(no_key, BOOST_UNORDERED_EMPLACE_ARGS)
+        template <NDNBOOST_UNORDERED_EMPLACE_TEMPLATE>
+        emplace_return emplace_impl(no_key, NDNBOOST_UNORDERED_EMPLACE_ARGS)
         {
             // Don't have a key, so construct the node first in order
             // to be able to lookup the position.
             node_constructor a(this->node_alloc());
-            a.construct_with_value(BOOST_UNORDERED_EMPLACE_FORWARD);
+            a.construct_with_value(NDNBOOST_UNORDERED_EMPLACE_FORWARD);
             return emplace_impl_with_node(a);
         }
 
@@ -538,7 +538,7 @@ namespace ndnboost { namespace unordered { namespace detail {
 
         iterator erase(c_iterator r)
         {
-            BOOST_ASSERT(r.node_);
+            NDNBOOST_ASSERT(r.node_);
             iterator next(r.node_);
             ++next;
             erase_nodes(r.node_, next.node_);
@@ -590,7 +590,7 @@ namespace ndnboost { namespace unordered { namespace detail {
         // strong otherwise exception safety
         void rehash_impl(std::size_t num_buckets)
         {
-            BOOST_ASSERT(this->buckets_);
+            NDNBOOST_ASSERT(this->buckets_);
 
             this->create_buckets(num_buckets);
             link_pointer prev = this->get_previous_start();

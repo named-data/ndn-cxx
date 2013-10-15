@@ -8,14 +8,14 @@
 // For more information, see http://www.boost.org/libs/range/
 //
 
-#ifndef BOOST_RANGE_DETAIL_BEGIN_HPP
-#define BOOST_RANGE_DETAIL_BEGIN_HPP
+#ifndef NDNBOOST_RANGE_DETAIL_BEGIN_HPP
+#define NDNBOOST_RANGE_DETAIL_BEGIN_HPP
 
-#include <ndnboost/config.hpp> // BOOST_MSVC
+#include <ndnboost/config.hpp> // NDNBOOST_MSVC
 #include <ndnboost/detail/workaround.hpp>
 #include <ndnboost/range/iterator.hpp>
 #include <ndnboost/range/detail/common.hpp>
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1310)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1310)
 # include <ndnboost/range/value_type.hpp>
 #endif
 
@@ -35,7 +35,7 @@ namespace ndnboost
         struct range_begin<std_container_>
         {
             template< typename C >
-            static BOOST_RANGE_DEDUCED_TYPENAME range_iterator<C>::type fun( C& c )
+            static NDNBOOST_RANGE_DEDUCED_TYPENAME range_iterator<C>::type fun( C& c )
             {
                 return c.begin();
             };
@@ -49,7 +49,7 @@ namespace ndnboost
         struct range_begin<std_pair_>
         {
             template< typename P >
-            static BOOST_RANGE_DEDUCED_TYPENAME range_iterator<P>::type fun( const P& p )
+            static NDNBOOST_RANGE_DEDUCED_TYPENAME range_iterator<P>::type fun( const P& p )
             {
                 return p.first;
             }
@@ -62,15 +62,15 @@ namespace ndnboost
         template<>
         struct range_begin<array_>
         {
-        #if !BOOST_WORKAROUND(BOOST_MSVC, < 1310)
+        #if !NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1310)
             template< typename T, std::size_t sz >
-            static T* fun( T BOOST_RANGE_ARRAY_REF()[sz] )
+            static T* fun( T NDNBOOST_RANGE_ARRAY_REF()[sz] )
             {
                 return boost_range_array;
             }
         #else
             template<typename T>
-            static BOOST_RANGE_DEDUCED_TYPENAME range_value<T>::type* fun(T& t)
+            static NDNBOOST_RANGE_DEDUCED_TYPENAME range_value<T>::type* fun(T& t)
             {
                 return t;
             }
@@ -82,10 +82,10 @@ namespace ndnboost
     namespace range_adl_barrier
     {
         template< typename C >
-        inline BOOST_RANGE_DEDUCED_TYPENAME range_iterator<C>::type
+        inline NDNBOOST_RANGE_DEDUCED_TYPENAME range_iterator<C>::type
         begin( C& c )
         {
-            return range_detail::range_begin< BOOST_RANGE_DEDUCED_TYPENAME range_detail::range<C>::type >::fun( c );
+            return range_detail::range_begin< NDNBOOST_RANGE_DEDUCED_TYPENAME range_detail::range<C>::type >::fun( c );
         }
     }
 } // namespace 'boost'

@@ -8,8 +8,8 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_REMOVE_CONST_HPP_INCLUDED
-#define BOOST_TT_REMOVE_CONST_HPP_INCLUDED
+#ifndef NDNBOOST_TT_REMOVE_CONST_HPP_INCLUDED
+#define NDNBOOST_TT_REMOVE_CONST_HPP_INCLUDED
 
 #include <ndnboost/type_traits/is_volatile.hpp>
 #include <ndnboost/type_traits/broken_compiler_spec.hpp>
@@ -19,7 +19,7 @@
 
 #include <cstddef>
 
-#if BOOST_WORKAROUND(BOOST_MSVC,<=1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC,<=1300)
 #include <ndnboost/type_traits/msvc/remove_const.hpp>
 #endif
 
@@ -28,7 +28,7 @@
 
 namespace ndnboost {
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 namespace detail {
 
@@ -54,7 +54,7 @@ struct remove_const_impl
         >::type type;
 };
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
 //
 // We can't filter out rvalue_references at the same level as
 // references or we get ambiguities from msvc:
@@ -70,21 +70,21 @@ struct remove_const_impl<T&&>
 
 // * convert a type T to non-const type - remove_const<T>
 
-BOOST_TT_AUX_TYPE_TRAIT_DEF1(remove_const,T,typename ndnboost::detail::remove_const_impl<T>::type)
-BOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_1(typename T,remove_const,T&,T&)
-#if !defined(BOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
-BOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_2(typename T,std::size_t N,remove_const,T const[N],T type[N])
-BOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_2(typename T,std::size_t N,remove_const,T const volatile[N],T volatile type[N])
+NDNBOOST_TT_AUX_TYPE_TRAIT_DEF1(remove_const,T,typename ndnboost::detail::remove_const_impl<T>::type)
+NDNBOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_1(typename T,remove_const,T&,T&)
+#if !defined(NDNBOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
+NDNBOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_2(typename T,std::size_t N,remove_const,T const[N],T type[N])
+NDNBOOST_TT_AUX_TYPE_TRAIT_PARTIAL_SPEC1_2(typename T,std::size_t N,remove_const,T const volatile[N],T volatile type[N])
 #endif
 
-#elif !BOOST_WORKAROUND(BOOST_MSVC,<=1300)
+#elif !NDNBOOST_WORKAROUND(NDNBOOST_MSVC,<=1300)
 
-BOOST_TT_AUX_TYPE_TRAIT_DEF1(remove_const,T,typename ndnboost::detail::remove_const_impl<T>::type)
+NDNBOOST_TT_AUX_TYPE_TRAIT_DEF1(remove_const,T,typename ndnboost::detail::remove_const_impl<T>::type)
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/type_trait_undef.hpp>
 
-#endif // BOOST_TT_REMOVE_CONST_HPP_INCLUDED
+#endif // NDNBOOST_TT_REMOVE_CONST_HPP_INCLUDED

@@ -23,14 +23,14 @@
 
 // -----------------------------------------------------------------
 
-#ifndef BOOST_TUPLE_BASIC_NO_PARTIAL_SPEC_HPP
-#define BOOST_TUPLE_BASIC_NO_PARTIAL_SPEC_HPP
+#ifndef NDNBOOST_TUPLE_BASIC_NO_PARTIAL_SPEC_HPP
+#define NDNBOOST_TUPLE_BASIC_NO_PARTIAL_SPEC_HPP
 
 #include "ndnboost/type_traits.hpp"
 #include "ndnboost/utility/swap.hpp"
 #include <utility>
 
-#if defined BOOST_MSVC
+#if defined NDNBOOST_MSVC
 #pragma warning(disable:4518) // storage-class or type specifier(s) unexpected here; ignored
 #pragma warning(disable:4181) // qualifier applied to reference type ignored
 #pragma warning(disable:4227) // qualifier applied to reference type ignored
@@ -106,7 +106,7 @@ namespace tuples {
         // Each of vc6 and vc7 seem to require a different formulation
         // of this return type
         template <class H, class T>
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
         static typename add_reference<typename add_const<T>::type>::type
 #else
         static typename add_const_reference<T>::type
@@ -179,7 +179,7 @@ namespace tuples {
 
      cons() : head(), tail() {}
 
-#if defined BOOST_MSVC
+#if defined NDNBOOST_MSVC
       template<typename Tail>
       cons(head_cref h /* = head_type() */, // causes MSVC 6.5 to barf.
                     const Tail& t) : head(h), tail(t.head, t.tail)
@@ -314,7 +314,7 @@ namespace tuples {
 
     namespace detail {
 
-#if defined(BOOST_MSVC) && (BOOST_MSVC == 1300)
+#if defined(NDNBOOST_MSVC) && (NDNBOOST_MSVC == 1300)
       // special workaround for vc7:
 
       template <bool x>
@@ -397,17 +397,17 @@ namespace tuples {
     template<typename Tuple>
     struct length
     {
-      BOOST_STATIC_CONSTANT(int, value = 1 + length<typename Tuple::tail_type>::value);
+      NDNBOOST_STATIC_CONSTANT(int, value = 1 + length<typename Tuple::tail_type>::value);
     };
 
     template<> struct length<tuple<> > {
-      BOOST_STATIC_CONSTANT(int, value = 0);
+      NDNBOOST_STATIC_CONSTANT(int, value = 0);
     };
 
     template<>
     struct length<null_type>
     {
-      BOOST_STATIC_CONSTANT(int, value = 0);
+      NDNBOOST_STATIC_CONSTANT(int, value = 0);
     };
 
     namespace detail {
@@ -862,4 +862,4 @@ inline void swap(tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>& lhs,
 
 } // namespace tuples
 } // namespace ndnboost
-#endif // BOOST_TUPLE_BASIC_NO_PARTIAL_SPEC_HPP
+#endif // NDNBOOST_TUPLE_BASIC_NO_PARTIAL_SPEC_HPP

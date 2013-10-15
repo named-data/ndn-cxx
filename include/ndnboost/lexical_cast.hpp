@@ -1,5 +1,5 @@
-#ifndef BOOST_LEXICAL_CAST_INCLUDED
-#define BOOST_LEXICAL_CAST_INCLUDED
+#ifndef NDNBOOST_LEXICAL_CAST_INCLUDED
+#define NDNBOOST_LEXICAL_CAST_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -22,8 +22,8 @@
 // when:  November 2000, March 2003, June 2005, June 2006, March 2011 - 2013
 
 #include <ndnboost/config.hpp>
-#if defined(BOOST_NO_STRINGSTREAM) || defined(BOOST_NO_STD_WSTRING)
-#define BOOST_LCAST_NO_WCHAR_T
+#if defined(NDNBOOST_NO_STRINGSTREAM) || defined(NDNBOOST_NO_STD_WSTRING)
+#define NDNBOOST_LCAST_NO_WCHAR_T
 #endif
 
 #include <climits>
@@ -43,57 +43,57 @@
 #include <ndnboost/detail/workaround.hpp>
 
 
-#ifndef BOOST_NO_STD_LOCALE
+#ifndef NDNBOOST_NO_STD_LOCALE
 #   include <locale>
 #else
-#   ifndef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
+#   ifndef NDNBOOST_LEXICAL_CAST_ASSUME_C_LOCALE
         // Getting error at this point means, that your STL library is old/lame/misconfigured.
-        // If nothing can be done with STL library, define BOOST_LEXICAL_CAST_ASSUME_C_LOCALE,
+        // If nothing can be done with STL library, define NDNBOOST_LEXICAL_CAST_ASSUME_C_LOCALE,
         // but beware: lexical_cast will understand only 'C' locale delimeters and thousands
         // separators.
-#       error "Unable to use <locale> header. Define BOOST_LEXICAL_CAST_ASSUME_C_LOCALE to force "
+#       error "Unable to use <locale> header. Define NDNBOOST_LEXICAL_CAST_ASSUME_C_LOCALE to force "
 #       error "ndnboost::lexical_cast to use only 'C' locale during conversions."
 #   endif
 #endif
 
-#ifdef BOOST_NO_STRINGSTREAM
+#ifdef NDNBOOST_NO_STRINGSTREAM
 #include <strstream>
 #else
 #include <sstream>
 #endif
 
-#ifdef BOOST_NO_TYPEID
-#define BOOST_LCAST_THROW_BAD_CAST(S, T) throw_exception(bad_lexical_cast())
+#ifdef NDNBOOST_NO_TYPEID
+#define NDNBOOST_LCAST_THROW_BAD_CAST(S, T) throw_exception(bad_lexical_cast())
 #else
-#define BOOST_LCAST_THROW_BAD_CAST(Source, Target) \
+#define NDNBOOST_LCAST_THROW_BAD_CAST(Source, Target) \
     throw_exception(bad_lexical_cast(typeid(Source), typeid(Target)))
 #endif
 
-#if (defined(BOOST_LCAST_HAS_INT128) && !defined(__GNUC__)) || GCC_VERSION > 40700
-#define BOOST_LCAST_HAS_INT128
+#if (defined(NDNBOOST_LCAST_HAS_INT128) && !defined(__GNUC__)) || GCC_VERSION > 40700
+#define NDNBOOST_LCAST_HAS_INT128
 #endif
 
 
 namespace ndnboost
 {
     // exception used to indicate runtime lexical_cast failure
-    class BOOST_SYMBOL_VISIBLE bad_lexical_cast :
+    class NDNBOOST_SYMBOL_VISIBLE bad_lexical_cast :
     // workaround MSVC bug with std::bad_cast when _HAS_EXCEPTIONS == 0 
-#if defined(BOOST_MSVC) && defined(_HAS_EXCEPTIONS) && !_HAS_EXCEPTIONS 
+#if defined(NDNBOOST_MSVC) && defined(_HAS_EXCEPTIONS) && !_HAS_EXCEPTIONS 
         public std::exception 
 #else 
         public std::bad_cast 
 #endif 
 
-#if defined(__BORLANDC__) && BOOST_WORKAROUND( __BORLANDC__, < 0x560 )
+#if defined(__BORLANDC__) && NDNBOOST_WORKAROUND( __BORLANDC__, < 0x560 )
         // under bcc32 5.5.1 bad_cast doesn't derive from exception
         , public std::exception
 #endif
 
     {
     public:
-        bad_lexical_cast() BOOST_NOEXCEPT :
-#ifndef BOOST_NO_TYPEID
+        bad_lexical_cast() NDNBOOST_NOEXCEPT :
+#ifndef NDNBOOST_NO_TYPEID
           source(&typeid(void)), target(&typeid(void))
 #else
           source(0), target(0) // this breaks getters
@@ -103,7 +103,7 @@ namespace ndnboost
 
         bad_lexical_cast(
             const std::type_info &source_type_arg,
-            const std::type_info &target_type_arg) BOOST_NOEXCEPT :
+            const std::type_info &target_type_arg) NDNBOOST_NOEXCEPT :
             source(&source_type_arg), target(&target_type_arg)
         {
         }
@@ -117,7 +117,7 @@ namespace ndnboost
             return *target;
         }
 
-#ifndef BOOST_NO_CXX11_NOEXCEPT
+#ifndef NDNBOOST_NO_CXX11_NOEXCEPT
         virtual const char *what() const noexcept
 #else
         virtual const char *what() const throw()
@@ -127,8 +127,8 @@ namespace ndnboost
                    "source type value could not be interpreted as target";
         }
 
-#ifndef BOOST_NO_CXX11_NOEXCEPT
-        virtual ~bad_lexical_cast() BOOST_NOEXCEPT
+#ifndef NDNBOOST_NO_CXX11_NOEXCEPT
+        virtual ~bad_lexical_cast() NDNBOOST_NOEXCEPT
 #else
         virtual ~bad_lexical_cast() throw()
 #endif
@@ -143,7 +143,7 @@ namespace ndnboost
         template <typename TargetChar, typename SourceChar>
         struct widest_char
         {
-            typedef BOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
+            typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
                 (sizeof(TargetChar) > sizeof(SourceChar))
                 , TargetChar
                 , SourceChar >::type type;
@@ -151,12 +151,12 @@ namespace ndnboost
     }
 } // namespace ndnboost
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(__SUNPRO_CC) && !defined(__PGIC__)
+#if !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(__SUNPRO_CC) && !defined(__PGIC__)
 
 #include <cmath>
 #include <istream>
 
-#ifndef BOOST_NO_CXX11_HDR_ARRAY
+#ifndef NDNBOOST_NO_CXX11_HDR_ARRAY
 #include <array>
 #endif
 
@@ -174,7 +174,7 @@ namespace ndnboost
 #include <ndnboost/range/iterator_range_core.hpp>
 #include <ndnboost/container/container_fwd.hpp>
 #include <ndnboost/integer.hpp>
-#ifndef BOOST_NO_CWCHAR
+#ifndef NDNBOOST_NO_CWCHAR
 #   include <cwchar>
 #endif
 
@@ -188,20 +188,20 @@ namespace ndnboost {
         {
             typedef ndnboost::type_traits::ice_or<
                     ndnboost::is_same< T, char >::value,
-                    #ifndef BOOST_LCAST_NO_WCHAR_T
+                    #ifndef NDNBOOST_LCAST_NO_WCHAR_T
                         ndnboost::is_same< T, wchar_t >::value,
                     #endif
-                    #ifndef BOOST_NO_CXX11_CHAR16_T
+                    #ifndef NDNBOOST_NO_CXX11_CHAR16_T
                         ndnboost::is_same< T, char16_t >::value,
                     #endif
-                    #ifndef BOOST_NO_CXX11_CHAR32_T
+                    #ifndef NDNBOOST_NO_CXX11_CHAR32_T
                         ndnboost::is_same< T, char32_t >::value,
                     #endif
                     ndnboost::is_same< T, unsigned char >::value,
                     ndnboost::is_same< T, signed char >::value
             > result_type;
 
-            BOOST_STATIC_CONSTANT(bool, value = (result_type::value) );
+            NDNBOOST_STATIC_CONSTANT(bool, value = (result_type::value) );
         };
     }
 
@@ -300,7 +300,7 @@ namespace ndnboost {
             ndnboost::detail::deduce_character_type_later< ndnboost::array< const Char, N > >
         > {};
 
-#ifndef BOOST_NO_CXX11_HDR_ARRAY
+#ifndef NDNBOOST_NO_CXX11_HDR_ARRAY
         template < typename Char, std::size_t N >
         struct stream_char_common< std::array<Char, N > >: public ndnboost::mpl::if_c<
             ndnboost::detail::is_char_or_wchar< Char >::value,
@@ -316,12 +316,12 @@ namespace ndnboost {
         > {};
 #endif
 
-#ifdef BOOST_LCAST_HAS_INT128
+#ifdef NDNBOOST_LCAST_HAS_INT128
         template <> struct stream_char_common< ndnboost::int128_type >: public ndnboost::mpl::identity< char > {};
         template <> struct stream_char_common< ndnboost::uint128_type >: public ndnboost::mpl::identity< char > {};
 #endif
 
-#if !defined(BOOST_LCAST_NO_WCHAR_T) && defined(BOOST_NO_INTRINSIC_WCHAR_T)
+#if !defined(NDNBOOST_LCAST_NO_WCHAR_T) && defined(NDNBOOST_NO_INTRINSIC_WCHAR_T)
         template <>
         struct stream_char_common< wchar_t >
         {
@@ -340,7 +340,7 @@ namespace ndnboost {
         template < class Char > 
         struct deduce_source_char_impl
         { 
-            typedef BOOST_DEDUCED_TYPENAME ndnboost::detail::normalize_single_byte_char< Char >::type type; 
+            typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::detail::normalize_single_byte_char< Char >::type type; 
         };
         
         template < class T > 
@@ -348,16 +348,16 @@ namespace ndnboost {
         {
             typedef ndnboost::has_left_shift< std::basic_ostream< char >, T > result_t;
 
-#if defined(BOOST_LCAST_NO_WCHAR_T)
-            BOOST_STATIC_ASSERT_MSG((result_t::value), 
+#if defined(NDNBOOST_LCAST_NO_WCHAR_T)
+            NDNBOOST_STATIC_ASSERT_MSG((result_t::value), 
                 "Source type is not std::ostream`able and std::wostream`s are not supported by your STL implementation");
             typedef char type;
 #else
-            typedef BOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
+            typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
                 result_t::value, char, wchar_t
             >::type type;
 
-            BOOST_STATIC_ASSERT_MSG((result_t::value || ndnboost::has_left_shift< std::basic_ostream< type >, T >::value), 
+            NDNBOOST_STATIC_ASSERT_MSG((result_t::value || ndnboost::has_left_shift< std::basic_ostream< type >, T >::value), 
                 "Source type is neither std::ostream`able nor std::wostream`able");
 #endif
         };
@@ -373,7 +373,7 @@ namespace ndnboost {
         template < class Char > 
         struct deduce_target_char_impl 
         { 
-            typedef BOOST_DEDUCED_TYPENAME normalize_single_byte_char< Char >::type type; 
+            typedef NDNBOOST_DEDUCED_TYPENAME normalize_single_byte_char< Char >::type type; 
         };
         
         template < class T > 
@@ -381,16 +381,16 @@ namespace ndnboost {
         { 
             typedef ndnboost::has_right_shift<std::basic_istream<char>, T > result_t;
 
-#if defined(BOOST_LCAST_NO_WCHAR_T)
-            BOOST_STATIC_ASSERT_MSG((result_t::value), 
+#if defined(NDNBOOST_LCAST_NO_WCHAR_T)
+            NDNBOOST_STATIC_ASSERT_MSG((result_t::value), 
                 "Target type is not std::istream`able and std::wistream`s are not supported by your STL implementation");
             typedef char type;
 #else
-            typedef BOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
+            typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
                 result_t::value, char, wchar_t
             >::type type;
             
-            BOOST_STATIC_ASSERT_MSG((result_t::value || ndnboost::has_right_shift<std::basic_istream<wchar_t>, T >::value), 
+            NDNBOOST_STATIC_ASSERT_MSG((result_t::value || ndnboost::has_right_shift<std::basic_istream<wchar_t>, T >::value), 
                 "Target type is neither std::istream`able nor std::wistream`able");
 #endif
         };
@@ -416,8 +416,8 @@ namespace ndnboost {
         template < class T >
         struct deduce_target_char
         {
-            typedef BOOST_DEDUCED_TYPENAME stream_char_common< T >::type stage1_type;
-            typedef BOOST_DEDUCED_TYPENAME deduce_target_char_impl< stage1_type >::type stage2_type;
+            typedef NDNBOOST_DEDUCED_TYPENAME stream_char_common< T >::type stage1_type;
+            typedef NDNBOOST_DEDUCED_TYPENAME deduce_target_char_impl< stage1_type >::type stage2_type;
 
             typedef stage2_type type;
         };
@@ -425,8 +425,8 @@ namespace ndnboost {
         template < class T >
         struct deduce_source_char
         {
-            typedef BOOST_DEDUCED_TYPENAME stream_char_common< T >::type stage1_type;
-            typedef BOOST_DEDUCED_TYPENAME deduce_source_char_impl< stage1_type >::type stage2_type;
+            typedef NDNBOOST_DEDUCED_TYPENAME stream_char_common< T >::type stage1_type;
+            typedef NDNBOOST_DEDUCED_TYPENAME deduce_source_char_impl< stage1_type >::type stage2_type;
 
             typedef stage2_type type;
         };
@@ -540,7 +540,7 @@ namespace ndnboost {
         {
             typedef ndnboost::type_traits::ice_and<
                 ndnboost::is_float<Float>::value,
-#if !defined(BOOST_LCAST_NO_WCHAR_T) && !defined(BOOST_NO_SWPRINTF) && !defined(__MINGW32__)
+#if !defined(NDNBOOST_LCAST_NO_WCHAR_T) && !defined(NDNBOOST_NO_SWPRINTF) && !defined(__MINGW32__)
                 ndnboost::type_traits::ice_or<
                     ndnboost::type_traits::ice_eq<sizeof(Char), sizeof(char) >::value,
                     ndnboost::is_same<Char, wchar_t>::value
@@ -550,7 +550,7 @@ namespace ndnboost {
 #endif
             > result_type;
 
-            BOOST_STATIC_CONSTANT(bool, value = (result_type::value) );
+            NDNBOOST_STATIC_CONSTANT(bool, value = (result_type::value) );
         };
     }
     
@@ -561,7 +561,7 @@ namespace ndnboost {
                 >
         struct lcast_src_length
         {
-            BOOST_STATIC_CONSTANT(std::size_t, value = 1);
+            NDNBOOST_STATIC_CONSTANT(std::size_t, value = 1);
             // To check coverage, build the test with
             // bjam --v2 profile optimization=off
             static void check_coverage() {}
@@ -583,44 +583,44 @@ namespace ndnboost {
         template<class Source>
         struct lcast_src_length_integral
         {
-#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-            BOOST_STATIC_CONSTANT(std::size_t, value =
+#ifndef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+            NDNBOOST_STATIC_CONSTANT(std::size_t, value =
                   std::numeric_limits<Source>::is_signed +
                   std::numeric_limits<Source>::is_specialized + /* == 1 */
                   std::numeric_limits<Source>::digits10 * 2
               );
 #else
-            BOOST_STATIC_CONSTANT(std::size_t, value = 156);
-            BOOST_STATIC_ASSERT(sizeof(Source) * CHAR_BIT <= 256);
+            NDNBOOST_STATIC_CONSTANT(std::size_t, value = 156);
+            NDNBOOST_STATIC_ASSERT(sizeof(Source) * CHAR_BIT <= 256);
 #endif
         };
 
-#define BOOST_LCAST_DEF(T)               \
+#define NDNBOOST_LCAST_DEF(T)               \
     template<> struct lcast_src_length<T> \
         : lcast_src_length_integral<T>           \
     { static void check_coverage() {} };
 
-        BOOST_LCAST_DEF(short)
-        BOOST_LCAST_DEF(unsigned short)
-        BOOST_LCAST_DEF(int)
-        BOOST_LCAST_DEF(unsigned int)
-        BOOST_LCAST_DEF(long)
-        BOOST_LCAST_DEF(unsigned long)
-#if defined(BOOST_HAS_LONG_LONG)
-        BOOST_LCAST_DEF(ndnboost::ulong_long_type)
-        BOOST_LCAST_DEF(ndnboost::long_long_type )
-#elif defined(BOOST_HAS_MS_INT64)
-        BOOST_LCAST_DEF(unsigned __int64)
-        BOOST_LCAST_DEF(         __int64)
+        NDNBOOST_LCAST_DEF(short)
+        NDNBOOST_LCAST_DEF(unsigned short)
+        NDNBOOST_LCAST_DEF(int)
+        NDNBOOST_LCAST_DEF(unsigned int)
+        NDNBOOST_LCAST_DEF(long)
+        NDNBOOST_LCAST_DEF(unsigned long)
+#if defined(NDNBOOST_HAS_LONG_LONG)
+        NDNBOOST_LCAST_DEF(ndnboost::ulong_long_type)
+        NDNBOOST_LCAST_DEF(ndnboost::long_long_type )
+#elif defined(NDNBOOST_HAS_MS_INT64)
+        NDNBOOST_LCAST_DEF(unsigned __int64)
+        NDNBOOST_LCAST_DEF(         __int64)
 #endif
-#ifdef BOOST_LCAST_HAS_INT128
-        BOOST_LCAST_DEF(ndnboost::int128_type)
-        BOOST_LCAST_DEF(ndnboost::uint128_type)
+#ifdef NDNBOOST_LCAST_HAS_INT128
+        NDNBOOST_LCAST_DEF(ndnboost::int128_type)
+        NDNBOOST_LCAST_DEF(ndnboost::uint128_type)
 #endif
 
-#undef BOOST_LCAST_DEF
+#undef NDNBOOST_LCAST_DEF
 
-#ifndef BOOST_LCAST_NO_COMPILE_TIME_PRECISION
+#ifndef NDNBOOST_LCAST_NO_COMPILE_TIME_PRECISION
         // Helper for floating point types.
         // -1.23456789e-123456
         // ^                   sign
@@ -634,11 +634,11 @@ namespace ndnboost {
         template<class Source>
         struct lcast_src_length_floating
         {
-            BOOST_STATIC_ASSERT(
+            NDNBOOST_STATIC_ASSERT(
                     std::numeric_limits<Source>::max_exponent10 <=  999999L &&
                     std::numeric_limits<Source>::min_exponent10 >= -999999L
                 );
-            BOOST_STATIC_CONSTANT(std::size_t, value =
+            NDNBOOST_STATIC_CONSTANT(std::size_t, value =
                     5 + lcast_precision<Source>::value + 6
                 );
         };
@@ -664,36 +664,36 @@ namespace ndnboost {
             static void check_coverage() {}
         };
 
-#endif // #ifndef BOOST_LCAST_NO_COMPILE_TIME_PRECISION
+#endif // #ifndef NDNBOOST_LCAST_NO_COMPILE_TIME_PRECISION
     }
 
     namespace detail // lexical_cast_stream_traits<Source, Target>
     {
         template <class Source, class Target>
         struct lexical_cast_stream_traits {
-            typedef BOOST_DEDUCED_TYPENAME ndnboost::detail::array_to_pointer_decay<Source>::type src;
-            typedef BOOST_DEDUCED_TYPENAME ndnboost::remove_cv<src>::type            no_cv_src;
+            typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::detail::array_to_pointer_decay<Source>::type src;
+            typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::remove_cv<src>::type            no_cv_src;
                 
             typedef ndnboost::detail::deduce_source_char<no_cv_src>                           deduce_src_char_metafunc;
-            typedef BOOST_DEDUCED_TYPENAME deduce_src_char_metafunc::type           src_char_t;
-            typedef BOOST_DEDUCED_TYPENAME ndnboost::detail::deduce_target_char<Target>::type target_char_t;
+            typedef NDNBOOST_DEDUCED_TYPENAME deduce_src_char_metafunc::type           src_char_t;
+            typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::detail::deduce_target_char<Target>::type target_char_t;
                 
-            typedef BOOST_DEDUCED_TYPENAME ndnboost::detail::widest_char<
+            typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::detail::widest_char<
                 target_char_t, src_char_t
             >::type char_type;
 
-#if !defined(BOOST_NO_CXX11_CHAR16_T) && defined(BOOST_NO_CXX11_UNICODE_LITERALS)
-            BOOST_STATIC_ASSERT_MSG(( !ndnboost::is_same<char16_t, src_char_t>::value
+#if !defined(NDNBOOST_NO_CXX11_CHAR16_T) && defined(NDNBOOST_NO_CXX11_UNICODE_LITERALS)
+            NDNBOOST_STATIC_ASSERT_MSG(( !ndnboost::is_same<char16_t, src_char_t>::value
                                         && !ndnboost::is_same<char16_t, target_char_t>::value),
                 "Your compiler does not have full support for char16_t" );
 #endif
-#if !defined(BOOST_NO_CXX11_CHAR32_T) && defined(BOOST_NO_CXX11_UNICODE_LITERALS)
-            BOOST_STATIC_ASSERT_MSG(( !ndnboost::is_same<char32_t, src_char_t>::value
+#if !defined(NDNBOOST_NO_CXX11_CHAR32_T) && defined(NDNBOOST_NO_CXX11_UNICODE_LITERALS)
+            NDNBOOST_STATIC_ASSERT_MSG(( !ndnboost::is_same<char32_t, src_char_t>::value
                                         && !ndnboost::is_same<char32_t, target_char_t>::value),
                 "Your compiler does not have full support for char32_t" );
 #endif
 
-            typedef BOOST_DEDUCED_TYPENAME ndnboost::detail::deduce_char_traits<
+            typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::detail::deduce_char_traits<
                 char_type, Target, no_cv_src
             >::type traits;
 
@@ -709,13 +709,13 @@ namespace ndnboost {
                 ndnboost::is_integral<no_cv_src>::value,
                 ndnboost::detail::is_this_float_conversion_optimized<no_cv_src, char_type >::value,
                 ndnboost::detail::is_char_or_wchar<
-                    BOOST_DEDUCED_TYPENAME deduce_src_char_metafunc::stage1_type          // if we did not get character type at stage1
+                    NDNBOOST_DEDUCED_TYPENAME deduce_src_char_metafunc::stage1_type          // if we did not get character type at stage1
                 >::value                                                                  // then we have no optimization for that type
             >::value >   is_source_input_not_optimized_t;
 
             // If we have an optimized conversion for
             // Source, we do not need to construct stringbuf.
-            BOOST_STATIC_CONSTANT(bool, requires_stringbuf = 
+            NDNBOOST_STATIC_CONSTANT(bool, requires_stringbuf = 
                 (ndnboost::type_traits::ice_or<
                     is_string_widening_required_t::value, is_source_input_not_optimized_t::value
                 >::value)
@@ -732,50 +732,50 @@ namespace ndnboost {
         template<>
         struct lcast_char_constants<char>
         {
-            BOOST_STATIC_CONSTANT(char, zero  = '0');
-            BOOST_STATIC_CONSTANT(char, minus = '-');
-            BOOST_STATIC_CONSTANT(char, plus = '+');
-            BOOST_STATIC_CONSTANT(char, lowercase_e = 'e');
-            BOOST_STATIC_CONSTANT(char, capital_e = 'E');
-            BOOST_STATIC_CONSTANT(char, c_decimal_separator = '.');
+            NDNBOOST_STATIC_CONSTANT(char, zero  = '0');
+            NDNBOOST_STATIC_CONSTANT(char, minus = '-');
+            NDNBOOST_STATIC_CONSTANT(char, plus = '+');
+            NDNBOOST_STATIC_CONSTANT(char, lowercase_e = 'e');
+            NDNBOOST_STATIC_CONSTANT(char, capital_e = 'E');
+            NDNBOOST_STATIC_CONSTANT(char, c_decimal_separator = '.');
         };
 
-#ifndef BOOST_LCAST_NO_WCHAR_T
+#ifndef NDNBOOST_LCAST_NO_WCHAR_T
         template<>
         struct lcast_char_constants<wchar_t>
         {
-            BOOST_STATIC_CONSTANT(wchar_t, zero  = L'0');
-            BOOST_STATIC_CONSTANT(wchar_t, minus = L'-');
-            BOOST_STATIC_CONSTANT(wchar_t, plus = L'+');
-            BOOST_STATIC_CONSTANT(wchar_t, lowercase_e = L'e');
-            BOOST_STATIC_CONSTANT(wchar_t, capital_e = L'E');
-            BOOST_STATIC_CONSTANT(wchar_t, c_decimal_separator = L'.');
+            NDNBOOST_STATIC_CONSTANT(wchar_t, zero  = L'0');
+            NDNBOOST_STATIC_CONSTANT(wchar_t, minus = L'-');
+            NDNBOOST_STATIC_CONSTANT(wchar_t, plus = L'+');
+            NDNBOOST_STATIC_CONSTANT(wchar_t, lowercase_e = L'e');
+            NDNBOOST_STATIC_CONSTANT(wchar_t, capital_e = L'E');
+            NDNBOOST_STATIC_CONSTANT(wchar_t, c_decimal_separator = L'.');
         };
 #endif
 
-#if !defined(BOOST_NO_CXX11_CHAR16_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS)
+#if !defined(NDNBOOST_NO_CXX11_CHAR16_T) && !defined(NDNBOOST_NO_CXX11_UNICODE_LITERALS)
         template<>
         struct lcast_char_constants<char16_t>
         {
-            BOOST_STATIC_CONSTANT(char16_t, zero  = u'0');
-            BOOST_STATIC_CONSTANT(char16_t, minus = u'-');
-            BOOST_STATIC_CONSTANT(char16_t, plus = u'+');
-            BOOST_STATIC_CONSTANT(char16_t, lowercase_e = u'e');
-            BOOST_STATIC_CONSTANT(char16_t, capital_e = u'E');
-            BOOST_STATIC_CONSTANT(char16_t, c_decimal_separator = u'.');
+            NDNBOOST_STATIC_CONSTANT(char16_t, zero  = u'0');
+            NDNBOOST_STATIC_CONSTANT(char16_t, minus = u'-');
+            NDNBOOST_STATIC_CONSTANT(char16_t, plus = u'+');
+            NDNBOOST_STATIC_CONSTANT(char16_t, lowercase_e = u'e');
+            NDNBOOST_STATIC_CONSTANT(char16_t, capital_e = u'E');
+            NDNBOOST_STATIC_CONSTANT(char16_t, c_decimal_separator = u'.');
         };
 #endif
 
-#if !defined(BOOST_NO_CXX11_CHAR32_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS)
+#if !defined(NDNBOOST_NO_CXX11_CHAR32_T) && !defined(NDNBOOST_NO_CXX11_UNICODE_LITERALS)
         template<>
         struct lcast_char_constants<char32_t>
         {
-            BOOST_STATIC_CONSTANT(char32_t, zero  = U'0');
-            BOOST_STATIC_CONSTANT(char32_t, minus = U'-');
-            BOOST_STATIC_CONSTANT(char32_t, plus = U'+');
-            BOOST_STATIC_CONSTANT(char32_t, lowercase_e = U'e');
-            BOOST_STATIC_CONSTANT(char32_t, capital_e = U'E');
-            BOOST_STATIC_CONSTANT(char32_t, c_decimal_separator = U'.');
+            NDNBOOST_STATIC_CONSTANT(char32_t, zero  = U'0');
+            NDNBOOST_STATIC_CONSTANT(char32_t, minus = U'-');
+            NDNBOOST_STATIC_CONSTANT(char32_t, plus = U'+');
+            NDNBOOST_STATIC_CONSTANT(char32_t, lowercase_e = U'e');
+            NDNBOOST_STATIC_CONSTANT(char32_t, capital_e = U'E');
+            NDNBOOST_STATIC_CONSTANT(char32_t, c_decimal_separator = U'.');
         };
 #endif
     }
@@ -784,9 +784,9 @@ namespace ndnboost {
     {
         template<class T>
         inline
-        BOOST_DEDUCED_TYPENAME make_unsigned<T>::type lcast_to_unsigned(T value) BOOST_NOEXCEPT
+        NDNBOOST_DEDUCED_TYPENAME make_unsigned<T>::type lcast_to_unsigned(T value) NDNBOOST_NOEXCEPT
         {
-            typedef BOOST_DEDUCED_TYPENAME ndnboost::make_unsigned<T>::type result_type;
+            typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::make_unsigned<T>::type result_type;
             return static_cast<result_type>(
                 value < 0 ? 0u - static_cast<result_type>(value) : value
             );
@@ -798,33 +798,33 @@ namespace ndnboost {
         template<class Traits, class T, class CharT>
         CharT* lcast_put_unsigned(const T n_param, CharT* finish)
         {
-#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-            BOOST_STATIC_ASSERT(!std::numeric_limits<T>::is_signed);
+#ifndef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+            NDNBOOST_STATIC_ASSERT(!std::numeric_limits<T>::is_signed);
 #endif
 
             typedef typename Traits::int_type int_type;
             CharT const czero = lcast_char_constants<CharT>::zero;
             int_type const zero = Traits::to_int_type(czero);
-            BOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
+            NDNBOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
                     (sizeof(int_type) > sizeof(T))
                     , int_type
                     , T
             >::type n = n_param;
 
-#ifndef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
+#ifndef NDNBOOST_LEXICAL_CAST_ASSUME_C_LOCALE
             std::locale loc;
             if (loc != std::locale::classic()) {
                 typedef std::numpunct<CharT> numpunct;
-                numpunct const& np = BOOST_USE_FACET(numpunct, loc);
+                numpunct const& np = NDNBOOST_USE_FACET(numpunct, loc);
                 std::string const grouping = np.grouping();
                 std::string::size_type const grouping_size = grouping.size();
 
                 if ( grouping_size && grouping[0] > 0 )
                 {
 
-#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+#ifndef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
                 // Check that ulimited group is unreachable:
-                BOOST_STATIC_ASSERT(std::numeric_limits<T>::digits10 < CHAR_MAX);
+                NDNBOOST_STATIC_ASSERT(std::numeric_limits<T>::digits10 < CHAR_MAX);
 #endif
                     CharT thousands_sep = np.thousands_sep();
                     std::string::size_type group = 0; // current group number
@@ -877,8 +877,8 @@ namespace ndnboost {
         template<class Traits, class T, class CharT>
         inline bool lcast_ret_unsigned(T& value, const CharT* const begin, const CharT* end)
         {
-#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-            BOOST_STATIC_ASSERT(!std::numeric_limits<T>::is_signed);
+#ifndef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+            NDNBOOST_STATIC_ASSERT(!std::numeric_limits<T>::is_signed);
 #endif
             CharT const czero = lcast_char_constants<CharT>::zero;
             --end;
@@ -891,11 +891,11 @@ namespace ndnboost {
             T multiplier = 1;
             bool multiplier_overflowed = false;
 
-#ifndef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
+#ifndef NDNBOOST_LEXICAL_CAST_ASSUME_C_LOCALE
             std::locale loc;
             if (loc != std::locale::classic()) {
                 typedef std::numpunct<CharT> numpunct;
-                numpunct const& np = BOOST_USE_FACET(numpunct, loc);
+                numpunct const& np = NDNBOOST_USE_FACET(numpunct, loc);
                 std::string const& grouping = np.grouping();
                 std::string::size_type const grouping_size = grouping.size();
 
@@ -986,7 +986,7 @@ namespace ndnboost {
     namespace detail
     {
         template <class CharT>
-        bool lc_iequal(const CharT* val, const CharT* lcase, const CharT* ucase, unsigned int len) BOOST_NOEXCEPT {
+        bool lc_iequal(const CharT* val, const CharT* lcase, const CharT* ucase, unsigned int len) NDNBOOST_NOEXCEPT {
             for( unsigned int i=0; i < len; ++i ) {
                 if ( val[i] != lcase[i] && val[i] != ucase[i] ) return false;
             }
@@ -999,7 +999,7 @@ namespace ndnboost {
         inline bool parse_inf_nan_impl(const CharT* begin, const CharT* end, T& value
             , const CharT* lc_NAN, const CharT* lc_nan
             , const CharT* lc_INFINITY, const CharT* lc_infinity
-            , const CharT opening_brace, const CharT closing_brace) BOOST_NOEXCEPT
+            , const CharT opening_brace, const CharT closing_brace) NDNBOOST_NOEXCEPT
         {
             using namespace std;
             if (begin == end) return false;
@@ -1055,7 +1055,7 @@ namespace ndnboost {
         template <class CharT, class T>
         bool put_inf_nan_impl(CharT* begin, CharT*& end, const T& value
                          , const CharT* lc_nan
-                         , const CharT* lc_infinity) BOOST_NOEXCEPT
+                         , const CharT* lc_infinity) NDNBOOST_NOEXCEPT
         {
             using namespace std;
             const CharT minus = lcast_char_constants<CharT>::minus;
@@ -1087,9 +1087,9 @@ namespace ndnboost {
         }
 
 
-#ifndef BOOST_LCAST_NO_WCHAR_T
+#ifndef NDNBOOST_LCAST_NO_WCHAR_T
         template <class T>
-        bool parse_inf_nan(const wchar_t* begin, const wchar_t* end, T& value) BOOST_NOEXCEPT
+        bool parse_inf_nan(const wchar_t* begin, const wchar_t* end, T& value) NDNBOOST_NOEXCEPT
         {
             return parse_inf_nan_impl(begin, end, value
                                , L"NAN", L"nan"
@@ -1098,15 +1098,15 @@ namespace ndnboost {
         }
 
         template <class T>
-        bool put_inf_nan(wchar_t* begin, wchar_t*& end, const T& value) BOOST_NOEXCEPT
+        bool put_inf_nan(wchar_t* begin, wchar_t*& end, const T& value) NDNBOOST_NOEXCEPT
         {
             return put_inf_nan_impl(begin, end, value, L"nan", L"infinity");
         }
 
 #endif
-#if !defined(BOOST_NO_CXX11_CHAR16_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS)
+#if !defined(NDNBOOST_NO_CXX11_CHAR16_T) && !defined(NDNBOOST_NO_CXX11_UNICODE_LITERALS)
         template <class T>
-        bool parse_inf_nan(const char16_t* begin, const char16_t* end, T& value) BOOST_NOEXCEPT
+        bool parse_inf_nan(const char16_t* begin, const char16_t* end, T& value) NDNBOOST_NOEXCEPT
         {
             return parse_inf_nan_impl(begin, end, value
                                , u"NAN", u"nan"
@@ -1115,14 +1115,14 @@ namespace ndnboost {
         }
 
         template <class T>
-        bool put_inf_nan(char16_t* begin, char16_t*& end, const T& value) BOOST_NOEXCEPT
+        bool put_inf_nan(char16_t* begin, char16_t*& end, const T& value) NDNBOOST_NOEXCEPT
         {
             return put_inf_nan_impl(begin, end, value, u"nan", u"infinity");
         }
 #endif
-#if !defined(BOOST_NO_CXX11_CHAR32_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS)
+#if !defined(NDNBOOST_NO_CXX11_CHAR32_T) && !defined(NDNBOOST_NO_CXX11_UNICODE_LITERALS)
         template <class T>
-        bool parse_inf_nan(const char32_t* begin, const char32_t* end, T& value) BOOST_NOEXCEPT
+        bool parse_inf_nan(const char32_t* begin, const char32_t* end, T& value) NDNBOOST_NOEXCEPT
         {
             return parse_inf_nan_impl(begin, end, value
                                , U"NAN", U"nan"
@@ -1131,14 +1131,14 @@ namespace ndnboost {
         }
 
         template <class T>
-        bool put_inf_nan(char32_t* begin, char32_t*& end, const T& value) BOOST_NOEXCEPT
+        bool put_inf_nan(char32_t* begin, char32_t*& end, const T& value) NDNBOOST_NOEXCEPT
         {
             return put_inf_nan_impl(begin, end, value, U"nan", U"infinity");
         }
 #endif
 
         template <class CharT, class T>
-        bool parse_inf_nan(const CharT* begin, const CharT* end, T& value) BOOST_NOEXCEPT
+        bool parse_inf_nan(const CharT* begin, const CharT* end, T& value) NDNBOOST_NOEXCEPT
         {
             return parse_inf_nan_impl(begin, end, value
                                , "NAN", "nan"
@@ -1147,7 +1147,7 @@ namespace ndnboost {
         }
 
         template <class CharT, class T>
-        bool put_inf_nan(CharT* begin, CharT*& end, const T& value) BOOST_NOEXCEPT
+        bool put_inf_nan(CharT* begin, CharT*& end, const T& value) NDNBOOST_NOEXCEPT
         {
             return put_inf_nan_impl(begin, end, value, "nan", "infinity");
         }
@@ -1178,11 +1178,11 @@ namespace ndnboost {
         template <>
         struct mantissa_holder_type<double>
         {
-#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+#ifndef NDNBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
             typedef long double  wide_result_t;
-#if defined(BOOST_HAS_LONG_LONG)
+#if defined(NDNBOOST_HAS_LONG_LONG)
             typedef ndnboost::ulong_long_type type;
-#elif defined(BOOST_HAS_MS_INT64)
+#elif defined(NDNBOOST_HAS_MS_INT64)
             typedef unsigned __int64 type;
 #endif
 #endif
@@ -1192,10 +1192,10 @@ namespace ndnboost {
         inline bool lcast_ret_float(T& value, const CharT* begin, const CharT* end)
         {
 
-#ifndef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
+#ifndef NDNBOOST_LEXICAL_CAST_ASSUME_C_LOCALE
             std::locale loc;
             typedef std::numpunct<CharT> numpunct;
-            numpunct const& np = BOOST_USE_FACET(numpunct, loc);
+            numpunct const& np = NDNBOOST_USE_FACET(numpunct, loc);
             std::string const grouping(
                     (loc == std::locale::classic())
                     ? std::string()
@@ -1221,8 +1221,8 @@ namespace ndnboost {
             if (parse_inf_nan(begin, end, value)) return true;
 
             typedef typename Traits::int_type int_type;
-            typedef BOOST_DEDUCED_TYPENAME mantissa_holder_type<T>::type mantissa_type;
-            typedef BOOST_DEDUCED_TYPENAME mantissa_holder_type<T>::wide_result_t wide_result_t;
+            typedef NDNBOOST_DEDUCED_TYPENAME mantissa_holder_type<T>::type mantissa_type;
+            typedef NDNBOOST_DEDUCED_TYPENAME mantissa_holder_type<T>::wide_result_t wide_result_t;
             int_type const zero = Traits::to_int_type(czero);
             if (begin == end) return false;
 
@@ -1291,7 +1291,7 @@ namespace ndnboost {
                         found_number_before_exp = true;
                         ++ length_since_last_delim;
                     } else if (Traits::eq(*begin, decimal_point) || Traits::eq(*begin, lowercase_e) || Traits::eq(*begin, capital_e)) {
-#ifndef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
+#ifndef NDNBOOST_LEXICAL_CAST_ASSUME_C_LOCALE
                         /* If ( we need to check grouping
                          *      and (   grouping missmatches
                          *              or grouping position is incorrect
@@ -1318,7 +1318,7 @@ namespace ndnboost {
                             break;
                         }
                     }
-#ifndef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
+#ifndef NDNBOOST_LEXICAL_CAST_ASSUME_C_LOCALE
                     else if (grouping_size && Traits::eq(*begin, thousands_sep)){
                         if(found_grouping)
                         {
@@ -1436,7 +1436,7 @@ namespace ndnboost {
         public:
            parser_buf() : base_type() { setbuf(0, 0); }
            const charT* getnext() { return this->gptr(); }
-#ifndef BOOST_NO_USING_TEMPLATE
+#ifndef NDNBOOST_NO_USING_TEMPLATE
             using base_type::pptr;
             using base_type::pbase;
 #else
@@ -1493,12 +1493,12 @@ namespace ndnboost {
                }
                default: ;
                }
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(push)
 #pragma warning(disable:4244)
 #endif
                return static_cast<pos_type>(this->gptr() - this->eback());
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #pragma warning(pop)
 #endif
             }
@@ -1523,16 +1523,16 @@ namespace ndnboost {
         class lexical_stream_limited_src
         {
 
-#if defined(BOOST_NO_STRINGSTREAM)
+#if defined(NDNBOOST_NO_STRINGSTREAM)
             typedef std::ostrstream                         out_stream_t;
-#elif defined(BOOST_NO_STD_LOCALE)
+#elif defined(NDNBOOST_NO_STD_LOCALE)
             typedef std::ostringstream                      out_stream_t;
             typedef parser_buf<std::streambuf, char>        buffer_t;
 #else
             typedef std::basic_ostringstream<CharT, Traits>                 out_stream_t;
             typedef parser_buf<std::basic_streambuf<CharT, Traits>, CharT>  buffer_t;
 #endif
-            typedef BOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
+            typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
                 RequiresStringbuffer,
                 out_stream_t,
                 do_not_construct_out_stream_t
@@ -1544,7 +1544,7 @@ namespace ndnboost {
             deduced_out_stream_t out_stream;
 
         public:
-            lexical_stream_limited_src(CharT* sta, CharT* fin) BOOST_NOEXCEPT
+            lexical_stream_limited_src(CharT* sta, CharT* fin) NDNBOOST_NOEXCEPT
               : start(sta)
               , finish(fin)
             {}
@@ -1555,23 +1555,23 @@ namespace ndnboost {
             void operator=(lexical_stream_limited_src const&);
 
 /************************************ HELPER FUNCTIONS FOR OPERATORS << ( ... ) ********************************/
-            bool shl_char(CharT ch) BOOST_NOEXCEPT
+            bool shl_char(CharT ch) NDNBOOST_NOEXCEPT
             {
                 Traits::assign(*start, ch);
                 finish = start + 1;
                 return true;
             }
 
-#ifndef BOOST_LCAST_NO_WCHAR_T
+#ifndef NDNBOOST_LCAST_NO_WCHAR_T
             template <class T>
             bool shl_char(T ch)
             {
-                BOOST_STATIC_ASSERT_MSG(( sizeof(T) <= sizeof(CharT)) ,
+                NDNBOOST_STATIC_ASSERT_MSG(( sizeof(T) <= sizeof(CharT)) ,
                     "ndnboost::lexical_cast does not support narrowing of char types."
                     "Use ndnboost::locale instead" );
-#ifndef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
+#ifndef NDNBOOST_LEXICAL_CAST_ASSUME_C_LOCALE
                 std::locale loc;
-                CharT const w = BOOST_USE_FACET(std::ctype<CharT>, loc).widen(ch);
+                CharT const w = NDNBOOST_USE_FACET(std::ctype<CharT>, loc).widen(ch);
 #else
                 CharT const w = static_cast<CharT>(ch);
 #endif
@@ -1581,7 +1581,7 @@ namespace ndnboost {
             }
 #endif
 
-            bool shl_char_array(CharT const* str) BOOST_NOEXCEPT
+            bool shl_char_array(CharT const* str) NDNBOOST_NOEXCEPT
             {
                 start = const_cast<CharT*>(str);
                 finish = start + Traits::length(str);
@@ -1591,13 +1591,13 @@ namespace ndnboost {
             template <class T>
             bool shl_char_array(T const* str)
             {
-                BOOST_STATIC_ASSERT_MSG(( sizeof(T) <= sizeof(CharT)),
+                NDNBOOST_STATIC_ASSERT_MSG(( sizeof(T) <= sizeof(CharT)),
                     "ndnboost::lexical_cast does not support narrowing of char types."
                     "Use ndnboost::locale instead" );
                 return shl_input_streamable(str);
             }
             
-            bool shl_char_array_limited(CharT const* str, std::size_t max_size) BOOST_NOEXCEPT
+            bool shl_char_array_limited(CharT const* str, std::size_t max_size) NDNBOOST_NOEXCEPT
             {
                 start = const_cast<CharT*>(str);
                 finish = std::find(start, start + max_size, Traits::to_char_type(0));
@@ -1607,10 +1607,10 @@ namespace ndnboost {
             template<typename InputStreamable>
             bool shl_input_streamable(InputStreamable& input)
             {
-#if defined(BOOST_NO_STRINGSTREAM) || defined(BOOST_NO_STD_LOCALE)
+#if defined(NDNBOOST_NO_STRINGSTREAM) || defined(NDNBOOST_NO_STD_LOCALE)
                 // If you have compilation error at this point, than your STL library
                 // does not support such conversions. Try updating it.
-                BOOST_STATIC_ASSERT((ndnboost::is_same<char, CharT>::value));
+                NDNBOOST_STATIC_ASSERT((ndnboost::is_same<char, CharT>::value));
 #endif
                 bool const result = !(out_stream << input).fail();
                 const buffer_t* const p = static_cast<buffer_t*>(
@@ -1685,7 +1685,7 @@ namespace ndnboost {
 #endif
 
 
-#if !defined(BOOST_LCAST_NO_WCHAR_T) && !defined(BOOST_NO_SWPRINTF) && !defined(__MINGW32__)
+#if !defined(NDNBOOST_LCAST_NO_WCHAR_T) && !defined(NDNBOOST_NO_SWPRINTF) && !defined(__MINGW32__)
             static bool shl_real_type(float val, wchar_t* begin, wchar_t*& end)
             {   using namespace std;
                 if (put_inf_nan(begin, end, val)) return true;
@@ -1717,7 +1717,7 @@ namespace ndnboost {
 /************************************ OPERATORS << ( ... ) ********************************/
         public:
             template<class Alloc>
-            bool operator<<(std::basic_string<CharT,Traits,Alloc> const& str) BOOST_NOEXCEPT
+            bool operator<<(std::basic_string<CharT,Traits,Alloc> const& str) NDNBOOST_NOEXCEPT
             {
                 start = const_cast<CharT*>(str.data());
                 finish = start + str.length();
@@ -1725,14 +1725,14 @@ namespace ndnboost {
             }
 
             template<class Alloc>
-            bool operator<<(ndnboost::container::basic_string<CharT,Traits,Alloc> const& str) BOOST_NOEXCEPT
+            bool operator<<(ndnboost::container::basic_string<CharT,Traits,Alloc> const& str) NDNBOOST_NOEXCEPT
             {
                 start = const_cast<CharT*>(str.data());
                 finish = start + str.length();
                 return true;
             }
 
-            bool operator<<(bool value) BOOST_NOEXCEPT
+            bool operator<<(bool value) NDNBOOST_NOEXCEPT
             {
                 CharT const czero = lcast_char_constants<CharT>::zero;
                 Traits::assign(*start, Traits::to_char_type(czero + value));
@@ -1740,21 +1740,21 @@ namespace ndnboost {
                 return true;
             }
 
-            bool operator<<(const iterator_range<CharT*>& rng) BOOST_NOEXCEPT
+            bool operator<<(const iterator_range<CharT*>& rng) NDNBOOST_NOEXCEPT
             {
                 start = rng.begin();
                 finish = rng.end();
                 return true; 
             }
             
-            bool operator<<(const iterator_range<const CharT*>& rng) BOOST_NOEXCEPT
+            bool operator<<(const iterator_range<const CharT*>& rng) NDNBOOST_NOEXCEPT
             {
                 start = const_cast<CharT*>(rng.begin());
                 finish = const_cast<CharT*>(rng.end());
                 return true; 
             }
 
-            bool operator<<(const iterator_range<const signed char*>& rng) BOOST_NOEXCEPT
+            bool operator<<(const iterator_range<const signed char*>& rng) NDNBOOST_NOEXCEPT
             {
                 return (*this) << iterator_range<char*>(
                     const_cast<char*>(reinterpret_cast<const char*>(rng.begin())),
@@ -1762,7 +1762,7 @@ namespace ndnboost {
                 );
             }
 
-            bool operator<<(const iterator_range<const unsigned char*>& rng) BOOST_NOEXCEPT
+            bool operator<<(const iterator_range<const unsigned char*>& rng) NDNBOOST_NOEXCEPT
             {
                 return (*this) << iterator_range<char*>(
                     const_cast<char*>(reinterpret_cast<const char*>(rng.begin())),
@@ -1770,7 +1770,7 @@ namespace ndnboost {
                 );
             }
 
-            bool operator<<(const iterator_range<signed char*>& rng) BOOST_NOEXCEPT
+            bool operator<<(const iterator_range<signed char*>& rng) NDNBOOST_NOEXCEPT
             {
                 return (*this) << iterator_range<char*>(
                     reinterpret_cast<char*>(rng.begin()),
@@ -1778,7 +1778,7 @@ namespace ndnboost {
                 );
             }
 
-            bool operator<<(const iterator_range<unsigned char*>& rng) BOOST_NOEXCEPT
+            bool operator<<(const iterator_range<unsigned char*>& rng) NDNBOOST_NOEXCEPT
             {
                 return (*this) << iterator_range<char*>(
                     reinterpret_cast<char*>(rng.begin()),
@@ -1789,19 +1789,19 @@ namespace ndnboost {
             bool operator<<(char ch)                    { return shl_char(ch); }
             bool operator<<(unsigned char ch)           { return ((*this) << static_cast<char>(ch)); }
             bool operator<<(signed char ch)             { return ((*this) << static_cast<char>(ch)); }
-#if !defined(BOOST_LCAST_NO_WCHAR_T)
+#if !defined(NDNBOOST_LCAST_NO_WCHAR_T)
             bool operator<<(wchar_t const* str)         { return shl_char_array(str); }
             bool operator<<(wchar_t * str)              { return shl_char_array(str); }
-#ifndef BOOST_NO_INTRINSIC_WCHAR_T
+#ifndef NDNBOOST_NO_INTRINSIC_WCHAR_T
             bool operator<<(wchar_t ch)                 { return shl_char(ch); }
 #endif
 #endif
-#if !defined(BOOST_NO_CXX11_CHAR16_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS)
+#if !defined(NDNBOOST_NO_CXX11_CHAR16_T) && !defined(NDNBOOST_NO_CXX11_UNICODE_LITERALS)
             bool operator<<(char16_t ch)                { return shl_char(ch); }
             bool operator<<(char16_t * str)             { return shl_char_array(str); }
             bool operator<<(char16_t const * str)       { return shl_char_array(str); }
 #endif
-#if !defined(BOOST_NO_CXX11_CHAR32_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS)
+#if !defined(NDNBOOST_NO_CXX11_CHAR32_T) && !defined(NDNBOOST_NO_CXX11_UNICODE_LITERALS)
             bool operator<<(char32_t ch)                { return shl_char(ch); }
             bool operator<<(char32_t * str)             { return shl_char_array(str); }
             bool operator<<(char32_t const * str)       { return shl_char_array(str); }
@@ -1819,15 +1819,15 @@ namespace ndnboost {
             bool operator<<(unsigned int n)             { start = lcast_put_unsigned<Traits>(n, finish); return true; }
             bool operator<<(unsigned long n)            { start = lcast_put_unsigned<Traits>(n, finish); return true; }
 
-#if defined(BOOST_HAS_LONG_LONG)
+#if defined(NDNBOOST_HAS_LONG_LONG)
             bool operator<<(ndnboost::ulong_long_type n)   { start = lcast_put_unsigned<Traits>(n, finish); return true; }
             bool operator<<(ndnboost::long_long_type n)    { return shl_signed(n); }
-#elif defined(BOOST_HAS_MS_INT64)
+#elif defined(NDNBOOST_HAS_MS_INT64)
             bool operator<<(unsigned __int64 n)         { start = lcast_put_unsigned<Traits>(n, finish); return true; }
             bool operator<<(         __int64 n)         { return shl_signed(n); }
 #endif
 
-#ifdef BOOST_LCAST_HAS_INT128
+#ifdef NDNBOOST_LCAST_HAS_INT128
         bool operator<<(const ndnboost::uint128_type& n)   { start = lcast_put_unsigned<Traits>(n, finish); return true; }
         bool operator<<(const ndnboost::int128_type& n)    { return shl_signed(n); }
 #endif
@@ -1843,58 +1843,58 @@ namespace ndnboost {
             }
             
             template <std::size_t N>
-            bool operator<<(ndnboost::array<CharT, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(ndnboost::array<CharT, N> const& input) NDNBOOST_NOEXCEPT
             { return shl_char_array_limited(input.begin(), N); }
 
             template <std::size_t N>
-            bool operator<<(ndnboost::array<unsigned char, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(ndnboost::array<unsigned char, N> const& input) NDNBOOST_NOEXCEPT
             { return ((*this) << reinterpret_cast<ndnboost::array<char, N> const& >(input)); }
 
             template <std::size_t N>
-            bool operator<<(ndnboost::array<signed char, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(ndnboost::array<signed char, N> const& input) NDNBOOST_NOEXCEPT
             { return ((*this) << reinterpret_cast<ndnboost::array<char, N> const& >(input)); }
 
             template <std::size_t N>
-            bool operator<<(ndnboost::array<const CharT, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(ndnboost::array<const CharT, N> const& input) NDNBOOST_NOEXCEPT
             { return shl_char_array_limited(input.begin(), N); }
 
             template <std::size_t N>
-            bool operator<<(ndnboost::array<const unsigned char, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(ndnboost::array<const unsigned char, N> const& input) NDNBOOST_NOEXCEPT
             { return ((*this) << reinterpret_cast<ndnboost::array<const char, N> const& >(input)); }
 
             template <std::size_t N>
-            bool operator<<(ndnboost::array<const signed char, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(ndnboost::array<const signed char, N> const& input) NDNBOOST_NOEXCEPT
             { return ((*this) << reinterpret_cast<ndnboost::array<const char, N> const& >(input)); }
  
-#ifndef BOOST_NO_CXX11_HDR_ARRAY
+#ifndef NDNBOOST_NO_CXX11_HDR_ARRAY
             template <std::size_t N>
-            bool operator<<(std::array<CharT, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(std::array<CharT, N> const& input) NDNBOOST_NOEXCEPT
             { 
                 if (input.size()) return shl_char_array_limited(&input[0], N);
                 else return true; 
             }
 
             template <std::size_t N>
-            bool operator<<(std::array<unsigned char, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(std::array<unsigned char, N> const& input) NDNBOOST_NOEXCEPT
             { return ((*this) << reinterpret_cast<ndnboost::array<char, N> const& >(input)); }
 
             template <std::size_t N>
-            bool operator<<(std::array<signed char, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(std::array<signed char, N> const& input) NDNBOOST_NOEXCEPT
             { return ((*this) << reinterpret_cast<ndnboost::array<char, N> const& >(input)); }
 
             template <std::size_t N>
-            bool operator<<(std::array<const CharT, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(std::array<const CharT, N> const& input) NDNBOOST_NOEXCEPT
             { 
                 if (input.size()) return shl_char_array_limited(&input[0], N);
                 else return true; 
             }
 
             template <std::size_t N>
-            bool operator<<(std::array<const unsigned char, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(std::array<const unsigned char, N> const& input) NDNBOOST_NOEXCEPT
             { return ((*this) << reinterpret_cast<ndnboost::array<const char, N> const& >(input)); }
 
             template <std::size_t N>
-            bool operator<<(std::array<const signed char, N> const& input) BOOST_NOEXCEPT
+            bool operator<<(std::array<const signed char, N> const& input) NDNBOOST_NOEXCEPT
             { return ((*this) << reinterpret_cast<ndnboost::array<const char, N> const& >(input)); }
 #endif
             
@@ -1937,7 +1937,7 @@ namespace ndnboost {
                 if (start == finish) return false;
                 CharT const minus = lcast_char_constants<CharT>::minus;
                 CharT const plus = lcast_char_constants<CharT>::plus;
-                typedef BOOST_DEDUCED_TYPENAME make_unsigned<Type>::type utype;
+                typedef NDNBOOST_DEDUCED_TYPENAME make_unsigned<Type>::type utype;
                 utype out_tmp =0;
                 bool has_minus = false;
 
@@ -1967,39 +1967,39 @@ namespace ndnboost {
             template<typename InputStreamable>
             bool shr_using_base_class(InputStreamable& output)
             {
-                BOOST_STATIC_ASSERT_MSG(
+                NDNBOOST_STATIC_ASSERT_MSG(
                     (!ndnboost::is_pointer<InputStreamable>::value),
                     "ndnboost::lexical_cast can not convert to pointers"
                 );
 
-#if defined(BOOST_NO_STRINGSTREAM) || defined(BOOST_NO_STD_LOCALE)
-                BOOST_STATIC_ASSERT_MSG((ndnboost::is_same<char, CharT>::value),
+#if defined(NDNBOOST_NO_STRINGSTREAM) || defined(NDNBOOST_NO_STD_LOCALE)
+                NDNBOOST_STATIC_ASSERT_MSG((ndnboost::is_same<char, CharT>::value),
                     "ndnboost::lexical_cast can not convert, because your STL library does not "
                     "support such conversions. Try updating it."
                 );
 #endif
 
-#if defined(BOOST_NO_STRINGSTREAM)
+#if defined(NDNBOOST_NO_STRINGSTREAM)
                 std::istrstream stream(start, finish - start);
 #else
 
                 buffer_t buf;
                 buf.setbuf(start, finish - start);
-#if defined(BOOST_NO_STD_LOCALE)
+#if defined(NDNBOOST_NO_STD_LOCALE)
                 std::istream stream(&buf);
 #else
                 std::basic_istream<CharT, Traits> stream(&buf);
-#endif // BOOST_NO_STD_LOCALE
-#endif // BOOST_NO_STRINGSTREAM
+#endif // NDNBOOST_NO_STD_LOCALE
+#endif // NDNBOOST_NO_STRINGSTREAM
 
                 stream.unsetf(std::ios::skipws);
                 lcast_set_precision(stream, static_cast<InputStreamable*>(0));
 
                 return stream >> output &&
                     stream.get() ==
-#if defined(__GNUC__) && (__GNUC__<3) && defined(BOOST_NO_STD_WSTRING)
+#if defined(__GNUC__) && (__GNUC__<3) && defined(NDNBOOST_NO_STD_WSTRING)
         // GCC 2.9x lacks std::char_traits<>::eof().
-        // We use BOOST_NO_STD_WSTRING to filter out STLport and libstdc++-v3
+        // We use NDNBOOST_NO_STD_WSTRING to filter out STLport and libstdc++-v3
         // configurations, which do provide std::char_traits<>::eof().
 
                     EOF;
@@ -2011,7 +2011,7 @@ namespace ndnboost {
             template<class T>
             inline bool shr_xchar(T& output)
             {
-                BOOST_STATIC_ASSERT_MSG(( sizeof(CharT) == sizeof(T) ),
+                NDNBOOST_STATIC_ASSERT_MSG(( sizeof(CharT) == sizeof(T) ),
                     "ndnboost::lexical_cast does not support narrowing of character types."
                     "Use ndnboost::locale instead" );
                 bool const ok = (finish - start == 1);
@@ -2031,15 +2031,15 @@ namespace ndnboost {
             bool operator>>(short& output)                      { return shr_signed(output); }
             bool operator>>(int& output)                        { return shr_signed(output); }
             bool operator>>(long int& output)                   { return shr_signed(output); }
-#if defined(BOOST_HAS_LONG_LONG)
+#if defined(NDNBOOST_HAS_LONG_LONG)
             bool operator>>(ndnboost::ulong_long_type& output)     { return shr_unsigned(output); }
             bool operator>>(ndnboost::long_long_type& output)      { return shr_signed(output); }
-#elif defined(BOOST_HAS_MS_INT64)
+#elif defined(NDNBOOST_HAS_MS_INT64)
             bool operator>>(unsigned __int64& output)           { return shr_unsigned(output); }
             bool operator>>(__int64& output)                    { return shr_signed(output); }
 #endif
 
-#ifdef BOOST_LCAST_HAS_INT128
+#ifdef NDNBOOST_LCAST_HAS_INT128
             bool operator>>(ndnboost::uint128_type& output)        { return shr_unsigned(output); }
             bool operator>>(ndnboost::int128_type& output)         { return shr_signed(output); }
 #endif
@@ -2047,13 +2047,13 @@ namespace ndnboost {
             bool operator>>(char& output)                       { return shr_xchar(output); }
             bool operator>>(unsigned char& output)              { return shr_xchar(output); }
             bool operator>>(signed char& output)                { return shr_xchar(output); }
-#if !defined(BOOST_LCAST_NO_WCHAR_T) && !defined(BOOST_NO_INTRINSIC_WCHAR_T)
+#if !defined(NDNBOOST_LCAST_NO_WCHAR_T) && !defined(NDNBOOST_NO_INTRINSIC_WCHAR_T)
             bool operator>>(wchar_t& output)                    { return shr_xchar(output); }
 #endif
-#if !defined(BOOST_NO_CXX11_CHAR16_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS)
+#if !defined(NDNBOOST_NO_CXX11_CHAR16_T) && !defined(NDNBOOST_NO_CXX11_UNICODE_LITERALS)
             bool operator>>(char16_t& output)                   { return shr_xchar(output); }
 #endif
-#if !defined(BOOST_NO_CXX11_CHAR32_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS)
+#if !defined(NDNBOOST_NO_CXX11_CHAR32_T) && !defined(NDNBOOST_NO_CXX11_UNICODE_LITERALS)
             bool operator>>(char32_t& output)                   { return shr_xchar(output); }
 #endif
             template<class Alloc>
@@ -2065,7 +2065,7 @@ namespace ndnboost {
             
     private:
             template <std::size_t N, class ArrayT>
-            bool shr_std_array(ArrayT& output) BOOST_NOEXCEPT
+            bool shr_std_array(ArrayT& output) NDNBOOST_NOEXCEPT
             {
                 using namespace std;
                 const std::size_t size = finish - start;
@@ -2081,7 +2081,7 @@ namespace ndnboost {
     public:
 
             template <std::size_t N>
-            bool operator>>(ndnboost::array<CharT, N>& output) BOOST_NOEXCEPT
+            bool operator>>(ndnboost::array<CharT, N>& output) NDNBOOST_NOEXCEPT
             { 
                 return shr_std_array<N>(output); 
             }
@@ -2098,9 +2098,9 @@ namespace ndnboost {
                 return ((*this) >> reinterpret_cast<ndnboost::array<char, N>& >(output)); 
             }
  
-#ifndef BOOST_NO_CXX11_HDR_ARRAY
+#ifndef NDNBOOST_NO_CXX11_HDR_ARRAY
             template <std::size_t N>
-            bool operator>>(std::array<CharT, N>& output) BOOST_NOEXCEPT
+            bool operator>>(std::array<CharT, N>& output) NDNBOOST_NOEXCEPT
             { 
                 return shr_std_array<N>(output); 
             }
@@ -2124,7 +2124,7 @@ namespace ndnboost {
              * case "1" || "+1":            output = true;  return true;
              * default:                     return false;
              */
-            bool operator>>(bool& output) BOOST_NOEXCEPT
+            bool operator>>(bool& output) NDNBOOST_NOEXCEPT
             {
                 CharT const zero = lcast_char_constants<CharT>::zero;
                 CharT const plus = lcast_char_constants<CharT>::plus;
@@ -2199,7 +2199,7 @@ namespace ndnboost {
                  * double, because it will give a big precision loss.
                  * */
                 ndnboost::mpl::if_c<
-#if (defined(BOOST_HAS_LONG_LONG) || defined(BOOST_HAS_MS_INT64)) && !defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS)
+#if (defined(NDNBOOST_HAS_LONG_LONG) || defined(NDNBOOST_HAS_MS_INT64)) && !defined(NDNBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS)
                     ndnboost::type_traits::ice_eq< sizeof(double), sizeof(long double) >::value,
 #else
                      1,
@@ -2229,25 +2229,25 @@ namespace ndnboost {
         template<typename T>
         struct is_stdstring
         {
-            BOOST_STATIC_CONSTANT(bool, value = false );
+            NDNBOOST_STATIC_CONSTANT(bool, value = false );
         };
 
         template<typename CharT, typename Traits, typename Alloc>
         struct is_stdstring< std::basic_string<CharT, Traits, Alloc> >
         {
-            BOOST_STATIC_CONSTANT(bool, value = true );
+            NDNBOOST_STATIC_CONSTANT(bool, value = true );
         };
 
         template<typename CharT, typename Traits, typename Alloc>
         struct is_stdstring< ndnboost::container::basic_string<CharT, Traits, Alloc> >
         {
-            BOOST_STATIC_CONSTANT(bool, value = true );
+            NDNBOOST_STATIC_CONSTANT(bool, value = true );
         };
 
         template<typename Target, typename Source>
         struct is_arithmetic_and_not_xchars
         {
-            BOOST_STATIC_CONSTANT(bool, value =
+            NDNBOOST_STATIC_CONSTANT(bool, value =
                (
                    ndnboost::type_traits::ice_and<
                            ndnboost::is_arithmetic<Source>::value,
@@ -2271,7 +2271,7 @@ namespace ndnboost {
         template<typename Target, typename Source>
         struct is_xchar_to_xchar
         {
-            BOOST_STATIC_CONSTANT(bool, value =
+            NDNBOOST_STATIC_CONSTANT(bool, value =
                 (
                     ndnboost::type_traits::ice_or<
                         ndnboost::type_traits::ice_and<
@@ -2292,31 +2292,31 @@ namespace ndnboost {
         template<typename Target, typename Source>
         struct is_char_array_to_stdstring
         {
-            BOOST_STATIC_CONSTANT(bool, value = false );
+            NDNBOOST_STATIC_CONSTANT(bool, value = false );
         };
 
         template<typename CharT, typename Traits, typename Alloc>
         struct is_char_array_to_stdstring< std::basic_string<CharT, Traits, Alloc>, CharT* >
         {
-            BOOST_STATIC_CONSTANT(bool, value = true );
+            NDNBOOST_STATIC_CONSTANT(bool, value = true );
         };
 
         template<typename CharT, typename Traits, typename Alloc>
         struct is_char_array_to_stdstring< std::basic_string<CharT, Traits, Alloc>, const CharT* >
         {
-            BOOST_STATIC_CONSTANT(bool, value = true );
+            NDNBOOST_STATIC_CONSTANT(bool, value = true );
         };
 
         template<typename CharT, typename Traits, typename Alloc>
         struct is_char_array_to_stdstring< ndnboost::container::basic_string<CharT, Traits, Alloc>, CharT* >
         {
-            BOOST_STATIC_CONSTANT(bool, value = true );
+            NDNBOOST_STATIC_CONSTANT(bool, value = true );
         };
 
         template<typename CharT, typename Traits, typename Alloc>
         struct is_char_array_to_stdstring< ndnboost::container::basic_string<CharT, Traits, Alloc>, const CharT* >
         {
-            BOOST_STATIC_CONSTANT(bool, value = true );
+            NDNBOOST_STATIC_CONSTANT(bool, value = true );
         };
 
 #if (defined _MSC_VER)
@@ -2333,22 +2333,22 @@ namespace ndnboost {
                 typedef lexical_cast_stream_traits<Source, Target>  stream_trait;
                 
                 typedef detail::lexical_stream_limited_src<
-                    BOOST_DEDUCED_TYPENAME stream_trait::char_type, 
-                    BOOST_DEDUCED_TYPENAME stream_trait::traits, 
+                    NDNBOOST_DEDUCED_TYPENAME stream_trait::char_type, 
+                    NDNBOOST_DEDUCED_TYPENAME stream_trait::traits, 
                     stream_trait::requires_stringbuf 
                 > interpreter_type;
 
                 // Target type must be default constructible
                 Target result;               
 
-                BOOST_DEDUCED_TYPENAME stream_trait::char_type buf[stream_trait::len_t::value + 1];
+                NDNBOOST_DEDUCED_TYPENAME stream_trait::char_type buf[stream_trait::len_t::value + 1];
                 stream_trait::len_t::check_coverage();
 
                 interpreter_type interpreter(buf, buf + stream_trait::len_t::value + 1);
 
                 // Disabling ADL, by directly specifying operators.
                 if(!(interpreter.operator <<(arg) && interpreter.operator >>(result)))
-                  BOOST_LCAST_THROW_BAD_CAST(Source, Target);
+                  NDNBOOST_LCAST_THROW_BAD_CAST(Source, Target);
 
                 return result;
             }
@@ -2360,7 +2360,7 @@ namespace ndnboost {
         template <typename Source>
         struct lexical_cast_copy
         {
-            static inline const Source& lexical_cast_impl(const Source &arg) BOOST_NOEXCEPT
+            static inline const Source& lexical_cast_impl(const Source &arg) NDNBOOST_NOEXCEPT
             {
                 return arg;
             }
@@ -2372,7 +2372,7 @@ namespace ndnboost {
          typedef ndnboost::numeric::Trunc<Source> Rounder;
          typedef Source source_type ;
 
-         typedef BOOST_DEDUCED_TYPENAME mpl::if_<
+         typedef NDNBOOST_DEDUCED_TYPENAME mpl::if_<
             ndnboost::is_arithmetic<Source>, Source, Source const&
           >::type argument_type ;
 
@@ -2384,7 +2384,7 @@ namespace ndnboost {
                 const source_type eps = std::numeric_limits<source_type>::epsilon();
 
                 if ((orig_div_round > 1 ? orig_div_round - 1 : 1 - orig_div_round) > eps)
-                    BOOST_LCAST_THROW_BAD_CAST(Source, Target);
+                    NDNBOOST_LCAST_THROW_BAD_CAST(Source, Target);
             }
 
             return s ;
@@ -2399,7 +2399,7 @@ namespace ndnboost {
           void operator() ( ndnboost::numeric::range_check_result r )
           {
             if (r != ndnboost::numeric::cInRange)
-                BOOST_LCAST_THROW_BAD_CAST(Source, Target);
+                NDNBOOST_LCAST_THROW_BAD_CAST(Source, Target);
           }
         } ;
 
@@ -2423,7 +2423,7 @@ namespace ndnboost {
         {
             static inline Target lexical_cast_impl(const Source &arg)
             {
-                typedef BOOST_DEDUCED_TYPENAME ndnboost::mpl::eval_if_c<
+                typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::mpl::eval_if_c<
                         ndnboost::is_float<Source>::value,
                         ndnboost::mpl::identity<Source>,
                         ndnboost::make_unsigned<Source>
@@ -2466,7 +2466,7 @@ namespace ndnboost {
         {
             static inline Target lexical_cast_impl(const Source &arg)
             {
-                typedef BOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
+                typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
                     ndnboost::type_traits::ice_and<
                         ndnboost::type_traits::ice_or<
                             ndnboost::is_signed<Source>::value,
@@ -2492,9 +2492,9 @@ namespace ndnboost {
     template <typename Target, typename Source>
     inline Target lexical_cast(const Source &arg)
     {
-        typedef BOOST_DEDUCED_TYPENAME ndnboost::detail::array_to_pointer_decay<Source>::type src;
+        typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::detail::array_to_pointer_decay<Source>::type src;
 
-        typedef BOOST_DEDUCED_TYPENAME ndnboost::type_traits::ice_or<
+        typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::type_traits::ice_or<
                 ndnboost::detail::is_xchar_to_xchar<Target, src >::value,
                 ndnboost::detail::is_char_array_to_stdstring<Target, src >::value,
                 ndnboost::type_traits::ice_and<
@@ -2503,13 +2503,13 @@ namespace ndnboost {
                 >::value
         > shall_we_copy_t;
 
-        typedef BOOST_DEDUCED_TYPENAME
+        typedef NDNBOOST_DEDUCED_TYPENAME
                 ndnboost::detail::is_arithmetic_and_not_xchars<Target, src > shall_we_copy_with_dynamic_check_t;
 
-        typedef BOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
+        typedef NDNBOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
             shall_we_copy_t::value,
             ndnboost::detail::lexical_cast_copy<src >,
-            BOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
+            NDNBOOST_DEDUCED_TYPENAME ndnboost::mpl::if_c<
                  shall_we_copy_with_dynamic_check_t::value,
                  ndnboost::detail::lexical_cast_dynamic_num<Target, src >,
                  ndnboost::detail::lexical_cast_do_cast<Target, src >
@@ -2544,7 +2544,7 @@ namespace ndnboost {
         );
     }
 
-#ifndef BOOST_LCAST_NO_WCHAR_T
+#ifndef NDNBOOST_LCAST_NO_WCHAR_T
     template <typename Target>
     inline Target lexical_cast(const wchar_t* chars, std::size_t count)
     {
@@ -2553,7 +2553,7 @@ namespace ndnboost {
         );
     }
 #endif
-#ifndef BOOST_NO_CHAR16_T
+#ifndef NDNBOOST_NO_CHAR16_T
     template <typename Target>
     inline Target lexical_cast(const char16_t* chars, std::size_t count)
     {
@@ -2562,7 +2562,7 @@ namespace ndnboost {
         );
     }
 #endif
-#ifndef BOOST_NO_CHAR32_T
+#ifndef NDNBOOST_NO_CHAR32_T
     template <typename Target>
     inline Target lexical_cast(const char32_t* chars, std::size_t count)
     {
@@ -2574,7 +2574,7 @@ namespace ndnboost {
 
 } // namespace ndnboost
 
-#else // #ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#else // #ifndef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 namespace ndnboost {
     namespace detail
@@ -2587,8 +2587,8 @@ namespace ndnboost {
             typedef char type;
         };
 
-#ifndef BOOST_LCAST_NO_WCHAR_T
-#ifndef BOOST_NO_INTRINSIC_WCHAR_T
+#ifndef NDNBOOST_LCAST_NO_WCHAR_T
+#ifndef NDNBOOST_NO_INTRINSIC_WCHAR_T
         template<>
         struct stream_char<wchar_t>
         {
@@ -2634,7 +2634,7 @@ namespace ndnboost {
             }
             ~lexical_stream()
             {
-                #if defined(BOOST_NO_STRINGSTREAM)
+                #if defined(NDNBOOST_NO_STRINGSTREAM)
                 stream.freeze(false);
                 #endif
             }
@@ -2648,9 +2648,9 @@ namespace ndnboost {
                 return !is_pointer<InputStreamable>::value &&
                        stream >> output &&
                        stream.get() ==
-#if defined(__GNUC__) && (__GNUC__<3) && defined(BOOST_NO_STD_WSTRING)
+#if defined(__GNUC__) && (__GNUC__<3) && defined(NDNBOOST_NO_STD_WSTRING)
 // GCC 2.9x lacks std::char_traits<>::eof().
-// We use BOOST_NO_STD_WSTRING to filter out STLport and libstdc++-v3
+// We use NDNBOOST_NO_STD_WSTRING to filter out STLport and libstdc++-v3
 // configurations, which do provide std::char_traits<>::eof().
 
                            EOF;
@@ -2661,13 +2661,13 @@ namespace ndnboost {
 
             bool operator>>(std::string &output)
             {
-                #if defined(BOOST_NO_STRINGSTREAM)
+                #if defined(NDNBOOST_NO_STRINGSTREAM)
                 stream << '\0';
                 #endif
                 stream.str().swap(output);
                 return true;
             }
-            #ifndef BOOST_LCAST_NO_WCHAR_T
+            #ifndef NDNBOOST_LCAST_NO_WCHAR_T
             bool operator>>(std::wstring &output)
             {
                 stream.str().swap(output);
@@ -2676,9 +2676,9 @@ namespace ndnboost {
             #endif
 
         private:
-            #if defined(BOOST_NO_STRINGSTREAM)
+            #if defined(NDNBOOST_NO_STRINGSTREAM)
             std::strstream stream;
-            #elif defined(BOOST_NO_STD_LOCALE)
+            #elif defined(NDNBOOST_NO_STD_LOCALE)
             std::stringstream stream;
             #else
             std::basic_stringstream<char_type,traits_type> stream;
@@ -2692,8 +2692,8 @@ namespace ndnboost {
     Target lexical_cast(Source arg)
     {
         typedef typename detail::widest_char< 
-            BOOST_DEDUCED_TYPENAME detail::stream_char<Target>::type 
-          , BOOST_DEDUCED_TYPENAME detail::stream_char<Source>::type 
+            NDNBOOST_DEDUCED_TYPENAME detail::stream_char<Target>::type 
+          , NDNBOOST_DEDUCED_TYPENAME detail::stream_char<Source>::type 
         >::type char_type; 
 
         typedef std::char_traits<char_type> traits;
@@ -2701,7 +2701,7 @@ namespace ndnboost {
         Target result;
 
         if(!(interpreter << arg && interpreter >> result))
-          BOOST_LCAST_THROW_BAD_CAST(Source, Target);
+          NDNBOOST_LCAST_THROW_BAD_CAST(Source, Target);
         return result;
     }
 
@@ -2717,9 +2717,9 @@ namespace ndnboost {
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#undef BOOST_LCAST_THROW_BAD_CAST
-#undef BOOST_LCAST_NO_WCHAR_T
-#undef BOOST_LCAST_HAS_INT128
+#undef NDNBOOST_LCAST_THROW_BAD_CAST
+#undef NDNBOOST_LCAST_NO_WCHAR_T
+#undef NDNBOOST_LCAST_HAS_INT128
 
-#endif // BOOST_LEXICAL_CAST_INCLUDED
+#endif // NDNBOOST_LEXICAL_CAST_INCLUDED
 

@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_DETAIL_SEQUENCE_HPP
-#define BOOST_STRING_DETAIL_SEQUENCE_HPP
+#ifndef NDNBOOST_STRING_DETAIL_SEQUENCE_HPP
+#define NDNBOOST_STRING_DETAIL_SEQUENCE_HPP
 
 #include <ndnboost/algorithm/string/config.hpp>
 #include <ndnboost/mpl/bool.hpp>
@@ -28,7 +28,7 @@ namespace ndnboost {
             template< typename InputT, typename ForwardIteratorT >
             inline void insert(
                 InputT& Input,
-                BOOST_STRING_TYPENAME InputT::iterator At,
+                NDNBOOST_STRING_TYPENAME InputT::iterator At,
                 ForwardIteratorT Begin,
                 ForwardIteratorT End )
             {
@@ -38,7 +38,7 @@ namespace ndnboost {
             template< typename InputT, typename InsertT >
             inline void insert(
                 InputT& Input,
-                BOOST_STRING_TYPENAME InputT::iterator At,
+                NDNBOOST_STRING_TYPENAME InputT::iterator At,
                 const InsertT& Insert )
             {
                 ::ndnboost::algorithm::detail::insert( Input, At, ::ndnboost::begin(Insert), ::ndnboost::end(Insert) );
@@ -53,8 +53,8 @@ namespace ndnboost {
             template< typename InputT >
             inline typename InputT::iterator erase(
                 InputT& Input,
-                BOOST_STRING_TYPENAME InputT::iterator From,
-                BOOST_STRING_TYPENAME InputT::iterator To )
+                NDNBOOST_STRING_TYPENAME InputT::iterator From,
+                NDNBOOST_STRING_TYPENAME InputT::iterator To )
             {
                 return Input.erase( From, To );
             }
@@ -69,14 +69,14 @@ namespace ndnboost {
                 template< typename InputT, typename ForwardIteratorT >
                 void operator()(
                     InputT& Input,
-                    BOOST_STRING_TYPENAME InputT::iterator From,
-                    BOOST_STRING_TYPENAME InputT::iterator To,
+                    NDNBOOST_STRING_TYPENAME InputT::iterator From,
+                    NDNBOOST_STRING_TYPENAME InputT::iterator To,
                     ForwardIteratorT Begin,
                     ForwardIteratorT End )
                 {
                     // Copy data to the container ( as much as possible )
                     ForwardIteratorT InsertIt=Begin;
-                    BOOST_STRING_TYPENAME InputT::iterator InputIt=From;
+                    NDNBOOST_STRING_TYPENAME InputT::iterator InputIt=From;
                     for(; InsertIt!=End && InputIt!=To; InsertIt++, InputIt++ )
                     {
                         *InputIt=*InsertIt;
@@ -105,12 +105,12 @@ namespace ndnboost {
                 template< typename InputT, typename ForwardIteratorT >
                 void operator()(
                     InputT& Input,
-                    BOOST_STRING_TYPENAME InputT::iterator From,
-                    BOOST_STRING_TYPENAME InputT::iterator To,
+                    NDNBOOST_STRING_TYPENAME InputT::iterator From,
+                    NDNBOOST_STRING_TYPENAME InputT::iterator To,
                     ForwardIteratorT Begin,
                     ForwardIteratorT End ) 
                 {
-                    BOOST_STRING_TYPENAME InputT::iterator At=Input.erase( From, To );
+                    NDNBOOST_STRING_TYPENAME InputT::iterator At=Input.erase( From, To );
                     if ( Begin!=End )
                     {
                         if(!Input.empty())
@@ -132,8 +132,8 @@ namespace ndnboost {
                 template< typename InputT, typename ForwardIteratorT >
                 void operator()(
                     InputT& Input,
-                    BOOST_STRING_TYPENAME InputT::iterator From,
-                    BOOST_STRING_TYPENAME InputT::iterator To,
+                    NDNBOOST_STRING_TYPENAME InputT::iterator From,
+                    NDNBOOST_STRING_TYPENAME InputT::iterator To,
                     ForwardIteratorT Begin,
                     ForwardIteratorT End ) 
                 {
@@ -152,8 +152,8 @@ namespace ndnboost {
                 template< typename InputT, typename ForwardIteratorT >
                 void operator()(
                     InputT& Input,
-                    BOOST_STRING_TYPENAME InputT::iterator From,
-                    BOOST_STRING_TYPENAME InputT::iterator To,
+                    NDNBOOST_STRING_TYPENAME InputT::iterator From,
+                    NDNBOOST_STRING_TYPENAME InputT::iterator To,
                     ForwardIteratorT Begin,
                     ForwardIteratorT End )
                 {
@@ -166,8 +166,8 @@ namespace ndnboost {
             template< typename InputT, typename ForwardIteratorT >
             inline void replace(
                 InputT& Input,
-                BOOST_STRING_TYPENAME InputT::iterator From,
-                BOOST_STRING_TYPENAME InputT::iterator To,
+                NDNBOOST_STRING_TYPENAME InputT::iterator From,
+                NDNBOOST_STRING_TYPENAME InputT::iterator To,
                 ForwardIteratorT Begin,
                 ForwardIteratorT End )
             {
@@ -178,8 +178,8 @@ namespace ndnboost {
             template< typename InputT, typename InsertT >
             inline void replace(
                 InputT& Input,
-                BOOST_STRING_TYPENAME InputT::iterator From,
-                BOOST_STRING_TYPENAME InputT::iterator To,
+                NDNBOOST_STRING_TYPENAME InputT::iterator From,
+                NDNBOOST_STRING_TYPENAME InputT::iterator To,
                 const InsertT& Insert )
             {
                 if(From!=To)
@@ -197,4 +197,4 @@ namespace ndnboost {
 } // namespace ndnboost
 
 
-#endif  // BOOST_STRING_DETAIL_SEQUENCE_HPP
+#endif  // NDNBOOST_STRING_DETAIL_SEQUENCE_HPP

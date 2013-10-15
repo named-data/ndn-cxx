@@ -5,8 +5,8 @@
 //  Distributed under the Boost Software License, Version 1.0.
 //  See http://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_TYPE_TRAITS_EXT_ADD_RVALUE_REFERENCE__HPP
-#define BOOST_TYPE_TRAITS_EXT_ADD_RVALUE_REFERENCE__HPP
+#ifndef NDNBOOST_TYPE_TRAITS_EXT_ADD_RVALUE_REFERENCE__HPP
+#define NDNBOOST_TYPE_TRAITS_EXT_ADD_RVALUE_REFERENCE__HPP
 
 #include <ndnboost/config.hpp>
 
@@ -39,7 +39,7 @@ namespace type_traits_detail {
     struct add_rvalue_reference_helper
     { typedef T   type; };
 
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(NDNBOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
     template <typename T>
     struct add_rvalue_reference_helper<T, true>
     {
@@ -56,11 +56,11 @@ namespace type_traits_detail {
 
 }
 
-BOOST_TT_AUX_TYPE_TRAIT_DEF1(add_rvalue_reference,T,typename ndnboost::type_traits_detail::add_rvalue_reference_imp<T>::type)
+NDNBOOST_TT_AUX_TYPE_TRAIT_DEF1(add_rvalue_reference,T,typename ndnboost::type_traits_detail::add_rvalue_reference_imp<T>::type)
 
 }  // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/type_trait_undef.hpp>
 
-#endif  // BOOST_TYPE_TRAITS_EXT_ADD_RVALUE_REFERENCE__HPP
+#endif  // NDNBOOST_TYPE_TRAITS_EXT_ADD_RVALUE_REFERENCE__HPP
 

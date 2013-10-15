@@ -1,7 +1,7 @@
 // See http://www.boost.org/libs/any for Documentation.
 
-#ifndef BOOST_ANY_INCLUDED
-#define BOOST_ANY_INCLUDED
+#ifndef NDNBOOST_ANY_INCLUDED
+#define NDNBOOST_ANY_INCLUDED
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
@@ -26,13 +26,13 @@
 #include <ndnboost/type_traits/is_same.hpp>
 
 // See ndnboost/python/type_id.hpp
-// TODO: add BOOST_TYPEID_COMPARE_BY_NAME to config.hpp
+// TODO: add NDNBOOST_TYPEID_COMPARE_BY_NAME to config.hpp
 # if (defined(__GNUC__) && __GNUC__ >= 3) \
  || defined(_AIX) \
  || (   defined(__sgi) && defined(__host_mips)) \
  || (defined(__hpux) && defined(__HP_aCC)) \
  || (defined(linux) && defined(__INTEL_COMPILER) && defined(__ICC))
-#  define BOOST_AUX_ANY_TYPE_ID_NAME
+#  define NDNBOOST_AUX_ANY_TYPE_ID_NAME
 #include <cstring>
 # endif 
 
@@ -42,7 +42,7 @@ namespace ndnboost
     {
     public: // structors
 
-        any() BOOST_NOEXCEPT
+        any() NDNBOOST_NOEXCEPT
           : content(0)
         {
         }
@@ -58,9 +58,9 @@ namespace ndnboost
         {
         }
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
         // Move constructor
-        any(any&& other) BOOST_NOEXCEPT
+        any(any&& other) NDNBOOST_NOEXCEPT
           : content(other.content)
         {
             other.content = 0;
@@ -74,21 +74,21 @@ namespace ndnboost
         }
 #endif
 
-        ~any() BOOST_NOEXCEPT
+        ~any() NDNBOOST_NOEXCEPT
         {
             delete content;
         }
 
     public: // modifiers
 
-        any & swap(any & rhs) BOOST_NOEXCEPT
+        any & swap(any & rhs) NDNBOOST_NOEXCEPT
         {
             std::swap(content, rhs.content);
             return *this;
         }
 
 
-#ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifdef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
         template<typename ValueType>
         any & operator=(const ValueType & rhs)
         {
@@ -110,7 +110,7 @@ namespace ndnboost
         }
 
         // move assignement
-        any & operator=(any&& rhs) BOOST_NOEXCEPT
+        any & operator=(any&& rhs) NDNBOOST_NOEXCEPT
         {
             rhs.swap(*this);
             any().swap(rhs);
@@ -128,7 +128,7 @@ namespace ndnboost
 
     public: // queries
 
-        bool empty() const BOOST_NOEXCEPT
+        bool empty() const NDNBOOST_NOEXCEPT
         {
             return !content;
         }
@@ -138,7 +138,7 @@ namespace ndnboost
             return content ? content->type() : typeid(void);
         }
 
-#ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
+#ifndef NDNBOOST_NO_MEMBER_TEMPLATE_FRIENDS
     private: // types
 #else
     public: // types (public so any_cast can be non-friend)
@@ -170,7 +170,7 @@ namespace ndnboost
             {
             }
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifndef NDNBOOST_NO_CXX11_RVALUE_REFERENCES
             holder(ValueType&& value)
               : held(static_cast< ValueType&& >(value))
             {
@@ -196,15 +196,15 @@ namespace ndnboost
             holder & operator=(const holder &);
         };
 
-#ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
+#ifndef NDNBOOST_NO_MEMBER_TEMPLATE_FRIENDS
 
     private: // representation
 
         template<typename ValueType>
-        friend ValueType * any_cast(any *) BOOST_NOEXCEPT;
+        friend ValueType * any_cast(any *) NDNBOOST_NOEXCEPT;
 
         template<typename ValueType>
-        friend ValueType * unsafe_any_cast(any *) BOOST_NOEXCEPT;
+        friend ValueType * unsafe_any_cast(any *) NDNBOOST_NOEXCEPT;
 
 #else
 
@@ -216,7 +216,7 @@ namespace ndnboost
 
     };
  
-    inline void swap(any & lhs, any & rhs) BOOST_NOEXCEPT
+    inline void swap(any & lhs, any & rhs) NDNBOOST_NOEXCEPT
     {
         lhs.swap(rhs);
     }
@@ -232,10 +232,10 @@ namespace ndnboost
     };
 
     template<typename ValueType>
-    ValueType * any_cast(any * operand) BOOST_NOEXCEPT
+    ValueType * any_cast(any * operand) NDNBOOST_NOEXCEPT
     {
         return operand && 
-#ifdef BOOST_AUX_ANY_TYPE_ID_NAME
+#ifdef NDNBOOST_AUX_ANY_TYPE_ID_NAME
             std::strcmp(operand->type().name(), typeid(ValueType).name()) == 0
 #else
             operand->type() == typeid(ValueType)
@@ -245,7 +245,7 @@ namespace ndnboost
     }
 
     template<typename ValueType>
-    inline const ValueType * any_cast(const any * operand) BOOST_NOEXCEPT
+    inline const ValueType * any_cast(const any * operand) NDNBOOST_NOEXCEPT
     {
         return any_cast<ValueType>(const_cast<any *>(operand));
     }
@@ -253,16 +253,16 @@ namespace ndnboost
     template<typename ValueType>
     ValueType any_cast(any & operand)
     {
-        typedef BOOST_DEDUCED_TYPENAME remove_reference<ValueType>::type nonref;
+        typedef NDNBOOST_DEDUCED_TYPENAME remove_reference<ValueType>::type nonref;
 
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
         // If 'nonref' is still reference type, it means the user has not
         // specialized 'remove_reference'.
 
-        // Please use BOOST_BROKEN_COMPILER_TYPE_TRAITS_SPECIALIZATION macro
+        // Please use NDNBOOST_BROKEN_COMPILER_TYPE_TRAITS_SPECIALIZATION macro
         // to generate specialization of remove_reference for your class
         // See type traits library documentation for details
-        BOOST_STATIC_ASSERT(!is_reference<nonref>::value);
+        NDNBOOST_STATIC_ASSERT(!is_reference<nonref>::value);
 #endif
 
         nonref * result = any_cast<nonref>(&operand);
@@ -274,12 +274,12 @@ namespace ndnboost
     template<typename ValueType>
     inline ValueType any_cast(const any & operand)
     {
-        typedef BOOST_DEDUCED_TYPENAME remove_reference<ValueType>::type nonref;
+        typedef NDNBOOST_DEDUCED_TYPENAME remove_reference<ValueType>::type nonref;
 
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
         // The comment in the above version of 'any_cast' explains when this
         // assert is fired and what to do.
-        BOOST_STATIC_ASSERT(!is_reference<nonref>::value);
+        NDNBOOST_STATIC_ASSERT(!is_reference<nonref>::value);
 #endif
 
         return any_cast<const nonref &>(const_cast<any &>(operand));
@@ -291,13 +291,13 @@ namespace ndnboost
     // use typeid() comparison, e.g., when our types may travel across
     // different shared libraries.
     template<typename ValueType>
-    inline ValueType * unsafe_any_cast(any * operand) BOOST_NOEXCEPT
+    inline ValueType * unsafe_any_cast(any * operand) NDNBOOST_NOEXCEPT
     {
         return &static_cast<any::holder<ValueType> *>(operand->content)->held;
     }
 
     template<typename ValueType>
-    inline const ValueType * unsafe_any_cast(const any * operand) BOOST_NOEXCEPT
+    inline const ValueType * unsafe_any_cast(const any * operand) NDNBOOST_NOEXCEPT
     {
         return unsafe_any_cast<ValueType>(const_cast<any *>(operand));
     }

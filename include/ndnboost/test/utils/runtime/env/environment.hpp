@@ -12,8 +12,8 @@
 //  Description : defines and implements inline model of program environment 
 // ***************************************************************************
 
-#ifndef BOOST_RT_ENV_ENVIRONMENT_HPP_062604GER
-#define BOOST_RT_ENV_ENVIRONMENT_HPP_062604GER
+#ifndef NDNBOOST_RT_ENV_ENVIRONMENT_HPP_062604GER
+#define NDNBOOST_RT_ENV_ENVIRONMENT_HPP_062604GER
 
 #ifdef UNDER_CE
 #error Windows CE does not support environment variables.
@@ -37,7 +37,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 // ************************************************************************** //
 // **************      runtime::environment implementation     ************** //
@@ -158,15 +158,15 @@ namespace environment {
 
 namespace env = environment;
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#ifndef BOOST_RT_PARAM_OFFLINE
+#ifndef NDNBOOST_RT_PARAM_OFFLINE
 
-#define BOOST_RT_PARAM_INLINE inline
+#define NDNBOOST_RT_PARAM_INLINE inline
 #include <ndnboost/test/utils/runtime/env/environment.ipp>
 
 #endif
 
-#endif // BOOST_RT_ENV_ENVIRONMENT_HPP_062604GER
+#endif // NDNBOOST_RT_ENV_ENVIRONMENT_HPP_062604GER

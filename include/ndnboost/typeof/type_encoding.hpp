@@ -2,10 +2,10 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_TYPEOF_TYPE_ENCODING_HPP_INCLUDED
-#define BOOST_TYPEOF_TYPE_ENCODING_HPP_INCLUDED
+#ifndef NDNBOOST_TYPEOF_TYPE_ENCODING_HPP_INCLUDED
+#define NDNBOOST_TYPEOF_TYPE_ENCODING_HPP_INCLUDED
 
-#define BOOST_TYPEOF_REGISTER_TYPE_IMPL(T, Id)                          \
+#define NDNBOOST_TYPEOF_REGISTER_TYPE_IMPL(T, Id)                          \
                                                                         \
     template<class V> struct encode_type_impl<V, T >                    \
         : ndnboost::type_of::push_back<V, ndnboost::mpl::size_t<Id> >         \
@@ -16,12 +16,12 @@
         typedef Iter iter;                                              \
     };
 
-#define BOOST_TYPEOF_REGISTER_TYPE_EXPLICIT_ID(Type, Id)                \
-    BOOST_TYPEOF_BEGIN_ENCODE_NS                                        \
-    BOOST_TYPEOF_REGISTER_TYPE_IMPL(Type, Id)                           \
-    BOOST_TYPEOF_END_ENCODE_NS
+#define NDNBOOST_TYPEOF_REGISTER_TYPE_EXPLICIT_ID(Type, Id)                \
+    NDNBOOST_TYPEOF_BEGIN_ENCODE_NS                                        \
+    NDNBOOST_TYPEOF_REGISTER_TYPE_IMPL(Type, Id)                           \
+    NDNBOOST_TYPEOF_END_ENCODE_NS
 
-#define BOOST_TYPEOF_REGISTER_TYPE(Type)                                \
-    BOOST_TYPEOF_REGISTER_TYPE_EXPLICIT_ID(Type, BOOST_TYPEOF_UNIQUE_ID())
+#define NDNBOOST_TYPEOF_REGISTER_TYPE(Type)                                \
+    NDNBOOST_TYPEOF_REGISTER_TYPE_EXPLICIT_ID(Type, NDNBOOST_TYPEOF_UNIQUE_ID())
 
-#endif//BOOST_TYPEOF_TYPE_ENCODING_HPP_INCLUDED
+#endif//NDNBOOST_TYPEOF_TYPE_ENCODING_HPP_INCLUDED

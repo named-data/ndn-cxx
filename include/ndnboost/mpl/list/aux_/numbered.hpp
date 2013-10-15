@@ -14,19 +14,19 @@
 // $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
 // $Revision: 49267 $
 
-#if defined(BOOST_PP_IS_ITERATING)
+#if defined(NDNBOOST_PP_IS_ITERATING)
 
 #include <ndnboost/preprocessor/enum_params.hpp>
 #include <ndnboost/preprocessor/enum_shifted_params.hpp>
 #include <ndnboost/preprocessor/dec.hpp>
 #include <ndnboost/preprocessor/cat.hpp>
 
-#define i BOOST_PP_FRAME_ITERATION(1)
+#define i NDNBOOST_PP_FRAME_ITERATION(1)
 
 #if i == 1
 
 template<
-      BOOST_PP_ENUM_PARAMS(i, typename T)
+      NDNBOOST_PP_ENUM_PARAMS(i, typename T)
     >
 struct list1
     : l_item<
@@ -41,22 +41,22 @@ struct list1
 #else
 
 #   define MPL_AUX_LIST_TAIL(list, i, T) \
-    BOOST_PP_CAT(list,BOOST_PP_DEC(i))< \
-      BOOST_PP_ENUM_SHIFTED_PARAMS(i, T) \
+    NDNBOOST_PP_CAT(list,NDNBOOST_PP_DEC(i))< \
+      NDNBOOST_PP_ENUM_SHIFTED_PARAMS(i, T) \
     > \
     /**/
     
 template<
-      BOOST_PP_ENUM_PARAMS(i, typename T)
+      NDNBOOST_PP_ENUM_PARAMS(i, typename T)
     >
-struct BOOST_PP_CAT(list,i)
+struct NDNBOOST_PP_CAT(list,i)
     : l_item<
           long_<i>
         , T0
         , MPL_AUX_LIST_TAIL(list,i,T)
         >
 {
-    typedef BOOST_PP_CAT(list,i) type;
+    typedef NDNBOOST_PP_CAT(list,i) type;
 };
 
 #   undef MPL_AUX_LIST_TAIL
@@ -65,4 +65,4 @@ struct BOOST_PP_CAT(list,i)
 
 #undef i
 
-#endif // BOOST_PP_IS_ITERATING
+#endif // NDNBOOST_PP_IS_ITERATING

@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_VECTOR_AUX_VECTOR0_HPP_INCLUDED
-#define BOOST_MPL_VECTOR_AUX_VECTOR0_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_VECTOR_AUX_VECTOR0_HPP_INCLUDED
+#define NDNBOOST_MPL_VECTOR_AUX_VECTOR0_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -29,7 +29,7 @@ template< typename Dummy = na > struct vector0;
 
 template<> struct vector0<na>
 {
-#if defined(BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
+#if defined(NDNBOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
     typedef aux::vector_tag tag;
     typedef vector0         type;
     typedef long_<32768>    lower_bound_;
@@ -49,4 +49,4 @@ template<> struct vector0<na>
 
 }}
 
-#endif // BOOST_MPL_VECTOR_AUX_VECTOR0_HPP_INCLUDED
+#endif // NDNBOOST_MPL_VECTOR_AUX_VECTOR0_HPP_INCLUDED

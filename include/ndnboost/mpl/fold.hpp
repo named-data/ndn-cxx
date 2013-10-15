@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_FOLD_HPP_INCLUDED
-#define BOOST_MPL_FOLD_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_FOLD_HPP_INCLUDED
+#define NDNBOOST_MPL_FOLD_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2001-2004
 // Copyright David Abrahams 2001-2002
@@ -24,9 +24,9 @@
 namespace ndnboost { namespace mpl {
 
 template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
-    , typename BOOST_MPL_AUX_NA_PARAM(State)
-    , typename BOOST_MPL_AUX_NA_PARAM(ForwardOp)
+      typename NDNBOOST_MPL_AUX_NA_PARAM(Sequence)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(State)
+    , typename NDNBOOST_MPL_AUX_NA_PARAM(ForwardOp)
     >
 struct fold
 {
@@ -38,11 +38,11 @@ struct fold
         , ForwardOp
         >::state type;
 
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(3,fold,(Sequence,State,ForwardOp))
+    NDNBOOST_MPL_AUX_LAMBDA_SUPPORT(3,fold,(Sequence,State,ForwardOp))
 };
 
-BOOST_MPL_AUX_NA_SPEC(3, fold)
+NDNBOOST_MPL_AUX_NA_SPEC(3, fold)
 
 }}
 
-#endif // BOOST_MPL_FOLD_HPP_INCLUDED
+#endif // NDNBOOST_MPL_FOLD_HPP_INCLUDED

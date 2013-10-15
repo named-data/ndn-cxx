@@ -13,13 +13,13 @@
 #include <ndnboost/mpl/aux_/config/lambda.hpp>
 #include <ndnboost/mpl/aux_/config/overload_resolution.hpp>
 
-#if defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT) \
-    && defined(BOOST_MPL_CFG_BROKEN_OVERLOAD_RESOLUTION)
-#   define BOOST_TT_AUX_TEMPLATE_ARITY_SPEC(i, name) \
+#if defined(NDNBOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT) \
+    && defined(NDNBOOST_MPL_CFG_BROKEN_OVERLOAD_RESOLUTION)
+#   define NDNBOOST_TT_AUX_TEMPLATE_ARITY_SPEC(i, name) \
 namespace mpl { namespace aux { \
-template< BOOST_MPL_PP_PARAMS(i, typename T) > \
+template< NDNBOOST_MPL_PP_PARAMS(i, typename T) > \
 struct template_arity< \
-          name< BOOST_MPL_PP_PARAMS(i, T) > \
+          name< NDNBOOST_MPL_PP_PARAMS(i, T) > \
         > \
     : int_<i> \
 { \
@@ -27,5 +27,5 @@ struct template_arity< \
 }} \
 /**/
 #else
-#   define BOOST_TT_AUX_TEMPLATE_ARITY_SPEC(i, name) /**/
+#   define NDNBOOST_TT_AUX_TEMPLATE_ARITY_SPEC(i, name) /**/
 #endif

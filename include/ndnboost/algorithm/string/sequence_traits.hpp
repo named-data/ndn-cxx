@@ -8,8 +8,8 @@
 
 //  See http://www.boost.org/ for updates, documentation, and revision history.
 
-#ifndef BOOST_STRING_SEQUENCE_TRAITS_HPP
-#define BOOST_STRING_SEQUENCE_TRAITS_HPP
+#ifndef NDNBOOST_STRING_SEQUENCE_TRAITS_HPP
+#define NDNBOOST_STRING_SEQUENCE_TRAITS_HPP
 
 #include <ndnboost/config.hpp>
 #include <ndnboost/mpl/bool.hpp>
@@ -36,7 +36,7 @@ namespace ndnboost {
 
 //  sequence traits  -----------------------------------------------//
 
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
         //! Native replace tester
         /*!
@@ -76,7 +76,7 @@ namespace ndnboost {
         */
         no_type has_const_time_erase_tester(...);
 
-#endif //BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#endif //NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
         //! Native replace trait
         /*!
@@ -86,20 +86,20 @@ namespace ndnboost {
         class has_native_replace
         {
 
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
         private:
             static T* t;
         public:
-            BOOST_STATIC_CONSTANT(bool, value=(
+            NDNBOOST_STATIC_CONSTANT(bool, value=(
                 sizeof(has_native_replace_tester(t))==sizeof(yes_type) ) );
-#else  // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#else  // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
         public:
-#    if BOOST_WORKAROUND( __IBMCPP__, <= 600 )
+#    if NDNBOOST_WORKAROUND( __IBMCPP__, <= 600 )
             enum { value = false };
 #    else
-            BOOST_STATIC_CONSTANT(bool, value=false);
-#    endif // BOOST_WORKAROUND( __IBMCPP__, <= 600 )
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+            NDNBOOST_STATIC_CONSTANT(bool, value=false);
+#    endif // NDNBOOST_WORKAROUND( __IBMCPP__, <= 600 )
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 
             typedef mpl::bool_<has_native_replace<T>::value> type;
@@ -114,20 +114,20 @@ namespace ndnboost {
         template< typename T >
         class has_stable_iterators
         {
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
         private:
             static T* t;
         public:
-            BOOST_STATIC_CONSTANT(bool, value=(
+            NDNBOOST_STATIC_CONSTANT(bool, value=(
                 sizeof(has_stable_iterators_tester(t))==sizeof(yes_type) ) );
-#else  // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#else  // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
         public:
-#    if BOOST_WORKAROUND( __IBMCPP__, <= 600 )
+#    if NDNBOOST_WORKAROUND( __IBMCPP__, <= 600 )
             enum { value = false };
 #    else
-            BOOST_STATIC_CONSTANT(bool, value=false);
-#    endif // BOOST_WORKAROUND( __IBMCPP__, <= 600 )
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+            NDNBOOST_STATIC_CONSTANT(bool, value=false);
+#    endif // NDNBOOST_WORKAROUND( __IBMCPP__, <= 600 )
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
             typedef mpl::bool_<has_stable_iterators<T>::value> type;
         };
@@ -141,20 +141,20 @@ namespace ndnboost {
         template< typename T >
         class has_const_time_insert
         {
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
         private:
             static T* t;
         public:
-            BOOST_STATIC_CONSTANT(bool, value=(
+            NDNBOOST_STATIC_CONSTANT(bool, value=(
                 sizeof(has_const_time_insert_tester(t))==sizeof(yes_type) ) );
-#else  // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#else  // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
         public:
-#    if BOOST_WORKAROUND( __IBMCPP__, <= 600 )
+#    if NDNBOOST_WORKAROUND( __IBMCPP__, <= 600 )
             enum { value = false };
 #    else
-            BOOST_STATIC_CONSTANT(bool, value=false);
-#    endif // BOOST_WORKAROUND( __IBMCPP__, <= 600 )
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+            NDNBOOST_STATIC_CONSTANT(bool, value=false);
+#    endif // NDNBOOST_WORKAROUND( __IBMCPP__, <= 600 )
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
             typedef mpl::bool_<has_const_time_insert<T>::value> type;
         };
@@ -168,20 +168,20 @@ namespace ndnboost {
         template< typename T >
         class has_const_time_erase
         {
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#ifdef NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
         private:
             static T* t;
         public:
-            BOOST_STATIC_CONSTANT(bool, value=(
+            NDNBOOST_STATIC_CONSTANT(bool, value=(
                 sizeof(has_const_time_erase_tester(t))==sizeof(yes_type) ) );
-#else  // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#else  // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
         public:
-#    if BOOST_WORKAROUND( __IBMCPP__, <= 600 )
+#    if NDNBOOST_WORKAROUND( __IBMCPP__, <= 600 )
             enum { value = false };
 #    else
-            BOOST_STATIC_CONSTANT(bool, value=false);
-#    endif // BOOST_WORKAROUND( __IBMCPP__, <= 600 )
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+            NDNBOOST_STATIC_CONSTANT(bool, value=false);
+#    endif // NDNBOOST_WORKAROUND( __IBMCPP__, <= 600 )
+#endif // NDNBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
             typedef mpl::bool_<has_const_time_erase<T>::value> type;
         };
@@ -190,4 +190,4 @@ namespace ndnboost {
 } // namespace ndnboost
 
 
-#endif  // BOOST_STRING_SEQUENCE_TRAITS_HPP
+#endif  // NDNBOOST_STRING_SEQUENCE_TRAITS_HPP

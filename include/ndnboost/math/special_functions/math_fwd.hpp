@@ -16,8 +16,8 @@
 // RT = Real type (built-in floating-point types, float, double, long double) & User Defined Types
 // AT = Integer or Real type
 
-#ifndef BOOST_MATH_SPECIAL_MATH_FWD_HPP
-#define BOOST_MATH_SPECIAL_MATH_FWD_HPP
+#ifndef NDNBOOST_MATH_SPECIAL_MATH_FWD_HPP
+#define NDNBOOST_MATH_SPECIAL_MATH_FWD_HPP
 
 #ifdef _MSC_VER
 #pragma once
@@ -29,7 +29,7 @@
 #include <ndnboost/mpl/comparison.hpp>
 #include <ndnboost/config/no_tr1/complex.hpp>
 
-#define BOOST_NO_MACRO_EXPAND /**/
+#define NDNBOOST_NO_MACRO_EXPAND /**/
 
 namespace ndnboost
 {
@@ -349,7 +349,7 @@ namespace ndnboost
    template <class RT, class Policy>
    RT factorial(unsigned int, const Policy& pol);
    template <class RT>
-   RT unchecked_factorial(unsigned int BOOST_MATH_APPEND_EXPLICIT_TEMPLATE_TYPE(RT));
+   RT unchecked_factorial(unsigned int NDNBOOST_MATH_APPEND_EXPLICIT_TEMPLATE_TYPE(RT));
    template <class RT>
    RT double_factorial(unsigned i);
    template <class RT, class Policy>
@@ -747,31 +747,31 @@ namespace ndnboost
    typename tools::promote_args<T>::type cos_pi(T x);
 
    template <class T>
-   int fpclassify BOOST_NO_MACRO_EXPAND(T t);
+   int fpclassify NDNBOOST_NO_MACRO_EXPAND(T t);
 
    template <class T>
-   bool isfinite BOOST_NO_MACRO_EXPAND(T z);
+   bool isfinite NDNBOOST_NO_MACRO_EXPAND(T z);
 
    template <class T>
-   bool isinf BOOST_NO_MACRO_EXPAND(T t);
+   bool isinf NDNBOOST_NO_MACRO_EXPAND(T t);
 
    template <class T>
-   bool isnan BOOST_NO_MACRO_EXPAND(T t);
+   bool isnan NDNBOOST_NO_MACRO_EXPAND(T t);
 
    template <class T>
-   bool isnormal BOOST_NO_MACRO_EXPAND(T t);
+   bool isnormal NDNBOOST_NO_MACRO_EXPAND(T t);
 
    template<class T>
-   int signbit BOOST_NO_MACRO_EXPAND(T x);
+   int signbit NDNBOOST_NO_MACRO_EXPAND(T x);
 
    template <class T>
-   int sign BOOST_NO_MACRO_EXPAND(const T& z);
+   int sign NDNBOOST_NO_MACRO_EXPAND(const T& z);
 
    template <class T, class U>
-   typename tools::promote_args<T, U>::type copysign BOOST_NO_MACRO_EXPAND(const T& x, const U& y);
+   typename tools::promote_args<T, U>::type copysign NDNBOOST_NO_MACRO_EXPAND(const T& x, const U& y);
 
    template <class T>
-   typename tools::promote_args<T>::type changesign BOOST_NO_MACRO_EXPAND(const T& z);
+   typename tools::promote_args<T>::type changesign NDNBOOST_NO_MACRO_EXPAND(const T& z);
 
    // Exponential integrals:
    namespace detail{
@@ -923,8 +923,8 @@ namespace ndnboost
     } // namespace math
 } // namespace ndnboost
 
-#ifdef BOOST_HAS_LONG_LONG
-#define BOOST_MATH_DETAIL_LL_FUNC(Policy)\
+#ifdef NDNBOOST_HAS_LONG_LONG
+#define NDNBOOST_MATH_DETAIL_LL_FUNC(Policy)\
    \
    template <class T>\
    inline T modf(const T& v, ndnboost::long_long_type* ipart){ using ndnboost::math::modf; return modf(v, ipart, Policy()); }\
@@ -936,12 +936,12 @@ namespace ndnboost
    inline ndnboost::long_long_type llround(const T& v){ using ndnboost::math::llround; return llround(v, Policy()); }\
 
 #else
-#define BOOST_MATH_DETAIL_LL_FUNC(Policy)
+#define NDNBOOST_MATH_DETAIL_LL_FUNC(Policy)
 #endif
 
-#define BOOST_MATH_DECLARE_SPECIAL_FUNCTIONS(Policy)\
+#define NDNBOOST_MATH_DECLARE_SPECIAL_FUNCTIONS(Policy)\
    \
-   BOOST_MATH_DETAIL_LL_FUNC(Policy)\
+   NDNBOOST_MATH_DETAIL_LL_FUNC(Policy)\
    \
    template <class RT1, class RT2>\
    inline typename ndnboost::math::tools::promote_args<RT1, RT2>::type \
@@ -1403,6 +1403,6 @@ template <class OutputIterator, class T>\
 
 
 
-#endif // BOOST_MATH_SPECIAL_MATH_FWD_HPP
+#endif // NDNBOOST_MATH_SPECIAL_MATH_FWD_HPP
 
 

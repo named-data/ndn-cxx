@@ -8,8 +8,8 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 
-#ifndef BOOST_TT_IS_UNION_HPP_INCLUDED
-#define BOOST_TT_IS_UNION_HPP_INCLUDED
+#ifndef NDNBOOST_TT_IS_UNION_HPP_INCLUDED
+#define NDNBOOST_TT_IS_UNION_HPP_INCLUDED
 
 #include <ndnboost/type_traits/remove_cv.hpp>
 #include <ndnboost/type_traits/config.hpp>
@@ -25,10 +25,10 @@ namespace detail {
 template <typename T> struct is_union_impl
 {
    typedef typename remove_cv<T>::type cvt;
-#ifdef BOOST_IS_UNION
-   BOOST_STATIC_CONSTANT(bool, value = BOOST_IS_UNION(cvt));
+#ifdef NDNBOOST_IS_UNION
+   NDNBOOST_STATIC_CONSTANT(bool, value = NDNBOOST_IS_UNION(cvt));
 #else
-   BOOST_STATIC_CONSTANT(bool, value = false);
+   NDNBOOST_STATIC_CONSTANT(bool, value = false);
 #endif
 };
 #else
@@ -39,19 +39,19 @@ template <typename T> struct is_union_impl
 //
 template <typename T> struct is_union_impl
 {
-#ifdef BOOST_IS_UNION
-   BOOST_STATIC_CONSTANT(bool, value = BOOST_IS_UNION(T));
+#ifdef NDNBOOST_IS_UNION
+   NDNBOOST_STATIC_CONSTANT(bool, value = NDNBOOST_IS_UNION(T));
 #else
-   BOOST_STATIC_CONSTANT(bool, value = false);
+   NDNBOOST_STATIC_CONSTANT(bool, value = false);
 #endif
 };
 #endif
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_union,T,::ndnboost::detail::is_union_impl<T>::value)
+NDNBOOST_TT_AUX_BOOL_TRAIT_DEF1(is_union,T,::ndnboost::detail::is_union_impl<T>::value)
 
 } // namespace ndnboost
 
 #include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // BOOST_TT_IS_UNION_HPP_INCLUDED
+#endif // NDNBOOST_TT_IS_UNION_HPP_INCLUDED

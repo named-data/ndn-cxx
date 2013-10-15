@@ -12,8 +12,8 @@
 // Revisions:
 // 27 Apr 2008 (improved swap) Fernando Cacciola, Niels Dekker, Thorsten Ottosen
 //
-#ifndef BOOST_OPTIONAL_OPTIONAL_FLC_19NOV2002_HPP
-#define BOOST_OPTIONAL_OPTIONAL_FLC_19NOV2002_HPP
+#ifndef NDNBOOST_OPTIONAL_OPTIONAL_FLC_19NOV2002_HPP
+#define NDNBOOST_OPTIONAL_OPTIONAL_FLC_19NOV2002_HPP
 
 #include <new>
 #include <algorithm>
@@ -38,7 +38,7 @@
 
 #include <ndnboost/optional/optional_fwd.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1200)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1200)
 // VC6.0 has the following bug:
 //   When a templated assignment operator exist, an implicit conversion
 //   constructing an optional<T> is used when assigment of the form:
@@ -47,40 +47,40 @@
 //   However, optional's ctor is _explicit_ and the assignemt shouldn't compile.
 //   Therefore, for VC6.0 templated assignment is disabled.
 //
-#define BOOST_OPTIONAL_NO_CONVERTING_ASSIGNMENT
+#define NDNBOOST_OPTIONAL_NO_CONVERTING_ASSIGNMENT
 #endif
 
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1300)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, == 1300)
 // VC7.0 has the following bug:
 //   When both a non-template and a template copy-ctor exist
 //   and the templated version is made 'explicit', the explicit is also
 //   given to the non-templated version, making the class non-implicitely-copyable.
 //
-#define BOOST_OPTIONAL_NO_CONVERTING_COPY_CTOR
+#define NDNBOOST_OPTIONAL_NO_CONVERTING_COPY_CTOR
 #endif
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) || BOOST_WORKAROUND(BOOST_INTEL_CXX_VERSION,<=700)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1300) || NDNBOOST_WORKAROUND(NDNBOOST_INTEL_CXX_VERSION,<=700)
 // AFAICT only VC7.1 correctly resolves the overload set
 // that includes the in-place factory taking functions,
 // so for the other VC versions, in-place factory support
 // is disabled
-#define BOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
+#define NDNBOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
 #endif
 
-#if BOOST_WORKAROUND(__BORLANDC__, <= 0x551)
+#if NDNBOOST_WORKAROUND(__BORLANDC__, <= 0x551)
 // BCB (5.5.1) cannot parse the nested template struct in an inplace factory.
-#define BOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
+#define NDNBOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
 #endif
 
-#if !defined(BOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT) \
-    && BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581) )
+#if !defined(NDNBOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT) \
+    && NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x581) )
 // BCB (up to 5.64) has the following bug:
 //   If there is a member function/operator template of the form
 //     template<class Expr> mfunc( Expr expr ) ;
 //   some calls are resolved to this even if there are other better matches.
 //   The effect of this bug is that calls to converting ctors and assignments
 //   are incrorrectly sink to this general catch-all member function template as shown above.
-#define BOOST_OPTIONAL_WEAK_OVERLOAD_RESOLUTION
+#define NDNBOOST_OPTIONAL_WEAK_OVERLOAD_RESOLUTION
 #endif
 
 #if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__) > 302 \
@@ -89,7 +89,7 @@
 // regard to violation of the strict aliasing rules. The optional< T > storage type is marked
 // with this attribute in order to let the compiler know that it will alias objects of type T
 // and silence compilation warnings.
-#define BOOST_OPTIONAL_DETAIL_USE_ATTRIBUTE_MAY_ALIAS
+#define NDNBOOST_OPTIONAL_DETAIL_USE_ATTRIBUTE_MAY_ALIAS
 #endif
 
 // Daniel Wallin discovered that bind/apply.hpp badly interacts with the apply<>
@@ -101,7 +101,7 @@ namespace ndnboost_optional_detail
   template <class T, class Factory>
   inline void construct(Factory const& factory, void* address)
   {
-    factory.BOOST_NESTED_TEMPLATE apply<T>(address);
+    factory.NDNBOOST_NESTED_TEMPLATE apply<T>(address);
   }
 }
 
@@ -126,19 +126,19 @@ class aligned_storage
     // Borland ICEs if unnamed unions are used for this!
     union
     // This works around GCC warnings about breaking strict aliasing rules when casting storage address to T*
-#if defined(BOOST_OPTIONAL_DETAIL_USE_ATTRIBUTE_MAY_ALIAS)
+#if defined(NDNBOOST_OPTIONAL_DETAIL_USE_ATTRIBUTE_MAY_ALIAS)
     __attribute__((may_alias))
 #endif
     dummy_u
     {
         char data[ sizeof(T) ];
-        BOOST_DEDUCED_TYPENAME type_with_alignment<
+        NDNBOOST_DEDUCED_TYPENAME type_with_alignment<
           ::ndnboost::alignment_of<T>::value >::type aligner_;
     } dummy_ ;
 
   public:
 
-#if defined(BOOST_OPTIONAL_DETAIL_USE_ATTRIBUTE_MAY_ALIAS)
+#if defined(NDNBOOST_OPTIONAL_DETAIL_USE_ATTRIBUTE_MAY_ALIAS)
     void const* address() const { return &dummy_; }
     void      * address()       { return &dummy_; }
 #else
@@ -159,7 +159,7 @@ struct types_when_isnt_ref
 template<class T>
 struct types_when_is_ref
 {
-  typedef BOOST_DEDUCED_TYPENAME remove_reference<T>::type raw_type ;
+  typedef NDNBOOST_DEDUCED_TYPENAME remove_reference<T>::type raw_type ;
 
   typedef raw_type& reference_const_type ;
   typedef raw_type& reference_type ;
@@ -176,8 +176,8 @@ class optional_base : public optional_tag
   private :
 
     typedef
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
-    BOOST_DEDUCED_TYPENAME
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x564))
+    NDNBOOST_DEDUCED_TYPENAME
 #endif
     ::ndnboost::detail::make_reference_content<T>::type internal_type ;
 
@@ -195,19 +195,19 @@ class optional_base : public optional_tag
     typedef mpl::true_  is_reference_tag ;
     typedef mpl::false_ is_not_reference_tag ;
 
-    typedef BOOST_DEDUCED_TYPENAME is_reference<T>::type is_reference_predicate ;
+    typedef NDNBOOST_DEDUCED_TYPENAME is_reference<T>::type is_reference_predicate ;
 
   public:
-    typedef BOOST_DEDUCED_TYPENAME mpl::if_<is_reference_predicate,types_when_ref,types_when_not_ref>::type types ;
+    typedef NDNBOOST_DEDUCED_TYPENAME mpl::if_<is_reference_predicate,types_when_ref,types_when_not_ref>::type types ;
 
   protected:
     typedef bool (this_type::*unspecified_bool_type)() const;
 
-    typedef BOOST_DEDUCED_TYPENAME types::reference_type       reference_type ;
-    typedef BOOST_DEDUCED_TYPENAME types::reference_const_type reference_const_type ;
-    typedef BOOST_DEDUCED_TYPENAME types::pointer_type         pointer_type ;
-    typedef BOOST_DEDUCED_TYPENAME types::pointer_const_type   pointer_const_type ;
-    typedef BOOST_DEDUCED_TYPENAME types::argument_type        argument_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME types::reference_type       reference_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME types::reference_const_type reference_const_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME types::pointer_type         pointer_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME types::pointer_const_type   pointer_const_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME types::argument_type        argument_type ;
 
     // Creates an optional<T> uninitialized.
     // No-throw
@@ -312,7 +312,7 @@ class optional_base : public optional_tag
     // No-throw (assuming T::~T() doesn't)
     void assign ( none_t ) { destroy(); }
 
-#ifndef BOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
+#ifndef NDNBOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
     template<class Expr>
     void assign_expr ( Expr const& expr, Expr const* tag )
       {
@@ -347,12 +347,12 @@ class optional_base : public optional_tag
        m_initialized = true ;
      }
 
-#ifndef BOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
+#ifndef NDNBOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
     // Constructs in-place using the given factory
     template<class Expr>
     void construct ( Expr const& factory, in_place_factory_base const* )
      {
-       BOOST_STATIC_ASSERT ( ::ndnboost::mpl::not_<is_reference_predicate>::value ) ;
+       NDNBOOST_STATIC_ASSERT ( ::ndnboost::mpl::not_<is_reference_predicate>::value ) ;
        ndnboost_optional_detail::construct<value_type>(factory, m_storage.address());
        m_initialized = true ;
      }
@@ -361,7 +361,7 @@ class optional_base : public optional_tag
     template<class Expr>
     void construct ( Expr const& factory, typed_in_place_factory_base const* )
      {
-       BOOST_STATIC_ASSERT ( ::ndnboost::mpl::not_<is_reference_predicate>::value ) ;
+       NDNBOOST_STATIC_ASSERT ( ::ndnboost::mpl::not_<is_reference_predicate>::value ) ;
        factory.apply(m_storage.address()) ;
        m_initialized = true ;
      }
@@ -403,7 +403,7 @@ class optional_base : public optional_tag
        assign_value(expr, is_reference_predicate());
      }
 
-#ifdef BOOST_OPTIONAL_WEAK_OVERLOAD_RESOLUTION
+#ifdef NDNBOOST_OPTIONAL_WEAK_OVERLOAD_RESOLUTION
     // BCB5.64 (and probably lower versions) workaround.
     //   The in-place factories are supported by means of catch-all constructors
     //   and assignment operators (the functions are parameterized in terms of
@@ -450,7 +450,7 @@ class optional_base : public optional_tag
   private :
 
     // internal_type can be either T or reference_content<T>
-#if defined(BOOST_OPTIONAL_DETAIL_USE_ATTRIBUTE_MAY_ALIAS)
+#if defined(NDNBOOST_OPTIONAL_DETAIL_USE_ATTRIBUTE_MAY_ALIAS)
     // This workaround is supposed to silence GCC warnings about broken strict aliasing rules
     internal_type const* get_object() const
     {
@@ -473,7 +473,7 @@ class optional_base : public optional_tag
     reference_const_type dereference( internal_type const* p, is_reference_tag     ) const { return p->get() ; }
     reference_type       dereference( internal_type*       p, is_reference_tag     )       { return p->get() ; }
 
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))
+#if NDNBOOST_WORKAROUND(__BORLANDC__, NDNBOOST_TESTED_AT(0x581))
     void destroy_impl ( is_not_reference_tag ) { get_ptr_impl()->internal_type::~internal_type() ; m_initialized = false ; }
 #else
     void destroy_impl ( is_not_reference_tag ) { get_ptr_impl()->T::~T() ; m_initialized = false ; }
@@ -500,18 +500,18 @@ class optional : public optional_detail::optional_base<T>
 {
     typedef optional_detail::optional_base<T> base ;
 
-    typedef BOOST_DEDUCED_TYPENAME base::unspecified_bool_type  unspecified_bool_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME base::unspecified_bool_type  unspecified_bool_type ;
 
   public :
 
     typedef optional<T> this_type ;
 
-    typedef BOOST_DEDUCED_TYPENAME base::value_type           value_type ;
-    typedef BOOST_DEDUCED_TYPENAME base::reference_type       reference_type ;
-    typedef BOOST_DEDUCED_TYPENAME base::reference_const_type reference_const_type ;
-    typedef BOOST_DEDUCED_TYPENAME base::pointer_type         pointer_type ;
-    typedef BOOST_DEDUCED_TYPENAME base::pointer_const_type   pointer_const_type ;
-    typedef BOOST_DEDUCED_TYPENAME base::argument_type        argument_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME base::value_type           value_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME base::reference_type       reference_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME base::reference_const_type reference_const_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME base::pointer_type         pointer_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME base::pointer_const_type   pointer_const_type ;
+    typedef NDNBOOST_DEDUCED_TYPENAME base::argument_type        argument_type ;
 
     // Creates an optional<T> uninitialized.
     // No-throw
@@ -529,7 +529,7 @@ class optional : public optional_detail::optional_base<T>
     // Can throw if T::T(T const&) does
     optional ( bool cond, argument_type val ) : base(cond,val) {}
 
-#ifndef BOOST_OPTIONAL_NO_CONVERTING_COPY_CTOR
+#ifndef NDNBOOST_OPTIONAL_NO_CONVERTING_COPY_CTOR
     // NOTE: MSVC needs templated versions first
 
     // Creates a deep copy of another convertible optional<U>
@@ -545,7 +545,7 @@ class optional : public optional_detail::optional_base<T>
     }
 #endif
 
-#ifndef BOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
+#ifndef NDNBOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
     // Creates an optional<T> with an expression which can be either
     //  (a) An instance of InPlaceFactory (i.e. in_place(a,b,...,n);
     //  (b) An instance of TypedInPlaceFactory ( i.e. in_place<T>(a,b,...,n);
@@ -566,7 +566,7 @@ class optional : public optional_detail::optional_base<T>
    // No-throw (assuming T::~T() doesn't)
     ~optional() {}
 
-#if !defined(BOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT) && !defined(BOOST_OPTIONAL_WEAK_OVERLOAD_RESOLUTION)
+#if !defined(NDNBOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT) && !defined(NDNBOOST_OPTIONAL_WEAK_OVERLOAD_RESOLUTION)
     // Assigns from an expression. See corresponding constructor.
     // Basic Guarantee: If the resolved T ctor throws, this is left UNINITIALIZED
     template<class Expr>
@@ -578,7 +578,7 @@ class optional : public optional_detail::optional_base<T>
 #endif
 
 
-#ifndef BOOST_OPTIONAL_NO_CONVERTING_ASSIGNMENT
+#ifndef NDNBOOST_OPTIONAL_NO_CONVERTING_ASSIGNMENT
     // Assigns from another convertible optional<U> (converts && deep-copies the rhs value)
     // Requires a valid conversion from U to T.
     // Basic Guarantee: If T::T( U const& ) throws, this is left UNINITIALIZED
@@ -627,8 +627,8 @@ class optional : public optional_detail::optional_base<T>
     // Returns a reference to the value if this is initialized, otherwise,
     // the behaviour is UNDEFINED
     // No-throw
-    reference_const_type get() const { BOOST_ASSERT(this->is_initialized()) ; return this->get_impl(); }
-    reference_type       get()       { BOOST_ASSERT(this->is_initialized()) ; return this->get_impl(); }
+    reference_const_type get() const { NDNBOOST_ASSERT(this->is_initialized()) ; return this->get_impl(); }
+    reference_type       get()       { NDNBOOST_ASSERT(this->is_initialized()) ; return this->get_impl(); }
 
     // Returns a copy of the value if this is initialized, 'v' otherwise
     reference_const_type get_value_or ( reference_const_type v ) const { return this->is_initialized() ? get() : v ; }
@@ -637,8 +637,8 @@ class optional : public optional_detail::optional_base<T>
     // Returns a pointer to the value if this is initialized, otherwise,
     // the behaviour is UNDEFINED
     // No-throw
-    pointer_const_type operator->() const { BOOST_ASSERT(this->is_initialized()) ; return this->get_ptr_impl() ; }
-    pointer_type       operator->()       { BOOST_ASSERT(this->is_initialized()) ; return this->get_ptr_impl() ; }
+    pointer_const_type operator->() const { NDNBOOST_ASSERT(this->is_initialized()) ; return this->get_ptr_impl() ; }
+    pointer_type       operator->()       { NDNBOOST_ASSERT(this->is_initialized()) ; return this->get_ptr_impl() ; }
 
     // Returns a reference to the value if this is initialized, otherwise,
     // the behaviour is UNDEFINED
@@ -675,7 +675,7 @@ optional<T> make_optional ( bool cond, T const& v )
 // No-throw
 template<class T>
 inline
-BOOST_DEDUCED_TYPENAME optional<T>::reference_const_type
+NDNBOOST_DEDUCED_TYPENAME optional<T>::reference_const_type
 get ( optional<T> const& opt )
 {
   return opt.get() ;
@@ -683,7 +683,7 @@ get ( optional<T> const& opt )
 
 template<class T>
 inline
-BOOST_DEDUCED_TYPENAME optional<T>::reference_type
+NDNBOOST_DEDUCED_TYPENAME optional<T>::reference_type
 get ( optional<T>& opt )
 {
   return opt.get() ;
@@ -693,7 +693,7 @@ get ( optional<T>& opt )
 // No-throw
 template<class T>
 inline
-BOOST_DEDUCED_TYPENAME optional<T>::pointer_const_type
+NDNBOOST_DEDUCED_TYPENAME optional<T>::pointer_const_type
 get ( optional<T> const* opt )
 {
   return opt->get_ptr() ;
@@ -701,7 +701,7 @@ get ( optional<T> const* opt )
 
 template<class T>
 inline
-BOOST_DEDUCED_TYPENAME optional<T>::pointer_type
+NDNBOOST_DEDUCED_TYPENAME optional<T>::pointer_type
 get ( optional<T>* opt )
 {
   return opt->get_ptr() ;
@@ -711,16 +711,16 @@ get ( optional<T>* opt )
 // No-throw
 template<class T>
 inline
-BOOST_DEDUCED_TYPENAME optional<T>::reference_const_type
-get_optional_value_or ( optional<T> const& opt, BOOST_DEDUCED_TYPENAME optional<T>::reference_const_type v )
+NDNBOOST_DEDUCED_TYPENAME optional<T>::reference_const_type
+get_optional_value_or ( optional<T> const& opt, NDNBOOST_DEDUCED_TYPENAME optional<T>::reference_const_type v )
 {
   return opt.get_value_or(v) ;
 }
 
 template<class T>
 inline
-BOOST_DEDUCED_TYPENAME optional<T>::reference_type
-get_optional_value_or ( optional<T>& opt, BOOST_DEDUCED_TYPENAME optional<T>::reference_type v )
+NDNBOOST_DEDUCED_TYPENAME optional<T>::reference_type
+get_optional_value_or ( optional<T>& opt, NDNBOOST_DEDUCED_TYPENAME optional<T>::reference_type v )
 {
   return opt.get_value_or(v) ;
 }
@@ -729,7 +729,7 @@ get_optional_value_or ( optional<T>& opt, BOOST_DEDUCED_TYPENAME optional<T>::re
 // No-throw
 template<class T>
 inline
-BOOST_DEDUCED_TYPENAME optional<T>::pointer_const_type
+NDNBOOST_DEDUCED_TYPENAME optional<T>::pointer_const_type
 get_pointer ( optional<T> const& opt )
 {
   return opt.get_ptr() ;
@@ -737,7 +737,7 @@ get_pointer ( optional<T> const& opt )
 
 template<class T>
 inline
-BOOST_DEDUCED_TYPENAME optional<T>::pointer_type
+NDNBOOST_DEDUCED_TYPENAME optional<T>::pointer_type
 get_pointer ( optional<T>& opt )
 {
   return opt.get_ptr() ;

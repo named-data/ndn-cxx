@@ -1,6 +1,6 @@
 
-#ifndef BOOST_MPL_BEGIN_END_FWD_HPP_INCLUDED
-#define BOOST_MPL_BEGIN_END_FWD_HPP_INCLUDED
+#ifndef NDNBOOST_MPL_BEGIN_END_FWD_HPP_INCLUDED
+#define NDNBOOST_MPL_BEGIN_END_FWD_HPP_INCLUDED
 
 // Copyright Aleksey Gurtovoy 2000-2004
 //
@@ -24,4 +24,4 @@ template< typename Sequence > struct end;
 
 }}
 
-#endif // BOOST_MPL_BEGIN_END_FWD_HPP_INCLUDED
+#endif // NDNBOOST_MPL_BEGIN_END_FWD_HPP_INCLUDED

@@ -99,7 +99,7 @@ struct is_bind_template_impl
 {
     template< typename T > struct result_
     {
-        BOOST_STATIC_CONSTANT(bool, value  = false);
+        NDNBOOST_STATIC_CONSTANT(bool, value  = false);
     };
 };
 
@@ -108,7 +108,7 @@ struct is_bind_template_impl<false>
 {
     template< typename T > struct result_
     {
-        BOOST_STATIC_CONSTANT(bool, value =
+        NDNBOOST_STATIC_CONSTANT(bool, value =
               sizeof(aux::is_bind_helper(static_cast<T*>(0)))
                 == sizeof(aux::yes_tag)
             );
@@ -158,8 +158,8 @@ is_bind_helper(bind0<F>*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(1, bind0)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(1, bind0)
+NDNBOOST_MPL_AUX_ARITY_SPEC(1, bind0)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(1, bind0)
 
 namespace aux {
 
@@ -219,8 +219,8 @@ is_bind_helper(bind1< F,T1 >*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(2, bind1)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(2, bind1)
+NDNBOOST_MPL_AUX_ARITY_SPEC(2, bind1)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(2, bind1)
 
 namespace aux {
 
@@ -285,8 +285,8 @@ is_bind_helper(bind2< F,T1,T2 >*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(3, bind2)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(3, bind2)
+NDNBOOST_MPL_AUX_ARITY_SPEC(3, bind2)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(3, bind2)
 
 namespace aux {
 
@@ -356,8 +356,8 @@ is_bind_helper(bind3< F,T1,T2,T3 >*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(4, bind3)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(4, bind3)
+NDNBOOST_MPL_AUX_ARITY_SPEC(4, bind3)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(4, bind3)
 
 namespace aux {
 
@@ -433,8 +433,8 @@ is_bind_helper(bind4< F,T1,T2,T3,T4 >*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(5, bind4)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(5, bind4)
+NDNBOOST_MPL_AUX_ARITY_SPEC(5, bind4)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(5, bind4)
 
 namespace aux {
 
@@ -517,8 +517,8 @@ is_bind_helper(bind5< F,T1,T2,T3,T4,T5 >*);
 
 } // namespace aux
 
-BOOST_MPL_AUX_ARITY_SPEC(6, bind5)
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(6, bind5)
+NDNBOOST_MPL_AUX_ARITY_SPEC(6, bind5)
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(6, bind5)
 
 namespace aux {
 
@@ -542,13 +542,13 @@ namespace aux {
 template< typename T >
 struct is_bind_arg
 {
-    BOOST_STATIC_CONSTANT(bool, value  = true);
+    NDNBOOST_STATIC_CONSTANT(bool, value  = true);
 };
 
 template<>
 struct is_bind_arg<na>
 {
-    BOOST_STATIC_CONSTANT(bool, value  = false);
+    NDNBOOST_STATIC_CONSTANT(bool, value  = false);
 };
 
 template<
@@ -556,7 +556,7 @@ template<
     >
 struct bind_count_args
 {
-    BOOST_STATIC_CONSTANT(int, value =
+    NDNBOOST_STATIC_CONSTANT(int, value =
           is_bind_arg<T1>::value + is_bind_arg<T2>::value 
         + is_bind_arg<T3>::value + is_bind_arg<T4>::value 
         + is_bind_arg<T5>::value
@@ -577,12 +577,12 @@ struct bind
 {
 };
 
-BOOST_MPL_AUX_ARITY_SPEC(
+NDNBOOST_MPL_AUX_ARITY_SPEC(
       6
     , bind
     )
 
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(
+NDNBOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(
       6
     , bind
     )

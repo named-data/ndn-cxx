@@ -10,8 +10,8 @@
 
 // ------------------------------------------------------------
 
-#ifndef BOOST_LAMBDA_OPERATOR_LAMBDA_FUNC_BASE_HPP
-#define BOOST_LAMBDA_OPERATOR_LAMBDA_FUNC_BASE_HPP
+#ifndef NDNBOOST_LAMBDA_OPERATOR_LAMBDA_FUNC_BASE_HPP
+#define NDNBOOST_LAMBDA_OPERATOR_LAMBDA_FUNC_BASE_HPP
 
 namespace ndnboost { 
 namespace lambda {
@@ -145,7 +145,7 @@ public:
 };  
 
 
-#define BOOST_LAMBDA_BINARY_ACTION(SYMBOL, ACTION_CLASS)  \
+#define NDNBOOST_LAMBDA_BINARY_ACTION(SYMBOL, ACTION_CLASS)  \
 template<class Args>                                                      \
 class lambda_functor_base<ACTION_CLASS, Args> {                           \
 public:                                                                   \
@@ -165,7 +165,7 @@ public:                                                                   \
   };                                                                      \
 };  
 
-#define BOOST_LAMBDA_PREFIX_UNARY_ACTION(SYMBOL, ACTION_CLASS)            \
+#define NDNBOOST_LAMBDA_PREFIX_UNARY_ACTION(SYMBOL, ACTION_CLASS)            \
 template<class Args>                                                      \
 class lambda_functor_base<ACTION_CLASS, Args> {                           \
 public:                                                                   \
@@ -184,7 +184,7 @@ public:                                                                   \
   };                                                                      \
 };  
 
-#define BOOST_LAMBDA_POSTFIX_UNARY_ACTION(SYMBOL, ACTION_CLASS)           \
+#define NDNBOOST_LAMBDA_POSTFIX_UNARY_ACTION(SYMBOL, ACTION_CLASS)           \
 template<class Args>                                                      \
 class lambda_functor_base<ACTION_CLASS, Args> {                           \
 public:                                                                   \
@@ -203,57 +203,57 @@ public:                                                                   \
   };                                                                      \
 };  
 
-BOOST_LAMBDA_BINARY_ACTION(+,arithmetic_action<plus_action>)
-BOOST_LAMBDA_BINARY_ACTION(-,arithmetic_action<minus_action>)
-BOOST_LAMBDA_BINARY_ACTION(*,arithmetic_action<multiply_action>)
-BOOST_LAMBDA_BINARY_ACTION(/,arithmetic_action<divide_action>)
-BOOST_LAMBDA_BINARY_ACTION(%,arithmetic_action<remainder_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(+,arithmetic_action<plus_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(-,arithmetic_action<minus_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(*,arithmetic_action<multiply_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(/,arithmetic_action<divide_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(%,arithmetic_action<remainder_action>)
 
-BOOST_LAMBDA_BINARY_ACTION(<<,bitwise_action<leftshift_action>)
-BOOST_LAMBDA_BINARY_ACTION(>>,bitwise_action<rightshift_action>)
-BOOST_LAMBDA_BINARY_ACTION(&,bitwise_action<and_action>)
-BOOST_LAMBDA_BINARY_ACTION(|,bitwise_action<or_action>)
-BOOST_LAMBDA_BINARY_ACTION(^,bitwise_action<xor_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(<<,bitwise_action<leftshift_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(>>,bitwise_action<rightshift_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(&,bitwise_action<and_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(|,bitwise_action<or_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(^,bitwise_action<xor_action>)
 
-BOOST_LAMBDA_BINARY_ACTION(<,relational_action<less_action>)
-BOOST_LAMBDA_BINARY_ACTION(>,relational_action<greater_action>)
-BOOST_LAMBDA_BINARY_ACTION(<=,relational_action<lessorequal_action>)
-BOOST_LAMBDA_BINARY_ACTION(>=,relational_action<greaterorequal_action>)
-BOOST_LAMBDA_BINARY_ACTION(==,relational_action<equal_action>)
-BOOST_LAMBDA_BINARY_ACTION(!=,relational_action<notequal_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(<,relational_action<less_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(>,relational_action<greater_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(<=,relational_action<lessorequal_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(>=,relational_action<greaterorequal_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(==,relational_action<equal_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(!=,relational_action<notequal_action>)
 
-BOOST_LAMBDA_BINARY_ACTION(+=,arithmetic_assignment_action<plus_action>)
-BOOST_LAMBDA_BINARY_ACTION(-=,arithmetic_assignment_action<minus_action>)
-BOOST_LAMBDA_BINARY_ACTION(*=,arithmetic_assignment_action<multiply_action>)
-BOOST_LAMBDA_BINARY_ACTION(/=,arithmetic_assignment_action<divide_action>)
-BOOST_LAMBDA_BINARY_ACTION(%=,arithmetic_assignment_action<remainder_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(+=,arithmetic_assignment_action<plus_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(-=,arithmetic_assignment_action<minus_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(*=,arithmetic_assignment_action<multiply_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(/=,arithmetic_assignment_action<divide_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(%=,arithmetic_assignment_action<remainder_action>)
 
-BOOST_LAMBDA_BINARY_ACTION(<<=,bitwise_assignment_action<leftshift_action>)
-BOOST_LAMBDA_BINARY_ACTION(>>=,bitwise_assignment_action<rightshift_action>)
-BOOST_LAMBDA_BINARY_ACTION(&=,bitwise_assignment_action<and_action>)
-BOOST_LAMBDA_BINARY_ACTION(|=,bitwise_assignment_action<or_action>)
-BOOST_LAMBDA_BINARY_ACTION(^=,bitwise_assignment_action<xor_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(<<=,bitwise_assignment_action<leftshift_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(>>=,bitwise_assignment_action<rightshift_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(&=,bitwise_assignment_action<and_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(|=,bitwise_assignment_action<or_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(^=,bitwise_assignment_action<xor_action>)
 
-BOOST_LAMBDA_BINARY_ACTION(=,other_action< assignment_action>)
-
-
-BOOST_LAMBDA_PREFIX_UNARY_ACTION(+, unary_arithmetic_action<plus_action>)
-BOOST_LAMBDA_PREFIX_UNARY_ACTION(-, unary_arithmetic_action<minus_action>)
-BOOST_LAMBDA_PREFIX_UNARY_ACTION(~, bitwise_action<not_action>)
-BOOST_LAMBDA_PREFIX_UNARY_ACTION(!, logical_action<not_action>)
-BOOST_LAMBDA_PREFIX_UNARY_ACTION(++, pre_increment_decrement_action<increment_action>)
-BOOST_LAMBDA_PREFIX_UNARY_ACTION(--, pre_increment_decrement_action<decrement_action>)
-
-BOOST_LAMBDA_PREFIX_UNARY_ACTION(&,other_action<addressof_action>)
-BOOST_LAMBDA_PREFIX_UNARY_ACTION(*,other_action<contentsof_action>)
-
-BOOST_LAMBDA_POSTFIX_UNARY_ACTION(++, post_increment_decrement_action<increment_action>)
-BOOST_LAMBDA_POSTFIX_UNARY_ACTION(--, post_increment_decrement_action<decrement_action>)
+NDNBOOST_LAMBDA_BINARY_ACTION(=,other_action< assignment_action>)
 
 
-#undef BOOST_LAMBDA_POSTFIX_UNARY_ACTION
-#undef BOOST_LAMBDA_PREFIX_UNARY_ACTION
-#undef BOOST_LAMBDA_BINARY_ACTION
+NDNBOOST_LAMBDA_PREFIX_UNARY_ACTION(+, unary_arithmetic_action<plus_action>)
+NDNBOOST_LAMBDA_PREFIX_UNARY_ACTION(-, unary_arithmetic_action<minus_action>)
+NDNBOOST_LAMBDA_PREFIX_UNARY_ACTION(~, bitwise_action<not_action>)
+NDNBOOST_LAMBDA_PREFIX_UNARY_ACTION(!, logical_action<not_action>)
+NDNBOOST_LAMBDA_PREFIX_UNARY_ACTION(++, pre_increment_decrement_action<increment_action>)
+NDNBOOST_LAMBDA_PREFIX_UNARY_ACTION(--, pre_increment_decrement_action<decrement_action>)
+
+NDNBOOST_LAMBDA_PREFIX_UNARY_ACTION(&,other_action<addressof_action>)
+NDNBOOST_LAMBDA_PREFIX_UNARY_ACTION(*,other_action<contentsof_action>)
+
+NDNBOOST_LAMBDA_POSTFIX_UNARY_ACTION(++, post_increment_decrement_action<increment_action>)
+NDNBOOST_LAMBDA_POSTFIX_UNARY_ACTION(--, post_increment_decrement_action<decrement_action>)
+
+
+#undef NDNBOOST_LAMBDA_POSTFIX_UNARY_ACTION
+#undef NDNBOOST_LAMBDA_PREFIX_UNARY_ACTION
+#undef NDNBOOST_LAMBDA_BINARY_ACTION
 
 } // namespace lambda
 } // namespace ndnboost

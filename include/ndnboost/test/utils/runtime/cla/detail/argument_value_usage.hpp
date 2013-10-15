@@ -13,8 +13,8 @@
 //  Description : argument usage printing helpers
 // ***************************************************************************
 
-#ifndef BOOST_RT_CLA_ARGUMENT_VALUE_USAGE_HPP_062604GER
-#define BOOST_RT_CLA_ARGUMENT_VALUE_USAGE_HPP_062604GER
+#ifndef NDNBOOST_RT_CLA_ARGUMENT_VALUE_USAGE_HPP_062604GER
+#define NDNBOOST_RT_CLA_ARGUMENT_VALUE_USAGE_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -32,7 +32,7 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 namespace cla {
 
@@ -47,7 +47,7 @@ template<typename T>
 inline void
 argument_value_usage( format_stream& fs, long, T* = 0 )
 {
-    fs << BOOST_RT_PARAM_CSTRING_LITERAL( "<value>" );
+    fs << NDNBOOST_RT_PARAM_CSTRING_LITERAL( "<value>" );
 }
 
 //____________________________________________________________________________//
@@ -57,7 +57,7 @@ template<typename T>
 inline void
 argument_value_usage( format_stream& fs, int, std::list<T>* = 0 )
 {
-    fs << BOOST_RT_PARAM_CSTRING_LITERAL( "(<value1>, ..., <valueN>)" );
+    fs << NDNBOOST_RT_PARAM_CSTRING_LITERAL( "(<value1>, ..., <valueN>)" );
 }
 
 //____________________________________________________________________________//
@@ -66,7 +66,7 @@ argument_value_usage( format_stream& fs, int, std::list<T>* = 0 )
 inline void
 argument_value_usage( format_stream& fs,  int, bool* = 0 )
 {
-    fs << BOOST_RT_PARAM_CSTRING_LITERAL( "yes|y|no|n" );
+    fs << NDNBOOST_RT_PARAM_CSTRING_LITERAL( "yes|y|no|n" );
 }
 
 //____________________________________________________________________________//
@@ -75,8 +75,8 @@ argument_value_usage( format_stream& fs,  int, bool* = 0 )
 
 } // namespace cla
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_CLA_ARGUMENT_VALUE_USAGE_HPP_062604GER
+#endif // NDNBOOST_RT_CLA_ARGUMENT_VALUE_USAGE_HPP_062604GER

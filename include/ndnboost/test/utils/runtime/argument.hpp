@@ -12,8 +12,8 @@
 //  Description : model of actual argument (both typed and abstract interface)
 // ***************************************************************************
 
-#ifndef BOOST_RT_ARGUMENT_HPP_062604GER
-#define BOOST_RT_ARGUMENT_HPP_062604GER
+#ifndef NDNBOOST_RT_ARGUMENT_HPP_062604GER
+#define NDNBOOST_RT_ARGUMENT_HPP_062604GER
 
 // Boost.Runtime.Parameter
 #include <ndnboost/test/utils/runtime/config.hpp>
@@ -29,13 +29,13 @@
 
 namespace ndnboost {
 
-namespace BOOST_RT_PARAM_NAMESPACE {
+namespace NDNBOOST_RT_PARAM_NAMESPACE {
 
 // ************************************************************************** //
 // **************              runtime::argument               ************** //
 // ************************************************************************** //
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #  pragma warning(push)
 #  pragma warning(disable:4244)
 #endif
@@ -99,14 +99,14 @@ arg_value( argument& arg_ )
     return static_cast<typed_argument<T>&>( arg_ ).p_value.value;
 }
 
-#ifdef BOOST_MSVC
+#ifdef NDNBOOST_MSVC
 #  pragma warning(pop)
 #endif
 
 //____________________________________________________________________________//
 
-} // namespace BOOST_RT_PARAM_NAMESPACE
+} // namespace NDNBOOST_RT_PARAM_NAMESPACE
 
 } // namespace ndnboost
 
-#endif // BOOST_RT_ARGUMENT_HPP_062604GER
+#endif // NDNBOOST_RT_ARGUMENT_HPP_062604GER

@@ -8,8 +8,8 @@
 
 // For more information, see http://www.boost.org
 
-#ifndef BOOST_FUNCTION_BASE_HEADER
-#define BOOST_FUNCTION_BASE_HEADER
+#ifndef NDNBOOST_FUNCTION_BASE_HEADER
+#define NDNBOOST_FUNCTION_BASE_HEADER
 
 #include <stdexcept>
 #include <string>
@@ -30,7 +30,7 @@
 #include <ndnboost/mpl/if.hpp>
 #include <ndnboost/detail/workaround.hpp>
 #include <ndnboost/type_traits/alignment_of.hpp>
-#ifndef BOOST_NO_SFINAE
+#ifndef NDNBOOST_NO_SFINAE
 #  include "ndnboost/utility/enable_if.hpp"
 #else
 #  include "ndnboost/mpl/bool.hpp"
@@ -38,49 +38,49 @@
 #include <ndnboost/function_equal.hpp>
 #include <ndnboost/function/function_fwd.hpp>
 
-#if defined(BOOST_MSVC)
+#if defined(NDNBOOST_MSVC)
 #   pragma warning( push )
 #   pragma warning( disable : 4793 ) // complaint about native code generation
 #   pragma warning( disable : 4127 ) // "conditional expression is constant"
 #endif       
 
-// Define BOOST_FUNCTION_STD_NS to the namespace that contains type_info.
-#ifdef BOOST_NO_STD_TYPEINFO
+// Define NDNBOOST_FUNCTION_STD_NS to the namespace that contains type_info.
+#ifdef NDNBOOST_NO_STD_TYPEINFO
 // Embedded VC++ does not have type_info in namespace std
-#  define BOOST_FUNCTION_STD_NS
+#  define NDNBOOST_FUNCTION_STD_NS
 #else
-#  define BOOST_FUNCTION_STD_NS std
+#  define NDNBOOST_FUNCTION_STD_NS std
 #endif
 
 // Borrowed from Boost.Python library: determines the cases where we
 // need to use std::type_info::name to compare instead of operator==.
-#if defined( BOOST_NO_TYPEID )
-#  define BOOST_FUNCTION_COMPARE_TYPE_ID(X,Y) ((X)==(Y))
+#if defined( NDNBOOST_NO_TYPEID )
+#  define NDNBOOST_FUNCTION_COMPARE_TYPE_ID(X,Y) ((X)==(Y))
 #elif (defined(__GNUC__) && __GNUC__ >= 3) \
  || defined(_AIX) \
  || (   defined(__sgi) && defined(__host_mips))
 #  include <cstring>
-#  define BOOST_FUNCTION_COMPARE_TYPE_ID(X,Y) \
+#  define NDNBOOST_FUNCTION_COMPARE_TYPE_ID(X,Y) \
      (std::strcmp((X).name(),(Y).name()) == 0)
 # else
-#  define BOOST_FUNCTION_COMPARE_TYPE_ID(X,Y) ((X)==(Y))
+#  define NDNBOOST_FUNCTION_COMPARE_TYPE_ID(X,Y) ((X)==(Y))
 #endif
 
-#if defined(BOOST_MSVC) && BOOST_MSVC <= 1300 || defined(__ICL) && __ICL <= 600 || defined(__MWERKS__) && __MWERKS__ < 0x2406 && !defined(BOOST_STRICT_CONFIG)
-#  define BOOST_FUNCTION_TARGET_FIX(x) x
+#if defined(NDNBOOST_MSVC) && NDNBOOST_MSVC <= 1300 || defined(__ICL) && __ICL <= 600 || defined(__MWERKS__) && __MWERKS__ < 0x2406 && !defined(NDNBOOST_STRICT_CONFIG)
+#  define NDNBOOST_FUNCTION_TARGET_FIX(x) x
 #else
-#  define BOOST_FUNCTION_TARGET_FIX(x)
+#  define NDNBOOST_FUNCTION_TARGET_FIX(x)
 #endif // not MSVC
 
-#if !BOOST_WORKAROUND(__BORLANDC__, < 0x5A0)
-#  define BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor,Type)              \
+#if !NDNBOOST_WORKAROUND(__BORLANDC__, < 0x5A0)
+#  define NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor,Type)              \
       typename ::ndnboost::enable_if_c<(::ndnboost::type_traits::ice_not<          \
                             (::ndnboost::is_integral<Functor>::value)>::value), \
                            Type>::type
 #else
 // BCC doesn't recognize this depends on a template argument and complains
 // about the use of 'typename'
-#  define BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor,Type)     \
+#  define NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor,Type)     \
       ::ndnboost::enable_if_c<(::ndnboost::type_traits::ice_not<          \
                    (::ndnboost::is_integral<Functor>::value)>::value), \
                        Type>::type
@@ -222,7 +222,7 @@ namespace ndnboost {
 
               // Check whether we have the same type. We can add
               // cv-qualifiers, but we can't take them away.
-              if (BOOST_FUNCTION_COMPARE_TYPE_ID(check_type, BOOST_SP_TYPEID(F))
+              if (NDNBOOST_FUNCTION_COMPARE_TYPE_ID(check_type, NDNBOOST_SP_TYPEID(F))
                   && (!in_buffer.obj_ref.is_const_qualified 
                       || out_buffer.type.const_qualified)
                   && (!in_buffer.obj_ref.is_volatile_qualified
@@ -234,7 +234,7 @@ namespace ndnboost {
             return;
 
           case get_functor_type_tag:
-            out_buffer.type.type = &BOOST_SP_TYPEID(F);
+            out_buffer.type.type = &NDNBOOST_SP_TYPEID(F);
             out_buffer.type.const_qualified = in_buffer.obj_ref.is_const_qualified;
             out_buffer.type.volatile_qualified = in_buffer.obj_ref.is_volatile_qualified;
             return;
@@ -249,7 +249,7 @@ namespace ndnboost {
       template<typename F>
       struct function_allows_small_object_optimization
       {
-        BOOST_STATIC_CONSTANT
+        NDNBOOST_STATIC_CONSTANT
           (bool, 
            value = ((sizeof(F) <= sizeof(function_buffer) &&
                      (alignment_of<function_buffer>::value 
@@ -296,12 +296,12 @@ namespace ndnboost {
           else if (op == check_functor_type_tag) {
             const detail::sp_typeinfo& check_type 
               = *out_buffer.type.type;
-            if (BOOST_FUNCTION_COMPARE_TYPE_ID(check_type, BOOST_SP_TYPEID(Functor)))
+            if (NDNBOOST_FUNCTION_COMPARE_TYPE_ID(check_type, NDNBOOST_SP_TYPEID(Functor)))
               out_buffer.obj_ptr = &in_buffer.func_ptr;
             else
               out_buffer.obj_ptr = 0;
           } else /* op == get_functor_type_tag */ {
-            out_buffer.type.type = &BOOST_SP_TYPEID(Functor);
+            out_buffer.type.type = &NDNBOOST_SP_TYPEID(Functor);
             out_buffer.type.const_qualified = false;
             out_buffer.type.volatile_qualified = false;
           }
@@ -330,12 +330,12 @@ namespace ndnboost {
           } else if (op == check_functor_type_tag) {
             const detail::sp_typeinfo& check_type 
               = *out_buffer.type.type;
-            if (BOOST_FUNCTION_COMPARE_TYPE_ID(check_type, BOOST_SP_TYPEID(Functor)))
+            if (NDNBOOST_FUNCTION_COMPARE_TYPE_ID(check_type, NDNBOOST_SP_TYPEID(Functor)))
               out_buffer.obj_ptr = &in_buffer.data;
             else
               out_buffer.obj_ptr = 0;
           } else /* op == get_functor_type_tag */ {
-            out_buffer.type.type = &BOOST_SP_TYPEID(Functor);
+            out_buffer.type.type = &NDNBOOST_SP_TYPEID(Functor);
             out_buffer.type.const_qualified = false;
             out_buffer.type.volatile_qualified = false;            
           }
@@ -391,12 +391,12 @@ namespace ndnboost {
           } else if (op == check_functor_type_tag) {
             const detail::sp_typeinfo& check_type
               = *out_buffer.type.type;
-            if (BOOST_FUNCTION_COMPARE_TYPE_ID(check_type, BOOST_SP_TYPEID(Functor)))
+            if (NDNBOOST_FUNCTION_COMPARE_TYPE_ID(check_type, NDNBOOST_SP_TYPEID(Functor)))
               out_buffer.obj_ptr = in_buffer.obj_ptr;
             else
               out_buffer.obj_ptr = 0;
           } else /* op == get_functor_type_tag */ {
-            out_buffer.type.type = &BOOST_SP_TYPEID(Functor);
+            out_buffer.type.type = &NDNBOOST_SP_TYPEID(Functor);
             out_buffer.type.const_qualified = false;
             out_buffer.type.volatile_qualified = false;
           }
@@ -431,7 +431,7 @@ namespace ndnboost {
           typedef typename get_function_tag<functor_type>::type tag_type;
           switch (op) {
           case get_functor_type_tag:
-            out_buffer.type.type = &BOOST_SP_TYPEID(functor_type);
+            out_buffer.type.type = &NDNBOOST_SP_TYPEID(functor_type);
             out_buffer.type.const_qualified = false;
             out_buffer.type.volatile_qualified = false;
             return;
@@ -502,12 +502,12 @@ namespace ndnboost {
           } else if (op == check_functor_type_tag) {
             const detail::sp_typeinfo& check_type 
               = *out_buffer.type.type;
-            if (BOOST_FUNCTION_COMPARE_TYPE_ID(check_type, BOOST_SP_TYPEID(Functor)))
+            if (NDNBOOST_FUNCTION_COMPARE_TYPE_ID(check_type, NDNBOOST_SP_TYPEID(Functor)))
               out_buffer.obj_ptr = in_buffer.obj_ptr;
             else
               out_buffer.obj_ptr = 0;
           } else /* op == get_functor_type_tag */ {
-            out_buffer.type.type = &BOOST_SP_TYPEID(Functor);
+            out_buffer.type.type = &NDNBOOST_SP_TYPEID(Functor);
             out_buffer.type.const_qualified = false;
             out_buffer.type.volatile_qualified = false;
           }
@@ -534,7 +534,7 @@ namespace ndnboost {
           typedef typename get_function_tag<functor_type>::type tag_type;
           switch (op) {
           case get_functor_type_tag:
-            out_buffer.type.type = &BOOST_SP_TYPEID(functor_type);
+            out_buffer.type.type = &NDNBOOST_SP_TYPEID(functor_type);
             out_buffer.type.const_qualified = false;
             out_buffer.type.volatile_qualified = false;
             return;
@@ -549,7 +549,7 @@ namespace ndnboost {
       // A type that is only used for comparisons against zero
       struct useless_clear_type {};
 
-#ifdef BOOST_NO_SFINAE
+#ifdef NDNBOOST_NO_SFINAE
       // These routines perform comparisons between a Boost.Function
       // object and an arbitrary function object (when the last
       // parameter is mpl::bool_<false>) or against zero (when the
@@ -606,7 +606,7 @@ namespace ndnboost {
             return fp != g.get_pointer();
           else return true;
         }
-#endif // BOOST_NO_SFINAE
+#endif // NDNBOOST_NO_SFINAE
 
       /**
        * Stores the "manager" portion of the vtable for a
@@ -635,11 +635,11 @@ public:
   /** Determine if the function is empty (i.e., has no target). */
   bool empty() const { return !vtable; }
 
-  /** Retrieve the type of the stored function object, or BOOST_SP_TYPEID(void)
+  /** Retrieve the type of the stored function object, or NDNBOOST_SP_TYPEID(void)
       if this is empty. */
   const detail::sp_typeinfo& target_type() const
   {
-    if (!vtable) return BOOST_SP_TYPEID(void);
+    if (!vtable) return NDNBOOST_SP_TYPEID(void);
 
     detail::function::function_buffer type;
     get_vtable()->manager(functor, type, detail::function::get_functor_type_tag);
@@ -652,7 +652,7 @@ public:
       if (!vtable) return 0;
 
       detail::function::function_buffer type_result;
-      type_result.type.type = &BOOST_SP_TYPEID(Functor);
+      type_result.type.type = &NDNBOOST_SP_TYPEID(Functor);
       type_result.type.const_qualified = is_const<Functor>::value;
       type_result.type.volatile_qualified = is_volatile<Functor>::value;
       get_vtable()->manager(functor, type_result, 
@@ -661,7 +661,7 @@ public:
     }
 
   template<typename Functor>
-#if defined(BOOST_MSVC) && BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if defined(NDNBOOST_MSVC) && NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
     const Functor* target( Functor * = 0 ) const
 #else
     const Functor* target() const
@@ -670,7 +670,7 @@ public:
       if (!vtable) return 0;
 
       detail::function::function_buffer type_result;
-      type_result.type.type = &BOOST_SP_TYPEID(Functor);
+      type_result.type.type = &NDNBOOST_SP_TYPEID(Functor);
       type_result.type.const_qualified = true;
       type_result.type.volatile_qualified = is_volatile<Functor>::value;
       get_vtable()->manager(functor, type_result, 
@@ -683,7 +683,7 @@ public:
   template<typename F>
     bool contains(const F& f) const
     {
-#if defined(BOOST_MSVC) && BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#if defined(NDNBOOST_MSVC) && NDNBOOST_WORKAROUND(NDNBOOST_MSVC, < 1300)
       if (const F* fp = this->target( (F*)0 ))
 #else
       if (const F* fp = this->template target<F>())
@@ -700,7 +700,7 @@ public:
   // problems with instantiation of function return types before it
   // has been verified that the argument types match up.
   template<typename Functor>
-    BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
+    NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
     operator==(Functor g) const
     {
       if (const Functor* fp = target<Functor>())
@@ -709,7 +709,7 @@ public:
     }
 
   template<typename Functor>
-    BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
+    NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
     operator!=(Functor g) const
     {
       if (const Functor* fp = target<Functor>())
@@ -742,7 +742,7 @@ public:
   bad_function_call() : std::runtime_error("call to empty ndnboost::function") {}
 };
 
-#ifndef BOOST_NO_SFINAE
+#ifndef NDNBOOST_NO_SFINAE
 inline bool operator==(const function_base& f,
                        detail::function::useless_clear_type*)
 {
@@ -768,7 +768,7 @@ inline bool operator!=(detail::function::useless_clear_type*,
 }
 #endif
 
-#ifdef BOOST_NO_SFINAE
+#ifdef NDNBOOST_NO_SFINAE
 // Comparisons between ndnboost::function objects and arbitrary function objects
 template<typename Functor>
   inline bool operator==(const function_base& f, Functor g)
@@ -804,7 +804,7 @@ template<typename Functor>
 // objects. GCC 3.3 and before has an obnoxious bug that prevents this
 // from working.
 template<typename Functor>
-  BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
+  NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
   operator==(const function_base& f, Functor g)
   {
     if (const Functor* fp = f.template target<Functor>())
@@ -813,7 +813,7 @@ template<typename Functor>
   }
 
 template<typename Functor>
-  BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
+  NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
   operator==(Functor g, const function_base& f)
   {
     if (const Functor* fp = f.template target<Functor>())
@@ -822,7 +822,7 @@ template<typename Functor>
   }
 
 template<typename Functor>
-  BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
+  NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
   operator!=(const function_base& f, Functor g)
   {
     if (const Functor* fp = f.template target<Functor>())
@@ -831,7 +831,7 @@ template<typename Functor>
   }
 
 template<typename Functor>
-  BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
+  NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
   operator!=(Functor g, const function_base& f)
   {
     if (const Functor* fp = f.template target<Functor>())
@@ -841,7 +841,7 @@ template<typename Functor>
 #  endif
 
 template<typename Functor>
-  BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
+  NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
   operator==(const function_base& f, reference_wrapper<Functor> g)
   {
     if (const Functor* fp = f.template target<Functor>())
@@ -850,7 +850,7 @@ template<typename Functor>
   }
 
 template<typename Functor>
-  BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
+  NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
   operator==(reference_wrapper<Functor> g, const function_base& f)
   {
     if (const Functor* fp = f.template target<Functor>())
@@ -859,7 +859,7 @@ template<typename Functor>
   }
 
 template<typename Functor>
-  BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
+  NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
   operator!=(const function_base& f, reference_wrapper<Functor> g)
   {
     if (const Functor* fp = f.template target<Functor>())
@@ -868,7 +868,7 @@ template<typename Functor>
   }
 
 template<typename Functor>
-  BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
+  NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL(Functor, bool)
   operator!=(reference_wrapper<Functor> g, const function_base& f)
   {
     if (const Functor* fp = f.template target<Functor>())
@@ -885,7 +885,7 @@ namespace detail {
       return f->empty();
     }
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1310)
+#if NDNBOOST_WORKAROUND(NDNBOOST_MSVC, <= 1310)
     inline bool has_empty_target(const void*)
     {
       return false;
@@ -900,11 +900,11 @@ namespace detail {
 } // end namespace detail
 } // end namespace ndnboost
 
-#undef BOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL
-#undef BOOST_FUNCTION_COMPARE_TYPE_ID
+#undef NDNBOOST_FUNCTION_ENABLE_IF_NOT_INTEGRAL
+#undef NDNBOOST_FUNCTION_COMPARE_TYPE_ID
 
-#if defined(BOOST_MSVC)
+#if defined(NDNBOOST_MSVC)
 #   pragma warning( pop )
 #endif       
 
-#endif // BOOST_FUNCTION_BASE_HEADER
+#endif // NDNBOOST_FUNCTION_BASE_HEADER

@@ -3,8 +3,8 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_MATH_POLICY_HPP
-#define BOOST_MATH_POLICY_HPP
+#ifndef NDNBOOST_MATH_POLICY_HPP
+#define NDNBOOST_MATH_POLICY_HPP
 
 #include <ndnboost/mpl/list.hpp>
 #include <ndnboost/mpl/contains.hpp>
@@ -33,9 +33,9 @@ namespace ndnboost{ namespace math{
 namespace tools{
 
 template <class T>
-int digits(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T));
+int digits(NDNBOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T));
 template <class T>
-T epsilon(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T));
+T epsilon(NDNBOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T));
 
 }
 
@@ -44,59 +44,59 @@ namespace policies{
 //
 // Define macros for our default policies, if they're not defined already:
 //
-#ifndef BOOST_MATH_DOMAIN_ERROR_POLICY
-#define BOOST_MATH_DOMAIN_ERROR_POLICY throw_on_error
+#ifndef NDNBOOST_MATH_DOMAIN_ERROR_POLICY
+#define NDNBOOST_MATH_DOMAIN_ERROR_POLICY throw_on_error
 #endif
-#ifndef BOOST_MATH_POLE_ERROR_POLICY
-#define BOOST_MATH_POLE_ERROR_POLICY throw_on_error
+#ifndef NDNBOOST_MATH_POLE_ERROR_POLICY
+#define NDNBOOST_MATH_POLE_ERROR_POLICY throw_on_error
 #endif
-#ifndef BOOST_MATH_OVERFLOW_ERROR_POLICY
-#define BOOST_MATH_OVERFLOW_ERROR_POLICY throw_on_error
+#ifndef NDNBOOST_MATH_OVERFLOW_ERROR_POLICY
+#define NDNBOOST_MATH_OVERFLOW_ERROR_POLICY throw_on_error
 #endif
-#ifndef BOOST_MATH_EVALUATION_ERROR_POLICY
-#define BOOST_MATH_EVALUATION_ERROR_POLICY throw_on_error
+#ifndef NDNBOOST_MATH_EVALUATION_ERROR_POLICY
+#define NDNBOOST_MATH_EVALUATION_ERROR_POLICY throw_on_error
 #endif
-#ifndef BOOST_MATH_ROUNDING_ERROR_POLICY
-#define BOOST_MATH_ROUNDING_ERROR_POLICY throw_on_error
+#ifndef NDNBOOST_MATH_ROUNDING_ERROR_POLICY
+#define NDNBOOST_MATH_ROUNDING_ERROR_POLICY throw_on_error
 #endif
-#ifndef BOOST_MATH_UNDERFLOW_ERROR_POLICY
-#define BOOST_MATH_UNDERFLOW_ERROR_POLICY ignore_error
+#ifndef NDNBOOST_MATH_UNDERFLOW_ERROR_POLICY
+#define NDNBOOST_MATH_UNDERFLOW_ERROR_POLICY ignore_error
 #endif
-#ifndef BOOST_MATH_DENORM_ERROR_POLICY
-#define BOOST_MATH_DENORM_ERROR_POLICY ignore_error
+#ifndef NDNBOOST_MATH_DENORM_ERROR_POLICY
+#define NDNBOOST_MATH_DENORM_ERROR_POLICY ignore_error
 #endif
-#ifndef BOOST_MATH_INDETERMINATE_RESULT_ERROR_POLICY
-#define BOOST_MATH_INDETERMINATE_RESULT_ERROR_POLICY ignore_error
+#ifndef NDNBOOST_MATH_INDETERMINATE_RESULT_ERROR_POLICY
+#define NDNBOOST_MATH_INDETERMINATE_RESULT_ERROR_POLICY ignore_error
 #endif
-#ifndef BOOST_MATH_DIGITS10_POLICY
-#define BOOST_MATH_DIGITS10_POLICY 0
+#ifndef NDNBOOST_MATH_DIGITS10_POLICY
+#define NDNBOOST_MATH_DIGITS10_POLICY 0
 #endif
-#ifndef BOOST_MATH_PROMOTE_FLOAT_POLICY
-#define BOOST_MATH_PROMOTE_FLOAT_POLICY true
+#ifndef NDNBOOST_MATH_PROMOTE_FLOAT_POLICY
+#define NDNBOOST_MATH_PROMOTE_FLOAT_POLICY true
 #endif
-#ifndef BOOST_MATH_PROMOTE_DOUBLE_POLICY
-#ifdef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-#define BOOST_MATH_PROMOTE_DOUBLE_POLICY false
+#ifndef NDNBOOST_MATH_PROMOTE_DOUBLE_POLICY
+#ifdef NDNBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+#define NDNBOOST_MATH_PROMOTE_DOUBLE_POLICY false
 #else
-#define BOOST_MATH_PROMOTE_DOUBLE_POLICY true
+#define NDNBOOST_MATH_PROMOTE_DOUBLE_POLICY true
 #endif
 #endif
-#ifndef BOOST_MATH_DISCRETE_QUANTILE_POLICY
-#define BOOST_MATH_DISCRETE_QUANTILE_POLICY integer_round_outwards
+#ifndef NDNBOOST_MATH_DISCRETE_QUANTILE_POLICY
+#define NDNBOOST_MATH_DISCRETE_QUANTILE_POLICY integer_round_outwards
 #endif
-#ifndef BOOST_MATH_ASSERT_UNDEFINED_POLICY
-#define BOOST_MATH_ASSERT_UNDEFINED_POLICY true
+#ifndef NDNBOOST_MATH_ASSERT_UNDEFINED_POLICY
+#define NDNBOOST_MATH_ASSERT_UNDEFINED_POLICY true
 #endif
-#ifndef BOOST_MATH_MAX_SERIES_ITERATION_POLICY
-#define BOOST_MATH_MAX_SERIES_ITERATION_POLICY 1000000
+#ifndef NDNBOOST_MATH_MAX_SERIES_ITERATION_POLICY
+#define NDNBOOST_MATH_MAX_SERIES_ITERATION_POLICY 1000000
 #endif
-#ifndef BOOST_MATH_MAX_ROOT_ITERATION_POLICY
-#define BOOST_MATH_MAX_ROOT_ITERATION_POLICY 200
+#ifndef NDNBOOST_MATH_MAX_ROOT_ITERATION_POLICY
+#define NDNBOOST_MATH_MAX_ROOT_ITERATION_POLICY 200
 #endif
 
 #if !defined(__BORLANDC__) \
    && !(defined(__GNUC__) && (__GNUC__ == 3) && (__GNUC_MINOR__ <= 2))
-#define BOOST_MATH_META_INT(type, name, Default)\
+#define NDNBOOST_MATH_META_INT(type, name, Default)\
    template <type N = Default> struct name : public ndnboost::mpl::int_<N>{};\
    namespace detail{\
    template <type N>\
@@ -106,12 +106,12 @@ namespace policies{
    {\
       template <type N> static char test(const name<N>*);\
       static double test(...);\
-      BOOST_STATIC_CONSTANT(bool, value = sizeof(test(static_cast<T*>(0))) == 1);\
+      NDNBOOST_STATIC_CONSTANT(bool, value = sizeof(test(static_cast<T*>(0))) == 1);\
    };\
    }\
    template <class T> struct is_##name : public ndnboost::mpl::bool_< ::ndnboost::math::policies::detail::is_##name##_imp<T>::value>{};
 
-#define BOOST_MATH_META_BOOL(name, Default)\
+#define NDNBOOST_MATH_META_BOOL(name, Default)\
    template <bool N = Default> struct name : public ndnboost::mpl::bool_<N>{};\
    namespace detail{\
    template <bool N>\
@@ -121,12 +121,12 @@ namespace policies{
    {\
       template <bool N> static char test(const name<N>*);\
       static double test(...);\
-      BOOST_STATIC_CONSTANT(bool, value = sizeof(test(static_cast<T*>(0))) == 1);\
+      NDNBOOST_STATIC_CONSTANT(bool, value = sizeof(test(static_cast<T*>(0))) == 1);\
    };\
    }\
    template <class T> struct is_##name : public ndnboost::mpl::bool_< ::ndnboost::math::policies::detail::is_##name##_imp<T>::value>{};
 #else
-#define BOOST_MATH_META_INT(Type, name, Default)\
+#define NDNBOOST_MATH_META_INT(Type, name, Default)\
    template <Type N = Default> struct name : public ndnboost::mpl::int_<N>{};\
    namespace detail{\
    template <Type N>\
@@ -140,7 +140,7 @@ namespace policies{
    template <class T> struct is_##name##_imp\
    {\
       static T inst;\
-      BOOST_STATIC_CONSTANT(bool, value = sizeof( ::ndnboost::math::policies::detail::is_##name##_tester<T>::test(inst)) == 1);\
+      NDNBOOST_STATIC_CONSTANT(bool, value = sizeof( ::ndnboost::math::policies::detail::is_##name##_tester<T>::test(inst)) == 1);\
    };\
    }\
    template <class T> struct is_##name : public ndnboost::mpl::bool_< ::ndnboost::math::policies::detail::is_##name##_imp<T>::value>\
@@ -148,7 +148,7 @@ namespace policies{
       template <class U> struct apply{ typedef is_##name<U> type; };\
    };
 
-#define BOOST_MATH_META_BOOL(name, Default)\
+#define NDNBOOST_MATH_META_BOOL(name, Default)\
    template <bool N = Default> struct name : public ndnboost::mpl::bool_<N>{};\
    namespace detail{\
    template <bool N>\
@@ -162,7 +162,7 @@ namespace policies{
    template <class T> struct is_##name##_imp\
    {\
       static T inst;\
-      BOOST_STATIC_CONSTANT(bool, value = sizeof( ::ndnboost::math::policies::detail::is_##name##_tester<T>::test(inst)) == 1);\
+      NDNBOOST_STATIC_CONSTANT(bool, value = sizeof( ::ndnboost::math::policies::detail::is_##name##_tester<T>::test(inst)) == 1);\
    };\
    }\
    template <class T> struct is_##name : public ndnboost::mpl::bool_< ::ndnboost::math::policies::detail::is_##name##_imp<T>::value>\
@@ -181,21 +181,21 @@ enum error_policy_type
    user_error = 3
 };
 
-BOOST_MATH_META_INT(error_policy_type, domain_error, BOOST_MATH_DOMAIN_ERROR_POLICY)
-BOOST_MATH_META_INT(error_policy_type, pole_error, BOOST_MATH_POLE_ERROR_POLICY)
-BOOST_MATH_META_INT(error_policy_type, overflow_error, BOOST_MATH_OVERFLOW_ERROR_POLICY)
-BOOST_MATH_META_INT(error_policy_type, underflow_error, BOOST_MATH_UNDERFLOW_ERROR_POLICY)
-BOOST_MATH_META_INT(error_policy_type, denorm_error, BOOST_MATH_DENORM_ERROR_POLICY)
-BOOST_MATH_META_INT(error_policy_type, evaluation_error, BOOST_MATH_EVALUATION_ERROR_POLICY)
-BOOST_MATH_META_INT(error_policy_type, rounding_error, BOOST_MATH_ROUNDING_ERROR_POLICY)
-BOOST_MATH_META_INT(error_policy_type, indeterminate_result_error, BOOST_MATH_INDETERMINATE_RESULT_ERROR_POLICY)
+NDNBOOST_MATH_META_INT(error_policy_type, domain_error, NDNBOOST_MATH_DOMAIN_ERROR_POLICY)
+NDNBOOST_MATH_META_INT(error_policy_type, pole_error, NDNBOOST_MATH_POLE_ERROR_POLICY)
+NDNBOOST_MATH_META_INT(error_policy_type, overflow_error, NDNBOOST_MATH_OVERFLOW_ERROR_POLICY)
+NDNBOOST_MATH_META_INT(error_policy_type, underflow_error, NDNBOOST_MATH_UNDERFLOW_ERROR_POLICY)
+NDNBOOST_MATH_META_INT(error_policy_type, denorm_error, NDNBOOST_MATH_DENORM_ERROR_POLICY)
+NDNBOOST_MATH_META_INT(error_policy_type, evaluation_error, NDNBOOST_MATH_EVALUATION_ERROR_POLICY)
+NDNBOOST_MATH_META_INT(error_policy_type, rounding_error, NDNBOOST_MATH_ROUNDING_ERROR_POLICY)
+NDNBOOST_MATH_META_INT(error_policy_type, indeterminate_result_error, NDNBOOST_MATH_INDETERMINATE_RESULT_ERROR_POLICY)
 
 //
 // Policy types for internal promotion:
 //
-BOOST_MATH_META_BOOL(promote_float, BOOST_MATH_PROMOTE_FLOAT_POLICY)
-BOOST_MATH_META_BOOL(promote_double, BOOST_MATH_PROMOTE_DOUBLE_POLICY)
-BOOST_MATH_META_BOOL(assert_undefined, BOOST_MATH_ASSERT_UNDEFINED_POLICY)
+NDNBOOST_MATH_META_BOOL(promote_float, NDNBOOST_MATH_PROMOTE_FLOAT_POLICY)
+NDNBOOST_MATH_META_BOOL(promote_double, NDNBOOST_MATH_PROMOTE_DOUBLE_POLICY)
+NDNBOOST_MATH_META_BOOL(assert_undefined, NDNBOOST_MATH_ASSERT_UNDEFINED_POLICY)
 //
 // Policy types for discrete quantiles:
 //
@@ -209,23 +209,23 @@ enum discrete_quantile_policy_type
    integer_round_nearest
 };
 
-BOOST_MATH_META_INT(discrete_quantile_policy_type, discrete_quantile, BOOST_MATH_DISCRETE_QUANTILE_POLICY)
+NDNBOOST_MATH_META_INT(discrete_quantile_policy_type, discrete_quantile, NDNBOOST_MATH_DISCRETE_QUANTILE_POLICY)
 //
 // Precision:
 //
-BOOST_MATH_META_INT(int, digits10, BOOST_MATH_DIGITS10_POLICY)
-BOOST_MATH_META_INT(int, digits2, 0)
+NDNBOOST_MATH_META_INT(int, digits10, NDNBOOST_MATH_DIGITS10_POLICY)
+NDNBOOST_MATH_META_INT(int, digits2, 0)
 //
 // Iterations:
 //
-BOOST_MATH_META_INT(unsigned long, max_series_iterations, BOOST_MATH_MAX_SERIES_ITERATION_POLICY)
-BOOST_MATH_META_INT(unsigned long, max_root_iterations, BOOST_MATH_MAX_ROOT_ITERATION_POLICY)
+NDNBOOST_MATH_META_INT(unsigned long, max_series_iterations, NDNBOOST_MATH_MAX_SERIES_ITERATION_POLICY)
+NDNBOOST_MATH_META_INT(unsigned long, max_root_iterations, NDNBOOST_MATH_MAX_ROOT_ITERATION_POLICY)
 //
 // Define the names for each possible policy:
 //
-#define BOOST_MATH_PARAMETER(name)\
-   BOOST_PARAMETER_TEMPLATE_KEYWORD(name##_name)\
-   BOOST_PARAMETER_NAME(name##_name)
+#define NDNBOOST_MATH_PARAMETER(name)\
+   NDNBOOST_PARAMETER_TEMPLATE_KEYWORD(name##_name)\
+   NDNBOOST_PARAMETER_NAME(name##_name)
 
 struct default_policy{};
 
@@ -287,13 +287,13 @@ char test_is_default_arg(const default_policy*);
 template <class T>
 struct is_valid_policy_imp 
 {
-   BOOST_STATIC_CONSTANT(bool, value = sizeof(::ndnboost::math::policies::detail::test_is_valid_arg(static_cast<T*>(0))) == 1);
+   NDNBOOST_STATIC_CONSTANT(bool, value = sizeof(::ndnboost::math::policies::detail::test_is_valid_arg(static_cast<T*>(0))) == 1);
 };
 
 template <class T>
 struct is_default_policy_imp
 {
-   BOOST_STATIC_CONSTANT(bool, value = sizeof(::ndnboost::math::policies::detail::test_is_default_arg(static_cast<T*>(0))) == 1);
+   NDNBOOST_STATIC_CONSTANT(bool, value = sizeof(::ndnboost::math::policies::detail::test_is_default_arg(static_cast<T*>(0))) == 1);
 };
 
 template <class T> struct is_valid_policy 
@@ -357,8 +357,8 @@ struct default_args<false, true>
    typedef default_policy arg2;
 };
 
-typedef default_args<BOOST_MATH_PROMOTE_FLOAT_POLICY, BOOST_MATH_PROMOTE_DOUBLE_POLICY>::arg1 forwarding_arg1;
-typedef default_args<BOOST_MATH_PROMOTE_FLOAT_POLICY, BOOST_MATH_PROMOTE_DOUBLE_POLICY>::arg2 forwarding_arg2;
+typedef default_args<NDNBOOST_MATH_PROMOTE_FLOAT_POLICY, NDNBOOST_MATH_PROMOTE_DOUBLE_POLICY>::arg1 forwarding_arg1;
+typedef default_args<NDNBOOST_MATH_PROMOTE_FLOAT_POLICY, NDNBOOST_MATH_PROMOTE_DOUBLE_POLICY>::arg2 forwarding_arg2;
 
 } // detail
 //
@@ -384,19 +384,19 @@ private:
    //
    // Validate all our arguments:
    //
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A1>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A2>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A3>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A4>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A5>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A6>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A7>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A8>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A9>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A10>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A11>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A12>::value);
-   BOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A13>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A1>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A2>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A3>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A4>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A5>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A6>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A7>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A8>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A9>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A10>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A11>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A12>::value);
+   NDNBOOST_STATIC_ASSERT(::ndnboost::math::policies::detail::is_valid_policy<A13>::value);
    //
    // Typelist of the arguments:
    //
@@ -455,7 +455,7 @@ public:
    typedef evaluation_error<> evaluation_error_type;
    typedef rounding_error<> rounding_error_type;
    typedef indeterminate_result_error<> indeterminate_result_error_type;
-#if BOOST_MATH_DIGITS10_POLICY == 0
+#if NDNBOOST_MATH_DIGITS10_POLICY == 0
    typedef digits2<> precision_type;
 #else
    typedef detail::precision<digits10<>, digits2<> >::type precision_type;
@@ -480,7 +480,7 @@ public:
    typedef evaluation_error<> evaluation_error_type;
    typedef rounding_error<> rounding_error_type;
    typedef indeterminate_result_error<> indeterminate_result_error_type;
-#if BOOST_MATH_DIGITS10_POLICY == 0
+#if NDNBOOST_MATH_DIGITS10_POLICY == 0
    typedef digits2<> precision_type;
 #else
    typedef detail::precision<digits10<>, digits2<> >::type precision_type;
@@ -724,7 +724,7 @@ struct evaluation<double, Policy>
    typedef typename mpl::if_<typename Policy::promote_double_type, long double, double>::type type;
 };
 
-#ifdef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+#ifdef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
 
 template <class Real>
 struct basic_digits : public mpl::int_<0>{ };
@@ -738,7 +738,7 @@ struct basic_digits<long double> : public mpl::int_<LDBL_MANT_DIG>{ };
 template <class Real, class Policy>
 struct precision
 {
-   BOOST_STATIC_ASSERT( ::std::numeric_limits<Real>::radix == 2);
+   NDNBOOST_STATIC_ASSERT( ::std::numeric_limits<Real>::radix == 2);
    typedef typename Policy::precision_type precision_type;
    typedef basic_digits<Real> digits_t;
    typedef typename mpl::if_<
@@ -776,7 +776,7 @@ struct precision<long double, Policy>
 template <class Real, class Policy>
 struct precision
 {
-   BOOST_STATIC_ASSERT((::std::numeric_limits<Real>::radix == 2) || ((::std::numeric_limits<Real>::is_specialized == 0) || (::std::numeric_limits<Real>::digits == 0)));
+   NDNBOOST_STATIC_ASSERT((::std::numeric_limits<Real>::radix == 2) || ((::std::numeric_limits<Real>::is_specialized == 0) || (::std::numeric_limits<Real>::digits == 0)));
 #ifndef __BORLANDC__
    typedef typename Policy::precision_type precision_type;
    typedef typename mpl::if_c<
@@ -813,7 +813,7 @@ struct precision
 
 #endif
 
-#ifdef BOOST_MATH_USE_FLOAT128
+#ifdef NDNBOOST_MATH_USE_FLOAT128
 
 template <class Policy>
 struct precision<__float128, Policy>
@@ -828,10 +828,10 @@ namespace detail{
 template <class T, class Policy>
 inline int digits_imp(mpl::true_ const&)
 {
-#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-   BOOST_STATIC_ASSERT( ::std::numeric_limits<T>::is_specialized);
+#ifndef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+   NDNBOOST_STATIC_ASSERT( ::std::numeric_limits<T>::is_specialized);
 #else
-   BOOST_ASSERT(::std::numeric_limits<T>::is_specialized);
+   NDNBOOST_ASSERT(::std::numeric_limits<T>::is_specialized);
 #endif
    typedef typename ndnboost::math::policies::precision<T, Policy>::type p_t;
    return p_t::value;
@@ -846,7 +846,7 @@ inline int digits_imp(mpl::false_ const&)
 } // namespace detail
 
 template <class T, class Policy>
-inline int digits(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T))
+inline int digits(NDNBOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T))
 {
    typedef mpl::bool_< std::numeric_limits<T>::is_specialized > tag_type;
    return detail::digits_imp<T, Policy>(tag_type());
@@ -906,12 +906,12 @@ struct series_factor_calc<T, Digits, mpl::false_, mpl::true_>
 template <class T, class Policy>
 inline T get_epsilon_imp(mpl::true_ const&)
 {
-#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-   BOOST_STATIC_ASSERT( ::std::numeric_limits<T>::is_specialized);
-   BOOST_STATIC_ASSERT( ::std::numeric_limits<T>::radix == 2);
+#ifndef NDNBOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+   NDNBOOST_STATIC_ASSERT( ::std::numeric_limits<T>::is_specialized);
+   NDNBOOST_STATIC_ASSERT( ::std::numeric_limits<T>::radix == 2);
 #else
-   BOOST_ASSERT(::std::numeric_limits<T>::is_specialized);
-   BOOST_ASSERT(::std::numeric_limits<T>::radix == 2);
+   NDNBOOST_ASSERT(::std::numeric_limits<T>::is_specialized);
+   NDNBOOST_ASSERT(::std::numeric_limits<T>::radix == 2);
 #endif
    typedef typename ndnboost::math::policies::precision<T, Policy>::type p_t;
    typedef mpl::bool_<p_t::value <= std::numeric_limits<ndnboost::uintmax_t>::digits> is_small_int;
@@ -928,7 +928,7 @@ inline T get_epsilon_imp(mpl::false_ const&)
 } // namespace detail
 
 template <class T, class Policy>
-inline T get_epsilon(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T))
+inline T get_epsilon(NDNBOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T))
 {
    typedef mpl::bool_< (std::numeric_limits<T>::is_specialized && (std::numeric_limits<T>::radix == 2)) > tag_type;
    return detail::get_epsilon_imp<T, Policy>(tag_type());
@@ -953,7 +953,7 @@ double test_is_policy(...);
 template <class P>
 struct is_policy_imp
 {
-   BOOST_STATIC_CONSTANT(bool, value = (sizeof(::ndnboost::math::policies::detail::test_is_policy(static_cast<P*>(0))) == 1));
+   NDNBOOST_STATIC_CONSTANT(bool, value = (sizeof(::ndnboost::math::policies::detail::test_is_policy(static_cast<P*>(0))) == 1));
 };
 
 }
@@ -986,7 +986,7 @@ struct method_error_check
 
 }}} // namespaces
 
-#endif // BOOST_MATH_POLICY_HPP
+#endif // NDNBOOST_MATH_POLICY_HPP
 
 
 

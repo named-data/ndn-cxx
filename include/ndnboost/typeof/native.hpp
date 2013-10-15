@@ -2,12 +2,12 @@
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_TYPEOF_NATIVE_HPP_INCLUDED
-#define BOOST_TYPEOF_NATIVE_HPP_INCLUDED
+#ifndef NDNBOOST_TYPEOF_NATIVE_HPP_INCLUDED
+#define NDNBOOST_TYPEOF_NATIVE_HPP_INCLUDED
 
 #ifndef MSVC_TYPEOF_HACK
 
-#ifdef BOOST_NO_SFINAE
+#ifdef NDNBOOST_NO_SFINAE
 
 namespace ndnboost { namespace type_of {
 
@@ -22,7 +22,7 @@ namespace ndnboost { namespace type_of {
 #include <ndnboost/utility/enable_if.hpp>
 
 namespace ndnboost { namespace type_of {
-# ifdef BOOST_NO_SFINAE
+# ifdef NDNBOOST_NO_SFINAE
     template<class T> 
     T& ensure_obj(const T&);
 # else
@@ -36,25 +36,25 @@ namespace ndnboost { namespace type_of {
 # endif
 }}
 
-#endif//BOOST_NO_SFINAE
+#endif//NDNBOOST_NO_SFINAE
 
-#define BOOST_TYPEOF(expr) BOOST_TYPEOF_KEYWORD(ndnboost::type_of::ensure_obj(expr))
-#define BOOST_TYPEOF_TPL BOOST_TYPEOF
+#define NDNBOOST_TYPEOF(expr) NDNBOOST_TYPEOF_KEYWORD(ndnboost::type_of::ensure_obj(expr))
+#define NDNBOOST_TYPEOF_TPL NDNBOOST_TYPEOF
 
-#define BOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) \
+#define NDNBOOST_TYPEOF_NESTED_TYPEDEF_TPL(name,expr) \
     struct name {\
-        typedef BOOST_TYPEOF_TPL(expr) type;\
+        typedef NDNBOOST_TYPEOF_TPL(expr) type;\
     };
 
-#define BOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
+#define NDNBOOST_TYPEOF_NESTED_TYPEDEF(name,expr) \
     struct name {\
-        typedef BOOST_TYPEOF(expr) type;\
+        typedef NDNBOOST_TYPEOF(expr) type;\
     };
 
 #endif//MSVC_TYPEOF_HACK
 
-#define BOOST_TYPEOF_REGISTER_TYPE(x)
-#define BOOST_TYPEOF_REGISTER_TEMPLATE(x, params)
+#define NDNBOOST_TYPEOF_REGISTER_TYPE(x)
+#define NDNBOOST_TYPEOF_REGISTER_TEMPLATE(x, params)
 
-#endif//BOOST_TYPEOF_NATIVE_HPP_INCLUDED
+#endif//NDNBOOST_TYPEOF_NATIVE_HPP_INCLUDED
 
