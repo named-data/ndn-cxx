@@ -15,7 +15,7 @@ namespace ndn {
 
 namespace der {
 
-class NoArgumentsVisitor : public NoArgumentsVisitor
+class SimpleVisitor : public NoArgumentsVisitor
 {
 public:
   virtual Any visit(DerBool&           ) = 0;
