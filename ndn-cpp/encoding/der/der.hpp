@@ -111,9 +111,9 @@ public:
   }
 
   virtual void accept(VoidNoArgumentsVisitor& visitor) = 0;
-  virtual void accept(VoidVisitor& visitor, Any param) = 0;
-  virtual Any accept(NoArgumentsVisitor& visitor) = 0;
-  virtual Any accept(Visitor& visitor, Any param) = 0;
+  virtual void accept(VoidVisitor& visitor, ndnboost::any param) = 0;
+  virtual ndnboost::any accept(NoArgumentsVisitor& visitor) = 0;
+  virtual ndnboost::any accept(Visitor& visitor, ndnboost::any param) = 0;
   
 protected:
   void
@@ -206,9 +206,9 @@ public:
   ~DerBool();
 
   virtual void accept(VoidNoArgumentsVisitor& visitor) {        visitor.visit(*this);        }
-  virtual void accept(VoidVisitor& visitor, Any param) {        visitor.visit(*this, param); }
-  virtual Any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
-  virtual Any accept(Visitor& visitor, Any param)      { return visitor.visit(*this, param); }
+  virtual void accept(VoidVisitor& visitor, ndnboost::any param) {        visitor.visit(*this, param); }
+  virtual ndnboost::any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
+  virtual ndnboost::any accept(Visitor& visitor, ndnboost::any param)      { return visitor.visit(*this, param); }
 
 };
 
@@ -224,9 +224,9 @@ public:
   ~DerInteger();
 
   virtual void accept(VoidNoArgumentsVisitor& visitor) {        visitor.visit(*this);        }
-  virtual void accept(VoidVisitor& visitor, Any param) {        visitor.visit(*this, param); }
-  virtual Any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
-  virtual Any accept(Visitor& visitor, Any param)      { return visitor.visit(*this, param); }
+  virtual void accept(VoidVisitor& visitor, ndnboost::any param) {        visitor.visit(*this, param); }
+  virtual ndnboost::any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
+  virtual ndnboost::any accept(Visitor& visitor, ndnboost::any param)      { return visitor.visit(*this, param); }
 
 };
 
@@ -242,9 +242,9 @@ public:
   ~DerBitString();
 
   virtual void accept(VoidNoArgumentsVisitor& visitor) {        visitor.visit(*this);        }
-  virtual void accept(VoidVisitor& visitor, Any param) {        visitor.visit(*this, param); }
-  virtual Any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
-  virtual Any accept(Visitor& visitor, Any param)      { return visitor.visit(*this, param); }
+  virtual void accept(VoidVisitor& visitor, ndnboost::any param) {        visitor.visit(*this, param); }
+  virtual ndnboost::any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
+  virtual ndnboost::any accept(Visitor& visitor, ndnboost::any param)      { return visitor.visit(*this, param); }
 
 };
 
@@ -262,9 +262,9 @@ public:
   ~DerOctetString();
 
   virtual void accept(VoidNoArgumentsVisitor& visitor) {        visitor.visit(*this);        }
-  virtual void accept(VoidVisitor& visitor, Any param) {        visitor.visit(*this, param); }
-  virtual Any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
-  virtual Any accept(Visitor& visitor, Any param)      { return visitor.visit(*this, param); }
+  virtual void accept(VoidVisitor& visitor, ndnboost::any param) {        visitor.visit(*this, param); }
+  virtual ndnboost::any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
+  virtual ndnboost::any accept(Visitor& visitor, ndnboost::any param)      { return visitor.visit(*this, param); }
 
 };
 
@@ -281,9 +281,9 @@ public:
   ~DerNull();
 
   virtual void accept(VoidNoArgumentsVisitor& visitor) {        visitor.visit(*this);        }
-  virtual void accept(VoidVisitor& visitor, Any param) {        visitor.visit(*this, param); }
-  virtual Any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
-  virtual Any accept(Visitor& visitor, Any param)      { return visitor.visit(*this, param); }
+  virtual void accept(VoidVisitor& visitor, ndnboost::any param) {        visitor.visit(*this, param); }
+  virtual ndnboost::any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
+  virtual ndnboost::any accept(Visitor& visitor, ndnboost::any param)      { return visitor.visit(*this, param); }
 
 };
 
@@ -304,9 +304,9 @@ public:
   ~DerOid();
   
   virtual void accept(VoidNoArgumentsVisitor& visitor) {        visitor.visit(*this);        }
-  virtual void accept(VoidVisitor& visitor, Any param) {        visitor.visit(*this, param); }
-  virtual Any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
-  virtual Any accept(Visitor& visitor, Any param)      { return visitor.visit(*this, param); }
+  virtual void accept(VoidVisitor& visitor, ndnboost::any param) {        visitor.visit(*this, param); }
+  virtual ndnboost::any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
+  virtual ndnboost::any accept(Visitor& visitor, ndnboost::any param)      { return visitor.visit(*this, param); }
 
   int 
   decode128(int& offset);
@@ -332,9 +332,9 @@ public:
   ~DerSequence();
 
   virtual void accept(VoidNoArgumentsVisitor& visitor) {        visitor.visit(*this);        }
-  virtual void accept(VoidVisitor& visitor, Any param) {        visitor.visit(*this, param); }
-  virtual Any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
-  virtual Any accept(Visitor& visitor, Any param)      { return visitor.visit(*this, param); }
+  virtual void accept(VoidVisitor& visitor, ndnboost::any param) {        visitor.visit(*this, param); }
+  virtual ndnboost::any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
+  virtual ndnboost::any accept(Visitor& visitor, ndnboost::any param)      { return visitor.visit(*this, param); }
 
 };
 
@@ -352,9 +352,9 @@ public:
   ~DerPrintableString();
 
   virtual void accept(VoidNoArgumentsVisitor& visitor) {        visitor.visit(*this);        }
-  virtual void accept(VoidVisitor& visitor, Any param) {        visitor.visit(*this, param); }
-  virtual Any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
-  virtual Any accept(Visitor& visitor, Any param)      { return visitor.visit(*this, param); }
+  virtual void accept(VoidVisitor& visitor, ndnboost::any param) {        visitor.visit(*this, param); }
+  virtual ndnboost::any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
+  virtual ndnboost::any accept(Visitor& visitor, ndnboost::any param)      { return visitor.visit(*this, param); }
 };
 
 //0x1b
@@ -369,9 +369,9 @@ public:
   ~DerGtime();
 
   virtual void accept(VoidNoArgumentsVisitor& visitor) {        visitor.visit(*this);        }
-  virtual void accept(VoidVisitor& visitor, Any param) {        visitor.visit(*this, param); }
-  virtual Any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
-  virtual Any accept(Visitor& visitor, Any param)      { return visitor.visit(*this, param); }
+  virtual void accept(VoidVisitor& visitor, ndnboost::any param) {        visitor.visit(*this, param); }
+  virtual ndnboost::any accept(NoArgumentsVisitor& visitor)      { return visitor.visit(*this);        }
+  virtual ndnboost::any accept(Visitor& visitor, ndnboost::any param)      { return visitor.visit(*this, param); }
 
 };
  

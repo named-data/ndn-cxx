@@ -392,6 +392,7 @@ ndnboost_headers = \
   ndnboost/algorithm/string/sequence_traits.hpp \
   ndnboost/algorithm/string/yes_no_type.hpp \
   ndnboost/aligned_storage.hpp \
+  ndnboost/any.hpp \
   ndnboost/array.hpp \
   ndnboost/assert.hpp \
   ndnboost/bind/apply.hpp \

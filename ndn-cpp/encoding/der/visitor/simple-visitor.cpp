@@ -17,7 +17,7 @@ namespace ndn {
 namespace der
 {
   
-Any 
+ndnboost::any 
 SimpleVisitor::visit(DerBool& derBool)
 {
   bool result = true;
@@ -25,41 +25,41 @@ SimpleVisitor::visit(DerBool& derBool)
   if(0 == derBool.getPayload()[0])
     result = false;
   
-  return Any(result);
+  return ndnboost::any(result);
 }
 
-Any 
+ndnboost::any 
 SimpleVisitor::visit(DerInteger& derInteger)
 {
-  return Any(derInteger.getPayload());
+  return ndnboost::any(derInteger.getPayload());
 }
 
-Any 
+ndnboost::any 
 SimpleVisitor::visit(DerPrintableString& derPStr)
 {
-  return Any(string((const char*)&derPStr.getPayload()[0], derPStr.getPayload().size()));
+  return ndnboost::any(string((const char*)&derPStr.getPayload()[0], derPStr.getPayload().size()));
 }
 
-Any 
+ndnboost::any 
 SimpleVisitor::visit(DerBitString& derBStr)
 {
-  return Any(derBStr.getPayload());
+  return ndnboost::any(derBStr.getPayload());
 }
 
-Any 
+ndnboost::any 
 SimpleVisitor::visit(DerNull& derNull)
 {
-  return Any();
+  return ndnboost::any();
 }
 
-Any 
+ndnboost::any 
 SimpleVisitor::visit(DerOctetString& derOStr)
 {
   vector<uint8_t> result(derOStr.getPayload());
-  return Any(result);
+  return ndnboost::any(result);
 }
 
-Any 
+ndnboost::any 
 SimpleVisitor::visit(DerOid& derOid)
 {
   vector<int> intList;
@@ -78,21 +78,21 @@ SimpleVisitor::visit(DerOid& derOid)
     intList.push_back(derOid.decode128(offset));
   }
   
-  return Any(OID(intList));
+  return ndnboost::any(OID(intList));
 }
 
-Any 
+ndnboost::any 
 SimpleVisitor::visit(DerSequence& derSeq)
 {
-  return Any();
+  return ndnboost::any();
 }
 
 #if 0 // TODO: Implmenent alternative to boost::posix_time::from_iso_string.
-Any 
+ndnboost::any 
 SimpleVisitor::visit(DerGtime& derGtime)
 {
   string str((const char*)&derGtime.getPayload()[0], derGtime.getPayload().size());
-  return Any(boost::posix_time::from_iso_string(str.substr(0, 8) + "T" + str.substr(8, 6)));
+  return ndnboost::any(boost::posix_time::from_iso_string(str.substr(0, 8) + "T" + str.substr(8, 6)));
 }
 #endif
 

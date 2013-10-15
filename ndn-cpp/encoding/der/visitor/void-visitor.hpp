@@ -18,15 +18,15 @@ namespace der {
 class VoidVisitor
 {
 public:
-  virtual void visit(DerBool&,             Any) = 0;
-  virtual void visit(DerInteger&,          Any) = 0;
-  virtual void visit(DerPrintableString&,  Any) = 0;
-  virtual void visit(DerBitString&,        Any) = 0;
-  virtual void visit(DerNull&,             Any) = 0;
-  virtual void visit(DerOctetString&,      Any) = 0;
-  virtual void visit(DerOid&,              Any) = 0;
-  virtual void visit(DerSequence&,         Any) = 0;
-  virtual void visit(DerGtime&,            Any) = 0;
+  virtual void visit(DerBool&,             ndnboost::any) = 0;
+  virtual void visit(DerInteger&,          ndnboost::any) = 0;
+  virtual void visit(DerPrintableString&,  ndnboost::any) = 0;
+  virtual void visit(DerBitString&,        ndnboost::any) = 0;
+  virtual void visit(DerNull&,             ndnboost::any) = 0;
+  virtual void visit(DerOctetString&,      ndnboost::any) = 0;
+  virtual void visit(DerOid&,              ndnboost::any) = 0;
+  virtual void visit(DerSequence&,         ndnboost::any) = 0;
+  virtual void visit(DerGtime&,            ndnboost::any) = 0;
 };
 
 } // der

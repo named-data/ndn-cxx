@@ -12,41 +12,41 @@ namespace ndn {
 
 namespace der
 {
-Any
+ndnboost::any
 NoArgumentsVisitor::visit(DerBool& derBool)
-{ return  Any(0); }
+{ return  ndnboost::any(0); }
 
-Any 
+ndnboost::any 
 NoArgumentsVisitor::visit(DerInteger& derInteger)
-{ return  Any(0); }
+{ return  ndnboost::any(0); }
 
-Any 
+ndnboost::any 
 NoArgumentsVisitor::visit(DerPrintableString& derPStr)
-{ return  Any(0); }
+{ return  ndnboost::any(0); }
 
-Any 
+ndnboost::any 
 NoArgumentsVisitor::visit(DerBitString& derBStr)
-{ return  Any(0); }
+{ return  ndnboost::any(0); }
 
-Any 
+ndnboost::any 
 NoArgumentsVisitor::visit(DerNull& derNull)
-{ return  Any(0); }
+{ return  ndnboost::any(0); }
 
-Any 
+ndnboost::any 
 NoArgumentsVisitor::visit(DerOctetString& derOStr)
-{ return  Any(0); }
+{ return  ndnboost::any(0); }
 
-Any 
+ndnboost::any 
 NoArgumentsVisitor::visit(DerOid& derOid)
-{ return  Any(0); }
+{ return  ndnboost::any(0); }
 
-Any 
+ndnboost::any 
 NoArgumentsVisitor::visit(DerSequence& derSeq)
-{ return  Any(0); }
+{ return  ndnboost::any(0); }
 
-Any 
+ndnboost::any 
 NoArgumentsVisitor::visit(DerGtime& derGtime)
-{ return  Any(0); }
+{ return  ndnboost::any(0); }
 
 } // der
 

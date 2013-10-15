@@ -9,17 +9,12 @@
 #ifndef NDN_DER_VISITOR_HPP
 #define NDN_DER_VISITOR_HPP
 
+// We can use ndnboost::any because this is an internal header and will not conflict with the application if it uses boost::any.
+#include <ndnboost/any.hpp>
+
 namespace ndn {
 
 namespace der {
-  
-// TODO: This is a stub. We want to implement an any type, but avoid boost::any which is not in the C++ standard library.
-class Any {
-public:
-  Any() {}
-  
-  template<class T> Any(const T& value) {}
-};
   
 class DerBool;
 class DerInteger;
@@ -34,15 +29,15 @@ class DerGtime;
 class Visitor
 {
 public:
-  virtual Any visit(DerBool&,             Any) = 0;
-  virtual Any visit(DerInteger&,          Any) = 0;
-  virtual Any visit(DerPrintableString&,  Any) = 0;
-  virtual Any visit(DerBitString&,        Any) = 0;
-  virtual Any visit(DerNull&,             Any) = 0;
-  virtual Any visit(DerOctetString&,      Any) = 0;
-  virtual Any visit(DerOid&,              Any) = 0;
-  virtual Any visit(DerSequence&,         Any) = 0;
-  virtual Any visit(DerGtime&,            Any) = 0;
+  virtual ndnboost::any visit(DerBool&,             ndnboost::any) = 0;
+  virtual ndnboost::any visit(DerInteger&,          ndnboost::any) = 0;
+  virtual ndnboost::any visit(DerPrintableString&,  ndnboost::any) = 0;
+  virtual ndnboost::any visit(DerBitString&,        ndnboost::any) = 0;
+  virtual ndnboost::any visit(DerNull&,             ndnboost::any) = 0;
+  virtual ndnboost::any visit(DerOctetString&,      ndnboost::any) = 0;
+  virtual ndnboost::any visit(DerOid&,              ndnboost::any) = 0;
+  virtual ndnboost::any visit(DerSequence&,         ndnboost::any) = 0;
+  virtual ndnboost::any visit(DerGtime&,            ndnboost::any) = 0;
 };
 
 } // der

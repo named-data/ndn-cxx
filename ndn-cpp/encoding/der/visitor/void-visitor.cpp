@@ -13,39 +13,39 @@ namespace ndn {
 namespace der {
 
 void 
-VoidVisitor::visit(DerBool& derBool, Any)
+VoidVisitor::visit(DerBool& derBool, ndnboost::any)
 {}
 
 void
-VoidVisitor::visit(DerInteger& derInteger, Any)
+VoidVisitor::visit(DerInteger& derInteger, ndnboost::any)
 {}
 
 void 
-VoidVisitor::visit(DerPrintableString& derPStr, Any)
+VoidVisitor::visit(DerPrintableString& derPStr, ndnboost::any)
 {}
 
 void 
-VoidVisitor::visit(DerBitString& derBStr, Any)
+VoidVisitor::visit(DerBitString& derBStr, ndnboost::any)
 {}
 
 void
-VoidVisitor::visit(DerNull& derNull, Any)
+VoidVisitor::visit(DerNull& derNull, ndnboost::any)
 {}
 
 void 
-VoidVisitor::visit(DerOctetString& derOStr, Any)
+VoidVisitor::visit(DerOctetString& derOStr, ndnboost::any)
 {}
 
 void
-VoidVisitor::visit(DerOid& derOid, Any)
+VoidVisitor::visit(DerOid& derOid, ndnboost::any)
 {}
 
 void 
-VoidVisitor::visit(DerSequence& derSequence, Any)
+VoidVisitor::visit(DerSequence& derSequence, ndnboost::any)
 {}
 
 void 
-VoidVisitor::visit(DerGtime& derGtime, Any)
+VoidVisitor::visit(DerGtime& derGtime, ndnboost::any)
 {}
 
 } // der
