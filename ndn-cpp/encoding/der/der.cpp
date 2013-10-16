@@ -215,8 +215,8 @@ DerComplex::getSize()
 {
   if(childChanged_)
     {
-	updateSize();
-	childChanged_ = false;
+  updateSize();
+  childChanged_ = false;
     }
 
   header_.clear();
@@ -247,7 +247,7 @@ DerComplex::updateSize()
   DerNodePtrList::iterator it = nodeList_.begin();
   for(; it != nodeList_.end(); it++)
     {
-	newSize += (*it)->getSize();
+  newSize += (*it)->getSize();
     }
   
   size_ = newSize;
@@ -449,7 +449,7 @@ DerOid::DerOid(const string& oidStr)
 
     pos = str.find_first_of('.', pos);
     if(string::npos == pos)
-	break;
+  break;
 
     value.push_back(atoi(str.substr(ppos, pos - ppos).c_str()));
 
@@ -481,18 +481,18 @@ DerOid::prepareEncoding(const vector<int>& value)
   
   if(value.size() >= 1){
     if(0 <= value[0] && 2 >= value[0])
-	firstNumber = value[0] * 40;
+  firstNumber = value[0] * 40;
     else
-	throw DerEncodingException("first integer of oid is out of range");
+  throw DerEncodingException("first integer of oid is out of range");
   }
   else
     throw DerEncodingException("no integer in oid");
 
   if(value.size() >= 2){
     if(0 <= value[1] && 39 >= value[1])
-	firstNumber += value[1];
+  firstNumber += value[1];
     else
-	throw DerEncodingException("second integer of oid is out of range");
+  throw DerEncodingException("second integer of oid is out of range");
   }
   
   encode128(firstNumber, os);
@@ -500,7 +500,7 @@ DerOid::prepareEncoding(const vector<int>& value)
   if(value.size() > 2){
     int i = 2;
     for(; i < value.size(); i++)
-	encode128(value[i], os);
+  encode128(value[i], os);
   }
 
   string output = os.str();
@@ -516,8 +516,8 @@ DerOid::encode128(int value, ostringstream& os)
 
   if(128 > value)
     {
-	uint8_t singleByte = (uint8_t) mask & value;
-	os.write((char *)&singleByte, 1);
+  uint8_t singleByte = (uint8_t) mask & value;
+  os.write((char *)&singleByte, 1);
     }
   else{
     uint8_t buf[(sizeof(value)*8 + 6)/7 + 1];
@@ -528,11 +528,11 @@ DerOid::encode128(int value, ostringstream& os)
     value >>= 7;
 
     while(value != 0)
-	{
-	  (--p)[0] = (uint8_t)((value & mask) | (1 << 7));
-	  n++;
-	  value >>= 7;
-	}
+  {
+    (--p)[0] = (uint8_t)((value & mask) | (1 << 7));
+    n++;
+    value >>= 7;
+  }
     
     os.write((char *)p, n);
   }
