@@ -20,8 +20,8 @@
 
 #if !defined(NDNBOOST_MPL_CFG_NO_ADL_BARRIER_NAMESPACE)
 
-#   define NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE mpl_
-#   define NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN namespace mpl_ {
+#   define NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE ndnboost_mpl_
+#   define NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN namespace ndnboost_mpl_ {
 #   define NDNBOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE }
 #   define NDNBOOST_MPL_AUX_ADL_BARRIER_DECL(type) \
     namespace ndnboost { namespace mpl { \

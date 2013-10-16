@@ -39,6 +39,8 @@ namespace ndn { namespace ptr_lib = boost; }
 // (unset LANG; find . -type f -exec sed -i '' 's/_DWA/_NDNBOOST_DWA/g' {} +)
 // (unset LANG; find . -type f -exec sed -i '' 's/ UUID_/ NDNBOOST_UUID_/g' {} +)
 // (unset LANG; find . -type f -exec sed -i '' 's/ FILE_boost/ FILE_ndnboost/g' {} +)
+// # Replace the mpl_ barrier namespace.  This should only change file adl_barrier.hpp.
+// (unset LANG; find . -type f -exec sed -i '' 's/ mpl_/ ndnboost_mpl_/g' {} +)
 #include <ndnboost/shared_ptr.hpp>
 #include <ndnboost/make_shared.hpp>
 namespace ndn { namespace ptr_lib = ndnboost; }
