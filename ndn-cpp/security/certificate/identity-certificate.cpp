@@ -20,6 +20,10 @@ IdentityCertificate::IdentityCertificate(const Data& data)
     throw SecurityException("Wrong Identity Certificate Name!");
 }
 
+IdentityCertificate::~IdentityCertificate()
+{
+}
+
 bool
 IdentityCertificate::isCorrectName(const Name& name)
 {
