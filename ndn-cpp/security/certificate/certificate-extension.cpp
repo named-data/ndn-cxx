@@ -6,6 +6,9 @@
  * See COPYING for copyright and distribution information.
  */
 
+#if 1 // TODO: Remove this when we don't throw "not implemented".
+#include <stdexcept>
+#endif
 #include "../../encoding/der/der.hpp"
 #include <ndn-cpp/security/certificate/certificate-extension.hpp>
 
