@@ -20,7 +20,7 @@ Ptr<der::DerNode>
 PublicKey::toDER()
 {
   boost::iostreams::stream
-    <boost::iostreams::array_source> is (m_key.buf (), m_key.size ());
+    <boost::iostreams::array_source> is (m_key.buf (), key_.size ());
 
   return der::DerNode::parse(reinterpret_cast<InputIterator &> (is));
 }

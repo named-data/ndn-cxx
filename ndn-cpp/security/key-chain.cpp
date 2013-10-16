@@ -137,7 +137,7 @@ KeyChain::verifyData
 
 #if 0
   if (m_policyManager->requireVerify(*dataPtr))
-    stepVerify(dataPtr, true, m_maxStep, onVerified, onVerifyFailed);
+    stepVerify(dataPtr, true, maxStep_, onVerified, onVerifyFailed);
   else if(m_policyManager->skipVerify(*dataPtr))
 #else
   if (verifySignature(*data))

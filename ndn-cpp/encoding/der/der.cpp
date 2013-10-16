@@ -26,16 +26,16 @@ namespace der {
  * DerNode
  */
 DerNode::DerNode()
-  :m_parent(0)
+  :parent_(0)
 {}
 
 DerNode::DerNode(DerType type)
-  :m_type(type),
-   m_parent(0)
+  :type_(type),
+   parent_(0)
 {}
 
 DerNode::DerNode(std::istream& start)
-  :m_parent(0)
+  :parent_(0)
 {
   decode(start);
 }
@@ -46,7 +46,7 @@ DerNode::~DerNode()
 void
 DerNode::encodeHeader(int size)
 {
-  m_header.push_back((char)m_type);
+  header_.push_back((char)type_);
 
   if(size >= 127)
     {
@@ -67,11 +67,11 @@ DerNode::encodeHeader(int size)
       p[0] = (char)((1<<7) | n);
       n++;
 
-      m_header.insert(m_header.end(), p, p+n);
+      header_.insert(header_.end(), p, p+n);
     }
   else if(size >= 0)
     {
-      m_header.push_back((char)size);
+      header_.push_back((char)size);
     }
   else
     throw NegativeLengthException("Negative length");
@@ -82,12 +82,12 @@ DerNode::decodeHeader(istream& start)
 {
   uint8_t type = start.get();
   // char type = start.get();
-  m_header.push_back(type);
-  m_type = static_cast<DerType>((int)type);
+  header_.push_back(type);
+  type_ = static_cast<DerType>((int)type);
 
   uint8_t sizeLen = start.get(); 
   // char sizeLen = start.get();
-  m_header.push_back(sizeLen);
+  header_.push_back(sizeLen);
 
   bool longFormat = sizeLen & (1 << 7);
 
@@ -110,7 +110,7 @@ DerNode::decodeHeader(istream& start)
       do
         {
           byte = start.get();
-          m_header.push_back(byte);
+          header_.push_back(byte);
           size = size * 256 + (int)byte;
           // _LOG_DEBUG("byte: " << (int)byte);
           // _LOG_DEBUG("size: " << size);
@@ -125,8 +125,8 @@ DerNode::decodeHeader(istream& start)
 void
 DerNode::encode(ostream& start)
 {
-  start.write((const char*)&m_header[0], m_header.size());
-  start.write((const char*)&m_payload[0], m_payload.size());
+  start.write((const char*)&header_[0], header_.size());
+  start.write((const char*)&payload_[0], payload_.size());
 }
 
 void 
@@ -138,7 +138,7 @@ DerNode::decode(istream& start)
     {
       char buf[payloadSize];
       start.read(buf, payloadSize);
-      m_payload.insert(m_payload.end(), buf, buf + payloadSize);
+      payload_.insert(payload_.end(), buf, buf + payloadSize);
     }
 }
 
@@ -178,27 +178,27 @@ DerNode::parse(istream& start)
  */
 DerComplex::DerComplex()
   :DerNode(),
-   m_childChanged(false),
-   m_size(0)
+   childChanged_(false),
+   size_(0)
 {}
 
 DerComplex::DerComplex(DerType type)
   :DerNode(type),
-   m_childChanged(false),
-   m_size(0)
+   childChanged_(false),
+   size_(0)
 {}
 
 DerComplex::DerComplex(istream& start)
   :DerNode(),
-   m_childChanged(false),
-   m_size(0)
+   childChanged_(false),
+   size_(0)
 {
-  m_size = DerNode::decodeHeader(start);
-  // _LOG_DEBUG("Size: " << m_size);
+  size_ = DerNode::decodeHeader(start);
+  // _LOG_DEBUG("Size: " << size_);
 
   int accSize = 0;
   
-  while(accSize < m_size)
+  while(accSize < size_)
     {
       // _LOG_DEBUG("accSize: " << accSize);
       shared_ptr<DerNode> nodePtr = DerNode::parse(start);
@@ -213,25 +213,25 @@ DerComplex::~DerComplex()
 int
 DerComplex::getSize()
 {
-  if(m_childChanged)
+  if(childChanged_)
     {
 	updateSize();
-	m_childChanged = false;
+	childChanged_ = false;
     }
 
-  m_header.clear();
-  DerNode::encodeHeader(m_size);
-  return m_size + m_header.size();
+  header_.clear();
+  DerNode::encodeHeader(size_);
+  return size_ + header_.size();
 }
 
 shared_ptr<vector<uint8_t> >
 DerComplex::getRaw()
 {
   shared_ptr<vector<uint8_t> > blob(new vector<uint8_t>());
-  blob->insert(blob->end(), m_header.begin(), m_header.end());
+  blob->insert(blob->end(), header_.begin(), header_.end());
 
-  DerNodePtrList::iterator it = m_nodeList.begin();
-  for(; it != m_nodeList.end(); it++)
+  DerNodePtrList::iterator it = nodeList_.begin();
+  for(; it != nodeList_.end(); it++)
     {
       shared_ptr<vector<uint8_t> > childBlob = (*it)->getRaw();
       blob->insert(blob->end(), childBlob->begin(), childBlob->end());
@@ -244,14 +244,14 @@ DerComplex::updateSize()
 {
   int newSize = 0;
 
-  DerNodePtrList::iterator it = m_nodeList.begin();
-  for(; it != m_nodeList.end(); it++)
+  DerNodePtrList::iterator it = nodeList_.begin();
+  for(; it != nodeList_.end(); it++)
     {
 	newSize += (*it)->getSize();
     }
   
-  m_size = newSize;
-  m_childChanged = false;
+  size_ = newSize;
+  childChanged_ = false;
 }
 
 void
@@ -259,44 +259,44 @@ DerComplex::addChild(shared_ptr<DerNode> nodePtr, bool notifyParent)
 {
   nodePtr->setParent(this);
 
-  m_nodeList.push_back(nodePtr);
+  nodeList_.push_back(nodePtr);
 
   if(!notifyParent)
     return;
 
-  if(m_childChanged)
+  if(childChanged_)
     return;
   else
-    m_childChanged = true;
+    childChanged_ = true;
 
-  if(0 != m_parent)
-    m_parent->setChildChanged();
+  if(0 != parent_)
+    parent_->setChildChanged();
 }
 
 void
 DerComplex::setChildChanged()
 {
-  if(0 != m_parent && !m_childChanged)
+  if(0 != parent_ && !childChanged_)
     {
-      m_parent->setChildChanged();
-      m_childChanged = true;
+      parent_->setChildChanged();
+      childChanged_ = true;
     }
   else
-    m_childChanged = true;
+    childChanged_ = true;
 }
 
 void
 DerComplex::encode(ostream& start)
 {
   updateSize();
-  m_header.clear();
+  header_.clear();
 
-  DerNode::encodeHeader(m_size);
+  DerNode::encodeHeader(size_);
 
-  start.write((const char*)&m_header[0], m_header.size());
+  start.write((const char*)&header_[0], header_.size());
 
-  DerNodePtrList::iterator it = m_nodeList.begin();
-  for(; it != m_nodeList.end(); it++)
+  DerNodePtrList::iterator it = nodeList_.begin();
+  for(; it != nodeList_.end(); it++)
     (*it)->encode(start);
 }
 
@@ -307,17 +307,17 @@ DerComplex::encode(ostream& start)
 DerByteString::DerByteString(const string& str, DerType type)
   :DerNode(type)
 {
-  m_payload.insert(m_payload.end(), str.begin(), str.end());
+  payload_.insert(payload_.end(), str.begin(), str.end());
 
-  DerNode::encodeHeader(m_payload.size());
+  DerNode::encodeHeader(payload_.size());
 }
 
 DerByteString::DerByteString(const std::vector<uint8_t>& blob, DerType type)
   :DerNode(type)
 {
-  m_payload.insert(m_payload.end(), blob.begin(), blob.end());
+  payload_.insert(payload_.end(), blob.begin(), blob.end());
 
-  DerNode::encodeHeader(m_payload.size());
+  DerNode::encodeHeader(payload_.size());
 }
 
 DerByteString::DerByteString(istream& start)
@@ -336,9 +336,9 @@ DerBool::DerBool(bool value)
 
 { 
   char payload = (value ? 0xFF : 0x00);
-  m_payload.push_back(payload);
+  payload_.push_back(payload);
 
-  DerNode::encodeHeader(m_payload.size());
+  DerNode::encodeHeader(payload_.size());
 }
 
 DerBool::DerBool(istream& start)
@@ -355,9 +355,9 @@ DerBool::~DerBool()
 DerInteger::DerInteger(const vector<uint8_t>& blob)
   :DerNode(DER_INTEGER)
 {
-  m_payload.insert(m_payload.end(), blob.begin(), blob.end());
+  payload_.insert(payload_.end(), blob.begin(), blob.end());
 
-  DerNode::encodeHeader(m_payload.size());
+  DerNode::encodeHeader(payload_.size());
 }
 
 DerInteger::DerInteger(istream& start)
@@ -374,10 +374,10 @@ DerInteger::~DerInteger()
 DerBitString::DerBitString(const vector<uint8_t>& blob, uint8_t paddingLen)
   :DerNode(DER_BIT_STRING)
 {     
-  m_payload.push_back((char)paddingLen);
-  m_payload.insert(m_payload.end(), blob.begin(), blob.end());
+  payload_.push_back((char)paddingLen);
+  payload_.insert(payload_.end(), blob.begin(), blob.end());
 
-  DerNode::encodeHeader(m_payload.size());
+  DerNode::encodeHeader(payload_.size());
 }
 
 DerBitString::DerBitString(istream& start)
@@ -506,7 +506,7 @@ DerOid::prepareEncoding(const vector<int>& value)
   string output = os.str();
   DerNode::encodeHeader(output.size());
 
-  m_payload.insert(m_payload.end(), output.begin(), output.end());
+  payload_.insert(payload_.end(), output.begin(), output.end());
 }
   
 void
@@ -543,12 +543,12 @@ DerOid::decode128(int & offset)
 {
   uint8_t flagMask = 0x80;
   int result = 0;
-  while(m_payload[offset] & flagMask){
-    result = 128 * result + (uint8_t) m_payload[offset] - 128;
+  while(payload_[offset] & flagMask){
+    result = 128 * result + (uint8_t) payload_[offset] - 128;
     offset++;
   }
 
-  result = result * 128 + m_payload[offset];
+  result = result * 128 + payload_[offset];
   offset++;
 
   return result;
@@ -598,9 +598,9 @@ DerGtime::DerGtime(const Time& time)
   string pTimeStr = toIsoString(time);
   int index = pTimeStr.find_first_of('T');
   string derTime = pTimeStr.substr(0, index) + pTimeStr.substr(index+1, pTimeStr.size() - index -1) + "Z";
-  m_payload.insert(m_payload.end(), derTime.begin(), derTime.end());
+  payload_.insert(payload_.end(), derTime.begin(), derTime.end());
 
-  DerNode::encodeHeader(m_payload.size());
+  DerNode::encodeHeader(payload_.size());
 }
 
 DerGtime::DerGtime(istream& start)

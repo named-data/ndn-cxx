@@ -74,38 +74,38 @@ public:
   ~DerNode();
 
   virtual int
-  getSize() { return m_header.size() + m_payload.size(); }
+  getSize() { return header_.size() + payload_.size(); }
 
   virtual void 
   encode(std::ostream& start);
   
   void
-  setParent(DerComplex * parent) { m_parent = parent; }
+  setParent(DerComplex * parent) { parent_ = parent; }
 
   static ptr_lib::shared_ptr<DerNode>
   parse(std::istream& start);
 
   const std::vector<uint8_t>& 
-  getHeader() const { return m_header; }
+  getHeader() const { return header_; }
 
   std::vector<uint8_t>& 
-  getHeader() { return m_header; }
+  getHeader() { return header_; }
 
   const std::vector<uint8_t>& 
-  getPayload() const { return m_payload; }
+  getPayload() const { return payload_; }
   
   std::vector<uint8_t>& 
-  getPayload() { return m_payload; }
+  getPayload() { return payload_; }
 
   const DerType& 
-  getType() { return m_type; }
+  getType() { return type_; }
 
   virtual ptr_lib::shared_ptr<std::vector<uint8_t> >
   getRaw()
   { 
     ptr_lib::shared_ptr<std::vector<uint8_t> > blob(new std::vector<uint8_t>());
-    blob->insert(blob->end(), m_header.begin(), m_header.end());
-    blob->insert(blob->end(), m_payload.begin(), m_payload.end());
+    blob->insert(blob->end(), header_.begin(), header_.end());
+    blob->insert(blob->end(), payload_.begin(), payload_.end());
 
     return blob;
   }
@@ -126,10 +126,10 @@ protected:
   decodeHeader(std::istream& start);
 
 protected:
-  DerType m_type;
-  std::vector<uint8_t> m_header;
-  std::vector<uint8_t> m_payload;
-  DerComplex * m_parent;
+  DerType type_;
+  std::vector<uint8_t> header_;
+  std::vector<uint8_t> payload_;
+  DerComplex * parent_;
 };
 
 
@@ -157,10 +157,10 @@ public:
   encode(std::ostream& start);
 
   const DerNodePtrList& 
-  getChildren() const { return m_nodeList; }
+  getChildren() const { return nodeList_; }
 
   DerNodePtrList& 
-  getChildren() { return m_nodeList; }
+  getChildren() { return nodeList_; }
 
   virtual ptr_lib::shared_ptr<std::vector<uint8_t> >
   getRaw();
@@ -173,9 +173,9 @@ private:
   setChildChanged();
 
 private:
-  bool m_childChanged;
-  int m_size;
-  DerNodePtrList m_nodeList;
+  bool childChanged_;
+  int size_;
+  DerNodePtrList nodeList_;
 };
 
 
