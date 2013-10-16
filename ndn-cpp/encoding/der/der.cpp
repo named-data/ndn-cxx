@@ -48,31 +48,27 @@ DerNode::encodeHeader(int size)
 {
   header_.push_back((char)type_);
 
-  if(size >= 127)
-    {
-      int val = size;
-      char buf[sizeof(val) + 1];
-      char *p = &(buf[sizeof(buf)-1]);
-      int n = 0;
-      int mask = (1 << 8) - 1;
+  if (size >= 127) {
+    int val = size;
+    char buf[sizeof(val) + 1];
+    char *p = &(buf[sizeof(buf)-1]);
+    int n = 0;
+    int mask = (1 << 8) - 1;
 
-      while(val != 0)
-        {
-          p[0] = (char)(val & mask);
-          p--;
-          n++;
-          val >>= 8;
-        }
-
-      p[0] = (char)((1<<7) | n);
+    while (val != 0) {
+      p[0] = (char)(val & mask);
+      p--;
       n++;
+      val >>= 8;
+    }
 
-      header_.insert(header_.end(), p, p+n);
-    }
-  else if(size >= 0)
-    {
-      header_.push_back((char)size);
-    }
+    p[0] = (char)((1<<7) | n);
+    n++;
+
+    header_.insert(header_.end(), p, p+n);
+  }
+  else if (size >= 0)
+    header_.push_back((char)size);
   else
     throw NegativeLengthException("Negative length");
 }
@@ -91,35 +87,31 @@ DerNode::decodeHeader(istream& start)
 
   bool longFormat = sizeLen & (1 << 7);
 
-  if(!longFormat)
-    {
-      // _LOG_DEBUG("Short Format");
-      // _LOG_DEBUG("sizeLen: " << (int)sizeLen);
-      return (int)sizeLen;
-    }
-  else
-    {
-      // _LOG_DEBUG("Long Format");
-      uint8_t byte;
-      // char byte;
-      int lenCount = sizeLen & ((1<<7) - 1);
-      // _LOG_DEBUG("sizeLen: " << (int)sizeLen);
-      // _LOG_DEBUG("mask: " << (int)((1<<7) - 1));
-      // _LOG_DEBUG("lenCount: " << (int)lenCount);
-      int size = 0;
-      do
-        {
-          byte = start.get();
-          header_.push_back(byte);
-          size = size * 256 + (int)byte;
-          // _LOG_DEBUG("byte: " << (int)byte);
-          // _LOG_DEBUG("size: " << size);
-          lenCount--;
-        }
-      while(lenCount > 0);
+  if (!longFormat) {
+    // _LOG_DEBUG("Short Format");
+    // _LOG_DEBUG("sizeLen: " << (int)sizeLen);
+    return (int)sizeLen;
+  }
+  else {
+    // _LOG_DEBUG("Long Format");
+    uint8_t byte;
+    // char byte;
+    int lenCount = sizeLen & ((1<<7) - 1);
+    // _LOG_DEBUG("sizeLen: " << (int)sizeLen);
+    // _LOG_DEBUG("mask: " << (int)((1<<7) - 1));
+    // _LOG_DEBUG("lenCount: " << (int)lenCount);
+    int size = 0;
+    do {
+      byte = start.get();
+      header_.push_back(byte);
+      size = size * 256 + (int)byte;
+      // _LOG_DEBUG("byte: " << (int)byte);
+      // _LOG_DEBUG("size: " << size);
+      lenCount--;
+    } while (lenCount > 0);
 
-      return size;
-    }
+    return size;
+  }
 }
 
 void
@@ -134,12 +126,11 @@ DerNode::decode(istream& start)
 {
   int payloadSize = decodeHeader(start);
   // _LOG_DEBUG("payloadSize: " << payloadSize);
-  if(payloadSize > 0 )
-    {
-      char buf[payloadSize];
-      start.read(buf, payloadSize);
-      payload_.insert(payload_.end(), buf, buf + payloadSize);
-    }
+  if (payloadSize > 0 ) {
+    char buf[payloadSize];
+    start.read(buf, payloadSize);
+    payload_.insert(payload_.end(), buf, buf + payloadSize);
+  }
 }
 
 shared_ptr<DerNode>
@@ -169,7 +160,7 @@ DerNode::parse(istream& start)
       return shared_ptr<DerGtime>(new DerGtime(start));
     default:
       throw DerDecodingException("Unimplemented DER types");
-    }
+  }
 }
 
 
@@ -198,13 +189,12 @@ DerComplex::DerComplex(istream& start)
 
   int accSize = 0;
   
-  while(accSize < size_)
-    {
-      // _LOG_DEBUG("accSize: " << accSize);
-      shared_ptr<DerNode> nodePtr = DerNode::parse(start);
-      accSize += nodePtr->getSize();
-      addChild(nodePtr, false);
-    }
+  while (accSize < size_) {
+    // _LOG_DEBUG("accSize: " << accSize);
+    shared_ptr<DerNode> nodePtr = DerNode::parse(start);
+    accSize += nodePtr->getSize();
+    addChild(nodePtr, false);
+  }
 }
 
 DerComplex::~DerComplex()
@@ -213,11 +203,10 @@ DerComplex::~DerComplex()
 int
 DerComplex::getSize()
 {
-  if(childChanged_)
-    {
-  updateSize();
-  childChanged_ = false;
-    }
+  if (childChanged_) {
+    updateSize();
+    childChanged_ = false;
+  }
 
   header_.clear();
   DerNode::encodeHeader(size_);
@@ -231,11 +220,10 @@ DerComplex::getRaw()
   blob->insert(blob->end(), header_.begin(), header_.end());
 
   DerNodePtrList::iterator it = nodeList_.begin();
-  for(; it != nodeList_.end(); it++)
-    {
-      shared_ptr<vector<uint8_t> > childBlob = (*it)->getRaw();
-      blob->insert(blob->end(), childBlob->begin(), childBlob->end());
-    }
+  for (; it != nodeList_.end(); it++) {
+    shared_ptr<vector<uint8_t> > childBlob = (*it)->getRaw();
+    blob->insert(blob->end(), childBlob->begin(), childBlob->end());
+  }
   return blob;
 }
 
@@ -245,10 +233,9 @@ DerComplex::updateSize()
   int newSize = 0;
 
   DerNodePtrList::iterator it = nodeList_.begin();
-  for(; it != nodeList_.end(); it++)
-    {
-  newSize += (*it)->getSize();
-    }
+  for (; it != nodeList_.end(); it++) {
+    newSize += (*it)->getSize();
+  }
   
   size_ = newSize;
   childChanged_ = false;
@@ -261,26 +248,25 @@ DerComplex::addChild(shared_ptr<DerNode> nodePtr, bool notifyParent)
 
   nodeList_.push_back(nodePtr);
 
-  if(!notifyParent)
+  if (!notifyParent)
     return;
 
-  if(childChanged_)
+  if (childChanged_)
     return;
   else
     childChanged_ = true;
 
-  if(0 != parent_)
+  if (0 != parent_)
     parent_->setChildChanged();
 }
 
 void
 DerComplex::setChildChanged()
 {
-  if(0 != parent_ && !childChanged_)
-    {
-      parent_->setChildChanged();
-      childChanged_ = true;
-    }
+  if (0 != parent_ && !childChanged_) {
+    parent_->setChildChanged();
+    childChanged_ = true;
+  }
   else
     childChanged_ = true;
 }
@@ -296,7 +282,7 @@ DerComplex::encode(ostream& start)
   start.write((const char*)&header_[0], header_.size());
 
   DerNodePtrList::iterator it = nodeList_.begin();
-  for(; it != nodeList_.end(); it++)
+  for (; it != nodeList_.end(); it++)
     (*it)->encode(start);
 }
 
@@ -444,12 +430,12 @@ DerOid::DerOid(const string& oidStr)
   size_t pos = 0;
   size_t ppos = 0;
 
-  while(string::npos != pos){
+  while (string::npos != pos) {
     ppos = pos;
 
     pos = str.find_first_of('.', pos);
-    if(string::npos == pos)
-  break;
+    if (string::npos == pos)
+      break;
 
     value.push_back(atoi(str.substr(ppos, pos - ppos).c_str()));
 
@@ -479,28 +465,28 @@ DerOid::prepareEncoding(const vector<int>& value)
 
   int firstNumber = 0;
   
-  if(value.size() >= 1){
-    if(0 <= value[0] && 2 >= value[0])
-  firstNumber = value[0] * 40;
+  if (value.size() >= 1) {
+    if (0 <= value[0] && 2 >= value[0])
+      firstNumber = value[0] * 40;
     else
-  throw DerEncodingException("first integer of oid is out of range");
+      throw DerEncodingException("first integer of oid is out of range");
   }
   else
     throw DerEncodingException("no integer in oid");
 
-  if(value.size() >= 2){
-    if(0 <= value[1] && 39 >= value[1])
-  firstNumber += value[1];
+  if (value.size() >= 2) {
+    if (0 <= value[1] && 39 >= value[1])
+      firstNumber += value[1];
     else
-  throw DerEncodingException("second integer of oid is out of range");
+      throw DerEncodingException("second integer of oid is out of range");
   }
   
   encode128(firstNumber, os);
 
-  if(value.size() > 2){
+  if (value.size() > 2) {
     int i = 2;
-    for(; i < value.size(); i++)
-  encode128(value[i], os);
+    for (; i < value.size(); i++)
+      encode128(value[i], os);
   }
 
   string output = os.str();
@@ -514,12 +500,11 @@ DerOid::encode128(int value, ostringstream& os)
 {
   int mask = (1 << 7) - 1;
 
-  if(128 > value)
-    {
-  uint8_t singleByte = (uint8_t) mask & value;
-  os.write((char *)&singleByte, 1);
-    }
-  else{
+  if (128 > value) {
+    uint8_t singleByte = (uint8_t) mask & value;
+    os.write((char *)&singleByte, 1);
+  }
+  else {
     uint8_t buf[(sizeof(value)*8 + 6)/7 + 1];
     uint8_t *p = &(buf[sizeof(buf)-1]);
     int n = 1;
@@ -527,12 +512,11 @@ DerOid::encode128(int value, ostringstream& os)
     p[0] = (uint8_t)(value & mask);
     value >>= 7;
 
-    while(value != 0)
-  {
-    (--p)[0] = (uint8_t)((value & mask) | (1 << 7));
-    n++;
-    value >>= 7;
-  }
+    while (value != 0) {
+      (--p)[0] = (uint8_t)((value & mask) | (1 << 7));
+      n++;
+      value >>= 7;
+    }
     
     os.write((char *)p, n);
   }
@@ -543,7 +527,7 @@ DerOid::decode128(int & offset)
 {
   uint8_t flagMask = 0x80;
   int result = 0;
-  while(payload_[offset] & flagMask){
+  while (payload_[offset] & flagMask) {
     result = 128 * result + (uint8_t) payload_[offset] - 128;
     offset++;
   }
