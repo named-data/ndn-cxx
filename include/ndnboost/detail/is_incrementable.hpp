@@ -1,8 +1,8 @@
 // Copyright David Abrahams 2004. Use, modification and distribution is
 // subject to the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-#ifndef IS_INCREMENTABLE_DWA200415_HPP
-# define IS_INCREMENTABLE_DWA200415_HPP
+#ifndef IS_INCREMENTABLE_NDNBOOST_DWA200415_HPP
+# define IS_INCREMENTABLE_NDNBOOST_DWA200415_HPP
 
 # include <ndnboost/type_traits/detail/template_arity_spec.hpp>
 # include <ndnboost/type_traits/remove_cv.hpp>
@@ -131,4 +131,4 @@ NDNBOOST_TT_AUX_TEMPLATE_ARITY_SPEC(1, ::ndnboost::detail::is_postfix_incrementa
 
 # include <ndnboost/type_traits/detail/bool_trait_undef.hpp>
 
-#endif // IS_INCREMENTABLE_DWA200415_HPP
+#endif // IS_INCREMENTABLE_NDNBOOST_DWA200415_HPP

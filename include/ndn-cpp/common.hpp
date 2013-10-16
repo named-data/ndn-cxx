@@ -28,11 +28,17 @@ namespace ndn { namespace ptr_lib = boost; }
 // cd <NDN-CPP ROOT>/include
 // mv boost ndnboost
 // cd ndnboost
+// # Replace when including files.
 // (unset LANG; find . -type f -exec sed -i '' 's/\<boost\//\<ndnboost\//g' {} +)
 // (unset LANG; find . -type f -exec sed -i '' 's/\"boost\//\"ndnboost\//g' {} +)
-// (unset LANG; find . -type f -exec sed -i '' 's/\ boost\//\ ndnboost\//g' {} +)
+// (unset LANG; find . -type f -exec sed -i '' 's/ boost\// ndnboost\//g' {} +)
 // (unset LANG; find . -type f -exec sed -i '' 's/(boost\//(ndnboost\//g' {} +)
+// # Replace macro definitions.
 // (unset LANG; find . -type f -exec sed -i '' 's/BOOST_/NDNBOOST_/g' {} +)
+// # Replace header include guards which don't start with BOOST_ .  This may result in some with NDNBOOST twice, but that is OK.
+// (unset LANG; find . -type f -exec sed -i '' 's/_DWA/_NDNBOOST_DWA/g' {} +)
+// (unset LANG; find . -type f -exec sed -i '' 's/ UUID_/ NDNBOOST_UUID_/g' {} +)
+// (unset LANG; find . -type f -exec sed -i '' 's/ FILE_boost/ FILE_ndnboost/g' {} +)
 #include <ndnboost/shared_ptr.hpp>
 #include <ndnboost/make_shared.hpp>
 namespace ndn { namespace ptr_lib = ndnboost; }

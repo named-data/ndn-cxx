@@ -1,13 +1,13 @@
 // Copyright David Abrahams 2006. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-#ifndef NDNBOOST_CONCEPT_DETAIL_CONCEPT_DEF_DWA200651_HPP
-# define NDNBOOST_CONCEPT_DETAIL_CONCEPT_DEF_DWA200651_HPP
+#ifndef NDNBOOST_CONCEPT_DETAIL_CONCEPT_DEF_NDNBOOST_DWA200651_HPP
+# define NDNBOOST_CONCEPT_DETAIL_CONCEPT_DEF_NDNBOOST_DWA200651_HPP
 # include <ndnboost/preprocessor/seq/for_each_i.hpp>
 # include <ndnboost/preprocessor/seq/enum.hpp>
 # include <ndnboost/preprocessor/comma_if.hpp>
 # include <ndnboost/preprocessor/cat.hpp>
-#endif // NDNBOOST_CONCEPT_DETAIL_CONCEPT_DEF_DWA200651_HPP
+#endif // NDNBOOST_CONCEPT_DETAIL_CONCEPT_DEF_NDNBOOST_DWA200651_HPP
 
 // NDNBOOST_concept(SomeName, (p1)(p2)...(pN))
 //

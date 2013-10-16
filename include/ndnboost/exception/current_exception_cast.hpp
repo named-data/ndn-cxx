@@ -3,8 +3,8 @@
 //Distributed under the Boost Software License, Version 1.0. (See accompanying
 //file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef UUID_7E83C166200811DE885E826156D89593
-#define UUID_7E83C166200811DE885E826156D89593
+#ifndef NDNBOOST_UUID_7E83C166200811DE885E826156D89593
+#define NDNBOOST_UUID_7E83C166200811DE885E826156D89593
 #if (__GNUC__*100+__GNUC_MINOR__>301) && !defined(NDNBOOST_EXCEPTION_ENABLE_WARNINGS)
 #pragma GCC system_header
 #endif

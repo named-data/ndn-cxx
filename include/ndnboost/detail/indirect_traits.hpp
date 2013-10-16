@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-#ifndef INDIRECT_TRAITS_DWA2002131_HPP
-# define INDIRECT_TRAITS_DWA2002131_HPP
+#ifndef INDIRECT_TRAITS_NDNBOOST_DWA2002131_HPP
+# define INDIRECT_TRAITS_NDNBOOST_DWA2002131_HPP
 # include <ndnboost/type_traits/is_function.hpp>
 # include <ndnboost/type_traits/is_reference.hpp>
 # include <ndnboost/type_traits/is_pointer.hpp>
@@ -484,4 +484,4 @@ using namespace indirect_traits;
 
 }} // namespace ndnboost::python::detail
 
-#endif // INDIRECT_TRAITS_DWA2002131_HPP
+#endif // INDIRECT_TRAITS_NDNBOOST_DWA2002131_HPP

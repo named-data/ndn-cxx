@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-#ifndef GET_POINTER_DWA20021219_HPP
-#define GET_POINTER_DWA20021219_HPP
+#ifndef GET_POINTER_NDNBOOST_DWA20021219_HPP
+#define GET_POINTER_NDNBOOST_DWA20021219_HPP
 
 #include <ndnboost/config.hpp>
 
@@ -45,4 +45,4 @@ template<class T> T * get_pointer( std::shared_ptr<T> const& p )
 
 } // namespace ndnboost
 
-#endif // GET_POINTER_DWA20021219_HPP
+#endif // GET_POINTER_NDNBOOST_DWA20021219_HPP

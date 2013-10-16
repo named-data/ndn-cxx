@@ -1,5 +1,5 @@
-#ifndef INDIRECT_REFERENCE_DWA200415_HPP
-# define INDIRECT_REFERENCE_DWA200415_HPP
+#ifndef INDIRECT_REFERENCE_NDNBOOST_DWA200415_HPP
+# define INDIRECT_REFERENCE_NDNBOOST_DWA200415_HPP
 
 //
 // Copyright David Abrahams 2004. Use, modification and distribution is
@@ -40,4 +40,4 @@ struct indirect_reference
   
 } // namespace ndnboost
 
-#endif // INDIRECT_REFERENCE_DWA200415_HPP
+#endif // INDIRECT_REFERENCE_NDNBOOST_DWA200415_HPP

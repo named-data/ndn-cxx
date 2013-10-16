@@ -1,8 +1,8 @@
 // Copyright David Abrahams 2006. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-#ifndef NDNBOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_DWA2006429_HPP
-# define NDNBOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_DWA2006429_HPP
+#ifndef NDNBOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_NDNBOOST_DWA2006429_HPP
+# define NDNBOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_NDNBOOST_DWA2006429_HPP
 
 # include <ndnboost/mpl/bool.hpp>
 # include <ndnboost/detail/workaround.hpp>
@@ -47,4 +47,4 @@ struct not_satisfied
 
 }} // namespace ndnboost::concepts::detail
 
-#endif // NDNBOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_DWA2006429_HPP
+#endif // NDNBOOST_CONCEPT_DETAIL_HAS_CONSTRAINTS_NDNBOOST_DWA2006429_HPP

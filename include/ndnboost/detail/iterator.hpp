@@ -47,8 +47,8 @@
 // 06 Feb 2001 - Removed useless #includes of standard library headers
 //               (David Abrahams)
 
-#ifndef ITERATOR_DWA122600_HPP_
-# define ITERATOR_DWA122600_HPP_
+#ifndef ITERATOR_NDNBOOST_DWA122600_HPP_
+# define ITERATOR_NDNBOOST_DWA122600_HPP_
 
 # include <ndnboost/config.hpp>
 # include <iterator>
@@ -491,4 +491,4 @@ distance(Iterator first, Iterator last)
 # undef NDNBOOST_BAD_CONTAINER_ITERATOR_CATEGORY_TYPEDEF
 # undef NDNBOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
 
-#endif // ITERATOR_DWA122600_HPP_
+#endif // ITERATOR_NDNBOOST_DWA122600_HPP_

@@ -25,8 +25,8 @@
 // representations about the suitability of this software for any
 // purpose.  It is provided "as is" without express or implied warranty.
 // 
-#ifndef BINARY_SEARCH_DWA_122600_H_
-# define BINARY_SEARCH_DWA_122600_H_
+#ifndef BINARY_SEARCH_NDNBOOST_DWA_122600_H_
+# define BINARY_SEARCH_NDNBOOST_DWA_122600_H_
 
 # include <ndnboost/detail/iterator.hpp>
 # include <utility>
@@ -213,4 +213,4 @@ bool binary_search(ForwardIter first, ForwardIter last,
 
 }} // namespace ndnboost::detail
 
-#endif // BINARY_SEARCH_DWA_122600_H_
+#endif // BINARY_SEARCH_NDNBOOST_DWA_122600_H_

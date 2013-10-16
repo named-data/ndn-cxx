@@ -1,8 +1,8 @@
 // Copyright David Abrahams 2006. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-#ifndef NDNBOOST_CONCEPT_ASSERT_DWA2006430_HPP
-# define NDNBOOST_CONCEPT_ASSERT_DWA2006430_HPP
+#ifndef NDNBOOST_CONCEPT_ASSERT_NDNBOOST_DWA2006430_HPP
+# define NDNBOOST_CONCEPT_ASSERT_NDNBOOST_DWA2006430_HPP
 
 # include <ndnboost/config.hpp>
 # include <ndnboost/detail/workaround.hpp>
@@ -43,4 +43,4 @@
 # define NDNBOOST_CONCEPT_ASSERT(ModelInParens) \
     NDNBOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
 
-#endif // NDNBOOST_CONCEPT_ASSERT_DWA2006430_HPP
+#endif // NDNBOOST_CONCEPT_ASSERT_NDNBOOST_DWA2006430_HPP

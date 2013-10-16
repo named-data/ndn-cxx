@@ -1,5 +1,5 @@
-#ifndef POINTEE_DWA200415_HPP
-# define POINTEE_DWA200415_HPP
+#ifndef POINTEE_NDNBOOST_DWA200415_HPP
+# define POINTEE_NDNBOOST_DWA200415_HPP
 
 //
 // Copyright David Abrahams 2004. Use, modification and distribution is
@@ -71,4 +71,4 @@ struct pointee
   
 } // namespace ndnboost
 
-#endif // POINTEE_DWA200415_HPP
+#endif // POINTEE_NDNBOOST_DWA200415_HPP

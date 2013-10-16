@@ -1,8 +1,8 @@
 // Copyright David Abrahams 2006. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-#ifndef NDNBOOST_CONCEPT_USAGE_DWA2006919_HPP
-# define NDNBOOST_CONCEPT_USAGE_DWA2006919_HPP
+#ifndef NDNBOOST_CONCEPT_USAGE_NDNBOOST_DWA2006919_HPP
+# define NDNBOOST_CONCEPT_USAGE_NDNBOOST_DWA2006919_HPP
 
 # include <ndnboost/concept/assert.hpp>
 # include <ndnboost/detail/workaround.hpp>
@@ -41,4 +41,4 @@ struct usage_requirements
 
 }} // namespace ndnboost::concepts
 
-#endif // NDNBOOST_CONCEPT_USAGE_DWA2006919_HPP
+#endif // NDNBOOST_CONCEPT_USAGE_NDNBOOST_DWA2006919_HPP
