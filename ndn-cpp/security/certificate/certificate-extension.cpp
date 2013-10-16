@@ -20,7 +20,6 @@ namespace ndn {
 shared_ptr<der::DerNode> 
 CertificateExtension::toDer()
 {
-#if 0 // Include again when der is defined.
   shared_ptr<der::DerSequence> root(new der::DerSequence);
     
   shared_ptr<der::DerOid> extensionId(new der::DerOid(extensionId_));
@@ -34,9 +33,6 @@ CertificateExtension::toDer()
   root->getSize();
 
   return root;
-#else
-  throw std::runtime_error("not implemented");
-#endif
 }
 
 Blob

@@ -6,9 +6,6 @@
  * See COPYING for copyright and distribution information.
  */
 
-#if 1 // TODO: Remove this when we don't throw "not implemented".
-#include <stdexcept>
-#endif
 #include "simple-visitor.hpp"
 #include "../der.hpp"
 #include <ndn-cpp/encoding/oid.hpp>
@@ -65,7 +62,6 @@ SimpleVisitor::visit(DerOctetString& derOStr)
 ndnboost::any 
 SimpleVisitor::visit(DerOid& derOid)
 {
-#if 0 // Include again when der is defined.
   vector<int> intList;
   int offset = 0;
 
@@ -83,9 +79,6 @@ SimpleVisitor::visit(DerOid& derOid)
   }
   
   return ndnboost::any(OID(intList));
-#else
-  throw std::runtime_error("not implemented");
-#endif
 }
 
 ndnboost::any 
@@ -94,14 +87,12 @@ SimpleVisitor::visit(DerSequence& derSeq)
   return ndnboost::any();
 }
 
-#if 0 // TODO: Implmenent alternative to boost::posix_time::from_iso_string.
 ndnboost::any 
 SimpleVisitor::visit(DerGtime& derGtime)
 {
   string str((const char*)&derGtime.getPayload()[0], derGtime.getPayload().size());
-  return ndnboost::any(boost::posix_time::from_iso_string(str.substr(0, 8) + "T" + str.substr(8, 6)));
+  return ndnboost::any(DerGtime::fromIsoString(str.substr(0, 8) + "T" + str.substr(8, 6)));
 }
-#endif
 
 } // der
 

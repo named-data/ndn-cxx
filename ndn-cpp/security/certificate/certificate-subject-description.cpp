@@ -6,9 +6,6 @@
  * See COPYING for copyright and distribution information.
  */
 
-#if 1 // TODO: Remove this when we don't throw "not implemented".
-#include <stdexcept>
-#endif
 #include "../../encoding/der/der.hpp"
 #include <ndn-cpp/security/certificate/certificate-subject-description.hpp>
 
@@ -20,7 +17,6 @@ namespace ndn {
 shared_ptr<der::DerNode> 
 CertificateSubjectDescription::toDer()
 {
-#if 0 // Include again when der is defined.
   shared_ptr<der::DerSequence> root(new der::DerSequence());
 
   shared_ptr<der::DerOid> oid(new der::DerOid(oid_));
@@ -30,9 +26,6 @@ CertificateSubjectDescription::toDer()
   root->addChild(value);
 
   return root;
-#else
-  throw std::runtime_error("not implemented");
-#endif
 }
 
 }
