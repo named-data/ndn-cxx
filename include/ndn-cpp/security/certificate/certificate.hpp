@@ -32,17 +32,13 @@ public:
    * Create a Certificate from the content in the data packet.
    * @param data The data packet with the content to decode.
    */
-#if 0 // TODO: Define in certificate.cpp
   Certificate(const Data& data);
-#else
-  Certificate(const Data& data) {}
-#endif
  
   /**
    * The virtual destructor.
    */
   virtual 
-  ~Certificate() {}
+  ~Certificate();
 
   /**
    * encode certificate info into content

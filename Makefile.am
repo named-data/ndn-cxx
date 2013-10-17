@@ -95,7 +95,8 @@ libndn_c_la_SOURCES = $(ndn_cpp_c_headers) \
   ndn-cpp/c/util/crypto.c ndn-cpp/c/util/crypto.h \
   ndn-cpp/c/util/dynamic-uint8-array.c ndn-cpp/c/util/dynamic-uint8-array.h \
   ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
-  ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h
+  ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h \
+  ndn-cpp/c/util/time.c ndn-cpp/c/util/time.h
 
 # C++ code and also the C code.
 libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
@@ -127,6 +128,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   ndn-cpp/security/security-exception.cpp \
   ndn-cpp/security/certificate/certificate-extension.cpp \
   ndn-cpp/security/certificate/certificate-subject-description.cpp \
+  ndn-cpp/security/certificate/certificate.cpp \
   ndn-cpp/security/certificate/identity-certificate.cpp \
   ndn-cpp/security/certificate/public-key.cpp \
   ndn-cpp/security/identity/basic-identity-storage.cpp \
