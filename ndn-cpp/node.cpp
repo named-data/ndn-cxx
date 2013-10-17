@@ -5,11 +5,11 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <sys/time.h>
 #include <stdexcept>
 #include "c/name.h"
 #include "c/interest.h"
 #include "c/util/crypto.h"
+#include "c/util/time.h"
 #include "c/encoding/binary-xml.h"
 #include "encoding/binary-xml-decoder.hpp"
 #include <ndn-cpp/forwarding-entry.hpp>
@@ -109,15 +109,6 @@ selfregSign(Data& data, WireFormat& wireFormat)
     throw std::runtime_error("Error in RSA_sign");
   
   signature->setSignature(signatureBits, (size_t)signatureBitsLength);
-}
-
-// Use gettimeofday to return the current time in milliseconds.
-static inline double 
-getNowMilliseconds()
-{
-  timeval t;
-  gettimeofday(&t, NULL);
-  return t.tv_sec * 1000.0 + t.tv_usec / 1000.0;
 }
 
 Node::Node(const shared_ptr<Transport>& transport, const shared_ptr<const Transport::ConnectionInfo>& connectionInfo)
@@ -249,13 +240,13 @@ Node::processEvents()
   transport_->processEvents();
   
   // Check for PIT entry timeouts.  Go backwards through the list so we can erase entries.
-  double nowMilliseconds = getNowMilliseconds();
+  double nowMilliseconds = ndn_getNowMilliseconds();
   for (int i = (int)pendingInterestTable_.size() - 1; i >= 0; --i) {
     if (pendingInterestTable_[i]->checkTimeout(this, nowMilliseconds)) {
       pendingInterestTable_.erase(pendingInterestTable_.begin() + i);
       
       // Refresh now since the timeout callback might have delayed.
-      nowMilliseconds = getNowMilliseconds();
+      nowMilliseconds = ndn_getNowMilliseconds();
     }
   }
 }
@@ -346,7 +337,7 @@ Node::PendingInterest::PendingInterest
 {
   // Set up timeoutTime_.
   if (interest_->getInterestLifetimeMilliseconds() >= 0.0)
-    timeoutTimeMilliseconds_ = getNowMilliseconds() + interest_->getInterestLifetimeMilliseconds();
+    timeoutTimeMilliseconds_ = ndn_getNowMilliseconds() + interest_->getInterestLifetimeMilliseconds();
   else
     // No timeout.
     timeoutTimeMilliseconds_ = -1.0;
