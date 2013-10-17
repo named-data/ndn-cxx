@@ -83,7 +83,7 @@ public:
   void 
   set(const struct ndn_MetaInfo& metaInfoStruct);
 
-  double 
+  MillisecondsSince1970 
   getTimestampMilliseconds() const { return timestampMilliseconds_; }
   
   ndn_ContentType 
@@ -96,7 +96,7 @@ public:
   getFinalBlockID() const { return finalBlockID_; }
   
   void 
-  setTimestampMilliseconds(double timestampMilliseconds) { timestampMilliseconds_ = timestampMilliseconds; }
+  setTimestampMilliseconds(MillisecondsSince1970 timestampMilliseconds) { timestampMilliseconds_ = timestampMilliseconds; }
   
   void 
   setType(ndn_ContentType type) { type_ = type; }
@@ -117,7 +117,7 @@ public:
   }
   
 private:
-  double timestampMilliseconds_; /**< milliseconds since 1/1/1970. -1 for none */
+  MillisecondsSince1970 timestampMilliseconds_; /**< milliseconds since 1/1/1970. -1 for none */
   ndn_ContentType type_;         /**< default is ndn_ContentType_DATA. -1 for none */
   int freshnessSeconds_;         /**< -1 for none */
   Name::Component finalBlockID_; /** size 0 for none */

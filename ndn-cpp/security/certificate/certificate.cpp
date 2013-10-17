@@ -45,7 +45,7 @@ Certificate::~Certificate()
 bool
 Certificate::isTooEarly()
 {
-  Time now = ndn_getNowMilliseconds();
+  MillisecondsSince1970 now = ndn_getNowMilliseconds();
   if(now < notBefore_)
     return true;
   else
@@ -55,7 +55,7 @@ Certificate::isTooEarly()
 bool 
 Certificate::isTooLate()
 {
-  Time now = ndn_getNowMilliseconds();
+  MillisecondsSince1970 now = ndn_getNowMilliseconds();
   if(now > notAfter_)
     return true;
   else

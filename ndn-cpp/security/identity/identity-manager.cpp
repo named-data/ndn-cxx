@@ -82,7 +82,7 @@ IdentityManager::generateRSAKeyPairAsDefault(const Name& identityName, bool isKs
 }
 
 Name
-IdentityManager::createIdentityCertificate(const Name& keyName, const Name& signerCertificateName, const Time& notBefore, const Time& notAfter)
+IdentityManager::createIdentityCertificate(const Name& keyName, const Name& signerCertificateName, const MillisecondsSince1970& notBefore, const MillisecondsSince1970& notAfter)
 {
   Blob keyBlob = identityStorage_->getKey(keyName);
   shared_ptr<PublicKey> publicKey = PublicKey::fromDer(keyBlob);
@@ -97,7 +97,7 @@ IdentityManager::createIdentityCertificate(const Name& keyName, const Name& sign
 
 ptr_lib::shared_ptr<IdentityCertificate>
 IdentityManager::createIdentityCertificate
-  (const Name& keyName, const PublicKey& publicKey, const Name& signerCertificateName, const Time& notBefore, const Time& notAfter)
+  (const Name& keyName, const PublicKey& publicKey, const Name& signerCertificateName, const MillisecondsSince1970& notBefore, const MillisecondsSince1970& notAfter)
 {
 #if 0
   shared_ptr<IdentityCertificate> certificate(new IdentityCertificate());
@@ -236,9 +236,9 @@ IdentityManager::selfSign(const Name& keyName)
   current.tm_hour = 0;
   current.tm_min  = 0;
   current.tm_sec  = 0;
-  Time notBefore = boost::posix_time::ptime_from_tm(current);
+  MillisecondsSince1970 notBefore = boost::posix_time::ptime_from_tm(current);
   current.tm_year = current.tm_year + 20;
-  Time notAfter = boost::posix_time::ptime_from_tm(current);
+  MillisecondsSince1970 notAfter = boost::posix_time::ptime_from_tm(current);
 
   certificate->setNotBefore(notBefore);
   certificate->setNotAfter(notAfter);

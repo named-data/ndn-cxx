@@ -172,11 +172,11 @@ private:
     /**
      * If this interest is timed out, call onTimeout_ (if defined) and return true.
      * @param parent The parent Node for the UpcallInfo.
-     * @param nowMilliseconds The current time in milliseconds from gettimeofday.
+     * @param nowMilliseconds The current time in milliseconds from ndn_getNowMilliseconds.
      * @return true if this interest timed out and the timeout callback was called, otherwise false.
      */
     bool 
-    checkTimeout(Node *parent, double nowMilliseconds);
+    checkTimeout(Node *parent, MillisecondsSince1970 nowMilliseconds);
     
   private:
     ptr_lib::shared_ptr<const Interest> interest_;
@@ -188,7 +188,7 @@ private:
     uint64_t pendingInterestId_;            /**< A unique identifier for this entry so it can be deleted */
     const OnData onData_;
     const OnTimeout onTimeout_;
-    double timeoutTimeMilliseconds_; /**< The time when the interest times out in milliseconds according to gettimeofday, or -1 for no timeout. */
+    MillisecondsSince1970 timeoutTimeMilliseconds_; /**< The time when the interest times out in milliseconds according to ndn_getNowMilliseconds, or -1 for no timeout. */
   };
 
   class RegisteredPrefix {

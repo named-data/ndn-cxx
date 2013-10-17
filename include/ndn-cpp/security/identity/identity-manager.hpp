@@ -106,7 +106,7 @@ public:
    * @return The name of generated identity certificate.
    */
   Name
-  createIdentityCertificate(const Name& keyName, const Name& signerCertificateName, const Time& notBefore, const Time& notAfter);
+  createIdentityCertificate(const Name& keyName, const Name& signerCertificateName, const MillisecondsSince1970& notBefore, const MillisecondsSince1970& notAfter);
 
   /**
    * Create an identity certificate for a public key supplied by the caller.
@@ -119,7 +119,7 @@ public:
    */
   ptr_lib::shared_ptr<IdentityCertificate>
   createIdentityCertificate
-    (const Name& keyName, const PublicKey& publickey, const Name& signerCertificateName, const Time& notBefore, const Time& notAfter); 
+    (const Name& keyName, const PublicKey& publickey, const Name& signerCertificateName, const MillisecondsSince1970& notBefore, const MillisecondsSince1970& notAfter); 
     
   /**
    * Add a certificate into the public key identity storage.

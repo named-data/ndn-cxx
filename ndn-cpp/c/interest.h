@@ -99,7 +99,7 @@ struct ndn_Interest {
   int childSelector;        /**< -1 for none */
   int answerOriginKind;     /**< -1 for none */
   int scope;                /**< -1 for none */
-  double interestLifetimeMilliseconds; /**< milliseconds. -1.0 for none */
+  ndn_Milliseconds interestLifetimeMilliseconds; /**< milliseconds. -1.0 for none */
   struct ndn_Blob nonce;    /**< The blob whose value is a pointer to a pre-allocated buffer.  0 for none */
 };
 

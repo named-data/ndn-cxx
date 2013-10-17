@@ -46,10 +46,10 @@ static inline void ndn_Signature_initialize(struct ndn_Signature *self, struct n
  * An ndn_MetaInfo struct holds the meta info which is signed inside the data packet.
  */
 struct ndn_MetaInfo {
-  double timestampMilliseconds;    /**< milliseconds since 1/1/1970. -1 for none */
-  ndn_ContentType type;            /**< default is ndn_ContentType_DATA. -1 for none */
-  int freshnessSeconds;            /**< -1 for none */
-  struct ndn_NameComponent finalBlockID;  /**< has a pointer to a pre-allocated buffer.  0 for none */
+  ndn_MillisecondsSince1970 timestampMilliseconds; /**< milliseconds since 1/1/1970. -1 for none */
+  ndn_ContentType type;                  /**< default is ndn_ContentType_DATA. -1 for none */
+  int freshnessSeconds;                  /**< -1 for none */
+  struct ndn_NameComponent finalBlockID; /**< has a pointer to a pre-allocated buffer.  0 for none */
 };
 
 /**

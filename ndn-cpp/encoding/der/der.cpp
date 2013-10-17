@@ -576,7 +576,7 @@ DerPrintableString::~DerPrintableString()
 /*
  * DerGtime
  */
-DerGtime::DerGtime(const Time& time)
+DerGtime::DerGtime(const MillisecondsSince1970& time)
   :DerNode(DER_GENERALIZED_TIME)
 {
   string pTimeStr = toIsoString(time);
@@ -594,14 +594,14 @@ DerGtime::DerGtime(istream& start)
 DerGtime::~DerGtime()
 {}
 
-string DerGtime::toIsoString(const Time& time)
+string DerGtime::toIsoString(const MillisecondsSince1970& time)
 {
 #if 1
   throw std::runtime_error("not implemented");
 #endif
 }
 
-Time DerGtime::fromIsoString(const string& isoString)
+MillisecondsSince1970 DerGtime::fromIsoString(const string& isoString)
 {
 #if 1
   throw std::runtime_error("not implemented");

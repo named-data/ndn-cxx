@@ -61,21 +61,21 @@ public:
   addExtension(const CertificateExtension& extension) { extensionList_.push_back(extension); }
 
   void 
-  setNotBefore(const Time& notBefore) { notBefore_ = notBefore; }
+  setNotBefore(const MillisecondsSince1970& notBefore) { notBefore_ = notBefore; }
 
-  Time& 
+  MillisecondsSince1970& 
   getNotBefore() { return notBefore_; }
   
-  const Time& 
+  const MillisecondsSince1970& 
   getNotBefore() const { return notBefore_; }
 
   void
-  setNotAfter(const Time& notAfter) { notAfter_ = notAfter; }
+  setNotAfter(const MillisecondsSince1970& notAfter) { notAfter_ = notAfter; }
 
-  Time& 
+  MillisecondsSince1970& 
   getNotAfter() { return notAfter_; }
 
-  const Time& 
+  const MillisecondsSince1970& 
   getNotAfter() const { return notAfter_; }
 
   void
@@ -113,8 +113,8 @@ protected:
 
 protected:
   SubjectDescriptionList subjectDescriptionList_;
-  Time notBefore_;
-  Time notAfter_;
+  MillisecondsSince1970 notBefore_;
+  MillisecondsSince1970 notAfter_;
   PublicKey key_;
   ExtensionList extensionList_;
 };

@@ -355,7 +355,7 @@ public:
 class DerGtime : public DerNode
 {
 public:
-  DerGtime(const Time& time);
+  DerGtime(const MillisecondsSince1970& time);
 
   DerGtime(std::istream& start);
   
@@ -372,14 +372,14 @@ public:
    * @param time Milliseconds since 1/1/1970.
    * @return The ISO string.
    */
-  static std::string toIsoString(const Time& time);
+  static std::string toIsoString(const MillisecondsSince1970& time);
   
   /**
    * Convert from the ISO string representation to the internal time format.
    * @param isoString The ISO time formatted string. 
    * @return The time in milliseconds since 1/1/1970.
    */
-  static Time fromIsoString(const std::string& isoString);
+  static MillisecondsSince1970 fromIsoString(const std::string& isoString);
 };
  
 } // der

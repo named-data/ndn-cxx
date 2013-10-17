@@ -240,7 +240,7 @@ Node::processEvents()
   transport_->processEvents();
   
   // Check for PIT entry timeouts.  Go backwards through the list so we can erase entries.
-  double nowMilliseconds = ndn_getNowMilliseconds();
+  MillisecondsSince1970 nowMilliseconds = ndn_getNowMilliseconds();
   for (int i = (int)pendingInterestTable_.size() - 1; i >= 0; --i) {
     if (pendingInterestTable_[i]->checkTimeout(this, nowMilliseconds)) {
       pendingInterestTable_.erase(pendingInterestTable_.begin() + i);
@@ -352,7 +352,7 @@ Node::PendingInterest::PendingInterest
 }
 
 bool 
-Node::PendingInterest::checkTimeout(Node *parent, double nowMilliseconds)
+Node::PendingInterest::checkTimeout(Node *parent, MillisecondsSince1970 nowMilliseconds)
 {
   if (timeoutTimeMilliseconds_ >= 0.0 && nowMilliseconds >= timeoutTimeMilliseconds_) {
     if (onTimeout_) {

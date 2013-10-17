@@ -134,7 +134,7 @@ class Interest {
 public:    
   Interest(const Name& name, int minSuffixComponents, int maxSuffixComponents, 
     const PublisherPublicKeyDigest& publisherPublicKeyDigest, const Exclude& exclude, int childSelector, int answerOriginKind, 
-    int scope, double interestLifetimeMilliseconds, const std::vector<uint8_t>& nonce) 
+    int scope, Milliseconds interestLifetimeMilliseconds, const std::vector<uint8_t>& nonce) 
   : name_(name), minSuffixComponents_(minSuffixComponents), maxSuffixComponents_(maxSuffixComponents),
   publisherPublicKeyDigest_(publisherPublicKeyDigest), exclude_(exclude), childSelector_(childSelector), 
   answerOriginKind_(answerOriginKind), scope_(scope), interestLifetimeMilliseconds_(interestLifetimeMilliseconds),
@@ -144,14 +144,14 @@ public:
 
   Interest(const Name& name, int minSuffixComponents, int maxSuffixComponents, 
     const PublisherPublicKeyDigest& publisherPublicKeyDigest, const Exclude& exclude, int childSelector, int answerOriginKind, 
-    int scope, double interestLifetimeMilliseconds) 
+    int scope, Milliseconds interestLifetimeMilliseconds) 
   : name_(name), minSuffixComponents_(minSuffixComponents), maxSuffixComponents_(maxSuffixComponents),
   publisherPublicKeyDigest_(publisherPublicKeyDigest), exclude_(exclude), childSelector_(childSelector), 
   answerOriginKind_(answerOriginKind), scope_(scope), interestLifetimeMilliseconds_(interestLifetimeMilliseconds)
   {
   }
 
-  Interest(const Name& name, double interestLifetimeMilliseconds) 
+  Interest(const Name& name, Milliseconds interestLifetimeMilliseconds) 
   : name_(name)
   {
     construct();
@@ -228,7 +228,7 @@ public:
   int 
   getScope() const { return scope_; }
 
-  double 
+  Milliseconds 
   getInterestLifetimeMilliseconds() const { return interestLifetimeMilliseconds_; }
 
   const Blob& 
@@ -257,7 +257,7 @@ public:
   setScope(int value) { scope_ = value; }
 
   void 
-  setInterestLifetimeMilliseconds(double value) { interestLifetimeMilliseconds_ = value; }
+  setInterestLifetimeMilliseconds(Milliseconds value) { interestLifetimeMilliseconds_ = value; }
 
   void 
   setNonce(const std::vector<uint8_t>& value) { nonce_ = value; }
@@ -282,7 +282,7 @@ private:
   int childSelector_;
   int answerOriginKind_;
   int scope_;
-  double interestLifetimeMilliseconds_;
+  Milliseconds interestLifetimeMilliseconds_;
   Blob nonce_;
 };
   

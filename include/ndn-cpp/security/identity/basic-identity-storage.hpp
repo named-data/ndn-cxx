@@ -200,7 +200,7 @@ private:
 
   sqlite3 *database_;
 #if 0
-  Time lastUpdated_;
+  MillisecondsSince1970 lastUpdated_;
 #endif
 };
 

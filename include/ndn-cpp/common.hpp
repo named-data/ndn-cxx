@@ -63,10 +63,17 @@ namespace ndn { namespace func_lib = ndnboost; }
 #endif
 
 namespace ndn {
+
+/**
+ * A time interval represented as the number of milliseconds.
+ */
+typedef double Milliseconds;
    
-// TODO: Implement Time, used in certificates and DER encoding.
-typedef double Time;  
-  
+/**
+ * The calendar time represented as the number of milliseconds since 1/1/1970.
+ */
+typedef double MillisecondsSince1970;
+
 /**
  * Return the hex representation of the bytes in array.
  * @param array The array of bytes.

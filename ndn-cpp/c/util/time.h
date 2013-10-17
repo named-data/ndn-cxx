@@ -7,6 +7,8 @@
 #ifndef NDN_TIME_H
 #define NDN_TIME_H
 
+#include <ndn-cpp/c/common.h>
+
 #ifdef  __cplusplus
 extern "C" {
 #endif
@@ -15,7 +17,7 @@ extern "C" {
  * Use gettimeofday to return the current time in milliseconds.
  * @return The current time in milliseconds since 1/1/1970, including fractions of a millisecond according to timeval.tv_usec.
  */
-double 
+ndn_MillisecondsSince1970 
 ndn_getNowMilliseconds();
 
 #ifdef  __cplusplus

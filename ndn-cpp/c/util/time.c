@@ -7,7 +7,7 @@
 #include <sys/time.h>
 #include "time.h"
 
-double 
+ndn_MillisecondsSince1970 
 ndn_getNowMilliseconds()
 {
   struct timeval t;
