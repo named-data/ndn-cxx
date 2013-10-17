@@ -137,9 +137,22 @@ public:
   Data(const Name& name);
   
   /**
+   * The copy constructor: Create a deep copy of the given data object, including a clone of the signature object.
+   * @param data The data object to copy.
+   */
+  Data(const Data& data);
+  
+  /**
    * The virtual destructor.
    */
-  virtual ~Data() {}
+  virtual ~Data();
+  
+  /**
+   * The assignment operator: Copy fields and make a clone of the signature.
+   * @param data The other object to copy from.
+   * @return A reference to this object.
+   */
+  Data& operator=(const Data& data);
   
   /**
    * Encode this Data for a particular wire format. Also, set the wireEncoding field to the encoded result.

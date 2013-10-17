@@ -11,6 +11,7 @@
 #include "c/data.h"
 
 using namespace std;
+using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -44,6 +45,32 @@ Data::Data()
 Data::Data(const Name& name)
 : name_(name), signature_(new Sha256WithRsaSignature())
 {
+}
+
+Data::Data(const Data& data)
+: name_(data.name_), metaInfo_(data.metaInfo_), content_(data.content_), wireEncoding_(data.wireEncoding_)
+{
+  if (data.signature_)
+    signature_ = data.signature_->clone();
+}
+
+Data::~Data()
+{
+}
+
+Data& Data::operator=(const Data& data)
+{
+  if (data.signature_)
+    signature_ = data.signature_->clone();
+  else
+    signature_ = shared_ptr<Signature>();
+  
+  name_ = data.name_;
+  metaInfo_ = data.metaInfo_;
+  content_ = data.content_;
+  wireEncoding_ = data.wireEncoding_;
+
+  return *this;
 }
 
 void 
