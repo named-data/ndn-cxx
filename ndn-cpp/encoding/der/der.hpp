@@ -59,6 +59,23 @@ enum DerType {
   DER_BMP_STRING = 30,
 };
 
+class InputIterator : public std::istream
+{
+public:
+  uint8_t ReadU8() { return static_cast<uint8_t> (get()); }
+  uint8_t PeekU8() { return static_cast<uint8_t> (peek()); }
+  bool IsEnd() const { return eof(); }
+  void Prev() { seekg(-1, std::ios_base::cur); }
+};
+
+class OutputIterator : public std::ostream
+{
+public:
+  void Write(const uint8_t * s, uint32_t n) { write (reinterpret_cast<const char*>(s),n); }
+  void WriteU8(const uint8_t s) { put (s); }
+  void WriteU8(const uint8_t s, uint32_t n) { for (uint32_t i = 0; i < n; i++) { put(s); } }
+};
+
 class DerComplex;
 
 class DerNode
@@ -68,7 +85,7 @@ public:
 
   DerNode(DerType type);
 
-  DerNode(std::istream& start);
+  DerNode(InputIterator& start);
 
   virtual
   ~DerNode();
@@ -77,13 +94,13 @@ public:
   getSize() { return header_.size() + payload_.size(); }
 
   virtual void 
-  encode(std::ostream& start);
+  encode(OutputIterator& start);
   
   void
   setParent(DerComplex * parent) { parent_ = parent; }
 
   static ptr_lib::shared_ptr<DerNode>
-  parse(std::istream& start);
+  parse(InputIterator& start);
 
   const std::vector<uint8_t>& 
   getHeader() const { return header_; }
@@ -117,13 +134,13 @@ public:
   
 protected:
   void
-  decode(std::istream& start);
+  decode(InputIterator& start);
 
   void
   encodeHeader(int size);
 
   int 
-  decodeHeader(std::istream& start);
+  decodeHeader(InputIterator& start);
 
 protected:
   DerType type_;
@@ -142,7 +159,7 @@ public:
   
   DerComplex(DerType type);
 
-  DerComplex(std::istream& start);
+  DerComplex(InputIterator& start);
 
   virtual 
   ~DerComplex();
@@ -154,7 +171,7 @@ public:
   addChild(ptr_lib::shared_ptr<DerNode> nodePtr, bool notifyParent = true);
 
   virtual void
-  encode(std::ostream& start);
+  encode(OutputIterator& start);
 
   const DerNodePtrList& 
   getChildren() const { return nodeList_; }
@@ -187,7 +204,7 @@ public:
 
   DerByteString(const std::vector<uint8_t>& blob, DerType type);
 
-  DerByteString(std::istream& start);
+  DerByteString(InputIterator& start);
 
   virtual
   ~DerByteString();
@@ -200,7 +217,7 @@ class DerBool : public DerNode
 public:
   DerBool(bool value);
 
-  DerBool(std::istream& start);
+  DerBool(InputIterator& start);
 
   virtual
   ~DerBool();
@@ -217,7 +234,7 @@ class DerInteger : public DerNode
 public:
   DerInteger(const std::vector<uint8_t>& blob);
 
-  DerInteger(std::istream& start);
+  DerInteger(InputIterator& start);
 
   virtual 
   ~DerInteger();
@@ -234,7 +251,7 @@ class DerBitString : public DerNode
 public:
   DerBitString(const std::vector<uint8_t>& blob, uint8_t paddingLen);
 
-  DerBitString(std::istream& start);
+  DerBitString(InputIterator& start);
   
   virtual
   ~DerBitString();
@@ -253,7 +270,7 @@ public:
   
   DerOctetString(const std::vector<uint8_t>& blob);
 
-  DerOctetString(std::istream& start);
+  DerOctetString(InputIterator& start);
 
   virtual
   ~DerOctetString();
@@ -271,7 +288,7 @@ class DerNull : public DerNode
 public:
   DerNull();
 
-  DerNull(std::istream& start);
+  DerNull(InputIterator& start);
   
   virtual
   ~DerNull();
@@ -293,7 +310,7 @@ public:
 
   DerOid(const std::vector<int>& value);
 
-  DerOid(std::istream& start);
+  DerOid(InputIterator& start);
   
   virtual
   ~DerOid();
@@ -321,7 +338,7 @@ class DerSequence : public DerComplex
 public:
   DerSequence();
 
-  DerSequence(std::istream& start);
+  DerSequence(InputIterator& start);
   
   virtual
   ~DerSequence();
@@ -340,7 +357,7 @@ public:
 
   DerPrintableString(const std::vector<uint8_t>& blob);
 
-  DerPrintableString(std::istream& start);
+  DerPrintableString(InputIterator& start);
 
   virtual 
   ~DerPrintableString();
@@ -357,7 +374,7 @@ class DerGtime : public DerNode
 public:
   DerGtime(const MillisecondsSince1970& time);
 
-  DerGtime(std::istream& start);
+  DerGtime(InputIterator& start);
   
   virtual 
   ~DerGtime();

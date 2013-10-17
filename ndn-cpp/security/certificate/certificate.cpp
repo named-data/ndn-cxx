@@ -7,6 +7,10 @@
  */
 
 #include <float.h>
+#if 0
+#include <ndnboost/iostreams/stream.hpp>
+#include <ndnboost/iostreams/device/array.hpp>
+#endif
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
 #if 0
 #include "../../encoding/der/visitor/certificate-data-visitor.hpp"
@@ -112,8 +116,7 @@ Certificate::decode()
 #if 0
   Blob blob = getContent();
 
-  boost::iostreams::stream
-    <boost::iostreams::array_source> is(blob.buf(), blob.size());
+  ndnboost::iostreams::stream<ndnboost::iostreams::array_source> is((const char*)blob.buf(), blob.size());
 
   shared_ptr<der::DerNode> node = der::DerNode::parse(reinterpret_cast<InputIterator&>(is));
 

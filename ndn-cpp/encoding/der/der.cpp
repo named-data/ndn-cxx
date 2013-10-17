@@ -34,7 +34,7 @@ DerNode::DerNode(DerType type)
    parent_(0)
 {}
 
-DerNode::DerNode(std::istream& start)
+DerNode::DerNode(InputIterator& start)
   :parent_(0)
 {
   decode(start);
@@ -74,14 +74,14 @@ DerNode::encodeHeader(int size)
 }
 
 int
-DerNode::decodeHeader(istream& start)
+DerNode::decodeHeader(InputIterator& start)
 {
-  uint8_t type = start.get();
+  uint8_t type = start.ReadU8();
   // char type = start.get();
   header_.push_back(type);
   type_ = static_cast<DerType>((int)type);
 
-  uint8_t sizeLen = start.get(); 
+  uint8_t sizeLen = start.ReadU8(); 
   // char sizeLen = start.get();
   header_.push_back(sizeLen);
 
@@ -102,7 +102,7 @@ DerNode::decodeHeader(istream& start)
     // _LOG_DEBUG("lenCount: " << (int)lenCount);
     int size = 0;
     do {
-      byte = start.get();
+      byte = start.ReadU8();
       header_.push_back(byte);
       size = size * 256 + (int)byte;
       // _LOG_DEBUG("byte: " << (int)byte);
@@ -115,14 +115,14 @@ DerNode::decodeHeader(istream& start)
 }
 
 void
-DerNode::encode(ostream& start)
+DerNode::encode(OutputIterator& start)
 {
   start.write((const char*)&header_[0], header_.size());
   start.write((const char*)&payload_[0], payload_.size());
 }
 
 void 
-DerNode::decode(istream& start)
+DerNode::decode(InputIterator& start)
 {
   int payloadSize = decodeHeader(start);
   // _LOG_DEBUG("payloadSize: " << payloadSize);
@@ -134,9 +134,9 @@ DerNode::decode(istream& start)
 }
 
 shared_ptr<DerNode>
-DerNode::parse(istream& start)
+DerNode::parse(InputIterator& start)
 {
-  int type = ((uint8_t)start.peek());
+  int type = ((uint8_t)start.PeekU8());
 
   // _LOG_DEBUG("Type: " << hex << setw(2) << setfill('0') << type);
   switch(type) {
@@ -179,7 +179,7 @@ DerComplex::DerComplex(DerType type)
    size_(0)
 {}
 
-DerComplex::DerComplex(istream& start)
+DerComplex::DerComplex(InputIterator& start)
   :DerNode(),
    childChanged_(false),
    size_(0)
@@ -272,7 +272,7 @@ DerComplex::setChildChanged()
 }
 
 void
-DerComplex::encode(ostream& start)
+DerComplex::encode(OutputIterator& start)
 {
   updateSize();
   header_.clear();
@@ -306,7 +306,7 @@ DerByteString::DerByteString(const std::vector<uint8_t>& blob, DerType type)
   DerNode::encodeHeader(payload_.size());
 }
 
-DerByteString::DerByteString(istream& start)
+DerByteString::DerByteString(InputIterator& start)
   :DerNode(start)
 {}
 
@@ -327,7 +327,7 @@ DerBool::DerBool(bool value)
   DerNode::encodeHeader(payload_.size());
 }
 
-DerBool::DerBool(istream& start)
+DerBool::DerBool(InputIterator& start)
   :DerNode(start)
 {}
 
@@ -346,7 +346,7 @@ DerInteger::DerInteger(const vector<uint8_t>& blob)
   DerNode::encodeHeader(payload_.size());
 }
 
-DerInteger::DerInteger(istream& start)
+DerInteger::DerInteger(InputIterator& start)
   :DerNode(start)
 {}
 
@@ -366,7 +366,7 @@ DerBitString::DerBitString(const vector<uint8_t>& blob, uint8_t paddingLen)
   DerNode::encodeHeader(payload_.size());
 }
 
-DerBitString::DerBitString(istream& start)
+DerBitString::DerBitString(InputIterator& start)
   :DerNode(start)
 {}
 
@@ -385,7 +385,7 @@ DerOctetString::DerOctetString(const vector<uint8_t>& blob)
   :DerByteString(blob, DER_OCTET_STRING)
 {}
 
-DerOctetString::DerOctetString(istream& start)
+DerOctetString::DerOctetString(InputIterator& start)
   :DerByteString(start)
 {}
 
@@ -402,7 +402,7 @@ DerNull::DerNull()
   DerNode::encodeHeader(0);
 }
 
-DerNull::DerNull(istream& start)
+DerNull::DerNull(InputIterator& start)
   :DerNode(start)
 {}
   
@@ -451,7 +451,7 @@ DerOid::DerOid(const vector<int>& value)
   prepareEncoding(value);
 }
 
-DerOid::DerOid(istream& start)
+DerOid::DerOid(InputIterator& start)
   :DerNode(start)
 {}
   
@@ -546,7 +546,7 @@ DerSequence::DerSequence()
   :DerComplex(DER_SEQUENCE)
 {}
 
-DerSequence::DerSequence(istream& start)
+DerSequence::DerSequence(InputIterator& start)
   :DerComplex(start)
 {}
 
@@ -565,7 +565,7 @@ DerPrintableString::DerPrintableString(const vector<uint8_t>& blob)
   :DerByteString(blob, DER_PRINTABLE_STRING)
 {}
 
-DerPrintableString::DerPrintableString(istream& start)
+DerPrintableString::DerPrintableString(InputIterator& start)
   :DerByteString(start)
 {}
 
@@ -587,7 +587,7 @@ DerGtime::DerGtime(const MillisecondsSince1970& time)
   DerNode::encodeHeader(payload_.size());
 }
 
-DerGtime::DerGtime(istream& start)
+DerGtime::DerGtime(InputIterator& start)
   :DerNode(start)
 {}
   
