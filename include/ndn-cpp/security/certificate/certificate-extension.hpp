@@ -27,9 +27,9 @@ public:
    * Create a new CertificateExtension.
    * @param oid The oid of subject description entry.
    * @param isCritical If true, the extension must be handled.
-   * @param value The extension value.  This makes a copy of the value.
+   * @param value The extension value.
    */
-  CertificateExtension(const std::string& oid, const bool isCritical, const std::vector<uint8_t>& value)
+  CertificateExtension(const std::string& oid, const bool isCritical, const Blob& value)
   : extensionId_(oid), isCritical_(isCritical), extensionValue_(value)
   {
   }
@@ -38,9 +38,9 @@ public:
    * Create a new CertificateExtension.
    * @param oid The oid of subject description entry.
    * @param isCritical If true, the extension must be handled.
-   * @param value The extension value.  This makes a copy of the value.
+   * @param value The extension value.
    */
-  CertificateExtension(const OID& oid, const bool isCritical, const std::vector<uint8_t>& value)
+  CertificateExtension(const OID& oid, const bool isCritical, const Blob& value)
   : extensionId_(oid), isCritical_(isCritical), extensionValue_(value)
   {
   }

@@ -213,7 +213,7 @@ DerComplex::getSize()
   return size_ + header_.size();
 }
 
-shared_ptr<vector<uint8_t> >
+Blob
 DerComplex::getRaw()
 {
   shared_ptr<vector<uint8_t> > blob(new vector<uint8_t>());
@@ -221,7 +221,7 @@ DerComplex::getRaw()
 
   DerNodePtrList::iterator it = nodeList_.begin();
   for (; it != nodeList_.end(); it++) {
-    shared_ptr<vector<uint8_t> > childBlob = (*it)->getRaw();
+    Blob childBlob = (*it)->getRaw();
     blob->insert(blob->end(), childBlob->begin(), childBlob->end());
   }
   return blob;

@@ -18,15 +18,15 @@ namespace der {
 class SimpleVisitor : public NoArgumentsVisitor
 {
 public:
-  virtual ndnboost::any visit(DerBool&           ) = 0;
-  virtual ndnboost::any visit(DerInteger&        ) = 0;
-  virtual ndnboost::any visit(DerPrintableString&) = 0;
-  virtual ndnboost::any visit(DerBitString&      ) = 0;
-  virtual ndnboost::any visit(DerNull&           ) = 0;
-  virtual ndnboost::any visit(DerOctetString&    ) = 0;
-  virtual ndnboost::any visit(DerOid&            ) = 0;
-  virtual ndnboost::any visit(DerSequence&       ) = 0;
-  virtual ndnboost::any visit(DerGtime&          ) = 0;
+  virtual ndnboost::any visit(DerBool&           );
+  virtual ndnboost::any visit(DerInteger&        );
+  virtual ndnboost::any visit(DerPrintableString&);
+  virtual ndnboost::any visit(DerBitString&      );
+  virtual ndnboost::any visit(DerNull&           );
+  virtual ndnboost::any visit(DerOctetString&    );
+  virtual ndnboost::any visit(DerOid&            );
+  virtual ndnboost::any visit(DerSequence&       );
+  virtual ndnboost::any visit(DerGtime&          );
 };
 
 } // der

@@ -7,13 +7,13 @@
  */
 
 #include <float.h>
-#if 0
+// We can use ndnboost::iostreams because this is internal and will not conflict with the application if it uses boost::iostreams.
 #include <ndnboost/iostreams/stream.hpp>
 #include <ndnboost/iostreams/device/array.hpp>
-#endif
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
-#if 0
+#include "../../encoding/der/der.hpp"
 #include "../../encoding/der/visitor/certificate-data-visitor.hpp"
+#if 0
 #include "../../encoding/der/visitor/print-visitor.hpp"
 #endif
 #include "../../util/logging.hpp"
@@ -70,32 +70,32 @@ Certificate::isTooLate()
 void
 Certificate::encode()
 {
-  Ptr<der::DerSequence> root = Ptr<der::DerSequence>::Create();
+  shared_ptr<der::DerSequence> root(new der::DerSequence());
   
-  Ptr<der::DerSequence> validity = Ptr<der::DerSequence>::Create();
-  Ptr<der::DerGtime> notBefore = Ptr<der::DerGtime>(new der::DerGtime(notBefore_));
-  Ptr<der::DerGtime> notAfter = Ptr<der::DerGtime>(new der::DerGtime(notAfter_));
+  shared_ptr<der::DerSequence> validity(new der::DerSequence());
+  shared_ptr<der::DerGtime> notBefore(new der::DerGtime(notBefore_));
+  shared_ptr<der::DerGtime> notAfter(new der::DerGtime(notAfter_));
   validity->addChild(notBefore);
   validity->addChild(notAfter);
   root->addChild(validity);
 
-  Ptr<der::DerSequence> subjectList = Ptr<der::DerSequence>::Create();
-  SubDescryptList::iterator it = m_subjectList.begin();
-  for(; it != m_subjectList.end(); it++)
+  shared_ptr<der::DerSequence> subjectList(new der::DerSequence());
+  SubjectDescriptionList::iterator it = subjectDescriptionList_.begin();
+  for(; it != subjectDescriptionList_.end(); it++)
     {
-      Ptr<der::DerNode> child = it->toDER();
+      shared_ptr<der::DerNode> child = it->toDer();
       subjectList->addChild(child);
     }
   root->addChild(subjectList);
 
-  root->addChild(key_.toDER());
+  root->addChild(key_.toDer());
 
-  if(!m_extnList.empty())
+  if(!extensionList_.empty())
     {
-      Ptr<der::DerSequence> extnList = Ptr<der::DerSequence>::Create();
-      ExtensionList::iterator it = m_extnList.begin();
-      for(; it != m_extnList.end(); it++)
-        extnList->addChild(it->toDER());
+      shared_ptr<der::DerSequence> extnList(new der::DerSequence());
+      ExtensionList::iterator it = extensionList_.begin();
+      for(; it != extensionList_.end(); it++)
+        extnList->addChild(it->toDer());
       root->addChild(extnList);
     }
 
@@ -104,7 +104,7 @@ Certificate::encode()
 
   root->encode(start);
 
-  Ptr<Blob> blob = blobStream.buf();
+  shared_ptr<Blob> blob = blobStream.buf();
   Content content(blob->buf(), blob->size());
   setContent(content);
 }
@@ -113,19 +113,17 @@ Certificate::encode()
 void 
 Certificate::decode()
 {
-#if 0
   Blob blob = getContent();
 
   ndnboost::iostreams::stream<ndnboost::iostreams::array_source> is((const char*)blob.buf(), blob.size());
 
-  shared_ptr<der::DerNode> node = der::DerNode::parse(reinterpret_cast<InputIterator&>(is));
+  shared_ptr<der::DerNode> node = der::DerNode::parse(reinterpret_cast<der::InputIterator&>(is));
 
   // der::PrintVisitor printVisitor;
   // node->accept(printVisitor, string(""));
 
   der::CertificateDataVisitor certDataVisitor;
   node->accept(certDataVisitor, this);
-#endif
 }
 
 #if 0
@@ -145,7 +143,7 @@ Certificate::printCertificate()
   boost::iostreams::stream
     <boost::iostreams::array_source> is(key_.getKeyBlob().buf (), m_key.getKeyBlob().size ());
 
-  Ptr<der::DerNode> keyRoot = der::DerNode::parse(reinterpret_cast<InputIterator&> (is));
+  shared_ptr<der::DerNode> keyRoot = der::DerNode::parse(reinterpret_cast<InputIterator&> (is));
 
   der::PrintVisitor printVisitor;
   keyRoot->accept(printVisitor, string(""));

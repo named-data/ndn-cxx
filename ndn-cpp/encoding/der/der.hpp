@@ -17,6 +17,7 @@
 
 #include <ndn-cpp/common.hpp>
 #include <ndn-cpp/encoding/oid.hpp>
+#include <ndn-cpp/util/blob.hpp>
 
 #include "visitor/visitor.hpp"
 #include "visitor/void-visitor.hpp"
@@ -117,7 +118,7 @@ public:
   const DerType& 
   getType() { return type_; }
 
-  virtual ptr_lib::shared_ptr<std::vector<uint8_t> >
+  virtual Blob
   getRaw()
   { 
     ptr_lib::shared_ptr<std::vector<uint8_t> > blob(new std::vector<uint8_t>());
@@ -179,7 +180,7 @@ public:
   DerNodePtrList& 
   getChildren() { return nodeList_; }
 
-  virtual ptr_lib::shared_ptr<std::vector<uint8_t> >
+  virtual Blob
   getRaw();
 
 private:

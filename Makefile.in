@@ -186,7 +186,9 @@ am_libndn_cpp_la_OBJECTS = $(am__objects_2) $(am__objects_1) \
 	ndn-cpp/encoding/wire-format.lo \
 	ndn-cpp/encoding/der/der-exception.lo \
 	ndn-cpp/encoding/der/der.lo \
+	ndn-cpp/encoding/der/visitor/certificate-data-visitor.lo \
 	ndn-cpp/encoding/der/visitor/no-arguments-visitor.lo \
+	ndn-cpp/encoding/der/visitor/public-key-visitor.lo \
 	ndn-cpp/encoding/der/visitor/simple-visitor.lo \
 	ndn-cpp/encoding/der/visitor/void-visitor.lo \
 	ndn-cpp/security/key-chain.lo \
@@ -668,7 +670,9 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   ndn-cpp/encoding/wire-format.cpp \
   ndn-cpp/encoding/der/der-exception.cpp ndn-cpp/encoding/der/der-exception.hpp \
   ndn-cpp/encoding/der/der.cpp ndn-cpp/encoding/der/der.hpp \
+  ndn-cpp/encoding/der/visitor/certificate-data-visitor.cpp ndn-cpp/encoding/der/visitor/certificate-data-visitor.hpp \
   ndn-cpp/encoding/der/visitor/no-arguments-visitor.cpp ndn-cpp/encoding/der/visitor/no-arguments-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/public-key-visitor.cpp ndn-cpp/encoding/der/visitor/public-key-visitor.hpp \
   ndn-cpp/encoding/der/visitor/simple-visitor.cpp ndn-cpp/encoding/der/visitor/simple-visitor.hpp \
   ndn-cpp/encoding/der/visitor/visitor.hpp \
   ndn-cpp/encoding/der/visitor/void-no-arguments-visitor.hpp \
@@ -916,7 +920,13 @@ ndn-cpp/encoding/der/visitor/$(am__dirstamp):
 ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ndn-cpp/encoding/der/visitor/$(DEPDIR)
 	@: > ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/encoding/der/visitor/certificate-data-visitor.lo:  \
+	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
+	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/der/visitor/no-arguments-visitor.lo:  \
+	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
+	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/encoding/der/visitor/public-key-visitor.lo:  \
 	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
 	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/der/visitor/simple-visitor.lo:  \
@@ -1136,7 +1146,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/wire-format.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/$(DEPDIR)/der-exception.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/$(DEPDIR)/der.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/certificate-data-visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/no-arguments-visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/public-key-visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/simple-visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/void-visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/$(DEPDIR)/key-chain.Plo@am__quote@
