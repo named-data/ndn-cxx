@@ -35,7 +35,12 @@ public:
   virtual 
   ~IdentityCertificate();
   
-  Data &
+  /**
+   * Override the base class method to check that the name is a valid identity certificate name.
+   * @param name The identity certificate name which is copied.
+   * @return This Data so that you can chain calls to update values.
+   */
+  virtual Data &
   setName(const Name& name);
 
   virtual Name 

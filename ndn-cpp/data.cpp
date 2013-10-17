@@ -93,6 +93,14 @@ Data::set(const struct ndn_Data& dataStruct)
   onChanged();
 }
 
+Data& 
+Data::setName(const Name& name) 
+{ 
+  name_ = name; 
+  onChanged();
+  return *this;
+}
+
 SignedBlob 
 Data::wireEncode(WireFormat& wireFormat) 
 {

@@ -243,59 +243,64 @@ public:
   /**
    * Set the signature to a copy of the given signature.
    * @param signature The signature object which is cloned.
+   * @return This Data so that you can chain calls to update values.
    */
-  void 
+  Data& 
   setSignature(const Signature& signature) 
   { 
     signature_ = signature.clone(); 
     onChanged();
+    return *this;
   }
   
   /**
-   * Set name to a copy of the given Name.
+   * Set name to a copy of the given Name.  This is virtual so that a subclass can override to validate the name.
    * @param name The Name which is copied.
+   * @return This Data so that you can chain calls to update values.
    */
-  void 
-  setName(const Name& name) 
-  { 
-    name_ = name; 
-    onChanged();
-  }
+  virtual Data& 
+  setName(const Name& name);
   
   /**
    * Set metaInfo to a copy of the given MetaInfo.
    * @param metaInfo The MetaInfo which is copied.
+   * @return This Data so that you can chain calls to update values.
    */
-  void 
+  Data& 
   setMetainfo(const MetaInfo& metaInfo) 
   { 
     metaInfo_ = metaInfo; 
     onChanged();
+    return *this;
   }
 
   /**
    * Set the content to a copy of the data in the vector.
    * @param content A vector whose contents are copied.
+   * @return This Data so that you can chain calls to update values.
    */
-  void 
+  Data& 
   setContent(const std::vector<uint8_t>& content) 
   { 
     content_ = content; 
     onChanged();
+    return *this;
   }
   
-  void 
+  Data& 
   setContent(const uint8_t* content, size_t contentLength) 
   { 
     content_ = Blob(content, contentLength); 
     onChanged();
+    return *this;
   }
       
-  void 
+  Data& 
   setContent(const Blob& content) 
   { 
     content_ = content;
     onChanged();
+    return *this;
   }
 
 private:
