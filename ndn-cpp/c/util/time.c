@@ -4,6 +4,7 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include <time.h>
 #include <sys/time.h>
 #include <math.h>
 #include <string.h>

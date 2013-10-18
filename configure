@@ -16280,6 +16280,20 @@ fi
 done
 
 
+for ac_header in time.h
+do :
+  ac_fn_cxx_check_header_mongrel "$LINENO" "time.h" "ac_cv_header_time_h" "$ac_includes_default"
+if test "x$ac_cv_header_time_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_TIME_H 1
+_ACEOF
+ :
+else
+  as_fn_error $? "*** time.h not found. Check 'config.log' for more details." "$LINENO" 5
+fi
+
+done
+
 for ac_header in sys/time.h
 do :
   ac_fn_cxx_check_header_mongrel "$LINENO" "sys/time.h" "ac_cv_header_sys_time_h" "$ac_includes_default"
@@ -16674,7 +16688,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 $as_echo_n "checking for gmtime support... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <sys/time.h>
+#include <time.h>
+    #include <sys/time.h>
     struct timeval tv;
     int result1 = gettimeofday(&tv, 0);
     time_t time1 = time(0);

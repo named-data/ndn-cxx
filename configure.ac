@@ -59,6 +59,7 @@ AC_TYPE_UINT64_T
 AC_CHECK_FUNCS([memcmp] [memcpy] [memset])
 AC_CHECK_FUNCS([strchr], :, AC_MSG_ERROR([*** strchr not found. Check 'config.log' for more details.]))
 AC_CHECK_FUNCS([sscanf], :, AC_MSG_ERROR([*** sscanf not found. Check 'config.log' for more details.]))
+AC_CHECK_HEADERS([time.h], :, AC_MSG_ERROR([*** time.h not found. Check 'config.log' for more details.]))
 AC_CHECK_HEADERS([sys/time.h], :, AC_MSG_ERROR([*** sys/time.h not found. Check 'config.log' for more details.]))
 AC_CHECK_FUNCS([gettimeofday], :, AC_MSG_ERROR([*** gettimeofday not found. processEvents requires it. Check 'config.log' for more details.]))
 AX_CXX_COMPILE_STDCXX_11(, optional)
@@ -112,6 +113,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
 
 AC_MSG_CHECKING([for gmtime support])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+    [[#include <time.h>]]
     [[#include <sys/time.h>]]
     [[struct timeval tv;]]
     [[int result1 = gettimeofday(&tv, 0);]]
