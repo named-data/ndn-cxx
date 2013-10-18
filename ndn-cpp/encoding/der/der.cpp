@@ -6,9 +6,6 @@
  * See COPYING for copyright and distribution information.
  */
 
-#if 1 // TODO: Remove this when we don't throw "not implemented".
-#include <stdexcept>
-#endif
 #include "der-exception.hpp"
 #include "../../util/logging.hpp"
 #include "../../c/util/time.h"
@@ -604,9 +601,7 @@ string DerGtime::toIsoString(const MillisecondsSince1970& time)
 
 MillisecondsSince1970 DerGtime::fromIsoString(const string& isoString)
 {
-#if 1
-  throw std::runtime_error("not implemented");
-#endif
+  return ndn_fromIsoString(isoString.c_str());
 }
 
 } // der
