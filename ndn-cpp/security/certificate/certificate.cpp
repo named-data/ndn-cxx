@@ -126,8 +126,8 @@ void
 Certificate::printCertificate()
 {
   cout << "Validity:" << endl;
-  cout << notBefore_ << endl;
-  cout << notAfter_ << endl;
+  cout << der::DerGtime::toIsoString(notBefore_) << endl;
+  cout << der::DerGtime::toIsoString(notAfter_) << endl;
 
   cout << "Subject Info:" << endl;  
   vector<CertificateSubjectDescription>::iterator it = subjectDescriptionList_.begin();
