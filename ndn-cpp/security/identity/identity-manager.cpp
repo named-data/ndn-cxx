@@ -6,7 +6,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#if 1
+#if 1 // TODO: Remove this when we don't throw "not implemented".
 #include <stdexcept>
 #endif
 #include <ctime>

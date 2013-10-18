@@ -6,10 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#if 1 // TODO: Remove this when we don't throw "not implemented".
-#include <stdexcept>
-#endif
 #include "../../encoding/der/der.hpp"
+#include "../../util/blob-stream.hpp"
 #include <ndn-cpp/security/certificate/certificate-extension.hpp>
 
 using namespace std;
@@ -38,16 +36,12 @@ CertificateExtension::toDer()
 Blob
 CertificateExtension::toDerBlob()
 {
-#if 0 // Need to convert blob_stream.
   blob_stream blobStream;
-  ostream& start = reinterpret_cast<ostream&>(blobStream);
+  der::OutputIterator& start = reinterpret_cast<der::OutputIterator&>(blobStream);
 
   toDer()->encode(start);
 
   return blobStream.buf();
-#else
-  throw std::runtime_error("not implemented");
-#endif
 }
 
 
