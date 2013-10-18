@@ -77,6 +77,8 @@ char *ndn_getErrorString(int error)
     return      "Name component does not begin with the expected marker";
   case NDN_ERROR_Time_functions_are_not_supported_by_the_standard_library:
     return      "Time functions are not supported by the standard library";
+  case NDN_ERROR_Calendar_time_value_out_of_range:
+    return      "Calendar time value out of range";
   default:
     return "unrecognized ndn_Error code";  
   }

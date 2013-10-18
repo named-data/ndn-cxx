@@ -24,6 +24,12 @@ ndn_Error
 ndn_toIsoString(ndn_MillisecondsSince1970 milliseconds, char *isoString)
 {
 #if NDN_CPP_HAVE_GMTIME_SUPPORT
+  if (milliseconds < 0)
+    return NDN_ERROR_Calendar_time_value_out_of_range;
+  else if (milliseconds > 2e14)
+    // 2e14 is about the year 8300.  We don't want to go over a 4-digit year.
+    return NDN_ERROR_Calendar_time_value_out_of_range;
+  
   double secondsSince1970 = milliseconds / 1000.0;
   char fractionBuffer[10];
   sprintf(fractionBuffer, "%.06lf", fmod(secondsSince1970, 1.0));
