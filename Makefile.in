@@ -188,6 +188,7 @@ am_libndn_cpp_la_OBJECTS = $(am__objects_2) $(am__objects_1) \
 	ndn-cpp/encoding/der/der.lo \
 	ndn-cpp/encoding/der/visitor/certificate-data-visitor.lo \
 	ndn-cpp/encoding/der/visitor/no-arguments-visitor.lo \
+	ndn-cpp/encoding/der/visitor/print-visitor.lo \
 	ndn-cpp/encoding/der/visitor/public-key-visitor.lo \
 	ndn-cpp/encoding/der/visitor/simple-visitor.lo \
 	ndn-cpp/encoding/der/visitor/void-visitor.lo \
@@ -672,6 +673,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   ndn-cpp/encoding/der/der.cpp ndn-cpp/encoding/der/der.hpp \
   ndn-cpp/encoding/der/visitor/certificate-data-visitor.cpp ndn-cpp/encoding/der/visitor/certificate-data-visitor.hpp \
   ndn-cpp/encoding/der/visitor/no-arguments-visitor.cpp ndn-cpp/encoding/der/visitor/no-arguments-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/print-visitor.cpp ndn-cpp/encoding/der/visitor/print-visitor.hpp \
   ndn-cpp/encoding/der/visitor/public-key-visitor.cpp ndn-cpp/encoding/der/visitor/public-key-visitor.hpp \
   ndn-cpp/encoding/der/visitor/simple-visitor.cpp ndn-cpp/encoding/der/visitor/simple-visitor.hpp \
   ndn-cpp/encoding/der/visitor/visitor.hpp \
@@ -927,6 +929,9 @@ ndn-cpp/encoding/der/visitor/certificate-data-visitor.lo:  \
 ndn-cpp/encoding/der/visitor/no-arguments-visitor.lo:  \
 	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
 	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+ndn-cpp/encoding/der/visitor/print-visitor.lo:  \
+	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
+	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
 ndn-cpp/encoding/der/visitor/public-key-visitor.lo:  \
 	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
 	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
@@ -1149,6 +1154,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/$(DEPDIR)/der.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/certificate-data-visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/no-arguments-visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/print-visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/public-key-visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/simple-visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/void-visitor.Plo@am__quote@

@@ -121,6 +121,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   ndn-cpp/encoding/der/der.cpp ndn-cpp/encoding/der/der.hpp \
   ndn-cpp/encoding/der/visitor/certificate-data-visitor.cpp ndn-cpp/encoding/der/visitor/certificate-data-visitor.hpp \
   ndn-cpp/encoding/der/visitor/no-arguments-visitor.cpp ndn-cpp/encoding/der/visitor/no-arguments-visitor.hpp \
+  ndn-cpp/encoding/der/visitor/print-visitor.cpp ndn-cpp/encoding/der/visitor/print-visitor.hpp \
   ndn-cpp/encoding/der/visitor/public-key-visitor.cpp ndn-cpp/encoding/der/visitor/public-key-visitor.hpp \
   ndn-cpp/encoding/der/visitor/simple-visitor.cpp ndn-cpp/encoding/der/visitor/simple-visitor.hpp \
   ndn-cpp/encoding/der/visitor/visitor.hpp \
