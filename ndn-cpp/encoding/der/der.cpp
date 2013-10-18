@@ -11,6 +11,7 @@
 #endif
 #include "der-exception.hpp"
 #include "../../util/logging.hpp"
+#include "../../c/util/time.h"
 #include "der.hpp"
 
 INIT_LOGGER("ndn.der.DER");
@@ -159,7 +160,7 @@ DerNode::parse(InputIterator& start)
     case DER_GENERALIZED_TIME:
       return shared_ptr<DerGtime>(new DerGtime(start));
     default:
-      throw DerDecodingException("Unimplemented DER types");
+      throw DerDecodingException("Unimplemented DER type");
   }
 }
 
@@ -596,9 +597,9 @@ DerGtime::~DerGtime()
 
 string DerGtime::toIsoString(const MillisecondsSince1970& time)
 {
-#if 1
-  throw std::runtime_error("not implemented");
-#endif
+  char isoString[25];
+  ndn_toIsoString(time, isoString);
+  return isoString;
 }
 
 MillisecondsSince1970 DerGtime::fromIsoString(const string& isoString)
