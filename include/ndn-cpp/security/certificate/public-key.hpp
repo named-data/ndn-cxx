@@ -15,6 +15,8 @@
 
 namespace ndn {
 
+  namespace der { class DerNode; }
+
 class PublicKey {
 public:    
   /**
@@ -32,14 +34,12 @@ public:
   {
   }
 
-#if 0
   /**
    * Encode the public key into DER.
    * @return the encoded DER syntax tree.
    */
-  Ptr<der::DerNode>
+  ptr_lib::shared_ptr<der::DerNode>
   toDer();
-#endif
 
   /**
    * Decode the public key from DER blob.

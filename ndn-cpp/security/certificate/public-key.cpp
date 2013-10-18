@@ -6,8 +6,12 @@
  * See COPYING for copyright and distribution information.
  */
 
+// We can use ndnboost::iostreams because this is internal and will not conflict with the application if it uses boost::iostreams.
+#include <ndnboost/iostreams/stream.hpp>
+#include <ndnboost/iostreams/device/array.hpp>
 #include <ndn-cpp/security//security-exception.hpp>
 #include "../../c/util/crypto.h"
+#include "../../encoding/der/der.hpp"
 #include <ndn-cpp/security/certificate/public-key.hpp>
 
 using namespace std;
@@ -15,16 +19,13 @@ using namespace ndn::ptr_lib;
 
 namespace ndn {
 
-#if 0
-Ptr<der::DerNode>
-PublicKey::toDER()
+shared_ptr<der::DerNode>
+PublicKey::toDer()
 {
-  boost::iostreams::stream
-    <boost::iostreams::array_source> is (m_key.buf (), key_.size ());
+  ndnboost::iostreams::stream<ndnboost::iostreams::array_source> is((const char*)keyDer_.buf (), keyDer_.size ());
 
-  return der::DerNode::parse(reinterpret_cast<InputIterator &> (is));
+  return der::DerNode::parse(reinterpret_cast<der::InputIterator&> (is));
 }
-#endif
 
 static int RSA_OID[] = { 1, 2, 840, 113549, 1, 1, 1 };
 
