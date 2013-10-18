@@ -19,27 +19,27 @@ class CertificateDataVisitor : public VoidVisitor {
   virtual void visit(DerSequence&,         ndnboost::any);
 };
 
-class CertValidityVisitor : public VoidVisitor {
+class CertificateValidityVisitor : public VoidVisitor {
 public:
   virtual void visit(DerSequence&,         ndnboost::any);
 };
 
-class CertSubDescryptVisitor : public VoidVisitor {
+class CertificateSubjectDescriptionVisitor : public VoidVisitor {
 public:
   virtual void visit(DerSequence&,         ndnboost::any);
 };
 
-class CertSubjectVisitor : public VoidVisitor {
+class CertificateSubjectVisitor : public VoidVisitor {
 public:
   virtual void visit(DerSequence&,         ndnboost::any);
 };
 
-class CertExtnEntryVisitor : public VoidVisitor {
+class CertificateExtensionEntryVisitor : public VoidVisitor {
 public:
   virtual void visit(DerSequence&,         ndnboost::any);
 };
 
-class CertExtensionVisitor : public VoidVisitor {
+class CertificateExtensionVisitor : public VoidVisitor {
 public:
   virtual void visit(DerSequence&,         ndnboost::any);
 };

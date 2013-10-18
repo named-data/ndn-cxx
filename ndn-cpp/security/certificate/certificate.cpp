@@ -13,9 +13,7 @@
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
 #include "../../encoding/der/der.hpp"
 #include "../../encoding/der/visitor/certificate-data-visitor.hpp"
-#if 0
 #include "../../encoding/der/visitor/print-visitor.hpp"
-#endif
 #include "../../util/logging.hpp"
 #include "../../util/blob-stream.hpp"
 #include "../../c/util/time.h"
@@ -124,7 +122,6 @@ Certificate::decode()
   node->accept(certDataVisitor, this);
 }
 
-#if 0
 void 
 Certificate::printCertificate()
 {
@@ -133,19 +130,17 @@ Certificate::printCertificate()
   cout << notAfter_ << endl;
 
   cout << "Subject Info:" << endl;  
-  vector<CertificateSubDescrypt>::iterator it = m_subjectList.begin();
-  for(; it < m_subjectList.end(); it++){
-    cout << it->getOidStr() << "\t" << it->getValue() << endl;
+  vector<CertificateSubjectDescription>::iterator it = subjectDescriptionList_.begin();
+  for(; it < subjectDescriptionList_.end(); it++){
+    cout << it->getOidString() << "\t" << it->getValue() << endl;
   }
 
-  boost::iostreams::stream
-    <boost::iostreams::array_source> is(key_.getKeyBlob().buf (), m_key.getKeyBlob().size ());
+  ndnboost::iostreams::stream<ndnboost::iostreams::array_source> is((const char*)key_.getKeyDer().buf(), key_.getKeyDer().size());
 
-  shared_ptr<der::DerNode> keyRoot = der::DerNode::parse(reinterpret_cast<InputIterator&> (is));
+  shared_ptr<der::DerNode> keyRoot = der::DerNode::parse(reinterpret_cast<der::InputIterator&> (is));
 
   der::PrintVisitor printVisitor;
   keyRoot->accept(printVisitor, string(""));
 }
-#endif
 
 }

@@ -35,9 +35,9 @@ CertificateDataVisitor::visit(DerSequence& derSeq, ndnboost::any param)
   // _LOG_DEBUG("CertificateDataVisitor::visit");
 
   const DerNodePtrList& children = derSeq.getChildren();
-  CertValidityVisitor validityVisitor;
+  CertificateValidityVisitor validityVisitor;
   children[0]->accept(validityVisitor, param);
-  CertSubjectVisitor subjectVisitor;
+  CertificateSubjectVisitor subjectVisitor;
   children[1]->accept(subjectVisitor, param);
   PublicKeyVisitor pubkeyVisitor;
   Certificate* certData = ndnboost::any_cast<Certificate*>(param);
@@ -45,7 +45,7 @@ CertificateDataVisitor::visit(DerSequence& derSeq, ndnboost::any param)
       
   if(children.size() > 3)
     {
-      CertExtensionVisitor extnVisitor;
+      CertificateExtensionVisitor extnVisitor;
       children[3]->accept(extnVisitor, param);
     }
 }
@@ -54,7 +54,7 @@ CertificateDataVisitor::visit(DerSequence& derSeq, ndnboost::any param)
  * CertValidityVisitor
  */
 void 
-CertValidityVisitor::visit(DerSequence& derSeq, ndnboost::any param)
+CertificateValidityVisitor::visit(DerSequence& derSeq, ndnboost::any param)
 {
   // _LOG_DEBUG("CertValidityVisitor::visit");
   
@@ -78,7 +78,7 @@ CertValidityVisitor::visit(DerSequence& derSeq, ndnboost::any param)
  * CertSubDescryptVisitor
  */
 void
-CertSubDescryptVisitor::visit(DerSequence& derSeq, ndnboost::any param)
+CertificateSubjectDescriptionVisitor::visit(DerSequence& derSeq, ndnboost::any param)
 {
   Certificate* certData = ndnboost::any_cast<Certificate*>(param); 
   
@@ -98,13 +98,13 @@ CertSubDescryptVisitor::visit(DerSequence& derSeq, ndnboost::any param)
  * CertSubjectVisitor
  */
 void 
-CertSubjectVisitor::visit(DerSequence& derSeq, ndnboost::any param)
+CertificateSubjectVisitor::visit(DerSequence& derSeq, ndnboost::any param)
 {
   // _LOG_DEBUG("CertSubjectVisitor::visit");
 
   const DerNodePtrList& children = derSeq.getChildren();
   
-  CertSubDescryptVisitor descryptVisitor;
+  CertificateSubjectDescriptionVisitor descryptVisitor;
 
   DerNodePtrList::const_iterator it = children.begin();
 
@@ -118,7 +118,7 @@ CertSubjectVisitor::visit(DerSequence& derSeq, ndnboost::any param)
  * CertExtnEntryVisitor
  */
 void 
-CertExtnEntryVisitor::visit(DerSequence& derSeq, ndnboost::any param)
+CertificateExtensionEntryVisitor::visit(DerSequence& derSeq, ndnboost::any param)
 {
   Certificate* certData = ndnboost::any_cast<Certificate*>(param); 
   
@@ -139,11 +139,11 @@ CertExtnEntryVisitor::visit(DerSequence& derSeq, ndnboost::any param)
  * CertExtensionVisitor
  */
 void 
-CertExtensionVisitor::visit(DerSequence& derSeq, ndnboost::any param)
+CertificateExtensionVisitor::visit(DerSequence& derSeq, ndnboost::any param)
 {
   const DerNodePtrList& children = derSeq.getChildren();
   
-  CertExtnEntryVisitor extnEntryVisitor;
+  CertificateExtensionEntryVisitor extnEntryVisitor;
 
   DerNodePtrList::const_iterator it = children.begin();
 
