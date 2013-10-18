@@ -12,6 +12,12 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
+/* Define to 1 if you have the `gettimeofday' function. */
+#undef HAVE_GETTIMEOFDAY
+
+/* 1 if have sys/time gmtime support including timegm. */
+#undef HAVE_GMTIME_SUPPORT
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -39,6 +45,9 @@
 /* Have the SQLITE3 library */
 #undef HAVE_SQLITE3
 
+/* Define to 1 if you have the `sscanf' function. */
+#undef HAVE_SSCANF
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -51,6 +60,9 @@
 /* 1 if have the `std::shared_ptr' class. */
 #undef HAVE_STD_SHARED_PTR
 
+/* Define to 1 if you have the `strchr' function. */
+#undef HAVE_STRCHR
+
 /* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
 
@@ -59,6 +71,9 @@
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/time.h> header file. */
+#undef HAVE_SYS_TIME_H
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H

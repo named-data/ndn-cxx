@@ -56,9 +56,11 @@ AC_TYPE_UINT8_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
-AC_CHECK_FUNCS([memcmp])
-AC_CHECK_FUNCS([memcpy])
-AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([memcmp] [memcpy] [memset])
+AC_CHECK_FUNCS([strchr], :, AC_MSG_ERROR([*** strchr not found. Check 'config.log' for more details.]))
+AC_CHECK_FUNCS([sscanf], :, AC_MSG_ERROR([*** sscanf not found. Check 'config.log' for more details.]))
+AC_CHECK_HEADERS([sys/time.h], :, AC_MSG_ERROR([*** sys/time.h not found. Check 'config.log' for more details.]))
+AC_CHECK_FUNCS([gettimeofday], :, AC_MSG_ERROR([*** gettimeofday not found. processEvents requires it. Check 'config.log' for more details.]))
 AX_CXX_COMPILE_STDCXX_11(, optional)
 AC_C_INLINE
 
@@ -106,6 +108,22 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
 ], [
     AC_MSG_RESULT([no])
     AC_DEFINE_UNQUOTED([HAVE_BOOST_FUNCTION], 0, [1 if have the `boost::function' class.])
+])
+
+AC_MSG_CHECKING([for gmtime support])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+    [[#include <sys/time.h>]]
+    [[struct timeval tv;]]
+    [[int result1 = gettimeofday(&tv, 0);]]
+    [[time_t time1 = time(0);]]
+    [[struct tm* tm1 = gmtime(&time1);]]
+    [[time_t time2 = timegm(tm1);]])
+], [
+    AC_MSG_RESULT([yes])
+    AC_DEFINE_UNQUOTED([HAVE_GMTIME_SUPPORT], 1, [1 if have sys/time gmtime support including timegm.])
+], [
+    AC_MSG_RESULT([no])
+    AC_DEFINE_UNQUOTED([HAVE_GMTIME_SUPPORT], 0, [1 if have sys/time gmtime support including timegm.])
 ])
 
 # Require libcrypto.

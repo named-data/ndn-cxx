@@ -75,6 +75,8 @@ char *ndn_getErrorString(int error)
     return      "SocketTransport error in close";
   case NDN_ERROR_Name_component_does_not_begin_with_the_expected_marker:
     return      "Name component does not begin with the expected marker";
+  case NDN_ERROR_Time_functions_are_not_supported_by_the_standard_library:
+    return      "Time functions are not supported by the standard library";
   default:
     return "unrecognized ndn_Error code";  
   }

@@ -6,6 +6,7 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include <stdexcept>
 #include "der-exception.hpp"
 #include "../../util/logging.hpp"
 #include "../../c/util/time.h"
@@ -595,13 +596,21 @@ DerGtime::~DerGtime()
 string DerGtime::toIsoString(const MillisecondsSince1970& time)
 {
   char isoString[25];
-  ndn_toIsoString(time, isoString);
+  ndn_Error error;
+  if ((error = ndn_toIsoString(time, isoString)))
+    throw runtime_error(ndn_getErrorString(error));
+  
   return isoString;
 }
 
 MillisecondsSince1970 DerGtime::fromIsoString(const string& isoString)
 {
-  return ndn_fromIsoString(isoString.c_str());
+  MillisecondsSince1970 milliseconds;
+  ndn_Error error;
+  if ((error = ndn_fromIsoString(isoString.c_str(), &milliseconds)))
+    throw runtime_error(ndn_getErrorString(error));
+  
+  return milliseconds;
 }
 
 } // der
