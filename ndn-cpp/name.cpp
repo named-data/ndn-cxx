@@ -119,7 +119,7 @@ uint64_t Name::Component::toNumberWithMarker(uint8_t marker) const
   
   ndn_Error error;
   if ((error = ndn_NameComponent_toNumberWithMarker(&componentStruct, marker, &result)))
-    throw std::runtime_error(ndn_getErrorString(error));
+    throw runtime_error(ndn_getErrorString(error));
     
   return result;
 }
@@ -282,7 +282,7 @@ Name::append(const Name& name)
   return *this;
 }
 
-std::string 
+string 
 Name::toUri() const
 {
   if (components_.size() == 0)

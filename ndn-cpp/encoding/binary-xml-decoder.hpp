@@ -12,8 +12,9 @@
 #include "../c/errors.h"
 #include "../c/encoding/binary-xml-decoder.h"
 
-namespace ndn {
+using namespace std;
 
+namespace ndn {
   
 /**
  * A BinaryXmlDecoder extends a C ndn_BinaryXmlDecoder struct and wraps related functions.
@@ -40,7 +41,7 @@ public:
     int gotExpectedTag;
     ndn_Error error;
     if ((error = ndn_BinaryXmlDecoder_peekDTag(this, expectedTag, &gotExpectedTag)))
-      throw std::runtime_error(ndn_getErrorString(error));
+      throw runtime_error(ndn_getErrorString(error));
     
     return gotExpectedTag;
   }

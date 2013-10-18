@@ -33,7 +33,7 @@ void
 MemoryPrivateKeyStorage::generateKeyPair(const Name& keyName, KeyType keyType, int keySize)
 {
 #if 1
-  throw std::runtime_error("MemoryPrivateKeyStorage::generateKeyPair not implemented");
+  throw runtime_error("MemoryPrivateKeyStorage::generateKeyPair not implemented");
 #endif
 }
 
@@ -72,7 +72,7 @@ Blob
 MemoryPrivateKeyStorage::decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
 {
 #if 1
-  throw std::runtime_error("MemoryPrivateKeyStorage::decrypt not implemented");
+  throw runtime_error("MemoryPrivateKeyStorage::decrypt not implemented");
 #endif
 }
 
@@ -80,7 +80,7 @@ Blob
 MemoryPrivateKeyStorage::encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
 {
 #if 1
-  throw std::runtime_error("MemoryPrivateKeyStorage::encrypt not implemented");
+  throw runtime_error("MemoryPrivateKeyStorage::encrypt not implemented");
 #endif
 }
 
@@ -88,7 +88,7 @@ void
 MemoryPrivateKeyStorage::generateKey(const Name& keyName, KeyType keyType, int keySize)
 {
 #if 1
-  throw std::runtime_error("MemoryPrivateKeyStorage::generateKey not implemented");
+  throw runtime_error("MemoryPrivateKeyStorage::generateKey not implemented");
 #endif
 }
 

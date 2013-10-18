@@ -13,7 +13,7 @@ using namespace std;
 namespace ndn {
 
 Blob::Blob(const struct ndn_Blob& blobStruct)
-  : ptr_lib::shared_ptr<const std::vector<uint8_t> >(new std::vector<uint8_t>(blobStruct.value, blobStruct.value + blobStruct.length))
+  : ptr_lib::shared_ptr<const vector<uint8_t> >(new vector<uint8_t>(blobStruct.value, blobStruct.value + blobStruct.length))
 {
 }
 

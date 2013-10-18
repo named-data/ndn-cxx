@@ -135,7 +135,7 @@ IdentityManager::createIdentityCertificate
 
   return certificate;
 #else
-  throw std::runtime_error("not implemented");
+  throw runtime_error("not implemented");
 #endif
 }
 
@@ -185,7 +185,7 @@ IdentityManager::signByCertificate(const uint8_t* data, size_t dataLength, const
 
   return sha256Sig;
 #else
-  throw std::runtime_error("not implemented");
+  throw runtime_error("not implemented");
 #endif
 }
 
@@ -265,7 +265,7 @@ IdentityManager::selfSign(const Name& keyName)
 
   return certificate;
 #else
-  throw std::runtime_error("not implemented");
+  throw runtime_error("not implemented");
 #endif  
 }
 

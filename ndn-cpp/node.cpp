@@ -101,12 +101,12 @@ selfregSign(Data& data, WireFormat& wireFormat)
   const uint8_t *derPointer = SELFREG_PRIVATE_KEY_DER;
   RSA *privateKey = d2i_RSAPrivateKey(NULL, &derPointer, sizeof(SELFREG_PRIVATE_KEY_DER));
   if (!privateKey)
-    throw std::runtime_error("Error decoding private key in d2i_RSAPrivateKey");
+    throw runtime_error("Error decoding private key in d2i_RSAPrivateKey");
   int success = RSA_sign(NID_sha256, signedPortionDigest, sizeof(signedPortionDigest), signatureBits, &signatureBitsLength, privateKey);
   // Free the private key before checking for success.
   RSA_free(privateKey);
   if (!success)
-    throw std::runtime_error("Error in RSA_sign");
+    throw runtime_error("Error in RSA_sign");
   
   signature->setSignature(signatureBits, (size_t)signatureBitsLength);
 }

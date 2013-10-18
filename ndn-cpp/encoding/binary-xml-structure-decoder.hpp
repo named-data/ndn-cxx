@@ -36,7 +36,7 @@ public:
   {
     ndn_Error error;
     if ((error = ndn_BinaryXmlStructureDecoder_findElementEnd(this, input, inputLength)))
-      throw std::runtime_error(ndn_getErrorString(error));
+      throw runtime_error(ndn_getErrorString(error));
     return gotElementEnd();
   }
   

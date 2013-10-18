@@ -102,7 +102,7 @@ Certificate::encode()
 
   root->encode(start);
 
-  shared_ptr<std::vector<uint8_t> > blob = blobStream.buf();
+  shared_ptr<vector<uint8_t> > blob = blobStream.buf();
   setContent(blob);
 }
 

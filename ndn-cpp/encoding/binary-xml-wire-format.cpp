@@ -41,7 +41,7 @@ BinaryXmlWireFormat::encodeInterest(const Interest& interest)
   BinaryXmlEncoder encoder;
   ndn_Error error;
   if ((error = ndn_encodeBinaryXmlInterest(&interestStruct, &encoder)))
-    throw std::runtime_error(ndn_getErrorString(error));
+    throw runtime_error(ndn_getErrorString(error));
      
   return encoder.getOutput();
 }
@@ -59,7 +59,7 @@ BinaryXmlWireFormat::decodeInterest(Interest& interest, const uint8_t *input, si
   BinaryXmlDecoder decoder(input, inputLength);  
   ndn_Error error;
   if ((error = ndn_decodeBinaryXmlInterest(&interestStruct, &decoder)))
-    throw std::runtime_error(ndn_getErrorString(error));
+    throw runtime_error(ndn_getErrorString(error));
 
   interest.set(interestStruct);
 }
@@ -78,7 +78,7 @@ BinaryXmlWireFormat::encodeData(const Data& data, size_t *signedPortionBeginOffs
   BinaryXmlEncoder encoder;
   ndn_Error error;
   if ((error = ndn_encodeBinaryXmlData(&dataStruct, signedPortionBeginOffset, signedPortionEndOffset, &encoder)))
-    throw std::runtime_error(ndn_getErrorString(error));
+    throw runtime_error(ndn_getErrorString(error));
      
   return encoder.getOutput();
 }
@@ -97,7 +97,7 @@ BinaryXmlWireFormat::decodeData
   BinaryXmlDecoder decoder(input, inputLength);  
   ndn_Error error;
   if ((error = ndn_decodeBinaryXmlData(&dataStruct, signedPortionBeginOffset, signedPortionEndOffset, &decoder)))
-    throw std::runtime_error(ndn_getErrorString(error));
+    throw runtime_error(ndn_getErrorString(error));
 
   data.set(dataStruct);
 }
@@ -114,7 +114,7 @@ BinaryXmlWireFormat::encodeForwardingEntry(const ForwardingEntry& forwardingEntr
   BinaryXmlEncoder encoder;
   ndn_Error error;
   if ((error = ndn_encodeBinaryXmlForwardingEntry(&forwardingEntryStruct, &encoder)))
-    throw std::runtime_error(ndn_getErrorString(error));
+    throw runtime_error(ndn_getErrorString(error));
      
   return encoder.getOutput();
 }
@@ -130,7 +130,7 @@ BinaryXmlWireFormat::decodeForwardingEntry(ForwardingEntry& forwardingEntry, con
   BinaryXmlDecoder decoder(input, inputLength);  
   ndn_Error error;
   if ((error = ndn_decodeBinaryXmlForwardingEntry(&forwardingEntryStruct, &decoder)))
-    throw std::runtime_error(ndn_getErrorString(error));
+    throw runtime_error(ndn_getErrorString(error));
 
   forwardingEntry.set(forwardingEntryStruct);
 }

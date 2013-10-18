@@ -50,7 +50,7 @@ PrintVisitor::visit(DerBitString& derBStr, ndnboost::any param)
   const string& indent = ndnboost::any_cast<const string&>(param);
       
   printData(derBStr.getHeader(), indent);
-  const std::vector<uint8_t>& payload = derBStr.getPayload();
+  const vector<uint8_t>& payload = derBStr.getPayload();
   cout << indent << "   " << " " << hex << setw(2) << setfill('0') << (int)(uint8_t)payload[0] << endl;
   printData(payload, indent + "   ", 1);
 }

@@ -297,7 +297,7 @@ DerByteString::DerByteString(const string& str, DerType type)
   DerNode::encodeHeader(payload_.size());
 }
 
-DerByteString::DerByteString(const std::vector<uint8_t>& blob, DerType type)
+DerByteString::DerByteString(const vector<uint8_t>& blob, DerType type)
   :DerNode(type)
 {
   payload_.insert(payload_.end(), blob.begin(), blob.end());
