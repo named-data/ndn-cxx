@@ -693,6 +693,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   ndn-cpp/transport/tcp-transport.cpp \
   ndn-cpp/transport/transport.cpp \
   ndn-cpp/transport/udp-transport.cpp \
+  ndn-cpp/util/blob-stream.hpp \
   ndn-cpp/util/blob.cpp \
   ndn-cpp/util/changed-event.cpp ndn-cpp/util/changed-event.hpp \
   ndn-cpp/util/dynamic-uint8-vector.cpp ndn-cpp/util/dynamic-uint8-vector.hpp \

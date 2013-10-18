@@ -17,6 +17,7 @@
 #include "../../encoding/der/visitor/print-visitor.hpp"
 #endif
 #include "../../util/logging.hpp"
+#include "../../util/blob-stream.hpp"
 #include "../../c/util/time.h"
 #include <ndn-cpp/security/certificate/certificate.hpp>
 
@@ -66,7 +67,6 @@ Certificate::isTooLate()
     return false;
 }
 
-#if 0
 void
 Certificate::encode()
 {
@@ -100,15 +100,13 @@ Certificate::encode()
     }
 
   blob_stream blobStream;
-  OutputIterator& start = reinterpret_cast<OutputIterator&>(blobStream);
+  der::OutputIterator& start = reinterpret_cast<der::OutputIterator&>(blobStream);
 
   root->encode(start);
 
-  shared_ptr<Blob> blob = blobStream.buf();
-  Content content(blob->buf(), blob->size());
-  setContent(content);
+  shared_ptr<std::vector<uint8_t> > blob = blobStream.buf();
+  setContent(blob);
 }
-#endif
 
 void 
 Certificate::decode()
