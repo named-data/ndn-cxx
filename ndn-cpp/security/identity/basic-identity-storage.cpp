@@ -15,10 +15,13 @@
 #include <stdlib.h>
 #include <sstream>
 #include <fstream>
+#include <math.h>
 #include <ndn-cpp/security/identity/basic-identity-storage.hpp>
 #include "../../util/logging.hpp"
-#include <ndn-cpp/security//security-exception.hpp>
+#include <ndn-cpp/security/security-exception.hpp>
 #include "ndn-cpp/data.hpp"
+#include <ndn-cpp/security/certificate/certificate.hpp>
+#include "../../c/util/time.h"
 
 #if 0
 #include "ndn.cxx/fields/signature-sha256-with-rsa.h"
@@ -496,10 +499,9 @@ BasicIdentityStorage::addCertificate(const IdentityCertificate& certificate)
 #endif
 }
 
-shared_ptr<Certificate> 
+shared_ptr<Data> 
 BasicIdentityStorage::getCertificate(const Name &certificateName, bool allowAny)
 {
-#if 0
   if (doesCertificateExist(certificateName)) {
     sqlite3_stmt *statement;
     if (!allowAny) {
@@ -509,8 +511,8 @@ BasicIdentityStorage::getCertificate(const Name &certificateName, bool allowAny)
                           -1, &statement, 0);
           
       sqlite3_bind_text(statement, 1, certificateName.toUri(), SQLITE_TRANSIENT);
-      sqlite3_bind_int64(statement, 2, (sqlite3_int64)time::NowUnixTimestamp().total_seconds());
-      sqlite3_bind_int64(statement, 3, (sqlite3_int64)time::NowUnixTimestamp().total_seconds());
+      sqlite3_bind_int64(statement, 2, (sqlite3_int64)floor(ndn_getNowMilliseconds() / 1000.0));
+      sqlite3_bind_int64(statement, 3, (sqlite3_int64)floor(ndn_getNowMilliseconds() / 1000.0));
     }
     else {
       sqlite3_prepare_v2(database_, 
@@ -521,21 +523,18 @@ BasicIdentityStorage::getCertificate(const Name &certificateName, bool allowAny)
       
     int res = sqlite3_step(statement);
       
-    shared_ptr<Certificate> certificate(new Certificate());
+    shared_ptr<Data> data;
 
     if (res == SQLITE_ROW)
-      certificate->wireDecode(sqlite3_column_blob(statement, 0), sqlite3_column_bytes(statement, 0));            
+      data->wireDecode((const uint8_t*)sqlite3_column_blob(statement, 0), sqlite3_column_bytes(statement, 0));            
     sqlite3_finalize(statement);
       
-    return certificate;
+    return data;
   }
   else {
     _LOG_DEBUG("Certificate does not exist!");
-    return shared_ptr<Certificate>();
+    return shared_ptr<Data>();
   }
-#else
-  throw logic_error("unimplemented");
-#endif
 }
 
 Name 
