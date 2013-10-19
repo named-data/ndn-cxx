@@ -9,6 +9,13 @@
 #if 1 // TODO: Remove this when we don't throw "not implemented".
 #include <stdexcept>
 #endif
+#include <ndn-cpp/ndn-cpp-config.h>
+#if NDN_CPP_HAVE_TIME_H
+#include <time.h>
+#endif
+#if NDN_CPP_HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
 #include <ctime>
 #include <fstream>
 #include <math.h>
@@ -125,7 +132,7 @@ IdentityManager::createIdentityCertificate
   keyLocator.setKeyName(signerCertificateName);
   
   sha256Sig->setKeyLocator(keyLocator);
-  sha256Sig->getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(*publicKey.getDigest());
+  sha256Sig->getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(publicKey.getDigest());
 
   certificate->setSignature(*sha256Sig);
 
@@ -178,7 +185,7 @@ IdentityManager::signByCertificate(const uint8_t* data, size_t dataLength, const
   keyLocator.setKeyName(certificateName);
   
   sha256Sig->setKeyLocator(keyLocator);
-  sha256Sig->getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(*publicKey->getDigest());
+  sha256Sig->getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(publicKey->getDigest());
   sha256Sig->setSignature(sigBits);
 
   return sha256Sig;
@@ -217,8 +224,7 @@ IdentityManager::signByCertificate(Data &data, const Name &certificateName, Wire
 shared_ptr<IdentityCertificate>
 IdentityManager::selfSign(const Name& keyName)
 {
-#if 0
-  shared_ptr<IdentityCertificate> certificate = Create<IdentityCertificate>();
+  shared_ptr<IdentityCertificate> certificate(new IdentityCertificate());
   
   Name certificateName;
   certificateName.append(keyName).append("ID-CERT").append("0");
@@ -227,41 +233,44 @@ IdentityManager::selfSign(const Name& keyName)
   Blob keyBlob = identityStorage_->getKey(keyName);
   shared_ptr<PublicKey> publicKey = PublicKey::fromDer(keyBlob);
 
-  tm current = boost::posix_time::to_tm(time::Now());
+#if NDN_CPP_HAVE_GMTIME_SUPPORT
+  time_t nowSeconds = time(NULL);
+  struct tm current = *gmtime(&nowSeconds);
   current.tm_hour = 0;
   current.tm_min  = 0;
   current.tm_sec  = 0;
-  MillisecondsSince1970 notBefore = boost::posix_time::ptime_from_tm(current);
+  MillisecondsSince1970 notBefore = timegm(&current) * 1000.0;
   current.tm_year = current.tm_year + 20;
-  MillisecondsSince1970 notAfter = boost::posix_time::ptime_from_tm(current);
+  MillisecondsSince1970 notAfter = timegm(&current) * 1000.0;
 
   certificate->setNotBefore(notBefore);
   certificate->setNotAfter(notAfter);
+#else
+  // Don't really expect this to happen.
+  throw SecurityException("selfSign: Can't set certificate validity because time functions are not supported by the standard library.");
+#endif  
   certificate->setPublicKeyInfo(*publicKey);
-  certificate->addSubjectDescription(CertificateSubDescrypt("2.5.4.41", keyName.toUri()));
+  certificate->addSubjectDescription(CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
   certificate->encode();
 
-  shared_ptr<signature::Sha256WithRsa> sha256Sig = shared_ptr<signature::Sha256WithRsa>::Create();
+  shared_ptr<Sha256WithRsaSignature> sha256Sig(new Sha256WithRsaSignature());
 
   KeyLocator keyLocator;    
-  keyLocator.setType(KeyLocator::KEYNAME);
+  keyLocator.setType(ndn_KeyLocatorType_KEYNAME);
   keyLocator.setKeyName(certificateName);
   
   sha256Sig->setKeyLocator(keyLocator);
-  sha256Sig->setPublisherKeyDigest(*publicKey->getDigest());
+  sha256Sig->getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(publicKey->getDigest());
 
-  certificate->setSignature(sha256Sig);
+  certificate->setSignature(*sha256Sig);
 
-  Blob unsignedData = certificate->encodeToUnsignedWire();
+  Blob unsignedData = certificate->wireEncode();
 
-  Blob sigBits = privateKeyStorage_->sign(*unsignedData, keyName.toUri());
+  Blob sigBits = privateKeyStorage_->sign(unsignedData, keyName.toUri());
   
-  sha256Sig->setSignatureBits(*sigBits);
+  sha256Sig->setSignature(sigBits);
 
   return certificate;
-#else
-  throw runtime_error("not implemented");
-#endif  
 }
 
 }

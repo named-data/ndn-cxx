@@ -4,8 +4,13 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include <ndn-cpp/ndn-cpp-config.h>
+#if NDN_CPP_HAVE_TIME_H
 #include <time.h>
+#endif
+#if NDN_CPP_HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
