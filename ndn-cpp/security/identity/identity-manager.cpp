@@ -133,7 +133,7 @@ IdentityManager::createIdentityCertificate
 
   Blob sigBits = privateKeyStorage_->sign(unsignedData, keyName);
   
-  sha256Sig->setSignature(*sigBits);
+  sha256Sig->setSignature(sigBits);
 
   return certificate;
 }
@@ -164,28 +164,24 @@ IdentityManager::setDefaultCertificateForKey(const Name& certificateName)
 ptr_lib::shared_ptr<Signature>
 IdentityManager::signByCertificate(const uint8_t* data, size_t dataLength, const Name& certificateName)
 {    
-#if 0
-  Name keyName = identityStorage_->getKeyNameForCertificate(certName);
+  Name keyName = identityStorage_->getKeyNameForCertificate(certificateName);
   
   shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName.toUri());
 
-  Blob sigBits = privateKeyStorage_->sign(blob, keyName.toUri());
+  Blob sigBits = privateKeyStorage_->sign(data, dataLength, keyName.toUri());
 
   //For temporary usage, we support RSA + SHA256 only, but will support more.
-  shared_ptr<signature::Sha256WithRsa> sha256Sig = shared_ptr<signature::Sha256WithRsa>::Create();
+  shared_ptr<Sha256WithRsaSignature> sha256Sig(new Sha256WithRsaSignature());
 
   KeyLocator keyLocator;    
-  keyLocator.setType(KeyLocator::KEYNAME);
-  keyLocator.setKeyName(certName);
+  keyLocator.setType(ndn_KeyLocatorType_KEYNAME);
+  keyLocator.setKeyName(certificateName);
   
   sha256Sig->setKeyLocator(keyLocator);
-  sha256Sig->setPublisherKeyDigest(*publicKey->getDigest());
-  sha256Sig->setSignatureBits(*sigBits);
+  sha256Sig->getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(*publicKey->getDigest());
+  sha256Sig->setSignature(sigBits);
 
   return sha256Sig;
-#else
-  throw runtime_error("not implemented");
-#endif
 }
 
 void
