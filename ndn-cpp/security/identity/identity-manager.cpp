@@ -11,10 +11,12 @@
 #endif
 #include <ctime>
 #include <fstream>
+#include <math.h>
 #include <ndn-cpp/key.hpp>
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
 #include <ndn-cpp/security/security-exception.hpp>
 #include "../../util/logging.hpp"
+#include "../../c/util/time.h"
 #include <ndn-cpp/security/identity/identity-manager.hpp>
 
 INIT_LOGGER("ndn.security.IdentityManager")
@@ -99,13 +101,13 @@ ptr_lib::shared_ptr<IdentityCertificate>
 IdentityManager::createIdentityCertificate
   (const Name& keyName, const PublicKey& publicKey, const Name& signerCertificateName, const MillisecondsSince1970& notBefore, const MillisecondsSince1970& notAfter)
 {
-#if 0
   shared_ptr<IdentityCertificate> certificate(new IdentityCertificate());
   
   Name certificateName;
-  TimeInterval ti = time::NowUnixTimestamp();
+  MillisecondsSince1970 ti = ::ndn_getNowMilliseconds();
+  // Get the number of seconds.
   ostringstream oss;
-  oss << ti.total_seconds();
+  oss << floor(ti / 1000.0);
 
   certificateName.append(keyName).append("ID-CERT").append(oss.str());
   certificate->setName(certificateName);
@@ -113,30 +115,27 @@ IdentityManager::createIdentityCertificate
   certificate->setNotBefore(notBefore);
   certificate->setNotAfter(notAfter);
   certificate->setPublicKeyInfo(publicKey);
-  certificate->addSubjectDescription(CertificateSubDescrypt("2.5.4.41", keyName.toUri()));
+  certificate->addSubjectDescription(CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
   certificate->encode();
 
   shared_ptr<Sha256WithRsaSignature> sha256Sig(new Sha256WithRsaSignature());
 
   KeyLocator keyLocator;    
-  keyLocator.setType(KeyLocator::KEYNAME);
+  keyLocator.setType(ndn_KeyLocatorType_KEYNAME);
   keyLocator.setKeyName(signerCertificateName);
   
   sha256Sig->setKeyLocator(keyLocator);
-  sha256Sig->setPublisherKeyDigest(*publicKey.getDigest());
+  sha256Sig->getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(*publicKey.getDigest());
 
-  certificate->setSignature(sha256Sig);
+  certificate->setSignature(*sha256Sig);
 
-  SignedBlob unsignedData = certificate->encodeToUnsignedWire();
+  SignedBlob unsignedData = certificate->wireEncode();
 
-  Blob sigBits = privateKeyStorage_->sign(*unsignedData, keyName);
+  Blob sigBits = privateKeyStorage_->sign(unsignedData, keyName);
   
-  sha256Sig->setSignatureBits(*sigBits);
+  sha256Sig->setSignature(*sigBits);
 
   return certificate;
-#else
-  throw runtime_error("not implemented");
-#endif
 }
 
 void
