@@ -9,9 +9,7 @@
 #include <ndn-cpp/ndn-cpp-config.h>
 #ifdef NDN_CPP_HAVE_SQLITE3
 
-#if 1
-#include <stdexcept>
-#endif
+#include <stdio.h>
 #include <stdlib.h>
 #include <sstream>
 #include <fstream>
@@ -23,18 +21,11 @@
 #include <ndn-cpp/security/certificate/identity-certificate.hpp>
 #include "../../c/util/time.h"
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
-#if 0
-#include "ndn.cxx/regex/regex.h"
-#include <boost/filesystem.hpp>
-#endif
 
 INIT_LOGGER("BasicIdentityStorage");
 
 using namespace std;
 using namespace ndn::ptr_lib;
-#if 0
-namespace fs = boost::filesystem;
-#endif
 
 namespace ndn
 {
@@ -97,22 +88,29 @@ static int sqlite3_bind_text(sqlite3_stmt* statement, int index, const string& v
 
 BasicIdentityStorage::BasicIdentityStorage()
 {
-#if 0
-  fs::path identityDir = fs::path(getenv("HOME")) / ".ndn-identity";
-  fs::create_directories(identityDir);
+  // Note: We don't use <filesystem> support because it is not "header-only" and require linking to libraries.
+  // TOOD: Handle non-unix file system paths which don't use '/'.
+  const char* home = getenv("HOME");
+  if (!home || *home == '\0')
+    // Don't expect this to happen;
+    home = ".";
+  string homeDir(home);
+  if (homeDir[homeDir.size() - 1] == '/')
+    // Strip the ending '/'.
+    homeDir.erase(homeDir.size() - 1);
   
-  int res = sqlite3_open((identityDir / "identity.db").c_str(), &database_);
+  string identityDir = homeDir + '/' + ".ndn-identity";
+  ::system(("mkdir " + identityDir).c_str());
+  
+  int res = sqlite3_open((identityDir + '/' + "identity.db").c_str(), &database_);
 
   if (res != SQLITE_OK)
-    {
-      throw SecurityException("identity DB cannot be opened/created");
-    }
-#endif
+    throw SecurityException("identity DB cannot be opened/created");
   
   //Check if Key table exists;
   sqlite3_stmt *statement;
   sqlite3_prepare_v2(database_, "SELECT name FROM sqlite_master WHERE type='table' And name='Identity'", -1, &statement, 0);
-  int res = sqlite3_step(statement);
+  res = sqlite3_step(statement);
 
   bool idTableExists = false;
   if (res == SQLITE_ROW)
