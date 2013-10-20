@@ -48,7 +48,7 @@ Data::Data(const Name& name)
 }
 
 Data::Data(const Data& data)
-: name_(data.name_), metaInfo_(data.metaInfo_), content_(data.content_), wireEncoding_(data.wireEncoding_)
+: name_(data.name_), metaInfo_(data.metaInfo_), content_(data.content_), defaultWireEncoding_(data.defaultWireEncoding_)
 {
   if (data.signature_)
     signature_ = data.signature_->clone();
@@ -68,7 +68,7 @@ Data& Data::operator=(const Data& data)
   name_ = data.name_;
   metaInfo_ = data.metaInfo_;
   content_ = data.content_;
-  wireEncoding_ = data.wireEncoding_;
+  defaultWireEncoding_ = data.defaultWireEncoding_;
 
   return *this;
 }
@@ -102,13 +102,17 @@ Data::setName(const Name& name)
 }
 
 SignedBlob 
-Data::wireEncode(WireFormat& wireFormat) 
+Data::wireEncode(WireFormat& wireFormat) const
 {
   size_t signedPortionBeginOffset, signedPortionEndOffset;
   Blob encoding = wireFormat.encodeData(*this, &signedPortionBeginOffset, &signedPortionEndOffset);
+  SignedBlob wireEncoding = SignedBlob(encoding, signedPortionBeginOffset, signedPortionEndOffset);
   
-  wireEncoding_ = SignedBlob(encoding, signedPortionBeginOffset, signedPortionEndOffset);
-  return wireEncoding_;
+  if (&wireFormat == WireFormat::getDefaultWireFormat())
+    // This is the default wire encoding.
+    const_cast<Data*>(this)->defaultWireEncoding_ = wireEncoding;
+  
+  return wireEncoding;
 }
 
 void 
@@ -117,13 +121,18 @@ Data::wireDecode(const uint8_t* input, size_t inputLength, WireFormat& wireForma
   size_t signedPortionBeginOffset, signedPortionEndOffset;
   wireFormat.decodeData(*this, input, inputLength, &signedPortionBeginOffset, &signedPortionEndOffset);
   
-  wireEncoding_ = SignedBlob(input, inputLength, signedPortionBeginOffset, signedPortionEndOffset);
+  if (&wireFormat == WireFormat::getDefaultWireFormat())
+    // This is the default wire encoding.
+    defaultWireEncoding_ = SignedBlob(input, inputLength, signedPortionBeginOffset, signedPortionEndOffset);
+  else
+    defaultWireEncoding_ = SignedBlob();
 }
 
 void 
 Data::onChanged()
 {
-  wireEncoding_ = SignedBlob();
+  // The values have changed, so the default wire encoding is invalidated.
+  defaultWireEncoding_ = SignedBlob();
 }
 
 }

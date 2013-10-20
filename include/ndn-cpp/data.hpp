@@ -155,16 +155,18 @@ public:
   Data& operator=(const Data& data);
   
   /**
-   * Encode this Data for a particular wire format. Also, set the wireEncoding field to the encoded result.
-   * This is not const because it updates the wireEncoding.
+   * Encode this Data for a particular wire format. If wireFormat is the default wire format, also set the defaultWireEncoding 
+   * field to the encoded result.
+   * Even though this is const, if wireFormat is the default wire format we update the defaultWireEncoding.
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    * @return The encoded byte array.
    */
   SignedBlob 
-  wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const;
   
   /**
-   * Decode the input using a particular wire format and update this Data. Also, set the wireEncoding field to the input.
+   * Decode the input using a particular wire format and update this Data. If wireFormat is the default wire format, also 
+   * set the defaultWireEncoding field to the input.
    * @param input The input byte array to be decoded.
    * @param inputLength The length of input.
    * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat getDefaultWireFormat().
@@ -173,7 +175,8 @@ public:
   wireDecode(const uint8_t* input, size_t inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
   
   /**
-   * Decode the input using a particular wire format and update this Data. Also, set the wireEncoding field to the input.
+   * Decode the input using a particular wire format and update this Data. If wireFormat is the default wire format, also 
+   * set the defaultWireEncoding field to the input.
    * @param input The input byte array to be decoded.
    * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
@@ -235,10 +238,10 @@ public:
   getContent() const { return content_; }
 
   /**
-   * Return a pointer to the wireEncoding.  It may be null.
+   * Return a pointer to the defaultWireEncoding.  It may be null.
    */
   const SignedBlob&
-  getWireEncoding() const { return wireEncoding_; }
+  getDefaultWireEncoding() const { return defaultWireEncoding_; }
   
   /**
    * Set the signature to a copy of the given signature.
@@ -314,7 +317,7 @@ private:
   Name name_;
   MetaInfo metaInfo_;
   Blob content_;
-  SignedBlob wireEncoding_;
+  SignedBlob defaultWireEncoding_;
 };
   
 }

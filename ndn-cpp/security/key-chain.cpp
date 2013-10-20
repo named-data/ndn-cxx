@@ -77,11 +77,10 @@ verifySignature(const Data& data /*, const Publickey& publickey */)
   if (signature->getDigestAlgorithm().size() != 0)
     // TODO: Allow a non-default digest algorithm.
     throw UnrecognizedDigestAlgorithmException("Cannot verify a data packet with a non-default digest algorithm.");
-  if (!data.getWireEncoding())
-    // Don't expect this to happen
-    throw SecurityException("The Data wireEncoding is null.");
-  uint8_t signedPortionDigest[SHA256_DIGEST_LENGTH];
-  ndn_digestSha256(data.getWireEncoding().signedBuf(), data.getWireEncoding().signedSize(), signedPortionDigest);
+  if (!data.getDefaultWireEncoding())
+     data.wireEncode();
+ uint8_t signedPortionDigest[SHA256_DIGEST_LENGTH];
+  ndn_digestSha256(data.getDefaultWireEncoding().signedBuf(), data.getDefaultWireEncoding().signedSize(), signedPortionDigest);
   
   // Verify the signedPortionDigest.
   // Use a temporary pointer since d2i updates it.
