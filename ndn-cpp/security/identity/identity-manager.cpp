@@ -6,9 +6,6 @@
  * See COPYING for copyright and distribution information.
  */
 
-#if 1 // TODO: Remove this when we don't throw "not implemented".
-#include <stdexcept>
-#endif
 #include <ndn-cpp/ndn-cpp-config.h>
 #if NDN_CPP_HAVE_TIME_H
 #include <time.h>
