@@ -199,9 +199,6 @@ private:
   updateKeyStatus(const Name& keyName, bool isActive);
 
   sqlite3 *database_;
-#if 0
-  MillisecondsSince1970 lastUpdated_;
-#endif
 };
 
 }
