@@ -218,6 +218,28 @@ public:
   sign(Data& data, const Name& certificateName, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
   
   /**
+   * Sign the byte array using a certificate name and return a Signature object.
+   * @param buffer The byte array to be signed.
+   * @param bufferLength the length of buffer.
+   * @param certificateName The certificate name used to get the signing key and which will be put into KeyLocator.
+   * @return The Signature.
+   */
+  ptr_lib::shared_ptr<Signature> 
+  sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName);
+
+  /**
+   * Sign the byte array using a certificate name and return a Signature object.
+   * @param buffer The byte array to be signed.
+   * @param certificateName The certificate name used to get the signing key and which will be put into KeyLocator.
+   * @return The Signature.
+   */
+  ptr_lib::shared_ptr<Signature> 
+  sign(const std::vector<uint8_t>& buffer, const Name& certificateName)
+  {
+    return sign(&buffer[0], buffer.size(), certificateName);
+  }
+
+  /**
    * Wire encode the Data object, sign it and set its signature.
    * Note: the caller must make sure the timestamp is correct, for example with 
    * data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0).
@@ -227,6 +249,28 @@ public:
    */
   void 
   signByIdentity(Data& data, const Name& identityName = Name(), WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+
+  /**
+   * Sign the byte array using an identity name and return a Signature object.
+   * @param buffer The byte array to be signed.
+   * @param bufferLength the length of buffer.
+   * @param identityName The identity name.
+   * @return The Signature.
+   */
+  ptr_lib::shared_ptr<Signature> 
+  signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName);
+
+  /**
+   * Sign the byte array using an identity name and return a Signature object.
+   * @param buffer The byte array to be signed.
+   * @param identityName The identity name.
+   * @return The Signature.
+   */
+  ptr_lib::shared_ptr<Signature> 
+  signByIdentity(const std::vector<uint8_t>& buffer, const Name& identityName)
+  {
+    return signByIdentity(&buffer[0], buffer.size(), identityName);
+  }
 
   /**
    * Check the signature on the Data object and call either onVerify or onVerifyFailed. 

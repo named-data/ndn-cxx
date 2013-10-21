@@ -166,13 +166,13 @@ IdentityManager::setDefaultCertificateForKey(const Name& certificateName)
 }
   
 ptr_lib::shared_ptr<Signature>
-IdentityManager::signByCertificate(const uint8_t* data, size_t dataLength, const Name& certificateName)
+IdentityManager::signByCertificate(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
 {    
   Name keyName = identityStorage_->getKeyNameForCertificate(certificateName);
   
   shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName.toUri());
 
-  Blob sigBits = privateKeyStorage_->sign(data, dataLength, keyName.toUri());
+  Blob sigBits = privateKeyStorage_->sign(buffer, bufferLength, keyName.toUri());
 
   //For temporary usage, we support RSA + SHA256 only, but will support more.
   shared_ptr<Sha256WithRsaSignature> sha256Sig(new Sha256WithRsaSignature());

@@ -198,14 +198,26 @@ public:
         
   /**
    * Sign the byte array data based on the certificate name.
-   * @param data The data to be signed.
-   * @param dataLength the length of data.
+   * @param buffer The byte array to be signed.
+   * @param bufferLength the length of buffer.
    * @param certificateName The signing certificate name.
    * @return The generated signature.
    */
   ptr_lib::shared_ptr<Signature>
-  signByCertificate(const uint8_t* data, size_t dataLength, const Name& certificateName);
-    
+  signByCertificate(const uint8_t* buffer, size_t bufferLength, const Name& certificateName);
+
+  /**
+   * Sign the byte array data based on the certificate name.
+   * @param buffer The byte array to be signed.
+   * @param certificateName The signing certificate name.
+   * @return The generated signature.
+   */
+  ptr_lib::shared_ptr<Signature>
+  signByCertificate(const std::vector<uint8_t>& buffer, const Name& certificateName) 
+  {
+    return signByCertificate(&buffer[0], buffer.size(), certificateName);
+  }
+
   /**
    * Sign data packet based on the certificate name.
    * Note: the caller must make sure the timestamp in data is correct, for example with 

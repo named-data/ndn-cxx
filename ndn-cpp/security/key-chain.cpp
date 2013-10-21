@@ -104,6 +104,12 @@ KeyChain::sign(Data& data, const Name& certificateName, WireFormat& wireFormat)
   identityManager_->signByCertificate(data, certificateName, wireFormat);
 }
 
+shared_ptr<Signature> 
+KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
+{
+  return identityManager_->signByCertificate(buffer, bufferLength, certificateName);
+}
+
 void 
 KeyChain::signByIdentity(Data& data, const Name& identityName, WireFormat& wireFormat)
 {
@@ -127,6 +133,17 @@ KeyChain::signByIdentity(Data& data, const Name& identityName, WireFormat& wireF
 
   identityManager_->signByCertificate(data, signingCertificateName);  
 }
+
+  shared_ptr<Signature> 
+  KeyChain::signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName)
+  {
+    Name signingCertificateName = identityManager_->getDefaultCertificateNameForIdentity(identityName);
+    
+    if (signingCertificateName.size() == 0)
+      throw SecurityException("No qualified certificate name found!");
+
+    return identityManager_->signByCertificate(buffer, bufferLength, signingCertificateName);
+  }
 
 void
 KeyChain::verifyData
