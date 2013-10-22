@@ -241,6 +241,9 @@ public:
   void 
   set(const struct ndn_Interest& interestStruct);
   
+  void
+  setName(const Name& name) { name_ = name; }
+  
   void 
   setMinSuffixComponents(int value) { minSuffixComponents_ = value; }
   
