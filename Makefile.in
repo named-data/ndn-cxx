@@ -137,79 +137,73 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libndn_c_la_LIBADD =
 am__objects_1 =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libndn_c_la_OBJECTS = $(am__objects_1) ndn-cpp/c/errors.lo \
-	ndn-cpp/c/forwarding-flags.lo ndn-cpp/c/interest.lo \
-	ndn-cpp/c/name.lo ndn-cpp/c/encoding/binary-xml-data.lo \
-	ndn-cpp/c/encoding/binary-xml-decoder.lo \
-	ndn-cpp/c/encoding/binary-xml-element-reader.lo \
-	ndn-cpp/c/encoding/binary-xml-encoder.lo \
-	ndn-cpp/c/encoding/binary-xml-forwarding-entry.lo \
-	ndn-cpp/c/encoding/binary-xml-interest.lo \
-	ndn-cpp/c/encoding/binary-xml-key.lo \
-	ndn-cpp/c/encoding/binary-xml-name.lo \
-	ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.lo \
-	ndn-cpp/c/encoding/binary-xml-structure-decoder.lo \
-	ndn-cpp/c/transport/socket-transport.lo \
-	ndn-cpp/c/util/crypto.lo ndn-cpp/c/util/dynamic-uint8-array.lo \
-	ndn-cpp/c/util/ndn_memory.lo ndn-cpp/c/util/ndn_realloc.lo \
-	ndn-cpp/c/util/time.lo
+am_libndn_c_la_OBJECTS = $(am__objects_1) src/c/errors.lo \
+	src/c/forwarding-flags.lo src/c/interest.lo src/c/name.lo \
+	src/c/encoding/binary-xml-data.lo \
+	src/c/encoding/binary-xml-decoder.lo \
+	src/c/encoding/binary-xml-element-reader.lo \
+	src/c/encoding/binary-xml-encoder.lo \
+	src/c/encoding/binary-xml-forwarding-entry.lo \
+	src/c/encoding/binary-xml-interest.lo \
+	src/c/encoding/binary-xml-key.lo \
+	src/c/encoding/binary-xml-name.lo \
+	src/c/encoding/binary-xml-publisher-public-key-digest.lo \
+	src/c/encoding/binary-xml-structure-decoder.lo \
+	src/c/transport/socket-transport.lo src/c/util/crypto.lo \
+	src/c/util/dynamic-uint8-array.lo src/c/util/ndn_memory.lo \
+	src/c/util/ndn_realloc.lo src/c/util/time.lo
 libndn_c_la_OBJECTS = $(am_libndn_c_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 libndn_cpp_la_LIBADD =
-am__objects_2 = $(am__objects_1) ndn-cpp/c/errors.lo \
-	ndn-cpp/c/forwarding-flags.lo ndn-cpp/c/interest.lo \
-	ndn-cpp/c/name.lo ndn-cpp/c/encoding/binary-xml-data.lo \
-	ndn-cpp/c/encoding/binary-xml-decoder.lo \
-	ndn-cpp/c/encoding/binary-xml-element-reader.lo \
-	ndn-cpp/c/encoding/binary-xml-encoder.lo \
-	ndn-cpp/c/encoding/binary-xml-forwarding-entry.lo \
-	ndn-cpp/c/encoding/binary-xml-interest.lo \
-	ndn-cpp/c/encoding/binary-xml-key.lo \
-	ndn-cpp/c/encoding/binary-xml-name.lo \
-	ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.lo \
-	ndn-cpp/c/encoding/binary-xml-structure-decoder.lo \
-	ndn-cpp/c/transport/socket-transport.lo \
-	ndn-cpp/c/util/crypto.lo ndn-cpp/c/util/dynamic-uint8-array.lo \
-	ndn-cpp/c/util/ndn_memory.lo ndn-cpp/c/util/ndn_realloc.lo \
-	ndn-cpp/c/util/time.lo
+am__objects_2 = $(am__objects_1) src/c/errors.lo \
+	src/c/forwarding-flags.lo src/c/interest.lo src/c/name.lo \
+	src/c/encoding/binary-xml-data.lo \
+	src/c/encoding/binary-xml-decoder.lo \
+	src/c/encoding/binary-xml-element-reader.lo \
+	src/c/encoding/binary-xml-encoder.lo \
+	src/c/encoding/binary-xml-forwarding-entry.lo \
+	src/c/encoding/binary-xml-interest.lo \
+	src/c/encoding/binary-xml-key.lo \
+	src/c/encoding/binary-xml-name.lo \
+	src/c/encoding/binary-xml-publisher-public-key-digest.lo \
+	src/c/encoding/binary-xml-structure-decoder.lo \
+	src/c/transport/socket-transport.lo src/c/util/crypto.lo \
+	src/c/util/dynamic-uint8-array.lo src/c/util/ndn_memory.lo \
+	src/c/util/ndn_realloc.lo src/c/util/time.lo
 am_libndn_cpp_la_OBJECTS = $(am__objects_2) $(am__objects_1) \
-	ndn-cpp/common.lo ndn-cpp/data.lo ndn-cpp/face.lo \
-	ndn-cpp/forwarding-entry.lo ndn-cpp/interest.lo ndn-cpp/key.lo \
-	ndn-cpp/name.lo ndn-cpp/node.lo \
-	ndn-cpp/publisher-public-key-digest.lo \
-	ndn-cpp/sha256-with-rsa-signature.lo \
-	ndn-cpp/encoding/binary-xml-wire-format.lo \
-	ndn-cpp/encoding/element-listener.lo ndn-cpp/encoding/oid.lo \
-	ndn-cpp/encoding/wire-format.lo \
-	ndn-cpp/encoding/der/der-exception.lo \
-	ndn-cpp/encoding/der/der.lo \
-	ndn-cpp/encoding/der/visitor/certificate-data-visitor.lo \
-	ndn-cpp/encoding/der/visitor/no-arguments-visitor.lo \
-	ndn-cpp/encoding/der/visitor/print-visitor.lo \
-	ndn-cpp/encoding/der/visitor/public-key-visitor.lo \
-	ndn-cpp/encoding/der/visitor/simple-visitor.lo \
-	ndn-cpp/encoding/der/visitor/void-visitor.lo \
-	ndn-cpp/security/key-chain.lo \
-	ndn-cpp/security/security-exception.lo \
-	ndn-cpp/security/certificate/certificate-extension.lo \
-	ndn-cpp/security/certificate/certificate-subject-description.lo \
-	ndn-cpp/security/certificate/certificate.lo \
-	ndn-cpp/security/certificate/identity-certificate.lo \
-	ndn-cpp/security/certificate/public-key.lo \
-	ndn-cpp/security/identity/basic-identity-storage.lo \
-	ndn-cpp/security/identity/identity-manager.lo \
-	ndn-cpp/security/identity/memory-identity-storage.lo \
-	ndn-cpp/security/identity/memory-private-key-storage.lo \
-	ndn-cpp/security/identity/osx-private-key-storage.lo \
-	ndn-cpp/security/policy/no-verify-policy-manager.lo \
-	ndn-cpp/transport/tcp-transport.lo \
-	ndn-cpp/transport/transport.lo \
-	ndn-cpp/transport/udp-transport.lo ndn-cpp/util/blob.lo \
-	ndn-cpp/util/changed-event.lo \
-	ndn-cpp/util/dynamic-uint8-vector.lo ndn-cpp/util/logging.lo
+	src/common.lo src/data.lo src/face.lo src/forwarding-entry.lo \
+	src/interest.lo src/key.lo src/name.lo src/node.lo \
+	src/publisher-public-key-digest.lo \
+	src/sha256-with-rsa-signature.lo \
+	src/encoding/binary-xml-wire-format.lo \
+	src/encoding/element-listener.lo src/encoding/oid.lo \
+	src/encoding/wire-format.lo src/encoding/der/der-exception.lo \
+	src/encoding/der/der.lo \
+	src/encoding/der/visitor/certificate-data-visitor.lo \
+	src/encoding/der/visitor/no-arguments-visitor.lo \
+	src/encoding/der/visitor/print-visitor.lo \
+	src/encoding/der/visitor/public-key-visitor.lo \
+	src/encoding/der/visitor/simple-visitor.lo \
+	src/encoding/der/visitor/void-visitor.lo \
+	src/security/key-chain.lo src/security/security-exception.lo \
+	src/security/certificate/certificate-extension.lo \
+	src/security/certificate/certificate-subject-description.lo \
+	src/security/certificate/certificate.lo \
+	src/security/certificate/identity-certificate.lo \
+	src/security/certificate/public-key.lo \
+	src/security/identity/basic-identity-storage.lo \
+	src/security/identity/identity-manager.lo \
+	src/security/identity/memory-identity-storage.lo \
+	src/security/identity/memory-private-key-storage.lo \
+	src/security/identity/osx-private-key-storage.lo \
+	src/security/policy/no-verify-policy-manager.lo \
+	src/transport/tcp-transport.lo src/transport/transport.lo \
+	src/transport/udp-transport.lo src/util/blob.lo \
+	src/util/changed-event.lo src/util/dynamic-uint8-vector.lo \
+	src/util/logging.lo
 libndn_cpp_la_OBJECTS = $(am_libndn_cpp_la_OBJECTS)
 PROGRAMS = $(noinst_PROGRAMS)
 am_bin_test_encode_decode_data_OBJECTS =  \
@@ -621,85 +615,85 @@ ndn_cpp_cpp_headers = \
 
 # Just the C code.
 libndn_c_la_SOURCES = $(ndn_cpp_c_headers) \
-  ndn-cpp/c/data.h \
-  ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
-  ndn-cpp/c/forwarding-entry.h \
-  ndn-cpp/c/forwarding-flags.c \
-  ndn-cpp/c/interest.c ndn-cpp/c/interest.h \
-  ndn-cpp/c/name.c ndn-cpp/c/name.h \
-  ndn-cpp/c/publisher-public-key-digest.h \
-  ndn-cpp/c/encoding/binary-xml.h \
-  ndn-cpp/c/encoding/binary-xml-data.c ndn-cpp/c/encoding/binary-xml-data.h \
-  ndn-cpp/c/encoding/binary-xml-decoder.c ndn-cpp/c/encoding/binary-xml-decoder.h \
-  ndn-cpp/c/encoding/binary-xml-element-reader.c ndn-cpp/c/encoding/binary-xml-element-reader.h \
-  ndn-cpp/c/encoding/binary-xml-encoder.c ndn-cpp/c/encoding/binary-xml-encoder.h \
-  ndn-cpp/c/encoding/binary-xml-forwarding-entry.c ndn-cpp/c/encoding/binary-xml-forwarding-entry.h \
-  ndn-cpp/c/encoding/binary-xml-interest.c ndn-cpp/c/encoding/binary-xml-interest.h \
-  ndn-cpp/c/encoding/binary-xml-key.c ndn-cpp/c/encoding/binary-xml-key.h \
-  ndn-cpp/c/encoding/binary-xml-name.c ndn-cpp/c/encoding/binary-xml-name.h \
-  ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.c ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.h \
-  ndn-cpp/c/encoding/binary-xml-structure-decoder.c ndn-cpp/c/encoding/binary-xml-structure-decoder.h \
-  ndn-cpp/c/transport/socket-transport.c ndn-cpp/c/transport/socket-transport.h \
-  ndn-cpp/c/transport/tcp-transport.h \
-  ndn-cpp/c/transport/udp-transport.h \
-  ndn-cpp/c/util/blob.h \
-  ndn-cpp/c/util/crypto.c ndn-cpp/c/util/crypto.h \
-  ndn-cpp/c/util/dynamic-uint8-array.c ndn-cpp/c/util/dynamic-uint8-array.h \
-  ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
-  ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h \
-  ndn-cpp/c/util/time.c ndn-cpp/c/util/time.h
+  src/c/data.h \
+  src/c/errors.c src/c/errors.h \
+  src/c/forwarding-entry.h \
+  src/c/forwarding-flags.c \
+  src/c/interest.c src/c/interest.h \
+  src/c/name.c src/c/name.h \
+  src/c/publisher-public-key-digest.h \
+  src/c/encoding/binary-xml.h \
+  src/c/encoding/binary-xml-data.c src/c/encoding/binary-xml-data.h \
+  src/c/encoding/binary-xml-decoder.c src/c/encoding/binary-xml-decoder.h \
+  src/c/encoding/binary-xml-element-reader.c src/c/encoding/binary-xml-element-reader.h \
+  src/c/encoding/binary-xml-encoder.c src/c/encoding/binary-xml-encoder.h \
+  src/c/encoding/binary-xml-forwarding-entry.c src/c/encoding/binary-xml-forwarding-entry.h \
+  src/c/encoding/binary-xml-interest.c src/c/encoding/binary-xml-interest.h \
+  src/c/encoding/binary-xml-key.c src/c/encoding/binary-xml-key.h \
+  src/c/encoding/binary-xml-name.c src/c/encoding/binary-xml-name.h \
+  src/c/encoding/binary-xml-publisher-public-key-digest.c src/c/encoding/binary-xml-publisher-public-key-digest.h \
+  src/c/encoding/binary-xml-structure-decoder.c src/c/encoding/binary-xml-structure-decoder.h \
+  src/c/transport/socket-transport.c src/c/transport/socket-transport.h \
+  src/c/transport/tcp-transport.h \
+  src/c/transport/udp-transport.h \
+  src/c/util/blob.h \
+  src/c/util/crypto.c src/c/util/crypto.h \
+  src/c/util/dynamic-uint8-array.c src/c/util/dynamic-uint8-array.h \
+  src/c/util/ndn_memory.c src/c/util/ndn_memory.h \
+  src/c/util/ndn_realloc.c src/c/util/ndn_realloc.h \
+  src/c/util/time.c src/c/util/time.h
 
 
 # C++ code and also the C code.
 libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
-  ndn-cpp/common.cpp \
-  ndn-cpp/data.cpp \
-  ndn-cpp/face.cpp \
-  ndn-cpp/forwarding-entry.cpp \
-  ndn-cpp/interest.cpp \
-  ndn-cpp/key.cpp \
-  ndn-cpp/name.cpp \
-  ndn-cpp/node.cpp \
-  ndn-cpp/publisher-public-key-digest.cpp \
-  ndn-cpp/sha256-with-rsa-signature.cpp \
-  ndn-cpp/encoding/binary-xml-decoder.hpp \
-  ndn-cpp/encoding/binary-xml-encoder.hpp \
-  ndn-cpp/encoding/binary-xml-structure-decoder.hpp \
-  ndn-cpp/encoding/binary-xml-wire-format.cpp \
-  ndn-cpp/encoding/element-listener.cpp \
-  ndn-cpp/encoding/oid.cpp \
-  ndn-cpp/encoding/wire-format.cpp \
-  ndn-cpp/encoding/der/der-exception.cpp ndn-cpp/encoding/der/der-exception.hpp \
-  ndn-cpp/encoding/der/der.cpp ndn-cpp/encoding/der/der.hpp \
-  ndn-cpp/encoding/der/visitor/certificate-data-visitor.cpp ndn-cpp/encoding/der/visitor/certificate-data-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/no-arguments-visitor.cpp ndn-cpp/encoding/der/visitor/no-arguments-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/print-visitor.cpp ndn-cpp/encoding/der/visitor/print-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/public-key-visitor.cpp ndn-cpp/encoding/der/visitor/public-key-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/simple-visitor.cpp ndn-cpp/encoding/der/visitor/simple-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/visitor.hpp \
-  ndn-cpp/encoding/der/visitor/void-no-arguments-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/void-visitor.cpp ndn-cpp/encoding/der/visitor/void-visitor.hpp \
-  ndn-cpp/security/key-chain.cpp \
-  ndn-cpp/security/security-exception.cpp \
-  ndn-cpp/security/certificate/certificate-extension.cpp \
-  ndn-cpp/security/certificate/certificate-subject-description.cpp \
-  ndn-cpp/security/certificate/certificate.cpp \
-  ndn-cpp/security/certificate/identity-certificate.cpp \
-  ndn-cpp/security/certificate/public-key.cpp \
-  ndn-cpp/security/identity/basic-identity-storage.cpp \
-  ndn-cpp/security/identity/identity-manager.cpp \
-  ndn-cpp/security/identity/memory-identity-storage.cpp \
-  ndn-cpp/security/identity/memory-private-key-storage.cpp \
-  ndn-cpp/security/identity/osx-private-key-storage.cpp \
-  ndn-cpp/security/policy/no-verify-policy-manager.cpp \
-  ndn-cpp/transport/tcp-transport.cpp \
-  ndn-cpp/transport/transport.cpp \
-  ndn-cpp/transport/udp-transport.cpp \
-  ndn-cpp/util/blob-stream.hpp \
-  ndn-cpp/util/blob.cpp \
-  ndn-cpp/util/changed-event.cpp ndn-cpp/util/changed-event.hpp \
-  ndn-cpp/util/dynamic-uint8-vector.cpp ndn-cpp/util/dynamic-uint8-vector.hpp \
-  ndn-cpp/util/logging.cpp ndn-cpp/util/logging.hpp
+  src/common.cpp \
+  src/data.cpp \
+  src/face.cpp \
+  src/forwarding-entry.cpp \
+  src/interest.cpp \
+  src/key.cpp \
+  src/name.cpp \
+  src/node.cpp \
+  src/publisher-public-key-digest.cpp \
+  src/sha256-with-rsa-signature.cpp \
+  src/encoding/binary-xml-decoder.hpp \
+  src/encoding/binary-xml-encoder.hpp \
+  src/encoding/binary-xml-structure-decoder.hpp \
+  src/encoding/binary-xml-wire-format.cpp \
+  src/encoding/element-listener.cpp \
+  src/encoding/oid.cpp \
+  src/encoding/wire-format.cpp \
+  src/encoding/der/der-exception.cpp src/encoding/der/der-exception.hpp \
+  src/encoding/der/der.cpp src/encoding/der/der.hpp \
+  src/encoding/der/visitor/certificate-data-visitor.cpp src/encoding/der/visitor/certificate-data-visitor.hpp \
+  src/encoding/der/visitor/no-arguments-visitor.cpp src/encoding/der/visitor/no-arguments-visitor.hpp \
+  src/encoding/der/visitor/print-visitor.cpp src/encoding/der/visitor/print-visitor.hpp \
+  src/encoding/der/visitor/public-key-visitor.cpp src/encoding/der/visitor/public-key-visitor.hpp \
+  src/encoding/der/visitor/simple-visitor.cpp src/encoding/der/visitor/simple-visitor.hpp \
+  src/encoding/der/visitor/visitor.hpp \
+  src/encoding/der/visitor/void-no-arguments-visitor.hpp \
+  src/encoding/der/visitor/void-visitor.cpp src/encoding/der/visitor/void-visitor.hpp \
+  src/security/key-chain.cpp \
+  src/security/security-exception.cpp \
+  src/security/certificate/certificate-extension.cpp \
+  src/security/certificate/certificate-subject-description.cpp \
+  src/security/certificate/certificate.cpp \
+  src/security/certificate/identity-certificate.cpp \
+  src/security/certificate/public-key.cpp \
+  src/security/identity/basic-identity-storage.cpp \
+  src/security/identity/identity-manager.cpp \
+  src/security/identity/memory-identity-storage.cpp \
+  src/security/identity/memory-private-key-storage.cpp \
+  src/security/identity/osx-private-key-storage.cpp \
+  src/security/policy/no-verify-policy-manager.cpp \
+  src/transport/tcp-transport.cpp \
+  src/transport/transport.cpp \
+  src/transport/udp-transport.cpp \
+  src/util/blob-stream.hpp \
+  src/util/blob.cpp \
+  src/util/changed-event.cpp src/util/changed-event.hpp \
+  src/util/dynamic-uint8-vector.cpp src/util/dynamic-uint8-vector.hpp \
+  src/util/logging.cpp src/util/logging.hpp
 
 bin_test_encode_decode_forwarding_entry_SOURCES = tests/test-encode-decode-forwarding-entry.cpp
 bin_test_encode_decode_forwarding_entry_LDADD = libndn-cpp.la
@@ -786,249 +780,229 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
-ndn-cpp/c/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/c
-	@: > ndn-cpp/c/$(am__dirstamp)
-ndn-cpp/c/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/c/$(DEPDIR)
-	@: > ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/errors.lo: ndn-cpp/c/$(am__dirstamp) \
-	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/forwarding-flags.lo: ndn-cpp/c/$(am__dirstamp) \
-	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/interest.lo: ndn-cpp/c/$(am__dirstamp) \
-	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/name.lo: ndn-cpp/c/$(am__dirstamp) \
-	ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/c/encoding
-	@: > ndn-cpp/c/encoding/$(am__dirstamp)
-ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/c/encoding/$(DEPDIR)
-	@: > ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/binary-xml-data.lo:  \
-	ndn-cpp/c/encoding/$(am__dirstamp) \
-	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/binary-xml-decoder.lo:  \
-	ndn-cpp/c/encoding/$(am__dirstamp) \
-	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/binary-xml-element-reader.lo:  \
-	ndn-cpp/c/encoding/$(am__dirstamp) \
-	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/binary-xml-encoder.lo:  \
-	ndn-cpp/c/encoding/$(am__dirstamp) \
-	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/binary-xml-forwarding-entry.lo:  \
-	ndn-cpp/c/encoding/$(am__dirstamp) \
-	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/binary-xml-interest.lo:  \
-	ndn-cpp/c/encoding/$(am__dirstamp) \
-	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/binary-xml-key.lo:  \
-	ndn-cpp/c/encoding/$(am__dirstamp) \
-	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/binary-xml-name.lo:  \
-	ndn-cpp/c/encoding/$(am__dirstamp) \
-	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.lo:  \
-	ndn-cpp/c/encoding/$(am__dirstamp) \
-	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/encoding/binary-xml-structure-decoder.lo:  \
-	ndn-cpp/c/encoding/$(am__dirstamp) \
-	ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/transport/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/c/transport
-	@: > ndn-cpp/c/transport/$(am__dirstamp)
-ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/c/transport/$(DEPDIR)
-	@: > ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/transport/socket-transport.lo:  \
-	ndn-cpp/c/transport/$(am__dirstamp) \
-	ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/util/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/c/util
-	@: > ndn-cpp/c/util/$(am__dirstamp)
-ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/c/util/$(DEPDIR)
-	@: > ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/util/crypto.lo: ndn-cpp/c/util/$(am__dirstamp) \
-	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/util/dynamic-uint8-array.lo: ndn-cpp/c/util/$(am__dirstamp) \
-	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/util/ndn_memory.lo: ndn-cpp/c/util/$(am__dirstamp) \
-	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/util/ndn_realloc.lo: ndn-cpp/c/util/$(am__dirstamp) \
-	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/c/util/time.lo: ndn-cpp/c/util/$(am__dirstamp) \
-	ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
+src/c/$(am__dirstamp):
+	@$(MKDIR_P) src/c
+	@: > src/c/$(am__dirstamp)
+src/c/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/c/$(DEPDIR)
+	@: > src/c/$(DEPDIR)/$(am__dirstamp)
+src/c/errors.lo: src/c/$(am__dirstamp) src/c/$(DEPDIR)/$(am__dirstamp)
+src/c/forwarding-flags.lo: src/c/$(am__dirstamp) \
+	src/c/$(DEPDIR)/$(am__dirstamp)
+src/c/interest.lo: src/c/$(am__dirstamp) \
+	src/c/$(DEPDIR)/$(am__dirstamp)
+src/c/name.lo: src/c/$(am__dirstamp) src/c/$(DEPDIR)/$(am__dirstamp)
+src/c/encoding/$(am__dirstamp):
+	@$(MKDIR_P) src/c/encoding
+	@: > src/c/encoding/$(am__dirstamp)
+src/c/encoding/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/c/encoding/$(DEPDIR)
+	@: > src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+src/c/encoding/binary-xml-data.lo: src/c/encoding/$(am__dirstamp) \
+	src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+src/c/encoding/binary-xml-decoder.lo: src/c/encoding/$(am__dirstamp) \
+	src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+src/c/encoding/binary-xml-element-reader.lo:  \
+	src/c/encoding/$(am__dirstamp) \
+	src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+src/c/encoding/binary-xml-encoder.lo: src/c/encoding/$(am__dirstamp) \
+	src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+src/c/encoding/binary-xml-forwarding-entry.lo:  \
+	src/c/encoding/$(am__dirstamp) \
+	src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+src/c/encoding/binary-xml-interest.lo: src/c/encoding/$(am__dirstamp) \
+	src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+src/c/encoding/binary-xml-key.lo: src/c/encoding/$(am__dirstamp) \
+	src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+src/c/encoding/binary-xml-name.lo: src/c/encoding/$(am__dirstamp) \
+	src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+src/c/encoding/binary-xml-publisher-public-key-digest.lo:  \
+	src/c/encoding/$(am__dirstamp) \
+	src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+src/c/encoding/binary-xml-structure-decoder.lo:  \
+	src/c/encoding/$(am__dirstamp) \
+	src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+src/c/transport/$(am__dirstamp):
+	@$(MKDIR_P) src/c/transport
+	@: > src/c/transport/$(am__dirstamp)
+src/c/transport/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/c/transport/$(DEPDIR)
+	@: > src/c/transport/$(DEPDIR)/$(am__dirstamp)
+src/c/transport/socket-transport.lo: src/c/transport/$(am__dirstamp) \
+	src/c/transport/$(DEPDIR)/$(am__dirstamp)
+src/c/util/$(am__dirstamp):
+	@$(MKDIR_P) src/c/util
+	@: > src/c/util/$(am__dirstamp)
+src/c/util/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/c/util/$(DEPDIR)
+	@: > src/c/util/$(DEPDIR)/$(am__dirstamp)
+src/c/util/crypto.lo: src/c/util/$(am__dirstamp) \
+	src/c/util/$(DEPDIR)/$(am__dirstamp)
+src/c/util/dynamic-uint8-array.lo: src/c/util/$(am__dirstamp) \
+	src/c/util/$(DEPDIR)/$(am__dirstamp)
+src/c/util/ndn_memory.lo: src/c/util/$(am__dirstamp) \
+	src/c/util/$(DEPDIR)/$(am__dirstamp)
+src/c/util/ndn_realloc.lo: src/c/util/$(am__dirstamp) \
+	src/c/util/$(DEPDIR)/$(am__dirstamp)
+src/c/util/time.lo: src/c/util/$(am__dirstamp) \
+	src/c/util/$(DEPDIR)/$(am__dirstamp)
 
 libndn-c.la: $(libndn_c_la_OBJECTS) $(libndn_c_la_DEPENDENCIES) $(EXTRA_libndn_c_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libndn_c_la_OBJECTS) $(libndn_c_la_LIBADD) $(LIBS)
-ndn-cpp/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp
-	@: > ndn-cpp/$(am__dirstamp)
-ndn-cpp/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/$(DEPDIR)
-	@: > ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/common.lo: ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/data.lo: ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/face.lo: ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/forwarding-entry.lo: ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/interest.lo: ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/key.lo: ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/name.lo: ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/node.lo: ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/publisher-public-key-digest.lo: ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/sha256-with-rsa-signature.lo: ndn-cpp/$(am__dirstamp) \
-	ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/encoding
-	@: > ndn-cpp/encoding/$(am__dirstamp)
-ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/encoding/$(DEPDIR)
-	@: > ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/binary-xml-wire-format.lo:  \
-	ndn-cpp/encoding/$(am__dirstamp) \
-	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/element-listener.lo:  \
-	ndn-cpp/encoding/$(am__dirstamp) \
-	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/oid.lo: ndn-cpp/encoding/$(am__dirstamp) \
-	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/wire-format.lo: ndn-cpp/encoding/$(am__dirstamp) \
-	ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/der/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/encoding/der
-	@: > ndn-cpp/encoding/der/$(am__dirstamp)
-ndn-cpp/encoding/der/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/encoding/der/$(DEPDIR)
-	@: > ndn-cpp/encoding/der/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/der/der-exception.lo:  \
-	ndn-cpp/encoding/der/$(am__dirstamp) \
-	ndn-cpp/encoding/der/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/der/der.lo: ndn-cpp/encoding/der/$(am__dirstamp) \
-	ndn-cpp/encoding/der/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/der/visitor/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/encoding/der/visitor
-	@: > ndn-cpp/encoding/der/visitor/$(am__dirstamp)
-ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/encoding/der/visitor/$(DEPDIR)
-	@: > ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/der/visitor/certificate-data-visitor.lo:  \
-	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
-	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/der/visitor/no-arguments-visitor.lo:  \
-	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
-	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/der/visitor/print-visitor.lo:  \
-	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
-	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/der/visitor/public-key-visitor.lo:  \
-	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
-	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/der/visitor/simple-visitor.lo:  \
-	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
-	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/encoding/der/visitor/void-visitor.lo:  \
-	ndn-cpp/encoding/der/visitor/$(am__dirstamp) \
-	ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/security
-	@: > ndn-cpp/security/$(am__dirstamp)
-ndn-cpp/security/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/security/$(DEPDIR)
-	@: > ndn-cpp/security/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/key-chain.lo: ndn-cpp/security/$(am__dirstamp) \
-	ndn-cpp/security/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/security-exception.lo:  \
-	ndn-cpp/security/$(am__dirstamp) \
-	ndn-cpp/security/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/certificate/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/security/certificate
-	@: > ndn-cpp/security/certificate/$(am__dirstamp)
-ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/security/certificate/$(DEPDIR)
-	@: > ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/certificate/certificate-extension.lo:  \
-	ndn-cpp/security/certificate/$(am__dirstamp) \
-	ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/certificate/certificate-subject-description.lo:  \
-	ndn-cpp/security/certificate/$(am__dirstamp) \
-	ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/certificate/certificate.lo:  \
-	ndn-cpp/security/certificate/$(am__dirstamp) \
-	ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/certificate/identity-certificate.lo:  \
-	ndn-cpp/security/certificate/$(am__dirstamp) \
-	ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/certificate/public-key.lo:  \
-	ndn-cpp/security/certificate/$(am__dirstamp) \
-	ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/identity/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/security/identity
-	@: > ndn-cpp/security/identity/$(am__dirstamp)
-ndn-cpp/security/identity/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/security/identity/$(DEPDIR)
-	@: > ndn-cpp/security/identity/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/identity/basic-identity-storage.lo:  \
-	ndn-cpp/security/identity/$(am__dirstamp) \
-	ndn-cpp/security/identity/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/identity/identity-manager.lo:  \
-	ndn-cpp/security/identity/$(am__dirstamp) \
-	ndn-cpp/security/identity/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/identity/memory-identity-storage.lo:  \
-	ndn-cpp/security/identity/$(am__dirstamp) \
-	ndn-cpp/security/identity/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/identity/memory-private-key-storage.lo:  \
-	ndn-cpp/security/identity/$(am__dirstamp) \
-	ndn-cpp/security/identity/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/identity/osx-private-key-storage.lo:  \
-	ndn-cpp/security/identity/$(am__dirstamp) \
-	ndn-cpp/security/identity/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/policy/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/security/policy
-	@: > ndn-cpp/security/policy/$(am__dirstamp)
-ndn-cpp/security/policy/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/security/policy/$(DEPDIR)
-	@: > ndn-cpp/security/policy/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/security/policy/no-verify-policy-manager.lo:  \
-	ndn-cpp/security/policy/$(am__dirstamp) \
-	ndn-cpp/security/policy/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/transport/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/transport
-	@: > ndn-cpp/transport/$(am__dirstamp)
-ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/transport/$(DEPDIR)
-	@: > ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/transport/tcp-transport.lo: ndn-cpp/transport/$(am__dirstamp) \
-	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/transport/transport.lo: ndn-cpp/transport/$(am__dirstamp) \
-	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/transport/udp-transport.lo: ndn-cpp/transport/$(am__dirstamp) \
-	ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/util/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/util
-	@: > ndn-cpp/util/$(am__dirstamp)
-ndn-cpp/util/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ndn-cpp/util/$(DEPDIR)
-	@: > ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/util/blob.lo: ndn-cpp/util/$(am__dirstamp) \
-	ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/util/changed-event.lo: ndn-cpp/util/$(am__dirstamp) \
-	ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/util/dynamic-uint8-vector.lo: ndn-cpp/util/$(am__dirstamp) \
-	ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
-ndn-cpp/util/logging.lo: ndn-cpp/util/$(am__dirstamp) \
-	ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
+src/$(am__dirstamp):
+	@$(MKDIR_P) src
+	@: > src/$(am__dirstamp)
+src/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/$(DEPDIR)
+	@: > src/$(DEPDIR)/$(am__dirstamp)
+src/common.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/data.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/face.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/forwarding-entry.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/interest.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/key.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/name.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/node.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/publisher-public-key-digest.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/sha256-with-rsa-signature.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/encoding/$(am__dirstamp):
+	@$(MKDIR_P) src/encoding
+	@: > src/encoding/$(am__dirstamp)
+src/encoding/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/encoding/$(DEPDIR)
+	@: > src/encoding/$(DEPDIR)/$(am__dirstamp)
+src/encoding/binary-xml-wire-format.lo: src/encoding/$(am__dirstamp) \
+	src/encoding/$(DEPDIR)/$(am__dirstamp)
+src/encoding/element-listener.lo: src/encoding/$(am__dirstamp) \
+	src/encoding/$(DEPDIR)/$(am__dirstamp)
+src/encoding/oid.lo: src/encoding/$(am__dirstamp) \
+	src/encoding/$(DEPDIR)/$(am__dirstamp)
+src/encoding/wire-format.lo: src/encoding/$(am__dirstamp) \
+	src/encoding/$(DEPDIR)/$(am__dirstamp)
+src/encoding/der/$(am__dirstamp):
+	@$(MKDIR_P) src/encoding/der
+	@: > src/encoding/der/$(am__dirstamp)
+src/encoding/der/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/encoding/der/$(DEPDIR)
+	@: > src/encoding/der/$(DEPDIR)/$(am__dirstamp)
+src/encoding/der/der-exception.lo: src/encoding/der/$(am__dirstamp) \
+	src/encoding/der/$(DEPDIR)/$(am__dirstamp)
+src/encoding/der/der.lo: src/encoding/der/$(am__dirstamp) \
+	src/encoding/der/$(DEPDIR)/$(am__dirstamp)
+src/encoding/der/visitor/$(am__dirstamp):
+	@$(MKDIR_P) src/encoding/der/visitor
+	@: > src/encoding/der/visitor/$(am__dirstamp)
+src/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/encoding/der/visitor/$(DEPDIR)
+	@: > src/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+src/encoding/der/visitor/certificate-data-visitor.lo:  \
+	src/encoding/der/visitor/$(am__dirstamp) \
+	src/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+src/encoding/der/visitor/no-arguments-visitor.lo:  \
+	src/encoding/der/visitor/$(am__dirstamp) \
+	src/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+src/encoding/der/visitor/print-visitor.lo:  \
+	src/encoding/der/visitor/$(am__dirstamp) \
+	src/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+src/encoding/der/visitor/public-key-visitor.lo:  \
+	src/encoding/der/visitor/$(am__dirstamp) \
+	src/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+src/encoding/der/visitor/simple-visitor.lo:  \
+	src/encoding/der/visitor/$(am__dirstamp) \
+	src/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+src/encoding/der/visitor/void-visitor.lo:  \
+	src/encoding/der/visitor/$(am__dirstamp) \
+	src/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+src/security/$(am__dirstamp):
+	@$(MKDIR_P) src/security
+	@: > src/security/$(am__dirstamp)
+src/security/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/security/$(DEPDIR)
+	@: > src/security/$(DEPDIR)/$(am__dirstamp)
+src/security/key-chain.lo: src/security/$(am__dirstamp) \
+	src/security/$(DEPDIR)/$(am__dirstamp)
+src/security/security-exception.lo: src/security/$(am__dirstamp) \
+	src/security/$(DEPDIR)/$(am__dirstamp)
+src/security/certificate/$(am__dirstamp):
+	@$(MKDIR_P) src/security/certificate
+	@: > src/security/certificate/$(am__dirstamp)
+src/security/certificate/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/security/certificate/$(DEPDIR)
+	@: > src/security/certificate/$(DEPDIR)/$(am__dirstamp)
+src/security/certificate/certificate-extension.lo:  \
+	src/security/certificate/$(am__dirstamp) \
+	src/security/certificate/$(DEPDIR)/$(am__dirstamp)
+src/security/certificate/certificate-subject-description.lo:  \
+	src/security/certificate/$(am__dirstamp) \
+	src/security/certificate/$(DEPDIR)/$(am__dirstamp)
+src/security/certificate/certificate.lo:  \
+	src/security/certificate/$(am__dirstamp) \
+	src/security/certificate/$(DEPDIR)/$(am__dirstamp)
+src/security/certificate/identity-certificate.lo:  \
+	src/security/certificate/$(am__dirstamp) \
+	src/security/certificate/$(DEPDIR)/$(am__dirstamp)
+src/security/certificate/public-key.lo:  \
+	src/security/certificate/$(am__dirstamp) \
+	src/security/certificate/$(DEPDIR)/$(am__dirstamp)
+src/security/identity/$(am__dirstamp):
+	@$(MKDIR_P) src/security/identity
+	@: > src/security/identity/$(am__dirstamp)
+src/security/identity/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/security/identity/$(DEPDIR)
+	@: > src/security/identity/$(DEPDIR)/$(am__dirstamp)
+src/security/identity/basic-identity-storage.lo:  \
+	src/security/identity/$(am__dirstamp) \
+	src/security/identity/$(DEPDIR)/$(am__dirstamp)
+src/security/identity/identity-manager.lo:  \
+	src/security/identity/$(am__dirstamp) \
+	src/security/identity/$(DEPDIR)/$(am__dirstamp)
+src/security/identity/memory-identity-storage.lo:  \
+	src/security/identity/$(am__dirstamp) \
+	src/security/identity/$(DEPDIR)/$(am__dirstamp)
+src/security/identity/memory-private-key-storage.lo:  \
+	src/security/identity/$(am__dirstamp) \
+	src/security/identity/$(DEPDIR)/$(am__dirstamp)
+src/security/identity/osx-private-key-storage.lo:  \
+	src/security/identity/$(am__dirstamp) \
+	src/security/identity/$(DEPDIR)/$(am__dirstamp)
+src/security/policy/$(am__dirstamp):
+	@$(MKDIR_P) src/security/policy
+	@: > src/security/policy/$(am__dirstamp)
+src/security/policy/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/security/policy/$(DEPDIR)
+	@: > src/security/policy/$(DEPDIR)/$(am__dirstamp)
+src/security/policy/no-verify-policy-manager.lo:  \
+	src/security/policy/$(am__dirstamp) \
+	src/security/policy/$(DEPDIR)/$(am__dirstamp)
+src/transport/$(am__dirstamp):
+	@$(MKDIR_P) src/transport
+	@: > src/transport/$(am__dirstamp)
+src/transport/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/transport/$(DEPDIR)
+	@: > src/transport/$(DEPDIR)/$(am__dirstamp)
+src/transport/tcp-transport.lo: src/transport/$(am__dirstamp) \
+	src/transport/$(DEPDIR)/$(am__dirstamp)
+src/transport/transport.lo: src/transport/$(am__dirstamp) \
+	src/transport/$(DEPDIR)/$(am__dirstamp)
+src/transport/udp-transport.lo: src/transport/$(am__dirstamp) \
+	src/transport/$(DEPDIR)/$(am__dirstamp)
+src/util/$(am__dirstamp):
+	@$(MKDIR_P) src/util
+	@: > src/util/$(am__dirstamp)
+src/util/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/util/$(DEPDIR)
+	@: > src/util/$(DEPDIR)/$(am__dirstamp)
+src/util/blob.lo: src/util/$(am__dirstamp) \
+	src/util/$(DEPDIR)/$(am__dirstamp)
+src/util/changed-event.lo: src/util/$(am__dirstamp) \
+	src/util/$(DEPDIR)/$(am__dirstamp)
+src/util/dynamic-uint8-vector.lo: src/util/$(am__dirstamp) \
+	src/util/$(DEPDIR)/$(am__dirstamp)
+src/util/logging.lo: src/util/$(am__dirstamp) \
+	src/util/$(DEPDIR)/$(am__dirstamp)
 
 libndn-cpp.la: $(libndn_cpp_la_OBJECTS) $(libndn_cpp_la_DEPENDENCIES) $(EXTRA_libndn_cpp_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(CXXLINK) -rpath $(libdir) $(libndn_cpp_la_OBJECTS) $(libndn_cpp_la_LIBADD) $(LIBS)
@@ -1083,101 +1057,101 @@ bin/test-publish-async$(EXEEXT): $(bin_test_publish_async_OBJECTS) $(bin_test_pu
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ndn-cpp/*.$(OBJEXT)
-	-rm -f ndn-cpp/*.lo
-	-rm -f ndn-cpp/c/*.$(OBJEXT)
-	-rm -f ndn-cpp/c/*.lo
-	-rm -f ndn-cpp/c/encoding/*.$(OBJEXT)
-	-rm -f ndn-cpp/c/encoding/*.lo
-	-rm -f ndn-cpp/c/transport/*.$(OBJEXT)
-	-rm -f ndn-cpp/c/transport/*.lo
-	-rm -f ndn-cpp/c/util/*.$(OBJEXT)
-	-rm -f ndn-cpp/c/util/*.lo
-	-rm -f ndn-cpp/encoding/*.$(OBJEXT)
-	-rm -f ndn-cpp/encoding/*.lo
-	-rm -f ndn-cpp/encoding/der/*.$(OBJEXT)
-	-rm -f ndn-cpp/encoding/der/*.lo
-	-rm -f ndn-cpp/encoding/der/visitor/*.$(OBJEXT)
-	-rm -f ndn-cpp/encoding/der/visitor/*.lo
-	-rm -f ndn-cpp/security/*.$(OBJEXT)
-	-rm -f ndn-cpp/security/*.lo
-	-rm -f ndn-cpp/security/certificate/*.$(OBJEXT)
-	-rm -f ndn-cpp/security/certificate/*.lo
-	-rm -f ndn-cpp/security/identity/*.$(OBJEXT)
-	-rm -f ndn-cpp/security/identity/*.lo
-	-rm -f ndn-cpp/security/policy/*.$(OBJEXT)
-	-rm -f ndn-cpp/security/policy/*.lo
-	-rm -f ndn-cpp/transport/*.$(OBJEXT)
-	-rm -f ndn-cpp/transport/*.lo
-	-rm -f ndn-cpp/util/*.$(OBJEXT)
-	-rm -f ndn-cpp/util/*.lo
+	-rm -f src/*.$(OBJEXT)
+	-rm -f src/*.lo
+	-rm -f src/c/*.$(OBJEXT)
+	-rm -f src/c/*.lo
+	-rm -f src/c/encoding/*.$(OBJEXT)
+	-rm -f src/c/encoding/*.lo
+	-rm -f src/c/transport/*.$(OBJEXT)
+	-rm -f src/c/transport/*.lo
+	-rm -f src/c/util/*.$(OBJEXT)
+	-rm -f src/c/util/*.lo
+	-rm -f src/encoding/*.$(OBJEXT)
+	-rm -f src/encoding/*.lo
+	-rm -f src/encoding/der/*.$(OBJEXT)
+	-rm -f src/encoding/der/*.lo
+	-rm -f src/encoding/der/visitor/*.$(OBJEXT)
+	-rm -f src/encoding/der/visitor/*.lo
+	-rm -f src/security/*.$(OBJEXT)
+	-rm -f src/security/*.lo
+	-rm -f src/security/certificate/*.$(OBJEXT)
+	-rm -f src/security/certificate/*.lo
+	-rm -f src/security/identity/*.$(OBJEXT)
+	-rm -f src/security/identity/*.lo
+	-rm -f src/security/policy/*.$(OBJEXT)
+	-rm -f src/security/policy/*.lo
+	-rm -f src/transport/*.$(OBJEXT)
+	-rm -f src/transport/*.lo
+	-rm -f src/util/*.$(OBJEXT)
+	-rm -f src/util/*.lo
 	-rm -f tests/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/common.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/data.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/face.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/forwarding-entry.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/interest.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/key.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/name.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/node.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/publisher-public-key-digest.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/$(DEPDIR)/sha256-with-rsa-signature.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/errors.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/forwarding-flags.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/interest.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/$(DEPDIR)/name.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-data.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-decoder.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-element-reader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-encoder.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-forwarding-entry.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-interest.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-key.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-name.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-publisher-public-key-digest.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/encoding/$(DEPDIR)/binary-xml-structure-decoder.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/transport/$(DEPDIR)/socket-transport.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/crypto.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/dynamic-uint8-array.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_memory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/ndn_realloc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/c/util/$(DEPDIR)/time.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/binary-xml-wire-format.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/element-listener.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/oid.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/$(DEPDIR)/wire-format.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/$(DEPDIR)/der-exception.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/$(DEPDIR)/der.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/certificate-data-visitor.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/no-arguments-visitor.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/print-visitor.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/public-key-visitor.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/simple-visitor.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/encoding/der/visitor/$(DEPDIR)/void-visitor.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/$(DEPDIR)/key-chain.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/$(DEPDIR)/security-exception.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/certificate/$(DEPDIR)/certificate-extension.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/certificate/$(DEPDIR)/certificate-subject-description.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/certificate/$(DEPDIR)/certificate.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/certificate/$(DEPDIR)/identity-certificate.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/certificate/$(DEPDIR)/public-key.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/identity/$(DEPDIR)/basic-identity-storage.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/identity/$(DEPDIR)/identity-manager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/identity/$(DEPDIR)/memory-identity-storage.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/identity/$(DEPDIR)/memory-private-key-storage.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/identity/$(DEPDIR)/osx-private-key-storage.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/security/policy/$(DEPDIR)/no-verify-policy-manager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/tcp-transport.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/transport.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/transport/$(DEPDIR)/udp-transport.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/blob.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/changed-event.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/dynamic-uint8-vector.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ndn-cpp/util/$(DEPDIR)/logging.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/common.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/data.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/face.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/forwarding-entry.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/interest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/key.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/name.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/node.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/publisher-public-key-digest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sha256-with-rsa-signature.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/$(DEPDIR)/errors.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/$(DEPDIR)/forwarding-flags.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/$(DEPDIR)/interest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/$(DEPDIR)/name.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/encoding/$(DEPDIR)/binary-xml-data.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/encoding/$(DEPDIR)/binary-xml-decoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/encoding/$(DEPDIR)/binary-xml-element-reader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/encoding/$(DEPDIR)/binary-xml-encoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/encoding/$(DEPDIR)/binary-xml-forwarding-entry.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/encoding/$(DEPDIR)/binary-xml-interest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/encoding/$(DEPDIR)/binary-xml-key.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/encoding/$(DEPDIR)/binary-xml-name.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/encoding/$(DEPDIR)/binary-xml-publisher-public-key-digest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/encoding/$(DEPDIR)/binary-xml-structure-decoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/transport/$(DEPDIR)/socket-transport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/util/$(DEPDIR)/crypto.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/util/$(DEPDIR)/dynamic-uint8-array.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/util/$(DEPDIR)/ndn_memory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/util/$(DEPDIR)/ndn_realloc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/c/util/$(DEPDIR)/time.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/$(DEPDIR)/binary-xml-wire-format.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/$(DEPDIR)/element-listener.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/$(DEPDIR)/oid.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/$(DEPDIR)/wire-format.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/der/$(DEPDIR)/der-exception.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/der/$(DEPDIR)/der.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/der/visitor/$(DEPDIR)/certificate-data-visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/der/visitor/$(DEPDIR)/no-arguments-visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/der/visitor/$(DEPDIR)/print-visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/der/visitor/$(DEPDIR)/public-key-visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/der/visitor/$(DEPDIR)/simple-visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/encoding/der/visitor/$(DEPDIR)/void-visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/$(DEPDIR)/key-chain.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/$(DEPDIR)/security-exception.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/certificate/$(DEPDIR)/certificate-extension.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/certificate/$(DEPDIR)/certificate-subject-description.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/certificate/$(DEPDIR)/certificate.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/certificate/$(DEPDIR)/identity-certificate.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/certificate/$(DEPDIR)/public-key.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/identity/$(DEPDIR)/basic-identity-storage.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/identity/$(DEPDIR)/identity-manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/identity/$(DEPDIR)/memory-identity-storage.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/identity/$(DEPDIR)/memory-private-key-storage.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/identity/$(DEPDIR)/osx-private-key-storage.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/policy/$(DEPDIR)/no-verify-policy-manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/transport/$(DEPDIR)/tcp-transport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/transport/$(DEPDIR)/transport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/transport/$(DEPDIR)/udp-transport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/util/$(DEPDIR)/blob.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/util/$(DEPDIR)/changed-event.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/util/$(DEPDIR)/dynamic-uint8-vector.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/util/$(DEPDIR)/logging.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-forwarding-entry.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-interest.Po@am__quote@
@@ -1238,20 +1212,20 @@ mostlyclean-libtool:
 clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf bin/.libs bin/_libs
-	-rm -rf ndn-cpp/.libs ndn-cpp/_libs
-	-rm -rf ndn-cpp/c/.libs ndn-cpp/c/_libs
-	-rm -rf ndn-cpp/c/encoding/.libs ndn-cpp/c/encoding/_libs
-	-rm -rf ndn-cpp/c/transport/.libs ndn-cpp/c/transport/_libs
-	-rm -rf ndn-cpp/c/util/.libs ndn-cpp/c/util/_libs
-	-rm -rf ndn-cpp/encoding/.libs ndn-cpp/encoding/_libs
-	-rm -rf ndn-cpp/encoding/der/.libs ndn-cpp/encoding/der/_libs
-	-rm -rf ndn-cpp/encoding/der/visitor/.libs ndn-cpp/encoding/der/visitor/_libs
-	-rm -rf ndn-cpp/security/.libs ndn-cpp/security/_libs
-	-rm -rf ndn-cpp/security/certificate/.libs ndn-cpp/security/certificate/_libs
-	-rm -rf ndn-cpp/security/identity/.libs ndn-cpp/security/identity/_libs
-	-rm -rf ndn-cpp/security/policy/.libs ndn-cpp/security/policy/_libs
-	-rm -rf ndn-cpp/transport/.libs ndn-cpp/transport/_libs
-	-rm -rf ndn-cpp/util/.libs ndn-cpp/util/_libs
+	-rm -rf src/.libs src/_libs
+	-rm -rf src/c/.libs src/c/_libs
+	-rm -rf src/c/encoding/.libs src/c/encoding/_libs
+	-rm -rf src/c/transport/.libs src/c/transport/_libs
+	-rm -rf src/c/util/.libs src/c/util/_libs
+	-rm -rf src/encoding/.libs src/encoding/_libs
+	-rm -rf src/encoding/der/.libs src/encoding/der/_libs
+	-rm -rf src/encoding/der/visitor/.libs src/encoding/der/visitor/_libs
+	-rm -rf src/security/.libs src/security/_libs
+	-rm -rf src/security/certificate/.libs src/security/certificate/_libs
+	-rm -rf src/security/identity/.libs src/security/identity/_libs
+	-rm -rf src/security/policy/.libs src/security/policy/_libs
+	-rm -rf src/transport/.libs src/transport/_libs
+	-rm -rf src/util/.libs src/util/_libs
 
 distclean-libtool:
 	-rm -f libtool config.lt
@@ -1584,34 +1558,34 @@ distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f bin/$(am__dirstamp)
-	-rm -f ndn-cpp/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/$(am__dirstamp)
-	-rm -f ndn-cpp/c/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/c/$(am__dirstamp)
-	-rm -f ndn-cpp/c/encoding/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/c/encoding/$(am__dirstamp)
-	-rm -f ndn-cpp/c/transport/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/c/transport/$(am__dirstamp)
-	-rm -f ndn-cpp/c/util/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/c/util/$(am__dirstamp)
-	-rm -f ndn-cpp/encoding/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/encoding/$(am__dirstamp)
-	-rm -f ndn-cpp/encoding/der/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/encoding/der/$(am__dirstamp)
-	-rm -f ndn-cpp/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/encoding/der/visitor/$(am__dirstamp)
-	-rm -f ndn-cpp/security/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/security/$(am__dirstamp)
-	-rm -f ndn-cpp/security/certificate/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/security/certificate/$(am__dirstamp)
-	-rm -f ndn-cpp/security/identity/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/security/identity/$(am__dirstamp)
-	-rm -f ndn-cpp/security/policy/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/security/policy/$(am__dirstamp)
-	-rm -f ndn-cpp/transport/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/transport/$(am__dirstamp)
-	-rm -f ndn-cpp/util/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ndn-cpp/util/$(am__dirstamp)
+	-rm -f src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/$(am__dirstamp)
+	-rm -f src/c/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/c/$(am__dirstamp)
+	-rm -f src/c/encoding/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/c/encoding/$(am__dirstamp)
+	-rm -f src/c/transport/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/c/transport/$(am__dirstamp)
+	-rm -f src/c/util/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/c/util/$(am__dirstamp)
+	-rm -f src/encoding/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/encoding/$(am__dirstamp)
+	-rm -f src/encoding/der/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/encoding/der/$(am__dirstamp)
+	-rm -f src/encoding/der/visitor/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/encoding/der/visitor/$(am__dirstamp)
+	-rm -f src/security/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/security/$(am__dirstamp)
+	-rm -f src/security/certificate/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/security/certificate/$(am__dirstamp)
+	-rm -f src/security/identity/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/security/identity/$(am__dirstamp)
+	-rm -f src/security/policy/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/security/policy/$(am__dirstamp)
+	-rm -f src/transport/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/transport/$(am__dirstamp)
+	-rm -f src/util/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/util/$(am__dirstamp)
 	-rm -f tests/$(DEPDIR)/$(am__dirstamp)
 	-rm -f tests/$(am__dirstamp)
 
@@ -1625,7 +1599,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/c/$(DEPDIR) ndn-cpp/c/encoding/$(DEPDIR) ndn-cpp/c/transport/$(DEPDIR) ndn-cpp/c/util/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/encoding/der/$(DEPDIR) ndn-cpp/encoding/der/visitor/$(DEPDIR) ndn-cpp/security/$(DEPDIR) ndn-cpp/security/certificate/$(DEPDIR) ndn-cpp/security/identity/$(DEPDIR) ndn-cpp/security/policy/$(DEPDIR) ndn-cpp/transport/$(DEPDIR) ndn-cpp/util/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf src/$(DEPDIR) src/c/$(DEPDIR) src/c/encoding/$(DEPDIR) src/c/transport/$(DEPDIR) src/c/util/$(DEPDIR) src/encoding/$(DEPDIR) src/encoding/der/$(DEPDIR) src/encoding/der/visitor/$(DEPDIR) src/security/$(DEPDIR) src/security/certificate/$(DEPDIR) src/security/identity/$(DEPDIR) src/security/policy/$(DEPDIR) src/transport/$(DEPDIR) src/util/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
@@ -1673,7 +1647,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ndn-cpp/$(DEPDIR) ndn-cpp/c/$(DEPDIR) ndn-cpp/c/encoding/$(DEPDIR) ndn-cpp/c/transport/$(DEPDIR) ndn-cpp/c/util/$(DEPDIR) ndn-cpp/encoding/$(DEPDIR) ndn-cpp/encoding/der/$(DEPDIR) ndn-cpp/encoding/der/visitor/$(DEPDIR) ndn-cpp/security/$(DEPDIR) ndn-cpp/security/certificate/$(DEPDIR) ndn-cpp/security/identity/$(DEPDIR) ndn-cpp/security/policy/$(DEPDIR) ndn-cpp/transport/$(DEPDIR) ndn-cpp/util/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf src/$(DEPDIR) src/c/$(DEPDIR) src/c/encoding/$(DEPDIR) src/c/transport/$(DEPDIR) src/c/util/$(DEPDIR) src/encoding/$(DEPDIR) src/encoding/der/$(DEPDIR) src/encoding/der/visitor/$(DEPDIR) src/security/$(DEPDIR) src/security/certificate/$(DEPDIR) src/security/identity/$(DEPDIR) src/security/policy/$(DEPDIR) src/transport/$(DEPDIR) src/util/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
