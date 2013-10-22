@@ -89,7 +89,7 @@ static int sqlite3_bind_text(sqlite3_stmt* statement, int index, const string& v
 BasicIdentityStorage::BasicIdentityStorage()
 {
   // Note: We don't use <filesystem> support because it is not "header-only" and require linking to libraries.
-  // TOOD: Handle non-unix file system paths which don't use '/'.
+  // TODO: Handle non-unix file system paths which don't use '/'.
   const char* home = getenv("HOME");
   if (!home || *home == '\0')
     // Don't expect this to happen;
@@ -100,7 +100,7 @@ BasicIdentityStorage::BasicIdentityStorage()
     homeDir.erase(homeDir.size() - 1);
   
   string identityDir = homeDir + '/' + ".ndn-identity";
-  ::system(("mkdir " + identityDir).c_str());
+  ::system(("mkdir -p " + identityDir).c_str());
   
   int res = sqlite3_open((identityDir + '/' + "identity.db").c_str(), &database_);
 
