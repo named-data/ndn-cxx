@@ -104,6 +104,7 @@ Certificate::encode()
 
   shared_ptr<vector<uint8_t> > blob = blobStream.buf();
   setContent(blob);
+  getMetaInfo().setType(ndn_ContentType_KEY);
 }
 
 void 
