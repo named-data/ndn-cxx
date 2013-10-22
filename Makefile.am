@@ -70,84 +70,84 @@ ndn_cpp_cpp_headers = \
 
 # Just the C code.
 libndn_c_la_SOURCES = $(ndn_cpp_c_headers) \
-  ndn-cpp/c/data.h \
-  ndn-cpp/c/errors.c ndn-cpp/c/errors.h \
-  ndn-cpp/c/forwarding-entry.h \
-  ndn-cpp/c/forwarding-flags.c \
-  ndn-cpp/c/interest.c ndn-cpp/c/interest.h \
-  ndn-cpp/c/name.c ndn-cpp/c/name.h \
-  ndn-cpp/c/publisher-public-key-digest.h \
-  ndn-cpp/c/encoding/binary-xml.h \
-  ndn-cpp/c/encoding/binary-xml-data.c ndn-cpp/c/encoding/binary-xml-data.h \
-  ndn-cpp/c/encoding/binary-xml-decoder.c ndn-cpp/c/encoding/binary-xml-decoder.h \
-  ndn-cpp/c/encoding/binary-xml-element-reader.c ndn-cpp/c/encoding/binary-xml-element-reader.h \
-  ndn-cpp/c/encoding/binary-xml-encoder.c ndn-cpp/c/encoding/binary-xml-encoder.h \
-  ndn-cpp/c/encoding/binary-xml-forwarding-entry.c ndn-cpp/c/encoding/binary-xml-forwarding-entry.h \
-  ndn-cpp/c/encoding/binary-xml-interest.c ndn-cpp/c/encoding/binary-xml-interest.h \
-  ndn-cpp/c/encoding/binary-xml-key.c ndn-cpp/c/encoding/binary-xml-key.h \
-  ndn-cpp/c/encoding/binary-xml-name.c ndn-cpp/c/encoding/binary-xml-name.h \
-  ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.c ndn-cpp/c/encoding/binary-xml-publisher-public-key-digest.h \
-  ndn-cpp/c/encoding/binary-xml-structure-decoder.c ndn-cpp/c/encoding/binary-xml-structure-decoder.h \
-  ndn-cpp/c/transport/socket-transport.c ndn-cpp/c/transport/socket-transport.h \
-  ndn-cpp/c/transport/tcp-transport.h \
-  ndn-cpp/c/transport/udp-transport.h \
-  ndn-cpp/c/util/blob.h \
-  ndn-cpp/c/util/crypto.c ndn-cpp/c/util/crypto.h \
-  ndn-cpp/c/util/dynamic-uint8-array.c ndn-cpp/c/util/dynamic-uint8-array.h \
-  ndn-cpp/c/util/ndn_memory.c ndn-cpp/c/util/ndn_memory.h \
-  ndn-cpp/c/util/ndn_realloc.c ndn-cpp/c/util/ndn_realloc.h \
-  ndn-cpp/c/util/time.c ndn-cpp/c/util/time.h
+  src/c/data.h \
+  src/c/errors.c src/c/errors.h \
+  src/c/forwarding-entry.h \
+  src/c/forwarding-flags.c \
+  src/c/interest.c src/c/interest.h \
+  src/c/name.c src/c/name.h \
+  src/c/publisher-public-key-digest.h \
+  src/c/encoding/binary-xml.h \
+  src/c/encoding/binary-xml-data.c src/c/encoding/binary-xml-data.h \
+  src/c/encoding/binary-xml-decoder.c src/c/encoding/binary-xml-decoder.h \
+  src/c/encoding/binary-xml-element-reader.c src/c/encoding/binary-xml-element-reader.h \
+  src/c/encoding/binary-xml-encoder.c src/c/encoding/binary-xml-encoder.h \
+  src/c/encoding/binary-xml-forwarding-entry.c src/c/encoding/binary-xml-forwarding-entry.h \
+  src/c/encoding/binary-xml-interest.c src/c/encoding/binary-xml-interest.h \
+  src/c/encoding/binary-xml-key.c src/c/encoding/binary-xml-key.h \
+  src/c/encoding/binary-xml-name.c src/c/encoding/binary-xml-name.h \
+  src/c/encoding/binary-xml-publisher-public-key-digest.c src/c/encoding/binary-xml-publisher-public-key-digest.h \
+  src/c/encoding/binary-xml-structure-decoder.c src/c/encoding/binary-xml-structure-decoder.h \
+  src/c/transport/socket-transport.c src/c/transport/socket-transport.h \
+  src/c/transport/tcp-transport.h \
+  src/c/transport/udp-transport.h \
+  src/c/util/blob.h \
+  src/c/util/crypto.c src/c/util/crypto.h \
+  src/c/util/dynamic-uint8-array.c src/c/util/dynamic-uint8-array.h \
+  src/c/util/ndn_memory.c src/c/util/ndn_memory.h \
+  src/c/util/ndn_realloc.c src/c/util/ndn_realloc.h \
+  src/c/util/time.c src/c/util/time.h
 
 # C++ code and also the C code.
 libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
-  ndn-cpp/common.cpp \
-  ndn-cpp/data.cpp \
-  ndn-cpp/face.cpp \
-  ndn-cpp/forwarding-entry.cpp \
-  ndn-cpp/interest.cpp \
-  ndn-cpp/key.cpp \
-  ndn-cpp/name.cpp \
-  ndn-cpp/node.cpp \
-  ndn-cpp/publisher-public-key-digest.cpp \
-  ndn-cpp/sha256-with-rsa-signature.cpp \
-  ndn-cpp/encoding/binary-xml-decoder.hpp \
-  ndn-cpp/encoding/binary-xml-encoder.hpp \
-  ndn-cpp/encoding/binary-xml-structure-decoder.hpp \
-  ndn-cpp/encoding/binary-xml-wire-format.cpp \
-  ndn-cpp/encoding/element-listener.cpp \
-  ndn-cpp/encoding/oid.cpp \
-  ndn-cpp/encoding/wire-format.cpp \
-  ndn-cpp/encoding/der/der-exception.cpp ndn-cpp/encoding/der/der-exception.hpp \
-  ndn-cpp/encoding/der/der.cpp ndn-cpp/encoding/der/der.hpp \
-  ndn-cpp/encoding/der/visitor/certificate-data-visitor.cpp ndn-cpp/encoding/der/visitor/certificate-data-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/no-arguments-visitor.cpp ndn-cpp/encoding/der/visitor/no-arguments-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/print-visitor.cpp ndn-cpp/encoding/der/visitor/print-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/public-key-visitor.cpp ndn-cpp/encoding/der/visitor/public-key-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/simple-visitor.cpp ndn-cpp/encoding/der/visitor/simple-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/visitor.hpp \
-  ndn-cpp/encoding/der/visitor/void-no-arguments-visitor.hpp \
-  ndn-cpp/encoding/der/visitor/void-visitor.cpp ndn-cpp/encoding/der/visitor/void-visitor.hpp \
-  ndn-cpp/security/key-chain.cpp \
-  ndn-cpp/security/security-exception.cpp \
-  ndn-cpp/security/certificate/certificate-extension.cpp \
-  ndn-cpp/security/certificate/certificate-subject-description.cpp \
-  ndn-cpp/security/certificate/certificate.cpp \
-  ndn-cpp/security/certificate/identity-certificate.cpp \
-  ndn-cpp/security/certificate/public-key.cpp \
-  ndn-cpp/security/identity/basic-identity-storage.cpp \
-  ndn-cpp/security/identity/identity-manager.cpp \
-  ndn-cpp/security/identity/memory-identity-storage.cpp \
-  ndn-cpp/security/identity/memory-private-key-storage.cpp \
-  ndn-cpp/security/identity/osx-private-key-storage.cpp \
-  ndn-cpp/security/policy/no-verify-policy-manager.cpp \
-  ndn-cpp/transport/tcp-transport.cpp \
-  ndn-cpp/transport/transport.cpp \
-  ndn-cpp/transport/udp-transport.cpp \
-  ndn-cpp/util/blob-stream.hpp \
-  ndn-cpp/util/blob.cpp \
-  ndn-cpp/util/changed-event.cpp ndn-cpp/util/changed-event.hpp \
-  ndn-cpp/util/dynamic-uint8-vector.cpp ndn-cpp/util/dynamic-uint8-vector.hpp \
-  ndn-cpp/util/logging.cpp ndn-cpp/util/logging.hpp
+  src/common.cpp \
+  src/data.cpp \
+  src/face.cpp \
+  src/forwarding-entry.cpp \
+  src/interest.cpp \
+  src/key.cpp \
+  src/name.cpp \
+  src/node.cpp \
+  src/publisher-public-key-digest.cpp \
+  src/sha256-with-rsa-signature.cpp \
+  src/encoding/binary-xml-decoder.hpp \
+  src/encoding/binary-xml-encoder.hpp \
+  src/encoding/binary-xml-structure-decoder.hpp \
+  src/encoding/binary-xml-wire-format.cpp \
+  src/encoding/element-listener.cpp \
+  src/encoding/oid.cpp \
+  src/encoding/wire-format.cpp \
+  src/encoding/der/der-exception.cpp src/encoding/der/der-exception.hpp \
+  src/encoding/der/der.cpp src/encoding/der/der.hpp \
+  src/encoding/der/visitor/certificate-data-visitor.cpp src/encoding/der/visitor/certificate-data-visitor.hpp \
+  src/encoding/der/visitor/no-arguments-visitor.cpp src/encoding/der/visitor/no-arguments-visitor.hpp \
+  src/encoding/der/visitor/print-visitor.cpp src/encoding/der/visitor/print-visitor.hpp \
+  src/encoding/der/visitor/public-key-visitor.cpp src/encoding/der/visitor/public-key-visitor.hpp \
+  src/encoding/der/visitor/simple-visitor.cpp src/encoding/der/visitor/simple-visitor.hpp \
+  src/encoding/der/visitor/visitor.hpp \
+  src/encoding/der/visitor/void-no-arguments-visitor.hpp \
+  src/encoding/der/visitor/void-visitor.cpp src/encoding/der/visitor/void-visitor.hpp \
+  src/security/key-chain.cpp \
+  src/security/security-exception.cpp \
+  src/security/certificate/certificate-extension.cpp \
+  src/security/certificate/certificate-subject-description.cpp \
+  src/security/certificate/certificate.cpp \
+  src/security/certificate/identity-certificate.cpp \
+  src/security/certificate/public-key.cpp \
+  src/security/identity/basic-identity-storage.cpp \
+  src/security/identity/identity-manager.cpp \
+  src/security/identity/memory-identity-storage.cpp \
+  src/security/identity/memory-private-key-storage.cpp \
+  src/security/identity/osx-private-key-storage.cpp \
+  src/security/policy/no-verify-policy-manager.cpp \
+  src/transport/tcp-transport.cpp \
+  src/transport/transport.cpp \
+  src/transport/udp-transport.cpp \
+  src/util/blob-stream.hpp \
+  src/util/blob.cpp \
+  src/util/changed-event.cpp src/util/changed-event.hpp \
+  src/util/dynamic-uint8-vector.cpp src/util/dynamic-uint8-vector.hpp \
+  src/util/logging.cpp src/util/logging.hpp
 
 bin_test_encode_decode_forwarding_entry_SOURCES = tests/test-encode-decode-forwarding-entry.cpp
 bin_test_encode_decode_forwarding_entry_LDADD = libndn-cpp.la
