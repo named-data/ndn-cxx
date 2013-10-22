@@ -78,7 +78,7 @@ void
 PrintVisitor::visit(DerOid& derOid, ndnboost::any param)
 {
   const string& indent = ndnboost::any_cast<const string&>(param);
-	
+  
   printData(derOid.getHeader(), indent);
   printData(derOid.getPayload(), indent + "   ");
 
@@ -88,7 +88,7 @@ void
 PrintVisitor::visit(DerGtime& derGtime, ndnboost::any param)
 {
   const string& indent = ndnboost::any_cast<const string&>(param);
-	
+  
   printData(derGtime.getHeader(), indent);
   printData(derGtime.getPayload(), indent + "   ");
 }
@@ -103,7 +103,7 @@ PrintVisitor::visit(DerSequence& derSequence, ndnboost::any param)
   const DerNodePtrList& children = derSequence.getChildren();
   DerNodePtrList::const_iterator it = children.begin();
   for(; it != children.end(); it++)
-	(*it)->accept(*this, indent + " | ");
+  (*it)->accept(*this, indent + " | ");
 }
 
 

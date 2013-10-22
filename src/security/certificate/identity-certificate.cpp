@@ -18,6 +18,8 @@ IdentityCertificate::IdentityCertificate(const Data& data)
 {
   if (!isCorrectName(data.getName()))
     throw SecurityException("Wrong Identity Certificate Name!");
+  
+  setPublicKeyName();
 }
 
 IdentityCertificate::~IdentityCertificate()
@@ -29,14 +31,25 @@ IdentityCertificate::isCorrectName(const Name& name)
 {
   int i = name.size() - 1;
   
+  string idString("ID-CERT");
   for (; i >= 0; i--) {
-    if(name.get(i).toEscapedString() == string("ID-CERT"))
+    if(name.get(i).toEscapedString() == idString)
       break;
   }
 
   if (i < 0)
     return false;
   
+  int keyIdx = 0;
+  string keyString("KEY");
+  for (; keyIdx < name.size(); keyIdx++) {
+    if(name.get(keyIdx).toEscapedString() == keyString)
+      break;
+  }
+
+  if (keyIdx >= name.size())
+    return false;
+
   return true;
 }
 
@@ -47,20 +60,30 @@ IdentityCertificate::setName(const Name& name)
     throw SecurityException("Wrong Identity Certificate Name!");
   
   Data::setName(name);
+  setPublicKeyName();
   return *this;
 }
 
-Name
-IdentityCertificate::getPublicKeyName() const
+void
+IdentityCertificate::setPublicKeyName()
 {
   const Name& certificateName = getName();
-  int i = certificateName.size() - 1;
 
-  for (; i >= 0; i--)
-    if(certificateName.get(i).toEscapedString() == string("ID-CERT"))
-  break; 
+  int i = certificateName.size() - 1;
+  string idString("ID-CERT");
+  for (; i >= 0; i--) {
+    if (certificateName.get(i).toEscapedString() == idString)
+      break;
+  }
+    
+  Name tmpName = certificateName.getSubName(0, i);    
+  string keyString("KEY");
+  for (i = 0; i < tmpName.size(); i++) {
+    if (tmpName.get(i).toEscapedString() == keyString)
+      break;
+  }
   
-  return certificateName.getSubName(0, i);
+  publicKeyName_ = tmpName.getSubName(0, i).append(tmpName.getSubName(i + 1, tmpName.size() - i - 1));
 }
 
 bool

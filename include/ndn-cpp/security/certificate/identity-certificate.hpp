@@ -43,8 +43,8 @@ public:
   virtual Data &
   setName(const Name& name);
 
-  virtual Name 
-  getPublicKeyName() const;
+  Name 
+  getPublicKeyName () const { return publicKeyName_; }
 
   static bool
   isIdentityCertificate(const Certificate& certificate);
@@ -52,6 +52,12 @@ public:
 private:
   static bool
   isCorrectName(const Name& name);
+  
+  void
+  setPublicKeyName();
+    
+protected:
+  Name publicKeyName_;
 };
 
 }
