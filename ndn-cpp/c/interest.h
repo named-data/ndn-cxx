@@ -74,19 +74,6 @@ int ndn_Exclude_compareComponents(struct ndn_NameComponent *component1, struct n
  */
 int ndn_Exclude_matches(struct ndn_Exclude *self, struct ndn_NameComponent *component);
 
-enum {
-  ndn_Interest_CHILD_SELECTOR_LEFT = 0,
-  ndn_Interest_CHILD_SELECTOR_RIGHT = 1,
-
-  ndn_Interest_ANSWER_NO_CONTENT_STORE = 0,
-  ndn_Interest_ANSWER_CONTENT_STORE = 1,
-  ndn_Interest_ANSWER_GENERATED = 2,
-  ndn_Interest_ANSWER_STALE = 4,    // Stale answer OK
-  ndn_Interest_MARK_STALE = 16,      // Must have scope 0.  Michael calls this a "hack"
-
-  ndn_Interest_DEFAULT_ANSWER_ORIGIN_KIND = ndn_Interest_ANSWER_CONTENT_STORE | ndn_Interest_ANSWER_GENERATED
-};
-
 /**
  * An ndn_Interest holds an ndn_Name and other fields for an interest.
  */
