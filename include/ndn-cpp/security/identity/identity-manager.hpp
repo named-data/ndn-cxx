@@ -99,18 +99,20 @@ public:
 
   /**
    * Create an identity certificate for a public key managed by this IdentityManager.
-   * @param keyName The name of public key to be signed.
+   * @param certificatePrefix The name of public key to be signed.
    * @param signerCertificateName The name of signing certificate.
    * @param notBefore The notBefore value in the validity field of the generated certificate.
    * @param notAfter The notAfter vallue in validity field of the generated certificate.
    * @return The name of generated identity certificate.
    */
   Name
-  createIdentityCertificate(const Name& keyName, const Name& signerCertificateName, const MillisecondsSince1970& notBefore, const MillisecondsSince1970& notAfter);
+  createIdentityCertificate
+    (const Name& certificatePrefix, const Name& signerCertificateName, const MillisecondsSince1970& notBefore, 
+     const MillisecondsSince1970& notAfter);
 
   /**
    * Create an identity certificate for a public key supplied by the caller.
-   * @param keyName The name of public key to be signed.
+   * @param certificatePrefix The name of public key to be signed.
    * @param publickey The public key to be signed.
    * @param signerCertificateName The name of signing certificate.
    * @param notBefore The notBefore value in the validity field of the generated certificate.
@@ -119,7 +121,8 @@ public:
    */
   ptr_lib::shared_ptr<IdentityCertificate>
   createIdentityCertificate
-    (const Name& keyName, const PublicKey& publickey, const Name& signerCertificateName, const MillisecondsSince1970& notBefore, const MillisecondsSince1970& notAfter); 
+    (const Name& certificatePrefix, const PublicKey& publickey, const Name& signerCertificateName, 
+     const MillisecondsSince1970& notBefore, const MillisecondsSince1970& notAfter); 
     
   /**
    * Add a certificate into the public key identity storage.
@@ -133,10 +136,10 @@ public:
 
   /**
    * Set the certificate as the default for its corresponding key.
-   * @param certificateName The name of the certificate.
+   * @param certificateName The certificate.
    */
   void
-  setDefaultCertificateForKey(const Name& certificateName);
+  setDefaultCertificateForKey(const IdentityCertificate& certificate);
 
   /**
    * Add a certificate into the public key identity storage and set the certificate as the default for its corresponding identity.
@@ -228,6 +231,14 @@ public:
    */
   void 
   signByCertificate(Data& data, const Name& certificateName, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+
+  /**
+   * Generate a self-signed certificate for a public key.
+   * @param keyName The name of the public key.
+   * @return The generated certificate.
+   */
+  ptr_lib::shared_ptr<IdentityCertificate>
+  selfSign(const Name& keyName);
   
 private:
   /**
@@ -241,13 +252,8 @@ private:
   Name
   generateKeyPair(const Name& identityName, bool isKsk = false, KeyType keyType = KEY_TYPE_RSA, int keySize = 2048);
 
-  /**
-   * Generate a self-signed certificate for a public key.
-   * @param keyName The name of the public key.
-   * @return The generated certificate.
-   */
-  ptr_lib::shared_ptr<IdentityCertificate>
-  selfSign(const Name& keyName);
+  static Name
+  getKeyNameFromCertificatePrefix(const Name& certificatePrefix);
   
   ptr_lib::shared_ptr<IdentityStorage> identityStorage_;
   ptr_lib::shared_ptr<PrivateKeyStorage> privateKeyStorage_;

@@ -65,7 +65,7 @@ IdentityManager::generateKeyPair(const Name& identityName, bool isKsk, KeyType k
   _LOG_DEBUG("Create a key record in public storage");
   shared_ptr<PublicKey> pubKey = privateKeyStorage_->getPublicKey(keyName.toUri());
   identityStorage_->addKey(keyName, keyType, pubKey->getKeyDer());
-  _LOG_DEBUG("OK");
+
   return keyName;
 }
 
@@ -73,7 +73,7 @@ Name
 IdentityManager::generateRSAKeyPair(const Name& identityName, bool isKsk, int keySize)
 {
   Name keyName = generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
-  _LOG_DEBUG("OK2");
+
   return keyName;
 }
 
@@ -88,13 +88,18 @@ IdentityManager::generateRSAKeyPairAsDefault(const Name& identityName, bool isKs
 }
 
 Name
-IdentityManager::createIdentityCertificate(const Name& keyName, const Name& signerCertificateName, const MillisecondsSince1970& notBefore, const MillisecondsSince1970& notAfter)
+IdentityManager::createIdentityCertificate(const Name& certificatePrefix,
+                                           const Name& signerCertificateName,
+                                           const MillisecondsSince1970& notBefore,
+                                           const MillisecondsSince1970& notAfter)
 {
+  Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
+  
   Blob keyBlob = identityStorage_->getKey(keyName);
   shared_ptr<PublicKey> publicKey = PublicKey::fromDer(keyBlob);
 
   shared_ptr<IdentityCertificate> certificate = createIdentityCertificate
-    (keyName, *publicKey,  signerCertificateName, notBefore, notAfter);
+    (certificatePrefix, *publicKey,  signerCertificateName, notBefore, notAfter);
 
   identityStorage_->addCertificate(*certificate);
   
@@ -102,20 +107,24 @@ IdentityManager::createIdentityCertificate(const Name& keyName, const Name& sign
 }
 
 ptr_lib::shared_ptr<IdentityCertificate>
-IdentityManager::createIdentityCertificate
-  (const Name& keyName, const PublicKey& publicKey, const Name& signerCertificateName, const MillisecondsSince1970& notBefore, const MillisecondsSince1970& notAfter)
+IdentityManager::createIdentityCertificate(const Name& certificatePrefix,
+                                           const PublicKey& publicKey,
+                                           const Name& signerCertificateName,
+                                           const MillisecondsSince1970& notBefore,
+                                           const MillisecondsSince1970& notAfter)
 {
   shared_ptr<IdentityCertificate> certificate(new IdentityCertificate());
+  Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
   
-  Name certificateName;
+  Name certificateName = certificatePrefix;
   MillisecondsSince1970 ti = ::ndn_getNowMilliseconds();
   // Get the number of seconds.
   ostringstream oss;
   oss << floor(ti / 1000.0);
 
-  certificateName.append(keyName).append("ID-CERT").append(oss.str());
+  certificateName.append("ID-CERT").append(oss.str());
+  
   certificate->setName(certificateName);
-
   certificate->setNotBefore(notBefore);
   certificate->setNotAfter(notAfter);
   certificate->setPublicKeyInfo(publicKey);
@@ -135,8 +144,11 @@ IdentityManager::createIdentityCertificate
 
   SignedBlob unsignedData = certificate->wireEncode();
 
-  Blob sigBits = privateKeyStorage_->sign(unsignedData, keyName);
-  
+  shared_ptr<IdentityCertificate> signerCertificate = getCertificate(signerCertificateName);
+  Name signerkeyName = signerCertificate->getPublicKeyName();
+
+  Blob sigBits = privateKeyStorage_->sign(unsignedData, signerkeyName);
+    
   sha256Sig->setSignature(sigBits);
 
   return certificate;
@@ -147,29 +159,37 @@ IdentityManager::addCertificateAsDefault(const IdentityCertificate& certificate)
 {
   identityStorage_->addCertificate(certificate);
 
-  Name keyName = identityStorage_->getKeyNameForCertificate(certificate.getName());
-  
-  setDefaultKeyForIdentity(keyName);
-
-  setDefaultCertificateForKey(certificate.getName());
+  setDefaultCertificateForKey(certificate);
 }
 
 void
-IdentityManager::setDefaultCertificateForKey(const Name& certificateName)
+IdentityManager::addCertificateAsIdentityDefault(const IdentityCertificate& certificate)
 {
-  Name keyName = identityStorage_->getKeyNameForCertificate(certificateName);
+  identityStorage_->addCertificate(certificate);
+
+  Name keyName = certificate.getPublicKeyName();
+    
+  setDefaultKeyForIdentity(keyName);
+
+  setDefaultCertificateForKey(certificate);
+}
+
+void
+IdentityManager::setDefaultCertificateForKey(const IdentityCertificate& certificate)
+{
+  Name keyName = certificate.getPublicKeyName();
   
   if(!identityStorage_->doesKeyExist(keyName))
-    throw SecurityException("No corresponding Key record for certificaite!");
+    throw SecurityException("No corresponding Key record for certificate!");
 
-  identityStorage_->setDefaultCertificateNameForKey(keyName, certificateName);
+  identityStorage_->setDefaultCertificateNameForKey(keyName, certificate.getName());
 }
   
 ptr_lib::shared_ptr<Signature>
 IdentityManager::signByCertificate(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
 {    
-  Name keyName = identityStorage_->getKeyNameForCertificate(certificateName);
-  
+  shared_ptr<IdentityCertificate> certificate = getCertificate(certificateName);
+  Name keyName = certificate->getPublicKeyName();
   shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName.toUri());
 
   Blob sigBits = privateKeyStorage_->sign(buffer, bufferLength, keyName.toUri());
@@ -191,8 +211,8 @@ IdentityManager::signByCertificate(const uint8_t* buffer, size_t bufferLength, c
 void
 IdentityManager::signByCertificate(Data &data, const Name &certificateName, WireFormat& wireFormat)
 {
-  Name keyName = identityStorage_->getKeyNameForCertificate(certificateName);
-
+  shared_ptr<IdentityCertificate> certificate = getCertificate(certificateName);
+  Name keyName = certificate->getPublicKeyName();
   shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName);
 
   // For temporary usage, we support RSA + SHA256 only, but will support more.
@@ -223,8 +243,8 @@ IdentityManager::selfSign(const Name& keyName)
 {
   shared_ptr<IdentityCertificate> certificate(new IdentityCertificate());
   
-  Name certificateName;
-  certificateName.append(keyName).append("ID-CERT").append("0");
+  Name certificateName = keyName.getSubName(0, keyName.size() - 1);
+  certificateName.append("KEY").append(keyName.get(keyName.size() - 1)).append("ID-CERT").append("0");
   certificate->setName(certificateName);
 
   Blob keyBlob = identityStorage_->getKey(keyName);
@@ -268,6 +288,27 @@ IdentityManager::selfSign(const Name& keyName)
   sha256Sig->setSignature(sigBits);
 
   return certificate;
+}
+
+Name
+IdentityManager::getKeyNameFromCertificatePrefix(const Name & certificatePrefix)
+{
+  Name result;
+
+  string keyString("KEY");
+  int i = 0;
+  for(; i < certificatePrefix.size(); i++) {
+    if (certificatePrefix.get(i).toEscapedString() == keyString)
+      break;
+  }
+    
+  if (i >= certificatePrefix.size())
+    throw SecurityException("Identity Certificate Prefix does not have a KEY component");
+
+  result.append(certificatePrefix.getSubName(0, i));
+  result.append(certificatePrefix.getSubName(i + 1, certificatePrefix.size()-i-1));
+    
+  return result;
 }
 
 }

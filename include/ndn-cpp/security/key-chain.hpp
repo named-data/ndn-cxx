@@ -123,12 +123,12 @@ public:
 
   /**
    * Set the certificate as the default for its corresponding key.
-   * @param certificateName The name of the certificate.
+   * @param certificateName The certificate.
    */
   void
-  setDefaultCertificateForKey(const Name& certificateName)
+  setDefaultCertificateForKey(const IdentityCertificate& certificate)
   {
-    identityManager_->setDefaultCertificateForKey(certificateName);
+    identityManager_->setDefaultCertificateForKey(certificate);
   }
 
   /**
@@ -195,6 +195,9 @@ public:
     //TODO: Implement
   }
 
+  ptr_lib::shared_ptr<IdentityManager>
+  getIdentityManager() { return identityManager_; }
+  
   /*****************************************
    *           Policy Management           *
    *****************************************/
