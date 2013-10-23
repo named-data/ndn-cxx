@@ -70,8 +70,8 @@ namespace ndn
     SecKeyRef publicKey, privateKey;
 
     CFStringRef keyLabel = CFStringCreateWithCString(NULL, 
-                                                      keyNameUri.c_str(), 
-                                                      keyNameUri.size());
+                                                     keyNameUri.c_str(), 
+                                                     kCFStringEncodingUTF8);
     
     CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(NULL,
                                                              3,
@@ -108,8 +108,8 @@ namespace ndn
                                                                 &kCFTypeDictionaryValueCallBacks);
 
     CFStringRef keyLabel = CFStringCreateWithCString(NULL, 
-                                                      keyNameUri.c_str(), 
-                                                      keyNameUri.size());
+                                                     keyNameUri.c_str(), 
+                                                     kCFStringEncodingUTF8);
 
     CFDictionaryAddValue(attrDict, kSecAttrKeyType, getSymKeyType(keyType));
     CFDictionaryAddValue(attrDict, kSecAttrKeySizeInBits, CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &keySize));
@@ -368,8 +368,8 @@ namespace ndn
     string keyNameUri = toInternalKeyName(keyName, keyClass);
 
     CFStringRef keyLabel = CFStringCreateWithCString(NULL, 
-                                                      keyNameUri.c_str(), 
-                                                      keyNameUri.size());
+                                                     keyNameUri.c_str(), 
+                                                     kCFStringEncodingUTF8);
     
     CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(NULL,
                                                                 3,
@@ -394,9 +394,9 @@ namespace ndn
   {
     string keyNameUri = toInternalKeyName(keyName, keyClass);
 
-    CFStringRef keyLabel = CFStringCreateWithCString (NULL, 
-                                                      keyNameUri.c_str(), 
-                                                      keyNameUri.size());
+    CFStringRef keyLabel = CFStringCreateWithCString(NULL, 
+                                                     keyNameUri.c_str(), 
+                                                     kCFStringEncodingUTF8);
     
     CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(NULL,
                                                              5,
