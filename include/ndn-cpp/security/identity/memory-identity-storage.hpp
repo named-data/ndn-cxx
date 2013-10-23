@@ -9,6 +9,7 @@
 #define NDN_MEMORY_IDENTITY_STORAGE_HPP
 
 #include <vector>
+#include <map>
 #include "identity-storage.hpp"
 
 namespace ndn {
@@ -164,8 +165,26 @@ public:
   setDefaultCertificateNameForKey(const Name& keyName, const Name& certificateName);  
   
 private:
+  class KeyRecord {
+  public:
+    KeyRecord(KeyType keyType, const Blob &keyDer)
+    : keyType_(keyType), keyDer_(keyDer)
+    {
+    }
+    
+    const KeyType getKeyType() const { return keyType_; }
+    
+    const Blob& getKeyDer() { return keyDer_; }
+    
+  private:
+    KeyType keyType_;
+    Blob keyDer_;
+  };
+  
   std::vector<std::string> identityStore_; /**< A list of name URI. */
   std::string defaultIdentity_;            /**< The default identity in identityStore_, or "" if not defined. */
+  std::map<std::string, ptr_lib::shared_ptr<KeyRecord> > keyStore_; /**< The map key is the keyName.toUri() */
+  std::map<std::string, Blob> certificateStore_;                    /**< The map key is the certificateName.toUri() */
 };
 
 }

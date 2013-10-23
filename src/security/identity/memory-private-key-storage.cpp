@@ -26,7 +26,7 @@ void MemoryPrivateKeyStorage::setKeyPairForKeyName
    size_t privateKeyDerLength)
 {
   publicKeyStore_[keyName.toUri()] = PublicKey::fromDer(Blob(publicKeyDer, publicKeyDerLength));
-  privateKeyStore_[keyName.toUri()] = shared_ptr<RsaPrivateKey>(new RsaPrivateKey(privateKeyDer, privateKeyDerLength));
+  privateKeyStore_[keyName.toUri()] = make_shared<RsaPrivateKey>(privateKeyDer, privateKeyDerLength);
 }
 
 void 
