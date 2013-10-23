@@ -2,6 +2,7 @@
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Yingdi Yu <yingdi@cs.ucla.edu>
+ * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
@@ -56,28 +57,12 @@ public:
   revokeIdentity();
 
   /**
-   * Generate a name for a new key belonging to the identity.
-   * @param identityName The identity name.
-   * @param useKsk If true, generate a KSK name, otherwise a DSK name.
-   * @return The generated key name.
-   */
-  virtual Name 
-  getNewKeyName(const Name& identityName, bool useKsk);
-
-  /**
    * Check if the specified key already exists.
    * @param keyName The name of the key.
    * @return true if the key exists, otherwise false.
    */
   virtual bool 
   doesKeyExist(const Name& keyName);
-
-  /**
-   * Extract the key name from the certificate name.
-   * @param certificateName The certificate name to be processed.
-   */
-  virtual Name 
-  getKeyNameForCertificate(const Name& certificateName);
 
   /**
    * Add a public key to the identity storage.

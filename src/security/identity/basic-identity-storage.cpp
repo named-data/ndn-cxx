@@ -2,6 +2,7 @@
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Yingdi Yu <yingdi@cs.ucla.edu>
+ * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
@@ -68,7 +69,7 @@ CREATE TABLE IF NOT EXISTS                                           \n \
       not_before        TIMESTAMP,                                   \n \
       not_after         TIMESTAMP,                                   \n \
       certificate_data  BLOB NOT NULL,                               \n \
-      valid_flag        INTEGER DEFAULT 0,                           \n \
+      valid_flag        INTEGER DEFAULT 1,                           \n \
       default_cert      INTEGER DEFAULT 0,                           \n \
                                                                      \
       PRIMARY KEY (cert_name)                                        \n \
@@ -219,30 +220,6 @@ BasicIdentityStorage::revokeIdentity()
   return false;
 }
 
-Name 
-BasicIdentityStorage::getNewKeyName(const Name& identityName, bool useKsk)
-{
-  MillisecondsSince1970 ti = ::ndn_getNowMilliseconds();
-  // Get the number of seconds.
-  ostringstream oss;
-  oss << floor(ti / 1000.0);
-
-  string keyIdStr;
-  
-  if (useKsk)
-    keyIdStr = ("KSK-" + oss.str());
-  else
-    keyIdStr = ("DSK-" + oss.str());
-
-
-  Name keyName = Name(identityName).append(keyIdStr);
-
-  if (doesKeyExist(keyName))
-    throw SecurityException("Key name already exists");
-
-  return keyName;
-}
-
 bool 
 BasicIdentityStorage::doesKeyExist(const Name& keyName)
 {
@@ -267,19 +244,6 @@ BasicIdentityStorage::doesKeyExist(const Name& keyName)
   sqlite3_finalize(statement);
 
   return keyIdExist;
-}
-
-Name 
-BasicIdentityStorage::getKeyNameForCertificate(const Name& certificateName)
-{
-  int i = certificateName.size() - 1;
-
-  for (; i >= 0; --i) {
-    if (certificateName.get(i).toEscapedString() == string("ID-CERT"))
-      break; 
-  }
-  
-  return certificateName.getSubName(0, i);
 }
 
 void
@@ -392,7 +356,7 @@ void
 BasicIdentityStorage::addAnyCertificate(const IdentityCertificate& certificate)
 {
   const Name& certificateName = certificate.getName();
-  Name keyName = getKeyNameForCertificate(certificateName);
+  Name keyName = certificate.getPublicKeyName();
 
   string keyId = keyName.get(keyName.size() - 1).toEscapedString();
   Name identityName = keyName.getSubName(0, keyName.size() - 1);
@@ -430,22 +394,16 @@ BasicIdentityStorage::addAnyCertificate(const IdentityCertificate& certificate)
 void 
 BasicIdentityStorage::addCertificate(const IdentityCertificate& certificate)
 {
-  _LOG_DEBUG("1");
   const Name& certificateName = certificate.getName();
-  Name keyName = getKeyNameForCertificate(certificateName);
+  Name keyName = certificate.getPublicKeyName();
 
-  _LOG_DEBUG("2");
   if (!doesKeyExist(keyName))
-    {
-      _LOG_DEBUG("here wrong");
-      throw SecurityException("No corresponding Key record for the certificate!");
-    }
+    throw SecurityException("No corresponding Key record for certificate!" + keyName.toUri() + " " + certificateName.toUri());
 
   // Check if certificate has already existed!
   if (doesCertificateExist(certificateName))
     throw SecurityException("Certificate has already been installed!");
 
-  _LOG_DEBUG("3");
   string keyId = keyName.get(keyName.size() - 1).toEscapedString();
   Name identity = keyName.getSubName(0, keyName.size() - 1);
   
@@ -456,7 +414,6 @@ BasicIdentityStorage::addCertificate(const IdentityCertificate& certificate)
   if (!keyBlob || (*keyBlob) != *(certificate.getPublicKeyInfo().getKeyDer()))
     throw SecurityException("Certificate does not match the public key!");
 
-  _LOG_DEBUG("4");
   // Insert the certificate
   sqlite3_stmt *statement;
   sqlite3_prepare_v2(database_, 

@@ -59,8 +59,8 @@ public:
    * @param useKsk If true, generate a KSK name, otherwise a DSK name.
    * @return The generated key name.
    */
-  virtual Name 
-  getNewKeyName(const Name& identityName, bool useKsk) = 0;
+  Name 
+  getNewKeyName(const Name& identityName, bool useKsk);
 
   /**
    * Check if the specified key already exists.
@@ -69,13 +69,6 @@ public:
    */
   virtual bool 
   doesKeyExist(const Name& keyName) = 0;
-
-  /**
-   * Extract the key name from the certificate name.
-   * @param certificateName The certificate name to be processed.
-   */
-  virtual Name 
-  getKeyNameForCertificate(const Name& certificateName) = 0;
 
   /**
    * Add a public key to the identity storage.
@@ -158,10 +151,7 @@ public:
    * @return The default certificate name.
    */
   Name 
-  getDefaultCertificateNameForIdentity(const Name& identityName)
-  {
-    return getDefaultCertificateNameForKey(getDefaultKeyNameForIdentity(identityName));
-  }
+  getDefaultCertificateNameForIdentity(const Name& identityName);
 
   /**
    * Get the default certificate name for the specified key.

@@ -136,6 +136,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   src/security/certificate/public-key.cpp \
   src/security/identity/basic-identity-storage.cpp \
   src/security/identity/identity-manager.cpp \
+  src/security/identity/identity-storage.cpp \
   src/security/identity/memory-identity-storage.cpp \
   src/security/identity/memory-private-key-storage.cpp \
   src/security/identity/osx-private-key-storage.cpp \

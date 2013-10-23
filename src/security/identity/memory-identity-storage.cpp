@@ -46,33 +46,12 @@ MemoryIdentityStorage::revokeIdentity()
 #endif
 }
 
-Name 
-MemoryIdentityStorage::getNewKeyName(const Name& identityName, bool useKsk)
-{
-#if 1
-  throw runtime_error("MemoryIdentityStorage::getNewKeyName not implemented");
-#endif
-}
-
 bool 
 MemoryIdentityStorage::doesKeyExist(const Name& keyName)
 {
 #if 1
   throw runtime_error("MemoryIdentityStorage::doesKeyExist not implemented");
 #endif
-}
-
-Name 
-MemoryIdentityStorage::getKeyNameForCertificate(const Name& certificateName)
-{
-  int i = certificateName.getComponentCount() - 1;
-
-  for (; i >= 0; --i) {
-    if(certificateName.getComponent(i).toEscapedString() == string("ID-CERT"))
-      break; 
-  }
-    
-  return certificateName.getSubName(0, i);
 }
 
 void 

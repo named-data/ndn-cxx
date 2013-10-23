@@ -196,6 +196,7 @@ am_libndn_cpp_la_OBJECTS = $(am__objects_2) $(am__objects_1) \
 	src/security/certificate/public-key.lo \
 	src/security/identity/basic-identity-storage.lo \
 	src/security/identity/identity-manager.lo \
+	src/security/identity/identity-storage.lo \
 	src/security/identity/memory-identity-storage.lo \
 	src/security/identity/memory-private-key-storage.lo \
 	src/security/identity/osx-private-key-storage.lo \
@@ -682,6 +683,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   src/security/certificate/public-key.cpp \
   src/security/identity/basic-identity-storage.cpp \
   src/security/identity/identity-manager.cpp \
+  src/security/identity/identity-storage.cpp \
   src/security/identity/memory-identity-storage.cpp \
   src/security/identity/memory-private-key-storage.cpp \
   src/security/identity/osx-private-key-storage.cpp \
@@ -959,6 +961,9 @@ src/security/identity/basic-identity-storage.lo:  \
 src/security/identity/identity-manager.lo:  \
 	src/security/identity/$(am__dirstamp) \
 	src/security/identity/$(DEPDIR)/$(am__dirstamp)
+src/security/identity/identity-storage.lo:  \
+	src/security/identity/$(am__dirstamp) \
+	src/security/identity/$(DEPDIR)/$(am__dirstamp)
 src/security/identity/memory-identity-storage.lo:  \
 	src/security/identity/$(am__dirstamp) \
 	src/security/identity/$(DEPDIR)/$(am__dirstamp)
@@ -1141,6 +1146,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/security/certificate/$(DEPDIR)/public-key.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/security/identity/$(DEPDIR)/basic-identity-storage.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/security/identity/$(DEPDIR)/identity-manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/security/identity/$(DEPDIR)/identity-storage.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/security/identity/$(DEPDIR)/memory-identity-storage.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/security/identity/$(DEPDIR)/memory-private-key-storage.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/security/identity/$(DEPDIR)/osx-private-key-storage.Plo@am__quote@
