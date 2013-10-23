@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
+#include <unistd.h>
 #include <ndn-cpp/face.hpp>
 
 using namespace std;
@@ -47,7 +48,7 @@ int main(int argc, char** argv)
 {
   try {
     // Connect to port 9695 until the testbed hubs use NDNx.
-    Face face("A.hub.ndn.ucla.edu", 9695);
+    Face face("C.hub.ndn.ucla.edu", 9695);
     
     // Counter holds data used by the callbacks.
     Counter counter;
