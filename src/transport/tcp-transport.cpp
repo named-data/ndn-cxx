@@ -6,6 +6,7 @@
  */
 
 #include <stdexcept>
+#include <stdlib.h>
 #include <ndn-cpp/node.hpp>
 #include "../c/transport/tcp-transport.h"
 #include "../c/encoding/binary-xml-element-reader.h"

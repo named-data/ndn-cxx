@@ -6,6 +6,7 @@
  */
 
 #include <stdexcept>
+#include <stdlib.h>
 #include <ndn-cpp/face.hpp>
 #include "../c/transport/udp-transport.h"
 #include "../c/encoding/binary-xml-element-reader.h"
