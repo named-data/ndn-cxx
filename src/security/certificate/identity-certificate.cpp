@@ -67,8 +67,18 @@ IdentityCertificate::setName(const Name& name)
 void
 IdentityCertificate::setPublicKeyName()
 {
-  const Name& certificateName = getName();
+  publicKeyName_ = certificateNameToPublicKeyName(getName());
+}
 
+bool
+IdentityCertificate::isIdentityCertificate(const Certificate& certificate)
+{ 
+  return isCorrectName(certificate.getName()); 
+}
+
+Name
+IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
+{
   int i = certificateName.size() - 1;
   string idString("ID-CERT");
   for (; i >= 0; i--) {
@@ -83,13 +93,7 @@ IdentityCertificate::setPublicKeyName()
       break;
   }
   
-  publicKeyName_ = tmpName.getSubName(0, i).append(tmpName.getSubName(i + 1, tmpName.size() - i - 1));
-}
-
-bool
-IdentityCertificate::isIdentityCertificate(const Certificate& certificate)
-{ 
-  return isCorrectName(certificate.getName()); 
+  return tmpName.getSubName(0, i).append(tmpName.getSubName(i + 1, tmpName.size() - i - 1));
 }
 
 }

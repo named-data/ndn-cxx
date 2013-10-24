@@ -187,9 +187,8 @@ IdentityManager::setDefaultCertificateForKey(const IdentityCertificate& certific
   
 ptr_lib::shared_ptr<Signature>
 IdentityManager::signByCertificate(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
-{    
-  shared_ptr<IdentityCertificate> certificate = getCertificate(certificateName);
-  Name keyName = certificate->getPublicKeyName();
+{
+  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
   shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName.toUri());
 
   Blob sigBits = privateKeyStorage_->sign(buffer, bufferLength, keyName.toUri());
@@ -211,8 +210,7 @@ IdentityManager::signByCertificate(const uint8_t* buffer, size_t bufferLength, c
 void
 IdentityManager::signByCertificate(Data &data, const Name &certificateName, WireFormat& wireFormat)
 {
-  shared_ptr<IdentityCertificate> certificate = getCertificate(certificateName);
-  Name keyName = certificate->getPublicKeyName();
+  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
   shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName);
 
   // For temporary usage, we support RSA + SHA256 only, but will support more.

@@ -49,6 +49,14 @@ public:
   static bool
   isIdentityCertificate(const Certificate& certificate);
 
+  /**
+   * Get the public key name from the full certificate name.
+   * @param certificateName The full certificate name.
+   * @return The related public key name.
+   */
+  static Name
+  certificateNameToPublicKeyName(const Name& certificateName);
+  
 private:
   static bool
   isCorrectName(const Name& name);
