@@ -103,13 +103,13 @@ public:
    * Return the offset in the array of the beginning of the signed portion.
    */  
   size_t 
-  getSignedPortionBeginOffset() { return signedPortionBeginOffset_; }
+  getSignedPortionBeginOffset() const { return signedPortionBeginOffset_; }
 
   /**
    * Return the offset in the array of the end of the signed portion.
    */  
   size_t 
-  getSignedPortionEndOffset() { return signedPortionEndOffset_; }
+  getSignedPortionEndOffset() const { return signedPortionEndOffset_; }
   
 private:
   size_t signedPortionBeginOffset_;
