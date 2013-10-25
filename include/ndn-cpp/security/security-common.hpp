@@ -25,10 +25,6 @@ enum KeyClass {
   KEY_CLASS_SYMMETRIC
 };
   
-enum KeyFormat {
-  KEY_FORMAT_PUBLIC_OPENSSL,
-};
-
 enum DigestAlgorithm {
   // DIGEST_ALGORITHM_MD2,
   // DIGEST_ALGORITHM_MD5,

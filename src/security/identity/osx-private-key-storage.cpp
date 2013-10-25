@@ -467,17 +467,6 @@ namespace ndn
     }
   }
 
-  SecExternalFormat OSXPrivateKeyStorage::getFormat(KeyFormat format)
-  {
-    switch(format){
-    case KEY_FORMAT_PUBLIC_OPENSSL:
-      return kSecFormatOpenSSL;
-    default:
-      _LOG_DEBUG("Unrecognized output format!");
-      return 0;
-    }
-  }
-
   const CFStringRef OSXPrivateKeyStorage::getDigestAlgorithm(DigestAlgorithm digestAlgo)
   {
     switch(digestAlgo){

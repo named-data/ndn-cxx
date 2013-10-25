@@ -178,14 +178,6 @@ public:
   getDigestAlgorithm(DigestAlgorithm digestAlgo);
 
   /**
-   * convert format to MAC OS key format
-   * @param format
-   * @returns MAC OS keyformat
-   */
-  SecExternalFormat 
-  getFormat(KeyFormat format);
-
-  /**
    * get the digest size of the corresponding algorithm
    * @param digestAlgo the digest algorithm
    * @return digest size
