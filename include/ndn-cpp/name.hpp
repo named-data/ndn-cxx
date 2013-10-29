@@ -148,18 +148,6 @@ public:
     }
     
     /**
-     * Make a component value by decoding the escapedString between beginOffset and endOffset according to the NDN URI Scheme.
-     * If the escaped string is "", "." or ".." then return a Blob with a null pointer, which means this component value was not changed, and
-     * the component should be skipped in a URI name.
-     * @param escapedString The escaped string.  It does not need to be null-terminated because we only scan to endOffset.
-     * @param beginOffset The offset in escapedString of the beginning of the portion to decode.
-     * @param endOffset The offset in escapedString of the end of the portion to decode.
-     * @return The component value. If the escapedString is not a valid escaped component, then the component value is a null pointer.
-     */
-    static Component 
-    fromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset);
-
-    /**
      * Create a component whose value is the network-ordered encoding of the number.
      * Note: if the number is zero, the result is empty.
      * @param number The number to be encoded.
@@ -445,6 +433,28 @@ public:
   bool 
   match(const Name& name) const;
   
+  /**
+   * Make a Blob value by decoding the escapedString between beginOffset and endOffset according to the NDN URI Scheme.
+   * If the escaped string is "", "." or ".." then return a Blob with a null pointer, which means this component value was not changed, and
+   * the component should be skipped in a URI name.
+   * @param escapedString The escaped string.  It does not need to be null-terminated because we only scan to endOffset.
+   * @param beginOffset The offset in escapedString of the beginning of the portion to decode.
+   * @param endOffset The offset in escapedString of the end of the portion to decode.
+   * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
+   */
+  static Blob 
+  fromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset);
+
+  /**
+   * Make a Blob value by decoding the escapedString according to the NDN URI Scheme.
+   * If the escaped string is "", "." or ".." then return a Blob with a null pointer, which means this component value was not changed, and
+   * the component should be skipped in a URI name.
+   * @param escapedString The null-terminated escaped string.
+   * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
+   */
+  static Blob 
+  fromEscapedString(const char *escapedString);
+
   /**
    * Write the value to result, escaping characters according to the NDN URI Scheme.
    * This also adds "..." to a value with zero or more ".".

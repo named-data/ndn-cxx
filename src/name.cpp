@@ -7,6 +7,7 @@
 
 #include <stdexcept>
 #include <algorithm>
+#include <string.h>
 #include <ndn-cpp/name.hpp>
 #include "c/name.h"
 
@@ -125,26 +126,6 @@ uint64_t Name::Component::toNumberWithMarker(uint8_t marker) const
 }
 
 Name::Component 
-Name::Component::fromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset)
-{
-  string trimmedString(escapedString + beginOffset, escapedString + endOffset);
-  trim(trimmedString);
-  string component = unescape(trimmedString);
-        
-  if (component.find_first_not_of(".") == string::npos) {
-    // Special case for component of only periods.  
-    if (component.size() <= 2)
-      // Zero, one or two periods is illegal.  Ignore this component.
-      return Component();
-    else
-      // Remove 3 periods.
-      return Component((const uint8_t *)&component[3], component.size() - 3); 
-  }
-  else
-    return Component((const uint8_t *)&component[0], component.size()); 
-}
-
-Name::Component 
 Name::Component::fromNumber(uint64_t number)
 {
   shared_ptr<vector<uint8_t> > value(new vector<uint8_t>());
@@ -241,7 +222,7 @@ Name::set(const char *uri_cstr)
     if (iComponentEnd == string::npos)
       iComponentEnd = uri.size();
     
-    Component component = Component::fromEscapedString(&uri[0], iComponentStart, iComponentEnd);
+    Component component(fromEscapedString(&uri[0], iComponentStart, iComponentEnd));
     // Ignore illegal components.  This also gets rid of a trailing '/'.
     if (component.getValue())
       components_.push_back(Component(component));
@@ -350,6 +331,32 @@ Name::match(const Name& name) const
   }
 
   return true;
+}
+
+Blob 
+Name::fromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset)
+{
+  string trimmedString(escapedString + beginOffset, escapedString + endOffset);
+  trim(trimmedString);
+  string value = unescape(trimmedString);
+        
+  if (value.find_first_not_of(".") == string::npos) {
+    // Special case for component of only periods.  
+    if (value.size() <= 2)
+      // Zero, one or two periods is illegal.  Ignore this component.
+      return Blob();
+    else
+      // Remove 3 periods.
+      return Blob((const uint8_t *)&value[3], value.size() - 3); 
+  }
+  else
+    return Blob((const uint8_t *)&value[0], value.size()); 
+}
+
+Blob 
+Name::fromEscapedString(const char *escapedString)
+{
+  return fromEscapedString(escapedString, 0, ::strlen(escapedString));
 }
 
 void 
