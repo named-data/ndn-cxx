@@ -272,20 +272,6 @@ public:
     components_.push_back(value);
     return *this;
   }
-
-  /**
-   * Parse the escaped string according to the NDN URI Scheme and append a component to this name.
-   * If escapedString has "/", then the value of the single appended component has "/" in it.
-   * (If you need to append a URI which is split into separate components, then call append(Name(uri)).)
-   * @param escapedString The escaped string representing a single component.
-   * @return This name so that you can chain calls to append.
-   */
-  Name& 
-  append(const char* escapedString)
-  {
-    components_.push_back(Component::fromEscapedString(escapedString, 0, ::strlen(escapedString)));
-    return *this;
-  }
   
   /**
    * Append the components of the given name to this name.
