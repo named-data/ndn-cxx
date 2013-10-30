@@ -332,21 +332,16 @@ public:
   }
   
   /**
-   * Get the number of components.
-   * @return The number of components.
+   * @deprecated use size().
    */
   size_t 
-  getComponentCount() const {
-    return components_.size();
-  }
+  getComponentCount() const { return size(); }
   
   /**
-   * Get the component at the given index.
-   * @param i The index of the component, starting from 0.
-   * @return The name component at the index.
+   * @deprecated Use get(i).
    */
   const Component& 
-  getComponent(size_t i) const { return components_[i]; }
+  getComponent(size_t i) const { return get(i); }
   
   /**
    * Get a new name, constructed as a subset of components.
@@ -482,9 +477,7 @@ public:
    * @return The number of components.
    */
   size_t 
-  size() const {
-    return getComponentCount();
-  }
+  size() const { return components_.size(); }
 
   /**
    * Get the component at the given index.
@@ -492,7 +485,7 @@ public:
    * @return The name component at the index.
    */
   const Component& 
-  get(size_t i) const { return getComponent(i); }
+  get(size_t i) const { return components_[i]; }
   
 
   const Component&
