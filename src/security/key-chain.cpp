@@ -131,7 +131,7 @@ KeyChain::signByIdentity(Data& data, const Name& identityName, WireFormat& wireF
   if (!policyManager_->checkSigningPolicy(data.getName(), signingCertificateName))
     throw SecurityException("Signing Cert name does not comply with signing policy");
 
-  identityManager_->signByCertificate(data, signingCertificateName);  
+  identityManager_->signByCertificate(data, signingCertificateName, wireFormat);  
 }
 
 shared_ptr<Signature> 
