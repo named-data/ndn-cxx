@@ -111,7 +111,7 @@ public:
   }
   
   /**
-   * Append a new entry of type ndn_Exclude_COMPONENT, copying from component of length compnentLength.
+   * Append a new entry of type ndn_Exclude_COMPONENT, copying from component of length componentLength.
    * @param component A pointer to the component byte array.
    * @param componentLength The length of component.
    * @return This Exclude so that you can chain calls to append.
@@ -124,7 +124,7 @@ public:
   }
 
   /**
-   * Append a new entry of type ndn_Exclude_COMPONENT, copying from component of length compnentLength.
+   * Append a new entry of type ndn_Exclude_COMPONENT, taking another pointer to the Blob value.
    * @param component A blob with a pointer to an immutable array.  The pointer is copied.
    * @return This Exclude so that you can chain calls to append.
    */
