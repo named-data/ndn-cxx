@@ -33,10 +33,18 @@ public:
   }
   
   /**
-   * Create an ExcludeEntry of type ndn_Exclude_COMPONENT
+   * Create an ExcludeEntry of type ndn_Exclude_COMPONENT.
    */
   ExcludeEntry(uint8_t *component, size_t componentLen) 
   : type_(ndn_Exclude_COMPONENT), component_(component, componentLen)
+  {
+  }
+  
+  /**
+   * Create an ExcludeEntry of type ndn_Exclude_COMPONENT.
+   */
+  ExcludeEntry(const Blob& component) 
+  : type_(ndn_Exclude_COMPONENT), component_(component)
   {
   }
   
@@ -92,22 +100,52 @@ public:
   set(const struct ndn_Exclude& excludeStruct);
 
   /**
-   * Add a new entry of type ndn_Exclude_ANY
+   * Append a new entry of type ndn_Exclude_ANY.
+   * @return This Exclude so that you can chain calls to append.
    */
-  void 
-  addAny()
+  Exclude& 
+  appendAny()
   {    
     entries_.push_back(ExcludeEntry());
+    return *this;
   }
   
   /**
-   * Add a new entry of type ndn_Exclude_COMPONENT, copying from component of length compnentLength
+   * Append a new entry of type ndn_Exclude_COMPONENT, copying from component of length compnentLength.
+   * @param component A pointer to the component byte array.
+   * @param componentLength The length of component.
+   * @return This Exclude so that you can chain calls to append.
    */
-  void 
-  addComponent(uint8_t *component, size_t componentLen) 
+  Exclude& 
+  appendComponent(uint8_t *component, size_t componentLength) 
   {
-    entries_.push_back(ExcludeEntry(component, componentLen));
+    entries_.push_back(ExcludeEntry(component, componentLength));
+    return *this;
   }
+
+  /**
+   * Append a new entry of type ndn_Exclude_COMPONENT, copying from component of length compnentLength.
+   * @param component A blob with a pointer to an immutable array.  The pointer is copied.
+   * @return This Exclude so that you can chain calls to append.
+   */
+  Exclude& 
+  appendComponent(const Blob &component) 
+  {
+    entries_.push_back(ExcludeEntry(component));
+    return *this;
+  }
+
+  /**
+   * @deprecated Use appendAny.
+   */
+  Exclude& 
+  addAny() { return appendAny(); }
+
+  /**
+   * @deprecated Use appendComponent.
+   */
+  Exclude& 
+  addComponent(uint8_t *component, size_t componentLength) { return appendComponent(component, componentLength); }
   
   /**
    * Clear all the entries.
