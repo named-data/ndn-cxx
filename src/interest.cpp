@@ -41,9 +41,9 @@ Exclude::set(const struct ndn_Exclude& excludeStruct)
     ndn_ExcludeEntry *entry = &excludeStruct.entries[i];
     
     if (entry->type == ndn_Exclude_COMPONENT)
-      addComponent(entry->component.value.value, entry->component.value.length);
+      appendComponent(entry->component.value.value, entry->component.value.length);
     else if (entry->type == ndn_Exclude_ANY)
-      addAny();
+      appendAny();
     else
       throw runtime_error("unrecognized ndn_ExcludeType");
   }

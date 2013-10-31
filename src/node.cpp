@@ -219,10 +219,10 @@ Node::registerPrefixHelper
   Name interestName;
   const uint8_t component0[] = "ndnx";
   const uint8_t component2[] = "selfreg";
-  interestName.addComponent(component0, sizeof(component0) - 1);
-  interestName.addComponent(ndndId_);
-  interestName.addComponent(component2, sizeof(component2) - 1);
-  interestName.addComponent(encodedData);
+  interestName.append(component0, sizeof(component0) - 1);
+  interestName.append(ndndId_);
+  interestName.append(component2, sizeof(component2) - 1);
+  interestName.append(encodedData);
   
   Interest interest(interestName);
   interest.setScope(1);
