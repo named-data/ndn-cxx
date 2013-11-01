@@ -12,6 +12,7 @@
 #include "../util/logging.hpp"
 #include <ndn-cpp/security/security-exception.hpp>
 #include <ndn-cpp/security/policy/policy-manager.hpp>
+#include "policy/validation-request.hpp"
 #include <ndn-cpp/security/key-chain.hpp>
 
 using namespace std;
@@ -36,66 +37,6 @@ static uint8_t DEFAULT_PUBLIC_KEY_DER[] = {
 KeyChain::KeyChain(const shared_ptr<IdentityManager>& identityManager, const shared_ptr<PolicyManager>& policyManager)
 : identityManager_(identityManager), policyManager_(policyManager), face_(0), maxSteps_(100)
 {  
-}
-
-static bool 
-verifySignature(const Data& data /*, const Publickey& publickey */)
-{
-#if 0
-  using namespace CryptoPP;
-
-  Blob unsignedData(data.getSignedBlob()->signed_buf(), data.getSignedBlob()->signed_size());
-  bool result = false;
-    
-  // Temporarily hardwire.  It should be assigned by Signature.getAlgorithm().
-  DigestAlgorithm digestAlg = DIGEST_SHA256;
-  // Temporarily hardwire.  It should be assigned by Publickey.getKeyType().
-  KeyType keyType = KEY_TYPE_RSA; 
-  if (keyType == KEY_TYPE_RSA) {
-    RSA::PublicKey pubKey;
-    ByteQueue queue;
-
-    queue.Put((const byte*)publickey.getKeyBlob ().buf (), publickey.getKeyBlob ().size ());
-    pubKey.Load(queue);
-
-    if (DIGEST_SHA256 == digestAlg) {
-      Ptr<const signature::Sha256WithRsa> sigPtr = boost::dynamic_pointer_cast<const signature::Sha256WithRsa> (data.getSignature());
-      const Blob & sigBits = sigPtr->getSignatureBits();
-
-      RSASS<PKCS1v15, SHA256>::Verifier verifier (pubKey);
-      result = verifier.VerifyMessage((const byte*) unsignedData.buf(), unsignedData.size(), (const byte*)sigBits.buf(), sigBits.size());            
-      _LOG_DEBUG("Signature verified? " << data.getName() << " " << boolalpha << result);      
-    }
-  }
-   
- return result;
-#else
-  const Sha256WithRsaSignature *signature = dynamic_cast<const Sha256WithRsaSignature*>(data.getSignature());
-  if (!signature)
-    throw SecurityException("signature is not Sha256WithRsaSignature.");
-  
-  if (signature->getDigestAlgorithm().size() != 0)
-    // TODO: Allow a non-default digest algorithm.
-    throw UnrecognizedDigestAlgorithmException("Cannot verify a data packet with a non-default digest algorithm.");
-  if (!data.getDefaultWireEncoding())
-     data.wireEncode();
- uint8_t signedPortionDigest[SHA256_DIGEST_LENGTH];
-  ndn_digestSha256(data.getDefaultWireEncoding().signedBuf(), data.getDefaultWireEncoding().signedSize(), signedPortionDigest);
-  
-  // Verify the signedPortionDigest.
-  // Use a temporary pointer since d2i updates it.
-  const uint8_t *derPointer = DEFAULT_PUBLIC_KEY_DER;
-  RSA *publicKey = d2i_RSA_PUBKEY(NULL, &derPointer, sizeof(DEFAULT_PUBLIC_KEY_DER));
-  if (!publicKey)
-    throw UnrecognizedKeyFormatException("Error decoding public key in d2i_RSAPublicKey");
-  int success = RSA_verify
-    (NID_sha256, signedPortionDigest, sizeof(signedPortionDigest), (uint8_t *)signature->getSignature().buf(), 
-     signature->getSignature().size(), publicKey);
-  // Free the public key before checking for success.
-  RSA_free(publicKey);
-  
-  return (success == 1);
-#endif
 }
 
 void 
@@ -151,13 +92,30 @@ KeyChain::verifyData
 {
   _LOG_TRACE("Enter Verify");
 
-#if 0
-  if (m_policyManager->requireVerify(*dataPtr))
-    stepVerify(dataPtr, true, maxStep_, onVerified, onVerifyFailed);
-  else if(m_policyManager->skipVerify(*dataPtr))
+  if (policyManager_->requireVerify(*data)) {
+    shared_ptr<ValidationRequest> nextStep = policyManager_->checkVerificationPolicy
+      (data, stepCount, onVerified, onVerifyFailed);
+    if (nextStep) {
+#if 0 // TODO: implement
+      Ptr<Closure> closure = Ptr<Closure> (new Closure(nextStep->m_verifiedCallback,
+                                                       boost::bind(&Keychain::onCertificateInterestTimeout, 
+                                                                   this, 
+                                                                   _1, 
+                                                                   _2, 
+                                                                   nextStep->m_retry,
+                                                                   unverifiedCallback,
+                                                                   data),
+                                                       nextStep->m_unverifiedCallback,
+                                                       nextStep->m_stepCount)
+                                           );
+            
+      face_->expressInterest(nextStep->m_interest, closure);
 #else
-  if (verifySignature(*data))
+      throw SecurityException("KeyChain::verifyData: Use of ValidationRequest not implemented.");
 #endif
+    }
+  }
+  else if (policyManager_->skipVerifyAndTrust(*data))
     onVerified(data);
   else
     onVerifyFailed(data);
