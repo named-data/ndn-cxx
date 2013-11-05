@@ -242,8 +242,11 @@ Node::processEvents()
   // Check for PIT entry timeouts.  Go backwards through the list so we can erase entries.
   MillisecondsSince1970 nowMilliseconds = ndn_getNowMilliseconds();
   for (int i = (int)pendingInterestTable_.size() - 1; i >= 0; --i) {
-    if (pendingInterestTable_[i]->checkTimeout(this, nowMilliseconds)) {
+    if (pendingInterestTable_[i]->isTimedOut(nowMilliseconds)) {
+      // Save the PendingInterest and remove it from the PIT.  Then call the callback.
+      shared_ptr<PendingInterest> pendingInterest = pendingInterestTable_[i];
       pendingInterestTable_.erase(pendingInterestTable_.begin() + i);
+      pendingInterest->callTimeout();
       
       // Refresh now since the timeout callback might have delayed.
       nowMilliseconds = ndn_getNowMilliseconds();
@@ -351,22 +354,16 @@ Node::PendingInterest::PendingInterest
   interest_->get(*interestStruct_);  
 }
 
-bool 
-Node::PendingInterest::checkTimeout(Node *parent, MillisecondsSince1970 nowMilliseconds)
+void 
+Node::PendingInterest::callTimeout()
 {
-  if (timeoutTimeMilliseconds_ >= 0.0 && nowMilliseconds >= timeoutTimeMilliseconds_) {
-    if (onTimeout_) {
-      // Ignore all exceptions.
-      try {
-        onTimeout_(interest_);
-      }
-      catch (...) { }
+  if (onTimeout_) {
+    // Ignore all exceptions.
+    try {
+      onTimeout_(interest_);
     }
-    
-    return true;
+    catch (...) { }
   }
-  else
-    return false;
 }
 
 }

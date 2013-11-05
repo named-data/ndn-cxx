@@ -170,13 +170,21 @@ private:
     }
     
     /**
-     * If this interest is timed out, call onTimeout_ (if defined) and return true.
-     * @param parent The parent Node for the UpcallInfo.
+     * Check if this interest is timed out.
      * @param nowMilliseconds The current time in milliseconds from ndn_getNowMilliseconds.
-     * @return true if this interest timed out and the timeout callback was called, otherwise false.
+     * @return true if this interest timed out, otherwise false.
      */
     bool 
-    checkTimeout(Node *parent, MillisecondsSince1970 nowMilliseconds);
+    isTimedOut(MillisecondsSince1970 nowMilliseconds)
+    {
+      return timeoutTimeMilliseconds_ >= 0.0 && nowMilliseconds >= timeoutTimeMilliseconds_;
+    }
+
+    /**
+     * Call onTimeout_ (if defined).  This ignores exceptions from the onTimeout_.
+     */
+    void 
+    callTimeout();
     
   private:
     ptr_lib::shared_ptr<const Interest> interest_;
