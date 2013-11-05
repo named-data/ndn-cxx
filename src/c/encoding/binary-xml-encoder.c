@@ -111,9 +111,8 @@ static ndn_Error encodeReversedUnsignedDecimalInt(struct ndn_BinaryXmlEncoder *s
 }
 
 /**
- * Reverse the buffer in self->output->array, then shift it right by the amount needed to prefix a header with type, 
- * then encode the header at startOffset.
- * startOffser it the position in self-output.array of the first byte of the buffer and self->offset is the first byte past the end.
+ * Reverse the buffer in self->output->array from startOffset to the current offset, then shift it right by the amount 
+ * needed to prefix a header with type, then encode the header at startOffset.
  * We reverse and shift in the same function to avoid unnecessary copying if we first reverse then shift.
  * @param self pointer to the ndn_BinaryXmlEncoder struct
  * @param startOffset the offset in self->output->array of the start of the buffer to shift right
