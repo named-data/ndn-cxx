@@ -16,6 +16,7 @@
 namespace ndn {
 
 class PolicyManager;
+class ValidationRequest;
   
 /**
  * An OnVerified function object is used to pass a callback to verifyData to report a successful verification.
@@ -342,6 +343,15 @@ public:
   setFace(Face* face) { face_ = face; }
 
 private:
+  void
+  onCertificateData
+    (const ptr_lib::shared_ptr<const Interest> &interest, const ptr_lib::shared_ptr<Data> &data, ptr_lib::shared_ptr<ValidationRequest> nextStep);
+  
+  void
+  onCertificateInterestTimeout
+    (const ptr_lib::shared_ptr<const Interest> &interest, int retry, const OnVerifyFailed& onVerifyFailed, 
+     const ptr_lib::shared_ptr<Data> &data, ptr_lib::shared_ptr<ValidationRequest> nextStep);
+
   ptr_lib::shared_ptr<IdentityManager> identityManager_;
   ptr_lib::shared_ptr<PolicyManager> policyManager_;
   ptr_lib::shared_ptr<EncryptionManager> encryptionManager_;
