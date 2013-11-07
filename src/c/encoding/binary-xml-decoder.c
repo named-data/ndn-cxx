@@ -120,7 +120,7 @@ ndn_Error ndn_BinaryXmlDecoder_peekDTag(struct ndn_BinaryXmlDecoder *self, unsig
   // First check if it is an element close (which cannot be the expected tag).  
   if (self->offset >= self->inputLength)
     return NDN_ERROR_read_past_the_end_of_the_input;
-  if (unsafeGetOctet(self) == 0)
+  if (unsafeGetOctet(self) == ndn_BinaryXml_CLOSE)
     return NDN_ERROR_success;
 
   unsigned int type;
