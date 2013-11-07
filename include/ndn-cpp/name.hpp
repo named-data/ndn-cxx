@@ -21,10 +21,13 @@ struct ndn_Name;
 
 namespace ndn {
     
+/**
+ * A Name holds an array of Name::Component and represents an NDN name.
+ */
 class Name {
 public:
   /**
-   * A Name::Component is holds a read-only name component value.
+   * A Name::Component holds a read-only name component value.
    */
   class Component {
   public:
