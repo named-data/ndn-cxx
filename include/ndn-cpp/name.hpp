@@ -80,7 +80,6 @@ public:
     /**
      * Write this component value to result, escaping characters according to the NDN URI Scheme.
      * This also adds "..." to a value with zero or more ".".
-     * @param value the buffer with the value to escape
      * @param result the string stream to write to.
      */
     void 
@@ -433,8 +432,8 @@ public:
   
   /**
    * Make a Blob value by decoding the escapedString between beginOffset and endOffset according to the NDN URI Scheme.
-   * If the escaped string is "", "." or ".." then return a Blob with a null pointer, which means this component value was not changed, and
-   * the component should be skipped in a URI name.
+   * If the escaped string is "", "." or ".." then return a Blob with a null pointer, 
+   * which means the component should be skipped in a URI name.
    * @param escapedString The escaped string.  It does not need to be null-terminated because we only scan to endOffset.
    * @param beginOffset The offset in escapedString of the beginning of the portion to decode.
    * @param endOffset The offset in escapedString of the end of the portion to decode.
@@ -445,8 +444,8 @@ public:
 
   /**
    * Make a Blob value by decoding the escapedString according to the NDN URI Scheme.
-   * If the escaped string is "", "." or ".." then return a Blob with a null pointer, which means this component value was not changed, and
-   * the component should be skipped in a URI name.
+   * If the escaped string is "", "." or ".." then return a Blob with a null pointer, 
+   * which means the component should be skipped in a URI name.
    * @param escapedString The null-terminated escaped string.
    * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
    */
