@@ -1,3 +1,10 @@
+NDN-CPP v0.2 (2013-11-08)
+
+This release fully supports the Common Client Libraries API.
+http://named-data.net/codebase/platform/documentation/ndn-ccl-api/
+
+Changes to future versions will be detailed in this CHANGELOG.
+
 NDN-CPP v0.1 (2013-08-09)
 
 This is the initial release, with support for expressInterest for one interest at a time.  A new release
