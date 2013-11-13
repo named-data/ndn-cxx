@@ -118,7 +118,7 @@ Node::Node(const shared_ptr<Transport>& transport, const shared_ptr<const Transp
 }
 
 uint64_t 
-Node::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)
+Node::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout, WireFormat& wireFormat)
 {
   // TODO: Properly check if we are already connected to the expected host.
   if (!transport_->getIsConnected())
@@ -128,7 +128,7 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
   pendingInterestTable_.push_back(shared_ptr<PendingInterest>(new PendingInterest
     (pendingInterestId, shared_ptr<const Interest>(new Interest(interest)), onData, onTimeout)));
   
-  Blob encoding = interest.wireEncode();  
+  Blob encoding = interest.wireEncode(wireFormat);  
   transport_->send(*encoding);
   
   return pendingInterestId;
@@ -158,7 +158,7 @@ Node::registerPrefix
       (shared_ptr<NdndIdFetcher::Info>(new NdndIdFetcher::Info
         (this, registeredPrefixId, prefix, onInterest, onRegisterFailed, flags, wireFormat)));
     // It is OK for func_lib::function make a copy of the function object because the Info is in a shared_ptr.
-    expressInterest(ndndIdFetcherInterest_, fetcher, fetcher);
+    expressInterest(ndndIdFetcherInterest_, fetcher, fetcher, wireFormat);
   }
   else
     registerPrefixHelper(registeredPrefixId, make_shared<const Name>(prefix), onInterest, onRegisterFailed, flags, wireFormat);

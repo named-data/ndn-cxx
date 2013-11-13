@@ -59,10 +59,11 @@ public:
    * use func_lib::ref() as appropriate.
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
+   * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with removePendingInterest.
    */
   uint64_t 
-  expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout);
+  expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout, WireFormat& wireFormat);
   
   /**
    * Remove the pending interest entry with the pendingInterestId from the pending interest table.
@@ -81,7 +82,7 @@ public:
    * @param onRegisterFailed A function object to call if failed to retrieve the connected hub’s ID or failed to register the prefix.
    * This calls onRegisterFailed(prefix) where prefix is the prefix given to registerPrefix.
    * @param flags The flags for finer control of which interests are forward to the application.
-   * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
+   * @param wireFormat A WireFormat object used to encode the message.
    * @return The registered prefix ID which can be used with removeRegisteredPrefix.
    */
   uint64_t 

@@ -46,12 +46,15 @@ public:
    * use func_lib::ref() as appropriate.
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
+   * @param wireFormat A WireFormat object used to encode the message. If omitted, use WireFormat getDefaultWireFormat().
    * @return The pending interest ID which can be used with removePendingInterest.
    */
   uint64_t 
-  expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout = OnTimeout())
+  expressInterest
+    (const Interest& interest, const OnData& onData, const OnTimeout& onTimeout = OnTimeout(),
+     WireFormat& wireFormat = *WireFormat::getDefaultWireFormat())
   {
-    return node_.expressInterest(interest, onData, onTimeout);
+    return node_.expressInterest(interest, onData, onTimeout, wireFormat);
   }
 
   /**
@@ -63,10 +66,13 @@ public:
    * use func_lib::ref() as appropriate.
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
+   * @param wireFormat A WireFormat object used to encode the message. If omitted, use WireFormat getDefaultWireFormat().
    * @return The pending interest ID which can be used with removePendingInterest.
    */
   uint64_t 
-  expressInterest(const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout = OnTimeout());
+  expressInterest
+    (const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout = OnTimeout(),
+     WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
 
   /**
    * Encode name as an Interest, using a default interest lifetime.
@@ -76,12 +82,15 @@ public:
    * use func_lib::ref() as appropriate.
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
+   * @param wireFormat A WireFormat object used to encode the message. If omitted, use WireFormat getDefaultWireFormat().
    * @return The pending interest ID which can be used with removePendingInterest.
    */
   uint64_t 
-  expressInterest(const Name& name, const OnData& onData, const OnTimeout& onTimeout = OnTimeout()) 
+  expressInterest
+    (const Name& name, const OnData& onData, const OnTimeout& onTimeout = OnTimeout(),
+     WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
-    return expressInterest(name, 0, onData, onTimeout);
+    return expressInterest(name, 0, onData, onTimeout, wireFormat);
   }
 
   /**
@@ -105,7 +114,7 @@ public:
    * This calls onRegisterFailed(prefix) where prefix is the prefix given to registerPrefix.
    * @param flags The flags for finer control of which interests are forward to the application.  If omitted, use 
    * the default flags defined by the default ForwardingFlags constructor.
-   * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
+   * @param wireFormat A WireFormat object used to encode the message. If omitted, use WireFormat getDefaultWireFormat().
    * @return The registered prefix ID which can be used with removeRegisteredPrefix.
    */
   uint64_t 
