@@ -24,19 +24,19 @@ int ndn_ForwardingFlags_getForwardingEntryFlags(struct ndn_ForwardingFlags *self
   
   if (self->active)
     result |= ndn_ForwardingEntryFlags_ACTIVE;
-  else if (self->childInherit)
+  if (self->childInherit)
     result |= ndn_ForwardingEntryFlags_CHILD_INHERIT;
-  else if (self->advertise)
+  if (self->advertise)
     result |= ndn_ForwardingEntryFlags_ADVERTISE;
-  else if (self->last)
+  if (self->last)
     result |= ndn_ForwardingEntryFlags_LAST;
-  else if (self->capture)
+  if (self->capture)
     result |= ndn_ForwardingEntryFlags_CAPTURE;
-  else if (self->local)
+  if (self->local)
     result |= ndn_ForwardingEntryFlags_LOCAL;
-  else if (self->tap)
+  if (self->tap)
     result |= ndn_ForwardingEntryFlags_TAP;
-  else if (self->captureOk)
+  if (self->captureOk)
     result |= ndn_ForwardingEntryFlags_CAPTURE_OK;
   
   return result;
