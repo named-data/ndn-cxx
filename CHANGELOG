@@ -1,3 +1,6 @@
+Interim changes since NDN-CPP v0.2(2013-11-14)
+* http://redmine.named-data.net/issues/1056 Fix DTAG NDNProtocolDataUnit to encode as "NDN\202\000"
+
 NDN-CPP v0.2 (2013-11-08)
 
 This release fully supports the Common Client Libraries API.
