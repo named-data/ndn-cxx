@@ -135,7 +135,7 @@ enum {
   ndn_BinaryXml_DTag_SyncConfigSliceOp = 126,
   ndn_BinaryXml_DTag_SyncNodeDeltas = 127,
   ndn_BinaryXml_DTag_SequenceNumber = 256,
-  ndn_BinaryXml_DTag_CCNProtocolDataUnit = 17702112
+  ndn_BinaryXml_DTag_NDNProtocolDataUnit = 20587744 // the encoded empty element, viewed as a string is "NDN\202\000"
 };
 
 #ifdef __cplusplus
