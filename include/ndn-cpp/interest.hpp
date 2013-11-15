@@ -170,6 +170,19 @@ private:
  */
 class Interest {
 public:    
+  /**
+   * Create a new Interest for the given name and values.
+   * @param name
+   * @param minSuffixComponents
+   * @param maxSuffixComponents
+   * @param publisherPublicKeyDigest
+   * @param exclude
+   * @param childSelector
+   * @param answerOriginKind
+   * @param scope
+   * @param interestLifetimeMilliseconds
+   * @param nonce
+   */
   Interest(const Name& name, int minSuffixComponents, int maxSuffixComponents, 
     const PublisherPublicKeyDigest& publisherPublicKeyDigest, const Exclude& exclude, int childSelector, int answerOriginKind, 
     int scope, Milliseconds interestLifetimeMilliseconds, const std::vector<uint8_t>& nonce) 
@@ -180,6 +193,18 @@ public:
   {
   }
 
+  /**
+   * Create a new Interest with the given name and values, and "none" for the nonce.
+   * @param name
+   * @param minSuffixComponents
+   * @param maxSuffixComponents
+   * @param publisherPublicKeyDigest
+   * @param exclude
+   * @param childSelector
+   * @param answerOriginKind
+   * @param scope
+   * @param interestLifetimeMilliseconds
+   */
   Interest(const Name& name, int minSuffixComponents, int maxSuffixComponents, 
     const PublisherPublicKeyDigest& publisherPublicKeyDigest, const Exclude& exclude, int childSelector, int answerOriginKind, 
     int scope, Milliseconds interestLifetimeMilliseconds) 
@@ -189,6 +214,11 @@ public:
   {
   }
 
+  /**
+   * Create a new Interest with the given name and interest lifetime and "none" for other values.
+   * @param name The name for the interest.
+   * @param interestLifetimeMilliseconds The interest lifetime in milliseconds, or -1 for none.
+   */
   Interest(const Name& name, Milliseconds interestLifetimeMilliseconds) 
   : name_(name)
   {
@@ -196,29 +226,52 @@ public:
     interestLifetimeMilliseconds_ = interestLifetimeMilliseconds;
   }
 
+  /**
+   * Create a new Interest with the given name and "none" for other values.
+   * @param name The name for the interest.
+   */
   Interest(const Name& name) 
   : name_(name)
   {
     construct();
   }
 
+  /**
+   * Create a new Interest with an empty name and "none" for all values.
+   */
   Interest() 
   {
     construct();
   }
   
+  /**
+   * Encode this Interest for a particular wire format.
+   * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat::getDefaultWireFormat().
+   * @return The encoded byte array.
+   */
   Blob 
   wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
   {
     return wireFormat.encodeInterest(*this);
   }
   
+  /**
+   * Decode the input using a particular wire format and update this Interest.
+   * @param input The input byte array to be decoded.
+   * @param inputLength The length of input.
+   * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat::getDefaultWireFormat().
+   */
   void 
   wireDecode(const uint8_t *input, size_t inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
     wireFormat.decodeInterest(*this, input, inputLength);
   }
   
+  /**
+   * Decode the input using a particular wire format and update this Interest.
+   * @param input The input byte array to be decoded.
+   * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat::getDefaultWireFormat().
+   */
   void 
   wireDecode(const std::vector<uint8_t>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
   {
