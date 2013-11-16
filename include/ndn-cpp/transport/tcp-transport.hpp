@@ -93,7 +93,6 @@ public:
 private:
   ptr_lib::shared_ptr<struct ndn_TcpTransport> transport_;
   bool isConnected_;
-  ElementListener *elementListener_;
   // TODO: This belongs in the socket listener.
   ptr_lib::shared_ptr<struct ndn_BinaryXmlElementReader> elementReader_;
 };

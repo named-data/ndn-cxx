@@ -22,7 +22,7 @@ TcpTransport::ConnectionInfo::~ConnectionInfo()
 }
 
 TcpTransport::TcpTransport() 
-  : elementListener_(0), isConnected_(false), transport_(new struct ndn_TcpTransport), elementReader_(new struct ndn_BinaryXmlElementReader)
+  : isConnected_(false), transport_(new struct ndn_TcpTransport), elementReader_(new struct ndn_BinaryXmlElementReader)
 {
   ndn_TcpTransport_initialize(transport_.get());
   elementReader_->partialData.array = 0;
@@ -44,7 +44,6 @@ TcpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementLi
     (elementReader_.get(), &elementListener, (uint8_t *)malloc(initialLength), initialLength, ndn_realloc);
   
   isConnected_ = true;
-  elementListener_ = &elementListener;
 }
 
 void 
