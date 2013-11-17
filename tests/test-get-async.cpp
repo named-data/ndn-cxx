@@ -54,16 +54,16 @@ int main(int argc, char** argv)
     Counter counter;
     
     Name name1("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E");    
-    cout << "Express name  " << name1.toUri() << endl;
+    cout << "Express name " << name1.toUri() << endl;
     // Use bind to pass the counter object to the callbacks.
     face.expressInterest(name1, bind(&Counter::onData, &counter, _1, _2), bind(&Counter::onTimeout, &counter, _1));
     
     Name name2("/ndn/ucla.edu/apps/lwndn-test/howdy.txt/%FD%05%05%E8%0C%CE%1D");
-    cout << "Express name  " << name2.toUri() << endl;
+    cout << "Express name " << name2.toUri() << endl;
     face.expressInterest(name2, bind(&Counter::onData, &counter, _1, _2), bind(&Counter::onTimeout, &counter, _1));
     
     Name name3("/test/timeout");
-    cout << "Express name  " << name3.toUri() << endl;
+    cout << "Express name " << name3.toUri() << endl;
     face.expressInterest(name3, bind(&Counter::onData, &counter, _1, _2), bind(&Counter::onTimeout, &counter, _1));
 
     // The main event loop.
