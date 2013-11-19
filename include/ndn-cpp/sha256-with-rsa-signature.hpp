@@ -63,31 +63,10 @@ public:
   getKeyLocator() { return keyLocator_; }
 
   void 
-  setDigestAlgorithm(const std::vector<uint8_t>& digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
-  
-  void 
-  setDigestAlgorithm(const uint8_t *digestAlgorithm, size_t digestAlgorithmLength) 
-  { 
-    digestAlgorithm_ = Blob(digestAlgorithm, digestAlgorithmLength); 
-  }
-
-  void 
   setDigestAlgorithm(const Blob& digestAlgorithm) { digestAlgorithm_ = digestAlgorithm; }
 
   void 
-  setWitness(const std::vector<uint8_t>& witness) { witness_ = witness; }
-  
-  void 
-  setWitness(const uint8_t *witness, size_t witnessLength) { witness_ = Blob(witness, witnessLength); }
-  
-  void 
   setWitness(const Blob& witness) { witness_ = witness; }
-
-  void 
-  setSignature(const std::vector<uint8_t>& signature) { signature_ = signature; }
-  
-  void 
-  setSignature(const uint8_t *signature, size_t signatureLength) { signature_ = Blob(signature, signatureLength); }
 
   void 
   setSignature(const Blob& signature) { signature_ = signature; }

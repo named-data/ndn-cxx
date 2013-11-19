@@ -108,7 +108,7 @@ selfregSign(Data& data, WireFormat& wireFormat)
   if (!success)
     throw runtime_error("Error in RSA_sign");
   
-  signature->setSignature(signatureBits, (size_t)signatureBitsLength);
+  signature->setSignature(Blob(signatureBits, (size_t)signatureBitsLength));
 }
 
 Node::Node(const shared_ptr<Transport>& transport, const shared_ptr<const Transport::ConnectionInfo>& connectionInfo)
