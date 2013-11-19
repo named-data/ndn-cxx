@@ -106,19 +106,7 @@ public:
 
   void 
   setFinalBlockID(const Name::Component& finalBlockID) { finalBlockID_ = finalBlockID; }
-
-  void 
-  setFinalBlockID(const Blob& finalBlockID) { finalBlockID_ = Name::Component(finalBlockID); }
-  
-  void 
-  setFinalBlockID(const std::vector<uint8_t>& finalBlockID) { finalBlockID_ = Name::Component(finalBlockID); }
-  
-  void 
-  setFinalBlockID(const uint8_t* finalBlockID, size_t finalBlockIdLength) 
-  { 
-    finalBlockID_ = Name::Component(finalBlockID, finalBlockIdLength); 
-  }
-  
+    
 private:
   MillisecondsSince1970 timestampMilliseconds_; /**< milliseconds since 1/1/1970. -1 for none */
   ndn_ContentType type_;         /**< default is ndn_ContentType_DATA. -1 for none */
