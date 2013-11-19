@@ -105,6 +105,9 @@ public:
   setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
 
   void 
+  setFinalBlockID(const Name::Component& finalBlockID) { finalBlockID_ = finalBlockID; }
+
+  void 
   setFinalBlockID(const Blob& finalBlockID) { finalBlockID_ = Name::Component(finalBlockID); }
   
   void 
