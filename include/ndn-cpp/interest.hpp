@@ -354,7 +354,7 @@ public:
   setInterestLifetimeMilliseconds(Milliseconds value) { interestLifetimeMilliseconds_ = value; }
 
   void 
-  setNonce(const std::vector<uint8_t>& value) { nonce_ = value; }
+  setNonce(const Blob& value) { nonce_ = value; }
   
 private:
   void 
