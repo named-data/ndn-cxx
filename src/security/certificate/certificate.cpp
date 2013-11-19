@@ -6,10 +6,20 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include <ndn-cpp/common.hpp>
+
 #include <float.h>
+
+#if NDN_CPP_USE_SYSTEM_BOOST
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/array.hpp>
+namespace ndnboost = boost;
+#else
 // We can use ndnboost::iostreams because this is internal and will not conflict with the application if it uses boost::iostreams.
 #include <ndnboost/iostreams/stream.hpp>
 #include <ndnboost/iostreams/device/array.hpp>
+#endif
+
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
 #include "../../encoding/der/der.hpp"
 #include "../../encoding/der/visitor/certificate-data-visitor.hpp"

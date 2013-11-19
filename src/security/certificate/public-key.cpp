@@ -6,10 +6,19 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include <ndn-cpp/common.hpp>
+
+#if NDN_CPP_USE_SYSTEM_BOOST
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/array.hpp>
+namespace ndnboost = boost;
+#else
 // We can use ndnboost::iostreams because this is internal and will not conflict with the application if it uses boost::iostreams.
 #include <ndnboost/iostreams/stream.hpp>
 #include <ndnboost/iostreams/device/array.hpp>
-#include <ndn-cpp/security//security-exception.hpp>
+#endif
+
+#include <ndn-cpp/security/security-exception.hpp>
 #include "../../c/util/crypto.h"
 #include "../../encoding/der/der.hpp"
 #include <ndn-cpp/security/certificate/public-key.hpp>

@@ -9,8 +9,15 @@
 #ifndef NDN_DER_VISITOR_HPP
 #define NDN_DER_VISITOR_HPP
 
+#include <ndn-cpp/common.hpp>
+
+#if NDN_CPP_USE_SYSTEM_BOOST
+#include <boost/any.hpp>
+namespace ndnboost = boost;
+#else
 // We can use ndnboost::any because this is an internal header and will not conflict with the application if it uses boost::any.
 #include <ndnboost/any.hpp>
+#endif
 
 namespace ndn {
 

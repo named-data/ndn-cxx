@@ -9,11 +9,19 @@
 #ifndef NDN_BLOB_STREAM_HPP
 #define NDN_BLOB_STREAM_HPP
 
+#include <ndn-cpp/common.hpp>
+
+#if NDN_CPP_USE_SYSTEM_BOOST
+#include <boost/iostreams/detail/ios.hpp>
+#include <boost/iostreams/categories.hpp>
+#include <boost/iostreams/stream.hpp>
+namespace ndnboost = boost;
+#else
 // We can use ndnboost::iostreams because this is internal and will not conflict with the application if it uses boost::iostreams.
 #include <ndnboost/iostreams/detail/ios.hpp>
 #include <ndnboost/iostreams/categories.hpp>
 #include <ndnboost/iostreams/stream.hpp>
-#include <ndn-cpp/common.hpp>
+#endif
 
 namespace ndn {
 
