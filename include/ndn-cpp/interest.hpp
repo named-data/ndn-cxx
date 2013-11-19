@@ -185,7 +185,7 @@ public:
    */
   Interest(const Name& name, int minSuffixComponents, int maxSuffixComponents, 
     const PublisherPublicKeyDigest& publisherPublicKeyDigest, const Exclude& exclude, int childSelector, int answerOriginKind, 
-    int scope, Milliseconds interestLifetimeMilliseconds, const std::vector<uint8_t>& nonce) 
+    int scope, Milliseconds interestLifetimeMilliseconds, const Blob& nonce) 
   : name_(name), minSuffixComponents_(minSuffixComponents), maxSuffixComponents_(maxSuffixComponents),
   publisherPublicKeyDigest_(publisherPublicKeyDigest), exclude_(exclude), childSelector_(childSelector), 
   answerOriginKind_(answerOriginKind), scope_(scope), interestLifetimeMilliseconds_(interestLifetimeMilliseconds),
@@ -336,25 +336,25 @@ public:
   setName(const Name& name) { name_ = name; }
   
   void 
-  setMinSuffixComponents(int value) { minSuffixComponents_ = value; }
+  setMinSuffixComponents(int minSuffixComponents) { minSuffixComponents_ = minSuffixComponents; }
   
   void 
-  setMaxSuffixComponents(int value) { maxSuffixComponents_ = value; }
+  setMaxSuffixComponents(int maxSuffixComponents) { maxSuffixComponents_ = maxSuffixComponents; }
   
   void 
-  setChildSelector(int value) { childSelector_ = value; }
+  setChildSelector(int childSelector) { childSelector_ = childSelector; }
 
   void 
-  setAnswerOriginKind(int value) { answerOriginKind_ = value; }
+  setAnswerOriginKind(int answerOriginKind) { answerOriginKind_ = answerOriginKind; }
 
   void 
-  setScope(int value) { scope_ = value; }
+  setScope(int scope) { scope_ = scope; }
 
   void 
-  setInterestLifetimeMilliseconds(Milliseconds value) { interestLifetimeMilliseconds_ = value; }
+  setInterestLifetimeMilliseconds(Milliseconds interestLifetimeMilliseconds) { interestLifetimeMilliseconds_ = interestLifetimeMilliseconds; }
 
   void 
-  setNonce(const Blob& value) { nonce_ = value; }
+  setNonce(const Blob& nonce) { nonce_ = nonce; }
   
 private:
   void 

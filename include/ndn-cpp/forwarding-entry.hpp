@@ -96,16 +96,16 @@ public:
   set(const struct ndn_ForwardingEntry& forwardingEntryStruct);
 
   void 
-  setAction(const std::string& value) { action_ = value; }
+  setAction(const std::string& action) { action_ = action; }
   
   void 
-  setFaceId(int value) { faceId_ = value; }
+  setFaceId(int faceId) { faceId_ = faceId; }
       
   void 
-  setForwardingFlags(const ForwardingFlags& value) { forwardingFlags_ = value; }
+  setForwardingFlags(const ForwardingFlags& forwardingFlags) { forwardingFlags_ = forwardingFlags; }
       
   void 
-  setFreshnessSeconds(int value) { freshnessSeconds_ = value; }
+  setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
       
 private:
   std::string action_;   /**< empty for none. */

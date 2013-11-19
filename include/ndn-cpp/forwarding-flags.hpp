@@ -82,51 +82,51 @@ public:
 
   /**
    * Set the value of the "active" flag
-   * @param value true to set the flag, false to clear it.
+   * @param active true to set the flag, false to clear it.
    */  
-  void setActive(bool value) { active = value ? 1 : 0; }
+  void setActive(bool active) { this->active = active ? 1 : 0; }
   
   /**
    * Set the value of the "childInherit" flag
-   * @param value true to set the flag, false to clear it.
+   * @param childInherit true to set the flag, false to clear it.
    */  
-  void setChildInherit(bool value) { childInherit = value ? 1 : 0; }
+  void setChildInherit(bool childInherit) { this->childInherit = childInherit ? 1 : 0; }
   
   /**
    * Set the value of the "advertise" flag
-   * @param value true to set the flag, false to clear it.
+   * @param advertise true to set the flag, false to clear it.
    */  
-  void setAdvertise(bool value) { advertise = value ? 1 : 0; }
+  void setAdvertise(bool advertise) { this->advertise = advertise ? 1 : 0; }
   
   /**
    * Set the value of the "last" flag
-   * @param value true to set the flag, false to clear it.
+   * @param last true to set the flag, false to clear it.
    */  
-  void setLast(bool value) { last = value ? 1 : 0; }
+  void setLast(bool last) { this->last = last ? 1 : 0; }
   
   /**
    * Set the value of the "capture" flag
-   * @param value true to set the flag, false to clear it.
+   * @param capture true to set the flag, false to clear it.
    */  
-  void setCapture(bool value) { capture = value ? 1 : 0; }
+  void setCapture(bool capture) { this->capture = capture ? 1 : 0; }
   
   /**
    * Set the value of the "local" flag
-   * @param value true to set the flag, false to clear it.
+   * @param local true to set the flag, false to clear it.
    */  
-  void setLocal(bool value) { local = value ? 1 : 0; }
+  void setLocal(bool local) { this->local = local ? 1 : 0; }
   
   /**
    * Set the value of the "tap" flag
-   * @param value true to set the flag, false to clear it.
+   * @param tap true to set the flag, false to clear it.
    */  
-  void setTap(bool value) { tap = value ? 1 : 0; }
+  void setTap(bool tap) { this->tap = tap ? 1 : 0; }
   
   /**
    * Set the value of the "captureOk" flag
-   * @param value true to set the flag, false to clear it.
+   * @param captureOk true to set the flag, false to clear it.
    */  
-  void setCaptureOk(bool value) { captureOk = value ? 1 : 0; }
+  void setCaptureOk(bool captureOk) { this->captureOk = captureOk ? 1 : 0; }
 };
 
 }
