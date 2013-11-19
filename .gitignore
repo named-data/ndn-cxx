@@ -40,6 +40,19 @@ config.log
 /m4/ltversion.m4
 /m4/lt~obsolete.m4
 
+Makefile.in
+ar-lib
+compile
+config.guess
+config.sub
+configure
+depcomp
+include/Makefile.in
+include/config.h.in
+install-sh
+ltmain.sh
+missing
+
 # Doxygen output
 /doc/html
 /doc/latex
