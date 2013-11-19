@@ -70,7 +70,8 @@ public:
   void 
   setKeyData(const Blob& keyData) { keyData_ = keyData; }
 
-  void setKeyName(const Name &keyName) { keyName_ = keyName; }
+  void
+  setKeyName(const Name &keyName) { keyName_ = keyName; }
   
   void 
   setKeyNameType(ndn_KeyNameType keyNameType) { keyNameType_ = keyNameType; }
