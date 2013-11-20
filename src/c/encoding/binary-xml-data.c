@@ -10,6 +10,7 @@
 #include "binary-xml-name.h"
 #include "binary-xml-publisher-public-key-digest.h"
 #include "binary-xml-data.h"
+#include "binary-xml-key.h"
 
 static ndn_Error encodeSignature(struct ndn_Signature *signature, struct ndn_BinaryXmlEncoder *encoder)
 {
@@ -77,15 +78,15 @@ static ndn_Error encodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
     struct ndn_Blob typeBytes;
     typeBytes.length = 3;
     if (metaInfo->type == ndn_ContentType_ENCR)
-      typeBytes.value = "\x10\xD0\x91";
+      typeBytes.value = (uint8_t *)"\x10\xD0\x91";
     else if (metaInfo->type == ndn_ContentType_GONE)
-      typeBytes.value = "\x18\xE3\x44";
+      typeBytes.value = (uint8_t *)"\x18\xE3\x44";
     else if (metaInfo->type == ndn_ContentType_KEY)
-      typeBytes.value = "\x28\x46\x3F";
+      typeBytes.value = (uint8_t *)"\x28\x46\x3F";
     else if (metaInfo->type == ndn_ContentType_LINK)
-      typeBytes.value = "\x2C\x83\x4A";
+      typeBytes.value = (uint8_t *)"\x2C\x83\x4A";
     else if (metaInfo->type == ndn_ContentType_NACK)
-      typeBytes.value = "\x34\x00\x8A";
+      typeBytes.value = (uint8_t *)"\x34\x00\x8A";
     else
       return NDN_ERROR_unrecognized_ndn_ContentType;
 
@@ -120,8 +121,8 @@ static ndn_Error decodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
   if ((error = ndn_decodeOptionalBinaryXmlPublisherPublicKeyDigest(&signature->publisherPublicKeyDigest, decoder)))
     return error;
   
-  if (error= ndn_BinaryXmlDecoder_readOptionalTimeMillisecondsDTagElement
-      (decoder, ndn_BinaryXml_DTag_Timestamp, &metaInfo->timestampMilliseconds))
+  if ((error = ndn_BinaryXmlDecoder_readOptionalTimeMillisecondsDTagElement
+       (decoder, ndn_BinaryXml_DTag_Timestamp, &metaInfo->timestampMilliseconds)))
     return error;
   
   struct ndn_Blob typeBytes;
@@ -133,17 +134,17 @@ static ndn_Error decodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
     metaInfo->type = ndn_ContentType_DATA;
   else if (typeBytes.length == 3) {
     // All the recognized content types are 3 bytes.
-    if (ndn_memcmp(typeBytes.value, "\x0C\x04\xC0", typeBytes.length) == 0)
+    if (ndn_memcmp(typeBytes.value, (uint8_t *)"\x0C\x04\xC0", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_DATA;
-    else if (ndn_memcmp(typeBytes.value, "\x10\xD0\x91", typeBytes.length) == 0)
+    else if (ndn_memcmp(typeBytes.value, (uint8_t *)"\x10\xD0\x91", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_ENCR;
-    else if (ndn_memcmp(typeBytes.value, "\x18\xE3\x44", typeBytes.length) == 0)
+    else if (ndn_memcmp(typeBytes.value, (uint8_t *)"\x18\xE3\x44", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_GONE;
-    else if (ndn_memcmp(typeBytes.value, "\x28\x46\x3F", typeBytes.length) == 0)
+    else if (ndn_memcmp(typeBytes.value, (uint8_t *)"\x28\x46\x3F", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_KEY;
-    else if (ndn_memcmp(typeBytes.value, "\x2C\x83\x4A", typeBytes.length) == 0)
+    else if (ndn_memcmp(typeBytes.value, (uint8_t *)"\x2C\x83\x4A", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_LINK;
-    else if (ndn_memcmp(typeBytes.value, "\x34\x00\x8A", typeBytes.length) == 0)
+    else if (ndn_memcmp(typeBytes.value, (uint8_t *)"\x34\x00\x8A", typeBytes.length) == 0)
       metaInfo->type = ndn_ContentType_NACK;
     else
       return NDN_ERROR_unrecognized_ndn_ContentType;
