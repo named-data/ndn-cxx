@@ -382,9 +382,9 @@ Name::toEscapedString(const vector<uint8_t>& value, ostringstream& result)
     for (size_t i = 0; i < value.size(); ++i) {
       uint8_t x = value[i];
       // Check for 0-9, A-Z, a-z, (+), (-), (.), (_)
-      if (x >= 0x30 && x <= 0x39 || x >= 0x41 && x <= 0x5a ||
-        x >= 0x61 && x <= 0x7a || x == 0x2b || x == 0x2d || 
-        x == 0x2e || x == 0x5f)
+      if ((x >= 0x30 && x <= 0x39) || (x >= 0x41 && x <= 0x5a) ||
+          (x >= 0x61 && x <= 0x7a) || x == 0x2b || x == 0x2d || 
+          x == 0x2e || x == 0x5f)
         result << x;
       else {
         result << '%';

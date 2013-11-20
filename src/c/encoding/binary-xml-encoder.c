@@ -183,7 +183,7 @@ ndn_Error ndn_BinaryXmlEncoder_encodeTypeAndValue(struct ndn_BinaryXmlEncoder *s
 
   // Bottom 4 bits of value go in last byte with tag.
   self->output->array[self->offset + nEncodingBytes - 1] = 
-    (ndn_BinaryXml_TT_MASK & type | 
+    ((ndn_BinaryXml_TT_MASK & type) | 
     ((ndn_BinaryXml_TT_VALUE_MASK & value) << ndn_BinaryXml_TT_BITS)) |
     ndn_BinaryXml_TT_FINAL; // set top bit for last byte
   value >>= ndn_BinaryXml_TT_VALUE_BITS;

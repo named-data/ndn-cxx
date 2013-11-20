@@ -205,8 +205,8 @@ ndn_Error ndn_decodeBinaryXmlInterest(struct ndn_Interest *interest, struct ndn_
       (decoder, ndn_BinaryXml_DTag_Scope, &interest->scope)))
     return error;
   
-  if (error= ndn_BinaryXmlDecoder_readOptionalTimeMillisecondsDTagElement
-      (decoder, ndn_BinaryXml_DTag_InterestLifetime, &interest->interestLifetimeMilliseconds))
+  if ((error = ndn_BinaryXmlDecoder_readOptionalTimeMillisecondsDTagElement
+       (decoder, ndn_BinaryXml_DTag_InterestLifetime, &interest->interestLifetimeMilliseconds)))
     return error;
   
   if ((error = ndn_BinaryXmlDecoder_readOptionalBinaryDTagElement
