@@ -261,7 +261,7 @@ public:
    * @return This Data so that you can chain calls to update values.
    */
   Data& 
-  setMetainfo(const MetaInfo& metaInfo) 
+  setMetaInfo(const MetaInfo& metaInfo) 
   { 
     metaInfo_ = metaInfo; 
     onChanged();
