@@ -7,6 +7,9 @@
 
 #include "binary-xml.h"
 #include "binary-xml-forwarding-entry.h"
+#include "binary-xml-name.h"
+#include "binary-xml-key.h"
+#include "binary-xml-publisher-public-key-digest.h"
 
 ndn_Error ndn_encodeBinaryXmlForwardingEntry(struct ndn_ForwardingEntry *forwardingEntry, struct ndn_BinaryXmlEncoder *encoder)
 {
