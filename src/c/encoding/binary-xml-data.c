@@ -58,7 +58,7 @@ static ndn_Error decodeSignature(struct ndn_Signature *signature, struct ndn_Bin
 
 static ndn_Error encodeSignedInfo(struct ndn_Signature *signature, struct ndn_MetaInfo *metaInfo, struct ndn_BinaryXmlEncoder *encoder)
 {
-  if (metaInfo->type < 0)
+  if ((int)metaInfo->type < 0)
     return NDN_ERROR_success;
 
   ndn_Error error;
@@ -73,7 +73,7 @@ static ndn_Error encodeSignedInfo(struct ndn_Signature *signature, struct ndn_Me
       (encoder, ndn_BinaryXml_DTag_Timestamp, metaInfo->timestampMilliseconds)))
     return error;
   
-  if (!(metaInfo->type < 0 || metaInfo->type == ndn_ContentType_DATA)) {
+  if (!((int)metaInfo->type < 0 || metaInfo->type == ndn_ContentType_DATA)) {
     // Not the default of DATA, so we need to encode the type.
     struct ndn_Blob typeBytes;
     typeBytes.length = 3;
