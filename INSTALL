@@ -42,6 +42,7 @@ This makes the following libraries:
 This makes the following test files:
 
 bin/test-get-async: Connect to one of the NDN testbed hubs, express an interest and display the received data.
+bin/test-publish-async: Connect to the local NDN hub, accept interests with prefix /testecho and echo back a data packet.
 bin/test-encode-decode-interest: Encode and decode an interest, testing interest selectors and the name URI.
 bin/test-encode-decode-data: Encode and decode a data packet, including signing the data packet.
 bin/test-encode-decode-forwarding-entry: Encode and decode a data packet, including signing the data packet.
