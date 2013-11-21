@@ -23,6 +23,8 @@ public:
   {
   }
 
+  // Note: The copy constructor works because publicKeyName_ has a copy constructor.
+
   /**
    * Create an IdentityCertificate from the content in the data packet.
    * @param data The data packet with the content to decode.
