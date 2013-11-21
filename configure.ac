@@ -1,14 +1,4 @@
-# To build using autotools on OS X:
-# $ sudo port install autoconf
-# $ sudo port install automake
-# $ sudo port install doxygen
-# Enter the following to show directory for m4 macros, and download the the following into there (use sudo):
-# $ aclocal --print
-# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_cxx_compile_stdcxx_11.m4
-# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_prog_doxygen.m4
-# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_check_openssl.m4
-# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_lib_sqlite3.m4
-# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_prefix_config_h.m4
+# To build using autotools, see the Development section of the file INSTALL.
 
 AC_PREREQ([2.59])
 AC_INIT([ndn-cpp], [0.2], [ndn-lib@lists.cs.ucla.edu], [ndn-cpp], [https://github.com/named-data/ndn-cpp])

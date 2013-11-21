@@ -3,6 +3,7 @@ NDN-CPP:  A Named Data Networking client library for C++ and C
 
 Prerequisites
 -------------
+(These are prerequisites to build NDN-CPP.  To do development of NDN-CPP code and update the build system, see Development.)
 
 Required: libcrypto
 Optional: libsqlite3 (for key storage)
@@ -11,6 +12,7 @@ Optional: OSX Security framework (for key storage)
 Following are the detailed steps for each platform to install the prerequisites.
 
 * Ubuntu 12.04
+In a terminal, enter:
 sudo apt-get install build-essential
 sudo apt-get install libssl-dev
 
@@ -18,11 +20,18 @@ sudo apt-get install libssl-dev
 Cygwin is tested on Windows 7 64-bit with the "Devel" packages selected to install at the top level of the
 cygwin installer.  This includes libcrypto and libsqlite3.
 
+* Mac OS X 10.7.3, Mac OS X 10.8.4
+Install Xcode.
+In Xcode Preferences > Downloads, install "Command Line Tools".
+
+* Mac OS X 10.9
+Install Xcode.  (Xcode on OS X 10.9 seems to already have the Command Line Tools.)
 
 Build
 -----
+(These are instructions to build NDN-CPP. To do development of NDN-CPP code and update the build system, see Development.)
 
-To build in a terminal, change directory to the ndn-cpp root.  Enter:
+To build in a terminal, change directory to the NDN-CPP root.  Enter:
 
 ./configure
 make
@@ -58,4 +67,26 @@ Ubuntu 12.04 (gcc 4.6.3)
 Mac OS X 10.8.4 (clang 4.2)
 Mac OS X 10.8.4 (gcc 4.2)
 
+Development
+-----------
+These steps are only needed to do development of NDN-CPP code and update the build system.
+First follow the prerequisites above for your platforms.
 
+* Mac OS X 10.8.4
+Install MacPorts from http://www.macports.org/install.php
+In a terminal, enter:
+sudo port install automake
+sudo port install autoconf
+sudo port install libtool
+aclocal --print
+
+"aclocal --print" shows the directory for m4 macros. Download the the following into there (use sudo):
+# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_cxx_compile_stdcxx_11.m4
+# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_prog_doxygen.m4
+# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_check_openssl.m4
+# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_lib_sqlite3.m4
+# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_prefix_config_h.m4
+
+Now you can add source code files and update Makefile.am.  
+After updating, change directory to the NDN-CPP root and enter the following to build the Makefile:
+./autogen.sh
