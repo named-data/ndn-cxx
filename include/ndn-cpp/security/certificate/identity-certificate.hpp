@@ -32,6 +32,11 @@ public:
   IdentityCertificate(const Data& data);
   
   /**
+   * The copy constructor. 
+   */
+  IdentityCertificate(const IdentityCertificate& identityCertificate);
+  
+  /**
    * The virtual destructor.
    */
   virtual 

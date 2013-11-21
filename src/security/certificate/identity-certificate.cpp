@@ -22,6 +22,12 @@ IdentityCertificate::IdentityCertificate(const Data& data)
   setPublicKeyName();
 }
 
+IdentityCertificate::IdentityCertificate(const IdentityCertificate& identityCertificate)
+  : Certificate(identityCertificate)
+  , publicKeyName_(identityCertificate.publicKeyName_)
+{
+}
+
 IdentityCertificate::~IdentityCertificate()
 {
 }
