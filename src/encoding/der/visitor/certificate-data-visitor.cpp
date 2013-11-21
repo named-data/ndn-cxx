@@ -128,7 +128,7 @@ CertificateExtensionEntryVisitor::visit(DerSequence& derSeq, ndnboost::any param
 
   OID oid = ndnboost::any_cast<OID>(children[0]->accept(simpleVisitor));
   bool critical = ndnboost::any_cast<bool>(children[1]->accept(simpleVisitor));
-  const Blob& value = ndnboost::any_cast<const Blob&>(children[2]->accept(simpleVisitor));
+  const vector<uint8_t>& value = ndnboost::any_cast<const vector<uint8_t>&>(children[2]->accept(simpleVisitor));
 
   CertificateExtension extension(oid, critical, value);
 
