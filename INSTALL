@@ -72,20 +72,12 @@ Development
 These steps are only needed to do development of NDN-CPP code and update the build system.
 First follow the prerequisites above for your platforms.
 
-* Mac OS X 10.8.4
+* Mac OS X 10.7.3, Mac OS X 10.8.4, Mac OS X 10.9
 Install MacPorts from http://www.macports.org/install.php
 In a terminal, enter:
 sudo port install automake
 sudo port install autoconf
 sudo port install libtool
-aclocal --print
-
-"aclocal --print" shows the directory for m4 macros. Download the the following into there (use sudo):
-# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_cxx_compile_stdcxx_11.m4
-# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_prog_doxygen.m4
-# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_check_openssl.m4
-# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_lib_sqlite3.m4
-# http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_prefix_config_h.m4
 
 Now you can add source code files and update Makefile.am.  
 After updating, change directory to the NDN-CPP root and enter the following to build the Makefile:
