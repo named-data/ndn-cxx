@@ -3,7 +3,8 @@ NDN-CPP:  A Named Data Networking client library for C++ and C
 
 Prerequisites
 -------------
-(These are prerequisites to build NDN-CPP.  To do development of NDN-CPP code and update the build system, see Development.)
+(These are prerequisites to build NDN-CPP.  To do development of NDN-CPP code and update the build system, 
+ see Development Prerequisites.)
 
 Required: libcrypto
 Optional: libsqlite3 (for key storage)
@@ -11,7 +12,14 @@ Optional: OSX Security framework (for key storage)
 
 Following are the detailed steps for each platform to install the prerequisites.
 
-* Ubuntu 12.04
+* Mac OS X 10.7.3, Mac OS X 10.8.4
+Install Xcode.
+In Xcode Preferences > Downloads, install "Command Line Tools".
+
+* Mac OS X 10.9
+Install Xcode.  (Xcode on OS X 10.9 seems to already have the Command Line Tools.)
+
+* Ubuntu 12.04 (64 bit and 32 bit), Ubuntu 13.04 (64 bit)
 In a terminal, enter:
 sudo apt-get install build-essential
 sudo apt-get install libssl-dev
@@ -19,13 +27,6 @@ sudo apt-get install libssl-dev
 * Windows Cygwin
 Cygwin is tested on Windows 7 64-bit with the "Devel" packages selected to install at the top level of the
 cygwin installer.  This includes libcrypto and libsqlite3.
-
-* Mac OS X 10.7.3, Mac OS X 10.8.4
-Install Xcode.
-In Xcode Preferences > Downloads, install "Command Line Tools".
-
-* Mac OS X 10.9
-Install Xcode.  (Xcode on OS X 10.9 seems to already have the Command Line Tools.)
 
 Build
 -----
@@ -63,14 +64,15 @@ Supported platforms
 -------------------
 
 NDN-CPP is tested on the following platforms:
-Ubuntu 12.04 (gcc 4.6.3)
+Ubuntu 12.04 (64 bit and 32 bit) (gcc 4.6.3)
+Ubuntu 13.04 (64 bit) (gcc 4.7.3)
 Mac OS X 10.8.4 (clang 4.2)
 Mac OS X 10.8.4 (gcc 4.2)
 
-Development
------------
+Development Prerequisites
+-------------------------
 These steps are only needed to do development of NDN-CPP code and update the build system.
-First follow the prerequisites above for your platforms.
+First follow the Prerequisites above for your platforms.
 
 * Mac OS X 10.7.3, Mac OS X 10.8.4, Mac OS X 10.9
 Install MacPorts from http://www.macports.org/install.php
@@ -80,6 +82,15 @@ sudo port install autoconf
 sudo port install libtool
 sudo port install doxygen
 
+* Ubuntu 12.04 (64 bit and 32 bit), Ubuntu 13.04 (64 bit)
+In a terminal, enter:
+sudo apt-get install automake
+sudo apt-get install libtool
+sudo apt-get install doxygen
+
+Development
+-----------
+Follow Development Prerequisites above for your platform.
 Now you can add source code files and update Makefile.am.  
 After updating, change directory to the NDN-CPP root and enter the following to build the Makefile:
 ./autogen.sh
