@@ -565,6 +565,7 @@ SUBDIRS = include
 lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 
 # Public C headers.
+# NOTE: If a new directory is added, then add it to ndn_cpp_c_headers in include/Makefile.am.
 ndn_cpp_c_headers = \
   include/ndn-cpp/ndn-cpp-config.h \
   include/ndn-cpp/c/common.h \
@@ -576,6 +577,7 @@ ndn_cpp_c_headers = \
 
 
 # Public C++ headers.
+# NOTE: If a new directory is added, then add it to ndn_cpp_cpp_headers in include/Makefile.am.
 ndn_cpp_cpp_headers = \
   include/ndn-cpp/common.hpp \
   include/ndn-cpp/data.hpp \

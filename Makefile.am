@@ -18,6 +18,7 @@ noinst_PROGRAMS = bin/test-encode-decode-forwarding-entry bin/test-encode-decode
   bin/test-get-async bin/test-publish-async
 
 # Public C headers.
+# NOTE: If a new directory is added, then add it to ndn_cpp_c_headers in include/Makefile.am.
 ndn_cpp_c_headers = \
   include/ndn-cpp/ndn-cpp-config.h \
   include/ndn-cpp/c/common.h \
@@ -28,6 +29,7 @@ ndn_cpp_c_headers = \
   include/ndn-cpp/c/encoding/element-listener.h
 
 # Public C++ headers.
+# NOTE: If a new directory is added, then add it to ndn_cpp_cpp_headers in include/Makefile.am.
 ndn_cpp_cpp_headers = \
   include/ndn-cpp/common.hpp \
   include/ndn-cpp/data.hpp \
