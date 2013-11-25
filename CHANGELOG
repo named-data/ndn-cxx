@@ -1,5 +1,19 @@
-Interim changes since NDN-CPP v0.2(2013-11-14)
-* http://redmine.named-data.net/issues/1056 Fix DTAG NDNProtocolDataUnit to encode as "NDN\202\000"
+Interim changes since NDN-CPP v0.2(2013-11-25)
+
+Bug fixes
+* http://redmine.named-data.net/issues/1056 Fix DTAG NDNProtocolDataUnit to encode as "NDN\202\000".
+* http://redmine.named-data.net/issues/1064 Add ax_lib_sqlite3.m4, etc. to m4 directory so that autogen.sh works out of the box.
+* http://redmine.named-data.net/issues/1077 Move the BasicIdentityStorage sqlite file to ~/.ndnx/ndnsec-identity.db .
+  NOTE: If you have an old file at ~/.ndn-identity/identity.db, please move it to ~/.ndnx/ndnsec-identity.db .
+* Fix bug in getForwardingEntryFlags: Need to check all flags, not the first flag using "else if".
+
+Changes
+* MetaInfo: Added setFinalBlockID for Name::Component, remove unused setFinalBlockID which take uint8_t*, etc.
+* Fix clang compiler warnings: Include headers, parentheses and cast explicitly.
+
+Documentation
+* Move instructions for running ./autogen.sh from configure.ac to the Development section of INSTALL.
+* http://redmine.named-data.net/issues/1072: In Doxyfile, fix EXCLUDE for ndnboost to new location include/ndnboost .
 
 NDN-CPP v0.2 (2013-11-08)
 
