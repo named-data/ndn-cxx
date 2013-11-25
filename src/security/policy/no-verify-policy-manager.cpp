@@ -31,7 +31,7 @@ NoVerifyPolicyManager::requireVerify(const Data& data)
     
 shared_ptr<ValidationRequest>
 NoVerifyPolicyManager::checkVerificationPolicy
-  (const shared_ptr<Data>& data, const int& stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
+  (const shared_ptr<Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
 { 
   onVerified(data); 
   return shared_ptr<ValidationRequest>();

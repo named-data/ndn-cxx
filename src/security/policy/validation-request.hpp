@@ -17,7 +17,7 @@ class ValidationRequest {
 public:
   ValidationRequest
     (const ptr_lib::shared_ptr<Interest> &interest, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed,
-     const int& retry, const int& stepCount)
+     int retry, int stepCount)
   : interest_(interest), onVerified_(onVerified), onVerifyFailed_(onVerifyFailed), retry_(retry), stepCount_(stepCount)
   {
   }

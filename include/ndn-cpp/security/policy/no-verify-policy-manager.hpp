@@ -47,7 +47,7 @@ public:
    */
   virtual ptr_lib::shared_ptr<ValidationRequest>
   checkVerificationPolicy
-    (const ptr_lib::shared_ptr<Data>& data, const int& stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed);
+    (const ptr_lib::shared_ptr<Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed);
     
   /**
    * Override to always indicate that the signing certificate name and data name satisfy the signing policy.
