@@ -100,10 +100,11 @@ BasicIdentityStorage::BasicIdentityStorage()
     // Strip the ending '/'.
     homeDir.erase(homeDir.size() - 1);
   
-  string identityDir = homeDir + '/' + ".ndn-identity";
+  string identityDir = homeDir + '/' + ".ndnx";
+  // TODO: Handle non-unix file systems which don't have "mkdir -p".
   ::system(("mkdir -p " + identityDir).c_str());
   
-  int res = sqlite3_open((identityDir + '/' + "identity.db").c_str(), &database_);
+  int res = sqlite3_open((identityDir + '/' + "ndnsec-identity.db").c_str(), &database_);
 
   if (res != SQLITE_OK)
     throw SecurityException("identity DB cannot be opened/created");
