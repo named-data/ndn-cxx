@@ -20,52 +20,6 @@ struct ndn_Interest;
 namespace ndn {
   
 /**
- * An ExcludeEntry holds an ndn_ExcludeType, and if it is a COMPONENT, it holds the component value.
- */
-class ExcludeEntry {
-public:
-  /**
-   * Create an ExcludeEntry of type ndn_Exclude_ANY
-   */
-  ExcludeEntry()
-  : type_(ndn_Exclude_ANY)
-  {    
-  }
-  
-  /**
-   * Create an ExcludeEntry of type ndn_Exclude_COMPONENT.
-   */
-  ExcludeEntry(uint8_t *component, size_t componentLen) 
-  : type_(ndn_Exclude_COMPONENT), component_(component, componentLen)
-  {
-  }
-  
-  /**
-   * Create an ExcludeEntry of type ndn_Exclude_COMPONENT.
-   */
-  ExcludeEntry(const Blob& component) 
-  : type_(ndn_Exclude_COMPONENT), component_(component)
-  {
-  }
-  
-  /**
-   * Set the type in the excludeEntryStruct and to point to this component, without copying any memory.
-   * WARNING: The resulting pointer in excludeEntryStruct is invalid after a further use of this object which could reallocate memory.
-   * @param excludeEntryStruct the C ndn_NameComponent struct to receive the pointer
-   */
-  void 
-  get(struct ndn_ExcludeEntry& excludeEntryStruct) const;
-  
-  ndn_ExcludeType getType() const { return type_; }
-  
-  const Name::Component& getComponent() const { return component_; }
-  
-private:
-  ndn_ExcludeType type_;
-  Name::Component component_; /**< only used if type_ is ndn_Exclude_COMPONENT */
-}; 
-  
-/**
  * An Exclude holds a vector of ExcludeEntry.
  */
 class Exclude {
@@ -75,13 +29,78 @@ public:
    */
   Exclude() {
   }
-  
+
+  /**
+   * An Exclude::Entry holds an ndn_ExcludeType, and if it is a COMPONENT, it holds the component value.
+   */
+  class Entry {
+  public:
+    /**
+     * Create an Exclude::Entry of type ndn_Exclude_ANY
+     */
+    Entry()
+    : type_(ndn_Exclude_ANY)
+    {    
+    }
+
+    /**
+     * Create an Exclude::Entry of type ndn_Exclude_COMPONENT.
+     */
+    Entry(uint8_t *component, size_t componentLen) 
+    : type_(ndn_Exclude_COMPONENT), component_(component, componentLen)
+    {
+    }
+
+    /**
+     * Create an Exclude::Entry of type ndn_Exclude_COMPONENT.
+     */
+    Entry(const Blob& component) 
+    : type_(ndn_Exclude_COMPONENT), component_(component)
+    {
+    }
+
+    /**
+     * Set the type in the excludeEntryStruct and to point to this entry, without copying any memory.
+     * WARNING: The resulting pointer in excludeEntryStruct is invalid after a further use of this object which could reallocate memory.
+     * @param excludeEntryStruct the C ndn_ExcludeEntry struct to receive the pointer
+     */
+    void 
+    get(struct ndn_ExcludeEntry& excludeEntryStruct) const;
+
+    ndn_ExcludeType getType() const { return type_; }
+
+    const Name::Component& getComponent() const { return component_; }
+
+  private:
+    ndn_ExcludeType type_;
+    Name::Component component_; /**< only used if type_ is ndn_Exclude_COMPONENT */
+  }; 
+
+  /**
+   * Get the number of entries.
+   * @return The number of entries.
+   */
   size_t 
-  getEntryCount() const {
-    return entries_.size();
-  }
+  size() const { return entries_.size(); }
   
-  const ExcludeEntry& 
+  /**
+   * Get the entry at the given index.
+   * @param i The index of the entry, starting from 0.
+   * @return The entry at the index.
+   */
+  const Exclude::Entry& 
+  get(size_t i) const { return entries_[i]; }
+
+  /**
+   * @deprecated Use size().
+   */  
+  size_t 
+  getEntryCount() const { return entries_.size(); }
+  
+  /**
+   * @deprecated Use get(i).
+   */  
+  const Exclude::Entry& 
   getEntry(size_t i) const { return entries_[i]; }
   
   /**
@@ -106,7 +125,7 @@ public:
   Exclude& 
   appendAny()
   {    
-    entries_.push_back(ExcludeEntry());
+    entries_.push_back(Entry());
     return *this;
   }
   
@@ -119,7 +138,7 @@ public:
   Exclude& 
   appendComponent(uint8_t *component, size_t componentLength) 
   {
-    entries_.push_back(ExcludeEntry(component, componentLength));
+    entries_.push_back(Entry(component, componentLength));
     return *this;
   }
 
@@ -131,7 +150,7 @@ public:
   Exclude& 
   appendComponent(const Blob &component) 
   {
-    entries_.push_back(ExcludeEntry(component));
+    entries_.push_back(Entry(component));
     return *this;
   }
 
@@ -151,7 +170,8 @@ public:
    * Clear all the entries.
    */
   void 
-  clear() {
+  clear() 
+  {
     entries_.clear();
   }
   
@@ -162,7 +182,7 @@ public:
   std::string toUri() const;
   
 private:
-  std::vector<ExcludeEntry> entries_;
+  std::vector<Entry> entries_;
 };
 
 /**

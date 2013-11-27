@@ -348,7 +348,7 @@ Node::PendingInterest::PendingInterest
   // Set up interestStruct_.
   // TODO: Doesn't this belong in the Interest class?
   nameComponents_.reserve(interest_->getName().getComponentCount());
-  excludeEntries_.reserve(interest_->getExclude().getEntryCount());
+  excludeEntries_.reserve(interest_->getExclude().size());
   ndn_Interest_initialize
     (interestStruct_.get(), &nameComponents_[0], nameComponents_.capacity(), &excludeEntries_[0], excludeEntries_.capacity());
   interest_->get(*interestStruct_);  

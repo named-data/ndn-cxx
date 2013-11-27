@@ -10,6 +10,7 @@ Bug fixes
 Changes
 * MetaInfo: Added setFinalBlockID for Name::Component, remove unused setFinalBlockID which take uint8_t*, etc.
 * Fix clang compiler warnings: Include headers, parentheses and cast explicitly.
+* Moved class ExcludeEntry to inner class Exclude::Entry.
 
 Documentation
 * Move instructions for running ./autogen.sh from configure.ac to the Development section of INSTALL.

@@ -15,7 +15,7 @@ using namespace std;
 namespace ndn {
   
 void 
-ExcludeEntry::get(struct ndn_ExcludeEntry& excludeEntryStruct) const 
+Exclude::Entry::get(struct ndn_ExcludeEntry& excludeEntryStruct) const 
 {
   excludeEntryStruct.type = type_;
   if (type_ == ndn_Exclude_COMPONENT)
