@@ -20,7 +20,7 @@ struct ndn_Interest;
 namespace ndn {
   
 /**
- * An Exclude holds a vector of ExcludeEntry.
+ * An Exclude holds a vector of Exclude::Entry.
  */
 class Exclude {
 public:
