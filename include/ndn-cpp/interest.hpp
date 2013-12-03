@@ -27,7 +27,8 @@ public:
   /**
    * Create a new Exclude with no entries.
    */
-  Exclude() {
+  Exclude() 
+  {
   }
 
   /**
@@ -67,9 +68,11 @@ public:
     void 
     get(struct ndn_ExcludeEntry& excludeEntryStruct) const;
 
-    ndn_ExcludeType getType() const { return type_; }
+    ndn_ExcludeType 
+    getType() const { return type_; }
 
-    const Name::Component& getComponent() const { return component_; }
+    const Name::Component& 
+    getComponent() const { return component_; }
 
   private:
     ndn_ExcludeType type_;
