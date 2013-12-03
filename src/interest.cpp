@@ -100,6 +100,47 @@ Interest::get(struct ndn_Interest& interestStruct) const
   interestStruct.interestLifetimeMilliseconds = interestLifetimeMilliseconds_;
   nonce_.get(interestStruct.nonce);
 }
+
+string 
+Interest::toUri() const
+{
+  ostringstream selectors;
+
+  if (minSuffixComponents_ >= 0)
+    selectors << "&ndn.MinSuffixComponents=" << minSuffixComponents_;
+  if (maxSuffixComponents_ >= 0)
+    selectors << "&ndn.MaxSuffixComponents=" << maxSuffixComponents_;
+  if (childSelector_ >= 0)
+    selectors << "&ndn.ChildSelector=" << childSelector_;
+  if (answerOriginKind_ >= 0)
+    selectors << "&ndn.AnswerOriginKind=" << answerOriginKind_;
+  if (scope_ >= 0)
+    selectors << "&ndn.Scope=" << scope_;
+  if (interestLifetimeMilliseconds_ >= 0)
+    selectors << "&ndn.InterestLifetime=" << interestLifetimeMilliseconds_;
+  if (publisherPublicKeyDigest_.getPublisherPublicKeyDigest().size() > 0) {
+    selectors << "&ndn.PublisherPublicKeyDigest=";
+    Name::toEscapedString(*publisherPublicKeyDigest_.getPublisherPublicKeyDigest(), selectors);
+  }
+  if (nonce_.size() > 0) {
+    selectors << "&ndn.Nonce=";
+    Name::toEscapedString(*nonce_, selectors);
+  }
+  if (exclude_.size() > 0)
+    selectors << "&ndn.Exclude=" << exclude_.toUri();
+
+  ostringstream result;
+
+  result << name_.toUri();
+  string selectorsString(selectors.str());
+  if (selectorsString.size() > 0) {
+    // Replace the first & with ?.
+    result << "?";
+    result.write(&selectorsString[1], selectorsString.size() - 1);
+  }
   
+  return result.str();  
+}
+
 }
 
