@@ -182,7 +182,8 @@ public:
    * Encode this Exclude with elements separated by "," and ndn_Exclude_ANY shown as "*".
    * @return the URI string
    */
-  std::string toUri() const;
+  std::string 
+  toUri() const;
   
 private:
   std::vector<Entry> entries_;
