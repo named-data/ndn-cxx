@@ -86,17 +86,27 @@ ndn_Error ndn_BinaryXmlDecoder_decodeTypeAndValue(struct ndn_BinaryXmlDecoder *s
 
 ndn_Error ndn_BinaryXmlDecoder_readElementStartDTag(struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag)
 {
-  ndn_Error error;
-  unsigned int type;
-  unsigned int value;
-  if ((error = ndn_BinaryXmlDecoder_decodeTypeAndValue(self, &type, &value)))
-    return error;
-  
-  if (type != ndn_BinaryXml_DTAG)
-    return NDN_ERROR_header_type_is_not_a_DTAG;
-  
-  if (value != expectedTag)
-    return NDN_ERROR_did_not_get_the_expected_DTAG;
+  if (self->offset == self->previouslyPeekedDTagStartOffset) {
+    // peekDTag already decoded this DTag.
+    if (self->previouslyPeekedDTag != expectedTag)
+      return NDN_ERROR_did_not_get_the_expected_DTAG;
+
+    // Fast forward past the header.
+    self->offset = self->previouslyPeekedDTagEndOffset;
+  }
+  else {
+    ndn_Error error;
+    unsigned int type;
+    unsigned int value;
+    if ((error = ndn_BinaryXmlDecoder_decodeTypeAndValue(self, &type, &value)))
+      return error;
+
+    if (type != ndn_BinaryXml_DTAG)
+      return NDN_ERROR_header_type_is_not_a_DTAG;
+
+    if (value != expectedTag)
+      return NDN_ERROR_did_not_get_the_expected_DTAG;
+  }
   
   return NDN_ERROR_success;
 }
@@ -114,27 +124,39 @@ ndn_Error ndn_BinaryXmlDecoder_readElementClose(struct ndn_BinaryXmlDecoder *sel
 
 ndn_Error ndn_BinaryXmlDecoder_peekDTag(struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, int *gotExpectedTag)
 {
-  // Default to 0.
-  *gotExpectedTag = 0;
+  if (self->offset == self->previouslyPeekedDTagStartOffset)
+    // We already decoded this DTag.
+    *gotExpectedTag = (self->previouslyPeekedDTag == expectedTag ? 1 : 0);
+  else {
+    // Default to 0.
+    *gotExpectedTag = 0;
 
-  // First check if it is an element close (which cannot be the expected tag).  
-  if (self->offset >= self->inputLength)
-    return NDN_ERROR_read_past_the_end_of_the_input;
-  if (unsafeGetOctet(self) == ndn_BinaryXml_CLOSE)
-    return NDN_ERROR_success;
+    // First check if it is an element close (which cannot be the expected tag).  
+    if (self->offset >= self->inputLength)
+      return NDN_ERROR_read_past_the_end_of_the_input;
+    if (unsafeGetOctet(self) == ndn_BinaryXml_CLOSE)
+      return NDN_ERROR_success;
 
-  unsigned int type;
-  unsigned int value;
-  size_t saveOffset = self->offset;
-  ndn_Error error = ndn_BinaryXmlDecoder_decodeTypeAndValue(self, &type, &value);
-  // Restore offset.
-  self->offset = saveOffset;
-  
-  if (error)
-    return error;
-  
-  if (type == ndn_BinaryXml_DTAG && value == expectedTag)
-    *gotExpectedTag = 1;
+    unsigned int type;
+    unsigned int value;
+    size_t saveOffset = self->offset;
+    ndn_Error error = ndn_BinaryXmlDecoder_decodeTypeAndValue(self, &type, &value);
+    // readElementStartDTag will use this to fast forward.
+    self->previouslyPeekedDTagEndOffset = self->offset;
+    // Restore offset.
+    self->offset = saveOffset;
+
+    if (error)
+      return error;
+
+    if (type == ndn_BinaryXml_DTAG) {
+      self->previouslyPeekedDTagStartOffset = saveOffset;
+      self->previouslyPeekedDTag = value;
+
+      if (value == expectedTag)
+        *gotExpectedTag = 1;
+    }
+  }
   
   return NDN_ERROR_success;
 }

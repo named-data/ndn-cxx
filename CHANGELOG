@@ -11,6 +11,7 @@ Changes
 * MetaInfo: Added setFinalBlockID for Name::Component, remove unused setFinalBlockID which take uint8_t*, etc.
 * Fix clang compiler warnings: Include headers, parentheses and cast explicitly.
 * Moved class ExcludeEntry to inner class Exclude::Entry.
+* In BinaryXmlDecoder, cache the result of peekDTag for a speedup when decoding optional elements.
 
 Documentation
 * Move instructions for running ./autogen.sh from configure.ac to the Development section of INSTALL.
