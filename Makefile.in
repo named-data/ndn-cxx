@@ -87,9 +87,10 @@ DIST_COMMON = $(srcdir)/aminclude.am $(srcdir)/Makefile.in \
 	$(am__configure_deps) $(dist_noinst_SCRIPTS) depcomp COPYING \
 	INSTALL ar-lib compile config.guess config.sub install-sh \
 	missing ltmain.sh
-noinst_PROGRAMS = bin/test-encode-decode-forwarding-entry$(EXEEXT) \
-	bin/test-encode-decode-interest$(EXEEXT) \
+noinst_PROGRAMS = bin/test-encode-decode-benchmark$(EXEEXT) \
 	bin/test-encode-decode-data$(EXEEXT) \
+	bin/test-encode-decode-forwarding-entry$(EXEEXT) \
+	bin/test-encode-decode-interest$(EXEEXT) \
 	bin/test-get-async$(EXEEXT) bin/test-publish-async$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -210,6 +211,11 @@ am_libndn_cpp_la_OBJECTS = $(am__objects_2) $(am__objects_1) \
 	src/util/logging.lo
 libndn_cpp_la_OBJECTS = $(am_libndn_cpp_la_OBJECTS)
 PROGRAMS = $(noinst_PROGRAMS)
+am_bin_test_encode_decode_benchmark_OBJECTS =  \
+	tests/test-encode-decode-benchmark.$(OBJEXT)
+bin_test_encode_decode_benchmark_OBJECTS =  \
+	$(am_bin_test_encode_decode_benchmark_OBJECTS)
+bin_test_encode_decode_benchmark_DEPENDENCIES = libndn-cpp.la
 am_bin_test_encode_decode_data_OBJECTS =  \
 	tests/test-encode-decode-data.$(OBJEXT)
 bin_test_encode_decode_data_OBJECTS =  \
@@ -286,12 +292,14 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(libndn_c_la_SOURCES) $(libndn_cpp_la_SOURCES) \
+	$(bin_test_encode_decode_benchmark_SOURCES) \
 	$(bin_test_encode_decode_data_SOURCES) \
 	$(bin_test_encode_decode_forwarding_entry_SOURCES) \
 	$(bin_test_encode_decode_interest_SOURCES) \
 	$(bin_test_get_async_SOURCES) \
 	$(bin_test_publish_async_SOURCES)
 DIST_SOURCES = $(libndn_c_la_SOURCES) $(libndn_cpp_la_SOURCES) \
+	$(bin_test_encode_decode_benchmark_SOURCES) \
 	$(bin_test_encode_decode_data_SOURCES) \
 	$(bin_test_encode_decode_forwarding_entry_SOURCES) \
 	$(bin_test_encode_decode_interest_SOURCES) \
@@ -702,12 +710,14 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   src/util/dynamic-uint8-vector.cpp src/util/dynamic-uint8-vector.hpp \
   src/util/logging.cpp src/util/logging.hpp
 
+bin_test_encode_decode_benchmark_SOURCES = tests/test-encode-decode-benchmark.cpp
+bin_test_encode_decode_benchmark_LDADD = libndn-cpp.la
+bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
+bin_test_encode_decode_data_LDADD = libndn-cpp.la
 bin_test_encode_decode_forwarding_entry_SOURCES = tests/test-encode-decode-forwarding-entry.cpp
 bin_test_encode_decode_forwarding_entry_LDADD = libndn-cpp.la
 bin_test_encode_decode_interest_SOURCES = tests/test-encode-decode-interest.cpp
 bin_test_encode_decode_interest_LDADD = libndn-cpp.la
-bin_test_encode_decode_data_SOURCES = tests/test-encode-decode-data.cpp
-bin_test_encode_decode_data_LDADD = libndn-cpp.la
 bin_test_get_async_SOURCES = tests/test-get-async.cpp
 bin_test_get_async_LDADD = libndn-cpp.la
 bin_test_publish_async_SOURCES = tests/test-publish-async.cpp
@@ -1031,11 +1041,17 @@ tests/$(am__dirstamp):
 tests/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) tests/$(DEPDIR)
 	@: > tests/$(DEPDIR)/$(am__dirstamp)
-tests/test-encode-decode-data.$(OBJEXT): tests/$(am__dirstamp) \
+tests/test-encode-decode-benchmark.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 bin/$(am__dirstamp):
 	@$(MKDIR_P) bin
 	@: > bin/$(am__dirstamp)
+
+bin/test-encode-decode-benchmark$(EXEEXT): $(bin_test_encode_decode_benchmark_OBJECTS) $(bin_test_encode_decode_benchmark_DEPENDENCIES) $(EXTRA_bin_test_encode_decode_benchmark_DEPENDENCIES) bin/$(am__dirstamp)
+	@rm -f bin/test-encode-decode-benchmark$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(bin_test_encode_decode_benchmark_OBJECTS) $(bin_test_encode_decode_benchmark_LDADD) $(LIBS)
+tests/test-encode-decode-data.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
 bin/test-encode-decode-data$(EXEEXT): $(bin_test_encode_decode_data_OBJECTS) $(bin_test_encode_decode_data_DEPENDENCIES) $(EXTRA_bin_test_encode_decode_data_DEPENDENCIES) bin/$(am__dirstamp)
 	@rm -f bin/test-encode-decode-data$(EXEEXT)
@@ -1163,6 +1179,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/util/$(DEPDIR)/changed-event.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/util/$(DEPDIR)/dynamic-uint8-vector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/util/$(DEPDIR)/logging.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-benchmark.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-forwarding-entry.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-encode-decode-interest.Po@am__quote@
