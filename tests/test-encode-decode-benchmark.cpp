@@ -8,6 +8,7 @@
 #include <iostream>
 #include <time.h>
 #include <sys/time.h>
+#include <stdexcept>
 #include <ndn-cpp/data.hpp>
 // Hack: Hook directly into non-API functions.
 #include "../src/c/encoding/binary-xml-decoder.h"
@@ -19,11 +20,11 @@ using namespace ndn;
 using namespace ndn::ptr_lib;
 
 static double
-getNowMicroseconds()
+getNowSeconds()
 {
   struct timeval t;
   gettimeofday(&t, 0);
-  return t.tv_sec * 1000000.0 + t.tv_usec;
+  return t.tv_sec + t.tv_usec / 1000000.0;
 }
 
 uint8_t Data1[] = {
@@ -78,15 +79,19 @@ testDataDecodeCpp()
   double nIterations = 1000000;
   
   size_t nameSize = 0;
-  double start = getNowMicroseconds();
+  double start = getNowSeconds();
   for (int i = 0; i < nIterations; ++i) {
     Data data;
     data.wireDecode(Data1, sizeof(Data1));
     nameSize = data.getName().size();
   }
-  double finish = getNowMicroseconds();
+  double finish = getNowSeconds();
+ 
+  // Sanity check that we are actually decoding.
+  if (nameSize != 2)
+   throw runtime_error("Unexpected data packet name size");
   
-  cout << "Data decode C++: name size: " << nameSize << ", usec: " << ((finish - start) / nIterations) << endl;  
+  cout << "Data decode C++: Duration sec: " << (finish - start) << ", Hz: " << (nIterations / (finish - start)) << endl;  
 }
 
 static void 
@@ -95,7 +100,7 @@ testDataDecodeC()
   double nIterations = 20000000;
   
   size_t nameSize = 0;
-  double start = getNowMicroseconds();
+  double start = getNowSeconds();
   for (int i = 0; i < nIterations; ++i) {
     struct ndn_NameComponent nameComponents[100];
     struct ndn_NameComponent keyNameComponents[100];
@@ -116,16 +121,23 @@ testDataDecodeC()
     
     nameSize = dataStruct.name.nComponents;
   }
-  double finish = getNowMicroseconds();
+  double finish = getNowSeconds();
+ 
+  // Sanity check that we are actually decoding.
+  if (nameSize != 2)
+   throw runtime_error("Unexpected data packet name size");
   
-  cout << "Data decode C:   name size: " << nameSize << ", usec: " << ((finish - start) / nIterations) << endl;  
+  cout << "Data decode C:   Duration sec: " << (finish - start) << ", Hz: " << (nIterations / (finish - start)) << endl;  
 }
 
 int 
 main(int argc, char** argv)
 {
-  testDataDecodeCpp();
-  testDataDecodeC();
-  
+  try {
+    testDataDecodeCpp();
+    testDataDecodeC();
+  } catch (std::exception& e) {
+    cout << "exception: " << e.what() << endl;
+  }
   return 0;
 }
