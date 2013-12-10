@@ -73,16 +73,22 @@ uint8_t Data1[] = {
 1
 };
 
-static void 
-testDataDecodeCpp()
+#if 0
+static Blob
+testEncodeComplexDataCpp()
 {
-  double nIterations = 1000000;
   
+}
+#endif
+
+static double 
+benchmarkDataDecodeSecondsCpp(int nIterations, const Blob& encoding)
+{
   size_t nameSize = 0;
   double start = getNowSeconds();
   for (int i = 0; i < nIterations; ++i) {
     Data data;
-    data.wireDecode(Data1, sizeof(Data1));
+    data.wireDecode(*encoding);
     nameSize = data.getName().size();
   }
   double finish = getNowSeconds();
@@ -91,14 +97,12 @@ testDataDecodeCpp()
   if (nameSize != 2)
    throw runtime_error("Unexpected data packet name size");
   
-  cout << "Data decode C++: Duration sec: " << (finish - start) << ", Hz: " << (nIterations / (finish - start)) << endl;  
+  return finish - start;
 }
 
-static void 
-testDataDecodeC()
+static double 
+benchmarkDataDecodeSecondsC(double nIterations, uint8_t *encoding, size_t encodingLength)
 {
-  double nIterations = 20000000;
-  
   size_t nameSize = 0;
   double start = getNowSeconds();
   for (int i = 0; i < nIterations; ++i) {
@@ -110,13 +114,13 @@ testDataDecodeC()
        keyNameComponents, sizeof(keyNameComponents) / sizeof(keyNameComponents[0]));
 
     ndn_BinaryXmlDecoder decoder;
-    ndn_BinaryXmlDecoder_initialize(&decoder, Data1, sizeof(Data1));  
+    ndn_BinaryXmlDecoder_initialize(&decoder, encoding, encodingLength);  
     size_t signedPortionBeginOffset, signedPortionEndOffset;
     ndn_Error error;
     if ((error = ndn_decodeBinaryXmlData(&dataStruct, &signedPortionBeginOffset, &signedPortionEndOffset, &decoder)))
     {
       cout << "Error in ndn_decodeBinaryXmlData: " << ndn_getErrorString(error) << endl;
-      return;
+      return 0;
     }
     
     nameSize = dataStruct.name.nComponents;
@@ -127,15 +131,25 @@ testDataDecodeC()
   if (nameSize != 2)
    throw runtime_error("Unexpected data packet name size");
   
-  cout << "Data decode C:   Duration sec: " << (finish - start) << ", Hz: " << (nIterations / (finish - start)) << endl;  
+  return finish - start;
 }
 
 int 
 main(int argc, char** argv)
 {
   try {
-    testDataDecodeCpp();
-    testDataDecodeC();
+    {
+      Blob encoding(Data1, sizeof(Data1));
+
+      int nIterations = 1000000;
+      double duration = benchmarkDataDecodeSecondsCpp(nIterations, encoding);
+      cout << "Data decode C++: Duration sec: " << duration << ", Hz: " << (nIterations / duration) << endl;  
+    }
+    {
+      int nIterations = 20000000;
+      double duration = benchmarkDataDecodeSecondsC(nIterations, Data1, sizeof(Data1));
+      cout << "Data decode C:   Duration sec: " << duration << ", Hz: " << (nIterations / duration) << endl;  
+    }
   } catch (std::exception& e) {
     cout << "exception: " << e.what() << endl;
   }
