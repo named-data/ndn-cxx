@@ -420,10 +420,10 @@ benchmarkDecodeDataSecondsC(int nIterations, bool useCrypto, uint8_t* encoding, 
 }
 
 /**
- * Call benchmarkEncodeDataCpp and benchmarkDecodeDataSecondsCpp with appropriate nInterations.  Print the 
+ * Call benchmarkEncodeDataSecondsCpp and benchmarkDecodeDataSecondsCpp with appropriate nInterations.  Print the 
  * results to cout.
- * @param useComplex See benchmarkEncodeDataCpp and benchmarkDecodeDataSecondsCpp.
- * @param useCrypto See benchmarkEncodeDataCpp and benchmarkDecodeDataSecondsCpp.
+ * @param useComplex See benchmarkEncodeDataSecondsCpp and benchmarkDecodeDataSecondsCpp.
+ * @param useCrypto See benchmarkEncodeDataSecondsCpp and benchmarkDecodeDataSecondsCpp.
  */
 static void
 benchmarkEncodeDecodeDataCpp(bool useComplex, bool useCrypto)
@@ -444,10 +444,10 @@ benchmarkEncodeDecodeDataCpp(bool useComplex, bool useCrypto)
 }
 
 /**
- * Call benchmarkEncodeDataC and benchmarkDecodeDataSecondsC with appropriate nInterations.  Print the 
+ * Call benchmarkEncodeDataSecondsC and benchmarkDecodeDataSecondsC with appropriate nInterations.  Print the 
  * results to cout.
- * @param useComplex See benchmarkEncodeDataC and benchmarkDecodeDataSecondsC.
- * @param useCrypto See benchmarkEncodeDataC and benchmarkDecodeDataSecondsC.
+ * @param useComplex See benchmarkEncodeDataSecondsC and benchmarkDecodeDataSecondsC.
+ * @param useCrypto See benchmarkEncodeDataSecondsC and benchmarkDecodeDataSecondsC.
  */
 static void
 benchmarkEncodeDecodeDataC(bool useComplex, bool useCrypto)
