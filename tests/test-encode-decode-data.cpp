@@ -12,7 +12,7 @@
 #include <ndn-cpp/data.hpp>
 #include <ndn-cpp/security/identity/memory-identity-storage.hpp>
 #include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
-#include <ndn-cpp/security/policy/no-verify-policy-manager.hpp>
+#include <ndn-cpp/security/policy/self-verify-policy-manager.hpp>
 #include <ndn-cpp/security/key-chain.hpp>
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
 
@@ -241,7 +241,8 @@ int main(int argc, char** argv)
     shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
     shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
     KeyChain keyChain
-      (make_shared<IdentityManager>(identityStorage, privateKeyStorage), make_shared<NoVerifyPolicyManager>());
+      (make_shared<IdentityManager>(identityStorage, privateKeyStorage), 
+       make_shared<SelfVerifyPolicyManager>(identityStorage.get()));
     
     // Initialize the storage.
     Name keyName("/testname/DSK-123");
