@@ -46,12 +46,8 @@ ndn_Error ndn_decodeBinaryXmlName(struct ndn_Name *name, struct ndn_BinaryXmlDec
     struct ndn_Blob component;
     if ((error = ndn_BinaryXmlDecoder_readBinaryDTagElement(decoder, ndn_BinaryXml_DTag_Component, 0, &component)))
       return error;
-    
-    // Add the component to the name.
-    if (name->nComponents >= name->maxComponents)
-      return NDN_ERROR_read_a_component_past_the_maximum_number_of_components_allowed_in_the_name;
-    ndn_NameComponent_initialize(name->components + name->nComponents, component.value, component.length);
-    ++name->nComponents;
+    if ((error = ndn_Name_appendBlob(name, &component)))
+      return error;
   }
   
   if ((error = ndn_BinaryXmlDecoder_readElementClose(decoder)))
