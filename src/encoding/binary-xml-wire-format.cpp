@@ -75,7 +75,7 @@ BinaryXmlWireFormat::encodeData(const Data& data, size_t *signedPortionBeginOffs
      keyNameComponents, sizeof(keyNameComponents) / sizeof(keyNameComponents[0]));
   data.get(dataStruct);
 
-  BinaryXmlEncoder encoder;
+  BinaryXmlEncoder encoder(1500);
   ndn_Error error;
   if ((error = ndn_encodeBinaryXmlData(&dataStruct, signedPortionBeginOffset, signedPortionEndOffset, &encoder)))
     throw runtime_error(ndn_getErrorString(error));
