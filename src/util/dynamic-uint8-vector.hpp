@@ -30,7 +30,7 @@ public:
    * Get the shared_ptr to the allocated vector.
    * @return The shared_ptr to the allocated vector. 
    */
-  const ptr_lib::shared_ptr<std::vector<uint8_t> >& 
+  ptr_lib::shared_ptr<std::vector<uint8_t> >& 
   get() { return vector_; }
   
 private:
