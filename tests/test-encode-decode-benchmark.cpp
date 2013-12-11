@@ -21,6 +21,7 @@
 #include "../src/c/encoding/binary-xml-decoder.h"
 #include "../src/c/data.h"
 #include "../src/c/encoding/binary-xml-data.h"
+#include "../src/c/util/crypto.h"
 
 using namespace std;
 using namespace ndn;
@@ -32,6 +33,33 @@ getNowSeconds()
   struct timeval t;
   gettimeofday(&t, 0);
   return t.tv_sec + t.tv_usec / 1000000.0;
+}
+
+static bool
+verifyRsaSignature
+  (uint8_t* signedPortion, size_t signedPortionLength, uint8_t* signatureBits, size_t signatureBitsLength, 
+   uint8_t* publicKeyDer, size_t publicKeyDerLength)
+{
+  // Set signedPortionDigest to the digest of the signed portion of the wire encoding.
+  uint8_t signedPortionDigest[SHA256_DIGEST_LENGTH];
+  ndn_digestSha256(signedPortion, signedPortionLength, signedPortionDigest);
+  
+  // Verify the signedPortionDigest.
+  // Use a temporary pointer since d2i updates it.
+  const uint8_t *derPointer = publicKeyDer;
+  RSA *rsaPublicKey = d2i_RSA_PUBKEY(NULL, &derPointer, publicKeyDerLength);
+  if (!rsaPublicKey) {
+    // Don't expect this to happen.
+    cout << "Error decoding public key in d2i_RSAPublicKey" << endl;
+    return 0;
+  }
+  int success = RSA_verify
+    (NID_sha256, signedPortionDigest, sizeof(signedPortionDigest), signatureBits, signatureBitsLength, rsaPublicKey);
+  // Free the public key before checking for success.
+  RSA_free(rsaPublicKey);
+  
+  // RSA_verify returns 1 for a valid signature.
+  return (success == 1);
 }
 
 static uint8_t DEFAULT_PUBLIC_KEY_DER[] = {
@@ -150,6 +178,7 @@ benchmarkEncodeDataSecondsCpp(int nIterations, bool useComplex, bool useCrypto, 
       KeyLocator keyLocator;    
       keyLocator.setType(ndn_KeyLocatorType_KEYNAME);
       keyLocator.setKeyName(certificateName);
+      keyLocator.setKeyNameType((ndn_KeyNameType)-1);
       Sha256WithRsaSignature* sha256Signature = (Sha256WithRsaSignature*)data.getSignature();
       sha256Signature->setKeyLocator(keyLocator);
       sha256Signature->getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(publisherPublicKeyDigest);
@@ -265,14 +294,24 @@ benchmarkEncodeDataSecondsC
   ndn_Name_appendString(&certificateName, (char*)"0");
   
   // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is false.
-  uint8_t publisherPublicKeyDigestArray[32];
-  memset(publisherPublicKeyDigestArray, 0, sizeof(publisherPublicKeyDigestArray));
+  uint8_t* publicKeyDer = DEFAULT_PUBLIC_KEY_DER;
+  size_t publicKeyDerLength = sizeof(DEFAULT_PUBLIC_KEY_DER);
+  uint8_t publisherPublicKeyDigestArray[SHA256_DIGEST_LENGTH];
+  ndn_digestSha256(publicKeyDer, publicKeyDerLength, publisherPublicKeyDigestArray);
   struct ndn_Blob publisherPublicKeyDigest;
   ndn_Blob_initialize(&publisherPublicKeyDigest, publisherPublicKeyDigestArray, sizeof(publisherPublicKeyDigestArray));
   uint8_t signatureBitsArray[128];
   memset(signatureBitsArray, 0, sizeof(signatureBitsArray));
-  struct ndn_Blob signatureBits;
-  ndn_Blob_initialize(&signatureBits, signatureBitsArray, sizeof(signatureBitsArray));
+  
+  // Set up the private key now in case useCrypto is true.
+  // Use a temporary pointer since d2i updates it.
+  const uint8_t *privateKeyDerPointer = DEFAULT_PRIVATE_KEY_DER;
+  RSA *privateKey = d2i_RSAPrivateKey(NULL, &privateKeyDerPointer, sizeof(DEFAULT_PRIVATE_KEY_DER));
+  if (!privateKey) {
+    // Don't expect this to happen.
+    cout << "Error decoding private key DER" << endl;
+    return 0;
+  }
   
   double start = getNowSeconds();
   for (int i = 0; i < nIterations; ++i) {
@@ -287,33 +326,53 @@ benchmarkEncodeDataSecondsC
       ndn_NameComponent_initialize(&data.metaInfo.finalBlockID, finalBlockId.value, finalBlockId.length);
     }
 
-    if (useCrypto)
-      // This sets the signature fields.
-      throw runtime_error("C signing not implemented");
-    else {
-      // Imitate IdentityManager::signByCertificate to set up the signature fields, but don't sign.
-      data.signature.keyLocator.type = ndn_KeyLocatorType_KEYNAME;
-      data.signature.keyLocator.keyName = certificateName;
-      data.signature.publisherPublicKeyDigest.publisherPublicKeyDigest = publisherPublicKeyDigest;
-      data.signature.signature = signatureBits;
-    }
-
     struct ndn_DynamicUInt8Array output;
-    // Assume the encoding buffer is big enough so we don't need to dynamically reallocate.
-    ndn_DynamicUInt8Array_initialize(&output, encoding, maxEncodingLength, 0);
     struct ndn_BinaryXmlEncoder encoder;
-    ndn_BinaryXmlEncoder_initialize(&encoder, &output);
-    
     size_t signedPortionBeginOffset, signedPortionEndOffset;
     ndn_Error error;
+
+    data.signature.keyLocator.type = ndn_KeyLocatorType_KEYNAME;
+    data.signature.keyLocator.keyName = certificateName;
+    data.signature.keyLocator.keyNameType = (ndn_KeyNameType)-1;
+    data.signature.publisherPublicKeyDigest.publisherPublicKeyDigest = publisherPublicKeyDigest;
+    if (useCrypto) {
+      // Encode once to get the signed portion.
+      ndn_DynamicUInt8Array_initialize(&output, encoding, maxEncodingLength, 0);
+      ndn_BinaryXmlEncoder_initialize(&encoder, &output);    
+      if ((error = ndn_encodeBinaryXmlData(&data, &signedPortionBeginOffset, &signedPortionEndOffset, &encoder))) {
+        cout << "Error in ndn_encodeBinaryXmlData: " << ndn_getErrorString(error) << endl;
+        return 0;
+      }
+      
+      // Imitate MemoryPrivateKeyStorage::sign.
+      uint8_t digest[SHA256_DIGEST_LENGTH];
+      ndn_digestSha256(encoding + signedPortionBeginOffset, signedPortionEndOffset - signedPortionBeginOffset, digest);
+      unsigned int signatureBitsLength;
+      if (!RSA_sign(NID_sha256, digest, sizeof(digest), signatureBitsArray, &signatureBitsLength, privateKey)) {
+        // Don't expect this to happen.
+        cout << "Error in RSA_sign" << endl;
+        return 0;
+      }    
+      
+      ndn_Blob_initialize(&data.signature.signature, signatureBitsArray, signatureBitsLength);
+    }
+    else
+      // Set up the signature, but don't sign.
+      ndn_Blob_initialize(&data.signature.signature, signatureBitsArray, sizeof(signatureBitsArray));
+
+    // Assume the encoding buffer is big enough so we don't need to dynamically reallocate.
+    ndn_DynamicUInt8Array_initialize(&output, encoding, maxEncodingLength, 0);
+    ndn_BinaryXmlEncoder_initialize(&encoder, &output);    
     if ((error = ndn_encodeBinaryXmlData(&data, &signedPortionBeginOffset, &signedPortionEndOffset, &encoder))) {
       cout << "Error in ndn_encodeBinaryXmlData: " << ndn_getErrorString(error) << endl;
       return 0;
-    }
-    
+    }    
     *encodingLength = encoder.offset;
   }
   double finish = getNowSeconds();
+  
+  if (privateKey)
+    RSA_free(privateKey);
   
   return finish - start;
 }
@@ -333,18 +392,26 @@ benchmarkDecodeDataSecondsC(int nIterations, bool useCrypto, uint8_t* encoding, 
   for (int i = 0; i < nIterations; ++i) {
     struct ndn_NameComponent nameComponents[100];
     struct ndn_NameComponent keyNameComponents[100];
-    struct ndn_Data dataStruct;
+    struct ndn_Data data;
     ndn_Data_initialize
-      (&dataStruct, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
+      (&data, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]), 
        keyNameComponents, sizeof(keyNameComponents) / sizeof(keyNameComponents[0]));
 
     ndn_BinaryXmlDecoder decoder;
     ndn_BinaryXmlDecoder_initialize(&decoder, encoding, encodingLength);  
     size_t signedPortionBeginOffset, signedPortionEndOffset;
     ndn_Error error;
-    if ((error = ndn_decodeBinaryXmlData(&dataStruct, &signedPortionBeginOffset, &signedPortionEndOffset, &decoder))) {
+    if ((error = ndn_decodeBinaryXmlData(&data, &signedPortionBeginOffset, &signedPortionEndOffset, &decoder))) {
       cout << "Error in ndn_decodeBinaryXmlData: " << ndn_getErrorString(error) << endl;
       return 0;
+    }
+    
+    if (useCrypto) {
+      if (!verifyRsaSignature
+          (encoding + signedPortionBeginOffset, signedPortionEndOffset - signedPortionBeginOffset,
+           data.signature.signature.value, data.signature.signature.length,
+           DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)))
+        cout << "Signature verification: FAILED" << endl;
     }
   }
   double finish = getNowSeconds();
@@ -369,7 +436,7 @@ benchmarkEncodeDecodeDataCpp(bool useComplex, bool useCrypto)
          << ", Duration sec, Hz: " << duration << ", " << (nIterations / duration) << endl;  
   }
   {
-    int nIterations = useCrypto ? 100000 : 500000;;
+    int nIterations = useCrypto ? 100000 : 500000;
     double duration = benchmarkDecodeDataSecondsCpp(nIterations, useCrypto, encoding);
     cout << "Decode " << (useComplex ? "complex" : "simple ") << " data C++: Crypto? " << (useCrypto ? "yes" : "no ") 
          << ", Duration sec, Hz: " << duration << ", " << (nIterations / duration) << endl;  
@@ -394,7 +461,7 @@ benchmarkEncodeDecodeDataC(bool useComplex, bool useCrypto)
          << ", Duration sec, Hz: " << duration << ", " << (nIterations / duration) << endl;  
   }
   {
-    int nIterations = useCrypto ? 100000 : 15000000;
+    int nIterations = useCrypto ? 150000 : 15000000;
     double duration = benchmarkDecodeDataSecondsC(nIterations, useCrypto, encoding, encodingLength);
     cout << "Decode " << (useComplex ? "complex" : "simple ") << " data C:   Crypto? " << (useCrypto ? "yes" : "no ") 
          << ", Duration sec, Hz: " << duration << ", " << (nIterations / duration) << endl;  
@@ -412,6 +479,8 @@ main(int argc, char** argv)
     
     benchmarkEncodeDecodeDataC(false, false);
     benchmarkEncodeDecodeDataC(true, false);
+    benchmarkEncodeDecodeDataC(false, true);
+    benchmarkEncodeDecodeDataC(true, true);
   } catch (std::exception& e) {
     cout << "exception: " << e.what() << endl;
   }
