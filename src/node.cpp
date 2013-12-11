@@ -180,7 +180,7 @@ Node::removeRegisteredPrefix(uint64_t registeredPrefixId)
 void 
 Node::NdndIdFetcher::operator()(const shared_ptr<const Interest>& interest, const shared_ptr<Data>& ndndIdData)
 {
-  Sha256WithRsaSignature *signature = dynamic_cast<Sha256WithRsaSignature*>(ndndIdData->getSignature());
+  const Sha256WithRsaSignature *signature = dynamic_cast<const Sha256WithRsaSignature*>(ndndIdData->getSignature());
   if (signature && signature->getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
     // Set the ndndId_ and continue.
     // TODO: If there are multiple connected hubs, the NDN ID is really stored per connected hub.
