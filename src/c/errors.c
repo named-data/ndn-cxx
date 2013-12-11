@@ -29,8 +29,8 @@ char *ndn_getErrorString(int error)
     return      "Header type is out of range";
   case NDN_ERROR_encodeTypeAndValue_miscalculated_N_encoding_bytes:
     return      "EncodeTypeAndValue miscalculated N encoding bytes";
-  case NDN_ERROR_read_a_component_past_the_maximum_number_of_components_allowed_in_the_name:
-    return      "Read a component past the maximum number of components allowed in the name";
+  case NDN_ERROR_attempt_to_add_a_component_past_the_maximum_number_of_components_allowed_in_the_name:
+    return      "Attempt to add a component past the maximum number of components allowed in the name";
   case NDN_ERROR_read_an_entry_past_the_maximum_number_of_entries_allowed_in_the_exclude:
     return      "Read an entry past the maximum number of entries allowed in the exclude";
   case NDN_ERROR_findElementEnd_unexpected_close_tag:
