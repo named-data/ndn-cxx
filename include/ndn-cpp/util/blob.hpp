@@ -66,7 +66,7 @@ public:
    * @param value A pointer to a vector with the byte array.  This takes another reference and does not copy the bytes.
    */
   Blob(const ptr_lib::shared_ptr<std::vector<uint8_t> > &value)
-  : ptr_lib::shared_ptr<const std::vector<uint8_t> >(value)
+  : ptr_lib::shared_ptr<const std::vector<uint8_t> >((const ptr_lib::shared_ptr<const std::vector<uint8_t> > &)value)
   {
   }
   Blob(const ptr_lib::shared_ptr<const std::vector<uint8_t> > &value)
