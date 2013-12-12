@@ -21,10 +21,10 @@ namespace der {
 ndnboost::any 
 PublicKeyVisitor::visit(DerSequence& derSeq)
 {
-  const DerNodePtrList& children = derSeq.getChildren();
+  DerNodePtrList& children = derSeq.getChildren();
 
   SimpleVisitor simpleVisitor;
-  shared_ptr<DerSequence> algoSeq = dynamic_pointer_cast<DerSequence>(children[0]); 
+  shared_ptr<DerSequence> algoSeq = static_cast<shared_ptr<DerSequence> >(children[0]); 
   OID algorithm = ndnboost::any_cast<OID>(algoSeq->getChildren()[0]->accept(simpleVisitor));  
   Blob raw = derSeq.getRaw();   
   return ndnboost::any(shared_ptr<PublicKey>(new PublicKey(algorithm, raw)));    

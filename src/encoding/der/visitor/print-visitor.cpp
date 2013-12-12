@@ -100,8 +100,8 @@ PrintVisitor::visit(DerSequence& derSequence, ndnboost::any param)
   
   printData(derSequence.getHeader(), indent);
 
-  const DerNodePtrList& children = derSequence.getChildren();
-  DerNodePtrList::const_iterator it = children.begin();
+  DerNodePtrList& children = derSequence.getChildren();
+  DerNodePtrList::iterator it = children.begin();
   for(; it != children.end(); it++)
   (*it)->accept(*this, indent + " | ");
 }

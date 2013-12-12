@@ -34,7 +34,7 @@ CertificateDataVisitor::visit(DerSequence& derSeq, ndnboost::any param)
 {
   // _LOG_DEBUG("CertificateDataVisitor::visit");
 
-  const DerNodePtrList& children = derSeq.getChildren();
+  DerNodePtrList& children = derSeq.getChildren();
   CertificateValidityVisitor validityVisitor;
   children[0]->accept(validityVisitor, param);
   CertificateSubjectVisitor subjectVisitor;
@@ -60,7 +60,7 @@ CertificateValidityVisitor::visit(DerSequence& derSeq, ndnboost::any param)
   
   Certificate* certData = ndnboost::any_cast<Certificate*>(param); 
 
-  const DerNodePtrList& children = derSeq.getChildren();
+  DerNodePtrList& children = derSeq.getChildren();
   
   SimpleVisitor simpleVisitor;
 
@@ -82,7 +82,7 @@ CertificateSubjectDescriptionVisitor::visit(DerSequence& derSeq, ndnboost::any p
 {
   Certificate* certData = ndnboost::any_cast<Certificate*>(param); 
   
-  const DerNodePtrList& children = derSeq.getChildren();
+  DerNodePtrList& children = derSeq.getChildren();
   
   SimpleVisitor simpleVisitor;
 
@@ -102,11 +102,11 @@ CertificateSubjectVisitor::visit(DerSequence& derSeq, ndnboost::any param)
 {
   // _LOG_DEBUG("CertSubjectVisitor::visit");
 
-  const DerNodePtrList& children = derSeq.getChildren();
+  DerNodePtrList& children = derSeq.getChildren();
   
   CertificateSubjectDescriptionVisitor descryptVisitor;
 
-  DerNodePtrList::const_iterator it = children.begin();
+  DerNodePtrList::iterator it = children.begin();
 
   while(it != children.end()) {
     (*it)->accept(descryptVisitor, param);
@@ -122,7 +122,7 @@ CertificateExtensionEntryVisitor::visit(DerSequence& derSeq, ndnboost::any param
 {
   Certificate* certData = ndnboost::any_cast<Certificate*>(param); 
   
-  const DerNodePtrList& children = derSeq.getChildren();
+  DerNodePtrList& children = derSeq.getChildren();
   
   SimpleVisitor simpleVisitor;
 
@@ -141,11 +141,11 @@ CertificateExtensionEntryVisitor::visit(DerSequence& derSeq, ndnboost::any param
 void 
 CertificateExtensionVisitor::visit(DerSequence& derSeq, ndnboost::any param)
 {
-  const DerNodePtrList& children = derSeq.getChildren();
+  DerNodePtrList& children = derSeq.getChildren();
   
   CertificateExtensionEntryVisitor extnEntryVisitor;
 
-  DerNodePtrList::const_iterator it = children.begin();
+  DerNodePtrList::iterator it = children.begin();
 
   while(it != children.end()) {
     (*it)->accept(extnEntryVisitor, param);
