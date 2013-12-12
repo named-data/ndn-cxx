@@ -34,7 +34,7 @@ public:
    * @param port The port of the NDN hub. If omitted. use 6363.
    */
   Face(const char *host, unsigned short port = 6363)
-  : node_(ptr_lib::make_shared<TcpTransport>(), 
+  : node_(ptr_lib::shared_ptr<TcpTransport>(new TcpTransport()), 
           ptr_lib::make_shared<TcpTransport::ConnectionInfo>(host, port))
   {
   }
