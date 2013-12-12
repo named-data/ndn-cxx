@@ -429,13 +429,13 @@ benchmarkEncodeDecodeDataCpp(bool useComplex, bool useCrypto)
 {
   Blob encoding;
   {
-    int nIterations = useCrypto ? 20000 : 100;
+    int nIterations = useCrypto ? 20000 : 2000000;
     double duration = benchmarkEncodeDataSecondsCpp(nIterations, useComplex, useCrypto, encoding);
     cout << "Encode " << (useComplex ? "complex" : "simple ") << " data C++: Crypto? " << (useCrypto ? "yes" : "no ") 
          << ", Duration sec, Hz: " << duration << ", " << (nIterations / duration) << endl;  
   }
   {
-    int nIterations = useCrypto ? 100000 : 100;
+    int nIterations = useCrypto ? 100000 : 2000000;
     double duration = benchmarkDecodeDataSecondsCpp(nIterations, useCrypto, encoding);
     cout << "Decode " << (useComplex ? "complex" : "simple ") << " data C++: Crypto? " << (useCrypto ? "yes" : "no ") 
          << ", Duration sec, Hz: " << duration << ", " << (nIterations / duration) << endl;  
