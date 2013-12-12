@@ -17,7 +17,6 @@
 
 using namespace std;
 using namespace ndn;
-using namespace ndn::ptr_lib;
 using namespace ndn::func_lib;
 
 static uint8_t DEFAULT_PUBLIC_KEY_DER[] = {
@@ -75,7 +74,7 @@ public:
   
   // onInterest.
   void operator()
-     (const shared_ptr<const Name>& prefix, const shared_ptr<const Interest>& interest, Transport& transport,
+     (const ptr_lib::shared_ptr<const Name>& prefix, const ptr_lib::shared_ptr<const Interest>& interest, Transport& transport,
       uint64_t registeredPrefixId) 
   {
     ++responseCount_;
@@ -93,7 +92,7 @@ public:
   }
   
   // onRegisterFailed.
-  void operator()(const shared_ptr<const Name>& prefix)
+  void operator()(const ptr_lib::shared_ptr<const Name>& prefix)
   {
     ++responseCount_;
     cout << "Register failed for prefix " << prefix->toUri() << endl;
@@ -109,10 +108,10 @@ int main(int argc, char** argv)
   try {
     Face face("localhost");
         
-    shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
-    shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
+    ptr_lib::shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
+    ptr_lib::shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
     KeyChain keyChain
-      (make_shared<IdentityManager>(identityStorage, privateKeyStorage), make_shared<NoVerifyPolicyManager>());
+      (ptr_lib::make_shared<IdentityManager>(identityStorage, privateKeyStorage), ptr_lib::shared_ptr<NoVerifyPolicyManager>(new NoVerifyPolicyManager()));
     keyChain.setFace(&face);
     
     // Initialize the storage.

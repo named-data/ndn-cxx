@@ -18,7 +18,6 @@
 
 using namespace std;
 using namespace ndn;
-using namespace ndn::ptr_lib;
 using namespace ndn::func_lib;
 #if NDN_CPP_HAVE_STD_FUNCTION
 // In the std library, the placeholders are in a different namespace than boost.                                                           
@@ -208,12 +207,12 @@ static void dumpData(const Data& data)
   }
 }
 
-static void onVerified(const char *prefix, const shared_ptr<Data>& data)
+static void onVerified(const char *prefix, const ptr_lib::shared_ptr<Data>& data)
 {
   cout << prefix << " signature verification: VERIFIED" << endl;
 }
 
-static void onVerifyFailed(const char *prefix, const shared_ptr<Data>& data)
+static void onVerifyFailed(const char *prefix, const ptr_lib::shared_ptr<Data>& data)
 {
   cout << prefix << " signature verification: FAILED" << endl;
 }
@@ -221,28 +220,28 @@ static void onVerifyFailed(const char *prefix, const shared_ptr<Data>& data)
 int main(int argc, char** argv)
 {
   try {
-    shared_ptr<Data> data(new Data());
+    ptr_lib::shared_ptr<Data> data(new Data());
     data->wireDecode(Data1, sizeof(Data1));
     cout << "Decoded Data:" << endl;
     dumpData(*data);
     
     Blob encoding = data->wireEncode();
     
-    shared_ptr<Data> reDecodedData(new Data());
+    ptr_lib::shared_ptr<Data> reDecodedData(new Data());
     reDecodedData->wireDecode(*encoding);
     cout << endl << "Re-decoded Data:" << endl;
     dumpData(*reDecodedData);
   
-    shared_ptr<Data> freshData(new Data(Name("/ndn/abc")));
+    ptr_lib::shared_ptr<Data> freshData(new Data(Name("/ndn/abc")));
     const uint8_t freshContent[] = "SUCCESS!";
     freshData->setContent(freshContent, sizeof(freshContent) - 1);
     freshData->getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0);
     
-    shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
-    shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
+    ptr_lib::shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
+    ptr_lib::shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
     KeyChain keyChain
-      (make_shared<IdentityManager>(identityStorage, privateKeyStorage), 
-       make_shared<SelfVerifyPolicyManager>(identityStorage.get()));
+      (ptr_lib::make_shared<IdentityManager>(identityStorage, privateKeyStorage), 
+       ptr_lib::make_shared<SelfVerifyPolicyManager>(identityStorage.get()));
     
     // Initialize the storage.
     Name keyName("/testname/DSK-123");

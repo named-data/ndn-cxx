@@ -25,7 +25,6 @@
 
 using namespace std;
 using namespace ndn;
-using namespace ndn::ptr_lib;
 
 static double
 getNowSeconds()
@@ -141,11 +140,11 @@ benchmarkEncodeDataSecondsCpp(int nIterations, bool useComplex, bool useCrypto, 
   Blob finalBlockId((uint8_t*)"\x00", 1);
   
   // Initialize the KeyChain storage in case useCrypto is true.
-  shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
-  shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
+  ptr_lib::shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
+  ptr_lib::shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
   KeyChain keyChain
-    (make_shared<IdentityManager>(identityStorage, privateKeyStorage), 
-     make_shared<SelfVerifyPolicyManager>(identityStorage.get()));
+    (ptr_lib::make_shared<IdentityManager>(identityStorage, privateKeyStorage), 
+     ptr_lib::make_shared<SelfVerifyPolicyManager>(identityStorage.get()));
   Name keyName("/testname/DSK-123");
   Name certificateName = keyName.getSubName(0, keyName.size() - 1).append("KEY").append
     (keyName.get(keyName.size() - 1)).append("ID-CERT").append("0");
@@ -193,13 +192,13 @@ benchmarkEncodeDataSecondsCpp(int nIterations, bool useComplex, bool useCrypto, 
 }
 
 static void 
-onVerified(const shared_ptr<Data>& data)
+onVerified(const ptr_lib::shared_ptr<Data>& data)
 {
   // Do nothing since we expect it to verify.
 }
 
 static void 
-onVerifyFailed(const shared_ptr<Data>& data)
+onVerifyFailed(const ptr_lib::shared_ptr<Data>& data)
 {
   cout << "Signature verification: FAILED" << endl;
 }
@@ -215,18 +214,18 @@ static double
 benchmarkDecodeDataSecondsCpp(int nIterations, bool useCrypto, const Blob& encoding)
 {
   // Initialize the KeyChain storage in case useCrypto is true.
-  shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
-  shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
+  ptr_lib::shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
+  ptr_lib::shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
   KeyChain keyChain
-    (make_shared<IdentityManager>(identityStorage, privateKeyStorage), 
-     make_shared<SelfVerifyPolicyManager>(identityStorage.get()));
+    (ptr_lib::make_shared<IdentityManager>(identityStorage, privateKeyStorage), 
+     ptr_lib::make_shared<SelfVerifyPolicyManager>(identityStorage.get()));
   Name keyName("/testname/DSK-123");
   identityStorage->addKey(keyName, KEY_TYPE_RSA, Blob(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));
 
   size_t nameSize = 0;
   double start = getNowSeconds();
   for (int i = 0; i < nIterations; ++i) {
-    shared_ptr<Data> data(new Data());
+    ptr_lib::shared_ptr<Data> data(new Data());
     data->wireDecode(*encoding);
     
     if (useCrypto)
@@ -430,13 +429,13 @@ benchmarkEncodeDecodeDataCpp(bool useComplex, bool useCrypto)
 {
   Blob encoding;
   {
-    int nIterations = useCrypto ? 20000 : 2000000;
+    int nIterations = useCrypto ? 20000 : 100;
     double duration = benchmarkEncodeDataSecondsCpp(nIterations, useComplex, useCrypto, encoding);
     cout << "Encode " << (useComplex ? "complex" : "simple ") << " data C++: Crypto? " << (useCrypto ? "yes" : "no ") 
          << ", Duration sec, Hz: " << duration << ", " << (nIterations / duration) << endl;  
   }
   {
-    int nIterations = useCrypto ? 100000 : 500000;
+    int nIterations = useCrypto ? 100000 : 100;
     double duration = benchmarkDecodeDataSecondsCpp(nIterations, useCrypto, encoding);
     cout << "Decode " << (useComplex ? "complex" : "simple ") << " data C++: Crypto? " << (useCrypto ? "yes" : "no ") 
          << ", Duration sec, Hz: " << duration << ", " << (nIterations / duration) << endl;  

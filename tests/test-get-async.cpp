@@ -12,7 +12,6 @@
 
 using namespace std;
 using namespace ndn;
-using namespace ndn::ptr_lib;
 using namespace ndn::func_lib;
 #if NDN_CPP_HAVE_STD_FUNCTION
 // In the std library, the placeholders are in a different namespace than boost.
@@ -26,7 +25,7 @@ public:
     callbackCount_ = 0;
   }
   
-  void onData(const shared_ptr<const Interest>& interest, const shared_ptr<Data>& data)
+  void onData(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& data)
   {
     ++callbackCount_;
     cout << "Got data packet with name " << data->getName().to_uri() << endl;
@@ -35,7 +34,7 @@ public:
     cout << endl;  
   }
 
-  void onTimeout(const shared_ptr<const Interest>& interest)
+  void onTimeout(const ptr_lib::shared_ptr<const Interest>& interest)
   {
     ++callbackCount_;
     cout << "Time out for interest " << interest->getName().toUri() << endl;    
