@@ -64,7 +64,7 @@ public:
    * @param keyName The name of the decrypting key.
    * @param data The byte to be decrypted.
    * @param dataLength the length of data.
-   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric decryption is used.
+   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption is used.
    * @return The decrypted data.
    */
   virtual Blob 
@@ -81,7 +81,7 @@ public:
    * @param keyName The name of the encrypting key.
    * @param data The byte to be encrypted.
    * @param dataLength the length of data.
-   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric decryption is used.
+   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption is used.
    * @return The encrypted data.
    */
   virtual Blob
