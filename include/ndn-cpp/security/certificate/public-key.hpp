@@ -25,7 +25,7 @@ public:
   PublicKey() {}
 
   /**
-   * Constructor
+   * Create a new PublicKey with the given values.
    * @param algorithm The algorithm of the public key.
    * @param keyDer The blob of the PublicKeyInfo in terms of DER.
    */
@@ -50,8 +50,8 @@ public:
   fromDer(const Blob& keyDer);
 
   /*
-   * @brief get the digest of the public key
-   * @param digestAlgorithm The digest algorithm. If omitted, use DIGEST_SHA256 by default.
+   * Get the digest of the public key.
+   * @param digestAlgorithm The digest algorithm. If omitted, use DIGEST_ALGORITHM_SHA256 by default.
    */
   Blob 
   getDigest(DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) const;
