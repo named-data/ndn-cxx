@@ -9,9 +9,20 @@
 #ifndef NDN_VALIDATION_REQUEST_HPP
 #define NDN_VALIDATION_REQUEST_HPP
 
-#include <ndn-cpp/security/key-chain.hpp>
+#include "../key-chain.hpp"
 
 namespace ndn {
+
+/**
+ * An OnVerified function object is used to pass a callback to verifyData to report a successful verification.
+ */
+typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerified;
+
+/**
+ * An OnVerifyFailed function object is used to pass a callback to verifyData to report a failed verification.
+ */
+typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerifyFailed;
+
 
 class ValidationRequest {
 public:

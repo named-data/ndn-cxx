@@ -1,4 +1,4 @@
-Interim changes since NDN-CPP v0.2(2013-11-25)
+Interim changes since NDN-CPP v0.2(2013-12-16)
 
 Bug fixes
 * http://redmine.named-data.net/issues/1056 Fix DTAG NDNProtocolDataUnit to encode as "NDN\202\000".
@@ -12,6 +12,7 @@ Changes
 * Fix clang compiler warnings: Include headers, parentheses and cast explicitly.
 * Moved class ExcludeEntry to inner class Exclude::Entry.
 * In BinaryXmlDecoder, cache the result of peekDTag for a speedup when decoding optional elements.
+* Moved validation-request.hpp to public API security/policy, and moved OnVerified and OnVerifyFailed in there.
 
 Documentation
 * Move instructions for running ./autogen.sh from configure.ac to the Development section of INSTALL.

@@ -1,6 +1,7 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
+ * @author: Yingdi Yu <yingdi@cs.ucla.edu>
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
@@ -12,26 +13,16 @@
 #include "../face.hpp"
 #include "identity/identity-manager.hpp"
 #include "encryption/encryption-manager.hpp"
+#include "policy/validation-request.hpp"
 
 namespace ndn {
 
 class PolicyManager;
-class ValidationRequest;
   
 /**
- * An OnVerified function object is used to pass a callback to verifyData to report a successful verification.
- */
-typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerified;
-
-/**
- * An OnVerifyFailed function object is used to pass a callback to verifyData to report a failed verification.
- */
-typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerifyFailed;
-
-/**
- * Keychain is the main class of the security library.
+ * KeyChain is the main class of the security library.
  *
- * The Keychain class provides a set of interfaces to the security library such as identity management, policy configuration 
+ * The KeyChain class provides a set of interfaces to the security library such as identity management, policy configuration 
  * and packet signing and verification.
  */
 class KeyChain {

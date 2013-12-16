@@ -20,6 +20,7 @@ ndn_cpp_cpp_headers = \
   $(wildcard ndn-cpp/security/encryption/*.*) \
   $(wildcard ndn-cpp/security/identity/*.*) \
   $(wildcard ndn-cpp/security/policy/*.*) \
+  $(wildcard ndn-cpp/security/signature/*.*) \
   $(wildcard ndn-cpp/transport/*.*) \
   $(wildcard ndn-cpp/util/*.*)
 
