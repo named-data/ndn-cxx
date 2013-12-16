@@ -2,6 +2,7 @@
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * @author: Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
@@ -10,6 +11,7 @@
 #include <string.h>
 #include <ndn-cpp/name.hpp>
 #include "c/name.h"
+#include "c/util/ndn_memory.h"
 
 using namespace std;
 using namespace ndn::ptr_lib;
@@ -172,6 +174,19 @@ Name::Component::toNumber() const
   struct ndn_NameComponent componentStruct;
   get(componentStruct);
   return ndn_NameComponent_toNumber(&componentStruct);
+}
+
+int
+Name::Component::compare(const Name::Component& other) const
+{
+  // Imitate ndn_Exclude_compareComponents.
+  if (value_.size() < other.value_.size())
+    return -1;
+  if (value_.size() > other.value_.size())
+    return 1;
+
+  // The components are equal length.  Just do a byte compare.  
+  return ndn_memcmp((uint8_t*)value_.buf(), (uint8_t*)other.value_.buf(), value_.size());
 }
 
 void 

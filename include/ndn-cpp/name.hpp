@@ -167,7 +167,81 @@ public:
      */
     static Component 
     fromNumberWithMarker(uint64_t number, uint8_t marker);
+
+    /**
+     * Check if this is the same component as other.
+     * @param other The other Component to compare with.
+     * @return true if the components are equal, otherwise false.
+     */
+    bool
+    equals(const Component& other) const
+    {
+      return *value_ == *other.value_;
+    }
+    
+    /**
+     * Check if this is the same component as other.
+     * @param other The other Component to compare with.
+     * @return true if the components are equal, otherwise false.
+     */
+    bool
+    operator == (const Component& other) const { return equals(other); }
+
+    /**
+     * Check if this is not the same component as other.
+     * @param other The other Component to compare with.
+     * @return true if the components are not equal, otherwise false.
+     */
+    bool
+    operator != (const Component& other) const { return !equals(other); }
+    
+    /**
+     * Compare this to the other Component using NDN canonical ordering.
+     * @param other The other Component to compare with.
+     * @return 0 If they compare equal, -1 if *this comes before other in the canonical ordering, or
+     * 1 if *this comes after other in the canonical ordering.
+     *
+     * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+     */
+    int
+    compare(const Component& other) const;
   
+    /**
+     * Return true if this is less than or equal to the other Component in the NDN canonical ordering.
+     * @param other The other Component to compare with.
+     *
+     * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+     */
+    bool
+    operator <= (const Component& other) const { return compare(other) <= 0; }
+  
+    /**
+     * Return true if this is less than the other Component in the NDN canonical ordering.
+     * @param other The other Component to compare with.
+     *
+     * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+     */
+    bool
+    operator < (const Component& other) const { return compare(other) < 0; }
+
+    /**
+     * Return true if this is less than or equal to the other Component in the NDN canonical ordering.
+     * @param other The other Component to compare with.
+     *
+     * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+     */
+    bool
+    operator >= (const Component& other) const { return compare(other) >= 0; }
+
+    /**
+     * Return true if this is greater than the other Component in the NDN canonical ordering.
+     * @param other The other Component to compare with.
+     *
+     * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+     */
+    bool
+    operator > (const Component& other) const { return compare(other) > 0; }
+
   private:
     Blob value_;
   }; 
