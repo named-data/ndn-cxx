@@ -37,7 +37,7 @@ ndn_cpp_cpp_headers = \
   include/ndn-cpp/forwarding-entry.hpp \
   include/ndn-cpp/forwarding-flags.hpp \
   include/ndn-cpp/interest.hpp \
-  include/ndn-cpp/key.hpp \
+  include/ndn-cpp/key-locator.hpp \
   include/ndn-cpp/name.hpp \
   include/ndn-cpp/node.hpp \
   include/ndn-cpp/publisher-public-key-digest.hpp \
@@ -80,6 +80,7 @@ libndn_c_la_SOURCES = $(ndn_cpp_c_headers) \
   src/c/forwarding-entry.h \
   src/c/forwarding-flags.c \
   src/c/interest.c src/c/interest.h \
+  src/c/key-locator.h \
   src/c/name.c src/c/name.h \
   src/c/publisher-public-key-digest.h \
   src/c/encoding/binary-xml.h \
@@ -110,7 +111,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   src/face.cpp \
   src/forwarding-entry.cpp \
   src/interest.cpp \
-  src/key.cpp \
+  src/key-locator.cpp \
   src/name.cpp \
   src/node.cpp \
   src/publisher-public-key-digest.cpp \

@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <ndn-cpp/data.hpp>
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
-#include <ndn-cpp/key.hpp>
+#include <ndn-cpp/key-locator.hpp>
 #include <ndn-cpp/security/key-chain.hpp>
 #include <ndn-cpp/security/identity/memory-identity-storage.hpp>
 #include <ndn-cpp/security/identity/memory-private-key-storage.hpp>

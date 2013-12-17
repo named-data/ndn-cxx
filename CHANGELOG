@@ -11,6 +11,7 @@ Bug fixes
 Changes
 * http://redmine.named-data.net/issues/1085 In Name::Component, added comparison operators.
 * http://redmine.named-data.net/issues/1086 In Name::getPrefix, support a negative argument, e.g. getPrefix(-1).
+* http://redmine.named-data.net/issues/1089 Renamed key.hpp to key-locator.hpp .
 * MetaInfo: Added setFinalBlockID for Name::Component, remove unused setFinalBlockID which take uint8_t*, etc.
 * Fix clang compiler warnings: Include headers, parentheses and cast explicitly.
 * Moved class ExcludeEntry to inner class Exclude::Entry.

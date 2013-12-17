@@ -7,7 +7,7 @@
 #ifndef NDN_BINARYXMLKEY_H
 #define NDN_BINARYXMLKEY_H
 
-#include "../key.h"
+#include "../key-locator.h"
 #include "../errors.h"
 #include "binary-xml-encoder.h"
 #include "binary-xml-decoder.h"

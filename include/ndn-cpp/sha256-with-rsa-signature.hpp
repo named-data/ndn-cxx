@@ -9,7 +9,7 @@
 #define NDN_SHA256_WITH_RSA_SIGNATURE_HPP
 
 #include "data.hpp"
-#include "key.hpp"
+#include "key-locator.hpp"
 #include "publisher-public-key-digest.hpp"
 
 namespace ndn {
