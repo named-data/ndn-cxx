@@ -1,4 +1,4 @@
-Interim changes since NDN-CPP v0.2(2013-12-16)
+Interim changes since NDN-CPP v0.2(2013-12-17)
 
 Bug fixes
 * http://redmine.named-data.net/issues/1056 Fix DTAG NDNProtocolDataUnit to encode as "NDN\202\000".
@@ -8,7 +8,8 @@ Bug fixes
 * Fix bug in getForwardingEntryFlags: Need to check all flags, not the first flag using "else if".
 
 Changes
-* http://redmine.named-data.net/issues/1085: In Name::Component, added comparison operators.
+* http://redmine.named-data.net/issues/1085 In Name::Component, added comparison operators.
+* http://redmine.named-data.net/issues/1086 In Name::getPrefix, support a negative argument, e.g. getPrefix(-1).
 * MetaInfo: Added setFinalBlockID for Name::Component, remove unused setFinalBlockID which take uint8_t*, etc.
 * Fix clang compiler warnings: Include headers, parentheses and cast explicitly.
 * Moved class ExcludeEntry to inner class Exclude::Entry.

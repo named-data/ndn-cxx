@@ -438,13 +438,17 @@ public:
   
   /**
    * Return a new Name with the first nComponents components of this Name.
-   * @param nComponents The number of prefix components.
+   * @param nComponents The number of prefix components.  If nComponents is -N then return the prefix up
+   * to name.size() - N. For example getPrefix(-1) returns the name without the final component.
    * @return A new Name.
    */
   Name
-  getPrefix(size_t nComponents) const
+  getPrefix(int nComponents) const
   {
-    return getSubName(0, nComponents);
+    if (nComponents < 0)
+      return getSubName(0, components_.size() + nComponents);
+    else
+      return getSubName(0, nComponents);
   }
   
   /**
