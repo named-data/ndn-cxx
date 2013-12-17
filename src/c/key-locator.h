@@ -4,8 +4,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_KEY_H
-#define NDN_KEY_H
+#ifndef NDN_KEY_LOCATOR_H
+#define NDN_KEY_LOCATOR_H
 
 #include <ndn-cpp/c/key-types.h>
 #include "name.h"

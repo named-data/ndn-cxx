@@ -7,7 +7,7 @@
 
 #include <ndn-cpp/common.hpp>
 #include <ndn-cpp/key.hpp>
-#include "c/key.h"
+#include "c/key-locator.h"
 
 using namespace std;
 

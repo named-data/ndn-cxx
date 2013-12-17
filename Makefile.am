@@ -80,6 +80,7 @@ libndn_c_la_SOURCES = $(ndn_cpp_c_headers) \
   src/c/forwarding-entry.h \
   src/c/forwarding-flags.c \
   src/c/interest.c src/c/interest.h \
+  src/c/key-locator.h \
   src/c/name.c src/c/name.h \
   src/c/publisher-public-key-digest.h \
   src/c/encoding/binary-xml.h \
