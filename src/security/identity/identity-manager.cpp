@@ -16,7 +16,7 @@
 #include <ctime>
 #include <fstream>
 #include <math.h>
-#include <ndn-cpp/key.hpp>
+#include <ndn-cpp/key-locator.hpp>
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
 #include <ndn-cpp/security/security-exception.hpp>
 #include "../../util/logging.hpp"

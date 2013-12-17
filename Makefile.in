@@ -595,7 +595,7 @@ ndn_cpp_cpp_headers = \
   include/ndn-cpp/forwarding-entry.hpp \
   include/ndn-cpp/forwarding-flags.hpp \
   include/ndn-cpp/interest.hpp \
-  include/ndn-cpp/key.hpp \
+  include/ndn-cpp/key-locator.hpp \
   include/ndn-cpp/name.hpp \
   include/ndn-cpp/node.hpp \
   include/ndn-cpp/publisher-public-key-digest.hpp \

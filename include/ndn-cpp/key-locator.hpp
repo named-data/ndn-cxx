@@ -5,8 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_KEY_HPP
-#define NDN_KEY_HPP
+#ifndef NDN_KEY_LOCATOR_HPP
+#define NDN_KEY_LOCATOR_HPP
 
 #include <vector>
 #include "c/key-types.h"
