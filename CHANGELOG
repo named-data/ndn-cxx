@@ -5,6 +5,7 @@ Bug fixes
 * http://redmine.named-data.net/issues/1064 Add ax_lib_sqlite3.m4, etc. to m4 directory so that autogen.sh works out of the box.
 * http://redmine.named-data.net/issues/1077 Move the BasicIdentityStorage sqlite file to ~/.ndnx/ndnsec-identity.db .
   NOTE: If you have an old file at ~/.ndn-identity/identity.db, please move it to ~/.ndnx/ndnsec-identity.db .
+* http://redmine.named-data.net/issues/1088 Certificate name in KeyLocator should not include the version number.
 * Fix bug in getForwardingEntryFlags: Need to check all flags, not the first flag using "else if".
 
 Changes
