@@ -179,7 +179,7 @@ am__objects_2 = $(am__objects_1) src/c/errors.lo \
 	src/c/util/ndn_realloc.lo src/c/util/time.lo
 am_libndn_cpp_la_OBJECTS = $(am__objects_2) $(am__objects_1) \
 	src/common.lo src/data.lo src/face.lo src/forwarding-entry.lo \
-	src/interest.lo src/key.lo src/name.lo src/node.lo \
+	src/interest.lo src/key-locator.lo src/name.lo src/node.lo \
 	src/publisher-public-key-digest.lo \
 	src/sha256-with-rsa-signature.lo \
 	src/encoding/binary-xml-wire-format.lo \
@@ -671,7 +671,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   src/face.cpp \
   src/forwarding-entry.cpp \
   src/interest.cpp \
-  src/key.cpp \
+  src/key-locator.cpp \
   src/name.cpp \
   src/node.cpp \
   src/publisher-public-key-digest.cpp \
@@ -886,7 +886,7 @@ src/face.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/forwarding-entry.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/interest.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/key.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/key-locator.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/name.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/node.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/publisher-public-key-digest.lo: src/$(am__dirstamp) \
@@ -1143,7 +1143,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/face.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/forwarding-entry.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/interest.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/key.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/key-locator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/node.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/publisher-public-key-digest.Plo@am__quote@

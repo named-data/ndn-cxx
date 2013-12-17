@@ -111,7 +111,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) $(ndn_cpp_cpp_headers) \
   src/face.cpp \
   src/forwarding-entry.cpp \
   src/interest.cpp \
-  src/key.cpp \
+  src/key-locator.cpp \
   src/name.cpp \
   src/node.cpp \
   src/publisher-public-key-digest.cpp \
