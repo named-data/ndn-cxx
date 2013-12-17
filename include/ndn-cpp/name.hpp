@@ -296,11 +296,18 @@ public:
   
   /**
    * Parse the uri according to the NDN URI Scheme and set the name with the components.
-   * @param uri The URI string.
+   * @param uri The null-terminated URI string.
    */
   void 
   set(const char *uri);  
 
+  /**
+   * Parse the uri according to the NDN URI Scheme and set the name with the components.
+   * @param uri The URI string.
+   */
+  void 
+  set(const std::string& uri) { set(uri.c_str()); }  
+  
   /**
    * Append a new component, copying from value of length valueLength.
    * @return This name so that you can chain calls to append.
@@ -529,6 +536,16 @@ public:
    */
   static Blob 
   fromEscapedString(const char *escapedString);
+
+  /**
+   * Make a Blob value by decoding the escapedString according to the NDN URI Scheme.
+   * If the escaped string is "", "." or ".." then return a Blob with a null pointer, 
+   * which means the component should be skipped in a URI name.
+   * @param escapedString The escaped string.
+   * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
+   */
+  static Blob 
+  fromEscapedString(const std::string& escapedString) { return fromEscapedString(escapedString.c_str()); }
 
   /**
    * Write the value to result, escaping characters according to the NDN URI Scheme.
