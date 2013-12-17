@@ -220,7 +220,7 @@ IdentityManager::signByCertificate(Data &data, const Name &certificateName, Wire
   DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256;
     
   signature->getKeyLocator().setType(ndn_KeyLocatorType_KEYNAME);
-  signature->getKeyLocator().setKeyName(certificateName);
+  signature->getKeyLocator().setKeyName(certificateName.getPrefix(-1));
   // Omit the certificate digest.
   signature->getKeyLocator().setKeyNameType((ndn_KeyNameType)-1);
   // Ignore witness and leave the digestAlgorithm as the default.
