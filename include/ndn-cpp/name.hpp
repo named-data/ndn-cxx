@@ -617,6 +617,30 @@ public:
   bool
   operator != (const Name &name) const { return !equals(name); }
 
+  /**
+   * Compare two names for "less than" using breadth first.  If the first components of each name are not equal, 
+   * this returns true if the first comes before the second using the NDN canonical ordering for name components.
+   * If they are equal, this compares the second components of each name, etc.  If both names are the same up to
+   * the size of the shorter name, this returns true if the first name is shorter than the second.  For example, if you
+   * use breadthFirstLess in std::sort, it gives: /a/b/d	/a/b/cc /c /c/a /bb .  This is intuitive because all names
+   * with the prefix /a are next to each other.  But it may be also be counter-intuitive because /c comes before /bb 
+   * according to NDN canonical ordering since it is shorter.  Note: We don't define this directly as the Name
+   * less than operation because there are other valid ways to sort names.
+   * @param name1 The first name to compare.
+   * @param name2 The second name to compare.
+   * @return True if the first name is less than the second using breadth first comparison.
+   */
+  static bool
+  breadthFirstLess(const Name& name1, const Name& name2);
+  
+  /**
+   * Name::BreadthFirstLess is a function object which calls breadthFirstLess, for use as the "less" operator in map, etc.
+   * For example, you can use Name as the key type in a map as follows: map<Name, int, Name::BreadthFirstLess>.
+   */
+  struct BreadthFirstLess {
+    bool operator() (const Name& name1, const Name& name2) const { return breadthFirstLess(name1, name2); }
+  };
+  
   //
   // Iterator interface to name components.
   //

@@ -422,4 +422,21 @@ Name::toEscapedString(const vector<uint8_t>& value)
   return result.str();
 }
 
+bool 
+Name::breadthFirstLess(const Name& name1, const Name& name2)
+{
+  for (size_t i = 0; i < name1.size() && i < name2.size(); ++i) {
+    if (name1[i] == name2[i])
+      // The components at this index are equal, so check the next components.
+      continue;
+    
+    // Otherwise, the result is based on the components at this index.
+    return name1[i] < name2[i];
+  }
+  
+  // The components up to min(name1.size(), name2.size()) are equal, so sort on the shorter name.
+  return name1.size() < name2.size();
+}
+
+
 }
