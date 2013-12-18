@@ -9,7 +9,6 @@
 #include <ndn-cpp/security/policy/no-verify-policy-manager.hpp>
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -29,12 +28,12 @@ NoVerifyPolicyManager::requireVerify(const Data& data)
   return false; 
 }
     
-shared_ptr<ValidationRequest>
+ptr_lib::shared_ptr<ValidationRequest>
 NoVerifyPolicyManager::checkVerificationPolicy
-  (const shared_ptr<Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
+  (const ptr_lib::shared_ptr<Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
 { 
   onVerified(data); 
-  return shared_ptr<ValidationRequest>();
+  return ptr_lib::shared_ptr<ValidationRequest>();
 }
 
 bool 

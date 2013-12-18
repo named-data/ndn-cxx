@@ -14,7 +14,6 @@
 #include "c/util/ndn_memory.h"
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -130,7 +129,7 @@ uint64_t Name::Component::toNumberWithMarker(uint8_t marker) const
 Name::Component 
 Name::Component::fromNumber(uint64_t number)
 {
-  shared_ptr<vector<uint8_t> > value(new vector<uint8_t>());
+  ptr_lib::shared_ptr<vector<uint8_t> > value(new vector<uint8_t>());
   
   // First encode in little endian.
   while (number != 0) {
@@ -146,7 +145,7 @@ Name::Component::fromNumber(uint64_t number)
 Name::Component 
 Name::Component::fromNumberWithMarker(uint64_t number, uint8_t marker)
 {
-  shared_ptr<vector<uint8_t> > value(new vector<uint8_t>());
+  ptr_lib::shared_ptr<vector<uint8_t> > value(new vector<uint8_t>());
   
   // Add the leading marker.
   value->push_back(marker);

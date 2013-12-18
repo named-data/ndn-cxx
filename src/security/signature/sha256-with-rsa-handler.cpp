@@ -11,7 +11,6 @@
 #include <ndn-cpp/security/signature/sha256-with-rsa-handler.hpp>
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 

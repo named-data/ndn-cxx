@@ -11,7 +11,6 @@
 #include "c/data.h"
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -63,7 +62,7 @@ Data& Data::operator=(const Data& data)
   if (data.signature_)
     signature_ = data.signature_->clone();
   else
-    signature_ = shared_ptr<Signature>();
+    signature_ = ptr_lib::shared_ptr<Signature>();
   
   name_ = data.name_;
   metaInfo_ = data.metaInfo_;

@@ -22,7 +22,6 @@
 INIT_LOGGER("ndn.security.Certificate");
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -68,20 +67,20 @@ Certificate::isTooLate()
 void
 Certificate::encode()
 {
-  shared_ptr<der::DerSequence> root(new der::DerSequence());
+  ptr_lib::shared_ptr<der::DerSequence> root(new der::DerSequence());
   
-  shared_ptr<der::DerSequence> validity(new der::DerSequence());
-  shared_ptr<der::DerGtime> notBefore(new der::DerGtime(notBefore_));
-  shared_ptr<der::DerGtime> notAfter(new der::DerGtime(notAfter_));
+  ptr_lib::shared_ptr<der::DerSequence> validity(new der::DerSequence());
+  ptr_lib::shared_ptr<der::DerGtime> notBefore(new der::DerGtime(notBefore_));
+  ptr_lib::shared_ptr<der::DerGtime> notAfter(new der::DerGtime(notAfter_));
   validity->addChild(notBefore);
   validity->addChild(notAfter);
   root->addChild(validity);
 
-  shared_ptr<der::DerSequence> subjectList(new der::DerSequence());
+  ptr_lib::shared_ptr<der::DerSequence> subjectList(new der::DerSequence());
   SubjectDescriptionList::iterator it = subjectDescriptionList_.begin();
   for(; it != subjectDescriptionList_.end(); it++)
     {
-      shared_ptr<der::DerNode> child = it->toDer();
+      ptr_lib::shared_ptr<der::DerNode> child = it->toDer();
       subjectList->addChild(child);
     }
   root->addChild(subjectList);
@@ -90,7 +89,7 @@ Certificate::encode()
 
   if(!extensionList_.empty())
     {
-      shared_ptr<der::DerSequence> extnList(new der::DerSequence());
+      ptr_lib::shared_ptr<der::DerSequence> extnList(new der::DerSequence());
       ExtensionList::iterator it = extensionList_.begin();
       for(; it != extensionList_.end(); it++)
         extnList->addChild(it->toDer());
@@ -102,7 +101,7 @@ Certificate::encode()
 
   root->encode(start);
 
-  shared_ptr<vector<uint8_t> > blob = blobStream.buf();
+  ptr_lib::shared_ptr<vector<uint8_t> > blob = blobStream.buf();
   setContent(blob);
   getMetaInfo().setType(ndn_ContentType_KEY);
 }
@@ -114,7 +113,7 @@ Certificate::decode()
 
   ndnboost::iostreams::stream<ndnboost::iostreams::array_source> is((const char*)blob.buf(), blob.size());
 
-  shared_ptr<der::DerNode> node = der::DerNode::parse(reinterpret_cast<der::InputIterator&>(is));
+  ptr_lib::shared_ptr<der::DerNode> node = der::DerNode::parse(reinterpret_cast<der::InputIterator&>(is));
 
   // der::PrintVisitor printVisitor;
   // node->accept(printVisitor, string(""));
@@ -138,7 +137,7 @@ Certificate::printCertificate()
 
   ndnboost::iostreams::stream<ndnboost::iostreams::array_source> is((const char*)key_.getKeyDer().buf(), key_.getKeyDer().size());
 
-  shared_ptr<der::DerNode> keyRoot = der::DerNode::parse(reinterpret_cast<der::InputIterator&> (is));
+  ptr_lib::shared_ptr<der::DerNode> keyRoot = der::DerNode::parse(reinterpret_cast<der::InputIterator&> (is));
 
   der::PrintVisitor printVisitor;
   keyRoot->accept(printVisitor, string(""));

@@ -26,7 +26,6 @@
 INIT_LOGGER("ndn.security.IdentityManager")
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -41,7 +40,7 @@ IdentityManager::createIdentity(const Name& identityName)
   Name keyName = generateRSAKeyPairAsDefault(identityName, true);
 
   _LOG_DEBUG("Create self-signed certificate");
-  shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
+  ptr_lib::shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
   
   _LOG_DEBUG("Add self-signed certificate as default");
 
@@ -63,7 +62,7 @@ IdentityManager::generateKeyPair(const Name& identityName, bool isKsk, KeyType k
   privateKeyStorage_->generateKeyPair(keyName.toUri(), keyType, keySize);
 
   _LOG_DEBUG("Create a key record in public storage");
-  shared_ptr<PublicKey> pubKey = privateKeyStorage_->getPublicKey(keyName.toUri());
+  ptr_lib::shared_ptr<PublicKey> pubKey = privateKeyStorage_->getPublicKey(keyName.toUri());
   identityStorage_->addKey(keyName, keyType, pubKey->getKeyDer());
 
   return keyName;
@@ -96,9 +95,9 @@ IdentityManager::createIdentityCertificate(const Name& certificatePrefix,
   Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
   
   Blob keyBlob = identityStorage_->getKey(keyName);
-  shared_ptr<PublicKey> publicKey = PublicKey::fromDer(keyBlob);
+  ptr_lib::shared_ptr<PublicKey> publicKey = PublicKey::fromDer(keyBlob);
 
-  shared_ptr<IdentityCertificate> certificate = createIdentityCertificate
+  ptr_lib::shared_ptr<IdentityCertificate> certificate = createIdentityCertificate
     (certificatePrefix, *publicKey,  signerCertificateName, notBefore, notAfter);
 
   identityStorage_->addCertificate(*certificate);
@@ -113,7 +112,7 @@ IdentityManager::createIdentityCertificate(const Name& certificatePrefix,
                                            const MillisecondsSince1970& notBefore,
                                            const MillisecondsSince1970& notAfter)
 {
-  shared_ptr<IdentityCertificate> certificate(new IdentityCertificate());
+  ptr_lib::shared_ptr<IdentityCertificate> certificate(new IdentityCertificate());
   Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
   
   Name certificateName = certificatePrefix;
@@ -131,7 +130,7 @@ IdentityManager::createIdentityCertificate(const Name& certificatePrefix,
   certificate->addSubjectDescription(CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
   certificate->encode();
 
-  shared_ptr<Sha256WithRsaSignature> sha256Sig(new Sha256WithRsaSignature());
+  ptr_lib::shared_ptr<Sha256WithRsaSignature> sha256Sig(new Sha256WithRsaSignature());
 
   KeyLocator keyLocator;    
   keyLocator.setType(ndn_KeyLocatorType_KEYNAME);
@@ -144,7 +143,7 @@ IdentityManager::createIdentityCertificate(const Name& certificatePrefix,
 
   SignedBlob unsignedData = certificate->wireEncode();
 
-  shared_ptr<IdentityCertificate> signerCertificate = getCertificate(signerCertificateName);
+  ptr_lib::shared_ptr<IdentityCertificate> signerCertificate = getCertificate(signerCertificateName);
   Name signerkeyName = signerCertificate->getPublicKeyName();
 
   Blob sigBits = privateKeyStorage_->sign(unsignedData, signerkeyName);
@@ -189,12 +188,12 @@ ptr_lib::shared_ptr<Signature>
 IdentityManager::signByCertificate(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
 {
   Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
-  shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName.toUri());
+  ptr_lib::shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName.toUri());
 
   Blob sigBits = privateKeyStorage_->sign(buffer, bufferLength, keyName.toUri());
 
   //For temporary usage, we support RSA + SHA256 only, but will support more.
-  shared_ptr<Sha256WithRsaSignature> sha256Sig(new Sha256WithRsaSignature());
+  ptr_lib::shared_ptr<Sha256WithRsaSignature> sha256Sig(new Sha256WithRsaSignature());
 
   KeyLocator keyLocator;    
   keyLocator.setType(ndn_KeyLocatorType_KEYNAME);
@@ -211,7 +210,7 @@ void
 IdentityManager::signByCertificate(Data &data, const Name &certificateName, WireFormat& wireFormat)
 {
   Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
-  shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName);
+  ptr_lib::shared_ptr<PublicKey> publicKey = privateKeyStorage_->getPublicKey(keyName);
 
   // For temporary usage, we support RSA + SHA256 only, but will support more.
   data.setSignature(Sha256WithRsaSignature());
@@ -236,17 +235,17 @@ IdentityManager::signByCertificate(Data &data, const Name &certificateName, Wire
   data.wireEncode(wireFormat);
 }
 
-shared_ptr<IdentityCertificate>
+ptr_lib::shared_ptr<IdentityCertificate>
 IdentityManager::selfSign(const Name& keyName)
 {
-  shared_ptr<IdentityCertificate> certificate(new IdentityCertificate());
+  ptr_lib::shared_ptr<IdentityCertificate> certificate(new IdentityCertificate());
   
   Name certificateName = keyName.getSubName(0, keyName.size() - 1);
   certificateName.append("KEY").append(keyName.get(keyName.size() - 1)).append("ID-CERT").append("0");
   certificate->setName(certificateName);
 
   Blob keyBlob = identityStorage_->getKey(keyName);
-  shared_ptr<PublicKey> publicKey = PublicKey::fromDer(keyBlob);
+  ptr_lib::shared_ptr<PublicKey> publicKey = PublicKey::fromDer(keyBlob);
 
 #if NDN_CPP_HAVE_GMTIME_SUPPORT
   time_t nowSeconds = time(NULL);
@@ -268,7 +267,7 @@ IdentityManager::selfSign(const Name& keyName)
   certificate->addSubjectDescription(CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
   certificate->encode();
 
-  shared_ptr<Sha256WithRsaSignature> sha256Sig(new Sha256WithRsaSignature());
+  ptr_lib::shared_ptr<Sha256WithRsaSignature> sha256Sig(new Sha256WithRsaSignature());
 
   KeyLocator keyLocator;    
   keyLocator.setType(ndn_KeyLocatorType_KEYNAME);

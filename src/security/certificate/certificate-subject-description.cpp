@@ -10,17 +10,16 @@
 #include <ndn-cpp/security/certificate/certificate-subject-description.hpp>
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
-shared_ptr<der::DerNode> 
+ptr_lib::shared_ptr<der::DerNode> 
 CertificateSubjectDescription::toDer()
 {
-  shared_ptr<der::DerSequence> root(new der::DerSequence());
+  ptr_lib::shared_ptr<der::DerSequence> root(new der::DerSequence());
 
-  shared_ptr<der::DerOid> oid(new der::DerOid(oid_));
-  shared_ptr<der::DerPrintableString> value(new der::DerPrintableString(value_));
+  ptr_lib::shared_ptr<der::DerOid> oid(new der::DerOid(oid_));
+  ptr_lib::shared_ptr<der::DerPrintableString> value(new der::DerPrintableString(value_));
 
   root->addChild(oid);
   root->addChild(value);

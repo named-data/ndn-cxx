@@ -18,7 +18,6 @@
 #include "certificate-data-visitor.hpp"
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 INIT_LOGGER("ndn.der.CertificateDataVisitor");
 
@@ -41,7 +40,7 @@ CertificateDataVisitor::visit(DerSequence& derSeq, ndnboost::any param)
   children[1]->accept(subjectVisitor, param);
   PublicKeyVisitor pubkeyVisitor;
   Certificate* certData = ndnboost::any_cast<Certificate*>(param);
-  certData->setPublicKeyInfo(*ndnboost::any_cast<shared_ptr<PublicKey> >(children[2]->accept(pubkeyVisitor)));
+  certData->setPublicKeyInfo(*ndnboost::any_cast<ptr_lib::shared_ptr<PublicKey> >(children[2]->accept(pubkeyVisitor)));
       
   if(children.size() > 3)
     {

@@ -26,7 +26,6 @@
 INIT_LOGGER("BasicIdentityStorage");
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn
 {
@@ -445,7 +444,7 @@ BasicIdentityStorage::addCertificate(const IdentityCertificate& certificate)
   sqlite3_finalize(statement);
 }
 
-shared_ptr<Data> 
+ptr_lib::shared_ptr<Data> 
 BasicIdentityStorage::getCertificate(const Name &certificateName, bool allowAny)
 {
   if (doesCertificateExist(certificateName)) {
@@ -469,7 +468,7 @@ BasicIdentityStorage::getCertificate(const Name &certificateName, bool allowAny)
       
     int res = sqlite3_step(statement);
       
-    shared_ptr<Data> data(new Data());
+    ptr_lib::shared_ptr<Data> data(new Data());
 
     if (res == SQLITE_ROW)
       data->wireDecode((const uint8_t*)sqlite3_column_blob(statement, 0), sqlite3_column_bytes(statement, 0));            
@@ -479,7 +478,7 @@ BasicIdentityStorage::getCertificate(const Name &certificateName, bool allowAny)
   }
   else {
     _LOG_DEBUG("Certificate does not exist!");
-    return shared_ptr<Data>();
+    return ptr_lib::shared_ptr<Data>();
   }
 }
 

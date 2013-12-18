@@ -12,7 +12,6 @@
 #include "public-key-visitor.hpp"
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -24,10 +23,10 @@ PublicKeyVisitor::visit(DerSequence& derSeq)
   DerNodePtrList& children = derSeq.getChildren();
 
   SimpleVisitor simpleVisitor;
-  shared_ptr<DerSequence> algoSeq = dynamic_pointer_cast<DerSequence>(children[0]); 
+  ptr_lib::shared_ptr<DerSequence> algoSeq = ptr_lib::dynamic_pointer_cast<DerSequence>(children[0]); 
   OID algorithm = ndnboost::any_cast<OID>(algoSeq->getChildren()[0]->accept(simpleVisitor));  
   Blob raw = derSeq.getRaw();   
-  return ndnboost::any(shared_ptr<PublicKey>(new PublicKey(algorithm, raw)));    
+  return ndnboost::any(ptr_lib::shared_ptr<PublicKey>(new PublicKey(algorithm, raw)));    
 }
 
 } // der

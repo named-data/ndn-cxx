@@ -18,7 +18,6 @@
 #include <ndn-cpp/security/security-exception.hpp>
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 INIT_LOGGER("ndn.OSXPrivateKeyStorage");
 
@@ -124,7 +123,7 @@ namespace ndn
         throw SecurityException("Fail to create a symmetric key");
   }
 
-  shared_ptr<PublicKey> OSXPrivateKeyStorage::getPublicKey(const Name & keyName)
+  ptr_lib::shared_ptr<PublicKey> OSXPrivateKeyStorage::getPublicKey(const Name & keyName)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::getPublickey");
 

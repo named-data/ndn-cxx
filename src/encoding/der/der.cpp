@@ -15,7 +15,6 @@
 INIT_LOGGER("ndn.der.DER");
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -132,7 +131,7 @@ DerNode::decode(InputIterator& start)
   }
 }
 
-shared_ptr<DerNode>
+ptr_lib::shared_ptr<DerNode>
 DerNode::parse(InputIterator& start)
 {
   int type = ((uint8_t)start.PeekU8());
@@ -140,23 +139,23 @@ DerNode::parse(InputIterator& start)
   // _LOG_DEBUG("Type: " << hex << setw(2) << setfill('0') << type);
   switch(type) {
     case DER_BOOLEAN:
-      return shared_ptr<DerBool>(new DerBool(start));
+      return ptr_lib::shared_ptr<DerBool>(new DerBool(start));
     case DER_INTEGER:
-      return shared_ptr<DerInteger>(new DerInteger(start));
+      return ptr_lib::shared_ptr<DerInteger>(new DerInteger(start));
     case DER_BIT_STRING:
-      return shared_ptr<DerBitString>(new DerBitString(start));
+      return ptr_lib::shared_ptr<DerBitString>(new DerBitString(start));
     case DER_OCTET_STRING:
-      return shared_ptr<DerOctetString>(new DerOctetString(start));
+      return ptr_lib::shared_ptr<DerOctetString>(new DerOctetString(start));
     case DER_NULL:
-      return shared_ptr<DerNull>(new DerNull(start));
+      return ptr_lib::shared_ptr<DerNull>(new DerNull(start));
     case DER_OBJECT_IDENTIFIER:
-      return shared_ptr<DerOid>(new DerOid(start));
+      return ptr_lib::shared_ptr<DerOid>(new DerOid(start));
     case DER_SEQUENCE:
-      return shared_ptr<DerSequence>(new DerSequence(start));
+      return ptr_lib::shared_ptr<DerSequence>(new DerSequence(start));
     case DER_PRINTABLE_STRING:
-      return shared_ptr<DerPrintableString>(new DerPrintableString(start));
+      return ptr_lib::shared_ptr<DerPrintableString>(new DerPrintableString(start));
     case DER_GENERALIZED_TIME:
-      return shared_ptr<DerGtime>(new DerGtime(start));
+      return ptr_lib::shared_ptr<DerGtime>(new DerGtime(start));
     default:
       throw DerDecodingException("Unimplemented DER type");
   }
@@ -190,7 +189,7 @@ DerComplex::DerComplex(InputIterator& start)
   
   while (accSize < size_) {
     // _LOG_DEBUG("accSize: " << accSize);
-    shared_ptr<DerNode> nodePtr = DerNode::parse(start);
+    ptr_lib::shared_ptr<DerNode> nodePtr = DerNode::parse(start);
     accSize += nodePtr->getSize();
     addChild(nodePtr, false);
   }
@@ -215,7 +214,7 @@ DerComplex::getSize()
 Blob
 DerComplex::getRaw()
 {
-  shared_ptr<vector<uint8_t> > blob(new vector<uint8_t>());
+  ptr_lib::shared_ptr<vector<uint8_t> > blob(new vector<uint8_t>());
   blob->insert(blob->end(), header_.begin(), header_.end());
 
   DerNodePtrList::iterator it = nodeList_.begin();
@@ -241,7 +240,7 @@ DerComplex::updateSize()
 }
 
 void
-DerComplex::addChild(shared_ptr<DerNode> nodePtr, bool notifyParent)
+DerComplex::addChild(ptr_lib::shared_ptr<DerNode> nodePtr, bool notifyParent)
 {
   nodePtr->setParent(this);
 
