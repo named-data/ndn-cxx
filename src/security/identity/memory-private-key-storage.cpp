@@ -13,7 +13,6 @@
 #include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -26,7 +25,7 @@ void MemoryPrivateKeyStorage::setKeyPairForKeyName
    size_t privateKeyDerLength)
 {
   publicKeyStore_[keyName.toUri()] = PublicKey::fromDer(Blob(publicKeyDer, publicKeyDerLength));
-  privateKeyStore_[keyName.toUri()] = make_shared<RsaPrivateKey>(privateKeyDer, privateKeyDerLength);
+  privateKeyStore_[keyName.toUri()] = ptr_lib::make_shared<RsaPrivateKey>(privateKeyDer, privateKeyDerLength);
 }
 
 void 
@@ -37,10 +36,10 @@ MemoryPrivateKeyStorage::generateKeyPair(const Name& keyName, KeyType keyType, i
 #endif
 }
 
-shared_ptr<PublicKey> 
+ptr_lib::shared_ptr<PublicKey> 
 MemoryPrivateKeyStorage::getPublicKey(const Name& keyName)
 {
-  map<string, shared_ptr<PublicKey> >::iterator publicKey = publicKeyStore_.find(keyName.toUri());
+  map<string, ptr_lib::shared_ptr<PublicKey> >::iterator publicKey = publicKeyStore_.find(keyName.toUri());
   if (publicKey == publicKeyStore_.end())
     throw SecurityException(string("MemoryPrivateKeyStorage: Cannot find public key ") + keyName.toUri());
   return publicKey->second;
@@ -59,7 +58,7 @@ MemoryPrivateKeyStorage::sign(const uint8_t *data, size_t dataLength, const Name
   unsigned int signatureBitsLength;
   
   // Find the private key and sign.
-  map<string, shared_ptr<RsaPrivateKey> >::iterator privateKey = privateKeyStore_.find(keyName.toUri());
+  map<string, ptr_lib::shared_ptr<RsaPrivateKey> >::iterator privateKey = privateKeyStore_.find(keyName.toUri());
   if (privateKey == privateKeyStore_.end())
     throw SecurityException(string("MemoryPrivateKeyStorage: Cannot find private key ") + keyName.toUri());
   if (!RSA_sign(NID_sha256, digest, sizeof(digest), signatureBits, &signatureBitsLength, privateKey->second->getPrivateKey()))

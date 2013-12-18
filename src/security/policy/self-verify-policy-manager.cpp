@@ -13,7 +13,6 @@
 #include <ndn-cpp/security/policy/self-verify-policy-manager.hpp>
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -77,9 +76,9 @@ SelfVerifyPolicyManager::requireVerify(const Data& data)
   return true; 
 }
     
-shared_ptr<ValidationRequest>
+ptr_lib::shared_ptr<ValidationRequest>
 SelfVerifyPolicyManager::checkVerificationPolicy
-  (const shared_ptr<Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
+  (const ptr_lib::shared_ptr<Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
 { 
   // Cast to const Data* so that we use the const version of getSignature() and don't reset the default encoding.
   const Sha256WithRsaSignature *signature = dynamic_cast<const Sha256WithRsaSignature*>(((const Data*)data.get())->getSignature());
@@ -111,7 +110,7 @@ SelfVerifyPolicyManager::checkVerificationPolicy
     onVerifyFailed(data); 
   
   // No more steps, so return a null ValidationRequest.
-  return shared_ptr<ValidationRequest>();
+  return ptr_lib::shared_ptr<ValidationRequest>();
 }
 
 bool 

@@ -17,7 +17,6 @@
 
 using namespace std;
 using namespace ndn;
-using namespace ndn::func_lib;
 
 static uint8_t DEFAULT_PUBLIC_KEY_DER[] = {
 0x30, 0x81, 0x9F, 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x81,
@@ -125,7 +124,7 @@ int main(int argc, char** argv)
     Echo echo(keyChain, certificateName);
     Name prefix("/testecho");
     cout << "Register prefix  " << prefix.toUri() << endl;
-    face.registerPrefix(prefix, ref(echo), ref(echo));
+    face.registerPrefix(prefix, func_lib::ref(echo), func_lib::ref(echo));
     
     // The main event loop.  
     // Wait forever to receive one interest for the prefix.

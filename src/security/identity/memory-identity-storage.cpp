@@ -14,7 +14,6 @@
 #include <ndn-cpp/security/identity/memory-identity-storage.hpp>
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -64,13 +63,13 @@ MemoryIdentityStorage::addKey(const Name& keyName, KeyType keyType, const Blob& 
   if (doesKeyExist(keyName))
     throw SecurityException("a key with the same name already exists!");
   
-  keyStore_[keyName.toUri()] = make_shared<KeyRecord>(keyType, publicKeyDer);
+  keyStore_[keyName.toUri()] = ptr_lib::make_shared<KeyRecord>(keyType, publicKeyDer);
 }
 
 Blob
 MemoryIdentityStorage::getKey(const Name& keyName)
 {
-  map<string, shared_ptr<KeyRecord> >::iterator record = keyStore_.find(keyName.toUri());
+  map<string, ptr_lib::shared_ptr<KeyRecord> >::iterator record = keyStore_.find(keyName.toUri());
   if (record == keyStore_.end())
     // Not found.  Silently return null.
     return Blob();
@@ -130,9 +129,9 @@ MemoryIdentityStorage::getCertificate(const Name& certificateName, bool allowAny
   map<string, Blob>::iterator record = certificateStore_.find(certificateName.toUri());
   if (record == certificateStore_.end())
     // Not found.  Silently return null.
-    return shared_ptr<Data>();
+    return ptr_lib::shared_ptr<Data>();
   
-  shared_ptr<Data> data(new Data());
+  ptr_lib::shared_ptr<Data> data(new Data());
   data->wireDecode(*record->second);
   return data;
 }

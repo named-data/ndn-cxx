@@ -18,7 +18,6 @@
 #include <ndn-cpp/node.hpp>
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
@@ -111,7 +110,7 @@ selfregSign(Data& data, WireFormat& wireFormat)
   signature->setSignature(Blob(signatureBits, (size_t)signatureBitsLength));
 }
 
-Node::Node(const shared_ptr<Transport>& transport, const shared_ptr<const Transport::ConnectionInfo>& connectionInfo)
+Node::Node(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo>& connectionInfo)
 : transport_(transport), connectionInfo_(connectionInfo),
   ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
 {
@@ -125,8 +124,8 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
     transport_->connect(*connectionInfo_, *this);
   
   uint64_t pendingInterestId = PendingInterest::getNextPendingInterestId();
-  pendingInterestTable_.push_back(shared_ptr<PendingInterest>(new PendingInterest
-    (pendingInterestId, shared_ptr<const Interest>(new Interest(interest)), onData, onTimeout)));
+  pendingInterestTable_.push_back(ptr_lib::shared_ptr<PendingInterest>(new PendingInterest
+    (pendingInterestId, ptr_lib::shared_ptr<const Interest>(new Interest(interest)), onData, onTimeout)));
   
   Blob encoding = interest.wireEncode(wireFormat);  
   transport_->send(*encoding);
@@ -155,13 +154,13 @@ Node::registerPrefix
   if (ndndId_.size() == 0) {
     // First fetch the ndndId of the connected hub.
     NdndIdFetcher fetcher
-      (shared_ptr<NdndIdFetcher::Info>(new NdndIdFetcher::Info
+      (ptr_lib::shared_ptr<NdndIdFetcher::Info>(new NdndIdFetcher::Info
         (this, registeredPrefixId, prefix, onInterest, onRegisterFailed, flags, wireFormat)));
-    // It is OK for func_lib::function make a copy of the function object because the Info is in a shared_ptr.
+    // It is OK for func_lib::function make a copy of the function object because the Info is in a ptr_lib::shared_ptr.
     expressInterest(ndndIdFetcherInterest_, fetcher, fetcher, wireFormat);
   }
   else
-    registerPrefixHelper(registeredPrefixId, make_shared<const Name>(prefix), onInterest, onRegisterFailed, flags, wireFormat);
+    registerPrefixHelper(registeredPrefixId, ptr_lib::make_shared<const Name>(prefix), onInterest, onRegisterFailed, flags, wireFormat);
   
   return registeredPrefixId;
 }
@@ -178,7 +177,7 @@ Node::removeRegisteredPrefix(uint64_t registeredPrefixId)
 }
 
 void 
-Node::NdndIdFetcher::operator()(const shared_ptr<const Interest>& interest, const shared_ptr<Data>& ndndIdData)
+Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& ndndIdData)
 {
   const Sha256WithRsaSignature *signature = dynamic_cast<const Sha256WithRsaSignature*>(ndndIdData->getSignature());
   if (signature && signature->getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
@@ -193,14 +192,14 @@ Node::NdndIdFetcher::operator()(const shared_ptr<const Interest>& interest, cons
 }
 
 void 
-Node::NdndIdFetcher::operator()(const shared_ptr<const Interest>& timedOutInterest)
+Node::NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& timedOutInterest)
 {
   info_->onRegisterFailed_(info_->prefix_);
 }
 
 void 
 Node::registerPrefixHelper
-  (uint64_t registeredPrefixId, const shared_ptr<const Name>& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, 
+  (uint64_t registeredPrefixId, const ptr_lib::shared_ptr<const Name>& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, 
    const ForwardingFlags& flags, WireFormat& wireFormat)
 {
   // Create a ForwardingEntry.
@@ -229,7 +228,7 @@ Node::registerPrefixHelper
   Blob encodedInterest = interest.wireEncode();
   
   // Save the onInterest callback and send the registration interest.
-  registeredPrefixTable_.push_back(shared_ptr<RegisteredPrefix>(new RegisteredPrefix(registeredPrefixId, prefix, onInterest)));
+  registeredPrefixTable_.push_back(ptr_lib::shared_ptr<RegisteredPrefix>(new RegisteredPrefix(registeredPrefixId, prefix, onInterest)));
   
   transport_->send(*encodedInterest);
 }
@@ -244,7 +243,7 @@ Node::processEvents()
   for (int i = (int)pendingInterestTable_.size() - 1; i >= 0; --i) {
     if (pendingInterestTable_[i]->isTimedOut(nowMilliseconds)) {
       // Save the PendingInterest and remove it from the PIT.  Then call the callback.
-      shared_ptr<PendingInterest> pendingInterest = pendingInterestTable_[i];
+      ptr_lib::shared_ptr<PendingInterest> pendingInterest = pendingInterestTable_[i];
       pendingInterestTable_.erase(pendingInterestTable_.begin() + i);
       pendingInterest->callTimeout();
       
@@ -260,7 +259,7 @@ Node::onReceivedElement(const uint8_t *element, size_t elementLength)
   BinaryXmlDecoder decoder(element, elementLength);
   
   if (decoder.peekDTag(ndn_BinaryXml_DTag_Interest)) {
-    shared_ptr<Interest> interest(new Interest());
+    ptr_lib::shared_ptr<Interest> interest(new Interest());
     interest->wireDecode(element, elementLength);
     
     RegisteredPrefix *entry = getEntryForRegisteredPrefix(interest->getName());
@@ -268,14 +267,14 @@ Node::onReceivedElement(const uint8_t *element, size_t elementLength)
       entry->getOnInterest()(entry->getPrefix(), interest, *transport_, entry->getRegisteredPrefixId());
   }
   else if (decoder.peekDTag(ndn_BinaryXml_DTag_ContentObject)) {
-    shared_ptr<Data> data(new Data());
+    ptr_lib::shared_ptr<Data> data(new Data());
     data->wireDecode(element, elementLength);
     
     int iPitEntry = getEntryIndexForExpressedInterest(data->getName());
     if (iPitEntry >= 0) {
       // Copy pointers to the needed objects and remove the PIT entry before the calling the callback.
       const OnData onData = pendingInterestTable_[iPitEntry]->getOnData();
-      const shared_ptr<const Interest> interest = pendingInterestTable_[iPitEntry]->getInterest();
+      const ptr_lib::shared_ptr<const Interest> interest = pendingInterestTable_[iPitEntry]->getInterest();
       pendingInterestTable_.erase(pendingInterestTable_.begin() + iPitEntry);
       onData(interest, data);
     }
@@ -334,7 +333,7 @@ Node::getEntryForRegisteredPrefix(const Name& name)
 }
 
 Node::PendingInterest::PendingInterest
-  (uint64_t pendingInterestId, const shared_ptr<const Interest>& interest, const OnData& onData, const OnTimeout& onTimeout)
+  (uint64_t pendingInterestId, const ptr_lib::shared_ptr<const Interest>& interest, const OnData& onData, const OnTimeout& onTimeout)
 : pendingInterestId_(pendingInterestId), interest_(interest), onData_(onData), onTimeout_(onTimeout),
   interestStruct_(new struct ndn_Interest)
 {

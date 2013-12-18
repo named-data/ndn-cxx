@@ -15,11 +15,10 @@
 #include <ndn-cpp/security/certificate/public-key.hpp>
 
 using namespace std;
-using namespace ndn::ptr_lib;
 
 namespace ndn {
 
-shared_ptr<der::DerNode>
+ptr_lib::shared_ptr<der::DerNode>
 PublicKey::toDer()
 {
   ndnboost::iostreams::stream<ndnboost::iostreams::array_source> is((const char*)keyDer_.buf (), keyDer_.size ());
@@ -29,7 +28,7 @@ PublicKey::toDer()
 
 static int RSA_OID[] = { 1, 2, 840, 113549, 1, 1, 1 };
 
-shared_ptr<PublicKey>
+ptr_lib::shared_ptr<PublicKey>
 PublicKey::fromDer(const Blob& keyDer)
 {
   // Use a temporary pointer since d2i updates it.
@@ -39,7 +38,7 @@ PublicKey::fromDer(const Blob& keyDer)
     throw UnrecognizedKeyFormatException("Error decoding public key DER");  
   RSA_free(publicKey);
   
-  return shared_ptr<PublicKey>(new PublicKey(OID(vector<int>(RSA_OID, RSA_OID + sizeof(RSA_OID))), keyDer));
+  return ptr_lib::shared_ptr<PublicKey>(new PublicKey(OID(vector<int>(RSA_OID, RSA_OID + sizeof(RSA_OID))), keyDer));
 }
 
 Blob
