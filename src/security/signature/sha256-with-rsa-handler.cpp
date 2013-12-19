@@ -15,7 +15,7 @@ using namespace std;
 namespace ndn {
 
 bool
-Sha256WithRsaHandler::verify(const Data& data, const PublicKey& publicKey)
+Sha256WithRsaHandler::verifySignature(const Data& data, const PublicKey& publicKey)
 {
   const Sha256WithRsaSignature *signature = dynamic_cast<const Sha256WithRsaSignature*>(data.getSignature());
   if (!signature)

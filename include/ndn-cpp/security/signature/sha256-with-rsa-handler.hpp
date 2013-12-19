@@ -30,7 +30,7 @@ public:
   * @throw SecurityException if data does not have a Sha256WithRsaSignature.
   */
   static bool
-  verify(const Data& data, const PublicKey& publicKey);
+  verifySignature(const Data& data, const PublicKey& publicKey);
 
 };
 
