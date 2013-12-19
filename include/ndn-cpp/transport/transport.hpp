@@ -17,20 +17,12 @@ class ElementListener;
 class Transport {
 public:
   /**
-   * A Transport::ConnectionInfo is a base class for connection information used by subclasses of Transport.
-   */
-  class ConnectionInfo { 
-  public:
-    virtual ~ConnectionInfo();
-  };
-  
-  /**
    * Connect according to the info in ConnectionInfo, and processEvents() will use elementListener.
    * @param connectionInfo A reference to an object of a subclass of ConnectionInfo.
    * @param elementListener Not a shared_ptr because we assume that it will remain valid during the life of this object.
    */
   virtual void 
-  connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener);
+  connect(ElementListener& elementListener) = 0;
   
   /**
    * Set data to the host
@@ -38,9 +30,9 @@ public:
    * @param dataLength The number of bytes in data.
    */
   virtual void 
-  send(const uint8_t *data, size_t dataLength);
+  send(const uint8_t *data, size_t dataLength) = 0;
   
-  void 
+  inline void 
   send(const std::vector<uint8_t>& data)
   {
     send(&data[0], data.size());
@@ -57,7 +49,7 @@ public:
   processEvents() = 0;
 
   virtual bool 
-  getIsConnected();
+  getIsConnected() = 0;
   
   /**
    * Close the connection.  This base class implementation does nothing, but your derived class can override.

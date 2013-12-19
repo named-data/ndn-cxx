@@ -50,7 +50,7 @@ public:
    * @param transport A shared_ptr to a Transport object used for communication.
    * @param transport A shared_ptr to a Transport::ConnectionInfo to be used to connect to the transport.
    */
-  Node(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo>& connectionInfo);
+  Node(const ptr_lib::shared_ptr<Transport>& transport);
   
   /**
    * Send the Interest through the transport, read the entire response and call onData(interest, data).
@@ -112,9 +112,6 @@ public:
   const ptr_lib::shared_ptr<Transport>& 
   getTransport() { return transport_; }
   
-  const ptr_lib::shared_ptr<const Transport::ConnectionInfo>& 
-  getConnectionInfo() { return connectionInfo_; }
-
   void 
   onReceivedElement(const uint8_t *element, size_t elementLength);
   
@@ -332,7 +329,6 @@ private:
      const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags, WireFormat& wireFormat);
   
   ptr_lib::shared_ptr<Transport> transport_;
-  ptr_lib::shared_ptr<const Transport::ConnectionInfo> connectionInfo_;
   std::vector<ptr_lib::shared_ptr<PendingInterest> > pendingInterestTable_;
   std::vector<ptr_lib::shared_ptr<RegisteredPrefix> > registeredPrefixTable_;
   Interest ndndIdFetcherInterest_;

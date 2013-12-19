@@ -20,43 +20,11 @@ namespace ndn {
 class UdpTransport : public Transport {
 public:
   /**
-   * A UdpTransport::ConnectionInfo extends Transport::ConnectionInfo to hold the host and port info for the UDP connection.
+   * Create a UdpTransport with the given host and port.
+   * @param host The host for the connection.
+   * @param port The port number for the connection. If omitted, use 6363.
    */
-  class ConnectionInfo : public Transport::ConnectionInfo {
-  public:
-    /**
-     * Create a ConnectionInfo with the given host and port.
-     * @param host The host for the connection.
-     * @param port The port number for the connection. If omitted, use 6363.
-     */
-    ConnectionInfo(const char *host, unsigned short port = 6363)
-    : host_(host), port_(port)
-    {
-    }
-
-    /**
-     * Get the host given to the constructor.
-     * @return A string reference for the host.
-     */
-    const std::string& 
-    getHost() const { return host_; }
-    
-    /**
-     * Get the port given to the constructor.
-     * @return The port number.
-     */
-    unsigned short 
-    getPort() const { return port_; }
-    
-    virtual 
-    ~ConnectionInfo();
-
-  private:
-    std::string host_;
-    unsigned short port_;
-  };
-
-  UdpTransport();
+  UdpTransport(const char *host, unsigned short port = 6363);
   
   /**
    * Connect according to the info in ConnectionInfo, and processEvents() will use elementListener.
@@ -64,7 +32,7 @@ public:
    * @param elementListener Not a shared_ptr because we assume that it will remain valid during the life of this object.
    */
   virtual void 
-  connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener);
+  connect(ElementListener& elementListener);
   
   /**
    * Set data to the host
@@ -96,8 +64,11 @@ public:
   ~UdpTransport();
   
 private:
-  ptr_lib::shared_ptr<struct ndn_UdpTransport> transport_;
+  std::string host_;
+  unsigned short port_;
+
   bool isConnected_;
+  ptr_lib::shared_ptr<struct ndn_UdpTransport> transport_;
   // TODO: This belongs in the socket listener.
   ptr_lib::shared_ptr<struct ndn_BinaryXmlElementReader> elementReader_;
 };

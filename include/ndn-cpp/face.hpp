@@ -23,8 +23,8 @@ public:
    * @param transport A shared_ptr to a Transport object used for communication.
    * @param transport A shared_ptr to a Transport::ConnectionInfo to be used to connect to the transport.
    */
-  Face(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo>& connectionInfo)
-  : node_(transport, connectionInfo)
+  Face(const ptr_lib::shared_ptr<Transport>& transport)
+  : node_(transport)
   {
   }
   
@@ -34,8 +34,7 @@ public:
    * @param port The port of the NDN hub. If omitted. use 6363.
    */
   Face(const char *host, unsigned short port = 6363)
-  : node_(ptr_lib::shared_ptr<TcpTransport>(new TcpTransport()), 
-          ptr_lib::make_shared<TcpTransport::ConnectionInfo>(host, port))
+  : node_(ptr_lib::shared_ptr<TcpTransport>(new TcpTransport(host, port)))
   {
   }
     

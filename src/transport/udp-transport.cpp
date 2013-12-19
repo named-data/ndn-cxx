@@ -17,24 +17,19 @@ using namespace std;
 
 namespace ndn {
 
-UdpTransport::ConnectionInfo::~ConnectionInfo()
-{  
-}
-
-UdpTransport::UdpTransport() 
-  : isConnected_(false), transport_(new struct ndn_UdpTransport), elementReader_(new struct ndn_BinaryXmlElementReader)
+UdpTransport::UdpTransport(const char *host, unsigned short port/* = 6363*/)
+  : host_(host), port_(port)
+  , isConnected_(false), transport_(new struct ndn_UdpTransport), elementReader_(new struct ndn_BinaryXmlElementReader)
 {
   ndn_UdpTransport_initialize(transport_.get());
   elementReader_->partialData.array = 0;
 }
 
 void 
-UdpTransport::connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener)
+UdpTransport::connect(ElementListener& elementListener)
 {
-  const UdpTransport::ConnectionInfo& udpConnectionInfo = dynamic_cast<const UdpTransport::ConnectionInfo&>(connectionInfo);
-  
   ndn_Error error;
-  if ((error = ndn_UdpTransport_connect(transport_.get(), (char *)udpConnectionInfo.getHost().c_str(), udpConnectionInfo.getPort())))
+  if ((error = ndn_UdpTransport_connect(transport_.get(), (char *)host_.c_str(), port_)))
     throw runtime_error(ndn_getErrorString(error)); 
 
   // TODO: This belongs in the socket listener.

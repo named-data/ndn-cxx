@@ -19,51 +19,14 @@ namespace ndn {
   
 class TcpTransport : public Transport {
 public:
-  /**
-   * A TcpTransport::ConnectionInfo extends Transport::ConnectionInfo to hold the host and port info for the TCP connection.
-   */
-  class ConnectionInfo : public Transport::ConnectionInfo {
-  public:
-    /**
-     * Create a ConnectionInfo with the given host and port.
-     * @param host The host for the connection.
-     * @param port The port number for the connection. If omitted, use 6363.
-     */
-    ConnectionInfo(const char *host, unsigned short port = 6363)
-    : host_(host), port_(port)
-    {
-    }
-
-    /**
-     * Get the host given to the constructor.
-     * @return A string reference for the host.
-     */
-    const std::string& 
-    getHost() const { return host_; }
-    
-    /**
-     * Get the port given to the constructor.
-     * @return The port number.
-     */
-    unsigned short 
-    getPort() const { return port_; }
-    
-    virtual 
-    ~ConnectionInfo();
-    
-  private:
-    std::string host_;
-    unsigned short port_;
-  };
-
-  TcpTransport();
+  TcpTransport(const char *host, unsigned short port = 6363);
   
   /**
    * Connect according to the info in ConnectionInfo, and processEvents() will use elementListener.
    * @param connectionInfo A reference to a TcpTransport::ConnectionInfo.
    * @param elementListener Not a shared_ptr because we assume that it will remain valid during the life of this object.
    */
-  virtual void connect(const Transport::ConnectionInfo& connectionInfo, ElementListener& elementListener);
+  virtual void connect(ElementListener& elementListener);
   
   /**
    * Set data to the host
@@ -91,8 +54,11 @@ public:
   ~TcpTransport();
   
 private:
-  ptr_lib::shared_ptr<struct ndn_TcpTransport> transport_;
+  std::string host_;
+  unsigned short port_;
+
   bool isConnected_;
+  ptr_lib::shared_ptr<struct ndn_TcpTransport> transport_;
   // TODO: This belongs in the socket listener.
   ptr_lib::shared_ptr<struct ndn_BinaryXmlElementReader> elementReader_;
 };

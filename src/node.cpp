@@ -110,8 +110,8 @@ selfregSign(Data& data, WireFormat& wireFormat)
   signature->setSignature(Blob(signatureBits, (size_t)signatureBitsLength));
 }
 
-Node::Node(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<const Transport::ConnectionInfo>& connectionInfo)
-: transport_(transport), connectionInfo_(connectionInfo),
+Node::Node(const ptr_lib::shared_ptr<Transport>& transport)
+: transport_(transport),
   ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
 {
 }
@@ -121,7 +121,7 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
 {
   // TODO: Properly check if we are already connected to the expected host.
   if (!transport_->getIsConnected())
-    transport_->connect(*connectionInfo_, *this);
+    transport_->connect(*this);
   
   uint64_t pendingInterestId = PendingInterest::getNextPendingInterestId();
   pendingInterestTable_.push_back(ptr_lib::shared_ptr<PendingInterest>(new PendingInterest
