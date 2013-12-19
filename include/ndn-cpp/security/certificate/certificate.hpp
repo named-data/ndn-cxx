@@ -52,6 +52,12 @@ public:
    */
   void 
   addSubjectDescription(const CertificateSubjectDescription& description) { subjectDescriptionList_.push_back(description); }
+
+  const SubjectDescriptionList& 
+  getSubjectDescriptionList() const { return subjectDescriptionList_; }
+  
+  SubjectDescriptionList& 
+  getSubjectDescriptionList() { return subjectDescriptionList_; }
  
   /**
    * Add a certificate extension.
@@ -59,6 +65,12 @@ public:
    */
   void 
   addExtension(const CertificateExtension& extension) { extensionList_.push_back(extension); }
+
+  const ExtensionList&
+  getExtensionList() const { return extensionList_; }
+  
+  ExtensionList&
+  getExtensionList() { return extensionList_; }
 
   void 
   setNotBefore(const MillisecondsSince1970& notBefore) { notBefore_ = notBefore; }
