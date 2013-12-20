@@ -56,10 +56,10 @@ public:
    * @return the encoded DER syntax tree
    */
   ptr_lib::shared_ptr<der::DerNode> 
-  toDer();
+  toDer() const;
 
   Blob
-  toDerBlob();
+  toDerBlob() const;
 
   inline const OID& 
   getOid() const { return extensionId_; }

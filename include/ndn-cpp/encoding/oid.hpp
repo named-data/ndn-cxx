@@ -39,20 +39,20 @@ public:
   }
 
   std::string 
-  toString();
+  toString() const;
 
-  bool operator == (const OID& oid)
+  bool operator == (const OID& oid) const
   {
     return equal(oid);
   }
 
-  bool operator != (const OID& oid)
+  bool operator != (const OID& oid) const
   {
     return !equal(oid);
   }
   
 private:
-  bool equal(const OID& oid);
+  bool equal(const OID& oid) const;
 
   std::vector<int> oid_;
 };

@@ -34,11 +34,11 @@ OID::OID(const string& oid)
   }
 }
 
-string OID::toString()
+string OID::toString() const
 {
   ostringstream convert;
   
-  vector<int>::iterator it = oid_.begin();
+  vector<int>::const_iterator it = oid_.begin();
   for(; it < oid_.end(); it++){
     if(it != oid_.begin())
       convert << ".";
@@ -48,7 +48,7 @@ string OID::toString()
   return convert.str();
 }
 
-bool OID::equal(const OID& oid)
+bool OID::equal(const OID& oid) const
 {
   vector<int>::const_iterator i = oid_.begin();
   vector<int>::const_iterator j = oid.oid_.begin();

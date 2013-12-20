@@ -15,7 +15,7 @@ using namespace std;
 namespace ndn {
 
 ptr_lib::shared_ptr<der::DerNode> 
-CertificateExtension::toDer()
+CertificateExtension::toDer() const
 {
   ptr_lib::shared_ptr<der::DerSequence> root(new der::DerSequence);
     
@@ -33,7 +33,7 @@ CertificateExtension::toDer()
 }
 
 Blob
-CertificateExtension::toDerBlob()
+CertificateExtension::toDerBlob() const
 {
   blob_stream blobStream;
   der::OutputIterator& start = reinterpret_cast<der::OutputIterator&>(blobStream);
