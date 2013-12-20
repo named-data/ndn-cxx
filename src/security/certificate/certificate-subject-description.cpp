@@ -14,7 +14,7 @@ using namespace std;
 namespace ndn {
 
 ptr_lib::shared_ptr<der::DerNode> 
-CertificateSubjectDescription::toDer()
+CertificateSubjectDescription::toDer() const
 {
   ptr_lib::shared_ptr<der::DerSequence> root(new der::DerSequence());
 

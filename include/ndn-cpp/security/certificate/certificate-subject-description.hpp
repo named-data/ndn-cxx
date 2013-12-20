@@ -46,10 +46,10 @@ public:
    * @return The encoded DER syntax tree.
    */
   ptr_lib::shared_ptr<der::DerNode> 
-  toDer();
+  toDer() const;
 
   std::string
-  getOidString()
+  getOidString() const
   {
     return oid_.toString();
   }
