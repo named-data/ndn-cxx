@@ -292,7 +292,7 @@ Node::getEntryIndexForExpressedInterest(const Name& name)
 {
   // TODO: Doesn't this belong in the Name class?
   vector<struct ndn_NameComponent> nameComponents;
-  nameComponents.reserve(name.getComponentCount());
+  nameComponents.reserve(name.size());
   struct ndn_Name nameStruct;
   ndn_Name_initialize(&nameStruct, &nameComponents[0], nameComponents.capacity());
   name.get(nameStruct);
@@ -320,7 +320,7 @@ Node::getEntryForRegisteredPrefix(const Name& name)
   for (size_t i = 0; i < registeredPrefixTable_.size(); ++i) {
     if (registeredPrefixTable_[i]->getPrefix()->match(name)) {
       if (iResult < 0 || 
-          registeredPrefixTable_[i]->getPrefix()->getComponentCount() > registeredPrefixTable_[iResult]->getPrefix()->getComponentCount())
+          registeredPrefixTable_[i]->getPrefix()->size() > registeredPrefixTable_[iResult]->getPrefix()->size())
         // Update to the longer match.
         iResult = i;
     }
@@ -346,7 +346,7 @@ Node::PendingInterest::PendingInterest
   
   // Set up interestStruct_.
   // TODO: Doesn't this belong in the Interest class?
-  nameComponents_.reserve(interest_->getName().getComponentCount());
+  nameComponents_.reserve(interest_->getName().size());
   excludeEntries_.reserve(interest_->getExclude().size());
   ndn_Interest_initialize
     (interestStruct_.get(), &nameComponents_[0], nameComponents_.capacity(), &excludeEntries_[0], excludeEntries_.capacity());
