@@ -46,8 +46,8 @@ public:
 int main(int argc, char** argv)
 {
   try {
-    // Connect to port 9695 until the testbed hubs use NDNx.
-    Face face("C.hub.ndn.ucla.edu", 9695);
+    // Connect to port 9695 until the testbed hubs use NDNx and are connected to the test repo.
+    Face face("borges.metwi.ucla.edu", 9695);
     
     // Counter holds data used by the callbacks.
     Counter counter;
