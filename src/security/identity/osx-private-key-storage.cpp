@@ -30,7 +30,7 @@ namespace ndn
   class OSXPrivateKeyStorage::Impl {
   public:
     Impl(const std::string &keychainName)
-      : keyChainName_ ("" == keychainName ?  "NDN.keychain" : keychainName)
+      : keyChainName_ ("" == keychainName ?  "login.keychain" : keychainName)
     {
     }
     
