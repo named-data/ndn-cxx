@@ -19,12 +19,12 @@ extern "C" {
 /**
  * A time interval represented as the number of milliseconds.
  */
-typedef double ndn_Milliseconds;
+typedef int64_t ndn_Milliseconds;
    
 /**
  * The calendar time represented as the number of milliseconds since 1/1/1970.
  */
-typedef double ndn_MillisecondsSince1970;
+typedef int64_t ndn_MillisecondsSince1970;
 
 #ifdef __cplusplus
 }

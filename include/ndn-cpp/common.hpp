@@ -73,12 +73,12 @@ namespace ndn {
 /**
  * A time interval represented as the number of milliseconds.
  */
-typedef double Milliseconds;
+typedef int64_t Milliseconds;
    
 /**
  * The calendar time represented as the number of milliseconds since 1/1/1970.
  */
-typedef double MillisecondsSince1970;
+typedef int64_t MillisecondsSince1970;
 
 /**
  * Return the hex representation of the bytes in array.

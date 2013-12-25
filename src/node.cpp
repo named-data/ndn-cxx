@@ -338,11 +338,11 @@ Node::PendingInterest::PendingInterest
   interestStruct_(new struct ndn_Interest)
 {
   // Set up timeoutTime_.
-  if (interest_->getInterestLifetimeMilliseconds() >= 0.0)
+  if (interest_->getInterestLifetimeMilliseconds() >= 0)
     timeoutTimeMilliseconds_ = ndn_getNowMilliseconds() + interest_->getInterestLifetimeMilliseconds();
   else
     // No timeout.
-    timeoutTimeMilliseconds_ = -1.0;
+    timeoutTimeMilliseconds_ = -1;
   
   // Set up interestStruct_.
   // TODO: Doesn't this belong in the Interest class?
