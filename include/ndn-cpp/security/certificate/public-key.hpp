@@ -9,63 +9,62 @@
 #ifndef NDN_PUBLIC_KEY_HPP
 #define NDN_PUBLIC_KEY_HPP
 
-#include "../../util/blob.hpp"
 #include "../../encoding/oid.hpp"
+#include "../../encoding/buffer.hpp"
 #include "../security-common.hpp"
 
 namespace ndn {
 
-  namespace der { class DerNode; }
-
 class PublicKey {
 public:    
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   /**
    * The default constructor.
    */
-  PublicKey() {}
+  PublicKey();
 
   /**
    * Create a new PublicKey with the given values.
    * @param algorithm The algorithm of the public key.
    * @param keyDer The blob of the PublicKeyInfo in terms of DER.
+   *
+   * @throws PublicKey::Error If algorithm is not supported or keyDer cannot be decoded
    */
-  PublicKey(const OID& algorithm, const Blob& keyDer)
-  : algorithm_(algorithm), keyDer_(keyDer)
+  PublicKey(const uint8_t *keyDerBuf, size_t keyDerSize);
+
+  const Buffer&
+  get() const
   {
+    return key_;
   }
 
-  /**
-   * Encode the public key into DER.
-   * @return the encoded DER syntax tree.
-   */
-  ptr_lib::shared_ptr<der::DerNode>
-  toDer();
+  void
+  set(const uint8_t *keyDerBuf, size_t keyDerSize)
+  {
+    Buffer buf(keyDerBuf, keyDerSize);
+    key_.swap(buf);
+  }
 
-  /**
-   * Decode the public key from DER blob.
-   * @param keyDer The DER blob.
-   * @return The decoded public key.
-   */
-  static ptr_lib::shared_ptr<PublicKey>
-  fromDer(const Blob& keyDer);
+  void
+  encode(CryptoPP::BufferedTransformation &out) const;
 
-  /*
-   * Get the digest of the public key.
-   * @param digestAlgorithm The digest algorithm. If omitted, use DIGEST_ALGORITHM_SHA256 by default.
-   */
-  Blob 
-  getDigest(DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) const;
+  void
+  decode(CryptoPP::BufferedTransformation &in);
 
-  /*
-   * Get the raw bytes of the public key in DER format.
-   */
-  const Blob& 
-  getKeyDer() const { return keyDer_; }
-    
+  // /*
+  //  * Get the digest of the public key.
+  //  * @param digestAlgorithm The digest algorithm. If omitted, use DIGEST_ALGORITHM_SHA256 by default.
+  //  */
+  // Blob 
+  // getDigest(DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) const;
+
 private:
-  OID algorithm_; /**< Algorithm */
-  Blob keyDer_;   /**< PublicKeyInfo in DER */
+  Buffer key_;
 };
+
+std::ostream &
+operator <<(std::ostream &os, const PublicKey &key);
 
 }
 

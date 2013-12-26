@@ -9,8 +9,10 @@
 #include <sstream>
 
 #include <ndn-cpp/encoding/oid.hpp>
+#include <cryptopp/asn.h>
 
 using namespace std;
+using namespace CryptoPP;
 
 namespace ndn {
 
@@ -48,7 +50,8 @@ string OID::toString() const
   return convert.str();
 }
 
-bool OID::equal(const OID& oid) const
+bool
+OID::equal(const OID& oid) const
 {
   vector<int>::const_iterator i = oid_.begin();
   vector<int>::const_iterator j = oid.oid_.begin();
@@ -62,6 +65,77 @@ bool OID::equal(const OID& oid) const
     return true;
   else
     return false;
+}
+
+inline void
+EncodeValue(BufferedTransformation &bt, word32 v)
+{
+  for (unsigned int i=RoundUpToMultipleOf(STDMAX(7U,BitPrecision(v)), 7U)-7; i != 0; i-=7)
+    bt.Put((byte)(0x80 | ((v >> i) & 0x7f)));
+  bt.Put((byte)(v & 0x7f));
+}
+
+inline size_t
+DecodeValue(BufferedTransformation &bt, word32 &v)
+{
+  byte b;
+  size_t i=0;
+  v = 0;
+  while (true)
+    {
+      if (!bt.Get(b))
+        BERDecodeError();
+      i++;
+      if (v >> (8*sizeof(v)-7))	// v about to overflow
+        BERDecodeError();
+      v <<= 7;
+      v += b & 0x7f;
+      if (!(b & 0x80))
+        return i;
+    }
+}
+
+void
+OID::encode(CryptoPP::BufferedTransformation &out) const
+{
+  assert(oid_.size() >= 2);
+  ByteQueue temp;
+  temp.Put(byte(oid_[0] * 40 + oid_[1]));
+  for (size_t i=2; i<oid_.size(); i++)
+    EncodeValue(temp, oid_[i]);
+  out.Put(OBJECT_IDENTIFIER);
+  DERLengthEncode(out, temp.CurrentSize());
+  temp.TransferTo(out);
+}
+
+void
+OID::decode(CryptoPP::BufferedTransformation &in)
+{
+  byte b;
+  if (!in.Get(b) || b != OBJECT_IDENTIFIER)
+    BERDecodeError();
+
+  size_t length;
+  if (!BERLengthDecode(in, length) || length < 1)
+    BERDecodeError();
+
+  if (!in.Get(b))
+    BERDecodeError();
+	
+  length--;
+  oid_.resize(2);
+  oid_[0] = b / 40;
+  oid_[1] = b % 40;
+
+  while (length > 0)
+    {
+      word32 v;
+      size_t valueLen = DecodeValue(in, v);
+      if (valueLen > length)
+        BERDecodeError();
+      oid_.push_back(v);
+      length -= valueLen;
+    }
 }
 
 }

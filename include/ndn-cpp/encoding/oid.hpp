@@ -12,6 +12,8 @@
 #include <vector>
 #include <string>
 
+namespace CryptoPP { class BufferedTransformation; }
+
 namespace ndn {
 
 class OID {
@@ -50,6 +52,12 @@ public:
   {
     return !equal(oid);
   }
+
+  void
+  encode(CryptoPP::BufferedTransformation &out) const;
+
+  void
+  decode(CryptoPP::BufferedTransformation &in);
   
 private:
   bool equal(const OID& oid) const;

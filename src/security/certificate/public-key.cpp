@@ -8,6 +8,8 @@
 
 #include <ndn-cpp/common.hpp>
 
+#include "public-key.hpp"
+
 #if NDN_CPP_USE_SYSTEM_BOOST
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
@@ -18,49 +20,109 @@ namespace ndnboost = boost;
 #include <ndnboost/iostreams/device/array.hpp>
 #endif
 
-#include <ndn-cpp/security/security-exception.hpp>
-#include "../../c/util/crypto.h"
-#include "../../encoding/der/der.hpp"
-#include <ndn-cpp/security/certificate/public-key.hpp>
+#include <cryptopp/rsa.h>
+#include <cryptopp/base64.h>
+#include <cryptopp/files.h>
 
 using namespace std;
+using namespace CryptoPP;
 
 namespace ndn {
 
-ptr_lib::shared_ptr<der::DerNode>
-PublicKey::toDer()
-{
-  ndnboost::iostreams::stream<ndnboost::iostreams::array_source> is((const char*)keyDer_.buf (), keyDer_.size ());
+static OID RSA_OID("1.2.840.113549.1.1.1");
 
-  return der::DerNode::parse(reinterpret_cast<der::InputIterator&> (is));
+PublicKey::PublicKey()
+{
 }
 
-static int RSA_OID[] = { 1, 2, 840, 113549, 1, 1, 1 };
-
-ptr_lib::shared_ptr<PublicKey>
-PublicKey::fromDer(const Blob& keyDer)
+/**
+ * Create a new PublicKey with the given values.
+ * @param algorithm The algorithm of the public key.
+ * @param keyDer The blob of the PublicKeyInfo in terms of DER.
+ */
+PublicKey::PublicKey(const uint8_t *keyDerBuf, size_t keyDerSize)
 {
-  // Use a temporary pointer since d2i updates it.
-  const uint8_t *derPointer = keyDer.buf();
-  RSA *publicKey = d2i_RSA_PUBKEY(NULL, &derPointer, keyDer.size());
-  if (!publicKey)
-    throw UnrecognizedKeyFormatException("Error decoding public key DER");  
-  RSA_free(publicKey);
-  
-  return ptr_lib::shared_ptr<PublicKey>(new PublicKey(OID(vector<int>(RSA_OID, RSA_OID + sizeof(RSA_OID))), keyDer));
+  StringSource src(keyDerBuf, keyDerSize, true);
+  decode(src);
 }
 
-Blob
-PublicKey::getDigest(DigestAlgorithm digestAlgorithm) const
+void
+PublicKey::encode(CryptoPP::BufferedTransformation &out) const
 {
-  if (digestAlgorithm == DIGEST_ALGORITHM_SHA256) {
-    uint8_t digest[SHA256_DIGEST_LENGTH];
-    ndn_digestSha256(keyDer_.buf(), keyDer_.size(), digest);
-    
-    return Blob(digest, sizeof(digest));
+  // SubjectPublicKeyInfo ::= SEQUENCE {
+  //     algorithm           AlgorithmIdentifier
+  //     keybits             BIT STRING   }
+
+  out.Put(key_.buf(), key_.size());
+}
+
+void
+PublicKey::decode(CryptoPP::BufferedTransformation &in)
+{
+  // SubjectPublicKeyInfo ::= SEQUENCE {
+  //     algorithm           AlgorithmIdentifier
+  //     keybits             BIT STRING   }
+
+  try {
+    std::string out;
+    StringSink sink(out);
+
+    ////////////////////////
+    // part 1: copy as is //
+    ////////////////////////
+    BERSequenceDecoder decoder(in);
+    {
+      assert (decoder.IsDefiniteLength());
+
+      DERSequenceEncoder encoder(sink);
+      decoder.TransferTo(encoder, decoder.RemainingLength());
+      encoder.MessageEnd();
+    }
+    decoder.MessageEnd();
+
+    ////////////////////////
+    // part 2: check if the key is RSA (since it is the only supported for now)
+    ////////////////////////
+    StringSource checkedSource(out, true);
+    BERSequenceDecoder subjectPublicKeyInfo(checkedSource);
+    {
+      BERSequenceDecoder algorithmInfo(subjectPublicKeyInfo);
+      {
+        OID algorithm;
+        algorithm.decode(algorithmInfo);
+
+        if (algorithm != RSA_OID)
+          throw Error("Only RSA public keys are supported for now (" + algorithm.toString() + " requested");
+      }
+    }
+
+    key_.assign(out.begin(), out.end());
   }
-  else
-    throw UnrecognizedDigestAlgorithmException("Wrong format!");
+  catch (CryptoPP::BERDecodeErr &err) {
+    throw Error("PublicKey decoding error");
+  }
+}
+
+// Blob
+// PublicKey::getDigest(DigestAlgorithm digestAlgorithm) const
+// {
+//   if (digestAlgorithm == DIGEST_ALGORITHM_SHA256) {
+//     uint8_t digest[SHA256_DIGEST_LENGTH];
+//     ndn_digestSha256(keyDer_.buf(), keyDer_.size(), digest);
+    
+//     return Blob(digest, sizeof(digest));
+//   }
+//   else
+//     throw UnrecognizedDigestAlgorithmException("Wrong format!");
+// }
+
+std::ostream &
+operator <<(std::ostream &os, const PublicKey &key)
+{
+  CryptoPP::StringSource(key.get().buf(), key.get().size(), true,
+                         new CryptoPP::Base64Encoder(new CryptoPP::FileSink(os), true, 64));
+
+  return os;
 }
 
 }

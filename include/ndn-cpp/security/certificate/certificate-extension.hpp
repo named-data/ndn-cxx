@@ -10,12 +10,12 @@
 #define NDN_CERTIFICATE_EXTENSION_HPP
 
 #include "../../common.hpp"
-#include "../../util/blob.hpp"
+#include "../../encoding/buffer.hpp"
 #include "../../encoding/oid.hpp"
 
-namespace ndn {
+namespace CryptoPP { class BufferedTransformation; }
 
-namespace der { class DerNode; }
+namespace ndn {
 
 /**
  * A CertificateExtension represents the Extension entry in a certificate.
@@ -23,13 +23,18 @@ namespace der { class DerNode; }
 class CertificateExtension
 {
 public:
+  CertificateExtension(CryptoPP::BufferedTransformation &in)
+  {
+    decode(in);
+  }
+  
   /**
    * Create a new CertificateExtension.
    * @param oid The oid of subject description entry.
    * @param isCritical If true, the extension must be handled.
    * @param value The extension value.
    */
-  CertificateExtension(const std::string& oid, const bool isCritical, const Blob& value)
+  CertificateExtension(const std::string& oid, const bool isCritical, const Buffer& value)
   : extensionId_(oid), isCritical_(isCritical), extensionValue_(value)
   {
   }
@@ -40,7 +45,7 @@ public:
    * @param isCritical If true, the extension must be handled.
    * @param value The extension value.
    */
-  CertificateExtension(const OID& oid, const bool isCritical, const Blob& value)
+  CertificateExtension(const OID& oid, const bool isCritical, const Buffer& value)
   : extensionId_(oid), isCritical_(isCritical), extensionValue_(value)
   {
   }
@@ -51,29 +56,25 @@ public:
   virtual
   ~CertificateExtension() {}
 
-  /**
-   * encode the object into DER syntax tree
-   * @return the encoded DER syntax tree
-   */
-  ptr_lib::shared_ptr<der::DerNode> 
-  toDer() const;
+  void
+  encode(CryptoPP::BufferedTransformation &out) const;
 
-  Blob
-  toDerBlob() const;
-
+  void
+  decode(CryptoPP::BufferedTransformation &in);
+  
   inline const OID& 
   getOid() const { return extensionId_; }
 
   inline const bool 
   getIsCritical() const { return isCritical_; }
 
-  inline const Blob& 
+  inline const Buffer& 
   getValue() const { return extensionValue_; }
     
 protected:
   OID extensionId_;
   bool isCritical_;
-  Blob extensionValue_;
+  Buffer extensionValue_;
 };
 
 }

@@ -83,24 +83,8 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/encoding/binary-xml-structure-decoder.hpp \
   src/encoding/binary-xml-wire-format.cpp \
   src/encoding/block.cpp \
-  src/encoding/der/der-exception.cpp \
-  src/encoding/der/der-exception.hpp \
-  src/encoding/der/der.cpp \
-  src/encoding/der/der.hpp \
-  src/encoding/der/visitor/certificate-data-visitor.cpp \
-  src/encoding/der/visitor/certificate-data-visitor.hpp \
-  src/encoding/der/visitor/no-arguments-visitor.cpp \
-  src/encoding/der/visitor/no-arguments-visitor.hpp \
-  src/encoding/der/visitor/print-visitor.cpp \
-  src/encoding/der/visitor/print-visitor.hpp \
-  src/encoding/der/visitor/public-key-visitor.cpp \
-  src/encoding/der/visitor/public-key-visitor.hpp \
-  src/encoding/der/visitor/simple-visitor.cpp \
-  src/encoding/der/visitor/simple-visitor.hpp \
-  src/encoding/der/visitor/visitor.hpp \
-  src/encoding/der/visitor/void-no-arguments-visitor.hpp \
-  src/encoding/der/visitor/void-visitor.cpp \
-  src/encoding/der/visitor/void-visitor.hpp \
+  src/encoding/cryptopp/asn_ext.cpp \
+  src/encoding/cryptopp/asn_ext.hpp \
   src/encoding/element-listener.cpp \
   src/encoding/oid.cpp \
   src/encoding/wire-format.cpp \

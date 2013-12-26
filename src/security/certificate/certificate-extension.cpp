@@ -6,42 +6,51 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "../../encoding/der/der.hpp"
-#include "../../util/blob-stream.hpp"
 #include <ndn-cpp/security/certificate/certificate-extension.hpp>
+#include <cryptopp/asn.h>
 
 using namespace std;
+using namespace CryptoPP;
 
 namespace ndn {
 
-ptr_lib::shared_ptr<der::DerNode> 
-CertificateExtension::toDer() const
+void
+CertificateExtension::encode(CryptoPP::BufferedTransformation &out) const
 {
-  ptr_lib::shared_ptr<der::DerSequence> root(new der::DerSequence);
-    
-  ptr_lib::shared_ptr<der::DerOid> extensionId(new der::DerOid(extensionId_));
-  ptr_lib::shared_ptr<der::DerBool> isCritical(new der::DerBool(isCritical_));
-  ptr_lib::shared_ptr<der::DerOctetString> extensionValue(new der::DerOctetString(*extensionValue_));
+  // Extension ::= SEQUENCE {
+  //        extnID      OBJECT IDENTIFIER,
+  //        critical    BOOLEAN DEFAULT FALSE,
+  //        extnValue   OCTET STRING  }
 
-  root->addChild(extensionId);
-  root->addChild(isCritical);
-  root->addChild(extensionValue);
-
-  root->getSize();
-
-  return root;
+  DERSequenceEncoder extension(out);
+  {
+    extensionId_.encode(extension);
+    DEREncodeUnsigned(extension, isCritical_, BOOLEAN);
+    DEREncodeOctetString(extension, extensionValue_.buf(), extensionValue_.size());
+  }
+  extension.MessageEnd();
 }
 
-Blob
-CertificateExtension::toDerBlob() const
+void
+CertificateExtension::decode(CryptoPP::BufferedTransformation &in)
 {
-  blob_stream blobStream;
-  der::OutputIterator& start = reinterpret_cast<der::OutputIterator&>(blobStream);
+  // Extension ::= SEQUENCE {
+  //        extnID      OBJECT IDENTIFIER,
+  //        critical    BOOLEAN DEFAULT FALSE,
+  //        extnValue   OCTET STRING  }
 
-  toDer()->encode(start);
+  BERSequenceDecoder extension(in);
+  {
+    extensionId_.decode(extension);
+    BERDecodeUnsigned(extension, isCritical_, BOOLEAN);
 
-  return blobStream.buf();
+    // the extra copy operation can be optimized, but not trivial,
+    // since the length is not known in advance
+    SecByteBlock tmpBlock;
+    BERDecodeOctetString(extension, tmpBlock);
+    extensionValue_.assign(tmpBlock.begin(), tmpBlock.end());
+  }
+  extension.MessageEnd();
 }
-
-
+ 
 }
