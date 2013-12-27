@@ -5,13 +5,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#if 1
-#include <stdexcept>
-#endif
+#include "memory-identity-storage.hpp"
+
 #include <algorithm>
-#include <ndn-cpp/security/security-exception.hpp>
 #include <ndn-cpp/security/certificate/identity-certificate.hpp>
-#include <ndn-cpp/security/identity/memory-identity-storage.hpp>
 
 using namespace std;
 
@@ -33,7 +30,7 @@ MemoryIdentityStorage::addIdentity(const Name& identityName)
 {
   string identityUri = identityName.toUri();
   if (find(identityStore_.begin(), identityStore_.end(), identityUri) != identityStore_.end())
-    throw SecurityException("Identity already exists: " + identityUri);
+    throw Error("Identity already exists: " + identityUri);
   
   identityStore_.push_back(identityUri);
 }
@@ -53,7 +50,7 @@ MemoryIdentityStorage::doesKeyExist(const Name& keyName)
 }
 
 void 
-MemoryIdentityStorage::addKey(const Name& keyName, KeyType keyType, const Blob& publicKeyDer)
+MemoryIdentityStorage::addKey(const Name& keyName, KeyType keyType, const PublicKey& publicKey)
 {
   Name identityName = keyName.getSubName(0, keyName.size() - 1);
 
@@ -61,20 +58,20 @@ MemoryIdentityStorage::addKey(const Name& keyName, KeyType keyType, const Blob& 
     addIdentity(identityName);
 
   if (doesKeyExist(keyName))
-    throw SecurityException("a key with the same name already exists!");
+    throw Error("a key with the same name already exists!");
   
-  keyStore_[keyName.toUri()] = ptr_lib::make_shared<KeyRecord>(keyType, publicKeyDer);
+  keyStore_[keyName.toUri()] = ptr_lib::make_shared<KeyRecord>(keyType, publicKey);
 }
 
-Blob
+ptr_lib::shared_ptr<PublicKey>
 MemoryIdentityStorage::getKey(const Name& keyName)
 {
-  map<string, ptr_lib::shared_ptr<KeyRecord> >::iterator record = keyStore_.find(keyName.toUri());
+  KeyStore::iterator record = keyStore_.find(keyName.toUri());
   if (record == keyStore_.end())
     // Not found.  Silently return null.
-    return Blob();
+    return ptr_lib::shared_ptr<PublicKey>();
   
-  return record->second->getKeyDer();
+  return ptr_lib::make_shared<PublicKey> (record->second->getKey());
 }
 
 void 
@@ -103,37 +100,33 @@ void
 MemoryIdentityStorage::addCertificate(const IdentityCertificate& certificate)
 {
   const Name& certificateName = certificate.getName();
-  Name keyName = certificate.getPublicKeyName();
+  const Name& keyName = certificate.getPublicKeyName();
 
   if (!doesKeyExist(keyName))
-    throw SecurityException("No corresponding Key record for certificate! " + keyName.toUri() + " " + certificateName.toUri());
+    throw Error("No corresponding Key record for certificate! " + keyName.toUri() + " " + certificateName.toUri());
 
   // Check if certificate has already existed!
   if (doesCertificateExist(certificateName))
-    throw SecurityException("Certificate has already been installed!");
+    throw Error("Certificate has already been installed!");
 
   // Check if the public key of certificate is the same as the key record. 
-  Blob keyBlob = getKey(keyName);
-  if (!keyBlob || (*keyBlob) != *(certificate.getPublicKeyInfo().getKeyDer()))
-    throw SecurityException("Certificate does not match the public key!");
+  ptr_lib::shared_ptr<PublicKey> pubKey = getKey(keyName);
+  if (!pubKey || (*pubKey) != certificate.getPublicKeyInfo())
+    throw Error("Certificate does not match the public key!");
   
   // Insert the certificate.
-  if (!certificate.getDefaultWireEncoding())
-    certificate.wireEncode();
-  certificateStore_[certificateName.toUri()] = certificate.getDefaultWireEncoding();
+  certificateStore_[certificateName.toUri()] = ptr_lib::make_shared<IdentityCertificate> (certificate);
 }
 
-ptr_lib::shared_ptr<Data> 
+ptr_lib::shared_ptr<IdentityCertificate> 
 MemoryIdentityStorage::getCertificate(const Name& certificateName, bool allowAny)
 {
-  map<string, Blob>::iterator record = certificateStore_.find(certificateName.toUri());
+  CertificateStore::iterator record = certificateStore_.find(certificateName.toUri());
   if (record == certificateStore_.end())
     // Not found.  Silently return null.
-    return ptr_lib::shared_ptr<Data>();
-  
-  ptr_lib::shared_ptr<Data> data(new Data());
-  data->wireDecode(*record->second);
-  return data;
+    return ptr_lib::shared_ptr<IdentityCertificate>();
+
+  return record->second;
 }
 
 Name 
