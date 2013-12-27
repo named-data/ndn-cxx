@@ -31,16 +31,6 @@ public:
    * @param oid The oid of the subject description entry.
    * @param value The value of the subject description entry.
    */
-  CertificateSubjectDescription(const std::string &oid, const std::string &value)
-  : oid_(oid), value_(value)
-  {
-  }
-
-  /**
-   * Create a new CertificateSubjectDescription.
-   * @param oid The oid of the subject description entry.
-   * @param value The value of the subject description entry.
-   */
   CertificateSubjectDescription(const OID &oid, const std::string &value)
   : oid_(oid), value_(value)
   {

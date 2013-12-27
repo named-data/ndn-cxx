@@ -16,6 +16,8 @@
 #include <sys/time.h>
 #endif
 
+#include "../../util/time.hpp"
+
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -26,10 +28,6 @@ namespace ndn {
 size_t
 DEREncodeGeneralTime(CryptoPP::BufferedTransformation &bt, MillisecondsSince1970 time)
 {
-#ifndef NDN_CPP_HAVE_GMTIME_SUPPORT
-  throw Asn::Error("Time functions are not supported by the standard library");
-#endif
-
   if (time < 0)
     throw Asn::Error("Calendar time value out of range");
   else if (time > 2e14)
@@ -39,14 +37,13 @@ DEREncodeGeneralTime(CryptoPP::BufferedTransformation &bt, MillisecondsSince1970
   time_t secondsSince1970 = time / 1000;
   struct tm* gmt = gmtime(&secondsSince1970);
 
-  std::string asn1time ((boost::format("%04d%02d%02d%02d%02d%02d%sZ")
+  std::string asn1time ((boost::format("%04d%02d%02d%02d%02d%02dZ")
                          % (1900 + gmt->tm_year)
                          % (gmt->tm_mon + 1)
                          % gmt->tm_mday
                          % gmt->tm_hour
                          % gmt->tm_min
                          % gmt->tm_sec).str());
-   // = os.str();
   
   bt.Put(GENERALIZED_TIME);
   size_t lengthBytes = DERLengthEncode(bt, asn1time.size());
@@ -69,39 +66,17 @@ BERDecodeTime(CryptoPP::BufferedTransformation &bt, MillisecondsSince1970 &time)
   if (bc != bt.Get(time_str, bc))
     BERDecodeError();
 
-  std::vector<std::string> params;
-  std::string current;
-  std::locale cLocale("C");
+  std::string str;
+  str.assign (time_str.begin(), time_str.end());
   
-  for(uint32_t j = 0; j != time_str.size(); ++j)
-    {
-      if(std::isdigit(reinterpret_cast<char&>(time_str[j]), cLocale))
-        current += time_str[j];
-      else
-        {
-          if(current != "")
-            params.push_back(current);
-          current.clear();
-        }
-    }
-  if(current != "")
-    params.push_back(current);
-  
-  if(params.size() < 3 || params.size() > 6)
-    throw Asn::Error("Invalid time specification " + std::string(time_str.begin(), time_str.end()));
-
-  struct tm gmt;
-  gmt.tm_year = boost::lexical_cast<int>(params[0]);
-  gmt.tm_mon  = boost::lexical_cast<int>(params[1]) - 1;
-  gmt.tm_mday = boost::lexical_cast<int>(params[2]);
-  gmt.tm_hour = (params.size() >= 4) ? boost::lexical_cast<int>(params[3]) : 0;
-  gmt.tm_min  = (params.size() >= 5) ? boost::lexical_cast<int>(params[4]) : 0;
-  gmt.tm_sec  = (params.size() == 6) ? boost::lexical_cast<int>(params[5]) : 0;
-
-  if (b == GENERALIZED_TIME)
-    gmt.tm_year -= 1900;
-
-  time = timegm(&gmt) * 1000;
+  if (b == UTC_TIME) {
+    if (boost::lexical_cast<int>(str.substr(0,2)) < 50)
+      str = "20" + str;
+    else
+      str = "19" + str;
+  }
+ 
+  time = fromIsoString(str.substr(0, 8) + "T" + str.substr(8, 6));
 }
 
 } // namespace ndn

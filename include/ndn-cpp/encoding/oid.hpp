@@ -22,6 +22,8 @@ public:
   {
   }
     
+  OID(const char *oid);
+
   OID(const std::string& oid);
 
   OID(const std::vector<int>& oid)
@@ -58,10 +60,16 @@ public:
 
   void
   decode(CryptoPP::BufferedTransformation &in);
-  
-private:
-  bool equal(const OID& oid) const;
 
+
+private:
+  void
+  construct(const std::string &value);
+  
+  bool
+  equal(const OID& oid) const;
+
+private:
   std::vector<int> oid_;
 };
 

@@ -27,17 +27,6 @@ public:
   {
     decode(in);
   }
-  
-  /**
-   * Create a new CertificateExtension.
-   * @param oid The oid of subject description entry.
-   * @param isCritical If true, the extension must be handled.
-   * @param value The extension value.
-   */
-  CertificateExtension(const std::string& oid, const bool isCritical, const Buffer& value)
-  : extensionId_(oid), isCritical_(isCritical), extensionValue_(value)
-  {
-  }
 
   /**
    * Create a new CertificateExtension.
@@ -46,10 +35,15 @@ public:
    * @param value The extension value.
    */
   CertificateExtension(const OID& oid, const bool isCritical, const Buffer& value)
-  : extensionId_(oid), isCritical_(isCritical), extensionValue_(value)
+    : extensionId_(oid), isCritical_(isCritical), extensionValue_(value)
   {
   }
 
+  CertificateExtension(const OID& oid, const bool isCritical, const uint8_t* value, size_t valueSize)
+    : extensionId_(oid), isCritical_(isCritical), extensionValue_(value, valueSize)
+  {
+  }
+  
   /**
    * The virtual destructor.
    */

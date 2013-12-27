@@ -250,7 +250,7 @@ Certificate::decode()
 void 
 Certificate::printCertificate(std::ostream &os) const
 {
-  os << "Certificate name: " << endl;
+  os << "Certificate name:" << endl;
   os << "  " << getName() << endl;
   os << "Validity:" << endl;
   {
@@ -265,7 +265,7 @@ Certificate::printCertificate(std::ostream &os) const
       os << "  " << it->getOidString() << ": " << it->getValue() << endl;
     }
 
-  os << "Public key bits: " << endl;
+  os << "Public key bits:" << endl;
   CryptoPP::Base64Encoder encoder(new CryptoPP::FileSink(os), true, 64);
   key_.encode(encoder);
   

@@ -16,7 +16,18 @@ using namespace CryptoPP;
 
 namespace ndn {
 
+OID::OID(const char *oid)
+{
+  construct(oid);
+}
+
 OID::OID(const string& oid)
+{
+  construct(oid);
+}
+
+void
+OID::construct(const std::string &oid)
 {
   string str = oid + ".";
 

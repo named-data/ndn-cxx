@@ -38,16 +38,16 @@ BOOST_AUTO_TEST_CASE (Decode)
   Block interestBlock(Interest1, sizeof(Interest1));
   
   ndn::Interest i;
-  BOOST_CHECK_NO_THROW(i.wireDecode(interestBlock));
+  BOOST_REQUIRE_NO_THROW(i.wireDecode(interestBlock));
 
-  BOOST_CHECK_EQUAL(i.getName().toUri(), "/local/ndn/prefix");
-  BOOST_CHECK_EQUAL(i.getScope(), 1);
-  BOOST_CHECK_EQUAL(i.getInterestLifetime(), 1000);
-  BOOST_CHECK_EQUAL(i.getMinSuffixComponents(), 1);
-  BOOST_CHECK_EQUAL(i.getMaxSuffixComponents(), 1);
-  BOOST_CHECK_EQUAL(i.getChildSelector(), 1);
-  BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
-  BOOST_CHECK_EQUAL(i.getExclude().toUri(), "alex,xxxx,*,yyyy");
+  BOOST_REQUIRE_EQUAL(i.getName().toUri(), "/local/ndn/prefix");
+  BOOST_REQUIRE_EQUAL(i.getScope(), 1);
+  BOOST_REQUIRE_EQUAL(i.getInterestLifetime(), 1000);
+  BOOST_REQUIRE_EQUAL(i.getMinSuffixComponents(), 1);
+  BOOST_REQUIRE_EQUAL(i.getMaxSuffixComponents(), 1);
+  BOOST_REQUIRE_EQUAL(i.getChildSelector(), 1);
+  BOOST_REQUIRE_EQUAL(i.getMustBeFresh(), false);
+  BOOST_REQUIRE_EQUAL(i.getExclude().toUri(), "alex,xxxx,*,yyyy");
 }
 
 BOOST_AUTO_TEST_CASE (Encode)
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE (Encode)
   i.getExclude().excludeOne("alex").excludeRange("xxxx", "yyyy");
 
   const Block &wire = i.wireEncode();
-  BOOST_CHECK_EQUAL_COLLECTIONS(Interest1, Interest1+sizeof(Interest1),
+  BOOST_REQUIRE_EQUAL_COLLECTIONS(Interest1, Interest1+sizeof(Interest1),
                                wire.begin(), wire.end());
 }
 
