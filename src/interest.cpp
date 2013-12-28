@@ -9,9 +9,23 @@
 #include <ndn-cpp/common.hpp>
 #include <ndn-cpp/interest.hpp>
 
+#include <cryptopp/osrng.h>
+
 using namespace std;
 
 namespace ndn {
+
+uint32_t
+Interest::getNonce() const
+{
+  static CryptoPP::AutoSeededRandomPool rng;
+
+  if (nonce_ == 0)
+    nonce_ = rng.GenerateWord32();
+
+  return nonce_;
+}
+
 
 bool
 Interest::matchesName(const Name &name) const
@@ -121,8 +135,11 @@ Interest::wireEncode() const
         (booleanBlock(Tlv::MustBeFresh));
     }
 
-    selectors.encode();
-    wire_.push_back(selectors);
+    if (!selectors.getAll().empty())
+      {
+        selectors.encode();
+        wire_.push_back(selectors);
+      }
   }
 
   // Nonce

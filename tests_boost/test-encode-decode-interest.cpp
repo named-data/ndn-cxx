@@ -28,7 +28,7 @@ const uint8_t Interest1[] = {
   0xe,  0x0,
   0x3,  0x4,  0x79,  0x79,  0x79,  0x79,
   0xc,  0x1,  0x1,
-  0x5,  0x1,  0x0,
+  0x5,  0x1,  0x1,
   0x6,  0x1,  0x1,
   0x7,  0x2,  0x3,  0xe8
 };
@@ -48,6 +48,7 @@ BOOST_AUTO_TEST_CASE (Decode)
   BOOST_REQUIRE_EQUAL(i.getChildSelector(), 1);
   BOOST_REQUIRE_EQUAL(i.getMustBeFresh(), false);
   BOOST_REQUIRE_EQUAL(i.getExclude().toUri(), "alex,xxxx,*,yyyy");
+  BOOST_REQUIRE_EQUAL(i.getNonce(), 1);
 }
 
 BOOST_AUTO_TEST_CASE (Encode)
@@ -60,6 +61,7 @@ BOOST_AUTO_TEST_CASE (Encode)
   i.setChildSelector(1);
   i.setMustBeFresh(false);
   i.getExclude().excludeOne("alex").excludeRange("xxxx", "yyyy");
+  i.setNonce(1);
 
   const Block &wire = i.wireEncode();
   BOOST_REQUIRE_EQUAL_COLLECTIONS(Interest1, Interest1+sizeof(Interest1),

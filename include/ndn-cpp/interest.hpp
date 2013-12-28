@@ -132,8 +132,13 @@ public:
   Milliseconds 
   getInterestLifetime() const { return interestLifetime_; }
 
+  /**
+   * @brief Get Interest's nonce
+   *
+   * If nonce was not set before this call, it will be automatically assigned to a random value
+   */
   uint32_t
-  getNonce() const { return nonce_; }
+  getNonce() const;
     
   void
   setName(const Name& name) { name_ = name; }
@@ -196,7 +201,7 @@ private:
   bool mustBeFresh_;
   int scope_;
   Milliseconds interestLifetime_;
-  uint32_t nonce_;
+  mutable uint32_t nonce_;
 
   mutable Block wire_;
 };
