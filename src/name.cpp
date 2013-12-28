@@ -259,10 +259,10 @@ Name::fromEscapedString(const char *escapedString)
 }
 
 void
-Name::toEscapedString(const vector<uint8_t>& value, std::ostream& result)
+Name::toEscapedString(const uint8_t *value, size_t valueSize, std::ostream& result)
 {
   bool gotNonDot = false;
-  for (unsigned i = 0; i < value.size(); ++i) {
+  for (unsigned i = 0; i < valueSize; ++i) {
     if (value[i] != 0x2e) {
       gotNonDot = true;
       break;
@@ -271,14 +271,14 @@ Name::toEscapedString(const vector<uint8_t>& value, std::ostream& result)
   if (!gotNonDot) {
     // Special case for component of zero or more periods.  Add 3 periods.
     result << "...";
-    for (size_t i = 0; i < value.size(); ++i)
+    for (size_t i = 0; i < valueSize; ++i)
       result << '.';
   }
   else {
     // In case we need to escape, set to upper case hex and save the previous flags.
     ios::fmtflags saveFlags = result.flags(ios::hex | ios::uppercase);
     
-    for (size_t i = 0; i < value.size(); ++i) {
+    for (size_t i = 0; i < valueSize; ++i) {
       uint8_t x = value[i];
       // Check for 0-9, A-Z, a-z, (+), (-), (.), (_)
       if ((x >= 0x30 && x <= 0x39) || (x >= 0x41 && x <= 0x5a) ||
@@ -296,14 +296,6 @@ Name::toEscapedString(const vector<uint8_t>& value, std::ostream& result)
     // Restore.
     result.flags(saveFlags);
   }  
-}
-
-string
-Name::toEscapedString(const vector<uint8_t>& value)
-{
-  ostringstream result;
-  toEscapedString(value, result);
-  return result.str();
 }
 
 bool 
@@ -363,6 +355,8 @@ Name::wireEncode() const
 void
 Name::wireDecode(const Block &wire)
 {
+  clear();
+  
   wire_ = wire;
   wire_.parse();
 

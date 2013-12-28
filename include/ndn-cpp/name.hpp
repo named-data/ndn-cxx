@@ -588,17 +588,34 @@ public:
    * @param result the string stream to write to.
    */
   static void 
-  toEscapedString(const std::vector<uint8_t>& value, std::ostream& result);
+  toEscapedString(const uint8_t *value, size_t valueSize, std::ostream& result);
 
+  inline static void 
+  toEscapedString(const std::vector<uint8_t>& value, std::ostream& result)
+  {
+    toEscapedString(&*value.begin(), value.size(), result);
+  }
+  
   /**
    * Convert the value by escaping characters according to the NDN URI Scheme.
    * This also adds "..." to a value with zero or more ".".
    * @param value the buffer with the value to escape
    * @return The escaped string.
    */
-  static std::string
-  toEscapedString(const std::vector<uint8_t>& value);
+  inline static std::string
+  toEscapedString(const uint8_t *value, size_t valueSize)
+  {
+    std::ostringstream result;
+    toEscapedString(value, valueSize, result);
+    return result.str();
+  }
 
+  static inline std::string
+  toEscapedString(const std::vector<uint8_t>& value)
+  {
+    return toEscapedString(&*value.begin(), value.size());
+  }
+  
   //
   // vector equivalent interface.
   //
