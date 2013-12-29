@@ -236,10 +236,14 @@ Data::setContent(const ConstBufferPtr &contentValue)
   
 inline void
 Data::setContent(const Block& content) 
-{ 
+{
   onChanged();
 
-  content_ = content;
+  if (content.type() == Tlv::Content)
+    content_ = content;
+  else {
+    content_ = Block(Tlv::Content, content);
+  }
 }
 
 inline const Signature&

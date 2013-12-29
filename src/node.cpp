@@ -152,25 +152,33 @@ Node::registerPrefixFinal(uint64_t registeredPrefixId,
       return;
     }
 
-  switch(content.getAll().begin()->type())
+  Block::element_iterator val = content.getAll().begin();
+  
+  switch(val->type())
     {
     case Tlv::FaceManagement::ForwardingEntry:
       {
+        ForwardingEntry entry;
+        entry.wireDecode(*val);
+
+        // Save the onInterest callback and send the registration interest.
+        registeredPrefixTable_.push_back(ptr_lib::make_shared<RegisteredPrefix>(registeredPrefixId, prefix, onInterest));
+
+        /// @todo Notify user about successful registration
+        
         // succeeded
-        break;
+        return;
       }
     case Tlv::FaceManagement::StatusResponse:
       {
         // failed :(
         StatusResponse resp;
-        resp.wireDecode(*content.getAll().begin());
+        resp.wireDecode(*val);
 
         std::cerr << "StatusReponse: " << resp << std::endl;
       
         onRegisterFailed(prefix);
         return;
-      
-        break;
       }
     default:
       {
@@ -178,16 +186,8 @@ Node::registerPrefixFinal(uint64_t registeredPrefixId,
       
         onRegisterFailed(prefix);
         return;
-        break;
       }
     }
-
-     
-  
-  // Save the onInterest callback and send the registration interest.
-  registeredPrefixTable_.push_back(ptr_lib::make_shared<RegisteredPrefix>(registeredPrefixId, prefix, onInterest));
-
-  /// @todo Notify user about successful registration
 }
 
 void 

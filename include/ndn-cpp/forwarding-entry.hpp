@@ -40,33 +40,33 @@ public:
   
   const std::string& 
   getAction() const { return action_; }
-  
-  Name& 
-  getPrefix() { return prefix_; }
-  
+
+  void 
+  setAction(const std::string& action) { action_ = action; wire_.reset(); }
+    
   const Name& 
   getPrefix() const { return prefix_; }
+  
+  void
+  setPrefix(const Name &prefix) { prefix_ = prefix; wire_.reset(); }
   
   int 
   getFaceId() const { return faceId_; }
 
+  void 
+  setFaceId(int faceId) { faceId_ = faceId; wire_.reset(); }
+      
   const ForwardingFlags& 
   getForwardingFlags() const { return forwardingFlags_; }
 
+  void 
+  setForwardingFlags(const ForwardingFlags& forwardingFlags) { forwardingFlags_ = forwardingFlags; wire_.reset(); }
+      
   int 
   getFreshnessPeriod() const { return freshnessPeriod_; }
 
   void 
-  setAction(const std::string& action) { action_ = action; }
-  
-  void 
-  setFaceId(int faceId) { faceId_ = faceId; }
-      
-  void 
-  setForwardingFlags(const ForwardingFlags& forwardingFlags) { forwardingFlags_ = forwardingFlags; }
-      
-  void 
-  setFreshnessPeriod(int freshnessPeriod) { freshnessPeriod_ = freshnessPeriod; }
+  setFreshnessPeriod(int freshnessPeriod) { freshnessPeriod_ = freshnessPeriod; wire_.reset(); }
 
   inline const Block&
   wireEncode() const;
@@ -188,6 +188,42 @@ ForwardingEntry::wireDecode(const Block &wire)
     {
       freshnessPeriod_ = readNonNegativeInteger(*val);
     }
+}
+
+inline std::ostream&
+operator << (std::ostream &os, const ForwardingEntry &entry)
+{
+  os << "ForwardingEntry(";
+  
+  // Action
+  if (!entry.getAction().empty())
+    {
+      os << "Action:" << entry.getAction() << ", ";
+    }
+
+  // Name
+  if (!entry.getPrefix().empty())
+    {
+      os << "Prefix:" << entry.getPrefix() << ", ";
+    }
+
+  // FaceID
+  if (entry.getFaceId() >= 0)
+    {
+      os << "FaceID:" << entry.getFaceId() << ", ";
+    }
+
+  // ForwardingFlags
+  os << "ForwardingFlags:" << entry.getForwardingFlags() << ", ";
+
+  // FreshnessPeriod
+  if (entry.getFreshnessPeriod() >= 0)
+    {
+      os << "FreshnessPeriod:" << entry.getFreshnessPeriod() << ", ";
+    }
+
+  os << ")";
+  return os;
 }
 
 }

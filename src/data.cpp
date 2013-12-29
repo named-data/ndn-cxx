@@ -33,7 +33,7 @@ Data::wireEncode() const
   wire_.push_back(getMetaInfo().wireEncode());
 
   // Content
-  wire_.push_back(content_);
+  wire_.push_back(getContent());
 
   if (!signature_) {
     throw Error("Requested wire format, but data packet has not been signed yet");
