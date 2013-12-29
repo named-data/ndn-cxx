@@ -27,7 +27,7 @@ public:
   {
   }
   
-  Signature(const Block &info, const Block &value)
+  Signature(const Block &info, const Block &value = Block())
     : value_(value)
   {
     setInfo(info);
