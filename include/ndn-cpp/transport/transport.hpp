@@ -12,11 +12,14 @@
 
 #include <vector>
 #include <boost/asio.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 
 class Transport {
 public:
+  struct Error : public std::runtime_error { inline Error(const boost::system::error_code &code, const std::string &msg); };
+  
   typedef ptr_lib::function<void (const Block &wire)> ReceiveCallback;
   typedef ptr_lib::function<void ()> ErrorCallback;
   
@@ -33,8 +36,7 @@ public:
    */
   inline virtual void 
   connect(boost::asio::io_service &io_service,
-          const ReceiveCallback &receiveCallback,
-          const ErrorCallback &errorCallback);
+          const ReceiveCallback &receiveCallback);
   
   /**
    * Close the connection.
@@ -61,13 +63,17 @@ protected:
   boost::asio::io_service *ioService_;
   bool isConnected_;
   ReceiveCallback receiveCallback_;
-  ErrorCallback errorCallback_;
 };
 
 inline
 Transport::Transport()
   : ioService_(0)
   , isConnected_(false)
+{
+}
+
+inline Transport::Error::Error(const boost::system::error_code &code, const std::string &msg)
+  : std::runtime_error(msg + (code.value() ? " (" + code.category().message(code.value()) + ")" : ""))
 {
 }
 
@@ -78,12 +84,10 @@ Transport::~Transport()
 
 inline void 
 Transport::connect(boost::asio::io_service &ioService,
-                   const ReceiveCallback &receiveCallback,
-                   const ErrorCallback &errorCallback)
+                   const ReceiveCallback &receiveCallback)
 {
   ioService_ = &ioService;
   receiveCallback_ = receiveCallback;
-  errorCallback_ = errorCallback;
 }
 
 inline bool 

@@ -134,6 +134,11 @@ private:
   void
   onTransportError();
 
+  struct ProcessEventsTimeout {};
+  
+  static void
+  fireProcessEventsTimeout(const boost::system::error_code& error);
+
 private:
   class PendingInterest {
   public:

@@ -39,8 +39,7 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
   // TODO: Properly check if we are already connected to the expected host.
   if (!transport_->isConnected())
     transport_->connect(ioService_,
-                        ptr_lib::bind(&Node::onReceiveElement, this, _1),
-                        ptr_lib::bind(&Node::onTransportError, this));
+                        ptr_lib::bind(&Node::onReceiveElement, this, _1));
   
   uint64_t pendingInterestId = PendingInterest::getNextPendingInterestId();
   pendingInterestTable_.push_back(ptr_lib::shared_ptr<PendingInterest>(new PendingInterest
@@ -57,8 +56,7 @@ Node::put(const Data &data)
   // TODO: Properly check if we are already connected to the expected host.
   if (!transport_->isConnected())
     transport_->connect(ioService_,
-                        ptr_lib::bind(&Node::onReceiveElement, this, _1),
-                        ptr_lib::bind(&Node::onTransportError, this));
+                        ptr_lib::bind(&Node::onReceiveElement, this, _1));
 
   transport_->send(data.wireEncode());
 }
@@ -212,18 +210,24 @@ Node::processEvents(Milliseconds timeout/* = 0 */)
   if (timeout > 0)
     {
       processEventsTimeoutTimer_.expires_from_now(boost::posix_time::milliseconds(timeout));
-      processEventsTimeoutTimer_.async_wait(func_lib::bind(&Node::shutdown, this));
+      processEventsTimeoutTimer_.async_wait(fireProcessEventsTimeout);
     }
   try
     {
       ioService_.run();
       ioService_.reset();
     }
-  catch(Node::Error &)
+  catch(Node::ProcessEventsTimeout &)
     {
-      ioService_.reset(); // this needed in order to call ioService_.run() again in the future
-      throw;
+      // break
     }
+}
+
+void
+Node::fireProcessEventsTimeout(const boost::system::error_code& error)
+{
+  if (!error) // can fire for some other reason, e.g., cancelled
+    throw Node::ProcessEventsTimeout();
 }
 
 void
