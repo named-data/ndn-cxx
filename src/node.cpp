@@ -247,7 +247,10 @@ Node::PendingInterest::PendingInterest(uint64_t pendingInterestId,
     timeoutTimeMilliseconds_ = ndn_getNowMilliseconds() + interest_->getInterestLifetime();
   else
     // No timeout.
-    timeoutTimeMilliseconds_ = -1;
+    /**
+     * @todo Set more meaningful default timeout.  This timeout MUST exist.
+     */
+    timeoutTimeMilliseconds_ = ndn_getNowMilliseconds() + 4000;
 }
 
 void 
