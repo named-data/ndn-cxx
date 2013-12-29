@@ -18,6 +18,7 @@ namespace ndn {
 class Transport {
 public:
   typedef ptr_lib::function<void (const Block &wire)> ReceiveCallback;
+  typedef ptr_lib::function<void ()> ErrorCallback;
   
   inline
   Transport();
@@ -26,11 +27,14 @@ public:
   ~Transport();
 
   /**
-   * Connect according to the info in ConnectionInfo, and processEvents() will use elementListener.
-   * @param connectionInfo A reference to an object of a subclass of ConnectionInfo.
+   * Connect transport
+   *
+   * @throws If connection cannot be established
    */
   inline virtual void 
-  connect(boost::asio::io_service &io_service, const ReceiveCallback &receiveCallback);
+  connect(boost::asio::io_service &io_service,
+          const ReceiveCallback &receiveCallback,
+          const ErrorCallback &errorCallback);
   
   /**
    * Close the connection.
@@ -57,6 +61,7 @@ protected:
   boost::asio::io_service *ioService_;
   bool isConnected_;
   ReceiveCallback receiveCallback_;
+  ErrorCallback errorCallback_;
 };
 
 inline
@@ -72,10 +77,13 @@ Transport::~Transport()
 }
 
 inline void 
-Transport::connect(boost::asio::io_service &ioService, const ReceiveCallback &receiveCallback)
+Transport::connect(boost::asio::io_service &ioService,
+                   const ReceiveCallback &receiveCallback,
+                   const ErrorCallback &errorCallback)
 {
   ioService_ = &ioService;
   receiveCallback_ = receiveCallback;
+  errorCallback_ = errorCallback;
 }
 
 inline bool 

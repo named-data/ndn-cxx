@@ -42,6 +42,8 @@ class Face;
     
 class Node {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   /**
    * Create a new Node for communication with an NDN hub with the given Transport object and connectionInfo.
    * @param transport A shared_ptr to a Transport object used for communication.
@@ -95,15 +97,29 @@ public:
   void
   removeRegisteredPrefix(uint64_t registeredPrefixId);
 
+   /**
+   * @brief Publish data packet
+   *
+   * This method can be called to satisfy the incoming Interest or to put Data packet into the cache
+   * of the local NDN forwarder
+   */
+  void
+  put(const Data &data);
+ 
   /**
-   * Process any data to receive.  For each element received, call onReceivedElement.
-   * This is non-blocking and will return immediately if there is no data to receive.
-   * You should repeatedly call this from an event loop, with calls to sleep as needed so that the loop doesn't use 100% of the CPU.
+   * Process any data to receive or call timeout callbacks.
+   *
+   * This call will block forever (default timeout == 0) to process IO on the face.
+   * To exit, one expected to call face.shutdown() from one of the callback methods.
+   *
+   * If timeout is specified, then processEvents will exit after this timeout, if not stopped earlier with face.shutdown().
+   * The call can be called repeatedly, if desired.
+   *
    * @throw This may throw an exception for reading data or in the callback for processing the data.  If you
    * call this from an main event loop, you may want to catch and log/disregard all exceptions.
    */
   void 
-  processEvents();
+  processEvents(Milliseconds timeout = 0);
   
   const ptr_lib::shared_ptr<Transport>& 
   getTransport() { return transport_; }
@@ -114,6 +130,9 @@ public:
 private:
   void 
   onReceiveElement(const Block &wire);
+
+  void
+  onTransportError();
 
 private:
   class PendingInterest {
@@ -283,6 +302,7 @@ private:
 private:
   boost::asio::io_service ioService_;
   boost::asio::deadline_timer timer_;
+  boost::asio::deadline_timer processEventsTimeoutTimer_;
   
   ptr_lib::shared_ptr<Transport> transport_;
 

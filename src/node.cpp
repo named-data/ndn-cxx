@@ -25,6 +25,7 @@ uint64_t Node::RegisteredPrefix::lastRegisteredPrefixId_ = 0;
 
 Node::Node(const ptr_lib::shared_ptr<Transport>& transport)
   : timer_ (ioService_)
+  , processEventsTimeoutTimer_(ioService_)
   , transport_(transport)
   , ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
 {
@@ -37,7 +38,9 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
 {
   // TODO: Properly check if we are already connected to the expected host.
   if (!transport_->isConnected())
-    transport_->connect(ioService_, ptr_lib::bind(&Node::onReceiveElement, this, _1));
+    transport_->connect(ioService_,
+                        ptr_lib::bind(&Node::onReceiveElement, this, _1),
+                        ptr_lib::bind(&Node::onTransportError, this));
   
   uint64_t pendingInterestId = PendingInterest::getNextPendingInterestId();
   pendingInterestTable_.push_back(ptr_lib::shared_ptr<PendingInterest>(new PendingInterest
@@ -47,6 +50,19 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
   
   return pendingInterestId;
 }
+
+void
+Node::put(const Data &data)
+{
+  // TODO: Properly check if we are already connected to the expected host.
+  if (!transport_->isConnected())
+    transport_->connect(ioService_,
+                        ptr_lib::bind(&Node::onReceiveElement, this, _1),
+                        ptr_lib::bind(&Node::onTransportError, this));
+
+  transport_->send(data.wireEncode());
+}
+
 
 void
 Node::removePendingInterest(uint64_t pendingInterestId)
@@ -191,12 +207,23 @@ Node::registerPrefixFinal(uint64_t registeredPrefixId,
 }
 
 void 
-Node::processEvents()
+Node::processEvents(Milliseconds timeout/* = 0 */)
 {
-  ioService_.run();
-
-  // auto_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(ioService_));
-  // work.reset(); // Allow run() to exit.   
+  if (timeout > 0)
+    {
+      processEventsTimeoutTimer_.expires_from_now(boost::posix_time::milliseconds(timeout));
+      processEventsTimeoutTimer_.async_wait(func_lib::bind(&Node::shutdown, this));
+    }
+  try
+    {
+      ioService_.run();
+      ioService_.reset();
+    }
+  catch(Node::Error &)
+    {
+      ioService_.reset(); // this needed in order to call ioService_.run() again in the future
+      throw;
+    }
 }
 
 void
@@ -248,6 +275,15 @@ Node::onReceiveElement(const Block &block)
         onData(interest, data);
       }
     }
+}
+
+void
+Node::onTransportError()
+{
+  /// @todo Set some error code
+  
+  ioService_.stop();
+  throw Error("TransportError");
 }
 
 void 

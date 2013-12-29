@@ -21,7 +21,9 @@ public:
 
   // from Transport
   virtual void 
-  connect(boost::asio::io_service &ioService, const ReceiveCallback &receiveCallback);
+  connect(boost::asio::io_service &ioService,
+          const ReceiveCallback &receiveCallback,
+          const ErrorCallback &errorCallback);
   
   virtual void 
   close();

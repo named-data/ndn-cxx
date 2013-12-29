@@ -74,6 +74,12 @@ public:
   {
     /// @todo The socket is not datagram, so need to have internal buffer to handle partial data reception
 
+    if (error)
+      {
+        socket_.close(); // closing at this point may not be that necessary
+        transport_.errorCallback_();
+      }
+    
     if (!error && bytes_recvd > 0)
       {
         try
@@ -120,8 +126,8 @@ public:
                     else if (offset == 0 && partialDataSize_ == MAX_LENGTH)
                       {
                         // very bad... should close connection
-                        /// @todo Notify somebody 
                         socket_.close();
+                        transport_.errorCallback_();
                       }
                   }
               }
@@ -179,9 +185,11 @@ UnixTransport::~UnixTransport()
 }
 
 void 
-UnixTransport::connect(boost::asio::io_service &ioService, const ReceiveCallback &receiveCallback)
+UnixTransport::connect(boost::asio::io_service &ioService,
+                       const ReceiveCallback &receiveCallback,
+                       const ErrorCallback &errorCallback)
 {
-  Transport::connect(ioService, receiveCallback);
+  Transport::connect(ioService, receiveCallback, errorCallback);
   
   impl_ = std::auto_ptr<UnixTransport::Impl> (new UnixTransport::Impl(*this));
   impl_->connect();
