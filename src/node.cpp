@@ -203,7 +203,10 @@ Node::registerPrefixHelper
    const ForwardingFlags& flags, WireFormat& wireFormat)
 {
   // Create a ForwardingEntry.
-  ForwardingEntry forwardingEntry("selfreg", *prefix, PublisherPublicKeyDigest(), -1, flags, 2147483647);
+
+  // AlexA: ndnd ignores any freshness that is larger than 3600 sec and sets 300 sec instead
+  //        to register "forever" (=2000000000 sec), freshnessPeriod must be omitted
+  ForwardingEntry forwardingEntry("selfreg", *prefix, PublisherPublicKeyDigest(), -1, flags, -1);
   Blob content = forwardingEntry.wireEncode();
 
   // Set the ForwardingEntry as the content of a Data packet and sign.
