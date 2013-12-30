@@ -629,7 +629,105 @@ BasicIdentityStorage::setDefaultCertificateNameForKey(const Name& keyName, const
 
   sqlite3_finalize(statement);
 }
+
+vector<Name>
+BasicIdentityStorage::getAllIdentities(bool isDefault)
+{
+  sqlite3_stmt *stmt;
+  if(isDefault)
+    sqlite3_prepare_v2 (database_, "SELECT identity_name FROM Identity WHERE default_identity=1", -1, &stmt, 0);
+  else
+    sqlite3_prepare_v2 (database_, "SELECT identity_name FROM Identity WHERE default_identity=0", -1, &stmt, 0);
+
+  vector<Name> nameList;
+  while(sqlite3_step (stmt) == SQLITE_ROW)
+    nameList.push_back(Name(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)), sqlite3_column_bytes (stmt, 0))));
         
+  sqlite3_finalize (stmt);        
+  return nameList;
 }
+
+vector<Name>
+BasicIdentityStorage::getAllKeyNames(bool isDefault)
+{
+  sqlite3_stmt *stmt;
+  if(isDefault)
+    sqlite3_prepare_v2 (database_, "SELECT identity_name, key_identifier FROM Key WHERE default_key=1", -1, &stmt, 0);
+  else
+    sqlite3_prepare_v2 (database_, "SELECT identity_name, key_identifier FROM Key WHERE default_key=0", -1, &stmt, 0);
+
+  vector<Name> nameList;
+  while(sqlite3_step (stmt) == SQLITE_ROW)
+    {
+      Name keyName(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)), sqlite3_column_bytes (stmt, 0)));
+      keyName.append(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)), sqlite3_column_bytes (stmt, 1)));
+      nameList.push_back(keyName);
+    } 
+  sqlite3_finalize (stmt);        
+  return nameList;
+}
+
+vector<Name>
+BasicIdentityStorage::getAllKeyNamesOfIdentity(const Name& identity, bool isDefault)
+{
+  sqlite3_stmt *stmt;
+  if(isDefault)
+    sqlite3_prepare_v2 (database_, "SELECT key_identifier FROM Key WHERE default_key=1 and identity_name=?", -1, &stmt, 0);
+  else
+    sqlite3_prepare_v2 (database_, "SELECT key_identifier FROM Key WHERE default_key=0 and identity_name=?", -1, &stmt, 0);
+    
+  sqlite3_bind_text(stmt, 1, identity.toUri().c_str(),  identity.toUri().size (),  SQLITE_TRANSIENT);
+
+  vector<Name> nameList;
+  while(sqlite3_step (stmt) == SQLITE_ROW)
+    {
+      Name keyName(identity);
+      keyName.append(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)), sqlite3_column_bytes (stmt, 0)));
+      nameList.push_back(keyName);
+    } 
+  sqlite3_finalize (stmt);        
+  return nameList;
+}
+    
+vector<Name>
+BasicIdentityStorage::getAllCertificateNames(bool isDefault)
+{
+  sqlite3_stmt *stmt;
+  if(isDefault)
+    sqlite3_prepare_v2 (database_, "SELECT cert_name FROM Certificate WHERE default_cert=1", -1, &stmt, 0);
+  else
+    sqlite3_prepare_v2 (database_, "SELECT cert_name FROM Certificate WHERE default_cert=0", -1, &stmt, 0);
+
+  vector<Name> nameList;
+  while(sqlite3_step (stmt) == SQLITE_ROW)
+    nameList.push_back(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)), sqlite3_column_bytes (stmt, 0)));
+
+  sqlite3_finalize (stmt);        
+  return nameList;
+}
+
+vector<Name>
+BasicIdentityStorage::getAllCertificateNamesOfKey(const Name& keyName, bool isDefault)
+{
+  sqlite3_stmt *stmt;
+  if(isDefault)
+    sqlite3_prepare_v2 (database_, "SELECT cert_name FROM Certificate WHERE default_cert=1 and identity_name=? and key_identifier=?", -1, &stmt, 0);
+  else
+    sqlite3_prepare_v2 (database_, "SELECT cert_name FROM Certificate WHERE default_cert=0 and identity_name=? and key_identifier=?", -1, &stmt, 0);
+
+  Name identity = keyName.getSubName(0, keyName.size()-1);
+  sqlite3_bind_text(stmt, 1, identity.toUri().c_str(),  identity.toUri().size (),  SQLITE_TRANSIENT);
+  std::string baseKeyName = keyName.get(-1).toEscapedString();
+  sqlite3_bind_text(stmt, 2, baseKeyName.c_str(), baseKeyName.size(), SQLITE_TRANSIENT);
+
+  vector<Name> nameList;
+  while(sqlite3_step (stmt) == SQLITE_ROW)
+    nameList.push_back(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)), sqlite3_column_bytes (stmt, 0)));
+
+  sqlite3_finalize (stmt);        
+  return nameList;
+}
+
+} // namespace ndn
 
 #endif // NDN_CPP_HAVE_SQLITE3

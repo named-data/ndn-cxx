@@ -178,6 +178,22 @@ public:
   virtual void 
   setDefaultCertificateNameForKey(const Name& keyName, const Name& certificateName);  
 
+
+  virtual std::vector<Name>
+  getAllIdentities(bool isDefault);
+
+  virtual std::vector<Name>
+  getAllKeyNames(bool isDefault);
+
+  virtual std::vector<Name>
+  getAllKeyNamesOfIdentity(const Name& identity, bool isDefault);
+    
+  virtual std::vector<Name>
+  getAllCertificateNames(bool isDefault);
+
+  virtual std::vector<Name>
+  getAllCertificateNamesOfKey(const Name& keyName, bool isDefault);
+  
 private:
 
   virtual void
