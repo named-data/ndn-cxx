@@ -24,21 +24,34 @@ uint64_t Node::PendingInterest::lastPendingInterestId_ = 0;
 uint64_t Node::RegisteredPrefix::lastRegisteredPrefixId_ = 0;
 
 Node::Node(const ptr_lib::shared_ptr<Transport>& transport)
-  : timer_ (ioService_)
-  , processEventsTimeoutTimer_(ioService_)
+  : transport_(transport)
+  , ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
+{
+  ioService_ = ptr_lib::make_shared<boost::asio::io_service>();      
+  pitTimeoutCheckTimer_      = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
+  processEventsTimeoutTimer_ = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
+  
+  pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
+  pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
+}
+
+Node::Node(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<boost::asio::io_service> &ioService)
+  : ioService_(ioService)
   , transport_(transport)
   , ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
 {
-  timer_.expires_from_now(boost::posix_time::milliseconds(100));
-  timer_.async_wait(func_lib::bind(&Node::checkPitExpire, this));
+  pitTimeoutCheckTimer_      = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
+  processEventsTimeoutTimer_ = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
+  
+  pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
+  pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
 }
 
 uint64_t 
 Node::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)
 {
-  // TODO: Properly check if we are already connected to the expected host.
   if (!transport_->isConnected())
-    transport_->connect(ioService_,
+    transport_->connect(*ioService_,
                         ptr_lib::bind(&Node::onReceiveElement, this, _1));
   
   uint64_t pendingInterestId = PendingInterest::getNextPendingInterestId();
@@ -53,9 +66,8 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
 void
 Node::put(const Data &data)
 {
-  // TODO: Properly check if we are already connected to the expected host.
   if (!transport_->isConnected())
-    transport_->connect(ioService_,
+    transport_->connect(*ioService_,
                         ptr_lib::bind(&Node::onReceiveElement, this, _1));
 
   transport_->send(data.wireEncode());
@@ -209,13 +221,13 @@ Node::processEvents(Milliseconds timeout/* = 0 */)
 {
   if (timeout > 0)
     {
-      processEventsTimeoutTimer_.expires_from_now(boost::posix_time::milliseconds(timeout));
-      processEventsTimeoutTimer_.async_wait(fireProcessEventsTimeout);
+      processEventsTimeoutTimer_->expires_from_now(boost::posix_time::milliseconds(timeout));
+      processEventsTimeoutTimer_->async_wait(fireProcessEventsTimeout);
     }
   try
     {
-      ioService_.run();
-      ioService_.reset();
+      ioService_->run();
+      ioService_->reset();
     }
   catch(Node::ProcessEventsTimeout &)
     {
@@ -247,8 +259,8 @@ Node::checkPitExpire()
     }
   }
 
-  timer_.expires_from_now(boost::posix_time::milliseconds(100));
-  timer_.async_wait(func_lib::bind(&Node::checkPitExpire, this));
+  pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
+  pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
 }
 
 
@@ -281,20 +293,11 @@ Node::onReceiveElement(const Block &block)
     }
 }
 
-void
-Node::onTransportError()
-{
-  /// @todo Set some error code
-  
-  ioService_.stop();
-  throw Error("TransportError");
-}
-
 void 
 Node::shutdown()
 {
   transport_->close();
-  ioService_.stop();
+  ioService_->stop();
 }
 
 Node::PendingInterestTable::iterator 

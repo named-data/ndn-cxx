@@ -50,6 +50,20 @@ public:
    * @param transport A shared_ptr to a Transport::ConnectionInfo to be used to connect to the transport.
    */
   Node(const ptr_lib::shared_ptr<Transport>& transport);
+
+  /**
+   * @brief Alternative (special use case) version of the constructor, can be used to aggregate
+   *        several Faces within one processing thread
+   *
+   * <code>
+   *     Face face1(...);
+   *     Face face2(..., face1.getAsyncService());
+   *
+   *     // Now the following ensures that events on both faces are processed
+   *     face1.processEvents();
+   * </code>
+   */
+  Node(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<boost::asio::io_service> &ioService);
   
   /**
    * Send the Interest through the transport, read the entire response and call onData(interest, data).
@@ -131,11 +145,7 @@ private:
   void 
   onReceiveElement(const Block &wire);
 
-  void
-  onTransportError();
-
-  struct ProcessEventsTimeout {};
-  
+  struct ProcessEventsTimeout {};  
   static void
   fireProcessEventsTimeout(const boost::system::error_code& error);
 
@@ -305,9 +315,9 @@ private:
   checkPitExpire();
   
 private:
-  boost::asio::io_service ioService_;
-  boost::asio::deadline_timer timer_;
-  boost::asio::deadline_timer processEventsTimeoutTimer_;
+  ptr_lib::shared_ptr<boost::asio::io_service> ioService_;
+  ptr_lib::shared_ptr<boost::asio::deadline_timer> pitTimeoutCheckTimer_;
+  ptr_lib::shared_ptr<boost::asio::deadline_timer> processEventsTimeoutTimer_;
   
   ptr_lib::shared_ptr<Transport> transport_;
 
