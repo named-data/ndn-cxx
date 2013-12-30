@@ -582,7 +582,13 @@ public:
    * @return The name component at the index.
    */
   const Component& 
-  get(size_t i) const { return components_[i]; }
+  get(ssize_t i) const
+  {
+    if (i >= 0)
+      return components_[i];
+    else
+      return components_[size() + i];
+  }
   
 
   const Component&
