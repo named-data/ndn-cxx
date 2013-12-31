@@ -146,6 +146,7 @@ private:
 
 inline
 Data::Data()
+  : content_(Tlv::Content) // empty content
 {
 }
 
