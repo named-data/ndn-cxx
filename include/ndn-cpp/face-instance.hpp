@@ -23,7 +23,7 @@ public:
                int64_t     faceId,
                uint32_t    ipProto,
                const std::string &host,
-               uint32_t    port,
+               const std::string &port,
                const std::string &multicastInterface,
                uint32_t    multicastTtl,
                Milliseconds freshnessPeriod) 
@@ -41,7 +41,6 @@ public:
   FaceInstance()
     : faceId_(-1)
     , ipProto_(-1)
-    , port_(-1)
     , multicastTtl_(-1)
     , freshnessPeriod_(-1)
   {
@@ -76,11 +75,11 @@ public:
   setHost(const std::string& host) { host_ = host; wire_.reset(); }
 
   // Port
-  int32_t
+  const std::string&
   getPort() const { return port_; }
 
   void 
-  setPort(int port) { port_ = port; wire_.reset(); }
+  setPort(const std::string &port) { port_ = port; wire_.reset(); }
 
   // MulticastInterface
   const std::string& 
@@ -115,7 +114,7 @@ private:
   int64_t     faceId_;
   int32_t     ipProto_;
   std::string host_;
-  int32_t     port_;
+  std::string port_;
   std::string multicastInterface_;
   int32_t     multicastTtl_;
   Milliseconds freshnessPeriod_;
@@ -170,10 +169,10 @@ FaceInstance::wireEncode() const
     }
 
   // Port
-  if (port_ >= 0)
+  if (!port_.empty())
     {
       wire_.push_back
-        (nonNegativeIntegerBlock(Tlv::FaceManagement::Port, port_));
+        (dataBlock(Tlv::FaceManagement::Port, port_.c_str(), port_.size()));
     }
 
   // MulticastInterface
@@ -208,7 +207,7 @@ FaceInstance::wireDecode(const Block &wire)
   faceId_ = -1;
   ipProto_ = -1;
   host_.clear();
-  port_ = -1;
+  port_.clear();
   multicastInterface_.clear();
   multicastTtl_ = -1;
   freshnessPeriod_ = -1;
@@ -258,7 +257,7 @@ FaceInstance::wireDecode(const Block &wire)
   val = wire_.find(Tlv::FaceManagement::Port);
   if (val != wire_.getAll().end())
     {
-      port_ = readNonNegativeInteger(*val);
+      port_ = std::string(reinterpret_cast<const char*>(val->value()), val->value_size());
     }
 
   // MulticastInterface
@@ -313,7 +312,7 @@ operator << (std::ostream &os, const FaceInstance &entry)
     }
 
   // Port
-  if (entry.getPort() >= 0)
+  if (!entry.getPort().empty())
     {
       os << "Port:" << entry.getPort() << ", ";
     }
