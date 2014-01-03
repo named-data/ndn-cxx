@@ -10,126 +10,33 @@
 #include <algorithm>
 #include <string.h>
 #include <ndn-cpp/name.hpp>
-#include "c/name.h"
 #include "c/util/ndn_memory.h"
+
+#include "util/string-helper.hpp"
 
 using namespace std;
 
 namespace ndn {
 
-static const char *WHITESPACE_CHARS = " \n\r\t";
-
-/**
- * Modify str in place to erase whitespace on the left.
- * @param str
- */
-static inline void 
-trimLeft(string& str)
+uint64_t
+Name::Component::toNumberWithMarker(uint8_t marker) const
 {
-  size_t found = str.find_first_not_of(WHITESPACE_CHARS);
-  if (found != string::npos) {
-    if (found > 0)
-      str.erase(0, found);
-  }
-  else
-    // All whitespace
-    str.clear();    
-}
-
-/**
- * Modify str in place to erase whitespace on the right.
- * @param str
- */
-static inline void 
-trimRight(string& str)
-{
-  size_t found = str.find_last_not_of(WHITESPACE_CHARS);
-  if (found != string::npos) {
-    if (found + 1 < str.size())
-      str.erase(found + 1);
-  }
-  else
-    // All whitespace
-    str.clear();
-}
-
-/**
- * Modify str in place to erase whitespace on the left and right.
- * @param str
- */
-static void 
-trim(string& str)
-{
-  trimLeft(str);
-  trimRight(str);
-}
-
-/**
- * Convert the hex character to an integer from 0 to 15, or -1 if not a hex character.
- * @param c
- * @return 
- */
-static int 
-fromHexChar(uint8_t c)
-{
-  if (c >= '0' && c <= '9')
-    return (int)c - (int)'0';
-  else if (c >= 'A' && c <= 'F')
-    return (int)c - (int)'A' + 10;
-  else if (c >= 'a' && c <= 'f')
-    return (int)c - (int)'a' + 10;
-  else
-    return -1;
-}
-
-/**
- * Return a copy of str, converting each escaped "%XX" to the char value.
- * @param str
- */
-static string 
-unescape(const string& str)
-{
-  ostringstream result;
+  if (empty() || *getValue().begin() != marker)
+    throw runtime_error("Name component does not begin with the expected marker");
   
-  for (size_t i = 0; i < str.size(); ++i) {
-    if (str[i] == '%' && i + 2 < str.size()) {
-      int hi = fromHexChar(str[i + 1]);
-      int lo = fromHexChar(str[i + 2]);
-      
-      if (hi < 0 || lo < 0)
-        // Invalid hex characters, so just keep the escaped string.
-        result << str[i] << str[i + 1] << str[i + 2];
-      else
-        result << (uint8_t)(16 * hi + lo);
-      
-      // Skip ahead past the escaped value.
-      i += 2;
-    }
-    else
-      // Just copy through.
-      result << str[i];
+  uint64_t result = 0;
+  for (Buffer::const_iterator i = getValue().begin()+1; i != getValue().end(); ++i) {
+    result <<= 8;
+    result |= *i;
   }
   
-  return result.str();
-}
-
-uint64_t Name::Component::toNumberWithMarker(uint8_t marker) const
-{
-  struct ndn_NameComponent componentStruct;
-  get(componentStruct);
-  uint64_t result;
-  
-  ndn_Error error;
-  if ((error = ndn_NameComponent_toNumberWithMarker(&componentStruct, marker, &result)))
-    throw runtime_error(ndn_getErrorString(error));
-    
   return result;
 }
 
 Name::Component 
 Name::Component::fromNumber(uint64_t number)
 {
-  ptr_lib::shared_ptr<vector<uint8_t> > value(new vector<uint8_t>());
+  ptr_lib::shared_ptr<Buffer> value(new Buffer);
   
   // First encode in little endian.
   while (number != 0) {
@@ -139,13 +46,13 @@ Name::Component::fromNumber(uint64_t number)
   
   // Make it big endian.
   reverse(value->begin(), value->end());
-  return Blob(value);
+  return Component(value);
 }
 
 Name::Component 
 Name::Component::fromNumberWithMarker(uint64_t number, uint8_t marker)
 {
-  ptr_lib::shared_ptr<vector<uint8_t> > value(new vector<uint8_t>());
+  ptr_lib::shared_ptr<Buffer> value(new Buffer);
   
   // Add the leading marker.
   value->push_back(marker);
@@ -158,35 +65,39 @@ Name::Component::fromNumberWithMarker(uint64_t number, uint8_t marker)
   
   // Make it big endian.
   reverse(value->begin() + 1, value->end());
-  return Blob(value);
-}
-
-void 
-Name::Component::get(struct ndn_NameComponent& componentStruct) const 
-{
-  value_.get(componentStruct.value);
+  return Component(value);
 }
 
 uint64_t
 Name::Component::toNumber() const
 {
-  struct ndn_NameComponent componentStruct;
-  get(componentStruct);
-  return ndn_NameComponent_toNumber(&componentStruct);
+  uint64_t result = 0;
+  for (Buffer::const_iterator i = getValue().begin(); i != getValue().end(); ++i) {
+    result <<= 8;
+    result |= *i;
+  }
+  
+  return result;
 }
 
 int
 Name::Component::compare(const Name::Component& other) const
 {
   // Imitate ndn_Exclude_compareComponents.
-  if (value_.size() < other.value_.size())
+  if (getValue().size() < other.getValue().size())
     return -1;
-  if (value_.size() > other.value_.size())
+  if (getValue().size() > other.getValue().size())
     return 1;
 
   // The components are equal length.  Just do a byte compare.  
-  return ndn_memcmp((uint8_t*)value_.buf(), (uint8_t*)other.value_.buf(), value_.size());
+  return ndn_memcmp(getValue().buf(), other.getValue().buf(), getValue().size());
 }
+
+// const Block &
+// Name::wireEncode() const
+// {
+  
+// }
 
 void 
 Name::set(const char *uri_cstr) 
@@ -238,30 +149,11 @@ Name::set(const char *uri_cstr)
     
     Component component(fromEscapedString(&uri[0], iComponentStart, iComponentEnd));
     // Ignore illegal components.  This also gets rid of a trailing '/'.
-    if (component.getValue())
+    if (!component.empty())
       components_.push_back(Component(component));
     
     iComponentStart = iComponentEnd + 1;
   }
-}
-
-void 
-Name::get(struct ndn_Name& nameStruct) const
-{
-  if (nameStruct.maxComponents < components_.size())
-    throw runtime_error("nameStruct.maxComponents must be >= this name getNComponents()");
-  
-  nameStruct.nComponents = components_.size();
-  for (size_t i = 0; i < nameStruct.nComponents; ++i)
-    components_[i].get(nameStruct.components[i]);
-}
-  
-void 
-Name::set(const struct ndn_Name& nameStruct) 
-{
-  clear();
-  for (size_t i = 0; i < nameStruct.nComponents; ++i)
-    append(nameStruct.components[i].value.value, nameStruct.components[i].value.length);  
 }
 
 Name&
@@ -275,21 +167,6 @@ Name::append(const Name& name)
     components_.push_back(name.components_[i]);
   
   return *this;
-}
-
-string 
-Name::toUri() const
-{
-  if (components_.size() == 0)
-    return "/";
-  
-  ostringstream result;
-  for (size_t i = 0; i < components_.size(); ++i) {
-    result << "/";
-    toEscapedString(*components_[i].getValue(), result);
-  }
-  
-  return result.str();
 }
 
 Name
@@ -322,7 +199,7 @@ Name::equals(const Name& name) const
     return false;
 
   for (size_t i = 0; i < components_.size(); ++i) {
-    if (*components_[i].getValue() != *name.components_[i].getValue())
+    if (components_[i].getValue() != name.components_[i].getValue())
       return false;
   }
 
@@ -330,7 +207,7 @@ Name::equals(const Name& name) const
 }
 
 bool 
-Name::match(const Name& name) const
+Name::isPrefixOf(const Name& name) const
 {
   // Imitate ndn_Name_match.
   
@@ -340,14 +217,14 @@ Name::match(const Name& name) const
 
   // Check if at least one of given components doesn't match.
   for (size_t i = 0; i < components_.size(); ++i) {
-    if (*components_[i].getValue() != *name.components_[i].getValue())
+    if (components_[i].getValue() != name.components_[i].getValue())
       return false;
   }
 
   return true;
 }
 
-Blob 
+Name::Component 
 Name::fromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset)
 {
   string trimmedString(escapedString + beginOffset, escapedString + endOffset);
@@ -358,23 +235,23 @@ Name::fromEscapedString(const char *escapedString, size_t beginOffset, size_t en
     // Special case for component of only periods.  
     if (value.size() <= 2)
       // Zero, one or two periods is illegal.  Ignore this component.
-      return Blob();
+      return Component();
     else
       // Remove 3 periods.
-      return Blob((const uint8_t *)&value[3], value.size() - 3); 
+      return Component((const uint8_t *)&value[3], value.size() - 3); 
   }
   else
-    return Blob((const uint8_t *)&value[0], value.size()); 
+    return Component((const uint8_t *)&value[0], value.size()); 
 }
 
-Blob 
+Name::Component
 Name::fromEscapedString(const char *escapedString)
 {
   return fromEscapedString(escapedString, 0, ::strlen(escapedString));
 }
 
-void 
-Name::toEscapedString(const vector<uint8_t>& value, ostringstream& result)
+void
+Name::toEscapedString(const vector<uint8_t>& value, std::ostream& result)
 {
   bool gotNonDot = false;
   for (unsigned i = 0; i < value.size(); ++i) {
@@ -437,5 +314,22 @@ Name::breadthFirstLess(const Name& name1, const Name& name2)
   return name1.size() < name2.size();
 }
 
+std::ostream&
+operator << (std::ostream& os, const Name& name)
+{
+  if (name.empty())
+    {
+      os << "/";
+    }
+  else
+    {
+      for (Name::const_iterator i = name.begin(); i != name.end(); i++) {
+        os << "/";
+        i->toEscapedString(os);
+      }
+    }
+  
+  return os;
+}
 
 }

@@ -136,7 +136,8 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/util/dynamic-uint8-vector.cpp \
   src/util/dynamic-uint8-vector.hpp \
   src/util/logging.cpp \
-  src/util/logging.hpp
+  src/util/logging.hpp \
+  src/util/string-helper.hpp
 
 libndn_cpp_la_LIBADD  = @OPENSSL_LIBS@ @OSX_SECURITY_LIBS@
 libndn_cpp_la_LDFLAGS = @OPENSSL_LDFLAGS@  @SQLITE3_LDFLAGS@ @BOOST_LDFLAGS@
