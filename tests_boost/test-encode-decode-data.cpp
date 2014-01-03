@@ -145,12 +145,8 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
   Block signatureInfo(Tlv::SignatureInfo);
   // SignatureType
   {
-    OBufferStream os;
-    Tlv::writeVarNumber(os, Tlv::SignatureType);
-    Tlv::writeVarNumber(os, Tlv::sizeOfNonNegativeInteger(Signature::Sha256WithRsa));
-    Tlv::writeNonNegativeInteger(os, Signature::Sha256WithRsa);
-    
-    signatureInfo.push_back(Block(os.buf()));
+    signatureInfo.push_back
+      (nonNegativeIntegerBlock(Tlv::SignatureType, Signature::Sha256WithRsa));
   }
   // KeyLocator
   {
