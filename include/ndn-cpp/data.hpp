@@ -273,6 +273,9 @@ Data::onChanged()
   wire_ = Block();
 }
 
+std::ostream&
+operator << (std::ostream &os, const Data &data);
+
 } // namespace ndn
 
 #endif

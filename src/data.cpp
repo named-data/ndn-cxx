@@ -77,5 +77,18 @@ Data::wireDecode(const Block &wire)
   signature_.setValue(wire_.get(Tlv::SignatureValue));
 }
 
+std::ostream&
+operator << (std::ostream &os, const Data &data)
+{
+  os << "Name: " << data.getName() << "\n";
+  os << "MetaInfo: " << data.getMetaInfo() << "\n";
+  os << "Content: (size: " << data.getContent().value_size() << ")\n";
+  os << "Signature: (type: " << data.getSignature().getType() <<
+    ", value_length: "<< data.getSignature().getValue().value_size() << ")";
+  os << std::endl;
+
+  return os;
+}
+
 
 }

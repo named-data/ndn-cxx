@@ -111,6 +111,19 @@ MetaInfo::wireDecode(const Block &wire)
     }
 }
 
+inline std::ostream&
+operator << (std::ostream &os, const MetaInfo &info)
+{
+  // ContentType
+  os << "ContentType: " << info.getType();
+
+  // FreshnessPeriod
+  if (info.getFreshnessPeriod() >= 0) {
+    os << ", FreshnessPeriod: " << info.getFreshnessPeriod();
+  }
+  return os;
+}
+
 } // namespace ndn
 
 #endif // NDN_META_INFO_HPP
