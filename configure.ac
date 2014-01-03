@@ -92,14 +92,13 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     AC_DEFINE_UNQUOTED([HAVE_GMTIME_SUPPORT], 0, [1 if have sys/time gmtime support including timegm.])
 ])
 
-# Require libcrypto.
-AC_CHECK_LIB([crypto], [EVP_EncryptInit], [],
-             [AC_MSG_FAILURE([can't find openssl crypto lib])])
+# Require openssl (libcrypto).
+AX_CHECK_OPENSSL([], [AC_MSG_FAILURE([can't find openssl crypto lib])])
 
 # Conditionally use libsqlite3.  AX_LIB_SQLITE3 defines HAVE_SQLITE3 in confdefs.h .
 AX_LIB_SQLITE3()
 if grep -q "#define HAVE_SQLITE3" confdefs.h ; then
-  AC_CHECK_LIB([sqlite3], [sqlite3_open], [],
+  AC_CHECK_LIB([sqlite3], [sqlite3_open], [ ], # space necessar to prevent updating LIBS
                [AC_MSG_FAILURE([have sqlite2 headers but no libsqlite3])])
 fi
 
@@ -112,15 +111,13 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     [[void test() { SecKeychainRef x; }]])
 ], [
     AC_MSG_RESULT([yes])
-    HAVE_OSX_SECURITY=1
+    AC_DEFINE_UNQUOTED([HAVE_OSX_SECURITY], 1, [1 if have the OSX framework.])
+
+    OSX_SECURITY_LIBS="-framework Security"
+    AC_SUBST([OSX_SECURITY_LIBS])
 ], [
     AC_MSG_RESULT([no])
-    HAVE_OSX_SECURITY=0
 ])
-AC_DEFINE_UNQUOTED([HAVE_OSX_SECURITY], $HAVE_OSX_SECURITY, [1 if have the OSX framework.])
-if test "$HAVE_OSX_SECURITY" == "1" ; then
-  LIBS="$LIBS -framework Security"
-fi
 
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)

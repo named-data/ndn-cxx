@@ -68,6 +68,10 @@ libndn_c_la_SOURCES = \
   src/c/util/time.c \
   src/c/util/time.h
 
+libndn_c_la_LIBADD  = @OPENSSL_LIBS@
+libndn_c_la_LDFLAGS = @OPENSSL_LDFLAGS@
+libndn_c_la_CFLAGS  = @OPENSSL_INCLUDES@
+
 # C++ code and also the C code.
 ## To regenerate:
 ## for i in `find src -name '*.cpp' -or -name '*.hpp' -or -name '*.h' -and -not -path 'src/c/*'`; do echo "  $i \\"; done
@@ -134,5 +138,9 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/util/dynamic-uint8-vector.hpp \
   src/util/logging.cpp \
   src/util/logging.hpp
+
+libndn_cpp_la_LIBADD  = @OPENSSL_LIBS@ @OSX_SECURITY_LIBS@
+libndn_cpp_la_LDFLAGS = @OPENSSL_LDFLAGS@  @SQLITE3_LDFLAGS@ @BOOST_LDFLAGS@
+libndn_cpp_la_CFLAGS  = @OPENSSL_INCLUDES@ @SQLITE3_CFLAGS@  @BOOST_CPPFLAGS@
 
 dist_noinst_SCRIPTS = autogen.sh
