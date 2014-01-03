@@ -11,6 +11,7 @@
 #include <string.h>
 #include <ndn-cpp/name.hpp>
 #include "c/util/ndn_memory.h"
+#include "c/util/time.h"
 
 #include "util/string-helper.hpp"
 
@@ -166,6 +167,13 @@ Name::append(const Name& name)
   for (size_t i = 0; i < name.components_.size(); ++i)
     components_.push_back(name.components_[i]);
   
+  return *this;
+}
+
+Name& 
+Name::appendVersion()
+{
+  appendVersion(ndn_getNowMilliseconds());
   return *this;
 }
 

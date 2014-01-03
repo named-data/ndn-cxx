@@ -351,6 +351,20 @@ public:
     return *this;
   }
 
+  /**
+   * @brief Append name component that represented as a string
+   *
+   * Note that this method is necessary to ensure correctness and unambiguity of
+   * ``append("string")`` operations (both Component and Name can be implicitly
+   * converted from string, each having different outcomes
+   */
+  Name& 
+  append(const char *value)
+  {
+    components_.push_back(Component(value));
+    return *this;
+  }
+  
   Name&
   append(const Block &value)
   {
@@ -503,6 +517,15 @@ public:
     components_.push_back(Component::fromNumberWithMarker(version, 0xFD));
     return *this;
   }
+
+  /**
+   * @brief Append a component with the encoded version number.
+   * 
+   * This version of the method creates version number based on the current timestamp
+   * @return This name so that you can chain calls to append.
+   */  
+  Name& 
+  appendVersion();
   
   /**
    * Check if this name has the same component count and components as the given name.
