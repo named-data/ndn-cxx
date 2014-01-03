@@ -61,12 +61,10 @@ public:
   /**
    * @brief Set name to a copy of the given Name.
    *
-   * This is virtual so that a subclass can override to validate the name.
-   *
    * @param name The Name which is copied.
    * @return This Data so that you can chain calls to update values.
    */
-  inline virtual void
+  inline void
   setName(const Name& name);
 
   inline const MetaInfo& 
