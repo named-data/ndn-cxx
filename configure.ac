@@ -159,5 +159,6 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN([$PACKAGE_NAME],[Doxyfile])
 
 AC_CONFIG_FILES([Makefile
-                 include/Makefile])
+                 include/Makefile
+                 tests/Makefile])
 AC_OUTPUT

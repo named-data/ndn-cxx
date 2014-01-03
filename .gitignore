@@ -14,8 +14,10 @@ libs/*
 *~
 
 # Autoconf files
-/Makefile
-/include/Makefile
+Makefile
+Makefile.in
+.libs
+.deps
 /autom4te.cache
 config.log
 /config.status
@@ -47,7 +49,6 @@ config.guess
 config.sub
 configure
 depcomp
-include/Makefile.in
 include/config.h.in
 install-sh
 ltmain.sh
