@@ -118,7 +118,7 @@ public:
    * @return The registered prefix ID which can be used with removeRegisteredPrefix.
    */
   uint64_t 
-  registerPrefix
+  setInterestFilter
     (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags = ForwardingFlags(), 
      WireFormat& wireFormat = *WireFormat::getDefaultWireFormat())
   {
@@ -132,7 +132,7 @@ public:
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
   void
-  removeRegisteredPrefix(uint64_t registeredPrefixId)
+  unsetInterestFilter(uint64_t registeredPrefixId)
   {
     node_.removeRegisteredPrefix(registeredPrefixId);
   }

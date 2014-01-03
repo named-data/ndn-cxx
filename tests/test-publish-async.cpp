@@ -124,7 +124,7 @@ int main(int argc, char** argv)
     Echo echo(keyChain, certificateName);
     Name prefix("/testecho");
     cout << "Register prefix  " << prefix.toUri() << endl;
-    face.registerPrefix(prefix, func_lib::ref(echo), func_lib::ref(echo));
+    face.setInterestFilter(prefix, func_lib::ref(echo), func_lib::ref(echo));
     
     // The main event loop.  
     // Wait forever to receive one interest for the prefix.
