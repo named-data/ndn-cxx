@@ -135,7 +135,8 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/util/logging.cpp \
   src/util/logging.hpp \
   src/util/ndnd-id-fetcher.hpp \
-  src/util/string-helper.hpp
+  src/util/string-helper.hpp \
+  src/util/time.hpp
 
 libndn_cpp_la_LIBADD  = @OPENSSL_LIBS@ @OSX_SECURITY_LIBS@
 libndn_cpp_la_LDFLAGS = @OPENSSL_LDFLAGS@  @SQLITE3_LDFLAGS@ @BOOST_LDFLAGS@
