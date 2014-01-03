@@ -12,8 +12,7 @@
 #include <ndn-cpp/node.hpp>
 
 #include "util/ndnd-id-fetcher.hpp"
-
-#include <ndn-cpp/encoding/block.hpp>
+#include "security/signature/signature-sha256-with-rsa.hpp"
 
 using namespace std;
 
@@ -95,9 +94,11 @@ Node::removeRegisteredPrefix(uint64_t registeredPrefixId)
 }
 
 void 
-Node::registerPrefixHelper
-  (uint64_t registeredPrefixId, const ptr_lib::shared_ptr<const Name>& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, 
-   const ForwardingFlags& flags)
+Node::registerPrefixHelper(uint64_t registeredPrefixId,
+                           const ptr_lib::shared_ptr<const Name>& prefix,
+                           const OnInterest& onInterest,
+                           const OnRegisterFailed& onRegisterFailed, 
+                           const ForwardingFlags& flags)
 {
   // Create a ForwardingEntry.
 
@@ -109,10 +110,13 @@ Node::registerPrefixHelper
   // Set the ForwardingEntry as the content of a Data packet and sign.
   Data data;
   data.setContent(content);
-  // For now, self sign with an arbirary key.  In the future, we may not require a signature to register.
-  // selfregSign(data);
-  const Block &encodedData = data.wireEncode();
   
+  // Create an empty signature, since nobody going to verify it for now
+  // @todo In the future, we may require real signatures to do the registration
+  SignatureSha256WithRsa signature;
+  signature.setValue(Block(Tlv::SignatureValue, ptr_lib::make_shared<Buffer>()));
+  data.setSignature(signature);
+
   // Create an interest where the name has the encoded Data packet.
   Name interestName;
   const uint8_t component0[] = "ndnx";
@@ -120,8 +124,8 @@ Node::registerPrefixHelper
   interestName.append(component0, sizeof(component0) - 1);
   interestName.append(ndndId_);
   interestName.append(component2, sizeof(component2) - 1);
-  interestName.append(encodedData);
-  
+  interestName.append(data.wireEncode());
+                    
   Interest interest(interestName);
   interest.setScope(1);
   
