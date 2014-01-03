@@ -82,6 +82,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/encoding/binary-xml-encoder.hpp \
   src/encoding/binary-xml-structure-decoder.hpp \
   src/encoding/binary-xml-wire-format.cpp \
+  src/encoding/block.cpp \
   src/encoding/der/der-exception.cpp \
   src/encoding/der/der-exception.hpp \
   src/encoding/der/der.cpp \
