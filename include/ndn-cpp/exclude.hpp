@@ -17,16 +17,15 @@
 
 namespace ndn {
 
-namespace error {
-struct Exclude : public std::runtime_error { Exclude(const std::string &what) : std::runtime_error(what) {} };
-}
-
 /**
  * @brief Class to represent Exclude component in NDN interests
  */
 class Exclude
 {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
+  
   typedef std::map< Name::Component, bool /*any*/, std::greater<Name::Component> > exclude_type;
 
   typedef exclude_type::iterator iterator;
@@ -88,7 +87,7 @@ public:
    *
    * If there is an error with ranges (e.g., order of components is wrong) an exception is thrown
    */
-  void
+  inline void
   appendExclude (const Name::Component &name, bool any);
 
   /**
@@ -132,6 +131,20 @@ public:
    */
   inline std::string
   toUri () const;
+
+  /**
+   * Encode this Interest for a particular wire format.
+   * @return The encoded byte array.
+   */
+  const Block&
+  wireEncode() const;
+  
+  /**
+   * Decode the input using a particular wire format and update this Interest.
+   * @param input The input byte array to be decoded.
+   */
+  void 
+  wireDecode(const Block &wire);
   
 private:
   Exclude &
@@ -139,6 +152,8 @@ private:
 
 private:
   exclude_type m_exclude;
+
+  mutable Block wire_;
 };
 
 std::ostream&
@@ -148,6 +163,12 @@ inline Exclude &
 Exclude::excludeBefore (const Name::Component &to)
 {
   return excludeRange (Name::Component (), to);
+}
+
+inline void
+Exclude::appendExclude (const Name::Component &name, bool any)
+{
+  m_exclude[name] = any;
 }
 
 inline bool

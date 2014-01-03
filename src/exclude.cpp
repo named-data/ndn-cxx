@@ -87,10 +87,10 @@ Exclude::excludeRange (const Name::Component &from, const Name::Component &to)
 {
   if (from >= to)
     {
-      throw error::Exclude ("Invalid exclude range [" +
-                            from.toEscapedString() + ", " +
-                            to.toEscapedString() +
-                            "] (for single name exclude use Exclude::excludeOne)");
+      throw Error ("Invalid exclude range [" +
+                   from.toEscapedString() + ", " +
+                   to.toEscapedString() +
+                   "] (for single name exclude use Exclude::excludeOne)");
     }
 
   iterator newFrom = m_exclude.lower_bound (from);
@@ -170,6 +170,79 @@ operator << (std::ostream &os, const Exclude &exclude)
         }
     }
   return os;
+}
+
+const Block&
+Exclude::wireEncode() const
+{
+  if (wire_.hasWire())
+    return wire_;
+
+  wire_ = Block(Tlv::Exclude);
+
+  for (Exclude::const_reverse_iterator i = m_exclude.rbegin (); i != m_exclude.rend (); i++)
+    {
+      if (!i->first.empty())
+        {
+          OBufferStream os;
+          Tlv::writeVarNumber(os, Tlv::NameComponent);
+          Tlv::writeVarNumber(os, i->first.getValue().size());
+          os.write(reinterpret_cast<const char *>(i->first.getValue().buf()), i->first.getValue().size());
+          
+          wire_.push_back(Block(os.buf()));
+
+        }
+      if (i->second)
+        {
+          OBufferStream os;
+          Tlv::writeVarNumber(os, Tlv::Any);
+          Tlv::writeVarNumber(os, 0);
+          wire_.push_back(Block(os.buf()));
+        }
+    }
+
+  wire_.encode();
+  return wire_;
+}
+  
+void 
+Exclude::wireDecode(const Block &wire)
+{
+  wire_ = wire;
+  wire_.parse();
+
+  Block::element_const_iterator i = wire_.getAll().begin();
+  if (i->type() == Tlv::Any)
+    {
+      appendExclude("/", true);
+      ++i;
+    }
+
+  while (i != wire_.getAll().end())
+    {
+      if (i->type() != Tlv::NameComponent)
+        throw Error("Incorrect format of Exclude filter");
+
+      Name::Component excludedComponent (i->value(), i->value_size());
+      ++i;
+
+      if (i != wire_.getAll().end())
+        {
+          if (i->type() == Tlv::Any)
+            {
+              appendExclude(excludedComponent, true);
+              ++i;
+            }
+          else
+            {
+              appendExclude(excludedComponent, false);
+            }
+        }
+      else
+        {
+          appendExclude(excludedComponent, false);
+        }
+    }
 }
 
 
