@@ -8,7 +8,6 @@
 #ifndef NDN_FORWARDING_ENTRY_HPP
 #define NDN_FORWARDING_ENTRY_HPP
 
-#include <string>
 #include "name.hpp"
 #include "forwarding-flags.hpp"
 #include "encoding/block.hpp"
@@ -20,38 +19,23 @@ namespace ndn {
  */
 class ForwardingEntry {
 public:    
-  ForwardingEntry
-    (const std::string& action,
-       const Name& prefix,
-       int faceId,
-       const ForwardingFlags& forwardingFlags,
-       int freshnessPeriod) 
-  : action_(action)
-  , prefix_(prefix)
-  , faceId_(faceId)
-  , forwardingFlags_(forwardingFlags)
-  , freshnessPeriod_(freshnessPeriod)
+  ForwardingEntry(const std::string& action,
+                  const Name& prefix,
+                  int faceId,
+                  const ForwardingFlags& forwardingFlags,
+                  int freshnessPeriod) 
+    : action_(action)
+    , prefix_(prefix)
+    , faceId_(faceId)
+    , forwardingFlags_(forwardingFlags)
+    , freshnessPeriod_(freshnessPeriod)
   {
   }
 
   ForwardingEntry()
-  : faceId_(-1), freshnessPeriod_(-1)
+  : faceId_(-1)
+  , freshnessPeriod_(-1)
   {
-    forwardingFlags_.setActive(true);
-    forwardingFlags_.setChildInherit(true);
-  }
-  
-  Block 
-  wireEncode() const 
-  {
-    return wire_;
-    // return wireFormat.encodeForwardingEntry(*this);
-  }
-  
-  void 
-  wireDecode(const Block &wire) 
-  {
-    // wireFormat.decodeForwardingEntry(*this, input, inputLength);
   }
   
   const std::string& 
@@ -83,7 +67,13 @@ public:
       
   void 
   setFreshnessPeriod(int freshnessPeriod) { freshnessPeriod_ = freshnessPeriod; }
-      
+
+  inline const Block&
+  wireEncode() const;
+  
+  inline void 
+  wireDecode(const Block &wire);
+  
 private:
   std::string action_;   /**< empty for none. */
   Name prefix_;
@@ -91,8 +81,114 @@ private:
   ForwardingFlags forwardingFlags_;
   int freshnessPeriod_; /**< -1 for none. */
 
-  Block wire_;
+  mutable Block wire_;
 };
+
+inline const Block&
+ForwardingEntry::wireEncode() const
+{
+  if (wire_.hasWire())
+    return wire_;
+
+  // ForwardingEntry ::= FORWARDING-ENTRY TLV-LENGTH
+  //                       Action?
+  //                       Name?
+  //                       FaceID?
+  //                       ForwardingFlags?
+  //                       FreshnessPeriod?
+  
+  wire_ = Block(Tlv::FaceManagement::ForwardingEntry);
+
+  // Action
+  if (!action_.empty())
+    {
+      wire_.push_back
+        (dataBlock(Tlv::FaceManagement::Action, action_.c_str(), action_.size()));
+    }
+
+  // Name
+  if (!prefix_.empty())
+    {
+      wire_.push_back
+        (prefix_.wireEncode());
+    }
+
+  // FaceID
+  if (faceId_ >= 0)
+    {
+      wire_.push_back
+        (nonNegativeIntegerBlock(Tlv::FaceManagement::FaceID, faceId_));
+    }
+
+  // ForwardingFlags
+  wire_.push_back
+    (forwardingFlags_.wireEncode());
+
+  // FreshnessPeriod
+  if (freshnessPeriod_ >= 0)
+    {
+      wire_.push_back
+        (nonNegativeIntegerBlock(Tlv::FreshnessPeriod, freshnessPeriod_));
+    }
+  
+  wire_.encode();
+  return wire_;    
+}
+  
+inline void 
+ForwardingEntry::wireDecode(const Block &wire)
+{
+  action_.clear();
+  prefix_.clear();
+  faceId_ = -1;
+  forwardingFlags_ = ForwardingFlags();
+  freshnessPeriod_ = -1;
+
+  wire_ = wire;
+  wire_.parse();
+
+  // ForwardingEntry ::= FORWARDING-ENTRY TLV-LENGTH
+  //                       Action?
+  //                       Name?
+  //                       FaceID?
+  //                       ForwardingFlags?
+  //                       FreshnessPeriod?
+
+  // Action
+  Block::element_iterator val = wire_.find(Tlv::FaceManagement::Action);
+  if (val != wire_.getAll().end())
+    {
+      action_ = std::string(reinterpret_cast<const char*>(val->value()), val->value_size());
+    }
+
+  // Name
+  val = wire_.find(Tlv::Name);
+  if (val != wire_.getAll().end())
+    {
+      prefix_.wireDecode(*val);
+    }
+
+  // FaceID
+  val = wire_.find(Tlv::FaceManagement::FaceID);
+  if (val != wire_.getAll().end())
+    {
+      faceId_ = readNonNegativeInteger(*val);
+    }
+
+  // ForwardingFlags
+  val = wire_.find(Tlv::FaceManagement::ForwardingFlags);
+  if (val != wire_.getAll().end())
+    {
+      forwardingFlags_.wireDecode(*val);
+    }
+
+  // FreshnessPeriod
+  val = wire_.find(Tlv::FreshnessPeriod);
+  if (val != wire_.getAll().end())
+    {
+      freshnessPeriod_ = readNonNegativeInteger(*val);
+    }
+}
 
 }
 

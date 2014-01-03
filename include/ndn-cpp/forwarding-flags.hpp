@@ -32,7 +32,6 @@ public:
     , local_(false)
     , tap_(false)
     , captureOk_(false)
-
   {
   }
 
@@ -195,6 +194,29 @@ ForwardingFlags::wireDecode(const Block &wire)
   local_        = (flags & Tlv::FaceManagement::FORW_LOCAL)         ? true : false;
   tap_          = (flags & Tlv::FaceManagement::FORW_TAP)           ? true : false;
   captureOk_    = (flags & Tlv::FaceManagement::FORW_CAPTURE_OK)    ? true : false;
+}
+
+inline std::ostream&
+operator << (std::ostream &os, const ForwardingFlags &flags)
+{
+  if (flags.getActive())
+    os << "ACTIVE ";
+  if (flags.getChildInherit())
+    os << "CHILE_INHERIT ";
+  if (flags.getAdvertise())
+    os << "ADVERTISE ";
+  if (flags.getLast())
+    os << "LAST ";
+  if (flags.getCapture())
+    os << "CAPTURE ";
+  if (flags.getLocal())
+    os << "LOCAL ";
+  if (flags.getTap())
+    os << "TAP ";
+  if (flags.getCaptureOk())
+    os << "CAPTURE_OK ";
+
+  return os;
 }
 
 }
