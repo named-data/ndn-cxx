@@ -60,3 +60,11 @@ missing
 
 # Mac OSX
 .DS_Store
+
+# Tests
+tests/test-encode-decode-benchmark
+tests/test-encode-decode-data
+tests/test-encode-decode-forwarding-entry
+tests/test-encode-decode-interest
+tests/test-get-async
+tests/test-publish-async
