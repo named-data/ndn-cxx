@@ -18,6 +18,12 @@ Data::wireEncode() const
   if (wire_.hasWire())
     return wire_;
 
+  // Data ::= DATA-TLV TLV-LENGTH
+  //            Name
+  //            MetaInfo
+  //            Content
+  //            Signature
+  
   wire_ = Block(Tlv::Data);
 
   // Name
@@ -57,6 +63,12 @@ Data::wireDecode(const Block &wire)
   wire_ = wire;
   wire_.parse();
 
+  // Data ::= DATA-TLV TLV-LENGTH
+  //            Name
+  //            MetaInfo
+  //            Content
+  //            Signature
+    
   // Name
   name_.wireDecode(wire_.get(Tlv::Name));
 

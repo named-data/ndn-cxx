@@ -223,12 +223,7 @@ Data::setContent(const uint8_t* content, size_t contentLength)
 {
   onChanged();
 
-  OBufferStream os;
-  Tlv::writeVarNumber(os, Tlv::Content);
-  Tlv::writeVarNumber(os, contentLength);
-  os.write(reinterpret_cast<const char *>(content), contentLength);
-    
-  content_ = Block(os.buf());
+  content_ = dataBlock(Tlv::Content, content, contentLength);
 }
 
 inline void
