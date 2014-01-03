@@ -28,13 +28,9 @@ public:
   }
   
   Signature(const Block &info, const Block &value)
-    : info_(info)
-    , value_(value)
+    : value_(value)
   {
-    Buffer::const_iterator i = info_.value_begin();
-    Tlv::readVarNumber(i, info_.value_end());
-    size_t length = Tlv::readVarNumber(i, info_.value_end());
-    type_ = Tlv::readNonNegativeInteger(length, i, info_.value_end());
+    setInfo(info);
   }
 
   operator bool() const
@@ -63,9 +59,7 @@ public:
       {
         info_.parse();
         const Block &signatureType = info_.get(Tlv::SignatureType);
-        
-        Buffer::const_iterator i = signatureType.value_begin();
-        type_ = Tlv::readVarNumber(i, signatureType.value_end());
+        type_ = readNonNegativeInteger(signatureType);
       }
     else
       {
@@ -90,8 +84,8 @@ public:
   reset()
   {
     type_ = -1;
-    info_ = Block();
-    value_ = Block();
+    info_.reset();
+    value_.reset();
   }
 
 protected:
