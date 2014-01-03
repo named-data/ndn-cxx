@@ -52,54 +52,28 @@ AC_CHECK_FUNCS([sscanf], :, AC_MSG_ERROR([*** sscanf not found. Check 'config.lo
 AC_CHECK_HEADERS([time.h], :, AC_MSG_ERROR([*** time.h not found. Check 'config.log' for more details.]))
 AC_CHECK_HEADERS([sys/time.h], :, AC_MSG_ERROR([*** sys/time.h not found. Check 'config.log' for more details.]))
 AC_CHECK_FUNCS([gettimeofday], :, AC_MSG_ERROR([*** gettimeofday not found. processEvents requires it. Check 'config.log' for more details.]))
-AX_CXX_COMPILE_STDCXX_11(, optional)
 AC_C_INLINE
 
-AC_MSG_CHECKING([for std::shared_ptr])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-    [[#include <memory>]]
-    [[std::shared_ptr<int> have_shared_ptr;]])
-], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE_UNQUOTED([HAVE_STD_SHARED_PTR], 1, [1 if have the `std::shared_ptr' class.])
-], [
-    AC_MSG_RESULT([no])
-    AC_DEFINE_UNQUOTED([HAVE_STD_SHARED_PTR], 0, [1 if have the `std::shared_ptr' class.])
-])
-AC_MSG_CHECKING([for boost::shared_ptr])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-    [[#include <boost/shared_ptr.hpp>]]
-    [[boost::shared_ptr<int> have_shared_ptr;]])
-], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE_UNQUOTED([HAVE_BOOST_SHARED_PTR], 1, [1 if have the `boost::shared_ptr' class.])
-], [
-    AC_MSG_RESULT([no])
-    AC_DEFINE_UNQUOTED([HAVE_BOOST_SHARED_PTR], 0, [1 if have the `boost::shared_ptr' class.])
-])
+# Unless --without-c++11 specified, try to enable C++11
+AX_CXX_COMPILE_STDCXX_11(, optional)
 
-AC_MSG_CHECKING([for std::function])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-    [[#include <functional>]]
-    [[std::function<int> have_function();]])
-], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE_UNQUOTED([HAVE_STD_FUNCTION], 1, [1 if have the `std::function' class.])
-], [
-    AC_MSG_RESULT([no])
-    AC_DEFINE_UNQUOTED([HAVE_STD_FUNCTION], 0, [1 if have the `std::function' class.])
-])
-AC_MSG_CHECKING([for boost::function])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-    [[#include <boost/function.hpp>]]
-    [[boost::function<int> have_function();]])
-], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE_UNQUOTED([HAVE_BOOST_FUNCTION], 1, [1 if have the `boost::function' class.])
-], [
-    AC_MSG_RESULT([no])
-    AC_DEFINE_UNQUOTED([HAVE_BOOST_FUNCTION], 0, [1 if have the `boost::function' class.])
-])
+AC_ARG_WITH([system-boost],
+  AS_HELP_STRING(
+      [--with-system-boost],
+      [use system-installed boost libraries. If not specified, use the bundled version when necessary.]
+  ),
+  [want_system_boost="yes"],
+  [want_system_boost="no"]
+)
+
+AX_BOOST_BASE([1.42.0],
+  [
+    if test "$want_system_boost" == "yes" ; then
+      AC_DEFINE(USE_SYSTEM_BOOST,[1],[use system-installed boost libraries])
+    fi
+  ],
+  []
+)
 
 AC_MSG_CHECKING([for gmtime support])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
