@@ -121,11 +121,13 @@ public:
   /**
    * @brief Set the signature to a copy of the given signature.
    * @param signature The signature object which is cloned.
-   * @return This Data so that you can chain calls to update values.
    */
-  inline Data& 
+  inline void
   setSignature(const Signature& signature);
 
+  inline void
+  setSignatureValue(const Block &value);
+  
 private:
   /**
    * @brief Clear the wire encoding.
@@ -252,14 +254,20 @@ Data::getSignature() const
   return signature_;
 }
   
-inline Data& 
+inline void
 Data::setSignature(const Signature& signature) 
 {
   onChanged();
   signature_ = signature;
-
-  return *this;
 }
+
+inline void
+Data::setSignatureValue(const Block &value)
+{
+  onChanged();
+  signature_.setValue(value);
+}
+
 
 inline void 
 Data::onChanged()
@@ -269,7 +277,7 @@ Data::onChanged()
   // !!!Note!!! Signature is not invalidated and it is responsibility of
   // the application to do proper re-signing if necessary
   
-  wire_ = Block();
+  wire_.reset();
 }
 
 std::ostream&
