@@ -62,26 +62,22 @@ MetaInfo::wireEncode() const
   if (wire_.hasWire())
     return wire_;
 
+  // MetaInfo ::= META-INFO-TYPE TLV-LENGTH
+  //                ContentType?
+  //                FreshnessPeriod?
+  
   wire_ = Block(Tlv::MetaInfo);
 
   // ContentType
   if (type_ != TYPE_DEFAULT) {
-    OBufferStream os;
-    Tlv::writeVarNumber(os, Tlv::ContentType);
-    Tlv::writeVarNumber(os, Tlv::sizeOfNonNegativeInteger(type_));
-    Tlv::writeNonNegativeInteger(os, type_);
-
-    wire_.push_back(Block(os.buf()));
+    wire_.push_back
+      (nonNegativeIntegerBlock(Tlv::ContentType, type_));
   }
 
   // FreshnessPeriod
   if (freshnessPeriod_ >= 0) {
-    OBufferStream os;
-    Tlv::writeVarNumber(os, Tlv::FreshnessPeriod);
-    Tlv::writeVarNumber(os, Tlv::sizeOfNonNegativeInteger(freshnessPeriod_));
-    Tlv::writeNonNegativeInteger(os, freshnessPeriod_);
-
-    wire_.push_back(Block(os.buf()));
+    wire_.push_back
+      (nonNegativeIntegerBlock(Tlv::FreshnessPeriod, freshnessPeriod_));
   }
   
   wire_.encode();
@@ -94,20 +90,22 @@ MetaInfo::wireDecode(const Block &wire)
   wire_ = wire;
   wire_.parse();
 
+  // MetaInfo ::= META-INFO-TYPE TLV-LENGTH
+  //                ContentType?
+  //                FreshnessPeriod?
+  
   // ContentType
   Block::element_iterator val = wire_.find(Tlv::ContentType);
   if (val != wire_.getAll().end())
     {
-      Buffer::const_iterator begin = val->value_begin();
-      type_ = Tlv::readNonNegativeInteger(val->value_size(), begin, val->value_end());
+      type_ = readNonNegativeInteger(*val);
     }
 
   // FreshnessPeriod
   val = wire_.find(Tlv::FreshnessPeriod);
   if (val != wire_.getAll().end())
     {
-      Buffer::const_iterator begin = val->value_begin();
-      freshnessPeriod_ = Tlv::readNonNegativeInteger(val->value_size(), begin, val->value_end());
+      freshnessPeriod_ = readNonNegativeInteger(*val);
     }
 }
 
