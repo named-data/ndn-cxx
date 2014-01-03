@@ -106,7 +106,6 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/encoding/wire-format.cpp \
   src/exclude.cpp \
   src/face.cpp \
-  src/forwarding-entry.cpp \
   src/interest.cpp \
   src/name.cpp \
   src/node.cpp \

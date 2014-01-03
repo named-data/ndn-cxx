@@ -10,11 +10,8 @@
 
 #include <string>
 #include "name.hpp"
-#include "publisher-public-key-digest.hpp"
 #include "forwarding-flags.hpp"
-#include "encoding/wire-format.hpp"
-
-struct ndn_ForwardingEntry;
+#include "encoding/block.hpp"
 
 namespace ndn {
 
@@ -24,46 +21,39 @@ namespace ndn {
 class ForwardingEntry {
 public:    
   ForwardingEntry
-    (const std::string& action, const Name& prefix, const PublisherPublicKeyDigest publisherPublicKeyDigest,
-     int faceId, const ForwardingFlags& forwardingFlags, int freshnessSeconds) 
-  : action_(action), prefix_(prefix), publisherPublicKeyDigest_(publisherPublicKeyDigest), 
-    faceId_(faceId), forwardingFlags_(forwardingFlags), freshnessSeconds_(freshnessSeconds)
+    (const std::string& action,
+       const Name& prefix,
+       int faceId,
+       const ForwardingFlags& forwardingFlags,
+       int freshnessPeriod) 
+  : action_(action)
+  , prefix_(prefix)
+  , faceId_(faceId)
+  , forwardingFlags_(forwardingFlags)
+  , freshnessPeriod_(freshnessPeriod)
   {
   }
 
   ForwardingEntry()
-  : faceId_(-1), freshnessSeconds_(-1)
+  : faceId_(-1), freshnessPeriod_(-1)
   {
     forwardingFlags_.setActive(true);
     forwardingFlags_.setChildInherit(true);
   }
   
-  Blob 
-  wireEncode(WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) const 
+  Block 
+  wireEncode() const 
   {
-    return wireFormat.encodeForwardingEntry(*this);
+    return wire_;
+    // return wireFormat.encodeForwardingEntry(*this);
   }
   
   void 
-  wireDecode(const uint8_t *input, size_t inputLength, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+  wireDecode(const Block &wire) 
   {
-    wireFormat.decodeForwardingEntry(*this, input, inputLength);
+    // wireFormat.decodeForwardingEntry(*this, input, inputLength);
   }
   
-  void 
-  wireDecode(const std::vector<uint8_t>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
-  {
-    wireDecode(&input[0], input.size(), wireFormat);
-  }
-  
-  /**
-   * Set the forwardingEntryStruct to point to the components in this forwarding entry, without copying any memory.
-   * WARNING: The resulting pointers in forwardingEntryStruct are invalid after a further use of this object which could reallocate memory.
-   * @param forwardingEntryStruct a C ndn_ForwardingEntry struct where the prefix name components array is already allocated.
-   */
-  void 
-  get(struct ndn_ForwardingEntry& forwardingEntryStruct) const;
-
   const std::string& 
   getAction() const { return action_; }
   
@@ -73,12 +63,6 @@ public:
   const Name& 
   getPrefix() const { return prefix_; }
   
-  PublisherPublicKeyDigest& 
-  getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
-  
-  const PublisherPublicKeyDigest& 
-  getPublisherPublicKeyDigest() const { return publisherPublicKeyDigest_; }
-  
   int 
   getFaceId() const { return faceId_; }
 
@@ -86,14 +70,7 @@ public:
   getForwardingFlags() const { return forwardingFlags_; }
 
   int 
-  getFreshnessSeconds() const { return freshnessSeconds_; }
-  
-  /**
-   * Clear this forwarding entry, and set the values by copying from forwardingEntryStruct.
-   * @param forwardingEntryStruct a C ndn_ForwardingEntry struct.
-   */
-  void 
-  set(const struct ndn_ForwardingEntry& forwardingEntryStruct);
+  getFreshnessPeriod() const { return freshnessPeriod_; }
 
   void 
   setAction(const std::string& action) { action_ = action; }
@@ -105,15 +82,16 @@ public:
   setForwardingFlags(const ForwardingFlags& forwardingFlags) { forwardingFlags_ = forwardingFlags; }
       
   void 
-  setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
+  setFreshnessPeriod(int freshnessPeriod) { freshnessPeriod_ = freshnessPeriod; }
       
 private:
   std::string action_;   /**< empty for none. */
   Name prefix_;
-  PublisherPublicKeyDigest publisherPublicKeyDigest_;
   int faceId_;           /**< -1 for none. */
   ForwardingFlags forwardingFlags_;
-  int freshnessSeconds_; /**< -1 for none. */
+  int freshnessPeriod_; /**< -1 for none. */
+
+  Block wire_;
 };
 
 }

@@ -8,8 +8,6 @@
 #ifndef NDN_FORWARDING_FLAGS_HPP
 #define NDN_FORWARDING_FLAGS_HPP
 
-#include "c/forwarding-flags.h"
-
 namespace ndn {
 
 /**
@@ -17,18 +15,21 @@ namespace ndn {
  * a registered prefix.  We use a separate ForwardingFlags object to retain future compatibility if the daemon forwarding
  * bits are changed, amended or deprecated.
  */
-class ForwardingFlags : public ndn_ForwardingFlags {
+class ForwardingFlags {
 public:
   /**
    * Create a new ForwardingFlags with "active" and "childInherit" set and all other flags cleared.
    */
   ForwardingFlags() 
-  {
-    ndn_ForwardingFlags_initialize(this);
-  }
-  
-  ForwardingFlags(const struct ndn_ForwardingFlags &forwardingFlagsStruct)
-  : ndn_ForwardingFlags(forwardingFlagsStruct)
+    : active_(true)
+    , childInherit_(true)
+    , advertise_(false)
+    , last_(false)
+    , capture_(false)
+    , local_(false)
+    , tap_(false)
+    , captureOk_(false)
+
   {
   }
 
@@ -36,97 +37,107 @@ public:
    * Get the value of the "active" flag.
    * @return true if the flag is set, false if it is cleared.
    */
-  bool getActive() const { return active; }
+  bool getActive() const { return active_; }
   
   /**
    * Get the value of the "childInherit" flag.
    * @return true if the flag is set, false if it is cleared.
    */
-  bool getChildInherit() const { return childInherit; }
+  bool getChildInherit() const { return childInherit_; }
   
   /**
    * Get the value of the "advertise" flag.
    * @return true if the flag is set, false if it is cleared.
    */
-  bool getAdvertise() const { return advertise; }
+  bool getAdvertise() const { return advertise_; }
   
   /**
    * Get the value of the "last" flag.
    * @return true if the flag is set, false if it is cleared.
    */
-  bool getLast() const { return last; }
+  bool getLast() const { return last_; }
   
   /**
    * Get the value of the "capture" flag.
    * @return true if the flag is set, false if it is cleared.
    */
-  bool getCapture() const { return capture; }
+  bool getCapture() const { return capture_; }
   
   /**
    * Get the value of the "local" flag.
    * @return true if the flag is set, false if it is cleared.
    */
-  bool getLocal() const { return local; }
+  bool getLocal() const { return local_; }
   
   /**
    * Get the value of the "tap" flag.
    * @return true if the flag is set, false if it is cleared.
    */
-  bool getTap() const { return tap; }
+  bool getTap() const { return tap_; }
   
   /**
    * Get the value of the "captureOk" flag.
    * @return true if the flag is set, false if it is cleared.
    */
-  bool getCaptureOk() const { return captureOk; }
+  bool getCaptureOk() const { return captureOk_; }
 
   /**
    * Set the value of the "active" flag
    * @param active true to set the flag, false to clear it.
    */  
-  void setActive(bool active) { this->active = active ? 1 : 0; }
+  void setActive(bool active) { this->active_ = active; }
   
   /**
    * Set the value of the "childInherit" flag
    * @param childInherit true to set the flag, false to clear it.
    */  
-  void setChildInherit(bool childInherit) { this->childInherit = childInherit ? 1 : 0; }
+  void setChildInherit(bool childInherit) { this->childInherit_ = childInherit; }
   
   /**
    * Set the value of the "advertise" flag
    * @param advertise true to set the flag, false to clear it.
    */  
-  void setAdvertise(bool advertise) { this->advertise = advertise ? 1 : 0; }
+  void setAdvertise(bool advertise) { this->advertise_ = advertise; }
   
   /**
    * Set the value of the "last" flag
    * @param last true to set the flag, false to clear it.
    */  
-  void setLast(bool last) { this->last = last ? 1 : 0; }
+  void setLast(bool last) { this->last_ = last; }
   
   /**
    * Set the value of the "capture" flag
    * @param capture true to set the flag, false to clear it.
    */  
-  void setCapture(bool capture) { this->capture = capture ? 1 : 0; }
+  void setCapture(bool capture) { this->capture_ = capture; }
   
   /**
    * Set the value of the "local" flag
    * @param local true to set the flag, false to clear it.
    */  
-  void setLocal(bool local) { this->local = local ? 1 : 0; }
+  void setLocal(bool local) { this->local_ = local; }
   
   /**
    * Set the value of the "tap" flag
    * @param tap true to set the flag, false to clear it.
    */  
-  void setTap(bool tap) { this->tap = tap ? 1 : 0; }
+  void setTap(bool tap) { this->tap_ = tap; }
   
   /**
    * Set the value of the "captureOk" flag
    * @param captureOk true to set the flag, false to clear it.
    */  
-  void setCaptureOk(bool captureOk) { this->captureOk = captureOk ? 1 : 0; }
+  void setCaptureOk(bool captureOk) { this->captureOk_ = captureOk; }
+
+private:
+  bool active_;
+  bool childInherit_;
+  bool advertise_;
+  bool last_;
+  bool capture_;
+  bool local_;
+  bool tap_;
+  bool captureOk_;
 };
 
 }
