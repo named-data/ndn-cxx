@@ -86,6 +86,13 @@ Interest::wireEncode() const
   if (wire_.hasWire())
     return wire_;
 
+  // Interest ::= INTEREST-TYPE TLV-LENGTH
+  //                Name
+  //                Selectors?
+  //                Nonce
+  //                Scope?
+  //                InterestLifetime?  
+  
   wire_ = Block(Tlv::Interest);
   wire_.push_back(getName().wireEncode());
 
@@ -94,38 +101,24 @@ Interest::wireEncode() const
     Block selectors(Tlv::Selectors);
     
     if (getMinSuffixComponents() >= 0) {
-      OBufferStream os;
-      Tlv::writeVarNumber(os, Tlv::MinSuffixComponents);
-      Tlv::writeVarNumber(os, Tlv::sizeOfNonNegativeInteger(getMinSuffixComponents()));
-      Tlv::writeNonNegativeInteger(os, getMinSuffixComponents());
-
-      selectors.push_back(Block(os.buf()));
+      selectors.push_back
+        (nonNegativeIntegerBlock(Tlv::MinSuffixComponents, getMinSuffixComponents()));
     }
     if (getMaxSuffixComponents() >= 0) {
-      OBufferStream os;
-      Tlv::writeVarNumber(os, Tlv::MaxSuffixComponents);
-      Tlv::writeVarNumber(os, Tlv::sizeOfNonNegativeInteger(getMaxSuffixComponents()));
-      Tlv::writeNonNegativeInteger(os, getMaxSuffixComponents());
-
-      selectors.push_back(Block(os.buf()));
+      selectors.push_back
+        (nonNegativeIntegerBlock(Tlv::MaxSuffixComponents, getMaxSuffixComponents()));
     }
     if (!getExclude().empty()) {
-      selectors.push_back(getExclude().wireEncode());
+      selectors.push_back
+        (getExclude().wireEncode());
     }
     if (getChildSelector() >= 0) {
-      OBufferStream os;
-      Tlv::writeVarNumber(os, Tlv::ChildSelector);
-      Tlv::writeVarNumber(os, Tlv::sizeOfNonNegativeInteger(getChildSelector()));
-      Tlv::writeNonNegativeInteger(os, getChildSelector());
-
-      selectors.push_back(Block(os.buf()));
+      selectors.push_back
+        (nonNegativeIntegerBlock(Tlv::ChildSelector, getChildSelector()));
     }
     if (getMustBeFresh()) {
-      OBufferStream os;
-      Tlv::writeVarNumber(os, Tlv::MustBeFresh);
-      Tlv::writeVarNumber(os, 0);
-
-      selectors.push_back(Block(os.buf()));
+      selectors.push_back
+        (booleanBlock(Tlv::MustBeFresh));
     }
 
     selectors.encode();
@@ -134,29 +127,17 @@ Interest::wireEncode() const
 
   // Nonce
   {
-    OBufferStream os;
-    Tlv::writeVarNumber(os, Tlv::Nonce);
-    Tlv::writeVarNumber(os, Tlv::sizeOfNonNegativeInteger(getNonce()));
-    Tlv::writeNonNegativeInteger(os, getNonce());
-
-    wire_.push_back(Block(os.buf()));
+    wire_.push_back
+      (nonNegativeIntegerBlock(Tlv::Nonce, getNonce()));
   }
   
   if (getScope() >= 0) {
-    OBufferStream os;
-    Tlv::writeVarNumber(os, Tlv::Scope);
-    Tlv::writeVarNumber(os, Tlv::sizeOfNonNegativeInteger(getScope()));
-    Tlv::writeNonNegativeInteger(os, getScope());
-
-    wire_.push_back(Block(os.buf()));
+    wire_.push_back
+      (nonNegativeIntegerBlock(Tlv::Scope, getScope()));
   }
   if (getInterestLifetime() >= 0) {
-    OBufferStream os;
-    Tlv::writeVarNumber(os, Tlv::InterestLifetime);
-    Tlv::writeVarNumber(os, Tlv::sizeOfNonNegativeInteger(getInterestLifetime()));
-    Tlv::writeNonNegativeInteger(os, getInterestLifetime());
-
-    wire_.push_back(Block(os.buf()));
+    wire_.push_back
+      (nonNegativeIntegerBlock(Tlv::InterestLifetime, getInterestLifetime()));
   }
   
   wire_.encode();
@@ -169,6 +150,13 @@ Interest::wireDecode(const Block &wire)
   wire_ = wire;
   wire_.parse();
 
+  // Interest ::= INTEREST-TYPE TLV-LENGTH
+  //                Name
+  //                Selectors?
+  //                Nonce
+  //                Scope?
+  //                InterestLifetime?  
+  
   // Name
   name_.wireDecode(wire_.get(Tlv::Name));
 
@@ -182,16 +170,14 @@ Interest::wireDecode(const Block &wire)
       Block::element_iterator val = selectors->find(Tlv::MinSuffixComponents);
       if (val != selectors->getAll().end())
         {
-          Buffer::const_iterator begin = val->value_begin();
-          minSuffixComponents_ = Tlv::readNonNegativeInteger(val->value_size(), begin, val->value_end());
+          minSuffixComponents_ = readNonNegativeInteger(*val);
         }
 
       // MaxSuffixComponents
       val = selectors->find(Tlv::MaxSuffixComponents);
       if (val != selectors->getAll().end())
         {
-          Buffer::const_iterator begin = val->value_begin();
-          maxSuffixComponents_ = Tlv::readNonNegativeInteger(val->value_size(), begin, val->value_end());
+          maxSuffixComponents_ = readNonNegativeInteger(*val);
         }
 
       // Exclude
@@ -205,8 +191,7 @@ Interest::wireDecode(const Block &wire)
       val = selectors->find(Tlv::ChildSelector);
       if (val != selectors->getAll().end())
         {
-          Buffer::const_iterator begin = val->value_begin();
-          childSelector_ = Tlv::readNonNegativeInteger(val->value_size(), begin, val->value_end());
+          childSelector_ = readNonNegativeInteger(*val);
         }
 
       //MustBeFresh aka AnswerOriginKind
@@ -221,24 +206,21 @@ Interest::wireDecode(const Block &wire)
   Block::element_iterator val = wire_.find(Tlv::Nonce);
   if (val != wire_.getAll().end())
     {
-      Buffer::const_iterator begin = val->value_begin();
-      nonce_ = Tlv::readNonNegativeInteger(val->value_size(), begin, val->value_end());
+      nonce_ = readNonNegativeInteger(*val);
     }
 
   // Scope
   val = wire_.find(Tlv::Scope);
   if (val != wire_.getAll().end())
     {
-      Buffer::const_iterator begin = val->value_begin();
-      scope_ = Tlv::readNonNegativeInteger(val->value_size(), begin, val->value_end());
+      scope_ = readNonNegativeInteger(*val);
     }
   
   // InterestLifetime
   val = wire_.find(Tlv::InterestLifetime);
   if (val != wire_.getAll().end())
     {
-      Buffer::const_iterator begin = val->value_begin();
-      interestLifetime_ = Tlv::readNonNegativeInteger(val->value_size(), begin, val->value_end());
+      interestLifetime_ = readNonNegativeInteger(*val);
     } 
 }
 
