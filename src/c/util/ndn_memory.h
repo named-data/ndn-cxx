@@ -22,7 +22,7 @@ extern "C" {
 /**
  * Use the library version of memcmp.
  */
-static inline int ndn_memcmp(uint8_t *buf1, uint8_t *buf2, size_t len) { return memcmp(buf1, buf2, len); }
+static inline int ndn_memcmp(const uint8_t *buf1, const uint8_t *buf2, size_t len) { return memcmp(buf1, buf2, len); }
 #else
 /**
  * Use a local implementation of memcmp instead of the library version.
@@ -35,12 +35,12 @@ int ndn_memcmp(uint8_t *buf1, uint8_t *buf2, size_t len);
 /**
  * Use the library version of memcpy.
  */
-static inline void ndn_memcpy(uint8_t *dest, uint8_t *src, size_t len) { memcpy(dest, src, len); }
+static inline void ndn_memcpy(uint8_t *dest, const uint8_t *src, size_t len) { memcpy(dest, src, len); }
 #else
 /**
  * Use a local implementation of memcpy instead of the library version.
  */
-void ndn_memcpy(uint8_t *dest, uint8_t *src, size_t len);
+void ndn_memcpy(uint8_t *dest, const uint8_t *src, size_t len);
 #endif
 
 #if NDN_CPP_HAVE_MEMSET
