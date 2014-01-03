@@ -72,6 +72,11 @@ public:
     {
     }
     
+    Component(const char *string)
+      : ConstBufferPtr (new Buffer(string, ::strlen(string)))
+    {
+    }
+
     const Buffer& 
     getValue() const { return **this; }
 
@@ -292,6 +297,9 @@ public:
 
   const Block &
   wireEncode() const;
+
+  void
+  wireDecode(const Block &wire);
   
   /**
    * Parse the uri according to the NDN URI Scheme and set the name with the components.

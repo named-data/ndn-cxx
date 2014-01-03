@@ -49,7 +49,7 @@ Name::Component::fromNumber(uint64_t number)
   return Component(value);
 }
 
-Name::Component 
+Name::Component
 Name::Component::fromNumberWithMarker(uint64_t number, uint8_t marker)
 {
   ptr_lib::shared_ptr<Buffer> value(new Buffer);
@@ -331,5 +331,40 @@ operator << (std::ostream& os, const Name& name)
   
   return os;
 }
+
+const Block &
+Name::wireEncode() const
+{
+  if (wire_.hasWire())
+    return wire_;
+
+  wire_ = Block(Tlv::Name);
+  for (Name::const_iterator i = begin(); i != end(); i++) {
+    OBufferStream os;
+    Tlv::writeVarNumber(os, Tlv::NameComponent);
+    Tlv::writeVarNumber(os, i->getValue().size());
+    os.write(reinterpret_cast<const char*>(i->getValue().buf()), i->getValue().size());
+
+    wire_.push_back(Block(os.buf()));
+  }
+        
+  wire_.encode();
+  return wire_;
+}
+
+void
+Name::wireDecode(const Block &wire)
+{
+  wire_ = wire;
+  wire_.parse();
+
+  for (Block::element_const_iterator i = wire_.getAll().begin();
+       i != wire_.getAll().end();
+       ++i)
+    {
+      append(i->value(), i->value_size());
+    }
+}
+
 
 }
