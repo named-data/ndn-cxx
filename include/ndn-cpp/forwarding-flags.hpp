@@ -8,6 +8,9 @@
 #ifndef NDN_FORWARDING_FLAGS_HPP
 #define NDN_FORWARDING_FLAGS_HPP
 
+#include "encoding/block.hpp"
+#include "encoding/tlv-face-management.hpp"
+
 namespace ndn {
 
 /**
@@ -85,50 +88,56 @@ public:
    * Set the value of the "active" flag
    * @param active true to set the flag, false to clear it.
    */  
-  void setActive(bool active) { this->active_ = active; }
+  void setActive(bool active) { this->active_ = active; wire_.reset(); }
   
   /**
    * Set the value of the "childInherit" flag
    * @param childInherit true to set the flag, false to clear it.
    */  
-  void setChildInherit(bool childInherit) { this->childInherit_ = childInherit; }
+  void setChildInherit(bool childInherit) { this->childInherit_ = childInherit; wire_.reset(); }
   
   /**
    * Set the value of the "advertise" flag
    * @param advertise true to set the flag, false to clear it.
    */  
-  void setAdvertise(bool advertise) { this->advertise_ = advertise; }
+  void setAdvertise(bool advertise) { this->advertise_ = advertise; wire_.reset(); }
   
   /**
    * Set the value of the "last" flag
    * @param last true to set the flag, false to clear it.
    */  
-  void setLast(bool last) { this->last_ = last; }
+  void setLast(bool last) { this->last_ = last; wire_.reset(); }
   
   /**
    * Set the value of the "capture" flag
    * @param capture true to set the flag, false to clear it.
    */  
-  void setCapture(bool capture) { this->capture_ = capture; }
+  void setCapture(bool capture) { this->capture_ = capture; wire_.reset(); }
   
   /**
    * Set the value of the "local" flag
    * @param local true to set the flag, false to clear it.
    */  
-  void setLocal(bool local) { this->local_ = local; }
+  void setLocal(bool local) { this->local_ = local; wire_.reset(); }
   
   /**
    * Set the value of the "tap" flag
    * @param tap true to set the flag, false to clear it.
    */  
-  void setTap(bool tap) { this->tap_ = tap; }
+  void setTap(bool tap) { this->tap_ = tap; wire_.reset(); }
   
   /**
    * Set the value of the "captureOk" flag
    * @param captureOk true to set the flag, false to clear it.
    */  
-  void setCaptureOk(bool captureOk) { this->captureOk_ = captureOk; }
+  void setCaptureOk(bool captureOk) { this->captureOk_ = captureOk; wire_.reset(); }
 
+  inline const Block&
+  wireEncode() const;
+
+  inline void
+  wireDecode(const Block &block);
+  
 private:
   bool active_;
   bool childInherit_;
@@ -138,7 +147,55 @@ private:
   bool local_;
   bool tap_;
   bool captureOk_;
+
+  mutable Block wire_;
 };
+
+inline const Block&
+ForwardingFlags::wireEncode() const
+{
+  if (wire_.hasWire())
+    return wire_;
+
+  uint32_t result = 0;
+  if (active_)
+    result |= Tlv::FaceManagement::FORW_ACTIVE;
+  if (childInherit_)
+    result |= Tlv::FaceManagement::FORW_CHILD_INHERIT;
+  if (advertise_)
+    result |= Tlv::FaceManagement::FORW_ADVERTISE;
+  if (last_)
+    result |= Tlv::FaceManagement::FORW_LAST;
+  if (capture_)
+    result |= Tlv::FaceManagement::FORW_CAPTURE;
+  if (local_)
+    result |= Tlv::FaceManagement::FORW_LOCAL;
+  if (tap_)
+    result |= Tlv::FaceManagement::FORW_TAP;
+  if (captureOk_)
+    result |= Tlv::FaceManagement::FORW_CAPTURE_OK;
+  
+  wire_ = nonNegativeIntegerBlock(Tlv::FaceManagement::ForwardingFlags, result);
+
+  return wire_;
+}
+
+inline void
+ForwardingFlags::wireDecode(const Block &wire)
+{
+  wire_ = wire;
+
+  uint32_t flags = readNonNegativeInteger(wire_);
+  
+  active_       = (flags & Tlv::FaceManagement::FORW_ACTIVE)        ? true : false;
+  childInherit_ = (flags & Tlv::FaceManagement::FORW_CHILD_INHERIT) ? true : false;
+  advertise_    = (flags & Tlv::FaceManagement::FORW_ADVERTISE)     ? true : false;
+  last_         = (flags & Tlv::FaceManagement::FORW_LAST)          ? true : false;
+  capture_      = (flags & Tlv::FaceManagement::FORW_CAPTURE)       ? true : false;
+  local_        = (flags & Tlv::FaceManagement::FORW_LOCAL)         ? true : false;
+  tap_          = (flags & Tlv::FaceManagement::FORW_TAP)           ? true : false;
+  captureOk_    = (flags & Tlv::FaceManagement::FORW_CAPTURE_OK)    ? true : false;
+}
 
 }
 
