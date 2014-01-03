@@ -117,7 +117,7 @@ BOOST_FIXTURE_TEST_CASE (Decode, TestDataFixture)
 
   BOOST_REQUIRE_EQUAL(std::string(reinterpret_cast<const char*>(d.getContent().value()), d.getContent().value_size()), "SUCCESS!");
 
-  BOOST_REQUIRE_EQUAL(d.getSignature().getType(), static_cast<uint32_t>(Signature::SignatureSha256WithRsa));
+  BOOST_REQUIRE_EQUAL(d.getSignature().getType(), static_cast<uint32_t>(Signature::Sha256WithRsa));
   ndn::Block block = d.getSignature().getInfo();
   block.parse();
   KeyLocator keyLocator;
@@ -147,8 +147,8 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
   {
     OBufferStream os;
     Tlv::writeVarNumber(os, Tlv::SignatureType);
-    Tlv::writeVarNumber(os, Tlv::sizeOfNonNegativeInteger(Signature::SignatureSha256WithRsa));
-    Tlv::writeNonNegativeInteger(os, Signature::SignatureSha256WithRsa);
+    Tlv::writeVarNumber(os, Tlv::sizeOfNonNegativeInteger(Signature::Sha256WithRsa));
+    Tlv::writeNonNegativeInteger(os, Signature::Sha256WithRsa);
     
     signatureInfo.push_back(Block(os.buf()));
   }
