@@ -10,12 +10,13 @@
 #include "c/interest.h"
 #include "c/util/crypto.h"
 #include "c/util/time.h"
-#include "c/encoding/binary-xml.h"
-#include "encoding/binary-xml-decoder.hpp"
+
 #include <ndn-cpp/forwarding-entry.hpp>
 #include <ndn-cpp/security/key-chain.hpp>
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
 #include <ndn-cpp/node.hpp>
+
+#include <ndn-cpp/encoding/tlv-element.hpp>
 
 using namespace std;
 
@@ -259,29 +260,30 @@ Node::processEvents()
 void 
 Node::onReceivedElement(const uint8_t *element, size_t elementLength)
 {
-  BinaryXmlDecoder decoder(element, elementLength);
-  
-  if (decoder.peekDTag(ndn_BinaryXml_DTag_Interest)) {
-    ptr_lib::shared_ptr<Interest> interest(new Interest());
-    interest->wireDecode(element, elementLength);
+  tlv::Element parsedElement(element, elementLength);
+  if (parsedElement.type() == tlv::Interest)
+    {
+      ptr_lib::shared_ptr<Interest> interest(new Interest());
+      interest->wireDecode(element, elementLength);
     
-    RegisteredPrefix *entry = getEntryForRegisteredPrefix(interest->getName());
-    if (entry)
-      entry->getOnInterest()(entry->getPrefix(), interest, *transport_, entry->getRegisteredPrefixId());
-  }
-  else if (decoder.peekDTag(ndn_BinaryXml_DTag_ContentObject)) {
-    ptr_lib::shared_ptr<Data> data(new Data());
-    data->wireDecode(element, elementLength);
-    
-    int iPitEntry = getEntryIndexForExpressedInterest(data->getName());
-    if (iPitEntry >= 0) {
-      // Copy pointers to the needed objects and remove the PIT entry before the calling the callback.
-      const OnData onData = pendingInterestTable_[iPitEntry]->getOnData();
-      const ptr_lib::shared_ptr<const Interest> interest = pendingInterestTable_[iPitEntry]->getInterest();
-      pendingInterestTable_.erase(pendingInterestTable_.begin() + iPitEntry);
-      onData(interest, data);
+      RegisteredPrefix *entry = getEntryForRegisteredPrefix(interest->getName());
+      if (entry)
+        entry->getOnInterest()(entry->getPrefix(), interest, *transport_, entry->getRegisteredPrefixId());
     }
-  }
+  else if (parsedElement.type() == tlv::Data)
+    {
+      ptr_lib::shared_ptr<Data> data(new Data());
+      data->wireDecode(element, elementLength);
+    
+      int iPitEntry = getEntryIndexForExpressedInterest(data->getName());
+      if (iPitEntry >= 0) {
+        // Copy pointers to the needed objects and remove the PIT entry before the calling the callback.
+        const OnData onData = pendingInterestTable_[iPitEntry]->getOnData();
+        const ptr_lib::shared_ptr<const Interest> interest = pendingInterestTable_[iPitEntry]->getInterest();
+        pendingInterestTable_.erase(pendingInterestTable_.begin() + iPitEntry);
+        onData(interest, data);
+      }
+    }
 }
 
 void 
