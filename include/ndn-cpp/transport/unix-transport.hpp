@@ -13,49 +13,24 @@
 
 namespace ndn {
   
-class UnixTransport : public Transport {
+class UnixTransport : public Transport
+{
 public:
   UnixTransport(const std::string &unixSocket = "/tmp/.ndnd.sock");
   ~UnixTransport();
 
-  /**
-   * Connect according to the info in ConnectionInfo, and processEvents() will use elementListener.
-   * @param connectionInfo A reference to a TcpTransport::ConnectionInfo.
-   * @param elementListener Not a shared_ptr because we assume that it will remain valid during the life of this object.
-   */
+  // from Transport
   virtual void 
-  connect(ElementListener& elementListener);
+  connect(boost::asio::io_service &ioService, const ReceiveCallback &receiveCallback);
   
-  /**
-   * Set data to the host
-   * @param data A pointer to the buffer of data to send.
-   * @param dataLength The number of bytes in data.
-   */
-  virtual void 
-  send(const uint8_t *data, size_t dataLength);
-
-  /**
-   * Process any data to receive.  For each element received, call elementListener.onReceivedElement.
-   * This is non-blocking and will return immediately if there is no data to receive.
-   * You should normally not call this directly since it is called by Face.processEvents.
-   * @throw This may throw an exception for reading data or in the callback for processing the data.  If you
-   * call this from an main event loop, you may want to catch and log/disregard all exceptions.
-   */
-  virtual void 
-  processEvents();
-  
-  virtual bool 
-  getIsConnected();
-
-  /**
-   * Close the connection to the host.
-   */
   virtual void 
   close();
+
+  virtual void 
+  send(const Block &wire);
   
 private:
   std::string unixSocket_;
-  bool isConnected_;
 
   class Impl;
   std::auto_ptr<Impl> impl_;

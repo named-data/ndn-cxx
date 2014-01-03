@@ -9,7 +9,8 @@
 #define NDN_FACE_HPP
 
 #include "node.hpp"
-#include "transport/tcp-transport.hpp"
+#include "transport/transport.hpp"
+#include "transport/unix-transport.hpp"
 
 namespace ndn {
 
@@ -18,6 +19,16 @@ namespace ndn {
  */
 class Face {
 public:
+  /**
+   * Create a new Face for communication with an NDN hub at host:port using the default TcpTransport.
+   * @param host The host of the NDN hub.
+   * @param port The port of the NDN hub. If omitted. use 6363.
+   */
+  Face()
+  : node_(ptr_lib::shared_ptr<UnixTransport>(new UnixTransport()))
+  {
+  }
+
   /**
    * Create a new Face for communication with an NDN hub with the given Transport object and connectionInfo.
    * @param transport A shared_ptr to a Transport object used for communication.
@@ -33,10 +44,10 @@ public:
    * @param host The host of the NDN hub.
    * @param port The port of the NDN hub. If omitted. use 6363.
    */
-  Face(const char *host, unsigned short port = 6363)
-  : node_(ptr_lib::shared_ptr<TcpTransport>(new TcpTransport(host, port)))
-  {
-  }
+  // Face(const char *host, unsigned short port = 6363)
+  // : node_(ptr_lib::shared_ptr<TcpTransport>(new TcpTransport(host, port)))
+  // {
+  // }
     
   /**
    * Send the Interest through the transport, read the entire response and call onData(interest, data).
@@ -50,10 +61,9 @@ public:
    */
   uint64_t 
   expressInterest
-    (const Interest& interest, const OnData& onData, const OnTimeout& onTimeout = OnTimeout(),
-     WireFormat& wireFormat = *WireFormat::getDefaultWireFormat())
+    (const Interest& interest, const OnData& onData, const OnTimeout& onTimeout = OnTimeout())
   {
-    return node_.expressInterest(interest, onData, onTimeout, wireFormat);
+    return node_.expressInterest(interest, onData, onTimeout);
   }
 
   /**
@@ -70,8 +80,7 @@ public:
    */
   uint64_t 
   expressInterest
-    (const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout = OnTimeout(),
-     WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+    (const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout = OnTimeout());
 
   /**
    * Encode name as an Interest, using a default interest lifetime.
@@ -86,10 +95,9 @@ public:
    */
   uint64_t 
   expressInterest
-    (const Name& name, const OnData& onData, const OnTimeout& onTimeout = OnTimeout(),
-     WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
+    (const Name& name, const OnData& onData, const OnTimeout& onTimeout = OnTimeout()) 
   {
-    return expressInterest(name, 0, onData, onTimeout, wireFormat);
+    return expressInterest(name, 0, onData, onTimeout);
   }
 
   /**
@@ -118,10 +126,9 @@ public:
    */
   uint64_t 
   setInterestFilter
-    (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags = ForwardingFlags(), 
-     WireFormat& wireFormat = *WireFormat::getDefaultWireFormat())
+    (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags = ForwardingFlags())
   {
-    return node_.registerPrefix(prefix, onInterest, onRegisterFailed, flags, wireFormat);
+    return node_.registerPrefix(prefix, onInterest, onRegisterFailed, flags);
   }
 
   /**

@@ -125,7 +125,6 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/security/policy/self-verify-policy-manager.cpp \
   src/security/security-exception.cpp \
   src/security/signature/sha256-with-rsa-handler.cpp \
-  src/transport/transport.cpp \
   src/transport/unix-transport.cpp \
   src/util/blob-stream.hpp \
   src/util/blob.cpp \
@@ -135,6 +134,7 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/util/dynamic-uint8-vector.hpp \
   src/util/logging.cpp \
   src/util/logging.hpp \
+  src/util/ndnd-id-fetcher.hpp \
   src/util/string-helper.hpp
 
 libndn_cpp_la_LIBADD  = @OPENSSL_LIBS@ @OSX_SECURITY_LIBS@
