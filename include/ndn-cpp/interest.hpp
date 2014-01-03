@@ -82,37 +82,17 @@ public:
   
   /**
    * Encode this Interest for a particular wire format.
-   * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat::getDefaultWireFormat().
    * @return The encoded byte array.
    */
   const Block&
-  wireEncode() const 
-  {
-    return wire_;
-  }
+  wireEncode() const;
   
   /**
    * Decode the input using a particular wire format and update this Interest.
    * @param input The input byte array to be decoded.
-   * @param inputLength The length of input.
-   * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat::getDefaultWireFormat().
    */
   void 
-  wireDecode(const Block &wire) 
-  {
-    // wireFormat.decodeInterest(*this, input, inputLength);
-  }
-  
-  /**
-   * Decode the input using a particular wire format and update this Interest.
-   * @param input The input byte array to be decoded.
-   * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat::getDefaultWireFormat().
-   */
-  // void 
-  // wireDecode(const std::vector<uint8_t>& input, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat()) 
-  // {
-  //   wireDecode(&input[0], input.size(), wireFormat);
-  // }
+  wireDecode(const Block &wire);
   
   /**
    * Encode the name according to the "NDN URI Scheme".  If there are interest selectors, append "?" and
@@ -218,7 +198,7 @@ private:
   Milliseconds interestLifetime_;
   uint32_t nonce_;
 
-  Block wire_;
+  mutable Block wire_;
 };
 
 std::ostream &
