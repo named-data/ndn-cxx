@@ -23,11 +23,15 @@ public:
     
     KeyLocator_Unknown = 255
   };
-  
+
+  inline
   KeyLocator()
     : type_(KeyLocator_None)
   {
   }
+
+  inline
+  KeyLocator(const Name &name);
 
   inline const Block& 
   wireEncode() const;
@@ -61,6 +65,12 @@ private:
   
   mutable Block wire_;
 };
+
+inline
+KeyLocator::KeyLocator(const Name &name)
+{
+  setName(name);
+}
 
 inline const Block& 
 KeyLocator::wireEncode() const

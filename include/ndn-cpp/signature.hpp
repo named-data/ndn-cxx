@@ -15,9 +15,11 @@ namespace ndn {
  */
 class Signature {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   enum {
-    DigestSha256 = 0,
-    SignatureSha256WithRsa = 1
+    Sha256 = 0,
+    Sha256WithRsa = 1
   };
   
   Signature()
@@ -49,6 +51,7 @@ public:
   const Block&
   getInfo() const
   {
+    info_.encode(); // will do nothing if wire already exists
     return info_;
   }
 
@@ -73,6 +76,7 @@ public:
   const Block&
   getValue() const
   {
+    value_.encode(); // will do nothing if wire already exists
     return value_;
   }
 
@@ -90,11 +94,11 @@ public:
     value_ = Block();
   }
 
-private:
+protected:
   int32_t type_;
   
-  Block info_;
-  Block value_;
+  mutable Block info_;
+  mutable Block value_;
 };
 
 } // namespace ndn
