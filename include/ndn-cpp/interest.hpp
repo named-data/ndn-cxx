@@ -136,8 +136,10 @@ public:
    * @brief Get Interest's nonce
    *
    * If nonce was not set before this call, it will be automatically assigned to a random value
+   *
+   * Const reference needed for C decoding
    */
-  uint32_t
+  const uint32_t&
   getNonce() const;
     
   void

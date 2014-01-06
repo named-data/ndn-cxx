@@ -156,7 +156,7 @@ ndn_Error ndn_BinaryXmlDecoder_readOptionalUnsignedIntegerDTagElement
  * @return 0 for success, else an error code, including an error if not the expected tag
  */
 ndn_Error ndn_BinaryXmlDecoder_readTimeMillisecondsDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, double *milliseconds);
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, ndn_MillisecondsSince1970 *milliseconds);
 
 /**
  * Peek at the next element, and if it has the expectedTag then call ndn_BinaryXmlDecoder_readTimeMillisecondsDTagElement.
@@ -167,7 +167,7 @@ ndn_Error ndn_BinaryXmlDecoder_readTimeMillisecondsDTagElement
  * @return 0 for success, else an error code
  */
 ndn_Error ndn_BinaryXmlDecoder_readOptionalTimeMillisecondsDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, double *milliseconds);
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, ndn_MillisecondsSince1970 *milliseconds);
 
 /**
  * Interpret the bytes as an unsigned big endian integer and convert to a double. Don't check for overflow.

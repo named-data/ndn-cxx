@@ -9,13 +9,26 @@
 #include <ndn-cpp/common.hpp>
 #include <ndn-cpp/interest.hpp>
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreorder"
+#pragma clang diagnostic ignored "-Wtautological-compare"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-function"
+#elif __GNUC__
+#pragma GCC diagnostic ignored "-Wreorder"
+#pragma GCC diagnostic ignored "-Wtautological-compare"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 #include <cryptopp/osrng.h>
 
 using namespace std;
 
 namespace ndn {
 
-uint32_t
+const uint32_t&
 Interest::getNonce() const
 {
   static CryptoPP::AutoSeededRandomPool rng;

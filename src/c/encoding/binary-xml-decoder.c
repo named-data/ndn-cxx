@@ -293,7 +293,7 @@ ndn_Error ndn_BinaryXmlDecoder_readOptionalUnsignedIntegerDTagElement
 }
 
 ndn_Error ndn_BinaryXmlDecoder_readTimeMillisecondsDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, double *milliseconds)
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, ndn_MillisecondsSince1970 *milliseconds)
 {
   ndn_Error error;
   struct ndn_Blob bytes;
@@ -305,7 +305,7 @@ ndn_Error ndn_BinaryXmlDecoder_readTimeMillisecondsDTagElement
 }
 
 ndn_Error ndn_BinaryXmlDecoder_readOptionalTimeMillisecondsDTagElement
-  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, double *milliseconds)
+  (struct ndn_BinaryXmlDecoder *self, unsigned int expectedTag, ndn_MillisecondsSince1970 *milliseconds)
 {
   int gotExpectedTag;
   ndn_Error error;

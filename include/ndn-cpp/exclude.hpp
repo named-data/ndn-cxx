@@ -95,6 +95,12 @@ public:
    */
   inline bool
   empty () const;
+
+  /**
+   * @brief Clear the exclude filter
+   */
+  inline void
+  clear();
   
   /**
    * @brief Get number of exclude terms
@@ -176,6 +182,13 @@ Exclude::empty () const
 {
   return m_exclude.empty ();
 }
+
+inline void
+Exclude::clear ()
+{
+  m_exclude.clear ();
+}
+
 
 inline size_t
 Exclude::size () const
