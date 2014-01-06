@@ -8,7 +8,6 @@
 
 #include <math.h>
 #include "../../c/util/time.h"
-#include <ndn-cpp/security/security-exception.hpp>
 #include <ndn-cpp/security/identity/identity-storage.hpp>
 
 using namespace std;
@@ -33,7 +32,7 @@ IdentityStorage::getNewKeyName (const Name& identityName, bool useKsk)
   Name keyName = Name(identityName).append(keyIdStr);
 
   if (doesKeyExist(keyName))
-    throw SecurityException("Key name already exists");
+    throw Error("Key name already exists");
 
   return keyName;
 }
