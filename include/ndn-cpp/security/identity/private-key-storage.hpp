@@ -55,12 +55,10 @@ public:
    */  
   virtual Block
   sign(const uint8_t *data, size_t dataLength,
-       const Signature &signature,
        const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
 
-  virtual Block
-  sign(const Data &data,
-       const Signature &signature,
+  virtual void
+  sign(Data &data,
        const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
   
   /**

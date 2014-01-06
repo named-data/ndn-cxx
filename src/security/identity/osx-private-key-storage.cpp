@@ -11,11 +11,14 @@
 
 #include <fstream>
 #include <sstream>
-#include <CoreFoundation/CoreFoundation.h>
 
 #include "../../util/logging.hpp"
-#include <ndn-cpp/security/identity/osx-private-key-storage.hpp>
-#include <ndn-cpp/security/security-exception.hpp>
+#include "osx-private-key-storage.hpp"
+#include "../certificate/public-key.hpp"
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <Security/Security.h>
+#include <CoreServices/CoreServices.h>
 
 using namespace std;
 
@@ -23,31 +26,107 @@ INIT_LOGGER("ndn.OSXPrivateKeyStorage");
 
 namespace ndn
 {
+  class OSXPrivateKeyStorage::Impl {
+  public:
+    Impl(const std::string &keychainName)
+      : keyChainName_ ("" == keychainName ?  "NDN.keychain" : keychainName)
+    {
+    }
+    
+    /**
+     * convert NDN name of a key to internal name of the key
+     * @param keyName the NDN name of the key
+     * @param keyClass the class of the key
+     * @return the internal key name
+     */
+    std::string 
+    toInternalKeyName(const Name & keyName, KeyClass keyClass);
+  
+    /**
+     * Get key
+     * @param keyName the name of the key
+     * @param keyClass the class of the key
+     * @returns pointer to the key
+     */
+    SecKeychainItemRef 
+    getKey(const Name & keyName, KeyClass keyClass);
+        
+    /**
+     * convert keyType to MAC OS symmetric key key type
+     * @param keyType
+     * @returns MAC OS key type
+     */
+    const CFTypeRef 
+    getSymKeyType(KeyType keyType);
+  
+    /**
+     * convert keyType to MAC OS asymmetirc key type
+     * @param keyType
+     * @returns MAC OS key type
+     */
+    const CFTypeRef 
+    getAsymKeyType(KeyType keyType);
+  
+    /**
+     * convert keyClass to MAC OS key class
+     * @param keyClass
+     * @returns MAC OS key class
+     */
+    const CFTypeRef 
+    getKeyClass(KeyClass keyClass);
+  
+    /**
+     * convert digestAlgo to MAC OS algorithm id
+     * @param digestAlgo
+     * @returns MAC OS algorithm id
+     */
+    const CFStringRef 
+    getDigestAlgorithm(DigestAlgorithm digestAlgo);
+  
+    /**
+     * get the digest size of the corresponding algorithm
+     * @param digestAlgo the digest algorithm
+     * @return digest size
+     */
+    long 
+    getDigestSize(DigestAlgorithm digestAlgo);
+
+    ///////////////////////////////////////////////
+    // everything here is public, including data //
+    ///////////////////////////////////////////////
+  public:
+    const std::string keyChainName_;
+    SecKeychainRef keyChainRef_;
+    SecKeychainRef originalDefaultKeyChain_;
+  };
+
+
+
   OSXPrivateKeyStorage::OSXPrivateKeyStorage(const string & keychainName)
-    : keyChainName_("" == keychainName ?  "NDN.keychain" : keychainName)
+    : impl_(new Impl(keychainName))
   {
-    OSStatus res = SecKeychainCreate(keyChainName_.c_str(), //Keychain path
+    OSStatus res = SecKeychainCreate(impl_->keyChainName_.c_str(), //Keychain path
                                       0,                       //Keychain password length
                                       NULL,                    //Keychain password
                                       true,                    //User prompt
                                       NULL,                    //Initial access of Keychain
-                                      &keyChainRef_);         //Keychain reference
+                                      &impl_->keyChainRef_);   //Keychain reference
 
     if (res == errSecDuplicateKeychain)
-      res = SecKeychainOpen(keyChainName_.c_str(),
-                             &keyChainRef_);
+      res = SecKeychainOpen(impl_->keyChainName_.c_str(),
+                            &impl_->keyChainRef_);
 
     if (res != errSecSuccess){
       _LOG_DEBUG("Fail to initialize keychain ref: " << res);
-      throw SecurityException("Fail to initialize keychain ref");
+      throw Error("Fail to initialize keychain ref");
     }
 
-    res = SecKeychainCopyDefault(&originalDefaultKeyChain_);
+    res = SecKeychainCopyDefault(&impl_->originalDefaultKeyChain_);
 
-    res = SecKeychainSetDefault(keyChainRef_);
+    res = SecKeychainSetDefault(impl_->keyChainRef_);
     if (res != errSecSuccess){
       _LOG_DEBUG("Fail to set default keychain: " << res);
-      throw SecurityException("Fail to set default keychain");
+      throw Error("Fail to set default keychain");
     }
   }
 
@@ -61,10 +140,10 @@ namespace ndn
     
     if(doesKeyExist(keyName, KEY_CLASS_PUBLIC)){
       _LOG_DEBUG("keyName has existed");
-      throw SecurityException("keyName has existed");
+      throw Error("keyName has existed");
     }
 
-    string keyNameUri = toInternalKeyName(keyName, KEY_CLASS_PUBLIC);
+    string keyNameUri = impl_->toInternalKeyName(keyName, KEY_CLASS_PUBLIC);
 
     SecKeyRef publicKey, privateKey;
 
@@ -77,7 +156,7 @@ namespace ndn
                                                              &kCFTypeDictionaryKeyCallBacks,
                                                              NULL);
 
-    CFDictionaryAddValue(attrDict, kSecAttrKeyType, getAsymKeyType(keyType));
+    CFDictionaryAddValue(attrDict, kSecAttrKeyType, impl_->getAsymKeyType(keyType));
     CFDictionaryAddValue(attrDict, kSecAttrKeySizeInBits, CFNumberCreate(NULL, kCFNumberIntType, &keySize));
     CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
 
@@ -88,7 +167,7 @@ namespace ndn
 
     if (res != errSecSuccess){
       _LOG_DEBUG("Fail to create a key pair: " << res);
-      throw SecurityException("Fail to create a key pair");
+      throw Error("Fail to create a key pair");
     }
   }
 
@@ -97,9 +176,9 @@ namespace ndn
   {
 
     if(doesKeyExist(keyName, KEY_CLASS_SYMMETRIC))
-        throw SecurityException("keyName has existed!");
+        throw Error("keyName has existed!");
 
-    string keyNameUri =  toInternalKeyName(keyName, KEY_CLASS_SYMMETRIC);
+    string keyNameUri =  impl_->toInternalKeyName(keyName, KEY_CLASS_SYMMETRIC);
 
     CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(kCFAllocatorDefault,
                                                                 0,
@@ -110,7 +189,7 @@ namespace ndn
                                                      keyNameUri.c_str(), 
                                                      kCFStringEncodingUTF8);
 
-    CFDictionaryAddValue(attrDict, kSecAttrKeyType, getSymKeyType(keyType));
+    CFDictionaryAddValue(attrDict, kSecAttrKeyType, impl_->getSymKeyType(keyType));
     CFDictionaryAddValue(attrDict, kSecAttrKeySizeInBits, CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &keySize));
     CFDictionaryAddValue(attrDict, kSecAttrIsPermanent, kCFBooleanTrue);
     CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
@@ -120,14 +199,15 @@ namespace ndn
     SecKeyRef symmetricKey = SecKeyGenerateSymmetric(attrDict, &error);
 
     if (error) 
-        throw SecurityException("Fail to create a symmetric key");
+        throw Error("Fail to create a symmetric key");
   }
 
-  ptr_lib::shared_ptr<PublicKey> OSXPrivateKeyStorage::getPublicKey(const Name & keyName)
+  ptr_lib::shared_ptr<PublicKey>
+  OSXPrivateKeyStorage::getPublicKey(const Name & keyName)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::getPublickey");
 
-    SecKeychainItemRef publicKey = getKey(keyName, KEY_CLASS_PUBLIC);
+    SecKeychainItemRef publicKey = impl_->getKey(keyName, KEY_CLASS_PUBLIC);
 
     CFDataRef exportedKey;
 
@@ -136,59 +216,78 @@ namespace ndn
                                   0,
                                   NULL,
                                   &exportedKey);
-    
-    Blob blob(CFDataGetBytePtr(exportedKey), CFDataGetLength(exportedKey));
 
-    return PublicKey::fromDer(blob);
+    return ptr_lib::make_shared<PublicKey>(CFDataGetBytePtr(exportedKey), CFDataGetLength(exportedKey));
   }
 
-  Blob OSXPrivateKeyStorage::sign(const uint8_t *data, size_t dataLength, const Name & keyName, DigestAlgorithm digestAlgo)
+  Block
+  OSXPrivateKeyStorage::sign(const uint8_t *data, size_t dataLength,
+                             const Name& keyName, DigestAlgorithm digestAlgorithm/* = DIGEST_ALGORITHM_SHA256*/)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::Sign");
     
-    CFDataRef dataRef = CFDataCreate(NULL,
-                                      reinterpret_cast<const unsigned char*>(data),
-                                      dataLength
-                                      );
+    CFDataRef dataRef = CFDataCreateWithBytesNoCopy(NULL,
+                                                    data,
+                                                    dataLength,
+                                                    kCFAllocatorNull
+                                                    );
 
-    SecKeyRef privateKey = (SecKeyRef)getKey(keyName, KEY_CLASS_PRIVATE);
+    SecKeyRef privateKey = (SecKeyRef)impl_->getKey(keyName, KEY_CLASS_PRIVATE);
     
     CFErrorRef error;
     SecTransformRef signer = SecSignTransformCreate((SecKeyRef)privateKey, &error);
-    if (error) throw SecurityException("Fail to create signer");
-    
+    if (error) throw Error("Fail to create signer");
+
+    // Set input
     Boolean set_res = SecTransformSetAttribute(signer,
                                                kSecTransformInputAttributeName,
                                                dataRef,
                                                &error);
-    if (error) throw SecurityException("Fail to configure input of signer");
+    if (error) throw Error("Fail to configure input of signer");
 
+    // Enable use of padding
+    SecTransformSetAttribute(
+                             signer,
+                             kSecPaddingKey,
+                             kSecPaddingPKCS1Key,
+                             &error);
+    if (error) throw Error("Fail to configure digest algorithm of signer");
+
+    // Set padding type
     set_res = SecTransformSetAttribute(signer,
                                        kSecDigestTypeAttribute,
-                                       getDigestAlgorithm(digestAlgo),
+                                       impl_->getDigestAlgorithm(digestAlgorithm),
                                        &error);
-    if (error) throw SecurityException("Fail to configure digest algorithm of signer");
+    if (error) throw Error("Fail to configure digest algorithm of signer");
 
-    long digestSize = getDigestSize(digestAlgo);
-
+    // Set padding attribute
+    long digestSize = impl_->getDigestSize(digestAlgorithm);
     set_res = SecTransformSetAttribute(signer,
                                        kSecDigestLengthAttribute,
                                        CFNumberCreate(NULL, kCFNumberLongType, &digestSize),
                                        &error);
-    if (error) throw SecurityException("Fail to configure digest size of signer");
+    if (error) throw Error("Fail to configure digest size of signer");
 
+    // Actually sign
     CFDataRef signature = (CFDataRef) SecTransformExecute(signer, &error);
     if (error) {
       CFShow(error);
-      throw SecurityException("Fail to sign data");
+      throw Error("Fail to sign data");
     }
 
-    if (!signature) throw SecurityException("Signature is NULL!\n");
+    if (!signature) throw Error("Signature is NULL!\n");
 
-    return Blob(CFDataGetBytePtr(signature), CFDataGetLength(signature));
+    return Block(Tlv::SignatureValue, ptr_lib::make_shared<Buffer>(CFDataGetBytePtr(signature), CFDataGetLength(signature)));
   }
 
-  Blob OSXPrivateKeyStorage::decrypt(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
+  void
+  OSXPrivateKeyStorage::sign(Data &data,
+                             const Name& keyName, DigestAlgorithm digestAlgorithm/* = DIGEST_ALGORITHM_SHA256 */)
+  {
+  }
+
+  ConstBufferPtr
+  OSXPrivateKeyStorage::decrypt(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::Decrypt");
 
@@ -205,34 +304,35 @@ namespace ndn
 
     // _LOG_DEBUG("CreateData");
     
-    SecKeyRef decryptKey = (SecKeyRef)getKey(keyName, keyClass);
+    SecKeyRef decryptKey = (SecKeyRef)impl_->getKey(keyName, keyClass);
 
     // _LOG_DEBUG("GetKey");
 
     CFErrorRef error;
     SecTransformRef decrypt = SecDecryptTransformCreate(decryptKey, &error);
-    if (error) throw SecurityException("Fail to create decrypt");
+    if (error) throw Error("Fail to create decrypt");
 
     Boolean set_res = SecTransformSetAttribute(decrypt,
                                                kSecTransformInputAttributeName,
                                                dataRef,
                                                &error);
-    if (error) throw SecurityException("Fail to configure decrypt");
+    if (error) throw Error("Fail to configure decrypt");
 
     CFDataRef output = (CFDataRef) SecTransformExecute(decrypt, &error);
     if (error)
       {
         CFShow(error);
-        throw SecurityException("Fail to decrypt data");
+        throw Error("Fail to decrypt data");
       }
-    if (!output) throw SecurityException("Output is NULL!\n");
+    if (!output) throw Error("Output is NULL!\n");
 
-    return Blob(CFDataGetBytePtr(output), CFDataGetLength(output));
+    return ptr_lib::make_shared<Buffer>(CFDataGetBytePtr(output), CFDataGetLength(output));
   }
   
-  bool OSXPrivateKeyStorage::setACL(const Name & keyName, KeyClass keyClass, int acl, const string & appPath)
+  bool
+  OSXPrivateKeyStorage::setACL(const Name & keyName, KeyClass keyClass, int acl, const string & appPath)
   {
-    SecKeychainItemRef privateKey = getKey(keyName, keyClass);
+    SecKeychainItemRef privateKey = impl_->getKey(keyName, keyClass);
     
     SecAccessRef accRef;
     OSStatus acc_res = SecKeychainItemCopyAccess(privateKey, &accRef);
@@ -279,53 +379,55 @@ namespace ndn
     return true;
   }
 
-  bool OSXPrivateKeyStorage::verifyData(const Name & keyName, const Blob & pData, const Blob & pSig, DigestAlgorithm digestAlgo)
-  {
-    _LOG_TRACE("OSXPrivateKeyStorage::Verify");
+  // bool
+  // OSXPrivateKeyStorage::verifyData(const Name & keyName, const Blob & pData, const Blob & pSig, DigestAlgorithm digestAlgo)
+  // {
+  //   _LOG_TRACE("OSXPrivateKeyStorage::Verify");
     
-    CFDataRef dataRef = CFDataCreate(NULL,
-                                      reinterpret_cast<const unsigned char*>(pData.buf()),
-                                      pData.size());
+  //   CFDataRef dataRef = CFDataCreate(NULL,
+  //                                     reinterpret_cast<const unsigned char*>(pData.buf()),
+  //                                     pData.size());
 
-    CFDataRef sigRef = CFDataCreate(NULL,
-                                     reinterpret_cast<const unsigned char*>(pSig.buf()),
-                                     pSig.size());
+  //   CFDataRef sigRef = CFDataCreate(NULL,
+  //                                    reinterpret_cast<const unsigned char*>(pSig.buf()),
+  //                                    pSig.size());
 
-    SecKeyRef publicKey = (SecKeyRef)getKey(keyName, KEY_CLASS_PUBLIC);
+  //   SecKeyRef publicKey = (SecKeyRef)impl_->getKey(keyName, KEY_CLASS_PUBLIC);
     
-    CFErrorRef error;
-    SecTransformRef verifier = SecVerifyTransformCreate(publicKey, sigRef, &error);
-    if (error) throw SecurityException("Fail to create verifier");
+  //   CFErrorRef error;
+  //   SecTransformRef verifier = SecVerifyTransformCreate(publicKey, sigRef, &error);
+  //   if (error) throw Error("Fail to create verifier");
     
-    Boolean set_res = SecTransformSetAttribute(verifier,
-                                               kSecTransformInputAttributeName,
-                                               dataRef,
-                                               &error);
-    if (error) throw SecurityException("Fail to configure input of verifier");
+  //   Boolean set_res = SecTransformSetAttribute(verifier,
+  //                                              kSecTransformInputAttributeName,
+  //                                              dataRef,
+  //                                              &error);
+  //   if (error) throw Error("Fail to configure input of verifier");
 
-    set_res = SecTransformSetAttribute(verifier,
-                                       kSecDigestTypeAttribute,
-                                       getDigestAlgorithm(digestAlgo),
-                                       &error);
-    if (error) throw SecurityException("Fail to configure digest algorithm of verifier");
+  //   set_res = SecTransformSetAttribute(verifier,
+  //                                      kSecDigestTypeAttribute,
+  //                                      impl_->getDigestAlgorithm(digestAlgo),
+  //                                      &error);
+  //   if (error) throw Error("Fail to configure digest algorithm of verifier");
 
-    long digestSize = getDigestSize(digestAlgo);
-    set_res = SecTransformSetAttribute(verifier,
-                                       kSecDigestLengthAttribute,
-                                       CFNumberCreate(NULL, kCFNumberLongType, &digestSize),
-                                       &error);
-    if (error) throw SecurityException("Fail to configure digest size of verifier");
+  //   long digestSize = impl_->getDigestSize(digestAlgo);
+  //   set_res = SecTransformSetAttribute(verifier,
+  //                                      kSecDigestLengthAttribute,
+  //                                      CFNumberCreate(NULL, kCFNumberLongType, &digestSize),
+  //                                      &error);
+  //   if (error) throw Error("Fail to configure digest size of verifier");
 
-    CFBooleanRef result = (CFBooleanRef) SecTransformExecute(verifier, &error);
-    if (error) throw SecurityException("Fail to verify data");
+  //   CFBooleanRef result = (CFBooleanRef) SecTransformExecute(verifier, &error);
+  //   if (error) throw Error("Fail to verify data");
 
-    if (result == kCFBooleanTrue)
-      return true;
-    else
-      return false;
-  }
+  //   if (result == kCFBooleanTrue)
+  //     return true;
+  //   else
+  //     return false;
+  // }
 
-  Blob OSXPrivateKeyStorage::encrypt(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
+  ConstBufferPtr
+  OSXPrivateKeyStorage::encrypt(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::Encrypt");
 
@@ -340,31 +442,32 @@ namespace ndn
                                       dataLength
                                       );
     
-    SecKeyRef encryptKey = (SecKeyRef)getKey(keyName, keyClass);
+    SecKeyRef encryptKey = (SecKeyRef)impl_->getKey(keyName, keyClass);
 
     CFErrorRef error;
     SecTransformRef encrypt = SecEncryptTransformCreate(encryptKey, &error);
-    if (error) throw SecurityException("Fail to create encrypt");
+    if (error) throw Error("Fail to create encrypt");
 
     Boolean set_res = SecTransformSetAttribute(encrypt,
                                                kSecTransformInputAttributeName,
                                                dataRef,
                                                &error);
-    if (error) throw SecurityException("Fail to configure encrypt");
+    if (error) throw Error("Fail to configure encrypt");
 
     CFDataRef output = (CFDataRef) SecTransformExecute(encrypt, &error);
-    if (error) throw SecurityException("Fail to encrypt data");
+    if (error) throw Error("Fail to encrypt data");
 
-    if (!output) throw SecurityException("Output is NULL!\n");
+    if (!output) throw Error("Output is NULL!\n");
 
-    return Blob(CFDataGetBytePtr(output), CFDataGetLength(output));
+    return ptr_lib::make_shared<Buffer> (CFDataGetBytePtr(output), CFDataGetLength(output));
   }
 
-  bool OSXPrivateKeyStorage::doesKeyExist(const Name & keyName, KeyClass keyClass)
+  bool
+  OSXPrivateKeyStorage::doesKeyExist(const Name & keyName, KeyClass keyClass)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::doesKeyExist");
 
-    string keyNameUri = toInternalKeyName(keyName, keyClass);
+    string keyNameUri = impl_->toInternalKeyName(keyName, keyClass);
 
     CFStringRef keyLabel = CFStringCreateWithCString(NULL, 
                                                      keyNameUri.c_str(), 
@@ -375,7 +478,7 @@ namespace ndn
                                                                 &kCFTypeDictionaryKeyCallBacks,
                                                                 NULL);
 
-    CFDictionaryAddValue(attrDict, kSecAttrKeyClass, getKeyClass(keyClass));
+    CFDictionaryAddValue(attrDict, kSecAttrKeyClass, impl_->getKeyClass(keyClass));
     CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
     CFDictionaryAddValue(attrDict, kSecReturnRef, kCFBooleanTrue);
     
@@ -389,7 +492,13 @@ namespace ndn
 
   }
 
-  SecKeychainItemRef OSXPrivateKeyStorage::getKey(const Name & keyName, KeyClass keyClass)
+
+  ////////////////////////////////
+  // OSXPrivateKeyStorage::Impl //
+  ////////////////////////////////
+
+  SecKeychainItemRef
+  OSXPrivateKeyStorage::Impl::getKey(const Name & keyName, KeyClass keyClass)
   {
     string keyNameUri = toInternalKeyName(keyName, keyClass);
 
@@ -419,7 +528,7 @@ namespace ndn
       return keyItem;
   }
   
-  string OSXPrivateKeyStorage::toInternalKeyName(const Name & keyName, KeyClass keyClass)
+  string OSXPrivateKeyStorage::Impl::toInternalKeyName(const Name & keyName, KeyClass keyClass)
   {
     string keyUri = keyName.toUri();
 
@@ -429,7 +538,7 @@ namespace ndn
       return keyUri;
   }
 
-  const CFTypeRef OSXPrivateKeyStorage::getAsymKeyType(KeyType keyType)
+  const CFTypeRef OSXPrivateKeyStorage::Impl::getAsymKeyType(KeyType keyType)
   {
     switch(keyType){
     case KEY_TYPE_RSA:
@@ -440,7 +549,7 @@ namespace ndn
     }
   }
 
-  const CFTypeRef OSXPrivateKeyStorage::getSymKeyType(KeyType keyType)
+  const CFTypeRef OSXPrivateKeyStorage::Impl::getSymKeyType(KeyType keyType)
   {
     switch(keyType){
     case KEY_TYPE_AES:
@@ -451,7 +560,7 @@ namespace ndn
     }
   }
 
-  const CFTypeRef OSXPrivateKeyStorage::getKeyClass(KeyClass keyClass)
+  const CFTypeRef OSXPrivateKeyStorage::Impl::getKeyClass(KeyClass keyClass)
   {
     switch(keyClass){
     case KEY_CLASS_PRIVATE:
@@ -466,7 +575,7 @@ namespace ndn
     }
   }
 
-  const CFStringRef OSXPrivateKeyStorage::getDigestAlgorithm(DigestAlgorithm digestAlgo)
+  const CFStringRef OSXPrivateKeyStorage::Impl::getDigestAlgorithm(DigestAlgorithm digestAlgo)
   {
     switch(digestAlgo){
     // case DIGEST_MD2:
@@ -483,7 +592,7 @@ namespace ndn
     }
   }
 
-  long OSXPrivateKeyStorage::getDigestSize(DigestAlgorithm digestAlgo)
+  long OSXPrivateKeyStorage::Impl::getDigestSize(DigestAlgorithm digestAlgo)
   {
     switch(digestAlgo){
     case DIGEST_ALGORITHM_SHA256:

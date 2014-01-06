@@ -67,10 +67,10 @@ public:
    * @return The signature, or a null pointer if signing fails.
    */  
   virtual Block 
-  sign(const uint8_t *data, size_t dataLength, const Signature &signature, const Name& keyName, DigestAlgorithm digestAlgorithm);
+  sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
 
-  virtual Block 
-  sign(const Data &data, const Signature &signature, const Name& keyName, DigestAlgorithm digestAlgorithm);
+  virtual void 
+  sign(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm);
   
   /**
    * Decrypt data.

@@ -228,9 +228,10 @@ IdentityManager::signByCertificate(const uint8_t* buffer, size_t bufferLength, c
 
   SignatureSha256WithRsa signature;
   signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
-
+  
   // For temporary usage, we support RSA + SHA256 only, but will support more.
-  signature.setValue(tpm().sign(buffer, bufferLength, signature, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256));
+  signature.setValue
+    (tpm().sign(buffer, bufferLength, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256));
   return signature;
 }
 
@@ -243,10 +244,10 @@ IdentityManager::signByCertificate(Data &data, const Name &certificateName)
 
   SignatureSha256WithRsa signature;
   signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
+  data.setSignature(signature);
 
   // For temporary usage, we support RSA + SHA256 only, but will support more.
-  signature.setValue(tpm().sign(data, signature, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256));
-  data.setSignature(signature);
+  tpm().sign(data, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
 }
 
 void
@@ -254,10 +255,10 @@ IdentityManager::signByCertificate(Data& data, const IdentityCertificate& certif
 {
   SignatureSha256WithRsa signature;
   signature.setKeyLocator(certificate.getName().getPrefix(-1));
+  data.setSignature(signature);
 
   // For temporary usage, we support RSA + SHA256 only, but will support more.
-  signature.setValue(tpm().sign(data, signature, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256));
-  data.setSignature(signature);
+  tpm().sign(data, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
 }
 
 void
@@ -265,10 +266,10 @@ IdentityManager::selfSign (IdentityCertificate& cert)
 {
   SignatureSha256WithRsa signature;
   signature.setKeyLocator(cert.getName().getPrefix(cert.getName().size()-1)); // implicit conversion should take care
+  cert.setSignature(signature);
 
   // For temporary usage, we support RSA + SHA256 only, but will support more.
-  signature.setValue(tpm().sign(cert, signature, cert.getPublicKeyName(), DIGEST_ALGORITHM_SHA256));
-  cert.setSignature(signature);
+  tpm().sign(cert, cert.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
 }
 
 Name

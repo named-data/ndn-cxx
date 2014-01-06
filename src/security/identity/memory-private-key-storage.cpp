@@ -5,26 +5,56 @@
  * See COPYING for copyright and distribution information.
  */
 
-#if 1
-#include <stdexcept>
-#endif
-#include "../../c/util/crypto.h"
-#include <ndn-cpp/security/security-exception.hpp>
-#include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
+#include "memory-private-key-storage.hpp"
+#include "../certificate/public-key.hpp"
+#include <openssl/ssl.h>
+#include <openssl/sha.h>
+#include <openssl/rsa.h>
 
 using namespace std;
 
 namespace ndn {
 
+/**
+ * RsaPrivateKey is a simple class to hold an RSA private key.
+ */
+class MemoryPrivateKeyStorage::RsaPrivateKey {
+public:
+  RsaPrivateKey(const uint8_t *keyDer, size_t keyDerLength)
+  {
+    // Use a temporary pointer since d2i updates it.
+    const uint8_t *derPointer = keyDer;
+    privateKey_ = d2i_RSAPrivateKey(NULL, &derPointer, keyDerLength);
+    if (!privateKey_)
+      throw Error("RsaPrivateKey constructor: Error decoding private key DER");
+  }
+    
+  ~RsaPrivateKey()
+  {
+    if (privateKey_)
+      RSA_free(privateKey_);
+  }
+    
+  rsa_st *
+  getPrivateKey()
+  {
+    return privateKey_;
+  }
+    
+private:
+  rsa_st * privateKey_;
+};
+
 MemoryPrivateKeyStorage::~MemoryPrivateKeyStorage()
 {
 }
 
-void MemoryPrivateKeyStorage::setKeyPairForKeyName
-  (const Name& keyName, uint8_t *publicKeyDer, size_t publicKeyDerLength, uint8_t *privateKeyDer, 
-   size_t privateKeyDerLength)
+void
+MemoryPrivateKeyStorage::setKeyPairForKeyName(const Name& keyName,
+                                              uint8_t *publicKeyDer, size_t publicKeyDerLength,
+                                              uint8_t *privateKeyDer, size_t privateKeyDerLength)
 {
-  publicKeyStore_[keyName.toUri()] = PublicKey::fromDer(Blob(publicKeyDer, publicKeyDerLength));
+  publicKeyStore_[keyName.toUri()]  = ptr_lib::make_shared<PublicKey>(publicKeyDer, publicKeyDerLength);
   privateKeyStore_[keyName.toUri()] = ptr_lib::make_shared<RsaPrivateKey>(privateKeyDer, privateKeyDerLength);
 }
 
@@ -32,54 +62,105 @@ void
 MemoryPrivateKeyStorage::generateKeyPair(const Name& keyName, KeyType keyType, int keySize)
 {
 #if 1
-  throw runtime_error("MemoryPrivateKeyStorage::generateKeyPair not implemented");
+  throw Error("MemoryPrivateKeyStorage::generateKeyPair not implemented");
 #endif
 }
 
 ptr_lib::shared_ptr<PublicKey> 
 MemoryPrivateKeyStorage::getPublicKey(const Name& keyName)
 {
-  map<string, ptr_lib::shared_ptr<PublicKey> >::iterator publicKey = publicKeyStore_.find(keyName.toUri());
+  PublicKeyStore::iterator publicKey = publicKeyStore_.find(keyName.toUri());
   if (publicKey == publicKeyStore_.end())
-    throw SecurityException(string("MemoryPrivateKeyStorage: Cannot find public key ") + keyName.toUri());
+    throw Error(string("MemoryPrivateKeyStorage: Cannot find public key ") + keyName.toUri());
   return publicKey->second;
 }
 
-Blob 
-MemoryPrivateKeyStorage::sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm)
+Block 
+MemoryPrivateKeyStorage::sign(const uint8_t *data, size_t dataLength,
+                              const Name& keyName,
+                              DigestAlgorithm digestAlgorithm)
 {
   if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
-    return Blob();
+    return ConstBufferPtr();
 
-  uint8_t digest[SHA256_DIGEST_LENGTH];
-  ndn_digestSha256(data, dataLength, digest);
-  // TODO: use RSA_size to get the proper size of the signature buffer.
-  uint8_t signatureBits[1000];
-  unsigned int signatureBitsLength;
-  
   // Find the private key and sign.
-  map<string, ptr_lib::shared_ptr<RsaPrivateKey> >::iterator privateKey = privateKeyStore_.find(keyName.toUri());
+  PrivateKeyStore::iterator privateKey = privateKeyStore_.find(keyName.toUri());
   if (privateKey == privateKeyStore_.end())
-    throw SecurityException(string("MemoryPrivateKeyStorage: Cannot find private key ") + keyName.toUri());
-  if (!RSA_sign(NID_sha256, digest, sizeof(digest), signatureBits, &signatureBitsLength, privateKey->second->getPrivateKey()))
-    throw SecurityException("Error in RSA_sign");
+    throw Error(string("MemoryPrivateKeyStorage: Cannot find private key ") + keyName.toUri());
   
-  return Blob(signatureBits, (size_t)signatureBitsLength);
+  uint8_t digest[SHA256_DIGEST_LENGTH];
+  SHA256_CTX sha256;
+  SHA256_Init(&sha256);
+  SHA256_Update(&sha256, data, dataLength);
+  SHA256_Final(digest, &sha256);
+
+  BufferPtr signatureBuffer = ptr_lib::make_shared<Buffer>();
+  signatureBuffer->resize(RSA_size(privateKey->second->getPrivateKey()));
+  
+  unsigned int signatureBitsLength;  
+  if (!RSA_sign(NID_sha256, digest, sizeof(digest),
+                signatureBuffer->buf(),
+                &signatureBitsLength,
+                privateKey->second->getPrivateKey()))
+    {
+      throw Error("Error in RSA_sign");
+    }
+
+  return Block(Tlv::SignatureValue, signatureBuffer);
 }
 
-Blob 
+void
+MemoryPrivateKeyStorage::sign(Data &d,
+                              const Name& keyName,
+                              DigestAlgorithm digestAlgorithm)
+{
+  if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
+    Error("MemoryPrivateKeyStorage::sign only SHA256 digest is supported");
+
+  // Find the private key and sign.
+  PrivateKeyStore::iterator privateKey = privateKeyStore_.find(keyName.toUri());
+  if (privateKey == privateKeyStore_.end())
+    throw Error(string("MemoryPrivateKeyStorage: Cannot find private key ") + keyName.toUri());
+  
+  uint8_t digest[SHA256_DIGEST_LENGTH];
+  SHA256_CTX sha256;
+  SHA256_Init(&sha256);
+
+  SHA256_Update(&sha256, d.getName().    wireEncode().wire(), d.getName().    wireEncode().size());
+  SHA256_Update(&sha256, d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size());
+  SHA256_Update(&sha256, d.getContent().              wire(), d.getContent().              size());
+  SHA256_Update(&sha256, d.getSignature().getInfo().  wire(), d.getSignature().getInfo().  size());
+  
+  SHA256_Final(digest, &sha256);
+
+  BufferPtr signatureBuffer = ptr_lib::make_shared<Buffer>();
+  signatureBuffer->resize(RSA_size(privateKey->second->getPrivateKey()));
+  
+  unsigned int signatureBitsLength;  
+  if (!RSA_sign(NID_sha256, digest, sizeof(digest),
+                signatureBuffer->buf(),
+                &signatureBitsLength,
+                privateKey->second->getPrivateKey()))
+    {
+      throw Error("Error in RSA_sign");
+    }
+
+  d.setSignatureValue(Block(Tlv::SignatureValue, signatureBuffer));
+}
+
+ConstBufferPtr
 MemoryPrivateKeyStorage::decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
 {
 #if 1
-  throw runtime_error("MemoryPrivateKeyStorage::decrypt not implemented");
+  throw Error("MemoryPrivateKeyStorage::decrypt not implemented");
 #endif
 }
 
-Blob
+ConstBufferPtr
 MemoryPrivateKeyStorage::encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
 {
 #if 1
-  throw runtime_error("MemoryPrivateKeyStorage::encrypt not implemented");
+  throw Error("MemoryPrivateKeyStorage::encrypt not implemented");
 #endif
 }
 
@@ -87,7 +168,7 @@ void
 MemoryPrivateKeyStorage::generateKey(const Name& keyName, KeyType keyType, int keySize)
 {
 #if 1
-  throw runtime_error("MemoryPrivateKeyStorage::generateKey not implemented");
+  throw Error("MemoryPrivateKeyStorage::generateKey not implemented");
 #endif
 }
 
@@ -101,21 +182,6 @@ MemoryPrivateKeyStorage::doesKeyExist(const Name& keyName, KeyClass keyClass)
   else
     // KEY_CLASS_SYMMETRIC not implemented yet.
     return false;
-}
-
-MemoryPrivateKeyStorage::RsaPrivateKey::RsaPrivateKey(uint8_t *keyDer, size_t keyDerLength)
-{
-  // Use a temporary pointer since d2i updates it.
-  const uint8_t *derPointer = keyDer;
-  privateKey_ = d2i_RSAPrivateKey(NULL, &derPointer, keyDerLength);
-  if (!privateKey_)
-    throw SecurityException("RsaPrivateKey constructor: Error decoding private key DER");
-}
-
-MemoryPrivateKeyStorage::RsaPrivateKey::~RsaPrivateKey()
-{
-  if (privateKey_)
-    RSA_free(privateKey_);
 }
 
 }

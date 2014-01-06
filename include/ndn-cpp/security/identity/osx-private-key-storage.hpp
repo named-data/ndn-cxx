@@ -15,10 +15,6 @@
 #include "../../common.hpp"
 #include "private-key-storage.hpp"
 
-#include <CoreFoundation/CoreFoundation.h>
-#include <Security/Security.h>
-#include <CoreServices/CoreServices.h>
-
 namespace ndn
 {
   
@@ -36,34 +32,22 @@ public:
   virtual 
   ~OSXPrivateKeyStorage();
 
-  /**
-   * Generate a pair of asymmetric keys.
-   * @param keyName The name of the key pair.
-   * @param keyType The type of the key pair, e.g. KEY_TYPE_RSA.
-   * @param keySize The size of the key pair.
-   */
+
+  // From PrivateKeyStorage
   virtual void 
   generateKeyPair(const Name& keyName, KeyType keyType = KEY_TYPE_RSA, int keySize = 2048);
 
-  /**
-   * Get the public key
-   * @param keyName The name of public key.
-   * @return The public key.
-   */
   virtual ptr_lib::shared_ptr<PublicKey> 
   getPublicKey(const Name& keyName);
   
-  /**
-   * Fetch the private key for keyName and sign the data, returning a signature Blob.
-   * @param data Pointer to the input byte array.
-   * @param dataLength The length of data.
-   * @param keyName The name of the signing key.
-   * @param digestAlgorithm the digest algorithm.
-   * @return The signature, or a null pointer if signing fails.
-   */  
-  virtual Blob 
-  sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256);
-      
+  virtual Block
+  sign(const uint8_t *data, size_t dataLength,
+       const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256);
+
+  virtual void
+  sign(Data &data,
+       const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256);
+  
   /**
    * Decrypt data.
    * @param keyName The name of the decrypting key.
@@ -72,7 +56,7 @@ public:
    * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric decryption is used.
    * @return The decrypted data.
    */
-  virtual Blob 
+  virtual ConstBufferPtr 
   decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric = false);
 
   /**
@@ -83,7 +67,7 @@ public:
    * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric decryption is used.
    * @return The encrypted data.
    */
-  virtual Blob
+  virtual ConstBufferPtr
   encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric = false);
 
   /**
@@ -104,6 +88,11 @@ public:
   virtual bool
   doesKeyExist(const Name& keyName, KeyClass keyClass);  
 
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // OSX-specifics
+  ////////////////////////////////////////////////////////////////////////////////////
+  
   /**
    * configure ACL of a particular key
    * @param keyName the name of key
@@ -115,79 +104,20 @@ public:
   bool 
   setACL(const Name & keyName, KeyClass keyClass, int acl, const std::string & appPath);
 
-  /**
-   * verify data (test only)
-   * @param keyName the name of key
-   * @param pData the data to be verified
-   * @param pSig the signature associated with the data
-   * @param digestAlgo digest algorithm
-   * @return true if signature can be verified, otherwise false
-   */
-  bool 
-  verifyData(const Name & keyName, const Blob & pData, const Blob & pSig, DigestAlgorithm digestAlgo = DIGEST_ALGORITHM_SHA256);
+  // /**
+  //  * verify data (test only)
+  //  * @param keyName the name of key
+  //  * @param pData the data to be verified
+  //  * @param pSig the signature associated with the data
+  //  * @param digestAlgo digest algorithm
+  //  * @return true if signature can be verified, otherwise false
+  //  */
+  // bool 
+  // verifyData(const Name & keyName, const Blob & pData, const Blob & pSig, DigestAlgorithm digestAlgo = DIGEST_ALGORITHM_SHA256);
 
  private:
-  /**
-   * convert NDN name of a key to internal name of the key
-   * @param keyName the NDN name of the key
-   * @param keyClass the class of the key
-   * @return the internal key name
-   */
-  std::string 
-  toInternalKeyName(const Name & keyName, KeyClass keyClass);
-
-  /**
-   * Get key
-   * @param keyName the name of the key
-   * @param keyClass the class of the key
-   * @returns pointer to the key
-   */
-  SecKeychainItemRef 
-  getKey(const Name & keyName, KeyClass keyClass);
-      
-  /**
-   * convert keyType to MAC OS symmetric key key type
-   * @param keyType
-   * @returns MAC OS key type
-   */
-  const CFTypeRef 
-  getSymKeyType(KeyType keyType);
-
-  /**
-   * convert keyType to MAC OS asymmetirc key type
-   * @param keyType
-   * @returns MAC OS key type
-   */
-  const CFTypeRef 
-  getAsymKeyType(KeyType keyType);
-
-  /**
-   * convert keyClass to MAC OS key class
-   * @param keyClass
-   * @returns MAC OS key class
-   */
-  const CFTypeRef 
-  getKeyClass(KeyClass keyClass);
-
-  /**
-   * convert digestAlgo to MAC OS algorithm id
-   * @param digestAlgo
-   * @returns MAC OS algorithm id
-   */
-  const CFStringRef 
-  getDigestAlgorithm(DigestAlgorithm digestAlgo);
-
-  /**
-   * get the digest size of the corresponding algorithm
-   * @param digestAlgo the digest algorithm
-   * @return digest size
-   */
-  long 
-  getDigestSize(DigestAlgorithm digestAlgo);
-
-  const std::string keyChainName_;
-  SecKeychainRef keyChainRef_;
-  SecKeychainRef originalDefaultKeyChain_;
+  class Impl;
+  std::auto_ptr<Impl> impl_;
 };
   
 }
