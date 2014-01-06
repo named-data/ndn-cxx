@@ -29,7 +29,9 @@ class KeyChain {
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
 
-  KeyChain(IdentityManager *identityManager, PolicyManager *policyManager);
+  KeyChain(const ptr_lib::shared_ptr<IdentityManager>   &identityManager   = DefaultIdentityManager,
+           const ptr_lib::shared_ptr<PolicyManager>     &policyManager     = DefaultPolicyManager,
+           const ptr_lib::shared_ptr<EncryptionManager> &encryptionManager = DefaultEncryptionManager);
 
   /**
    * @brief Set the Face which will be used to fetch required certificates.
@@ -47,6 +49,9 @@ public:
   inline IdentityManager&
   identities()
   {
+    if (!identityManager_)
+      throw Error("IdentityManager is not assigned to the KeyChain");
+
     return *identityManager_;
   }
 
@@ -57,7 +62,23 @@ public:
   inline PolicyManager&
   policies()
   {
+    if (!policyManager_)
+      throw Error("PolicyManager is not assigned to the KeyChain");
+
     return *policyManager_;
+  }
+
+  /*****************************************
+   *         Encryption Management         *
+   *****************************************/
+
+  inline EncryptionManager&
+  encryption()
+  {
+    if (!encryptionManager_)
+      throw Error("EncryptionManager is not assigned to the KeyChain");
+
+    return *encryptionManager_;
   }
 
   /*****************************************
@@ -70,7 +91,6 @@ public:
    * data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0).
    * @param data The Data object to be signed.  This updates its signature and key locator field and wireEncoding.
    * @param certificateName The certificate name of the key to use for signing.  If omitted, infer the signing identity from the data packet name.
-   * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
   void 
   sign(Data& data, const Name& certificateName);
@@ -91,7 +111,6 @@ public:
    * data.getMetaInfo().setTimestampMilliseconds(time(NULL) * 1000.0).
    * @param data The Data object to be signed.  This updates its signature and key locator field and wireEncoding.
    * @param identityName The identity name for the key to use for signing.  If omitted, infer the signing identity from the data packet name.
-   * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
   void 
   signByIdentity(Data& data, const Name& identityName = Name());
@@ -122,7 +141,12 @@ public:
    *           Encrypt/Decrypt             *
    *****************************************/
   // todo
-  
+
+public:
+  static const ptr_lib::shared_ptr<IdentityManager>   DefaultIdentityManager;
+  static const ptr_lib::shared_ptr<PolicyManager>     DefaultPolicyManager;
+  static const ptr_lib::shared_ptr<EncryptionManager> DefaultEncryptionManager;
+    
 private:
   void
   onCertificateData
@@ -134,9 +158,10 @@ private:
      const ptr_lib::shared_ptr<Data> &data, ptr_lib::shared_ptr<ValidationRequest> nextStep);
 
 private:
-  std::auto_ptr<IdentityManager>   identityManager_;
-  std::auto_ptr<PolicyManager>     policyManager_;
-  // std::auto_ptr<EncryptionManager> encryptionManager_;
+  ptr_lib::shared_ptr<IdentityManager>   identityManager_;
+  ptr_lib::shared_ptr<PolicyManager>     policyManager_;
+  ptr_lib::shared_ptr<EncryptionManager> encryptionManager_;
+
   ptr_lib::shared_ptr<Face>        face_;
   
   const int maxSteps_;

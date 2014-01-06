@@ -26,6 +26,8 @@ namespace ndn
  */
 class BasicIdentityStorage : public IdentityStorage {
 public:
+  struct Error : public IdentityStorage::Error { Error(const std::string &what) : IdentityStorage::Error(what) {} };
+
   BasicIdentityStorage();
   
   /**
@@ -34,6 +36,7 @@ public:
   virtual 
   ~BasicIdentityStorage();
 
+  // from IdentityStorage
   /**
    * Check if the specified identity already exists.
    * @param identityName The identity name.
@@ -71,14 +74,14 @@ public:
    * @param publicKeyDer A blob of the public key DER to be added.
    */
   virtual void 
-  addKey(const Name& keyName, KeyType keyType, const Blob& publicKeyDer);
+  addKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer);
 
   /**
    * Get the public key DER blob from the identity storage.
    * @param keyName The name of the requested public key.
    * @return The DER Blob.  If not found, return a Blob with a null pointer.
    */
-  virtual Blob
+  virtual ptr_lib::shared_ptr<PublicKey>
   getKey(const Name& keyName);
 
   /**
@@ -123,7 +126,7 @@ public:
    * @param allowAny If false, only a valid certificate will be returned, otherwise validity is disregarded.
    * @return The requested certificate.  If not found, return a shared_ptr with a null pointer.
    */
-  virtual ptr_lib::shared_ptr<Data> 
+  virtual ptr_lib::shared_ptr<IdentityCertificate> 
   getCertificate(const Name &certificateName, bool allowAny = false);
 
 

@@ -12,19 +12,6 @@ using namespace std;
 
 namespace ndn {
 
-IdentityCertificate::IdentityCertificate(const Data& data)
-  : Certificate(data)
-{
-  if (!isCorrectName(data.getName()))
-    throw Error("Wrong Identity Certificate Name!");
-  
-  setPublicKeyName();
-}
-
-IdentityCertificate::~IdentityCertificate()
-{
-}
-
 bool
 IdentityCertificate::isCorrectName(const Name& name)
 {
@@ -53,25 +40,18 @@ IdentityCertificate::isCorrectName(const Name& name)
 }
 
 void
-IdentityCertificate::setName(const Name& name)
-{
-  if (!isCorrectName(name))
-    throw Error("Wrong Identity Certificate Name!");
-  
-  Data::setName(name);
-  setPublicKeyName();
-}
-
-void
 IdentityCertificate::setPublicKeyName()
 {
+  if (!isCorrectName(getName()))
+    throw Error("Wrong Identity Certificate Name!");
+  
   publicKeyName_ = certificateNameToPublicKeyName(getName());
 }
 
 bool
 IdentityCertificate::isIdentityCertificate(const Certificate& certificate)
-{ 
-  return isCorrectName(certificate.getName()); 
+{
+  return dynamic_cast<const IdentityCertificate*>(&certificate);
 }
 
 Name

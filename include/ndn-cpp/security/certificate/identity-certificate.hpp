@@ -16,12 +16,13 @@ namespace ndn {
 class IdentityCertificate : public Certificate
 {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   /**
    * The default constructor.
    */
-  IdentityCertificate()
-  {
-  }
+  inline
+  IdentityCertificate();
 
   // Note: The copy constructor works because publicKeyName_ has a copy constructor.
 
@@ -29,29 +30,20 @@ public:
    * Create an IdentityCertificate from the content in the data packet.
    * @param data The data packet with the content to decode.
    */
+  inline
   IdentityCertificate(const Data& data);
-  
-  /**
-   * The copy constructor. 
-   */
-  IdentityCertificate(const IdentityCertificate& identityCertificate);
   
   /**
    * The virtual destructor.
    */
-  virtual 
+  inline virtual 
   ~IdentityCertificate();
   
-  /**
-   * Override the base class method to check that the name is a valid identity certificate name.
-   * @param name The identity certificate name which is copied.
-   * @return This Data so that you can chain calls to update values.
-   */
-  virtual Data &
-  setName(const Name& name);
-
-  Name 
-  getPublicKeyName () const { return publicKeyName_; }
+  inline void
+  wireDecode(const Block &wire);
+  
+  inline const Name &
+  getPublicKeyName () const;
 
   static bool
   isIdentityCertificate(const Certificate& certificate);
@@ -74,6 +66,36 @@ private:
 protected:
   Name publicKeyName_;
 };
+
+inline
+IdentityCertificate::IdentityCertificate()
+{
+}
+
+inline
+IdentityCertificate::IdentityCertificate(const Data& data)
+  : Certificate(data)
+{
+  setPublicKeyName();
+}
+  
+inline
+IdentityCertificate::~IdentityCertificate()
+{
+}
+
+inline void
+IdentityCertificate::wireDecode(const Block &wire)
+{
+  Certificate::wireDecode(wire);
+  setPublicKeyName();
+}
+
+inline const Name &
+IdentityCertificate::getPublicKeyName () const
+{
+  return publicKeyName_;
+}
 
 }
 

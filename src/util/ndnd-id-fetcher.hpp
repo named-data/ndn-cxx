@@ -55,7 +55,7 @@ private:
 void 
 NdndIdFetcher::operator()(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& ndndIdData)
 {
-  if (ndndIdData->getSignature().getType() == Signature::SignatureSha256WithRsa)
+  if (ndndIdData->getSignature().getType() == Signature::Sha256WithRsa)
     {
       ndndId_.resize(32);
       ndn_digestSha256(ndndIdData->getSignature().getValue().value(), ndndIdData->getSignature().getValue().value_size(), ndndId_.buf());

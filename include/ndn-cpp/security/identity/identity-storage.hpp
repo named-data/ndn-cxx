@@ -11,6 +11,7 @@
 
 #include "../../name.hpp"
 #include "../security-common.hpp"
+#include "../certificate/public-key.hpp"
 
 namespace ndn {
 
@@ -79,14 +80,14 @@ public:
    * @param publicKeyDer A blob of the public key DER to be added.
    */
   virtual void 
-  addKey(const Name& keyName, KeyType keyType, const Buffer& publicKeyDer) = 0;
+  addKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer) = 0;
 
   /**
    * Get the public key DER blob from the identity storage.
    * @param keyName The name of the requested public key.
    * @return The DER Blob.  If not found, return a Blob with a null pointer.
    */
-  virtual Buffer
+  virtual ptr_lib::shared_ptr<PublicKey>
   getKey(const Name& keyName) = 0;
 
   /**
@@ -124,7 +125,7 @@ public:
    * @param allowAny If false, only a valid certificate will be returned, otherwise validity is disregarded.
    * @return The requested certificate.  If not found, return a shared_ptr with a null pointer.
    */
-  virtual ptr_lib::shared_ptr<Data> 
+  virtual ptr_lib::shared_ptr<IdentityCertificate> 
   getCertificate(const Name &certificateName, bool allowAny = false) = 0;
 
 

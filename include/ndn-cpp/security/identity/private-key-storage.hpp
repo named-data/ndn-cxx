@@ -12,6 +12,7 @@
 #include <string>
 #include "../security-common.hpp"
 #include "../../name.hpp"
+#include "../../data.hpp"
 
 namespace ndn {
 
@@ -51,8 +52,15 @@ public:
    * @return The signature, or a null pointer if signing fails.
    */  
   virtual ConstBufferPtr
-  sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
-    
+  sign(const uint8_t *data, size_t dataLength,
+       const Signature &signature,
+       const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
+
+  virtual ConstBufferPtr
+  sign(const Data &data,
+       const Signature &signature,
+       const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
+  
   /**
    * Decrypt data.
    * @param keyName The name of the decrypting key.

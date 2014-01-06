@@ -18,11 +18,13 @@
 
 namespace ndn {
 
-typedef std::vector<CertificateSubjectDescription> SubjectDescriptionList;
-typedef std::vector<CertificateExtension> ExtensionList;
-
 class Certificate : public Data {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
+  typedef std::vector<CertificateSubjectDescription> SubjectDescriptionList;
+  typedef std::vector<CertificateExtension> ExtensionList;
+
   /**
    * The default constructor.
    */
@@ -40,6 +42,9 @@ public:
   virtual 
   ~Certificate();
 
+  inline void
+  wireDecode(const Block &wire);
+  
   /**
    * encode certificate info into content
    */
@@ -117,7 +122,7 @@ public:
   isTooLate();
 
   void 
-  printCertificate();
+  printCertificate(std::ostream &os) const;
 
 protected:
   void
@@ -131,6 +136,21 @@ protected:
   ExtensionList extensionList_;
 };
 
+inline void
+Certificate::wireDecode(const Block &wire)
+{
+  Data::wireDecode(wire);
+  decode();
 }
+
+
+inline std::ostream&
+operator <<(std::ostream &os, const Certificate &cert)
+{
+  cert.printCertificate(os);
+  return os;
+}
+
+} // namespace ndn
 
 #endif

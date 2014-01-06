@@ -6,10 +6,9 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "../util/logging.hpp"
-#include <ndn-cpp/security/security-exception.hpp>
-#include <ndn-cpp/security/policy/policy-manager.hpp>
 #include <ndn-cpp/security/key-chain.hpp>
+
+#include <ndn-cpp/security/policy/policy-manager.hpp>
 
 using namespace std;
 using namespace ndn::func_lib;
@@ -19,26 +18,64 @@ using namespace ndn::func_lib::placeholders;
 #endif
 
 namespace ndn {
-  
-KeyChain::KeyChain(const ptr_lib::shared_ptr<IdentityManager>& identityManager, const ptr_lib::shared_ptr<PolicyManager>& policyManager)
-: identityManager_(identityManager), policyManager_(policyManager), face_(0), maxSteps_(100)
+
+const ptr_lib::shared_ptr<IdentityManager>   KeyChain::DefaultIdentityManager   = ptr_lib::shared_ptr<IdentityManager>();
+const ptr_lib::shared_ptr<PolicyManager>     KeyChain::DefaultPolicyManager     = ptr_lib::shared_ptr<PolicyManager>();
+const ptr_lib::shared_ptr<EncryptionManager> KeyChain::DefaultEncryptionManager = ptr_lib::shared_ptr<EncryptionManager>();
+
+
+KeyChain::KeyChain(const ptr_lib::shared_ptr<IdentityManager>   &identityManager   /* = DefaultIdentityManager */,
+                   const ptr_lib::shared_ptr<PolicyManager>     &policyManager     /* = DefaultPolicyManager */,
+                   const ptr_lib::shared_ptr<EncryptionManager> &encryptionManager /* = DefaultEncryptionManager */)
+  : identityManager_(identityManager)
+  , policyManager_(policyManager)
+  , encryptionManager_(encryptionManager)
+  , maxSteps_(100)
 {  
+// #ifdef USE_SIMPLE_POLICY_MANAGER
+//   Ptr<SimplePolicyManager> policyManager = Ptr<SimplePolicyManager>(new SimplePolicyManager());
+//   Ptr<IdentityPolicyRule> rule1 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^([^<KEY>]*)<KEY>(<>*)<ksk-.*><ID-CERT>",
+//                                                                                  "^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>",
+//                                                                                  ">", "\\1\\2", "\\1", true));
+//   Ptr<IdentityPolicyRule> rule2 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>",
+//                                                                                  "^([^<KEY>]*)<KEY>(<>*)<ksk-.*><ID-CERT>",
+//                                                                                  "==", "\\1", "\\1\\2", true));
+//   Ptr<IdentityPolicyRule> rule3 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^(<>*)$", 
+//                                                                                  "^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>", 
+//                                                                                  ">", "\\1", "\\1", true));
+//   policyManager->addVerificationPolicyRule(rule1);
+//   policyManager->addVerificationPolicyRule(rule2);
+//   policyManager->addVerificationPolicyRule(rule3);
+    
+//   policyManager->addSigningPolicyRule(rule3);
+
+//   m_policyManager = policyManager;
+// #endif
+
+//   if (!policyManager_)
+//     {
+//       policyManager_ = new NoVerifyPolicyManager();
+//     }
+
+// #ifdef USE_BASIC_ENCRYPTION_MANAGER
+//     encryptionManager_ = new BasicEncryptionManager(m_identityManager->getPrivateStorage(), "/tmp/encryption.db");
+// #endif
 }
 
 void 
-KeyChain::sign(Data& data, const Name& certificateName, WireFormat& wireFormat)
+KeyChain::sign(Data& data, const Name& certificateName)
 {
-  identityManager_->signByCertificate(data, certificateName, wireFormat);
+  identities().signByCertificate(data, certificateName);
 }
 
-ptr_lib::shared_ptr<Signature> 
+Signature
 KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
 {
-  return identityManager_->signByCertificate(buffer, bufferLength, certificateName);
+  return identities().signByCertificate(buffer, bufferLength, certificateName);
 }
 
 void 
-KeyChain::signByIdentity(Data& data, const Name& identityName, WireFormat& wireFormat)
+KeyChain::signByIdentity(Data& data, const Name& identityName)
 {
   Name signingCertificateName;
   
@@ -53,41 +90,44 @@ KeyChain::signByIdentity(Data& data, const Name& identityName, WireFormat& wireF
     signingCertificateName = identityManager_->getDefaultCertificateNameForIdentity(identityName);
 
   if (signingCertificateName.getComponentCount() == 0)
-    throw SecurityException("No qualified certificate name found!");
+    throw Error("No qualified certificate name found!");
 
   if (!policyManager_->checkSigningPolicy(data.getName(), signingCertificateName))
-    throw SecurityException("Signing Cert name does not comply with signing policy");
+    throw Error("Signing Cert name does not comply with signing policy");
 
-  identityManager_->signByCertificate(data, signingCertificateName, wireFormat);  
+  identities().signByCertificate(data, signingCertificateName);  
 }
 
-ptr_lib::shared_ptr<Signature> 
+Signature
 KeyChain::signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName)
 {
   Name signingCertificateName = identityManager_->getDefaultCertificateNameForIdentity(identityName);
     
   if (signingCertificateName.size() == 0)
-    throw SecurityException("No qualified certificate name found!");
+    throw Error("No qualified certificate name found!");
 
-  return identityManager_->signByCertificate(buffer, bufferLength, signingCertificateName);
+  return identities().signByCertificate(buffer, bufferLength, signingCertificateName);
 }
 
 void
 KeyChain::verifyData
   (const ptr_lib::shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed, int stepCount)
 {
-  _LOG_TRACE("Enter Verify");
-
-  if (policyManager_->requireVerify(*data)) {
+  if (policies().requireVerify(*data)) {
     ptr_lib::shared_ptr<ValidationRequest> nextStep = policyManager_->checkVerificationPolicy
       (data, stepCount, onVerified, onVerifyFailed);
     if (nextStep)
-      face_->expressInterest
-        (*nextStep->interest_, 
-         bind(&KeyChain::onCertificateData, this, _1, _2, nextStep), 
-         bind(&KeyChain::onCertificateInterestTimeout, this, _1, nextStep->retry_, onVerifyFailed, data, nextStep));
+      {
+        if (!face_)
+          throw Error("Face should be set prior to verifyData method to call");
+        
+        face_->expressInterest
+          (*nextStep->interest_, 
+           bind(&KeyChain::onCertificateData, this, _1, _2, nextStep), 
+           bind(&KeyChain::onCertificateInterestTimeout, this, _1, nextStep->retry_, onVerifyFailed, data, nextStep));
+      }
   }
-  else if (policyManager_->skipVerifyAndTrust(*data))
+  else if (policies().skipVerifyAndTrust(*data))
     onVerified(data);
   else
     onVerifyFailed(data);

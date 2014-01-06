@@ -33,13 +33,13 @@ public:
    */
   PublicKey(const uint8_t *keyDerBuf, size_t keyDerSize);
 
-  const Buffer&
+  inline const Buffer&
   get() const
   {
     return key_;
   }
 
-  void
+  inline void
   set(const uint8_t *keyDerBuf, size_t keyDerSize)
   {
     Buffer buf(keyDerBuf, keyDerSize);
@@ -59,6 +59,18 @@ public:
   // Blob 
   // getDigest(DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) const;
 
+  inline bool
+  operator ==(const PublicKey &key) const
+  {
+    return key_ == key.key_;
+  }
+
+  inline bool
+  operator !=(const PublicKey &key) const
+  {
+    return key_ != key.key_;
+  }
+  
 private:
   Buffer key_;
 };

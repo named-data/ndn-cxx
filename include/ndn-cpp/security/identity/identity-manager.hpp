@@ -11,6 +11,7 @@
 
 #include "identity-storage.hpp"
 #include "private-key-storage.hpp"
+#include "../certificate/public-key.hpp"
 
 #include "../../data.hpp"
 
@@ -25,10 +26,20 @@ class IdentityManager {
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
 
-  IdentityManager(const ptr_lib::shared_ptr<IdentityStorage>& identityStorage, const ptr_lib::shared_ptr<PrivateKeyStorage>& privateKeyStorage)
-  : identityStorage_(identityStorage), privateKeyStorage_(privateKeyStorage)
-  {
-  }
+  IdentityManager(const ptr_lib::shared_ptr<IdentityStorage>   &identityStorage   = DefaultIdentityStorage,
+                  const ptr_lib::shared_ptr<PrivateKeyStorage> &privateKeyStorage = DefaultPrivateKeyStorage);
+
+  inline IdentityStorage&
+  info();
+
+  inline const IdentityStorage&
+  info() const;
+
+  inline PrivateKeyStorage&
+  tpm();
+
+  inline const PrivateKeyStorage&
+  tpm() const;
   
   /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a self-signed certificate of the KSK.
@@ -45,7 +56,7 @@ public:
   Name
   getDefaultIdentity()
   {
-    return identityStorage_->getDefaultIdentity();
+    return info().getDefaultIdentity();
   }
 
   /**
@@ -66,7 +77,7 @@ public:
   void
   setDefaultKeyForIdentity(const Name& keyName, const Name& identityName = Name())
   {
-    identityStorage_->setDefaultKeyNameForIdentity(keyName, identityName);
+    info().setDefaultKeyNameForIdentity(keyName, identityName);
   }
 
   /**
@@ -77,7 +88,7 @@ public:
   Name
   getDefaultKeyNameForIdentity(const Name& identityName = Name())
   {
-    return identityStorage_->getDefaultKeyNameForIdentity(identityName);
+    return info().getDefaultKeyNameForIdentity(identityName);
   }
   
   /**
@@ -95,11 +106,11 @@ public:
    * @param keyName The name of the key.
    * @return The public key.
    */
-  // ptr_lib::shared_ptr<PublicKey>
-  // getPublicKey(const Name& keyName)
-  // {
-  //   return PublicKey::fromDer(identityStorage_->getKey(keyName));
-  // }
+  ptr_lib::shared_ptr<PublicKey>
+  getPublicKey(const Name& keyName)
+  {
+    return info().getKey(keyName);
+  }
 
   /**
    * Create an identity certificate for a public key managed by this IdentityManager.
@@ -109,9 +120,11 @@ public:
    * @param notAfter The notAfter vallue in validity field of the generated certificate.
    * @return The name of generated identity certificate.
    */
-  Name
+  ptr_lib::shared_ptr<IdentityCertificate>
   createIdentityCertificate
-    (const Name& certificatePrefix, const Name& signerCertificateName, const MillisecondsSince1970& notBefore, 
+    (const Name& certificatePrefix,
+     const Name& signerCertificateName,
+     const MillisecondsSince1970& notBefore, 
      const MillisecondsSince1970& notAfter);
 
   /**
@@ -125,8 +138,11 @@ public:
    */
   ptr_lib::shared_ptr<IdentityCertificate>
   createIdentityCertificate
-    (const Name& certificatePrefix, const PublicKey& publickey, const Name& signerCertificateName, 
-     const MillisecondsSince1970& notBefore, const MillisecondsSince1970& notAfter); 
+    (const Name& certificatePrefix,
+     const PublicKey& publickey,
+     const Name& signerCertificateName, 
+     const MillisecondsSince1970& notBefore,
+     const MillisecondsSince1970& notAfter); 
     
   /**
    * Add a certificate into the public key identity storage.
@@ -135,7 +151,7 @@ public:
   void
   addCertificate(const IdentityCertificate& certificate)
   {
-    identityStorage_->addCertificate(certificate);
+    info().addCertificate(certificate);
   }
 
   /**
@@ -164,22 +180,22 @@ public:
    * @param certificateName The name of the requested certificate.
    * @return the requested certificate which is valid.
    */
-  // ptr_lib::shared_ptr<IdentityCertificate>
-  // getCertificate(const Name& certificateName)
-  // {
-  //   return ptr_lib::make_shared<IdentityCertificate>(*identityStorage_->getCertificate(certificateName, false));
-  // }
+  ptr_lib::shared_ptr<IdentityCertificate>
+  getCertificate(const Name& certificateName)
+  {
+    return info().getCertificate(certificateName, false);
+  }
     
   /**
    * Get a certificate even if the certificate is not valid anymore.
    * @param certificateName The name of the requested certificate.
    * @return the requested certificate.
    */
-  // ptr_lib::shared_ptr<IdentityCertificate>
-  // getAnyCertificate(const Name& certificateName)
-  // {
-  //   return ptr_lib::make_shared<IdentityCertificate>(*identityStorage_->getCertificate(certificateName, true));
-  // }
+  ptr_lib::shared_ptr<IdentityCertificate>
+  getAnyCertificate(const Name& certificateName)
+  {
+    return info().getCertificate(certificateName, true);
+  }
     
   /**
    * Get the default certificate name for the specified identity, which will be used when signing is performed based on identity.
@@ -189,7 +205,7 @@ public:
   Name
   getDefaultCertificateNameForIdentity(const Name& identityName)
   {
-    return identityStorage_->getDefaultCertificateNameForIdentity(identityName);
+    return info().getDefaultCertificateNameForIdentity(identityName);
   }
     
   /**
@@ -200,7 +216,7 @@ public:
   Name
   getDefaultCertificateName()
   {
-    return identityStorage_->getDefaultCertificateNameForIdentity(getDefaultIdentity());
+    return info().getDefaultCertificateNameForIdentity(getDefaultIdentity());
   }
         
   /**
@@ -231,6 +247,16 @@ public:
    */
   ptr_lib::shared_ptr<IdentityCertificate>
   selfSign(const Name& keyName);
+
+  /**
+   * @brief Self-sign the supplied identity certificate
+   */
+  void
+  selfSign (IdentityCertificate& cert);
+  
+public:
+  static const ptr_lib::shared_ptr<IdentityStorage>   DefaultIdentityStorage;
+  static const ptr_lib::shared_ptr<PrivateKeyStorage> DefaultPrivateKeyStorage;
   
 private:
   /**
@@ -246,10 +272,48 @@ private:
 
   static Name
   getKeyNameFromCertificatePrefix(const Name& certificatePrefix);
-  
-  ptr_lib::shared_ptr<IdentityStorage> identityStorage_;
+
+private:
+  ptr_lib::shared_ptr<IdentityStorage>   identityStorage_;
   ptr_lib::shared_ptr<PrivateKeyStorage> privateKeyStorage_;
 };
+
+inline IdentityStorage&
+IdentityManager::info()
+{
+  if (!identityStorage_)
+    throw Error("IdentityStorage is not assigned to IdentityManager");
+
+  return *identityStorage_;
+}
+
+inline const IdentityStorage&
+IdentityManager::info() const
+{
+  if (!identityStorage_)
+    throw Error("IdentityStorage is not assigned to IdentityManager");
+  
+  return *identityStorage_;
+}
+
+inline PrivateKeyStorage&
+IdentityManager::tpm()
+{
+  if (!identityStorage_)
+    throw Error("PrivateKeyStorage is not assigned to IdentityManager");
+  
+  return *privateKeyStorage_;
+}
+
+inline const PrivateKeyStorage&
+IdentityManager::tpm() const
+{
+  if (!identityStorage_)
+    throw Error("PrivateKeyStorage is not assigned to IdentityManager");
+  return *privateKeyStorage_;
+}
+  
+  
 
 }
 
