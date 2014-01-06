@@ -78,6 +78,7 @@ public:
   setDefaultKeyForIdentity(const Name& keyName, const Name& identityName = Name())
   {
     info().setDefaultKeyNameForIdentity(keyName, identityName);
+    defaultCertificate_.reset();
   }
 
   /**
@@ -218,7 +219,10 @@ public:
   {
     return info().getDefaultCertificateNameForIdentity(getDefaultIdentity());
   }
-        
+
+  void
+  sign(Data &data);
+  
   /**
    * Sign the byte array data based on the certificate name.
    * @param buffer The byte array to be signed.
@@ -240,6 +244,9 @@ public:
   void 
   signByCertificate(Data& data, const Name& certificateName);
 
+  void
+  signByCertificate(Data& data, const IdentityCertificate& certificate);
+
   /**
    * Generate a self-signed certificate for a public key.
    * @param keyName The name of the public key.
@@ -253,11 +260,11 @@ public:
    */
   void
   selfSign (IdentityCertificate& cert);
-  
+
 public:
   static const ptr_lib::shared_ptr<IdentityStorage>   DefaultIdentityStorage;
   static const ptr_lib::shared_ptr<PrivateKeyStorage> DefaultPrivateKeyStorage;
-  
+
 private:
   /**
    * Generate a key pair for the specified identity.
@@ -276,6 +283,8 @@ private:
 private:
   ptr_lib::shared_ptr<IdentityStorage>   identityStorage_;
   ptr_lib::shared_ptr<PrivateKeyStorage> privateKeyStorage_;
+
+  ptr_lib::shared_ptr<IdentityCertificate> defaultCertificate_;
 };
 
 inline IdentityStorage&
@@ -312,8 +321,6 @@ IdentityManager::tpm() const
     throw Error("PrivateKeyStorage is not assigned to IdentityManager");
   return *privateKeyStorage_;
 }
-  
-  
 
 }
 

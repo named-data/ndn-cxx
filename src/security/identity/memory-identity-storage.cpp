@@ -138,17 +138,13 @@ MemoryIdentityStorage::getDefaultIdentity()
 Name 
 MemoryIdentityStorage::getDefaultKeyNameForIdentity(const Name& identityName)
 {
-#if 1
-  throw runtime_error("MemoryIdentityStorage::getDefaultKeyNameForIdentity not implemented");
-#endif
+  return defaultKeyName_;
 }
 
 Name 
 MemoryIdentityStorage::getDefaultCertificateNameForKey(const Name& keyName)
 {
-#if 1
-  throw runtime_error("MemoryIdentityStorage::getDefaultCertificateNameForKey not implemented");
-#endif
+  return defaultCert_;
 }
 
 void 
@@ -165,17 +161,13 @@ MemoryIdentityStorage::setDefaultIdentity(const Name& identityName)
 void 
 MemoryIdentityStorage::setDefaultKeyNameForIdentity(const Name& keyName, const Name& identityNameCheck)
 {
-#if 1
-  throw runtime_error("MemoryIdentityStorage::setDefaultKeyNameForIdentity not implemented");
-#endif
+  defaultKeyName_ = identityNameCheck;
 }
 
 void 
 MemoryIdentityStorage::setDefaultCertificateNameForKey(const Name& keyName, const Name& certificateName)  
 {
-#if 1
-  throw runtime_error("MemoryIdentityStorage::setDefaultCertificateNameForKey not implemented");
-#endif
+  defaultCert_ = certificateName;
 }
 
 

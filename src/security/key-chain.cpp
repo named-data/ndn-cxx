@@ -62,17 +62,6 @@ KeyChain::KeyChain(const ptr_lib::shared_ptr<IdentityManager>   &identityManager
 // #endif
 }
 
-void 
-KeyChain::sign(Data& data, const Name& certificateName)
-{
-  identities().signByCertificate(data, certificateName);
-}
-
-Signature
-KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
-{
-  return identities().signByCertificate(buffer, bufferLength, certificateName);
-}
 
 void 
 KeyChain::signByIdentity(Data& data, const Name& identityName)
@@ -95,7 +84,7 @@ KeyChain::signByIdentity(Data& data, const Name& identityName)
   if (!policyManager_->checkSigningPolicy(data.getName(), signingCertificateName))
     throw Error("Signing Cert name does not comply with signing policy");
 
-  identities().signByCertificate(data, signingCertificateName);  
+  identities().signByCertificate(data, signingCertificateName);
 }
 
 Signature

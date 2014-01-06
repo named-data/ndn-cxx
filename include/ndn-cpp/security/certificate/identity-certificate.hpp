@@ -41,6 +41,9 @@ public:
   
   inline void
   wireDecode(const Block &wire);
+
+  inline void
+  setName(const Name &name);
   
   inline const Name &
   getPublicKeyName () const;
@@ -88,6 +91,13 @@ inline void
 IdentityCertificate::wireDecode(const Block &wire)
 {
   Certificate::wireDecode(wire);
+  setPublicKeyName();
+}
+
+inline void
+IdentityCertificate::setName(const Name &name)
+{
+  Certificate::setName(name);
   setPublicKeyName();
 }
 

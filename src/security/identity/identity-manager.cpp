@@ -90,6 +90,8 @@ IdentityManager::generateRSAKeyPair(const Name& identityName, bool isKsk, int ke
 Name
 IdentityManager::generateRSAKeyPairAsDefault(const Name& identityName, bool isKsk, int keySize)
 {
+  defaultCertificate_.reset();
+  
   Name keyName = generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
 
   info().setDefaultKeyNameForIdentity(keyName, identityName);
@@ -104,10 +106,14 @@ IdentityManager::createIdentityCertificate(const Name& certificatePrefix,
                                            const MillisecondsSince1970& notAfter)
 {
   Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
+
+  ptr_lib::shared_ptr<PublicKey> pubKey = info().getKey(keyName);
+  if (!pubKey)
+    throw Error("Requested public key [" + keyName.toUri() + "] doesn't exist");
   
   ptr_lib::shared_ptr<IdentityCertificate> certificate =
     createIdentityCertificate(certificatePrefix,
-                              *info().getKey(keyName),
+                              *pubKey,
                               signerCertificateName,
                               notBefore, notAfter);
 
@@ -148,11 +154,15 @@ IdentityManager::selfSign(const Name& keyName)
   
   Name certificateName = keyName.getSubName(0, keyName.size() - 1);
   certificateName.append("KEY").append(keyName.get(keyName.size() - 1)).append("ID-CERT").appendVersion();
+
+  ptr_lib::shared_ptr<PublicKey> pubKey = info().getKey(keyName);
+  if (!pubKey)
+    throw Error("Requested public key [" + keyName.toUri() + "] doesn't exist");
   
   certificate->setName(certificateName);
   certificate->setNotBefore(ndn_getNowMilliseconds());
   certificate->setNotAfter(ndn_getNowMilliseconds() + 630720000 /* 20 years*/);
-  certificate->setPublicKeyInfo(*info().getKey(keyName));
+  certificate->setPublicKeyInfo(*pubKey);
   certificate->addSubjectDescription(CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
   certificate->encode();
 
@@ -183,6 +193,8 @@ IdentityManager::addCertificateAsIdentityDefault(const IdentityCertificate& cert
 void
 IdentityManager::setDefaultCertificateForKey(const IdentityCertificate& certificate)
 {
+  defaultCertificate_.reset();
+  
   Name keyName = certificate.getPublicKeyName();
   
   if(!info().doesKeyExist(keyName))
@@ -190,11 +202,30 @@ IdentityManager::setDefaultCertificateForKey(const IdentityCertificate& certific
 
   info().setDefaultCertificateNameForKey(keyName, certificate.getName());
 }
-  
+
+void
+IdentityManager::sign(Data &data)
+{
+  if (!defaultCertificate_)
+    {
+      defaultCertificate_ = info().getCertificate(
+                                                  info().getDefaultCertificateNameForIdentity(
+                                                                                              info().getDefaultIdentity()));
+
+      if(!defaultCertificate_)
+        throw Error("Default IdentityCertificate cannot be determined");
+    }
+
+  signByCertificate(data, *defaultCertificate_);
+}
+
 Signature
 IdentityManager::signByCertificate(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
 {
   ptr_lib::shared_ptr<IdentityCertificate> cert = info().getCertificate(certificateName);
+  if (!cert)
+    throw Error("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
+
   SignatureSha256WithRsa signature;
   signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
 
@@ -207,11 +238,25 @@ void
 IdentityManager::signByCertificate(Data &data, const Name &certificateName)
 {
   ptr_lib::shared_ptr<IdentityCertificate> cert = info().getCertificate(certificateName);
+  if (!cert)
+    throw Error("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
+
   SignatureSha256WithRsa signature;
   signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
 
   // For temporary usage, we support RSA + SHA256 only, but will support more.
   signature.setValue(tpm().sign(data, signature, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256));
+  data.setSignature(signature);
+}
+
+void
+IdentityManager::signByCertificate(Data& data, const IdentityCertificate& certificate)
+{
+  SignatureSha256WithRsa signature;
+  signature.setKeyLocator(certificate.getName().getPrefix(-1));
+
+  // For temporary usage, we support RSA + SHA256 only, but will support more.
+  signature.setValue(tpm().sign(data, signature, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256));
   data.setSignature(signature);
 }
 

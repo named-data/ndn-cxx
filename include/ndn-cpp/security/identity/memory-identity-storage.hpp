@@ -21,6 +21,8 @@ namespace ndn {
  */
 class MemoryIdentityStorage : public IdentityStorage {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   /**
    * The virtual Destructor.
    */
@@ -64,14 +66,14 @@ public:
    * @param publicKeyDer A blob of the public key DER to be added.
    */
   virtual void 
-  addKey(const Name& keyName, KeyType keyType, const Blob& publicKeyDer);
+  addKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer);
 
   /**
    * Get the public key DER blob from the identity storage.
    * @param keyName The name of the requested public key.
    * @return The DER Blob.  If not found, return a Blob with a null pointer.
    */
-  virtual Blob
+  virtual ptr_lib::shared_ptr<PublicKey>
   getKey(const Name& keyName);
 
   /**
@@ -109,7 +111,7 @@ public:
    * @param allowAny If false, only a valid certificate will be returned, otherwise validity is disregarded.
    * @return The requested certificate.  If not found, return a shared_ptr with a null pointer.
    */
-  virtual ptr_lib::shared_ptr<Data> 
+  virtual ptr_lib::shared_ptr<IdentityCertificate> 
   getCertificate(const Name &certificateName, bool allowAny = false);
 
 
@@ -182,24 +184,30 @@ public:
 private:
   class KeyRecord {
   public:
-    KeyRecord(KeyType keyType, const Blob &keyDer)
-    : keyType_(keyType), keyDer_(keyDer)
+    KeyRecord(KeyType keyType, const PublicKey &key)
+    : keyType_(keyType), key_(key)
     {
     }
     
     const KeyType getKeyType() const { return keyType_; }
     
-    const Blob& getKeyDer() { return keyDer_; }
+    const PublicKey& getKey() { return key_; }
     
   private:
-    KeyType keyType_;
-    Blob keyDer_;
+    KeyType   keyType_;
+    PublicKey key_;
   };
   
   std::vector<std::string> identityStore_; /**< A list of name URI. */
   std::string defaultIdentity_;            /**< The default identity in identityStore_, or "" if not defined. */
-  std::map<std::string, ptr_lib::shared_ptr<KeyRecord> > keyStore_; /**< The map key is the keyName.toUri() */
-  std::map<std::string, Blob> certificateStore_;                    /**< The map key is the certificateName.toUri() */
+  Name defaultKeyName_;
+  Name defaultCert_;
+
+  typedef std::map< std::string, ptr_lib::shared_ptr<KeyRecord> > KeyStore; /**< The map key is the keyName.toUri() */
+  typedef std::map< std::string, ptr_lib::shared_ptr<IdentityCertificate> > CertificateStore; /**< The map key is the certificateName.toUri() */
+  
+  KeyStore keyStore_; 
+  CertificateStore certificateStore_;                    
 };
 
 }

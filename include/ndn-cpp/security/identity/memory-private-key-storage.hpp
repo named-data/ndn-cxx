@@ -21,6 +21,8 @@ namespace ndn {
  */
 class MemoryPrivateKeyStorage : public PrivateKeyStorage {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   /**
    * The virtual destructor
    */    
@@ -35,9 +37,9 @@ public:
    * @param privateKeyDer The private key DER byte array.
    * @param privateKeyDerLength The length of privateKeyDer.
    */
-  void setKeyPairForKeyName
-    (const Name& keyName, uint8_t *publicKeyDer, size_t publicKeyDerLength, uint8_t *privateKeyDer, 
-     size_t privateKeyDerLength);
+  void setKeyPairForKeyName(const Name& keyName,
+                            uint8_t *publicKeyDer, size_t publicKeyDerLength,
+                            uint8_t *privateKeyDer, size_t privateKeyDerLength);
   
   /**
    * Generate a pair of asymmetric keys.
@@ -64,9 +66,12 @@ public:
    * @param digestAlgorithm the digest algorithm.
    * @return The signature, or a null pointer if signing fails.
    */  
-  virtual Blob 
-  sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
-    
+  virtual Block 
+  sign(const uint8_t *data, size_t dataLength, const Signature &signature, const Name& keyName, DigestAlgorithm digestAlgorithm);
+
+  virtual Block 
+  sign(const Data &data, const Signature &signature, const Name& keyName, DigestAlgorithm digestAlgorithm);
+  
   /**
    * Decrypt data.
    * @param keyName The name of the decrypting key.
@@ -75,7 +80,7 @@ public:
    * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric decryption is used.
    * @return The decrypted data.
    */
-  virtual Blob 
+  virtual ConstBufferPtr 
   decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric);
 
   /**
@@ -86,7 +91,7 @@ public:
    * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric decryption is used.
    * @return The encrypted data.
    */
-  virtual Blob
+  virtual ConstBufferPtr
   encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric);
 
   /**
@@ -108,23 +113,13 @@ public:
   doesKeyExist(const Name& keyName, KeyClass keyClass);  
   
 private:
-  /**
-   * RsaPrivateKey is a simple class to hold an RSA private key.
-   */
-  class RsaPrivateKey {
-  public:
-    RsaPrivateKey(uint8_t *keyDer, size_t keyDerLength);
-    
-    ~RsaPrivateKey();
-    
-    struct rsa_st* getPrivateKey() { return privateKey_; }
-    
-  private:
-    struct rsa_st* privateKey_;
-  };
-    
-  std::map<std::string, ptr_lib::shared_ptr<PublicKey> > publicKeyStore_;      /**< The map key is the keyName.toUri() */
-  std::map<std::string, ptr_lib::shared_ptr<RsaPrivateKey> > privateKeyStore_; /**< The map key is the keyName.toUri() */
+  class RsaPrivateKey;
+
+  typedef std::map<std::string, ptr_lib::shared_ptr<PublicKey> >     PublicKeyStore;
+  typedef std::map<std::string, ptr_lib::shared_ptr<RsaPrivateKey> > PrivateKeyStore;
+  
+  PublicKeyStore  publicKeyStore_;  /**< The map key is the keyName.toUri() */
+  PrivateKeyStore privateKeyStore_; /**< The map key is the keyName.toUri() */
 };
 
 }

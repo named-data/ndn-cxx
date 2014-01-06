@@ -85,6 +85,9 @@ public:
    *              Sign/Verify              *
    *****************************************/
 
+  inline void 
+  sign(Data& data);
+  
   /**
    * Wire encode the Data object, sign it and set its signature.
    * Note: the caller must make sure the timestamp is correct, for example with 
@@ -92,7 +95,7 @@ public:
    * @param data The Data object to be signed.  This updates its signature and key locator field and wireEncoding.
    * @param certificateName The certificate name of the key to use for signing.  If omitted, infer the signing identity from the data packet name.
    */
-  void 
+  inline void 
   sign(Data& data, const Name& certificateName);
   
   /**
@@ -102,7 +105,7 @@ public:
    * @param certificateName The certificate name used to get the signing key and which will be put into KeyLocator.
    * @return The Signature.
    */
-  Signature
+  inline Signature
   sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName);
 
   /**
@@ -166,6 +169,24 @@ private:
   
   const int maxSteps_;
 };
+
+void 
+KeyChain::sign(Data& data)
+{
+  identities().sign(data);
+}
+
+void 
+KeyChain::sign(Data& data, const Name& certificateName)
+{
+  identities().signByCertificate(data, certificateName);
+}
+
+Signature
+KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
+{
+  return identities().signByCertificate(buffer, bufferLength, certificateName);
+}
 
 }
 

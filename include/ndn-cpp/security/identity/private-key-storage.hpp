@@ -20,6 +20,8 @@ class PublicKey;
 
 class PrivateKeyStorage {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   /**
    * The virtual destructor.
    */    
@@ -51,12 +53,12 @@ public:
    * @param digestAlgorithm the digest algorithm.
    * @return The signature, or a null pointer if signing fails.
    */  
-  virtual ConstBufferPtr
+  virtual Block
   sign(const uint8_t *data, size_t dataLength,
        const Signature &signature,
        const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
 
-  virtual ConstBufferPtr
+  virtual Block
   sign(const Data &data,
        const Signature &signature,
        const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
