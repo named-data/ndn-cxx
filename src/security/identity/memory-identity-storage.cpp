@@ -5,7 +5,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "memory-identity-storage.hpp"
+#include <ndn-cpp/security/identity/memory-identity-storage.hpp>
 
 #include <algorithm>
 #include <ndn-cpp/security/certificate/identity-certificate.hpp>

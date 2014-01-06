@@ -19,7 +19,7 @@
 #include "ndn-cpp/data.hpp"
 #include <ndn-cpp/security/certificate/identity-certificate.hpp>
 #include "../../c/util/time.h"
-#include <ndn-cpp/signature/signature-sha256-with-rsa.hpp>
+#include <ndn-cpp/security/signature/signature-sha256-with-rsa.hpp>
 
 
 INIT_LOGGER("BasicIdentityStorage");

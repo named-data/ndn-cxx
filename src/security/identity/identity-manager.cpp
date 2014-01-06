@@ -21,8 +21,8 @@
 #include "../../util/logging.hpp"
 #include "../../c/util/time.h"
 #include <ndn-cpp/security/identity/identity-manager.hpp>
-#include "../certificate/identity-certificate.hpp"
-#include "../signature/signature-sha256-with-rsa.hpp"
+#include <ndn-cpp/security/certificate/identity-certificate.hpp>
+#include <ndn-cpp/security/signature/signature-sha256-with-rsa.hpp>
 
 INIT_LOGGER("ndn.security.IdentityManager")
 

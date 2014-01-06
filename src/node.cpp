@@ -13,11 +13,15 @@
 #include <ndn-cpp/node.hpp>
 
 #include "util/ndnd-id-fetcher.hpp"
-#include "security/signature/signature-sha256-with-rsa.hpp"
 
-#include "status-response.hpp"
+#include <ndn-cpp/security/signature/signature-sha256-with-rsa.hpp>
+#include <ndn-cpp/status-response.hpp>
 
 using namespace std;
+#if NDN_CPP_HAVE_CXX11
+// In the std library, the placeholders are in a different namespace than boost.
+using namespace ndn::func_lib::placeholders;
+#endif
 
 namespace ndn {
 

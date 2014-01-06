@@ -10,12 +10,12 @@
 
 #include <ndn-cpp/security/policy/policy-manager.hpp>
 
-#include "identity/basic-identity-storage.hpp"
+#include <ndn-cpp/security/identity/basic-identity-storage.hpp>
 
 
 using namespace std;
 using namespace ndn::func_lib;
-#if NDN_CPP_HAVE_STD_FUNCTION
+#if NDN_CPP_HAVE_CXX11
 // In the std library, the placeholders are in a different namespace than boost.
 using namespace ndn::func_lib::placeholders;
 #endif

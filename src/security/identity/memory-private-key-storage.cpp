@@ -5,8 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "memory-private-key-storage.hpp"
-#include "../certificate/public-key.hpp"
+#include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
+#include <ndn-cpp/security/certificate/public-key.hpp>
 #include <openssl/ssl.h>
 #include <openssl/sha.h>
 #include <openssl/rsa.h>

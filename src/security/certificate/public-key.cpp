@@ -7,8 +7,7 @@
  */
 
 #include <ndn-cpp/common.hpp>
-
-#include "public-key.hpp"
+#include <ndn-cpp/security/certificate/public-key.hpp>
 
 #if NDN_CPP_USE_SYSTEM_BOOST
 #include <boost/iostreams/stream.hpp>

@@ -106,8 +106,6 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/security/key-chain.cpp \
   src/security/policy/no-verify-policy-manager.cpp \
   src/security/policy/self-verify-policy-manager.cpp \
-  src/security/security-exception.cpp \
-  src/security/signature/sha256-with-rsa-handler.cpp \
   src/transport/unix-transport.cpp \
   src/util/blob-stream.hpp \
   src/util/blob.cpp \

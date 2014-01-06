@@ -13,8 +13,9 @@
 #include <sstream>
 
 #include "../../util/logging.hpp"
-#include "osx-private-key-storage.hpp"
-#include "../certificate/public-key.hpp"
+
+#include <ndn-cpp/security/identity/osx-private-key-storage.hpp>
+#include <ndn-cpp/security/certificate/public-key.hpp>
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>

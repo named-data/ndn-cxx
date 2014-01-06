@@ -8,7 +8,7 @@
 
 #include <ndn-cpp/common.hpp>
 
-#include "certificate.hpp"
+#include <ndn-cpp/security/certificate/certificate.hpp>
 
 #if NDN_CPP_USE_SYSTEM_BOOST
 #include <boost/iostreams/stream.hpp>
