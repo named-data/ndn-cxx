@@ -14,6 +14,8 @@
 #include "util/ndnd-id-fetcher.hpp"
 #include "security/signature/signature-sha256-with-rsa.hpp"
 
+#include "status-response.hpp"
+
 using namespace std;
 
 namespace ndn {
@@ -119,20 +121,73 @@ Node::registerPrefixHelper(uint64_t registeredPrefixId,
 
   // Create an interest where the name has the encoded Data packet.
   Name interestName;
-  const uint8_t component0[] = "ndnx";
-  const uint8_t component2[] = "selfreg";
-  interestName.append(component0, sizeof(component0) - 1);
+  interestName.append("ndnx");
   interestName.append(ndndId_);
-  interestName.append(component2, sizeof(component2) - 1);
+  interestName.append("selfreg");
   interestName.append(data.wireEncode());
-                    
+
   Interest interest(interestName);
   interest.setScope(1);
+  interest.setInterestLifetime(1000);
+
+  expressInterest(interest,
+                  func_lib::bind(&Node::registerPrefixFinal, this,
+                                 registeredPrefixId, prefix, onInterest, onRegisterFailed, _1, _2),
+                  func_lib::bind(onRegisterFailed, prefix));
+}
+
+void
+Node::registerPrefixFinal(uint64_t registeredPrefixId,
+                          const ptr_lib::shared_ptr<const Name>& prefix,
+                          const OnInterest& onInterest,
+                          const OnRegisterFailed& onRegisterFailed,
+                          const ptr_lib::shared_ptr<const Interest>&, const ptr_lib::shared_ptr<Data>&data)
+{
+  Block content = data->getContent();
+  content.parse();
+
+  if (content.getAll().empty())
+    {
+      onRegisterFailed(prefix);
+      return;
+    }
+
+  switch(content.getAll().begin()->type())
+    {
+    case Tlv::FaceManagement::ForwardingEntry:
+      {
+        // succeeded
+        break;
+      }
+    case Tlv::FaceManagement::StatusResponse:
+      {
+        // failed :(
+        StatusResponse resp;
+        resp.wireDecode(*content.getAll().begin());
+
+        std::cerr << "StatusReponse: " << resp << std::endl;
+      
+        onRegisterFailed(prefix);
+        return;
+      
+        break;
+      }
+    default:
+      {
+        // failed :(
+      
+        onRegisterFailed(prefix);
+        return;
+        break;
+      }
+    }
+
+     
   
   // Save the onInterest callback and send the registration interest.
   registeredPrefixTable_.push_back(ptr_lib::make_shared<RegisteredPrefix>(registeredPrefixId, prefix, onInterest));
-  
-  transport_->send(interest.wireEncode());
+
+  /// @todo Notify user about successful registration
 }
 
 void 

@@ -265,6 +265,18 @@ private:
     (uint64_t registeredPrefixId, const ptr_lib::shared_ptr<const Name>& prefix, const OnInterest& onInterest, 
      const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags);
 
+  /**
+   * @brief Final stage of prefix registration, invoked when registration succeeded
+   *
+   * This method actually sets entry in a local interest filter table
+   */
+  void
+  registerPrefixFinal(uint64_t registeredPrefixId,
+                      const ptr_lib::shared_ptr<const Name>& prefix,
+                      const OnInterest& onInterest,
+                      const OnRegisterFailed& onRegisterFailed,
+                      const ptr_lib::shared_ptr<const Interest>&, const ptr_lib::shared_ptr<Data>&);
+  
   void
   checkPitExpire();
   
