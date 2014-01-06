@@ -8,6 +8,7 @@
 #ifndef NDN_FORWARDING_ENTRY_HPP
 #define NDN_FORWARDING_ENTRY_HPP
 
+#include "encoding/tlv-face-management.hpp"
 #include "name.hpp"
 #include "forwarding-flags.hpp"
 #include "encoding/block.hpp"

@@ -9,6 +9,7 @@
 #include "c/util/time.h"
 
 #include <ndn-cpp/forwarding-entry.hpp>
+#include <ndn-cpp/face-instance.hpp>
 #include <ndn-cpp/node.hpp>
 
 #include "util/ndnd-id-fetcher.hpp"
