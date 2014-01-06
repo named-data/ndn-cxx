@@ -9,6 +9,19 @@
 #ifndef NDN_ASN_EXT_HPP
 #define NDN_ASN_EXT_HPP
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreorder"
+#pragma clang diagnostic ignored "-Wtautological-compare"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-function"
+#elif __GNUC__
+#pragma GCC diagnostic ignored "-Wreorder"
+#pragma GCC diagnostic ignored "-Wtautological-compare"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 #include <ndn-cpp/common.hpp>
 #include <cryptopp/asn.h>
 

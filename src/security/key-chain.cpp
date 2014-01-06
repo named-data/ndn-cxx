@@ -35,7 +35,7 @@ KeyChain::KeyChain(const ptr_lib::shared_ptr<IdentityStorage>   &publicInfoStora
   , privateKeyStorage_(privateKeyStorage)
   , policyManager_(policyManager)
   , encryptionManager_(encryptionManager)
-  , maxSteps_(100)
+  // , maxSteps_(100)
 {
   if (publicInfoStorage_ == DefaultIdentityStorage)
     {

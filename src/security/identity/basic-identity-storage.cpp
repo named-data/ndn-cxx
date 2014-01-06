@@ -207,7 +207,7 @@ BasicIdentityStorage::addIdentity(const Name& identityName)
       
   sqlite3_bind_text(statement, 1, identityName.toUri(), SQLITE_TRANSIENT);
   
-  int res = sqlite3_step(statement);
+  sqlite3_step(statement);
   
   sqlite3_finalize(statement);
 }
@@ -266,7 +266,7 @@ BasicIdentityStorage::addKey(const Name& keyName, KeyType keyType, const PublicK
   sqlite3_bind_int(statement, 3, (int)keyType);
   sqlite3_bind_blob(statement, 4, publicKeyDer.get().buf(), publicKeyDer.get().size(), SQLITE_STATIC);
 
-  int res = sqlite3_step(statement);
+  sqlite3_step(statement);
 
   sqlite3_finalize(statement);
 }
@@ -324,7 +324,7 @@ BasicIdentityStorage::updateKeyStatus(const Name& keyName, bool isActive)
   sqlite3_bind_text(statement, 2, identityName.toUri(), SQLITE_TRANSIENT);
   sqlite3_bind_text(statement, 3, keyId, SQLITE_TRANSIENT);
 
-  int res = sqlite3_step(statement);
+  sqlite3_step(statement);
 
   sqlite3_finalize(statement);
 }
@@ -385,7 +385,7 @@ BasicIdentityStorage::addAnyCertificate(const IdentityCertificate& certificate)
 
   sqlite3_bind_blob(statement, 7, certificate.wireEncode().wire(), certificate.wireEncode().size(), SQLITE_STATIC);
 
-  int res = sqlite3_step(statement);
+  sqlite3_step(statement);
 
   sqlite3_finalize(statement);
 }
@@ -438,7 +438,7 @@ BasicIdentityStorage::addCertificate(const IdentityCertificate& certificate)
 
   sqlite3_bind_blob(statement, 7, certificate.wireEncode().wire(), certificate.wireEncode().size(), SQLITE_TRANSIENT);
 
-  int res = sqlite3_step(statement);
+  sqlite3_step(statement);
 
   sqlite3_finalize(statement);
 }

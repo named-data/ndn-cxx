@@ -172,7 +172,7 @@ private:
 
   ptr_lib::shared_ptr<Face>        face_;
   
-  const int maxSteps_;
+  // const int maxSteps_;
 };
 
 void 

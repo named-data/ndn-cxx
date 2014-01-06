@@ -6,23 +6,24 @@
  * See COPYING for copyright and distribution information.
  */
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreorder"
+#pragma clang diagnostic ignored "-Wtautological-compare"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-function"
+#elif __GNUC__
+#pragma GCC diagnostic ignored "-Wreorder"
+#pragma GCC diagnostic ignored "-Wtautological-compare"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 #include <ndn-cpp/common.hpp>
 
 #include <ndn-cpp/security/certificate/certificate.hpp>
 
-#if NDN_CPP_USE_SYSTEM_BOOST
-#include <boost/iostreams/stream.hpp>
-#include <boost/iostreams/device/array.hpp>
-namespace ndnboost = boost;
-#else
-// We can use ndnboost::iostreams because this is internal and will not conflict with the application if it uses boost::iostreams.
-#include <ndnboost/iostreams/stream.hpp>
-#include <ndnboost/iostreams/device/array.hpp>
-#endif
-
 #include "../../util/logging.hpp"
-// #include "../../util/blob-stream.hpp"
-// #include <ndn-cpp/security/certificate/certificate.hpp>
 #include "../../util/time.hpp"
 
 #include <cryptopp/asn.h>
