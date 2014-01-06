@@ -81,7 +81,6 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/encoding/binary-xml-decoder.hpp \
   src/encoding/binary-xml-encoder.hpp \
   src/encoding/binary-xml-structure-decoder.hpp \
-  src/encoding/binary-xml-wire-format.cpp \
   src/encoding/block.cpp \
   src/encoding/cryptopp/asn_ext.cpp \
   src/encoding/cryptopp/asn_ext.hpp \
@@ -121,6 +120,11 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/util/ndnd-id-fetcher.hpp \
   src/util/string-helper.hpp \
   src/util/time.hpp
+
+# Temporary disabled:
+#   data/interest/forwardingEntry set/get methods need to be 
+#   embedded in BinaryXmlWireFormat class
+# src/encoding/binary-xml-wire-format.cpp
 
 libndn_cpp_la_LIBADD  = @OPENSSL_LIBS@ @OSX_SECURITY_LIBS@
 libndn_cpp_la_LDFLAGS = @OPENSSL_LDFLAGS@  @SQLITE3_LDFLAGS@ @BOOST_LDFLAGS@
