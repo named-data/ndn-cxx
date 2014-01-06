@@ -9,6 +9,7 @@
 #ifndef NDN_PUBLIC_KEY_HPP
 #define NDN_PUBLIC_KEY_HPP
 
+#include <stdexcept>
 #include "../../encoding/oid.hpp"
 #include "../../encoding/buffer.hpp"
 #include "../security-common.hpp"

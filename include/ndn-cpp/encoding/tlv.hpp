@@ -10,6 +10,7 @@
 #ifndef NDN_TLV_HPP
 #define NDN_TLV_HPP
 
+#include <stdexcept>
 #include "buffer.hpp"
 #include "endian.h"
 

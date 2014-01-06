@@ -16,12 +16,13 @@
 #pragma clang diagnostic ignored "-Wunused-variable"
 #pragma clang diagnostic ignored "-Wunused-function"
 #elif __GNUC__
-#pragma GCC diagnostic ignored "-Wreorder"
-#pragma GCC diagnostic ignored "-Wtautological-compare"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreorder" 
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
+#include <stdexcept>
 #include <ndn-cpp/common.hpp>
 #include <cryptopp/asn.h>
 

@@ -10,7 +10,7 @@
 
 #include <ndn-cpp/face.hpp>
 #include <ndn-cpp/transport/unix-transport.hpp>
-#include <ndn-cpp/c/util/ndn_memory.h>
+#include "../c/util/ndn_memory.h"
 
 #include <boost/asio.hpp>
 #if NDN_CPP_HAVE_CXX11

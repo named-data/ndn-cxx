@@ -17,7 +17,6 @@
 #pragma clang diagnostic ignored "-Wunused-function"
 #elif __GNUC__
 #pragma GCC diagnostic ignored "-Wreorder"
-#pragma GCC diagnostic ignored "-Wtautological-compare"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif

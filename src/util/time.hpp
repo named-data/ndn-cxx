@@ -9,7 +9,7 @@
 #define NDN_TIME_HPP
 
 #include <stdexcept>
-#include <ndn-cpp/c/util/time.h>
+#include "../c/util/time.h"
 
 namespace ndn {
 
