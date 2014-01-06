@@ -6,6 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
+#ifdef TEMPRORARILY_DISABLED
+
 #include "../../c/util/crypto.h"
 #include <ndn-cpp/sha256-with-rsa-signature.hpp>
 #include <ndn-cpp/security/security-exception.hpp>
@@ -126,3 +128,5 @@ SelfVerifyPolicyManager::inferSigningIdentity(const Name& dataName)
 }
 
 }
+
+#endif // TEMPORARILY_DISABLED

@@ -1,12 +1,14 @@
 
 LDADD = ../libndn-cpp.la
 
-noinst_PROGRAMS = test-encode-decode-benchmark \
-	test-encode-decode-data \
-	test-encode-decode-forwarding-entry \
-	test-encode-decode-interest \
-	test-get-async \
-	test-publish-async
+# Temporary disabled (need fixing)
+#
+# noinst_PROGRAMS = test-encode-decode-benchmark \
+# 	test-encode-decode-data \
+# 	test-encode-decode-forwarding-entry \
+# 	test-encode-decode-interest \
+# 	test-get-async \
+# 	test-publish-async
 
 test_encode_decode_benchmark_SOURCES = test-encode-decode-benchmark.cpp
 
