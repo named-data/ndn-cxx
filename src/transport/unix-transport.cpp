@@ -13,7 +13,10 @@
 #include <ndn-cpp/c/util/ndn_memory.h>
 
 #include <boost/asio.hpp>
-#include <boost/bind.hpp>
+#if NDN_CPP_HAVE_CXX11
+// In the std library, the placeholders are in a different namespace than boost.
+using namespace ndn::func_lib::placeholders;
+#endif
 
 using namespace std;
 typedef boost::asio::local::stream_protocol protocol;
@@ -42,13 +45,13 @@ public:
       {
         partialDataSize_ = 0;
         socket_.async_receive(boost::asio::buffer(inputBuffer_, MAX_LENGTH), 0,
-                              boost::bind(&Impl::handle_async_receive, this, _1, _2));
+                              func_lib::bind(&Impl::handle_async_receive, this, _1, _2));
 
         transport_.isConnected_ = true;
 
         for (std::list<Block>::iterator i = sendQueue_.begin(); i != sendQueue_.end(); ++i)
           socket_.async_send(boost::asio::buffer(i->wire(), i->size()),
-                             boost::bind(&Impl::handle_async_send, this, _1, *i));
+                             func_lib::bind(&Impl::handle_async_send, this, _1, *i));
 
         sendQueue_.clear();
       }
@@ -85,7 +88,7 @@ public:
       sendQueue_.push_back(wire);
     else
       socket_.async_send(boost::asio::buffer(wire.wire(), wire.size()),
-                         boost::bind(&Impl::handle_async_send, this, _1, wire));
+                         func_lib::bind(&Impl::handle_async_send, this, _1, wire));
   }
 
   inline void
@@ -181,7 +184,7 @@ public:
       }
 
     socket_.async_receive(boost::asio::buffer(inputBuffer_, MAX_LENGTH), 0,
-                          boost::bind(&Impl::handle_async_receive, this, _1, _2));
+                          func_lib::bind(&Impl::handle_async_receive, this, _1, _2));
   }
 
   void
