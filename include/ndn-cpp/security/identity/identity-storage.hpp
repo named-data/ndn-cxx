@@ -25,6 +25,8 @@ class Data;
  */
 class IdentityStorage {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   /**
    * The virtual Destructor.
    */
@@ -77,14 +79,14 @@ public:
    * @param publicKeyDer A blob of the public key DER to be added.
    */
   virtual void 
-  addKey(const Name& keyName, KeyType keyType, const Blob& publicKeyDer) = 0;
+  addKey(const Name& keyName, KeyType keyType, const Buffer& publicKeyDer) = 0;
 
   /**
    * Get the public key DER blob from the identity storage.
    * @param keyName The name of the requested public key.
    * @return The DER Blob.  If not found, return a Blob with a null pointer.
    */
-  virtual Blob
+  virtual Buffer
   getKey(const Name& keyName) = 0;
 
   /**

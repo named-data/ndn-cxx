@@ -20,11 +20,11 @@ public:
   virtual void 
   createSymmetricKey(const Name& keyName, KeyType keyType, const Name& signkeyName = Name(), bool isSymmetric = true) = 0;
 
-  virtual Blob
+  virtual ConstBufferPtr
   encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool useSymmetric = false, 
           EncryptMode encryptMode = ENCRYPT_MODE_DEFAULT) = 0;
 
-  virtual Blob
+  virtual ConstBufferPtr
   decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool useSymmetric = false, 
           EncryptMode encryptMode = ENCRYPT_MODE_DEFAULT) = 0;
 };

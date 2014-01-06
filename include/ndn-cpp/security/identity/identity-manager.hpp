@@ -9,18 +9,22 @@
 #ifndef NDN_IDENTITY_MANAGER_HPP
 #define NDN_IDENTITY_MANAGER_HPP
 
-#include "../certificate/identity-certificate.hpp"
 #include "identity-storage.hpp"
-#include "../certificate/public-key.hpp"
 #include "private-key-storage.hpp"
 
+#include "../../data.hpp"
+
 namespace ndn {
+
+class IdentityCertificate;
 
 /**
  * An IdentityManager is the interface of operations related to identity, keys, and certificates.
  */
 class IdentityManager {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   IdentityManager(const ptr_lib::shared_ptr<IdentityStorage>& identityStorage, const ptr_lib::shared_ptr<PrivateKeyStorage>& privateKeyStorage)
   : identityStorage_(identityStorage), privateKeyStorage_(privateKeyStorage)
   {
@@ -91,11 +95,11 @@ public:
    * @param keyName The name of the key.
    * @return The public key.
    */
-  ptr_lib::shared_ptr<PublicKey>
-  getPublicKey(const Name& keyName)
-  {
-    return PublicKey::fromDer(identityStorage_->getKey(keyName));
-  }
+  // ptr_lib::shared_ptr<PublicKey>
+  // getPublicKey(const Name& keyName)
+  // {
+  //   return PublicKey::fromDer(identityStorage_->getKey(keyName));
+  // }
 
   /**
    * Create an identity certificate for a public key managed by this IdentityManager.
@@ -160,22 +164,22 @@ public:
    * @param certificateName The name of the requested certificate.
    * @return the requested certificate which is valid.
    */
-  ptr_lib::shared_ptr<IdentityCertificate>
-  getCertificate(const Name& certificateName)
-  {
-    return ptr_lib::make_shared<IdentityCertificate>(*identityStorage_->getCertificate(certificateName, false));
-  }
+  // ptr_lib::shared_ptr<IdentityCertificate>
+  // getCertificate(const Name& certificateName)
+  // {
+  //   return ptr_lib::make_shared<IdentityCertificate>(*identityStorage_->getCertificate(certificateName, false));
+  // }
     
   /**
    * Get a certificate even if the certificate is not valid anymore.
    * @param certificateName The name of the requested certificate.
    * @return the requested certificate.
    */
-  ptr_lib::shared_ptr<IdentityCertificate>
-  getAnyCertificate(const Name& certificateName)
-  {
-    return ptr_lib::make_shared<IdentityCertificate>(*identityStorage_->getCertificate(certificateName, true));
-  }
+  // ptr_lib::shared_ptr<IdentityCertificate>
+  // getAnyCertificate(const Name& certificateName)
+  // {
+  //   return ptr_lib::make_shared<IdentityCertificate>(*identityStorage_->getCertificate(certificateName, true));
+  // }
     
   /**
    * Get the default certificate name for the specified identity, which will be used when signing is performed based on identity.
@@ -206,20 +210,8 @@ public:
    * @param certificateName The signing certificate name.
    * @return The generated signature.
    */
-  ptr_lib::shared_ptr<Signature>
+  Signature
   signByCertificate(const uint8_t* buffer, size_t bufferLength, const Name& certificateName);
-
-  /**
-   * Sign the byte array data based on the certificate name.
-   * @param buffer The byte array to be signed.
-   * @param certificateName The signing certificate name.
-   * @return The generated signature.
-   */
-  ptr_lib::shared_ptr<Signature>
-  signByCertificate(const std::vector<uint8_t>& buffer, const Name& certificateName) 
-  {
-    return signByCertificate(&buffer[0], buffer.size(), certificateName);
-  }
 
   /**
    * Sign data packet based on the certificate name.
@@ -230,7 +222,7 @@ public:
    * @param wireFormat The WireFormat for calling encodeData, or WireFormat::getDefaultWireFormat() if omitted.
    */
   void 
-  signByCertificate(Data& data, const Name& certificateName, WireFormat& wireFormat = *WireFormat::getDefaultWireFormat());
+  signByCertificate(Data& data, const Name& certificateName);
 
   /**
    * Generate a self-signed certificate for a public key.

@@ -10,12 +10,12 @@
 #define NDN_PRIVATE_KEY_STORAGE_HPP
 
 #include <string>
-#include "../../util/blob.hpp"
-#include "../certificate/public-key.hpp"
 #include "../security-common.hpp"
 #include "../../name.hpp"
 
 namespace ndn {
+
+class PublicKey;
 
 class PrivateKeyStorage {
 public:
@@ -50,15 +50,9 @@ public:
    * @param digestAlgorithm the digest algorithm.
    * @return The signature, or a null pointer if signing fails.
    */  
-  virtual Blob 
+  virtual ConstBufferPtr
   sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
     
-  Blob 
-  sign(const Blob& data, const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256)
-  {
-    return sign(data.buf(), data.size(), keyName, digestAlgorithm);
-  }
-  
   /**
    * Decrypt data.
    * @param keyName The name of the decrypting key.
@@ -67,14 +61,8 @@ public:
    * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption is used.
    * @return The decrypted data.
    */
-  virtual Blob 
+  virtual ConstBufferPtr 
   decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric = false) = 0;
-
-  Blob 
-  decrypt(const Name& keyName, const Blob& data, bool isSymmetric = false)
-  {
-    return decrypt(keyName, data.buf(), data.size(), isSymmetric);
-  }
 
   /**
    * Encrypt data.
@@ -84,14 +72,8 @@ public:
    * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption is used.
    * @return The encrypted data.
    */
-  virtual Blob
+  virtual ConstBufferPtr
   encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric = false) = 0;
-
-  Blob
-  encrypt(const Name& keyName, const Blob& data, bool isSymmetric = false)
-  {
-    return encrypt(keyName, data.buf(), data.size(), isSymmetric);
-  }
 
   /**
    * @brief Generate a symmetric key.

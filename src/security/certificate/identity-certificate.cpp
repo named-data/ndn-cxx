@@ -6,7 +6,6 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp/security/security-exception.hpp>
 #include <ndn-cpp/security/certificate/identity-certificate.hpp>
 
 using namespace std;
@@ -17,15 +16,9 @@ IdentityCertificate::IdentityCertificate(const Data& data)
   : Certificate(data)
 {
   if (!isCorrectName(data.getName()))
-    throw SecurityException("Wrong Identity Certificate Name!");
+    throw Error("Wrong Identity Certificate Name!");
   
   setPublicKeyName();
-}
-
-IdentityCertificate::IdentityCertificate(const IdentityCertificate& identityCertificate)
-  : Certificate(identityCertificate)
-  , publicKeyName_(identityCertificate.publicKeyName_)
-{
 }
 
 IdentityCertificate::~IdentityCertificate()
@@ -59,15 +52,14 @@ IdentityCertificate::isCorrectName(const Name& name)
   return true;
 }
 
-Data& 
+void
 IdentityCertificate::setName(const Name& name)
 {
   if (!isCorrectName(name))
-    throw SecurityException("Wrong Identity Certificate Name!");
+    throw Error("Wrong Identity Certificate Name!");
   
   Data::setName(name);
   setPublicKeyName();
-  return *this;
 }
 
 void

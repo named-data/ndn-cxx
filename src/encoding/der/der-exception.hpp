@@ -9,50 +9,20 @@
 #ifndef NDN_DER_EXCEPTION_HPP
 #define NDN_DER_EXCEPTION_HPP
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 namespace ndn {
 
 namespace der {
 
-class DerException : public std::exception {
-public:
-  DerException(const std::string& errorMessage) throw();
-  
-  ~DerException() throw();
-  
-  std::string Msg() { return errorMessage_; }
-  
-  virtual const char* what() const throw() { return errorMessage_.c_str(); }
+struct DerException : public std::runtime_error { DerException(const std::string &msg) : std::runtime_error(msg) {} };
 
-private:
-  const std::string errorMessage_;
-};
+class NegativeLengthException : public DerException { NegativeLengthException(const std::string &msg) : DerException(msg) {} };
 
-class NegativeLengthException : public DerException
-{
-public:
-  NegativeLengthException(const std::string& errorMessage)
-  : DerException(errorMessage)
-  {}
-};
+class DerEncodingException : public DerException { DerEncodingException(const std::string &msg) : DerException(msg) {} };
 
-class DerEncodingException : public DerException
-{
-public:
-  DerEncodingException(const std::string& errorMessage)
-  : DerException(errorMessage)
-  {}
-};
-
-class DerDecodingException : public DerException
-{
-public:
-  DerDecodingException(const std::string& errorMessage)
-  : DerException(errorMessage)
-  {}
-};
+class DerDecodingException : public DerException { DerDecodingException(const std::string &msg) : DerException(msg) {} };
 
 } // der
 
