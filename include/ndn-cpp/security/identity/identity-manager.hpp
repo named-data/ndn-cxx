@@ -14,10 +14,9 @@
 #include "../certificate/public-key.hpp"
 
 #include "../../data.hpp"
+#include "../certificate/identity-certificate.hpp"
 
 namespace ndn {
-
-class IdentityCertificate;
 
 /**
  * An IdentityManager is the interface of operations related to identity, keys, and certificates.
@@ -26,8 +25,8 @@ class IdentityManager {
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
 
-  IdentityManager(const ptr_lib::shared_ptr<IdentityStorage>   &identityStorage   = DefaultIdentityStorage,
-                  const ptr_lib::shared_ptr<PrivateKeyStorage> &privateKeyStorage = DefaultPrivateKeyStorage);
+  IdentityManager(const ptr_lib::shared_ptr<IdentityStorage>   &identityStorage,
+                  const ptr_lib::shared_ptr<PrivateKeyStorage> &privateKeyStorage);
 
   inline IdentityStorage&
   info();
@@ -260,10 +259,6 @@ public:
    */
   void
   selfSign (IdentityCertificate& cert);
-
-public:
-  static const ptr_lib::shared_ptr<IdentityStorage>   DefaultIdentityStorage;
-  static const ptr_lib::shared_ptr<PrivateKeyStorage> DefaultPrivateKeyStorage;
 
 private:
   /**

@@ -30,9 +30,6 @@ using namespace std;
 
 namespace ndn {
 
-const ptr_lib::shared_ptr<IdentityStorage>   IdentityManager::DefaultIdentityStorage   = ptr_lib::shared_ptr<IdentityStorage>();
-const ptr_lib::shared_ptr<PrivateKeyStorage> IdentityManager::DefaultPrivateKeyStorage = ptr_lib::shared_ptr<PrivateKeyStorage>();
-
 IdentityManager::IdentityManager(const ptr_lib::shared_ptr<IdentityStorage>   &identityStorage   /* = DefaultIdentityStorage */,
                                  const ptr_lib::shared_ptr<PrivateKeyStorage> &privateKeyStorage /* = DefaultPrivateKeyStorage */)
   : identityStorage_(identityStorage)

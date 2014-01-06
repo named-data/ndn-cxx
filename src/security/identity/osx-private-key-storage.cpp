@@ -277,13 +277,19 @@ namespace ndn
 
     if (!signature) throw Error("Signature is NULL!\n");
 
-    return Block(Tlv::SignatureValue, ptr_lib::make_shared<Buffer>(CFDataGetBytePtr(signature), CFDataGetLength(signature)));
+    return Block(Tlv::SignatureValue,
+                 ptr_lib::make_shared<Buffer>(CFDataGetBytePtr(signature), CFDataGetLength(signature)));
   }
 
   void
   OSXPrivateKeyStorage::sign(Data &data,
                              const Name& keyName, DigestAlgorithm digestAlgorithm/* = DIGEST_ALGORITHM_SHA256 */)
   {
+    const uint8_t *begin = data.wireEncode().value();
+    const uint8_t *end   = &*data.getSignature().getInfo().end();
+    
+    data.setSignature
+      (sign(begin, end-begin, keyName, digestAlgorithm));
   }
 
   ConstBufferPtr

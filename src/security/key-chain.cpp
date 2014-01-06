@@ -10,6 +10,9 @@
 
 #include <ndn-cpp/security/policy/policy-manager.hpp>
 
+#include "identity/basic-identity-storage.hpp"
+
+
 using namespace std;
 using namespace ndn::func_lib;
 #if NDN_CPP_HAVE_STD_FUNCTION
@@ -19,43 +22,66 @@ using namespace ndn::func_lib::placeholders;
 
 namespace ndn {
 
-const ptr_lib::shared_ptr<IdentityManager>   KeyChain::DefaultIdentityManager   = ptr_lib::shared_ptr<IdentityManager>();
+const ptr_lib::shared_ptr<IdentityStorage>   KeyChain::DefaultIdentityStorage   = ptr_lib::shared_ptr<IdentityStorage>();
+const ptr_lib::shared_ptr<PrivateKeyStorage> KeyChain::DefaultPrivateKeyStorage = ptr_lib::shared_ptr<PrivateKeyStorage>();
 const ptr_lib::shared_ptr<PolicyManager>     KeyChain::DefaultPolicyManager     = ptr_lib::shared_ptr<PolicyManager>();
 const ptr_lib::shared_ptr<EncryptionManager> KeyChain::DefaultEncryptionManager = ptr_lib::shared_ptr<EncryptionManager>();
 
-
-KeyChain::KeyChain(const ptr_lib::shared_ptr<IdentityManager>   &identityManager   /* = DefaultIdentityManager */,
+KeyChain::KeyChain(const ptr_lib::shared_ptr<IdentityStorage>   &publicInfoStorage /* = DefaultIdentityStorage */,
+                   const ptr_lib::shared_ptr<PrivateKeyStorage> &privateKeyStorage /* = DefaultPrivateKeyStorage */,
                    const ptr_lib::shared_ptr<PolicyManager>     &policyManager     /* = DefaultPolicyManager */,
                    const ptr_lib::shared_ptr<EncryptionManager> &encryptionManager /* = DefaultEncryptionManager */)
-  : identityManager_(identityManager)
+  : publicInfoStorage_(publicInfoStorage)
+  , privateKeyStorage_(privateKeyStorage)
   , policyManager_(policyManager)
   , encryptionManager_(encryptionManager)
   , maxSteps_(100)
-{  
-// #ifdef USE_SIMPLE_POLICY_MANAGER
-//   Ptr<SimplePolicyManager> policyManager = Ptr<SimplePolicyManager>(new SimplePolicyManager());
-//   Ptr<IdentityPolicyRule> rule1 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^([^<KEY>]*)<KEY>(<>*)<ksk-.*><ID-CERT>",
-//                                                                                  "^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>",
-//                                                                                  ">", "\\1\\2", "\\1", true));
-//   Ptr<IdentityPolicyRule> rule2 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>",
-//                                                                                  "^([^<KEY>]*)<KEY>(<>*)<ksk-.*><ID-CERT>",
-//                                                                                  "==", "\\1", "\\1\\2", true));
-//   Ptr<IdentityPolicyRule> rule3 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^(<>*)$", 
-//                                                                                  "^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>", 
-//                                                                                  ">", "\\1", "\\1", true));
-//   policyManager->addVerificationPolicyRule(rule1);
-//   policyManager->addVerificationPolicyRule(rule2);
-//   policyManager->addVerificationPolicyRule(rule3);
+{
+  if (publicInfoStorage_ == DefaultIdentityStorage)
+    {
+      publicInfoStorage_ = ptr_lib::make_shared<BasicIdentityStorage>();
+    }
+
+  if (privateKeyStorage_ == DefaultPrivateKeyStorage)
+    {
+#ifdef USE_OSX_PRIVATEKEY_STORAGE
+      privateStorage_ = ptr_lib::make_shared<OSXPrivatekeyStorage>();
+      // #else
+      //       m_privateStorage = Ptr<SimpleKeyStore>::Create();
+#endif  
+    }
+
+  identityManager_ = ptr_lib::make_shared<IdentityManager>(publicInfoStorage_, privateKeyStorage_);
+
+  if (policyManager_ == DefaultPolicyManager)
+    {
+      // #ifdef USE_SIMPLE_POLICY_MANAGER
+      //   Ptr<SimplePolicyManager> policyManager = Ptr<SimplePolicyManager>(new SimplePolicyManager());
+      //   Ptr<IdentityPolicyRule> rule1 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^([^<KEY>]*)<KEY>(<>*)<ksk-.*><ID-CERT>",
+      //                                                                                  "^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>",
+      //                                                                                  ">", "\\1\\2", "\\1", true));
+      //   Ptr<IdentityPolicyRule> rule2 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>",
+      //                                                                                  "^([^<KEY>]*)<KEY>(<>*)<ksk-.*><ID-CERT>",
+      //                                                                                  "==", "\\1", "\\1\\2", true));
+      //   Ptr<IdentityPolicyRule> rule3 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^(<>*)$", 
+      //                                                                                  "^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>", 
+      //                                                                                  ">", "\\1", "\\1", true));
+      //   policyManager->addVerificationPolicyRule(rule1);
+      //   policyManager->addVerificationPolicyRule(rule2);
+      //   policyManager->addVerificationPolicyRule(rule3);
     
-//   policyManager->addSigningPolicyRule(rule3);
+      //   policyManager->addSigningPolicyRule(rule3);
 
-//   m_policyManager = policyManager;
-// #endif
-
-//   if (!policyManager_)
-//     {
-//       policyManager_ = new NoVerifyPolicyManager();
-//     }
+      //   m_policyManager = policyManager;
+      //
+      // #else
+      //   policyManager_ = new NoVerifyPolicyManager();
+      // #endif
+    }
+  
+  if (encryptionManager_ == DefaultEncryptionManager)
+    {
+    }
 
 // #ifdef USE_BASIC_ENCRYPTION_MANAGER
 //     encryptionManager_ = new BasicEncryptionManager(m_identityManager->getPrivateStorage(), "/tmp/encryption.db");

@@ -29,7 +29,8 @@ class KeyChain {
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
 
-  KeyChain(const ptr_lib::shared_ptr<IdentityManager>   &identityManager   = DefaultIdentityManager,
+  KeyChain(const ptr_lib::shared_ptr<IdentityStorage>   &identityStorage   = DefaultIdentityStorage,
+           const ptr_lib::shared_ptr<PrivateKeyStorage> &privateKeyStorage = DefaultPrivateKeyStorage,
            const ptr_lib::shared_ptr<PolicyManager>     &policyManager     = DefaultPolicyManager,
            const ptr_lib::shared_ptr<EncryptionManager> &encryptionManager = DefaultEncryptionManager);
 
@@ -146,7 +147,8 @@ public:
   // todo
 
 public:
-  static const ptr_lib::shared_ptr<IdentityManager>   DefaultIdentityManager;
+  static const ptr_lib::shared_ptr<IdentityStorage>   DefaultIdentityStorage;
+  static const ptr_lib::shared_ptr<PrivateKeyStorage> DefaultPrivateKeyStorage;
   static const ptr_lib::shared_ptr<PolicyManager>     DefaultPolicyManager;
   static const ptr_lib::shared_ptr<EncryptionManager> DefaultEncryptionManager;
     
@@ -161,7 +163,10 @@ private:
      const ptr_lib::shared_ptr<Data> &data, ptr_lib::shared_ptr<ValidationRequest> nextStep);
 
 private:
-  ptr_lib::shared_ptr<IdentityManager>   identityManager_;
+  ptr_lib::shared_ptr<IdentityStorage>   publicInfoStorage_;
+  ptr_lib::shared_ptr<PrivateKeyStorage> privateKeyStorage_;
+  ptr_lib::shared_ptr<IdentityManager>   identityManager_; // uses publicInfo and privateKey storages
+
   ptr_lib::shared_ptr<PolicyManager>     policyManager_;
   ptr_lib::shared_ptr<EncryptionManager> encryptionManager_;
 
