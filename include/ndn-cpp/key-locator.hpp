@@ -8,20 +8,20 @@
 #ifndef NDN_KEY_LOCATOR_HPP
 #define NDN_KEY_LOCATOR_HPP
 
-#include "encoding/tlv-element.hpp"
+#include "encoding/block.hpp"
 #include "name.hpp"
 
 namespace ndn {
 
-namespace error {
-struct KeyLocator : public std::runtime_error { KeyLocator(const std::string &what) : std::runtime_error(what) {} };
-} // error
-
 class KeyLocator {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  
   enum {
     KeyLocator_None = -1,
-    KeyLocator_Name = 0
+    KeyLocator_Name = 0,
+    
+    KeyLocator_Unknown = 255
   };
   
   KeyLocator()
@@ -29,6 +29,12 @@ public:
   {
   }
 
+  inline const Block& 
+  wireEncode() const;
+
+  inline void 
+  wireDecode(const Block &value);
+  
   inline bool
   empty() const
   {
@@ -37,42 +43,79 @@ public:
   
   uint32_t 
   getType() const { return type_; }
-  
-  void 
-  setType(uint32_t type) { type_ = type; }
-    
-  const Block& 
-  getValue() const { return value_; }
-
-  void 
-  setValue(const Block &value) { value_ = value; }
-
+      
   ////////////////////////////////////////////////////////
   // Helper methods for different types of key locators
   //
   // For now only Name type is actually supported
   
-  Name
-  getName() const
-  {
-    if (type_ != KeyLocator_Name)
-      throw error::KeyLocator("Requested Name, but KeyLocator is not of the Name type");
+  inline const Name&
+  getName() const;
 
-    return Name(getValue());
-  }
-
-  void
-  setName(const Name &name)
-  {
-    type_ = KeyLocator_Name;
-    value_ = name.wireEncode();
-  }
+  inline void
+  setName(const Name &name);
   
 private:
   uint32_t type_;
-  Block value_;
+  Name name_;
+  
+  mutable Block wire_;
 };
 
+inline const Block& 
+KeyLocator::wireEncode() const
+{
+  if (empty())
+    throw Error("Wire encoding requested, but KeyLocator is empty");
+
+  if (wire_.hasWire())
+    return wire_;
+  
+  if (type_ != KeyLocator_Name)
+    throw Error("Unsupported KeyLocator type");
+  
+  // KeyLocator
+  wire_ = Block(Tlv::KeyLocator);
+  wire_.push_back(name_.wireEncode());
+  wire_.encode();
+  
+  return wire_;
 }
+
+inline void 
+KeyLocator::wireDecode(const Block &value)
+{
+  wire_ = value;
+  wire_.parse();
+  
+  if (!wire_.getAll().empty() && wire_.getAll().front().type() == Tlv::Name)
+    {
+      type_ = KeyLocator_Name;
+      name_.wireDecode(wire_.getAll().front());
+    }
+  else
+    {
+      type_ = KeyLocator_Unknown;
+    }
+}
+
+inline const Name&
+KeyLocator::getName() const
+{
+  if (type_ != KeyLocator_Name)
+    throw Error("Requested Name, but KeyLocator is not of the Name type");
+
+  return name_;
+}
+
+inline void
+KeyLocator::setName(const Name &name)
+{
+  type_ = KeyLocator_Name;
+  name_ = name;
+}
+
+
+} // namespace ndn
 
 #endif

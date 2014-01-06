@@ -12,278 +12,125 @@
 #include "name.hpp"
 #include "encoding/block.hpp"
 
+#include "signature.hpp"
+#include "meta-info.hpp"
+#include "key-locator.hpp"
 
 namespace ndn {
-
-/**
- * A Signature is storage for the signature-related information (info and value) in a Data packet.
- */
-class Signature {
-public:
-  enum {
-    DigestSha256 = 0,
-    SignatureSha256WithRsa = 1
-  };
-  
-  Signature()
-    : type_(-1)
-  {
-  }
-  
-  Signature(const Block &info, const Block &value)
-    : info_(info)
-    , value_(value)
-  {
-    Buffer::const_iterator i = info_.value_begin();
-    type_ = Tlv::readVarNumber(i, info_.value_end());
-  }
-
-  operator bool() const
-  {
-    return type_ != -1;
-  }
-
-  uint32_t
-  getType() const
-  {
-    return type_;
-  }
-  
-  const Block&
-  getInfo() const
-  {
-    return info_;
-  }
-
-  void
-  setInfo(const Block &info)
-  {
-    info_ = info;
-    if (info_.hasWire() || info_.hasValue())
-      {
-        info_.parse();
-        const Block &signatureType = info_.get(Tlv::SignatureType);
-        
-        Buffer::const_iterator i = signatureType.value_begin();
-        type_ = Tlv::readVarNumber(i, signatureType.value_end());
-      }
-    else
-      {
-        type_ = -1;
-      }
-  }  
-
-  const Block&
-  getValue() const
-  {
-    return value_;
-  }
-
-  void
-  setValue(const Block &value)
-  {
-    value_ = value;
-  }
-
-  void
-  reset()
-  {
-    type_ = -1;
-    info_.reset();
-    value_.reset();
-  }
-
-private:
-  int32_t type_;
-  
-  Block info_;
-  Block value_;
-};
-
-/**
- * An MetaInfo holds the meta info which is signed inside the data packet.
- */
-class MetaInfo {
-public:
-  enum {
-    TYPE_DEFAULT = 0,
-    TYPE_LINK = 1,
-    TYPE_KEY = 2
-  };
-  
-  MetaInfo()
-    : type_(TYPE_DEFAULT)
-    , freshnessPeriod_(-1)
-  {   
-  }
-  
-  uint32_t 
-  getType() const
-  { return type_; }
-  
-  void 
-  setType(uint32_t type)
-  { type_ = type; }
-  
-  Milliseconds 
-  getFreshnessPeriod() const
-  { return freshnessPeriod_; }
-  
-  void 
-  setFreshnessPeriod(Milliseconds freshnessPeriod)
-  { freshnessPeriod_ = freshnessPeriod; }
-
-private:
-  uint32_t type_;
-  Milliseconds freshnessPeriod_;
-
-  Block wire_;
-};
   
 class Data {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  
   /**
-   * Create a new Data object with default values and where the signature is a blank Sha256WithRsaSignature.
+   * @brief Create an empty Data object
    */
-  Data()
-  {
-  }
-
+  inline
+  Data();
+  
   /**
-   * Create a new Data object with the given name and default values and where the signature is a blank Sha256WithRsaSignature.
+   * @brief Create a new Data object with the given name
    * @param name A reference to the name which is copied.
    */
-  Data(const Name& name)
-    : name_(name)
-  {
-  }
+  inline
+  Data(const Name& name);
   
   /**
-   * The virtual destructor.
+   * @brief The virtual destructor.
    */
-  virtual ~Data()
-  {
-  }
+  inline virtual
+  ~Data();
   
   /**
-   * Encode this Data for a particular wire format. If wireFormat is the default wire format, also set the defaultWireEncoding 
-   * field to the encoded result.
-   * Even though this is const, if wireFormat is the default wire format we update the defaultWireEncoding.
-   * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
+   * @brief Encode this Data for a wire format.
    * @return The encoded byte array.
    */
   const Block& 
   wireEncode() const;
   
+  /**
+   * @brief Decode the input using a particular wire format and update this Data. 
+   * @param input The input byte array to be decoded.
+   */
   void
   wireDecode(const Block &wire);
-  
-  /**
-   * Decode the input using a particular wire format and update this Data. If wireFormat is the default wire format, also 
-   * set the defaultWireEncoding field to the input.
-   * @param input The input byte array to be decoded.
-   * @param inputLength The length of input.
-   * @param wireFormat A WireFormat object used to decode the input. If omitted, use WireFormat getDefaultWireFormat().
-   */
-  void
-  wireDecode(const uint8_t* input, size_t inputLength);
 
-  const Signature&
-  getSignature() const
-  {
-    return signature_;
-  }
+  inline const Name& 
+  getName() const;
   
   /**
-   * Set the signature to a copy of the given signature.
-   * @param signature The signature object which is cloned.
-   * @return This Data so that you can chain calls to update values.
-   */
-  Data& 
-  setSignature(const Signature& signature) 
-  {
-    signature_ = signature;
-    onChanged();
-    return *this;
-  }
-  
-  const Name& 
-  getName() const
-  {
-    return name_;
-  }
-  
-  /**
-   * Set name to a copy of the given Name.  This is virtual so that a subclass can override to validate the name.
+   * @brief Set name to a copy of the given Name.
+   *
+   * This is virtual so that a subclass can override to validate the name.
+   *
    * @param name The Name which is copied.
    * @return This Data so that you can chain calls to update values.
    */
-  void
-  setName(const Name& name)
-  { 
-    name_ = name; 
-    onChanged();
-  }
-  
-  const MetaInfo& 
-  getMetaInfo() const { return metaInfo_; }
+  inline virtual void
+  setName(const Name& name);
+
+  inline const MetaInfo& 
+  getMetaInfo() const;
   
   /**
-   * Set metaInfo to a copy of the given MetaInfo.
+   * @brief Set metaInfo to a copy of the given MetaInfo.
    * @param metaInfo The MetaInfo which is copied.
    * @return This Data so that you can chain calls to update values.
    */
-  void
-  setMetaInfo(const MetaInfo& metaInfo) 
-  { 
-    metaInfo_ = metaInfo; 
-    onChanged();
-  }
+  inline void
+  setMetaInfo(const MetaInfo& metaInfo);
 
-  const Block& 
-  getContent() const { return content_; }
+  ///////////////////////////////////////////////////////////////
+  // MetaInfo proxy methods
+  inline uint32_t 
+  getContentType() const;
+  
+  inline void 
+  setContentType(uint32_t type);
+  
+  inline Milliseconds 
+  getFreshnessPeriod() const;
+  
+  inline void 
+  setFreshnessPeriod(Milliseconds freshnessPeriod);
+  
+  /**
+   * @brief Get content Block
+   *
+   * To access content value, one can use value()/value_size() or
+   * value_begin()/value_end() methods of the Block class
+   */
+  inline const Block& 
+  getContent() const;
 
   /**
-   * Set the content to a copy of the data in the vector.
+   * @brief Set the content to a copy of the data in the vector.
    * @param content A vector whose contents are copied.
    * @return This Data so that you can chain calls to update values.
    */
-  void
-  setContent(const std::vector<uint8_t>& content) 
-  {
-    setContent(&content[0], content.size());
-    onChanged();
-  }
-  
-  void
-  setContent(const uint8_t* content, size_t contentLength) 
-  {
-    OBufferStream os;
-    Tlv::writeVarNumber(os, Tlv::Content);
-    Tlv::writeVarNumber(os, contentLength);
-    os.write(reinterpret_cast<const char *>(content), contentLength);
-    
-    content_ = Block(os.buf());
-    onChanged();
-  }
+  inline void
+  setContent(const uint8_t* content, size_t contentLength);
 
-  void
-  setContent(const ConstBufferPtr &contentValue)
-  {
-    content_ = Block(Tlv::Content, contentValue); // not real a wire encoding yet
-    onChanged();
-  }
+  inline void
+  setContent(const Block& content);
+
+  inline void
+  setContent(const ConstBufferPtr &contentValue);
   
-  void
-  setContent(const Block& content) 
-  { 
-    content_ = content;
-    onChanged();
-  }
+  inline const Signature&
+  getSignature() const;
+  
+  /**
+   * @brief Set the signature to a copy of the given signature.
+   * @param signature The signature object which is cloned.
+   * @return This Data so that you can chain calls to update values.
+   */
+  inline Data& 
+  setSignature(const Signature& signature);
 
 private:
   /**
-   * Clear the wire encoding.
+   * @brief Clear the wire encoding.
    */
   inline void 
   onChanged();
@@ -291,19 +138,141 @@ private:
 private:
   Name name_;
   MetaInfo metaInfo_;
-  Block content_;
+  mutable Block content_;
   Signature signature_;
 
-  Block wire_;
+  mutable Block wire_;
 };
 
+inline
+Data::Data()
+{
+}
+
+inline
+Data::Data(const Name& name)
+  : name_(name)
+{
+}
+
+inline
+Data::~Data()
+{
+}
+
+inline const Name& 
+Data::getName() const
+{
+  return name_;
+}
+  
+inline void
+Data::setName(const Name& name)
+{ 
+  onChanged();
+  name_ = name; 
+}
+  
+inline const MetaInfo& 
+Data::getMetaInfo() const
+{
+  return metaInfo_;
+}
+  
+inline void
+Data::setMetaInfo(const MetaInfo& metaInfo) 
+{ 
+  onChanged();
+  metaInfo_ = metaInfo; 
+}
+
+inline uint32_t 
+Data::getContentType() const
+{
+  return metaInfo_.getType();
+}
+  
+inline void 
+Data::setContentType(uint32_t type)
+{
+  onChanged();
+  metaInfo_.setType(type);
+}
+  
+inline Milliseconds 
+Data::getFreshnessPeriod() const
+{
+  return metaInfo_.getFreshnessPeriod();
+}
+  
+inline void 
+Data::setFreshnessPeriod(Milliseconds freshnessPeriod)
+{
+  onChanged();
+  metaInfo_.setFreshnessPeriod(freshnessPeriod);
+}
+
+inline const Block& 
+Data::getContent() const
+{
+  if (!content_.hasWire())
+      content_.encode();
+  return content_;
+}
+
+inline void
+Data::setContent(const uint8_t* content, size_t contentLength) 
+{
+  onChanged();
+
+  OBufferStream os;
+  Tlv::writeVarNumber(os, Tlv::Content);
+  Tlv::writeVarNumber(os, contentLength);
+  os.write(reinterpret_cast<const char *>(content), contentLength);
+    
+  content_ = Block(os.buf());
+}
+
+inline void
+Data::setContent(const ConstBufferPtr &contentValue)
+{
+  onChanged();
+
+  content_ = Block(Tlv::Content, contentValue); // not real a wire encoding yet
+}
+  
+inline void
+Data::setContent(const Block& content) 
+{ 
+  onChanged();
+
+  content_ = content;
+}
+
+inline const Signature&
+Data::getSignature() const
+{
+  return signature_;
+}
+  
+inline Data& 
+Data::setSignature(const Signature& signature) 
+{
+  onChanged();
+  signature_ = signature;
+
+  return *this;
+}
 
 inline void 
 Data::onChanged()
 {
-  // The values have changed, so the signature and wire format is invalidated
-  signature_.reset();
-  wire_.reset();
+  // The values have changed, so the wire format is invalidated
+
+  // !!!Note!!! Signature is not invalidated and it is responsibility of
+  // the application to do proper re-signing if necessary
+  
+  wire_ = Block();
 }
 
 } // namespace ndn

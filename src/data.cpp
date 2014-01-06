@@ -12,37 +12,70 @@ using namespace std;
 
 namespace ndn {
 
-const Block &
+const Block& 
 Data::wireEncode() const
 {
-  // size_t signedPortionBeginOffset, signedPortionEndOffset;
-  // Blob encoding = wireFormat.encodeData(*this, &signedPortionBeginOffset, &signedPortionEndOffset);
-  // SignedBlob wireEncoding = SignedBlob(encoding, signedPortionBeginOffset, signedPortionEndOffset);
-  
-  // if (&wireFormat == WireFormat::getDefaultWireFormat())
-  //   // This is the default wire encoding.
-  //   const_cast<Data*>(this)->defaultWireEncoding_ = wireEncoding;
-  
-  // return wireEncoding;
-  return wire_;
-}
+  if (wire_.hasWire())
+    return wire_;
 
+  wire_ = Block(Tlv::Data);
+
+  // Name
+  wire_.push_back(getName().wireEncode());
+
+  // MetaInfo
+  wire_.push_back(getMetaInfo().wireEncode());
+
+  // Content
+  wire_.push_back(content_);
+
+  if (!signature_) {
+    throw Error("Requested wire format, but data packet has not been signed yet");
+  }
+
+  ///////////////
+  // Signature //
+  ///////////////
+  
+  // SignatureInfo
+  wire_.push_back(signature_.getInfo());
+  
+  // SignatureValue
+  wire_.push_back(signature_.getValue());
+  
+  wire_.encode();
+  return wire_;  
+}
+  
+/**
+ * Decode the input using a particular wire format and update this Data. 
+ * @param input The input byte array to be decoded.
+ */
 void
 Data::wireDecode(const Block &wire)
 {
+  wire_ = wire;
+  wire_.parse();
+
+  // Name
+  name_.wireDecode(wire_.get(Tlv::Name));
+
+  // MetaInfo
+  metaInfo_.wireDecode(wire_.get(Tlv::MetaInfo));
+
+  // Content
+  content_ = wire_.get(Tlv::Content);
+
+  ///////////////
+  // Signature //
+  ///////////////
+  
+  // SignatureInfo
+  signature_.setInfo(wire_.get(Tlv::SignatureInfo));
+  
+  // SignatureValue
+  signature_.setValue(wire_.get(Tlv::SignatureValue));
 }
 
-void 
-Data::wireDecode(const uint8_t* input, size_t inputLength) 
-{
-  // size_t signedPortionBeginOffset, signedPortionEndOffset;
-  // wireFormat.decodeData(*this, input, inputLength, &signedPortionBeginOffset, &signedPortionEndOffset);
-  
-  // if (&wireFormat == WireFormat::getDefaultWireFormat())
-  //   // This is the default wire encoding.
-  //   defaultWireEncoding_ = SignedBlob(input, inputLength, signedPortionBeginOffset, signedPortionEndOffset);
-  // else
-  //   defaultWireEncoding_ = SignedBlob();
-}
 
 }

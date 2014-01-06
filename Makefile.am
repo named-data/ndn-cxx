@@ -108,10 +108,8 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/face.cpp \
   src/forwarding-entry.cpp \
   src/interest.cpp \
-  src/key-locator.cpp \
   src/name.cpp \
   src/node.cpp \
-  src/publisher-public-key-digest.cpp \
   src/security/certificate/certificate-extension.cpp \
   src/security/certificate/certificate-subject-description.cpp \
   src/security/certificate/certificate.cpp \
@@ -128,7 +126,6 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/security/policy/self-verify-policy-manager.cpp \
   src/security/security-exception.cpp \
   src/security/signature/sha256-with-rsa-handler.cpp \
-  src/sha256-with-rsa-signature.cpp \
   src/transport/tcp-transport.cpp \
   src/transport/transport.cpp \
   src/transport/udp-transport.cpp \
