@@ -5,9 +5,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-// Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_OSX_SECURITY 1.
 #include <ndn-cpp/ndn-cpp-config.h>
-#if NDN_CPP_HAVE_OSX_SECURITY
 
 #include <fstream>
 #include <sstream>
@@ -615,5 +613,3 @@ namespace ndn
   }
   
 }
-
-#endif // NDN_CPP_HAVE_OSX_SECURITY

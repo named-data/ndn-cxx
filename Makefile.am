@@ -103,7 +103,6 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/security/identity/identity-storage.cpp \
   src/security/identity/memory-identity-storage.cpp \
   src/security/identity/memory-private-key-storage.cpp \
-  src/security/identity/osx-private-key-storage.cpp \
   src/security/key-chain.cpp \
   src/security/policy/no-verify-policy-manager.cpp \
   src/security/policy/self-verify-policy-manager.cpp \
@@ -119,6 +118,12 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/util/ndnd-id-fetcher.hpp \
   src/util/string-helper.hpp \
   src/util/time.hpp
+
+if HAVE_OSX_SECURITY
+  libndn_cpp_la_SOURCES += src/security/identity/osx-private-key-storage.cpp
+else
+  EXTRA_DIST = src/security/identity/osx-private-key-storage.cpp
+endif
 
 libndn_cpp_la_LIBADD  = @OPENSSL_LIBS@ @CRYPTOPP_LIBS@ @OSX_SECURITY_LIBS@
 libndn_cpp_la_LDFLAGS = @OPENSSL_LDFLAGS@  @CRYPTOPP_LDFLAGS@ @SQLITE3_LDFLAGS@ @BOOST_LDFLAGS@
