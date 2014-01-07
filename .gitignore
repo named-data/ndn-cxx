@@ -72,3 +72,6 @@ tests/test-publish-async
 # Tests using Boost's unit test framework
 tests_boost/unit-tests
 
+# Tools
+tools/tlvdump
+
