@@ -13,6 +13,11 @@
 #include "c/common.h"
 
 #if NDN_CPP_HAVE_CXX11
+
+#if (__cplusplus < 201103L)
+#error "NDN-CPP library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
+#endif
+
 // Depending on where ./configure found shared_ptr, define the ptr_lib namespace.
 // We always use ndn::ptr_lib.
 // #if NDN_CPP_HAVE_STD_SHARED_PTR
