@@ -64,6 +64,7 @@ public:
   /**
    * @brief Create Block of a specific type with empty wire buffer
    */
+  explicit
   Block(uint32_t type);
 
   /**
@@ -82,6 +83,7 @@ public:
    * to construct wire encoding, one need to prepend the wire buffer with type
    * and value-length VAR-NUMBERs
    */
+  explicit
   Block(uint32_t type, const Block &value);
   
   /**
