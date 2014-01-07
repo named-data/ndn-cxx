@@ -95,6 +95,8 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
 # Require openssl (libcrypto).
 AX_CHECK_OPENSSL([], [AC_MSG_FAILURE([can't find openssl crypto lib])])
 
+AX_LIB_CRYPTOPP([], [AC_MSG_FAILURE([can't find crypto++ library])])
+
 # Conditionally use libsqlite3.  AX_LIB_SQLITE3 defines HAVE_SQLITE3 in confdefs.h .
 AX_LIB_SQLITE3()
 if grep -q "#define HAVE_SQLITE3" confdefs.h ; then
