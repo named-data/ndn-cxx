@@ -74,6 +74,26 @@ AX_BOOST_BASE([1.42.0],
   ],
   []
 )
+AX_BOOST_ASIO
+
+AC_ARG_WITH([tests],
+  AS_HELP_STRING(
+      [--with-tests],
+      [Enable compilation of library tests (disabled by default).]
+  ),
+  [
+    want_tests="yes"
+    AM_CONDITIONAL(COMPILE_TESTS, true)
+  ],
+  [
+    want_tests="no"
+    AM_CONDITIONAL(COMPILE_TESTS, false)
+  ]
+)
+
+AX_BOOST_SYSTEM
+AX_BOOST_UNIT_TEST_FRAMEWORK
+AM_CONDITIONAL(HAVE_BOOST_UNIT_TEST_FRAMEWORK, [test "x$ax_cv_boost_unit_test_framework" = "xyes"])
 
 AC_MSG_CHECKING([for gmtime support])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
@@ -135,5 +155,6 @@ DX_INIT_DOXYGEN([$PACKAGE_NAME],[Doxyfile])
 
 AC_CONFIG_FILES([Makefile
                  include/Makefile
-                 tests/Makefile])
+                 tests/Makefile
+                 tests_boost/Makefile])
 AC_OUTPUT

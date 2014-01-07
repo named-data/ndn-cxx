@@ -12,7 +12,14 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS} -I m4
 lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 
 # "make install" will also install the include headers.
-SUBDIRS = include . tests
+SUBDIRS = include .
+
+if COMPILE_TESTS
+  SUBDIRS += tests
+if HAVE_BOOST_UNIT_TEST_FRAMEWORK
+  SUBDIRS += tests_boost
+endif
+endif
 
 # Just the C code.
 ## To regenerate:

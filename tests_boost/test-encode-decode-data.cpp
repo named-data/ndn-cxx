@@ -11,6 +11,12 @@
 
 #include <fstream>
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-compare"
+#endif
+
+
 #include <cryptopp/rsa.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/files.h>
@@ -187,8 +193,6 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
 
   Block dataBlock;
   BOOST_REQUIRE_NO_THROW(dataBlock = d.wireEncode());
-  ofstream of("data.tlv");
-  of.write((const char*)dataBlock.wire(), dataBlock.size());
 
   BOOST_REQUIRE_EQUAL_COLLECTIONS(Data1, Data1+sizeof(Data1),
                                dataBlock.begin(), dataBlock.end());

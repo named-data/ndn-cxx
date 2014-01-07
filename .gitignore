@@ -68,3 +68,7 @@ tests/test-encode-decode-forwarding-entry
 tests/test-encode-decode-interest
 tests/test-get-async
 tests/test-publish-async
+
+# Tests using Boost's unit test framework
+tests_boost/unit-tests
+
