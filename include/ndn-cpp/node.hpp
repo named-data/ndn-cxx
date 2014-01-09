@@ -317,6 +317,7 @@ private:
 private:
   ptr_lib::shared_ptr<boost::asio::io_service> ioService_;
   ptr_lib::shared_ptr<boost::asio::deadline_timer> pitTimeoutCheckTimer_;
+  bool pitTimeoutCheckTimerActive_;
   ptr_lib::shared_ptr<boost::asio::deadline_timer> processEventsTimeoutTimer_;
   
   ptr_lib::shared_ptr<Transport> transport_;

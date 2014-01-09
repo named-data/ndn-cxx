@@ -110,6 +110,11 @@ public:
 
     if (error)
       {
+        if (error == boost::system::errc::operation_canceled) {
+          // async receive has been explicitly cancelled (e.g., socket close)
+          return;
+        }
+        
         socket_.close(); // closing at this point may not be that necessary
         transport_.isConnected_ = true;
         throw Transport::Error(error, "error while receiving data from socket");

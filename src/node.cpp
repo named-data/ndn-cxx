@@ -29,27 +29,23 @@ uint64_t Node::PendingInterest::lastPendingInterestId_ = 0;
 uint64_t Node::RegisteredPrefix::lastRegisteredPrefixId_ = 0;
 
 Node::Node(const ptr_lib::shared_ptr<Transport>& transport)
-  : transport_(transport)
+  : pitTimeoutCheckTimerActive_(false)
+  , transport_(transport)
   , ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
 {
   ioService_ = ptr_lib::make_shared<boost::asio::io_service>();      
   pitTimeoutCheckTimer_      = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
   processEventsTimeoutTimer_ = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
-  
-  pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
-  pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
 }
 
 Node::Node(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<boost::asio::io_service> &ioService)
   : ioService_(ioService)
+  , pitTimeoutCheckTimerActive_(false)
   , transport_(transport)
   , ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
 {
   pitTimeoutCheckTimer_      = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
   processEventsTimeoutTimer_ = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
-  
-  pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
-  pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
 }
 
 uint64_t 
@@ -64,6 +60,12 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
     (pendingInterestId, ptr_lib::shared_ptr<const Interest>(new Interest(interest)), onData, onTimeout)));
 
   transport_->send(interest.wireEncode());
+
+  if (!pitTimeoutCheckTimerActive_) {
+    pitTimeoutCheckTimerActive_ = true;
+    pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
+    pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
+  }
   
   return pendingInterestId;
 }
@@ -264,8 +266,19 @@ Node::checkPitExpire()
     }
   }
 
-  pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
-  pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
+  if (!pendingInterestTable_.empty()) {
+    // pitTimeoutCheckTimerActive = true;
+    pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
+    pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
+  }
+  else {
+    pitTimeoutCheckTimerActive_ = false;
+
+    if (registeredPrefixTable_.empty()) {
+      transport_->close();
+      processEventsTimeoutTimer_->cancel();
+    }
+  }
 }
 
 
@@ -302,7 +315,9 @@ void
 Node::shutdown()
 {
   transport_->close();
-  ioService_->stop();
+  pitTimeoutCheckTimer_->cancel();
+  processEventsTimeoutTimer_->cancel();
+  pitTimeoutCheckTimerActive_ = false;
 }
 
 Node::PendingInterestTable::iterator 
