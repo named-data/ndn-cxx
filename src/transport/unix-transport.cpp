@@ -33,6 +33,7 @@ public:
     , socket_(*transport_.ioService_)
     , partialDataSize_(0)
     , connectionInProgress_(false)
+    , connectTimer_(*transport_.ioService_)
   {
   }
 
@@ -40,6 +41,7 @@ public:
   connectHandler(const boost::system::error_code& error)
   {
     connectionInProgress_ = false;
+    connectTimer_.cancel();
 
     if (!error)
       {
@@ -62,6 +64,18 @@ public:
         throw Transport::Error(error, "error while connecting to the forwarder");
       }
   }
+
+  void
+  connectTimeoutHandler(const boost::system::error_code& error)
+  {
+    if (error) // e.g., cancelled timer
+      return;
+
+    connectionInProgress_ = false;
+    transport_.isConnected_ = false;
+    socket_.close();
+    throw Transport::Error(error, "error while connecting to the forwarder");
+  }
   
   void
   connect()
@@ -71,12 +85,18 @@ public:
       socket_.open();
       socket_.async_connect(protocol::endpoint(transport_.unixSocket_),
                             func_lib::bind(&Impl::connectHandler, this, _1));
+
+      // Wait at most 4 seconds to connect
+      /// @todo Decide whether this number should be configurable
+      connectTimer_.expires_from_now(boost::posix_time::seconds(4));
+      connectTimer_.async_wait(func_lib::bind(&Impl::connectTimeoutHandler, this, _1));
     }
   }
 
   void 
   close()
   {
+    connectTimer_.cancel();
     socket_.close();
     transport_.isConnected_ = false;
   }
@@ -209,6 +229,8 @@ private:
 
   std::list< Block > sendQueue_;
   bool connectionInProgress_;
+
+  boost::asio::deadline_timer connectTimer_;
 };
 
 UnixTransport::UnixTransport(const std::string &unixSocket/* = "/tmp/.ndnd.sock"*/) 
