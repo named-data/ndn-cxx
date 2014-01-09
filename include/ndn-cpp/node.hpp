@@ -126,14 +126,18 @@ public:
    * This call will block forever (default timeout == 0) to process IO on the face.
    * To exit, one expected to call face.shutdown() from one of the callback methods.
    *
-   * If timeout is specified, then processEvents will exit after this timeout, if not stopped earlier with face.shutdown().
+   * If positive timeout is specified, then processEvents will exit after this timeout,
+   * if not stopped earlier with face.shutdown() or when all active events finish.
    * The call can be called repeatedly, if desired.
+   *
+   * If negative timeout is specified, then processEvents will not block and process only pending
+   * events.
    *
    * @throw This may throw an exception for reading data or in the callback for processing the data.  If you
    * call this from an main event loop, you may want to catch and log/disregard all exceptions.
    */
   void 
-  processEvents(Milliseconds timeout = 0);
+  processEvents(Milliseconds timeout = 0, bool keepThread = false);
   
   const ptr_lib::shared_ptr<Transport>& 
   getTransport() { return transport_; }
@@ -316,6 +320,7 @@ private:
   
 private:
   ptr_lib::shared_ptr<boost::asio::io_service> ioService_;
+  ptr_lib::shared_ptr<boost::asio::io_service::work> ioServiceWork_; // needed if thread needs to be preserved
   ptr_lib::shared_ptr<boost::asio::deadline_timer> pitTimeoutCheckTimer_;
   bool pitTimeoutCheckTimerActive_;
   ptr_lib::shared_ptr<boost::asio::deadline_timer> processEventsTimeoutTimer_;

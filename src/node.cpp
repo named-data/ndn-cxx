@@ -224,21 +224,34 @@ Node::registerPrefixFinal(uint64_t registeredPrefixId,
 }
 
 void 
-Node::processEvents(Milliseconds timeout/* = 0 */)
+Node::processEvents(Milliseconds timeout/* = 0 */, bool keepThread/* = false*/)
 {
-  if (timeout > 0)
-    {
-      processEventsTimeoutTimer_->expires_from_now(boost::posix_time::milliseconds(timeout));
-      processEventsTimeoutTimer_->async_wait(fireProcessEventsTimeout);
-    }
   try
     {
+      if (timeout < 0)
+        {
+          // do not block if timeout is negative, but process pending events
+          ioService_->poll();
+          return;
+        }
+
+      if (timeout > 0)
+        {
+          processEventsTimeoutTimer_->expires_from_now(boost::posix_time::milliseconds(timeout));
+          processEventsTimeoutTimer_->async_wait(fireProcessEventsTimeout);
+        }
+      
+      if (keepThread) {
+        // work will ensure that ioService_ is running until work object exists
+        ioServiceWork_ = ptr_lib::make_shared<boost::asio::io_service::work>(boost::ref(*ioService_));
+      }
+          
       ioService_->run();
-      ioService_->reset();
     }
   catch(Node::ProcessEventsTimeout &)
     {
       // break
+      ioService_->reset();
     }
 }
 
@@ -276,7 +289,9 @@ Node::checkPitExpire()
 
     if (registeredPrefixTable_.empty()) {
       transport_->close();
-      processEventsTimeoutTimer_->cancel();
+      if (!ioServiceWork_) {
+        processEventsTimeoutTimer_->cancel();
+      }
     }
   }
 }
@@ -318,6 +333,9 @@ Node::shutdown()
   pitTimeoutCheckTimer_->cancel();
   processEventsTimeoutTimer_->cancel();
   pitTimeoutCheckTimerActive_ = false;
+  
+  // This will ensure that io_service::work will stop
+  ioServiceWork_.reset();
 }
 
 Node::PendingInterestTable::iterator 
