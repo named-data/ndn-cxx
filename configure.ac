@@ -155,6 +155,7 @@ DX_INIT_DOXYGEN([$PACKAGE_NAME],[Doxyfile])
 
 AC_CONFIG_FILES([Makefile
                  include/Makefile
+                 examples/Makefile
                  tools/Makefile
                  tests/Makefile
                  tests_boost/Makefile])

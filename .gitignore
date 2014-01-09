@@ -75,3 +75,7 @@ tests_boost/unit-tests
 # Tools
 tools/tlvdump
 
+# Examples
+examples/consumer
+examples/producer
+

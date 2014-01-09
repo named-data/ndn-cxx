@@ -12,7 +12,7 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS} -I m4
 lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
 
 # "make install" will also install the include headers.
-SUBDIRS = include . tools
+SUBDIRS = include . tools examples
 
 if COMPILE_TESTS
   SUBDIRS += tests
