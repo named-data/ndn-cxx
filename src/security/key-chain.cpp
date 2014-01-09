@@ -7,10 +7,10 @@
  */
 
 #include <ndn-cpp/security/key-chain.hpp>
-
-#include <ndn-cpp/security/policy/policy-manager.hpp>
-
 #include <ndn-cpp/security/identity/basic-identity-storage.hpp>
+#include <ndn-cpp/security/signature/signature-sha256-with-rsa.hpp>
+#include "../util/logging.hpp"
+#include "../c/util/time.h"
 
 
 using namespace std;
@@ -20,22 +20,17 @@ using namespace ndn::func_lib;
 using namespace ndn::func_lib::placeholders;
 #endif
 
+INIT_LOGGER("ndn.KeyChain");
+
 namespace ndn {
 
 const ptr_lib::shared_ptr<IdentityStorage>   KeyChain::DefaultIdentityStorage   = ptr_lib::shared_ptr<IdentityStorage>();
 const ptr_lib::shared_ptr<PrivateKeyStorage> KeyChain::DefaultPrivateKeyStorage = ptr_lib::shared_ptr<PrivateKeyStorage>();
-const ptr_lib::shared_ptr<PolicyManager>     KeyChain::DefaultPolicyManager     = ptr_lib::shared_ptr<PolicyManager>();
-const ptr_lib::shared_ptr<EncryptionManager> KeyChain::DefaultEncryptionManager = ptr_lib::shared_ptr<EncryptionManager>();
 
 KeyChain::KeyChain(const ptr_lib::shared_ptr<IdentityStorage>   &publicInfoStorage /* = DefaultIdentityStorage */,
-                   const ptr_lib::shared_ptr<PrivateKeyStorage> &privateKeyStorage /* = DefaultPrivateKeyStorage */,
-                   const ptr_lib::shared_ptr<PolicyManager>     &policyManager     /* = DefaultPolicyManager */,
-                   const ptr_lib::shared_ptr<EncryptionManager> &encryptionManager /* = DefaultEncryptionManager */)
+		 const ptr_lib::shared_ptr<PrivateKeyStorage> &privateKeyStorage /* = DefaultPrivateKeyStorage */)
   : publicInfoStorage_(publicInfoStorage)
   , privateKeyStorage_(privateKeyStorage)
-  , policyManager_(policyManager)
-  , encryptionManager_(encryptionManager)
-  // , maxSteps_(100)
 {
   if (publicInfoStorage_ == DefaultIdentityStorage)
     {
@@ -50,124 +45,280 @@ KeyChain::KeyChain(const ptr_lib::shared_ptr<IdentityStorage>   &publicInfoStora
       //       m_privateStorage = Ptr<SimpleKeyStore>::Create();
 #endif  
     }
-
-  identityManager_ = ptr_lib::make_shared<IdentityManager>(publicInfoStorage_, privateKeyStorage_);
-
-  if (policyManager_ == DefaultPolicyManager)
-    {
-      // #ifdef USE_SIMPLE_POLICY_MANAGER
-      //   Ptr<SimplePolicyManager> policyManager = Ptr<SimplePolicyManager>(new SimplePolicyManager());
-      //   Ptr<IdentityPolicyRule> rule1 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^([^<KEY>]*)<KEY>(<>*)<ksk-.*><ID-CERT>",
-      //                                                                                  "^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>",
-      //                                                                                  ">", "\\1\\2", "\\1", true));
-      //   Ptr<IdentityPolicyRule> rule2 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>",
-      //                                                                                  "^([^<KEY>]*)<KEY>(<>*)<ksk-.*><ID-CERT>",
-      //                                                                                  "==", "\\1", "\\1\\2", true));
-      //   Ptr<IdentityPolicyRule> rule3 = Ptr<IdentityPolicyRule>(new IdentityPolicyRule("^(<>*)$", 
-      //                                                                                  "^([^<KEY>]*)<KEY><dsk-.*><ID-CERT>", 
-      //                                                                                  ">", "\\1", "\\1", true));
-      //   policyManager->addVerificationPolicyRule(rule1);
-      //   policyManager->addVerificationPolicyRule(rule2);
-      //   policyManager->addVerificationPolicyRule(rule3);
-    
-      //   policyManager->addSigningPolicyRule(rule3);
-
-      //   m_policyManager = policyManager;
-      //
-      // #else
-      //   policyManager_ = new NoVerifyPolicyManager();
-      // #endif
-    }
-  
-  if (encryptionManager_ == DefaultEncryptionManager)
-    {
-    }
-
-// #ifdef USE_BASIC_ENCRYPTION_MANAGER
-//     encryptionManager_ = new BasicEncryptionManager(m_identityManager->getPrivateStorage(), "/tmp/encryption.db");
-// #endif
 }
 
+Name
+KeyChain::createIdentity(const Name& identityName)
+{
+  if (!info().doesIdentityExist(identityName)) {
+    _LOG_DEBUG("Create Identity");
+    info().addIdentity(identityName);
+  
+    _LOG_DEBUG("Create Default RSA key pair");
+    Name keyName = generateRSAKeyPairAsDefault(identityName, true);
+
+    _LOG_DEBUG("Create self-signed certificate");
+    ptr_lib::shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
+  
+    _LOG_DEBUG("Add self-signed certificate as default");
+    addCertificateAsDefault(*selfCert);
+
+    return keyName;
+  }
+  else
+    throw Error("Identity has already been created!");
+}
+
+Name
+KeyChain::generateKeyPair(const Name& identityName, bool isKsk, KeyType keyType, int keySize)
+{
+  _LOG_DEBUG("Get new key ID");    
+  Name keyName = info().getNewKeyName(identityName, isKsk);
+
+  _LOG_DEBUG("Generate key pair in private storage");
+  tpm().generateKeyPair(keyName.toUri(), keyType, keySize);
+
+  _LOG_DEBUG("Create a key record in public storage");
+  ptr_lib::shared_ptr<PublicKey> pubKey = tpm().getPublicKey(keyName.toUri());
+  info().addKey(keyName, keyType, *pubKey);
+
+  return keyName;
+}
+
+Name
+KeyChain::generateRSAKeyPair(const Name& identityName, bool isKsk, int keySize)
+{
+  Name keyName = generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
+
+  return keyName;
+}
+
+Name
+KeyChain::generateRSAKeyPairAsDefault(const Name& identityName, bool isKsk, int keySize)
+{
+  defaultCertificate_.reset();
+  
+  Name keyName = generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
+
+  info().setDefaultKeyNameForIdentity(keyName, identityName);
+  
+  return keyName;
+}
+
+ptr_lib::shared_ptr<IdentityCertificate>
+KeyChain::createIdentityCertificate(const Name& certificatePrefix,
+				   const Name& signerCertificateName,
+				   const MillisecondsSince1970& notBefore,
+				   const MillisecondsSince1970& notAfter)
+{
+  Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
+
+  ptr_lib::shared_ptr<PublicKey> pubKey = info().getKey(keyName);
+  if (!pubKey)
+    throw Error("Requested public key [" + keyName.toUri() + "] doesn't exist");
+  
+  ptr_lib::shared_ptr<IdentityCertificate> certificate =
+    createIdentityCertificate(certificatePrefix,
+                              *pubKey,
+                              signerCertificateName,
+                              notBefore, notAfter);
+
+  info().addCertificate(*certificate);
+  
+  return certificate;
+}
+
+ptr_lib::shared_ptr<IdentityCertificate>
+KeyChain::createIdentityCertificate(const Name& certificatePrefix,
+				   const PublicKey& publicKey,
+				   const Name& signerCertificateName,
+				   const MillisecondsSince1970& notBefore,
+				   const MillisecondsSince1970& notAfter)
+{
+  ptr_lib::shared_ptr<IdentityCertificate> certificate (new IdentityCertificate());
+  Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
+  
+  Name certificateName = certificatePrefix;
+  certificateName.append("ID-CERT").appendVersion();
+  
+  certificate->setName(certificateName);
+  certificate->setNotBefore(notBefore);
+  certificate->setNotAfter(notAfter);
+  certificate->setPublicKeyInfo(publicKey);
+  certificate->addSubjectDescription(CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
+  certificate->encode();
+
+  sign(*certificate, signerCertificateName);
+
+  return certificate;
+}
+
+Name
+KeyChain::getKeyNameFromCertificatePrefix(const Name & certificatePrefix)
+{
+  Name result;
+
+  string keyString("KEY");
+  int i = 0;
+  for(; i < certificatePrefix.size(); i++) {
+    if (certificatePrefix.get(i).toEscapedString() == keyString)
+      break;
+  }
+    
+  if (i >= certificatePrefix.size())
+    throw Error("Identity Certificate Prefix does not have a KEY component");
+
+  result.append(certificatePrefix.getSubName(0, i));
+  result.append(certificatePrefix.getSubName(i + 1, certificatePrefix.size()-i-1));
+    
+  return result;
+}
+
+void
+KeyChain::setDefaultCertificateForKey(const IdentityCertificate& certificate)
+{
+  defaultCertificate_.reset();
+  
+  Name keyName = certificate.getPublicKeyName();
+  
+  if(!info().doesKeyExist(keyName))
+    throw Error("No corresponding Key record for certificate!");
+
+  info().setDefaultCertificateNameForKey(keyName, certificate.getName());
+}
+
+void
+KeyChain::addCertificateAsIdentityDefault(const IdentityCertificate& certificate)
+{
+  info().addCertificate(certificate);
+
+  Name keyName = certificate.getPublicKeyName();
+    
+  setDefaultKeyForIdentity(keyName);
+
+  setDefaultCertificateForKey(certificate);
+}
+
+void
+KeyChain::addCertificateAsDefault(const IdentityCertificate& certificate)
+{
+  info().addCertificate(certificate);
+
+  setDefaultCertificateForKey(certificate);
+}
+
+void
+KeyChain::sign(Data &data)
+{
+  if (!defaultCertificate_)
+    {
+      defaultCertificate_ = info().getCertificate(
+                                                  info().getDefaultCertificateNameForIdentity(
+                                                                                              info().getDefaultIdentity()));
+
+      if(!defaultCertificate_)
+        throw Error("Default IdentityCertificate cannot be determined");
+    }
+
+  sign(data, *defaultCertificate_);
+}
+
+void
+KeyChain::sign(Data &data, const Name &certificateName)
+{
+  ptr_lib::shared_ptr<IdentityCertificate> cert = info().getCertificate(certificateName);
+  if (!cert)
+    throw Error("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
+
+  SignatureSha256WithRsa signature;
+  signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
+  data.setSignature(signature);
+
+  // For temporary usage, we support RSA + SHA256 only, but will support more.
+  tpm().sign(data, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+}
+
+void
+KeyChain::sign(Data& data, const IdentityCertificate& certificate)
+{
+  SignatureSha256WithRsa signature;
+  signature.setKeyLocator(certificate.getName().getPrefix(-1));
+  data.setSignature(signature);
+
+  // For temporary usage, we support RSA + SHA256 only, but will support more.
+  tpm().sign(data, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+}
+
+Signature
+KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
+{
+  ptr_lib::shared_ptr<IdentityCertificate> cert = info().getCertificate(certificateName);
+  if (!cert)
+    throw Error("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
+
+  SignatureSha256WithRsa signature;
+  signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
+  
+  // For temporary usage, we support RSA + SHA256 only, but will support more.
+  signature.setValue
+    (tpm().sign(buffer, bufferLength, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256));
+  return signature;
+}
 
 void 
 KeyChain::signByIdentity(Data& data, const Name& identityName)
 {
-  Name signingCertificateName;
-  
-  if (identityName.getComponentCount() == 0) {
-    Name inferredIdentity = policyManager_->inferSigningIdentity(data.getName());
-    if (inferredIdentity.getComponentCount() == 0)
-      signingCertificateName = identityManager_->getDefaultCertificateName();
-    else
-      signingCertificateName = identityManager_->getDefaultCertificateNameForIdentity(inferredIdentity);    
-  }
-  else
-    signingCertificateName = identityManager_->getDefaultCertificateNameForIdentity(identityName);
+  Name signingCertificateName = info().getDefaultCertificateNameForIdentity(identityName);
 
   if (signingCertificateName.getComponentCount() == 0)
     throw Error("No qualified certificate name found!");
 
-  if (!policyManager_->checkSigningPolicy(data.getName(), signingCertificateName))
-    throw Error("Signing Cert name does not comply with signing policy");
-
-  identities().signByCertificate(data, signingCertificateName);
+  sign(data, signingCertificateName);
 }
 
 Signature
 KeyChain::signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName)
 {
-  Name signingCertificateName = identityManager_->getDefaultCertificateNameForIdentity(identityName);
+  Name signingCertificateName = info().getDefaultCertificateNameForIdentity(identityName);
     
   if (signingCertificateName.size() == 0)
     throw Error("No qualified certificate name found!");
 
-  return identities().signByCertificate(buffer, bufferLength, signingCertificateName);
+  return sign(buffer, bufferLength, signingCertificateName);
+}
+
+ptr_lib::shared_ptr<IdentityCertificate>
+KeyChain::selfSign(const Name& keyName)
+{
+  ptr_lib::shared_ptr<IdentityCertificate> certificate = ptr_lib::make_shared<IdentityCertificate>();
+  
+  Name certificateName = keyName.getPrefix(-1);
+  certificateName.append("KEY").append(keyName.get(-1)).append("ID-CERT").appendVersion();
+
+  ptr_lib::shared_ptr<PublicKey> pubKey = info().getKey(keyName);
+  if (!pubKey)
+    throw Error("Requested public key [" + keyName.toUri() + "] doesn't exist");
+  
+  certificate->setName(certificateName);
+  certificate->setNotBefore(ndn_getNowMilliseconds());
+  certificate->setNotAfter(ndn_getNowMilliseconds() + 630720000 /* 20 years*/);
+  certificate->setPublicKeyInfo(*pubKey);
+  certificate->addSubjectDescription(CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
+  certificate->encode();
+
+  selfSign(*certificate);
+  return certificate;
 }
 
 void
-KeyChain::verifyData
-  (const ptr_lib::shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed, int stepCount)
+KeyChain::selfSign (IdentityCertificate& cert)
 {
-  if (policies().requireVerify(*data)) {
-    ptr_lib::shared_ptr<ValidationRequest> nextStep = policyManager_->checkVerificationPolicy
-      (data, stepCount, onVerified, onVerifyFailed);
-    if (nextStep)
-      {
-        if (!face_)
-          throw Error("Face should be set prior to verifyData method to call");
-        
-        face_->expressInterest
-          (*nextStep->interest_, 
-           bind(&KeyChain::onCertificateData, this, _1, _2, nextStep), 
-           bind(&KeyChain::onCertificateInterestTimeout, this, _1, nextStep->retry_, onVerifyFailed, data, nextStep));
-      }
-  }
-  else if (policies().skipVerifyAndTrust(*data))
-    onVerified(data);
-  else
-    onVerifyFailed(data);
-}
+  SignatureSha256WithRsa signature;
+  signature.setKeyLocator(cert.getName().getPrefix(-1)); // implicit conversion should take care
+  cert.setSignature(signature);
 
-void
-KeyChain::onCertificateData(const ptr_lib::shared_ptr<const Interest> &interest, const ptr_lib::shared_ptr<Data> &data, ptr_lib::shared_ptr<ValidationRequest> nextStep)
-{
-  // Try to verify the certificate (data) according to the parameters in nextStep.
-  verifyData(data, nextStep->onVerified_, nextStep->onVerifyFailed_, nextStep->stepCount_);
-}
-
-void
-KeyChain::onCertificateInterestTimeout
-  (const ptr_lib::shared_ptr<const Interest> &interest, int retry, const OnVerifyFailed& onVerifyFailed, const ptr_lib::shared_ptr<Data> &data, 
-   ptr_lib::shared_ptr<ValidationRequest> nextStep)
-{
-  if (retry > 0)
-    // Issue the same expressInterest as in verifyData except decrement retry.
-    face_->expressInterest
-      (*interest, 
-       bind(&KeyChain::onCertificateData, this, _1, _2, nextStep), 
-       bind(&KeyChain::onCertificateInterestTimeout, this, _1, retry - 1, onVerifyFailed, data, nextStep));
-  else
-    onVerifyFailed(data);
+  // For temporary usage, we support RSA + SHA256 only, but will support more.
+  tpm().sign(cert, cert.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
 }
 
 }

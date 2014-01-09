@@ -105,11 +105,11 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/security/certificate/identity-certificate.cpp \
   src/security/certificate/public-key.cpp \
   src/security/identity/basic-identity-storage.cpp \
-  src/security/identity/identity-manager.cpp \
   src/security/identity/identity-storage.cpp \
   src/security/identity/memory-identity-storage.cpp \
   src/security/identity/memory-private-key-storage.cpp \
   src/security/key-chain.cpp \
+  src/security/verifier.cpp \
   src/security/policy/no-verify-policy-manager.cpp \
   src/security/policy/self-verify-policy-manager.cpp \
   src/transport/unix-transport.cpp \

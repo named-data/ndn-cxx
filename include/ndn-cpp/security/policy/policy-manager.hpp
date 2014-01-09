@@ -10,7 +10,7 @@
 #define NDN_POLICY_MANAGER_HPP
 
 #include "../../data.hpp"
-#include "../key-chain.hpp"
+#include "validation-request.hpp"
 
 namespace ndn {
 
@@ -22,6 +22,8 @@ class ValidationRequest;
  */
 class PolicyManager {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   /**
    * The virtual destructor.
    */
