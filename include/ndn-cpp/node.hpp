@@ -330,6 +330,8 @@ private:
   PendingInterestTable pendingInterestTable_;
   RegisteredPrefixTable registeredPrefixTable_;
   Interest ndndIdFetcherInterest_;
+
+  int64_t faceId_; // internal face ID (needed for prefix de-registration)
   Buffer ndndId_;
 };
 

@@ -22,9 +22,9 @@ class ForwardingEntry {
 public:    
   ForwardingEntry(const std::string& action,
                   const Name& prefix,
-                  int faceId,
-                  const ForwardingFlags& forwardingFlags,
-                  int freshnessPeriod) 
+                  int faceId = -1,
+                  const ForwardingFlags& forwardingFlags = ForwardingFlags(),
+                  int freshnessPeriod = -1) 
     : action_(action)
     , prefix_(prefix)
     , faceId_(faceId)

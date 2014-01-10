@@ -122,10 +122,37 @@ Node::removeRegisteredPrefix(uint64_t registeredPrefixId)
 {
   // Go backwards through the list so we can erase entries.
   // Remove all entries even though pendingInterestId should be unique.
-  for (int i = (int)registeredPrefixTable_.size() - 1; i >= 0; --i) {
-    if (registeredPrefixTable_[i]->getRegisteredPrefixId() == registeredPrefixId)
-      registeredPrefixTable_.erase(registeredPrefixTable_.begin() + i);
-  }
+
+  for (RegisteredPrefixTable::iterator i = registeredPrefixTable_.begin();
+       i != registeredPrefixTable_.end();
+       ++i)
+    {
+      if ((*i)->getRegisteredPrefixId() == registeredPrefixId) {
+        ForwardingEntry forwardingEntry("unreg", *(*i)->getPrefix(), faceId_);
+        Data data;
+        data.setContent(forwardingEntry.wireEncode());
+        
+        SignatureSha256WithRsa signature;
+        signature.setValue(Block(Tlv::SignatureValue, ptr_lib::make_shared<Buffer>()));
+        data.setSignature(signature);
+
+        // Create an interest where the name has the encoded Data packet.
+        Name interestName;
+        interestName.append("ndnx");
+        interestName.append(ndndId_);
+        interestName.append("unreg");
+        interestName.append(data.wireEncode());
+
+        Interest interest(interestName);
+        interest.setScope(1);
+        interest.setInterestLifetime(1000);
+
+        expressInterest(interest, OnData(), OnTimeout());
+        
+        registeredPrefixTable_.erase(i);
+        break;
+      }
+    }
 }
 
 void 
@@ -208,7 +235,7 @@ Node::registerPrefixFinal(uint64_t registeredPrefixId,
         StatusResponse resp;
         resp.wireDecode(*val);
 
-        std::cerr << "StatusReponse: " << resp << std::endl;
+        // std::cerr << "StatusReponse: " << resp << std::endl;
       
         onRegisterFailed(prefix);
         return;
@@ -280,7 +307,8 @@ Node::checkPitExpire()
   }
 
   if (!pendingInterestTable_.empty()) {
-    // pitTimeoutCheckTimerActive = true;
+    pitTimeoutCheckTimerActive_ = true;
+    
     pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
     pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
   }
@@ -321,7 +349,14 @@ Node::onReceiveElement(const Block &block)
         const OnData onData = (*entry)->getOnData();
         const ptr_lib::shared_ptr<const Interest> interest = (*entry)->getInterest();
         pendingInterestTable_.erase(entry);
-        onData(interest, data);
+
+        if (onData) {
+          onData(interest, data);
+        }
+
+        if (pendingInterestTable_.empty()) {
+          pitTimeoutCheckTimer_->cancel(); // this will cause checkPitExpire invocation
+        }
       }
     }
 }
@@ -393,11 +428,7 @@ void
 Node::PendingInterest::callTimeout()
 {
   if (onTimeout_) {
-    // Ignore all exceptions.
-    try {
-      onTimeout_(interest_);
-    }
-    catch (...) { }
+    onTimeout_(interest_);
   }
 }
 
