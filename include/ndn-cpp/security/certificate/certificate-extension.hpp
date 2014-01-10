@@ -23,6 +23,8 @@ namespace ndn {
 class CertificateExtension
 {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   CertificateExtension(CryptoPP::BufferedTransformation &in)
   {
     decode(in);
