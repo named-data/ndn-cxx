@@ -246,9 +246,11 @@ void
 UnixTransport::connect(boost::asio::io_service &ioService,
                        const ReceiveCallback &receiveCallback)
 {
-  Transport::connect(ioService, receiveCallback);
+  if (!static_cast<bool>(impl_)) {
+    Transport::connect(ioService, receiveCallback);
   
-  impl_ = std::auto_ptr<UnixTransport::Impl> (new UnixTransport::Impl(*this));
+    impl_ = ptr_lib::make_shared<UnixTransport::Impl> (ptr_lib::ref(*this));
+  }
   impl_->connect();
 }
 

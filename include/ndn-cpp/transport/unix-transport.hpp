@@ -34,7 +34,7 @@ private:
   std::string unixSocket_;
 
   class Impl;
-  std::auto_ptr<Impl> impl_;
+  ptr_lib::shared_ptr<Impl> impl_;
 };
 
 }
