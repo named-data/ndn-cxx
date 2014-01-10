@@ -116,10 +116,10 @@ static uint8_t DEFAULT_PRIVATE_KEY_DER[] = {
  * @return The number of seconds for all iterations.
  */
 static double
-benchmarkEncodeDataSecondsCpp(int nIterations, bool useComplex, bool useCrypto, Blob& encoding)
+benchmarkEncodeDataSecondsCpp(int nIterations, bool useComplex, bool useCrypto, Block& encoding)
 {
   Name name;
-  Blob content;
+  Block content;
   if (useComplex) {
     // Use a large name and content.
     name = Name("/ndn/ucla.edu/apps/lwndn-test/numbers.txt/%FD%05%05%E8%0C%CE%1D/%00"); 
@@ -129,58 +129,55 @@ benchmarkEncodeDataSecondsCpp(int nIterations, bool useComplex, bool useCrypto, 
     contentStream << (count++);
     while (contentStream.str().length() < 1170)
       contentStream << " " << (count++);
-    content = Blob((uint8_t*)contentStream.str().c_str(), contentStream.str().length());
+    content = dataBlock(Tlv::Content, contentStream.str().c_str(), contentStream.str().length());
   }
   else {
     // Use a small name and content.
     name = Name("/test");
-    content = Blob((uint8_t*)"abc", 3);
+    content = dataBlock(Tlv::Content, "abc", 3);
   }
-  Blob finalBlockId((uint8_t*)"\x00", 1);
+  std::cout << "Content size: " << content.value_size() << std::endl;
   
   // Initialize the KeyChain storage in case useCrypto is true.
   ptr_lib::shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
   ptr_lib::shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
-  KeyChain keyChain
-    (ptr_lib::make_shared<IdentityManager>(identityStorage, privateKeyStorage), 
-     ptr_lib::make_shared<SelfVerifyPolicyManager>(identityStorage.get()));
-  Name keyName("/testname/DSK-123");
-  Name certificateName = keyName.getSubName(0, keyName.size() - 1).append("KEY").append
-    (keyName.get(keyName.size() - 1)).append("ID-CERT").append("0");
-  privateKeyStorage->setKeyPairForKeyName
-    (keyName, DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER), DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
+  KeyChain keyChain(identityStorage, privateKeyStorage);
+
+  Name keyName("/testname/dsk-123");
+
+  // Initialize the storage.
+  identityStorage->addKey(keyName, KEY_TYPE_RSA,
+                          PublicKey(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));
+
+  privateKeyStorage->setKeyPairForKeyName(keyName,
+                                          DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER),
+                                          DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
+
+  keyChain.identities().addCertificateAsDefault(*keyChain.identities().selfSign(keyName));
+  Name certificateName = keyChain.identities().getDefaultCertificateName();
   
   // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is false.
-  uint8_t publisherPublicKeyDigestArray[32];
-  memset(publisherPublicKeyDigestArray, 0, sizeof(publisherPublicKeyDigestArray));
-  Blob publisherPublicKeyDigest(publisherPublicKeyDigestArray, sizeof(publisherPublicKeyDigestArray));
   uint8_t signatureBitsArray[128];
   memset(signatureBitsArray, 0, sizeof(signatureBitsArray));
-  Blob signatureBits(signatureBitsArray, sizeof(signatureBitsArray));
+  Block signatureValue = dataBlock(Tlv::SignatureValue, signatureBitsArray, sizeof(signatureBitsArray));
 
   double start = getNowSeconds();
   for (int i = 0; i < nIterations; ++i) {
     Data data(name);
     data.setContent(content);
     if (useComplex) {
-      data.getMetaInfo().setTimestampMilliseconds(1.3e+12);
-      data.getMetaInfo().setFreshnessSeconds(1000);
-      data.getMetaInfo().setFinalBlockID(finalBlockId);
+      data.setFreshnessPeriod(1000000);
     }
 
     if (useCrypto)
       // This sets the signature fields.
-      keyChain.sign(data, certificateName);
+      keyChain.sign(data);
     else {
-      // Imitate IdentityManager::signByCertificate to set up the signature fields, but don't sign.
-      KeyLocator keyLocator;    
-      keyLocator.setType(ndn_KeyLocatorType_KEYNAME);
-      keyLocator.setKeyName(certificateName);
-      keyLocator.setKeyNameType((ndn_KeyNameType)-1);
-      Sha256WithRsaSignature* sha256Signature = (Sha256WithRsaSignature*)data.getSignature();
-      sha256Signature->setKeyLocator(keyLocator);
-      sha256Signature->getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(publisherPublicKeyDigest);
-      sha256Signature->setSignature(signatureBits);
+      // Imitate real sign method to set up the signature fields, but don't actually sign.
+      SignatureSha256WithRsa signature;
+      signature.setKeyLocator(certificateName);
+      signature.setValue(signatureValue);
+      data.setSignature(signature);
     }
 
     encoding = data.wireEncode();
@@ -210,25 +207,25 @@ onVerifyFailed(const ptr_lib::shared_ptr<Data>& data)
  * @return The number of seconds for all iterations.
  */
 static double 
-benchmarkDecodeDataSecondsCpp(int nIterations, bool useCrypto, const Blob& encoding)
+benchmarkDecodeDataSecondsCpp(int nIterations, bool useCrypto, const ConstBufferPtr &encoding)
 {
-  // Initialize the KeyChain storage in case useCrypto is true.
-  ptr_lib::shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
-  identityStorage->addKey(keyName, KEY_TYPE_RSA, Blob(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));
+  // // Initialize the KeyChain storage in case useCrypto is true.
+  // ptr_lib::shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
+  // identityStorage->addKey(keyName, KEY_TYPE_RSA, Blob(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));
   
-  ptr_lib::shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
-  KeyChain keyChain(identityStorage, privateKeyStorage);
+  // ptr_lib::shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
+  // KeyChain keyChain(identityStorage, privateKeyStorage);
   
-  Name keyName("/testname/DSK-123");
+  // Name keyName("/testname/DSK-123");
 
   size_t nameSize = 0;
   double start = getNowSeconds();
   for (int i = 0; i < nIterations; ++i) {
-    ptr_lib::shared_ptr<Data> data(new Data());
-    data->wireDecode(*encoding);
+    Data data;
+    data.wireDecode(encoding);
     
-    if (useCrypto)
-      keyChain.verifyData(data, onVerified, onVerifyFailed);
+  //   if (useCrypto)
+  //     keyChain.verifyData(data, onVerified, onVerifyFailed);
   }
   double finish = getNowSeconds();
  
@@ -256,7 +253,7 @@ benchmarkEncodeDataSecondsC
   struct ndn_NameComponent nameComponents[20];
   struct ndn_Name name;
   ndn_Name_initialize(&name, nameComponents, sizeof(nameComponents) / sizeof(nameComponents[0]));
-  Blob contentBlob;
+  Buffer contentBlob;
   struct ndn_Blob content;
   if (useComplex) {
     // Use a large name and content.
@@ -273,12 +270,12 @@ benchmarkEncodeDataSecondsC
     contentStream << (count++);
     while (contentStream.str().length() < 1170)
       contentStream << " " << (count++);
-    contentBlob = Blob((uint8_t*)contentStream.str().c_str(), contentStream.str().length());
+    contentBlob = Buffer((uint8_t*)contentStream.str().c_str(), contentStream.str().length());
   }
   else {
     // Use a small name and content.
     ndn_Name_appendString(&name, (char*)"test");
-    contentBlob = Blob((uint8_t*)"abc", 3);
+    contentBlob = Buffer((uint8_t*)"abc", 3);
   }
   ndn_Blob_initialize(&content, (uint8_t*)contentBlob.buf(), contentBlob.size());
   
@@ -426,16 +423,18 @@ benchmarkDecodeDataSecondsC(int nIterations, bool useCrypto, uint8_t* encoding, 
 static void
 benchmarkEncodeDecodeDataCpp(bool useComplex, bool useCrypto)
 {
-  Blob encoding;
+  Block encoding;
   {
-    int nIterations = useCrypto ? 20000 : 2000000;
+    int nIterations = useCrypto ? 20000 : 200000;
     double duration = benchmarkEncodeDataSecondsCpp(nIterations, useComplex, useCrypto, encoding);
     cout << "Encode " << (useComplex ? "complex" : "simple ") << " data C++: Crypto? " << (useCrypto ? "yes" : "no ") 
          << ", Duration sec, Hz: " << duration << ", " << (nIterations / duration) << endl;  
   }
+
+  BufferPtr wire = ptr_lib::make_shared<Buffer>(encoding.wire(), encoding.size());
   {
-    int nIterations = useCrypto ? 100000 : 2000000;
-    double duration = benchmarkDecodeDataSecondsCpp(nIterations, useCrypto, encoding);
+    int nIterations = useCrypto ? 10000 : 1000000;
+    double duration = benchmarkDecodeDataSecondsCpp(nIterations, useCrypto, wire);
     cout << "Decode " << (useComplex ? "complex" : "simple ") << " data C++: Crypto? " << (useCrypto ? "yes" : "no ") 
          << ", Duration sec, Hz: " << duration << ", " << (nIterations / duration) << endl;  
   }

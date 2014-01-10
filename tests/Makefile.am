@@ -3,11 +3,10 @@ LDADD = ../libndn-cpp.la
 
 noinst_PROGRAMS = \
 	test-get-async \
-	test-publish-async
+	test-publish-async \
+	test-encode-decode-benchmark
 
-# test-encode-decode-benchmark
-
-# test_encode_decode_benchmark_SOURCES = test-encode-decode-benchmark.cpp
+test_encode_decode_benchmark_SOURCES = test-encode-decode-benchmark.cpp
 
 test_get_async_SOURCES = test-get-async.cpp
 
