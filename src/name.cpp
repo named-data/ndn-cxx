@@ -360,6 +360,9 @@ Name::wireDecode(const Block &wire)
   wire_ = wire;
   wire_.parse();
 
+  components_.clear();
+  components_.reserve(wire_.getAll().size());
+
   for (Block::element_const_iterator i = wire_.getAll().begin();
        i != wire_.getAll().end();
        ++i)

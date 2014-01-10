@@ -15,6 +15,7 @@
 #include "signature.hpp"
 #include "meta-info.hpp"
 #include "key-locator.hpp"
+#include "security/signature/signature-sha256-with-rsa.hpp"
 
 namespace ndn {
   
