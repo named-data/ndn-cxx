@@ -11,12 +11,11 @@
 #include <sstream>
 #include <stdexcept>
 #include <ndn-cpp/data.hpp>
-#include <ndn-cpp/sha256-with-rsa-signature.hpp>
-#include <ndn-cpp/key-locator.hpp>
 #include <ndn-cpp/security/key-chain.hpp>
 #include <ndn-cpp/security/identity/memory-identity-storage.hpp>
 #include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
 #include <ndn-cpp/security/policy/self-verify-policy-manager.hpp>
+
 // Hack: Hook directly into non-API functions.
 #include "../src/c/encoding/binary-xml-decoder.h"
 #include "../src/c/data.h"
@@ -215,12 +214,12 @@ benchmarkDecodeDataSecondsCpp(int nIterations, bool useCrypto, const Blob& encod
 {
   // Initialize the KeyChain storage in case useCrypto is true.
   ptr_lib::shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
-  ptr_lib::shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
-  KeyChain keyChain
-    (ptr_lib::make_shared<IdentityManager>(identityStorage, privateKeyStorage), 
-     ptr_lib::make_shared<SelfVerifyPolicyManager>(identityStorage.get()));
-  Name keyName("/testname/DSK-123");
   identityStorage->addKey(keyName, KEY_TYPE_RSA, Blob(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));
+  
+  ptr_lib::shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
+  KeyChain keyChain(identityStorage, privateKeyStorage);
+  
+  Name keyName("/testname/DSK-123");
 
   size_t nameSize = 0;
   double start = getNowSeconds();

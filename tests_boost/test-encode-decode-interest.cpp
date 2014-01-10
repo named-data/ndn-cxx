@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE (Encode)
 
   const Block &wire = i.wireEncode();
   BOOST_REQUIRE_EQUAL_COLLECTIONS(Interest1, Interest1+sizeof(Interest1),
-                               wire.begin(), wire.end());
+                                  wire.begin(), wire.end());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

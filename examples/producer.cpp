@@ -76,8 +76,6 @@ public:
     , keyChain_(info_, tpm_)
   {
     Name keyName("/testname/dsk-123");
-    Name certificateName = keyName.getSubName(0, keyName.size() - 1).append("KEY").append
-      (keyName.get(keyName.size() - 1)).append("ID-CERT").append("0");
     
     info_->addKey(keyName, KEY_TYPE_RSA,
                   PublicKey(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));

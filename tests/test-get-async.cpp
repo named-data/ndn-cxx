@@ -24,53 +24,47 @@ public:
   Counter() {
     callbackCount_ = 0;
   }
-  
+
   void onData(const ptr_lib::shared_ptr<const Interest>& interest, const ptr_lib::shared_ptr<Data>& data)
   {
     ++callbackCount_;
-    cout << "Got data packet with name " << data->getName().to_uri() << endl;
-    for (size_t i = 0; i < data->getContent().size(); ++i)
-      cout << (*data->getContent())[i];
-    cout << endl;  
+    cout << "Got data packet with name " << data->getName().toUri() << endl;
+    // cout << string(reinterpret_cast<const char*>(data->getContent().value()), data->getContent().value_size()) << endl;
   }
 
   void onTimeout(const ptr_lib::shared_ptr<const Interest>& interest)
   {
     ++callbackCount_;
-    cout << "Time out for interest " << interest->getName().toUri() << endl;    
+    cout << "Time out for interest " << interest->getName().toUri() << endl;
   }
-  
+
   int callbackCount_;
 };
 
 int main(int argc, char** argv)
 {
   try {
-    // Connect to port 9695 until the testbed hubs use NDNx and are connected to the test repo.
-    Face face("borges.metwi.ucla.edu", 9695);
-    
+    Face face;
+
     // Counter holds data used by the callbacks.
     Counter counter;
-    
-    Name name1("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E");    
+
+    Name name1("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY");
     cout << "Express name " << name1.toUri() << endl;
     // Use bind to pass the counter object to the callbacks.
     face.expressInterest(name1, bind(&Counter::onData, &counter, _1, _2), bind(&Counter::onTimeout, &counter, _1));
-    
-    Name name2("/ndn/ucla.edu/apps/lwndn-test/howdy.txt/%FD%05%05%E8%0C%CE%1D");
+
+    Name name2("/ndnx/ping");
     cout << "Express name " << name2.toUri() << endl;
     face.expressInterest(name2, bind(&Counter::onData, &counter, _1, _2), bind(&Counter::onTimeout, &counter, _1));
-    
+
     Name name3("/test/timeout");
     cout << "Express name " << name3.toUri() << endl;
     face.expressInterest(name3, bind(&Counter::onData, &counter, _1, _2), bind(&Counter::onTimeout, &counter, _1));
 
     // The main event loop.
-    while (counter.callbackCount_ < 3) {
-      face.processEvents();
-      // We need to sleep for a few milliseconds so we don't use 100% of the CPU.
-      usleep(10000);
-    }
+    face.processEvents();
+
   } catch (std::exception& e) {
     cout << "exception: " << e.what() << endl;
   }
