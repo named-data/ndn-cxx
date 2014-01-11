@@ -115,6 +115,52 @@ Verifier::onCertificateInterestTimeout
 }
 
 bool
+Verifier::verifySignature(const Data& data, const Signature& sig, const PublicKey& key)
+{
+  try{
+    switch(sig.getType()){
+    case Signature::Sha256WithRsa:
+      {
+        SignatureSha256WithRsa sigSha256Rsa(sig);
+        return verifySignature(data, sigSha256Rsa, key);
+      }
+    default:
+      {
+        _LOG_DEBUG("verifySignature: Unknown signature type: " << sig.getType());
+        return false;
+      }
+    }
+  }catch(Signature::Error &e){
+    _LOG_DEBUG("verifySignature: " << e.what());
+    return false;
+  }
+  return false;
+}
+
+bool
+Verifier::verifySignature(const Buffer &data, const Signature &sig, const PublicKey &key)
+{
+  try{
+    switch(sig.getType()){
+    case Signature::Sha256WithRsa:
+      {
+        SignatureSha256WithRsa sigSha256Rsa(sig);
+        return verifySignature(data, sigSha256Rsa, key);
+      }
+    default:
+      {
+        _LOG_DEBUG("verifySignature: Unknown signature type: " << sig.getType());
+        return false;
+      }
+    }
+  }catch(Signature::Error &e){
+    _LOG_DEBUG("verifySignature: " << e.what());
+    return false;
+  }
+  return false;
+}
+
+bool
 Verifier::verifySignature(const Data& data, const SignatureSha256WithRsa& sig, const PublicKey& key)
 {
   using namespace CryptoPP;
@@ -129,6 +175,28 @@ Verifier::verifySignature(const Data& data, const SignatureSha256WithRsa& sig, c
 
   RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
   result = verifier.VerifyMessage(data.wireEncode().value(), data.wireEncode().value_size() - data.getSignature().getValue().size(),
+				  sig.getValue().value(), sig.getValue().value_size());
+
+  _LOG_DEBUG("Signature verified? " << data.getName().toUri() << " " << boolalpha << result);
+  
+  return result;
+}
+
+bool
+Verifier::verifySignature(const Buffer& data, const SignatureSha256WithRsa& sig, const PublicKey& key)
+{
+  using namespace CryptoPP;
+
+  bool result = false;
+  
+  RSA::PublicKey publicKey;
+  ByteQueue queue;
+
+  queue.Put(reinterpret_cast<const byte*>(key.get().buf()), key.get().size());
+  publicKey.Load(queue);
+
+  RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
+  result = verifier.VerifyMessage(data.buf(), data.size(),
 				  sig.getValue().value(), sig.getValue().value_size());
 
   _LOG_DEBUG("Signature verified? " << data.getName().toUri() << " " << boolalpha << result);

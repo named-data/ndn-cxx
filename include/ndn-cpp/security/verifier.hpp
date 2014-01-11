@@ -68,9 +68,17 @@ public:
   /*****************************************
    *      verifySignature method set       *
    *****************************************/
+    static bool
+  verifySignature(const Data &data, const Signature &sig, const PublicKey &publicKey);
+
+  static bool
+  verifySignature(const Buffer &data, const Signature &sig, const PublicKey &publicKey);
+
   static bool
   verifySignature(const Data& data, const SignatureSha256WithRsa& sig, const PublicKey& publicKey);
 
+  static bool
+  verifySignature(const Buffer &data, const SignatureSha256WithRsa &sig, const PublicKey &publicKey);
 
 public:
   static const ptr_lib::shared_ptr<PolicyManager>     DefaultPolicyManager;
