@@ -70,9 +70,12 @@ AX_BOOST_BASE([1.42.0],
   [
     if test "$want_system_boost" == "yes" ; then
       AC_DEFINE(USE_SYSTEM_BOOST,[1],[use system-installed boost libraries])
+      AM_CONDITIONAL(USE_SYSTEM_BOOST, true)
+    else
+      AM_CONDITIONAL(USE_SYSTEM_BOOST, false)
     fi
   ],
-  []
+  [AM_CONDITIONAL(USE_SYSTEM_BOOST, false)]
 )
 AX_BOOST_ASIO
 

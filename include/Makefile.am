@@ -194,4 +194,8 @@ ndnboost_headers = \
   $(wildcard ndnboost/lambda/*.*) \
   $(wildcard ndnboost/lambda/detail/*.*)
 
-nobase_include_HEADERS = $(ndn_cpp_c_headers) $(ndn_cpp_cpp_headers) $(ndnboost_headers)
+nobase_include_HEADERS = $(ndn_cpp_c_headers) $(ndn_cpp_cpp_headers)
+
+if ! USE_SYSTEM_BOOST
+  nobase_include_HEADERS += $(ndnboost_headers)
+endif
