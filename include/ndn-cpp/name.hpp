@@ -26,7 +26,7 @@ public:
   /**
    * A Name::Component holds a read-only name component value.
    */
-  class Component : private ConstBufferPtr
+  class Component
   {
   public:
     /**
@@ -43,7 +43,7 @@ public:
      * @param value A blob with a pointer to an immutable array.  The pointer is copied.
      */
     Component(const ConstBufferPtr &buffer)
-    : ConstBufferPtr (buffer)
+    : value_ (buffer)
     {
     }
   
@@ -52,7 +52,7 @@ public:
      * @param value The value byte array.
      */
     Component(const Buffer& value) 
-      : ConstBufferPtr (new Buffer(value))
+      : value_ (new Buffer(value))
     {
     }
 
@@ -62,23 +62,23 @@ public:
      * @param valueLen Length of value.
      */
     Component(const uint8_t *value, size_t valueLen) 
-      : ConstBufferPtr (new Buffer(value, valueLen))
+      : value_ (new Buffer(value, valueLen))
     {
     }
 
     template<class InputIterator>
     Component(InputIterator begin, InputIterator end)
-      : ConstBufferPtr (new Buffer(begin, end))
+      : value_ (new Buffer(begin, end))
     {
     }
     
     Component(const char *string)
-      : ConstBufferPtr (new Buffer(string, ::strlen(string)))
+      : value_ (new Buffer(string, ::strlen(string)))
     {
     }
 
     const Buffer& 
-    getValue() const { return **this; }
+    getValue() const { return *value_; }
 
     /**
      * Write this component value to result, escaping characters according to the NDN URI Scheme.
@@ -88,7 +88,7 @@ public:
     void 
     toEscapedString(std::ostream& result) const
     {
-      Name::toEscapedString(**this, result);
+      Name::toEscapedString(*value_, result);
     }
 
     /**
@@ -99,7 +99,7 @@ public:
     std::string
     toEscapedString() const
     {
-      return Name::toEscapedString(**this);
+      return Name::toEscapedString(*value_);
     }
     
     /**
@@ -179,13 +179,13 @@ public:
     bool
     equals(const Component& other) const
     {
-      return **this == *other;
+      return *value_ == *other.value_;
     }
 
     bool
     empty() const
     {
-      return !*this || (*this)->empty();
+      return !value_ || value_->empty();
     }
     
     /**
@@ -250,6 +250,8 @@ public:
      */
     bool
     operator > (const Component& other) const { return compare(other) > 0; }
+  private:
+    ConstBufferPtr value_;
   };
 
   /**
@@ -714,7 +716,10 @@ public:
   typedef std::vector<Component>::reference reference;
   typedef std::vector<Component>::const_reference const_reference;
 
-  typedef Component value_type;
+  typedef std::vector<Component>::difference_type difference_type;
+  typedef std::vector<Component>::size_type size_type;
+  
+  typedef std::vector<Component>::value_type value_type;
 
   /**
    * Begin iterator (const).
@@ -772,6 +777,13 @@ private:
 
 std::ostream &
 operator << (std::ostream &os, const Name &name);
+
+inline std::ostream &
+operator << (std::ostream &os, const Name::Component &component)
+{
+  component.toEscapedString(os);
+  return os;
+}
 
 inline std::string 
 Name::toUri() const
