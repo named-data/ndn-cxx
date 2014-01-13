@@ -9,7 +9,7 @@
 #define NDN_NDND_ID_FETCHER_HPP
 
 #include <ndn-cpp/common.hpp>
-#include "../c/util/crypto.h"
+#include "ndn-cpp/c/util/crypto.h"
 
 namespace ndn {
 

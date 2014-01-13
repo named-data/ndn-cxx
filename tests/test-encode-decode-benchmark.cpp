@@ -20,7 +20,7 @@
 #include "../src/c/encoding/binary-xml-decoder.h"
 #include "../src/c/data.h"
 #include "../src/c/encoding/binary-xml-data.h"
-#include "../src/c/util/crypto.h"
+#include <ndn-cpp/c/util/crypto.h>
 
 using namespace std;
 using namespace ndn;

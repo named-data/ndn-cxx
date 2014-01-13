@@ -65,7 +65,6 @@ libndn_c_la_SOURCES = \
   src/c/transport/udp-transport.h \
   src/c/util/blob.h \
   src/c/util/crypto.c \
-  src/c/util/crypto.h \
   src/c/util/dynamic-uint8-array.c \
   src/c/util/dynamic-uint8-array.h \
   src/c/util/ndn_memory.c \
