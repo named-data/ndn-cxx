@@ -108,11 +108,8 @@ ForwardingEntry::wireEncode() const
     }
 
   // Name
-  if (!prefix_.empty())
-    {
-      wire_.push_back
-        (prefix_.wireEncode());
-    }
+  wire_.push_back
+    (prefix_.wireEncode());
 
   // FaceID
   if (faceId_ >= 0)
@@ -203,10 +200,7 @@ operator << (std::ostream &os, const ForwardingEntry &entry)
     }
 
   // Name
-  if (!entry.getPrefix().empty())
-    {
-      os << "Prefix:" << entry.getPrefix() << ", ";
-    }
+  os << "Prefix:" << entry.getPrefix() << ", ";
 
   // FaceID
   if (entry.getFaceId() >= 0)
