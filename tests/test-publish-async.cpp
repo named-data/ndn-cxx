@@ -126,7 +126,7 @@ int main(int argc, char** argv)
                                             DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER),
                                             DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
 
-    keyChain.identities().addCertificateAsDefault(*keyChain.identities().selfSign(keyName));
+    keyChain.addCertificateAsDefault(*keyChain.selfSign(keyName));
     
    
     Echo echo(keyChain, face);

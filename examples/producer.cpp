@@ -84,7 +84,7 @@ public:
                                DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER),
                                DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
 
-    keyChain_.identities().addCertificateAsDefault(*keyChain_.identities().selfSign(keyName));
+    keyChain_.addCertificateAsDefault(*keyChain_.selfSign(keyName));
   }
   ////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////

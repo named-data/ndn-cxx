@@ -153,8 +153,8 @@ benchmarkEncodeDataSecondsCpp(int nIterations, bool useComplex, bool useCrypto, 
                                           DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER),
                                           DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
 
-  keyChain.identities().addCertificateAsDefault(*keyChain.identities().selfSign(keyName));
-  Name certificateName = keyChain.identities().getDefaultCertificateName();
+  keyChain.addCertificateAsDefault(*keyChain.selfSign(keyName));
+  Name certificateName = keyChain.getDefaultCertificateName();
   
   // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is false.
   uint8_t signatureBitsArray[128];
