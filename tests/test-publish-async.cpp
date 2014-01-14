@@ -10,8 +10,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <ndn-cpp/face.hpp>
-#include <ndn-cpp/security/identity/memory-identity-storage.hpp>
-#include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
 #include <ndn-cpp/security/key-chain.hpp>
 
 using namespace std;
@@ -65,7 +63,7 @@ static uint8_t DEFAULT_PRIVATE_KEY_DER[] = {
 
 class Echo {
 public:
-  Echo(KeyChain &keyChain, Face &face)
+  Echo(KeyChainImpl<SecPublicInfoMemory, SecTpmMemory> &keyChain, Face &face)
     : keyChain_(keyChain)
     , face_(face)
     , responseCount_(0)
@@ -102,7 +100,7 @@ public:
     cout << "Register failed for prefix " << prefix->toUri() << endl;
   }
 
-  KeyChain &keyChain_;
+  KeyChainImpl<SecPublicInfoMemory, SecTpmMemory> &keyChain_;
   Face &face_;
   int responseCount_;
 };
@@ -112,21 +110,19 @@ int main(int argc, char** argv)
   try {
     Face face;
         
-    ptr_lib::shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
-    ptr_lib::shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
-    KeyChain keyChain(identityStorage, privateKeyStorage);
+    KeyChainImpl<SecPublicInfoMemory, SecTpmMemory> keyChain;
 
     Name keyName("/testname/dsk-123");
 
     // Initialize the storage.
-    identityStorage->addKey(keyName, KEY_TYPE_RSA,
-                            PublicKey(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));
+    keyChain.addPublicKey(keyName, KEY_TYPE_RSA,
+				  PublicKey(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));
 
-    privateKeyStorage->setKeyPairForKeyName(keyName,
+    keyChain.setKeyPairForKeyName(keyName,
                                             DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER),
                                             DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
 
-    keyChain.addCertificateAsDefault(*keyChain.selfSign(keyName));
+    keyChain.addCertificateAsKeyDefault(*keyChain.selfSign(keyName));
     
    
     Echo echo(keyChain, face);

@@ -8,8 +8,6 @@
 #include <ndn-cpp/face.hpp>
 
 #include <ndn-cpp/security/key-chain.hpp>
-#include <ndn-cpp/security/identity/memory-identity-storage.hpp>
-#include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
 
 #if NDN_CPP_HAVE_CXX11
 // In the std library, the placeholders are in a different namespace than boost.
@@ -71,20 +69,18 @@ public:
   // CREATE TEST KEYCHAIN (THIS CODE IS ONLY FOR DEBUGGING, NOT TO BE USED IN REAL APPS //
   ////////////////////////////////////////////////////////////////////////////////////////
   Producer()
-    : info_(new MemoryIdentityStorage())
-    , tpm_(new MemoryPrivateKeyStorage())
-    , keyChain_(info_, tpm_)
+    : keyChain_()
   {
     Name keyName("/testname/dsk-123");
     
-    info_->addKey(keyName, KEY_TYPE_RSA,
-                  PublicKey(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));
+    keyChain_.addPublicKey(keyName, KEY_TYPE_RSA,
+                            PublicKey(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));
 
-    tpm_->setKeyPairForKeyName(keyName,
+    keyChain_.setKeyPairForKeyName(keyName,
                                DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER),
                                DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
 
-    keyChain_.addCertificateAsDefault(*keyChain_.selfSign(keyName));
+    keyChain_.addCertificateAsKeyDefault(*keyChain_.selfSign(keyName));
   }
   ////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////
@@ -125,9 +121,7 @@ public:
 private:
   ndn::Face face_;
 
-  ptr_lib::shared_ptr<MemoryIdentityStorage> info_;
-  ptr_lib::shared_ptr<MemoryPrivateKeyStorage> tpm_;
-  KeyChain keyChain_;
+  KeyChainImpl<SecPublicInfoMemory, SecTpmMemory> keyChain_;
 
   Buffer ndndId_;
 };

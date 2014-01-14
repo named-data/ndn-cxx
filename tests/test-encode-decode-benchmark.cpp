@@ -12,9 +12,7 @@
 #include <stdexcept>
 #include <ndn-cpp/data.hpp>
 #include <ndn-cpp/security/key-chain.hpp>
-#include <ndn-cpp/security/identity/memory-identity-storage.hpp>
-#include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
-#include <ndn-cpp/security/policy/self-verify-policy-manager.hpp>
+// #include <ndn-cpp/security/policy/self-verify-policy-manager.hpp>
 
 // Hack: Hook directly into non-API functions.
 #include "../src/c/encoding/binary-xml-decoder.h"
@@ -139,21 +137,19 @@ benchmarkEncodeDataSecondsCpp(int nIterations, bool useComplex, bool useCrypto, 
   std::cout << "Content size: " << content.value_size() << std::endl;
   
   // Initialize the KeyChain storage in case useCrypto is true.
-  ptr_lib::shared_ptr<MemoryIdentityStorage> identityStorage(new MemoryIdentityStorage());
-  ptr_lib::shared_ptr<MemoryPrivateKeyStorage> privateKeyStorage(new MemoryPrivateKeyStorage());
-  KeyChain keyChain(identityStorage, privateKeyStorage);
+  KeyChainImpl<SecPublicInfoMemory, SecTpmMemory> keyChain;
 
   Name keyName("/testname/dsk-123");
 
   // Initialize the storage.
-  identityStorage->addKey(keyName, KEY_TYPE_RSA,
-                          PublicKey(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));
+  keyChain.addPublicKey(keyName, KEY_TYPE_RSA,
+                        PublicKey(DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER)));
 
-  privateKeyStorage->setKeyPairForKeyName(keyName,
-                                          DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER),
-                                          DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
+  keyChain.setKeyPairForKeyName(keyName,
+                                DEFAULT_PUBLIC_KEY_DER, sizeof(DEFAULT_PUBLIC_KEY_DER),
+                                DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
 
-  keyChain.addCertificateAsDefault(*keyChain.selfSign(keyName));
+  keyChain.addCertificateAsKeyDefault(*keyChain.selfSign(keyName));
   Name certificateName = keyChain.getDefaultCertificateName();
   
   // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is false.
