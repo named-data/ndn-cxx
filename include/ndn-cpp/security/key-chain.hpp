@@ -11,8 +11,12 @@
 
 #include "certificate/identity-certificate.hpp"
 #include "certificate/public-key.hpp"
-#include "identity/identity-storage.hpp"
-#include "identity/private-key-storage.hpp"
+#include "signature/signature-sha256-with-rsa.hpp"
+
+#include "identity/sec-public-info-sqlite3.hpp"
+#include "identity/sec-public-info-memory.hpp"
+#include "identity/sec-tpm-osx.hpp"
+#include "identity/sec-tpm-memory.hpp"
 
 
 namespace ndn {
@@ -22,25 +26,11 @@ namespace ndn {
  *
  * The KeyChain class provides a set of interfaces of identity management and private key related operations.
  */
-class KeyChain {
+template<class Info, class Tpm>
+class KeyChainImpl : public Info, public Tpm
+{
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
-
-  KeyChain(const ptr_lib::shared_ptr<IdentityStorage>   &identityStorage   = DefaultIdentityStorage,
-           const ptr_lib::shared_ptr<PrivateKeyStorage> &privateKeyStorage = DefaultPrivateKeyStorage);
-  
-  inline IdentityStorage&
-  info();
-
-  inline const IdentityStorage&
-  info() const;
-
-  inline PrivateKeyStorage&
-  tpm();
-
-  inline const PrivateKeyStorage&
-  tpm() const;
-
+  // struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
   
   /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a self-signed certificate of the KSK.
@@ -48,7 +38,22 @@ public:
    * @return The key name of the auto-generated KSK of the identity.
    */
   Name
-  createIdentity(const Name& identityName);
+  createIdentity(const Name& identityName)
+  {
+    if (!Info::doesIdentityExist(identityName)) {
+      Info::addIdentity(identityName);
+  
+      Name keyName = generateRSAKeyPairAsDefault(identityName, true);
+
+      ptr_lib::shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
+  
+      Info::addCertificateAsDefault(*selfCert);
+
+      return keyName;
+    }
+    else
+      return Name();
+  }
     
   /**
    * Generate a pair of RSA keys for the specified identity.
@@ -58,18 +63,9 @@ public:
    * @return The generated key name.
    */
   Name
-  generateRSAKeyPair(const Name& identityName, bool isKsk = false, int keySize = 2048);
-
-  /**
-   * Set a key as the default key of an identity.
-   * @param keyName The name of the key.
-   * @param identityName the name of the identity. If not specified, the identity name is inferred from the keyName.
-   */
-  void
-  setDefaultKeyForIdentity(const Name& keyName, const Name& identityName = Name())
+  generateRSAKeyPair(const Name& identityName, bool isKsk = false, int keySize = 2048)
   {
-    info().setDefaultKeyNameForIdentity(keyName, identityName);
-    defaultCertificate_.reset();
+    return generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
   }
   
   /**
@@ -80,7 +76,16 @@ public:
    * @return The generated key name.
    */
   Name
-  generateRSAKeyPairAsDefault(const Name& identityName, bool isKsk = false, int keySize = 2048);
+  generateRSAKeyPairAsDefault(const Name& identityName, bool isKsk = false, int keySize = 2048)
+  {
+    Name keyName = generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
+
+    Info::setDefaultKeyNameForIdentity(keyName);
+
+    Info::refreshDefaultCertificate();
+  
+    return keyName;
+  }
 
   /**
    * Create an identity certificate for a public key managed by this IdentityManager.
@@ -95,7 +100,25 @@ public:
     (const Name& certificatePrefix,
      const Name& signerCertificateName,
      const MillisecondsSince1970& notBefore, 
-     const MillisecondsSince1970& notAfter);
+     const MillisecondsSince1970& notAfter)
+  {
+    Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
+    
+    ptr_lib::shared_ptr<PublicKey> pubKey = Info::getPublicKey(keyName);
+    if (!pubKey)
+      throw std::runtime_error("Requested public key [" + keyName.toUri() + "] doesn't exist");
+    
+    ptr_lib::shared_ptr<IdentityCertificate> certificate =
+      createIdentityCertificate(certificatePrefix,
+                                *pubKey,
+                                signerCertificateName,
+                                notBefore, notAfter);
+
+    Info::addCertificate(*certificate);
+  
+    return certificate;
+  }
+
 
   /**
    * Create an identity certificate for a public key supplied by the caller.
@@ -109,45 +132,42 @@ public:
   ptr_lib::shared_ptr<IdentityCertificate>
   createIdentityCertificate
     (const Name& certificatePrefix,
-     const PublicKey& publickey,
+     const PublicKey& publicKey,
      const Name& signerCertificateName, 
      const MillisecondsSince1970& notBefore,
-     const MillisecondsSince1970& notAfter); 
-    
-  /**
-   * Set the certificate as the default for its corresponding key.
-   * @param certificateName The certificate.
-   */
-  void
-  setDefaultCertificateForKey(const IdentityCertificate& certificate);
-
-  /**
-   * Add a certificate into the public key identity storage and set the certificate as the default for its corresponding identity.
-   * @param certificate The certificate to be added.  This makes a copy of the certificate.
-   */
-  void
-  addCertificateAsIdentityDefault(const IdentityCertificate& certificate);
-
-  /**
-   * Add a certificate into the public key identity storage and set the certificate as the default of its corresponding key.
-   * @param certificate The certificate to be added.  This makes a copy of the certificate.
-   */
-  void
-  addCertificateAsDefault(const IdentityCertificate& certificate);
-        
-  /**
-   * Get the default certificate name of the default identity, which will be used when signing is based on identity and 
-   * the identity is not specified.
-   * @return The requested certificate name.
-   */
-  Name
-  getDefaultCertificateName()
+     const MillisecondsSince1970& notAfter)
   {
-    return info().getDefaultCertificateNameForIdentity(info().getDefaultIdentity());
+    ptr_lib::shared_ptr<IdentityCertificate> certificate (new IdentityCertificate());
+    Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
+  
+    Name certificateName = certificatePrefix;
+    certificateName.append("ID-CERT").appendVersion();
+  
+    certificate->setName(certificateName);
+    certificate->setNotBefore(notBefore);
+    certificate->setNotAfter(notAfter);
+    certificate->setPublicKeyInfo(publicKey);
+    certificate->addSubjectDescription(CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
+    certificate->encode();
+
+    sign(*certificate, signerCertificateName);
+
+    return certificate;
   }
 
   void
-  sign(Data &data);
+  sign(Data &data)
+  {
+    if (!Info::defaultCertificate())
+      {
+        Info::refreshDefaultCertificate();
+
+        if(!Info::defaultCertificate())
+          throw std::runtime_error("Default IdentityCertificate cannot be determined");
+      }
+
+    sign(data, *Info::defaultCertificate());
+  }
   
   /**
    * Wire encode the Data object, sign it and set its signature.
@@ -155,10 +175,30 @@ public:
    * @param certificateName The certificate name of the key to use for signing.  If omitted, infer the signing identity from the data packet name.
    */
   void 
-  sign(Data& data, const Name& certificateName);
+  sign(Data& data, const Name& certificateName)
+  {
+    ptr_lib::shared_ptr<IdentityCertificate> cert = Info::getCertificate(certificateName);
+    if (!cert)
+      throw std::runtime_error("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
+
+    SignatureSha256WithRsa signature;
+    signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
+    data.setSignature(signature);
+
+    // For temporary usage, we support RSA + SHA256 only, but will support more.
+    Tpm::sign(data, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+  }
 
   void
-  sign(Data& data, const IdentityCertificate& certificate);
+  sign(Data& data, const IdentityCertificate& certificate)
+  {
+    SignatureSha256WithRsa signature;
+    signature.setKeyLocator(certificate.getName().getPrefix(-1));
+    data.setSignature(signature);
+
+    // For temporary usage, we support RSA + SHA256 only, but will support more.
+    Tpm::sign(data, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+  }
   
   /**
    * Sign the byte array using a certificate name and return a Signature object.
@@ -168,7 +208,19 @@ public:
    * @return The Signature.
    */
   Signature
-  sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName);
+  sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
+  {
+    ptr_lib::shared_ptr<IdentityCertificate> cert = Info::getCertificate(certificateName);
+    if (!cert)
+      throw std::runtime_error("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
+
+    SignatureSha256WithRsa signature;
+    signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
+  
+    // For temporary usage, we support RSA + SHA256 only, but will support more.
+    signature.setValue(Tpm::sign(buffer, bufferLength, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256));
+    return signature;
+  }
 
   /**
    * Wire encode the Data object, sign it and set its signature.
@@ -176,7 +228,15 @@ public:
    * @param identityName The identity name for the key to use for signing.  If omitted, infer the signing identity from the data packet name.
    */
   void 
-  signByIdentity(Data& data, const Name& identityName = Name());
+  signByIdentity(Data& data, const Name& identityName = Name())
+  {
+    Name signingCertificateName = Info::getDefaultCertificateNameForIdentity(identityName);
+
+    if (signingCertificateName.getComponentCount() == 0)
+      throw std::runtime_error("No qualified certificate name found!");
+
+    sign(data, signingCertificateName);
+  }
 
   /**
    * Sign the byte array using an identity name and return a Signature object.
@@ -186,7 +246,15 @@ public:
    * @return The Signature.
    */
   Signature
-  signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName = Name());
+  signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName = Name())
+  {
+    Name signingCertificateName = Info::getDefaultCertificateNameForIdentity(identityName);
+    
+    if (signingCertificateName.size() == 0)
+      throw std::runtime_error("No qualified certificate name found!");
+
+    return sign(buffer, bufferLength, signingCertificateName);
+  }
 
   /**
    * Generate a self-signed certificate for a public key.
@@ -194,13 +262,42 @@ public:
    * @return The generated certificate.
    */
   ptr_lib::shared_ptr<IdentityCertificate>
-  selfSign(const Name& keyName);
+  selfSign(const Name& keyName)
+  {
+    ptr_lib::shared_ptr<IdentityCertificate> certificate = ptr_lib::make_shared<IdentityCertificate>();
+    
+    Name certificateName = keyName.getPrefix(-1);
+    certificateName.append("KEY").append(keyName.get(-1)).append("ID-CERT").appendVersion();
+    
+    ptr_lib::shared_ptr<PublicKey> pubKey = Info::getPublicKey(keyName);
+    if (!pubKey)
+      throw std::runtime_error("Requested public key [" + keyName.toUri() + "] doesn't exist");
+  
+    certificate->setName(certificateName);
+    certificate->setNotBefore(getNow());
+    certificate->setNotAfter(getNow() + 630720000 /* 20 years*/);
+    certificate->setPublicKeyInfo(*pubKey);
+    certificate->addSubjectDescription(CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
+    certificate->encode();
+
+    selfSign(*certificate);
+    return certificate;
+  }
 
   /**
    * @brief Self-sign the supplied identity certificate
    */
   void
-  selfSign (IdentityCertificate& cert);
+  selfSign (IdentityCertificate& cert)
+  {
+    SignatureSha256WithRsa signature;
+    signature.setKeyLocator(cert.getName().getPrefix(-1)); // implicit conversion should take care
+    cert.setSignature(signature);
+
+    // For temporary usage, we support RSA + SHA256 only, but will support more.
+    Tpm::sign(cert, cert.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+  }
+
 
 private:
   /**
@@ -212,58 +309,57 @@ private:
    * @return The name of the generated key.
    */
   Name
-  generateKeyPair(const Name& identityName, bool isKsk = false, KeyType keyType = KEY_TYPE_RSA, int keySize = 2048);
+  generateKeyPair(const Name& identityName, bool isKsk = false, KeyType keyType = KEY_TYPE_RSA, int keySize = 2048)
+  {
+    Name keyName = Info::getNewKeyName(identityName, isKsk);
+
+    Tpm::generateKeyPairInTpm(keyName.toUri(), keyType, keySize);
+
+    ptr_lib::shared_ptr<PublicKey> pubKey = Tpm::getPublicKeyFromTpm(keyName.toUri());
+    Tpm::addPublicKey(keyName, keyType, *pubKey);
+
+    return keyName;
+  }
 
   static Name
-  getKeyNameFromCertificatePrefix(const Name& certificatePrefix);
+  getKeyNameFromCertificatePrefix(const Name& certificatePrefix)
+  {
+    Name result;
 
-public:
-  static const ptr_lib::shared_ptr<IdentityStorage>   DefaultIdentityStorage;
-  static const ptr_lib::shared_ptr<PrivateKeyStorage> DefaultPrivateKeyStorage;
+    std::string keyString("KEY");
+    int i = 0;
+    for(; i < certificatePrefix.size(); i++) {
+      if (certificatePrefix.get(i).toEscapedString() == keyString)
+        break;
+    }
     
-private:
-  ptr_lib::shared_ptr<IdentityStorage>   publicInfoStorage_;
-  ptr_lib::shared_ptr<PrivateKeyStorage> privateKeyStorage_;
+    if (i >= certificatePrefix.size())
+      throw std::runtime_error("Identity Certificate Prefix does not have a KEY component");
 
-  ptr_lib::shared_ptr<IdentityCertificate> defaultCertificate_;
+    result.append(certificatePrefix.getSubName(0, i));
+    result.append(certificatePrefix.getSubName(i + 1, certificatePrefix.size()-i-1));
+    
+    return result;
+  }
+
 };
 
+}
 
-inline IdentityStorage&
-KeyChain::info()
+#ifdef NDN_CPP_HAVE_OSX_SECURITY
+
+namespace ndn
 {
-  if (!publicInfoStorage_)
-    throw Error("IdentityStorage is not assigned to IdentityManager");
+typedef KeyChainImpl<SecPublicInfoSqlite3, SecTpmOsx> KeyChain;
+};
 
-  return *publicInfoStorage_;
-}
+#else
 
-inline const IdentityStorage&
-KeyChain::info() const
+namespace ndn
 {
-  if (!publicInfoStorage_)
-    throw Error("IdentityStorage is not assigned to IdentityManager");
-  
-  return *publicInfoStorage_;
-}
+typedef KeyChainImpl<SecPublicInfoMemory, SecTpmMemory> KeyChain;
+};
 
-inline PrivateKeyStorage&
-KeyChain::tpm()
-{
-  if (!privateKeyStorage_)
-    throw Error("PrivateKeyStorage is not assigned to IdentityManager");
-  
-  return *privateKeyStorage_;
-}
-
-inline const PrivateKeyStorage&
-KeyChain::tpm() const
-{
-  if (!privateKeyStorage_)
-    throw Error("PrivateKeyStorage is not assigned to IdentityManager");
-  return *privateKeyStorage_;
-}
-
-}
+#endif //NDN_CPP_HAVE_OSX_SECURITY
 
 #endif

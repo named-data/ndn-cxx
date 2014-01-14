@@ -6,19 +6,18 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_PRIVATE_KEY_STORAGE_HPP
-#define NDN_PRIVATE_KEY_STORAGE_HPP
+#ifndef NDN_SEC_TPM_HPP
+#define NDN_SEC_TPM_HPP
 
 #include <string>
 #include "../security-common.hpp"
 #include "../../name.hpp"
 #include "../../data.hpp"
+#include "../certificate/public-key.hpp"
 
 namespace ndn {
 
-class PublicKey;
-
-class PrivateKeyStorage {
+class SecTpm {
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
 
@@ -26,7 +25,7 @@ public:
    * The virtual destructor.
    */    
   virtual 
-  ~PrivateKeyStorage() {}
+  ~SecTpm() {}
 
   /**
    * Generate a pair of asymmetric keys.
@@ -35,7 +34,7 @@ public:
    * @param keySize The size of the key pair.
    */
   virtual void 
-  generateKeyPair(const Name& keyName, KeyType keyType = KEY_TYPE_RSA, int keySize = 2048) = 0;
+  generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize) = 0;
 
   /**
    * Get the public key
@@ -43,7 +42,7 @@ public:
    * @return The public key.
    */
   virtual ptr_lib::shared_ptr<PublicKey> 
-  getPublicKey(const Name& keyName) = 0;
+  getPublicKeyFromTpm(const Name& keyName) = 0;
   
   /**
    * Fetch the private key for keyName and sign the data, returning a signature Blob.
@@ -54,12 +53,10 @@ public:
    * @return The signature, or a null pointer if signing fails.
    */  
   virtual Block
-  sign(const uint8_t *data, size_t dataLength,
-       const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
+  sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
 
   virtual void
-  sign(Data &data,
-       const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) = 0;
+  sign(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
   
   /**
    * Decrypt data.
@@ -70,7 +67,7 @@ public:
    * @return The decrypted data.
    */
   virtual ConstBufferPtr 
-  decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric = false) = 0;
+  decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric) = 0;
 
   /**
    * Encrypt data.
@@ -81,7 +78,7 @@ public:
    * @return The encrypted data.
    */
   virtual ConstBufferPtr
-  encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric = false) = 0;
+  encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric) = 0;
 
   /**
    * @brief Generate a symmetric key.
@@ -90,7 +87,7 @@ public:
    * @param keySize The size of the key.
    */
   virtual void 
-  generateKey(const Name& keyName, KeyType keyType = KEY_TYPE_AES, int keySize = 256) = 0;
+  generateSymmetricKey(const Name& keyName, KeyType keyType, int keySize) = 0;
 
   /**
    * Check if a particular key exists.

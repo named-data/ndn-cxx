@@ -93,6 +93,9 @@ typedef int64_t MillisecondsSince1970;
 std::string 
 toHex(const std::vector<uint8_t>& array);
 
+MillisecondsSince1970
+getNow();
+
 }
 
 #endif
