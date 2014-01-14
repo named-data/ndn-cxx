@@ -51,16 +51,6 @@ public:
   createIdentity(const Name& identityName);
     
   /**
-   * Get the default identity.
-   * @return The default identity name.
-   */
-  Name
-  getDefaultIdentity()
-  {
-    return info().getDefaultIdentity();
-  }
-  
-  /**
    * Generate a pair of RSA keys for the specified identity.
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
@@ -81,17 +71,6 @@ public:
     info().setDefaultKeyNameForIdentity(keyName, identityName);
     defaultCertificate_.reset();
   }
-
-  /**
-   * Get the default key for an identity.
-   * @param identityName the name of the identity. If omitted, the identity name is inferred from the keyName.
-   * @return The default key name.
-   */
-  Name
-  getDefaultKeyNameForIdentity(const Name& identityName = Name())
-  {
-    return info().getDefaultKeyNameForIdentity(identityName);
-  }
   
   /**
    * Generate a pair of RSA keys for the specified identity and set it as default key for the identity.
@@ -102,17 +81,6 @@ public:
    */
   Name
   generateRSAKeyPairAsDefault(const Name& identityName, bool isKsk = false, int keySize = 2048);
-
-  /**
-   * Get the public key with the specified name.
-   * @param keyName The name of the key.
-   * @return The public key.
-   */
-  ptr_lib::shared_ptr<PublicKey>
-  getPublicKey(const Name& keyName)
-  {
-    return info().getKey(keyName);
-  }
 
   /**
    * Create an identity certificate for a public key managed by this IdentityManager.
@@ -147,16 +115,6 @@ public:
      const MillisecondsSince1970& notAfter); 
     
   /**
-   * Add a certificate into the public key identity storage.
-   * @param certificate The certificate to to added.  This makes a copy of the certificate.
-   */
-  void
-  addCertificate(const IdentityCertificate& certificate)
-  {
-    info().addCertificate(certificate);
-  }
-
-  /**
    * Set the certificate as the default for its corresponding key.
    * @param certificateName The certificate.
    */
@@ -176,40 +134,7 @@ public:
    */
   void
   addCertificateAsDefault(const IdentityCertificate& certificate);
-
-  /**
-   * Get a certificate with the specified name.
-   * @param certificateName The name of the requested certificate.
-   * @return the requested certificate which is valid.
-   */
-  ptr_lib::shared_ptr<IdentityCertificate>
-  getCertificate(const Name& certificateName)
-  {
-    return info().getCertificate(certificateName, false);
-  }
-    
-  /**
-   * Get a certificate even if the certificate is not valid anymore.
-   * @param certificateName The name of the requested certificate.
-   * @return the requested certificate.
-   */
-  ptr_lib::shared_ptr<IdentityCertificate>
-  getAnyCertificate(const Name& certificateName)
-  {
-    return info().getCertificate(certificateName, true);
-  }
-    
-  /**
-   * Get the default certificate name for the specified identity, which will be used when signing is performed based on identity.
-   * @param identityName The name of the specified identity.
-   * @return The requested certificate name.
-   */
-  Name
-  getDefaultCertificateNameForIdentity(const Name& identityName)
-  {
-    return info().getDefaultCertificateNameForIdentity(identityName);
-  }
-    
+        
   /**
    * Get the default certificate name of the default identity, which will be used when signing is based on identity and 
    * the identity is not specified.
@@ -218,7 +143,7 @@ public:
   Name
   getDefaultCertificateName()
   {
-    return info().getDefaultCertificateNameForIdentity(getDefaultIdentity());
+    return info().getDefaultCertificateNameForIdentity(info().getDefaultIdentity());
   }
 
   void
