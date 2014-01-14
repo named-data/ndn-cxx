@@ -5,7 +5,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp/security/identity/memory-private-key-storage.hpp>
+#include <ndn-cpp/security/identity/sec-tpm-memory.hpp>
 #include <ndn-cpp/security/certificate/public-key.hpp>
 #include <openssl/ssl.h>
 #include <openssl/sha.h>
@@ -18,7 +18,7 @@ namespace ndn {
 /**
  * RsaPrivateKey is a simple class to hold an RSA private key.
  */
-class MemoryPrivateKeyStorage::RsaPrivateKey {
+class SecTpmMemory::RsaPrivateKey {
 public:
   RsaPrivateKey(const uint8_t *keyDer, size_t keyDerLength)
   {
@@ -45,21 +45,21 @@ private:
   rsa_st * privateKey_;
 };
 
-MemoryPrivateKeyStorage::~MemoryPrivateKeyStorage()
+SecTpmMemory::~SecTpmMemory()
 {
 }
 
 void
-MemoryPrivateKeyStorage::setKeyPairForKeyName(const Name& keyName,
-                                              uint8_t *publicKeyDer, size_t publicKeyDerLength,
-                                              uint8_t *privateKeyDer, size_t privateKeyDerLength)
+SecTpmMemory::setKeyPairForKeyName(const Name& keyName,
+                                uint8_t *publicKeyDer, size_t publicKeyDerLength,
+                                uint8_t *privateKeyDer, size_t privateKeyDerLength)
 {
   publicKeyStore_[keyName.toUri()]  = ptr_lib::make_shared<PublicKey>(publicKeyDer, publicKeyDerLength);
   privateKeyStore_[keyName.toUri()] = ptr_lib::make_shared<RsaPrivateKey>(privateKeyDer, privateKeyDerLength);
 }
 
 void 
-MemoryPrivateKeyStorage::generateKeyPair(const Name& keyName, KeyType keyType, int keySize)
+SecTpmMemory::generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize)
 {
 #if 1
   throw Error("MemoryPrivateKeyStorage::generateKeyPair not implemented");
@@ -67,7 +67,7 @@ MemoryPrivateKeyStorage::generateKeyPair(const Name& keyName, KeyType keyType, i
 }
 
 ptr_lib::shared_ptr<PublicKey> 
-MemoryPrivateKeyStorage::getPublicKey(const Name& keyName)
+SecTpmMemory::getPublicKeyFromTpm(const Name& keyName)
 {
   PublicKeyStore::iterator publicKey = publicKeyStore_.find(keyName.toUri());
   if (publicKey == publicKeyStore_.end())
@@ -76,9 +76,9 @@ MemoryPrivateKeyStorage::getPublicKey(const Name& keyName)
 }
 
 Block 
-MemoryPrivateKeyStorage::sign(const uint8_t *data, size_t dataLength,
-                              const Name& keyName,
-                              DigestAlgorithm digestAlgorithm)
+SecTpmMemory::sign(const uint8_t *data, size_t dataLength,
+                const Name& keyName,
+                DigestAlgorithm digestAlgorithm)
 {
   if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
     return ConstBufferPtr();
@@ -110,9 +110,9 @@ MemoryPrivateKeyStorage::sign(const uint8_t *data, size_t dataLength,
 }
 
 void
-MemoryPrivateKeyStorage::sign(Data &d,
-                              const Name& keyName,
-                              DigestAlgorithm digestAlgorithm)
+SecTpmMemory::sign(Data &d,
+                const Name& keyName,
+                DigestAlgorithm digestAlgorithm)
 {
   if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
     Error("MemoryPrivateKeyStorage::sign only SHA256 digest is supported");
@@ -149,7 +149,7 @@ MemoryPrivateKeyStorage::sign(Data &d,
 }
 
 ConstBufferPtr
-MemoryPrivateKeyStorage::decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
+SecTpmMemory::decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
 {
 #if 1
   throw Error("MemoryPrivateKeyStorage::decrypt not implemented");
@@ -157,7 +157,7 @@ MemoryPrivateKeyStorage::decrypt(const Name& keyName, const uint8_t* data, size_
 }
 
 ConstBufferPtr
-MemoryPrivateKeyStorage::encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
+SecTpmMemory::encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
 {
 #if 1
   throw Error("MemoryPrivateKeyStorage::encrypt not implemented");
@@ -165,7 +165,7 @@ MemoryPrivateKeyStorage::encrypt(const Name& keyName, const uint8_t* data, size_
 }
 
 void 
-MemoryPrivateKeyStorage::generateKey(const Name& keyName, KeyType keyType, int keySize)
+SecTpmMemory::generateSymmetricKey(const Name& keyName, KeyType keyType, int keySize)
 {
 #if 1
   throw Error("MemoryPrivateKeyStorage::generateKey not implemented");
@@ -173,7 +173,7 @@ MemoryPrivateKeyStorage::generateKey(const Name& keyName, KeyType keyType, int k
 }
 
 bool
-MemoryPrivateKeyStorage::doesKeyExist(const Name& keyName, KeyClass keyClass)
+SecTpmMemory::doesKeyExist(const Name& keyName, KeyClass keyClass)
 {
   if (keyClass == KEY_CLASS_PUBLIC)
     return publicKeyStore_.find(keyName.toUri()) != publicKeyStore_.end();

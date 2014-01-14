@@ -5,29 +5,29 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_MEMORY_IDENTITY_STORAGE_HPP
-#define NDN_MEMORY_IDENTITY_STORAGE_HPP
+#ifndef NDN_SEC_PUBLIC_INFO_MEMORY_HPP
+#define NDN_SEC_PUBLIC_INFO_MEMORY_HPP
 
 #include <vector>
 #include <map>
-#include "identity-storage.hpp"
+#include "sec-public-info.hpp"
 
 namespace ndn {
 
 /**
- * MemoryIdentityStorage extends IdentityStorage and implements its methods to store identity, public key and certificate objects in memory.
- * The application must get the objects through its own means and add the objects to the MemoryIdentityStorage object.
- * To use permanent file-based storage, see BasicIdentityStorage.
+ * MemoryKeyMetaInfo extends IdentityStorage and implements its methods to store identity, public key and certificate objects in memory.
+ * The application must get the objects through its own means and add the objects to the MemoryKeyMetaInfo object.
+ * To use permanent file-based storage, see BasicKeyMetaInfo.
  */
-class MemoryIdentityStorage : public IdentityStorage {
+class SecPublicInfoMemory : public SecPublicInfo {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  struct Error : public SecPublicInfo::Error { Error(const std::string &what) : SecPublicInfo::Error(what) {} };
 
   /**
    * The virtual Destructor.
    */
   virtual 
-  ~MemoryIdentityStorage();
+  ~SecPublicInfoMemory();
 
   /**
    * Check if the specified identity already exists.
@@ -57,7 +57,7 @@ public:
    * @return true if the key exists, otherwise false.
    */
   virtual bool 
-  doesKeyExist(const Name& keyName);
+  doesPublicKeyExist(const Name& keyName);
 
   /**
    * Add a public key to the identity storage.
@@ -66,7 +66,7 @@ public:
    * @param publicKeyDer A blob of the public key DER to be added.
    */
   virtual void 
-  addKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer);
+  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer);
 
   /**
    * Get the public key DER blob from the identity storage.
@@ -74,21 +74,21 @@ public:
    * @return The DER Blob.  If not found, return a Blob with a null pointer.
    */
   virtual ptr_lib::shared_ptr<PublicKey>
-  getKey(const Name& keyName);
+  getPublicKey(const Name& keyName);
 
   /**
    * Activate a key.  If a key is marked as inactive, its private part will not be used in packet signing.
    * @param keyName name of the key
    */
   virtual void 
-  activateKey(const Name& keyName);
+  activatePublicKey(const Name& keyName);
 
   /**
    * Deactivate a key. If a key is marked as inactive, its private part will not be used in packet signing.
    * @param keyName name of the key
    */
   virtual void 
-  deactivateKey(const Name& keyName);
+  deactivatePublicKey(const Name& keyName);
 
   /**
    * Check if the specified certificate already exists.
@@ -142,30 +142,6 @@ public:
   virtual Name 
   getDefaultCertificateNameForKey(const Name& keyName);
 
-  /**
-   * Set the default identity.  If the identityName does not exist, then clear the default identity
-   * so that getDefaultIdentity() returns an empty name.
-   * @param identityName The default identity name.
-   */
-  virtual void 
-  setDefaultIdentity(const Name& identityName);
-
-  /**
-   * Set the default key name for the specified identity.
-   * @param keyName The key name.
-   * @param identityNameCheck (optional) The identity name to check the keyName.
-   */
-  virtual void 
-  setDefaultKeyNameForIdentity(const Name& keyName, const Name& identityNameCheck = Name());
-
-  /**
-   * Set the default key name for the specified identity.
-   * @param keyName The key name.
-   * @param certificateName The certificate name.
-   */
-  virtual void 
-  setDefaultCertificateNameForKey(const Name& keyName, const Name& certificateName);  
-
   virtual std::vector<Name>
   getAllIdentities(bool isDefault);
 
@@ -180,6 +156,32 @@ public:
 
   virtual std::vector<Name>
   getAllCertificateNamesOfKey(const Name& keyName, bool isDefault);
+
+protected:
+  /**
+   * Set the default identity.  If the identityName does not exist, then clear the default identity
+   * so that getDefaultIdentity() returns an empty name.
+   * @param identityName The default identity name.
+   */
+  virtual void 
+  setDefaultIdentityInternal(const Name& identityName);
+
+  /**
+   * Set the default key name for the specified identity.
+   * @param keyName The key name.
+   * @param identityNameCheck (optional) The identity name to check the keyName.
+   */
+  virtual void 
+  setDefaultKeyNameForIdentityInternal(const Name& keyName);
+
+  /**
+   * Set the default key name for the specified identity.
+   * @param keyName The key name.
+   * @param certificateName The certificate name.
+   */
+  virtual void 
+  setDefaultCertificateNameForKeyInternal(const Name& certificateName);  
+
   
 private:
   class KeyRecord {

@@ -5,11 +5,11 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_MEMORY_PRIVATE_KEY_STORAGE_HPP
-#define NDN_MEMORY_PRIVATE_KEY_STORAGE_HPP
+#ifndef NDN_SEC_TPM_MEMORY_HPP
+#define NDN_SEC_TPM_MEMORY_HPP
 
 #include <map>
-#include "private-key-storage.hpp"
+#include "sec-tpm.hpp"
 
 struct rsa_st;
 
@@ -19,15 +19,15 @@ namespace ndn {
  * MemoryPrivateKeyStorage extends PrivateKeyStorage to implement a simple in-memory private key store.  You should
  * initialize by calling setKeyPairForKeyName.
  */
-class MemoryPrivateKeyStorage : public PrivateKeyStorage {
+class SecTpmMemory : public SecTpm {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  struct Error : public SecTpm::Error { Error(const std::string &what) : SecTpm::Error(what) {} };
 
   /**
    * The virtual destructor
    */    
   virtual 
-  ~MemoryPrivateKeyStorage();
+  ~SecTpmMemory();
 
   /**
    * Set the public and private key for the keyName.
@@ -48,7 +48,7 @@ public:
    * @param keySize The size of the key pair.
    */
   virtual void 
-  generateKeyPair(const Name& keyName, KeyType keyType, int keySize);
+  generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize);
 
   /**
    * Get the public key
@@ -56,7 +56,7 @@ public:
    * @return The public key.
    */
   virtual ptr_lib::shared_ptr<PublicKey> 
-  getPublicKey(const Name& keyName);
+  getPublicKeyFromTpm(const Name& keyName);
   
   /**
    * Fetch the private key for keyName and sign the data, returning a signature Blob.
@@ -101,7 +101,7 @@ public:
    * @param keySize The size of the key.
    */
   virtual void 
-  generateKey(const Name& keyName, KeyType keyType, int keySize);
+  generateSymmetricKey(const Name& keyName, KeyType keyType, int keySize);
 
   /**
    * Check if a particular key exists.

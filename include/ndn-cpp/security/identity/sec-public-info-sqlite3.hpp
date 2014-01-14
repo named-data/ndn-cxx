@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_BASIC_IDENTITY_STORAGE_H
-#define NDN_BASIC_IDENTITY_STORAGE_H
+#ifndef NDN_SEC_PUBLIC_INFO_SQLITE3_HPP
+#define NDN_SEC_PUBLIC_INFO_SQLITE3_HPP
 
 // Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_SQLITE3.
 #include <ndn-cpp/ndn-cpp-config.h>
@@ -15,7 +15,7 @@
 
 #include <sqlite3.h>
 #include "../../common.hpp"
-#include "identity-storage.hpp"
+#include "sec-public-info.hpp"
 
 namespace ndn
 {
@@ -24,19 +24,19 @@ namespace ndn
  * BasicIdentityStorage extends IdentityStorage to implement a basic storage of identity, public keys and certificates
  * using SQLite.
  */
-class BasicIdentityStorage : public IdentityStorage {
+class SecPublicInfoSqlite3 : public SecPublicInfo {
 public:
-  struct Error : public IdentityStorage::Error { Error(const std::string &what) : IdentityStorage::Error(what) {} };
+  struct Error : public SecPublicInfo::Error { Error(const std::string &what) : SecPublicInfo::Error(what) {} };
 
-  BasicIdentityStorage();
+  SecPublicInfoSqlite3();
   
   /**
    * The virtual Destructor.
    */
   virtual 
-  ~BasicIdentityStorage();
+  ~SecPublicInfoSqlite3();
 
-  // from IdentityStorage
+  // from SecPublicInfo
   /**
    * Check if the specified identity already exists.
    * @param identityName The identity name.
@@ -65,7 +65,7 @@ public:
    * @return true if the key exists, otherwise false.
    */
   virtual bool 
-  doesKeyExist(const Name& keyName);
+  doesPublicKeyExist(const Name& keyName);
 
   /**
    * Add a public key to the identity storage.
@@ -74,7 +74,7 @@ public:
    * @param publicKeyDer A blob of the public key DER to be added.
    */
   virtual void 
-  addKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer);
+  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer);
 
   /**
    * Get the public key DER blob from the identity storage.
@@ -82,21 +82,21 @@ public:
    * @return The DER Blob.  If not found, return a Blob with a null pointer.
    */
   virtual ptr_lib::shared_ptr<PublicKey>
-  getKey(const Name& keyName);
+  getPublicKey(const Name& keyName);
 
   /**
    * Activate a key.  If a key is marked as inactive, its private part will not be used in packet signing.
    * @param keyName name of the key
    */
-  virtual void 
-  activateKey(const Name& keyName);
+  virtual inline void 
+  activatePublicKey(const Name& keyName);
 
   /**
    * Deactivate a key. If a key is marked as inactive, its private part will not be used in packet signing.
    * @param keyName name of the key
    */
-  virtual void 
-  deactivateKey(const Name& keyName);
+  virtual inline void 
+  deactivatePublicKey(const Name& keyName);
 
   /**
    * Check if the specified certificate already exists.
@@ -110,7 +110,7 @@ public:
    * Add a certificate in to the identity storage without checking if the identity and key exists.
    * @param certificate The certificate to be added.
    */
-  void
+  virtual void
   addAnyCertificate (const IdentityCertificate& certificate);
 
   /**
@@ -127,11 +127,11 @@ public:
    * @return The requested certificate.  If not found, return a shared_ptr with a null pointer.
    */
   virtual ptr_lib::shared_ptr<IdentityCertificate> 
-  getCertificate(const Name &certificateName, bool allowAny = false);
+  getCertificate(const Name &certificateName, bool allowAny);
 
 
   /*****************************************
-   *           Get/Set Default             *
+   *            Default Getter             *
    *****************************************/
 
   /**
@@ -157,31 +157,6 @@ public:
   virtual Name 
   getDefaultCertificateNameForKey(const Name& keyName);
 
-  /**
-   * Set the default identity.  If the identityName does not exist, then clear the default identity
-   * so that getDefaultIdentity() returns an empty name.
-   * @param identityName The default identity name.
-   */
-  virtual void 
-  setDefaultIdentity(const Name& identityName);
-
-  /**
-   * Set the default key name for the specified identity.
-   * @param keyName The key name.
-   * @param identityNameCheck (optional) The identity name to check the keyName.
-   */
-  virtual void 
-  setDefaultKeyNameForIdentity(const Name& keyName, const Name& identityNameCheck = Name());
-
-  /**
-   * Set the default key name for the specified identity.
-   * @param keyName The key name.
-   * @param certificateName The certificate name.
-   */
-  virtual void 
-  setDefaultCertificateNameForKey(const Name& keyName, const Name& certificateName);  
-
-
   virtual std::vector<Name>
   getAllIdentities(bool isDefault);
 
@@ -197,13 +172,49 @@ public:
   virtual std::vector<Name>
   getAllCertificateNamesOfKey(const Name& keyName, bool isDefault);
   
-private:
+protected:
+  /**
+   * Set the default identity.  If the identityName does not exist, then clear the default identity
+   * so that getDefaultIdentity() returns an empty name.
+   * @param identityName The default identity name.
+   */
+  virtual void 
+  setDefaultIdentityInternal(const Name& identityName);
 
+  /**
+   * Set the default key name for the specified identity.
+   * @param keyName The key name.
+   * @param identityNameCheck (optional) The identity name to check the keyName.
+   */
   virtual void
+  setDefaultKeyNameForIdentityInternal(const Name& keyName);
+
+  /**
+   * Set the default key name for the specified identity.
+   * @param keyName The key name.
+   * @param certificateName The certificate name.
+   */
+  virtual void 
+  setDefaultCertificateNameForKeyInternal(const Name& certificateName);  
+  
+private:
+  void
   updateKeyStatus(const Name& keyName, bool isActive);
 
   sqlite3 *database_;
 };
+
+void
+SecPublicInfoSqlite3::activatePublicKey(const Name& keyName)
+{
+  updateKeyStatus(keyName, true);
+}
+
+void
+SecPublicInfoSqlite3::deactivatePublicKey(const Name& keyName)
+{
+  updateKeyStatus(keyName, false);
+}
 
 }
 

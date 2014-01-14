@@ -12,7 +12,7 @@
 
 #include "../../util/logging.hpp"
 
-#include <ndn-cpp/security/identity/osx-private-key-storage.hpp>
+#include <ndn-cpp/security/identity/sec-tpm-osx.hpp>
 #include <ndn-cpp/security/certificate/public-key.hpp>
 
 #include <CoreFoundation/CoreFoundation.h>
@@ -21,11 +21,11 @@
 
 using namespace std;
 
-INIT_LOGGER("ndn.OSXPrivateKeyStorage");
+INIT_LOGGER("SecTpmOsx");
 
 namespace ndn
 {
-  class OSXPrivateKeyStorage::Impl {
+  class SecTpmOsx::Impl {
   public:
     Impl(const std::string &keychainName)
       : keyChainName_ ("" == keychainName ?  "login.keychain" : keychainName)
@@ -101,15 +101,15 @@ namespace ndn
 
 
 
-  OSXPrivateKeyStorage::OSXPrivateKeyStorage(const string & keychainName)
+  SecTpmOsx::SecTpmOsx(const string & keychainName)
     : impl_(new Impl(keychainName))
   {
     OSStatus res = SecKeychainCreate(impl_->keyChainName_.c_str(), //Keychain path
-                                      0,                       //Keychain password length
-                                      NULL,                    //Keychain password
-                                      true,                    //User prompt
-                                      NULL,                    //Initial access of Keychain
-                                      &impl_->keyChainRef_);   //Keychain reference
+				     0,                       //Keychain password length
+				     NULL,                    //Keychain password
+				     true,                    //User prompt
+				     NULL,                    //Initial access of Keychain
+				     &impl_->keyChainRef_);   //Keychain reference
 
     if (res == errSecDuplicateKeychain)
       res = SecKeychainOpen(impl_->keyChainName_.c_str(),
@@ -129,12 +129,12 @@ namespace ndn
     }
   }
 
-  OSXPrivateKeyStorage::~OSXPrivateKeyStorage(){
+  SecTpmOsx::~SecTpmOsx(){
     //TODO: implement
   }
 
   void 
-  OSXPrivateKeyStorage::generateKeyPair(const Name & keyName, KeyType keyType, int keySize)
+  SecTpmOsx::generateKeyPairInTpm(const Name & keyName, KeyType keyType, int keySize)
   { 
     
     if(doesKeyExist(keyName, KEY_CLASS_PUBLIC)){
@@ -171,7 +171,7 @@ namespace ndn
   }
 
   void 
-  OSXPrivateKeyStorage::generateKey(const Name & keyName, KeyType keyType, int keySize)
+  SecTpmOsx::generateSymmetricKey(const Name & keyName, KeyType keyType, int keySize)
   {
 
     if(doesKeyExist(keyName, KEY_CLASS_SYMMETRIC))
@@ -202,7 +202,7 @@ namespace ndn
   }
 
   ptr_lib::shared_ptr<PublicKey>
-  OSXPrivateKeyStorage::getPublicKey(const Name & keyName)
+  SecTpmOsx::getPublicKeyFromTpm(const Name & keyName)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::getPublickey");
 
@@ -220,8 +220,7 @@ namespace ndn
   }
 
   Block
-  OSXPrivateKeyStorage::sign(const uint8_t *data, size_t dataLength,
-                             const Name& keyName, DigestAlgorithm digestAlgorithm/* = DIGEST_ALGORITHM_SHA256*/)
+  SecTpmOsx::sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::Sign");
     
@@ -281,8 +280,7 @@ namespace ndn
   }
 
   void
-  OSXPrivateKeyStorage::sign(Data &data,
-                             const Name& keyName, DigestAlgorithm digestAlgorithm/* = DIGEST_ALGORITHM_SHA256 */)
+  SecTpmOsx::sign(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm)
   {
     const uint8_t *begin = data.wireEncode().value();
     const uint8_t *end   = &*data.getSignature().getInfo().end();
@@ -292,7 +290,7 @@ namespace ndn
   }
 
   ConstBufferPtr
-  OSXPrivateKeyStorage::decrypt(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
+  SecTpmOsx::decrypt(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::Decrypt");
 
@@ -335,7 +333,7 @@ namespace ndn
   }
   
   bool
-  OSXPrivateKeyStorage::setACL(const Name & keyName, KeyClass keyClass, int acl, const string & appPath)
+  SecTpmOsx::setACL(const Name & keyName, KeyClass keyClass, int acl, const string & appPath)
   {
     SecKeychainItemRef privateKey = impl_->getKey(keyName, keyClass);
     
@@ -432,7 +430,7 @@ namespace ndn
   // }
 
   ConstBufferPtr
-  OSXPrivateKeyStorage::encrypt(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
+  SecTpmOsx::encrypt(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::Encrypt");
 
@@ -468,7 +466,7 @@ namespace ndn
   }
 
   bool
-  OSXPrivateKeyStorage::doesKeyExist(const Name & keyName, KeyClass keyClass)
+  SecTpmOsx::doesKeyExist(const Name & keyName, KeyClass keyClass)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::doesKeyExist");
 
@@ -503,7 +501,7 @@ namespace ndn
   ////////////////////////////////
 
   SecKeychainItemRef
-  OSXPrivateKeyStorage::Impl::getKey(const Name & keyName, KeyClass keyClass)
+  SecTpmOsx::Impl::getKey(const Name & keyName, KeyClass keyClass)
   {
     string keyNameUri = toInternalKeyName(keyName, keyClass);
 
@@ -533,7 +531,8 @@ namespace ndn
       return keyItem;
   }
   
-  string OSXPrivateKeyStorage::Impl::toInternalKeyName(const Name & keyName, KeyClass keyClass)
+  string 
+  SecTpmOsx::Impl::toInternalKeyName(const Name & keyName, KeyClass keyClass)
   {
     string keyUri = keyName.toUri();
 
@@ -543,7 +542,8 @@ namespace ndn
       return keyUri;
   }
 
-  const CFTypeRef OSXPrivateKeyStorage::Impl::getAsymKeyType(KeyType keyType)
+  const CFTypeRef 
+  SecTpmOsx::Impl::getAsymKeyType(KeyType keyType)
   {
     switch(keyType){
     case KEY_TYPE_RSA:
@@ -554,7 +554,8 @@ namespace ndn
     }
   }
 
-  const CFTypeRef OSXPrivateKeyStorage::Impl::getSymKeyType(KeyType keyType)
+  const CFTypeRef 
+  SecTpmOsx::Impl::getSymKeyType(KeyType keyType)
   {
     switch(keyType){
     case KEY_TYPE_AES:
@@ -565,7 +566,8 @@ namespace ndn
     }
   }
 
-  const CFTypeRef OSXPrivateKeyStorage::Impl::getKeyClass(KeyClass keyClass)
+  const CFTypeRef 
+  SecTpmOsx::Impl::getKeyClass(KeyClass keyClass)
   {
     switch(keyClass){
     case KEY_CLASS_PRIVATE:
@@ -580,7 +582,8 @@ namespace ndn
     }
   }
 
-  const CFStringRef OSXPrivateKeyStorage::Impl::getDigestAlgorithm(DigestAlgorithm digestAlgo)
+  const CFStringRef 
+  SecTpmOsx::Impl::getDigestAlgorithm(DigestAlgorithm digestAlgo)
   {
     switch(digestAlgo){
     // case DIGEST_MD2:
@@ -597,7 +600,8 @@ namespace ndn
     }
   }
 
-  long OSXPrivateKeyStorage::Impl::getDigestSize(DigestAlgorithm digestAlgo)
+  long 
+  SecTpmOsx::Impl::getDigestSize(DigestAlgorithm digestAlgo)
   {
     switch(digestAlgo){
     case DIGEST_ALGORITHM_SHA256:

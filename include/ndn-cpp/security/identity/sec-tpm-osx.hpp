@@ -5,48 +5,48 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_OSX_PRIVATEKEY_STORAGE_H
-#define NDN_OSX_PRIVATEKEY_STORAGE_H
+#ifndef NDN_SEC_TPM_OSX_HPP
+#define NDN_SEC_TPM_OSX_HPP
 
 // Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_OSX_SECURITY 1.
 #include <ndn-cpp/ndn-cpp-config.h>
 #if NDN_CPP_HAVE_OSX_SECURITY
 
 #include "../../common.hpp"
-#include "private-key-storage.hpp"
+#include "sec-tpm.hpp"
 
 namespace ndn
 {
   
-class OSXPrivateKeyStorage : public PrivateKeyStorage {
+class SecTpmOsx : public SecTpm {
 public:
+  struct Error : public SecTpm::Error { Error(const std::string &what) : SecTpm::Error(what) {} };
+
   /**
-   * constructor of OSXPrivateKeyStorage
+   * constructor of OSXKeyChainTpm
    * @param keychainName the name of keychain
    */
-  OSXPrivateKeyStorage(const std::string & keychainName = "");
+  SecTpmOsx(const std::string & keychainName = "");
 
   /**
-   * destructor of OSXPrivateKeyStore
+   * destructor of OSXKeyChainTpm
    */    
   virtual 
-  ~OSXPrivateKeyStorage();
+  ~SecTpmOsx();
 
 
-  // From PrivateKeyStorage
+  // From TrustedPlatformModule
   virtual void 
-  generateKeyPair(const Name& keyName, KeyType keyType = KEY_TYPE_RSA, int keySize = 2048);
+  generateKeyPairInTpm(const Name& keyName, KeyType keyType = KEY_TYPE_RSA, int keySize = 2048);
 
   virtual ptr_lib::shared_ptr<PublicKey> 
-  getPublicKey(const Name& keyName);
+  getPublicKeyFromTpm(const Name& keyName);
   
   virtual Block
-  sign(const uint8_t *data, size_t dataLength,
-       const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256);
+  sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
 
   virtual void
-  sign(Data &data,
-       const Name& keyName, DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256);
+  sign(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm);
   
   /**
    * Decrypt data.
@@ -57,7 +57,7 @@ public:
    * @return The decrypted data.
    */
   virtual ConstBufferPtr 
-  decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric = false);
+  decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric);
 
   /**
    * Encrypt data.
@@ -68,7 +68,7 @@ public:
    * @return The encrypted data.
    */
   virtual ConstBufferPtr
-  encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric = false);
+  encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric);
 
   /**
    * Generate a symmetric key.
@@ -77,7 +77,7 @@ public:
    * @param keySize The size of the key.
    */
   virtual void 
-  generateKey(const Name& keyName, KeyType keyType = KEY_TYPE_AES, int keySize = 256);
+  generateSymmetricKey(const Name& keyName, KeyType keyType, int keySize);
 
   /**
    * Check if a particular key exists.
