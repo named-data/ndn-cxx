@@ -649,6 +649,22 @@ public:
       return components_[size() + i];
   }
   
+  /**
+   * Compare this to the other Name using NDN canonical ordering.  If the first components of each name are not equal, 
+   * this returns -1 if the first comes before the second using the NDN canonical ordering for name components, or 1 if it comes after.
+   * If they are equal, this compares the second components of each name, etc.  If both names are the same up to
+   * the size of the shorter name, this returns -1 if the first name is shorter than the second or 1 if it is longer.  
+   * For example, if you std::sort gives: /a/b/d /a/b/cc /c /c/a /bb .  This is intuitive because all names
+   * with the prefix /a are next to each other.  But it may be also be counter-intuitive because /c comes before /bb 
+   * according to NDN canonical ordering since it is shorter.  
+   * @param other The other Name to compare with.
+   * @return 0 If they compare equal, -1 if *this comes before other in the canonical ordering, or
+   * 1 if *this comes after other in the canonical ordering.
+   *
+   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   */
+  int
+  compare(const Name& other) const;
 
   const Component&
   operator [] (int i) const
@@ -681,30 +697,42 @@ public:
    */
   bool
   operator != (const Name &name) const { return !equals(name); }
-
-  /**
-   * Compare two names for "less than" using breadth first.  If the first components of each name are not equal, 
-   * this returns true if the first comes before the second using the NDN canonical ordering for name components.
-   * If they are equal, this compares the second components of each name, etc.  If both names are the same up to
-   * the size of the shorter name, this returns true if the first name is shorter than the second.  For example, if you
-   * use breadthFirstLess in std::sort, it gives: /a/b/d	/a/b/cc /c /c/a /bb .  This is intuitive because all names
-   * with the prefix /a are next to each other.  But it may be also be counter-intuitive because /c comes before /bb 
-   * according to NDN canonical ordering since it is shorter.  Note: We don't define this directly as the Name
-   * less than operation because there are other valid ways to sort names.
-   * @param name1 The first name to compare.
-   * @param name2 The second name to compare.
-   * @return True if the first name is less than the second using breadth first comparison.
-   */
-  static bool
-  breadthFirstLess(const Name& name1, const Name& name2);
   
   /**
-   * Name::BreadthFirstLess is a function object which calls breadthFirstLess, for use as the "less" operator in map, etc.
-   * For example, you can use Name as the key type in a map as follows: map<Name, int, Name::BreadthFirstLess>.
+   * Return true if this is less than or equal to the other Name in the NDN canonical ordering.
+   * @param other The other Name to compare with.
+   *
+   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
    */
-  struct BreadthFirstLess {
-    bool operator() (const Name& name1, const Name& name2) const { return breadthFirstLess(name1, name2); }
-  };
+  bool
+  operator <= (const Name& other) const { return compare(other) <= 0; }
+
+  /**
+   * Return true if this is less than the other Name in the NDN canonical ordering.
+   * @param other The other Name to compare with.
+   *
+   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   */
+  bool
+  operator < (const Name& other) const { return compare(other) < 0; }
+
+  /**
+   * Return true if this is less than or equal to the other Name in the NDN canonical ordering.
+   * @param other The other Name to compare with.
+   *
+   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   */
+  bool
+  operator >= (const Name& other) const { return compare(other) >= 0; }
+
+  /**
+   * Return true if this is greater than the other Name in the NDN canonical ordering.
+   * @param other The other Name to compare with.
+   *
+   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   */
+  bool
+  operator > (const Name& other) const { return compare(other) > 0; }
   
   //
   // Iterator interface to name components.

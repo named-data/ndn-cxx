@@ -298,20 +298,26 @@ Name::toEscapedString(const uint8_t *value, size_t valueSize, std::ostream& resu
   }  
 }
 
-bool 
-Name::breadthFirstLess(const Name& name1, const Name& name2)
+int
+Name::compare(const Name& other) const
 {
-  for (size_t i = 0; i < name1.size() && i < name2.size(); ++i) {
-    if (name1[i] == name2[i])
+  for (size_t i = 0; i < size() && i < other.size(); ++i) {
+    int comparison = components_[i].compare(other.components_[i]);
+    if (comparison == 0)
       // The components at this index are equal, so check the next components.
       continue;
     
     // Otherwise, the result is based on the components at this index.
-    return name1[i] < name2[i];
+    return comparison;
   }
   
-  // The components up to min(name1.size(), name2.size()) are equal, so sort on the shorter name.
-  return name1.size() < name2.size();
+  // The components up to min(this.size(), other.size()) are equal, so the shorter name is less.
+  if (size() < other.size())
+    return -1;
+  else if (size() > other.size())
+    return 1;
+  else
+    return 0;
 }
 
 std::ostream&
@@ -370,6 +376,4 @@ Name::wireDecode(const Block &wire)
       append(i->value(), i->value_size());
     }
 }
-
-
 }
