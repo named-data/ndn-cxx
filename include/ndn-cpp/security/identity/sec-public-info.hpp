@@ -14,6 +14,7 @@
 #include "../certificate/public-key.hpp"
 #include "../certificate/identity-certificate.hpp"
 
+
 namespace ndn {
 
 /**
@@ -114,7 +115,7 @@ public:
    * @return The requested certificate.  If not found, return a shared_ptr with a null pointer.
    */
   virtual ptr_lib::shared_ptr<IdentityCertificate> 
-  getCertificate(const Name &certificateName, bool allowAny = false) = 0;
+  getCertificate(const Name &certificateName) = 0;
 
 
   /*****************************************
@@ -254,6 +255,9 @@ public:
   inline void
   addCertificateAsIdentityDefault(const IdentityCertificate& certificate);
 
+  inline void
+  addCertificateAsSystemDefault(const IdentityCertificate& certificate);
+
   inline ptr_lib::shared_ptr<IdentityCertificate>
   defaultCertificate();
   
@@ -295,19 +299,16 @@ SecPublicInfo::getDefaultCertificateNameForIdentity(const Name& identityName)
 Name
 SecPublicInfo::getNewKeyName (const Name& identityName, bool useKsk)
 {
-  MillisecondsSince1970 ti = getNow();
-  // Get the number of seconds.
   std::ostringstream oss;
-  oss << floor(ti / 1000.0);  
 
-  std::string keyIdStr;
-    
   if (useKsk)
-    keyIdStr = ("KSK-" + oss.str());
+    oss << "ksk-";
   else
-    keyIdStr = ("DSK-" + oss.str());
+    oss << "dsk-";
 
-  Name keyName = Name(identityName).append(keyIdStr);
+  oss << static_cast<int>(getNow()/1000);  
+
+  Name keyName = Name(identityName).append(oss.str());
 
   if (doesPublicKeyExist(keyName))
     throw Error("Key name already exists");
@@ -339,8 +340,21 @@ void
 SecPublicInfo::addCertificateAsIdentityDefault(const IdentityCertificate& certificate)
 {
   addCertificate(certificate);
-  setDefaultKeyNameForIdentityInternal(certificate.getPublicKeyName());
-  setDefaultCertificateNameForKeyInternal(certificate.getName());
+  Name certName = certificate.getName();
+  setDefaultKeyNameForIdentityInternal(IdentityCertificate::certificateNameToPublicKeyName(certName));
+  setDefaultCertificateNameForKeyInternal(certName);
+  refreshDefaultCertificate();
+}
+
+void
+SecPublicInfo::addCertificateAsSystemDefault(const IdentityCertificate& certificate)
+{
+  addCertificate(certificate);
+  Name certName = certificate.getName();
+  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certName);
+  setDefaultIdentityInternal(keyName.getPrefix(-1));
+  setDefaultKeyNameForIdentityInternal(keyName);
+  setDefaultCertificateNameForKeyInternal(certName);
   refreshDefaultCertificate();
 }
 
@@ -353,7 +367,11 @@ SecPublicInfo::defaultCertificate()
 void
 SecPublicInfo::refreshDefaultCertificate()
 {
-  defaultCertificate_ = getCertificate(getDefaultCertificateNameForIdentity(getDefaultIdentity()));
+  Name certName = getDefaultCertificateNameForIdentity(getDefaultIdentity());
+  if(certName.empty())
+    defaultCertificate_.reset();
+  else
+    defaultCertificate_ = getCertificate(certName);
 }
 
 

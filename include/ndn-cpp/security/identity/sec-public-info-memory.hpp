@@ -112,7 +112,7 @@ public:
    * @return The requested certificate.  If not found, return a shared_ptr with a null pointer.
    */
   virtual ptr_lib::shared_ptr<IdentityCertificate> 
-  getCertificate(const Name &certificateName, bool allowAny = false);
+  getCertificate(const Name &certificateName);
 
 
   /*****************************************

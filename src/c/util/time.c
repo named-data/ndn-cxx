@@ -43,7 +43,7 @@ ndn_toIsoString(ndn_MillisecondsSince1970 milliseconds, char *isoString)
     // Don't expect this to happen.
     fraction = ".000000";
     
-  time_t seconds = (time_t)floor(secondsSince1970);
+  time_t seconds = (time_t)secondsSince1970;
   struct tm* gmt = gmtime(&seconds);
   sprintf(isoString, "%04d%02d%02dT%02d%02d%02d%s", 1900 + gmt->tm_year, gmt->tm_mon + 1, gmt->tm_mday,
     gmt->tm_hour, gmt->tm_min, gmt->tm_sec, fraction);

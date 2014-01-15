@@ -59,17 +59,31 @@ IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
 {
   int i = certificateName.size() - 1;
   string idString("ID-CERT");
+  bool foundIdString = false;
   for (; i >= 0; i--) {
     if (certificateName.get(i).toEscapedString() == idString)
-      break;
+      {
+        foundIdString = true;
+        break;
+      }
   }
+
+  if(!foundIdString)
+    throw Error("Incorrect identity certificate name " + certificateName.toUri());
     
   Name tmpName = certificateName.getSubName(0, i);    
   string keyString("KEY");
+  bool foundKeyString = false;
   for (i = 0; i < tmpName.size(); i++) {
     if (tmpName.get(i).toEscapedString() == keyString)
-      break;
+      {
+        foundKeyString = true;
+        break;
+      }
   }
+
+  if(!foundKeyString)
+    throw Error("Incorrect identity certificate name " + certificateName.toUri());
   
   return tmpName.getSubName(0, i).append(tmpName.getSubName(i + 1, tmpName.size() - i - 1));
 }

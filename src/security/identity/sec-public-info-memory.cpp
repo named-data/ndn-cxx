@@ -119,7 +119,7 @@ SecPublicInfoMemory::addCertificate(const IdentityCertificate& certificate)
 }
 
 ptr_lib::shared_ptr<IdentityCertificate> 
-SecPublicInfoMemory::getCertificate(const Name& certificateName, bool allowAny)
+SecPublicInfoMemory::getCertificate(const Name& certificateName)
 {
   CertificateStore::iterator record = certificateStore_.find(certificateName.toUri());
   if (record == certificateStore_.end())
