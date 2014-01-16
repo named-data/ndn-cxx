@@ -5,8 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp/security/identity/sec-tpm-memory.hpp>
-#include <ndn-cpp/security/certificate/public-key.hpp>
+#include <ndn-cpp/security/sec-tpm-memory.hpp>
+#include <ndn-cpp/security/public-key.hpp>
 #include <openssl/ssl.h>
 #include <openssl/sha.h>
 #include <openssl/rsa.h>

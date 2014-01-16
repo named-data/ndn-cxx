@@ -10,10 +10,10 @@
 #define NDN_SEC_TPM_HPP
 
 #include <string>
-#include "../security-common.hpp"
-#include "../../name.hpp"
-#include "../../data.hpp"
-#include "../certificate/public-key.hpp"
+#include "security-common.hpp"
+#include "../name.hpp"
+#include "../data.hpp"
+#include "public-key.hpp"
 
 namespace ndn {
 

@@ -17,11 +17,6 @@ ndn_cpp_cpp_headers = \
   $(wildcard ndn-cpp/*.hpp) \
   $(wildcard ndn-cpp/encoding/*.*) \
   $(wildcard ndn-cpp/security/*.*) \
-  $(wildcard ndn-cpp/security/certificate/*.*) \
-  $(wildcard ndn-cpp/security/encryption/*.*) \
-  $(wildcard ndn-cpp/security/identity/*.*) \
-  $(wildcard ndn-cpp/security/policy/*.*) \
-  $(wildcard ndn-cpp/security/signature/*.*) \
   $(wildcard ndn-cpp/transport/*.*) \
   $(wildcard ndn-cpp/util/*.*)
 

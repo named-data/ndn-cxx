@@ -14,7 +14,7 @@
 
 #include "util/ndnd-id-fetcher.hpp"
 
-#include <ndn-cpp/security/signature/signature-sha256-with-rsa.hpp>
+#include <ndn-cpp/security/signature-sha256-with-rsa.hpp>
 #include <ndn-cpp/status-response.hpp>
 
 using namespace std;

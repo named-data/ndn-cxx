@@ -14,7 +14,7 @@
 #ifdef NDN_CPP_HAVE_SQLITE3
 
 #include <sqlite3.h>
-#include "../../common.hpp"
+#include "../common.hpp"
 #include "sec-public-info.hpp"
 
 namespace ndn

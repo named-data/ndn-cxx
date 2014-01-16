@@ -20,7 +20,7 @@
 
 #include <ndn-cpp/security/verifier.hpp>
 
-#include <ndn-cpp/security/policy/policy-manager.hpp>
+#include <ndn-cpp/security/sec-policy.hpp>
 
 #include <cryptopp/rsa.h>
 
@@ -36,12 +36,12 @@ using namespace ndn::func_lib::placeholders;
 INIT_LOGGER("ndn.Verifier");
 
 namespace ndn {
-const ptr_lib::shared_ptr<PolicyManager>     Verifier::DefaultPolicyManager     = ptr_lib::shared_ptr<PolicyManager>();
+const ptr_lib::shared_ptr<SecPolicy>     Verifier::DefaultPolicy     = ptr_lib::shared_ptr<SecPolicy>();
 
-Verifier::Verifier(const ptr_lib::shared_ptr<PolicyManager>     &policyManager     /* = DefaultPolicyManager */)                   
-  : policyManager_(policyManager)
+Verifier::Verifier(const ptr_lib::shared_ptr<SecPolicy>     &policy     /* = DefaultPolicy */)                   
+  : policy_(policy)
 {
-  if (policyManager_ == DefaultPolicyManager)
+  if (policy_ == DefaultPolicy)
     {
       // #ifdef USE_SIMPLE_POLICY_MANAGER
       //   Ptr<SimplePolicyManager> policyManager = Ptr<SimplePolicyManager>(new SimplePolicyManager());
@@ -63,7 +63,7 @@ Verifier::Verifier(const ptr_lib::shared_ptr<PolicyManager>     &policyManager  
       //   m_policyManager = policyManager;
       //
       // #else
-      //   policyManager_ = new NoVerifyPolicyManager();
+      //   policy_ = new NoVerifyPolicyManager();
       // #endif
     }  
 }
@@ -73,7 +73,7 @@ Verifier::verifyData
   (const ptr_lib::shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed, int stepCount)
 {
   if (policies().requireVerify(*data)) {
-    ptr_lib::shared_ptr<ValidationRequest> nextStep = policyManager_->checkVerificationPolicy
+    ptr_lib::shared_ptr<ValidationRequest> nextStep = policy_->checkVerificationPolicy
       (data, stepCount, onVerified, onVerifyFailed);
     if (static_cast<bool>(nextStep))
       {

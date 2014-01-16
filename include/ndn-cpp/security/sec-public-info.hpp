@@ -9,10 +9,10 @@
 #ifndef NDN_SEC_PUBLIC_INFO_HPP
 #define NDN_SEC_PUBLIC_INFO_HPP
 
-#include "../../name.hpp"
-#include "../security-common.hpp"
-#include "../certificate/public-key.hpp"
-#include "../certificate/identity-certificate.hpp"
+#include "../name.hpp"
+#include "security-common.hpp"
+#include "public-key.hpp"
+#include "identity-certificate.hpp"
 
 
 namespace ndn {

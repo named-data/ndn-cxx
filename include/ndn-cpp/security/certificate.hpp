@@ -9,8 +9,8 @@
 #ifndef NDN_CERTIFICATE_HPP
 #define NDN_CERTIFICATE_HPP
 
-#include "../../data.hpp"
-#include "../../common.hpp"
+#include "../data.hpp"
+#include "../common.hpp"
 
 #include "certificate-subject-description.hpp"
 #include "certificate-extension.hpp"

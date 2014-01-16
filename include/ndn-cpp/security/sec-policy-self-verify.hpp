@@ -5,31 +5,28 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_SELF_VERIFY_POLICY_MANAGER_HPP
-#define NDN_SELF_VERIFY_POLICY_MANAGER_HPP
+#ifndef NDN_SEC_POLICY_SELF_VERIFY_HPP
+#define NDN_SEC_POLICY_SELF_VERIFY_HPP
 
-#include "policy-manager.hpp"
+#include "sec-policy.hpp"
 
 namespace ndn {
 
-class IdentityManager;
-  
 /**
- * A SelfVerifyPolicyManager implements a PolicyManager to use the public key DER in the data packet's KeyLocator (if available)
+ * A SecPolicySelfVerify implements a PolicyManager to use the public key DER in the data packet's KeyLocator (if available)
  * or look in the IdentityStorage for the public key with the name in the KeyLocator (if available) and use
  * it to verify the data packet, without searching a certificate chain.  If the public key can't be found, the
  * verification fails.
  */
-class SelfVerifyPolicyManager : public PolicyManager {
+class SecPolicySelfVerify : public SecPolicy {
 public:
   /**
-   * Create a new SelfVerifyPolicyManager which will look up the public key in the given identityManager.
+   * Create a new SecPolicySelfVerify which will look up the public key in the given identityManager.
    * @param identityManager (optional) The IdentityManager for looking up the public key.  This points to an object must which remain 
-   * valid during the life of this SelfVerifyPolicyManager.  If omitted, then don't look for a public key with the name 
+   * valid during the life of this SecPolicySelfVerify.  If omitted, then don't look for a public key with the name 
    * in the KeyLocator and rely on the KeyLocator having the full public key DER.
    */
-  SelfVerifyPolicyManager(IdentityStorage* identityStorage = 0)
-  : identityStorage_(identityStorage)
+  SecPolicySelfVerify()
   {
   }
   
@@ -37,7 +34,7 @@ public:
    * The virtual destructor.
    */
   virtual
-  ~SelfVerifyPolicyManager();
+  ~SecPolicySelfVerify();
 
   /**
    * Never skip verification.
@@ -87,8 +84,6 @@ public:
   virtual Name 
   inferSigningIdentity(const Name& dataName);
   
-private:
-  IdentityStorage* identityStorage_;
 };
 
 }

@@ -10,10 +10,10 @@
 #include <fstream>
 #include <sstream>
 
-#include "../../util/logging.hpp"
+#include "../util/logging.hpp"
 
-#include <ndn-cpp/security/identity/sec-tpm-osx.hpp>
-#include <ndn-cpp/security/certificate/public-key.hpp>
+#include <ndn-cpp/security/sec-tpm-osx.hpp>
+#include <ndn-cpp/security/public-key.hpp>
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>

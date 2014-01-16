@@ -6,21 +6,19 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_POLICY_MANAGER_HPP
-#define NDN_POLICY_MANAGER_HPP
+#ifndef NDN_SEC_POLICY_HPP
+#define NDN_SEC_POLICY_HPP
 
-#include "../../data.hpp"
+#include "../data.hpp"
 #include "validation-request.hpp"
 
 namespace ndn {
-
-class ValidationRequest;
   
 /**
- * A PolicyManager is an abstract base class to represent the policy for verifying data packets.
+ * A SecPolicy is an abstract base class to represent the policy for verifying data packets.
  * You must create an object of a subclass.
  */
-class PolicyManager {
+class SecPolicy {
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
 
@@ -28,7 +26,7 @@ public:
    * The virtual destructor.
    */
   virtual
-  ~PolicyManager() {}
+  ~SecPolicy() {}
 
   /**
    * Check if the received data packet can escape from verification and be trusted as valid.
@@ -39,7 +37,7 @@ public:
   skipVerifyAndTrust(const Data& data) = 0;
 
   /**
-   * Check if this PolicyManager has a verification rule for the received data.
+   * Check if this SecPolicy has a verification rule for the received data.
    * @param data The received data packet.
    * @return true if the data must be verified, otherwise false.
    */

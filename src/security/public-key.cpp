@@ -19,7 +19,7 @@
 #endif
 
 #include <ndn-cpp/common.hpp>
-#include <ndn-cpp/security/certificate/public-key.hpp>
+#include <ndn-cpp/security/public-key.hpp>
 
 #include <cryptopp/rsa.h>
 #include <cryptopp/base64.h>

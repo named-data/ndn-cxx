@@ -9,7 +9,7 @@
 #ifndef NDN_VALIDATION_REQUEST_HPP
 #define NDN_VALIDATION_REQUEST_HPP
 
-#include "../../interest.hpp"
+#include "../interest.hpp"
 
 namespace ndn {
 

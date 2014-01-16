@@ -9,14 +9,14 @@
 #ifndef NDN_KEY_CHAIN_HPP
 #define NDN_KEY_CHAIN_HPP
 
-#include "certificate/identity-certificate.hpp"
-#include "certificate/public-key.hpp"
-#include "signature/signature-sha256-with-rsa.hpp"
+#include "identity-certificate.hpp"
+#include "public-key.hpp"
+#include "signature-sha256-with-rsa.hpp"
 
-#include "identity/sec-public-info-sqlite3.hpp"
-#include "identity/sec-public-info-memory.hpp"
-#include "identity/sec-tpm-osx.hpp"
-#include "identity/sec-tpm-memory.hpp"
+#include "sec-public-info-sqlite3.hpp"
+#include "sec-public-info-memory.hpp"
+#include "sec-tpm-osx.hpp"
+#include "sec-tpm-memory.hpp"
 
 
 namespace ndn {

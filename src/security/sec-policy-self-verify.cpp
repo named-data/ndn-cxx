@@ -8,11 +8,9 @@
 
 #ifdef TEMPRORARILY_DISABLED
 
-#include "../../c/util/crypto.h"
-#include <ndn-cpp/sha256-with-rsa-signature.hpp>
-#include <ndn-cpp/security/security-exception.hpp>
-#include <ndn-cpp/security/identity/identity-storage.hpp>
-#include <ndn-cpp/security/policy/self-verify-policy-manager.hpp>
+#include "../c/util/crypto.h"
+#include <ndn-cpp/security/identity-storage.hpp>
+#include <ndn-cpp/security/sec-policy-self-verify.hpp>
 
 using namespace std;
 
@@ -62,30 +60,30 @@ verifySha256WithRsaSignature(const Data& data, const Blob& publicKeyDer)
   return (success == 1);
 }
 
-SelfVerifyPolicyManager::~SelfVerifyPolicyManager()
+SecPolicySelfVerify::~SecPolicySelfVerify()
 {
 }
 
 bool 
-SelfVerifyPolicyManager::skipVerifyAndTrust(const Data& data)
+SecPolicySelfVerify::skipVerifyAndTrust(const Data& data)
 { 
   return false; 
 }
 
 bool
-SelfVerifyPolicyManager::requireVerify(const Data& data)
+SecPolicySelfVerify::requireVerify(const Data& data)
 { 
   return true; 
 }
     
 ptr_lib::shared_ptr<ValidationRequest>
-SelfVerifyPolicyManager::checkVerificationPolicy
+SecPolicySelfVerify::checkVerificationPolicy
   (const ptr_lib::shared_ptr<Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
 { 
   // Cast to const Data* so that we use the const version of getSignature() and don't reset the default encoding.
   const Sha256WithRsaSignature *signature = dynamic_cast<const Sha256WithRsaSignature*>(((const Data*)data.get())->getSignature());
   if (!signature)
-    throw SecurityException("SelfVerifyPolicyManager: Signature is not Sha256WithRsaSignature.");
+    throw SecurityException("SecPolicySelfVerify: Signature is not Sha256WithRsaSignature.");
   
   if (signature->getKeyLocator().getType() == ndn_KeyLocatorType_KEY) {
     // Use the public key DER directly.
@@ -116,13 +114,13 @@ SelfVerifyPolicyManager::checkVerificationPolicy
 }
 
 bool 
-SelfVerifyPolicyManager::checkSigningPolicy(const Name& dataName, const Name& certificateName)
+SecPolicySelfVerify::checkSigningPolicy(const Name& dataName, const Name& certificateName)
 { 
   return true; 
 }
 
 Name 
-SelfVerifyPolicyManager::inferSigningIdentity(const Name& dataName)
+SecPolicySelfVerify::inferSigningIdentity(const Name& dataName)
 { 
   return Name(); 
 }

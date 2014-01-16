@@ -8,7 +8,7 @@
 #ifndef NDN_SIGNATURE_SHA256_WITH_RSA_HPP
 #define NDN_SIGNATURE_SHA256_WITH_RSA_HPP
 
-#include "../../data.hpp"
+#include "../data.hpp"
 
 namespace ndn {
 

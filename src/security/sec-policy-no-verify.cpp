@@ -6,30 +6,30 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp/security/policy/no-verify-policy-manager.hpp>
+#include <ndn-cpp/security/sec-policy-no-verify.hpp>
 
 using namespace std;
 
 namespace ndn {
 
-NoVerifyPolicyManager::~NoVerifyPolicyManager()
+SecPolicyNoVerify::~SecPolicyNoVerify()
 {
 }
 
 bool 
-NoVerifyPolicyManager::skipVerifyAndTrust(const Data& data)
+SecPolicyNoVerify::skipVerifyAndTrust(const Data& data)
 { 
   return true; 
 }
 
 bool
-NoVerifyPolicyManager::requireVerify(const Data& data)
+SecPolicyNoVerify::requireVerify(const Data& data)
 { 
   return false; 
 }
     
 ptr_lib::shared_ptr<ValidationRequest>
-NoVerifyPolicyManager::checkVerificationPolicy
+SecPolicyNoVerify::checkVerificationPolicy
   (const ptr_lib::shared_ptr<Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
 { 
   onVerified(data); 
@@ -37,13 +37,13 @@ NoVerifyPolicyManager::checkVerificationPolicy
 }
 
 bool 
-NoVerifyPolicyManager::checkSigningPolicy(const Name& dataName, const Name& certificateName)
+SecPolicyNoVerify::checkSigningPolicy(const Name& dataName, const Name& certificateName)
 { 
   return true; 
 }
 
 Name 
-NoVerifyPolicyManager::inferSigningIdentity(const Name& dataName)
+SecPolicyNoVerify::inferSigningIdentity(const Name& dataName)
 { 
   return Name(); 
 }

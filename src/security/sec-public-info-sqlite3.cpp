@@ -14,12 +14,12 @@
 #include <stdlib.h>
 #include <sstream>
 #include <fstream>
-#include "../../util/logging.hpp"
-#include "../../c/util/time.h"
+#include "../util/logging.hpp"
+#include "../c/util/time.h"
 #include <ndn-cpp/data.hpp>
-#include <ndn-cpp/security/certificate/identity-certificate.hpp>
-#include <ndn-cpp/security/identity/sec-public-info-sqlite3.hpp>
-#include <ndn-cpp/security/signature/signature-sha256-with-rsa.hpp>
+#include <ndn-cpp/security/identity-certificate.hpp>
+#include <ndn-cpp/security/sec-public-info-sqlite3.hpp>
+#include <ndn-cpp/security/signature-sha256-with-rsa.hpp>
 
 
 INIT_LOGGER("BasicKeyMetaInfo");

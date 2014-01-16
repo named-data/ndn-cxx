@@ -11,13 +11,12 @@
 
 #include "../data.hpp"
 #include "../face.hpp"
-#include "policy/validation-request.hpp"
-#include "certificate/public-key.hpp"
-#include "signature/signature-sha256-with-rsa.hpp"
+#include "sec-policy.hpp"
+#include "validation-request.hpp"
+#include "public-key.hpp"
+#include "signature-sha256-with-rsa.hpp"
 
 namespace ndn {
-
-class PolicyManager;
   
 /**
  * Verifier is one of the main classes of the security librar .
@@ -28,7 +27,7 @@ class Verifier {
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
 
-  Verifier(const ptr_lib::shared_ptr<PolicyManager> &policyManager = DefaultPolicyManager);
+  Verifier(const ptr_lib::shared_ptr<SecPolicy> &policy = DefaultPolicy);
 
   /**
    * @brief Set the Face which will be used to fetch required certificates.
@@ -40,16 +39,16 @@ public:
   setFace(const ptr_lib::shared_ptr<Face> &face) { face_ = face; }
   
   /**
-   * @brief Get the policyManager.
-   * @return The PolicyManager.
+   * @brief Get the policy.
+   * @return The Policy.
    */
-  inline PolicyManager&
+  inline SecPolicy&
   policies()
   {
-    if (!policyManager_)
-      throw Error("PolicyManager is not assigned to the KeyChain");
+    if (!policy_)
+      throw Error("policy is not assigned to the KeyChain");
 
-    return *policyManager_;
+    return *policy_;
   }
 
 
@@ -81,7 +80,7 @@ public:
   verifySignature(const Buffer &data, const SignatureSha256WithRsa &sig, const PublicKey &publicKey);
 
 public:
-  static const ptr_lib::shared_ptr<PolicyManager>     DefaultPolicyManager;
+  static const ptr_lib::shared_ptr<SecPolicy>     DefaultPolicy;
     
 private:
   void
@@ -94,7 +93,7 @@ private:
      const ptr_lib::shared_ptr<Data> &data, ptr_lib::shared_ptr<ValidationRequest> nextStep);
 
 private:
-  ptr_lib::shared_ptr<PolicyManager>     policyManager_;
+  ptr_lib::shared_ptr<SecPolicy>     policy_;
   ptr_lib::shared_ptr<Face>        face_;
 };
 

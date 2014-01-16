@@ -99,17 +99,17 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/interest.cpp \
   src/name.cpp \
   src/node.cpp \
-  src/security/certificate/certificate-extension.cpp \
-  src/security/certificate/certificate-subject-description.cpp \
-  src/security/certificate/certificate.cpp \
-  src/security/certificate/identity-certificate.cpp \
-  src/security/certificate/public-key.cpp \
-  src/security/identity/sec-public-info-sqlite3.cpp \
-  src/security/identity/sec-public-info-memory.cpp \
-  src/security/identity/sec-tpm-memory.cpp \
+  src/security/certificate-extension.cpp \
+  src/security/certificate-subject-description.cpp \
+  src/security/certificate.cpp \
+  src/security/identity-certificate.cpp \
+  src/security/public-key.cpp \
+  src/security/sec-public-info-sqlite3.cpp \
+  src/security/sec-public-info-memory.cpp \
+  src/security/sec-tpm-memory.cpp \
   src/security/verifier.cpp \
-  src/security/policy/no-verify-policy-manager.cpp \
-  src/security/policy/self-verify-policy-manager.cpp \
+  src/security/sec-policy-no-verify.cpp \
+  src/security/sec-policy-self-verify.cpp \
   src/transport/unix-transport.cpp \
   src/util/blob-stream.hpp \
   src/util/blob.cpp \
@@ -124,9 +124,9 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/util/time.hpp
 
 if HAVE_OSX_SECURITY
-  libndn_cpp_la_SOURCES += src/security/identity/sec-tpm-osx.cpp
+  libndn_cpp_la_SOURCES += src/security/sec-tpm-osx.cpp
 else
-  EXTRA_DIST = src/security/identity/sec-tpm-osx.cpp
+  EXTRA_DIST = src/security/sec-tpm-osx.cpp
 endif
 
 libndn_cpp_la_LIBADD  = @OPENSSL_LIBS@     @CRYPTOPP_LIBS@     @OSX_SECURITY_LIBS@  @BOOST_SYSTEM_LIB@

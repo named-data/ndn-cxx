@@ -12,7 +12,7 @@
 #include <ndn-cpp/ndn-cpp-config.h>
 #if NDN_CPP_HAVE_OSX_SECURITY
 
-#include "../../common.hpp"
+#include "../common.hpp"
 #include "sec-tpm.hpp"
 
 namespace ndn

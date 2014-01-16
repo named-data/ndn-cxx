@@ -20,16 +20,16 @@
 
 #include <ndn-cpp/common.hpp>
 
-#include <ndn-cpp/security/certificate/certificate.hpp>
+#include <ndn-cpp/security/certificate.hpp>
 
-#include "../../util/logging.hpp"
-#include "../../util/time.hpp"
+#include "../util/logging.hpp"
+#include "../util/time.hpp"
 
 #include <cryptopp/asn.h>
 #include <cryptopp/base64.h>
 #include <cryptopp/files.h>
 
-#include "../../encoding/cryptopp/asn_ext.hpp"
+#include "../encoding/cryptopp/asn_ext.hpp"
 
 INIT_LOGGER("ndn.security.Certificate");
 

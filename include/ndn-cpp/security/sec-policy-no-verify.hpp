@@ -6,20 +6,20 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_NO_VERIFY_POLICY_MANAGER_HPP
-#define NDN_NO_VERIFY_POLICY_MANAGER_HPP
+#ifndef NDN_SEC_POLICY_NO_VERIFY_HPP
+#define NDN_SEC_POLICY_NO_VERIFY_HPP
 
-#include "policy-manager.hpp"
+#include "sec-policy.hpp"
 
 namespace ndn {
 
-class NoVerifyPolicyManager : public PolicyManager {
+class SecPolicyNoVerify : public SecPolicy {
 public:
   /**
    * The virtual destructor.
    */
   virtual
-  ~NoVerifyPolicyManager();
+  ~SecPolicyNoVerify();
 
   /**
    * Override to always skip verification and trust as valid.

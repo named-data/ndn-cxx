@@ -9,8 +9,8 @@
 #ifndef NDN_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
 #define NDN_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
 
-#include "../../common.hpp"
-#include "../../encoding/oid.hpp"
+#include "../common.hpp"
+#include "../encoding/oid.hpp"
 
 namespace CryptoPP { class BufferedTransformation; }
 

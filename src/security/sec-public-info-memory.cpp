@@ -5,10 +5,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp/security/identity/sec-public-info-memory.hpp>
+#include <ndn-cpp/security/sec-public-info-memory.hpp>
 
 #include <algorithm>
-#include <ndn-cpp/security/certificate/identity-certificate.hpp>
+#include <ndn-cpp/security/identity-certificate.hpp>
 
 using namespace std;
 
