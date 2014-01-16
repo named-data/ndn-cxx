@@ -81,8 +81,6 @@ public:
     Name keyName = generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
 
     Info::setDefaultKeyNameForIdentity(keyName);
-
-    Info::refreshDefaultCertificate();
   
     return keyName;
   }
@@ -316,7 +314,7 @@ private:
     Tpm::generateKeyPairInTpm(keyName.toUri(), keyType, keySize);
 
     ptr_lib::shared_ptr<PublicKey> pubKey = Tpm::getPublicKeyFromTpm(keyName.toUri());
-    Tpm::addPublicKey(keyName, keyType, *pubKey);
+    Info::addPublicKey(keyName, keyType, *pubKey);
 
     return keyName;
   }
