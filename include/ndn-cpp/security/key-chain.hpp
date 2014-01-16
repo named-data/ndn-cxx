@@ -184,7 +184,7 @@ public:
     data.setSignature(signature);
 
     // For temporary usage, we support RSA + SHA256 only, but will support more.
-    Tpm::sign(data, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+    Tpm::signInTpm(data, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
   }
 
   void
@@ -195,7 +195,7 @@ public:
     data.setSignature(signature);
 
     // For temporary usage, we support RSA + SHA256 only, but will support more.
-    Tpm::sign(data, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+    Tpm::signInTpm(data, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
   }
   
   /**
@@ -216,7 +216,7 @@ public:
     signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
   
     // For temporary usage, we support RSA + SHA256 only, but will support more.
-    signature.setValue(Tpm::sign(buffer, bufferLength, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256));
+    signature.setValue(Tpm::signInTpm(buffer, bufferLength, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256));
     return signature;
   }
 
@@ -296,7 +296,7 @@ public:
     cert.setSignature(signature);
 
     // For temporary usage, we support RSA + SHA256 only, but will support more.
-    Tpm::sign(cert, cert.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+    Tpm::signInTpm(cert, cert.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
   }
 
 

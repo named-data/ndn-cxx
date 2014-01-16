@@ -53,10 +53,10 @@ public:
    * @return The signature, or a null pointer if signing fails.
    */  
   virtual Block
-  sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
+  signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
 
   virtual void
-  sign(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
+  signInTpm(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
   
   /**
    * Decrypt data.
@@ -67,7 +67,7 @@ public:
    * @return The decrypted data.
    */
   virtual ConstBufferPtr 
-  decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric) = 0;
+  decryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric) = 0;
 
   /**
    * Encrypt data.
@@ -78,7 +78,7 @@ public:
    * @return The encrypted data.
    */
   virtual ConstBufferPtr
-  encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric) = 0;
+  encryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric) = 0;
 
   /**
    * @brief Generate a symmetric key.
@@ -87,7 +87,7 @@ public:
    * @param keySize The size of the key.
    */
   virtual void 
-  generateSymmetricKey(const Name& keyName, KeyType keyType, int keySize) = 0;
+  generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize) = 0;
 
   /**
    * Check if a particular key exists.
@@ -96,7 +96,7 @@ public:
    * @return True if the key exists, otherwise false.
    */
   virtual bool
-  doesKeyExist(const Name& keyName, KeyClass keyClass) = 0;  
+  doesKeyExistInTpm(const Name& keyName, KeyClass keyClass) = 0;  
 };
 
 }

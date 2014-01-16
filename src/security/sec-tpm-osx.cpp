@@ -137,7 +137,7 @@ namespace ndn
   SecTpmOsx::generateKeyPairInTpm(const Name & keyName, KeyType keyType, int keySize)
   { 
     
-    if(doesKeyExist(keyName, KEY_CLASS_PUBLIC)){
+    if(doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC)){
       _LOG_DEBUG("keyName has existed");
       throw Error("keyName has existed");
     }
@@ -171,10 +171,10 @@ namespace ndn
   }
 
   void 
-  SecTpmOsx::generateSymmetricKey(const Name & keyName, KeyType keyType, int keySize)
+  SecTpmOsx::generateSymmetricKeyInTpm(const Name & keyName, KeyType keyType, int keySize)
   {
 
-    if(doesKeyExist(keyName, KEY_CLASS_SYMMETRIC))
+    if(doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
         throw Error("keyName has existed!");
 
     string keyNameUri =  impl_->toInternalKeyName(keyName, KEY_CLASS_SYMMETRIC);
@@ -220,7 +220,7 @@ namespace ndn
   }
 
   Block
-  SecTpmOsx::sign(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm)
+  SecTpmOsx::signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::Sign");
     
@@ -280,16 +280,16 @@ namespace ndn
   }
 
   void
-  SecTpmOsx::sign(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm)
+  SecTpmOsx::signInTpm(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm)
   {
     data.setSignatureValue
-      (sign(data.wireEncode().value(),
+      (signInTpm(data.wireEncode().value(),
             data.wireEncode().value_size() - data.getSignature().getValue().size(),
             keyName, digestAlgorithm));
   }
 
   ConstBufferPtr
-  SecTpmOsx::decrypt(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
+  SecTpmOsx::decryptInTpm(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::Decrypt");
 
@@ -429,7 +429,7 @@ namespace ndn
   // }
 
   ConstBufferPtr
-  SecTpmOsx::encrypt(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
+  SecTpmOsx::encryptInTpm(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::Encrypt");
 
@@ -465,7 +465,7 @@ namespace ndn
   }
 
   bool
-  SecTpmOsx::doesKeyExist(const Name & keyName, KeyClass keyClass)
+  SecTpmOsx::doesKeyExistInTpm(const Name & keyName, KeyClass keyClass)
   {
     _LOG_TRACE("OSXPrivateKeyStorage::doesKeyExist");
 

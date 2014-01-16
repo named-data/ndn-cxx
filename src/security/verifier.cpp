@@ -72,7 +72,7 @@ void
 Verifier::verifyData
   (const ptr_lib::shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed, int stepCount)
 {
-  if (policies().requireVerify(*data)) {
+  if (policy().requireVerify(*data)) {
     ptr_lib::shared_ptr<ValidationRequest> nextStep = policy_->checkVerificationPolicy
       (data, stepCount, onVerified, onVerifyFailed);
     if (static_cast<bool>(nextStep))
@@ -86,7 +86,7 @@ Verifier::verifyData
            bind(&Verifier::onCertificateInterestTimeout, this, _1, nextStep->retry_, onVerifyFailed, data, nextStep));
       }
   }
-  else if (policies().skipVerifyAndTrust(*data))
+  else if (policy().skipVerifyAndTrust(*data))
     onVerified(data);
   else
     onVerifyFailed(data);

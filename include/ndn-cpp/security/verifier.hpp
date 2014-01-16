@@ -43,7 +43,7 @@ public:
    * @return The Policy.
    */
   inline SecPolicy&
-  policies()
+  policy()
   {
     if (!policy_)
       throw Error("policy is not assigned to the KeyChain");

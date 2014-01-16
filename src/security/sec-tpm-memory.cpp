@@ -76,7 +76,7 @@ SecTpmMemory::getPublicKeyFromTpm(const Name& keyName)
 }
 
 Block 
-SecTpmMemory::sign(const uint8_t *data, size_t dataLength,
+SecTpmMemory::signInTpm(const uint8_t *data, size_t dataLength,
                 const Name& keyName,
                 DigestAlgorithm digestAlgorithm)
 {
@@ -110,7 +110,7 @@ SecTpmMemory::sign(const uint8_t *data, size_t dataLength,
 }
 
 void
-SecTpmMemory::sign(Data &d,
+SecTpmMemory::signInTpm(Data &d,
                 const Name& keyName,
                 DigestAlgorithm digestAlgorithm)
 {
@@ -149,7 +149,7 @@ SecTpmMemory::sign(Data &d,
 }
 
 ConstBufferPtr
-SecTpmMemory::decrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
+SecTpmMemory::decryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
 {
 #if 1
   throw Error("MemoryPrivateKeyStorage::decrypt not implemented");
@@ -157,7 +157,7 @@ SecTpmMemory::decrypt(const Name& keyName, const uint8_t* data, size_t dataLengt
 }
 
 ConstBufferPtr
-SecTpmMemory::encrypt(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
+SecTpmMemory::encryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
 {
 #if 1
   throw Error("MemoryPrivateKeyStorage::encrypt not implemented");
@@ -165,7 +165,7 @@ SecTpmMemory::encrypt(const Name& keyName, const uint8_t* data, size_t dataLengt
 }
 
 void 
-SecTpmMemory::generateSymmetricKey(const Name& keyName, KeyType keyType, int keySize)
+SecTpmMemory::generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize)
 {
 #if 1
   throw Error("MemoryPrivateKeyStorage::generateKey not implemented");
@@ -173,7 +173,7 @@ SecTpmMemory::generateSymmetricKey(const Name& keyName, KeyType keyType, int key
 }
 
 bool
-SecTpmMemory::doesKeyExist(const Name& keyName, KeyClass keyClass)
+SecTpmMemory::doesKeyExistInTpm(const Name& keyName, KeyClass keyClass)
 {
   if (keyClass == KEY_CLASS_PUBLIC)
     return publicKeyStore_.find(keyName.toUri()) != publicKeyStore_.end();
