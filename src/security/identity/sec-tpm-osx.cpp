@@ -282,11 +282,10 @@ namespace ndn
   void
   SecTpmOsx::sign(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm)
   {
-    const uint8_t *begin = data.wireEncode().value();
-    const uint8_t *end   = &*data.getSignature().getInfo().end();
-    
-    data.setSignature
-      (sign(begin, end-begin, keyName, digestAlgorithm));
+    data.setSignatureValue
+      (sign(data.wireEncode().value(),
+            data.wireEncode().value_size() - data.getSignature().getValue().size(),
+            keyName, digestAlgorithm));
   }
 
   ConstBufferPtr
