@@ -262,6 +262,9 @@ public:
   ptr_lib::shared_ptr<IdentityCertificate>
   selfSign(const Name& keyName)
   {
+    if(keyName.empty())
+      throw std::runtime_error("Incorrect key name: " + keyName.toUri());
+
     ptr_lib::shared_ptr<IdentityCertificate> certificate = ptr_lib::make_shared<IdentityCertificate>();
     
     Name certificateName = keyName.getPrefix(-1);
