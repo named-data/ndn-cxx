@@ -274,11 +274,19 @@ Node::processEvents(Milliseconds timeout/* = 0 */, bool keepThread/* = false*/)
       }
           
       ioService_->run();
+      ioService_->reset(); // so it is possible to run processEvents again (if necessary)
     }
   catch(Node::ProcessEventsTimeout &)
     {
       // break
       ioService_->reset();
+    }
+  catch(const std::exception &)
+    {
+      ioService_->reset();
+      pendingInterestTable_.clear();
+      registeredPrefixTable_.clear();
+      throw;
     }
 }
 
@@ -364,13 +372,13 @@ Node::onReceiveElement(const Block &block)
 void 
 Node::shutdown()
 {
+  pendingInterestTable_.clear();
+  registeredPrefixTable_.clear();
+
   transport_->close();
   pitTimeoutCheckTimer_->cancel();
   processEventsTimeoutTimer_->cancel();
   pitTimeoutCheckTimerActive_ = false;
-  
-  // This will ensure that io_service::work will stop
-  ioServiceWork_.reset();
 }
 
 Node::PendingInterestTable::iterator 

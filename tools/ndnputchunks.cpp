@@ -121,7 +121,19 @@ main (int argc, char *argv[])
       std::cerr << "Preparing the input..." << std::endl;
       Producer producer (argv[1]);
       std::cerr << "Ready... (took " << ((ndn::getNow() - time)/1000) << " seconds)" << std::endl;
-      producer.run ();
+      while(true)
+        {
+          try
+            {
+              producer.run (); // this will exit when daemon dies... so try to connect again if possible
+            }
+          catch (std::exception& e)
+            {
+              std::cerr << "ERROR: " << e.what () << std::endl;
+              // and keep going
+              sleep (1);
+            }
+        }
     }
   catch (std::exception& e)
     {

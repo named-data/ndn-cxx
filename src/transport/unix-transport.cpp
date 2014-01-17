@@ -61,6 +61,7 @@ public:
       {
         // may need to throw exception
         transport_.isConnected_ = false;
+        transport_.close();
         throw Transport::Error(error, "error while connecting to the forwarder");
       }
   }
@@ -82,14 +83,15 @@ public:
   {
     if (!connectionInProgress_) {
       connectionInProgress_ = true;
-      socket_.open();
-      socket_.async_connect(protocol::endpoint(transport_.unixSocket_),
-                            func_lib::bind(&Impl::connectHandler, this, _1));
 
       // Wait at most 4 seconds to connect
       /// @todo Decide whether this number should be configurable
       connectTimer_.expires_from_now(boost::posix_time::seconds(4));
       connectTimer_.async_wait(func_lib::bind(&Impl::connectTimeoutHandler, this, _1));
+      
+      socket_.open();
+      socket_.async_connect(protocol::endpoint(transport_.unixSocket_),
+                            func_lib::bind(&Impl::connectHandler, this, _1));
     }
   }
 
