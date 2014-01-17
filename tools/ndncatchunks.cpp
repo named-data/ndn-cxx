@@ -31,9 +31,11 @@ using namespace ndn::func_lib::placeholders;
 class Consumer
 {
 public:
-  Consumer (const std::string &data_name, int pipe_size, int total_seg)
+  Consumer (const std::string &data_name, int pipe_size, int total_seg, int scope = -1, bool mustBeFresh = false)
     : m_data_name (data_name), m_pipe_size (pipe_size), m_total_seg (total_seg),
       m_next_seg (0), m_total_size (0), m_output (false)
+	  , m_scope(scope)
+      , m_mustBeFresh(mustBeFresh)
   {
   }
 
@@ -61,6 +63,9 @@ private:
   int m_next_seg;
   int m_total_size;
   bool m_output;  // set to false by default
+
+  int m_scope;
+  bool m_mustBeFresh;
 };
 
 void
@@ -71,9 +76,10 @@ Consumer::run ()
       for (int i = 0; i < m_pipe_size; i++)
 	{
 	  ndn::Interest inst (ndn::Name(m_data_name).appendSegment (m_next_seg++));
-	  inst.setScope (1);
-	  inst.setInterestLifetime (1000);
-	  inst.setMustBeFresh (true);
+	  inst.setInterestLifetime (4000);
+	  if (m_scope >= 0)
+		  inst.setScope (m_scope);
+	  inst.setMustBeFresh (m_mustBeFresh);
 	  
 	  m_face.expressInterest (inst,
 				  ndn::func_lib::bind (&Consumer::on_data, this, _1, _2),
@@ -111,9 +117,10 @@ Consumer::on_data (const ndn::ptr_lib::shared_ptr<const ndn::Interest>& interest
     {
       // Send interest for next segment
       ndn::Interest inst (ndn::Name(m_data_name).appendSegment (m_next_seg++));
-      inst.setScope (1);
-      inst.setInterestLifetime (1000);
-      inst.setMustBeFresh (true);
+	  if (m_scope >= 0)
+	      inst.setScope (m_scope);
+      inst.setInterestLifetime (4000);
+      inst.setMustBeFresh (m_mustBeFresh);
       
       m_face.expressInterest (inst,
 			      ndn::func_lib::bind (&Consumer::on_data, this, _1, _2),
