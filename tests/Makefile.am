@@ -1,5 +1,5 @@
 
-LDADD = ../libndn-cpp.la
+LDADD = ../libndn-cpp.la @BOOST_SYSTEM_LIB@
 
 noinst_PROGRAMS = \
 	test-get-async \
