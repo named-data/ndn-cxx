@@ -31,7 +31,7 @@ using namespace ndn::func_lib::placeholders;
 class Consumer
 {
 public:
-  Consumer (const std::string &data_name, int pipe_size, int total_seg, int scope = -1, bool mustBeFresh = false)
+  Consumer (const std::string &data_name, int pipe_size, int total_seg, int scope = -1, bool mustBeFresh = true)
     : m_data_name (data_name), m_pipe_size (pipe_size), m_total_seg (total_seg),
       m_next_seg (0), m_total_size (0), m_output (false)
 	  , m_scope(scope)
