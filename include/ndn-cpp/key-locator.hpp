@@ -75,19 +75,23 @@ KeyLocator::KeyLocator(const Name &name)
 inline const Block& 
 KeyLocator::wireEncode() const
 {
-  if (empty())
-    throw Error("Wire encoding requested, but KeyLocator is empty");
-
   if (wire_.hasWire())
     return wire_;
-  
-  if (type_ != KeyLocator_Name)
-    throw Error("Unsupported KeyLocator type");
-  
+
   // KeyLocator
-  wire_ = Block(Tlv::KeyLocator);
-  wire_.push_back(name_.wireEncode());
-  wire_.encode();
+
+  switch (type_) {
+  case KeyLocator_None:
+    wire_ = dataBlock(Tlv::KeyLocator, reinterpret_cast<const uint8_t*>(0), 0);
+    break;
+  case KeyLocator_Name:
+    wire_ = Block(Tlv::KeyLocator);
+    wire_.push_back(name_.wireEncode());
+    wire_.encode();
+    break;
+  default:
+    throw Error("Unsupported KeyLocator type");
+  }
   
   return wire_;
 }

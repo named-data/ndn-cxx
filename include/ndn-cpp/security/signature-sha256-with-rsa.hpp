@@ -23,6 +23,7 @@ public:
     
     type_ = Signature::Sha256WithRsa;
     info_.push_back(nonNegativeIntegerBlock(Tlv::SignatureType, Tlv::SignatureSha256WithRsa));
+    info_.push_back(keyLocator_.wireEncode());
   }
   
   SignatureSha256WithRsa(const Signature &signature)
@@ -50,7 +51,7 @@ public:
   {
     keyLocator_ = keyLocator;
 
-    /// @todo Ensure that keylocator does not exist
+    info_.remove(ndn::Tlv::KeyLocator);
     info_.push_back(keyLocator_.wireEncode());
   }
 
