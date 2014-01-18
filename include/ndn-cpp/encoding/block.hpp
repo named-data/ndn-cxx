@@ -129,6 +129,15 @@ public:
   find(uint32_t type) const;
 
   inline void
+  remove(uint32_t type);
+
+  inline element_iterator
+  erase(element_iterator position);
+
+  inline element_iterator
+  erase(element_iterator first, element_iterator last);
+  
+  inline void
   push_back(const Block &element);
   
   /**
@@ -278,6 +287,41 @@ Block::find(uint32_t type)
     }
   return m_subBlocks.end();
 }
+
+struct block_type
+{
+  block_type(uint32_t type)
+    : m_type(type)
+  {
+  }
+  
+  inline bool
+  operator()(const Block &block)
+  {
+    return (block.type() == m_type);
+  }
+private:
+  uint32_t m_type;
+};
+
+inline void
+Block::remove(uint32_t type)
+{
+  m_subBlocks.remove_if(block_type(type));
+}
+
+inline Block::element_iterator
+Block::erase(Block::element_iterator position)
+{
+  return m_subBlocks.erase(position);
+}
+
+inline Block::element_iterator
+Block::erase(Block::element_iterator first, Block::element_iterator last)
+{
+  return m_subBlocks.erase(first, last);
+}
+
 
 inline void
 Block::push_back(const Block &element)
