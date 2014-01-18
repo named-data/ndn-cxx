@@ -27,6 +27,8 @@ using namespace std;
 
 namespace ndn {
 
+const Milliseconds DEFAULT_INTEREST_LIFETIME = 4000;
+
 const uint32_t&
 Interest::getNonce() const
 {
@@ -89,7 +91,7 @@ operator << (std::ostream &os, const Interest &interest)
     os << delim << "ndn.Scope=" << interest.getScope();
     delim = '&';
   }
-  if (interest.getInterestLifetime() >= 0) {
+  if (interest.getInterestLifetime() >= 0 && interest.getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
     os << delim << "ndn.InterestLifetime=" << interest.getInterestLifetime();
     delim = '&';
   }
@@ -159,12 +161,15 @@ Interest::wireEncode() const
     wire_.push_back
       (nonNegativeIntegerBlock(Tlv::Nonce, getNonce()));
   }
-  
+
+  // Scope
   if (getScope() >= 0) {
     wire_.push_back
       (nonNegativeIntegerBlock(Tlv::Scope, getScope()));
   }
-  if (getInterestLifetime() >= 0) {
+
+  // InterestLifetime
+  if (getInterestLifetime() >= 0 && getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
     wire_.push_back
       (nonNegativeIntegerBlock(Tlv::InterestLifetime, getInterestLifetime()));
   }
@@ -250,7 +255,11 @@ Interest::wireDecode(const Block &wire)
   if (val != wire_.getAll().end())
     {
       interestLifetime_ = readNonNegativeInteger(*val);
-    } 
+    }
+  else
+    {
+      interestLifetime_ = DEFAULT_INTEREST_LIFETIME;
+    }
 }
 
 
