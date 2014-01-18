@@ -1,0 +1,16 @@
+language: cpp
+compiler:
+  - gcc
+before_install:
+  - travis_retry sudo apt-get update -qq
+  - travis_retry sudo apt-get install -qq autotools-dev
+  - travis_retry sudo apt-get install -qq libboost-all-dev
+  - travis_retry sudo apt-get install -qq libcrypto++-dev
+  - travis_retry sudo apt-get install -qq libsqlite3-dev
+script:
+  - autoreconf -f --install
+  - ./configure --without-c++11 --with-system-boost --with-tests
+  - make
+  - sudo make install
+  - sudo ldconfig
+  - ./tests_boost/unit-tests -l all
