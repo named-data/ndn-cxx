@@ -161,5 +161,6 @@ AC_CONFIG_FILES([Makefile
                  examples/Makefile
                  tools/Makefile
                  tests/Makefile
-                 tests_boost/Makefile])
+                 tests_boost/Makefile
+                 libndn-cpp-dev.pc])
 AC_OUTPUT

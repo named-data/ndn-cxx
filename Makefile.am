@@ -134,3 +134,6 @@ libndn_cpp_dev_la_LDFLAGS = @OPENSSL_LDFLAGS@  @CRYPTOPP_LDFLAGS@  @SQLITE3_LDFL
 libndn_cpp_dev_la_CFLAGS  = @OPENSSL_INCLUDES@ @CRYPTOPP_INCLUDES@ @SQLITE3_CFLAGS@     @BOOST_CPPFLAGS@
 
 dist_noinst_SCRIPTS = autogen.sh
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libndn-cpp-dev.pc

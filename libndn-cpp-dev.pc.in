@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libndn-cpp-dev
+Description: Development version of C++ API for NDN (NDN-TLV packet format)
+Version: @VERSION@
+Libs: -L${libdir} @OPENSSL_LDFLAGS@ @CRYPTOPP_LDFLAGS@ @SQLITE3_LDFLAGS@ @BOOST_LDFLAGS@ -lndn-cpp-dev @OPENSSL_LIBS@ @CRYPTOPP_LIBS@ @OSX_SECURITY_LIBS@ @BOOST_SYSTEM_LIB@
+Cflags: -I${includedir} @OPENSSL_INCLUDES@ @CRYPTOPP_INCLUDES@ @SQLITE3_CFLAGS@ @BOOST_CPPFLAGS@

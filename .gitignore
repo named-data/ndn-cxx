@@ -81,3 +81,5 @@ tools/ndnputchunks3
 examples/consumer
 examples/producer
 
+# pkg-config file
+libndn-cpp-dev.pc
