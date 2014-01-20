@@ -74,8 +74,8 @@ tests_boost/unit-tests
 
 # Tools
 tools/tlvdump
-tools/ndncatchunks
-tools/ndnputchunks
+tools/ndncatchunks3
+tools/ndnputchunks3
 
 # Examples
 examples/consumer
