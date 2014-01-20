@@ -7,7 +7,7 @@
 #include "ndn_memory.h"
 
 #if !NDN_CPP_HAVE_MEMCMP
-int ndn_memcmp(uint8_t *buf1, uint8_t *buf2, size_t len)
+int ndn_memcmp(const uint8_t *buf1, const uint8_t *buf2, size_t len)
 {
   size_t i;
   
@@ -25,7 +25,7 @@ int ndn_memcmp_stub_to_avoid_empty_file_warning = 0;
 #endif
 
 #if !NDN_CPP_HAVE_MEMCPY
-void ndn_memcpy(uint8_t *dest, uint8_t *src, size_t len)
+void ndn_memcpy(uint8_t *dest, const uint8_t *src, size_t len)
 {
   size_t i;
   

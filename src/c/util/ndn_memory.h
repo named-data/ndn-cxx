@@ -27,7 +27,7 @@ static inline int ndn_memcmp(const uint8_t *buf1, const uint8_t *buf2, size_t le
 /**
  * Use a local implementation of memcmp instead of the library version.
  */
-int ndn_memcmp(uint8_t *buf1, uint8_t *buf2, size_t len);
+int ndn_memcmp(const uint8_t *buf1, const uint8_t *buf2, size_t len);
 #endif
 
 #if NDN_CPP_HAVE_MEMCPY
