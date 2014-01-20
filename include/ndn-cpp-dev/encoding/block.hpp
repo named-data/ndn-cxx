@@ -50,6 +50,11 @@ public:
   Block(const uint8_t *buffer, size_t maxlength);
 
   Block(const void *buffer, size_t maxlength);
+
+  /*
+   * @brief A helper version of a constructor to create Block from the stream. 
+   */
+  Block(std::istream& is);
   
   /**
    * @brief Create Block from the wire buffer (no parsing)

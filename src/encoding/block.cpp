@@ -49,6 +49,44 @@ Block::Block(const ConstBufferPtr &buffer)
     }
 }
 
+Block::Block(std::istream& is)
+{
+  std::istream_iterator<uint8_t> tmp_begin(is);  
+  std::istream_iterator<uint8_t> tmp_end;
+  
+  m_type = Tlv::readType(tmp_begin, tmp_end);
+  uint64_t length = Tlv::readVarNumber(tmp_begin, tmp_end);
+
+  // We may still have some problem here, if some exception happens in this constructor, we may completely lose all the bytes extracted from the stream.
+
+  OBufferStream os;
+  size_t headerLength = Tlv::writeVarNumber(os, m_type);
+  headerLength += Tlv::writeVarNumber(os, length);
+  
+  char* buf = new char[length];
+  buf[0] = *tmp_begin;
+  is.read(buf+1, length-1);
+
+  if(length-1 != is.gcount())
+    {
+      delete [] buf;
+      throw Tlv::Error("Not enough data in the buffer to fully parse TLV");
+    } 
+
+  os.write(buf, length);
+  delete [] buf;
+
+  m_buffer = os.buf();
+
+  m_begin = m_buffer->begin();
+  m_end = m_buffer->end();
+  m_size = m_end - m_begin;
+
+  m_value_begin = m_buffer->begin() + headerLength;
+  m_value_end   = m_buffer->end();
+}
+
+
 Block::Block(const uint8_t *buffer, size_t maxlength)
 {
   const uint8_t * tmp_begin = buffer;
