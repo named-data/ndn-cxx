@@ -9,7 +9,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 ## to provide a way for the user to supply additional arguments.
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS} -I m4
 
-lib_LTLIBRARIES = libndn-c.la libndn-cpp.la
+lib_LTLIBRARIES = libndn-cpp-dev.la
 
 # "make install" will also install the include headers.
 SUBDIRS = include . tools examples
@@ -81,7 +81,7 @@ libndn_c_la_CFLAGS  = @OPENSSL_INCLUDES@
 # C++ code and also the C code.
 ## To regenerate:
 ## for i in `find src -name '*.cpp' -or -name '*.hpp' -or -name '*.h' -and -not -path 'src/c/*'`; do echo "  $i \\"; done
-libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
+libndn_cpp_dev_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/common.cpp \
   src/data.cpp \
   src/encoding/binary-xml-decoder.hpp \
@@ -124,13 +124,13 @@ libndn_cpp_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/util/time.hpp
 
 if HAVE_OSX_SECURITY
-  libndn_cpp_la_SOURCES += src/security/sec-tpm-osx.cpp
+  libndn_cpp_dev_la_SOURCES += src/security/sec-tpm-osx.cpp
 else
   EXTRA_DIST = src/security/sec-tpm-osx.cpp
 endif
 
-libndn_cpp_la_LIBADD  = @OPENSSL_LIBS@     @CRYPTOPP_LIBS@     @OSX_SECURITY_LIBS@  @BOOST_SYSTEM_LIB@
-libndn_cpp_la_LDFLAGS = @OPENSSL_LDFLAGS@  @CRYPTOPP_LDFLAGS@  @SQLITE3_LDFLAGS@    @BOOST_LDFLAGS@
-libndn_cpp_la_CFLAGS  = @OPENSSL_INCLUDES@ @CRYPTOPP_INCLUDES@ @SQLITE3_CFLAGS@     @BOOST_CPPFLAGS@
+libndn_cpp_dev_la_LIBADD  = @OPENSSL_LIBS@     @CRYPTOPP_LIBS@     @OSX_SECURITY_LIBS@  @BOOST_SYSTEM_LIB@
+libndn_cpp_dev_la_LDFLAGS = @OPENSSL_LDFLAGS@  @CRYPTOPP_LDFLAGS@  @SQLITE3_LDFLAGS@    @BOOST_LDFLAGS@
+libndn_cpp_dev_la_CFLAGS  = @OPENSSL_INCLUDES@ @CRYPTOPP_INCLUDES@ @SQLITE3_CFLAGS@     @BOOST_CPPFLAGS@
 
 dist_noinst_SCRIPTS = autogen.sh

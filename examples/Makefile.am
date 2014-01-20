@@ -1,5 +1,5 @@
 
-LDADD = ../libndn-cpp.la @BOOST_SYSTEM_LIB@
+LDADD = ../libndn-cpp-dev.la @BOOST_SYSTEM_LIB@
 
 noinst_PROGRAMS=consumer producer
 

@@ -9,8 +9,8 @@
 #include <iostream>
 #include <time.h>
 #include <unistd.h>
-#include <ndn-cpp/face.hpp>
-#include <ndn-cpp/security/key-chain.hpp>
+#include <ndn-cpp-dev/face.hpp>
+#include <ndn-cpp-dev/security/key-chain.hpp>
 
 using namespace std;
 using namespace ndn;

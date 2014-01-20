@@ -7,7 +7,7 @@
 #ifndef NDN_COMMON_H
 #define NDN_COMMON_H
 
-#include <ndn-cpp/ndn-cpp-config.h>
+#include <ndn-cpp-dev/ndn-cpp-config.h>
 #include <stdint.h>
 // TODO: Is stddef.h portable?
 #include <stddef.h>

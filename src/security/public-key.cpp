@@ -18,8 +18,8 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-#include <ndn-cpp/common.hpp>
-#include <ndn-cpp/security/public-key.hpp>
+#include <ndn-cpp-dev/common.hpp>
+#include <ndn-cpp-dev/security/public-key.hpp>
 
 #include <cryptopp/rsa.h>
 #include <cryptopp/base64.h>

@@ -6,7 +6,7 @@
  */
 
 #include "../c/util/blob.h"
-#include <ndn-cpp/util/blob.hpp>
+#include <ndn-cpp-dev/util/blob.hpp>
 
 using namespace std;
 

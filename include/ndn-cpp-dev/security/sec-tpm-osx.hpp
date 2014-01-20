@@ -9,7 +9,7 @@
 #define NDN_SEC_TPM_OSX_HPP
 
 // Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_OSX_SECURITY 1.
-#include <ndn-cpp/ndn-cpp-config.h>
+#include <ndn-cpp-dev/ndn-cpp-config.h>
 #if NDN_CPP_HAVE_OSX_SECURITY
 
 #include "../common.hpp"

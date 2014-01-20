@@ -24,7 +24,7 @@ config.log
 /include/config.h
 /_configs.sed
 /stamp-h1
-/include/ndn-cpp/ndn-cpp-config.h
+/include/ndn-cpp-dev/ndn-cpp-config.h
 /include/stamp-h1
 /aclocal.m4
 /libtool

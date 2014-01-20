@@ -1,7 +1,7 @@
 # To build using autotools, see the Development section of the file INSTALL.
 
 AC_PREREQ([2.59])
-AC_INIT([ndn-cpp], [0.2], [ndn-lib@lists.cs.ucla.edu], [ndn-cpp], [https://github.com/named-data/ndn-cpp])
+AC_INIT([ndn-cpp-dev], [0.2.1], [ndn-lib@lists.cs.ucla.edu], [ndn-cpp-dev], [https://github.com/named-data/ndn-cpp])
 AM_INIT_AUTOMAKE([1.10 -Wall no-define foreign])
 
 AC_CONFIG_MACRO_DIR([m4])
@@ -9,7 +9,7 @@ AC_CONFIG_SRCDIR([configure.ac])
 # Create config.h without prefixes.  Put it in the include directory so CFLAGS will have -I./include .
 AC_CONFIG_HEADERS(include/config.h)
 # Add prefixes and output to a unique file name which will go into the ndn-cpp include install directory.
-AX_PREFIX_CONFIG_H(include/ndn-cpp/ndn-cpp-config.h)
+AX_PREFIX_CONFIG_H(include/ndn-cpp-dev/ndn-cpp-config.h, ndn-cpp)
 AM_MAINTAINER_MODE
 AM_PROG_AR
 AC_PROG_LIBTOOL

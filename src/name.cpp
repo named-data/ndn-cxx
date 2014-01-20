@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <string.h>
-#include <ndn-cpp/name.hpp>
+#include <ndn-cpp-dev/name.hpp>
 #include "c/util/ndn_memory.h"
 #include "c/util/time.h"
 

@@ -7,7 +7,7 @@
 #ifndef NDN_KEY_LOCATOR_H
 #define NDN_KEY_LOCATOR_H
 
-#include <ndn-cpp/c/key-types.h>
+#include <ndn-cpp-dev/c/key-types.h>
 #include "name.h"
 
 #ifdef __cplusplus

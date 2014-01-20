@@ -6,7 +6,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <ndn-cpp/forwarding-entry.hpp>
+#include <ndn-cpp-dev/forwarding-entry.hpp>
 
 #if __clang__
 #pragma clang diagnostic push

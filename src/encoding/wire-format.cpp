@@ -6,7 +6,7 @@
  */
 
 #include <stdexcept>
-#include <ndn-cpp/encoding/wire-format.hpp>
+#include <ndn-cpp-dev/encoding/wire-format.hpp>
 
 using namespace std;
 

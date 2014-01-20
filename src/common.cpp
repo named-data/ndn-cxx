@@ -6,7 +6,7 @@
  */
 
 #include <sstream>
-#include <ndn-cpp/common.hpp>
+#include <ndn-cpp-dev/common.hpp>
 
 #if NDN_CPP_HAVE_TIME_H
 #include <time.h>

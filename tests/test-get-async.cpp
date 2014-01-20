@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iostream>
 #include <unistd.h>
-#include <ndn-cpp/face.hpp>
+#include <ndn-cpp-dev/face.hpp>
 
 using namespace std;
 using namespace ndn;

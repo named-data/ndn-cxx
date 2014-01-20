@@ -10,7 +10,7 @@
 #define NDN_SEC_PUBLIC_INFO_SQLITE3_HPP
 
 // Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_SQLITE3.
-#include <ndn-cpp/ndn-cpp-config.h>
+#include <ndn-cpp-dev/ndn-cpp-config.h>
 #ifdef NDN_CPP_HAVE_SQLITE3
 
 #include <sqlite3.h>

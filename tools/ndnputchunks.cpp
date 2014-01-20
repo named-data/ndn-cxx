@@ -18,8 +18,8 @@
  * Author: Wentao Shang <wentao@cs.ucla.edu>
  */
 
-#include <ndn-cpp/face.hpp>
-#include <ndn-cpp/security/key-chain.hpp>
+#include <ndn-cpp-dev/face.hpp>
+#include <ndn-cpp-dev/security/key-chain.hpp>
 
 #if NDN_CPP_HAVE_CXX11
 // In the std library, the placeholders are in a different namespace than boost.

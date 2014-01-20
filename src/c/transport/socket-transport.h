@@ -8,7 +8,7 @@
 #define NDN_SOCKETTRANSPORT_H
 
 #include <sys/socket.h>
-#include <ndn-cpp/c/common.h>
+#include <ndn-cpp-dev/c/common.h>
 #include "../errors.h"
 
 #ifdef __cplusplus

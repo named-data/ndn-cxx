@@ -6,10 +6,10 @@
  */
 
 #include <stdexcept>
-#include <ndn-cpp/interest.hpp>
-#include <ndn-cpp/data.hpp>
-#include <ndn-cpp/forwarding-entry.hpp>
-#include <ndn-cpp/encoding/binary-xml-wire-format.hpp>
+#include <ndn-cpp-dev/interest.hpp>
+#include <ndn-cpp-dev/data.hpp>
+#include <ndn-cpp-dev/forwarding-entry.hpp>
+#include <ndn-cpp-dev/encoding/binary-xml-wire-format.hpp>
 #include "../c/encoding/binary-xml-interest.h"
 #include "../c/encoding/binary-xml-data.h"
 #include "../c/encoding/binary-xml-forwarding-entry.h"

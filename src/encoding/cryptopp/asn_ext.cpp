@@ -6,7 +6,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp/ndn-cpp-config.h>
+#include <ndn-cpp-dev/ndn-cpp-config.h>
 #include "asn_ext.hpp"
 
 #if NDN_CPP_HAVE_TIME_H

@@ -4,7 +4,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "ndn-cpp/c/util/crypto.h"
+#include "ndn-cpp-dev/c/util/crypto.h"
 
 void ndn_digestSha256(const uint8_t *data, size_t dataLength, uint8_t *digest)
 {

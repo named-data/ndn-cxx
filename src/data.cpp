@@ -5,8 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp/common.hpp>
-#include <ndn-cpp/data.hpp>
+#include <ndn-cpp-dev/common.hpp>
+#include <ndn-cpp-dev/data.hpp>
 
 using namespace std;
 

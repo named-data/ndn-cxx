@@ -7,7 +7,7 @@
 #ifndef NDN_PUBLISHERPUBLICKEYDIGEST_H
 #define NDN_PUBLISHERPUBLICKEYDIGEST_H
 
-#include <ndn-cpp/c/common.h>
+#include <ndn-cpp-dev/c/common.h>
 #include "util/blob.h"
 
 #ifdef __cplusplus

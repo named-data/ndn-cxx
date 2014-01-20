@@ -8,8 +8,8 @@
 #include <stdexcept>
 #include <stdlib.h>
 
-#include <ndn-cpp/face.hpp>
-#include <ndn-cpp/transport/unix-transport.hpp>
+#include <ndn-cpp-dev/face.hpp>
+#include <ndn-cpp-dev/transport/unix-transport.hpp>
 #include "../c/util/ndn_memory.h"
 
 #include <boost/asio.hpp>

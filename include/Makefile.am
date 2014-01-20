@@ -1,24 +1,24 @@
 # "make install" will install these in the install include directory, for example
-# /usr/local/ndn-cpp/name.hpp.
+# /usr/local/ndn-cpp-dev/name.hpp.
 # These files are included by the application with, for example
-# #include <ndn-cpp/namp.hpp>
+# #include <ndn-cpp-dev/namp.hpp>
 # Internal include headers are not put in this public install directory.
 
 # Public C headers.
 ndn_cpp_c_headers = \
-  $(wildcard ndn-cpp/*.h) \
-  $(wildcard ndn-cpp/c/*.*) \
-  $(wildcard ndn-cpp/c/encoding/*.*) \
-  $(wildcard ndn-cpp/c/util/*.*)
+  $(wildcard ndn-cpp-dev/*.h) \
+  $(wildcard ndn-cpp-dev/c/*.*) \
+  $(wildcard ndn-cpp-dev/c/encoding/*.*) \
+  $(wildcard ndn-cpp-dev/c/util/*.*)
 
 # Public C++ headers.
-# Use ndn-cpp/*.hpp instead of *.* to not overwrite *.h from above.
+# Use ndn-cpp-dev/*.hpp instead of *.* to not overwrite *.h from above.
 ndn_cpp_cpp_headers = \
-  $(wildcard ndn-cpp/*.hpp) \
-  $(wildcard ndn-cpp/encoding/*.*) \
-  $(wildcard ndn-cpp/security/*.*) \
-  $(wildcard ndn-cpp/transport/*.*) \
-  $(wildcard ndn-cpp/util/*.*)
+  $(wildcard ndn-cpp-dev/*.hpp) \
+  $(wildcard ndn-cpp-dev/encoding/*.*) \
+  $(wildcard ndn-cpp-dev/security/*.*) \
+  $(wildcard ndn-cpp-dev/transport/*.*) \
+  $(wildcard ndn-cpp-dev/util/*.*)
 
 ndnboost_headers = \
   $(wildcard ndnboost/*.*) \

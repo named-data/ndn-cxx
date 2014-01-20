@@ -9,7 +9,7 @@
 #ifndef NDN_BLOB_STREAM_HPP
 #define NDN_BLOB_STREAM_HPP
 
-#include <ndn-cpp/common.hpp>
+#include <ndn-cpp-dev/common.hpp>
 
 #if NDN_CPP_USE_SYSTEM_BOOST
 #include <boost/iostreams/detail/ios.hpp>

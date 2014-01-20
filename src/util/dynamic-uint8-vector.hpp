@@ -9,7 +9,7 @@
 #define NDN_DYNAMIC_UCHAR_VECTOR_HPP
 
 #include <vector>
-#include <ndn-cpp/common.hpp>
+#include <ndn-cpp-dev/common.hpp>
 #include "../c/util/dynamic-uint8-array.h"
 
 namespace ndn {

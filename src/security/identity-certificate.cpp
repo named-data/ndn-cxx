@@ -6,7 +6,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp/security/identity-certificate.hpp>
+#include <ndn-cpp-dev/security/identity-certificate.hpp>
 
 using namespace std;
 

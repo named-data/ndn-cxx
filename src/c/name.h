@@ -7,7 +7,7 @@
 #ifndef NDN_NAME_H
 #define NDN_NAME_H
 
-#include <ndn-cpp/c/common.h>
+#include <ndn-cpp-dev/c/common.h>
 #include "errors.h"
 #include "util/blob.h"
 

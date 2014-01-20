@@ -19,7 +19,7 @@
  */
 
 
-#include <ndn-cpp/face.hpp>
+#include <ndn-cpp-dev/face.hpp>
 #include <stdexcept>
 #include <iostream>
 

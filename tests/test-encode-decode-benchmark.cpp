@@ -10,15 +10,15 @@
 #include <sys/time.h>
 #include <sstream>
 #include <stdexcept>
-#include <ndn-cpp/data.hpp>
-#include <ndn-cpp/security/key-chain.hpp>
-// #include <ndn-cpp/security/policy/self-verify-policy-manager.hpp>
+#include <ndn-cpp-dev/data.hpp>
+#include <ndn-cpp-dev/security/key-chain.hpp>
+// #include <ndn-cpp-dev/security/policy/self-verify-policy-manager.hpp>
 
 // Hack: Hook directly into non-API functions.
 #include "../src/c/encoding/binary-xml-decoder.h"
 #include "../src/c/data.h"
 #include "../src/c/encoding/binary-xml-data.h"
-#include <ndn-cpp/c/util/crypto.h>
+#include <ndn-cpp-dev/c/util/crypto.h>
 
 using namespace std;
 using namespace ndn;

@@ -15,7 +15,7 @@
 #if NDN_CPP_HAVE_CXX11
 
 #if (__cplusplus < 201103L)
-#error "NDN-CPP library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
+#error "NDN-CPP-DEV library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
 #endif
 
 // Depending on where ./configure found shared_ptr, define the ptr_lib namespace.
@@ -43,8 +43,8 @@ namespace ndn { namespace func_lib = boost; }
 #else // use embedded boost headers
 /* Use the boost header files in this distribution that were extracted with:
 cd <BOOST DEVELOPMENT DIRECTORY WITH boost SUBDIRECTORY>
-dist/bin/bcp --namespace=ndnboost shared_ptr make_shared weak_ptr function bind any iostreams <NDN-CPP ROOT>/include
-cd <NDN-CPP ROOT>/include
+dist/bin/bcp --namespace=ndnboost shared_ptr make_shared weak_ptr function bind any iostreams <NDN-CPP-DEV ROOT>/include
+cd <NDN-CPP-DEV ROOT>/include
 rm -rf boost.css boost.png Jamroot libs
 mv boost ndnboost
 cd ndnboost

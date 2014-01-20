@@ -11,7 +11,7 @@
 #ifndef NDN_MEMORY_H
 #define NDN_MEMORY_H
 
-#include <ndn-cpp/c/common.h>
+#include <ndn-cpp-dev/c/common.h>
 
 #ifdef __cplusplus
 extern "C" {

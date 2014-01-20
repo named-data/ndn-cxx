@@ -5,7 +5,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp/face.hpp>
+#include <ndn-cpp-dev/face.hpp>
 
 using namespace std;
 

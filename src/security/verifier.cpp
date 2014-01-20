@@ -18,9 +18,9 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-#include <ndn-cpp/security/verifier.hpp>
+#include <ndn-cpp-dev/security/verifier.hpp>
 
-#include <ndn-cpp/security/sec-policy.hpp>
+#include <ndn-cpp-dev/security/sec-policy.hpp>
 
 #include <cryptopp/rsa.h>
 

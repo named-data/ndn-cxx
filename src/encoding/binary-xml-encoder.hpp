@@ -9,7 +9,7 @@
 #define NDN_BINARYXMLENCODER_HPP
 
 #include <vector>
-#include <ndn-cpp/common.hpp>
+#include <ndn-cpp-dev/common.hpp>
 #include "../util/dynamic-uint8-vector.hpp"
 #include "../c/encoding/binary-xml-encoder.h"
 

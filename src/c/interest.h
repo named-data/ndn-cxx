@@ -7,7 +7,7 @@
 #ifndef NDN_INTEREST_H
 #define NDN_INTEREST_H
 
-#include <ndn-cpp/c/interest-types.h>
+#include <ndn-cpp-dev/c/interest-types.h>
 #include "name.h"
 #include "publisher-public-key-digest.h"
 

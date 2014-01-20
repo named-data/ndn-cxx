@@ -7,7 +7,7 @@
 #ifndef NDN_BINARY_XML_ELEMENT_READER_H
 #define NDN_BINARY_XML_ELEMENT_READER_H
 
-#include <ndn-cpp/c/encoding/element-listener.h>
+#include <ndn-cpp-dev/c/encoding/element-listener.h>
 #include "../errors.h"
 #include "binary-xml-structure-decoder.h"
 #include "../util/dynamic-uint8-array.h"
