@@ -105,6 +105,7 @@ libndn_cpp_dev_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/security/identity-certificate.cpp \
   src/security/public-key.cpp \
   src/security/sec-public-info-sqlite3.cpp \
+  src/security/sec-tpm-file.cpp \
   src/security/sec-public-info-memory.cpp \
   src/security/sec-tpm-memory.cpp \
   src/security/verifier.cpp \
@@ -129,7 +130,7 @@ else
   EXTRA_DIST = src/security/sec-tpm-osx.cpp
 endif
 
-libndn_cpp_dev_la_LIBADD  = @OPENSSL_LIBS@     @CRYPTOPP_LIBS@     @OSX_SECURITY_LIBS@  @BOOST_SYSTEM_LIB@
+libndn_cpp_dev_la_LIBADD  = @OPENSSL_LIBS@     @CRYPTOPP_LIBS@     @OSX_SECURITY_LIBS@  @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@
 libndn_cpp_dev_la_LDFLAGS = @OPENSSL_LDFLAGS@  @CRYPTOPP_LDFLAGS@  @SQLITE3_LDFLAGS@    @BOOST_LDFLAGS@
 libndn_cpp_dev_la_CFLAGS  = @OPENSSL_INCLUDES@ @CRYPTOPP_INCLUDES@ @SQLITE3_CFLAGS@     @BOOST_CPPFLAGS@
 
