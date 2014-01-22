@@ -7,6 +7,10 @@
  * See COPYING for copyright and distribution information.
  */
 
+#if __clang__
+#pragma clang diagnostic ignored "-Wtautological-compare"
+#endif
+
 #include <ndn-cpp-dev/security/sec-tpm-file.hpp>
 
 #include <string>
@@ -38,7 +42,7 @@ public:
   Impl(const string &dir)
   {
     if(dir.empty())
-      m_keystorePath = boost::filesystem::path(getenv("HOME")) / ".ndnx" / "ndnsec-keys";
+      m_keystorePath = boost::filesystem::path(getenv("HOME")) / ".ndnx" / "ndnsec-tpm-file";
     else
       m_keystorePath = dir;
     

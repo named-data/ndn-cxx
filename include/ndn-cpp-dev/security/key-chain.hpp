@@ -13,10 +13,16 @@
 #include "public-key.hpp"
 #include "signature-sha256-with-rsa.hpp"
 
+//PublicInfo
 #include "sec-public-info-sqlite3.hpp"
 #include "sec-public-info-memory.hpp"
-#include "sec-tpm-osx.hpp"
+//TPM
+#include "sec-tpm-file.hpp"
 #include "sec-tpm-memory.hpp"
+
+#ifdef NDN_CPP_HAVE_OSX_SECURITY
+#include "sec-tpm-osx.hpp"
+#endif
 
 
 namespace ndn {
@@ -363,6 +369,8 @@ private:
 
 }
 
+
+
 #ifdef NDN_CPP_HAVE_OSX_SECURITY
 
 namespace ndn
@@ -374,7 +382,7 @@ typedef KeyChainImpl<SecPublicInfoSqlite3, SecTpmOsx> KeyChain;
 
 namespace ndn
 {
-typedef KeyChainImpl<SecPublicInfoMemory, SecTpmMemory> KeyChain;
+typedef KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> KeyChain;
 };
 
 #endif //NDN_CPP_HAVE_OSX_SECURITY
