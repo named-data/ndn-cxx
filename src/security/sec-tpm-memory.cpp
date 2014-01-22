@@ -109,45 +109,6 @@ SecTpmMemory::signInTpm(const uint8_t *data, size_t dataLength,
   return Block(Tlv::SignatureValue, signatureBuffer);
 }
 
-void
-SecTpmMemory::signInTpm(Data &d,
-                const Name& keyName,
-                DigestAlgorithm digestAlgorithm)
-{
-  if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
-    Error("MemoryPrivateKeyStorage::sign only SHA256 digest is supported");
-
-  // Find the private key and sign.
-  PrivateKeyStore::iterator privateKey = privateKeyStore_.find(keyName.toUri());
-  if (privateKey == privateKeyStore_.end())
-    throw Error(string("MemoryPrivateKeyStorage: Cannot find private key ") + keyName.toUri());
-  
-  uint8_t digest[SHA256_DIGEST_LENGTH];
-  SHA256_CTX sha256;
-  SHA256_Init(&sha256);
-
-  SHA256_Update(&sha256, d.getName().    wireEncode().wire(), d.getName().    wireEncode().size());
-  SHA256_Update(&sha256, d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size());
-  SHA256_Update(&sha256, d.getContent().              wire(), d.getContent().              size());
-  SHA256_Update(&sha256, d.getSignature().getInfo().  wire(), d.getSignature().getInfo().  size());
-  
-  SHA256_Final(digest, &sha256);
-
-  BufferPtr signatureBuffer = ptr_lib::make_shared<Buffer>();
-  signatureBuffer->resize(RSA_size(privateKey->second->getPrivateKey()));
-  
-  unsigned int signatureBitsLength;  
-  if (!RSA_sign(NID_sha256, digest, sizeof(digest),
-                signatureBuffer->buf(),
-                &signatureBitsLength,
-                privateKey->second->getPrivateKey()))
-    {
-      throw Error("Error in RSA_sign");
-    }
-
-  d.setSignatureValue(Block(Tlv::SignatureValue, signatureBuffer));
-}
-
 ConstBufferPtr
 SecTpmMemory::decryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
 {

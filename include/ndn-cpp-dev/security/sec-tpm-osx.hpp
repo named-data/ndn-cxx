@@ -37,16 +37,13 @@ public:
 
   // From TrustedPlatformModule
   virtual void 
-  generateKeyPairInTpm(const Name& keyName, KeyType keyType = KEY_TYPE_RSA, int keySize = 2048);
+  generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize);
 
   virtual ptr_lib::shared_ptr<PublicKey> 
   getPublicKeyFromTpm(const Name& keyName);
   
   virtual Block
   signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
-
-  virtual void
-  signInTpm(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm);
   
   /**
    * Decrypt data.

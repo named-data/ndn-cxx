@@ -279,15 +279,6 @@ namespace ndn
                  ptr_lib::make_shared<Buffer>(CFDataGetBytePtr(signature), CFDataGetLength(signature)));
   }
 
-  void
-  SecTpmOsx::signInTpm(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm)
-  {
-    data.setSignatureValue
-      (signInTpm(data.wireEncode().value(),
-            data.wireEncode().value_size() - data.getSignature().getValue().size(),
-            keyName, digestAlgorithm));
-  }
-
   ConstBufferPtr
   SecTpmOsx::decryptInTpm(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
   {

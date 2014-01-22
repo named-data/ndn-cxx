@@ -45,18 +45,16 @@ public:
   getPublicKeyFromTpm(const Name& keyName) = 0;
   
   /**
-   * Fetch the private key for keyName and sign the data, returning a signature Blob.
+   * Fetch the private key for keyName and sign the data, returning a signature block.
    * @param data Pointer to the input byte array.
    * @param dataLength The length of data.
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
-   * @return The signature, or a null pointer if signing fails.
+   * @return The signature block.
+   * @throws SecTpm::Error
    */  
   virtual Block
   signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
-
-  virtual void
-  signInTpm(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
   
   /**
    * Decrypt data.

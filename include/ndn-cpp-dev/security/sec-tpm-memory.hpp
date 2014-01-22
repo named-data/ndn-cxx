@@ -68,9 +68,6 @@ public:
    */  
   virtual Block 
   signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
-
-  virtual void 
-  signInTpm(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm);
   
   /**
    * Decrypt data.
