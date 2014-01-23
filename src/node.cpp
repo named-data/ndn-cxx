@@ -265,7 +265,7 @@ Node::processEvents(Milliseconds timeout/* = 0 */, bool keepThread/* = false*/)
       if (timeout > 0)
         {
           processEventsTimeoutTimer_->expires_from_now(boost::posix_time::milliseconds(timeout));
-          processEventsTimeoutTimer_->async_wait(fireProcessEventsTimeout);
+          processEventsTimeoutTimer_->async_wait(&fireProcessEventsTimeout);
         }
       
       if (keepThread) {
