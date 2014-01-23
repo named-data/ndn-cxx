@@ -159,22 +159,6 @@ public:
     return certificate;
   }
 
-  /**
-   * Fetch the private key for keyName and sign the data, and set the signature block of the data packet.
-   * Throw Error if signing fails.
-   * @param data Reference to the input data packet.
-   * @param keyName The name of the signing key.
-   * @param digestAlgorithm the digest algorithm.
-   */  
-  void
-  signInTpm(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm)
-  {
-    data.setSignatureValue
-      (Tpm::signInTpm(data.wireEncode().value(),
-                      data.wireEncode().value_size() - data.getSignature().getValue().size(),
-                      keyName, digestAlgorithm));
-  }
-
   void
   sign(Data &data)
   {
@@ -206,7 +190,7 @@ public:
     data.setSignature(signature);
 
     // For temporary usage, we support RSA + SHA256 only, but will support more.
-    signInTpm(data, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+    signDataInTpm(data, cert->getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
   }
 
   void
@@ -217,7 +201,7 @@ public:
     data.setSignature(signature);
 
     // For temporary usage, we support RSA + SHA256 only, but will support more.
-    signInTpm(data, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+    signDataInTpm(data, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
   }
   
   /**
@@ -318,7 +302,7 @@ public:
     cert.setSignature(signature);
 
     // For temporary usage, we support RSA + SHA256 only, but will support more.
-    signInTpm(cert, cert.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+    signDataInTpm(cert, cert.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
   }
 
 
@@ -363,6 +347,22 @@ private:
     result.append(certificatePrefix.getSubName(i + 1, certificatePrefix.size()-i-1));
     
     return result;
+  }
+
+  /**
+   * Fetch the private key for keyName and sign the data, and set the signature block of the data packet.
+   * @param data Reference to the input data packet.
+   * @param keyName The name of the signing key.
+   * @param digestAlgorithm the digest algorithm.
+   * @throws Tpm::Error
+   */  
+  void
+  signDataInTpm(Data &data, const Name& keyName, DigestAlgorithm digestAlgorithm)
+  {
+    data.setSignatureValue
+      (Tpm::signInTpm(data.wireEncode().value(),
+                      data.wireEncode().value_size() - data.getSignature().getValue().size(),
+                      keyName, digestAlgorithm));
   }
 
 };
