@@ -64,7 +64,6 @@ cd ndnboost
 (unset LANG; find . -type f -exec sed -i '' 's/ mpl_/ ndnboost_mpl_/g' {} +)
  */
 #include <ndnboost/shared_ptr.hpp>
-#include <ndnboost/enable_shared_from_this.hpp>
 #include <ndnboost/make_shared.hpp>
 namespace ndn { namespace ptr_lib = ndnboost; }
 

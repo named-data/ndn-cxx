@@ -63,6 +63,7 @@ AC_ARG_WITH([system-boost],
       [do not attempt to use system-installed boost libraries and use the bundled version (ndnboost) when necessary.]
   ),
   [
+  want_system_boost="yes"
   if test "$withval" = "no"; then
       want_system_boost="no"
   fi

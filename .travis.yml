@@ -9,7 +9,7 @@ before_install:
   - travis_retry sudo apt-get install -qq libsqlite3-dev
 script:
   - autoreconf -f --install
-  - ./configure --without-c++11 --with-system-boost --with-tests
+  - ./configure --with-tests
   - make
   - sudo make install
   - sudo ldconfig
