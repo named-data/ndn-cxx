@@ -54,16 +54,20 @@ AC_CHECK_HEADERS([sys/time.h], :, AC_MSG_ERROR([*** sys/time.h not found. Check 
 AC_CHECK_FUNCS([gettimeofday], :, AC_MSG_ERROR([*** gettimeofday not found. processEvents requires it. Check 'config.log' for more details.]))
 AC_C_INLINE
 
-# Unless --without-c++11 specified, try to enable C++11
+# Unless --with-c++11 specified, do not enable C++11 features
 AX_CXX_COMPILE_STDCXX_11(, optional)
 
 AC_ARG_WITH([system-boost],
   AS_HELP_STRING(
-      [--with-system-boost],
-      [use system-installed boost libraries. If not specified, use the bundled version when necessary.]
+      [--without-system-boost],
+      [do not attempt to use system-installed boost libraries and use the bundled version (ndnboost) when necessary.]
   ),
-  [want_system_boost="yes"],
-  [want_system_boost="no"]
+  [
+  if test "$withval" = "no"; then
+      want_system_boost="no"
+  fi
+  ],
+  [want_system_boost="yes"]
 )
 
 AX_BOOST_BASE([1.42.0],
@@ -94,6 +98,7 @@ AC_ARG_WITH([tests],
   ]
 )
 
+# @todo: These checks are not really optional
 AX_BOOST_SYSTEM
 AX_BOOST_FILESYSTEM
 AX_BOOST_UNIT_TEST_FRAMEWORK

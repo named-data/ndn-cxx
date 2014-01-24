@@ -58,14 +58,14 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX_11], [dnl
   AC_ARG_WITH([c++11],
     AS_HELP_STRING(
         [--with-c++11=@<:@ARG@:>@],
-        [use C++11 when available @<:@default=yes@:>@]
+        [use C++11 when available @<:@default=no@:>@]
     ),
     [
-    if test "$withval" = "no"; then
-        WANT_CXX11="no"
+    if test "$withval" = "yes"; then
+        WANT_CXX11="yes"
     fi
     ],
-    [WANT_CXX11="yes"]
+    [WANT_CXX11="no"]
   )
 
   if test "x$WANT_CXX11" = "xyes"; then

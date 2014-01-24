@@ -6,9 +6,16 @@ Prerequisites
 (These are prerequisites to build NDN-CPP.  To do development of NDN-CPP code and update the build system, 
  see Development Prerequisites.)
 
-Required: libcrypto
-Optional: libsqlite3 (for key storage)
-Optional: OSX Security framework (for key storage)
+Required: 
+
+* libcrypto
+* libsqlite3 
+* libcrypto++
+
+Optional: 
+
+* boost libraries (highly recommended)
+* OSX Security framework (for key storage)
 
 Following are the detailed steps for each platform to install the prerequisites.
 
@@ -19,10 +26,15 @@ In Xcode Preferences > Downloads, install "Command Line Tools".
 * Mac OS X 10.9
 Install Xcode.  (Xcode on OS X 10.9 seems to already have the Command Line Tools.)
 
+If using macports, dependencies can be installed using the following commands:
+
+    sudo port install boost sqlite3 libcryptopp
+
 * Ubuntu 12.04 (64 bit and 32 bit), Ubuntu 13.04 (64 bit)
 In a terminal, enter:
-sudo apt-get install build-essential
-sudo apt-get install libssl-dev
+
+    sudo apt-get install build-essential
+    sudo apt-get install libboost-all-dev libssl-dev libsqlite3-dev libcrypto++-dev
 
 * Windows Cygwin
 Cygwin is tested on Windows 7 64-bit with the "Devel" packages selected to install at the top level of the
@@ -34,12 +46,13 @@ Build
 
 To build in a terminal, change directory to the NDN-CPP root.  Enter:
 
-./configure
-make
-make install
+    ./configure
+    make
+    make install
 
 To make documentation, enter:
-make doxygen-doc
+
+    make doxygen-doc
 
 Files
 -----
