@@ -10,8 +10,8 @@
 using namespace std;
 
 namespace ndn {
-  
-uint64_t 
+
+const PendingInterestId*
 Face::expressInterest
   (const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout)
 {

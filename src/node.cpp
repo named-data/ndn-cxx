@@ -25,9 +25,6 @@ using namespace ndn::func_lib::placeholders;
 
 namespace ndn {
 
-uint64_t Node::PendingInterest::lastPendingInterestId_ = 0;
-uint64_t Node::RegisteredPrefix::lastRegisteredPrefixId_ = 0;
-
 Node::Node(const ptr_lib::shared_ptr<Transport>& transport)
   : pitTimeoutCheckTimerActive_(false)
   , transport_(transport)
@@ -48,28 +45,35 @@ Node::Node(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::share
   processEventsTimeoutTimer_ = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
 }
 
-uint64_t 
+const PendingInterestId*
 Node::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)
 {
   if (!transport_->isConnected())
     transport_->connect(*ioService_,
                         ptr_lib::bind(&Node::onReceiveElement, this, _1));
-  
-  uint64_t pendingInterestId = PendingInterest::getNextPendingInterestId();
-  pendingInterestTable_.push_back(ptr_lib::shared_ptr<PendingInterest>(new PendingInterest
-    (pendingInterestId, ptr_lib::shared_ptr<const Interest>(new Interest(interest)), onData, onTimeout)));
 
-  transport_->send(interest.wireEncode());
+  ptr_lib::shared_ptr<const Interest> interestToExpress(new Interest(interest));
+  
+  ioService_->post(func_lib::bind(&Node::asyncExpressInterest, this, interestToExpress, onData, onTimeout));
+  
+  return reinterpret_cast<const PendingInterestId*>(interestToExpress.get());
+}
+
+void
+Node::asyncExpressInterest(const ptr_lib::shared_ptr<const Interest> &interest, const OnData& onData, const OnTimeout& onTimeout)
+{
+  pendingInterestTable_.push_back(ptr_lib::shared_ptr<PendingInterest>(new PendingInterest
+    (interest, onData, onTimeout)));
+
+  transport_->send(interest->wireEncode());
 
   if (!pitTimeoutCheckTimerActive_) {
     pitTimeoutCheckTimerActive_ = true;
     pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
     pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
   }
-  
-  return pendingInterestId;
 }
-
+    
 void
 Node::put(const Data &data)
 {
@@ -82,83 +86,78 @@ Node::put(const Data &data)
 
 
 void
-Node::removePendingInterest(uint64_t pendingInterestId)
+Node::removePendingInterest(const PendingInterestId *pendingInterestId)
 {
-  // Go backwards through the list so we can erase entries.
-  // Remove all entries even though pendingInterestId should be unique.
-  for (int i = (int)pendingInterestTable_.size() - 1; i >= 0; --i) {
-    if (pendingInterestTable_[i]->getPendingInterestId() == pendingInterestId)
-      pendingInterestTable_.erase(pendingInterestTable_.begin() + i);
-  }
+  ioService_->post(func_lib::bind(&Node::asyncRemovePendingInterest, this, pendingInterestId));
 }
 
-uint64_t 
+
+void
+Node::asyncRemovePendingInterest(const PendingInterestId *pendingInterestId)
+{
+  std::remove_if(pendingInterestTable_.begin(), pendingInterestTable_.end(),
+                 MatchPendingInterestId(pendingInterestId));
+}
+
+const RegisteredPrefixId*
 Node::registerPrefix
   (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags)
 {
-  // Get the registeredPrefixId now so we can return it to the caller.
-  uint64_t registeredPrefixId = RegisteredPrefix::getNextRegisteredPrefixId();
-  ptr_lib::shared_ptr<const Name> prefixPtr = ptr_lib::make_shared<const Name>(prefix);
+  ptr_lib::shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
   
   if (ndndId_.size() == 0) {
     // First fetch the ndndId of the connected hub.
     NdndIdFetcher fetcher(ndndId_,
                           func_lib::bind(&Node::registerPrefixHelper, this,
-                                         registeredPrefixId, prefixPtr, onInterest, onRegisterFailed, flags),
-                          func_lib::bind(onRegisterFailed, prefixPtr));
+                                         prefixToRegister, onRegisterFailed, flags),
+                          func_lib::bind(onRegisterFailed, prefixToRegister->getPrefix().shared_from_this()));
 
     // @todo: Check if this crash
     // It is OK for func_lib::function make a copy of the function object because the Info is in a ptr_lib::shared_ptr.
     expressInterest(ndndIdFetcherInterest_, fetcher, fetcher);
   }
   else
-    registerPrefixHelper(registeredPrefixId, prefixPtr, onInterest, onRegisterFailed, flags);
+    registerPrefixHelper(prefixToRegister, onRegisterFailed, flags);
   
-  return registeredPrefixId;
+  return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
 }
 
 void
-Node::removeRegisteredPrefix(uint64_t registeredPrefixId)
+Node::removeRegisteredPrefix(const RegisteredPrefixId *registeredPrefixId)
 {
-  // Go backwards through the list so we can erase entries.
-  // Remove all entries even though pendingInterestId should be unique.
-
-  for (RegisteredPrefixTable::iterator i = registeredPrefixTable_.begin();
-       i != registeredPrefixTable_.end();
-       ++i)
+  RegisteredPrefixTable::iterator i = std::find_if(registeredPrefixTable_.begin(), registeredPrefixTable_.end(),
+                                                   MatchRegisteredPrefixId(registeredPrefixId));  
+  if (i != registeredPrefixTable_.end())
     {
-      if ((*i)->getRegisteredPrefixId() == registeredPrefixId) {
-        ForwardingEntry forwardingEntry("unreg", *(*i)->getPrefix(), faceId_);
-        Data data;
-        data.setContent(forwardingEntry.wireEncode());
+      ForwardingEntry forwardingEntry("unreg", (*i)->getPrefix(), faceId_);
+      Data data;
+      data.setContent(forwardingEntry.wireEncode());
         
-        SignatureSha256WithRsa signature;
-        signature.setValue(Block(Tlv::SignatureValue, ptr_lib::make_shared<Buffer>()));
-        data.setSignature(signature);
+      SignatureSha256WithRsa signature;
+      signature.setValue(Block(Tlv::SignatureValue, ptr_lib::make_shared<Buffer>()));
+      data.setSignature(signature);
 
-        // Create an interest where the name has the encoded Data packet.
-        Name interestName;
-        interestName.append("ndnx");
-        interestName.append(ndndId_);
-        interestName.append("unreg");
-        interestName.append(data.wireEncode());
+      // Create an interest where the name has the encoded Data packet.
+      Name interestName;
+      interestName.append("ndnx");
+      interestName.append(ndndId_);
+      interestName.append("unreg");
+      interestName.append(data.wireEncode());
 
-        Interest interest(interestName);
-        interest.setScope(1);
-        interest.setInterestLifetime(1000);
+      Interest interest(interestName);
+      interest.setScope(1);
+      interest.setInterestLifetime(1000);
 
-        expressInterest(interest, OnData(), OnTimeout());
+      expressInterest(interest, OnData(), OnTimeout());
         
-        registeredPrefixTable_.erase(i);
-        break;
-      }
+      registeredPrefixTable_.erase(i);
     }
+
+  // there cannot be two registered prefixes with the same id. if there are, then something is broken
 }
 
 void 
-Node::registerPrefixHelper(uint64_t registeredPrefixId,
-                           const ptr_lib::shared_ptr<const Name>& prefix,
-                           const OnInterest& onInterest,
+Node::registerPrefixHelper(const ptr_lib::shared_ptr<RegisteredPrefix> &prefixToRegister,
                            const OnRegisterFailed& onRegisterFailed, 
                            const ForwardingFlags& flags)
 {
@@ -166,7 +165,7 @@ Node::registerPrefixHelper(uint64_t registeredPrefixId,
 
   // AlexA: ndnd ignores any freshness that is larger than 3600 sec and sets 300 sec instead
   //        to register "forever" (=2000000000 sec), freshnessPeriod must be omitted
-  ForwardingEntry forwardingEntry("selfreg", *prefix, -1, flags, -1);
+  ForwardingEntry forwardingEntry("selfreg", prefixToRegister->getPrefix(), -1, flags, -1);
   Block content = forwardingEntry.wireEncode();
 
   // Set the ForwardingEntry as the content of a Data packet and sign.
@@ -192,14 +191,12 @@ Node::registerPrefixHelper(uint64_t registeredPrefixId,
 
   expressInterest(interest,
                   func_lib::bind(&Node::registerPrefixFinal, this,
-                                 registeredPrefixId, prefix, onInterest, onRegisterFailed, _1, _2),
-                  func_lib::bind(onRegisterFailed, prefix));
+                                 prefixToRegister, onRegisterFailed, _1, _2),
+                  func_lib::bind(onRegisterFailed, prefixToRegister->getPrefix().shared_from_this()));
 }
 
 void
-Node::registerPrefixFinal(uint64_t registeredPrefixId,
-                          const ptr_lib::shared_ptr<const Name>& prefix,
-                          const OnInterest& onInterest,
+Node::registerPrefixFinal(const ptr_lib::shared_ptr<RegisteredPrefix> &prefixToRegister,
                           const OnRegisterFailed& onRegisterFailed,
                           const ptr_lib::shared_ptr<const Interest>&, const ptr_lib::shared_ptr<Data>&data)
 {
@@ -208,7 +205,7 @@ Node::registerPrefixFinal(uint64_t registeredPrefixId,
 
   if (content.getAll().empty())
     {
-      onRegisterFailed(prefix);
+      onRegisterFailed(prefixToRegister->getPrefix().shared_from_this());
       return;
     }
 
@@ -222,7 +219,7 @@ Node::registerPrefixFinal(uint64_t registeredPrefixId,
         entry.wireDecode(*val);
 
         // Save the onInterest callback and send the registration interest.
-        registeredPrefixTable_.push_back(ptr_lib::make_shared<RegisteredPrefix>(registeredPrefixId, prefix, onInterest));
+        registeredPrefixTable_.push_back(prefixToRegister);
 
         /// @todo Notify user about successful registration
         
@@ -237,14 +234,14 @@ Node::registerPrefixFinal(uint64_t registeredPrefixId,
 
         // std::cerr << "StatusReponse: " << resp << std::endl;
       
-        onRegisterFailed(prefix);
+        onRegisterFailed(prefixToRegister->getPrefix().shared_from_this());
         return;
       }
     default:
       {
         // failed :(
       
-        onRegisterFailed(prefix);
+        onRegisterFailed(prefixToRegister->getPrefix().shared_from_this());
         return;
       }
     }
@@ -343,7 +340,7 @@ Node::onReceiveElement(const Block &block)
     
       RegisteredPrefixTable::iterator entry = getEntryForRegisteredPrefix(interest->getName());
       if (entry != registeredPrefixTable_.end()) {
-        (*entry)->getOnInterest()((*entry)->getPrefix(), interest, *transport_, (*entry)->getRegisteredPrefixId());
+        (*entry)->getOnInterest()((*entry)->getPrefix().shared_from_this(), interest);
       }
     }
   else if (block.type() == Tlv::Data)
@@ -406,7 +403,7 @@ Node::getEntryForRegisteredPrefix(const Name& name)
        ++i)
     {
       if (longestPrefix == registeredPrefixTable_.end() ||
-          (*i)->getPrefix()->size() > (*longestPrefix)->getPrefix()->size())
+          (*i)->getPrefix().size() > (*longestPrefix)->getPrefix().size())
         {
           longestPrefix = i;
         }
@@ -414,11 +411,9 @@ Node::getEntryForRegisteredPrefix(const Name& name)
   return longestPrefix;
 }
 
-Node::PendingInterest::PendingInterest(uint64_t pendingInterestId,
-                                       const ptr_lib::shared_ptr<const Interest>& interest,
+Node::PendingInterest::PendingInterest(const ptr_lib::shared_ptr<const Interest>& interest,
                                        const OnData& onData, const OnTimeout& onTimeout)
-: pendingInterestId_(pendingInterestId),
-  interest_(interest),
+: interest_(interest),
   onData_(onData), onTimeout_(onTimeout)
 {
   // Set up timeoutTime_.

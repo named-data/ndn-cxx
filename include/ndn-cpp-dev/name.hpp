@@ -21,7 +21,7 @@ namespace ndn {
 /**
  * A Name holds an array of Name::Component and represents an NDN name.
  */
-class Name {
+class Name : public ptr_lib::enable_shared_from_this<Name> {
 public:
   /**
    * A Name::Component holds a read-only name component value.

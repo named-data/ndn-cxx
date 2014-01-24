@@ -20,22 +20,38 @@ namespace ndn {
 class Face {
 public:
   /**
-   * Create a new Face for communication with an NDN hub at host:port using the default TcpTransport.
-   * @param host The host of the NDN hub.
-   * @param port The port of the NDN hub. If omitted. use 6363.
+   * @brief Create a new Face for communication with an NDN hub using the default TcpTransport.
    */
   Face()
-  : node_(ptr_lib::shared_ptr<UnixTransport>(new UnixTransport()))
+    : node_(ptr_lib::shared_ptr<UnixTransport>(new UnixTransport()))
+  {
+  }
+
+  /**
+   * @brief Create a new Face for communication with an NDN hub using the default Transport.
+   * @param ioService A shared pointer to boost::io_service object that should control all IO operations
+   */
+  Face(const ptr_lib::shared_ptr<boost::asio::io_service> &ioService)
+    : node_(ptr_lib::shared_ptr<UnixTransport>(new UnixTransport()), ioService)
+  {
+  }
+  
+  /**
+   * Create a new Face for communication with an NDN hub with the given Transport object and connectionInfo.
+   * @param transport A shared_ptr to a Transport object used for communication.
+   */
+  Face(const ptr_lib::shared_ptr<Transport>& transport)
+    : node_(transport)
   {
   }
 
   /**
    * Create a new Face for communication with an NDN hub with the given Transport object and connectionInfo.
    * @param transport A shared_ptr to a Transport object used for communication.
-   * @param transport A shared_ptr to a Transport::ConnectionInfo to be used to connect to the transport.
+   * @param ioService A shared pointer to boost::io_service object that should control all IO operations
    */
-  Face(const ptr_lib::shared_ptr<Transport>& transport)
-  : node_(transport)
+  Face(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<boost::asio::io_service> &ioService)
+    : node_(transport, ioService)
   {
   }
   
@@ -56,10 +72,9 @@ public:
    * use func_lib::ref() as appropriate.
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
    * This copies the function object, so you may need to use func_lib::ref() as appropriate.
-   * @param wireFormat A WireFormat object used to encode the message. If omitted, use WireFormat getDefaultWireFormat().
    * @return The pending interest ID which can be used with removePendingInterest.
    */
-  uint64_t 
+  const PendingInterestId*
   expressInterest
     (const Interest& interest, const OnData& onData, const OnTimeout& onTimeout = OnTimeout())
   {
@@ -72,13 +87,11 @@ public:
    * @param name A reference to a Name for the interest.  This copies the Name.
    * @param interestTemplate if not 0, copy interest selectors from the template.   This does not keep a pointer to the Interest object.
    * @param onData A function object to call when a matching data packet is received.  This copies the function object, so you may need to
-   * use func_lib::ref() as appropriate.
+   *        use func_lib::ref() as appropriate.
    * @param onTimeout A function object to call if the interest times out.  If onTimeout is an empty OnTimeout(), this does not use it.
-   * This copies the function object, so you may need to use func_lib::ref() as appropriate.
-   * @param wireFormat A WireFormat object used to encode the message. If omitted, use WireFormat getDefaultWireFormat().
-   * @return The pending interest ID which can be used with removePendingInterest.
+   *        This copies the function object, so you may need to use func_lib::ref() as appropriate.
    */
-  uint64_t 
+  const PendingInterestId*
   expressInterest
     (const Name& name, const Interest *interestTemplate, const OnData& onData, const OnTimeout& onTimeout = OnTimeout());
 
@@ -93,7 +106,7 @@ public:
    * @param wireFormat A WireFormat object used to encode the message. If omitted, use WireFormat getDefaultWireFormat().
    * @return The pending interest ID which can be used with removePendingInterest.
    */
-  uint64_t 
+  const PendingInterestId*
   expressInterest
     (const Name& name, const OnData& onData, const OnTimeout& onTimeout = OnTimeout()) 
   {
@@ -107,7 +120,7 @@ public:
    * @param pendingInterestId The ID returned from expressInterest.
    */
   void
-  removePendingInterest(uint64_t pendingInterestId)
+  removePendingInterest(const PendingInterestId* pendingInterestId)
   {
     node_.removePendingInterest(pendingInterestId);
   }
@@ -124,7 +137,7 @@ public:
    * @param wireFormat A WireFormat object used to encode the message. If omitted, use WireFormat getDefaultWireFormat().
    * @return The registered prefix ID which can be used with removeRegisteredPrefix.
    */
-  uint64_t 
+  const RegisteredPrefixId*
   setInterestFilter
     (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags = ForwardingFlags())
   {
@@ -138,7 +151,7 @@ public:
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
   void
-  unsetInterestFilter(uint64_t registeredPrefixId)
+  unsetInterestFilter(const RegisteredPrefixId *registeredPrefixId)
   {
     node_.removeRegisteredPrefix(registeredPrefixId);
   }

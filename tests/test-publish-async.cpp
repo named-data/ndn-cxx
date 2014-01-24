@@ -72,8 +72,7 @@ public:
   
   // onInterest.
   void operator()
-     (const ptr_lib::shared_ptr<const Name>& prefix, const ptr_lib::shared_ptr<const Interest>& interest, Transport& transport,
-      uint64_t registeredPrefixId) 
+     (const ptr_lib::shared_ptr<const Name>& prefix, const ptr_lib::shared_ptr<const Interest>& interest) 
   {
     ++responseCount_;
     
@@ -90,7 +89,7 @@ public:
 
     // Unregister prefix to ensure that the processing thread finishes after Data
     // packet is send out to the forwarder
-    face_.unsetInterestFilter(registeredPrefixId);
+    face_.unsetInterestFilter(id_);
   }
   
   // onRegisterFailed.
@@ -103,6 +102,8 @@ public:
   KeyChainImpl<SecPublicInfoMemory, SecTpmMemory> &keyChain_;
   Face &face_;
   int responseCount_;
+
+  const RegisteredPrefixId *id_;
 };
 
 int main(int argc, char** argv)
@@ -128,7 +129,7 @@ int main(int argc, char** argv)
     Echo echo(keyChain, face);
     Name prefix("/testecho");
     cout << "Register prefix  " << prefix.toUri() << endl;
-    face.setInterestFilter(prefix, func_lib::ref(echo), func_lib::ref(echo));
+    echo.id_ = face.setInterestFilter(prefix, func_lib::ref(echo), func_lib::ref(echo));
     
     face.processEvents();
   } catch (std::exception& e) {
