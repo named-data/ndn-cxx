@@ -11,6 +11,7 @@
 #include "node.hpp"
 #include "transport/transport.hpp"
 #include "transport/unix-transport.hpp"
+#include "transport/tcp-transport.hpp"
 
 namespace ndn {
 
@@ -58,13 +59,13 @@ public:
   /**
    * Create a new Face for communication with an NDN hub at host:port using the default TcpTransport.
    * @param host The host of the NDN hub.
-   * @param port The port of the NDN hub. If omitted. use 6363.
+   * @param port The port or service name of the NDN hub. If omitted. use 6363.
    */
-  // Face(const char *host, unsigned short port = 6363)
-  // : node_(ptr_lib::shared_ptr<TcpTransport>(new TcpTransport(host, port)))
-  // {
-  // }
-    
+  Face(const std::string &host, const std::string &port = "6363")
+  : node_(ptr_lib::shared_ptr<TcpTransport>(new TcpTransport(host, port)))
+  {
+  }
+  
   /**
    * Send the Interest through the transport, read the entire response and call onData(interest, data).
    * @param interest A reference to the Interest.  This copies the Interest.

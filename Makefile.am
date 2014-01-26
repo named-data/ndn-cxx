@@ -111,6 +111,7 @@ libndn_cpp_dev_la_SOURCES = $(libndn_c_la_SOURCES) \
   src/security/verifier.cpp \
   src/security/sec-policy-no-verify.cpp \
   src/security/sec-policy-self-verify.cpp \
+  src/transport/tcp-transport.cpp \
   src/transport/unix-transport.cpp \
   src/util/blob-stream.hpp \
   src/util/blob.cpp \
