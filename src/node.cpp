@@ -147,6 +147,7 @@ Node::removeRegisteredPrefix(const RegisteredPrefixId *registeredPrefixId)
       Interest interest(interestName);
       interest.setScope(1);
       interest.setInterestLifetime(1000);
+      interest.setMustBeFresh(true);
 
       expressInterest(interest, OnData(), OnTimeout());
         
@@ -188,6 +189,7 @@ Node::registerPrefixHelper(const ptr_lib::shared_ptr<RegisteredPrefix> &prefixTo
   Interest interest(interestName);
   interest.setScope(1);
   interest.setInterestLifetime(1000);
+  interest.setMustBeFresh(true);
 
   expressInterest(interest,
                   func_lib::bind(&Node::registerPrefixFinal, this,
