@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <fstream>
+#include <boost/filesystem.hpp>
 #include "../util/logging.hpp"
 #include "../c/util/time.h"
 #include <ndn-cpp-dev/data.hpp>
@@ -88,22 +89,10 @@ static int sqlite3_bind_text(sqlite3_stmt* statement, int index, const string& v
 
 SecPublicInfoSqlite3::SecPublicInfoSqlite3()
 {
-  // Note: We don't use <filesystem> support because it is not "header-only" and require linking to libraries.
-  // TODO: Handle non-unix file system paths which don't use '/'.
-  const char* home = getenv("HOME");
-  if (!home || *home == '\0')
-    // Don't expect this to happen;
-    home = ".";
-  string homeDir(home);
-  if (homeDir[homeDir.size() - 1] == '/')
-    // Strip the ending '/'.
-    homeDir.erase(homeDir.size() - 1);
+  boost::filesystem::path identityDir = boost::filesystem::path(getenv("HOME")) / ".ndnx";
+  boost::filesystem::create_directories (identityDir);
   
-  string identityDir = homeDir + '/' + ".ndnx";
-  // TODO: Handle non-unix file systems which don't have "mkdir -p".
-  ::system(("mkdir -p " + identityDir).c_str());
-  
-  int res = sqlite3_open((identityDir + '/' + "ndnsec-public-info.db").c_str(), &database_);
+  int res = sqlite3_open((identityDir / "ndnsec-public-info.db").c_str(), &database_);
 
   if (res != SQLITE_OK)
     throw Error("identity DB cannot be opened/created");
