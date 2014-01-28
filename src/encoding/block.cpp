@@ -245,4 +245,27 @@ Block::encode()
   Tlv::readVarNumber(m_value_begin, m_value_end);
 }
 
+Block
+Block::blockFromValue() const
+{
+  if (value_size()==0)
+    throw Error("Underlying value buffer is empty");
+  
+  Buffer::const_iterator begin = value_begin(),
+    end = value_end();
+
+  Buffer::const_iterator element_begin = begin;
+      
+  uint32_t type = Tlv::readType(begin, end);
+  uint64_t length = Tlv::readVarNumber(begin, end);
+
+  if (end-begin != length)
+    throw Tlv::Error("TLV length mismatches buffer length");
+      
+  return Block(m_buffer,
+               type,
+               element_begin, end,
+               begin, end);
+}
+
 } // namespace ndn

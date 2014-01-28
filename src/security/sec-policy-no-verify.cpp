@@ -18,7 +18,7 @@ SecPolicyNoVerify::~SecPolicyNoVerify()
     
 ptr_lib::shared_ptr<ValidationRequest>
 SecPolicyNoVerify::checkVerificationPolicy
-  (const ptr_lib::shared_ptr<Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
+  (const ptr_lib::shared_ptr<const Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
 { 
   onVerified(); 
   return ptr_lib::shared_ptr<ValidationRequest>();
@@ -26,7 +26,7 @@ SecPolicyNoVerify::checkVerificationPolicy
 
 ptr_lib::shared_ptr<ValidationRequest>
 SecPolicyNoVerify::checkVerificationPolicy
-  (const ptr_lib::shared_ptr<Interest>& interest, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
+  (const ptr_lib::shared_ptr<const Interest>& interest, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
 { 
   onVerified(); 
   return ptr_lib::shared_ptr<ValidationRequest>();

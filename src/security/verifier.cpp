@@ -179,6 +179,48 @@ Verifier::verifySignature(const Data& data, const Signature& sig, const PublicKe
 }
 
 bool
+Verifier::verifySignature(const Interest &interest, const PublicKey &key)
+{
+  const Name &interestName = interest.getName();
+
+  if(interestName.size() < 3)
+    return false;
+
+  try{
+    const Block &nameBlock = interestName.wireEncode();
+
+    if(nameBlock.getAll().size() != interestName.size()) //HACK!! we should change it when Name::Component is changed to derive from Block.
+      const_cast<Block&>(nameBlock).parse();
+
+    Signature sig((++nameBlock.getAll().rbegin())->blockFromValue(), 
+                  (nameBlock.getAll().rbegin())->blockFromValue());
+
+    switch(sig.getType()){
+    case Signature::Sha256WithRsa:
+      {
+        SignatureSha256WithRsa sigSha256Rsa(sig);
+
+        return verifySignature(nameBlock.value(), 
+                               nameBlock.value_size() - (nameBlock.getAll().rbegin())->size(), 
+                               sigSha256Rsa, key);
+      }
+    default:
+      {
+        _LOG_DEBUG("verifySignature: Unknown signature type: " << sig.getType());
+        return false;
+      }
+    }
+  }catch(Signature::Error &e){
+    _LOG_DEBUG("verifySignature: " << e.what());
+    return false;
+  }catch(Block::Error &e){
+    _LOG_DEBUG("verifySignature: " << e.what());
+    return false;
+  }
+  return false;
+}
+
+bool
 Verifier::verifySignature(const Buffer &data, const Signature &sig, const PublicKey &key)
 {
   try{
@@ -239,8 +281,25 @@ Verifier::verifySignature(const Buffer& data, const SignatureSha256WithRsa& sig,
   RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
   result = verifier.VerifyMessage(data.buf(), data.size(),
 				  sig.getValue().value(), sig.getValue().value_size());
+  
+  return result;
+}
 
-  _LOG_DEBUG("Signature verified? " << data.getName().toUri() << " " << boolalpha << result);
+bool
+Verifier::verifySignature(const uint8_t* buf, const size_t size, const SignatureSha256WithRsa &sig, const PublicKey &key)
+{
+  using namespace CryptoPP;
+
+  bool result = false;
+  
+  RSA::PublicKey publicKey;
+  ByteQueue queue;
+
+  queue.Put(reinterpret_cast<const byte*>(key.get().buf()), key.get().size());
+  publicKey.Load(queue);
+
+  RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
+  result = verifier.VerifyMessage(buf, size, sig.getValue().value(), sig.getValue().value_size());
   
   return result;
 }

@@ -433,32 +433,27 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
 ptr_lib::shared_ptr<IdentityCertificate> 
 SecPublicInfoSqlite3::getCertificate(const Name &certificateName)
 {
-  if (doesCertificateExist(certificateName)) {
-    sqlite3_stmt *statement;
-
-    sqlite3_prepare_v2(database_, 
-                       "SELECT certificate_data FROM Certificate \
-                        WHERE cert_name=? AND not_before<datetime('now') AND not_after>datetime('now') and valid_flag=1",
-                       -1, &statement, 0);
-          
-    sqlite3_bind_text(statement, 1, certificateName.toUri(), SQLITE_TRANSIENT);
-      
-    int res = sqlite3_step(statement);
-      
-    ptr_lib::shared_ptr<IdentityCertificate> certificate = ptr_lib::make_shared<IdentityCertificate>();
-    if (res == SQLITE_ROW)
-      {
-        certificate->wireDecode(Block((const uint8_t*)sqlite3_column_blob(statement, 0), sqlite3_column_bytes(statement, 0)));
-      }
-    sqlite3_finalize(statement);
-      
-    return certificate;
-  }
-  else {
-    _LOG_DEBUG("Certificate does not exist!");
-    return ptr_lib::shared_ptr<IdentityCertificate>();
-  }
+  sqlite3_stmt *statement;
+  
+  sqlite3_prepare_v2(database_, 
+                     "SELECT certificate_data FROM Certificate WHERE cert_name=?",
+                     -1, &statement, 0);
+  
+  sqlite3_bind_text(statement, 1, certificateName.toUri(), SQLITE_TRANSIENT);
+  
+  int res = sqlite3_step(statement);
+  
+  ptr_lib::shared_ptr<IdentityCertificate> certificate;
+  if (res == SQLITE_ROW)
+    {
+      certificate = ptr_lib::make_shared<IdentityCertificate>();
+      certificate->wireDecode(Block((const uint8_t*)sqlite3_column_blob(statement, 0), sqlite3_column_bytes(statement, 0)));
+    }
+  sqlite3_finalize(statement);
+  
+  return certificate;
 }
+ 
 
 Name 
 SecPublicInfoSqlite3::getDefaultIdentity()

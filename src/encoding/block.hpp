@@ -184,6 +184,9 @@ public:
   inline size_t
   value_size() const;
 
+  Block
+  blockFromValue() const;
+
 protected:
   ConstBufferPtr m_buffer;
 

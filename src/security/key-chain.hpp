@@ -12,6 +12,7 @@
 #include "identity-certificate.hpp"
 #include "public-key.hpp"
 #include "signature-sha256-with-rsa.hpp"
+#include "../interest.hpp"
 
 //PublicInfo
 #include "sec-public-info-sqlite3.hpp"
@@ -35,8 +36,8 @@ namespace ndn {
 template<class Info, class Tpm>
 class KeyChainImpl : public Info, public Tpm
 {
+  typedef typename Info::Error InfoError;
 public:
-  // struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
   
   /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a self-signed certificate of the KSK.
@@ -53,7 +54,7 @@ public:
 
       ptr_lib::shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
   
-      Info::addCertificateAsDefault(*selfCert);
+      Info::addCertificateAsIdentityDefault(*selfCert);
 
       return keyName;
     }
@@ -110,7 +111,7 @@ public:
     
     ptr_lib::shared_ptr<PublicKey> pubKey = Info::getPublicKey(keyName);
     if (!pubKey)
-      throw std::runtime_error("Requested public key [" + keyName.toUri() + "] doesn't exist");
+      throw InfoError("Requested public key [" + keyName.toUri() + "] doesn't exist");
     
     ptr_lib::shared_ptr<IdentityCertificate> certificate =
       createIdentityCertificate(certificatePrefix,
@@ -167,10 +168,24 @@ public:
         Info::refreshDefaultCertificate();
 
         if(!Info::defaultCertificate())
-          throw std::runtime_error("Default IdentityCertificate cannot be determined");
+          throw InfoError("Default IdentityCertificate cannot be determined");
       }
 
     sign(data, *Info::defaultCertificate());
+  }
+
+  void
+  sign(Interest &interest)
+  {
+    if (!Info::defaultCertificate())
+      {
+        Info::refreshDefaultCertificate();
+
+        if(!Info::defaultCertificate())
+          throw InfoError("Default IdentityCertificate cannot be determined");
+      }
+
+    sign(interest, *Info::defaultCertificate());
   }
   
   /**
@@ -183,7 +198,7 @@ public:
   {
     ptr_lib::shared_ptr<IdentityCertificate> cert = Info::getCertificate(certificateName);
     if (!cert)
-      throw std::runtime_error("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
+      throw InfoError("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
 
     SignatureSha256WithRsa signature;
     signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
@@ -194,7 +209,27 @@ public:
   }
 
   void
-  sign(Data& data, const IdentityCertificate& certificate)
+  sign(Interest &interest, const Name &certificateName)
+  {
+    ptr_lib::shared_ptr<IdentityCertificate> cert = Info::getCertificate(certificateName);
+    if(!static_cast<bool>(cert))
+      throw InfoError("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
+
+    SignatureSha256WithRsa signature;
+    signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
+
+    Name interestName = interest.getName().append(Name::Component::fromNumber(getNow())).append(signature.getInfo());
+
+    signature.setValue(Tpm::signInTpm(interestName.wireEncode().value(), 
+                                      interestName.wireEncode().value_size(), 
+                                      cert->getPublicKeyName(),
+                                      DIGEST_ALGORITHM_SHA256));
+    
+    interest.getName().append(signature.getValue());
+  }
+
+  void
+  sign(Data &data, const IdentityCertificate& certificate)
   {
     SignatureSha256WithRsa signature;
     signature.setKeyLocator(certificate.getName().getPrefix(-1));
@@ -202,6 +237,23 @@ public:
 
     // For temporary usage, we support RSA + SHA256 only, but will support more.
     signDataInTpm(data, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+  }
+
+  void
+  sign(Interest &interest, const IdentityCertificate& certificate)
+  {
+    SignatureSha256WithRsa signature;
+    signature.setKeyLocator(certificate.getName().getPrefix(-1)); // implicit conversion should take care
+
+    Name &interestName = interest.getName();
+    interestName.append(Name::Component::fromNumber(getNow())).append(signature.getInfo());
+
+    signature.setValue(Tpm::signInTpm(interestName.wireEncode().value(), 
+                                      interestName.wireEncode().value_size(), 
+                                      certificate.getPublicKeyName(), 
+                                      DIGEST_ALGORITHM_SHA256));
+    
+    interestName.append(signature.getValue());
   }
   
   /**
@@ -215,8 +267,8 @@ public:
   sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
   {
     ptr_lib::shared_ptr<IdentityCertificate> cert = Info::getCertificate(certificateName);
-    if (!cert)
-      throw std::runtime_error("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
+    if (!static_cast<bool>(cert))
+      throw InfoError("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
 
     SignatureSha256WithRsa signature;
     signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
@@ -232,7 +284,7 @@ public:
    * @param identityName The identity name for the key to use for signing.  If omitted, infer the signing identity from the data packet name.
    */
   void 
-  signByIdentity(Data& data, const Name& identityName = Name())
+  signByIdentity(Data& data, const Name& identityName)
   {
     Name signingCertificateName = Info::getDefaultCertificateNameForIdentity(identityName);
 
@@ -241,6 +293,18 @@ public:
 
     sign(data, signingCertificateName);
   }
+
+  void 
+  signByIdentity(Interest& interest, const Name& identityName)
+  {
+    Name signingCertificateName = Info::getDefaultCertificateNameForIdentity(identityName);
+
+    if (signingCertificateName.getComponentCount() == 0)
+      throw std::runtime_error("No qualified certificate name found!");
+
+    sign(interest, signingCertificateName);
+  }
+
 
   /**
    * Sign the byte array using an identity name and return a Signature object.
@@ -269,7 +333,7 @@ public:
   selfSign(const Name& keyName)
   {
     if(keyName.empty())
-      throw std::runtime_error("Incorrect key name: " + keyName.toUri());
+      throw InfoError("Incorrect key name: " + keyName.toUri());
 
     ptr_lib::shared_ptr<IdentityCertificate> certificate = ptr_lib::make_shared<IdentityCertificate>();
     
@@ -278,7 +342,7 @@ public:
     
     ptr_lib::shared_ptr<PublicKey> pubKey = Info::getPublicKey(keyName);
     if (!pubKey)
-      throw std::runtime_error("Requested public key [" + keyName.toUri() + "] doesn't exist");
+      throw InfoError("Requested public key [" + keyName.toUri() + "] doesn't exist");
   
     certificate->setName(certificateName);
     certificate->setNotBefore(getNow());
@@ -341,7 +405,7 @@ private:
     }
     
     if (i >= certificatePrefix.size())
-      throw std::runtime_error("Identity Certificate Prefix does not have a KEY component");
+      throw InfoError("Identity Certificate Prefix does not have a KEY component");
 
     result.append(certificatePrefix.getSubName(0, i));
     result.append(certificatePrefix.getSubName(i + 1, certificatePrefix.size()-i-1));

@@ -83,8 +83,11 @@ public:
   /*****************************************
    *      verifySignature method set       *
    *****************************************/
-    static bool
+  static bool
   verifySignature(const Data &data, const Signature &sig, const PublicKey &publicKey);
+
+  static bool
+  verifySignature(const Interest &interest, const PublicKey &publicKey);
 
   static bool
   verifySignature(const Buffer &data, const Signature &sig, const PublicKey &publicKey);
@@ -94,6 +97,10 @@ public:
 
   static bool
   verifySignature(const Buffer &data, const SignatureSha256WithRsa &sig, const PublicKey &publicKey);
+  
+  static bool
+  verifySignature(const uint8_t* buf, const size_t size, const SignatureSha256WithRsa &sig, const PublicKey &publicKey);
+
 
 public:
   static const ptr_lib::shared_ptr<SecPolicy>     DefaultPolicy;
