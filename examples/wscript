@@ -1,0 +1,12 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+top = '..'
+
+def build(bld):
+    for app in bld.path.ant_glob('*.cpp'):
+        bld(features=['cxx', 'cxxprogram'],
+            target = '%s' % (str(app.change_ext('','.cpp'))),
+            source = app,
+            use = 'ndn-cpp-dev',
+            includes = "../include",
+            )        
