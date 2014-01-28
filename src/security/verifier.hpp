@@ -11,12 +11,24 @@
 
 #include "../data.hpp"
 #include "../face.hpp"
-#include "sec-policy.hpp"
 #include "validation-request.hpp"
 #include "public-key.hpp"
 #include "signature-sha256-with-rsa.hpp"
 
 namespace ndn {
+
+class SecPolicy;
+
+/**
+ * An OnVerified function object is used to pass a callback to verifyData to report a successful verification.
+ */
+typedef func_lib::function<void()> OnVerified;
+
+/**
+ * An OnVerifyFailed function object is used to pass a callback to verifyData to report a failed verification.
+ */
+typedef func_lib::function<void()> OnVerifyFailed;
+
   
 /**
  * Verifier is one of the main classes of the security librar .
@@ -36,7 +48,7 @@ public:
    * Setting face is necessary for verifier operation that involve fetching data.
    */
   void
-  setFace(const ptr_lib::shared_ptr<Face> &face) { face_ = face; }
+  setFace(const ptr_lib::shared_ptr<Face> &face) { m_face = face; }
   
   /**
    * @brief Get the policy.
@@ -45,10 +57,10 @@ public:
   inline SecPolicy&
   policy()
   {
-    if (!policy_)
+    if (static_cast<bool>(m_policy))
       throw Error("policy is not assigned to the KeyChain");
 
-    return *policy_;
+    return *m_policy;
   }
 
 
@@ -61,8 +73,12 @@ public:
    * @param onVerifyFailed If the signature check fails, this calls onVerifyFailed(data).
    */
   void
-  verifyData
-    (const ptr_lib::shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed, int stepCount = 0);
+  verify
+  (const ptr_lib::shared_ptr<const Data> &data, const OnVerified &onVerified, const OnVerifyFailed &onVerifyFailed, int stepCount = 0);
+
+  void
+  verify
+  (const ptr_lib::shared_ptr<const Interest> &Interest, const OnVerified &onVerified, const OnVerifyFailed &onVerifyFailed, int stepCount = 0);
 
   /*****************************************
    *      verifySignature method set       *
@@ -89,12 +105,11 @@ private:
   
   void
   onCertificateInterestTimeout
-    (const ptr_lib::shared_ptr<const Interest> &interest, int retry, const OnVerifyFailed& onVerifyFailed, 
-     const ptr_lib::shared_ptr<Data> &data, ptr_lib::shared_ptr<ValidationRequest> nextStep);
+    (const ptr_lib::shared_ptr<const Interest> &interest, int retry, const OnVerifyFailed& onVerifyFailed, ptr_lib::shared_ptr<ValidationRequest> nextStep);
 
 private:
-  ptr_lib::shared_ptr<SecPolicy>     policy_;
-  ptr_lib::shared_ptr<Face>        face_;
+  ptr_lib::shared_ptr<SecPolicy>         m_policy;
+  ptr_lib::shared_ptr<Face>              m_face;
 };
 
 }

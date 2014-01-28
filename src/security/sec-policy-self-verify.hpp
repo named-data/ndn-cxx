@@ -37,53 +37,32 @@ public:
   ~SecPolicySelfVerify();
 
   /**
-   * Never skip verification.
-   * @param data The received data packet.
-   * @return false.
-   */
-  virtual bool 
-  skipVerifyAndTrust(const Data& data);
-
-  /**
-   * Always return true to use the self-verification rule for the received data.
-   * @param data The received data packet.
-   * @return true.
-   */
-  virtual bool
-  requireVerify(const Data& data);
-
-  /**
-   * Use the public key DER in the data packet's KeyLocator (if available) or look in the IdentityStorage for the 
-   * public key with the name in the KeyLocator (if available) and use it to verify the data packet.  If the public key can't 
-   * be found, call onVerifyFailed.
+   * Check whether the received data packet complies with the verification policy, and get the indication of the next verification step.
+   * If there is no next verification step, that imlies policy MUST have already made the verification decision.
+   * i.e., either onVerified or onVerifyFailed callback is invoked.
    * @param data The Data object with the signature to check.
    * @param stepCount The number of verification steps that have been done, used to track the verification progress.
-   * (stepCount is ignored.)
    * @param onVerified If the signature is verified, this calls onVerified(data).
-   * @param onVerifyFailed If the signature check fails or can't find the public key, this calls onVerifyFailed(data).
-   * @return null for no further step for looking up a certificate chain.
+   * @param onVerifyFailed If the signature check fails, this calls onVerifyFailed(data).
+   * @return the indication of next verification step, null if there is no further step.
    */
   virtual ptr_lib::shared_ptr<ValidationRequest>
   checkVerificationPolicy
     (const ptr_lib::shared_ptr<Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed);
-    
+
   /**
-   * Override to always indicate that the signing certificate name and data name satisfy the signing policy.
-   * @param dataName The name of data to be signed.
-   * @param certificateName The name of signing certificate.
-   * @return true to indicate that the signing certificate can be used to sign the data.
+   * Check whether the received interest packet complies with the verification policy, and get the indication of the next verification step.
+   * If there is no next verification step, that implies policy MUST have already made the verification decision.
+   * i.e., either onVerified or onVerifyFailed callback is invoked.
+   * @param data The Data object with the signature to check.
+   * @param stepCount The number of verification steps that have been done, used to track the verification progress.
+   * @param onVerified If the signature is verified, this calls onVerified(data).
+   * @param onVerifyFailed If the signature check fails, this calls onVerifyFailed(data).
+   * @return the indication of next verification step, null if there is no further step.
    */
-  virtual bool 
-  checkSigningPolicy(const Name& dataName, const Name& certificateName);
-    
-  /**
-   * Override to indicate that the signing identity cannot be inferred.
-   * @param dataName The name of data to be signed.
-   * @return An empty name because cannot infer. 
-   */
-  virtual Name 
-  inferSigningIdentity(const Name& dataName);
-  
+  virtual ptr_lib::shared_ptr<ValidationRequest>
+  checkVerificationPolicy
+    (const ptr_lib::shared_ptr<Interest>& interest, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed);
 };
 
 }

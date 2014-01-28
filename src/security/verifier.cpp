@@ -27,7 +27,6 @@
 #include "../util/logging.hpp"
 
 using namespace std;
-using namespace ndn::func_lib;
 #if NDN_CPP_HAVE_CXX11
 // In the std library, the placeholders are in a different namespace than boost.
 using namespace ndn::func_lib::placeholders;
@@ -39,9 +38,9 @@ namespace ndn {
 const ptr_lib::shared_ptr<SecPolicy>     Verifier::DefaultPolicy     = ptr_lib::shared_ptr<SecPolicy>();
 
 Verifier::Verifier(const ptr_lib::shared_ptr<SecPolicy>     &policy     /* = DefaultPolicy */)                   
-  : policy_(policy)
+  : m_policy(policy)
 {
-  if (policy_ == DefaultPolicy)
+  if (m_policy == DefaultPolicy)
     {
       // #ifdef USE_SIMPLE_POLICY_MANAGER
       //   Ptr<SimplePolicyManager> policyManager = Ptr<SimplePolicyManager>(new SimplePolicyManager());
@@ -69,49 +68,91 @@ Verifier::Verifier(const ptr_lib::shared_ptr<SecPolicy>     &policy     /* = Def
 }
 
 void
-Verifier::verifyData
-  (const ptr_lib::shared_ptr<Data>& data, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed, int stepCount)
+Verifier::verify(const ptr_lib::shared_ptr<const Interest> &interest, 
+                 const OnVerified &onVerified, 
+                 const OnVerifyFailed &onVerifyFailed,
+                 int stepCount)
 {
-  if (policy().requireVerify(*data)) {
-    ptr_lib::shared_ptr<ValidationRequest> nextStep = policy_->checkVerificationPolicy
-      (data, stepCount, onVerified, onVerifyFailed);
-    if (static_cast<bool>(nextStep))
-      {
-        if (!face_)
-          throw Error("Face should be set prior to verifyData method to call");
-        
-        face_->expressInterest
-          (*nextStep->interest_, 
-           bind(&Verifier::onCertificateData, this, _1, _2, nextStep), 
-           bind(&Verifier::onCertificateInterestTimeout, this, _1, nextStep->retry_, onVerifyFailed, data, nextStep));
-      }
-  }
-  else if (policy().skipVerifyAndTrust(*data))
-    onVerified(data);
+  //It does not make sense to verify Interest without specified policy, verification must fail!
+  if(!static_cast<bool>(m_policy))
+    onVerifyFailed();
   else
-    onVerifyFailed(data);
+    {
+      //check verification policy 
+      ptr_lib::shared_ptr<ValidationRequest> nextStep = m_policy->checkVerificationPolicy(interest, stepCount, onVerified, onVerifyFailed);
+      if (static_cast<bool>(nextStep))
+        {
+          if(!m_face)
+            throw Error("Face should be set prior to verify method to call");
+
+          m_face->expressInterest
+            (*nextStep->m_interest,
+             func_lib::bind(&Verifier::onCertificateData, this, _1, _2, nextStep), 
+             func_lib::bind(&Verifier::onCertificateInterestTimeout, this, _1, nextStep->m_retry, onVerifyFailed, nextStep));
+        }
+      else
+        {
+          //If there is no nextStep, that means InterestPolicy has already been able to verify the Interest.
+          //No more further processes.
+        }
+    }
 }
 
 void
-Verifier::onCertificateData(const ptr_lib::shared_ptr<const Interest> &interest, const ptr_lib::shared_ptr<Data> &data, ptr_lib::shared_ptr<ValidationRequest> nextStep)
+Verifier::verify(const ptr_lib::shared_ptr<const Data> &data, 
+                 const OnVerified &onVerified, 
+                 const OnVerifyFailed &onVerifyFailed, 
+                 int stepCount)
+{
+  //It does not make sense to verify Interest without specified policy, verification must fail!
+  if(!static_cast<bool>(m_policy))
+    onVerifyFailed();
+  else
+    {
+      //check verification policy 
+      ptr_lib::shared_ptr<ValidationRequest> nextStep = m_policy->checkVerificationPolicy(data, stepCount, onVerified, onVerifyFailed);
+      if (static_cast<bool>(nextStep))
+        {
+          if(!m_face)
+            throw Error("Face should be set prior to verify method to call");
+
+          m_face->expressInterest
+            (*nextStep->m_interest,
+             func_lib::bind(&Verifier::onCertificateData, this, _1, _2, nextStep), 
+             func_lib::bind(&Verifier::onCertificateInterestTimeout, this, _1, nextStep->m_retry, onVerifyFailed, nextStep));
+        }
+      else
+        {
+          //If there is no nextStep, that means InterestPolicy has already been able to verify the Interest.
+          //No more further processes.
+        }
+    }
+}
+
+void
+Verifier::onCertificateData(const ptr_lib::shared_ptr<const Interest> &interest, 
+                            const ptr_lib::shared_ptr<Data> &data, 
+                            ptr_lib::shared_ptr<ValidationRequest> nextStep)
 {
   // Try to verify the certificate (data) according to the parameters in nextStep.
-  verifyData(data, nextStep->onVerified_, nextStep->onVerifyFailed_, nextStep->stepCount_);
+  verify(data, 
+         func_lib::bind(nextStep->m_onVerified, data),
+         func_lib::bind(nextStep->m_onVerifyFailed, data),
+         nextStep->m_stepCount);
 }
 
 void
 Verifier::onCertificateInterestTimeout
-  (const ptr_lib::shared_ptr<const Interest> &interest, int retry, const OnVerifyFailed& onVerifyFailed, const ptr_lib::shared_ptr<Data> &data, 
-   ptr_lib::shared_ptr<ValidationRequest> nextStep)
+  (const ptr_lib::shared_ptr<const Interest> &interest, int retry, const OnVerifyFailed& onVerifyFailed, ptr_lib::shared_ptr<ValidationRequest> nextStep)
 {
   if (retry > 0)
     // Issue the same expressInterest as in verifyData except decrement retry.
-    face_->expressInterest
+    m_face->expressInterest
       (*interest, 
-       bind(&Verifier::onCertificateData, this, _1, _2, nextStep), 
-       bind(&Verifier::onCertificateInterestTimeout, this, _1, retry - 1, onVerifyFailed, data, nextStep));
+       func_lib::bind(&Verifier::onCertificateData, this, _1, _2, nextStep), 
+       func_lib::bind(&Verifier::onCertificateInterestTimeout, this, _1, retry - 1, onVerifyFailed, nextStep));
   else
-    onVerifyFailed(data);
+    onVerifyFailed();
 }
 
 bool

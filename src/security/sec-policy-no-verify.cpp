@@ -15,37 +15,22 @@ namespace ndn {
 SecPolicyNoVerify::~SecPolicyNoVerify()
 {
 }
-
-bool 
-SecPolicyNoVerify::skipVerifyAndTrust(const Data& data)
-{ 
-  return true; 
-}
-
-bool
-SecPolicyNoVerify::requireVerify(const Data& data)
-{ 
-  return false; 
-}
     
 ptr_lib::shared_ptr<ValidationRequest>
 SecPolicyNoVerify::checkVerificationPolicy
   (const ptr_lib::shared_ptr<Data>& data, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
 { 
-  onVerified(data); 
+  onVerified(); 
   return ptr_lib::shared_ptr<ValidationRequest>();
 }
 
-bool 
-SecPolicyNoVerify::checkSigningPolicy(const Name& dataName, const Name& certificateName)
+ptr_lib::shared_ptr<ValidationRequest>
+SecPolicyNoVerify::checkVerificationPolicy
+  (const ptr_lib::shared_ptr<Interest>& interest, int stepCount, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed)
 { 
-  return true; 
+  onVerified(); 
+  return ptr_lib::shared_ptr<ValidationRequest>();
 }
 
-Name 
-SecPolicyNoVerify::inferSigningIdentity(const Name& dataName)
-{ 
-  return Name(); 
-}
 
 }

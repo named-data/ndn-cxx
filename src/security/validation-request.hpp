@@ -13,34 +13,34 @@
 
 namespace ndn {
 
-/**
- * An OnVerified function object is used to pass a callback to verifyData to report a successful verification.
- */
-typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerified;
-
-/**
- * An OnVerifyFailed function object is used to pass a callback to verifyData to report a failed verification.
- */
-typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>& data)> OnVerifyFailed;
-
-
 class ValidationRequest {
 public:
+  /**
+   * An OnCertVerified function object is used to pass a callback to to report a successful verification.
+   */
+  typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>&)> OnCertVerified;
+  
+  /**
+   * An OnCertVerifyFailed function object is used to pass a callback to to report a failed verification.
+   */
+  typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>&)> OnCertVerifyFailed;
+
+
   ValidationRequest
-    (const ptr_lib::shared_ptr<Interest> &interest, const OnVerified& onVerified, const OnVerifyFailed& onVerifyFailed,
+    (const ptr_lib::shared_ptr<Interest> &interest, const OnCertVerified& onVerified, const OnCertVerifyFailed& onVerifyFailed,
      int retry, int stepCount)
-  : interest_(interest), onVerified_(onVerified), onVerifyFailed_(onVerifyFailed), retry_(retry), stepCount_(stepCount)
+  : m_interest(interest), m_onVerified(onVerified), m_onVerifyFailed(onVerifyFailed), m_retry(retry), m_stepCount(stepCount)
   {
   }
     
   virtual
   ~ValidationRequest() {}
 
-  ptr_lib::shared_ptr<Interest> interest_; // An interest packet to fetch the requested data.
-  OnVerified onVerified_;                  // A callback function if the requested certificate has been validated.
-  OnVerifyFailed onVerifyFailed_;          // A callback function if the requested certificate cannot be validated.
-  int retry_;                              // The number of retrials when there is an interest timeout.
-  int stepCount_;
+  ptr_lib::shared_ptr<Interest> m_interest; // An interest packet to fetch the requested data.
+  OnCertVerified m_onVerified;                  // A callback function if the requested certificate has been validated.
+  OnCertVerifyFailed m_onVerifyFailed;          // A callback function if the requested certificate cannot be validated.
+  int m_retry;                              // The number of retrials when there is an interest timeout.
+  int m_stepCount;
 };
 
 }
