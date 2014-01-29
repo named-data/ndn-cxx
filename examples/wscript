@@ -8,5 +8,5 @@ def build(bld):
             target = '%s' % (str(app.change_ext('','.cpp'))),
             source = app,
             use = 'ndn-cpp-dev',
-            install_prefix = None,
+            install_path = None,
             )        

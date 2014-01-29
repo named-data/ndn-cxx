@@ -103,8 +103,8 @@ def configure(conf):
 
 def build (bld):
     libndn_cpp = bld (
-        features=['cxx', 'cxxshlib', 'cxxstlib'],
-        vnum = "0.3.0",
+        features=['cxx', 'cxxstlib'], # 'cxxshlib',
+        # vnum = "0.3.0",
         target="ndn-cpp-dev",
         name = "ndn-cpp-dev",
         source = bld.path.ant_glob('src/**/*.cpp',
