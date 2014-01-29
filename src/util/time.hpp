@@ -8,10 +8,29 @@
 #ifndef NDN_TIME_HPP
 #define NDN_TIME_HPP
 
-#include <stdexcept>
-#include "../c/util/time.h"
+#include "ndn-cpp-dev/common.hpp"
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace ndn {
+
+const boost::posix_time::ptime UNIX_EPOCH_TIME =
+  boost::posix_time::ptime (boost::gregorian::date (1970, boost::gregorian::Jan, 1));
+
+/**
+ * @brief Get the current time in milliseconds since 1/1/1970, including fractions of a millisecond
+ */
+inline MillisecondsSince1970 
+getNowMilliseconds()
+{
+  return (boost::posix_time::microsec_clock::universal_time() - UNIX_EPOCH_TIME).total_milliseconds();
+}
+
+inline MillisecondsSince1970 
+ndn_getNowMilliseconds()
+{
+  return getNowMilliseconds();
+}
+
 
 /**
  * Convert to the ISO string representation of the time.
@@ -21,12 +40,13 @@ namespace ndn {
 inline std::string
 toIsoString(const MillisecondsSince1970& time)
 {
-  char isoString[25];
-  ndn_Error error;
-  if ((error = ndn_toIsoString(time, isoString)))
-    throw std::runtime_error(ndn_getErrorString(error));
-  
-  return isoString;
+  boost::posix_time::ptime boostTime = UNIX_EPOCH_TIME + boost::posix_time::milliseconds(time);
+
+  /// @todo Determine whether this is necessary at all
+  if ((time % 1000) == 0)
+    return boost::posix_time::to_iso_string(boostTime) + ".000000"; 
+  else
+    return boost::posix_time::to_iso_string(boostTime);
 }
   
 /**
@@ -37,12 +57,9 @@ toIsoString(const MillisecondsSince1970& time)
 inline MillisecondsSince1970
 fromIsoString(const std::string& isoString)
 {
-  MillisecondsSince1970 milliseconds;
-  ndn_Error error;
-  if ((error = ndn_fromIsoString(isoString.c_str(), &milliseconds)))
-    throw std::runtime_error(ndn_getErrorString(error));
+  boost::posix_time::ptime boostTime = boost::posix_time::from_iso_string(isoString);
   
-  return milliseconds;
+  return (boostTime-UNIX_EPOCH_TIME).total_milliseconds();
 }
 
 } // namespace ndn

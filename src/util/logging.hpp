@@ -64,11 +64,10 @@ INIT_LOGGERS ();
 
 #ifdef _DEBUG
 
-#include <sys/time.h>
 #include <iostream>
 
 #define _LOG_DEBUG(x) \
-  { time_t now = time(0); std::string s = std::string(ctime(&now)); std::clog << s.substr(0, s.size() - 1) << " " << x << std::endl; }
+  { std::clog << s.substr(0, s.size() - 1) << " " << x << std::endl; }
 
 #else
 #define _LOG_DEBUG(x)

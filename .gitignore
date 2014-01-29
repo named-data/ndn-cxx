@@ -83,3 +83,9 @@ examples/producer
 
 # pkg-config file
 libndn-cpp-dev.pc
+
+# waf build system
+.waf-1*
+.lock*
+build/
+.waf-tools/*.pyc

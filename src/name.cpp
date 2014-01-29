@@ -8,10 +8,9 @@
 
 #include <stdexcept>
 #include <algorithm>
-#include <string.h>
+#include <cstring>
 #include <ndn-cpp-dev/name.hpp>
-#include "c/util/ndn_memory.h"
-#include "c/util/time.h"
+#include "util/time.hpp"
 
 #include "util/string-helper.hpp"
 
@@ -91,7 +90,7 @@ Name::Component::compare(const Name::Component& other) const
     return 1;
 
   // The components are equal length.  Just do a byte compare.  
-  return ndn_memcmp(getValue().buf(), other.getValue().buf(), getValue().size());
+  return std::memcmp(getValue().buf(), other.getValue().buf(), getValue().size());
 }
 
 // const Block &

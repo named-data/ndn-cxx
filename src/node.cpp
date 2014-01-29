@@ -6,7 +6,7 @@
  */
 
 #include <stdexcept>
-#include "c/util/time.h"
+#include "util/time.hpp"
 
 #include <ndn-cpp-dev/forwarding-entry.hpp>
 #include <ndn-cpp-dev/face-instance.hpp>

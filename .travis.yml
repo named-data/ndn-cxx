@@ -8,16 +8,14 @@ notifications:
 before_install:
   - travis_retry sudo add-apt-repository -y ppa:named-data/ppa
   - travis_retry sudo apt-get update -qq
-  - travis_retry sudo apt-get install -qq autotools-dev
   - travis_retry sudo apt-get install -qq ndnx-dev
   - travis_retry sudo apt-get install -qq libboost-all-dev
   - travis_retry sudo apt-get install -qq libcrypto++-dev
   - travis_retry sudo apt-get install -qq libsqlite3-dev
 script:
-  - autoreconf -f --install
-  - ./configure --with-tests
-  - make
-  - sudo make install
+  - ./waf configure --with-tests
+  - ./waf -j1
+  - sudo ./waf install
   - sudo ldconfig
   - #
   - # Some tests now require daemon to run (and daemon needs the library to be compiled)
@@ -32,4 +30,4 @@ script:
   - ndnd-tlv-start
   - sleep 1
   - #
-  - ./tests_boost/unit-tests -l all
+  - ./build/tests/unit-tests -l all
