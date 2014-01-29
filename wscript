@@ -97,6 +97,7 @@ def configure(conf):
                 conf.env['USE_SYSTEM_BOOST'] = True
                 conf.define('USE_SYSTEM_BOOST', 1)
 
+    conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
 
     conf.write_config_header('src/ndn-cpp-config.h', define_prefix='NDN_CPP_')
@@ -109,9 +110,10 @@ def build (bld):
         name = "ndn-cpp-dev",
         source = bld.path.ant_glob('src/**/*.cpp',
                                    excl = ['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
-        use = 'BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT',
+        use = 'BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT PTHREAD',
         includes = "src",
         export_includes = "src",
+        install_path = '${LIBDIR}',
         )
 
     if Utils.unversioned_sys_platform () == "darwin":
