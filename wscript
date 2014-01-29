@@ -109,7 +109,7 @@ def build (bld):
         name = "ndn-cpp-dev",
         source = bld.path.ant_glob('src/**/*.cpp',
                                    excl = ['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
-        use = 'BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3',
+        use = 'BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT',
         includes = "src",
         export_includes = "src",
         )
