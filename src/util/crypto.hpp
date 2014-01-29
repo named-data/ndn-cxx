@@ -7,7 +7,7 @@
 #ifndef NDN_UTIL_CRYPTO_HPP
 #define NDN_UTIL_CRYPTO_HPP
 
-#include "ndn-cpp-dev/common.hpp"
+#include "common.hpp"
 
 #include <openssl/ssl.h>
 #include <openssl/rsa.h>

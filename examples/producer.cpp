@@ -5,9 +5,12 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp-dev/face.hpp>
+// correct way to include NDN-CPP headers
+// #include <ndn-cpp-dev/face.hpp>
+// #include <ndn-cpp-dev/security/key-chain.hpp>
 
-#include <ndn-cpp-dev/security/key-chain.hpp>
+#include "face.hpp"
+#include "security/key-chain.hpp"
 
 #if NDN_CPP_HAVE_CXX11
 // In the std library, the placeholders are in a different namespace than boost.

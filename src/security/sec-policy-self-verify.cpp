@@ -9,8 +9,8 @@
 #ifdef TEMPRORARILY_DISABLED
 
 #include "../c/util/crypto.h"
-#include <ndn-cpp-dev/security/identity-storage.hpp>
-#include <ndn-cpp-dev/security/sec-policy-self-verify.hpp>
+#include "security/identity-storage.hpp"
+#include "security/sec-policy-self-verify.hpp"
 
 using namespace std;
 

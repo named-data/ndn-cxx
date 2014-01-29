@@ -6,8 +6,8 @@
  */
 
 #include <stdexcept>
-#include <ndn-cpp-dev/common.hpp>
-#include <ndn-cpp-dev/interest.hpp>
+#include "common.hpp"
+#include "interest.hpp"
 
 #if __clang__
 #pragma clang diagnostic push

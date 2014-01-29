@@ -7,7 +7,7 @@
  */
 
 // Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_SQLITE3.
-#include <ndn-cpp-dev/ndn-cpp-config.h>
+#include "ndn-cpp-config.h"
 #ifdef NDN_CPP_HAVE_SQLITE3
 
 #include <sqlite3.h>
@@ -19,10 +19,10 @@
 #include "../util/logging.hpp"
 #include "../util/time.hpp"
 
-#include <ndn-cpp-dev/data.hpp>
-#include <ndn-cpp-dev/security/identity-certificate.hpp>
-#include <ndn-cpp-dev/security/sec-public-info-sqlite3.hpp>
-#include <ndn-cpp-dev/security/signature-sha256-with-rsa.hpp>
+#include "data.hpp"
+#include "security/identity-certificate.hpp"
+#include "security/sec-public-info-sqlite3.hpp"
+#include "security/signature-sha256-with-rsa.hpp"
 
 
 INIT_LOGGER("BasicKeyMetaInfo");

@@ -18,7 +18,7 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-#include <ndn-cpp-dev/security/certificate-subject-description.hpp>
+#include "security/certificate-subject-description.hpp"
 #include <cryptopp/asn.h>
 
 using namespace std;

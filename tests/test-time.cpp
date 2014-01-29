@@ -5,7 +5,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <../src/util/time.hpp>
+#include "util/time.hpp"
 
 BOOST_AUTO_TEST_SUITE(TestTime)
 

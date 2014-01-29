@@ -11,7 +11,7 @@
 #pragma clang diagnostic ignored "-Wtautological-compare"
 #endif
 
-#include <ndn-cpp-dev/security/sec-tpm-file.hpp>
+#include "security/sec-tpm-file.hpp"
 
 #include <string>
 

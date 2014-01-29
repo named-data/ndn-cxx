@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <sstream>
 
-#include <ndn-cpp-dev/encoding/oid.hpp>
+#include "encoding/oid.hpp"
 #include <cryptopp/asn.h>
 
 using namespace std;

@@ -5,7 +5,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp-dev/face.hpp>
+// correct way to include NDN-CPP headers
+// #include <ndn-cpp-dev/face.hpp>
+#include "face.hpp"
+
 #include <stdexcept>
 
 #if NDN_CPP_HAVE_CXX11

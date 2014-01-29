@@ -5,7 +5,7 @@
  */
 
 #include <boost/test/unit_test.hpp>
-#include <ndn-cpp-dev/face.hpp>
+#include "face.hpp"
 
 using namespace std;
 using namespace ndn;

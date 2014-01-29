@@ -18,9 +18,9 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-#include <ndn-cpp-dev/common.hpp>
+#include "common.hpp"
 
-#include <ndn-cpp-dev/security/certificate.hpp>
+#include "security/certificate.hpp"
 
 #include "../util/logging.hpp"
 #include "../util/time.hpp"

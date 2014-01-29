@@ -4,7 +4,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "ndn-cpp-dev/util/crypto.hpp"
+#include "util/crypto.hpp"
 
 namespace ndn {
 

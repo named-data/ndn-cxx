@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <cstring>
-#include <ndn-cpp-dev/name.hpp>
+#include "name.hpp"
 #include "util/time.hpp"
 
 #include "util/string-helper.hpp"

@@ -9,7 +9,7 @@
 #ifndef NDN_LOGGING_HPP
 #define NDN_LOGGING_HPP
 
-#include <ndn-cpp-dev/common.hpp>
+#include "common.hpp"
 
 #ifdef NDN_CPP_HAVE_LOG4CXX
 

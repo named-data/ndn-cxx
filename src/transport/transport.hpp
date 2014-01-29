@@ -8,7 +8,7 @@
 #ifndef NDN_TRANSPORT_HPP
 #define NDN_TRANSPORT_HPP
 
-#include <ndn-cpp-dev/common.hpp>
+#include "common.hpp"
 
 #include <vector>
 #include <boost/asio.hpp>

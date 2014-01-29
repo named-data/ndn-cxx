@@ -6,7 +6,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp-dev/security/sec-policy-no-verify.hpp>
+#include "security/sec-policy-no-verify.hpp"
 
 using namespace std;
 

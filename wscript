@@ -97,7 +97,7 @@ def configure(conf):
                 conf.env['USE_SYSTEM_BOOST'] = True
                 conf.define('USE_SYSTEM_BOOST', 1)
 
-    conf.write_config_header('include/ndn-cpp-dev/ndn-cpp-config.h', define_prefix='NDN_CPP_')
+    conf.write_config_header('src/ndn-cpp-config.h', define_prefix='NDN_CPP_')
 
 def build (bld):
     libndn_cpp = bld (
@@ -108,8 +108,8 @@ def build (bld):
         source = bld.path.ant_glob('src/**/*.cpp',
                                    excl = ['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
         use = 'BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3',
-        includes = "include",
-        export_includes = "include",
+        includes = "src",
+        export_includes = "src",
         )
 
     if Utils.unversioned_sys_platform () == "darwin":
@@ -157,12 +157,9 @@ def build (bld):
       
     headers = bld.path.ant_glob(['src/**/*.hpp',
                                  'src/**/*.h'])
-    bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], headers, relative_trick=True, cwd=bld.path.find_node('src'))
+    bld.install_files("%s/src" % bld.env['INCLUDEDIR'], headers, relative_trick=True, cwd=bld.path.find_node('src'))
 
-    bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], bld.path.find_resource('include/ndn-cpp-dev/ndn-cpp-config.h'))
-
-    headers = bld.path.ant_glob(['include/**/*.hpp', 'include/**/*.h'])
-    bld.install_files("%s" % bld.env['INCLUDEDIR'], headers, relative_trick=True, cwd=bld.path.find_node('include'))
+    bld.install_files("%s/src" % bld.env['INCLUDEDIR'], bld.path.find_resource('ndn-cpp-config.h'))
 
 @Configure.conf
 def add_supported_cxxflags(self, cxxflags):

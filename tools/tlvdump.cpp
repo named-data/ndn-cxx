@@ -5,8 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <ndn-cpp-dev/face.hpp>
-#include <ndn-cpp-dev/encoding/block.hpp>
+#include "face.hpp"
+#include "encoding/block.hpp"
 
 #include <iomanip>
 #include <fstream>

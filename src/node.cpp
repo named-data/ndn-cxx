@@ -8,14 +8,14 @@
 #include <stdexcept>
 #include "util/time.hpp"
 
-#include <ndn-cpp-dev/forwarding-entry.hpp>
-#include <ndn-cpp-dev/face-instance.hpp>
-#include <ndn-cpp-dev/node.hpp>
+#include "forwarding-entry.hpp"
+#include "face-instance.hpp"
+#include "node.hpp"
 
 #include "util/ndnd-id-fetcher.hpp"
 
-#include <ndn-cpp-dev/security/signature-sha256-with-rsa.hpp>
-#include <ndn-cpp-dev/status-response.hpp>
+#include "security/signature-sha256-with-rsa.hpp"
+#include "status-response.hpp"
 
 using namespace std;
 #if NDN_CPP_HAVE_CXX11

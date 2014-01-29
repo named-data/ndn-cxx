@@ -6,8 +6,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <ndn-cpp-dev/data.hpp>
-#include <ndn-cpp-dev/security/key-chain.hpp>
+#include "data.hpp"
+#include "security/key-chain.hpp"
 
 #include <fstream>
 

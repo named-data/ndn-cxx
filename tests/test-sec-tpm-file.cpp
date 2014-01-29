@@ -18,7 +18,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <ndn-cpp-dev/security/key-chain.hpp>
+#include "security/key-chain.hpp"
 #include <cryptopp/rsa.h>
 
 using namespace std;

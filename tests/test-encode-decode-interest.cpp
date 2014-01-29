@@ -6,7 +6,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <ndn-cpp-dev/interest.hpp>
+#include "interest.hpp"
 
 using namespace std;
 using namespace ndn;

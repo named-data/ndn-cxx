@@ -5,8 +5,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <ndn-cpp-dev/security/certificate.hpp>
-#include <ndn-cpp-dev/security/public-key.hpp>
+#include "security/certificate.hpp"
+#include "security/public-key.hpp"
 
 #if __clang__
 #pragma clang diagnostic push

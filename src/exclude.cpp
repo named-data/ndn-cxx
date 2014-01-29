@@ -8,7 +8,7 @@
  * Author: Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  */
 
-#include <ndn-cpp-dev/exclude.hpp>
+#include "exclude.hpp"
 
 namespace ndn
 {

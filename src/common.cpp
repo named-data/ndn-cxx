@@ -6,7 +6,7 @@
  */
 
 #include <sstream>
-#include <ndn-cpp-dev/common.hpp>
+#include "common.hpp"
 #include "util/time.hpp"
 
 using namespace std;

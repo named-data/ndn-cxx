@@ -8,8 +8,8 @@
 #include <stdexcept>
 #include <stdlib.h>
 
-#include <ndn-cpp-dev/face.hpp>
-#include <ndn-cpp-dev/transport/tcp-transport.hpp>
+#include "face.hpp"
+#include "transport/tcp-transport.hpp"
 
 #include <boost/asio.hpp>
 #if NDN_CPP_HAVE_CXX11
