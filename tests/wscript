@@ -7,6 +7,6 @@ def build(bld):
         target="unit-tests",
         features = "cxx cxxprogram",
         source = bld.path.ant_glob(['**/*.cpp']),
-        use = 'lib-objects',
+        use = 'ndn-cpp-dev',
         install_prefix = None,
         )

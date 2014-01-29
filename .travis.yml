@@ -14,7 +14,7 @@ before_install:
   - travis_retry sudo apt-get install -qq libsqlite3-dev
 script:
   - ./waf configure --with-tests
-  - ./waf
+  - ./waf -j1
   - sudo ./waf install
   - sudo ldconfig
   - #

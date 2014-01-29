@@ -32,10 +32,12 @@ BOOST_AUTO_TEST_CASE (SignVerify)
   SecTpmFile tpm;
 
   Name keyName("/tmp/ksk-123456");
-  tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048);
+  try {
+    tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048);
+  }
+  catch(const SecTpm::Error&) {
+  }
   
-
-
   Data data("/tmp/test/1");
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
 

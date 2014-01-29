@@ -33,20 +33,6 @@ def configure(conf):
     if conf.options.with_tests:
         conf.env['WITH_TESTS'] = True
 
-    # Optional functions
-    for func in ['memcmp', 'memcpy', 'memset']:
-        conf.check(function_name=func, header_name='string.h', mandatory=False)
-
-    # Mandatory functions
-    for func in ['strchr', 'sscanf']:
-        conf.check(function_name=func, header_name=['string.h', 'stdio.h'])
-
-    # Mandatory headers
-    for header in ['time.h', 'sys/time.h']:
-        conf.check(header_name=header)
-
-    conf.check(function_name='gettimeofday', header_name=['time.h', 'sys/time.h'])
-
     conf.check_openssl()
 
     if conf.options.debug:
@@ -100,7 +86,7 @@ def configure(conf):
         conf.define('HAVE_CXX11', 1)
     else:
         if conf.options.use_system_boost:
-            USED_BOOST_LIBS = 'system filesystem iostreams'
+            USED_BOOST_LIBS = 'system filesystem date_time iostreams'
             if conf.env['WITH_TESTS']:
                 USED_BOOST_LIBS += " unit_test_framework"
 
@@ -115,33 +101,26 @@ def configure(conf):
 
 def build (bld):
     libndn_cpp = bld (
-        target="lib-objects",
-        name = "lib-objects",
-        features=['cxx'],
-        source = bld.path.ant_glob(['src/**/*.cpp',
-                                    'new/**/*.cpp']),
+        features=['cxx', 'cxxshlib', 'cxxstlib'],
+        vnum = "0.3.0",
+        target="ndn-cpp-dev",
+        name = "ndn-cpp-dev",
+        source = bld.path.ant_glob('src/**/*.cpp',
+                                   excl = ['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
         use = 'BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3',
         includes = "include",
         export_includes = "include",
         )
 
     if Utils.unversioned_sys_platform () == "darwin":
+        libndn_cpp.source += bld.path.ant_glob('src/**/*-osx.cpp')
         libndn_cpp.mac_app = True
         libndn_cpp.use += " OSX_COREFOUNDATION OSX_SECURITY"
 
-    shlib = bld(features = 'cxx cxxshlib',
-                vnum = "0.3.0",
-                target = "ndn-cpp-dev",
-                use = "lib-objects",
-                name = "ndn-cpp-dev-shlib",
-                )
+    # In case we want to make it optional later
+    libndn_cpp.source += bld.path.ant_glob('src/**/*-sqlite3.cpp')
 
-    stlib = bld(features = 'cxx cxxstlib',
-                target = "ndn-cpp-dev",
-                use = "lib-objects",
-                name = "ndn-cpp-dev-stlib",
-                )
-        
+
     pkgconfig_libs = []
     pkgconfig_ldflags = []
     pkgconfig_includes = []
@@ -178,9 +157,9 @@ def build (bld):
       
     headers = bld.path.ant_glob(['src/**/*.hpp',
                                  'src/**/*.h'])
-    bld.install_files("%s/ndn-cpp" % bld.env['INCLUDEDIR'], headers, relative_trick=True, cwd=bld.path.find_node('src'))
+    bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], headers, relative_trick=True, cwd=bld.path.find_node('src'))
 
-    bld.install_files("%s/ndn-cpp" % bld.env['INCLUDEDIR'], bld.path.find_resource('include/ndn-cpp/ndn-cpp-config.h'))
+    bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], bld.path.find_resource('include/ndn-cpp-dev/ndn-cpp-config.h'))
 
     headers = bld.path.ant_glob(['include/**/*.hpp', 'include/**/*.h'])
     bld.install_files("%s" % bld.env['INCLUDEDIR'], headers, relative_trick=True, cwd=bld.path.find_node('include'))

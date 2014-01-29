@@ -7,13 +7,7 @@
 
 #include <sstream>
 #include <ndn-cpp-dev/common.hpp>
-
-#if NDN_CPP_HAVE_TIME_H
-#include <time.h>
-#endif
-#if NDN_CPP_HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
+#include "util/time.hpp"
 
 using namespace std;
 
@@ -40,10 +34,7 @@ toHex(const vector<uint8_t>& array)
 MillisecondsSince1970
 getNow()
 {
-  struct timeval t;
-  // Note: configure.ac requires gettimeofday.
-  gettimeofday(&t, 0);
-  return t.tv_sec * 1000.0 + t.tv_usec / 1000.0;
+  return getNowMilliseconds();
 }
 
 

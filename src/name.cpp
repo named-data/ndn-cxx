@@ -8,7 +8,7 @@
 
 #include <stdexcept>
 #include <algorithm>
-#include <string.h>
+#include <cstring>
 #include <ndn-cpp-dev/name.hpp>
 #include "util/time.hpp"
 
@@ -90,7 +90,7 @@ Name::Component::compare(const Name::Component& other) const
     return 1;
 
   // The components are equal length.  Just do a byte compare.  
-  return memcmp(getValue().buf(), other.getValue().buf(), getValue().size());
+  return std::memcmp(getValue().buf(), other.getValue().buf(), getValue().size());
 }
 
 // const Block &

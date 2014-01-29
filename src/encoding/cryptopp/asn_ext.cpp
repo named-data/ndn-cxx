@@ -8,14 +8,6 @@
 
 #include <ndn-cpp-dev/ndn-cpp-config.h>
 #include "asn_ext.hpp"
-
-#if NDN_CPP_HAVE_TIME_H
-#include <time.h>
-#endif
-#if NDN_CPP_HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
 #include "../../util/time.hpp"
 
 #include <boost/format.hpp>
@@ -33,17 +25,21 @@ DEREncodeGeneralTime(CryptoPP::BufferedTransformation &bt, MillisecondsSince1970
   else if (time > 2e14)
     // 2e14 is about the year 8300.  We don't want to go over a 4-digit year.
     throw Asn::Error("Calendar time value out of range");
-  
-  time_t secondsSince1970 = time / 1000;
-  struct tm* gmt = gmtime(&secondsSince1970);
 
-  std::string asn1time ((boost::format("%04d%02d%02d%02d%02d%02dZ")
-                         % (1900 + gmt->tm_year)
-                         % (gmt->tm_mon + 1)
-                         % gmt->tm_mday
-                         % gmt->tm_hour
-                         % gmt->tm_min
-                         % gmt->tm_sec).str());
+
+  boost::posix_time::ptime boostTime =
+    UNIX_EPOCH_TIME + boost::posix_time::milliseconds(time);
+  
+  const boost::format f = boost::format("%04d%02d%02d%02d%02d%02dZ")
+                % boostTime.date().year_month_day().year
+                % boostTime.date().year_month_day().month.as_number()
+                % boostTime.date().year_month_day().day.as_number()
+                % boostTime.time_of_day().hours()
+                % boostTime.time_of_day().minutes()
+                % boostTime.time_of_day().seconds()
+    ;
+
+  std::string asn1time = f.str();
   
   bt.Put(GENERALIZED_TIME);
   size_t lengthBytes = DERLengthEncode(bt, asn1time.size());
