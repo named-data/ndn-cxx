@@ -168,6 +168,30 @@ namespace ndn
     }
   }
 
+  void
+  SecTpmOsx::deleteKeyPairInTpm(const Name &keyName)
+  {
+    string keyNameUri = keyName.toUri();
+
+    CFStringRef keyLabel = CFStringCreateWithCString(NULL, 
+                                                     keyNameUri.c_str(), 
+                                                     kCFStringEncodingUTF8);
+    
+    CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(NULL,
+                                                             5,
+                                                             &kCFTypeDictionaryKeyCallBacks,
+                                                             NULL);
+
+    CFDictionaryAddValue(attrDict, kSecClass, kSecClassKey);
+    CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
+    CFDictionaryAddValue(attrDict, kSecMatchLimit, kSecMatchLimitAll);
+
+    OSStatus res = SecItemDelete((CFDictionaryRef) attrDict);
+    
+    if(res != errSecSuccess)
+      _LOG_DEBUG("Fail to find the key!");
+  }
+
   void 
   SecTpmOsx::generateSymmetricKeyInTpm(const Name & keyName, KeyType keyType, int keySize)
   {
@@ -465,10 +489,11 @@ namespace ndn
                                                      kCFStringEncodingUTF8);
     
     CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(NULL,
-                                                                3,
+                                                                4,
                                                                 &kCFTypeDictionaryKeyCallBacks,
                                                                 NULL);
 
+    CFDictionaryAddValue(attrDict, kSecClass, kSecClassKey);
     CFDictionaryAddValue(attrDict, kSecAttrKeyClass, impl_->getKeyClass(keyClass));
     CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
     CFDictionaryAddValue(attrDict, kSecReturnRef, kCFBooleanTrue);
@@ -477,9 +502,9 @@ namespace ndn
     OSStatus res = SecItemCopyMatching((CFDictionaryRef)attrDict, (CFTypeRef*)&itemRef);
     
     if(res == errSecItemNotFound)
-      return true;
-    else
       return false;
+    else
+      return true;
 
   }
 

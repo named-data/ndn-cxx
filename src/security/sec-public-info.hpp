@@ -145,20 +145,20 @@ public:
   virtual Name 
   getDefaultCertificateNameForKey(const Name& keyName) = 0;
 
-  virtual std::vector<Name>
-  getAllIdentities(bool isDefault) = 0;
+  virtual void
+  getAllIdentities(std::vector<Name> &nameList, bool isDefault) = 0;
 
-  virtual std::vector<Name>
-  getAllKeyNames(bool isDefault) = 0;
+  virtual void
+  getAllKeyNames(std::vector<Name> &nameList, bool isDefault) = 0;
 
-  virtual std::vector<Name>
-  getAllKeyNamesOfIdentity(const Name& identity, bool isDefault) = 0;
+  virtual void
+  getAllKeyNamesOfIdentity(const Name& identity, std::vector<Name> &nameList, bool isDefault) = 0;
     
-  virtual std::vector<Name>
-  getAllCertificateNames(bool isDefault) = 0;
+  virtual void
+  getAllCertificateNames(std::vector<Name> &nameList, bool isDefault) = 0;
     
-  virtual std::vector<Name>
-  getAllCertificateNamesOfKey(const Name& keyName, bool isDefault) = 0;
+  virtual void
+  getAllCertificateNamesOfKey(const Name& keyName, std::vector<Name> &nameList, bool isDefault) = 0;
 
 protected:
 
@@ -187,6 +187,31 @@ protected:
    */
   virtual void 
   setDefaultCertificateNameForKeyInternal(const Name& certificateName) = 0; 
+
+  /*****************************************
+   *            Delete Methods             *
+   *****************************************/
+
+  /**
+   * Delete a certificate.
+   * @param certificateName The certificate name.
+   */
+  virtual void
+  deleteCertificateInfo(const Name &certificateName) = 0;
+
+  /**
+   * Delete a public key and related certificates.
+   * @param keyName The key name.
+   */
+  virtual void
+  deletePublicKeyInfo(const Name &keyName) = 0;
+
+  /**
+   * Delete an identity and related public keys and certificates.
+   * @param identity The identity name.
+   */
+  virtual void
+  deleteIdentityInfo(const Name &identity) = 0;
 
 public:
   
@@ -306,12 +331,12 @@ SecPublicInfo::getNewKeyName (const Name& identityName, bool useKsk)
   else
     oss << "dsk-";
 
-  oss << static_cast<int>(getNow()/1000);  
+  oss << static_cast<int>(getNow());  
 
   Name keyName = Name(identityName).append(oss.str());
 
   if (doesPublicKeyExist(keyName))
-    throw Error("Key name already exists");
+    throw Error("Key name already exists: " + keyName.toUri());
 
   return keyName;
 }
@@ -373,7 +398,6 @@ SecPublicInfo::refreshDefaultCertificate()
   else
     defaultCertificate_ = getCertificate(certName);
 }
-
 
 }
 

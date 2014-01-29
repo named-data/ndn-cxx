@@ -39,6 +39,13 @@ public:
   generateKeyPairInTpm(const Name & keyName, KeyType keyType, int keySize);
 
   /**
+   * Delete a key pair of asymmetric keys.
+   * @param keyName The name of the key pair.
+   */
+  virtual void
+  deleteKeyPairInTpm(const Name &keyName);
+
+  /**
    * Get the public key
    * @param keyName The name of public key.
    * @return The public key.

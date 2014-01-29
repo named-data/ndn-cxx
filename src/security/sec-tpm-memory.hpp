@@ -57,6 +57,13 @@ public:
    */
   virtual ptr_lib::shared_ptr<PublicKey> 
   getPublicKeyFromTpm(const Name& keyName);
+
+  /**
+   * Delete a key pair of asymmetric keys.
+   * @param keyName The name of the key pair.
+   */
+  virtual void
+  deleteKeyPairInTpm(const Name &keyName);
   
   /**
    * Fetch the private key for keyName and sign the data, returning a signature Blob.

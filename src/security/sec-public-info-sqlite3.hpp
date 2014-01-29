@@ -154,20 +154,20 @@ public:
   virtual Name 
   getDefaultCertificateNameForKey(const Name& keyName);
 
-  virtual std::vector<Name>
-  getAllIdentities(bool isDefault);
+  virtual void
+  getAllIdentities(std::vector<Name> &nameList, bool isDefault);
 
-  virtual std::vector<Name>
-  getAllKeyNames(bool isDefault);
+  virtual void
+  getAllKeyNames(std::vector<Name> &nameList, bool isDefault);
 
-  virtual std::vector<Name>
-  getAllKeyNamesOfIdentity(const Name& identity, bool isDefault);
+  virtual void
+  getAllKeyNamesOfIdentity(const Name& identity, std::vector<Name> &nameList, bool isDefault);
     
-  virtual std::vector<Name>
-  getAllCertificateNames(bool isDefault);
+  virtual void
+  getAllCertificateNames(std::vector<Name> &nameList, bool isDefault);
 
-  virtual std::vector<Name>
-  getAllCertificateNamesOfKey(const Name& keyName, bool isDefault);
+  virtual void
+  getAllCertificateNamesOfKey(const Name& keyName, std::vector<Name> &nameList, bool isDefault);
   
 protected:
   /**
@@ -193,12 +193,33 @@ protected:
    */
   virtual void 
   setDefaultCertificateNameForKeyInternal(const Name& certificateName);  
+
+  /**
+   * Delete a certificate.
+   * @param certificateName The certificate name.
+   */
+  virtual void
+  deleteCertificateInfo(const Name &certificateName);
+
+  /**
+   * Delete a public key and related certificates.
+   * @param keyName The key name.
+   */
+  virtual void
+  deletePublicKeyInfo(const Name &keyName);
+
+  /**
+   * Delete an identity and related public keys and certificates.
+   * @param identity The identity name.
+   */
+  virtual void
+  deleteIdentityInfo(const Name &identity);
   
 private:
   void
   updateKeyStatus(const Name& keyName, bool isActive);
 
-  sqlite3 *database_;
+  sqlite3 * m_database;
 };
 
 void

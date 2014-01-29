@@ -62,8 +62,14 @@ void
 SecTpmMemory::generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize)
 {
 #if 1
-  throw Error("MemoryPrivateKeyStorage::generateKeyPair not implemented");
+  throw Error("SecTpmMemory::generateKeyPair not implemented");
 #endif
+}
+
+void
+SecTpmMemory::deleteKeyPairInTpm(const Name &keyName)
+{
+  throw Error("SecTpmMemory::deleteKeyPairInTpm not implemented");
 }
 
 ptr_lib::shared_ptr<PublicKey> 

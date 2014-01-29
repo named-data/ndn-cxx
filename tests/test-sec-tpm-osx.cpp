@@ -17,11 +17,11 @@ using namespace std;
 using namespace ndn;
 
 
-BOOST_AUTO_TEST_SUITE(TestSecTpmFile)
+BOOST_AUTO_TEST_SUITE(TestSecTpmOsx)
 
 BOOST_AUTO_TEST_CASE (Delete)
 {
-  SecTpmFile tpm;
+  SecTpmOsx tpm;
   
   Name keyName("/tmp/ksk-123456");
   tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048);
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE (Delete)
 
 BOOST_AUTO_TEST_CASE (SignVerify)
 {
-  SecTpmFile tpm;
+  SecTpmOsx tpm;
 
   Name keyName("/tmp/ksk-123456");
   tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048);

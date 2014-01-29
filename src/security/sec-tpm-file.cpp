@@ -102,6 +102,19 @@ SecTpmFile::generateKeyPairInTpm(const Name & keyName, KeyType keyType, int keyS
   }
 }
 
+void
+SecTpmFile::deleteKeyPairInTpm(const Name &keyName)
+{
+  boost::filesystem::path publicKeyPath(nameTransform(keyName.toUri(), ".pub"));
+  boost::filesystem::path privateKeyPath(nameTransform(keyName.toUri(), ".pri"));
+
+  if(boost::filesystem::exists(publicKeyPath))
+    boost::filesystem::remove(publicKeyPath);
+
+  if(boost::filesystem::exists(privateKeyPath))
+    boost::filesystem::remove(privateKeyPath);
+}
+
 ptr_lib::shared_ptr<PublicKey>
 SecTpmFile::getPublicKeyFromTpm(const Name & keyName)
 {

@@ -42,24 +42,29 @@ public:
   /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a self-signed certificate of the KSK.
    * @param identityName The name of the identity.
-   * @return The key name of the auto-generated KSK of the identity.
+   * @return The name of the default certificate of the identity.
    */
   Name
   createIdentity(const Name& identityName)
   {
-    if (!Info::doesIdentityExist(identityName)) {
+    if (!Info::doesIdentityExist(identityName))
       Info::addIdentity(identityName);
-  
-      Name keyName = generateRSAKeyPairAsDefault(identityName, true);
+ 
+    Name keyName = Info::getDefaultKeyNameForIdentity(identityName);
+    
+    if(keyName.empty())
+      keyName = generateRSAKeyPairAsDefault(identityName, true);
 
-      ptr_lib::shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
-  
-      Info::addCertificateAsIdentityDefault(*selfCert);
+    Name certName = Info::getDefaultCertificateNameForKey(keyName);
 
-      return keyName;
-    }
-    else
-      return Name();
+    if(certName.empty())
+      {
+        ptr_lib::shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
+        Info::addCertificateAsIdentityDefault(*selfCert);
+        certName = selfCert->getName();
+      }
+
+    return certName;
   }
     
   /**
@@ -227,34 +232,6 @@ public:
     
     interest.getName().append(signature.getValue());
   }
-
-  void
-  sign(Data &data, const IdentityCertificate& certificate)
-  {
-    SignatureSha256WithRsa signature;
-    signature.setKeyLocator(certificate.getName().getPrefix(-1));
-    data.setSignature(signature);
-
-    // For temporary usage, we support RSA + SHA256 only, but will support more.
-    signDataInTpm(data, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
-  }
-
-  void
-  sign(Interest &interest, const IdentityCertificate& certificate)
-  {
-    SignatureSha256WithRsa signature;
-    signature.setKeyLocator(certificate.getName().getPrefix(-1)); // implicit conversion should take care
-
-    Name &interestName = interest.getName();
-    interestName.append(Name::Component::fromNumber(getNow())).append(signature.getInfo());
-
-    signature.setValue(Tpm::signInTpm(interestName.wireEncode().value(), 
-                                      interestName.wireEncode().value_size(), 
-                                      certificate.getPublicKeyName(), 
-                                      DIGEST_ALGORITHM_SHA256));
-    
-    interestName.append(signature.getValue());
-  }
   
   /**
    * Sign the byte array using a certificate name and return a Signature object.
@@ -288,8 +265,8 @@ public:
   {
     Name signingCertificateName = Info::getDefaultCertificateNameForIdentity(identityName);
 
-    if (signingCertificateName.getComponentCount() == 0)
-      throw std::runtime_error("No qualified certificate name found!");
+    if (signingCertificateName.empty())
+      signingCertificateName = createIdentity(identityName);
 
     sign(data, signingCertificateName);
   }
@@ -299,8 +276,8 @@ public:
   {
     Name signingCertificateName = Info::getDefaultCertificateNameForIdentity(identityName);
 
-    if (signingCertificateName.getComponentCount() == 0)
-      throw std::runtime_error("No qualified certificate name found!");
+    if (signingCertificateName.empty())
+      signingCertificateName = createIdentity(identityName);
 
     sign(interest, signingCertificateName);
   }
@@ -314,12 +291,12 @@ public:
    * @return The Signature.
    */
   Signature
-  signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName = Name())
+  signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName)
   {
     Name signingCertificateName = Info::getDefaultCertificateNameForIdentity(identityName);
     
-    if (signingCertificateName.size() == 0)
-      throw std::runtime_error("No qualified certificate name found!");
+    if (signingCertificateName.empty())
+      signingCertificateName = createIdentity(identityName);
 
     return sign(buffer, bufferLength, signingCertificateName);
   }
@@ -369,8 +346,73 @@ public:
     signDataInTpm(cert, cert.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
   }
 
+  void
+  deleteCertificate (const Name &certificateName)
+  {
+    if(Info::getDefaultIdentity() == IdentityCertificate::certificateNameToPublicKeyName(certificateName).getPrefix(-1))
+      return;
+
+    Info::deleteCertificateInfo(certificateName);
+  }
+
+  void
+  deleteKey (const Name &keyName)
+  {
+    if(Info::getDefaultIdentity() == keyName.getPrefix(-1))
+      return;
+
+    Info::deletePublicKeyInfo(keyName);
+    Tpm::deleteKeyPairInTpm(keyName);
+  }
+
+  void
+  deleteIdentity (const Name &identity)
+  {
+    if(Info::getDefaultIdentity() == identity)
+      return;
+
+    std::vector<Name> nameList;
+    Info::getAllKeyNamesOfIdentity(identity, nameList, true);
+    Info::getAllKeyNamesOfIdentity(identity, nameList, false);
+    
+    Info::deleteIdentityInfo(identity);
+    
+    std::vector<Name>::const_iterator it = nameList.begin();
+    for(; it != nameList.end(); it++)
+      Tpm::deleteKeyPairInTpm(*it);
+  }
+
 
 private:
+
+  void
+  sign(Data &data, const IdentityCertificate& certificate)
+  {
+    SignatureSha256WithRsa signature;
+    signature.setKeyLocator(certificate.getName().getPrefix(-1));
+    data.setSignature(signature);
+
+    // For temporary usage, we support RSA + SHA256 only, but will support more.
+    signDataInTpm(data, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+  }
+
+  void
+  sign(Interest &interest, const IdentityCertificate& certificate)
+  {
+    SignatureSha256WithRsa signature;
+    signature.setKeyLocator(certificate.getName().getPrefix(-1)); // implicit conversion should take care
+
+    Name &interestName = interest.getName();
+    interestName.append(Name::Component::fromNumber(getNow())).append(signature.getInfo());
+
+    signature.setValue(Tpm::signInTpm(interestName.wireEncode().value(), 
+                                      interestName.wireEncode().value_size(), 
+                                      certificate.getPublicKeyName(), 
+                                      DIGEST_ALGORITHM_SHA256));
+    
+    interestName.append(signature.getValue());
+  }
+
   /**
    * Generate a key pair for the specified identity.
    * @param identityName The name of the specified identity.

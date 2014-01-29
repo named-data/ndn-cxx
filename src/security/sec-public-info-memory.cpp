@@ -171,35 +171,54 @@ SecPublicInfoMemory::setDefaultCertificateNameForKeyInternal(const Name& certifi
 }
 
 
-std::vector<Name>
-SecPublicInfoMemory::getAllIdentities(bool isDefault)
+void
+SecPublicInfoMemory::getAllIdentities(std::vector<Name> &nameList, bool isDefault)
 {
   throw runtime_error("SecPublicInfoMemory::getAllIdentities not implemented");
 }
 
-std::vector<Name>
-SecPublicInfoMemory::getAllKeyNames(bool isDefault)
+void
+SecPublicInfoMemory::getAllKeyNames(std::vector<Name> &nameList, bool isDefault)
 {
   throw runtime_error("SecPublicInfoMemory::getAllKeyNames not implemented");
 }
 
-std::vector<Name>
-SecPublicInfoMemory::getAllKeyNamesOfIdentity(const Name& identity, bool isDefault)
+void
+SecPublicInfoMemory::getAllKeyNamesOfIdentity(const Name& identity, std::vector<Name> &nameList, bool isDefault)
 {
   throw runtime_error("SecPublicInfoMemory::getAllKeyNamesOfIdentity not implemented");
 }
     
-std::vector<Name>
-SecPublicInfoMemory::getAllCertificateNames(bool isDefault)
+void
+SecPublicInfoMemory::getAllCertificateNames(std::vector<Name> &nameList, bool isDefault)
 {
   throw runtime_error("SecPublicInfoMemory::getAllCertificateNames not implemented");
 }
 
-std::vector<Name>
-SecPublicInfoMemory::getAllCertificateNamesOfKey(const Name& keyName, bool isDefault)
+void
+SecPublicInfoMemory::getAllCertificateNamesOfKey(const Name& keyName, std::vector<Name> &nameList, bool isDefault)
 {
   throw runtime_error("SecPublicInfoMemory::getAllCertificateNamesOfKey not implemented");
 }
+
+void
+SecPublicInfoMemory::deleteCertificateInfo(const Name &certName)
+{
+  throw runtime_error("SecPublicInfoMemory::deleteCertificateInfo not implemented");
+}
+
+void
+SecPublicInfoMemory::deletePublicKeyInfo(const Name &keyName)
+{
+  throw runtime_error("SecPublicInfoMemory::deletePublicKeyInfo not implemented");
+}
+
+void
+SecPublicInfoMemory::deleteIdentityInfo(const Name &identityName)
+{
+  throw runtime_error("SecPublicInfoMemory::deleteIdentityInfo not implemented");
+}
+
 
 
 }
