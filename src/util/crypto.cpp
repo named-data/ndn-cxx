@@ -4,7 +4,9 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "ndn-cpp-dev/c/util/crypto.h"
+#include "ndn-cpp-dev/util/crypto.hpp"
+
+namespace ndn {
 
 void ndn_digestSha256(const uint8_t *data, size_t dataLength, uint8_t *digest)
 {
@@ -13,3 +15,5 @@ void ndn_digestSha256(const uint8_t *data, size_t dataLength, uint8_t *digest)
   SHA256_Update(&sha256, data, dataLength);
   SHA256_Final(digest, &sha256);
 }
+
+} // namespace ndn

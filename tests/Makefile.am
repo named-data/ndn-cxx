@@ -1,13 +1,15 @@
 
-LDADD = ../libndn-cpp-dev.la @BOOST_SYSTEM_LIB@
+noinst_PROGRAMS=unit-tests
 
-noinst_PROGRAMS = \
-	test-get-async \
-	test-publish-async \
-	test-encode-decode-benchmark
+# for i in `find . -name '*.cpp'`; do echo "  $i \\"; done
+unit_tests_SOURCES = \
+  main.cpp \
+  test-encode-decode-certificate.cpp \
+  test-encode-decode-data.cpp \
+  test-encode-decode-interest.cpp \
+  test-encode-decode-forwarding-entry.cpp \
+  test-encode-decode-block.cpp \
+  test-sec-tpm-file.cpp \
+  test-faces.cpp
 
-test_encode_decode_benchmark_SOURCES = test-encode-decode-benchmark.cpp
-
-test_get_async_SOURCES = test-get-async.cpp
-
-test_publish_async_SOURCES = test-publish-async.cpp
+unit_tests_LDADD = ../libndn-cpp-dev.la @BOOST_SYSTEM_LIB@ @BOOST_UNIT_TEST_FRAMEWORK_LIB@ @OPENSSL_LIBS@ @CRYPTOPP_LIBS@ @OSX_SECURITY_LIBS@

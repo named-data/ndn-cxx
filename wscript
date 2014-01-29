@@ -72,6 +72,10 @@ def configure(conf):
 
     if Utils.unversioned_sys_platform () == "darwin":
         conf.check_cxx(framework_name='CoreFoundation', uselib_store='OSX_COREFOUNDATION', mandatory=True)
+        conf.check_cxx(framework_name='CoreServices', uselib_store='OSX_CORESERVICES', mandatory=True)
+        conf.check_cxx(framework_name='Security',   uselib_store='OSX_SECURITY',   define_name='HAVE_SECURITY',
+                       use="OSX_COREFOUNDATION", mandatory=True)
+        conf.define('HAVE_OSX_SECURITY', 1)
 
     conf.define ("PACKAGE_BUGREPORT", "ndn-lib@lists.cs.ucla.edu")
     conf.define ("PACKAGE_NAME", NAME)
@@ -107,35 +111,48 @@ def configure(conf):
                 conf.env['USE_SYSTEM_BOOST'] = True
                 conf.define('USE_SYSTEM_BOOST', 1)
 
-    conf.write_config_header('include/ndn-cpp/ndn-cpp-config.h', define_prefix='NDN_CPP_')
+    conf.write_config_header('include/ndn-cpp-dev/ndn-cpp-config.h', define_prefix='NDN_CPP_')
 
 def build (bld):
     libndn_cpp = bld (
-        target="ndn-cpp-dev",
-        vnum = "0.3.0",
-        features=['cxx', 'cxxshlib', 'cxxstlib'],
+        target="lib-objects",
+        name = "lib-objects",
+        features=['cxx'],
         source = bld.path.ant_glob(['src/**/*.cpp',
                                     'new/**/*.cpp']),
         use = 'BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3',
-        includes = ". include",
+        includes = "include",
+        export_includes = "include",
         )
 
     if Utils.unversioned_sys_platform () == "darwin":
         libndn_cpp.mac_app = True
-        libndn_cpp.use += " OSX_COREFOUNDATION"
+        libndn_cpp.use += " OSX_COREFOUNDATION OSX_SECURITY"
 
+    shlib = bld(features = 'cxx cxxshlib',
+                vnum = "0.3.0",
+                target = "ndn-cpp-dev",
+                use = "lib-objects",
+                name = "ndn-cpp-dev-shlib",
+                )
+
+    stlib = bld(features = 'cxx cxxstlib',
+                target = "ndn-cpp-dev",
+                use = "lib-objects",
+                name = "ndn-cpp-dev-stlib",
+                )
+        
+    bld (features = "subst",
+         source = "libndn-cpp-dev.pc.in",
+         target = "libndn-cpp-dev.pc",
+         install_path = "${LIBDIR}/pkgconfig",
+        )
+        
     # Unit tests
     if bld.env['WITH_TESTS']:
-      unittests = bld.program (
-          target="unit-tests",
-          features = "cxx cxxprogram",
-          source = bld.path.ant_glob(['tests_boost/*.cpp']),
-          use = 'ndn-cpp-dev',
-          includes = ".",
-          install_prefix = None,
-          )
+        bld.recurse('tests')
 
-    bld.recurse("tools examples tests")
+    bld.recurse("tools examples")
       
     headers = bld.path.ant_glob(['src/**/*.hpp',
                                  'src/**/*.h'])

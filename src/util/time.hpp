@@ -8,10 +8,18 @@
 #ifndef NDN_TIME_HPP
 #define NDN_TIME_HPP
 
-#include <stdexcept>
-#include "../c/util/time.h"
+#include "ndn-cpp-dev/common.hpp"
 
 namespace ndn {
+
+MillisecondsSince1970 
+ndn_getNowMilliseconds();
+
+int
+ndn_toIsoString(MillisecondsSince1970 milliseconds, char *isoString);
+
+int
+ndn_fromIsoString(const char* isoString, MillisecondsSince1970 *milliseconds);
 
 /**
  * Convert to the ISO string representation of the time.
@@ -22,9 +30,9 @@ inline std::string
 toIsoString(const MillisecondsSince1970& time)
 {
   char isoString[25];
-  ndn_Error error;
+  int error;
   if ((error = ndn_toIsoString(time, isoString)))
-    throw std::runtime_error(ndn_getErrorString(error));
+    throw std::runtime_error("toIsoString");
   
   return isoString;
 }
@@ -38,9 +46,9 @@ inline MillisecondsSince1970
 fromIsoString(const std::string& isoString)
 {
   MillisecondsSince1970 milliseconds;
-  ndn_Error error;
+  int error;
   if ((error = ndn_fromIsoString(isoString.c_str(), &milliseconds)))
-    throw std::runtime_error(ndn_getErrorString(error));
+    throw std::runtime_error("fromIsoString");
   
   return milliseconds;
 }

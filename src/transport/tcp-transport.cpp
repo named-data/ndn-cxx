@@ -10,7 +10,6 @@
 
 #include <ndn-cpp-dev/face.hpp>
 #include <ndn-cpp-dev/transport/tcp-transport.hpp>
-#include "../c/util/ndn_memory.h"
 
 #include <boost/asio.hpp>
 #if NDN_CPP_HAVE_CXX11
@@ -179,7 +178,8 @@ public:
         if (partialDataSize_ > 0)
           {
             size_t newDataSize = std::min(bytes_recvd, MAX_LENGTH-partialDataSize_);
-            ndn_memcpy(partialData_ + partialDataSize_, inputBuffer_, newDataSize);
+            std::copy(inputBuffer_, inputBuffer_ + newDataSize, partialData_ + partialDataSize_);
+
             partialDataSize_ += newDataSize;
               
             size_t offset = 0;
@@ -194,7 +194,7 @@ public:
                         
                     offset = 0;
                     partialDataSize_ = bytes_recvd - newDataSize;
-                    ndn_memcpy(partialData_, inputBuffer_ + newDataSize, partialDataSize_);
+                    std::copy(inputBuffer_ + newDataSize, inputBuffer_ + newDataSize + partialDataSize_, partialData_);
 
                     processAll(partialData_, offset, partialDataSize_);
 
@@ -212,7 +212,7 @@ public:
                 if (offset > 0)
                   {
                     partialDataSize_ -= offset;
-                    ndn_memcpy(partialData_, partialData_ + offset, partialDataSize_);
+                    std::copy(partialData_ + offset, partialData_ + offset + partialDataSize_, partialData_);
                   }
                 else if (offset == 0 && partialDataSize_ == MAX_LENGTH)
                   {
@@ -235,7 +235,7 @@ public:
                 if (offset > 0)
                   {
                     partialDataSize_ = bytes_recvd - offset;
-                    ndn_memcpy(partialData_, inputBuffer_ + offset, partialDataSize_);
+                    std::copy(inputBuffer_ + offset, inputBuffer_ + offset + partialDataSize_, partialData_);
                   }
               }
           }

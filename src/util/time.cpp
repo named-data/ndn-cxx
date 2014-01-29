@@ -14,9 +14,11 @@
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
-#include "time.h"
+#include "time.hpp"
 
-ndn_MillisecondsSince1970 
+namespace ndn {
+
+MillisecondsSince1970 
 ndn_getNowMilliseconds()
 {
   struct timeval t;
@@ -25,15 +27,15 @@ ndn_getNowMilliseconds()
   return t.tv_sec * 1000.0 + t.tv_usec / 1000.0;
 }
 
-ndn_Error
-ndn_toIsoString(ndn_MillisecondsSince1970 milliseconds, char *isoString)
+int
+ndn_toIsoString(MillisecondsSince1970 milliseconds, char *isoString)
 {
 #if NDN_CPP_HAVE_GMTIME_SUPPORT
   if (milliseconds < 0)
-    return NDN_ERROR_Calendar_time_value_out_of_range;
+    return -1;
   else if (milliseconds > 2e14)
     // 2e14 is about the year 8300.  We don't want to go over a 4-digit year.
-    return NDN_ERROR_Calendar_time_value_out_of_range;
+    return -1;
   
   double secondsSince1970 = milliseconds / 1000.0;
   char fractionBuffer[10];
@@ -48,14 +50,14 @@ ndn_toIsoString(ndn_MillisecondsSince1970 milliseconds, char *isoString)
   sprintf(isoString, "%04d%02d%02dT%02d%02d%02d%s", 1900 + gmt->tm_year, gmt->tm_mon + 1, gmt->tm_mday,
     gmt->tm_hour, gmt->tm_min, gmt->tm_sec, fraction);
   
-  return NDN_ERROR_success;
+  return 0;
 #else
-  return NDN_ERROR_Time_functions_are_not_supported_by_the_standard_library;
+  return -1;
 #endif
 }
 
-ndn_Error
-ndn_fromIsoString(const char* isoString, ndn_MillisecondsSince1970 *milliseconds)
+int
+ndn_fromIsoString(const char* isoString, MillisecondsSince1970 *milliseconds)
 {
 #if NDN_CPP_HAVE_GMTIME_SUPPORT
   // Initialize time zone, etc.
@@ -74,8 +76,10 @@ ndn_fromIsoString(const char* isoString, ndn_MillisecondsSince1970 *milliseconds
   tm1.tm_sec = 0;
   
   *milliseconds = (timegm(&tm1) + seconds) * 1000.0;
-  return NDN_ERROR_success;
+  return 0;
 #else
-  return NDN_ERROR_Time_functions_are_not_supported_by_the_standard_library;
+  return -1;
 #endif
 }
+
+} // namespace ndn

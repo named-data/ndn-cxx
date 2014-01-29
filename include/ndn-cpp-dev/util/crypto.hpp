@@ -4,16 +4,15 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_CRYPTO_H
-#define NDN_CRYPTO_H
+#ifndef NDN_UTIL_CRYPTO_HPP
+#define NDN_UTIL_CRYPTO_HPP
+
+#include "ndn-cpp-dev/common.hpp"
 
 #include <openssl/ssl.h>
 #include <openssl/rsa.h>
-#include <ndn-cpp-dev/c/common.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace ndn {
 
 /**
  * Compute the sha-256 digest of data.
@@ -23,8 +22,6 @@ extern "C" {
  */
 void ndn_digestSha256(const uint8_t *data, size_t dataLength, uint8_t *digest);
 
-#ifdef __cplusplus
-}
-#endif
+} // namespace ndn
 
-#endif
+#endif // NDN_UTIL_CRYPTO_HPP
