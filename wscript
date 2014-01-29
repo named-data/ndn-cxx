@@ -142,12 +142,34 @@ def build (bld):
                 name = "ndn-cpp-dev-stlib",
                 )
         
+    pkgconfig_libs = []
+    pkgconfig_ldflags = []
+    pkgconfig_includes = []
+    for lib in Utils.to_list(libndn_cpp.use):
+        if bld.env['LIB_%s' % lib]:
+            pkgconfig_libs += Utils.to_list(bld.env['LIB_%s' % lib])
+        if bld.env['LIBPATH_%s' % lib]:
+            pkgconfig_ldflags += Utils.to_list(bld.env['LIBPATH_%s' % lib])
+        if bld.env['INCLUDES_%s' % lib]:
+            pkgconfig_includes += Utils.to_list(bld.env['INCLUDES_%s' % lib])
+
+    def uniq(alist):
+        set = {}
+        return [set.setdefault(e,e) for e in alist if e not in set]
+                        
     bld (features = "subst",
          source = "libndn-cpp-dev.pc.in",
          target = "libndn-cpp-dev.pc",
          install_path = "${LIBDIR}/pkgconfig",
+         VERSION = VERSION,
+
+         # This probably not the right thing to do, but to simplify life of apps
+         # that use the library
+         EXTRA_LIBS = " ".join([('-l%s' % i) for i in uniq(pkgconfig_libs)]),
+         EXTRA_LDFLAGS = " ".join([('-L%s' % i) for i in uniq(pkgconfig_ldflags)]),
+         EXTRA_INCLUDES = " ".join([('-I%s' % i) for i in uniq(pkgconfig_includes)]),
         )
-        
+            
     # Unit tests
     if bld.env['WITH_TESTS']:
         bld.recurse('tests')

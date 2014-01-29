@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <iterator>
 #include "buffer.hpp"
-#include "endian.h"
+#include "endian.hpp"
 
 namespace ndn {
 
