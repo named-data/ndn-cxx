@@ -6,10 +6,6 @@
  * See COPYING for copyright and distribution information.
  */
 
-// Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_SQLITE3.
-#include "ndn-cpp-config.h"
-#ifdef NDN_CPP_HAVE_SQLITE3
-
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -722,4 +718,3 @@ SecPublicInfoSqlite3::getAllCertificateNamesOfKey(const Name& keyName, bool isDe
 
 } // namespace ndn
 
-#endif // NDN_CPP_HAVE_SQLITE3

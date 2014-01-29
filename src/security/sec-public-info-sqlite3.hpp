@@ -9,10 +9,6 @@
 #ifndef NDN_SEC_PUBLIC_INFO_SQLITE3_HPP
 #define NDN_SEC_PUBLIC_INFO_SQLITE3_HPP
 
-// Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_SQLITE3.
-#include "ndn-cpp-config.h"
-#ifdef NDN_CPP_HAVE_SQLITE3
-
 #include "../common.hpp"
 #include "sec-public-info.hpp"
 
@@ -218,7 +214,5 @@ SecPublicInfoSqlite3::deactivatePublicKey(const Name& keyName)
 }
 
 }
-
-#endif // NDN_CPP_HAVE_SQLITE3
 
 #endif

@@ -5,15 +5,13 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "ndn-cpp-config.h"
+#include "sec-tpm-osx.hpp"
+
+#include "security/public-key.hpp"
+#include "util/logging.hpp"
 
 #include <fstream>
 #include <sstream>
-
-#include "../util/logging.hpp"
-
-#include "security/sec-tpm-osx.hpp"
-#include "security/public-key.hpp"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>

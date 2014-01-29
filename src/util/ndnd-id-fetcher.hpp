@@ -8,7 +8,7 @@
 #ifndef NDN_NDND_ID_FETCHER_HPP
 #define NDN_NDND_ID_FETCHER_HPP
 
-#include "common.hpp"
+#include "../common.hpp"
 #include "util/crypto.hpp"
 
 namespace ndn {

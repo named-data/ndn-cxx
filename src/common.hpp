@@ -14,6 +14,9 @@
 #include <stddef.h>
 
 #include <vector>
+#include <list>
+#include <set>
+#include <algorithm>
 
 #if NDN_CPP_HAVE_CXX11
 
@@ -22,28 +25,51 @@
 #endif
 
 #include <memory>
-namespace ndn { namespace ptr_lib = std; }
-
-// #if NDN_CPP_HAVE_STD_FUNCTION
 #include <functional>
-namespace ndn { namespace func_lib = std; }
+
+namespace ndn {
+
+namespace ptr_lib = std;
+namespace func_lib = std
+  
+using std::shared_ptr;
+using std::make_shared;
+using std::enable_shared_from_this;
+
+using std::function;
+using std::bind;
+using std::placeholders; // _1, _2, ..
+
+} // namespace ndn
+
 
 #else
 
-// #if NDN_CPP_HAVE_BOOST_SHARED_PTR
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/make_shared.hpp>
-namespace ndn { namespace ptr_lib = boost; }
 
-// #if NDN_CPP_HAVE_BOOST_FUNCTION
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-namespace ndn { namespace func_lib = boost; }
+
+namespace ndn {
+
+namespace ptr_lib = boost;
+namespace func_lib = boost;
+
+using boost::shared_ptr;
+using boost::make_shared;
+using boost::enable_shared_from_this;
+
+using boost::function;
+using boost::bind;
+
+} // namespace ndn
 
 #endif
 
 namespace ndn {
+
 
 /**
  * A time interval represented as the number of milliseconds.

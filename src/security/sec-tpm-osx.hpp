@@ -8,10 +8,6 @@
 #ifndef NDN_SEC_TPM_OSX_HPP
 #define NDN_SEC_TPM_OSX_HPP
 
-// Only compile if ndn-cpp-config.h defines NDN_CPP_HAVE_OSX_SECURITY 1.
-#include "ndn-cpp-config.h"
-#if NDN_CPP_HAVE_OSX_SECURITY
-
 #include "../common.hpp"
 #include "sec-tpm.hpp"
 
@@ -117,8 +113,6 @@ public:
   std::auto_ptr<Impl> impl_;
 };
   
-}
+} // namespace ndn
 
-#endif // NDN_CPP_HAVE_OSX_SECURITY
-
-#endif
+#endif // NDN_SEC_TPM_OSX_HPP

@@ -10,7 +10,7 @@
 #ifndef NDN_BLOCK_HPP
 #define NDN_BLOCK_HPP
 
-#include "common.hpp"
+#include "../common.hpp"
 
 #include <list>
 #include <exception>

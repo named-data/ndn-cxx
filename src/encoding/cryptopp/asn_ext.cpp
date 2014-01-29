@@ -6,7 +6,6 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "ndn-cpp-config.h"
 #include "asn_ext.hpp"
 #include "../../util/time.hpp"
 

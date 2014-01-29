@@ -23,7 +23,7 @@
 #endif
 
 #include <stdexcept>
-#include "common.hpp"
+#include "../../common.hpp"
 #include <cryptopp/asn.h>
 
 namespace ndn {

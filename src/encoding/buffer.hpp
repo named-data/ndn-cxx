@@ -10,7 +10,7 @@
 #ifndef NDN_BUFFER_HPP
 #define NDN_BUFFER_HPP
 
-#include "common.hpp"
+#include "../common.hpp"
 
 #include <boost/iostreams/detail/ios.hpp>
 #include <boost/iostreams/categories.hpp>
