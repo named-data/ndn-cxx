@@ -30,4 +30,4 @@ script:
   - ndnd-tlv-start
   - sleep 1
   - #
-  - ./build/tests/unit-tests -l all
+  - ./build/unit-tests -l all
