@@ -136,6 +136,10 @@ def build (bld):
         if bld.env['INCLUDES_%s' % lib]:
             pkgconfig_includes += Utils.to_list(bld.env['INCLUDES_%s' % lib])
 
+    EXTRA_FRAMEWORKS = "";
+    if Utils.unversioned_sys_platform () == "darwin":
+        EXTRA_FRAMEWORKS = "-framework CoreFoundation -framework Security"
+        
     def uniq(alist):
         set = {}
         return [set.setdefault(e,e) for e in alist if e not in set]
@@ -151,6 +155,7 @@ def build (bld):
          EXTRA_LIBS = " ".join([('-l%s' % i) for i in uniq(pkgconfig_libs)]),
          EXTRA_LDFLAGS = " ".join([('-L%s' % i) for i in uniq(pkgconfig_ldflags)]),
          EXTRA_INCLUDES = " ".join([('-I%s' % i) for i in uniq(pkgconfig_includes)]),
+         EXTRA_FRAMEWORKS = EXTRA_FRAMEWORKS,
         )
             
     # Unit tests
