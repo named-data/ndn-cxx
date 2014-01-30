@@ -197,6 +197,9 @@ public:
    */
   void 
   shutdown();
+
+  shared_ptr<boost::asio::io_service> 
+  ioService() { return node_.ioService(); }
   
 private:
   Node node_;

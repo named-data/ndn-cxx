@@ -147,6 +147,9 @@ public:
   void 
   shutdown();
 
+  shared_ptr<boost::asio::io_service> 
+  ioService() { return ioService_; }
+
 private:
   void
   asyncExpressInterest(const ptr_lib::shared_ptr<const Interest> &interest,
