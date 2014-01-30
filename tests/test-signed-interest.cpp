@@ -7,7 +7,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "security/key-chain.hpp"
-#include "security/verifier.hpp"
+#include "security/validator.hpp"
 #include <iostream>
 
 using namespace std;
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE (SignVerify)
   interest2.wireDecode(interestBlock);
   
   ptr_lib::shared_ptr<PublicKey> publicKey = keyChain.getPublicKeyFromTpm(keyChain.getDefaultKeyNameForIdentity(identityName));
-  bool result = Verifier::verifySignature(interest2, *publicKey);
+  bool result = Validator::verifySignature(interest2, *publicKey);
   
   BOOST_REQUIRE_EQUAL(result, true);
 }

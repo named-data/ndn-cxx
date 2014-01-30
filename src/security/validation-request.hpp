@@ -12,35 +12,48 @@
 #include "../interest.hpp"
 
 namespace ndn {
+/**
+ * An OnVerified function object is used to pass a callback to report a successful Interest validation.
+ */
+typedef function< void (const shared_ptr<const Interest> &) > OnInterestValidated;
+  
+/**
+ * An OnVerifyFailed function object is used to pass a callback to report a failed Interest validation.
+ */
+typedef function< void (const shared_ptr<const Interest> &) > OnInterestValidationFailed;
+
+/**
+ * An OnVerified function object is used to pass a callback to report a successful Data validation.
+ */
+typedef function< void (const shared_ptr<const Data> &) > OnDataValidated;
+  
+/**
+ * An OnVerifyFailed function object is used to pass a callback to report a failed Data validation.
+ */
+typedef function< void (const shared_ptr<const Data> &) > OnDataValidationFailed;
+
 
 class ValidationRequest {
 public:
-  /**
-   * An OnCertVerified function object is used to pass a callback to to report a successful verification.
-   */
-  typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>&)> OnCertVerified;
-  
-  /**
-   * An OnCertVerifyFailed function object is used to pass a callback to to report a failed verification.
-   */
-  typedef func_lib::function<void(const ptr_lib::shared_ptr<Data>&)> OnCertVerifyFailed;
-
-
-  ValidationRequest
-    (const ptr_lib::shared_ptr<Interest> &interest, const OnCertVerified& onVerified, const OnCertVerifyFailed& onVerifyFailed,
-     int retry, int stepCount)
-  : m_interest(interest), m_onVerified(onVerified), m_onVerifyFailed(onVerifyFailed), m_retry(retry), m_stepCount(stepCount)
-  {
-  }
+  ValidationRequest(const Interest &interest, 
+                    const OnDataValidated &onValidated, 
+                    const OnDataValidationFailed &onDataValidated, 
+                    int retry, int stepCount)
+  : m_interest(interest)
+  , m_onValidated(onValidated)
+  , m_onDataValidated(onDataValidated)
+  , m_retry(retry)
+  , m_stepCount(stepCount)
+  {}
     
   virtual
   ~ValidationRequest() {}
 
-  ptr_lib::shared_ptr<Interest> m_interest; // An interest packet to fetch the requested data.
-  OnCertVerified m_onVerified;                  // A callback function if the requested certificate has been validated.
-  OnCertVerifyFailed m_onVerifyFailed;          // A callback function if the requested certificate cannot be validated.
+  Interest m_interest;                      // An interest packet to fetch the requested data.
+  OnDataValidated m_onValidated;            // A callback function if the requested certificate is validated.
+  OnDataValidationFailed m_onDataValidated; // A callback function if the requested certificate validation fails.
   int m_retry;                              // The number of retrials when there is an interest timeout.
-  int m_stepCount;
+  int m_stepCount;                          // The stepCount of next step.
 };
 
 }
