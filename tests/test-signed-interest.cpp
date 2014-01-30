@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE (SignVerify)
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
 
   Name identityName("/test");
-  Name keyName = keyChain.createIdentity(identityName);
+  Name certificateName = keyChain.createIdentity(identityName);
 
   Interest interest("/test/interest");
   keyChain.signByIdentity(interest, identityName);
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE (SignVerify)
   Interest interest2;
   interest2.wireDecode(interestBlock);
   
-  ptr_lib::shared_ptr<PublicKey> publicKey = keyChain.getPublicKeyFromTpm(keyName);
+  ptr_lib::shared_ptr<PublicKey> publicKey = keyChain.getPublicKeyFromTpm(keyChain.getDefaultKeyNameForIdentity(identityName));
   bool result = Verifier::verifySignature(interest2, *publicKey);
   
   BOOST_REQUIRE_EQUAL(result, true);
