@@ -86,7 +86,7 @@ def configure(conf):
         conf.define('HAVE_CXX11', 1)
     else:
         if conf.options.use_system_boost:
-            USED_BOOST_LIBS = 'system filesystem date_time iostreams'
+            USED_BOOST_LIBS = 'system filesystem date_time iostreams regex'
             if conf.env['WITH_TESTS']:
                 USED_BOOST_LIBS += " unit_test_framework"
 
