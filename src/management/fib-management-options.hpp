@@ -10,8 +10,8 @@
 #ifndef NDN_FIB_MANAGEMENT_HPP
 #define NDN_FIB_MANAGEMENT_HPP
 
-#include "encoding/block.hpp"
-#include "encoding/tlv-nfd-control.hpp"
+#include "../encoding/block.hpp"
+#include "../encoding/tlv-nfd-control.hpp"
 #include "name.hpp"
 
 namespace ndn {

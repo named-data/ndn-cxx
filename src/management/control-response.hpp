@@ -7,8 +7,8 @@
 #ifndef NDN_MANAGEMENT_CONTROL_RESPONSE_HPP
 #define NDN_MANAGEMENT_CONTROL_RESPONSE_HPP
 
-#include "encoding/block.hpp"
-#include "encoding/tlv-nfd-control.hpp"
+#include "../encoding/block.hpp"
+#include "../encoding/tlv-nfd-control.hpp"
 
 namespace ndn {
 
