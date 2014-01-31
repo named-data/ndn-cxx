@@ -9,7 +9,7 @@
 #include "interest.hpp"
 
 using namespace std;
-using namespace ndn;
+namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(TestInterest)
 
@@ -79,3 +79,5 @@ BOOST_AUTO_TEST_CASE (Encode)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+} // namespace ndn

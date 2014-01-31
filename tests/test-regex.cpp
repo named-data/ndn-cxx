@@ -18,8 +18,8 @@
 
 #include <iostream>
 
-using namespace ndn;
 using namespace std;
+namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(TestRegex)
 
@@ -447,3 +447,5 @@ BOOST_AUTO_TEST_CASE (TopMatcherAdvanced)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+} // namespace ndn

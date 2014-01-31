@@ -22,7 +22,7 @@
 #include <cryptopp/files.h>
 
 using namespace std;
-using namespace ndn;
+namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(TestData)
 
@@ -201,3 +201,5 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+} // namespace ndn

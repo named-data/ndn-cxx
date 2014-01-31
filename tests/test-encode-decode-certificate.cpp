@@ -21,7 +21,7 @@
 #include <boost/test/output_test_stream.hpp>
 
 using namespace std;
-using namespace ndn;
+namespace ndn {
 
 using namespace CryptoPP;
 
@@ -181,3 +181,5 @@ BOOST_AUTO_TEST_CASE (Decode)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+} // namespace ndn

@@ -13,8 +13,7 @@
 #include "security/key-chain.hpp"
 
 using namespace std;
-using namespace ndn;
-
+namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(TestSecPublicInfoSqlite3)
 
@@ -73,3 +72,5 @@ BOOST_AUTO_TEST_CASE (Delete)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+} // namespace ndn

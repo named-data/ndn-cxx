@@ -8,7 +8,7 @@
 #include "face.hpp"
 
 using namespace std;
-using namespace ndn;
+namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(TestFaces)
 
@@ -93,3 +93,5 @@ BOOST_FIXTURE_TEST_CASE (Tcp, FacesFixture)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+} // namespace ndn
