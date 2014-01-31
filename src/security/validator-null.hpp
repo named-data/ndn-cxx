@@ -14,22 +14,22 @@
 namespace ndn {
 
 class ValidatorNull : public Validator {
-protected:
-
+public:
   virtual
   ~ValidatorNull()
   {}
-
+  
+protected:
   virtual void
-  checkPolicy (shared_ptr<const Data> data, 
+  checkPolicy (const shared_ptr<const Data>& data, 
                int stepCount, 
                const OnDataValidated &onValidated, 
                const OnDataValidationFailed &onValidationFailed,
                std::vector<shared_ptr<ValidationRequest> > &nextSteps)
   { onValidated(data); }
-
+  
   virtual void
-  checkPolicy (shared_ptr<const Interest> interest, 
+  checkPolicy (const shared_ptr<const Interest>& interest, 
                int stepCount, 
                const OnInterestValidated &onValidated, 
                const OnInterestValidationFailed &onValidationFailed,

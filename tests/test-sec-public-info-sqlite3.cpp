@@ -11,6 +11,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "security/key-chain.hpp"
+#include "util/time.hpp"
 
 using namespace std;
 namespace ndn {
@@ -21,14 +22,19 @@ BOOST_AUTO_TEST_CASE (Delete)
 {
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
 
-  Name identity("/tmp");
+  Name identity(string("/TestSecPublicInfoSqlite3/Delete/") + boost::lexical_cast<string>(time::now()));
   Name certName1 = keyChain.createIdentity(identity);
   Name keyName1 = IdentityCertificate::certificateNameToPublicKeyName(certName1);  
-  Name keyName2 = keyChain.generateRSAKeyPairAsDefault(identity);
+  Name keyName2;
+  BOOST_CHECK_NO_THROW(keyName2 = keyChain.generateRSAKeyPairAsDefault(identity));
+  
   ptr_lib::shared_ptr<IdentityCertificate> cert2 = keyChain.selfSign(keyName2);
   Name certName2 = cert2->getName();
   keyChain.addCertificateAsKeyDefault(*cert2);
-  Name keyName3 = keyChain.generateRSAKeyPairAsDefault(identity);
+  
+  Name keyName3;
+  BOOST_CHECK_NO_THROW(keyName3 = keyChain.generateRSAKeyPairAsDefault(identity));
+  
   ptr_lib::shared_ptr<IdentityCertificate> cert3 = keyChain.selfSign(keyName3);
   Name certName3 = cert3->getName();
   keyChain.addCertificateAsKeyDefault(*cert3);

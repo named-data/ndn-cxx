@@ -97,8 +97,7 @@ protected:
                int stepCount, 
                const OnDataValidated &onValidated, 
                const OnDataValidationFailed &onValidationFailed,
-               std::vector<shared_ptr<ValidationRequest> > &nextSteps)
-  { onValidationFailed(data); }
+               std::vector<shared_ptr<ValidationRequest> > &nextSteps) = 0;
 
   /**
    * @brief Check the Interest against validation policy and return the next validation step if necessary.
@@ -117,8 +116,7 @@ protected:
                int stepCount, 
                const OnInterestValidated &onValidated, 
                const OnInterestValidationFailed &onValidationFailed,
-               std::vector<shared_ptr<ValidationRequest> > &nextSteps)
-  { onValidationFailed(interest); }
+               std::vector<shared_ptr<ValidationRequest> > &nextSteps) = 0;
 
 private:
   typedef function< void () > OnFailure;
