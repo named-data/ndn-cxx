@@ -12,7 +12,7 @@
 
 #include "../encoding/block.hpp"
 #include "../encoding/tlv-nfd-control.hpp"
-#include "name.hpp"
+#include "../name.hpp"
 
 namespace ndn {
 
