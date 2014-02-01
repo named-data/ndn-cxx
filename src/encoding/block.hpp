@@ -90,6 +90,12 @@ public:
    */
   explicit
   Block(uint32_t type, const Block &value);
+
+  /**
+   * @brief Check if the Block is empty
+   */
+  inline bool
+  empty() const;
   
   /**
    * @brief Check if the Block has fully encoded wire
@@ -205,6 +211,13 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+
+inline bool
+Block::empty() const
+{
+  return m_type == std::numeric_limits<uint32_t>::max();
+}
+
 
 inline bool
 Block::hasWire() const

@@ -216,6 +216,9 @@ Data::setFreshnessPeriod(Milliseconds freshnessPeriod)
 inline const Block& 
 Data::getContent() const
 {
+  if (content_.empty())
+    content_ = dataBlock(Tlv::Content, reinterpret_cast<const uint8_t*>(0), 0);
+
   if (!content_.hasWire())
       content_.encode();
   return content_;
