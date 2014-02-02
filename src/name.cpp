@@ -93,6 +93,16 @@ Name::Component::compare(const Name::Component& other) const
   return std::memcmp(getValue().buf(), other.getValue().buf(), getValue().size());
 }
 
+inline size_t
+Name::Component::wireEncode (EncodingBuffer& blk)
+{
+  size_t total_len = 0;
+  total_len += blk.prependBuffer (*value_);
+  total_len += blk.prependVarNumber (value_->size ());
+  total_len += blk.prependVarNumber (Tlv::NameComponent);
+  return total_len;
+}
+
 // const Block &
 // Name::wireEncode() const
 // {
@@ -375,4 +385,23 @@ Name::wireDecode(const Block &wire)
       append(i->value(), i->value_size());
     }
 }
+
+
+size_t
+Name::wireEncode (EncodingBuffer& blk)
+{
+  size_t total_len = 0;
+  
+  for (std::vector<Component>::reverse_iterator i = components_.rbegin ();
+       i != components_.rend ();
+       ++i)
+    {
+      total_len += i->wireEncode (blk);
+    }
+
+  total_len += blk.prependVarNumber (total_len);
+  total_len += blk.prependVarNumber (Tlv::Name);
+  return total_len;
 }
+
+} // namespace ndn

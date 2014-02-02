@@ -11,6 +11,7 @@
 #define NDN_FIB_MANAGEMENT_HPP
 
 #include "../encoding/block.hpp"
+#include "../encoding/encoding-buffer.hpp"
 #include "../encoding/tlv-nfd-control.hpp"
 #include "../name.hpp"
 
@@ -42,6 +43,9 @@ public:
   void 
   setCost (int cost) { cost_ = cost; wire_.reset (); }
 
+  inline size_t
+  wireEncode (EncodingBuffer& blk);
+  
   inline const Block&
   wireEncode () const;
   
@@ -57,6 +61,33 @@ private:
 
   mutable Block wire_;
 };
+
+inline size_t
+FibManagementOptions::wireEncode (EncodingBuffer& blk)
+{
+  size_t total_len = 0;
+  if (cost_ != -1)
+    {
+      size_t var_len = blk.prependNonNegativeInteger (cost_);
+      total_len += var_len;
+      total_len += blk.prependVarNumber (var_len);
+      total_len += blk.prependVarNumber (tlv::nfd_control::Cost);
+    }
+
+  if (faceId_ != -1)
+    {
+      size_t var_len = blk.prependNonNegativeInteger (faceId_);
+      total_len += var_len;
+      total_len += blk.prependVarNumber (var_len);
+      total_len += blk.prependVarNumber (tlv::nfd_control::FaceId);
+    }
+
+  total_len += name_.wireEncode (blk);
+
+  total_len += blk.prependVarNumber (total_len);
+  total_len += blk.prependVarNumber (tlv::nfd_control::FibManagementOptions);
+  return total_len;
+}
 
 inline const Block&
 FibManagementOptions::wireEncode () const

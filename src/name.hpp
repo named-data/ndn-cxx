@@ -15,6 +15,7 @@
 #include <sstream>
 #include <string.h>
 #include "encoding/block.hpp"
+#include "encoding/encoding-buffer.hpp"
 
 namespace ndn {
     
@@ -250,6 +251,10 @@ public:
      */
     bool
     operator > (const Component& other) const { return compare(other) > 0; }
+
+    inline size_t
+    wireEncode (EncodingBuffer& blk);
+    
   private:
     ConstBufferPtr value_;
   };
@@ -297,6 +302,9 @@ public:
     set(uri.c_str());
   }
 
+  size_t
+  wireEncode (EncodingBuffer& blk);
+  
   const Block &
   wireEncode() const;
 

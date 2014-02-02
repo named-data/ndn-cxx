@@ -1,6 +1,6 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
@@ -61,6 +61,32 @@ BOOST_AUTO_TEST_CASE (FibManagementOptionsEncoding)
   BOOST_REQUIRE_EQUAL_COLLECTIONS (TestFibManagementOptions,
                                    TestFibManagementOptions + sizeof (TestFibManagementOptions),
                                    blk.begin (), blk.end ());
+}
+
+BOOST_AUTO_TEST_CASE (FibManagementOptionsFastEncoding)
+{
+  Name n ("/localhost/reg/test");
+  FibManagementOptions opt;
+
+  opt.setName (n);
+  opt.setFaceId (0);
+  opt.setCost (0);
+
+  EncodingBuffer blk;
+
+  BOOST_REQUIRE_NO_THROW (opt.wireEncode (blk));
+
+  BOOST_REQUIRE_EQUAL_COLLECTIONS (TestFibManagementOptions,
+                                   TestFibManagementOptions + sizeof (TestFibManagementOptions),
+                                   blk.begin (), blk.end ());
+
+  EncodingBuffer blk2 (4);
+
+  BOOST_REQUIRE_NO_THROW (opt.wireEncode (blk2));
+
+  BOOST_REQUIRE_EQUAL_COLLECTIONS (TestFibManagementOptions,
+                                   TestFibManagementOptions + sizeof (TestFibManagementOptions),
+                                   blk2.begin (), blk2.end ());
 }
 
 BOOST_AUTO_TEST_CASE (FibManagementOptionsDecoding)

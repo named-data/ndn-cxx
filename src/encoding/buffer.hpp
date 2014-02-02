@@ -42,6 +42,15 @@ public:
   }
 
   /**
+   * @brief Creates a buffer with pre-allocated size
+   * @param size size of the buffer to be allocated
+   */
+  Buffer (size_t size)
+    : std::vector<uint8_t> (size, 0)
+  {
+  }
+
+  /**
    * @brief Create a buffer by copying the supplied data from a const buffer
    * @param buf const pointer to buffer
    * @param length length of the buffer to copy
