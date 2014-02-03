@@ -109,7 +109,7 @@ Scheduler::schedulePeriodicEvent(const time::Duration& after,
 void
 Scheduler::cancelEvent(const EventId& eventId)
 {
-  if (!eventId->isValid())
+  if (!static_cast<bool>(eventId) || !eventId->isValid())
     return; // event already fired or cancelled
   
   if (static_cast<EventQueue::iterator>(*eventId) != m_scheduledEvent) {
@@ -152,16 +152,22 @@ Scheduler::onEvent(const boost::system::error_code& error)
       head->m_event();
       if (head->m_period < 0)
         {
-          head->m_eventId->invalidate();
-          m_events.erase(head);
+          if(head->m_eventId->isValid())
+            {
+              head->m_eventId->invalidate();
+              m_events.erase(head);
+            }
         }
       else
         {
+          bool validity = head->m_eventId->isValid();
+
           // "reschedule" and update EventId data of the event
           EventInfo event(now + head->m_period, *head);
           EventQueue::iterator i = m_events.insert(event);
           i->m_eventId->reset(i);
-          m_events.erase(head);
+          if(validity)
+            m_events.erase(head);
         }
     }
 
