@@ -331,8 +331,8 @@ SecPublicInfo::getNewKeyName (const Name& identityName, bool useKsk)
   else
     oss << "dsk-";
 
-  oss << static_cast<int>(getNow());  
-
+  oss << getNow();
+  
   Name keyName = Name(identityName).append(oss.str());
 
   if (doesPublicKeyExist(keyName))
