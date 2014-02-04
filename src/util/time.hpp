@@ -160,6 +160,13 @@ private:
   int64_t m_value;
 };
 
+inline std::ostream&
+operator<<(std::ostream &os, const Duration& duration)
+{
+  os << static_cast<int64_t>(duration) / 1000000000.0 << " s";
+  return os;
+}
+
 /**
  * \brief Get current time
  * \return{ the current time in monotonic clock }

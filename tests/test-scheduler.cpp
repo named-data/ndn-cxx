@@ -80,6 +80,140 @@ BOOST_FIXTURE_TEST_CASE(Events, SchedulerFixture)
   BOOST_CHECK_EQUAL(count4, 4);
 }
 
+BOOST_AUTO_TEST_CASE(CancelEmptyEvent)
+{
+  boost::asio::io_service io; 
+  Scheduler scheduler(io);
+  
+  EventId i;
+  scheduler.cancelEvent(i);
+}
+
+struct SelfCancelFixture
+{
+  SelfCancelFixture()
+    : m_scheduler(m_io)
+  {
+  }
+
+  void
+  cancelSelf()
+  {
+    m_scheduler.cancelEvent(m_selfEventId);
+  }
+
+  boost::asio::io_service m_io;
+  Scheduler m_scheduler;
+  EventId m_selfEventId;
+};
+
+BOOST_FIXTURE_TEST_CASE(SelfCancel, SelfCancelFixture)
+{
+  m_selfEventId = m_scheduler.scheduleEvent(time::seconds(0.1),
+                                            bind(&SelfCancelFixture::cancelSelf, this));
+
+  BOOST_REQUIRE_NO_THROW(m_io.run());
+}
+
+struct SelfRescheduleFixture
+{
+  SelfRescheduleFixture()
+    : m_scheduler(m_io)
+    , m_count(0)
+  {
+  }
+
+  void
+  reschedule()
+  {
+    EventId eventId = m_scheduler.scheduleEvent(time::seconds(0.1),
+                                                  bind(&SelfRescheduleFixture::reschedule, this));
+    m_scheduler.cancelEvent(m_selfEventId);
+    m_selfEventId = eventId;
+
+    if(m_count < 5)
+      m_count++;
+    else
+      m_scheduler.cancelEvent(m_selfEventId);
+  }
+
+  void
+  reschedule2()
+  {
+    m_scheduler.cancelEvent(m_selfEventId);
+    
+    
+    if(m_count < 5)
+      {
+        m_selfEventId = m_scheduler.scheduleEvent(time::seconds(0.1),
+                                                  bind(&SelfRescheduleFixture::reschedule2, this));
+        m_count++;
+      }
+  }
+
+  void
+  doNothing()
+  {
+    m_count++;
+  }
+  
+  void
+  reschedule3()
+  {
+    m_scheduler.cancelEvent(m_selfEventId);
+    
+    m_scheduler.scheduleEvent(time::seconds(0.1),
+                              bind(&SelfRescheduleFixture::doNothing, this));
+    m_scheduler.scheduleEvent(time::seconds(0.1),
+                              bind(&SelfRescheduleFixture::doNothing, this));
+    m_scheduler.scheduleEvent(time::seconds(0.1),
+                              bind(&SelfRescheduleFixture::doNothing, this));
+    m_scheduler.scheduleEvent(time::seconds(0.1),
+                              bind(&SelfRescheduleFixture::doNothing, this));
+    m_scheduler.scheduleEvent(time::seconds(0.1),
+                              bind(&SelfRescheduleFixture::doNothing, this));
+    m_scheduler.scheduleEvent(time::seconds(0.1),
+                              bind(&SelfRescheduleFixture::doNothing, this));
+  }
+
+  boost::asio::io_service m_io;
+  Scheduler m_scheduler;
+  EventId m_selfEventId;
+  int m_count;
+  
+};
+
+BOOST_FIXTURE_TEST_CASE(Reschedule, SelfRescheduleFixture)
+{
+  m_selfEventId = m_scheduler.scheduleEvent(time::seconds(0),
+                                            bind(&SelfRescheduleFixture::reschedule, this));
+
+  BOOST_REQUIRE_NO_THROW(m_io.run());
+
+  BOOST_CHECK_EQUAL(m_count, 5);
+}
+
+BOOST_FIXTURE_TEST_CASE(Reschedule2, SelfRescheduleFixture)
+{
+  m_selfEventId = m_scheduler.scheduleEvent(time::seconds(0),
+                                            bind(&SelfRescheduleFixture::reschedule2, this));
+
+  BOOST_REQUIRE_NO_THROW(m_io.run());
+
+  BOOST_CHECK_EQUAL(m_count, 5);
+}
+
+BOOST_FIXTURE_TEST_CASE(Reschedule3, SelfRescheduleFixture)
+{
+  m_selfEventId = m_scheduler.scheduleEvent(time::seconds(0),
+                                            bind(&SelfRescheduleFixture::reschedule3, this));
+
+  BOOST_REQUIRE_NO_THROW(m_io.run());
+
+  BOOST_CHECK_EQUAL(m_count, 6);
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace ndn
