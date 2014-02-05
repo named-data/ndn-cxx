@@ -16,13 +16,13 @@ namespace ndn
   
 class SecTpmOsx : public SecTpm {
 public:
-  struct Error : public SecTpm::Error { Error(const std::string &what) : SecTpm::Error(what) {} };
+  struct Error : public SecTpm::Error { Error(const std::string& what) : SecTpm::Error(what) {} };
 
   /**
    * constructor of OSXKeyChainTpm
    * @param keychainName the name of keychain
    */
-  SecTpmOsx(const std::string & keychainName = "");
+  SecTpmOsx();
 
   /**
    * destructor of OSXKeyChainTpm
@@ -40,13 +40,13 @@ public:
    * @param keyName The name of the key pair.
    */
   virtual void
-  deleteKeyPairInTpm(const Name &keyName);
+  deleteKeyPairInTpm(const Name& keyName);
 
   virtual ptr_lib::shared_ptr<PublicKey> 
   getPublicKeyFromTpm(const Name& keyName);
   
   virtual Block
-  signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
+  signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
   
   /**
    * Decrypt data.
@@ -102,7 +102,7 @@ public:
    * @returns true if setting succeeds
    */
   bool 
-  setACL(const Name & keyName, KeyClass keyClass, int acl, const std::string & appPath);
+  setACL(const Name& keyName, KeyClass keyClass, int acl, const std::string& appPath);
 
   // /**
   //  * verify data (test only)
@@ -117,7 +117,7 @@ public:
 
  private:
   class Impl;
-  std::auto_ptr<Impl> impl_;
+  std::auto_ptr<Impl> m_impl;
 };
   
 } // namespace ndn
