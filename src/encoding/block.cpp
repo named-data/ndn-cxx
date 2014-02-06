@@ -19,8 +19,8 @@ Block::Block()
 
 Block::Block(const ConstBufferPtr &wire,
              uint32_t type,
-             const Buffer::const_iterator &begin, Buffer::const_iterator &end,
-             const Buffer::const_iterator &valueBegin, Buffer::const_iterator &valueEnd)
+             const Buffer::const_iterator &begin, const Buffer::const_iterator &end,
+             const Buffer::const_iterator &valueBegin, const Buffer::const_iterator &valueEnd)
   : m_buffer(wire)
   , m_type(type)
   , m_begin(begin)
@@ -42,6 +42,23 @@ Block::Block(const ConstBufferPtr &buffer)
   
   m_type = Tlv::readType(m_value_begin, m_value_end);
 
+  uint64_t length = Tlv::readVarNumber(m_value_begin, m_value_end);
+  if (length != (m_value_end - m_value_begin))
+    {
+      throw Tlv::Error("TLV length doesn't match buffer length");
+    }
+}
+
+Block::Block(const ConstBufferPtr &buffer,
+             const Buffer::const_iterator &begin, const Buffer::const_iterator &end)
+  : m_buffer(buffer)
+  , m_begin(begin)
+  , m_end(end)
+{
+  m_value_begin = m_buffer->begin();
+  m_value_end   = m_buffer->end();
+  
+  m_type = Tlv::readType(m_value_begin, m_value_end);
   uint64_t length = Tlv::readVarNumber(m_value_begin, m_value_end);
   if (length != (m_value_end - m_value_begin))
     {

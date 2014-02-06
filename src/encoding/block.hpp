@@ -45,6 +45,15 @@ public:
   Block(const ConstBufferPtr &buffer);
 
   /**
+   * @brief Another helper to create block from a buffer, directly specifying boundaries
+   *        of the block within the buffer
+   *
+   * This version will automatically detect type and position of the value within the block
+   */
+  Block(const ConstBufferPtr &buffer,
+        const Buffer::const_iterator &begin, const Buffer::const_iterator &end);
+  
+  /**
    * @brief A helper version of a constructor to create Block from the raw buffer (type and value-length parsing)
    */
   Block(const uint8_t *buffer, size_t maxlength);
@@ -63,8 +72,8 @@ public:
    */
   Block(const ConstBufferPtr &wire,
         uint32_t type,
-        const Buffer::const_iterator &begin, Buffer::const_iterator &end,
-        const Buffer::const_iterator &valueBegin, Buffer::const_iterator &valueEnd);
+        const Buffer::const_iterator &begin, const Buffer::const_iterator &end,
+        const Buffer::const_iterator &valueBegin, const Buffer::const_iterator &valueEnd);
 
   /**
    * @brief Create Block of a specific type with empty wire buffer
@@ -183,6 +192,9 @@ public:
 
   inline const uint8_t*
   wire() const;
+
+  inline const uint8_t*
+  buf() const;
   
   inline const uint8_t*
   value() const;
@@ -412,6 +424,15 @@ Block::value_end() const
 
 inline const uint8_t*
 Block::wire() const
+{
+  if (!hasWire())
+      throw Error("(Block::wire) Underlying wire buffer is empty");
+
+  return &*m_begin;
+}
+
+inline const uint8_t*
+Block::buf() const
 {
   if (!hasWire())
       throw Error("(Block::wire) Underlying wire buffer is empty");

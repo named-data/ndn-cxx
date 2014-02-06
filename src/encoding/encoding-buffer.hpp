@@ -48,7 +48,7 @@ public:
    * otherwise behavior is undefined.
    */
   EncodingImpl (size_t totalReserve = 8800,
-                  size_t reserveFromBack = 400)
+                size_t reserveFromBack = 400)
     : m_buffer (new Buffer (totalReserve))
   {
     m_begin = m_end = m_buffer->end () - (reserveFromBack < totalReserve ? reserveFromBack : 0);
@@ -65,6 +65,9 @@ public:
 
   inline const uint8_t*
   buf () const;
+
+  inline Block
+  block () const;
 
   inline void
   resize (size_t sz, bool addInFront);
@@ -111,6 +114,18 @@ public:
   inline size_t
   appendVarNumber (uint64_t varNumber);
 
+  // inline void
+  // removeByteFromFront ();
+
+  // inline void
+  // removeByteFromEnd ();
+
+  // inline void
+  // removeVarNumberFromFront (uint64_t varNumber);
+
+  // inline void
+  // removeVarNumberFromBack (uint64_t varNumber);
+  
 private:
   BufferPtr m_buffer;
 
@@ -204,7 +219,14 @@ EncodingImpl<encoding::Buffer>::buf () const
 {
   return &(*m_begin);
 }
-  
+
+inline Block
+EncodingImpl<encoding::Buffer>::block () const
+{
+  return Block(m_buffer,
+               m_begin, m_end);
+}
+
 inline void
 EncodingImpl<encoding::Buffer>::resize (size_t sz, bool addInFront)
 {
