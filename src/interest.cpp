@@ -5,23 +5,9 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <stdexcept>
 #include "common.hpp"
 #include "interest.hpp"
-
-#if __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wreorder"
-#pragma clang diagnostic ignored "-Wtautological-compare"
-#pragma clang diagnostic ignored "-Wunused-variable"
-#pragma clang diagnostic ignored "-Wunused-function"
-#elif __GNUC__
-#pragma GCC diagnostic ignored "-Wreorder"
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wunused-function"
-#endif
-
-#include <cryptopp/osrng.h>
+#include "util/random.hpp"
 
 using namespace std;
 
@@ -32,10 +18,8 @@ const Milliseconds DEFAULT_INTEREST_LIFETIME = 4000;
 const uint32_t&
 Interest::getNonce() const
 {
-  static CryptoPP::AutoSeededRandomPool rng;
-
   if (nonce_ == 0)
-    nonce_ = rng.GenerateWord32();
+    nonce_ = random::generateWord32();
 
   return nonce_;
 }

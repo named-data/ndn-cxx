@@ -5,17 +5,16 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <stdexcept>
-#include "util/time.hpp"
+#include "node.hpp"
 
 #include "forwarding-entry.hpp"
 #include "face-instance.hpp"
-#include "node.hpp"
-
-#include "util/ndnd-id-fetcher.hpp"
-
-#include "security/signature-sha256-with-rsa.hpp"
 #include "status-response.hpp"
+#include "security/signature-sha256-with-rsa.hpp"
+
+#include "util/time.hpp"
+#include "util/random.hpp"
+#include "util/ndnd-id-fetcher.hpp"
 
 using namespace std;
 #if NDN_CPP_HAVE_CXX11
@@ -131,6 +130,8 @@ Node::removeRegisteredPrefix(const RegisteredPrefixId *registeredPrefixId)
     {
       ForwardingEntry forwardingEntry("unreg", (*i)->getPrefix(), faceId_);
       Data data;
+      // This ensures uniqueness of each prefix registration commands
+      data.setName(Name().appendVersion(random::generateWord32()));
       data.setContent(forwardingEntry.wireEncode());
         
       SignatureSha256WithRsa signature;
@@ -169,8 +170,11 @@ Node::registerPrefixHelper(const ptr_lib::shared_ptr<RegisteredPrefix> &prefixTo
   ForwardingEntry forwardingEntry("selfreg", prefixToRegister->getPrefix(), -1, flags, -1);
   Block content = forwardingEntry.wireEncode();
 
+
   // Set the ForwardingEntry as the content of a Data packet and sign.
   Data data;
+  // This ensures uniqueness of each prefix registration commands
+  data.setName(Name().appendVersion(random::generateWord32()));
   data.setContent(content);
   
   // Create an empty signature, since nobody going to verify it for now
