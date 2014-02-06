@@ -23,40 +23,35 @@
 
 namespace ndn {
 
+namespace encoding {
+const bool Buffer = true;
+const bool Estimator = false;
+} // encoding
+
+template<bool isRealEncoderNotEstimator>
+class EncodingImpl;
+
+typedef EncodingImpl<encoding::Buffer> EncodingBuffer;
+typedef EncodingImpl<encoding::Estimator> EncodingEstimator;
+
 /**
  * @brief Class representing wire element of the NDN packet
  */
-class EncodingBuffer
+template<>
+class EncodingImpl<encoding::Buffer>
 {
 public:
-  /// @brief Error that can be thrown from the block
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
-
-  enum
-    {
-      DefaultBufferSize = 8800,
-      BufferReservedSize = 400
-    };
-  
   /**
-   * @brief Default constructor to create a fix-sized EncodingBuffer
+   * @brief Constructor to create a EncodingImpl with specified reserved sizes
+   *
+   * The caller should make sure that that reserveFromBack does not exceed totalReserve,
+   * otherwise behavior is undefined.
    */
-  EncodingBuffer ()
-    : m_buffer (new Buffer ((size_t) DefaultBufferSize))
+  EncodingImpl (size_t totalReserve = 8800,
+                  size_t reserveFromBack = 400)
+    : m_buffer (new Buffer (totalReserve))
   {
-    m_begin = m_end = m_buffer->end () - BufferReservedSize;
-  }
-
-  /**
-   * @brief Constructor to create a EncodingBuffer with user-specified size
-   */
-  EncodingBuffer (size_t size)
-    : m_buffer (new Buffer (size))
-  {
-    if (size <= BufferReservedSize)
-      m_begin = m_end = m_buffer->end ();
-    else
-      m_begin = m_end = m_buffer->end () - BufferReservedSize;
+    m_begin = m_end = m_buffer->end () - (reserveFromBack < totalReserve ? reserveFromBack : 0);
   }
 
   inline size_t
@@ -125,36 +120,93 @@ private:
   Buffer::iterator m_end;
 };
 
+
+/**
+ * @brief Class representing wire element of the NDN packet
+ */
+template<>
+class EncodingImpl<encoding::Estimator>
+{
+public:
+  EncodingImpl (size_t totalReserve = 8800,
+                  size_t reserveFromBack = 400)
+  {
+  }
+
+  inline size_t
+  size () const;
+
+  inline size_t
+  prependByte (uint8_t val);
+
+  inline size_t
+  prependByteArray (const uint8_t *arr, size_t len);
+
+  inline size_t
+  prependBuffer (const Buffer& arr);
+
+  inline size_t
+  prependNonNegativeInteger (uint64_t varNumber);
+
+  inline size_t
+  prependVarNumber (uint64_t varNumber);
+
+  inline size_t
+  appendByte (uint8_t val);
+
+  inline size_t
+  appendByteArray (const uint8_t *arr, size_t len);
+
+  inline size_t
+  appendBuffer (const Buffer& arr);
+
+  inline size_t
+  appendNonNegativeInteger (uint64_t varNumber);
+
+  inline size_t
+  appendVarNumber (uint64_t varNumber);
+
+private:
+  size_t m_size;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 inline size_t
-EncodingBuffer::size () const
+EncodingImpl<encoding::Buffer>::size () const
 {
   return m_end - m_begin;
 }
 
 inline size_t
-EncodingBuffer::capacity () const
+EncodingImpl<encoding::Estimator>::size () const
+{
+  return m_size;
+}
+
+inline size_t
+EncodingImpl<encoding::Buffer>::capacity () const
 {
   return m_buffer->size ();
 }
 
 inline uint8_t*
-EncodingBuffer::buf ()
+EncodingImpl<encoding::Buffer>::buf ()
 {
   return &(*m_begin);
 }
 
 inline const uint8_t*
-EncodingBuffer::buf () const
+EncodingImpl<encoding::Buffer>::buf () const
 {
   return &(*m_begin);
 }
   
 inline void
-EncodingBuffer::resize (size_t sz, bool addInFront)
+EncodingImpl<encoding::Buffer>::resize (size_t sz, bool addInFront)
 {
   if (addInFront)
     {
@@ -185,25 +237,25 @@ EncodingBuffer::resize (size_t sz, bool addInFront)
 }
 
 inline Buffer::iterator
-EncodingBuffer::begin ()
+EncodingImpl<encoding::Buffer>::begin ()
 {
   return m_begin;
 }
 
 inline Buffer::iterator
-EncodingBuffer::end ()
+EncodingImpl<encoding::Buffer>::end ()
 {
   return m_end;
 }
 
 inline Buffer::const_iterator
-EncodingBuffer::begin () const
+EncodingImpl<encoding::Buffer>::begin () const
 {
   return m_begin;
 }
 
 inline Buffer::const_iterator
-EncodingBuffer::end () const
+EncodingImpl<encoding::Buffer>::end () const
 {
   return m_end;
 }
@@ -214,7 +266,7 @@ EncodingBuffer::end () const
 //////////////////////////////////////////////////////////
 
 inline size_t
-EncodingBuffer::prependByte (uint8_t val)
+EncodingImpl<encoding::Buffer>::prependByte (uint8_t val)
 {
   if (m_begin == m_buffer->begin ())
     resize (m_buffer->size () * 2, true);
@@ -225,7 +277,14 @@ EncodingBuffer::prependByte (uint8_t val)
 }
 
 inline size_t
-EncodingBuffer::prependByteArray (const uint8_t *arr, size_t len)
+EncodingImpl<encoding::Estimator>::prependByte (uint8_t val)
+{
+  m_size += 1;
+  return 1;
+}
+
+inline size_t
+EncodingImpl<encoding::Buffer>::prependByteArray (const uint8_t *arr, size_t len)
 {
   if ((m_buffer->begin () + len) > m_begin)
     resize (m_buffer->size () * 2 + len, true);
@@ -236,7 +295,14 @@ EncodingBuffer::prependByteArray (const uint8_t *arr, size_t len)
 }
 
 inline size_t
-EncodingBuffer::prependBuffer (const Buffer& arr)
+EncodingImpl<encoding::Estimator>::prependByteArray (const uint8_t *arr, size_t len)
+{
+  m_size += len;
+  return len;
+}
+
+inline size_t
+EncodingImpl<encoding::Buffer>::prependBuffer (const Buffer& arr)
 {
   if ((m_buffer->begin () + arr.size ()) > m_begin)
     resize (m_buffer->size () * 2 + arr.size (), true);
@@ -247,7 +313,14 @@ EncodingBuffer::prependBuffer (const Buffer& arr)
 }
 
 inline size_t
-EncodingBuffer::prependNonNegativeInteger (uint64_t varNumber)
+EncodingImpl<encoding::Estimator>::prependBuffer (const Buffer& arr)
+{
+  m_size += arr.size ();
+  return arr.size ();
+}
+
+inline size_t
+EncodingImpl<encoding::Buffer>::prependNonNegativeInteger (uint64_t varNumber)
 {
   if (varNumber < 253) {
     return prependByte (static_cast<uint8_t> (varNumber));
@@ -267,7 +340,28 @@ EncodingBuffer::prependNonNegativeInteger (uint64_t varNumber)
 }
 
 inline size_t
-EncodingBuffer::prependVarNumber (uint64_t varNumber)
+EncodingImpl<encoding::Estimator>::prependNonNegativeInteger (uint64_t varNumber)
+{
+  if (varNumber < 253) {
+    m_size += 1;
+    return 1;
+  }
+  else if (varNumber <= std::numeric_limits<uint16_t>::max ()) {
+    m_size += 2;
+    return 2;
+  }
+  else if (varNumber <= std::numeric_limits<uint32_t>::max ()) {
+    m_size += 4;
+    return 4;
+  }
+  else {
+    m_size += 8;
+    return 8;
+  }
+}
+
+inline size_t
+EncodingImpl<encoding::Buffer>::prependVarNumber (uint64_t varNumber)
 {
   if (varNumber < 253) {
     prependByte (static_cast<uint8_t> (varNumber));
@@ -293,12 +387,33 @@ EncodingBuffer::prependVarNumber (uint64_t varNumber)
   }
 }
 
+inline size_t
+EncodingImpl<encoding::Estimator>::prependVarNumber (uint64_t varNumber)
+{
+  if (varNumber < 253) {
+    m_size += 1;
+    return 1;
+  }
+  else if (varNumber <= std::numeric_limits<uint16_t>::max ()) {
+    m_size += 3;
+    return 3;
+  }
+  else if (varNumber <= std::numeric_limits<uint32_t>::max ()) {
+    m_size += 5;
+    return 5;
+  }
+  else {
+    m_size += 9;
+    return 9;
+  }
+}
+
 /////////////////////////////////////////////////////////
 // Append to the back of the buffer. Resize if needed. //
 /////////////////////////////////////////////////////////
 
 inline size_t
-EncodingBuffer::appendByte (uint8_t val)
+EncodingImpl<encoding::Buffer>::appendByte (uint8_t val)
 {
   if (m_end == m_buffer->end ())
     resize (m_buffer->size () * 2, false);
@@ -309,7 +424,13 @@ EncodingBuffer::appendByte (uint8_t val)
 }
 
 inline size_t
-EncodingBuffer::appendByteArray (const uint8_t *arr, size_t len)
+EncodingImpl<encoding::Estimator>::appendByte (uint8_t val)
+{
+  return 1;
+}
+
+inline size_t
+EncodingImpl<encoding::Buffer>::appendByteArray (const uint8_t *arr, size_t len)
 {
   if ((m_end + len) > m_buffer->end ())
     resize (m_buffer->size () * 2 + len, false);
@@ -320,7 +441,13 @@ EncodingBuffer::appendByteArray (const uint8_t *arr, size_t len)
 }
 
 inline size_t
-EncodingBuffer::appendBuffer (const Buffer& arr)
+EncodingImpl<encoding::Estimator>::appendByteArray (const uint8_t *arr, size_t len)
+{
+  return prependByteArray(arr, len);
+}
+
+inline size_t
+EncodingImpl<encoding::Buffer>::appendBuffer (const Buffer& arr)
 {
   if ((m_end + arr.size ()) > m_buffer->end ())
     resize (m_buffer->size () * 2 + arr.size (), false);
@@ -331,7 +458,13 @@ EncodingBuffer::appendBuffer (const Buffer& arr)
 }
 
 inline size_t
-EncodingBuffer::appendNonNegativeInteger (uint64_t varNumber)
+EncodingImpl<encoding::Estimator>::appendBuffer (const Buffer& arr)
+{
+  return prependBuffer(arr);
+}
+
+inline size_t
+EncodingImpl<encoding::Buffer>::appendNonNegativeInteger (uint64_t varNumber)
 {
   if (varNumber < 253) {
     return appendByte (static_cast<uint8_t> (varNumber));
@@ -351,7 +484,13 @@ EncodingBuffer::appendNonNegativeInteger (uint64_t varNumber)
 }
 
 inline size_t
-EncodingBuffer::appendVarNumber (uint64_t varNumber)
+EncodingImpl<encoding::Estimator>::appendNonNegativeInteger (uint64_t varNumber)
+{
+  return prependNonNegativeInteger(varNumber);
+}
+
+inline size_t
+EncodingImpl<encoding::Buffer>::appendVarNumber (uint64_t varNumber)
 {
   if (varNumber < 253) {
     appendByte (static_cast<uint8_t> (varNumber));
@@ -375,6 +514,12 @@ EncodingBuffer::appendVarNumber (uint64_t varNumber)
     appendByteArray (reinterpret_cast<const uint8_t*> (&value), 8);
     return 9;
   }
+}
+
+inline size_t
+EncodingImpl<encoding::Estimator>::appendVarNumber (uint64_t varNumber)
+{
+  return prependVarNumber(varNumber);
 }
 
 } // ndn
