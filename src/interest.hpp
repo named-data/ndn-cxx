@@ -141,6 +141,9 @@ public:
    */
   const uint32_t&
   getNonce() const;
+
+  uint64_t
+  getIncomingFaceId() const { return m_incomingFaceId; }
     
   void
   setName(const Name& name) { name_ = name; }
@@ -165,6 +168,9 @@ public:
 
   void 
   setNonce(uint32_t nonce) { nonce_ = nonce; }
+
+  void
+  setIncomingFaceId(uint64_t incomingFaceId) { m_incomingFaceId = incomingFaceId; }
 
   inline bool
   hasSelectors() const;
@@ -206,6 +212,8 @@ private:
   mutable uint32_t nonce_;
 
   mutable Block wire_;
+
+  uint64_t m_incomingFaceId;
 };
 
 std::ostream &

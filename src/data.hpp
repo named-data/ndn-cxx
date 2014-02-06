@@ -127,6 +127,12 @@ public:
 
   inline void
   setSignatureValue(const Block &value);
+
+  inline uint64_t
+  getIncomingFaceId() const;
+
+  inline void
+  setIncomingFaceId(uint64_t incomingFaceId);
   
 private:
   /**
@@ -142,6 +148,8 @@ private:
   Signature signature_;
 
   mutable Block wire_;
+
+  uint64_t m_incomingFaceId;
 };
 
 inline
@@ -272,6 +280,17 @@ Data::setSignatureValue(const Block &value)
   signature_.setValue(value);
 }
 
+inline uint64_t
+Data::getIncomingFaceId() const
+{
+  return m_incomingFaceId;
+}
+
+inline void
+Data::setIncomingFaceId(uint64_t incomingFaceId)
+{
+  m_incomingFaceId = incomingFaceId;
+}
 
 inline void 
 Data::onChanged()
