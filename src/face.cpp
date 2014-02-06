@@ -17,6 +17,7 @@
 
 #include "management/ndnd-controller.hpp"
 #include "management/nfd-controller.hpp"
+#include "encoding/tlv-nfd-control.hpp"
 
 namespace ndn {
 
@@ -288,12 +289,18 @@ Face::checkPitExpire()
 
 
 void
-Face::onReceiveElement(const Block &block)
+Face::onReceiveElement(const Block &blockFromDaemon)
 {
+  Block block = blockFromDaemon;
+  uint64_t incomingFaceId = std::numeric_limits<uint64_t>::max();
+  if (block.type() == tlv::nfd_control::LocalControlHeader)
+    block = wireDecodeLocalControlHeader(block, incomingFaceId);
+  
   if (block.type() == Tlv::Interest)
     {
       shared_ptr<Interest> interest(new Interest());
       interest->wireDecode(block);
+      interest->setIncomingFaceId(incomingFaceId);
 
       RegisteredPrefixTable::iterator entry = getEntryForRegisteredPrefix(interest->getName());
       if (entry != m_registeredPrefixTable.end()) {
@@ -304,6 +311,7 @@ Face::onReceiveElement(const Block &block)
     {
       shared_ptr<Data> data(new Data());
       data->wireDecode(block);
+      data->setIncomingFaceId(incomingFaceId);
 
       PendingInterestTable::iterator entry = getEntryIndexForExpressedInterest(data->getName());
       if (entry != m_pendingInterestTable.end()) {
@@ -321,6 +329,7 @@ Face::onReceiveElement(const Block &block)
         }
       }
     }
+  // ignore any other type
 }
 
 Face::PendingInterestTable::iterator
@@ -358,6 +367,44 @@ Face::getEntryForRegisteredPrefix(const Name& name)
         }
     }
   return longestPrefix;
+}
+
+Block
+Face::wireEncodeLocalControlHeader(const Block& blockWithoutHeader, uint64_t nextHopFaceId)
+{
+  Block localControlHeader = Block(tlv::nfd_control::LocalControlHeader);
+  Block localControlInfo = Block(tlv::nfd_control::LocalControlInfo);
+
+  localControlInfo.push_back
+    (nonNegativeIntegerBlock(tlv::nfd_control::NextHopFaceId, nextHopFaceId));
+
+  localControlHeader.push_back(localControlInfo);
+  localControlHeader.push_back(blockWithoutHeader);
+
+  localControlHeader.encode();
+  return localControlHeader;
+}
+
+Block
+Face::wireDecodeLocalControlHeader(const Block& blockWithHeader, uint64_t& incomingFaceId)
+{
+  blockWithHeader.parse();
+  if (blockWithHeader.elements_size() != 2 ||
+      blockWithHeader.elements_begin()->type() != tlv::nfd_control::LocalControlInfo)
+    {
+      return Block();
+    }
+
+  const Block& localControlInfo = *blockWithHeader.elements_begin();
+  localControlInfo.parse();
+
+  Block::element_const_iterator i = localControlInfo.find(tlv::nfd_control::IncomingFaceId);
+  if (i != localControlInfo.elements_end())
+    {
+      incomingFaceId = readNonNegativeInteger(*i);
+    }
+
+  return *blockWithHeader.elements().rbegin();
 }
 
 } // namespace ndn

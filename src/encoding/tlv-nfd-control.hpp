@@ -28,7 +28,13 @@ enum {
 
   // Face Management Protocol
   FaceManagementOptions = 108,
-  Uri                   = 114
+  Uri                   = 114,
+
+  // Local Control Header
+  LocalControlHeader = 109,
+  LocalControlInfo   = 110,
+  IncomingFaceId     = 111,
+  NextHopFaceId      = 112
 };
 
 
