@@ -54,16 +54,21 @@ public:
     : m_nameBlock(Tlv::Name)
   {
   }
-  
-  // Name(const Block &name)
-  // {
-  //   for (Block::element_const_iterator i = name.getAll().begin();
-  //        i != name.getAll().end();
-  //        ++i)
-  //     {
-  //       append(Component(i->value_begin(), i->value_end()));
-  //     }
-  // }
+
+  /**
+   * @brief Create Name object from wire block
+   *
+   * This is a more efficient equivalent for
+   * @code
+   *    Name name;
+   *    name.wireDecode(wire);
+   * @endcode
+   */
+  Name(const Block &wire)
+  {
+    m_nameBlock = wire;
+    m_nameBlock.parse();
+  }
   
   /**
    * Parse the uri according to the NDN URI Scheme and create the name with the components.
@@ -471,6 +476,48 @@ Name::toUri() const
   os << *this;
   return os.str();
 }
+
+inline const Block &
+Name::wireEncode() const
+{
+  if (m_nameBlock.hasWire())
+    return m_nameBlock;
+
+  for (Block::element_iterator i = m_nameBlock.element_begin();
+       i != m_nameBlock.element_end();
+       ++i)
+    {
+      i->encode();
+    }
+        
+  m_nameBlock.encode();
+  return m_nameBlock;
+}
+
+inline void
+Name::wireDecode(const Block &wire)
+{
+  m_nameBlock = wire;
+  m_nameBlock.parse();
+}
+
+inline size_t
+Name::wireEncode (EncodingBuffer& blk)
+{
+  size_t total_len = 0;
+  
+  for (reverse_iterator i = rbegin (); 
+       i != rend ();
+       ++i)
+    {
+      total_len += i->wireEncode (blk);
+    }
+
+  total_len += blk.prependVarNumber (total_len);
+  total_len += blk.prependVarNumber (Tlv::Name);
+  return total_len;
+}
+
 
 } // namespace ndn
 

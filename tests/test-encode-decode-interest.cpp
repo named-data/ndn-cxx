@@ -70,7 +70,9 @@ BOOST_AUTO_TEST_CASE (Encode)
   i.setMaxSuffixComponents(1);
   i.setChildSelector(1);
   i.setMustBeFresh(false);
-  i.getExclude().excludeOne("alex").excludeRange("xxxx", "yyyy");
+  i.getExclude()
+    .excludeOne(name::Component("alex"))
+    .excludeRange(name::Component("xxxx"), name::Component("yyyy"));
   i.setNonce(1);
 
   const Block &wire = i.wireEncode();

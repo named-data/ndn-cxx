@@ -187,45 +187,4 @@ operator << (std::ostream& os, const Name& name)
   return os;
 }
 
-const Block &
-Name::wireEncode() const
-{
-  if (m_nameBlock.hasWire())
-    return m_nameBlock;
-
-  for (Block::element_iterator i = m_nameBlock.element_begin();
-       i != m_nameBlock.element_end();
-       ++i)
-    {
-      i->encode();
-    }
-        
-  m_nameBlock.encode();
-  return m_nameBlock;
-}
-
-void
-Name::wireDecode(const Block &wire)
-{
-  m_nameBlock = wire;
-  m_nameBlock.parse();
-}
-
-size_t
-Name::wireEncode (EncodingBuffer& blk)
-{
-  size_t total_len = 0;
-  
-  for (reverse_iterator i = rbegin (); 
-       i != rend ();
-       ++i)
-    {
-      total_len += i->wireEncode (blk);
-    }
-
-  total_len += blk.prependVarNumber (total_len);
-  total_len += blk.prependVarNumber (Tlv::Name);
-  return total_len;
-}
-
 } // namespace ndn

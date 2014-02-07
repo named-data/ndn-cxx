@@ -34,7 +34,17 @@ public:
   {    
   }
 
-  // copy constructor OK
+  /**
+   * @brief Directly create component from wire block
+   *
+   * ATTENTION  wire MUST BE of type Tlv::Component. Any other value would cause an exception
+   */
+  Component(const Block& wire)
+    : Block(wire)
+  {
+    if (type() != Tlv::NameComponent)
+      throw Error("Constructing name component from non name component TLV wire block");
+  }
   
   /**
    * Create a new Name::Component, taking another pointer to the Blob value.
@@ -69,12 +79,19 @@ public:
     : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(begin, end)))
   {
   }
-    
-  Component(const char *string)
-    : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(string, ::strlen(string))))
+
+  explicit
+  Component(const char *str)
+    : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(str, ::strlen(str))))
   {
   }
 
+  explicit
+  Component(const std::string& str)
+    : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(str.begin(), str.end())))
+  {
+  }
+  
   /**
    * @brief Fast encoding or block size estimation
    */
@@ -141,6 +158,18 @@ public:
     std::ostringstream result;
     toEscapedString(result);
     return result.str();
+  }
+
+  inline void
+  toUri(std::ostream& result) const
+  {
+    return toEscapedString(result);
+  }
+
+  inline std::string
+  toUri() const
+  {
+    return toEscapedString();
   }
     
   /**
