@@ -43,7 +43,7 @@ Block::Block(const ConstBufferPtr &buffer)
   m_type = Tlv::readType(m_value_begin, m_value_end);
 
   uint64_t length = Tlv::readVarNumber(m_value_begin, m_value_end);
-  if (length != (m_value_end - m_value_begin))
+  if (length != static_cast<uint64_t>(m_value_end - m_value_begin))
     {
       throw Tlv::Error("TLV length doesn't match buffer length");
     }
@@ -60,7 +60,7 @@ Block::Block(const ConstBufferPtr &buffer,
   
   m_type = Tlv::readType(m_value_begin, m_value_end);
   uint64_t length = Tlv::readVarNumber(m_value_begin, m_value_end);
-  if (length != (m_value_end - m_value_begin))
+  if (length != static_cast<uint64_t>(m_value_end - m_value_begin))
     {
       throw Tlv::Error("TLV length doesn't match buffer length");
     }
@@ -84,7 +84,7 @@ Block::Block(std::istream& is)
   buf[0] = *tmp_begin;
   is.read(buf+1, length-1);
 
-  if(length-1 != is.gcount())
+  if(length != static_cast<uint64_t>(is.gcount())+1)
     {
       delete [] buf;
       throw Tlv::Error("Not enough data in the buffer to fully parse TLV");
@@ -112,7 +112,7 @@ Block::Block(const uint8_t *buffer, size_t maxlength)
   m_type = Tlv::readType(tmp_begin, tmp_end);
   uint64_t length = Tlv::readVarNumber(tmp_begin, tmp_end);
   
-  if (length > (tmp_end - tmp_begin))
+  if (length > static_cast<uint64_t>(tmp_end - tmp_begin))
     {
       throw Tlv::Error("Not enough data in the buffer to fully parse TLV");
     }
@@ -137,7 +137,7 @@ Block::Block(const void *bufferX, size_t maxlength)
   m_type = Tlv::readType(tmp_begin, tmp_end);
   uint64_t length = Tlv::readVarNumber(tmp_begin, tmp_end);
   
-  if (length > (tmp_end - tmp_begin))
+  if (length > static_cast<uint64_t>(tmp_end - tmp_begin))
     {
       throw Tlv::Error("Not enough data in the buffer to fully parse TLV");
     }
@@ -195,7 +195,7 @@ Block::parse()
       uint32_t type = Tlv::readType(begin, end);
       uint64_t length = Tlv::readVarNumber(begin, end);
 
-      if (end-begin < length)
+      if (length > static_cast<uint64_t>(end - begin))
         {
           m_subBlocks.clear();
           throw Tlv::Error("TLV length exceeds buffer length");
@@ -280,7 +280,7 @@ Block::blockFromValue() const
   uint32_t type = Tlv::readType(begin, end);
   uint64_t length = Tlv::readVarNumber(begin, end);
 
-  if (end-begin != length)
+  if (length != static_cast<uint64_t>(end - begin))
     throw Tlv::Error("TLV length mismatches buffer length");
       
   return Block(m_buffer,

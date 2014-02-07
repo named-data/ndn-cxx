@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <fstream>
 
-const int TLV_DICT_SIZE = 25;
+const uint32_t TLV_DICT_SIZE = 25;
 
 const std::string TLV_DICT[TLV_DICT_SIZE] = {
   "RESERVED", //      = 0

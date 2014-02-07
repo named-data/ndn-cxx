@@ -18,7 +18,7 @@ public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
   
   enum {
-    KeyLocator_None = -1,
+    KeyLocator_None = 4294967295,
     KeyLocator_Name = 0,
     
     KeyLocator_Unknown = 255
