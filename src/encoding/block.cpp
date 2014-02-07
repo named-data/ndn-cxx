@@ -226,6 +226,10 @@ Block::encode()
       Tlv::writeVarNumber(os, value_size());
       os.write(reinterpret_cast<const char*>(value()), value_size());
     }
+  else if (m_subBlocks.size() == 0)
+    {
+      Tlv::writeVarNumber(os, 0);
+    }
   else
     {
       size_t valueSize = 0;

@@ -28,8 +28,9 @@ namespace ndn {
 class Block
 {
 public:
-  typedef std::list<Block>::iterator element_iterator;
-  typedef std::list<Block>::const_iterator element_const_iterator;
+  typedef std::vector<Block>                 element_container;
+  typedef element_container::iterator        element_iterator;
+  typedef element_container::const_iterator  element_const_iterator;
 
   /// @brief Error that can be thrown from the block
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
@@ -163,16 +164,22 @@ public:
   /**
    * @brief Get all subelements
    */
-  inline const std::list<Block>&
+  inline const element_container&
   getAll () const;
 
-  inline std::list<Block>&
+  inline element_container&
   getAll ();
+
+  inline const element_container&
+  elements () const;
+
+  inline element_container&
+  elements ();
   
   /**
    * @brief Get all elements of the requested type
    */
-  std::list<Block>
+  element_container
   getAll(uint32_t type) const;
 
   inline Buffer::const_iterator
@@ -190,11 +197,23 @@ public:
   inline Buffer::const_iterator
   value_end() const;
 
+  inline element_iterator
+  element_begin();
+
+  inline element_iterator
+  element_end();
+
+  inline element_const_iterator
+  element_begin() const;
+
+  inline element_const_iterator
+  element_end() const;
+  
   inline const uint8_t*
   wire() const;
 
-  inline const uint8_t*
-  buf() const;
+  // inline const uint8_t*
+  // buf() const;
   
   inline const uint8_t*
   value() const;
@@ -217,7 +236,7 @@ protected:
   Buffer::const_iterator m_value_begin;
   Buffer::const_iterator m_value_end;
 
-  std::list<Block> m_subBlocks;
+  element_container m_subBlocks;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -321,26 +340,19 @@ Block::find(uint32_t type)
   return m_subBlocks.end();
 }
 
-struct block_type
-{
-  block_type(uint32_t type)
-    : m_type(type)
-  {
-  }
-  
-  inline bool
-  operator()(const Block &block)
-  {
-    return (block.type() == m_type);
-  }
-private:
-  uint32_t m_type;
-};
-
 inline void
 Block::remove(uint32_t type)
 {
-  m_subBlocks.remove_if(block_type(type));
+  element_container newContainer;
+  newContainer.reserve(m_subBlocks.size());
+  for (element_iterator i = m_subBlocks.begin();
+       i != m_subBlocks.end();
+       ++i)
+    {
+      if (i->type() != type)
+        newContainer.push_back(*i);
+    }
+  m_subBlocks.swap(newContainer);
 }
 
 inline Block::element_iterator
@@ -363,18 +375,29 @@ Block::push_back(const Block &element)
 }
 
 
-inline const std::list<Block>&
+inline const Block::element_container&
 Block::getAll () const
 {
   return m_subBlocks;
 }
 
-inline std::list<Block>&
+inline Block::element_container&
 Block::getAll ()
 {
   return m_subBlocks;
 }
 
+inline const Block::element_container&
+Block::elements () const
+{
+  return m_subBlocks;
+}
+
+inline Block::element_container&
+Block::elements ()
+{
+  return m_subBlocks;
+}
 
 inline Buffer::const_iterator
 Block::begin() const
@@ -422,6 +445,30 @@ Block::value_end() const
   return m_value_end;
 }
 
+inline Block::element_iterator
+Block::element_begin()
+{
+  return m_subBlocks.begin();
+}
+
+inline Block::element_iterator
+Block::element_end()
+{
+  return m_subBlocks.end();
+}
+
+inline Block::element_const_iterator
+Block::element_begin() const
+{
+  return m_subBlocks.begin();
+}
+
+inline Block::element_const_iterator
+Block::element_end() const
+{
+  return m_subBlocks.end();
+}
+
 inline const uint8_t*
 Block::wire() const
 {
@@ -431,14 +478,14 @@ Block::wire() const
   return &*m_begin;
 }
 
-inline const uint8_t*
-Block::buf() const
-{
-  if (!hasWire())
-      throw Error("(Block::wire) Underlying wire buffer is empty");
+// inline const uint8_t*
+// Block::buf() const
+// {
+//   if (!hasWire())
+//       throw Error("(Block::wire) Underlying wire buffer is empty");
 
-  return &*m_begin;
-}
+//   return &*m_begin;
+// }
 
 inline const uint8_t*
 Block::value() const
@@ -453,7 +500,7 @@ inline size_t
 Block::value_size() const
 {
   if (!hasValue())
-    throw Error("(Block::value_size) Underlying value buffer is empty");
+    return 0;
 
   return m_value_end - m_value_begin;
 }
