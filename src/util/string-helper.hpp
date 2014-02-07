@@ -13,7 +13,7 @@
 
 namespace ndn {
 
-const char *WHITESPACE_CHARS = " \n\r\t";
+static const char *WHITESPACE_CHARS = " \n\r\t";
 
 /**
  * Modify str in place to erase whitespace on the left.

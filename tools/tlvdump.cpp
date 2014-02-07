@@ -85,7 +85,7 @@ BlockPrinter(ndn::Block &block, const std::string &indent="")
   if (block.getAll().empty())
     {
       std::cout << " [[";
-      ndn::Name::toEscapedString(block.value(), block.value_size(), std::cout);
+      ndn::name::Component(block.value(), block.value_size()).toEscapedString(std::cout);
       std::cout<< "]]";
     }
   std::cout << std::endl;

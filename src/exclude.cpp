@@ -186,8 +186,8 @@ Exclude::wireEncode() const
         {
           OBufferStream os;
           Tlv::writeVarNumber(os, Tlv::NameComponent);
-          Tlv::writeVarNumber(os, i->first.getValue().size());
-          os.write(reinterpret_cast<const char *>(i->first.getValue().buf()), i->first.getValue().size());
+          Tlv::writeVarNumber(os, i->first.value_size());
+          os.write(reinterpret_cast<const char *>(i->first.value()), i->first.value_size());
           
           wire_.push_back(Block(os.buf()));
 

@@ -348,12 +348,12 @@ Block::remove(uint32_t type)
   for (element_iterator i = m_subBlocks.begin();
        i != m_subBlocks.end();
        ++i)
-    {
+  {
       if (i->type() != type)
         newContainer.push_back(*i);
-    }
+  }
   m_subBlocks.swap(newContainer);
-}
+  }
 
 inline Block::element_iterator
 Block::erase(Block::element_iterator position)

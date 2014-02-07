@@ -24,8 +24,8 @@
 namespace ndn {
 
 namespace encoding {
-const bool Buffer = true;
-const bool Estimator = false;
+static const bool Buffer = true;
+static const bool Estimator = false;
 } // encoding
 
 template<bool isRealEncoderNotEstimator>
@@ -91,9 +91,6 @@ public:
   prependByteArray (const uint8_t *arr, size_t len);
 
   inline size_t
-  prependBuffer (const Buffer& arr);
-
-  inline size_t
   prependNonNegativeInteger (uint64_t varNumber);
 
   inline size_t
@@ -104,9 +101,6 @@ public:
 
   inline size_t
   appendByteArray (const uint8_t *arr, size_t len);
-
-  inline size_t
-  appendBuffer (const Buffer& arr);
 
   inline size_t
   appendNonNegativeInteger (uint64_t varNumber);
@@ -158,9 +152,6 @@ public:
   prependByteArray (const uint8_t *arr, size_t len);
 
   inline size_t
-  prependBuffer (const Buffer& arr);
-
-  inline size_t
   prependNonNegativeInteger (uint64_t varNumber);
 
   inline size_t
@@ -171,9 +162,6 @@ public:
 
   inline size_t
   appendByteArray (const uint8_t *arr, size_t len);
-
-  inline size_t
-  appendBuffer (const Buffer& arr);
 
   inline size_t
   appendNonNegativeInteger (uint64_t varNumber);
@@ -324,24 +312,6 @@ EncodingImpl<encoding::Estimator>::prependByteArray (const uint8_t *arr, size_t 
 }
 
 inline size_t
-EncodingImpl<encoding::Buffer>::prependBuffer (const Buffer& arr)
-{
-  if ((m_buffer->begin () + arr.size ()) > m_begin)
-    resize (m_buffer->size () * 2 + arr.size (), true);
-
-  m_begin -= arr.size ();
-  std::copy (arr.begin (), arr.end (), m_begin);
-  return arr.size ();
-}
-
-inline size_t
-EncodingImpl<encoding::Estimator>::prependBuffer (const Buffer& arr)
-{
-  m_size += arr.size ();
-  return arr.size ();
-}
-
-inline size_t
 EncodingImpl<encoding::Buffer>::prependNonNegativeInteger (uint64_t varNumber)
 {
   if (varNumber < 253) {
@@ -466,23 +436,6 @@ inline size_t
 EncodingImpl<encoding::Estimator>::appendByteArray (const uint8_t *arr, size_t len)
 {
   return prependByteArray(arr, len);
-}
-
-inline size_t
-EncodingImpl<encoding::Buffer>::appendBuffer (const Buffer& arr)
-{
-  if ((m_end + arr.size ()) > m_buffer->end ())
-    resize (m_buffer->size () * 2 + arr.size (), false);
-
-  std::copy (arr.begin (), arr.end (), m_end);
-  m_end -= arr.size ();
-  return arr.size ();
-}
-
-inline size_t
-EncodingImpl<encoding::Estimator>::appendBuffer (const Buffer& arr)
-{
-  return prependBuffer(arr);
 }
 
 inline size_t
