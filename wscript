@@ -21,6 +21,8 @@ def options(opt):
                    help='''Use C++11 features, even if available in the compiler''')
     opt.add_option('--without-system-boost', action='store_false', default=True, dest='use_system_boost',
                    help='''Use system's boost libraries''')
+    opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
+                   help='''Do not build tools''')
 
 
 def configure(conf):
@@ -32,6 +34,9 @@ def configure(conf):
 
     if conf.options.with_tests:
         conf.env['WITH_TESTS'] = True
+
+    if conf.options.with_tools:
+        conf.env['WITH_TOOLS'] = True
 
     conf.check_openssl()
 
@@ -86,7 +91,7 @@ def configure(conf):
         conf.define('HAVE_CXX11', 1)
     else:
         if conf.options.use_system_boost:
-            USED_BOOST_LIBS = 'system filesystem date_time iostreams regex'
+            USED_BOOST_LIBS = 'system filesystem date_time iostreams regex program_options'
             if conf.env['WITH_TESTS']:
                 USED_BOOST_LIBS += " unit_test_framework"
 
@@ -162,7 +167,10 @@ def build (bld):
     if bld.env['WITH_TESTS']:
         bld.recurse('tests')
 
-    bld.recurse("tools examples")
+    if bld.env['WITH_TOOLS']:
+        bld.recurse("tools examples")
+    else:
+        bld.recurse("examples")
       
     headers = bld.path.ant_glob(['src/**/*.hpp'])
     bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], headers, relative_trick=True, cwd=bld.path.find_node('src'))
