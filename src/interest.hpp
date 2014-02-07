@@ -8,6 +8,7 @@
 #ifndef NDN_INTEREST_HPP
 #define NDN_INTEREST_HPP
 
+#include "common.hpp"
 #include "name.hpp"
 #include "exclude.hpp"
 #include "encoding/block.hpp"

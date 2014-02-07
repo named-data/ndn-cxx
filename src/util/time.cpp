@@ -4,6 +4,8 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include "common.hpp"
+
 #include "time.hpp"
 #include <time.h>
 #include <stdexcept>

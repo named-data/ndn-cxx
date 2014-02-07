@@ -7,6 +7,8 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include "common.hpp"
+
 #include "name-component.hpp"
 
 #include "util/time.hpp"

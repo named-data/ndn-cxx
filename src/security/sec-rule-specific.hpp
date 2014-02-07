@@ -8,6 +8,7 @@
 #ifndef NDN_SEC_RULE_SPECIFIC_H
 #define NDN_SEC_RULE_SPECIFIC_H
 
+#include "../common.hpp"
 #include "sec-rule.hpp"
 #include "../util/regex.hpp"
 

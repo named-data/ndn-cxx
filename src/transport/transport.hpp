@@ -9,10 +9,7 @@
 #define NDN_TRANSPORT_HPP
 
 #include "../common.hpp"
-
-#include <vector>
-#include <boost/asio.hpp>
-#include <boost/lexical_cast.hpp>
+#include "../encoding/block.hpp"
 
 namespace ndn {
 

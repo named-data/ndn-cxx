@@ -9,6 +9,8 @@
 #ifndef NDN_VALIDATOR_HPP
 #define NDN_VALIDATOR_HPP
 
+#include "../common.hpp"
+
 #include "../data.hpp"
 #include "../face.hpp"
 #include "public-key.hpp"

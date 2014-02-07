@@ -5,10 +5,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "security/sec-public-info-memory.hpp"
+#include "common.hpp"
 
-#include <algorithm>
-#include "security/identity-certificate.hpp"
+#include "sec-public-info-memory.hpp"
+#include "identity-certificate.hpp"
 
 using namespace std;
 

@@ -3,6 +3,7 @@ VERSION='0.3~dev0'
 NAME="ndn-cpp-dev"
 
 from waflib import Build, Logs, Utils, Task, TaskGen, Configure
+from waflib.Tools import c_preproc
 
 def options(opt):
     opt.load('compiler_c compiler_cxx gnu_dirs c_osx')
@@ -27,6 +28,8 @@ def options(opt):
     opt.add_option('--without-sqlite-locking', action='store_false', default=True, dest='with_sqlite_locking',
                    help='''Disable filesystem locking in sqlite3 database (use unix-dot locking mechanism instead). '''
                    '''This option may be necessary if home directory is hosted on NFS.''')
+    opt.add_option('--with-pch', action='store_true', default=False, dest='with_pch',
+                   help='''Try to use precompiled header to speed up compilation (only gcc and clang)''')
 
 def configure(conf):
     conf.load("compiler_c compiler_cxx boost gnu_dirs c_osx openssl cryptopp")
@@ -111,6 +114,8 @@ def configure(conf):
     if not conf.options.with_sqlite_locking:
         conf.define('DISABLE_SQLITE3_FS_LOCKING', 1)
     
+    conf.env['WITH_PCH'] = conf.options.with_pch
+    
     conf.write_config_header('src/ndn-cpp-config.h', define_prefix='NDN_CPP_')
 
 def build (bld):
@@ -122,11 +127,14 @@ def build (bld):
         source = bld.path.ant_glob('src/**/*.cpp',
                                    excl = ['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
         use = 'BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT PTHREAD',
-        includes = "src",
+        includes = ". src",
         export_includes = "src",
         install_path = '${LIBDIR}',
         )
 
+    if bld.env['WITH_PCH']:
+        libndn_cpp.pch = "src/common.hpp"
+    
     if Utils.unversioned_sys_platform () == "darwin":
         libndn_cpp.source += bld.path.ant_glob('src/**/*-osx.cpp')
         libndn_cpp.mac_app = True
@@ -222,3 +230,26 @@ def sphinx (bld):
     bld (features="sphinx",
          outdir = "doc/html",
          source = "doc/source/conf.py")
+
+
+@TaskGen.feature('cxx')
+@TaskGen.before('process_source')
+def process_pch(self):
+    if getattr(self, 'pch', ''):
+        # for now support only gcc-compatible things
+        if self.env['COMPILER_CXX'] == 'g++':
+            nodes = self.to_nodes(self.pch, path=self.path)
+            for x in nodes:
+                z = self.create_task('gchx', x, x.change_ext('.hpp.gch'))
+                z.orig_self = self
+
+class gchx(Task.Task):
+    run_str = '${CXX} -x c++-header ${CXXFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+    scan    = c_preproc.scan
+    ext_out = ['.hpp']
+    color   = 'BLUE'
+
+    def post_run(self):
+        super(gchx, self).post_run()
+        self.orig_self.env['CXXFLAGS'] = ['-include', self.inputs[0].relpath()] + self.env['CXXFLAGS']
+

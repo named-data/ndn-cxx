@@ -6,6 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include "common.hpp"
+
 #include "logging.hpp"
 
 #ifdef NDN_CPP_HAVE_LOG4CXX

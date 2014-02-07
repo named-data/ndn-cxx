@@ -14,9 +14,6 @@
 #include "certificate-cache.hpp"
 #include "../util/regex.hpp"
 
-#include <map>
-
-
 namespace ndn {
 
 class ValidatorRegex : public Validator

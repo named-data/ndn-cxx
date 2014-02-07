@@ -6,7 +6,9 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "security/identity-certificate.hpp"
+#include "common.hpp"
+
+#include "identity-certificate.hpp"
 
 using namespace std;
 

@@ -8,15 +8,12 @@
 #ifndef NDN_CERTIFICATE_CACHE_TTL_HPP
 #define NDN_CERTIFICATE_CACHE_TTL_HPP
 
+#include "../common.hpp"
 #include "certificate-cache.hpp"
 #include "../util/scheduler.hpp"
 #include "../util/time.hpp"
 
-#include <unistd.h>
-#include <map>
-
-namespace ndn
-{
+namespace ndn {
  
 class CertificateCacheTtl : public CertificateCache
 {

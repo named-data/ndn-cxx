@@ -5,12 +5,11 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include "common.hpp"
+
 #include "certificate-cache-ttl.hpp"
 
-#include <iostream>
-
 #include "../util/logging.hpp"
-
 
 INIT_LOGGER("CertificateCacheTtl")
 

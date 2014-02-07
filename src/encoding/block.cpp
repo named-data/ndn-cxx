@@ -7,8 +7,10 @@
  * Author: Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  */
 
-#include "encoding/block.hpp"
-#include "encoding/tlv.hpp"
+#include "common.hpp"
+
+#include "block.hpp"
+#include "tlv.hpp"
 
 namespace ndn {
 

@@ -6,19 +6,24 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include "common.hpp"
+
+#include "sec-public-info-sqlite3.hpp"
+#include "identity-certificate.hpp"
+#include "signature-sha256-with-rsa.hpp"
+
+#include "../util/logging.hpp"
+#include "../util/time.hpp"
+
+#include "../data.hpp"
+
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sstream>
 #include <fstream>
 #include <boost/filesystem.hpp>
-#include "../util/logging.hpp"
-#include "../util/time.hpp"
 
-#include "data.hpp"
-#include "security/identity-certificate.hpp"
-#include "security/sec-public-info-sqlite3.hpp"
-#include "security/signature-sha256-with-rsa.hpp"
 
 
 INIT_LOGGER("BasicKeyMetaInfo");

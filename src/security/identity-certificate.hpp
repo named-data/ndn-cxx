@@ -9,6 +9,7 @@
 #ifndef NDN_IDENTITY_CERTIFICATE_HPP
 #define NDN_IDENTITY_CERTIFICATE_HPP
 
+#include "../common.hpp"
 #include "certificate.hpp"
 
 namespace ndn {

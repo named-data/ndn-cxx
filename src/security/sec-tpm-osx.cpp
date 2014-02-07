@@ -5,13 +5,13 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include "common.hpp"
+
 #include "sec-tpm-osx.hpp"
 
 #include "security/public-key.hpp"
 #include "util/logging.hpp"
 
-#include <fstream>
-#include <sstream>
 #include <pwd.h>
 #include <unistd.h>
 #include <stdlib.h>

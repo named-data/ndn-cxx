@@ -9,7 +9,7 @@
 #ifndef NDN_SEC_TPM_HPP
 #define NDN_SEC_TPM_HPP
 
-#include <string>
+#include "../common.hpp"
 #include "security-common.hpp"
 #include "../name.hpp"
 #include "../data.hpp"

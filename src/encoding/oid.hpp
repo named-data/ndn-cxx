@@ -9,8 +9,7 @@
 #ifndef NDN_OID_HPP
 #define NDN_OID_HPP
 
-#include <vector>
-#include <string>
+#include "../common.hpp"
 
 namespace CryptoPP { class BufferedTransformation; }
 

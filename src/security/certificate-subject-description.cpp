@@ -6,7 +6,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "security/certificate-subject-description.hpp"
+#include "common.hpp"
+
+#include "certificate-subject-description.hpp"
+
 #include <cryptopp/asn.h>
 
 using namespace std;

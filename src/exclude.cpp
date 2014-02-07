@@ -8,6 +8,8 @@
  * Author: Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  */
 
+#include "common.hpp"
+
 #include "exclude.hpp"
 
 namespace ndn

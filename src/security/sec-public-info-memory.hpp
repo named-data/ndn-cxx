@@ -8,8 +8,7 @@
 #ifndef NDN_SEC_PUBLIC_INFO_MEMORY_HPP
 #define NDN_SEC_PUBLIC_INFO_MEMORY_HPP
 
-#include <vector>
-#include <map>
+#include "../common.hpp"
 #include "sec-public-info.hpp"
 
 namespace ndn {
@@ -26,7 +25,7 @@ public:
   /**
    * The virtual Destructor.
    */
-  virtual 
+  virtual
   ~SecPublicInfoMemory();
 
   /**
@@ -34,7 +33,7 @@ public:
    * @param identityName The identity name.
    * @return true if the identity exists, otherwise false.
    */
-  virtual bool 
+  virtual bool
   doesIdentityExist(const Name& identityName);
 
   /**
@@ -48,7 +47,7 @@ public:
    * Revoke the identity.
    * @return true if the identity was revoked, false if not.
    */
-  virtual bool 
+  virtual bool
   revokeIdentity();
 
   /**

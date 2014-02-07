@@ -9,7 +9,6 @@
 #define NDN_TIME_HPP
 
 #include "../common.hpp"
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace ndn {
 

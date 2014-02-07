@@ -13,8 +13,6 @@
 
 #include "name.hpp"
 
-#include <map>
-
 namespace ndn {
 
 /**

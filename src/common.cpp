@@ -5,8 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <sstream>
 #include "common.hpp"
+
 #include "util/time.hpp"
 
 using namespace std;

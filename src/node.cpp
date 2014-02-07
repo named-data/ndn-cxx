@@ -5,6 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include "common.hpp"
+
 #include "node.hpp"
 
 #include "forwarding-entry.hpp"

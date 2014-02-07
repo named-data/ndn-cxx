@@ -12,12 +12,6 @@
 
 #include "../common.hpp"
 
-#include <boost/iostreams/detail/ios.hpp>
-#include <boost/iostreams/categories.hpp>
-#include <boost/iostreams/stream.hpp>
-
-#include <vector>
-
 namespace ndn {
 
 class Buffer;

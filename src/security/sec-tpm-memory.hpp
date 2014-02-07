@@ -8,7 +8,7 @@
 #ifndef NDN_SEC_TPM_MEMORY_HPP
 #define NDN_SEC_TPM_MEMORY_HPP
 
-#include <map>
+#include "../common.hpp"
 #include "sec-tpm.hpp"
 
 struct rsa_st;

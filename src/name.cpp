@@ -6,6 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include "common.hpp"
+
 #include "name.hpp"
 
 #include <algorithm>

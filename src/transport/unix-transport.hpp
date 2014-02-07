@@ -8,7 +8,7 @@
 #ifndef NDN_UDPTRANSPORT_HPP
 #define NDN_UDPTRANSPORT_HPP
 
-#include <string>
+#include "../common.hpp"
 #include "transport.hpp"
 
 namespace ndn {

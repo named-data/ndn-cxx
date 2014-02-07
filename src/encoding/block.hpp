@@ -12,13 +12,8 @@
 
 #include "../common.hpp"
 
-#include <list>
-#include <exception>
-
 #include "buffer.hpp"
 #include "tlv.hpp"
-
-#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 

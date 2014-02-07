@@ -6,7 +6,9 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "security/certificate-extension.hpp"
+#include "common.hpp"
+
+#include "certificate-extension.hpp"
 #include <cryptopp/asn.h>
 
 using namespace std;

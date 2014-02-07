@@ -4,6 +4,8 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include "common.hpp"
+
 #include "scheduler.hpp"
 
 namespace ndn {

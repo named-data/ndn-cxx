@@ -7,13 +7,9 @@
  * See COPYING for copyright and distribution information.
  */
 
-#if __clang__
-#pragma clang diagnostic ignored "-Wtautological-compare"
-#endif
+#include "common.hpp"
 
-#include "security/sec-tpm-file.hpp"
-
-#include <string>
+#include "sec-tpm-file.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>

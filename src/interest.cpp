@@ -6,6 +6,7 @@
  */
 
 #include "common.hpp"
+
 #include "interest.hpp"
 #include "util/random.hpp"
 

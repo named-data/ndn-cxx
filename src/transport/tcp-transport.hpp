@@ -8,7 +8,7 @@
 #ifndef NDN_TCP_TRANSPORT_HPP
 #define NDN_TCP_TRANSPORT_HPP
 
-#include <string>
+#include "../common.hpp"
 #include "transport.hpp"
 
 namespace ndn {

@@ -5,13 +5,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <stdexcept>
-#include <stdlib.h>
+#include "common.hpp"
 
-#include "face.hpp"
-#include "transport/tcp-transport.hpp"
+#include "tcp-transport.hpp"
 
-#include <boost/asio.hpp>
 #if NDN_CPP_HAVE_CXX11
 // In the std library, the placeholders are in a different namespace than boost.
 using namespace ndn::func_lib::placeholders;

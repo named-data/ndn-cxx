@@ -8,7 +8,7 @@
 
 #include "common.hpp"
 
-#include "security/certificate.hpp"
+#include "certificate.hpp"
 
 #include "../util/logging.hpp"
 #include "../util/time.hpp"

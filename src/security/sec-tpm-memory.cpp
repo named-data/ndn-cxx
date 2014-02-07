@@ -5,8 +5,11 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "security/sec-tpm-memory.hpp"
-#include "security/public-key.hpp"
+#include "common.hpp"
+
+#include "sec-tpm-memory.hpp"
+#include "public-key.hpp"
+
 #include <openssl/ssl.h>
 #include <openssl/sha.h>
 #include <openssl/rsa.h>

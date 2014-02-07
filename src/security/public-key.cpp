@@ -7,7 +7,8 @@
  */
 
 #include "common.hpp"
-#include "security/public-key.hpp"
+
+#include "public-key.hpp"
 
 #include <cryptopp/rsa.h>
 #include <cryptopp/base64.h>

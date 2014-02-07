@@ -19,3 +19,7 @@ def build(bld):
 
     # In case we want to make it optional later
     unittests.source += bld.path.ant_glob('**/*-sqlite3.cpp')
+
+    if bld.env['WITH_PCH']:
+        unittests.pch = "../src/common.hpp"
+    

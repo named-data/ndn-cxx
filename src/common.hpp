@@ -12,11 +12,28 @@
 #include <stdint.h>
 // TODO: Is stddef.h portable?
 #include <stddef.h>
+#include <unistd.h>
+
+// Standard headers to precompile
 
 #include <vector>
 #include <list>
 #include <set>
 #include <algorithm>
+#include <map>
+#include <sstream>
+#include <fstream>
+#include <exception>
+#include <map>
+
+// Other useful headers to precompile
+#include <boost/lexical_cast.hpp>
+#include <boost/asio.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+#include <boost/iostreams/detail/ios.hpp>
+#include <boost/iostreams/categories.hpp>
+#include <boost/iostreams/stream.hpp>
 
 #if NDN_CPP_HAVE_CXX11
 

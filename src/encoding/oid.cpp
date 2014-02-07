@@ -5,10 +5,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <stdlib.h>
-#include <sstream>
+#include "common.hpp"
 
-#include "encoding/oid.hpp"
+#include "oid.hpp"
+
 #include <cryptopp/asn.h>
 
 using namespace std;

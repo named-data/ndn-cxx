@@ -5,6 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
+#include "common.hpp"
+
 #include "validator-regex.hpp"
 #include "signature-sha256-with-rsa.hpp"
 #include "certificate-cache-ttl.hpp"
