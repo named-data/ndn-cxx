@@ -214,7 +214,7 @@ Exclude::wireDecode(const Block &wire)
   Block::element_const_iterator i = wire_.getAll().begin();
   if (i->type() == Tlv::Any)
     {
-      appendExclude("/", true);
+      appendExclude(name::Component(), true);
       ++i;
     }
 
