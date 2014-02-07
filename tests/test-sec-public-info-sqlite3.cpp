@@ -23,7 +23,9 @@ BOOST_AUTO_TEST_CASE (Delete)
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
 
   Name identity(string("/TestSecPublicInfoSqlite3/Delete/") + boost::lexical_cast<string>(time::now()));
-  Name certName1 = keyChain.createIdentity(identity);
+  Name certName1;
+  BOOST_REQUIRE_NO_THROW(certName1 = keyChain.createIdentity(identity));
+  
   Name keyName1 = IdentityCertificate::certificateNameToPublicKeyName(certName1);  
   Name keyName2;
   BOOST_CHECK_NO_THROW(keyName2 = keyChain.generateRSAKeyPairAsDefault(identity));
