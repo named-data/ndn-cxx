@@ -24,6 +24,9 @@ def options(opt):
     opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
                    help='''Do not build tools''')
 
+    opt.add_option('--without-sqlite-locking', action='store_false', default=True, dest='with_sqlite_locking',
+                   help='''Disable filesystem locking in sqlite3 database (use unix-dot locking mechanism instead). '''
+                   '''This option may be necessary if home directory is hosted on NFS.''')
 
 def configure(conf):
     conf.load("compiler_c compiler_cxx boost gnu_dirs c_osx openssl cryptopp")
@@ -105,6 +108,9 @@ def configure(conf):
     conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
 
+    if not conf.options.with_sqlite_locking:
+        conf.define('DISABLE_SQLITE3_FS_LOCKING', 1)
+    
     conf.write_config_header('src/ndn-cpp-config.h', define_prefix='NDN_CPP_')
 
 def build (bld):
