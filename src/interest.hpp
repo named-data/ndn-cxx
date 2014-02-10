@@ -155,6 +155,9 @@ public:
   void 
   setMaxSuffixComponents(int maxSuffixComponents) { maxSuffixComponents_ = maxSuffixComponents; }
   
+  void
+  setExclude(const Exclude& exclude) { exclude_ = exclude; }
+
   void 
   setChildSelector(int childSelector) { childSelector_ = childSelector; }
 
