@@ -13,7 +13,7 @@
 #include "data.hpp"
 #include "transport/transport.hpp"
 
-#include "management/ndnd-control.hpp"
+#include "management/controller.hpp"
 
 #include "detail/registered-prefix.hpp"
 #include "detail/pending-interest.hpp"
@@ -42,7 +42,7 @@ typedef function<void
 /**
  * An OnRegisterFailed function object is used to report when registerPrefix fails.
  */
-typedef function<void(const shared_ptr<const Name>&)> OnSetInterestFilterFailed;
+typedef function<void(const Name&, const std::string&)> OnSetInterestFilterFailed;
 
 class Node {
 public:
@@ -53,7 +53,7 @@ public:
    * @param transport A shared_ptr to a Transport object used for communication.
    * @param transport A shared_ptr to a Transport::ConnectionInfo to be used to connect to the transport.
    */
-  Node(const shared_ptr<Transport>& transport);
+  Node(const shared_ptr<Transport>& transport, bool nfdMode = false);
 
   /**
    * @brief Alternative (special use case) version of the constructor, can be used to aggregate
@@ -67,7 +67,7 @@ public:
    *     face1.processEvents();
    * </code>
    */
-  Node(const shared_ptr<Transport>& transport, const shared_ptr<boost::asio::io_service> &ioService);
+  Node(const shared_ptr<Transport>& transport, const shared_ptr<boost::asio::io_service> &ioService, bool nfdMode = false);
   
   /**
    * @brief Send the Interest through the transport, read the entire response and call onData(interest, data).
@@ -150,6 +150,9 @@ public:
   ioService() { return ioService_; }
 
 private:
+  void
+  construct(const shared_ptr<Transport>& transport, const shared_ptr<boost::asio::io_service> &ioService, bool nfdMode);
+  
   struct ProcessEventsTimeout {};
   typedef std::list<shared_ptr<PendingInterest> > PendingInterestTable;
   typedef std::list<shared_ptr<RegisteredPrefix> > RegisteredPrefixTable;
@@ -204,7 +207,7 @@ private:
   PendingInterestTable pendingInterestTable_;
   RegisteredPrefixTable registeredPrefixTable_;
 
-  ndnd::Control m_fwController;
+  shared_ptr<Controller> m_fwController;
 };
 
 } // namespace ndn

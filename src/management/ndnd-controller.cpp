@@ -5,6 +5,8 @@
  */
 
 #include "common.hpp"
+#include "ndnd-controller.hpp"
+
 #include "../node.hpp"
 #include "../security/signature-sha256-with-rsa.hpp"
 #include "../util/random.hpp"
@@ -16,43 +18,43 @@
 namespace ndn {
 namespace ndnd {
 
-Control::Control(Node& face)
+Controller::Controller(Node& face)
   : m_face(face)
   , m_faceId(-1)
 {
 }
 
 void
-Control::selfRegisterPrefix(const Name& prefixToRegister,
-                            const SuccessCallback& onSuccess,
-                            const FailCallback&    onFail)
+Controller::selfRegisterPrefix(const Name& prefixToRegister,
+                               const SuccessCallback& onSuccess,
+                               const FailCallback&    onFail)
 {
   if (!m_ndndId.hasValue())
     {
       if (m_filterRequests.empty())
         {
           m_face.expressInterest(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"),
-                                 bind(&Control::onNdnidFetched, this, _1, _2),
-                                 bind(onFail));
+                                 bind(&Controller::onNdnidFetched, this, _1, _2),
+                                 bind(onFail, "NDNDID fetching timed out"));
         }
       m_filterRequests.push_back(FilterRequest(prefixToRegister, onSuccess, onFail));
     }
   else
     startPrefixAction(ForwardingEntry("selfreg", prefixToRegister),
-                      bind(&Control::recordSelfRegisteredFaceId, this, _1, onSuccess),
+                      bind(&Controller::recordSelfRegisteredFaceId, this, _1, onSuccess),
                       onFail);
 }
 
 
 void
-Control::selfDeregisterPrefix(const Name& prefixToRegister,
-                              const SuccessCallback& onSuccess,
-                              const FailCallback&    onFail)
+Controller::selfDeregisterPrefix(const Name& prefixToRegister,
+                                 const SuccessCallback& onSuccess,
+                                 const FailCallback&    onFail)
 {
   if (!m_ndndId.hasValue() || m_faceId == -1)
     {
       if (static_cast<bool>(onFail))
-        onFail();
+        onFail("NDNID is not available (must have been present after a successful registration operation)");
       return;
     }
 
@@ -62,8 +64,8 @@ Control::selfDeregisterPrefix(const Name& prefixToRegister,
 
 
 void 
-Control::onNdnidFetched(const shared_ptr<const Interest>& interest,
-                        const shared_ptr<Data>& data)
+Controller::onNdnidFetched(const shared_ptr<const Interest>& interest,
+                           const shared_ptr<Data>& data)
 {
   if (data->getName().size() > interest->getName().size())
     {
@@ -74,7 +76,7 @@ Control::onNdnidFetched(const shared_ptr<const Interest>& interest,
            ++i)
         {
           startPrefixAction(ForwardingEntry("selfreg", i->m_prefixToRegister),
-                            bind(&Control::recordSelfRegisteredFaceId, this, _1, i->m_onSuccess),
+                            bind(&Controller::recordSelfRegisteredFaceId, this, _1, i->m_onSuccess),
                             i->m_onFailure);
         }
     }
@@ -85,15 +87,15 @@ Control::onNdnidFetched(const shared_ptr<const Interest>& interest,
            ++i)
         {
           if (static_cast<bool>(i->m_onFailure))
-              i->m_onFailure();
+              i->m_onFailure("NDNID cannot be fetched");
         }
     }
   m_filterRequests.clear();
 }
 
 void
-Control::recordSelfRegisteredFaceId(const ForwardingEntry& entry,
-                                    const SuccessCallback& onSuccess)
+Controller::recordSelfRegisteredFaceId(const ForwardingEntry& entry,
+                                       const SuccessCallback& onSuccess)
 {
   m_faceId = entry.getFaceId();
   if (static_cast<bool>(onSuccess))
@@ -101,9 +103,9 @@ Control::recordSelfRegisteredFaceId(const ForwardingEntry& entry,
 }
 
 void
-Control::startFaceAction(const FaceInstance& entry,
-                         const FaceOperationSucceedCallback& onSuccess,
-                         const FailCallback& onFailure)
+Controller::startFaceAction(const FaceInstance& entry,
+                            const FaceOperationSucceedCallback& onSuccess,
+                            const FailCallback& onFail)
 {
   // Set the ForwardingEntry as the content of a Data packet and sign.
   Data data;
@@ -129,14 +131,14 @@ Control::startFaceAction(const FaceInstance& entry,
   interest.setMustBeFresh(true);
 
   m_face.expressInterest(interest,
-                         bind(&Control::processFaceActionResponse, this, _2, onSuccess, onFailure),
-                         bind(onFailure));
+                         bind(&Controller::processFaceActionResponse, this, _2, onSuccess, onFail),
+                         bind(onFail, "Command Interest failed"));
 }
 
 void
-Control::startPrefixAction(const ForwardingEntry& entry,
-                           const PrefixOperationSucceedCallback& onSuccess,
-                           const FailCallback& onFailure)
+Controller::startPrefixAction(const ForwardingEntry& entry,
+                              const PrefixOperationSucceedCallback& onSuccess,
+                              const FailCallback& onFail)
 {
   // Set the ForwardingEntry as the content of a Data packet and sign.
   Data data;
@@ -162,14 +164,14 @@ Control::startPrefixAction(const ForwardingEntry& entry,
   interest.setMustBeFresh(true);
 
   m_face.expressInterest(interest,
-                         bind(&Control::processPrefixActionResponse, this, _2, onSuccess, onFailure),
-                         bind(onFailure));
+                         bind(&Controller::processPrefixActionResponse, this, _2, onSuccess, onFail),
+                         bind(onFail, "Command Interest timed out"));
 }
 
 void
-Control::processFaceActionResponse(const shared_ptr<Data>& data,
-                                   const FaceOperationSucceedCallback& onSuccess,
-                                   const FailCallback& onFail)
+Controller::processFaceActionResponse(const shared_ptr<Data>& data,
+                                      const FaceOperationSucceedCallback& onSuccess,
+                                      const FailCallback& onFail)
 {
   Block content = data->getContent();
   content.parse();
@@ -177,7 +179,7 @@ Control::processFaceActionResponse(const shared_ptr<Data>& data,
   if (content.getAll().empty())
     {
       if (static_cast<bool>(onFail))
-        onFail();
+        onFail("Empty response");
       return;
     }
 
@@ -200,22 +202,22 @@ Control::processFaceActionResponse(const shared_ptr<Data>& data,
         resp.wireDecode(*val);
 
         if (static_cast<bool>(onFail))
-          onFail();
+          onFail(resp.getInfo());
         return;
       }
     default:
       {
         if (static_cast<bool>(onFail))
-          onFail();
+          onFail("Invalid response");
         return;
       }
     }
 }
 
 void
-Control::processPrefixActionResponse(const shared_ptr<Data>& data,
-                                     const PrefixOperationSucceedCallback& onSuccess,
-                                     const FailCallback& onFail)
+Controller::processPrefixActionResponse(const shared_ptr<Data>& data,
+                                        const PrefixOperationSucceedCallback& onSuccess,
+                                        const FailCallback& onFail)
 {
   Block content = data->getContent();
   content.parse();
@@ -223,7 +225,7 @@ Control::processPrefixActionResponse(const shared_ptr<Data>& data,
   if (content.getAll().empty())
     {
       if (static_cast<bool>(onFail))
-        onFail();
+        onFail("Empty response");
       return;
     }
 
@@ -248,13 +250,13 @@ Control::processPrefixActionResponse(const shared_ptr<Data>& data,
         // std::cerr << "StatusReponse: " << resp << std::endl;
       
         if (static_cast<bool>(onFail))
-          onFail();
+          onFail(resp.getInfo());
         return;
       }
     default:
       {
         if (static_cast<bool>(onFail))
-          onFail();
+          onFail("Invalid response");
         return;
       }
     }

@@ -7,8 +7,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_FIB_MANAGEMENT_HPP
-#define NDN_FIB_MANAGEMENT_HPP
+#ifndef NDN_MANAGEMENT_NFD_FIB_MANAGEMENT_OPTIONS_HPP
+#define NDN_MANAGEMENT_NFD_FIB_MANAGEMENT_OPTIONS_HPP
 
 #include "../encoding/block.hpp"
 #include "../encoding/encoding-buffer.hpp"
@@ -16,40 +16,73 @@
 #include "../name.hpp"
 
 namespace ndn {
+namespace nfd {
 
 class FibManagementOptions {
 public:
+  struct Error : public Tlv::Error { Error(const std::string &what) : Tlv::Error(what) {} };
+
   FibManagementOptions ()
     : faceId_ (-1)
     , cost_ (-1)
   {
   }
+
+  FibManagementOptions(const Block& block)
+  {
+    wireDecode(block);
+  }
   
   const Name& 
-  getName () const { return name_; }
+  getName () const
+  {
+    return name_;
+  }
   
-  void
-  setName (const Name &name) { name_ = name; wire_.reset (); }
+  FibManagementOptions&
+  setName (const Name &name)
+  {
+    name_ = name;
+    wire_.reset ();
+    return *this;
+  }
   
   int 
-  getFaceId () const { return faceId_; }
+  getFaceId () const
+  {
+    return faceId_;
+  }
 
-  void 
-  setFaceId (int faceId) { faceId_ = faceId; wire_.reset (); }
+  FibManagementOptions&
+  setFaceId (int faceId)
+  {
+    faceId_ = faceId;
+    wire_.reset ();
+    return *this;
+  }
 
   int 
-  getCost () const { return cost_; }
+  getCost () const
+  {
+    return cost_;
+  }
 
-  void 
-  setCost (int cost) { cost_ = cost; wire_.reset (); }
+  FibManagementOptions&
+  setCost (int cost)
+  {
+    cost_ = cost;
+    wire_.reset ();
+    return *this;
+  }
 
-  inline size_t
-  wireEncode (EncodingBuffer& blk);
+  template<bool T>
+  size_t
+  wireEncode(EncodingImpl<T> &block) const;
   
-  inline const Block&
+  const Block&
   wireEncode () const;
   
-  inline void 
+  void 
   wireDecode (const Block &wire);
   
 private:
@@ -62,8 +95,9 @@ private:
   mutable Block wire_;
 };
 
+template<bool T>
 inline size_t
-FibManagementOptions::wireEncode (EncodingBuffer& blk)
+FibManagementOptions::wireEncode(EncodingImpl<T>& blk) const
 {
   size_t total_len = 0;
   if (cost_ != -1)
@@ -89,28 +123,27 @@ FibManagementOptions::wireEncode (EncodingBuffer& blk)
   return total_len;
 }
 
+template
+size_t
+FibManagementOptions::wireEncode<true>(EncodingBuffer& block) const;
+
+template
+size_t
+FibManagementOptions::wireEncode<false>(EncodingEstimator& block) const;
+
 inline const Block&
 FibManagementOptions::wireEncode () const
 {
   if (wire_.hasWire ())
     return wire_;
-  
-  wire_ = Block (tlv::nfd_control::FibManagementOptions);
 
-  // Name
-  wire_.push_back (name_.wireEncode ());
+  EncodingEstimator estimator;
+  size_t estimatedSize = wireEncode(estimator);
   
-  // FaceId
-  if (faceId_ != -1)
-    wire_.push_back (nonNegativeIntegerBlock (tlv::nfd_control::FaceId, faceId_));
+  EncodingBuffer buffer(estimatedSize, 0);
+  wireEncode(buffer);
 
-  // Cost
-  if (cost_ != -1)
-    wire_.push_back (nonNegativeIntegerBlock (tlv::nfd_control::Cost, cost_));
-
-  //TODO: Strategy
-  
-  wire_.encode ();
+  wire_ = buffer.block();
   return wire_;
 }
   
@@ -122,6 +155,10 @@ FibManagementOptions::wireDecode (const Block &wire)
   cost_ = -1;
 
   wire_ = wire;
+
+  if (wire_.type() != tlv::nfd_control::FibManagementOptions)
+    throw Error("Requested decoding of FibManagementOptions, but Block is of different type");
+  
   wire_.parse ();
 
   // Name
@@ -166,6 +203,7 @@ operator << (std::ostream &os, const FibManagementOptions &option)
   return os;
 }
 
-}
+} // namespace nfd
+} // namespace ndn
 
-#endif
+#endif // NDN_MANAGEMENT_NFD_FIB_MANAGEMENT_OPTIONS_HPP

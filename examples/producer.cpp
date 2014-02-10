@@ -49,11 +49,12 @@ public:
     face_.put(data);
   }
 
+
   void
-  onRegisterFailed(const ptr_lib::shared_ptr<const Name>&)
+  onRegisterFailed (const ndn::Name& prefix, const std::string& reason)
   {
-    std::cerr << "ERROR: Failed to register prefix in local hub's daemon" << std::endl;
-    face_.shutdown();
+    std::cerr << "ERROR: Failed to register prefix in local hub's daemon (" << reason << ")" << std::endl;
+    face_.shutdown ();
   }
   
   void
@@ -61,7 +62,7 @@ public:
   {
     face_.setInterestFilter("/localhost/testApp",
                             func_lib::bind(&Producer::onInterest, this, _1, _2),
-                            func_lib::bind(&Producer::onRegisterFailed, this, _1));
+                            func_lib::bind(&Producer::onRegisterFailed, this, _1, _2));
     face_.processEvents();
   }
 

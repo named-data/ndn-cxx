@@ -4,10 +4,15 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_MANAGEMENT_NDND_CONTROL_HPP
-#define NDN_MANAGEMENT_NDND_CONTROL_HPP
+#ifndef NDN_MANAGEMENT_NDND_CONTROLLER_HPP
+#define NDN_MANAGEMENT_NDND_CONTROLLER_HPP
 
 #include "../common.hpp"
+#include "controller.hpp"
+
+#include "../name.hpp"
+#include "../interest.hpp"
+#include "../data.hpp"
 
 namespace ndn {
 
@@ -23,26 +28,23 @@ class ForwardingEntry;
  *
  * ndnd::Control should be used when connecting to ndnd-tlv daemon
  */
-class Control
+class Controller : public ndn::Controller
 {
 public:
-  typedef function<void()>                       SuccessCallback;
-  typedef function<void()>                       FailCallback;
-
   typedef function<void(const ForwardingEntry&)> PrefixOperationSucceedCallback;
   typedef function<void(const FaceInstance&)>    FaceOperationSucceedCallback;
 
   /**
    * @brief Construct ndnd::Control object
    */
-  Control(Node& face);
+  Controller(Node& face);
 
-  void
+  virtual void
   selfRegisterPrefix(const Name& prefixToRegister,
                      const SuccessCallback& onSuccess,
                      const FailCallback&    onFail);
 
-  void
+  virtual void
   selfDeregisterPrefix(const Name& prefixToRegister,
                        const SuccessCallback& onSuccess,
                        const FailCallback&    onFail);
@@ -106,4 +108,4 @@ private:
 } // namespace ndnd
 } // namespace ndn
 
-#endif // NDN_MANAGEMENT_NDND_CONTROL_HPP
+#endif // NDN_MANAGEMENT_NDND_CONTROLLER_HPP

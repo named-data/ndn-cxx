@@ -4,8 +4,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "management/control-response.hpp"
-#include "management/fib-management-options.hpp"
+#include "management/nfd-control-response.hpp"
+#include "management/nfd-fib-management-options.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/output_test_stream.hpp>
@@ -13,6 +13,7 @@
 using namespace std;
 
 namespace ndn {
+namespace nfd {
 
 BOOST_AUTO_TEST_SUITE(TestNfdControl)
 
@@ -28,7 +29,7 @@ const uint8_t TestFibManagementOptions[] = {
 
 BOOST_AUTO_TEST_CASE (ControlResponseEncode)
 {
-  ndn::ControlResponse controlResponse(404, "Nothing not found");
+  ControlResponse controlResponse(404, "Nothing not found");
   const Block &wire = controlResponse.wireEncode();
 
   BOOST_REQUIRE_EQUAL_COLLECTIONS(TestControlResponse, TestControlResponse+sizeof(TestControlResponse),
@@ -37,7 +38,7 @@ BOOST_AUTO_TEST_CASE (ControlResponseEncode)
 
 BOOST_AUTO_TEST_CASE (ControlResponseDecode)
 {
-  ndn::ControlResponse controlResponse;
+  ControlResponse controlResponse;
   
   BOOST_REQUIRE_NO_THROW(controlResponse.wireDecode(Block(TestControlResponse, sizeof(TestControlResponse))));
 
@@ -56,7 +57,7 @@ BOOST_AUTO_TEST_CASE (FibManagementOptionsEncoding)
   opt.setFaceId (0);
   opt.setCost (0);
 
-  const ndn::Block& blk = opt.wireEncode ();
+  const Block& blk = opt.wireEncode ();
 
   BOOST_REQUIRE_EQUAL_COLLECTIONS (TestFibManagementOptions,
                                    TestFibManagementOptions + sizeof (TestFibManagementOptions),
@@ -105,4 +106,5 @@ BOOST_AUTO_TEST_CASE (FibManagementOptionsDecoding)
 
 BOOST_AUTO_TEST_SUITE_END()
 
+} // namespace nfd
 } // namespace ndn

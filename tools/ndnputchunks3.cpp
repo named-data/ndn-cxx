@@ -21,11 +21,6 @@
 #include "face.hpp"
 #include "security/key-chain.hpp"
 
-#if NDN_CPP_HAVE_CXX11
-// In the std library, the placeholders are in a different namespace than boost.
-using namespace ndn::func_lib::placeholders;
-#endif
-
 #define MAX_SEG_SIZE 4096
 
 class Producer
@@ -44,7 +39,7 @@ public:
 
         if (got > 0)
           {
-            ndn::ptr_lib::shared_ptr<ndn::Data> data = ndn::ptr_lib::make_shared<ndn::Data> (ndn::Name(m_name).appendSegment (segnum));
+            ndn::shared_ptr<ndn::Data> data = ndn::make_shared<ndn::Data> (ndn::Name(m_name).appendSegment (segnum));
             data->setFreshnessPeriod (10000); // 10 sec
             data->setContent (reinterpret_cast<const uint8_t*>(buf), got);
             
@@ -60,7 +55,7 @@ public:
   }
 
   void
-  onInterest (const ndn::ptr_lib::shared_ptr<const ndn::Name>& name, const ndn::ptr_lib::shared_ptr<const ndn::Interest>& interest)
+  onInterest (const ndn::shared_ptr<const ndn::Name>& name, const ndn::shared_ptr<const ndn::Interest>& interest)
   {
     if (m_verbose)
       std::cerr << "<< I: " << *interest << std::endl;
@@ -74,9 +69,9 @@ public:
   }
 
   void
-  onRegisterFailed (const ndn::ptr_lib::shared_ptr<const ndn::Name>&)
+  onRegisterFailed (const ndn::Name& prefix, const std::string& reason)
   {
-    std::cerr << "ERROR: Failed to register prefix in local hub's daemon" << std::endl;
+    std::cerr << "ERROR: Failed to register prefix in local hub's daemon (" << reason << ")" << std::endl;
     m_face.shutdown ();
   }
   
@@ -90,8 +85,8 @@ public:
       }
     
     m_face.setInterestFilter (m_name,
-                              ndn::func_lib::bind (&Producer::onInterest, this, _1, _2),
-                              ndn::func_lib::bind (&Producer::onRegisterFailed, this, _1));
+                              ndn::bind (&Producer::onInterest, this, _1, _2),
+                              ndn::bind (&Producer::onRegisterFailed, this, _1, _2));
     m_face.processEvents ();
   }
 
@@ -100,7 +95,7 @@ private:
   ndn::Face m_face;
   ndn::KeyChain m_keychain;
   
-  std::vector< ndn::ptr_lib::shared_ptr<ndn::Data> > m_store;
+  std::vector< ndn::shared_ptr<ndn::Data> > m_store;
 
   bool m_verbose;
 };

@@ -14,27 +14,41 @@
 #include "util/time.hpp"
 #include "util/random.hpp"
 
+#include "management/ndnd-controller.hpp"
+#include "management/nfd-controller.hpp"
+
 namespace ndn {
 
-Node::Node(const shared_ptr<Transport>& transport)
-  : pitTimeoutCheckTimerActive_(false)
-  , transport_(transport)
-  , m_fwController(*this)
+Node::Node(const shared_ptr<Transport>& transport, bool nfdMode/* = false*/)
 {
-  ioService_ = make_shared<boost::asio::io_service>();      
-  pitTimeoutCheckTimer_      = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
-  processEventsTimeoutTimer_ = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
+  construct(transport, make_shared<boost::asio::io_service>(), nfdMode);
 }
 
-Node::Node(const shared_ptr<Transport>& transport, const shared_ptr<boost::asio::io_service> &ioService)
-  : ioService_(ioService)
-  , pitTimeoutCheckTimerActive_(false)
-  , transport_(transport)
-  , m_fwController(*this)
+Node::Node(const shared_ptr<Transport>& transport,
+           const shared_ptr<boost::asio::io_service> &ioService,
+           bool nfdMode/* = false*/)
 {
+  construct(transport, ioService, nfdMode);
+}
+
+void
+Node::construct(const shared_ptr<Transport>& transport,
+                const shared_ptr<boost::asio::io_service> &ioService,
+                bool nfdMode)
+{
+  pitTimeoutCheckTimerActive_ = false;
+  transport_ = transport;
+  ioService_ = ioService;
+
   pitTimeoutCheckTimer_      = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
   processEventsTimeoutTimer_ = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
+  
+  if (nfdMode)
+      m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
+  else
+      m_fwController = make_shared<ndnd::Controller>(boost::ref(*this));
 }
+
 
 const PendingInterestId*
 Node::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)
@@ -97,9 +111,9 @@ Node::setInterestFilter(const Name& prefix,
 {
   shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
 
-  m_fwController.selfRegisterPrefix(prefixToRegister->getPrefix(),
-                                    bind(&RegisteredPrefixTable::push_back, &registeredPrefixTable_, prefixToRegister),
-                                    bind(onSetInterestFilterFailed, prefixToRegister->getPrefix().shared_from_this()));
+  m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
+                                     bind(&RegisteredPrefixTable::push_back, &registeredPrefixTable_, prefixToRegister),
+                                     bind(onSetInterestFilterFailed, prefixToRegister->getPrefix(), _1));
   
   return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
 }
@@ -117,9 +131,9 @@ Node::asyncUnsetInterestFilter(const RegisteredPrefixId *registeredPrefixId)
                                                    MatchRegisteredPrefixId(registeredPrefixId));  
   if (i != registeredPrefixTable_.end())
     {
-      m_fwController.selfDeregisterPrefix((*i)->getPrefix(),
-                                          bind(&RegisteredPrefixTable::erase, &registeredPrefixTable_, i),
-                                          ndnd::Control::FailCallback());
+      m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
+                                           bind(&RegisteredPrefixTable::erase, &registeredPrefixTable_, i),
+                                           Controller::FailCallback());
     }
 
   // there cannot be two registered prefixes with the same id. if there are, then something is broken

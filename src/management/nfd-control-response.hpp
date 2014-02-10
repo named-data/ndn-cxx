@@ -11,6 +11,7 @@
 #include "../encoding/tlv-nfd-control.hpp"
 
 namespace ndn {
+namespace nfd {
 
 /**
  * @brief Class defining abstraction of ControlResponse for NFD Control Protocol
@@ -30,6 +31,11 @@ public:
     : m_code(code)
     , m_text(text)
   {
+  }
+
+  ControlResponse(const Block& block)
+  {
+    wireDecode(block);
   }
   
   inline uint32_t
@@ -133,6 +139,9 @@ ControlResponse::wireDecode(const Block &wire)
   m_wire = wire;
   m_wire.parse();
 
+  if (m_wire.type() != tlv::nfd_control::ControlResponse)
+    throw Error("Requested decoding of ControlResponse, but Block is of different type");  
+  
   Block::element_iterator val = m_wire.getAll().begin();
   if (val == m_wire.getAll().end() ||
       val->type() != tlv::nfd_control::StatusCode)
@@ -164,6 +173,7 @@ operator << (std::ostream &os, const ControlResponse &status)
   return os;
 }
 
+} // namespace nfd
 } // namespace ndn
 
 #endif // NDN_MANAGEMENT_CONTROL_RESPONSE_HPP
