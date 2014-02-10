@@ -106,16 +106,6 @@ Controller::processFibCommandResponse(Data& data,
       if (static_cast<bool>(onFail))
         return onFail(e.what());
     }
-  catch(ControlResponse::Error& e)
-    {
-      if (static_cast<bool>(onFail))
-        return onFail(e.what());
-    }
-  catch(FibManagementOptions::Error& e)
-    {
-      if (static_cast<bool>(onFail))
-        return onFail(e.what());
-    }
 }
 
 } // namespace nfd
