@@ -88,8 +88,12 @@ public:
     set(uri.c_str());
   }
 
+  /**
+   * @brief Fast encoding or block size estimation
+   */
+  template<bool T>
   size_t
-  wireEncode (EncodingBuffer& blk);
+  wireEncode(EncodingImpl<T> &block) const;
   
   const Block &
   wireEncode() const;
@@ -167,7 +171,11 @@ public:
   Name&
   append(const Block &value)
   {
-    m_nameBlock.elements().push_back(Component(value.begin(), value.end()));
+    if (value.type() == Tlv::NameComponent)
+      m_nameBlock.elements().push_back(value);
+    else
+      m_nameBlock.elements().push_back(Block(Tlv::NameComponent, value));
+
     return *this;
   }
   
@@ -483,14 +491,15 @@ Name::wireEncode() const
   if (m_nameBlock.hasWire())
     return m_nameBlock;
 
-  for (Block::element_iterator i = m_nameBlock.element_begin();
-       i != m_nameBlock.element_end();
-       ++i)
-    {
-      i->encode();
-    }
-        
-  m_nameBlock.encode();
+  EncodingEstimator estimator;
+  size_t estimatedSize = wireEncode(estimator);
+  
+  EncodingBuffer buffer(estimatedSize, 0);
+  wireEncode(buffer);
+
+  m_nameBlock = buffer.block();
+  m_nameBlock.parse();
+  
   return m_nameBlock;
 }
 
@@ -501,12 +510,13 @@ Name::wireDecode(const Block &wire)
   m_nameBlock.parse();
 }
 
+template<bool T>
 inline size_t
-Name::wireEncode (EncodingBuffer& blk)
+Name::wireEncode(EncodingImpl<T>& blk) const
 {
   size_t total_len = 0;
   
-  for (reverse_iterator i = rbegin (); 
+  for (const_reverse_iterator i = rbegin (); 
        i != rend ();
        ++i)
     {
@@ -517,6 +527,14 @@ Name::wireEncode (EncodingBuffer& blk)
   total_len += blk.prependVarNumber (Tlv::Name);
   return total_len;
 }
+
+template
+size_t
+Name::wireEncode<true>(EncodingBuffer& block) const;
+
+template
+size_t
+Name::wireEncode<false>(EncodingEstimator& block) const;
 
 
 } // namespace ndn

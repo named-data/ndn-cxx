@@ -486,7 +486,7 @@ inline const uint8_t*
 Block::value() const
 {
   if (!hasValue())
-      throw Error("(Block::value) Underlying value buffer is empty");
+    return 0;
   
   return &*m_value_begin;
 }

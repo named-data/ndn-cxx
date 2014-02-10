@@ -56,10 +56,11 @@ Block::Block(const ConstBufferPtr &buffer,
   : m_buffer(buffer)
   , m_begin(begin)
   , m_end(end)
+  , m_size(m_end - m_begin)
 {
   m_value_begin = m_buffer->begin();
   m_value_end   = m_buffer->end();
-  
+
   m_type = Tlv::readType(m_value_begin, m_value_end);
   uint64_t length = Tlv::readVarNumber(m_value_begin, m_value_end);
   if (length != static_cast<uint64_t>(m_value_end - m_value_begin))

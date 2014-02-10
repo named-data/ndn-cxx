@@ -143,9 +143,6 @@ public:
   }
 
   inline size_t
-  size () const;
-
-  inline size_t
   prependByte (uint8_t val);
 
   inline size_t
@@ -168,9 +165,6 @@ public:
 
   inline size_t
   appendVarNumber (uint64_t varNumber);
-
-private:
-  size_t m_size;
 };
 
 
@@ -182,12 +176,6 @@ inline size_t
 EncodingImpl<encoding::Buffer>::size () const
 {
   return m_end - m_begin;
-}
-
-inline size_t
-EncodingImpl<encoding::Estimator>::size () const
-{
-  return m_size;
 }
 
 inline size_t
@@ -289,7 +277,6 @@ EncodingImpl<encoding::Buffer>::prependByte (uint8_t val)
 inline size_t
 EncodingImpl<encoding::Estimator>::prependByte (uint8_t val)
 {
-  m_size += 1;
   return 1;
 }
 
@@ -307,7 +294,6 @@ EncodingImpl<encoding::Buffer>::prependByteArray (const uint8_t *arr, size_t len
 inline size_t
 EncodingImpl<encoding::Estimator>::prependByteArray (const uint8_t *arr, size_t len)
 {
-  m_size += len;
   return len;
 }
 
@@ -335,19 +321,15 @@ inline size_t
 EncodingImpl<encoding::Estimator>::prependNonNegativeInteger (uint64_t varNumber)
 {
   if (varNumber < 253) {
-    m_size += 1;
     return 1;
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max ()) {
-    m_size += 2;
     return 2;
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max ()) {
-    m_size += 4;
     return 4;
   }
   else {
-    m_size += 8;
     return 8;
   }
 }
@@ -383,19 +365,15 @@ inline size_t
 EncodingImpl<encoding::Estimator>::prependVarNumber (uint64_t varNumber)
 {
   if (varNumber < 253) {
-    m_size += 1;
     return 1;
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max ()) {
-    m_size += 3;
     return 3;
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max ()) {
-    m_size += 5;
     return 5;
   }
   else {
-    m_size += 9;
     return 9;
   }
 }

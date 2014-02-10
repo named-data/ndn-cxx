@@ -342,7 +342,8 @@ inline size_t
 Component::wireEncode(EncodingImpl<T>& block) const
 {
   size_t total_len = 0;
-  total_len += block.prependByteArray (value(), value_size());
+  if (value_size() > 0)
+    total_len += block.prependByteArray (value(), value_size());
   total_len += block.prependVarNumber (value_size());
   total_len += block.prependVarNumber (Tlv::NameComponent);
   return total_len;
