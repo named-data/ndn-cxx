@@ -15,7 +15,7 @@ namespace ndn {
 class RegisteredPrefix {
 public:
   typedef function<void
-  (const shared_ptr<const Name>&, const shared_ptr<const Interest>&)> OnInterest;
+  (const Name&, const Interest&)> OnInterest;
 
   /**
    * Create a new PrefixEntry.

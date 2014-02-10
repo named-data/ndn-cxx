@@ -5,7 +5,7 @@
  */
 
 #include "common.hpp"
-#include "../node.hpp"
+#include "../face.hpp"
 
 #include "nfd-controller.hpp"
 #include "nfd-fib-management-options.hpp"
@@ -14,7 +14,7 @@
 namespace ndn {
 namespace nfd {
 
-Controller::Controller(Node& face)
+Controller::Controller(Face& face)
   : m_face(face)
   , m_faceId(0)
 {
@@ -82,18 +82,18 @@ Controller::recordSelfRegisteredFaceId(const FibManagementOptions& entry,
 }
 
 // void
-// processFaceActionResponse(const shared_ptr<Data>& data,
+// processFaceActionResponse(Data& data,
 //                           const FaceOperationSucceedCallback& onSuccess,
 //                           const FailCallback&    onFail);
 
 void
-Controller::processFibCommandResponse(const shared_ptr<Data>& data,
+Controller::processFibCommandResponse(Data& data,
                                       const FibCommandSucceedCallback& onSuccess,
                                       const FailCallback& onFail)
 {
   try
     {
-      ControlResponse response(data->getContent().blockFromValue());
+      ControlResponse response(data.getContent().blockFromValue());
 
       if (response.getCode() != 200)
         return onFail(response.getText());

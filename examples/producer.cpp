@@ -12,33 +12,21 @@
 #include "face.hpp"
 #include "security/key-chain.hpp"
 
-#if NDN_CPP_HAVE_CXX11
-// In the std library, the placeholders are in a different namespace than boost.
-using namespace ndn::func_lib::placeholders;
-#endif
-
 using namespace ndn;
 
 class Producer
 {
 public:
-  ////////////////////////////////////////////////////////////////////////////////////////
-  // CREATE TEST KEYCHAIN (THIS CODE IS ONLY FOR DEBUGGING, NOT TO BE USED IN REAL APPS //
-  ////////////////////////////////////////////////////////////////////////////////////////
   Producer()
-    : keyChain_()
   {
   }
-  ////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////
 
   void
-  onInterest(const ptr_lib::shared_ptr<const Name> &name, const ptr_lib::shared_ptr<const Interest> &interest)
+  onInterest(const Name& name, const Interest& interest)
   {
-    std::cout << "<< I: " << *interest << std::endl;
+    std::cout << "<< I: " << interest << std::endl;
     
-    ndn::Data data(ndn::Name(interest->getName()).append("testApp").appendVersion());
+    ndn::Data data(ndn::Name(interest.getName()).append("testApp").appendVersion());
     data.setFreshnessPeriod(1000); // 10 sec
 
     data.setContent((const uint8_t*)"HELLO KITTY", sizeof("HELLO KITTY"));

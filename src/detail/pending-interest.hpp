@@ -16,8 +16,8 @@ namespace ndn {
 
 class PendingInterest {
 public:
-  typedef function<void(const shared_ptr<const Interest>&, const shared_ptr<Data>&)> OnData;
-  typedef function<void(const shared_ptr<const Interest>&)> OnTimeout;
+  typedef function<void(const Interest&, Data&)> OnData;
+  typedef function<void(const Interest&)> OnTimeout;
 
   /**
    * Create a new PitEntry and set the timeoutTime_ based on the current time and the interest lifetime.
@@ -71,7 +71,7 @@ public:
   callTimeout()
   {
     if (onTimeout_) {
-      onTimeout_(interest_);
+      onTimeout_(*interest_);
     }
   }
     

@@ -18,7 +18,8 @@
 
 namespace ndn {
   
-class Data {
+class Data : public enable_shared_from_this<Data>
+{
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
   

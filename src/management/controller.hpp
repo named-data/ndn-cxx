@@ -14,7 +14,8 @@
 
 namespace ndn {
 
-class Node;
+class Name;
+class Face;
 
 class Controller
 {

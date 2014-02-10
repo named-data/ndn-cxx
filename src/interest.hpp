@@ -18,7 +18,7 @@ namespace ndn {
 /**
  * An Interest holds a Name and other fields for an interest.
  */
-class Interest {
+class Interest : public enable_shared_from_this<Interest> {
 public:    
   /**
    * Create a new Interest for the given name and values.

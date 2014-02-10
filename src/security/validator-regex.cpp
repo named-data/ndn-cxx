@@ -75,7 +75,7 @@ ValidatorRegex::onCertificateValidationFailed(const shared_ptr<const Data> &sign
 { onValidationFailed(data); }
 
 void
-ValidatorRegex::checkPolicy(const shared_ptr<const Data> &data, 
+ValidatorRegex::checkPolicy(const Data& data, 
                             int stepCount, 
                             const OnDataValidated &onValidated, 
                             const OnDataValidationFailed &onValidationFailed,
@@ -83,25 +83,25 @@ ValidatorRegex::checkPolicy(const shared_ptr<const Data> &data,
 {
   if(m_stepLimit == stepCount){
     _LOG_DEBUG("reach the maximum steps of verification");
-    onValidationFailed(data);
+    onValidationFailed(data.shared_from_this());
     return;
   }
   
   RuleList::iterator it = m_mustFailVerify.begin();
   for(; it != m_mustFailVerify.end(); it++)
-    if((*it)->satisfy(*data))
+    if((*it)->satisfy(data))
       {
-        onValidationFailed(data);
+        onValidationFailed(data.shared_from_this());
         return;
       }
 
   it = m_verifyPolicies.begin();
   for(; it != m_verifyPolicies.end(); it++)
     {
-      if((*it)->satisfy(*data))
+      if((*it)->satisfy(data))
         {
           try{
-            SignatureSha256WithRsa sig(data->getSignature());                
+            SignatureSha256WithRsa sig(data.getSignature());                
             
             Name keyLocatorName = sig.getKeyLocator().getName();
             shared_ptr<const Certificate> trustedCert;
@@ -111,20 +111,20 @@ ValidatorRegex::checkPolicy(const shared_ptr<const Data> &data,
               trustedCert = m_trustAnchors[keyLocatorName];
             
             if(static_cast<bool>(trustedCert)){
-              if(verifySignature(*data, sig, trustedCert->getPublicKeyInfo()))
-                onValidated(data);
+              if(verifySignature(data, sig, trustedCert->getPublicKeyInfo()))
+                onValidated(data.shared_from_this());
               else
-                onValidationFailed(data);
+                onValidationFailed(data.shared_from_this());
               
               return;
             }
             else{
               // _LOG_DEBUG("KeyLocator is not trust anchor");                
               OnDataValidated onKeyValidated = bind(&ValidatorRegex::onCertificateValidated, this, 
-                                                    _1, data, onValidated, onValidationFailed);
+                                                    _1, data.shared_from_this(), onValidated, onValidationFailed);
               
               OnDataValidationFailed onKeyValidationFailed = bind(&ValidatorRegex::onCertificateValidationFailed, this, 
-                                                                  _1, data, onValidationFailed);              
+                                                                  _1, data.shared_from_this(), onValidationFailed);              
 
               shared_ptr<ValidationRequest> nextStep = make_shared<ValidationRequest>(Interest(boost::cref(sig.getKeyLocator().getName())), 
                                                                                       onKeyValidated,
@@ -136,17 +136,17 @@ ValidatorRegex::checkPolicy(const shared_ptr<const Data> &data,
             }
           }catch(SignatureSha256WithRsa::Error &e){
             _LOG_DEBUG("ValidatorRegex Error: " << e.what());
-            onValidationFailed(data);
+            onValidationFailed(data.shared_from_this());
             return;
           }catch(KeyLocator::Error &e){
             _LOG_DEBUG("ValidatorRegex Error: " << e.what());
-            onValidationFailed(data);
+            onValidationFailed(data.shared_from_this());
             return;
           }
         }
     }
 
-  onValidationFailed(data);
+  onValidationFailed(data.shared_from_this());
   return;
 }
 

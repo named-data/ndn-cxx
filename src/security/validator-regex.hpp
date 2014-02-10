@@ -48,19 +48,19 @@ public:
 
 protected:
   virtual void
-  checkPolicy (const shared_ptr<const Data>& data, 
+  checkPolicy (const Data& data, 
                int stepCount, 
                const OnDataValidated &onValidated, 
                const OnDataValidationFailed &onValidationFailed,
                std::vector<shared_ptr<ValidationRequest> > &nextSteps);
 
   virtual void
-  checkPolicy (const shared_ptr<const Interest>& interest, 
+  checkPolicy (const Interest& interest, 
                int stepCount, 
                const OnInterestValidated &onValidated, 
                const OnInterestValidationFailed &onValidationFailed,
                std::vector<shared_ptr<ValidationRequest> > &nextSteps)
-  { onValidationFailed(interest); }
+  { onValidationFailed(interest.shared_from_this()); }
 
   void
   onCertificateValidated(const shared_ptr<const Data> &signCertificate, 

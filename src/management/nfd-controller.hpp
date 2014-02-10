@@ -7,17 +7,11 @@
 #ifndef NDN_MANAGEMENT_NFD_CONTROL_HPP
 #define NDN_MANAGEMENT_NFD_CONTROL_HPP
 
-#include "../common.hpp"
 #include "controller.hpp"
 
-#include "../name.hpp"
-#include "../interest.hpp"
-#include "../data.hpp"
 #include "../security/key-chain.hpp"
 
 namespace ndn {
-
-class Name;
 
 namespace nfd {
 
@@ -31,7 +25,7 @@ public:
   /**
    * @brief Construct ndnd::Control object
    */
-  Controller(Node& face);
+  Controller(Face& face);
 
   virtual void
   selfRegisterPrefix(const Name& prefixToRegister,
@@ -54,17 +48,17 @@ private:
                              const SuccessCallback& onSuccess);
 
   // void
-  // processFaceActionResponse(const shared_ptr<Data>& data,
+  // processFaceActionResponse(Data& data,
   //                           const FaceOperationSucceedCallback& onSuccess,
   //                           const FailCallback&    onFail);
 
   void
-  processFibCommandResponse(const shared_ptr<Data>& data,
+  processFibCommandResponse(Data& data,
                             const FibCommandSucceedCallback& onSuccess,
                             const FailCallback& onFail);
   
 private:
-  Node& m_face;
+  Face& m_face;
   KeyChain m_keyChain;
   uint64_t m_faceId; // internal face ID (needed for prefix de-registration)
 };

@@ -9,30 +9,23 @@
 // #include <ndn-cpp-dev/face.hpp>
 #include "face.hpp"
 
-#include <stdexcept>
-
-#if NDN_CPP_HAVE_CXX11
-// In the std library, the placeholders are in a different namespace than boost.
-using namespace ndn::func_lib::placeholders;
-#endif
-
 void
 onData(ndn::Face &face,
-       const ndn::ptr_lib::shared_ptr<const ndn::Interest> &interest, const ndn::ptr_lib::shared_ptr<ndn::Data> &data)
+       const ndn::Interest& interest, ndn::Data& data)
 {
-  std::cout << "I: " << interest->toUri() << std::endl;
-  std::cout << "D: " << data->getName().toUri() << std::endl;
+  std::cout << "I: " << interest.toUri() << std::endl;
+  std::cout << "D: " << data.getName().toUri() << std::endl;
 }
 
 void
 onTimeout(ndn::Face &face,
-          const ndn::ptr_lib::shared_ptr<const ndn::Interest> &interest)
+          const ndn::Interest& interest)
 {
   std::cout << "Timeout" << std::endl;
 }
 
 void
-BlockPrinter(const ndn::Block &block, const std::string &indent="")
+BlockPrinter(const ndn::Block& block, const std::string& indent="")
 {
   std::cout << indent << block.type() << " (" << block.value_size() << ") [[";
   std::cout.write(reinterpret_cast<const char *>(block.value()), block.value_size());
@@ -56,8 +49,8 @@ int main()
 
     ndn::Face face;
     face.expressInterest(i,
-                          ndn::func_lib::bind(onData, boost::ref(face), _1, _2),
-                          ndn::func_lib::bind(onTimeout, boost::ref(face), _1));
+                          ndn::bind(onData, boost::ref(face), _1, _2),
+                          ndn::bind(onTimeout, boost::ref(face), _1));
 
     // processEvents will block until the requested data received or timeout occurs
     face.processEvents();

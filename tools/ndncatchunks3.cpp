@@ -21,14 +21,6 @@
 
 #include "face.hpp"
 
-#include <stdexcept>
-#include <iostream>
-
-#if NDN_CPP_HAVE_CXX11
-// In the std library, the placeholders are in a different namespace than boost.
-using namespace ndn::func_lib::placeholders;
-#endif
-
 class Consumer
 {
 public:
@@ -51,11 +43,10 @@ public:
   
 private:
   void
-  on_data (const ndn::ptr_lib::shared_ptr<const ndn::Interest> &interest,
-	   const ndn::ptr_lib::shared_ptr<ndn::Data> &data);
+  on_data (const ndn::Interest& interest, ndn::Data& data);
 
   void
-  on_timeout (const ndn::ptr_lib::shared_ptr<const ndn::Interest> &interest);
+  on_timeout (const ndn::Interest& interest);
   
   ndn::Face m_face;
   ndn::Name m_data_name;
@@ -83,8 +74,8 @@ Consumer::run ()
 	  inst.setMustBeFresh (m_mustBeFresh);
 	  
 	  m_face.expressInterest (inst,
-				  ndn::func_lib::bind (&Consumer::on_data, this, _1, _2),
-				  ndn::func_lib::bind (&Consumer::on_timeout, this, _1));
+				  ndn::bind (&Consumer::on_data, this, _1, _2),
+				  ndn::bind (&Consumer::on_timeout, this, _1));
 	}
       
       // processEvents will block until the requested data received or timeout occurs
@@ -97,10 +88,10 @@ Consumer::run ()
 }
 
 void
-Consumer::on_data (const ndn::ptr_lib::shared_ptr<const ndn::Interest>& interest, const ndn::ptr_lib::shared_ptr<ndn::Data>& data)
+Consumer::on_data (const ndn::Interest& interest, ndn::Data& data)
 {
-  const ndn::Block& content = data->getContent ();
-  const ndn::Name& name = data->getName ();
+  const ndn::Block& content = data.getContent ();
+  const ndn::Name& name = data.getName ();
 
   if (m_output)
     {
@@ -124,14 +115,14 @@ Consumer::on_data (const ndn::ptr_lib::shared_ptr<const ndn::Interest>& interest
       inst.setMustBeFresh (m_mustBeFresh);
       
       m_face.expressInterest (inst,
-			      ndn::func_lib::bind (&Consumer::on_data, this, _1, _2),
-			      ndn::func_lib::bind (&Consumer::on_timeout, this, _1));  
+			      ndn::bind (&Consumer::on_data, this, _1, _2),
+			      ndn::bind (&Consumer::on_timeout, this, _1));  
     }
 }
 
 
 void
-Consumer::on_timeout (const ndn::ptr_lib::shared_ptr<const ndn::Interest>& interest)
+Consumer::on_timeout (const ndn::Interest& interest)
 {
   //XXX: currently no retrans
   std::cerr << "TIMEOUT: last interest sent for segment #" << (m_next_seg - 1) << std::endl;

@@ -10,24 +10,17 @@
 #include "face.hpp"
 #include "util/scheduler.hpp"
 
-#include <stdexcept>
-
-#if NDN_CPP_HAVE_CXX11
-// In the std library, the placeholders are in a different namespace than boost.
-using namespace ndn::func_lib::placeholders;
-#endif
-
 void
 onData(ndn::Face &face,
-       const ndn::ptr_lib::shared_ptr<const ndn::Interest> &interest, const ndn::ptr_lib::shared_ptr<ndn::Data> &data)
+       const ndn::Interest& interest, ndn::Data& data)
 {
-  std::cout << "I: " << interest->toUri() << std::endl;
-  std::cout << "D: " << data->getName().toUri() << std::endl;
+  std::cout << "I: " << interest.toUri() << std::endl;
+  std::cout << "D: " << data.getName().toUri() << std::endl;
 }
 
 void
 onTimeout(ndn::Face &face,
-          const ndn::ptr_lib::shared_ptr<const ndn::Interest> &interest)
+          const ndn::Interest& interest)
 {
   std::cout << "Timeout" << std::endl;
 }

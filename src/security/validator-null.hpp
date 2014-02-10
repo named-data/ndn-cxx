@@ -21,20 +21,20 @@ public:
   
 protected:
   virtual void
-  checkPolicy (const shared_ptr<const Data>& data, 
+  checkPolicy (const Data& data, 
                int stepCount, 
                const OnDataValidated &onValidated, 
                const OnDataValidationFailed &onValidationFailed,
                std::vector<shared_ptr<ValidationRequest> > &nextSteps)
-  { onValidated(data); }
+  { onValidated(data.shared_from_this()); }
   
   virtual void
-  checkPolicy (const shared_ptr<const Interest>& interest, 
+  checkPolicy (const Interest& interest, 
                int stepCount, 
                const OnInterestValidated &onValidated, 
                const OnInterestValidationFailed &onValidationFailed,
                std::vector<shared_ptr<ValidationRequest> > &nextSteps)
-  { onValidated(interest); }
+  { onValidated(interest.shared_from_this()); }
 };
 
 }

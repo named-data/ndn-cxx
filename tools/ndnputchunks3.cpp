@@ -55,12 +55,12 @@ public:
   }
 
   void
-  onInterest (const ndn::shared_ptr<const ndn::Name>& name, const ndn::shared_ptr<const ndn::Interest>& interest)
+  onInterest (const ndn::Name& name, const ndn::Interest& interest)
   {
     if (m_verbose)
-      std::cerr << "<< I: " << *interest << std::endl;
+      std::cerr << "<< I: " << interest << std::endl;
     
-    size_t segnum = static_cast<size_t>(interest->getName ().rbegin ()->toSegment ());
+    size_t segnum = static_cast<size_t>(interest.getName ().rbegin ()->toSegment ());
 
     if (segnum < m_store.size())
       {

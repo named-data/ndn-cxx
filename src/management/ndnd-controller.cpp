@@ -7,7 +7,7 @@
 #include "common.hpp"
 #include "ndnd-controller.hpp"
 
-#include "../node.hpp"
+#include "../face.hpp"
 #include "../security/signature-sha256-with-rsa.hpp"
 #include "../util/random.hpp"
 
@@ -18,7 +18,7 @@
 namespace ndn {
 namespace ndnd {
 
-Controller::Controller(Node& face)
+Controller::Controller(Face& face)
   : m_face(face)
   , m_faceId(-1)
 {
@@ -64,12 +64,11 @@ Controller::selfDeregisterPrefix(const Name& prefixToRegister,
 
 
 void 
-Controller::onNdnidFetched(const shared_ptr<const Interest>& interest,
-                           const shared_ptr<Data>& data)
+Controller::onNdnidFetched(const Interest& interest, Data& data)
 {
-  if (data->getName().size() > interest->getName().size())
+  if (data.getName().size() > interest.getName().size())
     {
-      m_ndndId = data->getName()[interest->getName().size()];
+      m_ndndId = data.getName()[interest.getName().size()];
 
       for (FilterRequestList::iterator i = m_filterRequests.begin();
            i != m_filterRequests.end();
@@ -169,11 +168,11 @@ Controller::startPrefixAction(const ForwardingEntry& entry,
 }
 
 void
-Controller::processFaceActionResponse(const shared_ptr<Data>& data,
+Controller::processFaceActionResponse(Data& data,
                                       const FaceOperationSucceedCallback& onSuccess,
                                       const FailCallback& onFail)
 {
-  Block content = data->getContent();
+  Block content = data.getContent();
   content.parse();
 
   if (content.getAll().empty())
@@ -215,11 +214,11 @@ Controller::processFaceActionResponse(const shared_ptr<Data>& data,
 }
 
 void
-Controller::processPrefixActionResponse(const shared_ptr<Data>& data,
+Controller::processPrefixActionResponse(Data& data,
                                         const PrefixOperationSucceedCallback& onSuccess,
                                         const FailCallback& onFail)
 {
-  Block content = data->getContent();
+  Block content = data.getContent();
   content.parse();
 
   if (content.getAll().empty())

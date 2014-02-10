@@ -26,7 +26,7 @@ Validator::Validator(shared_ptr<Face> face /* = DefaultFace */)
 {}
 
 void
-Validator::validate(const shared_ptr<const Interest> &interest, 
+Validator::validate(const Interest& interest, 
                     const OnInterestValidated &onValidated, 
                     const OnInterestValidationFailed &onValidationFailed,
                     int stepCount)
@@ -40,7 +40,7 @@ Validator::validate(const shared_ptr<const Interest> &interest,
         throw Error("Face should be set prior to verify method to call");
       
       vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
-      OnFailure onFailure = bind(onValidationFailed, interest);
+      OnFailure onFailure = bind(onValidationFailed, interest.shared_from_this());
       for(; it != nextSteps.end(); it++)
         m_face->expressInterest((*it)->m_interest,
                                 bind(&Validator::onData, this, _1, _2, *it), 
@@ -57,7 +57,7 @@ Validator::validate(const shared_ptr<const Interest> &interest,
 }
 
 void
-Validator::validate(const shared_ptr<const Data> &data, 
+Validator::validate(const Data& data, 
                     const OnDataValidated &onValidated, 
                     const OnDataValidationFailed &onValidationFailed,
                     int stepCount)
@@ -71,7 +71,7 @@ Validator::validate(const shared_ptr<const Data> &data,
         throw Error("Face should be set prior to verify method to call");
 
       vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
-      OnFailure onFailure = bind(onValidationFailed, data);
+      OnFailure onFailure = bind(onValidationFailed, data.shared_from_this());
       for(; it != nextSteps.end(); it++)
         m_face->expressInterest((*it)->m_interest,
                                 bind(&Validator::onData, this, _1, _2, *it), 
@@ -88,22 +88,22 @@ Validator::validate(const shared_ptr<const Data> &data,
 }
 
 void
-Validator::onData(const shared_ptr<const Interest> &interest, 
-                  const shared_ptr<const Data> &data, 
-                  shared_ptr<ValidationRequest> nextStep)
+Validator::onData(const Interest& interest, 
+                  Data& data, 
+                  const shared_ptr<ValidationRequest>& nextStep)
 {
   validate(data, nextStep->m_onValidated, nextStep->m_onDataValidated, nextStep->m_stepCount);
 }
 
 void
-Validator::onTimeout(const shared_ptr<const Interest> &interest, 
+Validator::onTimeout(const Interest& interest, 
                      int retry, 
                      const OnFailure &onFailure, 
-                     shared_ptr<ValidationRequest> nextStep)
+                     const shared_ptr<ValidationRequest>& nextStep)
 {
   if (retry > 0)
     // Issue the same expressInterest except decrement retry.
-    m_face->expressInterest(*interest, 
+    m_face->expressInterest(interest, 
                             bind(&Validator::onData, this, _1, _2, nextStep), 
                             bind(&Validator::onTimeout, this, _1, retry - 1, onFailure, nextStep));
   else

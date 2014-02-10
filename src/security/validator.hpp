@@ -39,7 +39,7 @@ public:
    * @param onValidationFailed If the Data validation fails, this calls onValidationFailed(data).
    */
   void
-  validate (const shared_ptr<const Data> &data, const OnDataValidated &onValidated, const OnDataValidationFailed &onValidationFailed)
+  validate (const Data& data, const OnDataValidated &onValidated, const OnDataValidationFailed &onValidationFailed)
   { validate (data, onValidated, onValidationFailed, 0); }
 
   /**
@@ -50,7 +50,7 @@ public:
    * @param onValidationFailed If the Interest validation fails, this calls onValidationFailed(interest).
    */
   void
-  validate (const shared_ptr<const Interest> &interest, const OnInterestValidated &onValidated, const OnInterestValidationFailed &onValidationFailed)
+  validate (const Interest& interest, const OnInterestValidated &onValidated, const OnInterestValidationFailed &onValidationFailed)
   { validate (interest, onValidated, onValidationFailed, 0); }
 
   /*****************************************
@@ -95,7 +95,7 @@ protected:
    * @param nextSteps On return, contains the next validation step.
    */
   virtual void
-  checkPolicy (const shared_ptr<const Data> &data, 
+  checkPolicy (const Data& data, 
                int stepCount, 
                const OnDataValidated &onValidated, 
                const OnDataValidationFailed &onValidationFailed,
@@ -114,7 +114,7 @@ protected:
    * @return the indication of next validation step, null if there is no further step.
    */
   virtual void
-  checkPolicy (const shared_ptr<const Interest> &interest, 
+  checkPolicy (const Interest& interest, 
                int stepCount, 
                const OnInterestValidated &onValidated, 
                const OnInterestValidationFailed &onValidationFailed,
@@ -125,25 +125,25 @@ private:
   
   /// @brief Process the received certificate.
   void
-  onData (const shared_ptr<const Interest> &interest, 
-          const shared_ptr<const Data> &data, 
-          shared_ptr<ValidationRequest> nextStep);
+  onData (const Interest& interest, 
+          Data& data, 
+          const shared_ptr<ValidationRequest>& nextStep);
   
   /// @brief Re-express the interest if it times out.
   void
-  onTimeout (const shared_ptr<const Interest> &interest, 
+  onTimeout (const Interest& interest, 
              int retry, 
              const OnFailure &onFailure, 
-             shared_ptr<ValidationRequest> nextStep);
+             const shared_ptr<ValidationRequest>& nextStep);
 
   void
-  validate (const shared_ptr<const Data> &data, 
+  validate (const Data& data, 
             const OnDataValidated &onValidated, 
             const OnDataValidationFailed &onValidationFailed, 
             int stepCount);
 
   void
-  validate (const shared_ptr<const Interest> &interest, 
+  validate (const Interest& interest, 
             const OnInterestValidated &onValidated, 
             const OnInterestValidationFailed &onValidationFailed, 
             int stepCount);

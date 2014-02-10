@@ -38,8 +38,9 @@ BOOST_AUTO_TEST_CASE (Null)
   keyChain.signByIdentity(*data, identity);
   
   ValidatorNull validator;
-  
-  validator.validate(data,
+
+  // data must be a shared pointer
+  validator.validate(*data,
 		     bind(&onValidated, _1),
 		     bind(&onValidationFailed, _1));
 

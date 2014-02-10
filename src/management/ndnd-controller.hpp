@@ -7,17 +7,9 @@
 #ifndef NDN_MANAGEMENT_NDND_CONTROLLER_HPP
 #define NDN_MANAGEMENT_NDND_CONTROLLER_HPP
 
-#include "../common.hpp"
 #include "controller.hpp"
 
-#include "../name.hpp"
-#include "../interest.hpp"
-#include "../data.hpp"
-
 namespace ndn {
-
-class Node;
-
 namespace ndnd {
 
 class FaceInstance;
@@ -37,7 +29,7 @@ public:
   /**
    * @brief Construct ndnd::Control object
    */
-  Controller(Node& face);
+  Controller(Face& face);
 
   virtual void
   selfRegisterPrefix(const Name& prefixToRegister,
@@ -62,26 +54,24 @@ protected:
 
 private:
   void 
-  onNdnidFetched(const shared_ptr<const Interest>& interest,
-                 const shared_ptr<Data>& data);
-
+  onNdnidFetched(const Interest& interest, Data& data);
 
   void
   recordSelfRegisteredFaceId(const ForwardingEntry& entry,
                              const SuccessCallback& onSuccess);
 
   void
-  processFaceActionResponse(const shared_ptr<Data>& data,
+  processFaceActionResponse(Data& data,
                             const FaceOperationSucceedCallback& onSuccess,
                             const FailCallback&    onFail);
 
   void
-  processPrefixActionResponse(const shared_ptr<Data>& data,
+  processPrefixActionResponse(Data& data,
                               const PrefixOperationSucceedCallback& onSuccess,
                               const FailCallback&    onFail);
 
 private:
-  Node& m_face;
+  Face& m_face;
   Block m_ndndId;
   int64_t m_faceId; // internal face ID (needed for prefix de-registration)
 
