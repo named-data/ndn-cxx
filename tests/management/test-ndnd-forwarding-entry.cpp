@@ -6,7 +6,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "forwarding-entry.hpp"
+#include "management/ndnd-forwarding-entry.hpp"
 
 #if __clang__
 #pragma clang diagnostic push
@@ -18,6 +18,7 @@
 
 using namespace std;
 namespace ndn {
+namespace ndnd {
 
 const uint8_t FORWARDING_ENTRY[] = {0x81, 0x19, 0x83, 0x07, 0x73, 0x65, 0x6c, 0x66, 0x72, 0x65, 0x67, 0x03, 0x0b, 0x04, 0x01, 0x61, 0x04, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, 0x8a, 0x01, 0x03};
 
@@ -25,7 +26,7 @@ BOOST_AUTO_TEST_SUITE(TestForwardingEntry)
 
 BOOST_AUTO_TEST_CASE (Encode)
 {
-  ndn::ForwardingEntry forwardingEntry("selfreg", "/a/prefix", -1, ForwardingFlags(), -1);
+  ForwardingEntry forwardingEntry("selfreg", "/a/prefix", -1, ForwardingFlags(), -1);
   const Block &wire = forwardingEntry.wireEncode();
 
   BOOST_REQUIRE_EQUAL_COLLECTIONS(FORWARDING_ENTRY, FORWARDING_ENTRY+sizeof(FORWARDING_ENTRY),
@@ -34,7 +35,7 @@ BOOST_AUTO_TEST_CASE (Encode)
 
 BOOST_AUTO_TEST_CASE (Decode)
 {
-  ndn::ForwardingEntry forwardingEntry;
+  ForwardingEntry forwardingEntry;
   
   BOOST_REQUIRE_NO_THROW(forwardingEntry.wireDecode(Block(FORWARDING_ENTRY, sizeof(FORWARDING_ENTRY))));
 
@@ -54,4 +55,5 @@ BOOST_AUTO_TEST_CASE (Decode)
 
 BOOST_AUTO_TEST_SUITE_END()
 
+} // namespace ndnd
 } // namespace ndn

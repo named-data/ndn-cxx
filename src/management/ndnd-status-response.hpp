@@ -4,13 +4,14 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_STATUS_RESPONSE_HPP
-#define NDN_STATUS_RESPONSE_HPP
+#ifndef NDN_MANAGEMENT_NDND_STATUS_RESPONSE_HPP
+#define NDN_MANAGEMENT_NDND_STATUS_RESPONSE_HPP
 
-#include "encoding/block.hpp"
-#include "encoding/tlv-face-management.hpp"
+#include "../encoding/block.hpp"
+#include "../encoding/tlv-face-management.hpp"
 
 namespace ndn {
+namespace ndnd {
 
 class StatusResponse {
 public:
@@ -119,6 +120,7 @@ operator << (std::ostream &os, const StatusResponse &status)
   return os;
 }
 
-}
+} // namespace ndnd
+} // namespace ndn
 
-#endif // NDN_STATUS_RESPONSE_HPP
+#endif // NDN_MANAGEMENT_NDND_STATUS_RESPONSE_HPP

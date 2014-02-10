@@ -1,19 +1,20 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_FORWARDING_ENTRY_HPP
-#define NDN_FORWARDING_ENTRY_HPP
+#ifndef NDN_MANAGEMENT_NDND_FORWARDING_ENTRY_HPP
+#define NDN_MANAGEMENT_NDND_FORWARDING_ENTRY_HPP
 
-#include "encoding/tlv-face-management.hpp"
-#include "name.hpp"
-#include "forwarding-flags.hpp"
-#include "encoding/block.hpp"
+#include "../encoding/tlv-face-management.hpp"
+#include "../name.hpp"
+#include "../encoding/block.hpp"
+
+#include "ndnd-forwarding-flags.hpp"
 
 namespace ndn {
+namespace ndnd {
 
 /**
  * An ForwardingEntry holds an action and  Name prefix and other fields for an forwarding entry.
@@ -221,6 +222,7 @@ operator << (std::ostream &os, const ForwardingEntry &entry)
   return os;
 }
 
-}
+} // namespace ndnd
+} // namespace ndn
 
-#endif
+#endif // NDN_MANAGEMENT_NDND_FORWARDING_ENTRY_HPP

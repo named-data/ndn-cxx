@@ -3,7 +3,9 @@
  * See COPYING for copyright and distribution information.
  */
 
-#define BOOST_TEST_MAIN 1
-#define BOOST_TEST_DYN_LINK 1
+#ifndef NDN_TEST_ALL_HPP
+#define NDN_TEST_ALL_HPP
 
-#include <boost/test/unit_test.hpp>
+#include "common.hpp"
+
+#endif

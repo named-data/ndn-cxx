@@ -9,41 +9,31 @@
 
 #include "node.hpp"
 
-#include "forwarding-entry.hpp"
-#include "face-instance.hpp"
-#include "status-response.hpp"
 #include "security/signature-sha256-with-rsa.hpp"
 
 #include "util/time.hpp"
 #include "util/random.hpp"
-#include "util/ndnd-id-fetcher.hpp"
-
-using namespace std;
-#if NDN_CPP_HAVE_CXX11
-// In the std library, the placeholders are in a different namespace than boost.
-using namespace ndn::func_lib::placeholders;
-#endif
 
 namespace ndn {
 
-Node::Node(const ptr_lib::shared_ptr<Transport>& transport)
+Node::Node(const shared_ptr<Transport>& transport)
   : pitTimeoutCheckTimerActive_(false)
   , transport_(transport)
-  , ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
+  , m_fwController(*this)
 {
-  ioService_ = ptr_lib::make_shared<boost::asio::io_service>();      
-  pitTimeoutCheckTimer_      = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
-  processEventsTimeoutTimer_ = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
+  ioService_ = make_shared<boost::asio::io_service>();      
+  pitTimeoutCheckTimer_      = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
+  processEventsTimeoutTimer_ = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
 }
 
-Node::Node(const ptr_lib::shared_ptr<Transport>& transport, const ptr_lib::shared_ptr<boost::asio::io_service> &ioService)
+Node::Node(const shared_ptr<Transport>& transport, const shared_ptr<boost::asio::io_service> &ioService)
   : ioService_(ioService)
   , pitTimeoutCheckTimerActive_(false)
   , transport_(transport)
-  , ndndIdFetcherInterest_(Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0)
+  , m_fwController(*this)
 {
-  pitTimeoutCheckTimer_      = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
-  processEventsTimeoutTimer_ = ptr_lib::make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
+  pitTimeoutCheckTimer_      = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
+  processEventsTimeoutTimer_ = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
 }
 
 const PendingInterestId*
@@ -51,27 +41,28 @@ Node::expressInterest(const Interest& interest, const OnData& onData, const OnTi
 {
   if (!transport_->isConnected())
     transport_->connect(*ioService_,
-                        ptr_lib::bind(&Node::onReceiveElement, this, _1));
+                        bind(&Node::onReceiveElement, this, _1));
 
-  ptr_lib::shared_ptr<const Interest> interestToExpress(new Interest(interest));
+  shared_ptr<const Interest> interestToExpress(new Interest(interest));
   
-  ioService_->post(func_lib::bind(&Node::asyncExpressInterest, this, interestToExpress, onData, onTimeout));
+  ioService_->post(bind(&Node::asyncExpressInterest, this, interestToExpress, onData, onTimeout));
   
   return reinterpret_cast<const PendingInterestId*>(interestToExpress.get());
 }
 
 void
-Node::asyncExpressInterest(const ptr_lib::shared_ptr<const Interest> &interest, const OnData& onData, const OnTimeout& onTimeout)
+Node::asyncExpressInterest(const shared_ptr<const Interest> &interest,
+                           const OnData& onData, const OnTimeout& onTimeout)
 {
-  pendingInterestTable_.push_back(ptr_lib::shared_ptr<PendingInterest>(new PendingInterest
-    (interest, onData, onTimeout)));
+  pendingInterestTable_.push_back(shared_ptr<PendingInterest>(new PendingInterest
+                                                              (interest, onData, onTimeout)));
 
   transport_->send(interest->wireEncode());
 
   if (!pitTimeoutCheckTimerActive_) {
     pitTimeoutCheckTimerActive_ = true;
     pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
-    pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
+    pitTimeoutCheckTimer_->async_wait(bind(&Node::checkPitExpire, this));
   }
 }
     
@@ -80,7 +71,7 @@ Node::put(const Data &data)
 {
   if (!transport_->isConnected())
     transport_->connect(*ioService_,
-                        ptr_lib::bind(&Node::onReceiveElement, this, _1));
+                        bind(&Node::onReceiveElement, this, _1));
 
   transport_->send(data.wireEncode());
 }
@@ -89,170 +80,49 @@ Node::put(const Data &data)
 void
 Node::removePendingInterest(const PendingInterestId *pendingInterestId)
 {
-  ioService_->post(func_lib::bind(&Node::asyncRemovePendingInterest, this, pendingInterestId));
+  ioService_->post(bind(&Node::asyncRemovePendingInterest, this, pendingInterestId));
 }
 
 
 void
 Node::asyncRemovePendingInterest(const PendingInterestId *pendingInterestId)
 {
-  std::remove_if(pendingInterestTable_.begin(), pendingInterestTable_.end(),
-                 MatchPendingInterestId(pendingInterestId));
+  pendingInterestTable_.remove_if(MatchPendingInterestId(pendingInterestId));
 }
 
 const RegisteredPrefixId*
-Node::registerPrefix
-  (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags)
+Node::setInterestFilter(const Name& prefix,
+                        const OnInterest& onInterest,
+                        const OnSetInterestFilterFailed& onSetInterestFilterFailed)
 {
-  ptr_lib::shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
-  
-  if (ndndId_.size() == 0) {
-    // First fetch the ndndId of the connected hub.
-    NdndIdFetcher fetcher(ndndId_,
-                          func_lib::bind(&Node::registerPrefixHelper, this,
-                                         prefixToRegister, onRegisterFailed, flags),
-                          func_lib::bind(onRegisterFailed, prefixToRegister->getPrefix().shared_from_this()));
+  shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
 
-    // @todo: Check if this crash
-    // It is OK for func_lib::function make a copy of the function object because the Info is in a ptr_lib::shared_ptr.
-    expressInterest(ndndIdFetcherInterest_, fetcher, fetcher);
-  }
-  else
-    registerPrefixHelper(prefixToRegister, onRegisterFailed, flags);
+  m_fwController.selfRegisterPrefix(prefixToRegister->getPrefix(),
+                                    bind(&RegisteredPrefixTable::push_back, &registeredPrefixTable_, prefixToRegister),
+                                    bind(onSetInterestFilterFailed, prefixToRegister->getPrefix().shared_from_this()));
   
   return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
 }
 
 void
-Node::removeRegisteredPrefix(const RegisteredPrefixId *registeredPrefixId)
+Node::unsetInterestFilter(const RegisteredPrefixId *registeredPrefixId)
+{
+  ioService_->post(bind(&Node::asyncUnsetInterestFilter, this, registeredPrefixId));
+}
+
+void
+Node::asyncUnsetInterestFilter(const RegisteredPrefixId *registeredPrefixId)
 {
   RegisteredPrefixTable::iterator i = std::find_if(registeredPrefixTable_.begin(), registeredPrefixTable_.end(),
                                                    MatchRegisteredPrefixId(registeredPrefixId));  
   if (i != registeredPrefixTable_.end())
     {
-      ForwardingEntry forwardingEntry("unreg", (*i)->getPrefix(), faceId_);
-      Data data;
-      // This ensures uniqueness of each prefix registration commands
-      data.setName(Name().appendVersion(random::generateWord32()));
-      data.setContent(forwardingEntry.wireEncode());
-        
-      SignatureSha256WithRsa signature;
-      signature.setValue(Block(Tlv::SignatureValue, ptr_lib::make_shared<Buffer>()));
-      data.setSignature(signature);
-
-      // Create an interest where the name has the encoded Data packet.
-      Name interestName;
-      interestName.append("ndnx");
-      interestName.append(ndndId_);
-      interestName.append("unreg");
-      interestName.append(data.wireEncode());
-
-      Interest interest(interestName);
-      interest.setScope(1);
-      interest.setInterestLifetime(1000);
-      interest.setMustBeFresh(true);
-
-      expressInterest(interest, OnData(), OnTimeout());
-        
-      registeredPrefixTable_.erase(i);
+      m_fwController.selfDeregisterPrefix((*i)->getPrefix(),
+                                          bind(&RegisteredPrefixTable::erase, &registeredPrefixTable_, i),
+                                          ndnd::Control::FailCallback());
     }
 
   // there cannot be two registered prefixes with the same id. if there are, then something is broken
-}
-
-void 
-Node::registerPrefixHelper(const ptr_lib::shared_ptr<RegisteredPrefix> &prefixToRegister,
-                           const OnRegisterFailed& onRegisterFailed, 
-                           const ForwardingFlags& flags)
-{
-  // Create a ForwardingEntry.
-
-  // AlexA: ndnd ignores any freshness that is larger than 3600 sec and sets 300 sec instead
-  //        to register "forever" (=2000000000 sec), freshnessPeriod must be omitted
-  ForwardingEntry forwardingEntry("selfreg", prefixToRegister->getPrefix(), -1, flags, -1);
-  Block content = forwardingEntry.wireEncode();
-
-
-  // Set the ForwardingEntry as the content of a Data packet and sign.
-  Data data;
-  // This ensures uniqueness of each prefix registration commands
-  data.setName(Name().appendVersion(random::generateWord32()));
-  data.setContent(content);
-  
-  // Create an empty signature, since nobody going to verify it for now
-  // @todo In the future, we may require real signatures to do the registration
-  SignatureSha256WithRsa signature;
-  signature.setValue(Block(Tlv::SignatureValue, ptr_lib::make_shared<Buffer>()));
-  data.setSignature(signature);
-
-  // Create an interest where the name has the encoded Data packet.
-  Name interestName;
-  interestName.append("ndnx");
-  interestName.append(ndndId_);
-  interestName.append("selfreg");
-  interestName.append(data.wireEncode());
-
-  Interest interest(interestName);
-  interest.setScope(1);
-  interest.setInterestLifetime(1000);
-  interest.setMustBeFresh(true);
-
-  expressInterest(interest,
-                  func_lib::bind(&Node::registerPrefixFinal, this,
-                                 prefixToRegister, onRegisterFailed, _1, _2),
-                  func_lib::bind(onRegisterFailed, prefixToRegister->getPrefix().shared_from_this()));
-}
-
-void
-Node::registerPrefixFinal(const ptr_lib::shared_ptr<RegisteredPrefix> &prefixToRegister,
-                          const OnRegisterFailed& onRegisterFailed,
-                          const ptr_lib::shared_ptr<const Interest>&, const ptr_lib::shared_ptr<Data>&data)
-{
-  Block content = data->getContent();
-  content.parse();
-
-  if (content.getAll().empty())
-    {
-      onRegisterFailed(prefixToRegister->getPrefix().shared_from_this());
-      return;
-    }
-
-  Block::element_iterator val = content.getAll().begin();
-  
-  switch(val->type())
-    {
-    case Tlv::FaceManagement::ForwardingEntry:
-      {
-        ForwardingEntry entry;
-        entry.wireDecode(*val);
-
-        // Save the onInterest callback and send the registration interest.
-        registeredPrefixTable_.push_back(prefixToRegister);
-
-        /// @todo Notify user about successful registration
-        
-        // succeeded
-        return;
-      }
-    case Tlv::FaceManagement::StatusResponse:
-      {
-        // failed :(
-        StatusResponse resp;
-        resp.wireDecode(*val);
-
-        // std::cerr << "StatusReponse: " << resp << std::endl;
-      
-        onRegisterFailed(prefixToRegister->getPrefix().shared_from_this());
-        return;
-      }
-    default:
-      {
-        // failed :(
-      
-        onRegisterFailed(prefixToRegister->getPrefix().shared_from_this());
-        return;
-      }
-    }
 }
 
 void 
@@ -275,7 +145,7 @@ Node::processEvents(Milliseconds timeout/* = 0 */, bool keepThread/* = false*/)
       
       if (keepThread) {
         // work will ensure that ioService_ is running until work object exists
-        ioServiceWork_ = ptr_lib::make_shared<boost::asio::io_service::work>(boost::ref(*ioService_));
+        ioServiceWork_ = make_shared<boost::asio::io_service::work>(boost::ref(*ioService_));
       }
           
       ioService_->run();
@@ -295,6 +165,18 @@ Node::processEvents(Milliseconds timeout/* = 0 */, bool keepThread/* = false*/)
     }
 }
 
+void 
+Node::shutdown()
+{
+  pendingInterestTable_.clear();
+  registeredPrefixTable_.clear();
+
+  transport_->close();
+  pitTimeoutCheckTimer_->cancel();
+  processEventsTimeoutTimer_->cancel();
+  pitTimeoutCheckTimerActive_ = false;
+}
+
 void
 Node::fireProcessEventsTimeout(const boost::system::error_code& error)
 {
@@ -306,24 +188,29 @@ void
 Node::checkPitExpire()
 {
   // Check for PIT entry timeouts.  Go backwards through the list so we can erase entries.
-  MillisecondsSince1970 nowMilliseconds = ndn_getNowMilliseconds();
-  for (int i = (int)pendingInterestTable_.size() - 1; i >= 0; --i) {
-    if (pendingInterestTable_[i]->isTimedOut(nowMilliseconds)) {
-      // Save the PendingInterest and remove it from the PIT.  Then call the callback.
-      ptr_lib::shared_ptr<PendingInterest> pendingInterest = pendingInterestTable_[i];
-      pendingInterestTable_.erase(pendingInterestTable_.begin() + i);
-      pendingInterest->callTimeout();
-      
-      // Refresh now since the timeout callback might have delayed.
-      nowMilliseconds = ndn_getNowMilliseconds();
+  MillisecondsSince1970 nowMilliseconds = getNowMilliseconds();
+
+  PendingInterestTable::iterator i = pendingInterestTable_.begin();
+  while (i != pendingInterestTable_.end())
+    {
+      if ((*i)->isTimedOut(nowMilliseconds))
+        {
+          // Save the PendingInterest and remove it from the PIT.  Then call the callback.
+          shared_ptr<PendingInterest> pendingInterest = *i;
+
+          i = pendingInterestTable_.erase(i);
+
+          pendingInterest->callTimeout();
+        }
+      else
+        ++i;
     }
-  }
 
   if (!pendingInterestTable_.empty()) {
     pitTimeoutCheckTimerActive_ = true;
     
     pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
-    pitTimeoutCheckTimer_->async_wait(func_lib::bind(&Node::checkPitExpire, this));
+    pitTimeoutCheckTimer_->async_wait(bind(&Node::checkPitExpire, this));
   }
   else {
     pitTimeoutCheckTimerActive_ = false;
@@ -343,7 +230,7 @@ Node::onReceiveElement(const Block &block)
 {
   if (block.type() == Tlv::Interest)
     {
-      ptr_lib::shared_ptr<Interest> interest(new Interest());
+      shared_ptr<Interest> interest(new Interest());
       interest->wireDecode(block);
     
       RegisteredPrefixTable::iterator entry = getEntryForRegisteredPrefix(interest->getName());
@@ -353,14 +240,14 @@ Node::onReceiveElement(const Block &block)
     }
   else if (block.type() == Tlv::Data)
     {
-      ptr_lib::shared_ptr<Data> data(new Data());
+      shared_ptr<Data> data(new Data());
       data->wireDecode(block);
 
       PendingInterestTable::iterator entry = getEntryIndexForExpressedInterest(data->getName());
       if (entry != pendingInterestTable_.end()) {
         // Copy pointers to the needed objects and remove the PIT entry before the calling the callback.
         const OnData onData = (*entry)->getOnData();
-        const ptr_lib::shared_ptr<const Interest> interest = (*entry)->getInterest();
+        const shared_ptr<const Interest> interest = (*entry)->getInterest();
         pendingInterestTable_.erase(entry);
 
         if (onData) {
@@ -372,18 +259,6 @@ Node::onReceiveElement(const Block &block)
         }
       }
     }
-}
-
-void 
-Node::shutdown()
-{
-  pendingInterestTable_.clear();
-  registeredPrefixTable_.clear();
-
-  transport_->close();
-  pitTimeoutCheckTimer_->cancel();
-  processEventsTimeoutTimer_->cancel();
-  pitTimeoutCheckTimerActive_ = false;
 }
 
 Node::PendingInterestTable::iterator 
@@ -419,28 +294,4 @@ Node::getEntryForRegisteredPrefix(const Name& name)
   return longestPrefix;
 }
 
-Node::PendingInterest::PendingInterest(const ptr_lib::shared_ptr<const Interest>& interest,
-                                       const OnData& onData, const OnTimeout& onTimeout)
-: interest_(interest),
-  onData_(onData), onTimeout_(onTimeout)
-{
-  // Set up timeoutTime_.
-  if (interest_->getInterestLifetime() >= 0)
-    timeoutTimeMilliseconds_ = ndn_getNowMilliseconds() + interest_->getInterestLifetime();
-  else
-    // No timeout.
-    /**
-     * @todo Set more meaningful default timeout.  This timeout MUST exist.
-     */
-    timeoutTimeMilliseconds_ = ndn_getNowMilliseconds() + 4000;
-}
-
-void 
-Node::PendingInterest::callTimeout()
-{
-  if (onTimeout_) {
-    onTimeout_(interest_);
-  }
-}
-
-}
+} // namespace ndn

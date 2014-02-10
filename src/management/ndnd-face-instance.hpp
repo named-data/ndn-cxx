@@ -1,18 +1,18 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_FACE_INSTANCE_HPP
-#define NDN_FACE_INSTANCE_HPP
+#ifndef NDN_MANAGEMENT_NDND_FACE_INSTANCE_HPP
+#define NDN_MANAGEMENT_NDND_FACE_INSTANCE_HPP
 
-#include "encoding/tlv-face-management.hpp"
-#include "name.hpp"
-#include "encoding/block.hpp"
+#include "../encoding/tlv-face-management.hpp"
+#include "../encoding/block.hpp"
+#include "../name.hpp"
 
 namespace ndn {
+namespace ndnd {
 
 /**
  * An FaceInstance holds an action and  Name prefix and other fields for an forwarding entry.
@@ -339,6 +339,8 @@ operator << (std::ostream &os, const FaceInstance &entry)
   return os;
 }
 
-}
+} // namespace ndnd
+} // namespace ndn
 
-#endif // FACE_INSTANCE
+#endif // NDN_MANAGEMENT_NDND_FACE_INSTANCE_HPP
+

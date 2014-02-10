@@ -8,10 +8,11 @@
 #ifndef NDN_FORWARDING_FLAGS_HPP
 #define NDN_FORWARDING_FLAGS_HPP
 
-#include "encoding/block.hpp"
-#include "encoding/tlv-face-management.hpp"
+#include "../encoding/block.hpp"
+#include "../encoding/tlv-face-management.hpp"
 
 namespace ndn {
+namespace ndnd {
 
 /**
  * A ForwardingFlags object holds the flags which specify how the forwarding daemon should forward an interest for
@@ -219,6 +220,7 @@ operator << (std::ostream &os, const ForwardingFlags &flags)
   return os;
 }
 
-}
+} // namespace ndnd
+} // namespace ndn
 
 #endif

@@ -175,8 +175,8 @@ Block::Block(uint32_t type, const Block &value)
   , m_type(type)
   , m_begin(m_buffer->end())
   , m_end(m_buffer->end())
-  , m_value_begin(m_buffer->begin())
-  , m_value_end(m_buffer->end())
+  , m_value_begin(value.begin())
+  , m_value_end(value.end())
 {
   m_size = Tlv::sizeOfVarNumber(m_type) + Tlv::sizeOfVarNumber(value_size()) + value_size();
 }

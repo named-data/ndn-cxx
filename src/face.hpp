@@ -140,9 +140,9 @@ public:
    */
   const RegisteredPrefixId*
   setInterestFilter
-    (const Name& prefix, const OnInterest& onInterest, const OnRegisterFailed& onRegisterFailed, const ForwardingFlags& flags = ForwardingFlags())
+    (const Name& prefix, const OnInterest& onInterest, const OnSetInterestFilterFailed& onRegisterFailed)
   {
-    return node_.registerPrefix(prefix, onInterest, onRegisterFailed, flags);
+    return node_.setInterestFilter(prefix, onInterest, onRegisterFailed);
   }
 
   /**
@@ -154,7 +154,7 @@ public:
   void
   unsetInterestFilter(const RegisteredPrefixId *registeredPrefixId)
   {
-    node_.removeRegisteredPrefix(registeredPrefixId);
+    node_.unsetInterestFilter(registeredPrefixId);
   }
 
   /**
