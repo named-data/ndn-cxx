@@ -125,7 +125,7 @@ public:
   Name& 
   append(const uint8_t *value, size_t valueLength) 
   {
-    m_nameBlock.elements().push_back(Component(value, valueLength));
+    m_nameBlock.push_back(Component(value, valueLength));
     return *this;
   }
 
@@ -136,21 +136,21 @@ public:
   // Name& 
   // append(const Buffer& value) 
   // {
-  //   m_nameBlock.elements().push_back(value);
+  //   m_nameBlock.push_back(value);
   //   return *this;
   // }
   
   Name& 
   append(const ConstBufferPtr &value)
   {
-    m_nameBlock.elements().push_back(value);
+    m_nameBlock.push_back(value);
     return *this;
   }
   
   Name& 
   append(const Component &value)
   {
-    m_nameBlock.elements().push_back(value);
+    m_nameBlock.push_back(value);
     return *this;
   }
 
@@ -164,7 +164,7 @@ public:
   Name& 
   append(const char *value)
   {
-    m_nameBlock.elements().push_back(Component(value));
+    m_nameBlock.push_back(Component(value));
     return *this;
   }
   
@@ -172,9 +172,9 @@ public:
   append(const Block &value)
   {
     if (value.type() == Tlv::NameComponent)
-      m_nameBlock.elements().push_back(value);
+      m_nameBlock.push_back(value);
     else
-      m_nameBlock.elements().push_back(Block(Tlv::NameComponent, value));
+      m_nameBlock.push_back(Block(Tlv::NameComponent, value));
 
     return *this;
   }
@@ -223,7 +223,7 @@ public:
   getPrefix(int nComponents) const
   {
     if (nComponents < 0)
-      return getSubName(0, m_nameBlock.elements().size() + nComponents);
+      return getSubName(0, m_nameBlock.elements_size() + nComponents);
     else
       return getSubName(0, nComponents);
   }
@@ -243,7 +243,7 @@ public:
   Name& 
   appendSegment(uint64_t segment)
   {
-    m_nameBlock.elements().push_back(Component::fromNumberWithMarker(segment, 0x00));
+    m_nameBlock.push_back(Component::fromNumberWithMarker(segment, 0x00));
     return *this;
   }
 
@@ -256,7 +256,7 @@ public:
   Name& 
   appendVersion(uint64_t version)
   {
-    m_nameBlock.elements().push_back(Component::fromNumberWithMarker(version, 0xFD));
+    m_nameBlock.push_back(Component::fromNumberWithMarker(version, 0xFD));
     return *this;
   }
 
@@ -306,7 +306,7 @@ public:
    * @return The number of components.
    */
   size_t 
-  size() const { return m_nameBlock.elements().size(); }
+  size() const { return m_nameBlock.elements_size(); }
 
   /**
    * Get the component at the given index.
@@ -427,48 +427,33 @@ public:
   }
 
   /**
-   * Begin iterator.
-   */
-  iterator
-  begin() { return reinterpret_cast<iterator>(&*m_nameBlock.elements().begin()); }
-
-  /**
    * End iterator (const).
    *
    * @todo Check if this crash when there are no elements in the buffer
    */
   const_iterator
-  end() const { return reinterpret_cast<const_iterator>(&*m_nameBlock.elements().end()); }
+  end() const
+  {
+    return reinterpret_cast<const_iterator>(&*m_nameBlock.elements().end());
+  }
 
-  /**
-   * End iterator.
-   */
-  iterator
-  end() { return reinterpret_cast<iterator>(&*m_nameBlock.elements().end()); }
-  
   /**
    * Reverse begin iterator (const).
    */
   const_reverse_iterator
-  rbegin() const { return const_reverse_iterator(end()); }
-
-  /**
-   * Reverse begin iterator.
-   */
-  reverse_iterator
-  rbegin() { return reverse_iterator(end()); }
+  rbegin() const
+  {
+    return const_reverse_iterator(end());
+  }
 
   /**
    * Reverse end iterator (const).
    */
   const_reverse_iterator
-  rend() const { return const_reverse_iterator(begin()); }
-
-  /**
-   * Reverse end iterator.
-   */
-  reverse_iterator
-  rend() { return reverse_iterator(begin()); }
+  rend() const
+  {
+    return const_reverse_iterator(begin());
+  }
 
 private:
   mutable Block m_nameBlock;

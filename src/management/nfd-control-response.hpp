@@ -142,8 +142,8 @@ ControlResponse::wireDecode(const Block &wire)
   if (m_wire.type() != tlv::nfd_control::ControlResponse)
     throw Error("Requested decoding of ControlResponse, but Block is of different type");  
   
-  Block::element_iterator val = m_wire.getAll().begin();
-  if (val == m_wire.getAll().end() ||
+  Block::element_const_iterator val = m_wire.elements_begin();
+  if (val == m_wire.elements_end() ||
       val->type() != tlv::nfd_control::StatusCode)
     {
       throw Error("Incorrect ControlResponse format (StatusCode missing or not the first item)");
@@ -152,7 +152,7 @@ ControlResponse::wireDecode(const Block &wire)
   m_code = readNonNegativeInteger(*val);
   ++val;
 
-  if (val == m_wire.getAll().end() ||
+  if (val == m_wire.elements_end() ||
       val->type() != tlv::nfd_control::StatusText)
     {
       throw Error("Incorrect ControlResponse format (StatusText missing or not the second item)");
@@ -160,7 +160,7 @@ ControlResponse::wireDecode(const Block &wire)
   m_text.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
   ++val;
 
-  if (val != m_wire.getAll().end())
+  if (val != m_wire.elements_end())
     m_body = *val;
   else
     m_body = Block();

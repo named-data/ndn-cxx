@@ -40,21 +40,6 @@ delayedInterest(ndn::Face &face)
                        ndn::bind(&onTimeout, boost::ref(face), _1));
 }
 
-void
-BlockPrinter(const ndn::Block &block, const std::string &indent="")
-{
-  std::cout << indent << block.type() << " (" << block.value_size() << ") [[";
-  std::cout.write(reinterpret_cast<const char *>(block.value()), block.value_size());
-  std::cout<< "]]" << std::endl;
-
-  for(ndn::Block::element_const_iterator i = block.getAll().begin();
-      i != block.getAll().end();
-      ++i)
-    {
-      BlockPrinter(*i, indent+"  ");
-    }
-}
-
 int main()
 {
   try {

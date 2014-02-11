@@ -183,7 +183,7 @@ Block::Block(uint32_t type, const Block &value)
 }
 
 void
-Block::parse()
+Block::parse() const
 {
   if (!m_subBlocks.empty() || value_size()==0)
     return;

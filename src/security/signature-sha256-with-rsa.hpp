@@ -33,8 +33,8 @@ public:
       throw Signature::Error("Incorrect signature type");
 
     info_.parse();
-    Block::element_iterator i = info_.find(Tlv::KeyLocator);
-    if (i != info_.getAll().end())
+    Block::element_const_iterator i = info_.find(Tlv::KeyLocator);
+    if (i != info_.elements_end())
       {
         keyLocator_.wireDecode(*i);
       }

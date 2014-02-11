@@ -175,14 +175,14 @@ Controller::processFaceActionResponse(Data& data,
   Block content = data.getContent();
   content.parse();
 
-  if (content.getAll().empty())
+  if (content.elements().empty())
     {
       if (static_cast<bool>(onFail))
         onFail("Empty response");
       return;
     }
 
-  Block::element_iterator val = content.getAll().begin();
+  Block::element_const_iterator val = content.elements_begin();
   
   switch(val->type())
     {
@@ -221,14 +221,14 @@ Controller::processPrefixActionResponse(Data& data,
   Block content = data.getContent();
   content.parse();
 
-  if (content.getAll().empty())
+  if (content.elements().empty())
     {
       if (static_cast<bool>(onFail))
         onFail("Empty response");
       return;
     }
 
-  Block::element_iterator val = content.getAll().begin();
+  Block::element_const_iterator val = content.elements_begin();
   
   switch(val->type())
     {

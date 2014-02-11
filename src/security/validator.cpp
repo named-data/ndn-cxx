@@ -144,11 +144,8 @@ Validator::verifySignature(const Interest &interest, const PublicKey &key)
   try{
     const Block &nameBlock = interestName.wireEncode();
 
-    if(nameBlock.getAll().size() != interestName.size()) //HACK!! we should change it when Name::Component is changed to derive from Block.
-      const_cast<Block&>(nameBlock).parse();
-
-    Signature sig((++nameBlock.getAll().rbegin())->blockFromValue(), 
-                  (nameBlock.getAll().rbegin())->blockFromValue());
+    Signature sig((++nameBlock.elements().rbegin())->blockFromValue(), 
+                  (nameBlock.elements().rbegin())->blockFromValue());
 
     switch(sig.getType()){
     case Signature::Sha256WithRsa:
@@ -156,7 +153,7 @@ Validator::verifySignature(const Interest &interest, const PublicKey &key)
         SignatureSha256WithRsa sigSha256Rsa(sig);
 
         return verifySignature(nameBlock.value(), 
-                               nameBlock.value_size() - (nameBlock.getAll().rbegin())->size(), 
+                               nameBlock.value_size() - (nameBlock.elements().rbegin())->size(), 
                                sigSha256Rsa, key);
       }
     default:

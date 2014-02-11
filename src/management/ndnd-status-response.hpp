@@ -106,8 +106,8 @@ StatusResponse::wireDecode(const Block &wire)
 
   code_ = readNonNegativeInteger(wire_.get(Tlv::FaceManagement::StatusCode));
 
-  Block::element_iterator val = wire_.find(Tlv::FaceManagement::StatusText);
-  if (val != wire_.getAll().end())
+  Block::element_const_iterator val = wire_.find(Tlv::FaceManagement::StatusText);
+  if (val != wire_.elements_end())
     {
       info_.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
     }

@@ -213,14 +213,14 @@ Exclude::wireDecode(const Block &wire)
   wire_ = wire;
   wire_.parse();
 
-  Block::element_const_iterator i = wire_.getAll().begin();
+  Block::element_const_iterator i = wire_.elements_begin();
   if (i->type() == Tlv::Any)
     {
       appendExclude(name::Component(), true);
       ++i;
     }
 
-  while (i != wire_.getAll().end())
+  while (i != wire_.elements_end())
     {
       if (i->type() != Tlv::NameComponent)
         throw Error("Incorrect format of Exclude filter");
@@ -228,7 +228,7 @@ Exclude::wireDecode(const Block &wire)
       Name::Component excludedComponent (i->value(), i->value_size());
       ++i;
 
-      if (i != wire_.getAll().end())
+      if (i != wire_.elements_end())
         {
           if (i->type() == Tlv::Any)
             {

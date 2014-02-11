@@ -66,7 +66,7 @@ printTypeInfo(uint32_t type)
 
   
 void
-BlockPrinter(ndn::Block &block, const std::string &indent="")
+BlockPrinter(const ndn::Block& block, const std::string& indent="")
 {
   std::cout << indent;
   printTypeInfo(block.type());
@@ -82,7 +82,7 @@ BlockPrinter(ndn::Block &block, const std::string &indent="")
     // @todo: Figure how to deterministically figure out that value is not recursive TLV block
   }
 
-  if (block.getAll().empty())
+  if (block.elements().empty())
     {
       std::cout << " [[";
       ndn::name::Component(block.value(), block.value_size()).toEscapedString(std::cout);
@@ -90,8 +90,8 @@ BlockPrinter(ndn::Block &block, const std::string &indent="")
     }
   std::cout << std::endl;
   
-  for(ndn::Block::element_iterator i = block.getAll().begin();
-      i != block.getAll().end();
+  for(ndn::Block::element_const_iterator i = block.elements_begin();
+      i != block.elements_end();
       ++i)
     {
       BlockPrinter(*i, indent+"  ");
@@ -99,7 +99,7 @@ BlockPrinter(ndn::Block &block, const std::string &indent="")
 }
 
 void
-HexPrinter(ndn::Block &block, const std::string &indent="")
+HexPrinter(const ndn::Block& block, const std::string &indent="")
 {
   std::cout << indent;
   for (ndn::Buffer::const_iterator i = block.begin (); i != block.value_begin(); ++i)
@@ -109,7 +109,7 @@ HexPrinter(ndn::Block &block, const std::string &indent="")
     }
   std::cout << "\n";
   
-  if (block.getAll().size() == 0 && block.value_size() > 0)
+  if (block.elements_size() == 0 && block.value_size() > 0)
     {
       std::cout << indent << "    ";
       for (ndn::Buffer::const_iterator i = block.value_begin (); i != block.value_end(); ++i)
@@ -121,8 +121,8 @@ HexPrinter(ndn::Block &block, const std::string &indent="")
     }
   else
     {
-      for(ndn::Block::element_iterator i = block.getAll().begin();
-          i != block.getAll().end();
+      for(ndn::Block::element_const_iterator i = block.elements_begin();
+          i != block.elements_end();
           ++i)
         {
           HexPrinter(*i, indent+"    ");

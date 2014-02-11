@@ -41,8 +41,8 @@ BOOST_AUTO_TEST_CASE (Encode)
   //   }
   // std::cout << std::endl;
   
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(TestName, TestName+sizeof(TestName),
-                                  wire.begin(), wire.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(TestName, TestName+sizeof(TestName),
+                                wire.begin(), wire.end());
 }
 
 
@@ -53,6 +53,33 @@ BOOST_AUTO_TEST_CASE (Decode)
   Name name(block);
 
   BOOST_CHECK_EQUAL(name.toUri(), "/local/ndn/prefix");
+}
+
+BOOST_AUTO_TEST_CASE (AppendsAndMultiEncode)
+{
+  Name name("/local");
+
+  const uint8_t name1[] = {0x3,  0x7, // Name
+                           0x4,  0x5, // NameComponent
+                           0x6c,  0x6f,  0x63,  0x61,  0x6c};
+  
+  BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
+                                name1, name1 + sizeof(name1));
+
+  name.append("ndn");
+  
+  const uint8_t name2[] = {0x3,  0xc, // Name
+                           0x4,  0x5, // NameComponent
+                           0x6c,  0x6f,  0x63,  0x61,  0x6c,
+                           0x4,  0x3, // NameComponent
+                           0x6e,  0x64,  0x6e};
+  
+  BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
+                                name2, name2 + sizeof(name2));
+
+  name.append("prefix");
+  BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
+                                TestName, TestName+sizeof(TestName));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

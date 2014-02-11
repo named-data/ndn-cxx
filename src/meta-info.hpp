@@ -95,15 +95,15 @@ MetaInfo::wireDecode(const Block &wire)
   //                FreshnessPeriod?
   
   // ContentType
-  Block::element_iterator val = wire_.find(Tlv::ContentType);
-  if (val != wire_.getAll().end())
+  Block::element_const_iterator val = wire_.find(Tlv::ContentType);
+  if (val != wire_.elements().end())
     {
       type_ = readNonNegativeInteger(*val);
     }
 
   // FreshnessPeriod
   val = wire_.find(Tlv::FreshnessPeriod);
-  if (val != wire_.getAll().end())
+  if (val != wire_.elements().end())
     {
       freshnessPeriod_ = readNonNegativeInteger(*val);
     }

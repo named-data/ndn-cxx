@@ -162,22 +162,22 @@ FibManagementOptions::wireDecode (const Block &wire)
   wire_.parse ();
 
   // Name
-  Block::element_iterator val = wire_.find(Tlv::Name);
-  if (val != wire_.getAll().end())
+  Block::element_const_iterator val = wire_.find(Tlv::Name);
+  if (val != wire_.elements_end())
     {
       name_.wireDecode(*val);
     }
 
   // FaceID
   val = wire_.find(tlv::nfd_control::FaceId);
-  if (val != wire_.getAll().end())
+  if (val != wire_.elements_end())
     {
       faceId_ = readNonNegativeInteger(*val);
     }
 
   // Cost
   val = wire_.find(tlv::nfd_control::Cost);
-  if (val != wire_.getAll().end())
+  if (val != wire_.elements_end())
     {
       cost_ = readNonNegativeInteger(*val);
     }

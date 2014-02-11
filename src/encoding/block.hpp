@@ -120,9 +120,24 @@ public:
   inline void
   reset();
 
-  void
-  parse();
+  /**
+   * @brief Reset wire buffer but keep sub elements (if any)
+   */
+  inline void
+  resetWire();
 
+  /**
+   * @brief Parse wire buffer into subblocks
+   *
+   * This method is not really const, but it does not modify any data.  It simply
+   * parses contents of the buffer into subblocks
+   */
+  void
+  parse() const;
+
+  /**
+   * @brief Encode subblocks into wire buffer
+   */
   void
   encode();
   
@@ -134,12 +149,6 @@ public:
    */
   inline const Block &
   get(uint32_t type) const;
-
-  inline Block &
-  get(uint32_t type);
-  
-  inline element_iterator
-  find(uint32_t type);
 
   inline element_const_iterator
   find(uint32_t type) const;
@@ -156,66 +165,48 @@ public:
   inline void
   push_back(const Block &element);
   
-  /**
-   * @brief Get all subelements
-   */
-  inline const element_container&
-  getAll () const;
-
-  inline element_container&
-  getAll ();
-
-  inline const element_container&
-  elements () const;
-
-  inline element_container&
-  elements ();
-  
-  /**
-   * @brief Get all elements of the requested type
-   */
-  element_container
-  getAll(uint32_t type) const;
-
   inline Buffer::const_iterator
   begin() const;
 
   inline Buffer::const_iterator
   end() const;
 
+  inline const uint8_t*
+  wire() const;
+
   inline size_t
   size() const;
 
+  // inline const uint8_t*
+  // buf() const;
+  
   inline Buffer::const_iterator
   value_begin() const;
 
   inline Buffer::const_iterator
   value_end() const;
 
-  inline element_iterator
-  element_begin();
-
-  inline element_iterator
-  element_end();
-
-  inline element_const_iterator
-  element_begin() const;
-
-  inline element_const_iterator
-  element_end() const;
-  
-  inline const uint8_t*
-  wire() const;
-
-  // inline const uint8_t*
-  // buf() const;
-  
   inline const uint8_t*
   value() const;
 
   inline size_t
   value_size() const;
 
+  /**
+   * @brief Get all subelements
+   */
+  inline const element_container&
+  elements () const;
+
+  inline element_const_iterator
+  elements_begin() const;
+
+  inline element_const_iterator
+  elements_end() const;
+
+  inline size_t
+  elements_size() const;
+  
   Block
   blockFromValue() const;
 
@@ -231,7 +222,7 @@ protected:
   Buffer::const_iterator m_value_begin;
   Buffer::const_iterator m_value_end;
 
-  element_container m_subBlocks;
+  mutable element_container m_subBlocks;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,6 +258,16 @@ Block::reset()
   m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator(); // not really necessary, but for safety
 }
 
+inline void
+Block::resetWire()
+{
+  m_buffer.reset(); // reset of the shared_ptr
+  // keep subblocks
+
+  // keep type
+  m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator(); // not really necessary, but for safety
+}
+
 inline uint32_t
 Block::type() const
 {
@@ -277,22 +278,6 @@ inline const Block &
 Block::get(uint32_t type) const
 {
   for (element_const_iterator i = m_subBlocks.begin ();
-       i != m_subBlocks.end();
-       i++)
-    {
-      if (i->type () == type)
-        {
-          return *i;
-        }
-    }
-
-  throw Error("(Block::get) Requested a non-existed type [" + boost::lexical_cast<std::string>(type) + "] from Block");
-}
-
-inline Block &
-Block::get(uint32_t type)
-{
-  for (element_iterator i = m_subBlocks.begin ();
        i != m_subBlocks.end();
        i++)
     {
@@ -320,24 +305,11 @@ Block::find(uint32_t type) const
   return m_subBlocks.end();
 }
 
-inline Block::element_iterator
-Block::find(uint32_t type)
-{
-  for (element_iterator i = m_subBlocks.begin ();
-       i != m_subBlocks.end();
-       i++)
-    {
-      if (i->type () == type)
-        {
-          return i;
-        }
-    }
-  return m_subBlocks.end();
-}
-
 inline void
 Block::remove(uint32_t type)
 {
+  resetWire();
+
   element_container newContainer;
   newContainer.reserve(m_subBlocks.size());
   for (element_iterator i = m_subBlocks.begin();
@@ -348,17 +320,19 @@ Block::remove(uint32_t type)
         newContainer.push_back(*i);
   }
   m_subBlocks.swap(newContainer);
-  }
+}
 
 inline Block::element_iterator
 Block::erase(Block::element_iterator position)
 {
+  resetWire();
   return m_subBlocks.erase(position);
 }
 
 inline Block::element_iterator
 Block::erase(Block::element_iterator first, Block::element_iterator last)
 {
+  resetWire();
   return m_subBlocks.erase(first, last);
 }
 
@@ -366,32 +340,8 @@ Block::erase(Block::element_iterator first, Block::element_iterator last)
 inline void
 Block::push_back(const Block &element)
 {
+  resetWire();
   m_subBlocks.push_back(element);
-}
-
-
-inline const Block::element_container&
-Block::getAll () const
-{
-  return m_subBlocks;
-}
-
-inline Block::element_container&
-Block::getAll ()
-{
-  return m_subBlocks;
-}
-
-inline const Block::element_container&
-Block::elements () const
-{
-  return m_subBlocks;
-}
-
-inline Block::element_container&
-Block::elements ()
-{
-  return m_subBlocks;
 }
 
 inline Buffer::const_iterator
@@ -440,30 +390,6 @@ Block::value_end() const
   return m_value_end;
 }
 
-inline Block::element_iterator
-Block::element_begin()
-{
-  return m_subBlocks.begin();
-}
-
-inline Block::element_iterator
-Block::element_end()
-{
-  return m_subBlocks.end();
-}
-
-inline Block::element_const_iterator
-Block::element_begin() const
-{
-  return m_subBlocks.begin();
-}
-
-inline Block::element_const_iterator
-Block::element_end() const
-{
-  return m_subBlocks.end();
-}
-
 inline const uint8_t*
 Block::wire() const
 {
@@ -472,15 +398,6 @@ Block::wire() const
 
   return &*m_begin;
 }
-
-// inline const uint8_t*
-// Block::buf() const
-// {
-//   if (!hasWire())
-//       throw Error("(Block::wire) Underlying wire buffer is empty");
-
-//   return &*m_begin;
-// }
 
 inline const uint8_t*
 Block::value() const
@@ -499,6 +416,31 @@ Block::value_size() const
 
   return m_value_end - m_value_begin;
 }
+
+inline const Block::element_container&
+Block::elements () const
+{
+  return m_subBlocks;
+}
+
+inline Block::element_const_iterator
+Block::elements_begin() const
+{
+  return m_subBlocks.begin();
+}
+
+inline Block::element_const_iterator
+Block::elements_end() const
+{
+  return m_subBlocks.end();
+}
+
+inline size_t
+Block::elements_size() const
+{
+  return m_subBlocks.size();
+}
+
 
 } // ndn
 

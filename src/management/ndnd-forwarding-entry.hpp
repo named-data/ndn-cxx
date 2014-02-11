@@ -154,36 +154,36 @@ ForwardingEntry::wireDecode(const Block &wire)
   //                       FreshnessPeriod?
 
   // Action
-  Block::element_iterator val = wire_.find(Tlv::FaceManagement::Action);
-  if (val != wire_.getAll().end())
+  Block::element_const_iterator val = wire_.find(Tlv::FaceManagement::Action);
+  if (val != wire_.elements_end())
     {
       action_ = std::string(reinterpret_cast<const char*>(val->value()), val->value_size());
     }
 
   // Name
   val = wire_.find(Tlv::Name);
-  if (val != wire_.getAll().end())
+  if (val != wire_.elements_end())
     {
       prefix_.wireDecode(*val);
     }
 
   // FaceID
   val = wire_.find(Tlv::FaceManagement::FaceID);
-  if (val != wire_.getAll().end())
+  if (val != wire_.elements_end())
     {
       faceId_ = readNonNegativeInteger(*val);
     }
 
   // ForwardingFlags
   val = wire_.find(Tlv::FaceManagement::ForwardingFlags);
-  if (val != wire_.getAll().end())
+  if (val != wire_.elements_end())
     {
       forwardingFlags_.wireDecode(*val);
     }
 
   // FreshnessPeriod
   val = wire_.find(Tlv::FreshnessPeriod);
-  if (val != wire_.getAll().end())
+  if (val != wire_.elements_end())
     {
       freshnessPeriod_ = readNonNegativeInteger(*val);
     }

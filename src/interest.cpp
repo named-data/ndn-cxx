@@ -134,7 +134,7 @@ Interest::wireEncode() const
         (booleanBlock(Tlv::MustBeFresh));
     }
 
-    if (!selectors.getAll().empty())
+    if (!selectors.elements().empty())
       {
         selectors.encode();
         wire_.push_back(selectors);
@@ -180,64 +180,64 @@ Interest::wireDecode(const Block &wire)
   name_.wireDecode(wire_.get(Tlv::Name));
 
   // Selectors
-  Block::element_iterator selectors = wire_.find(Tlv::Selectors);
-  if (selectors != wire_.getAll().end())
+  Block::element_const_iterator selectors = wire_.find(Tlv::Selectors);
+  if (selectors != wire_.elements_end())
     {
       selectors->parse();
 
       // MinSuffixComponents
-      Block::element_iterator val = selectors->find(Tlv::MinSuffixComponents);
-      if (val != selectors->getAll().end())
+      Block::element_const_iterator val = selectors->find(Tlv::MinSuffixComponents);
+      if (val != selectors->elements_end())
         {
           minSuffixComponents_ = readNonNegativeInteger(*val);
         }
 
       // MaxSuffixComponents
       val = selectors->find(Tlv::MaxSuffixComponents);
-      if (val != selectors->getAll().end())
+      if (val != selectors->elements_end())
         {
           maxSuffixComponents_ = readNonNegativeInteger(*val);
         }
 
       // Exclude
       val = selectors->find(Tlv::Exclude);
-      if (val != selectors->getAll().end())
+      if (val != selectors->elements_end())
         {
           exclude_.wireDecode(*val);
         }
 
       // ChildSelector
       val = selectors->find(Tlv::ChildSelector);
-      if (val != selectors->getAll().end())
+      if (val != selectors->elements_end())
         {
           childSelector_ = readNonNegativeInteger(*val);
         }
 
       //MustBeFresh aka AnswerOriginKind
       val = selectors->find(Tlv::MustBeFresh);
-      if (val != selectors->getAll().end())
+      if (val != selectors->elements_end())
         {
           mustBeFresh_ = true;
         }
     }
   
   // Nonce
-  Block::element_iterator val = wire_.find(Tlv::Nonce);
-  if (val != wire_.getAll().end())
+  Block::element_const_iterator val = wire_.find(Tlv::Nonce);
+  if (val != wire_.elements_end())
     {
       nonce_ = readNonNegativeInteger(*val);
     }
 
   // Scope
   val = wire_.find(Tlv::Scope);
-  if (val != wire_.getAll().end())
+  if (val != wire_.elements_end())
     {
       scope_ = readNonNegativeInteger(*val);
     }
   
   // InterestLifetime
   val = wire_.find(Tlv::InterestLifetime);
-  if (val != wire_.getAll().end())
+  if (val != wire_.elements_end())
     {
       interestLifetime_ = readNonNegativeInteger(*val);
     }

@@ -102,10 +102,10 @@ KeyLocator::wireDecode(const Block &value)
   wire_ = value;
   wire_.parse();
   
-  if (!wire_.getAll().empty() && wire_.getAll().front().type() == Tlv::Name)
+  if (!wire_.elements().empty() && wire_.elements_begin()->type() == Tlv::Name)
     {
       type_ = KeyLocator_Name;
-      name_.wireDecode(wire_.getAll().front());
+      name_.wireDecode(*wire_.elements_begin());
     }
   else
     {
