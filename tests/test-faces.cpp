@@ -19,6 +19,7 @@ struct FacesFixture
     , timeoutCount(0)
     , regPrefixId(0)
     , inInterestCount(0)
+    , inInterestCount2(0)
     , regFailedCount(0)
   {
   }
@@ -41,6 +42,14 @@ struct FacesFixture
     ++inInterestCount;
 
     face.unsetInterestFilter(regPrefixId);
+  }
+
+  void
+  onInterest2(Face& face)
+  {
+    ++inInterestCount2;
+
+    face.unsetInterestFilter(regPrefixId2);
   }
 
   void
@@ -69,7 +78,9 @@ struct FacesFixture
   uint32_t timeoutCount;
 
   const RegisteredPrefixId* regPrefixId;
+  const RegisteredPrefixId* regPrefixId2;
   uint32_t inInterestCount;
+  uint32_t inInterestCount2;
   uint32_t regFailedCount;
 };
 
@@ -140,6 +151,36 @@ BOOST_FIXTURE_TEST_CASE (SetFilter, FacesFixture)
 
   BOOST_CHECK_EQUAL(regFailedCount, 0);  
   BOOST_CHECK_EQUAL(inInterestCount, 1);  
+  BOOST_CHECK_EQUAL(timeoutCount, 1);
+  BOOST_CHECK_EQUAL(dataCount, 0);
+}
+
+BOOST_FIXTURE_TEST_CASE (SetTwoFilters, FacesFixture)
+{
+  Face face;
+  Face face2(face.ioService());
+  Scheduler scheduler(*face.ioService());
+  scheduler.scheduleEvent(time::seconds(0.3),
+                          bind(&FacesFixture::terminate, this, func_lib::ref(face)));
+  
+  regPrefixId = face.setInterestFilter("/Hello/World",
+                                       bind(&FacesFixture::onInterest, this, func_lib::ref(face)),
+                                       bind(&FacesFixture::onRegFailed, this));
+  
+  regPrefixId2 = face.setInterestFilter("/Los/Angeles/Lakers",
+                                       bind(&FacesFixture::onInterest2, this, func_lib::ref(face)),
+                                       bind(&FacesFixture::onRegFailed, this));
+
+
+  scheduler.scheduleEvent(time::seconds(0.2),
+                          bind(&FacesFixture::expressInterest, this,
+                               func_lib::ref(face2), Name("/Hello/World/!")));
+  
+  BOOST_REQUIRE_NO_THROW(face.processEvents());
+
+  BOOST_CHECK_EQUAL(regFailedCount, 0);  
+  BOOST_CHECK_EQUAL(inInterestCount, 1);  
+  BOOST_CHECK_EQUAL(inInterestCount2, 0);  
   BOOST_CHECK_EQUAL(timeoutCount, 1);
   BOOST_CHECK_EQUAL(dataCount, 0);
 }

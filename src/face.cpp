@@ -61,7 +61,7 @@ Face::construct(const shared_ptr<Transport>& transport,
 
   pitTimeoutCheckTimer_      = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
   processEventsTimeoutTimer_ = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
-  
+
   if (nfdMode)
       m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
   else
@@ -77,9 +77,9 @@ Face::expressInterest(const Interest& interest, const OnData& onData, const OnTi
                         bind(&Face::onReceiveElement, this, _1));
 
   shared_ptr<const Interest> interestToExpress(new Interest(interest));
-  
+
   ioService_->post(bind(&Face::asyncExpressInterest, this, interestToExpress, onData, onTimeout));
-  
+
   return reinterpret_cast<const PendingInterestId*>(interestToExpress.get());
 }
 
@@ -114,7 +114,7 @@ Face::asyncExpressInterest(const shared_ptr<const Interest> &interest,
     pitTimeoutCheckTimer_->async_wait(bind(&Face::checkPitExpire, this));
   }
 }
-    
+
 void
 Face::put(const Data &data)
 {
@@ -149,7 +149,7 @@ Face::setInterestFilter(const Name& prefix,
   m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
                                      bind(&RegisteredPrefixTable::push_back, &registeredPrefixTable_, prefixToRegister),
                                      bind(onSetInterestFilterFailed, prefixToRegister->getPrefix(), _1));
-  
+
   return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
 }
 
@@ -163,7 +163,7 @@ void
 Face::asyncUnsetInterestFilter(const RegisteredPrefixId *registeredPrefixId)
 {
   RegisteredPrefixTable::iterator i = std::find_if(registeredPrefixTable_.begin(), registeredPrefixTable_.end(),
-                                                   MatchRegisteredPrefixId(registeredPrefixId));  
+                                                   MatchRegisteredPrefixId(registeredPrefixId));
   if (i != registeredPrefixTable_.end())
     {
       m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
@@ -188,7 +188,7 @@ Face::finalizeUnsertInterestFilter(RegisteredPrefixTable::iterator item)
     }
 }
 
-void 
+void
 Face::processEvents(Milliseconds timeout/* = 0 */, bool keepThread/* = false*/)
 {
   try
@@ -205,12 +205,12 @@ Face::processEvents(Milliseconds timeout/* = 0 */, bool keepThread/* = false*/)
           processEventsTimeoutTimer_->expires_from_now(boost::posix_time::milliseconds(timeout));
           processEventsTimeoutTimer_->async_wait(&fireProcessEventsTimeout);
         }
-      
+
       if (keepThread) {
         // work will ensure that ioService_ is running until work object exists
         ioServiceWork_ = make_shared<boost::asio::io_service::work>(boost::ref(*ioService_));
       }
-          
+
       ioService_->run();
       ioService_->reset(); // so it is possible to run processEvents again (if necessary)
     }
@@ -228,7 +228,7 @@ Face::processEvents(Milliseconds timeout/* = 0 */, bool keepThread/* = false*/)
     }
 }
 
-void 
+void
 Face::shutdown()
 {
   pendingInterestTable_.clear();
@@ -271,7 +271,7 @@ Face::checkPitExpire()
 
   if (!pendingInterestTable_.empty()) {
     pitTimeoutCheckTimerActive_ = true;
-    
+
     pitTimeoutCheckTimer_->expires_from_now(boost::posix_time::milliseconds(100));
     pitTimeoutCheckTimer_->async_wait(bind(&Face::checkPitExpire, this));
   }
@@ -288,14 +288,14 @@ Face::checkPitExpire()
 }
 
 
-void 
+void
 Face::onReceiveElement(const Block &block)
 {
   if (block.type() == Tlv::Interest)
     {
       shared_ptr<Interest> interest(new Interest());
       interest->wireDecode(block);
-    
+
       RegisteredPrefixTable::iterator entry = getEntryForRegisteredPrefix(interest->getName());
       if (entry != registeredPrefixTable_.end()) {
         (*entry)->getOnInterest()((*entry)->getPrefix(), *interest);
@@ -324,7 +324,7 @@ Face::onReceiveElement(const Block &block)
     }
 }
 
-Face::PendingInterestTable::iterator 
+Face::PendingInterestTable::iterator
 Face::getEntryIndexForExpressedInterest(const Name& name)
 {
   for (PendingInterestTable::iterator i = pendingInterestTable_.begin ();
@@ -338,7 +338,7 @@ Face::getEntryIndexForExpressedInterest(const Name& name)
 
   return pendingInterestTable_.end();
 }
-  
+
 Face::RegisteredPrefixTable::iterator
 Face::getEntryForRegisteredPrefix(const Name& name)
 {
@@ -348,10 +348,14 @@ Face::getEntryForRegisteredPrefix(const Name& name)
        i != registeredPrefixTable_.end();
        ++i)
     {
-      if (longestPrefix == registeredPrefixTable_.end() ||
-          (*i)->getPrefix().size() > (*longestPrefix)->getPrefix().size())
+      if ((*i)->getPrefix().isPrefixOf(name))
         {
-          longestPrefix = i;
+
+          if (longestPrefix == registeredPrefixTable_.end() ||
+              (*i)->getPrefix().size() > (*longestPrefix)->getPrefix().size())
+            {
+              longestPrefix = i;
+            }
         }
     }
   return longestPrefix;
