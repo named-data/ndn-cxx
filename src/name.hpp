@@ -129,6 +129,18 @@ public:
     return *this;
   }
 
+  /**
+   * Append a new component, copying from value of length valueLength.
+   * @return This name so that you can chain calls to append.
+   */
+  template<class InputIterator>
+  Name&
+  append(InputIterator begin, InputIterator end)
+  {
+    m_nameBlock.push_back(Component(begin, end));
+    return *this;
+  }
+
   // /**
   //  * Append a new component, copying from value.
   //  * @return This name so that you can chain calls to append.

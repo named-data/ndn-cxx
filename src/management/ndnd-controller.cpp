@@ -63,12 +63,25 @@ Controller::selfDeregisterPrefix(const Name& prefixToRegister,
 }
 
 
-void 
+void
 Controller::onNdnidFetched(const Interest& interest, Data& data)
 {
   if (data.getName().size() > interest.getName().size())
     {
       m_ndndId = data.getName()[interest.getName().size()];
+
+      if (m_ndndId.value_size() < 6)
+        {
+          for (FilterRequestList::iterator i = m_filterRequests.begin();
+               i != m_filterRequests.end();
+               ++i)
+            {
+              if (static_cast<bool>(i->m_onFailure))
+                i->m_onFailure("Fetched unrecognized NDNID");
+            }
+
+          return;
+        }
 
       for (FilterRequestList::iterator i = m_filterRequests.begin();
            i != m_filterRequests.end();
@@ -110,7 +123,7 @@ Controller::startFaceAction(const FaceInstance& entry,
   Data data;
   data.setName(Name().appendVersion(ndn::random::generateWord32()));
   data.setContent(entry.wireEncode());
-  
+
   // Create an empty signature, since nobody going to verify it for now
   // @todo In the future, we may require real signatures to do the registration
   SignatureSha256WithRsa signature;
@@ -120,7 +133,7 @@ Controller::startFaceAction(const FaceInstance& entry,
   // Create an interest where the name has the encoded Data packet.
   Name interestName;
   interestName.append("ndnx");
-  interestName.append(m_ndndId);
+  interestName.append(m_ndndId.value_begin()+6, m_ndndId.value_end());
   interestName.append(entry.getAction());
   interestName.append(data.wireEncode());
 
@@ -143,7 +156,7 @@ Controller::startPrefixAction(const ForwardingEntry& entry,
   Data data;
   data.setName(Name().appendVersion(random::generateWord32()));
   data.setContent(entry.wireEncode());
-  
+
   // Create an empty signature, since nobody going to verify it for now
   // @todo In the future, we may require real signatures to do the registration
   SignatureSha256WithRsa signature;
@@ -153,7 +166,7 @@ Controller::startPrefixAction(const ForwardingEntry& entry,
   // Create an interest where the name has the encoded Data packet.
   Name interestName;
   interestName.append("ndnx");
-  interestName.append(m_ndndId);
+  interestName.append(m_ndndId.value_begin()+6, m_ndndId.value_end());
   interestName.append(entry.getAction());
   interestName.append(data.wireEncode());
 
@@ -183,7 +196,7 @@ Controller::processFaceActionResponse(Data& data,
     }
 
   Block::element_const_iterator val = content.elements_begin();
-  
+
   switch(val->type())
     {
     case Tlv::FaceManagement::FaceInstance:
@@ -229,7 +242,7 @@ Controller::processPrefixActionResponse(Data& data,
     }
 
   Block::element_const_iterator val = content.elements_begin();
-  
+
   switch(val->type())
     {
     case Tlv::FaceManagement::ForwardingEntry:
@@ -247,7 +260,7 @@ Controller::processPrefixActionResponse(Data& data,
         resp.wireDecode(*val);
 
         // std::cerr << "StatusReponse: " << resp << std::endl;
-      
+
         if (static_cast<bool>(onFail))
           onFail(resp.getInfo());
         return;
