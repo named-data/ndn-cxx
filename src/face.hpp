@@ -209,6 +209,9 @@ private:
 
   void
   asyncUnsetInterestFilter(const RegisteredPrefixId *registeredPrefixId);
+
+  void
+  finalizeUnsertInterestFilter(RegisteredPrefixTable::iterator item);
   
   void 
   onReceiveElement(const Block &wire);

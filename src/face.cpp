@@ -167,11 +167,25 @@ Face::asyncUnsetInterestFilter(const RegisteredPrefixId *registeredPrefixId)
   if (i != registeredPrefixTable_.end())
     {
       m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
-                                           bind(&RegisteredPrefixTable::erase, &registeredPrefixTable_, i),
+                                           bind(&Face::finalizeUnsertInterestFilter, this, i),
                                            Controller::FailCallback());
     }
 
   // there cannot be two registered prefixes with the same id. if there are, then something is broken
+}
+
+void
+Face::finalizeUnsertInterestFilter(RegisteredPrefixTable::iterator item)
+{
+  registeredPrefixTable_.erase(item);
+
+  if (!pitTimeoutCheckTimerActive_ && registeredPrefixTable_.empty())
+    {
+      transport_->close();
+      if (!ioServiceWork_) {
+        processEventsTimeoutTimer_->cancel();
+      }
+    }
 }
 
 void 
