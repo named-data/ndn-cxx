@@ -19,10 +19,11 @@ BOOST_AUTO_TEST_CASE (SignVerify)
 {
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
 
-  Name identityName("/test");
-  Name certificateName = keyChain.createIdentity(identityName);
+  Name identityName("/TestSignedInterest/SignVerify");
+  Name certificateName;
+  BOOST_REQUIRE_NO_THROW(certificateName = keyChain.createIdentity(identityName));
 
-  Interest interest("/test/interest");
+  Interest interest("/TestSignedInterest/SignVerify/Interest1");
   keyChain.signByIdentity(interest, identityName);
   
   Block interestBlock(interest.wireEncode().wire(), interest.wireEncode().size());
@@ -30,10 +31,12 @@ BOOST_AUTO_TEST_CASE (SignVerify)
   Interest interest2;
   interest2.wireDecode(interestBlock);
   
-  ptr_lib::shared_ptr<PublicKey> publicKey = keyChain.getPublicKeyFromTpm(keyChain.getDefaultKeyNameForIdentity(identityName));
+  shared_ptr<PublicKey> publicKey = keyChain.getPublicKeyFromTpm(keyChain.getDefaultKeyNameForIdentity(identityName));
   bool result = Validator::verifySignature(interest2, *publicKey);
   
-  BOOST_REQUIRE_EQUAL(result, true);
+  BOOST_CHECK_EQUAL(result, true);
+
+  BOOST_CHECK_NO_THROW(keyChain.deleteIdentity(identityName));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

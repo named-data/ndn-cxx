@@ -201,7 +201,7 @@ public:
   void 
   sign(Data& data, const Name& certificateName)
   {
-    ptr_lib::shared_ptr<IdentityCertificate> cert = Info::getCertificate(certificateName);
+    shared_ptr<IdentityCertificate> cert = Info::getCertificate(certificateName);
     if (!cert)
       throw InfoError("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
 
@@ -216,14 +216,14 @@ public:
   void
   sign(Interest &interest, const Name &certificateName)
   {
-    ptr_lib::shared_ptr<IdentityCertificate> cert = Info::getCertificate(certificateName);
+    shared_ptr<IdentityCertificate> cert = Info::getCertificate(certificateName);
     if(!static_cast<bool>(cert))
       throw InfoError("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
 
     SignatureSha256WithRsa signature;
     signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
 
-    Name interestName = interest.getName().append(Name::Component::fromNumber(getNow())).append(signature.getInfo());
+    Name& interestName = interest.getName().append(signature.getInfo());
 
     signature.setValue(Tpm::signInTpm(interestName.wireEncode().value(), 
                                       interestName.wireEncode().value_size(), 
@@ -402,8 +402,7 @@ private:
     SignatureSha256WithRsa signature;
     signature.setKeyLocator(certificate.getName().getPrefix(-1)); // implicit conversion should take care
 
-    Name &interestName = interest.getName();
-    interestName.append(Name::Component::fromNumber(getNow())).append(signature.getInfo());
+    Name& interestName = interest.getName().append(signature.getInfo());
 
     signature.setValue(Tpm::signInTpm(interestName.wireEncode().value(), 
                                       interestName.wireEncode().value_size(), 

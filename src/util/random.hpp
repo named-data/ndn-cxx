@@ -14,6 +14,9 @@ namespace random {
 uint32_t
 generateWord32();
 
+uint64_t
+generateWord64();
+
 } // namespace random
 } // namespace ndn
 

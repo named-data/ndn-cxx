@@ -138,14 +138,14 @@ Validator::verifySignature(const Interest &interest, const PublicKey &key)
 {
   const Name &interestName = interest.getName();
 
-  if(interestName.size() < 3)
+  if(interestName.size() < 2)
     return false;
 
   try{
-    const Block &nameBlock = interestName.wireEncode();
+    const Block& nameBlock = interestName.wireEncode();
 
-    Signature sig((++nameBlock.elements().rbegin())->blockFromValue(), 
-                  (nameBlock.elements().rbegin())->blockFromValue());
+    Signature sig(interestName[-2].blockFromValue(), 
+                  interestName[-1].blockFromValue());
 
     switch(sig.getType()){
     case Signature::Sha256WithRsa:
@@ -153,7 +153,7 @@ Validator::verifySignature(const Interest &interest, const PublicKey &key)
         SignatureSha256WithRsa sigSha256Rsa(sig);
 
         return verifySignature(nameBlock.value(), 
-                               nameBlock.value_size() - (nameBlock.elements().rbegin())->size(), 
+                               nameBlock.value_size() - interestName[-1].size(), 
                                sigSha256Rsa, key);
       }
     default:

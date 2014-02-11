@@ -21,5 +21,17 @@ generateWord32()
   return rng.GenerateWord32();
 }
 
+uint64_t
+generateWord64()
+{
+  static CryptoPP::AutoSeededRandomPool rng;
+  
+  uint64_t random;
+
+  rng.GenerateBlock(reinterpret_cast<unsigned char*>(&random), 8);
+
+  return random;
+}
+
 } // namespace random
 } // namespace ndn
