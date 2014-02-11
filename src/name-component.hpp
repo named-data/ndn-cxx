@@ -349,15 +349,6 @@ Component::wireEncode(EncodingImpl<T>& block) const
   return total_len;
 }
 
-template
-size_t
-Component::wireEncode<true>(EncodingBuffer& block) const;
-
-template
-size_t
-Component::wireEncode<false>(EncodingEstimator& block) const;
-
-
 } // namespace name
 } // namespace ndn
 

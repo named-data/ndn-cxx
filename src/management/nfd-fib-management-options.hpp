@@ -123,14 +123,6 @@ FibManagementOptions::wireEncode(EncodingImpl<T>& blk) const
   return total_len;
 }
 
-template
-size_t
-FibManagementOptions::wireEncode<true>(EncodingBuffer& block) const;
-
-template
-size_t
-FibManagementOptions::wireEncode<false>(EncodingEstimator& block) const;
-
 inline const Block&
 FibManagementOptions::wireEncode () const
 {

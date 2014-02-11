@@ -525,15 +525,6 @@ Name::wireEncode(EncodingImpl<T>& blk) const
   return total_len;
 }
 
-template
-size_t
-Name::wireEncode<true>(EncodingBuffer& block) const;
-
-template
-size_t
-Name::wireEncode<false>(EncodingEstimator& block) const;
-
-
 } // namespace ndn
 
 #endif
