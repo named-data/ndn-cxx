@@ -110,6 +110,7 @@ def configure(conf):
 
     conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
+    conf.check_cxx(cxxflags=['-fPIC'], uselib_store='PIC', mandatory=False)
 
     if not conf.options.with_sqlite_locking:
         conf.define('DISABLE_SQLITE3_FS_LOCKING', 1)
@@ -126,7 +127,7 @@ def build (bld):
         name = "ndn-cpp-dev",
         source = bld.path.ant_glob('src/**/*.cpp',
                                    excl = ['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
-        use = 'BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT PTHREAD',
+        use = 'BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT PIC PTHREAD',
         includes = ". src",
         export_includes = "src",
         install_path = '${LIBDIR}',
