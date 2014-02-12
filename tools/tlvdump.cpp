@@ -11,14 +11,14 @@
 #include <iomanip>
 #include <fstream>
 
-const uint32_t TLV_DICT_SIZE = 25;
+const uint32_t TLV_DICT_SIZE = 26;
 
 const std::string TLV_DICT[TLV_DICT_SIZE] = {
   "RESERVED", //      = 0
-  "Interest", //      = 1,
-  "Data", //          = 2,
-  "Name", //          = 3,
-  "NameComponent", // = 4,
+  "Name", //          = 1,
+  "NameComponent", // = 2,
+  "Interest", //      = 3,
+  "Data", //          = 4,
   "Selectors", //     = 5,
   "Nonce", //         = 6,
   "Scope", //         = 7,
@@ -39,6 +39,7 @@ const std::string TLV_DICT[TLV_DICT_SIZE] = {
   "SignatureType", // = 22,
   "KeyLocator", //    = 23,
   "KeyLocatorDigest", // = 24
+  "FinalBlockId" // = 25
 };
 
 void

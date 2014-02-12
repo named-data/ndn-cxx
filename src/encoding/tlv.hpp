@@ -25,10 +25,10 @@ namespace Tlv {
 struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
 
 enum {
-  Interest      = 1,
-  Data          = 2,
-  Name          = 3,
-  NameComponent = 4,
+  Name          = 1,
+  NameComponent = 2,
+  Interest      = 3,
+  Data          = 4,
   Selectors     = 5,
   Nonce         = 6,
   Scope         = 7,

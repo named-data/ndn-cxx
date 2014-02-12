@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE (Delete)
   Name identity(string("/TestSecPublicInfoSqlite3/Delete/") + boost::lexical_cast<string>(time::now()));
   Name certName1;
   BOOST_REQUIRE_NO_THROW(certName1 = keyChain.createIdentity(identity));
-  
+
   Name keyName1 = IdentityCertificate::certificateNameToPublicKeyName(certName1);  
   Name keyName2;
   BOOST_CHECK_NO_THROW(keyName2 = keyChain.generateRSAKeyPairAsDefault(identity));
@@ -47,20 +47,20 @@ BOOST_AUTO_TEST_CASE (Delete)
   Name certName5 = cert5->getName();
   keyChain.addCertificateAsKeyDefault(*cert5);
 
-  BOOST_REQUIRE_EQUAL(keyChain.doesIdentityExist(identity), true);
-  BOOST_REQUIRE_EQUAL(keyChain.doesPublicKeyExist(keyName1), true);
-  BOOST_REQUIRE_EQUAL(keyChain.doesPublicKeyExist(keyName2), true);
-  BOOST_REQUIRE_EQUAL(keyChain.doesPublicKeyExist(keyName3), true);
-  BOOST_REQUIRE_EQUAL(keyChain.doesCertificateExist(certName1), true);
-  BOOST_REQUIRE_EQUAL(keyChain.doesCertificateExist(certName2), true);
-  BOOST_REQUIRE_EQUAL(keyChain.doesCertificateExist(certName3), true);
-  BOOST_REQUIRE_EQUAL(keyChain.doesCertificateExist(certName4), true);
-  BOOST_REQUIRE_EQUAL(keyChain.doesCertificateExist(certName5), true);
+  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), true);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), true);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName2), true);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName1), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName2), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName5), true);
 
   keyChain.deleteCertificate(certName5);
   BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName5), false);
-  BOOST_REQUIRE_EQUAL(keyChain.doesCertificateExist(certName3), true);
-  BOOST_REQUIRE_EQUAL(keyChain.doesCertificateExist(certName4), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), true);
   BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), true);
 
   keyChain.deleteKey(keyName3);

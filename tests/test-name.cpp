@@ -12,12 +12,12 @@ namespace ndn {
 BOOST_AUTO_TEST_SUITE(TestName)
 
 static const uint8_t TestName[] = {
-        0x3,  0x14, // Name
-          0x4,  0x5, // NameComponent
+        0x1,  0x14, // Name
+          0x2,  0x5, // NameComponent
               0x6c,  0x6f,  0x63,  0x61,  0x6c,
-          0x4,  0x3, // NameComponent
+          0x2,  0x3, // NameComponent
               0x6e,  0x64,  0x6e,
-          0x4,  0x6, // NameComponent
+          0x2,  0x6, // NameComponent
               0x70,  0x72,  0x65,  0x66,  0x69,  0x78
 };
 
@@ -59,8 +59,8 @@ BOOST_AUTO_TEST_CASE (AppendsAndMultiEncode)
 {
   Name name("/local");
 
-  const uint8_t name1[] = {0x3,  0x7, // Name
-                           0x4,  0x5, // NameComponent
+  const uint8_t name1[] = {0x1,  0x7, // Name
+                           0x2,  0x5, // NameComponent
                            0x6c,  0x6f,  0x63,  0x61,  0x6c};
   
   BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
@@ -68,10 +68,10 @@ BOOST_AUTO_TEST_CASE (AppendsAndMultiEncode)
 
   name.append("ndn");
   
-  const uint8_t name2[] = {0x3,  0xc, // Name
-                           0x4,  0x5, // NameComponent
+  const uint8_t name2[] = {0x1,  0xc, // Name
+                           0x2,  0x5, // NameComponent
                            0x6c,  0x6f,  0x63,  0x61,  0x6c,
-                           0x4,  0x3, // NameComponent
+                           0x2,  0x3, // NameComponent
                            0x6e,  0x64,  0x6e};
   
   BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
