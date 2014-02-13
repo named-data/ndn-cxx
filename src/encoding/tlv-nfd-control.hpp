@@ -27,7 +27,8 @@ enum {
   Strategy        = 107,
 
   // Face Management Protocol
-  FaceManagementOptions = 108
+  FaceManagementOptions = 108,
+  Uri                   = 114
 };
 
 

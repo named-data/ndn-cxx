@@ -6,6 +6,7 @@
 
 #include "management/nfd-control-response.hpp"
 #include "management/nfd-fib-management-options.hpp"
+#include "management/nfd-face-management-options.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/output_test_stream.hpp>
@@ -23,6 +24,12 @@ const uint8_t TestFibManagementOptions[] = {
   0x68, 0x1e, 0x01, 0x16, 0x02, 0x09, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x68,
   0x6f, 0x73, 0x74, 0x02, 0x03, 0x72, 0x65, 0x67, 0x02, 0x04, 0x74, 0x65,
   0x73, 0x74, 0x69, 0x01, 0x00, 0x6a, 0x01, 0x00
+};
+
+const uint8_t TestFaceManagementOptions[] = {
+  0x6c, 0x1e, 0x69, 0x01, 0x0a, 0x72, 0x19, 0x74, 0x63, 0x70, 0x3a, 0x2f,
+  0x2f, 0x31, 0x2e, 0x31, 0x2e, 0x31, 0x2e, 0x31, 0x2f, 0x68, 0x65, 0x6c,
+  0x6c, 0x6f, 0x2f, 0x77, 0x6f, 0x72, 0x6c, 0x64
 };
 
 // ControlResponse
@@ -103,6 +110,30 @@ BOOST_AUTO_TEST_CASE (FibManagementOptionsDecoding)
   BOOST_CHECK_EQUAL (opt.getCost (), 0);
 }
 
+BOOST_AUTO_TEST_CASE (FaceManagementOptionsFastEncoding)
+{
+  FaceManagementOptions opt;
+
+  opt.setFaceId (10);
+  opt.setUri ("tcp://1.1.1.1/hello/world");
+
+  BOOST_REQUIRE_NO_THROW (opt.wireEncode ());
+
+  BOOST_REQUIRE_EQUAL_COLLECTIONS (TestFaceManagementOptions,
+                                   TestFaceManagementOptions + sizeof (TestFibManagementOptions),
+                                   opt.wireEncode ().begin (), opt.wireEncode ().end ());
+}
+
+BOOST_AUTO_TEST_CASE (FaceManagementOptionsDecoding)
+{
+  Block blk (TestFaceManagementOptions, sizeof (TestFaceManagementOptions));
+  FaceManagementOptions opt;
+
+  BOOST_REQUIRE_NO_THROW (opt.wireDecode (blk));
+  
+  BOOST_CHECK_EQUAL (opt.getFaceId(), 10);
+  BOOST_CHECK_EQUAL (opt.getUri(), "tcp://1.1.1.1/hello/world");
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
