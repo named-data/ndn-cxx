@@ -8,6 +8,8 @@
 #ifndef NDN_META_INFO_HPP
 #define NDN_META_INFO_HPP
 
+#include "encoding/encoding-buffer.hpp"
+
 namespace ndn {
 
 /**
@@ -22,91 +24,176 @@ public:
   };
   
   MetaInfo()
-    : type_(TYPE_DEFAULT)
-    , freshnessPeriod_(-1)
+    : m_type(TYPE_DEFAULT)
+    , m_freshnessPeriod(-1)
   {   
+  }
+
+  MetaInfo(const Block& block)
+  {
+    wireDecode(block);
   }
   
   uint32_t 
   getType() const
-  { return type_; }
+  {
+    return m_type;
+  }
   
-  void 
+  MetaInfo&
   setType(uint32_t type)
-  { type_ = type; }
+  {
+    m_wire.reset();
+    m_type = type;
+    return *this;
+  }
   
   Milliseconds 
   getFreshnessPeriod() const
-  { return freshnessPeriod_; }
+  {
+    return m_freshnessPeriod;
+  }
   
-  void 
+  MetaInfo&
   setFreshnessPeriod(Milliseconds freshnessPeriod)
-  { freshnessPeriod_ = freshnessPeriod; }
+  {
+    m_wire.reset();
+    m_freshnessPeriod = freshnessPeriod;
+    return *this;
+  }
 
-  inline const Block& 
+  const name::Component&
+  getFinalBlockId() const
+  {
+    return m_finalBlockId;
+  }
+
+  MetaInfo&
+  setFinalBlockId(const name::Component& finalBlockId)
+  {
+    m_wire.reset();
+    m_finalBlockId = finalBlockId;
+    return *this;
+  }
+  
+  template<bool T>
+  size_t
+  wireEncode(EncodingImpl<T> &block) const;
+
+  const Block& 
   wireEncode() const;
   
-  inline void
+  void
   wireDecode(const Block &wire);  
   
 private:
-  uint32_t type_;
-  Milliseconds freshnessPeriod_;
+  uint32_t m_type;
+  Milliseconds m_freshnessPeriod;
+  name::Component m_finalBlockId;
 
-  mutable Block wire_;
+  mutable Block m_wire;
 };
+
+template<bool T>
+inline size_t
+MetaInfo::wireEncode(EncodingImpl<T>& blk) const
+{
+  // MetaInfo ::= META-INFO-TYPE TLV-LENGTH
+  //                ContentType?
+  //                FreshnessPeriod?
+  //                FinalBlockId?
+  
+  size_t total_len = 0;
+
+  // FinalBlockId
+  if (!m_finalBlockId.empty())
+    {
+      size_t var_len = m_finalBlockId.wireEncode (blk);
+      total_len += var_len;
+      total_len += blk.prependVarNumber (var_len);
+      total_len += blk.prependVarNumber (Tlv::FinalBlockId);
+    }
+  
+  // FreshnessPeriod
+  if (m_freshnessPeriod >= 0)
+    {
+      size_t var_len = blk.prependNonNegativeInteger (m_freshnessPeriod);
+      total_len += var_len;
+      total_len += blk.prependVarNumber (var_len);
+      total_len += blk.prependVarNumber (Tlv::FreshnessPeriod);
+    }
+
+  // ContentType
+  if (m_type != TYPE_DEFAULT)
+    {
+      size_t var_len = blk.prependNonNegativeInteger (m_type);
+      total_len += var_len;
+      total_len += blk.prependVarNumber (var_len);
+      total_len += blk.prependVarNumber (Tlv::ContentType);
+    }
+
+  total_len += blk.prependVarNumber (total_len);
+  total_len += blk.prependVarNumber (Tlv::MetaInfo);
+  return total_len;
+}
 
 inline const Block& 
 MetaInfo::wireEncode() const
 {
-  if (wire_.hasWire())
-    return wire_;
+  if (m_wire.hasWire ())
+    return m_wire;
 
-  // MetaInfo ::= META-INFO-TYPE TLV-LENGTH
-  //                ContentType?
-  //                FreshnessPeriod?
+  EncodingEstimator estimator;
+  size_t estimatedSize = wireEncode(estimator);
   
-  wire_ = Block(Tlv::MetaInfo);
+  EncodingBuffer buffer(estimatedSize, 0);
+  wireEncode(buffer);
 
-  // ContentType
-  if (type_ != TYPE_DEFAULT) {
-    wire_.push_back
-      (nonNegativeIntegerBlock(Tlv::ContentType, type_));
-  }
-
-  // FreshnessPeriod
-  if (freshnessPeriod_ >= 0) {
-    wire_.push_back
-      (nonNegativeIntegerBlock(Tlv::FreshnessPeriod, freshnessPeriod_));
-  }
-  
-  wire_.encode();
-  return wire_;  
+  m_wire = buffer.block();
+  return m_wire;
 }
   
 inline void
 MetaInfo::wireDecode(const Block &wire)
 {
-  wire_ = wire;
-  wire_.parse();
+  m_wire = wire;
+  m_wire.parse();
 
   // MetaInfo ::= META-INFO-TYPE TLV-LENGTH
   //                ContentType?
   //                FreshnessPeriod?
   
   // ContentType
-  Block::element_const_iterator val = wire_.find(Tlv::ContentType);
-  if (val != wire_.elements().end())
+  Block::element_const_iterator val = m_wire.find(Tlv::ContentType);
+  if (val != m_wire.elements().end())
     {
-      type_ = readNonNegativeInteger(*val);
+      m_type = readNonNegativeInteger(*val);
     }
+  else
+    m_type = TYPE_DEFAULT;
 
   // FreshnessPeriod
-  val = wire_.find(Tlv::FreshnessPeriod);
-  if (val != wire_.elements().end())
+  val = m_wire.find(Tlv::FreshnessPeriod);
+  if (val != m_wire.elements().end())
     {
-      freshnessPeriod_ = readNonNegativeInteger(*val);
+      m_freshnessPeriod = readNonNegativeInteger(*val);
     }
+  else
+    m_freshnessPeriod = -1;
+
+  // FinalBlockId
+  val = m_wire.find(Tlv::FinalBlockId);
+  if (val != m_wire.elements().end())
+    {
+      m_finalBlockId = val->blockFromValue();
+      if (m_finalBlockId.type() != Tlv::NameComponent)
+        {
+          /// @todo May or may not throw exception later...
+          m_finalBlockId.reset();
+        }
+    }
+  else
+    m_finalBlockId.reset();
 }
 
 inline std::ostream&
@@ -118,6 +205,11 @@ operator << (std::ostream &os, const MetaInfo &info)
   // FreshnessPeriod
   if (info.getFreshnessPeriod() >= 0) {
     os << ", FreshnessPeriod: " << info.getFreshnessPeriod();
+  }
+
+  if (!info.getFinalBlockId().empty()) {
+    os << ", FinalBlockId: ";
+    info.getFinalBlockId().toUri(os);
   }
   return os;
 }

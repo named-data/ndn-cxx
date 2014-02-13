@@ -92,6 +92,12 @@ public:
   
   inline void 
   setFreshnessPeriod(Milliseconds freshnessPeriod);
+
+  inline const name::Component&
+  getFinalBlockId() const;
+
+  inline void
+  setFinalBlockId(const name::Component& finalBlockId);
   
   /**
    * @brief Get content Block
@@ -220,6 +226,19 @@ Data::setFreshnessPeriod(Milliseconds freshnessPeriod)
 {
   onChanged();
   metaInfo_.setFreshnessPeriod(freshnessPeriod);
+}
+
+inline const name::Component&
+Data::getFinalBlockId() const
+{
+  return metaInfo_.getFinalBlockId();
+}
+
+inline void
+Data::setFinalBlockId(const name::Component& finalBlockId)
+{
+  onChanged();
+  metaInfo_.setFinalBlockId(finalBlockId);
 }
 
 inline const Block& 

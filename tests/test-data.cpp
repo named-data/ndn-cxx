@@ -86,6 +86,12 @@ const unsigned char DEFAULT_PRIVATE_KEY_DER[] = {
 0xe9, 0x2e, 0x1e, 0xfc, 0xe4, 0x82, 0x43, 0x20, 0x46, 0x7d, 0x0a, 0xb6
 };
 
+const uint8_t MetaInfo1[] = {0x10, 0x04, 0x15, 0x02, 0x27, 0x10};
+const uint8_t MetaInfo2[] = {0x10, 0x14, 0x15, 0x02, 0x27, 0x10, 0x19, 0x0e, 0x02, 0x0c, 0x68, 0x65, 0x6c, 0x6c, 0x6f,
+                             0x2c, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21};
+const uint8_t MetaInfo3[] = {0x10, 0x17, 0x14, 0x01, 0x01, 0x15, 0x02, 0x27, 0x10, 0x19, 0x0e, 0x02, 0x0c, 0x68, 0x65,
+                             0x6c, 0x6c, 0x6f, 0x2c, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21};
+
 class TestDataFixture
 {
 public:
@@ -192,6 +198,45 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
                                   dataBlock.begin(), dataBlock.end());
 
 
+}
+
+BOOST_AUTO_TEST_CASE (EncodeMetaInfo)
+{
+  MetaInfo meta;
+  meta.setType(MetaInfo::TYPE_DEFAULT);
+  meta.setFreshnessPeriod(10000);
+
+  BOOST_REQUIRE_NO_THROW(meta.wireEncode());
+  BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo1, MetaInfo1+sizeof(MetaInfo1),
+                                  meta.wireEncode().begin(), meta.wireEncode().end());
+
+  meta.setFinalBlockId(name::Component("hello,world!"));
+  BOOST_REQUIRE_NO_THROW(meta.wireEncode());
+  BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo2, MetaInfo2+sizeof(MetaInfo2),
+                                  meta.wireEncode().begin(), meta.wireEncode().end());
+  
+  meta.setType(MetaInfo::TYPE_LINK);
+  BOOST_REQUIRE_NO_THROW(meta.wireEncode());
+  BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo3, MetaInfo3+sizeof(MetaInfo3),
+                                  meta.wireEncode().begin(), meta.wireEncode().end()); 
+}
+
+BOOST_AUTO_TEST_CASE (DecodeMetaInfo)
+{
+  MetaInfo meta(Block(MetaInfo1, sizeof(MetaInfo1)));
+  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
+  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10000);
+  BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component());
+
+  meta.wireDecode(Block(MetaInfo2, sizeof(MetaInfo2)));
+  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
+  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10000);
+  BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
+
+  meta.wireDecode(Block(MetaInfo3, sizeof(MetaInfo3)));
+  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_LINK));
+  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10000);
+  BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

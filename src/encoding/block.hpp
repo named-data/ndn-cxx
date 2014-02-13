@@ -375,18 +375,12 @@ Block::size() const
 inline Buffer::const_iterator
 Block::value_begin() const
 {
-  if (!hasValue())
-      throw Error("(Block::value_begin) Underlying value buffer is empty");
-
   return m_value_begin;
 }
 
 inline Buffer::const_iterator
 Block::value_end() const
 {
-  if (!hasValue())
-      throw Error("(Block::value_end) Underlying value buffer is empty");
-
   return m_value_end;
 }
 

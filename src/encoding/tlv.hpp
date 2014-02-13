@@ -49,6 +49,7 @@ enum {
   SignatureType = 22,
   KeyLocator    = 23,
   KeyLocatorDigest = 24,
+  FinalBlockId  = 25,
 
   AppPrivateBlock1 = 128,
   AppPrivateBlock2 = 32767
