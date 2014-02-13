@@ -12,14 +12,25 @@ namespace ndn {
 BOOST_AUTO_TEST_SUITE(TestName)
 
 static const uint8_t TestName[] = {
-        0x1,  0x14, // Name
-          0x2,  0x5, // NameComponent
+        0x7,  0x14, // Name
+          0x8,  0x5, // NameComponent
               0x6c,  0x6f,  0x63,  0x61,  0x6c,
-          0x2,  0x3, // NameComponent
+          0x8,  0x3, // NameComponent
               0x6e,  0x64,  0x6e,
-          0x2,  0x6, // NameComponent
+          0x8,  0x6, // NameComponent
               0x70,  0x72,  0x65,  0x66,  0x69,  0x78
 };
+
+const uint8_t Name1[] = {0x7,  0x7, // Name
+                           0x8,  0x5, // NameComponent
+                             0x6c,  0x6f,  0x63,  0x61,  0x6c};
+    
+const uint8_t Name2[] = {0x7,  0xc, // Name
+                           0x8,  0x5, // NameComponent
+                             0x6c,  0x6f,  0x63,  0x61,  0x6c,
+                           0x8,  0x3, // NameComponent
+                             0x6e,  0x64,  0x6e};
+
 
 BOOST_AUTO_TEST_CASE (Encode)
 {
@@ -58,24 +69,14 @@ BOOST_AUTO_TEST_CASE (Decode)
 BOOST_AUTO_TEST_CASE (AppendsAndMultiEncode)
 {
   Name name("/local");
-
-  const uint8_t name1[] = {0x1,  0x7, // Name
-                           0x2,  0x5, // NameComponent
-                           0x6c,  0x6f,  0x63,  0x61,  0x6c};
   
   BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
-                                name1, name1 + sizeof(name1));
+                                Name1, Name1 + sizeof(Name1));
 
   name.append("ndn");
   
-  const uint8_t name2[] = {0x1,  0xc, // Name
-                           0x2,  0x5, // NameComponent
-                           0x6c,  0x6f,  0x63,  0x61,  0x6c,
-                           0x2,  0x3, // NameComponent
-                           0x6e,  0x64,  0x6e};
-  
   BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
-                                name2, name2 + sizeof(name2));
+                                Name2, Name2 + sizeof(Name2));
 
   name.append("prefix");
   BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),

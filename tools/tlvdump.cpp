@@ -11,35 +11,39 @@
 #include <iomanip>
 #include <fstream>
 
-const uint32_t TLV_DICT_SIZE = 26;
+const uint32_t TLV_DICT_SIZE = 30;
 
 const std::string TLV_DICT[TLV_DICT_SIZE] = {
   "RESERVED", //      = 0
-  "Name", //          = 1,
-  "NameComponent", // = 2,
-  "Interest", //      = 3,
-  "Data", //          = 4,
-  "Selectors", //     = 5,
-  "Nonce", //         = 6,
-  "Scope", //         = 7,
-  "InterestLifetime", //          = 8,
-  "MinSuffixComponents", //       = 9,
-  "MaxSuffixComponents", //       = 10,
-  "PublisherPublicKeyLocator", // = 11,
-  "Exclude", //       = 12,
-  "ChildSelector", // = 13,
-  "MustBeFresh", //   = 14,
-  "Any", //           = 15,
-  "MetaInfo", //      = 16,
-  "Content", //       = 17,
-  "SignatureInfo", // = 18,
-  "SignatureValue", // = 19,
-  "ContentType", //   = 20,
-  "FreshnessPeriod", // = 21,
-  "SignatureType", // = 22,
-  "KeyLocator", //    = 23,
-  "KeyLocatorDigest", // = 24
-  "FinalBlockId" // = 25
+  "RESERVED", //      = 1
+  "RESERVED", //      = 2
+  "RESERVED", //      = 3
+  "RESERVED", //      = 4
+  "Interest", //      = 5,
+  "Data", //          = 6,
+  "Name", //          = 7,
+  "NameComponent", // = 8,
+  "Selectors", //     = 9,
+  "Nonce", //         = 10,
+  "Scope", //         = 11,
+  "InterestLifetime", //          = 12,
+  "MinSuffixComponents", //       = 13,
+  "MaxSuffixComponents", //       = 14,
+  "PublisherPublicKeyLocator", // = 15,
+  "Exclude", //       = 16,
+  "ChildSelector", // = 17,
+  "MustBeFresh", //   = 18,
+  "Any", //           = 19,
+  "MetaInfo", //      = 20,
+  "Content", //       = 21,
+  "SignatureInfo", // = 22,
+  "SignatureValue", // = 23,
+  "ContentType", //   = 24,
+  "FreshnessPeriod", // = 25,
+  "FinalBlockId" // = 26
+  "SignatureType", // = 27,
+  "KeyLocator", //    = 28,
+  "KeyLocatorDigest", // = 29
 };
 
 void
