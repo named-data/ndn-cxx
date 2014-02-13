@@ -476,7 +476,7 @@ private:
 
 
 
-#ifdef NDN_CPP_HAVE_OSX_SECURITY
+#if defined(NDN_CPP_HAVE_OSX_SECURITY) and defined(NDN_CPP_WITH_OSX_KEYCHAIN)
 
 namespace ndn
 {

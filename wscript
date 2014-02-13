@@ -30,6 +30,8 @@ def options(opt):
                    '''This option may be necessary if home directory is hosted on NFS.''')
     opt.add_option('--with-pch', action='store_true', default=False, dest='with_pch',
                    help='''Try to use precompiled header to speed up compilation (only gcc and clang)''')
+    opt.add_option('--without-osx-keychain', action='store_false', default=True, dest='with_osx_keychain',
+                   help='''On Darwin, do not use OSX keychain as a default TPM''')
 
 def configure(conf):
     conf.load("compiler_c compiler_cxx boost gnu_dirs c_osx openssl cryptopp")
@@ -116,6 +118,13 @@ def configure(conf):
         conf.define('DISABLE_SQLITE3_FS_LOCKING', 1)
     
     conf.env['WITH_PCH'] = conf.options.with_pch
+
+    if Utils.unversioned_sys_platform () == "darwin":
+        conf.env['WITH_OSX_KEYCHAIN'] = conf.options.with_osx_keychain
+        if conf.options.with_osx_keychain:
+            conf.define('WITH_OSX_KEYCHAIN', 1)
+    else:
+        conf.env['WITH_OSX_KEYCHAIN'] = False
     
     conf.write_config_header('src/ndn-cpp-config.h', define_prefix='NDN_CPP_')
 
