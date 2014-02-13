@@ -22,7 +22,7 @@ void
 CommandInterestGenerator::generate(Interest& interest, 
 				   const Name& certificateName /*= DEFAULT_CERTIFICATE_NAME*/)
 {
-  int64_t timestamp = time::now();
+  int64_t timestamp = time::now() / 1000000;
   while(timestamp == m_lastTimestamp)
     {
       usleep(1000); //Guarantee unqiueness of timestamp
