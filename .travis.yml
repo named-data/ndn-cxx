@@ -19,7 +19,7 @@ script:
   - sudo ldconfig
   - #
   - # Some tests now require daemon to run (and daemon needs the library to be compiled)
-  - travis_retry git clone git://github.com/cawka/ndnd-tlv ndnd-tlv
+  - travis_retry git clone git://github.com/named-data/ndnd-tlv ndnd-tlv
   - cd ndnd-tlv
   - ./waf configure
   - ./waf -j1
@@ -30,4 +30,4 @@ script:
   - ndnd-tlv-start
   - sleep 1
   - #
-  - ./build/unit-tests -l all
+  - ./build/unit-tests -l test_suite
