@@ -13,47 +13,46 @@
 
 #include "util/time.hpp"
 #include "util/random.hpp"
+#include <cstdlib>
 
 #include "management/ndnd-controller.hpp"
 #include "management/nfd-controller.hpp"
 
 namespace ndn {
 
-Face::Face(bool nfdMode/* = false*/)
+Face::Face()
 {
   construct(shared_ptr<Transport>(new UnixTransport()),
-            make_shared<boost::asio::io_service>(), nfdMode);
+            make_shared<boost::asio::io_service>());
 }
 
-Face::Face(const shared_ptr<boost::asio::io_service> &ioService, bool nfdMode/* = false*/)
+Face::Face(const shared_ptr<boost::asio::io_service> &ioService)
 {
   construct(shared_ptr<Transport>(new UnixTransport()),
-            ioService, nfdMode);
+            ioService);
 }
 
-Face::Face(const std::string &host, const std::string &port/* = "6363"*/, bool nfdMode/* = false*/)
+Face::Face(const std::string &host, const std::string &port/* = "6363"*/)
 {
   construct(shared_ptr<Transport>(new TcpTransport(host, port)),
-            make_shared<boost::asio::io_service>(), nfdMode);
+            make_shared<boost::asio::io_service>());
 }
 
-Face::Face(const shared_ptr<Transport>& transport, bool nfdMode/* = false*/)
+Face::Face(const shared_ptr<Transport>& transport)
 {
   construct(transport,
-            make_shared<boost::asio::io_service>(), nfdMode);
+            make_shared<boost::asio::io_service>());
 }
 
 Face::Face(const shared_ptr<Transport>& transport,
-           const shared_ptr<boost::asio::io_service> &ioService,
-           bool nfdMode/* = false*/)
+           const shared_ptr<boost::asio::io_service> &ioService)
 {
-  construct(transport, ioService, nfdMode);
+  construct(transport, ioService);
 }
 
 void
 Face::construct(const shared_ptr<Transport>& transport,
-                const shared_ptr<boost::asio::io_service> &ioService,
-                bool nfdMode)
+                const shared_ptr<boost::asio::io_service> &ioService)
 {
   pitTimeoutCheckTimerActive_ = false;
   transport_ = transport;
@@ -62,7 +61,7 @@ Face::construct(const shared_ptr<Transport>& transport,
   pitTimeoutCheckTimer_      = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
   processEventsTimeoutTimer_ = make_shared<boost::asio::deadline_timer>(boost::ref(*ioService_));
 
-  if (nfdMode)
+  if (std::getenv("NFD") != 0)
       m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
   else
       m_fwController = make_shared<ndnd::Controller>(boost::ref(*this));

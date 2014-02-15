@@ -10,6 +10,7 @@
 #include "unix-transport.hpp"
 
 #include "../face.hpp"
+#include <cstdlib>
 
 using namespace std;
 typedef boost::asio::local::stream_protocol protocol;
@@ -70,7 +71,7 @@ public:
     socket_.close();
     throw Transport::Error(error, "error while connecting to the forwarder");
   }
-  
+
   void
   connect()
   {
@@ -81,14 +82,14 @@ public:
       /// @todo Decide whether this number should be configurable
       connectTimer_.expires_from_now(boost::posix_time::seconds(4));
       connectTimer_.async_wait(func_lib::bind(&Impl::connectTimeoutHandler, this, _1));
-      
+
       socket_.open();
       socket_.async_connect(protocol::endpoint(transport_.unixSocket_),
                             func_lib::bind(&Impl::connectHandler, this, _1));
     }
   }
 
-  void 
+  void
   close()
   {
     connectTimer_.cancel();
@@ -96,8 +97,8 @@ public:
     transport_.isConnected_ = false;
   }
 
-  void 
-  send(const Block &wire)
+  void
+  send(const Block& wire)
   {
     if (!transport_.isConnected_)
       sendQueue_.push_back(wire);
@@ -107,7 +108,7 @@ public:
   }
 
   inline void
-  processAll(uint8_t *buffer, size_t &offset, size_t availableSize)
+  processAll(uint8_t* buffer, size_t& offset, size_t availableSize)
   {
     while(offset < availableSize)
       {
@@ -117,7 +118,7 @@ public:
         offset += element.size();
       }
   }
-  
+
   void
   handle_async_receive(const boost::system::error_code& error, std::size_t bytes_recvd)
   {
@@ -129,12 +130,12 @@ public:
           // async receive has been explicitly cancelled (e.g., socket close)
           return;
         }
-        
+
         socket_.close(); // closing at this point may not be that necessary
         transport_.isConnected_ = true;
         throw Transport::Error(error, "error while receiving data from socket");
       }
-    
+
     if (!error && bytes_recvd > 0)
       {
         // inputBuffer_ has bytes_recvd received bytes of data
@@ -144,7 +145,7 @@ public:
             std::copy(inputBuffer_, inputBuffer_ + newDataSize, partialData_ + partialDataSize_);
 
             partialDataSize_ += newDataSize;
-              
+
             size_t offset = 0;
             try
               {
@@ -154,7 +155,7 @@ public:
                 if (bytes_recvd - newDataSize > 0)
                   {
                     // there is a little bit more data available
-                        
+
                     offset = 0;
                     partialDataSize_ = bytes_recvd - newDataSize;
                     std::copy(inputBuffer_ + newDataSize, inputBuffer_ + newDataSize + partialDataSize_, partialData_);
@@ -213,10 +214,10 @@ public:
   {
     // pass (needed to keep data block alive during the send)
   }
-  
+
 private:
   UnixTransport &transport_;
-  
+
   protocol::socket socket_;
   uint8_t inputBuffer_[MAX_LENGTH];
 
@@ -229,7 +230,16 @@ private:
   boost::asio::deadline_timer connectTimer_;
 };
 
-UnixTransport::UnixTransport(const std::string &unixSocket/* = "/tmp/.ndnd.sock"*/) 
+
+UnixTransport::UnixTransport()
+{
+  if (std::getenv("NFD") != 0)
+      unixSocket_ = "/var/run/nfd.sock";
+  else
+      unixSocket_ = "/tmp/.ndnd.sock";
+}
+
+UnixTransport::UnixTransport(const std::string& unixSocket)
   : unixSocket_(unixSocket)
 {
 }
@@ -238,25 +248,25 @@ UnixTransport::~UnixTransport()
 {
 }
 
-void 
-UnixTransport::connect(boost::asio::io_service &ioService,
-                       const ReceiveCallback &receiveCallback)
+void
+UnixTransport::connect(boost::asio::io_service& ioService,
+                       const ReceiveCallback& receiveCallback)
 {
   if (!static_cast<bool>(impl_)) {
     Transport::connect(ioService, receiveCallback);
-  
+
     impl_ = ptr_lib::make_shared<UnixTransport::Impl> (ptr_lib::ref(*this));
   }
   impl_->connect();
 }
 
-void 
-UnixTransport::send(const Block &wire)
+void
+UnixTransport::send(const Block& wire)
 {
   impl_->send(wire);
 }
 
-void 
+void
 UnixTransport::close()
 {
   impl_->close();
