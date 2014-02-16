@@ -55,6 +55,24 @@ public:
     m_begin = m_end = m_buffer->end () - (reserveFromBack < totalReserve ? reserveFromBack : 0);
   }
 
+  /**
+   * @brief Create EncodingBlock from existing block
+   *
+   * This is a dangerous constructor and should be used with caution.
+   * It will modify contents of the buffer that is used by block and may
+   * impact data in other blocks.
+   *
+   * The primary purpose for this method is to be used to extend Block
+   * after sign operation.
+   */
+  explicit
+  EncodingImpl (const Block& block)
+    : m_buffer(const_pointer_cast<Buffer>(block.m_buffer))
+    , m_begin(m_buffer->begin() + (block.begin() - m_buffer->begin()))
+    , m_end(m_buffer->begin()   + (block.end()   - m_buffer->begin()))
+  {
+  }
+  
   inline size_t
   size () const;
 
@@ -128,6 +146,8 @@ private:
   Buffer::iterator m_begin;
   // invariant: m_end always points to the position of next unwritten byte (if appending data)
   Buffer::iterator m_end;
+
+  friend class Block;
 };
 
 

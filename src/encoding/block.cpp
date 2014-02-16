@@ -11,12 +11,30 @@
 
 #include "block.hpp"
 #include "tlv.hpp"
+#include "encoding-buffer.hpp"
 
 namespace ndn {
 
 Block::Block()
   : m_type(std::numeric_limits<uint32_t>::max())
 {
+}
+
+Block::Block(const EncodingBuffer& buffer)
+  : m_buffer(buffer.m_buffer)
+  , m_begin(buffer.begin())
+  , m_end(buffer.end())
+  , m_size(m_end - m_begin)
+{
+  m_value_begin = m_begin;
+  m_value_end   = m_end;
+
+  m_type = Tlv::readType(m_value_begin, m_value_end);
+  uint64_t length = Tlv::readVarNumber(m_value_begin, m_value_end);
+  if (length != static_cast<uint64_t>(m_value_end - m_value_begin))
+    {
+      throw Tlv::Error("TLV length doesn't match buffer length");
+    }
 }
 
 Block::Block(const ConstBufferPtr &wire,

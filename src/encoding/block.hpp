@@ -39,6 +39,12 @@ public:
   Block();
 
   /**
+   * @brief Create block based on EncodingBuffer object
+   */
+  explicit
+  Block(const EncodingBuffer& buffer);
+  
+  /**
    * @brief A helper version of a constructor to create Block from the raw buffer (type and value-length parsing)
    */
   Block(const ConstBufferPtr &buffer);

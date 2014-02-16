@@ -54,6 +54,10 @@ using std::shared_ptr;
 using std::make_shared;
 using std::enable_shared_from_this;
 
+using std::static_pointer_cast;
+using std::dynamic_pointer_cast;
+using std::const_pointer_cast;
+
 using std::function;
 using std::bind;
 using std::placeholders; // _1, _2, ..
@@ -78,6 +82,10 @@ namespace func_lib = boost;
 using boost::shared_ptr;
 using boost::make_shared;
 using boost::enable_shared_from_this;
+
+using boost::static_pointer_cast;
+using boost::dynamic_pointer_cast;
+using boost::const_pointer_cast;
 
 using boost::function;
 using boost::bind;
