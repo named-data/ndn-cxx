@@ -50,7 +50,8 @@ typedef function<void(const Name&, const std::string&)> OnSetInterestFilterFaile
 /**
  * @brief Abstraction to communicate with local or remote NDN forwarder
  */
-class Face {
+class Face : noncopyable
+{
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
 

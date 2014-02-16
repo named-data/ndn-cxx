@@ -47,8 +47,10 @@
 namespace ndn {
 
 namespace ptr_lib = std;
-namespace func_lib = std
-  
+namespace func_lib = std;
+
+using std::noncopyable;
+
 using std::shared_ptr;
 using std::make_shared;
 using std::enable_shared_from_this;
@@ -73,6 +75,8 @@ namespace ndn {
 
 namespace ptr_lib = boost;
 namespace func_lib = boost;
+
+using boost::noncopyable;
 
 using boost::shared_ptr;
 using boost::make_shared;
