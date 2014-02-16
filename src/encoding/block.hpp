@@ -17,6 +17,9 @@
 
 namespace ndn {
 
+template<bool> class EncodingImpl;
+typedef EncodingImpl<true> EncodingBuffer;
+
 /**
  * @brief Class representing wire element of the NDN packet
  */
@@ -223,6 +226,7 @@ protected:
   Buffer::const_iterator m_value_end;
 
   mutable element_container m_subBlocks;
+  friend class EncodingImpl<true>;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

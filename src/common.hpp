@@ -30,6 +30,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/asio.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/utility.hpp>
 
 #include <boost/iostreams/detail/ios.hpp>
 #include <boost/iostreams/categories.hpp>
@@ -48,8 +49,6 @@ namespace ndn {
 
 namespace ptr_lib = std;
 namespace func_lib = std;
-
-using std::noncopyable;
 
 using std::shared_ptr;
 using std::make_shared;
@@ -76,8 +75,6 @@ namespace ndn {
 namespace ptr_lib = boost;
 namespace func_lib = boost;
 
-using boost::noncopyable;
-
 using boost::shared_ptr;
 using boost::make_shared;
 using boost::enable_shared_from_this;
@@ -91,6 +88,7 @@ using boost::bind;
 
 namespace ndn {
 
+using boost::noncopyable;
 
 /**
  * A time interval represented as the number of milliseconds.

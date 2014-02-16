@@ -18,6 +18,7 @@
 
 #include "buffer.hpp"
 #include "tlv.hpp"
+#include "block.hpp"
 
 #include <boost/lexical_cast.hpp>
 

@@ -39,8 +39,8 @@ Block::Block(const ConstBufferPtr &buffer)
   , m_end(m_buffer->end())
   , m_size(m_end - m_begin)
 {
-  m_value_begin = m_buffer->begin();
-  m_value_end   = m_buffer->end();
+  m_value_begin = m_begin;
+  m_value_end   = m_end;
   
   m_type = Tlv::readType(m_value_begin, m_value_end);
 
@@ -58,8 +58,8 @@ Block::Block(const ConstBufferPtr &buffer,
   , m_end(end)
   , m_size(m_end - m_begin)
 {
-  m_value_begin = m_buffer->begin();
-  m_value_end   = m_buffer->end();
+  m_value_begin = m_begin;
+  m_value_end   = m_end;
 
   m_type = Tlv::readType(m_value_begin, m_value_end);
   uint64_t length = Tlv::readVarNumber(m_value_begin, m_value_end);
