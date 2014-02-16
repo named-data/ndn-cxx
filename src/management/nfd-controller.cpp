@@ -9,6 +9,7 @@
 
 #include "nfd-controller.hpp"
 #include "nfd-fib-management-options.hpp"
+#include "nfd-face-management-options.hpp"
 #include "nfd-control-response.hpp"
 
 namespace ndn {
@@ -45,7 +46,7 @@ Controller::selfDeregisterPrefix(const Name& prefixToRegister,
         onFail("Face ID is not set, should have been set after a successful prefix registration command");
       return;
     }
-  
+
   startFibCommand("remove-nexthop",
                   FibManagementOptions()
                   .setName(prefixToRegister)
@@ -65,7 +66,7 @@ Controller::startFibCommand(const std::string& command,
     .append(options.wireEncode());
 
   Interest fibCommandInterest(fibCommandInterestName);
-  m_keyChain.sign(fibCommandInterest);
+  // m_keyChain.sign(fibCommandInterest);
 
   m_face.expressInterest(fibCommandInterest,
                          bind(&Controller::processFibCommandResponse, this, _2,
@@ -81,11 +82,6 @@ Controller::recordSelfRegisteredFaceId(const FibManagementOptions& entry,
   onSuccess();
 }
 
-// void
-// processFaceActionResponse(Data& data,
-//                           const FaceOperationSucceedCallback& onSuccess,
-//                           const FailCallback&    onFail);
-
 void
 Controller::processFibCommandResponse(Data& data,
                                       const FibCommandSucceedCallback& onSuccess,
@@ -94,7 +90,6 @@ Controller::processFibCommandResponse(Data& data,
   try
     {
       ControlResponse response(data.getContent().blockFromValue());
-
       if (response.getCode() != 200)
         return onFail(response.getText());
 
@@ -108,5 +103,45 @@ Controller::processFibCommandResponse(Data& data,
     }
 }
 
+void
+Controller::startFaceCommand(const std::string& command,
+                             const FaceManagementOptions& options,
+                             const FaceCommandSucceedCallback& onSuccess,
+                             const FailCallback& onFail)
+{
+  Name faceCommandInterestName("/localhost/nfd/faces");
+  faceCommandInterestName
+    .append(command)
+    .append(options.wireEncode());
+
+  Interest faceCommandInterest(faceCommandInterestName);
+  // m_keyChain.sign(fibCommandInterest);
+
+  m_face.expressInterest(faceCommandInterest,
+                         bind(&Controller::processFaceCommandResponse, this, _2,
+                              onSuccess, onFail),
+                         bind(onFail, "Command Interest timed out"));
+}
+
+void
+Controller::processFaceCommandResponse(Data& data,
+                                       const FaceCommandSucceedCallback& onSuccess,
+                                       const FailCallback& onFail)
+{
+  try
+    {
+      ControlResponse response(data.getContent().blockFromValue());
+      if (response.getCode() != 200)
+        return onFail(response.getText());
+
+      FaceManagementOptions options(response.getBody());
+      return onSuccess(options);
+    }
+  catch(ndn::Tlv::Error& e)
+    {
+      if (static_cast<bool>(onFail))
+        return onFail(e.what());
+    }
+}
 } // namespace nfd
 } // namespace ndn

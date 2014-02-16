@@ -66,15 +66,12 @@ public:
   wireDecode (const Block &wire);
   
 private:
-  static const uint64_t INVALID_FACE_ID;
-
   uint64_t m_faceId;
   std::string m_uri;
 
   mutable Block wire_;
 };
 
-const uint64_t FaceManagementOptions::INVALID_FACE_ID = std::numeric_limits<uint64_t>::max();
 
 template<bool T>
 inline size_t

@@ -40,6 +40,13 @@ enum {
 
 } // namespace nfd
 } // namespace tlv
+
+namespace nfd {
+
+const uint64_t INVALID_FACE_ID = std::numeric_limits<uint64_t>::max();
+
+} // namespace nfd
+
 } // namespace ndn
 
 #endif // NDN_TLV_NFD_HPP

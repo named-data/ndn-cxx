@@ -13,8 +13,6 @@
 namespace ndn {
 namespace nfd {
 
-const uint64_t INVALID_FACE_ID = std::numeric_limits<uint64_t>::max();
-
 class LocalControlHeader
 {
 public:
