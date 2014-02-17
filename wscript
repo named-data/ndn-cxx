@@ -7,12 +7,12 @@ from waflib.Tools import c_preproc
 
 def options(opt):
     opt.load('compiler_c compiler_cxx gnu_dirs c_osx')
-    opt.load('boost doxygen openssl cryptopp', tooldir=['.waf-tools'])
+    opt.load('boost doxygen openssl cryptopp coverage', tooldir=['.waf-tools'])
 
     opt = opt.add_option_group('NDN-CPP Options')
 
     opt.add_option('--debug',action='store_true',default=False,dest='debug',help='''debugging mode''')
-    
+
     opt.add_option('--with-tests', action='store_true',default=False,dest='with_tests',
                    help='''build unit tests''')
     opt.add_option('--with-log4cxx', action='store_true',default=False,dest='log4cxx',
@@ -27,7 +27,7 @@ def options(opt):
 
     opt.add_option('--without-sqlite-locking', action='store_false', default=True, dest='with_sqlite_locking',
                    help='''Disable filesystem locking in sqlite3 database (use unix-dot locking mechanism instead). '''
-                   '''This option may be necessary if home directory is hosted on NFS.''')
+                        '''This option may be necessary if home directory is hosted on NFS.''')
     opt.add_option('--with-pch', action='store_true', default=False, dest='with_pch',
                    help='''Try to use precompiled header to speed up compilation (only gcc and clang)''')
     opt.add_option('--without-osx-keychain', action='store_false', default=True, dest='with_osx_keychain',
@@ -112,11 +112,11 @@ def configure(conf):
 
     conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
-    conf.check_cxx(cxxflags=['-fPIC'], uselib_store='PIC', mandatory=False)
+    conf.check_cxx(cxxflags=['-fPIC'], uselib_store='cxxstlib', mandatory=False)
 
     if not conf.options.with_sqlite_locking:
         conf.define('DISABLE_SQLITE3_FS_LOCKING', 1)
-    
+
     conf.env['WITH_PCH'] = conf.options.with_pch
 
     if Utils.unversioned_sys_platform () == "darwin":
@@ -125,7 +125,9 @@ def configure(conf):
             conf.define('WITH_OSX_KEYCHAIN', 1)
     else:
         conf.env['WITH_OSX_KEYCHAIN'] = False
-    
+
+    conf.load("coverage")
+
     conf.write_config_header('src/ndn-cpp-config.h', define_prefix='NDN_CPP_')
 
 def build (bld):
@@ -144,7 +146,7 @@ def build (bld):
 
     if bld.env['WITH_PCH']:
         libndn_cpp.pch = "src/common.hpp"
-    
+
     if Utils.unversioned_sys_platform () == "darwin":
         libndn_cpp.source += bld.path.ant_glob('src/**/*-osx.cpp')
         libndn_cpp.mac_app = True
@@ -156,7 +158,9 @@ def build (bld):
 
     pkgconfig_libs = []
     pkgconfig_ldflags = []
+    pkgconfig_linkflags = []
     pkgconfig_includes = []
+    pkgconfig_cxxflags = []
     for lib in Utils.to_list(libndn_cpp.use):
         if bld.env['LIB_%s' % lib]:
             pkgconfig_libs += Utils.to_list(bld.env['LIB_%s' % lib])
@@ -164,16 +168,20 @@ def build (bld):
             pkgconfig_ldflags += Utils.to_list(bld.env['LIBPATH_%s' % lib])
         if bld.env['INCLUDES_%s' % lib]:
             pkgconfig_includes += Utils.to_list(bld.env['INCLUDES_%s' % lib])
+        if bld.env['LINKFLAGS_%s' % lib]:
+            pkgconfig_linkflags += Utils.to_list(bld.env['LINKFLAGS_%s' % lib])
+        if bld.env['CXXFLAGS_%s' % lib]:
+            pkgconfig_cxxflags += Utils.to_list(bld.env['CXXFLAGS_%s' % lib])
 
     EXTRA_FRAMEWORKS = "";
     if Utils.unversioned_sys_platform () == "darwin":
         EXTRA_FRAMEWORKS = "-framework CoreFoundation -framework Security"
-        
+
     def uniq(alist):
         set = {}
         return [set.setdefault(e,e) for e in alist if e not in set]
-                        
-    bld (features = "subst",
+
+    pkconfig = bld (features = "subst",
          source = "libndn-cpp-dev.pc.in",
          target = "libndn-cpp-dev.pc",
          install_path = "${LIBDIR}/pkgconfig",
@@ -183,10 +191,12 @@ def build (bld):
          # that use the library
          EXTRA_LIBS = " ".join([('-l%s' % i) for i in uniq(pkgconfig_libs)]),
          EXTRA_LDFLAGS = " ".join([('-L%s' % i) for i in uniq(pkgconfig_ldflags)]),
+         EXTRA_LINKFLAGS = " ".join(uniq(pkgconfig_linkflags)),
          EXTRA_INCLUDES = " ".join([('-I%s' % i) for i in uniq(pkgconfig_includes)]),
+         EXTRA_CXXFLAGS = " ".join(uniq(pkgconfig_cxxflags)),
          EXTRA_FRAMEWORKS = EXTRA_FRAMEWORKS,
         )
-            
+
     # Unit tests
     if bld.env['WITH_TESTS']:
         bld.recurse('tests')
@@ -195,7 +205,7 @@ def build (bld):
         bld.recurse("tools examples")
     else:
         bld.recurse("examples")
-      
+
     headers = bld.path.ant_glob(['src/**/*.hpp'])
     bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], headers, relative_trick=True, cwd=bld.path.find_node('src'))
 
@@ -262,4 +272,3 @@ class gchx(Task.Task):
     def post_run(self):
         super(gchx, self).post_run()
         self.orig_self.env['CXXFLAGS'] = ['-include', self.inputs[0].relpath()] + self.env['CXXFLAGS']
-
