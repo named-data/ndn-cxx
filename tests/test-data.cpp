@@ -195,8 +195,6 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
 
   BOOST_REQUIRE_EQUAL_COLLECTIONS(Data1, Data1+sizeof(Data1),
                                   dataBlock.begin(), dataBlock.end());
-
-
 }
 
 BOOST_AUTO_TEST_CASE (EncodeMetaInfo)

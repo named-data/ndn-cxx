@@ -4,23 +4,51 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "command-interest-generator.hpp"
+#ifndef NDN_HELPERS_COMMAND_INTEREST_GENERATOR_HPP
+#define NDN_HELPERS_COMMAND_INTEREST_GENERATOR_HPP
+
+#include "../interest.hpp"
+#include "../security/key-chain.hpp"
 #include "../util/time.hpp"
 #include "../util/random.hpp"
 
-#include <unistd.h>
+namespace ndn {
 
-namespace ndn
+/**
+ * @brief Helper class to generate CommandInterests
+ *
+ * @see http://redmine.named-data.net/projects/nfd/wiki/Command_Interests
+ */
+class CommandInterestGenerator
 {
-const Name CommandInterestGenerator::DEFAULT_CERTIFICATE_NAME = Name();
+public:
+  static const Name DEFAULT_CERTIFICATE_NAME;
 
-CommandInterestGenerator::CommandInterestGenerator()
-  : m_lastTimestamp(time::now() / 1000000)
-{}
+  CommandInterestGenerator()
+    : m_lastTimestamp(time::now() / 1000000)
+  {
+  }
 
-void
+  virtual
+  ~CommandInterestGenerator()
+  {
+  }
+
+  void
+  generate(Interest& interest, const Name& certificateName = Name());
+  
+  void
+  generateWithIdentity(Interest& interest, const Name& identity);
+  
+private:
+  int64_t m_lastTimestamp;
+  KeyChain m_keyChain;
+};
+
+
+inline void
 CommandInterestGenerator::generate(Interest& interest, 
-				   const Name& certificateName /*= DEFAULT_CERTIFICATE_NAME*/)
+				   const Name& certificateName /*= Name()*/)
 {
   int64_t timestamp = time::now() / 1000000;
   while(timestamp == m_lastTimestamp)
@@ -35,7 +63,7 @@ CommandInterestGenerator::generate(Interest& interest,
     .append(name::Component::fromNumber(random::generateWord64()));
   interest.setName(commandInterestName);
 
-  if(certificateName == DEFAULT_CERTIFICATE_NAME)
+  if(certificateName.empty())
     m_keyChain.sign(interest);
   else
     m_keyChain.sign(interest, certificateName);
@@ -43,7 +71,7 @@ CommandInterestGenerator::generate(Interest& interest,
   m_lastTimestamp = timestamp;
 }
   
-void
+inline void
 CommandInterestGenerator::generateWithIdentity(Interest& interest, const Name& identity)
 {
   int64_t timestamp = time::now() / 1000000;
@@ -61,4 +89,7 @@ CommandInterestGenerator::generateWithIdentity(Interest& interest, const Name& i
   m_lastTimestamp = timestamp;
 }
 
-}//ndn
+
+} // namespace ndn
+
+#endif // NDN_HELPERS_COMMAND_INTEREST_GENERATOR_HPP
