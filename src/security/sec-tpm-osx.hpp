@@ -86,7 +86,10 @@ public:
    * @return True if the key exists, otherwise false.
    */
   virtual bool
-  doesKeyExistInTpm(const Name& keyName, KeyClass keyClass);  
+  doesKeyExistInTpm(const Name& keyName, KeyClass keyClass); 
+
+  virtual bool
+  generateRandomBlock(uint8_t* res, size_t size); 
 
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +120,7 @@ public:
 
  private:
   class Impl;
-  std::auto_ptr<Impl> m_impl;
+  shared_ptr<Impl> m_impl;
 };
   
 } // namespace ndn

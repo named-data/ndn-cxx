@@ -19,6 +19,7 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>
+#include <Security/SecRandom.h>
 #include <CoreServices/CoreServices.h>
 
 using namespace std;
@@ -562,6 +563,11 @@ SecTpmOsx::doesKeyExistInTpm(const Name & keyName, KeyClass keyClass)
 
 }
 
+bool
+SecTpmOsx::generateRandomBlock(uint8_t* res, size_t size)
+{
+  return (SecRandomCopyBytes(kSecRandomDefault, size, res) == 0);
+}
 
 ////////////////////////////////
 // OSXPrivateKeyStorage::Impl //

@@ -13,6 +13,7 @@
 #include <openssl/ssl.h>
 #include <openssl/sha.h>
 #include <openssl/rsa.h>
+#include <cryptopp/osrng.h>
 
 using namespace std;
 
@@ -152,6 +153,18 @@ SecTpmMemory::doesKeyExistInTpm(const Name& keyName, KeyClass keyClass)
   else
     // KEY_CLASS_SYMMETRIC not implemented yet.
     return false;
+}
+
+bool
+SecTpmMemory::generateRandomBlock(uint8_t* res, size_t size)
+{
+  try{
+    CryptoPP::AutoSeededRandomPool rng;
+    rng.GenerateBlock(res, size);
+    return true;
+  }catch(const CryptoPP::Exception& e){
+    return false;
+  }
 }
 
 }

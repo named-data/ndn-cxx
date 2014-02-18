@@ -102,6 +102,16 @@ public:
    */
   virtual bool
   doesKeyExistInTpm(const Name& keyName, KeyClass keyClass) = 0;  
+
+  /**
+   * @brief Generate a random number.
+   * 
+   * @param res The pointer to the generated number.
+   * @param size The random number size.
+   * @return true for success, otherwise false.
+   */
+  virtual bool
+  generateRandomBlock(uint8_t* res, size_t size) = 0;
 };
 
 }

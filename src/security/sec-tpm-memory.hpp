@@ -107,6 +107,9 @@ public:
   virtual void 
   generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize);
 
+  virtual bool
+  generateRandomBlock(uint8_t* res, size_t size);
+
   /**
    * Check if a particular key exists.
    * @param keyName The name of the key.

@@ -108,6 +108,8 @@ public:
 
   std::string
   nameTransform(const std::string &keyName, const std::string &extension);
+  virtual bool
+  generateRandomBlock(uint8_t* res, size_t size);
 
 private:
   void 
@@ -115,8 +117,9 @@ private:
   
 private:
   class Impl;
-  std::auto_ptr<Impl> impl_;
+  shared_ptr<Impl> m_impl;
 };
+
 }//ndn
 
 #endif

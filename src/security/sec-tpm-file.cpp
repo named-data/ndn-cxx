@@ -35,7 +35,7 @@ namespace ndn
 
 class SecTpmFile::Impl {
 public:
-  Impl(const string &dir)
+  Impl(const string& dir)
   {
     if(dir.empty())
       m_keystorePath = boost::filesystem::path(getenv("HOME")) / ".ndnx" / "ndnsec-tpm-file";
@@ -49,8 +49,9 @@ public:
   boost::filesystem::path m_keystorePath;
 };
 
+
 SecTpmFile::SecTpmFile(const string & dir)
-  : impl_(new Impl(dir))
+  : m_impl(new Impl(dir))
 {}
 
 void
@@ -70,7 +71,9 @@ SecTpmFile::generateKeyPairInTpm(const Name & keyName, KeyType keyType, int keyS
     switch(keyType){
     case KEY_TYPE_RSA:
       {
-	AutoSeededRandomPool rng;
+        using namespace CryptoPP;
+        AutoSeededRandomPool rng;
+
 	InvertibleRSAFunction privateKey;
 	privateKey.Initialize(rng, keySize);
 	
@@ -139,8 +142,9 @@ SecTpmFile::signInTpm(const uint8_t *data, size_t dataLength, const Name& keyNam
     throw Error("private key doesn't exists");
  
   try{
+    using namespace CryptoPP;
     AutoSeededRandomPool rng;
-      
+
     //Read private key
     ByteQueue bytes;
     string privateKeyFileName = nameTransform(keyURI, ".pri");
@@ -180,8 +184,9 @@ SecTpmFile::decryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLe
 	throw Error("private key doesn't exist");
 
       try{
-	AutoSeededRandomPool rng;
-	
+	using namespace CryptoPP;
+        AutoSeededRandomPool rng;
+
 	//Read private key
 	ByteQueue bytes;
 	string privateKeyFileName = nameTransform(keyURI, ".pri");
@@ -241,7 +246,8 @@ SecTpmFile::encryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLe
 	throw Error("public key doesn't exist");
       try
 	{
-	  AutoSeededRandomPool rng;
+          using namespace CryptoPP;
+          AutoSeededRandomPool rng;
 
 	  //Read private key
 	  ByteQueue bytes;
@@ -307,9 +313,11 @@ SecTpmFile::generateSymmetricKeyInTpm(const Name & keyName, KeyType keyType, int
     switch(keyType){
     case KEY_TYPE_AES:
       {
-	AutoSeededRandomPool rnd;
+        using namespace CryptoPP;
+        AutoSeededRandomPool rng;
+
 	SecByteBlock key(0x00, keySize);
-	rnd.GenerateBlock(key, keySize );
+	rng.GenerateBlock(key, keySize);
 	
 	StringSource(key, key.size(), true, new HexEncoder(new FileSink(symKeyFileName.c_str())));
 	
@@ -376,18 +384,30 @@ std::string SecTpmFile::nameTransform(const string &keyName, const string &exten
         }
     }
 
-  return (impl_->m_keystorePath / (digest + extension)).string();
+  return (m_impl->m_keystorePath / (digest + extension)).string();
 }
 
 void 
 SecTpmFile::maintainMapping(string str1, string str2)
 {
   std::ofstream outfile;
-  string dirFile = (impl_->m_keystorePath / "mapping.txt").string();
+  string dirFile = (m_impl->m_keystorePath / "mapping.txt").string();
 
   outfile.open(dirFile.c_str(), std::ios_base::app);
   outfile << str1 << ' ' << str2 << '\n';
   outfile.close();
+}
+
+bool
+SecTpmFile::generateRandomBlock(uint8_t* res, size_t size)
+{
+  try{
+    CryptoPP::AutoSeededRandomPool rng;
+    rng.GenerateBlock(res, size);
+    return true;
+  }catch(const CryptoPP::Exception& e){
+    return false;
+  }
 }
 
 } //ndn
