@@ -8,7 +8,7 @@
 #define NDN_MANAGEMENT_NFD_FACE_MANAGEMENT_OPTIONS_HPP
 
 #include "../encoding/encoding-buffer.hpp"
-#include "../encoding/tlv-nfd-control.hpp"
+#include "../encoding/tlv-nfd.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -87,7 +87,7 @@ FaceManagementOptions::wireEncode(EncodingImpl<T>& blk) const
       size_t var_len = blk.prependByteArray (reinterpret_cast<const uint8_t*>(m_uri.c_str()), m_uri.size());
       total_len += var_len;
       total_len += blk.prependVarNumber (var_len);
-      total_len += blk.prependVarNumber (tlv::nfd_control::Uri);
+      total_len += blk.prependVarNumber (tlv::nfd::Uri);
     }
 
   if (m_faceId != INVALID_FACE_ID)
@@ -95,11 +95,11 @@ FaceManagementOptions::wireEncode(EncodingImpl<T>& blk) const
       size_t var_len = blk.prependNonNegativeInteger (m_faceId);
       total_len += var_len;
       total_len += blk.prependVarNumber (var_len);
-      total_len += blk.prependVarNumber (tlv::nfd_control::FaceId);
+      total_len += blk.prependVarNumber (tlv::nfd::FaceId);
     }
 
   total_len += blk.prependVarNumber (total_len);
-  total_len += blk.prependVarNumber (tlv::nfd_control::FaceManagementOptions);
+  total_len += blk.prependVarNumber (tlv::nfd::FaceManagementOptions);
   return total_len;
 }
 
@@ -127,20 +127,20 @@ FaceManagementOptions::wireDecode (const Block &wire)
 
   wire_ = wire;
 
-  if (wire_.type() != tlv::nfd_control::FaceManagementOptions)
+  if (wire_.type() != tlv::nfd::FaceManagementOptions)
     throw Error("Requested decoding of FaceManagementOptions, but Block is of different type");
   
   wire_.parse ();
 
   // FaceID
-  Block::element_const_iterator val = wire_.find(tlv::nfd_control::FaceId);
+  Block::element_const_iterator val = wire_.find(tlv::nfd::FaceId);
   if (val != wire_.elements_end())
     {
       m_faceId = readNonNegativeInteger(*val);
     }
 
   // Uri
-  val = wire_.find(tlv::nfd_control::Uri);
+  val = wire_.find(tlv::nfd::Uri);
   if (val != wire_.elements_end())
     {
       m_uri.append(reinterpret_cast<const char*>(val->value()), val->value_size());

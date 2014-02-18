@@ -7,14 +7,14 @@
  * Author: Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  */
 
-#ifndef NDN_TLV_FACE_MANAGEMENT_HPP
-#define NDN_TLV_FACE_MANAGEMENT_HPP
+#ifndef NDN_TLV_NDND_HPP
+#define NDN_TLV_NDND_HPP
 
 #include "tlv.hpp"
 
 namespace ndn {
-namespace Tlv {
-namespace FaceManagement {
+namespace tlv {
+namespace ndnd {
 
 enum {
   FaceInstance       = 128,
@@ -43,8 +43,17 @@ enum {
   FORW_CAPTURE_OK   = 128
 };
 
+} // namespace ndnd
+} // namespace tlv
+
+
+// temporary, until all the dependent code is updated
+namespace Tlv {
+namespace FaceManagement {
+using namespace ::ndn::tlv::ndnd;
 } // namespace FaceManagement
 } // namespace Tlv
+
 } // namespace ndn
 
-#endif // NDN_TLV_FACE_MANAGEMENT_HPP
+#endif // NDN_TLV_NDND_HPP

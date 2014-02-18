@@ -203,20 +203,20 @@ private:
   typedef std::list<shared_ptr<RegisteredPrefix> > RegisteredPrefixTable;
   
   void
-  asyncExpressInterest(const shared_ptr<const Interest> &interest,
+  asyncExpressInterest(const shared_ptr<const Interest>& interest,
                        const OnData& onData, const OnTimeout& onTimeout);
 
   void
-  asyncRemovePendingInterest(const PendingInterestId *pendingInterestId);
+  asyncRemovePendingInterest(const PendingInterestId* pendingInterestId);
 
   void
-  asyncUnsetInterestFilter(const RegisteredPrefixId *registeredPrefixId);
+  asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
 
   void
   finalizeUnsertInterestFilter(RegisteredPrefixTable::iterator item);
   
   void 
-  onReceiveElement(const Block &wire);
+  onReceiveElement(const Block& wire);
 
   
   static void
@@ -241,26 +241,6 @@ private:
   
   void
   checkPitExpire();
-
-  /**
-   * @brief Encode local control header.
-   *
-   * @param blockWithoutHeader Encoded block of interest or data packet.
-   * @param nextHopFaceId Id of the face from which packet will be sent.
-   * @return The encoded block with local control header.
-   */
-  static Block
-  wireEncodeLocalControlHeader(const Block& blockWithoutHeader, uint64_t nextHopFaceId);
-
-  /**
-   * @brief Decode local control header.
-   *
-   * @param blockWithHeader Encoded block with local control header.
-   * @param incomingFaceId On return, the id of the face from which packet is received.
-   * @return The encoded block of interest or data packet.
-   */
-  static Block
-  wireDecodeLocalControlHeader(const Block& blockWithHeader, uint64_t& incomingFaceId);
 
 private:
   shared_ptr<boost::asio::io_service> m_ioService;

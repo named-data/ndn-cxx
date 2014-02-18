@@ -7,7 +7,7 @@
 #ifndef NDN_MANAGEMENT_NDND_FORWARDING_ENTRY_HPP
 #define NDN_MANAGEMENT_NDND_FORWARDING_ENTRY_HPP
 
-#include "../encoding/tlv-face-management.hpp"
+#include "../encoding/tlv-ndnd.hpp"
 #include "../name.hpp"
 #include "../encoding/block.hpp"
 
@@ -99,13 +99,13 @@ ForwardingEntry::wireEncode() const
   //                       ForwardingFlags?
   //                       FreshnessPeriod?
   
-  wire_ = Block(Tlv::FaceManagement::ForwardingEntry);
+  wire_ = Block(tlv::ndnd::ForwardingEntry);
 
   // Action
   if (!action_.empty())
     {
       wire_.push_back
-        (dataBlock(Tlv::FaceManagement::Action, action_.c_str(), action_.size()));
+        (dataBlock(tlv::ndnd::Action, action_.c_str(), action_.size()));
     }
 
   // Name
@@ -116,7 +116,7 @@ ForwardingEntry::wireEncode() const
   if (faceId_ >= 0)
     {
       wire_.push_back
-        (nonNegativeIntegerBlock(Tlv::FaceManagement::FaceID, faceId_));
+        (nonNegativeIntegerBlock(tlv::ndnd::FaceID, faceId_));
     }
 
   // ForwardingFlags
@@ -154,7 +154,7 @@ ForwardingEntry::wireDecode(const Block &wire)
   //                       FreshnessPeriod?
 
   // Action
-  Block::element_const_iterator val = wire_.find(Tlv::FaceManagement::Action);
+  Block::element_const_iterator val = wire_.find(tlv::ndnd::Action);
   if (val != wire_.elements_end())
     {
       action_ = std::string(reinterpret_cast<const char*>(val->value()), val->value_size());
@@ -168,14 +168,14 @@ ForwardingEntry::wireDecode(const Block &wire)
     }
 
   // FaceID
-  val = wire_.find(Tlv::FaceManagement::FaceID);
+  val = wire_.find(tlv::ndnd::FaceID);
   if (val != wire_.elements_end())
     {
       faceId_ = readNonNegativeInteger(*val);
     }
 
   // ForwardingFlags
-  val = wire_.find(Tlv::FaceManagement::ForwardingFlags);
+  val = wire_.find(tlv::ndnd::ForwardingFlags);
   if (val != wire_.elements_end())
     {
       forwardingFlags_.wireDecode(*val);

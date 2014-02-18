@@ -7,12 +7,12 @@
  * Author: Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  */
 
-#ifndef NDN_TLV_NFD_CONTROL_HPP
-#define NDN_TLV_NFD_CONTROL_HPP
+#ifndef NDN_TLV_NFD_HPP
+#define NDN_TLV_NFD_HPP
 
 namespace ndn {
 namespace tlv {
-namespace nfd_control {
+namespace nfd {
 
 enum {
   // ControlResponse
@@ -28,18 +28,18 @@ enum {
 
   // Face Management Protocol
   FaceManagementOptions = 108,
-  Uri                   = 114,
-
-  // Local Control Header
-  LocalControlHeader = 109,
-  LocalControlInfo   = 110,
-  IncomingFaceId     = 111,
-  NextHopFaceId      = 112
+  Uri                   = 114
 };
 
+enum {
+  // Local Control Header
+  LocalControlHeader = 80,
+  IncomingFaceId     = 81,
+  NextHopFaceId      = 82
+};
 
-} // namespace nfd_control
+} // namespace nfd
 } // namespace tlv
 } // namespace ndn
 
-#endif // NDN_TLV_NFD_CONTROL_HPP
+#endif // NDN_TLV_NFD_HPP

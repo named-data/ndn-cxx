@@ -199,7 +199,7 @@ Controller::processFaceActionResponse(Data& data,
 
   switch(val->type())
     {
-    case Tlv::FaceManagement::FaceInstance:
+    case tlv::ndnd::FaceInstance:
       {
         FaceInstance entry;
         entry.wireDecode(*val);
@@ -208,7 +208,7 @@ Controller::processFaceActionResponse(Data& data,
           onSuccess(entry);
         return;
       }
-    case Tlv::FaceManagement::StatusResponse:
+    case tlv::ndnd::StatusResponse:
       {
         StatusResponse resp;
         resp.wireDecode(*val);
@@ -245,7 +245,7 @@ Controller::processPrefixActionResponse(Data& data,
 
   switch(val->type())
     {
-    case Tlv::FaceManagement::ForwardingEntry:
+    case tlv::ndnd::ForwardingEntry:
       {
         ForwardingEntry entry;
         entry.wireDecode(*val);
@@ -254,7 +254,7 @@ Controller::processPrefixActionResponse(Data& data,
           onSuccess(entry);
         return;
       }
-    case Tlv::FaceManagement::StatusResponse:
+    case tlv::ndnd::StatusResponse:
       {
         StatusResponse resp;
         resp.wireDecode(*val);

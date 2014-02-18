@@ -8,7 +8,7 @@
 #define NDN_MANAGEMENT_CONTROL_RESPONSE_HPP
 
 #include "../encoding/block.hpp"
-#include "../encoding/tlv-nfd-control.hpp"
+#include "../encoding/tlv-nfd.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -117,12 +117,12 @@ ControlResponse::wireEncode() const
   if (m_wire.hasWire())
     return m_wire;
 
-  m_wire = Block(tlv::nfd_control::ControlResponse);
+  m_wire = Block(tlv::nfd::ControlResponse);
   m_wire.push_back
-    (nonNegativeIntegerBlock(tlv::nfd_control::StatusCode, m_code));
+    (nonNegativeIntegerBlock(tlv::nfd::StatusCode, m_code));
 
   m_wire.push_back
-    (dataBlock(tlv::nfd_control::StatusText, m_text.c_str(), m_text.size()));
+    (dataBlock(tlv::nfd::StatusText, m_text.c_str(), m_text.size()));
 
   if (m_body.hasWire())
     {
@@ -139,12 +139,12 @@ ControlResponse::wireDecode(const Block &wire)
   m_wire = wire;
   m_wire.parse();
 
-  if (m_wire.type() != tlv::nfd_control::ControlResponse)
+  if (m_wire.type() != tlv::nfd::ControlResponse)
     throw Error("Requested decoding of ControlResponse, but Block is of different type");  
   
   Block::element_const_iterator val = m_wire.elements_begin();
   if (val == m_wire.elements_end() ||
-      val->type() != tlv::nfd_control::StatusCode)
+      val->type() != tlv::nfd::StatusCode)
     {
       throw Error("Incorrect ControlResponse format (StatusCode missing or not the first item)");
     }
@@ -153,7 +153,7 @@ ControlResponse::wireDecode(const Block &wire)
   ++val;
 
   if (val == m_wire.elements_end() ||
-      val->type() != tlv::nfd_control::StatusText)
+      val->type() != tlv::nfd::StatusText)
     {
       throw Error("Incorrect ControlResponse format (StatusText missing or not the second item)");
     }

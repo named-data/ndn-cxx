@@ -7,7 +7,7 @@
 #ifndef NDN_MANAGEMENT_NDND_FACE_INSTANCE_HPP
 #define NDN_MANAGEMENT_NDND_FACE_INSTANCE_HPP
 
-#include "../encoding/tlv-face-management.hpp"
+#include "../encoding/tlv-ndnd.hpp"
 #include "../encoding/block.hpp"
 #include "../name.hpp"
 
@@ -138,55 +138,55 @@ FaceInstance::wireEncode() const
   //                  MulticastTTL?
   //                  FreshnessPeriod?
   
-  wire_ = Block(Tlv::FaceManagement::FaceInstance);
+  wire_ = Block(tlv::ndnd::FaceInstance);
 
   // Action
   if (!action_.empty())
     {
       wire_.push_back
-        (dataBlock(Tlv::FaceManagement::Action, action_.c_str(), action_.size()));
+        (dataBlock(tlv::ndnd::Action, action_.c_str(), action_.size()));
     }
 
   // FaceID
   if (faceId_ >= 0)
     {
       wire_.push_back
-        (nonNegativeIntegerBlock(Tlv::FaceManagement::FaceID, faceId_));
+        (nonNegativeIntegerBlock(tlv::ndnd::FaceID, faceId_));
     }
 
   // IPProto
   if (ipProto_ >= 0)
     {
       wire_.push_back
-        (nonNegativeIntegerBlock(Tlv::FaceManagement::IPProto, ipProto_));
+        (nonNegativeIntegerBlock(tlv::ndnd::IPProto, ipProto_));
     }
   
   // Host
   if (!host_.empty())
     {
       wire_.push_back
-        (dataBlock(Tlv::FaceManagement::Host, host_.c_str(), host_.size()));
+        (dataBlock(tlv::ndnd::Host, host_.c_str(), host_.size()));
     }
 
   // Port
   if (!port_.empty())
     {
       wire_.push_back
-        (dataBlock(Tlv::FaceManagement::Port, port_.c_str(), port_.size()));
+        (dataBlock(tlv::ndnd::Port, port_.c_str(), port_.size()));
     }
 
   // MulticastInterface
   if (!multicastInterface_.empty())
     {
       wire_.push_back
-        (dataBlock(Tlv::FaceManagement::MulticastInterface, multicastInterface_.c_str(), multicastInterface_.size()));
+        (dataBlock(tlv::ndnd::MulticastInterface, multicastInterface_.c_str(), multicastInterface_.size()));
     }
 
   // MulticastTTL
   if (multicastTtl_ >= 0)
     {
       wire_.push_back
-        (nonNegativeIntegerBlock(Tlv::FaceManagement::MulticastTTL, multicastTtl_));
+        (nonNegativeIntegerBlock(tlv::ndnd::MulticastTTL, multicastTtl_));
     }
 
   // FreshnessPeriod
@@ -226,49 +226,49 @@ FaceInstance::wireDecode(const Block &wire)
   //                  FreshnessPeriod?
 
   // Action
-  Block::element_const_iterator val = wire_.find(Tlv::FaceManagement::Action);
+  Block::element_const_iterator val = wire_.find(tlv::ndnd::Action);
   if (val != wire_.elements_end())
     {
       action_ = std::string(reinterpret_cast<const char*>(val->value()), val->value_size());
     }
 
   // FaceID
-  val = wire_.find(Tlv::FaceManagement::FaceID);
+  val = wire_.find(tlv::ndnd::FaceID);
   if (val != wire_.elements_end())
     {
       faceId_ = readNonNegativeInteger(*val);
     }
 
   // IPProto
-  val = wire_.find(Tlv::FaceManagement::IPProto);
+  val = wire_.find(tlv::ndnd::IPProto);
   if (val != wire_.elements_end())
     {
       ipProto_ = readNonNegativeInteger(*val);
     }
 
   // Host
-  val = wire_.find(Tlv::FaceManagement::Host);
+  val = wire_.find(tlv::ndnd::Host);
   if (val != wire_.elements_end())
     {
       host_ = std::string(reinterpret_cast<const char*>(val->value()), val->value_size());
     }
 
   // Port
-  val = wire_.find(Tlv::FaceManagement::Port);
+  val = wire_.find(tlv::ndnd::Port);
   if (val != wire_.elements_end())
     {
       port_ = std::string(reinterpret_cast<const char*>(val->value()), val->value_size());
     }
 
   // MulticastInterface
-  val = wire_.find(Tlv::FaceManagement::MulticastInterface);
+  val = wire_.find(tlv::ndnd::MulticastInterface);
   if (val != wire_.elements_end())
     {
       multicastInterface_ = std::string(reinterpret_cast<const char*>(val->value()), val->value_size());
     }
 
   // MulticastTTL
-  val = wire_.find(Tlv::FaceManagement::MulticastTTL);
+  val = wire_.find(tlv::ndnd::MulticastTTL);
   if (val != wire_.elements_end())
     {
       multicastTtl_ = readNonNegativeInteger(*val);

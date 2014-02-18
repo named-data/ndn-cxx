@@ -64,6 +64,7 @@ public:
    *    name.wireDecode(wire);
    * @endcode
    */
+  explicit
   Name(const Block &wire)
   {
     m_nameBlock = wire;
@@ -100,7 +101,13 @@ public:
 
   void
   wireDecode(const Block &wire);
-  
+
+  /**
+   * @brief Check if already has wire
+   */
+  bool
+  hasWire() const;
+    
   /**
    * Parse the uri according to the NDN URI Scheme and set the name with the components.
    * @param uri The null-terminated URI string.
@@ -482,6 +489,24 @@ Name::toUri() const
   return os.str();
 }
 
+template<bool T>
+inline size_t
+Name::wireEncode(EncodingImpl<T>& blk) const
+{
+  size_t total_len = 0;
+  
+  for (const_reverse_iterator i = rbegin (); 
+       i != rend ();
+       ++i)
+    {
+      total_len += i->wireEncode (blk);
+    }
+
+  total_len += blk.prependVarNumber (total_len);
+  total_len += blk.prependVarNumber (Tlv::Name);
+  return total_len;
+}
+
 inline const Block &
 Name::wireEncode() const
 {
@@ -510,22 +535,10 @@ Name::wireDecode(const Block &wire)
   m_nameBlock.parse();
 }
 
-template<bool T>
-inline size_t
-Name::wireEncode(EncodingImpl<T>& blk) const
+inline bool
+Name::hasWire() const
 {
-  size_t total_len = 0;
-  
-  for (const_reverse_iterator i = rbegin (); 
-       i != rend ();
-       ++i)
-    {
-      total_len += i->wireEncode (blk);
-    }
-
-  total_len += blk.prependVarNumber (total_len);
-  total_len += blk.prependVarNumber (Tlv::Name);
-  return total_len;
+  return m_nameBlock.hasWire();
 }
 
 } // namespace ndn

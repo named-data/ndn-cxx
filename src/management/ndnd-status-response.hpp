@@ -8,7 +8,7 @@
 #define NDN_MANAGEMENT_NDND_STATUS_RESPONSE_HPP
 
 #include "../encoding/block.hpp"
-#include "../encoding/tlv-face-management.hpp"
+#include "../encoding/tlv-ndnd.hpp"
 
 namespace ndn {
 namespace ndnd {
@@ -84,14 +84,14 @@ StatusResponse::wireEncode() const
   if (wire_.hasWire())
     return wire_;
 
-  wire_ = Block(Tlv::FaceManagement::StatusResponse);
+  wire_ = Block(tlv::ndnd::StatusResponse);
   wire_.push_back
-    (nonNegativeIntegerBlock(Tlv::FaceManagement::StatusCode, code_));
+    (nonNegativeIntegerBlock(tlv::ndnd::StatusCode, code_));
 
   if (!info_.empty())
     {
       wire_.push_back
-        (dataBlock(Tlv::FaceManagement::StatusText, info_.c_str(), info_.size()));
+        (dataBlock(tlv::ndnd::StatusText, info_.c_str(), info_.size()));
     }
   
   wire_.encode();  
@@ -104,9 +104,9 @@ StatusResponse::wireDecode(const Block &wire)
   wire_ = wire;
   wire_.parse();
 
-  code_ = readNonNegativeInteger(wire_.get(Tlv::FaceManagement::StatusCode));
+  code_ = readNonNegativeInteger(wire_.get(tlv::ndnd::StatusCode));
 
-  Block::element_const_iterator val = wire_.find(Tlv::FaceManagement::StatusText);
+  Block::element_const_iterator val = wire_.find(tlv::ndnd::StatusText);
   if (val != wire_.elements_end())
     {
       info_.assign(reinterpret_cast<const char*>(val->value()), val->value_size());

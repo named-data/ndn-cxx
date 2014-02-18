@@ -12,7 +12,7 @@
 
 #include "../encoding/block.hpp"
 #include "../encoding/encoding-buffer.hpp"
-#include "../encoding/tlv-nfd-control.hpp"
+#include "../encoding/tlv-nfd.hpp"
 #include "../name.hpp"
 
 namespace ndn {
@@ -105,7 +105,7 @@ FibManagementOptions::wireEncode(EncodingImpl<T>& blk) const
       size_t var_len = blk.prependNonNegativeInteger (cost_);
       total_len += var_len;
       total_len += blk.prependVarNumber (var_len);
-      total_len += blk.prependVarNumber (tlv::nfd_control::Cost);
+      total_len += blk.prependVarNumber (tlv::nfd::Cost);
     }
 
   if (faceId_ != -1)
@@ -113,13 +113,13 @@ FibManagementOptions::wireEncode(EncodingImpl<T>& blk) const
       size_t var_len = blk.prependNonNegativeInteger (faceId_);
       total_len += var_len;
       total_len += blk.prependVarNumber (var_len);
-      total_len += blk.prependVarNumber (tlv::nfd_control::FaceId);
+      total_len += blk.prependVarNumber (tlv::nfd::FaceId);
     }
 
   total_len += name_.wireEncode (blk);
 
   total_len += blk.prependVarNumber (total_len);
-  total_len += blk.prependVarNumber (tlv::nfd_control::FibManagementOptions);
+  total_len += blk.prependVarNumber (tlv::nfd::FibManagementOptions);
   return total_len;
 }
 
@@ -148,7 +148,7 @@ FibManagementOptions::wireDecode (const Block &wire)
 
   wire_ = wire;
 
-  if (wire_.type() != tlv::nfd_control::FibManagementOptions)
+  if (wire_.type() != tlv::nfd::FibManagementOptions)
     throw Error("Requested decoding of FibManagementOptions, but Block is of different type");
   
   wire_.parse ();
@@ -161,14 +161,14 @@ FibManagementOptions::wireDecode (const Block &wire)
     }
 
   // FaceID
-  val = wire_.find(tlv::nfd_control::FaceId);
+  val = wire_.find(tlv::nfd::FaceId);
   if (val != wire_.elements_end())
     {
       faceId_ = readNonNegativeInteger(*val);
     }
 
   // Cost
-  val = wire_.find(tlv::nfd_control::Cost);
+  val = wire_.find(tlv::nfd::Cost);
   if (val != wire_.elements_end())
     {
       cost_ = readNonNegativeInteger(*val);

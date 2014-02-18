@@ -9,7 +9,7 @@
 #define NDN_FORWARDING_FLAGS_HPP
 
 #include "../encoding/block.hpp"
-#include "../encoding/tlv-face-management.hpp"
+#include "../encoding/tlv-ndnd.hpp"
 
 namespace ndn {
 namespace ndnd {
@@ -159,23 +159,23 @@ ForwardingFlags::wireEncode() const
 
   uint32_t result = 0;
   if (active_)
-    result |= Tlv::FaceManagement::FORW_ACTIVE;
+    result |= tlv::ndnd::FORW_ACTIVE;
   if (childInherit_)
-    result |= Tlv::FaceManagement::FORW_CHILD_INHERIT;
+    result |= tlv::ndnd::FORW_CHILD_INHERIT;
   if (advertise_)
-    result |= Tlv::FaceManagement::FORW_ADVERTISE;
+    result |= tlv::ndnd::FORW_ADVERTISE;
   if (last_)
-    result |= Tlv::FaceManagement::FORW_LAST;
+    result |= tlv::ndnd::FORW_LAST;
   if (capture_)
-    result |= Tlv::FaceManagement::FORW_CAPTURE;
+    result |= tlv::ndnd::FORW_CAPTURE;
   if (local_)
-    result |= Tlv::FaceManagement::FORW_LOCAL;
+    result |= tlv::ndnd::FORW_LOCAL;
   if (tap_)
-    result |= Tlv::FaceManagement::FORW_TAP;
+    result |= tlv::ndnd::FORW_TAP;
   if (captureOk_)
-    result |= Tlv::FaceManagement::FORW_CAPTURE_OK;
+    result |= tlv::ndnd::FORW_CAPTURE_OK;
   
-  wire_ = nonNegativeIntegerBlock(Tlv::FaceManagement::ForwardingFlags, result);
+  wire_ = nonNegativeIntegerBlock(tlv::ndnd::ForwardingFlags, result);
 
   return wire_;
 }
@@ -187,14 +187,14 @@ ForwardingFlags::wireDecode(const Block &wire)
 
   uint32_t flags = readNonNegativeInteger(wire_);
   
-  active_       = (flags & Tlv::FaceManagement::FORW_ACTIVE)        ? true : false;
-  childInherit_ = (flags & Tlv::FaceManagement::FORW_CHILD_INHERIT) ? true : false;
-  advertise_    = (flags & Tlv::FaceManagement::FORW_ADVERTISE)     ? true : false;
-  last_         = (flags & Tlv::FaceManagement::FORW_LAST)          ? true : false;
-  capture_      = (flags & Tlv::FaceManagement::FORW_CAPTURE)       ? true : false;
-  local_        = (flags & Tlv::FaceManagement::FORW_LOCAL)         ? true : false;
-  tap_          = (flags & Tlv::FaceManagement::FORW_TAP)           ? true : false;
-  captureOk_    = (flags & Tlv::FaceManagement::FORW_CAPTURE_OK)    ? true : false;
+  active_       = (flags & tlv::ndnd::FORW_ACTIVE)        ? true : false;
+  childInherit_ = (flags & tlv::ndnd::FORW_CHILD_INHERIT) ? true : false;
+  advertise_    = (flags & tlv::ndnd::FORW_ADVERTISE)     ? true : false;
+  last_         = (flags & tlv::ndnd::FORW_LAST)          ? true : false;
+  capture_      = (flags & tlv::ndnd::FORW_CAPTURE)       ? true : false;
+  local_        = (flags & tlv::ndnd::FORW_LOCAL)         ? true : false;
+  tap_          = (flags & tlv::ndnd::FORW_TAP)           ? true : false;
+  captureOk_    = (flags & tlv::ndnd::FORW_CAPTURE_OK)    ? true : false;
 }
 
 inline std::ostream&

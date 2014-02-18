@@ -15,6 +15,7 @@
 #include "signature.hpp"
 #include "meta-info.hpp"
 #include "key-locator.hpp"
+#include "management/nfd-local-control-header.hpp"
 
 namespace ndn {
   
@@ -35,6 +36,15 @@ public:
    */
   inline
   Data(const Name& name);
+
+  /**
+   * @brief Create a new Data object from wire encoding
+   */
+  explicit
+  Data(const Block& wire)
+  {
+    wireDecode(wire);
+  }
   
   /**
    * @brief The destructor
@@ -61,6 +71,12 @@ public:
   inline void 
   wireDecode(const Block &wire);
 
+  /**
+   * @brief Check if already has wire
+   */
+  inline bool
+  hasWire() const;
+  
   ////////////////////////////////////////////////////////////////////  
   
   inline const Name& 
@@ -161,6 +177,12 @@ public:
   setSignatureValue(const Block &value);
 
   ///////////////////////////////////////////////////////////////
+
+  nfd::LocalControlHeader&
+  getLocalControlHeader();
+
+  const nfd::LocalControlHeader&
+  getLocalControlHeader() const;
   
   inline uint64_t
   getIncomingFaceId() const;
@@ -183,7 +205,8 @@ private:
 
   mutable Block m_wire;
 
-  uint64_t m_incomingFaceId;
+  nfd::LocalControlHeader m_localControlHeader;
+  friend class nfd::LocalControlHeader;
 };
 
 inline
@@ -257,7 +280,7 @@ Data::wireEncode() const
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
   
-  EncodingBuffer buffer(estimatedSize, 0);
+  EncodingBuffer buffer(estimatedSize + nfd::ESTIMATED_LOCAL_HEADER_RESERVE, 0);
   wireEncode(buffer);
 
   const_cast<Data*>(this)->wireDecode(buffer.block());
@@ -300,6 +323,12 @@ Data::wireDecode(const Block &wire)
   Block::element_const_iterator val = m_wire.find(Tlv::SignatureValue);
   if (val != m_wire.elements_end())
     m_signature.setValue(*val);
+}
+
+inline bool
+Data::hasWire() const
+{
+  return m_wire.hasWire();
 }
 
 inline const Name& 
@@ -426,16 +455,30 @@ Data::setSignatureValue(const Block &value)
   m_signature.setValue(value);
 }
 
+//
+
+inline nfd::LocalControlHeader&
+Data::getLocalControlHeader()
+{
+  return m_localControlHeader;
+}
+
+inline const nfd::LocalControlHeader&
+Data::getLocalControlHeader() const
+{
+  return m_localControlHeader;
+}
+
 inline uint64_t
 Data::getIncomingFaceId() const
 {
-  return m_incomingFaceId;
+  return getLocalControlHeader().getIncomingFaceId();
 }
 
 inline void
 Data::setIncomingFaceId(uint64_t incomingFaceId)
 {
-  m_incomingFaceId = incomingFaceId;
+  getLocalControlHeader().setIncomingFaceId(incomingFaceId);
 }
 
 inline void 

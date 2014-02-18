@@ -10,6 +10,7 @@
 #include "common.hpp"
 #include "name.hpp"
 #include "selectors.hpp"
+#include "management/nfd-local-control-header.hpp"
 
 namespace ndn {
 
@@ -98,13 +99,19 @@ public:
   {
   }
 
+  explicit
+  Interest(const Block& wire)
+  {
+    wireDecode(wire);
+  }
+
   /**
    * @brief Fast encoding or block size estimation
    */
   template<bool T>
   inline size_t
   wireEncode(EncodingImpl<T> &block) const;
-  
+
   /**
    * @brief Encode to a wire format
    */
@@ -116,6 +123,12 @@ public:
    */
   inline void 
   wireDecode(const Block &wire);
+
+  /**
+   * @brief Check if already has wire
+   */
+  inline bool
+  hasWire() const;
   
   /**
    * Encode the name according to the "NDN URI Scheme".  If there are interest selectors, append "?" and
@@ -229,17 +242,31 @@ public:
   }
 
   //
+
+  nfd::LocalControlHeader&
+  getLocalControlHeader()
+  {
+    return m_localControlHeader;
+  }
+
+  const nfd::LocalControlHeader&
+  getLocalControlHeader() const
+  {
+    return m_localControlHeader;
+  }
+
+  // helper methods for LocalControlHeader
   
   uint64_t
   getIncomingFaceId() const
   {
-    return m_incomingFaceId;
+    return getLocalControlHeader().getIncomingFaceId();
   }
-    
+
   Interest&
   setIncomingFaceId(uint64_t incomingFaceId)
   {
-    m_incomingFaceId = incomingFaceId;
+    getLocalControlHeader().setIncomingFaceId(incomingFaceId);
     return *this;
   }
 
@@ -329,8 +356,6 @@ public:
     return *this;
   }
 
-  //
-  
 private:
   Name m_name;
   Selectors m_selectors;
@@ -340,7 +365,8 @@ private:
 
   mutable Block m_wire;
 
-  uint64_t m_incomingFaceId;
+  nfd::LocalControlHeader m_localControlHeader;
+  friend class nfd::LocalControlHeader;
 };
 
 std::ostream &
@@ -412,7 +438,7 @@ Interest::wireEncode(EncodingImpl<T> &block) const
   return total_len;
 }
 
-inline const Block &
+inline const Block&
 Interest::wireEncode() const
 {
   if (m_wire.hasWire())
@@ -421,7 +447,7 @@ Interest::wireEncode() const
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
   
-  EncodingBuffer buffer(estimatedSize, 0);
+  EncodingBuffer buffer(estimatedSize + nfd::ESTIMATED_LOCAL_HEADER_RESERVE, 0);
   wireEncode(buffer);
 
   m_wire = buffer.block();
@@ -484,6 +510,12 @@ Interest::wireDecode(const Block &wire)
     {
       m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
     }
+}
+
+inline bool
+Interest::hasWire() const
+{
+  return m_wire.hasWire();
 }
 
 
