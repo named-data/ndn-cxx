@@ -5,22 +5,20 @@
  * See COPYING for copyright and distribution information.
  */
 
+#ifndef NDN_UTIL_REGEX_REGEX_MATCHER_H
+#define NDN_UTIL_REGEX_REGEX_MATCHER_H
 
-#ifndef NDN_REGEX_MATCHER_H
-#define NDN_REGEX_MATCHER_H
-
-#include <string>
+#include "../../common.hpp"
 #include "../../name.hpp"
-#include "regex-backref-manager.hpp"
 
-namespace ndn
-{
-class RegexMatcher;
+namespace ndn {
+
+class RegexBackrefManager;
 
 class RegexMatcher
 {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  struct Error : public std::runtime_error { Error(const std::string& what) : std::runtime_error(what) {} };
 
   enum RegexExprType{
     EXPR_TOP,
@@ -38,7 +36,7 @@ public:
 
   RegexMatcher(const std::string& expr, 
                const RegexExprType& type,  
-               ptr_lib::shared_ptr<RegexBackrefManager> backrefManager = ptr_lib::shared_ptr<RegexBackrefManager>());
+               shared_ptr<RegexBackrefManager> backrefManager = shared_ptr<RegexBackrefManager>());
 
   virtual 
   ~RegexMatcher();
@@ -50,7 +48,7 @@ public:
    * @brief get the matched name components
    * @returns the matched name components
    */
-  const std::vector<Name::Component>& 
+  const std::vector<name::Component>& 
   getMatchResult() const
   { return m_matchResult; }
 
@@ -74,12 +72,81 @@ private:
 protected:
   const std::string m_expr;
   const RegexExprType m_type; 
-  ptr_lib::shared_ptr<RegexBackrefManager> m_backrefManager;
-  std::vector<ptr_lib::shared_ptr<RegexMatcher> > m_matcherList;
-  std::vector<Name::Component> m_matchResult;
-
+  shared_ptr<RegexBackrefManager> m_backrefManager;
+  std::vector<shared_ptr<RegexMatcher> > m_matcherList;
+  std::vector<name::Component> m_matchResult;
 };
-}//ndn
+
+} // namespace ndn
+
+#include "regex-backref-manager.hpp"
+
+namespace ndn {
+
+inline
+RegexMatcher::RegexMatcher(const std::string& expr, 
+                           const RegexExprType& type,  
+                           shared_ptr<RegexBackrefManager> backrefManager) 
+  : m_expr(expr), 
+    m_type(type),
+    m_backrefManager(backrefManager)
+{
+  if(NULL == m_backrefManager)
+    m_backrefManager = make_shared<RegexBackrefManager>();
+}
+
+inline
+RegexMatcher::~RegexMatcher()
+{
+}
+
+inline bool 
+RegexMatcher::match (const Name& name, const int& offset, const int& len)
+{
+  // _LOG_TRACE ("Enter RegexMatcher::match");
+  bool result = false;
+
+  m_matchResult.clear();
+
+  if(recursiveMatch(0, name, offset, len))
+    {
+      for(int i = offset; i < offset + len ; i++)
+        m_matchResult.push_back(name.get(i));
+      result = true;
+    }
+  else
+    {
+      result = false;
+    }
+
+  // _LOG_TRACE ("Exit RegexMatcher::match");
+  return result;
+}
+  
+inline bool 
+RegexMatcher::recursiveMatch(const int& mId, const Name& name, const int& offset, const int& len)
+{
+  // _LOG_TRACE ("Enter RegexMatcher::recursiveMatch");
+
+  int tried = len;
+
+  if(mId >= m_matcherList.size())
+    return (len != 0 ? false : true);
+    
+  shared_ptr<RegexMatcher> matcher = m_matcherList[mId];
+
+  while(tried >= 0)
+    {
+      if(matcher->match(name, offset, tried) && recursiveMatch(mId + 1, name, offset + tried, len - tried))
+        return true;      
+      tried--;
+    }
+
+  return false;
+}
 
 
-#endif
+} // namespace ndn
+
+
+#endif // NDN_UTIL_REGEX_REGEX_MATCHER_H

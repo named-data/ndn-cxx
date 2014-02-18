@@ -5,33 +5,36 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_REGEX_TOP_MATCHER_HPP
-#define NDN_REGEX_TOP_MATCHER_HPP
+#ifndef NDN_UTIL_REGEX_REGEX_TOP_MATCHER_HPP
+#define NDN_UTIL_REGEX_REGEX_TOP_MATCHER_HPP
 
-#include <string>
+#include "../../common.hpp"
 
 #include "regex-matcher.hpp"
-#include "regex-pattern-list-matcher.hpp"
 
-namespace ndn
-{
+namespace ndn {
+
+class RegexPatternListMatcher;
+class RegexBackrefManager;
+
 class RegexTopMatcher: public RegexMatcher
 {
 public:
-  RegexTopMatcher(const std::string & expr, const std::string & expand = "");
+  RegexTopMatcher(const std::string & expr, const std::string& expand = "");
     
-  virtual ~RegexTopMatcher();
+  virtual
+  ~RegexTopMatcher();
 
   bool 
-  match(const Name & name);
+  match(const Name& name);
 
   virtual bool
-  match (const Name & name, const int & offset, const int & len);
+  match (const Name& name, const int& offset, const int& len);
 
   virtual Name 
-  expand (const std::string & expand = "");
+  expand (const std::string& expand = "");
 
-  static ptr_lib::shared_ptr<RegexTopMatcher>
+  static shared_ptr<RegexTopMatcher>
   fromName(const Name& name, bool hasAnchor=false);
 
 protected:
@@ -40,21 +43,20 @@ protected:
 
 private:
   std::string
-  getItemFromExpand(const std::string & expand, int & offset);
+  getItemFromExpand(const std::string& expand, int & offset);
 
   static std::string
   convertSpecialChar(const std::string& str);
 
 private:
   const std::string m_expand;
-  ptr_lib::shared_ptr<RegexPatternListMatcher> m_primaryMatcher;
-  ptr_lib::shared_ptr<RegexPatternListMatcher> m_secondaryMatcher;
-  ptr_lib::shared_ptr<RegexBackrefManager> m_primaryBackRefManager;
-  ptr_lib::shared_ptr<RegexBackrefManager> m_secondaryBackRefManager;
+  shared_ptr<RegexPatternListMatcher> m_primaryMatcher;
+  shared_ptr<RegexPatternListMatcher> m_secondaryMatcher;
+  shared_ptr<RegexBackrefManager> m_primaryBackRefManager;
+  shared_ptr<RegexBackrefManager> m_secondaryBackRefManager;
   bool m_secondaryUsed;
 };
 
-}
+} // namespace ndn
 
-#endif
-
+#endif // NDN_UTIL_REGEX_REGEX_TOP_MATCHER_HPP

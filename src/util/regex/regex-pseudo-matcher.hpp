@@ -5,24 +5,27 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_REGEX_PSEUDO_MATCHER_HPP
-#define NDN_REGEX_PSEUDO_MATCHER_HPP
+#ifndef NDN_UTIL_REGEX_REGEX_PSEUDO_MATCHER_HPP
+#define NDN_UTIL_REGEX_REGEX_PSEUDO_MATCHER_HPP
 
+#include "../../common.hpp"
 #include "regex-matcher.hpp"
 
-namespace ndn
-{
+namespace ndn {
+
 class RegexPseudoMatcher : public RegexMatcher
 {
 public:
   RegexPseudoMatcher();
 
-  ~RegexPseudoMatcher() 
-  {}
+  virtual ~RegexPseudoMatcher() 
+  {
+  }
 
   virtual void 
   compile() 
-  {}
+  {
+  }
 
   void 
   setMatchResult(const std::string& str);
@@ -31,6 +34,24 @@ public:
   resetMatchResult();
 };
 
-}//ndn
+inline RegexPseudoMatcher::RegexPseudoMatcher()
+  :RegexMatcher ("", EXPR_PSEUDO)
+{
+}
 
-#endif
+inline void 
+RegexPseudoMatcher::setMatchResult(const std::string& str)
+{
+  m_matchResult.push_back(Name::Component((const uint8_t *)str.c_str(), str.size()));
+}
+    
+inline void 
+RegexPseudoMatcher::resetMatchResult()
+{
+  m_matchResult.clear();
+}
+
+
+} // namespace ndn
+
+#endif // NDN_UTIL_REGEX_REGEX_PSEUDO_MATCHER_HPP

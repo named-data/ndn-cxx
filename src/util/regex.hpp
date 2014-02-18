@@ -5,17 +5,15 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_REGEX_HPP
-#define NDN_REGEX_HPP
+#ifndef NDN_UTIL_REGEX_HPP
+#define NDN_UTIL_REGEX_HPP
 
 #include "regex/regex-top-matcher.hpp"
 
-namespace ndn
-{
+namespace ndn {
 
 typedef RegexTopMatcher Regex;
 
-}
+} // namespace ndn
 
-#endif
-
+#endif // NDN_UTIL_REGEX_HPP

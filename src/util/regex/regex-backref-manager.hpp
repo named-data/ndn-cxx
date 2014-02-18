@@ -5,14 +5,12 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_REGEX_BACKREF_MANAGER_HPP
-#define NDN_REGEX_BACKREF_MANAGER_HPP
+#ifndef NDN_UTIL_REGEX_BACKREF_MANAGER_HPP
+#define NDN_UTIL_REGEX_BACKREF_MANAGER_HPP
 
-#include <vector>
 #include "../../common.hpp"
 
-namespace ndn
-{
+namespace ndn {
 
 class RegexMatcher;
 
@@ -24,23 +22,55 @@ public:
   virtual ~RegexBackrefManager();
     
   int 
-  pushRef(ptr_lib::shared_ptr<RegexMatcher> matcher);
+  pushRef(shared_ptr<RegexMatcher> matcher);
     
   void 
   popRef();
 
   int 
-  size()
-  { return m_backRefs.size(); }
+  size();
     
-  ptr_lib::shared_ptr<RegexMatcher> 
-  getBackRef(int i)
-  { return m_backRefs[i]; }
+  shared_ptr<RegexMatcher> 
+  getBackRef(int i);
     
 private:
-  std::vector<ptr_lib::shared_ptr<RegexMatcher> > m_backRefs;
+  std::vector<shared_ptr<RegexMatcher> > m_backRefs;
 };
 
-}//ndn
 
-#endif
+inline RegexBackrefManager::~RegexBackrefManager()
+{
+  m_backRefs.clear();
+}
+
+inline int 
+RegexBackrefManager::pushRef(shared_ptr<RegexMatcher> matcher)
+{
+  int last = m_backRefs.size();
+  m_backRefs.push_back(matcher);
+
+  return last;
+}
+
+inline void
+RegexBackrefManager::popRef()
+{
+  m_backRefs.pop_back();
+}
+
+inline int 
+RegexBackrefManager::size()
+{
+  return m_backRefs.size();
+}
+    
+inline shared_ptr<RegexMatcher> 
+RegexBackrefManager::getBackRef(int i)
+{
+  return m_backRefs[i];
+}
+
+
+} // namespace ndn
+
+#endif // NDN_UTIL_REGEX_BACKREF_MANAGER_HPP

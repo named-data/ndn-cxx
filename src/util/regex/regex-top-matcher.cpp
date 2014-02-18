@@ -5,28 +5,26 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <stdlib.h>
-
 #include "regex-top-matcher.hpp"
 
-#include "../logging.hpp"
+#include "regex-backref-manager.hpp"
+#include "regex-pattern-list-matcher.hpp"
 
-INIT_LOGGER ("RegexTopMatcher");
+// #include "../logging.hpp"
 
-using namespace std;
+// INIT_LOGGER ("RegexTopMatcher");
 
-namespace ndn
-{
+namespace ndn {
 
-RegexTopMatcher::RegexTopMatcher(const string & expr, const string & expand)
+RegexTopMatcher::RegexTopMatcher(const std::string& expr, const std::string& expand)
   : RegexMatcher(expr, EXPR_TOP),
     m_expand(expand),
     m_secondaryUsed(false)
 {
   // _LOG_TRACE ("Enter RegexTopMatcher Constructor");
 
-  m_primaryBackRefManager = ptr_lib::make_shared<RegexBackrefManager>();
-  m_secondaryBackRefManager = ptr_lib::make_shared<RegexBackrefManager>();
+  m_primaryBackRefManager = make_shared<RegexBackrefManager>();
+  m_secondaryBackRefManager = make_shared<RegexBackrefManager>();
   compile();
 
   // _LOG_TRACE ("Exit RegexTopMatcher Constructor");
@@ -42,9 +40,9 @@ RegexTopMatcher::compile()
 {
   // _LOG_TRACE ("Enter RegexTopMatcher::compile");
 
-  string errMsg = "Error: RegexTopMatcher.Compile(): ";
+  std::string errMsg = "Error: RegexTopMatcher.Compile(): ";
 
-  string expr = m_expr;
+  std::string expr = m_expr;
 
   if('$' != expr[expr.size() - 1])
     expr = expr + "<.*>*";
@@ -52,14 +50,15 @@ RegexTopMatcher::compile()
     expr = expr.substr(0, expr.size()-1);
 
   if('^' != expr[0])
-    m_secondaryMatcher = ptr_lib::make_shared<RegexPatternListMatcher>("<.*>*" + expr, m_secondaryBackRefManager);
+    m_secondaryMatcher = make_shared<RegexPatternListMatcher>(boost::cref("<.*>*" + expr),
+                                                              boost::cref(m_secondaryBackRefManager));
   else
     expr = expr.substr(1, expr.size()-1);
 
   // _LOG_DEBUG ("reconstructed expr: " << expr);
-                                                        
-                                                        
-  m_primaryMatcher = ptr_lib::make_shared<RegexPatternListMatcher>(expr, m_primaryBackRefManager);
+
+  m_primaryMatcher = make_shared<RegexPatternListMatcher>(boost::cref(expr),
+                                                          boost::cref(m_primaryBackRefManager));
 
   // _LOG_TRACE ("Exit RegexTopMatcher::compile");
 }
@@ -97,17 +96,17 @@ RegexTopMatcher::match (const Name & name, const int & offset, const int & len)
 }
 
 Name 
-RegexTopMatcher::expand (const string & expandStr)
+RegexTopMatcher::expand (const std::string& expandStr)
 {
   // _LOG_TRACE("Enter RegexTopMatcher::expand");
 
   Name result;
     
-  ptr_lib::shared_ptr<RegexBackrefManager> backRefManager = (m_secondaryUsed ? m_secondaryBackRefManager : m_primaryBackRefManager);
+  shared_ptr<RegexBackrefManager> backRefManager = (m_secondaryUsed ? m_secondaryBackRefManager : m_primaryBackRefManager);
     
   int backRefNum = backRefManager->size();
 
-  string expand;
+  std::string expand;
     
   if(expandStr != "")
     expand = expandStr;
@@ -117,7 +116,7 @@ RegexTopMatcher::expand (const string & expandStr)
   int offset = 0;
   while(offset < expand.size())
     {
-      string item = getItemFromExpand(expand, offset);
+      std::string item = getItemFromExpand(expand, offset);
       if(item[0] == '<')
         {
           result.append(item.substr(1, item.size() - 2));
@@ -128,15 +127,15 @@ RegexTopMatcher::expand (const string & expandStr)
           int index = atoi(item.substr(1, item.size() - 1).c_str());
 
           if(0 == index){
-            vector<Name::Component>::iterator it = m_matchResult.begin();
-            vector<Name::Component>::iterator end = m_matchResult.end();
+            std::vector<name::Component>::iterator it = m_matchResult.begin();
+            std::vector<name::Component>::iterator end = m_matchResult.end();
             for(; it != end; it++)
               result.append (*it);
           }
           else if(index <= backRefNum)
             {
-              vector<Name::Component>::const_iterator it = backRefManager->getBackRef (index - 1)->getMatchResult ().begin();
-              vector<Name::Component>::const_iterator end = backRefManager->getBackRef (index - 1)->getMatchResult ().end();
+              std::vector<name::Component>::const_iterator it = backRefManager->getBackRef (index - 1)->getMatchResult ().begin();
+              std::vector<name::Component>::const_iterator end = backRefManager->getBackRef (index - 1)->getMatchResult ().end();
               for(; it != end; it++)
                 result.append (*it);
             }
@@ -147,8 +146,8 @@ RegexTopMatcher::expand (const string & expandStr)
   return result;
 }
 
-string
-RegexTopMatcher::getItemFromExpand(const string & expand, int & offset)
+std::string
+RegexTopMatcher::getItemFromExpand(const std::string& expand, int & offset)
 {
   // _LOG_TRACE("Enter RegexTopMatcher::getItemFromExpand ");
   int begin = offset;
@@ -193,11 +192,11 @@ RegexTopMatcher::getItemFromExpand(const string & expand, int & offset)
     throw RegexMatcher::Error("wrong format of expand string!");
 }
 
-ptr_lib::shared_ptr<RegexTopMatcher>
+shared_ptr<RegexTopMatcher>
 RegexTopMatcher::fromName(const Name& name, bool hasAnchor)
 {
   Name::const_iterator it = name.begin();
-  string regexStr("^");
+  std::string regexStr("^");
     
   for(; it != name.end(); it++)
     {
@@ -209,13 +208,13 @@ RegexTopMatcher::fromName(const Name& name, bool hasAnchor)
   if(hasAnchor)
     regexStr.append("$");
 
-  return ptr_lib::make_shared<RegexTopMatcher>(regexStr);
+  return make_shared<RegexTopMatcher>(boost::cref(regexStr));
 }
 
-string
-RegexTopMatcher::convertSpecialChar(const string& str)
+std::string
+RegexTopMatcher::convertSpecialChar(const std::string& str)
 {
-  string newStr;
+  std::string newStr;
   for(int i = 0; i < str.size(); i++)
     {
       char c = str[i];
