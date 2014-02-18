@@ -9,6 +9,7 @@
 #define NDN_SIGNATURE_SHA256_WITH_RSA_HPP
 
 #include "../data.hpp"
+#include "../encoding/tlv.hpp"
 
 namespace ndn {
 

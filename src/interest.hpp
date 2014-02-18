@@ -1,7 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
@@ -10,16 +9,67 @@
 
 #include "common.hpp"
 #include "name.hpp"
-#include "exclude.hpp"
-#include "encoding/block.hpp"
+#include "selectors.hpp"
 
 namespace ndn {
-  
+
+const Milliseconds DEFAULT_INTEREST_LIFETIME = 4000;
+
 /**
  * An Interest holds a Name and other fields for an interest.
  */
-class Interest : public enable_shared_from_this<Interest> {
+class Interest : public enable_shared_from_this<Interest>
+{
 public:    
+  /**
+   * @brief Create a new Interest with an empty name and "none" for all values.
+   */
+  Interest()
+    : m_nonce(0)
+    , m_scope(-1)
+    , m_interestLifetime(-1.0)
+  {
+  }
+
+  /**
+   * @brief Create a new Interest with the given name and "none" for other values.
+   * 
+   * @param name The name for the interest.
+   */
+  Interest(const Name& name) 
+    : m_name(name)
+    , m_nonce(0)
+    , m_scope(-1)
+    , m_interestLifetime(-1.0)
+  {
+  }
+
+  /**
+   * Create a new Interest with the given name and interest lifetime and "none" for other values.
+   * @param name The name for the interest.
+   * @param interestLifetimeMilliseconds The interest lifetime in milliseconds, or -1 for none.
+   */
+  Interest(const Name& name, Milliseconds interestLifetime) 
+    : m_name(name)
+    , m_nonce(0)
+    , m_scope(-1)
+    , m_interestLifetime(interestLifetime)
+  {
+  }
+  
+  Interest(const Name& name,
+           const Selectors& selectors, 
+           int scope,
+           Milliseconds interestLifetime,
+           uint32_t nonce = 0) 
+    : m_name(name)
+    , m_selectors(selectors)
+    , m_nonce(nonce)
+    , m_scope(scope)
+    , m_interestLifetime(interestLifetime)
+  {
+  }
+  
   /**
    * Create a new Interest for the given name and values.
    * @param name
@@ -40,59 +90,31 @@ public:
            int scope,
            Milliseconds interestLifetime,
            uint32_t nonce = 0) 
-  : name_(name)
-  , minSuffixComponents_(minSuffixComponents)
-  , maxSuffixComponents_(maxSuffixComponents)
-  , exclude_(exclude), childSelector_(childSelector)
-  , mustBeFresh_(mustBeFresh)
-  , scope_(scope)
-  , interestLifetime_(interestLifetime)
-  , nonce_(nonce)
+    : m_name(name)
+    , m_selectors(minSuffixComponents, maxSuffixComponents, exclude, childSelector, mustBeFresh)
+    , m_nonce(nonce)
+    , m_scope(scope)
+    , m_interestLifetime(interestLifetime)
   {
   }
 
   /**
-   * Create a new Interest with the given name and interest lifetime and "none" for other values.
-   * @param name The name for the interest.
-   * @param interestLifetimeMilliseconds The interest lifetime in milliseconds, or -1 for none.
+   * @brief Fast encoding or block size estimation
    */
-  Interest(const Name& name, Milliseconds interestLifetime) 
-  : name_(name)
-  {
-    construct();
-    interestLifetime_ = interestLifetime;
-  }
-
-  /**
-   * Create a new Interest with the given name and "none" for other values.
-   * @param name The name for the interest.
-   */
-  Interest(const Name& name) 
-  : name_(name)
-  {
-    construct();
-  }
-
-  /**
-   * Create a new Interest with an empty name and "none" for all values.
-   */
-  Interest() 
-  {
-    construct();
-  }
+  template<bool T>
+  inline size_t
+  wireEncode(EncodingImpl<T> &block) const;
   
   /**
-   * Encode this Interest for a particular wire format.
-   * @return The encoded byte array.
+   * @brief Encode to a wire format
    */
-  const Block&
+  inline const Block&
   wireEncode() const;
-  
+
   /**
-   * Decode the input using a particular wire format and update this Interest.
-   * @param input The input byte array to be decoded.
+   * @brief Decode from the wire format
    */
-  void 
+  inline void 
   wireDecode(const Block &wire);
   
   /**
@@ -102,79 +124,6 @@ public:
    */
   inline std::string
   toUri() const;
-
-  Name& 
-  getName() { return name_; }
-  
-  const Name& 
-  getName() const { return name_; }
-  
-  int 
-  getMinSuffixComponents() const { return minSuffixComponents_; }
-  
-  int 
-  getMaxSuffixComponents() const { return maxSuffixComponents_; }
-
-  Exclude& 
-  getExclude() { return exclude_; }
-  
-  const Exclude& 
-  getExclude() const { return exclude_; }
-  
-  int 
-  getChildSelector() const { return childSelector_; }
-
-  int 
-  getMustBeFresh() const { return mustBeFresh_; }
-
-  int 
-  getScope() const { return scope_; }
-
-  Milliseconds 
-  getInterestLifetime() const { return interestLifetime_; }
-
-  /**
-   * @brief Get Interest's nonce
-   *
-   * If nonce was not set before this call, it will be automatically assigned to a random value
-   *
-   * Const reference needed for C decoding
-   */
-  const uint32_t&
-  getNonce() const;
-
-  uint64_t
-  getIncomingFaceId() const { return m_incomingFaceId; }
-    
-  void
-  setName(const Name& name) { name_ = name; }
-  
-  void 
-  setMinSuffixComponents(int minSuffixComponents) { minSuffixComponents_ = minSuffixComponents; }
-  
-  void 
-  setMaxSuffixComponents(int maxSuffixComponents) { maxSuffixComponents_ = maxSuffixComponents; }
-  
-  void
-  setExclude(const Exclude& exclude) { exclude_ = exclude; }
-
-  void 
-  setChildSelector(int childSelector) { childSelector_ = childSelector; }
-
-  void 
-  setMustBeFresh(bool mustBeFresh) { mustBeFresh_ = mustBeFresh; }
-
-  void 
-  setScope(int scope) { scope_ = scope; }
-
-  void 
-  setInterestLifetime(Milliseconds interestLifetime) { interestLifetime_ = interestLifetime; }
-
-  void 
-  setNonce(uint32_t nonce) { nonce_ = nonce; }
-
-  void
-  setIncomingFaceId(uint64_t incomingFaceId) { m_incomingFaceId = incomingFaceId; }
 
   inline bool
   hasSelectors() const;
@@ -191,31 +140,205 @@ public:
    */
   bool
   matchesName(const Name &name) const;
+
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  // Gettest/setters
   
-private:
-  void 
-  construct() 
+  const Name& 
+  getName() const
   {
-    minSuffixComponents_ = -1;
-    maxSuffixComponents_ = -1;  
-    childSelector_ = -1;
-    mustBeFresh_ = false; // default
-    scope_ = -1;
-    interestLifetime_ = -1.0;
-    nonce_ = 0;
+    return m_name;
+  }
+
+  Interest&
+  setName(const Name& name)
+  {
+    m_name = name;
+    m_wire.reset();
+    return *this;
   }
   
-  Name name_;
-  int minSuffixComponents_;
-  int maxSuffixComponents_;  
-  Exclude exclude_;
-  int childSelector_;
-  bool mustBeFresh_;
-  int scope_;
-  Milliseconds interestLifetime_;
-  mutable uint32_t nonce_;
+  //
 
-  mutable Block wire_;
+  const Selectors&
+  getSelectors() const
+  {
+    return m_selectors;
+  }
+
+  Interest&
+  setSelectors(const Selectors& selectors)
+  {
+    m_selectors = selectors;
+    m_wire.reset();
+    return *this;
+  }
+
+  //
+
+  int 
+  getScope() const
+  {
+    return m_scope;
+  }
+
+  Interest&
+  setScope(int scope)
+  {
+    m_scope = scope;
+    m_wire.reset();
+    return *this;
+  }
+
+  //
+  
+  Milliseconds 
+  getInterestLifetime() const
+  {
+    return m_interestLifetime;
+  }
+
+  Interest&
+  setInterestLifetime(Milliseconds interestLifetime)
+  {
+    m_interestLifetime = interestLifetime;
+    m_wire.reset();
+    return *this;
+  }
+
+  //
+  
+  /**
+   * @brief Get Interest's nonce
+   *
+   * If nonce was not set before this call, it will be automatically assigned to a random value
+   *
+   * Const reference needed for C decoding
+   */
+  const uint32_t&
+  getNonce() const;
+
+  Interest&
+  setNonce(uint32_t nonce)
+  {
+    m_nonce = nonce;
+    m_wire.reset();
+    return *this;
+  }
+
+  //
+  
+  uint64_t
+  getIncomingFaceId() const
+  {
+    return m_incomingFaceId;
+  }
+    
+  Interest&
+  setIncomingFaceId(uint64_t incomingFaceId)
+  {
+    m_incomingFaceId = incomingFaceId;
+    return *this;
+  }
+
+  //
+  
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  // Wrappers for Selectors
+  //
+  
+  int
+  getMinSuffixComponents() const
+  {
+    return m_selectors.getMinSuffixComponents();
+  }
+  
+  Interest&
+  setMinSuffixComponents(int minSuffixComponents)
+  {
+    m_selectors.setMinSuffixComponents(minSuffixComponents);
+    m_wire.reset();
+    return *this;
+  }
+
+  //
+  
+  int
+  getMaxSuffixComponents() const
+  {
+    return m_selectors.getMaxSuffixComponents();
+  }
+
+  Interest&
+  setMaxSuffixComponents(int maxSuffixComponents)
+  {
+    m_selectors.setMaxSuffixComponents(maxSuffixComponents);
+    m_wire.reset();
+    return *this;
+  }
+  
+  //
+
+  const Exclude&
+  getExclude() const
+  {
+    return m_selectors.getExclude();
+  }
+
+  Interest&
+  setExclude(const Exclude& exclude)
+  {
+    m_selectors.setExclude(exclude);
+    m_wire.reset();
+    return *this;
+  }
+
+  //
+  
+  int 
+  getChildSelector() const
+  {
+    return m_selectors.getChildSelector();
+  }
+
+  Interest&
+  setChildSelector(int childSelector)
+  {
+    m_selectors.setChildSelector(childSelector);
+    m_wire.reset();
+    return *this;
+  }
+
+  //
+
+  int 
+  getMustBeFresh() const
+  {
+    return m_selectors.getMustBeFresh();
+  }
+
+  Interest&
+  setMustBeFresh(bool mustBeFresh)
+  {
+    m_selectors.setMustBeFresh(mustBeFresh);
+    m_wire.reset();
+    return *this;
+  }
+
+  //
+  
+private:
+  Name m_name;
+  Selectors m_selectors;
+  mutable uint32_t m_nonce;
+  int m_scope;
+  Milliseconds m_interestLifetime;
+
+  mutable Block m_wire;
 
   uint64_t m_incomingFaceId;
 };
@@ -234,22 +357,136 @@ Interest::toUri() const
 inline bool
 Interest::hasSelectors() const
 {
-  return minSuffixComponents_ >= 0 ||
-    maxSuffixComponents_ >= 0 ||
-    !exclude_.empty() ||
-    childSelector_ >= 0 ||
-    mustBeFresh_ == true ||
-    scope_ >= 0;
+  return !m_selectors.empty();
 }
 
 inline bool
 Interest::hasGuiders() const
 {
-  return scope_ >= 0 ||
-    interestLifetime_ >= 0 ||
-    nonce_ > 0;
+  return m_scope >= 0 ||
+    m_interestLifetime >= 0 ||
+    m_nonce > 0;
 }
 
+template<bool T>
+inline size_t
+Interest::wireEncode(EncodingImpl<T> &block) const
+{
+  size_t total_len = 0;
+
+  // Interest ::= INTEREST-TYPE TLV-LENGTH
+  //                Name
+  //                Selectors?
+  //                Nonce
+  //                Scope?
+  //                InterestLifetime?  
+
+  // (reverse encoding)
+
+  // InterestLifetime
+  if (getInterestLifetime() >= 0 && getInterestLifetime() != DEFAULT_INTEREST_LIFETIME)
+    {
+      total_len += prependNonNegativeIntegerBlock(block, Tlv::InterestLifetime, getInterestLifetime());
+    }
+
+  // Scope
+  if (getScope() >= 0)
+    {
+      total_len += prependNonNegativeIntegerBlock(block, Tlv::Scope, getScope());
+    }
+
+  // Nonce
+  total_len += prependNonNegativeIntegerBlock(block, Tlv::Nonce, getNonce());
+
+  // Selectors
+  if (!getSelectors().empty())
+    {
+      total_len += getSelectors().wireEncode(block);
+    }
+
+  // Name
+  total_len += getName().wireEncode(block);
+  
+  total_len += block.prependVarNumber (total_len);
+  total_len += block.prependVarNumber (Tlv::Interest);
+  return total_len;
 }
 
-#endif
+inline const Block &
+Interest::wireEncode() const
+{
+  if (m_wire.hasWire())
+    return m_wire;
+
+  EncodingEstimator estimator;
+  size_t estimatedSize = wireEncode(estimator);
+  
+  EncodingBuffer buffer(estimatedSize, 0);
+  wireEncode(buffer);
+
+  m_wire = buffer.block();
+  return m_wire;
+}
+
+inline void
+Interest::wireDecode(const Block &wire) 
+{
+  m_wire = wire;
+  m_wire.parse();
+
+  // Interest ::= INTEREST-TYPE TLV-LENGTH
+  //                Name
+  //                Selectors?
+  //                Nonce
+  //                Scope?
+  //                InterestLifetime?  
+
+  if (m_wire.type() != Tlv::Interest)
+    throw Tlv::Error("Unexpected TLV number when decoding Interest");
+  
+  // Name
+  m_name.wireDecode(m_wire.get(Tlv::Name));
+
+  // Selectors
+  Block::element_const_iterator val = m_wire.find(Tlv::Selectors);
+  if (val != m_wire.elements_end())
+    {
+      m_selectors.wireDecode(*val);
+    }
+  else
+    m_selectors = Selectors();
+
+  // Nonce
+  val = m_wire.find(Tlv::Nonce);
+  if (val != m_wire.elements_end())
+    {
+      m_nonce = readNonNegativeInteger(*val);
+    }
+  else
+    m_nonce = 0;
+
+  // Scope
+  val = m_wire.find(Tlv::Scope);
+  if (val != m_wire.elements_end())
+    {
+      m_scope = readNonNegativeInteger(*val);
+    }
+  else
+    m_scope = -1;
+  
+  // InterestLifetime
+  val = m_wire.find(Tlv::InterestLifetime);
+  if (val != m_wire.elements_end())
+    {
+      m_interestLifetime = readNonNegativeInteger(*val);
+    }
+  else
+    {
+      m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
+    }
+}
+
+
+} // namespace ndn
+
+#endif // NDN_INTEREST_HPP

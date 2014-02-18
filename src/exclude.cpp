@@ -32,7 +32,7 @@ Exclude::Exclude ()
 // lower_bound (/d) -> /d (true) <- excluded
 // lower_bound (/e) -> /d (true) <- excluded
 bool
-Exclude::isExcluded (const Name::Component &comp) const
+Exclude::isExcluded (const name::Component &comp) const
 {
   const_iterator lowerBound = m_exclude.lower_bound (comp);
   if (lowerBound == end ())
@@ -47,7 +47,7 @@ Exclude::isExcluded (const Name::Component &comp) const
 }
 
 Exclude &
-Exclude::excludeOne (const Name::Component &comp)
+Exclude::excludeOne (const name::Component &comp)
 {
   if (!isExcluded (comp))
     {
@@ -85,7 +85,7 @@ Exclude::excludeOne (const Name::Component &comp)
 //                          /f0 (false); /d0 (true); /c0 (false); /b1 (true); /b0 (false); / (true)
 
 Exclude &
-Exclude::excludeRange (const Name::Component &from, const Name::Component &to)
+Exclude::excludeRange (const name::Component &from, const name::Component &to)
 {
   if (from >= to)
     {
@@ -127,7 +127,7 @@ Exclude::excludeRange (const Name::Component &from, const Name::Component &to)
 }
 
 Exclude &
-Exclude::excludeAfter (const Name::Component &from)
+Exclude::excludeAfter (const name::Component &from)
 {
   iterator newFrom = m_exclude.lower_bound (from);
   if (newFrom == end () || !newFrom->second /*without ANY*/)
@@ -172,79 +172,6 @@ operator << (std::ostream &os, const Exclude &exclude)
         }
     }
   return os;
-}
-
-const Block&
-Exclude::wireEncode() const
-{
-  if (wire_.hasWire())
-    return wire_;
-
-  wire_ = Block(Tlv::Exclude);
-
-  for (Exclude::const_reverse_iterator i = m_exclude.rbegin (); i != m_exclude.rend (); i++)
-    {
-      if (!i->first.empty())
-        {
-          OBufferStream os;
-          Tlv::writeVarNumber(os, Tlv::NameComponent);
-          Tlv::writeVarNumber(os, i->first.value_size());
-          os.write(reinterpret_cast<const char *>(i->first.value()), i->first.value_size());
-          
-          wire_.push_back(Block(os.buf()));
-
-        }
-      if (i->second)
-        {
-          OBufferStream os;
-          Tlv::writeVarNumber(os, Tlv::Any);
-          Tlv::writeVarNumber(os, 0);
-          wire_.push_back(Block(os.buf()));
-        }
-    }
-
-  wire_.encode();
-  return wire_;
-}
-  
-void 
-Exclude::wireDecode(const Block &wire)
-{
-  wire_ = wire;
-  wire_.parse();
-
-  Block::element_const_iterator i = wire_.elements_begin();
-  if (i->type() == Tlv::Any)
-    {
-      appendExclude(name::Component(), true);
-      ++i;
-    }
-
-  while (i != wire_.elements_end())
-    {
-      if (i->type() != Tlv::NameComponent)
-        throw Error("Incorrect format of Exclude filter");
-
-      Name::Component excludedComponent (i->value(), i->value_size());
-      ++i;
-
-      if (i != wire_.elements_end())
-        {
-          if (i->type() == Tlv::Any)
-            {
-              appendExclude(excludedComponent, true);
-              ++i;
-            }
-          else
-            {
-              appendExclude(excludedComponent, false);
-            }
-        }
-      else
-        {
-          appendExclude(excludedComponent, false);
-        }
-    }
 }
 
 

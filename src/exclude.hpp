@@ -11,7 +11,7 @@
 #ifndef NDN_EXCLUDE_H
 #define NDN_EXCLUDE_H
 
-#include "name.hpp"
+#include "name-component.hpp"
 
 namespace ndn {
 
@@ -24,7 +24,7 @@ public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
 
   
-  typedef std::map< Name::Component, bool /*any*/, std::greater<Name::Component> > exclude_type;
+  typedef std::map< name::Component, bool /*any*/, std::greater<name::Component> > exclude_type;
 
   typedef exclude_type::iterator iterator;
   typedef exclude_type::const_iterator const_iterator;
@@ -37,11 +37,33 @@ public:
   Exclude ();
 
   /**
+   * @brief Fast encoding or block size estimation
+   */
+  template<bool T>
+  inline size_t
+  wireEncode(EncodingImpl<T> &block) const;
+  
+  /**
+   * @brief Encode to a wire format
+   */
+  inline const Block&
+  wireEncode() const;
+
+  /**
+   * @brief Decode from the wire format
+   */
+  inline void 
+  wireDecode(const Block &wire);
+  
+  ///////////////////////////////////////////////////////////////////////////////
+
+
+  /**
    * @brief Check if name component is excluded
    * @param comp Name component to check against exclude filter
    */
   bool
-  isExcluded (const Name::Component &comp) const;
+  isExcluded (const name::Component &comp) const;
 
   /**
    * @brief Exclude specific name component
@@ -49,7 +71,7 @@ public:
    * @returns *this to allow chaining
    */
   Exclude &
-  excludeOne (const Name::Component &comp);
+  excludeOne (const name::Component &comp);
 
   /**
    * @brief Exclude components from range [from, to]
@@ -58,7 +80,7 @@ public:
    * @returns *this to allow chaining
    */
   Exclude &
-  excludeRange (const Name::Component &from, const Name::Component &to);
+  excludeRange (const name::Component &from, const name::Component &to);
 
   /**
    * @brief Exclude all components from range [/, to]
@@ -66,7 +88,7 @@ public:
    * @returns *this to allow chaining
    */
   inline Exclude &
-  excludeBefore (const Name::Component &to);
+  excludeBefore (const name::Component &to);
 
   /**
    * @brief Exclude all components from range [from, +Inf]
@@ -74,7 +96,7 @@ public:
    * @returns *this to allow chaining
    */
   Exclude &
-  excludeAfter (const Name::Component &from);
+  excludeAfter (const name::Component &from);
 
   /**
    * @brief Method to directly append exclude element
@@ -86,7 +108,7 @@ public:
    * If there is an error with ranges (e.g., order of components is wrong) an exception is thrown
    */
   inline void
-  appendExclude (const Name::Component &name, bool any);
+  appendExclude (const name::Component &name, bool any);
 
   /**
    * @brief Check if exclude filter is empty
@@ -136,20 +158,6 @@ public:
   inline std::string
   toUri () const;
 
-  /**
-   * Encode this Interest for a particular wire format.
-   * @return The encoded byte array.
-   */
-  const Block&
-  wireEncode() const;
-  
-  /**
-   * Decode the input using a particular wire format and update this Interest.
-   * @param input The input byte array to be decoded.
-   */
-  void 
-  wireDecode(const Block &wire);
-  
 private:
   Exclude &
   excludeRange (iterator fromLowerBound, iterator toLowerBound);
@@ -164,13 +172,13 @@ std::ostream&
 operator << (std::ostream &os, const Exclude &name);
 
 inline Exclude &
-Exclude::excludeBefore (const Name::Component &to)
+Exclude::excludeBefore (const name::Component &to)
 {
-  return excludeRange (Name::Component (), to);
+  return excludeRange (name::Component (), to);
 }
 
 inline void
-Exclude::appendExclude (const Name::Component &name, bool any)
+Exclude::appendExclude (const name::Component &name, bool any)
 {
   m_exclude[name] = any;
 }
@@ -225,6 +233,92 @@ Exclude::toUri () const
   os << *this;
   return os.str();
 }
+
+template<bool T>
+inline size_t
+Exclude::wireEncode(EncodingImpl<T> &block) const
+{
+  size_t total_len = 0;
+
+  // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
+  // Any     ::= ANY-TYPE TLV-LENGTH(=0)
+  
+  for (Exclude::const_iterator i = m_exclude.begin (); i != m_exclude.end (); i++)
+    {
+      if (i->second)
+        {
+          total_len += prependBooleanBlock(block, Tlv::Any);
+        }
+      if (!i->first.empty())
+        {
+          total_len += i->first.wireEncode(block);
+        }
+    }
+
+  total_len += block.prependVarNumber(total_len);
+  total_len += block.prependVarNumber(Tlv::Exclude);
+  return total_len;
+}
+
+inline const Block &
+Exclude::wireEncode() const
+{
+  if (wire_.hasWire())
+    return wire_;
+
+  EncodingEstimator estimator;
+  size_t estimatedSize = wireEncode(estimator);
+  
+  EncodingBuffer buffer(estimatedSize, 0);
+  wireEncode(buffer);
+
+  wire_ = buffer.block();
+  return wire_;
+}
+
+inline void
+Exclude::wireDecode(const Block &wire) 
+{
+  wire_ = wire;
+  wire_.parse();
+
+  // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
+  // Any     ::= ANY-TYPE TLV-LENGTH(=0)
+  
+  Block::element_const_iterator i = wire_.elements_begin();
+  if (i->type() == Tlv::Any)
+    {
+      appendExclude(name::Component(), true);
+      ++i;
+    }
+
+  while (i != wire_.elements_end())
+    {
+      if (i->type() != Tlv::NameComponent)
+        throw Error("Incorrect format of Exclude filter");
+
+      name::Component excludedComponent (i->value(), i->value_size());
+      ++i;
+
+      if (i != wire_.elements_end())
+        {
+          if (i->type() == Tlv::Any)
+            {
+              appendExclude(excludedComponent, true);
+              ++i;
+            }
+          else
+            {
+              appendExclude(excludedComponent, false);
+            }
+        }
+      else
+        {
+          appendExclude(excludedComponent, false);
+        }
+    }
+}
+
 
 } // ndn
 

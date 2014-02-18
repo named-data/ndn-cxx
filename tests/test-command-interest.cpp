@@ -63,7 +63,12 @@ BOOST_AUTO_TEST_CASE (Validation)
   shared_ptr<Interest> commandInterest2 = make_shared<Interest>("/TestCommandInterest/Validation/Command2");
   int64_t timestamp = time::now() / 1000000;
   timestamp -= 5000;
-  commandInterest2->getName().append(name::Component::fromNumber(timestamp)).append(name::Component::fromNumber(random::generateWord64()));
+  Name commandName = commandInterest2->getName();
+  commandName
+    .append(name::Component::fromNumber(timestamp))
+    .append(name::Component::fromNumber(random::generateWord64()));
+  commandInterest2->setName(commandName);
+  
   keyChain.signByIdentity(*commandInterest2, identity);
   validator.validate(*commandInterest2,
   		     bind(&TestCore::validated, &core, _1),

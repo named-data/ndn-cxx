@@ -33,6 +33,19 @@ public:
   {
     wireDecode(block);
   }
+
+  template<bool T>
+  size_t
+  wireEncode(EncodingImpl<T> &block) const;
+
+  const Block& 
+  wireEncode() const;
+  
+  void
+  wireDecode(const Block &wire);  
+  
+  ///////////////////////////////////////////////////////////////////////////////
+  // Gettest/setters
   
   uint32_t 
   getType() const
@@ -76,16 +89,6 @@ public:
     return *this;
   }
   
-  template<bool T>
-  size_t
-  wireEncode(EncodingImpl<T> &block) const;
-
-  const Block& 
-  wireEncode() const;
-  
-  void
-  wireDecode(const Block &wire);  
-  
 private:
   uint32_t m_type;
   Milliseconds m_freshnessPeriod;
@@ -108,28 +111,19 @@ MetaInfo::wireEncode(EncodingImpl<T>& blk) const
   // FinalBlockId
   if (!m_finalBlockId.empty())
     {
-      size_t var_len = m_finalBlockId.wireEncode (blk);
-      total_len += var_len;
-      total_len += blk.prependVarNumber (var_len);
-      total_len += blk.prependVarNumber (Tlv::FinalBlockId);
+      total_len += prependNestedBlock(blk, Tlv::FinalBlockId, m_finalBlockId);
     }
   
   // FreshnessPeriod
   if (m_freshnessPeriod >= 0)
     {
-      size_t var_len = blk.prependNonNegativeInteger (m_freshnessPeriod);
-      total_len += var_len;
-      total_len += blk.prependVarNumber (var_len);
-      total_len += blk.prependVarNumber (Tlv::FreshnessPeriod);
+      total_len += prependNonNegativeIntegerBlock(blk, Tlv::FreshnessPeriod, m_freshnessPeriod);
     }
 
   // ContentType
   if (m_type != TYPE_DEFAULT)
     {
-      size_t var_len = blk.prependNonNegativeInteger (m_type);
-      total_len += var_len;
-      total_len += blk.prependVarNumber (var_len);
-      total_len += blk.prependVarNumber (Tlv::ContentType);
+      total_len += prependNonNegativeIntegerBlock(blk, Tlv::ContentType, m_type);
     }
 
   total_len += blk.prependVarNumber (total_len);

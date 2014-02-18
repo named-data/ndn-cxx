@@ -28,8 +28,12 @@ CommandInterestGenerator::generate(Interest& interest,
       usleep(1000); //Guarantee unqiueness of timestamp
       timestamp = time::now();
     }
-  
-  interest.getName().append(name::Component::fromNumber(timestamp)).append(name::Component::fromNumber(random::generateWord64()));
+
+  Name commandInterestName = interest.getName();
+  commandInterestName
+    .append(name::Component::fromNumber(timestamp))
+    .append(name::Component::fromNumber(random::generateWord64()));
+  interest.setName(commandInterestName);
 
   if(certificateName == DEFAULT_CERTIFICATE_NAME)
     m_keyChain.sign(interest);
@@ -45,8 +49,12 @@ CommandInterestGenerator::generateWithIdentity(Interest& interest, const Name& i
   int64_t timestamp = time::now() / 1000000;
   if(timestamp <= m_lastTimestamp)
     timestamp = m_lastTimestamp + 1;
-  
-  interest.getName().append(name::Component::fromNumber(timestamp)).append(name::Component::fromNumber(random::generateWord64()));
+
+  Name commandInterestName = interest.getName();
+  commandInterestName
+    .append(name::Component::fromNumber(timestamp))
+    .append(name::Component::fromNumber(random::generateWord64()));
+  interest.setName(commandInterestName);
 
   m_keyChain.signByIdentity(interest, identity);
 

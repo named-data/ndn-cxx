@@ -14,36 +14,34 @@ using namespace std;
 
 namespace ndn {
 
-const Milliseconds DEFAULT_INTEREST_LIFETIME = 4000;
-
 const uint32_t&
 Interest::getNonce() const
 {
-  if (nonce_ == 0)
-    nonce_ = random::generateWord32();
+  if (m_nonce == 0)
+    m_nonce = random::generateWord32();
 
-  return nonce_;
+  return m_nonce;
 }
 
 
 bool
 Interest::matchesName(const Name &name) const
 {
-  if (!name_.isPrefixOf(name))
+  if (!m_name.isPrefixOf(name))
     return false;
   
-  if (minSuffixComponents_ >= 0 &&
+  if (getMinSuffixComponents() >= 0 &&
     // Add 1 for the implicit digest.
-      !(name.size() + 1 - name_.size() >= minSuffixComponents_))
+      !(name.size() + 1 - m_name.size() >= getMinSuffixComponents()))
     return false;
 
-  if (maxSuffixComponents_ >= 0 &&
+  if (getMaxSuffixComponents() >= 0 &&
     // Add 1 for the implicit digest.
-    !(name.size() + 1 - name_.size() <= maxSuffixComponents_))
+      !(name.size() + 1 - m_name.size() <= getMaxSuffixComponents()))
     return false;
 
-  if (!exclude_.empty() && name.size() > name_.size() &&
-      exclude_.isExcluded(name[name_.size()]))
+  if (!getExclude().empty() && name.size() > m_name.size() &&
+      getExclude().isExcluded(name[m_name.size()]))
     return false;
 
   return true;
@@ -92,160 +90,5 @@ operator << (std::ostream &os, const Interest &interest)
 
   return os;
 }
-
-const Block&
-Interest::wireEncode() const
-{
-  if (wire_.hasWire())
-    return wire_;
-
-  // Interest ::= INTEREST-TYPE TLV-LENGTH
-  //                Name
-  //                Selectors?
-  //                Nonce
-  //                Scope?
-  //                InterestLifetime?  
-  
-  wire_ = Block(Tlv::Interest);
-  wire_.push_back(getName().wireEncode());
-
-  // selectors
-  {
-    Block selectors(Tlv::Selectors);
-    
-    if (getMinSuffixComponents() >= 0) {
-      selectors.push_back
-        (nonNegativeIntegerBlock(Tlv::MinSuffixComponents, getMinSuffixComponents()));
-    }
-    if (getMaxSuffixComponents() >= 0) {
-      selectors.push_back
-        (nonNegativeIntegerBlock(Tlv::MaxSuffixComponents, getMaxSuffixComponents()));
-    }
-    if (!getExclude().empty()) {
-      selectors.push_back
-        (getExclude().wireEncode());
-    }
-    if (getChildSelector() >= 0) {
-      selectors.push_back
-        (nonNegativeIntegerBlock(Tlv::ChildSelector, getChildSelector()));
-    }
-    if (getMustBeFresh()) {
-      selectors.push_back
-        (booleanBlock(Tlv::MustBeFresh));
-    }
-
-    if (!selectors.elements().empty())
-      {
-        selectors.encode();
-        wire_.push_back(selectors);
-      }
-  }
-
-  // Nonce
-  {
-    wire_.push_back
-      (nonNegativeIntegerBlock(Tlv::Nonce, getNonce()));
-  }
-
-  // Scope
-  if (getScope() >= 0) {
-    wire_.push_back
-      (nonNegativeIntegerBlock(Tlv::Scope, getScope()));
-  }
-
-  // InterestLifetime
-  if (getInterestLifetime() >= 0 && getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
-    wire_.push_back
-      (nonNegativeIntegerBlock(Tlv::InterestLifetime, getInterestLifetime()));
-  }
-  
-  wire_.encode();
-  return wire_;
-}
-  
-void 
-Interest::wireDecode(const Block &wire) 
-{
-  wire_ = wire;
-  wire_.parse();
-
-  // Interest ::= INTEREST-TYPE TLV-LENGTH
-  //                Name
-  //                Selectors?
-  //                Nonce
-  //                Scope?
-  //                InterestLifetime?  
-  
-  // Name
-  name_.wireDecode(wire_.get(Tlv::Name));
-
-  // Selectors
-  Block::element_const_iterator selectors = wire_.find(Tlv::Selectors);
-  if (selectors != wire_.elements_end())
-    {
-      selectors->parse();
-
-      // MinSuffixComponents
-      Block::element_const_iterator val = selectors->find(Tlv::MinSuffixComponents);
-      if (val != selectors->elements_end())
-        {
-          minSuffixComponents_ = readNonNegativeInteger(*val);
-        }
-
-      // MaxSuffixComponents
-      val = selectors->find(Tlv::MaxSuffixComponents);
-      if (val != selectors->elements_end())
-        {
-          maxSuffixComponents_ = readNonNegativeInteger(*val);
-        }
-
-      // Exclude
-      val = selectors->find(Tlv::Exclude);
-      if (val != selectors->elements_end())
-        {
-          exclude_.wireDecode(*val);
-        }
-
-      // ChildSelector
-      val = selectors->find(Tlv::ChildSelector);
-      if (val != selectors->elements_end())
-        {
-          childSelector_ = readNonNegativeInteger(*val);
-        }
-
-      //MustBeFresh aka AnswerOriginKind
-      val = selectors->find(Tlv::MustBeFresh);
-      if (val != selectors->elements_end())
-        {
-          mustBeFresh_ = true;
-        }
-    }
-  
-  // Nonce
-  Block::element_const_iterator val = wire_.find(Tlv::Nonce);
-  if (val != wire_.elements_end())
-    {
-      nonce_ = readNonNegativeInteger(*val);
-    }
-
-  // Scope
-  val = wire_.find(Tlv::Scope);
-  if (val != wire_.elements_end())
-    {
-      scope_ = readNonNegativeInteger(*val);
-    }
-  
-  // InterestLifetime
-  val = wire_.find(Tlv::InterestLifetime);
-  if (val != wire_.elements_end())
-    {
-      interestLifetime_ = readNonNegativeInteger(*val);
-    }
-  else
-    {
-      interestLifetime_ = DEFAULT_INTEREST_LIFETIME;
-    }
-}
-
 
 }

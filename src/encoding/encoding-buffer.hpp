@@ -496,6 +496,44 @@ EncodingImpl<encoding::Estimator>::appendVarNumber (uint64_t varNumber)
   return prependVarNumber(varNumber);
 }
 
+/// helper methods
+
+template<bool P>
+inline size_t
+prependNonNegativeIntegerBlock(EncodingImpl<P>& blk, uint32_t type, uint64_t number)
+{
+  size_t var_len = blk.prependNonNegativeInteger(number);
+  size_t total_len = var_len;
+  total_len += blk.prependVarNumber(var_len);
+  total_len += blk.prependVarNumber(type);
+
+  return total_len;
+}
+
+template<bool P>
+inline size_t
+prependBooleanBlock(EncodingImpl<P>& blk, uint32_t type)
+{
+  size_t total_len = blk.prependVarNumber(0);
+  total_len += blk.prependVarNumber(type);
+
+  return total_len;
+}
+
+
+template<bool P, class U>
+inline size_t
+prependNestedBlock(EncodingImpl<P>& blk, uint32_t type, U& nestedBlock)
+{
+  size_t var_len = nestedBlock.wireEncode(blk);
+  size_t total_len = var_len;
+  total_len += blk.prependVarNumber(var_len);
+  total_len += blk.prependVarNumber(type);
+
+  return total_len;
+}
+
+
 } // ndn
 
 #endif // NDN_ENCODING_BUFFER_HPP

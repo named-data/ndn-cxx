@@ -8,6 +8,7 @@
 #define NDN_DETAIL_REGISTERED_PREFIX_HPP
 
 #include "../common.hpp"
+#include "../name.hpp"
 #include "../interest.hpp"
 
 namespace ndn {

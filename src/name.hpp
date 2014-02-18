@@ -503,6 +503,9 @@ Name::wireEncode() const
 inline void
 Name::wireDecode(const Block &wire)
 {
+  if (wire.type() != Tlv::Name)
+    throw Tlv::Error("Unexpected TLV type when decoding Name");
+  
   m_nameBlock = wire;
   m_nameBlock.parse();
 }

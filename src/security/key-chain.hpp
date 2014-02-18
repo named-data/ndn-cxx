@@ -223,14 +223,14 @@ public:
     SignatureSha256WithRsa signature;
     signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
 
-    Name& interestName = interest.getName().append(signature.getInfo());
+    Name signedName = Name(interest.getName()).append(signature.getInfo());
 
-    signature.setValue(Tpm::signInTpm(interestName.wireEncode().value(), 
-                                      interestName.wireEncode().value_size(), 
+    signature.setValue(Tpm::signInTpm(signedName.wireEncode().value(), 
+                                      signedName.wireEncode().value_size(), 
                                       cert->getPublicKeyName(),
                                       DIGEST_ALGORITHM_SHA256));
-    
-    interest.getName().append(signature.getValue());
+    signedName.append(signature.getValue());
+    interest.setName(signedName);
   }
   
   /**
@@ -402,14 +402,15 @@ private:
     SignatureSha256WithRsa signature;
     signature.setKeyLocator(certificate.getName().getPrefix(-1)); // implicit conversion should take care
 
-    Name& interestName = interest.getName().append(signature.getInfo());
+    Name signedName = Name(interest.getName()).append(signature.getInfo());
 
-    signature.setValue(Tpm::signInTpm(interestName.wireEncode().value(), 
-                                      interestName.wireEncode().value_size(), 
+    signature.setValue(Tpm::signInTpm(signedName.wireEncode().value(), 
+                                      signedName.wireEncode().value_size(), 
                                       certificate.getPublicKeyName(), 
                                       DIGEST_ALGORITHM_SHA256));
     
-    interestName.append(signature.getValue());
+    signedName.append(signature.getValue());
+    interest.setName(signedName);
   }
 
   /**
