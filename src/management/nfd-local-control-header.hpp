@@ -14,11 +14,12 @@ namespace ndn {
 namespace nfd {
 
 const uint64_t INVALID_FACE_ID = std::numeric_limits<uint64_t>::max();
-const size_t   ESTIMATED_LOCAL_HEADER_RESERVE = 10;
 
 class LocalControlHeader
 {
 public:
+  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+
   LocalControlHeader()
     : m_incomingFaceId(INVALID_FACE_ID)
     , m_nextHopFaceId(INVALID_FACE_ID)
@@ -28,17 +29,26 @@ public:
   /**
    * @brief Create wire encoding with options LocalControlHeader and the supplied item
    *
-   * This method will return wire encoding of the item if none of the LocalControlHeader
-   * fields are set, otherwise it will encapsulate the item inside LocalControlHeader
+   * The caller is responsible of checking whether LocalControlHeader contains
+   * any information.
    *
-   * Note that this method will use default maximum packet size (8800 bytes) during the
-   * encoding process.
+   * !It is an error to call this method if neither IncomingFaceId nor NextHopFaceId is
+   * set, or neither of them is enabled.
+   *
+   * @throws LocalControlHeader::Error when empty LocalControlHeader be produced
+   *
+   * @returns Block, containing LocalControlHeader. Top-level length field of the
+   *          returned LocalControlHeader includes payload length, but the memory
+   *          block is independent of the payload's wire buffer.  It is expected
+   *          that both LocalControlHeader's and payload's wire will be send out
+   *          together within a single send call.
    *
    * @see http://redmine.named-data.net/projects/nfd/wiki/LocalControlHeader
    */
   template<class U>
-  inline const Block&
-  wireEncode(const U& item) const;
+  inline Block
+  wireEncode(const U& payload,
+             bool encodeIncomingFaceId, bool encodeNextHopFaceId) const;
   
   /**
    * @brief Decode from the wire format and set LocalControlHeader on the supplied item
@@ -55,12 +65,13 @@ public:
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
-  // Gettest/setters
+  // Getters/setters
 
   bool
-  empty() const
+  empty(bool encodeIncomingFaceId, bool encodeNextHopFaceId) const
   {
-    return (!hasIncomingFaceId() && !hasNextHopFaceId());
+    return !((encodeIncomingFaceId && hasIncomingFaceId()) ||
+             (encodeNextHopFaceId  && hasNextHopFaceId()));
   }
   
   //
@@ -81,7 +92,6 @@ public:
   setIncomingFaceId(uint64_t incomingFaceId)
   {
     m_incomingFaceId = incomingFaceId;
-    m_wire.reset();
   }
 
   //
@@ -102,38 +112,37 @@ public:
   setNextHopFaceId(uint64_t nextHopFaceId)
   {
     m_nextHopFaceId = nextHopFaceId;
-    m_wire.reset();
   }
 
 private:
-  template<bool T, class U>
+  template<bool T>
   inline size_t
-  wireEncode(EncodingImpl<T>& block, const U& item) const;
+  wireEncode(EncodingImpl<T>& block, size_t payloadSize,
+             bool encodeIncomingFaceId, bool encodeNextHopFaceId) const;
   
 private:
   uint64_t m_incomingFaceId;
   uint64_t m_nextHopFaceId;
-
-  mutable Block m_wire;
 };
 
 
 /**
  * @brief Fast encoding or block size estimation
  */
-template<bool T, class U>
+template<bool T>
 inline size_t
-LocalControlHeader::wireEncode(EncodingImpl<T>& block, const U& item) const
+LocalControlHeader::wireEncode(EncodingImpl<T>& block, size_t payloadSize,
+                               bool encodeIncomingFaceId, bool encodeNextHopFaceId) const
 {
-  size_t total_len = item.wireEncode().size();
+  size_t total_len = payloadSize;
 
-  if (hasIncomingFaceId())
+  if (encodeIncomingFaceId && hasIncomingFaceId())
     {
       total_len += prependNonNegativeIntegerBlock(block,
                                                   tlv::nfd::IncomingFaceId, getIncomingFaceId());
     }
 
-  if (hasNextHopFaceId())
+  if (encodeNextHopFaceId && hasNextHopFaceId())
     {
       total_len += prependNonNegativeIntegerBlock(block,
                                                   tlv::nfd::NextHopFaceId, getNextHopFaceId());
@@ -145,58 +154,36 @@ LocalControlHeader::wireEncode(EncodingImpl<T>& block, const U& item) const
 }
 
 template<class U>
-inline const Block&
-LocalControlHeader::wireEncode(const U& item) const
+inline Block
+LocalControlHeader::wireEncode(const U& payload,
+                               bool encodeIncomingFaceId, bool encodeNextHopFaceId) const
 {
-  if (item.hasWire() && m_wire.hasWire())
-    return m_wire;
+  /// @todo should this be BOOST_ASSERT instead?  This is kind of unnecessary overhead
+  if (empty(encodeIncomingFaceId, encodeNextHopFaceId))
+    throw Error("Requested wire for LocalControlHeader, but none of the fields are set or enabled");
 
-  if (empty())
-    {
-      if (item.hasWire())
-        return item.wireEncode();
-      else
-        {
-          EncodingBuffer buffer; // use default (maximum) packet size here
-          item.wireEncode(buffer);
-          item.m_wire = buffer.block();
-          m_wire = buffer.block();
-        }
-    }
-  else
-    {
-      if (item.hasWire())
-        {
-          // extend the existing buffer
-          EncodingBuffer buffer(item.wireEncode());
-          wireEncode(buffer, item);
-          m_wire = buffer.block();
-        }
-      else
-        {
-          EncodingBuffer buffer;
-          item.wireEncode(buffer);
-          item.m_wire = buffer.block();
+  EncodingEstimator estimator;
+  size_t length = wireEncode(estimator, payload.wireEncode().size(),
+                             encodeIncomingFaceId, encodeNextHopFaceId);
+  
+  EncodingBuffer buffer(length);
+  wireEncode(buffer, payload.wireEncode().size(),
+             encodeIncomingFaceId, encodeNextHopFaceId);
 
-          wireEncode(buffer, item);
-          m_wire = buffer.block();
-        }
-    }
-  return m_wire;
+  return buffer.block(false);
 }
 
 inline void 
 LocalControlHeader::wireDecode(const Block& wire)
 {
   BOOST_ASSERT(wire.type() == tlv::nfd::LocalControlHeader);
-  m_wire = wire;
-  m_wire.parse();
+  wire.parse();
 
   m_incomingFaceId = INVALID_FACE_ID;
   m_nextHopFaceId = INVALID_FACE_ID;
 
-  for (Block::element_const_iterator i = m_wire.elements_begin();
-       i != m_wire.elements_end();
+  for (Block::element_const_iterator i = wire.elements_begin();
+       i != wire.elements_end();
        ++i)
     {
       switch(i->type())

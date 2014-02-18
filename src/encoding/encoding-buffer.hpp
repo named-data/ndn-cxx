@@ -85,8 +85,15 @@ public:
   inline const uint8_t*
   buf () const;
 
+  /**
+   * @brief Create Block from the underlying EncodingBuffer
+   *
+   * @param verifyLength If this parameter set to true, Block's constructor
+   *                     will be requested to verify consistency of the encoded
+   *                     length in the Block, otherwise ignored
+   */
   inline Block
-  block () const;
+  block (bool verifyLength = true) const;
 
   inline void
   resize (size_t sz, bool addInFront);
@@ -218,10 +225,11 @@ EncodingImpl<encoding::Buffer>::buf () const
 }
 
 inline Block
-EncodingImpl<encoding::Buffer>::block () const
+EncodingImpl<encoding::Buffer>::block (bool verifyLength/* = true*/) const
 {
   return Block(m_buffer,
-               m_begin, m_end);
+               m_begin, m_end,
+               verifyLength);
 }
 
 inline void

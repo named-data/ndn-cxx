@@ -157,7 +157,7 @@ public:
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
-  // Gettest/setters
+  // Getters/setters
   
   const Name& 
   getName() const
@@ -267,6 +267,25 @@ public:
   setIncomingFaceId(uint64_t incomingFaceId)
   {
     getLocalControlHeader().setIncomingFaceId(incomingFaceId);
+    // ! do not reset Interest's wire !
+    return *this;
+  }
+
+  //
+
+  // NextHopFaceId helpers make sense only for Interests
+  
+  uint64_t
+  getNextHopFaceId() const
+  {
+    return getLocalControlHeader().getNextHopFaceId();
+  }
+
+  Interest&
+  setNextHopFaceId(uint64_t nextHopFaceId)
+  {
+    getLocalControlHeader().setNextHopFaceId(nextHopFaceId);
+    // ! do not reset Interest's wire !
     return *this;
   }
 
@@ -447,7 +466,7 @@ Interest::wireEncode() const
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
   
-  EncodingBuffer buffer(estimatedSize + nfd::ESTIMATED_LOCAL_HEADER_RESERVE, 0);
+  EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
   m_wire = buffer.block();

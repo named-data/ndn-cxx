@@ -1,12 +1,11 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_TRANSPORT_HPP
-#define NDN_TRANSPORT_HPP
+#ifndef NDN_TRANSPORT_TRANSPORT_HPP
+#define NDN_TRANSPORT_TRANSPORT_HPP
 
 #include "../common.hpp"
 #include "../encoding/block.hpp"
@@ -32,44 +31,54 @@ public:
    * @throws If connection cannot be established
    */
   inline virtual void 
-  connect(boost::asio::io_service &io_service,
-          const ReceiveCallback &receiveCallback);
+  connect(boost::asio::io_service& io_service,
+          const ReceiveCallback& receiveCallback);
   
   /**
    * Close the connection.
    */
   virtual void 
-  close() = 0;
+  close() =0;
 
   /**
-   * Set data to the host
+   * @brief Set data to the host
+   *
    * @param data A pointer to the buffer of data to send.
    * @param dataLength The number of bytes in data.
    */
   virtual void 
-  send(const Block &wire) = 0;
+  send(const Block& wire) =0;
 
+  /**
+   * @brief Alternative version of sending data, applying scatter/gather I/O concept
+   *
+   * Two non-consecutive memory blocks will be send out together, e.g., as part of the
+   * same message in datagram-oriented transports.
+   */
+  virtual void 
+  send(const Block& header, const Block& payload) =0;
+  
   inline bool 
   isConnected();
 
 protected:
   inline void
-  receive(const Block &wire);
+  receive(const Block& wire);
   
 protected:
-  boost::asio::io_service *ioService_;
-  bool isConnected_;
-  ReceiveCallback receiveCallback_;
+  boost::asio::io_service* m_ioService;
+  bool m_isConnected;
+  ReceiveCallback m_receiveCallback;
 };
 
 inline
 Transport::Transport()
-  : ioService_(0)
-  , isConnected_(false)
+  : m_ioService(0)
+  , m_isConnected(false)
 {
 }
 
-inline Transport::Error::Error(const boost::system::error_code &code, const std::string &msg)
+inline Transport::Error::Error(const boost::system::error_code& code, const std::string& msg)
   : std::runtime_error(msg + (code.value() ? " (" + code.category().message(code.value()) + ")" : ""))
 {
 }
@@ -80,25 +89,25 @@ Transport::~Transport()
 }
 
 inline void 
-Transport::connect(boost::asio::io_service &ioService,
-                   const ReceiveCallback &receiveCallback)
+Transport::connect(boost::asio::io_service& ioService,
+                   const ReceiveCallback& receiveCallback)
 {
-  ioService_ = &ioService;
-  receiveCallback_ = receiveCallback;
+  m_ioService = &ioService;
+  m_receiveCallback = receiveCallback;
 }
 
 inline bool 
 Transport::isConnected()
 {
-  return isConnected_;
+  return m_isConnected;
 }
 
 inline void
-Transport::receive(const Block &wire)
+Transport::receive(const Block& wire)
 {
-  receiveCallback_(wire);
+  m_receiveCallback(wire);
 }
 
-}
+} // namespace ndn
 
-#endif
+#endif // NDN_TRANSPORT_TRANSPORT_HPP

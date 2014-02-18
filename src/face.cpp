@@ -105,7 +105,16 @@ Face::asyncExpressInterest(const shared_ptr<const Interest>& interest,
   m_pendingInterestTable.push_back(shared_ptr<PendingInterest>(new PendingInterest
                                                                (interest, onData, onTimeout)));
 
-  m_transport->send(interest->getLocalControlHeader().wireEncode(*interest));
+  if (!interest->getLocalControlHeader().empty(false, true))
+    {
+      // encode only NextHopFaceId towards the forwarder
+      m_transport->send(interest->getLocalControlHeader().wireEncode(*interest, false, true),
+                        interest->wireEncode());
+    }
+  else
+    {
+      m_transport->send(interest->wireEncode());
+    }
 
   if (!m_pitTimeoutCheckTimerActive) {
     m_pitTimeoutCheckTimerActive = true;
@@ -121,7 +130,15 @@ Face::put(const Data &data)
     m_transport->connect(*m_ioService,
                          bind(&Face::onReceiveElement, this, _1));
 
-  m_transport->send(data.getLocalControlHeader().wireEncode(data));
+  if (!data.getLocalControlHeader().empty(false, true))
+    {
+      m_transport->send(data.wireEncode());
+    }
+  else
+    {
+      m_transport->send(data.getLocalControlHeader().wireEncode(data, false, true),
+                        data.wireEncode());
+    }
 }
 
 void

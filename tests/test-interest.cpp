@@ -117,121 +117,105 @@ BOOST_AUTO_TEST_CASE (Encode)
 
 BOOST_AUTO_TEST_CASE(EncodeWithLocalHeader)
 {
-  {
-    ndn::Interest i1(ndn::Name("/local/ndn/prefix"));
-    i1.setMustBeFresh(true);
-    i1.setIncomingFaceId(10);
-    i1.setNonce(1);
+  ndn::Interest interest(ndn::Name("/local/ndn/prefix"));
+  interest.setMustBeFresh(true);
+  interest.setIncomingFaceId(10);
+  interest.setNonce(1);
     
-    BOOST_CHECK(!i1.hasWire());
-    const Block* block1 = &i1.getLocalControlHeader().wireEncode(i1);
+  BOOST_CHECK(!interest.hasWire());
     
-    BOOST_CHECK_EQUAL(block1, &i1.getLocalControlHeader().wireEncode(i1));
-    BOOST_CHECK(i1.hasWire());
-    BOOST_CHECK_NE(block1, &i1.wireEncode());
-    BOOST_CHECK_NE(block1->wire(), i1.wireEncode().wire());
-    BOOST_CHECK_NE(block1->size(), i1.wireEncode().size());
+  Block headerBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
 
-    BOOST_CHECK_EQUAL_COLLECTIONS(InterestWithLocalControlHeader,
-                                  InterestWithLocalControlHeader+sizeof(InterestWithLocalControlHeader),
-                                  block1->begin(), block1->end());
+  BOOST_CHECK(interest.hasWire());
+  BOOST_CHECK(headerBlock.hasWire());
 
-    Block savedBlock1 = *block1;
+  BOOST_CHECK_NE(headerBlock.wire(), interest.wireEncode().wire());
+  BOOST_CHECK_NE(headerBlock.size(), interest.wireEncode().size());
+  BOOST_CHECK_EQUAL(headerBlock.size(), 5);
 
-    i1.setNonce(1000);
-    BOOST_CHECK(!i1.hasWire());
-  
-    const Block* block4 = &i1.getLocalControlHeader().wireEncode(i1);
-    BOOST_CHECK_EQUAL(block4, &i1.getLocalControlHeader().wireEncode(i1));
-    BOOST_CHECK_NE((void*)block4->wire(), (void*)savedBlock1.wire());
-    BOOST_CHECK_NE(block4->size(), savedBlock1.size()); 
-  }
+  BOOST_CHECK_EQUAL_COLLECTIONS(InterestWithLocalControlHeader,
+                                InterestWithLocalControlHeader+5,
+                                headerBlock.begin(), headerBlock.end());
 
-  {
-    ndn::Interest i1(ndn::Name("/local/ndn/prefix"));
-    i1.setMustBeFresh(true);
-    i1.setIncomingFaceId(10);
-    i1.setNonce(1);
-    i1.wireEncode(); // Encode with reserve for LocalControlHeader
+  interest.setNonce(1000);
 
-    const void* savedWire = i1.wireEncode().wire();
-    const Block* block1 = &i1.getLocalControlHeader().wireEncode(i1);
+  Block updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
+  BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 5);
 
-    BOOST_CHECK_EQUAL((const void*)i1.wireEncode().wire(), savedWire);
-    BOOST_CHECK_EQUAL(i1.wireEncode().wire() - block1->wire(), 5);
-   }
+  // only length should have changed
+  BOOST_CHECK_EQUAL_COLLECTIONS(updatedHeaderBlock.begin()+2, updatedHeaderBlock.end(),
+                                headerBlock.begin()+2,        headerBlock.end());
 
-  {
-    ndn::Interest i1(ndn::Name("/local/ndn/prefix"));
-    i1.setMustBeFresh(true);
-    i1.setIncomingFaceId(10);
-    i1.setNonce(1);
+  // updating IncomingFaceId that keeps the length
+  interest.setIncomingFaceId(100);
+  updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
+  BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 5);
+  BOOST_CHECK_NE(*(updatedHeaderBlock.begin()+4), *(headerBlock.begin()+4));
 
-    EncodingBuffer buffer(31,0); // compared to previous version, there is not reserve for LocalControlHeader
-    i1.wireEncode(buffer);
-    i1.wireDecode(buffer.block());
+  // updating IncomingFaceId that increases the length by 2
+  interest.setIncomingFaceId(1000);
+  updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
+  BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 6);
 
-    const void* savedWire = i1.wireEncode().wire();
-    const Block* block1 = &i1.getLocalControlHeader().wireEncode(i1);
+  // adding NextHopId
+  interest.setNextHopFaceId(1);
+  updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
+  BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 9);
 
-    BOOST_CHECK_EQUAL((const void*)i1.wireEncode().wire(), savedWire);
-    BOOST_CHECK_NE(i1.wireEncode().wire() - block1->wire(), 5);
-   }
-  
-  {
-    ndn::Interest i2(ndn::Name("/local/ndn/prefix"));
-    i2.setMustBeFresh(true);
-    i2.setNonce(1);
+  // masking IncomingFaceId
+  updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, false, true);
+  BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 5);
 
-    BOOST_CHECK(!i2.hasWire());
-    const Block* block2 = &i2.getLocalControlHeader().wireEncode(i2);
-    BOOST_CHECK_EQUAL(block2, &i2.getLocalControlHeader().wireEncode(i2));
-    BOOST_CHECK(i2.hasWire());
-    BOOST_CHECK_NE(block2, &i2.wireEncode());
-    BOOST_CHECK_EQUAL(block2->wire(), i2.wireEncode().wire());
-    BOOST_CHECK_EQUAL(block2->size(), i2.wireEncode().size());
+  // masking NextHopId
+  updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, true, false);
+  BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 6);
 
-    Block savedBlock2 = *block2;
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(InterestWithoutLocalControlHeader,
-                                  InterestWithoutLocalControlHeader+sizeof(InterestWithoutLocalControlHeader),
-                                  block2->begin(), block2->end());
-
-    i2.setNonce(1);
-    BOOST_CHECK(!i2.hasWire());
-  
-    const Block* block4 = &i2.getLocalControlHeader().wireEncode(i2);
-    BOOST_CHECK_EQUAL(block4, &i2.getLocalControlHeader().wireEncode(i2));
-    BOOST_CHECK_NE((void*)block4->wire(), (void*)savedBlock2.wire());
-    BOOST_CHECK_EQUAL(block4->size(), savedBlock2.size());
-  }
+  // masking everything
+  BOOST_CHECK_THROW(interest.getLocalControlHeader().wireEncode(interest, false, false),
+                    nfd::LocalControlHeader::Error);
 }
+
 
 BOOST_AUTO_TEST_CASE (DecodeWithLocalHeader)
 {
-  Block b1(InterestWithLocalControlHeader, sizeof(InterestWithLocalControlHeader));
-  const Block& block1 = nfd::LocalControlHeader::getPayload(b1);
-  BOOST_REQUIRE_NE(&block1, &b1);
+  Block wireBlock(InterestWithLocalControlHeader, sizeof(InterestWithLocalControlHeader));
+  const Block& payload = nfd::LocalControlHeader::getPayload(wireBlock);
+  BOOST_REQUIRE_NE(&payload, &wireBlock);
 
-  BOOST_CHECK_EQUAL(block1.type(), (uint32_t)Tlv::Interest);
-  BOOST_CHECK_EQUAL(b1.type(), (uint32_t)tlv::nfd::LocalControlHeader);
-
-  Interest i(block1);
-  BOOST_CHECK(!i.getLocalControlHeader().hasIncomingFaceId());
-  BOOST_CHECK(!i.getLocalControlHeader().hasNextHopFaceId());
-
-  BOOST_REQUIRE_NO_THROW(i.getLocalControlHeader().wireDecode(b1));
-
-  BOOST_CHECK_EQUAL(i.getIncomingFaceId(), 10);
-  BOOST_CHECK(!i.getLocalControlHeader().hasNextHopFaceId());
-
-  BOOST_CHECK_EQUAL((void*)i.getLocalControlHeader().wireEncode(i).wire(), (void*)b1.wire());
-
-  //
+  BOOST_CHECK_EQUAL(payload.type(), (uint32_t)Tlv::Interest);
+  BOOST_CHECK_EQUAL(wireBlock.type(), (uint32_t)tlv::nfd::LocalControlHeader);
   
-  Block b2(InterestWithoutLocalControlHeader, sizeof(InterestWithoutLocalControlHeader));
-  const Block& block2 = nfd::LocalControlHeader::getPayload(b2);
-  BOOST_CHECK_EQUAL(&block2, &b2);
+  Interest interest(payload);
+  BOOST_CHECK(!interest.getLocalControlHeader().hasIncomingFaceId());
+  BOOST_CHECK(!interest.getLocalControlHeader().hasNextHopFaceId());
+
+  BOOST_REQUIRE_NO_THROW(interest.getLocalControlHeader().wireDecode(wireBlock));
+
+  BOOST_CHECK_EQUAL(interest.getLocalControlHeader().wireEncode(interest, true, true).size(), 5);
+  
+  BOOST_CHECK_EQUAL(interest.getIncomingFaceId(), 10);
+  BOOST_CHECK(!interest.getLocalControlHeader().hasNextHopFaceId());
+
+  BOOST_CHECK_THROW(interest.getLocalControlHeader().wireEncode(interest, false, false),
+                    nfd::LocalControlHeader::Error);
+
+  BOOST_CHECK_THROW(interest.getLocalControlHeader().wireEncode(interest, false, true),
+                    nfd::LocalControlHeader::Error);
+
+  BOOST_CHECK_NO_THROW(interest.getLocalControlHeader().wireEncode(interest, true, false));
+  BOOST_CHECK_NO_THROW(interest.getLocalControlHeader().wireEncode(interest, true, true));
+  
+  BOOST_CHECK_NE((void*)interest.getLocalControlHeader().wireEncode(interest, true, true).wire(),
+                 (void*)wireBlock.wire());
+
+  BOOST_CHECK_EQUAL(interest.getLocalControlHeader().wireEncode(interest, true, true).size(), 5);
+}
+
+BOOST_AUTO_TEST_CASE (DecodeWithoutLocalHeader)
+{
+  Block wireBlock(InterestWithoutLocalControlHeader, sizeof(InterestWithoutLocalControlHeader));
+  const Block& payload = nfd::LocalControlHeader::getPayload(wireBlock);
+  BOOST_CHECK_EQUAL(&payload, &wireBlock);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

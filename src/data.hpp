@@ -280,7 +280,7 @@ Data::wireEncode() const
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
   
-  EncodingBuffer buffer(estimatedSize + nfd::ESTIMATED_LOCAL_HEADER_RESERVE, 0);
+  EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
   const_cast<Data*>(this)->wireDecode(buffer.block());
@@ -479,6 +479,7 @@ inline void
 Data::setIncomingFaceId(uint64_t incomingFaceId)
 {
   getLocalControlHeader().setIncomingFaceId(incomingFaceId);
+  // ! do not reset Data's wire !
 }
 
 inline void 

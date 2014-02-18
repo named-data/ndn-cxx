@@ -56,7 +56,8 @@ public:
    * This version will automatically detect type and position of the value within the block
    */
   Block(const ConstBufferPtr &buffer,
-        const Buffer::const_iterator &begin, const Buffer::const_iterator &end);
+        const Buffer::const_iterator &begin, const Buffer::const_iterator &end,
+        bool verifyLength = true);
   
   /**
    * @brief A helper version of a constructor to create Block from the raw buffer (type and value-length parsing)

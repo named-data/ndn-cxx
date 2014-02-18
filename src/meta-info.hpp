@@ -45,7 +45,7 @@ public:
   wireDecode(const Block &wire);  
   
   ///////////////////////////////////////////////////////////////////////////////
-  // Gettest/setters
+  // Getters/setters
   
   uint32_t 
   getType() const

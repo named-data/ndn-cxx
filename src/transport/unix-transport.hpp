@@ -1,7 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * Copyright (C) 2013-2014 Regents of the University of California.
  * See COPYING for copyright and distribution information.
  */
 
@@ -11,7 +10,14 @@
 #include "../common.hpp"
 #include "transport.hpp"
 
+// forward declaration
+namespace boost { namespace asio { namespace local { class stream_protocol; } } }
+
 namespace ndn {
+
+// forward declaration
+template<class T, class U>
+class StreamTransportImpl;
 
 class UnixTransport : public Transport
 {
@@ -32,11 +38,15 @@ public:
   virtual void
   send(const Block& wire);
 
+  virtual void
+  send(const Block& header, const Block& payload);
+  
 private:
-  std::string unixSocket_;
+  std::string m_unixSocket;
 
-  class Impl;
-  ptr_lib::shared_ptr<Impl> impl_;
+  typedef StreamTransportImpl<UnixTransport, boost::asio::local::stream_protocol> Impl;
+  friend class StreamTransportImpl<UnixTransport, boost::asio::local::stream_protocol>;
+  ptr_lib::shared_ptr< Impl > m_impl;
 };
 
 }
