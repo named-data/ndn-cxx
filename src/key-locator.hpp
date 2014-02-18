@@ -26,27 +26,35 @@ public:
 
   inline
   KeyLocator()
-    : type_(KeyLocator_None)
+    : m_type(KeyLocator_None)
   {
   }
 
   inline
   KeyLocator(const Name &name);
 
-  inline const Block& 
-  wireEncode() const;
+  ///////////////////////////////////////////////////////////////////////////////
+  
+  template<bool T>
+  size_t
+  wireEncode(EncodingImpl<T> &block) const;
 
-  inline void 
-  wireDecode(const Block &value);
+  const Block& 
+  wireEncode() const;
+  
+  void
+  wireDecode(const Block &wire);  
+  
+  ///////////////////////////////////////////////////////////////////////////////
   
   inline bool
   empty() const
   {
-    return type_ == KeyLocator_None;
+    return m_type == KeyLocator_None;
   }
   
   uint32_t 
-  getType() const { return type_; }
+  getType() const { return m_type; }
       
   ////////////////////////////////////////////////////////
   // Helper methods for different types of key locators
@@ -60,10 +68,10 @@ public:
   setName(const Name &name);
   
 private:
-  uint32_t type_;
-  Name name_;
+  uint32_t m_type;
+  Name m_name;
   
-  mutable Block wire_;
+  mutable Block m_wire;
 };
 
 inline
@@ -72,61 +80,85 @@ KeyLocator::KeyLocator(const Name &name)
   setName(name);
 }
 
-inline const Block& 
-KeyLocator::wireEncode() const
+template<bool T>
+inline size_t
+KeyLocator::wireEncode(EncodingImpl<T>& block) const
 {
-  if (wire_.hasWire())
-    return wire_;
+  // KeyLocator ::= KEY-LOCATOR-TYPE TLV-LENGTH KeyLocatorValue
 
-  // KeyLocator
+  // KeyLocatorValue ::= Name |
+  //                     KeyLocatorDigest |     (not supported yet)
+  //                     ...
 
-  switch (type_) {
+  // KeyLocatorDigest ::= KEY-LOCATOR-DIGEST-TYPE TLV-LENGTH BYTE+
+  
+  size_t total_len = 0;
+
+  switch (m_type) {
   case KeyLocator_None:
-    wire_ = dataBlock(Tlv::KeyLocator, reinterpret_cast<const uint8_t*>(0), 0);
     break;
   case KeyLocator_Name:
-    wire_ = Block(Tlv::KeyLocator);
-    wire_.push_back(name_.wireEncode());
-    wire_.encode();
+    total_len += m_name.wireEncode(block);
     break;
   default:
     throw Error("Unsupported KeyLocator type");
   }
+
+  total_len += block.prependVarNumber (total_len);
+  total_len += block.prependVarNumber (Tlv::KeyLocator);
+  return total_len;
+}
+
+inline const Block& 
+KeyLocator::wireEncode() const
+{
+  if (m_wire.hasWire ())
+    return m_wire;
+
+  EncodingEstimator estimator;
+  size_t estimatedSize = wireEncode(estimator);
   
-  return wire_;
+  EncodingBuffer buffer(estimatedSize, 0);
+  wireEncode(buffer);
+
+  m_wire = buffer.block();
+  return m_wire;
 }
 
 inline void 
 KeyLocator::wireDecode(const Block &value)
 {
-  wire_ = value;
-  wire_.parse();
+  if (value.type() != Tlv::KeyLocator)
+    throw Error("Unexpected TLV type during KeyLocator decoding");
+
+  m_wire = value;
+  m_wire.parse();
   
-  if (!wire_.elements().empty() && wire_.elements_begin()->type() == Tlv::Name)
+  if (!m_wire.elements().empty() && m_wire.elements_begin()->type() == Tlv::Name)
     {
-      type_ = KeyLocator_Name;
-      name_.wireDecode(*wire_.elements_begin());
+      m_type = KeyLocator_Name;
+      m_name.wireDecode(*m_wire.elements_begin());
     }
   else
     {
-      type_ = KeyLocator_Unknown;
+      m_type = KeyLocator_Unknown;
     }
 }
 
 inline const Name&
 KeyLocator::getName() const
 {
-  if (type_ != KeyLocator_Name)
+  if (m_type != KeyLocator_Name)
     throw Error("Requested Name, but KeyLocator is not of the Name type");
 
-  return name_;
+  return m_name;
 }
 
 inline void
 KeyLocator::setName(const Name &name)
 {
-  type_ = KeyLocator_Name;
-  name_ = name;
+  m_type = KeyLocator_Name;
+  m_name = name;
 }
 
 

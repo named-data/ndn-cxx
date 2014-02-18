@@ -523,7 +523,7 @@ prependBooleanBlock(EncodingImpl<P>& blk, uint32_t type)
 
 template<bool P, class U>
 inline size_t
-prependNestedBlock(EncodingImpl<P>& blk, uint32_t type, U& nestedBlock)
+prependNestedBlock(EncodingImpl<P>& blk, uint32_t type, const U& nestedBlock)
 {
   size_t var_len = nestedBlock.wireEncode(blk);
   size_t total_len = var_len;
@@ -531,6 +531,13 @@ prependNestedBlock(EncodingImpl<P>& blk, uint32_t type, U& nestedBlock)
   total_len += blk.prependVarNumber(type);
 
   return total_len;
+}
+
+template<bool P>
+inline size_t
+prependBlock(EncodingImpl<P>& blk, const Block& block)
+{
+  return blk.prependByteArray(block.wire(), block.size());
 }
 
 

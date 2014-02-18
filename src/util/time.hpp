@@ -12,6 +12,17 @@
 
 namespace ndn {
 
+/**
+ * A time interval represented as the number of milliseconds.
+ */
+typedef int64_t Milliseconds;
+   
+/**
+ * The calendar time represented as the number of milliseconds since 1/1/1970.
+ */
+typedef int64_t MillisecondsSince1970;
+
+
 const boost::posix_time::ptime UNIX_EPOCH_TIME =
   boost::posix_time::ptime (boost::gregorian::date (1970, boost::gregorian::Jan, 1));
 
@@ -30,6 +41,11 @@ ndn_getNowMilliseconds()
   return getNowMilliseconds();
 }
 
+inline MillisecondsSince1970
+getNow()
+{
+  return getNowMilliseconds();
+}
 
 /**
  * Convert to the ISO string representation of the time.

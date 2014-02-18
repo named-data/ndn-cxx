@@ -16,6 +16,29 @@ namespace ndn {
 static const char *WHITESPACE_CHARS = " \n\r\t";
 
 /**
+ * Return the hex representation of the bytes in array.
+ * @param array The array of bytes.
+ * @return Hex string.
+ */
+inline std::string 
+toHex(const uint8_t* array, size_t arraySize)
+{
+  if (!&array)
+    return "";
+  
+  std::ostringstream result;
+  result.flags(std::ios::hex | std::ios::uppercase);
+  for (size_t i = 0; i < arraySize; ++i) {
+    uint8_t x = array[i];
+    if (x < 16)
+      result << '0';
+    result << (unsigned int)x;
+  }
+
+  return result.str();
+}
+
+/**
  * Modify str in place to erase whitespace on the left.
  * @param str
  */

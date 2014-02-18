@@ -98,27 +98,8 @@ namespace ndn {
 
 using boost::noncopyable;
 
-/**
- * A time interval represented as the number of milliseconds.
- */
-typedef int64_t Milliseconds;
-   
-/**
- * The calendar time represented as the number of milliseconds since 1/1/1970.
- */
-typedef int64_t MillisecondsSince1970;
-
-/**
- * Return the hex representation of the bytes in array.
- * @param array The array of bytes.
- * @return Hex string.
- */
-std::string 
-toHex(const std::vector<uint8_t>& array);
-
-MillisecondsSince1970
-getNow();
-
 }
+
+#include "util/time.hpp"
 
 #endif
