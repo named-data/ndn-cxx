@@ -62,7 +62,7 @@ ValidatorRegex::onCertificateValidated(const shared_ptr<const Data> &signCertifi
     }
   else
     {
-      _LOG_DEBUG("Wrong Invalidity: " << e.what());
+      _LOG_DEBUG("Wrong Invalidity:");
       onValidationFailed(data);
       return;
     }

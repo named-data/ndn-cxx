@@ -76,6 +76,24 @@ SecTpmMemory::deleteKeyPairInTpm(const Name &keyName)
   throw Error("SecTpmMemory::deleteKeyPairInTpm not implemented");
 }
 
+ConstBufferPtr
+SecTpmMemory::exportPrivateKeyPkcs1FromTpm(const Name& keyName)
+{
+  throw Error("SecTpmMemory::exportPrivateKeyPkcs1FromTpm is not implemented");
+}
+
+bool
+SecTpmMemory::importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
+{
+  throw Error("SecTpmMemory::importPrivateKeyPkcs1IntoTpm is not implemented");
+}
+
+bool
+SecTpmMemory::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
+{
+  throw Error("SecTpmMemory::importPublicKeyPkcs1IntoTpm is not implemented");
+}
+
 ptr_lib::shared_ptr<PublicKey> 
 SecTpmMemory::getPublicKeyFromTpm(const Name& keyName)
 {

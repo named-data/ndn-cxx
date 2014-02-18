@@ -104,15 +104,114 @@ public:
   doesKeyExistInTpm(const Name& keyName, KeyClass keyClass) = 0;  
 
   /**
-   * @brief Generate a random number.
+   * @brief Generate a random block.
    * 
-   * @param res The pointer to the generated number.
-   * @param size The random number size.
+   * @param res The pointer to the generated block.
+   * @param size The random block size.
    * @return true for success, otherwise false.
    */
   virtual bool
   generateRandomBlock(uint8_t* res, size_t size) = 0;
+
+  /**
+   * @brief Export a private key in PKCS#8 format.
+   * 
+   * @param keyName The private key name.
+   * @param password The password to encrypt the private key.
+   * @param inTerminal If password is not supplied, get it via terminal if inTerminal is true, otherwise fail.
+   * @return The private key info (in PKCS8 format) if exist, otherwise a NULL pointer.
+   */
+  ConstBufferPtr
+  exportPrivateKeyPkcs8FromTpm(const Name& keyName, bool inTerminal, const std::string& password);
+
+  /**
+   * @brief Import a private key in PKCS#8 format.
+   * 
+   * Also recover the public key and installed it in TPM.
+   * 
+   * @param keyName The private key name.
+   * @param key The encoded private key info.
+   * @param password The password to encrypt the private key.
+   * @param inTerminal If password is not supplied, get it via terminal if inTerminal is true, otherwise fail.
+   * @return False if import fails.
+   */
+  bool
+  importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size, bool inTerminal, const std::string& password);
+
+protected:
+  /**
+   * @brief Export a private key in PKCS#1 format.
+   * 
+   * @param keyName The private key name.
+   * @return The private key info (in PKCS#1 format) if exist, otherwise a NULL pointer.
+   */
+  virtual ConstBufferPtr
+  exportPrivateKeyPkcs1FromTpm(const Name& keyName) = 0;
+
+  /**
+   * @brief Import a private key in PKCS#1 format.
+   * 
+   * @param keyName The private key name.
+   * @param key The encoded private key info.
+   * @return False if import fails.
+   */
+  virtual bool
+  importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size) = 0;
+
+  /**
+   * @brief Import a public key in PKCS#1 format.
+   * 
+   * @param keyName The public key name.
+   * @param key The encoded public key info.
+   * @return False if import fails.
+   */
+  virtual bool
+  importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size) = 0;
+
+
+  /**
+   * @brief Get password.
+   *
+   * @param password On return, the password.
+   * @param prompt Prompt for password, i.e., "Password for key:"
+   * @return true if password has been obtained.
+   */
+  inline virtual bool
+  getPassWord(std::string& password, const std::string& prompt);
 };
+
+bool
+SecTpm::getPassWord(std::string& password, const std::string& prompt)
+{
+  int result = false;
+
+  char* pw0 = NULL;
+  
+  pw0 = getpass(prompt.c_str());
+  if(!pw0) 
+    return false;
+  std::string password1 = pw0;
+  memset(pw0, 0, strlen(pw0));
+
+  pw0 = getpass("Confirm:");
+  if(!pw0)
+    {
+      char* pw1 = const_cast<char*>(password1.c_str());
+      memset(pw1, 0, password1.size());
+      return false;
+    }
+
+  if(!password1.compare(pw0))
+    {
+      result = true;
+      password.swap(password1);
+    }
+
+  char* pw1 = const_cast<char*>(password1.c_str());
+  memset(pw1, 0, password1.size());
+  memset(pw0, 0, strlen(pw0));  
+  return result;
+}
 
 }
 

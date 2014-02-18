@@ -106,15 +106,22 @@ public:
   virtual bool
   doesKeyExistInTpm(const Name& keyName, KeyClass keyClass);
 
-  std::string
-  nameTransform(const std::string &keyName, const std::string &extension);
   virtual bool
   generateRandomBlock(uint8_t* res, size_t size);
 
-private:
-  void 
-  maintainMapping(std::string str1, std::string str2);
+protected:
+  /******************************
+   * From TrustedPlatformModule *
+   ******************************/
+  virtual ConstBufferPtr
+  exportPrivateKeyPkcs1FromTpm(const Name& keyName);
+
+  virtual bool
+  importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
   
+  virtual bool
+  importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
+
 private:
   class Impl;
   shared_ptr<Impl> m_impl;

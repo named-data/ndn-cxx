@@ -107,18 +107,20 @@ public:
   bool 
   setACL(const Name& keyName, KeyClass keyClass, int acl, const std::string& appPath);
 
-  // /**
-  //  * verify data (test only)
-  //  * @param keyName the name of key
-  //  * @param pData the data to be verified
-  //  * @param pSig the signature associated with the data
-  //  * @param digestAlgo digest algorithm
-  //  * @return true if signature can be verified, otherwise false
-  //  */
-  // bool 
-  // verifyData(const Name & keyName, const Blob & pData, const Blob & pSig, DigestAlgorithm digestAlgo = DIGEST_ALGORITHM_SHA256);
+protected:
+  /******************************
+   * From TrustedPlatformModule *
+   ******************************/
+  virtual ConstBufferPtr
+  exportPrivateKeyPkcs1FromTpm(const Name& keyName);
 
- private:
+  virtual bool
+  importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
+
+  virtual bool
+  importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
+  
+private:
   class Impl;
   shared_ptr<Impl> m_impl;
 };

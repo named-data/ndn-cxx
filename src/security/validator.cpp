@@ -122,7 +122,7 @@ Validator::verifySignature(const Data& data, const PublicKey& key)
       }
     default:
       {
-        _LOG_DEBUG("verifySignature: Unknown signature type: " << sig.getType());
+        _LOG_DEBUG("verifySignature: Unknown signature type: " << data.getSignature().getType());
         return false;
       }
     }

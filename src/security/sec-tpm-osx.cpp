@@ -11,6 +11,8 @@
 
 #include "security/public-key.hpp"
 #include "util/logging.hpp"
+#include <cryptopp/files.h>
+#include <cryptopp/asn.h>
 
 #include <pwd.h>
 #include <unistd.h>
@@ -92,9 +94,6 @@ public:
   long 
   getDigestSize(DigestAlgorithm digestAlgo);
 
-  bool
-  getPassWord(string& password, string target);
-
   ///////////////////////////////////////////////
   // everything here is public, including data //
   ///////////////////////////////////////////////
@@ -115,7 +114,7 @@ SecTpmOsx::SecTpmOsx()
       string keyChainName("ndnroot.keychain");
       cerr << "No Default KeyChain! Create " << keyChainName << ":" << endl;
       string password;
-      while(!m_impl->getPassWord(password, keyChainName))
+      while(!getPassWord(password, keyChainName))
         {
           cerr << "Password mismatch!" << endl;
         }
@@ -226,25 +225,17 @@ SecTpmOsx::generateKeyPairInTpm(const Name & keyName, KeyType keyType, int keySi
 void
 SecTpmOsx::deleteKeyPairInTpm(const Name &keyName)
 {
-  string keyNameUri = keyName.toUri();
-
   CFStringRef keyLabel = CFStringCreateWithCString(NULL, 
-                                                   keyNameUri.c_str(), 
+                                                   keyName.toUri().c_str(), 
                                                    kCFStringEncodingUTF8);
-    
-  CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(NULL,
-                                                              5,
-                                                              &kCFTypeDictionaryKeyCallBacks,
-                                                              NULL);
 
-  CFDictionaryAddValue(attrDict, kSecClass, kSecClassKey);
-  CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
-  CFDictionaryAddValue(attrDict, kSecMatchLimit, kSecMatchLimitAll);
+  CFMutableDictionaryRef searchDict = 
+    CFDictionaryCreateMutable(NULL, 5, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 
-  OSStatus res = SecItemDelete((CFDictionaryRef) attrDict);
-    
-  if(res != errSecSuccess)
-    _LOG_DEBUG("Fail to find the key!");
+  CFDictionaryAddValue(searchDict, kSecClass, kSecClassKey);
+  CFDictionaryAddValue(searchDict, kSecAttrLabel, keyLabel);
+  CFDictionaryAddValue(searchDict, kSecMatchLimit, kSecMatchLimitAll);
+  SecItemDelete(searchDict);
 }
 
 void 
@@ -293,7 +284,181 @@ SecTpmOsx::getPublicKeyFromTpm(const Name & keyName)
                                NULL,
                                &exportedKey);
 
-  return ptr_lib::make_shared<PublicKey>(CFDataGetBytePtr(exportedKey), CFDataGetLength(exportedKey));
+  shared_ptr<PublicKey> key = make_shared<PublicKey>(CFDataGetBytePtr(exportedKey), CFDataGetLength(exportedKey));
+  CFRelease(exportedKey);
+  return key;
+}
+
+ConstBufferPtr
+SecTpmOsx::exportPrivateKeyPkcs1FromTpm(const Name& keyName)
+{
+  using namespace CryptoPP;
+
+  SecKeychainItemRef privateKey = m_impl->getKey(keyName, KEY_CLASS_PRIVATE);
+  CFDataRef exportedKey;
+  OSStatus res = SecItemExport(privateKey,
+                               kSecFormatOpenSSL,
+                               0,
+                               NULL,
+                               &exportedKey);
+
+  if(res != errSecSuccess)
+    {
+      return shared_ptr<Buffer>();
+    }
+
+  OBufferStream pkcs1Os;
+  FileSink sink(pkcs1Os);
+
+  uint32_t version = 0;
+  OID algorithm("1.2.840.113549.1.1.1");
+  SecByteBlock rawKeyBits;
+  // PrivateKeyInfo ::= SEQUENCE {
+  //   version              INTEGER,
+  //   privateKeyAlgorithm  SEQUENCE,
+  //   privateKey           OCTECT STRING}
+  DERSequenceEncoder privateKeyInfo(sink);
+  {
+    DEREncodeUnsigned<uint32_t>(privateKeyInfo, version, INTEGER);
+    DERSequenceEncoder privateKeyAlgorithm(privateKeyInfo);
+    {
+      algorithm.encode(privateKeyAlgorithm);
+      DEREncodeNull(privateKeyAlgorithm);
+    }
+    privateKeyAlgorithm.MessageEnd();
+    DEREncodeOctetString(privateKeyInfo, CFDataGetBytePtr(exportedKey), CFDataGetLength(exportedKey));
+  }
+  privateKeyInfo.MessageEnd(); 
+
+  CFRelease(exportedKey);
+  return pkcs1Os.buf();
+}
+
+bool
+SecTpmOsx::importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
+{
+  using namespace CryptoPP;
+
+  StringSource privateKeySource(buf, size, true);
+  uint32_t tmpNum;
+  OID tmpOID;
+  SecByteBlock rawKeyBits;
+  // PrivateKeyInfo ::= SEQUENCE {
+  //   INTEGER,
+  //   SEQUENCE,
+  //   OCTECT STRING}
+  BERSequenceDecoder privateKeyInfo(privateKeySource);
+  {
+    BERDecodeUnsigned<uint32_t>(privateKeyInfo, tmpNum, INTEGER);
+    BERSequenceDecoder sequenceDecoder(privateKeyInfo);
+    {
+      tmpOID.decode(sequenceDecoder);
+      BERDecodeNull(sequenceDecoder);
+    }
+    BERDecodeOctetString(privateKeyInfo, rawKeyBits);
+  }
+  privateKeyInfo.MessageEnd(); 
+
+  CFDataRef importedKey = CFDataCreateWithBytesNoCopy(NULL,
+                                                      rawKeyBits.BytePtr(),
+                                                      rawKeyBits.size(),
+                                                      kCFAllocatorNull);
+
+  SecExternalFormat externalFormat = kSecFormatOpenSSL;
+  SecExternalItemType externalType = kSecItemTypePrivateKey;
+  SecKeyImportExportParameters keyParams;
+  memset(&keyParams, 0, sizeof(keyParams));
+  keyParams.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
+  keyParams.keyAttributes = CSSM_KEYATTR_EXTRACTABLE | CSSM_KEYATTR_PERMANENT;
+  SecAccessRef access;
+  CFStringRef keyLabel = CFStringCreateWithCString(NULL, 
+                                                   keyName.toUri().c_str(), 
+                                                   kCFStringEncodingUTF8);
+  SecAccessCreate(keyLabel, NULL, &access);
+  keyParams.accessRef = access;
+  CFArrayRef outItems;
+
+  OSStatus res = SecKeychainItemImport (importedKey,
+                                        NULL,
+                                        &externalFormat,
+                                        &externalType,
+                                        0,
+                                        &keyParams,
+                                        m_impl->m_keyChainRef,
+                                        &outItems);
+  
+  if(res != errSecSuccess)
+    {
+      return false;
+    }
+
+  SecKeychainItemRef privateKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems, 0);
+  SecKeychainAttribute attrs[1]; // maximum number of attributes
+  SecKeychainAttributeList attrList = { 0, attrs };
+  string keyUri = keyName.toUri();
+  {
+    attrs[attrList.count].tag = kSecKeyPrintName;
+    attrs[attrList.count].length = keyUri.size();
+    attrs[attrList.count].data = (void *)keyUri.c_str();
+    attrList.count++;
+  }
+
+  res = SecKeychainItemModifyAttributesAndData(privateKey, 
+                                               &attrList,
+                                               0,
+                                               NULL);
+  
+  if(res != errSecSuccess)
+    {
+      return false;
+    }
+ 
+  CFRelease(importedKey);
+  return true;
+}
+
+bool
+SecTpmOsx::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
+{
+  CFDataRef importedKey = CFDataCreateWithBytesNoCopy(NULL,
+                                                      buf,
+                                                      size,
+                                                      kCFAllocatorNull);
+
+  SecExternalFormat externalFormat = kSecFormatOpenSSL;
+  SecExternalItemType externalType = kSecItemTypePublicKey;
+  CFArrayRef outItems;
+
+  OSStatus res = SecItemImport (importedKey,
+                                NULL,
+                                &externalFormat,
+                                &externalType,
+                                0,
+                                NULL,
+                                m_impl->m_keyChainRef,
+                                &outItems);
+
+  if(res != errSecSuccess)
+    return false;
+
+  SecKeychainItemRef publicKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems, 0);
+  SecKeychainAttribute attrs[1]; // maximum number of attributes
+  SecKeychainAttributeList attrList = { 0, attrs };
+  string keyUri = keyName.toUri();
+  {
+    attrs[attrList.count].tag = kSecKeyPrintName;
+    attrs[attrList.count].length = keyUri.size();
+    attrs[attrList.count].data = (void *)keyUri.c_str();
+    attrList.count++;
+  }
+
+  res = SecKeychainItemModifyAttributesAndData(publicKey, 
+                                               &attrList,
+                                               0,
+                                               NULL);
+  
+  CFRelease(importedKey);
+  return true;
 }
 
 Block
@@ -549,17 +714,17 @@ SecTpmOsx::doesKeyExistInTpm(const Name & keyName, KeyClass keyClass)
                                                               NULL);
 
   CFDictionaryAddValue(attrDict, kSecClass, kSecClassKey);
-  CFDictionaryAddValue(attrDict, kSecAttrKeyClass, m_impl->getKeyClass(keyClass));
+  // CFDictionaryAddValue(attrDict, kSecAttrKeyClass, m_impl->getKeyClass(keyClass));
   CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
   CFDictionaryAddValue(attrDict, kSecReturnRef, kCFBooleanTrue);
     
   SecKeychainItemRef itemRef;
   OSStatus res = SecItemCopyMatching((CFDictionaryRef)attrDict, (CFTypeRef*)&itemRef);
     
-  if(res == errSecItemNotFound)
-    return false;
-  else
+  if(res == errSecSuccess)
     return true;
+  else
+    return false;
 
 }
 
@@ -687,41 +852,6 @@ SecTpmOsx::Impl::getDigestSize(DigestAlgorithm digestAlgo)
     _LOG_DEBUG("Unrecognized digest algorithm! Unknown digest size");
     return -1;
   }
-}
-
-bool
-SecTpmOsx::Impl::getPassWord(string& password, string target)
-{
-  int result = false;
-
-  string prompt1 = "Password for " + target + ":";
-  string prompt2 = "Confirm password for " + target + ":";
-  char* pw0 = NULL;
-  
-  pw0 = getpass(prompt1.c_str());
-  if(!pw0) 
-    return false;
-  string password1 = pw0;
-  memset(pw0, 0, strlen(pw0));
-
-  pw0 = getpass(prompt2.c_str());
-  if(!pw0)
-    {
-      char* pw1 = const_cast<char*>(password1.c_str());
-      memset(pw1, 0, password1.size());
-      return false;
-    }
-
-  if(!password1.compare(pw0))
-    {
-      result = true;
-      password.swap(password1);
-    }
-
-  char* pw1 = const_cast<char*>(password1.c_str());
-  memset(pw1, 0, password1.size());
-  memset(pw0, 0, strlen(pw0));  
-  return result;
 }
   
 }// ndn

@@ -13,6 +13,7 @@
 #include "public-key.hpp"
 #include "signature-sha256-with-rsa.hpp"
 #include "../interest.hpp"
+#include "../encoding/tlv-security.hpp"
 
 //PublicInfo
 #include "sec-public-info-sqlite3.hpp"
@@ -59,7 +60,7 @@ public:
 
     if(certName.empty())
       {
-        ptr_lib::shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
+        shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
         Info::addCertificateAsIdentityDefault(*selfCert);
         certName = selfCert->getName();
       }
@@ -105,7 +106,7 @@ public:
    * @param notAfter The notAfter vallue in validity field of the generated certificate.
    * @return The name of generated identity certificate.
    */
-  ptr_lib::shared_ptr<IdentityCertificate>
+  shared_ptr<IdentityCertificate>
   createIdentityCertificate
     (const Name& certificatePrefix,
      const Name& signerCertificateName,
@@ -114,11 +115,11 @@ public:
   {
     Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
     
-    ptr_lib::shared_ptr<PublicKey> pubKey = Info::getPublicKey(keyName);
+    shared_ptr<PublicKey> pubKey = Info::getPublicKey(keyName);
     if (!pubKey)
       throw InfoError("Requested public key [" + keyName.toUri() + "] doesn't exist");
     
-    ptr_lib::shared_ptr<IdentityCertificate> certificate =
+    shared_ptr<IdentityCertificate> certificate =
       createIdentityCertificate(certificatePrefix,
                                 *pubKey,
                                 signerCertificateName,
@@ -139,7 +140,7 @@ public:
    * @param notAfter The notAfter vallue in validity field of the generated certificate.
    * @return The generated identity certificate.
    */
-  ptr_lib::shared_ptr<IdentityCertificate>
+  shared_ptr<IdentityCertificate>
   createIdentityCertificate
     (const Name& certificatePrefix,
      const PublicKey& publicKey,
@@ -147,7 +148,7 @@ public:
      const MillisecondsSince1970& notBefore,
      const MillisecondsSince1970& notAfter)
   {
-    ptr_lib::shared_ptr<IdentityCertificate> certificate (new IdentityCertificate());
+    shared_ptr<IdentityCertificate> certificate (new IdentityCertificate());
     Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
   
     Name certificateName = certificatePrefix;
@@ -243,7 +244,7 @@ public:
   Signature
   sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
   {
-    ptr_lib::shared_ptr<IdentityCertificate> cert = Info::getCertificate(certificateName);
+    shared_ptr<IdentityCertificate> cert = Info::getCertificate(certificateName);
     if (!static_cast<bool>(cert))
       throw InfoError("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
 
@@ -306,18 +307,18 @@ public:
    * @param keyName The name of the public key.
    * @return The generated certificate.
    */
-  ptr_lib::shared_ptr<IdentityCertificate>
+  shared_ptr<IdentityCertificate>
   selfSign(const Name& keyName)
   {
     if(keyName.empty())
       throw InfoError("Incorrect key name: " + keyName.toUri());
 
-    ptr_lib::shared_ptr<IdentityCertificate> certificate = ptr_lib::make_shared<IdentityCertificate>();
+    shared_ptr<IdentityCertificate> certificate = make_shared<IdentityCertificate>();
     
     Name certificateName = keyName.getPrefix(-1);
     certificateName.append("KEY").append(keyName.get(-1)).append("ID-CERT").appendVersion();
     
-    ptr_lib::shared_ptr<PublicKey> pubKey = Info::getPublicKey(keyName);
+    shared_ptr<PublicKey> pubKey = Info::getPublicKey(keyName);
     if (!pubKey)
       throw InfoError("Requested public key [" + keyName.toUri() + "] doesn't exist");
   
@@ -366,7 +367,7 @@ public:
   }
 
   void
-  deleteIdentity (const Name &identity)
+  deleteIdentity (const Name& identity)
   {
     if(Info::getDefaultIdentity() == identity)
       return;
@@ -380,6 +381,71 @@ public:
     std::vector<Name>::const_iterator it = nameList.begin();
     for(; it != nameList.end(); it++)
       Tpm::deleteKeyPairInTpm(*it);
+  }
+
+  Block
+  exportIdentity(const Name& identity, bool inTerminal = true, std::string passwordStr = "")
+  {
+    if (!Info::doesIdentityExist(identity))
+      throw InfoError("Identity does not exist!");
+ 
+    Name keyName = Info::getDefaultKeyNameForIdentity(identity);
+    
+    if(keyName.empty())
+      throw InfoError("Default key does not exist!");
+
+    ConstBufferPtr pkcs8 = Tpm::exportPrivateKeyPkcs8FromTpm(keyName, inTerminal, passwordStr);
+    Block wireKey(tlv::security::KeyPackage, pkcs8);
+
+    Name certName = Info::getDefaultCertificateNameForKey(keyName);
+
+    if(certName.empty())
+      {
+        shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
+        Info::addCertificateAsIdentityDefault(*selfCert);
+        certName = selfCert->getName();
+      }
+
+    shared_ptr<IdentityCertificate> cert = Info::getCertificate(certName);
+    Block wireCert(tlv::security::CertificatePackage, cert->wireEncode());
+
+    Block wire(tlv::security::IdentityPackage);
+    wire.push_back(wireCert);
+    wire.push_back(wireKey);
+
+    return wire;
+  }
+
+  void
+  importIdentity(const Block& block, bool inTerminal = true, std::string passwordStr = "")
+  {
+    block.parse();
+    
+    Data data;
+    data.wireDecode(block.get(tlv::security::CertificatePackage).blockFromValue());
+    shared_ptr<IdentityCertificate> cert = make_shared<IdentityCertificate>(data);
+    
+    Name keyName = IdentityCertificate::certificateNameToPublicKeyName(cert->getName());
+    Name identity = keyName.getPrefix(-1);
+
+    // Add identity
+    if (Info::doesIdentityExist(identity))
+      deleteIdentity(identity);
+    Info::addIdentity(identity);
+
+    // Add key
+    Block wireKey = block.get(tlv::security::KeyPackage);
+    if (Tpm::doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
+      deleteKey(keyName);
+    Tpm::importPrivateKeyPkcs8IntoTpm(keyName, wireKey.value(), wireKey.value_size(), inTerminal, passwordStr);
+    shared_ptr<PublicKey> pubKey = Tpm::getPublicKeyFromTpm(keyName.toUri());
+    Info::addPublicKey(keyName, KEY_TYPE_RSA, *pubKey); // HACK! We should set key type according to the pkcs8 info.
+    Info::setDefaultKeyNameForIdentity(keyName);
+
+    // Add cert
+    if (Info::doesCertificateExist(cert->getName()))
+        deleteCertificate(cert->getName());
+    Info::addCertificateAsIdentityDefault(*cert);
   }
 
 
@@ -428,7 +494,7 @@ private:
 
     Tpm::generateKeyPairInTpm(keyName.toUri(), keyType, keySize);
 
-    ptr_lib::shared_ptr<PublicKey> pubKey = Tpm::getPublicKeyFromTpm(keyName.toUri());
+    shared_ptr<PublicKey> pubKey = Tpm::getPublicKeyFromTpm(keyName.toUri());
     Info::addPublicKey(keyName, keyType, *pubKey);
 
     return keyName;

@@ -22,12 +22,15 @@
 #include <cryptopp/sha.h>
 #include <cryptopp/pssr.h>
 #include <cryptopp/modes.h>
+#include <cryptopp/pwdbased.h>
+#include <cryptopp/sha.h>
+#include <cryptopp/des.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 
-using namespace CryptoPP;
-using namespace ndn;
+#include <algorithm>
+
 using namespace std;
 
 namespace ndn
@@ -43,6 +46,35 @@ public:
       m_keystorePath = dir;
     
     boost::filesystem::create_directories (m_keystorePath);
+  }
+
+  boost::filesystem::path
+  nameTransform(const string& keyName, const string& extension)
+  {
+    using namespace CryptoPP;
+    string digest;
+    SHA256 hash;
+    StringSource src(keyName, true, new HashFilter(hash, new Base64Encoder (new CryptoPP::StringSink(digest))));
+
+    boost::algorithm::trim(digest);
+    std::replace(digest.begin(), digest.end(), '/', '%');
+    
+    return m_keystorePath / (digest + extension);
+  }
+
+  string 
+  maintainMapping(const string& keyName)
+  {
+    string keyFileName = nameTransform(keyName, "").string();
+    
+    ofstream outfile;
+    string dirFile = (m_keystorePath / "mapping.txt").string();
+    
+    outfile.open(dirFile.c_str(), std::ios_base::app);
+    outfile << keyName << ' ' << keyFileName << '\n';
+    outfile.close();
+    
+    return keyFileName;
   }
 
 public:
@@ -64,8 +96,7 @@ SecTpmFile::generateKeyPairInTpm(const Name & keyName, KeyType keyType, int keyS
   if(doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
     throw Error("private key exists");
 
-  string keyFileName = nameTransform(keyURI, "");
-  maintainMapping(keyURI, keyFileName);
+  string keyFileName = m_impl->maintainMapping(keyURI);
 
   try{
     switch(keyType){
@@ -104,8 +135,8 @@ SecTpmFile::generateKeyPairInTpm(const Name & keyName, KeyType keyType, int keyS
 void
 SecTpmFile::deleteKeyPairInTpm(const Name &keyName)
 {
-  boost::filesystem::path publicKeyPath(nameTransform(keyName.toUri(), ".pub"));
-  boost::filesystem::path privateKeyPath(nameTransform(keyName.toUri(), ".pri"));
+  boost::filesystem::path publicKeyPath(m_impl->nameTransform(keyName.toUri(), ".pub"));
+  boost::filesystem::path privateKeyPath(m_impl->nameTransform(keyName.toUri(), ".pri"));
 
   if(boost::filesystem::exists(publicKeyPath))
     boost::filesystem::remove(publicKeyPath);
@@ -114,23 +145,61 @@ SecTpmFile::deleteKeyPairInTpm(const Name &keyName)
     boost::filesystem::remove(privateKeyPath);
 }
 
-ptr_lib::shared_ptr<PublicKey>
+shared_ptr<PublicKey>
 SecTpmFile::getPublicKeyFromTpm(const Name & keyName)
 {
   string keyURI = keyName.toUri();
 
   if(!doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC))
-    throw Error("public key doesn't exists");
+    return shared_ptr<PublicKey>();
 
-  string publicKeyFileName = nameTransform(keyURI, ".pub");
-  std::ostringstream os;
+  ostringstream os;
   try{
-    FileSource(publicKeyFileName.c_str(), true, new Base64Decoder(new FileSink(os)));
+    using namespace CryptoPP;
+    FileSource(m_impl->nameTransform(keyURI, ".pub").string().c_str(), true, new Base64Decoder(new FileSink(os)));
   }catch(const CryptoPP::Exception& e){
-    throw Error(e.what());
+    return shared_ptr<PublicKey>();
   }
 
-  return ptr_lib::make_shared<PublicKey>(reinterpret_cast<const uint8_t*>(os.str().c_str()), os.str().size());
+  return make_shared<PublicKey>(reinterpret_cast<const uint8_t*>(os.str().c_str()), os.str().size());
+}
+
+ConstBufferPtr
+SecTpmFile::exportPrivateKeyPkcs1FromTpm(const Name& keyName)
+{
+  OBufferStream privateKeyOs;
+  CryptoPP::FileSource(m_impl->nameTransform(keyName.toUri(), ".pri").string().c_str(), true, 
+                       new CryptoPP::Base64Decoder(new CryptoPP::FileSink(privateKeyOs)));
+  
+  return privateKeyOs.buf();
+}
+
+bool
+SecTpmFile::importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
+{
+  try{
+    string keyFileName = m_impl->maintainMapping(keyName.toUri());
+    keyFileName.append(".pri");
+    CryptoPP::StringSource(buf, size, true,
+                           new CryptoPP::Base64Encoder(new CryptoPP::FileSink(keyFileName.c_str())));
+    return true;
+  }catch(...){
+    return false;
+  }
+}
+
+bool
+SecTpmFile::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
+{
+  try{
+    string keyFileName = m_impl->maintainMapping(keyName.toUri());
+    keyFileName.append(".pub");
+    CryptoPP::StringSource(buf, size, true,
+                           new CryptoPP::Base64Encoder(new CryptoPP::FileSink(keyFileName.c_str())));
+    return true;
+  }catch(...){
+    return false;
+  }
 }
 
 Block
@@ -147,8 +216,7 @@ SecTpmFile::signInTpm(const uint8_t *data, size_t dataLength, const Name& keyNam
 
     //Read private key
     ByteQueue bytes;
-    string privateKeyFileName = nameTransform(keyURI, ".pri");
-    FileSource file(privateKeyFileName.c_str(), true, new Base64Decoder);
+    FileSource file(m_impl->nameTransform(keyURI, ".pri").string().c_str(), true, new Base64Decoder);
     file.TransferTo(bytes);
     bytes.MessageEnd();
     RSA::PrivateKey privateKey;
@@ -189,8 +257,7 @@ SecTpmFile::decryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLe
 
 	//Read private key
 	ByteQueue bytes;
-	string privateKeyFileName = nameTransform(keyURI, ".pri");
-	FileSource file(privateKeyFileName.c_str(), true, new Base64Decoder);
+	FileSource file(m_impl->nameTransform(keyURI, ".pri").string().c_str(), true, new Base64Decoder);
 	file.TransferTo(bytes);
 	bytes.MessageEnd();
 	RSA::PrivateKey privateKey;
@@ -214,7 +281,7 @@ SecTpmFile::decryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLe
 
       // try{
       // 	string keyBits;
-      // 	string symKeyFileName = nameTransform(keyURI, ".key");
+      // 	string symKeyFileName = m_impl->nameTransform(keyURI, ".key");
       // 	FileSource(symKeyFileName, true, new HexDecoder(new StringSink(keyBits)));
 	
       // 	using CryptoPP::AES;
@@ -251,8 +318,7 @@ SecTpmFile::encryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLe
 
 	  //Read private key
 	  ByteQueue bytes;
-	  string publicKeyFileName = nameTransform(keyURI, ".pub");
-	  FileSource file(publicKeyFileName.c_str(), true, new Base64Decoder);
+	  FileSource file(m_impl->nameTransform(keyURI, ".pub").string().c_str(), true, new Base64Decoder);
 	  file.TransferTo(bytes);
 	  bytes.MessageEnd();
 	  RSA::PublicKey publicKey;
@@ -276,7 +342,7 @@ SecTpmFile::encryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLe
 
       // try{
       // 	string keyBits;
-      // 	string symKeyFileName = nameTransform(keyURI, ".key");
+      // 	string symKeyFileName = m_impl->nameTransform(keyURI, ".key");
       // 	FileSource(symKeyFileName, true, new HexDecoder(new StringSink(keyBits)));
 
       // 	using CryptoPP::AES;
@@ -305,8 +371,7 @@ SecTpmFile::generateSymmetricKeyInTpm(const Name & keyName, KeyType keyType, int
   if(doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
     throw Error("symmetric key exists");
 
-  string keyFileName = nameTransform(keyURI, "");
-  maintainMapping(keyURI, keyFileName);
+  string keyFileName = m_impl->maintainMapping(keyURI);
   string symKeyFileName = keyFileName + ".key";
 
   try{
@@ -338,64 +403,26 @@ SecTpmFile::doesKeyExistInTpm(const Name & keyName, KeyClass keyClass)
   string keyURI = keyName.toUri();
   if (keyClass == KEY_CLASS_PUBLIC)
     {
-      string publicKeyName = SecTpmFile::nameTransform(keyURI, ".pub");
-      fstream fin(publicKeyName.c_str(),ios::in);
-      if (fin)
+      if(boost::filesystem::exists(m_impl->nameTransform(keyURI, ".pub")))
         return true;
       else
         return false;
     }
   if (keyClass == KEY_CLASS_PRIVATE)
     {
-      string privateKeyName = SecTpmFile::nameTransform(keyURI, ".pri");
-      fstream fin(privateKeyName.c_str(),ios::in);
-      if (fin)
+      if(boost::filesystem::exists(m_impl->nameTransform(keyURI, ".pri")))
         return true;
       else
         return false;
     }
   if (keyClass == KEY_CLASS_SYMMETRIC)
     {
-      string symmetricKeyName = SecTpmFile::nameTransform(keyURI, ".key");
-      fstream fin(symmetricKeyName.c_str(),ios::in);
-      if (fin)
+      if(boost::filesystem::exists(m_impl->nameTransform(keyURI, ".key")))
         return true;
       else
         return false;
     }
   return false;
-}
-
-std::string SecTpmFile::nameTransform(const string &keyName, const string &extension)
-{
-  std::string digest;
-  CryptoPP::SHA256 hash;
-  CryptoPP::StringSource foo(keyName, true,
-                             new CryptoPP::HashFilter(hash,
-                                                      new CryptoPP::Base64Encoder (new CryptoPP::StringSink(digest))
-                                                      )
-                             );
-  boost::algorithm::trim(digest);
-  for (std::string::iterator ch = digest.begin(); ch != digest.end(); ch++)
-    {
-      if (*ch == '/')
-        {
-          *ch = '%';
-        }
-    }
-
-  return (m_impl->m_keystorePath / (digest + extension)).string();
-}
-
-void 
-SecTpmFile::maintainMapping(string str1, string str2)
-{
-  std::ofstream outfile;
-  string dirFile = (m_impl->m_keystorePath / "mapping.txt").string();
-
-  outfile.open(dirFile.c_str(), std::ios_base::app);
-  outfile << str1 << ' ' << str2 << '\n';
-  outfile.close();
 }
 
 bool

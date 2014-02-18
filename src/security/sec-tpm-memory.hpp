@@ -29,24 +29,10 @@ public:
   virtual 
   ~SecTpmMemory();
 
-  /**
-   * Set the public and private key for the keyName.
-   * @param keyName The key name.
-   * @param publicKeyDer The public key DER byte array.
-   * @param publicKeyDerLength The length of publicKeyDer.
-   * @param privateKeyDer The private key DER byte array.
-   * @param privateKeyDerLength The length of privateKeyDer.
-   */
-  void setKeyPairForKeyName(const Name& keyName,
-                            uint8_t *publicKeyDer, size_t publicKeyDerLength,
-                            uint8_t *privateKeyDer, size_t privateKeyDerLength);
-  
-  /**
-   * Generate a pair of asymmetric keys.
-   * @param keyName The name of the key pair.
-   * @param keyType The type of the key pair, e.g. KEY_TYPE_RSA.
-   * @param keySize The size of the key pair.
-   */
+  /******************************
+   * From TrustedPlatformModule *
+   ******************************/
+
   virtual void 
   generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize);
 
@@ -108,16 +94,41 @@ public:
   generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize);
 
   virtual bool
+  doesKeyExistInTpm(const Name& keyName, KeyClass keyClass); 
+
+  virtual bool
   generateRandomBlock(uint8_t* res, size_t size);
 
+  /******************************
+   *   SecTpmMemory specific    *
+   ******************************/
+
   /**
-   * Check if a particular key exists.
-   * @param keyName The name of the key.
-   * @param keyClass The class of the key, e.g. KEY_CLASS_PUBLIC, KEY_CLASS_PRIVATE, or KEY_CLASS_SYMMETRIC.
-   * @return True if the key exists, otherwise false.
+   * @brief Set the public and private key for the keyName.
+   *
+   * @param keyName The key name.
+   * @param publicKeyDer The public key DER byte array.
+   * @param publicKeyDerLength The length of publicKeyDer.
+   * @param privateKeyDer The private key DER byte array.
+   * @param privateKeyDerLength The length of privateKeyDer.
    */
+  void setKeyPairForKeyName(const Name& keyName,
+                            uint8_t *publicKeyDer, size_t publicKeyDerLength,
+                            uint8_t *privateKeyDer, size_t privateKeyDerLength);
+
+protected:
+  /******************************
+   * From TrustedPlatformModule *
+   ******************************/
+  virtual ConstBufferPtr
+  exportPrivateKeyPkcs1FromTpm(const Name& keyName);
+
   virtual bool
-  doesKeyExistInTpm(const Name& keyName, KeyClass keyClass);  
+  importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
+  
+  virtual bool
+  importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
+  
   
 private:
   class RsaPrivateKey;

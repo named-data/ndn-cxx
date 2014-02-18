@@ -85,6 +85,57 @@ BOOST_AUTO_TEST_CASE (RandomGenerator)
   BOOST_CHECK_CLOSE(dev / 256, 0.001, 100);
 
 }
+
+BOOST_AUTO_TEST_CASE (ExportImportKey)
+{
+  using namespace CryptoPP;
+
+  SecTpmOsx tpm;
+
+  Name keyName("/TestSecTpmFile/ExportImportKey/ksk-" + boost::lexical_cast<string>(time::now()));
+  
+  BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
+
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == true);
+
+  ConstBufferPtr exported = tpm.exportPrivateKeyPkcs8FromTpm(keyName, true, "1234");
+  shared_ptr<PublicKey> pubkeyPtr = tpm.getPublicKeyFromTpm(keyName);
+
+  tpm.deleteKeyPairInTpm(keyName);
+
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
+
+  BOOST_REQUIRE(tpm.importPrivateKeyPkcs8IntoTpm(keyName, exported->buf(), exported->size(), true, "1234"));
+  
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == true);
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);
+
+  const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
+  Block sigBlock = tpm.signInTpm(content, sizeof(content), keyName, DIGEST_ALGORITHM_SHA256);
+
+  {
+    using namespace CryptoPP;
+    
+    RSA::PublicKey publicKey;
+    ByteQueue queue;
+    queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
+    publicKey.Load(queue);
+
+    RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
+    bool result = verifier.VerifyMessage(content, sizeof(content),
+  					 sigBlock.value(), sigBlock.value_size());
+  
+    BOOST_REQUIRE_EQUAL(result, true);
+  }
+  
+  tpm.deleteKeyPairInTpm(keyName);
+  // This is some problem related to Mac OS Key chain, and we will fix it later.
+  // BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
+  // BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace ndn
