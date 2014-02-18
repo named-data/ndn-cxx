@@ -192,7 +192,7 @@ public:
   shutdown();
 
   shared_ptr<boost::asio::io_service> 
-  ioService() { return ioService_; }
+  ioService() { return m_ioService; }
 
 private:
   void
@@ -232,7 +232,7 @@ private:
   getEntryIndexForExpressedInterest(const Name& name);
   
   /**
-   * Find the first entry from the registeredPrefixTable_ where the entry prefix is the longest that matches name.
+   * Find the first entry from the m_registeredPrefixTable where the entry prefix is the longest that matches name.
    * @param name The name to find the PrefixEntry for (from the incoming interest packet).
    * @return A pointer to the entry, or 0 if not found.
    */
@@ -244,16 +244,16 @@ private:
   checkPitExpire();
   
 private:
-  shared_ptr<boost::asio::io_service> ioService_;
-  shared_ptr<boost::asio::io_service::work> ioServiceWork_; // needed if thread needs to be preserved
-  shared_ptr<boost::asio::deadline_timer> pitTimeoutCheckTimer_;
-  bool pitTimeoutCheckTimerActive_;
-  shared_ptr<boost::asio::deadline_timer> processEventsTimeoutTimer_;
+  shared_ptr<boost::asio::io_service> m_ioService;
+  shared_ptr<boost::asio::io_service::work> m_ioServiceWork; // needed if thread needs to be preserved
+  shared_ptr<boost::asio::deadline_timer> m_pitTimeoutCheckTimer;
+  bool m_pitTimeoutCheckTimerActive;
+  shared_ptr<boost::asio::deadline_timer> m_processEventsTimeoutTimer;
   
-  shared_ptr<Transport> transport_;
+  shared_ptr<Transport> m_transport;
 
-  PendingInterestTable pendingInterestTable_;
-  RegisteredPrefixTable registeredPrefixTable_;
+  PendingInterestTable m_pendingInterestTable;
+  RegisteredPrefixTable m_registeredPrefixTable;
 
   shared_ptr<Controller> m_fwController;
 };
