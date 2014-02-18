@@ -23,8 +23,8 @@ public:
   struct Error : public Tlv::Error { Error(const std::string &what) : Tlv::Error(what) {} };
 
   FibManagementOptions ()
-    : faceId_ (-1)
-    , cost_ (-1)
+    : m_faceId (std::numeric_limits<uint64_t>::max())
+    , m_cost (0)
   {
   }
 
@@ -36,45 +36,59 @@ public:
   const Name& 
   getName () const
   {
-    return name_;
+    return m_name;
   }
   
   FibManagementOptions&
   setName (const Name &name)
   {
-    name_ = name;
-    wire_.reset ();
+    m_name = name;
+    m_wire.reset ();
     return *this;
   }
   
-  int 
+  uint64_t 
   getFaceId () const
   {
-    return faceId_;
+    return m_faceId;
   }
 
   FibManagementOptions&
-  setFaceId (int faceId)
+  setFaceId (uint64_t faceId)
   {
-    faceId_ = faceId;
-    wire_.reset ();
+    m_faceId = faceId;
+    m_wire.reset ();
     return *this;
   }
 
-  int 
+  uint64_t 
   getCost () const
   {
-    return cost_;
+    return m_cost;
   }
 
   FibManagementOptions&
-  setCost (int cost)
+  setCost (uint64_t cost)
   {
-    cost_ = cost;
-    wire_.reset ();
+    m_cost = cost;
+    m_wire.reset ();
     return *this;
   }
 
+  const Name& 
+  getStrategy () const
+  {
+    return m_strategy;
+  }
+
+  FibManagementOptions&
+  setStrategy (const Name& strategy)
+  {
+    m_strategy = strategy;
+    m_wire.reset ();
+    return *this;
+  }
+  
   template<bool T>
   size_t
   wireEncode(EncodingImpl<T> &block) const;
@@ -86,13 +100,12 @@ public:
   wireDecode (const Block &wire);
   
 private:
-  Name name_;
-  int faceId_;
-  int cost_;
-  //Name strategy_;
-  //TODO: implement strategy after its use is properly defined
+  Name m_name;
+  uint64_t m_faceId;
+  uint64_t m_cost;
+  Name m_strategy;
 
-  mutable Block wire_;
+  mutable Block m_wire;
 };
 
 template<bool T>
@@ -100,34 +113,34 @@ inline size_t
 FibManagementOptions::wireEncode(EncodingImpl<T>& blk) const
 {
   size_t total_len = 0;
-  if (cost_ != -1)
+
+  // if (!m_strategy.empty())
+  //   {
+  //     total_len += prependNestedBlock(blk, tlv::nfd::Strategy, m_strategy);
+  //   }
+  
+  if (m_cost != 0)
     {
-      size_t var_len = blk.prependNonNegativeInteger (cost_);
-      total_len += var_len;
-      total_len += blk.prependVarNumber (var_len);
-      total_len += blk.prependVarNumber (tlv::nfd::Cost);
+      total_len += prependNonNegativeIntegerBlock(blk, tlv::nfd::Cost, m_cost);
     }
 
-  if (faceId_ != -1)
+  if (m_faceId != std::numeric_limits<uint64_t>::max())
     {
-      size_t var_len = blk.prependNonNegativeInteger (faceId_);
-      total_len += var_len;
-      total_len += blk.prependVarNumber (var_len);
-      total_len += blk.prependVarNumber (tlv::nfd::FaceId);
+      total_len += prependNonNegativeIntegerBlock(blk, tlv::nfd::FaceId, m_faceId);
     }
 
-  total_len += name_.wireEncode (blk);
+  total_len += m_name.wireEncode(blk);
 
-  total_len += blk.prependVarNumber (total_len);
-  total_len += blk.prependVarNumber (tlv::nfd::FibManagementOptions);
+  total_len += blk.prependVarNumber(total_len);
+  total_len += blk.prependVarNumber(tlv::nfd::FibManagementOptions);
   return total_len;
 }
 
 inline const Block&
 FibManagementOptions::wireEncode () const
 {
-  if (wire_.hasWire ())
-    return wire_;
+  if (m_wire.hasWire ())
+    return m_wire;
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
@@ -135,46 +148,54 @@ FibManagementOptions::wireEncode () const
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
-  wire_ = buffer.block();
-  return wire_;
+  m_wire = buffer.block();
+  return m_wire;
 }
   
 inline void 
 FibManagementOptions::wireDecode (const Block &wire)
 {
-  name_.clear ();
-  faceId_ = -1;
-  cost_ = -1;
+  m_name.clear();
+  m_faceId = std::numeric_limits<uint64_t>::max();
+  m_cost = 0;
+  m_strategy.clear();
 
-  wire_ = wire;
+  m_wire = wire;
 
-  if (wire_.type() != tlv::nfd::FibManagementOptions)
+  if (m_wire.type() != tlv::nfd::FibManagementOptions)
     throw Error("Requested decoding of FibManagementOptions, but Block is of different type");
   
-  wire_.parse ();
+  m_wire.parse ();
 
   // Name
-  Block::element_const_iterator val = wire_.find(Tlv::Name);
-  if (val != wire_.elements_end())
+  Block::element_const_iterator val = m_wire.find(Tlv::Name);
+  if (val != m_wire.elements_end())
     {
-      name_.wireDecode(*val);
+      m_name.wireDecode(*val);
     }
 
   // FaceID
-  val = wire_.find(tlv::nfd::FaceId);
-  if (val != wire_.elements_end())
+  val = m_wire.find(tlv::nfd::FaceId);
+  if (val != m_wire.elements_end())
     {
-      faceId_ = readNonNegativeInteger(*val);
+      m_faceId = readNonNegativeInteger(*val);
     }
 
   // Cost
-  val = wire_.find(tlv::nfd::Cost);
-  if (val != wire_.elements_end())
+  val = m_wire.find(tlv::nfd::Cost);
+  if (val != m_wire.elements_end())
     {
-      cost_ = readNonNegativeInteger(*val);
+      m_cost = readNonNegativeInteger(*val);
     }
 
-  //TODO: Strategy
+  // Strategy
+  val = m_wire.find(tlv::nfd::Strategy);
+  if (val != m_wire.elements_end())
+    {
+      val->parse();
+      if (!val->elements().empty())
+        m_strategy.wireDecode(*val->elements_begin());
+    }
 }
 
 inline std::ostream&
@@ -183,14 +204,17 @@ operator << (std::ostream &os, const FibManagementOptions &option)
   os << "ForwardingEntry(";
   
   // Name
-  os << "Prefix: " << option.getName () << ", ";
+  os << "Prefix: " << option.getName() << ", ";
 
   // FaceID
-  os << "FaceID: " << option.getFaceId () << ", ";
+  os << "FaceID: " << option.getFaceId() << ", ";
 
   // Cost
-  os << "Cost: " << option.getCost ();
+  os << "Cost: " << option.getCost() << ", ";
 
+  // Strategy
+  os << "Strategy: " << option.getStrategy() << ", ";
+  
   os << ")";
   return os;
 }

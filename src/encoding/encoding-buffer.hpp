@@ -512,6 +512,18 @@ prependNonNegativeIntegerBlock(EncodingImpl<P>& blk, uint32_t type, uint64_t num
 
 template<bool P>
 inline size_t
+prependByteArrayBlock(EncodingImpl<P>& blk, uint32_t type, const uint8_t* array, size_t arraySize)
+{
+  size_t var_len = blk.prependByteArray(array, arraySize);
+  size_t total_len = var_len;
+  total_len += blk.prependVarNumber(var_len);
+  total_len += blk.prependVarNumber(type);
+
+  return total_len;
+}
+
+template<bool P>
+inline size_t
 prependBooleanBlock(EncodingImpl<P>& blk, uint32_t type)
 {
   size_t total_len = blk.prependVarNumber(0);

@@ -26,7 +26,7 @@ const uint8_t TestControlResponse[] = {0x65, 0x17,
 const uint8_t TestFibManagementOptions[] = {
   0x68, 0x1e, 0x07, 0x16, 0x08, 0x09, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x68,
   0x6f, 0x73, 0x74, 0x08, 0x03, 0x72, 0x65, 0x67, 0x08, 0x04, 0x74, 0x65,
-  0x73, 0x74, 0x69, 0x01, 0x00, 0x6a, 0x01, 0x00
+  0x73, 0x74, 0x69, 0x01, 0x00, 0x6a, 0x01, 0x01
 };
 
 const uint8_t TestFaceManagementOptions[] = {
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE (FibManagementOptionsEncoding)
 
   opt.setName (n);
   opt.setFaceId (0);
-  opt.setCost (0);
+  opt.setCost (1);
 
   const Block& blk = opt.wireEncode ();
 
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE (FibManagementOptionsFastEncoding)
 
   opt.setName (n);
   opt.setFaceId (0);
-  opt.setCost (0);
+  opt.setCost (1);
 
   EncodingBuffer blk;
 
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE (FibManagementOptionsDecoding)
   
   BOOST_CHECK_EQUAL (opt.getName (), n);
   BOOST_CHECK_EQUAL (opt.getFaceId (), 0);
-  BOOST_CHECK_EQUAL (opt.getCost (), 0);
+  BOOST_CHECK_EQUAL (opt.getCost (), 1);
 }
 
 BOOST_AUTO_TEST_CASE (FaceManagementOptionsFastEncoding)
