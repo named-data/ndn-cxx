@@ -25,12 +25,36 @@ public:
   virtual
   ~SecTpmFile() {};
 
-  /**
-   * Generate a pair of asymmetric keys.
-   * @param keyName The name of the key pair.
-   * @param keyType The type of the key pair, e.g. KEY_TYPE_RSA.
-   * @param keySize The size of the key pair.
-   */
+  virtual void
+  setTpmPassword(const uint8_t* password, size_t passwordLength)
+  {}
+
+  virtual void
+  resetTpmPassword()
+  {}
+
+  virtual void
+  setInTerminal(bool inTerminal)
+  {
+    m_inTerminal = inTerminal;
+  }
+
+  virtual bool
+  getInTerminal()
+  {
+    return m_inTerminal;
+  }
+
+  virtual bool
+  locked()
+  {
+    return false;
+  }
+
+  virtual void
+  unlockTpm(const char* password, size_t passwordLength, bool usePassword)
+  {}
+
   virtual void
   generateKeyPairInTpm(const Name & keyName, KeyType keyType, int keySize);
 
@@ -74,6 +98,7 @@ protected:
 private:
   class Impl;
   shared_ptr<Impl> m_impl;
+  bool m_inTerminal;
 };
 
 } // namespace ndn

@@ -26,11 +26,63 @@ class SecTpm {
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
 
-  /**
-   * The virtual destructor.
-   */    
   virtual 
   ~SecTpm() {}
+
+  /**
+   * @brief set password of TPM
+   * 
+   * Password is used to unlock TPM when it is locked.
+   * You should be cautious when using this method, because remembering password is kind of dangerous.
+   *
+   * @param password The password.
+   * @param passwordLength The length of password.
+   */
+  virtual void
+  setTpmPassword(const uint8_t* password, size_t passwordLength) = 0;
+
+  /**
+   * @brief reset password of TPM
+   */
+  virtual void
+  resetTpmPassword() = 0;
+
+  /**
+   * @brief set inTerminal flag
+   * 
+   * If the inTerminal flag is set, and password is not set, TPM may ask for password via terminal.
+   * inTerminal flag is set by default.
+   *
+   * @param inTerminal.
+   */
+  virtual void
+  setInTerminal(bool inTerminal) = 0;
+
+  /**
+   * @brief get inTerminal flag
+   * 
+   * @return inTerminal flag.
+   */
+  virtual bool
+  getInTerminal() = 0;
+
+  /**
+   * @brief check if TPM is locked.
+   * 
+   * @return true if locked, false otherwise
+   */
+  virtual bool
+  locked() = 0;
+
+  /**
+   * @brief Unlock the TPM.
+   *
+   * @param password The password.
+   * @param passwordLength The password size. 0 indicates no password.
+   * @param usePassword True if we want to use the supplied password to unlock the TPM.
+   */
+  virtual void
+  unlockTpm(const char* password, size_t passwordLength, bool usePassword) = 0;
 
   /**
    * @brief Generate a pair of asymmetric keys.
@@ -134,11 +186,10 @@ public:
    * 
    * @param keyName The private key name.
    * @param password The password to encrypt the private key.
-   * @param inTerminal If password is not supplied, get it via terminal if inTerminal is true, otherwise fail.
    * @return The private key info (in PKCS8 format) if exist, otherwise a NULL pointer.
    */
   ConstBufferPtr
-  exportPrivateKeyPkcs8FromTpm(const Name& keyName, bool inTerminal, const std::string& password);
+  exportPrivateKeyPkcs8FromTpm(const Name& keyName, const std::string& password);
 
   /**
    * @brief Import a private key in PKCS#8 format.
@@ -148,11 +199,10 @@ public:
    * @param keyName The private key name.
    * @param key The encoded private key info.
    * @param password The password to encrypt the private key.
-   * @param inTerminal If password is not supplied, get it via terminal if inTerminal is true, otherwise fail.
    * @return False if import fails.
    */
   bool
-  importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size, bool inTerminal, const std::string& password);
+  importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size, const std::string& password);
 
 protected:
   /**
@@ -186,18 +236,18 @@ protected:
 
 
   /**
-   * @brief Get password.
+   * @brief Get import/export password.
    *
    * @param password On return, the password.
    * @param prompt Prompt for password, i.e., "Password for key:"
    * @return true if password has been obtained.
    */
   inline virtual bool
-  getPassWord(std::string& password, const std::string& prompt);
+  getImpExpPassWord(std::string& password, const std::string& prompt);
 };
 
 bool
-SecTpm::getPassWord(std::string& password, const std::string& prompt)
+SecTpm::getImpExpPassWord(std::string& password, const std::string& prompt)
 {
   int result = false;
 
@@ -225,7 +275,11 @@ SecTpm::getPassWord(std::string& password, const std::string& prompt)
 
   char* pw1 = const_cast<char*>(password1.c_str());
   memset(pw1, 0, password1.size());
-  memset(pw0, 0, strlen(pw0));  
+  memset(pw0, 0, strlen(pw0));
+
+  if(password.empty())
+    return false;
+
   return result;
 }
 

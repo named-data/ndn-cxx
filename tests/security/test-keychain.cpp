@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE (ExportIdentity)
   Name identity(string("/TestKeyChain/ExportIdentity/") + boost::lexical_cast<std::string>(time::now()));
   keyChain.createIdentity(identity);
   
-  Block exported = keyChain.exportIdentity(identity, true, "1234");
+  Block exported = keyChain.exportIdentity(identity, "1234");
 
   Name keyName = keyChain.getDefaultKeyNameForIdentity(identity);
   Name certName = keyChain.getDefaultCertificateNameForKey(keyName);
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE (ExportIdentity)
   BOOST_REQUIRE(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
   BOOST_REQUIRE(keyChain.doesCertificateExist(certName) == false);
 
-  keyChain.importIdentity(exported, true, "1234");
+  keyChain.importIdentity(exported, "1234");
 
   BOOST_REQUIRE(keyChain.doesIdentityExist(identity));
   BOOST_REQUIRE(keyChain.doesPublicKeyExist(keyName));

@@ -131,7 +131,7 @@ int main(int argc, char** argv)
     }
 
   KeyChain keyChain;
-  ptr_lib::shared_ptr<IdentityCertificate> certificate;
+  shared_ptr<IdentityCertificate> certificate;
 
   try{
     if(isIdentityName || isKeyName || isCertName)

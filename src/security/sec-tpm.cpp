@@ -24,32 +24,13 @@ using namespace std;
 namespace ndn {
 
 ConstBufferPtr
-SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, bool inTerminal, const string& passwordStr)
+SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, const string& passwordStr)
 {
   uint8_t salt[8] = {0};
   uint8_t iv[8] = {0};
     
   try{
     using namespace CryptoPP;
-
-    // check password
-    string password;
-    if(passwordStr.empty())
-      if(!inTerminal)
-        return shared_ptr<Buffer>();
-      else
-        {
-          int count = 0;
-          while(!getPassWord(password, keyName.toUri()))
-            {
-              cerr << "Password mismatch!" << endl;
-              count++;
-              if(count > 3)
-                return shared_ptr<Buffer>();
-            }
-        }
-    else
-      password = passwordStr;
 
     // derive key
     if(!generateRandomBlock(salt, 8))
@@ -67,11 +48,9 @@ SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, bool inTerminal, const
 
     keyGenerator.DeriveKey(derived, derivedLen, 
                            purpose, 
-                           reinterpret_cast<const byte*>(password.c_str()), password.size(), 
+                           reinterpret_cast<const byte*>(passwordStr.c_str()), passwordStr.size(), 
                            salt, 8, 
-                           iterationCount); 
-    
-    memset(const_cast<char*>(password.c_str()), 0, password.size());
+                           iterationCount);
 
     //encrypt
     CBC_Mode< DES_EDE3 >::Encryption e;
@@ -152,7 +131,7 @@ SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, bool inTerminal, const
 }
 
 bool
-SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size, bool inTerminal, const string& passwordStr)
+SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size, const string& passwordStr)
 {
   try{
     using namespace CryptoPP;
@@ -227,29 +206,13 @@ SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, si
     size_t derivedLen = 24; //For DES-EDE3-CBC-PAD
     byte derived[24] = {0};
     byte purpose = 0;
-
-    string password;
-    if(passwordStr.empty())
-      if(inTerminal)
-        {
-          char* pw = getpass("Password for the private key: ");
-          if (!pw)
-            return false;
-          password = pw;
-          memset(pw, 0, strlen(pw));
-        }
-      else
-        return false;
-    else
-      password = passwordStr;
       
     keyGenerator.DeriveKey(derived, derivedLen, 
                            purpose, 
-                           reinterpret_cast<const byte*>(password.c_str()), password.size(), 
+                           reinterpret_cast<const byte*>(passwordStr.c_str()), passwordStr.size(), 
                            saltBlock.BytePtr(), saltBlock.size(), 
                            iterationCount);
 
-    memset(const_cast<char*>(password.c_str()), 0, password.size());
         
     //decrypt
     CBC_Mode< DES_EDE3 >::Decryption d;

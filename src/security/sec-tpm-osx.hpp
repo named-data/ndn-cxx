@@ -23,18 +23,48 @@ public:
   ~SecTpmOsx();
 
 
-  // From TrustedPlatformModule
-  virtual void 
-  generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize);
+  /******************************
+   * From TrustedPlatformModule *
+   ******************************/
 
   virtual void
-  deleteKeyPairInTpm(const Name& keyName);
+  setTpmPassword(const uint8_t* password, size_t passwordLength);
+
+  virtual void
+  resetTpmPassword();
+
+  virtual void
+  setInTerminal(bool inTerminal);
+
+  virtual bool
+  getInTerminal();
+
+  virtual bool
+  locked();
+
+  virtual void
+  unlockTpm(const char* password, size_t passwordLength, bool usePassword);
+
+  virtual void 
+  generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize)
+  {
+    generateKeyPairInTpmInternal(keyName, keyType, keySize, false);
+  }
+
+  virtual void
+  deleteKeyPairInTpm(const Name& keyName)
+  {
+    deleteKeyPairInTpmInternal(keyName, false);
+  }
 
   virtual ptr_lib::shared_ptr<PublicKey> 
   getPublicKeyFromTpm(const Name& keyName);
   
   virtual Block
-  signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
+  signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm)
+  {
+    return signInTpmInternal(data, dataLength, keyName, digestAlgorithm, false);
+  }
 
   virtual ConstBufferPtr 
   decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric);
@@ -73,13 +103,37 @@ protected:
    * From TrustedPlatformModule *
    ******************************/
   virtual ConstBufferPtr
-  exportPrivateKeyPkcs1FromTpm(const Name& keyName);
+  exportPrivateKeyPkcs1FromTpm(const Name& keyName)
+  {
+    return exportPrivateKeyPkcs1FromTpmInternal(keyName, false);
+  }
 
   virtual bool
-  importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
+  importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
+  {
+    return importPrivateKeyPkcs1IntoTpmInternal(keyName, buf, size, false);
+  }
 
   virtual bool
   importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
+
+  /******************************
+   *       OSX-specifics        *
+   ******************************/
+  void
+  generateKeyPairInTpmInternal(const Name & keyName, KeyType keyType, int keySize, bool retry);
+  
+  void
+  deleteKeyPairInTpmInternal(const Name &keyName, bool retry);
+
+  ConstBufferPtr
+  exportPrivateKeyPkcs1FromTpmInternal(const Name& keyName, bool retry);
+
+  bool
+  importPrivateKeyPkcs1IntoTpmInternal(const Name& keyName, const uint8_t* buf, size_t size, bool retry);
+
+  Block
+  signInTpmInternal(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm, bool retry);
   
 private:
   class Impl;

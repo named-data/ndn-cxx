@@ -28,6 +28,7 @@ onValidationFailed(const shared_ptr<const Data>& data)
 BOOST_AUTO_TEST_CASE (Null)
 {
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
+
   Name identity(string("/TestValidator/Null/") + boost::lexical_cast<std::string>(time::now()));
   keyChain.createIdentity(identity);
 

@@ -11,7 +11,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include "security/key-chain.hpp"
+#include "util/time.hpp"
 #include <cryptopp/rsa.h>
+#include <cryptopp/files.h>
+#include <cryptopp/hex.h>
 
 using namespace std;
 namespace ndn {
@@ -22,7 +25,7 @@ BOOST_AUTO_TEST_CASE (Delete)
 {
   SecTpmOsx tpm;
   
-  Name keyName("/tmp/ksk-123456");
+  Name keyName("/TestSecTpmOsx/Delete/ksk-123456");
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
   
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
@@ -38,14 +41,14 @@ BOOST_AUTO_TEST_CASE (SignVerify)
 {
   SecTpmOsx tpm;
 
-  Name keyName("/tmp/ksk-123456");
+  Name keyName("/TestSecTpmOsx/SignVerify/ksk-123456");
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
   
-  Data data("/tmp/test/1");
+  Data data("/TestSecTpmOsx/SignVaerify/Data/1");
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
 
   Block sigBlock = tpm.signInTpm(content, sizeof(content), keyName, DIGEST_ALGORITHM_SHA256);
-  ptr_lib::shared_ptr<PublicKey> pubkeyPtr = tpm.getPublicKeyFromTpm(keyName);
+  shared_ptr<PublicKey> pubkeyPtr = tpm.getPublicKeyFromTpm(keyName);
 
   {
     using namespace CryptoPP;
@@ -57,7 +60,7 @@ BOOST_AUTO_TEST_CASE (SignVerify)
 
     RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
     bool result = verifier.VerifyMessage(content, sizeof(content),
-				  sigBlock.value(), sigBlock.value_size());
+					 sigBlock.value(), sigBlock.value_size());
   
     BOOST_REQUIRE_EQUAL(result, true);
   }
@@ -92,14 +95,14 @@ BOOST_AUTO_TEST_CASE (ExportImportKey)
 
   SecTpmOsx tpm;
 
-  Name keyName("/TestSecTpmFile/ExportImportKey/ksk-" + boost::lexical_cast<string>(time::now()));
+  Name keyName("/TestSecTpmOsx/ExportImportKey/ksk-" + boost::lexical_cast<string>(time::now()));
   
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
 
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == true);
 
-  ConstBufferPtr exported = tpm.exportPrivateKeyPkcs8FromTpm(keyName, true, "1234");
+  ConstBufferPtr exported = tpm.exportPrivateKeyPkcs8FromTpm(keyName, "1234");
   shared_ptr<PublicKey> pubkeyPtr = tpm.getPublicKeyFromTpm(keyName);
 
   tpm.deleteKeyPairInTpm(keyName);
@@ -107,7 +110,7 @@ BOOST_AUTO_TEST_CASE (ExportImportKey)
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
 
-  BOOST_REQUIRE(tpm.importPrivateKeyPkcs8IntoTpm(keyName, exported->buf(), exported->size(), true, "1234"));
+  BOOST_REQUIRE(tpm.importPrivateKeyPkcs8IntoTpm(keyName, exported->buf(), exported->size(), "1234"));
   
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == true);
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);

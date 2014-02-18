@@ -39,6 +39,20 @@ class KeyChainImpl : public Info, public Tpm
 {
   typedef typename Info::Error InfoError;
 public:
+
+  /**
+   * @brief Unlock key chain
+   *
+   * @param password The password.
+   * @param passwordLength The password size.
+   * @param usePassword True if password parameter is used.
+   */
+  void
+  unlock(const char* password, size_t passwordLength, bool usePassword)
+  { 
+    return Tpm::unlockTpm(password, passwordLength, usePassword); 
+  }
+
   
   /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a self-signed certificate of the KSK.
@@ -384,7 +398,7 @@ public:
   }
 
   Block
-  exportIdentity(const Name& identity, bool inTerminal = true, std::string passwordStr = "")
+  exportIdentity(const Name& identity, const std::string& passwordStr)
   {
     if (!Info::doesIdentityExist(identity))
       throw InfoError("Identity does not exist!");
@@ -394,7 +408,7 @@ public:
     if(keyName.empty())
       throw InfoError("Default key does not exist!");
 
-    ConstBufferPtr pkcs8 = Tpm::exportPrivateKeyPkcs8FromTpm(keyName, inTerminal, passwordStr);
+    ConstBufferPtr pkcs8 = Tpm::exportPrivateKeyPkcs8FromTpm(keyName, passwordStr);
     Block wireKey(tlv::security::KeyPackage, pkcs8);
 
     Name certName = Info::getDefaultCertificateNameForKey(keyName);
@@ -417,7 +431,7 @@ public:
   }
 
   void
-  importIdentity(const Block& block, bool inTerminal = true, std::string passwordStr = "")
+  importIdentity(const Block& block, const std::string& passwordStr)
   {
     block.parse();
     
@@ -437,7 +451,7 @@ public:
     Block wireKey = block.get(tlv::security::KeyPackage);
     if (Tpm::doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
       deleteKey(keyName);
-    Tpm::importPrivateKeyPkcs8IntoTpm(keyName, wireKey.value(), wireKey.value_size(), inTerminal, passwordStr);
+    Tpm::importPrivateKeyPkcs8IntoTpm(keyName, wireKey.value(), wireKey.value_size(), passwordStr);
     shared_ptr<PublicKey> pubKey = Tpm::getPublicKeyFromTpm(keyName.toUri());
     Info::addPublicKey(keyName, KEY_TYPE_RSA, *pubKey); // HACK! We should set key type according to the pkcs8 info.
     Info::setDefaultKeyNameForIdentity(keyName);

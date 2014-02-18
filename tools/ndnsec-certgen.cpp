@@ -268,6 +268,7 @@ int main(int argc, char** argv)
       revocationCert.setName(certName);
 
       KeyChain keyChain;
+
       Name signingCertificateName = keyChain.getDefaultCertificateNameForIdentity(Name(signId));
 
       keyChain.sign (revocationCert, signingCertificateName);

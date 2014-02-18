@@ -81,8 +81,9 @@ public:
 };
 
 
-SecTpmFile::SecTpmFile(const string & dir)
+SecTpmFile::SecTpmFile(const string& dir)
   : m_impl(new Impl(dir))
+  , m_inTerminal(false)
 {}
 
 void

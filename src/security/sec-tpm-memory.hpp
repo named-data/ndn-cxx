@@ -30,6 +30,36 @@ public:
    * From TrustedPlatformModule *
    ******************************/
 
+  virtual void
+  setTpmPassword(const uint8_t* password, size_t passwordLength)
+  {}
+
+  virtual void
+  resetTpmPassword()
+  {}
+
+  virtual void
+  setInTerminal(bool inTerminal)
+  {
+    m_inTerminal = inTerminal;
+  }
+  
+  virtual bool
+  getInTerminal()
+  {
+    return m_inTerminal;
+  }
+
+  virtual bool
+  locked()
+  {
+    return true;
+  }
+
+  virtual void
+  unlockTpm(const char* password, size_t passwordLength, bool usePassword)
+  {}
+
   virtual void 
   generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize);
 
@@ -96,6 +126,8 @@ private:
   
   PublicKeyStore  publicKeyStore_;  /**< The map key is the keyName.toUri() */
   PrivateKeyStore privateKeyStore_; /**< The map key is the keyName.toUri() */
+
+  bool m_inTerminal;
 };
 
 } // namespace ndn

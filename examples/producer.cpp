@@ -18,8 +18,7 @@ class Producer
 {
 public:
   Producer()
-  {
-  }
+  {}
 
   void
   onInterest(const Name& name, const Interest& interest)
