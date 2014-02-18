@@ -138,7 +138,7 @@ SecTpmMemory::signInTpm(const uint8_t *data, size_t dataLength,
 }
 
 ConstBufferPtr
-SecTpmMemory::decryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
+SecTpmMemory::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric)
 {
 #if 1
   throw Error("MemoryPrivateKeyStorage::decrypt not implemented");
@@ -146,7 +146,7 @@ SecTpmMemory::decryptInTpm(const Name& keyName, const uint8_t* data, size_t data
 }
 
 ConstBufferPtr
-SecTpmMemory::encryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
+SecTpmMemory::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric)
 {
 #if 1
   throw Error("MemoryPrivateKeyStorage::encrypt not implemented");
@@ -185,4 +185,4 @@ SecTpmMemory::generateRandomBlock(uint8_t* res, size_t size)
   }
 }
 
-}
+} // namespace ndn

@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_KEY_CHAIN_HPP
-#define NDN_KEY_CHAIN_HPP
+#ifndef NDN_SECURITY_KEY_CHAIN_HPP
+#define NDN_SECURITY_KEY_CHAIN_HPP
 
 #include "identity-certificate.hpp"
 #include "public-key.hpp"
@@ -539,7 +539,7 @@ private:
 
 };
 
-}
+} // namespace ndn
 
 
 
@@ -559,4 +559,4 @@ typedef KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> KeyChain;
 
 #endif //NDN_CPP_HAVE_OSX_SECURITY
 
-#endif
+#endif //NDN_SECURITY_KEY_CHAIN_HPP

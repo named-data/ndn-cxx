@@ -256,4 +256,4 @@ Validator::verifySignature(const uint8_t* buf, const size_t size, const Signatur
   return result;
 }
 
-}
+} // namespace ndn

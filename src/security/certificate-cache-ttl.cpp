@@ -15,8 +15,8 @@ INIT_LOGGER("CertificateCacheTtl")
 
 using namespace std;
 
-namespace ndn
-{    
+namespace ndn {
+
 CertificateCacheTtl::CertificateCacheTtl(shared_ptr<boost::asio::io_service> io, int defaultTtl)
   : m_defaultTtl(defaultTtl)
   , m_scheduler(*io)
@@ -66,6 +66,6 @@ CertificateCacheTtl::getCertificate(const Name & certificateName)
     return ptr_lib::shared_ptr<IdentityCertificate>();
 }
 
-}//ndn
+} // namespace ndn
 
 

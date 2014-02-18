@@ -18,8 +18,7 @@ INIT_LOGGER ("SecRuleRelative");
 
 using namespace std;
 
-namespace ndn
-{
+namespace ndn {
 
 SecRuleRelative::SecRuleRelative (const string& dataRegex, const string& signerRegex, const string& op, 
                                   const string& dataExpand, const string& signerExpand, bool isPositive)
@@ -111,4 +110,4 @@ SecRuleRelative::compare(const Name & dataName, const Name & signerName)
     return true;
 }
 
-}//ndn
+} // namespace ndn

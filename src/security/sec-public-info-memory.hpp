@@ -5,8 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_SEC_PUBLIC_INFO_MEMORY_HPP
-#define NDN_SEC_PUBLIC_INFO_MEMORY_HPP
+#ifndef NDN_SECURITY_SEC_PUBLIC_INFO_MEMORY_HPP
+#define NDN_SECURITY_SEC_PUBLIC_INFO_MEMORY_HPP
 
 #include "../common.hpp"
 #include "sec-public-info.hpp"
@@ -232,6 +232,6 @@ private:
   CertificateStore certificateStore_;                    
 };
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_SEC_PUBLIC_INFO_MEMORY_HPP

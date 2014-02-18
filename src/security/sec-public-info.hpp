@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_SEC_PUBLIC_INFO_HPP
-#define NDN_SEC_PUBLIC_INFO_HPP
+#ifndef NDN_SECURITY_SEC_PUBLIC_INFO_HPP
+#define NDN_SECURITY_SEC_PUBLIC_INFO_HPP
 
 #include "../name.hpp"
 #include "security-common.hpp"
@@ -399,6 +399,6 @@ SecPublicInfo::refreshDefaultCertificate()
     defaultCertificate_ = getCertificate(certName);
 }
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_SEC_PUBLIC_INFO_HPP

@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_CERTIFICATE_HPP
-#define NDN_CERTIFICATE_HPP
+#ifndef NDN_SECURITY_CERTIFICATE_HPP
+#define NDN_SECURITY_CERTIFICATE_HPP
 
 #include "../common.hpp"
 #include "../data.hpp"
@@ -153,4 +153,4 @@ operator <<(std::ostream &os, const Certificate &cert)
 
 } // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_CERTIFICATE_HPP

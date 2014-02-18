@@ -284,4 +284,4 @@ SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, si
 }
 
 
-}//ndn
+} // namespace ndn

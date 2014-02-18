@@ -63,4 +63,4 @@ CertificateSubjectDescription::decode(CryptoPP::BufferedTransformation &in)
   attributeTypeAndValue.MessageEnd();
 }
 
-}
+} // namespace ndn

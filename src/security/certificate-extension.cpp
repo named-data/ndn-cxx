@@ -55,4 +55,4 @@ CertificateExtension::decode(CryptoPP::BufferedTransformation &in)
   extension.MessageEnd();
 }
  
-}
+} // namespace ndn

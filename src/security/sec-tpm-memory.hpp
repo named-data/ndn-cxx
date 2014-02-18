@@ -5,8 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_SEC_TPM_MEMORY_HPP
-#define NDN_SEC_TPM_MEMORY_HPP
+#ifndef NDN_SECURITY_SEC_TPM_MEMORY_HPP
+#define NDN_SECURITY_SEC_TPM_MEMORY_HPP
 
 #include "../common.hpp"
 #include "sec-tpm.hpp"
@@ -23,9 +23,6 @@ class SecTpmMemory : public SecTpm {
 public:
   struct Error : public SecTpm::Error { Error(const std::string &what) : SecTpm::Error(what) {} };
 
-  /**
-   * The virtual destructor
-   */    
   virtual 
   ~SecTpmMemory();
 
@@ -36,60 +33,21 @@ public:
   virtual void 
   generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize);
 
-  /**
-   * Get the public key
-   * @param keyName The name of public key.
-   * @return The public key.
-   */
   virtual ptr_lib::shared_ptr<PublicKey> 
   getPublicKeyFromTpm(const Name& keyName);
 
-  /**
-   * Delete a key pair of asymmetric keys.
-   * @param keyName The name of the key pair.
-   */
   virtual void
   deleteKeyPairInTpm(const Name &keyName);
-  
-  /**
-   * Fetch the private key for keyName and sign the data, returning a signature Blob.
-   * @param data Pointer to the input byte array.
-   * @param dataLength The length of data.
-   * @param keyName The name of the signing key.
-   * @param digestAlgorithm the digest algorithm.
-   * @return The signature, or a null pointer if signing fails.
-   */  
+
   virtual Block 
   signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
   
-  /**
-   * Decrypt data.
-   * @param keyName The name of the decrypting key.
-   * @param data The byte to be decrypted.
-   * @param dataLength the length of data.
-   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric decryption is used.
-   * @return The decrypted data.
-   */
   virtual ConstBufferPtr 
-  decryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric);
+  decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric);
 
-  /**
-   * Encrypt data.
-   * @param keyName The name of the encrypting key.
-   * @param data The byte to be encrypted.
-   * @param dataLength the length of data.
-   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric decryption is used.
-   * @return The encrypted data.
-   */
   virtual ConstBufferPtr
-  encryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric);
+  encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric);
 
-  /**
-   * @brief Generate a symmetric key.
-   * @param keyName The name of the key.
-   * @param keyType The type of the key, e.g. KEY_TYPE_AES.
-   * @param keySize The size of the key.
-   */
   virtual void 
   generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize);
 
@@ -140,6 +98,6 @@ private:
   PrivateKeyStore privateKeyStore_; /**< The map key is the keyName.toUri() */
 };
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_SEC_TPM_MEMORY_HPP

@@ -5,8 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_CERTIFICATE_CACHE_TTL_HPP
-#define NDN_CERTIFICATE_CACHE_TTL_HPP
+#ifndef NDN_SECURITY_CERTIFICATE_CACHE_TTL_HPP
+#define NDN_SECURITY_CERTIFICATE_CACHE_TTL_HPP
 
 #include "../common.hpp"
 #include "certificate-cache.hpp"
@@ -46,6 +46,6 @@ protected:
   Scheduler m_scheduler;
 };
 
-}//ndn
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_CERTIFICATE_CACHE_TTL_HPP

@@ -17,8 +17,7 @@ INIT_LOGGER("ndn::ValidatorRegex");
 
 using namespace std;
 
-namespace ndn
-{
+namespace ndn {
 
 const shared_ptr<CertificateCache> ValidatorRegex::DefaultCertificateCache = shared_ptr<CertificateCache>();
 
@@ -62,7 +61,7 @@ ValidatorRegex::onCertificateValidated(const shared_ptr<const Data> &signCertifi
     }
   else
     {
-      _LOG_DEBUG("Wrong Invalidity:");
+      _LOG_DEBUG("Wrong validity:");
       onValidationFailed(data);
       return;
     }
@@ -150,4 +149,4 @@ ValidatorRegex::checkPolicy(const Data& data,
   return;
 }
 
-}//ndn
+} // namespace ndn

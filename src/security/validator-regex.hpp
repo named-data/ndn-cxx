@@ -5,8 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_VALIDATOR_REGEX_HPP
-#define NDN_VALIDATOR_REGEX_HPP
+#ifndef NDN_SECURITY_VALIDATOR_REGEX_HPP
+#define NDN_SECURITY_VALIDATOR_REGEX_HPP
 
 #include "validator.hpp"
 #include "identity-certificate.hpp"
@@ -92,6 +92,6 @@ void
 ValidatorRegex::addTrustAnchor(shared_ptr<IdentityCertificate> certificate)
 { m_trustAnchors[certificate->getName().getPrefix(-1)] = certificate; }
 
-}//ndn
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_VALIDATOR_REGEX_HPP

@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_VALIDATOR_HPP
-#define NDN_VALIDATOR_HPP
+#ifndef NDN_SECURITY_VALIDATOR_HPP
+#define NDN_SECURITY_VALIDATOR_HPP
 
 #include "../common.hpp"
 
@@ -152,6 +152,6 @@ protected:
   shared_ptr<Face> m_face;
 };
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_VALIDATOR_HPP

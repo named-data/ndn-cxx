@@ -10,10 +10,9 @@
 #include "sec-rule-specific.hpp"
 #include "signature-sha256-with-rsa.hpp"
 
-using namespace ndn;
 using namespace std;
 
-namespace ndn{
+namespace ndn {
 
 SecRuleSpecific::SecRuleSpecific(shared_ptr<Regex> dataRegex,
                                  shared_ptr<Regex> signerRegex)
@@ -48,10 +47,14 @@ SecRuleSpecific::matchSignerName(const Data& data)
 
 bool
 SecRuleSpecific::satisfy(const Data & data)
-{ return (matchDataName(data) && matchSignerName(data)) ? true : false ; }
+{ 
+  return (matchDataName(data) && matchSignerName(data)) ? true : false ; 
+}
 
 bool
 SecRuleSpecific::satisfy(const Name & dataName, const Name & signerName)
-{ return (m_dataRegex->match(dataName) && m_signerRegex->match(signerName)); }
-
+{ 
+  return (m_dataRegex->match(dataName) && m_signerRegex->match(signerName)); 
 }
+
+} // namespace ndn

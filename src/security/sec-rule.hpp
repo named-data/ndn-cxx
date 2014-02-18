@@ -5,14 +5,13 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_SEC_RULE_HPP
-#define NDN_SEC_RULE_HPP
+#ifndef NDN_SECURITY_SEC_RULE_HPP
+#define NDN_SECURITY_SEC_RULE_HPP
 
 #include "../common.hpp"
 #include "../data.hpp"
 
-namespace ndn
-{
+namespace ndn {
 
 class SecRule
 {
@@ -52,6 +51,6 @@ SecRule::isPositive()
   return m_isPositive;
 }
     
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_SEC_RULE_HPP

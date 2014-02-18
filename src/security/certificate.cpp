@@ -265,4 +265,4 @@ Certificate::printCertificate(std::ostream &os) const
   // keyRoot->accept(printVisitor, string(""));
 }
 
-}
+} // namespace ndn

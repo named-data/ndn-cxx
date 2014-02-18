@@ -5,14 +5,13 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_CERTIFICATE_CACHE_HPP
-#define NDN_CERTIFICATE_CACHE_HPP
+#ifndef NDN_SECURITY_CERTIFICATE_CACHE_HPP
+#define NDN_SECURITY_CERTIFICATE_CACHE_HPP
 
 #include "../name.hpp"
 #include "identity-certificate.hpp"
 
-namespace ndn
-{
+namespace ndn {
 
 class CertificateCache
 {
@@ -27,6 +26,6 @@ public:
   getCertificate(const Name& certificateNameWithoutVersion) = 0;
 };
 
-}//ndn
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_CERTIFICATE_CACHE_HPP

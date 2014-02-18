@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_PUBLIC_KEY_HPP
-#define NDN_PUBLIC_KEY_HPP
+#ifndef NDN_SECURITY_PUBLIC_KEY_HPP
+#define NDN_SECURITY_PUBLIC_KEY_HPP
 
 #include "../common.hpp"
 
@@ -80,6 +80,6 @@ private:
 std::ostream &
 operator <<(std::ostream &os, const PublicKey &key);
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_PUBLIC_KEY_HPP

@@ -115,4 +115,4 @@ operator <<(std::ostream &os, const PublicKey &key)
   return os;
 }
 
-}
+} // namespace ndn

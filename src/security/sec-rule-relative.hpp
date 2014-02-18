@@ -6,14 +6,13 @@
  */
 
 
-#ifndef NDN_SEC_RULE_RELATIVE_HPP
-#define NDN_SEC_RULE_RELATIVE_HPP
+#ifndef NDN_SECURITY_SEC_RULE_RELATIVE_HPP
+#define NDN_SECURITY_SEC_RULE_RELATIVE_HPP
 
 #include "sec-rule.hpp"
 #include "../util/regex.hpp"
 
-namespace ndn
-{
+namespace ndn {
   
 class SecRuleRelative : public SecRule
 {
@@ -53,6 +52,6 @@ private:
   Regex m_signerNameRegex;
 };
 
-}//ndn
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_SEC_RULE_RELATIVE_HPP

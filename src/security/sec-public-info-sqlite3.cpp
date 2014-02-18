@@ -30,8 +30,7 @@ INIT_LOGGER("BasicKeyMetaInfo");
 
 using namespace std;
 
-namespace ndn
-{
+namespace ndn {
 
 static const string INIT_ID_TABLE = "\
 CREATE TABLE IF NOT EXISTS                                           \n \

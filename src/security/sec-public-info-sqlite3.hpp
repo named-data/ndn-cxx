@@ -6,16 +6,15 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_SEC_PUBLIC_INFO_SQLITE3_HPP
-#define NDN_SEC_PUBLIC_INFO_SQLITE3_HPP
+#ifndef NDN_SECURITY_SEC_PUBLIC_INFO_SQLITE3_HPP
+#define NDN_SECURITY_SEC_PUBLIC_INFO_SQLITE3_HPP
 
 #include "../common.hpp"
 #include "sec-public-info.hpp"
 
 struct sqlite3;
 
-namespace ndn
-{
+namespace ndn {
   
 /**
  * BasicIdentityStorage extends IdentityStorage to implement a basic storage of identity, public keys and certificates
@@ -234,6 +233,6 @@ SecPublicInfoSqlite3::deactivatePublicKey(const Name& keyName)
   updateKeyStatus(keyName, false);
 }
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_SEC_PUBLIC_INFO_SQLITE3_HPP

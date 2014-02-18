@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_IDENTITY_CERTIFICATE_HPP
-#define NDN_IDENTITY_CERTIFICATE_HPP
+#ifndef NDN_SECURITY_IDENTITY_CERTIFICATE_HPP
+#define NDN_SECURITY_IDENTITY_CERTIFICATE_HPP
 
 #include "../common.hpp"
 #include "certificate.hpp"
@@ -108,6 +108,6 @@ IdentityCertificate::getPublicKeyName () const
   return publicKeyName_;
 }
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_IDENTITY_CERTIFICATE_HPP

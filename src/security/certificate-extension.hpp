@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_CERTIFICATE_EXTENSION_HPP
-#define NDN_CERTIFICATE_EXTENSION_HPP
+#ifndef NDN_SECURITY_CERTIFICATE_EXTENSION_HPP
+#define NDN_SECURITY_CERTIFICATE_EXTENSION_HPP
 
 #include "../common.hpp"
 #include "../encoding/buffer.hpp"
@@ -73,6 +73,6 @@ protected:
   Buffer extensionValue_;
 };
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_CERTIFICATE_EXTENSION_HPP

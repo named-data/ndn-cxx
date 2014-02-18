@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_SEC_TPM_HPP
-#define NDN_SEC_TPM_HPP
+#ifndef NDN_SECURITY_SEC_TPM_HPP
+#define NDN_SECURITY_SEC_TPM_HPP
 
 #include "../common.hpp"
 #include "security-common.hpp"
@@ -17,6 +17,11 @@
 
 namespace ndn {
 
+/**
+ * @brief SecTpm is the base class of the TPM classes.
+ *
+ * It specifies the interfaces of private/secret key related operations.
+ */
 class SecTpm {
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
@@ -28,65 +33,75 @@ public:
   ~SecTpm() {}
 
   /**
-   * Generate a pair of asymmetric keys.
+   * @brief Generate a pair of asymmetric keys.
+   *
    * @param keyName The name of the key pair.
    * @param keyType The type of the key pair, e.g. KEY_TYPE_RSA.
    * @param keySize The size of the key pair.
+   * @throws SecTpm::Error if fails.
    */
   virtual void 
   generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize) = 0;
   
   /**
-   * Delete a key pair of asymmetric keys.
+   * @brief Delete a key pair of asymmetric keys.
+   *
    * @param keyName The name of the key pair.
    */
   virtual void
   deleteKeyPairInTpm(const Name &keyName) = 0;
 
   /**
-   * Get the public key
-   * @param keyName The name of public key.
-   * @return The public key.
+   * @brief Get a public key.
+   *
+   * @param keyName The public key name.
+   * @return The public key if exists, otherwise a NULL pointer.
    */
-  virtual ptr_lib::shared_ptr<PublicKey> 
+  virtual shared_ptr<PublicKey> 
   getPublicKeyFromTpm(const Name& keyName) = 0;
   
   /**
-   * Fetch the private key for keyName and sign the data, returning a signature block.
-   * @param data Pointer to the input byte array.
+   * @brief Sign data.
+   *
+   * @param data Pointer to the byte array to be signed.
    * @param dataLength The length of data.
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
    * @return The signature block.
-   * @throws SecTpm::Error
+   * @throws SecTpm::Error if signing fails.
    */  
   virtual Block
   signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
   
   /**
-   * Decrypt data.
+   * @brief Decrypt data.
+   *
+   * @param data Pointer to the byte arry to be decrypted.
+   * @param dataLength The length of data.
    * @param keyName The name of the decrypting key.
-   * @param data The byte to be decrypted.
-   * @param dataLength the length of data.
-   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption is used.
+   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption.
    * @return The decrypted data.
+   * @throws SecTpm::Error if decryption fails.
    */
   virtual ConstBufferPtr 
-  decryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric) = 0;
+  decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric) = 0;
 
   /**
-   * Encrypt data.
+   * @brief Encrypt data.
+   *
+   * @param data Pointer to the byte arry to be decrypted.
+   * @param dataLength The length of data.
    * @param keyName The name of the encrypting key.
-   * @param data The byte to be encrypted.
-   * @param dataLength the length of data.
-   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption is used.
+   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption.
    * @return The encrypted data.
+   * @throws SecTpm::Error if encryption fails.
    */
   virtual ConstBufferPtr
-  encryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric) = 0;
+  encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric) = 0;
 
   /**
    * @brief Generate a symmetric key.
+   *
    * @param keyName The name of the key.
    * @param keyType The type of the key, e.g. KEY_TYPE_AES.
    * @param keySize The size of the key.
@@ -95,7 +110,8 @@ public:
   generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize) = 0;
 
   /**
-   * Check if a particular key exists.
+   * @brief Check if a particular key exists.
+   *
    * @param keyName The name of the key.
    * @param keyClass The class of the key, e.g. KEY_CLASS_PUBLIC, KEY_CLASS_PRIVATE, or KEY_CLASS_SYMMETRIC.
    * @return True if the key exists, otherwise false.
@@ -213,6 +229,6 @@ SecTpm::getPassWord(std::string& password, const std::string& prompt)
   return result;
 }
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_SEC_TPM_HPP

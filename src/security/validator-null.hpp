@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_VALIDATOR_NULL_HPP
-#define NDN_VALIDATOR_NULL_HPP
+#ifndef NDN_SECURITY_VALIDATOR_NULL_HPP
+#define NDN_SECURITY_VALIDATOR_NULL_HPP
 
 #include "validator.hpp"
 
@@ -37,6 +37,6 @@ protected:
   { onValidated(interest.shared_from_this()); }
 };
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_VALIDATOR_NULL_HPP

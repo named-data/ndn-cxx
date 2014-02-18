@@ -5,14 +5,14 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_SEC_RULE_SPECIFIC_H
-#define NDN_SEC_RULE_SPECIFIC_H
+#ifndef NDN_SECURITY_SEC_RULE_SPECIFIC_H
+#define NDN_SECURITY_SEC_RULE_SPECIFIC_H
 
 #include "../common.hpp"
 #include "sec-rule.hpp"
 #include "../util/regex.hpp"
 
-namespace ndn{
+namespace ndn {
 
 class SecRuleSpecific : public ndn::SecRule
 {
@@ -43,6 +43,6 @@ private:
   ndn::shared_ptr<ndn::Regex> m_signerRegex;
 };
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_SEC_RULE_SPECIFIC_H

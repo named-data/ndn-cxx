@@ -5,8 +5,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_SIGNATURE_SHA256_WITH_RSA_HPP
-#define NDN_SIGNATURE_SHA256_WITH_RSA_HPP
+#ifndef NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
+#define NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
 
 #include "../data.hpp"
 #include "../encoding/tlv.hpp"
@@ -62,4 +62,4 @@ private:
 
 } // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP

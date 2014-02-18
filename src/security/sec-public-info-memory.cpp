@@ -219,6 +219,4 @@ SecPublicInfoMemory::deleteIdentityInfo(const Name &identityName)
   throw runtime_error("SecPublicInfoMemory::deleteIdentityInfo not implemented");
 }
 
-
-
-}
+} // namespace ndn

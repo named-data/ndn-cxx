@@ -28,8 +28,8 @@ using namespace std;
 
 INIT_LOGGER("SecTpmOsx");
 
-namespace ndn
-{
+namespace ndn {
+
 class SecTpmOsx::Impl {
 public:
   Impl()
@@ -38,8 +38,8 @@ public:
   /**
    * @brief Convert NDN name of a key to internal name of the key.
    *
-   * @param keyName the NDN name of the key
-   * @param keyClass the class of the key
+   * @param keyName
+   * @param keyClass
    * @return the internal key name
    */
   std::string 
@@ -47,15 +47,17 @@ public:
   
   /**
    * @brief Get key.
-   * @param keyName the name of the key
-   * @param keyClass the class of the key
+   *
+   * @param keyName 
+   * @param keyClass
    * @returns pointer to the key
    */
   SecKeychainItemRef 
   getKey(const Name & keyName, KeyClass keyClass);
   
   /**
-   * convert keyType to MAC OS symmetric key key type
+   * @brief Convert keyType to MAC OS symmetric key key type
+   *
    * @param keyType
    * @returns MAC OS key type
    */
@@ -63,7 +65,8 @@ public:
   getSymKeyType(KeyType keyType);
   
   /**
-   * convert keyType to MAC OS asymmetirc key type
+   * @brief Convert keyType to MAC OS asymmetirc key type
+   *
    * @param keyType
    * @returns MAC OS key type
    */
@@ -71,7 +74,8 @@ public:
   getAsymKeyType(KeyType keyType);
   
   /**
-   * convert keyClass to MAC OS key class
+   * @brief Convert keyClass to MAC OS key class
+   *
    * @param keyClass
    * @returns MAC OS key class
    */
@@ -79,7 +83,8 @@ public:
   getKeyClass(KeyClass keyClass);
   
   /**
-   * convert digestAlgo to MAC OS algorithm id
+   * @brief Convert digestAlgo to MAC OS algorithm id
+   *
    * @param digestAlgo
    * @returns MAC OS algorithm id
    */
@@ -87,8 +92,9 @@ public:
   getDigestAlgorithm(DigestAlgorithm digestAlgo);
   
   /**
-   * get the digest size of the corresponding algorithm
-   * @param digestAlgo the digest algorithm
+   * @brief Get the digest size of the corresponding algorithm
+   *
+   * @param digestAlgo
    * @return digest size
    */
   long 
@@ -522,7 +528,7 @@ SecTpmOsx::signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName
 }
 
 ConstBufferPtr
-SecTpmOsx::decryptInTpm(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
+SecTpmOsx::decryptInTpm(const uint8_t* data, size_t dataLength, const Name & keyName, bool sym)
 {
   _LOG_TRACE("OSXPrivateKeyStorage::Decrypt");
 
@@ -614,55 +620,8 @@ SecTpmOsx::setACL(const Name & keyName, KeyClass keyClass, int acl, const string
   return true;
 }
 
-// bool
-// OSXPrivateKeyStorage::verifyData(const Name & keyName, const Blob & pData, const Blob & pSig, DigestAlgorithm digestAlgo)
-// {
-//   _LOG_TRACE("OSXPrivateKeyStorage::Verify");
-    
-//   CFDataRef dataRef = CFDataCreate(NULL,
-//                                     reinterpret_cast<const unsigned char*>(pData.buf()),
-//                                     pData.size());
-
-//   CFDataRef sigRef = CFDataCreate(NULL,
-//                                    reinterpret_cast<const unsigned char*>(pSig.buf()),
-//                                    pSig.size());
-
-//   SecKeyRef publicKey = (SecKeyRef)m_impl->getKey(keyName, KEY_CLASS_PUBLIC);
-    
-//   CFErrorRef error;
-//   SecTransformRef verifier = SecVerifyTransformCreate(publicKey, sigRef, &error);
-//   if (error) throw Error("Fail to create verifier");
-    
-//   Boolean set_res = SecTransformSetAttribute(verifier,
-//                                              kSecTransformInputAttributeName,
-//                                              dataRef,
-//                                              &error);
-//   if (error) throw Error("Fail to configure input of verifier");
-
-//   set_res = SecTransformSetAttribute(verifier,
-//                                      kSecDigestTypeAttribute,
-//                                      m_impl->getDigestAlgorithm(digestAlgo),
-//                                      &error);
-//   if (error) throw Error("Fail to configure digest algorithm of verifier");
-
-//   long digestSize = m_impl->getDigestSize(digestAlgo);
-//   set_res = SecTransformSetAttribute(verifier,
-//                                      kSecDigestLengthAttribute,
-//                                      CFNumberCreate(NULL, kCFNumberLongType, &digestSize),
-//                                      &error);
-//   if (error) throw Error("Fail to configure digest size of verifier");
-
-//   CFBooleanRef result = (CFBooleanRef) SecTransformExecute(verifier, &error);
-//   if (error) throw Error("Fail to verify data");
-
-//   if (result == kCFBooleanTrue)
-//     return true;
-//   else
-//     return false;
-// }
-
 ConstBufferPtr
-SecTpmOsx::encryptInTpm(const Name & keyName, const uint8_t* data, size_t dataLength, bool sym)
+SecTpmOsx::encryptInTpm(const uint8_t* data, size_t dataLength, const Name & keyName, bool sym)
 {
   _LOG_TRACE("OSXPrivateKeyStorage::Encrypt");
 
@@ -854,4 +813,4 @@ SecTpmOsx::Impl::getDigestSize(DigestAlgorithm digestAlgo)
   }
 }
   
-}// ndn
+} // namespace ndn

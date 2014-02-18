@@ -33,8 +33,7 @@
 
 using namespace std;
 
-namespace ndn
-{
+namespace ndn {
 
 class SecTpmFile::Impl {
 public:
@@ -243,7 +242,7 @@ SecTpmFile::signInTpm(const uint8_t *data, size_t dataLength, const Name& keyNam
 
 
 ConstBufferPtr
-SecTpmFile::decryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
+SecTpmFile::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric)
 {
   string keyURI = keyName.toUri();
   if (!isSymmetric)
@@ -303,7 +302,7 @@ SecTpmFile::decryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLe
 }
 
 ConstBufferPtr
-SecTpmFile::encryptInTpm(const Name& keyName, const uint8_t* data, size_t dataLength, bool isSymmetric)
+SecTpmFile::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric)
 {
   string keyURI = keyName.toUri();
 
@@ -437,4 +436,4 @@ SecTpmFile::generateRandomBlock(uint8_t* res, size_t size)
   }
 }
 
-} //ndn
+} // namespace ndn

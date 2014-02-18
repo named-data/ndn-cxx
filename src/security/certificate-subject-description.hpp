@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
-#define NDN_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
+#ifndef NDN_SECURITY_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
+#define NDN_SECURITY_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
 
 #include "../common.hpp"
 #include "../encoding/oid.hpp"
@@ -59,6 +59,6 @@ private:
   std::string value_;
 };
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
