@@ -132,12 +132,12 @@ Face::put(const Data &data)
 
   if (!data.getLocalControlHeader().empty(false, true))
     {
-      m_transport->send(data.wireEncode());
+      m_transport->send(data.getLocalControlHeader().wireEncode(data, false, true),
+                        data.wireEncode());
     }
   else
     {
-      m_transport->send(data.getLocalControlHeader().wireEncode(data, false, true),
-                        data.wireEncode());
+      m_transport->send(data.wireEncode());
     }
 }
 
