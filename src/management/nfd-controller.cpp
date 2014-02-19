@@ -26,14 +26,32 @@ Controller::selfRegisterPrefix(const Name& prefixToRegister,
                                const SuccessCallback& onSuccess,
                                const FailCallback&    onFail)
 {
-  startFibCommand("add-nexthop",
+  // two stage process:
+  // 1. insert FIB entry
+  // 2. add-nexthop <self> to the FIB entry
+
+  // Step 1.
+  startFibCommand("insert",
                   FibManagementOptions()
-                  .setName(prefixToRegister)
-                  .setFaceId(0) // self-registration
-                  .setCost(0),
+                    .setName(prefixToRegister),
+                  bind(&Controller::selfRegisterPrefixAddNextop, this, _1, onSuccess, onFail),
+                  onFail);
+}
+
+void
+Controller::selfRegisterPrefixAddNextop(const FibManagementOptions& entry,
+                                        const SuccessCallback& onSuccess,
+                                        const FailCallback&    onFail)
+{
+  // Step 2.
+  startFibCommand("add-nexthop",
+                  FibManagementOptions(entry) // prefixToRegister should be inside the entry
+                    .setFaceId(0) // self-registration
+                    .setCost(0),
                   bind(&Controller::recordSelfRegisteredFaceId, this, _1, onSuccess),
                   onFail);
 }
+
 
 void
 Controller::selfDeregisterPrefix(const Name& prefixToRegister,
@@ -49,8 +67,8 @@ Controller::selfDeregisterPrefix(const Name& prefixToRegister,
 
   startFibCommand("remove-nexthop",
                   FibManagementOptions()
-                  .setName(prefixToRegister)
-                  .setFaceId(m_faceId),
+                    .setName(prefixToRegister)
+                    .setFaceId(m_faceId),
                   bind(onSuccess), onFail);
 }
 

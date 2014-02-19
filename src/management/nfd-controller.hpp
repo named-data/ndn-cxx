@@ -8,7 +8,6 @@
 #define NDN_MANAGEMENT_NFD_CONTROL_HPP
 
 #include "controller.hpp"
-
 #include "../security/key-chain.hpp"
 
 namespace ndn {
@@ -53,6 +52,11 @@ protected:
                    const FailCallback& onFailure);
 
 private:
+  void
+  selfRegisterPrefixAddNextop(const FibManagementOptions& entry,
+                              const SuccessCallback& onSuccess,
+                              const FailCallback&    onFail);
+
   void
   recordSelfRegisteredFaceId(const FibManagementOptions& entry,
                              const SuccessCallback& onSuccess);
