@@ -17,6 +17,7 @@
 
 #include "management/ndnd-controller.hpp"
 #include "management/nfd-controller.hpp"
+#include "management/nrd-controller.hpp"
 
 namespace ndn {
 
@@ -62,7 +63,12 @@ Face::construct(const shared_ptr<Transport>& transport,
   m_processEventsTimeoutTimer = make_shared<boost::asio::deadline_timer>(boost::ref(*m_ioService));
 
   if (std::getenv("NFD") != 0)
-      m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
+    {
+      if (std::getenv("NRD") != 0)
+        m_fwController = make_shared<nrd::Controller>(boost::ref(*this));
+      else
+        m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
+    }
   else
       m_fwController = make_shared<ndnd::Controller>(boost::ref(*this));
 }
