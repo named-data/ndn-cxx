@@ -55,7 +55,8 @@ public:
    * LocalControlHeader should be done before calling this method.
    */
   inline void 
-  wireDecode(const Block& wire);
+  wireDecode(const Block& wire,
+             bool encodeIncomingFaceId = true, bool encodeNextHopFaceId = true);
 
   inline static const Block&
   getPayload(const Block& wire);
@@ -172,7 +173,8 @@ LocalControlHeader::wireEncode(const U& payload,
 }
 
 inline void 
-LocalControlHeader::wireDecode(const Block& wire)
+LocalControlHeader::wireDecode(const Block& wire,
+                               bool encodeIncomingFaceId/* = true*/, bool encodeNextHopFaceId/* = true*/)
 {
   BOOST_ASSERT(wire.type() == tlv::nfd::LocalControlHeader);
   wire.parse();
@@ -187,10 +189,12 @@ LocalControlHeader::wireDecode(const Block& wire)
       switch(i->type())
         {
         case tlv::nfd::IncomingFaceId:
-          m_incomingFaceId = readNonNegativeInteger(*i);
+          if (encodeIncomingFaceId)
+            m_incomingFaceId = readNonNegativeInteger(*i);
           break;
         case tlv::nfd::NextHopFaceId:
-          m_nextHopFaceId = readNonNegativeInteger(*i);
+          if (encodeNextHopFaceId)
+            m_nextHopFaceId = readNonNegativeInteger(*i);
           break;
         default:
           // ignore all unsupported
