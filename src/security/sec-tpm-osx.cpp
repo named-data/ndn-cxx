@@ -267,11 +267,12 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name & keyName, KeyType keyType, i
 
   OSStatus res = SecKeyGeneratePair((CFDictionaryRef)attrDict, &publicKey, &privateKey);
 
-  CFRelease(publicKey);
-  CFRelease(privateKey);
-
   if (res == errSecSuccess)
-    return;
+    {
+      CFRelease(publicKey);
+      CFRelease(privateKey);
+      return;
+    }
   
   if (res == errSecAuthFailed && !retry)
     {
@@ -360,6 +361,10 @@ SecTpmOsx::getPublicKeyFromTpm(const Name & keyName)
                                0,
                                NULL,
                                &exportedKey);
+  if (res != errSecSuccess)
+    {
+      throw Error("Cannot export requested public key from OSX Keychain");
+    }
 
   shared_ptr<PublicKey> key = make_shared<PublicKey>(CFDataGetBytePtr(exportedKey), CFDataGetLength(exportedKey));
   CFRelease(exportedKey);
@@ -546,6 +551,9 @@ SecTpmOsx::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, 
                                                0,
                                                NULL);
   
+  if(res != errSecSuccess)
+    return false;
+
   CFRelease(importedKey);
   return true;
 }

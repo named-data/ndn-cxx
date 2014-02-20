@@ -251,7 +251,11 @@ public:
   {
     if (value_size() != other.value_size())
       return false;
+    if (value_size() == 0 /* == other.value_size()*/)
+      return true;
 
+    // somehow, behavior is wrong on OSX 10.9 when component is empty
+    // (probably some bug in STL...)
     return std::equal(value_begin(), value_end(), other.value_begin());
   }
 
