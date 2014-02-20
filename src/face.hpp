@@ -53,7 +53,7 @@ typedef function<void(const Name&, const std::string&)> OnSetInterestFilterFaile
 class Face : noncopyable
 {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  struct Error : public std::runtime_error { Error(const std::string& what) : std::runtime_error(what) {} };
 
   /**
    * @brief Create a new Face for communication with an NDN Forwarder using the default UnixTransport.
@@ -61,18 +61,26 @@ public:
   Face();
 
   /**
+   * @brief Create face, explicitly selecting which controller to use
+   *
+   * Controller controls the way prefixes are registered with local forwarder.
+   */
+  explicit
+  Face(const shared_ptr<Controller>& controller);
+
+  /**
    * @brief Create a new Face for communication with an NDN Forwarder using the default UnixTransport.
    * @param ioService A shared pointer to boost::io_service object that should control all IO operations
    */
   explicit
-  Face(const ptr_lib::shared_ptr<boost::asio::io_service> &ioService);
-  
+  Face(const shared_ptr<boost::asio::io_service>& ioService);
+
   /**
    * Create a new Face for communication with an NDN hub at host:port using the default TcpTransport.
    * @param host The host of the NDN hub.
    * @param port The port or service name of the NDN hub. If omitted. use 6363.
    */
-  Face(const std::string &host, const std::string &port = "6363");
+  Face(const std::string& host, const std::string& port = "6363");
 
   /**
    * Create a new Face for communication with an NDN hub with the given Transport object and connectionInfo.
@@ -95,7 +103,16 @@ public:
    * </code>
    */
   Face(const shared_ptr<Transport>& transport,
-       const shared_ptr<boost::asio::io_service> &ioService);
+       const shared_ptr<boost::asio::io_service>& ioService);
+
+  /**
+   * @brief Create face, explicitly selecting which controller to use
+   *
+   * Controller controls the way prefixes are registered with local forwarder.
+   */
+  Face(const shared_ptr<Transport>& transport,
+       const shared_ptr<boost::asio::io_service>& ioService,
+       const shared_ptr<Controller>& controller);
   
   /**
    * @brief Express Interest
@@ -124,7 +141,7 @@ public:
    */
   const PendingInterestId*
   expressInterest(const Name& name,
-                  const Interest &tmpl,
+                  const Interest& tmpl,
                   const OnData& onData, const OnTimeout& onTimeout = OnTimeout());
   
   /**
@@ -134,7 +151,7 @@ public:
    * @param pendingInterestId The ID returned from expressInterest.
    */
   void
-  removePendingInterest(const PendingInterestId *pendingInterestId);
+  removePendingInterest(const PendingInterestId* pendingInterestId);
   
   /**
    * Register prefix with the connected NDN hub and call onInterest when a matching interest is received.
@@ -158,7 +175,7 @@ public:
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
   void
-  unsetInterestFilter(const RegisteredPrefixId *registeredPrefixId);
+  unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
 
    /**
    * @brief Publish data packet
@@ -167,7 +184,7 @@ public:
    * of the local NDN forwarder
    */
   void
-  put(const Data &data);
+  put(const Data& data);
  
   /**
    * Process any data to receive or call timeout callbacks.
@@ -196,7 +213,9 @@ public:
 
 private:
   void
-  construct(const shared_ptr<Transport>& transport, const shared_ptr<boost::asio::io_service>& ioService);
+  construct(const shared_ptr<Transport>& transport,
+            const shared_ptr<boost::asio::io_service>& ioService,
+            const shared_ptr<Controller>& controller);
   
   struct ProcessEventsTimeout {};
   typedef std::list<shared_ptr<PendingInterest> > PendingInterestTable;

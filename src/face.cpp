@@ -24,36 +24,55 @@ namespace ndn {
 Face::Face()
 {
   construct(shared_ptr<Transport>(new UnixTransport()),
-            make_shared<boost::asio::io_service>());
+            make_shared<boost::asio::io_service>(),
+            shared_ptr<Controller>());
 }
 
-Face::Face(const shared_ptr<boost::asio::io_service> &ioService)
+Face::Face(const shared_ptr<Controller>& controller)
 {
   construct(shared_ptr<Transport>(new UnixTransport()),
-            ioService);
+            make_shared<boost::asio::io_service>(),
+            controller);
 }
 
-Face::Face(const std::string &host, const std::string &port/* = "6363"*/)
+Face::Face(const shared_ptr<boost::asio::io_service>& ioService)
+{
+  construct(shared_ptr<Transport>(new UnixTransport()),
+            ioService,
+            shared_ptr<Controller>());
+}
+
+Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
 {
   construct(shared_ptr<Transport>(new TcpTransport(host, port)),
-            make_shared<boost::asio::io_service>());
+            make_shared<boost::asio::io_service>(),
+            shared_ptr<Controller>());
 }
 
 Face::Face(const shared_ptr<Transport>& transport)
 {
   construct(transport,
-            make_shared<boost::asio::io_service>());
+            make_shared<boost::asio::io_service>(),
+            shared_ptr<Controller>());
 }
 
 Face::Face(const shared_ptr<Transport>& transport,
-           const shared_ptr<boost::asio::io_service> &ioService)
+           const shared_ptr<boost::asio::io_service>& ioService)
 {
-  construct(transport, ioService);
+  construct(transport, ioService, shared_ptr<Controller>());
+}
+
+Face::Face(const shared_ptr<Transport>& transport,
+           const shared_ptr<boost::asio::io_service>& ioService,
+           const shared_ptr<Controller>& controller)
+{
+  construct(transport, ioService, controller);
 }
 
 void
 Face::construct(const shared_ptr<Transport>& transport,
-                const shared_ptr<boost::asio::io_service> &ioService)
+                const shared_ptr<boost::asio::io_service>& ioService,
+                const shared_ptr<Controller>& controller)
 {
   m_pitTimeoutCheckTimerActive = false;
   m_transport = transport;
@@ -62,15 +81,22 @@ Face::construct(const shared_ptr<Transport>& transport,
   m_pitTimeoutCheckTimer      = make_shared<boost::asio::deadline_timer>(boost::ref(*m_ioService));
   m_processEventsTimeoutTimer = make_shared<boost::asio::deadline_timer>(boost::ref(*m_ioService));
 
-  if (std::getenv("NFD") != 0)
+  if (static_cast<bool>(controller))
     {
-      if (std::getenv("NRD") != 0)
-        m_fwController = make_shared<nrd::Controller>(boost::ref(*this));
-      else
-        m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
+      m_fwController = controller;
     }
   else
-      m_fwController = make_shared<ndnd::Controller>(boost::ref(*this));
+    {
+      if (std::getenv("NFD") != 0)
+        {
+          if (std::getenv("NRD") != 0)
+            m_fwController = make_shared<nrd::Controller>(boost::ref(*this));
+          else
+            m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
+        }
+      else
+        m_fwController = make_shared<ndnd::Controller>(boost::ref(*this));
+    }
 }
 
 
@@ -90,7 +116,7 @@ Face::expressInterest(const Interest& interest, const OnData& onData, const OnTi
 
 const PendingInterestId*
 Face::expressInterest(const Name& name,
-                      const Interest &tmpl,
+                      const Interest& tmpl,
                       const OnData& onData, const OnTimeout& onTimeout/* = OnTimeout()*/)
 {
   return expressInterest(Interest(name,
@@ -130,7 +156,7 @@ Face::asyncExpressInterest(const shared_ptr<const Interest>& interest,
 }
 
 void
-Face::put(const Data &data)
+Face::put(const Data& data)
 {
   if (!m_transport->isConnected())
     m_transport->connect(*m_ioService,
@@ -148,14 +174,14 @@ Face::put(const Data &data)
 }
 
 void
-Face::removePendingInterest(const PendingInterestId *pendingInterestId)
+Face::removePendingInterest(const PendingInterestId* pendingInterestId)
 {
   m_ioService->post(bind(&Face::asyncRemovePendingInterest, this, pendingInterestId));
 }
 
 
 void
-Face::asyncRemovePendingInterest(const PendingInterestId *pendingInterestId)
+Face::asyncRemovePendingInterest(const PendingInterestId* pendingInterestId)
 {
   m_pendingInterestTable.remove_if(MatchPendingInterestId(pendingInterestId));
 }
@@ -175,13 +201,13 @@ Face::setInterestFilter(const Name& prefix,
 }
 
 void
-Face::unsetInterestFilter(const RegisteredPrefixId *registeredPrefixId)
+Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
 {
   m_ioService->post(bind(&Face::asyncUnsetInterestFilter, this, registeredPrefixId));
 }
 
 void
-Face::asyncUnsetInterestFilter(const RegisteredPrefixId *registeredPrefixId)
+Face::asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
 {
   RegisteredPrefixTable::iterator i = std::find_if(m_registeredPrefixTable.begin(), m_registeredPrefixTable.end(),
                                                    MatchRegisteredPrefixId(registeredPrefixId));
@@ -235,12 +261,12 @@ Face::processEvents(Milliseconds timeout/* = 0 */, bool keepThread/* = false*/)
       m_ioService->run();
       m_ioService->reset(); // so it is possible to run processEvents again (if necessary)
     }
-  catch(Face::ProcessEventsTimeout &)
+  catch(Face::ProcessEventsTimeout&)
     {
       // break
       m_ioService->reset();
     }
-  catch(const std::exception &)
+  catch(const std::exception&)
     {
       m_ioService->reset();
       m_pendingInterestTable.clear();
