@@ -1,49 +1,15 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /*
  * Copyright (c) 2013, Regents of the University of California
- *                     Yingdi Yu
- *
  * BSD license, See the LICENSE file for more information
- *
  * Author: Yingdi Yu <yingdi@cs.ucla.edu>
  */
 
-#include <iostream>
-#include <fstream>
+#ifndef NDNSEC_CERT_INSTALL_HPP
+#define NDNSEC_CERT_INSTALL_HPP
 
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/asio.hpp>
+#include "ndnsec-util.hpp"
 
-#include <cryptopp/base64.h>
-#include <cryptopp/files.h>
-
-#include "security/key-chain.hpp"
-
-using namespace std;
-using namespace ndn;
-namespace po = boost::program_options;
-
-ptr_lib::shared_ptr<IdentityCertificate>
-getCertificate(const string& fileName)
-{
-  istream* ifs;
-  if(fileName == string("-"))
-    ifs = &cin;
-  else
-    ifs = new ifstream(fileName.c_str());
-
-  string decoded;
-  CryptoPP::FileSource ss2(*ifs, true,
-                           new CryptoPP::Base64Decoder(new CryptoPP::StringSink(decoded)));
-
-  ptr_lib::shared_ptr<IdentityCertificate> identityCertificate = ptr_lib::make_shared<IdentityCertificate>();
-  identityCertificate->wireDecode(Block(decoded.c_str(), decoded.size()));
-
-  return identityCertificate;
-}
 
 struct HttpException : public std::exception
 {
@@ -64,7 +30,7 @@ private:
   std::string m_reason;
 };
 
-ptr_lib::shared_ptr<IdentityCertificate>
+ndn::shared_ptr<ndn::IdentityCertificate>
 getCertificateHttp(const std::string &host, const std::string &port, const std::string &path)
 {
   using namespace boost::asio::ip;
@@ -110,30 +76,32 @@ getCertificateHttp(const std::string &host, const std::string &port, const std::
   std::string header;
   while (std::getline(request_stream, header) && header != "\r") ;
 
+  ndn::OBufferStream os;
+  CryptoPP::FileSource ss2(request_stream, true, new CryptoPP::Base64Decoder(new CryptoPP::FileSink(os)));
 
-  string decoded;
-  CryptoPP::FileSource ss2(request_stream, true,
-                           new CryptoPP::Base64Decoder(new CryptoPP::StringSink(decoded)));
-
-  ptr_lib::shared_ptr<IdentityCertificate> identityCertificate = ptr_lib::make_shared<IdentityCertificate>();
-  identityCertificate->wireDecode(Block(decoded.c_str(), decoded.size()));
+  ndn::shared_ptr<ndn::IdentityCertificate> identityCertificate = ndn::make_shared<ndn::IdentityCertificate>();
+  identityCertificate->wireDecode(ndn::Block(os.buf()));
 
   return identityCertificate;
 }
 
-int main(int argc, char** argv)
+int 
+ndnsec_cert_install(int argc, char** argv)
 {
-  string certFileName;
+  using namespace ndn;
+  namespace po = boost::program_options;
+
+  std::string certFileName;
   bool systemDefault = true;
   bool identityDefault = false;
   bool keyDefault = false;
   bool noDefault = false;
   bool any = false;
 
-  po::options_description desc("General Usage\n  ndn-install-cert [-h] [-I|K|N] cert-file\nGeneral options");
+  po::options_description desc("General Usage\n  ndnsec cert-install [-h] [-I|K|N] cert-file\nGeneral options");
   desc.add_options()
     ("help,h", "produce help message")
-    ("cert-file,f", po::value<string>(&certFileName), "file name of the ceritificate, - for stdin. "
+    ("cert-file,f", po::value<std::string>(&certFileName), "file name of the ceritificate, - for stdin. "
                                                       "If starts with http://, will try to fetch "
                                                       "the certificate using HTTP GET request")
     ("identity-default,I", "optional, if specified, the certificate will be set as the default certificate of the identity")
@@ -149,22 +117,22 @@ int main(int argc, char** argv)
       po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
       po::notify(vm);
     }
-  catch (exception &e)
+  catch (std::exception &e)
     {
-      cerr << "ERROR: " << e.what() << endl;
+      std::cerr << "ERROR: " << e.what() << std::endl;
       return 1;
     }
 
   if (vm.count("help"))
     {
-      cerr << desc << endl;
-      return 1;
+      std::cerr << desc << std::endl;
+      return 0;
     }
 
   if (0 == vm.count("cert-file"))
     {
-      cerr << "cert_file must be specified" << endl;
-      cerr << desc << endl;
+      std::cerr << "cert_file must be specified" << std::endl;
+      std::cerr << desc << std::endl;
       return 1;
     }
 
@@ -186,23 +154,23 @@ int main(int argc, char** argv)
 
   try
     {
-      ptr_lib::shared_ptr<IdentityCertificate> cert;
+      shared_ptr<IdentityCertificate> cert;
 
       if(certFileName.find("http://") == 0)
         {
-          string host;
-          string port;
-          string path;
+          std::string host;
+          std::string port;
+          std::string path;
 
           size_t pos = 7;
           size_t posSlash = certFileName.find ("/", pos);
 
-          if (posSlash == string::npos)
+          if (posSlash == std::string::npos)
             throw HttpException("Request line is not correctly formatted");
 
           size_t posPort = certFileName.find (":", pos);
 
-          if (posPort != string::npos && posPort < posSlash) // port is specified
+          if (posPort != std::string::npos && posPort < posSlash) // port is specified
             {
               port = certFileName.substr (posPort + 1, posSlash - posPort - 1);
               host = certFileName.substr (pos, posPort-pos);
@@ -219,8 +187,11 @@ int main(int argc, char** argv)
         }
       else
         {
-          cert = getCertificate(certFileName);
+          cert = getIdentityCertificate(certFileName);
         }
+
+      if(!static_cast<bool>(cert))
+        return 1;
 
       KeyChain keyChain;
 
@@ -244,18 +215,30 @@ int main(int argc, char** argv)
           keyChain.addCertificate(*cert);
         }
 
-      cout << "OK: certificate with name [" << cert->getName().toUri() << "] has been successfully installed" << endl;
+      std::cerr << "OK: certificate with name [" << cert->getName().toUri() << "] has been successfully installed" << std::endl;
 
       return 0;
     }
+  catch(SecPublicInfo::Error& e)
+    {
+      std::cerr << "ERROR: " << e.what() << std::endl;
+      return 1;
+    }
+  catch(SecTpm::Error& e)
+    {
+      std::cerr << "ERROR: " << e.what() << std::endl;
+      return 1;
+    }
   catch(std::exception &e)
     {
-      cerr << "ERROR: " << e.what() << endl;
+      std::cerr << "ERROR: " << e.what() << std::endl;
       return 1;
     }
   catch(...)
     {
-      cerr << "ERROR: unknown error" << endl;
+      std::cerr << "ERROR: unknown error" << std::endl;
       return 1;
     }
 }
+
+#endif //NDNSEC_CERT_INSTALL_HPP

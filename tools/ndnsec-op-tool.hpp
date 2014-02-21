@@ -1,38 +1,29 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /*
  * Copyright (c) 2013, Regents of the University of California
- *                     Yingdi Yu
- *
  * BSD license, See the LICENSE file for more information
- *
  * Author: Yingdi Yu <yingdi@cs.ucla.edu>
  */
 
-#include <iostream>
-#include <fstream>
+#ifndef NDNSEC_OP_TOOL_HPP
+#define NDNSEC_OP_TOOL_HPP
 
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/regex.hpp>
-#include <boost/exception/all.hpp>
-
-#include "security/key-chain.hpp"
-#include "security/signature-sha256-with-rsa.hpp"
+#include "ndnsec-util.hpp"
 
 using namespace std;
-using namespace ndn;
-namespace po = boost::program_options;
 
-int main(int argc, char** argv)
+int
+ndnsec_op_tool(int argc, char** argv)
 {
-  string command;
+  using namespace ndn;
+  namespace po = boost::program_options;
+
+  std::string command;
   
   po::options_description desc("General options");
   desc.add_options()
     ("help,h", "produce this help message")
-    ("command", po::value<string>(&command), "command")
+    ("command", po::value<std::string>(&command), "command")
     ;
 
   po::positional_options_description p;
@@ -46,29 +37,29 @@ int main(int argc, char** argv)
     }
   catch(std::exception &e)
     {
-      cerr << "ERROR: " << e.what() << endl;
+      std::cerr << "ERROR: " << e.what() << std::endl;
       return -1;
     }
     
   if (vm.count("help"))
     {
-      cout << desc << "\n";
-      return 1;
+      std::cerr << desc << std::endl;
+      return 0;
     }
   
   if (0 == vm.count("command"))
     {
-      cerr << "command must be specified" << endl;
-      cerr << desc << endl;
+      std::cerr << "command must be specified" << std::endl;
+      std::cerr << desc << std::endl;
       return 1;
     }
 
   if (command == "sign") // the content to be signed from stdin
     {
-      KeyChain keyChain;
-
       try
         {
+          KeyChain keyChain;
+
           Buffer dataToSign((istreambuf_iterator<char>(cin)), istreambuf_iterator<char>());
           
           Signature signature = keyChain.sign(dataToSign.buf(), dataToSign.size(),
@@ -76,23 +67,30 @@ int main(int argc, char** argv)
 
           if (signature.getValue().value_size() == 0)
             {
-              cerr << "Error signing with default key" << endl;
+              std::cerr << "Error signing with default key" << std::endl;
               return -1;
             }
 
-          cout.write(reinterpret_cast<const char*>(signature.getValue().wire()), signature.getValue().size());
+          std::cout.write(reinterpret_cast<const char*>(signature.getValue().wire()), signature.getValue().size());
         }
-      catch (boost::exception &e)
+      catch (boost::exception& e)
         {
           std::cerr << "ERROR: " << boost::diagnostic_information (e) << std::endl;
           return -1;
         }
-      catch(std::exception &e)
+      catch (SecTpm::Error& e)
         {
-          cerr << "ERROR: " << e.what() << endl;
+          std::cerr << "ERROR: " << e.what() << std::endl;
+          return -1;
+        }
+      catch (SecPublicInfo::Error& e)
+        {
+          std::cerr << "ERROR: " << e.what() << std::endl;
           return -1;
         }
     }
 
   return 0;
 }
+
+#endif //NDNSEC_OP_TOOL_HPP

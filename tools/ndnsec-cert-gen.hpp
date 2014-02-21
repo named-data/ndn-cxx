@@ -1,62 +1,26 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /*
  * Copyright (c) 2013, Regents of the University of California
- *                     Yingdi Yu
- *
  * BSD license, See the LICENSE file for more information
- *
  * Author: Yingdi Yu <yingdi@cs.ucla.edu>
  */
 
-#include <iostream>
-#include <fstream>
+#ifndef NDNSEC_CERT_GEN_HPP
+#define NDNSEC_CERT_GEN_HPP
 
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/regex.hpp>
-#include <cryptopp/base64.h>
-#include <cryptopp/files.h>
+#include "ndnsec-util.hpp"
 
-#include <boost/tokenizer.hpp>
-using boost::tokenizer;
-using boost::escaped_list_separator;
-
-#include "security/key-chain.hpp"
-
-namespace ndn {
-typedef boost::posix_time::ptime Time;
-typedef boost::posix_time::time_duration TimeInterval;
-namespace time {
-const Time UNIX_EPOCH_TIME = Time (boost::gregorian::date (1970, boost::gregorian::Jan, 1));
-} // namespace time
-} // namespace ndn
-
-using namespace ndn;
-namespace po = boost::program_options;
-
-shared_ptr<IdentityCertificate>
-getSelfSignedCertificate(const std::string& fileName)
+int 
+ndnsec_cert_gen(int argc, char** argv)
 {
-  std::istream* ifs;
-  if(fileName == "-")
-    ifs = &std::cin;
-  else
-    ifs = new std::ifstream(fileName.c_str());
+  using boost::tokenizer;
+  using boost::escaped_list_separator;
 
-  std::string decoded;
-  CryptoPP::FileSource ss2(*ifs, true,
-                           new CryptoPP::Base64Decoder(new CryptoPP::StringSink(decoded)));
+  using namespace ndn;
+  namespace po = boost::program_options;
 
-  shared_ptr<IdentityCertificate> identityCertificate = make_shared<IdentityCertificate>();
-  identityCertificate->wireDecode(Block(make_shared<Buffer>(decoded.c_str(), decoded.size())));
-
-  return identityCertificate;
-}
-
-int main(int argc, char** argv)
-{
+  typedef boost::posix_time::ptime Time;
+  
   std::string notBeforeStr;
   std::string notAfterStr;
   std::string sName;
@@ -66,7 +30,7 @@ int main(int argc, char** argv)
   bool isSelfSigned = false;
   bool nack = false;
 
-  po::options_description desc("General Usage\n  ndn-certgen [-h] [-S date] [-E date] [-N subject-name] [-I subject-info] [-s sign-id] request\nGeneral options");
+  po::options_description desc("General Usage\n  ndnsec cert-gen [-h] [-S date] [-E date] [-N subject-name] [-I subject-info] [-s sign-id] request\nGeneral options");
   desc.add_options()
     ("help,h", "produce help message")
     ("not-before,S", po::value<std::string>(&notBeforeStr), "certificate starting date, YYYYMMDDhhmmss")
@@ -96,7 +60,7 @@ int main(int argc, char** argv)
   if (vm.count("help"))
     {
       std::cerr << desc << std::endl;
-      return 1;
+      return 0;
     }
 
   if (0 == vm.count("sign-id"))
@@ -176,12 +140,8 @@ int main(int argc, char** argv)
       return 1;
     }
 
-  shared_ptr<IdentityCertificate> selfSignedCertificate;
-  try
-    {
-      selfSignedCertificate = getSelfSignedCertificate(reqFile);
-    }
-  catch(...)
+  shared_ptr<IdentityCertificate> selfSignedCertificate = getIdentityCertificate(reqFile);
+  if(!static_cast<bool>(selfSignedCertificate))
     {
       std::cerr << "ERROR: input error" << std::endl;
       return 1;
@@ -235,8 +195,8 @@ int main(int argc, char** argv)
           CertificateSubjectDescription subDescryptName("2.5.4.41", sName);
           IdentityCertificate certificate;
           certificate.setName(certName);
-          certificate.setNotBefore((notBefore-ndn::time::UNIX_EPOCH_TIME).total_milliseconds());
-          certificate.setNotAfter((notAfter-ndn::time::UNIX_EPOCH_TIME).total_milliseconds());
+          certificate.setNotBefore((notBefore-ndn::UNIX_EPOCH_TIME).total_milliseconds());
+          certificate.setNotAfter((notAfter-ndn::UNIX_EPOCH_TIME).total_milliseconds());
           certificate.setPublicKeyInfo(selfSignedCertificate->getPublicKeyInfo());
           certificate.addSubjectDescription(subDescryptName);
           for(int i = 0; i < otherSubDescrypt.size(); i++)
@@ -255,7 +215,12 @@ int main(int argc, char** argv)
             }
           wire = certificate.wireEncode();
         }
-      catch(std::exception &e)
+      catch(SecPublicInfo::Error& e)
+        {
+          std::cerr << "ERROR: " << e.what() << std::endl;
+          return 1;
+        }
+      catch(SecTpm::Error& e)
         {
           std::cerr << "ERROR: " << e.what() << std::endl;
           return 1;
@@ -267,17 +232,40 @@ int main(int argc, char** argv)
       // revocationCert.setContent(void*, 0); // empty content
       revocationCert.setName(certName);
 
-      KeyChain keyChain;
-
-      Name signingCertificateName = keyChain.getDefaultCertificateNameForIdentity(Name(signId));
-
-      keyChain.sign (revocationCert, signingCertificateName);
-      wire = revocationCert.wireEncode();
+      try
+        {
+          KeyChain keyChain;
+          
+          Name signingCertificateName = keyChain.getDefaultCertificateNameForIdentity(Name(signId));
+          
+          keyChain.sign (revocationCert, signingCertificateName);
+          wire = revocationCert.wireEncode();
+        }
+      catch(SecPublicInfo::Error& e)
+        {
+          std::cerr << "ERROR: " << e.what() << std::endl;
+          return 1;
+        }
+      catch(SecTpm::Error& e)
+        {
+          std::cerr << "ERROR: " << e.what() << std::endl;
+          return 1;
+        }
     }
 
-  CryptoPP::StringSource ss(reinterpret_cast<const unsigned char *>(wire.wire()), wire.size(),
-                            true,
-                            new CryptoPP::Base64Encoder(new CryptoPP::FileSink(std::cout), true, 64));
+  try
+    {
+      using namespace CryptoPP;
+      StringSource ss(wire.wire(), wire.size(), true,
+                      new Base64Encoder(new FileSink(std::cout), true, 64));
+    }
+  catch(CryptoPP::Exception& e)
+    {
+      std::cerr << "ERROR: " << e.what() << std::endl;
+      return 1;
+    }
 
   return 0;
 }
+
+#endif //NDNSEC_CERT_GEN_HPP
