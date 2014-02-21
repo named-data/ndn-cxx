@@ -30,7 +30,7 @@ SecPublicInfoMemory::addIdentity(const Name& identityName)
 {
   string identityUri = identityName.toUri();
   if (find(identityStore_.begin(), identityStore_.end(), identityUri) != identityStore_.end())
-    throw Error("Identity already exists: " + identityUri);
+    return;
   
   identityStore_.push_back(identityUri);
 }
@@ -39,7 +39,7 @@ bool
 SecPublicInfoMemory::revokeIdentity()
 {
 #if 1
-  throw runtime_error("SecPublicInfoMemory::revokeIdentity not implemented");
+  throw Error("SecPublicInfoMemory::revokeIdentity not implemented");
 #endif
 }
 
@@ -54,40 +54,19 @@ SecPublicInfoMemory::addPublicKey(const Name& keyName, KeyType keyType, const Pu
 {
   Name identityName = keyName.getSubName(0, keyName.size() - 1);
 
-  if (!doesIdentityExist(identityName))
-    addIdentity(identityName);
-
-  if (doesPublicKeyExist(keyName))
-    throw Error("a key with the same name already exists!");
+  addIdentity(identityName);
   
-  keyStore_[keyName.toUri()] = ptr_lib::make_shared<KeyRecord>(keyType, publicKey);
+  keyStore_[keyName.toUri()] = make_shared<KeyRecord>(keyType, publicKey);
 }
 
-ptr_lib::shared_ptr<PublicKey>
+shared_ptr<PublicKey>
 SecPublicInfoMemory::getPublicKey(const Name& keyName)
 {
   KeyStore::iterator record = keyStore_.find(keyName.toUri());
   if (record == keyStore_.end())
-    // Not found.  Silently return null.
-    return ptr_lib::shared_ptr<PublicKey>();
+    throw Error("SecPublicInfoMemory::getPublicKey  " + keyName.toUri());
   
-  return ptr_lib::make_shared<PublicKey> (record->second->getKey());
-}
-
-void 
-SecPublicInfoMemory::activatePublicKey(const Name& keyName)
-{
-#if 1
-  throw runtime_error("SecPublicInfoMemory::activateKey not implemented");
-#endif
-}
-
-void 
-SecPublicInfoMemory::deactivatePublicKey(const Name& keyName)
-{
-#if 1
-  throw runtime_error("SecPublicInfoMemory::deactivateKey not implemented");
-#endif
+  return make_shared<PublicKey> (record->second->getKey());
 }
 
 bool
@@ -101,30 +80,19 @@ SecPublicInfoMemory::addCertificate(const IdentityCertificate& certificate)
 {
   const Name& certificateName = certificate.getName();
   const Name& keyName = certificate.getPublicKeyName();
+  const Name& identity = keyName.getPrefix(-1);
 
-  if (!doesPublicKeyExist(keyName))
-    throw Error("No corresponding Key record for certificate! " + keyName.toUri() + " " + certificateName.toUri());
-
-  // Check if certificate has already existed!
-  if (doesCertificateExist(certificateName))
-    throw Error("Certificate has already been installed!");
-
-  // Check if the public key of certificate is the same as the key record. 
-  ptr_lib::shared_ptr<PublicKey> pubKey = getPublicKey(keyName);
-  if (!pubKey || (*pubKey) != certificate.getPublicKeyInfo())
-    throw Error("Certificate does not match the public key!");
-  
-  // Insert the certificate.
-  certificateStore_[certificateName.toUri()] = ptr_lib::make_shared<IdentityCertificate> (certificate);
+  addIdentity(identity);
+  addPublicKey(keyName, KEY_TYPE_RSA, certificate.getPublicKeyInfo());
+  certificateStore_[certificateName.toUri()] = make_shared<IdentityCertificate> (certificate);
 }
 
-ptr_lib::shared_ptr<IdentityCertificate> 
+shared_ptr<IdentityCertificate> 
 SecPublicInfoMemory::getCertificate(const Name& certificateName)
 {
   CertificateStore::iterator record = certificateStore_.find(certificateName.toUri());
   if (record == certificateStore_.end())
-    // Not found.  Silently return null.
-    return ptr_lib::shared_ptr<IdentityCertificate>();
+    throw Error("SecPublicInfoMemory::getCertificate  " + certificateName.toUri());
 
   return record->second;
 }
@@ -174,49 +142,49 @@ SecPublicInfoMemory::setDefaultCertificateNameForKeyInternal(const Name& certifi
 void
 SecPublicInfoMemory::getAllIdentities(std::vector<Name> &nameList, bool isDefault)
 {
-  throw runtime_error("SecPublicInfoMemory::getAllIdentities not implemented");
+  throw Error("SecPublicInfoMemory::getAllIdentities not implemented");
 }
 
 void
 SecPublicInfoMemory::getAllKeyNames(std::vector<Name> &nameList, bool isDefault)
 {
-  throw runtime_error("SecPublicInfoMemory::getAllKeyNames not implemented");
+  throw Error("SecPublicInfoMemory::getAllKeyNames not implemented");
 }
 
 void
 SecPublicInfoMemory::getAllKeyNamesOfIdentity(const Name& identity, std::vector<Name> &nameList, bool isDefault)
 {
-  throw runtime_error("SecPublicInfoMemory::getAllKeyNamesOfIdentity not implemented");
+  throw Error("SecPublicInfoMemory::getAllKeyNamesOfIdentity not implemented");
 }
     
 void
 SecPublicInfoMemory::getAllCertificateNames(std::vector<Name> &nameList, bool isDefault)
 {
-  throw runtime_error("SecPublicInfoMemory::getAllCertificateNames not implemented");
+  throw Error("SecPublicInfoMemory::getAllCertificateNames not implemented");
 }
 
 void
 SecPublicInfoMemory::getAllCertificateNamesOfKey(const Name& keyName, std::vector<Name> &nameList, bool isDefault)
 {
-  throw runtime_error("SecPublicInfoMemory::getAllCertificateNamesOfKey not implemented");
+  throw Error("SecPublicInfoMemory::getAllCertificateNamesOfKey not implemented");
 }
 
 void
 SecPublicInfoMemory::deleteCertificateInfo(const Name &certName)
 {
-  throw runtime_error("SecPublicInfoMemory::deleteCertificateInfo not implemented");
+  throw Error("SecPublicInfoMemory::deleteCertificateInfo not implemented");
 }
 
 void
 SecPublicInfoMemory::deletePublicKeyInfo(const Name &keyName)
 {
-  throw runtime_error("SecPublicInfoMemory::deletePublicKeyInfo not implemented");
+  throw Error("SecPublicInfoMemory::deletePublicKeyInfo not implemented");
 }
 
 void
 SecPublicInfoMemory::deleteIdentityInfo(const Name &identityName)
 {
-  throw runtime_error("SecPublicInfoMemory::deleteIdentityInfo not implemented");
+  throw Error("SecPublicInfoMemory::deleteIdentityInfo not implemented");
 }
 
 } // namespace ndn

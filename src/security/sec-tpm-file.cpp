@@ -151,14 +151,14 @@ SecTpmFile::getPublicKeyFromTpm(const Name & keyName)
   string keyURI = keyName.toUri();
 
   if(!doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC))
-    return shared_ptr<PublicKey>();
+    throw Error("Public Key already exist");
 
   ostringstream os;
   try{
     using namespace CryptoPP;
     FileSource(m_impl->nameTransform(keyURI, ".pub").string().c_str(), true, new Base64Decoder(new FileSink(os)));
   }catch(const CryptoPP::Exception& e){
-    return shared_ptr<PublicKey>();
+    throw Error(e.what());
   }
 
   return make_shared<PublicKey>(reinterpret_cast<const uint8_t*>(os.str().c_str()), os.str().size());
@@ -245,156 +245,159 @@ SecTpmFile::signInTpm(const uint8_t *data, size_t dataLength, const Name& keyNam
 ConstBufferPtr
 SecTpmFile::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric)
 {
-  string keyURI = keyName.toUri();
-  if (!isSymmetric)
-    {
-      if(!doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
-	throw Error("private key doesn't exist");
+  throw Error("SecTpmFile::decryptInTpm is not supported!");
+  // string keyURI = keyName.toUri();
+  // if (!isSymmetric)
+  //   {
+  //     if(!doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
+  //       throw Error("private key doesn't exist");
 
-      try{
-	using namespace CryptoPP;
-        AutoSeededRandomPool rng;
+  //     try{
+  //       using namespace CryptoPP;
+  //       AutoSeededRandomPool rng;
 
-	//Read private key
-	ByteQueue bytes;
-	FileSource file(m_impl->nameTransform(keyURI, ".pri").string().c_str(), true, new Base64Decoder);
-	file.TransferTo(bytes);
-	bytes.MessageEnd();
-	RSA::PrivateKey privateKey;
-	privateKey.Load(bytes);
-	RSAES_PKCS1v15_Decryptor decryptor(privateKey);
+  //       //Read private key
+  //       ByteQueue bytes;
+  //       FileSource file(m_impl->nameTransform(keyURI, ".pri").string().c_str(), true, new Base64Decoder);
+  //       file.TransferTo(bytes);
+  //       bytes.MessageEnd();
+  //       RSA::PrivateKey privateKey;
+  //       privateKey.Load(bytes);
+  //       RSAES_PKCS1v15_Decryptor decryptor(privateKey);
 	
-	OBufferStream os;
-	StringSource(data, dataLength, true, new PK_DecryptorFilter(rng, decryptor, new FileSink(os)));
+  //       OBufferStream os;
+  //       StringSource(data, dataLength, true, new PK_DecryptorFilter(rng, decryptor, new FileSink(os)));
 	
-	return os.buf();
-      }
-      catch(const CryptoPP::Exception& e){
-	throw Error(e.what());
-      }
-    }
-  else
-    {
-      throw Error("Symmetric encryption is not implemented!");
-      // if(!doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
-      // 	throw Error("symmetric key doesn't exist");
+  //       return os.buf();
+  //     }
+  //     catch(const CryptoPP::Exception& e){
+  //       throw Error(e.what());
+  //     }
+  //   }
+  // else
+  //   {
+  //     throw Error("Symmetric encryption is not implemented!");
+  //     // if(!doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
+  //     // 	throw Error("symmetric key doesn't exist");
 
-      // try{
-      // 	string keyBits;
-      // 	string symKeyFileName = m_impl->nameTransform(keyURI, ".key");
-      // 	FileSource(symKeyFileName, true, new HexDecoder(new StringSink(keyBits)));
+  //     // try{
+  //     // 	string keyBits;
+  //     // 	string symKeyFileName = m_impl->nameTransform(keyURI, ".key");
+  //     // 	FileSource(symKeyFileName, true, new HexDecoder(new StringSink(keyBits)));
 	
-      // 	using CryptoPP::AES;
-      // 	AutoSeededRandomPool rnd;
-      // 	byte iv[AES::BLOCKSIZE];
-      // 	rnd.GenerateBlock(iv, AES::BLOCKSIZE);
+  //     // 	using CryptoPP::AES;
+  //     // 	AutoSeededRandomPool rnd;
+  //     // 	byte iv[AES::BLOCKSIZE];
+  //     // 	rnd.GenerateBlock(iv, AES::BLOCKSIZE);
 
-      // 	CFB_Mode<AES>::Decryption decryptor;
-      // 	decryptor.SetKeyWithIV(reinterpret_cast<const uint8_t*>(keyBits.c_str()), keyBits.size(), iv);
+  //     // 	CFB_Mode<AES>::Decryption decryptor;
+  //     // 	decryptor.SetKeyWithIV(reinterpret_cast<const uint8_t*>(keyBits.c_str()), keyBits.size(), iv);
 	
-      // 	OBufferStream os;
-      // 	StringSource(data, dataLength, true, new StreamTransformationFilter(decryptor,new FileSink(os)));
-      // 	return os.buf();
+  //     // 	OBufferStream os;
+  //     // 	StringSource(data, dataLength, true, new StreamTransformationFilter(decryptor,new FileSink(os)));
+  //     // 	return os.buf();
 
-      // }catch(const CryptoPP::Exception& e){
-      // 	throw Error(e.what());
-      // }
-    }
+  //     // }catch(const CryptoPP::Exception& e){
+  //     // 	throw Error(e.what());
+  //     // }
+  //   }
 }
 
 ConstBufferPtr
 SecTpmFile::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric)
 {
-  string keyURI = keyName.toUri();
+  throw Error("SecTpmFile::encryptInTpm is not supported!");
+  // string keyURI = keyName.toUri();
 
-  if (!isSymmetric)
-    {
-      if(!doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC))
-	throw Error("public key doesn't exist");
-      try
-	{
-          using namespace CryptoPP;
-          AutoSeededRandomPool rng;
+  // if (!isSymmetric)
+  //   {
+  //     if(!doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC))
+  //       throw Error("public key doesn't exist");
+  //     try
+  //       {
+  //         using namespace CryptoPP;
+  //         AutoSeededRandomPool rng;
 
-	  //Read private key
-	  ByteQueue bytes;
-	  FileSource file(m_impl->nameTransform(keyURI, ".pub").string().c_str(), true, new Base64Decoder);
-	  file.TransferTo(bytes);
-	  bytes.MessageEnd();
-	  RSA::PublicKey publicKey;
-	  publicKey.Load(bytes);
+  //         //Read private key
+  //         ByteQueue bytes;
+  //         FileSource file(m_impl->nameTransform(keyURI, ".pub").string().c_str(), true, new Base64Decoder);
+  //         file.TransferTo(bytes);
+  //         bytes.MessageEnd();
+  //         RSA::PublicKey publicKey;
+  //         publicKey.Load(bytes);
 
-	  OBufferStream os;
-	  RSAES_PKCS1v15_Encryptor encryptor(publicKey);
+  //         OBufferStream os;
+  //         RSAES_PKCS1v15_Encryptor encryptor(publicKey);
 
-	  StringSource(data, dataLength, true, new PK_EncryptorFilter(rng, encryptor, new FileSink(os)));
-	  return os.buf();
-	}
-      catch(const CryptoPP::Exception& e){
-	throw Error(e.what());
-      }
-    }
-  else
-    {
-      throw Error("Symmetric encryption is not implemented!");
-      // if(!doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
-      // 	throw Error("symmetric key doesn't exist");
+  //         StringSource(data, dataLength, true, new PK_EncryptorFilter(rng, encryptor, new FileSink(os)));
+  //         return os.buf();
+  //       }
+  //     catch(const CryptoPP::Exception& e){
+  //       throw Error(e.what());
+  //     }
+  //   }
+  // else
+  //   {
+  //     throw Error("Symmetric encryption is not implemented!");
+  //     // if(!doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
+  //     // 	throw Error("symmetric key doesn't exist");
 
-      // try{
-      // 	string keyBits;
-      // 	string symKeyFileName = m_impl->nameTransform(keyURI, ".key");
-      // 	FileSource(symKeyFileName, true, new HexDecoder(new StringSink(keyBits)));
+  //     // try{
+  //     // 	string keyBits;
+  //     // 	string symKeyFileName = m_impl->nameTransform(keyURI, ".key");
+  //     // 	FileSource(symKeyFileName, true, new HexDecoder(new StringSink(keyBits)));
 
-      // 	using CryptoPP::AES;
-      // 	AutoSeededRandomPool rnd;
-      // 	byte iv[AES::BLOCKSIZE];
-      // 	rnd.GenerateBlock(iv, AES::BLOCKSIZE);
+  //     // 	using CryptoPP::AES;
+  //     // 	AutoSeededRandomPool rnd;
+  //     // 	byte iv[AES::BLOCKSIZE];
+  //     // 	rnd.GenerateBlock(iv, AES::BLOCKSIZE);
 
-      // 	CFB_Mode<AES>::Encryption encryptor;
-      // 	encryptor.SetKeyWithIV(reinterpret_cast<const uint8_t*>(keyBits.c_str()), keyBits.size(), iv);
+  //     // 	CFB_Mode<AES>::Encryption encryptor;
+  //     // 	encryptor.SetKeyWithIV(reinterpret_cast<const uint8_t*>(keyBits.c_str()), keyBits.size(), iv);
 
-      // 	OBufferStream os;
-      // 	StringSource(data, dataLength, true, new StreamTransformationFilter(encryptor, new FileSink(os)));
-      // 	return os.buf();
-      // }catch(const CryptoPP::Exception& e){
-      // 	throw Error(e.what());
-      // }
-    }
+  //     // 	OBufferStream os;
+  //     // 	StringSource(data, dataLength, true, new StreamTransformationFilter(encryptor, new FileSink(os)));
+  //     // 	return os.buf();
+  //     // }catch(const CryptoPP::Exception& e){
+  //     // 	throw Error(e.what());
+  //     // }
+  //   }
 }
 
 
 void
 SecTpmFile::generateSymmetricKeyInTpm(const Name & keyName, KeyType keyType, int keySize)
 {
-  string keyURI = keyName.toUri();
+  throw Error("SecTpmFile::generateSymmetricKeyInTpm is not supported!");
+  // string keyURI = keyName.toUri();
 
-  if(doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
-    throw Error("symmetric key exists");
+  // if(doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
+  //   throw Error("symmetric key exists");
 
-  string keyFileName = m_impl->maintainMapping(keyURI);
-  string symKeyFileName = keyFileName + ".key";
+  // string keyFileName = m_impl->maintainMapping(keyURI);
+  // string symKeyFileName = keyFileName + ".key";
 
-  try{
-    switch(keyType){
-    case KEY_TYPE_AES:
-      {
-        using namespace CryptoPP;
-        AutoSeededRandomPool rng;
+  // try{
+  //   switch(keyType){
+  //   case KEY_TYPE_AES:
+  //     {
+  //       using namespace CryptoPP;
+  //       AutoSeededRandomPool rng;
 
-	SecByteBlock key(0x00, keySize);
-	rng.GenerateBlock(key, keySize);
+  //       SecByteBlock key(0x00, keySize);
+  //       rng.GenerateBlock(key, keySize);
 	
-	StringSource(key, key.size(), true, new HexEncoder(new FileSink(symKeyFileName.c_str())));
+  //       StringSource(key, key.size(), true, new HexEncoder(new FileSink(symKeyFileName.c_str())));
 	
-	chmod(symKeyFileName.c_str(), 0000400);
-	return;
-      }
-    default:
-      throw Error("Unsupported symmetric key type!");
-    }
-  }catch(const CryptoPP::Exception& e){
-    throw Error(e.what());
-  }
+  //       chmod(symKeyFileName.c_str(), 0000400);
+  //       return;
+  //     }
+  //   default:
+  //     throw Error("Unsupported symmetric key type!");
+  //   }
+  // }catch(const CryptoPP::Exception& e){
+  //   throw Error(e.what());
+  // }
 }
 
 bool

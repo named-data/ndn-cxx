@@ -21,24 +21,25 @@ BOOST_AUTO_TEST_CASE (SignedInterest)
 {
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
 
-  Name identityName("/TestSignedInterest/SignVerify");
+  Name identityName("/TestSignedInterest/SignVerify/" + boost::lexical_cast<string>(time::now()));
   Name certificateName;
   BOOST_REQUIRE_NO_THROW(certificateName = keyChain.createIdentity(identityName));
 
   Interest interest("/TestSignedInterest/SignVerify/Interest1");
-  keyChain.signByIdentity(interest, identityName);
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(interest, identityName));
   
   Block interestBlock(interest.wireEncode().wire(), interest.wireEncode().size());
 
   Interest interest2;
   interest2.wireDecode(interestBlock);
   
-  shared_ptr<PublicKey> publicKey = keyChain.getPublicKeyFromTpm(keyChain.getDefaultKeyNameForIdentity(identityName));
+  shared_ptr<PublicKey> publicKey;
+  BOOST_REQUIRE_NO_THROW(publicKey = keyChain.getPublicKeyFromTpm(keyChain.getDefaultKeyNameForIdentity(identityName)));
   bool result = Validator::verifySignature(interest2, *publicKey);
   
   BOOST_CHECK_EQUAL(result, true);
 
-  BOOST_CHECK_NO_THROW(keyChain.deleteIdentity(identityName));
+  keyChain.deleteIdentity(identityName);
 }
 
 class CommandInterestFixture

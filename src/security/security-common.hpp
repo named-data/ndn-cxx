@@ -38,6 +38,11 @@ enum EncryptMode {
   // ENCRYPT_MODE_CBC_AES
 };
 
+enum AclType {
+  ACL_TYPE_PUBLIC,
+  ACL_TYPE_PRIVATE,
+};
+
 }
 
 #endif

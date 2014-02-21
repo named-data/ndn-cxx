@@ -51,9 +51,11 @@ public:
     return false;
   }
 
-  virtual void
+  virtual bool
   unlockTpm(const char* password, size_t passwordLength, bool usePassword)
-  {}
+  {
+    return !locked();
+  }
 
   virtual void
   generateKeyPairInTpm(const Name & keyName, KeyType keyType, int keySize);
@@ -81,6 +83,10 @@ public:
 
   virtual bool
   generateRandomBlock(uint8_t* res, size_t size);
+
+  virtual void 
+  addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl)
+  {}
 
 protected:
   /******************************

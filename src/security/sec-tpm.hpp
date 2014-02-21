@@ -80,8 +80,9 @@ public:
    * @param password The password.
    * @param passwordLength The password size. 0 indicates no password.
    * @param usePassword True if we want to use the supplied password to unlock the TPM.
+   * @return true if TPM is unlocked, otherwise false.
    */
-  virtual void
+  virtual bool
   unlockTpm(const char* password, size_t passwordLength, bool usePassword) = 0;
 
   /**
@@ -107,7 +108,8 @@ public:
    * @brief Get a public key.
    *
    * @param keyName The public key name.
-   * @return The public key if exists, otherwise a NULL pointer.
+   * @return The public key.
+   * @throws SecTpm::Error if public key does not exist in TPM.
    */
   virtual shared_ptr<PublicKey> 
   getPublicKeyFromTpm(const Name& keyName) = 0;
@@ -157,6 +159,7 @@ public:
    * @param keyName The name of the key.
    * @param keyType The type of the key, e.g. KEY_TYPE_AES.
    * @param keySize The size of the key.
+   * @throws SecTpm::Error if key generating fails.
    */
   virtual void 
   generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize) = 0;
@@ -182,11 +185,23 @@ public:
   generateRandomBlock(uint8_t* res, size_t size) = 0;
 
   /**
+   * @brief Add the application into the ACL of a particular key.
+   *
+   * @param keyName the name of key
+   * @param keyClass the class of key, e.g. Private Key
+   * @param appPath the absolute path to the application
+   * @param acl the new acl of the key
+   */
+  virtual void 
+  addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl) = 0;
+
+  /**
    * @brief Export a private key in PKCS#8 format.
    * 
    * @param keyName The private key name.
    * @param password The password to encrypt the private key.
-   * @return The private key info (in PKCS8 format) if exist, otherwise a NULL pointer.
+   * @return The private key info (in PKCS8 format) if exist.
+   * @throws SecTpm::Error if private key cannot be exported.
    */
   ConstBufferPtr
   exportPrivateKeyPkcs8FromTpm(const Name& keyName, const std::string& password);

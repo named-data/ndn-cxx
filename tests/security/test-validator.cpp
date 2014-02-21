@@ -29,14 +29,14 @@ BOOST_AUTO_TEST_CASE (Null)
 {
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
 
-  Name identity(string("/TestValidator/Null/") + boost::lexical_cast<std::string>(time::now()));
-  keyChain.createIdentity(identity);
+  Name identity("/TestValidator/Null/" + boost::lexical_cast<std::string>(time::now()));
+  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity));
 
   Name dataName = identity;
   dataName.append("1");
   shared_ptr<Data> data = make_shared<Data>(dataName);
 
-  keyChain.signByIdentity(*data, identity);
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*data, identity));
   
   ValidatorNull validator;
 

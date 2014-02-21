@@ -55,11 +55,11 @@ SecTpmMemory::~SecTpmMemory()
 
 void
 SecTpmMemory::setKeyPairForKeyName(const Name& keyName,
-                                uint8_t *publicKeyDer, size_t publicKeyDerLength,
-                                uint8_t *privateKeyDer, size_t privateKeyDerLength)
+                                   uint8_t *publicKeyDer, size_t publicKeyDerLength,
+                                   uint8_t *privateKeyDer, size_t privateKeyDerLength)
 {
-  publicKeyStore_[keyName.toUri()]  = ptr_lib::make_shared<PublicKey>(publicKeyDer, publicKeyDerLength);
-  privateKeyStore_[keyName.toUri()] = ptr_lib::make_shared<RsaPrivateKey>(privateKeyDer, privateKeyDerLength);
+  publicKeyStore_[keyName.toUri()]  = make_shared<PublicKey>(publicKeyDer, publicKeyDerLength);
+  privateKeyStore_[keyName.toUri()] = make_shared<RsaPrivateKey>(privateKeyDer, privateKeyDerLength);
 }
 
 void 
@@ -79,22 +79,22 @@ SecTpmMemory::deleteKeyPairInTpm(const Name &keyName)
 ConstBufferPtr
 SecTpmMemory::exportPrivateKeyPkcs1FromTpm(const Name& keyName)
 {
-  throw Error("SecTpmMemory::exportPrivateKeyPkcs1FromTpm is not implemented");
+  return shared_ptr<Buffer>();
 }
 
 bool
 SecTpmMemory::importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
 {
-  throw Error("SecTpmMemory::importPrivateKeyPkcs1IntoTpm is not implemented");
+  return false;
 }
 
 bool
 SecTpmMemory::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
 {
-  throw Error("SecTpmMemory::importPublicKeyPkcs1IntoTpm is not implemented");
+  return false;
 }
 
-ptr_lib::shared_ptr<PublicKey> 
+shared_ptr<PublicKey> 
 SecTpmMemory::getPublicKeyFromTpm(const Name& keyName)
 {
   PublicKeyStore::iterator publicKey = publicKeyStore_.find(keyName.toUri());
@@ -105,11 +105,11 @@ SecTpmMemory::getPublicKeyFromTpm(const Name& keyName)
 
 Block 
 SecTpmMemory::signInTpm(const uint8_t *data, size_t dataLength,
-                const Name& keyName,
-                DigestAlgorithm digestAlgorithm)
+                        const Name& keyName,
+                        DigestAlgorithm digestAlgorithm)
 {
   if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
-    return ConstBufferPtr();
+    throw Error("Unsupported digest algorithm.");
 
   // Find the private key and sign.
   PrivateKeyStore::iterator privateKey = privateKeyStore_.find(keyName.toUri());
@@ -122,7 +122,7 @@ SecTpmMemory::signInTpm(const uint8_t *data, size_t dataLength,
   SHA256_Update(&sha256, data, dataLength);
   SHA256_Final(digest, &sha256);
 
-  BufferPtr signatureBuffer = ptr_lib::make_shared<Buffer>();
+  BufferPtr signatureBuffer = make_shared<Buffer>();
   signatureBuffer->resize(RSA_size(privateKey->second->getPrivateKey()));
   
   unsigned int signatureBitsLength;  

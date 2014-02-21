@@ -176,14 +176,14 @@ SecTpmOsx::locked()
     return ((kSecUnlockStateStatus & keychainStatus) == 0);
 }
 
-void
+bool
 SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePassword)
 {
   OSStatus res; 
 
   // If the default key chain is already unlocked, return immediately.
   if(!locked())
-    return;
+    return true;
 
   // If the default key chain is locked, unlock the key chain.
   if(usePassword)
@@ -229,7 +229,7 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
           memset(getPassword, 0, strlen(getPassword));
           
           if(res == errSecSuccess)
-            return;
+            break;
         }
     }
   else
@@ -237,6 +237,8 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
       // If inTerminal is not set, get the password from GUI.
       SecKeychainUnlock(m_impl->m_keyChainRef, 0, 0, false);
     }
+
+  return !locked();
 }
 
 void 
@@ -276,8 +278,10 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name & keyName, KeyType keyType, i
   
   if (res == errSecAuthFailed && !retry)
     {
-      unlockTpm(0, 0, false);
-      generateKeyPairInTpmInternal(keyName, keyType, keySize, true);
+      if(unlockTpm(0, 0, false))
+        generateKeyPairInTpmInternal(keyName, keyType, keySize, true);
+      else
+        throw Error("Fail to unlock the keychain");
     }
   else
     {
@@ -306,48 +310,43 @@ SecTpmOsx::deleteKeyPairInTpmInternal(const Name &keyName, bool retry)
   
   if (res == errSecAuthFailed && !retry)
     {
-      unlockTpm(0, 0, false);
-      deleteKeyPairInTpmInternal(keyName, true);
-    }
-  else
-    {
-      _LOG_DEBUG("Fail to delete a key pair: " << res);
-      throw Error("Fail to delete a key pair");
+      if(unlockTpm(0, 0, false))
+        deleteKeyPairInTpmInternal(keyName, true);
     }
 }
 
 void 
 SecTpmOsx::generateSymmetricKeyInTpm(const Name & keyName, KeyType keyType, int keySize)
 {
+  throw Error("SecTpmOsx::generateSymmetricKeyInTpm is not supported");
+  // if(doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
+  //   throw Error("keyName has existed!");
 
-  if(doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
-    throw Error("keyName has existed!");
+  // string keyNameUri =  m_impl->toInternalKeyName(keyName, KEY_CLASS_SYMMETRIC);
 
-  string keyNameUri =  m_impl->toInternalKeyName(keyName, KEY_CLASS_SYMMETRIC);
+  // CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(kCFAllocatorDefault,
+  //                                                             0,
+  //                                                             &kCFTypeDictionaryKeyCallBacks,
+  //                                                             &kCFTypeDictionaryValueCallBacks);
 
-  CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(kCFAllocatorDefault,
-                                                              0,
-                                                              &kCFTypeDictionaryKeyCallBacks,
-                                                              &kCFTypeDictionaryValueCallBacks);
+  // CFStringRef keyLabel = CFStringCreateWithCString(NULL, 
+  //                                                  keyNameUri.c_str(), 
+  //                                                  kCFStringEncodingUTF8);
 
-  CFStringRef keyLabel = CFStringCreateWithCString(NULL, 
-                                                   keyNameUri.c_str(), 
-                                                   kCFStringEncodingUTF8);
+  // CFDictionaryAddValue(attrDict, kSecAttrKeyType, m_impl->getSymKeyType(keyType));
+  // CFDictionaryAddValue(attrDict, kSecAttrKeySizeInBits, CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &keySize));
+  // CFDictionaryAddValue(attrDict, kSecAttrIsPermanent, kCFBooleanTrue);
+  // CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
 
-  CFDictionaryAddValue(attrDict, kSecAttrKeyType, m_impl->getSymKeyType(keyType));
-  CFDictionaryAddValue(attrDict, kSecAttrKeySizeInBits, CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &keySize));
-  CFDictionaryAddValue(attrDict, kSecAttrIsPermanent, kCFBooleanTrue);
-  CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
+  // CFErrorRef error = NULL;
 
-  CFErrorRef error = NULL;
+  // SecKeyRef symmetricKey = SecKeyGenerateSymmetric(attrDict, &error);
 
-  SecKeyRef symmetricKey = SecKeyGenerateSymmetric(attrDict, &error);
-
-  if (error) 
-    throw Error("Fail to create a symmetric key");
+  // if (error) 
+  //   throw Error("Fail to create a symmetric key");
 }
 
-ptr_lib::shared_ptr<PublicKey>
+shared_ptr<PublicKey>
 SecTpmOsx::getPublicKeyFromTpm(const Name & keyName)
 {
   _LOG_TRACE("OSXPrivateKeyStorage::getPublickey");
@@ -388,8 +387,10 @@ SecTpmOsx::exportPrivateKeyPkcs1FromTpmInternal(const Name& keyName, bool retry)
     {
       if(res == errSecAuthFailed && !retry)
         {
-          unlockTpm(0, 0, false);
-          return exportPrivateKeyPkcs1FromTpmInternal(keyName, true);
+          if(unlockTpm(0, 0, false))
+            return exportPrivateKeyPkcs1FromTpmInternal(keyName, true);
+          else
+            return shared_ptr<Buffer>();
         }
       else
         return shared_ptr<Buffer>();
@@ -479,8 +480,10 @@ SecTpmOsx::importPrivateKeyPkcs1IntoTpmInternal(const Name& keyName, const uint8
     {
       if(res == errSecAuthFailed && !retry)
         {
-          unlockTpm(0, 0, false);
-          return importPrivateKeyPkcs1IntoTpmInternal(keyName, buf, size, true);
+          if(unlockTpm(0, 0, false))
+            return importPrivateKeyPkcs1IntoTpmInternal(keyName, buf, size, true);
+          else
+            return false;
         }
       else
         return false;
@@ -566,8 +569,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t *data, size_t dataLength, const Name&
   CFDataRef dataRef = CFDataCreateWithBytesNoCopy(NULL,
                                                   data,
                                                   dataLength,
-                                                  kCFAllocatorNull
-                                                  );
+                                                  kCFAllocatorNull);
 
   SecKeyRef privateKey = (SecKeyRef)m_impl->getKey(keyName, KEY_CLASS_PRIVATE);
     
@@ -583,8 +585,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t *data, size_t dataLength, const Name&
   if (error) throw Error("Fail to configure input of signer");
 
   // Enable use of padding
-  SecTransformSetAttribute(
-                           signer,
+  SecTransformSetAttribute(signer,
                            kSecPaddingKey,
                            kSecPaddingPKCS1Key,
                            &error);
@@ -611,8 +612,10 @@ SecTpmOsx::signInTpmInternal(const uint8_t *data, size_t dataLength, const Name&
     {
       if(!retry) 
         {
-          unlockTpm(0, 0, false);
-          return signInTpmInternal(data, dataLength, keyName, digestAlgorithm, true);
+          if(unlockTpm(0, 0, false))
+            return signInTpmInternal(data, dataLength, keyName, digestAlgorithm, true);
+          else
+            throw Error("Fail to unlock the keychain");
         }
       else
         {
@@ -624,136 +627,130 @@ SecTpmOsx::signInTpmInternal(const uint8_t *data, size_t dataLength, const Name&
   if (!signature) throw Error("Signature is NULL!\n");
 
   return Block(Tlv::SignatureValue,
-               ptr_lib::make_shared<Buffer>(CFDataGetBytePtr(signature), CFDataGetLength(signature)));
+               make_shared<Buffer>(CFDataGetBytePtr(signature), CFDataGetLength(signature)));
 }
 
 ConstBufferPtr
 SecTpmOsx::decryptInTpm(const uint8_t* data, size_t dataLength, const Name & keyName, bool sym)
 {
-  _LOG_TRACE("OSXPrivateKeyStorage::Decrypt");
+  throw Error("SecTpmOsx::decryptInTpm is not supported");
+  // _LOG_TRACE("OSXPrivateKeyStorage::Decrypt");
 
-  KeyClass keyClass;
-  if(sym)
-    keyClass = KEY_CLASS_SYMMETRIC;
-  else
-    keyClass = KEY_CLASS_PRIVATE;
+  // KeyClass keyClass;
+  // if(sym)
+  //   keyClass = KEY_CLASS_SYMMETRIC;
+  // else
+  //   keyClass = KEY_CLASS_PRIVATE;
 
-  CFDataRef dataRef = CFDataCreate(NULL,
-                                   reinterpret_cast<const unsigned char*>(data),
-                                   dataLength
-                                   );
+  // CFDataRef dataRef = CFDataCreate(NULL,
+  //                                  reinterpret_cast<const unsigned char*>(data),
+  //                                  dataLength
+  //                                  );
 
-  // _LOG_DEBUG("CreateData");
+  // // _LOG_DEBUG("CreateData");
     
-  SecKeyRef decryptKey = (SecKeyRef)m_impl->getKey(keyName, keyClass);
+  // SecKeyRef decryptKey = (SecKeyRef)m_impl->getKey(keyName, keyClass);
 
-  // _LOG_DEBUG("GetKey");
+  // // _LOG_DEBUG("GetKey");
 
-  CFErrorRef error;
-  SecTransformRef decrypt = SecDecryptTransformCreate(decryptKey, &error);
-  if (error) throw Error("Fail to create decrypt");
+  // CFErrorRef error;
+  // SecTransformRef decrypt = SecDecryptTransformCreate(decryptKey, &error);
+  // if (error) throw Error("Fail to create decrypt");
 
-  Boolean set_res = SecTransformSetAttribute(decrypt,
-                                             kSecTransformInputAttributeName,
-                                             dataRef,
-                                             &error);
-  if (error) throw Error("Fail to configure decrypt");
+  // Boolean set_res = SecTransformSetAttribute(decrypt,
+  //                                            kSecTransformInputAttributeName,
+  //                                            dataRef,
+  //                                            &error);
+  // if (error) throw Error("Fail to configure decrypt");
 
-  CFDataRef output = (CFDataRef) SecTransformExecute(decrypt, &error);
-  if (error)
-    {
-      CFShow(error);
-      throw Error("Fail to decrypt data");
-    }
-  if (!output) throw Error("Output is NULL!\n");
+  // CFDataRef output = (CFDataRef) SecTransformExecute(decrypt, &error);
+  // if (error)
+  //   {
+  //     CFShow(error);
+  //     throw Error("Fail to decrypt data");
+  //   }
+  // if (!output) throw Error("Output is NULL!\n");
 
-  return ptr_lib::make_shared<Buffer>(CFDataGetBytePtr(output), CFDataGetLength(output));
+  // return make_shared<Buffer>(CFDataGetBytePtr(output), CFDataGetLength(output));
 }
   
-bool
-SecTpmOsx::setACL(const Name & keyName, KeyClass keyClass, int acl, const string & appPath)
+void
+SecTpmOsx::addAppToACL(const Name & keyName, KeyClass keyClass, const string & appPath, AclType acl)
 {
-  SecKeychainItemRef privateKey = m_impl->getKey(keyName, keyClass);
-    
-  SecAccessRef accRef;
-  OSStatus acc_res = SecKeychainItemCopyAccess(privateKey, &accRef);
-
-  CFArrayRef signACL = SecAccessCopyMatchingACLList(accRef,
-                                                    kSecACLAuthorizationSign);
-
-  SecACLRef aclRef = (SecACLRef) CFArrayGetValueAtIndex(signACL, 0);
-
-  CFArrayRef appList;
-  CFStringRef description;
-  SecKeychainPromptSelector promptSelector;
-  OSStatus acl_res = SecACLCopyContents(aclRef,
-                                        &appList,
-                                        &description,
-                                        &promptSelector);
-
-  CFMutableArrayRef newAppList = CFArrayCreateMutableCopy(NULL,
-                                                          0,
-                                                          appList);
-
-  SecTrustedApplicationRef trustedApp;
-  acl_res = SecTrustedApplicationCreateFromPath(appPath.c_str(),
-                                                &trustedApp);
-    
-  CFArrayAppendValue(newAppList, trustedApp);
-
-
-  CFArrayRef authList = SecACLCopyAuthorizations(aclRef);
-    
-  acl_res = SecACLRemove(aclRef);
-
-  SecACLRef newACL;
-  acl_res = SecACLCreateWithSimpleContents(accRef,
-                                           newAppList,
-                                           description,
-                                           promptSelector,
-                                           &newACL);
-
-  acl_res = SecACLUpdateAuthorizations(newACL, authList);
-
-  acc_res = SecKeychainItemSetAccess(privateKey, accRef);
-
-  return true;
+  if(keyClass == KEY_CLASS_PRIVATE && acl == ACL_TYPE_PRIVATE)
+    {
+      SecKeychainItemRef privateKey = m_impl->getKey(keyName, keyClass);
+      
+      SecAccessRef accRef;
+      OSStatus acc_res = SecKeychainItemCopyAccess(privateKey, &accRef);
+      
+      CFArrayRef signACL = SecAccessCopyMatchingACLList(accRef,
+                                                        kSecACLAuthorizationSign);
+      
+      SecACLRef aclRef = (SecACLRef) CFArrayGetValueAtIndex(signACL, 0);
+      
+      CFArrayRef appList;
+      CFStringRef description;
+      SecKeychainPromptSelector promptSelector;
+      OSStatus acl_res = SecACLCopyContents(aclRef,
+                                            &appList,
+                                            &description,
+                                            &promptSelector);
+      
+      CFMutableArrayRef newAppList = CFArrayCreateMutableCopy(NULL,
+                                                              0,
+                                                              appList);
+      
+      SecTrustedApplicationRef trustedApp;
+      acl_res = SecTrustedApplicationCreateFromPath(appPath.c_str(),
+                                                    &trustedApp);
+      
+      CFArrayAppendValue(newAppList, trustedApp);
+      
+      acl_res = SecACLSetContents(aclRef,
+                                  newAppList,
+                                  description,
+                                  promptSelector);
+      
+      acc_res = SecKeychainItemSetAccess(privateKey, accRef);
+    }
 }
 
 ConstBufferPtr
 SecTpmOsx::encryptInTpm(const uint8_t* data, size_t dataLength, const Name & keyName, bool sym)
 {
-  _LOG_TRACE("OSXPrivateKeyStorage::Encrypt");
+  throw Error("SecTpmOsx::encryptInTpm is not supported");
+  // _LOG_TRACE("OSXPrivateKeyStorage::Encrypt");
 
-  KeyClass keyClass;
-  if(sym)
-    keyClass = KEY_CLASS_SYMMETRIC;
-  else
-    keyClass = KEY_CLASS_PUBLIC;
+  // KeyClass keyClass;
+  // if(sym)
+  //   keyClass = KEY_CLASS_SYMMETRIC;
+  // else
+  //   keyClass = KEY_CLASS_PUBLIC;
     
-  CFDataRef dataRef = CFDataCreate(NULL,
-                                   reinterpret_cast<const unsigned char*>(data),
-                                   dataLength
-                                   );
+  // CFDataRef dataRef = CFDataCreate(NULL,
+  //                                  reinterpret_cast<const unsigned char*>(data),
+  //                                  dataLength
+  //                                  );
     
-  SecKeyRef encryptKey = (SecKeyRef)m_impl->getKey(keyName, keyClass);
+  // SecKeyRef encryptKey = (SecKeyRef)m_impl->getKey(keyName, keyClass);
 
-  CFErrorRef error;
-  SecTransformRef encrypt = SecEncryptTransformCreate(encryptKey, &error);
-  if (error) throw Error("Fail to create encrypt");
+  // CFErrorRef error;
+  // SecTransformRef encrypt = SecEncryptTransformCreate(encryptKey, &error);
+  // if (error) throw Error("Fail to create encrypt");
 
-  Boolean set_res = SecTransformSetAttribute(encrypt,
-                                             kSecTransformInputAttributeName,
-                                             dataRef,
-                                             &error);
-  if (error) throw Error("Fail to configure encrypt");
+  // Boolean set_res = SecTransformSetAttribute(encrypt,
+  //                                            kSecTransformInputAttributeName,
+  //                                            dataRef,
+  //                                            &error);
+  // if (error) throw Error("Fail to configure encrypt");
 
-  CFDataRef output = (CFDataRef) SecTransformExecute(encrypt, &error);
-  if (error) throw Error("Fail to encrypt data");
+  // CFDataRef output = (CFDataRef) SecTransformExecute(encrypt, &error);
+  // if (error) throw Error("Fail to encrypt data");
 
-  if (!output) throw Error("Output is NULL!\n");
+  // if (!output) throw Error("Output is NULL!\n");
 
-  return ptr_lib::make_shared<Buffer> (CFDataGetBytePtr(output), CFDataGetLength(output));
+  // return make_shared<Buffer> (CFDataGetBytePtr(output), CFDataGetLength(output));
 }
 
 bool

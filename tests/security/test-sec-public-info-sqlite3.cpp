@@ -22,30 +22,34 @@ BOOST_AUTO_TEST_CASE (Delete)
 {
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
 
-  Name identity(string("/TestSecPublicInfoSqlite3/Delete/") + boost::lexical_cast<string>(time::now()));
+  Name identity("/TestSecPublicInfoSqlite3/Delete/" + boost::lexical_cast<string>(time::now()));
   Name certName1;
   BOOST_REQUIRE_NO_THROW(certName1 = keyChain.createIdentity(identity));
 
   Name keyName1 = IdentityCertificate::certificateNameToPublicKeyName(certName1);  
   Name keyName2;
-  BOOST_CHECK_NO_THROW(keyName2 = keyChain.generateRSAKeyPairAsDefault(identity));
+  BOOST_REQUIRE_NO_THROW(keyName2 = keyChain.generateRSAKeyPairAsDefault(identity));
   
-  ptr_lib::shared_ptr<IdentityCertificate> cert2 = keyChain.selfSign(keyName2);
+  shared_ptr<IdentityCertificate> cert2;
+  BOOST_REQUIRE_NO_THROW(cert2 = keyChain.selfSign(keyName2));
   Name certName2 = cert2->getName();
-  keyChain.addCertificateAsKeyDefault(*cert2);
+  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert2));
   
   Name keyName3;
-  BOOST_CHECK_NO_THROW(keyName3 = keyChain.generateRSAKeyPairAsDefault(identity));
+  BOOST_REQUIRE_NO_THROW(keyName3 = keyChain.generateRSAKeyPairAsDefault(identity));
   
-  ptr_lib::shared_ptr<IdentityCertificate> cert3 = keyChain.selfSign(keyName3);
+  shared_ptr<IdentityCertificate> cert3;
+  BOOST_REQUIRE_NO_THROW(cert3 = keyChain.selfSign(keyName3));
   Name certName3 = cert3->getName();
-  keyChain.addCertificateAsKeyDefault(*cert3);
-  ptr_lib::shared_ptr<IdentityCertificate> cert4 = keyChain.selfSign(keyName3);
+  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert3));
+  shared_ptr<IdentityCertificate> cert4;
+  BOOST_REQUIRE_NO_THROW(cert4 = keyChain.selfSign(keyName3));
   Name certName4 = cert4->getName();
-  keyChain.addCertificateAsKeyDefault(*cert4);
-  ptr_lib::shared_ptr<IdentityCertificate> cert5 = keyChain.selfSign(keyName3);
+  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert4));
+  shared_ptr<IdentityCertificate> cert5;
+  BOOST_REQUIRE_NO_THROW(cert5 = keyChain.selfSign(keyName3));
   Name certName5 = cert5->getName();
-  keyChain.addCertificateAsKeyDefault(*cert5);
+  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert5));
 
   BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), true);
   BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), true);

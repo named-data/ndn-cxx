@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE (Delete)
 {
   SecTpmOsx tpm;
   
-  Name keyName("/TestSecTpmOsx/Delete/ksk-123456");
+  Name keyName("/TestSecTpmOsx/Delete/ksk-" + boost::lexical_cast<string>(time::now()));
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
   
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
@@ -41,29 +41,36 @@ BOOST_AUTO_TEST_CASE (SignVerify)
 {
   SecTpmOsx tpm;
 
-  Name keyName("/TestSecTpmOsx/SignVerify/ksk-123456");
+  Name keyName("/TestSecTpmOsx/SignVerify/ksk-" + boost::lexical_cast<string>(time::now()));
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
   
   Data data("/TestSecTpmOsx/SignVaerify/Data/1");
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
 
-  Block sigBlock = tpm.signInTpm(content, sizeof(content), keyName, DIGEST_ALGORITHM_SHA256);
-  shared_ptr<PublicKey> pubkeyPtr = tpm.getPublicKeyFromTpm(keyName);
+  Block sigBlock;
+  BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content), keyName, DIGEST_ALGORITHM_SHA256));
 
-  {
-    using namespace CryptoPP;
-    
-    RSA::PublicKey publicKey;
-    ByteQueue queue;
-    queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
-    publicKey.Load(queue);
+  shared_ptr<PublicKey> pubkeyPtr;
+  BOOST_CHECK_NO_THROW(pubkeyPtr = tpm.getPublicKeyFromTpm(keyName));
+  try
+    {
+      using namespace CryptoPP;
 
-    RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
-    bool result = verifier.VerifyMessage(content, sizeof(content),
-					 sigBlock.value(), sigBlock.value_size());
+      RSA::PublicKey publicKey;
+      ByteQueue queue;
+      queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
+      publicKey.Load(queue);
+
+      RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
+      bool result = verifier.VerifyMessage(content, sizeof(content),
+					   sigBlock.value(), sigBlock.value_size());
   
-    BOOST_REQUIRE_EQUAL(result, true);
-  }
+      BOOST_CHECK_EQUAL(result, true);
+    }
+  catch(CryptoPP::Exception& e)
+    {
+      BOOST_CHECK(false);
+    }
 
   tpm.deleteKeyPairInTpm(keyName);
 }
@@ -102,8 +109,10 @@ BOOST_AUTO_TEST_CASE (ExportImportKey)
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == true);
 
-  ConstBufferPtr exported = tpm.exportPrivateKeyPkcs8FromTpm(keyName, "1234");
-  shared_ptr<PublicKey> pubkeyPtr = tpm.getPublicKeyFromTpm(keyName);
+  ConstBufferPtr exported;
+  BOOST_CHECK_NO_THROW(exported = tpm.exportPrivateKeyPkcs8FromTpm(keyName, "1234"));
+  shared_ptr<PublicKey> pubkeyPtr;
+  BOOST_REQUIRE_NO_THROW(pubkeyPtr = tpm.getPublicKeyFromTpm(keyName));
 
   tpm.deleteKeyPairInTpm(keyName);
 
@@ -116,22 +125,28 @@ BOOST_AUTO_TEST_CASE (ExportImportKey)
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);
 
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
-  Block sigBlock = tpm.signInTpm(content, sizeof(content), keyName, DIGEST_ALGORITHM_SHA256);
+  Block sigBlock;
+  BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content), keyName, DIGEST_ALGORITHM_SHA256));
 
-  {
-    using namespace CryptoPP;
-    
-    RSA::PublicKey publicKey;
-    ByteQueue queue;
-    queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
-    publicKey.Load(queue);
+  try
+    {
+      using namespace CryptoPP;
 
-    RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
-    bool result = verifier.VerifyMessage(content, sizeof(content),
-  					 sigBlock.value(), sigBlock.value_size());
-  
-    BOOST_REQUIRE_EQUAL(result, true);
-  }
+      RSA::PublicKey publicKey;
+      ByteQueue queue;
+      queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
+      publicKey.Load(queue);
+
+      RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
+      bool result = verifier.VerifyMessage(content, sizeof(content),
+					   sigBlock.value(), sigBlock.value_size());
+      
+      BOOST_CHECK_EQUAL(result, true);
+    }
+  catch(CryptoPP::Exception& e)
+    {
+      BOOST_CHECK(false);
+    }
   
   tpm.deleteKeyPairInTpm(keyName);
   // This is some problem related to Mac OS Key chain, and we will fix it later.

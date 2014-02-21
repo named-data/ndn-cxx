@@ -56,14 +56,16 @@ public:
     return true;
   }
 
-  virtual void
+  virtual bool
   unlockTpm(const char* password, size_t passwordLength, bool usePassword)
-  {}
+  {
+    return !locked();
+  }
 
   virtual void 
   generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize);
 
-  virtual ptr_lib::shared_ptr<PublicKey> 
+  virtual shared_ptr<PublicKey> 
   getPublicKeyFromTpm(const Name& keyName);
 
   virtual void
@@ -86,6 +88,10 @@ public:
 
   virtual bool
   generateRandomBlock(uint8_t* res, size_t size);
+
+  virtual void 
+  addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl)
+  {}
 
   /******************************
    *   SecTpmMemory specific    *
@@ -121,8 +127,8 @@ protected:
 private:
   class RsaPrivateKey;
 
-  typedef std::map<std::string, ptr_lib::shared_ptr<PublicKey> >     PublicKeyStore;
-  typedef std::map<std::string, ptr_lib::shared_ptr<RsaPrivateKey> > PrivateKeyStore;
+  typedef std::map<std::string, shared_ptr<PublicKey> >     PublicKeyStore;
+  typedef std::map<std::string, shared_ptr<RsaPrivateKey> > PrivateKeyStore;
   
   PublicKeyStore  publicKeyStore_;  /**< The map key is the keyName.toUri() */
   PrivateKeyStore privateKeyStore_; /**< The map key is the keyName.toUri() */

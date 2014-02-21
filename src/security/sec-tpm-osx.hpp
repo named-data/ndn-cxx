@@ -42,7 +42,7 @@ public:
   virtual bool
   locked();
 
-  virtual void
+  virtual bool
   unlockTpm(const char* password, size_t passwordLength, bool usePassword);
 
   virtual void 
@@ -57,7 +57,7 @@ public:
     deleteKeyPairInTpmInternal(keyName, false);
   }
 
-  virtual ptr_lib::shared_ptr<PublicKey> 
+  virtual shared_ptr<PublicKey> 
   getPublicKeyFromTpm(const Name& keyName);
   
   virtual Block
@@ -81,22 +81,8 @@ public:
   virtual bool
   generateRandomBlock(uint8_t* res, size_t size); 
 
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // OSX-specifics
-  ////////////////////////////////////////////////////////////////////////////////////
-  
-  /**
-   * @brief Configure ACL of a particular key.
-   *
-   * @param keyName the name of key
-   * @param keyClass the class of key, e.g. Private Key
-   * @param acl the new acl of the key
-   * @param appPath the absolute path to the application
-   * @returns true if setting succeeds
-   */
-  bool 
-  setACL(const Name& keyName, KeyClass keyClass, int acl, const std::string& appPath);
+  virtual void 
+  addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl);
 
 protected:
   /******************************
