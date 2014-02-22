@@ -71,11 +71,15 @@ public:
 
   /// @brief Verify the data using the publicKey against the SHA256-RSA signature.
   static bool
-  verifySignature (const Data& data, const SignatureSha256WithRsa& sig, const PublicKey& publicKey);
+  verifySignature (const Data& data, const SignatureSha256WithRsa& sig, const PublicKey& publicKey)
+  { return verifySignature (data.wireEncode().value(), 
+                            data.wireEncode().value_size() - data.getSignature().getValue().size(), 
+                            sig, publicKey); }
 
   /// @brief Verify the blob using the publicKey against the SHA256-RSA signature.
   static bool
-  verifySignature (const Buffer &blob, const SignatureSha256WithRsa &sig, const PublicKey &publicKey);
+  verifySignature (const Buffer &blob, const SignatureSha256WithRsa &sig, const PublicKey &publicKey)
+  { return verifySignature (blob.buf(), blob.size(), sig, publicKey); }
   
   /// @brief Verify the blob using the publicKey against the SHA256-RSA signature.
   static bool
@@ -121,7 +125,7 @@ protected:
                std::vector<shared_ptr<ValidationRequest> > &nextSteps) = 0;
 
 private:
-  typedef function< void () > OnFailure;
+  typedef function< void (const std::string&) > OnFailure;
   
   /// @brief Process the received certificate.
   void

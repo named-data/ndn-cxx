@@ -49,7 +49,7 @@ protected:
                const OnDataValidationFailed &onValidationFailed,
                std::vector<shared_ptr<ValidationRequest> > &nextSteps)
   {
-    onValidationFailed(data.shared_from_this());
+    onValidationFailed(data.shared_from_this(), "No policy for data checking");
   }
   
   virtual void
@@ -88,73 +88,64 @@ CommandInterestValidator::checkPolicy (const Interest& interest,
                                        const OnInterestValidationFailed &onValidationFailed,
                                        std::vector<shared_ptr<ValidationRequest> > &nextSteps)
 {
-  try
+  const Name& interestName = interest.getName();
+  
+  //Prepare 
+  if (interestName.size() < 4)
+    return onValidationFailed(interest.shared_from_this(), 
+                              "Interest is not signed: " + interest.getName().toUri());
+  
+  Signature signature(interestName[POS_SIG_INFO].blockFromValue(), 
+                      interestName[POS_SIG_VALUE].blockFromValue());
+  
+  SignatureSha256WithRsa sig(signature);
+  const Name& keyLocatorName = sig.getKeyLocator().getName();
+  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(keyLocatorName);
+  
+  //Check if command is in the trusted scope
+  bool inScope = false;  
+  for(std::list<SecRuleSpecific>::iterator scopeIt = m_trustScopeForInterest.begin();
+      scopeIt != m_trustScopeForInterest.end();
+      ++scopeIt)
     {
-      const Name& interestName = interest.getName();
-
-      if (interestName.size() < 4)
-        return onValidationFailed(interest.shared_from_this());
-
-      Signature signature(interestName[POS_SIG_INFO].blockFromValue(), 
-                          interestName[POS_SIG_VALUE].blockFromValue());
-    
-      SignatureSha256WithRsa sig(signature);
-      const Name& keyLocatorName = sig.getKeyLocator().getName();
-      Name keyName = IdentityCertificate::certificateNameToPublicKeyName(keyLocatorName);
-
-      //Check if command is in the trusted scope
-      bool inScope = false;  
-      for(std::list<SecRuleSpecific>::iterator scopeIt = m_trustScopeForInterest.begin();
-          scopeIt != m_trustScopeForInterest.end();
-          ++scopeIt)
+      if(scopeIt->satisfy(interestName, keyName))
         {
-          if(scopeIt->satisfy(interestName, keyName))
-            {
-              inScope = true;
-              break;
-            }
+          inScope = true;
+          break;
         }
-      if(inScope == false)
-        {
-          onValidationFailed(interest.shared_from_this());
-          return;
-        }
-
-      //Check if timestamp is valid
-      uint64_t timestamp = interestName.get(POS_TIMESTAMP).toNumber();
-      uint64_t current = static_cast<uint64_t>(time::now()/1000000);
-      std::map<Name, uint64_t>::const_iterator timestampIt = m_lastTimestamp.find(keyName);
-      if(timestampIt == m_lastTimestamp.end())
-        {
-          if(timestamp > (current + m_graceInterval) || (timestamp + m_graceInterval) < current)
-            {
-              onValidationFailed(interest.shared_from_this());
-              return;
-            }
-        }
-      else if(m_lastTimestamp[keyName] >= timestamp)
-        {
-          onValidationFailed(interest.shared_from_this());
-          return;
-        }
-
-      if(!Validator::verifySignature(interestName.wireEncode().value(),
-                                     interestName.wireEncode().value_size() - interestName[-1].size(),
-                                     sig, m_trustAnchorsForInterest[keyName]))
-        {
-          onValidationFailed(interest.shared_from_this());
-          return;
-        }
-
-      m_lastTimestamp[keyName] = timestamp;
-      onValidated(interest.shared_from_this());
-      return;
-
     }
-  catch(...)
+  if(inScope == false)
+    return onValidationFailed(interest.shared_from_this(), 
+                              "Signer cannot be authorized for the command: " + interest.getName().toUri());
+
+  //Check if timestamp is valid
+  uint64_t timestamp = interestName.get(POS_TIMESTAMP).toNumber();
+  uint64_t current = static_cast<uint64_t>(time::now()/1000000);
+  std::map<Name, uint64_t>::const_iterator timestampIt = m_lastTimestamp.find(keyName);
+  if(timestampIt == m_lastTimestamp.end())
     {
-      onValidationFailed(interest.shared_from_this());
+      if(timestamp > (current + m_graceInterval) || (timestamp + m_graceInterval) < current)
+        return onValidationFailed(interest.shared_from_this(), 
+                                  "The command is not in grace interval: " + interest.getName().toUri());
     }
+  else 
+    {
+      if(m_lastTimestamp[keyName] >= timestamp)
+        return onValidationFailed(interest.shared_from_this(), 
+                                  "The command is outdated: " + interest.getName().toUri());
+    }
+
+  //Check signature
+  if(!Validator::verifySignature(interestName.wireEncode().value(),
+                                 interestName.wireEncode().value_size() - interestName[-1].size(),
+                                 sig, m_trustAnchorsForInterest[keyName]))
+    return onValidationFailed(interest.shared_from_this(), 
+                              "Signature cannot be validated: " + interest.getName().toUri());
+
+  //Update timestamp
+  m_lastTimestamp[keyName] = timestamp;
+
+  return onValidated(interest.shared_from_this());
 }
 
 

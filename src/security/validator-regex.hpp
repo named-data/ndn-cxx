@@ -60,7 +60,7 @@ protected:
                const OnInterestValidated &onValidated, 
                const OnInterestValidationFailed &onValidationFailed,
                std::vector<shared_ptr<ValidationRequest> > &nextSteps)
-  { onValidationFailed(interest.shared_from_this()); }
+  { onValidationFailed(interest.shared_from_this(), "No policy for signed interest checking"); }
 
   void
   onCertificateValidated(const shared_ptr<const Data> &signCertificate, 
@@ -69,7 +69,8 @@ protected:
                          const OnDataValidationFailed &onValidationFailed);
   
   void
-  onCertificateValidationFailed(const shared_ptr<const Data> &signCertificate, 
+  onCertificateValidationFailed(const shared_ptr<const Data> &signCertificate,
+                                const std::string& failureInfo,
                                 const shared_ptr<const Data> &data, 
                                 const OnDataValidationFailed &onValidationFailed);
   

@@ -6,8 +6,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_VALIDATION_REQUEST_HPP
-#define NDN_VALIDATION_REQUEST_HPP
+#ifndef NDN_SECURITY_VALIDATION_REQUEST_HPP
+#define NDN_SECURITY_VALIDATION_REQUEST_HPP
 
 #include "../interest.hpp"
 
@@ -15,22 +15,22 @@ namespace ndn {
 /**
  * An OnVerified function object is used to pass a callback to report a successful Interest validation.
  */
-typedef function< void (const shared_ptr<const Interest> &) > OnInterestValidated;
+typedef function< void (const shared_ptr<const Interest>&) > OnInterestValidated;
   
 /**
  * An OnVerifyFailed function object is used to pass a callback to report a failed Interest validation.
  */
-typedef function< void (const shared_ptr<const Interest> &) > OnInterestValidationFailed;
+typedef function< void (const shared_ptr<const Interest>&, const std::string&) > OnInterestValidationFailed;
 
 /**
  * An OnVerified function object is used to pass a callback to report a successful Data validation.
  */
-typedef function< void (const shared_ptr<const Data> &) > OnDataValidated;
+typedef function< void (const shared_ptr<const Data>&) > OnDataValidated;
   
 /**
  * An OnVerifyFailed function object is used to pass a callback to report a failed Data validation.
  */
-typedef function< void (const shared_ptr<const Data> &) > OnDataValidationFailed;
+typedef function< void (const shared_ptr<const Data>&, const std::string&) > OnDataValidationFailed;
 
 
 class ValidationRequest {
@@ -56,6 +56,6 @@ public:
   int m_stepCount;                          // The stepCount of next step.
 };
 
-}
+} // namespace ndn
 
-#endif
+#endif //NDN_SECURITY_VALIDATION_REQUEST_HPP

@@ -22,8 +22,10 @@ onValidated(const shared_ptr<const Data>& data)
 { BOOST_CHECK(true); }
 
 void
-onValidationFailed(const shared_ptr<const Data>& data)
-{ BOOST_CHECK(false); }
+onValidationFailed(const shared_ptr<const Data>& data, const string& failureInfo)
+{ 
+  BOOST_CHECK(false); 
+}
 
 BOOST_AUTO_TEST_CASE (Null)
 {
@@ -43,7 +45,7 @@ BOOST_AUTO_TEST_CASE (Null)
   // data must be a shared pointer
   validator.validate(*data,
 		     bind(&onValidated, _1),
-		     bind(&onValidationFailed, _1));
+		     bind(&onValidationFailed, _1, _2));
 
   keyChain.deleteIdentity(identity);
 }

@@ -54,8 +54,10 @@ public:
   { m_validity = true; }
 
   void
-  validationFailed(const shared_ptr<const Interest>& interest)
-  { m_validity = false; }
+  validationFailed(const shared_ptr<const Interest>& interest, const string& failureInfo)
+  {
+    m_validity = false; 
+  }
 
   void
   reset()
@@ -67,7 +69,7 @@ public:
 BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
 {
   KeyChain keyChain;
-  Name identity("/TestCommandInterest/Validation");
+  Name identity("/TestCommandInterest/Validation/" + boost::lexical_cast<string>(time::now()));
   Name certName;
   BOOST_REQUIRE_NO_THROW(certName = keyChain.createIdentity(identity));
 
@@ -81,7 +83,7 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
   generator.generateWithIdentity(*commandInterest1, identity);
   validator.validate(*commandInterest1,
   		     bind(&CommandInterestFixture::validated, this, _1),
-  		     bind(&CommandInterestFixture::validationFailed, this, _1));
+  		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
   
   BOOST_CHECK_EQUAL(m_validity, true);
   
@@ -99,7 +101,7 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
   keyChain.signByIdentity(*commandInterest2, identity);
   validator.validate(*commandInterest2,
   		     bind(&CommandInterestFixture::validated, this, _1),
-  		     bind(&CommandInterestFixture::validationFailed, this, _1));
+  		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
   
   BOOST_CHECK_EQUAL(m_validity, false);
   
@@ -112,7 +114,7 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
   generator.generateWithIdentity(*commandInterest3, identity2);
   validator.validate(*commandInterest3,
   		     bind(&CommandInterestFixture::validated, this, _1),
-  		     bind(&CommandInterestFixture::validationFailed, this, _1));
+  		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
   
   BOOST_CHECK_EQUAL(m_validity, false);
 
@@ -121,7 +123,7 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
   generator.generateWithIdentity(*commandInterest4, identity);
   validator.validate(*commandInterest4,
   		     bind(&CommandInterestFixture::validated, this, _1),
-  		     bind(&CommandInterestFixture::validationFailed, this, _1));
+  		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
   
   BOOST_CHECK_EQUAL(m_validity, false);
 
