@@ -38,8 +38,8 @@ namespace ndn {
 template<class Info, class Tpm>
 class KeyChainImpl : public Info, public Tpm
 {
-  typedef typename Info::Error InfoError;
-  typedef typename Tpm::Error TpmError;
+  typedef SecPublicInfo::Error InfoError;
+  typedef SecTpm::Error TpmError;
 public:
   /**
    * @brief Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a self-signed certificate of the KSK.

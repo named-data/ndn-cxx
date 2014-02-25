@@ -261,7 +261,7 @@ protected:
   getImpExpPassWord(std::string& password, const std::string& prompt);
 };
 
-bool
+inline bool
 SecTpm::getImpExpPassWord(std::string& password, const std::string& prompt)
 {
   int result = false;

@@ -61,13 +61,13 @@ BOOST_AUTO_TEST_CASE (Delete)
   BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), true);
   BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName5), true);
 
-  keyChain.deleteCertificate(certName5);
+  BOOST_REQUIRE_NO_THROW(keyChain.deleteCertificate(certName5));
   BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName5), false);
   BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), true);
   BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), true);
   BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), true);
 
-  keyChain.deleteKey(keyName3);
+  BOOST_REQUIRE_NO_THROW(keyChain.deleteKey(keyName3));
   BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), false);
   BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), false);
   BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), false);
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE (Delete)
   BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), true);
   BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), true);
 
-  keyChain.deleteIdentity(identity);
+  BOOST_REQUIRE_NO_THROW(keyChain.deleteIdentity(identity));
   BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName2), false);
   BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName2), false);
   BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName1), false);

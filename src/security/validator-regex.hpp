@@ -85,11 +85,11 @@ protected:
   std::map<Name, shared_ptr<IdentityCertificate> > m_trustAnchors;
 };
 
-void 
+inline void 
 ValidatorRegex::addDataVerificationRule (shared_ptr<SecRuleRelative> rule)
 { rule->isPositive() ? m_verifyPolicies.push_back(rule) : m_mustFailVerify.push_back(rule); }
       
-void  
+inline void  
 ValidatorRegex::addTrustAnchor(shared_ptr<IdentityCertificate> certificate)
 { m_trustAnchors[certificate->getName().getPrefix(-1)] = certificate; }
 

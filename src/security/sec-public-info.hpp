@@ -365,34 +365,34 @@ protected:
   shared_ptr<IdentityCertificate> m_defaultCertificate;
 };
 
-void
+inline void
 SecPublicInfo::setDefaultIdentity(const Name& identityName)
 {
   setDefaultIdentityInternal(identityName);
   refreshDefaultCertificate();
 }
 
-void
+inline void
 SecPublicInfo::setDefaultKeyNameForIdentity(const Name& keyName)
 {
   setDefaultKeyNameForIdentityInternal(keyName);
   refreshDefaultCertificate();
 }
 
-void 
+inline void 
 SecPublicInfo::setDefaultCertificateNameForKey(const Name& certificateName)
 {
   setDefaultCertificateNameForKeyInternal(certificateName);
   refreshDefaultCertificate();
 }
 
-Name 
+inline Name 
 SecPublicInfo::getDefaultCertificateNameForIdentity(const Name& identityName)
 {
   return getDefaultCertificateNameForKey(getDefaultKeyNameForIdentity(identityName));
 }
 
-Name
+inline Name
 SecPublicInfo::getNewKeyName (const Name& identityName, bool useKsk)
 {
   std::ostringstream oss;
@@ -412,7 +412,7 @@ SecPublicInfo::getNewKeyName (const Name& identityName, bool useKsk)
   return keyName;
 }
 
-Name
+inline Name
 SecPublicInfo::getDefaultCertificateName()
 {
   if(!static_cast<bool>(m_defaultCertificate))
@@ -424,7 +424,7 @@ SecPublicInfo::getDefaultCertificateName()
   return m_defaultCertificate->getName();
 }
 
-void
+inline void
 SecPublicInfo::addCertificateAsKeyDefault(const IdentityCertificate& certificate)
 {
   addCertificate(certificate);
@@ -432,7 +432,7 @@ SecPublicInfo::addCertificateAsKeyDefault(const IdentityCertificate& certificate
   refreshDefaultCertificate();
 }
 
-void
+inline void
 SecPublicInfo::addCertificateAsIdentityDefault(const IdentityCertificate& certificate)
 {
   addCertificate(certificate);
@@ -442,7 +442,7 @@ SecPublicInfo::addCertificateAsIdentityDefault(const IdentityCertificate& certif
   refreshDefaultCertificate();
 }
 
-void
+inline void
 SecPublicInfo::addCertificateAsSystemDefault(const IdentityCertificate& certificate)
 {
   addCertificate(certificate);
@@ -454,13 +454,13 @@ SecPublicInfo::addCertificateAsSystemDefault(const IdentityCertificate& certific
   refreshDefaultCertificate();
 }
 
-shared_ptr<IdentityCertificate>
+inline shared_ptr<IdentityCertificate>
 SecPublicInfo::defaultCertificate()
 {
   return m_defaultCertificate;
 }
 
-void
+inline void
 SecPublicInfo::refreshDefaultCertificate()
 {
   try
