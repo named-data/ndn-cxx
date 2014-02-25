@@ -32,13 +32,13 @@ public:
   {
     wireDecode(block);
   }
-  
-  const Name& 
+
+  const Name&
   getName () const
   {
     return m_name;
   }
-  
+
   FibManagementOptions&
   setName (const Name &name)
   {
@@ -46,8 +46,8 @@ public:
     m_wire.reset ();
     return *this;
   }
-  
-  uint64_t 
+
+  uint64_t
   getFaceId () const
   {
     return m_faceId;
@@ -61,7 +61,7 @@ public:
     return *this;
   }
 
-  uint64_t 
+  uint64_t
   getCost () const
   {
     return m_cost;
@@ -75,7 +75,7 @@ public:
     return *this;
   }
 
-  const Name& 
+  const Name&
   getStrategy () const
   {
     return m_strategy;
@@ -88,17 +88,17 @@ public:
     m_wire.reset ();
     return *this;
   }
-  
+
   template<bool T>
   size_t
   wireEncode(EncodingImpl<T> &block) const;
-  
+
   const Block&
   wireEncode () const;
-  
-  void 
+
+  void
   wireDecode (const Block &wire);
-  
+
 private:
   Name m_name;
   uint64_t m_faceId;
@@ -114,11 +114,11 @@ FibManagementOptions::wireEncode(EncodingImpl<T>& blk) const
 {
   size_t total_len = 0;
 
-  // if (!m_strategy.empty())
-  //   {
-  //     total_len += prependNestedBlock(blk, tlv::nfd::Strategy, m_strategy);
-  //   }
-  
+  if (!m_strategy.empty())
+    {
+      total_len += prependNestedBlock(blk, tlv::nfd::Strategy, m_strategy);
+    }
+
   if (m_cost != 0)
     {
       total_len += prependNonNegativeIntegerBlock(blk, tlv::nfd::Cost, m_cost);
@@ -144,15 +144,15 @@ FibManagementOptions::wireEncode () const
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
-  
+
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
   m_wire = buffer.block();
   return m_wire;
 }
-  
-inline void 
+
+inline void
 FibManagementOptions::wireDecode (const Block &wire)
 {
   m_name.clear();
@@ -164,7 +164,7 @@ FibManagementOptions::wireDecode (const Block &wire)
 
   if (m_wire.type() != tlv::nfd::FibManagementOptions)
     throw Error("Requested decoding of FibManagementOptions, but Block is of different type");
-  
+
   m_wire.parse ();
 
   // Name
@@ -202,7 +202,7 @@ inline std::ostream&
 operator << (std::ostream &os, const FibManagementOptions &option)
 {
   os << "ForwardingEntry(";
-  
+
   // Name
   os << "Prefix: " << option.getName() << ", ";
 
@@ -214,7 +214,7 @@ operator << (std::ostream &os, const FibManagementOptions &option)
 
   // Strategy
   os << "Strategy: " << option.getStrategy() << ", ";
-  
+
   os << ")";
   return os;
 }
