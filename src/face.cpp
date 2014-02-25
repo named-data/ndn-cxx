@@ -24,55 +24,42 @@ namespace ndn {
 Face::Face()
 {
   construct(shared_ptr<Transport>(new UnixTransport()),
-            make_shared<boost::asio::io_service>(),
-            shared_ptr<Controller>());
-}
-
-Face::Face(const shared_ptr<Controller>& controller)
-{
-  construct(shared_ptr<Transport>(new UnixTransport()),
-            make_shared<boost::asio::io_service>(),
-            controller);
+            make_shared<boost::asio::io_service>());
 }
 
 Face::Face(const shared_ptr<boost::asio::io_service>& ioService)
 {
   construct(shared_ptr<Transport>(new UnixTransport()),
-            ioService,
-            shared_ptr<Controller>());
+            ioService);
 }
 
 Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
 {
   construct(shared_ptr<Transport>(new TcpTransport(host, port)),
-            make_shared<boost::asio::io_service>(),
-            shared_ptr<Controller>());
+            make_shared<boost::asio::io_service>());
 }
 
 Face::Face(const shared_ptr<Transport>& transport)
 {
   construct(transport,
-            make_shared<boost::asio::io_service>(),
-            shared_ptr<Controller>());
+            make_shared<boost::asio::io_service>());
 }
 
 Face::Face(const shared_ptr<Transport>& transport,
            const shared_ptr<boost::asio::io_service>& ioService)
 {
-  construct(transport, ioService, shared_ptr<Controller>());
+  construct(transport, ioService);
 }
 
-Face::Face(const shared_ptr<Transport>& transport,
-           const shared_ptr<boost::asio::io_service>& ioService,
-           const shared_ptr<Controller>& controller)
+void
+Face::setController(const shared_ptr<Controller>& controller)
 {
-  construct(transport, ioService, controller);
+  m_fwController = controller;
 }
 
 void
 Face::construct(const shared_ptr<Transport>& transport,
-                const shared_ptr<boost::asio::io_service>& ioService,
-                const shared_ptr<Controller>& controller)
+                const shared_ptr<boost::asio::io_service>& ioService)
 {
   m_pitTimeoutCheckTimerActive = false;
   m_transport = transport;
@@ -81,22 +68,15 @@ Face::construct(const shared_ptr<Transport>& transport,
   m_pitTimeoutCheckTimer      = make_shared<boost::asio::deadline_timer>(boost::ref(*m_ioService));
   m_processEventsTimeoutTimer = make_shared<boost::asio::deadline_timer>(boost::ref(*m_ioService));
 
-  if (static_cast<bool>(controller))
+  if (std::getenv("NFD") != 0)
     {
-      m_fwController = controller;
+      if (std::getenv("NRD") != 0)
+        m_fwController = make_shared<nrd::Controller>(boost::ref(*this));
+      else
+        m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
     }
   else
-    {
-      if (std::getenv("NFD") != 0)
-        {
-          if (std::getenv("NRD") != 0)
-            m_fwController = make_shared<nrd::Controller>(boost::ref(*this));
-          else
-            m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
-        }
-      else
-        m_fwController = make_shared<ndnd::Controller>(boost::ref(*this));
-    }
+    m_fwController = make_shared<ndnd::Controller>(boost::ref(*this));
 }
 
 

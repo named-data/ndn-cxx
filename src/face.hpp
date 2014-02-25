@@ -61,14 +61,6 @@ public:
   Face();
 
   /**
-   * @brief Create face, explicitly selecting which controller to use
-   *
-   * Controller controls the way prefixes are registered with local forwarder.
-   */
-  explicit
-  Face(const shared_ptr<Controller>& controller);
-
-  /**
    * @brief Create a new Face for communication with an NDN Forwarder using the default UnixTransport.
    * @param ioService A shared pointer to boost::io_service object that should control all IO operations
    */
@@ -106,13 +98,10 @@ public:
        const shared_ptr<boost::asio::io_service>& ioService);
 
   /**
-   * @brief Create face, explicitly selecting which controller to use
-   *
-   * Controller controls the way prefixes are registered with local forwarder.
+   * @brief Set controller used for prefix registration
    */
-  Face(const shared_ptr<Transport>& transport,
-       const shared_ptr<boost::asio::io_service>& ioService,
-       const shared_ptr<Controller>& controller);
+  void
+  setController(const shared_ptr<Controller>& controller);
   
   /**
    * @brief Express Interest
@@ -214,8 +203,7 @@ public:
 private:
   void
   construct(const shared_ptr<Transport>& transport,
-            const shared_ptr<boost::asio::io_service>& ioService,
-            const shared_ptr<Controller>& controller);
+            const shared_ptr<boost::asio::io_service>& ioService);
   
   struct ProcessEventsTimeout {};
   typedef std::list<shared_ptr<PendingInterest> > PendingInterestTable;
