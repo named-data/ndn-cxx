@@ -12,6 +12,115 @@ namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(TestBlock)
 
+BOOST_AUTO_TEST_CASE (Basic)
+{
+  EncodingBuffer buffer;
+  EncodingEstimator estimator;
+  size_t s1, s2;
+
+  // VarNumber checks
+  
+  s1 = buffer.prependVarNumber(252);
+  s2 = estimator.prependVarNumber(252);
+  BOOST_CHECK_EQUAL(buffer.size(), 1);
+  BOOST_CHECK_EQUAL(s1, 1);
+  BOOST_CHECK_EQUAL(s2, 1);
+  buffer = EncodingBuffer();
+  
+  s1 = buffer.prependVarNumber(253);
+  s2 = estimator.prependVarNumber(253);
+  BOOST_CHECK_EQUAL(buffer.size(), 3);
+  BOOST_CHECK_EQUAL(s1, 3);
+  BOOST_CHECK_EQUAL(s2, 3);
+  buffer = EncodingBuffer();
+  
+  s1 = buffer.prependVarNumber(255);
+  s2 = estimator.prependVarNumber(255);
+  BOOST_CHECK_EQUAL(buffer.size(), 3);
+  BOOST_CHECK_EQUAL(s1, 3);
+  BOOST_CHECK_EQUAL(s2, 3);
+  buffer = EncodingBuffer();
+
+  s1 = buffer.prependVarNumber(65535);
+  s2 = estimator.prependVarNumber(65535);
+  BOOST_CHECK_EQUAL(buffer.size(), 3);
+  BOOST_CHECK_EQUAL(s1, 3);
+  BOOST_CHECK_EQUAL(s2, 3);
+  buffer = EncodingBuffer();
+
+  s1 = buffer.prependVarNumber(65536);
+  s2 = estimator.prependVarNumber(65536);
+  BOOST_CHECK_EQUAL(buffer.size(), 5);
+  BOOST_CHECK_EQUAL(s1, 5);
+  BOOST_CHECK_EQUAL(s2, 5);
+  buffer = EncodingBuffer();
+  
+  s1 = buffer.prependVarNumber(4294967295);
+  s2 = estimator.prependVarNumber(4294967295);
+  BOOST_CHECK_EQUAL(buffer.size(), 5);
+  BOOST_CHECK_EQUAL(s1, 5);
+  BOOST_CHECK_EQUAL(s2, 5);
+  buffer = EncodingBuffer();
+
+  s1 = buffer.prependVarNumber(4294967296);
+  s2 = estimator.prependVarNumber(4294967296);
+  BOOST_CHECK_EQUAL(buffer.size(), 9);
+  BOOST_CHECK_EQUAL(s1, 9);
+  BOOST_CHECK_EQUAL(s2, 9);
+  buffer = EncodingBuffer();
+
+  // nonNegativeInteger checks
+  
+  s1 = buffer.prependNonNegativeInteger(252);
+  s2 = estimator.prependNonNegativeInteger(252);
+  BOOST_CHECK_EQUAL(buffer.size(), 1);
+  BOOST_CHECK_EQUAL(s1, 1);
+  BOOST_CHECK_EQUAL(s2, 1);
+  buffer = EncodingBuffer();
+  
+  s1 = buffer.prependNonNegativeInteger(255);
+  s2 = estimator.prependNonNegativeInteger(255);
+  BOOST_CHECK_EQUAL(buffer.size(), 1);
+  BOOST_CHECK_EQUAL(s1, 1);
+  BOOST_CHECK_EQUAL(s2, 1);
+  buffer = EncodingBuffer();
+  
+  s1 = buffer.prependNonNegativeInteger(256);
+  s2 = estimator.prependNonNegativeInteger(256);
+  BOOST_CHECK_EQUAL(buffer.size(), 2);
+  BOOST_CHECK_EQUAL(s1, 2);
+  BOOST_CHECK_EQUAL(s2, 2);
+  buffer = EncodingBuffer();
+
+  s1 = buffer.prependNonNegativeInteger(65535);
+  s2 = estimator.prependNonNegativeInteger(65535);
+  BOOST_CHECK_EQUAL(buffer.size(), 2);
+  BOOST_CHECK_EQUAL(s1, 2);
+  BOOST_CHECK_EQUAL(s2, 2);
+  buffer = EncodingBuffer();
+
+  s1 = buffer.prependNonNegativeInteger(65536);
+  s2 = estimator.prependNonNegativeInteger(65536);
+  BOOST_CHECK_EQUAL(buffer.size(), 4);
+  BOOST_CHECK_EQUAL(s1, 4);
+  BOOST_CHECK_EQUAL(s2, 4);
+  buffer = EncodingBuffer();
+
+  s1 = buffer.prependNonNegativeInteger(4294967295);
+  s2 = estimator.prependNonNegativeInteger(4294967295);
+  BOOST_CHECK_EQUAL(buffer.size(), 4);
+  BOOST_CHECK_EQUAL(s1, 4);
+  BOOST_CHECK_EQUAL(s2, 4);
+  buffer = EncodingBuffer();
+
+  s1 = buffer.prependNonNegativeInteger(4294967296);
+  s2 = estimator.prependNonNegativeInteger(4294967296);
+  BOOST_CHECK_EQUAL(buffer.size(), 8);
+  BOOST_CHECK_EQUAL(s1, 8);
+  BOOST_CHECK_EQUAL(s2, 8);
+  buffer = EncodingBuffer();
+}
+
 BOOST_AUTO_TEST_CASE (EncodingBufferToBlock)
 {
   uint8_t value[4];
