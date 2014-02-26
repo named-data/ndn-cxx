@@ -9,8 +9,8 @@
 #include "security/key-chain.hpp"
 #include "security/validator.hpp"
 
-#include "helpers/command-interest-generator.hpp"
-#include "helpers/command-interest-validator.hpp"
+#include "util/command-interest-generator.hpp"
+#include "util/command-interest-validator.hpp"
 
 using namespace std;
 namespace ndn {
