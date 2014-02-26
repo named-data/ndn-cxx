@@ -327,10 +327,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
       if (&block != &blockFromDaemon)
         interest->getLocalControlHeader().wireDecode(blockFromDaemon);
 
-      RegisteredPrefixTable::iterator entry = getEntryForRegisteredPrefix(interest->getName());
-      if (entry != m_registeredPrefixTable.end()) {
-        (*entry)->getOnInterest()((*entry)->getPrefix(), *interest);
-      }
+      processInterestFilters(*interest);
     }
   else if (block.type() == Tlv::Data)
     {
@@ -339,60 +336,54 @@ Face::onReceiveElement(const Block& blockFromDaemon)
       if (&block != &blockFromDaemon)
         data->getLocalControlHeader().wireDecode(blockFromDaemon);
 
-      PendingInterestTable::iterator entry = getEntryIndexForExpressedInterest(data->getName());
-      if (entry != m_pendingInterestTable.end()) {
-        // Copy pointers to the needed objects and remove the PIT entry before the calling the callback.
-        const OnData onData = (*entry)->getOnData();
-        const shared_ptr<const Interest> interest = (*entry)->getInterest();
-        m_pendingInterestTable.erase(entry);
+      satisfyPendingInterests(*data);
 
-        if (onData) {
-          onData(*interest, *data);
-        }
-
-        if (m_pendingInterestTable.empty()) {
-          m_pitTimeoutCheckTimer->cancel(); // this will cause checkPitExpire invocation
-        }
+      if (m_pendingInterestTable.empty()) {
+        m_pitTimeoutCheckTimer->cancel(); // this will cause checkPitExpire invocation
       }
     }
   // ignore any other type
 }
 
-Face::PendingInterestTable::iterator
-Face::getEntryIndexForExpressedInterest(const Name& name)
+void
+Face::satisfyPendingInterests(Data& data)
 {
   for (PendingInterestTable::iterator i = m_pendingInterestTable.begin ();
-       i != m_pendingInterestTable.end(); ++i)
+       i != m_pendingInterestTable.end();
+       )
     {
-      if ((*i)->getInterest()->matchesName(name))
+      if ((*i)->getInterest()->matchesName(data.getName()))
         {
-          return i;
-        }
-    }
+          // Copy pointers to the needed objects and remove the PIT entry before the calling the callback.
+          OnData onData = (*i)->getOnData();
+          shared_ptr<const Interest> interest = (*i)->getInterest();
 
-  return m_pendingInterestTable.end();
+          PendingInterestTable::iterator next = i;
+          ++next;
+          m_pendingInterestTable.erase(i);
+          i = next;
+
+          if (static_cast<bool>(onData)) {
+            onData(*interest, data);
+          }
+        }
+      else
+        ++i;
+    }
 }
 
-Face::RegisteredPrefixTable::iterator
-Face::getEntryForRegisteredPrefix(const Name& name)
+void
+Face::processInterestFilters(Interest& interest)
 {
-  RegisteredPrefixTable::iterator longestPrefix = m_registeredPrefixTable.end();
-
   for (RegisteredPrefixTable::iterator i = m_registeredPrefixTable.begin();
        i != m_registeredPrefixTable.end();
        ++i)
     {
-      if ((*i)->getPrefix().isPrefixOf(name))
+      if ((*i)->getPrefix().isPrefixOf(interest.getName()))
         {
-
-          if (longestPrefix == m_registeredPrefixTable.end() ||
-              (*i)->getPrefix().size() > (*longestPrefix)->getPrefix().size())
-            {
-              longestPrefix = i;
-            }
+          (*i)->getOnInterest()((*i)->getPrefix(), interest);
         }
     }
-  return longestPrefix;
 }
 
 } // namespace ndn

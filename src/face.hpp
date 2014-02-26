@@ -229,23 +229,12 @@ private:
   static void
   fireProcessEventsTimeout(const boost::system::error_code& error);
 
-  /**
-   * Find the entry from the pit_ where the name conforms to the entry's interest selectors, and
-   * the entry interest name is the longest that matches name.
-   * @param name The name to find the interest for (from the incoming data packet).
-   * @return The index in pit_ of the pit entry, or -1 if not found.
-   */
-  PendingInterestTable::iterator 
-  getEntryIndexForExpressedInterest(const Name& name);
-  
-  /**
-   * Find the first entry from the m_registeredPrefixTable where the entry prefix is the longest that matches name.
-   * @param name The name to find the PrefixEntry for (from the incoming interest packet).
-   * @return A pointer to the entry, or 0 if not found.
-   */
-  RegisteredPrefixTable::iterator
-  getEntryForRegisteredPrefix(const Name& name);
-  
+  void
+  satisfyPendingInterests(Data& data);
+
+  void
+  processInterestFilters(Interest& interest);
+    
   void
   checkPitExpire();
 
