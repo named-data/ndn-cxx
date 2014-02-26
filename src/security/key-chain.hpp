@@ -110,6 +110,76 @@ public:
   }
 
   /**
+   * @brief prepare an unsigned identity certificate
+   *
+   * @param keyName Key name, e.g., /<identity_name>/ksk-123456.
+   * @param signingIdentity The signing identity.
+   * @param notBefore Refer to IdentityCertificate.
+   * @param notAfter Refer to IdentityCertificate.
+   * @param subjectDescription Refer to IdentityCertificate. 
+   * @return IdentityCertificate.
+   */
+  shared_ptr<IdentityCertificate>
+  prepareUnsignedIdentityCertificate(const Name& keyName,
+                                     const Name& signingIdentity,
+                                     const MillisecondsSince1970& notBefore,
+                                     const MillisecondsSince1970& notAfter,
+                                     const std::vector<CertificateSubjectDescription>& subjectDescription)
+
+  {
+    if(keyName.size() < 1)
+      return shared_ptr<IdentityCertificate>();
+    
+    std::string keyIdPrefix = keyName.get(-1).toEscapedString().substr(0, 4);
+    if(keyIdPrefix != "ksk-" && keyIdPrefix != "dsk-")
+      return shared_ptr<IdentityCertificate>();
+
+    shared_ptr<IdentityCertificate> certificate = make_shared<IdentityCertificate>();
+    Name certName;
+
+    if(signingIdentity.isPrefixOf(keyName))
+      {
+        certName.append(signingIdentity).append("KEY").append(keyName.getSubName(signingIdentity.size())).append("ID-CERT").appendVersion();
+      }
+    else
+      {
+        certName.append(keyName.getPrefix(-1)).append("KEY").append(keyName.get(-1)).append("ID-CERT").appendVersion();
+      }
+
+    certificate->setName(certName);
+    certificate->setNotBefore(notBefore);
+    certificate->setNotAfter(notAfter);
+
+    shared_ptr<PublicKey> publicKey;
+    try
+      {
+        publicKey = Info::getPublicKey(keyName);
+      }
+    catch(InfoError& e)
+      {
+        return shared_ptr<IdentityCertificate>();
+      }
+    certificate->setPublicKeyInfo(*publicKey);
+
+    if(subjectDescription.empty())
+      {
+        CertificateSubjectDescription subDescryptName("2.5.4.41", keyName.getPrefix(-1).toUri());
+        certificate->addSubjectDescription(subDescryptName);
+      }
+    else
+      {
+        std::vector<CertificateSubjectDescription>::const_iterator sdIt = subjectDescription.begin();
+        std::vector<CertificateSubjectDescription>::const_iterator sdEnd = subjectDescription.end();
+        for(; sdIt != sdEnd; sdIt++)
+          certificate->addSubjectDescription(*sdIt);
+      }
+
+    certificate->encode();
+    
+    return certificate;
+  }
+
+  /**
    * @brief Sign packet with default identity
    *
    * on return signatureInfo and signatureValue in the packet are set.
