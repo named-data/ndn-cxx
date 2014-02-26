@@ -69,14 +69,14 @@ public:
 
   //
   
-  int
+  uint64_t
   getFaceId() const
   {
     return m_faceId;
   }
 
   PrefixRegOptions&
-  setFaceId(int faceId)
+  setFaceId(uint64_t faceId)
   {
     m_faceId = faceId;
     m_wire.reset();
