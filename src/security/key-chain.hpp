@@ -12,8 +12,8 @@
 #include "identity-certificate.hpp"
 #include "public-key.hpp"
 #include "signature-sha256-with-rsa.hpp"
+#include "secured-bag.hpp"
 #include "../interest.hpp"
-#include "../encoding/tlv-security.hpp"
 #include "../util/random.hpp"
 
 //PublicInfo
@@ -456,10 +456,10 @@ public:
    *
    * @param identity The identity to export.
    * @param passwordStr The password to secure the private key.
-   * @param The encoded export data.
+   * @return The encoded export data.
    * @throws InfoError if anything goes wrong in exporting.
    */
-  Block
+  shared_ptr<SecuredBag>
   exportIdentity(const Name& identity, const std::string& passwordStr)
   {
     if (!Info::doesIdentityExist(identity))
@@ -476,8 +476,6 @@ public:
       {
         throw InfoError("Fail to export PKCS8 of private key");
       }
-    Block wireKey(tlv::security::KeyPackage, pkcs8);
-
 
     shared_ptr<IdentityCertificate> cert;    
     try
@@ -489,52 +487,35 @@ public:
         cert = selfSign(keyName); 
         Info::addCertificateAsIdentityDefault(*cert);
       }
-    Block wireCert(tlv::security::CertificatePackage, cert->wireEncode());
 
-    Block wire(tlv::security::IdentityPackage);
-    wire.push_back(wireCert);
-    wire.push_back(wireKey);
+    shared_ptr<SecuredBag> secureBag = make_shared<SecuredBag>(boost::cref(*cert), boost::cref(pkcs8));
 
-    return wire;
+    return secureBag;
   }
 
   /**
    * @brief import an identity.
    *
-   * @param The encoded import data.
+   * @param securedBag The encoded import data.
    * @param passwordStr The password to secure the private key.
    */
   void
-  importIdentity(const Block& block, const std::string& passwordStr)
+  importIdentity(const SecuredBag& securedBag, const std::string& passwordStr)
   {
-    try
-      {
-        block.parse();
-    
-        Data data;
-        data.wireDecode(block.get(tlv::security::CertificatePackage).blockFromValue());
-        shared_ptr<IdentityCertificate> cert = make_shared<IdentityCertificate>(data);
-    
-        Name keyName = IdentityCertificate::certificateNameToPublicKeyName(cert->getName());
-        Name identity = keyName.getPrefix(-1);
+    Name keyName = IdentityCertificate::certificateNameToPublicKeyName(securedBag.getCertificate().getName());
+    Name identity = keyName.getPrefix(-1);
         
-        // Add identity
-        Info::addIdentity(identity);
+    // Add identity
+    Info::addIdentity(identity);
         
-        // Add key
-        Block wireKey = block.get(tlv::security::KeyPackage);
-        Tpm::importPrivateKeyPkcs8IntoTpm(keyName, wireKey.value(), wireKey.value_size(), passwordStr);
-        shared_ptr<PublicKey> pubKey = Tpm::getPublicKeyFromTpm(keyName.toUri());
-        Info::addPublicKey(keyName, KEY_TYPE_RSA, *pubKey); // HACK! We should set key type according to the pkcs8 info.
-        Info::setDefaultKeyNameForIdentity(keyName);
+    // Add key
+    Tpm::importPrivateKeyPkcs8IntoTpm(keyName, securedBag.getKey()->buf(), securedBag.getKey()->size(), passwordStr);
+    shared_ptr<PublicKey> pubKey = Tpm::getPublicKeyFromTpm(keyName.toUri());
+    Info::addPublicKey(keyName, KEY_TYPE_RSA, *pubKey); // HACK! We should set key type according to the pkcs8 info.
+    Info::setDefaultKeyNameForIdentity(keyName);
         
-        // Add cert
-        Info::addCertificateAsIdentityDefault(*cert);
-      }
-    catch(Block::Error& e)
-      {
-        return;
-      }
+    // Add cert
+    Info::addCertificateAsIdentityDefault(securedBag.getCertificate());
   }
 
 

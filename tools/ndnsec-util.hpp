@@ -26,6 +26,7 @@
 #include <cryptopp/files.h>
 
 #include "security/key-chain.hpp"
+#include "util/io.hpp"
 
 bool
 getPassword(std::string& password, const std::string& prompt)
@@ -67,54 +68,11 @@ getPassword(std::string& password, const std::string& prompt)
 ndn::shared_ptr<ndn::IdentityCertificate>
 getIdentityCertificate(const std::string& fileName)
 {
-  std::istream* ifs;
-  std::istream* ffs = 0;
-  if(fileName == "-")
-    ifs = &std::cin;
-  else
-    {
-      ifs = new std::ifstream(fileName.c_str());
-      ffs = ifs;
-    }
 
-  ndn::OBufferStream os;
-  try
-    {
-      CryptoPP::FileSource ss2(*ifs, true, new CryptoPP::Base64Decoder(new CryptoPP::FileSink(os)));
-      
-      if(ffs)
-        delete ffs;
-      ffs = 0;
-      ifs = 0;
-      
-    }
-  catch(const CryptoPP::Exception& e)
-    {
-      if(ffs)
-        delete ffs;
-      ffs = 0;
-      ifs = 0;
-      
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return ndn::shared_ptr<ndn::IdentityCertificate>();
-    }
-  
-  try
-    {
-      ndn::shared_ptr<ndn::IdentityCertificate> identityCertificate = ndn::make_shared<ndn::IdentityCertificate>();
-      identityCertificate->wireDecode(ndn::Block(os.buf()));
-      return identityCertificate;
-    }
-  catch(const ndn::SecPublicInfo::Error& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return ndn::shared_ptr<ndn::IdentityCertificate>();
-    }
-  catch(const ndn::SecTpm::Error& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return ndn::shared_ptr<ndn::IdentityCertificate>();
-    }
+  if(fileName == "-")
+    return ndn::io::load<ndn::IdentityCertificate>(std::cin);
+  else
+    return ndn::io::load<ndn::IdentityCertificate>(fileName);
 }
 
 #endif //NDNSEC_UTIL_HPP

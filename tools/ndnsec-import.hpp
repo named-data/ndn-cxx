@@ -18,11 +18,13 @@ ndnsec_import(int argc, char** argv)
 
   std::string input; 
   std::string importPassword;
+  bool privateImport = false;
 
-  po::options_description desc("General Usage\n  ndnsec import [-h] input \nGeneral options");
+  po::options_description desc("General Usage\n  ndnsec import [-h] [-p] input \nGeneral options");
   desc.add_options()
     ("help,h", "produce help message")
-    ("input,i", po::value<std::string>(&input), "input source, stdin if not specified")
+    ("private,p", "import info contains private key")
+    ("input,i", po::value<std::string>(&input), "input source, stdin if -")
     ;
 
   po::positional_options_description p;
@@ -46,61 +48,61 @@ ndnsec_import(int argc, char** argv)
       return 0;
     }
 
-  if (!vm.count("input"))
-    input = "-";
+  if (vm.count("private"))
+    privateImport = true;
 
-  KeyChain keyChain;
-
-  OBufferStream os;
-  std::istream* ifs;
-  if(input == "-")
-    ifs = &std::cin;
+  if(!privateImport)
+    {
+      std::cerr << "You are trying to import certificate!\nPlease use ndnsec cert-install!" << std::endl;
+      return 1;
+    }
   else
-    ifs = new std::ifstream(input.c_str());
-
-  {  
-    using namespace CryptoPP;
-    FileSource ss(*ifs, true, new Base64Decoder(new FileSink(os)));
-  }
-
-  try
     {
-      Block wire(os.buf());
-      
-      int count = 3;
-      while(!getPassword(importPassword, "Passphrase for the private key: "))
+      try
         {
-          count--;
-          if(count <= 0)
-            {
-              std::cerr << "ERROR: Fail to get password" << std::endl;
-              memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-              return 1;
-            }
-        }
-      keyChain.importIdentity(wire, importPassword);
-      memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-    }
-  catch(Block::Error& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-      return 1;
-    }
-  catch(SecPublicInfo::Error& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-      return 1;
-    }
-  catch(SecTpm::Error& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-      return 1;
-    }
+          KeyChain keyChain;
 
-  return 0;
+          shared_ptr<SecuredBag> securedBag;
+          if(input == "-")
+            securedBag = io::load<SecuredBag>(std::cin);
+          else
+            securedBag = io::load<SecuredBag>(input);
+      
+          int count = 3;
+          while(!getPassword(importPassword, "Passphrase for the private key: "))
+            {
+              count--;
+              if(count <= 0)
+                {
+                  std::cerr << "ERROR: Fail to get password" << std::endl;
+                  memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
+                  return 1;
+                }
+            }
+          keyChain.importIdentity(*securedBag, importPassword);
+          memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
+        }
+      catch(io::Error& e)
+        {
+          std::cerr << "ERROR: " << e.what() << std::endl;
+          memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
+          return 1;
+        }
+      catch(SecPublicInfo::Error& e)
+        {
+          std::cerr << "ERROR: " << e.what() << std::endl;
+          memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
+          return 1;
+        }
+      catch(SecTpm::Error& e)
+        {
+          std::cerr << "ERROR: " << e.what() << std::endl;
+          memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
+          return 1;
+        }
+
+      return 0;
+    }
 }
 
 #endif //NDNSEC_IMPORT_HPP
