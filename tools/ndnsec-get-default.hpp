@@ -11,120 +11,120 @@
 #include "ndnsec-util.hpp"
 
 
-int 
-ndnsec_get_default(int argc, char** argv)	
+int
+ndnsec_get_default(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
 
-  bool getDefaultId = true;
-  bool getDefaultKey = false;
-  bool getDefaultCert = false;
-  bool quiet = false;
-  std::string idName;
+  bool isGetDefaultId = true;
+  bool isGetDefaultKey = false;
+  bool isGetDefaultCert = false;
+  bool isQuiet = false;
+  std::string identityString;
   std::string keyName;
 
-  po::options_description desc("General Usage\n  ndnsec get-default [-h] [-K|C] [-i identity|-k key] [-q]\nGeneral options");
-  desc.add_options()
+  po::options_description description("General Usage\n  ndnsec get-default [-h] [-k|c] [-i identity|-K key] [-q]\nGeneral options");
+  description.add_options()
     ("help,h", "produce help message")
-    ("default_key,K", "get default key")
-    ("default_cert,C", "get default certificate")
-    ("identity,i", po::value<std::string>(&idName), "target identity")
-    ("key,k", po::value<std::string>(&keyName), "target key")
+    ("default_key,k", "get default key")
+    ("default_cert,c", "get default certificate")
+    ("identity,i", po::value<std::string>(&identityString), "target identity")
+    ("key,K", po::value<std::string>(&keyName), "target key")
     ("quiet,q", "don't output trailing newline")
     ;
 
   po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-
-  if (vm.count("help")) 
+  try
     {
-      std::cerr << desc << std::endl;;
+      po::store(po::parse_command_line(argc, argv, description), vm);
+      po::notify(vm);
+    }
+  catch (const std::exception& e)
+    {
+      std::cerr << "ERROR: " << e.what() << std::endl;
+      std::cerr << description << std::endl;
+      return 1;
+    }
+
+  if (vm.count("help") != 0)
+    {
+      std::cerr << description << std::endl;;
       return 0;
     }
 
-  if(vm.count("default_cert"))
+  if (vm.count("default_cert") != 0)
     {
-      getDefaultCert = true;
-      getDefaultId = false;
+      isGetDefaultCert = true;
+      isGetDefaultId = false;
     }
-  else if(vm.count("default_key"))
+  else if (vm.count("default_key") != 0)
     {
-      getDefaultKey = true;
-      getDefaultId = false;
+      isGetDefaultKey = true;
+      isGetDefaultId = false;
     }
 
-  if(vm.count("quiet"))
+  if (vm.count("quiet") != 0)
     {
-      quiet = true;
+      isQuiet = true;
     }
-  
-  try
-    {
-      KeyChain keyChain;
 
-      if(vm.count("key"))
-        {
-          Name keyNdnName(keyName);
-          if(getDefaultCert)
-            {
-              std::cout << keyChain.getDefaultCertificateNameForKey(keyNdnName);
-              if (!quiet) std::cout << std::endl;
-              return 0;
-            }
-          return 1;
-        }
-      else if(vm.count("identity"))
-        {
-          Name idNdnName(idName);
-          
-          if(getDefaultKey)
-            {
-              std::cout << keyChain.getDefaultKeyNameForIdentity(idNdnName);
-              if (!quiet) std::cout << std::endl;
-              return 0;
-            }
-          if(getDefaultCert)
-            {
-              std::cout << keyChain.getDefaultCertificateNameForIdentity(idNdnName);
-              if (!quiet) std::cout << std::endl;
-              return 0;
-            }
-          return 1;
-        }
-      else
-        {
-          Name idNdnName = keyChain.getDefaultIdentity();
-          if(getDefaultId)
-            {
-              std::cout << idNdnName;
-              if (!quiet) std::cout << std::endl;
-              return 0;
-            }
-          if(getDefaultKey)
-            {
-              std::cout << keyChain.getDefaultKeyNameForIdentity(idNdnName);
-              if (!quiet) std::cout << std::endl;
-              return 0;
-            }
-          if(getDefaultCert)
-            {
-              std::cout << keyChain.getDefaultCertificateNameForIdentity(idNdnName);
-              if (!quiet) std::cout << std::endl;
-              return 0;
-            }
-          return 1;
-        }
-    }
-  catch(SecPublicInfo::Error& e)
+  KeyChain keyChain;
+
+  if (vm.count("key") != 0)
     {
-      std::cerr << "ERROR: " << e.what() << std::endl;
+      Name keyNdnName(keyName);
+      if (isGetDefaultCert)
+        {
+          std::cout << keyChain.getDefaultCertificateNameForKey(keyNdnName);
+          if (!isQuiet) std::cout << std::endl;
+          return 0;
+        }
       return 1;
     }
-  catch(SecTpm::Error& e)
+  else if (vm.count("identity") != 0)
     {
-      std::cerr << "ERROR: " << e.what() << std::endl;
+      Name identity(identityString);
+
+      if (isGetDefaultKey)
+        {
+          std::cout << keyChain.getDefaultKeyNameForIdentity(identity);
+          if (!isQuiet)
+            std::cout << std::endl;
+
+          return 0;
+        }
+      if (isGetDefaultCert)
+        {
+          std::cout << keyChain.getDefaultCertificateNameForIdentity(identity);
+          if (!isQuiet)
+            std::cout << std::endl;
+
+          return 0;
+        }
+      return 1;
+    }
+  else
+    {
+      Name identity = keyChain.getDefaultIdentity();
+      if (isGetDefaultId)
+        {
+          std::cout << identity;
+          if (!isQuiet) std::cout << std::endl;
+          return 0;
+        }
+      if (isGetDefaultKey)
+        {
+          std::cout << keyChain.getDefaultKeyNameForIdentity(identity);
+          if (!isQuiet) std::cout << std::endl;
+          return 0;
+        }
+      if (isGetDefaultCert)
+        {
+          std::cout << keyChain.getDefaultCertificateNameForIdentity(identity);
+          if (!isQuiet) std::cout << std::endl;
+          return 0;
+        }
       return 1;
     }
 }

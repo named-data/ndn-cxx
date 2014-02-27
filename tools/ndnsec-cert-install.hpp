@@ -11,95 +11,89 @@
 #include "ndnsec-util.hpp"
 
 
-struct HttpException : public std::exception
+class HttpException : public std::runtime_error
 {
-  HttpException(const std::string &reason)
-    : m_reason(reason)
+public:
+  explicit
+  HttpException(const std::string& what)
+    : std::runtime_error(what)
   {
   }
-  ~HttpException() throw()
-  {
-  }
-
-  const char* what() const throw()
-  {
-    return m_reason.c_str();
-  }
-
-private:
-  std::string m_reason;
 };
 
 ndn::shared_ptr<ndn::IdentityCertificate>
-getCertificateHttp(const std::string &host, const std::string &port, const std::string &path)
+getCertificateHttp(const std::string& host, const std::string& port, const std::string& path)
 {
   using namespace boost::asio::ip;
-  tcp::iostream request_stream;
-#if (BOOST_VERSION >= 104700)
-  request_stream.expires_from_now(boost::posix_time::milliseconds(3000));
-#endif
-  request_stream.connect(host,port);
-  if(!request_stream)
+  tcp::iostream requestStream;
+
+  requestStream.expires_from_now(boost::posix_time::milliseconds(3000));
+
+  requestStream.connect(host, port);
+  if (!static_cast<bool>(requestStream))
     {
       throw HttpException("HTTP connection error");
     }
-  request_stream << "GET " << path << " HTTP/1.0\r\n";
-  request_stream << "Host: " << host << "\r\n";
-  request_stream << "Accept: */*\r\n";
-  request_stream << "Cache-Control: no-cache\r\n";
-  request_stream << "Connection: close\r\n\r\n";
-  request_stream.flush();
+  requestStream << "GET " << path << " HTTP/1.0\r\n";
+  requestStream << "Host: " << host << "\r\n";
+  requestStream << "Accept: */*\r\n";
+  requestStream << "Cache-Control: no-cache\r\n";
+  requestStream << "Connection: close\r\n\r\n";
+  requestStream.flush();
 
-  std::string line1;
-  std::getline(request_stream,line1);
-  if (!request_stream)
+  std::string statusLine;
+  std::getline(requestStream, statusLine);
+  if (!static_cast<bool>(requestStream))
     {
       throw HttpException("HTTP communication error");
     }
 
-  std::stringstream response_stream(line1);
-  std::string http_version;
-  response_stream >> http_version;
-  unsigned int status_code;
-  response_stream >> status_code;
-  std::string status_message;
+  std::stringstream responseStream(statusLine);
+  std::string httpVersion;
+  responseStream >> httpVersion;
+  unsigned int statusCode;
+  responseStream >> statusCode;
+  std::string statusMessage;
 
-  std::getline(response_stream,status_message);
-  if (!response_stream || http_version.substr(0,5)!="HTTP/")
+  std::getline(responseStream, statusMessage);
+  if (!static_cast<bool>(requestStream) || httpVersion.substr(0, 5) != "HTTP/")
     {
       throw HttpException("HTTP communication error");
     }
-  if (status_code!=200)
+  if (statusCode != 200)
     {
       throw HttpException("HTTP server error");
     }
   std::string header;
-  while (std::getline(request_stream, header) && header != "\r") ;
+  while (std::getline(requestStream, header) && header != "\r")
+    ;
 
   ndn::OBufferStream os;
-  CryptoPP::FileSource ss2(request_stream, true, new CryptoPP::Base64Decoder(new CryptoPP::FileSink(os)));
+  {
+    using namespace CryptoPP;
+    FileSource ss2(requestStream, true, new Base64Decoder(new FileSink(os)));
+  }
 
-  ndn::shared_ptr<ndn::IdentityCertificate> identityCertificate = ndn::make_shared<ndn::IdentityCertificate>();
+  ndn::shared_ptr<ndn::IdentityCertificate> identityCertificate =
+    ndn::make_shared<ndn::IdentityCertificate>();
   identityCertificate->wireDecode(ndn::Block(os.buf()));
 
   return identityCertificate;
 }
 
-int 
+int
 ndnsec_cert_install(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
 
   std::string certFileName;
-  bool systemDefault = true;
-  bool identityDefault = false;
-  bool keyDefault = false;
-  // bool noDefault = false;
-  bool any = false;
+  bool isSystemDefault = true;
+  bool isIdentityDefault = false;
+  bool isKeyDefault = false;
 
-  po::options_description desc("General Usage\n  ndnsec cert-install [-h] [-I|K|N] cert-file\nGeneral options");
-  desc.add_options()
+  po::options_description description("General Usage\n  ndnsec cert-install [-h] [-I|K|N] cert-file\nGeneral options");
+  description.add_options()
     ("help,h", "produce help message")
     ("cert-file,f", po::value<std::string>(&certFileName), "file name of the ceritificate, - for stdin. "
                                                       "If starts with http://, will try to fetch "
@@ -114,131 +108,112 @@ ndnsec_cert_install(int argc, char** argv)
   po::variables_map vm;
   try
     {
-      po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+                vm);
       po::notify(vm);
     }
-  catch (std::exception &e)
+  catch (const std::exception& e)
     {
       std::cerr << "ERROR: " << e.what() << std::endl;
       return 1;
     }
 
-  if (vm.count("help"))
+  if (vm.count("help") != 0)
     {
-      std::cerr << desc << std::endl;
+      std::cerr << description << std::endl;
       return 0;
     }
 
-  if (0 == vm.count("cert-file"))
+  if (vm.count("cert-file") == 0)
     {
       std::cerr << "cert_file must be specified" << std::endl;
-      std::cerr << desc << std::endl;
+      std::cerr << description << std::endl;
       return 1;
     }
 
-  if (vm.count("identity-default"))
+  if (vm.count("identity-default") != 0)
     {
-      identityDefault = true;
-      systemDefault = false;
+      isIdentityDefault = true;
+      isSystemDefault = false;
     }
-  else if (vm.count("key-default"))
+  else if (vm.count("key-default") != 0)
     {
-      keyDefault = true;
-      systemDefault = false;
+      isKeyDefault = true;
+      isSystemDefault = false;
     }
-  else if (vm.count("no-default"))
+  else if (vm.count("no-default") != 0)
     {
       // noDefault = true;
-      systemDefault = false;
+      isSystemDefault = false;
     }
 
-  try
+  shared_ptr<IdentityCertificate> cert;
+
+  if (certFileName.find("http://") == 0)
     {
-      shared_ptr<IdentityCertificate> cert;
+      std::string host;
+      std::string port;
+      std::string path;
 
-      if(certFileName.find("http://") == 0)
+      size_t pos = 7; // offset of "http://"
+      size_t posSlash = certFileName.find("/", pos);
+
+      if (posSlash == std::string::npos)
+        throw HttpException("Request line is not correctly formatted");
+
+      size_t posPort = certFileName.find(":", pos);
+
+      if (posPort != std::string::npos && posPort < posSlash) // port is specified
         {
-          std::string host;
-          std::string port;
-          std::string path;
-
-          size_t pos = 7;
-          size_t posSlash = certFileName.find ("/", pos);
-
-          if (posSlash == std::string::npos)
-            throw HttpException("Request line is not correctly formatted");
-
-          size_t posPort = certFileName.find (":", pos);
-
-          if (posPort != std::string::npos && posPort < posSlash) // port is specified
-            {
-              port = certFileName.substr (posPort + 1, posSlash - posPort - 1);
-              host = certFileName.substr (pos, posPort-pos);
-            }
-          else
-            {
-              port = "80";
-              host = certFileName.substr (pos, posSlash-pos);
-            }
-
-          path = certFileName.substr (posSlash, certFileName.size () - posSlash);
-
-          cert = getCertificateHttp(host, port, path);
+          port = certFileName.substr(posPort + 1, posSlash - posPort - 1);
+          host = certFileName.substr(pos, posPort - pos);
         }
       else
         {
-          cert = getIdentityCertificate(certFileName);
+          port = "80";
+          host = certFileName.substr(pos, posSlash - pos);
         }
 
-      if(!static_cast<bool>(cert))
-        return 1;
+      path = certFileName.substr(posSlash, certFileName.size () - posSlash);
 
-      KeyChain keyChain;
-
-      if(systemDefault)
-        {
-          keyChain.addCertificateAsIdentityDefault(*cert);
-          Name keyName = cert->getPublicKeyName();
-          Name identity = keyName.getSubName(0, keyName.size()-1);
-          keyChain.setDefaultIdentity(identity);
-        }
-      else if(identityDefault)
-        {
-          keyChain.addCertificateAsIdentityDefault(*cert);
-        }
-      else if(keyDefault)
-        {
-          keyChain.addCertificateAsKeyDefault(*cert);
-        }
-      else
-        {
-          keyChain.addCertificate(*cert);
-        }
-
-      std::cerr << "OK: certificate with name [" << cert->getName().toUri() << "] has been successfully installed" << std::endl;
-
-      return 0;
+      cert = getCertificateHttp(host, port, path);
     }
-  catch(SecPublicInfo::Error& e)
+  else
     {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
+      cert = getIdentityCertificate(certFileName);
     }
-  catch(SecTpm::Error& e)
+
+  if (!static_cast<bool>(cert))
+    return 1;
+
+  KeyChain keyChain;
+
+  if (isSystemDefault)
     {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
+      keyChain.addCertificateAsIdentityDefault(*cert);
+      Name keyName = cert->getPublicKeyName();
+      Name identity = keyName.getSubName(0, keyName.size()-1);
+      keyChain.setDefaultIdentity(identity);
     }
-  catch(std::exception &e)
+  else if (isIdentityDefault)
     {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
+      keyChain.addCertificateAsIdentityDefault(*cert);
     }
-  catch(...)
+  else if (isKeyDefault)
     {
-      std::cerr << "ERROR: unknown error" << std::endl;
-      return 1;
+      keyChain.addCertificateAsKeyDefault(*cert);
     }
+  else
+    {
+      keyChain.addCertificate(*cert);
+    }
+
+  std::cerr << "OK: certificate with name ["
+            << cert->getName().toUri()
+            << "] has been successfully installed"
+            << std::endl;
+
+  return 0;
 }
 
 #endif //NDNSEC_CERT_INSTALL_HPP

@@ -10,8 +10,8 @@
 
 #include "ndnsec-util.hpp"
 
-int 
-ndnsec_sign_req(int argc, char** argv)	
+int
+ndnsec_sign_req(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
@@ -19,8 +19,8 @@ ndnsec_sign_req(int argc, char** argv)
   std::string name;
   bool isKeyName = false;
 
-  po::options_description desc("General Usage\n  ndnsec sign-req [-h] [-k] name\nGeneral options");
-  desc.add_options()
+  po::options_description description("General Usage\n  ndnsec sign-req [-h] [-k] name\nGeneral options");
+  description.add_options()
     ("help,h", "produce help message")
     ("key,k", "optional, if specified, name is keyName (e.g. /ndn/edu/ucla/alice/ksk-123456789), otherwise identity name")
     ("name,n", po::value<std::string>(&name), "name, for example, /ndn/edu/ucla/alice")
@@ -30,71 +30,51 @@ ndnsec_sign_req(int argc, char** argv)
   p.add("name", 1);
 
   po::variables_map vm;
-  try {
-    po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
-    po::notify(vm);
-  }
-  catch(const std::exception &e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    std::cerr << desc << std::endl;
-    return 1;
-  }
-
-  if (vm.count("help")) 
+  try
     {
-      std::cerr << desc << std::endl;
+      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+                vm);
+      po::notify(vm);
+    }
+  catch (const std::exception& e)
+    {
+      std::cerr << "ERROR: " << e.what() << std::endl;
+      std::cerr << description << std::endl;
+      return 1;
+    }
+
+  if (vm.count("help") != 0)
+    {
+      std::cerr << description << std::endl;
       return 0;
     }
 
-  if (0 == vm.count("name"))
+  if (vm.count("name") == 0)
     {
-      std::cerr << "identity_name must be specified" << std::endl;
-      std::cerr << desc << std::endl;
+      std::cerr << "ERROR: name must be specified" << std::endl;
+      std::cerr << description << std::endl;
       return 1;
     }
-  
-  if (vm.count("key"))
+
+  if (vm.count("key") != 0)
     isKeyName = true;
 
   shared_ptr<IdentityCertificate> selfSignCert;
 
-  try
+  KeyChain keyChain;
+
+  if (isKeyName)
     {
-      KeyChain keyChain;
-      
-      if(isKeyName)
-        {
-          selfSignCert = keyChain.selfSign(name);
-        }
-      else
-        {
-          Name keyName = keyChain.getDefaultKeyNameForIdentity(name);
-          selfSignCert = keyChain.selfSign(keyName);
-        }
+      selfSignCert = keyChain.selfSign(name);
     }
-  catch(SecPublicInfo::Error& e)
+  else
     {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
-    }
-  catch(SecTpm::Error& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
+      Name keyName = keyChain.getDefaultKeyNameForIdentity(name);
+      selfSignCert = keyChain.selfSign(keyName);
     }
 
-  try
-    {
-      using namespace CryptoPP;
-      StringSource ss(selfSignCert->wireEncode().wire(), selfSignCert->wireEncode().size(), true,
-                      new Base64Encoder(new FileSink(std::cout), true, 64));
-    }
-  catch(CryptoPP::Exception& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
-    }
-  
+  io::save(*selfSignCert, std::cout);
+
   return 0;
 }
 

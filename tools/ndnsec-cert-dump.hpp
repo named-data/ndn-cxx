@@ -11,7 +11,7 @@
 #include "ndnsec-util.hpp"
 
 int
-ndnsec_cert_dump(int argc, char** argv)	
+ndnsec_cert_dump(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
@@ -28,8 +28,8 @@ ndnsec_cert_dump(int argc, char** argv)
   std::string repoPort = "7376";
   // bool isDnsOut = false;
 
-  po::options_description desc("General Usage\n  ndnsec cert-dump [-h] [-p] [-d] [-r [-H repo-host] [-P repor-port] ] [-i|k|f] name\nGeneral options");
-  desc.add_options()
+  po::options_description description("General Usage\n  ndnsec cert-dump [-h] [-p] [-d] [-r [-H repo-host] [-P repor-port] ] [-i|k|f] name\nGeneral options");
+  description.add_options()
     ("help,h", "produce help message")
     ("pretty,p", "optional, if specified, display certificate in human readable format")
     ("identity,i", "optional, if specified, name is identity name (e.g. /ndn/edu/ucla/alice), otherwise certificate name")
@@ -44,49 +44,59 @@ ndnsec_cert_dump(int argc, char** argv)
 
   po::positional_options_description p;
   p.add("name", 1);
-  
-  po::variables_map vm;
-  po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
-  po::notify(vm);
 
-  if (vm.count("help")) 
+  po::variables_map vm;
+  try
     {
-      std::cerr << desc << std::endl;
+      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+                vm);
+      po::notify(vm);
+    }
+  catch (const std::exception& e)
+    {
+      std::cerr << "ERROR: " << e.what() << std::endl;
+      std::cerr << description << std::endl;
+      return 1;
+    }
+
+  if (vm.count("help") != 0)
+    {
+      std::cerr << description << std::endl;
       return 0;
     }
 
-  if (0 == vm.count("name"))
+  if (vm.count("name") == 0)
     {
       std::cerr << "identity_name must be specified" << std::endl;
-      std::cerr << desc << std::endl;
+      std::cerr << description << std::endl;
       return 1;
     }
-  
-  if (vm.count("key"))
+
+  if (vm.count("key") != 0)
     {
       isCertName = false;
       isKeyName = true;
     }
-  else if (vm.count("identity"))
+  else if (vm.count("identity") != 0)
     {
       isCertName = false;
       isIdentityName = true;
     }
-  else if (vm.count("file"))
+  else if (vm.count("file") != 0)
     {
       isCertName = false;
       // isFileName = true;
-    }    
-    
-  if (vm.count("pretty"))
+    }
+
+  if (vm.count("pretty") != 0)
     isPretty = true;
 
-  if (vm.count("repo-output"))
+  if (vm.count("repo-output") != 0)
     {
       isRepoOut = true;
       isStdOut = false;
     }
-  else if(vm.count("dns-output"))
+  else if (vm.count("dns-output") != 0)
     {
       // isDnsOut = true;
       isStdOut = false;
@@ -102,103 +112,64 @@ ndnsec_cert_dump(int argc, char** argv)
 
   shared_ptr<IdentityCertificate> certificate;
 
-  try
-    {
-      KeyChain keyChain;
+  KeyChain keyChain;
 
-      if(isIdentityName || isKeyName || isCertName)
+  if (isIdentityName || isKeyName || isCertName)
+    {
+      if (isIdentityName)
         {
-          if(isIdentityName)
-            {
-              Name certName = keyChain.getDefaultCertificateNameForIdentity(name);
-              certificate = keyChain.getCertificate(certName);
-            }
-          else if(isKeyName)
-            {
-              Name certName = keyChain.getDefaultCertificateNameForKey(name);
-              certificate = keyChain.getCertificate(certName);
-            }
-          else
-            certificate = keyChain.getCertificate(name);
-          
-          if(NULL == certificate)
-            {
-              std::cerr << "No certificate found!" << std::endl;
-              return 1;
-            }
+          Name certName = keyChain.getDefaultCertificateNameForIdentity(name);
+          certificate = keyChain.getCertificate(certName);
+        }
+      else if (isKeyName)
+        {
+          Name certName = keyChain.getDefaultCertificateNameForKey(name);
+          certificate = keyChain.getCertificate(certName);
         }
       else
+        certificate = keyChain.getCertificate(name);
+
+      if (!static_cast<bool>(certificate))
         {
-          certificate = getIdentityCertificate(name);
-          if(!static_cast<bool>(certificate))
-            {
-              std::cerr << "No certificate read!" << std::endl;
-              return 1;
-            }
+          std::cerr << "No certificate found!" << std::endl;
+          return 1;
         }
-    }
-  catch(SecPublicInfo::Error& e)
-    {
-      std::cerr << e.what() << std::endl;
-      return 1;
-    }
-  catch(SecTpm::Error& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
-    }
-      
-  if(isPretty)
-    {
-      std::cout << *certificate << std::endl;
-      // cout << "Certificate name: " << std::endl;
-      // cout << "  " << certificate->getName() << std::endl;
-      // cout << "Validity: " << std::endl;
-      // cout << "  NotBefore: " << boost::posix_time::to_simple_string(certificate->getNotBefore()) << std::endl;
-      // cout << "  NotAfter: " << boost::posix_time::to_simple_string(certificate->getNotAfter()) << std::endl;
-      // cout << "Subject Description: " << std::endl;
-      // const vector<CertificateSubjectDescription>& SubDescriptionList = certificate->getSubjectDescriptionList();
-      // vector<CertificateSubjectDescription>::const_iterator it = SubDescriptionList.begin();
-      // for(; it != SubDescriptionList.end(); it++)
-      //   cout << "  " << it->getOidStr() << ": " << it->getValue() << std::endl;
-      // cout << "Public key bits: " << std::endl;
-      // const Blob& keyBlob = certificate->getPublicKeygetKeyBlob();
-      // std::string encoded;
-      // CryptoPP::StringSource ss(reinterpret_cast<const unsigned char *>(keyBlob.buf()), keyBlob.size(), true,
-      //                           new CryptoPP::Base64Encoder(new CryptoPP::StringSink(encoded), true, 64));
-      // cout << encoded;        
     }
   else
     {
-      if(isStdOut)
+      certificate = getIdentityCertificate(name);
+      if (!static_cast<bool>(certificate))
         {
-          try
-            {
-              using namespace CryptoPP;
-              StringSource ss(certificate->wireEncode().wire(), certificate->wireEncode().size(), true,
-                              new Base64Encoder(new FileSink(std::cout), true, 64));
-              return 0;
-            }
-          catch(CryptoPP::Exception& e)
-            {
-              std::cerr << e.what() << std::endl;
-              return 1;
-            }
+          std::cerr << "No certificate read!" << std::endl;
+          return 1;
         }
-      if(isRepoOut)
+    }
+
+  if (isPretty)
+    {
+      std::cout << *certificate << std::endl;
+    }
+  else
+    {
+      if (isStdOut)
+        {
+          io::save(*certificate, std::cout);
+          return 0;
+        }
+      if (isRepoOut)
         {
           using namespace boost::asio::ip;
           tcp::iostream request_stream;
-#if (BOOST_VERSION >= 104700)
           request_stream.expires_from_now(boost::posix_time::milliseconds(3000));
-#endif
-          request_stream.connect(repoHost,repoPort);
-          if(!request_stream)
+          request_stream.connect(repoHost, repoPort);
+          if (!request_stream)
             {
               std::cerr << "fail to open the stream!" << std::endl;
               return 1;
             }
-          request_stream.write(reinterpret_cast<const char*>(certificate->wireEncode().wire()), certificate->wireEncode().size());
+          request_stream.write(reinterpret_cast<const char*>(certificate->wireEncode().wire()),
+                               certificate->wireEncode().size());
+
           return 0;
         }
     }

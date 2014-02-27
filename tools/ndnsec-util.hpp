@@ -31,27 +31,27 @@
 bool
 getPassword(std::string& password, const std::string& prompt)
 {
-  int result = false;
+  bool isReady = false;
 
-  char* pw0 = NULL;
+  char* pw0 = 0;
   
   pw0 = getpass(prompt.c_str());
-  if(!pw0) 
+  if (!pw0) 
     return false;
   std::string password1 = pw0;
   memset(pw0, 0, strlen(pw0));
 
   pw0 = getpass("Confirm:");
-  if(!pw0)
+  if (!pw0)
     {
       char* pw1 = const_cast<char*>(password1.c_str());
       memset(pw1, 0, password1.size());
       return false;
     }
 
-  if(!password1.compare(pw0))
+  if (!password1.compare(pw0))
     {
-      result = true;
+      isReady = true;
       password.swap(password1);
     }
 
@@ -59,17 +59,17 @@ getPassword(std::string& password, const std::string& prompt)
   memset(pw1, 0, password1.size());
   memset(pw0, 0, strlen(pw0));
 
-  if(password.empty())
+  if (password.empty())
     return false;
 
-  return result;
+  return isReady;
 }
 
 ndn::shared_ptr<ndn::IdentityCertificate>
 getIdentityCertificate(const std::string& fileName)
 {
 
-  if(fileName == "-")
+  if (fileName == "-")
     return ndn::io::load<ndn::IdentityCertificate>(std::cin);
   else
     return ndn::io::load<ndn::IdentityCertificate>(fileName);

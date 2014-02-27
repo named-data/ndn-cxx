@@ -10,18 +10,18 @@
 
 #include "ndnsec-util.hpp"
 
-int 
+int
 ndnsec_import(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
 
-  std::string input; 
+  std::string input("-");
   std::string importPassword;
-  bool privateImport = false;
+  bool isPrivateImport = false;
 
-  po::options_description desc("General Usage\n  ndnsec import [-h] [-p] input \nGeneral options");
-  desc.add_options()
+  po::options_description description("General Usage\n  ndnsec import [-h] [-p] input \nGeneral options");
+  description.add_options()
     ("help,h", "produce help message")
     ("private,p", "import info contains private key")
     ("input,i", po::value<std::string>(&input), "input source, stdin if -")
@@ -33,27 +33,30 @@ ndnsec_import(int argc, char** argv)
   po::variables_map vm;
   try
     {
-      po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+                vm);
       po::notify(vm);
     }
-  catch (std::exception &e)
+  catch (const std::exception& e)
     {
       std::cerr << "ERROR: " << e.what() << std::endl;
+      std::cerr << description << std::endl;
       return 1;
     }
 
-  if (vm.count("help"))
+  if (vm.count("help") != 0)
     {
-      std::cerr << desc << std::endl;
+      std::cerr << description << std::endl;
       return 0;
     }
 
-  if (vm.count("private"))
-    privateImport = true;
+  if (vm.count("private") != 0)
+    isPrivateImport = true;
 
-  if(!privateImport)
+  if (!isPrivateImport)
     {
-      std::cerr << "You are trying to import certificate!\nPlease use ndnsec cert-install!" << std::endl;
+      std::cerr << "You are trying to import certificate!\n"
+                << "Please use ndnsec cert-install!" << std::endl;
       return 1;
     }
   else
@@ -63,16 +66,16 @@ ndnsec_import(int argc, char** argv)
           KeyChain keyChain;
 
           shared_ptr<SecuredBag> securedBag;
-          if(input == "-")
+          if (input == "-")
             securedBag = io::load<SecuredBag>(std::cin);
           else
             securedBag = io::load<SecuredBag>(input);
-      
+
           int count = 3;
-          while(!getPassword(importPassword, "Passphrase for the private key: "))
+          while (!getPassword(importPassword, "Passphrase for the private key: "))
             {
               count--;
-              if(count <= 0)
+              if (count <= 0)
                 {
                   std::cerr << "ERROR: Fail to get password" << std::endl;
                   memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
@@ -82,19 +85,7 @@ ndnsec_import(int argc, char** argv)
           keyChain.importIdentity(*securedBag, importPassword);
           memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
         }
-      catch(io::Error& e)
-        {
-          std::cerr << "ERROR: " << e.what() << std::endl;
-          memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-          return 1;
-        }
-      catch(SecPublicInfo::Error& e)
-        {
-          std::cerr << "ERROR: " << e.what() << std::endl;
-          memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-          return 1;
-        }
-      catch(SecTpm::Error& e)
+      catch (const std::runtime_error& e)
         {
           std::cerr << "ERROR: " << e.what() << std::endl;
           memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());

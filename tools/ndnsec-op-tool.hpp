@@ -19,75 +19,60 @@ ndnsec_op_tool(int argc, char** argv)
   namespace po = boost::program_options;
 
   std::string command;
-  
-  po::options_description desc("General options");
-  desc.add_options()
+
+  po::options_description description("General options");
+  description.add_options()
     ("help,h", "produce this help message")
     ("command", po::value<std::string>(&command), "command")
     ;
 
   po::positional_options_description p;
   p.add("command", 1);
-  
+
   po::variables_map vm;
   try
     {
-      po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+                vm);
       po::notify(vm);
     }
-  catch(std::exception &e)
+  catch (const std::exception& e)
     {
       std::cerr << "ERROR: " << e.what() << std::endl;
+      std::cerr << description << std::endl;
       return -1;
     }
-    
-  if (vm.count("help"))
+
+  if (vm.count("help") != 0)
     {
-      std::cerr << desc << std::endl;
+      std::cerr << description << std::endl;
       return 0;
     }
-  
-  if (0 == vm.count("command"))
+
+  if (vm.count("command") == 0)
     {
       std::cerr << "command must be specified" << std::endl;
-      std::cerr << desc << std::endl;
+      std::cerr << description << std::endl;
       return 1;
     }
 
   if (command == "sign") // the content to be signed from stdin
     {
-      try
+      KeyChain keyChain;
+
+      Buffer dataToSign((istreambuf_iterator<char>(cin)), istreambuf_iterator<char>());
+
+      Signature signature = keyChain.sign(dataToSign.buf(), dataToSign.size(),
+                                          keyChain.getDefaultCertificateName());
+
+      if (signature.getValue().value_size() == 0)
         {
-          KeyChain keyChain;
-
-          Buffer dataToSign((istreambuf_iterator<char>(cin)), istreambuf_iterator<char>());
-          
-          Signature signature = keyChain.sign(dataToSign.buf(), dataToSign.size(),
-                                              keyChain.getDefaultCertificateName());
-
-          if (signature.getValue().value_size() == 0)
-            {
-              std::cerr << "Error signing with default key" << std::endl;
-              return -1;
-            }
-
-          std::cout.write(reinterpret_cast<const char*>(signature.getValue().wire()), signature.getValue().size());
-        }
-      catch (boost::exception& e)
-        {
-          std::cerr << "ERROR: " << boost::diagnostic_information (e) << std::endl;
+          std::cerr << "Error signing with default key" << std::endl;
           return -1;
         }
-      catch (SecTpm::Error& e)
-        {
-          std::cerr << "ERROR: " << e.what() << std::endl;
-          return -1;
-        }
-      catch (SecPublicInfo::Error& e)
-        {
-          std::cerr << "ERROR: " << e.what() << std::endl;
-          return -1;
-        }
+
+      std::cout.write(reinterpret_cast<const char*>(signature.getValue().wire()),
+                      signature.getValue().size());
     }
 
   return 0;

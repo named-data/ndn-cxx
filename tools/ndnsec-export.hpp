@@ -10,7 +10,7 @@
 
 #include "ndnsec-util.hpp"
 
-int 
+int
 ndnsec_export(int argc, char** argv)
 {
   using namespace ndn;
@@ -19,10 +19,10 @@ ndnsec_export(int argc, char** argv)
   std::string identityStr;
   std::string output;
   std::string exportPassword;
-  bool privateExport = false;
+  bool isPrivateExport = false;
 
-  po::options_description desc("General Usage\n  ndnsec export [-h] [-o output] [-p] identity \nGeneral options");
-  desc.add_options()
+  po::options_description description("General Usage\n  ndnsec export [-h] [-o output] [-p] identity \nGeneral options");
+  description.add_options()
     ("help,h", "Produce help message")
     ("output,o", po::value<std::string>(&output), "(Optional) output file, stdout if not specified")
     ("private,p", "export info contains private key")
@@ -35,56 +35,49 @@ ndnsec_export(int argc, char** argv)
   po::variables_map vm;
   try
     {
-      po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+                vm);
       po::notify(vm);
     }
-  catch (std::exception &e)
+  catch (const std::exception& e)
     {
       std::cerr << "ERROR: " << e.what() << std::endl;
+      std::cerr << description << std::endl;
       return 1;
     }
 
-  if (vm.count("help"))
+  if (vm.count("help") != 0)
     {
-      std::cerr << desc << std::endl;
+      std::cerr << description << std::endl;
       return 0;
     }
 
-  if (vm.count("private"))
-    privateExport = true;
+  if (vm.count("identity") == 0)
+    {
+      std::cerr << "ERROR: identity must be specified" << std::endl;
+      std::cerr << description << std::endl;
+      return 1;
+    }
 
-  if (!vm.count("output"))
+  if (vm.count("private") != 0)
+    isPrivateExport = true;
+
+  if (vm.count("output") == 0)
     output = "-";
 
   Name identity(identityStr);
-  if(!privateExport)
+  if (!isPrivateExport)
     {
-      try
-        {
-          KeyChain keyChain;
-          shared_ptr<IdentityCertificate> cert = keyChain.getCertificate(keyChain.getDefaultCertificateNameForIdentity(identity));          
-          if(output == "-")
-            io::save(*cert, std::cout);
-          else
-            io::save(*cert, output);
-            
-          return 0;
-        }
-      catch(SecPublicInfo::Error& e)
-        {
-          std::cerr << "ERROR: " << e.what() << std::endl;
-          return 1;
-        }
-      catch(SecTpm::Error& e)
-        {
-          std::cerr << "ERROR: " << e.what() << std::endl;
-          return 1;
-        }
-      catch(io::Error& e)
-        {
-          std::cerr << "ERROR: " << e.what() << std::endl;
-          return 1;
-        }
+      KeyChain keyChain;
+      shared_ptr<IdentityCertificate> cert
+        = keyChain.getCertificate(keyChain.getDefaultCertificateNameForIdentity(identity));
+
+      if (output == "-")
+        io::save(*cert, std::cout);
+      else
+        io::save(*cert, output);
+
+      return 0;
     }
   else
     {
@@ -94,10 +87,10 @@ ndnsec_export(int argc, char** argv)
           KeyChain keyChain;
 
           int count = 3;
-          while(!getPassword(exportPassword, "Passphrase for the private key: "))
+          while (!getPassword(exportPassword, "Passphrase for the private key: "))
             {
               count--;
-              if(count <= 0)
+              if (count <= 0)
                 {
                   std::cerr << "ERROR: invalid password" << std::endl;
                   memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
@@ -106,27 +99,15 @@ ndnsec_export(int argc, char** argv)
             }
           shared_ptr<SecuredBag> securedBag = keyChain.exportIdentity(identity, exportPassword);
           memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
-          
-          if(output == "-")
+
+          if (output == "-")
             io::save(*securedBag, std::cout);
           else
             io::save(*securedBag, output);
 
           return 0;
         }
-      catch(io::Error& e)
-        {
-          std::cerr << "ERROR: " << e.what() << std::endl;
-          memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
-          return 1;
-        }
-      catch(SecPublicInfo::Error& e)
-        {
-          std::cerr << "ERROR: " << e.what() << std::endl;
-          memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
-          return 1;
-        }
-      catch(SecTpm::Error& e)
+      catch (const std::runtime_error& e)
         {
           std::cerr << "ERROR: " << e.what() << std::endl;
           memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());

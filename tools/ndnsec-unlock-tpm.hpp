@@ -16,48 +16,43 @@ ndnsec_unlock_tpm(int argc, char** argv)
   using namespace ndn;
   namespace po = boost::program_options;
 
-  std::string keyName; 
-  std::string appPath;
+  std::string keyName;
 
-  po::options_description desc("General Usage\n  ndnsec unlock-tpm [-h] \nGeneral options");
-  desc.add_options()
+  po::options_description description("General Usage\n  ndnsec unlock-tpm [-h] \nGeneral options");
+  description.add_options()
     ("help,h", "produce help message")
     ;
 
   po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
 
-  if (vm.count("help"))
-    {
-      std::cerr << desc << std::endl;
-      return 0;
-    }
-  
-  bool res = false;
-  
   try
     {
-      KeyChain keyChain;
-      
-      char* password;
-      password = getpass("Password to unlock the TPM: ");
-      res = keyChain.unlockTpm(password, strlen(password), true);
-      memset(password, 0, strlen(password));
-
+      po::store(po::parse_command_line(argc, argv, description), vm);
+      po::notify(vm);
     }
-  catch(const SecPublicInfo::Error& e)
+  catch (const std::exception& e)
     {
       std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
-    }
-  catch(const SecTpm::Error& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
+      std::cerr << description << std::endl;
       return 1;
     }
 
-  if(res)
+  if (vm.count("help") != 0)
+    {
+      std::cerr << description << std::endl;
+      return 0;
+    }
+
+  bool isUnlocked = false;
+
+  KeyChain keyChain;
+
+  char* password;
+  password = getpass("Password to unlock the TPM: ");
+  isUnlocked = keyChain.unlockTpm(password, strlen(password), true);
+  memset(password, 0, strlen(password));
+
+  if (isUnlocked)
     {
       std::cerr << "OK: TPM is unlocked" << std::endl;
       return 0;

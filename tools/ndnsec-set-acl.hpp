@@ -16,11 +16,11 @@ ndnsec_set_acl(int argc, char** argv)
   using namespace ndn;
   namespace po = boost::program_options;
 
-  std::string keyName; 
+  std::string keyName;
   std::string appPath;
 
-  po::options_description desc("General Usage\n  ndnsec set-acl [-h] keyName appPath \nGeneral options");
-  desc.add_options()
+  po::options_description description("General Usage\n  ndnsec set-acl [-h] keyName appPath \nGeneral options");
+  description.add_options()
     ("help,h", "produce help message")
     ("keyName,k", po::value<std::string>(&keyName), "Key name.")
     ("appPath,p", po::value<std::string>(&appPath), "Application path.")
@@ -33,39 +33,39 @@ ndnsec_set_acl(int argc, char** argv)
   po::variables_map vm;
   try
     {
-      po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+                vm);
       po::notify(vm);
     }
-  catch (std::exception &e)
+  catch (std::exception& e)
     {
       std::cerr << "ERROR: " << e.what() << std::endl;
       return 1;
     }
 
-  if (vm.count("help"))
+  if (vm.count("help") != 0)
     {
-      std::cerr << desc << std::endl;
+      std::cerr << description << std::endl;
       return 0;
     }
 
-  try
+  if (vm.count("keyName") == 0)
     {
-      KeyChain keyChain;
-      keyChain.addAppToACL(keyName, KEY_CLASS_PRIVATE, appPath, ACL_TYPE_PRIVATE);
-
-    }
-  catch(const SecTpm::Error& e)
-    {
-      std::cerr << e.what() << std::endl;
-      return 1;
-    }
-  catch(const SecPublicInfo::Error& e)
-    {
-      std::cerr << e.what() << std::endl;
+      std::cerr << "ERROR: keyName is required!" << std::endl;
+      std::cerr << description << std::endl;
       return 1;
     }
 
-  
+  if (vm.count("appPath") == 0)
+    {
+      std::cerr << "ERROR: appPath is required!" << std::endl;
+      std::cerr << description << std::endl;
+      return 1;
+    }
+
+  KeyChain keyChain;
+  keyChain.addAppToACL(keyName, KEY_CLASS_PRIVATE, appPath, ACL_TYPE_PRIVATE);
+
   return 0;
 }
 
