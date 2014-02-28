@@ -14,7 +14,7 @@
 
 #include "../util/logging.hpp"
 
-INIT_LOGGER ("SecRuleRelative");
+INIT_LOGGER ("ndn.SecRuleRelative");
 
 using namespace std;
 

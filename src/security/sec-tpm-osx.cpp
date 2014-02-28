@@ -26,7 +26,7 @@
 
 using namespace std;
 
-INIT_LOGGER("SecTpmOsx");
+INIT_LOGGER("ndn.SecTpmOsx");
 
 namespace ndn {
 

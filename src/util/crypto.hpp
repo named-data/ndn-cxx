@@ -1,6 +1,5 @@
 /**
  * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
@@ -8,9 +7,7 @@
 #define NDN_UTIL_CRYPTO_HPP
 
 #include "../common.hpp"
-
-#include <openssl/ssl.h>
-#include <openssl/rsa.h>
+#include "../encoding/buffer.hpp"
 
 namespace ndn {
 
@@ -21,6 +18,21 @@ namespace ndn {
  * @param digest A pointer to a buffer of size SHA256_DIGEST_LENGTH to receive the data.
  */
 void ndn_digestSha256(const uint8_t *data, size_t dataLength, uint8_t *digest);
+
+namespace crypto {
+
+static size_t SHA256_DIGEST_LENGTH = 32;
+
+/**
+ * Compute the sha-256 digest of data.
+ * @param data Pointer to the input byte array.
+ * @param dataLength The length of data.
+ * @return A pointer to a buffer of SHA256_DIGEST.
+ */
+ConstBufferPtr
+sha256(const uint8_t *data, size_t dataLength);
+
+} // namespace crypto
 
 } // namespace ndn
 

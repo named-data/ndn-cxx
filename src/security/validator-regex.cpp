@@ -13,7 +13,7 @@
 
 #include "../util/logging.hpp"
 
-INIT_LOGGER("ndn::ValidatorRegex");
+INIT_LOGGER("ndn.ValidatorRegex");
 
 using namespace std;
 

@@ -19,7 +19,7 @@
 
 #include "../encoding/cryptopp/asn_ext.hpp"
 
-INIT_LOGGER("ndn.security.Certificate");
+INIT_LOGGER("ndn.Certificate");
 
 using namespace std;
 

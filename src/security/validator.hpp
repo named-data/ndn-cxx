@@ -15,6 +15,7 @@
 #include "../face.hpp"
 #include "public-key.hpp"
 #include "signature-sha256-with-rsa.hpp"
+#include "signature-sha256.hpp"
 #include "validation-request.hpp"
 
 namespace ndn {
@@ -59,15 +60,15 @@ public:
 
   /// @brief Verify the data using the publicKey.
   static bool
-  verifySignature (const Data &data, const PublicKey &publicKey);
+  verifySignature (const Data& data, const PublicKey& publicKey);
 
   /// @brief Verify the signed Interest using the publicKey.
   static bool
-  verifySignature (const Interest &interest, const PublicKey &publicKey);
+  verifySignature (const Interest& interest, const PublicKey& publicKey);
 
   /// @brief Verify the blob using the publicKey against the signature.
   static bool
-  verifySignature (const Buffer &blob, const Signature &sig, const PublicKey &publicKey);
+  verifySignature (const Buffer& blob, const Signature& sig, const PublicKey& publicKey);
 
   /// @brief Verify the data using the publicKey against the SHA256-RSA signature.
   static bool
@@ -78,12 +79,30 @@ public:
 
   /// @brief Verify the blob using the publicKey against the SHA256-RSA signature.
   static bool
-  verifySignature (const Buffer &blob, const SignatureSha256WithRsa &sig, const PublicKey &publicKey)
+  verifySignature (const Buffer& blob, const SignatureSha256WithRsa& sig, const PublicKey& publicKey)
   { return verifySignature (blob.buf(), blob.size(), sig, publicKey); }
   
   /// @brief Verify the blob using the publicKey against the SHA256-RSA signature.
   static bool
   verifySignature (const uint8_t* buf, const size_t size, const SignatureSha256WithRsa &sig, const PublicKey &publicKey);
+
+
+  /// @brief Verify the data against the SHA256 signature.
+  static bool
+  verifySignature (const Data& data, const SignatureSha256& sig)
+  { return verifySignature (data.wireEncode().value(), 
+                            data.wireEncode().value_size() - data.getSignature().getValue().size(), 
+                            sig); }
+
+  /// @brief Verify the blob against the SHA256 signature.
+  static bool
+  verifySignature (const Buffer& blob, const SignatureSha256& sig)
+  { return verifySignature (blob.buf(), blob.size(), sig); }
+  
+  /// @brief Verify the blob against the SHA256 signature.
+  static bool
+  verifySignature (const uint8_t* buf, const size_t size, const SignatureSha256& sig);
+
 
 protected:
   /**

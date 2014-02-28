@@ -10,10 +10,6 @@
 #include "regex-backref-manager.hpp"
 #include "regex-pattern-list-matcher.hpp"
 
-// #include "../logging.hpp"
-
-// INIT_LOGGER ("RegexTopMatcher");
-
 namespace ndn {
 
 RegexTopMatcher::RegexTopMatcher(const std::string& expr, const std::string& expand)
@@ -21,13 +17,9 @@ RegexTopMatcher::RegexTopMatcher(const std::string& expr, const std::string& exp
     m_expand(expand),
     m_secondaryUsed(false)
 {
-  // _LOG_TRACE ("Enter RegexTopMatcher Constructor");
-
   m_primaryBackRefManager = make_shared<RegexBackrefManager>();
   m_secondaryBackRefManager = make_shared<RegexBackrefManager>();
   compile();
-
-  // _LOG_TRACE ("Exit RegexTopMatcher Constructor");
 }
 
 RegexTopMatcher::~RegexTopMatcher()
@@ -38,8 +30,6 @@ RegexTopMatcher::~RegexTopMatcher()
 void 
 RegexTopMatcher::compile()
 {
-  // _LOG_TRACE ("Enter RegexTopMatcher::compile");
-
   std::string errMsg = "Error: RegexTopMatcher.Compile(): ";
 
   std::string expr = m_expr;
@@ -55,19 +45,13 @@ RegexTopMatcher::compile()
   else
     expr = expr.substr(1, expr.size()-1);
 
-  // _LOG_DEBUG ("reconstructed expr: " << expr);
-
   m_primaryMatcher = make_shared<RegexPatternListMatcher>(boost::cref(expr),
                                                           boost::cref(m_primaryBackRefManager));
-
-  // _LOG_TRACE ("Exit RegexTopMatcher::compile");
 }
 
 bool 
 RegexTopMatcher::match(const Name & name)
 {
-  // _LOG_DEBUG("Enter RegexTopMatcher::match");
-
   m_secondaryUsed = false;
 
   m_matchResult.clear();
@@ -98,8 +82,6 @@ RegexTopMatcher::match (const Name & name, const int & offset, const int & len)
 Name 
 RegexTopMatcher::expand (const std::string& expandStr)
 {
-  // _LOG_TRACE("Enter RegexTopMatcher::expand");
-
   Name result;
     
   shared_ptr<RegexBackrefManager> backRefManager = (m_secondaryUsed ? m_secondaryBackRefManager : m_primaryBackRefManager);
@@ -149,7 +131,6 @@ RegexTopMatcher::expand (const std::string& expandStr)
 std::string
 RegexTopMatcher::getItemFromExpand(const std::string& expand, int & offset)
 {
-  // _LOG_TRACE("Enter RegexTopMatcher::getItemFromExpand ");
   int begin = offset;
 
   if(expand[offset] == '\\')

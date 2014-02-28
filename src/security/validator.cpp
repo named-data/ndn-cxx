@@ -10,12 +10,16 @@
 
 #include "validator.hpp"
 #include "../util/logging.hpp"
+#include "../util/crypto.hpp"
 
 #include <cryptopp/rsa.h>
+#include <cryptopp/files.h>
+#include <cryptopp/hex.h>
+
 
 using namespace std;
 
-INIT_LOGGER("ndn::Validator");
+INIT_LOGGER("ndn.Validator");
 
 namespace ndn {
 
@@ -137,7 +141,7 @@ Validator::verifySignature(const Data& data, const PublicKey& key)
 }
 
 bool
-Validator::verifySignature(const Interest &interest, const PublicKey &key)
+Validator::verifySignature(const Interest& interest, const PublicKey& key)
 {
   const Name &interestName = interest.getName();
 
@@ -181,7 +185,7 @@ Validator::verifySignature(const Interest &interest, const PublicKey &key)
 }
 
 bool
-Validator::verifySignature(const Buffer &data, const Signature &sig, const PublicKey &key)
+Validator::verifySignature(const Buffer& data, const Signature& sig, const PublicKey& key)
 {
   try
     {
@@ -207,7 +211,7 @@ Validator::verifySignature(const Buffer &data, const Signature &sig, const Publi
 }
 
 bool
-Validator::verifySignature(const uint8_t* buf, const size_t size, const SignatureSha256WithRsa &sig, const PublicKey &key)
+Validator::verifySignature(const uint8_t* buf, const size_t size, const SignatureSha256WithRsa& sig, const PublicKey& key)
 {
   try
     {
@@ -221,6 +225,37 @@ Validator::verifySignature(const uint8_t* buf, const size_t size, const Signatur
 
       RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
       return verifier.VerifyMessage(buf, size, sig.getValue().value(), sig.getValue().value_size());
+    }
+  catch(CryptoPP::Exception& e)
+    {
+      _LOG_DEBUG("verifySignature: " << e.what());
+      return false;
+    }
+}
+
+bool
+Validator::verifySignature(const uint8_t* buf, const size_t size, const SignatureSha256& sig)
+{
+  try
+    {
+      ConstBufferPtr buffer = crypto::sha256(buf, size);
+      const Block& sigValue = sig.getValue();
+
+      if(static_cast<bool>(buffer) 
+         && buffer->size() == sigValue.value_size()
+         && buffer->size() == crypto::SHA256_DIGEST_LENGTH)
+        {
+
+          const uint8_t* p1 = buffer->buf();
+          const uint8_t* p2 = sigValue.value();
+
+          for(int i = 0; i < crypto::SHA256_DIGEST_LENGTH; i++)
+            if(p1[i] != p2[i]) 
+              return false;
+          return true;
+        }
+      else
+        return false;
     }
   catch(CryptoPP::Exception& e)
     {

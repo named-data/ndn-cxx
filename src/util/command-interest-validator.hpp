@@ -116,7 +116,7 @@ CommandInterestValidator::checkPolicy (const Interest& interest,
     }
   if(inScope == false)
     return onValidationFailed(interest.shared_from_this(), 
-                              "Signer cannot be authorized for the command: " + interest.getName().toUri());
+                              "Signer cannot be authorized for the command: " + keyName.toUri());
 
   //Check if timestamp is valid
   uint64_t timestamp = interestName.get(POS_TIMESTAMP).toNumber();

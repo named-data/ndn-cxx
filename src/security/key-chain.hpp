@@ -12,9 +12,11 @@
 #include "identity-certificate.hpp"
 #include "public-key.hpp"
 #include "signature-sha256-with-rsa.hpp"
+#include "signature-sha256.hpp"
 #include "secured-bag.hpp"
 #include "../interest.hpp"
 #include "../util/random.hpp"
+#include "../util/crypto.hpp"
 
 //PublicInfo
 #include "sec-public-info-sqlite3.hpp"
@@ -288,7 +290,7 @@ public:
     // We either get or create the signing certificate, sign packet! (no exception unless fatal error in TPM)
     sign(packet, signingCertificateName);
   }
-
+  
   /**
    * @brief Sign the byte array using the default certificate of a particular identity.
    *
@@ -313,6 +315,24 @@ public:
     
     // We either get or create the signing certificate, sign data! (no exception unless fatal error in TPM)
     return sign(buffer, bufferLength, signingCertificateName);
+  }
+
+  /**
+   * @brief Set Sha256 weak signature.
+   *
+   * @param data.
+   */
+  void
+  signWithSha256(Data& data)
+  {
+    SignatureSha256 sig;
+    data.setSignature(sig);
+
+    Block sigValue(Tlv::SignatureValue, 
+                   crypto::sha256(data.wireEncode().value(), 
+                                  data.wireEncode().value_size() - data.getSignature().getValue().size()));
+    data.setSignatureValue(sigValue);
+
   }
 
   /**

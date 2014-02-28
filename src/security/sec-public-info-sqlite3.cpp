@@ -26,7 +26,7 @@
 
 
 
-INIT_LOGGER("BasicKeyMetaInfo");
+INIT_LOGGER("ndn.SecPublicInfoSqlite3");
 
 using namespace std;
 
