@@ -228,15 +228,15 @@ def add_supported_cxxflags(self, cxxflags):
 
 # doxygen docs
 from waflib.Build import BuildContext
-class doxy (BuildContext):
+class doxy(BuildContext):
     cmd = "doxygen"
     fun = "doxygen"
 
-def doxygen (bld):
+def doxygen(bld):
     if not bld.env.DOXYGEN:
-        bld.fatal ("ERROR: cannot build documentation (`doxygen' is not found in $PATH)")
-    bld (features="doxygen",
-         doxyfile='Doxyfile')
+        bld.fatal("ERROR: cannot build documentation (`doxygen' is not found in $PATH)")
+    bld(features="doxygen",
+        doxyfile='docs/doxygen.conf')
 
 # doxygen docs
 from waflib.Build import BuildContext
