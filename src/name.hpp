@@ -346,10 +346,21 @@ public:
   {
     return get(i);
   }
-  
+
+  /**
+   * @brief Get component at the specified index
+   *
+   * Unlike get() and operator[] methods, at() checks for out of bounds
+   * and will throw Name::Error when it happens
+   *
+   * @throws Name::Error if index out of bounds
+   */
   const Component&
   at(ssize_t i) const
   {
+    if ((i >= 0 && i >= size()) || (i < 0 && i < -size()))
+      throw Error("Requested component does not exist (out of bounds)");
+
     return get(i);
   }
 

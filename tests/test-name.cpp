@@ -32,7 +32,20 @@ const uint8_t Name2[] = {0x7,  0xc, // Name
                              0x6e,  0x64,  0x6e};
 
 
-BOOST_AUTO_TEST_CASE (Encode)
+BOOST_AUTO_TEST_CASE(Basic)
+{
+  Name name("/hello/world");
+
+  BOOST_CHECK_NO_THROW(name.at(0));
+  BOOST_CHECK_NO_THROW(name.at(1));
+  BOOST_CHECK_NO_THROW(name.at(-1));
+  BOOST_CHECK_NO_THROW(name.at(-2));
+
+  BOOST_CHECK_THROW(name.at(2), Name::Error);
+  BOOST_CHECK_THROW(name.at(-3), Name::Error);
+}
+
+BOOST_AUTO_TEST_CASE(Encode)
 {
   Name name("/local/ndn/prefix");
 
@@ -57,7 +70,7 @@ BOOST_AUTO_TEST_CASE (Encode)
 }
 
 
-BOOST_AUTO_TEST_CASE (Decode)
+BOOST_AUTO_TEST_CASE(Decode)
 {
   Block block(TestName, sizeof(TestName));
 
@@ -66,7 +79,7 @@ BOOST_AUTO_TEST_CASE (Decode)
   BOOST_CHECK_EQUAL(name.toUri(), "/local/ndn/prefix");
 }
 
-BOOST_AUTO_TEST_CASE (AppendsAndMultiEncode)
+BOOST_AUTO_TEST_CASE(AppendsAndMultiEncode)
 {
   Name name("/local");
   
