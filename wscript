@@ -20,8 +20,6 @@ def options(opt):
 
     opt.add_option('--with-c++11', action='store_true', default=False, dest='use_cxx11',
                    help='''Use C++11 features, even if available in the compiler''')
-    opt.add_option('--without-system-boost', action='store_false', default=True, dest='use_system_boost',
-                   help='''Use system's boost libraries''')
     opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
                    help='''Do not build tools''')
 
@@ -97,18 +95,17 @@ def configure(conf):
         conf.check(msg='Checking for type std::function',
                    type_name="std::function<void()>", header_name="functional", define_name='HAVE_STD_FUNCTION')
         conf.define('HAVE_CXX11', 1)
-    else:
-        if conf.options.use_system_boost:
-            USED_BOOST_LIBS = 'system filesystem date_time iostreams regex program_options'
-            if conf.env['WITH_TESTS']:
-                USED_BOOST_LIBS += " unit_test_framework"
+        
+    USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams', 'regex', 'program_options', 'chrono']
+    if conf.env['WITH_TESTS']:
+        USED_BOOST_LIBS += ['unit_test_framework']
 
-            conf.check_boost(lib=USED_BOOST_LIBS)
-
-            boost_version = conf.env.BOOST_VERSION.split('_')
-            if int(boost_version[0]) > 1 or (int(boost_version[0]) == 1 and int(boost_version[1]) >= 46):
-                conf.env['USE_SYSTEM_BOOST'] = True
-                conf.define('USE_SYSTEM_BOOST', 1)
+    conf.check_boost(lib=USED_BOOST_LIBS, mandatory=True)
+    if conf.env.BOOST_VERSION_NUMBER < 104800:
+        Logs.error ("Minimum required boost version is 1.48.0")
+        Logs.error ("Please upgrade your distribution or install custom boost libraries" +
+                    " (http://redmine.named-data.net/projects/nfd/wiki/Boost_FAQ)")
+        return
 
     conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
