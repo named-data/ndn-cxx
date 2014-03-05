@@ -20,7 +20,7 @@ void ndn_digestSha256(const uint8_t *data, size_t dataLength, uint8_t *digest)
       
       CryptoPP::SHA256 hash;
       OBufferStream os;
-      StringSource(data, dataLength, true, new HashFilter(hash, new ArraySink(digest, crypto::SHA256_DIGEST_LENGTH)));
+      StringSource(data, dataLength, true, new HashFilter(hash, new ArraySink(digest, crypto::SHA256_DIGEST_SIZE)));
     }
   catch(CryptoPP::Exception& e)
     {
