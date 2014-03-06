@@ -92,6 +92,13 @@ protected:
   std::vector<name::Component> m_matchResult;
 };
 
+inline std::ostream&
+operator<<(std::ostream& os, const RegexMatcher& regex)
+{
+  os << regex.getExpr();
+  return os;
+}
+
 } // namespace ndn
 
 #include "regex-backref-manager.hpp"

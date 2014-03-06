@@ -219,21 +219,18 @@ Face::asyncRemovePendingInterest(const PendingInterestId* pendingInterestId)
   m_pendingInterestTable.remove_if(MatchPendingInterestId(pendingInterestId));
 }
 
-void
-Face::finalizeSetInterestFilter(const shared_ptr<RegisteredPrefix>& registeredPrefix)
-{
-  m_registeredPrefixTable.push_back(registeredPrefix);
-}
-
 const RegisteredPrefixId*
-Face::setInterestFilter(const Name& prefix,
+Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
                         const OnSetInterestFilterFailed& onSetInterestFilterFailed)
 {
-  shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
+  shared_ptr<InterestFilterRecord> filter =
+    make_shared<InterestFilterRecord>(cref(interestFilter), onInterest);
+  shared_ptr<RegisteredPrefix> prefixToRegister =
+    make_shared<RegisteredPrefix>(cref(interestFilter.getPrefix()), filter);
 
   m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
-                                     bind(&Face::finalizeSetInterestFilter, this, prefixToRegister),
+                                     bind(&Face::afterPrefixRegistered, this, prefixToRegister),
                                      bind(onSetInterestFilterFailed,
                                           prefixToRegister->getPrefix(), _1));
 
@@ -241,15 +238,18 @@ Face::setInterestFilter(const Name& prefix,
 }
 
 const RegisteredPrefixId*
-Face::setInterestFilter(const Name& prefix,
+Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
                         const OnSetInterestFilterFailed& onSetInterestFilterFailed,
                         const IdentityCertificate& certificate)
 {
-  shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
+  shared_ptr<InterestFilterRecord> filter =
+    make_shared<InterestFilterRecord>(cref(interestFilter), onInterest);
+  shared_ptr<RegisteredPrefix> prefixToRegister =
+    make_shared<RegisteredPrefix>(cref(interestFilter.getPrefix()), filter);
 
   m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
-                                     bind(&Face::finalizeSetInterestFilter, this, prefixToRegister),
+                                     bind(&Face::afterPrefixRegistered, this, prefixToRegister),
                                      bind(onSetInterestFilterFailed,
                                           prefixToRegister->getPrefix(), _1),
                                      certificate);
@@ -258,20 +258,36 @@ Face::setInterestFilter(const Name& prefix,
 }
 
 const RegisteredPrefixId*
-Face::setInterestFilter(const Name& prefix,
+Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
                         const OnSetInterestFilterFailed& onSetInterestFilterFailed,
                         const Name& identity)
 {
-  shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
+  // without ptr_lib:: here, reference to cref becomes ambiguous on OSX 10.9
+  shared_ptr<InterestFilterRecord> filter =
+    make_shared<InterestFilterRecord>(cref(interestFilter), onInterest);
+  shared_ptr<RegisteredPrefix> prefixToRegister =
+    make_shared<RegisteredPrefix>(cref(interestFilter.getPrefix()), filter);
 
   m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
-                                     bind(&Face::finalizeSetInterestFilter, this, prefixToRegister),
+                                     bind(&Face::afterPrefixRegistered, this, prefixToRegister),
                                      bind(onSetInterestFilterFailed,
                                           prefixToRegister->getPrefix(), _1),
                                      identity);
 
   return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
+}
+
+void
+Face::afterPrefixRegistered(const shared_ptr<RegisteredPrefix>& registeredPrefix)
+{
+  m_registeredPrefixTable.push_back(registeredPrefix);
+
+  if (static_cast<bool>(registeredPrefix->getFilter()))
+    {
+      // it was a combined operation
+      m_interestFilterTable.push_back(registeredPrefix->getFilter());
+    }
 }
 
 void
@@ -304,8 +320,15 @@ Face::asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
                                                    MatchRegisteredPrefixId(registeredPrefixId));
   if (i != m_registeredPrefixTable.end())
     {
+      const shared_ptr<InterestFilterRecord>& filter = (*i)->getFilter();
+      if (static_cast<bool>(filter))
+        {
+          // it was a combined operation
+          m_interestFilterTable.remove(filter);
+        }
+
       m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
-                                           bind(&Face::finalizeUnsetInterestFilter, this, i),
+                                           bind(&Face::finalizeUnregisterPrefix, this, i),
                                            Controller::FailCallback());
     }
 
@@ -321,8 +344,15 @@ Face::asyncUnsetInterestFilterWithCertificate(const RegisteredPrefixId* register
                                                    MatchRegisteredPrefixId(registeredPrefixId));
   if (i != m_registeredPrefixTable.end())
     {
+      const shared_ptr<InterestFilterRecord>& filter = (*i)->getFilter();
+      if (static_cast<bool>(filter))
+        {
+          // it was a combined operation
+          m_interestFilterTable.remove(filter);
+        }
+
       m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
-                                           bind(&Face::finalizeUnsetInterestFilter, this, i),
+                                           bind(&Face::finalizeUnregisterPrefix, this, i),
                                            Controller::FailCallback(),
                                            certificate);
     }
@@ -339,8 +369,15 @@ Face::asyncUnsetInterestFilterWithIdentity(const RegisteredPrefixId* registeredP
                                                    MatchRegisteredPrefixId(registeredPrefixId));
   if (i != m_registeredPrefixTable.end())
     {
+      const shared_ptr<InterestFilterRecord>& filter = (*i)->getFilter();
+      if (static_cast<bool>(filter))
+        {
+          // it was a combined operation
+          m_interestFilterTable.remove(filter);
+        }
+
       m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
-                                           bind(&Face::finalizeUnsetInterestFilter, this, i),
+                                           bind(&Face::finalizeUnregisterPrefix, this, i),
                                            Controller::FailCallback(),
                                            identity);
     }
@@ -349,7 +386,7 @@ Face::asyncUnsetInterestFilterWithIdentity(const RegisteredPrefixId* registeredP
 }
 
 void
-Face::finalizeUnsetInterestFilter(RegisteredPrefixTable::iterator item)
+Face::finalizeUnregisterPrefix(RegisteredPrefixTable::iterator item)
 {
   m_registeredPrefixTable.erase(item);
 
@@ -529,13 +566,13 @@ Face::satisfyPendingInterests(Data& data)
 void
 Face::processInterestFilters(Interest& interest)
 {
-  for (RegisteredPrefixTable::iterator i = m_registeredPrefixTable.begin();
-       i != m_registeredPrefixTable.end();
+  for (InterestFilterTable::iterator i = m_interestFilterTable.begin();
+       i != m_interestFilterTable.end();
        ++i)
     {
-      if ((*i)->getPrefix().isPrefixOf(interest.getName()))
+      if ((*i)->doesMatch(interest.getName()))
         {
-          (*i)->getOnInterest()((*i)->getPrefix(), interest);
+          (**i)(interest);
         }
     }
 }

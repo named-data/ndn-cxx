@@ -17,8 +17,8 @@
 
 #include "boost-test.hpp"
 
-using namespace std;
 namespace ndn {
+namespace tests {
 
 BOOST_AUTO_TEST_SUITE(TestInterest)
 
@@ -430,6 +430,26 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   BOOST_CHECK_EQUAL(interest.matchesData(data6), false);
 }
 
+BOOST_AUTO_TEST_CASE(InterestFilterMatching)
+{
+  BOOST_CHECK_EQUAL(InterestFilter("/a").doesMatch("/a/b"), true);
+  BOOST_CHECK_EQUAL(InterestFilter("/a/b").doesMatch("/a/b"), true);
+  BOOST_CHECK_EQUAL(InterestFilter("/a/b/c").doesMatch("/a/b"), false);
+
+  BOOST_CHECK_EQUAL(InterestFilter("/a", "<b>").doesMatch("/a/b"), true);
+  BOOST_CHECK_EQUAL(InterestFilter("/a/b", "<b>").doesMatch("/a/b"), false);
+
+  BOOST_CHECK_EQUAL(InterestFilter("/a/b", "<b>").doesMatch("/a/b/c/b"), false);
+  BOOST_CHECK_EQUAL(InterestFilter("/a/b", "<>*<b>").doesMatch("/a/b/c/b"), true);
+
+  BOOST_CHECK_EQUAL(InterestFilter("/a", "<b>").doesMatch("/a/b/c/d"), false);
+  BOOST_CHECK_EQUAL(InterestFilter("/a", "<b><>*").doesMatch("/a/b/c/d"), true);
+  BOOST_CHECK_EQUAL(InterestFilter("/a", "<b><>*").doesMatch("/a/b"), true);
+  BOOST_CHECK_EQUAL(InterestFilter("/a", "<b><>+").doesMatch("/a/b"), false);
+  BOOST_CHECK_EQUAL(InterestFilter("/a", "<b><>+").doesMatch("/a/b/c"), true);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
+} // namespace tests
 } // namespace ndn

@@ -18,6 +18,7 @@
 #include "common.hpp"
 #include "name.hpp"
 #include "selectors.hpp"
+#include "interest-filter.hpp"
 #include "management/nfd-local-control-header.hpp"
 
 namespace ndn {

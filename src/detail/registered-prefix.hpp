@@ -19,47 +19,91 @@
 
 namespace ndn {
 
+class InterestFilterRecord
+{
+public:
+  typedef function<void (const InterestFilter&, const Interest&)> OnInterest;
+
+  InterestFilterRecord(const InterestFilter& filter, const OnInterest& onInterest)
+    : m_filter(filter)
+    , m_onInterest(onInterest)
+  {
+  }
+
+  /**
+   * @brief Check if Interest name matches the filter
+   * @param name Interest Name
+   */
+  bool
+  doesMatch(const Name& name) const
+  {
+    return m_filter.doesMatch(name);
+  }
+
+  void
+  operator()(const Interest& interest) const
+  {
+    m_onInterest(m_filter, interest);
+  }
+
+  const InterestFilter&
+  getFilter() const
+  {
+    return m_filter;
+  }
+
+private:
+  InterestFilter m_filter;
+  OnInterest m_onInterest;
+};
+
+
 class RegisteredPrefix
 {
 public:
-  typedef function<void (const Name&, const Interest&)> OnInterest;
+  explicit
+  RegisteredPrefix(const Name& prefix)
+    : m_prefix(prefix)
+  {
+  }
 
-  /**
-   * Create a new PrefixEntry.
-   * @param prefix A shared_ptr for the prefix.
-   * @param onInterest A function object to call when a matching data packet is received.
-   */
-  RegisteredPrefix(const Name& prefix, const OnInterest& onInterest)
-    : m_prefix(new Name(prefix))
-    , m_onInterest(onInterest)
+  RegisteredPrefix(const Name& prefix, shared_ptr<InterestFilterRecord> filter)
+    : m_prefix(prefix)
+    , m_filter(filter)
   {
   }
 
   const Name&
   getPrefix() const
   {
-    return* m_prefix;
+    return m_prefix;
   }
 
-  const OnInterest&
-  getOnInterest() const
+  const shared_ptr<InterestFilterRecord>&
+  getFilter() const
   {
-    return m_onInterest;
+    return m_filter;
   }
 
 private:
-  shared_ptr<Name> m_prefix;
-  const OnInterest m_onInterest;
+  Name m_prefix;
+
+  // to support old interface of combined (un)setInterestFilter
+  shared_ptr<InterestFilterRecord> m_filter;
 };
 
-
-struct RegisteredPrefixId;
+/**
+ * @brief Opaque class representing ID of the registered prefix
+ */
+class RegisteredPrefixId;
 
 /**
- * @brief Functor to match pending interests against PendingInterestId
+ * @brief Functor to match RegisteredPrefixId
  */
-struct MatchRegisteredPrefixId
+class MatchRegisteredPrefixId
 {
+public:
+  explicit
   MatchRegisteredPrefixId(const RegisteredPrefixId* registeredPrefixId)
     : m_id(registeredPrefixId)
   {
@@ -72,6 +116,33 @@ struct MatchRegisteredPrefixId
   }
 private:
   const RegisteredPrefixId* m_id;
+};
+
+
+/**
+ * @brief Opaque class representing ID of the Interest filter
+ */
+class InterestFilterId;
+
+/**
+ * @brief Functor to match InterestFilterId
+ */
+class MatchInterestFilterId
+{
+public:
+  explicit
+  MatchInterestFilterId(const InterestFilterId* interestFilterId)
+    : m_id(interestFilterId)
+  {
+  }
+
+  bool
+  operator()(const shared_ptr<InterestFilter>& interestFilterId) const
+  {
+    return (reinterpret_cast<const InterestFilterId*>(interestFilterId.get()) == m_id);
+  }
+private:
+  const InterestFilterId* m_id;
 };
 
 } // namespace ndn

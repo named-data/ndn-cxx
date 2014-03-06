@@ -31,9 +31,6 @@
 
 namespace ndn {
 
-struct PendingInterestId;
-struct RegisteredPrefixId;
-
 /**
  * An OnData function object is used to pass a callback to expressInterest.
  */
@@ -47,12 +44,12 @@ typedef function<void(const Interest&)> OnTimeout;
 /**
  * An OnInterest function object is used to pass a callback to registerPrefix.
  */
-typedef function<void (const Name&, const Interest&)> OnInterest;
+typedef function<void (const InterestFilter&, const Interest&)> OnInterest;
 
 /**
  * An OnRegisterFailed function object is used to report when registerPrefix fails.
  */
-typedef function<void(const Name&, const std::string&)> OnSetInterestFilterFailed;
+typedef function<void(const InterestFilter&, const std::string&)> OnSetInterestFilterFailed;
 
 
 
@@ -203,7 +200,7 @@ public:
    * @brief Register prefix with the connected NDN hub and call onInterest when a matching
    *        interest is received.
    *
-   * @param prefix     A reference to a Name for the prefix to register
+   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
    * @param onInterest A function object to call when a matching interest is received
    *
    * @param onRegisterFailed A function object to call if failed to retrieve the connected
@@ -214,7 +211,7 @@ public:
    * @return The registered prefix ID which can be used with removeRegisteredPrefix.
    */
   const RegisteredPrefixId*
-  setInterestFilter(const Name& prefix,
+  setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const OnSetInterestFilterFailed& onSetInterestFilterFailed);
 
@@ -222,7 +219,7 @@ public:
    * @brief Register prefix with the connected NDN hub and call onInterest when a matching
    *        interest is received.
    *
-   * @param prefix     A reference to a Name for the prefix to register
+   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
    * @param onInterest A function object to call when a matching interest is received
    *
    * @param onRegisterFailed A function object to call if failed to retrieve the connected
@@ -236,7 +233,7 @@ public:
    * @return The registered prefix ID which can be used with removeRegisteredPrefix.
    */
   const RegisteredPrefixId*
-  setInterestFilter(const Name& prefix,
+  setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const OnSetInterestFilterFailed& onSetInterestFilterFailed,
                     const IdentityCertificate& certificate);
@@ -245,7 +242,7 @@ public:
    * @brief Register prefix with the connected NDN hub and call onInterest when a matching
    *        interest is received.
    *
-   * @param prefix     A reference to a Name for the prefix to register
+   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
    * @param onInterest A function object to call when a matching interest is received
    *
    * @param onRegisterFailed A function object to call if failed to retrieve the connected
@@ -259,7 +256,7 @@ public:
    * @return The registered prefix ID which can be used with removeRegisteredPrefix.
    */
   const RegisteredPrefixId*
-  setInterestFilter(const Name& prefix,
+  setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const OnSetInterestFilterFailed& onSetInterestFilterFailed,
                     const Name& identity);
@@ -373,6 +370,7 @@ private:
   };
 
   typedef std::list<shared_ptr<PendingInterest> > PendingInterestTable;
+  typedef std::list<shared_ptr<InterestFilterRecord> > InterestFilterTable;
   typedef std::list<shared_ptr<RegisteredPrefix> > RegisteredPrefixTable;
 
   void
@@ -381,6 +379,9 @@ private:
 
   void
   asyncRemovePendingInterest(const PendingInterestId* pendingInterestId);
+
+  void
+  afterPrefixRegistered(const shared_ptr<RegisteredPrefix>& registeredPrefix);
 
   void
   asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
@@ -394,10 +395,7 @@ private:
                                        const Name& identity);
 
   void
-  finalizeSetInterestFilter(const shared_ptr<RegisteredPrefix>& registeredPrefix);
-
-  void
-  finalizeUnsetInterestFilter(RegisteredPrefixTable::iterator item);
+  finalizeUnregisterPrefix(RegisteredPrefixTable::iterator item);
 
   void
   onReceiveElement(const Block& wire);
@@ -427,6 +425,7 @@ private:
   shared_ptr<Transport> m_transport;
 
   PendingInterestTable m_pendingInterestTable;
+  InterestFilterTable m_interestFilterTable;
   RegisteredPrefixTable m_registeredPrefixTable;
 
   shared_ptr<Controller> m_fwController;
