@@ -38,7 +38,7 @@ public:
    * Close the connection.
    */
   virtual void 
-  close() =0;
+  close() = 0;
 
   /**
    * @brief Set data to the host
@@ -47,7 +47,7 @@ public:
    * @param dataLength The number of bytes in data.
    */
   virtual void 
-  send(const Block& wire) =0;
+  send(const Block& wire) = 0;
 
   /**
    * @brief Alternative version of sending data, applying scatter/gather I/O concept
@@ -56,10 +56,19 @@ public:
    * same message in datagram-oriented transports.
    */
   virtual void 
-  send(const Block& header, const Block& payload) =0;
+  send(const Block& header, const Block& payload) = 0;
+
+  virtual void
+  pause() = 0;
+
+  virtual void
+  resume() = 0;
   
   inline bool 
   isConnected();
+
+  inline bool
+  isExpectingData();
 
 protected:
   inline void
@@ -68,6 +77,7 @@ protected:
 protected:
   boost::asio::io_service* m_ioService;
   bool m_isConnected;
+  bool m_isExpectingData;
   ReceiveCallback m_receiveCallback;
 };
 
@@ -75,6 +85,7 @@ inline
 Transport::Transport()
   : m_ioService(0)
   , m_isConnected(false)
+  , m_isExpectingData(false)
 {
 }
 
@@ -100,6 +111,12 @@ inline bool
 Transport::isConnected()
 {
   return m_isConnected;
+}
+
+inline bool
+Transport::isExpectingData()
+{
+  return m_isExpectingData;
 }
 
 inline void

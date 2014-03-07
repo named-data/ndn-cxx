@@ -33,6 +33,12 @@ public:
   virtual void 
   close();
 
+  virtual void
+  pause();
+
+  virtual void
+  resume();
+
   virtual void 
   send(const Block& wire);
 

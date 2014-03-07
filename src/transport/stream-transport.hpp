@@ -38,10 +38,7 @@ public:
 
     if (!error)
       {
-        m_partialDataSize = 0;
-        m_socket.async_receive(boost::asio::buffer(m_inputBuffer, MAX_LENGTH), 0,
-                               bind(&impl::handle_async_receive, this, _1, _2));
-
+        resume();
         m_transport.m_isConnected = true;
 
         for (std::list<Block>::iterator i = m_sendQueue.begin(); i != m_sendQueue.end(); ++i)
@@ -108,6 +105,28 @@ public:
     m_transport.m_isConnected = false;
     m_sendQueue.clear();
     m_sendPairQueue.clear();
+  }
+
+  void
+  pause()
+  {
+    if (m_transport.m_isExpectingData)
+      {
+        m_transport.m_isExpectingData = false;
+        m_socket.cancel();
+      }
+  }
+
+  void
+  resume()
+  {
+    if (!m_transport.m_isExpectingData)
+      {
+        m_transport.m_isExpectingData = true;
+        m_partialDataSize = 0;
+        m_socket.async_receive(boost::asio::buffer(m_inputBuffer, MAX_LENGTH), 0,
+                               bind(&impl::handle_async_receive, this, _1, _2));
+      }
   }
 
   void

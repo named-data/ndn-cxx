@@ -21,13 +21,13 @@ TcpTransport::~TcpTransport()
 {
 }
 
-void 
+void
 TcpTransport::connect(boost::asio::io_service& ioService,
                       const ReceiveCallback& receiveCallback)
 {
   if (!static_cast<bool>(m_impl)) {
     Transport::connect(ioService, receiveCallback);
-  
+
     m_impl = make_shared<Impl> (boost::ref(*this),
                                 boost::ref(ioService));
   }
@@ -36,7 +36,7 @@ TcpTransport::connect(boost::asio::io_service& ioService,
   m_impl->connect(query);
 }
 
-void 
+void
 TcpTransport::send(const Block& wire)
 {
   m_impl->send(wire);
@@ -48,10 +48,22 @@ TcpTransport::send(const Block& header, const Block& payload)
   m_impl->send(header, payload);
 }
 
-void 
+void
 TcpTransport::close()
 {
   m_impl->close();
+}
+
+void
+TcpTransport::pause()
+{
+  m_impl->pause();
+}
+
+void
+TcpTransport::resume()
+{
+  m_impl->resume();
 }
 
 } // namespace ndn

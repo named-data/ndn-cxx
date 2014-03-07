@@ -62,4 +62,16 @@ UnixTransport::close()
   m_impl->close();
 }
 
+void
+UnixTransport::pause()
+{
+  m_impl->pause();
+}
+
+void
+UnixTransport::resume()
+{
+  m_impl->resume();
+}
+
 }

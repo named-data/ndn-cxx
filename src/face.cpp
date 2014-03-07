@@ -86,6 +86,8 @@ Face::expressInterest(const Interest& interest, const OnData& onData, const OnTi
   if (!m_transport->isConnected())
     m_transport->connect(*m_ioService,
                         bind(&Face::onReceiveElement, this, _1));
+  else if (!m_transport->isExpectingData())
+      m_transport->resume();
 
   shared_ptr<const Interest> interestToExpress(new Interest(interest));
 
@@ -194,7 +196,7 @@ Face::asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
   if (i != m_registeredPrefixTable.end())
     {
       m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
-                                           bind(&Face::finalizeUnsertInterestFilter, this, i),
+                                           bind(&Face::finalizeUnsetInterestFilter, this, i),
                                            Controller::FailCallback());
     }
 
@@ -202,13 +204,13 @@ Face::asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
 }
 
 void
-Face::finalizeUnsertInterestFilter(RegisteredPrefixTable::iterator item)
+Face::finalizeUnsetInterestFilter(RegisteredPrefixTable::iterator item)
 {
   m_registeredPrefixTable.erase(item);
 
   if (!m_pitTimeoutCheckTimerActive && m_registeredPrefixTable.empty())
     {
-      m_transport->close();
+      m_transport->pause();
       if (!m_ioServiceWork) {
         m_processEventsTimeoutTimer->cancel();
       }
@@ -306,7 +308,7 @@ Face::checkPitExpire()
     m_pitTimeoutCheckTimerActive = false;
 
     if (m_registeredPrefixTable.empty()) {
-      m_transport->close();
+      m_transport->pause();
       if (!m_ioServiceWork) {
         m_processEventsTimeoutTimer->cancel();
       }
