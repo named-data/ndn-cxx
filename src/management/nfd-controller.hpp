@@ -8,7 +8,7 @@
 #define NDN_MANAGEMENT_NFD_CONTROL_HPP
 
 #include "controller.hpp"
-#include "../security/key-chain.hpp"
+#include "../util/command-interest-generator.hpp"
 
 namespace ndn {
 
@@ -34,9 +34,46 @@ public:
                      const FailCallback&    onFail);
 
   virtual void
-  selfDeregisterPrefix(const Name& prefixToRegister,
+  selfDeregisterPrefix(const Name& prefixToDeRegister,
                        const SuccessCallback& onSuccess,
                        const FailCallback&    onFail);
+
+  /**
+   * \brief Adds a nexthop to an existing or new FIB entry
+   *
+   * If FIB entry for the specified prefix does not exist, it will be automatically created.
+   *
+   * \param prefix    Prefix of the FIB entry
+   * \param faceId    ID of the face which should be added as a next hop for prefix FIB entry.
+   *                  If a nexthop of same FaceId exists on the FIB entry, its cost is updated.
+   *                  If FaceId is set to zero, it is implied as the face of the entity sending
+   *                  this command.
+   * \param cost      Cost that should be associated with the next hop
+   * \param onSuccess Callback that will be called when operation succeeds
+   * \param onFail    Callback that will be called when operation fails
+   */
+  void
+  fibAddNextHop(const Name& prefix, uint64_t faceId, int cost,
+                const SuccessCallback& onSuccess,
+                const FailCallback&    onFail);
+
+  /**
+   * \brief Remove a nexthop from FIB entry
+   *
+   * If after removal of the nexthop FIB entry has zero next hops, this FIB entry will
+   * be automatically deleted.
+   *
+   * \param prefix    Prefix of the FIB entry
+   * \param faceId    ID of the face which should be removed FIB entry.
+   *                  If FaceId is set to zero, it is implied as the face of the entity sending
+   *                  this command.
+   * \param onSuccess Callback that will be called when operation succeeds
+   * \param onFail    Callback that will be called when operation fails
+   */
+  void
+  fibRemoveNextHop(const Name& prefix, uint64_t faceId,
+                   const SuccessCallback& onSuccess,
+                   const FailCallback&    onFail);
 
 protected:
   void
@@ -53,15 +90,6 @@ protected:
 
 private:
   void
-  selfRegisterPrefixAddNextop(const FibManagementOptions& entry,
-                              const SuccessCallback& onSuccess,
-                              const FailCallback&    onFail);
-
-  void
-  recordSelfRegisteredFaceId(const FibManagementOptions& entry,
-                             const SuccessCallback& onSuccess);
-
-  void
   processFibCommandResponse(Data& data,
                             const FibCommandSucceedCallback& onSuccess,
                             const FailCallback& onFail);
@@ -73,8 +101,7 @@ private:
 
 protected:
   Face& m_face;
-  KeyChain m_keyChain;
-  uint64_t m_faceId; // internal face ID (needed for prefix de-registration)
+  CommandInterestGenerator m_commandInterestGenerator;
 };
 
 } // namespace nfd

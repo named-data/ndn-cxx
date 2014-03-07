@@ -17,7 +17,6 @@ namespace nfd {
 
 Controller::Controller(Face& face)
   : m_face(face)
-  , m_faceId(0)
 {
 }
 
@@ -26,49 +25,39 @@ Controller::selfRegisterPrefix(const Name& prefixToRegister,
                                const SuccessCallback& onSuccess,
                                const FailCallback&    onFail)
 {
-  // two stage process:
-  // 1. insert FIB entry
-  // 2. add-nexthop <self> to the FIB entry
-
-  // Step 1.
-  startFibCommand("insert",
-                  FibManagementOptions()
-                    .setName(prefixToRegister),
-                  bind(&Controller::selfRegisterPrefixAddNextop, this, _1, onSuccess, onFail),
-                  onFail);
+  fibAddNextHop(prefixToRegister, 0, 0, onSuccess, onFail);
 }
 
 void
-Controller::selfRegisterPrefixAddNextop(const FibManagementOptions& entry,
-                                        const SuccessCallback& onSuccess,
-                                        const FailCallback&    onFail)
-{
-  // Step 2.
-  startFibCommand("add-nexthop",
-                  FibManagementOptions(entry) // prefixToRegister should be inside the entry
-                    .setFaceId(0) // self-registration
-                    .setCost(0),
-                  bind(&Controller::recordSelfRegisteredFaceId, this, _1, onSuccess),
-                  onFail);
-}
-
-
-void
-Controller::selfDeregisterPrefix(const Name& prefixToRegister,
+Controller::selfDeregisterPrefix(const Name& prefixToDeRegister,
                                  const SuccessCallback& onSuccess,
                                  const FailCallback&    onFail)
 {
-  if (m_faceId == 0)
-    {
-      if (static_cast<bool>(onFail))
-        onFail("Face ID is not set, should have been set after a successful prefix registration command");
-      return;
-    }
+  fibRemoveNextHop(prefixToDeRegister, 0, onSuccess, onFail);
+}
 
+void
+Controller::fibAddNextHop(const Name& prefix, uint64_t faceId, int cost,
+                          const SuccessCallback& onSuccess,
+                          const FailCallback&    onFail)
+{
+  startFibCommand("add-nexthop",
+                  FibManagementOptions()
+                    .setName(prefix)
+                    .setFaceId(faceId)
+                    .setCost(cost),
+                  bind(onSuccess), onFail);
+}
+
+void
+Controller::fibRemoveNextHop(const Name& prefix, uint64_t faceId,
+                             const SuccessCallback& onSuccess,
+                             const FailCallback&    onFail)
+{
   startFibCommand("remove-nexthop",
                   FibManagementOptions()
-                    .setName(prefixToRegister)
-                    .setFaceId(m_faceId),
+                    .setName(prefix)
+                    .setFaceId(faceId),
                   bind(onSuccess), onFail);
 }
 
@@ -84,20 +73,12 @@ Controller::startFibCommand(const std::string& command,
     .append(options.wireEncode());
 
   Interest fibCommandInterest(fibCommandInterestName);
-  // m_keyChain.sign(fibCommandInterest);
+  m_commandInterestGenerator.generate(fibCommandInterest);
 
   m_face.expressInterest(fibCommandInterest,
                          bind(&Controller::processFibCommandResponse, this, _2,
                               onSuccess, onFail),
                          bind(onFail, "Command Interest timed out"));
-}
-
-void
-Controller::recordSelfRegisteredFaceId(const FibManagementOptions& entry,
-                                       const SuccessCallback& onSuccess)
-{
-  m_faceId = entry.getFaceId();
-  onSuccess();
 }
 
 void
@@ -133,7 +114,7 @@ Controller::startFaceCommand(const std::string& command,
     .append(options.wireEncode());
 
   Interest faceCommandInterest(faceCommandInterestName);
-  // m_keyChain.sign(fibCommandInterest);
+  m_commandInterestGenerator.generate(faceCommandInterest);
 
   m_face.expressInterest(faceCommandInterest,
                          bind(&Controller::processFaceCommandResponse, this, _2,
@@ -161,5 +142,6 @@ Controller::processFaceCommandResponse(Data& data,
         return onFail(e.what());
     }
 }
+
 } // namespace nfd
 } // namespace ndn
