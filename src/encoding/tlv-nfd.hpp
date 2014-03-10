@@ -28,7 +28,16 @@ enum {
 
   // Face Management Protocol
   FaceManagementOptions = 108,
-  Uri                   = 114
+  Uri                   = 114,
+
+  // Face Status Protocol
+  FaceStatus                   = 128,
+  TotalIncomingInterestCounter = 145,
+  TotalIncomingDataCounter     = 144,
+  TotalOutgoingInterestCounter = 146,
+  TotalOutgoingDataCounter     = 147,
+  FaceEvent                    = 192,
+
 };
 
 enum {
