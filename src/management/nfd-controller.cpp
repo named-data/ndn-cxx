@@ -25,7 +25,7 @@ Controller::selfRegisterPrefix(const Name& prefixToRegister,
                                const SuccessCallback& onSuccess,
                                const FailCallback&    onFail)
 {
-  fibAddNextHop(prefixToRegister, 0, 0, onSuccess, onFail);
+  fibAddNextHop(prefixToRegister, 0, 0, bind(onSuccess), onFail);
 }
 
 void
@@ -33,32 +33,32 @@ Controller::selfDeregisterPrefix(const Name& prefixToDeRegister,
                                  const SuccessCallback& onSuccess,
                                  const FailCallback&    onFail)
 {
-  fibRemoveNextHop(prefixToDeRegister, 0, onSuccess, onFail);
+  fibRemoveNextHop(prefixToDeRegister, 0, bind(onSuccess), onFail);
 }
 
 void
 Controller::fibAddNextHop(const Name& prefix, uint64_t faceId, int cost,
-                          const SuccessCallback& onSuccess,
-                          const FailCallback&    onFail)
+                          const FibCommandSucceedCallback& onSuccess,
+                          const FailCallback& onFail)
 {
   startFibCommand("add-nexthop",
                   FibManagementOptions()
                     .setName(prefix)
                     .setFaceId(faceId)
                     .setCost(cost),
-                  bind(onSuccess), onFail);
+                  onSuccess, onFail);
 }
 
 void
 Controller::fibRemoveNextHop(const Name& prefix, uint64_t faceId,
-                             const SuccessCallback& onSuccess,
-                             const FailCallback&    onFail)
+                             const FibCommandSucceedCallback& onSuccess,
+                             const FailCallback& onFail)
 {
   startFibCommand("remove-nexthop",
                   FibManagementOptions()
                     .setName(prefix)
                     .setFaceId(faceId),
-                  bind(onSuccess), onFail);
+                  onSuccess, onFail);
 }
 
 void
@@ -86,6 +86,8 @@ Controller::processFibCommandResponse(Data& data,
                                       const FibCommandSucceedCallback& onSuccess,
                                       const FailCallback& onFail)
 {
+  /// \todo Add validation of incoming Data
+
   try
     {
       ControlResponse response(data.getContent().blockFromValue());
@@ -127,6 +129,8 @@ Controller::processFaceCommandResponse(Data& data,
                                        const FaceCommandSucceedCallback& onSuccess,
                                        const FailCallback& onFail)
 {
+  /// \todo Add validation of incoming Data
+
   try
     {
       ControlResponse response(data.getContent().blockFromValue());

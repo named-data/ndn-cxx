@@ -19,7 +19,6 @@ namespace nrd {
 
 Controller::Controller(Face& face)
   : m_face(face)
-  , m_faceId(0)
 {
 }
 
@@ -33,8 +32,7 @@ Controller::selfRegisterPrefix(const Name& prefixToRegister,
                  .setName(prefixToRegister)
                  .setFaceId(0) // self-registration
                  .setCost(0),
-               bind(&Controller::recordSelfRegisteredFaceId, this, _1, onSuccess),
-               onFail);
+               bind(onSuccess), onFail);
 }
 
 void
@@ -42,18 +40,43 @@ Controller::selfDeregisterPrefix(const Name& prefixToRegister,
                                  const SuccessCallback& onSuccess,
                                  const FailCallback&    onFail)
 {
-  if (m_faceId == 0)
-    {
-      if (static_cast<bool>(onFail))
-        onFail("Face ID is not set, should have been set after a successful prefix registration command");
-      return;
-    }
-
   startCommand("unregister",
                PrefixRegOptions()
                  .setName(prefixToRegister)
-                 .setFaceId(m_faceId),
+                 .setFaceId(0), // self-registration
                bind(onSuccess), onFail);
+}
+
+void
+Controller::registerPrefix(const PrefixRegOptions& options,
+                           const CommandSucceedCallback& onSuccess,
+                           const FailCallback& onFail)
+{
+  startCommand("register", options, onSuccess, onFail);
+}
+
+void
+Controller::unregisterPrefix(const PrefixRegOptions& options,
+                             const CommandSucceedCallback& onSuccess,
+                             const FailCallback& onFail)
+{
+  startCommand("unregister", options, onSuccess, onFail);
+}
+
+void
+Controller::advertisePrefix(const PrefixRegOptions& options,
+                            const CommandSucceedCallback& onSuccess,
+                            const FailCallback& onFail)
+{
+  startCommand("advertise", options, onSuccess, onFail);
+}
+
+void
+Controller::withdrawPrefix(const PrefixRegOptions& options,
+                            const CommandSucceedCallback& onSuccess,
+                            const FailCallback& onFail)
+{
+  startCommand("withdraw", options, onSuccess, onFail);
 }
 
 void
@@ -68,7 +91,7 @@ Controller::startCommand(const std::string& command,
     .append(options.wireEncode());
 
   Interest commandInterest(commandInterestName);
-  // m_keyChain.sign(commandInterest);
+  m_commandInterestGenerator.generate(commandInterest);
 
   m_face.expressInterest(commandInterest,
                          bind(&Controller::processCommandResponse, this, _2,
@@ -77,18 +100,12 @@ Controller::startCommand(const std::string& command,
 }
 
 void
-Controller::recordSelfRegisteredFaceId(const PrefixRegOptions& entry,
-                                       const SuccessCallback& onSuccess)
-{
-  m_faceId = entry.getFaceId();
-  onSuccess();
-}
-
-void
 Controller::processCommandResponse(Data& data,
                                    const CommandSucceedCallback& onSuccess,
                                    const FailCallback& onFail)
 {
+  /// \todo Add validation of incoming Data
+
   try
     {
       nfd::ControlResponse response(data.getContent().blockFromValue());

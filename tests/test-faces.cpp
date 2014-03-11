@@ -160,7 +160,7 @@ BOOST_FIXTURE_TEST_CASE (SetTwoFilters, FacesFixture)
   Face face;
   Face face2(face.ioService());
   Scheduler scheduler(*face.ioService());
-  scheduler.scheduleEvent(time::seconds(0.3),
+  scheduler.scheduleEvent(time::seconds(1),
                           bind(&FacesFixture::terminate, this, func_lib::ref(face)));
   
   regPrefixId = face.setInterestFilter("/Hello/World",

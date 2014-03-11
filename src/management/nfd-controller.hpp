@@ -54,8 +54,8 @@ public:
    */
   void
   fibAddNextHop(const Name& prefix, uint64_t faceId, int cost,
-                const SuccessCallback& onSuccess,
-                const FailCallback&    onFail);
+                const FibCommandSucceedCallback& onSuccess,
+                const FailCallback& onFail);
 
   /**
    * \brief Remove a nexthop from FIB entry
@@ -72,8 +72,8 @@ public:
    */
   void
   fibRemoveNextHop(const Name& prefix, uint64_t faceId,
-                   const SuccessCallback& onSuccess,
-                   const FailCallback&    onFail);
+                   const FibCommandSucceedCallback& onSuccess,
+                   const FailCallback& onFail);
 
 protected:
   void

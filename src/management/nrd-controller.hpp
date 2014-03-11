@@ -8,7 +8,7 @@
 #define NDN_MANAGEMENT_NFD_CONTROLLER_HPP
 
 #include "controller.hpp"
-#include "../security/key-chain.hpp"
+#include "../util/command-interest-generator.hpp"
 
 namespace ndn {
 namespace nrd {
@@ -35,6 +35,26 @@ public:
                        const SuccessCallback& onSuccess,
                        const FailCallback&    onFail);
 
+  void
+  registerPrefix(const PrefixRegOptions& options,
+                 const CommandSucceedCallback& onSuccess,
+                 const FailCallback& onFail);
+
+  void
+  unregisterPrefix(const PrefixRegOptions& options,
+                 const CommandSucceedCallback& onSuccess,
+                 const FailCallback&    onFail);
+
+  void
+  advertisePrefix(const PrefixRegOptions& options,
+                  const CommandSucceedCallback& onSuccess,
+                  const FailCallback& onFail);
+
+  void
+  withdrawPrefix(const PrefixRegOptions& options,
+                 const CommandSucceedCallback& onSuccess,
+                 const FailCallback& onFail);
+
 protected:
   void
   startCommand(const std::string& command,
@@ -44,18 +64,13 @@ protected:
 
 private:
   void
-  recordSelfRegisteredFaceId(const PrefixRegOptions& entry,
-                             const SuccessCallback& onSuccess);
-
-  void
   processCommandResponse(Data& data,
                          const CommandSucceedCallback& onSuccess,
                          const FailCallback& onFail);
 
 protected:
   Face& m_face;
-  KeyChain m_keyChain;
-  uint64_t m_faceId; // internal face ID (needed for prefix de-registration)
+  CommandInterestGenerator m_commandInterestGenerator;
 };
 
 } // namespace nrd

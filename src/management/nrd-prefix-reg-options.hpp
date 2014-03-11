@@ -44,21 +44,21 @@ public:
   template<bool T>
   size_t
   wireEncode(EncodingImpl<T>& block) const;
-  
+
   const Block&
   wireEncode() const;
-  
-  void 
+
+  void
   wireDecode(const Block& wire);
-  
+
   ////////////////////////////////////////////////////////
-  
-  const Name& 
+
+  const Name&
   getName() const
   {
     return m_name;
   }
-  
+
   PrefixRegOptions&
   setName(const Name& name)
   {
@@ -68,7 +68,7 @@ public:
   }
 
   //
-  
+
   uint64_t
   getFaceId() const
   {
@@ -84,8 +84,8 @@ public:
   }
 
   //
-  
-  uint64_t 
+
+  uint64_t
   getFlags() const
   {
     return m_flags;
@@ -100,8 +100,8 @@ public:
   }
 
   //
-  
-  uint64_t 
+
+  uint64_t
   getCost() const
   {
     return m_cost;
@@ -116,7 +116,7 @@ public:
   }
 
   //
-  
+
   Milliseconds
   getExpirationPeriod() const
   {
@@ -132,24 +132,8 @@ public:
   }
 
   //
-  
-  const Name& 
-  getStrategy() const
-  {
-    return m_strategy;
-  }
 
-  PrefixRegOptions&
-  setStrategy(const Name& strategy)
-  {
-    m_strategy = strategy;
-    m_wire.reset();
-    return *this;
-  }
-
-  //
-
-  const std::string& 
+  const std::string&
   getProtocol() const
   {
     return m_protocol;
@@ -162,16 +146,15 @@ public:
     m_wire.reset();
     return *this;
   }
-  
+
 private:
   Name m_name;
   uint64_t m_faceId;
   uint64_t m_flags;
   uint64_t m_cost;
   Milliseconds m_expirationPeriod;
-  Name m_strategy;
   std::string m_protocol;
-  
+
   mutable Block m_wire;
 };
 
@@ -185,9 +168,8 @@ PrefixRegOptions::wireEncode(EncodingImpl<T>& block) const
   //                        Name
   //                        FaceId?
   //                        Flags?
-  //                        Cost?    
+  //                        Cost?
   //                        ExpirationPeriod?
-  //                        StrategyName?
   //                        Protocol?
 
   // (reverse encoding)
@@ -199,12 +181,6 @@ PrefixRegOptions::wireEncode(EncodingImpl<T>& block) const
                                          tlv::nrd::Protocol,
                                          reinterpret_cast<const uint8_t*>(m_protocol.c_str()),
                                          m_protocol.size());
-    }
-
-  // StrategyName
-  if (!m_strategy.empty())
-    {
-      total_len += prependNestedBlock(block, tlv::nrd::StrategyName, m_strategy);
     }
 
   // ExpirationPeriod
@@ -248,24 +224,23 @@ PrefixRegOptions::wireEncode() const
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
-  
+
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
   m_wire = buffer.block();
   return m_wire;
 }
-  
-inline void 
+
+inline void
 PrefixRegOptions::wireDecode(const Block& wire)
 {
   // PrefixRegOptions ::= PREFIX-REG-OPTIONS-TYPE TLV-LENGTH
   //                        Name
   //                        FaceId?
   //                        Flags?
-  //                        Cost?    
+  //                        Cost?
   //                        ExpirationPeriod?
-  //                        StrategyName?
   //                        Protocol?
 
   m_name.clear();
@@ -273,14 +248,13 @@ PrefixRegOptions::wireDecode(const Block& wire)
   m_flags = DEFAULT_FLAGS;
   m_cost = DEFAULT_COST;
   m_expirationPeriod = -1;
-  m_strategy.clear();
   m_protocol.clear();
 
   m_wire = wire;
 
   if (m_wire.type() != tlv::nrd::PrefixRegOptions)
     throw Error("Requested decoding of PrefixRegOptions, but Block is of different type");
-  
+
   m_wire.parse ();
 
   // Name
@@ -296,7 +270,7 @@ PrefixRegOptions::wireDecode(const Block& wire)
     {
       m_faceId = readNonNegativeInteger(*val);
     }
-  
+
   // Flags
   val = m_wire.find(tlv::nrd::Flags);
   if (val != m_wire.elements_end())
@@ -318,15 +292,6 @@ PrefixRegOptions::wireDecode(const Block& wire)
       m_expirationPeriod = readNonNegativeInteger(*val);
     }
 
-  // StrategyName
-  val = m_wire.find(tlv::nrd::StrategyName);
-  if (val != m_wire.elements_end())
-    {
-      val->parse();
-      if (!val->elements().empty())
-        m_strategy.wireDecode(*val->elements_begin());
-    }
-
   // Protocol
   val = m_wire.find(tlv::nrd::Protocol);
   if (val != m_wire.elements_end())
@@ -336,26 +301,32 @@ PrefixRegOptions::wireDecode(const Block& wire)
     }
 }
 
-// inline std::ostream&
-// operator << (std::ostream &os, const PrefixRegOptions &option)
-// {
-//   os << "ForwardingEntry(";
-  
-//   // Name
-//   os << "Prefix: " << option.getName() << ", ";
+inline std::ostream&
+operator << (std::ostream &os, const PrefixRegOptions &option)
+{
+  os << "PrefixRegOptions(";
 
-//   // FaceID
-//   os << "FaceID: " << option.getFaceId() << ", ";
+  // Name
+  os << "Prefix: " << option.getName() << ", ";
 
-//   // Cost
-//   os << "Cost: " << option.getCost() << ", ";
+  // FaceID
+  os << "FaceID: " << option.getFaceId() << ", ";
 
-//   // Strategy
-//   os << "Strategy: " << option.getStrategy() << ", ";
-  
-//   os << ")";
-//   return os;
-// }
+  // Flags
+  os << "Flags: " << option.getFlags() << ", ";
+
+  // Cost
+  os << "Cost: " << option.getCost() << ", ";
+
+  // ExpirationPeriod
+  os << "ExpirationPeriod: " << option.getExpirationPeriod() << ", ";
+
+  // Protocol
+  os << "Protocol: " << option.getProtocol();
+
+  os << ")";
+  return os;
+}
 
 } // namespace nrd
 } // namespace ndn

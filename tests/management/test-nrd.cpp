@@ -32,9 +32,14 @@ BOOST_AUTO_TEST_CASE (PrefixRegOptionsEncode)
 
   const Block& blk = opt.wireEncode ();
 
-  BOOST_CHECK_EQUAL_COLLECTIONS (RealPrefixRegOptions,
-                                   RealPrefixRegOptions + sizeof (RealPrefixRegOptions),
-                                   blk.begin (), blk.end ());
+  BOOST_CHECK_EQUAL_COLLECTIONS(RealPrefixRegOptions,
+                                RealPrefixRegOptions + sizeof (RealPrefixRegOptions),
+                                blk.begin (), blk.end ());
+
+  std::ostringstream os;
+  os << opt;
+  BOOST_CHECK_EQUAL(os.str(), "PrefixRegOptions(Prefix: /localhost/reg/test, "
+                    "FaceID: 0, Flags: 1, Cost: 0, ExpirationPeriod: -1, Protocol: )");
 }
 
 BOOST_AUTO_TEST_CASE (PrefixRegOptionsDecoding)
