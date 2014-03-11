@@ -36,6 +36,15 @@
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
 
+#if defined(__GNUC__) || defined(__clang__)
+#define DEPRECATED(func) func __attribute__ ((deprecated))
+#elif defined(_MSC_VER)
+#define DEPRECATED(func) __declspec(deprecated) func
+#else
+#pragma message("DEPRECATED not implemented")
+#define DEPRECATED(func) func
+#endif
+
 #if NDN_CPP_HAVE_CXX11
 
 #if (__cplusplus < 201103L)

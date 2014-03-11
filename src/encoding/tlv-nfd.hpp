@@ -37,6 +37,7 @@ enum {
   TotalOutgoingInterestCounter = 146,
   TotalOutgoingDataCounter     = 147,
   FaceEvent                    = 192,
+  FaceEventKind                = 193,
 
 };
 

@@ -255,39 +255,55 @@ public:
   toUri() const;
   
   /**
+   * @deprecated
    * Append a component with the encoded segment number.
    * @param segment The segment number.
    * @return This name so that you can chain calls to append.
    */  
-  Name& 
+  DEPRECATED(Name& 
   appendSegment(uint64_t segment)
   {
     m_nameBlock.push_back(Component::fromNumberWithMarker(segment, 0x00));
     return *this;
-  }
+  })
 
   /**
+   * @deprecated
    * Append a component with the encoded version number.
    * Note that this encodes the exact value of version without converting from a time representation.
    * @param version The version number.
    * @return This name so that you can chain calls to append.
    */  
-  Name& 
+  DEPRECATED(Name& 
   appendVersion(uint64_t version)
   {
     m_nameBlock.push_back(Component::fromNumberWithMarker(version, 0xFD));
     return *this;
-  }
+  })
 
   /**
+   * @deprecated
    * @brief Append a component with the encoded version number.
    * 
    * This version of the method creates version number based on the current timestamp
    * @return This name so that you can chain calls to append.
    */  
-  Name& 
-  appendVersion();
-  
+  DEPRECATED(Name& 
+             appendVersion());
+
+
+  /**
+   * @brief Append a component with the encoded non-negative number.
+   * @param number The non-negative number
+   * @return This name so that you can chain calls to append.
+   */
+  Name&
+  appendNumber(uint64_t number)
+  {
+    m_nameBlock.push_back(Component::fromNumber(number));
+    return *this;
+  }
+
   /**
    * Check if this name has the same component count and components as the given name.
    * @param name The Name to check.

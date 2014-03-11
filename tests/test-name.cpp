@@ -1,3 +1,4 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * See COPYING for copyright and distribution information.
@@ -94,6 +95,22 @@ BOOST_AUTO_TEST_CASE(AppendsAndMultiEncode)
   name.append("prefix");
   BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
                                 TestName, TestName+sizeof(TestName));
+}
+
+BOOST_AUTO_TEST_CASE(AppendNumber)
+{
+  Name name;
+  for (int i = 0; i < 10; i++)
+    {
+      name.appendNumber(i);
+    }
+
+  BOOST_CHECK_EQUAL(name.size(), 10);
+
+  for (int i = 0; i < 10; i++)
+    {
+      BOOST_CHECK_EQUAL(name[i].toNumber(), i);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
