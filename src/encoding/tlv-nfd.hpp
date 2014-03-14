@@ -24,11 +24,14 @@ enum {
   FibManagementOptions = 104,
   FaceId          = 105,
   Cost            = 106,
-  Strategy        = 107,
 
   // Face Management Protocol
   FaceManagementOptions = 108,
   Uri                   = 114,
+  
+  // Strategy Choice Protocol
+  StrategyChoiceOptions = 115,
+  Strategy              = 107,
 
   // Face Status Protocol
   FaceStatus                   = 128,

@@ -10,6 +10,7 @@
 #include "nfd-controller.hpp"
 #include "nfd-fib-management-options.hpp"
 #include "nfd-face-management-options.hpp"
+#include "nfd-strategy-choice-options.hpp"
 #include "nfd-control-response.hpp"
 
 namespace ndn {
@@ -123,29 +124,73 @@ Controller::startFaceCommand(const std::string& command,
                               onSuccess, onFail),
                          bind(onFail, "Command Interest timed out"));
 }
-
+  
 void
 Controller::processFaceCommandResponse(Data& data,
                                        const FaceCommandSucceedCallback& onSuccess,
                                        const FailCallback& onFail)
 {
   /// \todo Add validation of incoming Data
-
+  
   try
-    {
-      ControlResponse response(data.getContent().blockFromValue());
-      if (response.getCode() != 200)
-        return onFail(response.getText());
-
-      FaceManagementOptions options(response.getBody());
-      return onSuccess(options);
-    }
+  {
+    ControlResponse response(data.getContent().blockFromValue());
+    if (response.getCode() != 200)
+      return onFail(response.getText());
+    
+    FaceManagementOptions options(response.getBody());
+    return onSuccess(options);
+  }
   catch(ndn::Tlv::Error& e)
-    {
-      if (static_cast<bool>(onFail))
-        return onFail(e.what());
-    }
+  {
+    if (static_cast<bool>(onFail))
+      return onFail(e.what());
+  }
 }
 
+void
+Controller::startStrategyChoiceCommand(const std::string& command,
+                                       const StrategyChoiceOptions& options,
+                                       const StrategyChoiceCommandSucceedCallback& onSuccess,
+                                       const FailCallback& onFail)
+{
+  Name strategyChoiceCommandInterestName("/localhost/nfd/strategy-choice");
+  strategyChoiceCommandInterestName
+    .append(command)
+    .append(options.wireEncode());
+  
+  Interest strategyChoiceCommandInterest(strategyChoiceCommandInterestName);
+  m_commandInterestGenerator.generate(strategyChoiceCommandInterest);
+  
+  m_face.expressInterest(strategyChoiceCommandInterest,
+                         bind(&Controller::processStrategyChoiceCommandResponse, this, _2,
+                              onSuccess, onFail),
+                         bind(onFail, "Command Interest timed out"));
+}
+void
+Controller::processStrategyChoiceCommandResponse(
+    Data& data,
+    const StrategyChoiceCommandSucceedCallback& onSuccess,
+    const FailCallback& onFail)
+{
+  /// \todo Add validation of incoming Data
+  
+  try
+  {
+    ControlResponse response(data.getContent().blockFromValue());
+    if (response.getCode() != 200)
+      return onFail(response.getText());
+    
+    StrategyChoiceOptions options(response.getBody());
+    return onSuccess(options);
+  }
+  catch (ndn::Tlv::Error& error)
+  {
+    if (static_cast<bool>(onFail))
+      return onFail(error.what());
+  }
+}
+
+  
 } // namespace nfd
 } // namespace ndn

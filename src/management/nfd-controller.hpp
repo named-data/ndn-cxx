@@ -16,13 +16,15 @@ namespace nfd {
 
 class FibManagementOptions;
 class FaceManagementOptions;
-
+class StrategyChoiceOptions;
+  
 class Controller : public ndn::Controller
 {
 public:
   typedef function<void(const FibManagementOptions&)> FibCommandSucceedCallback;
   typedef function<void(const FaceManagementOptions&)> FaceCommandSucceedCallback;
-
+  typedef function<void(const StrategyChoiceOptions&)> StrategyChoiceCommandSucceedCallback;
+  
   /**
    * @brief Construct ndnd::Control object
    */
@@ -88,6 +90,12 @@ protected:
                    const FaceCommandSucceedCallback& onSuccess,
                    const FailCallback& onFailure);
 
+  void
+  startStrategyChoiceCommand(const std::string& command,
+                             const StrategyChoiceOptions& options,
+                             const StrategyChoiceCommandSucceedCallback& onSuccess,
+                             const FailCallback& onFailure);
+  
 private:
   void
   processFibCommandResponse(Data& data,
@@ -98,6 +106,11 @@ private:
   processFaceCommandResponse(Data& data,
                              const FaceCommandSucceedCallback& onSuccess,
                              const FailCallback& onFail);
+
+  void
+  processStrategyChoiceCommandResponse(Data& data,
+                                       const StrategyChoiceCommandSucceedCallback& onSuccess,
+                                       const FailCallback& onFail);
 
 protected:
   Face& m_face;
