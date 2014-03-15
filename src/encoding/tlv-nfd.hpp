@@ -25,6 +25,10 @@ enum {
   FaceId          = 105,
   Cost            = 106,
 
+  // FIB Enumeration Protocol
+  FibEntry        = 128,
+  NextHopRecord   = 129,
+
   // Face Management Protocol
   FaceManagementOptions = 108,
   Uri                   = 114,
