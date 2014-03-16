@@ -10,6 +10,8 @@
 #ifndef NDN_TLV_NFD_HPP
 #define NDN_TLV_NFD_HPP
 
+#include "../common.hpp"
+
 namespace ndn {
 namespace tlv {
 namespace nfd {
@@ -32,7 +34,7 @@ enum {
   // Face Management Protocol
   FaceManagementOptions = 108,
   Uri                   = 114,
-  
+
   // Strategy Choice Protocol
   StrategyChoiceOptions = 115,
   Strategy              = 107,
@@ -46,6 +48,19 @@ enum {
   FaceEvent                    = 192,
   FaceEventKind                = 193,
 
+  // Forwarder status
+  NfdVersion           = 128,
+  StartTimestamp       = 129,
+  CurrentTimestamp     = 130,
+  NNameTreeEntries     = 131,
+  NFibEntries          = 132,
+  NPitEntries          = 133,
+  NMeasurementsEntries = 134,
+  NCsEntries           = 135,
+  NInInterests         = TotalIncomingInterestCounter,
+  NOutInterests        = TotalOutgoingInterestCounter,
+  NInDatas             = TotalIncomingDataCounter,
+  NOutDatas            = TotalOutgoingDataCounter
 };
 
 enum {
