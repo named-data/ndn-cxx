@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE(TestForwardingEntry)
 
 BOOST_AUTO_TEST_CASE (Encode)
 {
-  ForwardingEntry forwardingEntry("selfreg", "/a/prefix", -1, ForwardingFlags(), -1);
+  ForwardingEntry forwardingEntry("selfreg", "/a/prefix", -1, ForwardingFlags(), time::milliseconds::min());
   const Block &wire = forwardingEntry.wireEncode();
 
   BOOST_REQUIRE_EQUAL_COLLECTIONS(FORWARDING_ENTRY, FORWARDING_ENTRY+sizeof(FORWARDING_ENTRY),
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE (Decode)
   BOOST_REQUIRE_EQUAL(forwardingEntry.getForwardingFlags().getLocal(), false);
   BOOST_REQUIRE_EQUAL(forwardingEntry.getForwardingFlags().getTap(), false);
   BOOST_REQUIRE_EQUAL(forwardingEntry.getForwardingFlags().getCaptureOk(), false);
-  BOOST_REQUIRE_EQUAL(forwardingEntry.getFreshnessPeriod(), -1);
+  BOOST_REQUIRE_EQUAL(forwardingEntry.getFreshnessPeriod(), time::milliseconds::min());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

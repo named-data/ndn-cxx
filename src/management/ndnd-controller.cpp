@@ -139,7 +139,7 @@ Controller::startFaceAction(const FaceInstance& entry,
 
   Interest interest(interestName);
   interest.setScope(1);
-  interest.setInterestLifetime(1000);
+  interest.setInterestLifetime(time::seconds(1));
   interest.setMustBeFresh(true);
 
   m_face.expressInterest(interest,
@@ -172,7 +172,7 @@ Controller::startPrefixAction(const ForwardingEntry& entry,
 
   Interest interest(interestName);
   interest.setScope(1);
-  interest.setInterestLifetime(1000);
+  interest.setInterestLifetime(time::seconds(1));
   interest.setMustBeFresh(true);
 
   m_face.expressInterest(interest,

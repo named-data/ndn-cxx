@@ -21,7 +21,7 @@ struct SchedulerFixture
     , count4(0)
   {
   }
-    
+
   void
   event1()
   {
@@ -47,7 +47,7 @@ struct SchedulerFixture
   {
     ++count4;
   }
-  
+
   int count1;
   int count2;
   int count3;
@@ -56,22 +56,22 @@ struct SchedulerFixture
 
 BOOST_FIXTURE_TEST_CASE(Events, SchedulerFixture)
 {
-  boost::asio::io_service io; 
+  boost::asio::io_service io;
 
   Scheduler scheduler(io);
-  scheduler.scheduleEvent(time::seconds(0.5), bind(&SchedulerFixture::event1, this));
-  
-  EventId i = scheduler.scheduleEvent(time::seconds(1.0), bind(&SchedulerFixture::event2, this));
+  scheduler.scheduleEvent(time::milliseconds(500), bind(&SchedulerFixture::event1, this));
+
+  EventId i = scheduler.scheduleEvent(time::seconds(1), bind(&SchedulerFixture::event2, this));
   scheduler.cancelEvent(i);
 
-  scheduler.scheduleEvent(time::seconds(0.25), bind(&SchedulerFixture::event3, this));
+  scheduler.scheduleEvent(time::milliseconds(250), bind(&SchedulerFixture::event3, this));
 
-  i = scheduler.scheduleEvent(time::seconds(0.05), bind(&SchedulerFixture::event2, this));
+  i = scheduler.scheduleEvent(time::milliseconds(50), bind(&SchedulerFixture::event2, this));
   scheduler.cancelEvent(i);
 
-  i = scheduler.schedulePeriodicEvent(time::seconds(1.5), time::seconds(0.5), bind(&SchedulerFixture::event4, this));
+  i = scheduler.schedulePeriodicEvent(time::milliseconds(1500), time::milliseconds(500), bind(&SchedulerFixture::event4, this));
   scheduler.scheduleEvent(time::seconds(4), bind(&Scheduler::cancelEvent, &scheduler, i));
-  
+
   io.run();
 
   BOOST_CHECK_EQUAL(count1, 1);
@@ -82,9 +82,9 @@ BOOST_FIXTURE_TEST_CASE(Events, SchedulerFixture)
 
 BOOST_AUTO_TEST_CASE(CancelEmptyEvent)
 {
-  boost::asio::io_service io; 
+  boost::asio::io_service io;
   Scheduler scheduler(io);
-  
+
   EventId i;
   scheduler.cancelEvent(i);
 }
@@ -109,7 +109,7 @@ struct SelfCancelFixture
 
 BOOST_FIXTURE_TEST_CASE(SelfCancel, SelfCancelFixture)
 {
-  m_selfEventId = m_scheduler.scheduleEvent(time::seconds(0.1),
+  m_selfEventId = m_scheduler.scheduleEvent(time::milliseconds(100),
                                             bind(&SelfCancelFixture::cancelSelf, this));
 
   BOOST_REQUIRE_NO_THROW(m_io.run());
@@ -126,8 +126,8 @@ struct SelfRescheduleFixture
   void
   reschedule()
   {
-    EventId eventId = m_scheduler.scheduleEvent(time::seconds(0.1),
-                                                  bind(&SelfRescheduleFixture::reschedule, this));
+    EventId eventId = m_scheduler.scheduleEvent(time::milliseconds(100),
+                                                bind(&SelfRescheduleFixture::reschedule, this));
     m_scheduler.cancelEvent(m_selfEventId);
     m_selfEventId = eventId;
 
@@ -141,11 +141,11 @@ struct SelfRescheduleFixture
   reschedule2()
   {
     m_scheduler.cancelEvent(m_selfEventId);
-    
-    
+
+
     if(m_count < 5)
       {
-        m_selfEventId = m_scheduler.scheduleEvent(time::seconds(0.1),
+        m_selfEventId = m_scheduler.scheduleEvent(time::milliseconds(100),
                                                   bind(&SelfRescheduleFixture::reschedule2, this));
         m_count++;
       }
@@ -156,23 +156,23 @@ struct SelfRescheduleFixture
   {
     m_count++;
   }
-  
+
   void
   reschedule3()
   {
     m_scheduler.cancelEvent(m_selfEventId);
-    
-    m_scheduler.scheduleEvent(time::seconds(0.1),
+
+    m_scheduler.scheduleEvent(time::milliseconds(100),
                               bind(&SelfRescheduleFixture::doNothing, this));
-    m_scheduler.scheduleEvent(time::seconds(0.1),
+    m_scheduler.scheduleEvent(time::milliseconds(100),
                               bind(&SelfRescheduleFixture::doNothing, this));
-    m_scheduler.scheduleEvent(time::seconds(0.1),
+    m_scheduler.scheduleEvent(time::milliseconds(100),
                               bind(&SelfRescheduleFixture::doNothing, this));
-    m_scheduler.scheduleEvent(time::seconds(0.1),
+    m_scheduler.scheduleEvent(time::milliseconds(100),
                               bind(&SelfRescheduleFixture::doNothing, this));
-    m_scheduler.scheduleEvent(time::seconds(0.1),
+    m_scheduler.scheduleEvent(time::milliseconds(100),
                               bind(&SelfRescheduleFixture::doNothing, this));
-    m_scheduler.scheduleEvent(time::seconds(0.1),
+    m_scheduler.scheduleEvent(time::milliseconds(100),
                               bind(&SelfRescheduleFixture::doNothing, this));
   }
 
@@ -180,7 +180,7 @@ struct SelfRescheduleFixture
   Scheduler m_scheduler;
   EventId m_selfEventId;
   int m_count;
-  
+
 };
 
 BOOST_FIXTURE_TEST_CASE(Reschedule, SelfRescheduleFixture)

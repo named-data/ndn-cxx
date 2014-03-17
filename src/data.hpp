@@ -18,18 +18,18 @@
 #include "management/nfd-local-control-header.hpp"
 
 namespace ndn {
-  
+
 class Data : public enable_shared_from_this<Data>
 {
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
-  
+
   /**
    * @brief Create an empty Data object
    */
   inline
   Data();
-  
+
   /**
    * @brief Create a new Data object with the given name
    * @param name A reference to the name which is copied.
@@ -45,20 +45,20 @@ public:
   {
     wireDecode(wire);
   }
-  
+
   /**
    * @brief The destructor
    */
   inline
   ~Data();
-  
+
   /**
    * @brief Fast encoding or block size estimation
    */
   template<bool T>
   inline size_t
   wireEncode(EncodingImpl<T> &block, bool unsignedPortion = false) const;
-  
+
   /**
    * @brief Encode to a wire format
    */
@@ -68,7 +68,7 @@ public:
   /**
    * @brief Decode from the wire format
    */
-  inline void 
+  inline void
   wireDecode(const Block &wire);
 
   /**
@@ -76,12 +76,12 @@ public:
    */
   inline bool
   hasWire() const;
-  
-  ////////////////////////////////////////////////////////////////////  
-  
-  inline const Name& 
+
+  ////////////////////////////////////////////////////////////////////
+
+  inline const Name&
   getName() const;
-  
+
   /**
    * @brief Set name to a copy of the given Name.
    *
@@ -92,10 +92,10 @@ public:
   setName(const Name& name);
 
   //
-  
-  inline const MetaInfo& 
+
+  inline const MetaInfo&
   getMetaInfo() const;
-  
+
   /**
    * @brief Set metaInfo to a copy of the given MetaInfo.
    * @param metaInfo The MetaInfo which is copied.
@@ -105,25 +105,25 @@ public:
   setMetaInfo(const MetaInfo& metaInfo);
 
   //
-  
+
   ///////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////
   // MetaInfo proxy methods
 
-  inline uint32_t 
+  inline uint32_t
   getContentType() const;
-  
-  inline void 
+
+  inline void
   setContentType(uint32_t type);
 
   //
-  
-  inline Milliseconds 
+
+  inline const time::milliseconds&
   getFreshnessPeriod() const;
-  
-  inline void 
-  setFreshnessPeriod(Milliseconds freshnessPeriod);
+
+  inline void
+  setFreshnessPeriod(const time::milliseconds& freshnessPeriod);
 
   //
 
@@ -137,14 +137,14 @@ public:
   ///////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////
-  
+
   /**
    * @brief Get content Block
    *
    * To access content value, one can use value()/value_size() or
    * value_begin()/value_end() methods of the Block class
    */
-  inline const Block& 
+  inline const Block&
   getContent() const;
 
   /**
@@ -162,17 +162,17 @@ public:
   setContent(const ConstBufferPtr &contentValue);
 
   //
-  
+
   inline const Signature&
   getSignature() const;
-  
+
   /**
    * @brief Set the signature to a copy of the given signature.
    * @param signature The signature object which is cloned.
    */
   inline void
   setSignature(const Signature& signature);
-  
+
   inline void
   setSignatureValue(const Block &value);
 
@@ -183,18 +183,18 @@ public:
 
   const nfd::LocalControlHeader&
   getLocalControlHeader() const;
-  
+
   inline uint64_t
   getIncomingFaceId() const;
 
   inline void
   setIncomingFaceId(uint64_t incomingFaceId);
-  
+
 private:
   /**
    * @brief Clear the wire encoding.
    */
-  inline void 
+  inline void
   onChanged();
 
 private:
@@ -253,10 +253,10 @@ Data::wireEncode(EncodingImpl<T> &block, bool unsignedPortion/* = false*/) const
 
   // SignatureInfo
   total_len += prependBlock(block, m_signature.getInfo());
-  
+
   // Content
   total_len += prependBlock(block, getContent());
-  
+
   // MetaInfo
   total_len += getMetaInfo().wireEncode(block);
 
@@ -279,16 +279,16 @@ Data::wireEncode() const
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
-  
+
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
   const_cast<Data*>(this)->wireDecode(buffer.block());
   return m_wire;
 }
-  
+
 /**
- * Decode the input using a particular wire format and update this Data. 
+ * Decode the input using a particular wire format and update this Data.
  * @param input The input byte array to be decoded.
  */
 void
@@ -302,7 +302,7 @@ Data::wireDecode(const Block &wire)
   //            MetaInfo
   //            Content
   //            Signature
-    
+
   // Name
   m_name.wireDecode(m_wire.get(Tlv::Name));
 
@@ -315,10 +315,10 @@ Data::wireDecode(const Block &wire)
   ///////////////
   // Signature //
   ///////////////
-  
+
   // SignatureInfo
   m_signature.setInfo(m_wire.get(Tlv::SignatureInfo));
-  
+
   // SignatureValue
   Block::element_const_iterator val = m_wire.find(Tlv::SignatureValue);
   if (val != m_wire.elements_end())
@@ -331,53 +331,53 @@ Data::hasWire() const
   return m_wire.hasWire();
 }
 
-inline const Name& 
+inline const Name&
 Data::getName() const
 {
   return m_name;
 }
-  
+
 inline void
 Data::setName(const Name& name)
-{ 
+{
   onChanged();
-  m_name = name; 
+  m_name = name;
 }
-  
-inline const MetaInfo& 
+
+inline const MetaInfo&
 Data::getMetaInfo() const
 {
   return m_metaInfo;
 }
-  
+
 inline void
-Data::setMetaInfo(const MetaInfo& metaInfo) 
-{ 
+Data::setMetaInfo(const MetaInfo& metaInfo)
+{
   onChanged();
-  m_metaInfo = metaInfo; 
+  m_metaInfo = metaInfo;
 }
 
-inline uint32_t 
+inline uint32_t
 Data::getContentType() const
 {
   return m_metaInfo.getType();
 }
-  
-inline void 
+
+inline void
 Data::setContentType(uint32_t type)
 {
   onChanged();
   m_metaInfo.setType(type);
 }
-  
-inline Milliseconds 
+
+inline const time::milliseconds&
 Data::getFreshnessPeriod() const
 {
   return m_metaInfo.getFreshnessPeriod();
 }
-  
-inline void 
-Data::setFreshnessPeriod(Milliseconds freshnessPeriod)
+
+inline void
+Data::setFreshnessPeriod(const time::milliseconds& freshnessPeriod)
 {
   onChanged();
   m_metaInfo.setFreshnessPeriod(freshnessPeriod);
@@ -396,7 +396,7 @@ Data::setFinalBlockId(const name::Component& finalBlockId)
   m_metaInfo.setFinalBlockId(finalBlockId);
 }
 
-inline const Block& 
+inline const Block&
 Data::getContent() const
 {
   if (m_content.empty())
@@ -408,7 +408,7 @@ Data::getContent() const
 }
 
 inline void
-Data::setContent(const uint8_t* content, size_t contentLength) 
+Data::setContent(const uint8_t* content, size_t contentLength)
 {
   onChanged();
 
@@ -422,9 +422,9 @@ Data::setContent(const ConstBufferPtr &contentValue)
 
   m_content = Block(Tlv::Content, contentValue); // not real a wire encoding yet
 }
-  
+
 inline void
-Data::setContent(const Block& content) 
+Data::setContent(const Block& content)
 {
   onChanged();
 
@@ -440,9 +440,9 @@ Data::getSignature() const
 {
   return m_signature;
 }
-  
+
 inline void
-Data::setSignature(const Signature& signature) 
+Data::setSignature(const Signature& signature)
 {
   onChanged();
   m_signature = signature;
@@ -482,14 +482,14 @@ Data::setIncomingFaceId(uint64_t incomingFaceId)
   // ! do not reset Data's wire !
 }
 
-inline void 
+inline void
 Data::onChanged()
 {
   // The values have changed, so the wire format is invalidated
 
   // !!!Note!!! Signature is not invalidated and it is responsibility of
   // the application to do proper re-signing if necessary
-  
+
   m_wire.reset();
 }
 

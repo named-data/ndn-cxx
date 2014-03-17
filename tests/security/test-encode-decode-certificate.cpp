@@ -83,8 +83,8 @@ const uint8_t CERT[] = {
 const std::string CERT_INFO = "Certificate name:\n"
   "  /\n"
   "Validity:\n"
-  "  NotBefore: 20131226T232254.000000\n"
-  "  NotAfter: 20131226T232254.000000\n"
+  "  NotBefore: 20131226T232254\n"
+  "  NotAfter: 20131226T232254\n"
   "Subject Description:\n"
   "  2.5.4.41: TEST NAME\n"
   "Public key bits:\n"
@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE (Encode)
   ndn::Certificate c;
 
   // validity
-  c.setNotBefore(1388100174000); // 12/26/2013 @ 11:22pm
-  c.setNotAfter(1388100174000); // 12/26/2013 @ 11:22pm
+  c.setNotBefore(time::fromUnixTimestamp(time::milliseconds(1388100174000))); // 12/26/2013 @ 11:22pm
+  c.setNotAfter(time::fromUnixTimestamp(time::milliseconds(1388100174000))); // 12/26/2013 @ 11:22pm
 
   // subject
   c.addSubjectDescription(CertificateSubjectDescription("2.5.4.41", "TEST NAME"));
@@ -131,19 +131,19 @@ BOOST_AUTO_TEST_CASE (Encode)
   // p.Load(source);
 
   BOOST_REQUIRE_NO_THROW(c.encode());
-  
+
   // ofstream of("cert.out");
   // of.write((const char*)c.getContent().value(), c.getContent().value_size());
   
   // const Block &wire = i.wireEncode();
   BOOST_REQUIRE_EQUAL_COLLECTIONS(CERT, CERT+sizeof(CERT),
-                                c.getContent().value_begin(), c.getContent().value_end());
+                                  c.getContent().value_begin(), c.getContent().value_end());
 
   std::ostringstream os;
   os << c << std::endl;
   std::string info(os.str());
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(CERT_INFO.begin(), CERT_INFO.end(),
-                                  info.begin(), info.end());
+
+  BOOST_CHECK_EQUAL(CERT_INFO, info);
 }
 
 const unsigned char REAL_CERT[] = {
@@ -153,8 +153,8 @@ const unsigned char REAL_CERT[] = {
 const std::string REAL_CERT_INFO = "Certificate name:\n"
 "  /tmp\n"
 "Validity:\n"
-"  NotBefore: 20131101T171122.000000\n"
-"  NotAfter: 20141101T171122.000000\n"
+"  NotBefore: 20131101T171122\n"
+"  NotAfter: 20141101T171122\n"
 "Subject Description:\n"
 "  2.5.4.41: NDN Testbed Root\n"
 "Public key bits:\n"
@@ -176,8 +176,7 @@ BOOST_AUTO_TEST_CASE (Decode)
   std::ostringstream os;
   os << c << std::endl;
   std::string info(os.str());
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(REAL_CERT_INFO.begin(), REAL_CERT_INFO.end(),
-                                  info.begin(), info.end());
+  BOOST_CHECK_EQUAL(REAL_CERT_INFO, info);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

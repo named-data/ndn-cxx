@@ -124,8 +124,8 @@ public:
   shared_ptr<IdentityCertificate>
   prepareUnsignedIdentityCertificate(const Name& keyName,
                                      const Name& signingIdentity,
-                                     const MillisecondsSince1970& notBefore,
-                                     const MillisecondsSince1970& notAfter,
+                                     const time::system_clock::TimePoint& notBefore,
+                                     const time::system_clock::TimePoint& notAfter,
                                      const std::vector<CertificateSubjectDescription>& subjectDescription)
 
   {
@@ -360,8 +360,8 @@ public:
     certificateName.append("KEY").append(keyName.get(-1)).append("ID-CERT").appendVersion();
 
     certificate->setName(certificateName);
-    certificate->setNotBefore(getNow());
-    certificate->setNotAfter(getNow() + 630720000 /* 20 years*/);
+    certificate->setNotBefore(time::system_clock::now());
+    certificate->setNotAfter(time::system_clock::now() + time::days(7300)/* ~20 years*/);
     certificate->setPublicKeyInfo(*pubKey);
     certificate->addSubjectDescription(CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
     certificate->encode();

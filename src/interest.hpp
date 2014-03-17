@@ -14,55 +14,55 @@
 
 namespace ndn {
 
-const Milliseconds DEFAULT_INTEREST_LIFETIME = 4000;
+const time::seconds DEFAULT_INTEREST_LIFETIME = time::seconds(4);
 
 /**
  * An Interest holds a Name and other fields for an interest.
  */
 class Interest : public enable_shared_from_this<Interest>
 {
-public:    
+public:
   /**
    * @brief Create a new Interest with an empty name and "none" for all values.
    */
   Interest()
     : m_nonce(0)
     , m_scope(-1)
-    , m_interestLifetime(-1.0)
+    , m_interestLifetime(time::milliseconds::min())
   {
   }
 
   /**
    * @brief Create a new Interest with the given name and "none" for other values.
-   * 
+   *
    * @param name The name for the interest.
    */
-  Interest(const Name& name) 
+  Interest(const Name& name)
     : m_name(name)
     , m_nonce(0)
     , m_scope(-1)
-    , m_interestLifetime(-1.0)
+    , m_interestLifetime(time::milliseconds::min())
   {
   }
 
   /**
    * Create a new Interest with the given name and interest lifetime and "none" for other values.
    * @param name The name for the interest.
-   * @param interestLifetimeMilliseconds The interest lifetime in milliseconds, or -1 for none.
+   * @param interestLifetimeMilliseconds The interest lifetime in time::milliseconds, or -1 for none.
    */
-  Interest(const Name& name, Milliseconds interestLifetime) 
+  Interest(const Name& name, const time::milliseconds& interestLifetime)
     : m_name(name)
     , m_nonce(0)
     , m_scope(-1)
     , m_interestLifetime(interestLifetime)
   {
   }
-  
+
   Interest(const Name& name,
-           const Selectors& selectors, 
+           const Selectors& selectors,
            int scope,
-           Milliseconds interestLifetime,
-           uint32_t nonce = 0) 
+           const time::milliseconds& interestLifetime,
+           uint32_t nonce = 0)
     : m_name(name)
     , m_selectors(selectors)
     , m_nonce(nonce)
@@ -70,7 +70,7 @@ public:
     , m_interestLifetime(interestLifetime)
   {
   }
-  
+
   /**
    * Create a new Interest for the given name and values.
    * @param name
@@ -84,13 +84,13 @@ public:
    * @param nonce
    */
   Interest(const Name& name,
-           int minSuffixComponents, int maxSuffixComponents, 
+           int minSuffixComponents, int maxSuffixComponents,
            const Exclude& exclude,
            int childSelector,
-           bool mustBeFresh, 
+           bool mustBeFresh,
            int scope,
-           Milliseconds interestLifetime,
-           uint32_t nonce = 0) 
+           const time::milliseconds& interestLifetime,
+           uint32_t nonce = 0)
     : m_name(name)
     , m_selectors(minSuffixComponents, maxSuffixComponents, exclude, childSelector, mustBeFresh)
     , m_nonce(nonce)
@@ -121,7 +121,7 @@ public:
   /**
    * @brief Decode from the wire format
    */
-  inline void 
+  inline void
   wireDecode(const Block &wire);
 
   /**
@@ -129,7 +129,7 @@ public:
    */
   inline bool
   hasWire() const;
-  
+
   /**
    * Encode the name according to the "NDN URI Scheme".  If there are interest selectors, append "?" and
    * added the selectors as a query string.  For example "/test/name?ndn.ChildSelector=1".
@@ -145,7 +145,7 @@ public:
   hasGuiders() const;
 
   /**
-   * @brief Check if Interest name matches the given name (using ndn_Name_match) and the given name also conforms to the 
+   * @brief Check if Interest name matches the given name (using ndn_Name_match) and the given name also conforms to the
    * interest selectors.
    * @param self A pointer to the ndn_Interest struct.
    * @param name A pointer to the name to check.
@@ -158,8 +158,8 @@ public:
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
   // Getters/setters
-  
-  const Name& 
+
+  const Name&
   getName() const
   {
     return m_name;
@@ -172,7 +172,7 @@ public:
     m_wire.reset();
     return *this;
   }
-  
+
   //
 
   const Selectors&
@@ -191,7 +191,7 @@ public:
 
   //
 
-  int 
+  int
   getScope() const
   {
     return m_scope;
@@ -206,15 +206,15 @@ public:
   }
 
   //
-  
-  Milliseconds 
+
+  const time::milliseconds&
   getInterestLifetime() const
   {
     return m_interestLifetime;
   }
 
   Interest&
-  setInterestLifetime(Milliseconds interestLifetime)
+  setInterestLifetime(const time::milliseconds& interestLifetime)
   {
     m_interestLifetime = interestLifetime;
     m_wire.reset();
@@ -222,7 +222,7 @@ public:
   }
 
   //
-  
+
   /**
    * @brief Get Interest's nonce
    *
@@ -256,7 +256,7 @@ public:
   }
 
   // helper methods for LocalControlHeader
-  
+
   uint64_t
   getIncomingFaceId() const
   {
@@ -274,7 +274,7 @@ public:
   //
 
   // NextHopFaceId helpers make sense only for Interests
-  
+
   uint64_t
   getNextHopFaceId() const
   {
@@ -290,19 +290,19 @@ public:
   }
 
   //
-  
+
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
   // Wrappers for Selectors
   //
-  
+
   int
   getMinSuffixComponents() const
   {
     return m_selectors.getMinSuffixComponents();
   }
-  
+
   Interest&
   setMinSuffixComponents(int minSuffixComponents)
   {
@@ -312,7 +312,7 @@ public:
   }
 
   //
-  
+
   int
   getMaxSuffixComponents() const
   {
@@ -326,7 +326,7 @@ public:
     m_wire.reset();
     return *this;
   }
-  
+
   //
 
   const Exclude&
@@ -344,8 +344,8 @@ public:
   }
 
   //
-  
-  int 
+
+  int
   getChildSelector() const
   {
     return m_selectors.getChildSelector();
@@ -361,7 +361,7 @@ public:
 
   //
 
-  int 
+  int
   getMustBeFresh() const
   {
     return m_selectors.getMustBeFresh();
@@ -380,7 +380,7 @@ private:
   Selectors m_selectors;
   mutable uint32_t m_nonce;
   int m_scope;
-  Milliseconds m_interestLifetime;
+  time::milliseconds m_interestLifetime;
 
   mutable Block m_wire;
 
@@ -409,7 +409,7 @@ inline bool
 Interest::hasGuiders() const
 {
   return m_scope >= 0 ||
-    m_interestLifetime >= 0 ||
+    m_interestLifetime >= time::milliseconds::zero() ||
     m_nonce > 0;
 }
 
@@ -424,14 +424,15 @@ Interest::wireEncode(EncodingImpl<T> &block) const
   //                Selectors?
   //                Nonce
   //                Scope?
-  //                InterestLifetime?  
+  //                InterestLifetime?
 
   // (reverse encoding)
 
   // InterestLifetime
-  if (getInterestLifetime() >= 0 && getInterestLifetime() != DEFAULT_INTEREST_LIFETIME)
+  if (getInterestLifetime() >= time::milliseconds::zero()
+      && getInterestLifetime() != DEFAULT_INTEREST_LIFETIME)
     {
-      total_len += prependNonNegativeIntegerBlock(block, Tlv::InterestLifetime, getInterestLifetime());
+      total_len += prependNonNegativeIntegerBlock(block, Tlv::InterestLifetime, getInterestLifetime().count());
     }
 
   // Scope
@@ -451,7 +452,7 @@ Interest::wireEncode(EncodingImpl<T> &block) const
 
   // Name
   total_len += getName().wireEncode(block);
-  
+
   total_len += block.prependVarNumber (total_len);
   total_len += block.prependVarNumber (Tlv::Interest);
   return total_len;
@@ -465,7 +466,7 @@ Interest::wireEncode() const
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
-  
+
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
@@ -474,7 +475,7 @@ Interest::wireEncode() const
 }
 
 inline void
-Interest::wireDecode(const Block &wire) 
+Interest::wireDecode(const Block &wire)
 {
   m_wire = wire;
   m_wire.parse();
@@ -484,11 +485,11 @@ Interest::wireDecode(const Block &wire)
   //                Selectors?
   //                Nonce
   //                Scope?
-  //                InterestLifetime?  
+  //                InterestLifetime?
 
   if (m_wire.type() != Tlv::Interest)
     throw Tlv::Error("Unexpected TLV number when decoding Interest");
-  
+
   // Name
   m_name.wireDecode(m_wire.get(Tlv::Name));
 
@@ -518,12 +519,12 @@ Interest::wireDecode(const Block &wire)
     }
   else
     m_scope = -1;
-  
+
   // InterestLifetime
   val = m_wire.find(Tlv::InterestLifetime);
   if (val != m_wire.elements_end())
     {
-      m_interestLifetime = readNonNegativeInteger(*val);
+      m_interestLifetime = time::milliseconds(readNonNegativeInteger(*val));
     }
   else
     {

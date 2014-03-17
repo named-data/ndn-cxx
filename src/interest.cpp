@@ -29,7 +29,7 @@ Interest::matchesName(const Name &name) const
 {
   if (!m_name.isPrefixOf(name))
     return false;
-  
+
   if (getMinSuffixComponents() >= 0 &&
     // Add 1 for the implicit digest.
       !(name.size() + 1 - m_name.size() >= getMinSuffixComponents()))
@@ -74,7 +74,8 @@ operator << (std::ostream &os, const Interest &interest)
     os << delim << "ndn.Scope=" << interest.getScope();
     delim = '&';
   }
-  if (interest.getInterestLifetime() >= 0 && interest.getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
+  if (interest.getInterestLifetime() >= time::milliseconds::zero()
+      && interest.getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
     os << delim << "ndn.InterestLifetime=" << interest.getInterestLifetime();
     delim = '&';
   }

@@ -22,11 +22,11 @@ public:
     TYPE_LINK = 1,
     TYPE_KEY = 2
   };
-  
+
   MetaInfo()
     : m_type(TYPE_DEFAULT)
     , m_freshnessPeriod(-1)
-  {   
+  {
   }
 
   MetaInfo(const Block& block)
@@ -38,21 +38,21 @@ public:
   size_t
   wireEncode(EncodingImpl<T> &block) const;
 
-  const Block& 
+  const Block&
   wireEncode() const;
-  
+
   void
-  wireDecode(const Block &wire);  
-  
+  wireDecode(const Block &wire);
+
   ///////////////////////////////////////////////////////////////////////////////
   // Getters/setters
-  
-  uint32_t 
+
+  uint32_t
   getType() const
   {
     return m_type;
   }
-  
+
   MetaInfo&
   setType(uint32_t type)
   {
@@ -60,15 +60,15 @@ public:
     m_type = type;
     return *this;
   }
-  
-  Milliseconds 
+
+  const time::milliseconds&
   getFreshnessPeriod() const
   {
     return m_freshnessPeriod;
   }
-  
+
   MetaInfo&
-  setFreshnessPeriod(Milliseconds freshnessPeriod)
+  setFreshnessPeriod(const time::milliseconds& freshnessPeriod)
   {
     m_wire.reset();
     m_freshnessPeriod = freshnessPeriod;
@@ -88,10 +88,10 @@ public:
     m_finalBlockId = finalBlockId;
     return *this;
   }
-  
+
 private:
   uint32_t m_type;
-  Milliseconds m_freshnessPeriod;
+  time::milliseconds m_freshnessPeriod;
   name::Component m_finalBlockId;
 
   mutable Block m_wire;
@@ -105,7 +105,7 @@ MetaInfo::wireEncode(EncodingImpl<T>& blk) const
   //                ContentType?
   //                FreshnessPeriod?
   //                FinalBlockId?
-  
+
   size_t total_len = 0;
 
   // FinalBlockId
@@ -113,11 +113,12 @@ MetaInfo::wireEncode(EncodingImpl<T>& blk) const
     {
       total_len += prependNestedBlock(blk, Tlv::FinalBlockId, m_finalBlockId);
     }
-  
+
   // FreshnessPeriod
-  if (m_freshnessPeriod >= 0)
+  if (m_freshnessPeriod >= time::milliseconds::zero())
     {
-      total_len += prependNonNegativeIntegerBlock(blk, Tlv::FreshnessPeriod, m_freshnessPeriod);
+      total_len += prependNonNegativeIntegerBlock(blk, Tlv::FreshnessPeriod,
+                                                  m_freshnessPeriod.count());
     }
 
   // ContentType
@@ -131,7 +132,7 @@ MetaInfo::wireEncode(EncodingImpl<T>& blk) const
   return total_len;
 }
 
-inline const Block& 
+inline const Block&
 MetaInfo::wireEncode() const
 {
   if (m_wire.hasWire ())
@@ -139,14 +140,14 @@ MetaInfo::wireEncode() const
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
-  
+
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
   m_wire = buffer.block();
   return m_wire;
 }
-  
+
 inline void
 MetaInfo::wireDecode(const Block &wire)
 {
@@ -156,7 +157,7 @@ MetaInfo::wireDecode(const Block &wire)
   // MetaInfo ::= META-INFO-TYPE TLV-LENGTH
   //                ContentType?
   //                FreshnessPeriod?
-  
+
   // ContentType
   Block::element_const_iterator val = m_wire.find(Tlv::ContentType);
   if (val != m_wire.elements().end())
@@ -170,10 +171,10 @@ MetaInfo::wireDecode(const Block &wire)
   val = m_wire.find(Tlv::FreshnessPeriod);
   if (val != m_wire.elements().end())
     {
-      m_freshnessPeriod = readNonNegativeInteger(*val);
+      m_freshnessPeriod = time::milliseconds(readNonNegativeInteger(*val));
     }
   else
-    m_freshnessPeriod = -1;
+    m_freshnessPeriod = time::milliseconds::min();
 
   // FinalBlockId
   val = m_wire.find(Tlv::FinalBlockId);
@@ -197,7 +198,7 @@ operator << (std::ostream &os, const MetaInfo &info)
   os << "ContentType: " << info.getType();
 
   // FreshnessPeriod
-  if (info.getFreshnessPeriod() >= 0) {
+  if (info.getFreshnessPeriod() >= time::milliseconds::zero()) {
     os << ", FreshnessPeriod: " << info.getFreshnessPeriod();
   }
 

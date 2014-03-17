@@ -17,6 +17,7 @@
 
 #include "management/controller.hpp"
 
+#include "util/scheduler.hpp"
 #include "detail/registered-prefix.hpp"
 #include "detail/pending-interest.hpp"
 
@@ -192,7 +193,8 @@ public:
    * call this from an main event loop, you may want to catch and log/disregard all exceptions.
    */
   void 
-  processEvents(Milliseconds timeout = 0, bool keepThread = false);
+  processEvents(const time::milliseconds& timeout = time::milliseconds::zero(),
+                bool keepThread = false);
 
   void 
   shutdown();
@@ -241,9 +243,9 @@ private:
 private:
   shared_ptr<boost::asio::io_service> m_ioService;
   shared_ptr<boost::asio::io_service::work> m_ioServiceWork; // needed if thread needs to be preserved
-  shared_ptr<boost::asio::deadline_timer> m_pitTimeoutCheckTimer;
+  shared_ptr<monotonic_deadline_timer> m_pitTimeoutCheckTimer;
   bool m_pitTimeoutCheckTimerActive;
-  shared_ptr<boost::asio::deadline_timer> m_processEventsTimeoutTimer;
+  shared_ptr<monotonic_deadline_timer> m_processEventsTimeoutTimer;
   
   shared_ptr<Transport> m_transport;
 

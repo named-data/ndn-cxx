@@ -25,7 +25,7 @@ public:
   static const Name DEFAULT_CERTIFICATE_NAME;
 
   CommandInterestGenerator()
-    : m_lastTimestamp(time::now() / 1000000)
+    : m_lastTimestamp(time::toUnixTimestamp(time::system_clock::now()))
   {
   }
 
@@ -36,30 +36,29 @@ public:
 
   void
   generate(Interest& interest, const Name& certificateName = Name());
-  
+
   void
   generateWithIdentity(Interest& interest, const Name& identity);
-  
+
 private:
-  int64_t m_lastTimestamp;
+  time::milliseconds m_lastTimestamp;
   KeyChain m_keyChain;
 };
 
 
 inline void
-CommandInterestGenerator::generate(Interest& interest, 
+CommandInterestGenerator::generate(Interest& interest,
 				   const Name& certificateName /*= Name()*/)
 {
-  int64_t timestamp = time::now() / 1000000;
-  while(timestamp == m_lastTimestamp)
+  time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
+  while(timestamp <= m_lastTimestamp)
     {
-      usleep(1000); //Guarantee unqiueness of timestamp
-      timestamp = time::now();
+      timestamp += time::milliseconds(1);
     }
 
   Name commandInterestName = interest.getName();
   commandInterestName
-    .append(name::Component::fromNumber(timestamp))
+    .append(name::Component::fromNumber(timestamp.count()))
     .append(name::Component::fromNumber(random::generateWord64()));
   interest.setName(commandInterestName);
 
@@ -70,17 +69,19 @@ CommandInterestGenerator::generate(Interest& interest,
 
   m_lastTimestamp = timestamp;
 }
-  
+
 inline void
 CommandInterestGenerator::generateWithIdentity(Interest& interest, const Name& identity)
 {
-  int64_t timestamp = time::now() / 1000000;
-  if(timestamp <= m_lastTimestamp)
-    timestamp = m_lastTimestamp + 1;
+  time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
+  while(timestamp <= m_lastTimestamp)
+    {
+      timestamp += time::milliseconds(1);
+    }
 
   Name commandInterestName = interest.getName();
   commandInterestName
-    .append(name::Component::fromNumber(timestamp))
+    .append(name::Component::fromNumber(timestamp.count()))
     .append(name::Component::fromNumber(random::generateWord64()));
   interest.setName(commandInterestName);
 

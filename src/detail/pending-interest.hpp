@@ -30,15 +30,10 @@ public:
     : interest_(interest),
       onData_(onData), onTimeout_(onTimeout)
   {
-    // Set up timeoutTime_.
-    if (interest_->getInterestLifetime() >= 0)
-      timeoutTimeMilliseconds_ = getNowMilliseconds() + interest_->getInterestLifetime();
+    if (interest_->getInterestLifetime() >= time::milliseconds::zero())
+      timeout_ = time::steady_clock::now() + interest_->getInterestLifetime();
     else
-      // No timeout.
-      /**
-       * @todo Set more meaningful default timeout.  This timeout MUST exist.
-       */
-      timeoutTimeMilliseconds_ = getNowMilliseconds() + 4000;
+      timeout_ = time::steady_clock::now() + DEFAULT_INTEREST_LIFETIME;
   }
     
   const shared_ptr<const Interest>& 
@@ -55,13 +50,12 @@ public:
     
   /**
    * Check if this interest is timed out.
-   * @param nowMilliseconds The current time in milliseconds from getNowMilliseconds.
    * @return true if this interest timed out, otherwise false.
    */
   bool 
-  isTimedOut(MillisecondsSince1970 nowMilliseconds)
+  isTimedOut(const time::steady_clock::TimePoint& now)
   {
-    return timeoutTimeMilliseconds_ >= 0.0 && nowMilliseconds >= timeoutTimeMilliseconds_;
+    return now >= timeout_;
   }
 
   /**
@@ -80,8 +74,8 @@ private:
   const OnData onData_;
   const OnTimeout onTimeout_;
 
-  /** The time when the interest times out in milliseconds according to getNowMilliseconds, or -1 for no timeout. */
-  MillisecondsSince1970 timeoutTimeMilliseconds_;
+  /** The time when the interest times out in time::milliseconds according to getNowMilliseconds, or -1 for no timeout. */
+  time::steady_clock::TimePoint timeout_;
 };
 
 

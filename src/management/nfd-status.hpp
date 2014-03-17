@@ -44,8 +44,6 @@ public:
   wireDecode(const Block& payload);
 
 public:
-  typedef boost::chrono::time_point<boost::chrono::system_clock, boost::chrono::seconds> Timestamp;
-
   int
   getNfdVersion() const
   {
@@ -58,26 +56,26 @@ public:
     m_nfdVersion = nfdVersion;
   }
 
-  Timestamp
+  const time::system_clock::TimePoint&
   getStartTimestamp() const
   {
     return m_startTimestamp;
   }
 
   void
-  setStartTimestamp(Timestamp startTimestamp)
+  setStartTimestamp(const time::system_clock::TimePoint& startTimestamp)
   {
     m_startTimestamp = startTimestamp;
   }
 
-  Timestamp
+  const time::system_clock::TimePoint&
   getCurrentTimestamp() const
   {
     return m_currentTimestamp;
   }
 
   void
-  setCurrentTimestamp(Timestamp currentTimestamp)
+  setCurrentTimestamp(const time::system_clock::TimePoint& currentTimestamp)
   {
     m_currentTimestamp = currentTimestamp;
   }
@@ -192,8 +190,8 @@ public:
 
 private:
   int       m_nfdVersion;
-  Timestamp m_startTimestamp;
-  Timestamp m_currentTimestamp;
+  time::system_clock::TimePoint m_startTimestamp;
+  time::system_clock::TimePoint m_currentTimestamp;
   size_t    m_nNameTreeEntries;
   size_t    m_nFibEntries;
   size_t    m_nPitEntries;
@@ -205,24 +203,22 @@ private:
   int       m_nOutDatas;
 };
 
-BOOST_STATIC_ASSERT((boost::is_same<Status::Timestamp::period, boost::ratio<1> >::value));
-
 inline
 Status::Status()
-{
-  m_nfdVersion = 0;
-  m_startTimestamp = Timestamp::min();
-  m_currentTimestamp = Timestamp::min();
-  m_nNameTreeEntries = 0;
-  m_nFibEntries = 0;
-  m_nPitEntries = 0;
-  m_nMeasurementsEntries = 0;
-  m_nCsEntries = 0;
-  m_nInInterests = 0;
-  m_nOutInterests = 0;
-  m_nInDatas = 0;
-  m_nOutDatas = 0;
-}
+  : m_nfdVersion(0)
+  , m_startTimestamp(time::system_clock::TimePoint::min())
+  , m_currentTimestamp(time::system_clock::TimePoint::min())
+  , m_nNameTreeEntries(0)
+  , m_nFibEntries(0)
+  , m_nPitEntries(0)
+  , m_nMeasurementsEntries(0)
+  , m_nCsEntries(0)
+  , m_nInInterests(0)
+  , m_nOutInterests(0)
+  , m_nInDatas(0)
+  , m_nOutDatas(0)
+  {
+  }
 
 template<bool T>
 inline size_t
@@ -249,9 +245,9 @@ Status::wireEncode(EncodingImpl<T>& encoder) const
   total_len += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NNameTreeEntries,
                                               m_nNameTreeEntries);
   total_len += prependNonNegativeIntegerBlock(encoder, tlv::nfd::CurrentTimestamp,
-               m_currentTimestamp.time_since_epoch().count());
+                                              time::toUnixTimestamp(m_currentTimestamp).count());
   total_len += prependNonNegativeIntegerBlock(encoder, tlv::nfd::StartTimestamp,
-               m_startTimestamp.time_since_epoch().count());
+                                              time::toUnixTimestamp(m_startTimestamp).count());
   total_len += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NfdVersion,
                                               m_nfdVersion);
 
@@ -262,8 +258,8 @@ inline void
 Status::wireDecode(const Block& payload)
 {
   m_nfdVersion = 0;
-  m_startTimestamp = Timestamp::min();
-  m_currentTimestamp = Timestamp::min();
+  m_startTimestamp = time::system_clock::TimePoint::min();
+  m_currentTimestamp = time::system_clock::TimePoint::min();
   m_nNameTreeEntries = 0;
   m_nFibEntries = 0;
   m_nPitEntries = 0;
@@ -288,12 +284,12 @@ Status::wireDecode(const Block& payload)
 
   val = payload.find(tlv::nfd::StartTimestamp);
   if (val != payload.elements_end()) {
-    m_startTimestamp = Timestamp(boost::chrono::seconds(readNonNegativeInteger(*val)));
+    m_startTimestamp = time::fromUnixTimestamp(time::milliseconds(readNonNegativeInteger(*val)));
   }
 
   val = payload.find(tlv::nfd::CurrentTimestamp);
   if (val != payload.elements_end()) {
-    m_currentTimestamp = Timestamp(boost::chrono::seconds(readNonNegativeInteger(*val)));
+    m_currentTimestamp = time::fromUnixTimestamp(time::milliseconds(readNonNegativeInteger(*val)));
   }
 
   val = payload.find(tlv::nfd::NNameTreeEntries);

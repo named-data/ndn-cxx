@@ -47,16 +47,16 @@ private:
   bool m_isValid;
 };
 
-Scheduler::EventInfo::EventInfo(const time::Duration& after,
-                        const time::Duration& period,
-                        const Event& event)
-  : m_scheduledTime(time::now() + after)
+Scheduler::EventInfo::EventInfo(const time::nanoseconds& after,
+                                const time::nanoseconds& period,
+                                const Event& event)
+  : m_scheduledTime(time::steady_clock::now() + after)
   , m_period(period)
   , m_event(event)
 {
 }
 
-Scheduler::EventInfo::EventInfo(const time::Point& when, const EventInfo& previousEvent)
+Scheduler::EventInfo::EventInfo(const time::steady_clock::TimePoint& when, const EventInfo& previousEvent)
   : m_scheduledTime(when)
   , m_period(previousEvent.m_period)
   , m_event(previousEvent.m_event)
@@ -64,10 +64,10 @@ Scheduler::EventInfo::EventInfo(const time::Point& when, const EventInfo& previo
 {
 }
 
-time::Duration
+time::nanoseconds
 Scheduler::EventInfo::expiresFromNow() const
 {
-  time::Point now = time::now();
+  time::steady_clock::TimePoint now = time::steady_clock::now();
   if (now > m_scheduledTime)
     return time::seconds(0); // event should be scheduled ASAP
   else
@@ -84,15 +84,15 @@ Scheduler::Scheduler(boost::asio::io_service& ioService)
 }
 
 EventId
-Scheduler::scheduleEvent(const time::Duration& after,
+Scheduler::scheduleEvent(const time::nanoseconds& after,
                          const Event& event)
 {
   return schedulePeriodicEvent(after, time::nanoseconds(-1), event);
 }
 
 EventId
-Scheduler::schedulePeriodicEvent(const time::Duration& after,
-                                 const time::Duration& period,
+Scheduler::schedulePeriodicEvent(const time::nanoseconds& after,
+                                 const time::nanoseconds& period,
                                  const Event& event)
 {
   EventQueue::iterator i = m_events.insert(EventInfo(after, period, event));
@@ -154,13 +154,13 @@ Scheduler::onEvent(const boost::system::error_code& error)
   m_isEventExecuting = true;
 
   // process all expired events
-  time::Point now = time::now();
+  time::steady_clock::TimePoint now = time::steady_clock::now();
   while(!m_events.empty() && m_events.begin()->m_scheduledTime <= now)
     {
       EventQueue::iterator head = m_events.begin();
       
       Event event = head->m_event;
-      if (head->m_period < 0)
+      if (head->m_period < time::nanoseconds::zero())
         {
           head->m_eventId->invalidate();
           m_events.erase(head);

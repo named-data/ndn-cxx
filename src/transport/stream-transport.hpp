@@ -86,7 +86,7 @@ public:
     if (!m_connectionInProgress) {
       m_connectionInProgress = true;
 
-      // Wait at most 4 seconds to connect
+      // Wait at most 4 time::seconds to connect
       /// @todo Decide whether this number should be configurable
       m_connectTimer.expires_from_now(boost::posix_time::seconds(4));
       m_connectTimer.async_wait(bind(&impl::connectTimeoutHandler, this, _1));
@@ -337,7 +337,7 @@ public:
     if (!this->m_connectionInProgress) {
       this->m_connectionInProgress = true;
 
-      // Wait at most 4 seconds to connect
+      // Wait at most 4 time::seconds to connect
       /// @todo Decide whether this number should be configurable
       this->m_connectTimer.expires_from_now(boost::posix_time::seconds(4));
       this->m_connectTimer.async_wait(bind(&impl::connectTimeoutHandler, this, _1));

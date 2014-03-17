@@ -25,7 +25,8 @@ BOOST_AUTO_TEST_CASE (Delete)
 {
   SecTpmOsx tpm;
   
-  Name keyName("/TestSecTpmOsx/Delete/ksk-" + boost::lexical_cast<string>(time::now()));
+  Name keyName("/TestSecTpmOsx/Delete/ksk-" + boost::lexical_cast<string>(
+                                                time::toUnixTimestamp(time::system_clock::now()).count()));
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
   
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
@@ -41,7 +42,8 @@ BOOST_AUTO_TEST_CASE (SignVerify)
 {
   SecTpmOsx tpm;
 
-  Name keyName("/TestSecTpmOsx/SignVerify/ksk-" + boost::lexical_cast<string>(time::now()));
+  Name keyName("/TestSecTpmOsx/SignVerify/ksk-" + boost::lexical_cast<string>(
+                                                    time::toUnixTimestamp(time::system_clock::now()).count()));
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
   
   Data data("/TestSecTpmOsx/SignVaerify/Data/1");
@@ -102,7 +104,8 @@ BOOST_AUTO_TEST_CASE (ExportImportKey)
 
   SecTpmOsx tpm;
 
-  Name keyName("/TestSecTpmOsx/ExportImportKey/ksk-" + boost::lexical_cast<string>(time::now()));
+  Name keyName("/TestSecTpmOsx/ExportImportKey/ksk-" + boost::lexical_cast<string>(
+                                                         time::toUnixTimestamp(time::system_clock::now()).count()));
   
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
 

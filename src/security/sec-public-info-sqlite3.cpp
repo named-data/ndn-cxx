@@ -365,9 +365,11 @@ SecPublicInfoSqlite3::doesCertificateExist(const Name& certificateName)
 //   sqlite3_bind_text(statement, 3, identityName, SQLITE_STATIC);
 //   sqlite3_bind_text(statement, 4, keyId, SQLITE_STATIC);
 
-//   // Convert from milliseconds to seconds since 1/1/1970.
-//   sqlite3_bind_int64(statement, 5, static_cast<sqlite3_int64>(certificate.getNotBefore() / 1000));
-//   sqlite3_bind_int64(statement, 6, static_cast<sqlite3_int64>(certificate.getNotAfter() / 1000));
+//   // Convert from time::milliseconds to time::seconds since 1/1/1970.
+// sqlite3_bind_int64(statement, 5, static_cast<sqlite3_int64>(
+//                                    time::toUnixTimestamp(certificate.getNotBefore()).count()));
+// sqlite3_bind_int64(statement, 6, static_cast<sqlite3_int64>(
+//                                    time::toUnixTimestamp(certificate.getNotAfter()).count()));
 
 //   sqlite3_bind_blob(statement, 7, certificate.wireEncode().wire(), certificate.wireEncode().size(), SQLITE_STATIC);
 
@@ -420,9 +422,10 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
   sqlite3_bind_text(statement, 3, identity.toUri(), SQLITE_TRANSIENT);
   sqlite3_bind_text(statement, 4, keyId, SQLITE_STATIC);
 
-  // Convert from milliseconds to seconds since 1/1/1970.
-  sqlite3_bind_int64(statement, 5, static_cast<sqlite3_int64>(certificate.getNotBefore() / 1000));
-  sqlite3_bind_int64(statement, 6, static_cast<sqlite3_int64>(certificate.getNotAfter() / 1000));
+  sqlite3_bind_int64(statement, 5, static_cast<sqlite3_int64>(
+                                     time::toUnixTimestamp(certificate.getNotBefore()).count()));
+  sqlite3_bind_int64(statement, 6, static_cast<sqlite3_int64>(
+                                     time::toUnixTimestamp(certificate.getNotAfter()).count()));
 
   sqlite3_bind_blob(statement, 7, certificate.wireEncode().wire(), certificate.wireEncode().size(), SQLITE_TRANSIENT);
 
@@ -447,7 +450,8 @@ SecPublicInfoSqlite3::getCertificate(const Name &certificateName)
   if (res == SQLITE_ROW)
     {
       shared_ptr<IdentityCertificate> certificate = make_shared<IdentityCertificate>();
-      certificate->wireDecode(Block((const uint8_t*)sqlite3_column_blob(statement, 0), sqlite3_column_bytes(statement, 0)));
+      certificate->wireDecode(Block((const uint8_t*)sqlite3_column_blob(statement, 0),
+                                    sqlite3_column_bytes(statement, 0)));
       sqlite3_finalize(statement);
       return certificate;
     }

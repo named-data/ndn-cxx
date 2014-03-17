@@ -25,17 +25,17 @@ getCertificateTtl(shared_ptr<CertificateCacheTtl> cache, const Name &name, bool 
 BOOST_AUTO_TEST_CASE (Ttl)
 {
   shared_ptr<boost::asio::io_service> io = make_shared<boost::asio::io_service>();
-  shared_ptr<CertificateCacheTtl> cache = make_shared<CertificateCacheTtl>(io, 1);
+  shared_ptr<CertificateCacheTtl> cache = make_shared<CertificateCacheTtl>(io, time::seconds(1));
   Scheduler scheduler(*io);
 
   shared_ptr<IdentityCertificate> cert1 = make_shared<IdentityCertificate>();
   Name certName1("/tmp/KEY/ksk-1/ID-CERT/1");
   cert1->setName(certName1);
-  cert1->setFreshnessPeriod(500);
+  cert1->setFreshnessPeriod(time::milliseconds(500));
   shared_ptr<IdentityCertificate> cert2 = make_shared<IdentityCertificate>();
   Name certName2("/tmp/KEY/ksk-2/ID-CERT/2");
   cert2->setName(certName2);
-  cert2->setFreshnessPeriod(1000);
+  cert2->setFreshnessPeriod(time::milliseconds(1000));
 
   Name name1 = certName1.getPrefix(-1);
   Name name2 = certName2.getPrefix(-1);
@@ -43,13 +43,13 @@ BOOST_AUTO_TEST_CASE (Ttl)
   cache->insertCertificate(cert1);
   cache->insertCertificate(cert2);
 
-  scheduler.scheduleEvent(time::seconds(0.3), bind(&getCertificateTtl, cache, name1, true));
-  scheduler.scheduleEvent(time::seconds(0.3), bind(&getCertificateTtl, cache, name2, true));
-  scheduler.scheduleEvent(time::seconds(0.6), bind(&getCertificateTtl, cache, name1, false));
-  scheduler.scheduleEvent(time::seconds(0.6), bind(&getCertificateTtl, cache, name2, true));
-  scheduler.scheduleEvent(time::seconds(0.6), bind(&CertificateCache::insertCertificate, &*cache, cert2));
-  scheduler.scheduleEvent(time::seconds(1.3), bind(&getCertificateTtl, cache, name2, true));
-  scheduler.scheduleEvent(time::seconds(1.7), bind(&getCertificateTtl, cache, name2, false));
+  scheduler.scheduleEvent(time::milliseconds(300),  bind(&getCertificateTtl, cache, name1, true));
+  scheduler.scheduleEvent(time::milliseconds(300),  bind(&getCertificateTtl, cache, name2, true));
+  scheduler.scheduleEvent(time::milliseconds(600),  bind(&getCertificateTtl, cache, name1, false));
+  scheduler.scheduleEvent(time::milliseconds(600),  bind(&getCertificateTtl, cache, name2, true));
+  scheduler.scheduleEvent(time::milliseconds(600),  bind(&CertificateCache::insertCertificate, &*cache, cert2));
+  scheduler.scheduleEvent(time::milliseconds(1300), bind(&getCertificateTtl, cache, name2, true));
+  scheduler.scheduleEvent(time::milliseconds(1700), bind(&getCertificateTtl, cache, name2, false));
 
   io->run();
 }

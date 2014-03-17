@@ -29,7 +29,7 @@ int main()
   try {
     ndn::Interest i(ndn::Name("/localhost/testApp/randomData"));
     i.setScope(1);
-    i.setInterestLifetime(1000);
+    i.setInterestLifetime(ndn::time::milliseconds(1000));
     i.setMustBeFresh(true);
 
     ndn::Face face;

@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE (Decode)
 
   BOOST_REQUIRE_EQUAL(i.getName().toUri(), "/local/ndn/prefix");
   BOOST_REQUIRE_EQUAL(i.getScope(), 1);
-  BOOST_REQUIRE_EQUAL(i.getInterestLifetime(), 1000);
+  BOOST_REQUIRE_EQUAL(i.getInterestLifetime(), time::milliseconds(1000));
   BOOST_REQUIRE_EQUAL(i.getMinSuffixComponents(), 1);
   BOOST_REQUIRE_EQUAL(i.getMaxSuffixComponents(), 1);
   BOOST_REQUIRE_EQUAL(i.getChildSelector(), 1);
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE (DecodeFromStream)
 
   BOOST_REQUIRE_EQUAL(i.getName().toUri(), "/local/ndn/prefix");
   BOOST_REQUIRE_EQUAL(i.getScope(), 1);
-  BOOST_REQUIRE_EQUAL(i.getInterestLifetime(), 1000);
+  BOOST_REQUIRE_EQUAL(i.getInterestLifetime(), time::milliseconds(1000));
   BOOST_REQUIRE_EQUAL(i.getMinSuffixComponents(), 1);
   BOOST_REQUIRE_EQUAL(i.getMaxSuffixComponents(), 1);
   BOOST_REQUIRE_EQUAL(i.getChildSelector(), 1);
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE (Encode)
 {
   ndn::Interest i(ndn::Name("/local/ndn/prefix"));
   i.setScope(1);
-  i.setInterestLifetime(1000);
+  i.setInterestLifetime(time::milliseconds(1000));
   i.setMinSuffixComponents(1);
   i.setMaxSuffixComponents(1);
   i.setChildSelector(1);

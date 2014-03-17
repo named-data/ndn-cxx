@@ -33,7 +33,7 @@ public:
    * \returns EventId that can be used to cancel the scheduled event
    */
   EventId
-  scheduleEvent(const time::Duration& after, const Event& event);
+  scheduleEvent(const time::nanoseconds& after, const Event& event);
 
   /**
    * \brief Schedule periodic event that should be fired every specified period.
@@ -41,8 +41,8 @@ public:
    * \returns EventId that can be used to cancel the scheduled event
    */
   EventId
-  schedulePeriodicEvent(const time::Duration& after,
-                        const time::Duration& period,
+  schedulePeriodicEvent(const time::nanoseconds& after,
+                        const time::nanoseconds& period,
                         const Event& event);
   
   /**
@@ -60,10 +60,11 @@ private:
 
   struct EventInfo
   {
-    EventInfo(const time::Duration& after,
-              const time::Duration& period,
+    EventInfo(const time::nanoseconds& after,
+              const time::nanoseconds& period,
               const Event& event);
-    EventInfo(const time::Point& when, const EventInfo& previousEvent);
+
+    EventInfo(const time::steady_clock::TimePoint& when, const EventInfo& previousEvent);
 
     bool
     operator <=(const EventInfo& other) const
@@ -77,11 +78,11 @@ private:
       return this->m_scheduledTime < other.m_scheduledTime;
     }
 
-    time::Duration
+    time::nanoseconds
     expiresFromNow() const;
     
-    time::Point m_scheduledTime;
-    time::Duration m_period;
+    time::steady_clock::TimePoint m_scheduledTime;
+    time::nanoseconds m_period;
     Event m_event;
     mutable EventId m_eventId;
   };
@@ -91,7 +92,7 @@ private:
 
   EventQueue m_events;
   EventQueue::iterator m_scheduledEvent;
-  boost::asio::monotonic_deadline_timer m_deadlineTimer;
+  monotonic_deadline_timer m_deadlineTimer;
 
   bool m_isEventExecuting;
 };

@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE (PrefixRegOptionsEncode)
   std::ostringstream os;
   os << opt;
   BOOST_CHECK_EQUAL(os.str(), "PrefixRegOptions(Prefix: /localhost/reg/test, "
-                    "FaceID: 0, Flags: 1, Cost: 0, ExpirationPeriod: -1, Protocol: )");
+                    "FaceID: 0, Flags: 1, Cost: 0, ExpirationPeriod: -9223372036854775808 milliseconds, Protocol: )");
 }
 
 BOOST_AUTO_TEST_CASE (PrefixRegOptionsDecoding)

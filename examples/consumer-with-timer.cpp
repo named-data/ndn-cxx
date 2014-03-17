@@ -32,7 +32,7 @@ delayedInterest(ndn::Face &face)
   
   ndn::Interest i(ndn::Name("/localhost/testApp/randomData"));
   i.setScope(1);
-  i.setInterestLifetime(1000);
+  i.setInterestLifetime(ndn::time::milliseconds(1000));
   i.setMustBeFresh(true);
 
   face.expressInterest(i,
@@ -50,7 +50,7 @@ int main()
     
     ndn::Interest i(ndn::Name("/localhost/testApp/randomData"));
     i.setScope(1);
-    i.setInterestLifetime(1000);
+    i.setInterestLifetime(ndn::time::seconds(1));
     i.setMustBeFresh(true);
 
     ndn::Face face(io);

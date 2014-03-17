@@ -1,7 +1,5 @@
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * @author: Yingdi Yu <yingdi@cs.ucla.edu>
+ * Copyright (C) 2013-2014 Regents of the University of California.
  * See COPYING for copyright and distribution information.
  */
 
@@ -9,228 +7,171 @@
 #define NDN_TIME_HPP
 
 #include "../common.hpp"
+#include <boost/chrono.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace ndn {
-
-/**
- * A time interval represented as the number of milliseconds.
- */
-typedef int64_t Milliseconds;
-   
-/**
- * The calendar time represented as the number of milliseconds since 1/1/1970.
- */
-typedef int64_t MillisecondsSince1970;
-
-
-const boost::posix_time::ptime UNIX_EPOCH_TIME =
-  boost::posix_time::ptime (boost::gregorian::date (1970, boost::gregorian::Jan, 1));
-
-/**
- * @brief Get the current time in milliseconds since 1/1/1970, including fractions of a millisecond
- */
-inline MillisecondsSince1970 
-getNowMilliseconds()
-{
-  return (boost::posix_time::microsec_clock::universal_time() - UNIX_EPOCH_TIME).total_milliseconds();
-}
-
-inline MillisecondsSince1970 
-ndn_getNowMilliseconds()
-{
-  return getNowMilliseconds();
-}
-
-inline MillisecondsSince1970
-getNow()
-{
-  return getNowMilliseconds();
-}
-
-/**
- * Convert to the ISO string representation of the time.
- * @param time Milliseconds since 1/1/1970.
- * @return The ISO string.
- */
-inline std::string
-toIsoString(const MillisecondsSince1970& time)
-{
-  boost::posix_time::ptime boostTime = UNIX_EPOCH_TIME + boost::posix_time::milliseconds(time);
-
-  /// @todo Determine whether this is necessary at all
-  if ((time % 1000) == 0)
-    return boost::posix_time::to_iso_string(boostTime) + ".000000"; 
-  else
-    return boost::posix_time::to_iso_string(boostTime);
-}
-  
-/**
- * Convert from the ISO string representation to the internal time format.
- * @param isoString The ISO time formatted string. 
- * @return The time in milliseconds since 1/1/1970.
- */
-inline MillisecondsSince1970
-fromIsoString(const std::string& isoString)
-{
-  boost::posix_time::ptime boostTime = boost::posix_time::from_iso_string(isoString);
-  
-  return (boostTime-UNIX_EPOCH_TIME).total_milliseconds();
-}
-
 namespace time {
 
-class monotonic_clock;
+using boost::chrono::duration;
 
-/** \class Duration
- *  \brief represents a time interval
- *  Time unit is nanosecond.
+typedef duration<boost::int_least32_t, boost::ratio<86400> > days;
+using boost::chrono::hours;
+using boost::chrono::minutes;
+using boost::chrono::seconds;
+
+using boost::chrono::milliseconds;
+using boost::chrono::microseconds;
+using boost::chrono::nanoseconds;
+
+using boost::chrono::duration_cast;
+
+/**
+ * \brief System clock
+ *
+ * System clock represents the system-wide real time wall clock.
+ *
+ * It may not be monotonic: on most systems, the system time can be
+ * adjusted at any moment. It is the only clock that has the ability
+ * to be displayed and converted to/from UNIX timestamp.
+ *
+ * To get current TimePoint:
+ *
+ * <code>
+ *     system_clock::TimePoint now = system_clock::now();
+ * </code>
+ *
+ * To convert TimePoint to/from UNIX timestamp:
+ *
+ * <code>
+ *     system_clock::TimePoint time = ...;
+ *     uint64_t timestampInMilliseconds = toUnixTimestamp(time).count();
+ *     system_clock::TimePoint time2 = fromUnixTimestamp(time::milliseconds(timestampInMilliseconds));
+ * </code>
  */
-class Duration
+class system_clock : public boost::chrono::system_clock
 {
 public:
-  Duration()
-    : m_value(0)
-  {
-  }
+  typedef time_point TimePoint;
+  typedef duration Duration;
 
-  explicit
-  Duration(int64_t value)
-    : m_value(value)
-  {
-  }
-  
-  operator int64_t&()
-  {
-    return m_value;
-  }
+  // /// \brief Get current TimePoint
+  // TimePoint
+  // now();
+}; // class system_clock
 
-  operator const int64_t&() const
-  {
-    return m_value;
-  }
-
-  Duration
-  operator+(const Duration& other) const
-  {
-    return Duration(this->m_value + other.m_value);
-  }
-  
-  Duration
-  operator-(const Duration& other) const
-  {
-    return Duration(this->m_value - other.m_value);
-  }
-
-private:
-  int64_t m_value;
-};
-
-/** \class Point
- *  \brief represents a point in time
- *  This uses monotonic clock.
+/**
+ * \brief Steady clock
+ *
+ * Steady clock represents a monotonic clock. The time points of this
+ * clock cannot decrease as physical time moves forward. This clock is
+ * not related to wall clock time, and is best suitable for measuring
+ * intervals.
+ *
+ * Note that on OS X platform this defaults to system clock and is not
+ * truly monotonic. Refer to https://svn.boost.org/trac/boost/ticket/7719)
  */
-class Point
+class steady_clock : public
+#ifdef __APPLE__
+// steady_clock may go backwards on OS X platforms, so use system_clock
+// instead
+    boost::chrono::system_clock
+#else
+    boost::chrono::steady_clock
+#endif
 {
 public:
-  Point()
-    : m_value(0)
-  {
-  }
+  typedef time_point TimePoint;
+  typedef duration Duration;
 
-  explicit
-  Point(int64_t value)
-    : m_value(value)
-  {
-  }
-  
-  operator int64_t&()
-  {
-    return m_value;
-  }
+  // /// \brief Get current TimePoint
+  // TimePoint
+  // now();
+}; // class steady_clock
 
-  operator const int64_t&() const
-  {
-    return m_value;
-  }
 
-  Point
-  operator+(const Duration& other) const
-  {
-    return Point(this->m_value + static_cast<int64_t>(other));
-  }
-  
-  Duration
-  operator-(const Point& other) const
-  {
-    return Duration(this->m_value - other.m_value);
-  }
-
-  Point
-  operator-(const Duration& other) const
-  {
-    return Point(this->m_value  - static_cast<int64_t>(other));
-  }
-  
-private:
-  int64_t m_value;
-};
-
-inline std::ostream&
-operator<<(std::ostream &os, const Duration& duration)
+/**
+ * \brief Get system_clock::TimePoint representing UNIX time epoch (00:00:00 on Jan 1, 1970)
+ */
+inline const system_clock::TimePoint&
+getUnixEpoch()
 {
-  os << static_cast<int64_t>(duration) / 1000000000.0 << " s";
-  return os;
+  static system_clock::TimePoint epoch = system_clock::from_time_t(0);
+  return epoch;
 }
 
 /**
- * \brief Get current time
- * \return{ the current time in monotonic clock }
+ * \brief Convert system_clock::TimePoint to UNIX timestamp
  */
-Point
-now();
-
-/**
- * \brief Get time::Duration for the specified number of seconds
- */
-template<class T>
-inline Duration
-seconds(T value)
+inline milliseconds
+toUnixTimestamp(const system_clock::TimePoint& point)
 {
-  return Duration(value * static_cast<int64_t>(1000000000));
+  return duration_cast<milliseconds>(point - getUnixEpoch());
 }
 
 /**
- * \brief Get time::Duration for the specified number of milliseconds
+ * \brief Convert UNIX timestamp to system_clock::TimePoint
  */
-template<class T>
-inline Duration
-milliseconds(T value)
+inline system_clock::TimePoint
+fromUnixTimestamp(const milliseconds& duration)
 {
-  return Duration(value * static_cast<int64_t>(1000000));
+  return getUnixEpoch() + duration;
 }
 
 /**
- * \brief Get time::Duration for the specified number of microseconds
+ * \brief Convert to the ISO string representation of the time (YYYYMMDDTHHMMSS,fffffffff)
+ *
+ * If timePoint contains doesn't contain fractional seconds the
+ * output format is YYYYMMDDTHHMMSS
+ *
+ * Examples:
+ *
+ *   - with fractional nanoseconds:  20020131T100001,123456789
+ *   - with fractional microseconds: 20020131T100001,123456
+ *   - with fractional milliseconds: 20020131T100001,123
+ *   - without fractional seconds:   20020131T100001
  */
-template<class T>
-inline Duration
-microseconds(T value)
+inline std::string
+toIsoString(const system_clock::TimePoint& timePoint)
 {
-  return Duration(value * static_cast<int64_t>(1000));
+  boost::posix_time::ptime ptime = boost::posix_time::from_time_t(
+                                     system_clock::TimePoint::clock::to_time_t(timePoint));
+
+  uint64_t micro = duration_cast<microseconds>(timePoint - getUnixEpoch()).count() % 1000000;
+  if (micro > 0)
+    {
+      ptime += boost::posix_time::microseconds(micro);
+      return boost::posix_time::to_iso_string(ptime);
+    }
+  else
+    return boost::posix_time::to_iso_string(ptime);
 }
 
 /**
- * \brief Get time::Duration for the specified number of nanoseconds
+ * \brief Convert from the ISO string (YYYYMMDDTHHMMSS,fffffffff) representation
+ *        to the internal time format
+ *
+ * Examples of accepted ISO strings:
+ *
+ *   - with fractional nanoseconds:  20020131T100001,123456789
+ *   - with fractional microseconds: 20020131T100001,123456
+ *   - with fractional milliseconds: 20020131T100001,123
+ *   - without fractional seconds:   20020131T100001
+ *
  */
-inline Duration
-nanoseconds(int64_t value)
+inline system_clock::TimePoint
+fromIsoString(const std::string& isoString)
 {
-  return Duration(value);
-}
+  static boost::posix_time::ptime posixTimeEpoch = boost::posix_time::from_time_t(0);
 
+  boost::posix_time::ptime ptime = boost::posix_time::from_iso_string(isoString);
+
+  system_clock::TimePoint point = system_clock::from_time_t((ptime - posixTimeEpoch).total_seconds());
+  point += microseconds((ptime - posixTimeEpoch).total_microseconds() % 1000000);
+  return point;
+}
 
 } // namespace time
-
 } // namespace ndn
 
 #endif // NDN_TIME_HPP

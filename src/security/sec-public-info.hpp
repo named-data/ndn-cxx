@@ -402,7 +402,7 @@ SecPublicInfo::getNewKeyName (const Name& identityName, bool useKsk)
   else
     oss << "dsk-";
 
-  oss << getNow();
+  oss << time::toUnixTimestamp(time::system_clock::now()).count();
   
   Name keyName = Name(identityName).append(oss.str());
 

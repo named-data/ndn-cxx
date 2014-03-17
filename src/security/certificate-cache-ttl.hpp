@@ -14,25 +14,25 @@
 #include "../util/time.hpp"
 
 namespace ndn {
- 
+
 class CertificateCacheTtl : public CertificateCache
 {
 public:
-  CertificateCacheTtl(shared_ptr<boost::asio::io_service> io, int defaultTtl = 3600);
-  
+  CertificateCacheTtl(shared_ptr<boost::asio::io_service> io, const time::seconds& defaultTtl = time::seconds(3600));
+
   virtual
   ~CertificateCacheTtl();
-    
+
   virtual void
   insertCertificate(ptr_lib::shared_ptr<const IdentityCertificate> certificate);
-  
-  virtual ptr_lib::shared_ptr<const IdentityCertificate> 
+
+  virtual ptr_lib::shared_ptr<const IdentityCertificate>
   getCertificate(const Name & certificateNameWithoutVersion);
 
-private:  
+private:
   void
   insert(ptr_lib::shared_ptr<const IdentityCertificate> certificate);
-  
+
   void
   remove(const Name &certificateName);
 
@@ -40,7 +40,7 @@ protected:
   typedef std::map<Name, ptr_lib::shared_ptr<const IdentityCertificate> > Cache;
   typedef std::map<Name, EventId> EventTracker;
 
-  int m_defaultTtl;
+  time::seconds m_defaultTtl;
   Cache m_cache;
   EventTracker m_tracker;
   Scheduler m_scheduler;

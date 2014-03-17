@@ -26,13 +26,13 @@ const uint64_t DEFAULT_FLAGS = tlv::nrd::NDN_FORW_CHILD_INHERIT;
  */
 class PrefixRegOptions {
 public:
-  struct Error : public Tlv::Error { Error(const std::string &what) : Tlv::Error(what) {} };
+  struct Error : public Tlv::Error { Error(const std::string& what) : Tlv::Error(what) {} };
 
   PrefixRegOptions()
-    : m_faceId (INVALID_FACE_ID)
-    , m_flags (DEFAULT_FLAGS)
-    , m_cost (DEFAULT_COST)
-    , m_expirationPeriod (-1)
+    : m_faceId(INVALID_FACE_ID)
+    , m_flags(DEFAULT_FLAGS)
+    , m_cost(DEFAULT_COST)
+    , m_expirationPeriod(time::milliseconds::min())
   {
   }
 
@@ -117,14 +117,14 @@ public:
 
   //
 
-  Milliseconds
+  const time::milliseconds&
   getExpirationPeriod() const
   {
     return m_expirationPeriod;
   }
 
   PrefixRegOptions&
-  setExpirationPeriod(Milliseconds expirationPeriod)
+  setExpirationPeriod(const time::milliseconds& expirationPeriod)
   {
     m_expirationPeriod = expirationPeriod;
     m_wire.reset();
@@ -152,7 +152,7 @@ private:
   uint64_t m_faceId;
   uint64_t m_flags;
   uint64_t m_cost;
-  Milliseconds m_expirationPeriod;
+  time::milliseconds m_expirationPeriod;
   std::string m_protocol;
 
   mutable Block m_wire;
@@ -184,10 +184,11 @@ PrefixRegOptions::wireEncode(EncodingImpl<T>& block) const
     }
 
   // ExpirationPeriod
-  if (m_expirationPeriod > 0)
+  if (m_expirationPeriod > time::milliseconds::zero())
     {
       total_len += prependNonNegativeIntegerBlock(block,
-                                                  tlv::nrd::ExpirationPeriod, m_expirationPeriod);
+                                                  tlv::nrd::ExpirationPeriod,
+                                                  m_expirationPeriod.count());
     }
 
   // Cost
@@ -247,7 +248,7 @@ PrefixRegOptions::wireDecode(const Block& wire)
   m_faceId = INVALID_FACE_ID;
   m_flags = DEFAULT_FLAGS;
   m_cost = DEFAULT_COST;
-  m_expirationPeriod = -1;
+  m_expirationPeriod = time::milliseconds::min();
   m_protocol.clear();
 
   m_wire = wire;
@@ -289,7 +290,7 @@ PrefixRegOptions::wireDecode(const Block& wire)
   val = m_wire.find(tlv::nrd::ExpirationPeriod);
   if (val != m_wire.elements_end())
     {
-      m_expirationPeriod = readNonNegativeInteger(*val);
+      m_expirationPeriod = time::milliseconds(readNonNegativeInteger(*val));
     }
 
   // Protocol

@@ -20,12 +20,12 @@ namespace ndnd {
  * An ForwardingEntry holds an action and  Name prefix and other fields for an forwarding entry.
  */
 class ForwardingEntry {
-public:    
+public:
   ForwardingEntry(const std::string& action,
                   const Name& prefix,
                   int faceId = -1,
                   const ForwardingFlags& forwardingFlags = ForwardingFlags(),
-                  int freshnessPeriod = -1) 
+                  time::milliseconds freshnessPeriod = time::milliseconds::min())
     : action_(action)
     , prefix_(prefix)
     , faceId_(faceId)
@@ -36,52 +36,52 @@ public:
 
   ForwardingEntry()
   : faceId_(-1)
-  , freshnessPeriod_(-1)
+  , freshnessPeriod_(time::milliseconds::min())
   {
   }
-  
-  const std::string& 
+
+  const std::string&
   getAction() const { return action_; }
 
-  void 
+  void
   setAction(const std::string& action) { action_ = action; wire_.reset(); }
-    
-  const Name& 
+
+  const Name&
   getPrefix() const { return prefix_; }
-  
+
   void
   setPrefix(const Name &prefix) { prefix_ = prefix; wire_.reset(); }
-  
-  int 
+
+  int
   getFaceId() const { return faceId_; }
 
-  void 
+  void
   setFaceId(int faceId) { faceId_ = faceId; wire_.reset(); }
-      
-  const ForwardingFlags& 
+
+  const ForwardingFlags&
   getForwardingFlags() const { return forwardingFlags_; }
 
-  void 
+  void
   setForwardingFlags(const ForwardingFlags& forwardingFlags) { forwardingFlags_ = forwardingFlags; wire_.reset(); }
-      
-  int 
+
+  const time::milliseconds&
   getFreshnessPeriod() const { return freshnessPeriod_; }
 
-  void 
-  setFreshnessPeriod(int freshnessPeriod) { freshnessPeriod_ = freshnessPeriod; wire_.reset(); }
+  void
+  setFreshnessPeriod(const time::milliseconds& freshnessPeriod) { freshnessPeriod_ = freshnessPeriod; wire_.reset(); }
 
   inline const Block&
   wireEncode() const;
-  
-  inline void 
+
+  inline void
   wireDecode(const Block &wire);
-  
+
 private:
   std::string action_;   /**< empty for none. */
   Name prefix_;
   int faceId_;           /**< -1 for none. */
   ForwardingFlags forwardingFlags_;
-  int freshnessPeriod_; /**< -1 for none. */
+  time::milliseconds freshnessPeriod_; /**< time::milliseconds::min() for none. */
 
   mutable Block wire_;
 };
@@ -98,7 +98,7 @@ ForwardingEntry::wireEncode() const
   //                       FaceID?
   //                       ForwardingFlags?
   //                       FreshnessPeriod?
-  
+
   wire_ = Block(tlv::ndnd::ForwardingEntry);
 
   // Action
@@ -124,24 +124,24 @@ ForwardingEntry::wireEncode() const
     (forwardingFlags_.wireEncode());
 
   // FreshnessPeriod
-  if (freshnessPeriod_ >= 0)
+  if (freshnessPeriod_ >= time::milliseconds::zero())
     {
       wire_.push_back
-        (nonNegativeIntegerBlock(Tlv::FreshnessPeriod, freshnessPeriod_));
+        (nonNegativeIntegerBlock(Tlv::FreshnessPeriod, freshnessPeriod_.count()));
     }
-  
+
   wire_.encode();
-  return wire_;    
+  return wire_;
 }
-  
-inline void 
+
+inline void
 ForwardingEntry::wireDecode(const Block &wire)
 {
   action_.clear();
   prefix_.clear();
   faceId_ = -1;
   forwardingFlags_ = ForwardingFlags();
-  freshnessPeriod_ = -1;
+  freshnessPeriod_ = time::milliseconds::min();
 
   wire_ = wire;
   wire_.parse();
@@ -185,7 +185,7 @@ ForwardingEntry::wireDecode(const Block &wire)
   val = wire_.find(Tlv::FreshnessPeriod);
   if (val != wire_.elements_end())
     {
-      freshnessPeriod_ = readNonNegativeInteger(*val);
+      freshnessPeriod_ = time::milliseconds(readNonNegativeInteger(*val));
     }
 }
 
@@ -193,7 +193,7 @@ inline std::ostream&
 operator << (std::ostream &os, const ForwardingEntry &entry)
 {
   os << "ForwardingEntry(";
-  
+
   // Action
   if (!entry.getAction().empty())
     {
@@ -213,7 +213,7 @@ operator << (std::ostream &os, const ForwardingEntry &entry)
   os << "ForwardingFlags:" << entry.getForwardingFlags() << ", ";
 
   // FreshnessPeriod
-  if (entry.getFreshnessPeriod() >= 0)
+  if (entry.getFreshnessPeriod() >= time::milliseconds::zero())
     {
       os << "FreshnessPeriod:" << entry.getFreshnessPeriod() << ", ";
     }

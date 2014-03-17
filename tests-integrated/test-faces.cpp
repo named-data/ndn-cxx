@@ -62,7 +62,7 @@ struct FacesFixture
   expressInterest(Face& face, const Name& name)
   {
     Interest i(name);
-    i.setInterestLifetime(50);
+    i.setInterestLifetime(time::milliseconds(50));
     face.expressInterest(i,
                          bind(&FacesFixture::onData, this),
                          bind(&FacesFixture::onTimeout, this));
@@ -88,7 +88,7 @@ BOOST_FIXTURE_TEST_CASE (Unix, FacesFixture)
 {
   Face face;
 
-  face.expressInterest(Interest("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY", 1000),
+  face.expressInterest(Interest("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY", time::milliseconds(1000)),
                        ptr_lib::bind(&FacesFixture::onData, this),
                        ptr_lib::bind(&FacesFixture::onTimeout, this));
 
@@ -97,7 +97,7 @@ BOOST_FIXTURE_TEST_CASE (Unix, FacesFixture)
   BOOST_CHECK_EQUAL(dataCount, 1);
   BOOST_CHECK_EQUAL(timeoutCount, 0);
 
-  face.expressInterest(Interest("/localhost/non-existing/data/should/not/exist/anywhere", 50),
+  face.expressInterest(Interest("/localhost/non-existing/data/should/not/exist/anywhere", time::milliseconds(50)),
                        ptr_lib::bind(&FacesFixture::onData, this),
                        ptr_lib::bind(&FacesFixture::onTimeout, this));
   
@@ -111,7 +111,7 @@ BOOST_FIXTURE_TEST_CASE (Tcp, FacesFixture)
 {
   Face face("localhost");
 
-  face.expressInterest(Interest("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY", 1000),
+  face.expressInterest(Interest("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY", time::milliseconds(1000)),
                        bind(&FacesFixture::onData, this),
                        bind(&FacesFixture::onTimeout, this));
 
@@ -120,7 +120,7 @@ BOOST_FIXTURE_TEST_CASE (Tcp, FacesFixture)
   BOOST_CHECK_EQUAL(dataCount, 1);
   BOOST_CHECK_EQUAL(timeoutCount, 0);
 
-  face.expressInterest(Interest("/localhost/non-existing/data/should/not/exist/anywhere", 50),
+  face.expressInterest(Interest("/localhost/non-existing/data/should/not/exist/anywhere", time::milliseconds(50)),
                        bind(&FacesFixture::onData, this),
                        bind(&FacesFixture::onTimeout, this));
 
@@ -136,14 +136,14 @@ BOOST_FIXTURE_TEST_CASE (SetFilter, FacesFixture)
   Face face;
   Face face2(face.ioService());
   Scheduler scheduler(*face.ioService());
-  scheduler.scheduleEvent(time::seconds(0.3),
+  scheduler.scheduleEvent(time::milliseconds(300),
                           bind(&FacesFixture::terminate, this, func_lib::ref(face)));
   
   regPrefixId = face.setInterestFilter("/Hello/World",
                                        bind(&FacesFixture::onInterest, this, func_lib::ref(face)),
                                        bind(&FacesFixture::onRegFailed, this));
 
-  scheduler.scheduleEvent(time::seconds(0.2),
+  scheduler.scheduleEvent(time::milliseconds(200),
                           bind(&FacesFixture::expressInterest, this,
                                func_lib::ref(face2), Name("/Hello/World/!")));
   
@@ -172,7 +172,7 @@ BOOST_FIXTURE_TEST_CASE (SetTwoFilters, FacesFixture)
                                        bind(&FacesFixture::onRegFailed, this));
 
 
-  scheduler.scheduleEvent(time::seconds(0.2),
+  scheduler.scheduleEvent(time::milliseconds(200),
                           bind(&FacesFixture::expressInterest, this,
                                func_lib::ref(face2), Name("/Hello/World/!")));
   

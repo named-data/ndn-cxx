@@ -26,8 +26,8 @@ using namespace std;
 namespace ndn {
 
 Certificate::Certificate()
-  : notBefore_(std::numeric_limits<MillisecondsSince1970>::max())
-  , notAfter_(std::numeric_limits<MillisecondsSince1970>::min())
+  : notBefore_(time::system_clock::TimePoint::max())
+  , notAfter_(time::system_clock::TimePoint::min())
 {}
 
 Certificate::Certificate(const Data& data)
@@ -47,18 +47,16 @@ Certificate::~Certificate()
 bool
 Certificate::isTooEarly()
 {
-  MillisecondsSince1970 now = ndn_getNowMilliseconds();
-  if(now < notBefore_)
+  if(time::system_clock::now() < notBefore_)
     return true;
   else
     return false;
 }
 
-bool 
+bool
 Certificate::isTooLate()
 {
-  MillisecondsSince1970 now = ndn_getNowMilliseconds();
-  if(now > notAfter_)
+  if(time::system_clock::now() > notAfter_)
     return true;
   else
     return false;
@@ -106,7 +104,7 @@ Certificate::encode()
 
   OBufferStream os;
   CryptoPP::FileSink sink(os);
-  
+
   // idCert ::= SEQUENCE {
   //     validity            Validity,
   //     subject             Name,
@@ -126,7 +124,7 @@ Certificate::encode()
 
     // Name ::= CHOICE {
     //     RDNSequence   }
-    // 
+    //
     // RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
     DERSequenceEncoder name(idCert);
     {
@@ -137,7 +135,7 @@ Certificate::encode()
         }
     }
     name.MessageEnd();
-  
+
     // SubjectPublicKeyInfo
     key_.encode(idCert);
 
@@ -151,7 +149,7 @@ Certificate::encode()
       {
         DERSequenceEncoder extensions(idCert);
         {
-          
+
           for(ExtensionList::iterator it = extensionList_.begin();
               it != extensionList_.end(); ++it)
             {
@@ -168,14 +166,14 @@ Certificate::encode()
   setContentType(MetaInfo::TYPE_KEY);
 }
 
-void 
+void
 Certificate::decode()
 {
   using namespace CryptoPP;
 
   OBufferStream os;
   CryptoPP::StringSource source(getContent().value(), getContent().value_size(), true);
-  
+
   // idCert ::= SEQUENCE {
   //     validity            Validity,
   //     subject             Name,
@@ -195,7 +193,7 @@ Certificate::decode()
 
     // Name ::= CHOICE {
     //     RDNSequence   }
-    // 
+    //
     // RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
     subjectDescriptionList_.clear();
     BERSequenceDecoder name(idCert);
@@ -206,7 +204,7 @@ Certificate::decode()
         }
     }
     name.MessageEnd();
-  
+
     // SubjectPublicKeyInfo ::= SEQUENCE {
     //     algorithm           AlgorithmIdentifier
     //     keybits             BIT STRING   }
@@ -235,18 +233,18 @@ Certificate::decode()
   idCert.MessageEnd();
 }
 
-void 
+void
 Certificate::printCertificate(std::ostream &os) const
 {
   os << "Certificate name:" << endl;
   os << "  " << getName() << endl;
   os << "Validity:" << endl;
   {
-    os << "  NotBefore: " << toIsoString(notBefore_) << endl;
-    os << "  NotAfter: "  << toIsoString(notAfter_)  << endl;
+    os << "  NotBefore: " << time::toIsoString(notBefore_) << endl;
+    os << "  NotAfter: "  << time::toIsoString(notAfter_)  << endl;
   }
 
-  os << "Subject Description:" << endl;  
+  os << "Subject Description:" << endl;
   for(SubjectDescriptionList::const_iterator it = subjectDescriptionList_.begin();
       it != subjectDescriptionList_.end(); ++it)
     {
@@ -256,7 +254,7 @@ Certificate::printCertificate(std::ostream &os) const
   os << "Public key bits:" << endl;
   CryptoPP::Base64Encoder encoder(new CryptoPP::FileSink(os), true, 64);
   key_.encode(encoder);
-  
+
   // ndnboost::iostreams::stream<ndnboost::iostreams::array_source> is((const char*)key_.getKeyDer().buf(), key_.getKeyDer().size());
 
   // ptr_lib::shared_ptr<der::DerNode> keyRoot = der::DerNode::parse(reinterpret_cast<der::InputIterator&> (is));

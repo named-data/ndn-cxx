@@ -21,22 +21,24 @@ BOOST_AUTO_TEST_CASE (SignedInterest)
 {
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
 
-  Name identityName("/TestSignedInterest/SignVerify/" + boost::lexical_cast<string>(time::now()));
+  Name identityName("/TestSignedInterest/SignVerify");
+  identityName.appendVersion();
+
   Name certificateName;
   BOOST_REQUIRE_NO_THROW(certificateName = keyChain.createIdentity(identityName));
 
   Interest interest("/TestSignedInterest/SignVerify/Interest1");
   BOOST_CHECK_NO_THROW(keyChain.signByIdentity(interest, identityName));
-  
+
   Block interestBlock(interest.wireEncode().wire(), interest.wireEncode().size());
 
   Interest interest2;
   interest2.wireDecode(interestBlock);
-  
+
   shared_ptr<PublicKey> publicKey;
   BOOST_REQUIRE_NO_THROW(publicKey = keyChain.getPublicKeyFromTpm(keyChain.getDefaultKeyNameForIdentity(identityName)));
   bool result = Validator::verifySignature(interest2, *publicKey);
-  
+
   BOOST_CHECK_EQUAL(result, true);
 
   keyChain.deleteIdentity(identityName);
@@ -48,7 +50,7 @@ public:
   CommandInterestFixture()
     : m_validity(false)
   {}
-  
+
   void
   validated(const shared_ptr<const Interest>& interest)
   { m_validity = true; }
@@ -56,7 +58,7 @@ public:
   void
   validationFailed(const shared_ptr<const Interest>& interest, const string& failureInfo)
   {
-    m_validity = false; 
+    m_validity = false;
   }
 
   void
@@ -64,12 +66,14 @@ public:
   { m_validity = false; }
 
   bool m_validity;
-}; 
+};
 
 BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
 {
   KeyChain keyChain;
-  Name identity("/TestCommandInterest/Validation/" + boost::lexical_cast<string>(time::now()));
+  Name identity("/TestCommandInterest/Validation");
+  identity.appendVersion();
+
   Name certName;
   BOOST_REQUIRE_NO_THROW(certName = keyChain.createIdentity(identity));
 
@@ -84,38 +88,39 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
   validator.validate(*commandInterest1,
   		     bind(&CommandInterestFixture::validated, this, _1),
   		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
-  
+
   BOOST_CHECK_EQUAL(m_validity, true);
-  
+
   //Test an outdated command
   reset();
   shared_ptr<Interest> commandInterest2 = make_shared<Interest>("/TestCommandInterest/Validation/Command2");
-  int64_t timestamp = time::now() / 1000000;
-  timestamp -= 5000;
+  time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
+  timestamp -= time::seconds(5);
+
   Name commandName = commandInterest2->getName();
   commandName
-    .append(name::Component::fromNumber(timestamp))
-    .append(name::Component::fromNumber(random::generateWord64()));
+    .appendNumber(timestamp.count())
+    .appendNumber(random::generateWord64());
   commandInterest2->setName(commandName);
-  
+
   keyChain.signByIdentity(*commandInterest2, identity);
   validator.validate(*commandInterest2,
   		     bind(&CommandInterestFixture::validated, this, _1),
   		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
-  
+
   BOOST_CHECK_EQUAL(m_validity, false);
-  
+
   //Test an unauthorized command
   Name identity2("/TestCommandInterest/Validation2");
   Name certName2;
   BOOST_REQUIRE_NO_THROW(certName2 = keyChain.createIdentity(identity2));
-  
+
   shared_ptr<Interest> commandInterest3 = make_shared<Interest>("/TestCommandInterest/Validation/Command3");
   generator.generateWithIdentity(*commandInterest3, identity2);
   validator.validate(*commandInterest3,
   		     bind(&CommandInterestFixture::validated, this, _1),
   		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
-  
+
   BOOST_CHECK_EQUAL(m_validity, false);
 
   //Test another unauthorized command
@@ -124,7 +129,7 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
   validator.validate(*commandInterest4,
   		     bind(&CommandInterestFixture::validated, this, _1),
   		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
-  
+
   BOOST_CHECK_EQUAL(m_validity, false);
 
   BOOST_CHECK_NO_THROW(keyChain.deleteIdentity(identity));

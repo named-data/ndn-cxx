@@ -1,0 +1,25 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+from waflib import Utils
+
+top = '..'
+
+def build(bld):
+    unittests = bld.program (
+        target="../integrated-tests",
+        features = "cxx cxxprogram",
+        source = bld.path.ant_glob(['**/*.cpp'],
+                                   excl = ['**/*-osx.cpp', '**/*-sqlite3.cpp']),
+        use = 'ndn-cpp-dev',
+        install_path = None,
+        )
+
+    if Utils.unversioned_sys_platform () == "darwin":
+        unittests.source += bld.path.ant_glob('**/*-osx.cpp')
+
+    # In case we want to make it optional later
+    unittests.source += bld.path.ant_glob('**/*-sqlite3.cpp')
+
+    if bld.env['WITH_PCH']:
+        unittests.pch = "test-all.hpp"
+    

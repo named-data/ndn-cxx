@@ -26,7 +26,7 @@ public:
     std::cout << "<< I: " << interest << std::endl;
     
     ndn::Data data(ndn::Name(interest.getName()).append("testApp").appendVersion());
-    data.setFreshnessPeriod(1000); // 10 sec
+    data.setFreshnessPeriod(time::seconds(10));
 
     data.setContent((const uint8_t*)"HELLO KITTY", sizeof("HELLO KITTY"));
 

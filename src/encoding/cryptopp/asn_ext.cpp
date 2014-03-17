@@ -17,29 +17,14 @@ using namespace CryptoPP;
 namespace ndn {
 
 size_t
-DEREncodeGeneralTime(CryptoPP::BufferedTransformation &bt, MillisecondsSince1970 time)
+DEREncodeGeneralTime(CryptoPP::BufferedTransformation &bt, const time::system_clock::TimePoint& time)
 {
-  if (time < 0)
-    throw Asn::Error("Calendar time value out of range");
-  else if (time > 2e14)
-    // 2e14 is about the year 8300.  We don't want to go over a 4-digit year.
-    throw Asn::Error("Calendar time value out of range");
+  std::string str = time::toIsoString(time);
+  // For example, 20131226T232254
+  // 20131226T232254.100000
+  BOOST_ASSERT(str.size() >= 15);
+  std::string asn1time = str.substr(0, 8) + str.substr(9,6) + "Z";
 
-
-  boost::posix_time::ptime boostTime =
-    UNIX_EPOCH_TIME + boost::posix_time::milliseconds(time);
-  
-  const boost::format f = boost::format("%04d%02d%02d%02d%02d%02dZ")
-                % boostTime.date().year_month_day().year
-                % boostTime.date().year_month_day().month.as_number()
-                % boostTime.date().year_month_day().day.as_number()
-                % boostTime.time_of_day().hours()
-                % boostTime.time_of_day().minutes()
-                % boostTime.time_of_day().seconds()
-    ;
-
-  std::string asn1time = f.str();
-  
   bt.Put(GENERALIZED_TIME);
   size_t lengthBytes = DERLengthEncode(bt, asn1time.size());
   bt.Put(reinterpret_cast<const uint8_t*>(asn1time.c_str()), asn1time.size());
@@ -47,7 +32,7 @@ DEREncodeGeneralTime(CryptoPP::BufferedTransformation &bt, MillisecondsSince1970
 }
 
 void
-BERDecodeTime(CryptoPP::BufferedTransformation &bt, MillisecondsSince1970 &time)
+BERDecodeTime(CryptoPP::BufferedTransformation &bt, time::system_clock::TimePoint& time)
 {
   byte b;
   if (!bt.Get(b) || (b != GENERALIZED_TIME && b != UTC_TIME))
@@ -71,7 +56,7 @@ BERDecodeTime(CryptoPP::BufferedTransformation &bt, MillisecondsSince1970 &time)
       str = "19" + str;
   }
  
-  time = fromIsoString(str.substr(0, 8) + "T" + str.substr(8, 6));
+  time = time::fromIsoString(str.substr(0, 8) + "T" + str.substr(8, 6));
 }
 
 } // namespace ndn

@@ -118,7 +118,7 @@ BOOST_FIXTURE_TEST_CASE (Decode, TestDataFixture)
 
   BOOST_REQUIRE_EQUAL(d.getName().toUri(), "/local/ndn/prefix");
   BOOST_REQUIRE_EQUAL(d.getContentType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
-  BOOST_REQUIRE_EQUAL(d.getFreshnessPeriod(), 10000);
+  BOOST_REQUIRE_EQUAL(d.getFreshnessPeriod(), time::seconds(10));
 
   BOOST_REQUIRE_EQUAL(std::string(reinterpret_cast<const char*>(d.getContent().value()), d.getContent().value_size()), "SUCCESS!");
 
@@ -143,7 +143,7 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
   
   ndn::Data d(ndn::Name("/local/ndn/prefix"));
   d.setContentType(MetaInfo::TYPE_DEFAULT);
-  d.setFreshnessPeriod(10000);
+  d.setFreshnessPeriod(time::seconds(10));
   
   d.setContent(Content1, sizeof(Content1));
 
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE (EncodeMetaInfo)
 {
   MetaInfo meta;
   meta.setType(MetaInfo::TYPE_DEFAULT);
-  meta.setFreshnessPeriod(10000);
+  meta.setFreshnessPeriod(time::seconds(10));
 
   BOOST_REQUIRE_NO_THROW(meta.wireEncode());
   BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo1, MetaInfo1+sizeof(MetaInfo1),
@@ -222,17 +222,17 @@ BOOST_AUTO_TEST_CASE (DecodeMetaInfo)
 {
   MetaInfo meta(Block(MetaInfo1, sizeof(MetaInfo1)));
   BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10000);
+  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
   BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component());
 
   meta.wireDecode(Block(MetaInfo2, sizeof(MetaInfo2)));
   BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10000);
+  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
   BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
 
   meta.wireDecode(Block(MetaInfo3, sizeof(MetaInfo3)));
   BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_LINK));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10000);
+  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
   BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
 }
 

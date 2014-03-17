@@ -16,14 +16,14 @@
 namespace ndn {
 
 namespace Asn {
-struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+struct Error : public std::runtime_error { Error(const std::string& what) : std::runtime_error(what) {} };
 }
 
 size_t
-DEREncodeGeneralTime(CryptoPP::BufferedTransformation &bt, MillisecondsSince1970 time);
+DEREncodeGeneralTime(CryptoPP::BufferedTransformation& bt, const time::system_clock::TimePoint& time);
 
 void
-BERDecodeTime(CryptoPP::BufferedTransformation &bt, MillisecondsSince1970 &time);
+BERDecodeTime(CryptoPP::BufferedTransformation& bt, time::system_clock::TimePoint& time);
 
 } // namespace ndn
 

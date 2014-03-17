@@ -31,7 +31,9 @@ BOOST_AUTO_TEST_CASE (Null)
 {
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
 
-  Name identity("/TestValidator/Null/" + boost::lexical_cast<std::string>(time::now()));
+  Name identity("/TestValidator/Null");
+  identity.appendVersion();
+
   BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity));
 
   Name dataName = identity;

@@ -65,8 +65,8 @@ Face::construct(const shared_ptr<Transport>& transport,
   m_transport = transport;
   m_ioService = ioService;
 
-  m_pitTimeoutCheckTimer      = make_shared<boost::asio::deadline_timer>(boost::ref(*m_ioService));
-  m_processEventsTimeoutTimer = make_shared<boost::asio::deadline_timer>(boost::ref(*m_ioService));
+  m_pitTimeoutCheckTimer      = make_shared<monotonic_deadline_timer>(boost::ref(*m_ioService));
+  m_processEventsTimeoutTimer = make_shared<monotonic_deadline_timer>(boost::ref(*m_ioService));
 
   if (std::getenv("NFD") != 0)
     {
@@ -132,7 +132,7 @@ Face::asyncExpressInterest(const shared_ptr<const Interest>& interest,
 
   if (!m_pitTimeoutCheckTimerActive) {
     m_pitTimeoutCheckTimerActive = true;
-    m_pitTimeoutCheckTimer->expires_from_now(boost::posix_time::milliseconds(100));
+    m_pitTimeoutCheckTimer->expires_from_now(time::milliseconds(100));
     m_pitTimeoutCheckTimer->async_wait(bind(&Face::checkPitExpire, this));
   }
 }
@@ -218,20 +218,21 @@ Face::finalizeUnsetInterestFilter(RegisteredPrefixTable::iterator item)
 }
 
 void
-Face::processEvents(Milliseconds timeout/* = 0 */, bool keepThread/* = false*/)
+Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::zero()*/,
+                    bool keepThread/* = false*/)
 {
   try
     {
-      if (timeout < 0)
+      if (timeout < time::milliseconds::zero())
         {
           // do not block if timeout is negative, but process pending events
           m_ioService->poll();
           return;
         }
 
-      if (timeout > 0)
+      if (timeout > time::milliseconds::zero())
         {
-          m_processEventsTimeoutTimer->expires_from_now(boost::posix_time::milliseconds(timeout));
+          m_processEventsTimeoutTimer->expires_from_now(time::milliseconds(timeout));
           m_processEventsTimeoutTimer->async_wait(&fireProcessEventsTimeout);
         }
 
@@ -279,13 +280,13 @@ Face::fireProcessEventsTimeout(const boost::system::error_code& error)
 void
 Face::checkPitExpire()
 {
-  // Check for PIT entry timeouts.  Go backwards through the list so we can erase entries.
-  MillisecondsSince1970 nowMilliseconds = getNowMilliseconds();
+  // Check for PIT entry timeouts.
+  time::steady_clock::TimePoint now = time::steady_clock::now();
 
   PendingInterestTable::iterator i = m_pendingInterestTable.begin();
   while (i != m_pendingInterestTable.end())
     {
-      if ((*i)->isTimedOut(nowMilliseconds))
+      if ((*i)->isTimedOut(now))
         {
           // Save the PendingInterest and remove it from the PIT.  Then call the callback.
           shared_ptr<PendingInterest> pendingInterest = *i;
@@ -301,7 +302,7 @@ Face::checkPitExpire()
   if (!m_pendingInterestTable.empty()) {
     m_pitTimeoutCheckTimerActive = true;
 
-    m_pitTimeoutCheckTimer->expires_from_now(boost::posix_time::milliseconds(100));
+    m_pitTimeoutCheckTimer->expires_from_now(time::milliseconds(100));
     m_pitTimeoutCheckTimer->async_wait(bind(&Face::checkPitExpire, this));
   }
   else {

@@ -103,26 +103,26 @@ ndnsec_cert_gen(int argc, char** argv)
       return 1;
     }
 
-  Time notBefore;
-  Time notAfter;
+  time::system_clock::TimePoint notBefore;
+  time::system_clock::TimePoint notAfter;
   try{
     if (0 == vm.count("not-before"))
       {
-        notBefore = boost::posix_time::second_clock::universal_time();
+        notBefore = time::system_clock::now();
       }
     else
       {
-        notBefore = boost::posix_time::from_iso_string(notBeforeStr.substr(0, 8) + "T" + notBeforeStr.substr(8, 6));
+        notBefore = time::fromIsoString(notBeforeStr.substr(0, 8) + "T" + notBeforeStr.substr(8, 6));
       }
 
 
     if (0 == vm.count("not-after"))
       {
-        notAfter = notBefore + boost::posix_time::hours(24*365);
+        notAfter = notBefore + time::days(365);
       }
     else
       {
-        notAfter = boost::posix_time::from_iso_string(notAfterStr.substr(0, 8) + "T" + notAfterStr.substr(8, 6));
+        notAfter = time::fromIsoString(notAfterStr.substr(0, 8) + "T" + notAfterStr.substr(8, 6));
         if(notAfter < notBefore)
           {
             std::cerr << "not-before is later than not-after" << std::endl;
@@ -195,8 +195,8 @@ ndnsec_cert_gen(int argc, char** argv)
           CertificateSubjectDescription subDescryptName("2.5.4.41", sName);
           IdentityCertificate certificate;
           certificate.setName(certName);
-          certificate.setNotBefore((notBefore-ndn::UNIX_EPOCH_TIME).total_milliseconds());
-          certificate.setNotAfter((notAfter-ndn::UNIX_EPOCH_TIME).total_milliseconds());
+          certificate.setNotBefore(notBefore);
+          certificate.setNotAfter(notAfter);
           certificate.setPublicKeyInfo(selfSignedCertificate->getPublicKeyInfo());
           certificate.addSubjectDescription(subDescryptName);
           for(int i = 0; i < otherSubDescrypt.size(); i++)

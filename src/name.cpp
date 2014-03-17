@@ -91,7 +91,7 @@ Name::append(const Name& name)
 Name& 
 Name::appendVersion()
 {
-  appendVersion(ndn_getNowMilliseconds());
+  appendVersion(time::toUnixTimestamp(time::system_clock::now()).count());
   return *this;
 }
 

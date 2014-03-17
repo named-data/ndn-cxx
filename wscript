@@ -197,6 +197,7 @@ def build (bld):
     # Unit tests
     if bld.env['WITH_TESTS']:
         bld.recurse('tests')
+        bld.recurse('tests-integrated')
 
     if bld.env['WITH_TOOLS']:
         bld.recurse("tools examples")

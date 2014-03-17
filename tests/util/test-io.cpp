@@ -16,7 +16,9 @@ BOOST_AUTO_TEST_CASE (Basic)
 {
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keychain;
 
-  Name identity("/TestIO/Basic/" + boost::lexical_cast<std::string>(time::now()));
+  Name identity("/TestIO/Basic");
+  identity.appendVersion();
+
   Name certName;
   BOOST_REQUIRE_NO_THROW(certName = keychain.createIdentity(identity));
   shared_ptr<IdentityCertificate> idCert;

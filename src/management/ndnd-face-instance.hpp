@@ -18,7 +18,7 @@ namespace ndnd {
  * An FaceInstance holds an action and  Name prefix and other fields for an forwarding entry.
  */
 class FaceInstance {
-public:    
+public:
   FaceInstance(const std::string &action,
                int64_t     faceId,
                uint32_t    ipProto,
@@ -26,7 +26,7 @@ public:
                const std::string &port,
                const std::string &multicastInterface,
                uint32_t    multicastTtl,
-               Milliseconds freshnessPeriod) 
+               const time::milliseconds& freshnessPeriod)
     : action_(action)
     , faceId_(faceId)
     , ipProto_(ipProto)
@@ -42,73 +42,79 @@ public:
     : faceId_(-1)
     , ipProto_(-1)
     , multicastTtl_(-1)
-    , freshnessPeriod_(-1)
+    , freshnessPeriod_(time::milliseconds::min())
   {
   }
 
   // Action
-  const std::string& 
+  const std::string&
   getAction() const { return action_; }
 
-  void 
+  void
   setAction(const std::string& action) { action_ = action; wire_.reset(); }
 
   // FaceID
   int64_t
   getFaceId() const { return faceId_; }
 
-  void 
+  void
   setFaceId(int64_t faceId) { faceId_ = faceId; wire_.reset(); }
 
   // IPProto
-  int32_t 
+  int32_t
   getIpProto() const { return ipProto_; }
 
-  void 
+  void
   setIpProto(int32_t ipProto) { ipProto_ = ipProto; wire_.reset(); }
 
   // Host
-  const std::string& 
+  const std::string&
   getHost() const { return host_; }
 
-  void 
+  void
   setHost(const std::string& host) { host_ = host; wire_.reset(); }
 
   // Port
   const std::string&
   getPort() const { return port_; }
 
-  void 
+  void
   setPort(const std::string &port) { port_ = port; wire_.reset(); }
 
   // MulticastInterface
-  const std::string& 
+  const std::string&
   getMulticastInterface() const { return multicastInterface_; }
 
-  void 
-  setMulticastInterface(const std::string& multicastInterface) { multicastInterface_ = multicastInterface; wire_.reset(); }
+  void
+  setMulticastInterface(const std::string& multicastInterface)
+  {
+    multicastInterface_ = multicastInterface; wire_.reset();
+  }
 
   // MulticastTTL
   int32_t
   getMulticastTtl() const { return multicastTtl_; }
 
-  void 
+  void
   setMulticastTtl(int32_t multicastTtl) { multicastTtl_ = multicastTtl; wire_.reset(); }
 
   // Freshness
-  int 
+  const time::milliseconds&
   getFreshnessPeriod() const { return freshnessPeriod_; }
 
-  void 
-  setFreshnessPeriod(int freshnessPeriod) { freshnessPeriod_ = freshnessPeriod; wire_.reset(); }
+  void
+  setFreshnessPeriod(const time::milliseconds& freshnessPeriod)
+  {
+    freshnessPeriod_ = freshnessPeriod; wire_.reset();
+  }
 
   // Wire
   inline const Block&
   wireEncode() const;
-  
-  inline void 
+
+  inline void
   wireDecode(const Block &wire);
-  
+
 private:
   std::string action_;
   int64_t     faceId_;
@@ -117,8 +123,8 @@ private:
   std::string port_;
   std::string multicastInterface_;
   int32_t     multicastTtl_;
-  Milliseconds freshnessPeriod_;
-  
+  time::milliseconds freshnessPeriod_;
+
   mutable Block wire_;
 };
 
@@ -137,7 +143,7 @@ FaceInstance::wireEncode() const
   //                  MulticastInterface?
   //                  MulticastTTL?
   //                  FreshnessPeriod?
-  
+
   wire_ = Block(tlv::ndnd::FaceInstance);
 
   // Action
@@ -160,7 +166,7 @@ FaceInstance::wireEncode() const
       wire_.push_back
         (nonNegativeIntegerBlock(tlv::ndnd::IPProto, ipProto_));
     }
-  
+
   // Host
   if (!host_.empty())
     {
@@ -190,17 +196,17 @@ FaceInstance::wireEncode() const
     }
 
   // FreshnessPeriod
-  if (freshnessPeriod_ >= 0)
+  if (freshnessPeriod_ >= time::milliseconds::zero())
     {
       wire_.push_back
-        (nonNegativeIntegerBlock(Tlv::FreshnessPeriod, freshnessPeriod_));
+        (nonNegativeIntegerBlock(Tlv::FreshnessPeriod, freshnessPeriod_.count()));
     }
-  
+
   wire_.encode();
-  return wire_;    
+  return wire_;
 }
-  
-inline void 
+
+inline void
 FaceInstance::wireDecode(const Block &wire)
 {
   action_.clear();
@@ -210,7 +216,7 @@ FaceInstance::wireDecode(const Block &wire)
   port_.clear();
   multicastInterface_.clear();
   multicastTtl_ = -1;
-  freshnessPeriod_ = -1;
+  freshnessPeriod_ = time::milliseconds::min();
 
   wire_ = wire;
   wire_.parse();
@@ -278,7 +284,7 @@ FaceInstance::wireDecode(const Block &wire)
   val = wire_.find(Tlv::FreshnessPeriod);
   if (val != wire_.elements_end())
     {
-      freshnessPeriod_ = readNonNegativeInteger(*val);
+      freshnessPeriod_ = time::milliseconds(readNonNegativeInteger(*val));
     }
 }
 
@@ -286,7 +292,7 @@ inline std::ostream&
 operator << (std::ostream &os, const FaceInstance &entry)
 {
   os << "FaceInstance(";
-  
+
   // Action
   if (!entry.getAction().empty())
     {
@@ -330,7 +336,7 @@ operator << (std::ostream &os, const FaceInstance &entry)
     }
 
   // FreshnessPeriod
-  if (entry.getFreshnessPeriod() >= 0)
+  if (entry.getFreshnessPeriod() >= time::milliseconds::zero())
     {
       os << "FreshnessPeriod:" << entry.getFreshnessPeriod() << ", ";
     }
@@ -343,4 +349,3 @@ operator << (std::ostream &os, const FaceInstance &entry)
 } // namespace ndn
 
 #endif // NDN_MANAGEMENT_NDND_FACE_INSTANCE_HPP
-

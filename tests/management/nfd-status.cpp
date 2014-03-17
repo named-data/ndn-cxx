@@ -18,8 +18,8 @@ BOOST_AUTO_TEST_CASE(StatusEncode)
 {
   Status status1;
   status1.setNfdVersion(1014210635);
-  status1.setStartTimestamp(Status::Timestamp(boost::chrono::seconds(375193249)));
-  status1.setCurrentTimestamp(Status::Timestamp(boost::chrono::seconds(1886109034)));
+  status1.setStartTimestamp(time::fromUnixTimestamp(time::seconds(375193249)));
+  status1.setCurrentTimestamp(time::fromUnixTimestamp(time::seconds(1886109034)));
   status1.setNNameTreeEntries(1849943160);
   status1.setNFibEntries(621739748);
   status1.setNPitEntries(482129741);

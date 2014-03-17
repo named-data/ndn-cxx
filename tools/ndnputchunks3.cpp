@@ -26,23 +26,23 @@
 class Producer
 {
 public:
-  Producer (const char* name)
-  : m_name (name)
-  , m_verbose (false)
+  Producer(const char* name)
+    : m_name(name)
+    , m_verbose(false)
   {
     int segnum = 0;
     char* buf = new char[MAX_SEG_SIZE];
     do
       {
-        std::cin.read (buf, MAX_SEG_SIZE);
+        std::cin.read(buf, MAX_SEG_SIZE);
         int got = std::cin.gcount ();
 
         if (got > 0)
           {
             ndn::shared_ptr<ndn::Data> data = ndn::make_shared<ndn::Data> (ndn::Name(m_name).appendSegment (segnum));
-            data->setFreshnessPeriod (10000); // 10 sec
-            data->setContent (reinterpret_cast<const uint8_t*>(buf), got);
-            
+            data->setFreshnessPeriod(ndn::time::milliseconds(10000)); // 10 sec
+            data->setContent(reinterpret_cast<const uint8_t*>(buf), got);
+
             m_keychain.sign(*data);
             m_store.push_back(data);
             segnum++;
@@ -55,76 +55,77 @@ public:
   }
 
   void
-  onInterest (const ndn::Name& name, const ndn::Interest& interest)
+  onInterest(const ndn::Name& name, const ndn::Interest& interest)
   {
     if (m_verbose)
       std::cerr << "<< I: " << interest << std::endl;
-    
-    size_t segnum = static_cast<size_t>(interest.getName ().rbegin ()->toSegment ());
+
+    size_t segnum = static_cast<size_t>(interest.getName().rbegin()->toSegment());
 
     if (segnum < m_store.size())
       {
-        m_face.put (*m_store[segnum]);
+        m_face.put(*m_store[segnum]);
       }
   }
 
   void
-  onRegisterFailed (const ndn::Name& prefix, const std::string& reason)
+  onRegisterFailed(const ndn::Name& prefix, const std::string& reason)
   {
     std::cerr << "ERROR: Failed to register prefix in local hub's daemon (" << reason << ")" << std::endl;
-    m_face.shutdown ();
+    m_face.shutdown();
   }
-  
+
   void
-  run ()
+  run()
   {
     if (m_store.empty())
       {
         std::cerr << "Nothing to serve. Exiting." << std::endl;
         return;
       }
-    
-    m_face.setInterestFilter (m_name,
-                              ndn::bind (&Producer::onInterest, this, _1, _2),
-                              ndn::bind (&Producer::onRegisterFailed, this, _1, _2));
-    m_face.processEvents ();
+
+    m_face.setInterestFilter(m_name,
+                             ndn::bind(&Producer::onInterest, this, _1, _2),
+                             ndn::bind(&Producer::onRegisterFailed, this, _1, _2));
+    m_face.processEvents();
   }
 
 private:
   ndn::Name m_name;
   ndn::Face m_face;
   ndn::KeyChain m_keychain;
-  
+
   std::vector< ndn::shared_ptr<ndn::Data> > m_store;
 
   bool m_verbose;
 };
 
 int
-main (int argc, char *argv[])
+main(int argc, char *argv[])
 {
   if (argc < 2)
     {
       std::cerr << "Usage: ./ndnputchunks [data_prefix]\n";
       return -1;
     }
-  
+
   try
     {
-      ndn::MillisecondsSince1970 time = ndn::getNow();
-      
+      ndn::time::steady_clock::TimePoint startTime = ndn::time::steady_clock::now();
+
       std::cerr << "Preparing the input..." << std::endl;
-      Producer producer (argv[1]);
-      std::cerr << "Ready... (took " << ((ndn::getNow() - time)/1000) << " seconds)" << std::endl;
-      while(true)
+      Producer producer(argv[1]);
+      std::cerr << "Ready... (took " << (ndn::time::steady_clock::now() - startTime) << std::endl;
+
+      while (true)
         {
           try
             {
-              producer.run (); // this will exit when daemon dies... so try to connect again if possible
+              producer.run(); // this will exit when daemon dies... so try to connect again if possible
             }
           catch (std::exception& e)
             {
-              std::cerr << "ERROR: " << e.what () << std::endl;
+              std::cerr << "ERROR: " << e.what() << std::endl;
               // and keep going
               sleep (1);
             }
@@ -132,7 +133,7 @@ main (int argc, char *argv[])
     }
   catch (std::exception& e)
     {
-      std::cerr << "ERROR: " << e.what () << std::endl;
+      std::cerr << "ERROR: " << e.what() << std::endl;
     }
   return 0;
 }

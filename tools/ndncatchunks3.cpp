@@ -18,36 +18,39 @@
  * Author: Wentao Shang <wentao@cs.ucla.edu>
  */
 
-
 #include "face.hpp"
 
 class Consumer
 {
 public:
-  Consumer (const std::string &data_name, int pipe_size, int total_seg, int scope = -1, bool mustBeFresh = true)
-    : m_data_name (data_name), m_pipe_size (pipe_size), m_total_seg (total_seg),
-      m_next_seg (0), m_total_size (0), m_output (false)
-	  , m_scope(scope)
-      , m_mustBeFresh(mustBeFresh)
+  Consumer(const std::string& data_name, int pipe_size, int total_seg, int scope = -1, bool mustBeFresh = true)
+    : m_data_name (data_name)
+    , m_pipe_size (pipe_size)
+    , m_total_seg (total_seg)
+    , m_next_seg (0)
+    , m_total_size (0)
+    , m_output (false)
+    , m_scope(scope)
+    , m_mustBeFresh(mustBeFresh)
   {
   }
 
   inline void
-  enable_output ()
+  enable_output()
   {
     m_output = true;
   }
 
   void
-  run ();
-  
+  run();
+
 private:
   void
-  on_data (const ndn::Interest& interest, ndn::Data& data);
+  on_data(const ndn::Interest& interest, ndn::Data& data);
 
   void
-  on_timeout (const ndn::Interest& interest);
-  
+  on_timeout(const ndn::Interest& interest);
+
   ndn::Face m_face;
   ndn::Name m_data_name;
   int m_pipe_size;
@@ -61,25 +64,25 @@ private:
 };
 
 void
-Consumer::run ()
+Consumer::run()
 {
   try
     {
       for (int i = 0; i < m_pipe_size; i++)
 	{
-	  ndn::Interest inst (ndn::Name(m_data_name).appendSegment (m_next_seg++));
-	  inst.setInterestLifetime (4000);
+	  ndn::Interest interest(ndn::Name(m_data_name).appendSegment (m_next_seg++));
+	  interest.setInterestLifetime(ndn::time::milliseconds(4000));
 	  if (m_scope >= 0)
-		  inst.setScope (m_scope);
-	  inst.setMustBeFresh (m_mustBeFresh);
-	  
-	  m_face.expressInterest (inst,
-				  ndn::bind (&Consumer::on_data, this, _1, _2),
-				  ndn::bind (&Consumer::on_timeout, this, _1));
+            interest.setScope(m_scope);
+	  interest.setMustBeFresh(m_mustBeFresh);
+
+	  m_face.expressInterest (interest,
+				  ndn::bind(&Consumer::on_data, this, _1, _2),
+				  ndn::bind(&Consumer::on_timeout, this, _1));
 	}
-      
+
       // processEvents will block until the requested data received or timeout occurs
-      m_face.processEvents ();
+      m_face.processEvents();
     }
   catch (std::exception& e)
     {
@@ -88,10 +91,10 @@ Consumer::run ()
 }
 
 void
-Consumer::on_data (const ndn::Interest& interest, ndn::Data& data)
+Consumer::on_data(const ndn::Interest& interest, ndn::Data& data)
 {
-  const ndn::Block& content = data.getContent ();
-  const ndn::Name& name = data.getName ();
+  const ndn::Block& content = data.getContent();
+  const ndn::Name& name = data.getName();
 
   if (m_output)
     {
@@ -99,8 +102,8 @@ Consumer::on_data (const ndn::Interest& interest, ndn::Data& data)
     }
 
   m_total_size += content.value_size ();
-  
-  if ((int) (name.rbegin ()->toSegment ()) + 1 == m_total_seg)
+
+  if ((int)(name.rbegin ()->toSegment ()) + 1 == m_total_seg)
     {
       std::cerr << "Last segment received." << std::endl;
       std::cerr << "Total # bytes of content received: " << m_total_size << std::endl;
@@ -108,21 +111,21 @@ Consumer::on_data (const ndn::Interest& interest, ndn::Data& data)
   else
     {
       // Send interest for next segment
-      ndn::Interest inst (ndn::Name(m_data_name).appendSegment (m_next_seg++));
-	  if (m_scope >= 0)
-	      inst.setScope (m_scope);
-      inst.setInterestLifetime (4000);
-      inst.setMustBeFresh (m_mustBeFresh);
-      
-      m_face.expressInterest (inst,
-			      ndn::bind (&Consumer::on_data, this, _1, _2),
-			      ndn::bind (&Consumer::on_timeout, this, _1));  
+      ndn::Interest interest(ndn::Name(m_data_name).appendSegment (m_next_seg++));
+      if (m_scope >= 0)
+        interest.setScope(m_scope);
+      interest.setInterestLifetime(ndn::time::milliseconds(4000));
+      interest.setMustBeFresh(m_mustBeFresh);
+
+      m_face.expressInterest (interest,
+			      ndn::bind(&Consumer::on_data, this, _1, _2),
+			      ndn::bind(&Consumer::on_timeout, this, _1));
     }
 }
 
 
 void
-Consumer::on_timeout (const ndn::Interest& interest)
+Consumer::on_timeout(const ndn::Interest& interest)
 {
   //XXX: currently no retrans
   std::cerr << "TIMEOUT: last interest sent for segment #" << (m_next_seg - 1) << std::endl;
@@ -138,7 +141,7 @@ usage(const std::string &filename)
 
 
 int
-main (int argc, char **argv)
+main(int argc, char **argv)
 {
   std::string name;
   int pipe_size = 1;
@@ -165,7 +168,7 @@ main (int argc, char **argv)
 	case 'o':
 	  output = true;
 	  break;
-        default: 
+        default:
 	  return usage(argv[0]);
         }
     }
@@ -174,17 +177,17 @@ main (int argc, char **argv)
     {
       name = argv[optind];
     }
-  
+
   if (name.empty())
     {
       return usage(argv[0]);
     }
-  
+
   Consumer consumer (name, pipe_size, total_seg);
 
   if (output)
     consumer.enable_output ();
-  
+
   consumer.run ();
 
   return 0;
