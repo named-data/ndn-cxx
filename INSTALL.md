@@ -1,16 +1,16 @@
-NDN-CPP-dev:  A dev version of Named Data Networking client library for C++
+ndn-cpp-dev:  A dev version of Named Data Networking client library for C++
 ===========================================================================
 
 Prerequisites
 -------------
 
-(These are prerequisites to build NDN-CPP.  To do development of NDN-CPP code and update the build system, 
+(These are prerequisites to build ndn-cpp-dev.  To do development of ndn-cpp-dev code and update the build system,
  see Development Prerequisites.)
 
-Required: 
+Required:
 
 * libcrypto
-* libsqlite3 
+* libsqlite3
 * libcrypto++
 * boost libraries (>= 1.48)
 * OSX Security framework (on OSX platform only)
@@ -49,9 +49,10 @@ Following are the detailed steps for each platform to install the prerequisites.
 Build
 -----
 
-(These are instructions to build NDN-CPP. To do development of NDN-CPP code and update the build system, see Development.)
+(These are instructions to build ndn-cpp-dev. To do development of ndn-cpp-dev
+code and update the build system, see Development.)
 
-To build in a terminal, change directory to the NDN-CPP root.  Enter:
+To build in a terminal, change directory to the ndn-cpp-dev root.  Enter:
 
     ./waf configure
     ./waf
@@ -90,7 +91,7 @@ Supported platforms
 
 (to be confirmed)
 
-NDN-CPP is tested on the following platforms:
+ndn-cpp-dev is tested on the following platforms:
 
 * Ubuntu 12.04 (64 bit and 32 bit)
 * Ubuntu 13.10 (64 bit and 32 bit)
@@ -100,7 +101,7 @@ NDN-CPP is tested on the following platforms:
 Development Prerequisites
 -------------------------
 
-These steps are only needed to do development of NDN-CPP code and update the build system.
+These steps are only needed to do development of ndn-cpp-dev code and update the build system.
 First follow the Prerequisites above for your platforms.
 
 * Mac OS X 10.7.3, Mac OS X 10.8.4, Mac OS X 10.9
