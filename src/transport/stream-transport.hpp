@@ -103,6 +103,7 @@ public:
     m_connectTimer.cancel();
     m_socket.close();
     m_transport.m_isConnected = false;
+    m_transport.m_isExpectingData = false;
     m_sendQueue.clear();
     m_sendPairQueue.clear();
   }
