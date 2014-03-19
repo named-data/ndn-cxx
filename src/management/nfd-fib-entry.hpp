@@ -36,6 +36,7 @@ public:
   {
   }
 
+  explicit
   NextHopRecord(const Block& block)
   {
     wireDecode(block);
@@ -177,7 +178,12 @@ public:
 
   FibEntry()
   {
+  }
 
+  explicit
+  FibEntry(const Block& block)
+  {
+    wireDecode(block);
   }
 
   const Name&
@@ -299,7 +305,7 @@ public:
                   << val->type();
             throw Error(error.str());
           }
-        m_nextHopRecords.push_back(*val);
+        m_nextHopRecords.push_back(NextHopRecord(*val));
       }
   }
 
@@ -314,4 +320,3 @@ private:
 } // namespace ndn
 
 #endif // NDN_MANAGEMENT_NFD_FIB_ENTRY_HPP
-

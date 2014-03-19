@@ -45,7 +45,7 @@ enum {
   TotalIncomingDataCounter     = 144,
   TotalOutgoingInterestCounter = 146,
   TotalOutgoingDataCounter     = 147,
-  FaceEvent                    = 192,
+  FaceEventNotification        = 192,
   FaceEventKind                = 193,
 
   // Forwarder status

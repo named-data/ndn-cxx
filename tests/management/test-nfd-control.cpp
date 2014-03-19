@@ -7,6 +7,7 @@
 #include "management/nfd-control-response.hpp"
 #include "management/nfd-fib-management-options.hpp"
 #include "management/nfd-face-management-options.hpp"
+#include "management/nfd-face-event-notification.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/output_test_stream.hpp>
@@ -37,6 +38,12 @@ const uint8_t TestFaceManagementOptions[] = {
   0x6c, 0x1e, 0x69, 0x01, 0x0a, 0x72, 0x19, 0x74, 0x63, 0x70, 0x3a, 0x2f,
   0x2f, 0x31, 0x2e, 0x31, 0x2e, 0x31, 0x2e, 0x31, 0x2f, 0x68, 0x65, 0x6c,
   0x6c, 0x6f, 0x2f, 0x77, 0x6f, 0x72, 0x6c, 0x64
+};
+
+const uint8_t TestFaceEventNotification[] = {
+  0xc0, 0x1d, 0xc1, 0x01, 0x01, 0x69, 0x01, 0x64, 0x72, 0x15, 0x74, 0x63,
+  0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x32, 0x37, 0x2e, 0x30, 0x2e, 0x30,
+  0x2e, 0x31, 0x3a, 0x36, 0x33, 0x36, 0x33
 };
 
 // ControlResponse
@@ -139,10 +146,40 @@ BOOST_AUTO_TEST_CASE(FaceManagementOptionsDecoding)
   Block blk(TestFaceManagementOptions, sizeof(TestFaceManagementOptions));
   FaceManagementOptions opt;
 
-  BOOST_REQUIRE_NO_THROW(opt.wireDecode (blk));
+  BOOST_REQUIRE_NO_THROW(opt.wireDecode(blk));
 
   BOOST_CHECK_EQUAL(opt.getFaceId(), 10);
   BOOST_CHECK_EQUAL(opt.getUri(), "tcp://1.1.1.1/hello/world");
+}
+
+
+BOOST_AUTO_TEST_CASE(FaceEventNotificationEncodingDecoding)
+{
+  FaceEventKind expectedKind = FACE_EVENT_CREATED;
+  std::string expectedUri("tcp4://127.0.0.1:6363");
+  uint64_t expectedFaceId = 100;
+
+  {
+    FaceEventNotification faceEvent(expectedKind, expectedFaceId, expectedUri);
+    BOOST_REQUIRE_NO_THROW(faceEvent.wireEncode());
+
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(TestFaceEventNotification,
+                                    TestFaceEventNotification + sizeof(TestFaceEventNotification),
+                                    faceEvent.wireEncode().begin(), faceEvent.wireEncode().end());
+
+    std::ostringstream os;
+    os << faceEvent;
+    BOOST_CHECK_EQUAL(os.str(), "FaceEventNotification(Kind: created, FaceID: 100, Uri: tcp4://127.0.0.1:6363)");
+  }
+
+  {
+    Block blk(TestFaceEventNotification, sizeof(TestFaceEventNotification));
+    FaceEventNotification faceEvent(blk);
+
+    BOOST_CHECK_EQUAL(faceEvent.getEventKind(), expectedKind);
+    BOOST_CHECK_EQUAL(faceEvent.getFaceId(), expectedFaceId);
+    BOOST_CHECK_EQUAL(faceEvent.getUri(), expectedUri);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
