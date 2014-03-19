@@ -4,8 +4,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_HELPERS_COMMAND_INTEREST_VALIDATOR_HPP
-#define NDN_HELPERS_COMMAND_INTEREST_VALIDATOR_HPP
+#ifndef NDN_UTIL_COMMAND_INTEREST_VALIDATOR_HPP
+#define NDN_UTIL_COMMAND_INTEREST_VALIDATOR_HPP
 
 #include "../security/validator.hpp"
 #include "../security/identity-certificate.hpp"
@@ -25,7 +25,8 @@ public:
     GRACE_INTERVAL = 3000 // ms
   };
 
-  CommandInterestValidator(const time::milliseconds& graceInterval = time::milliseconds(static_cast<int>(GRACE_INTERVAL)))
+  CommandInterestValidator(const time::milliseconds& graceInterval =
+                           time::milliseconds(static_cast<int>(GRACE_INTERVAL)))
     : m_graceInterval(graceInterval < time::milliseconds::zero() ?
                       time::milliseconds(static_cast<int>(GRACE_INTERVAL)) : graceInterval)
   {
@@ -44,21 +45,21 @@ public:
 
 protected:
   virtual void
-  checkPolicy (const Data& data,
-               int stepCount,
-               const OnDataValidated &onValidated,
-               const OnDataValidationFailed &onValidationFailed,
-               std::vector<shared_ptr<ValidationRequest> > &nextSteps)
+  checkPolicy(const Data& data,
+              int stepCount,
+              const OnDataValidated& onValidated,
+              const OnDataValidationFailed& onValidationFailed,
+              std::vector<shared_ptr<ValidationRequest> >& nextSteps)
   {
     onValidationFailed(data.shared_from_this(), "No policy for data checking");
   }
 
   virtual void
-  checkPolicy (const Interest& interest,
-               int stepCount,
-               const OnInterestValidated &onValidated,
-               const OnInterestValidationFailed &onValidationFailed,
-               std::vector<shared_ptr<ValidationRequest> > &nextSteps);
+  checkPolicy(const Interest& interest,
+              int stepCount,
+              const OnInterestValidated& onValidated,
+              const OnInterestValidationFailed& onValidationFailed,
+              std::vector<shared_ptr<ValidationRequest> >& nextSteps);
 private:
   time::milliseconds m_graceInterval; //ms
   std::map<Name, PublicKey> m_trustAnchorsForInterest;
@@ -69,14 +70,17 @@ private:
 };
 
 inline void
-CommandInterestValidator::addInterestRule(const std::string& regex, const IdentityCertificate& certificate)
+CommandInterestValidator::addInterestRule(const std::string& regex,
+                                          const IdentityCertificate& certificate)
 {
   Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificate.getName());
   addInterestRule(regex, keyName, certificate.getPublicKeyInfo());
 }
 
 inline void
-CommandInterestValidator::addInterestRule(const std::string& regex, const Name& keyName, const PublicKey& publicKey)
+CommandInterestValidator::addInterestRule(const std::string& regex,
+                                          const Name& keyName,
+                                          const PublicKey& publicKey)
 {
   m_trustAnchorsForInterest[keyName] = publicKey;
   shared_ptr<Regex> interestRegex = make_shared<Regex>(regex);
@@ -85,11 +89,11 @@ CommandInterestValidator::addInterestRule(const std::string& regex, const Name& 
 }
 
 inline void
-CommandInterestValidator::checkPolicy (const Interest& interest,
-                                       int stepCount,
-                                       const OnInterestValidated &onValidated,
-                                       const OnInterestValidationFailed &onValidationFailed,
-                                       std::vector<shared_ptr<ValidationRequest> > &nextSteps)
+CommandInterestValidator::checkPolicy(const Interest& interest,
+                                      int stepCount,
+                                      const OnInterestValidated& onValidated,
+                                      const OnInterestValidationFailed& onValidationFailed,
+                                      std::vector<shared_ptr<ValidationRequest> >& nextSteps)
 {
   const Name& interestName = interest.getName();
 
@@ -106,24 +110,26 @@ CommandInterestValidator::checkPolicy (const Interest& interest,
   Name keyName = IdentityCertificate::certificateNameToPublicKeyName(keyLocatorName);
 
   //Check if command is in the trusted scope
-  bool inScope = false;
-  for(std::list<SecRuleSpecific>::iterator scopeIt = m_trustScopeForInterest.begin();
+  bool isInScope = false;
+  for (std::list<SecRuleSpecific>::iterator scopeIt = m_trustScopeForInterest.begin();
       scopeIt != m_trustScopeForInterest.end();
       ++scopeIt)
     {
-      if(scopeIt->satisfy(interestName, keyName))
+      if (scopeIt->satisfy(interestName, keyName))
         {
-          inScope = true;
+          isInScope = true;
           break;
         }
     }
-  if(inScope == false)
+
+  if (isInScope == false)
     return onValidationFailed(interest.shared_from_this(),
                               "Signer cannot be authorized for the command: " + keyName.toUri());
 
   //Check if timestamp is valid
-  time::system_clock::TimePoint interestTime = time::fromUnixTimestamp(
-                                           time::milliseconds(interestName.get(POS_TIMESTAMP).toNumber()));
+  time::system_clock::TimePoint interestTime =
+    time::fromUnixTimestamp(time::milliseconds(interestName.get(POS_TIMESTAMP).toNumber()));
+
   time::system_clock::TimePoint currentTime = time::system_clock::now();
 
   LastTimestampMap::iterator timestampIt = m_lastTimestamp.find(keyName);
@@ -133,7 +139,8 @@ CommandInterestValidator::checkPolicy (const Interest& interest,
             interestTime <= currentTime + m_graceInterval))
         {
           return onValidationFailed(interest.shared_from_this(),
-                                    "The command is not in grace interval: " + interest.getName().toUri());
+                                    "The command is not in grace interval: " +
+                                    interest.getName().toUri());
         }
     }
   else
@@ -144,9 +151,10 @@ CommandInterestValidator::checkPolicy (const Interest& interest,
     }
 
   //Check signature
-  if(!Validator::verifySignature(interestName.wireEncode().value(),
-                                 interestName.wireEncode().value_size() - interestName[-1].size(),
-                                 sig, m_trustAnchorsForInterest[keyName]))
+  if (!Validator::verifySignature(interestName.wireEncode().value(),
+                                  interestName.wireEncode().value_size() -
+                                  interestName[-1].size(),
+                                  sig, m_trustAnchorsForInterest[keyName]))
     return onValidationFailed(interest.shared_from_this(),
                               "Signature cannot be validated: " + interest.getName().toUri());
 
@@ -165,4 +173,4 @@ CommandInterestValidator::checkPolicy (const Interest& interest,
 
 } // namespace ndn
 
-#endif // NDN_HELPERS_COMMAND_INTEREST_VALIDATOR_HPP
+#endif // NDN_UTIL_COMMAND_INTEREST_VALIDATOR_HPP

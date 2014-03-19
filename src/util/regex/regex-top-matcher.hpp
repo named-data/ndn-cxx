@@ -20,25 +20,25 @@ class RegexBackrefManager;
 class RegexTopMatcher: public RegexMatcher
 {
 public:
-  RegexTopMatcher(const std::string & expr, const std::string& expand = "");
-    
+  RegexTopMatcher(const std::string& expr, const std::string& expand = "");
+
   virtual
   ~RegexTopMatcher();
 
-  bool 
+  bool
   match(const Name& name);
 
   virtual bool
-  match (const Name& name, const int& offset, const int& len);
+  match(const Name& name, const int& offset, const int& length);
 
-  virtual Name 
-  expand (const std::string& expand = "");
+  virtual Name
+  expand(const std::string& expand = "");
 
   static shared_ptr<RegexTopMatcher>
   fromName(const Name& name, bool hasAnchor=false);
 
 protected:
-  virtual void 
+  virtual void
   compile();
 
 private:

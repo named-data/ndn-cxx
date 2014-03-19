@@ -19,61 +19,73 @@ namespace ndn {
 class ValidatorRegex : public Validator
 {
 public:
-  struct Error : public Validator::Error { Error(const std::string &what) : Validator::Error(what) {} };
+  class Error : public Validator::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : Validator::Error(what)
+    {
+    }
+  };
 
-  static const shared_ptr<CertificateCache> DefaultCertificateCache;
-  
+  static const shared_ptr<CertificateCache> DEFAULT_CERTIFICATE_CACHE;
+
   ValidatorRegex(shared_ptr<Face> face,
-                 shared_ptr<CertificateCache> certificateCache = DefaultCertificateCache, 
+                 shared_ptr<CertificateCache> certificateCache = DEFAULT_CERTIFICATE_CACHE,
                  const int stepLimit = 3);
-  
-  virtual 
-  ~ValidatorRegex() {}
-  
+
+  virtual
+  ~ValidatorRegex()
+  {
+  }
+
   /**
    * @brief Add a rule for data verification.
    *
    * @param policy The verification rule
    */
   inline void
-  addDataVerificationRule (shared_ptr<SecRuleRelative> rule);
-    
+  addDataVerificationRule(shared_ptr<SecRuleRelative> rule);
+
   /**
    * @brief Add a trust anchor
    *
-   * @param certificate The trust anchor 
+   * @param certificate The trust anchor
    */
-  inline void 
+  inline void
   addTrustAnchor(shared_ptr<IdentityCertificate> certificate);
 
 protected:
   virtual void
-  checkPolicy (const Data& data, 
-               int stepCount, 
-               const OnDataValidated &onValidated, 
-               const OnDataValidationFailed &onValidationFailed,
-               std::vector<shared_ptr<ValidationRequest> > &nextSteps);
+  checkPolicy(const Data& data,
+              int stepCount,
+              const OnDataValidated& onValidated,
+              const OnDataValidationFailed& onValidationFailed,
+              std::vector<shared_ptr<ValidationRequest> >& nextSteps);
 
   virtual void
-  checkPolicy (const Interest& interest, 
-               int stepCount, 
-               const OnInterestValidated &onValidated, 
-               const OnInterestValidationFailed &onValidationFailed,
-               std::vector<shared_ptr<ValidationRequest> > &nextSteps)
-  { onValidationFailed(interest.shared_from_this(), "No policy for signed interest checking"); }
+  checkPolicy(const Interest& interest,
+              int stepCount,
+              const OnInterestValidated& onValidated,
+              const OnInterestValidationFailed& onValidationFailed,
+              std::vector<shared_ptr<ValidationRequest> >& nextSteps)
+  {
+    onValidationFailed(interest.shared_from_this(), "No policy for signed interest checking");
+  }
 
   void
-  onCertificateValidated(const shared_ptr<const Data> &signCertificate, 
-                         const shared_ptr<const Data> &data, 
-                         const OnDataValidated &onValidated, 
-                         const OnDataValidationFailed &onValidationFailed);
-  
+  onCertificateValidated(const shared_ptr<const Data>& signCertificate,
+                         const shared_ptr<const Data>& data,
+                         const OnDataValidated& onValidated,
+                         const OnDataValidationFailed& onValidationFailed);
+
   void
-  onCertificateValidationFailed(const shared_ptr<const Data> &signCertificate,
+  onCertificateValidationFailed(const shared_ptr<const Data>& signCertificate,
                                 const std::string& failureInfo,
-                                const shared_ptr<const Data> &data, 
-                                const OnDataValidationFailed &onValidationFailed);
-  
+                                const shared_ptr<const Data>& data,
+                                const OnDataValidationFailed& onValidationFailed);
+
 protected:
   typedef std::vector< shared_ptr<SecRuleRelative> > RuleList;
   typedef std::vector< shared_ptr<Regex> > RegexList;
@@ -85,13 +97,17 @@ protected:
   std::map<Name, shared_ptr<IdentityCertificate> > m_trustAnchors;
 };
 
-inline void 
-ValidatorRegex::addDataVerificationRule (shared_ptr<SecRuleRelative> rule)
-{ rule->isPositive() ? m_verifyPolicies.push_back(rule) : m_mustFailVerify.push_back(rule); }
-      
-inline void  
+inline void
+ValidatorRegex::addDataVerificationRule(shared_ptr<SecRuleRelative> rule)
+{
+  rule->isPositive() ? m_verifyPolicies.push_back(rule) : m_mustFailVerify.push_back(rule);
+}
+
+inline void
 ValidatorRegex::addTrustAnchor(shared_ptr<IdentityCertificate> certificate)
-{ m_trustAnchors[certificate->getName().getPrefix(-1)] = certificate; }
+{
+  m_trustAnchors[certificate->getName().getPrefix(-1)] = certificate;
+}
 
 } // namespace ndn
 
