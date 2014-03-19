@@ -227,6 +227,8 @@ private:
   void 
   onReceiveElement(const Block& wire);
 
+  void
+  asyncShutdown();
   
   static void
   fireProcessEventsTimeout(const boost::system::error_code& error);

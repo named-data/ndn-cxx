@@ -261,6 +261,12 @@ Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::ze
 void
 Face::shutdown()
 {
+  m_ioService->post(bind(&Face::asyncShutdown, this));
+}
+
+void
+Face::asyncShutdown()
+{
   m_pendingInterestTable.clear();
   m_registeredPrefixTable.clear();
 
