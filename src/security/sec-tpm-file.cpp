@@ -40,7 +40,7 @@ public:
   Impl(const string& dir)
   {
     if(dir.empty())
-      m_keystorePath = boost::filesystem::path(getenv("HOME")) / ".ndnx" / "ndnsec-tpm-file";
+      m_keystorePath = boost::filesystem::path(getenv("HOME")) / ".ndn" / "ndnsec-tpm-file";
     else
       m_keystorePath = dir;
     

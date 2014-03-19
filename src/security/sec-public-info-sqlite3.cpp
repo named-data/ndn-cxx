@@ -90,7 +90,7 @@ static int sqlite3_bind_text(sqlite3_stmt* statement, int index, const string& v
 
 SecPublicInfoSqlite3::SecPublicInfoSqlite3()
 {
-  boost::filesystem::path identityDir = boost::filesystem::path(getenv("HOME")) / ".ndnx";
+  boost::filesystem::path identityDir = boost::filesystem::path(getenv("HOME")) / ".ndn";
   boost::filesystem::create_directories (identityDir);
 
   /// @todo Add define for windows/unix in wscript. The following may completely fail on windows
