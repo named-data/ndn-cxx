@@ -125,6 +125,8 @@ def configure(conf):
 
     conf.load("coverage")
 
+    conf.define('SYSCONFDIR', conf.env['SYSCONFDIR'])
+
     conf.write_config_header('src/ndn-cpp-config.h', define_prefix='NDN_CPP_')
 
 def build (bld):
@@ -208,6 +210,8 @@ def build (bld):
     bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], headers, relative_trick=True, cwd=bld.path.find_node('src'))
 
     bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], bld.path.find_resource('src/ndn-cpp-config.h'))
+
+    bld.install_files("${SYSCONFDIR}/ndn", "client.conf.sample")
 
 @Configure.conf
 def add_supported_cxxflags(self, cxxflags):

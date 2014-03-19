@@ -13,6 +13,7 @@
 
 #include "util/time.hpp"
 #include "util/random.hpp"
+#include "util/config-file.hpp"
 #include <cstdlib>
 
 #include "management/ndnd-controller.hpp"
@@ -23,13 +24,15 @@ namespace ndn {
 
 Face::Face()
 {
-  construct(shared_ptr<Transport>(new UnixTransport()),
+  const std::string socketName = UnixTransport::getDefaultSocketName(m_config);
+  construct(shared_ptr<Transport>(new UnixTransport(socketName)),
             make_shared<boost::asio::io_service>());
 }
 
 Face::Face(const shared_ptr<boost::asio::io_service>& ioService)
 {
-  construct(shared_ptr<Transport>(new UnixTransport()),
+  const std::string socketName = UnixTransport::getDefaultSocketName(m_config);
+  construct(shared_ptr<Transport>(new UnixTransport(socketName)),
             ioService);
 }
 
@@ -68,17 +71,38 @@ Face::construct(const shared_ptr<Transport>& transport,
   m_pitTimeoutCheckTimer      = make_shared<monotonic_deadline_timer>(boost::ref(*m_ioService));
   m_processEventsTimeoutTimer = make_shared<monotonic_deadline_timer>(boost::ref(*m_ioService));
 
-  if (std::getenv("NFD") != 0)
+  std::string protocol = "nrd-0.1";
+
+  try
     {
-      if (std::getenv("NRD") != 0)
-        m_fwController = make_shared<nrd::Controller>(boost::ref(*this));
-      else
-        m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
+      protocol = m_config.getParsedConfiguration().get<std::string>("protocol");
+    }
+  catch (const boost::property_tree::ptree_bad_path& error)
+    {
+      // protocol not specified
+    }
+  catch (const boost::property_tree::ptree_bad_data& error)
+    {
+      throw ConfigFile::Error(error.what());
+    }
+
+  if (isSupportedNrdProtocol(protocol))
+    {
+      m_fwController = make_shared<nrd::Controller>(boost::ref(*this));
+    }
+  if (isSupportedNfdProtocol(protocol))
+    {
+      m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
+    }
+  else if (isSupportedNdndProtocol(protocol))
+    {
+      m_fwController = make_shared<ndnd::Controller>(boost::ref(*this));
     }
   else
-    m_fwController = make_shared<ndnd::Controller>(boost::ref(*this));
+    {
+      throw Face::Error("Cannot create controller for unsupported protocol \"" + protocol + "\"");
+    }
 }
-
 
 const PendingInterestId*
 Face::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)

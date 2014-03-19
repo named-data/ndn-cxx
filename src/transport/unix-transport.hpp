@@ -9,6 +9,7 @@
 
 #include "../common.hpp"
 #include "transport.hpp"
+#include "../util/config-file.hpp"
 
 // forward declaration
 namespace boost { namespace asio { namespace local { class stream_protocol; } } }
@@ -22,9 +23,15 @@ class StreamTransportImpl;
 class UnixTransport : public Transport
 {
 public:
-  UnixTransport();
 
+  /**
+   * Create Unix transport based on the socket specified
+   * in a well-known configuration file or fallback to /var/run/nfd.sock
+   *
+   * @throws Throws UnixTransport::Error on failure to parse a discovered configuration file
+   */
   UnixTransport(const std::string& unixSocket);
+
   ~UnixTransport();
 
   // from Transport
@@ -46,7 +53,16 @@ public:
 
   virtual void
   send(const Block& header, const Block& payload);
-  
+
+  /**
+   * Determine the default NFD unix socket
+   *
+   * @returns unix_socket value if present in config, else /var/run/nfd.sock
+   * @throws ConfigFile::Error if fail to parse value of a present "unix_socket" field
+   */
+  static std::string
+  getDefaultSocketName(const ConfigFile& config);
+
 private:
   std::string m_unixSocket;
 

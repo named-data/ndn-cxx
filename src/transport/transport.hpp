@@ -14,7 +14,12 @@ namespace ndn {
 
 class Transport {
 public:
-  struct Error : public std::runtime_error { inline Error(const boost::system::error_code &code, const std::string &msg); };
+  class Error : public std::runtime_error
+  {
+  public:
+    inline Error(const boost::system::error_code &code, const std::string &msg);
+    inline Error(const std::string& msg);
+  };
   
   typedef ptr_lib::function<void (const Block &wire)> ReceiveCallback;
   typedef ptr_lib::function<void ()> ErrorCallback;
@@ -89,8 +94,15 @@ Transport::Transport()
 {
 }
 
-inline Transport::Error::Error(const boost::system::error_code& code, const std::string& msg)
+inline
+Transport::Error::Error(const boost::system::error_code& code, const std::string& msg)
   : std::runtime_error(msg + (code.value() ? " (" + code.category().message(code.value()) + ")" : ""))
+{
+}
+
+inline
+Transport::Error::Error(const std::string& msg)
+  : std::runtime_error(msg)
 {
 }
 

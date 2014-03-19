@@ -58,12 +58,16 @@ public:
 
   /**
    * @brief Create a new Face for communication with an NDN Forwarder using the default UnixTransport.
+   * @throws ConfigFile::Error on configuration file parse failure
+   * @throws Face::Error on unsupported protocol
    */
   Face();
 
   /**
    * @brief Create a new Face for communication with an NDN Forwarder using the default UnixTransport.
    * @param ioService A shared pointer to boost::io_service object that should control all IO operations
+   * @throws ConfigFile::Error on configuration file parse failure
+   * @throws Face::Error on unsupported protocol
    */
   explicit
   Face(const shared_ptr<boost::asio::io_service>& ioService);
@@ -72,6 +76,7 @@ public:
    * Create a new Face for communication with an NDN hub at host:port using the default TcpTransport.
    * @param host The host of the NDN hub.
    * @param port The port or service name of the NDN hub. If omitted. use 6363.
+   * @throws Face::Error on unsupported protocol
    */
   Face(const std::string& host, const std::string& port = "6363");
 
@@ -79,6 +84,7 @@ public:
    * Create a new Face for communication with an NDN hub with the given Transport object and connectionInfo.
    * @param transport A shared_ptr to a Transport object used for communication.
    * @param transport A shared_ptr to a Transport::ConnectionInfo to be used to connect to the transport.
+   * @throws Face::Error on unsupported protocol
    */
   explicit
   Face(const shared_ptr<Transport>& transport);
@@ -94,6 +100,7 @@ public:
    *     // Now the following ensures that events on both faces are processed
    *     face1.processEvents();
    * </code>
+   * @throws Face::Error on unsupported protocol
    */
   Face(const shared_ptr<Transport>& transport,
        const shared_ptr<boost::asio::io_service>& ioService);
@@ -203,9 +210,22 @@ public:
   ioService() { return m_ioService; }
 
 private:
+
+  /**
+   * @throws Face::Error on unsupported protocol
+   */
   void
   construct(const shared_ptr<Transport>& transport,
             const shared_ptr<boost::asio::io_service>& ioService);
+
+  bool
+  isSupportedNfdProtocol(const std::string& protocol);
+
+  bool
+  isSupportedNrdProtocol(const std::string& protocol);
+
+  bool
+  isSupportedNdndProtocol(const std::string& protocol);
   
   struct ProcessEventsTimeout {};
   typedef std::list<shared_ptr<PendingInterest> > PendingInterestTable;
@@ -255,7 +275,27 @@ private:
   RegisteredPrefixTable m_registeredPrefixTable;
 
   shared_ptr<Controller> m_fwController;
+
+  ConfigFile m_config;
 };
+
+inline bool
+Face::isSupportedNfdProtocol(const std::string& protocol)
+{
+  return protocol == "nfd-0.1";
+}
+
+inline bool
+Face::isSupportedNrdProtocol(const std::string& protocol)
+{
+  return protocol == "nrd-0.1";
+}
+
+inline bool
+Face::isSupportedNdndProtocol(const std::string& protocol)
+{
+  return protocol == "ndnd-tlv-0.7";
+}
 
 } // namespace ndn
 
