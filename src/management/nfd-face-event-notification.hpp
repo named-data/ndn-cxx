@@ -112,7 +112,7 @@ FaceEventNotification::wireEncode(EncodingImpl<T>& buffer) const
   return totalLength;
 }
 
-const Block&
+inline const Block&
 FaceEventNotification::wireEncode() const
 {
   if (m_wire.hasWire ())
