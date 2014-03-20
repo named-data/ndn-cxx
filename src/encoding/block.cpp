@@ -81,9 +81,9 @@ Block::Block(const ConstBufferPtr &buffer,
   m_value_end   = m_end;
 
   m_type = Tlv::readType(m_value_begin, m_value_end);
+  uint64_t length = Tlv::readVarNumber(m_value_begin, m_value_end);
   if (verifyLength)
     {
-      uint64_t length = Tlv::readVarNumber(m_value_begin, m_value_end);
       if (length != static_cast<uint64_t>(m_value_end - m_value_begin))
         {
           throw Tlv::Error("TLV length doesn't match buffer length");
