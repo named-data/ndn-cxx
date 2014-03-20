@@ -4,8 +4,8 @@
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_MANAGEMENT_NFD_CONTROL_HPP
-#define NDN_MANAGEMENT_NFD_CONTROL_HPP
+#ifndef NDN_MANAGEMENT_NFD_CONTROLLER_HPP
+#define NDN_MANAGEMENT_NFD_CONTROLLER_HPP
 
 #include "controller.hpp"
 #include "../util/command-interest-generator.hpp"
@@ -120,4 +120,4 @@ protected:
 } // namespace nfd
 } // namespace ndn
 
-#endif // NDN_MANAGEMENT_NFD_CONTROL_HPP
+#endif // NDN_MANAGEMENT_NFD_CONTROLLER_HPP
