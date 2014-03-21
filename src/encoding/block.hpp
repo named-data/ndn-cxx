@@ -31,8 +31,11 @@ public:
   typedef element_container::const_iterator  element_const_iterator;
 
   /// @brief Error that can be thrown from the block
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
-  
+  struct Error : public std::runtime_error
+  {
+    Error(const std::string& what) : std::runtime_error(what) {}
+  };
+
   /**
    * @brief Default constructor to create an empty Block
    */
@@ -43,11 +46,11 @@ public:
    */
   explicit
   Block(const EncodingBuffer& buffer);
-  
+
   /**
    * @brief A helper version of a constructor to create Block from the raw buffer (type and value-length parsing)
    */
-  Block(const ConstBufferPtr &buffer);
+  Block(const ConstBufferPtr& buffer);
 
   /**
    * @brief Another helper to create block from a buffer, directly specifying boundaries
@@ -55,31 +58,31 @@ public:
    *
    * This version will automatically detect type and position of the value within the block
    */
-  Block(const ConstBufferPtr &buffer,
-        const Buffer::const_iterator &begin, const Buffer::const_iterator &end,
+  Block(const ConstBufferPtr& buffer,
+        const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
         bool verifyLength = true);
-  
+
   /**
    * @brief A helper version of a constructor to create Block from the raw buffer (type and value-length parsing)
    */
-  Block(const uint8_t *buffer, size_t maxlength);
+  Block(const uint8_t* buffer, size_t maxlength);
 
-  Block(const void *buffer, size_t maxlength);
+  Block(const void* buffer, size_t maxlength);
 
   /*
-   * @brief A helper version of a constructor to create Block from the stream. 
+   * @brief A helper version of a constructor to create Block from the stream.
    */
   Block(std::istream& is);
-  
+
   /**
    * @brief Create Block from the wire buffer (no parsing)
    *
    * This version of the constructor does not do any parsing
    */
-  Block(const ConstBufferPtr &wire,
+  Block(const ConstBufferPtr& wire,
         uint32_t type,
-        const Buffer::const_iterator &begin, const Buffer::const_iterator &end,
-        const Buffer::const_iterator &valueBegin, const Buffer::const_iterator &valueEnd);
+        const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
+        const Buffer::const_iterator& valueBegin, const Buffer::const_iterator& valueEnd);
 
   /**
    * @brief Create Block of a specific type with empty wire buffer
@@ -94,7 +97,7 @@ public:
    * to construct wire encoding, one need to prepend the wire buffer with type
    * and value-length VAR-NUMBERs
    */
-  Block(uint32_t type, const ConstBufferPtr &value);
+  Block(uint32_t type, const ConstBufferPtr& value);
 
   /**
    * @brief Create nested Block of a specific type with the specified value
@@ -104,14 +107,34 @@ public:
    * and value-length VAR-NUMBERs
    */
   explicit
-  Block(uint32_t type, const Block &value);
+  Block(uint32_t type, const Block& value);
+
+  /**
+   * @brief Try to construct block from Buffer, referencing data block pointed by wire
+   *
+   * @throws This method never throws an exception
+   *
+   * @returns true if Block successfully created, false if block cannot be created
+   */
+  static bool
+  fromBuffer(const ConstBufferPtr& wire, size_t offset, Block& block);
+
+  /**
+   * @brief Try to construct block from Buffer, referencing data block pointed by wire
+   *
+   * @throws This method never throws an exception
+   *
+   * @returns true if Block successfully created, false if block cannot be created
+   */
+  static bool
+  fromBuffer(const uint8_t* buffer, size_t maxSize, Block& block);
 
   /**
    * @brief Check if the Block is empty
    */
   inline bool
   empty() const;
-  
+
   /**
    * @brief Check if the Block has fully encoded wire
    */
@@ -123,7 +146,7 @@ public:
    */
   inline bool
   hasValue() const;
-  
+
   /**
    * @brief Reset wire buffer of the element
    */
@@ -150,14 +173,14 @@ public:
    */
   void
   encode();
-  
+
   inline uint32_t
   type() const;
 
   /**
    * @brief Get the first subelement of the requested type
    */
-  inline const Block &
+  inline const Block&
   get(uint32_t type) const;
 
   inline element_const_iterator
@@ -171,10 +194,10 @@ public:
 
   inline element_iterator
   erase(element_iterator first, element_iterator last);
-  
+
   inline void
-  push_back(const Block &element);
-  
+  push_back(const Block& element);
+
   inline Buffer::const_iterator
   begin() const;
 
@@ -189,7 +212,7 @@ public:
 
   // inline const uint8_t*
   // buf() const;
-  
+
   inline Buffer::const_iterator
   value_begin() const;
 
@@ -216,7 +239,7 @@ public:
 
   inline size_t
   elements_size() const;
-  
+
   Block
   blockFromValue() const;
 
@@ -224,11 +247,11 @@ protected:
   ConstBufferPtr m_buffer;
 
   uint32_t m_type;
-  
+
   Buffer::const_iterator m_begin;
   Buffer::const_iterator m_end;
   uint32_t m_size;
-  
+
   Buffer::const_iterator m_value_begin;
   Buffer::const_iterator m_value_end;
 
@@ -285,7 +308,7 @@ Block::type() const
   return m_type;
 }
 
-inline const Block &
+inline const Block&
 Block::get(uint32_t type) const
 {
   for (element_const_iterator i = m_subBlocks.begin ();
@@ -300,7 +323,7 @@ Block::get(uint32_t type) const
 
   throw Error("(Block::get) Requested a non-existed type [" + boost::lexical_cast<std::string>(type) + "] from Block");
 }
-  
+
 inline Block::element_const_iterator
 Block::find(uint32_t type) const
 {
@@ -409,7 +432,7 @@ Block::value() const
 {
   if (!hasValue())
     return 0;
-  
+
   return &*m_value_begin;
 }
 

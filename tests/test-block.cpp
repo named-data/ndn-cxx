@@ -12,28 +12,28 @@ namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(TestBlock)
 
-BOOST_AUTO_TEST_CASE (Basic)
+BOOST_AUTO_TEST_CASE(Basic)
 {
   EncodingBuffer buffer;
   EncodingEstimator estimator;
   size_t s1, s2;
 
   // VarNumber checks
-  
+
   s1 = buffer.prependVarNumber(252);
   s2 = estimator.prependVarNumber(252);
   BOOST_CHECK_EQUAL(buffer.size(), 1);
   BOOST_CHECK_EQUAL(s1, 1);
   BOOST_CHECK_EQUAL(s2, 1);
   buffer = EncodingBuffer();
-  
+
   s1 = buffer.prependVarNumber(253);
   s2 = estimator.prependVarNumber(253);
   BOOST_CHECK_EQUAL(buffer.size(), 3);
   BOOST_CHECK_EQUAL(s1, 3);
   BOOST_CHECK_EQUAL(s2, 3);
   buffer = EncodingBuffer();
-  
+
   s1 = buffer.prependVarNumber(255);
   s2 = estimator.prependVarNumber(255);
   BOOST_CHECK_EQUAL(buffer.size(), 3);
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE (Basic)
   BOOST_CHECK_EQUAL(s1, 5);
   BOOST_CHECK_EQUAL(s2, 5);
   buffer = EncodingBuffer();
-  
+
   s1 = buffer.prependVarNumber(4294967295);
   s2 = estimator.prependVarNumber(4294967295);
   BOOST_CHECK_EQUAL(buffer.size(), 5);
@@ -70,21 +70,21 @@ BOOST_AUTO_TEST_CASE (Basic)
   buffer = EncodingBuffer();
 
   // nonNegativeInteger checks
-  
+
   s1 = buffer.prependNonNegativeInteger(252);
   s2 = estimator.prependNonNegativeInteger(252);
   BOOST_CHECK_EQUAL(buffer.size(), 1);
   BOOST_CHECK_EQUAL(s1, 1);
   BOOST_CHECK_EQUAL(s2, 1);
   buffer = EncodingBuffer();
-  
+
   s1 = buffer.prependNonNegativeInteger(255);
   s2 = estimator.prependNonNegativeInteger(255);
   BOOST_CHECK_EQUAL(buffer.size(), 1);
   BOOST_CHECK_EQUAL(s1, 1);
   BOOST_CHECK_EQUAL(s2, 1);
   buffer = EncodingBuffer();
-  
+
   s1 = buffer.prependNonNegativeInteger(256);
   s2 = estimator.prependNonNegativeInteger(256);
   BOOST_CHECK_EQUAL(buffer.size(), 2);
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE (Basic)
   buffer = EncodingBuffer();
 }
 
-BOOST_AUTO_TEST_CASE (EncodingBufferToBlock)
+BOOST_AUTO_TEST_CASE(EncodingBufferToBlock)
 {
   uint8_t value[4];
 
@@ -140,11 +140,11 @@ BOOST_AUTO_TEST_CASE (EncodingBufferToBlock)
   BOOST_CHECK_EQUAL(block.value_size(), sizeof(value));
 }
 
-BOOST_AUTO_TEST_CASE (BlockToBuffer)
+BOOST_AUTO_TEST_CASE(BlockToBuffer)
 {
   shared_ptr<Buffer> buf = make_shared<Buffer>(10);
   for (int i = 0; i < 10; i++) (*buf)[i] = i;
-  
+
   Block block(0xab, buf);
   block.encode();
 
@@ -161,6 +161,55 @@ BOOST_AUTO_TEST_CASE (BlockToBuffer)
   BOOST_REQUIRE_NO_THROW(buffer = EncodingBuffer(block));
   BOOST_CHECK_EQUAL(buffer.size(), 4);
   BOOST_CHECK_EQUAL(buffer.capacity(), 10);
+}
+
+BOOST_AUTO_TEST_CASE(FromBuffer)
+{
+  const uint8_t TEST_BUFFER[] = {0x00, 0x01, 0xfa, // ok
+                                 0x01, 0x01, 0xfb, // ok
+                                 0x03, 0x02, 0xff}; // not ok
+  BufferPtr buffer(new Buffer(TEST_BUFFER, sizeof(TEST_BUFFER)));
+
+  // using BufferPtr (avoids memory copy)
+  size_t offset = 0;
+  Block testBlock;
+  BOOST_CHECK(Block::fromBuffer(buffer, offset, testBlock));
+  BOOST_CHECK_EQUAL(testBlock.type(), 0);
+  BOOST_CHECK_EQUAL(testBlock.size(), 3);
+  BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
+  BOOST_CHECK_EQUAL(*testBlock.wire(),  0x00);
+  BOOST_CHECK_EQUAL(*testBlock.value(), 0xfa);
+  offset += testBlock.size();
+
+  BOOST_CHECK(Block::fromBuffer(buffer, offset, testBlock));
+  BOOST_CHECK_EQUAL(testBlock.type(), 1);
+  BOOST_CHECK_EQUAL(testBlock.size(), 3);
+  BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
+  BOOST_CHECK_EQUAL(*testBlock.wire(),  0x01);
+  BOOST_CHECK_EQUAL(*testBlock.value(), 0xfb);
+  offset += testBlock.size();
+
+  BOOST_CHECK(!Block::fromBuffer(buffer, offset, testBlock));
+
+  // just buffer, copies memory
+  offset = 0;
+  BOOST_CHECK(Block::fromBuffer(TEST_BUFFER + offset, sizeof(TEST_BUFFER) - offset, testBlock));
+  BOOST_CHECK_EQUAL(testBlock.type(), 0);
+  BOOST_CHECK_EQUAL(testBlock.size(), 3);
+  BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
+  BOOST_CHECK_EQUAL(*testBlock.wire(),  0x00);
+  BOOST_CHECK_EQUAL(*testBlock.value(), 0xfa);
+  offset += testBlock.size();
+
+  BOOST_CHECK(Block::fromBuffer(TEST_BUFFER + offset, sizeof(TEST_BUFFER) - offset, testBlock));
+  BOOST_CHECK_EQUAL(testBlock.type(), 1);
+  BOOST_CHECK_EQUAL(testBlock.size(), 3);
+  BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
+  BOOST_CHECK_EQUAL(*testBlock.wire(),  0x01);
+  BOOST_CHECK_EQUAL(*testBlock.value(), 0xfb);
+  offset += testBlock.size();
+
+  BOOST_CHECK(!Block::fromBuffer(TEST_BUFFER + offset, sizeof(TEST_BUFFER) - offset, testBlock));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
