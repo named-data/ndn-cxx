@@ -505,8 +505,8 @@ private:
   mutable Block m_nameBlock;
 };
 
-std::ostream &
-operator << (std::ostream &os, const Name &name);
+std::ostream&
+operator<<(std::ostream& os, const Name& name);
 
 inline std::string 
 Name::toUri() const
@@ -514,6 +514,16 @@ Name::toUri() const
   std::ostringstream os;
   os << *this;
   return os.str();
+}
+
+inline std::istream&
+operator>>(std::istream& is, Name& name)
+{
+  std::string inputString;
+  is >> inputString;
+  name.set(inputString);
+
+  return is;
 }
 
 template<bool T>
