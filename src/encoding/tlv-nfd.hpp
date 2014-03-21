@@ -47,6 +47,7 @@ enum {
   TotalOutgoingDataCounter     = 147,
   FaceEventNotification        = 192,
   FaceEventKind                = 193,
+  FaceFlags                    = 194,
 
   // Forwarder status
   NfdVersion           = 128,

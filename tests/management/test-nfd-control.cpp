@@ -42,9 +42,9 @@ const uint8_t TestFaceManagementOptions[] = {
 };
 
 const uint8_t TestFaceEventNotification[] = {
-  0xc0, 0x1d, 0xc1, 0x01, 0x01, 0x69, 0x01, 0x64, 0x72, 0x15, 0x74, 0x63,
+  0xc0, 0x20, 0xc1, 0x01, 0x01, 0x69, 0x01, 0x64, 0x72, 0x15, 0x74, 0x63,
   0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x32, 0x37, 0x2e, 0x30, 0x2e, 0x30,
-  0x2e, 0x31, 0x3a, 0x36, 0x33, 0x36, 0x33
+  0x2e, 0x31, 0x3a, 0x36, 0x33, 0x36, 0x33, 0xc2, 0x01, 0x03
 };
 
 const uint8_t TestFaceStatus[] = {
@@ -166,9 +166,10 @@ BOOST_AUTO_TEST_CASE(FaceEventNotificationEncodingDecoding)
   FaceEventKind expectedKind = FACE_EVENT_CREATED;
   std::string expectedUri("tcp4://127.0.0.1:6363");
   uint64_t expectedFaceId = 100;
+  uint64_t expectedFlags = 3;
 
   {
-    FaceEventNotification faceEvent(expectedKind, expectedFaceId, expectedUri);
+    FaceEventNotification faceEvent(expectedKind, expectedFaceId, expectedUri, expectedFlags);
     BOOST_REQUIRE_NO_THROW(faceEvent.wireEncode());
 
     BOOST_REQUIRE_EQUAL_COLLECTIONS(TestFaceEventNotification,
@@ -177,7 +178,7 @@ BOOST_AUTO_TEST_CASE(FaceEventNotificationEncodingDecoding)
 
     std::ostringstream os;
     os << faceEvent;
-    BOOST_CHECK_EQUAL(os.str(), "FaceEventNotification(Kind: created, FaceID: 100, Uri: tcp4://127.0.0.1:6363)");
+    BOOST_CHECK_EQUAL(os.str(), "FaceEventNotification(Kind: created, FaceID: 100, Uri: tcp4://127.0.0.1:6363, Flags: 3)");
   }
 
   {
@@ -187,6 +188,9 @@ BOOST_AUTO_TEST_CASE(FaceEventNotificationEncodingDecoding)
     BOOST_CHECK_EQUAL(faceEvent.getEventKind(), expectedKind);
     BOOST_CHECK_EQUAL(faceEvent.getFaceId(), expectedFaceId);
     BOOST_CHECK_EQUAL(faceEvent.getUri(), expectedUri);
+    BOOST_CHECK_EQUAL(faceEvent.getFlags(), expectedFlags);
+    BOOST_CHECK(faceEvent.isLocal());
+    BOOST_CHECK(faceEvent.isOnDemand());
   }
 }
 

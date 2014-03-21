@@ -19,6 +19,14 @@ enum FaceEventKind
     FACE_EVENT_DESTROYED = 2
   };
 
+enum FaceFlags
+  {
+    FACE_IS_LOCAL = 1,
+    FACE_IS_ON_DEMAND = 2
+    // FACE_? = 4
+    // FACE_? = 8
+  };
+
 class FaceEventNotification
 {
 public:
@@ -28,9 +36,10 @@ public:
     Error(const std::string& what) : Tlv::Error(what) { }
   };
 
-  FaceEventNotification(const FaceEventKind eventKind,
-                        const uint64_t faceId,
-                        const std::string& uri);
+  FaceEventNotification(FaceEventKind eventKind,
+                        uint64_t faceId,
+                        const std::string& uri,
+                        uint64_t flags);
 
   explicit
   FaceEventNotification(const Block& block);
@@ -53,6 +62,24 @@ public:
     return m_kind;
   }
 
+  uint64_t
+  getFlags() const
+  {
+    return m_flags;
+  }
+
+  bool
+  isLocal() const
+  {
+    return m_flags & FACE_IS_LOCAL;
+  }
+
+  bool
+  isOnDemand() const
+  {
+    return m_flags & FACE_IS_ON_DEMAND;
+  }
+
   template<bool T>
   size_t
   wireEncode(EncodingImpl<T>& buffer) const;
@@ -67,17 +94,20 @@ private:
   FaceEventKind m_kind;
   uint64_t m_faceId;
   std::string m_uri;
+  uint64_t m_flags;
 
   mutable Block m_wire;
 };
 
 inline
-FaceEventNotification::FaceEventNotification(const FaceEventKind eventKind,
-                                             const uint64_t faceId,
-                                             const std::string& uri)
+FaceEventNotification::FaceEventNotification(FaceEventKind eventKind,
+                                             uint64_t faceId,
+                                             const std::string& uri,
+                                             uint64_t flags)
   : m_kind(eventKind)
   , m_faceId(faceId)
   , m_uri(uri)
+  , m_flags(flags)
 {
 }
 
@@ -92,6 +122,10 @@ size_t
 FaceEventNotification::wireEncode(EncodingImpl<T>& buffer) const
 {
   size_t totalLength = 0;
+
+  totalLength += prependNonNegativeIntegerBlock(buffer,
+                                                tlv::nfd::FaceFlags,
+                                                m_flags);
 
   totalLength += prependByteArrayBlock(buffer,
                                        tlv::nfd::Uri,
@@ -155,6 +189,12 @@ FaceEventNotification::wireDecode (const Block &wire)
   if (val == m_wire.elements_end() || val->type() != tlv::nfd::Uri)
     throw Error("Missing required Uri block");
   m_uri = std::string(reinterpret_cast<const char*>(val->value()), val->value_size());
+
+  // FaceFlags
+  ++val;
+  if (val == m_wire.elements_end() || val->type() != tlv::nfd::FaceFlags)
+    throw Error("Missing required FaceFlags block");
+  m_flags = readNonNegativeInteger(*val);
 }
 
 inline std::ostream&
@@ -178,7 +218,10 @@ operator << (std::ostream& os, const FaceEventNotification& event)
   os << "FaceID: " << event.getFaceId() << ", ";
 
   // URI
-  os << "Uri: " << event.getUri();
+  os << "Uri: " << event.getUri() << ", ";
+
+  // Flags
+  os << "Flags: " << event.getFlags();
 
   os << ")";
   return os;
