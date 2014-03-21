@@ -25,9 +25,7 @@ public:
   class Error : public Tlv::Error
   {
   public:
-    Error(const std::string& what) : Tlv::Error(what)
-    {
-    }
+    Error(const std::string& what) : Tlv::Error(what) {}
   };
 
   NextHopRecord()
@@ -146,7 +144,7 @@ public:
       {
         std::stringstream error;
         error << "Expected Cost, but Block is of a different type: #"
-              << error.str();
+              << m_wire.type();
         throw Error(error.str());
       }
     m_cost = readNonNegativeInteger(*val);
@@ -230,8 +228,8 @@ public:
   {
     size_t totalLength = 0;
 
-    for (std::list<NextHopRecord>::const_iterator i = m_nextHopRecords.begin();
-         i != m_nextHopRecords.end();
+    for (std::list<NextHopRecord>::const_reverse_iterator i = m_nextHopRecords.rbegin();
+         i != m_nextHopRecords.rend();
          ++i)
       {
         totalLength += i->wireEncode(block);
