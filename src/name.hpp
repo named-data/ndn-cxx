@@ -40,13 +40,13 @@ public:
   typedef const Component*        const_pointer;
   typedef Component*              iterator;
   typedef const Component*        const_iterator;
-  
+
   typedef boost::reverse_iterator<iterator>       reverse_iterator;
   typedef boost::reverse_iterator<const_iterator> const_reverse_iterator;
 
   typedef component_container::difference_type difference_type;
   typedef component_container::size_type       size_type;
-  
+
   /**
    * Create a new Name with no components.
    */
@@ -70,7 +70,7 @@ public:
     m_nameBlock = wire;
     m_nameBlock.parse();
   }
-  
+
   /**
    * Parse the uri according to the NDN URI Scheme and create the name with the components.
    * @param uri The URI string.
@@ -79,7 +79,7 @@ public:
   {
     set(uri);
   }
-  
+
   /**
    * Parse the uri according to the NDN URI Scheme and create the name with the components.
    * @param uri The URI string.
@@ -95,7 +95,7 @@ public:
   template<bool T>
   size_t
   wireEncode(EncodingImpl<T> &block) const;
-  
+
   const Block &
   wireEncode() const;
 
@@ -107,30 +107,30 @@ public:
    */
   bool
   hasWire() const;
-    
+
   /**
    * Parse the uri according to the NDN URI Scheme and set the name with the components.
    * @param uri The null-terminated URI string.
    */
-  void 
-  set(const char *uri);  
+  void
+  set(const char *uri);
 
   /**
    * Parse the uri according to the NDN URI Scheme and set the name with the components.
    * @param uri The URI string.
    */
-  void 
+  void
   set(const std::string& uri)
   {
     set(uri.c_str());
-  }  
-  
+  }
+
   /**
    * Append a new component, copying from value of length valueLength.
    * @return This name so that you can chain calls to append.
    */
-  Name& 
-  append(const uint8_t *value, size_t valueLength) 
+  Name&
+  append(const uint8_t *value, size_t valueLength)
   {
     m_nameBlock.push_back(Component(value, valueLength));
     return *this;
@@ -152,21 +152,21 @@ public:
   //  * Append a new component, copying from value.
   //  * @return This name so that you can chain calls to append.
   //  */
-  // Name& 
-  // append(const Buffer& value) 
+  // Name&
+  // append(const Buffer& value)
   // {
   //   m_nameBlock.push_back(value);
   //   return *this;
   // }
-  
-  Name& 
+
+  Name&
   append(const ConstBufferPtr &value)
   {
     m_nameBlock.push_back(value);
     return *this;
   }
-  
-  Name& 
+
+  Name&
   append(const Component &value)
   {
     m_nameBlock.push_back(value);
@@ -180,13 +180,13 @@ public:
    * ``append("string")`` operations (both Component and Name can be implicitly
    * converted from string, each having different outcomes
    */
-  Name& 
+  Name&
   append(const char *value)
   {
     m_nameBlock.push_back(Component(value));
     return *this;
   }
-  
+
   Name&
   append(const Block &value)
   {
@@ -197,7 +197,7 @@ public:
 
     return *this;
   }
-  
+
   /**
    * Append the components of the given name to this name.
    * @param name The Name with components to append.
@@ -205,16 +205,16 @@ public:
    */
   Name&
   append(const Name& name);
-    
+
   /**
    * Clear all the components.
    */
-  void 
+  void
   clear()
   {
     m_nameBlock = Block(Tlv::Name);
   }
-  
+
   /**
    * Get a new name, constructed as a subset of components.
    * @param iStartComponent The index if the first component to get.
@@ -231,7 +231,7 @@ public:
    */
   Name
   getSubName(size_t iStartComponent) const;
-  
+
   /**
    * Return a new Name with the first nComponents components of this Name.
    * @param nComponents The number of prefix components.  If nComponents is -N then return the prefix up
@@ -246,54 +246,19 @@ public:
     else
       return getSubName(0, nComponents);
   }
-  
+
   /**
    * Encode this name as a URI.
    * @return The encoded URI.
    */
-  std::string 
+  std::string
   toUri() const;
-  
-  /**
-   * @deprecated
-   * Append a component with the encoded segment number.
-   * @param segment The segment number.
-   * @return This name so that you can chain calls to append.
-   */  
-  DEPRECATED(Name& 
-  appendSegment(uint64_t segment)
-  {
-    m_nameBlock.push_back(Component::fromNumberWithMarker(segment, 0x00));
-    return *this;
-  })
 
   /**
-   * @deprecated
-   * Append a component with the encoded version number.
-   * Note that this encodes the exact value of version without converting from a time representation.
-   * @param version The version number.
-   * @return This name so that you can chain calls to append.
-   */  
-  DEPRECATED(Name& 
-  appendVersion(uint64_t version)
-  {
-    m_nameBlock.push_back(Component::fromNumberWithMarker(version, 0xFD));
-    return *this;
-  })
-
-  /**
-   * @deprecated
-   * @brief Append a component with the encoded version number.
-   * 
-   * This version of the method creates version number based on the current timestamp
-   * @return This name so that you can chain calls to append.
-   */  
-  DEPRECATED(Name& 
-             appendVersion());
-
-
-  /**
-   * @brief Append a component with the encoded non-negative number.
+   * @brief Append a component with the number encoded as nonNegativeInteger
+   *
+   * @see http://named-data.net/doc/ndn-tlv/tlv.html#non-negative-integer-encoding
+   *
    * @param number The non-negative number
    * @return This name so that you can chain calls to append.
    */
@@ -305,19 +270,44 @@ public:
   }
 
   /**
+   * @brief An alias for appendNumber(uint64_t)
+   */
+  Name&
+  appendVersion(uint64_t number)
+  {
+    return appendNumber(number);
+  }
+
+  /**
+   * @brief Append a component with the encoded version number (current UNIX timestamp
+   *        in milliseconds)
+   */
+  Name&
+  appendVersion();
+
+  /**
+   * @brief An alias for appendNumber(uint64_t)
+   */
+  Name&
+  appendSegment(uint64_t number)
+  {
+    return appendNumber(number);
+  }
+
+  /**
    * Check if this name has the same component count and components as the given name.
    * @param name The Name to check.
    * @return true if the names are equal, otherwise false.
    */
   bool
   equals(const Name& name) const;
-  
+
   /**
    * Check if the N components of this name are the same as the first N components of the given name.
    * @param name The Name to check.
    * @return true if this matches the given name, otherwise false.  This always returns true if this name is empty.
    */
-  bool 
+  bool
   isPrefixOf(const Name& name) const;
 
   bool
@@ -325,7 +315,7 @@ public:
   {
     return isPrefixOf(name);
   }
-  
+
   //
   // vector equivalent interface.
   //
@@ -335,12 +325,12 @@ public:
    */
   bool
   empty() const { return m_nameBlock.elements().empty(); }
-  
+
   /**
    * Get the number of components.
    * @return The number of components.
    */
-  size_t 
+  size_t
   size() const { return m_nameBlock.elements_size(); }
 
   /**
@@ -348,7 +338,7 @@ public:
    * @param i The index of the component, starting from 0.
    * @return The name component at the index.
    */
-  const Component& 
+  const Component&
   get(ssize_t i) const
   {
     if (i >= 0)
@@ -381,18 +371,21 @@ public:
   }
 
   /**
-   * Compare this to the other Name using NDN canonical ordering.  If the first components of each name are not equal, 
-   * this returns -1 if the first comes before the second using the NDN canonical ordering for name components, or 1 if it comes after.
-   * If they are equal, this compares the second components of each name, etc.  If both names are the same up to
-   * the size of the shorter name, this returns -1 if the first name is shorter than the second or 1 if it is longer.  
-   * For example, if you std::sort gives: /a/b/d /a/b/cc /c /c/a /bb .  This is intuitive because all names
-   * with the prefix /a are next to each other.  But it may be also be counter-intuitive because /c comes before /bb 
-   * according to NDN canonical ordering since it is shorter.  
-   * @param other The other Name to compare with.
-   * @return 0 If they compare equal, -1 if *this comes before other in the canonical ordering, or
-   * 1 if *this comes after other in the canonical ordering.
+   * @brief Compare this to the other Name using NDN canonical ordering.
    *
-   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   * If the first components of each name are not equal, this returns -1 if the first comes
+   * before the second using the NDN canonical ordering for name components, or 1 if it
+   * comes after.  If they are equal, this compares the second components of each name, etc.
+   * If both names are the same up to the size of the shorter name, this returns -1 if the
+   * first name is shorter than the second or 1 if it is longer.  For example, if you
+   * std::sort gives: /a/b/d /a/b/cc /c /c/a /bb .  This is intuitive because all names with
+   * the prefix /a are next to each other.  But it may be also be counter-intuitive because
+   * /c comes before /bb according to NDN canonical ordering since it is shorter.  @param
+   * other The other Name to compare with.  @return 0 If they compare equal, -1 if *this
+   * comes before other in the canonical ordering, or 1 if *this comes after other in the
+   * canonical ordering.
+   *
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   int
   compare(const Name& other) const;
@@ -406,7 +399,7 @@ public:
   {
     append(component);
   }
-  
+
   /**
    * Check if this name has the same component count and components as the given name.
    * @param name The Name to check.
@@ -422,12 +415,12 @@ public:
    */
   bool
   operator != (const Name &name) const { return !equals(name); }
-  
+
   /**
    * Return true if this is less than or equal to the other Name in the NDN canonical ordering.
    * @param other The other Name to compare with.
    *
-   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
   operator <= (const Name& other) const { return compare(other) <= 0; }
@@ -436,7 +429,7 @@ public:
    * Return true if this is less than the other Name in the NDN canonical ordering.
    * @param other The other Name to compare with.
    *
-   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
   operator < (const Name& other) const { return compare(other) < 0; }
@@ -445,7 +438,7 @@ public:
    * Return true if this is less than or equal to the other Name in the NDN canonical ordering.
    * @param other The other Name to compare with.
    *
-   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
   operator >= (const Name& other) const { return compare(other) >= 0; }
@@ -454,11 +447,11 @@ public:
    * Return true if this is greater than the other Name in the NDN canonical ordering.
    * @param other The other Name to compare with.
    *
-   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
   operator > (const Name& other) const { return compare(other) > 0; }
-  
+
   //
   // Iterator interface to name components.
   //
@@ -508,7 +501,14 @@ private:
 std::ostream&
 operator<<(std::ostream& os, const Name& name);
 
-inline std::string 
+inline Name&
+Name::appendVersion()
+{
+  appendNumber(time::toUnixTimestamp(time::system_clock::now()).count());
+  return *this;
+}
+
+inline std::string
 Name::toUri() const
 {
   std::ostringstream os;
@@ -531,8 +531,8 @@ inline size_t
 Name::wireEncode(EncodingImpl<T>& blk) const
 {
   size_t total_len = 0;
-  
-  for (const_reverse_iterator i = rbegin (); 
+
+  for (const_reverse_iterator i = rbegin ();
        i != rend ();
        ++i)
     {
@@ -552,13 +552,13 @@ Name::wireEncode() const
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
-  
+
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
   m_nameBlock = buffer.block();
   m_nameBlock.parse();
-  
+
   return m_nameBlock;
 }
 
@@ -567,7 +567,7 @@ Name::wireDecode(const Block &wire)
 {
   if (wire.type() != Tlv::Name)
     throw Tlv::Error("Unexpected TLV type when decoding Name");
-  
+
   m_nameBlock = wire;
   m_nameBlock.parse();
 }
@@ -581,4 +581,3 @@ Name::hasWire() const
 } // namespace ndn
 
 #endif
-

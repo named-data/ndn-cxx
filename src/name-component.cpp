@@ -80,69 +80,6 @@ Component::toEscapedString(std::ostream& result) const
   }  
 }
 
-
-uint64_t
-Component::toNumberWithMarker(uint8_t marker) const
-{
-  if (empty() || *value_begin() != marker)
-    throw Error("Name component does not begin with the expected marker");
-  
-  uint64_t result = 0;
-  for (Buffer::const_iterator i = value_begin()+1; i != value_end(); ++i) {
-    result <<= 8;
-    result |= *i;
-  }
-  
-  return result;
-}
-
-Component 
-Component::fromNumber(uint64_t number)
-{
-  ptr_lib::shared_ptr<Buffer> value(new Buffer);
-  
-  // First encode in little endian.
-  while (number != 0) {
-    value->push_back(number & 0xff);
-    number >>= 8;
-  }
-  
-  // Make it big endian.
-  reverse(value->begin(), value->end());
-  return Component(value);
-}
-
-Component
-Component::fromNumberWithMarker(uint64_t number, uint8_t marker)
-{
-  ptr_lib::shared_ptr<Buffer> value(new Buffer);
-  
-  // Add the leading marker.
-  value->push_back(marker);
-  
-  // First encode in little endian.
-  while (number != 0) {
-    value->push_back(number & 0xff);
-    number >>= 8;
-  }
-  
-  // Make it big endian.
-  reverse(value->begin() + 1, value->end());
-  return Component(value);
-}
-
-uint64_t
-Component::toNumber() const
-{
-  uint64_t result = 0;
-  for (Buffer::const_iterator i = value_begin(); i != value_end(); ++i) {
-    result <<= 8;
-    result |= *i;
-  }
-  
-  return result;
-}
-
 int
 Component::compare(const Component& other) const
 {

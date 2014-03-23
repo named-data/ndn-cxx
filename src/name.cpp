@@ -88,13 +88,6 @@ Name::append(const Name& name)
   return *this;
 }
 
-Name& 
-Name::appendVersion()
-{
-  appendVersion(time::toUnixTimestamp(time::system_clock::now()).count());
-  return *this;
-}
-
 Name
 Name::getSubName(size_t iStartComponent, size_t nComponents) const
 {

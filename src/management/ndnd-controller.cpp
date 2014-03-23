@@ -121,7 +121,7 @@ Controller::startFaceAction(const FaceInstance& entry,
 {
   // Set the ForwardingEntry as the content of a Data packet and sign.
   Data data;
-  data.setName(Name().appendVersion(ndn::random::generateWord32()));
+  data.setName(Name().appendVersion(random::generateWord32()));
   data.setContent(entry.wireEncode());
 
   // Create an empty signature, since nobody going to verify it for now
@@ -166,7 +166,7 @@ Controller::startPrefixAction(const ForwardingEntry& entry,
   // Create an interest where the name has the encoded Data packet.
   Name interestName;
   interestName.append("ndnx");
-  interestName.append(m_ndndId.value_begin()+6, m_ndndId.value_end());
+  interestName.append(m_ndndId.value_begin() + 6, m_ndndId.value_end());
   interestName.append(entry.getAction());
   interestName.append(data.wireEncode());
 

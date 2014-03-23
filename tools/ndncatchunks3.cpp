@@ -23,7 +23,9 @@
 class Consumer
 {
 public:
-  Consumer(const std::string& data_name, int pipe_size, int total_seg, int scope = -1, bool mustBeFresh = true)
+  Consumer(const std::string& data_name,
+           size_t pipe_size, size_t total_seg,
+           int scope = -1, bool mustBeFresh = true)
     : m_data_name (data_name)
     , m_pipe_size (pipe_size)
     , m_total_seg (total_seg)
@@ -53,10 +55,10 @@ private:
 
   ndn::Face m_face;
   ndn::Name m_data_name;
-  int m_pipe_size;
-  int m_total_seg;
-  int m_next_seg;
-  int m_total_size;
+  size_t m_pipe_size;
+  size_t m_total_seg;
+  size_t m_next_seg;
+  size_t m_total_size;
   bool m_output;  // set to false by default
 
   int m_scope;
@@ -69,17 +71,17 @@ Consumer::run()
   try
     {
       for (int i = 0; i < m_pipe_size; i++)
-	{
-	  ndn::Interest interest(ndn::Name(m_data_name).appendSegment (m_next_seg++));
-	  interest.setInterestLifetime(ndn::time::milliseconds(4000));
-	  if (m_scope >= 0)
+        {
+          ndn::Interest interest(ndn::Name(m_data_name).appendSegment(m_next_seg++));
+          interest.setInterestLifetime(ndn::time::milliseconds(4000));
+          if (m_scope >= 0)
             interest.setScope(m_scope);
-	  interest.setMustBeFresh(m_mustBeFresh);
+          interest.setMustBeFresh(m_mustBeFresh);
 
-	  m_face.expressInterest (interest,
-				  ndn::bind(&Consumer::on_data, this, _1, _2),
-				  ndn::bind(&Consumer::on_timeout, this, _1));
-	}
+          m_face.expressInterest (interest,
+                                  ndn::bind(&Consumer::on_data, this, _1, _2),
+                                  ndn::bind(&Consumer::on_timeout, this, _1));
+        }
 
       // processEvents will block until the requested data received or timeout occurs
       m_face.processEvents();
@@ -103,7 +105,7 @@ Consumer::on_data(const ndn::Interest& interest, ndn::Data& data)
 
   m_total_size += content.value_size ();
 
-  if ((int)(name.rbegin ()->toSegment ()) + 1 == m_total_seg)
+  if (name[-1].toSegment() + 1 == m_total_seg)
     {
       std::cerr << "Last segment received." << std::endl;
       std::cerr << "Total # bytes of content received: " << m_total_size << std::endl;
@@ -111,15 +113,15 @@ Consumer::on_data(const ndn::Interest& interest, ndn::Data& data)
   else
     {
       // Send interest for next segment
-      ndn::Interest interest(ndn::Name(m_data_name).appendSegment (m_next_seg++));
+      ndn::Interest interest(ndn::Name(m_data_name).appendSegment(m_next_seg++));
       if (m_scope >= 0)
         interest.setScope(m_scope);
       interest.setInterestLifetime(ndn::time::milliseconds(4000));
       interest.setMustBeFresh(m_mustBeFresh);
 
       m_face.expressInterest (interest,
-			      ndn::bind(&Consumer::on_data, this, _1, _2),
-			      ndn::bind(&Consumer::on_timeout, this, _1));
+                              ndn::bind(&Consumer::on_data, this, _1, _2),
+                              ndn::bind(&Consumer::on_timeout, this, _1));
     }
 }
 
@@ -152,24 +154,24 @@ main(int argc, char **argv)
   while ((opt = getopt(argc, argv, "op:c:")) != -1)
     {
       switch (opt)
-	{
+        {
         case 'p':
-	  pipe_size = atoi (optarg);
-	  if (pipe_size <= 0)
-	    pipe_size = 1;
-	  std::cerr << "main (): set pipe size = " << pipe_size << std::endl;
-	  break;
-	case 'c':
-	  total_seg = atoi (optarg);
-	  if (total_seg <= 0)
-	    total_seg = 1;
-	  std::cerr << "main (): set total seg = " << total_seg << std::endl;
-	  break;
-	case 'o':
-	  output = true;
-	  break;
+          pipe_size = atoi (optarg);
+          if (pipe_size <= 0)
+            pipe_size = 1;
+          std::cerr << "main (): set pipe size = " << pipe_size << std::endl;
+          break;
+        case 'c':
+          total_seg = atoi (optarg);
+          if (total_seg <= 0)
+            total_seg = 1;
+          std::cerr << "main (): set total seg = " << total_seg << std::endl;
+          break;
+        case 'o':
+          output = true;
+          break;
         default:
-	  return usage(argv[0]);
+          return usage(argv[0]);
         }
     }
 

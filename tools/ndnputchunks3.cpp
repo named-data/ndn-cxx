@@ -39,7 +39,9 @@ public:
 
         if (got > 0)
           {
-            ndn::shared_ptr<ndn::Data> data = ndn::make_shared<ndn::Data> (ndn::Name(m_name).appendSegment (segnum));
+            ndn::shared_ptr<ndn::Data> data =
+              ndn::make_shared<ndn::Data>(ndn::Name(m_name).appendSegment(segnum));
+
             data->setFreshnessPeriod(ndn::time::milliseconds(10000)); // 10 sec
             data->setContent(reinterpret_cast<const uint8_t*>(buf), got);
 
@@ -48,7 +50,7 @@ public:
             segnum++;
           }
       }
-    while (std::cin);
+    while (static_cast<bool>(std::cin));
 
     if (m_verbose)
       std::cerr << "Created " << segnum << " chunks for prefix [" << m_name << "]" << std::endl;

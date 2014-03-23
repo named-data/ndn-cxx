@@ -173,73 +173,37 @@ public:
   }
     
   /**
-   * Interpret this name component as a network-ordered number and return an integer.
+   * @brief Interpret this name component as nonNegativeInteger
+   *
+   * @see http://named-data.net/doc/ndn-tlv/tlv.html#non-negative-integer-encoding
+   *
    * @return The integer number.
    */
   uint64_t
   toNumber() const;
 
   /**
-   * Interpret this name component as a network-ordered number with a marker and return an integer.
-   * @param marker The required first byte of the component.
-   * @return The integer number.
-   * @throw runtime_error If the first byte of the component does not equal the marker.
+   * @brief An alias for toNumber()
    */
   uint64_t
-  toNumberWithMarker(uint8_t marker) const;
-    
+  toVersion() const;
+
   /**
-   * Interpret this name component as a segment number according to NDN name conventions (a network-ordered number 
-   * where the first byte is the marker 0x00).
-   * @return The integer segment number.
-   * @throw runtime_error If the first byte of the component is not the expected marker.
+   * @brief An alias for toNumber()
    */
   uint64_t
-  toSegment() const
-  {
-    return toNumberWithMarker(0x00);
-  }
-    
+  toSegment() const;
+
   /**
-   * @deprecated Use toSegment.
-   */
-  uint64_t
-  toSeqNum() const
-  {
-    return toSegment();
-  }
-        
-  /**
-   * Interpret this name component as a version number according to NDN name conventions (a network-ordered number 
-   * where the first byte is the marker 0xFD).  Note that this returns the exact number from the component
-   * without converting it to a time representation.
-   * @return The integer segment number.
-   * @throw runtime_error If the first byte of the component is not the expected marker.
-   */
-  uint64_t
-  toVersion() const
-  {
-    return toNumberWithMarker(0xFD);
-  }
-    
-  /**
-   * Create a component whose value is the network-ordered encoding of the number.
-   * Note: if the number is zero, the result is empty.
-   * @param number The number to be encoded.
+   * @brief Create a component encoded as nonNegativeInteger
+   *
+   * @see http://named-data.net/doc/ndn-tlv/tlv.html#non-negative-integer-encoding
+   *
+   * @param number The non-negative number
    * @return The component value.
    */
   static Component 
   fromNumber(uint64_t number);
-    
-  /**
-   * Create a component whose value is the marker appended with the network-ordered encoding of the number.
-   * Note: if the number is zero, no bytes are used for the number - the result will have only the marker.
-   * @param number The number to be encoded.  
-   * @param marker The marker to use as the first byte of the component.
-   * @return The component value.
-   */
-  static Component 
-  fromNumberWithMarker(uint64_t number, uint8_t marker);
 
   /**
    * Check if this is the same component as other.
@@ -287,7 +251,7 @@ public:
    * @return 0 If they compare equal, -1 if *this comes before other in the canonical ordering, or
    * 1 if *this comes after other in the canonical ordering.
    *
-   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   int
   compare(const Component& other) const;
@@ -296,7 +260,7 @@ public:
    * Return true if this is less than or equal to the other Component in the NDN canonical ordering.
    * @param other The other Component to compare with.
    *
-   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
   operator <= (const Component& other) const { return compare(other) <= 0; }
@@ -305,7 +269,7 @@ public:
    * Return true if this is less than the other Component in the NDN canonical ordering.
    * @param other The other Component to compare with.
    *
-   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
   operator < (const Component& other) const { return compare(other) < 0; }
@@ -314,7 +278,7 @@ public:
    * Return true if this is less than or equal to the other Component in the NDN canonical ordering.
    * @param other The other Component to compare with.
    *
-   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
   operator >= (const Component& other) const { return compare(other) >= 0; }
@@ -323,7 +287,7 @@ public:
    * Return true if this is greater than the other Component in the NDN canonical ordering.
    * @param other The other Component to compare with.
    *
-   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
   operator > (const Component& other) const { return compare(other) > 0; }
@@ -339,6 +303,35 @@ operator << (std::ostream &os, const Component &component)
 {
   component.toEscapedString(os);
   return os;
+}
+
+
+inline Component
+Component::fromNumber(uint64_t number)
+{
+  /// \todo Change to Tlv::NumberComponent
+  return nonNegativeIntegerBlock(Tlv::NameComponent, number);
+}
+
+
+inline uint64_t
+Component::toNumber() const
+{
+  /// \todo Check if Component is of Tlv::NumberComponent type
+  return readNonNegativeInteger(static_cast<const Block&>(*this));
+}
+
+
+inline uint64_t
+Component::toVersion() const
+{
+  return toNumber();
+}
+
+inline uint64_t
+Component::toSegment() const
+{
+  return toNumber();
 }
 
 template<bool T>
