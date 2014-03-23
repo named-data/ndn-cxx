@@ -22,7 +22,15 @@ namespace ndn {
  */
 namespace Tlv {
 
-struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+class Error : public std::runtime_error
+{
+public:
+  explicit
+  Error(const std::string& what)
+    : std::runtime_error(what)
+  {
+  }
+};
 
 enum {
   Interest      = 5,
@@ -31,7 +39,7 @@ enum {
   NameComponent = 8,
   Selectors     = 9,
   Nonce         = 10,
-  Scope         = 11,
+  Scope         = 11, // deprecated
   InterestLifetime          = 12,
   MinSuffixComponents       = 13,
   MaxSuffixComponents       = 14,
@@ -79,7 +87,7 @@ enum ConentType {
  */
 template<class InputIterator>
 inline bool
-readVarNumber(InputIterator &begin, const InputIterator &end, uint64_t& number);
+readVarNumber(InputIterator& begin, const InputIterator& end, uint64_t& number);
 
 /**
  * @brief Read TLV Type
@@ -95,7 +103,7 @@ readVarNumber(InputIterator &begin, const InputIterator &end, uint64_t& number);
  */
 template<class InputIterator>
 inline bool
-readType(InputIterator &begin, const InputIterator &end, uint32_t& type);
+readType(InputIterator& begin, const InputIterator& end, uint32_t& type);
 
 
 /**
@@ -107,7 +115,7 @@ readType(InputIterator &begin, const InputIterator &end, uint32_t& type);
  */
 template<class InputIterator>
 inline uint64_t
-readVarNumber(InputIterator &begin, const InputIterator &end);
+readVarNumber(InputIterator& begin, const InputIterator& end);
 
 /**
  * @brief Read TLV Type
@@ -119,7 +127,7 @@ readVarNumber(InputIterator &begin, const InputIterator &end);
  */
 template<class InputIterator>
 inline uint32_t
-readType(InputIterator &begin, const InputIterator &end);
+readType(InputIterator& begin, const InputIterator& end);
 
 /**
  * @brief Get number of bytes necessary to hold value of VAR-NUMBER
@@ -131,7 +139,7 @@ sizeOfVarNumber(uint64_t varNumber);
  * @brief Write VAR-NUMBER to the specified stream
  */
 inline size_t
-writeVarNumber(std::ostream &os, uint64_t varNumber);
+writeVarNumber(std::ostream& os, uint64_t varNumber);
 
 /**
  * @brief Read nonNegativeInteger in NDN-TLV encoding
@@ -145,7 +153,7 @@ writeVarNumber(std::ostream &os, uint64_t varNumber);
  */
 template<class InputIterator>
 inline uint64_t
-readNonNegativeInteger(size_t size, InputIterator &begin, const InputIterator &end);
+readNonNegativeInteger(size_t size, InputIterator& begin, const InputIterator& end);
 
 /**
  * @brief Get number of bytes necessary to hold value of nonNegativeInteger
@@ -157,7 +165,7 @@ sizeOfNonNegativeInteger(uint64_t varNumber);
  * @brief Write nonNegativeInteger to the specified stream
  */
 inline size_t
-writeNonNegativeInteger(std::ostream &os, uint64_t varNumber);
+writeNonNegativeInteger(std::ostream& os, uint64_t varNumber);
 
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
@@ -171,18 +179,18 @@ writeNonNegativeInteger(std::ostream &os, uint64_t varNumber);
 
 template<class InputIterator>
 inline bool
-readVarNumber(InputIterator &begin, const InputIterator &end, uint64_t& number)
+readVarNumber(InputIterator& begin, const InputIterator& end, uint64_t& number)
 {
   if (begin == end)
     return false;
 
-  uint8_t value = *begin;
+  uint8_t firstOctet = *begin;
   ++begin;
-  if (value < 253)
+  if (firstOctet < 253)
     {
-      number = value;
+      number = firstOctet;
     }
-  else if (value == 253)
+  else if (firstOctet == 253)
     {
       if (end - begin < 2)
         return false;
@@ -191,7 +199,7 @@ readVarNumber(InputIterator &begin, const InputIterator &end, uint64_t& number)
       begin += 2;
       number = be16toh(value);
     }
-  else if (value == 254)
+  else if (firstOctet == 254)
     {
       if (end - begin < 4)
         return false;
@@ -200,7 +208,7 @@ readVarNumber(InputIterator &begin, const InputIterator &end, uint64_t& number)
       begin += 4;
       number = be32toh(value);
     }
-  else // if (value == 255)
+  else // if (firstOctet == 255)
     {
       if (end - begin < 8)
         return false;
@@ -216,7 +224,7 @@ readVarNumber(InputIterator &begin, const InputIterator &end, uint64_t& number)
 
 template<class InputIterator>
 inline bool
-readType(InputIterator &begin, const InputIterator &end, uint32_t& type)
+readType(InputIterator& begin, const InputIterator& end, uint32_t& type)
 {
   uint64_t number;
   bool ok = readVarNumber(begin, end, number);
@@ -225,24 +233,24 @@ readType(InputIterator &begin, const InputIterator &end, uint32_t& type)
       return false;
     }
 
-  type = static_cast<uint64_t> (number);
+  type = static_cast<uint64_t>(number);
   return true;
 }
 
 template<class InputIterator>
 inline uint64_t
-readVarNumber(InputIterator &begin, const InputIterator &end)
+readVarNumber(InputIterator& begin, const InputIterator& end)
 {
   if (begin == end)
     throw Error("Empty buffer during TLV processing");
 
-  uint8_t value = *begin;
+  uint8_t firstOctet = *begin;
   ++begin;
-  if (value < 253)
+  if (firstOctet < 253)
     {
-      return value;
+      return firstOctet;
     }
-  else if (value == 253)
+  else if (firstOctet == 253)
     {
       if (end - begin < 2)
         throw Error("Insufficient data during TLV processing");
@@ -251,7 +259,7 @@ readVarNumber(InputIterator &begin, const InputIterator &end)
       begin += 2;
       return be16toh(value);
     }
-  else if (value == 254)
+  else if (firstOctet == 254)
     {
       if (end - begin < 4)
         throw Error("Insufficient data during TLV processing");
@@ -260,7 +268,7 @@ readVarNumber(InputIterator &begin, const InputIterator &end)
       begin += 4;
       return be32toh(value);
     }
-  else // if (value == 255)
+  else // if (firstOctet == 255)
     {
       if (end - begin < 8)
         throw Error("Insufficient data during TLV processing");
@@ -274,19 +282,19 @@ readVarNumber(InputIterator &begin, const InputIterator &end)
 
 template<>
 inline uint64_t
-readVarNumber<std::istream_iterator<uint8_t> >(std::istream_iterator<uint8_t> &begin,
-                                               const std::istream_iterator<uint8_t> &end)
+readVarNumber<std::istream_iterator<uint8_t> >(std::istream_iterator<uint8_t>& begin,
+                                               const std::istream_iterator<uint8_t>& end)
 {
   if (begin == end)
     throw Error("Empty buffer during TLV processing");
 
-  uint8_t value = *begin;
+  uint8_t firstOctet = *begin;
   ++begin;
-  if (value < 253)
+  if (firstOctet < 253)
     {
-      return value;
+      return firstOctet;
     }
-  else if (value == 253)
+  else if (firstOctet == 253)
     {
       uint8_t buffer[2];
       int count = 0;
@@ -303,7 +311,7 @@ readVarNumber<std::istream_iterator<uint8_t> >(std::istream_iterator<uint8_t> &b
       uint16_t value = *reinterpret_cast<const uint16_t*>(buffer);
       return be16toh(value);
     }
-  else if (value == 254)
+  else if (firstOctet == 254)
     {
       uint8_t buffer[4];
       int count = 0;
@@ -320,7 +328,7 @@ readVarNumber<std::istream_iterator<uint8_t> >(std::istream_iterator<uint8_t> &b
       uint32_t value = *reinterpret_cast<const uint32_t*>(buffer);
       return be32toh(value);
     }
-  else // if (value == 255)
+  else // if (firstOctet == 255)
     {
       uint8_t buffer[8];
       int count = 0;
@@ -341,15 +349,15 @@ readVarNumber<std::istream_iterator<uint8_t> >(std::istream_iterator<uint8_t> &b
 
 template<class InputIterator>
 inline uint32_t
-readType(InputIterator &begin, const InputIterator &end)
+readType(InputIterator& begin, const InputIterator& end)
 {
-  uint64_t type   = readVarNumber(begin, end);
+  uint64_t type = readVarNumber(begin, end);
   if (type > std::numeric_limits<uint32_t>::max())
     {
       throw Error("TLV type code exceeds allowed maximum");
     }
 
-  return static_cast<uint32_t> (type);
+  return static_cast<uint32_t>(type);
 }
 
 size_t
@@ -370,7 +378,7 @@ sizeOfVarNumber(uint64_t varNumber)
 }
 
 inline size_t
-writeVarNumber(std::ostream &os, uint64_t varNumber)
+writeVarNumber(std::ostream& os, uint64_t varNumber)
 {
   if (varNumber < 253) {
     os.put(static_cast<uint8_t> (varNumber));
@@ -379,26 +387,26 @@ writeVarNumber(std::ostream &os, uint64_t varNumber)
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
     os.put(253);
     uint16_t value = htobe16(static_cast<uint16_t> (varNumber));
-    os.write(reinterpret_cast<const char*> (&value), 2);
+    os.write(reinterpret_cast<const char*>(&value), 2);
     return 3;
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
     os.put(254);
     uint32_t value = htobe32(static_cast<uint32_t> (varNumber));
-    os.write(reinterpret_cast<const char*> (&value), 4);
+    os.write(reinterpret_cast<const char*>(&value), 4);
     return 5;
   }
   else {
     os.put(255);
     uint64_t value = htobe64(varNumber);
-    os.write(reinterpret_cast<const char*> (&value), 8);
+    os.write(reinterpret_cast<const char*>(&value), 8);
     return 9;
   }
 }
 
 template<class InputIterator>
 inline uint64_t
-readNonNegativeInteger(size_t size, InputIterator &begin, const InputIterator &end)
+readNonNegativeInteger(size_t size, InputIterator& begin, const InputIterator& end)
 {
   switch (size) {
   case 1:
@@ -444,13 +452,13 @@ readNonNegativeInteger(size_t size, InputIterator &begin, const InputIterator &e
 template<>
 inline uint64_t
 readNonNegativeInteger<std::istream_iterator<uint8_t> >(size_t size,
-                                                        std::istream_iterator<uint8_t> &begin,
-                                                        const std::istream_iterator<uint8_t> &end)
+                                                        std::istream_iterator<uint8_t>& begin,
+                                                        const std::istream_iterator<uint8_t>& end)
 {
   switch (size) {
   case 1:
     {
-      if(begin == end)
+      if (begin == end)
         throw Error("Insufficient data during TLV processing");
 
       uint8_t value = *begin;
@@ -462,7 +470,7 @@ readNonNegativeInteger<std::istream_iterator<uint8_t> >(size_t size,
       uint8_t buffer[2];
       int count = 0;
 
-      while(begin != end && count < 2){
+      while (begin != end && count < 2) {
         buffer[count] = *begin;
         begin++;
         count++;
@@ -479,7 +487,7 @@ readNonNegativeInteger<std::istream_iterator<uint8_t> >(size_t size,
       uint8_t buffer[4];
       int count = 0;
 
-      while(begin != end && count < 4){
+      while (begin != end && count < 4) {
         buffer[count] = *begin;
         begin++;
         count++;
@@ -496,7 +504,7 @@ readNonNegativeInteger<std::istream_iterator<uint8_t> >(size_t size,
       uint8_t buffer[8];
       int count = 0;
 
-      while(begin != end && count < 8){
+      while (begin != end && count < 8){
         buffer[count] = *begin;
         begin++;
         count++;
@@ -531,7 +539,7 @@ sizeOfNonNegativeInteger(uint64_t varNumber)
 
 
 inline size_t
-writeNonNegativeInteger(std::ostream &os, uint64_t varNumber)
+writeNonNegativeInteger(std::ostream& os, uint64_t varNumber)
 {
   if (varNumber < 253) {
     os.put(static_cast<uint8_t> (varNumber));
@@ -539,23 +547,24 @@ writeNonNegativeInteger(std::ostream &os, uint64_t varNumber)
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
     uint16_t value = htobe16(static_cast<uint16_t> (varNumber));
-    os.write(reinterpret_cast<const char*> (&value), 2);
+    os.write(reinterpret_cast<const char*>(&value), 2);
     return 2;
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
     uint32_t value = htobe32(static_cast<uint32_t> (varNumber));
-    os.write(reinterpret_cast<const char*> (&value), 4);
+    os.write(reinterpret_cast<const char*>(&value), 4);
     return 4;
   }
   else {
     uint64_t value = htobe64(varNumber);
-    os.write(reinterpret_cast<const char*> (&value), 8);
+    os.write(reinterpret_cast<const char*>(&value), 8);
     return 8;
   }
 }
 
 
-} // namespace tlv
+} // namespace Tlv
+
 } // namespace ndn
 
 #endif // NDN_TLV_HPP

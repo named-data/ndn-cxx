@@ -37,10 +37,10 @@ Block::Block(const EncodingBuffer& buffer)
     }
 }
 
-Block::Block(const ConstBufferPtr &wire,
+Block::Block(const ConstBufferPtr& wire,
              uint32_t type,
-             const Buffer::const_iterator &begin, const Buffer::const_iterator &end,
-             const Buffer::const_iterator &valueBegin, const Buffer::const_iterator &valueEnd)
+             const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
+             const Buffer::const_iterator& valueBegin, const Buffer::const_iterator& valueEnd)
   : m_buffer(wire)
   , m_type(type)
   , m_begin(begin)
@@ -51,7 +51,7 @@ Block::Block(const ConstBufferPtr &wire,
 {
 }
 
-Block::Block(const ConstBufferPtr &buffer)
+Block::Block(const ConstBufferPtr& buffer)
   : m_buffer(buffer)
   , m_begin(m_buffer->begin())
   , m_end(m_buffer->end())
@@ -69,8 +69,8 @@ Block::Block(const ConstBufferPtr &buffer)
     }
 }
 
-Block::Block(const ConstBufferPtr &buffer,
-             const Buffer::const_iterator &begin, const Buffer::const_iterator &end,
+Block::Block(const ConstBufferPtr& buffer,
+             const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
              bool verifyLength/* = true*/)
   : m_buffer(buffer)
   , m_begin(begin)
@@ -99,7 +99,8 @@ Block::Block(std::istream& is)
   m_type = Tlv::readType(tmp_begin, tmp_end);
   uint64_t length = Tlv::readVarNumber(tmp_begin, tmp_end);
 
-  // We may still have some problem here, if some exception happens in this constructor, we may completely lose all the bytes extracted from the stream.
+  // We may still have some problem here, if some exception happens in this constructor,
+  // we may completely lose all the bytes extracted from the stream.
 
   OBufferStream os;
   size_t headerLength = Tlv::writeVarNumber(os, m_type);
@@ -109,7 +110,7 @@ Block::Block(std::istream& is)
   buf[0] = *tmp_begin;
   is.read(buf+1, length-1);
 
-  if(length != static_cast<uint64_t>(is.gcount())+1)
+  if(length != static_cast<uint64_t>(is.gcount()) + 1)
     {
       delete [] buf;
       throw Tlv::Error("Not enough data in the buffer to fully parse TLV");
@@ -129,10 +130,10 @@ Block::Block(std::istream& is)
 }
 
 
-Block::Block(const uint8_t *buffer, size_t maxlength)
+Block::Block(const uint8_t* buffer, size_t maxlength)
 {
-  const uint8_t * tmp_begin = buffer;
-  const uint8_t * tmp_end   = buffer + maxlength;
+  const uint8_t*  tmp_begin = buffer;
+  const uint8_t*  tmp_end   = buffer + maxlength;
 
   m_type = Tlv::readType(tmp_begin, tmp_end);
   uint64_t length = Tlv::readVarNumber(tmp_begin, tmp_end);
@@ -142,7 +143,7 @@ Block::Block(const uint8_t *buffer, size_t maxlength)
       throw Tlv::Error("Not enough data in the buffer to fully parse TLV");
     }
 
-  m_buffer = ptr_lib::make_shared<Buffer> (buffer, (tmp_begin - buffer) + length);
+  m_buffer = ptr_lib::make_shared<Buffer>(buffer, (tmp_begin - buffer) + length);
 
   m_begin = m_buffer->begin();
   m_end = m_buffer->end();
@@ -152,12 +153,12 @@ Block::Block(const uint8_t *buffer, size_t maxlength)
   m_value_end   = m_buffer->end();
 }
 
-Block::Block(const void *bufferX, size_t maxlength)
+Block::Block(const void* bufferX, size_t maxlength)
 {
-  const uint8_t * buffer = reinterpret_cast<const uint8_t*>(bufferX);
+  const uint8_t* buffer = reinterpret_cast<const uint8_t*>(bufferX);
 
-  const uint8_t * tmp_begin = buffer;
-  const uint8_t * tmp_end   = buffer + maxlength;
+  const uint8_t* tmp_begin = buffer;
+  const uint8_t* tmp_end   = buffer + maxlength;
 
   m_type = Tlv::readType(tmp_begin, tmp_end);
   uint64_t length = Tlv::readVarNumber(tmp_begin, tmp_end);
@@ -167,7 +168,7 @@ Block::Block(const void *bufferX, size_t maxlength)
       throw Tlv::Error("Not enough data in the buffer to fully parse TLV");
     }
 
-  m_buffer = ptr_lib::make_shared<Buffer> (buffer, (tmp_begin - buffer) + length);
+  m_buffer = ptr_lib::make_shared<Buffer>(buffer, (tmp_begin - buffer) + length);
 
   m_begin = m_buffer->begin();
   m_end = m_buffer->end();
@@ -182,7 +183,7 @@ Block::Block(uint32_t type)
 {
 }
 
-Block::Block(uint32_t type, const ConstBufferPtr &value)
+Block::Block(uint32_t type, const ConstBufferPtr& value)
   : m_buffer(value)
   , m_type(type)
   , m_begin(m_buffer->end())
@@ -193,7 +194,7 @@ Block::Block(uint32_t type, const ConstBufferPtr &value)
   m_size = Tlv::sizeOfVarNumber(m_type) + Tlv::sizeOfVarNumber(value_size()) + value_size();
 }
 
-Block::Block(uint32_t type, const Block &value)
+Block::Block(uint32_t type, const Block& value)
   : m_buffer(value.m_buffer)
   , m_type(type)
   , m_begin(m_buffer->end())
@@ -210,13 +211,13 @@ Block::fromBuffer(const ConstBufferPtr& wire, size_t offset, Block& block)
   Buffer::const_iterator tempBegin = wire->begin() + offset;
 
   uint32_t type;
-  bool ok = Tlv::readType(tempBegin, wire->end(), type);
-  if (!ok)
+  bool isOk = Tlv::readType(tempBegin, wire->end(), type);
+  if (!isOk)
     return false;
 
   uint64_t length;
-  ok = Tlv::readVarNumber(tempBegin, wire->end(), length);
-  if (!ok)
+  isOk = Tlv::readVarNumber(tempBegin, wire->end(), length);
+  if (!isOk)
     return false;
 
   if (length > static_cast<uint64_t>(wire->end() - tempBegin))
@@ -238,13 +239,13 @@ Block::fromBuffer(const uint8_t* buffer, size_t maxSize, Block& block)
   const uint8_t* tempEnd = buffer + maxSize;
 
   uint32_t type;
-  bool ok = Tlv::readType(tempBegin, tempEnd, type);
-  if (!ok)
+  bool isOk = Tlv::readType(tempBegin, tempEnd, type);
+  if (!isOk)
     return false;
 
   uint64_t length;
-  ok = Tlv::readVarNumber(tempBegin, tempEnd, length);
-  if (!ok)
+  isOk = Tlv::readVarNumber(tempBegin, tempEnd, length);
+  if (!isOk)
     return false;
 
   if (length > static_cast<uint64_t>(tempEnd - tempBegin))
@@ -263,11 +264,11 @@ Block::fromBuffer(const uint8_t* buffer, size_t maxSize, Block& block)
 void
 Block::parse() const
 {
-  if (!m_subBlocks.empty() || value_size()==0)
+  if (!m_subBlocks.empty() || value_size() == 0)
     return;
 
-  Buffer::const_iterator begin = value_begin(),
-    end = value_end();
+  Buffer::const_iterator begin = value_begin();
+  Buffer::const_iterator end = value_end();
 
   while (begin != end)
     {
@@ -350,7 +351,7 @@ Block::encode()
 Block
 Block::blockFromValue() const
 {
-  if (value_size()==0)
+  if (value_size() == 0)
     throw Error("Underlying value buffer is empty");
 
   Buffer::const_iterator begin = value_begin(),

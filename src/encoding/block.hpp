@@ -31,9 +31,14 @@ public:
   typedef element_container::const_iterator  element_const_iterator;
 
   /// @brief Error that can be thrown from the block
-  struct Error : public std::runtime_error
+  class Error : public std::runtime_error
   {
-    Error(const std::string& what) : std::runtime_error(what) {}
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
   };
 
   /**
@@ -49,6 +54,8 @@ public:
 
   /**
    * @brief A helper version of a constructor to create Block from the raw buffer (type and value-length parsing)
+   *
+   * This constructor provides ability of implicit conversion from ConstBufferPtr to Block
    */
   Block(const ConstBufferPtr& buffer);
 
@@ -72,6 +79,7 @@ public:
   /*
    * @brief A helper version of a constructor to create Block from the stream.
    */
+  explicit
   Block(std::istream& is);
 
   /**
@@ -132,31 +140,31 @@ public:
   /**
    * @brief Check if the Block is empty
    */
-  inline bool
+  bool
   empty() const;
 
   /**
    * @brief Check if the Block has fully encoded wire
    */
-  inline bool
+  bool
   hasWire() const;
 
   /**
    * @brief Check if the Block has value block (no type and length are encoded)
    */
-  inline bool
+  bool
   hasValue() const;
 
   /**
    * @brief Reset wire buffer of the element
    */
-  inline void
+  void
   reset();
 
   /**
    * @brief Reset wire buffer but keep sub elements (if any)
    */
-  inline void
+  void
   resetWire();
 
   /**
@@ -174,70 +182,67 @@ public:
   void
   encode();
 
-  inline uint32_t
+  uint32_t
   type() const;
 
   /**
    * @brief Get the first subelement of the requested type
    */
-  inline const Block&
+  const Block&
   get(uint32_t type) const;
 
-  inline element_const_iterator
+  element_const_iterator
   find(uint32_t type) const;
 
-  inline void
+  void
   remove(uint32_t type);
 
-  inline element_iterator
+  element_iterator
   erase(element_iterator position);
 
-  inline element_iterator
+  element_iterator
   erase(element_iterator first, element_iterator last);
 
-  inline void
+  void
   push_back(const Block& element);
 
-  inline Buffer::const_iterator
+  Buffer::const_iterator
   begin() const;
 
-  inline Buffer::const_iterator
+  Buffer::const_iterator
   end() const;
 
-  inline const uint8_t*
+  const uint8_t*
   wire() const;
 
-  inline size_t
+  size_t
   size() const;
 
-  // inline const uint8_t*
-  // buf() const;
-
-  inline Buffer::const_iterator
+  Buffer::const_iterator
   value_begin() const;
 
-  inline Buffer::const_iterator
+  Buffer::const_iterator
   value_end() const;
 
-  inline const uint8_t*
+  const uint8_t*
   value() const;
 
-  inline size_t
+  size_t
   value_size() const;
 
   /**
    * @brief Get all subelements
    */
-  inline const element_container&
-  elements () const;
+  const element_container&
+  elements() const;
 
-  inline element_const_iterator
+  element_const_iterator
   elements_begin() const;
 
-  inline element_const_iterator
+  element_const_iterator
   elements_end() const;
 
-  inline size_t
+  size_t
   elements_size() const;
 
   Block
@@ -289,7 +294,7 @@ Block::reset()
   m_subBlocks.clear(); // remove all parsed subelements
 
   m_type = std::numeric_limits<uint32_t>::max();
-  m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator(); // not really necessary, but for safety
+  m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator();
 }
 
 inline void
@@ -299,7 +304,7 @@ Block::resetWire()
   // keep subblocks
 
   // keep type
-  m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator(); // not really necessary, but for safety
+  m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator();
 }
 
 inline uint32_t
@@ -311,27 +316,28 @@ Block::type() const
 inline const Block&
 Block::get(uint32_t type) const
 {
-  for (element_const_iterator i = m_subBlocks.begin ();
+  for (element_const_iterator i = m_subBlocks.begin();
        i != m_subBlocks.end();
        i++)
     {
-      if (i->type () == type)
+      if (i->type() == type)
         {
           return *i;
         }
     }
 
-  throw Error("(Block::get) Requested a non-existed type [" + boost::lexical_cast<std::string>(type) + "] from Block");
+  throw Error("(Block::get) Requested a non-existed type [" +
+              boost::lexical_cast<std::string>(type) + "] from Block");
 }
 
 inline Block::element_const_iterator
 Block::find(uint32_t type) const
 {
-  for (element_const_iterator i = m_subBlocks.begin ();
+  for (element_const_iterator i = m_subBlocks.begin();
        i != m_subBlocks.end();
        i++)
     {
-      if (i->type () == type)
+      if (i->type() == type)
         {
           return i;
         }
@@ -446,7 +452,7 @@ Block::value_size() const
 }
 
 inline const Block::element_container&
-Block::elements () const
+Block::elements() const
 {
   return m_subBlocks;
 }
