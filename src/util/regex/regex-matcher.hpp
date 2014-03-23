@@ -66,7 +66,7 @@ protected:
 
 private:
   bool 
-  recursiveMatch(const int& mId, const Name& name, const int& offset, const int& len);
+  recursiveMatch(size_t mId, const Name& name, size_t offset, size_t len);
 
 
 protected:
@@ -124,7 +124,7 @@ RegexMatcher::match (const Name& name, const int& offset, const int& len)
 }
   
 inline bool 
-RegexMatcher::recursiveMatch(const int& mId, const Name& name, const int& offset, const int& len)
+RegexMatcher::recursiveMatch(size_t mId, const Name& name, size_t offset, size_t len)
 {
   // _LOG_TRACE ("Enter RegexMatcher::recursiveMatch");
 

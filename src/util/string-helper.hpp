@@ -23,7 +23,7 @@ static const char *WHITESPACE_CHARS = " \n\r\t";
 inline std::string 
 toHex(const uint8_t* array, size_t arraySize)
 {
-  if (!&array)
+  if (array == 0 || arraySize == 0)
     return "";
   
   std::ostringstream result;

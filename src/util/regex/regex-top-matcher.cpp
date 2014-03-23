@@ -95,8 +95,8 @@ RegexTopMatcher::expand (const std::string& expandStr)
   else
     expand = m_expand;
 
-  int offset = 0;
-  while(offset < expand.size())
+  size_t offset = 0;
+  while (offset < expand.size())
     {
       std::string item = getItemFromExpand(expand, offset);
       if(item[0] == '<')
@@ -129,9 +129,9 @@ RegexTopMatcher::expand (const std::string& expandStr)
 }
 
 std::string
-RegexTopMatcher::getItemFromExpand(const std::string& expand, int & offset)
+RegexTopMatcher::getItemFromExpand(const std::string& expand, size_t& offset)
 {
-  int begin = offset;
+  size_t begin = offset;
 
   if(expand[offset] == '\\')
     {
@@ -155,8 +155,8 @@ RegexTopMatcher::getItemFromExpand(const std::string& expand, int & offset)
       if(offset >= expand.size())
         throw RegexMatcher::Error("wrong format of expand string!");
         
-      int left = 1;
-      int right = 0;
+      size_t left = 1;
+      size_t right = 0;
       while(right < left)
         {
           if(expand[offset] == '<')
@@ -196,7 +196,7 @@ std::string
 RegexTopMatcher::convertSpecialChar(const std::string& str)
 {
   std::string newStr;
-  for(int i = 0; i < str.size(); i++)
+  for(size_t i = 0; i < str.size(); i++)
     {
       char c = str[i];
       switch(c)

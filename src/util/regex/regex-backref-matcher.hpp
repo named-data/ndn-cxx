@@ -30,9 +30,6 @@ public:
 protected:
   virtual void 
   compile();
-    
-private:
-  int m_refNum;
 };
 
 } // namespace ndn

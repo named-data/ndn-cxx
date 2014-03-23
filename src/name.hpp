@@ -26,7 +26,11 @@ namespace ndn {
 class Name : public ptr_lib::enable_shared_from_this<Name> {
 public:
   /// @brief Error that can be thrown from the block
-  struct Error : public name::Component::Error { Error(const std::string &what) : name::Component::Error(what) {} };
+  class Error : public name::Component::Error {
+  public:
+    Error(const std::string& what)
+      : name::Component::Error(what) {}
+  };
 
   typedef name::Component Component;
 
@@ -65,7 +69,7 @@ public:
    * @endcode
    */
   explicit
-  Name(const Block &wire)
+  Name(const Block& wire)
   {
     m_nameBlock = wire;
     m_nameBlock.parse();
@@ -94,13 +98,13 @@ public:
    */
   template<bool T>
   size_t
-  wireEncode(EncodingImpl<T> &block) const;
+  wireEncode(EncodingImpl<T>& block) const;
 
-  const Block &
+  const Block&
   wireEncode() const;
 
   void
-  wireDecode(const Block &wire);
+  wireDecode(const Block& wire);
 
   /**
    * @brief Check if already has wire
@@ -130,7 +134,7 @@ public:
    * @return This name so that you can chain calls to append.
    */
   Name&
-  append(const uint8_t *value, size_t valueLength)
+  append(const uint8_t* value, size_t valueLength)
   {
     m_nameBlock.push_back(Component(value, valueLength));
     return *this;
@@ -148,26 +152,15 @@ public:
     return *this;
   }
 
-  // /**
-  //  * Append a new component, copying from value.
-  //  * @return This name so that you can chain calls to append.
-  //  */
-  // Name&
-  // append(const Buffer& value)
-  // {
-  //   m_nameBlock.push_back(value);
-  //   return *this;
-  // }
-
   Name&
-  append(const ConstBufferPtr &value)
+  append(const ConstBufferPtr& value)
   {
     m_nameBlock.push_back(value);
     return *this;
   }
 
   Name&
-  append(const Component &value)
+  append(const Component& value)
   {
     m_nameBlock.push_back(value);
     return *this;
@@ -181,14 +174,14 @@ public:
    * converted from string, each having different outcomes
    */
   Name&
-  append(const char *value)
+  append(const char* value)
   {
     m_nameBlock.push_back(Component(value));
     return *this;
   }
 
   Name&
-  append(const Block &value)
+  append(const Block& value)
   {
     if (value.type() == Tlv::NameComponent)
       m_nameBlock.push_back(value);
@@ -310,12 +303,6 @@ public:
   bool
   isPrefixOf(const Name& name) const;
 
-  bool
-  match(const Name& name) const
-  {
-    return isPrefixOf(name);
-  }
-
   //
   // vector equivalent interface.
   //
@@ -348,7 +335,7 @@ public:
   }
 
   const Component&
-  operator [] (ssize_t i) const
+  operator[](ssize_t i) const
   {
     return get(i);
   }
@@ -364,7 +351,8 @@ public:
   const Component&
   at(ssize_t i) const
   {
-    if ((i >= 0 && i >= size()) || (i < 0 && i < -size()))
+    if ((i >= 0 && static_cast<size_t>(i) >= size()) ||
+        (i < 0  && static_cast<size_t>(-i) > size()))
       throw Error("Requested component does not exist (out of bounds)");
 
     return get(i);
@@ -395,7 +383,7 @@ public:
    * @param component The component of type T.
    */
   template<class T> void
-  push_back(const T &component)
+  push_back(const T& component)
   {
     append(component);
   }
@@ -406,7 +394,7 @@ public:
    * @return true if the names are equal, otherwise false.
    */
   bool
-  operator == (const Name &name) const { return equals(name); }
+  operator==(const Name& name) const { return equals(name); }
 
   /**
    * Check if this name has the same component count and components as the given name.
@@ -414,7 +402,7 @@ public:
    * @return true if the names are not equal, otherwise false.
    */
   bool
-  operator != (const Name &name) const { return !equals(name); }
+  operator!=(const Name& name) const { return !equals(name); }
 
   /**
    * Return true if this is less than or equal to the other Name in the NDN canonical ordering.
@@ -423,7 +411,7 @@ public:
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator <= (const Name& other) const { return compare(other) <= 0; }
+  operator<=(const Name& other) const { return compare(other) <= 0; }
 
   /**
    * Return true if this is less than the other Name in the NDN canonical ordering.
@@ -432,7 +420,7 @@ public:
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator < (const Name& other) const { return compare(other) < 0; }
+  operator<(const Name& other) const { return compare(other) < 0; }
 
   /**
    * Return true if this is less than or equal to the other Name in the NDN canonical ordering.
@@ -441,7 +429,7 @@ public:
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator >= (const Name& other) const { return compare(other) >= 0; }
+  operator>=(const Name& other) const { return compare(other) >= 0; }
 
   /**
    * Return true if this is greater than the other Name in the NDN canonical ordering.
@@ -450,7 +438,7 @@ public:
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator > (const Name& other) const { return compare(other) > 0; }
+  operator>(const Name& other) const { return compare(other) > 0; }
 
   //
   // Iterator interface to name components.
@@ -498,14 +486,21 @@ private:
   mutable Block m_nameBlock;
 };
 
-std::ostream&
-operator<<(std::ostream& os, const Name& name);
-
-inline Name&
-Name::appendVersion()
+inline std::ostream&
+operator<<(std::ostream& os, const Name& name)
 {
-  appendNumber(time::toUnixTimestamp(time::system_clock::now()).count());
-  return *this;
+  if (name.empty())
+    {
+      os << "/";
+    }
+  else
+    {
+      for (Name::const_iterator i = name.begin(); i != name.end(); i++) {
+        os << "/";
+        i->toEscapedString(os);
+      }
+    }
+  return os;
 }
 
 inline std::string
@@ -526,25 +521,181 @@ operator>>(std::istream& is, Name& name)
   return is;
 }
 
+
+inline void
+Name::set(const char* uri_cstr)
+{
+  clear();
+
+  std::string uri = uri_cstr;
+  trim(uri);
+  if (uri.size() == 0)
+    return;
+
+  size_t iColon = uri.find(':');
+  if (iColon != std::string::npos) {
+    // Make sure the colon came before a '/'.
+    size_t iFirstSlash = uri.find('/');
+    if (iFirstSlash == std::string::npos || iColon < iFirstSlash) {
+      // Omit the leading protocol such as ndn:
+      uri.erase(0, iColon + 1);
+      trim(uri);
+    }
+  }
+
+  // Trim the leading slash and possibly the authority.
+  if (uri[0] == '/') {
+    if (uri.size() >= 2 && uri[1] == '/') {
+      // Strip the authority following "//".
+      size_t iAfterAuthority = uri.find('/', 2);
+      if (iAfterAuthority == std::string::npos)
+        // Unusual case: there was only an authority.
+        return;
+      else {
+        uri.erase(0, iAfterAuthority + 1);
+        trim(uri);
+      }
+    }
+    else {
+      uri.erase(0, 1);
+      trim(uri);
+    }
+  }
+
+  size_t iComponentStart = 0;
+
+  // Unescape the components.
+  while (iComponentStart < uri.size()) {
+    size_t iComponentEnd = uri.find("/", iComponentStart);
+    if (iComponentEnd == std::string::npos)
+      iComponentEnd = uri.size();
+
+    Component component = Component::fromEscapedString(&uri[0], iComponentStart, iComponentEnd);
+    // Ignore illegal components.  This also gets rid of a trailing '/'.
+    if (!component.empty())
+      append(Component(component));
+
+    iComponentStart = iComponentEnd + 1;
+  }
+}
+
+inline Name&
+Name::append(const Name& name)
+{
+  if (&name == this)
+    // Copying from this name, so need to make a copy first.
+    return append(Name(name));
+
+  for (size_t i = 0; i < name.size(); ++i)
+    append(name.at(i));
+
+  return *this;
+}
+
+inline Name&
+Name::appendVersion()
+{
+  appendNumber(time::toUnixTimestamp(time::system_clock::now()).count());
+  return *this;
+}
+
+inline Name
+Name::getSubName(size_t iStartComponent, size_t nComponents) const
+{
+  Name result;
+
+  size_t iEnd = iStartComponent + nComponents;
+  for (size_t i = iStartComponent; i < iEnd && i < size(); ++i)
+    result.append(at(i));
+
+  return result;
+}
+
+inline Name
+Name::getSubName(size_t iStartComponent) const
+{
+  Name result;
+
+  for (size_t i = iStartComponent; i < size(); ++i)
+    result.append(at(i));
+
+  return result;
+}
+
+inline bool
+Name::equals(const Name& name) const
+{
+  if (size() != name.size())
+    return false;
+
+  for (size_t i = 0; i < size(); ++i) {
+    if (at(i) != name.at(i))
+      return false;
+  }
+
+  return true;
+}
+
+inline bool
+Name::isPrefixOf(const Name& name) const
+{
+  // This name is longer than the name we are checking it against.
+  if (size() > name.size())
+    return false;
+
+  // Check if at least one of given components doesn't match.
+  for (size_t i = 0; i < size(); ++i) {
+    if (at(i) != name.at(i))
+      return false;
+  }
+
+  return true;
+}
+
+
+inline int
+Name::compare(const Name& other) const
+{
+  for (size_t i = 0; i < size() && i < other.size(); ++i) {
+    int comparison = at(i).compare(other.at(i));
+    if (comparison == 0)
+      // The components at this index are equal, so check the next components.
+      continue;
+
+    // Otherwise, the result is based on the components at this index.
+    return comparison;
+  }
+
+  // The components up to min(this.size(), other.size()) are equal, so the shorter name is less.
+  if (size() < other.size())
+    return -1;
+  else if (size() > other.size())
+    return 1;
+  else
+    return 0;
+}
+
+
+
 template<bool T>
 inline size_t
 Name::wireEncode(EncodingImpl<T>& blk) const
 {
   size_t total_len = 0;
 
-  for (const_reverse_iterator i = rbegin ();
-       i != rend ();
+  for (const_reverse_iterator i = rbegin();
+       i != rend();
        ++i)
     {
-      total_len += i->wireEncode (blk);
+      total_len += i->wireEncode(blk);
     }
 
-  total_len += blk.prependVarNumber (total_len);
-  total_len += blk.prependVarNumber (Tlv::Name);
+  total_len += blk.prependVarNumber(total_len);
+  total_len += blk.prependVarNumber(Tlv::Name);
   return total_len;
 }
 
-inline const Block &
+inline const Block&
 Name::wireEncode() const
 {
   if (m_nameBlock.hasWire())
@@ -563,7 +714,7 @@ Name::wireEncode() const
 }
 
 inline void
-Name::wireDecode(const Block &wire)
+Name::wireDecode(const Block& wire)
 {
   if (wire.type() != Tlv::Name)
     throw Tlv::Error("Unexpected TLV type when decoding Name");

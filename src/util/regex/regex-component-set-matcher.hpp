@@ -107,9 +107,9 @@ RegexComponentSetMatcher::compile()
 inline void 
 RegexComponentSetMatcher::compileSingleComponent()
 {
-  int end = extractComponent(1);
+  size_t end = extractComponent(1);
 
-  if(m_expr.size() != end)
+  if (m_expr.size() != end)
     {
       throw RegexMatcher::Error(std::string("Error: RegexComponentSetMatcher.compileSingleComponent: ")
                                 + m_expr);

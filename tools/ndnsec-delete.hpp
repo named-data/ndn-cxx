@@ -16,7 +16,7 @@ ndnsec_delete(int argc, char** argv)
   using namespace ndn;
   namespace po = boost::program_options;
 
-  bool deleteId = true;
+  // bool deleteId = true;
   bool deleteKey = false;
   bool deleteCert = false;
   std::string name;
@@ -55,12 +55,12 @@ ndnsec_delete(int argc, char** argv)
   if(vm.count("delete_cert"))
     {
       deleteCert = true;
-      deleteId = false;
+      // deleteId = false;
     }
   else if(vm.count("delete_key"))
     {
       deleteKey = true;
-      deleteId = false;
+      // deleteId = false;
     }
   
   try

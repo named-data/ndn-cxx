@@ -27,20 +27,24 @@ Interest::getNonce() const
 bool
 Interest::matchesName(const Name &name) const
 {
+  if (name.size() < m_name.size())
+    return false;
+
   if (!m_name.isPrefixOf(name))
     return false;
 
   if (getMinSuffixComponents() >= 0 &&
     // Add 1 for the implicit digest.
-      !(name.size() + 1 - m_name.size() >= getMinSuffixComponents()))
+      !(name.size() + 1 - m_name.size() >= static_cast<size_t>(getMinSuffixComponents())))
     return false;
 
   if (getMaxSuffixComponents() >= 0 &&
     // Add 1 for the implicit digest.
-      !(name.size() + 1 - m_name.size() <= getMaxSuffixComponents()))
+      !(name.size() + 1 - m_name.size() <= static_cast<size_t>(getMaxSuffixComponents())))
     return false;
 
-  if (!getExclude().empty() && name.size() > m_name.size() &&
+  if (!getExclude().empty() &&
+      name.size() > m_name.size() &&
       getExclude().isExcluded(name[m_name.size()]))
     return false;
 

@@ -46,26 +46,34 @@ def configure(conf):
 
     conf.check_openssl()
 
-    if conf.options.debug:
-        conf.define ('_DEBUG', 1)
-        flags = ['-O0',
-                 '-Wall',
-                 # '-Werror',
-                 '-Wno-unused-variable',
-                 '-g3',
-                 '-Wno-unused-private-field', # only clang supports
-                 '-fcolor-diagnostics',       # only clang supports
-                 '-Qunused-arguments',        # only clang supports
-                 '-Wno-tautological-compare', # suppress warnings from CryptoPP
-                 '-Wno-unused-function',      # another annoying warning from CryptoPP
+    custom_cxxflags = (len(conf.env.CXXFLAGS) > 0)
 
-                 '-Wno-deprecated-declarations',
-                 ]
+    if not custom_cxxflags:
+        if conf.options.debug:
+            conf.define ('_DEBUG', 1)
 
-        conf.add_supported_cxxflags (cxxflags = flags)
-    else:
-        flags = ['-O3', '-g', '-Wno-tautological-compare', '-Wno-unused-function', '-Wno-deprecated-declarations']
-        conf.add_supported_cxxflags (cxxflags = flags)
+            conf.add_supported_cxxflags(cxxflags = [
+                    '-O0', '-g3',
+                    '-Werror',
+                    '-fcolor-diagnostics', # only clang supports
+                ])
+        else:
+            if len(conf.env.CXXFLAGS) == 0:
+                conf.add_supported_cxxflags(cxxflags = ['-O2', '-g'])
+
+        conf.add_supported_cxxflags(cxxflags = [
+                '-Wall',
+
+                # to disable known warnings
+                '-Wno-unused-variable', # cryptopp
+                '-Wno-unused-function',
+                '-Wno-deprecated-declarations',
+            ])
+    elif conf.options.debug:
+        Logs.error("Selected debug mode, but CXXFLAGS is set to a custom value '%s'"
+                   % " ".join(conf.env.CXXFLAGS))
+        conf.fatal("Unset CXXFLAGS or remove --debug option to proceed")
+        return 1
 
     if Utils.unversioned_sys_platform () == "darwin":
         conf.check_cxx(framework_name='CoreFoundation', uselib_store='OSX_COREFOUNDATION', mandatory=True)
@@ -95,7 +103,7 @@ def configure(conf):
         conf.check(msg='Checking for type std::function',
                    type_name="std::function<void()>", header_name="functional", define_name='HAVE_STD_FUNCTION')
         conf.define('HAVE_CXX11', 1)
-        
+
     USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams', 'regex', 'program_options', 'chrono']
     if conf.env['WITH_TESTS']:
         USED_BOOST_LIBS += ['unit_test_framework']

@@ -76,8 +76,7 @@ Scheduler::EventInfo::expiresFromNow() const
 
 
 Scheduler::Scheduler(boost::asio::io_service& ioService)
-  : m_ioService(ioService)
-  , m_scheduledEvent(m_events.end())
+  : m_scheduledEvent(m_events.end())
   , m_deadlineTimer(ioService)
   , m_isEventExecuting(false)
 {

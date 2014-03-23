@@ -19,8 +19,6 @@ ndnsec_cert_gen(int argc, char** argv)
   using namespace ndn;
   namespace po = boost::program_options;
 
-  typedef boost::posix_time::ptime Time;
-  
   std::string notBeforeStr;
   std::string notAfterStr;
   std::string sName;
@@ -199,7 +197,7 @@ ndnsec_cert_gen(int argc, char** argv)
           certificate.setNotAfter(notAfter);
           certificate.setPublicKeyInfo(selfSignedCertificate->getPublicKeyInfo());
           certificate.addSubjectDescription(subDescryptName);
-          for(int i = 0; i < otherSubDescrypt.size(); i++)
+          for (size_t i = 0; i < otherSubDescrypt.size(); i++)
             certificate.addSubjectDescription(otherSubDescrypt[i]);
           certificate.encode();
 

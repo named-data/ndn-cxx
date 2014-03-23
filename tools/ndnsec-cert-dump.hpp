@@ -20,13 +20,13 @@ ndnsec_cert_dump(int argc, char** argv)
   bool isKeyName = false;
   bool isIdentityName = false;
   bool isCertName = true;
-  bool isFileName = false;
+  // bool isFileName = false;
   bool isPretty = false;
   bool isStdOut = true;
   bool isRepoOut = false;
   std::string repoHost = "127.0.0.1";
   std::string repoPort = "7376";
-  bool isDnsOut = false;
+  // bool isDnsOut = false;
 
   po::options_description desc("General Usage\n  ndnsec cert-dump [-h] [-p] [-d] [-r [-H repo-host] [-P repor-port] ] [-i|k|f] name\nGeneral options");
   desc.add_options()
@@ -38,7 +38,7 @@ ndnsec_cert_dump(int argc, char** argv)
     ("repo-output,r", "optional, if specified, certificate is dumped (published) to repo")
     ("repo-host,H", po::value<std::string>(&repoHost)->default_value("localhost"), "optional, the repo host if repo-output is specified")
     ("repo-port,P", po::value<std::string>(&repoPort)->default_value("7376"), "optional, the repo port if repo-output is specified")
-    ("dns-output,d", "optional, if specified, certificate is dumped (published) to DNS")
+    // ("dns-output,d", "optional, if specified, certificate is dumped (published) to DNS")
     ("name,n", po::value<std::string>(&name), "certificate name, for example, /ndn/edu/ucla/KEY/cs/alice/ksk-1234567890/ID-CERT/%FD%FF%FF%FF%FF%FF%FF%FF")
     ;
 
@@ -75,7 +75,7 @@ ndnsec_cert_dump(int argc, char** argv)
   else if (vm.count("file"))
     {
       isCertName = false;
-      isFileName = true;
+      // isFileName = true;
     }    
     
   if (vm.count("pretty"))
@@ -88,7 +88,7 @@ ndnsec_cert_dump(int argc, char** argv)
     }
   else if(vm.count("dns-output"))
     {
-      isDnsOut = true;
+      // isDnsOut = true;
       isStdOut = false;
       std::cerr << "Error: DNS output is not supported yet!" << std::endl;
       return 1;

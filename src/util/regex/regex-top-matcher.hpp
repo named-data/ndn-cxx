@@ -43,7 +43,7 @@ protected:
 
 private:
   std::string
-  getItemFromExpand(const std::string& expand, int & offset);
+  getItemFromExpand(const std::string& expand, size_t& offset);
 
   static std::string
   convertSpecialChar(const std::string& str);

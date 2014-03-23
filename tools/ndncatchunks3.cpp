@@ -26,12 +26,12 @@ public:
   Consumer(const std::string& data_name,
            size_t pipe_size, size_t total_seg,
            int scope = -1, bool mustBeFresh = true)
-    : m_data_name (data_name)
-    , m_pipe_size (pipe_size)
-    , m_total_seg (total_seg)
-    , m_next_seg (0)
-    , m_total_size (0)
-    , m_output (false)
+    : m_data_name(data_name)
+    , m_pipe_size(pipe_size)
+    , m_total_seg(total_seg)
+    , m_next_seg(0)
+    , m_total_size(0)
+    , m_output(false)
     , m_scope(scope)
     , m_mustBeFresh(mustBeFresh)
   {
@@ -70,25 +70,25 @@ Consumer::run()
 {
   try
     {
-      for (int i = 0; i < m_pipe_size; i++)
-        {
+      for (size_t i = 0; i < m_pipe_size; i++)
+	{
           ndn::Interest interest(ndn::Name(m_data_name).appendSegment(m_next_seg++));
-          interest.setInterestLifetime(ndn::time::milliseconds(4000));
-          if (m_scope >= 0)
+	  interest.setInterestLifetime(ndn::time::milliseconds(4000));
+	  if (m_scope >= 0)
             interest.setScope(m_scope);
-          interest.setMustBeFresh(m_mustBeFresh);
+	  interest.setMustBeFresh(m_mustBeFresh);
 
-          m_face.expressInterest (interest,
-                                  ndn::bind(&Consumer::on_data, this, _1, _2),
-                                  ndn::bind(&Consumer::on_timeout, this, _1));
-        }
+	  m_face.expressInterest(interest,
+                                 ndn::bind(&Consumer::on_data, this, _1, _2),
+                                 ndn::bind(&Consumer::on_timeout, this, _1));
+	}
 
       // processEvents will block until the requested data received or timeout occurs
       m_face.processEvents();
     }
   catch (std::exception& e)
     {
-      std::cerr << "ERROR: " << e.what () << std::endl;
+      std::cerr << "ERROR: " << e.what() << std::endl;
     }
 }
 
@@ -103,7 +103,7 @@ Consumer::on_data(const ndn::Interest& interest, ndn::Data& data)
       std::cout.write(reinterpret_cast<const char*>(content.value()), content.value_size());
     }
 
-  m_total_size += content.value_size ();
+  m_total_size += content.value_size();
 
   if (name[-1].toSegment() + 1 == m_total_seg)
     {
@@ -119,9 +119,9 @@ Consumer::on_data(const ndn::Interest& interest, ndn::Data& data)
       interest.setInterestLifetime(ndn::time::milliseconds(4000));
       interest.setMustBeFresh(m_mustBeFresh);
 
-      m_face.expressInterest (interest,
-                              ndn::bind(&Consumer::on_data, this, _1, _2),
-                              ndn::bind(&Consumer::on_timeout, this, _1));
+      m_face.expressInterest(interest,
+                             ndn::bind(&Consumer::on_data, this, _1, _2),
+                             ndn::bind(&Consumer::on_timeout, this, _1));
     }
 }
 
@@ -153,25 +153,25 @@ main(int argc, char **argv)
   int opt;
   while ((opt = getopt(argc, argv, "op:c:")) != -1)
     {
-      switch (opt)
-        {
+      switch(opt)
+	{
         case 'p':
-          pipe_size = atoi (optarg);
-          if (pipe_size <= 0)
-            pipe_size = 1;
-          std::cerr << "main (): set pipe size = " << pipe_size << std::endl;
-          break;
-        case 'c':
-          total_seg = atoi (optarg);
-          if (total_seg <= 0)
-            total_seg = 1;
-          std::cerr << "main (): set total seg = " << total_seg << std::endl;
-          break;
-        case 'o':
-          output = true;
-          break;
+	  pipe_size = atoi(optarg);
+	  if (pipe_size <= 0)
+	    pipe_size = 1;
+	  std::cerr << "main(): set pipe size = " << pipe_size << std::endl;
+	  break;
+	case 'c':
+	  total_seg = atoi(optarg);
+	  if (total_seg <= 0)
+	    total_seg = 1;
+	  std::cerr << "main(): set total seg = " << total_seg << std::endl;
+	  break;
+	case 'o':
+	  output = true;
+	  break;
         default:
-          return usage(argv[0]);
+	  return usage(argv[0]);
         }
     }
 
@@ -185,12 +185,12 @@ main(int argc, char **argv)
       return usage(argv[0]);
     }
 
-  Consumer consumer (name, pipe_size, total_seg);
+  Consumer consumer(name, pipe_size, total_seg);
 
   if (output)
-    consumer.enable_output ();
+    consumer.enable_output();
 
-  consumer.run ();
+  consumer.run();
 
   return 0;
 }

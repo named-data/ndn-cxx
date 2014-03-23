@@ -17,9 +17,8 @@ namespace ndn {
 bool
 IdentityCertificate::isCorrectName(const Name& name)
 {
-  int i = name.size() - 1;
-  
   string idString("ID-CERT");
+  int i = name.size() - 1;
   for (; i >= 0; i--) {
     if(name.get(i).toEscapedString() == idString)
       break;
@@ -28,7 +27,7 @@ IdentityCertificate::isCorrectName(const Name& name)
   if (i < 0)
     return false;
   
-  int keyIdx = 0;
+  size_t keyIdx = 0;
   string keyString("KEY");
   for (; keyIdx < name.size(); keyIdx++) {
     if(name.get(keyIdx).toEscapedString() == keyString)
@@ -59,11 +58,11 @@ IdentityCertificate::isIdentityCertificate(const Certificate& certificate)
 Name
 IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
 {
-  int i = certificateName.size() - 1;
   string idString("ID-CERT");
   bool foundIdString = false;
-  for (; i >= 0; i--) {
-    if (certificateName.get(i).toEscapedString() == idString)
+  size_t idCertComponentIndex = certificateName.size() - 1;
+  for (; idCertComponentIndex + 1 > 0; --idCertComponentIndex) {
+    if (certificateName.get(idCertComponentIndex).toEscapedString() == idString)
       {
         foundIdString = true;
         break;
@@ -73,11 +72,12 @@ IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
   if(!foundIdString)
     throw Error("Incorrect identity certificate name " + certificateName.toUri());
     
-  Name tmpName = certificateName.getSubName(0, i);    
+  Name tmpName = certificateName.getSubName(0, idCertComponentIndex);
   string keyString("KEY");
   bool foundKeyString = false;
-  for (i = 0; i < tmpName.size(); i++) {
-    if (tmpName.get(i).toEscapedString() == keyString)
+  size_t keyComponentIndex = 0;
+  for (; keyComponentIndex < tmpName.size(); keyComponentIndex++) {
+    if (tmpName.get(keyComponentIndex).toEscapedString() == keyString)
       {
         foundKeyString = true;
         break;
@@ -86,8 +86,11 @@ IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
 
   if(!foundKeyString)
     throw Error("Incorrect identity certificate name " + certificateName.toUri());
-  
-  return tmpName.getSubName(0, i).append(tmpName.getSubName(i + 1, tmpName.size() - i - 1));
+
+  return tmpName
+           .getSubName(0, keyComponentIndex)
+           .append(tmpName.getSubName(keyComponentIndex + 1,
+                                      tmpName.size() - keyComponentIndex - 1));
 }
 
 } // namespace ndn

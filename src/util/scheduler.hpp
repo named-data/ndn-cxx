@@ -56,8 +56,6 @@ private:
   onEvent(const boost::system::error_code& code);
   
 private:
-  boost::asio::io_service& m_ioService;
-
   struct EventInfo
   {
     EventInfo(const time::nanoseconds& after,

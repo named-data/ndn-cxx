@@ -72,7 +72,7 @@ RegexComponentMatcher::compile ()
   m_pseudoMatcher.clear();
   m_pseudoMatcher.push_back(ptr_lib::make_shared<RegexPseudoMatcher>());
 
-  for (int i = 1; i < m_componentRegex.mark_count(); i++)
+  for (size_t i = 1; i < m_componentRegex.mark_count(); i++)
     {
       ptr_lib::shared_ptr<RegexPseudoMatcher> pMatcher = ptr_lib::make_shared<RegexPseudoMatcher>();
       m_pseudoMatcher.push_back(pMatcher);
@@ -102,7 +102,7 @@ RegexComponentMatcher::match (const Name & name, const int & offset, const int &
       std::string targetStr = name.get(offset).toEscapedString();
       if(boost::regex_match(targetStr, subResult, m_componentRegex))
         {
-          for (int i = 1; i < m_componentRegex.mark_count(); i++)
+          for (size_t i = 1; i < m_componentRegex.mark_count(); i++)
             {
               m_pseudoMatcher[i]->resetMatchResult();
               m_pseudoMatcher[i]->setMatchResult(subResult[i]);

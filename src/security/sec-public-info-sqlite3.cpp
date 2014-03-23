@@ -337,8 +337,8 @@ SecPublicInfoSqlite3::doesCertificateExist(const Name& certificateName)
 
 //   sqlite3_stmt *statement;
 //   sqlite3_prepare_v2(m_database, 
-//                       "INSERT OR REPLACE INTO Certificate (cert_name, cert_issuer, identity_name, key_identifier, not_before, not_after, certificate_data)\
-//                        values (?, ?, ?, ?, datetime(?, 'unixepoch'), datetime(?, 'unixepoch'), ?)",
+//                       "INSERT OR REPLACE INTO Certificate (cert_name, cert_issuer, identity_name, key_identifier, not_before, not_after, certificate_data) "
+//                        "VALUES (?, ?, ?, ?, datetime(?, 'unixepoch'), datetime(?, 'unixepoch'), ?)",
 //                       -1, &statement, 0);
 
 //   _LOG_DEBUG("certName: " << certificateName);

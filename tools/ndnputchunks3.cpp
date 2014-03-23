@@ -129,7 +129,7 @@ main(int argc, char *argv[])
             {
               std::cerr << "ERROR: " << e.what() << std::endl;
               // and keep going
-              sleep (1);
+              sleep(1);
             }
         }
     }

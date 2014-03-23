@@ -56,11 +56,11 @@ ndnsec_list(int argc, char** argv)
         {
           std::vector<Name> defaultList;
           keyChain.getAllIdentities(defaultList, true);
-          for(int i = 0; i < defaultList.size(); i++)
+          for(size_t i = 0; i < defaultList.size(); i++)
             std::cout << "* " << defaultList[i] << std::endl;
           std::vector<Name> otherList;
           keyChain.getAllIdentities(otherList, false);
-          for(int i = 0; i < otherList.size(); i++)
+          for(size_t i = 0; i < otherList.size(); i++)
             std::cout << "  " << otherList[i] << std::endl;
           return 0;
         }
@@ -68,31 +68,31 @@ ndnsec_list(int argc, char** argv)
         {
           std::vector<Name> defaultIdList;
           keyChain.getAllIdentities(defaultIdList, true);
-          for(int i = 0; i < defaultIdList.size(); i++)
+          for(size_t i = 0; i < defaultIdList.size(); i++)
             {
               std::cout << "* " << defaultIdList[i] << std::endl;
               std::vector<Name> defaultKeyList;
               keyChain.getAllKeyNamesOfIdentity(defaultIdList[i], defaultKeyList, true);
-              for(int j = 0; j < defaultKeyList.size(); j++)
+              for(size_t j = 0; j < defaultKeyList.size(); j++)
                 std::cout << "  +->* " << defaultKeyList[j] << std::endl;
               std::vector<Name> otherKeyList;
               keyChain.getAllKeyNamesOfIdentity(defaultIdList[i], otherKeyList, false);
-              for(int j = 0; j < otherKeyList.size(); j++)
+              for(size_t j = 0; j < otherKeyList.size(); j++)
                 std::cout << "  +->  " << otherKeyList[j] << std::endl;
               std::cout << std::endl;
             }
           std::vector<Name> otherIdList;
           keyChain.getAllIdentities(otherIdList, false);
-          for(int i = 0; i < otherIdList.size(); i++)
+          for(size_t i = 0; i < otherIdList.size(); i++)
             {
               std::cout << "  " << otherIdList[i] << std::endl;
               std::vector<Name> defaultKeyList;
               keyChain.getAllKeyNamesOfIdentity(otherIdList[i], defaultKeyList, true);
-              for(int j = 0; j < defaultKeyList.size(); j++)
+              for(size_t j = 0; j < defaultKeyList.size(); j++)
                 std::cout << "  +->* " << defaultKeyList[j] << std::endl;
               std::vector<Name> otherKeyList;
               keyChain.getAllKeyNamesOfIdentity(otherIdList[i], otherKeyList, false);
-              for(int j = 0; j < otherKeyList.size(); j++)
+              for(size_t j = 0; j < otherKeyList.size(); j++)
                 std::cout << "  +->  " << otherKeyList[j] << std::endl;
               std::cout << std::endl;
             }
@@ -102,35 +102,35 @@ ndnsec_list(int argc, char** argv)
         {
           std::vector<Name> defaultIdList;
           keyChain.getAllIdentities(defaultIdList, true);
-          for(int i = 0; i < defaultIdList.size(); i++)
+          for(size_t i = 0; i < defaultIdList.size(); i++)
             {
               std::cout << "* " << defaultIdList[i] << std::endl;
               std::vector<Name> defaultKeyList;
               keyChain.getAllKeyNamesOfIdentity(defaultIdList[i], defaultKeyList, true);
-              for(int j = 0; j < defaultKeyList.size(); j++)
+              for(size_t j = 0; j < defaultKeyList.size(); j++)
                 {
                   std::cout << "  +->* " << defaultKeyList[j] << std::endl;
                   std::vector<Name> defaultCertList;
                   keyChain.getAllCertificateNamesOfKey(defaultKeyList[j], defaultCertList, true);
-                  for(int k = 0; k < defaultCertList.size(); k++)
+                  for(size_t k = 0; k < defaultCertList.size(); k++)
                     std::cout << "       +->* " << defaultCertList[k] << std::endl;
                   std::vector<Name> otherCertList;
                   keyChain.getAllCertificateNamesOfKey(defaultKeyList[j], otherCertList, false);
-                  for(int k = 0; k < otherCertList.size(); k++)
+                  for(size_t k = 0; k < otherCertList.size(); k++)
                     std::cout << "       +->  " << otherCertList[k] << std::endl;
                 }
               std::vector<Name> otherKeyList;
               keyChain.getAllKeyNamesOfIdentity(defaultIdList[i], otherKeyList, false);
-              for(int j = 0; j < otherKeyList.size(); j++)
+              for(size_t j = 0; j < otherKeyList.size(); j++)
                 {
                   std::cout << "  +->  " << otherKeyList[j] << std::endl;
                   std::vector<Name> defaultCertList;
                   keyChain.getAllCertificateNamesOfKey(otherKeyList[j], defaultCertList, true);
-                  for(int k = 0; k < defaultCertList.size(); k++)
+                  for(size_t k = 0; k < defaultCertList.size(); k++)
                     std::cout << "       +->* " << defaultCertList[k] << std::endl;
                   std::vector<Name> otherCertList;
                   keyChain.getAllCertificateNamesOfKey(otherKeyList[j], otherCertList, false);
-                  for(int k = 0; k < otherCertList.size(); k++)
+                  for(size_t k = 0; k < otherCertList.size(); k++)
                     std::cout << "       +->  " << otherCertList[k] << std::endl;
                 }
             
@@ -138,35 +138,35 @@ ndnsec_list(int argc, char** argv)
             }
           std::vector<Name> otherIdList;
           keyChain.getAllIdentities(otherIdList, false);
-          for(int i = 0; i < otherIdList.size(); i++)
+          for(size_t i = 0; i < otherIdList.size(); i++)
             {
               std::cout << "  " << otherIdList[i] << std::endl;
               std::vector<Name> defaultKeyList;
               keyChain.getAllKeyNamesOfIdentity(otherIdList[i], defaultKeyList, true);
-              for(int j = 0; j < defaultKeyList.size(); j++)
+              for(size_t j = 0; j < defaultKeyList.size(); j++)
                 {
                   std::cout << "  +->* " << defaultKeyList[j] << std::endl;
                   std::vector<Name> defaultCertList;
                   keyChain.getAllCertificateNamesOfKey(defaultKeyList[j], defaultCertList, true);
-                  for(int k = 0; k < defaultCertList.size(); k++)
+                  for(size_t k = 0; k < defaultCertList.size(); k++)
                     std::cout << "       +->* " << defaultCertList[k] << std::endl;
                   std::vector<Name> otherCertList;
                   keyChain.getAllCertificateNamesOfKey(defaultKeyList[j], otherCertList, false);
-                  for(int k = 0; k < otherCertList.size(); k++)
+                  for(size_t k = 0; k < otherCertList.size(); k++)
                     std::cout << "       +->  " << otherCertList[k] << std::endl;
                 }
               std::vector<Name> otherKeyList;
               keyChain.getAllKeyNamesOfIdentity(otherIdList[i], otherKeyList, false);
-              for(int j = 0; j < otherKeyList.size(); j++)
+              for(size_t j = 0; j < otherKeyList.size(); j++)
                 {
                   std::cout << "  +->  " << otherKeyList[j] << std::endl;
                   std::vector<Name> defaultCertList;
                   keyChain.getAllCertificateNamesOfKey(otherKeyList[j], defaultCertList, true);
-                  for(int k = 0; k < defaultCertList.size(); k++)
+                  for(size_t k = 0; k < defaultCertList.size(); k++)
                     std::cout << "       +->* " << defaultCertList[k] << std::endl;
                   std::vector<Name> otherCertList;
                   keyChain.getAllCertificateNamesOfKey(otherKeyList[j], otherCertList, false);
-                  for(int k = 0; k < otherCertList.size(); k++)
+                  for(size_t k = 0; k < otherCertList.size(); k++)
                     std::cout << "       +->  " << otherCertList[k] << std::endl;
                 }
               std::cout << std::endl;

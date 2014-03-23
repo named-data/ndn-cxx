@@ -195,7 +195,7 @@ readVarNumber(InputIterator& begin, const InputIterator& end, uint64_t& number)
       if (end - begin < 2)
         return false;
 
-      uint16_t value = *reinterpret_cast<const uint16_t*>(&*begin); // kind of dangerous... but should be efficient
+      uint16_t value = *reinterpret_cast<const uint16_t*>(&*begin);
       begin += 2;
       number = be16toh(value);
     }
@@ -204,7 +204,7 @@ readVarNumber(InputIterator& begin, const InputIterator& end, uint64_t& number)
       if (end - begin < 4)
         return false;
 
-      uint32_t value = *reinterpret_cast<const uint32_t*>(&*begin); // kind of dangerous... but should be efficient
+      uint32_t value = *reinterpret_cast<const uint32_t*>(&*begin);
       begin += 4;
       number = be32toh(value);
     }
@@ -227,8 +227,8 @@ inline bool
 readType(InputIterator& begin, const InputIterator& end, uint32_t& type)
 {
   uint64_t number;
-  bool ok = readVarNumber(begin, end, number);
-  if (number > std::numeric_limits<uint32_t>::max())
+  bool isOk = readVarNumber(begin, end, number);
+  if (!isOk || number > std::numeric_limits<uint32_t>::max())
     {
       return false;
     }
@@ -255,7 +255,7 @@ readVarNumber(InputIterator& begin, const InputIterator& end)
       if (end - begin < 2)
         throw Error("Insufficient data during TLV processing");
 
-      uint16_t value = *reinterpret_cast<const uint16_t*>(&*begin); // kind of dangerous... but should be efficient
+      uint16_t value = *reinterpret_cast<const uint16_t*>(&*begin);
       begin += 2;
       return be16toh(value);
     }
@@ -264,7 +264,7 @@ readVarNumber(InputIterator& begin, const InputIterator& end)
       if (end - begin < 4)
         throw Error("Insufficient data during TLV processing");
 
-      uint32_t value = *reinterpret_cast<const uint32_t*>(&*begin); // kind of dangerous... but should be efficient
+      uint32_t value = *reinterpret_cast<const uint32_t*>(&*begin);
       begin += 4;
       return be32toh(value);
     }
@@ -423,7 +423,7 @@ readNonNegativeInteger(size_t size, InputIterator& begin, const InputIterator& e
       if (end - begin < 2)
         throw Error("Insufficient data during TLV processing");
 
-      uint16_t value = *reinterpret_cast<const uint16_t*>(&*begin); // kind of dangerous... but should be efficient
+      uint16_t value = *reinterpret_cast<const uint16_t*>(&*begin);
       begin += 2;
       return be16toh(value);
     }
@@ -432,7 +432,7 @@ readNonNegativeInteger(size_t size, InputIterator& begin, const InputIterator& e
       if (end - begin < 4)
         throw Error("Insufficient data during TLV processing");
 
-      uint32_t value = *reinterpret_cast<const uint32_t*>(&*begin); // kind of dangerous... but should be efficient
+      uint32_t value = *reinterpret_cast<const uint32_t*>(&*begin);
       begin += 4;
       return be32toh(value);
     }

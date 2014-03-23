@@ -95,7 +95,7 @@ ndnsec_cert_install(int argc, char** argv)
   bool systemDefault = true;
   bool identityDefault = false;
   bool keyDefault = false;
-  bool noDefault = false;
+  // bool noDefault = false;
   bool any = false;
 
   po::options_description desc("General Usage\n  ndnsec cert-install [-h] [-I|K|N] cert-file\nGeneral options");
@@ -148,7 +148,7 @@ ndnsec_cert_install(int argc, char** argv)
     }
   else if (vm.count("no-default"))
     {
-      noDefault = true;
+      // noDefault = true;
       systemDefault = false;
     }
 

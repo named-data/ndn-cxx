@@ -13,6 +13,7 @@
 #include "common.hpp"
 #include "encoding/block.hpp"
 #include "encoding/encoding-buffer.hpp"
+#include "util/string-helper.hpp"
 
 namespace ndn {
 namespace name {
@@ -24,101 +25,77 @@ class Component : public Block
 {
 public:
   /// @brief Error that can be thrown from the block
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
-  
+  struct Error : public std::runtime_error {
+    Error(const std::string& what) : std::runtime_error(what) {}
+  };
+
   /**
    * Create a new Name::Component with a null value.
    */
-  Component()
-    : Block(Tlv::NameComponent)
-  {    
-  }
+  Component();
 
   /**
    * @brief Directly create component from wire block
    *
-   * ATTENTION  wire MUST BE of type Tlv::Component. Any other value would cause an exception
+   * @throws Error if wire.type() is not Tlv::Component
    */
-  Component(const Block& wire)
-    : Block(wire)
-  {
-    if (type() != Tlv::NameComponent)
-      throw Error("Constructing name component from non name component TLV wire block");
-  }
-  
+  Component(const Block& wire);
+
   /**
    * Create a new Name::Component, taking another pointer to the Blob value.
    * @param value A blob with a pointer to an immutable array.  The pointer is copied.
    */
-  Component(const ConstBufferPtr &buffer)
-    : Block (Tlv::NameComponent, buffer)
-  {
-  }
-  
+  Component(const ConstBufferPtr& buffer);
+
   /**
    * Create a new Name::Component, copying the given value.
    * @param value The value byte array.
    */
-  Component(const Buffer& value) 
-    : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(value)))
-  {
-  }
+  Component(const Buffer& value);
 
   /**
    * Create a new Name::Component, copying the given value.
    * @param value Pointer to the value byte array.
    * @param valueLen Length of value.
    */
-  Component(const uint8_t *value, size_t valueLen) 
-    : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(value, valueLen)))
-  {
-  }
+  Component(const uint8_t *value, size_t valueLen);
 
   template<class InputIterator>
-  Component(InputIterator begin, InputIterator end)
-    : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(begin, end)))
-  {
-  }
+  Component(InputIterator begin, InputIterator end);
 
   explicit
-  Component(const char *str)
-    : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(str, ::strlen(str))))
-  {
-  }
+  Component(const char *str);
 
   explicit
-  Component(const std::string& str)
-    : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(str.begin(), str.end())))
-  {
-  }
-  
+  Component(const std::string& str);
+
   /**
    * @brief Fast encoding or block size estimation
    */
   template<bool T>
   size_t
-  wireEncode(EncodingImpl<T> &block) const;
-  
+  wireEncode(EncodingImpl<T>& block) const;
+
   /**
    * Make a Blob value by decoding the escapedString between beginOffset and endOffset according to the NDN URI Scheme.
-   * If the escaped string is "", "." or ".." then return a Blob with a null pointer, 
+   * If the escaped string is "", "." or ".." then return a Blob with a null pointer,
    * which means the component should be skipped in a URI name.
    * @param escapedString The escaped string.  It does not need to be null-terminated because we only scan to endOffset.
    * @param beginOffset The offset in escapedString of the beginning of the portion to decode.
    * @param endOffset The offset in escapedString of the end of the portion to decode.
    * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
    */
-  static Component 
+  static Component
   fromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset);
 
   /**
    * Make a Blob value by decoding the escapedString according to the NDN URI Scheme.
-   * If the escaped string is "", "." or ".." then return a Blob with a null pointer, 
+   * If the escaped string is "", "." or ".." then return a Blob with a null pointer,
    * which means the component should be skipped in a URI name.
    * @param escapedString The null-terminated escaped string.
    * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
    */
-  static Component 
+  static Component
   fromEscapedString(const char *escapedString)
   {
     return fromEscapedString(escapedString, 0, ::strlen(escapedString));
@@ -126,12 +103,12 @@ public:
 
   /**
    * Make a Blob value by decoding the escapedString according to the NDN URI Scheme.
-   * If the escaped string is "", "." or ".." then return a Blob with a null pointer, 
+   * If the escaped string is "", "." or ".." then return a Blob with a null pointer,
    * which means the component should be skipped in a URI name.
    * @param escapedString The escaped string.
    * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
    */
-  static Component 
+  static Component
   fromEscapedString(const std::string& escapedString)
   {
     return fromEscapedString(escapedString.c_str());
@@ -143,9 +120,9 @@ public:
    * @param value the buffer with the value to escape
    * @param result the string stream to write to.
    */
-  void 
+  void
   toEscapedString(std::ostream& result) const;
-  
+
   /**
    * Convert the value by escaping characters according to the NDN URI Scheme.
    * This also adds "..." to a value with zero or more ".".
@@ -171,7 +148,7 @@ public:
   {
     return toEscapedString();
   }
-    
+
   /**
    * @brief Interpret this name component as nonNegativeInteger
    *
@@ -202,7 +179,7 @@ public:
    * @param number The non-negative number
    * @return The component value.
    */
-  static Component 
+  static Component
   fromNumber(uint64_t number);
 
   /**
@@ -228,14 +205,14 @@ public:
   {
     return !hasValue();
   }
-    
+
   /**
    * Check if this is the same component as other.
    * @param other The other Component to compare with.
    * @return true if the components are equal, otherwise false.
    */
   bool
-  operator == (const Component& other) const { return equals(other); }
+  operator==(const Component& other) const { return equals(other); }
 
   /**
    * Check if this is not the same component as other.
@@ -243,8 +220,8 @@ public:
    * @return true if the components are not equal, otherwise false.
    */
   bool
-  operator != (const Component& other) const { return !equals(other); }
-    
+  operator!=(const Component& other) const { return !equals(other); }
+
   /**
    * Compare this to the other Component using NDN canonical ordering.
    * @param other The other Component to compare with.
@@ -255,24 +232,6 @@ public:
    */
   int
   compare(const Component& other) const;
-  
-  /**
-   * Return true if this is less than or equal to the other Component in the NDN canonical ordering.
-   * @param other The other Component to compare with.
-   *
-   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
-   */
-  bool
-  operator <= (const Component& other) const { return compare(other) <= 0; }
-  
-  /**
-   * Return true if this is less than the other Component in the NDN canonical ordering.
-   * @param other The other Component to compare with.
-   *
-   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
-   */
-  bool
-  operator < (const Component& other) const { return compare(other) < 0; }
 
   /**
    * Return true if this is less than or equal to the other Component in the NDN canonical ordering.
@@ -281,7 +240,25 @@ public:
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator >= (const Component& other) const { return compare(other) >= 0; }
+  operator<=(const Component& other) const { return compare(other) <= 0; }
+
+  /**
+   * Return true if this is less than the other Component in the NDN canonical ordering.
+   * @param other The other Component to compare with.
+   *
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   */
+  bool
+  operator<(const Component& other) const { return compare(other) < 0; }
+
+  /**
+   * Return true if this is less than or equal to the other Component in the NDN canonical ordering.
+   * @param other The other Component to compare with.
+   *
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   */
+  bool
+  operator>=(const Component& other) const { return compare(other) >= 0; }
 
   /**
    * Return true if this is greater than the other Component in the NDN canonical ordering.
@@ -290,19 +267,135 @@ public:
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator > (const Component& other) const { return compare(other) > 0; }
+  operator>(const Component& other) const { return compare(other) > 0; }
 
-  // 
+  //
   // !!! MUST NOT INCLUDE ANY DATA HERE !!!
   //
   // This class is just a helper and is directly reinterpret_cast'ed from Block
 };
 
-inline std::ostream &
-operator << (std::ostream &os, const Component &component)
+inline std::ostream&
+operator << (std::ostream& os, const Component& component)
 {
   component.toEscapedString(os);
   return os;
+}
+
+inline
+Component::Component()
+  : Block(Tlv::NameComponent)
+{
+}
+
+inline
+Component::Component(const Block& wire)
+  : Block(wire)
+{
+  if (type() != Tlv::NameComponent)
+    throw Error("Constructing name component from non name component TLV wire block");
+}
+
+inline
+Component::Component(const ConstBufferPtr& buffer)
+  : Block (Tlv::NameComponent, buffer)
+{
+}
+
+inline
+Component::Component(const Buffer& value)
+  : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(value)))
+{
+}
+
+inline
+Component::Component(const uint8_t *value, size_t valueLen)
+  : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(value, valueLen)))
+{
+}
+
+template<class InputIterator>
+inline
+Component::Component(InputIterator begin, InputIterator end)
+  : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(begin, end)))
+{
+}
+
+inline
+Component::Component(const char *str)
+  : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(str, ::strlen(str))))
+{
+}
+
+inline
+Component::Component(const std::string& str)
+  : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(str.begin(), str.end())))
+{
+}
+
+
+inline Component
+Component::fromEscapedString(const char* escapedString, size_t beginOffset, size_t endOffset)
+{
+  std::string trimmedString(escapedString + beginOffset, escapedString + endOffset);
+  trim(trimmedString);
+  std::string value = unescape(trimmedString);
+
+  if (value.find_first_not_of(".") == std::string::npos) {
+    // Special case for component of only periods.
+    if (value.size() <= 2)
+      // Zero, one or two periods is illegal.  Ignore this component.
+      return Component();
+    else
+      // Remove 3 periods.
+      return Component((const uint8_t *)&value[3], value.size() - 3);
+  }
+  else
+    return Component((const uint8_t *)&value[0], value.size());
+}
+
+
+inline void
+Component::toEscapedString(std::ostream& result) const
+{
+  const uint8_t *valuePtr = value();
+  size_t valueSize = value_size();
+
+  bool gotNonDot = false;
+  for (unsigned i = 0; i < valueSize; ++i) {
+    if (valuePtr[i] != 0x2e) {
+      gotNonDot = true;
+      break;
+    }
+  }
+  if (!gotNonDot) {
+    // Special case for component of zero or more periods.  Add 3 periods.
+    result << "...";
+    for (size_t i = 0; i < valueSize; ++i)
+      result << '.';
+  }
+  else {
+    // In case we need to escape, set to upper case hex and save the previous flags.
+    std::ios::fmtflags saveFlags = result.flags(std::ios::hex | std::ios::uppercase);
+
+    for (size_t i = 0; i < valueSize; ++i) {
+      uint8_t x = valuePtr[i];
+      // Check for 0-9, A-Z, a-z, (+), (-), (.), (_)
+      if ((x >= 0x30 && x <= 0x39) || (x >= 0x41 && x <= 0x5a) ||
+          (x >= 0x61 && x <= 0x7a) || x == 0x2b || x == 0x2d ||
+          x == 0x2e || x == 0x5f)
+        result << x;
+      else {
+        result << '%';
+        if (x < 16)
+          result << '0';
+        result << (unsigned int)x;
+      }
+    }
+
+    // Restore.
+    result.flags(saveFlags);
+  }
 }
 
 
@@ -333,6 +426,23 @@ Component::toSegment() const
 {
   return toNumber();
 }
+
+inline int
+Component::compare(const Component& other) const
+{
+  // Imitate ndn_Exclude_compareComponents.
+  if (value_size() < other.value_size())
+    return -1;
+  if (value_size() > other.value_size())
+    return 1;
+
+  if (value_size() == 0)
+    return 0;
+
+  // The components are equal length.  Just do a byte compare.
+  return std::memcmp(value(), other.value(), value_size());
+}
+
 
 template<bool T>
 inline size_t

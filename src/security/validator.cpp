@@ -249,7 +249,7 @@ Validator::verifySignature(const uint8_t* buf, const size_t size, const Signatur
           const uint8_t* p1 = buffer->buf();
           const uint8_t* p2 = sigValue.value();
 
-          for(int i = 0; i < crypto::SHA256_DIGEST_SIZE; i++)
+          for(size_t i = 0; i < crypto::SHA256_DIGEST_SIZE; i++)
             if(p1[i] != p2[i]) 
               return false;
           return true;

@@ -32,10 +32,10 @@ private:
   extractPattern(int index, int* next);
     
   int 
-  extractSubPattern(const char left, const char right, int index);
+  extractSubPattern(const char left, const char right, size_t index);
     
   int 
-  extractRepetition(int index);
+  extractRepetition(size_t index);
 
 private:
 
@@ -121,10 +121,10 @@ RegexPatternListMatcher::extractPattern(int index, int* next)
 }
   
 inline int 
-RegexPatternListMatcher::extractSubPattern(const char left, const char right, int index)
+RegexPatternListMatcher::extractSubPattern(const char left, const char right, size_t index)
 {
-  int lcount = 1;
-  int rcount = 0;
+  size_t lcount = 1;
+  size_t rcount = 0;
 
   while(lcount > rcount){
 
@@ -143,9 +143,9 @@ RegexPatternListMatcher::extractSubPattern(const char left, const char right, in
 }
 
 inline int 
-RegexPatternListMatcher::extractRepetition(int index)
+RegexPatternListMatcher::extractRepetition(size_t index)
 {
-  int exprSize = m_expr.size();
+  size_t exprSize = m_expr.size();
 
   if(index == exprSize)
     return index;
