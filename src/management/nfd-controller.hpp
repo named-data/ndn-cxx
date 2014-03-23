@@ -8,23 +8,20 @@
 #define NDN_MANAGEMENT_NFD_CONTROLLER_HPP
 
 #include "controller.hpp"
+#include "nfd-control-parameters.hpp"
 #include "../util/command-interest-generator.hpp"
 
 namespace ndn {
 
 namespace nfd {
 
-class FibManagementOptions;
-class FaceManagementOptions;
-class StrategyChoiceOptions;
-  
 class Controller : public ndn::Controller
 {
 public:
   typedef function<void(const FibManagementOptions&)> FibCommandSucceedCallback;
   typedef function<void(const FaceManagementOptions&)> FaceCommandSucceedCallback;
   typedef function<void(const StrategyChoiceOptions&)> StrategyChoiceCommandSucceedCallback;
-  
+
   /**
    * @brief Construct ndnd::Control object
    */
@@ -95,7 +92,7 @@ protected:
                              const StrategyChoiceOptions& options,
                              const StrategyChoiceCommandSucceedCallback& onSuccess,
                              const FailCallback& onFailure);
-  
+
 private:
   void
   processFibCommandResponse(Data& data,

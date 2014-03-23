@@ -17,27 +17,27 @@ namespace tlv {
 namespace nfd {
 
 enum {
+  // ControlParameters
+  ControlParameters   = 104,
+  FaceId              = 105,
+  Uri                 = 114,
+  LocalControlFeature = 110,
+  Cost                = 106,
+  Strategy            = 107,
+
+  // (deprecated)
+  FibManagementOptions  = ControlParameters,
+  FaceManagementOptions = ControlParameters,
+  StrategyChoiceOptions = ControlParameters,
+
   // ControlResponse
   ControlResponse = 101,
   StatusCode      = 102,
   StatusText      = 103,
 
-  // FIB Management Protocol
-  FibManagementOptions = 104,
-  FaceId          = 105,
-  Cost            = 106,
-
   // FIB Enumeration Protocol
   FibEntry        = 128,
   NextHopRecord   = 129,
-
-  // Face Management Protocol
-  FaceManagementOptions = 108,
-  Uri                   = 114,
-
-  // Strategy Choice Protocol
-  StrategyChoiceOptions = 115,
-  Strategy              = 107,
 
   // Face Status Protocol
   FaceStatus                   = 128,
