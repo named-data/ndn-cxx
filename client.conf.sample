@@ -1,7 +1,7 @@
 ; "unix_socket" specifies the location of the NFD unix socket
 unix_socket=/var/run/nfd.sock
 
-; "protocol" deteremines the protocol for prefix registration
+; "protocol" determines the protocol for prefix registration
 ; it has a value of:
 ;   nfd-0.1
 ;   nrd-0.1

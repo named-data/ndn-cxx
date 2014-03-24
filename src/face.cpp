@@ -90,7 +90,7 @@ Face::construct(const shared_ptr<Transport>& transport,
     {
       m_fwController = make_shared<nrd::Controller>(boost::ref(*this));
     }
-  if (isSupportedNfdProtocol(protocol))
+  else if (isSupportedNfdProtocol(protocol))
     {
       m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
     }
