@@ -244,107 +244,70 @@ readVarNumber(InputIterator& begin, const InputIterator& end)
   if (begin == end)
     throw Error("Empty buffer during TLV processing");
 
-  uint8_t firstOctet = *begin;
-  ++begin;
-  if (firstOctet < 253)
-    {
-      return firstOctet;
-    }
-  else if (firstOctet == 253)
-    {
-      if (end - begin < 2)
-        throw Error("Insufficient data during TLV processing");
+  uint64_t value;
+  bool isOk = readVarNumber(begin, end, value);
+  if (!isOk)
+    throw Error("Insufficient data during TLV processing");
 
-      uint16_t value = *reinterpret_cast<const uint16_t*>(&*begin);
-      begin += 2;
-      return be16toh(value);
-    }
-  else if (firstOctet == 254)
-    {
-      if (end - begin < 4)
-        throw Error("Insufficient data during TLV processing");
-
-      uint32_t value = *reinterpret_cast<const uint32_t*>(&*begin);
-      begin += 4;
-      return be32toh(value);
-    }
-  else // if (firstOctet == 255)
-    {
-      if (end - begin < 8)
-        throw Error("Insufficient data during TLV processing");
-
-      uint64_t value = *reinterpret_cast<const uint64_t*>(&*begin);
-      begin += 8;
-
-      return be64toh(value);
-    }
+  return value;
 }
 
 template<>
-inline uint64_t
+inline bool
 readVarNumber<std::istream_iterator<uint8_t> >(std::istream_iterator<uint8_t>& begin,
-                                               const std::istream_iterator<uint8_t>& end)
+                                               const std::istream_iterator<uint8_t>& end,
+                                               uint64_t& value)
 {
   if (begin == end)
-    throw Error("Empty buffer during TLV processing");
+    return false;
 
   uint8_t firstOctet = *begin;
   ++begin;
   if (firstOctet < 253)
     {
-      return firstOctet;
+      value = firstOctet;
     }
   else if (firstOctet == 253)
     {
-      uint8_t buffer[2];
-      int count = 0;
+      value = 0;
+      size_t count = 0;
+      for (; begin != end && count < 2; ++count)
+        {
+          value = ((value << 8) | *begin);
+          begin++;
+        }
 
-      while(begin != end && count < 2){
-        buffer[count] = *begin;
-        begin++;
-        count++;
-      }
-
-      if (count < 2)
-        throw Error("Insufficient data during TLV processing");
-
-      uint16_t value = *reinterpret_cast<const uint16_t*>(buffer);
-      return be16toh(value);
+      if (count != 2)
+        return false;
     }
   else if (firstOctet == 254)
     {
-      uint8_t buffer[4];
-      int count = 0;
+      value = 0;
+      size_t count = 0;
+      for (; begin != end && count < 4; ++count)
+        {
+          value = ((value << 8) | *begin);
+          begin++;
+        }
 
-      while(begin != end && count < 4){
-        buffer[count] = *begin;
-        begin++;
-        count++;
-      }
-
-      if (count < 4)
-        throw Error("Insufficient data during TLV processing");
-
-      uint32_t value = *reinterpret_cast<const uint32_t*>(buffer);
-      return be32toh(value);
+      if (count != 4)
+        return false;
     }
   else // if (firstOctet == 255)
     {
-      uint8_t buffer[8];
-      int count = 0;
+      value = 0;
+      size_t count = 0;
+      for (; begin != end && count < 8; ++count)
+        {
+          value = ((value << 8) | *begin);
+          begin++;
+        }
 
-      while(begin != end && count < 8){
-        buffer[count] = *begin;
-        begin++;
-        count++;
-      }
-
-      if (count < 8)
-        throw Error("Insufficient data during TLV processing");
-
-      uint64_t value = *reinterpret_cast<const uint64_t*>(buffer);
-      return be64toh(value);
+      if (count != 8)
+        return false;
     }
+
+  return true;
 }
 
 template<class InputIterator>
@@ -461,60 +424,54 @@ readNonNegativeInteger<std::istream_iterator<uint8_t> >(size_t size,
       if (begin == end)
         throw Error("Insufficient data during TLV processing");
 
-      uint8_t value = *begin;
+      uint64_t value = *begin;
       begin++;
       return value;
     }
   case 2:
     {
-      uint8_t buffer[2];
-      int count = 0;
+      uint64_t value = 0;
+      size_t count = 0;
+      for (; begin != end && count < 2; ++count)
+        {
+          value = ((value << 8) | *begin);
+          begin++;
+        }
 
-      while (begin != end && count < 2) {
-        buffer[count] = *begin;
-        begin++;
-        count++;
-      }
-
-      if (count < 2)
+      if (count != 2)
         throw Error("Insufficient data during TLV processing");
 
-      uint16_t value = *reinterpret_cast<const uint16_t*>(buffer);
-      return be16toh(value);
+      return value;
     }
   case 4:
     {
-      uint8_t buffer[4];
-      int count = 0;
+      uint64_t value = 0;
+      size_t count = 0;
+      for (; begin != end && count < 4; ++count)
+        {
+          value = ((value << 8) | *begin);
+          begin++;
+        }
 
-      while (begin != end && count < 4) {
-        buffer[count] = *begin;
-        begin++;
-        count++;
-      }
-
-      if (count < 4)
+      if (count != 4)
         throw Error("Insufficient data during TLV processing");
 
-      uint32_t value = *reinterpret_cast<const uint32_t*>(buffer);
-      return be32toh(value);
+      return value;
     }
   case 8:
     {
-      uint8_t buffer[8];
-      int count = 0;
+      uint64_t value = 0;
+      size_t count = 0;
+      for (; begin != end && count < 8; ++count)
+        {
+          value = ((value << 8) | *begin);
+          begin++;
+        }
 
-      while (begin != end && count < 8){
-        buffer[count] = *begin;
-        begin++;
-        count++;
-      }
-
-      if (count < 8)
+      if (count != 8)
         throw Error("Insufficient data during TLV processing");
 
-      uint64_t value = *reinterpret_cast<const uint64_t*>(buffer);
-      return be64toh(value);
+      return value;
     }
   }
   throw Error("Invalid length for nonNegativeInteger (only 1, 2, 4, and 8 are allowed)");
