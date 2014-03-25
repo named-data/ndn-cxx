@@ -36,6 +36,7 @@ std::string ndnsec_helper("\
   cert-gen     Generate an identity certificate.\n\
   cert-dump    Dump a certificate from PublicInfo.\n\
   cert-install Install a certificate into PublicInfo.\n\
+  delete       Delete identity/key/certificate.\n\
   export       Export an identity package.\n\
   import       Import an identity package.\n\
   sig-verify   Verify the signature of a Data packet.\n\
@@ -44,9 +45,10 @@ std::string ndnsec_helper("\
   op-tool      Operator tool.\n\
 "); 
 
-int main(int argc, char** argv)
+int 
+main(int argc, char** argv)
 {
-  if(argc < 1)
+  if (argc < 1)
     {
       std::cerr << ndnsec_helper << std::endl;
       return 1;
@@ -54,22 +56,23 @@ int main(int argc, char** argv)
 
   std::string command(argv[1]);
   
-  if(command == "help") { std::cerr << ndnsec_helper << std::endl; }
-  else if (command == "list")         { return ndnsec_list(argc-1, argv+1); }
-  else if (command == "get-default")  { return ndnsec_get_default(argc-1, argv+1); }
-  else if (command == "set-default")  { return ndnsec_set_default(argc-1, argv+1); }
-  else if (command == "key-gen")      { return ndnsec_key_gen(argc-1, argv+1); }
-  else if (command == "dsk-gen")      { return ndnsec_dsk_gen(argc-1, argv+1); }
-  else if (command == "sign-req")     { return ndnsec_sign_req(argc-1, argv+1); }
-  else if (command == "cert-gen")     { return ndnsec_cert_gen(argc-1, argv+1); }
-  else if (command == "cert-dump")    { return ndnsec_cert_dump(argc-1, argv+1); }
-  else if (command == "cert-install") { return ndnsec_cert_install(argc-1, argv+1); }
-  else if (command == "export")       { return ndnsec_export(argc-1, argv+1); }
-  else if (command == "import")       { return ndnsec_import(argc-1, argv+1); }
-  else if (command == "sig-verify")   { return ndnsec_sig_verify(argc-1, argv+1); }
-  else if (command == "set-acl")      { return ndnsec_set_acl(argc-1, argv+1); }
-  else if (command == "unlock-tpm")   { return ndnsec_unlock_tpm(argc-1, argv+1); }
-  else if (command == "op-tool")      { return ndnsec_op_tool(argc-1, argv+1); }
+  if (command == "help")              { std::cerr << ndnsec_helper << std::endl; }
+  else if (command == "list")         { return ndnsec_list(argc - 1, argv + 1); }
+  else if (command == "get-default")  { return ndnsec_get_default(argc - 1, argv + 1); }
+  else if (command == "set-default")  { return ndnsec_set_default(argc - 1, argv + 1); }
+  else if (command == "key-gen")      { return ndnsec_key_gen(argc - 1, argv + 1); }
+  else if (command == "dsk-gen")      { return ndnsec_dsk_gen(argc - 1, argv + 1); }
+  else if (command == "sign-req")     { return ndnsec_sign_req(argc - 1, argv + 1); }
+  else if (command == "cert-gen")     { return ndnsec_cert_gen(argc - 1, argv + 1); }
+  else if (command == "cert-dump")    { return ndnsec_cert_dump(argc - 1, argv + 1); }
+  else if (command == "cert-install") { return ndnsec_cert_install(argc - 1, argv + 1); }
+  else if (command == "delete")       { return ndnsec_delete(argc - 1, argv + 1); }
+  else if (command == "export")       { return ndnsec_export(argc - 1, argv + 1); }
+  else if (command == "import")       { return ndnsec_import(argc - 1, argv + 1); }
+  else if (command == "sig-verify")   { return ndnsec_sig_verify(argc - 1, argv + 1); }
+  else if (command == "set-acl")      { return ndnsec_set_acl(argc - 1, argv + 1); }
+  else if (command == "unlock-tpm")   { return ndnsec_unlock_tpm(argc - 1, argv + 1); }
+  else if (command == "op-tool")      { return ndnsec_op_tool(argc - 1, argv + 1); }
   else {
     std::cerr << ndnsec_helper << std::endl;
     return 1;
