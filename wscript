@@ -46,34 +46,38 @@ def configure(conf):
 
     conf.check_openssl()
 
-    custom_cxxflags = (len(conf.env.CXXFLAGS) > 0)
+    areCustomCxxflagsPresent = (len(conf.env.CXXFLAGS) > 0)
+    if conf.options.debug:
+        conf.define('_DEBUG', 1)
+        defaultFlags = ['-O0', '-g3',
+                        '-Werror',
+                        '-Wall',
+                        '-fcolor-diagnostics', # only clang supports
 
-    if not custom_cxxflags:
-        if conf.options.debug:
-            conf.define ('_DEBUG', 1)
+                        # to disable known warnings
+                        '-Wno-unused-variable', # cryptopp
+                        '-Wno-unused-function',
+                        '-Wno-deprecated-declarations',
+                        ]
 
-            conf.add_supported_cxxflags(cxxflags = [
-                    '-O0', '-g3',
-                    '-Werror',
-                    '-fcolor-diagnostics', # only clang supports
-                ])
+        if areCustomCxxflagsPresent:
+            missingFlags = [x for x in defaultFlags if x not in conf.env.CXXFLAGS]
+            if len(missingFlags) > 0:
+                Logs.warn("Selected debug mode, but CXXFLAGS is set to a custom value '%s'"
+                           % " ".join(conf.env.CXXFLAGS))
+                Logs.warn("Default flags '%s' are not activated" % " ".join(missingFlags))
         else:
-            if len(conf.env.CXXFLAGS) == 0:
-                conf.add_supported_cxxflags(cxxflags = ['-O2', '-g'])
+            conf.add_supported_cxxflags(cxxflags = defaultFlags)
+    else:
+        defaultFlags = ['-O2', '-g', '-Wall',
 
-        conf.add_supported_cxxflags(cxxflags = [
-                '-Wall',
-
-                # to disable known warnings
-                '-Wno-unused-variable', # cryptopp
-                '-Wno-unused-function',
-                '-Wno-deprecated-declarations',
-            ])
-    elif conf.options.debug:
-        Logs.error("Selected debug mode, but CXXFLAGS is set to a custom value '%s'"
-                   % " ".join(conf.env.CXXFLAGS))
-        conf.fatal("Unset CXXFLAGS or remove --debug option to proceed")
-        return 1
+                        # to disable known warnings
+                        '-Wno-unused-variable', # cryptopp
+                        '-Wno-unused-function',
+                        '-Wno-deprecated-declarations',
+                        ]
+        if not areCustomCxxflagsPresent:
+            conf.add_supported_cxxflags(cxxflags = defaultFlags)
 
     if Utils.unversioned_sys_platform () == "darwin":
         conf.check_cxx(framework_name='CoreFoundation', uselib_store='OSX_COREFOUNDATION', mandatory=True)
