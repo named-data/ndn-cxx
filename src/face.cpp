@@ -110,12 +110,12 @@ Face::expressInterest(const Interest& interest, const OnData& onData, const OnTi
   if (!m_transport->isConnected())
     m_transport->connect(*m_ioService,
                         bind(&Face::onReceiveElement, this, _1));
-  else if (!m_transport->isExpectingData())
-      m_transport->resume();
 
   shared_ptr<const Interest> interestToExpress(new Interest(interest));
 
-  m_ioService->post(bind(&Face::asyncExpressInterest, this, interestToExpress, onData, onTimeout));
+  // If the same ioService thread, dispatch directly calls the method
+  m_ioService->dispatch(bind(&Face::asyncExpressInterest, this,
+                             interestToExpress, onData, onTimeout));
 
   return reinterpret_cast<const PendingInterestId*>(interestToExpress.get());
 }
@@ -140,6 +140,9 @@ void
 Face::asyncExpressInterest(const shared_ptr<const Interest>& interest,
                            const OnData& onData, const OnTimeout& onTimeout)
 {
+  if (!m_transport->isExpectingData())
+    m_transport->resume();
+
   m_pendingInterestTable.push_back(shared_ptr<PendingInterest>(new PendingInterest
                                                                (interest, onData, onTimeout)));
 
