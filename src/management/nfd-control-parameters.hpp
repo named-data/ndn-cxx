@@ -18,6 +18,25 @@ typedef ControlParameters FaceManagementOptions;
 typedef ControlParameters FibManagementOptions;
 typedef ControlParameters StrategyChoiceOptions;
 
+enum ControlParameterField {
+  CONTROL_PARAMETER_NAME,
+  CONTROL_PARAMETER_FACE_ID,
+  CONTROL_PARAMETER_URI,
+  CONTROL_PARAMETER_LOCAL_CONTROL_FEATURE,
+  CONTROL_PARAMETER_COST,
+  CONTROL_PARAMETER_STRATEGY,
+  CONTROL_PARAMETER_UBOUND
+};
+
+const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
+  "Name",
+  "FaceId",
+  "Uri",
+  "LocalControlFeature",
+  "Cost",
+  "Strategy",
+};
+
 enum LocalControlFeature {
   LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID = 1,
   LOCAL_CONTROL_FEATURE_NEXT_HOP_FACE_ID = 2
@@ -35,10 +54,14 @@ public:
     }
   };
 
-  ControlParameters();
+  ControlParameters()
+    : m_hasFields(CONTROL_PARAMETER_UBOUND)
+  {
+  }
 
   explicit
   ControlParameters(const Block& block)
+    : m_hasFields(CONTROL_PARAMETER_UBOUND)
   {
     wireDecode(block);
   }
@@ -57,13 +80,13 @@ public: // getters & setters
   bool
   hasName() const
   {
-    return m_hasName;
+    return m_hasFields[CONTROL_PARAMETER_NAME];
   }
 
   const Name&
   getName() const
   {
-    BOOST_ASSERT(m_hasName);
+    BOOST_ASSERT(this->hasName());
     return m_name;
   }
 
@@ -72,7 +95,7 @@ public: // getters & setters
   {
     m_wire.reset();
     m_name = name;
-    m_hasName = true;
+    m_hasFields[CONTROL_PARAMETER_NAME] = true;
     return *this;
   }
 
@@ -80,20 +103,20 @@ public: // getters & setters
   unsetName()
   {
     m_wire.reset();
-    m_hasName = false;
+    m_hasFields[CONTROL_PARAMETER_NAME] = false;
     return *this;
   }
 
   bool
   hasFaceId() const
   {
-    return m_hasFaceId;
+    return m_hasFields[CONTROL_PARAMETER_FACE_ID];
   }
 
   uint64_t
   getFaceId() const
   {
-    BOOST_ASSERT(m_hasFaceId);
+    BOOST_ASSERT(this->hasFaceId());
     return m_faceId;
   }
 
@@ -102,7 +125,7 @@ public: // getters & setters
   {
     m_wire.reset();
     m_faceId = faceId;
-    m_hasFaceId = true;
+    m_hasFields[CONTROL_PARAMETER_FACE_ID] = true;
     return *this;
   }
 
@@ -110,20 +133,20 @@ public: // getters & setters
   unsetFaceId()
   {
     m_wire.reset();
-    m_hasFaceId = false;
+    m_hasFields[CONTROL_PARAMETER_FACE_ID] = false;
     return *this;
   }
 
   bool
   hasUri() const
   {
-    return m_hasUri;
+    return m_hasFields[CONTROL_PARAMETER_URI];
   }
 
   const std::string&
   getUri() const
   {
-    BOOST_ASSERT(m_hasUri);
+    BOOST_ASSERT(this->hasUri());
     return m_uri;
   }
 
@@ -132,7 +155,7 @@ public: // getters & setters
   {
     m_wire.reset();
     m_uri = uri;
-    m_hasUri = true;
+    m_hasFields[CONTROL_PARAMETER_URI] = true;
     return *this;
   }
 
@@ -140,20 +163,20 @@ public: // getters & setters
   unsetUri()
   {
     m_wire.reset();
-    m_hasUri = false;
+    m_hasFields[CONTROL_PARAMETER_URI] = false;
     return *this;
   }
 
   bool
   hasLocalControlFeature() const
   {
-    return m_hasLocalControlFeature;
+    return m_hasFields[CONTROL_PARAMETER_LOCAL_CONTROL_FEATURE];
   }
 
   LocalControlFeature
   getLocalControlFeature() const
   {
-    BOOST_ASSERT(m_hasLocalControlFeature);
+    BOOST_ASSERT(this->hasLocalControlFeature());
     return m_localControlFeature;
   }
 
@@ -162,7 +185,7 @@ public: // getters & setters
   {
     m_wire.reset();
     m_localControlFeature = localControlFeature;
-    m_hasLocalControlFeature = true;
+    m_hasFields[CONTROL_PARAMETER_LOCAL_CONTROL_FEATURE] = true;
     return *this;
   }
 
@@ -170,20 +193,20 @@ public: // getters & setters
   unsetLocalControlFeature()
   {
     m_wire.reset();
-    m_hasLocalControlFeature = false;
+    m_hasFields[CONTROL_PARAMETER_LOCAL_CONTROL_FEATURE] = false;
     return *this;
   }
 
   bool
   hasCost() const
   {
-    return m_hasCost;
+    return m_hasFields[CONTROL_PARAMETER_COST];
   }
 
   uint64_t
   getCost() const
   {
-    BOOST_ASSERT(m_hasCost);
+    BOOST_ASSERT(this->hasCost());
     return m_cost;
   }
 
@@ -192,7 +215,7 @@ public: // getters & setters
   {
     m_wire.reset();
     m_cost = cost;
-    m_hasCost = true;
+    m_hasFields[CONTROL_PARAMETER_COST] = true;
     return *this;
   }
 
@@ -200,20 +223,20 @@ public: // getters & setters
   unsetCost()
   {
     m_wire.reset();
-    m_hasCost = false;
+    m_hasFields[CONTROL_PARAMETER_COST] = false;
     return *this;
   }
 
   bool
   hasStrategy() const
   {
-    return m_hasStrategy;
+    return m_hasFields[CONTROL_PARAMETER_STRATEGY];
   }
 
   const Name&
   getStrategy() const
   {
-    BOOST_ASSERT(m_hasStrategy);
+    BOOST_ASSERT(this->hasStrategy());
     return m_strategy;
   }
 
@@ -222,7 +245,7 @@ public: // getters & setters
   {
     m_wire.reset();
     m_strategy = strategy;
-    m_hasStrategy = true;
+    m_hasFields[CONTROL_PARAMETER_STRATEGY] = true;
     return *this;
   }
 
@@ -230,11 +253,19 @@ public: // getters & setters
   unsetStrategy()
   {
     m_wire.reset();
-    m_hasStrategy = false;
+    m_hasFields[CONTROL_PARAMETER_STRATEGY] = false;
     return *this;
   }
 
+  const std::vector<bool>&
+  getPresentFields() const
+  {
+    return m_hasFields;
+  }
+
 private: // fields
+  std::vector<bool>   m_hasFields;
+
   Name                m_name;
   uint64_t            m_faceId;
   std::string         m_uri;
@@ -242,28 +273,10 @@ private: // fields
   uint64_t            m_cost;
   Name                m_strategy;
 
-  bool m_hasName;
-  bool m_hasFaceId;
-  bool m_hasUri;
-  bool m_hasLocalControlFeature;
-  bool m_hasCost;
-  bool m_hasStrategy;
-
 private:
   mutable Block m_wire;
 };
 
-
-inline
-ControlParameters::ControlParameters()
-  : m_hasName(false)
-  , m_hasFaceId(false)
-  , m_hasUri(false)
-  , m_hasLocalControlFeature(false)
-  , m_hasCost(false)
-  , m_hasStrategy(false)
-{
-}
 
 template<bool T>
 inline size_t
@@ -271,27 +284,27 @@ ControlParameters::wireEncode(EncodingImpl<T>& encoder) const
 {
   size_t totalLength = 0;
 
-  if (m_hasStrategy) {
+  if (this->hasStrategy()) {
     totalLength += prependNestedBlock(encoder, tlv::nfd::Strategy, m_strategy);
   }
-  if (m_hasCost) {
+  if (this->hasCost()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Cost, m_cost);
   }
-  if (m_hasLocalControlFeature) {
+  if (this->hasLocalControlFeature()) {
     totalLength += prependNonNegativeIntegerBlock(encoder,
                    tlv::nfd::LocalControlFeature, m_localControlFeature);
   }
-  if (m_hasUri) {
+  if (this->hasUri()) {
     size_t valLength = encoder.prependByteArray(
                        reinterpret_cast<const uint8_t*>(m_uri.c_str()), m_uri.size());
     totalLength += valLength;
     totalLength += encoder.prependVarNumber(valLength);
     totalLength += encoder.prependVarNumber(tlv::nfd::Uri);
   }
-  if (m_hasFaceId) {
+  if (this->hasFaceId()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FaceId, m_faceId);
   }
-  if (m_hasName) {
+  if (this->hasName()) {
     totalLength += m_name.wireEncode(encoder);
   }
 
@@ -327,38 +340,38 @@ ControlParameters::wireDecode(const Block& block)
   Block::element_const_iterator val;
 
   val = m_wire.find(Tlv::Name);
-  m_hasName = val != m_wire.elements_end();
-  if (m_hasName) {
+  m_hasFields[CONTROL_PARAMETER_NAME] = val != m_wire.elements_end();
+  if (this->hasName()) {
     m_name.wireDecode(*val);
   }
 
   val = m_wire.find(tlv::nfd::FaceId);
-  m_hasFaceId = val != m_wire.elements_end();
-  if (m_hasFaceId) {
+  m_hasFields[CONTROL_PARAMETER_FACE_ID] = val != m_wire.elements_end();
+  if (this->hasFaceId()) {
     m_faceId = static_cast<uint64_t>(readNonNegativeInteger(*val));
   }
 
   val = m_wire.find(tlv::nfd::Uri);
-  m_hasUri = val != m_wire.elements_end();
-  if (m_hasUri) {
+  m_hasFields[CONTROL_PARAMETER_URI] = val != m_wire.elements_end();
+  if (this->hasUri()) {
     m_uri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
   }
 
   val = m_wire.find(tlv::nfd::LocalControlFeature);
-  m_hasLocalControlFeature = val != m_wire.elements_end();
-  if (m_hasLocalControlFeature) {
+  m_hasFields[CONTROL_PARAMETER_LOCAL_CONTROL_FEATURE] = val != m_wire.elements_end();
+  if (this->hasLocalControlFeature()) {
     m_localControlFeature = static_cast<LocalControlFeature>(readNonNegativeInteger(*val));
   }
 
   val = m_wire.find(tlv::nfd::Cost);
-  m_hasCost = val != m_wire.elements_end();
-  if (m_hasCost) {
+  m_hasFields[CONTROL_PARAMETER_COST] = val != m_wire.elements_end();
+  if (this->hasCost()) {
     m_cost = static_cast<uint64_t>(readNonNegativeInteger(*val));
   }
 
   val = m_wire.find(tlv::nfd::Strategy);
-  m_hasStrategy = val != m_wire.elements_end();
-  if (m_hasStrategy) {
+  m_hasFields[CONTROL_PARAMETER_STRATEGY] = val != m_wire.elements_end();
+  if (this->hasStrategy()) {
     val->parse();
     if (val->elements().empty()) {
       throw Error("expecting Strategy/Name");
