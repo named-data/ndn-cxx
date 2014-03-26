@@ -184,7 +184,9 @@ public:
   /**
    * @brief Sign packet with default identity
    *
-   * on return signatureInfo and signatureValue in the packet are set.
+   * On return, signatureInfo and signatureValue in the packet are set.
+   * If default identity does not exist, 
+   * a temporary identity will be created and set as default.
    *
    * @param packet The packet to be signed
    */
@@ -192,23 +194,25 @@ public:
   void
   sign(T& packet)
   {
-    if (!Info::defaultCertificate())
+    if (!static_cast<bool>(Info::defaultCertificate()))
       {
         Info::refreshDefaultCertificate();
 
-        if(!Info::defaultCertificate())
+        if (!static_cast<bool>(Info::defaultCertificate()))
           {
             Name defaultIdentity;
             try
               {
                 defaultIdentity = Info::getDefaultIdentity();
               }
-            catch(InfoError& e)
+            catch (InfoError& e)
               {
                 uint32_t random = random::generateWord32();
-                defaultIdentity.append("tmp-identity").append(reinterpret_cast<uint8_t*>(&random), 4);
+                defaultIdentity.append("tmp-identity")
+                  .append(reinterpret_cast<uint8_t*>(&random), 4);
               }
             createIdentity(defaultIdentity);
+            Info::setDefaultIdentity(defaultIdentity);
             Info::refreshDefaultCertificate();
           }
       }
