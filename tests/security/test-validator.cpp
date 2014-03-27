@@ -14,7 +14,7 @@ using namespace std;
 
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(TestValidator)
+BOOST_AUTO_TEST_SUITE(SecurityTestValidator)
 
 void
 onValidated(const shared_ptr<const Data>& data)

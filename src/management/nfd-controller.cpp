@@ -69,7 +69,7 @@ Controller::processCommandResponse(const Data& data,
 void
 Controller::selfRegisterPrefix(const Name& prefixToRegister,
                                const SuccessCallback& onSuccess,
-                               const FailCallback&    onFail)
+                               const FailCallback& onFail)
 {
   const uint32_t selfFaceId = 0;
 
@@ -85,7 +85,7 @@ Controller::selfRegisterPrefix(const Name& prefixToRegister,
 void
 Controller::selfDeregisterPrefix(const Name& prefixToDeRegister,
                                  const SuccessCallback& onSuccess,
-                                 const FailCallback&    onFail)
+                                 const FailCallback& onFail)
 {
   const uint32_t selfFaceId = 0;
 
@@ -97,102 +97,6 @@ Controller::selfDeregisterPrefix(const Name& prefixToDeRegister,
                                        bind(onSuccess),
                                        bind(onFail, _2));
 }
-
-void
-Controller::fibAddNextHop(const Name& prefix, uint64_t faceId, int cost,
-                          const FibCommandSucceedCallback& onSuccess,
-                          const FailCallback& onFail)
-{
-  BOOST_ASSERT(cost >= 0);
-
-  ControlParameters parameters;
-  parameters.setName(prefix)
-            .setFaceId(faceId)
-            .setCost(static_cast<uint64_t>(cost));
-
-  this->start<FibAddNextHopCommand>(parameters,
-                                    onSuccess,
-                                    bind(onFail, _2));
-}
-
-void
-Controller::fibRemoveNextHop(const Name& prefix, uint64_t faceId,
-                             const FibCommandSucceedCallback& onSuccess,
-                             const FailCallback& onFail)
-{
-  ControlParameters parameters;
-  parameters.setName(prefix)
-            .setFaceId(faceId);
-
-  this->start<FibRemoveNextHopCommand>(parameters,
-                                       onSuccess,
-                                       bind(onFail, _2));
-}
-
-void
-Controller::startFibCommand(const std::string& command,
-                            const FibManagementOptions& options,
-                            const FibCommandSucceedCallback& onSuccess,
-                            const FailCallback& onFail)
-{
-  if (command == "add-nexthop") {
-    this->start<FibAddNextHopCommand>(options,
-                                      onSuccess,
-                                      bind(onFail, _2));
-  }
-  else if (command == "remove-nexthop") {
-    this->start<FibRemoveNextHopCommand>(options,
-                                         onSuccess,
-                                         bind(onFail, _2));
-  }
-  else {
-    onFail("unknown command");
-  }
-}
-
-void
-Controller::startFaceCommand(const std::string& command,
-                             const FaceManagementOptions& options,
-                             const FaceCommandSucceedCallback& onSuccess,
-                             const FailCallback& onFail)
-{
-  if (command == "create") {
-    this->start<FaceCreateCommand>(options,
-                                   onSuccess,
-                                   bind(onFail, _2));
-  }
-  else if (command == "destroy") {
-    this->start<FaceDestroyCommand>(options,
-                                    onSuccess,
-                                    bind(onFail, _2));
-  }
-  // enable-local-control and disable-local-control are not in legacy API.
-  else {
-    onFail("unknown command");
-  }
-}
-
-void
-Controller::startStrategyChoiceCommand(const std::string& command,
-                                       const StrategyChoiceOptions& options,
-                                       const StrategyChoiceCommandSucceedCallback& onSuccess,
-                                       const FailCallback& onFail)
-{
-  if (command == "set") {
-    this->start<StrategyChoiceSetCommand>(options,
-                                          onSuccess,
-                                          bind(onFail, _2));
-  }
-  else if (command == "unset") {
-    this->start<StrategyChoiceUnsetCommand>(options,
-                                            onSuccess,
-                                            bind(onFail, _2));
-  }
-  else {
-    onFail("unknown command");
-  }
-}
-
 
 } // namespace nfd
 } // namespace ndn

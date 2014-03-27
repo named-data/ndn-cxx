@@ -11,7 +11,7 @@
 namespace ndn {
 namespace nfd {
 
-BOOST_AUTO_TEST_SUITE(NfdFaceStatus)
+BOOST_AUTO_TEST_SUITE(ManagementTestNfdFaceStatus)
 
 BOOST_AUTO_TEST_CASE(Encode)
 {

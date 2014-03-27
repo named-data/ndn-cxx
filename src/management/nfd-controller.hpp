@@ -35,8 +35,8 @@ public:
   template<typename Command>
   void
   start(const ControlParameters& parameters,
-               const CommandSucceedCallback& onSuccess,
-               const CommandFailCallback&    onFailure);
+        const CommandSucceedCallback& onSuccess,
+        const CommandFailCallback& onFailure);
 
 public: // selfreg
   virtual void
@@ -48,81 +48,6 @@ public: // selfreg
   selfDeregisterPrefix(const Name& prefixToDeRegister,
                        const SuccessCallback& onSuccess,
                        const FailCallback&    onFail);
-
-public:
-  /** \deprecated use CommandSucceedCallback instead
-   */
-  typedef function<void(const FibManagementOptions&)> FibCommandSucceedCallback;
-  /** \deprecated use CommandSucceedCallback instead
-   */
-  typedef function<void(const FaceManagementOptions&)> FaceCommandSucceedCallback;
-  /** \deprecated use CommandSucceedCallback instead
-   */
-  typedef function<void(const StrategyChoiceOptions&)> StrategyChoiceCommandSucceedCallback;
-
-  /**
-   * \brief Adds a nexthop to an existing or new FIB entry
-   * \deprecated use startCommand instead
-   *
-   * If FIB entry for the specified prefix does not exist, it will be automatically created.
-   *
-   * \param prefix    Prefix of the FIB entry
-   * \param faceId    ID of the face which should be added as a next hop for prefix FIB entry.
-   *                  If a nexthop of same FaceId exists on the FIB entry, its cost is updated.
-   *                  If FaceId is set to zero, it is implied as the face of the entity sending
-   *                  this command.
-   * \param cost      Cost that should be associated with the next hop
-   * \param onSuccess Callback that will be called when operation succeeds
-   * \param onFail    Callback that will be called when operation fails
-   */
-  void
-  fibAddNextHop(const Name& prefix, uint64_t faceId, int cost,
-                const FibCommandSucceedCallback& onSuccess,
-                const FailCallback& onFail);
-
-  /**
-   * \brief Remove a nexthop from FIB entry
-   * \deprecated use startCommand instead
-   *
-   * If after removal of the nexthop FIB entry has zero next hops, this FIB entry will
-   * be automatically deleted.
-   *
-   * \param prefix    Prefix of the FIB entry
-   * \param faceId    ID of the face which should be removed FIB entry.
-   *                  If FaceId is set to zero, it is implied as the face of the entity sending
-   *                  this command.
-   * \param onSuccess Callback that will be called when operation succeeds
-   * \param onFail    Callback that will be called when operation fails
-   */
-  void
-  fibRemoveNextHop(const Name& prefix, uint64_t faceId,
-                   const FibCommandSucceedCallback& onSuccess,
-                   const FailCallback& onFail);
-
-protected:
-  /** \deprecated use startCommand instead
-   */
-  void
-  startFibCommand(const std::string& command,
-                  const FibManagementOptions& options,
-                  const FibCommandSucceedCallback& onSuccess,
-                  const FailCallback& onFailure);
-
-  /** \deprecated use startCommand instead
-   */
-  void
-  startFaceCommand(const std::string& command,
-                   const FaceManagementOptions& options,
-                   const FaceCommandSucceedCallback& onSuccess,
-                   const FailCallback& onFailure);
-
-  /** \deprecated use startCommand instead
-   */
-  void
-  startStrategyChoiceCommand(const std::string& command,
-                             const StrategyChoiceOptions& options,
-                             const StrategyChoiceCommandSucceedCallback& onSuccess,
-                             const FailCallback& onFailure);
 
 private:
   void

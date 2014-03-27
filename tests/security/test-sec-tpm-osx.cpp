@@ -13,7 +13,7 @@
 using namespace std;
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(TestSecTpmOsx)
+BOOST_AUTO_TEST_SUITE(SecurityTestSecTpmOsx)
 
 BOOST_AUTO_TEST_CASE (Delete)
 {

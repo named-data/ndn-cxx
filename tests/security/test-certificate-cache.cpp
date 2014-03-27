@@ -13,7 +13,7 @@ using namespace std;
 
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(TestCertificateCache)
+BOOST_AUTO_TEST_SUITE(SecurityTestCertificateCache)
 
 void
 getCertificateTtl(shared_ptr<CertificateCacheTtl> cache, const Name &name, bool cached)

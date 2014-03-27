@@ -12,7 +12,7 @@ using namespace std;
 
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(TestKeyChain)
+BOOST_AUTO_TEST_SUITE(SecurityTestKeyChain)
 
 BOOST_AUTO_TEST_CASE (ExportIdentity)
 {

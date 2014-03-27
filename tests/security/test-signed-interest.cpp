@@ -15,7 +15,7 @@
 using namespace std;
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(TestSignedInterest)
+BOOST_AUTO_TEST_SUITE(SecurityTestSignedInterest)
 
 BOOST_AUTO_TEST_CASE (SignedInterest)
 {

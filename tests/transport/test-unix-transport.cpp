@@ -29,7 +29,7 @@ protected:
   std::string m_HOME;
 };
 
-BOOST_FIXTURE_TEST_SUITE(TestTransportUnixTransport, UnixTransportFixture)
+BOOST_FIXTURE_TEST_SUITE(TransportTestUnixTransport, UnixTransportFixture)
 
 BOOST_AUTO_TEST_CASE(TestGetDefaultSocketNameOk)
 {

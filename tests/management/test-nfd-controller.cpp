@@ -14,7 +14,7 @@
 namespace ndn {
 namespace nfd {
 
-BOOST_AUTO_TEST_SUITE(NfdController)
+BOOST_AUTO_TEST_SUITE(ManagementTestNfdController)
 
 class CommandFixture
 {

@@ -13,17 +13,6 @@
 namespace ndn {
 namespace nfd {
 
-class ControlParameters;
-/** \deprecated use ControlParameters instead
- */
-typedef ControlParameters FaceManagementOptions;
-/** \deprecated use ControlParameters instead
- */
-typedef ControlParameters FibManagementOptions;
-/** \deprecated use ControlParameters instead
- */
-typedef ControlParameters StrategyChoiceOptions;
-
 enum ControlParameterField {
   CONTROL_PARAMETER_NAME,
   CONTROL_PARAMETER_FACE_ID,

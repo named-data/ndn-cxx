@@ -14,7 +14,7 @@
 using namespace std;
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(TestSignatureSha256)
+BOOST_AUTO_TEST_SUITE(SecurityTestSignatureSha256)
 
 string SHA256_RESULT("a883dafc480d466ee04e0d6da986bd78eb1fdd2178d04693723da3a8f95d42f4");
 

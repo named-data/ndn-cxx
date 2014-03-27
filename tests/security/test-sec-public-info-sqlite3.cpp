@@ -12,7 +12,7 @@
 using namespace std;
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(TestSecPublicInfoSqlite3)
+BOOST_AUTO_TEST_SUITE(SecurityTestSecPublicInfoSqlite3)
 
 BOOST_AUTO_TEST_CASE (Delete)
 {

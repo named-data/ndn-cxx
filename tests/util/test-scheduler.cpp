@@ -10,7 +10,7 @@
 
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(TestScheduler)
+BOOST_AUTO_TEST_SUITE(UtilTestScheduler)
 
 struct SchedulerFixture
 {

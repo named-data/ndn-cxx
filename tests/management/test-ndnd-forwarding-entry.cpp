@@ -17,7 +17,7 @@ const uint8_t FORWARDING_ENTRY[] = {0x81, 0x19, 0x83, 0x07, 0x73, 0x65, 0x6c, 0x
                                         0x08, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
                                       0x8a, 0x01, 0x03};
 
-BOOST_AUTO_TEST_SUITE(TestForwardingEntry)
+BOOST_AUTO_TEST_SUITE(ManagementTestNdndForwardingEntry)
 
 BOOST_AUTO_TEST_CASE (Encode)
 {

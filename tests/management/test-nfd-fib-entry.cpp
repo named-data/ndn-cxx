@@ -11,7 +11,7 @@
 namespace ndn {
 namespace nfd {
 
-BOOST_AUTO_TEST_SUITE(TestNfdFibEntry)
+BOOST_AUTO_TEST_SUITE(ManagementTestNfdFibEntry)
 
 const uint8_t TestNextHopRecord[] =
 {

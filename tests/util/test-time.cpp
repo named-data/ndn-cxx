@@ -9,9 +9,9 @@
 
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(TestTime)
+BOOST_AUTO_TEST_SUITE(UtilTestTime)
 
-BOOST_AUTO_TEST_CASE (SystemClock)
+BOOST_AUTO_TEST_CASE(SystemClock)
 {
   time::system_clock::TimePoint value = time::system_clock::now();
   time::system_clock::TimePoint referenceTime =
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE (SystemClock)
   BOOST_CHECK_EQUAL(time::fromIsoString("20140129T034247.032000Z"), referenceTime);
 }
 
-BOOST_AUTO_TEST_CASE (SteadyClock)
+BOOST_AUTO_TEST_CASE(SteadyClock)
 {
   time::steady_clock::TimePoint oldValue = time::steady_clock::now();
   usleep(100);

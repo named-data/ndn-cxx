@@ -30,7 +30,7 @@ protected:
   std::string m_HOME;
 };
 
-BOOST_FIXTURE_TEST_SUITE(TestConfigFile, ConfigFileFixture)
+BOOST_FIXTURE_TEST_SUITE(UtilTestConfigFile, ConfigFileFixture)
 
 BOOST_AUTO_TEST_CASE(TestParse)
 {

@@ -11,7 +11,7 @@
 namespace ndn {
 namespace nfd {
 
-BOOST_AUTO_TEST_SUITE(NfdFaceEventNotification)
+BOOST_AUTO_TEST_SUITE(ManagementTestNfdFaceEventNotification)
 
 BOOST_AUTO_TEST_CASE(Flags)
 {

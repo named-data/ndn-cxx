@@ -11,7 +11,7 @@
 namespace ndn {
 namespace nfd {
 
-BOOST_AUTO_TEST_SUITE(NfdControlParameters)
+BOOST_AUTO_TEST_SUITE(ManagementTestNfdControlParameters)
 
 BOOST_AUTO_TEST_CASE(FaceOptions)
 {

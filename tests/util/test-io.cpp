@@ -10,9 +10,9 @@
 
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(TestIO)
+BOOST_AUTO_TEST_SUITE(UtilTestIo)
 
-BOOST_AUTO_TEST_CASE (Basic)
+BOOST_AUTO_TEST_CASE(Basic)
 {
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keychain;
 

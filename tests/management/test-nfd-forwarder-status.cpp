@@ -12,7 +12,7 @@
 namespace ndn {
 namespace nfd {
 
-BOOST_AUTO_TEST_SUITE(NfdForwarderStatus)
+BOOST_AUTO_TEST_SUITE(ManagementTestNfdForwarderStatus)
 
 BOOST_AUTO_TEST_CASE(Encode)
 {
