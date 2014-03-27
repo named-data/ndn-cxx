@@ -4,13 +4,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "common.hpp"
-#include "../face.hpp"
-
 #include "nfd-controller.hpp"
-#include "nfd-fib-management-options.hpp"
-#include "nfd-face-management-options.hpp"
-#include "nfd-strategy-choice-options.hpp"
 #include "nfd-control-response.hpp"
 
 namespace ndn {
@@ -22,11 +16,70 @@ Controller::Controller(Face& face)
 }
 
 void
+Controller::processCommandResponse(const Data& data,
+                                   const shared_ptr<ControlCommand>& command,
+                                   const CommandSucceedCallback& onSuccess,
+                                   const CommandFailCallback& onFailure)
+{
+  /// \todo verify Data signature
+
+  const uint32_t serverErrorCode = 500;
+
+  ControlResponse response;
+  try {
+    response.wireDecode(data.getContent().blockFromValue());
+  }
+  catch (ndn::Tlv::Error& e) {
+    if (static_cast<bool>(onFailure))
+      onFailure(serverErrorCode, e.what());
+    return;
+  }
+
+  uint32_t code = response.getCode();
+  const uint32_t errorCodeLowerBound = 400;
+  if (code >= errorCodeLowerBound) {
+    if (static_cast<bool>(onFailure))
+      onFailure(code, response.getText());
+    return;
+  }
+
+  ControlParameters parameters;
+  try {
+    parameters.wireDecode(response.getBody());
+  }
+  catch (ndn::Tlv::Error& e) {
+    if (static_cast<bool>(onFailure))
+      onFailure(serverErrorCode, e.what());
+    return;
+  }
+
+  try {
+    command->validateResponse(parameters);
+  }
+  catch (ControlCommand::ArgumentError& e) {
+    if (static_cast<bool>(onFailure))
+      onFailure(serverErrorCode, e.what());
+    return;
+  }
+
+  onSuccess(parameters);
+}
+
+
+void
 Controller::selfRegisterPrefix(const Name& prefixToRegister,
                                const SuccessCallback& onSuccess,
                                const FailCallback&    onFail)
 {
-  fibAddNextHop(prefixToRegister, 0, 0, bind(onSuccess), onFail);
+  const uint32_t selfFaceId = 0;
+
+  ControlParameters parameters;
+  parameters.setName(prefixToRegister)
+            .setFaceId(selfFaceId);
+
+  this->start<FibAddNextHopCommand>(parameters,
+                                    bind(onSuccess),
+                                    bind(onFail, _2));
 }
 
 void
@@ -34,7 +87,15 @@ Controller::selfDeregisterPrefix(const Name& prefixToDeRegister,
                                  const SuccessCallback& onSuccess,
                                  const FailCallback&    onFail)
 {
-  fibRemoveNextHop(prefixToDeRegister, 0, bind(onSuccess), onFail);
+  const uint32_t selfFaceId = 0;
+
+  ControlParameters parameters;
+  parameters.setName(prefixToDeRegister)
+            .setFaceId(selfFaceId);
+
+  this->start<FibRemoveNextHopCommand>(parameters,
+                                       bind(onSuccess),
+                                       bind(onFail, _2));
 }
 
 void
@@ -42,12 +103,16 @@ Controller::fibAddNextHop(const Name& prefix, uint64_t faceId, int cost,
                           const FibCommandSucceedCallback& onSuccess,
                           const FailCallback& onFail)
 {
-  startFibCommand("add-nexthop",
-                  FibManagementOptions()
-                    .setName(prefix)
-                    .setFaceId(faceId)
-                    .setCost(cost),
-                  onSuccess, onFail);
+  BOOST_ASSERT(cost >= 0);
+
+  ControlParameters parameters;
+  parameters.setName(prefix)
+            .setFaceId(faceId)
+            .setCost(static_cast<uint64_t>(cost));
+
+  this->start<FibAddNextHopCommand>(parameters,
+                                    onSuccess,
+                                    bind(onFail, _2));
 }
 
 void
@@ -55,11 +120,13 @@ Controller::fibRemoveNextHop(const Name& prefix, uint64_t faceId,
                              const FibCommandSucceedCallback& onSuccess,
                              const FailCallback& onFail)
 {
-  startFibCommand("remove-nexthop",
-                  FibManagementOptions()
-                    .setName(prefix)
-                    .setFaceId(faceId),
-                  onSuccess, onFail);
+  ControlParameters parameters;
+  parameters.setName(prefix)
+            .setFaceId(faceId);
+
+  this->start<FibRemoveNextHopCommand>(parameters,
+                                       onSuccess,
+                                       bind(onFail, _2));
 }
 
 void
@@ -68,41 +135,19 @@ Controller::startFibCommand(const std::string& command,
                             const FibCommandSucceedCallback& onSuccess,
                             const FailCallback& onFail)
 {
-  Name fibCommandInterestName("/localhost/nfd/fib");
-  fibCommandInterestName
-    .append(command)
-    .append(options.wireEncode());
-
-  Interest fibCommandInterest(fibCommandInterestName);
-  m_commandInterestGenerator.generate(fibCommandInterest);
-
-  m_face.expressInterest(fibCommandInterest,
-                         bind(&Controller::processFibCommandResponse, this, _2,
-                              onSuccess, onFail),
-                         bind(onFail, "Command Interest timed out"));
-}
-
-void
-Controller::processFibCommandResponse(Data& data,
-                                      const FibCommandSucceedCallback& onSuccess,
-                                      const FailCallback& onFail)
-{
-  /// \todo Add validation of incoming Data
-
-  try
-    {
-      ControlResponse response(data.getContent().blockFromValue());
-      if (response.getCode() != 200)
-        return onFail(response.getText());
-
-      FibManagementOptions options(response.getBody());
-      return onSuccess(options);
-    }
-  catch(ndn::Tlv::Error& e)
-    {
-      if (static_cast<bool>(onFail))
-        return onFail(e.what());
-    }
+  if (command == "add-nexthop") {
+    this->start<FibAddNextHopCommand>(options,
+                                      onSuccess,
+                                      bind(onFail, _2));
+  }
+  else if (command == "remove-nexthop") {
+    this->start<FibRemoveNextHopCommand>(options,
+                                         onSuccess,
+                                         bind(onFail, _2));
+  }
+  else {
+    onFail("unknown command");
+  }
 }
 
 void
@@ -111,40 +156,19 @@ Controller::startFaceCommand(const std::string& command,
                              const FaceCommandSucceedCallback& onSuccess,
                              const FailCallback& onFail)
 {
-  Name faceCommandInterestName("/localhost/nfd/faces");
-  faceCommandInterestName
-    .append(command)
-    .append(options.wireEncode());
-
-  Interest faceCommandInterest(faceCommandInterestName);
-  m_commandInterestGenerator.generate(faceCommandInterest);
-
-  m_face.expressInterest(faceCommandInterest,
-                         bind(&Controller::processFaceCommandResponse, this, _2,
-                              onSuccess, onFail),
-                         bind(onFail, "Command Interest timed out"));
-}
-  
-void
-Controller::processFaceCommandResponse(Data& data,
-                                       const FaceCommandSucceedCallback& onSuccess,
-                                       const FailCallback& onFail)
-{
-  /// \todo Add validation of incoming Data
-  
-  try
-  {
-    ControlResponse response(data.getContent().blockFromValue());
-    if (response.getCode() != 200)
-      return onFail(response.getText());
-    
-    FaceManagementOptions options(response.getBody());
-    return onSuccess(options);
+  if (command == "create") {
+    this->start<FaceCreateCommand>(options,
+                                   onSuccess,
+                                   bind(onFail, _2));
   }
-  catch(ndn::Tlv::Error& e)
-  {
-    if (static_cast<bool>(onFail))
-      return onFail(e.what());
+  else if (command == "destroy") {
+    this->start<FaceDestroyCommand>(options,
+                                    onSuccess,
+                                    bind(onFail, _2));
+  }
+  // enable-local-control and disable-local-control are not in legacy API.
+  else {
+    onFail("unknown command");
   }
 }
 
@@ -154,43 +178,21 @@ Controller::startStrategyChoiceCommand(const std::string& command,
                                        const StrategyChoiceCommandSucceedCallback& onSuccess,
                                        const FailCallback& onFail)
 {
-  Name strategyChoiceCommandInterestName("/localhost/nfd/strategy-choice");
-  strategyChoiceCommandInterestName
-    .append(command)
-    .append(options.wireEncode());
-  
-  Interest strategyChoiceCommandInterest(strategyChoiceCommandInterestName);
-  m_commandInterestGenerator.generate(strategyChoiceCommandInterest);
-  
-  m_face.expressInterest(strategyChoiceCommandInterest,
-                         bind(&Controller::processStrategyChoiceCommandResponse, this, _2,
-                              onSuccess, onFail),
-                         bind(onFail, "Command Interest timed out"));
-}
-void
-Controller::processStrategyChoiceCommandResponse(
-    Data& data,
-    const StrategyChoiceCommandSucceedCallback& onSuccess,
-    const FailCallback& onFail)
-{
-  /// \todo Add validation of incoming Data
-  
-  try
-  {
-    ControlResponse response(data.getContent().blockFromValue());
-    if (response.getCode() != 200)
-      return onFail(response.getText());
-    
-    StrategyChoiceOptions options(response.getBody());
-    return onSuccess(options);
+  if (command == "set") {
+    this->start<StrategyChoiceSetCommand>(options,
+                                          onSuccess,
+                                          bind(onFail, _2));
   }
-  catch (ndn::Tlv::Error& error)
-  {
-    if (static_cast<bool>(onFail))
-      return onFail(error.what());
+  else if (command == "unset") {
+    this->start<StrategyChoiceUnsetCommand>(options,
+                                            onSuccess,
+                                            bind(onFail, _2));
+  }
+  else {
+    onFail("unknown command");
   }
 }
 
-  
+
 } // namespace nfd
 } // namespace ndn

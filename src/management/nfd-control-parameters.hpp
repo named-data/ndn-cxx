@@ -14,8 +14,14 @@ namespace ndn {
 namespace nfd {
 
 class ControlParameters;
+/** \deprecated use ControlParameters instead
+ */
 typedef ControlParameters FaceManagementOptions;
+/** \deprecated use ControlParameters instead
+ */
 typedef ControlParameters FibManagementOptions;
+/** \deprecated use ControlParameters instead
+ */
 typedef ControlParameters StrategyChoiceOptions;
 
 enum ControlParameterField {
@@ -42,7 +48,11 @@ enum LocalControlFeature {
   LOCAL_CONTROL_FEATURE_NEXT_HOP_FACE_ID = 2
 };
 
-class ControlParameters {
+/** \brief represents parameters in a ControlCommand request or response
+ *  \sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand
+ */
+class ControlParameters
+{
 public:
   class Error : public Tlv::Error
   {

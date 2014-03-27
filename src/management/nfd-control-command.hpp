@@ -16,7 +16,7 @@ namespace nfd {
 /** \brief base class of NFD ControlCommand
  *  \sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand
  */
-class ControlCommand
+class ControlCommand : noncopyable
 {
 public:
   /** \brief represents an error in ControlParameters

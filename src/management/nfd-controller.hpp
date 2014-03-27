@@ -8,25 +8,37 @@
 #define NDN_MANAGEMENT_NFD_CONTROLLER_HPP
 
 #include "controller.hpp"
-#include "nfd-control-parameters.hpp"
-#include "../util/command-interest-generator.hpp"
+#include "nfd-control-command.hpp"
+#include "../face.hpp"
 
 namespace ndn {
-
 namespace nfd {
 
+/** \brief NFD Management protocol - ControlCommand client
+ */
 class Controller : public ndn::Controller
 {
 public:
-  typedef function<void(const FibManagementOptions&)> FibCommandSucceedCallback;
-  typedef function<void(const FaceManagementOptions&)> FaceCommandSucceedCallback;
-  typedef function<void(const StrategyChoiceOptions&)> StrategyChoiceCommandSucceedCallback;
-
-  /**
-   * @brief Construct ndnd::Control object
+  /** \brief a callback on command success
    */
+  typedef function<void(const ControlParameters&)> CommandSucceedCallback;
+
+  /** \brief a callback on command failure
+   */
+  typedef function<void(uint32_t/*code*/,const std::string&/*reason*/)> CommandFailCallback;
+
+  explicit
   Controller(Face& face);
 
+  /** \brief start command execution
+   */
+  template<typename Command>
+  void
+  start(const ControlParameters& parameters,
+               const CommandSucceedCallback& onSuccess,
+               const CommandFailCallback&    onFailure);
+
+public: // selfreg
   virtual void
   selfRegisterPrefix(const Name& prefixToRegister,
                      const SuccessCallback& onSuccess,
@@ -37,8 +49,20 @@ public:
                        const SuccessCallback& onSuccess,
                        const FailCallback&    onFail);
 
+public:
+  /** \deprecated use CommandSucceedCallback instead
+   */
+  typedef function<void(const FibManagementOptions&)> FibCommandSucceedCallback;
+  /** \deprecated use CommandSucceedCallback instead
+   */
+  typedef function<void(const FaceManagementOptions&)> FaceCommandSucceedCallback;
+  /** \deprecated use CommandSucceedCallback instead
+   */
+  typedef function<void(const StrategyChoiceOptions&)> StrategyChoiceCommandSucceedCallback;
+
   /**
    * \brief Adds a nexthop to an existing or new FIB entry
+   * \deprecated use startCommand instead
    *
    * If FIB entry for the specified prefix does not exist, it will be automatically created.
    *
@@ -58,6 +82,7 @@ public:
 
   /**
    * \brief Remove a nexthop from FIB entry
+   * \deprecated use startCommand instead
    *
    * If after removal of the nexthop FIB entry has zero next hops, this FIB entry will
    * be automatically deleted.
@@ -75,18 +100,24 @@ public:
                    const FailCallback& onFail);
 
 protected:
+  /** \deprecated use startCommand instead
+   */
   void
   startFibCommand(const std::string& command,
                   const FibManagementOptions& options,
                   const FibCommandSucceedCallback& onSuccess,
                   const FailCallback& onFailure);
 
+  /** \deprecated use startCommand instead
+   */
   void
   startFaceCommand(const std::string& command,
                    const FaceManagementOptions& options,
                    const FaceCommandSucceedCallback& onSuccess,
                    const FailCallback& onFailure);
 
+  /** \deprecated use startCommand instead
+   */
   void
   startStrategyChoiceCommand(const std::string& command,
                              const StrategyChoiceOptions& options,
@@ -95,24 +126,34 @@ protected:
 
 private:
   void
-  processFibCommandResponse(Data& data,
-                            const FibCommandSucceedCallback& onSuccess,
-                            const FailCallback& onFail);
-
-  void
-  processFaceCommandResponse(Data& data,
-                             const FaceCommandSucceedCallback& onSuccess,
-                             const FailCallback& onFail);
-
-  void
-  processStrategyChoiceCommandResponse(Data& data,
-                                       const StrategyChoiceCommandSucceedCallback& onSuccess,
-                                       const FailCallback& onFail);
+  processCommandResponse(const Data& data,
+                         const shared_ptr<ControlCommand>& command,
+                         const CommandSucceedCallback& onSuccess,
+                         const CommandFailCallback& onFailure);
 
 protected:
   Face& m_face;
   CommandInterestGenerator m_commandInterestGenerator;
 };
+
+
+template<typename Command>
+void
+Controller::start(const ControlParameters& parameters,
+                  const CommandSucceedCallback& onSuccess,
+                  const CommandFailCallback&    onFailure)
+{
+  shared_ptr<ControlCommand> command = make_shared<Command>();
+
+  Interest commandInterest = command->makeCommandInterest(parameters, m_commandInterestGenerator);
+
+  // http://msdn.microsoft.com/en-us/library/windows/desktop/ms740668.aspx
+  const uint32_t timeoutCode = 10060;
+  m_face.expressInterest(commandInterest,
+                         bind(&Controller::processCommandResponse, this, _2,
+                              command, onSuccess, onFailure),
+                         bind(onFailure, timeoutCode, "Command Interest timed out"));
+}
 
 } // namespace nfd
 } // namespace ndn
