@@ -49,7 +49,7 @@ enum {
   FaceEventKind                = 193,
   FaceFlags                    = 194,
 
-  // Forwarder status
+  // ForwarderStatus
   NfdVersion           = 128,
   StartTimestamp       = 129,
   CurrentTimestamp     = 130,
@@ -58,10 +58,10 @@ enum {
   NPitEntries          = 133,
   NMeasurementsEntries = 134,
   NCsEntries           = 135,
-  NInInterests         = TotalIncomingInterestCounter,
-  NOutInterests        = TotalOutgoingInterestCounter,
-  NInDatas             = TotalIncomingDataCounter,
-  NOutDatas            = TotalOutgoingDataCounter
+  NInInterests         = 144,
+  NInDatas             = 145,
+  NOutInterests        = 146,
+  NOutDatas            = 147
 };
 
 enum {

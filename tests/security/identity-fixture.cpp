@@ -19,7 +19,13 @@ public:
   IdentityFixture()
   {
     // save the old default identity
-    m_oldDefaultIdentity = m_keyChain.getDefaultIdentity();
+    try {
+      m_oldDefaultIdentity = m_keyChain.getDefaultIdentity();
+      m_hasOldDefaultIdentity = true;
+    }
+    catch (SecPublicInfo::Error& e) {
+      m_hasOldDefaultIdentity = false;
+    }
 
     m_newIdentity.set("/ndn-cpp-dev-test-identity");
     m_newIdentity.appendVersion();
@@ -35,14 +41,19 @@ public:
   ~IdentityFixture()
   {
     // recover the old default setting
-    m_keyChain.setDefaultIdentity(m_oldDefaultIdentity);
+    if (m_hasOldDefaultIdentity) {
+      m_keyChain.setDefaultIdentity(m_oldDefaultIdentity);
+    }
 
     // remove the temporarily created identity and certificates
+    // XXX This has no effect if oldDefaultIdentity doesn't exist.
+    //     newIdentity would be kept as default.
     m_keyChain.deleteIdentity(m_newIdentity);
   }
 
 private:
   KeyChain m_keyChain;
+  bool m_hasOldDefaultIdentity;
   Name m_oldDefaultIdentity;
   Name m_newIdentity;
 };
