@@ -1,21 +1,27 @@
 # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
-VERSION='0.3~dev0'
-NAME="ndn-cpp-dev"
+#
+# Copyright (c) 2014, Regents of the University of California
+#
+# GPL 3.0 license, see the COPYING.md file for more information
 
-from waflib import Build, Logs, Utils, Task, TaskGen, Configure
+VERSION = '0.4.0'
+APPNAME = "ndn-cpp-dev"
+PACKAGE_BUGREPORT = "http://redmine.named-data.net/projects/ndn-cpp-dev"
+PACKAGE_URL = "https://github.com/named-data/ndn-cpp-dev"
+
+from waflib import Logs, Utils, Task, TaskGen
 from waflib.Tools import c_preproc
 
 def options(opt):
-    opt.load('compiler_c compiler_cxx gnu_dirs c_osx')
-    opt.load('boost doxygen openssl cryptopp coverage', tooldir=['.waf-tools'])
+    opt.load('compiler_cxx gnu_dirs c_osx')
+    opt.load('boost doxygen openssl cryptopp coverage default-compiler-flags',
+             tooldir=['.waf-tools'])
 
-    opt = opt.add_option_group('NDN-CPP Options')
+    opt = opt.add_option_group('Library Options')
 
-    opt.add_option('--debug',action='store_true',default=False,dest='debug',help='''debugging mode''')
-
-    opt.add_option('--with-tests', action='store_true',default=False,dest='with_tests',
+    opt.add_option('--with-tests', action='store_true', default=False, dest='with_tests',
                    help='''build unit tests''')
-    opt.add_option('--with-log4cxx', action='store_true',default=False,dest='log4cxx',
+    opt.add_option('--with-log4cxx', action='store_true', default=False, dest='log4cxx',
                    help='''Compile with log4cxx logging support''')
 
     opt.add_option('--with-c++11', action='store_true', default=False, dest='use_cxx11',
@@ -23,20 +29,22 @@ def options(opt):
     opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
                    help='''Do not build tools''')
 
-    opt.add_option('--without-sqlite-locking', action='store_false', default=True, dest='with_sqlite_locking',
-                   help='''Disable filesystem locking in sqlite3 database (use unix-dot locking mechanism instead). '''
+    opt.add_option('--without-sqlite-locking', action='store_false', default=True,
+                   dest='with_sqlite_locking',
+                   help='''Disable filesystem locking in sqlite3 database '''
+                        '''(use unix-dot locking mechanism instead). '''
                         '''This option may be necessary if home directory is hosted on NFS.''')
     opt.add_option('--with-pch', action='store_true', default=False, dest='with_pch',
-                   help='''Try to use precompiled header to speed up compilation (only gcc and clang)''')
-    opt.add_option('--without-osx-keychain', action='store_false', default=True, dest='with_osx_keychain',
+                   help='''Try to use precompiled header to speed up compilation '''
+                        '''(only gcc and clang)''')
+    opt.add_option('--without-osx-keychain', action='store_false', default=True,
+                   dest='with_osx_keychain',
                    help='''On Darwin, do not use OSX keychain as a default TPM''')
 
 def configure(conf):
-    conf.load("compiler_c compiler_cxx boost gnu_dirs c_osx openssl cryptopp")
-    try:
-        conf.load("doxygen")
-    except:
-        pass
+    conf.load("compiler_cxx boost gnu_dirs c_osx openssl cryptopp")
+    try: conf.load("doxygen")
+    except: pass
 
     if conf.options.with_tests:
         conf.env['WITH_TESTS'] = True
@@ -46,80 +54,52 @@ def configure(conf):
 
     conf.check_openssl()
 
-    areCustomCxxflagsPresent = (len(conf.env.CXXFLAGS) > 0)
-    if conf.options.debug:
-        conf.define('_DEBUG', 1)
-        defaultFlags = ['-O0', '-g3',
-                        '-Werror',
-                        '-Wall',
-                        '-fcolor-diagnostics', # only clang supports
+    conf.load('default-compiler-flags')
 
-                        # to disable known warnings
-                        '-Wno-unused-variable', # cryptopp
-                        '-Wno-unused-function',
-                        '-Wno-deprecated-declarations',
-                        ]
-
-        if areCustomCxxflagsPresent:
-            missingFlags = [x for x in defaultFlags if x not in conf.env.CXXFLAGS]
-            if len(missingFlags) > 0:
-                Logs.warn("Selected debug mode, but CXXFLAGS is set to a custom value '%s'"
-                           % " ".join(conf.env.CXXFLAGS))
-                Logs.warn("Default flags '%s' are not activated" % " ".join(missingFlags))
-        else:
-            conf.add_supported_cxxflags(cxxflags = defaultFlags)
-    else:
-        defaultFlags = ['-O2', '-g', '-Wall',
-
-                        # to disable known warnings
-                        '-Wno-unused-variable', # cryptopp
-                        '-Wno-unused-function',
-                        '-Wno-deprecated-declarations',
-                        ]
-        if not areCustomCxxflagsPresent:
-            conf.add_supported_cxxflags(cxxflags = defaultFlags)
-
-    if Utils.unversioned_sys_platform () == "darwin":
-        conf.check_cxx(framework_name='CoreFoundation', uselib_store='OSX_COREFOUNDATION', mandatory=True)
-        conf.check_cxx(framework_name='CoreServices', uselib_store='OSX_CORESERVICES', mandatory=True)
-        conf.check_cxx(framework_name='Security',   uselib_store='OSX_SECURITY',   define_name='HAVE_SECURITY',
-                       use="OSX_COREFOUNDATION", mandatory=True)
+    if Utils.unversioned_sys_platform() == "darwin":
+        conf.check_cxx(framework_name='CoreFoundation', uselib_store='OSX_COREFOUNDATION',
+                       mandatory=True)
+        conf.check_cxx(framework_name='CoreServices', uselib_store='OSX_CORESERVICES',
+                       mandatory=True)
+        conf.check_cxx(framework_name='Security', uselib_store='OSX_SECURITY',
+                       define_name='HAVE_SECURITY', use="OSX_COREFOUNDATION", mandatory=True)
         conf.define('HAVE_OSX_SECURITY', 1)
 
-    conf.define ("PACKAGE_BUGREPORT", "ndn-lib@lists.cs.ucla.edu")
-    conf.define ("PACKAGE_NAME", NAME)
-    conf.define ("PACKAGE_VERSION", VERSION)
-    conf.define ("PACKAGE_URL", "https://github.com/named-data/ndn-cpp")
-
-    conf.check_cfg(package='sqlite3', args=['--cflags', '--libs'], uselib_store='SQLITE3', mandatory=True)
+    conf.check_cfg(package='sqlite3', args=['--cflags', '--libs'], uselib_store='SQLITE3',
+                   mandatory=True)
 
     if conf.options.log4cxx:
-        conf.check_cfg(package='liblog4cxx', args=['--cflags', '--libs'], uselib_store='LOG4CXX', mandatory=True)
-        conf.define ("HAVE_LOG4CXX", 1)
+        conf.check_cfg(package='liblog4cxx', args=['--cflags', '--libs'], uselib_store='LOG4CXX',
+                       mandatory=True)
+        conf.define("HAVE_LOG4CXX", 1)
 
     conf.check_cryptopp(path=conf.options.cryptopp_dir, mandatory=True)
 
     if conf.options.use_cxx11:
-        conf.add_supported_cxxflags(cxxflags = ['-std=c++11', '-std=c++0x'])
+        conf.add_supported_cxxflags(cxxflags=['-std=c++11', '-std=c++0x'])
 
         conf.check(msg='Checking for type std::shared_ptr',
-                   type_name="std::shared_ptr<int>", header_name="memory", define_name='HAVE_STD_SHARED_PTR')
+                   type_name="std::shared_ptr<int>", header_name="memory",
+                   define_name='HAVE_STD_SHARED_PTR')
         conf.check(msg='Checking for type std::function',
-                   type_name="std::function<void()>", header_name="functional", define_name='HAVE_STD_FUNCTION')
+                   type_name="std::function<void()>", header_name="functional",
+                   define_name='HAVE_STD_FUNCTION')
         conf.define('HAVE_CXX11', 1)
 
-    USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams', 'regex', 'program_options', 'chrono']
+    USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams',
+                       'regex', 'program_options', 'chrono']
     if conf.env['WITH_TESTS']:
         USED_BOOST_LIBS += ['unit_test_framework']
 
     conf.check_boost(lib=USED_BOOST_LIBS, mandatory=True)
     if conf.env.BOOST_VERSION_NUMBER < 104800:
-        Logs.error ("Minimum required boost version is 1.48.0")
-        Logs.error ("Please upgrade your distribution or install custom boost libraries" +
+        Logs.error("Minimum required boost version is 1.48.0")
+        Logs.error("Please upgrade your distribution or install custom boost libraries" +
                     " (http://redmine.named-data.net/projects/nfd/wiki/Boost_FAQ)")
         return
 
-    conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
+    conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD',
+                   mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
     conf.check_cxx(cxxflags=['-fPIC'], uselib_store='cxxstlib', mandatory=False)
 
@@ -128,7 +108,7 @@ def configure(conf):
 
     conf.env['WITH_PCH'] = conf.options.with_pch
 
-    if Utils.unversioned_sys_platform () == "darwin":
+    if Utils.unversioned_sys_platform() == "darwin":
         conf.env['WITH_OSX_KEYCHAIN'] = conf.options.with_osx_keychain
         if conf.options.with_osx_keychain:
             conf.define('WITH_OSX_KEYCHAIN', 1)
@@ -141,24 +121,24 @@ def configure(conf):
 
     conf.write_config_header('src/ndn-cpp-config.h', define_prefix='NDN_CPP_')
 
-def build (bld):
-    libndn_cpp = bld (
+def build(bld):
+    libndn_cpp = bld(
         features=['cxx', 'cxxstlib'], # 'cxxshlib',
-        # vnum = "0.3.0",
+        # vnum="0.3.0",
         target="ndn-cpp-dev",
-        name = "ndn-cpp-dev",
-        source = bld.path.ant_glob('src/**/*.cpp',
-                                   excl = ['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
-        use = 'BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT PIC PTHREAD',
-        includes = ". src",
-        export_includes = "src",
-        install_path = '${LIBDIR}',
+        name="ndn-cpp-dev",
+        source=bld.path.ant_glob('src/**/*.cpp',
+                                   excl=['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
+        use='BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT PIC PTHREAD',
+        includes=". src",
+        export_includes="src",
+        install_path='${LIBDIR}',
         )
 
     if bld.env['WITH_PCH']:
-        libndn_cpp.pch = "src/common.hpp"
+        libndn_cpp.pch="src/common.hpp"
 
-    if Utils.unversioned_sys_platform () == "darwin":
+    if Utils.unversioned_sys_platform() == "darwin":
         libndn_cpp.source += bld.path.ant_glob('src/**/*-osx.cpp')
         libndn_cpp.mac_app = True
         libndn_cpp.use += " OSX_COREFOUNDATION OSX_SECURITY"
@@ -166,7 +146,7 @@ def build (bld):
     # In case we want to make it optional later
     libndn_cpp.source += bld.path.ant_glob('src/**/*-sqlite3.cpp')
 
-
+    # Prepare flags that should go to pkgconfig file
     pkgconfig_libs = []
     pkgconfig_ldflags = []
     pkgconfig_linkflags = []
@@ -185,27 +165,27 @@ def build (bld):
             pkgconfig_cxxflags += Utils.to_list(bld.env['CXXFLAGS_%s' % lib])
 
     EXTRA_FRAMEWORKS = "";
-    if Utils.unversioned_sys_platform () == "darwin":
+    if Utils.unversioned_sys_platform() == "darwin":
         EXTRA_FRAMEWORKS = "-framework CoreFoundation -framework Security"
 
     def uniq(alist):
         set = {}
         return [set.setdefault(e,e) for e in alist if e not in set]
 
-    pkconfig = bld (features = "subst",
-         source = "libndn-cpp-dev.pc.in",
-         target = "libndn-cpp-dev.pc",
-         install_path = "${LIBDIR}/pkgconfig",
-         VERSION = VERSION,
+    pkconfig = bld(features="subst",
+         source="libndn-cpp-dev.pc.in",
+         target="libndn-cpp-dev.pc",
+         install_path="${LIBDIR}/pkgconfig",
+         VERSION=VERSION,
 
          # This probably not the right thing to do, but to simplify life of apps
          # that use the library
-         EXTRA_LIBS = " ".join([('-l%s' % i) for i in uniq(pkgconfig_libs)]),
-         EXTRA_LDFLAGS = " ".join([('-L%s' % i) for i in uniq(pkgconfig_ldflags)]),
-         EXTRA_LINKFLAGS = " ".join(uniq(pkgconfig_linkflags)),
-         EXTRA_INCLUDES = " ".join([('-I%s' % i) for i in uniq(pkgconfig_includes)]),
-         EXTRA_CXXFLAGS = " ".join(uniq(pkgconfig_cxxflags)),
-         EXTRA_FRAMEWORKS = EXTRA_FRAMEWORKS,
+         EXTRA_LIBS=" ".join([('-l%s' % i) for i in uniq(pkgconfig_libs)]),
+         EXTRA_LDFLAGS=" ".join([('-L%s' % i) for i in uniq(pkgconfig_ldflags)]),
+         EXTRA_LINKFLAGS=" ".join(uniq(pkgconfig_linkflags)),
+         EXTRA_INCLUDES=" ".join([('-I%s' % i) for i in uniq(pkgconfig_includes)]),
+         EXTRA_CXXFLAGS=" ".join(uniq(pkgconfig_cxxflags)),
+         EXTRA_FRAMEWORKS=EXTRA_FRAMEWORKS,
         )
 
     # Unit tests
@@ -219,32 +199,13 @@ def build (bld):
         bld.recurse("examples")
 
     headers = bld.path.ant_glob(['src/**/*.hpp'])
-    bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], headers, relative_trick=True, cwd=bld.path.find_node('src'))
+    bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], headers,
+                      relative_trick=True, cwd=bld.path.find_node('src'))
 
-    bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], bld.path.find_resource('src/ndn-cpp-config.h'))
+    bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'],
+                      bld.path.find_resource('src/ndn-cpp-config.h'))
 
     bld.install_files("${SYSCONFDIR}/ndn", "client.conf.sample")
-
-@Configure.conf
-def add_supported_cxxflags(self, cxxflags):
-    """
-    Check which cxxflags are supported by compiler and add them to env.CXXFLAGS variable
-    """
-    self.start_msg('Checking allowed flags for c++ compiler')
-
-    supportedFlags = []
-    for flag in cxxflags:
-        if self.check_cxx (cxxflags=[flag], mandatory=False):
-            supportedFlags += [flag]
-
-    self.end_msg (' '.join (supportedFlags))
-    self.env.CXXFLAGS += supportedFlags
-
-# doxygen docs
-from waflib.Build import BuildContext
-class doxy(BuildContext):
-    cmd = "doxygen"
-    fun = "doxygen"
 
 def doxygen(bld):
     if not bld.env.DOXYGEN:
@@ -252,18 +213,12 @@ def doxygen(bld):
     bld(features="doxygen",
         doxyfile='docs/doxygen.conf')
 
-# doxygen docs
-from waflib.Build import BuildContext
-class sphinx (BuildContext):
-    cmd = "sphinx"
-    fun = "sphinx"
-
-def sphinx (bld):
+def sphinx(bld):
     bld.load('sphinx_build', tooldir=['waf-tools'])
 
-    bld (features="sphinx",
-         outdir = "doc/html",
-         source = "doc/source/conf.py")
+    bld(features="sphinx",
+        outdir="doc/html",
+        source="doc/source/conf.py")
 
 
 @TaskGen.feature('cxx')
@@ -278,11 +233,14 @@ def process_pch(self):
                 z.orig_self = self
 
 class gchx(Task.Task):
-    run_str = '${CXX} -x c++-header ${CXXFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+    run_str = '${CXX} -x c++-header ${CXXFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ' + \
+                '${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ' + \
+                '${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
     scan    = c_preproc.scan
     ext_out = ['.hpp']
     color   = 'BLUE'
 
     def post_run(self):
         super(gchx, self).post_run()
-        self.orig_self.env['CXXFLAGS'] = ['-include', self.inputs[0].relpath()] + self.env['CXXFLAGS']
+        self.orig_self.env['CXXFLAGS'] = ['-include', self.inputs[0].relpath()] + \
+                                         self.env['CXXFLAGS']

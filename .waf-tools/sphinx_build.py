@@ -10,8 +10,13 @@ else has defaults, passing in the parameters is optional.
 
 Usage for getting both html and pdf docs:
 
-    ctx(features='sphinx', source='docs/conf.py')
-    ctx(features='sphinx', source='docs/conf.py', buildername='latex')
+    def build(ctx):
+        ctx(features='sphinx', source='docs/conf.py')
+        ctx(features='sphinx', source='docs/conf.py', buildername='latex')
+
+    def sphinx(ctx):
+        ctx(features='sphinx', source='docs/conf.py')
+        ctx(features='sphinx', source='docs/conf.py', buildername='latex')
 
 Optional parameters and their defaults:
 
@@ -25,7 +30,7 @@ Optional parameters and their defaults:
 
 
 import os
-from waflib import Task, TaskGen, Errors, Logs
+from waflib import Task, TaskGen, Errors, Logs, Build
 
 class RunSphinxBuild(Task.Task):
 	def scan(self):
@@ -84,7 +89,7 @@ def apply_sphinx(tg):
 	buildername = getattr(tg, "buildername", "html")
 	srcdir = getattr(tg, "srcdir", confdir)
 	outdir = tg.path.find_or_declare (getattr(tg, "outdir", os.path.join(conf.parent.get_bld().abspath(), buildername))).abspath ()
-        
+
 	doctreedir = getattr(tg, "doctreedir", os.path.join(outdir, ".doctrees"))
 
 	# Set up the Sphinx instance.
@@ -93,7 +98,7 @@ def apply_sphinx(tg):
 	# Get the main targets of the Sphinx build.
 	tgt_nodes = _get_main_targets(tg, s)
 
-	# Create the task and set the required attributes.  
+	# Create the task and set the required attributes.
 	task = tg.create_task("RunSphinxBuild", src=conf, tgt=tgt_nodes)
 	task.srcdir = tg.bld.root.find_node(s.srcdir)
 	task.outdir = tg.bld.root.find_node(s.outdir)
@@ -106,3 +111,9 @@ def apply_sphinx(tg):
 
 	# Bypass the execution of process_source by setting the source to an empty list
 	tg.source = []
+
+# sphinx docs
+from waflib.Build import BuildContext
+class sphinx (BuildContext):
+    cmd = "sphinx"
+    fun = "sphinx"
