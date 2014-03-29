@@ -16,6 +16,7 @@ namespace ndn {
 namespace tlv {
 namespace nfd {
 
+// NFD Management protocol
 enum {
   // ControlParameters
   ControlParameters   = 104,
@@ -25,29 +26,10 @@ enum {
   Cost                = 106,
   Strategy            = 107,
 
-  // (deprecated)
-  FibManagementOptions  = ControlParameters,
-  FaceManagementOptions = ControlParameters,
-  StrategyChoiceOptions = ControlParameters,
-
   // ControlResponse
   ControlResponse = 101,
   StatusCode      = 102,
   StatusText      = 103,
-
-  // FIB Enumeration Protocol
-  FibEntry        = 128,
-  NextHopRecord   = 129,
-
-  // Face Status Protocol
-  FaceStatus                   = 128,
-  TotalIncomingInterestCounter = 145,
-  TotalIncomingDataCounter     = 144,
-  TotalOutgoingInterestCounter = 146,
-  TotalOutgoingDataCounter     = 147,
-  FaceEventNotification        = 192,
-  FaceEventKind                = 193,
-  FaceFlags                    = 194,
 
   // ForwarderStatus
   NfdVersion           = 128,
@@ -61,7 +43,18 @@ enum {
   NInInterests         = 144,
   NInDatas             = 145,
   NOutInterests        = 146,
-  NOutDatas            = 147
+  NOutDatas            = 147,
+
+  // Face Management
+  FaceStatus            = 128,
+  LocalUri              = 129,
+  FaceFlags             = 194,
+  FaceEventNotification = 192,
+  FaceEventKind         = 193,
+
+  // FIB Management
+  FibEntry      = 128,
+  NextHopRecord = 129
 };
 
 enum {

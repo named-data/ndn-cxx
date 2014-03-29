@@ -8,7 +8,6 @@
 #define NDN_MANAGEMENT_NFD_FORWARDER_STATUS_HPP
 
 #include "../encoding/tlv-nfd.hpp"
-#include "../encoding/tlv.hpp"
 #include "../encoding/encoding-buffer.hpp"
 
 namespace ndn {
@@ -260,8 +259,8 @@ ForwarderStatus::ForwarderStatus()
   , m_nInDatas(0)
   , m_nOutInterests(0)
   , m_nOutDatas(0)
-  {
-  }
+{
+}
 
 template<bool T>
 inline size_t
@@ -318,21 +317,8 @@ ForwarderStatus::wireEncode() const
 inline void
 ForwarderStatus::wireDecode(const Block& block)
 {
-  m_nfdVersion = 0;
-  m_startTimestamp = time::system_clock::TimePoint::min();
-  m_currentTimestamp = time::system_clock::TimePoint::min();
-  m_nNameTreeEntries = 0;
-  m_nFibEntries = 0;
-  m_nPitEntries = 0;
-  m_nMeasurementsEntries = 0;
-  m_nCsEntries = 0;
-  m_nInInterests = 0;
-  m_nInDatas = 0;
-  m_nOutInterests = 0;
-  m_nOutDatas = 0;
-
   if (block.type() != Tlv::Content) {
-    throw Error("Requested decoding of Status Payload, but block is not Content");
+    throw Error("expecting Content block for Status payload");
   }
   m_wire = block;
   m_wire.parse();

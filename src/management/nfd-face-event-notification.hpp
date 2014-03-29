@@ -1,48 +1,80 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2014 Named Data Networking Project
+ * Copyright (C) 2013 Regents of the University of California.
  * See COPYING for copyright and distribution information.
  */
 
 #ifndef NDN_MANAGEMENT_NFD_FACE_EVENT_NOTIFICATION_HPP
 #define NDN_MANAGEMENT_NFD_FACE_EVENT_NOTIFICATION_HPP
 
-#include "../encoding/encoding-buffer.hpp"
+// This include must be kept as the first one, to ensure nfd-face-flags.hpp compiles on its own.
+#include "nfd-face-flags.hpp"
+
 #include "../encoding/tlv-nfd.hpp"
+#include "../encoding/encoding-buffer.hpp"
 
 namespace ndn {
 namespace nfd {
 
-enum FaceEventKind
-  {
-    FACE_EVENT_CREATED = 1,
-    FACE_EVENT_DESTROYED = 2
-  };
+enum FaceEventKind {
+  FACE_EVENT_CREATED = 1,
+  FACE_EVENT_DESTROYED = 2
+};
 
-enum FaceFlags
-  {
-    FACE_IS_LOCAL = 1,
-    FACE_IS_ON_DEMAND = 2
-    // FACE_? = 4
-    // FACE_? = 8
-  };
-
-class FaceEventNotification
+/** \brief represents a Face status change notification
+ *  \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Status-Change-Notification
+ */
+class FaceEventNotification : public FaceFlagsTraits<FaceEventNotification>
 {
 public:
   class Error : public Tlv::Error
   {
   public:
-    Error(const std::string& what) : Tlv::Error(what) { }
+    explicit
+    Error(const std::string& what)
+      : Tlv::Error(what)
+    {
+    }
   };
 
-  FaceEventNotification(FaceEventKind eventKind,
-                        uint64_t faceId,
-                        const std::string& uri,
-                        uint64_t flags);
+  FaceEventNotification();
 
   explicit
-  FaceEventNotification(const Block& block);
+  FaceEventNotification(const Block& block)
+  {
+    this->wireDecode(block);
+  }
+
+  /** \brief prepend FaceEventNotification to the encoder
+   */
+  template<bool T>
+  size_t
+  wireEncode(EncodingImpl<T>& encoder) const;
+
+  /** \brief encode FaceEventNotification
+   */
+  const Block&
+  wireEncode() const;
+
+  /** \brief decode FaceEventNotification
+   */
+  void
+  wireDecode(const Block& wire);
+
+public: // getters & setters
+  FaceEventKind
+  getKind() const
+  {
+    return m_kind;
+  }
+
+  FaceEventNotification&
+  setKind(FaceEventKind kind)
+  {
+    m_wire.reset();
+    m_kind = kind;
+    return *this;
+  }
 
   uint64_t
   getFaceId() const
@@ -50,16 +82,40 @@ public:
     return m_faceId;
   }
 
-  const std::string&
-  getUri() const
+  FaceEventNotification&
+  setFaceId(uint64_t faceId)
   {
-    return m_uri;
+    m_wire.reset();
+    m_faceId = faceId;
+    return *this;
   }
 
-  FaceEventKind
-  getEventKind() const
+  const std::string&
+  getRemoteUri() const
   {
-    return m_kind;
+    return m_remoteUri;
+  }
+
+  FaceEventNotification&
+  setRemoteUri(const std::string& remoteUri)
+  {
+    m_wire.reset();
+    m_remoteUri = remoteUri;
+    return *this;
+  }
+
+  const std::string&
+  getLocalUri() const
+  {
+    return m_localUri;
+  }
+
+  FaceEventNotification&
+  setLocalUri(const std::string& localUri)
+  {
+    m_wire.reset();
+    m_localUri = localUri;
+    return *this;
   }
 
   uint64_t
@@ -68,88 +124,94 @@ public:
     return m_flags;
   }
 
-  bool
-  isLocal() const
+  FaceEventNotification&
+  setFlags(uint64_t flags)
   {
-    return m_flags & FACE_IS_LOCAL;
+    m_wire.reset();
+    m_flags = flags;
+    return *this;
   }
 
-  bool
-  isOnDemand() const
+public: // deprecated
+  /** \deprecated use default constructor and setters
+   */
+  FaceEventNotification(FaceEventKind kind,
+                        uint64_t faceId,
+                        const std::string& uri,
+                        uint64_t flags);
+
+  /** \deprecated
+   */
+  FaceEventKind
+  getEventKind() const
   {
-    return m_flags & FACE_IS_ON_DEMAND;
+    return this->getKind();
   }
 
-  template<bool T>
-  size_t
-  wireEncode(EncodingImpl<T>& buffer) const;
-
-  const Block&
-  wireEncode() const;
-
-  void
-  wireDecode(const Block& wire);
+  /** \deprecated
+   */
+  const std::string&
+  getUri() const
+  {
+    return this->getRemoteUri();
+  }
 
 private:
   FaceEventKind m_kind;
   uint64_t m_faceId;
-  std::string m_uri;
+  std::string m_remoteUri;
+  std::string m_localUri;
   uint64_t m_flags;
 
   mutable Block m_wire;
 };
 
 inline
-FaceEventNotification::FaceEventNotification(FaceEventKind eventKind,
-                                             uint64_t faceId,
-                                             const std::string& uri,
-                                             uint64_t flags)
-  : m_kind(eventKind)
-  , m_faceId(faceId)
-  , m_uri(uri)
-  , m_flags(flags)
+FaceEventNotification::FaceEventNotification()
+  : m_kind(static_cast<FaceEventKind>(0))
+  , m_faceId(0)
+  , m_flags(0)
 {
 }
 
 inline
-FaceEventNotification::FaceEventNotification(const Block& block)
+FaceEventNotification::FaceEventNotification(FaceEventKind kind,
+                                             uint64_t faceId,
+                                             const std::string& uri,
+                                             uint64_t flags)
 {
-  wireDecode(block);
+  (*this).setKind(kind)
+         .setFaceId(faceId)
+         .setRemoteUri(uri)
+         .setFlags(flags);
 }
 
 template<bool T>
-size_t
-FaceEventNotification::wireEncode(EncodingImpl<T>& buffer) const
+inline size_t
+FaceEventNotification::wireEncode(EncodingImpl<T>& encoder) const
 {
   size_t totalLength = 0;
 
-  totalLength += prependNonNegativeIntegerBlock(buffer,
-                                                tlv::nfd::FaceFlags,
-                                                m_flags);
+  totalLength += prependNonNegativeIntegerBlock(encoder,
+                 tlv::nfd::FaceFlags, m_flags);
+  totalLength += prependByteArrayBlock(encoder, tlv::nfd::LocalUri,
+                 reinterpret_cast<const uint8_t*>(m_localUri.c_str()), m_localUri.size());
+  totalLength += prependByteArrayBlock(encoder, tlv::nfd::Uri,
+                 reinterpret_cast<const uint8_t*>(m_remoteUri.c_str()), m_remoteUri.size());
+  totalLength += prependNonNegativeIntegerBlock(encoder,
+                 tlv::nfd::FaceId, m_faceId);
+  totalLength += prependNonNegativeIntegerBlock(encoder,
+                 tlv::nfd::FaceEventKind, m_kind);
 
-  totalLength += prependByteArrayBlock(buffer,
-                                       tlv::nfd::Uri,
-                                       reinterpret_cast<const uint8_t*>(m_uri.c_str()),
-                                       m_uri.size());
-
-  totalLength += prependNonNegativeIntegerBlock(buffer,
-                                                tlv::nfd::FaceId,
-                                                m_faceId);
-
-  totalLength += prependNonNegativeIntegerBlock(buffer,
-                                                tlv::nfd::FaceEventKind,
-                                                static_cast<uint32_t>(m_kind));
-
-  totalLength += buffer.prependVarNumber(totalLength);
-  totalLength += buffer.prependVarNumber(tlv::nfd::FaceEventNotification);
-
+  totalLength += encoder.prependVarNumber(totalLength);
+  totalLength += encoder.prependVarNumber(tlv::nfd::FaceEventNotification);
   return totalLength;
 }
 
 inline const Block&
 FaceEventNotification::wireEncode() const
 {
-  if (m_wire.hasWire ())
+  if (m_wire.hasWire())
     return m_wire;
 
   EncodingEstimator estimator;
@@ -163,67 +225,76 @@ FaceEventNotification::wireEncode() const
 }
 
 inline void
-FaceEventNotification::wireDecode (const Block &wire)
+FaceEventNotification::wireDecode(const Block& block)
 {
-  m_wire = wire;
-
-  if (m_wire.type() != tlv::nfd::FaceEventNotification)
-    throw Error("Requested decoding of FaceEventNotification, but Block is of different type");
-
+  if (block.type() != tlv::nfd::FaceEventNotification) {
+    throw Error("expecting FaceEventNotification block");
+  }
+  m_wire = block;
   m_wire.parse();
-
-  // FaceKind
   Block::element_const_iterator val = m_wire.elements_begin();
-  if (val == m_wire.elements_end() || val->type() != tlv::nfd::FaceEventKind)
-    throw Error("Missing required Uri block");
-  m_kind = static_cast<FaceEventKind>(readNonNegativeInteger(*val));
 
-  // FaceID
-  ++val;
-  if (val == m_wire.elements_end() || val->type() != tlv::nfd::FaceId)
-    throw Error("Missing required FaceId block");
-  m_faceId = readNonNegativeInteger(*val);
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceEventKind) {
+    m_kind = static_cast<FaceEventKind>(readNonNegativeInteger(*val));
+    ++val;
+  }
+  else {
+    throw Error("missing required FaceEventKind field");
+  }
 
-  // URI
-  ++val;
-  if (val == m_wire.elements_end() || val->type() != tlv::nfd::Uri)
-    throw Error("Missing required Uri block");
-  m_uri = std::string(reinterpret_cast<const char*>(val->value()), val->value_size());
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceId) {
+    m_faceId = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    ++val;
+  }
+  else {
+    throw Error("missing required FaceId field");
+  }
 
-  // FaceFlags
-  ++val;
-  if (val == m_wire.elements_end() || val->type() != tlv::nfd::FaceFlags)
-    throw Error("Missing required FaceFlags block");
-  m_flags = readNonNegativeInteger(*val);
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::Uri) {
+    m_remoteUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+    ++val;
+  }
+  else {
+    throw Error("missing required Uri field");
+  }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
+    m_localUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+    ++val;
+  }
+  else {
+    throw Error("missing required LocalUri field");
+  }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceFlags) {
+    m_flags = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    ++val;
+  }
+  else {
+    throw Error("missing required FaceFlags field");
+  }
 }
 
 inline std::ostream&
-operator << (std::ostream& os, const FaceEventNotification& event)
+operator<<(std::ostream& os, const FaceEventNotification& notification)
 {
   os << "FaceEventNotification(";
 
-  os << "Kind: ";
-  switch (event.getEventKind())
+  switch (notification.getKind())
     {
     case FACE_EVENT_CREATED:
-      os << "created";
+      os << "Kind: created, ";
       break;
     case FACE_EVENT_DESTROYED:
-      os << "destroyed";
+      os << "Kind: destroyed, ";
       break;
     }
-  os << ", ";
 
-  // FaceID
-  os << "FaceID: " << event.getFaceId() << ", ";
-
-  // URI
-  os << "Uri: " << event.getUri() << ", ";
-
-  // Flags
-  os << "Flags: " << event.getFlags();
-
-  os << ")";
+  os << "FaceID: " << notification.getFaceId() << ", "
+     << "RemoteUri: " << notification.getRemoteUri() << ", "
+     << "LocalUri: " << notification.getLocalUri() << ", "
+     << "Flags: " << notification.getFlags()
+     << ")";
   return os;
 }
 

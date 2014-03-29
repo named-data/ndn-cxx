@@ -5,7 +5,6 @@
  */
 
 #include "management/nfd-forwarder-status.hpp"
-// Having a separate compilation unit is necessary to ensure .hpp can compile on its own.
 #include "data.hpp"
 
 #include <boost/test/unit_test.hpp>
@@ -31,13 +30,12 @@ BOOST_AUTO_TEST_CASE(Encode)
   status1.setNOutInterests(952144445);
   status1.setNOutDatas(138198826);
 
-  EncodingBuffer buffer;
-  status1.wireEncode(buffer);
-  Block wire = buffer.block();
+  Block wire;
+  BOOST_REQUIRE_NO_THROW(wire = status1.wireEncode());
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
-  //for (Buffer::iterator it = buffer.begin(); it != buffer.end(); ++it) {
+  //for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
   //  printf("0x%02x, ", *it);
   //}
   static const uint8_t expected[] = {
@@ -55,6 +53,7 @@ BOOST_AUTO_TEST_CASE(Encode)
   Data data;
   data.setContent(wire);
 
+  BOOST_REQUIRE_NO_THROW(ForwarderStatus(data.getContent()));
   ForwarderStatus status2(data.getContent());
   BOOST_CHECK_EQUAL(status1.getNfdVersion(), status2.getNfdVersion());
   BOOST_CHECK_EQUAL(status1.getStartTimestamp(), status2.getStartTimestamp());
