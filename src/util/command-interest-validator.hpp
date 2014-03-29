@@ -22,6 +22,8 @@ public:
     POS_RANDOM_VAL = -3,
     POS_TIMESTAMP = -4,
 
+    MIN_LENGTH = 4,
+
     GRACE_INTERVAL = 3000 // ms
   };
 
@@ -98,74 +100,102 @@ CommandInterestValidator::checkPolicy(const Interest& interest,
   const Name& interestName = interest.getName();
 
   //Prepare
-  if (interestName.size() < 4)
+  if (interestName.size() < MIN_LENGTH)
     return onValidationFailed(interest.shared_from_this(),
                               "Interest is not signed: " + interest.getName().toUri());
-
-  Signature signature(interestName[POS_SIG_INFO].blockFromValue(),
-                      interestName[POS_SIG_VALUE].blockFromValue());
-
-  SignatureSha256WithRsa sig(signature);
-  const Name& keyLocatorName = sig.getKeyLocator().getName();
-  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(keyLocatorName);
-
-  //Check if command is in the trusted scope
-  bool isInScope = false;
-  for (std::list<SecRuleSpecific>::iterator scopeIt = m_trustScopeForInterest.begin();
-      scopeIt != m_trustScopeForInterest.end();
-      ++scopeIt)
+  Name keyName;
+  try
     {
-      if (scopeIt->satisfy(interestName, keyName))
-        {
-          isInScope = true;
-          break;
-        }
-    }
+      Signature signature(interestName[POS_SIG_INFO].blockFromValue(),
+                          interestName[POS_SIG_VALUE].blockFromValue());
 
-  if (isInScope == false)
-    return onValidationFailed(interest.shared_from_this(),
-                              "Signer cannot be authorized for the command: " + keyName.toUri());
-
-  //Check if timestamp is valid
-  time::system_clock::TimePoint interestTime =
-    time::fromUnixTimestamp(time::milliseconds(interestName.get(POS_TIMESTAMP).toNumber()));
-
-  time::system_clock::TimePoint currentTime = time::system_clock::now();
-
-  LastTimestampMap::iterator timestampIt = m_lastTimestamp.find(keyName);
-  if (timestampIt == m_lastTimestamp.end())
-    {
-      if (!(currentTime - m_graceInterval <= interestTime &&
-            interestTime <= currentTime + m_graceInterval))
-        {
-          return onValidationFailed(interest.shared_from_this(),
-                                    "The command is not in grace interval: " +
-                                    interest.getName().toUri());
-        }
-    }
-  else
-    {
-      if(interestTime <= timestampIt->second)
+      if (signature.getType() != Signature::Sha256WithRsa)
         return onValidationFailed(interest.shared_from_this(),
-                                  "The command is outdated: " + interest.getName().toUri());
-    }
+                                  "Require SignatureSha256WithRsa");
 
-  //Check signature
-  if (!Validator::verifySignature(interestName.wireEncode().value(),
-                                  interestName.wireEncode().value_size() -
-                                  interestName[-1].size(),
-                                  sig, m_trustAnchorsForInterest[keyName]))
-    return onValidationFailed(interest.shared_from_this(),
-                              "Signature cannot be validated: " + interest.getName().toUri());
+      SignatureSha256WithRsa sig(signature);
 
-  //Update timestamp
-  if (timestampIt == m_lastTimestamp.end())
-    {
-      m_lastTimestamp[keyName] = interestTime;
+      const KeyLocator& keyLocator = sig.getKeyLocator();
+
+      if (keyLocator.getType() != KeyLocator::KeyLocator_Name)
+        return onValidationFailed(interest.shared_from_this(),
+                                  "Key Locator is not a name");
+
+      keyName = IdentityCertificate::certificateNameToPublicKeyName(keyLocator.getName());
+
+      //Check if command is in the trusted scope
+      bool isInScope = false;
+      for (std::list<SecRuleSpecific>::iterator scopeIt = m_trustScopeForInterest.begin();
+           scopeIt != m_trustScopeForInterest.end();
+           ++scopeIt)
+        {
+          if (scopeIt->satisfy(interestName, keyName))
+            {
+              isInScope = true;
+              break;
+            }
+        }
+      if (isInScope == false)
+        return onValidationFailed(interest.shared_from_this(),
+                                  "Signer cannot be authorized for the command: " +
+                                  keyName.toUri());
+
+      //Check signature
+      if (!Validator::verifySignature(interestName.wireEncode().value(),
+                                      interestName.wireEncode().value_size() -
+                                      interestName[-1].size(),
+                                      sig, m_trustAnchorsForInterest[keyName]))
+        return onValidationFailed(interest.shared_from_this(),
+                                  "Signature cannot be validated: " +
+                                  interest.getName().toUri());
+
+      //Check if timestamp is valid
+      time::system_clock::TimePoint interestTime =
+        time::fromUnixTimestamp(time::milliseconds(interestName.get(POS_TIMESTAMP).toNumber()));
+
+      time::system_clock::TimePoint currentTime = time::system_clock::now();
+
+      LastTimestampMap::iterator timestampIt = m_lastTimestamp.find(keyName);
+      if (timestampIt == m_lastTimestamp.end())
+        {
+          if (!(currentTime - m_graceInterval <= interestTime &&
+                interestTime <= currentTime + m_graceInterval))
+            return onValidationFailed(interest.shared_from_this(),
+                                      "The command is not in grace interval: " +
+                                      interest.getName().toUri());
+        }
+      else
+        {
+          if (interestTime <= timestampIt->second)
+            return onValidationFailed(interest.shared_from_this(),
+                                      "The command is outdated: " +
+                                      interest.getName().toUri());
+        }
+
+      //Update timestamp
+      if (timestampIt == m_lastTimestamp.end())
+        {
+          m_lastTimestamp[keyName] = interestTime;
+        }
+      else
+        {
+          timestampIt->second = interestTime;
+        }
     }
-  else
+  catch (const Tlv::Error& e)
     {
-      timestampIt->second = interestTime;
+      return onValidationFailed(interest.shared_from_this(),
+                                "Cannot decode signature related TLVs");
+    }
+  catch (const Signature::Error& e)
+    {
+      return onValidationFailed(interest.shared_from_this(),
+                                "No valid signature");
+    }
+  catch (const IdentityCertificate::Error& e)
+    {
+      return onValidationFailed(interest.shared_from_this(),
+                                "Cannot locate the signing key");
     }
 
   return onValidated(interest.shared_from_this());
