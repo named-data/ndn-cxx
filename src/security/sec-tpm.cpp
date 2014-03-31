@@ -7,17 +7,7 @@
 
 #include "sec-tpm.hpp"
 
-#include <cryptopp/rsa.h>
-#include <cryptopp/files.h>
-#include <cryptopp/base64.h>
-#include <cryptopp/hex.h>
-#include <cryptopp/osrng.h>
-#include <cryptopp/sha.h>
-#include <cryptopp/pssr.h>
-#include <cryptopp/modes.h>
-#include <cryptopp/pwdbased.h>
-#include <cryptopp/sha.h>
-#include <cryptopp/des.h>
+#include "cryptopp.hpp"
 
 using namespace std;
 

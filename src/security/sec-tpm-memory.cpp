@@ -13,7 +13,7 @@
 #include <openssl/ssl.h>
 #include <openssl/sha.h>
 #include <openssl/rsa.h>
-#include <cryptopp/osrng.h>
+#include "cryptopp.hpp"
 
 using namespace std;
 

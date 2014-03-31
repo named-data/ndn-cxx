@@ -6,9 +6,7 @@
 #include "../common.hpp"
 
 #include "crypto.hpp"
-#include <cryptopp/sha.h>
-#include <cryptopp/filters.h>
-#include <cryptopp/files.h>
+#include "../security/cryptopp.hpp"
 
 namespace ndn {
 

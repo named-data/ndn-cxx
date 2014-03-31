@@ -22,8 +22,7 @@
 #include <boost/exception/all.hpp>
 
 
-#include <cryptopp/base64.h>
-#include <cryptopp/files.h>
+#include "security/cryptopp.hpp"
 
 #include "security/key-chain.hpp"
 #include "util/io.hpp"

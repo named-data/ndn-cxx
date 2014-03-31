@@ -18,11 +18,6 @@ def configure(conf):
                         '-Werror',
                         '-Wall',
                         '-fcolor-diagnostics', # only clang supports
-
-                        # to disable known warnings
-                        '-Wno-unused-variable', # cryptopp
-                        '-Wno-unused-function',
-                        '-Wno-deprecated-declarations',
                         ]
 
         if areCustomCxxflagsPresent:
@@ -35,11 +30,6 @@ def configure(conf):
             conf.add_supported_cxxflags(cxxflags = defaultFlags)
     else:
         defaultFlags = ['-O2', '-g', '-Wall',
-
-                        # to disable known warnings
-                        '-Wno-unused-variable', # cryptopp
-                        '-Wno-unused-function',
-                        '-Wno-deprecated-declarations',
                         ]
         if not areCustomCxxflagsPresent:
             conf.add_supported_cxxflags(cxxflags = defaultFlags)

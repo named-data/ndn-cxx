@@ -14,17 +14,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <cryptopp/rsa.h>
-#include <cryptopp/files.h>
-#include <cryptopp/base64.h>
-#include <cryptopp/hex.h>
-#include <cryptopp/osrng.h>
-#include <cryptopp/sha.h>
-#include <cryptopp/pssr.h>
-#include <cryptopp/modes.h>
-#include <cryptopp/pwdbased.h>
-#include <cryptopp/sha.h>
-#include <cryptopp/des.h>
+#include "cryptopp.hpp"
 
 #include <sys/types.h>
 #include <sys/stat.h>

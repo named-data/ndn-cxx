@@ -13,9 +13,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <cryptopp/files.h>
-#include <cryptopp/base64.h>
-#include <cryptopp/hex.h>
+#include "../security/cryptopp.hpp"
 
 
 namespace ndn {

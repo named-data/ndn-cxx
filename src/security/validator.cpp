@@ -12,9 +12,7 @@
 #include "../util/logging.hpp"
 #include "../util/crypto.hpp"
 
-#include <cryptopp/rsa.h>
-#include <cryptopp/files.h>
-#include <cryptopp/hex.h>
+#include "cryptopp.hpp"
 
 
 using namespace std;

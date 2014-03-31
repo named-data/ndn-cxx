@@ -10,9 +10,7 @@
 
 #include <fstream>
 
-#include <cryptopp/rsa.h>
-#include <cryptopp/osrng.h>
-#include <cryptopp/files.h>
+#include "security/cryptopp.hpp"
 
 using namespace std;
 namespace ndn {
@@ -170,7 +168,6 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
   
   RSASS<PKCS1v15, SHA256>::Signer signer(privateKey_);
 
-  int i = 0;
   PK_MessageAccumulator *hash = signer.NewSignatureAccumulator(rng_);
   hash->Update(d.getName().    wireEncode().wire(), d.getName().    wireEncode().size());
   hash->Update(d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size());

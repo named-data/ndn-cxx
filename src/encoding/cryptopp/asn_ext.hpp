@@ -11,7 +11,7 @@
 
 #include <stdexcept>
 #include "../../common.hpp"
-#include <cryptopp/asn.h>
+#include "../../security/cryptopp.hpp"
 
 namespace ndn {
 

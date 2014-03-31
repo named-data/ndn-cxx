@@ -9,7 +9,7 @@
 #include "common.hpp"
 
 #include "certificate-extension.hpp"
-#include <cryptopp/asn.h>
+#include "cryptopp.hpp"
 
 using namespace std;
 using namespace CryptoPP;

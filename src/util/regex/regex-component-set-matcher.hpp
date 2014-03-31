@@ -78,8 +78,6 @@ RegexComponentSetMatcher::~RegexComponentSetMatcher()
 inline void 
 RegexComponentSetMatcher::compile()
 {
-  int index = 0;
-
   switch(m_expr[0]){
   case '<':
     return compileSingleComponent();

@@ -8,14 +8,7 @@
 #include "security/certificate.hpp"
 #include "security/public-key.hpp"
 
-#if __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-compare"
-#endif
-
-#include <cryptopp/cryptlib.h>
-#include <cryptopp/rsa.h>
-#include <cryptopp/files.h>
+#include "security/cryptopp.hpp"
 
 #include <fstream>
 #include <boost/test/output_test_stream.hpp>

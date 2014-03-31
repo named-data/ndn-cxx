@@ -8,7 +8,7 @@
 
 #include "random.hpp"
 
-#include <cryptopp/osrng.h>
+#include "../security/cryptopp.hpp"
 
 namespace ndn {
 namespace random {

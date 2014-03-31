@@ -9,9 +9,7 @@
 #include "security/key-chain.hpp"
 #include "security/validator.hpp"
 
-#include <cryptopp/base64.h>
-#include <cryptopp/hex.h>
-#include <cryptopp/files.h>
+#include "security/cryptopp.hpp"
 
 using namespace std;
 namespace ndn {

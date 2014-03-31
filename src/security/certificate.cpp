@@ -13,9 +13,7 @@
 #include "../util/logging.hpp"
 #include "../util/time.hpp"
 
-#include <cryptopp/asn.h>
-#include <cryptopp/base64.h>
-#include <cryptopp/files.h>
+#include "cryptopp.hpp"
 
 #include "../encoding/cryptopp/asn_ext.hpp"
 

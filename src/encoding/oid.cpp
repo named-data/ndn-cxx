@@ -9,7 +9,7 @@
 
 #include "oid.hpp"
 
-#include <cryptopp/asn.h>
+#include "../security/cryptopp.hpp"
 
 using namespace std;
 using namespace CryptoPP;

@@ -10,7 +10,7 @@
 
 #include "certificate-subject-description.hpp"
 
-#include <cryptopp/asn.h>
+#include "cryptopp.hpp"
 
 using namespace std;
 using namespace CryptoPP;

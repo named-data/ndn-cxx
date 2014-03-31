@@ -11,8 +11,7 @@
 
 #include "security/public-key.hpp"
 #include "util/logging.hpp"
-#include <cryptopp/files.h>
-#include <cryptopp/asn.h>
+#include "cryptopp.hpp"
 
 #include <pwd.h>
 #include <unistd.h>
@@ -467,6 +466,8 @@ SecTpmOsx::importPrivateKeyPkcs1IntoTpmInternal(const Name& keyName, const uint8
   keyParams.accessRef = access;
   CFArrayRef outItems;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   OSStatus res = SecKeychainItemImport (importedKey,
                                         NULL,
                                         &externalFormat,
@@ -475,6 +476,7 @@ SecTpmOsx::importPrivateKeyPkcs1IntoTpmInternal(const Name& keyName, const uint8
                                         &keyParams,
                                         m_impl->m_keyChainRef,
                                         &outItems);
+#pragma clang diagnostic pop
   
   if(res != errSecSuccess)
     {

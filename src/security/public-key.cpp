@@ -10,9 +10,7 @@
 
 #include "public-key.hpp"
 
-#include <cryptopp/rsa.h>
-#include <cryptopp/base64.h>
-#include <cryptopp/files.h>
+#include "cryptopp.hpp"
 
 using namespace std;
 using namespace CryptoPP;

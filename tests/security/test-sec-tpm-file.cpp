@@ -4,16 +4,11 @@
  * See COPYING for copyright and distribution information.
  */
 
-#if __clang__
-#pragma clang diagnostic ignored "-Wtautological-compare"
-#endif
-
 #include <boost/test/unit_test.hpp>
 
 #include "security/key-chain.hpp"
 #include "util/time.hpp"
-#include <cryptopp/rsa.h>
-#include <cryptopp/hex.h>
+#include "security/cryptopp.hpp"
 
 using namespace std;
 namespace ndn {
