@@ -73,6 +73,11 @@ BOOST_AUTO_TEST_CASE(FaceEnableLocalControl)
     .setFaceId(9);
   BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
+
+  ControlParameters p3;
+  p3.setLocalControlFeature(static_cast<LocalControlFeature>(666));
+  BOOST_CHECK_THROW(command.validateRequest(p3), ControlCommand::ArgumentError);
+  BOOST_CHECK_THROW(command.validateResponse(p3), ControlCommand::ArgumentError);
 }
 
 BOOST_AUTO_TEST_CASE(FaceDisableLocalControl)
@@ -90,6 +95,11 @@ BOOST_AUTO_TEST_CASE(FaceDisableLocalControl)
     .setFaceId(9);
   BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
+
+  ControlParameters p3;
+  p3.setLocalControlFeature(static_cast<LocalControlFeature>(666));
+  BOOST_CHECK_THROW(command.validateRequest(p3), ControlCommand::ArgumentError);
+  BOOST_CHECK_THROW(command.validateResponse(p3), ControlCommand::ArgumentError);
 }
 
 BOOST_AUTO_TEST_CASE(FibAddNextHop)

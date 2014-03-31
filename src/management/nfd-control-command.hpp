@@ -226,6 +226,27 @@ public:
 
 class FaceLocalControlCommand : public ControlCommand
 {
+public:
+  virtual void
+  validateRequest(const ControlParameters& parameters) const
+  {
+    this->ControlCommand::validateRequest(parameters);
+
+    switch (parameters.getLocalControlFeature()) {
+      case LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID:
+      case LOCAL_CONTROL_FEATURE_NEXT_HOP_FACE_ID:
+        break;
+      default:
+        throw ArgumentError("LocalControlFeature is invalid");
+    }
+  }
+
+  virtual void
+  validateResponse(const ControlParameters& parameters) const
+  {
+    this->validateRequest(parameters);
+  }
+
 protected:
   explicit
   FaceLocalControlCommand(const std::string& verb)
