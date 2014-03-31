@@ -13,7 +13,7 @@ namespace ndn {
 BOOST_AUTO_TEST_SUITE(TestInterest)
 
 const uint8_t Interest1[] = {
-  0x05,  0x41, // NDN Interest
+  0x05,  0x59, // NDN Interest
       0x07,  0x14, // Name
           0x08,  0x5, // NameComponent
               0x6c,  0x6f,  0x63,  0x61,  0x6c,
@@ -21,9 +21,17 @@ const uint8_t Interest1[] = {
               0x6e,  0x64,  0x6e,
           0x08,  0x6, // NameComponent
               0x70,  0x72,  0x65,  0x66,  0x69,  0x78,
-      0x09,  0x1f, // Selectors
+      0x09,  0x37, // Selectors
           0x0d,  0x1,  0x1,  // MinSuffix
           0x0e,  0x1,  0x1,  // MaxSuffix
+          0x1c, 0x16, // KeyLocator
+              0x07, 0x14, // Name
+                  0x08, 0x04,
+                      0x74, 0x65, 0x73, 0x74,
+                  0x08, 0x03,
+                      0x6b, 0x65, 0x79,
+                  0x08, 0x07,
+                      0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
           0x10,  0x14, // Exclude
               0x08,  0x4, // NameComponent
                   0x61,  0x6c,  0x65,  0x78,
@@ -66,6 +74,9 @@ BOOST_AUTO_TEST_CASE (Decode)
   BOOST_REQUIRE_EQUAL(i.getInterestLifetime(), time::milliseconds(1000));
   BOOST_REQUIRE_EQUAL(i.getMinSuffixComponents(), 1);
   BOOST_REQUIRE_EQUAL(i.getMaxSuffixComponents(), 1);
+  BOOST_REQUIRE_EQUAL(i.getPublisherPublicKeyLocator().getType(),
+                      static_cast<uint32_t>(KeyLocator::KeyLocator_Name));
+  BOOST_REQUIRE_EQUAL(i.getPublisherPublicKeyLocator().getName(), "ndn:/test/key/locator");
   BOOST_REQUIRE_EQUAL(i.getChildSelector(), 1);
   BOOST_REQUIRE_EQUAL(i.getMustBeFresh(), false);
   BOOST_REQUIRE_EQUAL(i.getExclude().toUri(), "alex,xxxx,*,yyyy");
@@ -75,7 +86,7 @@ BOOST_AUTO_TEST_CASE (Decode)
 BOOST_AUTO_TEST_CASE (DecodeFromStream)
 {
   boost::iostreams::stream<boost::iostreams::array_source> is (reinterpret_cast<const char *>(Interest1), sizeof(Interest1));
-  
+
   Block interestBlock(is);
 
   ndn::Interest i;
@@ -99,6 +110,7 @@ BOOST_AUTO_TEST_CASE (Encode)
   i.setInterestLifetime(time::milliseconds(1000));
   i.setMinSuffixComponents(1);
   i.setMaxSuffixComponents(1);
+  i.setPublisherPublicKeyLocator(KeyLocator("ndn:/test/key/locator"));
   i.setChildSelector(1);
   i.setMustBeFresh(false);
   Exclude exclude;
@@ -121,9 +133,9 @@ BOOST_AUTO_TEST_CASE(EncodeWithLocalHeader)
   interest.setMustBeFresh(true);
   interest.setIncomingFaceId(10);
   interest.setNonce(1);
-    
+
   BOOST_CHECK(!interest.hasWire());
-    
+
   Block headerBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
 
   BOOST_CHECK(interest.hasWire());
@@ -184,7 +196,7 @@ BOOST_AUTO_TEST_CASE (DecodeWithLocalHeader)
 
   BOOST_CHECK_EQUAL(payload.type(), (uint32_t)Tlv::Interest);
   BOOST_CHECK_EQUAL(wireBlock.type(), (uint32_t)tlv::nfd::LocalControlHeader);
-  
+
   Interest interest(payload);
   BOOST_CHECK(!interest.getLocalControlHeader().hasIncomingFaceId());
   BOOST_CHECK(!interest.getLocalControlHeader().hasNextHopFaceId());
@@ -192,7 +204,7 @@ BOOST_AUTO_TEST_CASE (DecodeWithLocalHeader)
   BOOST_REQUIRE_NO_THROW(interest.getLocalControlHeader().wireDecode(wireBlock));
 
   BOOST_CHECK_EQUAL(interest.getLocalControlHeader().wireEncode(interest, true, true).size(), 5);
-  
+
   BOOST_CHECK_EQUAL(interest.getIncomingFaceId(), 10);
   BOOST_CHECK(!interest.getLocalControlHeader().hasNextHopFaceId());
 
@@ -204,7 +216,7 @@ BOOST_AUTO_TEST_CASE (DecodeWithLocalHeader)
 
   BOOST_CHECK_NO_THROW(interest.getLocalControlHeader().wireEncode(interest, true, false));
   BOOST_CHECK_NO_THROW(interest.getLocalControlHeader().wireEncode(interest, true, true));
-  
+
   BOOST_CHECK_NE((void*)interest.getLocalControlHeader().wireEncode(interest, true, true).wire(),
                  (void*)wireBlock.wire());
 

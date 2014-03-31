@@ -9,18 +9,19 @@
 #define NDN_SELECTORS_HPP
 
 #include "common.hpp"
+#include "key-locator.hpp"
 #include "exclude.hpp"
 #include "encoding/encoding-buffer.hpp"
 
 namespace ndn {
-  
+
 /**
  * @brief Abstraction implementing Interest selectors
  */
 class Selectors
 {
-public:    
-  Selectors() 
+public:
+  Selectors()
   : m_minSuffixComponents(-1)
   , m_maxSuffixComponents(-1)
   , m_childSelector(-1)
@@ -28,10 +29,12 @@ public:
   {
   }
 
-  Selectors(int minSuffixComponents, int maxSuffixComponents, 
+  /** @deprecated Selectors().setX(...).setY(...)
+   */
+  Selectors(int minSuffixComponents, int maxSuffixComponents,
             const Exclude& exclude,
             int childSelector,
-            bool mustBeFresh) 
+            bool mustBeFresh)
     : m_minSuffixComponents(minSuffixComponents)
     , m_maxSuffixComponents(maxSuffixComponents)
     , m_exclude(exclude)
@@ -39,22 +42,22 @@ public:
     , m_mustBeFresh(mustBeFresh)
   {
   }
-  
-  Selectors(const Block& wire) 
+
+  Selectors(const Block& wire)
   {
     wireDecode(wire);
   }
 
   bool
   empty() const;
-    
+
   /**
    * @brief Fast encoding or block size estimation
    */
   template<bool T>
   size_t
   wireEncode(EncodingImpl<T> &block) const;
-  
+
   /**
    * @brief Encode to a wire format
    */
@@ -64,20 +67,20 @@ public:
   /**
    * @brief Decode the input from wire format
    */
-  void 
+  void
   wireDecode(const Block &wire);
 
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
-  
-  int 
+
+  int
   getMinSuffixComponents() const
   {
     return m_minSuffixComponents;
   }
-  
-  Selectors& 
+
+  Selectors&
   setMinSuffixComponents(int minSuffixComponents)
   {
     m_minSuffixComponents = minSuffixComponents;
@@ -86,30 +89,46 @@ public:
   }
 
   //
-  
-  int 
+
+  int
   getMaxSuffixComponents() const
   {
     return m_maxSuffixComponents;
   }
 
-  Selectors& 
+  Selectors&
   setMaxSuffixComponents(int maxSuffixComponents)
   {
     m_maxSuffixComponents = maxSuffixComponents;
     wire_.reset();
     return *this;
   }
-  
+
   //
 
-  const Exclude& 
+  const KeyLocator&
+  getPublisherPublicKeyLocator() const
+  {
+    return m_publisherPublicKeyLocator;
+  }
+
+  Selectors&
+  setPublisherPublicKeyLocator(const KeyLocator& keyLocator)
+  {
+    m_publisherPublicKeyLocator = keyLocator;
+    wire_.reset();
+    return *this;
+  }
+
+  //
+
+  const Exclude&
   getExclude() const
   {
     return m_exclude;
   }
 
-  Selectors& 
+  Selectors&
   setExclude(const Exclude& exclude)
   {
     m_exclude = exclude;
@@ -118,14 +137,14 @@ public:
   }
 
   //
-  
-  int 
+
+  int
   getChildSelector() const
   {
     return m_childSelector;
   }
 
-  Selectors& 
+  Selectors&
   setChildSelector(int childSelector)
   {
     m_childSelector = childSelector;
@@ -135,13 +154,13 @@ public:
 
   //
 
-  int 
+  int
   getMustBeFresh() const
   {
     return m_mustBeFresh;
   }
 
-  Selectors& 
+  Selectors&
   setMustBeFresh(bool mustBeFresh)
   {
     m_mustBeFresh = mustBeFresh;
@@ -151,7 +170,8 @@ public:
 
 private:
   int m_minSuffixComponents;
-  int m_maxSuffixComponents;  
+  int m_maxSuffixComponents;
+  KeyLocator m_publisherPublicKeyLocator;
   Exclude m_exclude;
   int m_childSelector;
   bool m_mustBeFresh;
@@ -165,6 +185,7 @@ Selectors::empty() const
   return
     (m_minSuffixComponents < 0 &&
      m_maxSuffixComponents < 0 &&
+     m_publisherPublicKeyLocator.empty() &&
      m_exclude.empty() &&
      m_childSelector < 0 &&
      !m_mustBeFresh);
@@ -182,7 +203,7 @@ Selectors::wireEncode(EncodingImpl<T> &block) const
   //                 PublisherPublicKeyLocator?
   //                 Exclude?
   //                 ChildSelector?
-  //                 MustBeFresh?  
+  //                 MustBeFresh?
 
   // (reverse encoding)
 
@@ -203,10 +224,13 @@ Selectors::wireEncode(EncodingImpl<T> &block) const
     {
       total_len += getExclude().wireEncode(block);
     }
-  
+
   // PublisherPublicKeyLocator
-  /// @todo Implement PublisherPublicKeyLocator selector
-  
+  if (!getPublisherPublicKeyLocator().empty())
+    {
+      total_len += getPublisherPublicKeyLocator().wireEncode(block);
+    }
+
   // MaxSuffixComponents
   if (getMaxSuffixComponents() >= 0)
     {
@@ -220,7 +244,7 @@ Selectors::wireEncode(EncodingImpl<T> &block) const
       total_len += prependNonNegativeIntegerBlock(block, Tlv::MinSuffixComponents,
                                                   getMinSuffixComponents());
     }
-  
+
   total_len += block.prependVarNumber(total_len);
   total_len += block.prependVarNumber(Tlv::Selectors);
   return total_len;
@@ -234,7 +258,7 @@ Selectors::wireEncode() const
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
-  
+
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
@@ -243,13 +267,13 @@ Selectors::wireEncode() const
 }
 
 inline void
-Selectors::wireDecode(const Block &wire) 
+Selectors::wireDecode(const Block &wire)
 {
   if (wire.type() != Tlv::Selectors)
     throw Tlv::Error("Unexpected TLV type when decoding Selectors");
 
   *this = Selectors();
-  
+
   wire_ = wire;
   wire_.parse();
 
@@ -265,6 +289,13 @@ Selectors::wireDecode(const Block &wire)
   if (val != wire_.elements_end())
     {
       m_maxSuffixComponents = readNonNegativeInteger(*val);
+    }
+
+  // PublisherPublicKeyLocator
+  val = wire_.find(Tlv::KeyLocator);
+  if (val != wire_.elements_end())
+    {
+      m_publisherPublicKeyLocator.wireDecode(*val);
     }
 
   // Exclude
@@ -288,7 +319,7 @@ Selectors::wireDecode(const Block &wire)
       m_mustBeFresh = true;
     }
 }
-  
+
 } // namespace ndn
 
 #endif // NDN_SELECTORS_HPP

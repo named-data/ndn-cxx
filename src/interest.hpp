@@ -82,6 +82,9 @@ public:
    * @param scope
    * @param interestLifetime
    * @param nonce
+   *
+   * @deprecated Interest().setX(...).setY(...)
+   *             or use the overload taking Selectors
    */
   Interest(const Name& name,
            int minSuffixComponents, int maxSuffixComponents,
@@ -323,6 +326,22 @@ public:
   setMaxSuffixComponents(int maxSuffixComponents)
   {
     m_selectors.setMaxSuffixComponents(maxSuffixComponents);
+    m_wire.reset();
+    return *this;
+  }
+
+  //
+
+  const KeyLocator&
+  getPublisherPublicKeyLocator() const
+  {
+    return m_selectors.getPublisherPublicKeyLocator();
+  }
+
+  Interest&
+  setPublisherPublicKeyLocator(const KeyLocator& keyLocator)
+  {
+    m_selectors.setPublisherPublicKeyLocator(keyLocator);
     m_wire.reset();
     return *this;
   }
