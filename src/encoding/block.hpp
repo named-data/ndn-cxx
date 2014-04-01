@@ -248,6 +248,13 @@ public:
   Block
   blockFromValue() const;
 
+public: // EqualityComparable concept
+  bool
+  operator==(const Block& other) const;
+
+  bool
+  operator!=(const Block& other) const;
+
 protected:
   ConstBufferPtr m_buffer;
 
@@ -475,6 +482,18 @@ Block::elements_size() const
   return m_subBlocks.size();
 }
 
+inline bool
+Block::operator==(const Block& other) const
+{
+  return (this->size() == other.size()) &&
+         std::equal(this->begin(), this->end(), other.begin());
+}
+
+inline bool
+Block::operator!=(const Block& other) const
+{
+  return !this->operator==(other);
+}
 
 } // ndn
 

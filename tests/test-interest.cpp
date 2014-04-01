@@ -3,9 +3,12 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "interest.hpp"
+#include "data.hpp"
+#include "security/signature-sha256-with-rsa.hpp"
+#include "security/signature-sha256.hpp"
+
+#include <boost/test/unit_test.hpp>
 
 using namespace std;
 namespace ndn {
@@ -228,6 +231,49 @@ BOOST_AUTO_TEST_CASE (DecodeWithoutLocalHeader)
   Block wireBlock(InterestWithoutLocalControlHeader, sizeof(InterestWithoutLocalControlHeader));
   const Block& payload = nfd::LocalControlHeader::getPayload(wireBlock);
   BOOST_CHECK_EQUAL(&payload, &wireBlock);
+}
+
+BOOST_AUTO_TEST_CASE(MatchesData)
+{
+  Interest interest;
+  interest.setName("ndn:/A")
+          .setMinSuffixComponents(2)
+          .setMaxSuffixComponents(2)
+          .setPublisherPublicKeyLocator(KeyLocator("ndn:/B"))
+          .setExclude(Exclude().excludeBefore(name::Component("C")));
+
+  Data data("ndn:/A/D");
+  SignatureSha256WithRsa signature;
+  signature.setKeyLocator(KeyLocator("ndn:/B"));
+  data.setSignature(signature);
+  BOOST_CHECK_EQUAL(interest.matchesData(data), true);
+
+  Data data1 = data;
+  data1.setName("ndn:/A");// violates MinSuffixComponents
+  BOOST_CHECK_EQUAL(interest.matchesData(data1), false);
+
+  Data data2 = data;
+  data2.setName("ndn:/A/E/F");// violates MaxSuffixComponents
+  BOOST_CHECK_EQUAL(interest.matchesData(data2), false);
+
+  Data data3 = data;
+  SignatureSha256WithRsa signature3;
+  signature3.setKeyLocator(KeyLocator("ndn:/G"));// violates PublisherPublicKeyLocator
+  data3.setSignature(signature3);
+  BOOST_CHECK_EQUAL(interest.matchesData(data3), false);
+
+  Data data4 = data;
+  SignatureSha256 signature4;// violates PublisherPublicKeyLocator
+  data4.setSignature(signature4);
+  BOOST_CHECK_EQUAL(interest.matchesData(data4), false);
+
+  Data data5 = data;
+  data5.setName("ndn:/A/C");// violates Exclude
+  BOOST_CHECK_EQUAL(interest.matchesData(data5), false);
+
+  Data data6 = data;
+  data6.setName("ndn:/H/I");// violates Name
+  BOOST_CHECK_EQUAL(interest.matchesData(data6), false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -388,7 +388,7 @@ Face::satisfyPendingInterests(Data& data)
        i != m_pendingInterestTable.end();
        )
     {
-      if ((*i)->getInterest()->matchesName(data.getName()))
+      if ((*i)->getInterest()->matchesData(data))
         {
           // Copy pointers to the needed objects and remove the PIT entry before the calling the callback.
           OnData onData = (*i)->getOnData();

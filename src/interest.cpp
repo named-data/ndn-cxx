@@ -9,6 +9,7 @@
 
 #include "interest.hpp"
 #include "util/random.hpp"
+#include "data.hpp"
 
 using namespace std;
 
@@ -47,6 +48,29 @@ Interest::matchesName(const Name &name) const
       name.size() > m_name.size() &&
       getExclude().isExcluded(name[m_name.size()]))
     return false;
+
+  return true;
+}
+
+bool
+Interest::matchesData(const Data& data) const
+{
+  if (!this->matchesName(data.getName())) {
+    return false;
+  }
+
+  const KeyLocator& publisherPublicKeyLocator = this->getPublisherPublicKeyLocator();
+  if (!publisherPublicKeyLocator.empty()) {
+    const Signature& signature = data.getSignature();
+    const Block& signatureInfo = signature.getInfo();
+    Block::element_const_iterator it = signatureInfo.find(Tlv::KeyLocator);
+    if (it == signatureInfo.elements_end()) {
+      return false;
+    }
+    if (publisherPublicKeyLocator.wireEncode() != *it) {
+      return false;
+    }
+  }
 
   return true;
 }

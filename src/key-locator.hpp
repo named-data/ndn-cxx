@@ -16,11 +16,11 @@ namespace ndn {
 class KeyLocator {
 public:
   struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
-  
+
   enum {
     KeyLocator_None = 65535, // just an arbitrarily large number (used only internally)
     KeyLocator_Name = 0,
-    
+
     KeyLocator_Unknown = 255
   };
 
@@ -34,43 +34,50 @@ public:
   KeyLocator(const Name &name);
 
   ///////////////////////////////////////////////////////////////////////////////
-  
+
   template<bool T>
   size_t
   wireEncode(EncodingImpl<T> &block) const;
 
-  const Block& 
+  const Block&
   wireEncode() const;
-  
+
   void
-  wireDecode(const Block &wire);  
-  
+  wireDecode(const Block &wire);
+
   ///////////////////////////////////////////////////////////////////////////////
-  
+
   inline bool
   empty() const
   {
     return m_type == KeyLocator_None;
   }
-  
-  uint32_t 
+
+  uint32_t
   getType() const { return m_type; }
-      
+
   ////////////////////////////////////////////////////////
   // Helper methods for different types of key locators
   //
   // For now only Name type is actually supported
-  
+
   inline const Name&
   getName() const;
 
   inline void
   setName(const Name &name);
-  
+
+public: // EqualityComparable concept
+  bool
+  operator==(const KeyLocator& other) const;
+
+  bool
+  operator!=(const KeyLocator& other) const;
+
 private:
   uint32_t m_type;
   Name m_name;
-  
+
   mutable Block m_wire;
 };
 
@@ -91,7 +98,7 @@ KeyLocator::wireEncode(EncodingImpl<T>& block) const
   //                     ...
 
   // KeyLocatorDigest ::= KEY-LOCATOR-DIGEST-TYPE TLV-LENGTH BYTE+
-  
+
   size_t total_len = 0;
 
   switch (m_type) {
@@ -109,7 +116,7 @@ KeyLocator::wireEncode(EncodingImpl<T>& block) const
   return total_len;
 }
 
-inline const Block& 
+inline const Block&
 KeyLocator::wireEncode() const
 {
   if (m_wire.hasWire ())
@@ -117,7 +124,7 @@ KeyLocator::wireEncode() const
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
-  
+
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
@@ -125,7 +132,7 @@ KeyLocator::wireEncode() const
   return m_wire;
 }
 
-inline void 
+inline void
 KeyLocator::wireDecode(const Block &value)
 {
   if (value.type() != Tlv::KeyLocator)
@@ -133,7 +140,7 @@ KeyLocator::wireDecode(const Block &value)
 
   m_wire = value;
   m_wire.parse();
-  
+
   if (!m_wire.elements().empty() && m_wire.elements_begin()->type() == Tlv::Name)
     {
       m_type = KeyLocator_Name;
@@ -161,6 +168,29 @@ KeyLocator::setName(const Name &name)
   m_name = name;
 }
 
+inline bool
+KeyLocator::operator==(const KeyLocator& other) const
+{
+  if (this->getType() != other.getType()) {
+    return false;
+  }
+
+  switch (this->getType()) {
+    case KeyLocator_Name:
+      if (this->getName() != other.getName()) {
+        return false;
+      }
+      break;
+  }
+
+  return true;
+}
+
+inline bool
+KeyLocator::operator!=(const KeyLocator& other) const
+{
+  return !this->operator==(other);
+}
 
 } // namespace ndn
 

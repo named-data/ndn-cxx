@@ -14,6 +14,8 @@
 
 namespace ndn {
 
+class Data;
+
 const time::seconds DEFAULT_INTEREST_LIFETIME = time::seconds(4);
 
 /**
@@ -156,6 +158,17 @@ public:
    */
   bool
   matchesName(const Name &name) const;
+
+  /** @brief Determines whether this Interest can be satisfied by @p data.
+   *
+   *  This method considers Name, MinSuffixComponents, MaxSuffixComponents,
+   *  PublisherPublicKeyLocator, and Exclude.
+   *  This method does not consider ChildSelector and MustBeFresh.
+   *
+   *  @todo recognize implicit digest component
+   */
+  bool
+  matchesData(const Data& data) const;
 
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////

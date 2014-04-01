@@ -3,9 +3,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "encoding/encoding-buffer.hpp"
+
+#include <boost/test/unit_test.hpp>
+#include <boost/concept_check.hpp>
 
 using namespace std;
 namespace ndn {
@@ -561,6 +562,26 @@ BOOST_AUTO_TEST_CASE(BlockFromStream)
   BOOST_CHECK_EQUAL(*testBlock.value(), 0xfb);
 
   BOOST_CHECK_THROW(testBlock = Block(stream), Tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(Equality)
+{
+  BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Block>));
+
+  Block a("\x08\x00", 2);
+  Block b("\x08\x00", 2);;
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  Block c("\x06\x00", 2);
+  Block d("\x08\x00", 2);;
+  BOOST_CHECK_EQUAL(c == d, false);
+  BOOST_CHECK_EQUAL(c != d, true);
+
+  Block e("\x06\x00", 2);
+  Block f("\x06\x01\xcc", 3);;
+  BOOST_CHECK_EQUAL(e == f, false);
+  BOOST_CHECK_EQUAL(e != f, true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
