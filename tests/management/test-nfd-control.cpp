@@ -8,10 +8,7 @@
 #include "management/nfd-fib-management-options.hpp"
 #include "management/nfd-face-management-options.hpp"
 
-#include <boost/test/unit_test.hpp>
-#include <boost/test/output_test_stream.hpp>
-
-using namespace std;
+#include "boost-test.hpp"
 
 namespace ndn {
 namespace nfd {

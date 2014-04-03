@@ -4,12 +4,11 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "security/validator-null.hpp"
 #include "security/key-chain.hpp"
 #include "util/time.hpp"
 
+#include "boost-test.hpp"
 
 using namespace std;
 
@@ -23,8 +22,8 @@ onValidated(const shared_ptr<const Data>& data)
 
 void
 onValidationFailed(const shared_ptr<const Data>& data, const string& failureInfo)
-{ 
-  BOOST_CHECK(false); 
+{
+  BOOST_CHECK(false);
 }
 
 BOOST_AUTO_TEST_CASE (Null)
@@ -41,7 +40,7 @@ BOOST_AUTO_TEST_CASE (Null)
   shared_ptr<Data> data = make_shared<Data>(dataName);
 
   BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*data, identity));
-  
+
   ValidatorNull validator;
 
   // data must be a shared pointer

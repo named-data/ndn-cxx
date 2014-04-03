@@ -24,9 +24,9 @@ public:
   onInterest(const Name& name, const Interest& interest)
   {
     std::cout << "<< I: " << interest << std::endl;
-    
+
     ndn::Data data(ndn::Name(interest.getName()).append("testApp").appendVersion());
-    data.setFreshnessPeriod(time::seconds(10));
+    data.setFreshnessPeriod(ndn::time::seconds(10));
 
     data.setContent((const uint8_t*)"HELLO KITTY", sizeof("HELLO KITTY"));
 
@@ -43,7 +43,7 @@ public:
     std::cerr << "ERROR: Failed to register prefix in local hub's daemon (" << reason << ")" << std::endl;
     face_.shutdown ();
   }
-  
+
   void
   listen()
   {

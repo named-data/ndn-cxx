@@ -5,11 +5,11 @@
  */
 
 #include "management/nfd-controller.hpp"
-// Having a separate compilation unit is necessary to ensure .hpp can compile on its own.
 #include "management/nfd-control-response.hpp"
 
 #include "../transport/dummy-face.hpp"
-#include <boost/test/unit_test.hpp>
+
+#include "boost-test.hpp"
 
 namespace ndn {
 namespace nfd {

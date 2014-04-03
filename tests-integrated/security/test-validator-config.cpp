@@ -6,11 +6,10 @@
 
 #include "security/validator-config.hpp"
 
-#include <boost/test/unit_test.hpp>
-
 #include "security/key-chain.hpp"
 #include "util/io.hpp"
 
+#include "boost-test.hpp"
 
 using namespace std;
 

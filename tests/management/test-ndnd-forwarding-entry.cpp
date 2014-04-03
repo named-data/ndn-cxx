@@ -4,19 +4,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "management/ndnd-forwarding-entry.hpp"
 
-#if __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-compare"
-#endif
+#include "boost-test.hpp"
 
-#include <fstream>
-#include <boost/test/output_test_stream.hpp>
-
-using namespace std;
 namespace ndn {
 namespace ndnd {
 
@@ -40,7 +31,7 @@ BOOST_AUTO_TEST_CASE (Encode)
 BOOST_AUTO_TEST_CASE (Decode)
 {
   ForwardingEntry forwardingEntry;
-  
+
   BOOST_REQUIRE_NO_THROW(forwardingEntry.wireDecode(Block(FORWARDING_ENTRY, sizeof(FORWARDING_ENTRY))));
 
   BOOST_REQUIRE_EQUAL(forwardingEntry.getAction(), "selfreg");

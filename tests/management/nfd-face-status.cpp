@@ -6,7 +6,7 @@
 
 #include "management/nfd-face-status.hpp"
 
-#include <boost/test/unit_test.hpp>
+#include "boost-test.hpp"
 
 namespace ndn {
 namespace nfd {

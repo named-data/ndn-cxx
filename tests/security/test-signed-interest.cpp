@@ -4,13 +4,13 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "security/key-chain.hpp"
 #include "security/validator.hpp"
 
 #include "util/command-interest-generator.hpp"
 #include "util/command-interest-validator.hpp"
+
+#include "boost-test.hpp"
 
 using namespace std;
 namespace ndn {

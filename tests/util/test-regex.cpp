@@ -5,8 +5,6 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "util/regex/regex-backref-manager.hpp"
 #include "util/regex/regex-component-matcher.hpp"
 #include "util/regex/regex-component-set-matcher.hpp"
@@ -16,7 +14,7 @@
 #include "util/regex/regex-top-matcher.hpp"
 #include "util/regex.hpp"
 
-#include <iostream>
+#include "boost-test.hpp"
 
 using namespace std;
 namespace ndn {
@@ -58,11 +56,11 @@ BOOST_AUTO_TEST_CASE (ComponentSetMatcher)
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult ().size(), 1);
   BOOST_CHECK_EQUAL(cm->getMatchResult ()[0].toEscapedString(), string("a"));
-    
+
   res = cm->match(Name("/a/b/"), 1, 1);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult ().size(), 0);
-    
+
   res = cm->match(Name("/a/b/"), 0, 2);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult ().size(), 0);
@@ -77,12 +75,12 @@ BOOST_AUTO_TEST_CASE (ComponentSetMatcher)
   res = cm->match(Name("/a/b/d"), 2, 1);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult ().size(), 0);
- 
+
   backRef = ptr_lib::make_shared<RegexBackrefManager>();
   cm = ptr_lib::make_shared<RegexComponentSetMatcher>("[^<a><b><c>]", backRef);
   res = cm->match(Name("/b/d"), 1, 1);
   BOOST_CHECK_EQUAL(res, true);
-  BOOST_CHECK_EQUAL(cm->getMatchResult ().size(), 1);    
+  BOOST_CHECK_EQUAL(cm->getMatchResult ().size(), 1);
   BOOST_CHECK_EQUAL(cm->getMatchResult ()[0].toEscapedString(), string("d"));
 
 }
@@ -229,7 +227,7 @@ BOOST_AUTO_TEST_CASE (RepeatMatcher)
   BOOST_CHECK_EQUAL(cm->getMatchResult ().size(), 0);
 
 
-    
+
   backRef = ptr_lib::make_shared<RegexBackrefManager>();
   cm = ptr_lib::make_shared<RegexRepeatMatcher>("[<a><b>]{,2}", backRef, 8);
   res = cm->match(Name("/a/b/a/b/e/"), 0, 3);

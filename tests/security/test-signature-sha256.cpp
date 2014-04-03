@@ -4,12 +4,12 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "security/key-chain.hpp"
 #include "security/validator.hpp"
 
 #include "security/cryptopp.hpp"
+
+#include "boost-test.hpp"
 
 using namespace std;
 namespace ndn {
@@ -38,14 +38,14 @@ BOOST_AUTO_TEST_CASE (Signature)
   Data testData(name);
   char content[5] = "1234";
   testData.setContent(reinterpret_cast<uint8_t*>(content), 5);
-  
+
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keychain;
   keychain.signWithSha256(testData);
 
   testData.wireEncode();
 
   SignatureSha256 sig(testData.getSignature());
-  
+
   BOOST_REQUIRE(Validator::verifySignature(testData, sig));
 }
 

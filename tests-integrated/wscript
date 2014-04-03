@@ -11,6 +11,7 @@ def build(bld):
         source=bld.path.ant_glob(['**/*.cpp'],
                                  excl=['**/*-osx.cpp', '**/*-sqlite3.cpp']),
         use='ndn-cpp-dev',
+        includes='.',
         install_path=None,
         )
 

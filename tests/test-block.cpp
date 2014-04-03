@@ -5,8 +5,7 @@
 
 #include "encoding/encoding-buffer.hpp"
 
-#include <boost/test/unit_test.hpp>
-#include <boost/concept_check.hpp>
+#include "boost-test.hpp"
 
 using namespace std;
 namespace ndn {

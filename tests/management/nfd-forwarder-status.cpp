@@ -7,7 +7,7 @@
 #include "management/nfd-forwarder-status.hpp"
 #include "data.hpp"
 
-#include <boost/test/unit_test.hpp>
+#include "boost-test.hpp"
 
 namespace ndn {
 namespace nfd {

@@ -3,9 +3,9 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "util/time.hpp"
+
+#include "boost-test.hpp"
 
 namespace ndn {
 

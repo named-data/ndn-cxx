@@ -10,9 +10,7 @@
 #include "sec-tpm-memory.hpp"
 #include "public-key.hpp"
 
-#include <openssl/ssl.h>
-#include <openssl/sha.h>
-#include <openssl/rsa.h>
+#include "openssl.hpp"
 #include "cryptopp.hpp"
 
 using namespace std;
@@ -24,29 +22,29 @@ namespace ndn {
  */
 class SecTpmMemory::RsaPrivateKey {
 public:
-  RsaPrivateKey(const uint8_t *keyDer, size_t keyDerLength)
+  RsaPrivateKey(const uint8_t* keyDer, size_t keyDerLength)
   {
     // Use a temporary pointer since d2i updates it.
-    const uint8_t *derPointer = keyDer;
+    const uint8_t* derPointer = keyDer;
     privateKey_ = d2i_RSAPrivateKey(NULL, &derPointer, keyDerLength);
     if (!privateKey_)
       throw Error("RsaPrivateKey constructor: Error decoding private key DER");
   }
-    
+
   ~RsaPrivateKey()
   {
     if (privateKey_)
       RSA_free(privateKey_);
   }
-    
-  rsa_st *
+
+  rsa_st*
   getPrivateKey()
   {
     return privateKey_;
   }
-    
+
 private:
-  rsa_st * privateKey_;
+  rsa_st*  privateKey_;
 };
 
 SecTpmMemory::~SecTpmMemory()
@@ -55,14 +53,14 @@ SecTpmMemory::~SecTpmMemory()
 
 void
 SecTpmMemory::setKeyPairForKeyName(const Name& keyName,
-                                   uint8_t *publicKeyDer, size_t publicKeyDerLength,
-                                   uint8_t *privateKeyDer, size_t privateKeyDerLength)
+                                   uint8_t* publicKeyDer, size_t publicKeyDerLength,
+                                   uint8_t* privateKeyDer, size_t privateKeyDerLength)
 {
   publicKeyStore_[keyName.toUri()]  = make_shared<PublicKey>(publicKeyDer, publicKeyDerLength);
   privateKeyStore_[keyName.toUri()] = make_shared<RsaPrivateKey>(privateKeyDer, privateKeyDerLength);
 }
 
-void 
+void
 SecTpmMemory::generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize)
 {
 #if 1
@@ -71,7 +69,7 @@ SecTpmMemory::generateKeyPairInTpm(const Name& keyName, KeyType keyType, int key
 }
 
 void
-SecTpmMemory::deleteKeyPairInTpm(const Name &keyName)
+SecTpmMemory::deleteKeyPairInTpm(const Name& keyName)
 {
   throw Error("SecTpmMemory::deleteKeyPairInTpm not implemented");
 }
@@ -94,7 +92,7 @@ SecTpmMemory::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* bu
   return false;
 }
 
-shared_ptr<PublicKey> 
+shared_ptr<PublicKey>
 SecTpmMemory::getPublicKeyFromTpm(const Name& keyName)
 {
   PublicKeyStore::iterator publicKey = publicKeyStore_.find(keyName.toUri());
@@ -103,8 +101,8 @@ SecTpmMemory::getPublicKeyFromTpm(const Name& keyName)
   return publicKey->second;
 }
 
-Block 
-SecTpmMemory::signInTpm(const uint8_t *data, size_t dataLength,
+Block
+SecTpmMemory::signInTpm(const uint8_t* data, size_t dataLength,
                         const Name& keyName,
                         DigestAlgorithm digestAlgorithm)
 {
@@ -115,17 +113,17 @@ SecTpmMemory::signInTpm(const uint8_t *data, size_t dataLength,
   PrivateKeyStore::iterator privateKey = privateKeyStore_.find(keyName.toUri());
   if (privateKey == privateKeyStore_.end())
     throw Error(string("MemoryPrivateKeyStorage: Cannot find private key ") + keyName.toUri());
-  
+
   uint8_t digest[SHA256_DIGEST_LENGTH];
   SHA256_CTX sha256;
   SHA256_Init(&sha256);
   SHA256_Update(&sha256, data, dataLength);
-  SHA256_Final(digest, &sha256);
+  SHA256_Final(digest,& sha256);
 
   BufferPtr signatureBuffer = make_shared<Buffer>();
   signatureBuffer->resize(RSA_size(privateKey->second->getPrivateKey()));
-  
-  unsigned int signatureBitsLength;  
+
+  unsigned int signatureBitsLength;
   if (!RSA_sign(NID_sha256, digest, sizeof(digest),
                 signatureBuffer->buf(),
                 &signatureBitsLength,
@@ -153,7 +151,7 @@ SecTpmMemory::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& k
 #endif
 }
 
-void 
+void
 SecTpmMemory::generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize)
 {
 #if 1

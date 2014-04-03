@@ -6,7 +6,7 @@
 
 #include "management/nfd-face-event-notification.hpp"
 
-#include <boost/test/unit_test.hpp>
+#include "boost-test.hpp"
 
 namespace ndn {
 namespace nfd {

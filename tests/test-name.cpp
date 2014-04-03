@@ -4,9 +4,9 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "name.hpp"
+
+#include "boost-test.hpp"
 
 namespace ndn {
 
@@ -25,7 +25,7 @@ static const uint8_t TestName[] = {
 const uint8_t Name1[] = {0x7,  0x7, // Name
                            0x8,  0x5, // NameComponent
                              0x6c,  0x6f,  0x63,  0x61,  0x6c};
-    
+
 const uint8_t Name2[] = {0x7,  0xc, // Name
                            0x8,  0x5, // NameComponent
                              0x6c,  0x6f,  0x63,  0x61,  0x6c,
@@ -61,11 +61,11 @@ BOOST_AUTO_TEST_CASE(Encode)
   //     if (i != wire.begin())
   //       std::cout << ", ";
   //     std::cout << "0x" << static_cast<uint32_t>(*i);
-      
+
   //     std::cout.flags(saveFlags);
   //   }
   // std::cout << std::endl;
-  
+
   BOOST_CHECK_EQUAL_COLLECTIONS(TestName, TestName+sizeof(TestName),
                                 wire.begin(), wire.end());
 }
@@ -83,12 +83,12 @@ BOOST_AUTO_TEST_CASE(Decode)
 BOOST_AUTO_TEST_CASE(AppendsAndMultiEncode)
 {
   Name name("/local");
-  
+
   BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
                                 Name1, Name1 + sizeof(Name1));
 
   name.append("ndn");
-  
+
   BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
                                 Name2, Name2 + sizeof(Name2));
 
@@ -100,14 +100,14 @@ BOOST_AUTO_TEST_CASE(AppendsAndMultiEncode)
 BOOST_AUTO_TEST_CASE(AppendNumber)
 {
   Name name;
-  for (int i = 0; i < 10; i++)
+  for (uint32_t i = 0; i < 10; i++)
     {
       name.appendNumber(i);
     }
 
   BOOST_CHECK_EQUAL(name.size(), 10);
 
-  for (int i = 0; i < 10; i++)
+  for (uint32_t i = 0; i < 10; i++)
     {
       BOOST_CHECK_EQUAL(name[i].toNumber(), i);
     }

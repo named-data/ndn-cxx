@@ -3,15 +3,12 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "security/certificate.hpp"
 #include "security/public-key.hpp"
 
 #include "security/cryptopp.hpp"
 
-#include <fstream>
-#include <boost/test/output_test_stream.hpp>
+#include "boost-test.hpp"
 
 using namespace std;
 namespace ndn {

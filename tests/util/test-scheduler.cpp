@@ -6,7 +6,7 @@
 
 #include "util/scheduler.hpp"
 
-#include <boost/test/unit_test.hpp>
+#include "boost-test.hpp"
 
 namespace ndn {
 

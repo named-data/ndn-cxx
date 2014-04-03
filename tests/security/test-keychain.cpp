@@ -4,9 +4,9 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "security/key-chain.hpp"
+
+#include "boost-test.hpp"
 
 using namespace std;
 
@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE (ExportIdentity)
   Name identity("/TestKeyChain/ExportIdentity/");
   identity.appendVersion();
   keyChain.createIdentity(identity);
-  
+
   shared_ptr<SecuredBag> exported = keyChain.exportIdentity(identity, "1234");
 
   Block block = exported->wireEncode();
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE (ExportIdentity)
 BOOST_AUTO_TEST_CASE (PrepareIdentityCertificate)
 {
   KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
-  
+
   Name identity("/TestKeyChain/PrepareIdentityCertificate/");
   identity.appendVersion();
   keyChain.createIdentity(identity);
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE (PrepareIdentityCertificate)
 						  time::system_clock::now() + time::days(365),
 						  subjectDescription);
   BOOST_CHECK(!static_cast<bool>(idCert4));
-  
+
 
   Name wrongKeyName3("/TestKeyChain/PrepareIdentityCertificate/ksk-1234");
   shared_ptr<IdentityCertificate> idCert5

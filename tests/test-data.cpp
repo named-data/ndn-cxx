@@ -3,14 +3,11 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "data.hpp"
 #include "security/key-chain.hpp"
-
-#include <fstream>
-
 #include "security/cryptopp.hpp"
+
+#include "boost-test.hpp"
 
 using namespace std;
 namespace ndn {
@@ -20,29 +17,29 @@ BOOST_AUTO_TEST_SUITE(TestData)
 const uint8_t Content1[] = {0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x21};
 
 const uint8_t Data1[] = {
-0x06, 0xc5, // NDN Data                           
-    0x07, 0x14, // Name                           
-        0x08, 0x05,    
+0x06, 0xc5, // NDN Data
+    0x07, 0x14, // Name
+        0x08, 0x05,
             0x6c, 0x6f, 0x63, 0x61, 0x6c,
-        0x08, 0x03,    
+        0x08, 0x03,
             0x6e, 0x64, 0x6e,
-        0x08, 0x06,    
+        0x08, 0x06,
             0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
     0x14, 0x04, // MetaInfo
         0x19, 0x02, // FreshnessPeriod
-            0x27, 0x10,               
-    0x15, 0x08, // Content            
+            0x27, 0x10,
+    0x15, 0x08, // Content
         0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x21,
     0x16, 0x1b, // SignatureInfo
         0x1b, 0x01, // SignatureType
-            0x01,                   
+            0x01,
         0x1c, 0x16, // KeyLocator
-            0x07, 0x14, // Name  
-                0x08, 0x04,    
+            0x07, 0x14, // Name
+                0x08, 0x04,
                     0x74, 0x65, 0x73, 0x74,
-                0x08, 0x03,    
+                0x08, 0x03,
                     0x6b, 0x65, 0x79,
-                0x08, 0x07,    
+                0x08, 0x07,
                     0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
     0x17, 0x80, // SignatureValue
         0x2f, 0xd6, 0xf1, 0x6e, 0x80, 0x6f, 0x10, 0xbe, 0xb1, 0x6f, 0x3e, 0x31, 0xec, 0xe3, 0xb9, 0xea, 0x83, 0x30, 0x40, 0x03, 0xfc, 0xa0, 0x13, 0xd9, 0xb3, 0xc6, 0x25, 0x16, 0x2d, 0xa6, 0x58, 0x41, 0x69, 0x62, 0x56, 0xd8, 0xb3, 0x6a, 0x38, 0x76, 0x56, 0xea, 0x61, 0xb2, 0x32, 0x70, 0x1c, 0xb6, 0x4d, 0x10, 0x1d, 0xdc, 0x92, 0x8e, 0x52, 0xa5, 0x8a, 0x1d, 0xd9, 0x96, 0x5e, 0xc0, 0x62, 0x0b, 0xcf, 0x3a, 0x9d, 0x7f, 0xca, 0xbe, 0xa1, 0x41, 0x71, 0x85, 0x7a, 0x8b, 0x5d, 0xa9, 0x64, 0xd6, 0x66, 0xb4, 0xe9, 0x8d, 0x0c, 0x28, 0x43, 0xee, 0xa6, 0x64, 0xe8, 0x55, 0xf6, 0x1c, 0x19, 0x0b, 0xef, 0x99, 0x25, 0x1e, 0xdc, 0x78, 0xb3, 0xa7, 0xaa, 0x0d, 0x14, 0x58, 0x30, 0xe5, 0x37, 0x6a, 0x6d, 0xdb, 0x56, 0xac, 0xa3, 0xfc, 0x90, 0x7a, 0xb8, 0x66, 0x9c, 0x0e, 0xf6, 0xb7, 0x64, 0xd1
@@ -109,7 +106,7 @@ protected:
 BOOST_FIXTURE_TEST_CASE (Decode, TestDataFixture)
 {
   Block dataBlock(Data1, sizeof(Data1));
-  
+
   ndn::Data d;
   // BOOST_REQUIRE_NO_THROW
     (d.wireDecode(dataBlock));
@@ -125,10 +122,10 @@ BOOST_FIXTURE_TEST_CASE (Decode, TestDataFixture)
   block.parse();
   KeyLocator keyLocator;
   BOOST_REQUIRE_NO_THROW(keyLocator.wireDecode(block.get(Tlv::KeyLocator)));
-  
+
   BOOST_REQUIRE_EQUAL(keyLocator.getName().toUri(), "/test/key/locator");
 
-  using namespace CryptoPP;  
+  using namespace CryptoPP;
   RSASS<PKCS1v15, SHA256>::Verifier verifier(publicKey_);
   bool signatureVerified = verifier.VerifyMessage(d.wireEncode().value(), d.wireEncode().value_size() - d.getSignature().getValue().size(),
                                                   d.getSignature().getValue().value(), d.getSignature().getValue().value_size());
@@ -138,11 +135,11 @@ BOOST_FIXTURE_TEST_CASE (Decode, TestDataFixture)
 BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
 {
   // manual data packet creation for now
-  
+
   ndn::Data d(ndn::Name("/local/ndn/prefix"));
   d.setContentType(MetaInfo::TYPE_DEFAULT);
   d.setFreshnessPeriod(time::seconds(10));
-  
+
   d.setContent(Content1, sizeof(Content1));
 
   Block signatureInfo(Tlv::SignatureInfo);
@@ -155,7 +152,7 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
   {
     KeyLocator keyLocator;
     keyLocator.setName("/test/key/locator");
-    
+
     signatureInfo.push_back(keyLocator.wireEncode());
   }
   signatureInfo.encode();
@@ -165,7 +162,7 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
   Tlv::writeVarNumber(os, Tlv::SignatureValue);
 
   using namespace CryptoPP;
-  
+
   RSASS<PKCS1v15, SHA256>::Signer signer(privateKey_);
 
   PK_MessageAccumulator *hash = signer.NewSignatureAccumulator(rng_);
@@ -173,7 +170,7 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
   hash->Update(d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size());
   hash->Update(d.getContent().              wire(), d.getContent().              size());
   hash->Update(signatureInfo.               wire(), signatureInfo.               size());
-  
+
   size_t length = signer.MaxSignatureLength();
   SecByteBlock buf(length);
   signer.Sign(rng_, hash, buf);
@@ -182,7 +179,7 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
   os.write(reinterpret_cast<const char *> (buf.BytePtr()), buf.size());
 
   ndn::Block signatureValue (Block(os.buf()));
-  
+
   Signature signature(signatureInfo, signatureValue);
 
   d.setSignature(signature);
@@ -208,11 +205,11 @@ BOOST_AUTO_TEST_CASE (EncodeMetaInfo)
   BOOST_REQUIRE_NO_THROW(meta.wireEncode());
   BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo2, MetaInfo2+sizeof(MetaInfo2),
                                   meta.wireEncode().begin(), meta.wireEncode().end());
-  
+
   meta.setType(MetaInfo::TYPE_LINK);
   BOOST_REQUIRE_NO_THROW(meta.wireEncode());
   BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo3, MetaInfo3+sizeof(MetaInfo3),
-                                  meta.wireEncode().begin(), meta.wireEncode().end()); 
+                                  meta.wireEncode().begin(), meta.wireEncode().end());
 }
 
 BOOST_AUTO_TEST_CASE (DecodeMetaInfo)

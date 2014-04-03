@@ -4,11 +4,11 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "security/key-chain.hpp"
 #include "util/time.hpp"
 #include "security/cryptopp.hpp"
+
+#include "boost-test.hpp"
 
 using namespace std;
 namespace ndn {
@@ -18,16 +18,16 @@ BOOST_AUTO_TEST_SUITE(TestSecTpmOsx)
 BOOST_AUTO_TEST_CASE (Delete)
 {
   SecTpmOsx tpm;
-  
+
   Name keyName("/TestSecTpmOsx/Delete/ksk-" + boost::lexical_cast<string>(
                                                 time::toUnixTimestamp(time::system_clock::now()).count()));
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
-  
+
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
-  
+
   tpm.deleteKeyPairInTpm(keyName);
-  
+
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
 }
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE (SignVerify)
   Name keyName("/TestSecTpmOsx/SignVerify/ksk-" + boost::lexical_cast<string>(
                                                     time::toUnixTimestamp(time::system_clock::now()).count()));
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
-  
+
   Data data("/TestSecTpmOsx/SignVaerify/Data/1");
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
 
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE (SignVerify)
       RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
       bool result = verifier.VerifyMessage(content, sizeof(content),
 					   sigBlock.value(), sigBlock.value_size());
-  
+
       BOOST_CHECK_EQUAL(result, true);
     }
   catch(CryptoPP::Exception& e)
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE (ExportImportKey)
 
   Name keyName("/TestSecTpmOsx/ExportImportKey/ksk-" + boost::lexical_cast<string>(
                                                          time::toUnixTimestamp(time::system_clock::now()).count()));
-  
+
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
 
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE (ExportImportKey)
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
 
   BOOST_REQUIRE(tpm.importPrivateKeyPkcs8IntoTpm(keyName, exported->buf(), exported->size(), "1234"));
-  
+
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == true);
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);
 
@@ -137,14 +137,14 @@ BOOST_AUTO_TEST_CASE (ExportImportKey)
       RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
       bool result = verifier.VerifyMessage(content, sizeof(content),
 					   sigBlock.value(), sigBlock.value_size());
-      
+
       BOOST_CHECK_EQUAL(result, true);
     }
   catch(CryptoPP::Exception& e)
     {
       BOOST_CHECK(false);
     }
-  
+
   tpm.deleteKeyPairInTpm(keyName);
   // This is some problem related to Mac OS Key chain, and we will fix it later.
   // BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);

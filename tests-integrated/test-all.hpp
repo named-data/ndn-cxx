@@ -5,9 +5,9 @@
 
 // This file is needed for experimental precompiled header support (gcc and clang)
 
-#ifndef NDN_TESTS_TEST_ALL_HPP
-#define NDN_TESTS_TEST_ALL_HPP
+#ifndef NDN_TESTS_INTEGRATED_TEST_ALL_HPP
+#define NDN_TESTS_INTEGRATED_TEST_ALL_HPP
 
 #include "common.hpp"
 
-#endif
+#endif // NDN_TESTS_INTEGRATED_TEST_ALL_HPP

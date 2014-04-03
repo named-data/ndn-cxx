@@ -4,10 +4,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-#include <unistd.h>
 #include "security/certificate-cache-ttl.hpp"
 #include "face.hpp"
+
+#include "boost-test.hpp"
 
 using namespace std;
 
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE (Ttl)
 
   Name name1 = certName1.getPrefix(-1);
   Name name2 = certName2.getPrefix(-1);
-  
+
   cache->insertCertificate(cert1);
   cache->insertCertificate(cert2);
 

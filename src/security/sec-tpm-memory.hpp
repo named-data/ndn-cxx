@@ -23,7 +23,7 @@ class SecTpmMemory : public SecTpm {
 public:
   struct Error : public SecTpm::Error { Error(const std::string &what) : SecTpm::Error(what) {} };
 
-  virtual 
+  virtual
   ~SecTpmMemory();
 
   /******************************
@@ -43,7 +43,7 @@ public:
   {
     m_inTerminal = inTerminal;
   }
-  
+
   virtual bool
   getInTerminal()
   {
@@ -62,34 +62,34 @@ public:
     return !locked();
   }
 
-  virtual void 
+  virtual void
   generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize);
 
-  virtual shared_ptr<PublicKey> 
+  virtual shared_ptr<PublicKey>
   getPublicKeyFromTpm(const Name& keyName);
 
   virtual void
   deleteKeyPairInTpm(const Name &keyName);
 
-  virtual Block 
-  signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
-  
-  virtual ConstBufferPtr 
+  virtual Block
+  signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
+
+  virtual ConstBufferPtr
   decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric);
 
   virtual ConstBufferPtr
   encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric);
 
-  virtual void 
+  virtual void
   generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize);
 
   virtual bool
-  doesKeyExistInTpm(const Name& keyName, KeyClass keyClass); 
+  doesKeyExistInTpm(const Name& keyName, KeyClass keyClass);
 
   virtual bool
   generateRandomBlock(uint8_t* res, size_t size);
 
-  virtual void 
+  virtual void
   addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl)
   {}
 
@@ -107,8 +107,8 @@ public:
    * @param privateKeyDerLength The length of privateKeyDer.
    */
   void setKeyPairForKeyName(const Name& keyName,
-                            uint8_t *publicKeyDer, size_t publicKeyDerLength,
-                            uint8_t *privateKeyDer, size_t privateKeyDerLength);
+                            uint8_t* publicKeyDer, size_t publicKeyDerLength,
+                            uint8_t* privateKeyDer, size_t privateKeyDerLength);
 
 protected:
   /******************************
@@ -119,17 +119,17 @@ protected:
 
   virtual bool
   importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
-  
+
   virtual bool
   importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
-  
-  
+
+
 private:
   class RsaPrivateKey;
 
   typedef std::map<std::string, shared_ptr<PublicKey> >     PublicKeyStore;
   typedef std::map<std::string, shared_ptr<RsaPrivateKey> > PrivateKeyStore;
-  
+
   PublicKeyStore  publicKeyStore_;  /**< The map key is the keyName.toUri() */
   PrivateKeyStore privateKeyStore_; /**< The map key is the keyName.toUri() */
 

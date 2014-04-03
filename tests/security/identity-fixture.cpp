@@ -6,16 +6,7 @@
 
 #include "security/key-chain.hpp"
 
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunneeded-internal-declaration"
-#endif // __clang__
-
-#include <boost/test/unit_test.hpp>
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif // __clang__
+#include "boost-test.hpp"
 
 namespace ndn {
 

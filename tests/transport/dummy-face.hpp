@@ -1,10 +1,10 @@
 /**
- * Copyright (C) 2013 Regents of the University of California.
+ * Copyright (C) 2013-2014 Regents of the University of California.
  * See COPYING for copyright and distribution information.
  */
 
-#ifndef NDN_TESTS_DUMMY_FACE_HPP
-#define NDN_TESTS_DUMMY_FACE_HPP
+#ifndef NDN_TESTS_TRANSPORT_DUMMY_FACE_HPP
+#define NDN_TESTS_TRANSPORT_DUMMY_FACE_HPP
 
 #include "face.hpp"
 
@@ -95,4 +95,5 @@ makeDummyFace()
 }
 
 } // namespace ndn
-#endif // NDN_TESTS_DUMMY_FACE_HPP
+
+#endif // NDN_TESTS_TRANSPORT_DUMMY_FACE_HPP

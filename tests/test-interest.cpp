@@ -8,7 +8,7 @@
 #include "security/signature-sha256-with-rsa.hpp"
 #include "security/signature-sha256.hpp"
 
-#include <boost/test/unit_test.hpp>
+#include "boost-test.hpp"
 
 using namespace std;
 namespace ndn {
@@ -65,48 +65,48 @@ const uint8_t InterestWithoutLocalControlHeader[] = {
   0x01
 };
 
-BOOST_AUTO_TEST_CASE (Decode)
+BOOST_AUTO_TEST_CASE(Decode)
 {
   Block interestBlock(Interest1, sizeof(Interest1));
 
   ndn::Interest i;
   BOOST_REQUIRE_NO_THROW(i.wireDecode(interestBlock));
 
-  BOOST_REQUIRE_EQUAL(i.getName().toUri(), "/local/ndn/prefix");
-  BOOST_REQUIRE_EQUAL(i.getScope(), 1);
-  BOOST_REQUIRE_EQUAL(i.getInterestLifetime(), time::milliseconds(1000));
-  BOOST_REQUIRE_EQUAL(i.getMinSuffixComponents(), 1);
-  BOOST_REQUIRE_EQUAL(i.getMaxSuffixComponents(), 1);
-  BOOST_REQUIRE_EQUAL(i.getPublisherPublicKeyLocator().getType(),
-                      static_cast<uint32_t>(KeyLocator::KeyLocator_Name));
-  BOOST_REQUIRE_EQUAL(i.getPublisherPublicKeyLocator().getName(), "ndn:/test/key/locator");
-  BOOST_REQUIRE_EQUAL(i.getChildSelector(), 1);
-  BOOST_REQUIRE_EQUAL(i.getMustBeFresh(), false);
-  BOOST_REQUIRE_EQUAL(i.getExclude().toUri(), "alex,xxxx,*,yyyy");
-  BOOST_REQUIRE_EQUAL(i.getNonce(), 1);
+  BOOST_CHECK_EQUAL(i.getName().toUri(), "/local/ndn/prefix");
+  BOOST_CHECK_EQUAL(i.getScope(), 1);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), time::milliseconds(1000));
+  BOOST_CHECK_EQUAL(i.getMinSuffixComponents(), 1);
+  BOOST_CHECK_EQUAL(i.getMaxSuffixComponents(), 1);
+  BOOST_CHECK_EQUAL(i.getPublisherPublicKeyLocator().getType(),
+                    static_cast<uint32_t>(KeyLocator::KeyLocator_Name));
+  BOOST_CHECK_EQUAL(i.getPublisherPublicKeyLocator().getName(), "ndn:/test/key/locator");
+  BOOST_CHECK_EQUAL(i.getChildSelector(), 1);
+  BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
+  BOOST_CHECK_EQUAL(i.getExclude().toUri(), "alex,xxxx,*,yyyy");
+  BOOST_CHECK_EQUAL(i.getNonce(), 1U);
 }
 
-BOOST_AUTO_TEST_CASE (DecodeFromStream)
+BOOST_AUTO_TEST_CASE(DecodeFromStream)
 {
-  boost::iostreams::stream<boost::iostreams::array_source> is (reinterpret_cast<const char *>(Interest1), sizeof(Interest1));
+  boost::iostreams::stream<boost::iostreams::array_source> is(reinterpret_cast<const char *>(Interest1), sizeof(Interest1));
 
   Block interestBlock(is);
 
   ndn::Interest i;
   BOOST_REQUIRE_NO_THROW(i.wireDecode(interestBlock));
 
-  BOOST_REQUIRE_EQUAL(i.getName().toUri(), "/local/ndn/prefix");
-  BOOST_REQUIRE_EQUAL(i.getScope(), 1);
-  BOOST_REQUIRE_EQUAL(i.getInterestLifetime(), time::milliseconds(1000));
-  BOOST_REQUIRE_EQUAL(i.getMinSuffixComponents(), 1);
-  BOOST_REQUIRE_EQUAL(i.getMaxSuffixComponents(), 1);
-  BOOST_REQUIRE_EQUAL(i.getChildSelector(), 1);
-  BOOST_REQUIRE_EQUAL(i.getMustBeFresh(), false);
-  BOOST_REQUIRE_EQUAL(i.getExclude().toUri(), "alex,xxxx,*,yyyy");
-  BOOST_REQUIRE_EQUAL(i.getNonce(), 1);
+  BOOST_CHECK_EQUAL(i.getName().toUri(), "/local/ndn/prefix");
+  BOOST_CHECK_EQUAL(i.getScope(), 1);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), time::milliseconds(1000));
+  BOOST_CHECK_EQUAL(i.getMinSuffixComponents(), 1);
+  BOOST_CHECK_EQUAL(i.getMaxSuffixComponents(), 1);
+  BOOST_CHECK_EQUAL(i.getChildSelector(), 1);
+  BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
+  BOOST_CHECK_EQUAL(i.getExclude().toUri(), "alex,xxxx,*,yyyy");
+  BOOST_CHECK_EQUAL(i.getNonce(), 1U);
 }
 
-BOOST_AUTO_TEST_CASE (Encode)
+BOOST_AUTO_TEST_CASE(Encode)
 {
   ndn::Interest i(ndn::Name("/local/ndn/prefix"));
   i.setScope(1);
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE (Encode)
 
   const Block &wire = i.wireEncode();
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(Interest1, Interest1+sizeof(Interest1),
+  BOOST_CHECK_EQUAL_COLLECTIONS(Interest1, Interest1 + sizeof(Interest1),
                                 wire.begin(), wire.end());
 }
 
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE(EncodeWithLocalHeader)
   BOOST_CHECK_EQUAL(headerBlock.size(), 5);
 
   BOOST_CHECK_EQUAL_COLLECTIONS(InterestWithLocalControlHeader,
-                                InterestWithLocalControlHeader+5,
+                                InterestWithLocalControlHeader + 5,
                                 headerBlock.begin(), headerBlock.end());
 
   interest.setNonce(1000);
@@ -158,14 +158,14 @@ BOOST_AUTO_TEST_CASE(EncodeWithLocalHeader)
   BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 5);
 
   // only length should have changed
-  BOOST_CHECK_EQUAL_COLLECTIONS(updatedHeaderBlock.begin()+2, updatedHeaderBlock.end(),
-                                headerBlock.begin()+2,        headerBlock.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(updatedHeaderBlock.begin() + 2, updatedHeaderBlock.end(),
+                                headerBlock.begin() + 2,        headerBlock.end());
 
   // updating IncomingFaceId that keeps the length
   interest.setIncomingFaceId(100);
   updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
   BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 5);
-  BOOST_CHECK_NE(*(updatedHeaderBlock.begin()+4), *(headerBlock.begin()+4));
+  BOOST_CHECK_NE(*(updatedHeaderBlock.begin() + 4), *(headerBlock.begin() + 4));
 
   // updating IncomingFaceId that increases the length by 2
   interest.setIncomingFaceId(1000);
@@ -191,14 +191,14 @@ BOOST_AUTO_TEST_CASE(EncodeWithLocalHeader)
 }
 
 
-BOOST_AUTO_TEST_CASE (DecodeWithLocalHeader)
+BOOST_AUTO_TEST_CASE(DecodeWithLocalHeader)
 {
   Block wireBlock(InterestWithLocalControlHeader, sizeof(InterestWithLocalControlHeader));
   const Block& payload = nfd::LocalControlHeader::getPayload(wireBlock);
   BOOST_REQUIRE_NE(&payload, &wireBlock);
 
-  BOOST_CHECK_EQUAL(payload.type(), (uint32_t)Tlv::Interest);
-  BOOST_CHECK_EQUAL(wireBlock.type(), (uint32_t)tlv::nfd::LocalControlHeader);
+  BOOST_CHECK_EQUAL(payload.type(), static_cast<uint32_t>(Tlv::Interest));
+  BOOST_CHECK_EQUAL(wireBlock.type(), static_cast<uint32_t>(tlv::nfd::LocalControlHeader));
 
   Interest interest(payload);
   BOOST_CHECK(!interest.getLocalControlHeader().hasIncomingFaceId());
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE (DecodeWithLocalHeader)
   BOOST_CHECK_EQUAL(interest.getLocalControlHeader().wireEncode(interest, true, true).size(), 5);
 }
 
-BOOST_AUTO_TEST_CASE (DecodeWithoutLocalHeader)
+BOOST_AUTO_TEST_CASE(DecodeWithoutLocalHeader)
 {
   Block wireBlock(InterestWithoutLocalControlHeader, sizeof(InterestWithoutLocalControlHeader));
   const Block& payload = nfd::LocalControlHeader::getPayload(wireBlock);

@@ -5,9 +5,8 @@
  */
 
 #include "management/nfd-control-parameters.hpp"
-// Having a separate compilation unit is necessary to ensure .hpp can compile on its own.
 
-#include <boost/test/unit_test.hpp>
+#include "boost-test.hpp"
 
 namespace ndn {
 namespace nfd {

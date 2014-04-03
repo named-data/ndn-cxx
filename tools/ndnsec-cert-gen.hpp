@@ -17,6 +17,7 @@ ndnsec_cert_gen(int argc, char** argv)
   using boost::escaped_list_separator;
 
   using namespace ndn;
+  using namespace ndn::time;
   namespace po = boost::program_options;
 
   std::string notBeforeStr;
@@ -97,27 +98,27 @@ ndnsec_cert_gen(int argc, char** argv)
       it++;
     }
 
-  time::system_clock::TimePoint notBefore;
-  time::system_clock::TimePoint notAfter;
+  system_clock::TimePoint notBefore;
+  system_clock::TimePoint notAfter;
 
   if (vm.count("not-before") == 0)
     {
-      notBefore = time::system_clock::now();
+      notBefore = system_clock::now();
     }
   else
     {
-      notBefore = time::fromIsoString(notBeforeStr.substr(0, 8) + "T" +
-                                      notBeforeStr.substr(8, 6));
+      notBefore = fromIsoString(notBeforeStr.substr(0, 8) + "T" +
+                                notBeforeStr.substr(8, 6));
     }
 
   if (vm.count("not-after") == 0)
     {
-      notAfter = notBefore + time::days(365);
+      notAfter = notBefore + days(365);
     }
   else
     {
-      notAfter = time::fromIsoString(notAfterStr.substr(0, 8) + "T" +
-                                     notAfterStr.substr(8, 6));
+      notAfter = fromIsoString(notAfterStr.substr(0, 8) + "T" +
+                               notAfterStr.substr(8, 6));
 
       if (notAfter < notBefore)
         {

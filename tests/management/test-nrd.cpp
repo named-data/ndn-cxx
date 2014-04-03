@@ -6,10 +6,7 @@
 
 #include "management/nrd-prefix-reg-options.hpp"
 
-#include <boost/test/unit_test.hpp>
-#include <boost/test/output_test_stream.hpp>
-
-using namespace std;
+#include "boost-test.hpp"
 
 namespace ndn {
 namespace nrd {
@@ -21,38 +18,39 @@ const uint8_t RealPrefixRegOptions[] = {
   0x08, 0x03, 0x72, 0x65, 0x67, 0x08, 0x04, 0x74, 0x65, 0x73, 0x74, 0x66, 0x01, 0x00,
 };
 
-BOOST_AUTO_TEST_CASE (PrefixRegOptionsEncode)
+BOOST_AUTO_TEST_CASE(PrefixRegOptionsEncode)
 {
-  Name n ("/localhost/reg/test");
+  Name n("/localhost/reg/test");
   PrefixRegOptions opt;
 
-  opt.setName (n);
-  opt.setFaceId (0);
-  opt.setCost (0);
+  opt.setName(n);
+  opt.setFaceId(0);
+  opt.setCost(0);
 
-  const Block& blk = opt.wireEncode ();
+  const Block& blk = opt.wireEncode();
 
   BOOST_CHECK_EQUAL_COLLECTIONS(RealPrefixRegOptions,
-                                RealPrefixRegOptions + sizeof (RealPrefixRegOptions),
-                                blk.begin (), blk.end ());
+                                RealPrefixRegOptions + sizeof(RealPrefixRegOptions),
+                                blk.begin(), blk.end());
 
   std::ostringstream os;
   os << opt;
   BOOST_CHECK_EQUAL(os.str(), "PrefixRegOptions(Prefix: /localhost/reg/test, "
-                    "FaceID: 0, Flags: 1, Cost: 0, ExpirationPeriod: -9223372036854775808 milliseconds, Protocol: )");
+                    "FaceID: 0, Flags: 1, Cost: 0, "
+                    "ExpirationPeriod: -9223372036854775808 milliseconds, Protocol: )");
 }
 
-BOOST_AUTO_TEST_CASE (PrefixRegOptionsDecoding)
+BOOST_AUTO_TEST_CASE(PrefixRegOptionsDecoding)
 {
-  Block blk (RealPrefixRegOptions, sizeof (RealPrefixRegOptions));
-  Name n ("/localhost/reg/test");
+  Block blk(RealPrefixRegOptions, sizeof(RealPrefixRegOptions));
+  Name n("/localhost/reg/test");
   PrefixRegOptions opt;
 
-  BOOST_REQUIRE_NO_THROW (opt.wireDecode (blk));
-  
-  BOOST_CHECK_EQUAL (opt.getName (), n);
-  BOOST_CHECK_EQUAL (opt.getFaceId (), 0);
-  BOOST_CHECK_EQUAL (opt.getCost (), 0);
+  BOOST_REQUIRE_NO_THROW(opt.wireDecode(blk));
+
+  BOOST_CHECK_EQUAL(opt.getName(), n);
+  BOOST_CHECK_EQUAL(opt.getFaceId(), 0);
+  BOOST_CHECK_EQUAL(opt.getCost(), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

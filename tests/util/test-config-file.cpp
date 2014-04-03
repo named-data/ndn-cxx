@@ -4,11 +4,11 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "util/config-file.hpp"
 
 #include <cstdlib>
+
+#include "boost-test.hpp"
 
 namespace ndn {
 

@@ -4,11 +4,11 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "security/key-chain.hpp"
 #include "util/time.hpp"
 #include "security/cryptopp.hpp"
+
+#include "boost-test.hpp"
 
 using namespace std;
 namespace ndn {
@@ -18,15 +18,15 @@ BOOST_AUTO_TEST_SUITE(TestSecTpmFile)
 BOOST_AUTO_TEST_CASE (Delete)
 {
   SecTpmFile tpm;
-  
+
   Name keyName("/TestSecTpmFile/Delete/ksk-" + boost::lexical_cast<string>(time::toUnixTimestamp(time::system_clock::now())));
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
-  
+
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
-  
+
   tpm.deleteKeyPairInTpm(keyName);
-  
+
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
 }
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE (SignVerify)
 
   Name keyName("/TestSecTpmFile/SignVerify/ksk-" + boost::lexical_cast<string>(time::toUnixTimestamp(time::system_clock::now())));
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
-  
+
   Data data("/tmp/test/1");
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
 
@@ -49,16 +49,16 @@ BOOST_AUTO_TEST_CASE (SignVerify)
   try
     {
       using namespace CryptoPP;
-      
+
       RSA::PublicKey publicKey;
       ByteQueue queue;
       queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
       publicKey.Load(queue);
-      
+
       RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
       bool result = verifier.VerifyMessage(content, sizeof(content),
 					   sigBlock.value(), sigBlock.value_size());
-      
+
       BOOST_CHECK_EQUAL(result, true);
     }
   catch(CryptoPP::Exception& e)
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE (ImportExportKey)
 
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
-  
+
   BOOST_REQUIRE_NO_THROW(tpm.importPrivateKeyPkcs8IntoTpm(keyName, reinterpret_cast<const uint8_t*>(decoded.c_str()), decoded.size(), "1234"));
 
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);
@@ -122,16 +122,16 @@ BOOST_AUTO_TEST_CASE (ImportExportKey)
   try
     {
       using namespace CryptoPP;
-      
+
       RSA::PublicKey publicKey;
       ByteQueue queue;
       queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
       publicKey.Load(queue);
-      
+
       RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
       bool result = verifier.VerifyMessage(content, sizeof(content),
 					   sigBlock.value(), sigBlock.value_size());
-      
+
       BOOST_CHECK_EQUAL(result, true);
     }
   catch(CryptoPP::Exception& e)
@@ -148,10 +148,10 @@ BOOST_AUTO_TEST_CASE (ImportExportKey)
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
 
   BOOST_REQUIRE(tpm.importPrivateKeyPkcs8IntoTpm(keyName, exported->buf(), exported->size(), "5678"));
-  
+
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == true);
-  
+
   const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
   Block sigBlock2;
   BOOST_CHECK_NO_THROW(sigBlock2 = tpm.signInTpm(content2, sizeof(content2), keyName, DIGEST_ALGORITHM_SHA256));
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE (ImportExportKey)
   try
     {
       using namespace CryptoPP;
-      
+
       RSA::PublicKey publicKey;
       ByteQueue queue;
       queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
@@ -168,14 +168,14 @@ BOOST_AUTO_TEST_CASE (ImportExportKey)
       RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
       bool result = verifier.VerifyMessage(content2, sizeof(content2),
 					   sigBlock2.value(), sigBlock2.value_size());
-  
+
       BOOST_CHECK_EQUAL(result, true);
     }
   catch(CryptoPP::Exception& e)
     {
       BOOST_CHECK(false);
     }
-  
+
   tpm.deleteKeyPairInTpm(keyName);
 
   BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);

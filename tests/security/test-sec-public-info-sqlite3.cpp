@@ -4,14 +4,10 @@
  * See COPYING for copyright and distribution information.
  */
 
-#if __clang__
-#pragma clang diagnostic ignored "-Wtautological-compare"
-#endif
-
-#include <boost/test/unit_test.hpp>
-
 #include "security/key-chain.hpp"
 #include "util/time.hpp"
+
+#include "boost-test.hpp"
 
 using namespace std;
 namespace ndn {
@@ -28,18 +24,18 @@ BOOST_AUTO_TEST_CASE (Delete)
   Name certName1;
   BOOST_REQUIRE_NO_THROW(certName1 = keyChain.createIdentity(identity));
 
-  Name keyName1 = IdentityCertificate::certificateNameToPublicKeyName(certName1);  
+  Name keyName1 = IdentityCertificate::certificateNameToPublicKeyName(certName1);
   Name keyName2;
   BOOST_REQUIRE_NO_THROW(keyName2 = keyChain.generateRSAKeyPairAsDefault(identity));
-  
+
   shared_ptr<IdentityCertificate> cert2;
   BOOST_REQUIRE_NO_THROW(cert2 = keyChain.selfSign(keyName2));
   Name certName2 = cert2->getName();
   BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert2));
-  
+
   Name keyName3;
   BOOST_REQUIRE_NO_THROW(keyName3 = keyChain.generateRSAKeyPairAsDefault(identity));
-  
+
   shared_ptr<IdentityCertificate> cert3;
   BOOST_REQUIRE_NO_THROW(cert3 = keyChain.selfSign(keyName3));
   Name certName3 = cert3->getName();
