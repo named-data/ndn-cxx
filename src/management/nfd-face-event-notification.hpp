@@ -132,30 +132,6 @@ public: // getters & setters
     return *this;
   }
 
-public: // deprecated
-  /** \deprecated use default constructor and setters
-   */
-  FaceEventNotification(FaceEventKind kind,
-                        uint64_t faceId,
-                        const std::string& uri,
-                        uint64_t flags);
-
-  /** \deprecated
-   */
-  FaceEventKind
-  getEventKind() const
-  {
-    return this->getKind();
-  }
-
-  /** \deprecated
-   */
-  const std::string&
-  getUri() const
-  {
-    return this->getRemoteUri();
-  }
-
 private:
   FaceEventKind m_kind;
   uint64_t m_faceId;
@@ -172,18 +148,6 @@ FaceEventNotification::FaceEventNotification()
   , m_faceId(0)
   , m_flags(0)
 {
-}
-
-inline
-FaceEventNotification::FaceEventNotification(FaceEventKind kind,
-                                             uint64_t faceId,
-                                             const std::string& uri,
-                                             uint64_t flags)
-{
-  (*this).setKind(kind)
-         .setFaceId(faceId)
-         .setRemoteUri(uri)
-         .setFlags(flags);
 }
 
 template<bool T>

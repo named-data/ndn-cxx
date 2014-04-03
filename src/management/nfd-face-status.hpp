@@ -169,53 +169,6 @@ public: // getters & setters
     return *this;
   }
 
-public: // deprecated
-  /** \deprecated
-   */
-  FaceStatus(const uint64_t faceId,
-             const std::string& uri,
-             uint64_t inInterest, uint64_t inData, uint64_t outInterest, uint64_t outData);
-
-  /** \deprecated
-   */
-  const std::string&
-  getUri() const
-  {
-    return this->getRemoteUri();
-  }
-
-  /** \deprecated
-   */
-  const uint64_t
-  getInInterest() const
-  {
-    return this->getNInInterests();
-  }
-
-  /** \deprecated
-   */
-  const uint64_t
-  getInData() const
-  {
-    return this->getNInDatas();
-  }
-
-  /** \deprecated
-   */
-  const uint64_t
-  getOutInterest() const
-  {
-    return this->getNOutInterests();
-  }
-
-  /** \deprecated
-   */
-  const uint64_t
-  getOutData() const
-  {
-    return this->getNOutDatas();
-  }
-
 private:
   uint64_t m_faceId;
   std::string m_remoteUri;
@@ -238,19 +191,6 @@ FaceStatus::FaceStatus()
   , m_nOutInterests(0)
   , m_nOutDatas(0)
 {
-}
-
-inline
-FaceStatus::FaceStatus(const uint64_t faceId,
-             const std::string& uri,
-             uint64_t inInterest, uint64_t inData, uint64_t outInterest, uint64_t outData)
-{
-  (*this).setFaceId(faceId)
-         .setRemoteUri(uri)
-         .setNInInterests(inInterest)
-         .setNInDatas(inData)
-         .setNOutInterests(outInterest)
-         .setNOutDatas(outData);
 }
 
 template<bool T>
