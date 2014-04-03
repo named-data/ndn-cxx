@@ -57,13 +57,31 @@ def configure(conf):
     conf.load('default-compiler-flags')
 
     if Utils.unversioned_sys_platform() == "darwin":
-        conf.check_cxx(framework_name='CoreFoundation', uselib_store='OSX_COREFOUNDATION',
-                       mandatory=True)
-        conf.check_cxx(framework_name='CoreServices', uselib_store='OSX_CORESERVICES',
-                       mandatory=True)
-        conf.check_cxx(framework_name='Security', uselib_store='OSX_SECURITY',
-                       define_name='HAVE_SECURITY', use="OSX_COREFOUNDATION", mandatory=True)
-        conf.define('HAVE_OSX_SECURITY', 1)
+        try:
+            codeFragment='''
+#include <CoreFoundation/CoreFoundation.h>
+#include <Security/Security.h>
+#include <Security/SecRandom.h>
+#include <CoreServices/CoreServices.h>
+#include <Security/SecDigestTransform.h>
+
+int main(int argc, char **argv) {
+    (void)argc; (void)argv;
+    return 0;
+}
+'''
+            conf.check_cxx(framework_name='CoreFoundation', uselib_store='OSX_COREFOUNDATION',
+                           mandatory=True)
+            conf.check_cxx(framework_name='CoreServices', uselib_store='OSX_CORESERVICES',
+                           mandatory=True)
+            conf.check_cxx(framework_name='Security', uselib_store='OSX_SECURITY',
+                           define_name='HAVE_SECURITY', use="OSX_COREFOUNDATION",
+                           fragment=codeFragment, mandatory=True)
+            conf.define('HAVE_OSX_SECURITY', 1)
+            conf.env['HAVE_OSX_SECURITY'] = True
+        except:
+            Logs.warn("Compiling on OSX, but CoreFoundation, CoreServices, or Security framework is not functional.")
+            Logs.warn("The frameworks are known to work only with Apple-specific compilers: llvm-gcc-4.2 or clang")
 
     conf.check_cfg(package='sqlite3', args=['--cflags', '--libs'], uselib_store='SQLITE3',
                    mandatory=True)
@@ -108,7 +126,7 @@ def configure(conf):
 
     conf.env['WITH_PCH'] = conf.options.with_pch
 
-    if Utils.unversioned_sys_platform() == "darwin":
+    if conf.env['HAVE_OSX_SECURITY']:
         conf.env['WITH_OSX_KEYCHAIN'] = conf.options.with_osx_keychain
         if conf.options.with_osx_keychain:
             conf.define('WITH_OSX_KEYCHAIN', 1)
@@ -138,7 +156,7 @@ def build(bld):
     if bld.env['WITH_PCH']:
         libndn_cpp.pch="src/common.hpp"
 
-    if Utils.unversioned_sys_platform() == "darwin":
+    if bld.env['HAVE_OSX_SECURITY']:
         libndn_cpp.source += bld.path.ant_glob('src/**/*-osx.cpp')
         libndn_cpp.mac_app = True
         libndn_cpp.use += " OSX_COREFOUNDATION OSX_SECURITY"
@@ -165,7 +183,7 @@ def build(bld):
             pkgconfig_cxxflags += Utils.to_list(bld.env['CXXFLAGS_%s' % lib])
 
     EXTRA_FRAMEWORKS = "";
-    if Utils.unversioned_sys_platform() == "darwin":
+    if bld.env['HAVE_OSX_SECURITY']:
         EXTRA_FRAMEWORKS = "-framework CoreFoundation -framework Security"
 
     def uniq(alist):

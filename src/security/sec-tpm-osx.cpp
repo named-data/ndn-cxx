@@ -23,6 +23,8 @@
 #include <Security/SecRandom.h>
 #include <CoreServices/CoreServices.h>
 
+#include <Security/SecDigestTransform.h>
+
 using namespace std;
 
 INIT_LOGGER("ndn.SecTpmOsx");

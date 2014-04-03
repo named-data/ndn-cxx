@@ -15,7 +15,7 @@ def build(bld):
         install_path=None,
         )
 
-    if Utils.unversioned_sys_platform () == "darwin":
+    if bld.env['HAVE_OSX_SECURITY']:
         unittests.source += bld.path.ant_glob('**/*-osx.cpp')
 
     # In case we want to make it optional later
