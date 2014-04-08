@@ -115,7 +115,7 @@ public:
    */
   template<bool T>
   inline size_t
-  wireEncode(EncodingImpl<T> &block) const;
+  wireEncode(EncodingImpl<T>& block) const;
 
   /**
    * @brief Encode to a wire format
@@ -127,7 +127,7 @@ public:
    * @brief Decode from the wire format
    */
   inline void
-  wireDecode(const Block &wire);
+  wireDecode(const Block& wire);
 
   /**
    * @brief Check if already has wire
@@ -157,7 +157,7 @@ public:
    * @return 1 if the name and interest selectors match, 0 otherwise.
    */
   bool
-  matchesName(const Name &name) const;
+  matchesName(const Name& name) const;
 
   /** @brief Determines whether this Interest can be satisfied by @p data.
    *
@@ -407,6 +407,19 @@ public:
     return *this;
   }
 
+public: // EqualityComparable concept
+  bool
+  operator==(const Interest& other) const
+  {
+    return wireEncode() == other.wireEncode();
+  }
+
+  bool
+  operator!=(const Interest& other) const
+  {
+    return !(*this == other);
+  }
+
 private:
   Name m_name;
   Selectors m_selectors;
@@ -420,8 +433,8 @@ private:
   friend class nfd::LocalControlHeader;
 };
 
-std::ostream &
-operator << (std::ostream &os, const Interest &interest);
+std::ostream&
+operator<<(std::ostream& os, const Interest& interest);
 
 inline std::string
 Interest::toUri() const
@@ -447,7 +460,7 @@ Interest::hasGuiders() const
 
 template<bool T>
 inline size_t
-Interest::wireEncode(EncodingImpl<T> &block) const
+Interest::wireEncode(EncodingImpl<T>& block) const
 {
   size_t total_len = 0;
 
@@ -507,7 +520,7 @@ Interest::wireEncode() const
 }
 
 inline void
-Interest::wireDecode(const Block &wire)
+Interest::wireDecode(const Block& wire)
 {
   m_wire = wire;
   m_wire.parse();

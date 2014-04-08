@@ -1,7 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * Copyright (C) 2013-2014 Regents of the University of California.
  * See COPYING for copyright and distribution information.
  */
 
@@ -36,13 +35,13 @@ public:
 
   template<bool T>
   size_t
-  wireEncode(EncodingImpl<T> &block) const;
+  wireEncode(EncodingImpl<T>& block) const;
 
   const Block&
   wireEncode() const;
 
   void
-  wireDecode(const Block &wire);
+  wireDecode(const Block& wire);
 
   ///////////////////////////////////////////////////////////////////////////////
   // Getters/setters
@@ -89,6 +88,19 @@ public:
     return *this;
   }
 
+public: // EqualityComparable concept
+  bool
+  operator==(const MetaInfo& other) const
+  {
+    return wireEncode() == other.wireEncode();
+  }
+
+  bool
+  operator!=(const MetaInfo& other) const
+  {
+    return !(*this == other);
+  }
+
 private:
   uint32_t m_type;
   time::milliseconds m_freshnessPeriod;
@@ -127,15 +139,15 @@ MetaInfo::wireEncode(EncodingImpl<T>& blk) const
       total_len += prependNonNegativeIntegerBlock(blk, Tlv::ContentType, m_type);
     }
 
-  total_len += blk.prependVarNumber (total_len);
-  total_len += blk.prependVarNumber (Tlv::MetaInfo);
+  total_len += blk.prependVarNumber(total_len);
+  total_len += blk.prependVarNumber(Tlv::MetaInfo);
   return total_len;
 }
 
 inline const Block&
 MetaInfo::wireEncode() const
 {
-  if (m_wire.hasWire ())
+  if (m_wire.hasWire())
     return m_wire;
 
   EncodingEstimator estimator;
@@ -149,7 +161,7 @@ MetaInfo::wireEncode() const
 }
 
 inline void
-MetaInfo::wireDecode(const Block &wire)
+MetaInfo::wireDecode(const Block& wire)
 {
   m_wire = wire;
   m_wire.parse();
@@ -192,7 +204,7 @@ MetaInfo::wireDecode(const Block &wire)
 }
 
 inline std::ostream&
-operator << (std::ostream &os, const MetaInfo &info)
+operator<<(std::ostream& os, const MetaInfo& info)
 {
   // ContentType
   os << "ContentType: " << info.getType();

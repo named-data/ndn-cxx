@@ -19,12 +19,12 @@ class SignatureSha256 : public Signature {
 public:
   SignatureSha256()
   {
-    info_ = Block(Tlv::SignatureInfo);
-    
-    type_ = Signature::Sha256;
-    info_.push_back(nonNegativeIntegerBlock(Tlv::SignatureType, Tlv::DigestSha256));
+    m_info = Block(Tlv::SignatureInfo);
+
+    m_type = Signature::Sha256;
+    m_info.push_back(nonNegativeIntegerBlock(Tlv::SignatureType, Tlv::DigestSha256));
   }
-  
+
   SignatureSha256(const Signature &signature)
     : Signature(signature)
   {

@@ -15,6 +15,9 @@ namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(TestInterest)
 
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Interest>));
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Selectors>));
+
 const uint8_t Interest1[] = {
   0x05,  0x59, // NDN Interest
       0x07,  0x14, // Name
@@ -64,6 +67,149 @@ const uint8_t InterestWithoutLocalControlHeader[] = {
   0x6e, 0x08, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, 0x09, 0x02, 0x12, 0x00, 0x0a, 0x01,
   0x01
 };
+
+BOOST_AUTO_TEST_CASE(InterestEqualityChecks)
+{
+  // Interest ::= INTEREST-TYPE TLV-LENGTH
+  //                Name
+  //                Selectors?
+  //                Nonce
+  //                Scope?
+  //                InterestLifetime?
+
+  Interest a;
+  Interest b;
+
+  // if nonce is not set, it will be set to a random value
+  a.setNonce(1);
+  b.setNonce(1);
+
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  // check comparison on Name
+  a.setName("ndn:/A");
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setName("ndn:/B");
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setName("ndn:/A");
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  // check comparison on Selectors
+  a.setChildSelector(1);
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setChildSelector(1);
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  // check comparison on Nonce
+  a.setNonce(100);
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setNonce(100);
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  // check comparison on Nonce
+  a.setScope(1);
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setScope(1);
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  // check comparison on InterestLifetime
+  a.setInterestLifetime(time::seconds(10));
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setInterestLifetime(time::seconds(10));
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+}
+
+BOOST_AUTO_TEST_CASE(SelectorsEqualityChecks)
+{
+  // Selectors ::= SELECTORS-TYPE TLV-LENGTH
+  //                 MinSuffixComponents?
+  //                 MaxSuffixComponents?
+  //                 PublisherPublicKeyLocator?
+  //                 Exclude?
+  //                 ChildSelector?
+  //                 MustBeFresh?
+
+  Selectors a;
+  Selectors b;
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  // MinSuffixComponents
+  a.setMinSuffixComponents(1);
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setMinSuffixComponents(2);
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setMinSuffixComponents(1);
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  // MaxSuffixComponents
+  a.setMaxSuffixComponents(10);
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setMaxSuffixComponents(10);
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  // PublisherPublicKeyLocator
+  a.setPublisherPublicKeyLocator(KeyLocator("/key/Locator/name"));
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setPublisherPublicKeyLocator(KeyLocator("/key/Locator/name"));
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  // Exclude
+  a.setExclude(Exclude().excludeOne(name::Component("exclude")));
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setExclude(Exclude().excludeOne(name::Component("exclude")));
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  // ChildSelector
+  a.setChildSelector(1);
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setChildSelector(1);
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  // MustBeFresh
+  a.setMustBeFresh(true);
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setMustBeFresh(true);
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+}
 
 BOOST_AUTO_TEST_CASE(Decode)
 {

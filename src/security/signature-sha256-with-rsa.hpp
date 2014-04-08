@@ -19,44 +19,44 @@ class SignatureSha256WithRsa : public Signature {
 public:
   SignatureSha256WithRsa()
   {
-    info_ = Block(Tlv::SignatureInfo);
-    
-    type_ = Signature::Sha256WithRsa;
-    info_.push_back(nonNegativeIntegerBlock(Tlv::SignatureType, Tlv::SignatureSha256WithRsa));
-    info_.push_back(keyLocator_.wireEncode());
+    m_info = Block(Tlv::SignatureInfo);
+
+    m_type = Signature::Sha256WithRsa;
+    m_info.push_back(nonNegativeIntegerBlock(Tlv::SignatureType, Tlv::SignatureSha256WithRsa));
+    m_info.push_back(m_keyLocator.wireEncode());
   }
-  
-  SignatureSha256WithRsa(const Signature &signature)
+
+  SignatureSha256WithRsa(const Signature& signature)
     : Signature(signature)
   {
     if (getType() != Signature::Sha256WithRsa)
       throw Signature::Error("Incorrect signature type");
 
-    info_.parse();
-    Block::element_const_iterator i = info_.find(Tlv::KeyLocator);
-    if (i != info_.elements_end())
+    m_info.parse();
+    Block::element_const_iterator i = m_info.find(Tlv::KeyLocator);
+    if (i != m_info.elements_end())
       {
-        keyLocator_.wireDecode(*i);
+        m_keyLocator.wireDecode(*i);
       }
   }
-  
-  const KeyLocator& 
+
+  const KeyLocator&
   getKeyLocator() const
   {
-    return keyLocator_;
+    return m_keyLocator;
   }
 
-  void 
+  void
   setKeyLocator(const KeyLocator& keyLocator)
   {
-    keyLocator_ = keyLocator;
+    m_keyLocator = keyLocator;
 
-    info_.remove(ndn::Tlv::KeyLocator);
-    info_.push_back(keyLocator_.wireEncode());
+    m_info.remove(ndn::Tlv::KeyLocator);
+    m_info.push_back(m_keyLocator.wireEncode());
   }
 
 private:
-  KeyLocator keyLocator_;
+  KeyLocator m_keyLocator;
 };
 
 } // namespace ndn

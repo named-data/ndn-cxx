@@ -1,7 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * Copyright (C) 2013-2014 Regents of the University of California.
  * See COPYING for copyright and distribution information.
  */
 
@@ -15,84 +14,106 @@ namespace ndn {
  */
 class Signature {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
 
   enum {
     Sha256 = 0,
     Sha256WithRsa = 1
   };
-  
+
   Signature()
-    : type_(-1)
+    : m_type(-1)
   {
   }
-  
-  Signature(const Block &info, const Block &value = Block())
-    : value_(value)
+
+  Signature(const Block& info, const Block& value = Block())
+    : m_value(value)
   {
     setInfo(info);
   }
 
   operator bool() const
   {
-    return type_ != -1;
+    return m_type != -1;
   }
 
   uint32_t
   getType() const
   {
-    return type_;
+    return m_type;
   }
-  
+
   const Block&
   getInfo() const
   {
-    info_.encode(); // will do nothing if wire already exists
-    return info_;
+    m_info.encode(); // will do nothing if wire already exists
+    return m_info;
   }
 
   void
-  setInfo(const Block &info)
+  setInfo(const Block& info)
   {
-    info_ = info;
-    if (info_.hasWire() || info_.hasValue())
+    m_info = info;
+    if (m_info.hasWire() || m_info.hasValue())
       {
-        info_.parse();
-        const Block &signatureType = info_.get(Tlv::SignatureType);
-        type_ = readNonNegativeInteger(signatureType);
+        m_info.parse();
+        const Block& signatureType = m_info.get(Tlv::SignatureType);
+        m_type = readNonNegativeInteger(signatureType);
       }
     else
       {
-        type_ = -1;
+        m_type = -1;
       }
-  }  
+  }
 
   const Block&
   getValue() const
   {
-    value_.encode(); // will do nothing if wire already exists
-    return value_;
+    m_value.encode(); // will do nothing if wire already exists
+    return m_value;
   }
 
   void
-  setValue(const Block &value)
+  setValue(const Block& value)
   {
-    value_ = value;
+    m_value = value;
   }
 
   void
   reset()
   {
-    type_ = -1;
-    info_.reset();
-    value_.reset();
+    m_type = -1;
+    m_info.reset();
+    m_value.reset();
+  }
+
+public: // EqualityComparable concept
+  bool
+  operator==(const Signature& other) const
+  {
+    return getInfo() == other.getInfo() &&
+      getValue() == other.getValue();
+  }
+
+  bool
+  operator!=(const Signature& other) const
+  {
+    return !(*this == other);
   }
 
 protected:
-  int32_t type_;
-  
-  mutable Block info_;
-  mutable Block value_;
+  int32_t m_type;
+
+  mutable Block m_info;
+  mutable Block m_value;
 };
 
 } // namespace ndn

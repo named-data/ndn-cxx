@@ -26,7 +26,7 @@ Interest::getNonce() const
 
 
 bool
-Interest::matchesName(const Name &name) const
+Interest::matchesName(const Name& name) const
 {
   if (name.size() < m_name.size())
     return false;
@@ -75,8 +75,8 @@ Interest::matchesData(const Data& data) const
   return true;
 }
 
-std::ostream &
-operator << (std::ostream &os, const Interest &interest)
+std::ostream&
+operator<<(std::ostream& os, const Interest& interest)
 {
   os << interest.getName();
 

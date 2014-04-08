@@ -1,7 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * Copyright (C) 2013-2014 Regents of the University of California.
  * See COPYING for copyright and distribution information.
  */
 
@@ -56,7 +55,7 @@ public:
    */
   template<bool T>
   size_t
-  wireEncode(EncodingImpl<T> &block) const;
+  wireEncode(EncodingImpl<T>& block) const;
 
   /**
    * @brief Encode to a wire format
@@ -68,7 +67,7 @@ public:
    * @brief Decode the input from wire format
    */
   void
-  wireDecode(const Block &wire);
+  wireDecode(const Block& wire);
 
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
@@ -84,7 +83,7 @@ public:
   setMinSuffixComponents(int minSuffixComponents)
   {
     m_minSuffixComponents = minSuffixComponents;
-    wire_.reset();
+    m_wire.reset();
     return *this;
   }
 
@@ -100,7 +99,7 @@ public:
   setMaxSuffixComponents(int maxSuffixComponents)
   {
     m_maxSuffixComponents = maxSuffixComponents;
-    wire_.reset();
+    m_wire.reset();
     return *this;
   }
 
@@ -116,7 +115,7 @@ public:
   setPublisherPublicKeyLocator(const KeyLocator& keyLocator)
   {
     m_publisherPublicKeyLocator = keyLocator;
-    wire_.reset();
+    m_wire.reset();
     return *this;
   }
 
@@ -132,7 +131,7 @@ public:
   setExclude(const Exclude& exclude)
   {
     m_exclude = exclude;
-    wire_.reset();
+    m_wire.reset();
     return *this;
   }
 
@@ -148,7 +147,7 @@ public:
   setChildSelector(int childSelector)
   {
     m_childSelector = childSelector;
-    wire_.reset();
+    m_wire.reset();
     return *this;
   }
 
@@ -164,8 +163,21 @@ public:
   setMustBeFresh(bool mustBeFresh)
   {
     m_mustBeFresh = mustBeFresh;
-    wire_.reset();
+    m_wire.reset();
     return *this;
+  }
+
+public: // EqualityComparable concept
+  bool
+  operator==(const Selectors& other) const
+  {
+    return wireEncode() == other.wireEncode();
+  }
+
+  bool
+  operator!=(const Selectors& other) const
+  {
+    return !(*this == other);
   }
 
 private:
@@ -176,7 +188,7 @@ private:
   int m_childSelector;
   bool m_mustBeFresh;
 
-  mutable Block wire_;
+  mutable Block m_wire;
 };
 
 inline bool
@@ -193,7 +205,7 @@ Selectors::empty() const
 
 template<bool T>
 inline size_t
-Selectors::wireEncode(EncodingImpl<T> &block) const
+Selectors::wireEncode(EncodingImpl<T>& block) const
 {
   size_t total_len = 0;
 
@@ -250,11 +262,11 @@ Selectors::wireEncode(EncodingImpl<T> &block) const
   return total_len;
 }
 
-inline const Block &
+inline const Block&
 Selectors::wireEncode() const
 {
-  if (wire_.hasWire())
-    return wire_;
+  if (m_wire.hasWire())
+    return m_wire;
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
@@ -262,59 +274,59 @@ Selectors::wireEncode() const
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
-  wire_ = buffer.block();
-  return wire_;
+  m_wire = buffer.block();
+  return m_wire;
 }
 
 inline void
-Selectors::wireDecode(const Block &wire)
+Selectors::wireDecode(const Block& wire)
 {
   if (wire.type() != Tlv::Selectors)
     throw Tlv::Error("Unexpected TLV type when decoding Selectors");
 
   *this = Selectors();
 
-  wire_ = wire;
-  wire_.parse();
+  m_wire = wire;
+  m_wire.parse();
 
   // MinSuffixComponents
-  Block::element_const_iterator val = wire_.find(Tlv::MinSuffixComponents);
-  if (val != wire_.elements_end())
+  Block::element_const_iterator val = m_wire.find(Tlv::MinSuffixComponents);
+  if (val != m_wire.elements_end())
     {
       m_minSuffixComponents = readNonNegativeInteger(*val);
     }
 
   // MaxSuffixComponents
-  val = wire_.find(Tlv::MaxSuffixComponents);
-  if (val != wire_.elements_end())
+  val = m_wire.find(Tlv::MaxSuffixComponents);
+  if (val != m_wire.elements_end())
     {
       m_maxSuffixComponents = readNonNegativeInteger(*val);
     }
 
   // PublisherPublicKeyLocator
-  val = wire_.find(Tlv::KeyLocator);
-  if (val != wire_.elements_end())
+  val = m_wire.find(Tlv::KeyLocator);
+  if (val != m_wire.elements_end())
     {
       m_publisherPublicKeyLocator.wireDecode(*val);
     }
 
   // Exclude
-  val = wire_.find(Tlv::Exclude);
-  if (val != wire_.elements_end())
+  val = m_wire.find(Tlv::Exclude);
+  if (val != m_wire.elements_end())
     {
       m_exclude.wireDecode(*val);
     }
 
   // ChildSelector
-  val = wire_.find(Tlv::ChildSelector);
-  if (val != wire_.elements_end())
+  val = m_wire.find(Tlv::ChildSelector);
+  if (val != m_wire.elements_end())
     {
       m_childSelector = readNonNegativeInteger(*val);
     }
 
   //MustBeFresh aka AnswerOriginKind
-  val = wire_.find(Tlv::MustBeFresh);
-  if (val != wire_.elements_end())
+  val = m_wire.find(Tlv::MustBeFresh);
+  if (val != m_wire.elements_end())
     {
       m_mustBeFresh = true;
     }

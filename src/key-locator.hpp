@@ -15,7 +15,15 @@ namespace ndn {
 
 class KeyLocator {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
 
   enum {
     KeyLocator_None = 65535, // just an arbitrarily large number (used only internally)
@@ -24,30 +32,28 @@ public:
     KeyLocator_Unknown = 255
   };
 
-  inline
   KeyLocator()
     : m_type(KeyLocator_None)
   {
   }
 
-  inline
-  KeyLocator(const Name &name);
+  KeyLocator(const Name& name);
 
   ///////////////////////////////////////////////////////////////////////////////
 
   template<bool T>
   size_t
-  wireEncode(EncodingImpl<T> &block) const;
+  wireEncode(EncodingImpl<T>& block) const;
 
   const Block&
   wireEncode() const;
 
   void
-  wireDecode(const Block &wire);
+  wireDecode(const Block& wire);
 
   ///////////////////////////////////////////////////////////////////////////////
 
-  inline bool
+   bool
   empty() const
   {
     return m_type == KeyLocator_None;
@@ -61,11 +67,11 @@ public:
   //
   // For now only Name type is actually supported
 
-  inline const Name&
+  const Name&
   getName() const;
 
-  inline void
-  setName(const Name &name);
+  void
+  setName(const Name& name);
 
 public: // EqualityComparable concept
   bool
@@ -82,7 +88,7 @@ private:
 };
 
 inline
-KeyLocator::KeyLocator(const Name &name)
+KeyLocator::KeyLocator(const Name& name)
 {
   setName(name);
 }
@@ -111,15 +117,15 @@ KeyLocator::wireEncode(EncodingImpl<T>& block) const
     throw Error("Unsupported KeyLocator type");
   }
 
-  total_len += block.prependVarNumber (total_len);
-  total_len += block.prependVarNumber (Tlv::KeyLocator);
+  total_len += block.prependVarNumber(total_len);
+  total_len += block.prependVarNumber(Tlv::KeyLocator);
   return total_len;
 }
 
 inline const Block&
 KeyLocator::wireEncode() const
 {
-  if (m_wire.hasWire ())
+  if (m_wire.hasWire())
     return m_wire;
 
   EncodingEstimator estimator;
@@ -133,7 +139,7 @@ KeyLocator::wireEncode() const
 }
 
 inline void
-KeyLocator::wireDecode(const Block &value)
+KeyLocator::wireDecode(const Block& value)
 {
   if (value.type() != Tlv::KeyLocator)
     throw Error("Unexpected TLV type during KeyLocator decoding");
@@ -162,8 +168,9 @@ KeyLocator::getName() const
 }
 
 inline void
-KeyLocator::setName(const Name &name)
+KeyLocator::setName(const Name& name)
 {
+  m_wire.reset();
   m_type = KeyLocator_Name;
   m_name = name;
 }
@@ -171,19 +178,7 @@ KeyLocator::setName(const Name &name)
 inline bool
 KeyLocator::operator==(const KeyLocator& other) const
 {
-  if (this->getType() != other.getType()) {
-    return false;
-  }
-
-  switch (this->getType()) {
-    case KeyLocator_Name:
-      if (this->getName() != other.getName()) {
-        return false;
-      }
-      break;
-  }
-
-  return true;
+  return wireEncode() == other.wireEncode();
 }
 
 inline bool

@@ -1,7 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
  * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
 
@@ -22,19 +21,25 @@ namespace ndn {
 class Data : public enable_shared_from_this<Data>
 {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
 
   /**
    * @brief Create an empty Data object
    */
-  inline
   Data();
 
   /**
    * @brief Create a new Data object with the given name
    * @param name A reference to the name which is copied.
    */
-  inline
   Data(const Name& name);
 
   /**
@@ -49,37 +54,36 @@ public:
   /**
    * @brief The destructor
    */
-  inline
   ~Data();
 
   /**
    * @brief Fast encoding or block size estimation
    */
   template<bool T>
-  inline size_t
-  wireEncode(EncodingImpl<T> &block, bool unsignedPortion = false) const;
+  size_t
+  wireEncode(EncodingImpl<T>& block, bool unsignedPortion = false) const;
 
   /**
    * @brief Encode to a wire format
    */
-  inline const Block&
+  const Block&
   wireEncode() const;
 
   /**
    * @brief Decode from the wire format
    */
-  inline void
-  wireDecode(const Block &wire);
+  void
+  wireDecode(const Block& wire);
 
   /**
    * @brief Check if already has wire
    */
-  inline bool
+  bool
   hasWire() const;
 
   ////////////////////////////////////////////////////////////////////
 
-  inline const Name&
+  const Name&
   getName() const;
 
   /**
@@ -88,12 +92,12 @@ public:
    * @param name The Name which is copied.
    * @return This Data so that you can chain calls to update values.
    */
-  inline void
+  void
   setName(const Name& name);
 
   //
 
-  inline const MetaInfo&
+  const MetaInfo&
   getMetaInfo() const;
 
   /**
@@ -101,7 +105,7 @@ public:
    * @param metaInfo The MetaInfo which is copied.
    * @return This Data so that you can chain calls to update values.
    */
-  inline void
+  void
   setMetaInfo(const MetaInfo& metaInfo);
 
   //
@@ -111,26 +115,26 @@ public:
   ///////////////////////////////////////////////////////////////
   // MetaInfo proxy methods
 
-  inline uint32_t
+  uint32_t
   getContentType() const;
 
-  inline void
+  void
   setContentType(uint32_t type);
 
   //
 
-  inline const time::milliseconds&
+  const time::milliseconds&
   getFreshnessPeriod() const;
 
-  inline void
+  void
   setFreshnessPeriod(const time::milliseconds& freshnessPeriod);
 
   //
 
-  inline const name::Component&
+  const name::Component&
   getFinalBlockId() const;
 
-  inline void
+  void
   setFinalBlockId(const name::Component& finalBlockId);
 
   //
@@ -144,7 +148,7 @@ public:
    * To access content value, one can use value()/value_size() or
    * value_begin()/value_end() methods of the Block class
    */
-  inline const Block&
+  const Block&
   getContent() const;
 
   /**
@@ -152,29 +156,29 @@ public:
    * @param content A vector whose contents are copied.
    * @return This Data so that you can chain calls to update values.
    */
-  inline void
+  void
   setContent(const uint8_t* content, size_t contentLength);
 
-  inline void
+  void
   setContent(const Block& content);
 
-  inline void
-  setContent(const ConstBufferPtr &contentValue);
+  void
+  setContent(const ConstBufferPtr& contentValue);
 
   //
 
-  inline const Signature&
+  const Signature&
   getSignature() const;
 
   /**
    * @brief Set the signature to a copy of the given signature.
    * @param signature The signature object which is cloned.
    */
-  inline void
+  void
   setSignature(const Signature& signature);
 
-  inline void
-  setSignatureValue(const Block &value);
+  void
+  setSignatureValue(const Block& value);
 
   ///////////////////////////////////////////////////////////////
 
@@ -184,17 +188,24 @@ public:
   const nfd::LocalControlHeader&
   getLocalControlHeader() const;
 
-  inline uint64_t
+  uint64_t
   getIncomingFaceId() const;
 
-  inline void
+  void
   setIncomingFaceId(uint64_t incomingFaceId);
+
+public: // EqualityComparable concept
+  bool
+  operator==(const Data& other) const;
+
+  bool
+  operator!=(const Data& other) const;
 
 private:
   /**
    * @brief Clear the wire encoding.
    */
-  inline void
+  void
   onChanged();
 
 private:
@@ -228,7 +239,7 @@ Data::~Data()
 
 template<bool T>
 inline size_t
-Data::wireEncode(EncodingImpl<T> &block, bool unsignedPortion/* = false*/) const
+Data::wireEncode(EncodingImpl<T>& block, bool unsignedPortion/* = false*/) const
 {
   size_t total_len = 0;
 
@@ -271,7 +282,7 @@ Data::wireEncode(EncodingImpl<T> &block, bool unsignedPortion/* = false*/) const
   return total_len;
 }
 
-inline const Block &
+inline const Block&
 Data::wireEncode() const
 {
   if (m_wire.hasWire())
@@ -291,8 +302,8 @@ Data::wireEncode() const
  * Decode the input using a particular wire format and update this Data.
  * @param input The input byte array to be decoded.
  */
-void
-Data::wireDecode(const Block &wire)
+inline void
+Data::wireDecode(const Block& wire)
 {
   m_wire = wire;
   m_wire.parse();
@@ -416,7 +427,7 @@ Data::setContent(const uint8_t* content, size_t contentLength)
 }
 
 inline void
-Data::setContent(const ConstBufferPtr &contentValue)
+Data::setContent(const ConstBufferPtr& contentValue)
 {
   onChanged();
 
@@ -449,7 +460,7 @@ Data::setSignature(const Signature& signature)
 }
 
 inline void
-Data::setSignatureValue(const Block &value)
+Data::setSignatureValue(const Block& value)
 {
   onChanged();
   m_signature.setValue(value);
@@ -493,8 +504,23 @@ Data::onChanged()
   m_wire.reset();
 }
 
+inline bool
+Data::operator==(const Data& other) const
+{
+  return getName() == other.getName() &&
+    getMetaInfo() == other.getMetaInfo() &&
+    getContent() == other.getContent() &&
+    getSignature() == other.getSignature();
+}
+
+inline bool
+Data::operator!=(const Data& other) const
+{
+  return !(*this == other);
+}
+
 inline std::ostream&
-operator << (std::ostream &os, const Data &data)
+operator<<(std::ostream& os, const Data& data)
 {
   os << "Name: " << data.getName() << "\n";
   os << "MetaInfo: " << data.getMetaInfo() << "\n";

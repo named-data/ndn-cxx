@@ -14,6 +14,10 @@ namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(TestData)
 
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Data>));
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<MetaInfo>));
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Signature>));
+
 const uint8_t Content1[] = {0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x21};
 
 const uint8_t Data1[] = {
@@ -86,6 +90,116 @@ const uint8_t MetaInfo2[] = {0x14, 0x14, 0x19, 0x02, 0x27, 0x10, 0x1a, 0x0e, 0x0
 const uint8_t MetaInfo3[] = {0x14, 0x17, 0x18, 0x01, 0x01, 0x19, 0x02, 0x27, 0x10, 0x1a, 0x0e, 0x08, 0x0c, 0x68, 0x65,
                              0x6c, 0x6c, 0x6f, 0x2c, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21};
 
+BOOST_AUTO_TEST_CASE(DataEqualityChecks)
+{
+  using namespace time;
+
+  Data a;
+  Data b;
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  a.setName("ndn:/A");
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setName("ndn:/B");
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setName("ndn:/A");
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  a.setFreshnessPeriod(seconds(10));
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setFreshnessPeriod(seconds(10));
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  static const uint8_t someData[] = "someData";
+  a.setContent(someData, sizeof(someData));
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setContent(someData, sizeof(someData));
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  a.setSignature(SignatureSha256WithRsa());
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setSignature(SignatureSha256WithRsa());
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+}
+
+BOOST_AUTO_TEST_CASE(MetaInfoEqualityChecks)
+{
+  using namespace time;
+
+  MetaInfo a;
+  MetaInfo b;
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  a.setFreshnessPeriod(seconds(10));
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setFreshnessPeriod(milliseconds(90000));
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setFreshnessPeriod(milliseconds(10000));
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  a.setType(10);
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setType(10);
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+}
+
+BOOST_AUTO_TEST_CASE(SignatureEqualityChecks)
+{
+  Signature a;
+  Signature b;
+
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  a = SignatureSha256WithRsa();
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b = SignatureSha256WithRsa();
+  static const uint8_t someData[256] = {};
+  Block signatureValue = dataBlock(Tlv::SignatureValue, someData, sizeof(someData));
+  b.setValue(signatureValue);
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  a.setValue(signatureValue);
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  a = SignatureSha256();
+  b = SignatureSha256WithRsa();
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b = SignatureSha256();
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+}
+
 class TestDataFixture
 {
 public:
@@ -102,8 +216,7 @@ protected:
   CryptoPP::RSA::PublicKey  publicKey_;
 };
 
-
-BOOST_FIXTURE_TEST_CASE (Decode, TestDataFixture)
+BOOST_FIXTURE_TEST_CASE(Decode, TestDataFixture)
 {
   Block dataBlock(Data1, sizeof(Data1));
 
@@ -132,7 +245,7 @@ BOOST_FIXTURE_TEST_CASE (Decode, TestDataFixture)
   BOOST_REQUIRE_EQUAL(signatureVerified, true);
 }
 
-BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
+BOOST_FIXTURE_TEST_CASE(Encode, TestDataFixture)
 {
   // manual data packet creation for now
 
@@ -176,9 +289,9 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
   signer.Sign(rng_, hash, buf);
 
   Tlv::writeVarNumber(os, buf.size());
-  os.write(reinterpret_cast<const char *> (buf.BytePtr()), buf.size());
+  os.write(reinterpret_cast<const char *>(buf.BytePtr()), buf.size());
 
-  ndn::Block signatureValue (Block(os.buf()));
+  ndn::Block signatureValue(Block(os.buf()));
 
   Signature signature(signatureInfo, signatureValue);
 
@@ -191,7 +304,7 @@ BOOST_FIXTURE_TEST_CASE (Encode, TestDataFixture)
                                   dataBlock.begin(), dataBlock.end());
 }
 
-BOOST_AUTO_TEST_CASE (EncodeMetaInfo)
+BOOST_AUTO_TEST_CASE(EncodeMetaInfo)
 {
   MetaInfo meta;
   meta.setType(MetaInfo::TYPE_DEFAULT);
@@ -212,7 +325,7 @@ BOOST_AUTO_TEST_CASE (EncodeMetaInfo)
                                   meta.wireEncode().begin(), meta.wireEncode().end());
 }
 
-BOOST_AUTO_TEST_CASE (DecodeMetaInfo)
+BOOST_AUTO_TEST_CASE(DecodeMetaInfo)
 {
   MetaInfo meta(Block(MetaInfo1, sizeof(MetaInfo1)));
   BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
