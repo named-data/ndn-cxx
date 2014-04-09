@@ -70,12 +70,12 @@ ValidatorConfig::load(std::istream& input, const std::string& filename)
       throw security::conf::Error(msg.str());
     }
 
-  process(tree, filename);
+  load(tree, filename);
 }
 
 void
-ValidatorConfig::process(const security::conf::ConfigSection& configSection,
-                         const std::string& filename)
+ValidatorConfig::load(const security::conf::ConfigSection& configSection,
+                      const std::string& filename)
 {
   BOOST_ASSERT(!filename.empty());
 

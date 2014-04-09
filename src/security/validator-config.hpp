@@ -47,6 +47,10 @@ public:
   void
   load(std::istream& input, const std::string& filename);
 
+  void
+  load(const security::conf::ConfigSection& configSection,
+       const std::string& filename);
+
 protected:
   virtual void
   checkPolicy(const Data& data,
@@ -85,10 +89,6 @@ private:
                const std::string& failureInfo,
                const shared_ptr<const Packet>& packet,
                const OnFailed& onValidationFailed);
-
-  void
-  process(const security::conf::ConfigSection& configSection,
-          const std::string& filename);
 
   void
   onConfigRule(const security::conf::ConfigSection& section,
