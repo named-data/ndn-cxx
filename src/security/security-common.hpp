@@ -13,7 +13,7 @@ namespace ndn {
 enum KeyType {
   KEY_TYPE_RSA,
   // KEY_TYPE_DSA,
-  KEY_TYPE_AES,
+  KEY_TYPE_AES
   // KEY_TYPE_DES,
   // KEY_TYPE_RC4,
   // KEY_TYPE_RC2
@@ -24,7 +24,7 @@ enum KeyClass {
   KEY_CLASS_PRIVATE,
   KEY_CLASS_SYMMETRIC
 };
-  
+
 enum DigestAlgorithm {
   // DIGEST_ALGORITHM_MD2,
   // DIGEST_ALGORITHM_MD5,
@@ -34,13 +34,13 @@ enum DigestAlgorithm {
 
 enum EncryptMode {
   ENCRYPT_MODE_DEFAULT,
-  ENCRYPT_MODE_CFB_AES,
+  ENCRYPT_MODE_CFB_AES
   // ENCRYPT_MODE_CBC_AES
 };
 
 enum AclType {
   ACL_TYPE_PUBLIC,
-  ACL_TYPE_PRIVATE,
+  ACL_TYPE_PRIVATE
 };
 
 }

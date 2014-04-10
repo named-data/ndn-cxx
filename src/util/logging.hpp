@@ -16,28 +16,28 @@
 #include <log4cxx/logger.h>
 
 #define MEMBER_LOGGER                           \
-  static log4cxx::LoggerPtr staticModuleLogger;
+  static log4cxx::LoggerPtr staticModuleLogger
 
 #define INIT_MEMBER_LOGGER(className,name)          \
-  log4cxx::LoggerPtr className::staticModuleLogger =  log4cxx::Logger::getLogger (name);
+  log4cxx::LoggerPtr className::staticModuleLogger =  log4cxx::Logger::getLogger(name)
 
 #define INIT_LOGGER(name) \
-  static log4cxx::LoggerPtr staticModuleLogger = log4cxx::Logger::getLogger (name);
+  static log4cxx::LoggerPtr staticModuleLogger = log4cxx::Logger::getLogger(name)
 
 #define _LOG_DEBUG(x) \
-  LOG4CXX_DEBUG(staticModuleLogger, x);
+  LOG4CXX_DEBUG(staticModuleLogger, x)
 
 #define _LOG_TRACE(x) \
-  LOG4CXX_TRACE(staticModuleLogger, x);
+  LOG4CXX_TRACE(staticModuleLogger, x)
 
 #define _LOG_FUNCTION(x) \
-  LOG4CXX_TRACE(staticModuleLogger, __FUNCTION__ << "(" << x << ")");
+  LOG4CXX_TRACE(staticModuleLogger, __FUNCTION__ << "(" << x << ")")
 
 #define _LOG_FUNCTION_NOARGS \
-  LOG4CXX_TRACE(staticModuleLogger, __FUNCTION__ << "()");
+  LOG4CXX_TRACE(staticModuleLogger, __FUNCTION__ << "()")
 
 #define _LOG_ERROR(x) \
-  LOG4CXX_ERROR(staticModuleLogger, x);
+  LOG4CXX_ERROR(staticModuleLogger, x)
 
 #define _LOG_ERROR_COND(cond,x) \
   if (cond) { _LOG_ERROR(x) }
@@ -46,11 +46,11 @@
   if (cond) { _LOG_DEBUG(x) }
 
 void
-INIT_LOGGERS ();
+INIT_LOGGERS()
 
 #else // else NDN_CPP_HAVE_LOG4CXX
 
-#define INIT_LOGGER(name)
+#define INIT_LOGGER(name) struct LOGGING_DISABLED
 #define _LOG_FUNCTION(x)
 #define _LOG_FUNCTION_NOARGS
 #define _LOG_TRACE(x)

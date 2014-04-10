@@ -59,6 +59,6 @@ private:
   Name m_newIdentity;
 };
 
-BOOST_GLOBAL_FIXTURE(IdentityFixture);
+BOOST_GLOBAL_FIXTURE(IdentityFixture)
 
 } // namespace ndn

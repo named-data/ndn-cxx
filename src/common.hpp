@@ -45,11 +45,18 @@
 #define DEPRECATED(func) func
 #endif
 
-#if NDN_CPP_HAVE_CXX11
+#ifdef NDN_CPP_HAVE_CXX11
 
-#if (__cplusplus < 201103L)
-#error "NDN-CPP-DEV library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
-#endif
+#if defined(__GNUC__)
+#  if !defined(__GXX_EXPERIMENTAL_CXX0X__) && __cplusplus < 201103L
+#    error "NDN-CPP-DEV library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
+#  endif // !defined(__GXX_EXPERIMENTAL_CXX0X__) && __cplusplus < 201103L
+#endif // defined(__GNUC__)
+
+#if defined(__clang__) && __cplusplus < 201103L
+#  error "NDN-CPP-DEV library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
+#endif // defined(__clang__) && (__cplusplus < 201103L)
+
 
 #include <memory>
 #include <functional>
@@ -60,6 +67,7 @@ namespace ptr_lib = std;
 namespace func_lib = std;
 
 using std::shared_ptr;
+using std::weak_ptr;
 using std::make_shared;
 using std::enable_shared_from_this;
 
@@ -77,6 +85,7 @@ using std::placeholders; // _1, _2, ..
 #else
 
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/make_shared.hpp>
 
@@ -89,6 +98,7 @@ namespace ptr_lib = boost;
 namespace func_lib = boost;
 
 using boost::shared_ptr;
+using boost::weak_ptr;
 using boost::make_shared;
 using boost::enable_shared_from_this;
 
@@ -101,7 +111,7 @@ using boost::bind;
 
 } // namespace ndn
 
-#endif
+#endif // NDN_CPP_HAVE_CXX11
 
 namespace ndn {
 

@@ -94,14 +94,12 @@ int main(int argc, char **argv) {
     conf.check_cryptopp(path=conf.options.cryptopp_dir, mandatory=True)
 
     if conf.options.use_cxx11:
-        conf.add_supported_cxxflags(cxxflags=['-std=c++11', '-std=c++0x'])
-
         conf.check(msg='Checking for type std::shared_ptr',
                    type_name="std::shared_ptr<int>", header_name="memory",
-                   define_name='HAVE_STD_SHARED_PTR')
+                   define_name='HAVE_STD_SHARED_PTR', mandatory=True)
         conf.check(msg='Checking for type std::function',
                    type_name="std::function<void()>", header_name="functional",
-                   define_name='HAVE_STD_FUNCTION')
+                   define_name='HAVE_STD_FUNCTION', mandatory=True)
         conf.define('HAVE_CXX11', 1)
 
     USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams',

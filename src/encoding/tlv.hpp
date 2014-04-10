@@ -65,13 +65,13 @@ enum {
 
 enum SignatureType {
   DigestSha256 = 0,
-  SignatureSha256WithRsa = 1,
+  SignatureSha256WithRsa = 1
 };
 
 enum ConentType {
   ContentType_Default = 0,
   ContentType_Link = 1,
-  ContentType_Key = 2,
+  ContentType_Key = 2
 };
 
 /**

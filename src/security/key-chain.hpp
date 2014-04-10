@@ -53,7 +53,7 @@ public:
   createIdentity(const Name& identityName)
   {
     Info::addIdentity(identityName);
-    
+
     Name keyName;
     try
       {
@@ -71,14 +71,14 @@ public:
       }
     catch(InfoError& e)
       {
-        shared_ptr<IdentityCertificate> selfCert = selfSign(keyName); 
+        shared_ptr<IdentityCertificate> selfCert = selfSign(keyName);
         Info::addCertificateAsIdentityDefault(*selfCert);
         certName = selfCert->getName();
       }
 
     return certName;
   }
-    
+
   /**
    * @brief Generate a pair of RSA keys for the specified identity.
    *
@@ -92,7 +92,7 @@ public:
   {
     return generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
   }
-  
+
   /**
    * @brief Generate a pair of RSA keys for the specified identity and set it as default key for the identity.
    *
@@ -107,7 +107,7 @@ public:
     Name keyName = generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
 
     Info::setDefaultKeyNameForIdentity(keyName);
-  
+
     return keyName;
   }
 
@@ -118,7 +118,7 @@ public:
    * @param signingIdentity The signing identity.
    * @param notBefore Refer to IdentityCertificate.
    * @param notAfter Refer to IdentityCertificate.
-   * @param subjectDescription Refer to IdentityCertificate. 
+   * @param subjectDescription Refer to IdentityCertificate.
    * @return IdentityCertificate.
    */
   shared_ptr<IdentityCertificate>
@@ -131,7 +131,7 @@ public:
   {
     if(keyName.size() < 1)
       return shared_ptr<IdentityCertificate>();
-    
+
     std::string keyIdPrefix = keyName.get(-1).toEscapedString().substr(0, 4);
     if(keyIdPrefix != "ksk-" && keyIdPrefix != "dsk-")
       return shared_ptr<IdentityCertificate>();
@@ -177,7 +177,7 @@ public:
       }
 
     certificate->encode();
-    
+
     return certificate;
   }
 
@@ -185,7 +185,7 @@ public:
    * @brief Sign packet with default identity
    *
    * On return, signatureInfo and signatureValue in the packet are set.
-   * If default identity does not exist, 
+   * If default identity does not exist,
    * a temporary identity will be created and set as default.
    *
    * @param packet The packet to be signed
@@ -219,7 +219,7 @@ public:
 
     sign(packet, *Info::defaultCertificate());
   }
-  
+
   /**
    * @brief Sign packet with a particular certificate.
    *
@@ -228,7 +228,7 @@ public:
    * @throws SecPublicInfo::Error if certificate does not exist.
    */
   template<typename T>
-  void 
+  void
   sign(T& packet, const Name& certificateName)
   {
     if (!Info::doesCertificateExist(certificateName))
@@ -238,11 +238,11 @@ public:
     signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
 
     // For temporary usage, we support RSA + SHA256 only, but will support more.
-    signPacketWrapper(packet, signature, 
-                      IdentityCertificate::certificateNameToPublicKeyName(certificateName), 
+    signPacketWrapper(packet, signature,
+                      IdentityCertificate::certificateNameToPublicKeyName(certificateName),
                       DIGEST_ALGORITHM_SHA256);
   }
-  
+
   /**
    * @brief Sign the byte array using a particular certificate.
    *
@@ -260,10 +260,10 @@ public:
 
     SignatureSha256WithRsa signature;
     signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
-  
+
     // For temporary usage, we support RSA + SHA256 only, but will support more.
-    signature.setValue(Tpm::signInTpm(buffer, bufferLength, 
-                                      IdentityCertificate::certificateNameToPublicKeyName(certificateName), 
+    signature.setValue(Tpm::signInTpm(buffer, bufferLength,
+                                      IdentityCertificate::certificateNameToPublicKeyName(certificateName),
                                       DIGEST_ALGORITHM_SHA256));
     return signature;
   }
@@ -277,7 +277,7 @@ public:
    * @param identityName The signing identity name.
    */
   template<typename T>
-  void 
+  void
   signByIdentity(T& packet, const Name& identityName)
   {
     Name signingCertificateName;
@@ -287,14 +287,14 @@ public:
       }
     catch(InfoError& e)
       {
-        signingCertificateName = createIdentity(identityName); 
+        signingCertificateName = createIdentity(identityName);
         // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which is a fatal error.
       }
 
     // We either get or create the signing certificate, sign packet! (no exception unless fatal error in TPM)
     sign(packet, signingCertificateName);
   }
-  
+
   /**
    * @brief Sign the byte array using the default certificate of a particular identity.
    *
@@ -313,10 +313,10 @@ public:
       }
     catch(InfoError& e)
       {
-        signingCertificateName = createIdentity(identityName); 
+        signingCertificateName = createIdentity(identityName);
         // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which is a fatal error.
       }
-    
+
     // We either get or create the signing certificate, sign data! (no exception unless fatal error in TPM)
     return sign(buffer, bufferLength, signingCertificateName);
   }
@@ -332,8 +332,8 @@ public:
     SignatureSha256 sig;
     data.setSignature(sig);
 
-    Block sigValue(Tlv::SignatureValue, 
-                   crypto::sha256(data.wireEncode().value(), 
+    Block sigValue(Tlv::SignatureValue,
+                   crypto::sha256(data.wireEncode().value(),
                                   data.wireEncode().value_size() - data.getSignature().getValue().size()));
     data.setSignatureValue(sigValue);
 
@@ -359,7 +359,7 @@ public:
       }
 
     shared_ptr<IdentityCertificate> certificate = make_shared<IdentityCertificate>();
-    
+
     Name certificateName = keyName.getPrefix(-1);
     certificateName.append("KEY").append(keyName.get(-1)).append("ID-CERT").appendVersion();
 
@@ -397,9 +397,9 @@ public:
   /**
    * @brief delete a certificate.
    *
-   * If the certificate to be deleted is current default system default, 
+   * If the certificate to be deleted is current default system default,
    * the method will not delete the certificate and return immediately.
-   * 
+   *
    * @param certificateName The certificate to be deleted.
    */
   void
@@ -421,9 +421,9 @@ public:
   /**
    * @brief delete a key.
    *
-   * If the key to be deleted is current default system default, 
+   * If the key to be deleted is current default system default,
    * the method will not delete the key and return immediately.
-   * 
+   *
    * @param keyName The key to be deleted.
    */
   void
@@ -446,9 +446,9 @@ public:
   /**
    * @brief delete an identity.
    *
-   * If the identity to be deleted is current default system default, 
+   * If the identity to be deleted is current default system default,
    * the method will not delete the identity and return immediately.
-   * 
+   *
    * @param identity The identity to be deleted.
    */
   void
@@ -467,9 +467,9 @@ public:
     std::vector<Name> nameList;
     Info::getAllKeyNamesOfIdentity(identity, nameList, true);
     Info::getAllKeyNamesOfIdentity(identity, nameList, false);
-    
+
     Info::deleteIdentityInfo(identity);
-    
+
     std::vector<Name>::const_iterator it = nameList.begin();
     for(; it != nameList.end(); it++)
       Tpm::deleteKeyPairInTpm(*it);
@@ -488,7 +488,7 @@ public:
   {
     if (!Info::doesIdentityExist(identity))
       throw InfoError("Identity does not exist!");
- 
+
     Name keyName = Info::getDefaultKeyNameForIdentity(identity);
 
     ConstBufferPtr pkcs8;
@@ -501,14 +501,14 @@ public:
         throw InfoError("Fail to export PKCS8 of private key");
       }
 
-    shared_ptr<IdentityCertificate> cert;    
+    shared_ptr<IdentityCertificate> cert;
     try
       {
         cert = Info::getCertificate(Info::getDefaultCertificateNameForKey(keyName));
       }
     catch(InfoError& e)
       {
-        cert = selfSign(keyName); 
+        cert = selfSign(keyName);
         Info::addCertificateAsIdentityDefault(*cert);
       }
 
@@ -528,16 +528,16 @@ public:
   {
     Name keyName = IdentityCertificate::certificateNameToPublicKeyName(securedBag.getCertificate().getName());
     Name identity = keyName.getPrefix(-1);
-        
+
     // Add identity
     Info::addIdentity(identity);
-        
+
     // Add key
     Tpm::importPrivateKeyPkcs8IntoTpm(keyName, securedBag.getKey()->buf(), securedBag.getKey()->size(), passwordStr);
     shared_ptr<PublicKey> pubKey = Tpm::getPublicKeyFromTpm(keyName.toUri());
     Info::addPublicKey(keyName, KEY_TYPE_RSA, *pubKey); // HACK! We should set key type according to the pkcs8 info.
     Info::setDefaultKeyNameForIdentity(keyName);
-        
+
     // Add cert
     Info::addCertificateAsIdentityDefault(securedBag.getCertificate());
   }
@@ -591,7 +591,7 @@ private:
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
    * @throws Tpm::Error
-   */  
+   */
   void
   signPacketWrapper(Data& data, const SignatureSha256WithRsa& signature, const Name& keyName, DigestAlgorithm digestAlgorithm)
   {
@@ -610,14 +610,14 @@ private:
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
    * @throws Tpm::Error
-   */  
+   */
   void
   signPacketWrapper(Interest& interest, const SignatureSha256WithRsa& signature, const Name& keyName, DigestAlgorithm digestAlgorithm)
   {
     Name signedName = Name(interest.getName()).append(signature.getInfo());
 
-    Block sigValue = Tpm::signInTpm(signedName.wireEncode().value(), 
-                                    signedName.wireEncode().value_size(), 
+    Block sigValue = Tpm::signInTpm(signedName.wireEncode().value(),
+                                    signedName.wireEncode().value_size(),
                                     keyName,
                                     DIGEST_ALGORITHM_SHA256);
     sigValue.encode();
@@ -634,17 +634,19 @@ private:
 
 #if defined(NDN_CPP_HAVE_OSX_SECURITY) and defined(NDN_CPP_WITH_OSX_KEYCHAIN)
 
-namespace ndn
-{
+namespace ndn {
+
 typedef KeyChainImpl<SecPublicInfoSqlite3, SecTpmOsx> KeyChain;
-};
+
+} // namespace ndn
 
 #else
 
-namespace ndn
-{
+namespace ndn {
+
 typedef KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> KeyChain;
-};
+
+} // namespace ndn
 
 #endif //NDN_CPP_HAVE_OSX_SECURITY
 

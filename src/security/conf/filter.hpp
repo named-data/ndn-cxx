@@ -42,7 +42,7 @@ public:
     {
       RELATION_EQUAL,
       RELATION_IS_PREFIX_OF,
-      RELATION_IS_STRICT_PREFIX_OF,
+      RELATION_IS_STRICT_PREFIX_OF
     };
 
   RelationNameFilter(const Name& name, Relation relation)

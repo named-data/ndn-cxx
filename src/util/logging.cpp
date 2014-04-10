@@ -26,21 +26,21 @@ using namespace log4cxx::helpers;
 #include <unistd.h>
 
 void
-INIT_LOGGERS ()
+INIT_LOGGERS()
 {
   static bool configured = false;
 
   if (configured) return;
 
-  if (access ("log4cxx.properties", R_OK)==0)
-    PropertyConfigurator::configureAndWatch ("log4cxx.properties");
+  if (access("log4cxx.properties", R_OK)==0)
+    PropertyConfigurator::configureAndWatch("log4cxx.properties");
   else
     {
-      PatternLayoutPtr   layout   (new PatternLayout ("%d{HH:mm:ss} %p %c{1} - %m%n"));
-      ConsoleAppenderPtr appender (new ConsoleAppender (layout));
+      PatternLayoutPtr   layout  (new PatternLayout("%d{HH:mm:ss} %p %c{1} - %m%n"));
+      ConsoleAppenderPtr appender(new ConsoleAppender(layout));
 
       BasicConfigurator::configure( appender );
-      Logger::getRootLogger()->setLevel (log4cxx::Level::getInfo ());
+      Logger::getRootLogger()->setLevel(log4cxx::Level::getInfo());
     }
 
   configured = true;

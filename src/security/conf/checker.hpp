@@ -68,7 +68,7 @@ class CustomizedChecker : public Checker
   enum
     {
       INTEREST_SIG_VALUE = -1,
-      INTEREST_SIG_INFO = -2,
+      INTEREST_SIG_INFO = -2
     };
 
 public:
@@ -176,7 +176,7 @@ class FixedSignerChecker : public Checker
   enum
     {
       INTEREST_SIG_VALUE = -1,
-      INTEREST_SIG_INFO = -2,
+      INTEREST_SIG_INFO = -2
     };
 public:
   FixedSignerChecker(uint32_t sigType,

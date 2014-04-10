@@ -11,7 +11,7 @@
 
 #include "../util/logging.hpp"
 
-INIT_LOGGER("ndn.CertificateCacheTtl")
+INIT_LOGGER("ndn.CertificateCacheTtl");
 
 using namespace std;
 

@@ -23,12 +23,12 @@ enum {
   Cost             = 104,
   ExpirationPeriod = 105,
   StrategyName     = 106,
-  Protocol         = 107,
+  Protocol         = 107
 };
 
 enum {
   NDN_FORW_CHILD_INHERIT = 1,
-  NDN_FORW_CAPTURE       = 2,
+  NDN_FORW_CAPTURE       = 2
 };
 
 } // namespace nrd
