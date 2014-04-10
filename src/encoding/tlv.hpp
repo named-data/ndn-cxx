@@ -344,23 +344,23 @@ inline size_t
 writeVarNumber(std::ostream& os, uint64_t varNumber)
 {
   if (varNumber < 253) {
-    os.put(static_cast<uint8_t> (varNumber));
+    os.put(static_cast<char>(varNumber));
     return 1;
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
-    os.put(253);
-    uint16_t value = htobe16(static_cast<uint16_t> (varNumber));
+    os.put(static_cast<char>(253));
+    uint16_t value = htobe16(static_cast<uint16_t>(varNumber));
     os.write(reinterpret_cast<const char*>(&value), 2);
     return 3;
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
-    os.put(254);
-    uint32_t value = htobe32(static_cast<uint32_t> (varNumber));
+    os.put(static_cast<char>(254));
+    uint32_t value = htobe32(static_cast<uint32_t>(varNumber));
     os.write(reinterpret_cast<const char*>(&value), 4);
     return 5;
   }
   else {
-    os.put(255);
+    os.put(static_cast<char>(255));
     uint64_t value = htobe64(varNumber);
     os.write(reinterpret_cast<const char*>(&value), 8);
     return 9;
@@ -499,16 +499,16 @@ inline size_t
 writeNonNegativeInteger(std::ostream& os, uint64_t varNumber)
 {
   if (varNumber < 253) {
-    os.put(static_cast<uint8_t> (varNumber));
+    os.put(static_cast<char>(varNumber));
     return 1;
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
-    uint16_t value = htobe16(static_cast<uint16_t> (varNumber));
+    uint16_t value = htobe16(static_cast<uint16_t>(varNumber));
     os.write(reinterpret_cast<const char*>(&value), 2);
     return 2;
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
-    uint32_t value = htobe32(static_cast<uint32_t> (varNumber));
+    uint32_t value = htobe32(static_cast<uint32_t>(varNumber));
     os.write(reinterpret_cast<const char*>(&value), 4);
     return 4;
   }
