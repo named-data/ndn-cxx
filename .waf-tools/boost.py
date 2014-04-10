@@ -147,7 +147,7 @@ def boost_get_version(self, d):
 			re_but1 = re.compile('^#define\\s+BOOST_LIB_VERSION\\s+"(.*)"', re.M)
 			m1 = re_but1.search(txt)
 
-			re_but2 = re.compile('^#define\\s+BOOST_VERSION\\s+"(.*)"', re.M)
+			re_but2 = re.compile('^#define\\s+BOOST_VERSION\\s+(\\d*)', re.M)
 			m2 = re_but2.search(txt)
 
 			if m1 and m2:

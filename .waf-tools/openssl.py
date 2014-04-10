@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
                        define_name='HAVE_%s' % var,
                        uselib_store=var,
                        mandatory=mandatory,
-                       cflags="-I%s/include" % root,
+                       cxxflags="-I%s/include" % root,
                        linkflags="-L%s/lib" % root,
                        fragment=CODE)
     else:
