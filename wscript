@@ -184,16 +184,30 @@ def build(bld):
 
     bld.install_files("${SYSCONFDIR}/ndn", "client.conf.sample")
 
+    if bld.env['SPHINX_BUILD']:
+        bld(features="sphinx",
+            builder="man",
+            outdir="docs/manpages",
+            config="docs/conf.py",
+            source=bld.path.ant_glob('docs/manpages/**/*.rst'),
+            install_path="${MANDIR}/")
+
+def docs(bld):
+    from waflib import Options
+    Options.commands = ['doxygen', 'sphinx'] + Options.commands
+
 def doxygen(bld):
     if not bld.env.DOXYGEN:
-        bld.fatal("ERROR: cannot build documentation (`doxygen' is not found in $PATH)")
-    bld(features="doxygen",
-        doxyfile='docs/doxygen.conf')
+        Logs.error("ERROR: cannot build documentation (`doxygen' is not found in $PATH)")
+    else:
+        bld(features="doxygen",
+            doxyfile='docs/doxygen.conf')
 
 def sphinx(bld):
     if not bld.env.SPHINX_BUILD:
         bld.fatal("ERROR: cannot build documentation (`sphinx-build' is not found in $PATH)")
-    bld(features="sphinx",
-        outdir="docs/html",
-        source=bld.path.ant_glob("docs/**/*.rst"),
-        config="docs/source/conf.py")
+    else:
+        bld(features="sphinx",
+            outdir="docs",
+            source=bld.path.ant_glob("docs/**/*.rst"),
+            config="docs/conf.py")

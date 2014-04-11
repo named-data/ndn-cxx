@@ -18,7 +18,7 @@ Prerequisites
 (These are prerequisites to build ndn-cpp-dev.  To do development of ndn-cpp-dev code and update the build system,
  see Development Prerequisites.)
 
-Required:
+### Required:
 
 * `python` >= 2.6
 * `libcrypto`
@@ -51,6 +51,27 @@ Following are the detailed steps for each platform to install the prerequisites.
 
         # For Ubuntu 13.10
         sudo apt-get install libboost-all-dev
+
+### Optional Dependencies:
+
+To build tutorials, manpages, and API documentation the following
+dependencies need to be installed:
+
+* `doxygen`
+* `graphviz`
+* `python-sphinx`
+
+The following lists steps for common platforms to install these prerequisites:
+
+* On OS X 10.8 and 10.9 with macports:
+
+        sudo port install doxygen graphviz py27-sphinx sphinx_select
+        sudo port select sphinx py27-sphinx
+
+* On Ubuntu >= 12.04:
+
+        sudo apt-get install doxygen graphviz python-sphinx
+
 
 Build
 -----
@@ -86,32 +107,28 @@ also produce:
 Documentation
 -------------
 
-To make documentation, enter:
+ndn-cpp-dev tutorials and API documentation can be built using the following commands:
 
-    ./waf doxygen
+    # Full set of documentation (tutorials + API) in build/docs
+    ./waf docs
 
-This will produce doxygen API code documentation in:
+    # Only tutorials in `build/docs`
+    ./waf sphinx
 
-* `build/doc/html`
+    # Only API docs in `build/docs/doxygen`
+    ./waf doxgyen
 
-Development Prerequisites
--------------------------
 
-These steps are only needed to do development of ndn-cpp-dev code and update the build system.
-First follow the Prerequisites above for your platforms.
+Manpages are automatically created and installed during the normal build process
+(e.g., during `./waf` and `./waf install`), if `python-sphinx` module is detected during
+`./waf configure` stage.  By default, manpages are installed into `${PREFIX}/share/man`
+(where default value for `PREFIX` is `/usr/local`).  This location can be changed during
+`./waf configure` stage using `--prefix`, `--datarootdir`, or `--mandir` options.
 
-* Mac OS X 10.7.3, Mac OS X 10.8.4, Mac OS X 10.9
+For more details, refer to `./waf --help`.
 
-    Install MacPorts from http://www.macports.org/install.php
-    In a terminal, enter:
 
-        sudo port install doxygen
 
-* Ubuntu 12.04 (64 bit and 32 bit), Ubuntu 13.04 (64 bit)
-
-    In a terminal, enter:
-
-        sudo apt-get install doxygen
 
 Development Build
 -----------------

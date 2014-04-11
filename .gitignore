@@ -1,91 +1,13 @@
-# Compiled files
-*.slo
-*.lo
-*.o
-*.so
-*.dylib
-*.lai
-*.la
-*.a
-bin/*
-libs/*
-
 # Emacs temp files
 *~
 
-# Autoconf files
-Makefile
-Makefile.in
-.libs
-.deps
-/autom4te.cache
-config.log
-/config.status
-/include/config.h
-/_configs.sed
-/stamp-h1
-/include/ndn-cpp-dev/ndn-cpp-config.h
-/include/stamp-h1
-/aclocal.m4
-/libtool
-/condefs.h
-/conftest.cpp
-/conftest.err
-*.Po
-.deps
-.dirstamp
-*.tar.gz
-# Let autoconf automatically copy these files
-/m4/libtool.m4
-/m4/ltoptions.m4
-/m4/ltsugar.m4
-/m4/ltversion.m4
-/m4/lt~obsolete.m4
-
-Makefile.in
-ar-lib
-compile
-config.guess
-config.sub
-configure
-depcomp
-include/config.h.in
-install-sh
-ltmain.sh
-missing
-
-# Doxygen output
-/doc/html
-/doc/latex
-
 # Mac OSX
 .DS_Store
-
-# Tests
-tests/test-encode-decode-benchmark
-tests/test-encode-decode-data
-tests/test-encode-decode-forwarding-entry
-tests/test-encode-decode-interest
-tests/test-get-async
-tests/test-publish-async
-
-# Tests using Boost's unit test framework
-tests_boost/unit-tests
-
-# Tools
-tools/tlvdump
-tools/ndncatchunks3
-tools/ndnputchunks3
-
-# Examples
-examples/consumer
-examples/producer
-
-# pkg-config file
-libndn-cpp-dev.pc
 
 # waf build system
 .waf-1*
 .lock*
 build/
-.waf-tools/*.pyc
+
+# Compiled python code
+**/*.pyc
