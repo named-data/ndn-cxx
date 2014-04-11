@@ -772,6 +772,10 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   shared_ptr<Interest> interest2 = make_shared<Interest>(interestName2);
   BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest2, nld));
 
+  Name interestName3("/localhost/nrd/register/option/timestamp/nonce");
+  shared_ptr<Interest> interest3 = make_shared<Interest>(interestName3);
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest3, root));
+
 
   const std::string CONFIG =
     "rule\n"
@@ -828,6 +832,10 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   scheduler.scheduleEvent(time::milliseconds(400),
                           bind(&FacesFixture::validate4, this,
                                validator, interest2));
+
+  scheduler.scheduleEvent(time::milliseconds(600),
+                          bind(&FacesFixture::validate3, this,
+                               validator, interest3));
 
   BOOST_REQUIRE_NO_THROW(face->processEvents());
 
