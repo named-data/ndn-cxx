@@ -1,20 +1,17 @@
 # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
-#
-# Copyright (c) 2014, Regents of the University of California
-#
-# GPL 3.0 license, see the COPYING.md file for more information
 
 VERSION = '0.4.0'
 APPNAME = "ndn-cpp-dev"
 PACKAGE_BUGREPORT = "http://redmine.named-data.net/projects/ndn-cpp-dev"
 PACKAGE_URL = "https://github.com/named-data/ndn-cpp-dev"
 
-from waflib import Logs, Utils, Task, TaskGen
-from waflib.Tools import c_preproc
+from waflib import Logs, Utils
 
 def options(opt):
-    opt.load('compiler_cxx gnu_dirs c_osx')
-    opt.load('boost doxygen openssl cryptopp coverage default-compiler-flags',
+    opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
+    opt.load(['default-compiler-flags', 'coverage', 'osx-security', 'pch',
+              'boost', 'openssl', 'cryptopp', 'sqlite3',
+              'doxygen', 'sphinx_build'],
              tooldir=['.waf-tools'])
 
     opt = opt.add_option_group('Library Options')
@@ -34,64 +31,29 @@ def options(opt):
                    help='''Disable filesystem locking in sqlite3 database '''
                         '''(use unix-dot locking mechanism instead). '''
                         '''This option may be necessary if home directory is hosted on NFS.''')
-    opt.add_option('--with-pch', action='store_true', default=False, dest='with_pch',
-                   help='''Try to use precompiled header to speed up compilation '''
-                        '''(only gcc and clang)''')
     opt.add_option('--without-osx-keychain', action='store_false', default=True,
                    dest='with_osx_keychain',
                    help='''On Darwin, do not use OSX keychain as a default TPM''')
 
 def configure(conf):
-    conf.load("compiler_cxx boost gnu_dirs c_osx openssl cryptopp")
-    try: conf.load("doxygen")
-    except: pass
+    conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
+               'default-compiler-flags', 'osx-security', 'pch',
+               'boost', 'openssl', 'cryptopp', 'sqlite3',
+               'doxygen', 'sphinx_build'])
 
-    if conf.options.with_tests:
-        conf.env['WITH_TESTS'] = True
+    conf.env['WITH_TESTS'] = conf.options.with_tests
+    conf.env['WITH_TOOLS'] = conf.options.with_tools
 
-    if conf.options.with_tools:
-        conf.env['WITH_TOOLS'] = True
+    conf.check_osx_security(mandatory=False)
 
-    conf.check_openssl()
-
-    conf.load('default-compiler-flags')
-
-    if Utils.unversioned_sys_platform() == "darwin":
-        try:
-            codeFragment='''
-#include <CoreFoundation/CoreFoundation.h>
-#include <Security/Security.h>
-#include <Security/SecRandom.h>
-#include <CoreServices/CoreServices.h>
-#include <Security/SecDigestTransform.h>
-
-int main(int argc, char **argv) {
-    (void)argc; (void)argv;
-    return 0;
-}
-'''
-            conf.check_cxx(framework_name='CoreFoundation', uselib_store='OSX_COREFOUNDATION',
-                           mandatory=True)
-            conf.check_cxx(framework_name='CoreServices', uselib_store='OSX_CORESERVICES',
-                           mandatory=True)
-            conf.check_cxx(framework_name='Security', uselib_store='OSX_SECURITY',
-                           define_name='HAVE_SECURITY', use="OSX_COREFOUNDATION",
-                           fragment=codeFragment, mandatory=True)
-            conf.define('HAVE_OSX_SECURITY', 1)
-            conf.env['HAVE_OSX_SECURITY'] = True
-        except:
-            Logs.warn("Compiling on OSX, but CoreFoundation, CoreServices, or Security framework is not functional.")
-            Logs.warn("The frameworks are known to work only with Apple-specific compilers: llvm-gcc-4.2 or clang")
-
-    conf.check_cfg(package='sqlite3', args=['--cflags', '--libs'], uselib_store='SQLITE3',
-                   mandatory=True)
+    conf.check_openssl(mandatory=True)
+    conf.check_sqlite3(mandatory=True)
+    conf.check_cryptopp(mandatory=True)
 
     if conf.options.log4cxx:
         conf.check_cfg(package='liblog4cxx', args=['--cflags', '--libs'], uselib_store='LOG4CXX',
                        mandatory=True)
         conf.define("HAVE_LOG4CXX", 1)
-
-    conf.check_cryptopp(path=conf.options.cryptopp_dir, mandatory=True)
 
     if conf.options.use_cxx11:
         conf.check(msg='Checking for type std::shared_ptr',
@@ -122,8 +84,6 @@ int main(int argc, char **argv) {
     if not conf.options.with_sqlite_locking:
         conf.define('DISABLE_SQLITE3_FS_LOCKING', 1)
 
-    conf.env['WITH_PCH'] = conf.options.with_pch
-
     if conf.env['HAVE_OSX_SECURITY']:
         conf.env['WITH_OSX_KEYCHAIN'] = conf.options.with_osx_keychain
         if conf.options.with_osx_keychain:
@@ -131,11 +91,12 @@ int main(int argc, char **argv) {
     else:
         conf.env['WITH_OSX_KEYCHAIN'] = False
 
-    conf.load("coverage")
+    # Loading "late" to prevent tests to be compiled with profiling flags
+    conf.load('coverage')
 
     conf.define('SYSCONFDIR', conf.env['SYSCONFDIR'])
 
-    conf.write_config_header('src/ndn-cpp-config.h', define_prefix='NDN_CPP_')
+    conf.write_config_header('src/ndn-cpp-config.hpp', define_prefix='NDN_CPP_')
 
 def build(bld):
     libndn_cpp = bld(
@@ -219,7 +180,7 @@ def build(bld):
                       relative_trick=True, cwd=bld.path.find_node('src'))
 
     bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'],
-                      bld.path.find_resource('src/ndn-cpp-config.h'))
+                      bld.path.find_resource('src/ndn-cpp-config.hpp'))
 
     bld.install_files("${SYSCONFDIR}/ndn", "client.conf.sample")
 
@@ -230,33 +191,9 @@ def doxygen(bld):
         doxyfile='docs/doxygen.conf')
 
 def sphinx(bld):
-    bld.load('sphinx_build', tooldir=['waf-tools'])
-
+    if not bld.env.SPHINX_BUILD:
+        bld.fatal("ERROR: cannot build documentation (`sphinx-build' is not found in $PATH)")
     bld(features="sphinx",
-        outdir="doc/html",
-        source="doc/source/conf.py")
-
-
-@TaskGen.feature('cxx')
-@TaskGen.before('process_source')
-def process_pch(self):
-    if getattr(self, 'pch', ''):
-        # for now support only gcc-compatible things
-        if self.env['COMPILER_CXX'] == 'g++':
-            nodes = self.to_nodes(self.pch, path=self.path)
-            for x in nodes:
-                z = self.create_task('gchx', x, x.change_ext('.hpp.gch'))
-                z.orig_self = self
-
-class gchx(Task.Task):
-    run_str = '${CXX} -x c++-header ${CXXFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ' + \
-                '${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ' + \
-                '${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
-    scan    = c_preproc.scan
-    ext_out = ['.hpp']
-    color   = 'BLUE'
-
-    def post_run(self):
-        super(gchx, self).post_run()
-        self.orig_self.env['CXXFLAGS'] = ['-include', self.inputs[0].relpath()] + \
-                                         self.env['CXXFLAGS']
+        outdir="docs/html",
+        source=bld.path.ant_glob("docs/**/*.rst"),
+        config="docs/source/conf.py")

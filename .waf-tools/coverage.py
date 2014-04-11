@@ -3,7 +3,7 @@
 from waflib import TaskGen
 
 def options(opt):
-    opt.add_option('--with-coverage',action='store_true',default=False,dest='with_coverage',
+    opt.add_option('--with-coverage', action='store_true', default=False, dest='with_coverage',
                    help='''Set compiler flags for gcc to enable code coverage information''')
 
 def configure(conf):

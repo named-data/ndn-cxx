@@ -9,8 +9,7 @@ When using this tool, the wscript will look like:
         opt.tool_options('openssl')
 
     def configure(conf):
-        conf.load('compiler_c openssl')
-
+        conf.load('compiler_cxx openssl')
         conf.check_openssl()
 
     def build(bld):
@@ -23,21 +22,10 @@ from waflib.Configure import conf
 
 @conf
 def check_openssl(self,*k,**kw):
-    root = k and k[0] or kw.get('path',None) or Options.options.with_openssl
+    root = k and k[0] or kw.get('path', None) or Options.options.with_openssl
     mandatory = kw.get('mandatory', True)
-    var = kw.get('var', 'OPENSSL')
+    var = kw.get('uselib_store', 'OPENSSL')
 
-    CODE = """
-#include <openssl/crypto.h>
-#include <stdio.h>
-
-int main(int argc, char **argv) {
-    (void)argc;
-    printf("%s", argv[0]);
-
-    return 0;
-}
-"""
     if root:
         libcrypto = self.check_cxx(lib=['ssl', 'crypto'],
                        msg='Checking for OpenSSL library',
@@ -45,16 +33,14 @@ int main(int argc, char **argv) {
                        uselib_store=var,
                        mandatory=mandatory,
                        cxxflags="-I%s/include" % root,
-                       linkflags="-L%s/lib" % root,
-                       fragment=CODE)
+                       linkflags="-L%s/lib" % root)
     else:
         libcrypto = self.check_cxx(lib=['ssl', 'crypto'],
                        msg='Checking for OpenSSL library',
                        define_name='HAVE_%s' % var,
                        uselib_store=var,
-                       mandatory=mandatory,
-                       fragment=CODE)
+                       mandatory=mandatory)
 
 def options(opt):
-    opt.add_option('--with-openssl', type='string', default='',
+    opt.add_option('--with-openssl', type='string', default=None,
                    dest='with_openssl', help='''Path to OpenSSL''')

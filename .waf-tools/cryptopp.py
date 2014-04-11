@@ -6,10 +6,11 @@
 When using this tool, the wscript will look like:
 
     def options(opt):
-        opt.tool_options('cryptopp', tooldir=["waf-tools"])
+        opt.load('compiler_cxx cryptopp')
 
     def configure(conf):
         conf.load('compiler_cxx cryptopp')
+        conf.check_cryptopp()
 
     def build(bld):
         bld(source='main.cpp', target='app', use='CRYPTOPP')
@@ -22,12 +23,12 @@ import sys
 import re
 from waflib import Utils,Logs,Errors
 from waflib.Configure import conf
-CRYPTOPP_DIR = ['/usr', '/usr/local', '/opt/local', '/sw']
+CRYPTOPP_DIR = ['/usr', '/usr/local', '/opt/local', '/sw', '/usr/local/ndn', '/opt/ndn']
 CRYPTOPP_VERSION_FILE = 'config.h'
 
 def options(opt):
-    opt.add_option('--cryptopp', type='string', default='', dest='cryptopp_dir',
-                   help='''Path to where CryptoPP is installed, e.g. /opt/local''')
+    opt.add_option('--with-cryptopp', type='string', default=None, dest='cryptopp_dir',
+                   help='''Path to where CryptoPP is installed, e.g., /usr/local''')
 
 @conf
 def __cryptopp_get_version_file(self, dir):
@@ -39,7 +40,7 @@ def __cryptopp_get_version_file(self, dir):
 
 @conf
 def __cryptopp_find_root_and_version_file(self, *k, **kw):
-    root = k and k[0]or kw.get('path', None)
+    root = k and k[0] or kw.get('path', self.options.cryptopp_dir)
 
     file = self.__cryptopp_get_version_file(root)
     if root and file:
@@ -52,7 +53,7 @@ def __cryptopp_find_root_and_version_file(self, *k, **kw):
     if root:
         self.fatal('CryptoPP not found in %s' % root)
     else:
-        self.fatal('CryptoPP not found, please provide a --cryptopp argument (see help)')
+        self.fatal('CryptoPP not found, please provide a --with=cryptopp=PATH argument (see help)')
 
 @conf
 def check_cryptopp(self, *k, **kw):
@@ -60,6 +61,8 @@ def check_cryptopp(self, *k, **kw):
         self.fatal('Load a c++ compiler first, e.g., conf.load("compiler_cxx")')
 
     var = kw.get('uselib_store','CRYPTOPP')
+    mandatory = kw.get('mandatory', True)
+
     self.start_msg('Checking Crypto++ lib')
     (root, file) = self.__cryptopp_find_root_and_version_file(*k, **kw)
 
@@ -81,5 +84,5 @@ def check_cryptopp(self, *k, **kw):
                          lib='cryptopp',
                          cxxflags="-I%s/include" % root,
                          linkflags="-L%s/lib" % root,
-                         mandatory=True,
+                         mandatory=mandatory,
                          uselib_store=var)

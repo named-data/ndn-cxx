@@ -1,119 +1,77 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Hans-Martin von Gaudecker, 2012
 
-"""
-Create Sphinx documentation. Currently only LaTeX and HTML are supported.
-
-The source file **must** be the conf.py file used by Sphinx. Everything
-else has defaults, passing in the parameters is optional.
-
-Usage for getting both html and pdf docs:
-
-    def build(ctx):
-        ctx(features='sphinx', source='docs/conf.py')
-        ctx(features='sphinx', source='docs/conf.py', buildername='latex')
-
-    def sphinx(ctx):
-        ctx(features='sphinx', source='docs/conf.py')
-        ctx(features='sphinx', source='docs/conf.py', buildername='latex')
-
-Optional parameters and their defaults:
-
-    * buildername: html
-    * srcdir: confdir (the directory where conf.py lives)
-    * outdir: confdir/buildername (in the build directory tree)
-    * doctreedir: outdir/.doctrees
-    * type: pdflatex (only applies to 'latex' builder)
-
-"""
-
+# inspired by code by Hans-Martin von Gaudecker, 2012
 
 import os
-from waflib import Task, TaskGen, Errors, Logs, Build
+from waflib import Node, Task, TaskGen, Errors, Logs, Build, Utils
 
-class RunSphinxBuild(Task.Task):
-	def scan(self):
-		"""Use Sphinx' internal environment to find the dependencies."""
-		s = self.sphinx_instance
-		msg, dummy, iterator = s.env.update(s.config, s.srcdir, s.doctreedir, s)
-		s.info(msg)
-		dep_nodes = []
-		for docname in s.builder.status_iterator(iterator, "reading sources... "):
-			filename = docname + s.config.source_suffix
-			dep_nodes.append(self.srcdir.find_node(filename))
-		for dep in s.env.dependencies.values():
-			# Need the 'str' call because Sphinx might return Unicode strings.
-			[dep_nodes.append(self.srcdir.find_node(str(d))) for d in dep]
-		return (dep_nodes, [])
+class sphinx_build(Task.Task):
+    color = 'BLUE'
+    run_str = '${SPHINX_BUILD} -q -b ${BUILDERNAME} -d ${DOCTREEDIR} ${SRCDIR} ${OUTDIR}'
 
-	def run(self):
-		"""Run the Sphinx build."""
-		self.sphinx_instance.build(force_all=False, filenames=None)
-		return None
+    def __str__(self):
+        env = self.env
+        src_str = ' '.join([a.nice_path()for a in self.inputs])
+        tgt_str = ' '.join([a.nice_path()for a in self.outputs])
+        if self.outputs: sep = ' -> '
+        else: sep = ''
+        return'%s [%s]: %s%s%s\n'%(self.__class__.__name__.replace('_task',''),
+                                   self.env['BUILDERNAME'], src_str, sep, tgt_str)
 
-	def post_run(self):
-		"""Add everything found in the output directory tree as an output.
-		Not elegant, but pragmatic."""
-		for n in self.outdir.ant_glob("**", quiet=True, remove=False):
-			if n not in self.outputs: self.set_outputs(n)
-		super(RunSphinxBuild, self).post_run()
-
-
-def _get_main_targets(tg, s):
-	"""Return some easy targets known from the Sphinx build environment **s.env**."""
-	out_dir = tg.bld.root.find_node(s.outdir)
-	tgt_nodes = []
-	if s.builder.name == "latex":
-		for tgt_info in s.env.config.latex_documents:
-			tgt_nodes.append(out_dir.find_or_declare(tgt_info[1]))
-	elif s.builder.name == "html":
-		suffix = getattr(s.env.config, "html_file_suffix", ".html")
-		tgt_name = s.env.config.master_doc + suffix
-		tgt_nodes.append(out_dir.find_or_declare(tgt_name))
-	else:
-		raise Errors.WafError("Sphinx builder not implemented: %s" % s.builder.name)
-	return tgt_nodes
-
+@TaskGen.extension('.py', '.rst')
+def sig_hook(self, node):
+    node.sig=Utils.h_file(node.abspath())
 
 @TaskGen.feature("sphinx")
 @TaskGen.before_method("process_source")
-def apply_sphinx(tg):
-	"""Set up the task generator with a Sphinx instance and create a task."""
+def apply_sphinx(self):
+    """Set up the task generator with a Sphinx instance and create a task."""
 
-        from sphinx.application import Sphinx
+    inputs = []
+    for i in Utils.to_list(self.source):
+        if not isinstance(i, Node.Node):
+            node = self.path.find_node(node)
+        else:
+            node = i
+        if not node:
+            raise ValueError('[%s] file not found' % i)
+        inputs.append(node)
 
-	# Put together the configuration based on defaults and tg attributes.
-	conf = tg.path.find_node(tg.source)
-	confdir = conf.parent.abspath()
-	buildername = getattr(tg, "buildername", "html")
-	srcdir = getattr(tg, "srcdir", confdir)
-	outdir = tg.path.find_or_declare (getattr(tg, "outdir", os.path.join(conf.parent.get_bld().abspath(), buildername))).abspath ()
+    task = self.create_task('sphinx_build', inputs)
 
-	doctreedir = getattr(tg, "doctreedir", os.path.join(outdir, ".doctrees"))
+    conf = self.path.find_node(self.config)
+    task.inputs.append(conf)
 
-	# Set up the Sphinx instance.
-	s = Sphinx (srcdir, confdir, outdir, doctreedir, buildername, status=None)
+    confdir = conf.parent.abspath()
+    buildername = getattr(self, "builder", "html")
+    srcdir = getattr(self, "srcdir", confdir)
+    outdir = self.path.find_or_declare(getattr(self, "outdir", buildername)).get_bld()
+    doctreedir = getattr(self, "doctreedir", os.path.join(outdir.abspath(), ".doctrees"))
 
-	# Get the main targets of the Sphinx build.
-	tgt_nodes = _get_main_targets(tg, s)
+    task.env['BUILDERNAME'] = buildername
+    task.env['SRCDIR'] = srcdir
+    task.env['DOCTREEDIR'] = doctreedir
+    task.env['OUTDIR'] = outdir.abspath()
 
-	# Create the task and set the required attributes.
-	task = tg.create_task("RunSphinxBuild", src=conf, tgt=tgt_nodes)
-	task.srcdir = tg.bld.root.find_node(s.srcdir)
-	task.outdir = tg.bld.root.find_node(s.outdir)
-	task.sphinx_instance = s
+    import imp
+    confData = imp.load_source('sphinx_conf', conf.abspath())
 
-	# Build pdf if we have the LaTeX builder, allow for building with xelatex.
-	if s.builder.name == "latex":
-		compile_type = getattr(tg, "type", "pdflatex")
-		tg.bld(features="tex", type=compile_type, source=tgt_nodes, name="sphinx_pdf", prompt=0)
+    if buildername == "man":
+        for i in confData.man_pages:
+            target = outdir.find_or_declare('%s.%d' % (i[1], i[4]))
+            task.outputs.append(target)
 
-	# Bypass the execution of process_source by setting the source to an empty list
-	tg.source = []
+            if self.install_path:
+                self.bld.install_files("%s/man%d/" % (self.install_path, i[4]), target)
+    else:
+        task.outputs.append(outdir)
+
+def configure(conf):
+    conf.find_program('sphinx-build', var='SPHINX_BUILD', mandatory=False)
 
 # sphinx docs
 from waflib.Build import BuildContext
-class sphinx (BuildContext):
+class sphinx(BuildContext):
     cmd = "sphinx"
     fun = "sphinx"

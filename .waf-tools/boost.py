@@ -53,8 +53,11 @@ import re
 from waflib import Utils, Logs, Errors
 from waflib.Configure import conf
 
-BOOST_LIBS = ['/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib', '/usr/lib/x86_64-linux-gnu', '/usr/lib/i386-linux-gnu', '/usr/local/ndn/lib']
-BOOST_INCLUDES = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include', '/usr/local/ndn/include']
+BOOST_LIBS = ['/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib',
+              '/usr/lib/x86_64-linux-gnu', '/usr/lib/i386-linux-gnu',
+              '/usr/local/ndn/lib', '/opt/ndn/lib']
+BOOST_INCLUDES = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include',
+                  '/usr/local/ndn/include', '/opt/ndn/include']
 BOOST_VERSION_FILE = 'boost/version.hpp'
 BOOST_VERSION_CODE = '''
 #include <iostream>
