@@ -230,10 +230,26 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('manpages/ndnsec', 'ndnsec', u'NDN security tools', None, 1),
+    ('manpages/ndnsec-cert-dump',    'ndnsec-cert-dump',   'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-cert-gen',     'ndnsec-cert-gen',    'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-cert-install', 'ndnsec-cert-instal', 'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-delete',       'ndnsec-delete',      'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-export',       'ndnsec-export',      'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-get-default',  'ndnsec-get-default', 'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-import',       'ndnsec-import',      'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-key-gen',      'ndnsec-key-gen',     'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-list',         'ndnsec-list',        'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-op-tool',      'ndnsec-op-tool',     'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-set-acl',      'ndnsec-set-acl',     'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-set-default',  'ndnsec-set-default', 'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-sig-verify',   'ndnsec-sig-verify',  'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-sign-req',     'ndnsec-sign-req',    'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-unlock-tpm',   'ndnsec-unlock-tpm',  'part of NDN security tools', None, 1),
     ('tutorials/security-validator-config', 'ndnsec-validator.conf',
      'NDN trust validator configuration file', None, 5),
+    ('manpages/tlvdump', 'tlvdump',  'Decode structure of TLV encoded buffer', None, 1),
 ]
 
 
 # If true, show URL addresses after external links.
-#man_show_urls = False
+man_show_urls = True
