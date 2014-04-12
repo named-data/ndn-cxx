@@ -44,6 +44,8 @@ def configure(conf):
     conf.env['WITH_TESTS'] = conf.options.with_tests
     conf.env['WITH_TOOLS'] = conf.options.with_tools
 
+    conf.find_program('sh', var='SH', mandatory=True)
+
     conf.check_osx_security(mandatory=False)
 
     conf.check_openssl(mandatory=True)
