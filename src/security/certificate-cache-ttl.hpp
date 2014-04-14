@@ -27,14 +27,14 @@ public:
   insertCertificate(ptr_lib::shared_ptr<const IdentityCertificate> certificate);
 
   virtual ptr_lib::shared_ptr<const IdentityCertificate>
-  getCertificate(const Name & certificateNameWithoutVersion);
+  getCertificate(const Name& certificateNameWithoutVersion);
 
 private:
   void
   insert(ptr_lib::shared_ptr<const IdentityCertificate> certificate);
 
   void
-  remove(const Name &certificateName);
+  remove(const Name& certificateName);
 
 protected:
   typedef std::map<Name, ptr_lib::shared_ptr<const IdentityCertificate> > Cache;

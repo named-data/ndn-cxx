@@ -28,14 +28,14 @@ PublicKey::PublicKey()
  * @param algorithm The algorithm of the public key.
  * @param keyDer The blob of the PublicKeyInfo in terms of DER.
  */
-PublicKey::PublicKey(const uint8_t *keyDerBuf, size_t keyDerSize)
+PublicKey::PublicKey(const uint8_t* keyDerBuf, size_t keyDerSize)
 {
   StringSource src(keyDerBuf, keyDerSize, true);
   decode(src);
 }
 
 void
-PublicKey::encode(CryptoPP::BufferedTransformation &out) const
+PublicKey::encode(CryptoPP::BufferedTransformation& out) const
 {
   // SubjectPublicKeyInfo ::= SEQUENCE {
   //     algorithm           AlgorithmIdentifier
@@ -45,7 +45,7 @@ PublicKey::encode(CryptoPP::BufferedTransformation &out) const
 }
 
 void
-PublicKey::decode(CryptoPP::BufferedTransformation &in)
+PublicKey::decode(CryptoPP::BufferedTransformation& in)
 {
   // SubjectPublicKeyInfo ::= SEQUENCE {
   //     algorithm           AlgorithmIdentifier
@@ -86,7 +86,7 @@ PublicKey::decode(CryptoPP::BufferedTransformation &in)
 
     key_.assign(out.begin(), out.end());
   }
-  catch (CryptoPP::BERDecodeErr &err) {
+  catch (CryptoPP::BERDecodeErr& err) {
     throw Error("PublicKey decoding error");
   }
 }
@@ -97,15 +97,15 @@ PublicKey::decode(CryptoPP::BufferedTransformation &in)
 //   if (digestAlgorithm == DIGEST_ALGORITHM_SHA256) {
 //     uint8_t digest[SHA256_DIGEST_LENGTH];
 //     ndn_digestSha256(keyDer_.buf(), keyDer_.size(), digest);
-    
+
 //     return Blob(digest, sizeof(digest));
 //   }
 //   else
 //     throw UnrecognizedDigestAlgorithmException("Wrong format!");
 // }
 
-std::ostream &
-operator <<(std::ostream &os, const PublicKey &key)
+std::ostream&
+operator <<(std::ostream& os, const PublicKey& key)
 {
   CryptoPP::StringSource(key.get().buf(), key.get().size(), true,
                          new CryptoPP::Base64Encoder(new CryptoPP::FileSink(os), true, 64));

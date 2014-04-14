@@ -20,30 +20,39 @@ public:
   {
   }
 
-  StatusResponse(uint32_t code, const std::string &info)
+  StatusResponse(uint32_t code, const std::string& info)
     : code_(code)
     , info_(info)
   {
   }
-  
+
+  /**
+   * @brief Create from wire encoding
+   */
+  explicit
+  StatusResponse(const Block& wire)
+  {
+    wireDecode(wire);
+  }
+
   inline uint32_t
   getCode() const;
 
   inline void
   setCode(uint32_t code);
 
-  inline const std::string &
+  inline const std::string&
   getInfo() const;
 
   inline void
-  setInfo(const std::string &info);
+  setInfo(const std::string& info);
 
   inline const Block&
   wireEncode() const;
 
   inline void
-  wireDecode(const Block &block);
-  
+  wireDecode(const Block& block);
+
 private:
   uint32_t code_;
   std::string info_;
@@ -64,14 +73,14 @@ StatusResponse::setCode(uint32_t code)
   wire_.reset();
 }
 
-inline const std::string &
+inline const std::string&
 StatusResponse::getInfo() const
 {
   return info_;
 }
 
 inline void
-StatusResponse::setInfo(const std::string &info)
+StatusResponse::setInfo(const std::string& info)
 {
   info_ = info;
   wire_.reset();
@@ -93,13 +102,13 @@ StatusResponse::wireEncode() const
       wire_.push_back
         (dataBlock(tlv::ndnd::StatusText, info_.c_str(), info_.size()));
     }
-  
-  wire_.encode();  
+
+  wire_.encode();
   return wire_;
 }
 
 inline void
-StatusResponse::wireDecode(const Block &wire)
+StatusResponse::wireDecode(const Block& wire)
 {
   wire_ = wire;
   wire_.parse();
@@ -114,7 +123,7 @@ StatusResponse::wireDecode(const Block &wire)
 }
 
 inline std::ostream&
-operator << (std::ostream &os, const StatusResponse &status)
+operator << (std::ostream& os, const StatusResponse& status)
 {
   os << status.getCode() << " " << status.getInfo();
   return os;

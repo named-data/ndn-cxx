@@ -27,34 +27,36 @@ SecRuleSpecific::SecRuleSpecific(const SecRuleSpecific& rule)
   , m_signerRegex(rule.m_signerRegex)
 {}
 
-bool 
+bool
 SecRuleSpecific::matchDataName(const Data& data)
 { return m_dataRegex->match(data.getName()); }
 
-bool 
+bool
 SecRuleSpecific::matchSignerName(const Data& data)
-{ 
-  try{
+{
+  try {
     SignatureSha256WithRsa sig(data.getSignature());
     Name signerName = sig.getKeyLocator().getName ();
-    return m_signerRegex->match(signerName); 
-  }catch(SignatureSha256WithRsa::Error &e){
+    return m_signerRegex->match(signerName);
+  }
+  catch (SignatureSha256WithRsa::Error& e) {
     return false;
-  }catch(KeyLocator::Error &e){
+  }
+  catch (KeyLocator::Error& e) {
     return false;
   }
 }
 
 bool
-SecRuleSpecific::satisfy(const Data & data)
-{ 
-  return (matchDataName(data) && matchSignerName(data)) ? true : false ; 
+SecRuleSpecific::satisfy(const Data& data)
+{
+  return (matchDataName(data) && matchSignerName(data)) ? true : false;
 }
 
 bool
-SecRuleSpecific::satisfy(const Name & dataName, const Name & signerName)
-{ 
-  return (m_dataRegex->match(dataName) && m_signerRegex->match(signerName)); 
+SecRuleSpecific::satisfy(const Name& dataName, const Name& signerName)
+{
+  return (m_dataRegex->match(dataName) && m_signerRegex->match(signerName));
 }
 
 } // namespace ndn

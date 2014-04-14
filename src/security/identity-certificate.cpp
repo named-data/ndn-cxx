@@ -20,21 +20,21 @@ IdentityCertificate::isCorrectName(const Name& name)
   string idString("ID-CERT");
   int i = name.size() - 1;
   for (; i >= 0; i--) {
-    if(name.get(i).toEscapedString() == idString)
+    if (name.get(i).toEscapedString() == idString)
       break;
   }
 
   if (i < 0)
     return false;
-  
-  size_t keyIdx = 0;
+
   string keyString("KEY");
-  for (; keyIdx < name.size(); keyIdx++) {
-    if(name.get(keyIdx).toEscapedString() == keyString)
+  size_t keyIndex = 0;
+  for (; keyIndex < name.size(); keyIndex++) {
+    if (name.get(keyIndex).toEscapedString() == keyString)
       break;
   }
 
-  if (keyIdx >= name.size())
+  if (keyIndex >= name.size())
     return false;
 
   return true;
@@ -45,7 +45,7 @@ IdentityCertificate::setPublicKeyName()
 {
   if (!isCorrectName(getName()))
     throw Error("Wrong Identity Certificate Name!");
-  
+
   publicKeyName_ = certificateNameToPublicKeyName(getName());
 }
 
@@ -69,9 +69,9 @@ IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
       }
   }
 
-  if(!foundIdString)
+  if (!foundIdString)
     throw Error("Incorrect identity certificate name " + certificateName.toUri());
-    
+
   Name tmpName = certificateName.getSubName(0, idCertComponentIndex);
   string keyString("KEY");
   bool foundKeyString = false;
@@ -84,7 +84,7 @@ IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
       }
   }
 
-  if(!foundKeyString)
+  if (!foundKeyString)
     throw Error("Incorrect identity certificate name " + certificateName.toUri());
 
   return tmpName

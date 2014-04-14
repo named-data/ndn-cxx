@@ -21,28 +21,30 @@
 #include "face.hpp"
 #include "security/key-chain.hpp"
 
-#define MAX_SEG_SIZE 4096
+namespace ndn {
+
+const size_t MAX_SEG_SIZE = 4096;
 
 class Producer
 {
 public:
   Producer(const char* name)
     : m_name(name)
-    , m_verbose(false)
+    , m_isVerbose(false)
   {
     int segnum = 0;
     char* buf = new char[MAX_SEG_SIZE];
     do
       {
         std::cin.read(buf, MAX_SEG_SIZE);
-        int got = std::cin.gcount ();
+        int got = std::cin.gcount();
 
         if (got > 0)
           {
-            ndn::shared_ptr<ndn::Data> data =
-              ndn::make_shared<ndn::Data>(ndn::Name(m_name).appendSegment(segnum));
+            shared_ptr<Data> data =
+              make_shared<Data>(Name(m_name).appendSegment(segnum));
 
-            data->setFreshnessPeriod(ndn::time::milliseconds(10000)); // 10 sec
+            data->setFreshnessPeriod(time::milliseconds(10000)); // 10 sec
             data->setContent(reinterpret_cast<const uint8_t*>(buf), got);
 
             m_keychain.sign(*data);
@@ -52,14 +54,14 @@ public:
       }
     while (static_cast<bool>(std::cin));
 
-    if (m_verbose)
+    if (m_isVerbose)
       std::cerr << "Created " << segnum << " chunks for prefix [" << m_name << "]" << std::endl;
   }
 
   void
-  onInterest(const ndn::Name& name, const ndn::Interest& interest)
+  onInterest(const Name& name, const Interest& interest)
   {
-    if (m_verbose)
+    if (m_isVerbose)
       std::cerr << "<< I: " << interest << std::endl;
 
     size_t segnum = static_cast<size_t>(interest.getName().rbegin()->toSegment());
@@ -71,7 +73,7 @@ public:
   }
 
   void
-  onRegisterFailed(const ndn::Name& prefix, const std::string& reason)
+  onRegisterFailed(const Name& prefix, const std::string& reason)
   {
     std::cerr << "ERROR: Failed to register prefix in local hub's daemon (" << reason << ")" << std::endl;
     m_face.shutdown();
@@ -87,23 +89,23 @@ public:
       }
 
     m_face.setInterestFilter(m_name,
-                             ndn::bind(&Producer::onInterest, this, _1, _2),
-                             ndn::bind(&Producer::onRegisterFailed, this, _1, _2));
+                             bind(&Producer::onInterest, this, _1, _2),
+                             bind(&Producer::onRegisterFailed, this, _1, _2));
     m_face.processEvents();
   }
 
 private:
-  ndn::Name m_name;
-  ndn::Face m_face;
-  ndn::KeyChain m_keychain;
+  Name m_name;
+  Face m_face;
+  KeyChain m_keychain;
 
-  std::vector< ndn::shared_ptr<ndn::Data> > m_store;
+  std::vector< shared_ptr<Data> > m_store;
 
-  bool m_verbose;
+  bool m_isVerbose;
 };
 
 int
-main(int argc, char *argv[])
+main(int argc, char** argv)
 {
   if (argc < 2)
     {
@@ -113,17 +115,18 @@ main(int argc, char *argv[])
 
   try
     {
-      ndn::time::steady_clock::TimePoint startTime = ndn::time::steady_clock::now();
+      time::steady_clock::TimePoint startTime = time::steady_clock::now();
 
       std::cerr << "Preparing the input..." << std::endl;
       Producer producer(argv[1]);
-      std::cerr << "Ready... (took " << (ndn::time::steady_clock::now() - startTime) << std::endl;
+      std::cerr << "Ready... (took " << (time::steady_clock::now() - startTime) << std::endl;
 
       while (true)
         {
           try
             {
-              producer.run(); // this will exit when daemon dies... so try to connect again if possible
+              // this will exit when daemon dies... so try to connect again if possible
+              producer.run();
             }
           catch (std::exception& e)
             {
@@ -138,4 +141,12 @@ main(int argc, char *argv[])
       std::cerr << "ERROR: " << e.what() << std::endl;
     }
   return 0;
+}
+
+} // namespace ndn
+
+int
+main(int argc, char** argv)
+{
+  return ndn::main(argc, argv);
 }

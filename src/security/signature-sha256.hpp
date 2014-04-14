@@ -25,7 +25,7 @@ public:
     m_info.push_back(nonNegativeIntegerBlock(Tlv::SignatureType, Tlv::DigestSha256));
   }
 
-  SignatureSha256(const Signature &signature)
+  SignatureSha256(const Signature& signature)
     : Signature(signature)
   {
     if (getType() != Signature::Sha256)

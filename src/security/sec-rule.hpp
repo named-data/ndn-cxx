@@ -16,31 +16,39 @@ namespace ndn {
 class SecRule
 {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
-  
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
+
   SecRule(bool isPositive)
   : m_isPositive(isPositive)
   {}
-  
-  virtual 
-  ~SecRule() 
+
+  virtual
+  ~SecRule()
   {}
-  
-  virtual bool 
+
+  virtual bool
   matchDataName(const Data& data) = 0;
-  
-  virtual bool 
+
+  virtual bool
   matchSignerName(const Data& data) = 0;
-  
+
   virtual bool
   satisfy(const Data& data) = 0;
-  
+
   virtual bool
   satisfy(const Name& dataName, const Name& signerName) = 0;
-  
+
   inline bool
   isPositive();
-  
+
 protected:
   bool m_isPositive;
 };
@@ -50,7 +58,7 @@ SecRule::isPositive()
 {
   return m_isPositive;
 }
-    
+
 } // namespace ndn
 
 #endif //NDN_SECURITY_SEC_RULE_HPP

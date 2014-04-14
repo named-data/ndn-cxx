@@ -104,6 +104,9 @@ public:
   {
   }
 
+  /**
+   * @brief Create from wire encoding
+   */
   explicit
   Interest(const Block& wire)
   {
@@ -462,7 +465,7 @@ template<bool T>
 inline size_t
 Interest::wireEncode(EncodingImpl<T>& block) const
 {
-  size_t total_len = 0;
+  size_t totalLength = 0;
 
   // Interest ::= INTEREST-TYPE TLV-LENGTH
   //                Name
@@ -474,33 +477,35 @@ Interest::wireEncode(EncodingImpl<T>& block) const
   // (reverse encoding)
 
   // InterestLifetime
-  if (getInterestLifetime() >= time::milliseconds::zero()
-      && getInterestLifetime() != DEFAULT_INTEREST_LIFETIME)
+  if (getInterestLifetime() >= time::milliseconds::zero() &&
+      getInterestLifetime() != DEFAULT_INTEREST_LIFETIME)
     {
-      total_len += prependNonNegativeIntegerBlock(block, Tlv::InterestLifetime, getInterestLifetime().count());
+      totalLength += prependNonNegativeIntegerBlock(block,
+                                                    Tlv::InterestLifetime,
+                                                    getInterestLifetime().count());
     }
 
   // Scope
   if (getScope() >= 0)
     {
-      total_len += prependNonNegativeIntegerBlock(block, Tlv::Scope, getScope());
+      totalLength += prependNonNegativeIntegerBlock(block, Tlv::Scope, getScope());
     }
 
   // Nonce
-  total_len += prependNonNegativeIntegerBlock(block, Tlv::Nonce, getNonce());
+  totalLength += prependNonNegativeIntegerBlock(block, Tlv::Nonce, getNonce());
 
   // Selectors
   if (!getSelectors().empty())
     {
-      total_len += getSelectors().wireEncode(block);
+      totalLength += getSelectors().wireEncode(block);
     }
 
   // Name
-  total_len += getName().wireEncode(block);
+  totalLength += getName().wireEncode(block);
 
-  total_len += block.prependVarNumber (total_len);
-  total_len += block.prependVarNumber (Tlv::Interest);
-  return total_len;
+  totalLength += block.prependVarNumber (totalLength);
+  totalLength += block.prependVarNumber (Tlv::Interest);
+  return totalLength;
 }
 
 inline const Block&

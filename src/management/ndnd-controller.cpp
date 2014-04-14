@@ -197,7 +197,7 @@ Controller::processFaceActionResponse(Data& data,
 
   Block::element_const_iterator val = content.elements_begin();
 
-  switch(val->type())
+  switch (val->type())
     {
     case tlv::ndnd::FaceInstance:
       {
@@ -243,7 +243,7 @@ Controller::processPrefixActionResponse(Data& data,
 
   Block::element_const_iterator val = content.elements_begin();
 
-  switch(val->type())
+  switch (val->type())
     {
     case tlv::ndnd::ForwardingEntry:
       {

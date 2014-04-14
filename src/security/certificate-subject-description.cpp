@@ -18,17 +18,17 @@ using namespace CryptoPP;
 namespace ndn {
 
 void
-CertificateSubjectDescription::encode(CryptoPP::BufferedTransformation &out) const
+CertificateSubjectDescription::encode(CryptoPP::BufferedTransformation& out) const
 {
   // RelativeDistinguishedName ::=
   //     SET OF AttributeTypeAndValue
-  // 
+  //
   // AttributeTypeAndValue ::= SEQUENCE {
   //     type     AttributeType,
   //     value    AttributeValue   }
-  // 
+  //
   // AttributeType ::= OBJECT IDENTIFIER
-  // 
+  //
   // AttributeValue ::= ANY DEFINED BY AttributeType
   DERSequenceEncoder attributeTypeAndValue(out);
   {
@@ -39,17 +39,17 @@ CertificateSubjectDescription::encode(CryptoPP::BufferedTransformation &out) con
 }
 
 void
-CertificateSubjectDescription::decode(CryptoPP::BufferedTransformation &in)
+CertificateSubjectDescription::decode(CryptoPP::BufferedTransformation& in)
 {
   // RelativeDistinguishedName ::=
   //     SET OF AttributeTypeAndValue
-  // 
+  //
   // AttributeTypeAndValue ::= SEQUENCE {
   //     type     AttributeType,
   //     value    AttributeValue   }
-  // 
+  //
   // AttributeType ::= OBJECT IDENTIFIER
-  // 
+  //
   // AttributeValue ::= ANY DEFINED BY AttributeType
 
   BERSequenceDecoder attributeTypeAndValue(in);

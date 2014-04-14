@@ -62,7 +62,7 @@ CommandInterestGenerator::generate(Interest& interest,
     .append(name::Component::fromNumber(random::generateWord64()));
   interest.setName(commandInterestName);
 
-  if(certificateName.empty())
+  if (certificateName.empty())
     m_keyChain.sign(interest);
   else
     m_keyChain.sign(interest, certificateName);

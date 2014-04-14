@@ -115,7 +115,7 @@ Controller::processCommandResponse(Data& data,
       PrefixRegOptions options(response.getBody());
       return onSuccess(options);
     }
-  catch(ndn::Tlv::Error& e)
+  catch (ndn::Tlv::Error& e)
     {
       if (static_cast<bool>(onFail))
         return onFail(e.what());

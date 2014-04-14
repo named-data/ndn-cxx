@@ -224,7 +224,7 @@ private:
         return -1;
       }
 
-    switch(signature.getType())
+    switch (signature.getType())
       {
       case Signature::Sha256WithRsa:
         {

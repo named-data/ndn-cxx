@@ -21,7 +21,15 @@ namespace ndn {
  */
 class SecTpmMemory : public SecTpm {
 public:
-  struct Error : public SecTpm::Error { Error(const std::string &what) : SecTpm::Error(what) {} };
+  class Error : public SecTpm::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : SecTpm::Error(what)
+    {
+    }
+  };
 
   virtual
   ~SecTpmMemory();
@@ -69,7 +77,7 @@ public:
   getPublicKeyFromTpm(const Name& keyName);
 
   virtual void
-  deleteKeyPairInTpm(const Name &keyName);
+  deleteKeyPairInTpm(const Name& keyName);
 
   virtual Block
   signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);

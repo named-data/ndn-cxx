@@ -18,22 +18,22 @@ public:
   virtual
   ~ValidatorNull()
   {}
-  
+
 protected:
   virtual void
-  checkPolicy (const Data& data, 
-               int stepCount, 
-               const OnDataValidated &onValidated, 
-               const OnDataValidationFailed &onValidationFailed,
-               std::vector<shared_ptr<ValidationRequest> > &nextSteps)
+  checkPolicy (const Data& data,
+               int stepCount,
+               const OnDataValidated& onValidated,
+               const OnDataValidationFailed& onValidationFailed,
+               std::vector<shared_ptr<ValidationRequest> >& nextSteps)
   { onValidated(data.shared_from_this()); }
-  
+
   virtual void
-  checkPolicy (const Interest& interest, 
-               int stepCount, 
-               const OnInterestValidated &onValidated, 
-               const OnInterestValidationFailed &onValidationFailed,
-               std::vector<shared_ptr<ValidationRequest> > &nextSteps)
+  checkPolicy (const Interest& interest,
+               int stepCount,
+               const OnInterestValidated& onValidated,
+               const OnInterestValidationFailed& onValidationFailed,
+               std::vector<shared_ptr<ValidationRequest> >& nextSteps)
   { onValidated(interest.shared_from_this()); }
 };
 

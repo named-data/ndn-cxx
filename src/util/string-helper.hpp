@@ -13,19 +13,19 @@
 
 namespace ndn {
 
-static const char *WHITESPACE_CHARS = " \n\r\t";
+static const char* WHITESPACE_CHARS = " \n\r\t";
 
 /**
  * Return the hex representation of the bytes in array.
  * @param array The array of bytes.
  * @return Hex string.
  */
-inline std::string 
+inline std::string
 toHex(const uint8_t* array, size_t arraySize)
 {
   if (array == 0 || arraySize == 0)
     return "";
-  
+
   std::ostringstream result;
   result.flags(std::ios::hex | std::ios::uppercase);
   for (size_t i = 0; i < arraySize; ++i) {
@@ -42,7 +42,7 @@ toHex(const uint8_t* array, size_t arraySize)
  * Modify str in place to erase whitespace on the left.
  * @param str
  */
-inline void 
+inline void
 trimLeft(std::string& str)
 {
   size_t found = str.find_first_not_of(WHITESPACE_CHARS);
@@ -52,14 +52,14 @@ trimLeft(std::string& str)
   }
   else
     // All whitespace
-    str.clear();    
+    str.clear();
 }
 
 /**
  * Modify str in place to erase whitespace on the right.
  * @param str
  */
-inline void 
+inline void
 trimRight(std::string& str)
 {
   size_t found = str.find_last_not_of(WHITESPACE_CHARS);
@@ -76,7 +76,7 @@ trimRight(std::string& str)
  * Modify str in place to erase whitespace on the left and right.
  * @param str
  */
-inline void 
+inline void
 trim(std::string& str)
 {
   trimLeft(str);
@@ -86,9 +86,9 @@ trim(std::string& str)
 /**
  * Convert the hex character to an integer from 0 to 15, or -1 if not a hex character.
  * @param c
- * @return 
+ * @return
  */
-inline int 
+inline int
 fromHexChar(uint8_t c)
 {
   if (c >= '0' && c <= '9')
@@ -105,22 +105,22 @@ fromHexChar(uint8_t c)
  * Return a copy of str, converting each escaped "%XX" to the char value.
  * @param str
  */
-inline std::string 
+inline std::string
 unescape(const std::string& str)
 {
   std::ostringstream result;
-  
+
   for (size_t i = 0; i < str.size(); ++i) {
     if (str[i] == '%' && i + 2 < str.size()) {
       int hi = fromHexChar(str[i + 1]);
       int lo = fromHexChar(str[i + 2]);
-      
+
       if (hi < 0 || lo < 0)
         // Invalid hex characters, so just keep the escaped string.
         result << str[i] << str[i + 1] << str[i + 2];
       else
         result << (uint8_t)(16 * hi + lo);
-      
+
       // Skip ahead past the escaped value.
       i += 2;
     }
@@ -128,7 +128,7 @@ unescape(const std::string& str)
       // Just copy through.
       result << str[i];
   }
-  
+
   return result.str();
 }
 

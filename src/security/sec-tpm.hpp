@@ -24,14 +24,22 @@ namespace ndn {
  */
 class SecTpm {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
 
-  virtual 
+  virtual
   ~SecTpm() {}
 
   /**
    * @brief set password of TPM
-   * 
+   *
    * Password is used to unlock TPM when it is locked.
    * You should be cautious when using this method, because remembering password is kind of dangerous.
    *
@@ -49,7 +57,7 @@ public:
 
   /**
    * @brief set inTerminal flag
-   * 
+   *
    * If the inTerminal flag is set, and password is not set, TPM may ask for password via terminal.
    * inTerminal flag is set by default.
    *
@@ -60,7 +68,7 @@ public:
 
   /**
    * @brief get inTerminal flag
-   * 
+   *
    * @return inTerminal flag.
    */
   virtual bool
@@ -68,7 +76,7 @@ public:
 
   /**
    * @brief check if TPM is locked.
-   * 
+   *
    * @return true if locked, false otherwise
    */
   virtual bool
@@ -93,16 +101,16 @@ public:
    * @param keySize The size of the key pair.
    * @throws SecTpm::Error if fails.
    */
-  virtual void 
+  virtual void
   generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize) = 0;
-  
+
   /**
    * @brief Delete a key pair of asymmetric keys.
    *
    * @param keyName The name of the key pair.
    */
   virtual void
-  deleteKeyPairInTpm(const Name &keyName) = 0;
+  deleteKeyPairInTpm(const Name& keyName) = 0;
 
   /**
    * @brief Get a public key.
@@ -111,9 +119,9 @@ public:
    * @return The public key.
    * @throws SecTpm::Error if public key does not exist in TPM.
    */
-  virtual shared_ptr<PublicKey> 
+  virtual shared_ptr<PublicKey>
   getPublicKeyFromTpm(const Name& keyName) = 0;
-  
+
   /**
    * @brief Sign data.
    *
@@ -123,10 +131,10 @@ public:
    * @param digestAlgorithm the digest algorithm.
    * @return The signature block.
    * @throws SecTpm::Error if signing fails.
-   */  
+   */
   virtual Block
-  signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
-  
+  signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
+
   /**
    * @brief Decrypt data.
    *
@@ -137,7 +145,7 @@ public:
    * @return The decrypted data.
    * @throws SecTpm::Error if decryption fails.
    */
-  virtual ConstBufferPtr 
+  virtual ConstBufferPtr
   decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric) = 0;
 
   /**
@@ -161,7 +169,7 @@ public:
    * @param keySize The size of the key.
    * @throws SecTpm::Error if key generating fails.
    */
-  virtual void 
+  virtual void
   generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize) = 0;
 
   /**
@@ -172,11 +180,11 @@ public:
    * @return True if the key exists, otherwise false.
    */
   virtual bool
-  doesKeyExistInTpm(const Name& keyName, KeyClass keyClass) = 0;  
+  doesKeyExistInTpm(const Name& keyName, KeyClass keyClass) = 0;
 
   /**
    * @brief Generate a random block.
-   * 
+   *
    * @param res The pointer to the generated block.
    * @param size The random block size.
    * @return true for success, otherwise false.
@@ -192,12 +200,12 @@ public:
    * @param appPath the absolute path to the application
    * @param acl the new acl of the key
    */
-  virtual void 
+  virtual void
   addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl) = 0;
 
   /**
    * @brief Export a private key in PKCS#8 format.
-   * 
+   *
    * @param keyName The private key name.
    * @param password The password to encrypt the private key.
    * @return The private key info (in PKCS8 format) if exist.
@@ -208,9 +216,9 @@ public:
 
   /**
    * @brief Import a private key in PKCS#8 format.
-   * 
+   *
    * Also recover the public key and installed it in TPM.
-   * 
+   *
    * @param keyName The private key name.
    * @param key The encoded private key info.
    * @param password The password to encrypt the private key.
@@ -222,7 +230,7 @@ public:
 protected:
   /**
    * @brief Export a private key in PKCS#1 format.
-   * 
+   *
    * @param keyName The private key name.
    * @return The private key info (in PKCS#1 format) if exist, otherwise a NULL pointer.
    */
@@ -231,7 +239,7 @@ protected:
 
   /**
    * @brief Import a private key in PKCS#1 format.
-   * 
+   *
    * @param keyName The private key name.
    * @param key The encoded private key info.
    * @return False if import fails.
@@ -241,7 +249,7 @@ protected:
 
   /**
    * @brief Import a public key in PKCS#1 format.
-   * 
+   *
    * @param keyName The public key name.
    * @param key The encoded public key info.
    * @return False if import fails.
@@ -267,22 +275,22 @@ SecTpm::getImpExpPassWord(std::string& password, const std::string& prompt)
   int result = false;
 
   char* pw0 = NULL;
-  
+
   pw0 = getpass(prompt.c_str());
-  if(!pw0) 
+  if (!pw0)
     return false;
   std::string password1 = pw0;
   memset(pw0, 0, strlen(pw0));
 
   pw0 = getpass("Confirm:");
-  if(!pw0)
+  if (!pw0)
     {
       char* pw1 = const_cast<char*>(password1.c_str());
       memset(pw1, 0, password1.size());
       return false;
     }
 
-  if(!password1.compare(pw0))
+  if (!password1.compare(pw0))
     {
       result = true;
       password.swap(password1);
@@ -292,7 +300,7 @@ SecTpm::getImpExpPassWord(std::string& password, const std::string& prompt)
   memset(pw1, 0, password1.size());
   memset(pw0, 0, strlen(pw0));
 
-  if(password.empty())
+  if (password.empty())
     return false;
 
   return result;

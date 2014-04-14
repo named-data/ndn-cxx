@@ -25,7 +25,7 @@ nonNegativeIntegerBlock(uint32_t type, uint64_t value)
 }
 
 inline uint64_t
-readNonNegativeInteger(const Block &block)
+readNonNegativeInteger(const Block& block)
 {
   Buffer::const_iterator begin = block.value_begin();
   return Tlv::readNonNegativeInteger(block.value_size(), begin, block.value_end());
@@ -41,7 +41,7 @@ booleanBlock(uint32_t type)
 }
 
 inline Block
-dataBlock(uint32_t type, const char *data, size_t dataSize)
+dataBlock(uint32_t type, const char* data, size_t dataSize)
 {
   OBufferStream os;
   Tlv::writeVarNumber(os, type);
@@ -52,7 +52,7 @@ dataBlock(uint32_t type, const char *data, size_t dataSize)
 }
 
 inline Block
-dataBlock(uint32_t type, const unsigned char *data, size_t dataSize)
+dataBlock(uint32_t type, const unsigned char* data, size_t dataSize)
 {
   return dataBlock(type, reinterpret_cast<const char*>(data), dataSize);
 }

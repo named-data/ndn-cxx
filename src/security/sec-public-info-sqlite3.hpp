@@ -15,32 +15,40 @@
 struct sqlite3;
 
 namespace ndn {
-  
+
 class SecPublicInfoSqlite3 : public SecPublicInfo {
 public:
-  struct Error : public SecPublicInfo::Error { Error(const std::string &what) : SecPublicInfo::Error(what) {} };
+  class Error : public SecPublicInfo::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : SecPublicInfo::Error(what)
+    {
+    }
+  };
 
   SecPublicInfoSqlite3();
-  
-  virtual 
+
+  virtual
   ~SecPublicInfoSqlite3();
 
   /**********************
    * from SecPublicInfo *
    **********************/
-  virtual bool 
+  virtual bool
   doesIdentityExist(const Name& identityName);
 
   virtual void
   addIdentity(const Name& identityName);
 
-  virtual bool 
+  virtual bool
   revokeIdentity();
 
-  virtual bool 
+  virtual bool
   doesPublicKeyExist(const Name& keyName);
 
-  virtual void 
+  virtual void
   addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer);
 
   virtual ptr_lib::shared_ptr<PublicKey>
@@ -49,57 +57,57 @@ public:
   virtual bool
   doesCertificateExist(const Name& certificateName);
 
-  virtual void 
+  virtual void
   addCertificate(const IdentityCertificate& certificate);
 
-  virtual ptr_lib::shared_ptr<IdentityCertificate> 
-  getCertificate(const Name &certificateName);
+  virtual ptr_lib::shared_ptr<IdentityCertificate>
+  getCertificate(const Name& certificateName);
 
 
 
-  virtual Name 
+  virtual Name
   getDefaultIdentity();
 
-  virtual Name 
+  virtual Name
   getDefaultKeyNameForIdentity(const Name& identityName);
 
-  virtual Name 
+  virtual Name
   getDefaultCertificateNameForKey(const Name& keyName);
 
   virtual void
-  getAllIdentities(std::vector<Name> &nameList, bool isDefault);
+  getAllIdentities(std::vector<Name>& nameList, bool isDefault);
 
   virtual void
-  getAllKeyNames(std::vector<Name> &nameList, bool isDefault);
+  getAllKeyNames(std::vector<Name>& nameList, bool isDefault);
 
   virtual void
-  getAllKeyNamesOfIdentity(const Name& identity, std::vector<Name> &nameList, bool isDefault);
-    
-  virtual void
-  getAllCertificateNames(std::vector<Name> &nameList, bool isDefault);
+  getAllKeyNamesOfIdentity(const Name& identity, std::vector<Name>& nameList, bool isDefault);
 
   virtual void
-  getAllCertificateNamesOfKey(const Name& keyName, std::vector<Name> &nameList, bool isDefault);
-  
+  getAllCertificateNames(std::vector<Name>& nameList, bool isDefault);
+
+  virtual void
+  getAllCertificateNamesOfKey(const Name& keyName, std::vector<Name>& nameList, bool isDefault);
+
 protected:
-  virtual void 
+  virtual void
   setDefaultIdentityInternal(const Name& identityName);
 
   virtual void
   setDefaultKeyNameForIdentityInternal(const Name& keyName);
 
-  virtual void 
-  setDefaultCertificateNameForKeyInternal(const Name& certificateName);  
+  virtual void
+  setDefaultCertificateNameForKeyInternal(const Name& certificateName);
 
   virtual void
-  deleteCertificateInfo(const Name &certificateName);
+  deleteCertificateInfo(const Name& certificateName);
 
   virtual void
-  deletePublicKeyInfo(const Name &keyName);
+  deletePublicKeyInfo(const Name& keyName);
 
   virtual void
-  deleteIdentityInfo(const Name &identity);
-  
+  deleteIdentityInfo(const Name& identity);
+
 private:
   sqlite3 * m_database;
 };

@@ -385,7 +385,7 @@ Block::erase(Block::element_iterator first, Block::element_iterator last)
 
 
 inline void
-Block::push_back(const Block &element)
+Block::push_back(const Block& element)
 {
   resetWire();
   m_subBlocks.push_back(element);

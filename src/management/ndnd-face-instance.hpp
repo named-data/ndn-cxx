@@ -19,12 +19,12 @@ namespace ndnd {
  */
 class FaceInstance {
 public:
-  FaceInstance(const std::string &action,
+  FaceInstance(const std::string& action,
                int64_t     faceId,
                uint32_t    ipProto,
-               const std::string &host,
-               const std::string &port,
-               const std::string &multicastInterface,
+               const std::string& host,
+               const std::string& port,
+               const std::string& multicastInterface,
                uint32_t    multicastTtl,
                const time::milliseconds& freshnessPeriod)
     : action_(action)
@@ -44,6 +44,15 @@ public:
     , multicastTtl_(-1)
     , freshnessPeriod_(time::milliseconds::min())
   {
+  }
+
+  /**
+   * @brief Create from wire encoding
+   */
+  explicit
+  FaceInstance(const Block& wire)
+  {
+    wireDecode(wire);
   }
 
   // Action
@@ -79,7 +88,7 @@ public:
   getPort() const { return port_; }
 
   void
-  setPort(const std::string &port) { port_ = port; wire_.reset(); }
+  setPort(const std::string& port) { port_ = port; wire_.reset(); }
 
   // MulticastInterface
   const std::string&
@@ -113,7 +122,7 @@ public:
   wireEncode() const;
 
   inline void
-  wireDecode(const Block &wire);
+  wireDecode(const Block& wire);
 
 private:
   std::string action_;
@@ -207,7 +216,7 @@ FaceInstance::wireEncode() const
 }
 
 inline void
-FaceInstance::wireDecode(const Block &wire)
+FaceInstance::wireDecode(const Block& wire)
 {
   action_.clear();
   faceId_ = -1;
@@ -289,7 +298,7 @@ FaceInstance::wireDecode(const Block &wire)
 }
 
 inline std::ostream&
-operator << (std::ostream &os, const FaceInstance &entry)
+operator << (std::ostream& os, const FaceInstance& entry)
 {
   os << "FaceInstance(";
 

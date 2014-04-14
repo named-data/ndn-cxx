@@ -54,7 +54,15 @@ typedef function<void(const Name&, const std::string&)> OnSetInterestFilterFaile
 class Face : noncopyable
 {
 public:
-  struct Error : public std::runtime_error { Error(const std::string& what) : std::runtime_error(what) {} };
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
 
   /**
    * @brief Create a new Face for communication with an NDN Forwarder using the default UnixTransport.
@@ -110,7 +118,7 @@ public:
    */
   void
   setController(const shared_ptr<Controller>& controller);
-  
+
   /**
    * @brief Express Interest
    *
@@ -140,7 +148,7 @@ public:
   expressInterest(const Name& name,
                   const Interest& tmpl,
                   const OnData& onData, const OnTimeout& onTimeout = OnTimeout());
-  
+
   /**
    * Remove the pending interest entry with the pendingInterestId from the pending interest table.
    * This does not affect another pending interest with a different pendingInterestId, even it if has the same interest name.
@@ -149,7 +157,7 @@ public:
    */
   void
   removePendingInterest(const PendingInterestId* pendingInterestId);
-  
+
   /**
    * Register prefix with the connected NDN hub and call onInterest when a matching interest is received.
    * @param prefix A reference to a Name for the prefix to register.  This copies the Name.
@@ -166,7 +174,7 @@ public:
                     const OnSetInterestFilterFailed& onSetInterestFilterFailed);
 
   /**
-   * Remove the registered prefix entry with the registeredPrefixId from the pending interest table.  
+   * Remove the registered prefix entry with the registeredPrefixId from the pending interest table.
    * This does not affect another registered prefix with a different registeredPrefixId, even it if has the same prefix name.
    * If there is no entry with the registeredPrefixId, do nothing.
    * @param registeredPrefixId The ID returned from registerPrefix.
@@ -182,7 +190,7 @@ public:
    */
   void
   put(const Data& data);
- 
+
   /**
    * Process any data to receive or call timeout callbacks.
    *
@@ -199,14 +207,14 @@ public:
    * @throw This may throw an exception for reading data or in the callback for processing the data.  If you
    * call this from an main event loop, you may want to catch and log/disregard all exceptions.
    */
-  void 
+  void
   processEvents(const time::milliseconds& timeout = time::milliseconds::zero(),
                 bool keepThread = false);
 
-  void 
+  void
   shutdown();
 
-  shared_ptr<boost::asio::io_service> 
+  shared_ptr<boost::asio::io_service>
   ioService() { return m_ioService; }
 
 private:
@@ -226,11 +234,11 @@ private:
 
   bool
   isSupportedNdndProtocol(const std::string& protocol);
-  
+
   struct ProcessEventsTimeout {};
   typedef std::list<shared_ptr<PendingInterest> > PendingInterestTable;
   typedef std::list<shared_ptr<RegisteredPrefix> > RegisteredPrefixTable;
-  
+
   void
   asyncExpressInterest(const shared_ptr<const Interest>& interest,
                        const OnData& onData, const OnTimeout& onTimeout);
@@ -243,13 +251,13 @@ private:
 
   void
   finalizeUnsetInterestFilter(RegisteredPrefixTable::iterator item);
-  
-  void 
+
+  void
   onReceiveElement(const Block& wire);
 
   void
   asyncShutdown();
-  
+
   static void
   fireProcessEventsTimeout(const boost::system::error_code& error);
 
@@ -258,7 +266,7 @@ private:
 
   void
   processInterestFilters(Interest& interest);
-    
+
   void
   checkPitExpire();
 
@@ -268,7 +276,7 @@ private:
   shared_ptr<monotonic_deadline_timer> m_pitTimeoutCheckTimer;
   bool m_pitTimeoutCheckTimerActive;
   shared_ptr<monotonic_deadline_timer> m_processEventsTimeoutTimer;
-  
+
   shared_ptr<Transport> m_transport;
 
   PendingInterestTable m_pendingInterestTable;

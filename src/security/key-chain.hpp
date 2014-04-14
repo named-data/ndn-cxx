@@ -59,7 +59,7 @@ public:
       {
         keyName = Info::getDefaultKeyNameForIdentity(identityName);
       }
-    catch(InfoError& e)
+    catch (InfoError& e)
       {
         keyName = generateRSAKeyPairAsDefault(identityName, true);
       }
@@ -69,7 +69,7 @@ public:
       {
         certName = Info::getDefaultCertificateNameForKey(keyName);
       }
-    catch(InfoError& e)
+    catch (InfoError& e)
       {
         shared_ptr<IdentityCertificate> selfCert = selfSign(keyName);
         Info::addCertificateAsIdentityDefault(*selfCert);
@@ -129,17 +129,17 @@ public:
                                      const std::vector<CertificateSubjectDescription>& subjectDescription)
 
   {
-    if(keyName.size() < 1)
+    if (keyName.size() < 1)
       return shared_ptr<IdentityCertificate>();
 
     std::string keyIdPrefix = keyName.get(-1).toEscapedString().substr(0, 4);
-    if(keyIdPrefix != "ksk-" && keyIdPrefix != "dsk-")
+    if (keyIdPrefix != "ksk-" && keyIdPrefix != "dsk-")
       return shared_ptr<IdentityCertificate>();
 
     shared_ptr<IdentityCertificate> certificate = make_shared<IdentityCertificate>();
     Name certName;
 
-    if(signingIdentity.isPrefixOf(keyName))
+    if (signingIdentity.isPrefixOf(keyName))
       {
         certName.append(signingIdentity).append("KEY").append(keyName.getSubName(signingIdentity.size())).append("ID-CERT").appendVersion();
       }
@@ -157,13 +157,13 @@ public:
       {
         publicKey = Info::getPublicKey(keyName);
       }
-    catch(InfoError& e)
+    catch (InfoError& e)
       {
         return shared_ptr<IdentityCertificate>();
       }
     certificate->setPublicKeyInfo(*publicKey);
 
-    if(subjectDescription.empty())
+    if (subjectDescription.empty())
       {
         CertificateSubjectDescription subDescryptName("2.5.4.41", keyName.getPrefix(-1).toUri());
         certificate->addSubjectDescription(subDescryptName);
@@ -285,7 +285,7 @@ public:
       {
         signingCertificateName = Info::getDefaultCertificateNameForIdentity(identityName);
       }
-    catch(InfoError& e)
+    catch (InfoError& e)
       {
         signingCertificateName = createIdentity(identityName);
         // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which is a fatal error.
@@ -311,7 +311,7 @@ public:
       {
         signingCertificateName = Info::getDefaultCertificateNameForIdentity(identityName);
       }
-    catch(InfoError& e)
+    catch (InfoError& e)
       {
         signingCertificateName = createIdentity(identityName);
         // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which is a fatal error.
@@ -353,7 +353,7 @@ public:
       {
         pubKey = Info::getPublicKey(keyName); // may throw an exception.
       }
-    catch(InfoError& e)
+    catch (InfoError& e)
       {
         return shared_ptr<IdentityCertificate>();
       }
@@ -384,7 +384,7 @@ public:
   selfSign (IdentityCertificate& cert)
   {
     Name keyName = IdentityCertificate::certificateNameToPublicKeyName(cert.getName());
-    if(!Tpm::doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
+    if (!Tpm::doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
       throw TpmError("private key does not exist!");
 
     SignatureSha256WithRsa signature;
@@ -407,10 +407,10 @@ public:
   {
     try
       {
-        if(Info::getDefaultCertificateName() == certificateName)
+        if (Info::getDefaultCertificateName() == certificateName)
           return;
       }
-    catch(InfoError& e)
+    catch (InfoError& e)
       {
         // Not a real error, just try to delete the certificate
       }
@@ -431,10 +431,10 @@ public:
   {
     try
       {
-        if(Info::getDefaultKeyNameForIdentity(Info::getDefaultIdentity()) == keyName)
+        if (Info::getDefaultKeyNameForIdentity(Info::getDefaultIdentity()) == keyName)
           return;
       }
-    catch(InfoError& e)
+    catch (InfoError& e)
       {
         // Not a real error, just try to delete the key
       }
@@ -456,10 +456,10 @@ public:
   {
     try
       {
-        if(Info::getDefaultIdentity() == identity)
+        if (Info::getDefaultIdentity() == identity)
           return;
       }
-    catch(InfoError& e)
+    catch (InfoError& e)
       {
         // Not a real error, just try to delete the identity
       }
@@ -496,7 +496,7 @@ public:
       {
         pkcs8 = Tpm::exportPrivateKeyPkcs8FromTpm(keyName, passwordStr);
       }
-    catch(TpmError& e)
+    catch (TpmError& e)
       {
         throw InfoError("Fail to export PKCS8 of private key");
       }
@@ -506,7 +506,7 @@ public:
       {
         cert = Info::getCertificate(Info::getDefaultCertificateNameForKey(keyName));
       }
-    catch(InfoError& e)
+    catch (InfoError& e)
       {
         cert = selfSign(keyName);
         Info::addCertificateAsIdentityDefault(*cert);

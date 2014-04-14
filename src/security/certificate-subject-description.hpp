@@ -21,39 +21,39 @@ namespace ndn {
  */
 class CertificateSubjectDescription {
 public:
-  CertificateSubjectDescription(CryptoPP::BufferedTransformation &in)
+  CertificateSubjectDescription(CryptoPP::BufferedTransformation& in)
   {
     decode(in);
   }
-  
+
   /**
    * Create a new CertificateSubjectDescription.
    * @param oid The oid of the subject description entry.
    * @param value The value of the subject description entry.
    */
-  CertificateSubjectDescription(const OID &oid, const std::string &value)
+  CertificateSubjectDescription(const OID& oid, const std::string& value)
   : oid_(oid), value_(value)
   {
   }
 
   void
-  encode(CryptoPP::BufferedTransformation &out) const;
+  encode(CryptoPP::BufferedTransformation& out) const;
 
   void
-  decode(CryptoPP::BufferedTransformation &in);
-  
+  decode(CryptoPP::BufferedTransformation& in);
+
   std::string
   getOidString() const
   {
     return oid_.toString();
   }
 
-  const std::string &
+  const std::string&
   getValue() const
   {
     return value_;
   }
-  
+
 private:
   OID oid_;
   std::string value_;

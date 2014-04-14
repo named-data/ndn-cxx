@@ -24,7 +24,7 @@ public:
   /**
    * Create a new ForwardingFlags with "active" and "childInherit" set and all other flags cleared.
    */
-  ForwardingFlags() 
+  ForwardingFlags()
     : active_(true)
     , childInherit_(true)
     , advertise_(false)
@@ -37,47 +37,56 @@ public:
   }
 
   /**
+   * @brief Create from wire encoding
+   */
+  explicit
+  ForwardingFlags(const Block& wire)
+  {
+    wireDecode(wire);
+  }
+
+  /**
    * Get the value of the "active" flag.
    * @return true if the flag is set, false if it is cleared.
    */
   bool getActive() const { return active_; }
-  
+
   /**
    * Get the value of the "childInherit" flag.
    * @return true if the flag is set, false if it is cleared.
    */
   bool getChildInherit() const { return childInherit_; }
-  
+
   /**
    * Get the value of the "advertise" flag.
    * @return true if the flag is set, false if it is cleared.
    */
   bool getAdvertise() const { return advertise_; }
-  
+
   /**
    * Get the value of the "last" flag.
    * @return true if the flag is set, false if it is cleared.
    */
   bool getLast() const { return last_; }
-  
+
   /**
    * Get the value of the "capture" flag.
    * @return true if the flag is set, false if it is cleared.
    */
   bool getCapture() const { return capture_; }
-  
+
   /**
    * Get the value of the "local" flag.
    * @return true if the flag is set, false if it is cleared.
    */
   bool getLocal() const { return local_; }
-  
+
   /**
    * Get the value of the "tap" flag.
    * @return true if the flag is set, false if it is cleared.
    */
   bool getTap() const { return tap_; }
-  
+
   /**
    * Get the value of the "captureOk" flag.
    * @return true if the flag is set, false if it is cleared.
@@ -87,57 +96,57 @@ public:
   /**
    * Set the value of the "active" flag
    * @param active true to set the flag, false to clear it.
-   */  
+   */
   void setActive(bool active) { this->active_ = active; wire_.reset(); }
-  
+
   /**
    * Set the value of the "childInherit" flag
    * @param childInherit true to set the flag, false to clear it.
-   */  
+   */
   void setChildInherit(bool childInherit) { this->childInherit_ = childInherit; wire_.reset(); }
-  
+
   /**
    * Set the value of the "advertise" flag
    * @param advertise true to set the flag, false to clear it.
-   */  
+   */
   void setAdvertise(bool advertise) { this->advertise_ = advertise; wire_.reset(); }
-  
+
   /**
    * Set the value of the "last" flag
    * @param last true to set the flag, false to clear it.
-   */  
+   */
   void setLast(bool last) { this->last_ = last; wire_.reset(); }
-  
+
   /**
    * Set the value of the "capture" flag
    * @param capture true to set the flag, false to clear it.
-   */  
+   */
   void setCapture(bool capture) { this->capture_ = capture; wire_.reset(); }
-  
+
   /**
    * Set the value of the "local" flag
    * @param local true to set the flag, false to clear it.
-   */  
+   */
   void setLocal(bool local) { this->local_ = local; wire_.reset(); }
-  
+
   /**
    * Set the value of the "tap" flag
    * @param tap true to set the flag, false to clear it.
-   */  
+   */
   void setTap(bool tap) { this->tap_ = tap; wire_.reset(); }
-  
+
   /**
    * Set the value of the "captureOk" flag
    * @param captureOk true to set the flag, false to clear it.
-   */  
+   */
   void setCaptureOk(bool captureOk) { this->captureOk_ = captureOk; wire_.reset(); }
 
   inline const Block&
   wireEncode() const;
 
   inline void
-  wireDecode(const Block &block);
-  
+  wireDecode(const Block& block);
+
 private:
   bool active_;
   bool childInherit_;
@@ -174,19 +183,19 @@ ForwardingFlags::wireEncode() const
     result |= tlv::ndnd::FORW_TAP;
   if (captureOk_)
     result |= tlv::ndnd::FORW_CAPTURE_OK;
-  
+
   wire_ = nonNegativeIntegerBlock(tlv::ndnd::ForwardingFlags, result);
 
   return wire_;
 }
 
 inline void
-ForwardingFlags::wireDecode(const Block &wire)
+ForwardingFlags::wireDecode(const Block& wire)
 {
   wire_ = wire;
 
   uint32_t flags = readNonNegativeInteger(wire_);
-  
+
   active_       = (flags & tlv::ndnd::FORW_ACTIVE)        ? true : false;
   childInherit_ = (flags & tlv::ndnd::FORW_CHILD_INHERIT) ? true : false;
   advertise_    = (flags & tlv::ndnd::FORW_ADVERTISE)     ? true : false;
@@ -198,7 +207,7 @@ ForwardingFlags::wireDecode(const Block &wire)
 }
 
 inline std::ostream&
-operator << (std::ostream &os, const ForwardingFlags &flags)
+operator << (std::ostream& os, const ForwardingFlags& flags)
 {
   if (flags.getActive())
     os << "ACTIVE ";

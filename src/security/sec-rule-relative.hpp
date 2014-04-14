@@ -13,41 +13,49 @@
 #include "../util/regex.hpp"
 
 namespace ndn {
-  
+
 class SecRuleRelative : public SecRule
 {
 public:
-  struct Error : public SecRule::Error { Error(const std::string &what) : SecRule::Error(what) {} };
-  
-  SecRuleRelative(const std::string& dataRegex, const std::string& signerRegex, const std::string& op, 
+  class Error : public SecRule::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : SecRule::Error(what)
+    {
+    }
+  };
+
+  SecRuleRelative(const std::string& dataRegex, const std::string& signerRegex, const std::string& op,
                   const std::string& dataExpand, const std::string& signerExpand, bool isPositive);
-  
+
   virtual
   ~SecRuleRelative();
-  
-  virtual bool 
+
+  virtual bool
   matchDataName(const Data& data);
-  
-  virtual bool 
+
+  virtual bool
   matchSignerName(const Data& data);
-  
+
   virtual bool
   satisfy(const Data& data);
-  
+
   virtual bool
   satisfy(const Name& dataName, const Name& signerName);
-  
+
 private:
-  bool 
+  bool
   compare(const Name& dataName, const Name& signerName);
-  
+
 private:
   const std::string m_dataRegex;
   const std::string m_signerRegex;
   const std::string m_op;
   const std::string m_dataExpand;
   const std::string m_signerExpand;
-  
+
   Regex m_dataNameRegex;
   Regex m_signerNameRegex;
 };

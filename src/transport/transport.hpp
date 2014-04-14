@@ -17,16 +17,16 @@ public:
   class Error : public std::runtime_error
   {
   public:
-    inline Error(const boost::system::error_code &code, const std::string &msg);
+    inline Error(const boost::system::error_code& code, const std::string& msg);
     inline Error(const std::string& msg);
   };
-  
-  typedef ptr_lib::function<void (const Block &wire)> ReceiveCallback;
+
+  typedef ptr_lib::function<void (const Block& wire)> ReceiveCallback;
   typedef ptr_lib::function<void ()> ErrorCallback;
-  
+
   inline
   Transport();
-  
+
   inline virtual
   ~Transport();
 
@@ -35,14 +35,14 @@ public:
    *
    * @throws If connection cannot be established
    */
-  inline virtual void 
+  inline virtual void
   connect(boost::asio::io_service& io_service,
           const ReceiveCallback& receiveCallback);
-  
+
   /**
    * Close the connection.
    */
-  virtual void 
+  virtual void
   close() = 0;
 
   /**
@@ -51,7 +51,7 @@ public:
    * @param data A pointer to the buffer of data to send.
    * @param dataLength The number of bytes in data.
    */
-  virtual void 
+  virtual void
   send(const Block& wire) = 0;
 
   /**
@@ -60,7 +60,7 @@ public:
    * Two non-consecutive memory blocks will be send out together, e.g., as part of the
    * same message in datagram-oriented transports.
    */
-  virtual void 
+  virtual void
   send(const Block& header, const Block& payload) = 0;
 
   virtual void
@@ -68,8 +68,8 @@ public:
 
   virtual void
   resume() = 0;
-  
-  inline bool 
+
+  inline bool
   isConnected();
 
   inline bool
@@ -78,7 +78,7 @@ public:
 protected:
   inline void
   receive(const Block& wire);
-  
+
 protected:
   boost::asio::io_service* m_ioService;
   bool m_isConnected;
@@ -111,7 +111,7 @@ Transport::~Transport()
 {
 }
 
-inline void 
+inline void
 Transport::connect(boost::asio::io_service& ioService,
                    const ReceiveCallback& receiveCallback)
 {
@@ -119,7 +119,7 @@ Transport::connect(boost::asio::io_service& ioService,
   m_receiveCallback = receiveCallback;
 }
 
-inline bool 
+inline bool
 Transport::isConnected()
 {
   return m_isConnected;

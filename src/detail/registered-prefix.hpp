@@ -13,10 +13,10 @@
 
 namespace ndn {
 
-class RegisteredPrefix {
+class RegisteredPrefix
+{
 public:
-  typedef function<void
-  (const Name&, const Interest&)> OnInterest;
+  typedef function<void (const Name&, const Interest&)> OnInterest;
 
   /**
    * Create a new PrefixEntry.
@@ -24,26 +24,26 @@ public:
    * @param onInterest A function object to call when a matching data packet is received.
    */
   RegisteredPrefix(const Name& prefix, const OnInterest& onInterest)
-    : prefix_(new Name(prefix))
-    , onInterest_(onInterest)
+    : m_prefix(new Name(prefix))
+    , m_onInterest(onInterest)
   {
   }
-    
-  const Name& 
+
+  const Name&
   getPrefix() const
   {
-    return *prefix_;
+    return* m_prefix;
   }
-    
-  const OnInterest& 
+
+  const OnInterest&
   getOnInterest() const
   {
-    return onInterest_;
+    return m_onInterest;
   }
-    
+
 private:
-  shared_ptr<Name> prefix_;
-  const OnInterest onInterest_;
+  shared_ptr<Name> m_prefix;
+  const OnInterest m_onInterest;
 };
 
 
@@ -54,18 +54,18 @@ struct RegisteredPrefixId;
  */
 struct MatchRegisteredPrefixId
 {
-  MatchRegisteredPrefixId(const RegisteredPrefixId *registeredPrefixId)
-    : id_(registeredPrefixId)
+  MatchRegisteredPrefixId(const RegisteredPrefixId* registeredPrefixId)
+    : m_id(registeredPrefixId)
   {
   }
 
   bool
-  operator()(const shared_ptr<RegisteredPrefix> &registeredPrefix) const
+  operator()(const shared_ptr<RegisteredPrefix>& registeredPrefix) const
   {
-    return (reinterpret_cast<const RegisteredPrefixId *>(registeredPrefix.get()) == id_);
+    return (reinterpret_cast<const RegisteredPrefixId*>(registeredPrefix.get()) == m_id);
   }
 private:
-  const RegisteredPrefixId *id_;
+  const RegisteredPrefixId* m_id;
 };
 
 } // namespace ndn

@@ -27,19 +27,19 @@ RegexTopMatcher::~RegexTopMatcher()
   // delete m_backRefManager;
 }
 
-void 
+void
 RegexTopMatcher::compile()
 {
   std::string errMsg = "Error: RegexTopMatcher.Compile(): ";
 
   std::string expr = m_expr;
 
-  if('$' != expr[expr.size() - 1])
+  if ('$' != expr[expr.size() - 1])
     expr = expr + "<.*>*";
   else
     expr = expr.substr(0, expr.size()-1);
 
-  if('^' != expr[0])
+  if ('^' != expr[0])
     m_secondaryMatcher = make_shared<RegexPatternListMatcher>(boost::cref("<.*>*" + expr),
                                                               boost::cref(m_secondaryBackRefManager));
   else
@@ -49,14 +49,14 @@ RegexTopMatcher::compile()
                                                           boost::cref(m_primaryBackRefManager));
 }
 
-bool 
-RegexTopMatcher::match(const Name & name)
+bool
+RegexTopMatcher::match(const Name& name)
 {
   m_secondaryUsed = false;
 
   m_matchResult.clear();
 
-  if(m_primaryMatcher->match(name, 0, name.size()))
+  if (m_primaryMatcher->match(name, 0, name.size()))
     {
       m_matchResult = m_primaryMatcher->getMatchResult();
       return true;
@@ -72,25 +72,25 @@ RegexTopMatcher::match(const Name & name)
       return false;
     }
 }
-  
-bool 
-RegexTopMatcher::match (const Name & name, const int & offset, const int & len)
+
+bool
+RegexTopMatcher::match (const Name& name, const int& offset, const int& len)
 {
   return match(name);
 }
 
-Name 
+Name
 RegexTopMatcher::expand (const std::string& expandStr)
 {
   Name result;
-    
+
   shared_ptr<RegexBackrefManager> backRefManager = (m_secondaryUsed ? m_secondaryBackRefManager : m_primaryBackRefManager);
-    
+
   int backRefNum = backRefManager->size();
 
   std::string expand;
-    
-  if(expandStr != "")
+
+  if (expandStr != "")
     expand = expandStr;
   else
     expand = m_expand;
@@ -99,22 +99,22 @@ RegexTopMatcher::expand (const std::string& expandStr)
   while (offset < expand.size())
     {
       std::string item = getItemFromExpand(expand, offset);
-      if(item[0] == '<')
+      if (item[0] == '<')
         {
           result.append(item.substr(1, item.size() - 2));
         }
-      if(item[0] == '\\')
+      if (item[0] == '\\')
         {
 
           int index = atoi(item.substr(1, item.size() - 1).c_str());
 
-          if(0 == index){
+          if (0 == index){
             std::vector<name::Component>::iterator it = m_matchResult.begin();
             std::vector<name::Component>::iterator end = m_matchResult.end();
             for(; it != end; it++)
               result.append (*it);
           }
-          else if(index <= backRefNum)
+          else if (index <= backRefNum)
             {
               std::vector<name::Component>::const_iterator it = backRefManager->getBackRef (index - 1)->getMatchResult ().begin();
               std::vector<name::Component>::const_iterator end = backRefManager->getBackRef (index - 1)->getMatchResult ().end();
@@ -123,7 +123,7 @@ RegexTopMatcher::expand (const std::string& expandStr)
             }
           else
             throw RegexMatcher::Error("Exceed the range of back reference!");
-        }   
+        }
     }
   return result;
 }
@@ -133,38 +133,38 @@ RegexTopMatcher::getItemFromExpand(const std::string& expand, size_t& offset)
 {
   size_t begin = offset;
 
-  if(expand[offset] == '\\')
+  if (expand[offset] == '\\')
     {
       offset++;
-      if(offset >= expand.size())
+      if (offset >= expand.size())
         throw RegexMatcher::Error("wrong format of expand string!");
 
       while(expand[offset] <= '9' and expand[offset] >= '0'){
         offset++;
-        if(offset > expand.size())
+        if (offset > expand.size())
           throw RegexMatcher::Error("wrong format of expand string!");
       }
-      if(offset > begin + 1)
+      if (offset > begin + 1)
         return expand.substr(begin, offset - begin);
       else
         throw RegexMatcher::Error("wrong format of expand string!");
     }
-  else if(expand[offset] == '<')
+  else if (expand[offset] == '<')
     {
       offset++;
-      if(offset >= expand.size())
+      if (offset >= expand.size())
         throw RegexMatcher::Error("wrong format of expand string!");
-        
+
       size_t left = 1;
       size_t right = 0;
       while(right < left)
         {
-          if(expand[offset] == '<')
+          if (expand[offset] == '<')
             left++;
-          if(expand[offset] == '>')
-            right++;            
+          if (expand[offset] == '>')
+            right++;
           offset++;
-          if(offset >= expand.size())
+          if (offset >= expand.size())
             throw RegexMatcher::Error("wrong format of expand string!");
         }
       return expand.substr(begin, offset - begin);
@@ -178,7 +178,7 @@ RegexTopMatcher::fromName(const Name& name, bool hasAnchor)
 {
   Name::const_iterator it = name.begin();
   std::string regexStr("^");
-    
+
   for(; it != name.end(); it++)
     {
       regexStr.append("<");
@@ -186,7 +186,7 @@ RegexTopMatcher::fromName(const Name& name, bool hasAnchor)
       regexStr.append(">");
     }
 
-  if(hasAnchor)
+  if (hasAnchor)
     regexStr.append("$");
 
   return make_shared<RegexTopMatcher>(boost::cref(regexStr));
@@ -199,7 +199,7 @@ RegexTopMatcher::convertSpecialChar(const std::string& str)
   for(size_t i = 0; i < str.size(); i++)
     {
       char c = str[i];
-      switch(c)
+      switch (c)
         {
         case '.':
         case '[':

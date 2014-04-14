@@ -174,11 +174,12 @@ SecTpmMemory::doesKeyExistInTpm(const Name& keyName, KeyClass keyClass)
 bool
 SecTpmMemory::generateRandomBlock(uint8_t* res, size_t size)
 {
-  try{
+  try {
     CryptoPP::AutoSeededRandomPool rng;
     rng.GenerateBlock(res, size);
     return true;
-  }catch(const CryptoPP::Exception& e){
+  }
+  catch (const CryptoPP::Exception& e) {
     return false;
   }
 }

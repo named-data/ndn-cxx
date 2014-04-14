@@ -20,14 +20,22 @@ namespace nfd {
  */
 class ControlResponse {
 public:
-  struct Error : public Tlv::Error { Error(const std::string &what) : Tlv::Error(what) {} };
+  class Error : public Tlv::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : Tlv::Error(what)
+    {
+    }
+  };
 
   ControlResponse()
     : m_code(200)
   {
   }
 
-  ControlResponse(uint32_t code, const std::string &text)
+  ControlResponse(uint32_t code, const std::string& text)
     : m_code(code)
     , m_text(text)
   {
@@ -37,31 +45,31 @@ public:
   {
     wireDecode(block);
   }
-  
+
   inline uint32_t
   getCode() const;
 
   inline void
   setCode(uint32_t code);
 
-  inline const std::string &
+  inline const std::string&
   getText() const;
 
   inline void
-  setText(const std::string &text);
+  setText(const std::string& text);
 
   inline const Block&
   getBody() const;
 
   inline void
   setBody(const Block& body);
-  
+
   inline const Block&
   wireEncode() const;
 
   inline void
-  wireDecode(const Block &block);
-  
+  wireDecode(const Block& block);
+
 protected:
   uint32_t m_code;
   std::string m_text;
@@ -83,14 +91,14 @@ ControlResponse::setCode(uint32_t code)
   m_wire.reset();
 }
 
-inline const std::string &
+inline const std::string&
 ControlResponse::getText() const
 {
   return m_text;
 }
 
 inline void
-ControlResponse::setText(const std::string &text)
+ControlResponse::setText(const std::string& text)
 {
   m_text = text;
   m_wire.reset();
@@ -128,27 +136,27 @@ ControlResponse::wireEncode() const
     {
       m_wire.push_back(m_body);
     }
-  
-  m_wire.encode();  
+
+  m_wire.encode();
   return m_wire;
 }
 
 inline void
-ControlResponse::wireDecode(const Block &wire)
+ControlResponse::wireDecode(const Block& wire)
 {
   m_wire = wire;
   m_wire.parse();
 
   if (m_wire.type() != tlv::nfd::ControlResponse)
-    throw Error("Requested decoding of ControlResponse, but Block is of different type");  
-  
+    throw Error("Requested decoding of ControlResponse, but Block is of different type");
+
   Block::element_const_iterator val = m_wire.elements_begin();
   if (val == m_wire.elements_end() ||
       val->type() != tlv::nfd::StatusCode)
     {
       throw Error("Incorrect ControlResponse format (StatusCode missing or not the first item)");
     }
-  
+
   m_code = readNonNegativeInteger(*val);
   ++val;
 
@@ -167,7 +175,7 @@ ControlResponse::wireDecode(const Block &wire)
 }
 
 inline std::ostream&
-operator << (std::ostream &os, const ControlResponse &status)
+operator << (std::ostream& os, const ControlResponse& status)
 {
   os << status.getCode() << " " << status.getText();
   return os;

@@ -16,12 +16,32 @@ namespace nfd {
 class LocalControlHeader
 {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
 
   LocalControlHeader()
     : m_incomingFaceId(INVALID_FACE_ID)
     , m_nextHopFaceId(INVALID_FACE_ID)
   {
+  }
+
+  /**
+   * @brief Create from wire encoding
+   *
+   * @sa wireDecode
+   */
+  explicit
+  LocalControlHeader(const Block& wire,
+                     bool encodeIncomingFaceId = true, bool encodeNextHopFaceId = true)
+  {
+    wireDecode(wire, encodeIncomingFaceId, encodeNextHopFaceId);
   }
 
   /**
@@ -47,20 +67,20 @@ public:
   inline Block
   wireEncode(const U& payload,
              bool encodeIncomingFaceId, bool encodeNextHopFaceId) const;
-  
+
   /**
    * @brief Decode from the wire format and set LocalControlHeader on the supplied item
    *
    * The supplied wire MUST contain LocalControlHeader.  Determination whether the optional
    * LocalControlHeader should be done before calling this method.
    */
-  inline void 
+  inline void
   wireDecode(const Block& wire,
              bool encodeIncomingFaceId = true, bool encodeNextHopFaceId = true);
 
   inline static const Block&
   getPayload(const Block& wire);
-  
+
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
@@ -72,15 +92,15 @@ public:
     return !((encodeIncomingFaceId && hasIncomingFaceId()) ||
              (encodeNextHopFaceId  && hasNextHopFaceId()));
   }
-  
+
   //
-  
+
   bool
   hasIncomingFaceId() const
   {
     return m_incomingFaceId != INVALID_FACE_ID;
   }
-  
+
   uint64_t
   getIncomingFaceId() const
   {
@@ -100,7 +120,7 @@ public:
   {
     return m_nextHopFaceId != INVALID_FACE_ID;
   }
-  
+
   uint64_t
   getNextHopFaceId() const
   {
@@ -118,7 +138,7 @@ private:
   inline size_t
   wireEncode(EncodingImpl<T>& block, size_t payloadSize,
              bool encodeIncomingFaceId, bool encodeNextHopFaceId) const;
-  
+
 private:
   uint64_t m_incomingFaceId;
   uint64_t m_nextHopFaceId;
@@ -133,23 +153,23 @@ inline size_t
 LocalControlHeader::wireEncode(EncodingImpl<T>& block, size_t payloadSize,
                                bool encodeIncomingFaceId, bool encodeNextHopFaceId) const
 {
-  size_t total_len = payloadSize;
+  size_t totalLength = payloadSize;
 
   if (encodeIncomingFaceId && hasIncomingFaceId())
     {
-      total_len += prependNonNegativeIntegerBlock(block,
-                                                  tlv::nfd::IncomingFaceId, getIncomingFaceId());
+      totalLength += prependNonNegativeIntegerBlock(block,
+                                                    tlv::nfd::IncomingFaceId, getIncomingFaceId());
     }
 
   if (encodeNextHopFaceId && hasNextHopFaceId())
     {
-      total_len += prependNonNegativeIntegerBlock(block,
-                                                  tlv::nfd::NextHopFaceId, getNextHopFaceId());
+      totalLength += prependNonNegativeIntegerBlock(block,
+                                                    tlv::nfd::NextHopFaceId, getNextHopFaceId());
     }
-  
-  total_len += block.prependVarNumber(total_len);
-  total_len += block.prependVarNumber(tlv::nfd::LocalControlHeader);
-  return total_len;
+
+  totalLength += block.prependVarNumber(totalLength);
+  totalLength += block.prependVarNumber(tlv::nfd::LocalControlHeader);
+  return totalLength;
 }
 
 template<class U>
@@ -164,7 +184,7 @@ LocalControlHeader::wireEncode(const U& payload,
   EncodingEstimator estimator;
   size_t length = wireEncode(estimator, payload.wireEncode().size(),
                              encodeIncomingFaceId, encodeNextHopFaceId);
-  
+
   EncodingBuffer buffer(length);
   wireEncode(buffer, payload.wireEncode().size(),
              encodeIncomingFaceId, encodeNextHopFaceId);
@@ -172,7 +192,7 @@ LocalControlHeader::wireEncode(const U& payload,
   return buffer.block(false);
 }
 
-inline void 
+inline void
 LocalControlHeader::wireDecode(const Block& wire,
                                bool encodeIncomingFaceId/* = true*/, bool encodeNextHopFaceId/* = true*/)
 {
@@ -186,7 +206,7 @@ LocalControlHeader::wireDecode(const Block& wire,
        i != wire.elements_end();
        ++i)
     {
-      switch(i->type())
+      switch (i->type())
         {
         case tlv::nfd::IncomingFaceId:
           if (encodeIncomingFaceId)

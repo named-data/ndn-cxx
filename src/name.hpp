@@ -117,7 +117,7 @@ public:
    * @param uri The null-terminated URI string.
    */
   void
-  set(const char *uri);
+  set(const char* uri);
 
   /**
    * Parse the uri according to the NDN URI Scheme and set the name with the components.
@@ -311,14 +311,20 @@ public:
    * @brief Check if name is emtpy
    */
   bool
-  empty() const { return m_nameBlock.elements().empty(); }
+  empty() const
+  {
+    return m_nameBlock.elements().empty();
+  }
 
   /**
    * Get the number of components.
    * @return The number of components.
    */
   size_t
-  size() const { return m_nameBlock.elements_size(); }
+  size() const
+  {
+    return m_nameBlock.elements_size();
+  }
 
   /**
    * Get the component at the given index.
@@ -394,7 +400,10 @@ public:
    * @return true if the names are equal, otherwise false.
    */
   bool
-  operator==(const Name& name) const { return equals(name); }
+  operator==(const Name& name) const
+  {
+    return equals(name);
+  }
 
   /**
    * Check if this name has the same component count and components as the given name.
@@ -402,7 +411,10 @@ public:
    * @return true if the names are not equal, otherwise false.
    */
   bool
-  operator!=(const Name& name) const { return !equals(name); }
+  operator!=(const Name& name) const
+  {
+    return !equals(name);
+  }
 
   /**
    * Return true if this is less than or equal to the other Name in the NDN canonical ordering.
@@ -411,7 +423,10 @@ public:
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator<=(const Name& other) const { return compare(other) <= 0; }
+  operator<=(const Name& other) const
+  {
+    return compare(other) <= 0;
+  }
 
   /**
    * Return true if this is less than the other Name in the NDN canonical ordering.
@@ -420,7 +435,10 @@ public:
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator<(const Name& other) const { return compare(other) < 0; }
+  operator<(const Name& other) const
+  {
+    return compare(other) < 0;
+  }
 
   /**
    * Return true if this is less than or equal to the other Name in the NDN canonical ordering.
@@ -429,7 +447,10 @@ public:
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator>=(const Name& other) const { return compare(other) >= 0; }
+  operator>=(const Name& other) const
+  {
+    return compare(other) >= 0;
+  }
 
   /**
    * Return true if this is greater than the other Name in the NDN canonical ordering.
@@ -438,7 +459,10 @@ public:
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator>(const Name& other) const { return compare(other) > 0; }
+  operator>(const Name& other) const
+  {
+    return compare(other) > 0;
+  }
 
   //
   // Iterator interface to name components.
@@ -681,18 +705,18 @@ template<bool T>
 inline size_t
 Name::wireEncode(EncodingImpl<T>& blk) const
 {
-  size_t total_len = 0;
+  size_t totalLength = 0;
 
   for (const_reverse_iterator i = rbegin();
        i != rend();
        ++i)
     {
-      total_len += i->wireEncode(blk);
+      totalLength += i->wireEncode(blk);
     }
 
-  total_len += blk.prependVarNumber(total_len);
-  total_len += blk.prependVarNumber(Tlv::Name);
-  return total_len;
+  totalLength += blk.prependVarNumber(totalLength);
+  totalLength += blk.prependVarNumber(Tlv::Name);
+  return totalLength;
 }
 
 inline const Block&

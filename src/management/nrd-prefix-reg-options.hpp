@@ -26,7 +26,15 @@ const uint64_t DEFAULT_FLAGS = tlv::nrd::NDN_FORW_CHILD_INHERIT;
  */
 class PrefixRegOptions {
 public:
-  struct Error : public Tlv::Error { Error(const std::string& what) : Tlv::Error(what) {} };
+  class Error : public Tlv::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : Tlv::Error(what)
+    {
+    }
+  };
 
   PrefixRegOptions()
     : m_faceId(INVALID_FACE_ID)
@@ -36,6 +44,7 @@ public:
   {
   }
 
+  explicit
   PrefixRegOptions(const Block& block)
   {
     wireDecode(block);
@@ -162,7 +171,7 @@ template<bool T>
 inline size_t
 PrefixRegOptions::wireEncode(EncodingImpl<T>& block) const
 {
-  size_t total_len = 0;
+  size_t totalLength = 0;
 
   // PrefixRegOptions ::= PREFIX-REG-OPTIONS-TYPE TLV-LENGTH
   //                        Name
@@ -177,44 +186,44 @@ PrefixRegOptions::wireEncode(EncodingImpl<T>& block) const
   // Protocol
   if (!m_protocol.empty())
     {
-      total_len += prependByteArrayBlock(block,
-                                         tlv::nrd::Protocol,
-                                         reinterpret_cast<const uint8_t*>(m_protocol.c_str()),
-                                         m_protocol.size());
+      totalLength += prependByteArrayBlock(block,
+                                           tlv::nrd::Protocol,
+                                           reinterpret_cast<const uint8_t*>(m_protocol.c_str()),
+                                           m_protocol.size());
     }
 
   // ExpirationPeriod
   if (m_expirationPeriod > time::milliseconds::zero())
     {
-      total_len += prependNonNegativeIntegerBlock(block,
-                                                  tlv::nrd::ExpirationPeriod,
-                                                  m_expirationPeriod.count());
+      totalLength += prependNonNegativeIntegerBlock(block,
+                                                    tlv::nrd::ExpirationPeriod,
+                                                    m_expirationPeriod.count());
     }
 
   // Cost
   if (m_cost != DEFAULT_COST)
     {
-      total_len += prependNonNegativeIntegerBlock(block, tlv::nrd::Cost, m_cost);
+      totalLength += prependNonNegativeIntegerBlock(block, tlv::nrd::Cost, m_cost);
     }
 
   // Flags
   if (m_flags != DEFAULT_FLAGS)
     {
-      total_len += prependNonNegativeIntegerBlock(block, tlv::nrd::Flags, m_flags);
+      totalLength += prependNonNegativeIntegerBlock(block, tlv::nrd::Flags, m_flags);
     }
 
   // FaceId
   if (m_faceId != INVALID_FACE_ID)
     {
-      total_len += prependNonNegativeIntegerBlock(block, tlv::nrd::FaceId, m_faceId);
+      totalLength += prependNonNegativeIntegerBlock(block, tlv::nrd::FaceId, m_faceId);
     }
 
   // Name
-  total_len += m_name.wireEncode(block);
+  totalLength += m_name.wireEncode(block);
 
-  total_len += block.prependVarNumber(total_len);
-  total_len += block.prependVarNumber(tlv::nrd::PrefixRegOptions);
-  return total_len;
+  totalLength += block.prependVarNumber(totalLength);
+  totalLength += block.prependVarNumber(tlv::nrd::PrefixRegOptions);
+  return totalLength;
 }
 
 inline const Block&
@@ -303,7 +312,7 @@ PrefixRegOptions::wireDecode(const Block& wire)
 }
 
 inline std::ostream&
-operator << (std::ostream &os, const PrefixRegOptions &option)
+operator << (std::ostream& os, const PrefixRegOptions& option)
 {
   os << "PrefixRegOptions(";
 

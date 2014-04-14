@@ -20,10 +20,10 @@ class RegexRepeatMatcher : public RegexMatcher
 {
 public:
   RegexRepeatMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backRefManager, int indicator);
-    
+
   virtual ~RegexRepeatMatcher(){}
 
-  virtual bool 
+  virtual bool
   match(const Name& name, const int& offset, const int& len);
 
 protected:
@@ -31,19 +31,19 @@ protected:
    * @brief Compile the regular expression to generate the more matchers when necessary
    * @returns true if compiling succeeds
    */
-  virtual void 
+  virtual void
   compile();
 
 private:
-  bool 
+  bool
   parseRepetition();
 
-  bool 
+  bool
   recursiveMatch (int repeat,
-                  const Name & name,
-                  const int & offset,
-                  const int &len);
-  
+                  const Name& name,
+                  const int& offset,
+                  const int&len);
+
 private:
   int m_indicator;
   int m_repeatMin;
@@ -67,14 +67,14 @@ RegexRepeatMatcher::RegexRepeatMatcher(const std::string& expr, shared_ptr<Regex
   // _LOG_TRACE ("Exit RegexRepeatMatcher Constructor");
 }
 
-inline void 
+inline void
 RegexRepeatMatcher::compile()
 {
   // _LOG_TRACE ("Enter RegexRepeatMatcher::compile");
-    
+
   shared_ptr<RegexMatcher> matcher;
 
-  if('(' == m_expr[0]){
+  if ('(' == m_expr[0]){
     matcher = make_shared<RegexBackrefMatcher>(m_expr.substr(0, m_indicator), m_backrefManager);
     m_backrefManager->pushRef(matcher);
     boost::dynamic_pointer_cast<RegexBackrefMatcher>(matcher)->lateCompile();
@@ -83,40 +83,40 @@ RegexRepeatMatcher::compile()
     matcher = make_shared<RegexComponentSetMatcher>(m_expr.substr(0, m_indicator), m_backrefManager);
   }
   m_matcherList.push_back(matcher);
-      
+
   parseRepetition();
 
   // _LOG_TRACE ("Exit RegexRepeatMatcher::compile");
 
 }
 
-inline bool 
+inline bool
 RegexRepeatMatcher::parseRepetition()
 {
   // _LOG_DEBUG ("Enter RegexRepeatMatcher::ParseRepetition()" << m_expr << " indicator: " << m_indicator);
-    
+
   int exprSize = m_expr.size();
   int intMax = std::numeric_limits<int>::max();
-    
-  if(exprSize == m_indicator){
+
+  if (exprSize == m_indicator){
     m_repeatMin = 1;
     m_repeatMax = 1;
 
     return true;
   }
   else{
-    if(exprSize == (m_indicator + 1)){
-      if('?' == m_expr[m_indicator]){
+    if (exprSize == (m_indicator + 1)){
+      if ('?' == m_expr[m_indicator]){
         m_repeatMin = 0;
         m_repeatMax = 1;
         return true;
       }
-      if('+' == m_expr[m_indicator]){
+      if ('+' == m_expr[m_indicator]){
         m_repeatMin = 1;
         m_repeatMax = intMax;
         return true;
       }
-      if('*' == m_expr[m_indicator]){
+      if ('*' == m_expr[m_indicator]){
         m_repeatMin = 0;
         m_repeatMax = intMax;
         return true;
@@ -128,36 +128,36 @@ RegexRepeatMatcher::parseRepetition()
       int min = 0;
       int max = 0;
 
-      if(boost::regex_match(repeatStruct, boost::regex("\\{[0-9]+,[0-9]+\\}"))){
+      if (boost::regex_match(repeatStruct, boost::regex("\\{[0-9]+,[0-9]+\\}"))){
         int separator = repeatStruct.find_first_of(',', 0);
         min = atoi(repeatStruct.substr(1, separator - 1).c_str());
         max = atoi(repeatStruct.substr(separator + 1, rsSize - separator - 2).c_str());
       }
-      else if(boost::regex_match(repeatStruct, boost::regex("\\{,[0-9]+\\}"))){
+      else if (boost::regex_match(repeatStruct, boost::regex("\\{,[0-9]+\\}"))){
         int separator = repeatStruct.find_first_of(',', 0);
         min = 0;
         max = atoi(repeatStruct.substr(separator + 1, rsSize - separator - 2).c_str());
       }
-      else if(boost::regex_match(repeatStruct, boost::regex("\\{[0-9]+,\\}"))){
+      else if (boost::regex_match(repeatStruct, boost::regex("\\{[0-9]+,\\}"))){
         int separator = repeatStruct.find_first_of(',', 0);
         min = atoi(repeatStruct.substr(1, separator).c_str());
         max = intMax;
       }
-      else if(boost::regex_match(repeatStruct, boost::regex("\\{[0-9]+\\}"))){
+      else if (boost::regex_match(repeatStruct, boost::regex("\\{[0-9]+\\}"))){
         min = atoi(repeatStruct.substr(1, rsSize - 1).c_str());
         max = min;
       }
       else
         throw RegexMatcher::Error(std::string("Error: RegexRepeatMatcher.ParseRepetition(): ")
                                   + "Unrecognized format "+ m_expr);
-        
-      if(min > intMax || max > intMax || min > max)
+
+      if (min > intMax || max > intMax || min > max)
         throw RegexMatcher::Error(std::string("Error: RegexRepeatMatcher.ParseRepetition(): ")
                                   + "Wrong number " + m_expr);
-          
+
       m_repeatMin = min;
       m_repeatMax = max;
-        
+
       return true;
     }
   }
@@ -165,7 +165,7 @@ RegexRepeatMatcher::parseRepetition()
 }
 
 inline bool
-RegexRepeatMatcher::match(const Name & name, const int & offset, const int & len)
+RegexRepeatMatcher::match(const Name& name, const int& offset, const int& len)
 {
   // _LOG_TRACE ("Enter RegexRepeatMatcher::match");
 
@@ -185,8 +185,8 @@ RegexRepeatMatcher::match(const Name & name, const int & offset, const int & len
     return false;
 }
 
-inline bool 
-RegexRepeatMatcher::recursiveMatch(int repeat, const Name & name, const int & offset, const int & len)
+inline bool
+RegexRepeatMatcher::recursiveMatch(int repeat, const Name& name, const int& offset, const int& len)
 {
   // _LOG_TRACE ("Enter RegexRepeatMatcher::recursiveMatch");
 
@@ -213,7 +213,7 @@ RegexRepeatMatcher::recursiveMatch(int repeat, const Name & name, const int & of
       // _LOG_DEBUG("Match Succeed: No more components && reach m_repeatMin");
       return true;
     }
-    
+
   while(tried >= 0)
     {
       // _LOG_DEBUG("Attempt tried: " << tried);

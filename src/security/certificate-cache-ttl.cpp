@@ -50,7 +50,7 @@ CertificateCacheTtl::insert(ptr_lib::shared_ptr<const IdentityCertificate> certi
 }
 
 void
-CertificateCacheTtl::remove(const Name &certificateName)
+CertificateCacheTtl::remove(const Name& certificateName)
 {
   Name name = certificateName.getPrefix(-1);
   Cache::iterator it = m_cache.find(name);
@@ -59,7 +59,7 @@ CertificateCacheTtl::remove(const Name &certificateName)
 }
 
 ptr_lib::shared_ptr<const IdentityCertificate>
-CertificateCacheTtl::getCertificate(const Name & certificateName)
+CertificateCacheTtl::getCertificate(const Name& certificateName)
 {
   Cache::iterator it = m_cache.find(certificateName);
   if(it != m_cache.end())

@@ -18,9 +18,17 @@ namespace ndn {
 class SecTpmFile : public SecTpm
 {
 public:
-  struct Error : public SecTpm::Error { Error(const std::string &what) : SecTpm::Error(what) {} };
+  class Error : public SecTpm::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : SecTpm::Error(what)
+    {
+    }
+  };
 
-  SecTpmFile(const std::string & dir = "");
+  SecTpmFile(const std::string& dir = "");
 
   virtual
   ~SecTpmFile() {};
@@ -58,24 +66,24 @@ public:
   }
 
   virtual void
-  generateKeyPairInTpm(const Name & keyName, KeyType keyType, int keySize);
+  generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize);
 
   virtual void
-  deleteKeyPairInTpm(const Name &keyName);
+  deleteKeyPairInTpm(const Name& keyName);
 
   virtual shared_ptr<PublicKey>
-  getPublicKeyFromTpm(const Name & keyName);
+  getPublicKeyFromTpm(const Name&  keyName);
 
   virtual Block
-  signInTpm(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
+  signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
 
-  virtual ConstBufferPtr 
+  virtual ConstBufferPtr
   decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric);
 
   virtual ConstBufferPtr
   encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric);
 
-  virtual void 
+  virtual void
   generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize);
 
   virtual bool
@@ -84,7 +92,7 @@ public:
   virtual bool
   generateRandomBlock(uint8_t* res, size_t size);
 
-  virtual void 
+  virtual void
   addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl)
   {}
 
@@ -97,7 +105,7 @@ protected:
 
   virtual bool
   importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
-  
+
   virtual bool
   importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
 

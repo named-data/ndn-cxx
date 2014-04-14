@@ -17,7 +17,15 @@ namespace ndn {
 class IdentityCertificate : public Certificate
 {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
 
   /**
    * The default constructor.
@@ -33,20 +41,20 @@ public:
    */
   inline
   IdentityCertificate(const Data& data);
-  
+
   /**
    * The virtual destructor.
    */
-  inline virtual 
+  inline virtual
   ~IdentityCertificate();
-  
-  inline void
-  wireDecode(const Block &wire);
 
   inline void
-  setName(const Name &name);
-  
-  inline const Name &
+  wireDecode(const Block& wire);
+
+  inline void
+  setName(const Name& name);
+
+  inline const Name&
   getPublicKeyName () const;
 
   static bool
@@ -59,14 +67,14 @@ public:
    */
   static Name
   certificateNameToPublicKeyName(const Name& certificateName);
-  
+
 private:
   static bool
   isCorrectName(const Name& name);
-  
+
   void
   setPublicKeyName();
-    
+
 protected:
   Name publicKeyName_;
 };
@@ -82,27 +90,27 @@ IdentityCertificate::IdentityCertificate(const Data& data)
 {
   setPublicKeyName();
 }
-  
+
 inline
 IdentityCertificate::~IdentityCertificate()
 {
 }
 
 inline void
-IdentityCertificate::wireDecode(const Block &wire)
+IdentityCertificate::wireDecode(const Block& wire)
 {
   Certificate::wireDecode(wire);
   setPublicKeyName();
 }
 
 inline void
-IdentityCertificate::setName(const Name &name)
+IdentityCertificate::setName(const Name& name)
 {
   Certificate::setName(name);
   setPublicKeyName();
 }
 
-inline const Name &
+inline const Name&
 IdentityCertificate::getPublicKeyName () const
 {
   return publicKeyName_;

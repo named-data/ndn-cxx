@@ -17,7 +17,8 @@ using namespace CryptoPP;
 namespace ndn {
 
 size_t
-DEREncodeGeneralTime(CryptoPP::BufferedTransformation &bt, const time::system_clock::TimePoint& time)
+DEREncodeGeneralTime(CryptoPP::BufferedTransformation& bt,
+                     const time::system_clock::TimePoint& time)
 {
   std::string str = time::toIsoString(time);
   // For example, 20131226T232254
@@ -32,7 +33,8 @@ DEREncodeGeneralTime(CryptoPP::BufferedTransformation &bt, const time::system_cl
 }
 
 void
-BERDecodeTime(CryptoPP::BufferedTransformation &bt, time::system_clock::TimePoint& time)
+BERDecodeTime(CryptoPP::BufferedTransformation& bt,
+              time::system_clock::TimePoint& time)
 {
   byte b;
   if (!bt.Get(b) || (b != GENERALIZED_TIME && b != UTC_TIME))
@@ -48,14 +50,14 @@ BERDecodeTime(CryptoPP::BufferedTransformation &bt, time::system_clock::TimePoin
 
   std::string str;
   str.assign (time_str.begin(), time_str.end());
-  
+
   if (b == UTC_TIME) {
     if (boost::lexical_cast<int>(str.substr(0,2)) < 50)
       str = "20" + str;
     else
       str = "19" + str;
   }
- 
+
   time = time::fromIsoString(str.substr(0, 8) + "T" + str.substr(8, 6));
 }
 

@@ -24,9 +24,17 @@ namespace name {
 class Component : public Block
 {
 public:
-  /// @brief Error that can be thrown from the block
-  struct Error : public std::runtime_error {
-    Error(const std::string& what) : std::runtime_error(what) {}
+  /**
+   * @brief Error that can be thrown from the block
+   */
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
   };
 
   /**
@@ -37,6 +45,8 @@ public:
   /**
    * @brief Directly create component from wire block
    *
+   * Any block can be implicitly converted to name::Component
+   *
    * @throws Error if wire.type() is not Tlv::Component
    */
   Component(const Block& wire);
@@ -45,12 +55,14 @@ public:
    * Create a new Name::Component, taking another pointer to the Blob value.
    * @param value A blob with a pointer to an immutable array.  The pointer is copied.
    */
+  explicit
   Component(const ConstBufferPtr& buffer);
 
   /**
    * Create a new Name::Component, copying the given value.
    * @param value The value byte array.
    */
+  explicit
   Component(const Buffer& value);
 
   /**
@@ -58,13 +70,13 @@ public:
    * @param value Pointer to the value byte array.
    * @param valueLen Length of value.
    */
-  Component(const uint8_t *value, size_t valueLen);
+  Component(const uint8_t* value, size_t valueLen);
 
   template<class InputIterator>
   Component(InputIterator begin, InputIterator end);
 
   explicit
-  Component(const char *str);
+  Component(const char* str);
 
   explicit
   Component(const std::string& str);
@@ -77,6 +89,18 @@ public:
   wireEncode(EncodingImpl<T>& block) const;
 
   /**
+   * @brief Encode to a wire format
+   */
+  inline const Block&
+  wireEncode() const;
+
+  /**
+   * @brief Decode from the wire format
+   */
+  inline void
+  wireDecode(const Block& wire);
+
+  /**
    * Make a Blob value by decoding the escapedString between beginOffset and endOffset according to the NDN URI Scheme.
    * If the escaped string is "", "." or ".." then return a Blob with a null pointer,
    * which means the component should be skipped in a URI name.
@@ -86,7 +110,7 @@ public:
    * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
    */
   static Component
-  fromEscapedString(const char *escapedString, size_t beginOffset, size_t endOffset);
+  fromEscapedString(const char* escapedString, size_t beginOffset, size_t endOffset);
 
   /**
    * Make a Blob value by decoding the escapedString according to the NDN URI Scheme.
@@ -96,7 +120,7 @@ public:
    * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
    */
   static Component
-  fromEscapedString(const char *escapedString)
+  fromEscapedString(const char* escapedString)
   {
     return fromEscapedString(escapedString, 0, ::strlen(escapedString));
   }
@@ -309,7 +333,7 @@ Component::Component(const Buffer& value)
 }
 
 inline
-Component::Component(const uint8_t *value, size_t valueLen)
+Component::Component(const uint8_t* value, size_t valueLen)
   : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(value, valueLen)))
 {
 }
@@ -322,7 +346,7 @@ Component::Component(InputIterator begin, InputIterator end)
 }
 
 inline
-Component::Component(const char *str)
+Component::Component(const char* str)
   : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(str, ::strlen(str))))
 {
 }
@@ -348,17 +372,17 @@ Component::fromEscapedString(const char* escapedString, size_t beginOffset, size
       return Component();
     else
       // Remove 3 periods.
-      return Component((const uint8_t *)&value[3], value.size() - 3);
+      return Component(reinterpret_cast<const uint8_t*>(&value[3]), value.size() - 3);
   }
   else
-    return Component((const uint8_t *)&value[0], value.size());
+    return Component(reinterpret_cast<const uint8_t*>(&value[0]), value.size());
 }
 
 
 inline void
 Component::toEscapedString(std::ostream& result) const
 {
-  const uint8_t *valuePtr = value();
+  const uint8_t* valuePtr = value();
   size_t valueSize = value_size();
 
   bool gotNonDot = false;
@@ -448,13 +472,45 @@ template<bool T>
 inline size_t
 Component::wireEncode(EncodingImpl<T>& block) const
 {
-  size_t total_len = 0;
+  size_t totalLength = 0;
   if (value_size() > 0)
-    total_len += block.prependByteArray (value(), value_size());
-  total_len += block.prependVarNumber (value_size());
-  total_len += block.prependVarNumber (Tlv::NameComponent);
-  return total_len;
+    totalLength += block.prependByteArray (value(), value_size());
+  totalLength += block.prependVarNumber (value_size());
+  totalLength += block.prependVarNumber (Tlv::NameComponent);
+  return totalLength;
 }
+
+/**
+ * @brief Encode to a wire format
+ */
+inline const Block&
+Component::wireEncode() const
+{
+  if (this->hasWire())
+    return *this;
+
+  EncodingEstimator estimator;
+  size_t estimatedSize = wireEncode(estimator);
+
+  EncodingBuffer buffer(estimatedSize, 0);
+  wireEncode(buffer);
+
+  const_cast<Component&>(*this) = buffer.block();
+  return *this;
+}
+
+/**
+ * @brief Decode from the wire format
+ */
+inline void
+Component::wireDecode(const Block& wire)
+{
+  if (wire.type() != Tlv::NameComponent)
+    throw Error("wireDecode name component from non name component TLV wire block");
+
+  *this = wire;
+}
+
 
 } // namespace name
 } // namespace ndn

@@ -17,28 +17,28 @@ ConstBufferPtr
 SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, const string& passwordStr)
 {
   using namespace CryptoPP;
-    
+
   uint8_t salt[8] = {0};
   uint8_t iv[8] = {0};
-    
+
   // derive key
-  if(!generateRandomBlock(salt, 8) || !generateRandomBlock(iv, 8))
+  if (!generateRandomBlock(salt, 8) || !generateRandomBlock(iv, 8))
     throw Error("Cannot generate salt or iv");
 
   uint32_t iterationCount = 2048;
-  
+
   PKCS5_PBKDF2_HMAC<SHA1> keyGenerator;
   size_t derivedLen = 24; //For DES-EDE3-CBC-PAD
   byte derived[24] = {0};
   byte purpose = 0;
-  
+
   try
     {
-      keyGenerator.DeriveKey(derived, derivedLen, purpose, 
-                             reinterpret_cast<const byte*>(passwordStr.c_str()), passwordStr.size(), 
+      keyGenerator.DeriveKey(derived, derivedLen, purpose,
+                             reinterpret_cast<const byte*>(passwordStr.c_str()), passwordStr.size(),
                              salt, 8, iterationCount);
     }
-  catch(CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       throw Error("Cannot derived the encryption key");
     }
@@ -46,18 +46,18 @@ SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, const string& password
   //encrypt
   CBC_Mode< DES_EDE3 >::Encryption e;
   e.SetKeyWithIV(derived, derivedLen, iv);
-  
+
   ConstBufferPtr pkcs1PrivateKey = exportPrivateKeyPkcs1FromTpm(keyName);
-  if(!static_cast<bool>(pkcs1PrivateKey))
+  if (!static_cast<bool>(pkcs1PrivateKey))
     throw Error("Cannot export the private key, #1");
 
   OBufferStream encryptedOs;
   try
     {
-      StringSource stringSource(pkcs1PrivateKey->buf(), pkcs1PrivateKey->size(), true, 
+      StringSource stringSource(pkcs1PrivateKey->buf(), pkcs1PrivateKey->size(), true,
                                 new StreamTransformationFilter(e, new FileSink(encryptedOs)));
     }
-  catch(CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       throw Error("Cannot export the private key, #2");
     }
@@ -71,7 +71,7 @@ SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, const string& password
   try
     {
       FileSink sink(pkcs8Os);
-      
+
       // EncryptedPrivateKeyInfo ::= SEQUENCE {
       //   encryptionAlgorithm  EncryptionAlgorithmIdentifier,
       //   encryptedData        OCTET STRING }
@@ -107,7 +107,7 @@ SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, const string& password
               pbkdf2Params.MessageEnd();
             }
             pbes2KDFs.MessageEnd();
-            
+
             // AlgorithmIdentifier ::= SEQUENCE {
             //   algorithm   OBJECT IDENTIFIER {{DES-EDE3-CBC-PAD}},
             //   parameters  OCTET STRING} {{iv}} }
@@ -121,14 +121,14 @@ SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, const string& password
           pbes2Params.MessageEnd();
         }
         encryptionAlgorithm.MessageEnd();
-        
+
         DEREncodeOctetString(encryptedPrivateKeyInfo, encryptedOs.buf()->buf(), encryptedOs.buf()->size());
       }
       encryptedPrivateKeyInfo.MessageEnd();
-      
+
       return pkcs8Os.buf();
     }
-  catch(CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       throw Error("Cannot export the private key, #3");
     }
@@ -138,7 +138,7 @@ bool
 SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size, const string& passwordStr)
 {
   using namespace CryptoPP;
-  
+
   OID pbes2Id;
   OID pbkdf2Id;
   SecByteBlock saltBlock;
@@ -146,12 +146,12 @@ SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, si
   OID pbes2encsId;
   SecByteBlock ivBlock;
   SecByteBlock encryptedDataBlock;
-  
+
   try
     {
       //decode some decoding processes are not necessary for now, because we assume only one encryption scheme.
       StringSource source(buf, size, true);
-      
+
       // EncryptedPrivateKeyInfo ::= SEQUENCE {
       //   encryptionAlgorithm  EncryptionAlgorithmIdentifier,
       //   encryptedData        OCTET STRING }
@@ -187,7 +187,7 @@ SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, si
               pbkdf2Params.MessageEnd();
             }
             pbes2KDFs.MessageEnd();
-            
+
             // AlgorithmIdentifier ::= SEQUENCE {
             //   algorithm   OBJECT IDENTIFIER {{DES-EDE3-CBC-PAD}},
             //   parameters  OCTET STRING} {{iv}} }
@@ -206,48 +206,48 @@ SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, si
       }
       encryptedPrivateKeyInfo.MessageEnd();
     }
-  catch(CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       return false;
     }
 
-  
+
   PKCS5_PBKDF2_HMAC<SHA1> keyGenerator;
   size_t derivedLen = 24; //For DES-EDE3-CBC-PAD
   byte derived[24] = {0};
   byte purpose = 0;
-  
+
   try
     {
-      keyGenerator.DeriveKey(derived, derivedLen, 
-                             purpose, 
-                             reinterpret_cast<const byte*>(passwordStr.c_str()), passwordStr.size(), 
-                             saltBlock.BytePtr(), saltBlock.size(), 
+      keyGenerator.DeriveKey(derived, derivedLen,
+                             purpose,
+                             reinterpret_cast<const byte*>(passwordStr.c_str()), passwordStr.size(),
+                             saltBlock.BytePtr(), saltBlock.size(),
                              iterationCount);
     }
-  catch(CryptoPP::Exception& e)
-    {
-      return false;
-    }
-        
-  //decrypt
-  CBC_Mode< DES_EDE3 >::Decryption d;
-  d.SetKeyWithIV(derived, derivedLen, ivBlock.BytePtr());
-  
-  OBufferStream privateKeyOs;
-  try
-    {
-      StringSource encryptedSource(encryptedDataBlock.BytePtr(), encryptedDataBlock.size(), true, 
-                                   new StreamTransformationFilter(d,  new FileSink(privateKeyOs)));
-    }
-  catch(CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       return false;
     }
 
-  if(!importPrivateKeyPkcs1IntoTpm(keyName, privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()))
+  //decrypt
+  CBC_Mode< DES_EDE3 >::Decryption d;
+  d.SetKeyWithIV(derived, derivedLen, ivBlock.BytePtr());
+
+  OBufferStream privateKeyOs;
+  try
+    {
+      StringSource encryptedSource(encryptedDataBlock.BytePtr(), encryptedDataBlock.size(), true,
+                                   new StreamTransformationFilter(d,  new FileSink(privateKeyOs)));
+    }
+  catch (CryptoPP::Exception& e)
+    {
+      return false;
+    }
+
+  if (!importPrivateKeyPkcs1IntoTpm(keyName, privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()))
     return false;
-    
+
   //derive public key
   OBufferStream publicKeyOs;
 
@@ -256,19 +256,19 @@ SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, si
       RSA::PrivateKey privateKey;
       privateKey.Load(StringStore(privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()).Ref());
       RSAFunction publicKey(privateKey);
-  
+
       FileSink publicKeySink(publicKeyOs);
       publicKey.DEREncode(publicKeySink);
       publicKeySink.MessageEnd();
     }
-  catch(CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       return false;
     }
 
-  if(!importPublicKeyPkcs1IntoTpm(keyName, publicKeyOs.buf()->buf(), publicKeyOs.buf()->size()))
+  if (!importPublicKeyPkcs1IntoTpm(keyName, publicKeyOs.buf()->buf(), publicKeyOs.buf()->size()))
     return false;
-  
+
   return true;
 }
 

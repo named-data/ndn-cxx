@@ -23,9 +23,17 @@ namespace ndn {
 class CertificateExtension
 {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
 
-  CertificateExtension(CryptoPP::BufferedTransformation &in)
+  CertificateExtension(CryptoPP::BufferedTransformation& in)
   {
     decode(in);
   }
@@ -45,7 +53,7 @@ public:
     : extensionId_(oid), isCritical_(isCritical), extensionValue_(value, valueSize)
   {
   }
-  
+
   /**
    * The virtual destructor.
    */
@@ -53,20 +61,20 @@ public:
   ~CertificateExtension() {}
 
   void
-  encode(CryptoPP::BufferedTransformation &out) const;
+  encode(CryptoPP::BufferedTransformation& out) const;
 
   void
-  decode(CryptoPP::BufferedTransformation &in);
-  
-  inline const OID& 
+  decode(CryptoPP::BufferedTransformation& in);
+
+  inline const OID&
   getOid() const { return extensionId_; }
 
-  inline const bool 
+  inline const bool
   getIsCritical() const { return isCritical_; }
 
-  inline const Buffer& 
+  inline const Buffer&
   getValue() const { return extensionValue_; }
-    
+
 protected:
   OID extensionId_;
   bool isCritical_;

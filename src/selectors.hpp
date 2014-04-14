@@ -42,6 +42,9 @@ public:
   {
   }
 
+  /**
+   * @brief Create from wire encoding
+   */
   Selectors(const Block& wire)
   {
     wireDecode(wire);
@@ -207,7 +210,7 @@ template<bool T>
 inline size_t
 Selectors::wireEncode(EncodingImpl<T>& block) const
 {
-  size_t total_len = 0;
+  size_t totalLength = 0;
 
   // Selectors ::= SELECTORS-TYPE TLV-LENGTH
   //                 MinSuffixComponents?
@@ -222,44 +225,44 @@ Selectors::wireEncode(EncodingImpl<T>& block) const
   // MustBeFresh
   if (getMustBeFresh())
     {
-      total_len += prependBooleanBlock(block, Tlv::MustBeFresh);
+      totalLength += prependBooleanBlock(block, Tlv::MustBeFresh);
     }
 
   // ChildSelector
   if (getChildSelector() >= 0)
     {
-      total_len += prependNonNegativeIntegerBlock(block, Tlv::ChildSelector, getChildSelector());
+      totalLength += prependNonNegativeIntegerBlock(block, Tlv::ChildSelector, getChildSelector());
     }
 
   // Exclude
   if (!getExclude().empty())
     {
-      total_len += getExclude().wireEncode(block);
+      totalLength += getExclude().wireEncode(block);
     }
 
   // PublisherPublicKeyLocator
   if (!getPublisherPublicKeyLocator().empty())
     {
-      total_len += getPublisherPublicKeyLocator().wireEncode(block);
+      totalLength += getPublisherPublicKeyLocator().wireEncode(block);
     }
 
   // MaxSuffixComponents
   if (getMaxSuffixComponents() >= 0)
     {
-      total_len += prependNonNegativeIntegerBlock(block, Tlv::MaxSuffixComponents,
-                                                  getMaxSuffixComponents());
+      totalLength += prependNonNegativeIntegerBlock(block, Tlv::MaxSuffixComponents,
+                                                    getMaxSuffixComponents());
     }
 
   // MinSuffixComponents
   if (getMinSuffixComponents() >= 0)
     {
-      total_len += prependNonNegativeIntegerBlock(block, Tlv::MinSuffixComponents,
-                                                  getMinSuffixComponents());
+      totalLength += prependNonNegativeIntegerBlock(block, Tlv::MinSuffixComponents,
+                                                    getMinSuffixComponents());
     }
 
-  total_len += block.prependVarNumber(total_len);
-  total_len += block.prependVarNumber(Tlv::Selectors);
-  return total_len;
+  totalLength += block.prependVarNumber(totalLength);
+  totalLength += block.prependVarNumber(Tlv::Selectors);
+  return totalLength;
 }
 
 inline const Block&

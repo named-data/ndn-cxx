@@ -241,7 +241,7 @@ template<bool T>
 inline size_t
 Data::wireEncode(EncodingImpl<T>& block, bool unsignedPortion/* = false*/) const
 {
-  size_t total_len = 0;
+  size_t totalLength = 0;
 
   // Data ::= DATA-TLV TLV-LENGTH
   //            Name
@@ -259,27 +259,27 @@ Data::wireEncode(EncodingImpl<T>& block, bool unsignedPortion/* = false*/) const
   if (!unsignedPortion)
     {
       // SignatureValue
-      total_len += prependBlock(block, m_signature.getValue());
+      totalLength += prependBlock(block, m_signature.getValue());
     }
 
   // SignatureInfo
-  total_len += prependBlock(block, m_signature.getInfo());
+  totalLength += prependBlock(block, m_signature.getInfo());
 
   // Content
-  total_len += prependBlock(block, getContent());
+  totalLength += prependBlock(block, getContent());
 
   // MetaInfo
-  total_len += getMetaInfo().wireEncode(block);
+  totalLength += getMetaInfo().wireEncode(block);
 
   // Name
-  total_len += getName().wireEncode(block);
+  totalLength += getName().wireEncode(block);
 
   if (!unsignedPortion)
     {
-      total_len += block.prependVarNumber (total_len);
-      total_len += block.prependVarNumber (Tlv::Data);
+      totalLength += block.prependVarNumber (totalLength);
+      totalLength += block.prependVarNumber (Tlv::Data);
     }
-  return total_len;
+  return totalLength;
 }
 
 inline const Block&

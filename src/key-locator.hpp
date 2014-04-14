@@ -37,7 +37,19 @@ public:
   {
   }
 
-  KeyLocator(const Name& name);
+  KeyLocator(const Name& name)
+  {
+    setName(name);
+  }
+
+  /**
+   * @brief Create from wire encoding
+   */
+  explicit
+  KeyLocator(const Block& wire)
+  {
+    wireDecode(wire);
+  }
 
   ///////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +65,7 @@ public:
 
   ///////////////////////////////////////////////////////////////////////////////
 
-   bool
+  bool
   empty() const
   {
     return m_type == KeyLocator_None;
@@ -87,12 +99,6 @@ private:
   mutable Block m_wire;
 };
 
-inline
-KeyLocator::KeyLocator(const Name& name)
-{
-  setName(name);
-}
-
 template<bool T>
 inline size_t
 KeyLocator::wireEncode(EncodingImpl<T>& block) const
@@ -105,21 +111,21 @@ KeyLocator::wireEncode(EncodingImpl<T>& block) const
 
   // KeyLocatorDigest ::= KEY-LOCATOR-DIGEST-TYPE TLV-LENGTH BYTE+
 
-  size_t total_len = 0;
+  size_t totalLength = 0;
 
   switch (m_type) {
   case KeyLocator_None:
     break;
   case KeyLocator_Name:
-    total_len += m_name.wireEncode(block);
+    totalLength += m_name.wireEncode(block);
     break;
   default:
     throw Error("Unsupported KeyLocator type");
   }
 
-  total_len += block.prependVarNumber(total_len);
-  total_len += block.prependVarNumber(Tlv::KeyLocator);
-  return total_len;
+  totalLength += block.prependVarNumber(totalLength);
+  totalLength += block.prependVarNumber(Tlv::KeyLocator);
+  return totalLength;
 }
 
 inline const Block&

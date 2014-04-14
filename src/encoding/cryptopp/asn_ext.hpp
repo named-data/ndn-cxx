@@ -15,17 +15,28 @@
 
 namespace ndn {
 
-namespace Asn {
-struct Error : public std::runtime_error { Error(const std::string& what) : std::runtime_error(what) {} };
-}
+namespace asn {
+
+class Error : public std::runtime_error
+{
+public:
+  explicit
+  Error(const std::string& what)
+    : std::runtime_error(what)
+  {
+  }
+};
+
+} // namespace asn
 
 size_t
-DEREncodeGeneralTime(CryptoPP::BufferedTransformation& bt, const time::system_clock::TimePoint& time);
+DEREncodeGeneralTime(CryptoPP::BufferedTransformation& bt,
+                     const time::system_clock::TimePoint& time);
 
 void
-BERDecodeTime(CryptoPP::BufferedTransformation& bt, time::system_clock::TimePoint& time);
+BERDecodeTime(CryptoPP::BufferedTransformation& bt,
+              time::system_clock::TimePoint& time);
 
 } // namespace ndn
 
 #endif // NDN_ASN_EXT_HPP
-

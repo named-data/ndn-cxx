@@ -16,9 +16,17 @@ namespace ndn {
 class SecuredBag
 {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
 
-  SecuredBag() 
+  SecuredBag()
     : m_wire(tlv::security::IdentityPackage)
   {}
 
@@ -34,12 +42,12 @@ public:
     m_wire.push_back(wireKey);
   }
 
-  virtual 
+  virtual
   ~SecuredBag()
   {}
-  
+
   void
-  wireDecode(const Block &wire)
+  wireDecode(const Block& wire)
   {
     m_wire = wire;
     m_wire.parse();
@@ -63,13 +71,13 @@ public:
   {
     return m_cert;
   }
-  
+
   ConstBufferPtr
   getKey() const
   {
     return m_key;
   }
-  
+
 private:
   IdentityCertificate m_cert;
   ConstBufferPtr m_key;

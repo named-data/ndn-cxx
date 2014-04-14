@@ -110,7 +110,7 @@ Block::Block(std::istream& is)
   buf[0] = *tmp_begin;
   is.read(buf+1, length-1);
 
-  if(length != static_cast<uint64_t>(is.gcount()) + 1)
+  if (length != static_cast<uint64_t>(is.gcount()) + 1)
     {
       delete [] buf;
       throw Tlv::Error("Not enough data in the buffer to fully parse TLV");

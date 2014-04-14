@@ -24,19 +24,19 @@ public:
    * @param exact The flag to provide exact match
    * @param backRefNum The starting back reference number
    */
-  RegexComponentSetMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backRefManager);    
+  RegexComponentSetMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backRefManager);
 
   virtual ~RegexComponentSetMatcher();
 
-  virtual bool 
+  virtual bool
   match(const Name& name, const int& offset, const int& len = 1);
 
-protected:    
+protected:
   /**
    * @brief Compile the regular expression to generate the more matchers when necessary
    * @returns true if compiling succeeds
    */
-  virtual void 
+  virtual void
   compile();
 
 private:
@@ -45,7 +45,7 @@ private:
 
   void
   compileSingleComponent();
-    
+
   void
   compileMultipleComponents(const int start, const int lastIndex);
 
@@ -57,7 +57,8 @@ private:
 
 
 inline
-RegexComponentSetMatcher::RegexComponentSetMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backRefManager)
+RegexComponentSetMatcher::RegexComponentSetMatcher(const std::string& expr,
+                                                   shared_ptr<RegexBackrefManager> backRefManager)
   : RegexMatcher(expr, EXPR_COMPONENT_SET, backRefManager),
     m_include(true)
 {
@@ -75,20 +76,20 @@ RegexComponentSetMatcher::~RegexComponentSetMatcher()
   //   delete *it;
 }
 
-inline void 
+inline void
 RegexComponentSetMatcher::compile()
 {
-  switch(m_expr[0]){
+  switch (m_expr[0]){
   case '<':
     return compileSingleComponent();
   case '[':
     {
       int lastIndex = m_expr.size() - 1;
-      if(']' != m_expr[lastIndex])
+      if (']' != m_expr[lastIndex])
         throw RegexMatcher::Error(std::string("Error: RegexComponentSetMatcher.compile(): ")
                                   + " No matched ']' " + m_expr);
-      
-      if('^' == m_expr[1]){
+
+      if ('^' == m_expr[1]){
         m_include = false;
         compileMultipleComponents(2, lastIndex);
       }
@@ -102,52 +103,55 @@ RegexComponentSetMatcher::compile()
   }
 }
 
-inline void 
+inline void
 RegexComponentSetMatcher::compileSingleComponent()
 {
   size_t end = extractComponent(1);
 
   if (m_expr.size() != end)
     {
-      throw RegexMatcher::Error(std::string("Error: RegexComponentSetMatcher.compileSingleComponent: ")
-                                + m_expr);
+      throw RegexMatcher::Error(
+        std::string("Error: RegexComponentSetMatcher.compileSingleComponent: ") + m_expr);
     }
   else
     {
       shared_ptr<RegexComponentMatcher> component =
         make_shared<RegexComponentMatcher>(m_expr.substr(1, end - 2), m_backrefManager);
-      
-      m_components.insert(component);      
+
+      m_components.insert(component);
     }
 }
 
-inline void 
+inline void
 RegexComponentSetMatcher::compileMultipleComponents(const int start, const int lastIndex)
 {
   int index = start;
   int tmp_index = start;
-    
+
   while(index < lastIndex){
-    if('<' != m_expr[index])
-      throw RegexMatcher::Error(std::string("Error: RegexComponentSetMatcher.compileMultipleComponents: ")
-                                + "Component expr error " + m_expr);
-      
+    if ('<' != m_expr[index])
+      throw RegexMatcher::Error(
+        std::string("Error: RegexComponentSetMatcher.compileMultipleComponents: ") +
+        "Component expr error " + m_expr);
+
     tmp_index = index + 1;
     index = extractComponent(tmp_index);
 
     shared_ptr<RegexComponentMatcher> component =
-      make_shared<RegexComponentMatcher>(m_expr.substr(tmp_index, index - tmp_index - 1), m_backrefManager);
-    
+      make_shared<RegexComponentMatcher>(m_expr.substr(tmp_index, index - tmp_index - 1),
+                                         m_backrefManager);
+
     m_components.insert(component);
   }
-    
-  if(index != lastIndex)
-    throw RegexMatcher::Error(std::string("Error: RegexComponentSetMatcher.compileMultipleComponents: ")
-                              + "Not sufficient expr to parse " + m_expr);        
+
+  if (index != lastIndex)
+    throw RegexMatcher::Error(
+      std::string("Error: RegexComponentSetMatcher.compileMultipleComponents: ") +
+      "Not sufficient expr to parse " + m_expr);
 }
 
-inline bool 
-RegexComponentSetMatcher::match(const Name & name, const int & offset, const int & len)
+inline bool
+RegexComponentSetMatcher::match(const Name& name, const int& offset, const int& len)
 {
   bool matched = false;
 
@@ -161,13 +165,13 @@ RegexComponentSetMatcher::match(const Name & name, const int & offset, const int
        it != m_components.end();
        ++it)
     {
-      if((*it)->match(name, offset, len))
+      if ((*it)->match(name, offset, len))
         {
           matched = true;
           break;
         }
     }
-    
+
   m_matchResult.clear();
 
   if (m_include ? matched : !matched)
@@ -175,18 +179,18 @@ RegexComponentSetMatcher::match(const Name & name, const int & offset, const int
       m_matchResult.push_back(name.get(offset));
       return true;
     }
-  else 
+  else
     return false;
 }
 
-inline int 
+inline int
 RegexComponentSetMatcher::extractComponent(int index)
 {
   int lcount = 1;
   int rcount = 0;
 
   while(lcount > rcount){
-    switch(m_expr[index]){
+    switch (m_expr[index]){
     case '<':
       lcount++;
       break;

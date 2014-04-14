@@ -16,7 +16,7 @@ using namespace CryptoPP;
 
 namespace ndn {
 
-OID::OID(const char *oid)
+OID::OID(const char* oid)
 {
   construct(oid);
 }
@@ -27,21 +27,21 @@ OID::OID(const string& oid)
 }
 
 void
-OID::construct(const std::string &oid)
+OID::construct(const std::string& oid)
 {
   string str = oid + ".";
 
   size_t pos = 0;
   size_t ppos = 0;
 
-  while(string::npos != pos){
+  while (string::npos != pos) {
     ppos = pos;
 
     pos = str.find_first_of('.', pos);
-    if(pos == string::npos)
+    if (pos == string::npos)
       break;
 
-    oid_.push_back(atoi(str.substr(ppos, pos - ppos).c_str()));
+    m_oid.push_back(atoi(str.substr(ppos, pos - ppos).c_str()));
 
     pos++;
   }
@@ -50,54 +50,53 @@ OID::construct(const std::string &oid)
 string OID::toString() const
 {
   ostringstream convert;
-  
-  vector<int>::const_iterator it = oid_.begin();
-  for(; it < oid_.end(); it++){
-    if(it != oid_.begin())
+
+  for (vector<int>::const_iterator it = m_oid.begin(); it != m_oid.end(); ++it) {
+    if (it != m_oid.begin())
       convert << ".";
     convert << *it;
   }
-  
+
   return convert.str();
 }
 
 bool
 OID::equal(const OID& oid) const
 {
-  vector<int>::const_iterator i = oid_.begin();
-  vector<int>::const_iterator j = oid.oid_.begin();
-    
-  for (; i != oid_.end () && j != oid.oid_.end (); i++, j++) {
-    if(*i != *j)
+  vector<int>::const_iterator i = m_oid.begin();
+  vector<int>::const_iterator j = oid.m_oid.begin();
+
+  for (; i != m_oid.end () && j != oid.m_oid.end (); i++, j++) {
+    if (*i != *j)
       return false;
   }
 
-  if (i == oid_.end () && j == oid.oid_.end ())
+  if (i == m_oid.end () && j == oid.m_oid.end ())
     return true;
   else
     return false;
 }
 
 inline void
-EncodeValue(BufferedTransformation &bt, word32 v)
+EncodeValue(BufferedTransformation& bt, word32 v)
 {
-  for (unsigned int i=RoundUpToMultipleOf(STDMAX(7U,BitPrecision(v)), 7U)-7; i != 0; i-=7)
+  for (unsigned int i = RoundUpToMultipleOf(STDMAX(7U,BitPrecision(v)), 7U) - 7; i != 0; i -= 7)
     bt.Put((byte)(0x80 | ((v >> i) & 0x7f)));
   bt.Put((byte)(v & 0x7f));
 }
 
 inline size_t
-DecodeValue(BufferedTransformation &bt, word32 &v)
+DecodeValue(BufferedTransformation& bt, word32& v)
 {
-  byte b;
-  size_t i=0;
   v = 0;
+  size_t i = 0;
   while (true)
     {
+      byte b;
       if (!bt.Get(b))
         BERDecodeError();
       i++;
-      if (v >> (8*sizeof(v)-7))	// v about to overflow
+      if (v >> (8*sizeof(v) - 7)) // v about to overflow
         BERDecodeError();
       v <<= 7;
       v += b & 0x7f;
@@ -107,20 +106,22 @@ DecodeValue(BufferedTransformation &bt, word32 &v)
 }
 
 void
-OID::encode(CryptoPP::BufferedTransformation &out) const
+OID::encode(CryptoPP::BufferedTransformation& out) const
 {
-  assert(oid_.size() >= 2);
+  BOOST_ASSERT(m_oid.size() >= 2);
+
   ByteQueue temp;
-  temp.Put(byte(oid_[0] * 40 + oid_[1]));
-  for (size_t i=2; i<oid_.size(); i++)
-    EncodeValue(temp, oid_[i]);
+  temp.Put(byte(m_oid[0] * 40 + m_oid[1]));
+  for (size_t i = 2; i < m_oid.size(); i++)
+    EncodeValue(temp, m_oid[i]);
+
   out.Put(OBJECT_IDENTIFIER);
   DERLengthEncode(out, temp.CurrentSize());
   temp.TransferTo(out);
 }
 
 void
-OID::decode(CryptoPP::BufferedTransformation &in)
+OID::decode(CryptoPP::BufferedTransformation& in)
 {
   byte b;
   if (!in.Get(b) || b != OBJECT_IDENTIFIER)
@@ -132,11 +133,11 @@ OID::decode(CryptoPP::BufferedTransformation &in)
 
   if (!in.Get(b))
     BERDecodeError();
-	
+
   length--;
-  oid_.resize(2);
-  oid_[0] = b / 40;
-  oid_[1] = b % 40;
+  m_oid.resize(2);
+  m_oid[0] = b / 40;
+  m_oid[1] = b % 40;
 
   while (length > 0)
     {
@@ -144,9 +145,9 @@ OID::decode(CryptoPP::BufferedTransformation &in)
       size_t valueLen = DecodeValue(in, v);
       if (valueLen > length)
         BERDecodeError();
-      oid_.push_back(v);
+      m_oid.push_back(v);
       length -= valueLen;
     }
 }
 
-}
+} // namespace ndn

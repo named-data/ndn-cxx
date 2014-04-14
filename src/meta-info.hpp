@@ -28,6 +28,9 @@ public:
   {
   }
 
+  /**
+   * @brief Create from wire encoding
+   */
   MetaInfo(const Block& block)
   {
     wireDecode(block);
@@ -118,30 +121,30 @@ MetaInfo::wireEncode(EncodingImpl<T>& blk) const
   //                FreshnessPeriod?
   //                FinalBlockId?
 
-  size_t total_len = 0;
+  size_t totalLength = 0;
 
   // FinalBlockId
   if (!m_finalBlockId.empty())
     {
-      total_len += prependNestedBlock(blk, Tlv::FinalBlockId, m_finalBlockId);
+      totalLength += prependNestedBlock(blk, Tlv::FinalBlockId, m_finalBlockId);
     }
 
   // FreshnessPeriod
   if (m_freshnessPeriod >= time::milliseconds::zero())
     {
-      total_len += prependNonNegativeIntegerBlock(blk, Tlv::FreshnessPeriod,
-                                                  m_freshnessPeriod.count());
+      totalLength += prependNonNegativeIntegerBlock(blk, Tlv::FreshnessPeriod,
+                                                    m_freshnessPeriod.count());
     }
 
   // ContentType
   if (m_type != TYPE_DEFAULT)
     {
-      total_len += prependNonNegativeIntegerBlock(blk, Tlv::ContentType, m_type);
+      totalLength += prependNonNegativeIntegerBlock(blk, Tlv::ContentType, m_type);
     }
 
-  total_len += blk.prependVarNumber(total_len);
-  total_len += blk.prependVarNumber(Tlv::MetaInfo);
-  return total_len;
+  totalLength += blk.prependVarNumber(totalLength);
+  totalLength += blk.prependVarNumber(Tlv::MetaInfo);
+  return totalLength;
 }
 
 inline const Block&

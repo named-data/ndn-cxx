@@ -45,7 +45,7 @@ Certificate::~Certificate()
 bool
 Certificate::isTooEarly()
 {
-  if(time::system_clock::now() < notBefore_)
+  if (time::system_clock::now() < notBefore_)
     return true;
   else
     return false;
@@ -54,7 +54,7 @@ Certificate::isTooEarly()
 bool
 Certificate::isTooLate()
 {
-  if(time::system_clock::now() > notAfter_)
+  if (time::system_clock::now() > notAfter_)
     return true;
   else
     return false;
@@ -143,7 +143,7 @@ Certificate::encode()
     //        extnID      OBJECT IDENTIFIER,
     //        critical    BOOLEAN DEFAULT FALSE,
     //        extnValue   OCTET STRING  }
-    if(!extensionList_.empty())
+    if (!extensionList_.empty())
       {
         DERSequenceEncoder extensions(idCert);
         {
@@ -215,7 +215,7 @@ Certificate::decode()
     //        critical    BOOLEAN DEFAULT FALSE,
     //        extnValue   OCTET STRING  }
     extensionList_.clear();
-    if(!idCert.EndReached())
+    if (!idCert.EndReached())
       {
         BERSequenceDecoder extensions(idCert);
         {
@@ -232,7 +232,7 @@ Certificate::decode()
 }
 
 void
-Certificate::printCertificate(std::ostream &os) const
+Certificate::printCertificate(std::ostream& os) const
 {
   os << "Certificate name:" << endl;
   os << "  " << getName() << endl;

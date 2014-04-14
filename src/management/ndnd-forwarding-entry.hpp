@@ -40,6 +40,15 @@ public:
   {
   }
 
+  /**
+   * @brief Create from wire encoding
+   */
+  explicit
+  ForwardingEntry(const Block& wire)
+  {
+    wireDecode(wire);
+  }
+
   const std::string&
   getAction() const { return action_; }
 
@@ -50,7 +59,7 @@ public:
   getPrefix() const { return prefix_; }
 
   void
-  setPrefix(const Name &prefix) { prefix_ = prefix; wire_.reset(); }
+  setPrefix(const Name& prefix) { prefix_ = prefix; wire_.reset(); }
 
   int
   getFaceId() const { return faceId_; }
@@ -74,7 +83,7 @@ public:
   wireEncode() const;
 
   inline void
-  wireDecode(const Block &wire);
+  wireDecode(const Block& wire);
 
 private:
   std::string action_;   /**< empty for none. */
@@ -135,7 +144,7 @@ ForwardingEntry::wireEncode() const
 }
 
 inline void
-ForwardingEntry::wireDecode(const Block &wire)
+ForwardingEntry::wireDecode(const Block& wire)
 {
   action_.clear();
   prefix_.clear();
@@ -190,7 +199,7 @@ ForwardingEntry::wireDecode(const Block &wire)
 }
 
 inline std::ostream&
-operator << (std::ostream &os, const ForwardingEntry &entry)
+operator << (std::ostream& os, const ForwardingEntry& entry)
 {
   os << "ForwardingEntry(";
 

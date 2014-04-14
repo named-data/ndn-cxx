@@ -20,7 +20,15 @@ namespace ndn {
 
 class Certificate : public Data {
 public:
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
 
   typedef std::vector<CertificateSubjectDescription> SubjectDescriptionList;
   typedef std::vector<CertificateExtension> ExtensionList;
@@ -43,7 +51,7 @@ public:
   ~Certificate();
 
   inline void
-  wireDecode(const Block &wire);
+  wireDecode(const Block& wire);
 
   /**
    * encode certificate info into content
@@ -122,7 +130,7 @@ public:
   isTooLate();
 
   void
-  printCertificate(std::ostream &os) const;
+  printCertificate(std::ostream& os) const;
 
 protected:
   void
@@ -137,7 +145,7 @@ protected:
 };
 
 inline void
-Certificate::wireDecode(const Block &wire)
+Certificate::wireDecode(const Block& wire)
 {
   Data::wireDecode(wire);
   decode();
@@ -145,7 +153,7 @@ Certificate::wireDecode(const Block &wire)
 
 
 inline std::ostream&
-operator <<(std::ostream &os, const Certificate &cert)
+operator <<(std::ostream& os, const Certificate& cert)
 {
   cert.printCertificate(os);
   return os;

@@ -50,7 +50,7 @@ public:
    * @param buf const pointer to buffer
    * @param length length of the buffer to copy
    */
-  Buffer(const void *buf, size_t length)
+  Buffer(const void* buf, size_t length)
     : std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(buf),
                            reinterpret_cast<const uint8_t*>(buf) + length)
   {
@@ -69,7 +69,7 @@ public:
     : std::vector<uint8_t>(first, last)
   {
   }
-  
+
   /**
    * @brief Get pointer to the first byte of the buffer
    */
@@ -126,7 +126,7 @@ public:
   get() const
   {
     return reinterpret_cast<const T*>(&front());
-  }  
+  }
 };
 
 /// @cond include_hidden
@@ -138,19 +138,19 @@ class buffer_append_device
 public:
   typedef char char_type;
   typedef boost::iostreams::sink_tag category;
-  
+
   buffer_append_device(Buffer& container)
   : m_container(container)
   {
   }
-  
+
   std::streamsize
   write(const char_type* s, std::streamsize n)
   {
     std::copy(s, s+n, std::back_inserter(m_container));
     return n;
   }
-  
+
 protected:
   Buffer& m_container;
 };

@@ -46,7 +46,7 @@ public:
    * @return the internal key name
    */
   std::string
-  toInternalKeyName(const Name & keyName, KeyClass keyClass);
+  toInternalKeyName(const Name& keyName, KeyClass keyClass);
 
   /**
    * @brief Get key.
@@ -56,7 +56,7 @@ public:
    * @returns pointer to the key
    */
   SecKeychainItemRef
-  getKey(const Name & keyName, KeyClass keyClass);
+  getKey(const Name& keyName, KeyClass keyClass);
 
   /**
    * @brief Convert keyType to MAC OS symmetric key key type
@@ -117,7 +117,7 @@ public:
 SecTpmOsx::SecTpmOsx()
   : m_impl(new Impl)
 {
-  if(m_impl->m_inTerminal)
+  if (m_impl->m_inTerminal)
     SecKeychainSetUserInteractionAllowed (false);
   else
     SecKeychainSetUserInteractionAllowed (true);
@@ -153,7 +153,7 @@ void
 SecTpmOsx::setInTerminal(bool inTerminal)
 {
   m_impl->m_inTerminal = inTerminal;
-  if(inTerminal)
+  if (inTerminal)
     SecKeychainSetUserInteractionAllowed (false);
   else
     SecKeychainSetUserInteractionAllowed (true);
@@ -171,7 +171,7 @@ SecTpmOsx::locked()
   SecKeychainStatus keychainStatus;
 
   OSStatus res = SecKeychainGetStatus(m_impl->m_keyChainRef, &keychainStatus);
-  if(res != errSecSuccess)
+  if (res != errSecSuccess)
     return true;
   else
     return ((kSecUnlockStateStatus & keychainStatus) == 0);
@@ -183,11 +183,11 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
   OSStatus res;
 
   // If the default key chain is already unlocked, return immediately.
-  if(!locked())
+  if (!locked())
     return true;
 
   // If the default key chain is locked, unlock the key chain.
-  if(usePassword)
+  if (usePassword)
     {
       // Use the supplied password.
       res = SecKeychainUnlock(m_impl->m_keyChainRef,
@@ -195,7 +195,7 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
                               password,
                               true);
     }
-  else if(m_impl->m_passwordSet)
+  else if (m_impl->m_passwordSet)
     {
       // If no password supplied, then use the configured password if exists.
       SecKeychainUnlock(m_impl->m_keyChainRef,
@@ -203,7 +203,7 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
                         m_impl->m_password.c_str(),
                         true);
     }
-  else if(m_impl->m_inTerminal)
+  else if (m_impl->m_inTerminal)
     {
       // If no configured password, get password from terminal if inTerminal set.
       bool locked = true;
@@ -212,7 +212,7 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
 
       while(locked)
         {
-          if(count > 2)
+          if (count > 2)
             break;
 
           char* getPassword = NULL;
@@ -229,7 +229,7 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
 
           memset(getPassword, 0, strlen(getPassword));
 
-          if(res == errSecSuccess)
+          if (res == errSecSuccess)
             break;
         }
     }
@@ -243,10 +243,10 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
 }
 
 void
-SecTpmOsx::generateKeyPairInTpmInternal(const Name & keyName, KeyType keyType, int keySize, bool retry)
+SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName, KeyType keyType, int keySize, bool retry)
 {
 
-  if(doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC)){
+  if (doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC)){
     _LOG_DEBUG("keyName has existed");
     throw Error("keyName has existed");
   }
@@ -279,7 +279,7 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name & keyName, KeyType keyType, i
 
   if (res == errSecAuthFailed && !retry)
     {
-      if(unlockTpm(0, 0, false))
+      if (unlockTpm(0, 0, false))
         generateKeyPairInTpmInternal(keyName, keyType, keySize, true);
       else
         throw Error("Fail to unlock the keychain");
@@ -292,7 +292,7 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name & keyName, KeyType keyType, i
 }
 
 void
-SecTpmOsx::deleteKeyPairInTpmInternal(const Name &keyName, bool retry)
+SecTpmOsx::deleteKeyPairInTpmInternal(const Name& keyName, bool retry)
 {
   CFStringRef keyLabel = CFStringCreateWithCString(NULL,
                                                    keyName.toUri().c_str(),
@@ -311,16 +311,16 @@ SecTpmOsx::deleteKeyPairInTpmInternal(const Name &keyName, bool retry)
 
   if (res == errSecAuthFailed && !retry)
     {
-      if(unlockTpm(0, 0, false))
+      if (unlockTpm(0, 0, false))
         deleteKeyPairInTpmInternal(keyName, true);
     }
 }
 
 void
-SecTpmOsx::generateSymmetricKeyInTpm(const Name & keyName, KeyType keyType, int keySize)
+SecTpmOsx::generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize)
 {
   throw Error("SecTpmOsx::generateSymmetricKeyInTpm is not supported");
-  // if(doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
+  // if (doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
   //   throw Error("keyName has existed!");
 
   // string keyNameUri =  m_impl->toInternalKeyName(keyName, KEY_CLASS_SYMMETRIC);
@@ -348,7 +348,7 @@ SecTpmOsx::generateSymmetricKeyInTpm(const Name & keyName, KeyType keyType, int 
 }
 
 shared_ptr<PublicKey>
-SecTpmOsx::getPublicKeyFromTpm(const Name & keyName)
+SecTpmOsx::getPublicKeyFromTpm(const Name& keyName)
 {
   _LOG_TRACE("OSXPrivateKeyStorage::getPublickey");
 
@@ -384,11 +384,11 @@ SecTpmOsx::exportPrivateKeyPkcs1FromTpmInternal(const Name& keyName, bool retry)
                                NULL,
                                &exportedKey);
 
-  if(res != errSecSuccess)
+  if (res != errSecSuccess)
     {
-      if(res == errSecAuthFailed && !retry)
+      if (res == errSecAuthFailed && !retry)
         {
-          if(unlockTpm(0, 0, false))
+          if (unlockTpm(0, 0, false))
             return exportPrivateKeyPkcs1FromTpmInternal(keyName, true);
           else
             return shared_ptr<Buffer>();
@@ -493,11 +493,11 @@ SecTpmOsx::importPrivateKeyPkcs1IntoTpmInternal(const Name& keyName, const uint8
 #pragma clang diagnostic pop
 #endif // __clang__
 
-  if(res != errSecSuccess)
+  if (res != errSecSuccess)
     {
-      if(res == errSecAuthFailed && !retry)
+      if (res == errSecAuthFailed && !retry)
         {
-          if(unlockTpm(0, 0, false))
+          if (unlockTpm(0, 0, false))
             return importPrivateKeyPkcs1IntoTpmInternal(keyName, buf, size, true);
           else
             return false;
@@ -522,7 +522,7 @@ SecTpmOsx::importPrivateKeyPkcs1IntoTpmInternal(const Name& keyName, const uint8
                                                0,
                                                NULL);
 
-  if(res != errSecSuccess)
+  if (res != errSecSuccess)
     {
       return false;
     }
@@ -556,7 +556,7 @@ SecTpmOsx::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, 
                                 m_impl->m_keyChainRef,
                                 &outItems);
 
-  if(res != errSecSuccess)
+  if (res != errSecSuccess)
     return false;
 
   SecKeychainItemRef publicKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems, 0);
@@ -575,7 +575,7 @@ SecTpmOsx::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, 
                                                0,
                                                NULL);
 
-  if(res != errSecSuccess)
+  if (res != errSecSuccess)
     return false;
 
   CFRelease(importedKey);
@@ -583,7 +583,7 @@ SecTpmOsx::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, 
 }
 
 Block
-SecTpmOsx::signInTpmInternal(const uint8_t *data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm, bool retry)
+SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm, bool retry)
 {
   _LOG_TRACE("OSXPrivateKeyStorage::Sign");
 
@@ -631,9 +631,9 @@ SecTpmOsx::signInTpmInternal(const uint8_t *data, size_t dataLength, const Name&
   CFDataRef signature = (CFDataRef) SecTransformExecute(signer, &error);
   if (error)
     {
-      if(!retry)
+      if (!retry)
         {
-          if(unlockTpm(0, 0, false))
+          if (unlockTpm(0, 0, false))
             return signInTpmInternal(data, dataLength, keyName, digestAlgorithm, true);
           else
             throw Error("Fail to unlock the keychain");
@@ -652,13 +652,13 @@ SecTpmOsx::signInTpmInternal(const uint8_t *data, size_t dataLength, const Name&
 }
 
 ConstBufferPtr
-SecTpmOsx::decryptInTpm(const uint8_t* data, size_t dataLength, const Name & keyName, bool sym)
+SecTpmOsx::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool sym)
 {
   throw Error("SecTpmOsx::decryptInTpm is not supported");
   // _LOG_TRACE("OSXPrivateKeyStorage::Decrypt");
 
   // KeyClass keyClass;
-  // if(sym)
+  // if (sym)
   //   keyClass = KEY_CLASS_SYMMETRIC;
   // else
   //   keyClass = KEY_CLASS_PRIVATE;
@@ -696,9 +696,9 @@ SecTpmOsx::decryptInTpm(const uint8_t* data, size_t dataLength, const Name & key
 }
 
 void
-SecTpmOsx::addAppToACL(const Name & keyName, KeyClass keyClass, const string & appPath, AclType acl)
+SecTpmOsx::addAppToACL(const Name& keyName, KeyClass keyClass, const string& appPath, AclType acl)
 {
-  if(keyClass == KEY_CLASS_PRIVATE && acl == ACL_TYPE_PRIVATE)
+  if (keyClass == KEY_CLASS_PRIVATE && acl == ACL_TYPE_PRIVATE)
     {
       SecKeychainItemRef privateKey = m_impl->getKey(keyName, keyClass);
 
@@ -738,13 +738,13 @@ SecTpmOsx::addAppToACL(const Name & keyName, KeyClass keyClass, const string & a
 }
 
 ConstBufferPtr
-SecTpmOsx::encryptInTpm(const uint8_t* data, size_t dataLength, const Name & keyName, bool sym)
+SecTpmOsx::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool sym)
 {
   throw Error("SecTpmOsx::encryptInTpm is not supported");
   // _LOG_TRACE("OSXPrivateKeyStorage::Encrypt");
 
   // KeyClass keyClass;
-  // if(sym)
+  // if (sym)
   //   keyClass = KEY_CLASS_SYMMETRIC;
   // else
   //   keyClass = KEY_CLASS_PUBLIC;
@@ -775,7 +775,7 @@ SecTpmOsx::encryptInTpm(const uint8_t* data, size_t dataLength, const Name & key
 }
 
 bool
-SecTpmOsx::doesKeyExistInTpm(const Name & keyName, KeyClass keyClass)
+SecTpmOsx::doesKeyExistInTpm(const Name& keyName, KeyClass keyClass)
 {
   _LOG_TRACE("OSXPrivateKeyStorage::doesKeyExist");
 
@@ -798,7 +798,7 @@ SecTpmOsx::doesKeyExistInTpm(const Name & keyName, KeyClass keyClass)
   SecKeychainItemRef itemRef;
   OSStatus res = SecItemCopyMatching((CFDictionaryRef)attrDict, (CFTypeRef*)&itemRef);
 
-  if(res == errSecSuccess)
+  if (res == errSecSuccess)
     return true;
   else
     return false;
@@ -816,7 +816,7 @@ SecTpmOsx::generateRandomBlock(uint8_t* res, size_t size)
 ////////////////////////////////
 
 SecKeychainItemRef
-SecTpmOsx::Impl::getKey(const Name & keyName, KeyClass keyClass)
+SecTpmOsx::Impl::getKey(const Name& keyName, KeyClass keyClass)
 {
   string keyNameUri = toInternalKeyName(keyName, keyClass);
 
@@ -838,7 +838,7 @@ SecTpmOsx::Impl::getKey(const Name & keyName, KeyClass keyClass)
 
   OSStatus res = SecItemCopyMatching((CFDictionaryRef) attrDict, (CFTypeRef*)&keyItem);
 
-  if(res != errSecSuccess){
+  if (res != errSecSuccess){
     _LOG_DEBUG("Fail to find the key!");
     return NULL;
   }
@@ -847,11 +847,11 @@ SecTpmOsx::Impl::getKey(const Name & keyName, KeyClass keyClass)
 }
 
 string
-SecTpmOsx::Impl::toInternalKeyName(const Name & keyName, KeyClass keyClass)
+SecTpmOsx::Impl::toInternalKeyName(const Name& keyName, KeyClass keyClass)
 {
   string keyUri = keyName.toUri();
 
-  if(KEY_CLASS_SYMMETRIC == keyClass)
+  if (KEY_CLASS_SYMMETRIC == keyClass)
     return keyUri + "/symmetric";
   else
     return keyUri;
@@ -860,7 +860,7 @@ SecTpmOsx::Impl::toInternalKeyName(const Name & keyName, KeyClass keyClass)
 const CFTypeRef
 SecTpmOsx::Impl::getAsymKeyType(KeyType keyType)
 {
-  switch(keyType){
+  switch (keyType){
   case KEY_TYPE_RSA:
     return kSecAttrKeyTypeRSA;
   default:
@@ -872,7 +872,7 @@ SecTpmOsx::Impl::getAsymKeyType(KeyType keyType)
 const CFTypeRef
 SecTpmOsx::Impl::getSymKeyType(KeyType keyType)
 {
-  switch(keyType){
+  switch (keyType){
   case KEY_TYPE_AES:
     return kSecAttrKeyTypeAES;
   default:
@@ -884,7 +884,7 @@ SecTpmOsx::Impl::getSymKeyType(KeyType keyType)
 const CFTypeRef
 SecTpmOsx::Impl::getKeyClass(KeyClass keyClass)
 {
-  switch(keyClass){
+  switch (keyClass){
   case KEY_CLASS_PRIVATE:
     return kSecAttrKeyClassPrivate;
   case KEY_CLASS_PUBLIC:
@@ -900,7 +900,7 @@ SecTpmOsx::Impl::getKeyClass(KeyClass keyClass)
 const CFStringRef
 SecTpmOsx::Impl::getDigestAlgorithm(DigestAlgorithm digestAlgo)
 {
-  switch(digestAlgo){
+  switch (digestAlgo){
     // case DIGEST_MD2:
     //   return kSecDigestMD2;
     // case DIGEST_MD5:
@@ -918,7 +918,7 @@ SecTpmOsx::Impl::getDigestAlgorithm(DigestAlgorithm digestAlgo)
 long
 SecTpmOsx::Impl::getDigestSize(DigestAlgorithm digestAlgo)
 {
-  switch(digestAlgo){
+  switch (digestAlgo){
   case DIGEST_ALGORITHM_SHA256:
     return 256;
     // case DIGEST_SHA1:

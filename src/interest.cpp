@@ -11,8 +11,6 @@
 #include "util/random.hpp"
 #include "data.hpp"
 
-using namespace std;
-
 namespace ndn {
 
 const uint32_t&

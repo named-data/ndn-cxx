@@ -17,31 +17,31 @@ namespace ndn {
 
 class OID {
 public:
-  OID () 
+  OID ()
   {
   }
-    
-  OID(const char *oid);
+
+  OID(const char* oid);
 
   OID(const std::string& oid);
 
   OID(const std::vector<int>& oid)
-  : oid_(oid)
+    : m_oid(oid)
   {
   }
 
-  const std::vector<int> &
+  const std::vector<int>&
   getIntegerList() const
   {
-    return oid_;
+    return m_oid;
   }
 
   void
   setIntegerList(const std::vector<int>& value){
-    oid_ = value;
+    m_oid = value;
   }
 
-  std::string 
+  std::string
   toString() const;
 
   bool operator == (const OID& oid) const
@@ -55,21 +55,21 @@ public:
   }
 
   void
-  encode(CryptoPP::BufferedTransformation &out) const;
+  encode(CryptoPP::BufferedTransformation& out) const;
 
   void
-  decode(CryptoPP::BufferedTransformation &in);
+  decode(CryptoPP::BufferedTransformation& in);
 
 
 private:
   void
-  construct(const std::string &value);
-  
+  construct(const std::string& value);
+
   bool
   equal(const OID& oid) const;
 
 private:
-  std::vector<int> oid_;
+  std::vector<int> m_oid;
 };
 
 }

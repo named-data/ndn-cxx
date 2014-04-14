@@ -44,6 +44,15 @@ public:
   Exclude();
 
   /**
+   * @brief Create from wire encoding
+   */
+  explicit
+  Exclude(const Block& wire)
+  {
+    wireDecode(wire);
+  }
+
+  /**
    * @brief Fast encoding or block size estimation
    */
   template<bool T>
@@ -245,7 +254,7 @@ template<bool T>
 inline size_t
 Exclude::wireEncode(EncodingImpl<T>& block) const
 {
-  size_t total_len = 0;
+  size_t totalLength = 0;
 
   // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
   // Any     ::= ANY-TYPE TLV-LENGTH(=0)
@@ -254,17 +263,17 @@ Exclude::wireEncode(EncodingImpl<T>& block) const
     {
       if (i->second)
         {
-          total_len += prependBooleanBlock(block, Tlv::Any);
+          totalLength += prependBooleanBlock(block, Tlv::Any);
         }
       if (!i->first.empty())
         {
-          total_len += i->first.wireEncode(block);
+          totalLength += i->first.wireEncode(block);
         }
     }
 
-  total_len += block.prependVarNumber(total_len);
-  total_len += block.prependVarNumber(Tlv::Exclude);
-  return total_len;
+  totalLength += block.prependVarNumber(totalLength);
+  totalLength += block.prependVarNumber(Tlv::Exclude);
+  return totalLength;
 }
 
 inline const Block&

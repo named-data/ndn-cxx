@@ -17,7 +17,7 @@ using namespace CryptoPP;
 namespace ndn {
 
 void
-CertificateExtension::encode(CryptoPP::BufferedTransformation &out) const
+CertificateExtension::encode(CryptoPP::BufferedTransformation& out) const
 {
   // Extension ::= SEQUENCE {
   //        extnID      OBJECT IDENTIFIER,
@@ -34,7 +34,7 @@ CertificateExtension::encode(CryptoPP::BufferedTransformation &out) const
 }
 
 void
-CertificateExtension::decode(CryptoPP::BufferedTransformation &in)
+CertificateExtension::decode(CryptoPP::BufferedTransformation& in)
 {
   // Extension ::= SEQUENCE {
   //        extnID      OBJECT IDENTIFIER,
@@ -54,5 +54,5 @@ CertificateExtension::decode(CryptoPP::BufferedTransformation &in)
   }
   extension.MessageEnd();
 }
- 
+
 } // namespace ndn

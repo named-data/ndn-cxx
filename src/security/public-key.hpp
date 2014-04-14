@@ -18,8 +18,16 @@
 namespace ndn {
 
 class PublicKey {
-public:    
-  struct Error : public std::runtime_error { Error(const std::string &what) : std::runtime_error(what) {} };
+public:
+  class Error : public std::runtime_error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : std::runtime_error(what)
+    {
+    }
+  };
 
   /**
    * The default constructor.
@@ -49,36 +57,36 @@ public:
   }
 
   void
-  encode(CryptoPP::BufferedTransformation &out) const;
+  encode(CryptoPP::BufferedTransformation& out) const;
 
   void
-  decode(CryptoPP::BufferedTransformation &in);
+  decode(CryptoPP::BufferedTransformation& in);
 
   // /*
   //  * Get the digest of the public key.
   //  * @param digestAlgorithm The digest algorithm. If omitted, use DIGEST_ALGORITHM_SHA256 by default.
   //  */
-  // Blob 
+  // Blob
   // getDigest(DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) const;
 
   inline bool
-  operator ==(const PublicKey &key) const
+  operator ==(const PublicKey& key) const
   {
     return key_ == key.key_;
   }
 
   inline bool
-  operator !=(const PublicKey &key) const
+  operator !=(const PublicKey& key) const
   {
     return key_ != key.key_;
   }
-  
+
 private:
   Buffer key_;
 };
 
-std::ostream &
-operator <<(std::ostream &os, const PublicKey &key);
+std::ostream&
+operator <<(std::ostream& os, const PublicKey& key);
 
 } // namespace ndn
 
