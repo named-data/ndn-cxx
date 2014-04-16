@@ -45,8 +45,8 @@ BOOST_AUTO_TEST_CASE (Null)
 
   // data must be a shared pointer
   validator.validate(*data,
-		     bind(&onValidated, _1),
-		     bind(&onValidationFailed, _1, _2));
+                     bind(&onValidated, _1),
+                     bind(&onValidationFailed, _1, _2));
 
   keyChain.deleteIdentity(identity);
 }

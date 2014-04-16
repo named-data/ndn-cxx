@@ -36,10 +36,10 @@ public:
     }
   };
 
-  static const shared_ptr<Face> DEFAULT_FACE;
+  Validator();
 
   explicit
-  Validator(shared_ptr<Face> face = DEFAULT_FACE);
+  Validator(Face& face);
 
   /**
    * @brief Validate Data and call either onValidated or onValidationFailed.
@@ -246,7 +246,8 @@ private:
            int nSteps);
 
 protected:
-  shared_ptr<Face> m_face;
+  bool m_hasFace;
+  Face& m_face;
 };
 
 } // namespace ndn

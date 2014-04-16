@@ -31,7 +31,14 @@ public:
 
   static const shared_ptr<CertificateCache> DEFAULT_CERTIFICATE_CACHE;
 
-  ValidatorRegex(shared_ptr<Face> face,
+  ValidatorRegex(Face& face,
+                 shared_ptr<CertificateCache> certificateCache = DEFAULT_CERTIFICATE_CACHE,
+                 const int stepLimit = 3);
+
+  /**
+   * \deprecated Use the other version of the constructor
+   */
+  ValidatorRegex(const shared_ptr<Face>& face,
                  shared_ptr<CertificateCache> certificateCache = DEFAULT_CERTIFICATE_CACHE,
                  const int stepLimit = 3);
 

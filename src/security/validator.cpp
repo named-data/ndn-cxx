@@ -17,10 +17,15 @@ using namespace std;
 
 namespace ndn {
 
-const shared_ptr<Face> Validator::DEFAULT_FACE;
+Validator::Validator()
+  : m_hasFace(false)
+  , m_face(*static_cast<Face*>(0))
+{
+}
 
-Validator::Validator(shared_ptr<Face> face /* = DefaultFace */)
-  : m_face(face)
+Validator::Validator(Face& face)
+  : m_hasFace(true)
+  , m_face(face)
 {
 }
 
@@ -35,18 +40,22 @@ Validator::validate(const Interest& interest,
 
   if (!nextSteps.empty())
     {
-      if (!static_cast<bool>(m_face))
-        throw Error("Face should be set before calling validate method");
+      if (!m_hasFace)
+        {
+          onValidationFailed(interest.shared_from_this(),
+                             "Require more information to validate the interest!");
+          return;
+        }
 
       vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
       OnFailure onFailure = bind(onValidationFailed, interest.shared_from_this(), _1);
       for (; it != nextSteps.end(); it++)
-        m_face->expressInterest((*it)->m_interest,
-                                bind(&Validator::onData, this, _1, _2, *it),
-                                bind(&Validator::onTimeout,
-                                     this, _1, (*it)->m_nRetrials,
-                                     onFailure,
-                                     *it));
+        m_face.expressInterest((*it)->m_interest,
+                               bind(&Validator::onData, this, _1, _2, *it),
+                               bind(&Validator::onTimeout,
+                                    this, _1, (*it)->m_nRetrials,
+                                    onFailure,
+                                    *it));
     }
   else
     {
@@ -67,18 +76,21 @@ Validator::validate(const Data& data,
 
   if (!nextSteps.empty())
     {
-      if (!static_cast<bool>(m_face))
-        throw Error("Face should be set prior to verify method to call");
+      if (!m_hasFace)
+        {
+          onValidationFailed(data.shared_from_this(),
+                             "Require more information to validate the data!");
+        }
 
       vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
       OnFailure onFailure = bind(onValidationFailed, data.shared_from_this(), _1);
       for (; it != nextSteps.end(); it++)
-        m_face->expressInterest((*it)->m_interest,
-                                bind(&Validator::onData, this, _1, _2, *it),
-                                bind(&Validator::onTimeout,
-                                     this, _1, (*it)->m_nRetrials,
-                                     onFailure,
-                                     *it));
+        m_face.expressInterest((*it)->m_interest,
+                               bind(&Validator::onData, this, _1, _2, *it),
+                               bind(&Validator::onTimeout,
+                                    this, _1, (*it)->m_nRetrials,
+                                    onFailure,
+                                    *it));
     }
   else
     {
@@ -104,7 +116,7 @@ Validator::onTimeout(const Interest& interest,
 {
   if (nRetrials > 0)
     // Issue the same expressInterest except decrement nRetrials.
-    m_face->expressInterest(interest,
+    m_face.expressInterest(interest,
                             bind(&Validator::onData, this, _1, _2, nextStep),
                             bind(&Validator::onTimeout, this, _1,
                                  nRetrials - 1, onFailure, nextStep));

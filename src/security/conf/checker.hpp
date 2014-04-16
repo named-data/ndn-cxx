@@ -108,7 +108,7 @@ public:
       }
     catch (const Signature::Error& e)
       {
-        onValidationFailed(interest.shared_from_this(), "No valid signature");
+        onValidationFailed(interest.shared_from_this(), "Invalid signature");
         return -1;
       }
   }
@@ -228,7 +228,7 @@ public:
       }
     catch (const Signature::Error& e)
       {
-        onValidationFailed(interest.shared_from_this(), "No valid signature");
+        onValidationFailed(interest.shared_from_this(), "Invalid signature");
         return -1;
       }
   }

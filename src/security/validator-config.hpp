@@ -29,8 +29,16 @@ public:
 
   static const shared_ptr<CertificateCache> DEFAULT_CERTIFICATE_CACHE;
 
-  ValidatorConfig(shared_ptr<Face> face,
-                  shared_ptr<CertificateCache> certificateCache = DEFAULT_CERTIFICATE_CACHE,
+  explicit
+  ValidatorConfig(Face& face,
+                  const shared_ptr<CertificateCache>& certificateCache = DEFAULT_CERTIFICATE_CACHE,
+                  const int stepLimit = 10);
+
+  /**
+   * \deprecated Use the other version of the constructor
+   */
+  ValidatorConfig(const shared_ptr<Face>& face,
+                  const shared_ptr<CertificateCache>& certificateCache = DEFAULT_CERTIFICATE_CACHE,
                   const int stepLimit = 10);
 
   virtual

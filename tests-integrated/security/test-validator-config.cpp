@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(NameFilter)
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
 
-  shared_ptr<Face> face = make_shared<Face>();
+  Face face;
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(NameFilter2)
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
 
-  shared_ptr<Face> face = make_shared<Face>();
+  Face face;
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE(NameFilter3)
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
 
-  shared_ptr<Face> face = make_shared<Face>();
+  Face face;
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
@@ -369,7 +369,7 @@ BOOST_AUTO_TEST_CASE(NameFilter4)
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
 
-  shared_ptr<Face> face = make_shared<Face>();
+  Face face;
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
@@ -448,7 +448,7 @@ BOOST_AUTO_TEST_CASE(KeyLocatorNameChecker1)
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
 
-  shared_ptr<Face> face = make_shared<Face>();
+  Face face;
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
@@ -573,7 +573,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   keyChain.addCertificateAsIdentityDefault(*nldCert);
 
   shared_ptr<Face> face = make_shared<Face>();
-  shared_ptr<Face> face2 = shared_ptr<Face>(new Face(face->ioService()));
+  Face face2(face->ioService());
   Scheduler scheduler(*face->ioService());
 
   scheduler.scheduleEvent(time::seconds(1),
@@ -717,7 +717,7 @@ BOOST_AUTO_TEST_CASE(FixedSingerChecker)
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
 
-  shared_ptr<Face> face = make_shared<Face>();
+  Face face;
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
@@ -778,7 +778,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   keyChain.addCertificateAsIdentityDefault(*nldCert);
 
   shared_ptr<Face> face = make_shared<Face>();
-  shared_ptr<Face> face2 = shared_ptr<Face>(new Face(face->ioService()));
+  Face face2(face->ioService());
   Scheduler scheduler(*face->ioService());
 
   scheduler.scheduleEvent(time::seconds(1),

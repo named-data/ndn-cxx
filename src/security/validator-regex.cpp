@@ -21,18 +21,26 @@ namespace ndn {
 
 const shared_ptr<CertificateCache> ValidatorRegex::DEFAULT_CERTIFICATE_CACHE;
 
-ValidatorRegex::ValidatorRegex(shared_ptr<Face> face,
+ValidatorRegex::ValidatorRegex(Face& face,
                                shared_ptr<CertificateCache> certificateCache,
                                const int stepLimit)
   : Validator(face)
   , m_stepLimit(stepLimit)
   , m_certificateCache(certificateCache)
 {
-  if (!static_cast<bool>(face))
-    throw Error("Face is not set!");
-
   if (!static_cast<bool>(m_certificateCache))
-    m_certificateCache = make_shared<CertificateCacheTtl>(m_face->ioService());
+    m_certificateCache = make_shared<CertificateCacheTtl>(m_face.ioService());
+}
+
+ValidatorRegex::ValidatorRegex(const shared_ptr<Face>& face,
+                               shared_ptr<CertificateCache> certificateCache,
+                               const int stepLimit)
+  : Validator(*face)
+  , m_stepLimit(stepLimit)
+  , m_certificateCache(certificateCache)
+{
+  if (!static_cast<bool>(m_certificateCache))
+    m_certificateCache = make_shared<CertificateCacheTtl>(m_face.ioService());
 }
 
 void
