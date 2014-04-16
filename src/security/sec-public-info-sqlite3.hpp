@@ -51,7 +51,7 @@ public:
   virtual void
   addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer);
 
-  virtual ptr_lib::shared_ptr<PublicKey>
+  virtual shared_ptr<PublicKey>
   getPublicKey(const Name& keyName);
 
   virtual bool
@@ -60,7 +60,7 @@ public:
   virtual void
   addCertificate(const IdentityCertificate& certificate);
 
-  virtual ptr_lib::shared_ptr<IdentityCertificate>
+  virtual shared_ptr<IdentityCertificate>
   getCertificate(const Name& certificateName);
 
 

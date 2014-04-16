@@ -122,7 +122,8 @@ SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, const string& password
         }
         encryptionAlgorithm.MessageEnd();
 
-        DEREncodeOctetString(encryptedPrivateKeyInfo, encryptedOs.buf()->buf(), encryptedOs.buf()->size());
+        DEREncodeOctetString(encryptedPrivateKeyInfo,
+                             encryptedOs.buf()->buf(), encryptedOs.buf()->size());
       }
       encryptedPrivateKeyInfo.MessageEnd();
 
@@ -135,7 +136,9 @@ SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, const string& password
 }
 
 bool
-SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size, const string& passwordStr)
+SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName,
+                                     const uint8_t* buf, size_t size,
+                                     const string& passwordStr)
 {
   using namespace CryptoPP;
 
@@ -149,7 +152,8 @@ SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, si
 
   try
     {
-      //decode some decoding processes are not necessary for now, because we assume only one encryption scheme.
+      // decode some decoding processes are not necessary for now,
+      // because we assume only one encryption scheme.
       StringSource source(buf, size, true);
 
       // EncryptedPrivateKeyInfo ::= SEQUENCE {
@@ -245,7 +249,8 @@ SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, si
       return false;
     }
 
-  if (!importPrivateKeyPkcs1IntoTpm(keyName, privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()))
+  if (!importPrivateKeyPkcs1IntoTpm(keyName,
+                                    privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()))
     return false;
 
   //derive public key

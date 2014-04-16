@@ -9,31 +9,24 @@
 #include "common.hpp"
 
 #include "certificate.hpp"
-
-#include "../util/logging.hpp"
 #include "../util/time.hpp"
-
 #include "cryptopp.hpp"
-
 #include "../encoding/cryptopp/asn_ext.hpp"
-
-INIT_LOGGER("ndn.Certificate");
 
 using namespace std;
 
 namespace ndn {
 
 Certificate::Certificate()
-  : notBefore_(time::system_clock::TimePoint::max())
-  , notAfter_(time::system_clock::TimePoint::min())
-{}
+  : m_notBefore(time::system_clock::TimePoint::max())
+  , m_notAfter(time::system_clock::TimePoint::min())
+{
+}
 
 Certificate::Certificate(const Data& data)
-// Use the copy constructor.  It clones the signature object.
-: Data(data)
+  // Use the copy constructor.  It clones the signature object.
+  : Data(data)
 {
-  // _LOG_DEBUG("Finish local copy: " << getContent().getContent().size());
-
   decode();
 }
 
@@ -45,7 +38,7 @@ Certificate::~Certificate()
 bool
 Certificate::isTooEarly()
 {
-  if (time::system_clock::now() < notBefore_)
+  if (time::system_clock::now() < m_notBefore)
     return true;
   else
     return false;
@@ -54,7 +47,7 @@ Certificate::isTooEarly()
 bool
 Certificate::isTooLate()
 {
-  if (time::system_clock::now() > notAfter_)
+  if (time::system_clock::now() > m_notAfter)
     return true;
   else
     return false;
@@ -115,8 +108,8 @@ Certificate::encode()
     //       notAfter            Time   }
     DERSequenceEncoder validity(idCert);
     {
-      DEREncodeGeneralTime(validity, notBefore_);
-      DEREncodeGeneralTime(validity, notAfter_);
+      DEREncodeGeneralTime(validity, m_notBefore);
+      DEREncodeGeneralTime(validity, m_notAfter);
     }
     validity.MessageEnd();
 
@@ -126,8 +119,8 @@ Certificate::encode()
     // RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
     DERSequenceEncoder name(idCert);
     {
-      for(SubjectDescriptionList::iterator it = subjectDescriptionList_.begin();
-          it != subjectDescriptionList_.end(); ++it)
+      for (SubjectDescriptionList::iterator it = m_subjectDescriptionList.begin();
+           it != m_subjectDescriptionList.end(); ++it)
         {
           it->encode(name);
         }
@@ -135,7 +128,7 @@ Certificate::encode()
     name.MessageEnd();
 
     // SubjectPublicKeyInfo
-    key_.encode(idCert);
+    m_key.encode(idCert);
 
     // Extensions ::= SEQUENCE SIZE (1..MAX) OF Extension
     //
@@ -143,13 +136,12 @@ Certificate::encode()
     //        extnID      OBJECT IDENTIFIER,
     //        critical    BOOLEAN DEFAULT FALSE,
     //        extnValue   OCTET STRING  }
-    if (!extensionList_.empty())
+    if (!m_extensionList.empty())
       {
         DERSequenceEncoder extensions(idCert);
         {
-
-          for(ExtensionList::iterator it = extensionList_.begin();
-              it != extensionList_.end(); ++it)
+          for (ExtensionList::iterator it = m_extensionList.begin();
+               it != m_extensionList.end(); ++it)
             {
               it->encode(extensions);
             }
@@ -170,7 +162,7 @@ Certificate::decode()
   using namespace CryptoPP;
 
   OBufferStream os;
-  CryptoPP::StringSource source(getContent().value(), getContent().value_size(), true);
+  StringSource source(getContent().value(), getContent().value_size(), true);
 
   // idCert ::= SEQUENCE {
   //     validity            Validity,
@@ -184,8 +176,8 @@ Certificate::decode()
     //       notAfter            Time   }
     BERSequenceDecoder validity(idCert);
     {
-      BERDecodeTime(validity, notBefore_);
-      BERDecodeTime(validity, notAfter_);
+      BERDecodeTime(validity, m_notBefore);
+      BERDecodeTime(validity, m_notAfter);
     }
     validity.MessageEnd();
 
@@ -193,12 +185,12 @@ Certificate::decode()
     //     RDNSequence   }
     //
     // RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
-    subjectDescriptionList_.clear();
+    m_subjectDescriptionList.clear();
     BERSequenceDecoder name(idCert);
     {
-      while(!name.EndReached())
+      while (!name.EndReached())
         {
-          subjectDescriptionList_.push_back(CertificateSubjectDescription(name));
+          m_subjectDescriptionList.push_back(CertificateSubjectDescription(name));
         }
     }
     name.MessageEnd();
@@ -206,7 +198,7 @@ Certificate::decode()
     // SubjectPublicKeyInfo ::= SEQUENCE {
     //     algorithm           AlgorithmIdentifier
     //     keybits             BIT STRING   }
-    key_.decode(idCert);
+    m_key.decode(idCert);
 
     // Extensions ::= SEQUENCE SIZE (1..MAX) OF Extension
     //
@@ -214,14 +206,14 @@ Certificate::decode()
     //        extnID      OBJECT IDENTIFIER,
     //        critical    BOOLEAN DEFAULT FALSE,
     //        extnValue   OCTET STRING  }
-    extensionList_.clear();
+    m_extensionList.clear();
     if (!idCert.EndReached())
       {
         BERSequenceDecoder extensions(idCert);
         {
-          while(!extensions.EndReached())
+          while (!extensions.EndReached())
             {
-              extensionList_.push_back(CertificateExtension(extensions));
+              m_extensionList.push_back(CertificateExtension(extensions));
             }
         }
         extensions.MessageEnd();
@@ -238,27 +230,20 @@ Certificate::printCertificate(std::ostream& os) const
   os << "  " << getName() << endl;
   os << "Validity:" << endl;
   {
-    os << "  NotBefore: " << time::toIsoString(notBefore_) << endl;
-    os << "  NotAfter: "  << time::toIsoString(notAfter_)  << endl;
+    os << "  NotBefore: " << time::toIsoString(m_notBefore) << endl;
+    os << "  NotAfter: "  << time::toIsoString(m_notAfter)  << endl;
   }
 
   os << "Subject Description:" << endl;
-  for(SubjectDescriptionList::const_iterator it = subjectDescriptionList_.begin();
-      it != subjectDescriptionList_.end(); ++it)
+  for (SubjectDescriptionList::const_iterator it = m_subjectDescriptionList.begin();
+       it != m_subjectDescriptionList.end(); ++it)
     {
       os << "  " << it->getOidString() << ": " << it->getValue() << endl;
     }
 
   os << "Public key bits:" << endl;
   CryptoPP::Base64Encoder encoder(new CryptoPP::FileSink(os), true, 64);
-  key_.encode(encoder);
-
-  // ndnboost::iostreams::stream<ndnboost::iostreams::array_source> is((const char*)key_.getKeyDer().buf(), key_.getKeyDer().size());
-
-  // ptr_lib::shared_ptr<der::DerNode> keyRoot = der::DerNode::parse(reinterpret_cast<der::InputIterator&> (is));
-
-  // der::PrintVisitor printVisitor;
-  // keyRoot->accept(printVisitor, string(""));
+  m_key.encode(encoder);
 }
 
 } // namespace ndn

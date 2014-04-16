@@ -22,57 +22,55 @@ bool
 SecPublicInfoMemory::doesIdentityExist(const Name& identityName)
 {
   string identityUri = identityName.toUri();
-  return find(identityStore_.begin(), identityStore_.end(), identityUri) != identityStore_.end();
+  return find(m_identityStore.begin(), m_identityStore.end(), identityUri) != m_identityStore.end();
 }
 
 void
 SecPublicInfoMemory::addIdentity(const Name& identityName)
 {
   string identityUri = identityName.toUri();
-  if (find(identityStore_.begin(), identityStore_.end(), identityUri) != identityStore_.end())
+  if (find(m_identityStore.begin(), m_identityStore.end(), identityUri) != m_identityStore.end())
     return;
 
-  identityStore_.push_back(identityUri);
+  m_identityStore.push_back(identityUri);
 }
 
 bool
 SecPublicInfoMemory::revokeIdentity()
 {
-#if 1
   throw Error("SecPublicInfoMemory::revokeIdentity not implemented");
-#endif
 }
 
 bool
 SecPublicInfoMemory::doesPublicKeyExist(const Name& keyName)
 {
-  return keyStore_.find(keyName.toUri()) != keyStore_.end();
+  return m_keyStore.find(keyName.toUri()) != m_keyStore.end();
 }
 
 void
 SecPublicInfoMemory::addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKey)
 {
-  Name identityName = keyName.getSubName(0, keyName.size() - 1);
+  Name identityName = keyName.getPrefix(-1);
 
   addIdentity(identityName);
 
-  keyStore_[keyName.toUri()] = make_shared<KeyRecord>(keyType, publicKey);
+  m_keyStore[keyName.toUri()] = make_shared<KeyRecord>(keyType, boost::cref(publicKey));
 }
 
 shared_ptr<PublicKey>
 SecPublicInfoMemory::getPublicKey(const Name& keyName)
 {
-  KeyStore::iterator record = keyStore_.find(keyName.toUri());
-  if (record == keyStore_.end())
+  KeyStore::iterator record = m_keyStore.find(keyName.toUri());
+  if (record == m_keyStore.end())
     throw Error("SecPublicInfoMemory::getPublicKey  " + keyName.toUri());
 
-  return make_shared<PublicKey> (record->second->getKey());
+  return make_shared<PublicKey>(record->second->getKey());
 }
 
 bool
 SecPublicInfoMemory::doesCertificateExist(const Name& certificateName)
 {
-  return certificateStore_.find(certificateName.toUri()) != certificateStore_.end();
+  return m_certificateStore.find(certificateName.toUri()) != m_certificateStore.end();
 }
 
 void
@@ -84,14 +82,14 @@ SecPublicInfoMemory::addCertificate(const IdentityCertificate& certificate)
 
   addIdentity(identity);
   addPublicKey(keyName, KEY_TYPE_RSA, certificate.getPublicKeyInfo());
-  certificateStore_[certificateName.toUri()] = make_shared<IdentityCertificate> (certificate);
+  m_certificateStore[certificateName.toUri()] = make_shared<IdentityCertificate>(certificate);
 }
 
 shared_ptr<IdentityCertificate>
 SecPublicInfoMemory::getCertificate(const Name& certificateName)
 {
-  CertificateStore::iterator record = certificateStore_.find(certificateName.toUri());
-  if (record == certificateStore_.end())
+  CertificateStore::iterator record = m_certificateStore.find(certificateName.toUri());
+  if (record == m_certificateStore.end())
     throw Error("SecPublicInfoMemory::getCertificate  " + certificateName.toUri());
 
   return record->second;
@@ -100,44 +98,43 @@ SecPublicInfoMemory::getCertificate(const Name& certificateName)
 Name
 SecPublicInfoMemory::getDefaultIdentity()
 {
-  return Name(defaultIdentity_);
+  return Name(m_defaultIdentity);
 }
 
 void
 SecPublicInfoMemory::setDefaultIdentityInternal(const Name& identityName)
 {
   string identityUri = identityName.toUri();
-  if (find(identityStore_.begin(), identityStore_.end(), identityUri) != identityStore_.end())
-    defaultIdentity_ = identityUri;
+  if (find(m_identityStore.begin(), m_identityStore.end(), identityUri) != m_identityStore.end())
+    m_defaultIdentity = identityUri;
   else
     // The identity doesn't exist, so clear the default.
-    defaultIdentity_.clear();
+    m_defaultIdentity.clear();
 }
 
 Name
 SecPublicInfoMemory::getDefaultKeyNameForIdentity(const Name& identityName)
 {
-  return defaultKeyName_;
+  return m_defaultKeyName;
 }
 
 void
 SecPublicInfoMemory::setDefaultKeyNameForIdentityInternal(const Name& keyName)
 {
-  defaultKeyName_ = keyName;
+  m_defaultKeyName = keyName;
 }
 
 Name
 SecPublicInfoMemory::getDefaultCertificateNameForKey(const Name& keyName)
 {
-  return defaultCert_;
+  return m_defaultCert;
 }
 
 void
 SecPublicInfoMemory::setDefaultCertificateNameForKeyInternal(const Name& certificateName)
 {
-  defaultCert_ = certificateName;
+  m_defaultCert = certificateName;
 }
-
 
 void
 SecPublicInfoMemory::getAllIdentities(std::vector<Name>& nameList, bool isDefault)
@@ -152,7 +149,9 @@ SecPublicInfoMemory::getAllKeyNames(std::vector<Name>& nameList, bool isDefault)
 }
 
 void
-SecPublicInfoMemory::getAllKeyNamesOfIdentity(const Name& identity, std::vector<Name>& nameList, bool isDefault)
+SecPublicInfoMemory::getAllKeyNamesOfIdentity(const Name& identity,
+                                              std::vector<Name>& nameList,
+                                              bool isDefault)
 {
   throw Error("SecPublicInfoMemory::getAllKeyNamesOfIdentity not implemented");
 }
@@ -164,7 +163,9 @@ SecPublicInfoMemory::getAllCertificateNames(std::vector<Name>& nameList, bool is
 }
 
 void
-SecPublicInfoMemory::getAllCertificateNamesOfKey(const Name& keyName, std::vector<Name>& nameList, bool isDefault)
+SecPublicInfoMemory::getAllCertificateNamesOfKey(const Name& keyName,
+                                                 std::vector<Name>& nameList,
+                                                 bool isDefault)
 {
   throw Error("SecPublicInfoMemory::getAllCertificateNamesOfKey not implemented");
 }

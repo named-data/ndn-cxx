@@ -45,12 +45,13 @@ public:
    * @param value The extension value.
    */
   CertificateExtension(const OID& oid, const bool isCritical, const Buffer& value)
-    : extensionId_(oid), isCritical_(isCritical), extensionValue_(value)
+    : m_extensionId(oid), m_isCritical(isCritical), m_extensionValue(value)
   {
   }
 
-  CertificateExtension(const OID& oid, const bool isCritical, const uint8_t* value, size_t valueSize)
-    : extensionId_(oid), isCritical_(isCritical), extensionValue_(value, valueSize)
+  CertificateExtension(const OID& oid, const bool isCritical,
+                       const uint8_t* value, size_t valueSize)
+    : m_extensionId(oid), m_isCritical(isCritical), m_extensionValue(value, valueSize)
   {
   }
 
@@ -58,7 +59,9 @@ public:
    * The virtual destructor.
    */
   virtual
-  ~CertificateExtension() {}
+  ~CertificateExtension()
+  {
+  }
 
   void
   encode(CryptoPP::BufferedTransformation& out) const;
@@ -67,18 +70,27 @@ public:
   decode(CryptoPP::BufferedTransformation& in);
 
   inline const OID&
-  getOid() const { return extensionId_; }
+  getOid() const
+  {
+    return m_extensionId;
+  }
 
   inline const bool
-  getIsCritical() const { return isCritical_; }
+  getIsCritical() const
+  {
+    return m_isCritical;
+  }
 
   inline const Buffer&
-  getValue() const { return extensionValue_; }
+  getValue() const
+  {
+    return m_extensionValue;
+  }
 
 protected:
-  OID extensionId_;
-  bool isCritical_;
-  Buffer extensionValue_;
+  OID m_extensionId;
+  bool m_isCritical;
+  Buffer m_extensionValue;
 };
 
 } // namespace ndn

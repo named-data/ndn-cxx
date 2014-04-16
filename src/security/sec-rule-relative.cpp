@@ -20,8 +20,10 @@ using namespace std;
 
 namespace ndn {
 
-SecRuleRelative::SecRuleRelative (const string& dataRegex, const string& signerRegex, const string& op,
-                                  const string& dataExpand, const string& signerExpand, bool isPositive)
+SecRuleRelative::SecRuleRelative (const string& dataRegex, const string& signerRegex,
+                                  const string& op,
+                                  const string& dataExpand, const string& signerExpand,
+                                  bool isPositive)
   : SecRule(isPositive),
     m_dataRegex(dataRegex),
     m_signerRegex(signerRegex),
@@ -43,17 +45,16 @@ bool
 SecRuleRelative::satisfy (const Data& data)
 {
   Name dataName = data.getName();
-  try {
-    SignatureSha256WithRsa sig(data.getSignature());
-    Name signerName = sig.getKeyLocator().getName ();
-    return satisfy (dataName, signerName);
-  }
-  catch (SignatureSha256WithRsa::Error& e){
-    return false;
-  }
-  catch (KeyLocator::Error& e){
-    return false;
-  }
+  try
+    {
+      SignatureSha256WithRsa sig(data.getSignature());
+      Name signerName = sig.getKeyLocator().getName ();
+      return satisfy (dataName, signerName);
+    }
+  catch (std::runtime_error& e)
+    {
+      return false;
+    }
 }
 
 bool
@@ -74,22 +75,23 @@ SecRuleRelative::satisfy (const Name& dataName, const Name& signerName)
 
 bool
 SecRuleRelative::matchDataName (const Data& data)
-{ return m_dataNameRegex.match(data.getName()); }
+{
+  return m_dataNameRegex.match(data.getName());
+}
 
 bool
 SecRuleRelative::matchSignerName (const Data& data)
 {
-  try {
-    SignatureSha256WithRsa sig(data.getSignature());
-    Name signerName = sig.getKeyLocator().getName ();
-    return m_signerNameRegex.match(signerName);
-  }
-  catch (SignatureSha256WithRsa::Error& e){
-    return false;
-  }
-  catch (KeyLocator::Error& e){
-    return false;
-  }
+  try
+    {
+      SignatureSha256WithRsa sig(data.getSignature());
+      Name signerName = sig.getKeyLocator().getName ();
+      return m_signerNameRegex.match(signerName);
+    }
+  catch (std::runtime_error& e)
+    {
+      return false;
+    }
 }
 
 bool

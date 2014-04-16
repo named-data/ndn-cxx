@@ -10,7 +10,6 @@
 #define NDN_SECURITY_PUBLIC_KEY_HPP
 
 #include "../common.hpp"
-
 #include "../encoding/oid.hpp"
 #include "../encoding/buffer.hpp"
 #include "security-common.hpp"
@@ -41,19 +40,19 @@ public:
    *
    * @throws PublicKey::Error If algorithm is not supported or keyDer cannot be decoded
    */
-  PublicKey(const uint8_t *keyDerBuf, size_t keyDerSize);
+  PublicKey(const uint8_t* keyDerBuf, size_t keyDerSize);
 
   inline const Buffer&
   get() const
   {
-    return key_;
+    return m_key;
   }
 
   inline void
-  set(const uint8_t *keyDerBuf, size_t keyDerSize)
+  set(const uint8_t* keyDerBuf, size_t keyDerSize)
   {
     Buffer buf(keyDerBuf, keyDerSize);
-    key_.swap(buf);
+    m_key.swap(buf);
   }
 
   void
@@ -62,31 +61,24 @@ public:
   void
   decode(CryptoPP::BufferedTransformation& in);
 
-  // /*
-  //  * Get the digest of the public key.
-  //  * @param digestAlgorithm The digest algorithm. If omitted, use DIGEST_ALGORITHM_SHA256 by default.
-  //  */
-  // Blob
-  // getDigest(DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256) const;
-
   inline bool
-  operator ==(const PublicKey& key) const
+  operator==(const PublicKey& key) const
   {
-    return key_ == key.key_;
+    return m_key == key.m_key;
   }
 
   inline bool
-  operator !=(const PublicKey& key) const
+  operator!=(const PublicKey& key) const
   {
-    return key_ != key.key_;
+    return m_key != key.m_key;
   }
 
 private:
-  Buffer key_;
+  Buffer m_key;
 };
 
 std::ostream&
-operator <<(std::ostream& os, const PublicKey& key);
+operator<<(std::ostream& os, const PublicKey& key);
 
 } // namespace ndn
 

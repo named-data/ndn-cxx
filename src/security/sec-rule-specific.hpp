@@ -14,33 +14,33 @@
 
 namespace ndn {
 
-class SecRuleSpecific : public ndn::SecRule
+class SecRuleSpecific : public SecRule
 {
-  
+
 public:
-  SecRuleSpecific(ndn::shared_ptr<ndn::Regex> dataRegex,
-                  ndn::shared_ptr<ndn::Regex> signerRegex);
+  SecRuleSpecific(shared_ptr<Regex> dataRegex,
+                  shared_ptr<Regex> signerRegex);
 
   SecRuleSpecific(const SecRuleSpecific& rule);
 
   virtual
   ~SecRuleSpecific() {};
 
-  bool 
-  matchDataName(const ndn::Data& data);
-
-  bool 
-  matchSignerName(const ndn::Data& data);
+  bool
+  matchDataName(const Data& data);
 
   bool
-  satisfy(const ndn::Data& data);
+  matchSignerName(const Data& data);
 
   bool
-  satisfy(const ndn::Name& dataName, const ndn::Name& signerName);
-  
+  satisfy(const Data& data);
+
+  bool
+  satisfy(const Name& dataName, const Name& signerName);
+
 private:
-  ndn::shared_ptr<ndn::Regex> m_dataRegex;
-  ndn::shared_ptr<ndn::Regex> m_signerRegex;
+  shared_ptr<Regex> m_dataRegex;
+  shared_ptr<Regex> m_signerRegex;
 };
 
 } // namespace ndn

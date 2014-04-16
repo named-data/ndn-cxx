@@ -28,10 +28,11 @@ public:
 
   SecuredBag()
     : m_wire(tlv::security::IdentityPackage)
-  {}
+  {
+  }
 
   SecuredBag(const IdentityCertificate& cert,
-	     ConstBufferPtr key)
+             ConstBufferPtr key)
     : m_cert(cert)
     , m_key(key)
     , m_wire(tlv::security::IdentityPackage)
@@ -44,7 +45,8 @@ public:
 
   virtual
   ~SecuredBag()
-  {}
+  {
+  }
 
   void
   wireDecode(const Block& wire)

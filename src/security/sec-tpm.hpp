@@ -41,7 +41,8 @@ public:
    * @brief set password of TPM
    *
    * Password is used to unlock TPM when it is locked.
-   * You should be cautious when using this method, because remembering password is kind of dangerous.
+   * You should be cautious when using this method, because remembering password is kind of
+   * dangerous.
    *
    * @param password The password.
    * @param passwordLength The length of password.
@@ -133,7 +134,9 @@ public:
    * @throws SecTpm::Error if signing fails.
    */
   virtual Block
-  signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm) = 0;
+  signInTpm(const uint8_t* data, size_t dataLength,
+            const Name& keyName,
+            DigestAlgorithm digestAlgorithm) = 0;
 
   /**
    * @brief Decrypt data.
@@ -176,7 +179,7 @@ public:
    * @brief Check if a particular key exists.
    *
    * @param keyName The name of the key.
-   * @param keyClass The class of the key, e.g. KEY_CLASS_PUBLIC, KEY_CLASS_PRIVATE, or KEY_CLASS_SYMMETRIC.
+   * @param keyClass The class of the key, e.g. KEY_CLASS_PUBLIC, KEY_CLASS_PRIVATE.
    * @return True if the key exists, otherwise false.
    */
   virtual bool
@@ -225,7 +228,9 @@ public:
    * @return False if import fails.
    */
   bool
-  importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size, const std::string& password);
+  importPrivateKeyPkcs8IntoTpm(const Name& keyName,
+                               const uint8_t* buf, size_t size,
+                               const std::string& password);
 
 protected:
   /**

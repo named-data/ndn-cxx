@@ -32,7 +32,7 @@ public:
    * @param value The value of the subject description entry.
    */
   CertificateSubjectDescription(const OID& oid, const std::string& value)
-  : oid_(oid), value_(value)
+  : m_oid(oid), m_value(value)
   {
   }
 
@@ -45,18 +45,18 @@ public:
   std::string
   getOidString() const
   {
-    return oid_.toString();
+    return m_oid.toString();
   }
 
   const std::string&
   getValue() const
   {
-    return value_;
+    return m_value;
   }
 
 private:
-  OID oid_;
-  std::string value_;
+  OID m_oid;
+  std::string m_value;
 };
 
 } // namespace ndn

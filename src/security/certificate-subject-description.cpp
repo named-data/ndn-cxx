@@ -32,8 +32,8 @@ CertificateSubjectDescription::encode(CryptoPP::BufferedTransformation& out) con
   // AttributeValue ::= ANY DEFINED BY AttributeType
   DERSequenceEncoder attributeTypeAndValue(out);
   {
-    oid_.encode(attributeTypeAndValue);
-    DEREncodeTextString(attributeTypeAndValue, value_, PRINTABLE_STRING);
+    m_oid.encode(attributeTypeAndValue);
+    DEREncodeTextString(attributeTypeAndValue, m_value, PRINTABLE_STRING);
   }
   attributeTypeAndValue.MessageEnd();
 }
@@ -54,11 +54,11 @@ CertificateSubjectDescription::decode(CryptoPP::BufferedTransformation& in)
 
   BERSequenceDecoder attributeTypeAndValue(in);
   {
-    oid_.decode(attributeTypeAndValue);
+    m_oid.decode(attributeTypeAndValue);
 
     /// @todo May be add more intelligent processing, since the following
     ///       may fail if somebody encoded attribute that uses non PRINTABLE_STRING as value
-    BERDecodeTextString(attributeTypeAndValue, value_, PRINTABLE_STRING);
+    BERDecodeTextString(attributeTypeAndValue, m_value, PRINTABLE_STRING);
   }
   attributeTypeAndValue.MessageEnd();
 }

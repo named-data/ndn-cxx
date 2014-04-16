@@ -20,7 +20,8 @@ namespace ndn {
 /**
  * @brief SecPublicInfo is a base class for the storage of public information.
  *
- * It specify interfaces related to public information, such as identity, public keys and certificates.
+ * It specify interfaces related to public information, such as identity, public keys and
+ * certificates.
  */
 class SecPublicInfo {
 public:
@@ -338,7 +339,8 @@ public:
   addCertificateAsKeyDefault(const IdentityCertificate& certificate);
 
   /**
-   * @brief Add a certificate into the public key identity storage and set the certificate as the default one of its corresponding identity.
+   * @brief Add a certificate into the public key identity storage and set the certificate as the
+   *        default one of its corresponding identity.
    *
    * @param certificate The certificate to be added.
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
@@ -347,7 +349,8 @@ public:
   addCertificateAsIdentityDefault(const IdentityCertificate& certificate);
 
   /**
-   * @brief Add a certificate into the public key identity storage and set the certificate as the default one of the default identity.
+   * @brief Add a certificate into the public key identity storage and set the certificate as the
+   *        default one of the default identity.
    *
    * @param certificate The certificate to be added.
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
@@ -445,7 +448,8 @@ SecPublicInfo::addCertificateAsIdentityDefault(const IdentityCertificate& certif
 {
   addCertificate(certificate);
   Name certName = certificate.getName();
-  setDefaultKeyNameForIdentityInternal(IdentityCertificate::certificateNameToPublicKeyName(certName));
+  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certName);
+  setDefaultKeyNameForIdentityInternal(keyName);
   setDefaultCertificateNameForKeyInternal(certName);
   refreshDefaultCertificate();
 }

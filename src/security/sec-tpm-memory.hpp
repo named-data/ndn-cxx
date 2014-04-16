@@ -16,8 +16,9 @@ struct rsa_st;
 namespace ndn {
 
 /**
- * MemoryPrivateKeyStorage extends PrivateKeyStorage to implement a simple in-memory private key store.  You should
- * initialize by calling setKeyPairForKeyName.
+ * @brief SecTpmMemory implements a simple in-memory TPM.
+ *
+ * You should initialize by calling setKeyPairForKeyName.
  */
 class SecTpmMemory : public SecTpm {
 public:
@@ -40,11 +41,13 @@ public:
 
   virtual void
   setTpmPassword(const uint8_t* password, size_t passwordLength)
-  {}
+  {
+  }
 
   virtual void
   resetTpmPassword()
-  {}
+  {
+  }
 
   virtual void
   setInTerminal(bool inTerminal)
@@ -80,7 +83,8 @@ public:
   deleteKeyPairInTpm(const Name& keyName);
 
   virtual Block
-  signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
+  signInTpm(const uint8_t* data, size_t dataLength,
+            const Name& keyName, DigestAlgorithm digestAlgorithm);
 
   virtual ConstBufferPtr
   decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric);
@@ -99,7 +103,8 @@ public:
 
   virtual void
   addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl)
-  {}
+  {
+  }
 
   /******************************
    *   SecTpmMemory specific    *
@@ -115,8 +120,8 @@ public:
    * @param privateKeyDerLength The length of privateKeyDer.
    */
   void setKeyPairForKeyName(const Name& keyName,
-                            uint8_t* publicKeyDer, size_t publicKeyDerLength,
-                            uint8_t* privateKeyDer, size_t privateKeyDerLength);
+                            const uint8_t* publicKeyDer, size_t publicKeyDerLength,
+                            const uint8_t* privateKeyDer, size_t privateKeyDerLength);
 
 protected:
   /******************************
@@ -138,8 +143,8 @@ private:
   typedef std::map<std::string, shared_ptr<PublicKey> >     PublicKeyStore;
   typedef std::map<std::string, shared_ptr<RsaPrivateKey> > PrivateKeyStore;
 
-  PublicKeyStore  publicKeyStore_;  /**< The map key is the keyName.toUri() */
-  PrivateKeyStore privateKeyStore_; /**< The map key is the keyName.toUri() */
+  PublicKeyStore  m_publicKeyStore;  /**< The map key is the keyName.toUri() */
+  PrivateKeyStore m_privateKeyStore; /**< The map key is the keyName.toUri() */
 
   bool m_inTerminal;
 };

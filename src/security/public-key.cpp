@@ -7,9 +7,7 @@
  */
 
 #include "common.hpp"
-
 #include "public-key.hpp"
-
 #include "cryptopp.hpp"
 
 using namespace std;
@@ -41,7 +39,7 @@ PublicKey::encode(CryptoPP::BufferedTransformation& out) const
   //     algorithm           AlgorithmIdentifier
   //     keybits             BIT STRING   }
 
-  out.Put(key_.buf(), key_.size());
+  out.Put(m_key.buf(), m_key.size());
 }
 
 void
@@ -51,44 +49,47 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
   //     algorithm           AlgorithmIdentifier
   //     keybits             BIT STRING   }
 
-  try {
-    std::string out;
-    StringSink sink(out);
-
-    ////////////////////////
-    // part 1: copy as is //
-    ////////////////////////
-    BERSequenceDecoder decoder(in);
+  try
     {
-      assert (decoder.IsDefiniteLength());
+      std::string out;
+      StringSink sink(out);
 
-      DERSequenceEncoder encoder(sink);
-      decoder.TransferTo(encoder, decoder.RemainingLength());
-      encoder.MessageEnd();
-    }
-    decoder.MessageEnd();
-
-    ////////////////////////
-    // part 2: check if the key is RSA (since it is the only supported for now)
-    ////////////////////////
-    StringSource checkedSource(out, true);
-    BERSequenceDecoder subjectPublicKeyInfo(checkedSource);
-    {
-      BERSequenceDecoder algorithmInfo(subjectPublicKeyInfo);
+      ////////////////////////
+      // part 1: copy as is //
+      ////////////////////////
+      BERSequenceDecoder decoder(in);
       {
-        OID algorithm;
-        algorithm.decode(algorithmInfo);
+        assert(decoder.IsDefiniteLength());
 
-        if (algorithm != RSA_OID)
-          throw Error("Only RSA public keys are supported for now (" + algorithm.toString() + " requested");
+        DERSequenceEncoder encoder(sink);
+        decoder.TransferTo(encoder, decoder.RemainingLength());
+        encoder.MessageEnd();
       }
-    }
+      decoder.MessageEnd();
 
-    key_.assign(out.begin(), out.end());
-  }
-  catch (CryptoPP::BERDecodeErr& err) {
-    throw Error("PublicKey decoding error");
-  }
+      ////////////////////////
+      // part 2: check if the key is RSA (since it is the only supported for now)
+      ////////////////////////
+      StringSource checkedSource(out, true);
+      BERSequenceDecoder subjectPublicKeyInfo(checkedSource);
+      {
+        BERSequenceDecoder algorithmInfo(subjectPublicKeyInfo);
+        {
+          OID algorithm;
+          algorithm.decode(algorithmInfo);
+
+          if (algorithm != RSA_OID)
+            throw Error("Only RSA public keys are supported for now (" +
+                        algorithm.toString() + " requested)");
+        }
+      }
+
+      m_key.assign(out.begin(), out.end());
+    }
+  catch (CryptoPP::BERDecodeErr& err)
+    {
+      throw Error("PublicKey decoding error");
+    }
 }
 
 // Blob
@@ -105,7 +106,7 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
 // }
 
 std::ostream&
-operator <<(std::ostream& os, const PublicKey& key)
+operator<<(std::ostream& os, const PublicKey& key)
 {
   CryptoPP::StringSource(key.get().buf(), key.get().size(), true,
                          new CryptoPP::Base64Encoder(new CryptoPP::FileSink(os), true, 64));

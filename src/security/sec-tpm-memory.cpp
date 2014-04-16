@@ -26,25 +26,25 @@ public:
   {
     // Use a temporary pointer since d2i updates it.
     const uint8_t* derPointer = keyDer;
-    privateKey_ = d2i_RSAPrivateKey(NULL, &derPointer, keyDerLength);
-    if (!privateKey_)
+    m_privateKey = d2i_RSAPrivateKey(NULL, &derPointer, keyDerLength);
+    if (!m_privateKey)
       throw Error("RsaPrivateKey constructor: Error decoding private key DER");
   }
 
   ~RsaPrivateKey()
   {
-    if (privateKey_)
-      RSA_free(privateKey_);
+    if (m_privateKey)
+      RSA_free(m_privateKey);
   }
 
   rsa_st*
   getPrivateKey()
   {
-    return privateKey_;
+    return m_privateKey;
   }
 
 private:
-  rsa_st*  privateKey_;
+  rsa_st* m_privateKey;
 };
 
 SecTpmMemory::~SecTpmMemory()
@@ -53,19 +53,18 @@ SecTpmMemory::~SecTpmMemory()
 
 void
 SecTpmMemory::setKeyPairForKeyName(const Name& keyName,
-                                   uint8_t* publicKeyDer, size_t publicKeyDerLength,
-                                   uint8_t* privateKeyDer, size_t privateKeyDerLength)
+                                   const uint8_t* publicKeyDer, size_t publicKeyDerLength,
+                                   const uint8_t* privateKeyDer, size_t privateKeyDerLength)
 {
-  publicKeyStore_[keyName.toUri()]  = make_shared<PublicKey>(publicKeyDer, publicKeyDerLength);
-  privateKeyStore_[keyName.toUri()] = make_shared<RsaPrivateKey>(privateKeyDer, privateKeyDerLength);
+  m_publicKeyStore[keyName.toUri()]  = make_shared<PublicKey>(publicKeyDer, publicKeyDerLength);
+  m_privateKeyStore[keyName.toUri()] = make_shared<RsaPrivateKey>(privateKeyDer,
+                                                                  privateKeyDerLength);
 }
 
 void
 SecTpmMemory::generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize)
 {
-#if 1
   throw Error("SecTpmMemory::generateKeyPair not implemented");
-#endif
 }
 
 void
@@ -95,8 +94,8 @@ SecTpmMemory::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* bu
 shared_ptr<PublicKey>
 SecTpmMemory::getPublicKeyFromTpm(const Name& keyName)
 {
-  PublicKeyStore::iterator publicKey = publicKeyStore_.find(keyName.toUri());
-  if (publicKey == publicKeyStore_.end())
+  PublicKeyStore::iterator publicKey = m_publicKeyStore.find(keyName.toUri());
+  if (publicKey == m_publicKeyStore.end())
     throw Error(string("MemoryPrivateKeyStorage: Cannot find public key ") + keyName.toUri());
   return publicKey->second;
 }
@@ -110,8 +109,8 @@ SecTpmMemory::signInTpm(const uint8_t* data, size_t dataLength,
     throw Error("Unsupported digest algorithm.");
 
   // Find the private key and sign.
-  PrivateKeyStore::iterator privateKey = privateKeyStore_.find(keyName.toUri());
-  if (privateKey == privateKeyStore_.end())
+  PrivateKeyStore::iterator privateKey = m_privateKeyStore.find(keyName.toUri());
+  if (privateKey == m_privateKeyStore.end())
     throw Error(string("MemoryPrivateKeyStorage: Cannot find private key ") + keyName.toUri());
 
   uint8_t digest[SHA256_DIGEST_LENGTH];
@@ -136,36 +135,32 @@ SecTpmMemory::signInTpm(const uint8_t* data, size_t dataLength,
 }
 
 ConstBufferPtr
-SecTpmMemory::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric)
+SecTpmMemory::decryptInTpm(const uint8_t* data, size_t dataLength,
+                           const Name& keyName, bool isSymmetric)
 {
-#if 1
   throw Error("MemoryPrivateKeyStorage::decrypt not implemented");
-#endif
 }
 
 ConstBufferPtr
-SecTpmMemory::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric)
+SecTpmMemory::encryptInTpm(const uint8_t* data, size_t dataLength,
+                           const Name& keyName, bool isSymmetric)
 {
-#if 1
   throw Error("MemoryPrivateKeyStorage::encrypt not implemented");
-#endif
 }
 
 void
 SecTpmMemory::generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize)
 {
-#if 1
   throw Error("MemoryPrivateKeyStorage::generateKey not implemented");
-#endif
 }
 
 bool
 SecTpmMemory::doesKeyExistInTpm(const Name& keyName, KeyClass keyClass)
 {
   if (keyClass == KEY_CLASS_PUBLIC)
-    return publicKeyStore_.find(keyName.toUri()) != publicKeyStore_.end();
+    return m_publicKeyStore.find(keyName.toUri()) != m_publicKeyStore.end();
   else if (keyClass == KEY_CLASS_PRIVATE)
-    return privateKeyStore_.find(keyName.toUri()) != privateKeyStore_.end();
+    return m_privateKeyStore.find(keyName.toUri()) != m_privateKeyStore.end();
   else
     // KEY_CLASS_SYMMETRIC not implemented yet.
     return false;
@@ -174,14 +169,16 @@ SecTpmMemory::doesKeyExistInTpm(const Name& keyName, KeyClass keyClass)
 bool
 SecTpmMemory::generateRandomBlock(uint8_t* res, size_t size)
 {
-  try {
-    CryptoPP::AutoSeededRandomPool rng;
-    rng.GenerateBlock(res, size);
-    return true;
-  }
-  catch (const CryptoPP::Exception& e) {
-    return false;
-  }
+  try
+    {
+      CryptoPP::AutoSeededRandomPool rng;
+      rng.GenerateBlock(res, size);
+      return true;
+    }
+  catch (const CryptoPP::Exception& e)
+    {
+      return false;
+    }
 }
 
 } // namespace ndn

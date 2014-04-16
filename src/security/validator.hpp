@@ -46,7 +46,7 @@ public:
    *
    * @param data The Data with the signature to check.
    * @param onValidated If the Data is validated, this calls onValidated(data).
-   * @param onValidationFailed If the Data validation fails, this calls onValidationFailed(data).
+   * @param onValidationFailed If validation fails, this calls onValidationFailed(data).
    */
   void
   validate(const Data& data,
@@ -61,7 +61,7 @@ public:
    *
    * @param interest The Interest with the signature to check.
    * @param onValidated If the Interest is validated, this calls onValidated(interest).
-   * @param onValidationFailed If the Interest validation fails, this calls onValidationFailed(interest).
+   * @param onValidationFailed If validation fails, this calls onValidationFailed(interest).
    */
   void
   validate(const Interest& interest,
@@ -185,39 +185,40 @@ protected:
    * i.e., either onValidated or onValidationFailed callback is invoked.
    *
    * @param data The Data to check.
-   * @param stepCount The number of validation steps that have been done, used to track the validation progress.
+   * @param nSteps The number of validation steps that have been done.
    * @param onDataValidated If the Data is validated, this calls onValidated(data).
-   * @param onDataValidationFailed If the Data validation fails, this calls onValidationFailed(data).
+   * @param onDataValidationFailed If validation fails, this calls onValidationFailed(data).
    * @param nextSteps On return, contains the next validation step.
    */
   virtual void
   checkPolicy(const Data& data,
-              int stepCount,
+              int nSteps,
               const OnDataValidated& onValidated,
               const OnDataValidationFailed& onValidationFailed,
               std::vector<shared_ptr<ValidationRequest> >& nextSteps) = 0;
 
   /**
-   * @brief Check the Interest against validation policy and return the next validation step if necessary.
+   * @brief Check the Interest against validation policy and return the next validation step
+   *        if necessary.
    *
    * If there is no next validation step, that validation MUST have been done.
    * i.e., either onValidated or onValidationFailed callback is invoked.
    *
    * @param data The Interest to check.
-   * @param stepCount The number of validation steps that have been done, used to track the validation progress.
+   * @param nSteps The number of validation steps that have been done.
    * @param OnInterestValidated If the Interest is validated, this calls onValidated(data).
-   * @param OnInterestValidationFailed If the Interest validation fails, this calls onValidationFailed(data).
+   * @param OnInterestValidationFailed If validation fails, this calls onValidationFailed(data).
    * @return the indication of next validation step, null if there is no further step.
    */
   virtual void
   checkPolicy(const Interest& interest,
-              int stepCount,
+              int nSteps,
               const OnInterestValidated& onValidated,
               const OnInterestValidationFailed& onValidationFailed,
               std::vector<shared_ptr<ValidationRequest> >& nextSteps) = 0;
 
 private:
-  typedef function< void (const std::string&) > OnFailure;
+  typedef function<void(const std::string&)> OnFailure;
 
   /// @brief Process the received certificate.
   void
@@ -236,13 +237,13 @@ private:
   validate(const Data& data,
            const OnDataValidated& onValidated,
            const OnDataValidationFailed& onValidationFailed,
-           int stepCount);
+           int nSteps);
 
   void
   validate(const Interest& interest,
            const OnInterestValidated& onValidated,
            const OnInterestValidationFailed& onValidationFailed,
-           int stepCount);
+           int nSteps);
 
 protected:
   shared_ptr<Face> m_face;

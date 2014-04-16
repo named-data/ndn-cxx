@@ -17,24 +17,29 @@ class ValidatorNull : public Validator {
 public:
   virtual
   ~ValidatorNull()
-  {}
+  {
+  }
 
 protected:
   virtual void
-  checkPolicy (const Data& data,
-               int stepCount,
-               const OnDataValidated& onValidated,
-               const OnDataValidationFailed& onValidationFailed,
-               std::vector<shared_ptr<ValidationRequest> >& nextSteps)
-  { onValidated(data.shared_from_this()); }
+  checkPolicy(const Data& data,
+              int nSteps,
+              const OnDataValidated& onValidated,
+              const OnDataValidationFailed& onValidationFailed,
+              std::vector<shared_ptr<ValidationRequest> >& nextSteps)
+  {
+    onValidated(data.shared_from_this());
+  }
 
   virtual void
-  checkPolicy (const Interest& interest,
-               int stepCount,
-               const OnInterestValidated& onValidated,
-               const OnInterestValidationFailed& onValidationFailed,
-               std::vector<shared_ptr<ValidationRequest> >& nextSteps)
-  { onValidated(interest.shared_from_this()); }
+  checkPolicy(const Interest& interest,
+              int nSteps,
+              const OnInterestValidated& onValidated,
+              const OnInterestValidationFailed& onValidationFailed,
+              std::vector<shared_ptr<ValidationRequest> >& nextSteps)
+  {
+    onValidated(interest.shared_from_this());
+  }
 };
 
 } // namespace ndn

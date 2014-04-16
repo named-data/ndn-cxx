@@ -27,12 +27,14 @@ public:
   };
 
   SecRule(bool isPositive)
-  : m_isPositive(isPositive)
-  {}
+    : m_isPositive(isPositive)
+  {
+  }
 
   virtual
   ~SecRule()
-  {}
+  {
+  }
 
   virtual bool
   matchDataName(const Data& data) = 0;

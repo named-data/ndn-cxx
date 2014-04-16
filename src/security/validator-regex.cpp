@@ -76,12 +76,12 @@ ValidatorRegex::onCertificateValidationFailed(const shared_ptr<const Data>& sign
 
 void
 ValidatorRegex::checkPolicy(const Data& data,
-                            int stepCount,
+                            int nSteps,
                             const OnDataValidated& onValidated,
                             const OnDataValidationFailed& onValidationFailed,
                             vector<shared_ptr<ValidationRequest> >& nextSteps)
 {
-  if (m_stepLimit == stepCount)
+  if (m_stepLimit == nSteps)
     return onValidationFailed(data.shared_from_this(),
                               "Maximum steps of validation reached: " +
                               data.getName().toUri());
@@ -137,7 +137,7 @@ ValidatorRegex::checkPolicy(const Data& data,
                                                    onKeyValidated,
                                                    onKeyValidationFailed,
                                                    3,
-                                                   stepCount + 1);
+                                                   nSteps + 1);
 
                   nextSteps.push_back(nextStep);
 

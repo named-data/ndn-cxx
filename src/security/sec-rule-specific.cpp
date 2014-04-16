@@ -19,32 +19,35 @@ SecRuleSpecific::SecRuleSpecific(shared_ptr<Regex> dataRegex,
   : SecRule(true)
   , m_dataRegex(dataRegex)
   , m_signerRegex(signerRegex)
-{}
+{
+}
 
 SecRuleSpecific::SecRuleSpecific(const SecRuleSpecific& rule)
   : SecRule(true)
   , m_dataRegex(rule.m_dataRegex)
   , m_signerRegex(rule.m_signerRegex)
-{}
+{
+}
 
 bool
 SecRuleSpecific::matchDataName(const Data& data)
-{ return m_dataRegex->match(data.getName()); }
+{
+  return m_dataRegex->match(data.getName());
+}
 
 bool
 SecRuleSpecific::matchSignerName(const Data& data)
 {
-  try {
-    SignatureSha256WithRsa sig(data.getSignature());
-    Name signerName = sig.getKeyLocator().getName ();
-    return m_signerRegex->match(signerName);
-  }
-  catch (SignatureSha256WithRsa::Error& e) {
-    return false;
-  }
-  catch (KeyLocator::Error& e) {
-    return false;
-  }
+  try
+    {
+      SignatureSha256WithRsa sig(data.getSignature());
+      Name signerName = sig.getKeyLocator().getName();
+      return m_signerRegex->match(signerName);
+    }
+  catch (std::runtime_error& e)
+    {
+      return false;
+    }
 }
 
 bool

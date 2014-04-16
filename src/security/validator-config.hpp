@@ -54,14 +54,14 @@ public:
 protected:
   virtual void
   checkPolicy(const Data& data,
-              int stepCount,
+              int nSteps,
               const OnDataValidated& onValidated,
               const OnDataValidationFailed& onValidationFailed,
               std::vector<shared_ptr<ValidationRequest> >& nextSteps);
 
   virtual void
   checkPolicy(const Interest& interest,
-              int stepCount,
+              int nSteps,
               const OnInterestValidated& onValidated,
               const OnInterestValidationFailed& onValidationFailed,
               std::vector<shared_ptr<ValidationRequest> >& nextSteps);
@@ -71,7 +71,7 @@ private:
   void
   checkSignature(const Packet& packet,
                  const Signature& signature,
-                 int stepCount,
+                 int nSteps,
                  const OnValidated& onValidated,
                  const OnFailed& onValidationFailed,
                  std::vector<shared_ptr<ValidationRequest> >& nextSteps);
@@ -117,7 +117,7 @@ template<class Packet, class OnValidated, class OnFailed>
 void
 ValidatorConfig::checkSignature(const Packet& packet,
                                 const Signature& signature,
-                                int stepCount,
+                                int nSteps,
                                 const OnValidated& onValidated,
                                 const OnFailed& onValidationFailed,
                                 std::vector<shared_ptr<ValidationRequest> >& nextSteps)
@@ -170,7 +170,7 @@ ValidatorConfig::checkSignature(const Packet& packet,
             make_shared<ValidationRequest>(boost::cref(certInterest),
                                            onCertValidated,
                                            onCertValidationFailed,
-                                           1, stepCount + 1);
+                                           1, nSteps + 1);
 
           nextSteps.push_back(nextStep);
           return;

@@ -12,25 +12,19 @@
 #include "../interest.hpp"
 
 namespace ndn {
-/**
- * An OnVerified function object is used to pass a callback to report a successful Interest validation.
- */
-typedef function< void (const shared_ptr<const Interest>&) > OnInterestValidated;
+/// @brief Callback to report a successful Interest validation.
+typedef function<void(const shared_ptr<const Interest>&)> OnInterestValidated;
 
-/**
- * An OnVerifyFailed function object is used to pass a callback to report a failed Interest validation.
- */
-typedef function< void (const shared_ptr<const Interest>&, const std::string&) > OnInterestValidationFailed;
+/// @brief Callback to report a failed Interest validation.
+typedef function<void(const shared_ptr<const Interest>&,
+                      const std::string&)> OnInterestValidationFailed;
 
-/**
- * An OnVerified function object is used to pass a callback to report a successful Data validation.
- */
-typedef function< void (const shared_ptr<const Data>&) > OnDataValidated;
+/// @brief Callback to report a successful Data validation.
+typedef function<void(const shared_ptr<const Data>&)> OnDataValidated;
 
-/**
- * An OnVerifyFailed function object is used to pass a callback to report a failed Data validation.
- */
-typedef function< void (const shared_ptr<const Data>&, const std::string&) > OnDataValidationFailed;
+/// @brief Callback to report a failed Data validation.
+typedef function<void(const shared_ptr<const Data>&,
+                      const std::string&)> OnDataValidationFailed;
 
 
 class ValidationRequest {
@@ -38,22 +32,25 @@ public:
   ValidationRequest(const Interest& interest,
                     const OnDataValidated& onValidated,
                     const OnDataValidationFailed& onDataValidated,
-                    int retry, int stepCount)
-  : m_interest(interest)
-  , m_onValidated(onValidated)
-  , m_onDataValidated(onDataValidated)
-  , m_retry(retry)
-  , m_stepCount(stepCount)
-  {}
+                    int nRetrials, int nSteps)
+    : m_interest(interest)
+    , m_onValidated(onValidated)
+    , m_onDataValidated(onDataValidated)
+    , m_nRetrials(nRetrials)
+    , m_nSteps(nSteps)
+  {
+  }
 
   virtual
-  ~ValidationRequest() {}
+  ~ValidationRequest()
+  {
+  }
 
-  Interest m_interest;                      // An interest packet to fetch the requested data.
-  OnDataValidated m_onValidated;            // A callback function if the requested certificate is validated.
-  OnDataValidationFailed m_onDataValidated; // A callback function if the requested certificate validation fails.
-  int m_retry;                              // The number of retrials when there is an interest timeout.
-  int m_stepCount;                          // The stepCount of next step.
+  Interest m_interest;                      // Interest for the requested data.
+  OnDataValidated m_onValidated;            // Callback function on validated certificate.
+  OnDataValidationFailed m_onDataValidated; // Callback function on validation failure.
+  int m_nRetrials;                          // The number of retrials when interest timeout.
+  int m_nSteps;                             // The stepCount of next step.
 };
 
 } // namespace ndn

@@ -69,7 +69,8 @@ public:
   getPublicKeyFromTpm(const Name& keyName);
 
   virtual Block
-  signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm)
+  signInTpm(const uint8_t* data, size_t dataLength,
+            const Name& keyName, DigestAlgorithm digestAlgorithm)
   {
     return signInTpmInternal(data, dataLength, keyName, digestAlgorithm, false);
   }
@@ -115,19 +116,23 @@ protected:
    *       OSX-specifics        *
    ******************************/
   void
-  generateKeyPairInTpmInternal(const Name& keyName, KeyType keyType, int keySize, bool retry);
+  generateKeyPairInTpmInternal(const Name& keyName, KeyType keyType, int keySize, bool needRetry);
 
   void
-  deleteKeyPairInTpmInternal(const Name& keyName, bool retry);
+  deleteKeyPairInTpmInternal(const Name& keyName, bool needRetry);
 
   ConstBufferPtr
-  exportPrivateKeyPkcs1FromTpmInternal(const Name& keyName, bool retry);
+  exportPrivateKeyPkcs1FromTpmInternal(const Name& keyName, bool needRetry);
 
   bool
-  importPrivateKeyPkcs1IntoTpmInternal(const Name& keyName, const uint8_t* buf, size_t size, bool retry);
+  importPrivateKeyPkcs1IntoTpmInternal(const Name& keyName,
+                                       const uint8_t* buf, size_t size,
+                                       bool needRetry);
 
   Block
-  signInTpmInternal(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm, bool retry);
+  signInTpmInternal(const uint8_t* data, size_t dataLength,
+                    const Name& keyName, DigestAlgorithm digestAlgorithm,
+                    bool needRetry);
 
 private:
   class Impl;

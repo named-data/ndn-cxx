@@ -35,7 +35,8 @@ namespace ndn {
 /**
  * @brief KeyChain is one of the main classes of the security library.
  *
- * The KeyChain class provides a set of interfaces of identity management and private key related operations.
+ * The KeyChain class provides a set of interfaces of identity management and private key related
+ * operations.
  */
 template<class Info, class Tpm>
 class KeyChainImpl : public Info, public Tpm
@@ -44,7 +45,8 @@ class KeyChainImpl : public Info, public Tpm
   typedef SecTpm::Error TpmError;
 public:
   /**
-   * @brief Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a self-signed certificate of the KSK.
+   * @brief Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a
+   *        self-signed certificate of the KSK.
    *
    * @param identityName The name of the identity.
    * @return The name of the default certificate of the identity.
@@ -94,7 +96,8 @@ public:
   }
 
   /**
-   * @brief Generate a pair of RSA keys for the specified identity and set it as default key for the identity.
+   * @brief Generate a pair of RSA keys for the specified identity and set it as default key for
+   *        the identity.
    *
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
@@ -141,11 +144,19 @@ public:
 
     if (signingIdentity.isPrefixOf(keyName))
       {
-        certName.append(signingIdentity).append("KEY").append(keyName.getSubName(signingIdentity.size())).append("ID-CERT").appendVersion();
+        certName.append(signingIdentity)
+          .append("KEY")
+          .append(keyName.getSubName(signingIdentity.size()))
+          .append("ID-CERT")
+          .appendVersion();
       }
     else
       {
-        certName.append(keyName.getPrefix(-1)).append("KEY").append(keyName.get(-1)).append("ID-CERT").appendVersion();
+        certName.append(keyName.getPrefix(-1))
+          .append("KEY")
+          .append(keyName.get(-1))
+          .append("ID-CERT")
+          .appendVersion();
       }
 
     certificate->setName(certName);
@@ -170,8 +181,10 @@ public:
       }
     else
       {
-        std::vector<CertificateSubjectDescription>::const_iterator sdIt = subjectDescription.begin();
-        std::vector<CertificateSubjectDescription>::const_iterator sdEnd = subjectDescription.end();
+        std::vector<CertificateSubjectDescription>::const_iterator sdIt =
+          subjectDescription.begin();
+        std::vector<CertificateSubjectDescription>::const_iterator sdEnd =
+          subjectDescription.end();
         for(; sdIt != sdEnd; sdIt++)
           certificate->addSubjectDescription(*sdIt);
       }
@@ -235,7 +248,8 @@ public:
       throw InfoError("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
 
     SignatureSha256WithRsa signature;
-    signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
+    // implicit conversion should take care
+    signature.setKeyLocator(certificateName.getPrefix(-1));
 
     // For temporary usage, we support RSA + SHA256 only, but will support more.
     signPacketWrapper(packet, signature,
@@ -258,20 +272,22 @@ public:
     if (!Info::doesCertificateExist(certificateName))
       throw InfoError("Requested certificate [" + certificateName.toUri() + "] doesn't exist");
 
+    Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
+
     SignatureSha256WithRsa signature;
-    signature.setKeyLocator(certificateName.getPrefix(-1)); // implicit conversion should take care
+    // implicit conversion should take care
+    signature.setKeyLocator(certificateName.getPrefix(-1));
 
     // For temporary usage, we support RSA + SHA256 only, but will support more.
-    signature.setValue(Tpm::signInTpm(buffer, bufferLength,
-                                      IdentityCertificate::certificateNameToPublicKeyName(certificateName),
-                                      DIGEST_ALGORITHM_SHA256));
+    signature.setValue(Tpm::signInTpm(buffer, bufferLength, keyName, DIGEST_ALGORITHM_SHA256));
     return signature;
   }
 
   /**
    * @brief Sign packet using the default certificate of a particular identity.
    *
-   * If there is no default certificate of that identity, this method will create a self-signed certificate.
+   * If there is no default certificate of that identity, this method will create a self-signed
+   * certificate.
    *
    * @param packet The packet to be signed.
    * @param identityName The signing identity name.
@@ -288,10 +304,12 @@ public:
     catch (InfoError& e)
       {
         signingCertificateName = createIdentity(identityName);
-        // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which is a fatal error.
+        // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which
+        // is a fatal error.
       }
 
-    // We either get or create the signing certificate, sign packet! (no exception unless fatal error in TPM)
+    // We either get or create the signing certificate, sign packet! (no exception unless fatal
+    // error in TPM)
     sign(packet, signingCertificateName);
   }
 
@@ -314,10 +332,12 @@ public:
     catch (InfoError& e)
       {
         signingCertificateName = createIdentity(identityName);
-        // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which is a fatal error.
+        // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which
+        // is a fatal error.
       }
 
-    // We either get or create the signing certificate, sign data! (no exception unless fatal error in TPM)
+    // We either get or create the signing certificate, sign data! (no exception unless fatal error
+    // in TPM)
     return sign(buffer, bufferLength, signingCertificateName);
   }
 
@@ -334,9 +354,9 @@ public:
 
     Block sigValue(Tlv::SignatureValue,
                    crypto::sha256(data.wireEncode().value(),
-                                  data.wireEncode().value_size() - data.getSignature().getValue().size()));
+                                  data.wireEncode().value_size() -
+                                  data.getSignature().getValue().size()));
     data.setSignatureValue(sigValue);
-
   }
 
   /**
@@ -512,7 +532,8 @@ public:
         Info::addCertificateAsIdentityDefault(*cert);
       }
 
-    shared_ptr<SecuredBag> secureBag = make_shared<SecuredBag>(boost::cref(*cert), boost::cref(pkcs8));
+    shared_ptr<SecuredBag> secureBag = make_shared<SecuredBag>(boost::cref(*cert),
+                                                               boost::cref(pkcs8));
 
     return secureBag;
   }
@@ -526,16 +547,22 @@ public:
   void
   importIdentity(const SecuredBag& securedBag, const std::string& passwordStr)
   {
-    Name keyName = IdentityCertificate::certificateNameToPublicKeyName(securedBag.getCertificate().getName());
+    Name certificateName = securedBag.getCertificate().getName();
+    Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
     Name identity = keyName.getPrefix(-1);
 
     // Add identity
     Info::addIdentity(identity);
 
     // Add key
-    Tpm::importPrivateKeyPkcs8IntoTpm(keyName, securedBag.getKey()->buf(), securedBag.getKey()->size(), passwordStr);
+    Tpm::importPrivateKeyPkcs8IntoTpm(keyName,
+                                      securedBag.getKey()->buf(),
+                                      securedBag.getKey()->size(),
+                                      passwordStr);
+
     shared_ptr<PublicKey> pubKey = Tpm::getPublicKeyFromTpm(keyName.toUri());
-    Info::addPublicKey(keyName, KEY_TYPE_RSA, *pubKey); // HACK! We should set key type according to the pkcs8 info.
+    // HACK! We should set key type according to the pkcs8 info.
+    Info::addPublicKey(keyName, KEY_TYPE_RSA, *pubKey);
     Info::setDefaultKeyNameForIdentity(keyName);
 
     // Add cert
@@ -571,7 +598,8 @@ private:
    * @return The name of the generated key.
    */
   Name
-  generateKeyPair(const Name& identityName, bool isKsk = false, KeyType keyType = KEY_TYPE_RSA, int keySize = 2048)
+  generateKeyPair(const Name& identityName, bool isKsk = false,
+                  KeyType keyType = KEY_TYPE_RSA, int keySize = 2048)
   {
     Name keyName = Info::getNewKeyName(identityName, isKsk);
 
@@ -593,13 +621,14 @@ private:
    * @throws Tpm::Error
    */
   void
-  signPacketWrapper(Data& data, const SignatureSha256WithRsa& signature, const Name& keyName, DigestAlgorithm digestAlgorithm)
+  signPacketWrapper(Data& data, const SignatureSha256WithRsa& signature,
+                    const Name& keyName, DigestAlgorithm digestAlgorithm)
   {
     data.setSignature(signature);
-    data.setSignatureValue
-      (Tpm::signInTpm(data.wireEncode().value(),
-                      data.wireEncode().value_size() - data.getSignature().getValue().size(),
-                      keyName, digestAlgorithm));
+    data.setSignatureValue(Tpm::signInTpm(data.wireEncode().value(),
+                                          data.wireEncode().value_size() -
+                                          data.getSignature().getValue().size(),
+                                          keyName, digestAlgorithm));
   }
 
   /**
@@ -612,9 +641,11 @@ private:
    * @throws Tpm::Error
    */
   void
-  signPacketWrapper(Interest& interest, const SignatureSha256WithRsa& signature, const Name& keyName, DigestAlgorithm digestAlgorithm)
+  signPacketWrapper(Interest& interest, const SignatureSha256WithRsa& signature,
+                    const Name& keyName, DigestAlgorithm digestAlgorithm)
   {
-    Name signedName = Name(interest.getName()).append(signature.getInfo());
+    Name signedName = interest.getName();
+    signedName.append(signature.getInfo());
 
     Block sigValue = Tpm::signInTpm(signedName.wireEncode().value(),
                                     signedName.wireEncode().value_size(),
@@ -624,7 +655,6 @@ private:
     signedName.append(sigValue);
     interest.setName(signedName);
   }
-
 
 };
 

@@ -274,12 +274,12 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
 
 void
 ValidatorConfig::checkPolicy(const Data& data,
-                             int stepCount,
+                             int nSteps,
                              const OnDataValidated& onValidated,
                              const OnDataValidationFailed& onValidationFailed,
                              std::vector<shared_ptr<ValidationRequest> >& nextSteps)
 {
-  if (m_stepLimit == stepCount)
+  if (m_stepLimit == nSteps)
     return onValidationFailed(data.shared_from_this(),
                               "Maximum steps of validation reached");
 
@@ -303,19 +303,19 @@ ValidatorConfig::checkPolicy(const Data& data,
   if (checkResult == 0)
     {
       const Signature& signature = data.getSignature();
-      checkSignature(data, signature, stepCount,
+      checkSignature(data, signature, nSteps,
                      onValidated, onValidationFailed, nextSteps);
     }
 }
 
 void
 ValidatorConfig::checkPolicy(const Interest& interest,
-                             int stepCount,
+                             int nSteps,
                              const OnInterestValidated& onValidated,
                              const OnInterestValidationFailed& onValidationFailed,
                              std::vector<shared_ptr<ValidationRequest> >& nextSteps)
 {
-  if (m_stepLimit == stepCount)
+  if (m_stepLimit == nSteps)
     return onValidationFailed(interest.shared_from_this(),
                               "Maximum steps of validation reached");
 
@@ -343,7 +343,7 @@ ValidatorConfig::checkPolicy(const Interest& interest,
       Signature signature(interestName[-2].blockFromValue(),
                           interestName[-1].blockFromValue());
 
-      checkSignature(interest, signature, stepCount,
+      checkSignature(interest, signature, nSteps,
                      onValidated, onValidationFailed, nextSteps);
     }
 }

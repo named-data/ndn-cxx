@@ -9,15 +9,11 @@
 #include "common.hpp"
 
 #include "validator.hpp"
-#include "../util/logging.hpp"
 #include "../util/crypto.hpp"
 
 #include "cryptopp.hpp"
 
-
 using namespace std;
-
-INIT_LOGGER("ndn.Validator");
 
 namespace ndn {
 
@@ -32,10 +28,10 @@ void
 Validator::validate(const Interest& interest,
                     const OnInterestValidated& onValidated,
                     const OnInterestValidationFailed& onValidationFailed,
-                    int stepCount)
+                    int nSteps)
 {
   vector<shared_ptr<ValidationRequest> > nextSteps;
-  checkPolicy(interest, stepCount, onValidated, onValidationFailed, nextSteps);
+  checkPolicy(interest, nSteps, onValidated, onValidationFailed, nextSteps);
 
   if (!nextSteps.empty())
     {
@@ -48,7 +44,7 @@ Validator::validate(const Interest& interest,
         m_face->expressInterest((*it)->m_interest,
                                 bind(&Validator::onData, this, _1, _2, *it),
                                 bind(&Validator::onTimeout,
-                                     this, _1, (*it)->m_retry,
+                                     this, _1, (*it)->m_nRetrials,
                                      onFailure,
                                      *it));
     }
@@ -64,10 +60,10 @@ void
 Validator::validate(const Data& data,
                     const OnDataValidated& onValidated,
                     const OnDataValidationFailed& onValidationFailed,
-                    int stepCount)
+                    int nSteps)
 {
   vector<shared_ptr<ValidationRequest> > nextSteps;
-  checkPolicy(data, stepCount, onValidated, onValidationFailed, nextSteps);
+  checkPolicy(data, nSteps, onValidated, onValidationFailed, nextSteps);
 
   if (!nextSteps.empty())
     {
@@ -80,7 +76,7 @@ Validator::validate(const Data& data,
         m_face->expressInterest((*it)->m_interest,
                                 bind(&Validator::onData, this, _1, _2, *it),
                                 bind(&Validator::onTimeout,
-                                     this, _1, (*it)->m_retry,
+                                     this, _1, (*it)->m_nRetrials,
                                      onFailure,
                                      *it));
     }
@@ -97,20 +93,21 @@ Validator::onData(const Interest& interest,
                   const Data& data,
                   const shared_ptr<ValidationRequest>& nextStep)
 {
-  validate(data, nextStep->m_onValidated, nextStep->m_onDataValidated, nextStep->m_stepCount);
+  validate(data, nextStep->m_onValidated, nextStep->m_onDataValidated, nextStep->m_nSteps);
 }
 
 void
 Validator::onTimeout(const Interest& interest,
-                     int retry,
+                     int nRetrials,
                      const OnFailure& onFailure,
                      const shared_ptr<ValidationRequest>& nextStep)
 {
-  if (retry > 0)
-    // Issue the same expressInterest except decrement retry.
+  if (nRetrials > 0)
+    // Issue the same expressInterest except decrement nRetrials.
     m_face->expressInterest(interest,
                             bind(&Validator::onData, this, _1, _2, nextStep),
-                            bind(&Validator::onTimeout, this, _1, retry - 1, onFailure, nextStep));
+                            bind(&Validator::onTimeout, this, _1,
+                                 nRetrials - 1, onFailure, nextStep));
   else
     onFailure("Cannot fetch cert: " + interest.getName().toUri());
 }
@@ -129,14 +126,12 @@ Validator::verifySignature(const Data& data, const PublicKey& key)
           }
         default:
           {
-            _LOG_DEBUG("verifySignature: Unknown signature type: " << data.getSignature().getType());
             return false;
           }
         }
     }
   catch (const Signature::Error& e)
     {
-      _LOG_DEBUG("verifySignature: " << e.what());
       return false;
     }
   return false;
@@ -169,19 +164,16 @@ Validator::verifySignature(const Interest& interest, const PublicKey& key)
           }
         default:
           {
-            _LOG_DEBUG("verifySignature: Unknown signature type: " << sig.getType());
             return false;
           }
         }
     }
   catch (const Signature::Error& e)
     {
-      _LOG_DEBUG("verifySignature: " << e.what());
       return false;
     }
   catch (const Block::Error& e)
     {
-      _LOG_DEBUG("verifySignature: " << e.what());
       return false;
     }
   return false;
@@ -201,14 +193,12 @@ Validator::verifySignature(const Buffer& data, const Signature& sig, const Publi
           }
         default:
           {
-            _LOG_DEBUG("verifySignature: Unknown signature type: " << sig.getType());
             return false;
           }
         }
     }
   catch (const Signature::Error& e)
     {
-      _LOG_DEBUG("verifySignature: " << e.what());
       return false;
     }
   return false;
@@ -237,7 +227,6 @@ Validator::verifySignature(const uint8_t* buf,
     }
   catch (const CryptoPP::Exception& e)
     {
-      _LOG_DEBUG("verifySignature: " << e.what());
       return false;
     }
 }
@@ -265,7 +254,6 @@ Validator::verifySignature(const uint8_t* buf, const size_t size, const Signatur
     }
   catch (const CryptoPP::Exception& e)
     {
-      _LOG_DEBUG("verifySignature: " << e.what());
       return false;
     }
 }

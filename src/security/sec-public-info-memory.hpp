@@ -14,7 +14,8 @@
 namespace ndn {
 
 /**
- * @brief SecPublicInfoMemory extends SecPublicInfo and implements its methods to store identity, public key and certificate objects in memory.
+ * @brief SecPublicInfoMemory extends SecPublicInfo and implements its methods to store identity,
+ *        public key and certificate objects in memory.
  */
 class SecPublicInfoMemory : public SecPublicInfo {
 public:
@@ -46,7 +47,7 @@ public:
   virtual void
   addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer);
 
-  virtual ptr_lib::shared_ptr<PublicKey>
+  virtual shared_ptr<PublicKey>
   getPublicKey(const Name& keyName);
 
   virtual bool
@@ -55,9 +56,8 @@ public:
   virtual void
   addCertificate(const IdentityCertificate& certificate);
 
-  virtual ptr_lib::shared_ptr<IdentityCertificate>
+  virtual shared_ptr<IdentityCertificate>
   getCertificate(const Name& certificateName);
-
 
   virtual Name
   getDefaultIdentity();
@@ -107,29 +107,40 @@ private:
   class KeyRecord {
   public:
     KeyRecord(KeyType keyType, const PublicKey& key)
-    : keyType_(keyType), key_(key)
+    : m_keyType(keyType), m_key(key)
     {
     }
 
-    const KeyType getKeyType() const { return keyType_; }
+    const KeyType
+    getKeyType() const
+    {
+      return m_keyType;
+    }
 
-    const PublicKey& getKey() { return key_; }
+    const PublicKey&
+    getKey()
+    {
+      return m_key;
+    }
 
   private:
-    KeyType   keyType_;
-    PublicKey key_;
+    KeyType   m_keyType;
+    PublicKey m_key;
   };
 
-  std::vector<std::string> identityStore_; /**< A list of name URI. */
-  std::string defaultIdentity_;            /**< The default identity in identityStore_, or "" if not defined. */
-  Name defaultKeyName_;
-  Name defaultCert_;
+  std::vector<std::string> m_identityStore; // A list of name URI.
+  std::string m_defaultIdentity; // The default identity in m_identityStore, or "" if not defined.
+  Name m_defaultKeyName;
+  Name m_defaultCert;
 
-  typedef std::map< std::string, ptr_lib::shared_ptr<KeyRecord> > KeyStore; /**< The map key is the keyName.toUri() */
-  typedef std::map< std::string, ptr_lib::shared_ptr<IdentityCertificate> > CertificateStore; /**< The map key is the certificateName.toUri() */
+  // The map key is the keyName.toUri()
+  typedef std::map<std::string, shared_ptr<KeyRecord> > KeyStore;
 
-  KeyStore keyStore_;
-  CertificateStore certificateStore_;
+  // The map key is the certificateName.toUri()
+  typedef std::map<std::string, shared_ptr<IdentityCertificate> > CertificateStore;
+
+  KeyStore m_keyStore;
+  CertificateStore m_certificateStore;
 };
 
 } // namespace ndn

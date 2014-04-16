@@ -31,15 +31,19 @@ public:
   SecTpmFile(const std::string& dir = "");
 
   virtual
-  ~SecTpmFile() {};
+  ~SecTpmFile()
+  {
+  }
 
   virtual void
   setTpmPassword(const uint8_t* password, size_t passwordLength)
-  {}
+  {
+  }
 
   virtual void
   resetTpmPassword()
-  {}
+  {
+  }
 
   virtual void
   setInTerminal(bool inTerminal)
@@ -75,7 +79,8 @@ public:
   getPublicKeyFromTpm(const Name&  keyName);
 
   virtual Block
-  signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm);
+  signInTpm(const uint8_t* data, size_t dataLength,
+            const Name& keyName, DigestAlgorithm digestAlgorithm);
 
   virtual ConstBufferPtr
   decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric);
@@ -94,7 +99,8 @@ public:
 
   virtual void
   addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl)
-  {}
+  {
+  }
 
 protected:
   /******************************

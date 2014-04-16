@@ -46,7 +46,7 @@ IdentityCertificate::setPublicKeyName()
   if (!isCorrectName(getName()))
     throw Error("Wrong Identity Certificate Name!");
 
-  publicKeyName_ = certificateNameToPublicKeyName(getName());
+  m_publicKeyName = certificateNameToPublicKeyName(getName());
 }
 
 bool

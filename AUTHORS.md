@@ -19,3 +19,4 @@ in the library:
 * Syed Obaid Amin       <http://obaidamin.weebly.com/>
 * Shuo Chen             <chenatu2006@gmail.com>
 * Hila Ben Abraham      <http://research.engineering.wustl.edu/~abrahamh/>
+* Xingyu Ma             <http://www.linkedin.com/pub/xingyu-ma/1a/384/5a8>

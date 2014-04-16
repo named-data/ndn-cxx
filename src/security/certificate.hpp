@@ -11,7 +11,6 @@
 
 #include "../common.hpp"
 #include "../data.hpp"
-
 #include "certificate-subject-description.hpp"
 #include "certificate-extension.hpp"
 #include "public-key.hpp"
@@ -64,53 +63,98 @@ public:
    * @param description The description to be added.
    */
   void
-  addSubjectDescription(const CertificateSubjectDescription& description) { subjectDescriptionList_.push_back(description); }
+  addSubjectDescription(const CertificateSubjectDescription& description)
+  {
+    m_subjectDescriptionList.push_back(description);
+  }
 
   const SubjectDescriptionList&
-  getSubjectDescriptionList() const { return subjectDescriptionList_; }
+  getSubjectDescriptionList() const
+  {
+    return m_subjectDescriptionList;
+  }
 
   SubjectDescriptionList&
-  getSubjectDescriptionList() { return subjectDescriptionList_; }
+  getSubjectDescriptionList()
+  {
+    return m_subjectDescriptionList;
+  }
 
   /**
    * Add a certificate extension.
    * @param extension the extension to be added
    */
   void
-  addExtension(const CertificateExtension& extension) { extensionList_.push_back(extension); }
+  addExtension(const CertificateExtension& extension)
+  {
+    m_extensionList.push_back(extension);
+  }
 
   const ExtensionList&
-  getExtensionList() const { return extensionList_; }
+  getExtensionList() const
+  {
+    return m_extensionList;
+  }
 
   ExtensionList&
-  getExtensionList() { return extensionList_; }
+  getExtensionList()
+  {
+    return m_extensionList;
+  }
 
   void
-  setNotBefore(const time::system_clock::TimePoint& notBefore) { notBefore_ = notBefore; }
+  setNotBefore(const time::system_clock::TimePoint& notBefore)
+  {
+    m_notBefore = notBefore;
+  }
 
   time::system_clock::TimePoint&
-  getNotBefore() { return notBefore_; }
+  getNotBefore()
+  {
+    return m_notBefore;
+  }
 
   const time::system_clock::TimePoint&
-  getNotBefore() const { return notBefore_; }
+  getNotBefore() const
+  {
+    return m_notBefore;
+  }
 
   void
-  setNotAfter(const time::system_clock::TimePoint& notAfter) { notAfter_ = notAfter; }
+  setNotAfter(const time::system_clock::TimePoint& notAfter)
+  {
+    m_notAfter = notAfter;
+  }
 
   time::system_clock::TimePoint&
-  getNotAfter() { return notAfter_; }
+  getNotAfter()
+  {
+    return m_notAfter;
+  }
 
   const time::system_clock::TimePoint&
-  getNotAfter() const { return notAfter_; }
+  getNotAfter() const
+  {
+    return m_notAfter;
+  }
 
   void
-  setPublicKeyInfo(const PublicKey& key) { key_ = key; }
+  setPublicKeyInfo(const PublicKey& key)
+  {
+    m_key = key;
+  }
 
   PublicKey&
-  getPublicKeyInfo() { return key_; }
+  getPublicKeyInfo()
+  {
+    return m_key;
+  }
 
   const PublicKey&
-  getPublicKeyInfo() const { return key_; }
+  getPublicKeyInfo() const
+  {
+    return m_key;
+  }
 
   // virtual Name
   // getPublicKeyName() const = 0;
@@ -137,11 +181,11 @@ protected:
   decode();
 
 protected:
-  SubjectDescriptionList subjectDescriptionList_;
-  time::system_clock::TimePoint notBefore_;
-  time::system_clock::TimePoint notAfter_;
-  PublicKey key_;
-  ExtensionList extensionList_;
+  SubjectDescriptionList m_subjectDescriptionList;
+  time::system_clock::TimePoint m_notBefore;
+  time::system_clock::TimePoint m_notAfter;
+  PublicKey m_key;
+  ExtensionList m_extensionList;
 };
 
 inline void
@@ -153,7 +197,7 @@ Certificate::wireDecode(const Block& wire)
 
 
 inline std::ostream&
-operator <<(std::ostream& os, const Certificate& cert)
+operator<<(std::ostream& os, const Certificate& cert)
 {
   cert.printCertificate(os);
   return os;

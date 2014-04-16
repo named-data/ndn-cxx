@@ -33,8 +33,6 @@ public:
   inline
   IdentityCertificate();
 
-  // Note: The copy constructor works because publicKeyName_ has a copy constructor.
-
   /**
    * Create an IdentityCertificate from the content in the data packet.
    * @param data The data packet with the content to decode.
@@ -55,7 +53,7 @@ public:
   setName(const Name& name);
 
   inline const Name&
-  getPublicKeyName () const;
+  getPublicKeyName() const;
 
   static bool
   isIdentityCertificate(const Certificate& certificate);
@@ -76,7 +74,7 @@ private:
   setPublicKeyName();
 
 protected:
-  Name publicKeyName_;
+  Name m_publicKeyName;
 };
 
 inline
@@ -111,9 +109,9 @@ IdentityCertificate::setName(const Name& name)
 }
 
 inline const Name&
-IdentityCertificate::getPublicKeyName () const
+IdentityCertificate::getPublicKeyName() const
 {
-  return publicKeyName_;
+  return m_publicKeyName;
 }
 
 } // namespace ndn

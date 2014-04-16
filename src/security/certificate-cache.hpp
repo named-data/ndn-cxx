@@ -17,12 +17,14 @@ class CertificateCache
 {
 public:
   virtual
-  ~CertificateCache() {}
-    
-  virtual void
-  insertCertificate(ptr_lib::shared_ptr<const IdentityCertificate> certificate) = 0;
+  ~CertificateCache()
+  {
+  }
 
-  virtual ptr_lib::shared_ptr<const IdentityCertificate> 
+  virtual void
+  insertCertificate(shared_ptr<const IdentityCertificate> certificate) = 0;
+
+  virtual shared_ptr<const IdentityCertificate>
   getCertificate(const Name& certificateNameWithoutVersion) = 0;
 };
 

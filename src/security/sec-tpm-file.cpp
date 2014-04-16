@@ -43,7 +43,10 @@ public:
     using namespace CryptoPP;
     string digest;
     SHA256 hash;
-    StringSource src(keyName, true, new HashFilter(hash, new Base64Encoder (new CryptoPP::StringSink(digest))));
+    StringSource src(keyName,
+                     true,
+                     new HashFilter(hash,
+                                    new Base64Encoder(new CryptoPP::StringSink(digest))));
 
     boost::algorithm::trim(digest);
     std::replace(digest.begin(), digest.end(), '/', '%');
@@ -88,38 +91,42 @@ SecTpmFile::generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySi
 
   string keyFileName = m_impl->maintainMapping(keyURI);
 
-  try{
-    switch (keyType){
-    case KEY_TYPE_RSA:
-      {
-        using namespace CryptoPP;
-        AutoSeededRandomPool rng;
+  try
+    {
+      switch (keyType)
+        {
+        case KEY_TYPE_RSA:
+          {
+            using namespace CryptoPP;
+            AutoSeededRandomPool rng;
 
-	InvertibleRSAFunction privateKey;
-	privateKey.Initialize(rng, keySize);
+            InvertibleRSAFunction privateKey;
+            privateKey.Initialize(rng, keySize);
 
-	string privateKeyFileName = keyFileName + ".pri";
-	Base64Encoder privateKeySink(new FileSink(privateKeyFileName.c_str()));
-	privateKey.DEREncode(privateKeySink);
-	privateKeySink.MessageEnd();
+            string privateKeyFileName = keyFileName + ".pri";
+            Base64Encoder privateKeySink(new FileSink(privateKeyFileName.c_str()));
+            privateKey.DEREncode(privateKeySink);
+            privateKeySink.MessageEnd();
 
-	RSAFunction publicKey(privateKey);
-	string publicKeyFileName = keyFileName + ".pub";
-	Base64Encoder publicKeySink(new FileSink(publicKeyFileName.c_str()));
-	publicKey.DEREncode(publicKeySink);
-	publicKeySink.MessageEnd();
+            RSAFunction publicKey(privateKey);
+            string publicKeyFileName = keyFileName + ".pub";
+            Base64Encoder publicKeySink(new FileSink(publicKeyFileName.c_str()));
+            publicKey.DEREncode(publicKeySink);
+            publicKeySink.MessageEnd();
 
-	/*set file permission*/
-	chmod(privateKeyFileName.c_str(), 0000400);
-	chmod(publicKeyFileName.c_str(), 0000444);
-	return;
-      }
-    default:
-      throw Error("Unsupported key type!");
+            /*set file permission*/
+            chmod(privateKeyFileName.c_str(), 0000400);
+            chmod(publicKeyFileName.c_str(), 0000444);
+            return;
+          }
+        default:
+          throw Error("Unsupported key type!");
+        }
     }
-  }catch (const CryptoPP::Exception& e){
-    throw Error(e.what());
-  }
+  catch (const CryptoPP::Exception& e)
+    {
+      throw Error(e.what());
+    }
 }
 
 void
@@ -144,14 +151,20 @@ SecTpmFile::getPublicKeyFromTpm(const Name&  keyName)
     throw Error("Public Key already exist");
 
   ostringstream os;
-  try{
-    using namespace CryptoPP;
-    FileSource(m_impl->nameTransform(keyURI, ".pub").string().c_str(), true, new Base64Decoder(new FileSink(os)));
-  }catch (const CryptoPP::Exception& e){
-    throw Error(e.what());
-  }
+  try
+    {
+      using namespace CryptoPP;
+      FileSource(m_impl->nameTransform(keyURI, ".pub").string().c_str(),
+                 true,
+                 new Base64Decoder(new FileSink(os)));
+    }
+  catch (const CryptoPP::Exception& e)
+    {
+      throw Error(e.what());
+    }
 
-  return make_shared<PublicKey>(reinterpret_cast<const uint8_t*>(os.str().c_str()), os.str().size());
+  return make_shared<PublicKey>(reinterpret_cast<const uint8_t*>(os.str().c_str()),
+                                os.str().size());
 }
 
 ConstBufferPtr
@@ -167,73 +180,94 @@ SecTpmFile::exportPrivateKeyPkcs1FromTpm(const Name& keyName)
 bool
 SecTpmFile::importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
 {
-  try{
-    string keyFileName = m_impl->maintainMapping(keyName.toUri());
-    keyFileName.append(".pri");
-    CryptoPP::StringSource(buf, size, true,
-                           new CryptoPP::Base64Encoder(new CryptoPP::FileSink(keyFileName.c_str())));
-    return true;
-  }catch (...){
-    return false;
-  }
+  try
+    {
+      using namespace CryptoPP;
+
+      string keyFileName = m_impl->maintainMapping(keyName.toUri());
+      keyFileName.append(".pri");
+      StringSource(buf, size,
+                   true,
+                   new Base64Encoder(new FileSink(keyFileName.c_str())));
+      return true;
+    }
+  catch (const CryptoPP::Exception& e)
+    {
+      return false;
+    }
 }
 
 bool
 SecTpmFile::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
 {
-  try{
-    string keyFileName = m_impl->maintainMapping(keyName.toUri());
-    keyFileName.append(".pub");
-    CryptoPP::StringSource(buf, size, true,
-                           new CryptoPP::Base64Encoder(new CryptoPP::FileSink(keyFileName.c_str())));
-    return true;
-  }catch (...){
-    return false;
-  }
+  try
+    {
+      using namespace CryptoPP;
+
+      string keyFileName = m_impl->maintainMapping(keyName.toUri());
+      keyFileName.append(".pub");
+      StringSource(buf, size,
+                   true,
+                   new Base64Encoder(new FileSink(keyFileName.c_str())));
+      return true;
+    }
+  catch (const CryptoPP::Exception& e)
+    {
+      return false;
+    }
 }
 
 Block
-SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, DigestAlgorithm digestAlgorithm)
+SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength,
+                      const Name& keyName, DigestAlgorithm digestAlgorithm)
 {
   string keyURI = keyName.toUri();
 
   if (!doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
     throw Error("private key doesn't exists");
 
-  try{
-    using namespace CryptoPP;
-    AutoSeededRandomPool rng;
+  try
+    {
+      using namespace CryptoPP;
+      AutoSeededRandomPool rng;
 
-    //Read private key
-    ByteQueue bytes;
-    FileSource file(m_impl->nameTransform(keyURI, ".pri").string().c_str(), true, new Base64Decoder);
-    file.TransferTo(bytes);
-    bytes.MessageEnd();
-    RSA::PrivateKey privateKey;
-    privateKey.Load(bytes);
+      //Read private key
+      ByteQueue bytes;
+      FileSource file(m_impl->nameTransform(keyURI, ".pri").string().c_str(),
+                      true, new Base64Decoder);
+      file.TransferTo(bytes);
+      bytes.MessageEnd();
+      RSA::PrivateKey privateKey;
+      privateKey.Load(bytes);
 
-    //Sign message
-    switch (digestAlgorithm){
-    case DIGEST_ALGORITHM_SHA256:
-      {
-	RSASS<PKCS1v15, SHA256>::Signer signer(privateKey);
+      //Sign message
+      switch (digestAlgorithm)
+        {
+        case DIGEST_ALGORITHM_SHA256:
+          {
+            RSASS<PKCS1v15, SHA256>::Signer signer(privateKey);
 
-	OBufferStream os;
-	StringSource(data, dataLength, true, new SignerFilter(rng, signer, new FileSink(os)));
+            OBufferStream os;
+            StringSource(data, dataLength,
+                         true,
+                         new SignerFilter(rng, signer, new FileSink(os)));
 
-	return Block(Tlv::SignatureValue, os.buf());
-      }
-    default:
-      throw Error("Unsupported digest algorithm!");
+            return Block(Tlv::SignatureValue, os.buf());
+          }
+        default:
+          throw Error("Unsupported digest algorithm!");
+        }
     }
-  }catch (const CryptoPP::Exception& e){
-    throw Error(e.what());
-  }
+  catch (const CryptoPP::Exception& e)
+    {
+      throw Error(e.what());
+    }
 }
 
 
 ConstBufferPtr
-SecTpmFile::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric)
+SecTpmFile::decryptInTpm(const uint8_t* data, size_t dataLength,
+                         const Name& keyName, bool isSymmetric)
 {
   throw Error("SecTpmFile::decryptInTpm is not supported!");
   // string keyURI = keyName.toUri();
@@ -294,7 +328,8 @@ SecTpmFile::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& key
 }
 
 ConstBufferPtr
-SecTpmFile::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric)
+SecTpmFile::encryptInTpm(const uint8_t* data, size_t dataLength,
+                         const Name& keyName, bool isSymmetric)
 {
   throw Error("SecTpmFile::encryptInTpm is not supported!");
   // string keyURI = keyName.toUri();
@@ -421,14 +456,16 @@ SecTpmFile::doesKeyExistInTpm(const Name& keyName, KeyClass keyClass)
 bool
 SecTpmFile::generateRandomBlock(uint8_t* res, size_t size)
 {
-  try {
-    CryptoPP::AutoSeededRandomPool rng;
-    rng.GenerateBlock(res, size);
-    return true;
-  }
-  catch (const CryptoPP::Exception& e) {
-    return false;
-  }
+  try
+    {
+      CryptoPP::AutoSeededRandomPool rng;
+      rng.GenerateBlock(res, size);
+      return true;
+    }
+  catch (const CryptoPP::Exception& e)
+    {
+      return false;
+    }
 }
 
 } // namespace ndn

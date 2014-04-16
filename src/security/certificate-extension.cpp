@@ -26,9 +26,9 @@ CertificateExtension::encode(CryptoPP::BufferedTransformation& out) const
 
   DERSequenceEncoder extension(out);
   {
-    extensionId_.encode(extension);
-    DEREncodeUnsigned(extension, isCritical_, BOOLEAN);
-    DEREncodeOctetString(extension, extensionValue_.buf(), extensionValue_.size());
+    m_extensionId.encode(extension);
+    DEREncodeUnsigned(extension, m_isCritical, BOOLEAN);
+    DEREncodeOctetString(extension, m_extensionValue.buf(), m_extensionValue.size());
   }
   extension.MessageEnd();
 }
@@ -43,14 +43,14 @@ CertificateExtension::decode(CryptoPP::BufferedTransformation& in)
 
   BERSequenceDecoder extension(in);
   {
-    extensionId_.decode(extension);
-    BERDecodeUnsigned(extension, isCritical_, BOOLEAN);
+    m_extensionId.decode(extension);
+    BERDecodeUnsigned(extension, m_isCritical, BOOLEAN);
 
     // the extra copy operation can be optimized, but not trivial,
     // since the length is not known in advance
     SecByteBlock tmpBlock;
     BERDecodeOctetString(extension, tmpBlock);
-    extensionValue_.assign(tmpBlock.begin(), tmpBlock.end());
+    m_extensionValue.assign(tmpBlock.begin(), tmpBlock.end());
   }
   extension.MessageEnd();
 }

@@ -27,8 +27,10 @@ public:
     }
   };
 
-  SecRuleRelative(const std::string& dataRegex, const std::string& signerRegex, const std::string& op,
-                  const std::string& dataExpand, const std::string& signerExpand, bool isPositive);
+  SecRuleRelative(const std::string& dataRegex, const std::string& signerRegex,
+                  const std::string& op,
+                  const std::string& dataExpand, const std::string& signerExpand,
+                  bool isPositive);
 
   virtual
   ~SecRuleRelative();
