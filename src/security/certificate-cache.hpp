@@ -33,6 +33,18 @@ public:
 
   virtual shared_ptr<const IdentityCertificate>
   getCertificate(const Name& certificateNameWithoutVersion) = 0;
+
+  virtual void
+  reset() = 0;
+
+  virtual size_t
+  getSize() = 0;
+
+  bool
+  isEmpty()
+  {
+    return (getSize() == 0);
+  }
 };
 
 } // namespace ndn

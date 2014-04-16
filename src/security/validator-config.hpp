@@ -60,6 +60,12 @@ public:
   load(const security::conf::ConfigSection& configSection,
        const std::string& filename);
 
+  inline void
+  reset();
+
+  inline bool
+  isEmpty();
+
 protected:
   virtual void
   checkPolicy(const Data& data,
@@ -121,6 +127,26 @@ private:
   DataRuleList m_dataRules;
   AnchorList m_anchors;
 };
+
+inline void
+ValidatorConfig::reset()
+{
+  m_certificateCache->reset();
+  m_interestRules.clear();
+  m_dataRules.clear();
+  m_anchors.clear();
+}
+
+inline bool
+ValidatorConfig::isEmpty()
+{
+  if (m_certificateCache->isEmpty() &&
+      m_interestRules.empty() &&
+      m_dataRules.empty() &&
+      m_anchors.empty())
+    return true;
+  return false;
+}
 
 template<class Packet, class OnValidated, class OnFailed>
 void

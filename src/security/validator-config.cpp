@@ -32,7 +32,7 @@ ValidatorConfig::ValidatorConfig(Face& face,
   , m_certificateCache(certificateCache)
 {
   if (!static_cast<bool>(m_certificateCache))
-    m_certificateCache = make_shared<CertificateCacheTtl>(m_face.ioService());
+    m_certificateCache = make_shared<CertificateCacheTtl>(boost::ref(m_face.getIoService()));
 }
 
 void
@@ -83,6 +83,8 @@ ValidatorConfig::load(const security::conf::ConfigSection& configSection,
                       const std::string& filename)
 {
   BOOST_ASSERT(!filename.empty());
+
+  reset();
 
   if (configSection.begin() == configSection.end())
     {

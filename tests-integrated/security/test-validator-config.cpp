@@ -891,7 +891,77 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   boost::filesystem::remove(CERT_PATH);
 }
 
+BOOST_AUTO_TEST_CASE(Reset)
+{
+  KeyChain keyChain;
 
+  Name root("/TestValidatorConfig/Reload");
+  Name rootCertName = keyChain.createIdentity(root);
+  shared_ptr<IdentityCertificate> rootCert =
+    keyChain.getCertificate(rootCertName);
+  io::save(*rootCert, "trust-anchor-8.cert");
+
+  Face face;
+
+  const std::string CONFIG =
+    "rule\n"
+    "{\n"
+    "  id \"NRD Prefix Registration Command Rule\"\n"
+    "  for interest\n"
+    "  filter\n"
+    "  {\n"
+    "    type name\n"
+    "    regex ^<localhost><nrd>[<register><unregister><advertise><withdraw>]<>{3}$\n"
+    "  }\n"
+    "  checker\n"
+    "  {\n"
+    "    type customized\n"
+    "    sig-type rsa-sha256\n"
+    "    key-locator\n"
+    "    {\n"
+    "      type name\n"
+    "      regex ^[^<KEY>]*<KEY><>*<ksk-.*><ID-CERT>$\n"
+    "    }\n"
+    "  }\n"
+    "}\n"
+    "rule\n"
+    "{\n"
+    "  id \"Testbed Hierarchy Rule\"\n"
+    "  for data\n"
+    "  filter\n"
+    "  {\n"
+    "    type name\n"
+    "    regex ^[^<KEY>]*<KEY><>*<ksk-.*><ID-CERT><>$\n"
+    "  }\n"
+    "  checker\n"
+    "  {\n"
+    "    type hierarchical\n"
+    "    sig-type rsa-sha256\n"
+    "  }\n"
+    "}\n"
+    "trust-anchor\n"
+    "{\n"
+    "  type file\n"
+    "  file-name \"trust-anchor-8.cert\"\n"
+    "}\n";
+  const boost::filesystem::path CONFIG_PATH =
+    (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
+
+
+  shared_ptr<ValidatorConfig> validator = shared_ptr<ValidatorConfig>(new ValidatorConfig(face));
+
+  validator->load(CONFIG, CONFIG_PATH.native());
+  BOOST_CHECK_EQUAL(validator->isEmpty(), false);
+
+  validator->reset();
+  BOOST_CHECK(validator->isEmpty());
+
+  keyChain.deleteIdentity(root);
+
+  const boost::filesystem::path CERT_PATH =
+    (boost::filesystem::current_path() / std::string("trust-anchor-8.cert"));
+  boost::filesystem::remove(CERT_PATH);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
