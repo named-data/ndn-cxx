@@ -42,9 +42,9 @@ std::string ndnsec_helper("\
   set-acl      Configure ACL of a private key.\n\
   unlock-tpm   Unlock Tpm.\n\
   op-tool      Operator tool.\n\
-"); 
+");
 
-int 
+int
 main(int argc, char** argv)
 {
   if (argc < 2)

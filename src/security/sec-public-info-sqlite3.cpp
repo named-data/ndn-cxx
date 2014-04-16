@@ -196,6 +196,9 @@ SecPublicInfoSqlite3::doesIdentityExist(const Name& identityName)
 void
 SecPublicInfoSqlite3::addIdentity(const Name& identityName)
 {
+  if (doesIdentityExist(identityName))
+    return;
+
   sqlite3_stmt* statement;
 
   sqlite3_prepare_v2(m_database, "INSERT OR REPLACE INTO Identity (identity_name) values (?)", -1, &statement, 0);
@@ -247,6 +250,9 @@ void
 SecPublicInfoSqlite3::addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer)
 {
   if (keyName.empty())
+    return;
+
+  if (doesPublicKeyExist(keyName))
     return;
 
   string keyId = keyName.get(-1).toEscapedString();
@@ -386,6 +392,9 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
     IdentityCertificate::certificateNameToPublicKeyName(certificate.getName()); // KeyName is from IdentityCertificate name, so should be qualified.
 
   addPublicKey(keyName, KEY_TYPE_RSA, certificate.getPublicKeyInfo()); //HACK!!! Assume the key type is RSA, we should check more.
+
+  if (doesCertificateExist(certificateName))
+    return;
 
   string keyId = keyName.get(-1).toEscapedString();
   Name identity = keyName.getPrefix(-1);

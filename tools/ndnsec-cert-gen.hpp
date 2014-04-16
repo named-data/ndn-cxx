@@ -26,7 +26,7 @@ ndnsec_cert_gen(int argc, char** argv)
   std::string requestFile("-");
   std::string signId;
   std::string subjectInfo;
-  bool isSelfSigned = false;
+  bool hasSignId = false;
   bool isNack = false;
 
   po::options_description description("General Usage\n  ndnsec cert-gen [-h] [-S date] [-E date] [-N subject-name] [-I subject-info] [-s sign-id] request\nGeneral options");
@@ -37,7 +37,7 @@ ndnsec_cert_gen(int argc, char** argv)
     ("subject-name,N", po::value<std::string>(&subjectName), "subject name")
     ("subject-info,I", po::value<std::string>(&subjectInfo), "subject info, pairs of OID and string description: \"2.5.4.10 'University of California, Los Angeles'\"")
     ("nack", "Generate revocation certificate (NACK)")
-    ("sign-id,s", po::value<std::string>(&signId), "signing Identity, self-signed if not specified")
+    ("sign-id,s", po::value<std::string>(&signId), "signing Identity, system default identity if not specified")
     ("request,r", po::value<std::string>(&requestFile), "request file name, - for stdin")
     ;
 
@@ -63,9 +63,9 @@ ndnsec_cert_gen(int argc, char** argv)
       return 0;
     }
 
-  if (vm.count("sign-id") == 0)
+  if (vm.count("sign-id") != 0)
     {
-      isSelfSigned = true;
+      hasSignId = true;
     }
 
   if (vm.count("nack") != 0)
@@ -142,41 +142,39 @@ ndnsec_cert_gen(int argc, char** argv)
       return 1;
     }
 
+  KeyChain keyChain;
+
   Name keyName = selfSignedCertificate->getPublicKeyName();
   Name signIdName;
   Name certName;
 
-  if (isSelfSigned)
+  if (!hasSignId)
+    signIdName = keyChain.getDefaultIdentity();
+  else
+    signIdName = Name(signId);
+
+
+  if (signIdName.isPrefixOf(keyName))
     {
-      certName = keyName.getPrefix(keyName.size()-1);
-      certName.append("KEY").append(keyName.get(-1)).append("ID-CERT").appendVersion();
+      // if signee's namespace is a sub-namespace of signer, for example, signer's namespace is
+      // /ndn/test, signee's namespace is /ndn/test/alice, the generated certificate name is
+      // /ndn/test/KEY/alice/ksk-1234/ID-CERT/%01%02
+      certName.append(signIdName)
+        .append("KEY")
+        .append(keyName.getSubName(signIdName.size()))
+        .append("ID-CERT")
+        .appendVersion();
     }
   else
     {
-      signIdName = Name(signId);
-
-      int count = 0;
-      Name::const_iterator i = keyName.begin();
-      Name::const_iterator j = signIdName.begin();
-      for (; i != keyName.end() && j != signIdName.end(); i++, j++)
-        {
-          if (*i != *j)
-            break;
-
-          count++;
-        }
-
-      if (j != signIdName.end() || i == keyName.end())
-        {
-          std::cerr << "wrong signing identity!" << std::endl;
-          return 1;
-        }
-
-      certName = keyName.getSubName(0, count);
-      certName.append("KEY")
-        .append(keyName.getSubName(count, keyName.size() - count))
+      // if signee's namespace is not a sub-namespace of signer, for example, signer's namespace is
+      // /ndn/test, signee's namespace is /ndn/ucla/bob, the generated certificate name is
+      // /ndn/ucla/bob/KEY/ksk-1234/ID-CERT/%01%02
+      certName.append(keyName.getPrefix(-1))
+        .append("KEY")
+        .append(keyName.get(-1))
         .append("ID-CERT")
-        .appendVersion ();
+        .appendVersion();
     }
 
   Block wire;
@@ -200,17 +198,10 @@ ndnsec_cert_gen(int argc, char** argv)
         certificate.addSubjectDescription(otherSubDescrypt[i]);
       certificate.encode();
 
-      KeyChain keyChain;
+      keyChain.createIdentity(signIdName);
+      Name signingCertificateName = keyChain.getDefaultCertificateNameForIdentity(signIdName);
+      keyChain.sign(certificate, signingCertificateName);
 
-      if (isSelfSigned)
-        keyChain.selfSign(certificate);
-      else
-        {
-          Name signingCertificateName =
-            keyChain.getDefaultCertificateNameForIdentity(Name(signId));
-
-          keyChain.sign(certificate, signingCertificateName);
-        }
       wire = certificate.wireEncode();
     }
   else
@@ -219,12 +210,10 @@ ndnsec_cert_gen(int argc, char** argv)
       // revocationCert.setContent(void*, 0); // empty content
       revocationCert.setName(certName);
 
-      KeyChain keyChain;
-
-      Name signingCertificateName =
-        keyChain.getDefaultCertificateNameForIdentity(signId);
-
+      keyChain.createIdentity(signIdName);
+      Name signingCertificateName = keyChain.getDefaultCertificateNameForIdentity(signIdName);
       keyChain.sign(revocationCert, signingCertificateName);
+
       wire = revocationCert.wireEncode();
     }
 
