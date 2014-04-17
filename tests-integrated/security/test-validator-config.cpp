@@ -963,6 +963,40 @@ BOOST_AUTO_TEST_CASE(Reset)
   boost::filesystem::remove(CERT_PATH);
 }
 
+BOOST_AUTO_TEST_CASE(Wildcard)
+{
+  KeyChain keyChain;
+
+  Name identity("/TestValidatorConfig/Wildcard");
+  identity.appendVersion();
+  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity));
+
+  Name dataName1("/any/data");
+  shared_ptr<Data> data1 = make_shared<Data>(dataName1);
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*data1, identity));
+
+  std::string CONFIG =
+    "trust-anchor\n"
+    "{\n"
+    "  type any\n"
+    "}\n";
+
+  const boost::filesystem::path CONFIG_PATH =
+    (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
+
+
+  Face face;
+  ValidatorConfig validator(face);
+  validator.load(CONFIG, CONFIG_PATH.native());
+
+  validator.validate(*data1,
+                     bind(&onValidated, _1),
+                     bind(&onValidationFailed, _1, _2));
+
+  keyChain.deleteIdentity(identity);
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace ndn

@@ -28,6 +28,7 @@ ValidatorConfig::ValidatorConfig(Face& face,
                                  const shared_ptr<CertificateCache>& certificateCache,
                                  const int stepLimit)
   : Validator(face)
+  , m_shouldValidate(true)
   , m_stepLimit(stepLimit)
   , m_certificateCache(certificateCache)
 {
@@ -275,6 +276,10 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
 
       return;
     }
+  else if (boost::iequals(type, "any"))
+    {
+      m_shouldValidate = false;
+    }
   else
     throw Error("Unsupported trust-anchor.type: " + type);
 }
@@ -286,6 +291,9 @@ ValidatorConfig::checkPolicy(const Data& data,
                              const OnDataValidationFailed& onValidationFailed,
                              std::vector<shared_ptr<ValidationRequest> >& nextSteps)
 {
+  if (!m_shouldValidate)
+    return onValidated(data.shared_from_this());
+
   if (m_stepLimit == nSteps)
     return onValidationFailed(data.shared_from_this(),
                               "Maximum steps of validation reached");
@@ -322,6 +330,9 @@ ValidatorConfig::checkPolicy(const Interest& interest,
                              const OnInterestValidationFailed& onValidationFailed,
                              std::vector<shared_ptr<ValidationRequest> >& nextSteps)
 {
+  if (!m_shouldValidate)
+    return onValidated(interest.shared_from_this());
+
   if (m_stepLimit == nSteps)
     return onValidationFailed(interest.shared_from_this(),
                               "Maximum steps of validation reached");

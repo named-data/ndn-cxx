@@ -411,6 +411,21 @@ checker, for example:
       base64-string "Bv0DGwdG...amHFvHIMDw=="
     }
 
+There is another special trust anchor "any".
+As long as such a trust-anchor is defined in config file,
+packet validation will be turned off.
+
+-  **ATTENTION: This type of trust anchor is dangerous.
+   You should used it only when you want to disable packet validation temporarily
+   (e.g, debugging code, building a demo).**
+
+::
+
+    trust-anchor
+    {
+      type any
+    }
+
 Example Configuration For NLSR
 ------------------------------
 

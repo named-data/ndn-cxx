@@ -120,6 +120,13 @@ private:
   typedef std::vector<shared_ptr<DataRule> >     DataRuleList;
   typedef std::map<Name, shared_ptr<IdentityCertificate> > AnchorList;
 
+  /**
+   * @brief gives whether validation should be preformed
+   *
+   * If false, no validation occurs, and any packet is considered validated immediately.
+   */
+  bool m_shouldValidate;
+
   int m_stepLimit;
   shared_ptr<CertificateCache> m_certificateCache;
 
