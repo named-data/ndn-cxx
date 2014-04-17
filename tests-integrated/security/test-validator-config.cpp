@@ -667,11 +667,35 @@ BOOST_AUTO_TEST_CASE(FixedSingerChecker)
   shared_ptr<Data> data2 = make_shared<Data>(dataName2);
   BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*data2, identity2));
 
+  Name interestName("/TestValidatorConfig/FixedSingerChecker/fakeSigInfo/fakeSigValue");
+  shared_ptr<Interest> interest = make_shared<Interest>(interestName);
+
   const std::string CONFIG =
     "rule\n"
     "{\n"
-    "  id \"Simple3 Rule\"\n"
+    "  id \"FixedSingerChecker Data Rule\"\n"
     "  for data\n"
+    "  filter"
+    "  {\n"
+    "    type name\n"
+    "    name /TestValidatorConfig/FixedSingerChecker\n"
+    "    relation is-strict-prefix-of\n"
+    "  }\n"
+    "  checker\n"
+    "  {\n"
+    "    type fixed-signer\n"
+    "    sig-type rsa-sha256\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-7.cert\"\n"
+    "    }\n"
+    "  }\n"
+    "}\n"
+    "rule\n"
+    "{\n"
+    "  id \"FixedSingerChecker Interest Rule\"\n"
+    "  for interest\n"
     "  filter"
     "  {\n"
     "    type name\n"
@@ -704,6 +728,10 @@ BOOST_AUTO_TEST_CASE(FixedSingerChecker)
   validator.validate(*data2,
                      bind(&onIntentionalFailureValidated, _1),
                      bind(&onIntentionalFailureInvalidated, _1, _2));
+
+  validator.validate(*interest,
+                     bind(&onIntentionalFailureValidated2, _1),
+                     bind(&onIntentionalFailureInvalidated2, _1, _2));
 
 
   keyChain.deleteIdentity(identity1);
@@ -776,6 +804,8 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   shared_ptr<Interest> interest3 = make_shared<Interest>(interestName3);
   BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest3, root));
 
+  Name interestName4("/localhost/nrd/register/option/timestamp/nonce/fakeSigInfo/fakeSigValue");
+  shared_ptr<Interest> interest4 = make_shared<Interest>(interestName4);
 
   const std::string CONFIG =
     "rule\n"
@@ -825,17 +855,22 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   shared_ptr<ValidatorConfig> validator = shared_ptr<ValidatorConfig>(new ValidatorConfig(face2));
   validator->load(CONFIG, CONFIG_PATH.native());
 
+  // should succeed
   scheduler.scheduleEvent(time::milliseconds(200),
                           bind(&FacesFixture::validate3, this,
                                validator, interest1));
-
+  // should fail
   scheduler.scheduleEvent(time::milliseconds(400),
                           bind(&FacesFixture::validate4, this,
                                validator, interest2));
-
+  // should succeed
   scheduler.scheduleEvent(time::milliseconds(600),
                           bind(&FacesFixture::validate3, this,
                                validator, interest3));
+  // should fail
+  scheduler.scheduleEvent(time::milliseconds(600),
+                          bind(&FacesFixture::validate4, this,
+                               validator, interest4));
 
   BOOST_REQUIRE_NO_THROW(face->processEvents());
 

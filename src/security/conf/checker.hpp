@@ -94,10 +94,23 @@ public:
         const OnInterestChecked& onValidated,
         const OnInterestCheckFailed& onValidationFailed)
   {
-    const Name& interestName = interest.getName();
-    Signature signature(interestName[INTEREST_SIG_INFO].blockFromValue(),
-                        interestName[INTEREST_SIG_VALUE].blockFromValue());
-    return check(interest, signature, onValidated, onValidationFailed);
+    try
+      {
+        const Name& interestName = interest.getName();
+        Signature signature(interestName[INTEREST_SIG_INFO].blockFromValue(),
+                            interestName[INTEREST_SIG_VALUE].blockFromValue());
+        return check(interest, signature, onValidated, onValidationFailed);
+      }
+    catch (const Tlv::Error& e)
+      {
+        onValidationFailed(interest.shared_from_this(), "Cannot decode signature related TLVs");
+        return -1;
+      }
+    catch (const Signature::Error& e)
+      {
+        onValidationFailed(interest.shared_from_this(), "No valid signature");
+        return -1;
+      }
   }
 
 private:
@@ -201,10 +214,23 @@ public:
         const OnInterestChecked& onValidated,
         const OnInterestCheckFailed& onValidationFailed)
   {
-    const Name& interestName = interest.getName();
-    Signature signature(interestName[INTEREST_SIG_INFO].blockFromValue(),
-                        interestName[INTEREST_SIG_VALUE].blockFromValue());
-    return check(interest, signature, onValidated, onValidationFailed);
+    try
+      {
+        const Name& interestName = interest.getName();
+        Signature signature(interestName[INTEREST_SIG_INFO].blockFromValue(),
+                            interestName[INTEREST_SIG_VALUE].blockFromValue());
+        return check(interest, signature, onValidated, onValidationFailed);
+      }
+    catch (const Tlv::Error& e)
+      {
+        onValidationFailed(interest.shared_from_this(), "Cannot decode signature related TLVs");
+        return -1;
+      }
+    catch (const Signature::Error& e)
+      {
+        onValidationFailed(interest.shared_from_this(), "No valid signature");
+        return -1;
+      }
   }
 
 private:
