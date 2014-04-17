@@ -252,6 +252,7 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
       if (static_cast<bool>(idCert))
         {
           BOOST_ASSERT(idCert->getName().size() >= 1);
+          m_staticContainer.add(idCert);
           m_anchors[idCert->getName().getPrefix(-1)] = idCert;
         }
       else
@@ -278,6 +279,7 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
       if (static_cast<bool>(idCert))
         {
           BOOST_ASSERT(idCert->getName().size() >= 1);
+          m_staticContainer.add(idCert);
           m_anchors[idCert->getName().getPrefix(-1)] = idCert;
         }
       else
@@ -285,12 +287,141 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
 
       return;
     }
+  else if (boost::iequals(type, "dir"))
+    {
+      if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "dir"))
+        throw Error("Expect <trust-anchor.dir>!");
+
+      std::string dirString(propertyIt->second.data());
+      propertyIt++;
+
+      if (propertyIt != configSection.end())
+        {
+          if (boost::iequals(propertyIt->first, "refresh"))
+            {
+              using namespace boost::filesystem;
+
+              time::nanoseconds refresh = getRefreshPeriod(propertyIt->second.data());
+              propertyIt++;
+
+              if (propertyIt != configSection.end())
+                throw Error("Expect the end of trust-anchor!");
+
+              path dirPath = absolute(dirString, path(filename).parent_path());
+
+              m_dynamicContainers.push_back(DynamicTrustAnchorContainer(dirPath, true, refresh));
+
+              m_dynamicContainers.rbegin()->setLastRefresh(time::system_clock::now() - refresh);
+
+              return;
+            }
+          else
+            throw Error("Expect <trust-anchor.refresh>!");
+        }
+      else
+        {
+          using namespace boost::filesystem;
+
+          path dirPath = absolute(dirString, path(filename).parent_path());
+
+          directory_iterator end;
+
+          for (directory_iterator it(dirPath); it != end; it++)
+            {
+              shared_ptr<IdentityCertificate> idCert =
+                io::load<IdentityCertificate>(it->path().string());
+
+              if (static_cast<bool>(idCert))
+                m_staticContainer.add(idCert);
+            }
+
+          return;
+        }
+    }
   else if (boost::iequals(type, "any"))
     {
       m_shouldValidate = false;
     }
   else
     throw Error("Unsupported trust-anchor.type: " + type);
+}
+
+time::nanoseconds
+ValidatorConfig::getRefreshPeriod(std::string inputString)
+{
+  char unit = inputString[inputString.size() - 1];
+  std::string refreshString = inputString.substr(0, inputString.size() - 1);
+
+  uint32_t number;
+
+  try
+    {
+      number = boost::lexical_cast<uint32_t>(refreshString);
+    }
+  catch (boost::bad_lexical_cast&)
+    {
+      throw Error("Bad number: " + refreshString);
+    }
+
+  if (number == 0)
+    return getDefaultRefreshPeriod();
+
+  switch (unit)
+    {
+    case 'h':
+      return time::duration_cast<time::nanoseconds>(time::hours(number));
+    case 'm':
+      return time::duration_cast<time::nanoseconds>(time::minutes(number));
+    case 's':
+      return time::duration_cast<time::nanoseconds>(time::seconds(number));
+    default:
+      throw Error(std::string("Wrong time unit: ") + unit);
+    }
+}
+
+void
+ValidatorConfig::refreshAnchors()
+{
+  time::system_clock::TimePoint now = time::system_clock::now();
+
+  bool isRefreshed = false;
+
+  for (DynamicContainers::iterator cIt = m_dynamicContainers.begin();
+       cIt != m_dynamicContainers.end(); cIt++)
+    {
+      if (cIt->getLastRefresh() + cIt->getRefreshPeriod() < now)
+        {
+          isRefreshed = true;
+          cIt->refresh();
+          cIt->setLastRefresh(now);
+        }
+      else
+        break;
+    }
+
+  if (isRefreshed)
+    {
+      m_anchors.clear();
+
+      for (CertificateList::const_iterator it = m_staticContainer.getAll().begin();
+           it != m_staticContainer.getAll().end(); it++)
+        {
+          m_anchors[(*it)->getName().getPrefix(-1)] = (*it);
+        }
+
+      for (DynamicContainers::iterator cIt = m_dynamicContainers.begin();
+           cIt != m_dynamicContainers.end(); cIt++)
+        {
+          const CertificateList& certList = cIt->getAll();
+
+          for (CertificateList::const_iterator it = certList.begin();
+               it != certList.end(); it++)
+            {
+              m_anchors[(*it)->getName().getPrefix(-1)] = (*it);
+            }
+        }
+      m_dynamicContainers.sort(ValidatorConfig::compareDynamicContainer);
+    }
 }
 
 void
@@ -302,10 +433,6 @@ ValidatorConfig::checkPolicy(const Data& data,
 {
   if (!m_shouldValidate)
     return onValidated(data.shared_from_this());
-
-  if (m_stepLimit == nSteps)
-    return onValidationFailed(data.shared_from_this(),
-                              "Maximum steps of validation reached");
 
   bool isMatched = false;
   int8_t checkResult = -1;
@@ -342,10 +469,6 @@ ValidatorConfig::checkPolicy(const Interest& interest,
   if (!m_shouldValidate)
     return onValidated(interest.shared_from_this());
 
-  if (m_stepLimit == nSteps)
-    return onValidationFailed(interest.shared_from_this(),
-                              "Maximum steps of validation reached");
-
   bool isMatched = false;
   int8_t checkResult = -1;
 
@@ -372,6 +495,36 @@ ValidatorConfig::checkPolicy(const Interest& interest,
 
       checkSignature(interest, signature, nSteps,
                      onValidated, onValidationFailed, nextSteps);
+    }
+}
+
+void
+ValidatorConfig::DynamicTrustAnchorContainer::refresh()
+{
+  using namespace boost::filesystem;
+
+  m_certificates.clear();
+
+  if (m_isDir)
+    {
+      directory_iterator end;
+
+      for (directory_iterator it(m_path); it != end; it++)
+        {
+          shared_ptr<IdentityCertificate> idCert =
+            io::load<IdentityCertificate>(it->path().string());
+
+          if (static_cast<bool>(idCert))
+            m_certificates.push_back(idCert);
+        }
+    }
+  else
+    {
+      shared_ptr<IdentityCertificate> idCert =
+        io::load<IdentityCertificate>(m_path.string());
+
+      if (static_cast<bool>(idCert))
+        m_certificates.push_back(idCert);
     }
 }
 

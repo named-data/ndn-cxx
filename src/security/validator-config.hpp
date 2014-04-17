@@ -33,6 +33,7 @@ namespace ndn {
 
 class ValidatorConfig : public Validator
 {
+
 public:
   class Error : public Validator::Error
   {
@@ -122,12 +123,95 @@ private:
   onConfigTrustAnchor(const security::conf::ConfigSection& section,
                       const std::string& filename);
 
+  time::nanoseconds
+  getRefreshPeriod(std::string refreshString);
+
+  inline time::nanoseconds
+  getDefaultRefreshPeriod();
+
+  void
+  refreshAnchors();
+
+
 private:
+
+  class TrustAnchorContainer
+  {
+  public:
+    TrustAnchorContainer()
+    {
+    }
+
+    const std::list<shared_ptr<IdentityCertificate> >&
+    getAll() const
+    {
+      return m_certificates;
+    }
+
+    void
+    add(shared_ptr<IdentityCertificate> certificate)
+    {
+      m_certificates.push_back(certificate);
+    }
+
+  protected:
+    std::list<shared_ptr<IdentityCertificate> > m_certificates;
+  };
+
+  class DynamicTrustAnchorContainer : public TrustAnchorContainer
+  {
+  public:
+    DynamicTrustAnchorContainer(const boost::filesystem::path& path, bool isDir,
+                                time::nanoseconds refreshPeriod)
+      : m_path(path)
+      , m_isDir(isDir)
+      , m_refreshPeriod(refreshPeriod)
+    {
+    }
+
+    void
+    setLastRefresh(const time::system_clock::TimePoint& lastRefresh)
+    {
+      m_lastRefresh = lastRefresh;
+    }
+
+    const time::system_clock::TimePoint&
+    getLastRefresh() const
+    {
+      return m_lastRefresh;
+    }
+
+    const time::nanoseconds&
+    getRefreshPeriod() const
+    {
+      return m_refreshPeriod;
+    }
+
+    void
+    refresh();
+
+  private:
+    boost::filesystem::path m_path;
+    bool m_isDir;
+
+    time::system_clock::TimePoint m_lastRefresh;
+    time::nanoseconds m_refreshPeriod;
+  };
+
   typedef security::conf::Rule<Interest> InterestRule;
   typedef security::conf::Rule<Data>     DataRule;
   typedef std::vector<shared_ptr<InterestRule> > InterestRuleList;
   typedef std::vector<shared_ptr<DataRule> >     DataRuleList;
   typedef std::map<Name, shared_ptr<IdentityCertificate> > AnchorList;
+  typedef std::list<DynamicTrustAnchorContainer> DynamicContainers; // sorted by m_lastRefresh
+  typedef std::list<shared_ptr<IdentityCertificate> > CertificateList;
+
+  static inline bool
+  compareDynamicContainer(const DynamicTrustAnchorContainer& containerA,
+                          const DynamicTrustAnchorContainer& containerB)
+  {
+    return (containerA.getLastRefresh() < containerB.getLastRefresh());
+  }
 
   /**
    * @brief gives whether validation should be preformed
@@ -141,7 +225,11 @@ private:
 
   InterestRuleList m_interestRules;
   DataRuleList m_dataRules;
+
   AnchorList m_anchors;
+  TrustAnchorContainer m_staticContainer;
+  DynamicContainers m_dynamicContainers;
+
 };
 
 inline void
@@ -150,7 +238,12 @@ ValidatorConfig::reset()
   m_certificateCache->reset();
   m_interestRules.clear();
   m_dataRules.clear();
+
   m_anchors.clear();
+
+  m_staticContainer = TrustAnchorContainer();
+
+  m_dynamicContainers.clear();
 }
 
 inline bool
@@ -191,6 +284,8 @@ ValidatorConfig::checkSignature(const Packet& packet,
 
       shared_ptr<const Certificate> trustedCert;
 
+      refreshAnchors();
+
       AnchorList::const_iterator it = m_anchors.find(keyLocatorName);
       if (m_anchors.end() == it)
         trustedCert = m_certificateCache->getCertificate(keyLocatorName);
@@ -207,6 +302,10 @@ ValidatorConfig::checkSignature(const Packet& packet,
         }
       else
         {
+          if (m_stepLimit == nSteps)
+            return onValidationFailed(packet.shared_from_this(),
+                                      "Maximum steps of validation reached");
+
           OnDataValidated onCertValidated =
             bind(&ValidatorConfig::onCertValidated<Packet, OnValidated, OnFailed>,
                  this, _1, packet.shared_from_this(), onValidated, onValidationFailed);
@@ -268,6 +367,12 @@ ValidatorConfig::onCertFailed(const shared_ptr<const Data>& signCertificate,
                               const OnFailed& onValidationFailed)
 {
   onValidationFailed(packet, failureInfo);
+}
+
+inline time::nanoseconds
+ValidatorConfig::getDefaultRefreshPeriod()
+{
+  return time::duration_cast<time::nanoseconds>(time::seconds(3600));
 }
 
 } // namespace ndn

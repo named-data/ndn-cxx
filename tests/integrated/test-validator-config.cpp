@@ -979,7 +979,7 @@ BOOST_AUTO_TEST_CASE(Reset)
   boost::filesystem::remove(CERT_PATH);
 }
 
-BOOST_AUTO_TEST_CASE(Wildcard)
+BOOST_AUTO_TEST_CASE(TrustAnchorWildcard)
 {
   KeyChain keyChain;
 
@@ -1011,6 +1011,156 @@ BOOST_AUTO_TEST_CASE(Wildcard)
 
   keyChain.deleteIdentity(identity);
 }
+
+
+
+struct DirTestFixture
+{
+  DirTestFixture()
+    : m_scheduler(m_face.getIoService())
+    , m_validator(m_face, ValidatorConfig::DEFAULT_CERTIFICATE_CACHE, 0)
+  {
+    m_certDirPath = (boost::filesystem::current_path() / std::string("test-cert-dir"));
+    boost::filesystem::create_directory(m_certDirPath);
+
+    m_firstCertPath = (boost::filesystem::current_path() /
+                       std::string("test-cert-dir") /
+                       std::string("trust-anchor-1.cert"));
+
+    m_secondCertPath = (boost::filesystem::current_path() /
+                        std::string("test-cert-dir") /
+                        std::string("trust-anchor-2.cert"));
+
+    m_firstIdentity = Name("/TestValidatorConfig/Dir/First");
+    BOOST_REQUIRE_NO_THROW(m_keyChain.createIdentity(m_firstIdentity));
+    Name firstCertName = m_keyChain.getDefaultCertificateNameForIdentity(m_firstIdentity);
+    m_firstCert = m_keyChain.getCertificate(firstCertName);
+    io::save(*m_firstCert, m_firstCertPath.string());
+
+    m_secondIdentity = Name("/TestValidatorConfig/Dir/Second");
+    BOOST_REQUIRE_NO_THROW(m_keyChain.createIdentity(m_secondIdentity));
+    Name secondCertName = m_keyChain.getDefaultCertificateNameForIdentity(m_secondIdentity);
+    m_secondCert = m_keyChain.getCertificate(secondCertName);
+  }
+
+  ~DirTestFixture()
+  {
+    m_keyChain.deleteIdentity(m_firstIdentity);
+    m_keyChain.deleteIdentity(m_secondIdentity);
+
+    boost::filesystem::remove_all(m_certDirPath);
+  }
+
+  void
+  insertSecondTrustAnchor()
+  {
+    io::save(*m_secondCert, m_secondCertPath.string());
+  }
+
+  void
+  validate(shared_ptr<Data> data)
+  {
+    m_validator.validate(*data,
+                         bind(&onValidated, _1),
+                         bind(&onValidationFailed, _1, _2));
+  }
+
+  void
+  invalidate(shared_ptr<Data> data)
+  {
+    m_validator.validate(*data,
+                         bind(&onIntentionalFailureValidated, _1),
+                         bind(&onIntentionalFailureInvalidated, _1, _2));
+  }
+
+  void
+  terminate()
+  {
+    m_face.getIoService().stop();
+  }
+
+protected:
+
+  KeyChain m_keyChain;
+
+  boost::filesystem::path m_certDirPath;
+  boost::filesystem::path m_firstCertPath;
+  boost::filesystem::path m_secondCertPath;
+
+  Name m_firstIdentity;
+  Name m_secondIdentity;
+
+  shared_ptr<IdentityCertificate> m_firstCert;
+  shared_ptr<IdentityCertificate> m_secondCert;
+
+  Face m_face;
+  Scheduler m_scheduler;
+  ValidatorConfig m_validator;
+};
+
+BOOST_FIXTURE_TEST_CASE(TrustAnchorDir, DirTestFixture)
+{
+  Name dataName1("/any/data/1");
+  shared_ptr<Data> data1 = make_shared<Data>(dataName1);
+  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(*data1, m_firstIdentity));
+
+  Name dataName2("/any/data/2");
+  shared_ptr<Data> data2 = make_shared<Data>(dataName2);
+  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(*data2, m_secondIdentity));
+
+  std::string CONFIG =
+    "rule\n"
+    "{\n"
+    "  id \"Any Rule\"\n"
+    "  for data\n"
+    "  filter\n"
+    "  {\n"
+    "    type name\n"
+    "    regex ^<>*$\n"
+    "  }\n"
+    "  checker\n"
+    "  {\n"
+    "    type customized\n"
+    "    sig-type rsa-sha256\n"
+    "    key-locator\n"
+    "    {\n"
+    "      type name\n"
+    "      regex ^<>*$\n"
+    "    }\n"
+    "  }\n"
+    "}\n"
+    "trust-anchor\n"
+    "{\n"
+    "  type dir\n"
+    "  dir test-cert-dir\n"
+    "  refresh 1s\n"
+    "}\n";
+
+  const boost::filesystem::path CONFIG_PATH =
+    (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
+
+
+  m_validator.load(CONFIG, CONFIG_PATH.native());
+
+  m_scheduler.scheduleEvent(time::milliseconds(200),
+                            bind(&DirTestFixture::validate, this, data1));
+  m_scheduler.scheduleEvent(time::milliseconds(200),
+                            bind(&DirTestFixture::invalidate, this, data2));
+
+  m_scheduler.scheduleEvent(time::milliseconds(500),
+                            bind(&DirTestFixture::insertSecondTrustAnchor, this));
+
+  m_scheduler.scheduleEvent(time::milliseconds(1500),
+                            bind(&DirTestFixture::validate, this, data1));
+  m_scheduler.scheduleEvent(time::milliseconds(1500),
+                            bind(&DirTestFixture::validate, this, data2));
+
+  m_scheduler.scheduleEvent(time::milliseconds(2000),
+                            bind(&DirTestFixture::terminate, this));
+
+  BOOST_REQUIRE_NO_THROW(m_face.processEvents());
+}
+
 
 
 BOOST_AUTO_TEST_SUITE_END()

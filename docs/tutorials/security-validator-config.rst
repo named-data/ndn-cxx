@@ -411,7 +411,31 @@ checker, for example:
       base64-string "Bv0DGwdG...amHFvHIMDw=="
     }
 
-There is another special trust anchor "any".
+You may also specify a trust-anchor directory. All certificates under this
+directory are taken as trust anchors. For example, if all trust anchors are
+put into ``/usr/local/etc/ndn/keys``.
+
+::
+
+    trust-anchor
+    {
+      type dir
+      file-name /usr/local/etc/ndn/keys
+    }
+
+If certificates under the directory might be changed during runtime, you can
+set a refresh period, such as
+
+::
+
+    trust-anchor
+    {
+      type dir
+      file-name /usr/local/etc/ndn/keys
+      refresh 1h ; refresh certificates every hour, other units include m (for minutes) and s (for seconds)
+    }
+
+There is another special trust anchor **any**.
 As long as such a trust-anchor is defined in config file,
 packet validation will be turned off.
 
@@ -425,6 +449,7 @@ packet validation will be turned off.
     {
       type any
     }
+
 
 Example Configuration For NLSR
 ------------------------------
