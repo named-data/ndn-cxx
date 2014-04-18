@@ -31,12 +31,12 @@ public:
   typedef element_container::const_iterator  element_const_iterator;
 
   /// @brief Error that can be thrown from the block
-  class Error : public std::runtime_error
+  class Error : public Tlv::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : std::runtime_error(what)
+      : Tlv::Error(what)
     {
     }
   };
