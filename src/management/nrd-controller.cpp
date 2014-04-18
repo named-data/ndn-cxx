@@ -4,21 +4,19 @@
  * See COPYING for copyright and distribution information.
  */
 
-#include "common.hpp"
-#include "../face.hpp"
-
-// NRD
 #include "nrd-controller.hpp"
 #include "nrd-prefix-reg-options.hpp"
-
-// NFD
-#include "nfd-control-response.hpp"
+#include "nfd-control-response.hpp" // used in deprecated function only
 
 namespace ndn {
 namespace nrd {
 
+using nfd::ControlParameters;
+using nfd::RibRegisterCommand;
+using nfd::RibUnregisterCommand;
+
 Controller::Controller(Face& face)
-  : m_face(face)
+  : nfd::Controller(face)
 {
 }
 
@@ -27,12 +25,12 @@ Controller::selfRegisterPrefix(const Name& prefixToRegister,
                                const SuccessCallback& onSuccess,
                                const FailCallback&    onFail)
 {
-  startCommand("register",
-               PrefixRegOptions()
-                 .setName(prefixToRegister)
-                 .setFaceId(0) // self-registration
-                 .setCost(0),
-               bind(onSuccess), onFail);
+  ControlParameters parameters;
+  parameters.setName(prefixToRegister);
+
+  this->start<RibRegisterCommand>(parameters,
+                                  bind(onSuccess),
+                                  bind(onFail, _2));
 }
 
 void
@@ -40,11 +38,12 @@ Controller::selfDeregisterPrefix(const Name& prefixToRegister,
                                  const SuccessCallback& onSuccess,
                                  const FailCallback&    onFail)
 {
-  startCommand("unregister",
-               PrefixRegOptions()
-                 .setName(prefixToRegister)
-                 .setFaceId(0), // self-registration
-               bind(onSuccess), onFail);
+  ControlParameters parameters;
+  parameters.setName(prefixToRegister);
+
+  this->start<RibUnregisterCommand>(parameters,
+                                    bind(onSuccess),
+                                    bind(onFail, _2));
 }
 
 void

@@ -23,6 +23,7 @@ const uint64_t DEFAULT_FLAGS = tlv::nrd::NDN_FORW_CHILD_INHERIT;
  * @brief Abstraction for prefix registration options for NRD Prefix registration protocol
  *
  * @see http://redmine.named-data.net/projects/nrd/wiki/NRD_Prefix_Registration_protocol
+ * @deprecated use NFD RIB Management
  */
 class PrefixRegOptions {
 public:

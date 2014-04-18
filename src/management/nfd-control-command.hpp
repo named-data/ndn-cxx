@@ -97,9 +97,9 @@ protected:
   {
   public:
     FieldValidator()
+      : m_required(CONTROL_PARAMETER_UBOUND)
+      , m_optional(CONTROL_PARAMETER_UBOUND)
     {
-      m_required.resize(CONTROL_PARAMETER_UBOUND);
-      m_optional.resize(CONTROL_PARAMETER_UBOUND);
     }
 
     /** \brief declare a required field
@@ -400,6 +400,123 @@ public:
     this->validateRequest(parameters);
   }
 };
+
+
+enum {
+  // route origin
+  ROUTE_ORIGIN_APP    = 0,
+  ROUTE_ORIGIN_NLSR   = 128,
+  ROUTE_ORIGIN_STATIC = 255,
+
+  // route inheritance flags
+  ROUTE_FLAG_CHILD_INHERIT = 1,
+  ROUTE_FLAG_CAPTURE       = 2
+};
+
+
+/** \brief represents a rib/register command
+ *  \sa http://redmine.named-data.net/projects/nfd/wiki/RibMgmt#Register-a-route
+ */
+class RibRegisterCommand : public ControlCommand
+{
+public:
+  RibRegisterCommand()
+    : ControlCommand("rib", "register")
+  {
+    m_requestValidator
+      .required(CONTROL_PARAMETER_NAME)
+      .optional(CONTROL_PARAMETER_FACE_ID)
+      .optional(CONTROL_PARAMETER_ORIGIN)
+      .optional(CONTROL_PARAMETER_COST)
+      .optional(CONTROL_PARAMETER_FLAGS)
+      .optional(CONTROL_PARAMETER_EXPIRATION_PERIOD);
+    m_responseValidator
+      .required(CONTROL_PARAMETER_NAME)
+      .required(CONTROL_PARAMETER_FACE_ID)
+      .required(CONTROL_PARAMETER_ORIGIN)
+      .required(CONTROL_PARAMETER_COST)
+      .required(CONTROL_PARAMETER_FLAGS)
+      .required(CONTROL_PARAMETER_EXPIRATION_PERIOD);
+  }
+
+  virtual void
+  applyDefaultsToRequest(ControlParameters& parameters) const
+  {
+    if (!parameters.hasFaceId()) {
+      parameters.setFaceId(0);
+    }
+    if (!parameters.hasOrigin()) {
+      parameters.setOrigin(ROUTE_ORIGIN_APP);
+    }
+    if (!parameters.hasCost()) {
+      parameters.setCost(0);
+    }
+    if (!parameters.hasFlags()) {
+      parameters.setFlags(ROUTE_FLAG_CHILD_INHERIT);
+    }
+    if (!parameters.hasExpirationPeriod()) {
+      if (parameters.getFaceId() == 0) {
+        parameters.setExpirationPeriod(time::milliseconds::max());
+      }
+      else {
+        parameters.setExpirationPeriod(time::hours(1));
+      }
+    }
+  }
+
+  virtual void
+  validateResponse(const ControlParameters& parameters) const
+  {
+    this->ControlCommand::validateResponse(parameters);
+
+    if (parameters.getFaceId() == 0) {
+      throw ArgumentError("FaceId must not be zero");
+    }
+  }
+};
+
+
+/** \brief represents a rib/unregister command
+ *  \sa http://redmine.named-data.net/projects/nfd/wiki/RibMgmt#Unregister-a-route
+ */
+class RibUnregisterCommand : public ControlCommand
+{
+public:
+  RibUnregisterCommand()
+    : ControlCommand("rib", "unregister")
+  {
+    m_requestValidator
+      .required(CONTROL_PARAMETER_NAME)
+      .optional(CONTROL_PARAMETER_FACE_ID)
+      .optional(CONTROL_PARAMETER_ORIGIN);
+    m_responseValidator
+      .required(CONTROL_PARAMETER_NAME)
+      .required(CONTROL_PARAMETER_FACE_ID)
+      .required(CONTROL_PARAMETER_ORIGIN);
+  }
+
+  virtual void
+  applyDefaultsToRequest(ControlParameters& parameters) const
+  {
+    if (!parameters.hasFaceId()) {
+      parameters.setFaceId(0);
+    }
+    if (!parameters.hasOrigin()) {
+      parameters.setOrigin(ROUTE_ORIGIN_APP);
+    }
+  }
+
+  virtual void
+  validateResponse(const ControlParameters& parameters) const
+  {
+    this->ControlCommand::validateResponse(parameters);
+
+    if (parameters.getFaceId() == 0) {
+      throw ArgumentError("FaceId must not be zero");
+    }
+  }
+};
+
 
 } // namespace nfd
 } // namespace ndn

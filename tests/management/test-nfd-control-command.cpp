@@ -181,6 +181,60 @@ BOOST_AUTO_TEST_CASE(StrategyChoiceUnset)
   BOOST_CHECK_THROW(command.validateResponse(p3), ControlCommand::ArgumentError);
 }
 
+BOOST_AUTO_TEST_CASE(RibRegister)
+{
+  RibRegisterCommand command;
+  BOOST_CHECK_EQUAL(command.getPrefix(), "ndn:/localhost/nfd/rib/register");
+
+  ControlParameters p1;
+  p1.setName("ndn:/");
+  BOOST_CHECK_NO_THROW(command.validateRequest(p1));
+  BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
+
+  command.applyDefaultsToRequest(p1);
+  BOOST_REQUIRE(p1.hasOrigin());
+  BOOST_CHECK_EQUAL(p1.getOrigin(), static_cast<uint64_t>(ROUTE_ORIGIN_APP));
+  BOOST_REQUIRE(p1.hasCost());
+  BOOST_CHECK_EQUAL(p1.getCost(), 0);
+  BOOST_REQUIRE(p1.hasFlags());
+  BOOST_CHECK_EQUAL(p1.getFlags(), static_cast<uint64_t>(ROUTE_FLAG_CHILD_INHERIT));
+  BOOST_REQUIRE(p1.hasExpirationPeriod());
+  BOOST_CHECK_GT(p1.getExpirationPeriod(), time::hours(240));
+
+  ControlParameters p2;
+  p2.setName("ndn:/example")
+    .setFaceId(2)
+    .setCost(6);
+  BOOST_CHECK_NO_THROW(command.validateRequest(p2));
+  command.applyDefaultsToRequest(p2);
+  BOOST_CHECK_EQUAL(p2.getExpirationPeriod(), time::hours(1));
+  BOOST_CHECK_NO_THROW(command.validateResponse(p2));
+}
+
+BOOST_AUTO_TEST_CASE(RibUnregister)
+{
+  RibUnregisterCommand command;
+  BOOST_CHECK_EQUAL(command.getPrefix(), "ndn:/localhost/nfd/rib/unregister");
+
+  ControlParameters p1;
+  p1.setName("ndn:/")
+    .setFaceId(22)
+    .setOrigin(ROUTE_ORIGIN_STATIC);
+  BOOST_CHECK_NO_THROW(command.validateRequest(p1));
+  BOOST_CHECK_NO_THROW(command.validateResponse(p1));
+
+  ControlParameters p2;
+  p2.setName("ndn:/example")
+    .setFaceId(0)
+    .setOrigin(ROUTE_ORIGIN_APP);
+  BOOST_CHECK_NO_THROW(command.validateRequest(p2));
+  BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
+
+  p2.unsetFaceId();
+  BOOST_CHECK_NO_THROW(command.validateRequest(p2));
+  BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace nfd

@@ -16,6 +16,7 @@ namespace ndn {
 namespace tlv {
 namespace nrd {
 
+// \deprecated use NFD RIB Management
 enum {
   PrefixRegOptions = 101,
   FaceId           = 102,

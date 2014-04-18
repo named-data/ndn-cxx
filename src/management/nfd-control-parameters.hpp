@@ -18,8 +18,11 @@ enum ControlParameterField {
   CONTROL_PARAMETER_FACE_ID,
   CONTROL_PARAMETER_URI,
   CONTROL_PARAMETER_LOCAL_CONTROL_FEATURE,
+  CONTROL_PARAMETER_ORIGIN,
   CONTROL_PARAMETER_COST,
+  CONTROL_PARAMETER_FLAGS,
   CONTROL_PARAMETER_STRATEGY,
+  CONTROL_PARAMETER_EXPIRATION_PERIOD,
   CONTROL_PARAMETER_UBOUND
 };
 
@@ -28,8 +31,11 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
   "FaceId",
   "Uri",
   "LocalControlFeature",
+  "Origin",
   "Cost",
+  "Flags",
   "Strategy",
+  "ExpirationPeriod",
 };
 
 enum LocalControlFeature {
@@ -76,6 +82,7 @@ public:
   wireDecode(const Block& wire);
 
 public: // getters & setters
+
   bool
   hasName() const
   {
@@ -197,6 +204,36 @@ public: // getters & setters
   }
 
   bool
+  hasOrigin() const
+  {
+    return m_hasFields[CONTROL_PARAMETER_ORIGIN];
+  }
+
+  uint64_t
+  getOrigin() const
+  {
+    BOOST_ASSERT(this->hasOrigin());
+    return m_origin;
+  }
+
+  ControlParameters&
+  setOrigin(uint64_t origin)
+  {
+    m_wire.reset();
+    m_origin = origin;
+    m_hasFields[CONTROL_PARAMETER_ORIGIN] = true;
+    return *this;
+  }
+
+  ControlParameters&
+  unsetOrigin()
+  {
+    m_wire.reset();
+    m_hasFields[CONTROL_PARAMETER_ORIGIN] = false;
+    return *this;
+  }
+
+  bool
   hasCost() const
   {
     return m_hasFields[CONTROL_PARAMETER_COST];
@@ -223,6 +260,36 @@ public: // getters & setters
   {
     m_wire.reset();
     m_hasFields[CONTROL_PARAMETER_COST] = false;
+    return *this;
+  }
+
+  bool
+  hasFlags() const
+  {
+    return m_hasFields[CONTROL_PARAMETER_FLAGS];
+  }
+
+  uint64_t
+  getFlags() const
+  {
+    BOOST_ASSERT(this->hasFlags());
+    return m_flags;
+  }
+
+  ControlParameters&
+  setFlags(uint64_t flags)
+  {
+    m_wire.reset();
+    m_flags = flags;
+    m_hasFields[CONTROL_PARAMETER_FLAGS] = true;
+    return *this;
+  }
+
+  ControlParameters&
+  unsetFlags()
+  {
+    m_wire.reset();
+    m_hasFields[CONTROL_PARAMETER_FLAGS] = false;
     return *this;
   }
 
@@ -256,6 +323,36 @@ public: // getters & setters
     return *this;
   }
 
+  bool
+  hasExpirationPeriod() const
+  {
+    return m_hasFields[CONTROL_PARAMETER_EXPIRATION_PERIOD];
+  }
+
+  const time::milliseconds&
+  getExpirationPeriod() const
+  {
+    BOOST_ASSERT(this->hasExpirationPeriod());
+    return m_expirationPeriod;
+  }
+
+  ControlParameters&
+  setExpirationPeriod(const time::milliseconds& expirationPeriod)
+  {
+    m_wire.reset();
+    m_expirationPeriod = expirationPeriod;
+    m_hasFields[CONTROL_PARAMETER_EXPIRATION_PERIOD] = true;
+    return *this;
+  }
+
+  ControlParameters&
+  unsetExpirationPeriod()
+  {
+    m_wire.reset();
+    m_hasFields[CONTROL_PARAMETER_EXPIRATION_PERIOD] = false;
+    return *this;
+  }
+
   const std::vector<bool>&
   getPresentFields() const
   {
@@ -269,8 +366,11 @@ private: // fields
   uint64_t            m_faceId;
   std::string         m_uri;
   LocalControlFeature m_localControlFeature;
+  uint64_t            m_origin;
   uint64_t            m_cost;
+  uint64_t            m_flags;
   Name                m_strategy;
+  time::milliseconds  m_expirationPeriod;
 
 private:
   mutable Block m_wire;
@@ -283,11 +383,21 @@ ControlParameters::wireEncode(EncodingImpl<T>& encoder) const
 {
   size_t totalLength = 0;
 
+  if (this->hasExpirationPeriod()) {
+    totalLength += prependNonNegativeIntegerBlock(encoder,
+                   tlv::nfd::ExpirationPeriod, m_expirationPeriod.count());
+  }
   if (this->hasStrategy()) {
     totalLength += prependNestedBlock(encoder, tlv::nfd::Strategy, m_strategy);
   }
+  if (this->hasFlags()) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Flags, m_flags);
+  }
   if (this->hasCost()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Cost, m_cost);
+  }
+  if (this->hasOrigin()) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Origin, m_origin);
   }
   if (this->hasLocalControlFeature()) {
     totalLength += prependNonNegativeIntegerBlock(encoder,
@@ -362,10 +472,22 @@ ControlParameters::wireDecode(const Block& block)
     m_localControlFeature = static_cast<LocalControlFeature>(readNonNegativeInteger(*val));
   }
 
+  val = m_wire.find(tlv::nfd::Origin);
+  m_hasFields[CONTROL_PARAMETER_ORIGIN] = val != m_wire.elements_end();
+  if (this->hasOrigin()) {
+    m_origin = static_cast<uint64_t>(readNonNegativeInteger(*val));
+  }
+
   val = m_wire.find(tlv::nfd::Cost);
   m_hasFields[CONTROL_PARAMETER_COST] = val != m_wire.elements_end();
   if (this->hasCost()) {
     m_cost = static_cast<uint64_t>(readNonNegativeInteger(*val));
+  }
+
+  val = m_wire.find(tlv::nfd::Flags);
+  m_hasFields[CONTROL_PARAMETER_FLAGS] = val != m_wire.elements_end();
+  if (this->hasFlags()) {
+    m_flags = static_cast<uint64_t>(readNonNegativeInteger(*val));
   }
 
   val = m_wire.find(tlv::nfd::Strategy);
@@ -378,6 +500,12 @@ ControlParameters::wireDecode(const Block& block)
     else {
       m_strategy.wireDecode(*val->elements_begin());
     }
+  }
+
+  val = m_wire.find(tlv::nfd::ExpirationPeriod);
+  m_hasFields[CONTROL_PARAMETER_EXPIRATION_PERIOD] = val != m_wire.elements_end();
+  if (this->hasExpirationPeriod()) {
+    m_expirationPeriod = time::milliseconds(readNonNegativeInteger(*val));
   }
 }
 
@@ -402,12 +530,24 @@ operator<<(std::ostream& os, const ControlParameters& parameters)
     os << "LocalControlFeature: " << parameters.getLocalControlFeature() << ", ";
   }
 
+  if (parameters.hasOrigin()) {
+    os << "Origin: " << parameters.getOrigin() << ", ";
+  }
+
   if (parameters.hasCost()) {
     os << "Cost: " << parameters.getCost() << ", ";
   }
 
+  if (parameters.hasFlags()) {
+    os << "Flags: " << parameters.getFlags() << ", ";
+  }
+
   if (parameters.hasStrategy()) {
     os << "Strategy: " << parameters.getStrategy() << ", ";
+  }
+
+  if (parameters.hasExpirationPeriod()) {
+    os << "ExpirationPeriod: " << parameters.getExpirationPeriod() << ", ";
   }
 
   os << ")";

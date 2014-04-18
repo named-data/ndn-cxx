@@ -38,7 +38,7 @@ public:
         const CommandSucceedCallback& onSuccess,
         const CommandFailCallback& onFailure);
 
-public: // selfreg
+public: // selfreg using FIB Management commands
   virtual void
   selfRegisterPrefix(const Name& prefixToRegister,
                      const SuccessCallback& onSuccess,

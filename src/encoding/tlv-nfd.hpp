@@ -23,8 +23,11 @@ enum {
   FaceId              = 105,
   Uri                 = 114,
   LocalControlFeature = 110,
+  Origin              = 111,
   Cost                = 106,
+  Flags               = 108,
   Strategy            = 107,
+  ExpirationPeriod    = 109,
 
   // ControlResponse
   ControlResponse = 101,
