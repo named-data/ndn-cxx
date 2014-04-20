@@ -37,7 +37,7 @@ public:
     Data data;
     data.setName(dataName);
     data.setFreshnessPeriod(time::seconds(10));
-    data.setContent(Block(content.c_str(), content.size()));
+    data.setContent(reinterpret_cast<const uint8_t*>(content.c_str()), content.size());
 
     // Sign Data packet with default identity
     m_keyChain.sign(data);
@@ -53,7 +53,8 @@ public:
   void
   onRegisterFailed(const Name& prefix, const std::string& reason)
   {
-    std::cerr << "ERROR: Failed to register prefix in local hub's daemon (" << reason << ")" << std::endl;
+    std::cerr << "ERROR: Failed to register prefix in local hub's daemon (" << reason << ")"
+              << std::endl;
     m_face.shutdown();
   }
 
