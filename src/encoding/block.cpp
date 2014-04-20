@@ -238,7 +238,7 @@ Block::fromBuffer(const uint8_t* buffer, size_t maxSize, Block& block)
   const uint8_t* tempBegin = buffer;
   const uint8_t* tempEnd = buffer + maxSize;
 
-  uint32_t type;
+  uint32_t type = 0;
   bool isOk = Tlv::readType(tempBegin, tempEnd, type);
   if (!isOk)
     return false;

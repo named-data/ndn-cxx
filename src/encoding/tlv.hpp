@@ -226,7 +226,7 @@ template<class InputIterator>
 inline bool
 readType(InputIterator& begin, const InputIterator& end, uint32_t& type)
 {
-  uint64_t number;
+  uint64_t number = 0;
   bool isOk = readVarNumber(begin, end, number);
   if (!isOk || number > std::numeric_limits<uint32_t>::max())
     {
