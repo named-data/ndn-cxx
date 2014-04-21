@@ -77,6 +77,7 @@ BOOST_FIXTURE_TEST_CASE(CommandSuccess, CommandFixture)
   BOOST_REQUIRE_NO_THROW(request.wireDecode(commandInterest.getName().at(4).blockFromValue()));
   BOOST_CHECK_NO_THROW(command.validateRequest(request));
   BOOST_CHECK_EQUAL(request.getUri(), parameters.getUri());
+  BOOST_CHECK_EQUAL(commandInterest.getInterestLifetime(), Controller::getDefaultCommandTimeout());
 
   ControlParameters responseBody;
   responseBody.setUri("tcp4://192.0.2.1:6363")

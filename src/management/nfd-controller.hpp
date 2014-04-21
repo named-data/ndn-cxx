@@ -36,7 +36,8 @@ public:
   void
   start(const ControlParameters& parameters,
         const CommandSucceedCallback& onSuccess,
-        const CommandFailCallback& onFailure);
+        const CommandFailCallback& onFailure,
+        time::milliseconds timeout = getDefaultCommandTimeout());
 
 public: // selfreg using FIB Management commands
   virtual void
@@ -56,6 +57,13 @@ private:
                          const CommandSucceedCallback& onSuccess,
                          const CommandFailCallback& onFailure);
 
+public:
+  static time::milliseconds
+  getDefaultCommandTimeout()
+  {
+    return time::milliseconds(10000);
+  }
+
 protected:
   Face& m_face;
   CommandInterestGenerator m_commandInterestGenerator;
@@ -66,11 +74,15 @@ template<typename Command>
 void
 Controller::start(const ControlParameters& parameters,
                   const CommandSucceedCallback& onSuccess,
-                  const CommandFailCallback&    onFailure)
+                  const CommandFailCallback&    onFailure,
+                  time::milliseconds timeout)
 {
+  BOOST_ASSERT(timeout > time::milliseconds::zero());
+
   shared_ptr<ControlCommand> command = make_shared<Command>();
 
   Interest commandInterest = command->makeCommandInterest(parameters, m_commandInterestGenerator);
+  commandInterest.setInterestLifetime(timeout);
 
   // http://msdn.microsoft.com/en-us/library/windows/desktop/ms740668.aspx
   const uint32_t timeoutCode = 10060;
