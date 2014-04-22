@@ -18,8 +18,8 @@ BOOST_AUTO_TEST_CASE(Encode)
 {
   ForwarderStatus status1;
   status1.setNfdVersion(1014210635);
-  status1.setStartTimestamp(time::fromUnixTimestamp(time::milliseconds(375193249325)));
-  status1.setCurrentTimestamp(time::fromUnixTimestamp(time::milliseconds(886109034272)));
+  status1.setStartTimestamp(time::fromUnixTimestamp(time::milliseconds(375193249325LL)));
+  status1.setCurrentTimestamp(time::fromUnixTimestamp(time::milliseconds(886109034272LL)));
   status1.setNNameTreeEntries(1849943160);
   status1.setNFibEntries(621739748);
   status1.setNPitEntries(482129741);

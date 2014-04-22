@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_CASE(SystemClock)
 {
   time::system_clock::TimePoint value = time::system_clock::now();
   time::system_clock::TimePoint referenceTime =
-    time::fromUnixTimestamp(time::milliseconds(1390966967032));
+    time::fromUnixTimestamp(time::milliseconds(1390966967032LL));
 
   BOOST_CHECK_GT(value, referenceTime);
 
