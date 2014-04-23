@@ -36,6 +36,22 @@ Face::Face(const shared_ptr<boost::asio::io_service>& ioService)
             ioService);
 }
 
+class NullIoDeleter
+{
+public:
+  void
+  operator()(boost::asio::io_service*)
+  {
+  }
+};
+
+Face::Face(boost::asio::io_service& ioService)
+{
+  const std::string socketName = UnixTransport::getDefaultSocketName(m_config);
+  construct(shared_ptr<Transport>(new UnixTransport(socketName)),
+            shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()));
+}
+
 Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
 {
   construct(shared_ptr<Transport>(new TcpTransport(host, port)),
@@ -49,9 +65,10 @@ Face::Face(const shared_ptr<Transport>& transport)
 }
 
 Face::Face(const shared_ptr<Transport>& transport,
-           const shared_ptr<boost::asio::io_service>& ioService)
+           boost::asio::io_service& ioService)
 {
-  construct(transport, ioService);
+  construct(transport,
+            shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()));
 }
 
 void
@@ -203,8 +220,10 @@ Face::setInterestFilter(const Name& prefix,
   shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
 
   m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
-                                     bind(&RegisteredPrefixTable::push_back, &m_registeredPrefixTable, prefixToRegister),
-                                     bind(onSetInterestFilterFailed, prefixToRegister->getPrefix(), _1));
+                                     bind(&RegisteredPrefixTable::push_back,
+                                          &m_registeredPrefixTable, prefixToRegister),
+                                     bind(onSetInterestFilterFailed,
+                                          prefixToRegister->getPrefix(), _1));
 
   return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
 }
@@ -218,7 +237,8 @@ Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
 void
 Face::asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
 {
-  RegisteredPrefixTable::iterator i = std::find_if(m_registeredPrefixTable.begin(), m_registeredPrefixTable.end(),
+  RegisteredPrefixTable::iterator i = std::find_if(m_registeredPrefixTable.begin(),
+                                                   m_registeredPrefixTable.end(),
                                                    MatchRegisteredPrefixId(registeredPrefixId));
   if (i != m_registeredPrefixTable.end())
     {
@@ -227,7 +247,7 @@ Face::asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
                                            Controller::FailCallback());
     }
 
-  // there cannot be two registered prefixes with the same id. if there are, then something is broken
+  // there cannot be two registered prefixes with the same id
 }
 
 void
@@ -390,7 +410,7 @@ Face::satisfyPendingInterests(Data& data)
     {
       if ((*i)->getInterest()->matchesData(data))
         {
-          // Copy pointers to the needed objects and remove the PIT entry before the calling the callback.
+          // Copy pointers to the objects and remove the PIT entry before calling the callback.
           OnData onData = (*i)->getOnData();
           shared_ptr<const Interest> interest = (*i)->getInterest();
 
