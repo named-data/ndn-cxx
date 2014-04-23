@@ -207,7 +207,7 @@ private:
           {
             return shared_ptr<RegexNameFilter>(new RegexNameFilter(regexString));
           }
-        catch (const Regex::Error& e)
+        catch (Regex::Error& e)
           {
             throw Error("Wrong filter.regex: " + regexString);
           }

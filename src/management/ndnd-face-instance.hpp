@@ -17,7 +17,8 @@ namespace ndnd {
 /**
  * An FaceInstance holds an action and  Name prefix and other fields for an forwarding entry.
  */
-class FaceInstance {
+class FaceInstance
+{
 public:
   FaceInstance(const std::string& action,
                int64_t     faceId,

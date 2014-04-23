@@ -25,7 +25,8 @@ using namespace std;
 
 namespace ndn {
 
-class SecTpmFile::Impl {
+class SecTpmFile::Impl
+{
 public:
   Impl(const string& dir)
   {
@@ -123,7 +124,7 @@ SecTpmFile::generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySi
           throw Error("Unsupported key type!");
         }
     }
-  catch (const CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       throw Error(e.what());
     }
@@ -158,7 +159,7 @@ SecTpmFile::getPublicKeyFromTpm(const Name&  keyName)
                  true,
                  new Base64Decoder(new FileSink(os)));
     }
-  catch (const CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       throw Error(e.what());
     }
@@ -191,7 +192,7 @@ SecTpmFile::importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf
                    new Base64Encoder(new FileSink(keyFileName.c_str())));
       return true;
     }
-  catch (const CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       return false;
     }
@@ -211,7 +212,7 @@ SecTpmFile::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf,
                    new Base64Encoder(new FileSink(keyFileName.c_str())));
       return true;
     }
-  catch (const CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       return false;
     }
@@ -258,7 +259,7 @@ SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength,
           throw Error("Unsupported digest algorithm!");
         }
     }
-  catch (const CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       throw Error(e.what());
     }
@@ -294,7 +295,7 @@ SecTpmFile::decryptInTpm(const uint8_t* data, size_t dataLength,
 
   //       return os.buf();
   //     }
-  //     catch (const CryptoPP::Exception& e){
+  //     catch (CryptoPP::Exception& e){
   //       throw Error(e.what());
   //     }
   //   }
@@ -321,7 +322,7 @@ SecTpmFile::decryptInTpm(const uint8_t* data, size_t dataLength,
   //     // 	StringSource(data, dataLength, true, new StreamTransformationFilter(decryptor,new FileSink(os)));
   //     // 	return os.buf();
 
-  //     // }catch (const CryptoPP::Exception& e){
+  //     // }catch (CryptoPP::Exception& e){
   //     // 	throw Error(e.what());
   //     // }
   //   }
@@ -357,7 +358,7 @@ SecTpmFile::encryptInTpm(const uint8_t* data, size_t dataLength,
   //         StringSource(data, dataLength, true, new PK_EncryptorFilter(rng, encryptor, new FileSink(os)));
   //         return os.buf();
   //       }
-  //     catch (const CryptoPP::Exception& e){
+  //     catch (CryptoPP::Exception& e){
   //       throw Error(e.what());
   //     }
   //   }
@@ -383,7 +384,7 @@ SecTpmFile::encryptInTpm(const uint8_t* data, size_t dataLength,
   //     // 	OBufferStream os;
   //     // 	StringSource(data, dataLength, true, new StreamTransformationFilter(encryptor, new FileSink(os)));
   //     // 	return os.buf();
-  //     // }catch (const CryptoPP::Exception& e){
+  //     // }catch (CryptoPP::Exception& e){
   //     // 	throw Error(e.what());
   //     // }
   //   }
@@ -420,7 +421,7 @@ SecTpmFile::generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int 
   //   default:
   //     throw Error("Unsupported symmetric key type!");
   //   }
-  // }catch (const CryptoPP::Exception& e){
+  // }catch (CryptoPP::Exception& e){
   //   throw Error(e.what());
   // }
 }
@@ -462,7 +463,7 @@ SecTpmFile::generateRandomBlock(uint8_t* res, size_t size)
       rng.GenerateBlock(res, size);
       return true;
     }
-  catch (const CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       return false;
     }

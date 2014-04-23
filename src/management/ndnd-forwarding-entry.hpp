@@ -19,7 +19,8 @@ namespace ndnd {
 /**
  * An ForwardingEntry holds an action and  Name prefix and other fields for an forwarding entry.
  */
-class ForwardingEntry {
+class ForwardingEntry
+{
 public:
   ForwardingEntry(const std::string& action,
                   const Name& prefix,

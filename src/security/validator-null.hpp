@@ -13,7 +13,8 @@
 
 namespace ndn {
 
-class ValidatorNull : public Validator {
+class ValidatorNull : public Validator
+{
 public:
   virtual
   ~ValidatorNull()

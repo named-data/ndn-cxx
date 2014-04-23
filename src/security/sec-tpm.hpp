@@ -22,7 +22,8 @@ namespace ndn {
  *
  * It specifies the interfaces of private/secret key related operations.
  */
-class SecTpm {
+class SecTpm
+{
 public:
   class Error : public std::runtime_error
   {

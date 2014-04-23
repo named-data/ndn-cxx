@@ -15,8 +15,19 @@ namespace ndn {
 /**
  * Representing of SHA256 signature in a data packet.
  */
-class SignatureSha256 : public Signature {
+class SignatureSha256 : public Signature
+{
 public:
+  class Error : public Signature::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : Signature::Error(what)
+    {
+    }
+  };
+
   SignatureSha256()
   {
     m_info = Block(Tlv::SignatureInfo);
@@ -29,7 +40,7 @@ public:
     : Signature(signature)
   {
     if (getType() != Signature::Sha256)
-      throw Signature::Error("Incorrect signature type");
+      throw Error("Incorrect signature type");
   }
 };
 

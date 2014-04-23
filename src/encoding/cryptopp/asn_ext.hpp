@@ -9,25 +9,10 @@
 #ifndef NDN_ASN_EXT_HPP
 #define NDN_ASN_EXT_HPP
 
-#include <stdexcept>
 #include "../../common.hpp"
 #include "../../security/cryptopp.hpp"
 
 namespace ndn {
-
-namespace asn {
-
-class Error : public std::runtime_error
-{
-public:
-  explicit
-  Error(const std::string& what)
-    : std::runtime_error(what)
-  {
-  }
-};
-
-} // namespace asn
 
 size_t
 DEREncodeGeneralTime(CryptoPP::BufferedTransformation& bt,

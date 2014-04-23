@@ -13,7 +13,8 @@
 
 namespace ndn {
 
-class EncryptionManager {
+class EncryptionManager
+{
 public:
   virtual ~EncryptionManager()
   {

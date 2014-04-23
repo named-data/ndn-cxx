@@ -70,7 +70,7 @@ ValidatorConfig::load(std::istream& input, const std::string& filename)
     {
       boost::property_tree::read_info(input, tree);
     }
-  catch (const boost::property_tree::info_parser_error& error)
+  catch (boost::property_tree::info_parser_error& error)
     {
       std::stringstream msg;
       msg << "Failed to parse configuration file";

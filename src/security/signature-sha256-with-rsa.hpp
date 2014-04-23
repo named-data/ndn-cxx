@@ -15,8 +15,19 @@ namespace ndn {
 /**
  * Representing of SHA256-with-RSA signature in a data packet.
  */
-class SignatureSha256WithRsa : public Signature {
+class SignatureSha256WithRsa : public Signature
+{
 public:
+  class Error : public Signature::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : Signature::Error(what)
+    {
+    }
+  };
+
   SignatureSha256WithRsa()
   {
     m_info = Block(Tlv::SignatureInfo);
@@ -30,7 +41,7 @@ public:
     : Signature(signature)
   {
     if (getType() != Signature::Sha256WithRsa)
-      throw Signature::Error("Incorrect signature type");
+      throw Error("Incorrect signature type");
 
     m_info.parse();
     Block::element_const_iterator i = m_info.find(Tlv::KeyLocator);

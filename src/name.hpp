@@ -23,13 +23,18 @@ namespace ndn {
 /**
  * A Name holds an array of Name::Component and represents an NDN name.
  */
-class Name : public ptr_lib::enable_shared_from_this<Name> {
+class Name : public ptr_lib::enable_shared_from_this<Name>
+{
 public:
-  /// @brief Error that can be thrown from the block
-  class Error : public name::Component::Error {
+  /// @brief Error that can be thrown from Name
+  class Error : public name::Component::Error
+  {
   public:
+    explicit
     Error(const std::string& what)
-      : name::Component::Error(what) {}
+      : name::Component::Error(what)
+    {
+    }
   };
 
   typedef name::Component Component;

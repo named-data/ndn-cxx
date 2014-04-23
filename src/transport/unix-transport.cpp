@@ -30,11 +30,11 @@ UnixTransport::getDefaultSocketName(const ConfigFile& config)
     {
       return parsed.get<std::string>("unix_socket");
     }
-  catch (const boost::property_tree::ptree_bad_path& error)
+  catch (boost::property_tree::ptree_bad_path& error)
     {
       // unix_socket not present, continue
     }
-  catch (const boost::property_tree::ptree_bad_data& error)
+  catch (boost::property_tree::ptree_bad_data& error)
     {
       throw ConfigFile::Error(error.what());
     }

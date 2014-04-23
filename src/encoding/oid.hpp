@@ -11,11 +11,14 @@
 
 #include "../common.hpp"
 
-namespace CryptoPP { class BufferedTransformation; }
+namespace CryptoPP {
+class BufferedTransformation;
+}
 
 namespace ndn {
 
-class OID {
+class OID
+{
 public:
   OID ()
   {

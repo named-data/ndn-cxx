@@ -28,12 +28,14 @@ using namespace std;
 
 namespace ndn {
 
-class SecTpmOsx::Impl {
+class SecTpmOsx::Impl
+{
 public:
   Impl()
     : m_passwordSet(false)
     , m_inTerminal(false)
-  {}
+  {
+  }
 
   /**
    * @brief Convert NDN name of a key to internal name of the key.

@@ -27,7 +27,8 @@ typedef function<void(const shared_ptr<const Data>&,
                       const std::string&)> OnDataValidationFailed;
 
 
-class ValidationRequest {
+class ValidationRequest
+{
 public:
   ValidationRequest(const Interest& interest,
                     const OnDataValidated& onValidated,

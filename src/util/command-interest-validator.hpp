@@ -182,20 +182,20 @@ CommandInterestValidator::checkPolicy(const Interest& interest,
           timestampIt->second = interestTime;
         }
     }
-  catch (const Tlv::Error& e)
-    {
-      return onValidationFailed(interest.shared_from_this(),
-                                "Cannot decode signature related TLVs");
-    }
-  catch (const Signature::Error& e)
+  catch (Signature::Error& e)
     {
       return onValidationFailed(interest.shared_from_this(),
                                 "No valid signature");
     }
-  catch (const IdentityCertificate::Error& e)
+  catch (IdentityCertificate::Error& e)
     {
       return onValidationFailed(interest.shared_from_this(),
                                 "Cannot locate the signing key");
+    }
+  catch (Tlv::Error& e)
+    {
+      return onValidationFailed(interest.shared_from_this(),
+                                "Cannot decode signature related TLVs");
     }
 
   return onValidated(interest.shared_from_this());

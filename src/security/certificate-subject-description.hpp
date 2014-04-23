@@ -12,14 +12,17 @@
 #include "../common.hpp"
 #include "../encoding/oid.hpp"
 
-namespace CryptoPP { class BufferedTransformation; }
+namespace CryptoPP {
+class BufferedTransformation;
+}
 
 namespace ndn {
 
 /**
  * A CertificateSubjectDescription represents the SubjectDescription entry in a Certificate.
  */
-class CertificateSubjectDescription {
+class CertificateSubjectDescription
+{
 public:
   CertificateSubjectDescription(CryptoPP::BufferedTransformation& in)
   {

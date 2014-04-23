@@ -13,7 +13,8 @@
 
 namespace ndn {
 
-class KeyLocator {
+class KeyLocator
+{
 public:
   class Error : public std::runtime_error
   {

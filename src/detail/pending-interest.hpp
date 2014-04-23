@@ -14,7 +14,8 @@
 
 namespace ndn {
 
-class PendingInterest {
+class PendingInterest
+{
 public:
   typedef function<void(const Interest&, Data&)> OnData;
   typedef function<void(const Interest&)> OnTimeout;

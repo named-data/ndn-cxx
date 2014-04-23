@@ -107,7 +107,7 @@ protected:
         failInfo = "KeyLocatorChecker failed!";
         return false;
       }
-    catch (const KeyLocator::Error& e)
+    catch (KeyLocator::Error& e)
       {
         failInfo = "KeyLocator does not have name";
         return false;
@@ -141,7 +141,7 @@ protected:
         failInfo = "KeyLocatorChecker failed!";
         return false;
       }
-    catch (const KeyLocator::Error& e)
+    catch (KeyLocator::Error& e)
       {
         failInfo = "KeyLocator does not have name";
         return false;
@@ -182,7 +182,7 @@ protected:
         failInfo = "KeyLocatorChecker failed!";
         return false;
       }
-    catch (const KeyLocator::Error& e)
+    catch (KeyLocator::Error& e)
       {
         failInfo = "KeyLocator does not have name";
         return false;
@@ -277,7 +277,7 @@ private:
             return shared_ptr<RegexKeyLocatorNameChecker>
               (new RegexKeyLocatorNameChecker(regexString));
           }
-        catch (const Regex::Error& e)
+        catch (Regex::Error& e)
           {
             throw Error("Invalid checker.key-locator.regex: " + regexString);
           }
@@ -344,7 +344,7 @@ private:
                                               kRegex, kExpand,
                                               relation));
           }
-        catch (const Regex::Error& e)
+        catch (Regex::Error& e)
           {
             throw Error("Invalid regex for key-locator.hyper-relation");
           }

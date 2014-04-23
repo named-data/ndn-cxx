@@ -20,7 +20,8 @@ namespace ndn {
 /**
  * RsaPrivateKey is a simple class to hold an RSA private key.
  */
-class SecTpmMemory::RsaPrivateKey {
+class SecTpmMemory::RsaPrivateKey
+{
 public:
   RsaPrivateKey(const uint8_t* keyDer, size_t keyDerLength)
   {
@@ -175,7 +176,7 @@ SecTpmMemory::generateRandomBlock(uint8_t* res, size_t size)
       rng.GenerateBlock(res, size);
       return true;
     }
-  catch (const CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       return false;
     }

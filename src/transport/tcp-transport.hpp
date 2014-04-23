@@ -26,11 +26,11 @@ public:
   ~TcpTransport();
 
   // from Transport
-  virtual void 
+  virtual void
   connect(boost::asio::io_service& ioService,
           const ReceiveCallback& receiveCallback);
-  
-  virtual void 
+
+  virtual void
   close();
 
   virtual void
@@ -39,10 +39,10 @@ public:
   virtual void
   resume();
 
-  virtual void 
+  virtual void
   send(const Block& wire);
 
-  virtual void 
+  virtual void
   send(const Block& header, const Block& payload);
 
 private:

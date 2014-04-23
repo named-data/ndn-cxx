@@ -16,7 +16,8 @@ struct sqlite3;
 
 namespace ndn {
 
-class SecPublicInfoSqlite3 : public SecPublicInfo {
+class SecPublicInfoSqlite3 : public SecPublicInfo
+{
 public:
   class Error : public SecPublicInfo::Error
   {

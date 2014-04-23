@@ -24,7 +24,8 @@ namespace ndn {
  *
  * The Validator class provides the interfaces for packet validation.
  */
-class Validator {
+class Validator
+{
 public:
   class Error : public std::runtime_error
   {

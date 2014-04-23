@@ -17,7 +17,8 @@
 
 namespace ndn {
 
-class Certificate : public Data {
+class Certificate : public Data
+{
 public:
   class Error : public std::runtime_error
   {

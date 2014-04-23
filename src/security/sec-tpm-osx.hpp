@@ -13,7 +13,8 @@
 
 namespace ndn {
 
-class SecTpmOsx : public SecTpm {
+class SecTpmOsx : public SecTpm
+{
 public:
   class Error : public SecTpm::Error
   {

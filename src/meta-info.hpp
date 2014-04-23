@@ -14,7 +14,8 @@ namespace ndn {
 /**
  * An MetaInfo holds the meta info which is signed inside the data packet.
  */
-class MetaInfo {
+class MetaInfo
+{
 public:
   enum {
     TYPE_DEFAULT = 0,

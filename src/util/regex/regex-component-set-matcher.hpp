@@ -15,7 +15,8 @@
 
 namespace ndn {
 
-class RegexComponentSetMatcher : public RegexMatcher {
+class RegexComponentSetMatcher : public RegexMatcher
+{
 
 public:
   /**

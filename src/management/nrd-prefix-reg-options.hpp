@@ -25,7 +25,8 @@ const uint64_t DEFAULT_FLAGS = tlv::nrd::NDN_FORW_CHILD_INHERIT;
  * @see http://redmine.named-data.net/projects/nrd/wiki/NRD_Prefix_Registration_protocol
  * @deprecated use NFD RIB Management
  */
-class PrefixRegOptions {
+class PrefixRegOptions
+{
 public:
   class Error : public Tlv::Error
   {

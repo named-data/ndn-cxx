@@ -16,7 +16,8 @@
 
 namespace ndn {
 
-class PublicKey {
+class PublicKey
+{
 public:
   class Error : public std::runtime_error
   {

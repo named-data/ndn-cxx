@@ -20,7 +20,8 @@ namespace ndn {
  *
  * You should initialize by calling setKeyPairForKeyName.
  */
-class SecTpmMemory : public SecTpm {
+class SecTpmMemory : public SecTpm
+{
 public:
   class Error : public SecTpm::Error
   {

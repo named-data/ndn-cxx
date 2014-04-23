@@ -17,7 +17,8 @@ namespace ndn {
  * @brief SecPublicInfoMemory extends SecPublicInfo and implements its methods to store identity,
  *        public key and certificate objects in memory.
  */
-class SecPublicInfoMemory : public SecPublicInfo {
+class SecPublicInfoMemory : public SecPublicInfo
+{
 public:
   class Error : public SecPublicInfo::Error
   {
@@ -104,7 +105,8 @@ protected:
 
 
 private:
-  class KeyRecord {
+  class KeyRecord
+  {
   public:
     KeyRecord(KeyType keyType, const PublicKey& key)
     : m_keyType(keyType), m_key(key)

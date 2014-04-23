@@ -13,7 +13,8 @@
 namespace ndn {
 namespace ndnd {
 
-class StatusResponse {
+class StatusResponse
+{
 public:
   StatusResponse()
     : code_(0)

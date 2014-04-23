@@ -18,7 +18,8 @@ namespace nfd {
  *
  * @see http://redmine.named-data.net/projects/nfd/wiki/ControlCommand
  */
-class ControlResponse {
+class ControlResponse
+{
 public:
   class Error : public Tlv::Error
   {

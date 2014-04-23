@@ -21,12 +21,12 @@ namespace ndn {
 class Exclude
 {
 public:
-  class Error : public std::runtime_error
+  class Error : public Tlv::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : std::runtime_error(what)
+      : Tlv::Error(what)
     {
     }
   };

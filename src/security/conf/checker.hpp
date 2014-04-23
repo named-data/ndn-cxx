@@ -101,14 +101,14 @@ public:
                             interestName[INTEREST_SIG_VALUE].blockFromValue());
         return check(interest, signature, onValidated, onValidationFailed);
       }
-    catch (const Tlv::Error& e)
-      {
-        onValidationFailed(interest.shared_from_this(), "Cannot decode signature related TLVs");
-        return -1;
-      }
-    catch (const Signature::Error& e)
+    catch (Signature::Error& e)
       {
         onValidationFailed(interest.shared_from_this(), "Invalid signature");
+        return -1;
+      }
+    catch (Tlv::Error& e)
+      {
+        onValidationFailed(interest.shared_from_this(), "Cannot decode signature related TLVs");
         return -1;
       }
   }
@@ -147,7 +147,7 @@ private:
                   return -1;
                 }
             }
-          catch (const SignatureSha256WithRsa::Error& e)
+          catch (SignatureSha256WithRsa::Error& e)
             {
               onValidationFailed(packet.shared_from_this(),
                                  "Cannot decode Sha256WithRsa signature!");
@@ -221,14 +221,14 @@ public:
                             interestName[INTEREST_SIG_VALUE].blockFromValue());
         return check(interest, signature, onValidated, onValidationFailed);
       }
-    catch (const Tlv::Error& e)
-      {
-        onValidationFailed(interest.shared_from_this(), "Cannot decode signature related TLVs");
-        return -1;
-      }
-    catch (const Signature::Error& e)
+    catch (Signature::Error& e)
       {
         onValidationFailed(interest.shared_from_this(), "Invalid signature");
+        return -1;
+      }
+    catch (Tlv::Error& e)
+      {
+        onValidationFailed(interest.shared_from_this(), "Cannot decode signature related TLVs");
         return -1;
       }
   }
@@ -280,13 +280,13 @@ private:
                   return -1;
                 }
             }
-          catch (const KeyLocator::Error& e)
+          catch (KeyLocator::Error& e)
             {
               onValidationFailed(packet.shared_from_this(),
                                  "KeyLocator does not have name!");
               return -1;
             }
-          catch (const SignatureSha256WithRsa::Error& e)
+          catch (SignatureSha256WithRsa::Error& e)
             {
               onValidationFailed(packet.shared_from_this(),
                                  "Cannot decode signature!");

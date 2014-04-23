@@ -25,14 +25,14 @@ class Component : public Block
 {
 public:
   /**
-   * @brief Error that can be thrown from the block
+   * @brief Error that can be thrown from name::Component
    */
-  class Error : public std::runtime_error
+  class Error : public Block::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : std::runtime_error(what)
+      : Block::Error(what)
     {
     }
   };

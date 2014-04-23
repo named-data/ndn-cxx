@@ -30,7 +30,7 @@ public:
   typedef element_container::iterator        element_iterator;
   typedef element_container::const_iterator  element_const_iterator;
 
-  /// @brief Error that can be thrown from the block
+  /// @brief Error that can be thrown from Block
   class Error : public Tlv::Error
   {
   public:
@@ -53,7 +53,8 @@ public:
   Block(const EncodingBuffer& buffer);
 
   /**
-   * @brief A helper version of a constructor to create Block from the raw buffer (type and value-length parsing)
+   * @brief A helper version of a constructor to create Block from the raw buffer (type
+   * and value-length parsing)
    *
    * This constructor provides ability of implicit conversion from ConstBufferPtr to Block
    */
@@ -70,7 +71,8 @@ public:
         bool verifyLength = true);
 
   /**
-   * @brief A helper version of a constructor to create Block from the raw buffer (type and value-length parsing)
+   * @brief A helper version of a constructor to create Block from the raw buffer (type
+   * and value-length parsing)
    */
   Block(const uint8_t* buffer, size_t maxlength);
 

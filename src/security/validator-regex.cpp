@@ -152,13 +152,13 @@ ValidatorRegex::checkPolicy(const Data& data,
                   return;
                 }
             }
-          catch (const SignatureSha256WithRsa::Error& e)
+          catch (SignatureSha256WithRsa::Error& e)
             {
               return onValidationFailed(data.shared_from_this(),
                                         "Not SignatureSha256WithRsa signature: " +
                                         data.getName().toUri());
             }
-          catch (const KeyLocator::Error& e)
+          catch (KeyLocator::Error& e)
             {
               return onValidationFailed(data.shared_from_this(),
                                         "Key Locator is not a name: " +

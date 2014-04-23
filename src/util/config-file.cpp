@@ -108,7 +108,7 @@ ConfigFile::parse()
     {
       boost::property_tree::read_ini(m_input, m_config);
     }
-  catch (const boost::property_tree::ini_parser_error& error)
+  catch (boost::property_tree::ini_parser_error& error)
     {
       std::stringstream msg;
       msg << "Failed to parse configuration file";
@@ -120,4 +120,3 @@ ConfigFile::parse()
 }
 
 }
-

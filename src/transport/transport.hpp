@@ -12,7 +12,8 @@
 
 namespace ndn {
 
-class Transport {
+class Transport
+{
 public:
   class Error : public std::runtime_error
   {

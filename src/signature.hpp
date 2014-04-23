@@ -12,14 +12,15 @@ namespace ndn {
 /**
  * A Signature is storage for the signature-related information (info and value) in a Data packet.
  */
-class Signature {
+class Signature
+{
 public:
-  class Error : public std::runtime_error
+  class Error : public Tlv::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : std::runtime_error(what)
+      : Tlv::Error(what)
     {
     }
   };

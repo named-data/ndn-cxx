@@ -76,7 +76,7 @@ load(std::istream& is, IoEncoding encoding = BASE_64)
     {
       return shared_ptr<T>();
     }
-  catch (Block::Error& e)
+  catch (Tlv::Error& e)
     {
       return shared_ptr<T>();
     }
@@ -134,7 +134,7 @@ save(const T& object, std::ostream& os, IoEncoding encoding = BASE_64)
     {
       throw Error(e.what());
     }
-  catch (Block::Error& e)
+  catch (Tlv::Error& e)
     {
       throw Error(e.what());
     }

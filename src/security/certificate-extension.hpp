@@ -13,7 +13,9 @@
 #include "../encoding/buffer.hpp"
 #include "../encoding/oid.hpp"
 
-namespace CryptoPP { class BufferedTransformation; }
+namespace CryptoPP {
+class BufferedTransformation;
+}
 
 namespace ndn {
 

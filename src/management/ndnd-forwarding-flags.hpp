@@ -19,7 +19,8 @@ namespace ndnd {
  * a registered prefix.  We use a separate ForwardingFlags object to retain future compatibility if the daemon forwarding
  * bits are changed, amended or deprecated.
  */
-class ForwardingFlags {
+class ForwardingFlags
+{
 public:
   /**
    * Create a new ForwardingFlags with "active" and "childInherit" set and all other flags cleared.

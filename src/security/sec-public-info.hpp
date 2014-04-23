@@ -23,7 +23,8 @@ namespace ndn {
  * It specify interfaces related to public information, such as identity, public keys and
  * certificates.
  */
-class SecPublicInfo {
+class SecPublicInfo
+{
 public:
   class Error : public std::runtime_error
   {

@@ -142,7 +142,7 @@ Validator::verifySignature(const Data& data, const PublicKey& key)
           }
         }
     }
-  catch (const Signature::Error& e)
+  catch (Signature::Error& e)
     {
       return false;
     }
@@ -180,11 +180,11 @@ Validator::verifySignature(const Interest& interest, const PublicKey& key)
           }
         }
     }
-  catch (const Signature::Error& e)
+  catch (Signature::Error& e)
     {
       return false;
     }
-  catch (const Block::Error& e)
+  catch (Block::Error& e)
     {
       return false;
     }
@@ -209,7 +209,7 @@ Validator::verifySignature(const Buffer& data, const Signature& sig, const Publi
           }
         }
     }
-  catch (const Signature::Error& e)
+  catch (Signature::Error& e)
     {
       return false;
     }
@@ -237,7 +237,7 @@ Validator::verifySignature(const uint8_t* buf,
                                     sig.getValue().value(),
                                     sig.getValue().value_size());
     }
-  catch (const CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       return false;
     }
@@ -264,7 +264,7 @@ Validator::verifySignature(const uint8_t* buf, const size_t size, const Signatur
       else
         return false;
     }
-  catch (const CryptoPP::Exception& e)
+  catch (CryptoPP::Exception& e)
     {
       return false;
     }

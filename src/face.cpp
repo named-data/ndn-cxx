@@ -77,11 +77,11 @@ Face::construct(const shared_ptr<Transport>& transport,
     {
       protocol = m_config.getParsedConfiguration().get<std::string>("protocol");
     }
-  catch (const boost::property_tree::ptree_bad_path& error)
+  catch (boost::property_tree::ptree_bad_path& error)
     {
       // protocol not specified
     }
-  catch (const boost::property_tree::ptree_bad_data& error)
+  catch (boost::property_tree::ptree_bad_data& error)
     {
       throw ConfigFile::Error(error.what());
     }
@@ -276,7 +276,7 @@ Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::ze
       // break
       m_ioService->reset();
     }
-  catch (const std::exception&)
+  catch (std::exception&)
     {
       m_ioService->reset();
       m_pendingInterestTable.clear();
