@@ -1,19 +1,17 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2013, Regents of the University of California
- *                     Alexander Afanasyev
+ * Copyright (c) 2013-2014, Regents of the University of California
  *
  * BSD license, See the LICENSE file for more information
  *
- * Author: Alexander Afanasyev <alexander.afanasyev@ucla.edu>
+ * @author  Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  */
 
 #include "common.hpp"
 
 #include "exclude.hpp"
 
-namespace ndn
-{
+namespace ndn {
 
 Exclude::Exclude()
 {
@@ -87,39 +85,33 @@ Exclude::excludeOne(const name::Component& comp)
 Exclude&
 Exclude::excludeRange(const name::Component& from, const name::Component& to)
 {
-  if (from >= to)
-    {
-      throw Error("Invalid exclude range [" +
-                  from.toEscapedString() + ", " +
-                  to.toEscapedString() +
-                  "] (for single name exclude use Exclude::excludeOne)");
-    }
+  if (from >= to) {
+    throw Error("Invalid exclude range [" +
+                from.toEscapedString() + ", " +
+                to.toEscapedString() +
+                "] (for single name exclude use Exclude::excludeOne)");
+  }
 
   iterator newFrom = m_exclude.lower_bound(from);
-  if (newFrom == end() || !newFrom->second /*without ANY*/)
-    {
-      std::pair<iterator, bool> fromResult = m_exclude.insert(std::make_pair(from, true));
-      newFrom = fromResult.first;
-      if (!fromResult.second)
-        {
-          // this means that the lower bound is equal to the item itself. So, just update ANY flag
-          newFrom->second = true;
-        }
+  if (newFrom == end() || !newFrom->second /*without ANY*/) {
+    std::pair<iterator, bool> fromResult = m_exclude.insert(std::make_pair(from, true));
+    newFrom = fromResult.first;
+    if (!fromResult.second) {
+      // this means that the lower bound is equal to the item itself. So, just update ANY flag
+      newFrom->second = true;
     }
+  }
   // else
   // nothing special if start of the range already exists with ANY flag set
 
   iterator newTo = m_exclude.lower_bound(to); // !newTo cannot be end()
-  if (newTo == newFrom || !newTo->second)
-    {
+  if (newTo == newFrom || !newTo->second) {
       std::pair<iterator, bool> toResult = m_exclude.insert(std::make_pair(to, false));
       newTo = toResult.first;
       ++ newTo;
-    }
-  else
-    {
-      // nothing to do really
-    }
+  }
+  // else
+  // nothing to do really
 
   m_exclude.erase(newTo, newFrom); // remove any intermediate node, since all of the are excluded
 
@@ -130,23 +122,21 @@ Exclude&
 Exclude::excludeAfter(const name::Component& from)
 {
   iterator newFrom = m_exclude.lower_bound(from);
-  if (newFrom == end() || !newFrom->second /*without ANY*/)
-    {
-      std::pair<iterator, bool> fromResult = m_exclude.insert(std::make_pair(from, true));
-      newFrom = fromResult.first;
-      if (!fromResult.second)
-        {
-          // this means that the lower bound is equal to the item itself. So, just update ANY flag
-          newFrom->second = true;
-        }
+  if (newFrom == end() || !newFrom->second /*without ANY*/) {
+    std::pair<iterator, bool> fromResult = m_exclude.insert(std::make_pair(from, true));
+    newFrom = fromResult.first;
+    if (!fromResult.second) {
+      // this means that the lower bound is equal to the item itself. So, just update ANY flag
+      newFrom->second = true;
     }
+  }
   // else
   // nothing special if start of the range already exists with ANY flag set
 
-  if (newFrom != m_exclude.begin())
-    {
-      m_exclude.erase(m_exclude.begin(), newFrom); // remove any intermediate node, since all of the are excluded
-    }
+  if (newFrom != m_exclude.begin()) {
+    // remove any intermediate node, since all of the are excluded
+    m_exclude.erase(m_exclude.begin(), newFrom);
+  }
 
   return *this;
 }
@@ -156,23 +146,20 @@ std::ostream&
 operator<<(std::ostream& os, const Exclude& exclude)
 {
   bool empty = true;
-  for (Exclude::const_reverse_iterator i = exclude.rbegin(); i != exclude.rend(); i++)
-    {
-      if (!i->first.empty())
-        {
-          if (!empty) os << ",";
-          os << i->first.toEscapedString();
-          empty = false;
-        }
-      if (i->second)
-        {
-          if (!empty) os << ",";
-          os << "*";
-          empty = false;
-        }
+  for (Exclude::const_reverse_iterator i = exclude.rbegin(); i != exclude.rend(); i++) {
+    if (!i->first.empty()) {
+      if (!empty) os << ",";
+      os << i->first.toEscapedString();
+      empty = false;
     }
+    if (i->second) {
+      if (!empty) os << ",";
+      os << "*";
+      empty = false;
+    }
+  }
   return os;
 }
 
 
-} // ndn
+} // namespace ndn

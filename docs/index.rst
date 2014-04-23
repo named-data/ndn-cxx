@@ -4,6 +4,7 @@ C++ library for Named Data Networking
 `API documentation (doxygen) <doxygen/annotated.html>`_
 
 .. toctree::
+   code-style
    examples
    tutorials/security-library
    tutorials/utils-ndn-regex

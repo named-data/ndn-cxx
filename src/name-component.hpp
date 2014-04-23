@@ -19,7 +19,7 @@ namespace ndn {
 namespace name {
 
 /**
- * A Name::Component holds a read-only name component value.
+ * @brief Component holds a read-only name component value.
  */
 class Component : public Block
 {

@@ -194,7 +194,8 @@ LocalControlHeader::wireEncode(const U& payload,
 
 inline void
 LocalControlHeader::wireDecode(const Block& wire,
-                               bool encodeIncomingFaceId/* = true*/, bool encodeNextHopFaceId/* = true*/)
+                               bool encodeIncomingFaceId/* = true*/,
+                               bool encodeNextHopFaceId/* = true*/)
 {
   BOOST_ASSERT(wire.type() == tlv::nfd::LocalControlHeader);
   wire.parse();
