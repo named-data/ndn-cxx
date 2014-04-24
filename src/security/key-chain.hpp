@@ -511,14 +511,14 @@ public:
 
     Name keyName = Info::getDefaultKeyNameForIdentity(identity);
 
-    ConstBufferPtr pkcs8;
+    ConstBufferPtr pkcs5;
     try
       {
-        pkcs8 = Tpm::exportPrivateKeyPkcs8FromTpm(keyName, passwordStr);
+        pkcs5 = Tpm::exportPrivateKeyPkcs5FromTpm(keyName, passwordStr);
       }
     catch (TpmError& e)
       {
-        throw InfoError("Fail to export PKCS8 of private key");
+        throw InfoError("Fail to export PKCS5 of private key");
       }
 
     shared_ptr<IdentityCertificate> cert;
@@ -533,7 +533,7 @@ public:
       }
 
     shared_ptr<SecuredBag> secureBag = make_shared<SecuredBag>(boost::cref(*cert),
-                                                               boost::cref(pkcs8));
+                                                               boost::cref(pkcs5));
 
     return secureBag;
   }
@@ -555,7 +555,7 @@ public:
     Info::addIdentity(identity);
 
     // Add key
-    Tpm::importPrivateKeyPkcs8IntoTpm(keyName,
+    Tpm::importPrivateKeyPkcs5IntoTpm(keyName,
                                       securedBag.getKey()->buf(),
                                       securedBag.getKey()->size(),
                                       passwordStr);

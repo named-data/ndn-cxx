@@ -14,7 +14,7 @@ using namespace std;
 namespace ndn {
 
 ConstBufferPtr
-SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, const string& passwordStr)
+SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& passwordStr)
 {
   using namespace CryptoPP;
 
@@ -47,14 +47,14 @@ SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, const string& password
   CBC_Mode< DES_EDE3 >::Encryption e;
   e.SetKeyWithIV(derived, derivedLen, iv);
 
-  ConstBufferPtr pkcs1PrivateKey = exportPrivateKeyPkcs1FromTpm(keyName);
-  if (!static_cast<bool>(pkcs1PrivateKey))
+  ConstBufferPtr pkcs8PrivateKey = exportPrivateKeyPkcs8FromTpm(keyName);
+  if (!static_cast<bool>(pkcs8PrivateKey))
     throw Error("Cannot export the private key, #1");
 
   OBufferStream encryptedOs;
   try
     {
-      StringSource stringSource(pkcs1PrivateKey->buf(), pkcs1PrivateKey->size(), true,
+      StringSource stringSource(pkcs8PrivateKey->buf(), pkcs8PrivateKey->size(), true,
                                 new StreamTransformationFilter(e, new FileSink(encryptedOs)));
     }
   catch (CryptoPP::Exception& e)
@@ -136,7 +136,7 @@ SecTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName, const string& password
 }
 
 bool
-SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName,
+SecTpm::importPrivateKeyPkcs5IntoTpm(const Name& keyName,
                                      const uint8_t* buf, size_t size,
                                      const string& passwordStr)
 {
@@ -249,7 +249,7 @@ SecTpm::importPrivateKeyPkcs8IntoTpm(const Name& keyName,
       return false;
     }
 
-  if (!importPrivateKeyPkcs1IntoTpm(keyName,
+  if (!importPrivateKeyPkcs8IntoTpm(keyName,
                                     privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()))
     return false;
 

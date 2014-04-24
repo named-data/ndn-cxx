@@ -149,7 +149,7 @@ SecTpmFile::getPublicKeyFromTpm(const Name&  keyName)
   string keyURI = keyName.toUri();
 
   if (!doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC))
-    throw Error("Public Key already exist");
+    throw Error("Public Key does not exist");
 
   ostringstream os;
   try
@@ -169,7 +169,7 @@ SecTpmFile::getPublicKeyFromTpm(const Name&  keyName)
 }
 
 ConstBufferPtr
-SecTpmFile::exportPrivateKeyPkcs1FromTpm(const Name& keyName)
+SecTpmFile::exportPrivateKeyPkcs8FromTpm(const Name& keyName)
 {
   OBufferStream privateKeyOs;
   CryptoPP::FileSource(m_impl->nameTransform(keyName.toUri(), ".pri").string().c_str(), true,
@@ -179,7 +179,7 @@ SecTpmFile::exportPrivateKeyPkcs1FromTpm(const Name& keyName)
 }
 
 bool
-SecTpmFile::importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
+SecTpmFile::importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
 {
   try
     {

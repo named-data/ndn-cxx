@@ -376,7 +376,7 @@ SecTpmOsx::getPublicKeyFromTpm(const Name& keyName)
 }
 
 ConstBufferPtr
-SecTpmOsx::exportPrivateKeyPkcs1FromTpmInternal(const Name& keyName, bool needRetry)
+SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRetry)
 {
   using namespace CryptoPP;
 
@@ -393,7 +393,7 @@ SecTpmOsx::exportPrivateKeyPkcs1FromTpmInternal(const Name& keyName, bool needRe
       if (res == errSecAuthFailed && !needRetry)
         {
           if (unlockTpm(0, 0, false))
-            return exportPrivateKeyPkcs1FromTpmInternal(keyName, true);
+            return exportPrivateKeyPkcs8FromTpmInternal(keyName, true);
           else
             return shared_ptr<Buffer>();
         }
@@ -438,7 +438,7 @@ SecTpmOsx::exportPrivateKeyPkcs1FromTpmInternal(const Name& keyName, bool needRe
 #endif // __GNUC__
 
 bool
-SecTpmOsx::importPrivateKeyPkcs1IntoTpmInternal(const Name& keyName,
+SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
                                                 const uint8_t* buf, size_t size,
                                                 bool needRetry)
 {
@@ -506,7 +506,7 @@ SecTpmOsx::importPrivateKeyPkcs1IntoTpmInternal(const Name& keyName,
       if (res == errSecAuthFailed && !needRetry)
         {
           if (unlockTpm(0, 0, false))
-            return importPrivateKeyPkcs1IntoTpmInternal(keyName, buf, size, true);
+            return importPrivateKeyPkcs8IntoTpmInternal(keyName, buf, size, true);
           else
             return false;
         }

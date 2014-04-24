@@ -107,10 +107,10 @@ protected:
    * From TrustedPlatformModule *
    ******************************/
   virtual ConstBufferPtr
-  exportPrivateKeyPkcs1FromTpm(const Name& keyName);
+  exportPrivateKeyPkcs8FromTpm(const Name& keyName);
 
   virtual bool
-  importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
+  importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
 
   virtual bool
   importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);

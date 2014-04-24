@@ -208,7 +208,7 @@ public:
   addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl) = 0;
 
   /**
-   * @brief Export a private key in PKCS#8 format.
+   * @brief Export a private key in PKCS#5 format.
    *
    * @param keyName The private key name.
    * @param password The password to encrypt the private key.
@@ -216,10 +216,10 @@ public:
    * @throws SecTpm::Error if private key cannot be exported.
    */
   ConstBufferPtr
-  exportPrivateKeyPkcs8FromTpm(const Name& keyName, const std::string& password);
+  exportPrivateKeyPkcs5FromTpm(const Name& keyName, const std::string& password);
 
   /**
-   * @brief Import a private key in PKCS#8 format.
+   * @brief Import a private key in PKCS#5 format.
    *
    * Also recover the public key and installed it in TPM.
    *
@@ -229,29 +229,29 @@ public:
    * @return False if import fails.
    */
   bool
-  importPrivateKeyPkcs8IntoTpm(const Name& keyName,
+  importPrivateKeyPkcs5IntoTpm(const Name& keyName,
                                const uint8_t* buf, size_t size,
                                const std::string& password);
 
 protected:
   /**
-   * @brief Export a private key in PKCS#1 format.
+   * @brief Export a private key in PKCS#8 format.
    *
    * @param keyName The private key name.
-   * @return The private key info (in PKCS#1 format) if exist, otherwise a NULL pointer.
+   * @return The private key info (in PKCS#8 format) if exist, otherwise a NULL pointer.
    */
   virtual ConstBufferPtr
-  exportPrivateKeyPkcs1FromTpm(const Name& keyName) = 0;
+  exportPrivateKeyPkcs8FromTpm(const Name& keyName) = 0;
 
   /**
-   * @brief Import a private key in PKCS#1 format.
+   * @brief Import a private key in PKCS#8 format.
    *
    * @param keyName The private key name.
    * @param key The encoded private key info.
    * @return False if import fails.
    */
   virtual bool
-  importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size) = 0;
+  importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size) = 0;
 
   /**
    * @brief Import a public key in PKCS#1 format.

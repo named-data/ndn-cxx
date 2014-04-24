@@ -99,15 +99,15 @@ protected:
    * From TrustedPlatformModule *
    ******************************/
   virtual ConstBufferPtr
-  exportPrivateKeyPkcs1FromTpm(const Name& keyName)
+  exportPrivateKeyPkcs8FromTpm(const Name& keyName)
   {
-    return exportPrivateKeyPkcs1FromTpmInternal(keyName, false);
+    return exportPrivateKeyPkcs8FromTpmInternal(keyName, false);
   }
 
   virtual bool
-  importPrivateKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
+  importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
   {
-    return importPrivateKeyPkcs1IntoTpmInternal(keyName, buf, size, false);
+    return importPrivateKeyPkcs8IntoTpmInternal(keyName, buf, size, false);
   }
 
   virtual bool
@@ -123,10 +123,10 @@ protected:
   deleteKeyPairInTpmInternal(const Name& keyName, bool needRetry);
 
   ConstBufferPtr
-  exportPrivateKeyPkcs1FromTpmInternal(const Name& keyName, bool needRetry);
+  exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRetry);
 
   bool
-  importPrivateKeyPkcs1IntoTpmInternal(const Name& keyName,
+  importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
                                        const uint8_t* buf, size_t size,
                                        bool needRetry);
 
