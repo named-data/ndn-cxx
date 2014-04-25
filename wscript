@@ -1,9 +1,9 @@
 # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
-VERSION = '0.4.0'
-APPNAME = "ndn-cpp-dev"
-PACKAGE_BUGREPORT = "http://redmine.named-data.net/projects/ndn-cpp-dev"
-PACKAGE_URL = "https://github.com/named-data/ndn-cpp-dev"
+VERSION = '0.1.0'
+APPNAME = "ndn-cxx"
+PACKAGE_BUGREPORT = "http://redmine.named-data.net/projects/ndn-cxx"
+PACKAGE_URL = "https://github.com/named-data/ndn-cxx"
 
 from waflib import Logs, Utils
 
@@ -21,8 +21,6 @@ def options(opt):
     opt.add_option('--with-log4cxx', action='store_true', default=False, dest='log4cxx',
                    help='''Compile with log4cxx logging support''')
 
-    opt.add_option('--with-c++11', action='store_true', default=False, dest='use_cxx11',
-                   help='''Use C++11 features, even if available in the compiler''')
     opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
                    help='''Do not build tools''')
 
@@ -98,14 +96,14 @@ def configure(conf):
 
     conf.define('SYSCONFDIR', conf.env['SYSCONFDIR'])
 
-    conf.write_config_header('src/ndn-cpp-config.hpp', define_prefix='NDN_CPP_')
+    conf.write_config_header('src/ndn-cxx-config.hpp', define_prefix='NDN_CXX_')
 
 def build(bld):
-    libndn_cpp = bld(
+    libndn_cxx = bld(
         features=['cxx', 'cxxstlib'], # 'cxxshlib',
         # vnum="0.3.0",
-        target="ndn-cpp-dev",
-        name="ndn-cpp-dev",
+        target="ndn-cxx",
+        name="ndn-cxx",
         source=bld.path.ant_glob('src/**/*.cpp',
                                    excl=['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
         use='BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT PIC PTHREAD',
@@ -115,15 +113,15 @@ def build(bld):
         )
 
     if bld.env['WITH_PCH']:
-        libndn_cpp.pch="src/common.hpp"
+        libndn_cxx.pch="src/common.hpp"
 
     if bld.env['HAVE_OSX_SECURITY']:
-        libndn_cpp.source += bld.path.ant_glob('src/**/*-osx.cpp')
-        libndn_cpp.mac_app = True
-        libndn_cpp.use += " OSX_COREFOUNDATION OSX_SECURITY"
+        libndn_cxx.source += bld.path.ant_glob('src/**/*-osx.cpp')
+        libndn_cxx.mac_app = True
+        libndn_cxx.use += " OSX_COREFOUNDATION OSX_SECURITY"
 
     # In case we want to make it optional later
-    libndn_cpp.source += bld.path.ant_glob('src/**/*-sqlite3.cpp')
+    libndn_cxx.source += bld.path.ant_glob('src/**/*-sqlite3.cpp')
 
     # Prepare flags that should go to pkgconfig file
     pkgconfig_libs = []
@@ -131,7 +129,7 @@ def build(bld):
     pkgconfig_linkflags = []
     pkgconfig_includes = []
     pkgconfig_cxxflags = []
-    for lib in Utils.to_list(libndn_cpp.use):
+    for lib in Utils.to_list(libndn_cxx.use):
         if bld.env['LIB_%s' % lib]:
             pkgconfig_libs += Utils.to_list(bld.env['LIB_%s' % lib])
         if bld.env['LIBPATH_%s' % lib]:
@@ -152,8 +150,8 @@ def build(bld):
         return [set.setdefault(e,e) for e in alist if e not in set]
 
     pkconfig = bld(features="subst",
-         source="libndn-cpp-dev.pc.in",
-         target="libndn-cpp-dev.pc",
+         source="libndn-cxx.pc.in",
+         target="libndn-cxx.pc",
          install_path="${LIBDIR}/pkgconfig",
          VERSION=VERSION,
 
@@ -178,11 +176,11 @@ def build(bld):
         bld.recurse("examples")
 
     headers = bld.path.ant_glob(['src/**/*.hpp'])
-    bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'], headers,
+    bld.install_files("%s/ndn-cxx" % bld.env['INCLUDEDIR'], headers,
                       relative_trick=True, cwd=bld.path.find_node('src'))
 
-    bld.install_files("%s/ndn-cpp-dev" % bld.env['INCLUDEDIR'],
-                      bld.path.find_resource('src/ndn-cpp-config.hpp'))
+    bld.install_files("%s/ndn-cxx" % bld.env['INCLUDEDIR'],
+                      bld.path.find_resource('src/ndn-cxx-config.hpp'))
 
     bld.install_files("${SYSCONFDIR}/ndn", "client.conf.sample")
 

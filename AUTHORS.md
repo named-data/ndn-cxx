@@ -1,4 +1,4 @@
-ndn-cpp-dev authors
+ndn-cxx authors
 ===================
 
 ## The primary authors are (and/or have been):

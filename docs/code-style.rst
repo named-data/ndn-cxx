@@ -1,5 +1,5 @@
-Code style and coding guidelines
-================================
+ndn-cxx Code Style and Coding Guidelines
+========================================
 
 Based on
 

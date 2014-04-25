@@ -5,9 +5,9 @@
  * BSD License, see COPYING for copyright and distribution information.
  */
 
-// correct way to include NDN-CPP headers
-// #include <ndn-cpp-dev/face.hpp>
-// #include <ndn-cpp-dev/security/key-chain.hpp>
+// correct way to include ndn-cxx headers
+// #include <ndn-cxx/face.hpp>
+// #include <ndn-cxx/security/key-chain.hpp>
 
 #include "face.hpp"
 #include "security/key-chain.hpp"

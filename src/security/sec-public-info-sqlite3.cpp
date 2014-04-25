@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
+ * Copyright (c) 2013-2014 Regents of the University of California.
  * @author: Yingdi Yu <yingdi@cs.ucla.edu>
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
@@ -92,7 +92,7 @@ SecPublicInfoSqlite3::SecPublicInfoSqlite3()
   /// @todo Add define for windows/unix in wscript. The following may completely fail on windows
   int res = sqlite3_open_v2((identityDir / "ndnsec-public-info.db").c_str(), &m_database,
                             SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-#ifdef NDN_CPP_DISABLE_SQLITE3_FS_LOCKING
+#ifdef NDN_CXX_DISABLE_SQLITE3_FS_LOCKING
                                                        "unix-dotfile"
 #else
                             0

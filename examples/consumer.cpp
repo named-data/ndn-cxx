@@ -5,8 +5,8 @@
  * BSD License, see COPYING for copyright and distribution information.
  */
 
-// correct way to include NDN-CPP headers
-// #include <ndn-cpp-dev/face.hpp>
+// correct way to include ndn-cxx headers
+// #include <ndn-cxx/face.hpp>
 #include "face.hpp"
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)

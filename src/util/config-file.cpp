@@ -45,15 +45,15 @@ ConfigFile::findConfigFile()
         }
     }
 
-#ifdef NDN_CPP_SYSCONFDIR
-  path sysconfdir(NDN_CPP_SYSCONFDIR);
+#ifdef NDN_CXX_SYSCONFDIR
+  path sysconfdir(NDN_CXX_SYSCONFDIR);
   sysconfdir /= "ndn/client.conf";
 
   if (exists(sysconfdir))
     {
       return absolute(sysconfdir);
     }
-#endif // NDN_CPP_SYSCONFDIR
+#endif // NDN_CXX_SYSCONFDIR
 
   path etc("/etc/ndn/client.conf");
   if (exists(etc))

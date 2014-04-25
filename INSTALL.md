@@ -1,10 +1,10 @@
-ndn-cpp-dev:  A dev version of Named Data Networking client library for C++
+ndn-cxx: NDN C++ library with eXperimental eXtensions
 ===========================================================================
 
 Supported platforms
 -------------------
 
-ndn-cpp-dev is tested on the following platforms:
+ndn-cxx uses continuous integration testing and has been tested on the following platforms:
 
 * Ubuntu 12.04 (64 bit and 32 bit)
 * Ubuntu 13.10 (64 bit and 32 bit)
@@ -14,9 +14,6 @@ ndn-cpp-dev is tested on the following platforms:
 
 Prerequisites
 -------------
-
-(These are prerequisites to build ndn-cpp-dev.  To do development of ndn-cpp-dev code and update the build system,
- see Development Prerequisites.)
 
 ### Required:
 
@@ -52,7 +49,7 @@ Following are the detailed steps for each platform to install the prerequisites.
         # For Ubuntu 13.10
         sudo apt-get install libboost-all-dev
 
-### Optional Dependencies:
+### Optional:
 
 To build tutorials, manpages, and API documentation the following
 dependencies need to be installed:
@@ -76,10 +73,10 @@ The following lists steps for common platforms to install these prerequisites:
 Build
 -----
 
-(These are instructions to build ndn-cpp-dev. To do development of ndn-cpp-dev
+(These are instructions to build ndn-cxx. To do development of ndn-cxx
 code and update the build system, see Development.)
 
-To build in a terminal, change directory to the ndn-cpp-dev root.  Enter:
+To build in a terminal, change directory to the ndn-cxx root.  Enter:
 
     ./waf configure
     ./waf
@@ -87,11 +84,11 @@ To build in a terminal, change directory to the ndn-cpp-dev root.  Enter:
 
 This builds and installs the following items:
 
-* `<LIBPATH>/libndn-cpp-dev.a`: static NDN C++ library
-* `<LIBPATH>/pkgconfig/libndn-cpp-dev.pc`: pkgconfig file storing all neccessary flags
+* `<LIBPATH>/libndn-cxx.a`: static NDN C++ library
+* `<LIBPATH>/pkgconfig/libndn-cxx.pc`: pkgconfig file storing all neccessary flags
   to build against the library.  For example, if pkgconfig or pkgconf package is
   installed and `PKG_CONFIG_PATH` is configured properly (or `<LIBPATH>/pkgconfig` is a
-  default path), `pkgconfig --libs --clflags libndn-cpp-dev` will return all necessary
+  default path), `pkgconfig --libs --clflags libndn-cxx` will return all necessary
   compile and link flags for the library.
 * `<BINPATH>/tlvdump`: a simple tool to dump contents of TLV-formatted data
 * `<BINPATH>/ndncatchunks3`: a simplified equivalent to ndncatchunks2 in NDNx package
@@ -107,7 +104,7 @@ also produce:
 Documentation
 -------------
 
-ndn-cpp-dev tutorials and API documentation can be built using the following commands:
+ndn-cxx tutorials and API documentation can be built using the following commands:
 
     # Full set of documentation (tutorials + API) in build/docs
     ./waf docs
@@ -139,8 +136,9 @@ The following is the suggested configure commands for development build.
     ./waf
     sudo ./waf install
 
-In the development build all compiler optimizations are disabled by default and all warnings are treated as error.
-The default behavior can be overridden by setting CXXFLAGS environment variable before running `./waf configure`:
+In the development build all compiler optimizations are disabled by default and all
+warnings are treated as error.  The default behavior can be overridden by setting `CXXFLAGS`
+environment variable before running `./waf configure`:
 
     CXXFLAGS="-O1 -g3" ./waf configure --debug --with-tests
     ...

@@ -28,7 +28,7 @@ public:
       m_hasOldDefaultIdentity = false;
     }
 
-    m_newIdentity.set("/ndn-cpp-dev-test-identity");
+    m_newIdentity.set("/ndn-cxx-test-identity");
     m_newIdentity.appendVersion();
 
     // create the new identity and self-signed certificate

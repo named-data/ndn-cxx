@@ -1,5 +1,5 @@
-C++ library for Named Data Networking
-=====================================
+NDN C++ library with eXperimental eXtensions
+============================================
 
 `API documentation (doxygen) <doxygen/annotated.html>`_
 

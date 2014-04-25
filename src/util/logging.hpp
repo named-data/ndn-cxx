@@ -11,7 +11,7 @@
 
 #include "../common.hpp"
 
-#ifdef NDN_CPP_HAVE_LOG4CXX
+#ifdef NDN_CXX_HAVE_LOG4CXX
 
 #include <log4cxx/logger.h>
 
@@ -48,7 +48,7 @@
 void
 INIT_LOGGERS()
 
-#else // else NDN_CPP_HAVE_LOG4CXX
+#else // else NDN_CXX_HAVE_LOG4CXX
 
 #define INIT_LOGGER(name) struct LOGGING_DISABLED
 #define _LOG_FUNCTION(x)
@@ -67,12 +67,12 @@ INIT_LOGGERS()
 #include <iostream>
 
 #define _LOG_DEBUG(x) \
-  { std::clog << s.substr(0, s.size() - 1) << " " << x << std::endl; }
+  { std::clog << x << std::endl; }
 
 #else
 #define _LOG_DEBUG(x)
 #endif
 
-#endif // NDN_CPP_HAVE_LOG4CXX
+#endif // NDN_CXX_HAVE_LOG4CXX
 
 #endif

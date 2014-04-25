@@ -25,7 +25,7 @@
 #include "sec-tpm-file.hpp"
 #include "sec-tpm-memory.hpp"
 
-#ifdef NDN_CPP_HAVE_OSX_SECURITY
+#ifdef NDN_CXX_HAVE_OSX_SECURITY
 #include "sec-tpm-osx.hpp"
 #endif
 
@@ -662,7 +662,7 @@ private:
 
 
 
-#if defined(NDN_CPP_HAVE_OSX_SECURITY) and defined(NDN_CPP_WITH_OSX_KEYCHAIN)
+#if defined(NDN_CXX_HAVE_OSX_SECURITY) and defined(NDN_CXX_WITH_OSX_KEYCHAIN)
 
 namespace ndn {
 
@@ -678,6 +678,6 @@ typedef KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> KeyChain;
 
 } // namespace ndn
 
-#endif //NDN_CPP_HAVE_OSX_SECURITY
+#endif // NDN_CXX_HAVE_OSX_SECURITY
 
-#endif //NDN_SECURITY_KEY_CHAIN_HPP
+#endif // NDN_SECURITY_KEY_CHAIN_HPP

@@ -1,18 +1,34 @@
-ndn-cpp-dev:  A dev version of Named Data Networking client library for C++
----------------------------------------------------------------------------
+ndn-cxx: NDN C++ library with eXperimental eXtensions
+=====================================================
 
-ndn-cpp-dev is a new implementation of a Named Data Networking client library written in C++.
+ndn-cxx is a C++ library, implementing Named Data Networking (NDN) primitives that can be
+used to implement various NDN applications.  The library is currently being used as part
+of the following projects:
 
-ndn-cpp-dev is open source under a license described in the file COPYING.  While the license
-does not require it, we really would appreciate it if others would share their
-contributions to the library if they are willing to do so under the same license.
+* [NFD - NDN Forwarding Daemon](https://github.com/named-data/NFD)
+* [NLSR - Named-data Link-State Routing protocol](https://github.com/named-data/NLSR)
+* [repo-ng - Next generation of NDN repository](https://github.com/named-data/repo-ng)
+* [ChronoChat - Multi-user NDN chat application](https://github.com/named-data/ChronoChat)
+* [ChronoSync - Sync library for multiuser realtime applications for NDN](https://github.com/named-data/ChronoSync)
+* [ndn-tlv-ping - Ping Application For NDN](https://github.com/named-data/ndn-tlv-ping)
+* [ndn-traffic - Traffic Generator For NDN](https://github.com/named-data/ndn-traffic)
 
-See the file INSTALL for build and install instructions.
+See the file INSTALL.md for build and install instructions.
 
-Please submit any bugs or issues to the ndn-cpp-dev issue tracker:
-http://redmine.named-data.net/projects/ndn-cpp-dev/issues
+Please submit any bugs or issues to the ndn-cxx issue tracker:
+http://redmine.named-data.net/projects/ndn-cxx/issues
 
 
-## More
+## More documentation
 
-Additional library tutorials and manpages are available in `docs/` folder.
+Extensive documentation of the library is available on the library's homepage:
+http://www.named-data.net/doc/ndn-cxx/
+
+
+## License
+
+ndn-cxx is an open source project licensed under BSD license. For more information about
+the license, refer to [`COPYING`](https://github.com/named-data/ndn-cxx/blob/master/COPYING).
+
+While the license does not require it, we really would appreciate it if others would share
+their contributions to the library if they are willing to do so under the same license.

@@ -1,14 +1,13 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * Copyright (C) 2013-2014 Regents of the University of California.
  * See COPYING for copyright and distribution information.
  */
 
 #ifndef NDN_COMMON_HPP
 #define NDN_COMMON_HPP
 
-#include "ndn-cpp-config.hpp"
+#include "ndn-cxx-config.hpp"
 #include <stdint.h>
 // TODO: Is stddef.h portable?
 #include <stddef.h>
@@ -45,16 +44,16 @@
 #define DEPRECATED(func) func
 #endif
 
-#ifdef NDN_CPP_HAVE_CXX11
+#ifdef NDN_CXX_HAVE_CXX11
 
 #if defined(__GNUC__)
 #  if !defined(__GXX_EXPERIMENTAL_CXX0X__) && __cplusplus < 201103L
-#    error "NDN-CPP-DEV library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
+#    error "NDN-CXX library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
 #  endif // !defined(__GXX_EXPERIMENTAL_CXX0X__) && __cplusplus < 201103L
 #endif // defined(__GNUC__)
 
 #if defined(__clang__) && __cplusplus < 201103L
-#  error "NDN-CPP-DEV library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
+#  error "NDN-CXX library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
 #endif // defined(__clang__) && (__cplusplus < 201103L)
 
 
@@ -111,7 +110,7 @@ using boost::bind;
 
 } // namespace ndn
 
-#endif // NDN_CPP_HAVE_CXX11
+#endif // NDN_CXX_HAVE_CXX11
 
 namespace ndn {
 
