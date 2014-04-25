@@ -68,6 +68,7 @@ def configure(conf):
                        'regex', 'program_options', 'chrono']
     if conf.env['WITH_TESTS']:
         USED_BOOST_LIBS += ['unit_test_framework']
+        conf.define('HAVE_TESTS', 1)
 
     conf.check_boost(lib=USED_BOOST_LIBS, mandatory=True)
     if conf.env.BOOST_VERSION_NUMBER < 104800:

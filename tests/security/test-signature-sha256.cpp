@@ -45,8 +45,10 @@ BOOST_AUTO_TEST_CASE (Signature)
   char content[5] = "1234";
   testData.setContent(reinterpret_cast<uint8_t*>(content), 5);
 
-  KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keychain;
-  keychain.signWithSha256(testData);
+  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
+  KeyChain keyChain("sqlite3", "file");
+
+  keyChain.signWithSha256(testData);
 
   testData.wireEncode();
 

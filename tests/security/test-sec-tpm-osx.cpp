@@ -10,9 +10,10 @@
  * ndn-cxx library copyright, permissions, and redistribution restrictions.
  */
 
-#include "security/key-chain.hpp"
-#include "util/time.hpp"
+#include "security/sec-tpm-osx.hpp"
 #include "security/cryptopp.hpp"
+
+#include "util/time.hpp"
 
 #include "boost-test.hpp"
 

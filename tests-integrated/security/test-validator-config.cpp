@@ -559,7 +559,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
 
 
   Name sld("/TestValidatorConfig/HierarchicalChecker");
-  Name sldKeyName = keyChain.generateRSAKeyPairAsDefault(sld, true);
+  Name sldKeyName = keyChain.generateRsaKeyPairAsDefault(sld, true);
   shared_ptr<IdentityCertificate> sldCert =
     keyChain.prepareUnsignedIdentityCertificate(sldKeyName,
                                                 root,
@@ -570,7 +570,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   keyChain.addCertificateAsIdentityDefault(*sldCert);
 
   Name nld("/TestValidatorConfig/HierarchicalChecker/NextLevel");
-  Name nldKeyName = keyChain.generateRSAKeyPairAsDefault(nld, true);
+  Name nldKeyName = keyChain.generateRsaKeyPairAsDefault(nld, true);
   shared_ptr<IdentityCertificate> nldCert =
     keyChain.prepareUnsignedIdentityCertificate(nldKeyName,
                                                 sld,
@@ -764,7 +764,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
 
 
   Name sld("/TestValidatorConfig/Nrd-1");
-  Name sldKeyName = keyChain.generateRSAKeyPairAsDefault(sld, true);
+  Name sldKeyName = keyChain.generateRsaKeyPairAsDefault(sld, true);
   shared_ptr<IdentityCertificate> sldCert =
     keyChain.prepareUnsignedIdentityCertificate(sldKeyName,
                                                 root,
@@ -775,7 +775,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   keyChain.addCertificateAsIdentityDefault(*sldCert);
 
   Name nld("/TestValidatorConfig/Nrd-1/Nrd-2");
-  Name nldKeyName = keyChain.generateRSAKeyPairAsDefault(nld, true);
+  Name nldKeyName = keyChain.generateRsaKeyPairAsDefault(nld, true);
   shared_ptr<IdentityCertificate> nldCert =
     keyChain.prepareUnsignedIdentityCertificate(nldKeyName,
                                                 sld,

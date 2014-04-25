@@ -23,9 +23,10 @@ namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(SecurityTestSignedInterest)
 
-BOOST_AUTO_TEST_CASE (SignedInterest)
+BOOST_AUTO_TEST_CASE(SignedInterest)
 {
-  KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
+  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
+  KeyChain keyChain("sqlite3", "file");
 
   Name identityName("/TestSignedInterest/SignVerify");
   identityName.appendVersion();
@@ -95,8 +96,8 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
     make_shared<Interest>("/TestCommandInterest/Validation/Command1");
   generator.generateWithIdentity(*commandInterest1, identity);
   validator.validate(*commandInterest1,
-  		     bind(&CommandInterestFixture::validated, this, _1),
-  		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
+                     bind(&CommandInterestFixture::validated, this, _1),
+                     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
 
   BOOST_CHECK_EQUAL(m_validity, true);
 
@@ -115,8 +116,8 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
 
   keyChain.signByIdentity(*commandInterest2, identity);
   validator.validate(*commandInterest2,
-  		     bind(&CommandInterestFixture::validated, this, _1),
-  		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
+                     bind(&CommandInterestFixture::validated, this, _1),
+                     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
 
   BOOST_CHECK_EQUAL(m_validity, false);
 
@@ -129,8 +130,8 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
     make_shared<Interest>("/TestCommandInterest/Validation/Command3");
   generator.generateWithIdentity(*commandInterest3, identity2);
   validator.validate(*commandInterest3,
-  		     bind(&CommandInterestFixture::validated, this, _1),
-  		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
+                     bind(&CommandInterestFixture::validated, this, _1),
+                     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
 
   BOOST_CHECK_EQUAL(m_validity, false);
 
@@ -139,8 +140,8 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
     make_shared<Interest>("/TestCommandInterest/Validation2/Command");
   generator.generateWithIdentity(*commandInterest4, identity);
   validator.validate(*commandInterest4,
-  		     bind(&CommandInterestFixture::validated, this, _1),
-  		     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
+                     bind(&CommandInterestFixture::validated, this, _1),
+                     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
 
   BOOST_CHECK_EQUAL(m_validity, false);
 

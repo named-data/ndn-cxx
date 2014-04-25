@@ -79,7 +79,7 @@ ndnsec_key_gen(int argc, char** argv)
 
         KeyChain keyChain;
 
-        Name keyName = keyChain.generateRSAKeyPair(Name(identityName), true, keySize);
+        Name keyName = keyChain.generateRsaKeyPair(Name(identityName), true, keySize);
 
         if (0 == keyName.size())
           return 1;

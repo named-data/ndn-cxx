@@ -28,7 +28,7 @@ namespace ndn {
  *
  * It specifies the interfaces of private/secret key related operations.
  */
-class SecTpm
+class SecTpm : noncopyable
 {
 public:
   class Error : public std::runtime_error
@@ -42,7 +42,9 @@ public:
   };
 
   virtual
-  ~SecTpm() {}
+  ~SecTpm()
+  {
+  }
 
   /**
    * @brief set password of TPM
@@ -88,7 +90,7 @@ public:
    * @return true if locked, false otherwise
    */
   virtual bool
-  locked() = 0;
+  isLocked() = 0;
 
   /**
    * @brief Unlock the TPM.
@@ -211,7 +213,7 @@ public:
    * @param acl the new acl of the key
    */
   virtual void
-  addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl) = 0;
+  addAppToAcl(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl) = 0;
 
   /**
    * @brief Export a private key in PKCS#5 format.

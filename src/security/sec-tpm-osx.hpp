@@ -16,6 +16,11 @@
 #define NDN_SECURITY_SEC_TPM_OSX_HPP
 
 #include "../common.hpp"
+
+#ifndef NDN_CXX_HAVE_OSX_SECURITY
+#error "This files should not be compiled ..."
+#endif
+
 #include "sec-tpm.hpp"
 
 namespace ndn {
@@ -56,7 +61,7 @@ public:
   getInTerminal();
 
   virtual bool
-  locked();
+  isLocked();
 
   virtual bool
   unlockTpm(const char* password, size_t passwordLength, bool usePassword);
@@ -99,7 +104,7 @@ public:
   generateRandomBlock(uint8_t* res, size_t size);
 
   virtual void
-  addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl);
+  addAppToAcl(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl);
 
 protected:
   /******************************

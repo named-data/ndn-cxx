@@ -40,9 +40,21 @@ ConfigFile::findConfigFile()
 {
   using namespace boost::filesystem;
 
-  path home(std::getenv("HOME"));
-  if (!home.empty())
+#ifdef NDN_CXX_HAVE_TESTS
+  if (std::getenv("TEST_HOME"))
     {
+      path testHome(std::getenv("TEST_HOME"));
+      testHome /= ".ndn/client.conf";
+      if (exists(testHome))
+        {
+          return absolute(testHome);
+        }
+    }
+#endif // NDN_CXX_HAVE_TESTS
+
+  if (std::getenv("HOME"))
+    {
+      path home(std::getenv("HOME"));
       home /= ".ndn/client.conf";
       if (exists(home))
         {

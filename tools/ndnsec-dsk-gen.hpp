@@ -104,7 +104,7 @@ ndnsec_dsk_gen(int argc, char** argv)
     {
     case 'r':
       {
-        newKeyName = keyChain.generateRSAKeyPair(Name(identityName), false, keySize);
+        newKeyName = keyChain.generateRsaKeyPair(Name(identityName), false, keySize);
         if (0 == newKeyName.size())
           {
             std::cerr << "fail to generate key!" << std::endl;

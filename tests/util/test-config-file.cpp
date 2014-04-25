@@ -17,6 +17,7 @@
 #include "boost-test.hpp"
 
 namespace ndn {
+namespace tests {
 
 class ConfigFileFixture
 {
@@ -101,4 +102,5 @@ BOOST_AUTO_TEST_CASE(MalformedParse)
 
 BOOST_AUTO_TEST_SUITE_END()
 
+} // namespace tests
 } // namespace ndn

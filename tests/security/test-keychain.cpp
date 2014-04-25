@@ -11,18 +11,88 @@
  */
 
 #include "security/key-chain.hpp"
+#include <boost/filesystem.hpp>
 
 #include "boost-test.hpp"
 
 using namespace std;
 
 namespace ndn {
+namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecurityTestKeyChain)
-
-BOOST_AUTO_TEST_CASE (ExportIdentity)
+class KeychainConfigFileFixture
 {
-  KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
+public:
+  KeychainConfigFileFixture()
+  {
+    if (std::getenv("TEST_HOME"))
+      m_HOME = std::getenv("TEST_HOME");
+  }
+
+  ~KeychainConfigFileFixture()
+  {
+    if (!m_HOME.empty())
+      setenv("TEST_HOME", m_HOME.c_str(), 1);
+    else
+      unsetenv("TEST_HOME");
+  }
+
+protected:
+  std::string m_HOME;
+};
+
+BOOST_FIXTURE_TEST_SUITE(SecurityTestKeyChain, KeychainConfigFileFixture)
+
+BOOST_AUTO_TEST_CASE(ConstructorNormalConfig)
+{
+  using namespace boost::filesystem;
+
+  setenv("TEST_HOME", "tests/security/config-file-home", 1);
+
+  BOOST_REQUIRE_NO_THROW(KeyChain());
+
+  path pibPath(absolute(std::getenv("TEST_HOME")));
+  pibPath /= ".ndn/ndnsec-public-info.db";
+
+  boost::filesystem::remove(pibPath);
+}
+
+BOOST_AUTO_TEST_CASE(ConstructorEmptyConfig)
+{
+  using namespace boost::filesystem;
+
+  setenv("TEST_HOME", "tests/security/config-file-empty-home", 1);
+
+  BOOST_REQUIRE_NO_THROW(KeyChain());
+
+  path pibPath(absolute(std::getenv("TEST_HOME")));
+  pibPath /= ".ndn/ndnsec-public-info.db";
+
+  boost::filesystem::remove(pibPath);
+}
+
+BOOST_AUTO_TEST_CASE(ConstructorMalConfig)
+{
+  using namespace boost::filesystem;
+
+  setenv("TEST_HOME", "tests/security/config-file-malformed-home", 1);
+
+  BOOST_REQUIRE_THROW(KeyChain(), KeyChain::Error); // Wrong configuration. Error expected.
+}
+
+BOOST_AUTO_TEST_CASE(ConstructorMal2Config)
+{
+  using namespace boost::filesystem;
+
+  setenv("TEST_HOME", "tests/security/config-file-malformed2-home", 1);
+
+  BOOST_REQUIRE_THROW(KeyChain(), KeyChain::Error); // Wrong configuration. Error expected.
+}
+
+BOOST_AUTO_TEST_CASE(ExportIdentity)
+{
+  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
+  KeyChain keyChain("sqlite3", "file");
 
   Name identity("/TestKeyChain/ExportIdentity/");
   identity.appendVersion();
@@ -62,9 +132,10 @@ BOOST_AUTO_TEST_CASE (ExportIdentity)
   BOOST_REQUIRE(keyChain.doesCertificateExist(certName) == false);
 }
 
-BOOST_AUTO_TEST_CASE (PrepareIdentityCertificate)
+BOOST_AUTO_TEST_CASE(PrepareIdentityCertificate)
 {
-  KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
+  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
+  KeyChain keyChain("sqlite3", "file");
 
   Name identity("/TestKeyChain/PrepareIdentityCertificate/");
   identity.appendVersion();
@@ -73,24 +144,25 @@ BOOST_AUTO_TEST_CASE (PrepareIdentityCertificate)
   vector<CertificateSubjectDescription> subjectDescription;
   Name lowerIdentity = identity;
   lowerIdentity.append("Lower").appendVersion();
-  Name lowerKeyName = keyChain.generateRSAKeyPair(lowerIdentity, true);
+  Name lowerKeyName = keyChain.generateRsaKeyPair(lowerIdentity, true);
   shared_ptr<IdentityCertificate> idCert
     = keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
-						  time::system_clock::now(),
-						  time::system_clock::now() + time::days(365),
-						  subjectDescription);
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(365),
+                                                  subjectDescription);
   BOOST_CHECK(static_cast<bool>(idCert));
-  BOOST_CHECK(idCert->getName().getPrefix(5) == Name().append(identity).append("KEY").append("Lower"));
+  BOOST_CHECK(idCert->getName().getPrefix(5) ==
+              Name().append(identity).append("KEY").append("Lower"));
 
 
   Name anotherIdentity("/TestKeyChain/PrepareIdentityCertificate/Another/");
   anotherIdentity.appendVersion();
-  Name anotherKeyName = keyChain.generateRSAKeyPair(anotherIdentity, true);
+  Name anotherKeyName = keyChain.generateRsaKeyPair(anotherIdentity, true);
   shared_ptr<IdentityCertificate> idCert2
     = keyChain.prepareUnsignedIdentityCertificate(anotherKeyName, identity,
-						  time::system_clock::now(),
-						  time::system_clock::now() + time::days(365),
-						  subjectDescription);
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(365),
+                                                  subjectDescription);
   BOOST_CHECK(static_cast<bool>(idCert2));
   BOOST_CHECK(idCert2->getName().getPrefix(5) == Name().append(anotherIdentity).append("KEY"));
 
@@ -98,27 +170,27 @@ BOOST_AUTO_TEST_CASE (PrepareIdentityCertificate)
   Name wrongKeyName1;
   shared_ptr<IdentityCertificate> idCert3
     = keyChain.prepareUnsignedIdentityCertificate(wrongKeyName1, identity,
-						  time::system_clock::now(),
-						  time::system_clock::now() + time::days(365),
-						  subjectDescription);
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(365),
+                                                  subjectDescription);
   BOOST_CHECK(!static_cast<bool>(idCert3));
 
 
   Name wrongKeyName2("/TestKeyChain/PrepareIdentityCertificate");
   shared_ptr<IdentityCertificate> idCert4
     = keyChain.prepareUnsignedIdentityCertificate(wrongKeyName2, identity,
-						  time::system_clock::now(),
-						  time::system_clock::now() + time::days(365),
-						  subjectDescription);
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(365),
+                                                  subjectDescription);
   BOOST_CHECK(!static_cast<bool>(idCert4));
 
 
   Name wrongKeyName3("/TestKeyChain/PrepareIdentityCertificate/ksk-1234");
   shared_ptr<IdentityCertificate> idCert5
     = keyChain.prepareUnsignedIdentityCertificate(wrongKeyName3, identity,
-						  time::system_clock::now(),
-						  time::system_clock::now() + time::days(365),
-						  subjectDescription);
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(365),
+                                                  subjectDescription);
   BOOST_CHECK(!static_cast<bool>(idCert5));
 
   keyChain.deleteIdentity(identity);
@@ -128,4 +200,5 @@ BOOST_AUTO_TEST_CASE (PrepareIdentityCertificate)
 
 BOOST_AUTO_TEST_SUITE_END()
 
+} // namespace tests
 } // namespace ndn

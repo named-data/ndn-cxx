@@ -15,8 +15,7 @@
 #include "common.hpp"
 
 #include "sec-tpm-osx.hpp"
-
-#include "security/public-key.hpp"
+#include "public-key.hpp"
 #include "cryptopp.hpp"
 
 #include <pwd.h>
@@ -172,7 +171,7 @@ SecTpmOsx::getInTerminal()
 }
 
 bool
-SecTpmOsx::locked()
+SecTpmOsx::isLocked()
 {
   SecKeychainStatus keychainStatus;
 
@@ -189,7 +188,7 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
   OSStatus res;
 
   // If the default key chain is already unlocked, return immediately.
-  if (!locked())
+  if (!isLocked())
     return true;
 
   // If the default key chain is locked, unlock the key chain.
@@ -212,11 +211,11 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
   else if (m_impl->m_inTerminal)
     {
       // If no configured password, get password from terminal if inTerminal set.
-      bool locked = true;
+      bool isLocked = true;
       const char* fmt = "Password to unlock the default keychain: ";
       int count = 0;
 
-      while(locked)
+      while (isLocked)
         {
           if (count > 2)
             break;
@@ -245,7 +244,7 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
       SecKeychainUnlock(m_impl->m_keyChainRef, 0, 0, false);
     }
 
-  return !locked();
+  return !isLocked();
 }
 
 void
@@ -711,7 +710,7 @@ SecTpmOsx::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyN
 }
 
 void
-SecTpmOsx::addAppToACL(const Name& keyName, KeyClass keyClass, const string& appPath, AclType acl)
+SecTpmOsx::addAppToAcl(const Name& keyName, KeyClass keyClass, const string& appPath, AclType acl)
 {
   if (keyClass == KEY_CLASS_PRIVATE && acl == ACL_TYPE_PRIVATE)
     {

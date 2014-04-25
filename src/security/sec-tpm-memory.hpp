@@ -70,15 +70,15 @@ public:
   }
 
   virtual bool
-  locked()
+  isLocked()
   {
-    return true;
+    return false;
   }
 
   virtual bool
   unlockTpm(const char* password, size_t passwordLength, bool usePassword)
   {
-    return !locked();
+    return !isLocked();
   }
 
   virtual void
@@ -110,7 +110,7 @@ public:
   generateRandomBlock(uint8_t* res, size_t size);
 
   virtual void
-  addAppToACL(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl)
+  addAppToAcl(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl)
   {
   }
 

@@ -32,9 +32,10 @@ onValidationFailed(const shared_ptr<const Data>& data, const string& failureInfo
   BOOST_CHECK(false);
 }
 
-BOOST_AUTO_TEST_CASE (Null)
+BOOST_AUTO_TEST_CASE(Null)
 {
-  KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
+  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
+  KeyChain keyChain("sqlite3", "file");
 
   Name identity("/TestValidator/Null");
   identity.appendVersion();

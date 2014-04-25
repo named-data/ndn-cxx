@@ -71,7 +71,7 @@ ndnsec_set_acl(int argc, char** argv)
     }
 
   KeyChain keyChain;
-  keyChain.addAppToACL(keyName, KEY_CLASS_PRIVATE, appPath, ACL_TYPE_PRIVATE);
+  keyChain.addAppToAcl(keyName, KEY_CLASS_PRIVATE, appPath, ACL_TYPE_PRIVATE);
 
   return 0;
 }

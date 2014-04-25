@@ -40,6 +40,7 @@ BOOST_FIXTURE_TEST_SUITE(TransportTestUnixTransport, UnixTransportFixture)
 BOOST_AUTO_TEST_CASE(TestGetDefaultSocketNameOk)
 {
   setenv("HOME", "tests/transport/test-homes/ok", 1);
+
   ConfigFile config;
   BOOST_REQUIRE_EQUAL(UnixTransport::getDefaultSocketName(config), "/tmp/test/nfd.sock");
 }

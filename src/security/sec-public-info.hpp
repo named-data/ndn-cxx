@@ -30,7 +30,7 @@ namespace ndn {
  * It specify interfaces related to public information, such as identity, public keys and
  * certificates.
  */
-class SecPublicInfo
+class SecPublicInfo : noncopyable
 {
 public:
   class Error : public std::runtime_error
@@ -47,7 +47,9 @@ public:
    * @brief The virtual Destructor.
    */
   virtual
-  ~SecPublicInfo() {}
+  ~SecPublicInfo()
+  {
+  }
 
   /**
    * @brief Check if the specified identity already exists.
@@ -215,6 +217,34 @@ public:
   virtual void
   getAllCertificateNamesOfKey(const Name& keyName, std::vector<Name>& nameList, bool isDefault) = 0;
 
+  /*****************************************
+   *            Delete Methods             *
+   *****************************************/
+
+  /**
+   * @brief Delete a certificate.
+   *
+   * @param certificateName The certificate name.
+   */
+  virtual void
+  deleteCertificateInfo(const Name& certificateName) = 0;
+
+  /**
+   * @brief Delete a public key and related certificates.
+   *
+   * @param keyName The key name.
+   */
+  virtual void
+  deletePublicKeyInfo(const Name& keyName) = 0;
+
+  /**
+   * @brief Delete an identity and related public keys and certificates.
+   *
+   * @param identity The identity name.
+   */
+  virtual void
+  deleteIdentityInfo(const Name& identity) = 0;
+
 protected:
 
   /*****************************************
@@ -246,34 +276,6 @@ protected:
    */
   virtual void
   setDefaultCertificateNameForKeyInternal(const Name& certificateName) = 0;
-
-  /*****************************************
-   *            Delete Methods             *
-   *****************************************/
-
-  /**
-   * @brief Delete a certificate.
-   *
-   * @param certificateName The certificate name.
-   */
-  virtual void
-  deleteCertificateInfo(const Name& certificateName) = 0;
-
-  /**
-   * @brief Delete a public key and related certificates.
-   *
-   * @param keyName The key name.
-   */
-  virtual void
-  deletePublicKeyInfo(const Name& keyName) = 0;
-
-  /**
-   * @brief Delete an identity and related public keys and certificates.
-   *
-   * @param identity The identity name.
-   */
-  virtual void
-  deleteIdentityInfo(const Name& identity) = 0;
 
 public:
 

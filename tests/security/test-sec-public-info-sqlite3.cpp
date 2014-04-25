@@ -10,6 +10,7 @@
  * ndn-cxx library copyright, permissions, and redistribution restrictions.
  */
 
+#include "security/sec-public-info-sqlite3.hpp"
 #include "security/key-chain.hpp"
 #include "util/time.hpp"
 
@@ -20,9 +21,10 @@ namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(SecurityTestSecPublicInfoSqlite3)
 
-BOOST_AUTO_TEST_CASE (Delete)
+BOOST_AUTO_TEST_CASE(Delete)
 {
-  KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keyChain;
+  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
+  KeyChain keyChain("sqlite3", "file");
 
   Name identity("/TestSecPublicInfoSqlite3/Delete");
   identity.appendVersion();
@@ -32,7 +34,7 @@ BOOST_AUTO_TEST_CASE (Delete)
 
   Name keyName1 = IdentityCertificate::certificateNameToPublicKeyName(certName1);
   Name keyName2;
-  BOOST_REQUIRE_NO_THROW(keyName2 = keyChain.generateRSAKeyPairAsDefault(identity));
+  BOOST_REQUIRE_NO_THROW(keyName2 = keyChain.generateRsaKeyPairAsDefault(identity));
 
   shared_ptr<IdentityCertificate> cert2;
   BOOST_REQUIRE_NO_THROW(cert2 = keyChain.selfSign(keyName2));
@@ -40,7 +42,7 @@ BOOST_AUTO_TEST_CASE (Delete)
   BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert2));
 
   Name keyName3;
-  BOOST_REQUIRE_NO_THROW(keyName3 = keyChain.generateRSAKeyPairAsDefault(identity));
+  BOOST_REQUIRE_NO_THROW(keyName3 = keyChain.generateRsaKeyPairAsDefault(identity));
 
   shared_ptr<IdentityCertificate> cert3;
   BOOST_REQUIRE_NO_THROW(cert3 = keyChain.selfSign(keyName3));

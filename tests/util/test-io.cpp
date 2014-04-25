@@ -21,15 +21,16 @@ BOOST_AUTO_TEST_SUITE(UtilTestIo)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
-  KeyChainImpl<SecPublicInfoSqlite3, SecTpmFile> keychain;
+  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
+  KeyChain keyChain("sqlite3", "file");
 
   Name identity("/TestIO/Basic");
   identity.appendVersion();
 
   Name certName;
-  BOOST_REQUIRE_NO_THROW(certName = keychain.createIdentity(identity));
+  BOOST_REQUIRE_NO_THROW(certName = keyChain.createIdentity(identity));
   shared_ptr<IdentityCertificate> idCert;
-  BOOST_REQUIRE_NO_THROW(idCert = keychain.getCertificate(certName));
+  BOOST_REQUIRE_NO_THROW(idCert = keyChain.getCertificate(certName));
 
   std::string file("/tmp/TestIO-Basic");
   io::save(*idCert, file);
@@ -37,7 +38,7 @@ BOOST_AUTO_TEST_CASE(Basic)
 
   BOOST_CHECK(static_cast<bool>(readCert));
   BOOST_CHECK(idCert->getName() == readCert->getName());
-  keychain.deleteIdentity(identity);
+  keyChain.deleteIdentity(identity);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

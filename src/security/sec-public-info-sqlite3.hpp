@@ -97,6 +97,15 @@ public:
   virtual void
   getAllCertificateNamesOfKey(const Name& keyName, std::vector<Name>& nameList, bool isDefault);
 
+  virtual void
+  deleteCertificateInfo(const Name& certificateName);
+
+  virtual void
+  deletePublicKeyInfo(const Name& keyName);
+
+  virtual void
+  deleteIdentityInfo(const Name& identity);
+
 protected:
   virtual void
   setDefaultIdentityInternal(const Name& identityName);
@@ -106,15 +115,6 @@ protected:
 
   virtual void
   setDefaultCertificateNameForKeyInternal(const Name& certificateName);
-
-  virtual void
-  deleteCertificateInfo(const Name& certificateName);
-
-  virtual void
-  deletePublicKeyInfo(const Name& keyName);
-
-  virtual void
-  deleteIdentityInfo(const Name& identity);
 
 private:
   sqlite3 * m_database;
