@@ -1,7 +1,13 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * See COPYING for copyright and distribution information.
+ * Copyright (c) 2013-2014,  Regents of the University of California.
+ * All rights reserved.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * This file licensed under New BSD License.  See COPYING for detailed information about
+ * ndn-cxx library copyright, permissions, and redistribution restrictions.
  */
 
 #include "management/nfd-control-response.hpp"
@@ -25,7 +31,8 @@ BOOST_AUTO_TEST_CASE(ControlResponseEncode)
   ControlResponse controlResponse(404, "Nothing not found");
   const Block &wire = controlResponse.wireEncode();
 
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(TestControlResponse, TestControlResponse+sizeof(TestControlResponse),
+  BOOST_REQUIRE_EQUAL_COLLECTIONS(TestControlResponse,
+                                  TestControlResponse+sizeof(TestControlResponse),
                                   wire.begin(), wire.end());
 }
 
@@ -33,7 +40,8 @@ BOOST_AUTO_TEST_CASE(ControlResponseDecode)
 {
   ControlResponse controlResponse;
 
-  BOOST_REQUIRE_NO_THROW(controlResponse.wireDecode(Block(TestControlResponse, sizeof(TestControlResponse))));
+  BOOST_REQUIRE_NO_THROW(controlResponse.wireDecode(Block(TestControlResponse,
+                                                          sizeof(TestControlResponse))));
 
   BOOST_REQUIRE_EQUAL(controlResponse.getCode(), 404);
   BOOST_REQUIRE_EQUAL(controlResponse.getText(), "Nothing not found");

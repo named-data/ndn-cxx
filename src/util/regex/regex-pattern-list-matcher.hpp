@@ -1,8 +1,15 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Yingdi Yu <yingdi@cs.ucla.edu>
- * See COPYING for copyright and distribution information.
+ * Copyright (c) 2013-2014,  Regents of the University of California.
+ * All rights reserved.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * This file licensed under New BSD License.  See COPYING for detailed information about
+ * ndn-cxx library copyright, permissions, and redistribution restrictions.
+ *
+ * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
 #ifndef NDN_UTIL_REGEX_REGEX_PATTERN_LIST_MATCHER_HPP
@@ -48,8 +55,10 @@ private:
 
 namespace ndn {
 
-inline RegexPatternListMatcher::RegexPatternListMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backrefManager)
-  :RegexMatcher(expr, EXPR_PATTERNLIST, backrefManager)
+inline
+RegexPatternListMatcher::RegexPatternListMatcher(const std::string& expr,
+                                                 shared_ptr<RegexBackrefManager> backrefManager)
+  : RegexMatcher(expr, EXPR_PATTERNLIST, backrefManager)
 {
   compile();
 }
@@ -85,14 +94,16 @@ RegexPatternListMatcher::extractPattern(int index, int* next)
     indicator = index;
     end = extractRepetition(index);
     if (indicator == end){
-      shared_ptr<RegexMatcher> matcher = make_shared<RegexBackrefMatcher>(m_expr.substr(start, end - start), m_backrefManager);
+      shared_ptr<RegexMatcher> matcher =
+        make_shared<RegexBackrefMatcher>(m_expr.substr(start, end - start), m_backrefManager);
       m_backrefManager->pushRef(matcher);
       boost::dynamic_pointer_cast<RegexBackrefMatcher>(matcher)->lateCompile();
 
       m_matcherList.push_back(matcher);
     }
     else
-      m_matcherList.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start), m_backrefManager, indicator - start));
+      m_matcherList.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start),
+                                                              m_backrefManager, indicator - start));
     break;
 
   case '<':
@@ -100,7 +111,8 @@ RegexPatternListMatcher::extractPattern(int index, int* next)
     index = extractSubPattern ('<', '>', index);
     indicator = index;
     end = extractRepetition(index);
-    m_matcherList.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start), m_backrefManager, indicator - start));
+    m_matcherList.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start),
+                                                            m_backrefManager, indicator - start));
     break;
 
   case '[':
@@ -108,7 +120,8 @@ RegexPatternListMatcher::extractPattern(int index, int* next)
     index = extractSubPattern ('[', ']', index);
     indicator = index;
     end = extractRepetition(index);
-    m_matcherList.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start), m_backrefManager, indicator - start));
+    m_matcherList.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start),
+                                                            m_backrefManager, indicator - start));
     break;
 
   default:

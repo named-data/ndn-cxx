@@ -1,8 +1,15 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Yingdi Yu <yingdi@cs.ucla.edu>
- * See COPYING for copyright and distribution information.
+ * Copyright (c) 2013-2014,  Regents of the University of California.
+ * All rights reserved.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * This file licensed under New BSD License.  See COPYING for detailed information about
+ * ndn-cxx library copyright, permissions, and redistribution restrictions.
+ *
+ * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
 #ifndef NDN_UTIL_REGEX_REGEX_COMPONENT_MATCHER_HPP
@@ -52,7 +59,7 @@ private:
 
 inline
 RegexComponentMatcher::RegexComponentMatcher (const std::string& expr,
-                                              ptr_lib::shared_ptr<RegexBackrefManager> backRefManager,
+                                              shared_ptr<RegexBackrefManager> backRefManager,
                                               bool exact)
   : RegexMatcher (expr, EXPR_COMPONENT, backRefManager),
     m_exact(exact)
@@ -70,13 +77,13 @@ RegexComponentMatcher::compile ()
   m_componentRegex = boost::regex (m_expr);
 
   m_pseudoMatcher.clear();
-  m_pseudoMatcher.push_back(ptr_lib::make_shared<RegexPseudoMatcher>());
+  m_pseudoMatcher.push_back(make_shared<RegexPseudoMatcher>());
 
   for (size_t i = 1; i < m_componentRegex.mark_count(); i++)
     {
-      ptr_lib::shared_ptr<RegexPseudoMatcher> pMatcher = ptr_lib::make_shared<RegexPseudoMatcher>();
+      shared_ptr<RegexPseudoMatcher> pMatcher = make_shared<RegexPseudoMatcher>();
       m_pseudoMatcher.push_back(pMatcher);
-      m_backrefManager->pushRef(ptr_lib::static_pointer_cast<RegexMatcher>(pMatcher));
+      m_backrefManager->pushRef(static_pointer_cast<RegexMatcher>(pMatcher));
     }
 
 

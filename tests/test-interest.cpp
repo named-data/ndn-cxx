@@ -1,6 +1,13 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * See COPYING for copyright and distribution information.
+ * Copyright (c) 2013-2014,  Regents of the University of California.
+ * All rights reserved.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * This file licensed under New BSD License.  See COPYING for detailed information about
+ * ndn-cxx library copyright, permissions, and redistribution restrictions.
  */
 
 #include "interest.hpp"
@@ -234,7 +241,8 @@ BOOST_AUTO_TEST_CASE(Decode)
 
 BOOST_AUTO_TEST_CASE(DecodeFromStream)
 {
-  boost::iostreams::stream<boost::iostreams::array_source> is(reinterpret_cast<const char *>(Interest1), sizeof(Interest1));
+  boost::iostreams::stream<boost::iostreams::array_source> is(
+    reinterpret_cast<const char *>(Interest1), sizeof(Interest1));
 
   Block interestBlock(is);
 

@@ -1,7 +1,13 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2014 Named Data Networking Project
- * See COPYING for copyright and distribution information.
+ * Copyright (c) 2013-2014,  Regents of the University of California.
+ * All rights reserved.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * This file licensed under New BSD License.  See COPYING for detailed information about
+ * ndn-cxx library copyright, permissions, and redistribution restrictions.
  */
 
 #include "common.hpp"
@@ -110,19 +116,19 @@ Scheduler::schedulePeriodicEvent(const time::nanoseconds& after,
 
   return i->m_eventId;
 }
-  
+
 void
 Scheduler::cancelEvent(const EventId& eventId)
 {
   if (!static_cast<bool>(eventId) || !eventId->isValid())
     return; // event already fired or cancelled
-  
+
   if (static_cast<EventQueue::iterator>(*eventId) != m_scheduledEvent) {
     m_events.erase(*eventId);
     eventId->invalidate();
     return;
   }
-  
+
   m_deadlineTimer.cancel();
   m_events.erase(static_cast<EventQueue::iterator>(*eventId));
   eventId->invalidate();
@@ -157,7 +163,7 @@ Scheduler::onEvent(const boost::system::error_code& error)
   while(!m_events.empty() && m_events.begin()->m_scheduledTime <= now)
     {
       EventQueue::iterator head = m_events.begin();
-      
+
       Event event = head->m_event;
       if (head->m_period < time::nanoseconds::zero())
         {

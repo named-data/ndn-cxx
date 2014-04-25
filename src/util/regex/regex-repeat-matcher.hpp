@@ -1,8 +1,15 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Yingdi Yu <yingdi@cs.ucla.edu>
- * See COPYING for copyright and distribution information.
+ * Copyright (c) 2013-2014,  Regents of the University of California.
+ * All rights reserved.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * This file licensed under New BSD License.  See COPYING for detailed information about
+ * ndn-cxx library copyright, permissions, and redistribution restrictions.
+ *
+ * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
 #ifndef NDN_UTIL_REGEX_REGEX_REPEAT_MATCHER_HPP
@@ -19,9 +26,12 @@ namespace ndn {
 class RegexRepeatMatcher : public RegexMatcher
 {
 public:
-  RegexRepeatMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backRefManager, int indicator);
+  RegexRepeatMatcher(const std::string& expr,
+                     shared_ptr<RegexBackrefManager> backRefManager,
+                     int indicator);
 
-  virtual ~RegexRepeatMatcher(){}
+  virtual
+  ~RegexRepeatMatcher(){}
 
   virtual bool
   match(const Name& name, const int& offset, const int& len);
@@ -58,9 +68,11 @@ private:
 namespace ndn {
 
 inline
-RegexRepeatMatcher::RegexRepeatMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backrefManager, int indicator)
-  : RegexMatcher (expr, EXPR_REPEAT_PATTERN, backrefManager),
-    m_indicator(indicator)
+RegexRepeatMatcher::RegexRepeatMatcher(const std::string& expr,
+                                       shared_ptr<RegexBackrefManager> backrefManager,
+                                       int indicator)
+  : RegexMatcher (expr, EXPR_REPEAT_PATTERN, backrefManager)
+  , m_indicator(indicator)
 {
   // _LOG_TRACE ("Enter RegexRepeatMatcher Constructor");
   compile();
@@ -80,7 +92,8 @@ RegexRepeatMatcher::compile()
     boost::dynamic_pointer_cast<RegexBackrefMatcher>(matcher)->lateCompile();
   }
   else{
-    matcher = make_shared<RegexComponentSetMatcher>(m_expr.substr(0, m_indicator), m_backrefManager);
+    matcher = make_shared<RegexComponentSetMatcher>(m_expr.substr(0, m_indicator),
+                                                    m_backrefManager);
   }
   m_matcherList.push_back(matcher);
 
@@ -93,8 +106,6 @@ RegexRepeatMatcher::compile()
 inline bool
 RegexRepeatMatcher::parseRepetition()
 {
-  // _LOG_DEBUG ("Enter RegexRepeatMatcher::ParseRepetition()" << m_expr << " indicator: " << m_indicator);
-
   int exprSize = m_expr.size();
   int intMax = std::numeric_limits<int>::max();
 
@@ -188,39 +199,29 @@ RegexRepeatMatcher::match(const Name& name, const int& offset, const int& len)
 inline bool
 RegexRepeatMatcher::recursiveMatch(int repeat, const Name& name, const int& offset, const int& len)
 {
-  // _LOG_TRACE ("Enter RegexRepeatMatcher::recursiveMatch");
-
-  // _LOG_DEBUG ("repeat: " << repeat << " offset: " << offset << " len: " << len);
-  // _LOG_DEBUG ("m_repeatMin: " << m_repeatMin << " m_repeatMax: " << m_repeatMax);
-
   int tried = len;
   shared_ptr<RegexMatcher> matcher = m_matcherList[0];
 
   if (0 < len && repeat >= m_repeatMax)
     {
-      // _LOG_DEBUG("Match Fail: Reach m_repeatMax && More components");
       return false;
     }
 
   if (0 == len && repeat < m_repeatMin)
     {
-      // _LOG_DEBUG("Match Fail: No more components && have NOT reached m_repeatMin " << len << ", " << m_repeatMin);
       return false;
     }
 
   if (0 == len && repeat >= m_repeatMin)
     {
-      // _LOG_DEBUG("Match Succeed: No more components && reach m_repeatMin");
       return true;
     }
 
   while(tried >= 0)
     {
-      // _LOG_DEBUG("Attempt tried: " << tried);
-
-      if (matcher->match(name, offset, tried) and recursiveMatch(repeat + 1, name, offset + tried, len - tried))
+      if (matcher->match(name, offset, tried) and recursiveMatch(repeat + 1, name,
+                                                                 offset + tried, len - tried))
         return true;
-      // _LOG_DEBUG("Failed at tried: " << tried);
       tried --;
     }
 

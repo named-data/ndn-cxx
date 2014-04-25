@@ -1,7 +1,13 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * See COPYING for copyright and distribution information.
+ * Copyright (c) 2013-2014,  Regents of the University of California.
+ * All rights reserved.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * This file licensed under New BSD License.  See COPYING for detailed information about
+ * ndn-cxx library copyright, permissions, and redistribution restrictions.
  */
 
 #ifndef NDN_MANAGEMENT_NDND_CONTROLLER_HPP
@@ -53,7 +59,7 @@ protected:
                     const FailCallback& onFailure);
 
 private:
-  void 
+  void
   onNdnidFetched(const Interest& interest, Data& data);
 
   void
@@ -85,7 +91,7 @@ private:
       , m_onFailure(onFailure)
     {
     }
-    
+
     Name             m_prefixToRegister;
     SuccessCallback  m_onSuccess;
     FailCallback     m_onFailure;

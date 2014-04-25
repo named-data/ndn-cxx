@@ -12,7 +12,7 @@ While expressing Interest, the app specifies two callbacks to be called when Dat
 .. literalinclude:: ../examples/consumer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 17-19,25-27,41-44,47
+   :emphasize-lines: 24-26,32-34,48-52,54
 
 
 Trivial producer
@@ -32,7 +32,7 @@ Finally, after Data packet has been created and signed, it is returned to the re
 .. literalinclude:: ../examples/producer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 37-40,43,49,63-65
+   :emphasize-lines: 44-47,50,56,71-74
 
 
 Consumer that uses ndn::Scheduler
@@ -49,4 +49,4 @@ The highlighted lines in the example demonstrate all that is needed to express a
 .. literalinclude:: ../examples/consumer-with-timer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 10,62,69,72-73,76
+   :emphasize-lines: 19,61,76,79-80,83

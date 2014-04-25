@@ -1,8 +1,15 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Yingdi Yu <yingdi@cs.ucla.edu>
- * See COPYING for copyright and distribution information.
+ * Copyright (c) 2013-2014,  Regents of the University of California.
+ * All rights reserved.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * This file licensed under New BSD License.  See COPYING for detailed information about
+ * ndn-cxx library copyright, permissions, and redistribution restrictions.
+ *
+ * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
 #ifndef NDN_UTIL_REGEX_REGEX_PSEUDO_MATCHER_HPP
@@ -18,19 +25,19 @@ class RegexPseudoMatcher : public RegexMatcher
 public:
   RegexPseudoMatcher();
 
-  virtual ~RegexPseudoMatcher() 
+  virtual ~RegexPseudoMatcher()
   {
   }
 
-  virtual void 
-  compile() 
+  virtual void
+  compile()
   {
   }
 
-  void 
+  void
   setMatchResult(const std::string& str);
 
-  void 
+  void
   resetMatchResult();
 };
 
@@ -39,13 +46,13 @@ inline RegexPseudoMatcher::RegexPseudoMatcher()
 {
 }
 
-inline void 
+inline void
 RegexPseudoMatcher::setMatchResult(const std::string& str)
 {
   m_matchResult.push_back(Name::Component((const uint8_t *)str.c_str(), str.size()));
 }
-    
-inline void 
+
+inline void
 RegexPseudoMatcher::resetMatchResult()
 {
   m_matchResult.clear();

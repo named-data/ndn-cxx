@@ -1,8 +1,15 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
- * @author: Alexander Afanasyev <alexander.afanasyev@ucla.edu>
- * BSD License, see COPYING for copyright and distribution information.
+ * Copyright (c) 2013-2014,  Regents of the University of California.
+ * All rights reserved.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * This file licensed under New BSD License.  See COPYING for detailed information about
+ * ndn-cxx library copyright, permissions, and redistribution restrictions.
+ *
+ * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
 // correct way to include ndn-cxx headers
@@ -51,7 +58,7 @@ main(int argc, char** argv)
 {
   try {
     // Explicitly create io_service object, which can be shared between Face and Scheduler
-    shared_ptr<boost::asio::io_service> io = make_shared<boost::asio::io_service>();
+    boost::asio::io_service ioService;
 
     Interest i(Name("/localhost/testApp/randomData"));
     i.setScope(1);
@@ -59,21 +66,21 @@ main(int argc, char** argv)
     i.setMustBeFresh(true);
 
     // Create face with io_service object
-    Face face(io);
+    Face face(ioService);
     face.expressInterest(i,
                          bind(&onData, boost::ref(face), _1, _2),
                          bind(&onTimeout, boost::ref(face), _1));
 
 
     // Create scheduler object
-    Scheduler scheduler(*io);
+    Scheduler scheduler(ioService);
 
     // Schedule a new event
     scheduler.scheduleEvent(time::seconds(2),
                             bind(&delayedInterest, boost::ref(face)));
 
-    // io->run() will block until all events finished or io->stop() is called
-    io->run();
+    // ioService.run() will block until all events finished or ioService.stop() is called
+    ioService.run();
 
     // Alternatively, a helper face.processEvents() also can be called
     // processEvents will block until the requested data received or timeout occurs

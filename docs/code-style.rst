@@ -873,7 +873,7 @@ the alternative structured counterpart is proven to be less readable.
 
     In an international environment English is the preferred language.
 
-3.25. Use ``//` for all comments, including multi-line comments.
+3.25. Use ``//`` for all comments, including multi-line comments.
 
     .. code-block:: c++
 

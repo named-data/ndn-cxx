@@ -1,8 +1,15 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * See COPYING for copyright and distribution information.
+ * Copyright (c) 2013-2014,  Regents of the University of California.
+ * All rights reserved.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * This file licensed under New BSD License.  See COPYING for detailed information about
+ * ndn-cxx library copyright, permissions, and redistribution restrictions.
+ *
+ * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
 #include "face.hpp"
@@ -69,7 +76,7 @@ printTypeInfo(uint32_t type)
   std::cout << ")";
 }
 
-  
+
 void
 BlockPrinter(const ndn::Block& block, const std::string& indent="")
 {
@@ -94,7 +101,7 @@ BlockPrinter(const ndn::Block& block, const std::string& indent="")
       std::cout<< "]]";
     }
   std::cout << std::endl;
-  
+
   for(ndn::Block::element_const_iterator i = block.elements_begin();
       i != block.elements_end();
       ++i)
@@ -113,7 +120,7 @@ HexPrinter(const ndn::Block& block, const std::string &indent="")
       std::cout << ", ";
     }
   std::cout << "\n";
-  
+
   if (block.elements_size() == 0 && block.value_size() > 0)
     {
       std::cout << indent << "    ";
@@ -160,6 +167,6 @@ int main(int argc, const char *argv[])
   catch(std::exception &e) {
     std::cerr << "ERROR: "<< e.what() << std::endl;
   }
-  
+
   return 0;
 }

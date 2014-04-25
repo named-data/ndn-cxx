@@ -1,7 +1,13 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
- * Copyright (C) 2013 Regents of the University of California.
- * @author: Yingdi Yu <yingdi0@cs.ucla.edu>
- * See COPYING for copyright and distribution information.
+ * Copyright (c) 2013-2014,  Regents of the University of California.
+ * All rights reserved.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * This file licensed under New BSD License.  See COPYING for detailed information about
+ * ndn-cxx library copyright, permissions, and redistribution restrictions.
  */
 
 #include "security/key-chain.hpp"
@@ -36,7 +42,8 @@ BOOST_AUTO_TEST_CASE (SignedInterest)
   interest2.wireDecode(interestBlock);
 
   shared_ptr<PublicKey> publicKey;
-  BOOST_REQUIRE_NO_THROW(publicKey = keyChain.getPublicKeyFromTpm(keyChain.getDefaultKeyNameForIdentity(identityName)));
+  BOOST_REQUIRE_NO_THROW(publicKey = keyChain.getPublicKeyFromTpm(
+    keyChain.getDefaultKeyNameForIdentity(identityName)));
   bool result = Validator::verifySignature(interest2, *publicKey);
 
   BOOST_CHECK_EQUAL(result, true);
@@ -80,10 +87,12 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
   CommandInterestGenerator generator;
   CommandInterestValidator validator;
 
-  validator.addInterestRule("^<TestCommandInterest><Validation>", *keyChain.getCertificate(certName));
+  validator.addInterestRule("^<TestCommandInterest><Validation>",
+                            *keyChain.getCertificate(certName));
 
   //Test a legitimate command
-  shared_ptr<Interest> commandInterest1 = make_shared<Interest>("/TestCommandInterest/Validation/Command1");
+  shared_ptr<Interest> commandInterest1 =
+    make_shared<Interest>("/TestCommandInterest/Validation/Command1");
   generator.generateWithIdentity(*commandInterest1, identity);
   validator.validate(*commandInterest1,
   		     bind(&CommandInterestFixture::validated, this, _1),
@@ -93,7 +102,8 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
 
   //Test an outdated command
   reset();
-  shared_ptr<Interest> commandInterest2 = make_shared<Interest>("/TestCommandInterest/Validation/Command2");
+  shared_ptr<Interest> commandInterest2 =
+    make_shared<Interest>("/TestCommandInterest/Validation/Command2");
   time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
   timestamp -= time::seconds(5);
 
@@ -115,7 +125,8 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
   Name certName2;
   BOOST_REQUIRE_NO_THROW(certName2 = keyChain.createIdentity(identity2));
 
-  shared_ptr<Interest> commandInterest3 = make_shared<Interest>("/TestCommandInterest/Validation/Command3");
+  shared_ptr<Interest> commandInterest3 =
+    make_shared<Interest>("/TestCommandInterest/Validation/Command3");
   generator.generateWithIdentity(*commandInterest3, identity2);
   validator.validate(*commandInterest3,
   		     bind(&CommandInterestFixture::validated, this, _1),
@@ -124,7 +135,8 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
   BOOST_CHECK_EQUAL(m_validity, false);
 
   //Test another unauthorized command
-  shared_ptr<Interest> commandInterest4 = make_shared<Interest>("/TestCommandInterest/Validation2/Command");
+  shared_ptr<Interest> commandInterest4 =
+    make_shared<Interest>("/TestCommandInterest/Validation2/Command");
   generator.generateWithIdentity(*commandInterest4, identity);
   validator.validate(*commandInterest4,
   		     bind(&CommandInterestFixture::validated, this, _1),
