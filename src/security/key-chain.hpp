@@ -35,7 +35,7 @@ public:
   typedef TypeTpm Tpm;
 };
 
-class KeyChain
+class KeyChain : noncopyable
 {
 public:
   class Error : public std::runtime_error
