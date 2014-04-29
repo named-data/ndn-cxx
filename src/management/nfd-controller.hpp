@@ -17,6 +17,7 @@
 #include "nfd-control-command.hpp"
 #include "../face.hpp"
 
+
 namespace ndn {
 namespace nfd {
 
@@ -33,6 +34,10 @@ public:
    */
   typedef function<void(uint32_t/*code*/,const std::string&/*reason*/)> CommandFailCallback;
 
+  /** \brief a callback on signing command interest
+   */
+  typedef function<void(Interest&)> Sign;
+
   explicit
   Controller(Face& face);
 
@@ -43,18 +48,136 @@ public:
   start(const ControlParameters& parameters,
         const CommandSucceedCallback& onSuccess,
         const CommandFailCallback& onFailure,
-        time::milliseconds timeout = getDefaultCommandTimeout());
+        const time::milliseconds& timeout = getDefaultCommandTimeout())
+  {
+    start<Command>(parameters, onSuccess, onFailure,
+                   bind(&CommandInterestGenerator::generate,
+                        &m_commandInterestGenerator, _1,
+                        boost::cref(Name())),
+                   timeout);
+  }
+
+  template<typename Command>
+  void
+  start(const ControlParameters& parameters,
+        const CommandSucceedCallback& onSuccess,
+        const CommandFailCallback& onFailure,
+        const IdentityCertificate& certificate,
+        const time::milliseconds& timeout = getDefaultCommandTimeout())
+  {
+    start<Command>(parameters, onSuccess, onFailure,
+                   bind(&CommandInterestGenerator::generate,
+                        &m_commandInterestGenerator, _1,
+                        boost::cref(certificate.getName())),
+                   timeout);
+  }
+
+  template<typename Command>
+  void
+  start(const ControlParameters& parameters,
+        const CommandSucceedCallback& onSuccess,
+        const CommandFailCallback& onFailure,
+        const Name& identity,
+        const time::milliseconds& timeout = getDefaultCommandTimeout())
+  {
+    start<Command>(parameters, onSuccess, onFailure,
+                   bind(&CommandInterestGenerator::generateWithIdentity,
+                        &m_commandInterestGenerator, _1,
+                        boost::cref(identity)),
+                   timeout);
+  }
 
 public: // selfreg using FIB Management commands
   virtual void
   selfRegisterPrefix(const Name& prefixToRegister,
                      const SuccessCallback& onSuccess,
-                     const FailCallback&    onFail);
+                     const FailCallback&    onFail)
+  {
+    this->selfRegisterPrefix(prefixToRegister, onSuccess, onFail,
+                             bind(&CommandInterestGenerator::generate,
+                                  &m_commandInterestGenerator, _1,
+                                  boost::cref(Name())));
+  }
+
+  virtual void
+  selfRegisterPrefix(const Name& prefixToRegister,
+                     const SuccessCallback& onSuccess,
+                     const FailCallback&    onFail,
+                     const IdentityCertificate& certificate)
+  {
+    this->selfRegisterPrefix(prefixToRegister, onSuccess, onFail,
+                             bind(&CommandInterestGenerator::generate,
+                                  &m_commandInterestGenerator, _1,
+                                  boost::cref(certificate.getName())));
+  }
+
+  virtual void
+  selfRegisterPrefix(const Name& prefixToRegister,
+                     const SuccessCallback& onSuccess,
+                     const FailCallback&    onFail,
+                     const Name& identity)
+  {
+    this->selfRegisterPrefix(prefixToRegister, onSuccess, onFail,
+                             bind(&CommandInterestGenerator::generateWithIdentity,
+                                  &m_commandInterestGenerator, _1,
+                                  boost::cref(identity)));
+  }
 
   virtual void
   selfDeregisterPrefix(const Name& prefixToDeRegister,
                        const SuccessCallback& onSuccess,
-                       const FailCallback&    onFail);
+                       const FailCallback&    onFail)
+  {
+    this->selfDeregisterPrefix(prefixToDeRegister, onSuccess, onFail,
+                               bind(&CommandInterestGenerator::generate,
+                                    &m_commandInterestGenerator, _1,
+                                    boost::cref(Name())));
+  }
+
+  virtual void
+  selfDeregisterPrefix(const Name& prefixToDeRegister,
+                       const SuccessCallback& onSuccess,
+                       const FailCallback&    onFail,
+                       const IdentityCertificate& certificate)
+  {
+    this->selfDeregisterPrefix(prefixToDeRegister, onSuccess, onFail,
+                               bind(&CommandInterestGenerator::generate,
+                                    &m_commandInterestGenerator, _1,
+                                    boost::cref(certificate.getName())));
+  }
+
+  virtual void
+  selfDeregisterPrefix(const Name& prefixToDeRegister,
+                       const SuccessCallback& onSuccess,
+                       const FailCallback&    onFail,
+                       const Name& identity)
+  {
+    this->selfDeregisterPrefix(prefixToDeRegister, onSuccess, onFail,
+                               bind(&CommandInterestGenerator::generateWithIdentity,
+                                    &m_commandInterestGenerator, _1,
+                                    boost::cref(identity)));
+  }
+
+protected:
+  template<typename Command>
+  void
+  start(const ControlParameters& parameters,
+        const CommandSucceedCallback& onSuccess,
+        const CommandFailCallback& onFailure,
+        const Sign& sign,
+        const time::milliseconds& timeout = getDefaultCommandTimeout());
+
+  virtual void
+  selfRegisterPrefix(const Name& prefixToRegister,
+                     const SuccessCallback& onSuccess,
+                     const FailCallback&    onFail,
+                     const Sign& sign);
+
+  virtual void
+  selfDeregisterPrefix(const Name& prefixToDeRegister,
+                       const SuccessCallback& onSuccess,
+                       const FailCallback&    onFail,
+                       const Sign& sign);
 
 private:
   void
@@ -81,13 +204,15 @@ void
 Controller::start(const ControlParameters& parameters,
                   const CommandSucceedCallback& onSuccess,
                   const CommandFailCallback&    onFailure,
-                  time::milliseconds timeout)
+                  const Sign& sign,
+                  const time::milliseconds& timeout)
 {
   BOOST_ASSERT(timeout > time::milliseconds::zero());
 
   shared_ptr<ControlCommand> command = make_shared<Command>();
 
-  Interest commandInterest = command->makeCommandInterest(parameters, m_commandInterestGenerator);
+  Interest commandInterest = command->makeCommandInterest(parameters, sign);
+
   commandInterest.setInterestLifetime(timeout);
 
   // http://msdn.microsoft.com/en-us/library/windows/desktop/ms740668.aspx

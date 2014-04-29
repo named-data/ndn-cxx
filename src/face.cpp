@@ -235,10 +235,62 @@ Face::setInterestFilter(const Name& prefix,
   return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
 }
 
+const RegisteredPrefixId*
+Face::setInterestFilter(const Name& prefix,
+                        const OnInterest& onInterest,
+                        const OnSetInterestFilterFailed& onSetInterestFilterFailed,
+                        const IdentityCertificate& certificate)
+{
+  shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
+
+  m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
+                                     bind(&RegisteredPrefixTable::push_back,
+                                          &m_registeredPrefixTable, prefixToRegister),
+                                     bind(onSetInterestFilterFailed,
+                                          prefixToRegister->getPrefix(), _1),
+                                     certificate);
+
+  return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
+}
+
+const RegisteredPrefixId*
+Face::setInterestFilter(const Name& prefix,
+                        const OnInterest& onInterest,
+                        const OnSetInterestFilterFailed& onSetInterestFilterFailed,
+                        const Name& identity)
+{
+  shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
+
+  m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
+                                     bind(&RegisteredPrefixTable::push_back,
+                                          &m_registeredPrefixTable, prefixToRegister),
+                                     bind(onSetInterestFilterFailed,
+                                          prefixToRegister->getPrefix(), _1),
+                                     identity);
+
+  return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
+}
+
 void
 Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
 {
   m_ioService->post(bind(&Face::asyncUnsetInterestFilter, this, registeredPrefixId));
+}
+
+void
+Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId,
+                          const IdentityCertificate& certificate)
+{
+  m_ioService->post(bind(&Face::asyncUnsetInterestFilterWithCertificate, this,
+                         registeredPrefixId, certificate));
+}
+
+void
+Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId,
+                          const Name& identity)
+{
+  m_ioService->post(bind(&Face::asyncUnsetInterestFilterWithIdentity, this,
+                         registeredPrefixId, identity));
 }
 
 void
@@ -252,6 +304,42 @@ Face::asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
       m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
                                            bind(&Face::finalizeUnsetInterestFilter, this, i),
                                            Controller::FailCallback());
+    }
+
+  // there cannot be two registered prefixes with the same id
+}
+
+void
+Face::asyncUnsetInterestFilterWithCertificate(const RegisteredPrefixId* registeredPrefixId,
+                                              const IdentityCertificate& certificate)
+{
+  RegisteredPrefixTable::iterator i = std::find_if(m_registeredPrefixTable.begin(),
+                                                   m_registeredPrefixTable.end(),
+                                                   MatchRegisteredPrefixId(registeredPrefixId));
+  if (i != m_registeredPrefixTable.end())
+    {
+      m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
+                                           bind(&Face::finalizeUnsetInterestFilter, this, i),
+                                           Controller::FailCallback(),
+                                           certificate);
+    }
+
+  // there cannot be two registered prefixes with the same id
+}
+
+void
+Face::asyncUnsetInterestFilterWithIdentity(const RegisteredPrefixId* registeredPrefixId,
+                                           const Name& identity)
+{
+  RegisteredPrefixTable::iterator i = std::find_if(m_registeredPrefixTable.begin(),
+                                                   m_registeredPrefixTable.end(),
+                                                   MatchRegisteredPrefixId(registeredPrefixId));
+  if (i != m_registeredPrefixTable.end())
+    {
+      m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
+                                           bind(&Face::finalizeUnsetInterestFilter, this, i),
+                                           Controller::FailCallback(),
+                                           identity);
     }
 
   // there cannot be two registered prefixes with the same id

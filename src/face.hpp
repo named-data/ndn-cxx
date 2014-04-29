@@ -211,14 +211,58 @@ public:
    *                         onRegisterFailed(prefix) where prefix is the prefix given to
    *                         registerPrefix.
    *
-   * @param flags      The flags for finer control of which interests are forward to the
-   *                   application.
    * @return The registered prefix ID which can be used with removeRegisteredPrefix.
    */
   const RegisteredPrefixId*
   setInterestFilter(const Name& prefix,
                     const OnInterest& onInterest,
                     const OnSetInterestFilterFailed& onSetInterestFilterFailed);
+
+  /**
+   * @brief Register prefix with the connected NDN hub and call onInterest when a matching
+   *        interest is received.
+   *
+   * @param prefix     A reference to a Name for the prefix to register
+   * @param onInterest A function object to call when a matching interest is received
+   *
+   * @param onRegisterFailed A function object to call if failed to retrieve the connected
+   *                         hub’s ID or failed to register the prefix.  This calls
+   *                         onRegisterFailed(prefix) where prefix is the prefix given to
+   *                         registerPrefix.
+   *
+   * @param certificate A certificate under which the prefix registration command interest
+   *                    is signed.
+   *
+   * @return The registered prefix ID which can be used with removeRegisteredPrefix.
+   */
+  const RegisteredPrefixId*
+  setInterestFilter(const Name& prefix,
+                    const OnInterest& onInterest,
+                    const OnSetInterestFilterFailed& onSetInterestFilterFailed,
+                    const IdentityCertificate& certificate);
+
+  /**
+   * @brief Register prefix with the connected NDN hub and call onInterest when a matching
+   *        interest is received.
+   *
+   * @param prefix     A reference to a Name for the prefix to register
+   * @param onInterest A function object to call when a matching interest is received
+   *
+   * @param onRegisterFailed A function object to call if failed to retrieve the connected
+   *                         hub’s ID or failed to register the prefix.  This calls
+   *                         onRegisterFailed(prefix) where prefix is the prefix given to
+   *                         registerPrefix.
+   *
+   * @param identity A signing identity. A command interest is signed under the default
+   *                 certificate of this identity.
+   *
+   * @return The registered prefix ID which can be used with removeRegisteredPrefix.
+   */
+  const RegisteredPrefixId*
+  setInterestFilter(const Name& prefix,
+                    const OnInterest& onInterest,
+                    const OnSetInterestFilterFailed& onSetInterestFilterFailed,
+                    const Name& identity);
 
   /**
    * @brief Remove the registered prefix entry with the registeredPrefixId from the
@@ -232,6 +276,14 @@ public:
    */
   void
   unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
+
+  void
+  unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId,
+                      const IdentityCertificate& certificate);
+
+  void
+  unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId,
+                      const Name& identity);
 
    /**
    * @brief Publish data packet
@@ -332,6 +384,14 @@ private:
 
   void
   asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
+
+  void
+  asyncUnsetInterestFilterWithCertificate(const RegisteredPrefixId* registeredPrefixId,
+                                          const IdentityCertificate& certificate);
+
+  void
+  asyncUnsetInterestFilterWithIdentity(const RegisteredPrefixId* registeredPrefixId,
+                                       const Name& identity);
 
   void
   finalizeUnsetInterestFilter(RegisteredPrefixTable::iterator item);

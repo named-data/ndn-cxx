@@ -12,6 +12,7 @@
 
 #include "nfd-controller.hpp"
 #include "nfd-control-response.hpp"
+#include "../security/identity-certificate.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -75,7 +76,8 @@ Controller::processCommandResponse(const Data& data,
 void
 Controller::selfRegisterPrefix(const Name& prefixToRegister,
                                const SuccessCallback& onSuccess,
-                               const FailCallback& onFail)
+                               const FailCallback& onFail,
+                               const Sign& sign)
 {
   const uint32_t selfFaceId = 0;
 
@@ -85,13 +87,15 @@ Controller::selfRegisterPrefix(const Name& prefixToRegister,
 
   this->start<FibAddNextHopCommand>(parameters,
                                     bind(onSuccess),
-                                    bind(onFail, _2));
+                                    bind(onFail, _2),
+                                    sign);
 }
 
 void
 Controller::selfDeregisterPrefix(const Name& prefixToDeRegister,
                                  const SuccessCallback& onSuccess,
-                                 const FailCallback& onFail)
+                                 const FailCallback& onFail,
+                                 const Sign& sign)
 {
   const uint32_t selfFaceId = 0;
 
@@ -101,7 +105,8 @@ Controller::selfDeregisterPrefix(const Name& prefixToDeRegister,
 
   this->start<FibRemoveNextHopCommand>(parameters,
                                        bind(onSuccess),
-                                       bind(onFail, _2));
+                                       bind(onFail, _2),
+                                       sign);
 }
 
 } // namespace nfd

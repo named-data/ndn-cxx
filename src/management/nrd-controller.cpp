@@ -13,6 +13,8 @@
 #include "nrd-controller.hpp"
 #include "nrd-prefix-reg-options.hpp"
 #include "nfd-control-response.hpp" // used in deprecated function only
+#include "../security/identity-certificate.hpp"
+
 
 namespace ndn {
 namespace nrd {
@@ -29,27 +31,31 @@ Controller::Controller(Face& face)
 void
 Controller::selfRegisterPrefix(const Name& prefixToRegister,
                                const SuccessCallback& onSuccess,
-                               const FailCallback&    onFail)
+                               const FailCallback&    onFail,
+                               const Sign& sign)
 {
   ControlParameters parameters;
   parameters.setName(prefixToRegister);
 
   this->start<RibRegisterCommand>(parameters,
                                   bind(onSuccess),
-                                  bind(onFail, _2));
+                                  bind(onFail, _2),
+                                  sign);
 }
 
 void
 Controller::selfDeregisterPrefix(const Name& prefixToRegister,
                                  const SuccessCallback& onSuccess,
-                                 const FailCallback&    onFail)
+                                 const FailCallback&    onFail,
+                                 const Sign& sign)
 {
   ControlParameters parameters;
   parameters.setName(prefixToRegister);
 
   this->start<RibUnregisterCommand>(parameters,
                                     bind(onSuccess),
-                                    bind(onFail, _2));
+                                    bind(onFail, _2),
+                                    sign);
 }
 
 void

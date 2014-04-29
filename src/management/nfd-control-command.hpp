@@ -25,6 +25,10 @@ namespace nfd {
 class ControlCommand : noncopyable
 {
 public:
+  /** \brief a callback on signing command interest
+   */
+  typedef function<void(Interest&)> Sign;
+
   /** \brief represents an error in ControlParameters
    */
   class ArgumentError : public std::invalid_argument
@@ -49,14 +53,14 @@ public:
    */
   Interest
   makeCommandInterest(const ControlParameters& parameters,
-                      CommandInterestGenerator& commandInterestGenerator) const
+                      const Sign& sign) const
   {
     this->validateRequest(parameters);
 
     Name name = m_prefix;
     name.append(parameters.wireEncode());
     Interest commandInterest(name);
-    commandInterestGenerator.generate(commandInterest);
+    sign(commandInterest);
     return commandInterest;
   }
 

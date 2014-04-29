@@ -54,10 +54,10 @@ private:
 
 inline void
 CommandInterestGenerator::generate(Interest& interest,
-				   const Name& certificateName /*= Name()*/)
+                                   const Name& certificateName /*= Name()*/)
 {
   time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
-  while(timestamp <= m_lastTimestamp)
+  while (timestamp <= m_lastTimestamp)
     {
       timestamp += time::milliseconds(1);
     }
@@ -80,7 +80,7 @@ inline void
 CommandInterestGenerator::generateWithIdentity(Interest& interest, const Name& identity)
 {
   time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
-  while(timestamp <= m_lastTimestamp)
+  while (timestamp <= m_lastTimestamp)
     {
       timestamp += time::milliseconds(1);
     }

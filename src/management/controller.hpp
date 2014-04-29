@@ -22,6 +22,7 @@ namespace ndn {
 
 class Name;
 class Face;
+class IdentityCertificate;
 
 class Controller
 {
@@ -40,9 +41,33 @@ public:
                      const FailCallback&    onFail) = 0;
 
   virtual void
+  selfRegisterPrefix(const Name& prefixToRegister,
+                     const SuccessCallback& onSuccess,
+                     const FailCallback&    onFail,
+                     const IdentityCertificate& certificate) = 0;
+
+  virtual void
+  selfRegisterPrefix(const Name& prefixToRegister,
+                     const SuccessCallback& onSuccess,
+                     const FailCallback&    onFail,
+                     const Name& identity) = 0;
+
+  virtual void
   selfDeregisterPrefix(const Name& prefixToRegister,
                        const SuccessCallback& onSuccess,
                        const FailCallback&    onFail) = 0;
+
+  virtual void
+  selfDeregisterPrefix(const Name& prefixToRegister,
+                       const SuccessCallback& onSuccess,
+                       const FailCallback&    onFail,
+                       const IdentityCertificate& certificate) = 0;
+
+  virtual void
+  selfDeregisterPrefix(const Name& prefixToRegister,
+                       const SuccessCallback& onSuccess,
+                       const FailCallback&    onFail,
+                       const Name& identity) = 0;
 };
 
 } // namespace ndn

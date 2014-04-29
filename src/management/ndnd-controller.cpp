@@ -14,6 +14,7 @@
 #include "ndnd-controller.hpp"
 
 #include "../face.hpp"
+#include "../security/identity-certificate.hpp"
 #include "../security/signature-sha256-with-rsa.hpp"
 #include "../util/random.hpp"
 
@@ -50,7 +51,6 @@ Controller::selfRegisterPrefix(const Name& prefixToRegister,
                       bind(&Controller::recordSelfRegisteredFaceId, this, _1, onSuccess),
                       onFail);
 }
-
 
 void
 Controller::selfDeregisterPrefix(const Name& prefixToRegister,

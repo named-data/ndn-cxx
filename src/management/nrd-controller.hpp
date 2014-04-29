@@ -24,22 +24,15 @@ class PrefixRegOptions;
 class Controller : public nfd::Controller
 {
 public:
+  /** \brief a callback on signing command interest
+   */
+  typedef function<void(Interest&)> Sign;
+
   /// \deprecated
   typedef function<void(const PrefixRegOptions&)> CommandSucceedCallback;
 
   explicit
   Controller(Face& face);
-
-public: // selfreg using RIB Management commands
-  virtual void
-  selfRegisterPrefix(const Name& prefixToRegister,
-                     const SuccessCallback& onSuccess,
-                     const FailCallback&    onFail);
-
-  virtual void
-  selfDeregisterPrefix(const Name& prefixToRegister,
-                       const SuccessCallback& onSuccess,
-                       const FailCallback&    onFail);
 
 public:
   /// \deprecated .start<RibRegisterCommand>
@@ -73,6 +66,19 @@ protected:
                const PrefixRegOptions& options,
                const CommandSucceedCallback& onSuccess,
                const FailCallback& onFailure);
+
+  // selfreg using RIB Management commands
+  virtual void
+  selfRegisterPrefix(const Name& prefixToRegister,
+                     const SuccessCallback& onSuccess,
+                     const FailCallback&    onFail,
+                     const Sign& sign);
+
+  virtual void
+  selfDeregisterPrefix(const Name& prefixToDeRegister,
+                       const SuccessCallback& onSuccess,
+                       const FailCallback&    onFail,
+                       const Sign& sign);
 
 private:
   /// \deprecated

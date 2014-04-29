@@ -43,9 +43,45 @@ public:
                      const FailCallback&    onFail);
 
   virtual void
+  selfRegisterPrefix(const Name& prefixToRegister,
+                     const SuccessCallback& onSuccess,
+                     const FailCallback&    onFail,
+                     const IdentityCertificate& certificate)
+  {
+    selfRegisterPrefix(prefixToRegister, onSuccess, onFail);
+  }
+
+  virtual void
+  selfRegisterPrefix(const Name& prefixToRegister,
+                     const SuccessCallback& onSuccess,
+                     const FailCallback&    onFail,
+                     const Name& identity)
+  {
+    selfRegisterPrefix(prefixToRegister, onSuccess, onFail);
+  }
+
+  virtual void
   selfDeregisterPrefix(const Name& prefixToRegister,
                        const SuccessCallback& onSuccess,
                        const FailCallback&    onFail);
+
+  virtual void
+  selfDeregisterPrefix(const Name& prefixToRegister,
+                       const SuccessCallback& onSuccess,
+                       const FailCallback&    onFail,
+                       const IdentityCertificate& certificate)
+  {
+    selfDeregisterPrefix(prefixToRegister, onSuccess, onFail);
+  }
+
+  virtual void
+  selfDeregisterPrefix(const Name& prefixToRegister,
+                       const SuccessCallback& onSuccess,
+                       const FailCallback&    onFail,
+                       const Name& identity)
+  {
+    selfDeregisterPrefix(prefixToRegister, onSuccess, onFail);
+  }
 
 protected:
   void
