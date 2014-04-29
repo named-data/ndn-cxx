@@ -24,12 +24,15 @@ class RegexMatcher;
 class RegexBackrefManager
 {
 public:
-  RegexBackrefManager(){}
+  RegexBackrefManager()
+  {
+  }
 
-  virtual ~RegexBackrefManager();
+  virtual
+  ~RegexBackrefManager();
 
-  int
-  pushRef(shared_ptr<RegexMatcher> matcher);
+  size_t
+  pushRef(const shared_ptr<RegexMatcher>& matcher);
 
   void
   popRef();
@@ -37,24 +40,25 @@ public:
   size_t
   size();
 
-  shared_ptr<RegexMatcher>
-  getBackRef(int i);
+  const shared_ptr<RegexMatcher>&
+  getBackref(size_t backrefNo);
 
 private:
-  std::vector<shared_ptr<RegexMatcher> > m_backRefs;
+  std::vector<shared_ptr<RegexMatcher> > m_backrefs;
 };
 
 
-inline RegexBackrefManager::~RegexBackrefManager()
+inline
+RegexBackrefManager::~RegexBackrefManager()
 {
-  m_backRefs.clear();
+  m_backrefs.clear();
 }
 
-inline int
-RegexBackrefManager::pushRef(shared_ptr<RegexMatcher> matcher)
+inline size_t
+RegexBackrefManager::pushRef(const shared_ptr<RegexMatcher>& matcher)
 {
-  size_t last = m_backRefs.size();
-  m_backRefs.push_back(matcher);
+  size_t last = m_backrefs.size();
+  m_backrefs.push_back(matcher);
 
   return last;
 }
@@ -62,19 +66,19 @@ RegexBackrefManager::pushRef(shared_ptr<RegexMatcher> matcher)
 inline void
 RegexBackrefManager::popRef()
 {
-  m_backRefs.pop_back();
+  m_backrefs.pop_back();
 }
 
 inline size_t
 RegexBackrefManager::size()
 {
-  return m_backRefs.size();
+  return m_backrefs.size();
 }
 
-inline shared_ptr<RegexMatcher>
-RegexBackrefManager::getBackRef(int i)
+inline const shared_ptr<RegexMatcher>&
+RegexBackrefManager::getBackref(size_t backrefNo)
 {
-  return m_backRefs[i];
+  return m_backrefs[backrefNo];
 }
 
 

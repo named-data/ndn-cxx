@@ -50,8 +50,8 @@ BOOST_AUTO_TEST_CASE(ComponentMatcher)
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("ccc.cd"));
-  BOOST_CHECK_EQUAL(backRef->getBackRef(0)->getMatchResult()[0].toEscapedString(), string("ccc"));
-  BOOST_CHECK_EQUAL(backRef->getBackRef(1)->getMatchResult()[0].toEscapedString(), string("cd"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toEscapedString(), string("ccc"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toEscapedString(), string("cd"));
 }
 
 BOOST_AUTO_TEST_CASE(ComponentSetMatcher)
@@ -281,9 +281,9 @@ BOOST_AUTO_TEST_CASE(BackRefMatcher)
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
   BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
   BOOST_CHECK_EQUAL(backRef->size(), 2);
-  BOOST_CHECK_EQUAL(backRef->getBackRef(0)->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(backRef->getBackRef(0)->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(backRef->getBackRef(1)->getMatchResult()[0].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toEscapedString(), string("a"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[1].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toEscapedString(), string("b"));
 }
 
 BOOST_AUTO_TEST_CASE(BackRefMatcherAdvanced)
@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE(BackRefMatcherAdvanced)
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
   BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
   BOOST_CHECK_EQUAL(backRef->size(), 1);
-  BOOST_CHECK_EQUAL(backRef->getBackRef(0)->getMatchResult()[0].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toEscapedString(), string("b"));
 }
 
 BOOST_AUTO_TEST_CASE(BackRefMatcherAdvanced2)
@@ -312,9 +312,9 @@ BOOST_AUTO_TEST_CASE(BackRefMatcherAdvanced2)
   BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
   BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("c"));
   BOOST_CHECK_EQUAL(backRef->size(), 2);
-  BOOST_CHECK_EQUAL(backRef->getBackRef(0)->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(backRef->getBackRef(0)->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(backRef->getBackRef(1)->getMatchResult()[0].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toEscapedString(), string("a"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[1].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toEscapedString(), string("b"));
 }
 
 BOOST_AUTO_TEST_CASE(PatternListMatcher)

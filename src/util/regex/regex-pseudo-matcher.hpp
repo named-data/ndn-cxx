@@ -25,7 +25,8 @@ class RegexPseudoMatcher : public RegexMatcher
 public:
   RegexPseudoMatcher();
 
-  virtual ~RegexPseudoMatcher()
+  virtual
+  ~RegexPseudoMatcher()
   {
   }
 
@@ -41,15 +42,17 @@ public:
   resetMatchResult();
 };
 
-inline RegexPseudoMatcher::RegexPseudoMatcher()
-  :RegexMatcher ("", EXPR_PSEUDO)
+inline
+RegexPseudoMatcher::RegexPseudoMatcher()
+  : RegexMatcher("", EXPR_PSEUDO)
 {
 }
 
 inline void
 RegexPseudoMatcher::setMatchResult(const std::string& str)
 {
-  m_matchResult.push_back(Name::Component((const uint8_t *)str.c_str(), str.size()));
+  m_matchResult.push_back(name::Component(reinterpret_cast<const uint8_t*>(str.c_str()),
+                                          str.size()));
 }
 
 inline void

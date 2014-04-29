@@ -26,9 +26,12 @@ class RegexBackrefManager;
 class RegexPatternListMatcher : public RegexMatcher
 {
 public:
-  RegexPatternListMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backRefManager);
+  RegexPatternListMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backrefManager);
 
-  virtual ~RegexPatternListMatcher(){};
+  virtual
+  ~RegexPatternListMatcher()
+  {
+  };
 
 protected:
   virtual void
@@ -36,7 +39,7 @@ protected:
 
 private:
   bool
-  extractPattern(int index, int* next);
+  extractPattern(size_t index, size_t* next);
 
   int
   extractSubPattern(const char left, const char right, size_t index);
@@ -58,7 +61,7 @@ namespace ndn {
 inline
 RegexPatternListMatcher::RegexPatternListMatcher(const std::string& expr,
                                                  shared_ptr<RegexBackrefManager> backrefManager)
-  : RegexMatcher(expr, EXPR_PATTERNLIST, backrefManager)
+  : RegexMatcher(expr, EXPR_PATTERN_LIST, backrefManager)
 {
   compile();
 }
@@ -66,66 +69,64 @@ RegexPatternListMatcher::RegexPatternListMatcher(const std::string& expr,
 inline void
 RegexPatternListMatcher::compile()
 {
-  const int len = m_expr.size();
-  int index = 0;
-  int subHead = index;
+  size_t len = m_expr.size();
+  size_t index = 0;
+  size_t subHead = index;
 
-  while(index < len){
+  while (index < len) {
     subHead = index;
 
     if (!extractPattern(subHead, &index))
-      throw RegexMatcher::Error("RegexPatternListMatcher compile: cannot compile");
+      throw RegexMatcher::Error("Compile error");
   }
 }
 
 inline bool
-RegexPatternListMatcher::extractPattern(int index, int* next)
+RegexPatternListMatcher::extractPattern(size_t index, size_t* next)
 {
-  // std::string errMsg = "Error: RegexPatternListMatcher.ExtractSubPattern(): ";
+  size_t start = index;
+  size_t end = index;
+  size_t indicator = index;
 
-  const int start = index;
-  int end = index;
-  int indicator = index;
-
-  switch (m_expr[index]){
+  switch (m_expr[index]) {
   case '(':
     index++;
     index = extractSubPattern('(', ')', index);
     indicator = index;
     end = extractRepetition(index);
-    if (indicator == end){
+    if (indicator == end) {
       shared_ptr<RegexMatcher> matcher =
         make_shared<RegexBackrefMatcher>(m_expr.substr(start, end - start), m_backrefManager);
       m_backrefManager->pushRef(matcher);
       dynamic_pointer_cast<RegexBackrefMatcher>(matcher)->lateCompile();
 
-      m_matcherList.push_back(matcher);
+      m_matchers.push_back(matcher);
     }
     else
-      m_matcherList.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start),
-                                                              m_backrefManager, indicator - start));
+      m_matchers.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start),
+                                                           m_backrefManager, indicator - start));
     break;
 
   case '<':
     index++;
-    index = extractSubPattern ('<', '>', index);
+    index = extractSubPattern('<', '>', index);
     indicator = index;
     end = extractRepetition(index);
-    m_matcherList.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start),
-                                                            m_backrefManager, indicator - start));
+    m_matchers.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start),
+                                                         m_backrefManager, indicator - start));
     break;
 
   case '[':
     index++;
-    index = extractSubPattern ('[', ']', index);
+    index = extractSubPattern('[', ']', index);
     indicator = index;
     end = extractRepetition(index);
-    m_matcherList.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start),
-                                                            m_backrefManager, indicator - start));
+    m_matchers.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start),
+                                                         m_backrefManager, indicator - start));
     break;
 
   default:
-    throw RegexMatcher::Error("Error: unexpected syntax");
+    throw RegexMatcher::Error("Unexpected syntax");
   }
 
   *next = end;
@@ -139,10 +140,10 @@ RegexPatternListMatcher::extractSubPattern(const char left, const char right, si
   size_t lcount = 1;
   size_t rcount = 0;
 
-  while(lcount > rcount){
+  while (lcount > rcount) {
 
     if (index >= m_expr.size())
-      throw RegexMatcher::Error("Error: parenthesis mismatch");
+      throw RegexMatcher::Error("Parenthesis mismatch");
 
     if (left == m_expr[index])
       lcount++;
@@ -163,19 +164,18 @@ RegexPatternListMatcher::extractRepetition(size_t index)
   if (index == exprSize)
     return index;
 
-  if (('+' == m_expr[index] || '?' == m_expr[index] || '*' == m_expr[index])){
+  if (('+' == m_expr[index] || '?' == m_expr[index] || '*' == m_expr[index])) {
     return ++index;
   }
 
-  if ('{' == m_expr[index]){
-    while('}' != m_expr[index]){
+  if ('{' == m_expr[index]) {
+    while ('}' != m_expr[index]) {
       index++;
       if (index == exprSize)
         break;
     }
     if (index == exprSize)
-      throw RegexMatcher::Error(std::string("Error: RegexPatternListMatcher.ExtractRepetition(): ")
-                                + "Missing right brace bracket");
+      throw RegexMatcher::Error("Missing right brace bracket");
     else
       return ++index;
   }

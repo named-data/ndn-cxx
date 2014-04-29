@@ -24,9 +24,12 @@ namespace ndn {
 class RegexBackrefMatcher : public RegexMatcher
 {
 public:
-  RegexBackrefMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backRefManager);
+  RegexBackrefMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backrefManager);
 
-  virtual ~RegexBackrefMatcher(){}
+  virtual
+  ~RegexBackrefMatcher()
+  {
+  }
 
   void
   lateCompile()
@@ -45,9 +48,10 @@ protected:
 
 namespace ndn {
 
-inline RegexBackrefMatcher::RegexBackrefMatcher(const std::string& expr,
-                                                shared_ptr<RegexBackrefManager> backRefManager)
-  : RegexMatcher (expr, EXPR_BACKREF, backRefManager)
+inline
+RegexBackrefMatcher::RegexBackrefMatcher(const std::string& expr,
+                                         shared_ptr<RegexBackrefManager> backrefManager)
+  : RegexMatcher(expr, EXPR_BACKREF, backrefManager)
 {
   // compile();
 }
@@ -55,17 +59,19 @@ inline RegexBackrefMatcher::RegexBackrefMatcher(const std::string& expr,
 inline void
 RegexBackrefMatcher::compile()
 {
-  int lastIndex = m_expr.size() - 1;
-  if ('(' == m_expr[0] && ')' == m_expr[lastIndex]){
+  if (m_expr.size() < 2)
+    throw RegexMatcher::Error("Unrecognized format: " + m_expr);
+
+  size_t lastIndex = m_expr.size() - 1;
+  if ('(' == m_expr[0] && ')' == m_expr[lastIndex]) {
     // m_backRefManager->pushRef(this);
 
     shared_ptr<RegexMatcher> matcher(new RegexPatternListMatcher(m_expr.substr(1, lastIndex - 1),
                                                                  m_backrefManager));
-    m_matcherList.push_back(matcher);
+    m_matchers.push_back(matcher);
   }
   else
-    throw RegexMatcher::Error(std::string("Error: RegexBackrefMatcher.Compile(): ")
-                              + " Unrecognoized format " + m_expr);
+    throw RegexMatcher::Error("Unrecognized format: " + m_expr);
 }
 
 

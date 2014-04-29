@@ -36,7 +36,7 @@ public:
   match(const Name& name);
 
   virtual bool
-  match(const Name& name, const int& offset, const int& length);
+  match(const Name& name, size_t offset, size_t len);
 
   virtual Name
   expand(const std::string& expand = "");
@@ -59,9 +59,9 @@ private:
   const std::string m_expand;
   shared_ptr<RegexPatternListMatcher> m_primaryMatcher;
   shared_ptr<RegexPatternListMatcher> m_secondaryMatcher;
-  shared_ptr<RegexBackrefManager> m_primaryBackRefManager;
-  shared_ptr<RegexBackrefManager> m_secondaryBackRefManager;
-  bool m_secondaryUsed;
+  shared_ptr<RegexBackrefManager> m_primaryBackrefManager;
+  shared_ptr<RegexBackrefManager> m_secondaryBackrefManager;
+  bool m_isSecondaryUsed;
 };
 
 } // namespace ndn

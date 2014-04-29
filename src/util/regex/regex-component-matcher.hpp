@@ -20,7 +20,6 @@
 #include "regex-matcher.hpp"
 #include "regex-pseudo-matcher.hpp"
 
-
 namespace ndn {
 
 class RegexComponentMatcher : public RegexMatcher
@@ -29,17 +28,20 @@ public:
   /**
    * @brief Create a RegexComponent matcher from expr
    * @param expr The standard regular expression to match a component
-   * @param backRefManager The back reference manager
-   * @param exact The flag to provide exact match
+   * @param backrefManager The back reference manager
+   * @param isExactMatch The flag to provide exact match
    */
   RegexComponentMatcher(const std::string& expr,
-                        ptr_lib::shared_ptr<RegexBackrefManager> backRefManager,
-                        bool exact = true);
+                        shared_ptr<RegexBackrefManager> backrefManager,
+                        bool isExactMatch = true);
 
-  virtual ~RegexComponentMatcher() {};
+  virtual
+  ~RegexComponentMatcher()
+  {
+  };
 
   virtual bool
-  match(const Name & name, const int & offset, const int &len = 1);
+  match(const Name& name, size_t offset, size_t len = 1);
 
 protected:
   /**
@@ -50,60 +52,51 @@ protected:
   compile();
 
 private:
-  bool m_exact;
+  bool m_isExactMatch;
   boost::regex m_componentRegex;
-  std::vector<ptr_lib::shared_ptr<RegexPseudoMatcher> > m_pseudoMatcher;
+  std::vector<shared_ptr<RegexPseudoMatcher> > m_pseudoMatchers;
 
 };
 
 
 inline
-RegexComponentMatcher::RegexComponentMatcher (const std::string& expr,
-                                              shared_ptr<RegexBackrefManager> backRefManager,
-                                              bool exact)
-  : RegexMatcher (expr, EXPR_COMPONENT, backRefManager),
-    m_exact(exact)
+RegexComponentMatcher::RegexComponentMatcher(const std::string& expr,
+                                             shared_ptr<RegexBackrefManager> backrefManager,
+                                             bool isExactMatch)
+  : RegexMatcher(expr, EXPR_COMPONENT, backrefManager)
+  , m_isExactMatch(isExactMatch)
 {
-  // _LOG_TRACE ("Enter RegexComponentMatcher Constructor: ");
   compile();
-  // _LOG_TRACE ("Exit RegexComponentMatcher Constructor: ");
 }
 
 inline void
-RegexComponentMatcher::compile ()
+RegexComponentMatcher::compile()
 {
-  // _LOG_TRACE ("Enter RegexComponentMatcher::compile");
+  m_componentRegex = boost::regex(m_expr);
 
-  m_componentRegex = boost::regex (m_expr);
-
-  m_pseudoMatcher.clear();
-  m_pseudoMatcher.push_back(make_shared<RegexPseudoMatcher>());
+  m_pseudoMatchers.clear();
+  m_pseudoMatchers.push_back(make_shared<RegexPseudoMatcher>());
 
   for (size_t i = 1; i < m_componentRegex.mark_count(); i++)
     {
       shared_ptr<RegexPseudoMatcher> pMatcher = make_shared<RegexPseudoMatcher>();
-      m_pseudoMatcher.push_back(pMatcher);
+      m_pseudoMatchers.push_back(pMatcher);
       m_backrefManager->pushRef(static_pointer_cast<RegexMatcher>(pMatcher));
     }
-
-
-  // _LOG_TRACE ("Exit RegexComponentMatcher::compile");
 }
 
 inline bool
-RegexComponentMatcher::match (const Name & name, const int & offset, const int & len)
+RegexComponentMatcher::match(const Name& name, size_t offset, size_t len)
 {
-  // _LOG_TRACE ("Enter RegexComponentMatcher::match ");
-
   m_matchResult.clear();
 
-  if ("" == m_expr)
+  if (m_expr.empty())
     {
       m_matchResult.push_back(name.get(offset));
       return true;
     }
 
-  if (true == m_exact)
+  if (m_isExactMatch)
     {
       boost::smatch subResult;
       std::string targetStr = name.get(offset).toEscapedString();
@@ -111,8 +104,8 @@ RegexComponentMatcher::match (const Name & name, const int & offset, const int &
         {
           for (size_t i = 1; i < m_componentRegex.mark_count(); i++)
             {
-              m_pseudoMatcher[i]->resetMatchResult();
-              m_pseudoMatcher[i]->setMatchResult(subResult[i]);
+              m_pseudoMatchers[i]->resetMatchResult();
+              m_pseudoMatchers[i]->setMatchResult(subResult[i]);
             }
           m_matchResult.push_back(name.get(offset));
           return true;

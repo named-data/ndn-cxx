@@ -35,17 +35,13 @@ public:
     }
   };
 
-  enum RegexExprType{
+  enum RegexExprType {
     EXPR_TOP,
-
-    EXPR_PATTERNLIST,
-
+    EXPR_PATTERN_LIST,
     EXPR_REPEAT_PATTERN,
-
     EXPR_BACKREF,
     EXPR_COMPONENT_SET,
     EXPR_COMPONENT,
-
     EXPR_PSEUDO
   };
 
@@ -57,7 +53,7 @@ public:
   ~RegexMatcher();
 
   virtual bool
-  match(const Name& name, const int& offset, const int& len);
+  match(const Name& name, size_t offset, size_t len);
 
   /**
    * @brief get the matched name components
@@ -65,11 +61,15 @@ public:
    */
   const std::vector<name::Component>&
   getMatchResult() const
-  { return m_matchResult; }
+  {
+    return m_matchResult;
+  }
 
   const std::string&
   getExpr() const
-  { return m_expr; }
+  {
+    return m_expr;
+  }
 
 protected:
   /**
@@ -81,14 +81,14 @@ protected:
 
 private:
   bool
-  recursiveMatch(size_t mId, const Name& name, size_t offset, size_t len);
+  recursiveMatch(size_t matcherNo, const Name& name, size_t offset, size_t len);
 
 
 protected:
   const std::string m_expr;
   const RegexExprType m_type;
   shared_ptr<RegexBackrefManager> m_backrefManager;
-  std::vector<shared_ptr<RegexMatcher> > m_matcherList;
+  std::vector<shared_ptr<RegexMatcher> > m_matchers;
   std::vector<name::Component> m_matchResult;
 };
 
@@ -102,11 +102,11 @@ inline
 RegexMatcher::RegexMatcher(const std::string& expr,
                            const RegexExprType& type,
                            shared_ptr<RegexBackrefManager> backrefManager)
-  : m_expr(expr),
-    m_type(type),
-    m_backrefManager(backrefManager)
+  : m_expr(expr)
+  , m_type(type)
+  , m_backrefManager(backrefManager)
 {
-  if (NULL == m_backrefManager)
+  if (!static_cast<bool>(m_backrefManager))
     m_backrefManager = make_shared<RegexBackrefManager>();
 }
 
@@ -116,16 +116,15 @@ RegexMatcher::~RegexMatcher()
 }
 
 inline bool
-RegexMatcher::match (const Name& name, const int& offset, const int& len)
+RegexMatcher::match(const Name& name, size_t offset, size_t len)
 {
-  // _LOG_TRACE ("Enter RegexMatcher::match");
   bool result = false;
 
   m_matchResult.clear();
 
   if (recursiveMatch(0, name, offset, len))
     {
-      for(int i = offset; i < offset + len ; i++)
+      for (size_t i = offset; i < offset + len ; i++)
         m_matchResult.push_back(name.get(i));
       result = true;
     }
@@ -134,25 +133,23 @@ RegexMatcher::match (const Name& name, const int& offset, const int& len)
       result = false;
     }
 
-  // _LOG_TRACE ("Exit RegexMatcher::match");
   return result;
 }
 
 inline bool
-RegexMatcher::recursiveMatch(size_t mId, const Name& name, size_t offset, size_t len)
+RegexMatcher::recursiveMatch(size_t matcherNo, const Name& name, size_t offset, size_t len)
 {
-  // _LOG_TRACE ("Enter RegexMatcher::recursiveMatch");
+  ssize_t tried = len;
 
-  int tried = len;
+  if (matcherNo >= m_matchers.size())
+    return (len == 0);
 
-  if (mId >= m_matcherList.size())
-    return (len != 0 ? false : true);
+  shared_ptr<RegexMatcher> matcher = m_matchers[matcherNo];
 
-  shared_ptr<RegexMatcher> matcher = m_matcherList[mId];
-
-  while(tried >= 0)
+  while (tried >= 0)
     {
-      if (matcher->match(name, offset, tried) && recursiveMatch(mId + 1, name, offset + tried, len - tried))
+      if (matcher->match(name, offset, tried) &&
+          recursiveMatch(matcherNo + 1, name, offset + tried, len - tried))
         return true;
       tried--;
     }
