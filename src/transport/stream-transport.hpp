@@ -83,6 +83,7 @@ public:
     m_connectionInProgress = false;
     m_transport.m_isConnected = false;
     m_transport.m_isExpectingData = false;
+    m_socket.cancel();
     m_socket.close();
     throw Transport::Error(error, "error while connecting to the forwarder");
   }
@@ -107,8 +108,11 @@ public:
   void
   close()
   {
-    m_connectTimer.cancel();
-    m_socket.close();
+    boost::system::error_code error; // to silently ignore all errors
+    m_connectTimer.cancel(error);
+    m_socket.cancel(error);
+    m_socket.close(error);
+
     m_transport.m_isConnected = false;
     m_transport.m_isExpectingData = false;
     m_sendQueue.clear();
@@ -118,6 +122,9 @@ public:
   void
   pause()
   {
+    if (m_connectionInProgress)
+      return;
+
     if (m_transport.m_isExpectingData)
       {
         m_transport.m_isExpectingData = false;
@@ -128,6 +135,9 @@ public:
   void
   resume()
   {
+    if (m_connectionInProgress)
+      return;
+
     if (!m_transport.m_isExpectingData)
       {
         m_transport.m_isExpectingData = true;
@@ -192,8 +202,11 @@ public:
           return;
         }
 
-        m_socket.close(); // closing at this point may not be that necessary
+        boost::system::error_code error; // to silently ignore all errors
+        m_socket.cancel(error);
+        m_socket.close(error); // closing at this point may not be that necessary
         m_transport.m_isConnected = true;
+        m_transport.m_isExpectingData = false;
         throw Transport::Error(error, "error while receiving data from socket");
       }
 
@@ -205,7 +218,9 @@ public:
     if (!ok && m_inputBufferSize == MAX_LENGTH && offset == 0)
       {
         // very bad... should close connection
-        m_socket.close();
+        boost::system::error_code error; // to silently ignore all errors
+        m_socket.cancel(error);
+        m_socket.close(error);
         m_transport.m_isConnected = false;
         m_transport.m_isExpectingData = false;
         throw Transport::Error(boost::system::error_code(),
