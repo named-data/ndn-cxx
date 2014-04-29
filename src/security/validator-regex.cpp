@@ -39,17 +39,6 @@ ValidatorRegex::ValidatorRegex(Face& face,
     m_certificateCache = make_shared<CertificateCacheTtl>(m_face.ioService());
 }
 
-ValidatorRegex::ValidatorRegex(const shared_ptr<Face>& face,
-                               shared_ptr<CertificateCache> certificateCache,
-                               const int stepLimit)
-  : Validator(*face)
-  , m_stepLimit(stepLimit)
-  , m_certificateCache(certificateCache)
-{
-  if (!static_cast<bool>(m_certificateCache))
-    m_certificateCache = make_shared<CertificateCacheTtl>(m_face.ioService());
-}
-
 void
 ValidatorRegex::onCertificateValidated(const shared_ptr<const Data>& signCertificate,
                                        const shared_ptr<const Data>& data,
