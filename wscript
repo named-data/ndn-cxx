@@ -1,11 +1,13 @@
 # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
-VERSION = '0.1.0'
+from waflib import Logs, Utils
+import re
+
+VERSION = re.search('^#define NDN_CXX_VERSION_STRING\\s+"(.*)"',
+                    open("src/version.hpp").read(), re.M).group(1)
 APPNAME = "ndn-cxx"
 PACKAGE_BUGREPORT = "http://redmine.named-data.net/projects/ndn-cxx"
 PACKAGE_URL = "https://github.com/named-data/ndn-cxx"
-
-from waflib import Logs, Utils
 
 def options(opt):
     opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
@@ -191,7 +193,8 @@ def build(bld):
             outdir="docs/manpages",
             config="docs/conf.py",
             source=bld.path.ant_glob('docs/manpages/**/*.rst'),
-            install_path="${MANDIR}/")
+            install_path="${MANDIR}/",
+            VERSION=VERSION)
 
 def docs(bld):
     from waflib import Options
@@ -201,8 +204,16 @@ def doxygen(bld):
     if not bld.env.DOXYGEN:
         Logs.error("ERROR: cannot build documentation (`doxygen' is not found in $PATH)")
     else:
+        bld(features="subst",
+            name="doxygen-conf",
+            source="docs/doxygen.conf.in",
+            target="docs/doxygen.conf",
+            VERSION=VERSION,
+            )
+
         bld(features="doxygen",
-            doxyfile='docs/doxygen.conf')
+            doxyfile='docs/doxygen.conf',
+            use="doxygen-conf")
 
 def sphinx(bld):
     if not bld.env.SPHINX_BUILD:
@@ -211,4 +222,5 @@ def sphinx(bld):
         bld(features="sphinx",
             outdir="docs",
             source=bld.path.ant_glob("docs/**/*.rst"),
-            config="docs/conf.py")
+            config="docs/conf.py",
+            VERSION=VERSION)

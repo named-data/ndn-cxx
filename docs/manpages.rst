@@ -15,6 +15,7 @@ Manpages
     ndnsec-export       <manpages/ndnsec-export>
     ndnsec-import       <manpages/ndnsec-import>
     ndnsec-unlock-tpm   <manpages/ndnsec-unlock-tpm>
+    ndnsec-set-acl      <manpages/ndnsec-set-acl>
     manpages/tlvdump
     :maxdepth: 1
 
