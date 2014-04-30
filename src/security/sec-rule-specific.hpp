@@ -28,6 +28,8 @@ public:
   SecRuleSpecific(shared_ptr<Regex> dataRegex,
                   shared_ptr<Regex> signerRegex);
 
+  SecRuleSpecific(shared_ptr<Regex> dataRegex);
+
   SecRuleSpecific(const SecRuleSpecific& rule);
 
   virtual
@@ -45,9 +47,16 @@ public:
   bool
   satisfy(const Name& dataName, const Name& signerName);
 
+  bool
+  isExempted() const
+  {
+    return m_isExempted;
+  }
+
 private:
   shared_ptr<Regex> m_dataRegex;
   shared_ptr<Regex> m_signerRegex;
+  bool m_isExempted;
 };
 
 } // namespace ndn

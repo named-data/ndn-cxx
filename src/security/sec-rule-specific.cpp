@@ -26,6 +26,14 @@ SecRuleSpecific::SecRuleSpecific(shared_ptr<Regex> dataRegex,
   : SecRule(true)
   , m_dataRegex(dataRegex)
   , m_signerRegex(signerRegex)
+  , m_isExempted(false)
+{
+}
+
+SecRuleSpecific::SecRuleSpecific(shared_ptr<Regex> dataRegex)
+  : SecRule(true)
+  , m_dataRegex(dataRegex)
+  , m_isExempted(true)
 {
 }
 
@@ -33,6 +41,7 @@ SecRuleSpecific::SecRuleSpecific(const SecRuleSpecific& rule)
   : SecRule(true)
   , m_dataRegex(rule.m_dataRegex)
   , m_signerRegex(rule.m_signerRegex)
+  , m_isExempted(rule.m_isExempted)
 {
 }
 
@@ -45,6 +54,9 @@ SecRuleSpecific::matchDataName(const Data& data)
 bool
 SecRuleSpecific::matchSignerName(const Data& data)
 {
+  if (m_isExempted)
+    return true;
+
   try
     {
       SignatureSha256WithRsa sig(data.getSignature());
@@ -66,7 +78,8 @@ SecRuleSpecific::satisfy(const Data& data)
 bool
 SecRuleSpecific::satisfy(const Name& dataName, const Name& signerName)
 {
-  return (m_dataRegex->match(dataName) && m_signerRegex->match(signerName));
+  bool isSignerMatched = m_isExempted || m_signerRegex->match(signerName);
+  return (m_dataRegex->match(dataName) && isSignerMatched);
 }
 
 } // namespace ndn

@@ -76,7 +76,7 @@ public:
   bool m_validity;
 };
 
-BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
+BOOST_FIXTURE_TEST_CASE(CommandInterest, CommandInterestFixture)
 {
   KeyChain keyChain;
   Name identity("/TestCommandInterest/Validation");
@@ -148,6 +148,33 @@ BOOST_FIXTURE_TEST_CASE (CommandInterest, CommandInterestFixture)
   BOOST_CHECK_NO_THROW(keyChain.deleteIdentity(identity));
   BOOST_CHECK_NO_THROW(keyChain.deleteIdentity(identity2));
 }
+
+BOOST_FIXTURE_TEST_CASE(Exemption, CommandInterestFixture)
+{
+  KeyChain keyChain;
+  Name identity("/TestCommandInterest/AnyKey");
+
+  Name certName;
+  BOOST_REQUIRE_NO_THROW(certName = keyChain.createIdentity(identity));
+
+  CommandInterestGenerator generator;
+  CommandInterestValidator validator;
+
+  validator.addInterestBypassRule("^<TestCommandInterest><Exemption>");
+
+  //Test a legitimate command
+  shared_ptr<Interest> commandInterest1 =
+    make_shared<Interest>("/TestCommandInterest/Exemption/Command1");
+  generator.generateWithIdentity(*commandInterest1, identity);
+  validator.validate(*commandInterest1,
+                     bind(&CommandInterestFixture::validated, this, _1),
+                     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
+
+  BOOST_CHECK_EQUAL(m_validity, true);
+
+  BOOST_CHECK_NO_THROW(keyChain.deleteIdentity(identity));
+}
+
 
 
 BOOST_AUTO_TEST_SUITE_END()

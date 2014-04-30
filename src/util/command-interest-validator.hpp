@@ -45,11 +45,33 @@ public:
   {
   }
 
+  /**
+   * @brief add an Interest rule that allows a specific certificate
+   *
+   * @param regex NDN Regex to match Interest Name
+   * @param certificate trusted certificate
+   */
   void
   addInterestRule(const std::string& regex, const IdentityCertificate& certificate);
 
+  /**
+   * @brief add an Interest rule that allows a specific public key
+   *
+   * @param regex NDN Regex to match Interest Name
+   * @param keyName KeyLocator.Name
+   * @param publicKey public key
+   */
   void
   addInterestRule(const std::string& regex, const Name& keyName, const PublicKey& publicKey);
+
+  /**
+   * @brief add an Interest rule that allows any signer
+   *
+   * @param regex NDN Regex to match Interest Name
+   * @note Command Interest matched by regex that is signed by any key will be accepted.
+   */
+  void
+  addInterestBypassRule(const std::string& regex);
 
 protected:
   virtual void
@@ -97,6 +119,13 @@ CommandInterestValidator::addInterestRule(const std::string& regex,
 }
 
 inline void
+CommandInterestValidator::addInterestBypassRule(const std::string& regex)
+{
+  shared_ptr<Regex> interestRegex = make_shared<Regex>(regex);
+  m_trustScopeForInterest.push_back(SecRuleSpecific(interestRegex));
+}
+
+inline void
 CommandInterestValidator::checkPolicy(const Interest& interest,
                                       int stepCount,
                                       const OnInterestValidated& onValidated,
@@ -137,6 +166,11 @@ CommandInterestValidator::checkPolicy(const Interest& interest,
         {
           if (scopeIt->satisfy(interestName, keyName))
             {
+              if (scopeIt->isExempted())
+                {
+                  return onValidated(interest.shared_from_this());
+                }
+
               isInScope = true;
               break;
             }
