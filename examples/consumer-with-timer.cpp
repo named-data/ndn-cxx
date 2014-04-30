@@ -49,8 +49,8 @@ delayedInterest(Face& face)
   i.setMustBeFresh(true);
 
   face.expressInterest(i,
-                       bind(&onData, boost::ref(face), _1, _2),
-                       bind(&onTimeout, boost::ref(face), _1));
+                       bind(&onData, ref(face), _1, _2),
+                       bind(&onTimeout, ref(face), _1));
 }
 
 int
@@ -68,8 +68,8 @@ main(int argc, char** argv)
     // Create face with io_service object
     Face face(ioService);
     face.expressInterest(i,
-                         bind(&onData, boost::ref(face), _1, _2),
-                         bind(&onTimeout, boost::ref(face), _1));
+                         bind(&onData, ref(face), _1, _2),
+                         bind(&onTimeout, ref(face), _1));
 
 
     // Create scheduler object
@@ -77,7 +77,7 @@ main(int argc, char** argv)
 
     // Schedule a new event
     scheduler.scheduleEvent(time::seconds(2),
-                            bind(&delayedInterest, boost::ref(face)));
+                            bind(&delayedInterest, ref(face)));
 
     // ioService.run() will block until all events finished or ioService.stop() is called
     ioService.run();

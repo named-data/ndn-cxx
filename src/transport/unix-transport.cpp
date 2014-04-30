@@ -77,8 +77,7 @@ UnixTransport::connect(boost::asio::io_service& ioService,
   if (!static_cast<bool>(m_impl)) {
     Transport::connect(ioService, receiveCallback);
 
-    m_impl = make_shared<Impl> (boost::ref(*this),
-                                boost::ref(ioService));
+    m_impl = make_shared<Impl>(ref(*this), ref(ioService));
   }
 
   m_impl->connect(boost::asio::local::stream_protocol::endpoint(m_unixSocket));

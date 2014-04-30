@@ -92,8 +92,8 @@ Face::construct(const shared_ptr<Transport>& transport,
   m_transport = transport;
   m_ioService = ioService;
 
-  m_pitTimeoutCheckTimer      = make_shared<monotonic_deadline_timer>(boost::ref(*m_ioService));
-  m_processEventsTimeoutTimer = make_shared<monotonic_deadline_timer>(boost::ref(*m_ioService));
+  m_pitTimeoutCheckTimer      = make_shared<monotonic_deadline_timer>(ref(*m_ioService));
+  m_processEventsTimeoutTimer = make_shared<monotonic_deadline_timer>(ref(*m_ioService));
 
   std::string protocol = "nrd-0.1";
 
@@ -112,15 +112,15 @@ Face::construct(const shared_ptr<Transport>& transport,
 
   if (isSupportedNrdProtocol(protocol))
     {
-      m_fwController = make_shared<nrd::Controller>(boost::ref(*this));
+      m_fwController = make_shared<nrd::Controller>(ref(*this));
     }
   else if (isSupportedNfdProtocol(protocol))
     {
-      m_fwController = make_shared<nfd::Controller>(boost::ref(*this));
+      m_fwController = make_shared<nfd::Controller>(ref(*this));
     }
   else if (isSupportedNdndProtocol(protocol))
     {
-      m_fwController = make_shared<ndnd::Controller>(boost::ref(*this));
+      m_fwController = make_shared<ndnd::Controller>(ref(*this));
     }
   else
     {
@@ -135,7 +135,7 @@ Face::expressInterest(const Interest& interest, const OnData& onData, const OnTi
     m_transport->connect(*m_ioService,
                         bind(&Face::onReceiveElement, this, _1));
 
-  shared_ptr<const Interest> interestToExpress(new Interest(interest));
+  shared_ptr<Interest> interestToExpress(new Interest(interest));
 
   // If the same ioService thread, dispatch directly calls the method
   m_ioService->dispatch(bind(&Face::asyncExpressInterest, this,
@@ -219,6 +219,12 @@ Face::asyncRemovePendingInterest(const PendingInterestId* pendingInterestId)
   m_pendingInterestTable.remove_if(MatchPendingInterestId(pendingInterestId));
 }
 
+void
+Face::finalizeSetInterestFilter(const shared_ptr<RegisteredPrefix>& registeredPrefix)
+{
+  m_registeredPrefixTable.push_back(registeredPrefix);
+}
+
 const RegisteredPrefixId*
 Face::setInterestFilter(const Name& prefix,
                         const OnInterest& onInterest,
@@ -227,8 +233,7 @@ Face::setInterestFilter(const Name& prefix,
   shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
 
   m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
-                                     bind(&RegisteredPrefixTable::push_back,
-                                          &m_registeredPrefixTable, prefixToRegister),
+                                     bind(&Face::finalizeSetInterestFilter, this, prefixToRegister),
                                      bind(onSetInterestFilterFailed,
                                           prefixToRegister->getPrefix(), _1));
 
@@ -244,8 +249,7 @@ Face::setInterestFilter(const Name& prefix,
   shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
 
   m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
-                                     bind(&RegisteredPrefixTable::push_back,
-                                          &m_registeredPrefixTable, prefixToRegister),
+                                     bind(&Face::finalizeSetInterestFilter, this, prefixToRegister),
                                      bind(onSetInterestFilterFailed,
                                           prefixToRegister->getPrefix(), _1),
                                      certificate);
@@ -262,8 +266,7 @@ Face::setInterestFilter(const Name& prefix,
   shared_ptr<RegisteredPrefix> prefixToRegister(new RegisteredPrefix(prefix, onInterest));
 
   m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
-                                     bind(&RegisteredPrefixTable::push_back,
-                                          &m_registeredPrefixTable, prefixToRegister),
+                                     bind(&Face::finalizeSetInterestFilter, this, prefixToRegister),
                                      bind(onSetInterestFilterFailed,
                                           prefixToRegister->getPrefix(), _1),
                                      identity);
@@ -380,7 +383,7 @@ Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::ze
 
       if (keepThread) {
         // work will ensure that m_ioService is running until work object exists
-        m_ioServiceWork = make_shared<boost::asio::io_service::work>(boost::ref(*m_ioService));
+        m_ioServiceWork = make_shared<boost::asio::io_service::work>(ref(*m_ioService));
       }
 
       m_ioService->run();

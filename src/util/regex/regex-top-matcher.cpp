@@ -47,13 +47,13 @@ RegexTopMatcher::compile()
     expr = expr.substr(0, expr.size()-1);
 
   if ('^' != expr[0])
-    m_secondaryMatcher = make_shared<RegexPatternListMatcher>(boost::cref("<.*>*" + expr),
-                                                              boost::cref(m_secondaryBackRefManager));
+    m_secondaryMatcher = make_shared<RegexPatternListMatcher>("<.*>*" + expr,
+                                                              cref(m_secondaryBackRefManager));
   else
     expr = expr.substr(1, expr.size()-1);
 
-  m_primaryMatcher = make_shared<RegexPatternListMatcher>(boost::cref(expr),
-                                                          boost::cref(m_primaryBackRefManager));
+  m_primaryMatcher = make_shared<RegexPatternListMatcher>(func_lib::cref(expr),
+                                                          func_lib::cref(m_primaryBackRefManager));
 }
 
 bool
@@ -199,7 +199,8 @@ RegexTopMatcher::fromName(const Name& name, bool hasAnchor)
   if (hasAnchor)
     regexStr.append("$");
 
-  return make_shared<RegexTopMatcher>(boost::cref(regexStr));
+  // OSX 10.9 has problems with just cref
+  return make_shared<RegexTopMatcher>(func_lib::cref(regexStr));
 }
 
 std::string

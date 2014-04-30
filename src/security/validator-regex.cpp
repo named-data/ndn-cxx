@@ -36,7 +36,7 @@ ValidatorRegex::ValidatorRegex(Face& face,
   , m_certificateCache(certificateCache)
 {
   if (!static_cast<bool>(m_certificateCache))
-    m_certificateCache = make_shared<CertificateCacheTtl>(boost::ref(m_face.getIoService()));
+    m_certificateCache = make_shared<CertificateCacheTtl>(ref(m_face.getIoService()));
 }
 
 void
@@ -46,7 +46,7 @@ ValidatorRegex::onCertificateValidated(const shared_ptr<const Data>& signCertifi
                                        const OnDataValidationFailed& onValidationFailed)
 {
   shared_ptr<IdentityCertificate> certificate =
-    make_shared<IdentityCertificate>(boost::cref(*signCertificate));
+    make_shared<IdentityCertificate>(cref(*signCertificate));
 
   if (!certificate->isTooLate() && !certificate->isTooEarly())
     {
@@ -137,7 +137,7 @@ ValidatorRegex::checkPolicy(const Data& data,
 
                   Interest interest(sig.getKeyLocator().getName());
                   shared_ptr<ValidationRequest> nextStep =
-                    make_shared<ValidationRequest>(boost::cref(interest),
+                    make_shared<ValidationRequest>(cref(interest),
                                                    onKeyValidated,
                                                    onKeyValidationFailed,
                                                    3,

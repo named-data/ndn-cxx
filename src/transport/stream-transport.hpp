@@ -59,7 +59,7 @@ public:
             buffer.push_back(boost::asio::buffer(i->first.wire(),  i->first.size()));
             buffer.push_back(boost::asio::buffer(i->second.wire(), i->second.size()));
             m_socket.async_send(buffer,
-                                bind(&impl::handle_async_send, this, _1, i->first, i->second));
+                                bind(&impl::handle_async_send2, this, _1, i->first, i->second));
           }
 
         m_sendQueue.clear();
@@ -172,7 +172,7 @@ public:
         buffers.push_back(boost::asio::buffer(payload.wire(), payload.size()));
 
         m_socket.async_send(buffers,
-                            bind(&impl::handle_async_send, this, _1, header, payload));
+                            bind(&impl::handle_async_send2, this, _1, header, payload));
       }
   }
 
@@ -253,8 +253,8 @@ public:
   }
 
   void
-  handle_async_send(const boost::system::error_code& error,
-                    const Block& header, const Block& payload)
+  handle_async_send2(const boost::system::error_code& error,
+                     const Block& header, const Block& payload)
   {
     // pass (needed to keep data blocks alive during the send)
   }
@@ -327,7 +327,7 @@ public:
 
       // typename boost::asio::ip::basic_resolver< protocol > resolver;
       shared_ptr<typename protocol::resolver> resolver =
-        make_shared<typename protocol::resolver>(boost::ref(this->m_socket.get_io_service()));
+        make_shared<typename protocol::resolver>(ref(this->m_socket.get_io_service()));
 
       resolver->async_resolve(query, bind(&impl::resolveHandler, this, _1, _2, resolver));
     }

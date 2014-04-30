@@ -33,7 +33,7 @@ ValidatorConfig::ValidatorConfig(Face& face,
   , m_certificateCache(certificateCache)
 {
   if (!static_cast<bool>(m_certificateCache))
-    m_certificateCache = make_shared<CertificateCacheTtl>(boost::ref(m_face.getIoService()));
+    m_certificateCache = make_shared<CertificateCacheTtl>(ref(m_face.getIoService()));
 }
 
 void

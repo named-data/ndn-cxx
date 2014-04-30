@@ -199,8 +199,8 @@ private:
         if (propertyIt != configSection.end())
           throw Error("Expect the end of filter!");
 
-        return make_shared<RelationNameFilter>(boost::cref(name),
-                                               boost::cref(relation));
+        return make_shared<RelationNameFilter>(cref(name),
+                                               cref(relation));
       }
     else if (boost::iequals(propertyIt->first, "regex"))
       {

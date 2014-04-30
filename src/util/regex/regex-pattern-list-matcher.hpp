@@ -97,7 +97,7 @@ RegexPatternListMatcher::extractPattern(int index, int* next)
       shared_ptr<RegexMatcher> matcher =
         make_shared<RegexBackrefMatcher>(m_expr.substr(start, end - start), m_backrefManager);
       m_backrefManager->pushRef(matcher);
-      boost::dynamic_pointer_cast<RegexBackrefMatcher>(matcher)->lateCompile();
+      dynamic_pointer_cast<RegexBackrefMatcher>(matcher)->lateCompile();
 
       m_matcherList.push_back(matcher);
     }

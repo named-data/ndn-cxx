@@ -209,7 +209,7 @@ ValidatorConfig::checkSignature(const Packet& packet,
           Interest certInterest(keyLocatorName);
 
           shared_ptr<ValidationRequest> nextStep =
-            make_shared<ValidationRequest>(boost::cref(certInterest),
+            make_shared<ValidationRequest>(cref(certInterest),
                                            onCertValidated,
                                            onCertValidationFailed,
                                            1, nSteps + 1);
@@ -229,7 +229,7 @@ ValidatorConfig::onCertValidated(const shared_ptr<const Data>& signCertificate,
                                  const OnFailed& onValidationFailed)
 {
   shared_ptr<IdentityCertificate> certificate =
-    make_shared<IdentityCertificate>(boost::cref(*signCertificate));
+    make_shared<IdentityCertificate>(cref(*signCertificate));
 
   if (!certificate->isTooLate() && !certificate->isTooEarly())
     {

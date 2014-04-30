@@ -89,7 +89,7 @@ RegexRepeatMatcher::compile()
   if ('(' == m_expr[0]){
     matcher = make_shared<RegexBackrefMatcher>(m_expr.substr(0, m_indicator), m_backrefManager);
     m_backrefManager->pushRef(matcher);
-    boost::dynamic_pointer_cast<RegexBackrefMatcher>(matcher)->lateCompile();
+    dynamic_pointer_cast<RegexBackrefMatcher>(matcher)->lateCompile();
   }
   else{
     matcher = make_shared<RegexComponentSetMatcher>(m_expr.substr(0, m_indicator),

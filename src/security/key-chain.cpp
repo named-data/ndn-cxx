@@ -265,8 +265,8 @@ KeyChain::exportIdentity(const Name& identity, const std::string& passwordStr)
       m_pib->addCertificateAsIdentityDefault(*cert);
     }
 
-  shared_ptr<SecuredBag> secureBag = make_shared<SecuredBag>(boost::cref(*cert),
-                                                             boost::cref(pkcs5));
+  // make_shared on OSX 10.9 has some strange problem here
+  shared_ptr<SecuredBag> secureBag(new SecuredBag(*cert, pkcs5));
 
   return secureBag;
 }

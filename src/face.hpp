@@ -394,6 +394,9 @@ private:
                                        const Name& identity);
 
   void
+  finalizeSetInterestFilter(const shared_ptr<RegisteredPrefix>& registeredPrefix);
+
+  void
   finalizeUnsetInterestFilter(RegisteredPrefixTable::iterator item);
 
   void

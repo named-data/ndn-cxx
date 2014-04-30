@@ -20,8 +20,8 @@
 namespace ndn {
 
 class Buffer;
-typedef ptr_lib::shared_ptr<const Buffer> ConstBufferPtr;
-typedef ptr_lib::shared_ptr<Buffer> BufferPtr;
+typedef shared_ptr<const Buffer> ConstBufferPtr;
+typedef shared_ptr<Buffer> BufferPtr;
 
 /**
  * @brief Class representing a general-use automatically managed/resized buffer

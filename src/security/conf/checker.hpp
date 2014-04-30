@@ -380,8 +380,7 @@ private:
     if (propertyIt != configSection.end())
       throw Error("Expect the end of checker!");
 
-    return make_shared<CustomizedChecker>(boost::cref(getSigType(sigType)),
-                                          boost::cref(keyLocatorChecker));
+    return make_shared<CustomizedChecker>(getSigType(sigType), cref(keyLocatorChecker));
   }
 
   static shared_ptr<Checker>
@@ -401,7 +400,7 @@ private:
     if (propertyIt != configSection.end())
       throw Error("Expect the end of checker!");
 
-    return make_shared<HierarchicalChecker>(boost::cref(getSigType(sigType)));
+    return make_shared<HierarchicalChecker>(getSigType(sigType));
   }
 
   static shared_ptr<Checker>

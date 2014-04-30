@@ -53,7 +53,7 @@ public:
     start<Command>(parameters, onSuccess, onFailure,
                    bind(&CommandInterestGenerator::generate,
                         &m_commandInterestGenerator, _1,
-                        boost::cref(Name())),
+                        Name()),
                    timeout);
   }
 
@@ -68,7 +68,7 @@ public:
     start<Command>(parameters, onSuccess, onFailure,
                    bind(&CommandInterestGenerator::generate,
                         &m_commandInterestGenerator, _1,
-                        boost::cref(certificate.getName())),
+                        cref(certificate.getName())),
                    timeout);
   }
 
@@ -83,7 +83,7 @@ public:
     start<Command>(parameters, onSuccess, onFailure,
                    bind(&CommandInterestGenerator::generateWithIdentity,
                         &m_commandInterestGenerator, _1,
-                        boost::cref(identity)),
+                        cref(identity)),
                    timeout);
   }
 
@@ -96,7 +96,7 @@ public: // selfreg using FIB Management commands
     this->selfRegisterPrefix(prefixToRegister, onSuccess, onFail,
                              bind(&CommandInterestGenerator::generate,
                                   &m_commandInterestGenerator, _1,
-                                  boost::cref(Name())));
+                                  Name()));
   }
 
   virtual void
@@ -108,7 +108,7 @@ public: // selfreg using FIB Management commands
     this->selfRegisterPrefix(prefixToRegister, onSuccess, onFail,
                              bind(&CommandInterestGenerator::generate,
                                   &m_commandInterestGenerator, _1,
-                                  boost::cref(certificate.getName())));
+                                  cref(certificate.getName())));
   }
 
   virtual void
@@ -120,7 +120,7 @@ public: // selfreg using FIB Management commands
     this->selfRegisterPrefix(prefixToRegister, onSuccess, onFail,
                              bind(&CommandInterestGenerator::generateWithIdentity,
                                   &m_commandInterestGenerator, _1,
-                                  boost::cref(identity)));
+                                  cref(identity)));
   }
 
   virtual void
@@ -131,7 +131,7 @@ public: // selfreg using FIB Management commands
     this->selfDeregisterPrefix(prefixToDeRegister, onSuccess, onFail,
                                bind(&CommandInterestGenerator::generate,
                                     &m_commandInterestGenerator, _1,
-                                    boost::cref(Name())));
+                                    Name()));
   }
 
   virtual void
@@ -143,7 +143,7 @@ public: // selfreg using FIB Management commands
     this->selfDeregisterPrefix(prefixToDeRegister, onSuccess, onFail,
                                bind(&CommandInterestGenerator::generate,
                                     &m_commandInterestGenerator, _1,
-                                    boost::cref(certificate.getName())));
+                                    cref(certificate.getName())));
   }
 
   virtual void
@@ -155,7 +155,7 @@ public: // selfreg using FIB Management commands
     this->selfDeregisterPrefix(prefixToDeRegister, onSuccess, onFail,
                                bind(&CommandInterestGenerator::generateWithIdentity,
                                     &m_commandInterestGenerator, _1,
-                                    boost::cref(identity)));
+                                    cref(identity)));
   }
 
 protected:

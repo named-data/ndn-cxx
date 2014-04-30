@@ -47,8 +47,8 @@ main(int argc, char** argv)
 
     Face face;
     face.expressInterest(i,
-                         bind(onData, boost::ref(face), _1, _2),
-                         bind(onTimeout, boost::ref(face), _1));
+                         bind(onData, ref(face), _1, _2),
+                         bind(onTimeout, ref(face), _1));
 
     // processEvents will block until the requested data received or timeout occurs
     face.processEvents();

@@ -62,7 +62,8 @@ Scheduler::EventInfo::EventInfo(const time::nanoseconds& after,
 {
 }
 
-Scheduler::EventInfo::EventInfo(const time::steady_clock::TimePoint& when, const EventInfo& previousEvent)
+Scheduler::EventInfo::EventInfo(const time::steady_clock::TimePoint& when,
+                                const EventInfo& previousEvent)
   : m_scheduledTime(when)
   , m_period(previousEvent.m_period)
   , m_event(previousEvent.m_event)
@@ -101,7 +102,7 @@ Scheduler::schedulePeriodicEvent(const time::nanoseconds& after,
                                  const Event& event)
 {
   EventQueue::iterator i = m_events.insert(EventInfo(after, period, event));
-  i->m_eventId = make_shared<EventIdImpl>(boost::cref(i));
+  i->m_eventId = make_shared<EventIdImpl>(func_lib::cref(i));
 
   if (!m_isEventExecuting)
     {

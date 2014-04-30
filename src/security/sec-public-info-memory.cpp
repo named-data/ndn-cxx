@@ -61,7 +61,7 @@ SecPublicInfoMemory::addPublicKey(const Name& keyName, KeyType keyType, const Pu
 
   addIdentity(identityName);
 
-  m_keyStore[keyName.toUri()] = make_shared<KeyRecord>(keyType, boost::cref(publicKey));
+  m_keyStore[keyName.toUri()] = make_shared<KeyRecord>(keyType, cref(publicKey));
 }
 
 shared_ptr<PublicKey>

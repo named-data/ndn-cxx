@@ -34,8 +34,7 @@ TcpTransport::connect(boost::asio::io_service& ioService,
   if (!static_cast<bool>(m_impl)) {
     Transport::connect(ioService, receiveCallback);
 
-    m_impl = make_shared<Impl> (boost::ref(*this),
-                                boost::ref(ioService));
+    m_impl = make_shared<Impl>(ref(*this), ref(ioService));
   }
 
   boost::asio::ip::tcp::resolver::query query(m_host, m_port);

@@ -82,7 +82,18 @@ using std::const_pointer_cast;
 
 using std::function;
 using std::bind;
-using std::placeholders; // _1, _2, ..
+using std::placeholders::_1;
+using std::placeholders::_2;
+using std::placeholders::_3;
+using std::placeholders::_4;
+using std::placeholders::_5;
+using std::placeholders::_6;
+using std::placeholders::_7;
+using std::placeholders::_8;
+using std::placeholders::_9;
+
+using std::ref;
+using std::cref;
 
 } // namespace ndn
 
@@ -113,6 +124,9 @@ using boost::const_pointer_cast;
 
 using boost::function;
 using boost::bind;
+
+using boost::ref;
+using boost::cref;
 
 } // namespace ndn
 

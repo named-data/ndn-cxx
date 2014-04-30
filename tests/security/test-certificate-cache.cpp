@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE (Ttl)
 {
   boost::asio::io_service io;
   shared_ptr<CertificateCacheTtl> cache =
-    make_shared<CertificateCacheTtl>(boost::ref(io), time::seconds(1));
+    make_shared<CertificateCacheTtl>(ref(io), time::seconds(1));
   Scheduler scheduler(io);
 
   shared_ptr<IdentityCertificate> cert1 = make_shared<IdentityCertificate>();
