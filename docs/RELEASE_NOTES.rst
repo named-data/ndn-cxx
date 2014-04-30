@@ -5,15 +5,16 @@ Version 0.1.0 is the initial release of ndn-cxx, an NDN C++ library with eXperim
 eXtensions.
 
 Originally based on `ndn-cpp library <https://github.com/named-data/ndn-cpp>`_ the ndn-cxx
-library adopts a slightly different design philosophy (extensive use of Boost libraries,
-use of Crypto++ library to support cryptographic operations) and includes a number of
-various extensions that can simplify writing NDN applications.
+library adopts a slightly different design philosophy (including an extensive use of Boost
+libraries to facilitate development, as well as the use of Crypto++ library to support
+cryptographic operations), and includes a number of extensions that aim to simplify NDN
+application development.
 
 The current features include:
 
 - **Base**
 
-  + Fully asynchronous, event-driven communication model implemented using `Boost.Asio
+  + Fully asynchronous, event-driven communication model, which is implemented using `Boost.Asio
     <http://www.boost.org/doc/libs/1_48_0/doc/html/boost_asio.html>`_
   + Single-threaded, but thread-safe Face operations
 
@@ -27,8 +28,8 @@ The current features include:
     <http://www.boost.org/doc/libs/1_48_0/libs/test/doc/html/index.html>`_
 
     - Continuous integration using an in-house installation of Jenkins build bots and the
-      hosted `travis-ci <https://travis-ci.org/named-data/ndn-cxx>`_ continuous
-      integration service compiles and verifies correctness of the library for each commit
+      hosted `Travis CI <https://travis-ci.org/named-data/ndn-cxx>`_ continuous
+      integration service compile and verify correctness of the library for each commit
 
 - **Wire format**
 
@@ -37,8 +38,6 @@ The current features include:
     of all NDN packet abstractions via ``wireEncode`` and ``wireDecode`` methods
 
       In many cases, NDN packet abstractions are just "indices" to the wire format
-
-  + Optimized wire format encoding/decoding
 
 - **Communication with the forwarder**
 
@@ -55,10 +54,10 @@ The current features include:
       <http://redmine.named-data.net/projects/nfd/wiki/LocalControlHeader>`_ to implement
       special NDN applications that need low-level control of NDN packet forwarding
 
-- **Security**
+- **Security support**
 
-  + Extensive set of security primitives, allowing implementation of truly secure NDN
-    applications in a simplified manner
+  + A set of security primitives to allowing implementation of secure NDN applications in
+    a simplified manner
 
     - **KeyChain**: provides simple interfaces of packet signing, and key and certificate
       management

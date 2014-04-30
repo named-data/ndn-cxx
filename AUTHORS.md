@@ -23,3 +23,5 @@ in the library:
 * Hila Ben Abraham      <http://research.engineering.wustl.edu/~abrahamh/>
 * Xingyu Ma             <http://www.linkedin.com/pub/xingyu-ma/1a/384/5a8>
 * Michael Sweatt        <https://www.linkedin.com/in/michaelsweatt>
+* Lixia Zhang           <http://www.cs.ucla.edu/~lixia/home.html>
+* Jeff Burke            <http://remap.ucla.edu/jburke/>
