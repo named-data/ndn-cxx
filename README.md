@@ -13,17 +13,16 @@ of the following projects:
 * [ndn-tlv-ping - Ping Application For NDN](https://github.com/named-data/ndn-tlv-ping)
 * [ndn-traffic - Traffic Generator For NDN](https://github.com/named-data/ndn-traffic)
 
-See the file INSTALL.md for build and install instructions.
+See the file [`docs/INSTALL.rst`](https://github.com/named-data/ndn-cxx/blob/master/INSTALL.rst)
+for build and install instructions.
 
 Please submit any bugs or issues to the ndn-cxx issue tracker:
 http://redmine.named-data.net/projects/ndn-cxx/issues
-
 
 ## More documentation
 
 Extensive documentation of the library is available on the library's homepage:
 http://www.named-data.net/doc/ndn-cxx/
-
 
 ## License
 
