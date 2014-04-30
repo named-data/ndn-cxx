@@ -34,6 +34,111 @@ using namespace std;
 
 namespace ndn {
 
+/**
+ * @brief Helper class to wrap CoreFoundation object pointers
+ *
+ * The class is similar in spirit to shared_ptr, but uses CoreFoundation
+ * mechanisms to retain/release object.
+ *
+ * Original implementation by Christopher Hunt and it was borrowed from
+ * http://www.cocoabuilder.com/archive/cocoa/130776-auto-cfrelease-and.html
+ */
+template<class T>
+class CFReleaser
+{
+public:
+  //////////////////////////////
+  // Construction/destruction //
+
+  CFReleaser()
+    : m_typeRef(0)
+  {
+  }
+
+  CFReleaser(const T& typeRef)
+    : m_typeRef(typeRef)
+  {
+  }
+
+  CFReleaser(const CFReleaser& inReleaser)
+    : m_typeRef(0)
+  {
+    retain(inReleaser.m_typeRef);
+  }
+
+  CFReleaser&
+  operator=(const T& typeRef)
+  {
+    if (typeRef != m_typeRef) {
+      release();
+      m_typeRef = typeRef;
+    }
+    return *this;
+  }
+
+  CFReleaser&
+  operator=(const CFReleaser& inReleaser)
+  {
+    retain(inReleaser.m_typeRef);
+    return *this;
+  }
+
+  ~CFReleaser()
+  {
+    release();
+  }
+
+  ////////////
+  // Access //
+
+  // operator const T&() const
+  // {
+  //   return m_typeRef;
+  // }
+
+  // operator T&()
+  // {
+  //   return m_typeRef;
+  // }
+
+  const T&
+  get() const
+  {
+    return m_typeRef;
+  }
+
+  T&
+  get()
+  {
+    return m_typeRef;
+  }
+
+  ///////////////////
+  // Miscellaneous //
+
+  void
+  retain(const T& typeRef)
+  {
+    if (typeRef != 0) {
+      CFRetain(typeRef);
+    }
+    release();
+    m_typeRef = typeRef;
+  }
+
+  void release()
+  {
+    if (m_typeRef != 0) {
+      CFRelease(m_typeRef);
+      m_typeRef = 0;
+    }
+  };
+
+private:
+  T m_typeRef;
+};
+
+
 class SecTpmOsx::Impl
 {
 public:
@@ -60,7 +165,7 @@ public:
    * @param keyClass
    * @returns pointer to the key
    */
-  SecKeychainItemRef
+  CFReleaser<SecKeychainItemRef>
   getKey(const Name& keyName, KeyClass keyClass);
 
   /**
@@ -117,7 +222,6 @@ public:
   string m_password;
   bool m_inTerminal;
 };
-
 
 SecTpmOsx::SecTpmOsx()
   : m_impl(new Impl)
@@ -259,29 +363,29 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName, KeyType keyType,
 
   string keyNameUri = m_impl->toInternalKeyName(keyName, KEY_CLASS_PUBLIC);
 
-  SecKeyRef publicKey, privateKey;
+  CFReleaser<CFStringRef> keyLabel =
+    CFStringCreateWithCString(0,
+                              keyNameUri.c_str(),
+                              kCFStringEncodingUTF8);
 
-  CFStringRef keyLabel = CFStringCreateWithCString(0,
-                                                   keyNameUri.c_str(),
-                                                   kCFStringEncodingUTF8);
+  CFReleaser<CFMutableDictionaryRef> attrDict =
+    CFDictionaryCreateMutable(0,
+                              3,
+                              &kCFTypeDictionaryKeyCallBacks,
+                              0);
 
-  CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(0,
-                                                              3,
-                                                              &kCFTypeDictionaryKeyCallBacks,
-                                                              0);
+  CFReleaser<CFNumberRef> cfKeySize = CFNumberCreate(0, kCFNumberIntType, &keySize);
 
-  CFDictionaryAddValue(attrDict, kSecAttrKeyType, m_impl->getAsymKeyType(keyType));
-  CFDictionaryAddValue(attrDict, kSecAttrKeySizeInBits, CFNumberCreate(0,
-                                                                       kCFNumberIntType,
-                                                                       &keySize));
-  CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
+  CFDictionaryAddValue(attrDict.get(), kSecAttrKeyType, m_impl->getAsymKeyType(keyType));
+  CFDictionaryAddValue(attrDict.get(), kSecAttrKeySizeInBits, cfKeySize.get());
+  CFDictionaryAddValue(attrDict.get(), kSecAttrLabel, keyLabel.get());
 
-  OSStatus res = SecKeyGeneratePair((CFDictionaryRef)attrDict, &publicKey, &privateKey);
+  CFReleaser<SecKeyRef> publicKey, privateKey;
+  OSStatus res = SecKeyGeneratePair((CFDictionaryRef)attrDict.get(),
+                                    &publicKey.get(), &privateKey.get());
 
   if (res == errSecSuccess)
     {
-      CFRelease(publicKey);
-      CFRelease(privateKey);
       return;
     }
 
@@ -301,19 +405,20 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName, KeyType keyType,
 void
 SecTpmOsx::deleteKeyPairInTpmInternal(const Name& keyName, bool needRetry)
 {
-  CFStringRef keyLabel = CFStringCreateWithCString(0,
-                                                   keyName.toUri().c_str(),
-                                                   kCFStringEncodingUTF8);
+  CFReleaser<CFStringRef> keyLabel =
+    CFStringCreateWithCString(0,
+                              keyName.toUri().c_str(),
+                              kCFStringEncodingUTF8);
 
-  CFMutableDictionaryRef searchDict =
+  CFReleaser<CFMutableDictionaryRef> searchDict =
     CFDictionaryCreateMutable(0, 5,
                               &kCFTypeDictionaryKeyCallBacks,
                               &kCFTypeDictionaryValueCallBacks);
 
-  CFDictionaryAddValue(searchDict, kSecClass, kSecClassKey);
-  CFDictionaryAddValue(searchDict, kSecAttrLabel, keyLabel);
-  CFDictionaryAddValue(searchDict, kSecMatchLimit, kSecMatchLimitAll);
-  OSStatus res = SecItemDelete(searchDict);
+  CFDictionaryAddValue(searchDict.get(), kSecClass, kSecClassKey);
+  CFDictionaryAddValue(searchDict.get(), kSecAttrLabel, keyLabel.get());
+  CFDictionaryAddValue(searchDict.get(), kSecMatchLimit, kSecMatchLimitAll);
+  OSStatus res = SecItemDelete(searchDict.get());
 
   if (res == errSecSuccess)
     return;
@@ -334,21 +439,23 @@ SecTpmOsx::generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int k
 
   // string keyNameUri =  m_impl->toInternalKeyName(keyName, KEY_CLASS_SYMMETRIC);
 
-  // CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(kCFAllocatorDefault,
-  //                                                             0,
-  //                                                             &kCFTypeDictionaryKeyCallBacks,
-  //                                                             &kCFTypeDictionaryValueCallBacks);
+  // CFReleaser<CFMutableDictionaryRef> attrDict =
+  //   CFDictionaryCreateMutable(kCFAllocatorDefault,
+  //                             0,
+  //                             &kCFTypeDictionaryKeyCallBacks,
+  //                             &kCFTypeDictionaryValueCallBacks);
 
-  // CFStringRef keyLabel = CFStringCreateWithCString(0,
-  //                                                  keyNameUri.c_str(),
-  //                                                  kCFStringEncodingUTF8);
+  // CFReleaser<CFStringRef> keyLabel =
+  //   CFStringCreateWithCString(0,
+  //                             keyNameUri.c_str(),
+  //                             kCFStringEncodingUTF8);
 
-  // CFDictionaryAddValue(attrDict, kSecAttrKeyType, m_impl->getSymKeyType(keyType));
-  // CFDictionaryAddValue(attrDict, kSecAttrKeySizeInBits, CFNumberCreate(kCFAllocatorDefault,
-  //                                                                      kCFNumberSInt32Type,
-  //                                                                      &keySize));
-  // CFDictionaryAddValue(attrDict, kSecAttrIsPermanent, kCFBooleanTrue);
-  // CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
+  // CFReleaser<CFNumberRef> cfKeySize = CFNumberCreate(0, kCFNumberIntType, &keySize);
+
+  // CFDictionaryAddValue(attrDict.get(), kSecAttrKeyType, m_impl->getSymKeyType(keyType));
+  // CFDictionaryAddValue(attrDict.get(), kSecAttrKeySizeInBits, cfKeySize.get());
+  // CFDictionaryAddValue(attrDict.get(), kSecAttrIsPermanent, kCFBooleanTrue);
+  // CFDictionaryAddValue(attrDict.get(), kSecAttrLabel, keyLabel.get());
 
   // CFErrorRef error = 0;
 
@@ -361,23 +468,25 @@ SecTpmOsx::generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int k
 shared_ptr<PublicKey>
 SecTpmOsx::getPublicKeyFromTpm(const Name& keyName)
 {
-  SecKeychainItemRef publicKey = m_impl->getKey(keyName, KEY_CLASS_PUBLIC);
+  CFReleaser<SecKeychainItemRef> publicKey = m_impl->getKey(keyName, KEY_CLASS_PUBLIC);
+  if (publicKey.get() == 0)
+    {
+      throw Error("Requested public key [" + keyName.toUri() + "] does not exist in OSX Keychain");
+    }
 
-  CFDataRef exportedKey;
-
-  OSStatus res = SecItemExport(publicKey,
+  CFReleaser<CFDataRef> exportedKey;
+  OSStatus res = SecItemExport(publicKey.get(),
                                kSecFormatOpenSSL,
                                0,
                                0,
-                               &exportedKey);
+                               &exportedKey.get());
   if (res != errSecSuccess)
     {
       throw Error("Cannot export requested public key from OSX Keychain");
     }
 
-  shared_ptr<PublicKey> key = make_shared<PublicKey>(CFDataGetBytePtr(exportedKey),
-                                                     CFDataGetLength(exportedKey));
-  CFRelease(exportedKey);
+  shared_ptr<PublicKey> key = make_shared<PublicKey>(CFDataGetBytePtr(exportedKey.get()),
+                                                     CFDataGetLength(exportedKey.get()));
   return key;
 }
 
@@ -386,13 +495,19 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
 {
   using namespace CryptoPP;
 
-  SecKeychainItemRef privateKey = m_impl->getKey(keyName, KEY_CLASS_PRIVATE);
-  CFDataRef exportedKey;
-  OSStatus res = SecItemExport(privateKey,
+  CFReleaser<SecKeychainItemRef> privateKey = m_impl->getKey(keyName, KEY_CLASS_PRIVATE);
+  if (privateKey.get() == 0)
+    {
+      /// @todo Can this happen because of keychain is locked?
+      throw Error("Private key [" + keyName.toUri() + "] does not exist in OSX Keychain");
+    }
+
+  CFReleaser<CFDataRef> exportedKey;
+  OSStatus res = SecItemExport(privateKey.get(),
                                kSecFormatOpenSSL,
                                0,
                                0,
-                               &exportedKey);
+                               &exportedKey.get());
 
   if (res != errSecSuccess)
     {
@@ -427,12 +542,11 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
     }
     privateKeyAlgorithm.MessageEnd();
     DEREncodeOctetString(privateKeyInfo,
-                         CFDataGetBytePtr(exportedKey),
-                         CFDataGetLength(exportedKey));
+                         CFDataGetBytePtr(exportedKey.get()),
+                         CFDataGetLength(exportedKey.get()));
   }
   privateKeyInfo.MessageEnd();
 
-  CFRelease(exportedKey);
   return pkcs1Os.buf();
 }
 
@@ -470,10 +584,10 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
   }
   privateKeyInfo.MessageEnd();
 
-  CFDataRef importedKey = CFDataCreateWithBytesNoCopy(0,
-                                                      rawKeyBits.BytePtr(),
-                                                      rawKeyBits.size(),
-                                                      kCFAllocatorNull);
+  CFReleaser<CFDataRef> importedKey = CFDataCreateWithBytesNoCopy(0,
+                                                                  rawKeyBits.BytePtr(),
+                                                                  rawKeyBits.size(),
+                                                                  kCFAllocatorNull);
 
   SecExternalFormat externalFormat = kSecFormatOpenSSL;
   SecExternalItemType externalType = kSecItemTypePrivateKey;
@@ -481,27 +595,27 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
   memset(&keyParams, 0, sizeof(keyParams));
   keyParams.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
   keyParams.keyAttributes = CSSM_KEYATTR_EXTRACTABLE | CSSM_KEYATTR_PERMANENT;
-  SecAccessRef access;
-  CFStringRef keyLabel = CFStringCreateWithCString(0,
-                                                   keyName.toUri().c_str(),
-                                                   kCFStringEncodingUTF8);
-  SecAccessCreate(keyLabel, 0, &access);
-  keyParams.accessRef = access;
-  CFArrayRef outItems;
+  CFReleaser<SecAccessRef> access;
+  CFReleaser<CFStringRef> keyLabel = CFStringCreateWithCString(0,
+                                                               keyName.toUri().c_str(),
+                                                               kCFStringEncodingUTF8);
+  SecAccessCreate(keyLabel.get(), 0, &access.get());
+  keyParams.accessRef = access.get();
+  CFReleaser<CFArrayRef> outItems;
 
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif // __clang__
 
-  OSStatus res = SecKeychainItemImport (importedKey,
-                                        0,
-                                        &externalFormat,
-                                        &externalType,
-                                        0,
-                                        &keyParams,
-                                        m_impl->m_keyChainRef,
-                                        &outItems);
+  OSStatus res = SecKeychainItemImport(importedKey.get(),
+                                       0,
+                                       &externalFormat,
+                                       &externalType,
+                                       0,
+                                       &keyParams,
+                                       m_impl->m_keyChainRef,
+                                       &outItems.get());
 
 #ifdef __clang__
 #pragma clang diagnostic pop
@@ -520,7 +634,7 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
         return false;
     }
 
-  SecKeychainItemRef privateKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems, 0);
+  SecKeychainItemRef privateKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems.get(), 0);
   SecKeychainAttribute attrs[1]; // maximum number of attributes
   SecKeychainAttributeList attrList = { 0, attrs };
   string keyUri = keyName.toUri();
@@ -541,7 +655,6 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
       return false;
     }
 
-  CFRelease(importedKey);
   return true;
 }
 
@@ -552,28 +665,28 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
 bool
 SecTpmOsx::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size)
 {
-  CFDataRef importedKey = CFDataCreateWithBytesNoCopy(0,
-                                                      buf,
-                                                      size,
-                                                      kCFAllocatorNull);
+  CFReleaser<CFDataRef> importedKey = CFDataCreateWithBytesNoCopy(0,
+                                                                  buf,
+                                                                  size,
+                                                                  kCFAllocatorNull);
 
   SecExternalFormat externalFormat = kSecFormatOpenSSL;
   SecExternalItemType externalType = kSecItemTypePublicKey;
-  CFArrayRef outItems;
+  CFReleaser<CFArrayRef> outItems;
 
-  OSStatus res = SecItemImport (importedKey,
-                                0,
-                                &externalFormat,
-                                &externalType,
-                                0,
-                                0,
-                                m_impl->m_keyChainRef,
-                                &outItems);
+  OSStatus res = SecItemImport(importedKey.get(),
+                               0,
+                               &externalFormat,
+                               &externalType,
+                               0,
+                               0,
+                               m_impl->m_keyChainRef,
+                               &outItems.get());
 
   if (res != errSecSuccess)
     return false;
 
-  SecKeychainItemRef publicKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems, 0);
+  SecKeychainItemRef publicKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems.get(), 0);
   SecKeychainAttribute attrs[1]; // maximum number of attributes
   SecKeychainAttributeList attrList = { 0, attrs };
   string keyUri = keyName.toUri();
@@ -592,7 +705,6 @@ SecTpmOsx::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, 
   if (res != errSecSuccess)
     return false;
 
-  CFRelease(importedKey);
   return true;
 }
 
@@ -600,54 +712,60 @@ Block
 SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
                              const Name& keyName, DigestAlgorithm digestAlgorithm, bool needRetry)
 {
-  CFDataRef dataRef = CFDataCreateWithBytesNoCopy(0,
-                                                  data,
-                                                  dataLength,
-                                                  kCFAllocatorNull);
+  CFReleaser<CFDataRef> dataRef = CFDataCreateWithBytesNoCopy(0,
+                                                              data,
+                                                              dataLength,
+                                                              kCFAllocatorNull);
 
-  SecKeyRef privateKey = (SecKeyRef)m_impl->getKey(keyName, KEY_CLASS_PRIVATE);
+  CFReleaser<SecKeychainItemRef> privateKey = m_impl->getKey(keyName, KEY_CLASS_PRIVATE);
+  if (privateKey.get() == 0)
+    {
+      throw Error("Private key [" + keyName.toUri() + "] does not exist in OSX Keychain");
+    }
 
-  CFErrorRef error;
-  SecTransformRef signer = SecSignTransformCreate((SecKeyRef)privateKey, &error);
-  if (error)
+  CFReleaser<CFErrorRef> error;
+  CFReleaser<SecTransformRef> signer = SecSignTransformCreate((SecKeyRef)privateKey.get(),
+                                                              &error.get());
+  if (error.get() != 0)
     throw Error("Fail to create signer");
 
   // Set input
-  Boolean set_res = SecTransformSetAttribute(signer,
+  Boolean set_res = SecTransformSetAttribute(signer.get(),
                                              kSecTransformInputAttributeName,
-                                             dataRef,
-                                             &error);
-  if (error)
+                                             dataRef.get(),
+                                             &error.get());
+  if (error.get() != 0)
     throw Error("Fail to configure input of signer");
 
   // Enable use of padding
-  SecTransformSetAttribute(signer,
+  SecTransformSetAttribute(signer.get(),
                            kSecPaddingKey,
                            kSecPaddingPKCS1Key,
-                           &error);
-  if (error)
+                           &error.get());
+  if (error.get() != 0)
     throw Error("Fail to configure digest algorithm of signer");
 
   // Set padding type
-  set_res = SecTransformSetAttribute(signer,
+  set_res = SecTransformSetAttribute(signer.get(),
                                      kSecDigestTypeAttribute,
                                      m_impl->getDigestAlgorithm(digestAlgorithm),
-                                     &error);
-  if (error)
+                                     &error.get());
+  if (error.get() != 0)
     throw Error("Fail to configure digest algorithm of signer");
 
   // Set padding attribute
   long digestSize = m_impl->getDigestSize(digestAlgorithm);
-  set_res = SecTransformSetAttribute(signer,
+  CFReleaser<CFNumberRef> cfDigestSize = CFNumberCreate(0, kCFNumberLongType, &digestSize);
+  set_res = SecTransformSetAttribute(signer.get(),
                                      kSecDigestLengthAttribute,
-                                     CFNumberCreate(0, kCFNumberLongType, &digestSize),
-                                     &error);
-  if (error)
+                                     cfDigestSize.get(),
+                                     &error.get());
+  if (error.get() != 0)
     throw Error("Fail to configure digest size of signer");
 
   // Actually sign
-  CFDataRef signature = (CFDataRef) SecTransformExecute(signer, &error);
-  if (error)
+  CFReleaser<CFDataRef> signature = (CFDataRef)SecTransformExecute(signer.get(), &error.get());
+  if (error.get() != 0)
     {
       if (!needRetry)
         {
@@ -658,16 +776,17 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
         }
       else
         {
-          CFShow(error);
+          CFShow(error.get());
           throw Error("Fail to sign data");
         }
     }
 
-  if (!signature)
+  if (signature.get() == 0)
     throw Error("Signature is NULL!\n");
 
   return Block(Tlv::SignatureValue,
-               make_shared<Buffer>(CFDataGetBytePtr(signature), CFDataGetLength(signature)));
+               make_shared<Buffer>(CFDataGetBytePtr(signature.get()),
+                                   CFDataGetLength(signature.get())));
 }
 
 ConstBufferPtr
@@ -686,7 +805,12 @@ SecTpmOsx::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyN
   //                                  dataLength
   //                                  );
 
-  // SecKeyRef decryptKey = (SecKeyRef)m_impl->getKey(keyName, keyClass);
+  // CFReleaser<SecKeyRef> decryptKey = (SecKeyRef)m_impl->getKey(keyName, keyClass);
+  // if (decryptKey.get() == 0)
+  //   {
+  //     /// @todo Can this happen because of keychain is locked?
+  //     throw Error("Decruption key [" + ??? + "] does not exist in OSX Keychain");
+  //   }
 
   // CFErrorRef error;
   // SecTransformRef decrypt = SecDecryptTransformCreate(decryptKey, &error);
@@ -714,40 +838,44 @@ SecTpmOsx::addAppToAcl(const Name& keyName, KeyClass keyClass, const string& app
 {
   if (keyClass == KEY_CLASS_PRIVATE && acl == ACL_TYPE_PRIVATE)
     {
-      SecKeychainItemRef privateKey = m_impl->getKey(keyName, keyClass);
+      CFReleaser<SecKeychainItemRef> privateKey = m_impl->getKey(keyName, keyClass);
+      if (privateKey.get() == 0)
+        {
+          throw Error("Private key [" + keyName.toUri() + "] does not exist in OSX Keychain");
+        }
 
-      SecAccessRef accRef;
-      OSStatus acc_res = SecKeychainItemCopyAccess(privateKey, &accRef);
+      CFReleaser<SecAccessRef> accRef;
+      OSStatus acc_res = SecKeychainItemCopyAccess(privateKey.get(), &accRef.get());
 
-      CFArrayRef signACL = SecAccessCopyMatchingACLList(accRef,
-                                                        kSecACLAuthorizationSign);
+      CFReleaser<CFArrayRef> signACL = SecAccessCopyMatchingACLList(accRef.get(),
+                                                                    kSecACLAuthorizationSign);
 
-      SecACLRef aclRef = (SecACLRef) CFArrayGetValueAtIndex(signACL, 0);
+      SecACLRef aclRef = (SecACLRef)CFArrayGetValueAtIndex(signACL.get(), 0);
 
-      CFArrayRef appList;
-      CFStringRef description;
+      CFReleaser<CFArrayRef> appList;
+      CFReleaser<CFStringRef> description;
       SecKeychainPromptSelector promptSelector;
       OSStatus acl_res = SecACLCopyContents(aclRef,
-                                            &appList,
-                                            &description,
+                                            &appList.get(),
+                                            &description.get(),
                                             &promptSelector);
 
-      CFMutableArrayRef newAppList = CFArrayCreateMutableCopy(0,
-                                                              0,
-                                                              appList);
+      CFReleaser<CFMutableArrayRef> newAppList = CFArrayCreateMutableCopy(0,
+                                                                          0,
+                                                                          appList.get());
 
-      SecTrustedApplicationRef trustedApp;
+      CFReleaser<SecTrustedApplicationRef> trustedApp;
       acl_res = SecTrustedApplicationCreateFromPath(appPath.c_str(),
-                                                    &trustedApp);
+                                                    &trustedApp.get());
 
-      CFArrayAppendValue(newAppList, trustedApp);
+      CFArrayAppendValue(newAppList.get(), trustedApp.get());
 
       acl_res = SecACLSetContents(aclRef,
-                                  newAppList,
-                                  description,
+                                  newAppList.get(),
+                                  description.get(),
                                   promptSelector);
 
-      acc_res = SecKeychainItemSetAccess(privateKey, accRef);
+      acc_res = SecKeychainItemSetAccess(privateKey.get(), accRef.get());
     }
 }
 
@@ -767,7 +895,11 @@ SecTpmOsx::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyN
   //                                  dataLength
   //                                  );
 
-  // SecKeyRef encryptKey = (SecKeyRef)m_impl->getKey(keyName, keyClass);
+  // CFReleaser<SecKeyRef> encryptKey = (SecKeyRef)m_impl->getKey(keyName, keyClass);
+  // if (encryptKey.get() == 0)
+  //   {
+  //     throw Error("Encryption key [" + ???? + "] does not exist in OSX Keychain");
+  //   }
 
   // CFErrorRef error;
   // SecTransformRef encrypt = SecEncryptTransformCreate(encryptKey, &error);
@@ -792,22 +924,23 @@ SecTpmOsx::doesKeyExistInTpm(const Name& keyName, KeyClass keyClass)
 {
   string keyNameUri = m_impl->toInternalKeyName(keyName, keyClass);
 
-  CFStringRef keyLabel = CFStringCreateWithCString(0,
-                                                   keyNameUri.c_str(),
-                                                   kCFStringEncodingUTF8);
+  CFReleaser<CFStringRef> keyLabel = CFStringCreateWithCString(0,
+                                                               keyNameUri.c_str(),
+                                                               kCFStringEncodingUTF8);
 
-  CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(0,
-                                                              4,
-                                                              &kCFTypeDictionaryKeyCallBacks,
-                                                              0);
+  CFReleaser<CFMutableDictionaryRef> attrDict =
+    CFDictionaryCreateMutable(0,
+                              4,
+                              &kCFTypeDictionaryKeyCallBacks,
+                              0);
 
-  CFDictionaryAddValue(attrDict, kSecClass, kSecClassKey);
-  // CFDictionaryAddValue(attrDict, kSecAttrKeyClass, m_impl->getKeyClass(keyClass));
-  CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
-  CFDictionaryAddValue(attrDict, kSecReturnRef, kCFBooleanTrue);
+  CFDictionaryAddValue(attrDict.get(), kSecClass, kSecClassKey);
+  // CFDictionaryAddValue(attrDict.get(), kSecAttrKeyClass, m_impl->getKeyClass(keyClass));
+  CFDictionaryAddValue(attrDict.get(), kSecAttrLabel, keyLabel.get());
+  CFDictionaryAddValue(attrDict.get(), kSecReturnRef, kCFBooleanTrue);
 
-  SecKeychainItemRef itemRef;
-  OSStatus res = SecItemCopyMatching((CFDictionaryRef)attrDict, (CFTypeRef*)&itemRef);
+  CFReleaser<SecKeychainItemRef> itemRef;
+  OSStatus res = SecItemCopyMatching((CFDictionaryRef)attrDict.get(), (CFTypeRef*)&itemRef.get());
 
   if (res == errSecSuccess)
     return true;
@@ -826,28 +959,28 @@ SecTpmOsx::generateRandomBlock(uint8_t* res, size_t size)
 // OSXPrivateKeyStorage::Impl //
 ////////////////////////////////
 
-SecKeychainItemRef
+CFReleaser<SecKeychainItemRef>
 SecTpmOsx::Impl::getKey(const Name& keyName, KeyClass keyClass)
 {
   string keyNameUri = toInternalKeyName(keyName, keyClass);
 
-  CFStringRef keyLabel = CFStringCreateWithCString(0,
-                                                   keyNameUri.c_str(),
-                                                   kCFStringEncodingUTF8);
+  CFReleaser<CFStringRef> keyLabel = CFStringCreateWithCString(0,
+                                                               keyNameUri.c_str(),
+                                                               kCFStringEncodingUTF8);
 
-  CFMutableDictionaryRef attrDict = CFDictionaryCreateMutable(0,
-                                                              5,
-                                                              &kCFTypeDictionaryKeyCallBacks,
-                                                              0);
+  CFReleaser<CFMutableDictionaryRef> attrDict =
+    CFDictionaryCreateMutable(0,
+                              5,
+                              &kCFTypeDictionaryKeyCallBacks,
+                              0);
 
-  CFDictionaryAddValue(attrDict, kSecClass, kSecClassKey);
-  CFDictionaryAddValue(attrDict, kSecAttrLabel, keyLabel);
-  CFDictionaryAddValue(attrDict, kSecAttrKeyClass, getKeyClass(keyClass));
-  CFDictionaryAddValue(attrDict, kSecReturnRef, kCFBooleanTrue);
+  CFDictionaryAddValue(attrDict.get(), kSecClass, kSecClassKey);
+  CFDictionaryAddValue(attrDict.get(), kSecAttrLabel, keyLabel.get());
+  CFDictionaryAddValue(attrDict.get(), kSecAttrKeyClass, getKeyClass(keyClass));
+  CFDictionaryAddValue(attrDict.get(), kSecReturnRef, kCFBooleanTrue);
 
-  SecKeychainItemRef keyItem;
-
-  OSStatus res = SecItemCopyMatching((CFDictionaryRef) attrDict, (CFTypeRef*)&keyItem);
+  CFReleaser<SecKeychainItemRef> keyItem;
+  OSStatus res = SecItemCopyMatching((CFDictionaryRef)attrDict.get(), (CFTypeRef*)&keyItem.get());
 
   if (res != errSecSuccess)
     return 0;

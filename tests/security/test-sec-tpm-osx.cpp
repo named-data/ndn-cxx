@@ -22,7 +22,7 @@ namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(SecurityTestSecTpmOsx)
 
-BOOST_AUTO_TEST_CASE (Delete)
+BOOST_AUTO_TEST_CASE(Delete)
 {
   SecTpmOsx tpm;
 
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE (Delete)
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
 }
 
-BOOST_AUTO_TEST_CASE (SignVerify)
+BOOST_AUTO_TEST_CASE(SignVerify)
 {
   SecTpmOsx tpm;
 
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE (SignVerify)
   tpm.deleteKeyPairInTpm(keyName);
 }
 
-BOOST_AUTO_TEST_CASE (RandomGenerator)
+BOOST_AUTO_TEST_CASE(RandomGenerator)
 {
   SecTpmOsx tpm;
 
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE (RandomGenerator)
 
 }
 
-BOOST_AUTO_TEST_CASE (ExportImportKey)
+BOOST_AUTO_TEST_CASE(ExportImportKey)
 {
   using namespace CryptoPP;
 
@@ -164,6 +164,25 @@ BOOST_AUTO_TEST_CASE (ExportImportKey)
   // BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
   // BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
 }
+
+BOOST_AUTO_TEST_CASE(NonExistingKey)
+{
+  using namespace CryptoPP;
+
+  SecTpmOsx tpm;
+
+  Name keyName("/TestSecTpmOsx/NonExistingKey");
+
+  BOOST_REQUIRE_THROW(tpm.getPublicKeyFromTpm(keyName), SecTpmOsx::Error);
+
+  const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
+  BOOST_REQUIRE_THROW(tpm.signInTpm(content, sizeof(content), keyName, DIGEST_ALGORITHM_SHA256),
+                      SecTpmOsx::Error);
+
+  BOOST_REQUIRE_THROW(tpm.signInTpm(0, 1, keyName, DIGEST_ALGORITHM_SHA256),
+                      SecTpmOsx::Error);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
