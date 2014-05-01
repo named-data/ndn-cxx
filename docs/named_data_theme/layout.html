@@ -36,8 +36,13 @@
         <div class="sidebar">
           {%- block sidebartoc %}
           <h3>{{ _('Table Of Contents') }}</h3>
-          {{ toctree() }}
+          <ul>
+            <li class="toctree-l1"><a class="reference internal" href="doxygen/annotated.html">API documentation (doxygen)</a></li>
+          </ul>
+
+          {{ toctree(includehidden=True) }}
           {%- endblock %}
+
           {%- block sidebarsearch %}
           <h3 style="margin-top: 1.5em;">{{ _('Search') }}</h3>
           <form class="search" action="{{ pathto('search') }}" method="get">

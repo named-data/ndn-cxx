@@ -25,9 +25,11 @@ Please submit any bugs or issues to the `ndn-cxx issue tracker
 ndn-cxx Documentation
 ---------------------
 
-- `API documentation (doxygen) <doxygen/annotated.html>`_
 
 .. toctree::
+   :hidden:
+   :maxdepth: 2
+
    RELEASE_NOTES
    INSTALL
    examples
@@ -36,7 +38,27 @@ ndn-cxx Documentation
    tutorials/security-validator-config
    manpages
    code-style
-   :maxdepth: 1
+
+- `API documentation (doxygen) <doxygen/annotated.html>`_
+
+- :doc:`ndn-cxx v0.1.0 Release Notes <RELEASE_NOTES>`
+
+- :doc:`Getting Started with ndn-cxx <INSTALL>`
+
+- :doc:`Tutorial Examples <examples>`
+
+- :doc:`tutorials/security-library`
+
+- :doc:`tutorials/utils-ndn-regex`
+
+- :doc:`tutorials/security-validator-config`
+
+- :doc:`manpages`
+
+Documentation for ndn-cxx contributors
+++++++++++++++++++++++++++++++++++++++
+
+- :doc:`code-style`
 
 License
 -------

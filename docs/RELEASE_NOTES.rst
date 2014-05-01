@@ -1,3 +1,5 @@
+.. _ndn-cxx v0.1.0 Release Notes:
+
 ndn-cxx v0.1.0 Release Notes
 ============================
 

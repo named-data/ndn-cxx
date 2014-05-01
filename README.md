@@ -13,7 +13,7 @@ of the following projects:
 * [ndn-tlv-ping - Ping Application For NDN](https://github.com/named-data/ndn-tlv-ping)
 * [ndn-traffic - Traffic Generator For NDN](https://github.com/named-data/ndn-traffic)
 
-See the file [`docs/INSTALL.rst`](https://github.com/named-data/ndn-cxx/blob/master/INSTALL.rst)
+See the file [`docs/INSTALL.rst`](https://github.com/cawka/ndn-cxx/blob/master/docs/INSTALL.rst)
 for build and install instructions.
 
 Please submit any bugs or issues to the ndn-cxx issue tracker:

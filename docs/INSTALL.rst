@@ -1,3 +1,5 @@
+.. _Getting Started with ndn-cxx:
+
 Getting started with ndn-cxx
 ============================
 
