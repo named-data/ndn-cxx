@@ -76,7 +76,7 @@ public:
   }
 
   bool
-  operator()(const shared_ptr<InterestFilter>& interestFilterId) const
+  operator()(const shared_ptr<InterestFilterRecord>& interestFilterId) const
   {
     return (reinterpret_cast<const InterestFilterId*>(interestFilterId.get()) == m_id);
   }

@@ -86,30 +86,35 @@ UnixTransport::connect(boost::asio::io_service& ioService,
 void
 UnixTransport::send(const Block& wire)
 {
+  BOOST_ASSERT(static_cast<bool>(m_impl));
   m_impl->send(wire);
 }
 
 void
 UnixTransport::send(const Block& header, const Block& payload)
 {
+  BOOST_ASSERT(static_cast<bool>(m_impl));
   m_impl->send(header, payload);
 }
 
 void
 UnixTransport::close()
 {
+  BOOST_ASSERT(static_cast<bool>(m_impl));
   m_impl->close();
 }
 
 void
 UnixTransport::pause()
 {
+  BOOST_ASSERT(static_cast<bool>(m_impl));
   m_impl->pause();
 }
 
 void
 UnixTransport::resume()
 {
+  BOOST_ASSERT(static_cast<bool>(m_impl));
   m_impl->resume();
 }
 

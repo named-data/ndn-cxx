@@ -226,10 +226,11 @@ Face::asyncRemovePendingInterest(const PendingInterestId* pendingInterestId)
 
 template<class SignatureGenerator>
 const RegisteredPrefixId*
-Face::setInterestFilterImpl(const InterestFilter& interestFilter,
-                            const OnInterest& onInterest,
-                            const OnSetInterestFilterFailed& onSetInterestFilterFailed,
-                            const SignatureGenerator& signatureGenerator)
+Face::registerPrefixImpl(const Name& prefix,
+                         const shared_ptr<InterestFilterRecord>& filter,
+                         const RegisterPrefixSuccessCallback& onSuccess,
+                         const RegisterPrefixFailureCallback& onFailure,
+                         const SignatureGenerator& signatureGenerator)
 {
   typedef void (nfd::Controller::*Registrator)
     (const nfd::ControlParameters&,
@@ -248,11 +249,8 @@ Face::setInterestFilterImpl(const InterestFilter& interestFilter,
     unregistrator = static_cast<Registrator>(&nfd::Controller::start<nfd::FibRemoveNextHopCommand>);
   }
 
-  shared_ptr<InterestFilterRecord> filter =
-    make_shared<InterestFilterRecord>(interestFilter, onInterest);
-
   nfd::ControlParameters parameters;
-  parameters.setName(interestFilter.getPrefix());
+  parameters.setName(prefix);
 
   RegisteredPrefix::Unregistrator bindedUnregistrator =
     bind(unregistrator, m_nfdController, parameters, _1, _2,
@@ -260,11 +258,11 @@ Face::setInterestFilterImpl(const InterestFilter& interestFilter,
          m_nfdController->getDefaultCommandTimeout());
 
   shared_ptr<RegisteredPrefix> prefixToRegister =
-    ndn::make_shared<RegisteredPrefix>(interestFilter.getPrefix(), filter, bindedUnregistrator);
+    ndn::make_shared<RegisteredPrefix>(prefix, filter, bindedUnregistrator);
 
   (m_nfdController->*registrator)(parameters,
-    bind(&Face::afterPrefixRegistered, this, prefixToRegister),
-    bind(onSetInterestFilterFailed, prefixToRegister->getPrefix(), _2),
+    bind(&Face::afterPrefixRegistered, this, prefixToRegister, onSuccess),
+    bind(onFailure, prefixToRegister->getPrefix(), _2),
     signatureGenerator,
     m_nfdController->getDefaultCommandTimeout());
 
@@ -274,53 +272,154 @@ Face::setInterestFilterImpl(const InterestFilter& interestFilter,
 const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
-                        const OnSetInterestFilterFailed& onSetInterestFilterFailed)
-{
-  return setInterestFilterImpl(interestFilter, onInterest, onSetInterestFilterFailed,
-                               IdentityCertificate());
-}
-
-const RegisteredPrefixId*
-Face::setInterestFilter(const InterestFilter& interestFilter,
-                        const OnInterest& onInterest,
-                        const OnSetInterestFilterFailed& onSetInterestFilterFailed,
+                        const RegisterPrefixSuccessCallback& onSuccess,
+                        const RegisterPrefixFailureCallback& onFailure,
                         const IdentityCertificate& certificate)
 {
-  return setInterestFilterImpl(interestFilter, onInterest, onSetInterestFilterFailed,
-                               certificate);
+  shared_ptr<InterestFilterRecord> filter =
+    make_shared<InterestFilterRecord>(interestFilter, onInterest);
+
+  return registerPrefixImpl(interestFilter.getPrefix(), filter,
+                            onSuccess, onFailure,
+                            certificate);
 }
 
 const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
-                        const OnSetInterestFilterFailed& onSetInterestFilterFailed,
+                        const RegisterPrefixFailureCallback& onFailure,
+                        const IdentityCertificate& certificate)
+{
+  shared_ptr<InterestFilterRecord> filter =
+    make_shared<InterestFilterRecord>(interestFilter, onInterest);
+
+  return registerPrefixImpl(interestFilter.getPrefix(), filter,
+                            RegisterPrefixSuccessCallback(), onFailure,
+                            certificate);
+}
+
+const RegisteredPrefixId*
+Face::setInterestFilter(const InterestFilter& interestFilter,
+                        const OnInterest& onInterest,
+                        const RegisterPrefixSuccessCallback& onSuccess,
+                        const RegisterPrefixFailureCallback& onFailure,
                         const Name& identity)
 {
-  return setInterestFilterImpl(interestFilter, onInterest, onSetInterestFilterFailed,
-                               identity);
+  shared_ptr<InterestFilterRecord> filter =
+    make_shared<InterestFilterRecord>(interestFilter, onInterest);
+
+  return registerPrefixImpl(interestFilter.getPrefix(), filter,
+                            onSuccess, onFailure,
+                            identity);
+}
+
+const RegisteredPrefixId*
+Face::setInterestFilter(const InterestFilter& interestFilter,
+                        const OnInterest& onInterest,
+                        const RegisterPrefixFailureCallback& onFailure,
+                        const Name& identity)
+{
+  shared_ptr<InterestFilterRecord> filter =
+    make_shared<InterestFilterRecord>(interestFilter, onInterest);
+
+  return registerPrefixImpl(interestFilter.getPrefix(), filter,
+                            RegisterPrefixSuccessCallback(), onFailure,
+                            identity);
+}
+
+
+const InterestFilterId*
+Face::setInterestFilter(const InterestFilter& interestFilter,
+                        const OnInterest& onInterest)
+{
+  shared_ptr<InterestFilterRecord> filter =
+    make_shared<InterestFilterRecord>(interestFilter, onInterest);
+
+  getIoService().post(bind(&Face::asyncSetInterestFilter, this, filter));
+
+  return reinterpret_cast<const InterestFilterId*>(filter.get());
 }
 
 void
-Face::afterPrefixRegistered(const shared_ptr<RegisteredPrefix>& registeredPrefix)
+Face::asyncSetInterestFilter(const shared_ptr<InterestFilterRecord>& interestFilterRecord)
+{
+  m_interestFilterTable.push_back(interestFilterRecord);
+}
+
+const RegisteredPrefixId*
+Face::registerPrefix(const Name& prefix,
+                     const RegisterPrefixSuccessCallback& onSuccess,
+                     const RegisterPrefixFailureCallback& onFailure,
+                     const IdentityCertificate& certificate)
+{
+  return registerPrefixImpl(prefix, shared_ptr<InterestFilterRecord>(),
+                            onSuccess, onFailure,
+                            certificate);
+}
+
+const RegisteredPrefixId*
+Face::registerPrefix(const Name& prefix,
+                     const RegisterPrefixSuccessCallback& onSuccess,
+                     const RegisterPrefixFailureCallback& onFailure,
+                     const Name& identity)
+{
+  return registerPrefixImpl(prefix, shared_ptr<InterestFilterRecord>(),
+                            onSuccess, onFailure,
+                            identity);
+}
+
+
+void
+Face::afterPrefixRegistered(const shared_ptr<RegisteredPrefix>& registeredPrefix,
+                            const RegisterPrefixSuccessCallback& onSuccess)
 {
   m_registeredPrefixTable.push_back(registeredPrefix);
 
-  if (static_cast<bool>(registeredPrefix->getFilter()))
-    {
-      // it was a combined operation
-      m_interestFilterTable.push_back(registeredPrefix->getFilter());
-    }
+  if (static_cast<bool>(registeredPrefix->getFilter())) {
+    // it was a combined operation
+    m_interestFilterTable.push_back(registeredPrefix->getFilter());
+  }
+
+  if (static_cast<bool>(onSuccess)) {
+    onSuccess(registeredPrefix->getPrefix());
+  }
 }
 
 void
 Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
 {
-  m_ioService->post(bind(&Face::asyncUnsetInterestFilter, this, registeredPrefixId));
+  m_ioService->post(bind(&Face::asyncUnregisterPrefix, this, registeredPrefixId,
+                         UnregisterPrefixSuccessCallback(), UnregisterPrefixFailureCallback()));
 }
 
 
 void
-Face::asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
+Face::unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
+                       const UnregisterPrefixSuccessCallback& onSuccess,
+                       const UnregisterPrefixFailureCallback& onFailure)
+{
+  m_ioService->post(bind(&Face::asyncUnregisterPrefix, this, registeredPrefixId,
+                         onSuccess, onFailure));
+}
+
+
+void
+Face::asyncUnsetInterestFilter(const InterestFilterId* interestFilterId)
+{
+  InterestFilterTable::iterator i = std::find_if(m_interestFilterTable.begin(),
+                                                 m_interestFilterTable.end(),
+                                                 MatchInterestFilterId(interestFilterId));
+  if (i != m_interestFilterTable.end())
+    {
+      m_interestFilterTable.erase(i);
+    }
+}
+
+
+void
+Face::asyncUnregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
+                            const UnregisterPrefixSuccessCallback& onSuccess,
+                            const UnregisterPrefixFailureCallback& onFailure)
 {
   RegisteredPrefixTable::iterator i = std::find_if(m_registeredPrefixTable.begin(),
                                                    m_registeredPrefixTable.end(),
@@ -334,15 +433,18 @@ Face::asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
           m_interestFilterTable.remove(filter);
         }
 
-      (*i)->unregister(bind(&Face::finalizeUnregisterPrefix, this, i),
-                       RegisteredPrefix::FailureCallback());
+      (*i)->unregister(bind(&Face::finalizeUnregisterPrefix, this, i, onSuccess),
+                       bind(onFailure, _2));
     }
+  else
+    onFailure("Unrecognized PrefixId");
 
   // there cannot be two registered prefixes with the same id
 }
 
 void
-Face::finalizeUnregisterPrefix(RegisteredPrefixTable::iterator item)
+Face::finalizeUnregisterPrefix(RegisteredPrefixTable::iterator item,
+                               const UnregisterPrefixSuccessCallback& onSuccess)
 {
   m_registeredPrefixTable.erase(item);
 
@@ -353,6 +455,7 @@ Face::finalizeUnregisterPrefix(RegisteredPrefixTable::iterator item)
         m_processEventsTimeoutTimer->cancel();
       }
     }
+  onSuccess();
 }
 
 void
@@ -408,7 +511,9 @@ Face::asyncShutdown()
   m_pendingInterestTable.clear();
   m_registeredPrefixTable.clear();
 
-  m_transport->close();
+  if (m_transport->isConnected())
+    m_transport->close();
+
   m_pitTimeoutCheckTimer->cancel();
   m_processEventsTimeoutTimer->cancel();
   m_pitTimeoutCheckTimerActive = false;

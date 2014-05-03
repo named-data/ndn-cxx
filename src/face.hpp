@@ -18,6 +18,7 @@
 #include "common.hpp"
 #include "interest.hpp"
 #include "data.hpp"
+#include "security/identity-certificate.hpp"
 
 #include "transport/transport.hpp"
 #include "transport/unix-transport.hpp"
@@ -32,28 +33,41 @@ namespace ndn {
 namespace nfd {
 class Controller;
 }
-class IdentityCertificate;
 
 /**
- * An OnData function object is used to pass a callback to expressInterest.
+ * @brief Callback called when expressed Interest gets satisfied with Data packet
  */
 typedef function<void(const Interest&, Data&)> OnData;
 
 /**
- * An OnTimeout function object is used to pass a callback to expressInterest.
+ * @brief Callback called when expressed Interest times out
  */
 typedef function<void(const Interest&)> OnTimeout;
 
 /**
- * An OnInterest function object is used to pass a callback to registerPrefix.
+ * @brief Callback called when incoming Interest matches the specified InterestFilter
  */
 typedef function<void (const InterestFilter&, const Interest&)> OnInterest;
 
 /**
- * An OnRegisterFailed function object is used to report when registerPrefix fails.
+ * @brief Callback called when registerPrefix or setInterestFilter command succeeds
  */
-typedef function<void(const InterestFilter&, const std::string&)> OnSetInterestFilterFailed;
+typedef function<void(const Name&)> RegisterPrefixSuccessCallback;
 
+/**
+ * @brief Callback called when registerPrefix or setInterestFilter command fails
+ */
+typedef function<void(const Name&, const std::string&)> RegisterPrefixFailureCallback;
+
+/**
+ * @brief Callback called when unregisterPrefix or unsetInterestFilter command succeeds
+ */
+typedef function<void()> UnregisterPrefixSuccessCallback;
+
+/**
+ * @brief Callback called when unregisterPrefix or unsetInterestFilter command fails
+ */
+typedef function<void(const std::string&)> UnregisterPrefixFailureCallback;
 
 
 /**
@@ -126,15 +140,18 @@ public:
   /**
    * @brief Create a new Face using TcpTransport
    *
-   * @param host The host of the NDN hub.
-   * @param port The port or service name of the NDN hub. If omitted. use 6363.
+   * @param host The host of the NDN forwarder
+   * @param port (optional) The port or service name of the NDN forwarder (**default**: "6363")
+   *
    * @throws Face::Error on unsupported protocol
    */
   Face(const std::string& host, const std::string& port = "6363");
 
   /**
    * @brief Create a new Face using the given Transport
-   * @param transport A shared_ptr to a Transport object used for communication.
+   *
+   * @param transport A shared_ptr to a Transport object used for communication
+   *
    * @throws Face::Error on unsupported protocol
    */
   explicit
@@ -156,12 +173,11 @@ public:
   /**
    * @brief Express Interest
    *
-   * @param interest  A reference to the Interest.  This copies the Interest.
-   * @param onData    A function object to call when a matching data packet is received.
-   * @param onTimeout A function object to call if the interest times out.
-   *                  If onTimeout is an empty OnTimeout(), this does not use it.
+   * @param interest  An Interest to be expressed
+   * @param onData    Callback to be called when a matching data packet is received
+   * @param onTimeout (optional) A function object to call if the interest times out
    *
-   * @return The pending interest ID which can be used with removePendingInterest.
+   * @return The pending interest ID which can be used with removePendingInterest
    */
   const PendingInterestId*
   expressInterest(const Interest& interest,
@@ -172,11 +188,10 @@ public:
    *
    * @param name      Name of the Interest
    * @param tmpl      Interest template to fill parameters
-   * @param onData    A callback to call when a matching data packet is received.
-   * @param onTimeout A callback to call if the interest times out.
-   *                  If onTimeout is an empty OnTimeout(), this does not use it.
+   * @param onData    Callback to be called when a matching data packet is received
+   * @param onTimeout (optional) A function object to call if the interest times out
    *
-   * @return The pending interest ID which can be used with removePendingInterest.
+   * @return Opaque pending interest ID which can be used with removePendingInterest
    */
   const PendingInterestId*
   expressInterest(const Name& name,
@@ -184,12 +199,7 @@ public:
                   const OnData& onData, const OnTimeout& onTimeout = OnTimeout());
 
   /**
-   * @brief Remove the pending interest entry with the pendingInterestId from the pending
-   * interest table.
-   *
-   * This does not affect another pending interest with a different pendingInterestId,
-   * even it if has the same interest name.  If there is no entry with the
-   * pendingInterestId, do nothing.
+   * @brief Cancel previously expressed Interest
    *
    * @param pendingInterestId The ID returned from expressInterest.
    */
@@ -197,69 +207,138 @@ public:
   removePendingInterest(const PendingInterestId* pendingInterestId);
 
   /**
-   * @brief Register prefix with the connected NDN hub and call onInterest when a matching
-   *        interest is received.
+   * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
+   * callback and register the filtered prefix with the connected NDN forwarder
+   *
+   * This version of setInterestFilter combines setInterestFilter and registerPrefix
+   * operations and is intended to be used when only one filter for the same prefix needed
+   * to be set.  When multiple names sharing the same prefix should be dispatched to
+   * different callbacks, use one registerPrefix call, followed (in onSuccess callback) by
+   * a series of setInterestFilter calls.
    *
    * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
-   * @param onInterest A function object to call when a matching interest is received
+   * @param onInterest     A callback to be called when a matching interest is received
+   * @param onSuccess      A callback to be called when prefixRegister command succeeds
+   * @param onFailure      A callback to be called when prefixRegister command fails
+   * @param certificate    (optional) A certificate under which the prefix registration
+   *                       command interest is signed.  When omitted, a default certificate
+   *                       of the default identity is used to sign the registration command
    *
-   * @param onRegisterFailed A function object to call if failed to retrieve the connected
-   *                         hub’s ID or failed to register the prefix.  This calls
-   *                         onRegisterFailed(prefix) where prefix is the prefix given to
-   *                         registerPrefix.
-   *
-   * @return The registered prefix ID which can be used with removeRegisteredPrefix.
+   * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
+   *         removeRegisteredPrefix
    */
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
-                    const OnSetInterestFilterFailed& onSetInterestFilterFailed);
+                    const RegisterPrefixSuccessCallback& onSuccess,
+                    const RegisterPrefixFailureCallback& onFailure,
+                    const IdentityCertificate& certificate = IdentityCertificate());
 
   /**
-   * @brief Register prefix with the connected NDN hub and call onInterest when a matching
-   *        interest is received.
-   *
-   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
-   * @param onInterest A function object to call when a matching interest is received
-   *
-   * @param onRegisterFailed A function object to call if failed to retrieve the connected
-   *                         hub’s ID or failed to register the prefix.  This calls
-   *                         onRegisterFailed(prefix) where prefix is the prefix given to
-   *                         registerPrefix.
-   *
-   * @param certificate A certificate under which the prefix registration command interest
-   *                    is signed.
-   *
-   * @return The registered prefix ID which can be used with removeRegisteredPrefix.
+   * @deprecated Use the other overload
    */
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
-                    const OnSetInterestFilterFailed& onSetInterestFilterFailed,
-                    const IdentityCertificate& certificate);
+                    const RegisterPrefixFailureCallback& onFailure,
+                    const IdentityCertificate& certificate = IdentityCertificate());
 
   /**
-   * @brief Register prefix with the connected NDN hub and call onInterest when a matching
-   *        interest is received.
+   * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
+   * callback and register the filtered prefix with the connected NDN forwarder
+   *
+   * This version of setInterestFilter combines setInterestFilter and registerPrefix
+   * operations and is intended to be used when only one filter for the same prefix needed
+   * to be set.  When multiple names sharing the same prefix should be dispatched to
+   * different callbacks, use one registerPrefix call, followed (in onSuccess callback) by
+   * a series of setInterestFilter calls.
    *
    * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
-   * @param onInterest A function object to call when a matching interest is received
+   * @param onInterest     A callback to be called when a matching interest is received
+   * @param onSuccess      A callback to be called when prefixRegister command succeeds
+   * @param onFailure      A callback to be called when prefixRegister command fails
+   * @param identity       A signing identity. A command interest is signed under the default
+   *                       certificate of this identity
    *
-   * @param onRegisterFailed A function object to call if failed to retrieve the connected
-   *                         hub’s ID or failed to register the prefix.  This calls
-   *                         onRegisterFailed(prefix) where prefix is the prefix given to
-   *                         registerPrefix.
-   *
-   * @param identity A signing identity. A command interest is signed under the default
-   *                 certificate of this identity.
-   *
-   * @return The registered prefix ID which can be used with removeRegisteredPrefix.
+   * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
    */
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
-                    const OnSetInterestFilterFailed& onSetInterestFilterFailed,
+                    const RegisterPrefixSuccessCallback& onSuccess,
+                    const RegisterPrefixFailureCallback& onFailure,
                     const Name& identity);
+
+  /**
+   * @deprecated Use the other overload
+   */
+  const RegisteredPrefixId*
+  setInterestFilter(const InterestFilter& interestFilter,
+                    const OnInterest& onInterest,
+                    const RegisterPrefixFailureCallback& onFailure,
+                    const Name& identity);
+
+  /**
+   * @brief Set InterestFilter to dispatch incoming matching interest to onInterest callback
+   *
+   * @param interestFilter Interest
+   * @param onInterest A callback to be called when a matching interest is received
+   *
+   * This method modifies library's FIB only, and does not register the prefix with the
+   * forwarder.  It will always succeed.  To register prefix with the forwarder, use
+   * registerPrefix, or use the setInterestFilter overload taking two callbacks.
+   *
+   * @return Opaque interest filter ID which can be used with unsetInterestFilter
+   */
+  const InterestFilterId*
+  setInterestFilter(const InterestFilter& interestFilter,
+                    const OnInterest& onInterest);
+
+
+  /**
+   * @brief Register prefix with the connected NDN forwarder
+   *
+   * This method only modifies forwarder's RIB (or FIB) and does not associate any
+   * onInterest callbacks.  Use setInterestFilter method to dispatch incoming Interests to
+   * the right callbacks.
+   *
+   * @param prefix      A prefix to register with the connected NDN forwarder
+   * @param onSuccess   A callback to be called when prefixRegister command succeeds
+   * @param onFailure   A callback to be called when prefixRegister command fails
+   * @param certificate (optional) A certificate under which the prefix registration
+   *                    command interest is signed.  When omitted, a default certificate
+   *                    of the default identity is used to sign the registration command
+   *
+   * @return The registered prefix ID which can be used with unregisterPrefix
+   */
+  const RegisteredPrefixId*
+  registerPrefix(const Name& prefix,
+                 const RegisterPrefixSuccessCallback& onSuccess,
+                 const RegisterPrefixFailureCallback& onFailure,
+                 const IdentityCertificate& certificate = IdentityCertificate());
+
+  /**
+   * @brief Register prefix with the connected NDN forwarder and call onInterest when a matching
+   *        interest is received.
+   *
+   * This method only modifies forwarder's RIB (or FIB) and does not associate any
+   * onInterest callbacks.  Use setInterestFilter method to dispatch incoming Interests to
+   * the right callbacks.
+   *
+   * @param prefix    A prefix to register with the connected NDN forwarder
+   * @param onSuccess A callback to be called when prefixRegister command succeeds
+   * @param onFailure A callback to be called when prefixRegister command fails
+   * @param identity  A signing identity. A command interest is signed under the default
+   *                  certificate of this identity
+   *
+   * @return The registered prefix ID which can be used with unregisterPrefix
+   */
+  const RegisteredPrefixId*
+  registerPrefix(const Name& prefix,
+                 const RegisterPrefixSuccessCallback& onSuccess,
+                 const RegisterPrefixFailureCallback& onFailure,
+                 const Name& identity);
+
 
   /**
    * @brief Remove the registered prefix entry with the registeredPrefixId from the
@@ -272,10 +351,37 @@ public:
    * unsetInterestFilter will use the same credentials as original
    * setInterestFilter/registerPrefix command
    *
-   * @param registeredPrefixId The ID returned from registerPrefix.
+   * @param registeredPrefixId The ID returned from registerPrefix
    */
   void
   unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
+
+  /**
+   * @brief Remove previously set InterestFilter from library's FIB
+   *
+   * This method always succeeds and will **NOT** send any request to the connected
+   * forwarder.
+   *
+   * @param interestFilterId The ID returned from setInterestFilter.
+   */
+  void
+  unsetInterestFilter(const InterestFilterId* interestFilterId);
+
+  /**
+   * @brief Deregister prefix from RIB (or FIB)
+   *
+   * unregisterPrefix will use the same credentials as original
+   * setInterestFilter/registerPrefix command
+   *
+   * If registeredPrefixId was obtained using setInterestFilter, the corresponding
+   * InterestFilter will be unset too.
+   *
+   * @param registeredPrefixId The ID returned from registerPrefix.
+   */
+  void
+  unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
+                   const UnregisterPrefixSuccessCallback& onSuccess,
+                   const UnregisterPrefixFailureCallback& onFailure);
 
   /**
    * @brief (FOR DEBUG PURPOSES ONLY) Request direct NFD FIB management
@@ -305,7 +411,7 @@ public:
    * If negative timeout is specified, then processEvents will not block and process only
    * pending events.
    *
-   * @param timeout     maximum time to block the thread.
+   * @param timeout     maximum time to block the thread
    * @param keepThread  Keep thread in a blocked state (in event processing), even when
    *                    there are no outstanding events (e.g., no Interest/Data is expected)
    *
@@ -379,13 +485,23 @@ private:
   asyncRemovePendingInterest(const PendingInterestId* pendingInterestId);
 
   void
-  afterPrefixRegistered(const shared_ptr<RegisteredPrefix>& registeredPrefix);
+  afterPrefixRegistered(const shared_ptr<RegisteredPrefix>& registeredPrefix,
+                        const RegisterPrefixSuccessCallback& onSuccess);
 
   void
-  asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
+  asyncSetInterestFilter(const shared_ptr<InterestFilterRecord>& interestFilterRecord);
 
   void
-  finalizeUnregisterPrefix(RegisteredPrefixTable::iterator item);
+  asyncUnsetInterestFilter(const InterestFilterId* interestFilterId);
+
+  void
+  asyncUnregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
+                        const UnregisterPrefixSuccessCallback& onSuccess,
+                        const UnregisterPrefixFailureCallback& onFailure);
+
+  void
+  finalizeUnregisterPrefix(RegisteredPrefixTable::iterator item,
+                           const UnregisterPrefixSuccessCallback& onSuccess);
 
   void
   onReceiveElement(const Block& wire);
@@ -407,10 +523,11 @@ private:
 
   template<class SignatureGenerator>
   const RegisteredPrefixId*
-  setInterestFilterImpl(const InterestFilter& interestFilter,
-                        const OnInterest& onInterest,
-                        const OnSetInterestFilterFailed& onSetInterestFilterFailed,
-                        const SignatureGenerator& signatureGenerator);
+  registerPrefixImpl(const Name& prefix,
+                     const shared_ptr<InterestFilterRecord>& filter,
+                     const RegisterPrefixSuccessCallback& onSuccess,
+                     const RegisterPrefixFailureCallback& onFailure,
+                     const SignatureGenerator& signatureGenerator);
 
 private:
   shared_ptr<boost::asio::io_service> m_ioService;
