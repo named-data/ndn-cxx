@@ -13,17 +13,15 @@
 #ifndef NDN_MANAGEMENT_NFD_CONTROLLER_HPP
 #define NDN_MANAGEMENT_NFD_CONTROLLER_HPP
 
-#include "controller.hpp"
 #include "nfd-control-command.hpp"
 #include "../face.hpp"
-
 
 namespace ndn {
 namespace nfd {
 
 /** \brief NFD Management protocol - ControlCommand client
  */
-class Controller : public ndn::Controller
+class Controller : noncopyable
 {
 public:
   /** \brief a callback on command success
@@ -48,27 +46,12 @@ public:
   start(const ControlParameters& parameters,
         const CommandSucceedCallback& onSuccess,
         const CommandFailCallback& onFailure,
+        const IdentityCertificate& certificate = IdentityCertificate(),
         const time::milliseconds& timeout = getDefaultCommandTimeout())
   {
     start<Command>(parameters, onSuccess, onFailure,
                    bind(&CommandInterestGenerator::generate,
-                        &m_commandInterestGenerator, _1,
-                        Name()),
-                   timeout);
-  }
-
-  template<typename Command>
-  void
-  start(const ControlParameters& parameters,
-        const CommandSucceedCallback& onSuccess,
-        const CommandFailCallback& onFailure,
-        const IdentityCertificate& certificate,
-        const time::milliseconds& timeout = getDefaultCommandTimeout())
-  {
-    start<Command>(parameters, onSuccess, onFailure,
-                   bind(&CommandInterestGenerator::generate,
-                        &m_commandInterestGenerator, _1,
-                        cref(certificate.getName())),
+                        &m_commandInterestGenerator, _1, cref(certificate.getName())),
                    timeout);
   }
 
@@ -82,83 +65,10 @@ public:
   {
     start<Command>(parameters, onSuccess, onFailure,
                    bind(&CommandInterestGenerator::generateWithIdentity,
-                        &m_commandInterestGenerator, _1,
-                        cref(identity)),
+                        &m_commandInterestGenerator, _1, cref(identity)),
                    timeout);
   }
 
-public: // selfreg using FIB Management commands
-  virtual void
-  selfRegisterPrefix(const Name& prefixToRegister,
-                     const SuccessCallback& onSuccess,
-                     const FailCallback&    onFail)
-  {
-    this->selfRegisterPrefix(prefixToRegister, onSuccess, onFail,
-                             bind(&CommandInterestGenerator::generate,
-                                  &m_commandInterestGenerator, _1,
-                                  Name()));
-  }
-
-  virtual void
-  selfRegisterPrefix(const Name& prefixToRegister,
-                     const SuccessCallback& onSuccess,
-                     const FailCallback&    onFail,
-                     const IdentityCertificate& certificate)
-  {
-    this->selfRegisterPrefix(prefixToRegister, onSuccess, onFail,
-                             bind(&CommandInterestGenerator::generate,
-                                  &m_commandInterestGenerator, _1,
-                                  cref(certificate.getName())));
-  }
-
-  virtual void
-  selfRegisterPrefix(const Name& prefixToRegister,
-                     const SuccessCallback& onSuccess,
-                     const FailCallback&    onFail,
-                     const Name& identity)
-  {
-    this->selfRegisterPrefix(prefixToRegister, onSuccess, onFail,
-                             bind(&CommandInterestGenerator::generateWithIdentity,
-                                  &m_commandInterestGenerator, _1,
-                                  cref(identity)));
-  }
-
-  virtual void
-  selfDeregisterPrefix(const Name& prefixToDeRegister,
-                       const SuccessCallback& onSuccess,
-                       const FailCallback&    onFail)
-  {
-    this->selfDeregisterPrefix(prefixToDeRegister, onSuccess, onFail,
-                               bind(&CommandInterestGenerator::generate,
-                                    &m_commandInterestGenerator, _1,
-                                    Name()));
-  }
-
-  virtual void
-  selfDeregisterPrefix(const Name& prefixToDeRegister,
-                       const SuccessCallback& onSuccess,
-                       const FailCallback&    onFail,
-                       const IdentityCertificate& certificate)
-  {
-    this->selfDeregisterPrefix(prefixToDeRegister, onSuccess, onFail,
-                               bind(&CommandInterestGenerator::generate,
-                                    &m_commandInterestGenerator, _1,
-                                    cref(certificate.getName())));
-  }
-
-  virtual void
-  selfDeregisterPrefix(const Name& prefixToDeRegister,
-                       const SuccessCallback& onSuccess,
-                       const FailCallback&    onFail,
-                       const Name& identity)
-  {
-    this->selfDeregisterPrefix(prefixToDeRegister, onSuccess, onFail,
-                               bind(&CommandInterestGenerator::generateWithIdentity,
-                                    &m_commandInterestGenerator, _1,
-                                    cref(identity)));
-  }
-
-protected:
   template<typename Command>
   void
   start(const ControlParameters& parameters,
@@ -166,18 +76,6 @@ protected:
         const CommandFailCallback& onFailure,
         const Sign& sign,
         const time::milliseconds& timeout = getDefaultCommandTimeout());
-
-  virtual void
-  selfRegisterPrefix(const Name& prefixToRegister,
-                     const SuccessCallback& onSuccess,
-                     const FailCallback&    onFail,
-                     const Sign& sign);
-
-  virtual void
-  selfDeregisterPrefix(const Name& prefixToDeRegister,
-                       const SuccessCallback& onSuccess,
-                       const FailCallback&    onFail,
-                       const Sign& sign);
 
 private:
   void
@@ -198,9 +96,8 @@ protected:
   CommandInterestGenerator m_commandInterestGenerator;
 };
 
-
 template<typename Command>
-void
+inline void
 Controller::start(const ControlParameters& parameters,
                   const CommandSucceedCallback& onSuccess,
                   const CommandFailCallback&    onFailure,

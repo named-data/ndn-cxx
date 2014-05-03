@@ -237,9 +237,6 @@ BOOST_AUTO_TEST_CASE(SetRegexFilter)
   Face face;
   Face face2(face.getIoService());
   Scheduler scheduler(*face.ioService());
-  scheduler.scheduleEvent(time::seconds(1),
-                          bind(&FacesFixture::terminate, this, ref(face)));
-
   scheduler.scheduleEvent(time::seconds(2),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
@@ -264,15 +261,55 @@ BOOST_AUTO_TEST_CASE(SetRegexFilter)
                           bind(&FacesFixture::expressInterest, this,
                                ref(face2), Name("/Hello/World/a/b/d"))); // should not match
 
-  face.processEvents();
-  // BOOST_REQUIRE_NO_THROW(face.processEvents());
+  BOOST_REQUIRE_NO_THROW(face.processEvents());
 
   BOOST_CHECK_EQUAL(nRegFailures, 0);
   BOOST_CHECK_EQUAL(nInInterests, 2);
-  BOOST_CHECK_EQUAL(nTimeouts, 2);
+  BOOST_CHECK_EQUAL(nTimeouts, 4);
   BOOST_CHECK_EQUAL(nData, 0);
 }
 
+class FacesFixture2 : public FacesFixture
+{
+public:
+  void
+  checkPrefix(bool doesExist)
+  {
+    int result = std::system("nfd-status | grep /Hello/World >/dev/null");
+
+    if (doesExist) {
+      BOOST_CHECK_EQUAL(result, 0);
+    }
+    else {
+      BOOST_CHECK_NE(result, 0);
+    }
+  }
+};
+
+BOOST_FIXTURE_TEST_CASE(RegisterUnregisterPrefix, FacesFixture2)
+{
+  Face face;
+  Scheduler scheduler(*face.ioService());
+  scheduler.scheduleEvent(time::seconds(2),
+                          bind(&FacesFixture::terminate, this, ref(face)));
+
+  regPrefixId = face.setInterestFilter(InterestFilter("/Hello/World"),
+                                       bind(&FacesFixture::onInterest, this,
+                                            ref(face), _1, _2),
+                                       bind(&FacesFixture::onRegFailed, this));
+
+  scheduler.scheduleEvent(time::milliseconds(500),
+                          bind(&FacesFixture2::checkPrefix, this, true));
+
+  scheduler.scheduleEvent(time::seconds(1),
+                          bind(&Face::unsetInterestFilter, &face,
+                               regPrefixId)); // shouldn't match
+
+  scheduler.scheduleEvent(time::milliseconds(1500),
+                          bind(&FacesFixture2::checkPrefix, this, false));
+
+  BOOST_REQUIRE_NO_THROW(face.processEvents());
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 

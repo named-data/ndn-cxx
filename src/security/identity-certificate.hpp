@@ -36,29 +36,28 @@ public:
   /**
    * The default constructor.
    */
-  inline
   IdentityCertificate();
 
   /**
    * Create an IdentityCertificate from the content in the data packet.
    * @param data The data packet with the content to decode.
    */
-  inline
+  explicit
   IdentityCertificate(const Data& data);
 
   /**
    * The virtual destructor.
    */
-  inline virtual
+  virtual
   ~IdentityCertificate();
 
-  inline void
+  void
   wireDecode(const Block& wire);
 
-  inline void
+  void
   setName(const Name& name);
 
-  inline const Name&
+  const Name&
   getPublicKeyName() const;
 
   static bool

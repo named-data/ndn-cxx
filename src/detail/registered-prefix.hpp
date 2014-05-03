@@ -17,59 +17,42 @@
 #include "../name.hpp"
 #include "../interest.hpp"
 
+#include "interest-filter-record.hpp"
+
 namespace ndn {
 
-class InterestFilterRecord
+namespace nfd {
+class ControlParameters;
+}
+
+class RegisteredPrefix : noncopyable
 {
 public:
-  typedef function<void (const InterestFilter&, const Interest&)> OnInterest;
-
-  InterestFilterRecord(const InterestFilter& filter, const OnInterest& onInterest)
-    : m_filter(filter)
-    , m_onInterest(onInterest)
-  {
-  }
-
-  /**
-   * @brief Check if Interest name matches the filter
-   * @param name Interest Name
+  /** \brief a callback on command success
    */
-  bool
-  doesMatch(const Name& name) const
-  {
-    return m_filter.doesMatch(name);
-  }
+  typedef function<void(const nfd::ControlParameters&)> SuccessCallback;
 
-  void
-  operator()(const Interest& interest) const
-  {
-    m_onInterest(m_filter, interest);
-  }
+  /** \brief a callback on command failure
+   */
+  typedef function<void(uint32_t/*code*/,const std::string&/*reason*/)> FailureCallback;
 
-  const InterestFilter&
-  getFilter() const
-  {
-    return m_filter;
-  }
+  /// @brief Function that should be called to unregister prefix
+  typedef function<void(const SuccessCallback& onSuccess,
+                        const FailureCallback& onFailure)> Unregistrator;
 
-private:
-  InterestFilter m_filter;
-  OnInterest m_onInterest;
-};
-
-
-class RegisteredPrefix
-{
-public:
-  explicit
-  RegisteredPrefix(const Name& prefix)
+  RegisteredPrefix(const Name& prefix,
+                   const Unregistrator& unregistrator)
     : m_prefix(prefix)
+    , m_unregistrator(unregistrator)
   {
   }
 
-  RegisteredPrefix(const Name& prefix, shared_ptr<InterestFilterRecord> filter)
+  RegisteredPrefix(const Name& prefix,
+                   const shared_ptr<InterestFilterRecord>& filter,
+                   const Unregistrator& unregistrator)
     : m_prefix(prefix)
     , m_filter(filter)
+    , m_unregistrator(unregistrator)
   {
   }
 
@@ -85,11 +68,19 @@ public:
     return m_filter;
   }
 
+  void
+  unregister(const SuccessCallback& onSuccess,
+             const FailureCallback& onFailure)
+  {
+    if (static_cast<bool>(m_unregistrator)) {
+      m_unregistrator(onSuccess, onFailure);
+    }
+  }
+
 private:
   Name m_prefix;
-
-  // to support old interface of combined (un)setInterestFilter
   shared_ptr<InterestFilterRecord> m_filter;
+  Unregistrator m_unregistrator;
 };
 
 /**
@@ -118,32 +109,6 @@ private:
   const RegisteredPrefixId* m_id;
 };
 
-
-/**
- * @brief Opaque class representing ID of the Interest filter
- */
-class InterestFilterId;
-
-/**
- * @brief Functor to match InterestFilterId
- */
-class MatchInterestFilterId
-{
-public:
-  explicit
-  MatchInterestFilterId(const InterestFilterId* interestFilterId)
-    : m_id(interestFilterId)
-  {
-  }
-
-  bool
-  operator()(const shared_ptr<InterestFilter>& interestFilterId) const
-  {
-    return (reinterpret_cast<const InterestFilterId*>(interestFilterId.get()) == m_id);
-  }
-private:
-  const InterestFilterId* m_id;
-};
 
 } // namespace ndn
 

@@ -20,7 +20,7 @@
 
 namespace ndn {
 
-class PendingInterest
+class PendingInterest : noncopyable
 {
 public:
   typedef function<void(const Interest&, Data&)> OnData;

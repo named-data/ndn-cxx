@@ -23,13 +23,16 @@
 #include "transport/unix-transport.hpp"
 #include "transport/tcp-transport.hpp"
 
-#include "management/controller.hpp"
-
 #include "util/scheduler.hpp"
 #include "detail/registered-prefix.hpp"
 #include "detail/pending-interest.hpp"
 
 namespace ndn {
+
+namespace nfd {
+class Controller;
+}
+class IdentityCertificate;
 
 /**
  * An OnData function object is used to pass a callback to expressInterest.
@@ -147,11 +150,8 @@ public:
   Face(const shared_ptr<Transport>& transport,
        boost::asio::io_service& ioService);
 
-  /**
-   * @brief Set controller used for prefix registration
-   */
-  void
-  setController(const shared_ptr<Controller>& controller);
+
+  ~Face();
 
   /**
    * @brief Express Interest
@@ -269,18 +269,19 @@ public:
    * even it if has the same prefix name.  If there is no entry with the
    * registeredPrefixId, do nothing.
    *
+   * unsetInterestFilter will use the same credentials as original
+   * setInterestFilter/registerPrefix command
+   *
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
   void
   unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
 
+  /**
+   * @brief (FOR DEBUG PURPOSES ONLY) Request direct NFD FIB management
+   */
   void
-  unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId,
-                      const IdentityCertificate& certificate);
-
-  void
-  unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId,
-                      const Name& identity);
+  setDirectFibManagement(bool isDirectFibManagementRequested = false);
 
    /**
    * @brief Publish data packet
@@ -362,9 +363,6 @@ private:
   bool
   isSupportedNrdProtocol(const std::string& protocol);
 
-  bool
-  isSupportedNdndProtocol(const std::string& protocol);
-
   class ProcessEventsTimeout
   {
   };
@@ -387,14 +385,6 @@ private:
   asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
 
   void
-  asyncUnsetInterestFilterWithCertificate(const RegisteredPrefixId* registeredPrefixId,
-                                          const IdentityCertificate& certificate);
-
-  void
-  asyncUnsetInterestFilterWithIdentity(const RegisteredPrefixId* registeredPrefixId,
-                                       const Name& identity);
-
-  void
   finalizeUnregisterPrefix(RegisteredPrefixTable::iterator item);
 
   void
@@ -415,6 +405,13 @@ private:
   void
   checkPitExpire();
 
+  template<class SignatureGenerator>
+  const RegisteredPrefixId*
+  setInterestFilterImpl(const InterestFilter& interestFilter,
+                        const OnInterest& onInterest,
+                        const OnSetInterestFilterFailed& onSetInterestFilterFailed,
+                        const SignatureGenerator& signatureGenerator);
+
 private:
   shared_ptr<boost::asio::io_service> m_ioService;
   shared_ptr<boost::asio::io_service::work> m_ioServiceWork; // if thread needs to be preserved
@@ -428,7 +425,8 @@ private:
   InterestFilterTable m_interestFilterTable;
   RegisteredPrefixTable m_registeredPrefixTable;
 
-  shared_ptr<Controller> m_fwController;
+  nfd::Controller* m_nfdController;
+  bool m_isDirectNfdFibManagementRequested;
 
   ConfigFile m_config;
 };
@@ -445,10 +443,10 @@ Face::isSupportedNrdProtocol(const std::string& protocol)
   return protocol == "nrd-0.1";
 }
 
-inline bool
-Face::isSupportedNdndProtocol(const std::string& protocol)
+inline void
+Face::setDirectFibManagement(bool isDirectFibManagementRequested/* = false*/)
 {
-  return protocol == "ndnd-tlv-0.7";
+  m_isDirectNfdFibManagementRequested = isDirectFibManagementRequested;
 }
 
 } // namespace ndn

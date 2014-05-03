@@ -23,13 +23,13 @@
 #include "util/config-file.hpp"
 #include <cstdlib>
 
-#include "management/ndnd-controller.hpp"
 #include "management/nfd-controller.hpp"
-#include "management/nrd-controller.hpp"
 
 namespace ndn {
 
 Face::Face()
+  : m_nfdController(new nfd::Controller(*this))
+  , m_isDirectNfdFibManagementRequested(false)
 {
   const std::string socketName = UnixTransport::getDefaultSocketName(m_config);
   construct(shared_ptr<Transport>(new UnixTransport(socketName)),
@@ -37,6 +37,8 @@ Face::Face()
 }
 
 Face::Face(const shared_ptr<boost::asio::io_service>& ioService)
+  : m_nfdController(new nfd::Controller(*this))
+  , m_isDirectNfdFibManagementRequested(false)
 {
   const std::string socketName = UnixTransport::getDefaultSocketName(m_config);
   construct(shared_ptr<Transport>(new UnixTransport(socketName)),
@@ -53,6 +55,8 @@ public:
 };
 
 Face::Face(boost::asio::io_service& ioService)
+  : m_nfdController(new nfd::Controller(*this))
+  , m_isDirectNfdFibManagementRequested(false)
 {
   const std::string socketName = UnixTransport::getDefaultSocketName(m_config);
   construct(shared_ptr<Transport>(new UnixTransport(socketName)),
@@ -60,12 +64,15 @@ Face::Face(boost::asio::io_service& ioService)
 }
 
 Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
+  : m_nfdController(new nfd::Controller(*this))
 {
   construct(shared_ptr<Transport>(new TcpTransport(host, port)),
             make_shared<boost::asio::io_service>());
 }
 
 Face::Face(const shared_ptr<Transport>& transport)
+  : m_nfdController(new nfd::Controller(*this))
+  , m_isDirectNfdFibManagementRequested(false)
 {
   construct(transport,
             make_shared<boost::asio::io_service>());
@@ -73,15 +80,16 @@ Face::Face(const shared_ptr<Transport>& transport)
 
 Face::Face(const shared_ptr<Transport>& transport,
            boost::asio::io_service& ioService)
+  : m_nfdController(new nfd::Controller(*this))
+  , m_isDirectNfdFibManagementRequested(false)
 {
   construct(transport,
             shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()));
 }
 
-void
-Face::setController(const shared_ptr<Controller>& controller)
+Face::~Face()
 {
-  m_fwController = controller;
+  delete m_nfdController;
 }
 
 void
@@ -112,15 +120,11 @@ Face::construct(const shared_ptr<Transport>& transport,
 
   if (isSupportedNrdProtocol(protocol))
     {
-      m_fwController = make_shared<nrd::Controller>(ref(*this));
+      // do nothing
     }
   else if (isSupportedNfdProtocol(protocol))
     {
-      m_fwController = make_shared<nfd::Controller>(ref(*this));
-    }
-  else if (isSupportedNdndProtocol(protocol))
-    {
-      m_fwController = make_shared<ndnd::Controller>(ref(*this));
+      m_isDirectNfdFibManagementRequested = true;
     }
   else
     {
@@ -219,22 +223,61 @@ Face::asyncRemovePendingInterest(const PendingInterestId* pendingInterestId)
   m_pendingInterestTable.remove_if(MatchPendingInterestId(pendingInterestId));
 }
 
+
+template<class SignatureGenerator>
+const RegisteredPrefixId*
+Face::setInterestFilterImpl(const InterestFilter& interestFilter,
+                            const OnInterest& onInterest,
+                            const OnSetInterestFilterFailed& onSetInterestFilterFailed,
+                            const SignatureGenerator& signatureGenerator)
+{
+  typedef void (nfd::Controller::*Registrator)
+    (const nfd::ControlParameters&,
+     const nfd::Controller::CommandSucceedCallback&,
+     const nfd::Controller::CommandFailCallback&,
+     const SignatureGenerator&,
+     const time::milliseconds&);
+
+  Registrator registrator, unregistrator;
+  if (!m_isDirectNfdFibManagementRequested) {
+    registrator = static_cast<Registrator>(&nfd::Controller::start<nfd::RibRegisterCommand>);
+    unregistrator = static_cast<Registrator>(&nfd::Controller::start<nfd::RibUnregisterCommand>);
+  }
+  else {
+    registrator = static_cast<Registrator>(&nfd::Controller::start<nfd::FibAddNextHopCommand>);
+    unregistrator = static_cast<Registrator>(&nfd::Controller::start<nfd::FibRemoveNextHopCommand>);
+  }
+
+  shared_ptr<InterestFilterRecord> filter =
+    make_shared<InterestFilterRecord>(interestFilter, onInterest);
+
+  nfd::ControlParameters parameters;
+  parameters.setName(interestFilter.getPrefix());
+
+  RegisteredPrefix::Unregistrator bindedUnregistrator =
+    bind(unregistrator, m_nfdController, parameters, _1, _2,
+         signatureGenerator,
+         m_nfdController->getDefaultCommandTimeout());
+
+  shared_ptr<RegisteredPrefix> prefixToRegister =
+    ndn::make_shared<RegisteredPrefix>(interestFilter.getPrefix(), filter, bindedUnregistrator);
+
+  (m_nfdController->*registrator)(parameters,
+    bind(&Face::afterPrefixRegistered, this, prefixToRegister),
+    bind(onSetInterestFilterFailed, prefixToRegister->getPrefix(), _2),
+    signatureGenerator,
+    m_nfdController->getDefaultCommandTimeout());
+
+  return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
+}
+
 const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
                         const OnSetInterestFilterFailed& onSetInterestFilterFailed)
 {
-  shared_ptr<InterestFilterRecord> filter =
-    make_shared<InterestFilterRecord>(cref(interestFilter), onInterest);
-  shared_ptr<RegisteredPrefix> prefixToRegister =
-    make_shared<RegisteredPrefix>(cref(interestFilter.getPrefix()), filter);
-
-  m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
-                                     bind(&Face::afterPrefixRegistered, this, prefixToRegister),
-                                     bind(onSetInterestFilterFailed,
-                                          prefixToRegister->getPrefix(), _1));
-
-  return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
+  return setInterestFilterImpl(interestFilter, onInterest, onSetInterestFilterFailed,
+                               IdentityCertificate());
 }
 
 const RegisteredPrefixId*
@@ -243,18 +286,8 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnSetInterestFilterFailed& onSetInterestFilterFailed,
                         const IdentityCertificate& certificate)
 {
-  shared_ptr<InterestFilterRecord> filter =
-    make_shared<InterestFilterRecord>(cref(interestFilter), onInterest);
-  shared_ptr<RegisteredPrefix> prefixToRegister =
-    make_shared<RegisteredPrefix>(cref(interestFilter.getPrefix()), filter);
-
-  m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
-                                     bind(&Face::afterPrefixRegistered, this, prefixToRegister),
-                                     bind(onSetInterestFilterFailed,
-                                          prefixToRegister->getPrefix(), _1),
-                                     certificate);
-
-  return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
+  return setInterestFilterImpl(interestFilter, onInterest, onSetInterestFilterFailed,
+                               certificate);
 }
 
 const RegisteredPrefixId*
@@ -263,19 +296,8 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnSetInterestFilterFailed& onSetInterestFilterFailed,
                         const Name& identity)
 {
-  // without ptr_lib:: here, reference to cref becomes ambiguous on OSX 10.9
-  shared_ptr<InterestFilterRecord> filter =
-    make_shared<InterestFilterRecord>(cref(interestFilter), onInterest);
-  shared_ptr<RegisteredPrefix> prefixToRegister =
-    make_shared<RegisteredPrefix>(cref(interestFilter.getPrefix()), filter);
-
-  m_fwController->selfRegisterPrefix(prefixToRegister->getPrefix(),
-                                     bind(&Face::afterPrefixRegistered, this, prefixToRegister),
-                                     bind(onSetInterestFilterFailed,
-                                          prefixToRegister->getPrefix(), _1),
-                                     identity);
-
-  return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
+  return setInterestFilterImpl(interestFilter, onInterest, onSetInterestFilterFailed,
+                               identity);
 }
 
 void
@@ -296,21 +318,6 @@ Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
   m_ioService->post(bind(&Face::asyncUnsetInterestFilter, this, registeredPrefixId));
 }
 
-void
-Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId,
-                          const IdentityCertificate& certificate)
-{
-  m_ioService->post(bind(&Face::asyncUnsetInterestFilterWithCertificate, this,
-                         registeredPrefixId, certificate));
-}
-
-void
-Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId,
-                          const Name& identity)
-{
-  m_ioService->post(bind(&Face::asyncUnsetInterestFilterWithIdentity, this,
-                         registeredPrefixId, identity));
-}
 
 void
 Face::asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
@@ -327,59 +334,8 @@ Face::asyncUnsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
           m_interestFilterTable.remove(filter);
         }
 
-      m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
-                                           bind(&Face::finalizeUnregisterPrefix, this, i),
-                                           Controller::FailCallback());
-    }
-
-  // there cannot be two registered prefixes with the same id
-}
-
-void
-Face::asyncUnsetInterestFilterWithCertificate(const RegisteredPrefixId* registeredPrefixId,
-                                              const IdentityCertificate& certificate)
-{
-  RegisteredPrefixTable::iterator i = std::find_if(m_registeredPrefixTable.begin(),
-                                                   m_registeredPrefixTable.end(),
-                                                   MatchRegisteredPrefixId(registeredPrefixId));
-  if (i != m_registeredPrefixTable.end())
-    {
-      const shared_ptr<InterestFilterRecord>& filter = (*i)->getFilter();
-      if (static_cast<bool>(filter))
-        {
-          // it was a combined operation
-          m_interestFilterTable.remove(filter);
-        }
-
-      m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
-                                           bind(&Face::finalizeUnregisterPrefix, this, i),
-                                           Controller::FailCallback(),
-                                           certificate);
-    }
-
-  // there cannot be two registered prefixes with the same id
-}
-
-void
-Face::asyncUnsetInterestFilterWithIdentity(const RegisteredPrefixId* registeredPrefixId,
-                                           const Name& identity)
-{
-  RegisteredPrefixTable::iterator i = std::find_if(m_registeredPrefixTable.begin(),
-                                                   m_registeredPrefixTable.end(),
-                                                   MatchRegisteredPrefixId(registeredPrefixId));
-  if (i != m_registeredPrefixTable.end())
-    {
-      const shared_ptr<InterestFilterRecord>& filter = (*i)->getFilter();
-      if (static_cast<bool>(filter))
-        {
-          // it was a combined operation
-          m_interestFilterTable.remove(filter);
-        }
-
-      m_fwController->selfDeregisterPrefix((*i)->getPrefix(),
-                                           bind(&Face::finalizeUnregisterPrefix, this, i),
-                                           Controller::FailCallback(),
-                                           identity);
+      (*i)->unregister(bind(&Face::finalizeUnregisterPrefix, this, i),
+                       RegisteredPrefix::FailureCallback());
     }
 
   // there cannot be two registered prefixes with the same id

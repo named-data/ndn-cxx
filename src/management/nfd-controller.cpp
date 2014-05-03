@@ -69,45 +69,10 @@ Controller::processCommandResponse(const Data& data,
     return;
   }
 
-  onSuccess(parameters);
+  if (static_cast<bool>(onSuccess))
+    onSuccess(parameters);
 }
 
-
-void
-Controller::selfRegisterPrefix(const Name& prefixToRegister,
-                               const SuccessCallback& onSuccess,
-                               const FailCallback& onFail,
-                               const Sign& sign)
-{
-  const uint32_t selfFaceId = 0;
-
-  ControlParameters parameters;
-  parameters.setName(prefixToRegister)
-            .setFaceId(selfFaceId);
-
-  this->start<FibAddNextHopCommand>(parameters,
-                                    bind(onSuccess),
-                                    bind(onFail, _2),
-                                    sign);
-}
-
-void
-Controller::selfDeregisterPrefix(const Name& prefixToDeRegister,
-                                 const SuccessCallback& onSuccess,
-                                 const FailCallback& onFail,
-                                 const Sign& sign)
-{
-  const uint32_t selfFaceId = 0;
-
-  ControlParameters parameters;
-  parameters.setName(prefixToDeRegister)
-            .setFaceId(selfFaceId);
-
-  this->start<FibRemoveNextHopCommand>(parameters,
-                                       bind(onSuccess),
-                                       bind(onFail, _2),
-                                       sign);
-}
 
 } // namespace nfd
 } // namespace ndn
