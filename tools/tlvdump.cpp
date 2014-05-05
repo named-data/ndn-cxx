@@ -78,7 +78,7 @@ printTypeInfo(uint32_t type)
 
 
 void
-BlockPrinter(const ndn::Block& block, const std::string& indent="")
+BlockPrinter(const ndn::Block& block, const std::string& indent = "")
 {
   std::cout << indent;
   printTypeInfo(block.type());
@@ -88,7 +88,7 @@ BlockPrinter(const ndn::Block& block, const std::string& indent="")
     // if (block.type() != ndn::Tlv::Content && block.type() != ndn::Tlv::SignatureValue)
     block.parse();
   }
-  catch(ndn::Tlv::Error &e) {
+  catch (ndn::Tlv::Error& e) {
     // pass (e.g., leaf block reached)
 
     // @todo: Figure how to deterministically figure out that value is not recursive TLV block
@@ -102,21 +102,23 @@ BlockPrinter(const ndn::Block& block, const std::string& indent="")
     }
   std::cout << std::endl;
 
-  for(ndn::Block::element_const_iterator i = block.elements_begin();
-      i != block.elements_end();
-      ++i)
+  for (ndn::Block::element_const_iterator i = block.elements_begin();
+       i != block.elements_end();
+       ++i)
     {
       BlockPrinter(*i, indent+"  ");
     }
 }
 
 void
-HexPrinter(const ndn::Block& block, const std::string &indent="")
+HexPrinter(const ndn::Block& block, const std::string& indent = "")
 {
   std::cout << indent;
   for (ndn::Buffer::const_iterator i = block.begin (); i != block.value_begin(); ++i)
     {
-      std::cout << "0x" << std::noshowbase << std::hex << std::setw(2) << std::setfill('0') << (int)*i;
+      std::cout << "0x";
+      std::cout << std::noshowbase << std::hex << std::setw(2) <<
+        std::setfill('0') << static_cast<int>(*i);
       std::cout << ", ";
     }
   std::cout << "\n";
@@ -126,47 +128,52 @@ HexPrinter(const ndn::Block& block, const std::string &indent="")
       std::cout << indent << "    ";
       for (ndn::Buffer::const_iterator i = block.value_begin (); i != block.value_end(); ++i)
       {
-        std::cout << "0x" << std::noshowbase << std::hex << std::setw(2) << std::setfill('0') << (int)*i;
+        std::cout << "0x";
+        std::cout << std::noshowbase << std::hex << std::setw(2) <<
+          std::setfill('0') << static_cast<int>(*i);
         std::cout << ", ";
       }
       std::cout << "\n";
     }
   else
     {
-      for(ndn::Block::element_const_iterator i = block.elements_begin();
-          i != block.elements_end();
-          ++i)
+      for (ndn::Block::element_const_iterator i = block.elements_begin();
+           i != block.elements_end();
+           ++i)
         {
           HexPrinter(*i, indent+"    ");
         }
     }
 }
 
+void
+parseBlocksFromStream(std::istream& is)
+{
+  while (is.peek() != std::char_traits<char>::eof()) {
+    try {
+      ndn::Block block(is);
+      BlockPrinter(block, "");
+      // HexPrinter(block, "");
+    }
+    catch (std::exception& e) {
+      std::cerr << "ERROR: " << e.what() << std::endl;
+    }
+  }
+
+}
+
 int main(int argc, const char *argv[])
 {
-  unsigned char buf[9000];
-  std::streamsize s = 0;
   if (argc == 1 ||
       (argc == 2 && std::string(argv[1]) == "-"))
     {
-      std::cin.read(reinterpret_cast<char*>(buf), 9000);
-      s = std::cin.gcount();
+      parseBlocksFromStream(std::cin);
     }
   else
     {
       std::ifstream file(argv[1]);
-      file.read(reinterpret_cast<char*>(buf), 9000);
-      s = file.gcount();
+      parseBlocksFromStream(file);
     }
-
-  try {
-    ndn::Block block(buf, s);
-    BlockPrinter(block, "");
-    // HexPrinter(block, "");
-  }
-  catch(std::exception &e) {
-    std::cerr << "ERROR: "<< e.what() << std::endl;
-  }
 
   return 0;
 }
