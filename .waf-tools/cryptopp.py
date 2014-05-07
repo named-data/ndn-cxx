@@ -53,7 +53,7 @@ def __cryptopp_find_root_and_version_file(self, *k, **kw):
     if root:
         self.fatal('CryptoPP not found in %s' % root)
     else:
-        self.fatal('CryptoPP not found, please provide a --with=cryptopp=PATH argument (see help)')
+        self.fatal('CryptoPP not found, please provide a --with-cryptopp=PATH argument (see help)')
 
 @conf
 def check_cryptopp(self, *k, **kw):
