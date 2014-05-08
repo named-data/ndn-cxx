@@ -206,9 +206,15 @@ def doxygen(bld):
     else:
         bld(features="subst",
             name="doxygen-conf",
-            source="docs/doxygen.conf.in",
-            target="docs/doxygen.conf",
+            source=["docs/doxygen.conf.in",
+                    "docs/named_data_theme/named_data_footer-with-analytics.html.in"],
+            target=["docs/doxygen.conf",
+                    "docs/named_data_theme/named_data_footer-with-analytics.html"],
             VERSION=VERSION,
+            HTML_FOOTER="../build/docs/named_data_theme/named_data_footer-with-analytics.html" \
+                          if os.getenv('GOOGLE_ANALYTICS', None) \
+                          else "../docs/named_data_theme/named_data_footer.html",
+            GOOGLE_ANALYTICS=os.getenv('GOOGLE_ANALYTICS', ""),
             )
 
         bld(features="doxygen",

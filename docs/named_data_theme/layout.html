@@ -36,11 +36,13 @@
         <div class="sidebar">
           {%- block sidebartoc %}
           <h3>{{ _('Table Of Contents') }}</h3>
+          {{ toctree(includehidden=True) }}
+
+          <h3>{{ _('Developer documentation') }}</h3>
           <ul>
             <li class="toctree-l1"><a class="reference internal" href="doxygen/annotated.html">API documentation (doxygen)</a></li>
+            <li class="toctree-l1"><a class="reference internal" href="code-style.html">ndn-cxx Code Style and Coding Guidelines</a></li>
           </ul>
-
-          {{ toctree(includehidden=True) }}
           {%- endblock %}
 
           {%- block sidebarsearch %}
@@ -78,17 +80,6 @@
             </div>
         </div>
     </div><!--footer info end-->
-
-    <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-22320603-1']);
-    _gaq.push(['_trackPageview']);
-    (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-    </script>
 {% endblock %}
 
 {% block relbar1 %}{% endblock %}

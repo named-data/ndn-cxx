@@ -11,7 +11,7 @@ of the following projects:
 * [ChronoChat - Multi-user NDN chat application](https://github.com/named-data/ChronoChat)
 * [ChronoSync - Sync library for multiuser realtime applications for NDN](https://github.com/named-data/ChronoSync)
 * [ndn-tlv-ping - Ping Application For NDN](https://github.com/named-data/ndn-tlv-ping)
-* [ndn-traffic - Traffic Generator For NDN](https://github.com/named-data/ndn-traffic)
+* [ndn-traffic-generator - Traffic Generator For NDN](https://github.com/named-data/ndn-traffic-generator)
 
 See the file [`docs/INSTALL.rst`](https://github.com/cawka/ndn-cxx/blob/master/docs/INSTALL.rst)
 for build and install instructions.

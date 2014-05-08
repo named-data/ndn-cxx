@@ -1,7 +1,7 @@
 .. _ndn-cxx v0.1.0 Release Notes:
 
 ndn-cxx v0.1.0 Release Notes
-============================
+----------------------------
 
 Version 0.1.0 is the initial release of ndn-cxx, an NDN C++ library with eXperimental
 eXtensions.

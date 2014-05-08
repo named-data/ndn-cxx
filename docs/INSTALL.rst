@@ -77,23 +77,30 @@ dependencies need to be installed:
 
 -  ``doxygen``
 -  ``graphviz``
--  ``python-sphinx``
+-  ``python-sphinx`` and sphinx extensions ``sphinxcontrib-doxylink``,
+   ``sphinxcontrib-googleanalytics``
 
-The following lists steps for common platforms to install these
-prerequisites:
+The following lists steps for common platforms to install these prerequisites:
 
 -  On OS X 10.8 and 10.9 with MacPorts::
 
        sudo port install doxygen graphviz py27-sphinx sphinx_select
        sudo port select sphinx py27-sphinx
 
+       # Install sphinx extensions
+       sudo port install py27-pip
+       sudo port select pip pip27
+       sudo pip install sphinxcontrib-doxylink sphinxcontrib-googleanalytics
+
 -  On Ubuntu >= 12.04::
 
-       sudo apt-get install doxygen graphviz python-sphinx
+       sudo apt-get install doxygen graphviz python-sphinx python-pip
+       sudo pip install sphinxcontrib-doxylink sphinxcontrib-googleanalytics
 
 -  On Fedora >= 20::
 
        sudp yum install doxygen graphviz python-sphinx
+       sudo pip install sphinxcontrib-doxylink sphinxcontrib-googleanalytics
 
 Build
 -----
@@ -131,6 +138,21 @@ If configured with tests: ``./waf configure --with-tests``), the above
 commands will also produce:
 
 -  ``build/unit-tests``: A unit test binary for the library
+
+Debug symbols
+~~~~~~~~~~~~~
+
+The default compiler flags enable debug symbols to be included in binaries (i.e., ``-g``
+flag for ``./waf configure`` and ``-g3`` for ``./waf configure --debug``).  This
+potentially allows more meaningful debugging information if your application crashes.
+
+If it is undesirable, default flags can be easily overridden:
+
+::
+
+    CXXFLAGS="-O2" ./waf configure --prefix=/usr --sysconfdir=/etc
+    ./waf
+    sudo ./waf install
 
 Documentation
 -------------
