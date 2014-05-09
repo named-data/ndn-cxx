@@ -12,6 +12,7 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
+#include "version.hpp"
 #include "ndnsec-util.hpp"
 #include "ndnsec-list.hpp"
 #include "ndnsec-get-default.hpp"
@@ -34,6 +35,7 @@ using namespace ndn;
 
 std::string ndnsec_helper("\
   help         Show all commands.\n\
+  version      Show version and exit.\n\
   list         Display information in PublicInfo.\n\
   get-default  Get default setting info.\n\
   set-default  Configure default setting.\n\
@@ -64,7 +66,9 @@ main(int argc, char** argv)
 
   try
     {
-      if (command == "help")              { std::cerr << ndnsec_helper << std::endl; }
+      if (command == "help")              { std::cout << ndnsec_helper << std::endl; }
+      else if (command == "version")      { std::cout << NDN_CXX_VERSION_BUILD_STRING
+                                                      << std::endl; }
       else if (command == "list")         { return ndnsec_list(argc - 1, argv + 1); }
       else if (command == "get-default")  { return ndnsec_get_default(argc - 1, argv + 1); }
       else if (command == "set-default")  { return ndnsec_set_default(argc - 1, argv + 1); }

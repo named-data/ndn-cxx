@@ -1,13 +1,12 @@
 # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
-from waflib import Logs, Utils
-import re
+from waflib import Logs, Utils, Context
+import os
 
-VERSION = re.search('^#define NDN_CXX_VERSION_STRING\\s+"(.*)"',
-                    open("src/version.hpp").read(), re.M).group(1)
+VERSION = "0.1.0"
 APPNAME = "ndn-cxx"
 PACKAGE_BUGREPORT = "http://redmine.named-data.net/projects/ndn-cxx"
-PACKAGE_URL = "https://github.com/named-data/ndn-cxx"
+PACKAGE_URL = "http://named-data.net/doc/ndn-cxx/"
 
 def options(opt):
     opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
@@ -102,14 +101,31 @@ def configure(conf):
     conf.write_config_header('src/ndn-cxx-config.hpp', define_prefix='NDN_CXX_')
 
 def build(bld):
+    version(bld)
+
+    bld(features="subst",
+        name='version',
+        source='src/version.hpp.in',
+        target='src/version.hpp',
+        install_path=None,
+        VERSION_STRING=VERSION_BASE,
+        VERSION_BUILD=VERSION,
+        VERSION=int(VERSION_SPLIT[0]) * 1000000 +
+                int(VERSION_SPLIT[1]) * 1000 +
+                int(VERSION_SPLIT[2]),
+        VERSION_MAJOR=VERSION_SPLIT[0],
+        VERSION_MINOR=VERSION_SPLIT[1],
+        VERSION_PATCH=VERSION_SPLIT[2],
+        )
+
     libndn_cxx = bld(
         features=['cxx', 'cxxstlib'], # 'cxxshlib',
-        # vnum="0.3.0",
+        # vnum=VERSION,
         target="ndn-cxx",
         name="ndn-cxx",
         source=bld.path.ant_glob('src/**/*.cpp',
                                    excl=['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
-        use='BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT PIC PTHREAD',
+        use='version BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT PIC PTHREAD',
         includes=". src",
         export_includes="src",
         install_path='${LIBDIR}',
@@ -156,7 +172,7 @@ def build(bld):
          source="libndn-cxx.pc.in",
          target="libndn-cxx.pc",
          install_path="${LIBDIR}/pkgconfig",
-         VERSION=VERSION,
+         VERSION=VERSION_BASE,
 
          # This probably not the right thing to do, but to simplify life of apps
          # that use the library
@@ -185,6 +201,9 @@ def build(bld):
     bld.install_files("%s/ndn-cxx" % bld.env['INCLUDEDIR'],
                       bld.path.find_resource('src/ndn-cxx-config.hpp'))
 
+    bld.install_files("%s/ndn-cxx" % bld.env['INCLUDEDIR'],
+                      bld.path.find_resource('src/version.hpp'))
+
     bld.install_files("${SYSCONFDIR}/ndn", "client.conf.sample")
 
     if bld.env['SPHINX_BUILD']:
@@ -201,6 +220,8 @@ def docs(bld):
     Options.commands = ['doxygen', 'sphinx'] + Options.commands
 
 def doxygen(bld):
+    version(bld)
+
     if not bld.env.DOXYGEN:
         Logs.error("ERROR: cannot build documentation (`doxygen' is not found in $PATH)")
     else:
@@ -222,6 +243,8 @@ def doxygen(bld):
             use="doxygen-conf")
 
 def sphinx(bld):
+    version(bld)
+
     if not bld.env.SPHINX_BUILD:
         bld.fatal("ERROR: cannot build documentation (`sphinx-build' is not found in $PATH)")
     else:
@@ -230,3 +253,27 @@ def sphinx(bld):
             source=bld.path.ant_glob("docs/**/*.rst"),
             config="docs/conf.py",
             VERSION=VERSION)
+
+
+def version(ctx):
+    if getattr(Context.g_module, 'VERSION_BASE', None):
+        return
+
+    Context.g_module.VERSION_BASE = Context.g_module.VERSION
+    Context.g_module.VERSION_SPLIT = [v for v in VERSION_BASE.split('.')]
+
+    try:
+        cmd = ['git', 'describe', '--match', 'ndn-cxx-*']
+        p = Utils.subprocess.Popen(cmd, stdout=Utils.subprocess.PIPE,
+                                   stderr=None, stdin=None)
+        out = p.communicate()[0].strip()
+        if p.returncode == 0 and out != "":
+            Context.g_module.VERSION = out[8:]
+    except:
+        pass
+
+def dist(ctx):
+    version(ctx)
+
+def distcheck(ctx):
+    version(ctx)
