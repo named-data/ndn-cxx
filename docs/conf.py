@@ -37,13 +37,11 @@ def addExtensionIfExists(extension):
     try:
         __import__(extension)
         extensions.append(extension)
-    except ImportError, e:
-        print e
+    except ImportError:
         sys.stderr.write("Extension '%s' in not available. "
                          "Some documentation may not build correctly.\n" % extension)
         sys.stderr.write("To install, use \n"
                          "  sudo pip install %s\n" % extension.replace('.', '-'))
-        pass
 
 addExtensionIfExists('sphinxcontrib.doxylink')
 

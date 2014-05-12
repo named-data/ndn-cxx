@@ -1,5 +1,7 @@
 # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
+from waflib import Utils
+
 top = '..'
 
 def configure(conf):
@@ -13,10 +15,10 @@ def build(bld):
             use = 'ndn-cxx',
             )
 
-    bld (features = "subst",
-         source = bld.path.ant_glob(['wrapper/*.sh']),
-         target = ['%s' % node.change_ext('', '.sh')
-                   for node in bld.path.ant_glob(['wrapper/*.sh'])],
-         install_path = "${BINDIR}",
-         chmod = 0755,
-        )
+    bld(features = "subst",
+        source = bld.path.ant_glob(['wrapper/*.sh']),
+        target = ['%s' % node.change_ext('', '.sh')
+                  for node in bld.path.ant_glob(['wrapper/*.sh'])],
+        install_path = "${BINDIR}",
+        chmod = Utils.O755,
+       )

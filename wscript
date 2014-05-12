@@ -45,11 +45,16 @@ def configure(conf):
 
     conf.find_program('sh', var='SH', mandatory=True)
 
+    conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD',
+                   mandatory=False)
+    conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
+    conf.check_cxx(cxxflags=['-fPIC'], uselib_store='cxxstlib', mandatory=False)
+
     conf.check_osx_security(mandatory=False)
 
     conf.check_openssl(mandatory=True)
     conf.check_sqlite3(mandatory=True)
-    conf.check_cryptopp(mandatory=True)
+    conf.check_cryptopp(mandatory=True, use='PTHREAD')
 
     if conf.options.log4cxx:
         conf.check_cfg(package='liblog4cxx', args=['--cflags', '--libs'], uselib_store='LOG4CXX',
@@ -77,11 +82,6 @@ def configure(conf):
         Logs.error("Please upgrade your distribution or install custom boost libraries" +
                     " (http://redmine.named-data.net/projects/nfd/wiki/Boost_FAQ)")
         return
-
-    conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD',
-                   mandatory=False)
-    conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
-    conf.check_cxx(cxxflags=['-fPIC'], uselib_store='cxxstlib', mandatory=False)
 
     if not conf.options.with_sqlite_locking:
         conf.define('DISABLE_SQLITE3_FS_LOCKING', 1)

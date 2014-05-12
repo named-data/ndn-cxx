@@ -60,8 +60,10 @@ def check_cryptopp(self, *k, **kw):
     if not self.env['CXX']:
         self.fatal('Load a c++ compiler first, e.g., conf.load("compiler_cxx")')
 
-    var = kw.get('uselib_store','CRYPTOPP')
+    var = kw.get('uselib_store', 'CRYPTOPP')
     mandatory = kw.get('mandatory', True)
+
+    use = kw.get('use', 'PTHREAD')
 
     self.start_msg('Checking Crypto++ lib')
     (root, file) = self.__cryptopp_find_root_and_version_file(*k, **kw)
@@ -85,4 +87,5 @@ def check_cryptopp(self, *k, **kw):
                          cxxflags="-I%s/include" % root,
                          linkflags="-L%s/lib" % root,
                          mandatory=mandatory,
+                         use=use,
                          uselib_store=var)
