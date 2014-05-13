@@ -139,6 +139,40 @@ commands will also produce:
 
 -  ``build/unit-tests``: A unit test binary for the library
 
+Build with examples
+-------------------
+
+By default, examples in ``examples/`` are not build.  To enable them, use
+``--with-examples`` configure option:
+
+::
+
+    ./waf configure --with-examples
+    ./waf
+
+To run examples:
+
+::
+
+    # trivial producer app
+    ./build/examples/producer
+
+    # trivial consumer app
+    ./build/examples/consumer
+
+    # trivial consumer app with timers
+    ./build/examples/consumer-with-timer
+
+If you want to test out a sample application, just create a ``.cpp`` file in ``examples/``
+folder and it will be compiled on the next run on ``./waf``.  For example:
+
+::
+
+    cp examples/consumer.cpp examples/my-new-consumer-app.cpp
+    ./waf
+    ./build/examples/my-new-consumer-app
+
+
 Debug symbols
 ~~~~~~~~~~~~~
 

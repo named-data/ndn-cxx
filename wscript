@@ -25,6 +25,9 @@ def options(opt):
     opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
                    help='''Do not build tools''')
 
+    opt.add_option('--with-examples', action='store_true', default=False, dest='with_examples',
+                   help='''Build examples''')
+
     opt.add_option('--without-sqlite-locking', action='store_false', default=True,
                    dest='with_sqlite_locking',
                    help='''Disable filesystem locking in sqlite3 database '''
@@ -42,6 +45,7 @@ def configure(conf):
 
     conf.env['WITH_TESTS'] = conf.options.with_tests
     conf.env['WITH_TOOLS'] = conf.options.with_tools
+    conf.env['WITH_EXAMPLES'] = conf.options.with_examples
 
     conf.find_program('sh', var='SH', mandatory=True)
 
@@ -190,8 +194,9 @@ def build(bld):
         bld.recurse('tests-integrated')
 
     if bld.env['WITH_TOOLS']:
-        bld.recurse("tools examples")
-    else:
+        bld.recurse("tools")
+
+    if bld.env['WITH_EXAMPLES']:
         bld.recurse("examples")
 
     headers = bld.path.ant_glob(['src/**/*.hpp'])
