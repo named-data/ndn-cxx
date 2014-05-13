@@ -84,8 +84,8 @@ def check_cryptopp(self, *k, **kw):
     val = self.check_cxx(msg='Checking if CryptoPP library works',
                          header_name='cryptopp/config.h',
                          lib='cryptopp',
-                         cxxflags="-I%s/include" % root,
-                         linkflags="-L%s/lib" % root,
+                         includes="%s/include" % root,
+                         libpath="%s/lib" % root,
                          mandatory=mandatory,
                          use=use,
                          uselib_store=var)

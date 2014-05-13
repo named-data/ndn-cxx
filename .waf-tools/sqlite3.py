@@ -20,8 +20,8 @@ def check_sqlite3(self, *k, **kw):
                        define_name='HAVE_%s' % var,
                        uselib_store=var,
                        mandatory=mandatory,
-                       cxxflags="-I%s/include" % root,
-                       linkflags="-L%s/lib" % root)
+                       includes="%s/include" % root,
+                       libpath="%s/lib" % root)
     else:
         try:
             self.check_cfg(package='sqlite3',
