@@ -74,7 +74,7 @@ private:
 
   typedef StreamTransportImpl<UnixTransport, boost::asio::local::stream_protocol> Impl;
   friend class StreamTransportImpl<UnixTransport, boost::asio::local::stream_protocol>;
-  ptr_lib::shared_ptr< Impl > m_impl;
+  shared_ptr< Impl > m_impl;
 };
 
 }

@@ -175,7 +175,7 @@ protected:
  *      OBufferStream obuf;
  *      obuf.put(0);
  *      obuf.write(another_buffer, another_buffer_size);
- *      ptr_lib::shared_ptr<Buffer> buf = obuf.get();
+ *      shared_ptr<Buffer> buf = obuf.get();
  * @endcode
  */
 struct OBufferStream : public boost::iostreams::stream<iostreams::buffer_append_device>
@@ -184,7 +184,7 @@ struct OBufferStream : public boost::iostreams::stream<iostreams::buffer_append_
    * Default constructor
    */
   OBufferStream()
-    : m_buffer(ptr_lib::make_shared<Buffer>())
+    : m_buffer(make_shared<Buffer>())
     , m_device(*m_buffer)
   {
     open(m_device);
@@ -193,7 +193,7 @@ struct OBufferStream : public boost::iostreams::stream<iostreams::buffer_append_
   /**
    * Flush written data to the stream and return shared pointer to the underlying buffer
    */
-  ptr_lib::shared_ptr<Buffer>
+  shared_ptr<Buffer>
   buf()
   {
     flush();

@@ -30,7 +30,7 @@ namespace ndn {
 /**
  * A Name holds an array of Name::Component and represents an NDN name.
  */
-class Name : public ptr_lib::enable_shared_from_this<Name>
+class Name : public enable_shared_from_this<Name>
 {
 public:
   /// @brief Error that can be thrown from Name

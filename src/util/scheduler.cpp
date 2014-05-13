@@ -102,7 +102,10 @@ Scheduler::schedulePeriodicEvent(const time::nanoseconds& after,
                                  const Event& event)
 {
   EventQueue::iterator i = m_events.insert(EventInfo(after, period, event));
-  i->m_eventId = make_shared<EventIdImpl>(func_lib::cref(i));
+
+  // On OSX 10.9, boost, and C++03 the following doesn't work without ndn::
+  // because the argument-dependent lookup prefers STL to boost
+  i->m_eventId = ndn::make_shared<EventIdImpl>(i);
 
   if (!m_isEventExecuting)
     {

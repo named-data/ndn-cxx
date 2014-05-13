@@ -148,7 +148,7 @@ Block::Block(const uint8_t* buffer, size_t maxlength)
       throw Tlv::Error("Not enough data in the buffer to fully parse TLV");
     }
 
-  m_buffer = ptr_lib::make_shared<Buffer>(buffer, (tmp_begin - buffer) + length);
+  m_buffer = make_shared<Buffer>(buffer, (tmp_begin - buffer) + length);
 
   m_begin = m_buffer->begin();
   m_end = m_buffer->end();
@@ -173,7 +173,7 @@ Block::Block(const void* bufferX, size_t maxlength)
       throw Tlv::Error("Not enough data in the buffer to fully parse TLV");
     }
 
-  m_buffer = ptr_lib::make_shared<Buffer>(buffer, (tmp_begin - buffer) + length);
+  m_buffer = make_shared<Buffer>(buffer, (tmp_begin - buffer) + length);
 
   m_begin = m_buffer->begin();
   m_end = m_buffer->end();

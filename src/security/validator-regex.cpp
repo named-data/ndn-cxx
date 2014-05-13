@@ -46,7 +46,7 @@ ValidatorRegex::onCertificateValidated(const shared_ptr<const Data>& signCertifi
                                        const OnDataValidationFailed& onValidationFailed)
 {
   shared_ptr<IdentityCertificate> certificate =
-    make_shared<IdentityCertificate>(cref(*signCertificate));
+    make_shared<IdentityCertificate>(*signCertificate);
 
   if (!certificate->isTooLate() && !certificate->isTooEarly())
     {
@@ -137,7 +137,7 @@ ValidatorRegex::checkPolicy(const Data& data,
 
                   Interest interest(sig.getKeyLocator().getName());
                   shared_ptr<ValidationRequest> nextStep =
-                    make_shared<ValidationRequest>(cref(interest),
+                    make_shared<ValidationRequest>(interest,
                                                    onKeyValidated,
                                                    onKeyValidationFailed,
                                                    3,

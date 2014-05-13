@@ -380,7 +380,7 @@ private:
     if (propertyIt != configSection.end())
       throw Error("Expect the end of checker!");
 
-    return make_shared<CustomizedChecker>(getSigType(sigType), cref(keyLocatorChecker));
+    return make_shared<CustomizedChecker>(getSigType(sigType), keyLocatorChecker);
   }
 
   static shared_ptr<Checker>

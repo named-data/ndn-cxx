@@ -48,14 +48,16 @@ RegexTopMatcher::compile()
   if ('^' != expr[0]) {
     m_secondaryMatcher = make_shared<RegexPatternListMatcher>(
       "<.*>*" + expr,
-      cref(m_secondaryBackrefManager));
+      m_secondaryBackrefManager);
   }
   else {
     expr = expr.substr(1, expr.size() - 1);
   }
 
-  m_primaryMatcher = make_shared<RegexPatternListMatcher>(func_lib::cref(expr),
-                                                          func_lib::cref(m_primaryBackrefManager));
+  // On OSX 10.9, boost, and C++03 the following doesn't work without ndn::
+  // because the argument-dependent lookup prefers STL to boost
+  m_primaryMatcher = ndn::make_shared<RegexPatternListMatcher>(expr,
+                                                               m_primaryBackrefManager);
 }
 
 bool
@@ -199,8 +201,9 @@ RegexTopMatcher::fromName(const Name& name, bool hasAnchor)
   if (hasAnchor)
     regexStr.append("$");
 
-  // OSX 10.9 has problems with just cref
-  return make_shared<RegexTopMatcher>(func_lib::cref(regexStr));
+  // On OSX 10.9, boost, and C++03 the following doesn't work without ndn::
+  // because the argument-dependent lookup prefers STL to boost
+  return ndn::make_shared<RegexTopMatcher>(regexStr);
 }
 
 std::string

@@ -32,7 +32,7 @@ Face::Face()
   , m_isDirectNfdFibManagementRequested(false)
 {
   const std::string socketName = UnixTransport::getDefaultSocketName(m_config);
-  construct(shared_ptr<Transport>(new UnixTransport(socketName)),
+  construct(make_shared<UnixTransport>(socketName),
             make_shared<boost::asio::io_service>());
 }
 
@@ -41,7 +41,7 @@ Face::Face(const shared_ptr<boost::asio::io_service>& ioService)
   , m_isDirectNfdFibManagementRequested(false)
 {
   const std::string socketName = UnixTransport::getDefaultSocketName(m_config);
-  construct(shared_ptr<Transport>(new UnixTransport(socketName)),
+  construct(make_shared<UnixTransport>(socketName),
             ioService);
 }
 
@@ -59,14 +59,14 @@ Face::Face(boost::asio::io_service& ioService)
   , m_isDirectNfdFibManagementRequested(false)
 {
   const std::string socketName = UnixTransport::getDefaultSocketName(m_config);
-  construct(shared_ptr<Transport>(new UnixTransport(socketName)),
+  construct(make_shared<UnixTransport>(socketName),
             shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()));
 }
 
 Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
   : m_nfdController(new nfd::Controller(*this))
 {
-  construct(shared_ptr<Transport>(new TcpTransport(host, port)),
+  construct(make_shared<TcpTransport>(host, port),
             make_shared<boost::asio::io_service>());
 }
 
@@ -139,7 +139,7 @@ Face::expressInterest(const Interest& interest, const OnData& onData, const OnTi
     m_transport->connect(*m_ioService,
                         bind(&Face::onReceiveElement, this, _1));
 
-  shared_ptr<Interest> interestToExpress(new Interest(interest));
+  shared_ptr<Interest> interestToExpress = make_shared<Interest>(interest);
 
   // If the same ioService thread, dispatch directly calls the method
   m_ioService->dispatch(bind(&Face::asyncExpressInterest, this,
@@ -171,8 +171,7 @@ Face::asyncExpressInterest(const shared_ptr<const Interest>& interest,
   if (!m_transport->isExpectingData())
     m_transport->resume();
 
-  m_pendingInterestTable.push_back(shared_ptr<PendingInterest>(new PendingInterest
-                                                               (interest, onData, onTimeout)));
+  m_pendingInterestTable.push_back(make_shared<PendingInterest>(interest, onData, onTimeout));
 
   if (!interest->getLocalControlHeader().empty(false, true))
     {
@@ -574,7 +573,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
 
   if (block.type() == Tlv::Interest)
     {
-      shared_ptr<Interest> interest(new Interest());
+      shared_ptr<Interest> interest = make_shared<Interest>();
       interest->wireDecode(block);
       if (&block != &blockFromDaemon)
         interest->getLocalControlHeader().wireDecode(blockFromDaemon);
@@ -583,7 +582,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
     }
   else if (block.type() == Tlv::Data)
     {
-      shared_ptr<Data> data(new Data());
+      shared_ptr<Data> data = make_shared<Data>();
       data->wireDecode(block);
       if (&block != &blockFromDaemon)
         data->getLocalControlHeader().wireDecode(blockFromDaemon);

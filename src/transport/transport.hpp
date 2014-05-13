@@ -28,8 +28,8 @@ public:
     inline Error(const std::string& msg);
   };
 
-  typedef ptr_lib::function<void (const Block& wire)> ReceiveCallback;
-  typedef ptr_lib::function<void ()> ErrorCallback;
+  typedef function<void (const Block& wire)> ReceiveCallback;
+  typedef function<void ()> ErrorCallback;
 
   inline
   Transport();

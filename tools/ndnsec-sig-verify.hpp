@@ -30,7 +30,7 @@
 //   Data data;
 //   data.wireDecode(Block(make_shared<Buffer>(decoded.begin(), decoded.end())));
 
-//   shared_ptr<IdentityCertificate> identityCertificate = make_shared<IdentityCertificate>(boost::cref(data));
+//   shared_ptr<IdentityCertificate> identityCertificate = make_shared<IdentityCertificate>(data);
 
 //   return identityCertificate;
 // }
@@ -46,14 +46,14 @@
 //   //                              new CryptoPP::Base64Decoder(new CryptoPP::StringSink(decoded)));
 
 //   //     Data data;
-//   //     data.wireDecode(ptr_lib::make_shared<Buffer>(decoded.c_str(), decoded.size()));
+//   //     data.wireDecode(make_shared<Buffer>(decoded.c_str(), decoded.size()));
 //   //     return PolicyManager::verifySignature(data, certificate->getPublicKeyInfo());
 //   //   }
 //   // else
 //   //   {
 //   //     // The first two bytes indicates the boundary of the of the signed data and signature.
 //   //     // for example, if the size of the signed data is 300, then the boundary should be 300, so the first two bytes should be: 0x01 0x2C
-//   //     ptr_lib::shared_ptr<Blob> input = ptr_lib::shared_ptr<Blob>(new Blob ((istreambuf_iterator<char>(cin)), istreambuf_iterator<char>()));
+//   //     shared_ptr<Blob> input = shared_ptr<Blob>(new Blob ((istreambuf_iterator<char>(cin)), istreambuf_iterator<char>()));
 //   //     size_t size = input->at(0);
 //   //     size = ((size << 8) + input->at(1));
 
