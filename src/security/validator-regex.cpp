@@ -18,10 +18,6 @@
 #include "signature-sha256-with-rsa.hpp"
 #include "certificate-cache-ttl.hpp"
 
-#include "../util/logging.hpp"
-
-INIT_LOGGER("ndn.ValidatorRegex");
-
 using namespace std;
 
 namespace ndn {
@@ -61,7 +57,6 @@ ValidatorRegex::onCertificateValidated(const shared_ptr<const Data>& signCertifi
     }
   else
     {
-      _LOG_DEBUG("Wrong validity:");
       return onValidationFailed(data,
                                 "Signing certificate " +
                                 signCertificate->getName().toUri() +
@@ -126,7 +121,8 @@ ValidatorRegex::checkPolicy(const Data& data,
                 }
               else
                 {
-                  // _LOG_DEBUG("KeyLocator is not trust anchor");
+                  // KeyLocator is not a trust anchor
+
                   OnDataValidated onKeyValidated =
                     bind(&ValidatorRegex::onCertificateValidated, this, _1,
                          data.shared_from_this(), onValidated, onValidationFailed);

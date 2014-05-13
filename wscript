@@ -19,8 +19,6 @@ def options(opt):
 
     opt.add_option('--with-tests', action='store_true', default=False, dest='with_tests',
                    help='''build unit tests''')
-    opt.add_option('--with-log4cxx', action='store_true', default=False, dest='log4cxx',
-                   help='''Compile with log4cxx logging support''')
 
     opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
                    help='''Do not build tools''')
@@ -59,11 +57,6 @@ def configure(conf):
     conf.check_openssl(mandatory=True)
     conf.check_sqlite3(mandatory=True)
     conf.check_cryptopp(mandatory=True, use='PTHREAD')
-
-    if conf.options.log4cxx:
-        conf.check_cfg(package='liblog4cxx', args=['--cflags', '--libs'], uselib_store='LOG4CXX',
-                       mandatory=True)
-        conf.define("HAVE_LOG4CXX", 1)
 
     if conf.options.use_cxx11:
         conf.check(msg='Checking for type std::shared_ptr',
@@ -129,7 +122,7 @@ def build(bld):
         name="ndn-cxx",
         source=bld.path.ant_glob('src/**/*.cpp',
                                    excl=['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
-        use='version BOOST OPENSSL LOG4CXX CRYPTOPP SQLITE3 RT PIC PTHREAD',
+        use='version BOOST OPENSSL CRYPTOPP SQLITE3 RT PIC PTHREAD',
         includes=". src",
         export_includes="src",
         install_path='${LIBDIR}',

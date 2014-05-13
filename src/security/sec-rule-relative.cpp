@@ -19,10 +19,6 @@
 #include "signature-sha256-with-rsa.hpp"
 #include "security-common.hpp"
 
-#include "../util/logging.hpp"
-
-INIT_LOGGER ("ndn.SecRuleRelative");
-
 using namespace std;
 
 namespace ndn {
