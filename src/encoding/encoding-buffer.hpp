@@ -13,16 +13,13 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#ifndef NDN_ENCODING_BUFFER_HPP
-#define NDN_ENCODING_BUFFER_HPP
+#ifndef NDN_ENCODING_ENCODING_BUFFER_HPP
+#define NDN_ENCODING_ENCODING_BUFFER_HPP
 
 #include "../common.hpp"
 
 #include "buffer.hpp"
-#include "tlv.hpp"
 #include "block.hpp"
-
-#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 
@@ -566,4 +563,4 @@ prependBlock(EncodingImpl<P>& encoder, const Block& block)
 
 } // ndn
 
-#endif // NDN_ENCODING_BUFFER_HPP
+#endif // NDN_ENCODING_ENCODING_BUFFER_HPP

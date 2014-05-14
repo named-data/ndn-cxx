@@ -16,6 +16,9 @@
 
 #include "security/key-chain.hpp"
 #include "util/io.hpp"
+#include "util/scheduler.hpp"
+
+#include <boost/asio.hpp>
 
 #include "boost-test.hpp"
 

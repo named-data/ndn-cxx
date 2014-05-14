@@ -17,6 +17,8 @@
 
 #include "name-component.hpp"
 
+#include <map>
+
 namespace ndn {
 
 /**

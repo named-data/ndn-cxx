@@ -37,12 +37,12 @@ public:
    */
   PendingInterest(const shared_ptr<const Interest>& interest, const OnData& onData,
                   const OnTimeout& onTimeout)
-    : interest_(interest)
-    , onData_(onData)
+    : m_interest(interest)
+    , m_onData(onData)
     , m_onTimeout(onTimeout)
   {
-    if (interest_->getInterestLifetime() >= time::milliseconds::zero())
-      m_timeout = time::steady_clock::now() + interest_->getInterestLifetime();
+    if (m_interest->getInterestLifetime() >= time::milliseconds::zero())
+      m_timeout = time::steady_clock::now() + m_interest->getInterestLifetime();
     else
       m_timeout = time::steady_clock::now() + DEFAULT_INTEREST_LIFETIME;
   }
@@ -50,13 +50,13 @@ public:
   const shared_ptr<const Interest>&
   getInterest()
   {
-    return interest_;
+    return m_interest;
   }
 
   const OnData&
   getOnData()
   {
-    return onData_;
+    return m_onData;
   }
 
   /**
@@ -76,25 +76,27 @@ public:
   callTimeout()
   {
     if (m_onTimeout) {
-      m_onTimeout(*interest_);
+      m_onTimeout(*m_interest);
     }
   }
 
 private:
-  shared_ptr<const Interest> interest_;
-  const OnData onData_;
+  shared_ptr<const Interest> m_interest;
+  const OnData m_onData;
   const OnTimeout m_onTimeout;
   time::steady_clock::TimePoint m_timeout;
 };
 
 
-struct PendingInterestId;
+class PendingInterestId;
 
 /**
  * @brief Functor to match pending interests against PendingInterestId
  */
-struct MatchPendingInterestId
+class MatchPendingInterestId
 {
+public:
+  explicit
   MatchPendingInterestId(const PendingInterestId* pendingInterestId)
     : m_id(pendingInterestId)
   {

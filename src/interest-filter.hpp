@@ -13,10 +13,11 @@
 #ifndef NDN_INTEREST_FILTER_HPP
 #define NDN_INTEREST_FILTER_HPP
 
-#include "util/regex/regex-pattern-list-matcher.hpp"
 #include "name.hpp"
 
 namespace ndn {
+
+class RegexPatternListMatcher;
 
 class InterestFilter
 {
@@ -119,6 +120,10 @@ private:
   shared_ptr<RegexPatternListMatcher> m_regexFilter;
 };
 
+std::ostream&
+operator<<(std::ostream& os, const InterestFilter& filter);
+
+
 inline
 InterestFilter::InterestFilter(const Name& prefix)
   : m_prefix(prefix)
@@ -135,45 +140,6 @@ inline
 InterestFilter::InterestFilter(const std::string& prefixUri)
   : m_prefix(prefixUri)
 {
-}
-
-inline
-InterestFilter::InterestFilter(const Name& prefix, const std::string& regexFilter)
-  : m_prefix(prefix)
-  , m_regexFilter(new RegexPatternListMatcher(regexFilter, shared_ptr<RegexBackrefManager>()))
-{
-}
-
-inline bool
-InterestFilter::doesMatch(const Name& name) const
-{
-  if (name.size() < m_prefix.size())
-    return false;
-
-  if (hasRegexFilter()) {
-    // perform prefix match and regular expression match for the remaining components
-    bool isMatch = m_prefix.isPrefixOf(name);
-
-    if (!isMatch)
-      return false;
-
-    return m_regexFilter->match(name, m_prefix.size(), name.size() - m_prefix.size());
-  }
-  else {
-    // perform just prefix match
-
-    return m_prefix.isPrefixOf(name);
-  }
-}
-
-inline std::ostream&
-operator<<(std::ostream& os, const InterestFilter& filter)
-{
-  os << filter.getPrefix();
-  if (filter.hasRegexFilter()) {
-    os << "?regex=" << filter.getRegexFilter();
-  }
-  return os;
 }
 
 } // namespace ndn

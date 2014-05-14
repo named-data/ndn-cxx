@@ -16,19 +16,26 @@
 #define NDN_FACE_HPP
 
 #include "common.hpp"
+
+#include "name.hpp"
 #include "interest.hpp"
+#include "interest-filter.hpp"
 #include "data.hpp"
 #include "security/identity-certificate.hpp"
 
-#include "transport/transport.hpp"
-#include "transport/unix-transport.hpp"
-#include "transport/tcp-transport.hpp"
-
-#include "util/scheduler.hpp"
-#include "detail/registered-prefix.hpp"
-#include "detail/pending-interest.hpp"
+namespace boost {
+namespace asio {
+class io_service;
+}
+}
 
 namespace ndn {
+
+class Transport;
+
+class PendingInterestId;
+class RegisteredPrefixId;
+class InterestFilterId;
 
 namespace nfd {
 class Controller;
@@ -166,9 +173,6 @@ public:
    */
   Face(const shared_ptr<Transport>& transport,
        boost::asio::io_service& ioService);
-
-
-  ~Face();
 
   /**
    * @brief Express Interest
@@ -457,7 +461,6 @@ public:
   }
 
 private:
-
   /**
    * @throws Face::Error on unsupported protocol
    */
@@ -475,36 +478,6 @@ private:
   {
   };
 
-  typedef std::list<shared_ptr<PendingInterest> > PendingInterestTable;
-  typedef std::list<shared_ptr<InterestFilterRecord> > InterestFilterTable;
-  typedef std::list<shared_ptr<RegisteredPrefix> > RegisteredPrefixTable;
-
-  void
-  asyncExpressInterest(const shared_ptr<const Interest>& interest,
-                       const OnData& onData, const OnTimeout& onTimeout);
-
-  void
-  asyncRemovePendingInterest(const PendingInterestId* pendingInterestId);
-
-  void
-  afterPrefixRegistered(const shared_ptr<RegisteredPrefix>& registeredPrefix,
-                        const RegisterPrefixSuccessCallback& onSuccess);
-
-  void
-  asyncSetInterestFilter(const shared_ptr<InterestFilterRecord>& interestFilterRecord);
-
-  void
-  asyncUnsetInterestFilter(const InterestFilterId* interestFilterId);
-
-  void
-  asyncUnregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
-                        const UnregisterPrefixSuccessCallback& onSuccess,
-                        const UnregisterPrefixFailureCallback& onFailure);
-
-  void
-  finalizeUnregisterPrefix(RegisteredPrefixTable::iterator item,
-                           const UnregisterPrefixSuccessCallback& onSuccess);
-
   void
   onReceiveElement(const Block& wire);
 
@@ -514,40 +487,16 @@ private:
   static void
   fireProcessEventsTimeout(const boost::system::error_code& error);
 
-  void
-  satisfyPendingInterests(Data& data);
-
-  void
-  processInterestFilters(Interest& interest);
-
-  void
-  checkPitExpire();
-
-  template<class SignatureGenerator>
-  const RegisteredPrefixId*
-  registerPrefixImpl(const Name& prefix,
-                     const shared_ptr<InterestFilterRecord>& filter,
-                     const RegisterPrefixSuccessCallback& onSuccess,
-                     const RegisterPrefixFailureCallback& onFailure,
-                     const SignatureGenerator& signatureGenerator);
-
 private:
   shared_ptr<boost::asio::io_service> m_ioService;
-  shared_ptr<boost::asio::io_service::work> m_ioServiceWork; // if thread needs to be preserved
-  shared_ptr<monotonic_deadline_timer> m_pitTimeoutCheckTimer;
-  bool m_pitTimeoutCheckTimerActive;
-  shared_ptr<monotonic_deadline_timer> m_processEventsTimeoutTimer;
 
   shared_ptr<Transport> m_transport;
 
-  PendingInterestTable m_pendingInterestTable;
-  InterestFilterTable m_interestFilterTable;
-  RegisteredPrefixTable m_registeredPrefixTable;
-
-  nfd::Controller* m_nfdController;
+  shared_ptr<nfd::Controller> m_nfdController;
   bool m_isDirectNfdFibManagementRequested;
 
-  ConfigFile m_config;
+  class Impl;
+  shared_ptr<Impl> m_impl;
 };
 
 inline bool

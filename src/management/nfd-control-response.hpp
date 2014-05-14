@@ -14,6 +14,7 @@
 #define NDN_MANAGEMENT_CONTROL_RESPONSE_HPP
 
 #include "../encoding/block.hpp"
+#include "../encoding/block-helpers.hpp"
 #include "../encoding/tlv-nfd.hpp"
 
 namespace ndn {

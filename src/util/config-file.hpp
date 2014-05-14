@@ -15,6 +15,8 @@
 
 #include "../common.hpp"
 
+#include <fstream>
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/filesystem.hpp>
 

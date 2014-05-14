@@ -165,9 +165,6 @@ public:
     return m_key;
   }
 
-  // virtual Name
-  // getPublicKeyName() const = 0;
-
   /**
    * Check if the certificate is valid.
    * @return True if the current time is earlier than notBefore.

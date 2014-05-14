@@ -16,6 +16,8 @@
 
 #include "util/time.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 #include "boost-test.hpp"
 
 using namespace std;

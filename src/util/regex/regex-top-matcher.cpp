@@ -17,6 +17,8 @@
 #include "regex-backref-manager.hpp"
 #include "regex-pattern-list-matcher.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 namespace ndn {
 
 RegexTopMatcher::RegexTopMatcher(const std::string& expr, const std::string& expand)

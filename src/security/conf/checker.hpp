@@ -15,11 +15,14 @@
 #ifndef NDN_SECURITY_CONF_CHECKER_HPP
 #define NDN_SECURITY_CONF_CHECKER_HPP
 
+#include "common.hpp"
+
 #include "key-locator-checker.hpp"
 #include "../../util/io.hpp"
-#include <boost/algorithm/string.hpp>
 
-#include "common.hpp"
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace security {

@@ -15,6 +15,9 @@
 
 #include "../encoding/tlv-nfd.hpp"
 #include "../encoding/encoding-buffer.hpp"
+#include "../encoding/block-helpers.hpp"
+
+#include "../util/time.hpp"
 
 namespace ndn {
 namespace nfd {

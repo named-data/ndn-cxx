@@ -12,17 +12,20 @@
  * @author Junxiao Shi <http://www.cs.arizona.edu/people/shijunxiao/>
  */
 
+#ifndef NDN_ENCODING_ENDIAN_HPP
+#define NDN_ENCODING_ENDIAN_HPP
+
 #ifdef __linux__
 
 #include <endian.h>
 
-#endif
+#endif // __linux__
 
 #ifdef __FreeBSD__
 
 #include <sys/endian.h>
 
-#endif
+#endif // __FreeBSD__
 
 #ifdef __APPLE__
 
@@ -40,4 +43,6 @@
 #define be64toh(x) OSSwapBigToHostInt64(x)
 #define le64toh(x) OSSwapLittleToHostInt64(x)
 
-#endif
+#endif // __APPLE__
+
+#endif // NDN_ENCODING_ENDIAN_HPP

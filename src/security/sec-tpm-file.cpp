@@ -17,6 +17,7 @@
 #include "common.hpp"
 
 #include "sec-tpm-file.hpp"
+#include "../encoding/buffer-stream.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>

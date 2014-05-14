@@ -16,6 +16,7 @@
 #include "../common.hpp"
 
 #include "../encoding/block.hpp"
+#include "../encoding/buffer-stream.hpp"
 
 #include <string>
 #include <iostream>

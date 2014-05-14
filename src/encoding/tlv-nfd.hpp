@@ -10,8 +10,8 @@
  * ndn-cxx library copyright, permissions, and redistribution restrictions.
  */
 
-#ifndef NDN_TLV_NFD_HPP
-#define NDN_TLV_NFD_HPP
+#ifndef NDN_ENCODING_TLV_NFD_HPP
+#define NDN_ENCODING_TLV_NFD_HPP
 
 #include "../common.hpp"
 
@@ -81,4 +81,4 @@ const uint64_t INVALID_FACE_ID = std::numeric_limits<uint64_t>::max();
 
 } // namespace ndn
 
-#endif // NDN_TLV_NFD_HPP
+#endif // NDN_ENCODING_TLV_NFD_HPP

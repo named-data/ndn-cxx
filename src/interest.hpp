@@ -16,6 +16,7 @@
 #define NDN_INTEREST_HPP
 
 #include "common.hpp"
+
 #include "name.hpp"
 #include "selectors.hpp"
 #include "interest-filter.hpp"
@@ -28,7 +29,7 @@ class Data;
 const time::seconds DEFAULT_INTEREST_LIFETIME = time::seconds(4);
 
 /**
- * An Interest holds a Name and other fields for an interest.
+ * An Interest holds a Name and other fields for an Interest
  */
 class Interest : public enable_shared_from_this<Interest>
 {

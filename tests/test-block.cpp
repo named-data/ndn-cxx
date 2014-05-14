@@ -11,6 +11,7 @@
  */
 
 #include "encoding/encoding-buffer.hpp"
+#include "encoding/buffer-stream.hpp"
 
 #include "boost-test.hpp"
 

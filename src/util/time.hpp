@@ -15,7 +15,6 @@
 
 #include "../common.hpp"
 #include <boost/chrono.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace ndn {
 namespace time {
@@ -138,21 +137,8 @@ fromUnixTimestamp(const milliseconds& duration)
  *   - with fractional milliseconds: 20020131T100001,123
  *   - without fractional seconds:   20020131T100001
  */
-inline std::string
-toIsoString(const system_clock::TimePoint& timePoint)
-{
-  namespace bpt = boost::posix_time;
-  bpt::ptime ptime = bpt::from_time_t(system_clock::to_time_t(timePoint));
-
-  uint64_t micro = duration_cast<microseconds>(timePoint - getUnixEpoch()).count() % 1000000;
-  if (micro > 0)
-    {
-      ptime += bpt::microseconds(micro);
-      return bpt::to_iso_string(ptime);
-    }
-  else
-    return bpt::to_iso_string(ptime);
-}
+std::string
+toIsoString(const system_clock::TimePoint& timePoint);
 
 /**
  * \brief Convert from the ISO string (YYYYMMDDTHHMMSS,fffffffff) representation
@@ -166,19 +152,8 @@ toIsoString(const system_clock::TimePoint& timePoint)
  *   - without fractional seconds:   20020131T100001
  *
  */
-inline system_clock::TimePoint
-fromIsoString(const std::string& isoString)
-{
-  namespace bpt = boost::posix_time;
-  static bpt::ptime posixTimeEpoch = bpt::from_time_t(0);
-
-  bpt::ptime ptime = bpt::from_iso_string(isoString);
-
-  system_clock::TimePoint point =
-    system_clock::from_time_t((ptime - posixTimeEpoch).total_seconds());
-  point += microseconds((ptime - posixTimeEpoch).total_microseconds() % 1000000);
-  return point;
-}
+system_clock::TimePoint
+fromIsoString(const std::string& isoString);
 
 /**
  * \brief Convert time point to string with specified format
@@ -193,24 +168,10 @@ fromIsoString(const std::string& isoString)
  * \sa http://www.boost.org/doc/libs/1_48_0/doc/html/date_time/date_time_io.html#date_time.format_flags
  *     described possible formatting flags
  **/
-inline std::string
+std::string
 toString(const system_clock::TimePoint& timePoint,
          const std::string& format = "%Y-%m-%d %H:%M:%S",
-         const std::locale& locale = std::locale("C"))
-{
-  namespace bpt = boost::posix_time;
-  bpt::ptime ptime = bpt::from_time_t(system_clock::to_time_t(timePoint));
-
-  uint64_t micro = duration_cast<microseconds>(timePoint - getUnixEpoch()).count() % 1000000;
-  ptime += bpt::microseconds(micro);
-
-  bpt::time_facet* facet = new bpt::time_facet(format.c_str());
-  std::ostringstream formattedTimePoint;
-  formattedTimePoint.imbue(std::locale(locale, facet));
-  formattedTimePoint << ptime;
-
-  return formattedTimePoint.str();
-}
+         const std::locale& locale = std::locale("C"));
 
 /**
  * \brief Convert from string of specified format into time point
@@ -225,26 +186,10 @@ toString(const system_clock::TimePoint& timePoint,
  * \sa http://www.boost.org/doc/libs/1_48_0/doc/html/date_time/date_time_io.html#date_time.format_flags
  *     described possible formatting flags
  */
-inline system_clock::TimePoint
+system_clock::TimePoint
 fromString(const std::string& formattedTimePoint,
            const std::string& format = "%Y-%m-%d %H:%M:%S",
-           const std::locale& locale = std::locale("C"))
-{
-  namespace bpt = boost::posix_time;
-  static bpt::ptime posixTimeEpoch = bpt::from_time_t(0);
-
-  bpt::time_input_facet* facet = new bpt::time_input_facet(format);
-  std::istringstream is(formattedTimePoint);
-
-  is.imbue(std::locale(locale, facet));
-  bpt::ptime ptime;
-  is >> ptime;
-
-  system_clock::TimePoint point =
-    system_clock::from_time_t((ptime - posixTimeEpoch).total_seconds());
-  point += microseconds((ptime - posixTimeEpoch).total_microseconds() % 1000000);
-  return point;
-}
+           const std::locale& locale = std::locale("C"));
 
 } // namespace time
 } // namespace ndn

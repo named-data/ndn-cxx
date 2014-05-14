@@ -14,32 +14,10 @@
 #define NDN_COMMON_HPP
 
 #include "ndn-cxx-config.hpp"
+
 #include <stdint.h>
-// TODO: Is stddef.h portable?
 #include <stddef.h>
 #include <unistd.h>
-
-// Standard headers to precompile
-
-#include <vector>
-#include <list>
-#include <set>
-#include <algorithm>
-#include <map>
-#include <sstream>
-#include <fstream>
-#include <exception>
-#include <map>
-
-// Other useful headers to precompile
-#include <boost/lexical_cast.hpp>
-#include <boost/asio.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/utility.hpp>
-
-#include <boost/iostreams/detail/ios.hpp>
-#include <boost/iostreams/categories.hpp>
-#include <boost/iostreams/stream.hpp>
 
 #if defined(__GNUC__) || defined(__clang__)
 #define DEPRECATED(func) func __attribute__ ((deprecated))
@@ -132,12 +110,12 @@ using boost::cref;
 
 #endif // NDN_CXX_HAVE_CXX11
 
+#include <boost/utility.hpp>
+
 namespace ndn {
 
 using boost::noncopyable;
 
 }
 
-#include "util/time.hpp"
-
-#endif
+#endif // NDN_COMMON_HPP

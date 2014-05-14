@@ -19,6 +19,8 @@
 #include "../../common.hpp"
 #include "../../security/cryptopp.hpp"
 
+#include "../../util/time.hpp"
+
 namespace ndn {
 
 size_t

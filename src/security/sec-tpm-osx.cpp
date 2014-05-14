@@ -16,6 +16,8 @@
 
 #include "sec-tpm-osx.hpp"
 #include "public-key.hpp"
+#include "../encoding/oid.hpp"
+#include "../encoding/buffer-stream.hpp"
 #include "cryptopp.hpp"
 
 #include <pwd.h>

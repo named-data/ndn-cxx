@@ -20,6 +20,7 @@
 #include "../util/time.hpp"
 #include "cryptopp.hpp"
 #include "../encoding/cryptopp/asn_ext.hpp"
+#include "../encoding/buffer-stream.hpp"
 
 using namespace std;
 

@@ -19,6 +19,7 @@
 
 #include "common.hpp"
 #include "name-component.hpp"
+#include "util/time.hpp"
 
 #include "encoding/block.hpp"
 #include "encoding/encoding-buffer.hpp"

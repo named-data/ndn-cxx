@@ -13,8 +13,9 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#include "common.hpp"
 #include "public-key.hpp"
+
+#include "../encoding/oid.hpp"
 #include "cryptopp.hpp"
 
 using namespace std;

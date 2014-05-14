@@ -17,6 +17,8 @@
 
 #include "../../common.hpp"
 
+#include <vector>
+
 namespace ndn {
 
 class RegexMatcher;

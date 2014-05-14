@@ -18,6 +18,8 @@
 #include "../encoding/tlv-nfd.hpp"
 #include "../name.hpp"
 
+#include <list>
+
 namespace ndn {
 namespace nfd {
 

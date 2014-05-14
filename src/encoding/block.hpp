@@ -12,8 +12,8 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#ifndef NDN_BLOCK_HPP
-#define NDN_BLOCK_HPP
+#ifndef NDN_ENCODING_BLOCK_HPP
+#define NDN_ENCODING_BLOCK_HPP
 
 #include "../common.hpp"
 
@@ -83,12 +83,6 @@ public:
 
   Block(const void* buffer, size_t maxlength);
 
-  /*
-   * @brief A helper version of a constructor to create Block from the stream.
-   */
-  explicit
-  Block(std::istream& is);
-
   /**
    * @brief Create Block from the wire buffer (no parsing)
    *
@@ -123,6 +117,23 @@ public:
    */
   explicit
   Block(uint32_t type, const Block& value);
+
+  /*
+   * @brief A helper version of a constructor to create Block from the stream
+   *
+   * @deprecated Use Block::fromStream instead
+   */
+  explicit
+  Block(std::istream& is)
+  {
+    *this = Block::fromStream(is);
+  }
+
+  /*
+   * @brief A helper version of a constructor to create Block from the stream.
+   */
+  Block
+  fromStream(std::istream& is);
 
   /**
    * @brief Try to construct block from Buffer, referencing data block pointed by wire
@@ -327,23 +338,6 @@ Block::type() const
   return m_type;
 }
 
-inline const Block&
-Block::get(uint32_t type) const
-{
-  for (element_const_iterator i = m_subBlocks.begin();
-       i != m_subBlocks.end();
-       i++)
-    {
-      if (i->type() == type)
-        {
-          return *i;
-        }
-    }
-
-  throw Error("(Block::get) Requested a non-existed type [" +
-              boost::lexical_cast<std::string>(type) + "] from Block");
-}
-
 inline Block::element_const_iterator
 Block::find(uint32_t type) const
 {
@@ -504,6 +498,4 @@ Block::operator!=(const Block& other) const
 
 } // ndn
 
-#include "block-helpers.hpp"
-
-#endif // NDN_BLOCK_HPP
+#endif // NDN_ENCODING_BLOCK_HPP

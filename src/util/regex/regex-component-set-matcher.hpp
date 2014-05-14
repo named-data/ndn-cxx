@@ -20,6 +20,8 @@
 #include "regex-matcher.hpp"
 #include "regex-component-matcher.hpp"
 
+#include <set>
+
 namespace ndn {
 
 class RegexComponentSetMatcher : public RegexMatcher

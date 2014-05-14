@@ -18,6 +18,8 @@
 #include "../common.hpp"
 #include "sec-tpm.hpp"
 
+#include <map>
+
 struct rsa_st;
 
 namespace ndn {

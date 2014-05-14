@@ -15,6 +15,8 @@
 
 #include "../common.hpp"
 
+#include <list>
+
 namespace ndn {
 
 const size_t MAX_LENGTH = 9000;

@@ -15,10 +15,17 @@
 #include "common.hpp"
 
 #include "block.hpp"
+#include "block-helpers.hpp"
+
 #include "tlv.hpp"
 #include "encoding-buffer.hpp"
+#include "buffer-stream.hpp"
+
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
+
+const size_t MAX_SIZE_OF_BLOCK_FROM_STREAM = 8800;
 
 Block::Block()
   : m_type(std::numeric_limits<uint32_t>::max())
@@ -96,44 +103,6 @@ Block::Block(const ConstBufferPtr& buffer,
     }
 }
 
-Block::Block(std::istream& is)
-{
-  std::istream_iterator<uint8_t> tmp_begin(is);
-  std::istream_iterator<uint8_t> tmp_end;
-
-  m_type = Tlv::readType(tmp_begin, tmp_end);
-  uint64_t length = Tlv::readVarNumber(tmp_begin, tmp_end);
-
-  // We may still have some problem here, if some exception happens in this constructor,
-  // we may completely lose all the bytes extracted from the stream.
-
-  OBufferStream os;
-  size_t headerLength = Tlv::writeVarNumber(os, m_type);
-  headerLength += Tlv::writeVarNumber(os, length);
-
-  char* buf = new char[length];
-  buf[0] = *tmp_begin;
-  is.read(buf+1, length-1);
-
-  if (length != static_cast<uint64_t>(is.gcount()) + 1)
-    {
-      delete [] buf;
-      throw Tlv::Error("Not enough data in the buffer to fully parse TLV");
-    }
-
-  os.write(buf, length);
-  delete [] buf;
-
-  m_buffer = os.buf();
-
-  m_begin = m_buffer->begin();
-  m_end = m_buffer->end();
-  m_size = m_end - m_begin;
-
-  m_value_begin = m_buffer->begin() + headerLength;
-  m_value_end   = m_buffer->end();
-}
-
 
 Block::Block(const uint8_t* buffer, size_t maxlength)
 {
@@ -208,6 +177,32 @@ Block::Block(uint32_t type, const Block& value)
   , m_value_end(value.end())
 {
   m_size = Tlv::sizeOfVarNumber(m_type) + Tlv::sizeOfVarNumber(value_size()) + value_size();
+}
+
+Block
+Block::fromStream(std::istream& is)
+{
+  std::istream_iterator<uint8_t> tmp_begin(is);
+  std::istream_iterator<uint8_t> tmp_end;
+
+  uint32_t type = Tlv::readType(tmp_begin, tmp_end);
+  uint64_t length = Tlv::readVarNumber(tmp_begin, tmp_end);
+
+  if (length > MAX_SIZE_OF_BLOCK_FROM_STREAM)
+    throw Tlv::Error("Length of block from stream is too large");
+
+  // We may still have some problem here, if some exception happens,
+  // we may completely lose all the bytes extracted from the stream.
+
+  char buf[MAX_SIZE_OF_BLOCK_FROM_STREAM];
+  buf[0] = *tmp_begin;
+  is.read(buf+1, length-1);
+
+  if (length != static_cast<uint64_t>(is.gcount()) + 1) {
+    throw Tlv::Error("Not enough data in the buffer to fully parse TLV");
+  }
+
+  return dataBlock(type, buf, length);
 }
 
 bool
@@ -374,6 +369,23 @@ Block::blockFromValue() const
                type,
                element_begin, end,
                begin, end);
+}
+
+const Block&
+Block::get(uint32_t type) const
+{
+  for (element_const_iterator i = m_subBlocks.begin();
+       i != m_subBlocks.end();
+       i++)
+    {
+      if (i->type() == type)
+        {
+          return *i;
+        }
+    }
+
+  throw Error("(Block::get) Requested a non-existed type [" +
+              boost::lexical_cast<std::string>(type) + "] from Block");
 }
 
 } // namespace ndn

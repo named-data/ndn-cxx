@@ -10,8 +10,8 @@
  * ndn-cxx library copyright, permissions, and redistribution restrictions.
  */
 
-#ifndef NDN_TLV_SECURITY_HPP
-#define NDN_TLV_SECURITY_HPP
+#ifndef NDN_ENCODING_TLV_SECURITY_HPP
+#define NDN_ENCODING_TLV_SECURITY_HPP
 
 #include "tlv.hpp"
 
@@ -29,4 +29,4 @@ enum {
 } // namespace tlv
 } // namespace ndn
 
-#endif // NDN_TLV_SECURITY_HPP
+#endif // NDN_ENCODING_TLV_SECURITY_HPP

@@ -18,6 +18,7 @@
 
 #include "../encoding/tlv-nfd.hpp"
 #include "../encoding/encoding-buffer.hpp"
+#include "../encoding/block-helpers.hpp"
 
 namespace ndn {
 namespace nfd {

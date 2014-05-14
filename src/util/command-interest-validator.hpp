@@ -17,6 +17,8 @@
 #include "../security/identity-certificate.hpp"
 #include "../security/sec-rule-specific.hpp"
 
+#include <list>
+
 namespace ndn {
 
 class CommandInterestValidator : public Validator

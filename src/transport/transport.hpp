@@ -16,6 +16,8 @@
 #include "../common.hpp"
 #include "../encoding/block.hpp"
 
+#include <boost/asio.hpp>
+
 namespace ndn {
 
 class Transport

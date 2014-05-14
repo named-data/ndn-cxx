@@ -14,6 +14,7 @@
 #define NDN_TESTS_TRANSPORT_DUMMY_FACE_HPP
 
 #include "face.hpp"
+#include "transport/transport.hpp"
 
 namespace ndn {
 

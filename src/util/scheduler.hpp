@@ -16,6 +16,8 @@
 #include "../common.hpp"
 #include "monotonic_deadline_timer.hpp"
 
+#include <set>
+
 namespace ndn {
 
 struct EventIdImpl; ///< \brief Private storage of information about the event

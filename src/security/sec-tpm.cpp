@@ -14,6 +14,8 @@
 
 #include "sec-tpm.hpp"
 
+#include "../encoding/oid.hpp"
+#include "../encoding/buffer-stream.hpp"
 #include "cryptopp.hpp"
 
 using namespace std;

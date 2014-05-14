@@ -10,8 +10,8 @@
  * ndn-cxx library copyright, permissions, and redistribution restrictions.
  */
 
-#ifndef NDN_TLV_HPP
-#define NDN_TLV_HPP
+#ifndef NDN_ENCODING_TLV_HPP
+#define NDN_ENCODING_TLV_HPP
 
 #include <stdexcept>
 #include <iterator>
@@ -527,4 +527,4 @@ writeNonNegativeInteger(std::ostream& os, uint64_t varNumber)
 
 } // namespace ndn
 
-#endif // NDN_TLV_HPP
+#endif // NDN_ENCODING_TLV_HPP

@@ -19,6 +19,7 @@
 
 #include "common.hpp"
 #include "encoding/block.hpp"
+#include "encoding/block-helpers.hpp"
 #include "encoding/encoding-buffer.hpp"
 #include "util/string-helper.hpp"
 

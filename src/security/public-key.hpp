@@ -18,9 +18,13 @@
 #define NDN_SECURITY_PUBLIC_KEY_HPP
 
 #include "../common.hpp"
-#include "../encoding/oid.hpp"
+
 #include "../encoding/buffer.hpp"
 #include "security-common.hpp"
+
+namespace CryptoPP {
+class BufferedTransformation;
+}
 
 namespace ndn {
 

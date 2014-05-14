@@ -15,6 +15,8 @@
 
 #include "../transport/dummy-face.hpp"
 
+#include <boost/tuple/tuple.hpp>
+
 #include "boost-test.hpp"
 
 namespace ndn {

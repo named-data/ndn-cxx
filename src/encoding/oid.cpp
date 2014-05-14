@@ -17,6 +17,8 @@
 
 #include "../security/cryptopp.hpp"
 
+#include <sstream>
+
 using namespace std;
 using namespace CryptoPP;
 

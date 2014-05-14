@@ -10,10 +10,12 @@
  * ndn-cxx library copyright, permissions, and redistribution restrictions.
  */
 
-#ifndef NDN_OID_HPP
-#define NDN_OID_HPP
+#ifndef NDN_ENCODING_OID_HPP
+#define NDN_ENCODING_OID_HPP
 
 #include "../common.hpp"
+
+#include <vector>
 
 namespace CryptoPP {
 class BufferedTransformation;
@@ -81,4 +83,4 @@ private:
 
 }
 
-#endif
+#endif // NDN_ENCODING_OID_HPP

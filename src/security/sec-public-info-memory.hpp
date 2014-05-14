@@ -18,6 +18,8 @@
 #include "../common.hpp"
 #include "sec-public-info.hpp"
 
+#include <map>
+
 namespace ndn {
 
 /**

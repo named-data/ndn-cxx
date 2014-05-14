@@ -13,6 +13,7 @@
 #include "../common.hpp"
 
 #include "crypto.hpp"
+#include "../encoding/buffer-stream.hpp"
 #include "../security/cryptopp.hpp"
 
 namespace ndn {
