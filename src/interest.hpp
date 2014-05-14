@@ -34,7 +34,14 @@ class Interest : public enable_shared_from_this<Interest>
 {
 public:
   /**
-   * @brief Create a new Interest with an empty name and "none" for all values.
+   * @brief Create a new Interest with an empty name (`ndn:/`)
+   *
+   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
+   * created using `make_shared`:
+   *
+   *     shared_ptr<Interest> interest = make_shared<Interest>();
+   *
+   * Otherwise, Interest::shared_from_this() will throw an exception.
    */
   Interest()
     : m_nonce(0)
@@ -44,9 +51,16 @@ public:
   }
 
   /**
-   * @brief Create a new Interest with the given name and "none" for other values.
+   * @brief Create a new Interest with the given name
    *
    * @param name The name for the interest.
+   *
+   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
+   * created using `make_shared`:
+   *
+   *     shared_ptr<Interest> interest = make_shared<Interest>(name);
+   *
+   * Otherwise, Interest::shared_from_this() will throw an exception.
    */
   Interest(const Name& name)
     : m_name(name)
@@ -57,9 +71,17 @@ public:
   }
 
   /**
-   * Create a new Interest with the given name and interest lifetime and "none" for other values.
-   * @param name The name for the interest.
-   * @param interestLifetimeMilliseconds The interest lifetime in time::milliseconds, or -1 for none.
+   * @brief Create a new Interest with the given name and interest lifetime
+   *
+   * @param name             The name for the interest.
+   * @param interestLifetime The interest lifetime in time::milliseconds, or -1 for none.
+   *
+   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
+   * created using `make_shared`:
+   *
+   *     shared_ptr<Interest> interest = make_shared<Interest>(name, time::seconds(1));
+   *
+   * Otherwise, Interest::shared_from_this() will throw an exception.
    */
   Interest(const Name& name, const time::milliseconds& interestLifetime)
     : m_name(name)
@@ -69,6 +91,16 @@ public:
   {
   }
 
+  /**
+   * @brief Create a new Interest for the given name, selectors, and guiders
+   *
+   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
+   * created using `make_shared`:
+   *
+   *     shared_ptr<Interest> interest = make_shared<Interest>(...);
+   *
+   * Otherwise, Interest::shared_from_this() will throw an exception.
+   */
   Interest(const Name& name,
            const Selectors& selectors,
            int scope,
@@ -83,19 +115,17 @@ public:
   }
 
   /**
-   * Create a new Interest for the given name and values.
-   * @param name
-   * @param minSuffixComponents
-   * @param maxSuffixComponents
-   * @param exclude
-   * @param childSelector
-   * @param mustBeFresh
-   * @param scope
-   * @param interestLifetime
-   * @param nonce
+   * @brief Create a new Interest for the given name and parameters
    *
    * @deprecated Interest().setX(...).setY(...)
    *             or use the overload taking Selectors
+   *
+   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
+   * created using `make_shared`:
+   *
+   *     shared_ptr<Interest> interest = make_shared<Interest>(...);
+   *
+   * Otherwise, Interest::shared_from_this() will throw an exception.
    */
   Interest(const Name& name,
            int minSuffixComponents, int maxSuffixComponents,
@@ -115,6 +145,13 @@ public:
 
   /**
    * @brief Create from wire encoding
+   *
+   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
+   * created using `make_shared`:
+   *
+   *     shared_ptr<Interest> interest = make_shared<Interest>(wire);
+   *
+   * Otherwise, Interest::shared_from_this() will throw an exception.
    */
   explicit
   Interest(const Block& wire)
@@ -148,36 +185,37 @@ public:
   hasWire() const;
 
   /**
-   * Encode the name according to the "NDN URI Scheme".  If there are interest selectors, append "?" and
-   * added the selectors as a query string.  For example "/test/name?ndn.ChildSelector=1".
-   * @return The URI string.
+   * @brief Encode the name according to the NDN URI Scheme
+   *
+   * If there are interest selectors, this method will append "?" and add the selectors as
+   * a query string.  For example, "/test/name?ndn.ChildSelector=1"
    */
   inline std::string
   toUri() const;
 
+  /**
+   * @brief Check if Interest has any selectors present
+   */
   inline bool
   hasSelectors() const;
 
-  inline bool
-  hasGuiders() const;
-
   /**
-   * @brief Check if Interest name matches the given name (using ndn_Name_match) and the given name also conforms to the
-   * interest selectors.
-   * @param self A pointer to the ndn_Interest struct.
-   * @param name A pointer to the name to check.
-   * @return 1 if the name and interest selectors match, 0 otherwise.
+   * @brief Check if Interest, including selectors, matches the given @p name
+   *
+   * @param name The name to be matched. If this is a Data name, it shall contain the
+   *             implicit digest component
    */
   bool
   matchesName(const Name& name) const;
 
-  /** @brief Determines whether this Interest can be satisfied by @p data.
+  /**
+   * @brief Check if Interest can be satisfied by @p data.
    *
-   *  This method considers Name, MinSuffixComponents, MaxSuffixComponents,
-   *  PublisherPublicKeyLocator, and Exclude.
-   *  This method does not consider ChildSelector and MustBeFresh.
+   * This method considers Name, MinSuffixComponents, MaxSuffixComponents,
+   * PublisherPublicKeyLocator, and Exclude.
+   * This method does not consider ChildSelector and MustBeFresh.
    *
-   *  @todo recognize implicit digest component
+   * @todo recognize implicit digest component
    */
   bool
   matchesData(const Data& data) const;
@@ -460,14 +498,6 @@ inline bool
 Interest::hasSelectors() const
 {
   return !m_selectors.empty();
-}
-
-inline bool
-Interest::hasGuiders() const
-{
-  return m_scope >= 0 ||
-    m_interestLifetime >= time::milliseconds::zero() ||
-    m_nonce > 0;
 }
 
 template<bool T>

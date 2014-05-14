@@ -43,11 +43,12 @@ public:
   PublicKey();
 
   /**
-   * Create a new PublicKey with the given values.
-   * @param algorithm The algorithm of the public key.
-   * @param keyDer The blob of the PublicKeyInfo in terms of DER.
+   * @brief Create a new PublicKey from @param keyDerBuf in DER buffer
    *
-   * @throws PublicKey::Error If algorithm is not supported or keyDer cannot be decoded
+   * @param keyDerBuf The pointer to the first byte of buffer containing DER of public key
+   * @param keyDerSize Size of the buffer
+   *
+   * @throws PublicKey::Error If DER in buffer cannot be decoded
    */
   PublicKey(const uint8_t* keyDerBuf, size_t keyDerSize);
 

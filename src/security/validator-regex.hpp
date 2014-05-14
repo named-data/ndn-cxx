@@ -50,7 +50,7 @@ public:
   /**
    * @brief Add a rule for data verification.
    *
-   * @param policy The verification rule
+   * @param rule The verification rule
    */
   inline void
   addDataVerificationRule(shared_ptr<SecRuleRelative> rule);

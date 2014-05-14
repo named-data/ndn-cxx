@@ -28,11 +28,6 @@ PublicKey::PublicKey()
 {
 }
 
-/**
- * Create a new PublicKey with the given values.
- * @param algorithm The algorithm of the public key.
- * @param keyDer The blob of the PublicKeyInfo in terms of DER.
- */
 PublicKey::PublicKey(const uint8_t* keyDerBuf, size_t keyDerSize)
 {
   StringSource src(keyDerBuf, keyDerSize, true);

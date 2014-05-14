@@ -62,6 +62,22 @@ dataBlock(uint32_t type, const unsigned char* data, size_t dataSize)
   return dataBlock(type, reinterpret_cast<const char*>(data), dataSize);
 }
 
+template<class InputIterator>
+inline Block
+dataBlock(uint32_t type, InputIterator first, InputIterator last)
+{
+  size_t dataSize = 0;
+  for (InputIterator i = first; i != last; i++)
+    ++dataSize;
+
+  OBufferStream os;
+  Tlv::writeVarNumber(os, type);
+  Tlv::writeVarNumber(os, dataSize);
+  std::copy(first, last, std::ostream_iterator<uint8_t>(os));
+
+  return Block(os.buf());
+}
+
 } // namespace ndn
 
 #endif // NDN_BLOCK_HELPERS_HPP

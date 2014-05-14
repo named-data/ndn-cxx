@@ -102,7 +102,7 @@ public:
   /**
    * @brief prepare an unsigned identity certificate
    *
-   * @param keyName Key name, e.g., /<identity_name>/ksk-123456.
+   * @param keyName Key name, e.g., `/<identity_name>/ksk-123456`.
    * @param signingIdentity The signing identity.
    * @param notBefore Refer to IdentityCertificate.
    * @param notAfter Refer to IdentityCertificate.
@@ -177,9 +177,7 @@ public:
   signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName);
 
   /**
-   * @brief Set Sha256 weak signature.
-   *
-   * @param data.
+   * @brief Set Sha256 weak signature for @param data
    */
   inline void
   signWithSha256(Data& data);
@@ -187,8 +185,8 @@ public:
   /**
    * @brief Generate a self-signed certificate for a public key.
    *
-   * @param keyName The name of the public key.
-   * @return The generated certificate, NULL if selfSign fails.
+   * @param keyName The name of the public key
+   * @return The generated certificate, shared_ptr<IdentityCertificate>() if selfSign fails
    */
   shared_ptr<IdentityCertificate>
   selfSign(const Name& keyName);

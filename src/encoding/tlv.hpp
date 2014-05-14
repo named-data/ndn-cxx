@@ -97,7 +97,7 @@ readVarNumber(InputIterator& begin, const InputIterator& end, uint64_t& number);
  *
  * @param [in]  begin  Begin (pointer or iterator) of the buffer
  * @param [in]  end    End (pointer or iterator) of the buffer
- * @param [out] number Read type number
+ * @param [out] type   Read type number
  *
  * @throws This call never throws exception
  *

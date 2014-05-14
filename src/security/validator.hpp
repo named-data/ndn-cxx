@@ -184,7 +184,6 @@ public:
   static bool
   verifySignature(const uint8_t* buf, const size_t size, const SignatureSha256& sig);
 
-
 protected:
   /**
    * @brief Check the Data against policy and return the next validation step if necessary.
@@ -192,11 +191,11 @@ protected:
    * If there is no next validation step, that validation MUST have been done.
    * i.e., either onValidated or onValidationFailed callback is invoked.
    *
-   * @param data The Data to check.
-   * @param nSteps The number of validation steps that have been done.
-   * @param onDataValidated If the Data is validated, this calls onValidated(data).
-   * @param onDataValidationFailed If validation fails, this calls onValidationFailed(data).
-   * @param nextSteps On return, contains the next validation step.
+   * @param data               The Data to check.
+   * @param nSteps             The number of validation steps that have been done.
+   * @param onValidated        If the Data is validated, this calls onValidated(data)
+   * @param onValidationFailed If validation fails, this calls onValidationFailed(data)
+   * @param nextSteps          On return, contains the next validation step
    */
   virtual void
   checkPolicy(const Data& data,
@@ -212,11 +211,11 @@ protected:
    * If there is no next validation step, that validation MUST have been done.
    * i.e., either onValidated or onValidationFailed callback is invoked.
    *
-   * @param data The Interest to check.
-   * @param nSteps The number of validation steps that have been done.
-   * @param OnInterestValidated If the Interest is validated, this calls onValidated(data).
-   * @param OnInterestValidationFailed If validation fails, this calls onValidationFailed(data).
-   * @return the indication of next validation step, null if there is no further step.
+   * @param interest           The Interest to check.
+   * @param nSteps             The number of validation steps that have been done.
+   * @param onValidated        If the Interest is validated, this calls onValidated(data)
+   * @param onValidationFailed If validation fails, this calls onValidationFailed(data)
+   * @param nextSteps          On return, contains the next validation step
    */
   virtual void
   checkPolicy(const Interest& interest,

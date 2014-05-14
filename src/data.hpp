@@ -39,28 +39,45 @@ public:
 
   /**
    * @brief Create an empty Data object
+   *
+   * Note that in certain contexts that use Data::shared_from_this(), Data must be
+   * created using `make_shared`:
+   *
+   *     shared_ptr<Data> data = make_shared<Data>();
+   *
+   * Otherwise, Data::shared_from_this() will throw an exception.
    */
   Data();
 
   /**
    * @brief Create a new Data object with the given name
-   * @param name A reference to the name which is copied.
+   *
+   * @param name A reference to the name
+   *
+   * Note that in certain contexts that use Data::shared_from_this(), Data must be
+   * created using `make_shared`:
+   *
+   *     shared_ptr<Data> data = make_shared<Data>(name);
+   *
+   * Otherwise, Data::shared_from_this() will throw an exception.
    */
   Data(const Name& name);
 
   /**
    * @brief Create a new Data object from wire encoding
+   *
+   * Note that in certain contexts that use Data::shared_from_this(), Data must be
+   * created using `make_shared`:
+   *
+   *     shared_ptr<Data> data = make_shared<Data>(wire);
+   *
+   * Otherwise, Data::shared_from_this() will throw an exception.
    */
   explicit
   Data(const Block& wire)
   {
     wireDecode(wire);
   }
-
-  /**
-   * @brief The destructor
-   */
-  ~Data();
 
   /**
    * @brief Fast encoding or block size estimation
@@ -82,36 +99,41 @@ public:
   wireDecode(const Block& wire);
 
   /**
-   * @brief Check if already has wire
+   * @brief Check if Data is already has wire encoding
    */
   bool
   hasWire() const;
 
   ////////////////////////////////////////////////////////////////////
 
+  /**
+   * @brief Get name of the Data packet
+   */
   const Name&
   getName() const;
 
   /**
-   * @brief Set name to a copy of the given Name.
+   * @brief Set name to a copy of the given Name
    *
-   * @param name The Name which is copied.
-   * @return This Data so that you can chain calls to update values.
+   * @return This Data so that you can chain calls to update values
    */
-  void
+  Data&
   setName(const Name& name);
 
   //
 
+  /**
+   * @brief Get MetaInfo block from Data packet
+   */
   const MetaInfo&
   getMetaInfo() const;
 
   /**
-   * @brief Set metaInfo to a copy of the given MetaInfo.
-   * @param metaInfo The MetaInfo which is copied.
+   * @brief Set metaInfo to a copy of the given MetaInfo
+   *
    * @return This Data so that you can chain calls to update values.
    */
-  void
+  Data&
   setMetaInfo(const MetaInfo& metaInfo);
 
   //
@@ -124,7 +146,7 @@ public:
   uint32_t
   getContentType() const;
 
-  void
+  Data&
   setContentType(uint32_t type);
 
   //
@@ -132,7 +154,7 @@ public:
   const time::milliseconds&
   getFreshnessPeriod() const;
 
-  void
+  Data&
   setFreshnessPeriod(const time::milliseconds& freshnessPeriod);
 
   //
@@ -140,7 +162,7 @@ public:
   const name::Component&
   getFinalBlockId() const;
 
-  void
+  Data&
   setFinalBlockId(const name::Component& finalBlockId);
 
   //
@@ -158,17 +180,46 @@ public:
   getContent() const;
 
   /**
-   * @brief Set the content to a copy of the data in the vector.
-   * @param content A vector whose contents are copied.
+   * @brief Set the content from the buffer (buffer will be copied)
+   *
+   * @param buffer Pointer to first byte of the buffer
+   * @param bufferSize Size of the buffer
+   *
    * @return This Data so that you can chain calls to update values.
    */
-  void
-  setContent(const uint8_t* content, size_t contentLength);
+  Data&
+  setContent(const uint8_t* buffer, size_t bufferSize);
 
-  void
-  setContent(const Block& content);
+  /**
+   * @brief Set the content from the block
+   *
+   * Depending on type of the supplied block, there are two cases:
+   *
+   * - if block.type() == Tlv::Content, then block will be used directly as Data packet's
+   *   content (no extra copying)
+   *
+   * - if block.type() != Tlv::Content, then this method will create a new Block with type
+   *   Tlv::Content and put block as a nested element in the content Block.
+   *
+   * @param block The Block containing the content to assign
+   *
+   * @return This Data so that you can chain calls to update values.
+   */
+  Data&
+  setContent(const Block& block);
 
-  void
+  /**
+   * @brief Set the content from the pointer to immutable buffer
+   *
+   * This method will create a Block with Tlv::Content and set contentValue as a payload
+   * for this block.  Note that this method is very different from setContent(const
+   * Block&), since it does not require that payload should be a valid TLV element.
+   *
+   * @param contentValue The pointer to immutable buffer containing the content to assign
+   *
+   * @return This Data so that you can chain calls to update values.
+   */
+  Data&
   setContent(const ConstBufferPtr& contentValue);
 
   //
@@ -180,10 +231,10 @@ public:
    * @brief Set the signature to a copy of the given signature.
    * @param signature The signature object which is cloned.
    */
-  void
+  Data&
   setSignature(const Signature& signature);
 
-  void
+  Data&
   setSignatureValue(const Block& value);
 
   ///////////////////////////////////////////////////////////////
@@ -197,7 +248,7 @@ public:
   uint64_t
   getIncomingFaceId() const;
 
-  void
+  Data&
   setIncomingFaceId(uint64_t incomingFaceId);
 
 public: // EqualityComparable concept
@@ -235,11 +286,6 @@ Data::Data()
 inline
 Data::Data(const Name& name)
   : m_name(name)
-{
-}
-
-inline
-Data::~Data()
 {
 }
 
@@ -304,10 +350,6 @@ Data::wireEncode() const
   return m_wire;
 }
 
-/**
- * Decode the input using a particular wire format and update this Data.
- * @param input The input byte array to be decoded.
- */
 inline void
 Data::wireDecode(const Block& wire)
 {
@@ -354,11 +396,13 @@ Data::getName() const
   return m_name;
 }
 
-inline void
+inline Data&
 Data::setName(const Name& name)
 {
   onChanged();
   m_name = name;
+
+  return *this;
 }
 
 inline const MetaInfo&
@@ -367,11 +411,13 @@ Data::getMetaInfo() const
   return m_metaInfo;
 }
 
-inline void
+inline Data&
 Data::setMetaInfo(const MetaInfo& metaInfo)
 {
   onChanged();
   m_metaInfo = metaInfo;
+
+  return *this;
 }
 
 inline uint32_t
@@ -380,11 +426,13 @@ Data::getContentType() const
   return m_metaInfo.getType();
 }
 
-inline void
+inline Data&
 Data::setContentType(uint32_t type)
 {
   onChanged();
   m_metaInfo.setType(type);
+
+  return *this;
 }
 
 inline const time::milliseconds&
@@ -393,11 +441,13 @@ Data::getFreshnessPeriod() const
   return m_metaInfo.getFreshnessPeriod();
 }
 
-inline void
+inline Data&
 Data::setFreshnessPeriod(const time::milliseconds& freshnessPeriod)
 {
   onChanged();
   m_metaInfo.setFreshnessPeriod(freshnessPeriod);
+
+  return *this;
 }
 
 inline const name::Component&
@@ -406,11 +456,13 @@ Data::getFinalBlockId() const
   return m_metaInfo.getFinalBlockId();
 }
 
-inline void
+inline Data&
 Data::setFinalBlockId(const name::Component& finalBlockId)
 {
   onChanged();
   m_metaInfo.setFinalBlockId(finalBlockId);
+
+  return *this;
 }
 
 inline const Block&
@@ -424,23 +476,27 @@ Data::getContent() const
   return m_content;
 }
 
-inline void
+inline Data&
 Data::setContent(const uint8_t* content, size_t contentLength)
 {
   onChanged();
 
   m_content = dataBlock(Tlv::Content, content, contentLength);
+
+  return *this;
 }
 
-inline void
+inline Data&
 Data::setContent(const ConstBufferPtr& contentValue)
 {
   onChanged();
 
   m_content = Block(Tlv::Content, contentValue); // not real a wire encoding yet
+
+  return *this;
 }
 
-inline void
+inline Data&
 Data::setContent(const Block& content)
 {
   onChanged();
@@ -450,6 +506,8 @@ Data::setContent(const Block& content)
   else {
     m_content = Block(Tlv::Content, content);
   }
+
+  return *this;
 }
 
 inline const Signature&
@@ -458,18 +516,22 @@ Data::getSignature() const
   return m_signature;
 }
 
-inline void
+inline Data&
 Data::setSignature(const Signature& signature)
 {
   onChanged();
   m_signature = signature;
+
+  return *this;
 }
 
-inline void
+inline Data&
 Data::setSignatureValue(const Block& value)
 {
   onChanged();
   m_signature.setValue(value);
+
+  return *this;
 }
 
 //
@@ -492,11 +554,13 @@ Data::getIncomingFaceId() const
   return getLocalControlHeader().getIncomingFaceId();
 }
 
-inline void
+inline Data&
 Data::setIncomingFaceId(uint64_t incomingFaceId)
 {
   getLocalControlHeader().setIncomingFaceId(incomingFaceId);
   // ! do not reset Data's wire !
+
+  return *this;
 }
 
 inline void

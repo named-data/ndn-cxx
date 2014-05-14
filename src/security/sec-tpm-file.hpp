@@ -60,7 +60,7 @@ public:
   }
 
   virtual bool
-  getInTerminal()
+  getInTerminal() const
   {
     return m_inTerminal;
   }

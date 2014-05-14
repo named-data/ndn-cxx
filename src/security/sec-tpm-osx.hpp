@@ -58,7 +58,7 @@ public:
   setInTerminal(bool inTerminal);
 
   virtual bool
-  getInTerminal();
+  getInTerminal() const;
 
   virtual bool
   isLocked();

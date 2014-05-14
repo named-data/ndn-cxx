@@ -53,8 +53,8 @@ public:
    * You should be cautious when using this method, because remembering password is kind of
    * dangerous.
    *
-   * @param password The password.
-   * @param passwordLength The length of password.
+   * @param password The password
+   * @param passwordLength The length of password
    */
   virtual void
   setTpmPassword(const uint8_t* password, size_t passwordLength) = 0;
@@ -66,34 +66,28 @@ public:
   resetTpmPassword() = 0;
 
   /**
-   * @brief set inTerminal flag
+   * @brief Set inTerminal flag to @param inTerminal
    *
    * If the inTerminal flag is set, and password is not set, TPM may ask for password via terminal.
    * inTerminal flag is set by default.
-   *
-   * @param inTerminal.
    */
   virtual void
   setInTerminal(bool inTerminal) = 0;
 
   /**
-   * @brief get inTerminal flag
-   *
-   * @return inTerminal flag.
+   * @brief Get value of inTerminal flag
    */
   virtual bool
-  getInTerminal() = 0;
+  getInTerminal() const = 0;
 
   /**
-   * @brief check if TPM is locked.
-   *
-   * @return true if locked, false otherwise
+   * @brief Check if TPM is locked
    */
   virtual bool
   isLocked() = 0;
 
   /**
-   * @brief Unlock the TPM.
+   * @brief Unlock the TPM
    *
    * @param password The password.
    * @param passwordLength The password size. 0 indicates no password.
@@ -195,17 +189,17 @@ public:
   doesKeyExistInTpm(const Name& keyName, KeyClass keyClass) = 0;
 
   /**
-   * @brief Generate a random block.
+   * @brief Generate a random block
    *
-   * @param res The pointer to the generated block.
-   * @param size The random block size.
-   * @return true for success, otherwise false.
+   * @param res The pointer to the generated block
+   * @param size The random block size
+   * @return true for success, otherwise false
    */
   virtual bool
   generateRandomBlock(uint8_t* res, size_t size) = 0;
 
   /**
-   * @brief Add the application into the ACL of a particular key.
+   * @brief Add the application into the ACL of a particular key
    *
    * @param keyName the name of key
    * @param keyClass the class of key, e.g. Private Key
@@ -216,29 +210,31 @@ public:
   addAppToAcl(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl) = 0;
 
   /**
-   * @brief Export a private key in PKCS#5 format.
+   * @brief Export a private key in PKCS#5 format
    *
-   * @param keyName The private key name.
-   * @param password The password to encrypt the private key.
-   * @return The private key info (in PKCS8 format) if exist.
-   * @throws SecTpm::Error if private key cannot be exported.
+   * @param keyName  The private key name
+   * @param password The password to encrypt the private key
+   * @return The private key info (in PKCS8 format) if exist
+   * @throws SecTpm::Error if private key cannot be exported
    */
   ConstBufferPtr
   exportPrivateKeyPkcs5FromTpm(const Name& keyName, const std::string& password);
 
   /**
-   * @brief Import a private key in PKCS#5 format.
+   * @brief Import a private key in PKCS#5 formatted @param buffer of size @param bufferSize
    *
    * Also recover the public key and installed it in TPM.
    *
-   * @param keyName The private key name.
-   * @param key The encoded private key info.
-   * @param password The password to encrypt the private key.
-   * @return False if import fails.
+   * @param keyName    The private key name
+   * @param buffer     Pointer to the first byte of the buffer containing PKCS#5-encoded
+   *                   private key info
+   * @param bufferSize Size of the buffer
+   * @param password   The password to encrypt the private key
+   * @return false if import fails
    */
   bool
   importPrivateKeyPkcs5IntoTpm(const Name& keyName,
-                               const uint8_t* buf, size_t size,
+                               const uint8_t* buffer, size_t bufferSize,
                                const std::string& password);
 
 protected:
@@ -252,25 +248,28 @@ protected:
   exportPrivateKeyPkcs8FromTpm(const Name& keyName) = 0;
 
   /**
-   * @brief Import a private key in PKCS#8 format.
+   * @brief Import a private key from PKCS#8 formatted @param buffer of size @param bufferSize
    *
-   * @param keyName The private key name.
-   * @param key The encoded private key info.
-   * @return False if import fails.
+   * @param keyName    The private key name.
+   * @param buffer     Pointer to the first byte of the buffer containing PKCS#8-encoded
+   *                   private key info
+   * @param bufferSize Size of the buffer
+   * @return false if import fails
    */
   virtual bool
-  importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buf, size_t size) = 0;
+  importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buffer, size_t bufferSize) = 0;
 
   /**
-   * @brief Import a public key in PKCS#1 format.
+   * @brief Import a public key in PKCS#1 formatted @param buffer of size @param bufferSize
    *
-   * @param keyName The public key name.
-   * @param key The encoded public key info.
-   * @return False if import fails.
+   * @param keyName    The public key name
+   * @param buffer     Pointer to the first byte of the buffer containing PKCS#1-encoded
+   *                   private key info
+   * @param bufferSize Size of the buffer
+   * @return false if import fails
    */
   virtual bool
-  importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size) = 0;
-
+  importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buffer, size_t bufferSize) = 0;
 
   /**
    * @brief Get import/export password.

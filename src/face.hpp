@@ -376,7 +376,9 @@ public:
    * If registeredPrefixId was obtained using setInterestFilter, the corresponding
    * InterestFilter will be unset too.
    *
-   * @param registeredPrefixId The ID returned from registerPrefix.
+   * @param registeredPrefixId The ID returned from registerPrefix
+   * @param onSuccess          Callback to be called when operation succeeds
+   * @param onFailure          Callback to be called when operation fails
    */
   void
   unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,

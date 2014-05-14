@@ -38,25 +38,24 @@ public:
   ~Transport();
 
   /**
-   * Connect transport
+   * @brief Connect transport
    *
-   * @throws If connection cannot be established
+   * @throws boost::system::system_error if connection cannot be established
    */
   inline virtual void
   connect(boost::asio::io_service& io_service,
           const ReceiveCallback& receiveCallback);
 
   /**
-   * Close the connection.
+   * @brief Close the connection.
    */
   virtual void
   close() = 0;
 
   /**
-   * @brief Set data to the host
+   * @brief Send block of data from @param wire through the transport
    *
-   * @param data A pointer to the buffer of data to send.
-   * @param dataLength The number of bytes in data.
+   * @param wire A block of data to send
    */
   virtual void
   send(const Block& wire) = 0;

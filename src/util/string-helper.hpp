@@ -23,9 +23,10 @@ namespace ndn {
 static const char* WHITESPACE_CHARS = " \n\r\t";
 
 /**
- * Return the hex representation of the bytes in array.
- * @param array The array of bytes.
- * @return Hex string.
+ * @brief Return the hex representation of the bytes in array
+ *
+ * @param array The array of bytes
+ * @param arraySize Size of the array
  */
 inline std::string
 toHex(const uint8_t* array, size_t arraySize)
@@ -46,8 +47,7 @@ toHex(const uint8_t* array, size_t arraySize)
 }
 
 /**
- * Modify str in place to erase whitespace on the left.
- * @param str
+ * @brief Modify str in place to erase whitespace on the left
  */
 inline void
 trimLeft(std::string& str)
@@ -63,8 +63,7 @@ trimLeft(std::string& str)
 }
 
 /**
- * Modify str in place to erase whitespace on the right.
- * @param str
+ * @brief Modify str in place to erase whitespace on the right
  */
 inline void
 trimRight(std::string& str)
@@ -80,8 +79,7 @@ trimRight(std::string& str)
 }
 
 /**
- * Modify str in place to erase whitespace on the left and right.
- * @param str
+ * @brief Modify str in place to erase whitespace on the left and right
  */
 inline void
 trim(std::string& str)
@@ -91,9 +89,7 @@ trim(std::string& str)
 }
 
 /**
- * Convert the hex character to an integer from 0 to 15, or -1 if not a hex character.
- * @param c
- * @return
+ * @brief Convert the hex character to an integer from 0 to 15, or -1 if not a hex character
  */
 inline int
 fromHexChar(uint8_t c)
@@ -109,8 +105,7 @@ fromHexChar(uint8_t c)
 }
 
 /**
- * Return a copy of str, converting each escaped "%XX" to the char value.
- * @param str
+ * @brief Return a copy of str, converting each escaped "%XX" to the char value
  */
 inline std::string
 unescape(const std::string& str)

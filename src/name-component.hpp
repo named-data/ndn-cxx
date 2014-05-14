@@ -45,46 +45,84 @@ public:
   };
 
   /**
-   * Create a new Name::Component with a null value.
+   * Create a new name::Component with an empty value
    */
   Component();
 
   /**
-   * @brief Directly create component from wire block
+   * @brief Create name::Component from a wire block
+   *
+   * @param wire Tlv::NameComponent Block from which to create name::Component
+   * @throws Error if wire.type() is not Tlv::NameComponent
    *
    * Any block can be implicitly converted to name::Component
-   *
-   * @throws Error if wire.type() is not Tlv::Component
    */
   Component(const Block& wire);
 
   /**
-   * Create a new Name::Component, taking another pointer to the Blob value.
-   * @param value A blob with a pointer to an immutable array.  The pointer is copied.
+   * @brief Create a new name::Component from the buffer pointer (buffer pointer will be copied)
+   *
+   * @param buffer A pointer to an immutable buffer
+   *
+   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * Note that this method **will not** allocate new memory for and copy the payload until
+   * toWire() method is called.
    */
   explicit
   Component(const ConstBufferPtr& buffer);
 
   /**
-   * Create a new Name::Component, copying the given value.
-   * @param value The value byte array.
+   * @brief Create a new name::Component from the buffer (data from buffer will be copied)
+   * @param buffer A reference to the buffer
+   *
+   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * Note that this method **will** allocate new memory for and copy the payload.
    */
   explicit
-  Component(const Buffer& value);
+  Component(const Buffer& buffer);
 
   /**
-   * Create a new Name::Component, copying the given value.
-   * @param value Pointer to the value byte array.
-   * @param valueLen Length of value.
+   * @brief Create a new name::Component from the buffer (data from buffer will be copied)
+   * @param buffer     A pointer to the first byte of the buffer
+   * @param bufferSize Size of the buffer
+   *
+   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * Note that this method **will** allocate new memory for and copy the payload.
    */
-  Component(const uint8_t* value, size_t valueLen);
+  Component(const uint8_t* buffer, size_t bufferSize);
 
+  /**
+   * @brief Create a new name::Component from the buffer (data from buffer will be copied)
+   * @param begin Iterator pointing to the beginning of the buffer
+   * @param end   Iterator pointing to the ending of the buffer
+   *
+   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * Note that this method **will** allocate new memory for and copy the payload.
+   */
   template<class InputIterator>
   Component(InputIterator begin, InputIterator end);
 
+  /**
+   * @brief Create a new name::Component from the C string (data from string will be copied)
+   *
+   * @param str Zero-ended string.  Note that this string will be interpreted as is (i.e.,
+   *            it will not be interpreted as URI)
+   *
+   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * Note that this method **will** allocate new memory for and copy the payload.
+   */
   explicit
   Component(const char* str);
 
+  /**
+   * @brief Create a new name::Component from the STL string (data from string will be copied)
+   *
+   * @param str Const reference to STL string.  Note that this string will be interpreted
+   *            as is (i.e., it will not be interpreted as URI)
+   *
+   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * Note that this method **will** allocate new memory for and copy the payload.
+   */
   explicit
   Component(const std::string& str);
 
@@ -98,33 +136,36 @@ public:
   /**
    * @brief Encode to a wire format
    */
-  inline const Block&
+  const Block&
   wireEncode() const;
 
   /**
    * @brief Decode from the wire format
    */
-  inline void
+  void
   wireDecode(const Block& wire);
 
   /**
-   * Make a Blob value by decoding the escapedString between beginOffset and endOffset according to the NDN URI Scheme.
-   * If the escaped string is "", "." or ".." then return a Blob with a null pointer,
-   * which means the component should be skipped in a URI name.
-   * @param escapedString The escaped string.  It does not need to be null-terminated because we only scan to endOffset.
+   * @brief Create name::Component by decoding the escapedString between beginOffset and
+   * endOffset according to the NDN URI Scheme.
+   *
+   * If the escaped string is "", "." or ".." then return an empty name::Component.  Note
+   * that an empty name::Component should not be added to Name and if attempted, an
+   * exception will be thrown.
+   *
+   * @param escapedString String containing NDN URI-encoded name
+   *                      component. [escapedString+beginOffset, beginOffset+endOffset)
+   *                      must be a valid memory buffer.
    * @param beginOffset The offset in escapedString of the beginning of the portion to decode.
-   * @param endOffset The offset in escapedString of the end of the portion to decode.
-   * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
+   * @param endOffset   The offset in escapedString of the end of the portion to decode.
    */
   static Component
   fromEscapedString(const char* escapedString, size_t beginOffset, size_t endOffset);
 
   /**
-   * Make a Blob value by decoding the escapedString according to the NDN URI Scheme.
-   * If the escaped string is "", "." or ".." then return a Blob with a null pointer,
-   * which means the component should be skipped in a URI name.
-   * @param escapedString The null-terminated escaped string.
-   * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
+   * @brief Create name::Component by decoding the escapedString according to the NDN URI Scheme
+   *
+   * This overload is a convenience wrapper for fromEscapedString(char*,size_t,size)
    */
   static Component
   fromEscapedString(const char* escapedString)
@@ -133,34 +174,38 @@ public:
   }
 
   /**
-   * Make a Blob value by decoding the escapedString according to the NDN URI Scheme.
-   * If the escaped string is "", "." or ".." then return a Blob with a null pointer,
-   * which means the component should be skipped in a URI name.
-   * @param escapedString The escaped string.
-   * @return The Blob value. If the escapedString is not a valid escaped component, then the Blob is a null pointer.
+   * @brief Create name::Component by decoding the escapedString according to the NDN URI Scheme
+   *
+   * This overload is a convenience wrapper for fromEscapedString(char*,size_t,size)
    */
   static Component
   fromEscapedString(const std::string& escapedString)
   {
-    return fromEscapedString(escapedString.c_str());
+    return fromEscapedString(escapedString.c_str(), 0, escapedString.size());
   }
 
   /**
-   * Write the value to result, escaping characters according to the NDN URI Scheme.
-   * This also adds "..." to a value with zero or more ".".
-   * @param value the buffer with the value to escape
-   * @param result the string stream to write to.
+   * @brief Write *this to the output stream, escaping characters according to the NDN URI Scheme
+   *
+   * @deprecated Use toUri(std::ostream&) instead
+   *
+   * This also adds "..." to a value with zero or more "."
+   *
+   * @param os The output stream to where write the URI escaped version *this
    */
   void
-  toEscapedString(std::ostream& result) const;
+  toEscapedString(std::ostream& os) const;
 
   /**
-   * Convert the value by escaping characters according to the NDN URI Scheme.
-   * This also adds "..." to a value with zero or more ".".
-   * @param value the buffer with the value to escape
-   * @return The escaped string.
+   * @brief Convert *this by escaping characters according to the NDN URI Scheme
+   *
+   * @deprecated Use toUri() instead
+   *
+   * This also adds "..." to a value with zero or more "."
+   *
+   * @return The escaped string
    */
-  inline std::string
+  std::string
   toEscapedString() const
   {
     std::ostringstream result;
@@ -168,13 +213,27 @@ public:
     return result.str();
   }
 
-  inline void
-  toUri(std::ostream& result) const
+  /**
+   * @brief Write *this to the output stream, escaping characters according to the NDN URI Scheme
+   *
+   * This also adds "..." to a value with zero or more "."
+   *
+   * @param os The output stream to where write the URI escaped version *this
+   */
+  void
+  toUri(std::ostream& os) const
   {
-    return toEscapedString(result);
+    return toEscapedString(os);
   }
 
-  inline std::string
+  /**
+   * @brief Convert *this by escaping characters according to the NDN URI Scheme
+   *
+   * This also adds "..." to a value with zero or more "."
+   *
+   * @return The escaped string
+   */
+  std::string
   toUri() const
   {
     return toEscapedString();
@@ -213,9 +272,16 @@ public:
   static Component
   fromNumber(uint64_t number);
 
+  bool
+  empty() const
+  {
+    return !hasValue();
+  }
+
   /**
-   * Check if this is the same component as other.
-   * @param other The other Component to compare with.
+   * @brief Check if this is the same component as other
+   *
+   * @param other The other Component to compare with
    * @return true if the components are equal, otherwise false.
    */
   bool
@@ -231,33 +297,12 @@ public:
     return std::equal(value_begin(), value_end(), other.value_begin());
   }
 
-  bool
-  empty() const
-  {
-    return !hasValue();
-  }
-
   /**
-   * Check if this is the same component as other.
-   * @param other The other Component to compare with.
-   * @return true if the components are equal, otherwise false.
-   */
-  bool
-  operator==(const Component& other) const { return equals(other); }
-
-  /**
-   * Check if this is not the same component as other.
-   * @param other The other Component to compare with.
-   * @return true if the components are not equal, otherwise false.
-   */
-  bool
-  operator!=(const Component& other) const { return !equals(other); }
-
-  /**
-   * Compare this to the other Component using NDN canonical ordering.
+   * @brief Compare this to the other Component using NDN canonical ordering
+   *
    * @param other The other Component to compare with.
    * @return 0 If they compare equal, -1 if *this comes before other in the canonical ordering, or
-   * 1 if *this comes after other in the canonical ordering.
+   *         1 if *this comes after other in the canonical ordering.
    *
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
@@ -265,49 +310,84 @@ public:
   compare(const Component& other) const;
 
   /**
-   * Return true if this is less than or equal to the other Component in the NDN canonical ordering.
-   * @param other The other Component to compare with.
+   * @brief Check if this is the same component as other
    *
-   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   * @param other The other Component to compare with.
+   * @return true if the components are equal, otherwise false.
    */
   bool
-  operator<=(const Component& other) const { return compare(other) <= 0; }
+  operator==(const Component& other) const
+  {
+    return equals(other);
+  }
 
   /**
-   * Return true if this is less than the other Component in the NDN canonical ordering.
-   * @param other The other Component to compare with.
-   *
-   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   * @brief Check if this is not the same component as other
+   * @param other The other Component to compare with
+   * @return true if the components are not equal, otherwise false
    */
   bool
-  operator<(const Component& other) const { return compare(other) < 0; }
+  operator!=(const Component& other) const
+  {
+    return !equals(other);
+  }
 
   /**
-   * Return true if this is less than or equal to the other Component in the NDN canonical ordering.
-   * @param other The other Component to compare with.
+   * @brief Check if the *this is less than or equal to the other in NDN canonical ordering
+   * @param other The other Component to compare with
    *
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator>=(const Component& other) const { return compare(other) >= 0; }
+  operator<=(const Component& other) const
+  {
+    return compare(other) <= 0;
+  }
 
   /**
-   * Return true if this is greater than the other Component in the NDN canonical ordering.
-   * @param other The other Component to compare with.
+   * @brief Check if the *this is less than the other in NDN canonical ordering
+   * @param other The other Component to compare with
    *
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */
   bool
-  operator>(const Component& other) const { return compare(other) > 0; }
+  operator<(const Component& other) const
+  {
+    return compare(other) < 0;
+  }
 
+  /**
+   * @brief Check if the *this is greater or equal than the other in NDN canonical ordering
+   * @param other The other Component to compare with
+   *
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   */
+  bool
+  operator>=(const Component& other) const
+  {
+    return compare(other) >= 0;
+  }
+
+  /**
+   * @brief Check if the *this is greater than the other in NDN canonical ordering
+   * @param other The other Component to compare with
+   *
+   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   */
+  bool
+  operator>(const Component& other) const
+  {
+    return compare(other) > 0;
+  }
+
+  // !!! NOTE TO IMPLEMENTOR !!!
   //
-  // !!! MUST NOT INCLUDE ANY DATA HERE !!!
-  //
-  // This class is just a helper and is directly reinterpret_cast'ed from Block
+  // This class MUST NOT contain any data fields.
+  // Block can be reinterpret_cast'ed as Component type.
 };
 
 inline std::ostream&
-operator << (std::ostream& os, const Component& component)
+operator<<(std::ostream& os, const Component& component)
 {
   component.toEscapedString(os);
   return os;
@@ -329,38 +409,38 @@ Component::Component(const Block& wire)
 
 inline
 Component::Component(const ConstBufferPtr& buffer)
-  : Block (Tlv::NameComponent, buffer)
+  : Block(Tlv::NameComponent, buffer)
 {
 }
 
 inline
 Component::Component(const Buffer& value)
-  : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(value)))
+  : Block(dataBlock(Tlv::NameComponent, value.buf(), value.size()))
 {
 }
 
 inline
 Component::Component(const uint8_t* value, size_t valueLen)
-  : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(value, valueLen)))
+  : Block(dataBlock(Tlv::NameComponent, value, valueLen))
 {
 }
 
 template<class InputIterator>
 inline
 Component::Component(InputIterator begin, InputIterator end)
-  : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(begin, end)))
+  : Block(dataBlock(Tlv::NameComponent, begin, end))
 {
 }
 
 inline
 Component::Component(const char* str)
-  : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(str, ::strlen(str))))
+  : Block(dataBlock(Tlv::NameComponent, str, ::strlen(str)))
 {
 }
 
 inline
 Component::Component(const std::string& str)
-  : Block (Tlv::NameComponent, ConstBufferPtr(new Buffer(str.begin(), str.end())))
+  : Block(dataBlock(Tlv::NameComponent, str.c_str(), str.size()))
 {
 }
 
@@ -420,7 +500,7 @@ Component::toEscapedString(std::ostream& result) const
         result << '%';
         if (x < 16)
           result << '0';
-        result << (unsigned int)x;
+        result << static_cast<unsigned int>(x);
       }
     }
 
@@ -481,15 +561,12 @@ Component::wireEncode(EncodingImpl<T>& block) const
 {
   size_t totalLength = 0;
   if (value_size() > 0)
-    totalLength += block.prependByteArray (value(), value_size());
-  totalLength += block.prependVarNumber (value_size());
-  totalLength += block.prependVarNumber (Tlv::NameComponent);
+    totalLength += block.prependByteArray(value(), value_size());
+  totalLength += block.prependVarNumber(value_size());
+  totalLength += block.prependVarNumber(Tlv::NameComponent);
   return totalLength;
 }
 
-/**
- * @brief Encode to a wire format
- */
 inline const Block&
 Component::wireEncode() const
 {
@@ -506,9 +583,6 @@ Component::wireEncode() const
   return *this;
 }
 
-/**
- * @brief Decode from the wire format
- */
 inline void
 Component::wireDecode(const Block& wire)
 {

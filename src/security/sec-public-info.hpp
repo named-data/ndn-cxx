@@ -44,7 +44,7 @@ public:
   };
 
   /**
-   * @brief The virtual Destructor.
+   * @brief The virtual Destructor
    */
   virtual
   ~SecPublicInfo()
@@ -52,37 +52,37 @@ public:
   }
 
   /**
-   * @brief Check if the specified identity already exists.
+   * @brief Check if the specified identity already exists
    *
-   * @param identityName The identity name.
-   * @return true if the identity exists, otherwise false.
+   * @param identityName The identity name
+   * @return true if the identity exists, otherwise false
    */
   virtual bool
   doesIdentityExist(const Name& identityName) = 0;
 
   /**
-   * @brief Add a new identity.
+   * @brief Add a new identity
    *
-   * if identity already exist, do not add it again.
+   * if identity already exist, do not add it again
    *
-   * @param identityName The identity name to be added.
+   * @param identityName The identity name to be added
    */
   virtual void
   addIdentity(const Name& identityName) = 0;
 
   /**
-   * @brief Revoke the identity.
+   * @brief Revoke the identity
    *
-   * @return true if the identity was revoked, otherwise false.
+   * @return true if the identity was revoked, otherwise false
    */
   virtual bool
   revokeIdentity() = 0;
 
   /**
-   * @brief Check if the specified key already exists.
+   * @brief Check if the specified key already exists
    *
-   * @param keyName The name of the key.
-   * @return true if the key exists, otherwise false.
+   * @param keyName The name of the key
+   * @return true if the key exists, otherwise false
    */
   virtual bool
   doesPublicKeyExist(const Name& keyName) = 0;
@@ -90,28 +90,26 @@ public:
   /**
    * @brief Add a public key to the identity storage.
    *
-   * @param keyName The name of the public key to be added.
-   * @param keyType Type of the public key to be added.
-   * @param publicKeyDer A blob of the public key DER to be added.
+   * @param keyName The name of the public key to be added
+   * @param keyType Type of the public key to be added
+   * @param publicKey Reference to the PublicKey object
    */
   virtual void
-  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer) = 0;
+  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKey) = 0;
 
   /**
-   * @brief Get the public key DER blob from the identity storage.
+   * @brief Get shared pointer to PublicKey object from the identity storage
    *
-   * @param keyName The name of the requested public key.
-   * @return The DER Blob.
-   * @throws SecPublicInfo::Error if public key does not exist.
+   * @param keyName The name of the requested public key
+   * @throws SecPublicInfo::Error if public key does not exist
    */
   virtual shared_ptr<PublicKey>
   getPublicKey(const Name& keyName) = 0;
 
   /**
-   * @brief Check if the specified certificate already exists.
+   * @brief Check if the specified certificate already exists
    *
-   * @param certificateName The name of the certificate.
-   * @return true if the certificate exists, otherwise false.
+   * @param certificateName The name of the certificate
    */
   virtual bool
   doesCertificateExist(const Name& certificateName) = 0;
@@ -119,19 +117,18 @@ public:
   /**
    * @brief Add a certificate to the identity storage.
    *
-   * It will add the corresponding public key and identity if they do not exist.
+   * It will add the corresponding public key and identity if they do not exist
    *
-   * @param certificate The certificate to be added.
+   * @param certificate The certificate to be added
    */
   virtual void
   addCertificate(const IdentityCertificate& certificate) = 0;
 
   /**
-   * @brief Get a certificate from the identity storage.
+   * @brief Get a shared pointer to identity certificate object from the identity storage
    *
-   * @param certificateName The name of the requested certificate.
-   * @return The requested certificate.
-   * @throws SecPublicInfo::Error if the certificate does not exist.
+   * @param certificateName The name of the requested certificate
+   * @throws SecPublicInfo::Error if the certificate does not exist
    */
   virtual shared_ptr<IdentityCertificate>
   getCertificate(const Name& certificateName) = 0;
@@ -142,77 +139,74 @@ public:
    *****************************************/
 
   /**
-   * @brief Get the default identity.
+   * @brief Get name of the default identity
    *
-   * @param return The name of default identity,
    * @throws SecPublicInfo::Error if there is no default.
    */
   virtual Name
   getDefaultIdentity() = 0;
 
   /**
-   * @brief Get the default key name for the specified identity.
+   * @brief Get name of the default key name for the specified identity
    *
-   * @param identityName The identity name.
-   * @return The default key name.
-   * @throws SecPublicInfo::Error if there is no default.
+   * @param identityName The identity name
+   * @throws SecPublicInfo::Error if there is no default
    */
   virtual Name
   getDefaultKeyNameForIdentity(const Name& identityName) = 0;
 
   /**
-   * @brief Get the default certificate name for the specified key.
+   * @brief Get name of the default certificate name for the specified key
    *
    * @param keyName The key name.
-   * @return The default certificate name.
    * @throws SecPublicInfo::Error if there is no default.
    */
   virtual Name
   getDefaultCertificateNameForKey(const Name& keyName) = 0;
 
   /**
-   * @brief Get all the identities in public info.
+   * @brief Get all the identities from public info
    *
-   * @param nameList On return, the identity list.
-   * @param isDefault If specified, only the default identity is returned.
+   * @param [out] nameList On return, the identity list
+   * @param isDefault      If specified, only the default identity is returned
    */
   virtual void
   getAllIdentities(std::vector<Name>& nameList, bool isDefault) = 0;
 
   /**
-   * @brief Get all the key name in public info.
+   * @brief Get all the key names from public info
    *
-   * @param nameList On return, the key name list.
-   * @param isDefault If specified, only the default keys are returned.
+   * @param [out] nameList On return, the key name list.
+   * @param isDefault      If specified, only the default keys are returned
    */
   virtual void
   getAllKeyNames(std::vector<Name>& nameList, bool isDefault) = 0;
 
   /**
-   * @brief Get all the key name of a particular identity.
+   * @brief Get all the key names of a particular identity
    *
-   * @param identity The specified identity name.
-   * @param nameList On return, the key name list.
-   * @param isDefault If specified, only the default key is returned.
+   * @param identity       The specified identity name
+   * @param [out] nameList On return, the key name list
+   * @param isDefault      If specified, only the default key is returned
    */
   virtual void
   getAllKeyNamesOfIdentity(const Name& identity, std::vector<Name>& nameList, bool isDefault) = 0;
 
   /**
-   * @brief Get all the certificate name in public info.
+   * @brief Get all the certificate name in public info
    *
-   * @param nameList On return, the certificate name list.
-   * @param isDefault If specified, only the default certificates are returned.
+   * @param [out] nameList On return, the certificate name list
+   * @param isDefault      If specified, only the default certificates are returned
    */
   virtual void
   getAllCertificateNames(std::vector<Name>& nameList, bool isDefault) = 0;
 
   /**
-   * @brief Get all the certificate name of a particular key.
+   * @brief Get all the certificate name of a particular key name
    *
-   * @param identity The specified key name.
-   * @param nameList On return, the certificate name list.
-   * @param isDefault If specified, only the default certificate is returned.
+   * @param keyName        The specified key name
+   * @param [out] nameList On return, the certificate name list
+   * @param isDefault      If specified, only the default certificate is returned
    */
   virtual void
   getAllCertificateNamesOfKey(const Name& keyName, std::vector<Name>& nameList, bool isDefault) = 0;
@@ -222,25 +216,25 @@ public:
    *****************************************/
 
   /**
-   * @brief Delete a certificate.
+   * @brief Delete a certificate
    *
-   * @param certificateName The certificate name.
+   * @param certificateName The certificate name
    */
   virtual void
   deleteCertificateInfo(const Name& certificateName) = 0;
 
   /**
-   * @brief Delete a public key and related certificates.
+   * @brief Delete a public key and related certificates
    *
-   * @param keyName The key name.
+   * @param keyName The key name
    */
   virtual void
   deletePublicKeyInfo(const Name& keyName) = 0;
 
   /**
-   * @brief Delete an identity and related public keys and certificates.
+   * @brief Delete an identity and related public keys and certificates
    *
-   * @param identity The identity name.
+   * @param identity The identity name
    */
   virtual void
   deleteIdentityInfo(const Name& identity) = 0;
@@ -252,27 +246,27 @@ protected:
    *****************************************/
 
   /**
-   * @brief Set the default identity.
+   * @brief Set the default identity
    *
-   * @param identityName The default identity name.
+   * @param identityName The default identity name
    */
   virtual void
   setDefaultIdentityInternal(const Name& identityName) = 0;
 
   /**
-   * @brief Set the default key name for the corresponding identity.
+   * @brief Set the default key name for the corresponding identity
    *
-   * @param keyName The key name.
-   * @throws SecPublicInfo::Error if the key does not exist.
+   * @param keyName The key name
+   * @throws SecPublicInfo::Error if the key does not exist
    */
   virtual void
   setDefaultKeyNameForIdentityInternal(const Name& keyName) = 0;
 
   /**
-   * @brief Set the default certificate name for the corresponding key.
+   * @brief Set the default certificate name for the corresponding key
    *
-   * @param certificateName The certificate name.
-   * @throws SecPublicInfo::Error if the certificatedoes not exist.
+   * @param certificateName The certificate name
+   * @throws SecPublicInfo::Error if the certificate does not exist
    */
   virtual void
   setDefaultCertificateNameForKeyInternal(const Name& certificateName) = 0;
@@ -284,48 +278,48 @@ public:
    *****************************************/
 
   /**
-   * @brief Set the default identity.
+   * @brief Set the default identity
    *
-   * @param identityName The default identity name.
-   * @throws SecPublicInfo::Error if the identity does not exist.
+   * @param identityName The default identity name
+   * @throws SecPublicInfo::Error if the identity does not exist
    */
   inline void
   setDefaultIdentity(const Name& identityName);
 
   /**
-   * @brief Set the default key name for the corresponding identity.
+   * @brief Set the default key name for the corresponding identity
    *
-   * @param keyName The key name.
-   * @throws SecPublicInfo::Error if either the identity or key does not exist.
+   * @param keyName The key name
+   * @throws SecPublicInfo::Error if either the identity or key does not exist
    */
   inline void
   setDefaultKeyNameForIdentity(const Name& keyName);
 
   /**
-   * @brief Set the default certificate name for the corresponding key.
+   * @brief Set the default certificate name for the corresponding key
    *
-   * @param certificateName The certificate name.
-   * @throws SecPublicInfo::Error if either the certificate or key does not exist.
+   * @param certificateName The certificate name
+   * @throws SecPublicInfo::Error if either the certificate or key does not exist
    */
   inline void
   setDefaultCertificateNameForKey(const Name& certificateName);
 
   /**
-   * @brief Generate a key name for the identity.
+   * @brief Generate a key name for the identity
    *
-   * @param identityName The identity name.
-   * @param useKsk If true, generate a KSK name, otherwise a DSK name.
-   * @return The generated key name.
+   * @param identityName The identity name
+   * @param useKsk If true, generate a KSK name, otherwise a DSK name
+   * @return The generated key name
    */
   inline Name
   getNewKeyName(const Name& identityName, bool useKsk);
 
   /**
-   * @brief Get the default certificate name for the specified identity.
+   * @brief Get the default certificate name for the specified identity
    *
-   * @param identityName The identity name.
-   * @return The default certificate name.
-   * @throws SecPublicInfo::Error if no certificate is found.
+   * @param identityName The identity name
+   * @return The default certificate name
+   * @throws SecPublicInfo::Error if no certificate is found
    */
   inline Name
   getDefaultCertificateNameForIdentity(const Name& identityName);
@@ -333,16 +327,16 @@ public:
   /**
    * @brief Get the default certificate name of the default identity
    *
-   * @return The requested certificate name.
-   * @throws SecPublicInfo::Error if no certificate is found.
+   * @return The requested certificate name
+   * @throws SecPublicInfo::Error if no certificate is found
    */
   inline Name
   getDefaultCertificateName();
 
   /**
-   * @brief Add a certificate and set the certificate as the default one of its corresponding key.
+   * @brief Add a certificate and set the certificate as the default one of its corresponding key
    *
-   * @param certificate The certificate to be added.
+   * @param certificate The certificate to be added
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
   inline void
@@ -350,9 +344,9 @@ public:
 
   /**
    * @brief Add a certificate into the public key identity storage and set the certificate as the
-   *        default one of its corresponding identity.
+   *        default one of its corresponding identity
    *
-   * @param certificate The certificate to be added.
+   * @param certificate The certificate to be added
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
   inline void
@@ -360,24 +354,24 @@ public:
 
   /**
    * @brief Add a certificate into the public key identity storage and set the certificate as the
-   *        default one of the default identity.
+   *        default one of the default identity
    *
-   * @param certificate The certificate to be added.
+   * @param certificate The certificate to be added
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
   inline void
   addCertificateAsSystemDefault(const IdentityCertificate& certificate);
 
   /**
-   * @brief get cached default certificate of the default identity.
+   * @brief Get cached default certificate of the default identity
    *
-   * @return The certificate which might be a NULL pointer.
+   * @return The certificate which might be empty shared_ptr<IdentityCertificate>()
    */
   inline shared_ptr<IdentityCertificate>
   defaultCertificate();
 
   /**
-   * @brief try to get the default certificate of the default identity from the public info.
+   * @brief try to get the default certificate of the default identity from the public info
    */
   inline void
   refreshDefaultCertificate();

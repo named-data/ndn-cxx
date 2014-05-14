@@ -112,7 +112,7 @@ public:
 
   /**
    * @brief Exclude all components from range [from, +Inf]
-   * @param to last element of the range
+   * @param from the first element of the range
    * @returns *this to allow chaining
    */
   Exclude&

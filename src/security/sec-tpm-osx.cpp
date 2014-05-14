@@ -269,7 +269,7 @@ SecTpmOsx::setInTerminal(bool inTerminal)
 }
 
 bool
-SecTpmOsx::getInTerminal()
+SecTpmOsx::getInTerminal() const
 {
   return m_impl->m_inTerminal;
 }
