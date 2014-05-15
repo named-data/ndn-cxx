@@ -26,7 +26,7 @@ IdentityCertificate::isCorrectName(const Name& name)
   string idString("ID-CERT");
   int i = name.size() - 1;
   for (; i >= 0; i--) {
-    if (name.get(i).toEscapedString() == idString)
+    if (name.get(i).toUri() == idString)
       break;
   }
 
@@ -36,7 +36,7 @@ IdentityCertificate::isCorrectName(const Name& name)
   string keyString("KEY");
   size_t keyIndex = 0;
   for (; keyIndex < name.size(); keyIndex++) {
-    if (name.get(keyIndex).toEscapedString() == keyString)
+    if (name.get(keyIndex).toUri() == keyString)
       break;
   }
 
@@ -68,7 +68,7 @@ IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
   bool foundIdString = false;
   size_t idCertComponentIndex = certificateName.size() - 1;
   for (; idCertComponentIndex + 1 > 0; --idCertComponentIndex) {
-    if (certificateName.get(idCertComponentIndex).toEscapedString() == idString)
+    if (certificateName.get(idCertComponentIndex).toUri() == idString)
       {
         foundIdString = true;
         break;
@@ -83,7 +83,7 @@ IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
   bool foundKeyString = false;
   size_t keyComponentIndex = 0;
   for (; keyComponentIndex < tmpName.size(); keyComponentIndex++) {
-    if (tmpName.get(keyComponentIndex).toEscapedString() == keyString)
+    if (tmpName.get(keyComponentIndex).toUri() == keyString)
       {
         foundKeyString = true;
         break;

@@ -196,7 +196,7 @@ RegexTopMatcher::fromName(const Name& name, bool hasAnchor)
   for (Name::const_iterator it = name.begin(); it != name.end(); it++)
     {
       regexStr.append("<");
-      regexStr.append(convertSpecialChar(it->toEscapedString()));
+      regexStr.append(convertSpecialChar(it->toUri()));
       regexStr.append(">");
     }
 

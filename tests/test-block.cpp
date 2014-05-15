@@ -553,22 +553,23 @@ BOOST_AUTO_TEST_CASE(BlockFromStream)
   typedef boost::iostreams::stream<boost::iostreams::array_source> ArrayStream;
   ArrayStream stream(reinterpret_cast<const char*>(TEST_BUFFER), sizeof(TEST_BUFFER));
 
+
   Block testBlock;
-  BOOST_REQUIRE_NO_THROW(testBlock = Block(stream));
+  BOOST_REQUIRE_NO_THROW(testBlock = Block::fromStream(stream));
   BOOST_CHECK_EQUAL(testBlock.type(), 0);
   BOOST_CHECK_EQUAL(testBlock.size(), 3);
   BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
   BOOST_CHECK_EQUAL(*testBlock.wire(),  0x00);
   BOOST_CHECK_EQUAL(*testBlock.value(), 0xfa);
 
-  BOOST_REQUIRE_NO_THROW(testBlock = Block(stream));
+  BOOST_REQUIRE_NO_THROW(testBlock = Block::fromStream(stream));
   BOOST_CHECK_EQUAL(testBlock.type(), 1);
   BOOST_CHECK_EQUAL(testBlock.size(), 3);
   BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
   BOOST_CHECK_EQUAL(*testBlock.wire(),  0x01);
   BOOST_CHECK_EQUAL(*testBlock.value(), 0xfb);
 
-  BOOST_CHECK_THROW(testBlock = Block(stream), Tlv::Error);
+  BOOST_CHECK_THROW(Block::fromStream(stream), Tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(Equality)

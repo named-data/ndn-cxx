@@ -542,7 +542,7 @@ struct FacesFixture
   void
   terminate(shared_ptr<Face> face)
   {
-    face->ioService()->stop();
+    face->getIoService().stop();
   }
 
   const RegisteredPrefixId* regPrefixId;
@@ -584,18 +584,20 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   keyChain.addCertificateAsIdentityDefault(*nldCert);
 
   shared_ptr<Face> face = make_shared<Face>();
-  Face face2(face->ioService());
-  Scheduler scheduler(*face->ioService());
+  Face face2(face->getIoService());
+  Scheduler scheduler(face->getIoService());
 
   scheduler.scheduleEvent(time::seconds(1),
                           bind(&FacesFixture::terminate, this, face));
 
   regPrefixId = face->setInterestFilter(sldCert->getName().getPrefix(-1),
-                                       bind(&FacesFixture::onInterest, this, face, sldCert),
-                                       bind(&FacesFixture::onRegFailed, this));
+                                        bind(&FacesFixture::onInterest, this, face, sldCert),
+                                        RegisterPrefixSuccessCallback(),
+                                        bind(&FacesFixture::onRegFailed, this));
 
   regPrefixId2 = face->setInterestFilter(nldCert->getName().getPrefix(-1),
                                          bind(&FacesFixture::onInterest2, this, face, nldCert),
+                                         RegisterPrefixSuccessCallback(),
                                          bind(&FacesFixture::onRegFailed, this));
 
   Name dataName1 = nld;
@@ -789,18 +791,20 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   keyChain.addCertificateAsIdentityDefault(*nldCert);
 
   shared_ptr<Face> face = make_shared<Face>();
-  Face face2(face->ioService());
-  Scheduler scheduler(*face->ioService());
+  Face face2(face->getIoService());
+  Scheduler scheduler(face->getIoService());
 
   scheduler.scheduleEvent(time::seconds(1),
                           bind(&FacesFixture::terminate, this, face));
 
   regPrefixId = face->setInterestFilter(sldCert->getName().getPrefix(-1),
-                                       bind(&FacesFixture::onInterest, this, face, sldCert),
-                                       bind(&FacesFixture::onRegFailed, this));
+                                        bind(&FacesFixture::onInterest, this, face, sldCert),
+                                        RegisterPrefixSuccessCallback(),
+                                        bind(&FacesFixture::onRegFailed, this));
 
   regPrefixId2 = face->setInterestFilter(nldCert->getName().getPrefix(-1),
                                          bind(&FacesFixture::onInterest2, this, face, nldCert),
+                                         RegisterPrefixSuccessCallback(),
                                          bind(&FacesFixture::onRegFailed, this));
 
   Name interestName1("/localhost/nrd/register/option/timestamp/nonce");

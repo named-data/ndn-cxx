@@ -251,7 +251,10 @@ public:
           m_processEventsTimeoutTimer->cancel();
         }
       }
-    onSuccess();
+
+    if (static_cast<bool>(onSuccess)) {
+      onSuccess();
+    }
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////

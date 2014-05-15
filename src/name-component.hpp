@@ -194,8 +194,12 @@ public:
    *
    * @param os The output stream to where write the URI escaped version *this
    */
+  DEPRECATED(
   void
-  toEscapedString(std::ostream& os) const;
+  toEscapedString(std::ostream& os) const)
+  {
+    return toUri(os);
+  }
 
   /**
    * @brief Convert *this by escaping characters according to the NDN URI Scheme
@@ -206,12 +210,11 @@ public:
    *
    * @return The escaped string
    */
+  DEPRECATED(
   std::string
-  toEscapedString() const
+  toEscapedString() const)
   {
-    std::ostringstream result;
-    toEscapedString(result);
-    return result.str();
+    return toUri();
   }
 
   /**
@@ -222,10 +225,7 @@ public:
    * @param os The output stream to where write the URI escaped version *this
    */
   void
-  toUri(std::ostream& os) const
-  {
-    return toEscapedString(os);
-  }
+  toUri(std::ostream& os) const;
 
   /**
    * @brief Convert *this by escaping characters according to the NDN URI Scheme
@@ -237,7 +237,9 @@ public:
   std::string
   toUri() const
   {
-    return toEscapedString();
+    std::ostringstream os;
+    toUri(os);
+    return os.str();
   }
 
   /**
@@ -390,7 +392,7 @@ public:
 inline std::ostream&
 operator<<(std::ostream& os, const Component& component)
 {
-  component.toEscapedString(os);
+  component.toUri(os);
   return os;
 }
 
@@ -468,7 +470,7 @@ Component::fromEscapedString(const char* escapedString, size_t beginOffset, size
 
 
 inline void
-Component::toEscapedString(std::ostream& result) const
+Component::toUri(std::ostream& result) const
 {
   const uint8_t* valuePtr = value();
   size_t valueSize = value_size();

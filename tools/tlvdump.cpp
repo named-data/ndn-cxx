@@ -97,7 +97,7 @@ BlockPrinter(const ndn::Block& block, const std::string& indent = "")
   if (block.elements().empty())
     {
       std::cout << " [[";
-      ndn::name::Component(block.value(), block.value_size()).toEscapedString(std::cout);
+      ndn::name::Component(block.value(), block.value_size()).toUri(std::cout);
       std::cout<< "]]";
     }
   std::cout << std::endl;
@@ -151,7 +151,7 @@ parseBlocksFromStream(std::istream& is)
 {
   while (is.peek() != std::char_traits<char>::eof()) {
     try {
-      ndn::Block block(is);
+      ndn::Block block = ndn::Block::fromStream(is);
       BlockPrinter(block, "");
       // HexPrinter(block, "");
     }

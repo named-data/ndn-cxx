@@ -124,15 +124,15 @@ public:
    * @deprecated Use Block::fromStream instead
    */
   explicit
-  Block(std::istream& is)
+  DEPRECATED(Block(std::istream& is))
   {
     *this = Block::fromStream(is);
   }
 
   /*
-   * @brief A helper version of a constructor to create Block from the stream.
+   * @brief Constructor Block from the stream
    */
-  Block
+  static Block
   fromStream(std::istream& is);
 
   /**

@@ -84,6 +84,7 @@ public:
 
     m_face.setInterestFilter(m_name,
                              bind(&Producer::onInterest, this, _1, _2),
+                             RegisterPrefixSuccessCallback(),
                              bind(&Producer::onRegisterFailed, this, _1, _2));
     m_face.processEvents();
   }

@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(ComponentMatcher)
   bool res = cm->match(Name("/a/b/"), 0, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
 
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexComponentMatcher>("a", backRef);
@@ -49,9 +49,9 @@ BOOST_AUTO_TEST_CASE(ComponentMatcher)
   res = cm->match(Name("/ccc.cd/b/"), 0, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("ccc.cd"));
-  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toEscapedString(), string("ccc"));
-  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toEscapedString(), string("cd"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("ccc.cd"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toUri(), string("ccc"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toUri(), string("cd"));
 }
 
 BOOST_AUTO_TEST_CASE(ComponentSetMatcher)
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(ComponentSetMatcher)
   bool res = cm->match(Name("/a/b/"), 0, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
 
   res = cm->match(Name("/a/b/"), 1, 1);
   BOOST_CHECK_EQUAL(res, false);
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(ComponentSetMatcher)
   res = cm->match(Name("/a/b/d"), 1, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("b"));
 
   res = cm->match(Name("/a/b/d"), 2, 1);
   BOOST_CHECK_EQUAL(res, false);
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(ComponentSetMatcher)
   res = cm->match(Name("/b/d"), 1, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("d"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("d"));
 
 }
 
@@ -104,8 +104,8 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
   cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
 
 
 
@@ -118,8 +118,8 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
   res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
 
 
 
@@ -128,12 +128,12 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
   res = cm->match(Name("/a/b/c/d/e/f/"), 0, 6);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 6);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("c"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toEscapedString(), string("d"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[4].toEscapedString(), string("e"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[5].toEscapedString(), string("f"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("c"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toUri(), string("d"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[4].toUri(), string("e"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[5].toUri(), string("f"));
 
 
 
@@ -142,12 +142,12 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
   res = cm->match(Name("/a/b/c/d/e/f/"), 0, 6);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 6);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("c"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toEscapedString(), string("d"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[4].toEscapedString(), string("e"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[5].toEscapedString(), string("f"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("c"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toUri(), string("d"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[4].toUri(), string("e"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[5].toUri(), string("f"));
 
 
 
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
   res = cm->match(Name("/a/b/c"), 0, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
 
   cm = make_shared<RegexRepeatMatcher>("<a>?", backRef, 3);
   res = cm->match(Name("/a/b/c"), 0, 2);
@@ -179,9 +179,9 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
   res = cm->match(Name("/a/b/a/d/"), 0, 3);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 3);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("a"));
 
   res = cm->match(Name("/a/b/a/d/"), 0, 4);
   BOOST_CHECK_EQUAL(res, false);
@@ -194,15 +194,15 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
   res = cm->match(Name("/a/b/a/d/e/"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
 
   res = cm->match(Name("/a/b/a/d/e/"), 0, 3);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 3);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("a"));
 
   res = cm->match(Name("/a/b/a/b/e/"), 0, 4);
   BOOST_CHECK_EQUAL(res, false);
@@ -218,16 +218,16 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
   res = cm->match(Name("/a/b/a/d/e/"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
 
   res = cm->match(Name("/a/b/a/b/e/"), 0, 4);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 4);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toUri(), string("b"));
 
   res = cm->match(Name("/a/b/a/d/e/"), 0, 1);
   BOOST_CHECK_EQUAL(res, false);
@@ -244,13 +244,13 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
   res = cm->match(Name("/a/b/a/b/e/"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
 
   res = cm->match(Name("/a/b/a/d/e/"), 0, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
 
   res = cm->match(Name("/a/b/a/d/e/"), 0, 0);
   BOOST_CHECK_EQUAL(res, true);
@@ -267,8 +267,8 @@ BOOST_AUTO_TEST_CASE(BackRefMatcher)
   bool res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
   BOOST_CHECK_EQUAL(backRef->size(), 1);
 
   backRef = make_shared<RegexBackrefManager>();
@@ -278,12 +278,12 @@ BOOST_AUTO_TEST_CASE(BackRefMatcher)
   res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
   BOOST_CHECK_EQUAL(backRef->size(), 2);
-  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toUri(), string("b"));
 }
 
 BOOST_AUTO_TEST_CASE(BackRefMatcherAdvanced)
@@ -294,10 +294,10 @@ BOOST_AUTO_TEST_CASE(BackRefMatcherAdvanced)
   bool res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
   BOOST_CHECK_EQUAL(backRef->size(), 1);
-  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toUri(), string("b"));
 }
 
 BOOST_AUTO_TEST_CASE(BackRefMatcherAdvanced2)
@@ -308,13 +308,13 @@ BOOST_AUTO_TEST_CASE(BackRefMatcherAdvanced2)
   bool res = cm->match(Name("/a/b/c"), 0, 3);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 3);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("c"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("c"));
   BOOST_CHECK_EQUAL(backRef->size(), 2);
-  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toUri(), string("b"));
 }
 
 BOOST_AUTO_TEST_CASE(PatternListMatcher)
@@ -325,15 +325,15 @@ BOOST_AUTO_TEST_CASE(PatternListMatcher)
   bool res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
 
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexPatternListMatcher>("<>*<a>", backRef);
   res = cm->match(Name("/a/b/c"), 0, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
 
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexPatternListMatcher>("<>*<a>", backRef);
@@ -346,9 +346,9 @@ BOOST_AUTO_TEST_CASE(PatternListMatcher)
   res = cm->match(Name("/a/b/c"), 0, 3);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 3);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("c"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("c"));
 
 }
 
@@ -359,28 +359,28 @@ BOOST_AUTO_TEST_CASE(TopMatcher)
   bool res = cm->match(Name("/a/b/c/d"));
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 4);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("c"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toEscapedString(), string("d"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("c"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toUri(), string("d"));
 
   cm = make_shared<RegexTopMatcher>("<b><c><d>$");
   res = cm->match(Name("/a/b/c/d"));
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 4);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("c"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toEscapedString(), string("d"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("c"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toUri(), string("d"));
 
   cm = make_shared<RegexTopMatcher>("^<a><b><c><d>$");
   res = cm->match(Name("/a/b/c/d"));
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 4);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("c"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toEscapedString(), string("d"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("c"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toUri(), string("d"));
 
   res = cm->match(Name("/a/b/c/d/e"));
   BOOST_CHECK_EQUAL(res, false);
@@ -390,20 +390,20 @@ BOOST_AUTO_TEST_CASE(TopMatcher)
   res = cm->match(Name("/a/b/c/d"));
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 4);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("c"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toEscapedString(), string("d"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("c"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toUri(), string("d"));
 
 
   cm = make_shared<RegexTopMatcher>("<b><c>");
   res = cm->match(Name("/a/b/c/d"));
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 4);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toEscapedString(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toEscapedString(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toEscapedString(), string("c"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toEscapedString(), string("d"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("c"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toUri(), string("d"));
 }
 
 BOOST_AUTO_TEST_CASE(TopMatcherAdvanced)

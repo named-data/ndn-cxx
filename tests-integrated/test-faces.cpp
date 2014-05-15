@@ -161,13 +161,14 @@ BOOST_AUTO_TEST_CASE(Tcp)
 BOOST_AUTO_TEST_CASE(SetFilter)
 {
   Face face;
-  Face face2(face.ioService());
-  Scheduler scheduler(*face.ioService());
+  Face face2(face.getIoService());
+  Scheduler scheduler(face.getIoService());
   scheduler.scheduleEvent(time::milliseconds(300),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
   regPrefixId = face.setInterestFilter("/Hello/World",
                                        bind(&FacesFixture::onInterest, this, ref(face), _1, _2),
+                                       RegisterPrefixSuccessCallback(),
                                        bind(&FacesFixture::onRegFailed, this));
 
   scheduler.scheduleEvent(time::milliseconds(200),
@@ -185,17 +186,19 @@ BOOST_AUTO_TEST_CASE(SetFilter)
 BOOST_AUTO_TEST_CASE(SetTwoFilters)
 {
   Face face;
-  Face face2(face.ioService());
-  Scheduler scheduler(*face.ioService());
+  Face face2(face.getIoService());
+  Scheduler scheduler(face.getIoService());
   scheduler.scheduleEvent(time::seconds(1),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
   regPrefixId = face.setInterestFilter("/Hello/World",
                                        bind(&FacesFixture::onInterest, this, ref(face), _1, _2),
+                                       RegisterPrefixSuccessCallback(),
                                        bind(&FacesFixture::onRegFailed, this));
 
   regPrefixId2 = face.setInterestFilter("/Los/Angeles/Lakers",
                                         bind(&FacesFixture::onInterest2, this, ref(face), _1, _2),
+                                        RegisterPrefixSuccessCallback(),
                                         bind(&FacesFixture::onRegFailed, this));
 
 
@@ -216,13 +219,14 @@ BOOST_AUTO_TEST_CASE(SetRegexFilterError)
 {
   Face face;
   Face face2(face.getIoService());
-  Scheduler scheduler(*face.ioService());
+  Scheduler scheduler(face.getIoService());
   scheduler.scheduleEvent(time::seconds(1),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
   regPrefixId = face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
                                        bind(&FacesFixture::onInterestRegexError, this,
                                             ref(face), _1, _2),
+                                       RegisterPrefixSuccessCallback(),
                                        bind(&FacesFixture::onRegFailed, this));
 
   scheduler.scheduleEvent(time::milliseconds(300),
@@ -236,13 +240,14 @@ BOOST_AUTO_TEST_CASE(SetRegexFilter)
 {
   Face face;
   Face face2(face.getIoService());
-  Scheduler scheduler(*face.ioService());
+  Scheduler scheduler(face.getIoService());
   scheduler.scheduleEvent(time::seconds(2),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
   regPrefixId = face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
                                        bind(&FacesFixture::onInterestRegex, this,
                                             ref(face), _1, _2),
+                                       RegisterPrefixSuccessCallback(),
                                        bind(&FacesFixture::onRegFailed, this));
 
   scheduler.scheduleEvent(time::milliseconds(200),
@@ -289,13 +294,14 @@ public:
 BOOST_FIXTURE_TEST_CASE(RegisterUnregisterPrefix, FacesFixture2)
 {
   Face face;
-  Scheduler scheduler(*face.ioService());
+  Scheduler scheduler(face.getIoService());
   scheduler.scheduleEvent(time::seconds(2),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
   regPrefixId = face.setInterestFilter(InterestFilter("/Hello/World"),
                                        bind(&FacesFixture::onInterest, this,
                                             ref(face), _1, _2),
+                                       RegisterPrefixSuccessCallback(),
                                        bind(&FacesFixture::onRegFailed, this));
 
   scheduler.scheduleEvent(time::milliseconds(500),
@@ -350,8 +356,8 @@ public:
 BOOST_FIXTURE_TEST_CASE(RegisterPrefix, FacesFixture3)
 {
   Face face;
-  Face face2(face.ioService());
-  Scheduler scheduler(*face.ioService());
+  Face face2(face.getIoService());
+  Scheduler scheduler(face.getIoService());
   scheduler.scheduleEvent(time::seconds(2),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
@@ -384,7 +390,7 @@ BOOST_AUTO_TEST_CASE(SetRegexFilterButNoRegister)
 {
   Face face;
   Face face2(face.getIoService());
-  Scheduler scheduler(*face.ioService());
+  Scheduler scheduler(face.getIoService());
   scheduler.scheduleEvent(time::seconds(2),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
@@ -392,26 +398,30 @@ BOOST_AUTO_TEST_CASE(SetRegexFilterButNoRegister)
                          bind(&FacesFixture::onInterestRegex, this,
                               ref(face), _1, _2));
 
+  // prefix is not registered, and also does not match regex
   scheduler.scheduleEvent(time::milliseconds(200),
                           bind(&FacesFixture::expressInterest, this,
-                               ref(face2), Name("/Hello/World/a"))); // shouldn't match
+                               ref(face2), Name("/Hello/World/a")));
 
+  // matches regex, but prefix is not registered
   scheduler.scheduleEvent(time::milliseconds(300),
                           bind(&FacesFixture::expressInterest, this,
-                               ref(face2), Name("/Hello/World/a/b"))); // should match
+                               ref(face2), Name("/Hello/World/a/b")));
 
+  // matches regex, but prefix is not registered
   scheduler.scheduleEvent(time::milliseconds(400),
                           bind(&FacesFixture::expressInterest, this,
-                               ref(face2), Name("/Hello/World/a/b/c"))); // should match
+                               ref(face2), Name("/Hello/World/a/b/c")));
 
+  // prefix is not registered, and also does not match regex
   scheduler.scheduleEvent(time::milliseconds(500),
                           bind(&FacesFixture::expressInterest, this,
-                               ref(face2), Name("/Hello/World/a/b/d"))); // should not match
+                               ref(face2), Name("/Hello/World/a/b/d")));
 
   BOOST_REQUIRE_NO_THROW(face.processEvents());
 
   BOOST_CHECK_EQUAL(nRegFailures, 0);
-  BOOST_CHECK_EQUAL(nInInterests, 4);
+  BOOST_CHECK_EQUAL(nInInterests, 0);
   BOOST_CHECK_EQUAL(nTimeouts, 4);
   BOOST_CHECK_EQUAL(nData, 0);
 }
@@ -421,7 +431,7 @@ BOOST_FIXTURE_TEST_CASE(SetRegexFilterAndRegister, FacesFixture3)
 {
   Face face;
   Face face2(face.getIoService());
-  Scheduler scheduler(*face.ioService());
+  Scheduler scheduler(face.getIoService());
   scheduler.scheduleEvent(time::seconds(2),
                           bind(&FacesFixture::terminate, this, ref(face)));
 

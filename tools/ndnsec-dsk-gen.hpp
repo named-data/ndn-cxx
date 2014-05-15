@@ -72,7 +72,7 @@ ndnsec_dsk_gen(int argc, char** argv)
 
   Name defaultCertName = keyChain.getDefaultCertificateNameForIdentity(identityName);
   bool isDefaultDsk = false;
-  if (defaultCertName.get(-3).toEscapedString().substr(0,4) == "dsk-")
+  if (defaultCertName.get(-3).toUri().substr(0,4) == "dsk-")
     isDefaultDsk = true;
 
   if (isDefaultDsk)

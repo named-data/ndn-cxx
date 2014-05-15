@@ -151,14 +151,9 @@ Face::expressInterest(const Name& name,
                       const Interest& tmpl,
                       const OnData& onData, const OnTimeout& onTimeout/* = OnTimeout()*/)
 {
-  return expressInterest(Interest(name,
-                                  tmpl.getMinSuffixComponents(),
-                                  tmpl.getMaxSuffixComponents(),
-                                  tmpl.getExclude(),
-                                  tmpl.getChildSelector(),
-                                  tmpl.getMustBeFresh(),
-                                  tmpl.getScope(),
-                                  tmpl.getInterestLifetime()),
+  return expressInterest(Interest(tmpl)
+                           .setName(name)
+                           .setNonce(0),
                          onData, onTimeout);
 }
 

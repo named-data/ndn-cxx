@@ -36,10 +36,11 @@ public:
 
   /** @deprecated Selectors().setX(...).setY(...)
    */
+  DEPRECATED(
   Selectors(int minSuffixComponents, int maxSuffixComponents,
             const Exclude& exclude,
             int childSelector,
-            bool mustBeFresh)
+            bool mustBeFresh))
     : m_minSuffixComponents(minSuffixComponents)
     , m_maxSuffixComponents(maxSuffixComponents)
     , m_exclude(exclude)

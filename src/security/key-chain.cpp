@@ -116,7 +116,7 @@ KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
   if (keyName.size() < 1)
     return shared_ptr<IdentityCertificate>();
 
-  std::string keyIdPrefix = keyName.get(-1).toEscapedString().substr(0, 4);
+  std::string keyIdPrefix = keyName.get(-1).toUri().substr(0, 4);
   if (keyIdPrefix != "ksk-" && keyIdPrefix != "dsk-")
     return shared_ptr<IdentityCertificate>();
 

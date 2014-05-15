@@ -99,7 +99,7 @@ RegexComponentMatcher::match(const Name& name, size_t offset, size_t len)
   if (m_isExactMatch)
     {
       boost::smatch subResult;
-      std::string targetStr = name.get(offset).toEscapedString();
+      std::string targetStr = name.get(offset).toUri();
       if (boost::regex_match(targetStr, subResult, m_componentRegex))
         {
           for (size_t i = 1; i < m_componentRegex.mark_count(); i++)

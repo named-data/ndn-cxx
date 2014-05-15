@@ -233,7 +233,7 @@ SecPublicInfoSqlite3::doesPublicKeyExist(const Name& keyName)
   if (keyName.empty())
     throw Error("Incorrect key name " + keyName.toUri());
 
-  string keyId = keyName.get(-1).toEscapedString();
+  string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
   sqlite3_stmt* statement;
@@ -269,7 +269,7 @@ SecPublicInfoSqlite3::addPublicKey(const Name& keyName,
   if (doesPublicKeyExist(keyName))
     return;
 
-  string keyId = keyName.get(-1).toEscapedString();
+  string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
   addIdentity(identityName);
@@ -302,7 +302,7 @@ SecPublicInfoSqlite3::getPublicKey(const Name& keyName)
       throw Error("SecPublicInfoSqlite3::getPublicKey  Empty keyName");
     }
 
-  string keyId = keyName.get(-1).toEscapedString();
+  string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
   sqlite3_stmt* statement;
@@ -364,7 +364,7 @@ SecPublicInfoSqlite3::doesCertificateExist(const Name& certificateName)
 //   if (keyName.empty())
 //     return;
 
-//   std::string keyId = keyName.get(-1).toEscapedString();
+//   std::string keyId = keyName.get(-1).toUri();
 //   std::string identityName = keyName.getPrefix(-1).toUri();
 
 //   sqlite3_stmt* statement;
@@ -421,7 +421,7 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
   if (doesCertificateExist(certificateName))
     return;
 
-  string keyId = keyName.get(-1).toEscapedString();
+  string keyId = keyName.get(-1).toUri();
   Name identity = keyName.getPrefix(-1);
 
   // Insert the certificate
@@ -585,7 +585,7 @@ SecPublicInfoSqlite3::setDefaultKeyNameForIdentityInternal(const Name& keyName)
   if (!doesPublicKeyExist(keyName))
     throw Error("Key does not exist:" + keyName.toUri());
 
-  string keyId = keyName.get(-1).toEscapedString();
+  string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
   sqlite3_stmt* statement;
@@ -622,7 +622,7 @@ SecPublicInfoSqlite3::getDefaultCertificateNameForKey(const Name& keyName)
   if (keyName.empty())
     throw Error("SecPublicInfoSqlite3::getDefaultCertificateNameForKey wrong key");
 
-  string keyId = keyName.get(-1).toEscapedString();
+  string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
   sqlite3_stmt* statement;
@@ -657,7 +657,7 @@ SecPublicInfoSqlite3::setDefaultCertificateNameForKeyInternal(const Name& certif
     throw Error("certificate does not exist:" + certificateName.toUri());
 
   Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
-  string keyId = keyName.get(-1).toEscapedString();
+  string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
   sqlite3_stmt* statement;
@@ -812,7 +812,7 @@ SecPublicInfoSqlite3::getAllCertificateNamesOfKey(const Name& keyName,
   Name identity = keyName.getPrefix(-1);
   sqlite3_bind_text(stmt, 1, identity.toUri().c_str(), identity.toUri().size (), SQLITE_TRANSIENT);
 
-  std::string baseKeyName = keyName.get(-1).toEscapedString();
+  std::string baseKeyName = keyName.get(-1).toUri();
   sqlite3_bind_text(stmt, 2, baseKeyName.c_str(), baseKeyName.size(), SQLITE_TRANSIENT);
 
   while (sqlite3_step(stmt) == SQLITE_ROW)
@@ -842,7 +842,7 @@ SecPublicInfoSqlite3::deletePublicKeyInfo(const Name& keyName)
     return;
 
   string identity = keyName.getPrefix(-1).toUri();
-  string keyId = keyName.get(-1).toEscapedString();
+  string keyId = keyName.get(-1).toUri();
 
   sqlite3_stmt* stmt;
   sqlite3_prepare_v2(m_database,

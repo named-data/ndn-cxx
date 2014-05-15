@@ -128,6 +128,7 @@ public:
    *
    * Otherwise, Interest::shared_from_this() will throw an exception.
    */
+  DEPRECATED(
   Interest(const Name& name,
            int minSuffixComponents, int maxSuffixComponents,
            const Exclude& exclude,
@@ -135,9 +136,14 @@ public:
            bool mustBeFresh,
            int scope,
            const time::milliseconds& interestLifetime,
-           uint32_t nonce = 0)
+           uint32_t nonce = 0))
     : m_name(name)
-    , m_selectors(minSuffixComponents, maxSuffixComponents, exclude, childSelector, mustBeFresh)
+    , m_selectors(Selectors()
+                    .setMinSuffixComponents(minSuffixComponents)
+                    .setMaxSuffixComponents(maxSuffixComponents)
+                    .setExclude(exclude)
+                    .setChildSelector(childSelector)
+                    .setMustBeFresh(mustBeFresh))
     , m_nonce(nonce)
     , m_scope(scope)
     , m_interestLifetime(interestLifetime)

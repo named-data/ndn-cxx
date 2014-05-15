@@ -91,10 +91,8 @@ Exclude&
 Exclude::excludeRange(const name::Component& from, const name::Component& to)
 {
   if (from >= to) {
-    throw Error("Invalid exclude range [" +
-                from.toEscapedString() + ", " +
-                to.toEscapedString() +
-                "] (for single name exclude use Exclude::excludeOne)");
+    throw Error("Invalid exclude range [" + from.toUri() + ", " + to.toUri() + "] "
+                "(for single name exclude use Exclude::excludeOne)");
   }
 
   iterator newFrom = m_exclude.lower_bound(from);
@@ -154,7 +152,7 @@ operator<<(std::ostream& os, const Exclude& exclude)
   for (Exclude::const_reverse_iterator i = exclude.rbegin(); i != exclude.rend(); i++) {
     if (!i->first.empty()) {
       if (!empty) os << ",";
-      os << i->first.toEscapedString();
+      os << i->first.toUri();
       empty = false;
     }
     if (i->second) {

@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE(DecodeFromStream)
   boost::iostreams::stream<boost::iostreams::array_source> is(
     reinterpret_cast<const char *>(Interest1), sizeof(Interest1));
 
-  Block interestBlock(is);
+  Block interestBlock = Block::fromStream(is);
 
   ndn::Interest i;
   BOOST_REQUIRE_NO_THROW(i.wireDecode(interestBlock));

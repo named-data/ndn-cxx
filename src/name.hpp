@@ -534,7 +534,7 @@ operator<<(std::ostream& os, const Name& name)
     {
       for (Name::const_iterator i = name.begin(); i != name.end(); i++) {
         os << "/";
-        i->toEscapedString(os);
+        i->toUri(os);
       }
     }
   return os;

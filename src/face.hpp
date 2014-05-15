@@ -112,8 +112,9 @@ public:
    * @throws ConfigFile::Error on configuration file parse failure
    * @throws Face::Error on unsupported protocol
    */
+  DEPRECATED(
   explicit
-  Face(const shared_ptr<boost::asio::io_service>& ioService);
+  Face(const shared_ptr<boost::asio::io_service>& ioService));
 
   /**
    * @brief Create a new Face using the default transport (UnixTransport)
@@ -241,11 +242,12 @@ public:
   /**
    * @deprecated Use the other overload
    */
+  DEPRECATED(
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
-                    const IdentityCertificate& certificate = IdentityCertificate());
+                    const IdentityCertificate& certificate = IdentityCertificate()));
 
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
@@ -276,11 +278,12 @@ public:
   /**
    * @deprecated Use the other overload
    */
+  DEPRECATED(
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
-                    const Name& identity);
+                    const Name& identity));
 
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest callback
@@ -445,8 +448,9 @@ public:
    *
    * @deprecated Use getIoService instead
    */
+  DEPRECATED(
   shared_ptr<boost::asio::io_service>
-  ioService()
+  ioService())
   {
     return m_ioService;
   }
