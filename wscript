@@ -50,7 +50,7 @@ def configure(conf):
     conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD',
                    mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
-    conf.check_cxx(cxxflags=['-fPIC'], uselib_store='cxxstlib', mandatory=False)
+    conf.check_cxx(cxxflags=['-fPIC'], uselib_store='PIC', mandatory=False)
 
     conf.check_osx_security(mandatory=False)
 
@@ -116,20 +116,18 @@ def build(bld):
         )
 
     libndn_cxx = bld(
-        features=['cxx', 'cxxstlib'], # 'cxxshlib',
+        features=['pch', 'cxx', 'cxxstlib'], # 'cxxshlib',
         # vnum=VERSION,
         target="ndn-cxx",
         name="ndn-cxx",
         source=bld.path.ant_glob('src/**/*.cpp',
                                    excl=['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
+        headers='src/common-pch.hpp',
         use='version BOOST OPENSSL CRYPTOPP SQLITE3 RT PIC PTHREAD',
         includes=". src",
         export_includes="src",
         install_path='${LIBDIR}',
         )
-
-    if bld.env['WITH_PCH']:
-        libndn_cxx.pch="src/common.hpp"
 
     if bld.env['HAVE_OSX_SECURITY']:
         libndn_cxx.source += bld.path.ant_glob('src/**/*-osx.cpp')
@@ -184,7 +182,6 @@ def build(bld):
     # Unit tests
     if bld.env['WITH_TESTS']:
         bld.recurse('tests')
-        bld.recurse('tests-integrated')
 
     if bld.env['WITH_TOOLS']:
         bld.recurse("tools")

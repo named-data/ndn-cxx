@@ -5,21 +5,58 @@ from waflib import Utils
 top = '..'
 
 def build(bld):
-    unittests = bld.program (
-        target="../unit-tests",
-        features="cxx cxxprogram",
-        source=bld.path.ant_glob(['**/*.cpp'],
-                                 excl=['**/*-osx.cpp', '**/*-sqlite3.cpp']),
+    bld(features=['cxx', 'pch'],
+        name='tests-base',
+        target='tests-base',
+        headers=['../src/common-pch.hpp', 'boost-test.hpp'],
         use='ndn-cxx',
+        includes='.',
+        )
+
+    unit_tests = bld(
+        target="unit-test-objects",
+        name="unit-test-objects",
+        features="cxx",
+        source=bld.path.ant_glob(['unit-tests/**/*.cpp'],
+                                 excl=['**/*-osx.cpp', '**/*-sqlite3.cpp']),
+        use='tests-base',
+        includes='.',
+        install_path=None,
+        )
+
+    integrated = bld(
+        target="integrated-test-objects",
+        name="integrated-test-objects",
+        features="cxx",
+        source=bld.path.ant_glob(['integrated/**/*.cpp'],
+                                 excl=['**/*-osx.cpp', '**/*-sqlite3.cpp']),
+        use='tests-base',
         includes='.',
         install_path=None,
         )
 
     if bld.env['HAVE_OSX_SECURITY']:
-        unittests.source += bld.path.ant_glob('**/*-osx.cpp')
+        unit_tests.source += bld.path.ant_glob('unit-tests/**/*-osx.cpp')
+        integrated.source += bld.path.ant_glob('integrated/**/*-osx.cpp')
 
     # In case we want to make it optional later
-    unittests.source += bld.path.ant_glob('**/*-sqlite3.cpp')
+    unit_tests.source += bld.path.ant_glob('unit-tests/**/*-sqlite3.cpp')
+    integrated.source += bld.path.ant_glob('integrated/**/*-sqlite3.cpp')
 
-    if bld.env['WITH_PCH']:
-        unittests.pch = "test-all.hpp"
+    unit_test_main = bld(
+        target='unit-tests-main',
+        name='unit-tests-main',
+        features='cxx',
+        source=bld.path.ant_glob(['*.cpp']),
+        use='ndn-cxx',
+    )
+
+    bld(features="cxx cxxprogram",
+        target="../unit-tests",
+        use="unit-test-objects unit-tests-main",
+        install_path=None)
+
+    bld(features="cxx cxxprogram",
+        target="../integrated-tests",
+        use="integrated-test-objects unit-tests-main",
+        install_path=None)

@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(ConstructorNormalConfig)
 {
   using namespace boost::filesystem;
 
-  setenv("TEST_HOME", "tests/security/config-file-home", 1);
+  setenv("TEST_HOME", "tests/unit-tests/security/config-file-home", 1);
 
   BOOST_REQUIRE_NO_THROW(KeyChain());
 
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(ConstructorEmptyConfig)
 {
   using namespace boost::filesystem;
 
-  setenv("TEST_HOME", "tests/security/config-file-empty-home", 1);
+  setenv("TEST_HOME", "tests/unit-tests/security/config-file-empty-home", 1);
 
   BOOST_REQUIRE_NO_THROW(KeyChain());
 
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(ConstructorMalConfig)
 {
   using namespace boost::filesystem;
 
-  setenv("TEST_HOME", "tests/security/config-file-malformed-home", 1);
+  setenv("TEST_HOME", "tests/unit-tests/security/config-file-malformed-home", 1);
 
   BOOST_REQUIRE_THROW(KeyChain(), KeyChain::Error); // Wrong configuration. Error expected.
 }
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(ConstructorMal2Config)
 {
   using namespace boost::filesystem;
 
-  setenv("TEST_HOME", "tests/security/config-file-malformed2-home", 1);
+  setenv("TEST_HOME", "tests/unit-tests/security/config-file-malformed2-home", 1);
 
   BOOST_REQUIRE_THROW(KeyChain(), KeyChain::Error); // Wrong configuration. Error expected.
 }

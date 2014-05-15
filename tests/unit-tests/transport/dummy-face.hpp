@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_TRANSPORT_DUMMY_FACE_HPP
-#define NDN_TESTS_TRANSPORT_DUMMY_FACE_HPP
+#ifndef NDN_TESTS_UNIT_TESTS_TRANSPORT_DUMMY_FACE_HPP
+#define NDN_TESTS_UNIT_TESTS_TRANSPORT_DUMMY_FACE_HPP
 
 #include "face.hpp"
 #include "transport/transport.hpp"
@@ -113,4 +113,4 @@ makeDummyFace()
 
 } // namespace ndn
 
-#endif // NDN_TESTS_TRANSPORT_DUMMY_FACE_HPP
+#endif // NDN_TESTS_UNIT_TESTS_TRANSPORT_DUMMY_FACE_HPP

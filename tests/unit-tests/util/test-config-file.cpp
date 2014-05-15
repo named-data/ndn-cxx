@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(TestParse)
   using namespace boost::filesystem;
   // std::cerr << "current home = " << std::getenv("HOME") << std::endl;
 
-  setenv("HOME", "tests/util/config-file-home", 1);
+  setenv("HOME", "tests/unit-tests/util/config-file-home", 1);
 
   path homePath(absolute(std::getenv("HOME")));
   homePath /= ".ndn/client.conf";
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(EmptyPathParse)
 {
   // std::cerr << "current home = " << std::getenv("HOME") << std::endl;
 
-  setenv("HOME", "tests/util/does/not/exist", 1);
+  setenv("HOME", "tests/unit-tests/util/does/not/exist", 1);
   try
     {
       ConfigFile config;
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(MalformedParse)
   using namespace boost::filesystem;
   // std::cerr << "current home = " << std::getenv("HOME") << std::endl;
 
-  setenv("HOME", "tests/util/config-file-malformed-home", 1);
+  setenv("HOME", "tests/unit-tests/util/config-file-malformed-home", 1);
 
   bool fileWasMalformed = false;
   try

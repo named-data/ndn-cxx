@@ -2,7 +2,7 @@
 *~
 
 # Mac OSX
-.DS_Store
+.DS_*
 
 # waf build system
 .waf-1*

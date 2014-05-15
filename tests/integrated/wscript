@@ -5,12 +5,13 @@ from waflib import Utils
 top = '..'
 
 def build(bld):
-    unittests = bld.program (
-        target="../integrated-tests",
-        features="cxx cxxprogram",
+    unittests = bld(
+        target="integrated-test-objects",
+        name="integrated-test-objects",
+        features="cxx",
         source=bld.path.ant_glob(['**/*.cpp'],
-                                 excl=['**/*-osx.cpp', '**/*-sqlite3.cpp']),
-        use='ndn-cxx',
+                                 excl=['main.cpp', '**/*-osx.cpp', '**/*-sqlite3.cpp']),
+        use='tests-base',
         includes='.',
         install_path=None,
         )
@@ -21,5 +22,8 @@ def build(bld):
     # In case we want to make it optional later
     unittests.source += bld.path.ant_glob('**/*-sqlite3.cpp')
 
-    if bld.env['WITH_PCH']:
-        unittests.pch = "test-all.hpp"
+    bld.program(
+        target="../integrated-tests",
+        use="integrated-test-objects",
+        source="main.cpp",
+        install_path=None)

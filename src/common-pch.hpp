@@ -41,10 +41,18 @@
 // Other useful headers to precompile
 #include <boost/lexical_cast.hpp>
 #include <boost/asio.hpp>
+#include <boost/chrono.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/info_parser.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <boost/iostreams/detail/ios.hpp>
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
+
+#include "security/cryptopp.hpp"
 
 #endif // NDN_COMMON_PCH_HPP

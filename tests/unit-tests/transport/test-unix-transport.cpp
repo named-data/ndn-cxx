@@ -48,7 +48,7 @@ BOOST_FIXTURE_TEST_SUITE(TransportTestUnixTransport, UnixTransportFixture)
 
 BOOST_AUTO_TEST_CASE(TestGetDefaultSocketNameOk)
 {
-  setenv("HOME", "tests/transport/test-homes/ok", 1);
+  setenv("HOME", "tests/unit-tests/transport/test-homes/ok", 1);
 
   ConfigFile config;
   BOOST_REQUIRE_EQUAL(UnixTransport::getDefaultSocketName(config), "/tmp/test/nfd.sock");
@@ -56,21 +56,21 @@ BOOST_AUTO_TEST_CASE(TestGetDefaultSocketNameOk)
 
 BOOST_AUTO_TEST_CASE(TestGetDefaultSocketNameMissingSocketMissingProtocol)
 {
-  setenv("HOME", "tests/transport/test-homes/missing-unix-socket-missing-protocol", 1);
+  setenv("HOME", "tests/unit-tests/transport/test-homes/missing-unix-socket-missing-protocol", 1);
   ConfigFile config;
   BOOST_REQUIRE_EQUAL(UnixTransport::getDefaultSocketName(config), "/var/run/nfd.sock");
 }
 
 BOOST_AUTO_TEST_CASE(TestGetDefaultSocketNameMissingSocketNdndProtocol)
 {
-  setenv("HOME", "tests/transport/test-homes/missing-unix-socket-with-ndnd-protocol", 1);
+  setenv("HOME", "tests/unit-tests/transport/test-homes/missing-unix-socket-with-ndnd-protocol", 1);
   ConfigFile config;
   BOOST_REQUIRE_EQUAL(UnixTransport::getDefaultSocketName(config), "/tmp/.ndnd.sock");
 }
 
 BOOST_AUTO_TEST_CASE(TestGetDefaultSocketNameMissingSocketWithProtocol)
 {
-  setenv("HOME", "tests/transport/test-homes/missing-unix-socket-with-protocol", 1);
+  setenv("HOME", "tests/unit-tests/transport/test-homes/missing-unix-socket-with-protocol", 1);
   ConfigFile config;
   BOOST_REQUIRE_EQUAL(UnixTransport::getDefaultSocketName(config), "/var/run/nfd.sock");
 }
