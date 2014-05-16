@@ -28,6 +28,7 @@ def configure(conf):
                          '-fdiagnostics-color', # gcc >= 4.9
                          '-Werror',
                          '-Wno-error=deprecated-register',
+                         '-Wno-error=maybe-uninitialized', # Bug #1615
                         ]
         if areCustomCxxflagsPresent:
             missingFlags = [x for x in defaultFlags if x not in conf.env.CXXFLAGS]
