@@ -19,8 +19,10 @@
 namespace ndn {
 namespace nfd {
 
-/** \brief base class of NFD ControlCommand
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand
+/**
+ * \ingroup management
+ * \brief base class of NFD ControlCommand
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand
  */
 class ControlCommand : noncopyable
 {
@@ -174,8 +176,10 @@ private:
 };
 
 
-/** \brief represents a faces/create command
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Create-a-face
+/**
+ * \ingroup management
+ * \brief represents a faces/create command
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Create-a-face
  */
 class FaceCreateCommand : public ControlCommand
 {
@@ -202,8 +206,10 @@ public:
 };
 
 
-/** \brief represents a faces/destroy command
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Destroy-a-face
+/**
+ * \ingroup management
+ * \brief represents a faces/destroy command
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Destroy-a-face
  */
 class FaceDestroyCommand : public ControlCommand
 {
@@ -233,7 +239,10 @@ public:
   }
 };
 
-
+/**
+ * \ingroup management
+ * \brief Base class for faces/[*]-local-control commands
+ */
 class FaceLocalControlCommand : public ControlCommand
 {
 public:
@@ -269,8 +278,10 @@ protected:
 };
 
 
-/** \brief represents a faces/enable-local-control command
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Enable-a-LocalControlHeader-feature
+/**
+ * \ingroup management
+ * \brief represents a faces/enable-local-control command
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Enable-a-LocalControlHeader-feature
  */
 class FaceEnableLocalControlCommand : public FaceLocalControlCommand
 {
@@ -282,8 +293,10 @@ public:
 };
 
 
-/** \brief represents a faces/disable-local-control command
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Disable-a-LocalControlHeader-feature
+/**
+ * \ingroup management
+ * \brief represents a faces/disable-local-control command
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Disable-a-LocalControlHeader-feature
  */
 class FaceDisableLocalControlCommand : public FaceLocalControlCommand
 {
@@ -295,8 +308,10 @@ public:
 };
 
 
-/** \brief represents a fib/add-nexthop command
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/FibMgmt#Add-a-nexthop
+/**
+ * \ingroup management
+ * \brief represents a fib/add-nexthop command
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/FibMgmt#Add-a-nexthop
  */
 class FibAddNextHopCommand : public ControlCommand
 {
@@ -334,8 +349,10 @@ public:
 };
 
 
-/** \brief represents a fib/remove-nexthop command
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/FibMgmt#Remove-a-nexthop
+/**
+ * \ingroup management
+ * \brief represents a fib/remove-nexthop command
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/FibMgmt#Remove-a-nexthop
  */
 class FibRemoveNextHopCommand : public ControlCommand
 {
@@ -363,8 +380,10 @@ public:
 };
 
 
-/** \brief represents a strategy-choice/set command
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Set-the-strategy-for-a-namespace
+/**
+ * \ingroup management
+ * \brief represents a strategy-choice/set command
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Set-the-strategy-for-a-namespace
  */
 class StrategyChoiceSetCommand : public ControlCommand
 {
@@ -380,8 +399,10 @@ public:
 };
 
 
-/** \brief represents a strategy-choice/set command
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Unset-the-strategy-for-a-namespace
+/**
+ * \ingroup management
+ * \brief represents a strategy-choice/set command
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Unset-the-strategy-for-a-namespace
  */
 class StrategyChoiceUnsetCommand : public ControlCommand
 {
@@ -412,6 +433,9 @@ public:
 };
 
 
+/**
+ * \ingroup management
+ */
 enum {
   // route origin
   ROUTE_ORIGIN_APP    = 0,
@@ -424,8 +448,10 @@ enum {
 };
 
 
-/** \brief represents a rib/register command
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/RibMgmt#Register-a-route
+/**
+ * \ingroup management
+ * \brief represents a rib/register command
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/RibMgmt#Register-a-route
  */
 class RibRegisterCommand : public ControlCommand
 {
@@ -486,8 +512,10 @@ public:
 };
 
 
-/** \brief represents a rib/unregister command
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/RibMgmt#Unregister-a-route
+/**
+ * \ingroup management
+ * \brief represents a rib/unregister command
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/RibMgmt#Unregister-a-route
  */
 class RibUnregisterCommand : public ControlCommand
 {

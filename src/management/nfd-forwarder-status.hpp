@@ -22,8 +22,10 @@
 namespace ndn {
 namespace nfd {
 
-/** \brief represents NFD Forwarder Status
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/ForwarderStatus
+/**
+ * \ingroup management
+ * \brief represents NFD Forwarder Status
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/ForwarderStatus
  */
 class ForwarderStatus
 {

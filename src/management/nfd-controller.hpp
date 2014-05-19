@@ -19,7 +19,13 @@
 namespace ndn {
 namespace nfd {
 
-/** \brief NFD Management protocol - ControlCommand client
+/**
+ * \defgroup management
+ * \brief Classes and data structures to manage NDN forwarder
+ */
+/**
+ * \ingroup management
+ * \brief NFD Management protocol - ControlCommand client
  */
 class Controller : noncopyable
 {

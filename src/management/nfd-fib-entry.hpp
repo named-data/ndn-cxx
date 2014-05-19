@@ -27,6 +27,9 @@ namespace nfd {
 //                    FaceId
 //                    Cost
 
+/**
+ * @ingroup management
+ */
 class NextHopRecord
 {
 public:
@@ -171,6 +174,9 @@ private:
 //                    Name
 //                    NextHopRecord*
 
+/**
+ * @ingroup management
+ */
 class FibEntry
 {
 public:

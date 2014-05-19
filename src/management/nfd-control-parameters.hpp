@@ -19,6 +19,9 @@
 namespace ndn {
 namespace nfd {
 
+/**
+ * \ingroup management
+ */
 enum ControlParameterField {
   CONTROL_PARAMETER_NAME,
   CONTROL_PARAMETER_FACE_ID,
@@ -44,13 +47,18 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
   "ExpirationPeriod",
 };
 
+/**
+ * \ingroup management
+ */
 enum LocalControlFeature {
   LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID = 1,
   LOCAL_CONTROL_FEATURE_NEXT_HOP_FACE_ID = 2
 };
 
-/** \brief represents parameters in a ControlCommand request or response
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand
+/**
+ * \ingroup management
+ * \brief represents parameters in a ControlCommand request or response
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand
  */
 class ControlParameters
 {

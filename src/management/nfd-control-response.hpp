@@ -21,6 +21,7 @@ namespace ndn {
 namespace nfd {
 
 /**
+ * @ingroup management
  * @brief Class defining abstraction of ControlResponse for NFD Control Protocol
  *
  * @see http://redmine.named-data.net/projects/nfd/wiki/ControlCommand

@@ -54,13 +54,18 @@ enum {
   // Face Management
   FaceStatus            = 128,
   LocalUri              = 129,
+  ChannelStatus         = 130,
   FaceFlags             = 194,
   FaceEventNotification = 192,
   FaceEventKind         = 193,
 
   // FIB Management
   FibEntry      = 128,
-  NextHopRecord = 129
+  NextHopRecord = 129,
+
+  // Strategy Choice Management
+  StrategyChoice = 128
+
 };
 
 enum {

@@ -16,8 +16,10 @@
 namespace ndn {
 namespace nfd {
 
-/** \class FaceFlags
- *  \brief provides additional information about a face
+/**
+ * \ingroup management
+ * \enum FaceFlags
+ * \brief provides additional information about a face
  */
 enum {
   /** \brief face is local (for scope control purpose)
@@ -31,10 +33,12 @@ enum {
   // FACE_? = 8
 };
 
-/** \brief implements getters to each face flag
+/**
+ * \ingroup management
+ * \brief implements getters to each face flag
  *
- *  \tparam T class containing a FaceFlags field and implements
- *            `FaceFlags getFlags() const` method
+ * \tparam T class containing a FaceFlags field and implements
+ *           `FaceFlags getFlags() const` method
  */
 template<typename T>
 class FaceFlagsTraits

@@ -23,13 +23,18 @@
 namespace ndn {
 namespace nfd {
 
+/**
+ * \ingroup management
+ */
 enum FaceEventKind {
   FACE_EVENT_CREATED = 1,
   FACE_EVENT_DESTROYED = 2
 };
 
-/** \brief represents a Face status change notification
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Status-Change-Notification
+/**
+ * \ingroup management
+ * \brief represents a Face status change notification
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Status-Change-Notification
  */
 class FaceEventNotification : public FaceFlagsTraits<FaceEventNotification>
 {

@@ -19,6 +19,11 @@
 namespace ndn {
 namespace nfd {
 
+/**
+ * @ingroup management
+ * @brief Class to handle work with LocalControlHeader
+ * @sa http://redmine.named-data.net/projects/nfd/wiki/LocalControlHeader
+ */
 class LocalControlHeader
 {
 public:

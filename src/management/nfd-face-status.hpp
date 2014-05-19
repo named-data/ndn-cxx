@@ -23,8 +23,10 @@
 namespace ndn {
 namespace nfd {
 
-/** \brief represents Face status
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Dataset
+/**
+ * \ingroup management
+ * \brief represents Face status
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Dataset
  */
 class FaceStatus : public FaceFlagsTraits<FaceStatus>
 {
