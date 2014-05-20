@@ -128,6 +128,12 @@ BOOST_AUTO_TEST_CASE(FibAddNextHop)
   command.applyDefaultsToRequest(p1);
   BOOST_REQUIRE(p1.hasCost());
   BOOST_CHECK_EQUAL(p1.getCost(), 0);
+
+  p1.unsetFaceId();
+  BOOST_CHECK_NO_THROW(command.validateRequest(p1));
+  command.applyDefaultsToRequest(p1);
+  BOOST_REQUIRE(p1.hasFaceId());
+  BOOST_CHECK_EQUAL(p1.getFaceId(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(FibRemoveNextHop)
@@ -146,6 +152,12 @@ BOOST_AUTO_TEST_CASE(FibRemoveNextHop)
     .setFaceId(0);
   BOOST_CHECK_NO_THROW(command.validateRequest(p2));
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
+
+  p1.unsetFaceId();
+  BOOST_CHECK_NO_THROW(command.validateRequest(p1));
+  command.applyDefaultsToRequest(p1);
+  BOOST_REQUIRE(p1.hasFaceId());
+  BOOST_CHECK_EQUAL(p1.getFaceId(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(StrategyChoiceSet)

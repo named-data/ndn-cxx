@@ -321,7 +321,7 @@ public:
   {
     m_requestValidator
       .required(CONTROL_PARAMETER_NAME)
-      .required(CONTROL_PARAMETER_FACE_ID)
+      .optional(CONTROL_PARAMETER_FACE_ID)
       .optional(CONTROL_PARAMETER_COST);
     m_responseValidator
       .required(CONTROL_PARAMETER_NAME)
@@ -332,6 +332,9 @@ public:
   virtual void
   applyDefaultsToRequest(ControlParameters& parameters) const
   {
+    if (!parameters.hasFaceId()) {
+      parameters.setFaceId(0);
+    }
     if (!parameters.hasCost()) {
       parameters.setCost(0);
     }
@@ -362,10 +365,18 @@ public:
   {
     m_requestValidator
       .required(CONTROL_PARAMETER_NAME)
-      .required(CONTROL_PARAMETER_FACE_ID);
+      .optional(CONTROL_PARAMETER_FACE_ID);
     m_responseValidator
       .required(CONTROL_PARAMETER_NAME)
       .required(CONTROL_PARAMETER_FACE_ID);
+  }
+
+  virtual void
+  applyDefaultsToRequest(ControlParameters& parameters) const
+  {
+    if (!parameters.hasFaceId()) {
+      parameters.setFaceId(0);
+    }
   }
 
   virtual void
