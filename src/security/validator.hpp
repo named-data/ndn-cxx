@@ -233,7 +233,6 @@ protected:
               const OnInterestValidationFailed& onValidationFailed,
               std::vector<shared_ptr<ValidationRequest> >& nextSteps) = 0;
 
-private:
   typedef function<void(const std::string&)> OnFailure;
 
   /// @brief Process the received certificate.
