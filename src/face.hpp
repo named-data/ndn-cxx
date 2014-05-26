@@ -249,14 +249,30 @@ public:
                     const IdentityCertificate& certificate = IdentityCertificate());
 
   /**
-   * @deprecated Use the other overload
+   * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
+   * callback and register the filtered prefix with the connected NDN forwarder
+   *
+   * This version of setInterestFilter combines setInterestFilter and registerPrefix
+   * operations and is intended to be used when only one filter for the same prefix needed
+   * to be set.  When multiple names sharing the same prefix should be dispatched to
+   * different callbacks, use one registerPrefix call, followed (in onSuccess callback) by
+   * a series of setInterestFilter calls.
+   *
+   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
+   * @param onInterest     A callback to be called when a matching interest is received
+   * @param onFailure      A callback to be called when prefixRegister command fails
+   * @param certificate    (optional) A certificate under which the prefix registration
+   *                       command interest is signed.  When omitted, a default certificate
+   *                       of the default identity is used to sign the registration command
+   *
+   * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
+   *         removeRegisteredPrefix
    */
-  DEPRECATED(
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
-                    const IdentityCertificate& certificate = IdentityCertificate()));
+                    const IdentityCertificate& certificate = IdentityCertificate());
 
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
@@ -285,14 +301,28 @@ public:
                     const Name& identity);
 
   /**
-   * @deprecated Use the other overload
+   * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
+   * callback and register the filtered prefix with the connected NDN forwarder
+   *
+   * This version of setInterestFilter combines setInterestFilter and registerPrefix
+   * operations and is intended to be used when only one filter for the same prefix needed
+   * to be set.  When multiple names sharing the same prefix should be dispatched to
+   * different callbacks, use one registerPrefix call, followed (in onSuccess callback) by
+   * a series of setInterestFilter calls.
+   *
+   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
+   * @param onInterest     A callback to be called when a matching interest is received
+   * @param onFailure      A callback to be called when prefixRegister command fails
+   * @param identity       A signing identity. A command interest is signed under the default
+   *                       certificate of this identity
+   *
+   * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
    */
-  DEPRECATED(
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
-                    const Name& identity));
+                    const Name& identity);
 
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest callback
@@ -357,8 +387,7 @@ public:
 
 
   /**
-   * @brief Remove the registered prefix entry with the registeredPrefixId from the
-   *        pending interest table.
+   * @brief Remove the registered prefix entry with the registeredPrefixId
    *
    * This does not affect another registered prefix with a different registeredPrefixId,
    * even it if has the same prefix name.  If there is no entry with the
