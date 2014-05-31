@@ -185,7 +185,7 @@ public:
    * @param keyType
    * @returns MAC OS key type
    */
-  const CFTypeRef
+  CFTypeRef
   getSymKeyType(KeyType keyType);
 
   /**
@@ -194,7 +194,7 @@ public:
    * @param keyType
    * @returns MAC OS key type
    */
-  const CFTypeRef
+  CFTypeRef
   getAsymKeyType(KeyType keyType);
 
   /**
@@ -203,7 +203,7 @@ public:
    * @param keyClass
    * @returns MAC OS key class
    */
-  const CFTypeRef
+  CFTypeRef
   getKeyClass(KeyClass keyClass);
 
   /**
@@ -212,7 +212,7 @@ public:
    * @param digestAlgo
    * @returns MAC OS algorithm id
    */
-  const CFStringRef
+  CFStringRef
   getDigestAlgorithm(DigestAlgorithm digestAlgo);
 
   /**
@@ -1010,7 +1010,7 @@ SecTpmOsx::Impl::toInternalKeyName(const Name& keyName, KeyClass keyClass)
     return keyUri;
 }
 
-const CFTypeRef
+CFTypeRef
 SecTpmOsx::Impl::getAsymKeyType(KeyType keyType)
 {
   switch (keyType){
@@ -1021,7 +1021,7 @@ SecTpmOsx::Impl::getAsymKeyType(KeyType keyType)
   }
 }
 
-const CFTypeRef
+CFTypeRef
 SecTpmOsx::Impl::getSymKeyType(KeyType keyType)
 {
   switch (keyType){
@@ -1032,7 +1032,7 @@ SecTpmOsx::Impl::getSymKeyType(KeyType keyType)
   }
 }
 
-const CFTypeRef
+CFTypeRef
 SecTpmOsx::Impl::getKeyClass(KeyClass keyClass)
 {
   switch (keyClass){
@@ -1047,7 +1047,7 @@ SecTpmOsx::Impl::getKeyClass(KeyClass keyClass)
   }
 }
 
-const CFStringRef
+CFStringRef
 SecTpmOsx::Impl::getDigestAlgorithm(DigestAlgorithm digestAlgo)
 {
   switch (digestAlgo){

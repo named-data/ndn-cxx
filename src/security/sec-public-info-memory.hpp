@@ -131,7 +131,7 @@ private:
     {
     }
 
-    const KeyType
+    KeyType
     getKeyType() const
     {
       return m_keyType;

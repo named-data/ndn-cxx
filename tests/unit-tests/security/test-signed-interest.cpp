@@ -66,11 +66,14 @@ class CommandInterestFixture
 public:
   CommandInterestFixture()
     : m_validity(false)
-  {}
+  {
+  }
 
   void
   validated(const shared_ptr<const Interest>& interest)
-  { m_validity = true; }
+  {
+    m_validity = true;
+  }
 
   void
   validationFailed(const shared_ptr<const Interest>& interest, const string& failureInfo)
@@ -80,7 +83,9 @@ public:
 
   void
   reset()
-  { m_validity = false; }
+  {
+    m_validity = false;
+  }
 
   bool m_validity;
 };

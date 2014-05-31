@@ -135,10 +135,14 @@ class gchx(Task.Task):
 	ext_out=['.h']
 
 	def runnable_status(self):
+		try:
+			node_deps = self.generator.bld.node_deps[self.uid()]
+		except KeyError:
+			node_deps = []
 		ret = Task.Task.runnable_status(self)
 		if ret == Task.SKIP_ME and self.env.CXX_NAME == 'clang':
 			t = os.stat(self.outputs[0].abspath()).st_mtime
-			for n in self.inputs:
+			for n in self.inputs + node_deps:
 				if os.stat(n.abspath()).st_mtime > t:
 					return Task.RUN_ME
 		return ret

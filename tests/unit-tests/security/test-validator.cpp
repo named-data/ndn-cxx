@@ -33,7 +33,9 @@ BOOST_AUTO_TEST_SUITE(SecurityTestValidator)
 
 void
 onValidated(const shared_ptr<const Data>& data)
-{ BOOST_CHECK(true); }
+{
+  BOOST_CHECK(true);
+}
 
 void
 onValidationFailed(const shared_ptr<const Data>& data, const string& failureInfo)

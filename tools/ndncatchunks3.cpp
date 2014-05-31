@@ -53,7 +53,7 @@ public:
 
 private:
   void
-  onData(const Interest& interest, Data& data);
+  onData(Data& data);
 
   void
   onTimeout(const Interest& interest);
@@ -84,7 +84,7 @@ Consumer::run()
           interest.setMustBeFresh(m_mustBeFresh);
 
           m_face.expressInterest(interest,
-                                 bind(&Consumer::onData, this, _1, _2),
+                                 bind(&Consumer::onData, this, _2),
                                  bind(&Consumer::onTimeout, this, _1));
         }
 
@@ -98,7 +98,7 @@ Consumer::run()
 }
 
 void
-Consumer::onData(const Interest& interest, Data& data)
+Consumer::onData(Data& data)
 {
   const Block& content = data.getContent();
   const Name& name = data.getName();
@@ -125,7 +125,7 @@ Consumer::onData(const Interest& interest, Data& data)
       interest.setMustBeFresh(m_mustBeFresh);
 
       m_face.expressInterest(interest,
-                             bind(&Consumer::onData, this, _1, _2),
+                             bind(&Consumer::onData, this, _2),
                              bind(&Consumer::onTimeout, this, _1));
     }
 }

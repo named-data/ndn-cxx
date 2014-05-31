@@ -94,7 +94,7 @@ public:
     return m_extensionId;
   }
 
-  inline const bool
+  inline bool
   getIsCritical() const
   {
     return m_isCritical;

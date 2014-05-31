@@ -887,7 +887,7 @@ KeyChain::signPacketWrapper(Interest& interest, const SignatureSha256WithRsa& si
   Block sigValue = m_tpm->signInTpm(signedName.wireEncode().value(),
                                     signedName.wireEncode().value_size(),
                                     keyName,
-                                    DIGEST_ALGORITHM_SHA256);
+                                    digestAlgorithm);
   sigValue.encode();
   signedName.append(sigValue);
   interest.setName(signedName);

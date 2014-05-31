@@ -67,7 +67,7 @@ public:
 
 
   void
-  onRegisterFailed(const Name& prefix, const std::string& reason)
+  onRegisterFailed(const std::string& reason)
   {
     std::cerr << "ERROR: Failed to register prefix in local hub's daemon (" << reason << ")"
               << std::endl;
@@ -80,7 +80,7 @@ public:
     m_face.setInterestFilter("/localhost/testApp",
                              bind(&Producer::onInterest, this, _1, _2),
                              RegisterPrefixSuccessCallback(),
-                             bind(&Producer::onRegisterFailed, this, _1, _2));
+                             bind(&Producer::onRegisterFailed, this, _2));
     m_face.processEvents();
   }
 

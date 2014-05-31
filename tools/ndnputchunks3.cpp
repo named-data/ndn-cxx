@@ -62,7 +62,7 @@ public:
   }
 
   void
-  onInterest(const Name& name, const Interest& interest)
+  onInterest(const Interest& interest)
   {
     if (m_isVerbose)
       std::cerr << "<< I: " << interest << std::endl;
@@ -78,7 +78,9 @@ public:
   void
   onRegisterFailed(const Name& prefix, const std::string& reason)
   {
-    std::cerr << "ERROR: Failed to register prefix in local hub's daemon (" << reason << ")" << std::endl;
+    std::cerr << "ERROR: Failed to register prefix '"
+              << prefix << "' in local hub's daemon (" << reason << ")"
+              << std::endl;
     m_face.shutdown();
   }
 
@@ -92,7 +94,7 @@ public:
       }
 
     m_face.setInterestFilter(m_name,
-                             bind(&Producer::onInterest, this, _1, _2),
+                             bind(&Producer::onInterest, this, _2),
                              RegisterPrefixSuccessCallback(),
                              bind(&Producer::onRegisterFailed, this, _1, _2));
     m_face.processEvents();
