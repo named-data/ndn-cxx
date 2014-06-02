@@ -84,6 +84,12 @@ public:
   void
   addInterestBypassRule(const std::string& regex);
 
+  /**
+   * @brief Remove all installed Interest rules (e.g., when reinitialization needed)
+   */
+  void
+  reset();
+
 protected:
   virtual void
   checkPolicy(const Data& data,
@@ -134,6 +140,13 @@ CommandInterestValidator::addInterestBypassRule(const std::string& regex)
 {
   shared_ptr<Regex> interestRegex = make_shared<Regex>(regex);
   m_trustScopeForInterest.push_back(SecRuleSpecific(interestRegex));
+}
+
+inline void
+CommandInterestValidator::reset()
+{
+  m_trustAnchorsForInterest.clear();
+  m_trustScopeForInterest.clear();
 }
 
 inline void
