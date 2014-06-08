@@ -54,8 +54,7 @@ public:
    * Otherwise, Interest::shared_from_this() will throw an exception.
    */
   Interest()
-    : m_nonce(0)
-    , m_scope(-1)
+    : m_scope(-1)
     , m_interestLifetime(time::milliseconds::min())
   {
   }
@@ -74,7 +73,6 @@ public:
    */
   Interest(const Name& name)
     : m_name(name)
-    , m_nonce(0)
     , m_scope(-1)
     , m_interestLifetime(time::milliseconds::min())
   {
@@ -95,7 +93,6 @@ public:
    */
   Interest(const Name& name, const time::milliseconds& interestLifetime)
     : m_name(name)
-    , m_nonce(0)
     , m_scope(-1)
     , m_interestLifetime(interestLifetime)
   {
@@ -118,10 +115,12 @@ public:
            uint32_t nonce = 0)
     : m_name(name)
     , m_selectors(selectors)
-    , m_nonce(nonce)
     , m_scope(scope)
     , m_interestLifetime(interestLifetime)
   {
+    if (nonce > 0) {
+      setNonce(nonce);
+    }
   }
 
   /**
@@ -153,10 +152,12 @@ public:
                     .setExclude(exclude)
                     .setChildSelector(childSelector)
                     .setMustBeFresh(mustBeFresh))
-    , m_nonce(nonce)
     , m_scope(scope)
     , m_interestLifetime(interestLifetime)
   {
+    if (nonce > 0) {
+      setNonce(nonce);
+    }
   }
 
   /**
@@ -312,16 +313,26 @@ public:
    *
    * Const reference needed for C decoding
    */
-  const uint32_t&
+  uint32_t
   getNonce() const;
 
-  Interest&
-  setNonce(uint32_t nonce)
+  /**
+   * @brief Check if Nonce set
+   */
+  bool
+  hasNonce() const
   {
-    m_nonce = nonce;
-    m_wire.reset();
-    return *this;
+    return m_nonce.hasWire();
   }
+
+  /**
+   * @brief Set Interest's nonce
+   *
+   * Note that if wire format already exists, this call simply replaces nonce in the
+   * existing wire format, without resetting and recreating it.
+   */
+  Interest&
+  setNonce(uint32_t nonce);
 
   //
 
@@ -489,7 +500,7 @@ public: // EqualityComparable concept
 private:
   Name m_name;
   Selectors m_selectors;
-  mutable uint32_t m_nonce;
+  mutable Block m_nonce;
   int m_scope;
   time::milliseconds m_interestLifetime;
 
@@ -547,7 +558,8 @@ Interest::wireEncode(EncodingImpl<T>& block) const
     }
 
   // Nonce
-  totalLength += prependNonNegativeIntegerBlock(block, Tlv::Nonce, getNonce());
+  getNonce(); // to ensure that Nonce is properly set
+  totalLength += block.prependBlock(m_nonce);
 
   // Selectors
   if (!getSelectors().empty())
@@ -558,8 +570,8 @@ Interest::wireEncode(EncodingImpl<T>& block) const
   // Name
   totalLength += getName().wireEncode(block);
 
-  totalLength += block.prependVarNumber (totalLength);
-  totalLength += block.prependVarNumber (Tlv::Interest);
+  totalLength += block.prependVarNumber(totalLength);
+  totalLength += block.prependVarNumber(Tlv::Interest);
   return totalLength;
 }
 
@@ -575,7 +587,9 @@ Interest::wireEncode() const
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
-  m_wire = buffer.block();
+  // to ensure that Nonce block points to the right memory location
+  const_cast<Interest*>(this)->wireDecode(buffer.block());
+
   return m_wire;
 }
 
@@ -608,13 +622,7 @@ Interest::wireDecode(const Block& wire)
     m_selectors = Selectors();
 
   // Nonce
-  val = m_wire.find(Tlv::Nonce);
-  if (val != m_wire.elements_end())
-    {
-      m_nonce = readNonNegativeInteger(*val);
-    }
-  else
-    m_nonce = 0;
+  m_nonce = m_wire.get(Tlv::Nonce);
 
   // Scope
   val = m_wire.find(Tlv::Scope);

@@ -29,15 +29,34 @@
 
 namespace ndn {
 
-const uint32_t&
+uint32_t
 Interest::getNonce() const
 {
-  if (m_nonce == 0)
-    m_nonce = random::generateWord32();
+  if (!m_nonce.hasWire())
+    const_cast<Interest*>(this)->setNonce(random::generateWord32());
 
-  return m_nonce;
+  if (m_nonce.value_size() == sizeof(uint32_t))
+    return *reinterpret_cast<const uint32_t*>(m_nonce.value());
+  else {
+    // for compatibility reasons.  Should be removed eventually
+    return readNonNegativeInteger(m_nonce);
+  }
 }
 
+Interest&
+Interest::setNonce(uint32_t nonce)
+{
+  if (m_wire.hasWire() && m_nonce.value_size() == sizeof(uint32_t)) {
+    std::memcpy(const_cast<uint8_t*>(m_nonce.value()), &nonce, sizeof(nonce));
+  }
+  else {
+    m_nonce = dataBlock(Tlv::Nonce,
+                        reinterpret_cast<const uint8_t*>(&nonce),
+                        sizeof(nonce));
+    m_wire.reset();
+  }
+  return *this;
+}
 
 bool
 Interest::matchesName(const Name& name) const
@@ -122,7 +141,7 @@ operator<<(std::ostream& os, const Interest& interest)
     delim = '&';
   }
 
-  if (interest.getNonce() > 0) {
+  if (interest.hasNonce()) {
     os << delim << "ndn.Nonce=" << interest.getNonce();
     delim = '&';
   }

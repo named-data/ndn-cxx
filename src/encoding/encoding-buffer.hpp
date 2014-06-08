@@ -131,6 +131,9 @@ public:
   prependVarNumber(uint64_t varNumber);
 
   inline size_t
+  prependBlock(const Block& block);
+
+  inline size_t
   appendByte(uint8_t value);
 
   inline size_t
@@ -191,6 +194,9 @@ public:
   prependVarNumber(uint64_t varNumber);
 
   inline size_t
+  prependBlock(const Block& block);
+
+  inline size_t
   appendByte(uint8_t value);
 
   inline size_t
@@ -203,6 +209,66 @@ public:
   appendVarNumber(uint64_t varNumber);
 };
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+/// helper methods
+
+template<bool P>
+inline size_t
+prependNonNegativeIntegerBlock(EncodingImpl<P>& encoder, uint32_t type, uint64_t number)
+{
+  size_t valueLength = encoder.prependNonNegativeInteger(number);
+  size_t totalLength = valueLength;
+  totalLength += encoder.prependVarNumber(valueLength);
+  totalLength += encoder.prependVarNumber(type);
+
+  return totalLength;
+}
+
+template<bool P>
+inline size_t
+prependByteArrayBlock(EncodingImpl<P>& encoder, uint32_t type,
+                      const uint8_t* array, size_t arraySize)
+{
+  size_t valueLength = encoder.prependByteArray(array, arraySize);
+  size_t totalLength = valueLength;
+  totalLength += encoder.prependVarNumber(valueLength);
+  totalLength += encoder.prependVarNumber(type);
+
+  return totalLength;
+}
+
+template<bool P>
+inline size_t
+prependBooleanBlock(EncodingImpl<P>& encoder, uint32_t type)
+{
+  size_t totalLength = encoder.prependVarNumber(0);
+  totalLength += encoder.prependVarNumber(type);
+
+  return totalLength;
+}
+
+
+template<bool P, class U>
+inline size_t
+prependNestedBlock(EncodingImpl<P>& encoder, uint32_t type, const U& nestedBlock)
+{
+  size_t valueLength = nestedBlock.wireEncode(encoder);
+  size_t totalLength = valueLength;
+  totalLength += encoder.prependVarNumber(valueLength);
+  totalLength += encoder.prependVarNumber(type);
+
+  return totalLength;
+}
+
+template<bool P>
+inline size_t
+prependBlock(EncodingImpl<P>& encoder, const Block& block)
+{
+  return encoder.prependByteArray(block.wire(), block.size());
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -415,6 +481,28 @@ EncodingImpl<encoding::Estimator>::prependVarNumber(uint64_t varNumber)
   }
 }
 
+inline size_t
+EncodingImpl<encoding::Buffer>::prependBlock(const Block& block)
+{
+  if (block.hasWire()) {
+    return prependByteArray(block.wire(), block.size());
+  }
+  else {
+    return prependByteArrayBlock(*this, block.type(), block.value(), block.value_size());
+  }
+}
+
+inline size_t
+EncodingImpl<encoding::Estimator>::prependBlock(const Block& block)
+{
+  if (block.hasWire()) {
+    return block.size();
+  }
+  else {
+    return prependByteArrayBlock(*this, block.type(), block.value(), block.value_size());
+  }
+}
+
 /////////////////////////////////////////////////////////
 // Append to the back of the buffer. Resize if needed. //
 /////////////////////////////////////////////////////////
@@ -511,64 +599,6 @@ EncodingImpl<encoding::Estimator>::appendVarNumber(uint64_t varNumber)
 {
   return prependVarNumber(varNumber);
 }
-
-/// helper methods
-
-template<bool P>
-inline size_t
-prependNonNegativeIntegerBlock(EncodingImpl<P>& encoder, uint32_t type, uint64_t number)
-{
-  size_t valueLength = encoder.prependNonNegativeInteger(number);
-  size_t totalLength = valueLength;
-  totalLength += encoder.prependVarNumber(valueLength);
-  totalLength += encoder.prependVarNumber(type);
-
-  return totalLength;
-}
-
-template<bool P>
-inline size_t
-prependByteArrayBlock(EncodingImpl<P>& encoder, uint32_t type,
-                      const uint8_t* array, size_t arraySize)
-{
-  size_t valueLength = encoder.prependByteArray(array, arraySize);
-  size_t totalLength = valueLength;
-  totalLength += encoder.prependVarNumber(valueLength);
-  totalLength += encoder.prependVarNumber(type);
-
-  return totalLength;
-}
-
-template<bool P>
-inline size_t
-prependBooleanBlock(EncodingImpl<P>& encoder, uint32_t type)
-{
-  size_t totalLength = encoder.prependVarNumber(0);
-  totalLength += encoder.prependVarNumber(type);
-
-  return totalLength;
-}
-
-
-template<bool P, class U>
-inline size_t
-prependNestedBlock(EncodingImpl<P>& encoder, uint32_t type, const U& nestedBlock)
-{
-  size_t valueLength = nestedBlock.wireEncode(encoder);
-  size_t totalLength = valueLength;
-  totalLength += encoder.prependVarNumber(valueLength);
-  totalLength += encoder.prependVarNumber(type);
-
-  return totalLength;
-}
-
-template<bool P>
-inline size_t
-prependBlock(EncodingImpl<P>& encoder, const Block& block)
-{
-  return encoder.prependByteArray(block.wire(), block.size());
-}
-
 
 } // ndn
 
