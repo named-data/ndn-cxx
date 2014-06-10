@@ -57,6 +57,8 @@ public:
     }
   };
 
+  static const Name DEFAULT_PREFIX;
+
   KeyChain();
 
   template<class KeyChainTraits>
@@ -116,6 +118,11 @@ public:
    * @param notBefore Refer to IdentityCertificate.
    * @param notAfter Refer to IdentityCertificate.
    * @param subjectDescription Refer to IdentityCertificate.
+   * @param certPrefix Prefix before `KEY` component. By default, KeyChain will infer the
+   *                   certificate name according to the relation between the signingIdentity and
+   *                   the subject identity. If signingIdentity is a prefix of the subject identity,
+   *                   `KEY` will be inserted after the signingIdentity, otherwise `KEY` is inserted
+   *                   after subject identity (i.e., before `ksk-....`).
    * @return IdentityCertificate.
    */
   shared_ptr<IdentityCertificate>
@@ -123,7 +130,33 @@ public:
     const Name& signingIdentity,
     const time::system_clock::TimePoint& notBefore,
     const time::system_clock::TimePoint& notAfter,
-    const std::vector<CertificateSubjectDescription>& subjectDescription);
+    const std::vector<CertificateSubjectDescription>& subjectDescription,
+    const Name& certPrefix = DEFAULT_PREFIX);
+
+  /**
+   * @brief prepare an unsigned identity certificate
+   *
+   * @param keyName Key name, e.g., `/<identity_name>/ksk-123456`.
+   * @param publicKey Public key to sign.
+   * @param signingIdentity The signing identity.
+   * @param notBefore Refer to IdentityCertificate.
+   * @param notAfter Refer to IdentityCertificate.
+   * @param subjectDescription Refer to IdentityCertificate.
+   * @param certPrefix Prefix before `KEY` component. By default, KeyChain will infer the
+   *                   certificate name according to the relation between the signingIdentity and
+   *                   the subject identity. If signingIdentity is a prefix of the subject identity,
+   *                   `KEY` will be inserted after the signingIdentity, otherwise `KEY` is inserted
+   *                   after subject identity (i.e., before `ksk-....`).
+   * @return IdentityCertificate.
+   */
+  shared_ptr<IdentityCertificate>
+  prepareUnsignedIdentityCertificate(const Name& keyName,
+    const PublicKey& publicKey,
+    const Name& signingIdentity,
+    const time::system_clock::TimePoint& notBefore,
+    const time::system_clock::TimePoint& notAfter,
+    const std::vector<CertificateSubjectDescription>& subjectDescription,
+    const Name& certPrefix = DEFAULT_PREFIX);
 
   /**
    * @brief Sign packet with default identity

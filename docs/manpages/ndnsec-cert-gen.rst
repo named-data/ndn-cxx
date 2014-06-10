@@ -8,7 +8,7 @@ Usage
 
 ::
 
-    $ ndnsec-cert-gen [-h] [-S timestamp] [-E timestamp] [-N name] [-I info] [-s sign-id] request
+    $ ndnsec-cert-gen [-h] [-S timestamp] [-E timestamp] [-N name] [-I info] [-s sign-id] [-p cert-prefix] request
 
 Description
 -----------
@@ -44,6 +44,15 @@ Options
 ``-s sign-id``
   Signing identity. The default key/certificate of ``sign-id`` will be used to sign the requested
   certificate. If this option is not specified, the system default identity will be used.
+
+``-p cert-prefix``
+  The certificate prefix, which is the part of certificate name before ``KEY`` component.
+
+  By default, the certificate prefix will be inferred from the certificate name according
+  to the relation between the signing identity and the subject identity. If the signing
+  identity is a prefix of the subject identity, ``KEY`` will be inserted after the
+  signingIdentity, otherwise ``KEY`` is inserted after subject identity (i.e., before
+  ``ksk-....``).
 
 Examples
 --------

@@ -35,6 +35,9 @@
 
 namespace ndn {
 
+// Use a GUID as a magic number of KeyChain::DEFAULT_PREFIX identifier
+const Name KeyChain::DEFAULT_PREFIX("/723821fd-f534-44b3-80d9-44bf5f58bbbb");
+
 KeyChain::KeyChain()
   : m_pib(0)
   , m_tpm(0)
@@ -120,7 +123,32 @@ KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
   const Name& signingIdentity,
   const time::system_clock::TimePoint& notBefore,
   const time::system_clock::TimePoint& notAfter,
-  const std::vector<CertificateSubjectDescription>& subjectDescription)
+  const std::vector<CertificateSubjectDescription>& subjectDescription,
+  const Name& certPrefix)
+{
+  shared_ptr<PublicKey> publicKey;
+  try
+    {
+      publicKey = m_pib->getPublicKey(keyName);
+    }
+  catch (SecPublicInfo::Error& e)
+    {
+      return shared_ptr<IdentityCertificate>();
+    }
+
+  return prepareUnsignedIdentityCertificate(keyName, *publicKey, signingIdentity,
+                                            notBefore, notAfter,
+                                            subjectDescription, certPrefix);
+}
+
+shared_ptr<IdentityCertificate>
+KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
+  const PublicKey& publicKey,
+  const Name& signingIdentity,
+  const time::system_clock::TimePoint& notBefore,
+  const time::system_clock::TimePoint& notAfter,
+  const std::vector<CertificateSubjectDescription>& subjectDescription,
+  const Name& certPrefix)
 {
   if (keyName.size() < 1)
     return shared_ptr<IdentityCertificate>();
@@ -132,37 +160,40 @@ KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
   shared_ptr<IdentityCertificate> certificate = make_shared<IdentityCertificate>();
   Name certName;
 
-  if (signingIdentity.isPrefixOf(keyName))
+  if (certPrefix == KeyChain::DEFAULT_PREFIX)
     {
-      certName.append(signingIdentity)
-        .append("KEY")
-        .append(keyName.getSubName(signingIdentity.size()))
-        .append("ID-CERT")
-        .appendVersion();
+      // No certificate prefix hint, infer the prefix
+      if (signingIdentity.isPrefixOf(keyName))
+        certName.append(signingIdentity)
+          .append("KEY")
+          .append(keyName.getSubName(signingIdentity.size()))
+          .append("ID-CERT")
+          .appendVersion();
+      else
+        certName.append(keyName.getPrefix(-1))
+          .append("KEY")
+          .append(keyName.get(-1))
+          .append("ID-CERT")
+          .appendVersion();
     }
   else
     {
-      certName.append(keyName.getPrefix(-1))
-        .append("KEY")
-        .append(keyName.get(-1))
-        .append("ID-CERT")
-        .appendVersion();
+      // cert prefix hint is supplied, determine the cert name.
+      if (certPrefix.isPrefixOf(keyName) && certPrefix != keyName)
+        certName.append(certPrefix)
+          .append("KEY")
+          .append(keyName.getSubName(certPrefix.size()))
+          .append("ID-CERT")
+          .appendVersion();
+      else
+        return shared_ptr<IdentityCertificate>();
     }
+
 
   certificate->setName(certName);
   certificate->setNotBefore(notBefore);
   certificate->setNotAfter(notAfter);
-
-  shared_ptr<PublicKey> publicKey;
-  try
-    {
-      publicKey = m_pib->getPublicKey(keyName);
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      return shared_ptr<IdentityCertificate>();
-    }
-  certificate->setPublicKeyInfo(*publicKey);
+  certificate->setPublicKeyInfo(publicKey);
 
   if (subjectDescription.empty())
     {

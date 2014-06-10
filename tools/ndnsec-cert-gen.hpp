@@ -42,19 +42,33 @@ ndnsec_cert_gen(int argc, char** argv)
   std::string requestFile("-");
   std::string signId;
   std::string subjectInfo;
+  std::string certPrefix;
   bool hasSignId = false;
-  bool isNack = false;
 
-  po::options_description description("General Usage\n  ndnsec cert-gen [-h] [-S date] [-E date] [-N subject-name] [-I subject-info] [-s sign-id] request\nGeneral options");
+  po::options_description description(
+    "General Usage\n"
+    "  ndnsec cert-gen [-h] [-S date] [-E date] [-N subject-name] [-I subject-info] "
+        "[-s sign-id] [-p cert-prefix] request\n"
+    "General options");
+
   description.add_options()
     ("help,h", "produce help message")
-    ("not-before,S", po::value<std::string>(&notBeforeStr), "certificate starting date, YYYYMMDDhhmmss")
-    ("not-after,E", po::value<std::string>(&notAfterStr), "certificate ending date, YYYYMMDDhhmmss")
-    ("subject-name,N", po::value<std::string>(&subjectName), "subject name")
-    ("subject-info,I", po::value<std::string>(&subjectInfo), "subject info, pairs of OID and string description: \"2.5.4.10 'University of California, Los Angeles'\"")
-    ("nack", "Generate revocation certificate (NACK)")
-    ("sign-id,s", po::value<std::string>(&signId), "signing Identity, system default identity if not specified")
-    ("request,r", po::value<std::string>(&requestFile), "request file name, - for stdin")
+    ("not-before,S",     po::value<std::string>(&notBeforeStr),
+                         "certificate starting date, YYYYMMDDhhmmss")
+    ("not-after,E",      po::value<std::string>(&notAfterStr),
+                         "certificate ending date, YYYYMMDDhhmmss")
+    ("subject-name,N",   po::value<std::string>(&subjectName),
+                         "subject name")
+    ("subject-info,I",   po::value<std::string>(&subjectInfo),
+                         "subject info, pairs of OID and string description: "
+                         "\"2.5.4.10 'University of California, Los Angeles'\"")
+    ("sign-id,s",        po::value<std::string>(&signId),
+                         "signing Identity, system default identity if not specified")
+    ("cert-prefix,p", po::value<std::string>(&certPrefix),
+                         "cert prefix, which is the part of certificate name before "
+                         "KEY component")
+    ("request,r",        po::value<std::string>(&requestFile),
+                         "request file name, - for stdin")
     ;
 
   po::positional_options_description p;
@@ -84,12 +98,15 @@ ndnsec_cert_gen(int argc, char** argv)
       hasSignId = true;
     }
 
-  if (vm.count("nack") != 0)
+  if (vm.count("subject-name") == 0)
     {
-      isNack = true;
+      std::cerr << "subject_name must be specified" << std::endl;
+      return 1;
     }
 
-  std::vector<CertificateSubjectDescription> otherSubDescrypt;
+  std::vector<CertificateSubjectDescription> subjectDescription;
+  subjectDescription.push_back(CertificateSubjectDescription("2.5.4.41", subjectName));
+
   tokenizer<escaped_list_separator<char> > subjectInfoItems
     (subjectInfo, escaped_list_separator<char> ("\\", " \t", "'\""));
 
@@ -109,7 +126,7 @@ ndnsec_cert_gen(int argc, char** argv)
 
       std::string value = *it;
 
-      otherSubDescrypt.push_back(CertificateSubjectDescription(oid, value));
+      subjectDescription.push_back(CertificateSubjectDescription(oid, value));
 
       it++;
     }
@@ -162,76 +179,23 @@ ndnsec_cert_gen(int argc, char** argv)
 
   Name keyName = selfSignedCertificate->getPublicKeyName();
   Name signIdName;
-  Name certName;
+  Name prefix(certPrefix);
 
   if (!hasSignId)
     signIdName = keyChain.getDefaultIdentity();
   else
     signIdName = Name(signId);
 
+  shared_ptr<IdentityCertificate> certificate =
+    keyChain.prepareUnsignedIdentityCertificate(keyName, selfSignedCertificate->getPublicKeyInfo(),
+                                                signIdName, notBefore, notAfter,
+                                                subjectDescription, prefix);
 
-  if (signIdName.isPrefixOf(keyName))
-    {
-      // if signee's namespace is a sub-namespace of signer, for example, signer's namespace is
-      // /ndn/test, signee's namespace is /ndn/test/alice, the generated certificate name is
-      // /ndn/test/KEY/alice/ksk-1234/ID-CERT/%01%02
-      certName.append(signIdName)
-        .append("KEY")
-        .append(keyName.getSubName(signIdName.size()))
-        .append("ID-CERT")
-        .appendVersion();
-    }
-  else
-    {
-      // if signee's namespace is not a sub-namespace of signer, for example, signer's namespace is
-      // /ndn/test, signee's namespace is /ndn/ucla/bob, the generated certificate name is
-      // /ndn/ucla/bob/KEY/ksk-1234/ID-CERT/%01%02
-      certName.append(keyName.getPrefix(-1))
-        .append("KEY")
-        .append(keyName.get(-1))
-        .append("ID-CERT")
-        .appendVersion();
-    }
+  keyChain.createIdentity(signIdName);
+  Name signingCertificateName = keyChain.getDefaultCertificateNameForIdentity(signIdName);
+  keyChain.sign(*certificate, signingCertificateName);
 
-  Block wire;
-
-  if (!isNack)
-    {
-      if (vm.count("subject-name") == 0)
-        {
-          std::cerr << "subject_name must be specified" << std::endl;
-          return 1;
-        }
-
-      CertificateSubjectDescription subDescryptName("2.5.4.41", subjectName);
-      IdentityCertificate certificate;
-      certificate.setName(certName);
-      certificate.setNotBefore(notBefore);
-      certificate.setNotAfter(notAfter);
-      certificate.setPublicKeyInfo(selfSignedCertificate->getPublicKeyInfo());
-      certificate.addSubjectDescription(subDescryptName);
-      for (size_t i = 0; i < otherSubDescrypt.size(); i++)
-        certificate.addSubjectDescription(otherSubDescrypt[i]);
-      certificate.encode();
-
-      keyChain.createIdentity(signIdName);
-      Name signingCertificateName = keyChain.getDefaultCertificateNameForIdentity(signIdName);
-      keyChain.sign(certificate, signingCertificateName);
-
-      wire = certificate.wireEncode();
-    }
-  else
-    {
-      Data revocationCert;
-      // revocationCert.setContent(void*, 0); // empty content
-      revocationCert.setName(certName);
-
-      keyChain.createIdentity(signIdName);
-      Name signingCertificateName = keyChain.getDefaultCertificateNameForIdentity(signIdName);
-      keyChain.sign(revocationCert, signingCertificateName);
-
-      wire = revocationCert.wireEncode();
-    }
+  Block wire = certificate->wireEncode();
 
   try
     {

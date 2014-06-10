@@ -163,6 +163,15 @@ BOOST_AUTO_TEST_CASE(PrepareIdentityCertificate)
   BOOST_CHECK(idCert->getName().getPrefix(5) ==
               Name().append(identity).append("KEY").append("Lower"));
 
+  shared_ptr<IdentityCertificate> idCert11 =
+    keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
+                                                time::system_clock::now(),
+                                                time::system_clock::now() + time::days(365),
+                                                subjectDescription,
+                                                lowerIdentity);
+  BOOST_CHECK(static_cast<bool>(idCert11));
+  BOOST_CHECK(idCert11->getName().getPrefix(6) ==
+              Name().append(lowerIdentity).append("KEY"));
 
   Name anotherIdentity("/TestKeyChain/PrepareIdentityCertificate/Another/");
   anotherIdentity.appendVersion();
