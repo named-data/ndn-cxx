@@ -41,6 +41,7 @@ const Name KeyChain::DEFAULT_PREFIX("/723821fd-f534-44b3-80d9-44bf5f58bbbb");
 KeyChain::KeyChain()
   : m_pib(0)
   , m_tpm(0)
+  , m_lastTimestamp(time::toUnixTimestamp(time::system_clock::now()))
 {
 
   ConfigFile config;
@@ -102,6 +103,7 @@ KeyChain::KeyChain(const std::string& pibName,
                    const std::string& tpmName)
   : m_pib(0)
   , m_tpm(0)
+  , m_lastTimestamp(time::toUnixTimestamp(time::system_clock::now()))
 {
   if (pibName == "sqlite3")
     m_pib = new SecPublicInfoSqlite3;

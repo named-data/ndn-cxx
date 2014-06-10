@@ -65,44 +65,16 @@ inline void
 CommandInterestGenerator::generate(Interest& interest,
                                    const Name& certificateName /*= Name()*/)
 {
-  time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
-  while (timestamp <= m_lastTimestamp)
-    {
-      timestamp += time::milliseconds(1);
-    }
-
-  Name commandInterestName = interest.getName();
-  commandInterestName
-    .append(name::Component::fromNumber(timestamp.count()))
-    .append(name::Component::fromNumber(random::generateWord64()));
-  interest.setName(commandInterestName);
-
   if (certificateName.empty())
     m_keyChain.sign(interest);
   else
     m_keyChain.sign(interest, certificateName);
-
-  m_lastTimestamp = timestamp;
 }
 
 inline void
 CommandInterestGenerator::generateWithIdentity(Interest& interest, const Name& identity)
 {
-  time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
-  while (timestamp <= m_lastTimestamp)
-    {
-      timestamp += time::milliseconds(1);
-    }
-
-  Name commandInterestName = interest.getName();
-  commandInterestName
-    .append(name::Component::fromNumber(timestamp.count()))
-    .append(name::Component::fromNumber(random::generateWord64()));
-  interest.setName(commandInterestName);
-
   m_keyChain.signByIdentity(interest, identity);
-
-  m_lastTimestamp = timestamp;
 }
 
 

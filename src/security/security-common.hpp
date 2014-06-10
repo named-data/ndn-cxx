@@ -24,6 +24,19 @@
 
 namespace ndn {
 
+namespace signed_interest{
+
+enum {
+  POS_SIG_VALUE = -1,
+  POS_SIG_INFO = -2,
+  POS_RANDOM_VAL = -3,
+  POS_TIMESTAMP = -4,
+
+  MIN_LENGTH = 4
+};
+
+} // namespace signed_interest
+
 enum KeyType {
   KEY_TYPE_RSA,
   KEY_TYPE_ECDSA,
@@ -59,6 +72,6 @@ enum AclType {
   ACL_TYPE_PRIVATE
 };
 
-}
+} // namespace ndn
 
 #endif

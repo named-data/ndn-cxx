@@ -32,6 +32,7 @@
 
 #include "../interest.hpp"
 #include "../util/crypto.hpp"
+#include "../util/random.hpp"
 
 
 namespace ndn {
@@ -680,6 +681,7 @@ private:
 private:
   SecPublicInfo* m_pib;
   SecTpm* m_tpm;
+  time::milliseconds m_lastTimestamp;
 };
 
 template<class T>
@@ -687,6 +689,7 @@ inline
 KeyChain::KeyChain(T)
   : m_pib(new typename T::Pib)
   , m_tpm(new typename T::Tpm)
+  , m_lastTimestamp(time::toUnixTimestamp(time::system_clock::now()))
 {
 }
 
@@ -917,15 +920,24 @@ inline void
 KeyChain::signPacketWrapper(Interest& interest, const SignatureSha256WithRsa& signature,
                             const Name& keyName, DigestAlgorithm digestAlgorithm)
 {
+  time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
+  if (timestamp <= m_lastTimestamp)
+    {
+      timestamp = m_lastTimestamp + time::milliseconds(1);
+    }
+
   Name signedName = interest.getName();
-  signedName.append(signature.getInfo());
+  signedName
+    .append(name::Component::fromNumber(timestamp.count()))        // timestamp
+    .append(name::Component::fromNumber(random::generateWord64())) // nonce
+    .append(signature.getInfo());                                  // signatureInfo
 
   Block sigValue = m_tpm->signInTpm(signedName.wireEncode().value(),
                                     signedName.wireEncode().value_size(),
                                     keyName,
                                     digestAlgorithm);
   sigValue.encode();
-  signedName.append(sigValue);
+  signedName.append(sigValue);                                     // signatureValue
   interest.setName(signedName);
 }
 

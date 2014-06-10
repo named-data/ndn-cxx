@@ -28,6 +28,7 @@
 #include "../../data.hpp"
 #include "../../interest.hpp"
 #include "../../util/regex.hpp"
+#include "../security-common.hpp"
 #include <boost/algorithm/string.hpp>
 
 #include "common.hpp"
@@ -36,19 +37,42 @@ namespace ndn {
 namespace security {
 namespace conf {
 
+/**
+ * @brief Filter is one of the classes used by ValidatorConfig.
+ *
+ * The ValidatorConfig class consists of a set of rules.
+ * The Filter class is a part of a rule and is used to match packet.
+ * Matched packets will be checked against the checkers defined in the rule.
+ */
+
 class Filter
 {
 public:
+
   virtual
   ~Filter()
   {
   }
 
-  virtual bool
-  match(const Data& data) = 0;
+  bool
+  match(const Data& data)
+  {
+    return matchName(data.getName());
+  }
 
+  bool
+  match(const Interest& interest)
+  {
+    if (interest.getName().size() < signed_interest::MIN_LENGTH)
+      return false;
+
+    Name unsignedName = interest.getName().getPrefix(-signed_interest::MIN_LENGTH);
+    return matchName(unsignedName);
+  }
+
+protected:
   virtual bool
-  match(const Interest& interest) = 0;
+  matchName(const Name& name) = 0;
 };
 
 class RelationNameFilter : public Filter
@@ -72,25 +96,9 @@ public:
   {
   }
 
+protected:
   virtual bool
-  match(const Data& data)
-  {
-    return match(data.getName());
-  }
-
-  virtual bool
-  match(const Interest& interest)
-  {
-    if (interest.getName().size() < 2)
-      return false;
-
-    Name signedName = interest.getName().getPrefix(-2);
-    return match(signedName);
-  }
-
-private:
-  bool
-  match(const Name& name)
+  matchName(const Name& name)
   {
     switch (m_relation)
       {
@@ -99,7 +107,7 @@ private:
       case RELATION_IS_PREFIX_OF:
         return m_name.isPrefixOf(name);
       case RELATION_IS_STRICT_PREFIX_OF:
-        return (m_name.isPrefixOf(name) && m_name != name);
+        return (m_name.isPrefixOf(name) && m_name.size() < name.size());
       default:
         return false;
       }
@@ -124,20 +132,11 @@ public:
   {
   }
 
+protected:
   virtual bool
-  match(const Data& data)
+  matchName(const Name& name)
   {
-    return m_regex.match(data.getName());
-  }
-
-  virtual bool
-  match(const Interest& interest)
-  {
-    if (interest.getName().size() < 2)
-      return false;
-
-    Name signedName = interest.getName().getPrefix(-2);
-    return m_regex.match(signedName);
+    return m_regex.match(name);
   }
 
 private:

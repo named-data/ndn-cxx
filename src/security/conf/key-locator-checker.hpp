@@ -27,6 +27,7 @@
 #include "../../common.hpp"
 #include "../../data.hpp"
 #include "../../interest.hpp"
+#include "../security-common.hpp"
 #include <boost/algorithm/string.hpp>
 
 #include "common.hpp"
@@ -36,6 +37,15 @@ namespace security {
 namespace conf {
 
 class KeyLocatorCheckerFactory;
+
+/**
+ * @brief KeyLocatorChecker is one of the classes used by ValidatorConfig.
+ *
+ * The ValidatorConfig class consists of a set of rules.
+ * The KeyLocatorChecker class is part of a rule and is used to check if the KeyLocator field of a
+ * packet satisfy the requirements.
+ */
+
 
 class KeyLocatorChecker
 {
@@ -65,13 +75,13 @@ public:
         const KeyLocator& keyLocator,
         std::string& failInfo)
   {
-    if (interest.getName().size() < 2)
+    if (interest.getName().size() < signed_interest::MIN_LENGTH)
       {
         failInfo = "No Signature";
         return false;
       }
 
-    Name signedName = interest.getName().getPrefix(-2);
+    Name signedName = interest.getName().getPrefix(-signed_interest::MIN_LENGTH);
     return check(signedName, keyLocator, failInfo);
   }
 

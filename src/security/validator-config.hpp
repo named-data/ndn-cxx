@@ -46,11 +46,16 @@ public:
   };
 
   static const shared_ptr<CertificateCache> DEFAULT_CERTIFICATE_CACHE;
+  static const time::milliseconds DEFAULT_GRACE_INTERVAL;
+  static const time::system_clock::Duration DEFAULT_KEY_TIMESTAMP_TTL;
 
   explicit
   ValidatorConfig(Face& face,
                   const shared_ptr<CertificateCache>& certificateCache = DEFAULT_CERTIFICATE_CACHE,
-                  const int stepLimit = 10);
+                  const time::milliseconds& graceInterval = DEFAULT_GRACE_INTERVAL,
+                  const size_t stepLimit = 10,
+                  const size_t maxTrackedKeys = 1000,
+                  const time::system_clock::Duration& keyTimestampTtl = DEFAULT_KEY_TIMESTAMP_TTL);
 
   virtual
   ~ValidatorConfig()
@@ -96,10 +101,16 @@ private:
   void
   checkSignature(const Packet& packet,
                  const Signature& signature,
-                 int nSteps,
+                 size_t nSteps,
                  const OnValidated& onValidated,
                  const OnFailed& onValidationFailed,
                  std::vector<shared_ptr<ValidationRequest> >& nextSteps);
+
+  void
+  checkTimestamp(const shared_ptr<const Interest>& interest,
+                 const Name& keyName,
+                 const OnInterestValidated& onValidated,
+                 const OnInterestValidationFailed& onValidationFailed);
 
   template<class Packet, class OnValidated, class OnFailed>
   void
@@ -131,6 +142,17 @@ private:
 
   void
   refreshAnchors();
+
+  void
+  cleanOldKeys();
+
+#ifdef NDN_CXX_HAVE_TESTS
+  size_t
+  getTimestampMapSize()
+  {
+    return m_lastTimestamp.size();
+  }
+#endif
 
 
 private:
@@ -220,7 +242,7 @@ private:
    */
   bool m_shouldValidate;
 
-  int m_stepLimit;
+  size_t m_stepLimit;
   shared_ptr<CertificateCache> m_certificateCache;
 
   InterestRuleList m_interestRules;
@@ -230,6 +252,11 @@ private:
   TrustAnchorContainer m_staticContainer;
   DynamicContainers m_dynamicContainers;
 
+  time::milliseconds m_graceInterval;
+  size_t m_maxTrackedKeys;
+  typedef std::map<Name, time::system_clock::TimePoint> LastTimestampMap;
+  LastTimestampMap m_lastTimestamp;
+  const time::system_clock::Duration& m_keyTimestampTtl;
 };
 
 inline void
@@ -261,7 +288,7 @@ template<class Packet, class OnValidated, class OnFailed>
 void
 ValidatorConfig::checkSignature(const Packet& packet,
                                 const Signature& signature,
-                                int nSteps,
+                                size_t nSteps,
                                 const OnValidated& onValidated,
                                 const OnFailed& onValidationFailed,
                                 std::vector<shared_ptr<ValidationRequest> >& nextSteps)

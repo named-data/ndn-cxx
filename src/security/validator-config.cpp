@@ -32,14 +32,23 @@
 namespace ndn {
 
 const shared_ptr<CertificateCache> ValidatorConfig::DEFAULT_CERTIFICATE_CACHE;
+const time::milliseconds ValidatorConfig::DEFAULT_GRACE_INTERVAL(3000);
+const time::system_clock::Duration ValidatorConfig::DEFAULT_KEY_TIMESTAMP_TTL = time::hours(1);
 
 ValidatorConfig::ValidatorConfig(Face& face,
                                  const shared_ptr<CertificateCache>& certificateCache,
-                                 const int stepLimit)
+                                 const time::milliseconds& graceInterval,
+                                 const size_t stepLimit,
+                                 const size_t maxTrackedKeys,
+                                 const time::system_clock::Duration& keyTimestampTtl)
   : Validator(face)
   , m_shouldValidate(true)
   , m_stepLimit(stepLimit)
   , m_certificateCache(certificateCache)
+  , m_graceInterval(graceInterval < time::milliseconds::zero() ?
+                    DEFAULT_GRACE_INTERVAL : graceInterval)
+  , m_maxTrackedKeys(maxTrackedKeys)
+  , m_keyTimestampTtl(keyTimestampTtl)
 {
   if (!static_cast<bool>(m_certificateCache))
     m_certificateCache = make_shared<CertificateCacheTtl>(ref(m_face.getIoService()));
@@ -469,33 +478,172 @@ ValidatorConfig::checkPolicy(const Interest& interest,
   if (!m_shouldValidate)
     return onValidated(interest.shared_from_this());
 
-  bool isMatched = false;
-  int8_t checkResult = -1;
+  // If interestName has less than 4 name components,
+  // it is definitely not a signed interest.
+  if (interest.getName().size() < signed_interest::MIN_LENGTH)
+    return onValidationFailed(interest.shared_from_this(),
+                              "Interest is not signed: " + interest.getName().toUri());
 
-  for (InterestRuleList::iterator it = m_interestRules.begin();
-       it != m_interestRules.end(); it++)
-    {
-      if ((*it)->match(interest))
-        {
-          isMatched = true;
-          checkResult = (*it)->check(interest, onValidated, onValidationFailed);
-          break;
-        }
-    }
-
-  if (!isMatched)
-    return onValidationFailed(interest.shared_from_this(), "No rule matched!");
-
-  if (checkResult == 0)
+  try
     {
       const Name& interestName = interest.getName();
-      Name signedName = interestName.getPrefix(-2);
-      Signature signature(interestName[-2].blockFromValue(),
-                          interestName[-1].blockFromValue());
+      Signature signature(interestName[signed_interest::POS_SIG_INFO].blockFromValue(),
+                          interestName[signed_interest::POS_SIG_VALUE].blockFromValue());
 
-      checkSignature(interest, signature, nSteps,
-                     onValidated, onValidationFailed, nextSteps);
+      if (signature.getType() != Signature::Sha256WithRsa)
+        return onValidationFailed(interest.shared_from_this(),
+                                  "Require SignatureSha256WithRsa");
+
+      SignatureSha256WithRsa sig(signature);
+
+      const KeyLocator& keyLocator = sig.getKeyLocator();
+
+      if (keyLocator.getType() != KeyLocator::KeyLocator_Name)
+        return onValidationFailed(interest.shared_from_this(),
+                                  "Key Locator is not a name");
+
+      Name keyName = IdentityCertificate::certificateNameToPublicKeyName(keyLocator.getName());
+
+      bool isMatched = false;
+      int8_t checkResult = -1;
+
+      for (InterestRuleList::iterator it = m_interestRules.begin();
+           it != m_interestRules.end(); it++)
+        {
+          if ((*it)->match(interest))
+            {
+              isMatched = true;
+              checkResult = (*it)->check(interest,
+                                         bind(&ValidatorConfig::checkTimestamp, this, _1,
+                                              keyName, onValidated, onValidationFailed),
+                                         onValidationFailed);
+              break;
+            }
+        }
+
+      if (!isMatched)
+        return onValidationFailed(interest.shared_from_this(), "No rule matched!");
+
+      if (checkResult == 0)
+        {
+          checkSignature<Interest, OnInterestValidated, OnInterestValidationFailed>
+            (interest, signature, nSteps,
+             bind(&ValidatorConfig::checkTimestamp, this, _1,
+                  keyName, onValidated, onValidationFailed),
+             onValidationFailed,
+             nextSteps);
+        }
     }
+  catch (Signature::Error& e)
+    {
+      return onValidationFailed(interest.shared_from_this(),
+                                "No valid signature");
+    }
+  catch (Tlv::Error& e)
+    {
+      return onValidationFailed(interest.shared_from_this(),
+                                "Cannot decode signature");
+    }
+  catch (KeyLocator::Error& e)
+    {
+      return onValidationFailed(interest.shared_from_this(),
+                                "No valid KeyLocator");
+    }
+  catch (IdentityCertificate::Error& e)
+    {
+      return onValidationFailed(interest.shared_from_this(),
+                                "Cannot determine the signing key");
+    }
+}
+
+void
+ValidatorConfig::checkTimestamp(const shared_ptr<const Interest>& interest,
+                                const Name& keyName,
+                                const OnInterestValidated& onValidated,
+                                const OnInterestValidationFailed& onValidationFailed)
+{
+  const Name& interestName = interest->getName();
+  time::system_clock::TimePoint interestTime;
+
+  try
+    {
+      interestTime =
+        time::fromUnixTimestamp(
+          time::milliseconds(interestName.get(-signed_interest::MIN_LENGTH).toNumber()));
+    }
+  catch (Tlv::Error& e)
+    {
+      return onValidationFailed(interest,
+                                "Cannot decode signature related TLVs");
+    }
+
+  time::system_clock::TimePoint currentTime = time::system_clock::now();
+
+  LastTimestampMap::iterator timestampIt = m_lastTimestamp.find(keyName);
+  if (timestampIt == m_lastTimestamp.end())
+    {
+      if (!(currentTime - m_graceInterval <= interestTime &&
+            interestTime <= currentTime + m_graceInterval))
+        return onValidationFailed(interest,
+                                  "The command is not in grace interval: " +
+                                  interest->getName().toUri());
+    }
+  else
+    {
+      if (interestTime <= timestampIt->second)
+        return onValidationFailed(interest,
+                                  "The command is outdated: " +
+                                  interest->getName().toUri());
+    }
+
+  //Update timestamp
+  if (timestampIt == m_lastTimestamp.end())
+    {
+      cleanOldKeys();
+      m_lastTimestamp[keyName] = interestTime;
+    }
+  else
+    {
+      timestampIt->second = interestTime;
+    }
+
+  return onValidated(interest);
+}
+
+void
+ValidatorConfig::cleanOldKeys()
+{
+  if (m_lastTimestamp.size() < m_maxTrackedKeys)
+    return;
+
+  LastTimestampMap::iterator timestampIt = m_lastTimestamp.begin();
+  LastTimestampMap::iterator end = m_lastTimestamp.end();
+
+  time::system_clock::TimePoint now = time::system_clock::now();
+  LastTimestampMap::iterator oldestKeyIt = m_lastTimestamp.begin();
+  time::system_clock::TimePoint oldestTimestamp = oldestKeyIt->second;
+
+  while (timestampIt != end)
+    {
+      if (now - timestampIt->second > m_keyTimestampTtl)
+        {
+          LastTimestampMap::iterator toDelete = timestampIt;
+          timestampIt++;
+          m_lastTimestamp.erase(toDelete);
+          continue;
+        }
+
+      if (timestampIt->second < oldestTimestamp)
+        {
+          oldestTimestamp = timestampIt->second;
+          oldestKeyIt = timestampIt;
+        }
+
+      timestampIt++;
+    }
+
+  if (m_lastTimestamp.size() >= m_maxTrackedKeys)
+    m_lastTimestamp.erase(oldestKeyIt);
 }
 
 void

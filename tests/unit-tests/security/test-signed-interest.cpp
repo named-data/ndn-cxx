@@ -22,9 +22,6 @@
 #include "security/key-chain.hpp"
 #include "security/validator.hpp"
 
-#include "util/command-interest-generator.hpp"
-#include "util/command-interest-validator.hpp"
-
 #include "boost-test.hpp"
 
 using namespace std;
@@ -32,7 +29,7 @@ namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(SecurityTestSignedInterest)
 
-BOOST_AUTO_TEST_CASE(SignedInterest)
+BOOST_AUTO_TEST_CASE(SignVerifyInterest)
 {
   BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
   KeyChain keyChain("sqlite3", "file");
@@ -45,6 +42,25 @@ BOOST_AUTO_TEST_CASE(SignedInterest)
 
   Interest interest("/TestSignedInterest/SignVerify/Interest1");
   BOOST_CHECK_NO_THROW(keyChain.signByIdentity(interest, identityName));
+
+  usleep(100000);
+
+  Interest interest11("/TestSignedInterest/SignVerify/Interest1");
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(interest11, identityName));
+
+  time::system_clock::TimePoint timestamp1 =
+    time::fromUnixTimestamp(
+      time::milliseconds(interest.getName().get(signed_interest::POS_TIMESTAMP).toNumber()));
+
+  time::system_clock::TimePoint timestamp2 =
+    time::fromUnixTimestamp(
+      time::milliseconds(interest11.getName().get(signed_interest::POS_TIMESTAMP).toNumber()));
+
+  BOOST_CHECK_LT(time::milliseconds(100), (timestamp2 - timestamp1));
+
+  uint64_t nonce1 = interest.getName().get(signed_interest::POS_RANDOM_VAL).toNumber();
+  uint64_t nonce2 = interest11.getName().get(signed_interest::POS_RANDOM_VAL).toNumber();
+  BOOST_CHECK_NE(nonce1, nonce2);
 
   Block interestBlock(interest.wireEncode().wire(), interest.wireEncode().size());
 
@@ -61,133 +77,6 @@ BOOST_AUTO_TEST_CASE(SignedInterest)
   keyChain.deleteIdentity(identityName);
 }
 
-class CommandInterestFixture
-{
-public:
-  CommandInterestFixture()
-    : m_validity(false)
-  {
-  }
-
-  void
-  validated(const shared_ptr<const Interest>& interest)
-  {
-    m_validity = true;
-  }
-
-  void
-  validationFailed(const shared_ptr<const Interest>& interest, const string& failureInfo)
-  {
-    m_validity = false;
-  }
-
-  void
-  reset()
-  {
-    m_validity = false;
-  }
-
-  bool m_validity;
-};
-
-BOOST_FIXTURE_TEST_CASE(CommandInterest, CommandInterestFixture)
-{
-  KeyChain keyChain;
-  Name identity("/TestCommandInterest/Validation");
-  identity.appendVersion();
-
-  Name certName;
-  BOOST_REQUIRE_NO_THROW(certName = keyChain.createIdentity(identity));
-
-  CommandInterestGenerator generator;
-  CommandInterestValidator validator;
-
-  validator.addInterestRule("^<TestCommandInterest><Validation>",
-                            *keyChain.getCertificate(certName));
-
-  //Test a legitimate command
-  shared_ptr<Interest> commandInterest1 =
-    make_shared<Interest>("/TestCommandInterest/Validation/Command1");
-  generator.generateWithIdentity(*commandInterest1, identity);
-  validator.validate(*commandInterest1,
-                     bind(&CommandInterestFixture::validated, this, _1),
-                     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
-
-  BOOST_CHECK_EQUAL(m_validity, true);
-
-  //Test an outdated command
-  reset();
-  shared_ptr<Interest> commandInterest2 =
-    make_shared<Interest>("/TestCommandInterest/Validation/Command2");
-  time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
-  timestamp -= time::seconds(5);
-
-  Name commandName = commandInterest2->getName();
-  commandName
-    .appendNumber(timestamp.count())
-    .appendNumber(random::generateWord64());
-  commandInterest2->setName(commandName);
-
-  keyChain.signByIdentity(*commandInterest2, identity);
-  validator.validate(*commandInterest2,
-                     bind(&CommandInterestFixture::validated, this, _1),
-                     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
-
-  BOOST_CHECK_EQUAL(m_validity, false);
-
-  //Test an unauthorized command
-  Name identity2("/TestCommandInterest/Validation2");
-  Name certName2;
-  BOOST_REQUIRE_NO_THROW(certName2 = keyChain.createIdentity(identity2));
-
-  shared_ptr<Interest> commandInterest3 =
-    make_shared<Interest>("/TestCommandInterest/Validation/Command3");
-  generator.generateWithIdentity(*commandInterest3, identity2);
-  validator.validate(*commandInterest3,
-                     bind(&CommandInterestFixture::validated, this, _1),
-                     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
-
-  BOOST_CHECK_EQUAL(m_validity, false);
-
-  //Test another unauthorized command
-  shared_ptr<Interest> commandInterest4 =
-    make_shared<Interest>("/TestCommandInterest/Validation2/Command");
-  generator.generateWithIdentity(*commandInterest4, identity);
-  validator.validate(*commandInterest4,
-                     bind(&CommandInterestFixture::validated, this, _1),
-                     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
-
-  BOOST_CHECK_EQUAL(m_validity, false);
-
-  BOOST_CHECK_NO_THROW(keyChain.deleteIdentity(identity));
-  BOOST_CHECK_NO_THROW(keyChain.deleteIdentity(identity2));
-}
-
-BOOST_FIXTURE_TEST_CASE(Exemption, CommandInterestFixture)
-{
-  KeyChain keyChain;
-  Name identity("/TestCommandInterest/AnyKey");
-
-  Name certName;
-  BOOST_REQUIRE_NO_THROW(certName = keyChain.createIdentity(identity));
-
-  CommandInterestGenerator generator;
-  CommandInterestValidator validator;
-
-  validator.addInterestBypassRule("^<TestCommandInterest><Exemption>");
-
-  //Test a legitimate command
-  shared_ptr<Interest> commandInterest1 =
-    make_shared<Interest>("/TestCommandInterest/Exemption/Command1");
-  generator.generateWithIdentity(*commandInterest1, identity);
-  validator.validate(*commandInterest1,
-                     bind(&CommandInterestFixture::validated, this, _1),
-                     bind(&CommandInterestFixture::validationFailed, this, _1, _2));
-
-  BOOST_CHECK_EQUAL(m_validity, true);
-
-  BOOST_CHECK_NO_THROW(keyChain.deleteIdentity(identity));
-}
 
 
 

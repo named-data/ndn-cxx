@@ -662,11 +662,11 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   boost::filesystem::remove(CERT_PATH);
 }
 
-BOOST_AUTO_TEST_CASE(FixedSingerChecker)
+BOOST_AUTO_TEST_CASE(FixedSignerChecker)
 {
   KeyChain keyChain;
 
-  Name identity("/TestValidatorConfig/FixedSingerChecker");
+  Name identity("/TestValidatorConfig/FixedSignerChecker");
 
   Name identity1 = identity;
   identity1.append("1").appendVersion();
@@ -689,18 +689,18 @@ BOOST_AUTO_TEST_CASE(FixedSingerChecker)
   shared_ptr<Data> data2 = make_shared<Data>(dataName2);
   BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*data2, identity2));
 
-  Name interestName("/TestValidatorConfig/FixedSingerChecker/fakeSigInfo/fakeSigValue");
+  Name interestName("/TestValidatorConfig/FixedSignerChecker/fakeSigInfo/fakeSigValue");
   shared_ptr<Interest> interest = make_shared<Interest>(interestName);
 
   const std::string CONFIG =
     "rule\n"
     "{\n"
-    "  id \"FixedSingerChecker Data Rule\"\n"
+    "  id \"FixedSignerChecker Data Rule\"\n"
     "  for data\n"
     "  filter"
     "  {\n"
     "    type name\n"
-    "    name /TestValidatorConfig/FixedSingerChecker\n"
+    "    name /TestValidatorConfig/FixedSignerChecker\n"
     "    relation is-strict-prefix-of\n"
     "  }\n"
     "  checker\n"
@@ -716,12 +716,12 @@ BOOST_AUTO_TEST_CASE(FixedSingerChecker)
     "}\n"
     "rule\n"
     "{\n"
-    "  id \"FixedSingerChecker Interest Rule\"\n"
+    "  id \"FixedSignerChecker Interest Rule\"\n"
     "  for interest\n"
     "  filter"
     "  {\n"
     "    type name\n"
-    "    name /TestValidatorConfig/FixedSingerChecker\n"
+    "    name /TestValidatorConfig/FixedSignerChecker\n"
     "    relation is-strict-prefix-of\n"
     "  }\n"
     "  checker\n"
@@ -816,7 +816,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
                                          RegisterPrefixSuccessCallback(),
                                          bind(&FacesFixture::onRegFailed, this));
 
-  Name interestName1("/localhost/nrd/register/option/timestamp/nonce");
+  Name interestName1("/localhost/nrd/register/option");
   shared_ptr<Interest> interest1 = make_shared<Interest>(interestName1);
   BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest1, nld));
 
@@ -824,7 +824,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   shared_ptr<Interest> interest2 = make_shared<Interest>(interestName2);
   BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest2, nld));
 
-  Name interestName3("/localhost/nrd/register/option/timestamp/nonce");
+  Name interestName3("/localhost/nrd/register/option");
   shared_ptr<Interest> interest3 = make_shared<Interest>(interestName3);
   BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest3, root));
 
@@ -839,7 +839,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
     "  filter\n"
     "  {\n"
     "    type name\n"
-    "    regex ^<localhost><nrd>[<register><unregister><advertise><withdraw>]<>{3}$\n"
+    "    regex ^<localhost><nrd>[<register><unregister><advertise><withdraw>]<>$\n"
     "  }\n"
     "  checker\n"
     "  {\n"
@@ -927,7 +927,7 @@ BOOST_AUTO_TEST_CASE(Reset)
     "  filter\n"
     "  {\n"
     "    type name\n"
-    "    regex ^<localhost><nrd>[<register><unregister><advertise><withdraw>]<>{3}$\n"
+    "    regex ^<localhost><nrd>[<register><unregister><advertise><withdraw>]<>$\n"
     "  }\n"
     "  checker\n"
     "  {\n"
@@ -1018,7 +1018,8 @@ struct DirTestFixture
 {
   DirTestFixture()
     : m_scheduler(m_face.getIoService())
-    , m_validator(m_face, ValidatorConfig::DEFAULT_CERTIFICATE_CACHE, 0)
+    , m_validator(m_face, ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
+                  ValidatorConfig::DEFAULT_GRACE_INTERVAL, 0)
   {
     m_certDirPath = (boost::filesystem::current_path() / std::string("test-cert-dir"));
     boost::filesystem::create_directory(m_certDirPath);
@@ -1161,6 +1162,387 @@ BOOST_FIXTURE_TEST_CASE(TrustAnchorDir, DirTestFixture)
   BOOST_REQUIRE_NO_THROW(m_face.processEvents());
 }
 
+
+BOOST_AUTO_TEST_CASE(SignedInterestTest)
+{
+  KeyChain keyChain;
+
+  Name identity("/TestValidatorConfig/SignedInterestTest");
+
+  Name identity1 = identity;
+  identity1.appendVersion();
+  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity1));
+  Name certName1 = keyChain.getDefaultCertificateNameForIdentity(identity1);
+  shared_ptr<IdentityCertificate> idCert1 = keyChain.getCertificate(certName1);
+  io::save(*idCert1, "trust-anchor-9.cert");
+
+  Name interestName("/TestValidatorConfig/SignedInterestTest");
+  Name interestName1 = interestName;
+  interestName1.append("1");
+  shared_ptr<Interest> interest1 = make_shared<Interest>(interestName1);
+  Name interestName2 = interestName;
+  interestName2.append("2");
+  shared_ptr<Interest> interest2 = make_shared<Interest>(interestName2);
+
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest1, identity1));
+  usleep(10000);
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest2, identity1));
+
+  const std::string CONFIG =
+    "rule\n"
+    "{\n"
+    "  id \"FixedSignerChecker Interest Rule\"\n"
+    "  for interest\n"
+    "  filter"
+    "  {\n"
+    "    type name\n"
+    "    name /TestValidatorConfig/SignedInterestTest\n"
+    "    relation is-strict-prefix-of\n"
+    "  }\n"
+    "  checker\n"
+    "  {\n"
+    "    type fixed-signer\n"
+    "    sig-type rsa-sha256\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-9.cert\"\n"
+    "    }\n"
+    "  }\n"
+    "}\n";
+  const boost::filesystem::path CONFIG_PATH =
+    (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
+
+
+  Face face;
+  ValidatorConfig validator(face);
+  validator.load(CONFIG, CONFIG_PATH.native());
+
+  validator.validate(*interest1,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  validator.validate(*interest2,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  validator.validate(*interest1,
+                     bind(&onIntentionalFailureValidated2, _1),
+                     bind(&onIntentionalFailureInvalidated2, _1, _2));
+
+
+  keyChain.deleteIdentity(identity1);
+
+  const boost::filesystem::path CERT_PATH =
+    (boost::filesystem::current_path() / std::string("trust-anchor-9.cert"));
+  boost::filesystem::remove(CERT_PATH);
+}
+
+
+BOOST_AUTO_TEST_CASE(MaxKeyTest)
+{
+
+  KeyChain keyChain;
+
+  Name identity("/TestValidatorConfig/MaxKeyTest");
+
+  Name identity1 = identity;
+  identity1.append("Key1");
+  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity1));
+  Name certName1 = keyChain.getDefaultCertificateNameForIdentity(identity1);
+  shared_ptr<IdentityCertificate> idCert1 = keyChain.getCertificate(certName1);
+  io::save(*idCert1, "trust-anchor-10-1.cert");
+
+  Name identity2 = identity;
+  identity2.append("Key2");
+  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity2));
+  Name certName2 = keyChain.getDefaultCertificateNameForIdentity(identity2);
+  shared_ptr<IdentityCertificate> idCert2 = keyChain.getCertificate(certName2);
+  io::save(*idCert2, "trust-anchor-10-2.cert");
+
+  Name identity3 = identity;
+  identity3.append("Key3");
+  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity3));
+  Name certName3 = keyChain.getDefaultCertificateNameForIdentity(identity3);
+  shared_ptr<IdentityCertificate> idCert3 = keyChain.getCertificate(certName3);
+  io::save(*idCert3, "trust-anchor-10-3.cert");
+
+
+  Name interestName("/TestValidatorConfig/MaxKeyTest");
+  Name interestName1 = interestName;
+  interestName1.append("1");
+  shared_ptr<Interest> interest1 = make_shared<Interest>(interestName1);
+  Name interestName2 = interestName;
+  interestName2.append("2");
+  shared_ptr<Interest> interest2 = make_shared<Interest>(interestName2);
+  Name interestName3 = interestName;
+  interestName3.append("3");
+  shared_ptr<Interest> interest3 = make_shared<Interest>(interestName3);
+
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest1, identity1));
+  usleep(10000);
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest2, identity2));
+  usleep(10000);
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest3, identity3));
+
+  const std::string CONFIG =
+    "rule\n"
+    "{\n"
+    "  id \"FixedSignerChecker Interest Rule\"\n"
+    "  for interest\n"
+    "  filter"
+    "  {\n"
+    "    type name\n"
+    "    name /TestValidatorConfig/MaxKeyTest\n"
+    "    relation is-strict-prefix-of\n"
+    "  }\n"
+    "  checker\n"
+    "  {\n"
+    "    type fixed-signer\n"
+    "    sig-type rsa-sha256\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-10-1.cert\"\n"
+    "    }\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-10-2.cert\"\n"
+    "    }\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-10-3.cert\"\n"
+    "    }\n"
+    "  }\n"
+    "}\n";
+  const boost::filesystem::path CONFIG_PATH =
+    (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
+
+
+  Face face;
+  ValidatorConfig validator(face,
+                            ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
+                            ValidatorConfig::DEFAULT_GRACE_INTERVAL,
+                            10,
+                            2,                 // Two keys can be tracked
+                            time::seconds(1)); // TTL is set to 1 sec
+  validator.load(CONFIG, CONFIG_PATH.native());
+
+  validator.validate(*interest1,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  validator.validate(*interest2,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  validator.validate(*interest1,
+                     bind(&onIntentionalFailureValidated2, _1),
+                     bind(&onIntentionalFailureInvalidated2, _1, _2));
+
+  validator.validate(*interest3,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  // Should succeed because identity1's key has been cleaned up due to space limit.
+  validator.validate(*interest1,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+
+  keyChain.deleteIdentity(identity1);
+  keyChain.deleteIdentity(identity2);
+  keyChain.deleteIdentity(identity3);
+
+  const boost::filesystem::path CERT_PATH1 =
+    (boost::filesystem::current_path() / std::string("trust-anchor-10-1.cert"));
+  boost::filesystem::remove(CERT_PATH1);
+
+  const boost::filesystem::path CERT_PATH2 =
+    (boost::filesystem::current_path() / std::string("trust-anchor-10-2.cert"));
+  boost::filesystem::remove(CERT_PATH2);
+
+  const boost::filesystem::path CERT_PATH3 =
+    (boost::filesystem::current_path() / std::string("trust-anchor-10-3.cert"));
+  boost::filesystem::remove(CERT_PATH3);
+}
+
+BOOST_AUTO_TEST_CASE(MaxKeyTest2)
+{
+
+  KeyChain keyChain;
+
+  Name identity("/TestValidatorConfig/MaxKeyTest");
+
+  Name identity1 = identity;
+  identity1.append("Key1");
+  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity1));
+  Name certName1 = keyChain.getDefaultCertificateNameForIdentity(identity1);
+  shared_ptr<IdentityCertificate> idCert1 = keyChain.getCertificate(certName1);
+  io::save(*idCert1, "trust-anchor-10-1.cert");
+
+  Name identity2 = identity;
+  identity2.append("Key2");
+  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity2));
+  Name certName2 = keyChain.getDefaultCertificateNameForIdentity(identity2);
+  shared_ptr<IdentityCertificate> idCert2 = keyChain.getCertificate(certName2);
+  io::save(*idCert2, "trust-anchor-10-2.cert");
+
+  Name identity3 = identity;
+  identity3.append("Key3");
+  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity3));
+  Name certName3 = keyChain.getDefaultCertificateNameForIdentity(identity3);
+  shared_ptr<IdentityCertificate> idCert3 = keyChain.getCertificate(certName3);
+  io::save(*idCert3, "trust-anchor-10-3.cert");
+
+  Name identity4 = identity;
+  identity4.append("Key4");
+  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity4));
+  Name certName4 = keyChain.getDefaultCertificateNameForIdentity(identity4);
+  shared_ptr<IdentityCertificate> idCert4 = keyChain.getCertificate(certName4);
+  io::save(*idCert4, "trust-anchor-10-4.cert");
+
+
+  Name interestName("/TestValidatorConfig/MaxKeyTest");
+  Name interestName1 = interestName;
+  interestName1.append("1");
+  shared_ptr<Interest> interest1 = make_shared<Interest>(interestName1);
+  Name interestName2 = interestName;
+  interestName2.append("2");
+  shared_ptr<Interest> interest2 = make_shared<Interest>(interestName2);
+  Name interestName3 = interestName;
+  interestName3.append("3");
+  shared_ptr<Interest> interest3 = make_shared<Interest>(interestName3);
+  Name interestName4 = interestName;
+  interestName4.append("4");
+  shared_ptr<Interest> interest4 = make_shared<Interest>(interestName4);
+
+
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest1, identity1));
+  usleep(10000);
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest2, identity2));
+  usleep(10000);
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest3, identity3));
+  usleep(10000);
+  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*interest4, identity4));
+
+  const std::string CONFIG =
+    "rule\n"
+    "{\n"
+    "  id \"FixedSignerChecker Interest Rule\"\n"
+    "  for interest\n"
+    "  filter"
+    "  {\n"
+    "    type name\n"
+    "    name /TestValidatorConfig/MaxKeyTest\n"
+    "    relation is-strict-prefix-of\n"
+    "  }\n"
+    "  checker\n"
+    "  {\n"
+    "    type fixed-signer\n"
+    "    sig-type rsa-sha256\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-10-1.cert\"\n"
+    "    }\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-10-2.cert\"\n"
+    "    }\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-10-3.cert\"\n"
+    "    }\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-10-4.cert\"\n"
+    "    }\n"
+    "  }\n"
+    "}\n";
+  const boost::filesystem::path CONFIG_PATH =
+    (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
+
+
+  Face face;
+  ValidatorConfig validator(face,
+                            ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
+                            ValidatorConfig::DEFAULT_GRACE_INTERVAL,
+                            10,
+                            3,                 // Two keys can be tracked
+                            time::seconds(1)); // TTL is set to 1 sec
+  validator.load(CONFIG, CONFIG_PATH.native());
+
+  validator.validate(*interest1,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  validator.validate(*interest2,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  validator.validate(*interest3,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  validator.validate(*interest1,
+                     bind(&onIntentionalFailureValidated2, _1),
+                     bind(&onIntentionalFailureInvalidated2, _1, _2));
+
+  validator.validate(*interest2,
+                     bind(&onIntentionalFailureValidated2, _1),
+                     bind(&onIntentionalFailureInvalidated2, _1, _2));
+
+  validator.validate(*interest3,
+                     bind(&onIntentionalFailureValidated2, _1),
+                     bind(&onIntentionalFailureInvalidated2, _1, _2));
+
+  sleep(2);
+
+  validator.validate(*interest4,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  // Should succeed because identity1 and identity2's key has been cleaned up due to ttl limit.
+  validator.validate(*interest1,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  validator.validate(*interest2,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  validator.validate(*interest3,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+
+  keyChain.deleteIdentity(identity1);
+  keyChain.deleteIdentity(identity2);
+  keyChain.deleteIdentity(identity3);
+  keyChain.deleteIdentity(identity4);
+
+  const boost::filesystem::path CERT_PATH1 =
+    (boost::filesystem::current_path() / std::string("trust-anchor-10-1.cert"));
+  boost::filesystem::remove(CERT_PATH1);
+
+  const boost::filesystem::path CERT_PATH2 =
+    (boost::filesystem::current_path() / std::string("trust-anchor-10-2.cert"));
+  boost::filesystem::remove(CERT_PATH2);
+
+  const boost::filesystem::path CERT_PATH3 =
+    (boost::filesystem::current_path() / std::string("trust-anchor-10-3.cert"));
+  boost::filesystem::remove(CERT_PATH3);
+
+  const boost::filesystem::path CERT_PATH4 =
+    (boost::filesystem::current_path() / std::string("trust-anchor-10-4.cert"));
+  boost::filesystem::remove(CERT_PATH4);
+}
 
 
 BOOST_AUTO_TEST_SUITE_END()
