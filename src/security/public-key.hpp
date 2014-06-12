@@ -65,17 +65,23 @@ public:
    */
   PublicKey(const uint8_t* keyDerBuf, size_t keyDerSize);
 
-  inline const Buffer&
+  const Buffer&
   get() const
   {
     return m_key;
   }
 
-  inline void
+  void
   set(const uint8_t* keyDerBuf, size_t keyDerSize)
   {
     Buffer buf(keyDerBuf, keyDerSize);
     m_key.swap(buf);
+  }
+
+  KeyType
+  getKeyType() const
+  {
+    return m_type;
   }
 
   void
@@ -84,19 +90,20 @@ public:
   void
   decode(CryptoPP::BufferedTransformation& in);
 
-  inline bool
+  bool
   operator==(const PublicKey& key) const
   {
     return m_key == key.m_key;
   }
 
-  inline bool
+  bool
   operator!=(const PublicKey& key) const
   {
     return m_key != key.m_key;
   }
 
 private:
+  KeyType m_type;
   Buffer m_key;
 };
 

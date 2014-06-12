@@ -33,12 +33,15 @@ using namespace CryptoPP;
 namespace ndn {
 
 static OID RSA_OID("1.2.840.113549.1.1.1");
+static OID ECDSA_OID("1.2.840.10045.2.1");
 
 PublicKey::PublicKey()
+  : m_type(KEY_TYPE_NULL)
 {
 }
 
 PublicKey::PublicKey(const uint8_t* keyDerBuf, size_t keyDerSize)
+  : m_type(KEY_TYPE_NULL)
 {
   StringSource src(keyDerBuf, keyDerSize, true);
   decode(src);
@@ -90,8 +93,12 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
           OID algorithm;
           algorithm.decode(algorithmInfo);
 
-          if (algorithm != RSA_OID)
-            throw Error("Only RSA public keys are supported for now (" +
+          if (algorithm == RSA_OID)
+            m_type = KEY_TYPE_RSA;
+          else if (algorithm == ECDSA_OID)
+            m_type = KEY_TYPE_ECDSA;
+          else
+            throw Error("Only RSA/ECDSA public keys are supported for now (" +
                         algorithm.toString() + " requested)");
         }
       }
@@ -100,6 +107,7 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
     }
   catch (CryptoPP::BERDecodeErr& err)
     {
+      m_type = KEY_TYPE_NULL;
       throw Error("PublicKey decoding error");
     }
 }
