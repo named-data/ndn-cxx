@@ -52,7 +52,7 @@ delayedInterest(Face& face)
 {
   std::cout << "One more Interest, delayed by the scheduler" << std::endl;
 
-  Interest i(Name("/localhost/testApp/randomData"));
+  Interest i(Name("/example/testApp/randomData"));
   i.setScope(1);
   i.setInterestLifetime(time::milliseconds(1000));
   i.setMustBeFresh(true);
@@ -69,7 +69,7 @@ main(int argc, char** argv)
     // Explicitly create io_service object, which can be shared between Face and Scheduler
     boost::asio::io_service ioService;
 
-    Interest i(Name("/localhost/testApp/randomData"));
+    Interest i(Name("/example/testApp/randomData"));
     i.setScope(1);
     i.setInterestLifetime(time::seconds(1));
     i.setMustBeFresh(true);

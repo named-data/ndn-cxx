@@ -49,7 +49,7 @@ int
 main(int argc, char** argv)
 {
   try {
-    Interest i(Name("/localhost/testApp/randomData"));
+    Interest i(Name("/example/testApp/randomData"));
     i.setScope(1);
     i.setInterestLifetime(time::milliseconds(1000));
     i.setMustBeFresh(true);

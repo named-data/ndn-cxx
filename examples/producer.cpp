@@ -77,7 +77,7 @@ public:
   void
   run()
   {
-    m_face.setInterestFilter("/localhost/testApp",
+    m_face.setInterestFilter("/example/testApp",
                              bind(&Producer::onInterest, this, _1, _2),
                              RegisterPrefixSuccessCallback(),
                              bind(&Producer::onRegisterFailed, this, _2));
