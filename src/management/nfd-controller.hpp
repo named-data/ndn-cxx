@@ -29,7 +29,7 @@ namespace ndn {
 namespace nfd {
 
 /**
- * \defgroup management
+ * \defgroup management Management
  * \brief Classes and data structures to manage NDN forwarder
  */
 /**

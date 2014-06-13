@@ -83,23 +83,48 @@ public:
    * Otherwise, Data::shared_from_this() will throw an exception.
    */
   explicit
-  Data(const Block& wire)
-  {
-    wireDecode(wire);
-  }
+  Data(const Block& wire);
 
   /**
    * @brief Fast encoding or block size estimation
+   *
+   * @param block                   EncodingEstimator or EncodingBuffer instance
+   * @param wantUnsignedPortionOnly Request only unsigned portion to be encoded in block.
+   *                                If true, only Name, MetaInfo, Content, and SignatureInfo
+   *                                blocks will be encoded into the block. Note that there
+   *                                will be no outer TLV header of the Data packet.
    */
   template<bool T>
   size_t
-  wireEncode(EncodingImpl<T>& block, bool unsignedPortion = false) const;
+  wireEncode(EncodingImpl<T>& block, bool wantUnsignedPortionOnly = false) const;
 
   /**
    * @brief Encode to a wire format
    */
   const Block&
   wireEncode() const;
+
+  /**
+   * @brief Finalize Data packet encoding with the specified SignatureValue
+   *
+   * @param encoder        EncodingBuffer instance, containing Name, MetaInfo, Content, and
+   *                       SignatureInfo (without outer TLV header of the Data packet).
+   * @param signatureValue SignatureValue block to be added to Data packet to finalize
+   *                       the wire encoding
+   *
+   * This method is intended to be used in concert with Data::wireEncode(EncodingBuffer&, true)
+   * method to optimize Data packet wire format creation:
+   *
+   *     Data data;
+   *     ...
+   *     EncodingBuffer encoder;
+   *     data.wireEncode(encoder, true);
+   *     ...
+   *     Block signatureValue = <sign_over_unsigned_portion>(encoder.buf(), encoder.size());
+   *     data.wireEncode(encoder, signatureValue)
+   */
+  const Block&
+  wireEncode(EncodingBuffer& encoder, const Block& signatureValue) const;
 
   /**
    * @brief Decode from the wire format
@@ -286,112 +311,6 @@ private:
   friend class nfd::LocalControlHeader;
 };
 
-inline
-Data::Data()
-  : m_content(Tlv::Content) // empty content
-{
-}
-
-inline
-Data::Data(const Name& name)
-  : m_name(name)
-{
-}
-
-template<bool T>
-inline size_t
-Data::wireEncode(EncodingImpl<T>& block, bool unsignedPortion/* = false*/) const
-{
-  size_t totalLength = 0;
-
-  // Data ::= DATA-TLV TLV-LENGTH
-  //            Name
-  //            MetaInfo
-  //            Content
-  //            Signature
-
-  // (reverse encoding)
-
-  if (!unsignedPortion && !m_signature)
-    {
-      throw Error("Requested wire format, but data packet has not been signed yet");
-    }
-
-  if (!unsignedPortion)
-    {
-      // SignatureValue
-      totalLength += prependBlock(block, m_signature.getValue());
-    }
-
-  // SignatureInfo
-  totalLength += prependBlock(block, m_signature.getInfo());
-
-  // Content
-  totalLength += prependBlock(block, getContent());
-
-  // MetaInfo
-  totalLength += getMetaInfo().wireEncode(block);
-
-  // Name
-  totalLength += getName().wireEncode(block);
-
-  if (!unsignedPortion)
-    {
-      totalLength += block.prependVarNumber (totalLength);
-      totalLength += block.prependVarNumber (Tlv::Data);
-    }
-  return totalLength;
-}
-
-inline const Block&
-Data::wireEncode() const
-{
-  if (m_wire.hasWire())
-    return m_wire;
-
-  EncodingEstimator estimator;
-  size_t estimatedSize = wireEncode(estimator);
-
-  EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
-
-  const_cast<Data*>(this)->wireDecode(buffer.block());
-  return m_wire;
-}
-
-inline void
-Data::wireDecode(const Block& wire)
-{
-  m_wire = wire;
-  m_wire.parse();
-
-  // Data ::= DATA-TLV TLV-LENGTH
-  //            Name
-  //            MetaInfo
-  //            Content
-  //            Signature
-
-  // Name
-  m_name.wireDecode(m_wire.get(Tlv::Name));
-
-  // MetaInfo
-  m_metaInfo.wireDecode(m_wire.get(Tlv::MetaInfo));
-
-  // Content
-  m_content = m_wire.get(Tlv::Content);
-
-  ///////////////
-  // Signature //
-  ///////////////
-
-  // SignatureInfo
-  m_signature.setInfo(m_wire.get(Tlv::SignatureInfo));
-
-  // SignatureValue
-  Block::element_const_iterator val = m_wire.find(Tlv::SignatureValue);
-  if (val != m_wire.elements_end())
-    m_signature.setValue(*val);
-}
 
 inline bool
 Data::hasWire() const
@@ -405,28 +324,10 @@ Data::getName() const
   return m_name;
 }
 
-inline Data&
-Data::setName(const Name& name)
-{
-  onChanged();
-  m_name = name;
-
-  return *this;
-}
-
 inline const MetaInfo&
 Data::getMetaInfo() const
 {
   return m_metaInfo;
-}
-
-inline Data&
-Data::setMetaInfo(const MetaInfo& metaInfo)
-{
-  onChanged();
-  m_metaInfo = metaInfo;
-
-  return *this;
 }
 
 inline uint32_t
@@ -435,28 +336,10 @@ Data::getContentType() const
   return m_metaInfo.getType();
 }
 
-inline Data&
-Data::setContentType(uint32_t type)
-{
-  onChanged();
-  m_metaInfo.setType(type);
-
-  return *this;
-}
-
 inline const time::milliseconds&
 Data::getFreshnessPeriod() const
 {
   return m_metaInfo.getFreshnessPeriod();
-}
-
-inline Data&
-Data::setFreshnessPeriod(const time::milliseconds& freshnessPeriod)
-{
-  onChanged();
-  m_metaInfo.setFreshnessPeriod(freshnessPeriod);
-
-  return *this;
 }
 
 inline const name::Component&
@@ -465,85 +348,11 @@ Data::getFinalBlockId() const
   return m_metaInfo.getFinalBlockId();
 }
 
-inline Data&
-Data::setFinalBlockId(const name::Component& finalBlockId)
-{
-  onChanged();
-  m_metaInfo.setFinalBlockId(finalBlockId);
-
-  return *this;
-}
-
-inline const Block&
-Data::getContent() const
-{
-  if (m_content.empty())
-    m_content = dataBlock(Tlv::Content, reinterpret_cast<const uint8_t*>(0), 0);
-
-  if (!m_content.hasWire())
-      m_content.encode();
-  return m_content;
-}
-
-inline Data&
-Data::setContent(const uint8_t* content, size_t contentLength)
-{
-  onChanged();
-
-  m_content = dataBlock(Tlv::Content, content, contentLength);
-
-  return *this;
-}
-
-inline Data&
-Data::setContent(const ConstBufferPtr& contentValue)
-{
-  onChanged();
-
-  m_content = Block(Tlv::Content, contentValue); // not real a wire encoding yet
-
-  return *this;
-}
-
-inline Data&
-Data::setContent(const Block& content)
-{
-  onChanged();
-
-  if (content.type() == Tlv::Content)
-    m_content = content;
-  else {
-    m_content = Block(Tlv::Content, content);
-  }
-
-  return *this;
-}
-
 inline const Signature&
 Data::getSignature() const
 {
   return m_signature;
 }
-
-inline Data&
-Data::setSignature(const Signature& signature)
-{
-  onChanged();
-  m_signature = signature;
-
-  return *this;
-}
-
-inline Data&
-Data::setSignatureValue(const Block& value)
-{
-  onChanged();
-  m_signature.setValue(value);
-
-  return *this;
-}
-
-//
 
 inline nfd::LocalControlHeader&
 Data::getLocalControlHeader()
@@ -563,53 +372,6 @@ Data::getIncomingFaceId() const
   return getLocalControlHeader().getIncomingFaceId();
 }
 
-inline Data&
-Data::setIncomingFaceId(uint64_t incomingFaceId)
-{
-  getLocalControlHeader().setIncomingFaceId(incomingFaceId);
-  // ! do not reset Data's wire !
-
-  return *this;
-}
-
-inline void
-Data::onChanged()
-{
-  // The values have changed, so the wire format is invalidated
-
-  // !!!Note!!! Signature is not invalidated and it is responsibility of
-  // the application to do proper re-signing if necessary
-
-  m_wire.reset();
-}
-
-inline bool
-Data::operator==(const Data& other) const
-{
-  return getName() == other.getName() &&
-    getMetaInfo() == other.getMetaInfo() &&
-    getContent() == other.getContent() &&
-    getSignature() == other.getSignature();
-}
-
-inline bool
-Data::operator!=(const Data& other) const
-{
-  return !(*this == other);
-}
-
-inline std::ostream&
-operator<<(std::ostream& os, const Data& data)
-{
-  os << "Name: " << data.getName() << "\n";
-  os << "MetaInfo: " << data.getMetaInfo() << "\n";
-  os << "Content: (size: " << data.getContent().value_size() << ")\n";
-  os << "Signature: (type: " << data.getSignature().getType() <<
-    ", value_length: "<< data.getSignature().getValue().value_size() << ")";
-  os << std::endl;
-
-  return os;
-}
 
 } // namespace ndn
 

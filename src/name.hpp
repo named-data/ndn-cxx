@@ -175,13 +175,6 @@ public:
   }
 
   Name&
-  append(const ConstBufferPtr& value)
-  {
-    m_nameBlock.push_back(value);
-    return *this;
-  }
-
-  Name&
   append(const Component& value)
   {
     m_nameBlock.push_back(value);

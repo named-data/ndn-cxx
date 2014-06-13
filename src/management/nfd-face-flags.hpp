@@ -27,10 +27,9 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \enum FaceFlags
  * \brief provides additional information about a face
  */
-enum {
+enum FaceFlags {
   /** \brief face is local (for scope control purpose)
    */
   FACE_IS_LOCAL = 1,

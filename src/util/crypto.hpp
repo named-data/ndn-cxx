@@ -34,7 +34,8 @@ namespace ndn {
  * @param dataLength The length of data.
  * @param digest A pointer to a buffer of size crypto::SHA256_DIGEST_SIZE to receive the data.
  */
-void ndn_digestSha256(const uint8_t* data, size_t dataLength, uint8_t* digest);
+void
+ndn_digestSha256(const uint8_t* data, size_t dataLength, uint8_t* digest);
 
 namespace crypto {
 

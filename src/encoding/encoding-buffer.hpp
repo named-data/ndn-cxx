@@ -145,6 +145,9 @@ public:
   inline size_t
   appendVarNumber(uint64_t varNumber);
 
+  inline size_t
+  appendBlock(const Block& block);
+
   // inline void
   // removeByteFromFront();
 
@@ -207,6 +210,9 @@ public:
 
   inline size_t
   appendVarNumber(uint64_t varNumber);
+
+  inline size_t
+  appendBlock(const Block& block);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -268,6 +274,25 @@ inline size_t
 prependBlock(EncodingImpl<P>& encoder, const Block& block)
 {
   return encoder.prependByteArray(block.wire(), block.size());
+}
+
+template<bool P>
+inline size_t
+appendByteArrayBlock(EncodingImpl<P>& encoder, uint32_t type,
+                      const uint8_t* array, size_t arraySize)
+{
+  size_t totalLength = encoder.appendVarNumber(type);
+  totalLength += encoder.appendVarNumber(arraySize);
+  totalLength += encoder.appendByteArray(array, arraySize);
+
+  return totalLength;
+}
+
+template<bool P>
+inline size_t
+appendBlock(EncodingImpl<P>& encoder, const Block& block)
+{
+  return encoder.appendByteArray(block.wire(), block.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -533,6 +558,28 @@ EncodingImpl<encoding::Buffer>::appendByteArray(const uint8_t* array, size_t len
   std::copy(array, array + length, m_end);
   m_end += length;
   return length;
+}
+
+inline size_t
+EncodingImpl<encoding::Buffer>::appendBlock(const Block& block)
+{
+  if (block.hasWire()) {
+    return appendByteArray(block.wire(), block.size());
+  }
+  else {
+    return appendByteArrayBlock(*this, block.type(), block.value(), block.value_size());
+  }
+}
+
+inline size_t
+EncodingImpl<encoding::Estimator>::appendBlock(const Block& block)
+{
+  if (block.hasWire()) {
+    return block.size();
+  }
+  else {
+    return appendByteArrayBlock(*this, block.type(), block.value(), block.value_size());
+  }
 }
 
 inline size_t

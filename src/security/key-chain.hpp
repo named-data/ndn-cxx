@@ -871,10 +871,13 @@ KeyChain::signPacketWrapper(Data& data, const SignatureSha256WithRsa& signature,
                             const Name& keyName, DigestAlgorithm digestAlgorithm)
 {
   data.setSignature(signature);
-  data.setSignatureValue(m_tpm->signInTpm(data.wireEncode().value(),
-                                          data.wireEncode().value_size() -
-                                          data.getSignature().getValue().size(),
-                                          keyName, digestAlgorithm));
+
+  EncodingBuffer encoder;
+  data.wireEncode(encoder, true);
+
+  Block signatureValue = m_tpm->signInTpm(encoder.buf(), encoder.size(),
+                                          keyName, digestAlgorithm);
+  data.wireEncode(encoder, signatureValue);
 }
 
 inline void

@@ -180,25 +180,25 @@ public:
    * @brief Fast encoding or block size estimation
    */
   template<bool T>
-  inline size_t
+  size_t
   wireEncode(EncodingImpl<T>& block) const;
 
   /**
    * @brief Encode to a wire format
    */
-  inline const Block&
+  const Block&
   wireEncode() const;
 
   /**
    * @brief Decode from the wire format
    */
-  inline void
+  void
   wireDecode(const Block& wire);
 
   /**
    * @brief Check if already has wire
    */
-  inline bool
+  bool
   hasWire() const;
 
   /**
@@ -207,13 +207,13 @@ public:
    * If there are interest selectors, this method will append "?" and add the selectors as
    * a query string.  For example, "/test/name?ndn.ChildSelector=1"
    */
-  inline std::string
+  std::string
   toUri() const;
 
   /**
    * @brief Check if Interest has any selectors present
    */
-  inline bool
+  bool
   hasSelectors() const;
 
   /**
@@ -527,123 +527,6 @@ Interest::hasSelectors() const
   return !m_selectors.empty();
 }
 
-template<bool T>
-inline size_t
-Interest::wireEncode(EncodingImpl<T>& block) const
-{
-  size_t totalLength = 0;
-
-  // Interest ::= INTEREST-TYPE TLV-LENGTH
-  //                Name
-  //                Selectors?
-  //                Nonce
-  //                Scope?
-  //                InterestLifetime?
-
-  // (reverse encoding)
-
-  // InterestLifetime
-  if (getInterestLifetime() >= time::milliseconds::zero() &&
-      getInterestLifetime() != DEFAULT_INTEREST_LIFETIME)
-    {
-      totalLength += prependNonNegativeIntegerBlock(block,
-                                                    Tlv::InterestLifetime,
-                                                    getInterestLifetime().count());
-    }
-
-  // Scope
-  if (getScope() >= 0)
-    {
-      totalLength += prependNonNegativeIntegerBlock(block, Tlv::Scope, getScope());
-    }
-
-  // Nonce
-  getNonce(); // to ensure that Nonce is properly set
-  totalLength += block.prependBlock(m_nonce);
-
-  // Selectors
-  if (!getSelectors().empty())
-    {
-      totalLength += getSelectors().wireEncode(block);
-    }
-
-  // Name
-  totalLength += getName().wireEncode(block);
-
-  totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(Tlv::Interest);
-  return totalLength;
-}
-
-inline const Block&
-Interest::wireEncode() const
-{
-  if (m_wire.hasWire())
-    return m_wire;
-
-  EncodingEstimator estimator;
-  size_t estimatedSize = wireEncode(estimator);
-
-  EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
-
-  // to ensure that Nonce block points to the right memory location
-  const_cast<Interest*>(this)->wireDecode(buffer.block());
-
-  return m_wire;
-}
-
-inline void
-Interest::wireDecode(const Block& wire)
-{
-  m_wire = wire;
-  m_wire.parse();
-
-  // Interest ::= INTEREST-TYPE TLV-LENGTH
-  //                Name
-  //                Selectors?
-  //                Nonce
-  //                Scope?
-  //                InterestLifetime?
-
-  if (m_wire.type() != Tlv::Interest)
-    throw Tlv::Error("Unexpected TLV number when decoding Interest");
-
-  // Name
-  m_name.wireDecode(m_wire.get(Tlv::Name));
-
-  // Selectors
-  Block::element_const_iterator val = m_wire.find(Tlv::Selectors);
-  if (val != m_wire.elements_end())
-    {
-      m_selectors.wireDecode(*val);
-    }
-  else
-    m_selectors = Selectors();
-
-  // Nonce
-  m_nonce = m_wire.get(Tlv::Nonce);
-
-  // Scope
-  val = m_wire.find(Tlv::Scope);
-  if (val != m_wire.elements_end())
-    {
-      m_scope = readNonNegativeInteger(*val);
-    }
-  else
-    m_scope = -1;
-
-  // InterestLifetime
-  val = m_wire.find(Tlv::InterestLifetime);
-  if (val != m_wire.elements_end())
-    {
-      m_interestLifetime = time::milliseconds(readNonNegativeInteger(*val));
-    }
-  else
-    {
-      m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
-    }
-}
 
 inline bool
 Interest::hasWire() const

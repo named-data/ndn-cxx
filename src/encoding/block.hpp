@@ -69,9 +69,8 @@ public:
   /**
    * @brief A helper version of a constructor to create Block from the raw buffer (type
    * and value-length parsing)
-   *
-   * This constructor provides ability of implicit conversion from ConstBufferPtr to Block
    */
+  explicit
   Block(const ConstBufferPtr& buffer);
 
   /**
