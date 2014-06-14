@@ -116,6 +116,7 @@ Data::wireEncode() const
 void
 Data::wireDecode(const Block& wire)
 {
+  m_fullName.clear();
   m_wire = wire;
   m_wire.parse();
 
@@ -154,6 +155,21 @@ Data::setName(const Name& name)
   m_name = name;
 
   return *this;
+}
+
+const Name&
+Data::getFullName() const
+{
+  if (m_fullName.empty()) {
+    if (!m_wire.hasWire()) {
+      throw Error("Full name requested, but Data packet does not have wire format "
+                  "(e.g., not signed)");
+    }
+    m_fullName = m_name;
+    m_fullName.append(name::Component(crypto::sha256(m_wire.wire(), m_wire.size())));
+  }
+
+  return m_fullName;
 }
 
 Data&
@@ -275,6 +291,7 @@ Data::onChanged()
   // the application to do proper re-signing if necessary
 
   m_wire.reset();
+  m_fullName.clear();
 }
 
 bool

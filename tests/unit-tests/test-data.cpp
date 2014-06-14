@@ -350,6 +350,70 @@ BOOST_FIXTURE_TEST_CASE(Encode, TestDataFixture)
                                   dataBlock.begin(), dataBlock.end());
 }
 
+class DataIdentityFixture
+{
+public:
+  DataIdentityFixture()
+    : identity("/TestData")
+  {
+    identity.appendVersion();
+
+    BOOST_REQUIRE_NO_THROW(certName = keyChain.createIdentity(identity));
+  }
+
+  ~DataIdentityFixture()
+  {
+    BOOST_CHECK_NO_THROW(keyChain.deleteIdentity(identity));
+  }
+
+public:
+  KeyChain keyChain;
+  Name identity;
+  Name certName;
+};
+
+BOOST_FIXTURE_TEST_CASE(FullName, DataIdentityFixture)
+{
+  // Encoding pipeline
+
+  ndn::Data d(ndn::Name("/local/ndn/prefix"));
+  d.setContentType(MetaInfo::TYPE_DEFAULT);
+  d.setFreshnessPeriod(time::seconds(10));
+
+  d.setContent(Content1, sizeof(Content1));
+
+  BOOST_CHECK_THROW(d.getFullName(), Data::Error);
+
+  keyChain.sign(d, certName);
+
+  Name fullName;
+  BOOST_REQUIRE_NO_THROW(fullName = d.getFullName());
+
+  BOOST_CHECK_EQUAL(d.getName().hasWire(), true);
+  BOOST_CHECK_EQUAL(fullName.hasWire(), false);
+
+  // check if name was properly cached
+  BOOST_CHECK_EQUAL(fullName.get(-1).value(), d.getFullName().get(-1).value());
+
+  // check FullName content
+  BOOST_REQUIRE_EQUAL(d.getName().size() + 1, fullName.size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(d.getName().begin(), d.getName().end(),
+                                fullName.begin(), fullName.end() - 1);
+  BOOST_CHECK_EQUAL(fullName.get(-1).value_size(), 32);
+
+  // FullName should be reset after the next line
+  d.setFreshnessPeriod(time::seconds(100));
+  BOOST_CHECK_THROW(d.getFullName(), Data::Error);
+
+  // Decoding pipeline
+  d.wireDecode(Block(Data1, sizeof(Data1)));
+  BOOST_REQUIRE_NO_THROW(fullName = d.getFullName());
+
+  BOOST_CHECK_EQUAL(fullName.toUri(),
+    "/local/ndn/prefix/"
+    "%28%BA%D4%B5%27%5B%D3%92%DB%B6p%C7%5C%F0%B6o%13%F7%94+%21%E8%0FU%C0%E8k7GS%A5H");
+}
+
 BOOST_AUTO_TEST_CASE(EncodeMetaInfo)
 {
   MetaInfo meta;

@@ -157,6 +157,15 @@ public:
   //
 
   /**
+   * @brief Get full name of Data packet, including the implicit digest
+   *
+   * @throws Error if Data packet doesn't have a full name yet (wire encoding has not been
+   *         yet created)
+   */
+  const Name&
+  getFullName() const;
+
+  /**
    * @brief Get MetaInfo block from Data packet
    */
   const MetaInfo&
@@ -306,6 +315,7 @@ private:
   Signature m_signature;
 
   mutable Block m_wire;
+  mutable Name m_fullName;
 
   nfd::LocalControlHeader m_localControlHeader;
   friend class nfd::LocalControlHeader;

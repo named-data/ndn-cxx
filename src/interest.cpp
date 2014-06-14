@@ -68,13 +68,13 @@ Interest::matchesName(const Name& name) const
     return false;
 
   if (getMinSuffixComponents() >= 0 &&
-    // Add 1 for the implicit digest.
-      !(name.size() + 1 - m_name.size() >= static_cast<size_t>(getMinSuffixComponents())))
+      // name must include implicit digest
+      !(name.size() - m_name.size() >= static_cast<size_t>(getMinSuffixComponents())))
     return false;
 
   if (getMaxSuffixComponents() >= 0 &&
-    // Add 1 for the implicit digest.
-      !(name.size() + 1 - m_name.size() <= static_cast<size_t>(getMaxSuffixComponents())))
+      // name must include implicit digest
+      !(name.size() - m_name.size() <= static_cast<size_t>(getMaxSuffixComponents())))
     return false;
 
   if (!getExclude().empty() &&
@@ -88,7 +88,7 @@ Interest::matchesName(const Name& name) const
 bool
 Interest::matchesData(const Data& data) const
 {
-  if (!this->matchesName(data.getName())) {
+  if (!this->matchesName(data.getFullName())) {
     return false;
   }
 
