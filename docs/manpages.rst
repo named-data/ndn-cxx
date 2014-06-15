@@ -9,6 +9,7 @@ Manpages
     ndnsec-key-gen      <manpages/ndnsec-key-gen>
     ndnsec-sign-req     <manpages/ndnsec-sign-req>
     ndnsec-cert-gen     <manpages/ndnsec-cert-gen>
+    ndnsec-cert-revoke  <manpages/ndnsec-cert-revoke>
     ndnsec-cert-install <manpages/ndnsec-cert-install>
     ndnsec-cert-dump    <manpages/ndnsec-cert-dump>
     ndnsec-delete       <manpages/ndnsec-delete>

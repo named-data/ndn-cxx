@@ -239,6 +239,7 @@ man_pages = [
     ('manpages/ndnsec', 'ndnsec', u'NDN security tools', None, 1),
     ('manpages/ndnsec-cert-dump',    'ndnsec-cert-dump',   'part of NDN security tools', None, 1),
     ('manpages/ndnsec-cert-gen',     'ndnsec-cert-gen',    'part of NDN security tools', None, 1),
+    ('manpages/ndnsec-cert-revoke',  'ndnsec-cert-revoke', 'part of NDN security tools', None, 1),
     ('manpages/ndnsec-cert-install', 'ndnsec-cert-instal', 'part of NDN security tools', None, 1),
     ('manpages/ndnsec-delete',       'ndnsec-delete',      'part of NDN security tools', None, 1),
     ('manpages/ndnsec-export',       'ndnsec-export',      'part of NDN security tools', None, 1),

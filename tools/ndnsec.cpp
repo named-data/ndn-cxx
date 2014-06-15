@@ -30,6 +30,7 @@
 #include "ndnsec-dsk-gen.hpp"
 #include "ndnsec-sign-req.hpp"
 #include "ndnsec-cert-gen.hpp"
+#include "ndnsec-cert-revoke.hpp"
 #include "ndnsec-cert-dump.hpp"
 #include "ndnsec-cert-install.hpp"
 #include "ndnsec-export.hpp"
@@ -51,6 +52,7 @@ std::string ndnsec_helper("\
   key-gen      Generate a Key-Signing-Key for an identity.\n\
   sign-req     Generate a certificate signing request.\n\
   cert-gen     Generate an identity certificate.\n\
+  cert-revoke  Revoke an identity certificate.\n\
   cert-dump    Dump a certificate from PublicInfo.\n\
   cert-install Install a certificate into PublicInfo.\n\
   delete       Delete identity/key/certificate.\n\
@@ -84,6 +86,7 @@ main(int argc, char** argv)
       else if (command == "key-gen")      { return ndnsec_key_gen(argc - 1, argv + 1); }
       else if (command == "sign-req")     { return ndnsec_sign_req(argc - 1, argv + 1); }
       else if (command == "cert-gen")     { return ndnsec_cert_gen(argc - 1, argv + 1); }
+      else if (command == "cert-revoke")  { return ndnsec_cert_revoke(argc - 1, argv + 1); }
       else if (command == "cert-dump")    { return ndnsec_cert_dump(argc - 1, argv + 1); }
       else if (command == "cert-install") { return ndnsec_cert_install(argc - 1, argv + 1); }
       else if (command == "delete")       { return ndnsec_delete(argc - 1, argv + 1); }
