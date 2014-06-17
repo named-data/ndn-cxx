@@ -268,7 +268,7 @@ ValidatorConfig::checkSignature(const Packet& packet,
 {
   if (signature.getType() == Signature::Sha256)
     {
-      SignatureSha256 sigSha256(signature);
+      DigestSha256 sigSha256(signature);
 
       if (verifySignature(packet, sigSha256))
         return onValidated(packet.shared_from_this());

@@ -19,12 +19,47 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_SIGNATURE_SHA256_HPP
-#define NDN_SECURITY_SIGNATURE_SHA256_HPP
+#ifndef NDN_SECURITY_DIGEST_SHA256_HPP
+#define NDN_SECURITY_DIGEST_SHA256_HPP
 
-#include "digest-sha256.hpp"
+#include "../data.hpp"
+#include "../encoding/tlv.hpp"
 
-///@deprecated
-typedef DigestSha256 SignatureSha256;
+namespace ndn {
 
-#endif //NDN_SECURITY_SIGNATURE_SHA256_HPP
+/**
+ * Represent a SHA256 digest.
+ */
+class DigestSha256 : public Signature
+{
+public:
+  class Error : public Signature::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : Signature::Error(what)
+    {
+    }
+  };
+
+  DigestSha256()
+  {
+    m_info = Block(Tlv::SignatureInfo);
+
+    m_type = Signature::Sha256;
+    m_info.push_back(nonNegativeIntegerBlock(Tlv::SignatureType, Tlv::DigestSha256));
+  }
+
+  explicit
+  DigestSha256(const Signature& signature)
+    : Signature(signature)
+  {
+    if (getType() != Signature::Sha256)
+      throw Error("Incorrect signature type");
+  }
+};
+
+} // namespace ndn
+
+#endif //NDN_SECURITY_DIGEST_SHA256_HPP

@@ -31,7 +31,7 @@
 #include "../face.hpp"
 #include "public-key.hpp"
 #include "signature-sha256-with-rsa.hpp"
-#include "signature-sha256.hpp"
+#include "digest-sha256.hpp"
 #include "validation-request.hpp"
 
 namespace ndn {
@@ -157,7 +157,7 @@ public:
 
   /// @brief Verify the data against the SHA256 signature.
   static bool
-  verifySignature(const Data& data, const SignatureSha256& sig)
+  verifySignature(const Data& data, const DigestSha256& sig)
   {
     return verifySignature(data.wireEncode().value(),
                            data.wireEncode().value_size() -
@@ -170,7 +170,7 @@ public:
    * (Note the signature covers the first n-2 name components).
    */
   static bool
-  verifySignature(const Interest& interest, const SignatureSha256& sig)
+  verifySignature(const Interest& interest, const DigestSha256& sig)
   {
     if (interest.getName().size() < 2)
       return false;
@@ -184,14 +184,14 @@ public:
 
   /// @brief Verify the blob against the SHA256 signature.
   static bool
-  verifySignature(const Buffer& blob, const SignatureSha256& sig)
+  verifySignature(const Buffer& blob, const DigestSha256& sig)
   {
     return verifySignature (blob.buf(), blob.size(), sig);
   }
 
   /// @brief Verify the blob against the SHA256 signature.
   static bool
-  verifySignature(const uint8_t* buf, const size_t size, const SignatureSha256& sig);
+  verifySignature(const uint8_t* buf, const size_t size, const DigestSha256& sig);
 
 protected:
   /**

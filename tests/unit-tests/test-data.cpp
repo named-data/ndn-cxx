@@ -232,12 +232,12 @@ BOOST_AUTO_TEST_CASE(SignatureEqualityChecks)
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
-  a = SignatureSha256();
+  a = DigestSha256();
   b = SignatureSha256WithRsa();
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b = SignatureSha256();
+  b = DigestSha256();
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 }

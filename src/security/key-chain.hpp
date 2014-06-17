@@ -28,7 +28,7 @@
 #include "sec-tpm.hpp"
 #include "secured-bag.hpp"
 #include "signature-sha256-with-rsa.hpp"
-#include "signature-sha256.hpp"
+#include "digest-sha256.hpp"
 
 #include "../interest.hpp"
 #include "../util/crypto.hpp"
@@ -808,7 +808,7 @@ KeyChain::signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name&
 inline void
 KeyChain::signWithSha256(Data& data)
 {
-  SignatureSha256 sig;
+  DigestSha256 sig;
   data.setSignature(sig);
 
   Block sigValue(Tlv::SignatureValue,

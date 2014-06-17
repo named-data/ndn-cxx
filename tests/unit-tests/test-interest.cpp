@@ -22,7 +22,7 @@
 #include "interest.hpp"
 #include "data.hpp"
 #include "security/signature-sha256-with-rsa.hpp"
-#include "security/signature-sha256.hpp"
+#include "security/digest-sha256.hpp"
 #include "encoding/buffer-stream.hpp"
 
 #include "boost-test.hpp"
@@ -492,7 +492,7 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   interest.setPublisherPublicKeyLocator(KeyLocator("ndn:/B"));
 
   Data data4 = data;
-  SignatureSha256 signature4; // violates PublisherPublicKeyLocator
+  DigestSha256 signature4; // violates PublisherPublicKeyLocator
   data4.setSignature(signature4);
   data4.wireEncode();
   BOOST_CHECK_EQUAL(interest.matchesData(data4), false);

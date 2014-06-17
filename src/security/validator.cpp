@@ -260,7 +260,7 @@ Validator::verifySignature(const uint8_t* buf,
 }
 
 bool
-Validator::verifySignature(const uint8_t* buf, const size_t size, const SignatureSha256& sig)
+Validator::verifySignature(const uint8_t* buf, const size_t size, const DigestSha256& sig)
 {
   try
     {

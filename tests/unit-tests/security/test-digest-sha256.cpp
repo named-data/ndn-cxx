@@ -29,7 +29,7 @@
 using namespace std;
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(SecurityTestSignatureSha256)
+BOOST_AUTO_TEST_SUITE(SecurityTestDigestSha256)
 
 string SHA256_RESULT("a883dafc480d466ee04e0d6da986bd78eb1fdd2178d04693723da3a8f95d42f4");
 
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE (Signature)
 
   testData.wireEncode();
 
-  SignatureSha256 sig(testData.getSignature());
+  DigestSha256 sig(testData.getSignature());
 
   BOOST_REQUIRE(Validator::verifySignature(testData, sig));
 }
