@@ -19,43 +19,71 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
-#define NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
+#ifndef NDN_SECURITY_SIGNATURE_WITH_PUBLIC_KEY_HPP
+#define NDN_SECURITY_SIGNATURE_WITH_PUBLIC_KEY_HPP
 
-#include "signature-with-public-key.hpp"
+#include "../data.hpp"
+#include "../encoding/tlv.hpp"
 
 namespace ndn {
 
 /**
- * Represent a SHA256-with-RSA signature.
+ * Base class of public key signature.
  */
-class SignatureSha256WithRsa : public SignatureWithPublicKey
+class SignatureWithPublicKey : public Signature
 {
 public:
-  class Error : public SignatureWithPublicKey::Error
+  class Error : public Signature::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : SignatureWithPublicKey::Error(what)
+      : Signature::Error(what)
     {
     }
   };
 
-  SignatureSha256WithRsa()
-    : SignatureWithPublicKey(Tlv::SignatureSha256WithRsa)
+  explicit
+  SignatureWithPublicKey(const Tlv::SignatureTypeValue& signatureType)
   {
+    m_info = Block(Tlv::SignatureInfo);
+
+    m_type = signatureType;
+    m_info.push_back(nonNegativeIntegerBlock(Tlv::SignatureType, signatureType));
+    m_info.push_back(m_keyLocator.wireEncode());
   }
 
   explicit
-  SignatureSha256WithRsa(const Signature& signature)
-    : SignatureWithPublicKey(signature)
+  SignatureWithPublicKey(const Signature& signature)
+    : Signature(signature)
   {
-    if (getType() != Signature::Sha256WithRsa)
-      throw Error("Incorrect signature type");
+    m_info.parse();
+    Block::element_const_iterator i = m_info.find(Tlv::KeyLocator);
+    if (i != m_info.elements_end())
+      {
+        m_keyLocator.wireDecode(*i);
+      }
   }
+
+  const KeyLocator&
+  getKeyLocator() const
+  {
+    return m_keyLocator;
+  }
+
+  void
+  setKeyLocator(const KeyLocator& keyLocator)
+  {
+    m_keyLocator = keyLocator;
+
+    m_info.remove(ndn::Tlv::KeyLocator);
+    m_info.push_back(m_keyLocator.wireEncode());
+  }
+
+private:
+  KeyLocator m_keyLocator;
 };
 
 } // namespace ndn
 
-#endif //NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
+#endif //NDN_SECURITY_SIGNATURE_WITH_PUBLIC_KEY_HPP

@@ -19,17 +19,17 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
-#define NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
+#ifndef NDN_SECURITY_SIGNATURE_SHA256_WITH_ECDSA_HPP
+#define NDN_SECURITY_SIGNATURE_SHA256_WITH_ECDSA_HPP
 
 #include "signature-with-public-key.hpp"
 
 namespace ndn {
 
 /**
- * Represent a SHA256-with-RSA signature.
+ * represents a Sha256WithEcdsa signature.
  */
-class SignatureSha256WithRsa : public SignatureWithPublicKey
+class SignatureSha256WithEcdsa : public SignatureWithPublicKey
 {
 public:
   class Error : public SignatureWithPublicKey::Error
@@ -42,20 +42,20 @@ public:
     }
   };
 
-  SignatureSha256WithRsa()
-    : SignatureWithPublicKey(Tlv::SignatureSha256WithRsa)
+  SignatureSha256WithEcdsa()
+    : SignatureWithPublicKey(Tlv::SignatureSha256WithEcdsa)
   {
   }
 
   explicit
-  SignatureSha256WithRsa(const Signature& signature)
+  SignatureSha256WithEcdsa(const Signature& signature)
     : SignatureWithPublicKey(signature)
   {
-    if (getType() != Signature::Sha256WithRsa)
+    if (getType() != Signature::Sha256WithEcdsa)
       throw Error("Incorrect signature type");
   }
 };
 
 } // namespace ndn
 
-#endif //NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
+#endif //NDN_SECURITY_SIGNATURE_SHA256_WITH_ECDSA_HPP

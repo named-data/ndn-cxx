@@ -22,6 +22,8 @@
 #ifndef NDN_SIGNATURE_HPP
 #define NDN_SIGNATURE_HPP
 
+#include "encoding/tlv.hpp"
+
 namespace ndn {
 
 /**
@@ -41,8 +43,9 @@ public:
   };
 
   enum {
-    Sha256 = 0,
-    Sha256WithRsa = 1
+    Sha256 = Tlv::DigestSha256,
+    Sha256WithRsa = Tlv::SignatureSha256WithRsa,
+    Sha256WithEcdsa = Tlv::SignatureSha256WithEcdsa
   };
 
   Signature()

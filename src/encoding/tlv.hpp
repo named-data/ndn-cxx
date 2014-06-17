@@ -75,16 +75,20 @@ enum {
   AppPrivateBlock2 = 32767
 };
 
-enum SignatureType {
+enum SignatureTypeValue {
   DigestSha256 = 0,
-  SignatureSha256WithRsa = 1
+  SignatureSha256WithRsa = 1,
+  SignatureSha256WithEcdsa = 3
 };
 
-enum ConentType {
+enum ContentTypeValue {
   ContentType_Default = 0,
   ContentType_Link = 1,
   ContentType_Key = 2
 };
+
+/// @deprecated use ContentType instead
+typedef ContentTypeValue ConentType;
 
 /**
  * @brief Read VAR-NUMBER in NDN-TLV encoding
