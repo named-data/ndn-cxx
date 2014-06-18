@@ -38,14 +38,14 @@ enum {
 } // namespace signed_interest
 
 enum KeyType {
-  KEY_TYPE_RSA,
-  KEY_TYPE_ECDSA,
+  KEY_TYPE_RSA   = 0,
+  KEY_TYPE_ECDSA = 1,
   // KEY_TYPE_DSA,
-  KEY_TYPE_AES,
+  KEY_TYPE_AES   = 128,
   // KEY_TYPE_DES,
   // KEY_TYPE_RC4,
   // KEY_TYPE_RC2
-  KEY_TYPE_NULL
+  KEY_TYPE_NULL  = 255
 };
 
 enum KeyClass {

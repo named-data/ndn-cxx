@@ -268,9 +268,8 @@ SecPublicInfoSqlite3::doesPublicKeyExist(const Name& keyName)
 }
 
 void
-SecPublicInfoSqlite3::addPublicKey(const Name& keyName,
-                                   KeyType keyType,
-                                   const PublicKey& publicKeyDer)
+SecPublicInfoSqlite3::addKey(const Name& keyName,
+                             const PublicKey& publicKeyDer)
 {
   if (keyName.empty())
     return;
@@ -292,7 +291,7 @@ SecPublicInfoSqlite3::addPublicKey(const Name& keyName,
 
   sqlite3_bind_text(statement, 1, identityName.toUri(), SQLITE_TRANSIENT);
   sqlite3_bind_text(statement, 2, keyId, SQLITE_TRANSIENT);
-  sqlite3_bind_int(statement, 3, (int)keyType);
+  sqlite3_bind_int(statement, 3, publicKeyDer.getKeyType());
   sqlite3_bind_blob(statement, 4,
                     publicKeyDer.get().buf(),
                     publicKeyDer.get().size(),
@@ -338,6 +337,39 @@ SecPublicInfoSqlite3::getPublicKey(const Name& keyName)
       sqlite3_finalize(statement);
       throw Error("SecPublicInfoSqlite3::getPublicKey  public key does not exist");
     }
+}
+
+KeyType
+SecPublicInfoSqlite3::getPublicKeyType(const Name& keyName)
+{
+  if (keyName.empty())
+    return KEY_TYPE_NULL;
+
+  string keyId = keyName.get(-1).toUri();
+  Name identityName = keyName.getPrefix(-1);
+
+  sqlite3_stmt* statement;
+  sqlite3_prepare_v2(m_database,
+                     "SELECT key_type FROM Key WHERE identity_name=? AND key_identifier=?",
+                     -1, &statement, 0);
+
+  sqlite3_bind_text(statement, 1, identityName.toUri(), SQLITE_TRANSIENT);
+  sqlite3_bind_text(statement, 2, keyId, SQLITE_TRANSIENT);
+
+  int res = sqlite3_step(statement);
+
+  if (res == SQLITE_ROW)
+    {
+      int typeValue = sqlite3_column_int(statement, 0);
+      sqlite3_finalize(statement);
+      return static_cast<KeyType>(typeValue);
+    }
+  else
+    {
+      sqlite3_finalize(statement);
+      return KEY_TYPE_NULL;
+    }
+
 }
 
 bool
@@ -424,8 +456,7 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
   Name keyName =
     IdentityCertificate::certificateNameToPublicKeyName(certificate.getName());
 
-  //HACK!!! Assume the key type is RSA, we should check more.
-  addPublicKey(keyName, KEY_TYPE_RSA, certificate.getPublicKeyInfo());
+  addKey(keyName, certificate.getPublicKeyInfo());
 
   if (doesCertificateExist(certificateName))
     return;

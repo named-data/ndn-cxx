@@ -66,10 +66,13 @@ public:
   doesPublicKeyExist(const Name& keyName);
 
   virtual void
-  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer);
+  addKey(const Name& keyName, const PublicKey& publicKeyDer);
 
   virtual shared_ptr<PublicKey>
   getPublicKey(const Name& keyName);
+
+  virtual KeyType
+  getPublicKeyType(const Name& keyName);
 
   virtual bool
   doesCertificateExist(const Name& certificateName);

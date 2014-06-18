@@ -99,12 +99,26 @@ public:
   /**
    * @brief Add a public key to the identity storage.
    *
+   * @deprecated Use addKey instead
+   *
    * @param keyName The name of the public key to be added
    * @param keyType Type of the public key to be added
    * @param publicKey Reference to the PublicKey object
    */
+  void
+  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKey)
+  {
+    addKey(keyName, publicKey);
+  }
+
+  /**
+   * @brief Add a public key to the identity storage.
+   *
+   * @param keyName The name of the public key to be added
+   * @param publicKey Reference to the PublicKey object
+   */
   virtual void
-  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKey) = 0;
+  addKey(const Name& keyName, const PublicKey& publicKey) = 0;
 
   /**
    * @brief Get shared pointer to PublicKey object from the identity storage
@@ -114,6 +128,18 @@ public:
    */
   virtual shared_ptr<PublicKey>
   getPublicKey(const Name& keyName) = 0;
+
+  /**
+   * @brief Get the type of the queried public key
+   *
+   * @note KeyType is also available from PublicKey instance.
+   *       This method is more efficient if only KeyType is needed.
+   *
+   * @param keyName The name of the requested public key
+   * @return the type of the key. If the queried key does not exist, KEY_TYPE_NULL will be returned
+   */
+  virtual KeyType
+  getPublicKeyType(const Name& keyName) = 0;
 
   /**
    * @brief Check if the specified certificate already exists
