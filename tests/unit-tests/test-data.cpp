@@ -348,6 +348,15 @@ BOOST_FIXTURE_TEST_CASE(Encode, TestDataFixture)
 
   BOOST_REQUIRE_EQUAL_COLLECTIONS(Data1, Data1+sizeof(Data1),
                                   dataBlock.begin(), dataBlock.end());
+
+  std::ostringstream strStream;
+  BOOST_CHECK_NO_THROW(strStream << d);
+
+  BOOST_CHECK_EQUAL(strStream.str(),
+                    "Name: /local/ndn/prefix\n"
+                    "MetaInfo: ContentType: 0, FreshnessPeriod: 10000 milliseconds\n"
+                    "Content: (size: 8)\n"
+                    "Signature: (type: 1, value_length: 128)\n");
 }
 
 class DataIdentityFixture

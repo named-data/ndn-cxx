@@ -255,7 +255,7 @@ operator<<(std::ostream& os, const Interest& interest)
   }
   if (interest.getInterestLifetime() >= time::milliseconds::zero()
       && interest.getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
-    os << delim << "ndn.InterestLifetime=" << interest.getInterestLifetime();
+    os << delim << "ndn.InterestLifetime=" << interest.getInterestLifetime().count();
     delim = '&';
   }
 

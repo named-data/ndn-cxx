@@ -341,6 +341,16 @@ BOOST_AUTO_TEST_CASE(Encode)
 
   BOOST_CHECK_EQUAL_COLLECTIONS(Interest2, Interest2 + sizeof(Interest2),
                                 wire.begin(), wire.end());
+
+  std::ostringstream strStream;
+  BOOST_CHECK_NO_THROW(strStream << i);
+
+  BOOST_CHECK_EQUAL(strStream.str(),
+                    "/local/ndn/prefix?"
+                    "ndn.MinSuffixComponents=1&ndn.MaxSuffixComponents=1&"
+                    "ndn.ChildSelector=1&ndn.Scope=1&"
+                    "ndn.InterestLifetime=1000&"
+                    "ndn.Nonce=2&ndn.Exclude=alex,xxxx,*,yyyy");
 }
 
 BOOST_AUTO_TEST_CASE(EncodeWithLocalHeader)

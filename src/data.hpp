@@ -321,6 +321,8 @@ private:
   friend class nfd::LocalControlHeader;
 };
 
+std::ostream&
+operator<<(std::ostream& os, const Data& data);
 
 inline bool
 Data::hasWire() const
