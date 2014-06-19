@@ -47,6 +47,7 @@ public:
 
   static const shared_ptr<CertificateCache> DEFAULT_CERTIFICATE_CACHE;
 
+  explicit
   ValidatorRegex(Face& face,
                  shared_ptr<CertificateCache> certificateCache = DEFAULT_CERTIFICATE_CACHE,
                  const int stepLimit = 3);

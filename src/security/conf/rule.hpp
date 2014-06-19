@@ -36,6 +36,7 @@ template<class Packet>
 class Rule
 {
 public:
+  explicit
   Rule(const std::string& id)
     : m_id(id)
   {

@@ -52,6 +52,7 @@ public:
     }
   };
 
+  explicit
   CertificateExtension(CryptoPP::BufferedTransformation& in)
   {
     decode(in);

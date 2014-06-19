@@ -63,6 +63,7 @@ public:
   KeyChain();
 
   template<class KeyChainTraits>
+  explicit
   KeyChain(KeyChainTraits traits);
 
   KeyChain(const std::string& pibName,

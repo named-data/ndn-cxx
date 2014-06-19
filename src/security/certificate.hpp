@@ -59,6 +59,7 @@ public:
    * Create a Certificate from the content in the data packet.
    * @param data The data packet with the content to decode.
    */
+  explicit
   Certificate(const Data& data);
 
   /**

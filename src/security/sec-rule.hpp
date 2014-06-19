@@ -42,6 +42,7 @@ public:
     }
   };
 
+  explicit
   SecRule(bool isPositive)
     : m_isPositive(isPositive)
   {

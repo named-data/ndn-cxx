@@ -45,6 +45,7 @@ public:
     }
   };
 
+  explicit
   SecTpmFile(const std::string& dir = "");
 
   virtual

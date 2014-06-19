@@ -33,6 +33,7 @@ namespace ndn {
 class CertificateCacheTtl : public CertificateCache
 {
 public:
+  explicit
   CertificateCacheTtl(boost::asio::io_service& io,
                       const time::seconds& defaultTtl = time::seconds(3600))
     : m_defaultTtl(defaultTtl)

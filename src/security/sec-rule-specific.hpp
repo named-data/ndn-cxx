@@ -37,8 +37,10 @@ public:
   SecRuleSpecific(shared_ptr<Regex> dataRegex,
                   shared_ptr<Regex> signerRegex);
 
+  explicit
   SecRuleSpecific(shared_ptr<Regex> dataRegex);
 
+  explicit
   SecRuleSpecific(const SecRuleSpecific& rule);
 
   virtual

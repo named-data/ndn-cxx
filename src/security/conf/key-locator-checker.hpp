@@ -148,6 +148,7 @@ private:
 class RegexKeyLocatorNameChecker : public KeyLocatorChecker
 {
 public:
+  explicit
   RegexKeyLocatorNameChecker(const Regex& regex)
     : m_regex(regex)
   {

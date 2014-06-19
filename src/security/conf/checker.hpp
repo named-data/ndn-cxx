@@ -193,6 +193,7 @@ private:
 class HierarchicalChecker : public CustomizedChecker
 {
 public:
+  explicit
   HierarchicalChecker(uint32_t sigType)
     : CustomizedChecker(sigType,
         make_shared<HyperKeyLocatorNameChecker>("^(<>*)$", "\\1",

@@ -41,6 +41,7 @@ namespace ndn {
 class CertificateSubjectDescription
 {
 public:
+  explicit
   CertificateSubjectDescription(CryptoPP::BufferedTransformation& in)
   {
     decode(in);
