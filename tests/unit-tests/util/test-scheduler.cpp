@@ -33,7 +33,6 @@ struct SchedulerFixture
     : count1(0)
     , count2(0)
     , count3(0)
-    , count4(0)
   {
   }
 
@@ -57,16 +56,9 @@ struct SchedulerFixture
     ++count3;
   }
 
-  void
-  event4()
-  {
-    ++count4;
-  }
-
   int count1;
   int count2;
   int count3;
-  int count4;
 };
 
 BOOST_FIXTURE_TEST_CASE(Events, SchedulerFixture)
@@ -84,15 +76,11 @@ BOOST_FIXTURE_TEST_CASE(Events, SchedulerFixture)
   i = scheduler.scheduleEvent(time::milliseconds(50), bind(&SchedulerFixture::event2, this));
   scheduler.cancelEvent(i);
 
-  i = scheduler.schedulePeriodicEvent(time::milliseconds(1500), time::milliseconds(500), bind(&SchedulerFixture::event4, this));
-  scheduler.scheduleEvent(time::seconds(4), bind(&Scheduler::cancelEvent, &scheduler, i));
-
   io.run();
 
   BOOST_CHECK_EQUAL(count1, 1);
   BOOST_CHECK_EQUAL(count2, 0);
   BOOST_CHECK_EQUAL(count3, 1);
-  BOOST_CHECK_GE(count4, 2);
 }
 
 BOOST_AUTO_TEST_CASE(CancelEmptyEvent)

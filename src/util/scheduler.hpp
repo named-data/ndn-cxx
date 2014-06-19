@@ -53,16 +53,6 @@ public:
   scheduleEvent(const time::nanoseconds& after, const Event& event);
 
   /**
-   * \brief Schedule periodic event that should be fired every specified period.
-   *        First event will be fired after the specified delay.
-   * \returns EventId that can be used to cancel the scheduled event
-   */
-  EventId
-  schedulePeriodicEvent(const time::nanoseconds& after,
-                        const time::nanoseconds& period,
-                        const Event& event);
-
-  /**
    * \brief Cancel scheduled event
    */
   void
@@ -75,9 +65,7 @@ private:
 private:
   struct EventInfo
   {
-    EventInfo(const time::nanoseconds& after,
-              const time::nanoseconds& period,
-              const Event& event);
+    EventInfo(const time::nanoseconds& after, const Event& event);
 
     EventInfo(const time::steady_clock::TimePoint& when, const EventInfo& previousEvent);
 
@@ -97,7 +85,6 @@ private:
     expiresFromNow() const;
 
     time::steady_clock::TimePoint m_scheduledTime;
-    time::nanoseconds m_period;
     Event m_event;
     mutable EventId m_eventId;
   };

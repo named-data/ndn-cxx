@@ -63,10 +63,8 @@ private:
 };
 
 Scheduler::EventInfo::EventInfo(const time::nanoseconds& after,
-                                const time::nanoseconds& period,
                                 const Event& event)
   : m_scheduledTime(time::steady_clock::now() + after)
-  , m_period(period)
   , m_event(event)
 {
 }
@@ -74,7 +72,6 @@ Scheduler::EventInfo::EventInfo(const time::nanoseconds& after,
 Scheduler::EventInfo::EventInfo(const time::steady_clock::TimePoint& when,
                                 const EventInfo& previousEvent)
   : m_scheduledTime(when)
-  , m_period(previousEvent.m_period)
   , m_event(previousEvent.m_event)
   , m_eventId(previousEvent.m_eventId)
 {
@@ -102,15 +99,7 @@ EventId
 Scheduler::scheduleEvent(const time::nanoseconds& after,
                          const Event& event)
 {
-  return schedulePeriodicEvent(after, time::nanoseconds(-1), event);
-}
-
-EventId
-Scheduler::schedulePeriodicEvent(const time::nanoseconds& after,
-                                 const time::nanoseconds& period,
-                                 const Event& event)
-{
-  EventQueue::iterator i = m_events.insert(EventInfo(after, period, event));
+  EventQueue::iterator i = m_events.insert(EventInfo(after, event));
 
   // On OSX 10.9, boost, and C++03 the following doesn't work without ndn::
   // because the argument-dependent lookup prefers STL to boost
@@ -178,19 +167,8 @@ Scheduler::onEvent(const boost::system::error_code& error)
       EventQueue::iterator head = m_events.begin();
 
       Event event = head->m_event;
-      if (head->m_period < time::nanoseconds::zero())
-        {
-          head->m_eventId->invalidate();
-          m_events.erase(head);
-        }
-      else
-        {
-          // "reschedule" and update EventId data of the event
-          EventInfo event(now + head->m_period, *head);
-          EventQueue::iterator i = m_events.insert(event);
-          i->m_eventId->reset(i);
-          m_events.erase(head);
-        }
+      head->m_eventId->invalidate();
+      m_events.erase(head);
 
       event();
     }
