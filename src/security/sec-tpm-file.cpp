@@ -38,13 +38,16 @@
 
 #include <algorithm>
 
-using namespace std;
-
 namespace ndn {
+
+using std::string;
+using std::ostringstream;
+using std::ofstream;
 
 class SecTpmFile::Impl
 {
 public:
+  explicit
   Impl(const string& dir)
   {
     if (dir.empty())
@@ -52,11 +55,11 @@ public:
     else
       m_keystorePath = dir;
 
-    boost::filesystem::create_directories (m_keystorePath);
+    boost::filesystem::create_directories(m_keystorePath);
   }
 
   boost::filesystem::path
-  nameTransform(const string& keyName, const string& extension)
+  transformName(const string& keyName, const string& extension)
   {
     using namespace CryptoPP;
     string digest;
@@ -75,7 +78,7 @@ public:
   string
   maintainMapping(const string& keyName)
   {
-    string keyFileName = nameTransform(keyName, "").string();
+    string keyFileName = transformName(keyName, "").string();
 
     ofstream outfile;
     string dirFile = (m_keystorePath / "mapping.txt").string();
@@ -95,10 +98,11 @@ public:
 SecTpmFile::SecTpmFile(const string& dir)
   : m_impl(new Impl(dir))
   , m_inTerminal(false)
-{}
+{
+}
 
 void
-SecTpmFile::generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize)
+SecTpmFile::generateKeyPairInTpm(const Name& keyName, const KeyParams& params)
 {
   string keyURI = keyName.toUri();
 
@@ -111,15 +115,16 @@ SecTpmFile::generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySi
 
   try
     {
-      switch (keyType)
+      switch (params.getKeyType())
         {
         case KEY_TYPE_RSA:
           {
             using namespace CryptoPP;
-            AutoSeededRandomPool rng;
 
+            const RsaKeyParams& rsaParams = static_cast<const RsaKeyParams&>(params);
+            AutoSeededRandomPool rng;
             InvertibleRSAFunction privateKey;
-            privateKey.Initialize(rng, keySize);
+            privateKey.Initialize(rng, rsaParams.getKeySize());
 
             string privateKeyFileName = keyFileName + ".pri";
             Base64Encoder privateKeySink(new FileSink(privateKeyFileName.c_str()));
@@ -141,6 +146,10 @@ SecTpmFile::generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySi
           throw Error("Unsupported key type!");
         }
     }
+  catch (KeyParams::Error& e)
+    {
+      throw Error(e.what());
+    }
   catch (CryptoPP::Exception& e)
     {
       throw Error(e.what());
@@ -150,8 +159,8 @@ SecTpmFile::generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySi
 void
 SecTpmFile::deleteKeyPairInTpm(const Name& keyName)
 {
-  boost::filesystem::path publicKeyPath(m_impl->nameTransform(keyName.toUri(), ".pub"));
-  boost::filesystem::path privateKeyPath(m_impl->nameTransform(keyName.toUri(), ".pri"));
+  boost::filesystem::path publicKeyPath(m_impl->transformName(keyName.toUri(), ".pub"));
+  boost::filesystem::path privateKeyPath(m_impl->transformName(keyName.toUri(), ".pri"));
 
   if (boost::filesystem::exists(publicKeyPath))
     boost::filesystem::remove(publicKeyPath);
@@ -172,7 +181,7 @@ SecTpmFile::getPublicKeyFromTpm(const Name&  keyName)
   try
     {
       using namespace CryptoPP;
-      FileSource(m_impl->nameTransform(keyURI, ".pub").string().c_str(),
+      FileSource(m_impl->transformName(keyURI, ".pub").string().c_str(),
                  true,
                  new Base64Decoder(new FileSink(os)));
     }
@@ -189,7 +198,7 @@ ConstBufferPtr
 SecTpmFile::exportPrivateKeyPkcs8FromTpm(const Name& keyName)
 {
   OBufferStream privateKeyOs;
-  CryptoPP::FileSource(m_impl->nameTransform(keyName.toUri(), ".pri").string().c_str(), true,
+  CryptoPP::FileSource(m_impl->transformName(keyName.toUri(), ".pri").string().c_str(), true,
                        new CryptoPP::Base64Decoder(new CryptoPP::FileSink(privateKeyOs)));
 
   return privateKeyOs.buf();
@@ -251,7 +260,7 @@ SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength,
 
       //Read private key
       ByteQueue bytes;
-      FileSource file(m_impl->nameTransform(keyURI, ".pri").string().c_str(),
+      FileSource file(m_impl->transformName(keyURI, ".pri").string().c_str(),
                       true, new Base64Decoder);
       file.TransferTo(bytes);
       bytes.MessageEnd();
@@ -300,7 +309,7 @@ SecTpmFile::decryptInTpm(const uint8_t* data, size_t dataLength,
 
   //       //Read private key
   //       ByteQueue bytes;
-  //       FileSource file(m_impl->nameTransform(keyURI, ".pri").string().c_str(), true, new Base64Decoder);
+  //       FileSource file(m_impl->transformName(keyURI, ".pri").string().c_str(), true, new Base64Decoder);
   //       file.TransferTo(bytes);
   //       bytes.MessageEnd();
   //       RSA::PrivateKey privateKey;
@@ -320,27 +329,27 @@ SecTpmFile::decryptInTpm(const uint8_t* data, size_t dataLength,
   //   {
   //     throw Error("Symmetric encryption is not implemented!");
   //     // if (!doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
-  //     // 	throw Error("symmetric key doesn't exist");
+  //     //     throw Error("symmetric key doesn't exist");
 
   //     // try{
-  //     // 	string keyBits;
-  //     // 	string symKeyFileName = m_impl->nameTransform(keyURI, ".key");
-  //     // 	FileSource(symKeyFileName, true, new HexDecoder(new StringSink(keyBits)));
+  //     //     string keyBits;
+  //     //     string symKeyFileName = m_impl->transformName(keyURI, ".key");
+  //     //     FileSource(symKeyFileName, true, new HexDecoder(new StringSink(keyBits)));
 
-  //     // 	using CryptoPP::AES;
-  //     // 	AutoSeededRandomPool rnd;
-  //     // 	byte iv[AES::BLOCKSIZE];
-  //     // 	rnd.GenerateBlock(iv, AES::BLOCKSIZE);
+  //     //     using CryptoPP::AES;
+  //     //     AutoSeededRandomPool rnd;
+  //     //     byte iv[AES::BLOCKSIZE];
+  //     //     rnd.GenerateBlock(iv, AES::BLOCKSIZE);
 
-  //     // 	CFB_Mode<AES>::Decryption decryptor;
-  //     // 	decryptor.SetKeyWithIV(reinterpret_cast<const uint8_t*>(keyBits.c_str()), keyBits.size(), iv);
+  //     //     CFB_Mode<AES>::Decryption decryptor;
+  //     //     decryptor.SetKeyWithIV(reinterpret_cast<const uint8_t*>(keyBits.c_str()), keyBits.size(), iv);
 
-  //     // 	OBufferStream os;
-  //     // 	StringSource(data, dataLength, true, new StreamTransformationFilter(decryptor,new FileSink(os)));
-  //     // 	return os.buf();
+  //     //     OBufferStream os;
+  //     //     StringSource(data, dataLength, true, new StreamTransformationFilter(decryptor,new FileSink(os)));
+  //     //     return os.buf();
 
   //     // }catch (CryptoPP::Exception& e){
-  //     // 	throw Error(e.what());
+  //     //     throw Error(e.what());
   //     // }
   //   }
 }
@@ -363,7 +372,7 @@ SecTpmFile::encryptInTpm(const uint8_t* data, size_t dataLength,
 
   //         //Read private key
   //         ByteQueue bytes;
-  //         FileSource file(m_impl->nameTransform(keyURI, ".pub").string().c_str(), true, new Base64Decoder);
+  //         FileSource file(m_impl->transformName(keyURI, ".pub").string().c_str(), true, new Base64Decoder);
   //         file.TransferTo(bytes);
   //         bytes.MessageEnd();
   //         RSA::PublicKey publicKey;
@@ -383,33 +392,33 @@ SecTpmFile::encryptInTpm(const uint8_t* data, size_t dataLength,
   //   {
   //     throw Error("Symmetric encryption is not implemented!");
   //     // if (!doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
-  //     // 	throw Error("symmetric key doesn't exist");
+  //     //     throw Error("symmetric key doesn't exist");
 
   //     // try{
-  //     // 	string keyBits;
-  //     // 	string symKeyFileName = m_impl->nameTransform(keyURI, ".key");
-  //     // 	FileSource(symKeyFileName, true, new HexDecoder(new StringSink(keyBits)));
+  //     //     string keyBits;
+  //     //     string symKeyFileName = m_impl->transformName(keyURI, ".key");
+  //     //     FileSource(symKeyFileName, true, new HexDecoder(new StringSink(keyBits)));
 
-  //     // 	using CryptoPP::AES;
-  //     // 	AutoSeededRandomPool rnd;
-  //     // 	byte iv[AES::BLOCKSIZE];
-  //     // 	rnd.GenerateBlock(iv, AES::BLOCKSIZE);
+  //     //     using CryptoPP::AES;
+  //     //     AutoSeededRandomPool rnd;
+  //     //     byte iv[AES::BLOCKSIZE];
+  //     //     rnd.GenerateBlock(iv, AES::BLOCKSIZE);
 
-  //     // 	CFB_Mode<AES>::Encryption encryptor;
-  //     // 	encryptor.SetKeyWithIV(reinterpret_cast<const uint8_t*>(keyBits.c_str()), keyBits.size(), iv);
+  //     //     CFB_Mode<AES>::Encryption encryptor;
+  //     //     encryptor.SetKeyWithIV(reinterpret_cast<const uint8_t*>(keyBits.c_str()), keyBits.size(), iv);
 
-  //     // 	OBufferStream os;
-  //     // 	StringSource(data, dataLength, true, new StreamTransformationFilter(encryptor, new FileSink(os)));
-  //     // 	return os.buf();
+  //     //     OBufferStream os;
+  //     //     StringSource(data, dataLength, true, new StreamTransformationFilter(encryptor, new FileSink(os)));
+  //     //     return os.buf();
   //     // }catch (CryptoPP::Exception& e){
-  //     // 	throw Error(e.what());
+  //     //     throw Error(e.what());
   //     // }
   //   }
 }
 
 
 void
-SecTpmFile::generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize)
+SecTpmFile::generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& params)
 {
   throw Error("SecTpmFile::generateSymmetricKeyInTpm is not supported!");
   // string keyURI = keyName.toUri();
@@ -449,21 +458,21 @@ SecTpmFile::doesKeyExistInTpm(const Name& keyName, KeyClass keyClass)
   string keyURI = keyName.toUri();
   if (keyClass == KEY_CLASS_PUBLIC)
     {
-      if (boost::filesystem::exists(m_impl->nameTransform(keyURI, ".pub")))
+      if (boost::filesystem::exists(m_impl->transformName(keyURI, ".pub")))
         return true;
       else
         return false;
     }
   if (keyClass == KEY_CLASS_PRIVATE)
     {
-      if (boost::filesystem::exists(m_impl->nameTransform(keyURI, ".pri")))
+      if (boost::filesystem::exists(m_impl->transformName(keyURI, ".pri")))
         return true;
       else
         return false;
     }
   if (keyClass == KEY_CLASS_SYMMETRIC)
     {
-      if (boost::filesystem::exists(m_impl->nameTransform(keyURI, ".key")))
+      if (boost::filesystem::exists(m_impl->transformName(keyURI, ".key")))
         return true;
       else
         return false;

@@ -55,9 +55,6 @@ enum KeyClass {
 };
 
 enum DigestAlgorithm {
-  // DIGEST_ALGORITHM_MD2,
-  // DIGEST_ALGORITHM_MD5,
-  // DIGEST_ALGORITHM_SHA1,
   DIGEST_ALGORITHM_SHA256
 };
 

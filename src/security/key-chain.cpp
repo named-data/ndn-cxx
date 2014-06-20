@@ -38,6 +38,8 @@ namespace ndn {
 // Use a GUID as a magic number of KeyChain::DEFAULT_PREFIX identifier
 const Name KeyChain::DEFAULT_PREFIX("/723821fd-f534-44b3-80d9-44bf5f58bbbb");
 
+const RsaKeyParams KeyChain::DEFAULT_KEY_PARAMS;
+
 KeyChain::KeyChain()
   : m_pib(0)
   , m_tpm(0)
@@ -120,6 +122,49 @@ KeyChain::KeyChain(const std::string& pibName,
     throw Error("TPM type '" + tpmName + "' is not supported");
 }
 
+Name
+KeyChain::createIdentity(const Name& identityName, const KeyParams& params)
+{
+  m_pib->addIdentity(identityName);
+
+  Name keyName;
+  try
+    {
+      keyName = m_pib->getDefaultKeyNameForIdentity(identityName);
+    }
+  catch (SecPublicInfo::Error& e)
+    {
+      keyName = generateKeyPair(identityName, true, params);
+      m_pib->setDefaultKeyNameForIdentity(keyName);
+    }
+
+  Name certName;
+  try
+    {
+      certName = m_pib->getDefaultCertificateNameForKey(keyName);
+    }
+  catch (SecPublicInfo::Error& e)
+    {
+      shared_ptr<IdentityCertificate> selfCert = selfSign(keyName);
+      m_pib->addCertificateAsIdentityDefault(*selfCert);
+      certName = selfCert->getName();
+    }
+
+  return certName;
+}
+
+Name
+KeyChain::generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk, int keySize)
+{
+  RsaKeyParams params(keySize);
+
+  Name keyName = generateKeyPair(identityName, isKsk, params);
+
+  m_pib->setDefaultKeyNameForIdentity(keyName);
+
+  return keyName;
+}
+
 shared_ptr<IdentityCertificate>
 KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
   const Name& signingIdentity,
@@ -199,6 +244,7 @@ KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
 
   if (subjectDescription.empty())
     {
+      // OID 2.5.4.41 is the oid of subject name.
       CertificateSubjectDescription subjectName("2.5.4.41", keyName.getPrefix(-1).toUri());
       certificate->addSubjectDescription(subjectName);
     }
@@ -221,8 +267,8 @@ Signature
 KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
 {
   if (!m_pib->doesCertificateExist(certificateName))
-    throw SecPublicInfo::Error("Requested certificate ["
-                               + certificateName.toUri() + "] doesn't exist");
+    throw SecPublicInfo::Error("Requested certificate [" +
+                               certificateName.toUri() + "] doesn't exist");
 
   Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
 
@@ -269,7 +315,7 @@ KeyChain::selfSign(IdentityCertificate& cert)
 {
   Name keyName = IdentityCertificate::certificateNameToPublicKeyName(cert.getName());
   if (!m_tpm->doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
-    throw SecTpm::Error("private key does not exist!");
+    throw SecTpm::Error("Private key does not exist");
 
   SignatureSha256WithRsa signature;
   signature.setKeyLocator(cert.getName().getPrefix(-1)); // implicit conversion should take care
@@ -282,7 +328,7 @@ shared_ptr<SecuredBag>
 KeyChain::exportIdentity(const Name& identity, const std::string& passwordStr)
 {
   if (!m_pib->doesIdentityExist(identity))
-    throw SecPublicInfo::Error("Identity does not exist!");
+    throw SecPublicInfo::Error("Identity does not exist");
 
   Name keyName = m_pib->getDefaultKeyNameForIdentity(identity);
 
@@ -360,6 +406,148 @@ KeyChain::setDefaultCertificateInternal()
       m_pib->setDefaultIdentity(defaultIdentity);
       m_pib->refreshDefaultCertificate();
     }
+}
+
+Name
+KeyChain::generateKeyPair(const Name& identityName, bool isKsk, const KeyParams& params)
+{
+  Name keyName = m_pib->getNewKeyName(identityName, isKsk);
+
+  m_tpm->generateKeyPairInTpm(keyName.toUri(), params);
+
+  shared_ptr<PublicKey> pubKey = m_tpm->getPublicKeyFromTpm(keyName.toUri());
+  m_pib->addKey(keyName, *pubKey);
+
+  return keyName;
+}
+
+void
+KeyChain::signPacketWrapper(Data& data, const SignatureSha256WithRsa& signature,
+                            const Name& keyName, DigestAlgorithm digestAlgorithm)
+{
+  data.setSignature(signature);
+
+  EncodingBuffer encoder;
+  data.wireEncode(encoder, true);
+
+  Block signatureValue = m_tpm->signInTpm(encoder.buf(), encoder.size(),
+                                          keyName, digestAlgorithm);
+  data.wireEncode(encoder, signatureValue);
+}
+
+void
+KeyChain::signPacketWrapper(Interest& interest, const SignatureSha256WithRsa& signature,
+                            const Name& keyName, DigestAlgorithm digestAlgorithm)
+{
+  time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
+  if (timestamp <= m_lastTimestamp)
+    {
+      timestamp = m_lastTimestamp + time::milliseconds(1);
+    }
+
+  Name signedName = interest.getName();
+  signedName
+    .append(name::Component::fromNumber(timestamp.count()))        // timestamp
+    .append(name::Component::fromNumber(random::generateWord64())) // nonce
+    .append(signature.getInfo());                                  // signatureInfo
+
+  Block sigValue = m_tpm->signInTpm(signedName.wireEncode().value(),
+                                    signedName.wireEncode().value_size(),
+                                    keyName,
+                                    digestAlgorithm);
+  sigValue.encode();
+  signedName.append(sigValue);                                     // signatureValue
+  interest.setName(signedName);
+}
+
+Signature
+KeyChain::signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName)
+{
+  Name signingCertificateName;
+  try
+    {
+      signingCertificateName = m_pib->getDefaultCertificateNameForIdentity(identityName);
+    }
+  catch (SecPublicInfo::Error& e)
+    {
+      signingCertificateName = createIdentity(identityName);
+      // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which
+      // is a fatal error.
+    }
+
+  // We either get or create the signing certificate, sign data! (no exception unless fatal error
+  // in TPM)
+  return sign(buffer, bufferLength, signingCertificateName);
+}
+
+void
+KeyChain::signWithSha256(Data& data)
+{
+  DigestSha256 sig;
+  data.setSignature(sig);
+
+  Block sigValue(Tlv::SignatureValue,
+                 crypto::sha256(data.wireEncode().value(),
+                                data.wireEncode().value_size() -
+                                data.getSignature().getValue().size()));
+  data.setSignatureValue(sigValue);
+}
+
+void
+KeyChain::deleteCertificate(const Name& certificateName)
+{
+  try
+    {
+      if (m_pib->getDefaultCertificateName() == certificateName)
+        return;
+    }
+  catch (SecPublicInfo::Error& e)
+    {
+      // Not a real error, just try to delete the certificate
+    }
+
+  m_pib->deleteCertificateInfo(certificateName);
+}
+
+void
+KeyChain::deleteKey(const Name& keyName)
+{
+  try
+    {
+      if (m_pib->getDefaultKeyNameForIdentity(m_pib->getDefaultIdentity()) == keyName)
+        return;
+    }
+  catch (SecPublicInfo::Error& e)
+    {
+      // Not a real error, just try to delete the key
+    }
+
+  m_pib->deletePublicKeyInfo(keyName);
+  m_tpm->deleteKeyPairInTpm(keyName);
+}
+
+void
+KeyChain::deleteIdentity(const Name& identity)
+{
+  try
+    {
+      if (m_pib->getDefaultIdentity() == identity)
+        return;
+    }
+  catch (SecPublicInfo::Error& e)
+    {
+      // Not a real error, just try to delete the identity
+    }
+
+  std::vector<Name> nameList;
+  m_pib->getAllKeyNamesOfIdentity(identity, nameList, true);
+  m_pib->getAllKeyNamesOfIdentity(identity, nameList, false);
+
+  m_pib->deleteIdentityInfo(identity);
+
+  std::vector<Name>::const_iterator it = nameList.begin();
+  for(; it != nameList.end(); it++)
+    m_tpm->deleteKeyPairInTpm(*it);
 }
 
 }

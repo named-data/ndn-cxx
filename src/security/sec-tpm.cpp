@@ -295,5 +295,40 @@ SecTpm::importPrivateKeyPkcs5IntoTpm(const Name& keyName,
   return true;
 }
 
+bool
+SecTpm::getImpExpPassWord(std::string& password, const std::string& prompt)
+{
+  bool isInitialized = false;
+
+  char* pw0 = 0;
+
+  pw0 = getpass(prompt.c_str());
+  if (0 == pw0)
+    return false;
+  std::string password1 = pw0;
+  memset(pw0, 0, strlen(pw0));
+
+  pw0 = getpass("Confirm:");
+  if (0 == pw0)
+    {
+      std::fill(password1.begin(), password1.end(), 0);
+      return false;
+    }
+
+  if (0 == password1.compare(pw0))
+    {
+      isInitialized = true;
+      password.swap(password1);
+    }
+
+  std::fill(password1.begin(), password1.end(), 0);
+  memset(pw0, 0, strlen(pw0));
+
+  if (password.empty())
+    return false;
+
+  return isInitialized;
+}
+
 
 } // namespace ndn

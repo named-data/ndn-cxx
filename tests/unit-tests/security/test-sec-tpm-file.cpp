@@ -29,18 +29,18 @@
 
 #include "boost-test.hpp"
 
-using namespace std;
 namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(SecurityTestSecTpmFile)
 
-BOOST_AUTO_TEST_CASE (Delete)
+BOOST_AUTO_TEST_CASE(Delete)
 {
   SecTpmFile tpm;
 
   Name keyName("/TestSecTpmFile/Delete/ksk-" +
-               boost::lexical_cast<string>(time::toUnixTimestamp(time::system_clock::now())));
-  BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
+               boost::lexical_cast<std::string>(time::toUnixTimestamp(time::system_clock::now())));
+  RsaKeyParams params(2048);
+  BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, params));
 
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
@@ -51,13 +51,14 @@ BOOST_AUTO_TEST_CASE (Delete)
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
 }
 
-BOOST_AUTO_TEST_CASE (SignVerify)
+BOOST_AUTO_TEST_CASE(SignVerify)
 {
   SecTpmFile tpm;
 
   Name keyName("/TestSecTpmFile/SignVerify/ksk-" +
-               boost::lexical_cast<string>(time::toUnixTimestamp(time::system_clock::now())));
-  BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, KEY_TYPE_RSA, 2048));
+               boost::lexical_cast<std::string>(time::toUnixTimestamp(time::system_clock::now())));
+  RsaKeyParams params(2048);
+  BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, params));
 
   Data data("/tmp/test/1");
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
@@ -65,19 +66,19 @@ BOOST_AUTO_TEST_CASE (SignVerify)
   Block sigBlock;
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
                                                 keyName, DIGEST_ALGORITHM_SHA256));
-  shared_ptr<PublicKey> pubkeyPtr;
-  BOOST_CHECK_NO_THROW(pubkeyPtr = tpm.getPublicKeyFromTpm(keyName));
+  shared_ptr<PublicKey> publicKey;
+  BOOST_CHECK_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
 
   try
     {
       using namespace CryptoPP;
 
-      RSA::PublicKey publicKey;
+      RSA::PublicKey rsaPublicKey;
       ByteQueue queue;
-      queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
-      publicKey.Load(queue);
+      queue.Put(reinterpret_cast<const byte*>(publicKey->get().buf()), publicKey->get().size());
+      rsaPublicKey.Load(queue);
 
-      RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
+      RSASS<PKCS1v15, SHA256>::Verifier verifier(rsaPublicKey);
       bool result = verifier.VerifyMessage(content, sizeof(content),
                                            sigBlock.value(), sigBlock.value_size());
 
@@ -91,7 +92,7 @@ BOOST_AUTO_TEST_CASE (SignVerify)
   tpm.deleteKeyPairInTpm(keyName);
 }
 
-BOOST_AUTO_TEST_CASE (RandomGenerator)
+BOOST_AUTO_TEST_CASE(RandomGenerator)
 {
   SecTpmFile tpm;
 
@@ -100,37 +101,65 @@ BOOST_AUTO_TEST_CASE (RandomGenerator)
   uint8_t* block = new uint8_t[size];
   tpm.generateRandomBlock(block, size);
 
-  map<uint8_t, int> counter;
-  for(size_t i = 0; i < size; i++)
-    counter[block[i]] += 1;
+  std::map<uint8_t, int> counter;
+  for (size_t i = 0; i < size; i++)
+    {
+      counter[block[i]] += 1;
+    }
 
   float dev = 0.0;
-  for(size_t i = 0; i != 255; i++)
-    dev += ((counter[i] - scale) * (counter[i] - scale)) * 1.0 / (scale * scale);
+  for (size_t i = 0; i != 255; i++)
+    {
+      dev += ((counter[i] - scale) * (counter[i] - scale)) * 1.0 / (scale * scale);
+    }
 
   BOOST_CHECK_CLOSE(dev / 256, 0.001, 100);
 
 }
 
-BOOST_AUTO_TEST_CASE (ImportExportKey)
+BOOST_AUTO_TEST_CASE(ImportExportKey)
 {
   using namespace CryptoPP;
 
-  string imported(
-"3082050E304006092A864886F70D01050D3033301B06092A864886F70D01050C300E0408209CF0B1B4C856A802020800301406082A864886F70D0307040884B1229D80690211048204C8DA62C11E1CCFC43F318D0C03DA4B11350122B18F23645C454F41BB46C7F8EED4F95041A9130B33E989AF338951A286B55FB9A707AF1C5B2E1FAE7CD66D6D556CBFD90640BDA0D7904DD8D89CF15AB24F1A652AB76E16411B78E8A9AAEEB6EE06FA793B2B4A3EE4B9B5DFB3FC3D38076145915A11CEC8FD2EAB70F51A0DA8B88B73B4DD5BAFB933ABCD92FFBA7843083CCE6B7A6BD9A51094EFF93DC93A19B4982F5FF8696FDF07B76366B6408EC18F4EA218A4F6B5EA85A5AF3B082D0E3AE74665BDD9FC7DE87A7A54EB038AB2E9196365F8481F1CC601EB866D554B4FBCDABECD35CBE404F3CB313E9799D111AD955C42629FB1A01E6138EFF15E6DE7D2BF8754868157DAC72EE5125221D502DCF0B8E8FF5CA87B601357785E7C95CBFC369B31D747ADACFB95E614507A5622ACAA3541B4FE02AEEC2DD588D3D7860A50C78EF460C39E250851140155052F18419F37D551FC3F5224764A17A2C47F9CEDC63780E3AF48C421D682FD3A68A2E12EB28737DB0F785137FC01282D0D82220E2D147E4E2D261046D3C5842B55C1C2F6BA51727AF57C502242F397ACEC341F2C6C6E739E629A144602C9994C88B4F8B4F7150C087C143D9FEC23A686E5E46A5541A071869089BECC05B186FC3D8F95668A671D7088462D61423BAEB73B41CDA5B69E22D6EE3A64BB523B1522F2433BA8AD98A7500EB5C5859469F45C15E91AC1DA9D9473B3C2B37C38D038F99122E157166B89C1EA941A683A73C3F7C0762E79E9C1E28A306042D8683C26995F7AA1B5CC1B985BB0A9DEE6471E9BCEF977A2BE84BD90CE3025FA76B8B546725D85C37543B69604D3F0822DBA3067E9CF9BF2F0DC676E0D718C963C71DBD7A278BAF2A2FFA65BDB8E60FCDD0D0BA841E37284FB6174047D1EC974730A77A7E808C5F27BF1FF0818AD7B0596C538ECFF2068BD5EED5E90102918E2F224EBFFDB2C8366A5C819A00BF6DDF823BD861331F4BF2323ECA284B90C96AB6C7CDBB200163AEA8FD9EC18BA5ACAA8B8B4BDA532A04AD179D402F09E69F5CE0A179EBEF9A99E8B0C5BC8A9C3CA71C820508E33C79A98B9C31F856F53D1369AD7D9C668BC9160D6C7F3612842BDCDB42F5AE6860E93B2B203CAE26C93A7640640D403BC107DDA031CAD54DC63FFF73861D25DE26B9147C328B3940F2CFB44E82112DD6FA514CB8FD5DD6E6FF4D4EFF430B06AC970D8D75F5BD6A015558ED8D82C5121115DC3657BE88356348C0F8B8EADFD5506C0C046984BB1F12F3EEFD32FED4C8684ABD252BF3CA56092D4A752CF51E13755568C3BF25CFCA0F7AF9279CA593305C27645022DD2DD0F7FFCAC92EDEF04B9DCAE7FD55E2C69C76CF061F1ECD724850FCA574543954105B9A3824B849DDD75DEB57B382054AAB4A1FE467D235FB77C220730ED7D9B79A575831395AAE0C4C0B0D3E7EC17511C3DE9A86AD1C68BFF861FA0151020E43A1C6B4F4D6273D586B1D291AEF45DF454463F39BACA2FF07AA5E24A7EA850189F8C39BA8E88FEB21C1647EF910898B02492C49599111D3558F05A4CFD0FDBF33E802798FF2C437FCD65AAC1024FB29D08DCD7DB7E08279C3EB4B64E58747096641D1886145EC9E5ADDC8BBC81BE0DC77C3F3A017311050B921B5506F13AF30BA04AFAA210F0359E710C01319DE7BFF165A3615E8DDFC6E3FC167BA39B332B42E5207CA4934EABDAE2D057FA661DEB3EBC1A4AFD4F3E014918EC");
+  std::string imported =
+"MIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIIJzwsbTIVqgCAggAMBQGCCqG"
+"SIb3DQMHBAiEsSKdgGkCEQSCBMjaYsEeHM/EPzGNDAPaSxE1ASKxjyNkXEVPQbtGx/ju1PlQ"
+"QakTCzPpia8ziVGihrVfuacHrxxbLh+ufNZtbVVsv9kGQL2g15BN2Nic8VqyTxplKrduFkEb"
+"eOipqu627gb6eTsrSj7kubXfs/w9OAdhRZFaEc7I/S6rcPUaDai4i3O03VuvuTOrzZL/unhD"
+"CDzOa3pr2aUQlO/5Pck6GbSYL1/4aW/fB7djZrZAjsGPTqIYpPa16oWlrzsILQ4650Zlvdn8"
+"feh6elTrA4qy6RljZfhIHxzGAeuGbVVLT7zavs01y+QE88sxPpeZ0RGtlVxCYp+xoB5hOO/x"
+"Xm3n0r+HVIaBV9rHLuUSUiHVAtzwuOj/XKh7YBNXeF58lcv8Npsx10etrPuV5hRQelYirKo1"
+"QbT+Aq7sLdWI09eGClDHjvRgw54lCFEUAVUFLxhBnzfVUfw/UiR2SheixH+c7cY3gOOvSMQh"
+"1oL9Omii4S6yhzfbD3hRN/wBKC0NgiIOLRR+Ti0mEEbTxYQrVcHC9rpRcnr1fFAiQvOXrOw0"
+"HyxsbnOeYpoURgLJmUyItPi09xUMCHwUPZ/sI6aG5eRqVUGgcYaQib7MBbGG/D2PlWaKZx1w"
+"iEYtYUI7rrc7Qc2ltp4i1u46ZLtSOxUi8kM7qK2Yp1AOtcWFlGn0XBXpGsHanZRzs8KzfDjQ"
+"OPmRIuFXFmuJweqUGmg6c8P3wHYueenB4oowYELYaDwmmV96obXMG5hbsKne5kcem875d6K+"
+"hL2QzjAl+na4tUZyXYXDdUO2lgTT8IItujBn6c+b8vDcZ24NcYyWPHHb16J4uvKi/6Zb245g"
+"/N0NC6hB43KE+2F0BH0eyXRzCnen6AjF8nvx/wgYrXsFlsU47P8gaL1e7V6QECkY4vIk6//b"
+"LINmpcgZoAv23fgjvYYTMfS/IyPsooS5DJarbHzbsgAWOuqP2ewYulrKqLi0vaUyoErRedQC"
+"8J5p9c4KF56++ameiwxbyKnDynHIIFCOM8eamLnDH4VvU9E2mtfZxmi8kWDWx/NhKEK9zbQv"
+"WuaGDpOysgPK4myTp2QGQNQDvBB92gMcrVTcY//3OGHSXeJrkUfDKLOUDyz7ROghEt1vpRTL"
+"j9Xdbm/01O/0MLBqyXDY119b1qAVVY7Y2CxRIRFdw2V76INWNIwPi46t/VUGwMBGmEux8S8+"
+"79Mv7UyGhKvSUr88pWCS1KdSz1HhN1VWjDvyXPyg96+SecpZMwXCdkUCLdLdD3/8rJLt7wS5"
+"3K5/1V4sacds8GHx7NckhQ/KV0VDlUEFuaOCS4Sd3XXetXs4IFSqtKH+Rn0jX7d8Igcw7X2b"
+"eaV1gxOVquDEwLDT5+wXURw96ahq0caL/4YfoBUQIOQ6HGtPTWJz1Yax0pGu9F30VEY/ObrK"
+"L/B6peJKfqhQGJ+MObqOiP6yHBZH75EImLAkksSVmREdNVjwWkz9D9vzPoAnmP8sQ3/NZarB"
+"Ak+ynQjc19t+CCecPrS2Tlh0cJZkHRiGFF7J5a3ci7yBvg3HfD86AXMRBQuSG1UG8TrzC6BK"
+"+qIQ8DWecQwBMZ3nv/Flo2Fejd/G4/wWe6ObMytC5SB8pJNOq9ri0Ff6Zh3rPrwaSv1PPgFJ"
+"GOw=";
 
-  string decoded;
+  std::string decoded;
   BOOST_CHECK_NO_THROW(StringSource source(imported,
                                            true,
-                                           new HexDecoder(new StringSink(decoded)))); //StringSource
+                                           new Base64Decoder(new StringSink(decoded))));
 
   SecTpmFile tpm;
 
   Name keyName("/TestSecTpmFile/ImportKey/ksk-" +
-               boost::lexical_cast<string>(time::toUnixTimestamp(time::system_clock::now())));
+               boost::lexical_cast<std::string>(time::toUnixTimestamp(time::system_clock::now())));
 
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
 
   BOOST_REQUIRE_NO_THROW(
     tpm.importPrivateKeyPkcs5IntoTpm(keyName,
@@ -138,11 +167,11 @@ BOOST_AUTO_TEST_CASE (ImportExportKey)
                                      decoded.size(),
                                      "1234"));
 
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
 
-  shared_ptr<PublicKey> pubkeyPtr;
-  BOOST_CHECK_NO_THROW(pubkeyPtr = tpm.getPublicKeyFromTpm(keyName));
+  shared_ptr<PublicKey> publicKey;
+  BOOST_CHECK_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
 
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
   Block sigBlock;
@@ -153,16 +182,16 @@ BOOST_AUTO_TEST_CASE (ImportExportKey)
     {
       using namespace CryptoPP;
 
-      RSA::PublicKey publicKey;
+      RSA::PublicKey rsaPublicKey;
       ByteQueue queue;
-      queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
-      publicKey.Load(queue);
+      queue.Put(reinterpret_cast<const byte*>(publicKey->get().buf()), publicKey->get().size());
+      rsaPublicKey.Load(queue);
 
-      RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
-      bool result = verifier.VerifyMessage(content, sizeof(content),
-                                           sigBlock.value(), sigBlock.value_size());
+      RSASS<PKCS1v15, SHA256>::Verifier verifier(rsaPublicKey);
+      bool isVerified = verifier.VerifyMessage(content, sizeof(content),
+                                               sigBlock.value(), sigBlock.value_size());
 
-      BOOST_CHECK_EQUAL(result, true);
+      BOOST_CHECK_EQUAL(isVerified, true);
     }
   catch (CryptoPP::Exception& e)
     {
@@ -174,14 +203,14 @@ BOOST_AUTO_TEST_CASE (ImportExportKey)
 
   tpm.deleteKeyPairInTpm(keyName);
 
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
 
   BOOST_REQUIRE(tpm.importPrivateKeyPkcs5IntoTpm(keyName, exported->buf(), exported->size(),
                                                  "5678"));
 
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == true);
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
 
   const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
   Block sigBlock2;
@@ -192,16 +221,16 @@ BOOST_AUTO_TEST_CASE (ImportExportKey)
     {
       using namespace CryptoPP;
 
-      RSA::PublicKey publicKey;
+      RSA::PublicKey rsaPublicKey;
       ByteQueue queue;
-      queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
-      publicKey.Load(queue);
+      queue.Put(reinterpret_cast<const byte*>(publicKey->get().buf()), publicKey->get().size());
+      rsaPublicKey.Load(queue);
 
-      RSASS<PKCS1v15, SHA256>::Verifier verifier (publicKey);
-      bool result = verifier.VerifyMessage(content2, sizeof(content2),
-                                           sigBlock2.value(), sigBlock2.value_size());
+      RSASS<PKCS1v15, SHA256>::Verifier verifier(rsaPublicKey);
+      bool isVerified = verifier.VerifyMessage(content2, sizeof(content2),
+                                               sigBlock2.value(), sigBlock2.value_size());
 
-      BOOST_CHECK_EQUAL(result, true);
+      BOOST_CHECK_EQUAL(isVerified, true);
     }
   catch (CryptoPP::Exception& e)
     {
@@ -210,8 +239,8 @@ BOOST_AUTO_TEST_CASE (ImportExportKey)
 
   tpm.deleteKeyPairInTpm(keyName);
 
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

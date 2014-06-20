@@ -88,7 +88,7 @@ public:
   }
 
   virtual void
-  generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize);
+  generateKeyPairInTpm(const Name& keyName, const KeyParams& params);
 
   virtual void
   deleteKeyPairInTpm(const Name& keyName);
@@ -107,7 +107,7 @@ public:
   encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric);
 
   virtual void
-  generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize);
+  generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& params);
 
   virtual bool
   doesKeyExistInTpm(const Name& keyName, KeyClass keyClass);
@@ -121,9 +121,10 @@ public:
   }
 
 protected:
-  /******************************
-   * From TrustedPlatformModule *
-   ******************************/
+  ////////////////////////////////
+  // From TrustedPlatformModule //
+  ////////////////////////////////
+
   virtual ConstBufferPtr
   exportPrivateKeyPkcs8FromTpm(const Name& keyName);
 

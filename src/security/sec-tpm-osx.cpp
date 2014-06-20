@@ -41,9 +41,9 @@
 
 #include <Security/SecDigestTransform.h>
 
-using namespace std;
-
 namespace ndn {
+
+using std::string;
 
 /**
  * @brief Helper class to wrap CoreFoundation object pointers
@@ -256,7 +256,7 @@ void
 SecTpmOsx::setTpmPassword(const uint8_t* password, size_t passwordLength)
 {
   m_impl->m_passwordSet = true;
-  memset(const_cast<char*>(m_impl->m_password.c_str()), 0, m_impl->m_password.size());
+  std::fill(m_impl->m_password.begin(), m_impl->m_password.end(), 0);
   m_impl->m_password.clear();
   m_impl->m_password.append(reinterpret_cast<const char*>(password), passwordLength);
 }
@@ -265,7 +265,7 @@ void
 SecTpmOsx::resetTpmPassword()
 {
   m_impl->m_passwordSet = false;
-  memset(const_cast<char*>(m_impl->m_password.c_str()), 0, m_impl->m_password.size());
+  std::fill(m_impl->m_password.begin(), m_impl->m_password.end(), 0);
   m_impl->m_password.clear();
 }
 
@@ -363,8 +363,9 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
 }
 
 void
-SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName, KeyType keyType,
-                                        int keySize, bool needRetry)
+SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName,
+                                        const KeyParams& params,
+                                        bool needRetry)
 {
 
   if (doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC))
@@ -385,6 +386,20 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName, KeyType keyType,
                               &kCFTypeDictionaryKeyCallBacks,
                               0);
 
+  KeyType keyType = params.getKeyType();
+  uint32_t keySize;
+  switch (keyType)
+    {
+    case KEY_TYPE_RSA:
+      {
+        const RsaKeyParams& rsaParams = static_cast<const RsaKeyParams&>(params);
+        keySize = rsaParams.getKeySize();
+        break;
+      }
+    default:
+      throw Error("Fail to create a key pair: Unsupported key type");
+    }
+
   CFReleaser<CFNumberRef> cfKeySize = CFNumberCreate(0, kCFNumberIntType, &keySize);
 
   CFDictionaryAddValue(attrDict.get(), kSecAttrKeyType, m_impl->getAsymKeyType(keyType));
@@ -392,6 +407,7 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName, KeyType keyType,
   CFDictionaryAddValue(attrDict.get(), kSecAttrLabel, keyLabel.get());
 
   CFReleaser<SecKeyRef> publicKey, privateKey;
+  // C-style cast is used as per Apple convention
   OSStatus res = SecKeyGeneratePair((CFDictionaryRef)attrDict.get(),
                                     &publicKey.get(), &privateKey.get());
 
@@ -403,7 +419,7 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName, KeyType keyType,
   if (res == errSecAuthFailed && !needRetry)
     {
       if (unlockTpm(0, 0, false))
-        generateKeyPairInTpmInternal(keyName, keyType, keySize, true);
+        generateKeyPairInTpmInternal(keyName, params, true);
       else
         throw Error("Fail to unlock the keychain");
     }
@@ -442,7 +458,7 @@ SecTpmOsx::deleteKeyPairInTpmInternal(const Name& keyName, bool needRetry)
 }
 
 void
-SecTpmOsx::generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize)
+SecTpmOsx::generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& params)
 {
   throw Error("SecTpmOsx::generateSymmetricKeyInTpm is not supported");
   // if (doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
@@ -537,7 +553,7 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
   FileSink sink(pkcs1Os);
 
   uint32_t version = 0;
-  OID algorithm("1.2.840.113549.1.1.1");
+  OID algorithm("1.2.840.113549.1.1.1"); // "RSA encryption"
   SecByteBlock rawKeyBits;
   // PrivateKeyInfo ::= SEQUENCE {
   //   version              INTEGER,
@@ -645,6 +661,7 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
         return false;
     }
 
+  // C-style cast is used as per Apple convention
   SecKeychainItemRef privateKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems.get(), 0);
   SecKeychainAttribute attrs[1]; // maximum number of attributes
   SecKeychainAttributeList attrList = { 0, attrs };
@@ -652,7 +669,7 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
   {
     attrs[attrList.count].tag = kSecKeyPrintName;
     attrs[attrList.count].length = keyUri.size();
-    attrs[attrList.count].data = (void *)keyUri.c_str();
+    attrs[attrList.count].data = const_cast<char*>(keyUri.c_str());
     attrList.count++;
   }
 
@@ -697,6 +714,7 @@ SecTpmOsx::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, 
   if (res != errSecSuccess)
     return false;
 
+  // C-style cast is used as per Apple convention
   SecKeychainItemRef publicKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems.get(), 0);
   SecKeychainAttribute attrs[1]; // maximum number of attributes
   SecKeychainAttributeList attrList = { 0, attrs };
@@ -704,7 +722,7 @@ SecTpmOsx::importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, 
   {
     attrs[attrList.count].tag = kSecKeyPrintName;
     attrs[attrList.count].length = keyUri.size();
-    attrs[attrList.count].data = (void *)keyUri.c_str();
+    attrs[attrList.count].data = const_cast<char*>(keyUri.c_str());
     attrList.count++;
   }
 
@@ -735,16 +753,17 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
     }
 
   CFReleaser<CFErrorRef> error;
+  // C-style cast is used as per Apple convention
   CFReleaser<SecTransformRef> signer = SecSignTransformCreate((SecKeyRef)privateKey.get(),
                                                               &error.get());
   if (error.get() != 0)
     throw Error("Fail to create signer");
 
   // Set input
-  Boolean set_res = SecTransformSetAttribute(signer.get(),
-                                             kSecTransformInputAttributeName,
-                                             dataRef.get(),
-                                             &error.get());
+  SecTransformSetAttribute(signer.get(),
+                           kSecTransformInputAttributeName,
+                           dataRef.get(),
+                           &error.get());
   if (error.get() != 0)
     throw Error("Fail to configure input of signer");
 
@@ -757,24 +776,25 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
     throw Error("Fail to configure digest algorithm of signer");
 
   // Set padding type
-  set_res = SecTransformSetAttribute(signer.get(),
-                                     kSecDigestTypeAttribute,
-                                     m_impl->getDigestAlgorithm(digestAlgorithm),
-                                     &error.get());
+  SecTransformSetAttribute(signer.get(),
+                           kSecDigestTypeAttribute,
+                           m_impl->getDigestAlgorithm(digestAlgorithm),
+                           &error.get());
   if (error.get() != 0)
     throw Error("Fail to configure digest algorithm of signer");
 
   // Set padding attribute
   long digestSize = m_impl->getDigestSize(digestAlgorithm);
   CFReleaser<CFNumberRef> cfDigestSize = CFNumberCreate(0, kCFNumberLongType, &digestSize);
-  set_res = SecTransformSetAttribute(signer.get(),
-                                     kSecDigestLengthAttribute,
-                                     cfDigestSize.get(),
-                                     &error.get());
+  SecTransformSetAttribute(signer.get(),
+                           kSecDigestLengthAttribute,
+                           cfDigestSize.get(),
+                           &error.get());
   if (error.get() != 0)
     throw Error("Fail to configure digest size of signer");
 
   // Actually sign
+  // C-style cast is used as per Apple convention
   CFReleaser<CFDataRef> signature = (CFDataRef)SecTransformExecute(signer.get(), &error.get());
   if (error.get() != 0)
     {
@@ -856,37 +876,38 @@ SecTpmOsx::addAppToAcl(const Name& keyName, KeyClass keyClass, const string& app
         }
 
       CFReleaser<SecAccessRef> accRef;
-      OSStatus acc_res = SecKeychainItemCopyAccess(privateKey.get(), &accRef.get());
+      SecKeychainItemCopyAccess(privateKey.get(), &accRef.get());
 
       CFReleaser<CFArrayRef> signACL = SecAccessCopyMatchingACLList(accRef.get(),
                                                                     kSecACLAuthorizationSign);
 
+      // C-style cast is used as per Apple convention
       SecACLRef aclRef = (SecACLRef)CFArrayGetValueAtIndex(signACL.get(), 0);
 
       CFReleaser<CFArrayRef> appList;
       CFReleaser<CFStringRef> description;
       SecKeychainPromptSelector promptSelector;
-      OSStatus acl_res = SecACLCopyContents(aclRef,
-                                            &appList.get(),
-                                            &description.get(),
-                                            &promptSelector);
+      SecACLCopyContents(aclRef,
+                         &appList.get(),
+                         &description.get(),
+                         &promptSelector);
 
       CFReleaser<CFMutableArrayRef> newAppList = CFArrayCreateMutableCopy(0,
                                                                           0,
                                                                           appList.get());
 
       CFReleaser<SecTrustedApplicationRef> trustedApp;
-      acl_res = SecTrustedApplicationCreateFromPath(appPath.c_str(),
-                                                    &trustedApp.get());
+      SecTrustedApplicationCreateFromPath(appPath.c_str(),
+                                          &trustedApp.get());
 
       CFArrayAppendValue(newAppList.get(), trustedApp.get());
 
-      acl_res = SecACLSetContents(aclRef,
-                                  newAppList.get(),
-                                  description.get(),
-                                  promptSelector);
+      SecACLSetContents(aclRef,
+                        newAppList.get(),
+                        description.get(),
+                        promptSelector);
 
-      acc_res = SecKeychainItemSetAccess(privateKey.get(), accRef.get());
+      SecKeychainItemSetAccess(privateKey.get(), accRef.get());
     }
 }
 
@@ -951,6 +972,7 @@ SecTpmOsx::doesKeyExistInTpm(const Name& keyName, KeyClass keyClass)
   CFDictionaryAddValue(attrDict.get(), kSecReturnRef, kCFBooleanTrue);
 
   CFReleaser<SecKeychainItemRef> itemRef;
+  // C-style cast is used as per Apple convention
   OSStatus res = SecItemCopyMatching((CFDictionaryRef)attrDict.get(), (CFTypeRef*)&itemRef.get());
 
   if (res == errSecSuccess)
@@ -963,7 +985,7 @@ SecTpmOsx::doesKeyExistInTpm(const Name& keyName, KeyClass keyClass)
 bool
 SecTpmOsx::generateRandomBlock(uint8_t* res, size_t size)
 {
-  return (SecRandomCopyBytes(kSecRandomDefault, size, res) == 0);
+  return SecRandomCopyBytes(kSecRandomDefault, size, res) == 0;
 }
 
 ////////////////////////////////
@@ -991,6 +1013,7 @@ SecTpmOsx::Impl::getKey(const Name& keyName, KeyClass keyClass)
   CFDictionaryAddValue(attrDict.get(), kSecReturnRef, kCFBooleanTrue);
 
   CFReleaser<SecKeychainItemRef> keyItem;
+  // C-style cast is used as per Apple convention
   OSStatus res = SecItemCopyMatching((CFDictionaryRef)attrDict.get(), (CFTypeRef*)&keyItem.get());
 
   if (res != errSecSuccess)
@@ -1013,7 +1036,7 @@ SecTpmOsx::Impl::toInternalKeyName(const Name& keyName, KeyClass keyClass)
 CFTypeRef
 SecTpmOsx::Impl::getAsymKeyType(KeyType keyType)
 {
-  switch (keyType){
+  switch (keyType) {
   case KEY_TYPE_RSA:
     return kSecAttrKeyTypeRSA;
   default:
@@ -1024,7 +1047,7 @@ SecTpmOsx::Impl::getAsymKeyType(KeyType keyType)
 CFTypeRef
 SecTpmOsx::Impl::getSymKeyType(KeyType keyType)
 {
-  switch (keyType){
+  switch (keyType) {
   case KEY_TYPE_AES:
     return kSecAttrKeyTypeAES;
   default:
@@ -1035,7 +1058,7 @@ SecTpmOsx::Impl::getSymKeyType(KeyType keyType)
 CFTypeRef
 SecTpmOsx::Impl::getKeyClass(KeyClass keyClass)
 {
-  switch (keyClass){
+  switch (keyClass) {
   case KEY_CLASS_PRIVATE:
     return kSecAttrKeyClassPrivate;
   case KEY_CLASS_PUBLIC:
@@ -1050,13 +1073,7 @@ SecTpmOsx::Impl::getKeyClass(KeyClass keyClass)
 CFStringRef
 SecTpmOsx::Impl::getDigestAlgorithm(DigestAlgorithm digestAlgo)
 {
-  switch (digestAlgo){
-    // case DIGEST_MD2:
-    //   return kSecDigestMD2;
-    // case DIGEST_MD5:
-    //   return kSecDigestMD5;
-    // case DIGEST_SHA1:
-    //   return kSecDigestSHA1;
+  switch (digestAlgo) {
   case DIGEST_ALGORITHM_SHA256:
     return kSecDigestSHA2;
   default:
@@ -1067,13 +1084,9 @@ SecTpmOsx::Impl::getDigestAlgorithm(DigestAlgorithm digestAlgo)
 long
 SecTpmOsx::Impl::getDigestSize(DigestAlgorithm digestAlgo)
 {
-  switch (digestAlgo){
+  switch (digestAlgo) {
   case DIGEST_ALGORITHM_SHA256:
     return 256;
-    // case DIGEST_SHA1:
-    // case DIGEST_MD2:
-    // case DIGEST_MD5:
-    //   return 0;
   default:
     return -1;
   }

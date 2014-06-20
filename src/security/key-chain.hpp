@@ -26,6 +26,7 @@
 
 #include "sec-public-info.hpp"
 #include "sec-tpm.hpp"
+#include "key-params.hpp"
 #include "secured-bag.hpp"
 #include "signature-sha256-with-rsa.hpp"
 #include "digest-sha256.hpp"
@@ -60,6 +61,9 @@ public:
 
   static const Name DEFAULT_PREFIX;
 
+  // RsaKeyParams is set to be default for backward compatibility.
+  static const RsaKeyParams DEFAULT_KEY_PARAMS;
+
   KeyChain();
 
   template<class KeyChainTraits>
@@ -84,10 +88,11 @@ public:
    *        self-signed certificate of the KSK.
    *
    * @param identityName The name of the identity.
+   * @param params The key parameter if a key needs to be generated for the identity.
    * @return The name of the default certificate of the identity.
    */
-  inline Name
-  createIdentity(const Name& identityName);
+  Name
+  createIdentity(const Name& identityName, const KeyParams& params = DEFAULT_KEY_PARAMS);
 
   /**
    * @brief Generate a pair of RSA keys for the specified identity.
@@ -109,7 +114,7 @@ public:
    * @param keySize The size of the key.
    * @return The generated key name.
    */
-  inline Name
+  Name
   generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk = false, int keySize = 2048);
 
   /**
@@ -217,13 +222,13 @@ public:
    * @param identityName The identity name.
    * @return The Signature.
    */
-  inline Signature
+  Signature
   signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName);
 
   /**
    * @brief Set Sha256 weak signature for @param data
    */
-  inline void
+  void
   signWithSha256(Data& data);
 
   /**
@@ -252,7 +257,7 @@ public:
    *
    * @param certificateName The certificate to be deleted.
    */
-  inline void
+  void
   deleteCertificate(const Name& certificateName);
 
   /**
@@ -263,7 +268,7 @@ public:
    *
    * @param keyName The key to be deleted.
    */
-  inline void
+  void
   deleteKey(const Name& keyName);
 
   /**
@@ -274,7 +279,7 @@ public:
    *
    * @param identity The identity to be deleted.
    */
-  inline void
+  void
   deleteIdentity(const Name& identity);
 
   /**
@@ -346,6 +351,12 @@ public:
   addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer)
   {
     return m_pib->addPublicKey(keyName, keyType, publicKeyDer);
+  }
+
+  void
+  addKey(const Name& keyName, const PublicKey& publicKeyDer)
+  {
+    return m_pib->addKey(keyName, publicKeyDer);
   }
 
   shared_ptr<PublicKey>
@@ -547,9 +558,9 @@ public:
   }
 
   void
-  generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize)
+  generateKeyPairInTpm(const Name& keyName, const KeyParams& params)
   {
-    return m_tpm->generateKeyPairInTpm(keyName, keyType, keySize);
+    return m_tpm->generateKeyPairInTpm(keyName, params);
   }
 
   void
@@ -585,9 +596,9 @@ public:
   }
 
   void
-  generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize)
+  generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& params)
   {
-    return m_tpm->generateSymmetricKeyInTpm(keyName, keyType, keySize);
+    return m_tpm->generateSymmetricKeyInTpm(keyName, params);
   }
 
   bool
@@ -644,13 +655,12 @@ private:
    *
    * @param identityName The name of the specified identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
-   * @param keyType The type of the key pair, e.g. KEY_TYPE_RSA.
-   * @param keySize The size of the key pair.
+   * @param params The parameter of the key.
    * @return The name of the generated key.
    */
-  inline Name
+  Name
   generateKeyPair(const Name& identityName, bool isKsk = false,
-                  KeyType keyType = KEY_TYPE_RSA, int keySize = 2048);
+                  const KeyParams& params = DEFAULT_KEY_PARAMS);
 
   /**
    * @brief Sign the data using a particular key.
@@ -661,7 +671,7 @@ private:
    * @param digestAlgorithm the digest algorithm.
    * @throws Tpm::Error
    */
-  inline void
+  void
   signPacketWrapper(Data& data, const SignatureSha256WithRsa& signature,
                     const Name& keyName, DigestAlgorithm digestAlgorithm);
 
@@ -674,7 +684,7 @@ private:
    * @param digestAlgorithm the digest algorithm.
    * @throws Tpm::Error
    */
-  inline void
+  void
   signPacketWrapper(Interest& interest, const SignatureSha256WithRsa& signature,
                     const Name& keyName, DigestAlgorithm digestAlgorithm);
 
@@ -695,49 +705,10 @@ KeyChain::KeyChain(T)
 }
 
 inline Name
-KeyChain::createIdentity(const Name& identityName)
-{
-  m_pib->addIdentity(identityName);
-
-  Name keyName;
-  try
-    {
-      keyName = m_pib->getDefaultKeyNameForIdentity(identityName);
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      keyName = generateRsaKeyPairAsDefault(identityName, true);
-    }
-
-  Name certName;
-  try
-    {
-      certName = m_pib->getDefaultCertificateNameForKey(keyName);
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      shared_ptr<IdentityCertificate> selfCert = selfSign(keyName);
-      m_pib->addCertificateAsIdentityDefault(*selfCert);
-      certName = selfCert->getName();
-    }
-
-  return certName;
-}
-
-inline Name
 KeyChain::generateRsaKeyPair(const Name& identityName, bool isKsk, int keySize)
 {
-  return generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
-}
-
-inline Name
-KeyChain::generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk, int keySize)
-{
-  Name keyName = generateKeyPair(identityName, isKsk, KEY_TYPE_RSA, keySize);
-
-  m_pib->setDefaultKeyNameForIdentity(keyName);
-
-  return keyName;
+  RsaKeyParams params(keySize);
+  return generateKeyPair(identityName, isKsk, params);
 }
 
 template<typename T>
@@ -789,96 +760,6 @@ KeyChain::signByIdentity(T& packet, const Name& identityName)
   sign(packet, signingCertificateName);
 }
 
-inline Signature
-KeyChain::signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName)
-{
-  Name signingCertificateName;
-  try
-    {
-      signingCertificateName = m_pib->getDefaultCertificateNameForIdentity(identityName);
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      signingCertificateName = createIdentity(identityName);
-      // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which
-      // is a fatal error.
-    }
-
-  // We either get or create the signing certificate, sign data! (no exception unless fatal error
-  // in TPM)
-  return sign(buffer, bufferLength, signingCertificateName);
-}
-
-inline void
-KeyChain::signWithSha256(Data& data)
-{
-  DigestSha256 sig;
-  data.setSignature(sig);
-
-  Block sigValue(Tlv::SignatureValue,
-                 crypto::sha256(data.wireEncode().value(),
-                                data.wireEncode().value_size() -
-                                data.getSignature().getValue().size()));
-  data.setSignatureValue(sigValue);
-}
-
-inline void
-KeyChain::deleteCertificate(const Name& certificateName)
-{
-  try
-    {
-      if (m_pib->getDefaultCertificateName() == certificateName)
-        return;
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      // Not a real error, just try to delete the certificate
-    }
-
-  m_pib->deleteCertificateInfo(certificateName);
-}
-
-inline void
-KeyChain::deleteKey(const Name& keyName)
-{
-  try
-    {
-      if (m_pib->getDefaultKeyNameForIdentity(m_pib->getDefaultIdentity()) == keyName)
-        return;
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      // Not a real error, just try to delete the key
-    }
-
-  m_pib->deletePublicKeyInfo(keyName);
-  m_tpm->deleteKeyPairInTpm(keyName);
-}
-
-inline void
-KeyChain::deleteIdentity(const Name& identity)
-{
-  try
-    {
-      if (m_pib->getDefaultIdentity() == identity)
-        return;
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      // Not a real error, just try to delete the identity
-    }
-
-  std::vector<Name> nameList;
-  m_pib->getAllKeyNamesOfIdentity(identity, nameList, true);
-  m_pib->getAllKeyNamesOfIdentity(identity, nameList, false);
-
-  m_pib->deleteIdentityInfo(identity);
-
-  std::vector<Name>::const_iterator it = nameList.begin();
-  for(; it != nameList.end(); it++)
-    m_tpm->deleteKeyPairInTpm(*it);
-}
-
 template<typename T>
 void
 KeyChain::sign(T& packet, const IdentityCertificate& certificate)
@@ -888,58 +769,6 @@ KeyChain::sign(T& packet, const IdentityCertificate& certificate)
 
   // For temporary usage, we support RSA + SHA256 only, but will support more.
   signPacketWrapper(packet, signature, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
-}
-
-inline Name
-KeyChain::generateKeyPair(const Name& identityName, bool isKsk, KeyType keyType, int keySize)
-{
-  Name keyName = m_pib->getNewKeyName(identityName, isKsk);
-
-  m_tpm->generateKeyPairInTpm(keyName.toUri(), keyType, keySize);
-
-  shared_ptr<PublicKey> pubKey = m_tpm->getPublicKeyFromTpm(keyName.toUri());
-  m_pib->addPublicKey(keyName, keyType, *pubKey);
-
-  return keyName;
-}
-
-inline void
-KeyChain::signPacketWrapper(Data& data, const SignatureSha256WithRsa& signature,
-                            const Name& keyName, DigestAlgorithm digestAlgorithm)
-{
-  data.setSignature(signature);
-
-  EncodingBuffer encoder;
-  data.wireEncode(encoder, true);
-
-  Block signatureValue = m_tpm->signInTpm(encoder.buf(), encoder.size(),
-                                          keyName, digestAlgorithm);
-  data.wireEncode(encoder, signatureValue);
-}
-
-inline void
-KeyChain::signPacketWrapper(Interest& interest, const SignatureSha256WithRsa& signature,
-                            const Name& keyName, DigestAlgorithm digestAlgorithm)
-{
-  time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
-  if (timestamp <= m_lastTimestamp)
-    {
-      timestamp = m_lastTimestamp + time::milliseconds(1);
-    }
-
-  Name signedName = interest.getName();
-  signedName
-    .append(name::Component::fromNumber(timestamp.count()))        // timestamp
-    .append(name::Component::fromNumber(random::generateWord64())) // nonce
-    .append(signature.getInfo());                                  // signatureInfo
-
-  Block sigValue = m_tpm->signInTpm(signedName.wireEncode().value(),
-                                    signedName.wireEncode().value_size(),
-                                    keyName,
-                                    digestAlgorithm);
-  sigValue.encode();
-  signedName.append(sigValue);                                     // signatureValue
-  interest.setName(signedName);
 }
 
 }

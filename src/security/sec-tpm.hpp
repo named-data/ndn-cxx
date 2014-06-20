@@ -29,6 +29,7 @@
 #include "../name.hpp"
 #include "../data.hpp"
 #include "public-key.hpp"
+#include "key-params.hpp"
 
 namespace ndn {
 
@@ -110,12 +111,11 @@ public:
    * @brief Generate a pair of asymmetric keys.
    *
    * @param keyName The name of the key pair.
-   * @param keyType The type of the key pair, e.g. KEY_TYPE_RSA.
-   * @param keySize The size of the key pair.
+   * @param params The parameters of key.
    * @throws SecTpm::Error if fails.
    */
   virtual void
-  generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize) = 0;
+  generateKeyPairInTpm(const Name& keyName, const KeyParams& params) = 0;
 
   /**
    * @brief Delete a key pair of asymmetric keys.
@@ -180,12 +180,11 @@ public:
    * @brief Generate a symmetric key.
    *
    * @param keyName The name of the key.
-   * @param keyType The type of the key, e.g. KEY_TYPE_AES.
-   * @param keySize The size of the key.
+   * @param params The parameter of the key.
    * @throws SecTpm::Error if key generating fails.
    */
   virtual void
-  generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize) = 0;
+  generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& params) = 0;
 
   /**
    * @brief Check if a particular key exists.
@@ -287,46 +286,9 @@ protected:
    * @param prompt Prompt for password, i.e., "Password for key:"
    * @return true if password has been obtained.
    */
-  inline virtual bool
+  virtual bool
   getImpExpPassWord(std::string& password, const std::string& prompt);
 };
-
-inline bool
-SecTpm::getImpExpPassWord(std::string& password, const std::string& prompt)
-{
-  int result = false;
-
-  char* pw0 = NULL;
-
-  pw0 = getpass(prompt.c_str());
-  if (!pw0)
-    return false;
-  std::string password1 = pw0;
-  memset(pw0, 0, strlen(pw0));
-
-  pw0 = getpass("Confirm:");
-  if (!pw0)
-    {
-      char* pw1 = const_cast<char*>(password1.c_str());
-      memset(pw1, 0, password1.size());
-      return false;
-    }
-
-  if (!password1.compare(pw0))
-    {
-      result = true;
-      password.swap(password1);
-    }
-
-  char* pw1 = const_cast<char*>(password1.c_str());
-  memset(pw1, 0, password1.size());
-  memset(pw0, 0, strlen(pw0));
-
-  if (password.empty())
-    return false;
-
-  return result;
-}
 
 } // namespace ndn
 

@@ -53,9 +53,7 @@ public:
   ~SecTpmOsx();
 
 
-  /******************************
-   * From TrustedPlatformModule *
-   ******************************/
+  // Following methods are inherited from SecTpm
 
   virtual void
   setTpmPassword(const uint8_t* password, size_t passwordLength);
@@ -76,9 +74,9 @@ public:
   unlockTpm(const char* password, size_t passwordLength, bool usePassword);
 
   virtual void
-  generateKeyPairInTpm(const Name& keyName, KeyType keyType, int keySize)
+  generateKeyPairInTpm(const Name& keyName, const KeyParams& params)
   {
-    generateKeyPairInTpmInternal(keyName, keyType, keySize, false);
+    generateKeyPairInTpmInternal(keyName, params, false);
   }
 
   virtual void
@@ -104,7 +102,7 @@ public:
   encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool isSymmetric);
 
   virtual void
-  generateSymmetricKeyInTpm(const Name& keyName, KeyType keyType, int keySize);
+  generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& params);
 
   virtual bool
   doesKeyExistInTpm(const Name& keyName, KeyClass keyClass);
@@ -116,9 +114,7 @@ public:
   addAppToAcl(const Name& keyName, KeyClass keyClass, const std::string& appPath, AclType acl);
 
 protected:
-  /******************************
-   * From TrustedPlatformModule *
-   ******************************/
+  // Following methods are inherited from SecTpm
   virtual ConstBufferPtr
   exportPrivateKeyPkcs8FromTpm(const Name& keyName)
   {
@@ -134,11 +130,9 @@ protected:
   virtual bool
   importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
 
-  /******************************
-   *       OSX-specifics        *
-   ******************************/
+  // Following methods are OSX-specific
   void
-  generateKeyPairInTpmInternal(const Name& keyName, KeyType keyType, int keySize, bool needRetry);
+  generateKeyPairInTpmInternal(const Name& keyName, const KeyParams& params, bool needRetry);
 
   void
   deleteKeyPairInTpmInternal(const Name& keyName, bool needRetry);
