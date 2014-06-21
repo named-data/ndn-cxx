@@ -243,6 +243,52 @@ BOOST_AUTO_TEST_CASE(ImportExportKey)
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
 }
 
+BOOST_AUTO_TEST_CASE(EcdsaSigning)
+{
+  SecTpmFile tpm;
+
+  Name keyName("/TestSecTpmFile/EcdsaSigning/ksk-" +
+               boost::lexical_cast<std::string>(time::toUnixTimestamp(time::system_clock::now())));
+  EcdsaKeyParams params;
+  BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, params));
+
+  Data data("/TestSecTpmFile/EcdsaSigning/Data/1");
+  const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
+
+  Block sigBlock;
+  BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
+                                                keyName, DIGEST_ALGORITHM_SHA256));
+
+  shared_ptr<PublicKey> pubkeyPtr;
+  BOOST_CHECK_NO_THROW(pubkeyPtr = tpm.getPublicKeyFromTpm(keyName));
+
+  try
+    {
+      using namespace CryptoPP;
+
+      ECDSA<ECP, SHA256>::PublicKey publicKey;
+      ByteQueue queue;
+      queue.Put(reinterpret_cast<const byte*>(pubkeyPtr->get().buf()), pubkeyPtr->get().size());
+      publicKey.Load(queue);
+
+      uint8_t buffer[64];
+      size_t usedSize = DSAConvertSignatureFormat(buffer, 64, DSA_P1363,
+                                                  sigBlock.value(), sigBlock.value_size(), DSA_DER);
+
+      ECDSA<ECP, SHA256>::Verifier verifier(publicKey);
+      bool result = verifier.VerifyMessage(content, sizeof(content),
+                                           buffer, usedSize);
+
+      BOOST_CHECK_EQUAL(result, true);
+    }
+  catch (CryptoPP::Exception& e)
+    {
+      BOOST_CHECK(false);
+    }
+
+  tpm.deleteKeyPairInTpm(keyName);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace ndn

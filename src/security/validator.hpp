@@ -31,6 +31,7 @@
 #include "../face.hpp"
 #include "public-key.hpp"
 #include "signature-sha256-with-rsa.hpp"
+#include "signature-sha256-with-ecdsa.hpp"
 #include "digest-sha256.hpp"
 #include "validation-request.hpp"
 
@@ -106,12 +107,15 @@ public:
 
   /// @brief Verify the blob using the publicKey against the signature.
   static bool
-  verifySignature(const Buffer& blob, const Signature& sig, const PublicKey& publicKey);
+  verifySignature(const Buffer& blob, const SignatureWithPublicKey& sig, const PublicKey& publicKey)
+  {
+    return verifySignature(blob.buf(), blob.size(), sig, publicKey);
+  }
 
   /// @brief Verify the data using the publicKey against the SHA256-RSA signature.
   static bool
   verifySignature(const Data& data,
-                  const SignatureSha256WithRsa& sig,
+                  const SignatureWithPublicKey& sig,
                   const PublicKey& publicKey)
   {
     return verifySignature(data.wireEncode().value(),
@@ -125,7 +129,7 @@ public:
    */
   static bool
   verifySignature(const Interest& interest,
-                  const SignatureSha256WithRsa& sig,
+                  const SignatureWithPublicKey& sig,
                   const PublicKey& publicKey)
   {
     if (interest.getName().size() < 2)
@@ -140,18 +144,9 @@ public:
 
   /// @brief Verify the blob using the publicKey against the SHA256-RSA signature.
   static bool
-  verifySignature(const Buffer& blob,
-                  const SignatureSha256WithRsa& sig,
-                  const PublicKey& publicKey)
-  {
-    return verifySignature(blob.buf(), blob.size(), sig, publicKey);
-  }
-
-  /// @brief Verify the blob using the publicKey against the SHA256-RSA signature.
-  static bool
   verifySignature(const uint8_t* buf,
                   const size_t size,
-                  const SignatureSha256WithRsa& sig,
+                  const SignatureWithPublicKey& sig,
                   const PublicKey& publicKey);
 
 

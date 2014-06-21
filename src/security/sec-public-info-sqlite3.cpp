@@ -27,6 +27,7 @@
 #include "sec-public-info-sqlite3.hpp"
 #include "identity-certificate.hpp"
 #include "signature-sha256-with-rsa.hpp"
+#include "signature-sha256-with-ecdsa.hpp"
 #include "../data.hpp"
 
 #include <sqlite3.h>
@@ -479,10 +480,27 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
     {
       // this will throw an exception if the signature is not the standard one
       // or there is no key locator present
-      SignatureSha256WithRsa signature(certificate.getSignature());
-      std::string signerName = signature.getKeyLocator().getName().toUri();
+      switch (certificate.getSignature().getType())
+        {
+        case Tlv::SignatureSha256WithRsa:
+          {
+            SignatureSha256WithRsa signature(certificate.getSignature());
+            std::string signerName = signature.getKeyLocator().getName().toUri();
 
-      sqlite3_bind_text(statement, 2, signerName, SQLITE_STATIC);
+            sqlite3_bind_text(statement, 2, signerName, SQLITE_STATIC);
+            break;
+          }
+        case Tlv::SignatureSha256WithEcdsa:
+          {
+            SignatureSha256WithEcdsa signature(certificate.getSignature());
+            std::string signerName = signature.getKeyLocator().getName().toUri();
+
+            sqlite3_bind_text(statement, 2, signerName, SQLITE_STATIC);
+            break;
+          }
+        default:
+          return;
+        }
     }
   catch (std::runtime_error& e)
     {

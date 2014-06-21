@@ -121,11 +121,13 @@ BOOST_AUTO_TEST_CASE(KeyTypeRsa)
   shared_ptr<PublicKey> rsaKey;
   BOOST_REQUIRE_NO_THROW(rsaKey = shared_ptr<PublicKey>(new PublicKey(os.buf()->buf(),
                                                                       os.buf()->size())));
-  Name rsaKeyName("/TestSecPublicInfoSqlite3/KeyType/RSA");
+  Name rsaKeyName("/TestSecPublicInfoSqlite3/KeyType/RSA/ksk-123");
   SecPublicInfoSqlite3 pib;
   pib.addPublicKey(rsaKeyName, rsaKey->getKeyType(), *rsaKey);
 
   BOOST_CHECK_EQUAL(KEY_TYPE_RSA, pib.getPublicKeyType(rsaKeyName));
+
+  pib.deleteIdentityInfo(Name("/TestSecPublicInfoSqlite3/KeyType/RSA"));
 }
 
 BOOST_AUTO_TEST_CASE(KeyTypeEcdsa)
@@ -139,12 +141,12 @@ BOOST_AUTO_TEST_CASE(KeyTypeEcdsa)
   shared_ptr<PublicKey> ecdsaKey;
   BOOST_REQUIRE_NO_THROW(ecdsaKey = shared_ptr<PublicKey>(new PublicKey(os.buf()->buf(),
                                                                         os.buf()->size())));
-  Name ecdsaKeyName("/TestSecPublicInfoSqlite3/KeyType/ECDSA");
+  Name ecdsaKeyName("/TestSecPublicInfoSqlite3/KeyType/ECDSA/ksk-123");
   SecPublicInfoSqlite3 pib;
   pib.addPublicKey(ecdsaKeyName, ecdsaKey->getKeyType(), *ecdsaKey);
 
   BOOST_CHECK_EQUAL(KEY_TYPE_ECDSA, pib.getPublicKeyType(ecdsaKeyName));
-
+  pib.deleteIdentityInfo(Name("/TestSecPublicInfoSqlite3/KeyType/ECDSA"));
 }
 
 BOOST_AUTO_TEST_CASE(KeyTypeNonExist)

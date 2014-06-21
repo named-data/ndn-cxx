@@ -131,6 +131,14 @@ KeyChain::createIdentity(const Name& identityName, const KeyParams& params)
   try
     {
       keyName = m_pib->getDefaultKeyNameForIdentity(identityName);
+
+      shared_ptr<PublicKey> key = m_pib->getPublicKey(keyName);
+
+      if (key->getKeyType() != params.getKeyType())
+        {
+          keyName = generateKeyPair(identityName, true, params);
+          m_pib->setDefaultKeyNameForIdentity(keyName);
+        }
     }
   catch (SecPublicInfo::Error& e)
     {
@@ -154,7 +162,7 @@ KeyChain::createIdentity(const Name& identityName, const KeyParams& params)
 }
 
 Name
-KeyChain::generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk, int keySize)
+KeyChain::generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk, uint32_t keySize)
 {
   RsaKeyParams params(keySize);
 
@@ -164,6 +172,19 @@ KeyChain::generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk, int 
 
   return keyName;
 }
+
+Name
+KeyChain::generateEcdsaKeyPairAsDefault(const Name& identityName, bool isKsk, uint32_t keySize)
+{
+  EcdsaKeyParams params(keySize);
+
+  Name keyName = generateKeyPair(identityName, isKsk, params);
+
+  m_pib->setDefaultKeyNameForIdentity(keyName);
+
+  return keyName;
+}
+
 
 shared_ptr<IdentityCertificate>
 KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
@@ -266,19 +287,21 @@ KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
 Signature
 KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
 {
-  if (!m_pib->doesCertificateExist(certificateName))
-    throw SecPublicInfo::Error("Requested certificate [" +
-                               certificateName.toUri() + "] doesn't exist");
+  shared_ptr<IdentityCertificate> certificate = m_pib->getCertificate(certificateName);
 
-  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
+  shared_ptr<SignatureWithPublicKey> sig =
+    determineSignatureWithPublicKey(certificate->getPublicKeyInfo().getKeyType());
 
-  SignatureSha256WithRsa signature;
-  // implicit conversion should take care
-  signature.setKeyLocator(certificateName.getPrefix(-1));
+  if (!static_cast<bool>(sig))
+    throw SecTpm::Error("unknown key type");
 
-  // For temporary usage, we support RSA + SHA256 only, but will support more.
-  signature.setValue(m_tpm->signInTpm(buffer, bufferLength, keyName, DIGEST_ALGORITHM_SHA256));
-  return signature;
+  sig->setKeyLocator(certificate->getName().getPrefix(-1));
+  // For temporary usage, we support SHA256 only, but will support more.
+  sig->setValue(m_tpm->signInTpm(buffer, bufferLength,
+                                 certificate->getPublicKeyName(),
+                                 DIGEST_ALGORITHM_SHA256));
+
+  return *sig;
 }
 
 shared_ptr<IdentityCertificate>
@@ -317,11 +340,14 @@ KeyChain::selfSign(IdentityCertificate& cert)
   if (!m_tpm->doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
     throw SecTpm::Error("Private key does not exist");
 
-  SignatureSha256WithRsa signature;
-  signature.setKeyLocator(cert.getName().getPrefix(-1)); // implicit conversion should take care
+  shared_ptr<SignatureWithPublicKey> sig =
+    determineSignatureWithPublicKey(cert.getPublicKeyInfo().getKeyType());
 
-  // For temporary usage, we support RSA + SHA256 only, but will support more.
-  signPacketWrapper(cert, signature, keyName, DIGEST_ALGORITHM_SHA256);
+  if (!static_cast<bool>(sig))
+    throw SecTpm::Error("unknown key type");
+
+  sig->setKeyLocator(cert.getName().getPrefix(-1)); // implicit conversion should take care
+  signPacketWrapper(cert, *sig, keyName, DIGEST_ALGORITHM_SHA256);
 }
 
 shared_ptr<SecuredBag>
@@ -384,6 +410,32 @@ KeyChain::importIdentity(const SecuredBag& securedBag, const std::string& passwo
   m_pib->addCertificateAsIdentityDefault(securedBag.getCertificate());
 }
 
+shared_ptr<SignatureWithPublicKey>
+KeyChain::determineSignatureWithPublicKey(KeyType keyType, DigestAlgorithm digestAlgorithm)
+{
+  switch (keyType)
+    {
+    case KEY_TYPE_RSA:
+      {
+        // For temporary usage, we support SHA256 only, but will support more.
+        if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
+          return shared_ptr<SignatureWithPublicKey>();
+
+        return make_shared<SignatureSha256WithRsa>();
+      }
+    case KEY_TYPE_ECDSA:
+      {
+        // For temporary usage, we support SHA256 only, but will support more.
+        if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
+          return shared_ptr<SignatureWithPublicKey>();
+
+        return make_shared<SignatureSha256WithEcdsa>();
+      }
+    default:
+      return shared_ptr<SignatureWithPublicKey>();
+    }
+}
+
 void
 KeyChain::setDefaultCertificateInternal()
 {
@@ -422,7 +474,7 @@ KeyChain::generateKeyPair(const Name& identityName, bool isKsk, const KeyParams&
 }
 
 void
-KeyChain::signPacketWrapper(Data& data, const SignatureSha256WithRsa& signature,
+KeyChain::signPacketWrapper(Data& data, const Signature& signature,
                             const Name& keyName, DigestAlgorithm digestAlgorithm)
 {
   data.setSignature(signature);
@@ -436,7 +488,7 @@ KeyChain::signPacketWrapper(Data& data, const SignatureSha256WithRsa& signature,
 }
 
 void
-KeyChain::signPacketWrapper(Interest& interest, const SignatureSha256WithRsa& signature,
+KeyChain::signPacketWrapper(Interest& interest, const Signature& signature,
                             const Name& keyName, DigestAlgorithm digestAlgorithm)
 {
   time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());

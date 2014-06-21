@@ -38,5 +38,8 @@
 #include <cryptopp/pwdbased.h>
 #include <cryptopp/rsa.h>
 #include <cryptopp/sha.h>
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/oids.h>
+#include <cryptopp/dsa.h>
 
 #endif // NDN_SECURITY_CRYPTOPP_HPP

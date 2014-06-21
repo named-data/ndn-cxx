@@ -396,6 +396,12 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName,
         keySize = rsaParams.getKeySize();
         break;
       }
+    case KEY_TYPE_ECDSA:
+      {
+        const EcdsaKeyParams& ecdsaParams = static_cast<const EcdsaKeyParams&>(params);
+        keySize = ecdsaParams.getKeySize();
+        break;
+      }
     default:
       throw Error("Fail to create a key pair: Unsupported key type");
     }
@@ -1039,6 +1045,8 @@ SecTpmOsx::Impl::getAsymKeyType(KeyType keyType)
   switch (keyType) {
   case KEY_TYPE_RSA:
     return kSecAttrKeyTypeRSA;
+  case KEY_TYPE_ECDSA:
+    return kSecAttrKeyTypeECDSA;
   default:
     return 0;
   }

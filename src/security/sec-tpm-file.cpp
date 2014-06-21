@@ -142,6 +142,51 @@ SecTpmFile::generateKeyPairInTpm(const Name& keyName, const KeyParams& params)
             chmod(publicKeyFileName.c_str(), 0000444);
             return;
           }
+        case KEY_TYPE_ECDSA:
+          {
+            using namespace CryptoPP;
+
+            const EcdsaKeyParams& ecdsaParams = static_cast<const EcdsaKeyParams&>(params);
+
+            OID curveName;
+            switch (ecdsaParams.getKeySize())
+              {
+              case 256:
+                curveName = ASN1::secp256r1();
+                break;
+              case 384:
+                curveName = ASN1::secp384r1();
+                break;
+              default:
+                curveName = ASN1::secp256r1();
+              }
+
+            AutoSeededRandomPool rng;
+
+            ECDSA<ECP, SHA256>::PrivateKey privateKey;
+            DL_GroupParameters_EC<ECP> cryptoParams(curveName);
+            cryptoParams.SetEncodeAsOID(true);
+            privateKey.Initialize(rng, cryptoParams);
+
+            ECDSA<ECP, SHA256>::PublicKey publicKey;
+            privateKey.MakePublicKey(publicKey);
+            publicKey.AccessGroupParameters().SetEncodeAsOID(true);
+
+            string privateKeyFileName = keyFileName + ".pri";
+            Base64Encoder privateKeySink(new FileSink(privateKeyFileName.c_str()));
+            privateKey.DEREncode(privateKeySink);
+            privateKeySink.MessageEnd();
+
+            string publicKeyFileName = keyFileName + ".pub";
+            Base64Encoder publicKeySink(new FileSink(publicKeyFileName.c_str()));
+            publicKey.Save(publicKeySink);
+            publicKeySink.MessageEnd();
+
+            /*set file permission*/
+            chmod(privateKeyFileName.c_str(), 0000400);
+            chmod(publicKeyFileName.c_str(), 0000444);
+            return;
+          }
         default:
           throw Error("Unsupported key type!");
         }
@@ -258,31 +303,79 @@ SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength,
       using namespace CryptoPP;
       AutoSeededRandomPool rng;
 
-      //Read private key
-      ByteQueue bytes;
-      FileSource file(m_impl->transformName(keyURI, ".pri").string().c_str(),
-                      true, new Base64Decoder);
-      file.TransferTo(bytes);
-      bytes.MessageEnd();
-      RSA::PrivateKey privateKey;
-      privateKey.Load(bytes);
+      //Read public key
+      shared_ptr<PublicKey> pubkeyPtr;
+      pubkeyPtr = getPublicKeyFromTpm(keyName);
 
-      //Sign message
-      switch (digestAlgorithm)
+      switch (pubkeyPtr->getKeyType())
         {
-        case DIGEST_ALGORITHM_SHA256:
+          case KEY_TYPE_RSA:
+            {
+              //Read private key
+              ByteQueue bytes;
+              FileSource file(m_impl->transformName(keyURI, ".pri").string().c_str(),
+                              true, new Base64Decoder);
+              file.TransferTo(bytes);
+              bytes.MessageEnd();
+              RSA::PrivateKey privateKey;
+              privateKey.Load(bytes);
+
+              //Sign message
+              switch (digestAlgorithm)
+                {
+                case DIGEST_ALGORITHM_SHA256:
+                  {
+                    RSASS<PKCS1v15, SHA256>::Signer signer(privateKey);
+
+                    OBufferStream os;
+                    StringSource(data, dataLength,
+                                 true,
+                                 new SignerFilter(rng, signer, new FileSink(os)));
+
+                    return Block(Tlv::SignatureValue, os.buf());
+                  }
+                default:
+                  throw Error("Unsupported digest algorithm!");
+                }
+            }
+        case KEY_TYPE_ECDSA:
           {
-            RSASS<PKCS1v15, SHA256>::Signer signer(privateKey);
+            //Read private key
+            ByteQueue bytes;
+            FileSource file(m_impl->transformName(keyURI, ".pri").string().c_str(),
+                            true, new Base64Decoder);
+            file.TransferTo(bytes);
+            bytes.MessageEnd();
 
-            OBufferStream os;
-            StringSource(data, dataLength,
-                         true,
-                         new SignerFilter(rng, signer, new FileSink(os)));
+            //Sign message
+            switch (digestAlgorithm)
+              {
+              case DIGEST_ALGORITHM_SHA256:
+                {
+                  ECDSA<ECP, SHA256>::PrivateKey privateKey;
+                  privateKey.Load(bytes);
+                  ECDSA<ECP, SHA256>::Signer signer(privateKey);
 
-            return Block(Tlv::SignatureValue, os.buf());
+                  OBufferStream os;
+                  StringSource(data, dataLength,
+                               true,
+                               new SignerFilter(rng, signer, new FileSink(os)));
+
+                  uint8_t buf[200];
+                  size_t bufSize = DSAConvertSignatureFormat(buf, 200, DSA_DER,
+                                                             os.buf()->buf(), os.buf()->size(),
+                                                             DSA_P1363);
+
+                  shared_ptr<Buffer> sigBuffer = make_shared<Buffer>(buf, bufSize);
+
+                  return Block(Tlv::SignatureValue, sigBuffer);
+                }
+              default:
+                throw Error("Unsupported digest algorithm!");
+              }
           }
         default:
-          throw Error("Unsupported digest algorithm!");
+          throw Error("Unsupported key type!");
         }
     }
   catch (CryptoPP::Exception& e)

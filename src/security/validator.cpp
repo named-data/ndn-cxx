@@ -29,9 +29,10 @@
 
 #include "cryptopp.hpp"
 
-using namespace std;
-
 namespace ndn {
+
+static OID SECP256R1("1.2.840.10045.3.1.7");
+static OID SECP384R1("1.3.132.0.34");
 
 Validator::Validator()
   : m_hasFace(false)
@@ -51,7 +52,7 @@ Validator::validate(const Interest& interest,
                     const OnInterestValidationFailed& onValidationFailed,
                     int nSteps)
 {
-  vector<shared_ptr<ValidationRequest> > nextSteps;
+  std::vector<shared_ptr<ValidationRequest> > nextSteps;
   checkPolicy(interest, nSteps, onValidated, onValidationFailed, nextSteps);
 
   if (!nextSteps.empty())
@@ -63,7 +64,7 @@ Validator::validate(const Interest& interest,
           return;
         }
 
-      vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
+      std::vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
       OnFailure onFailure = bind(onValidationFailed, interest.shared_from_this(), _1);
       for (; it != nextSteps.end(); it++)
         m_face.expressInterest((*it)->m_interest,
@@ -87,7 +88,7 @@ Validator::validate(const Data& data,
                     const OnDataValidationFailed& onValidationFailed,
                     int nSteps)
 {
-  vector<shared_ptr<ValidationRequest> > nextSteps;
+  std::vector<shared_ptr<ValidationRequest> > nextSteps;
   checkPolicy(data, nSteps, onValidated, onValidationFailed, nextSteps);
 
   if (!nextSteps.empty())
@@ -98,7 +99,7 @@ Validator::validate(const Data& data,
                              "Require more information to validate the data!");
         }
 
-      vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
+      std::vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
       OnFailure onFailure = bind(onValidationFailed, data.shared_from_this(), _1);
       for (; it != nextSteps.end(); it++)
         m_face.expressInterest((*it)->m_interest,
@@ -147,13 +148,25 @@ Validator::verifySignature(const Data& data, const PublicKey& key)
     {
       switch (data.getSignature().getType())
         {
-        case Signature::Sha256WithRsa:
+        case Tlv::SignatureSha256WithRsa:
           {
             SignatureSha256WithRsa sigSha256Rsa(data.getSignature());
-            return verifySignature(data, sigSha256Rsa, key);
+            return verifySignature(data.wireEncode().value(),
+                                   data.wireEncode().value_size() -
+                                   data.getSignature().getValue().size(),
+                                   sigSha256Rsa, key);
           }
+        case Tlv::SignatureSha256WithEcdsa:
+          {
+            SignatureSha256WithEcdsa sigSha256Ecdsa(data.getSignature());
+            return verifySignature(data.wireEncode().value(),
+                                   data.wireEncode().value_size() -
+                                   data.getSignature().getValue().size(),
+                                   sigSha256Ecdsa, key);
+           }
         default:
           {
+            // Unsupported sig type
             return false;
           }
         }
@@ -182,7 +195,7 @@ Validator::verifySignature(const Interest& interest, const PublicKey& key)
 
       switch (sig.getType())
         {
-        case Signature::Sha256WithRsa:
+        case Tlv::SignatureSha256WithRsa:
           {
             SignatureSha256WithRsa sigSha256Rsa(sig);
 
@@ -190,8 +203,17 @@ Validator::verifySignature(const Interest& interest, const PublicKey& key)
                                    nameBlock.value_size() - interestName[-1].size(),
                                    sigSha256Rsa, key);
           }
+        case Tlv::SignatureSha256WithEcdsa:
+          {
+            SignatureSha256WithEcdsa sigSha256Ecdsa(sig);
+
+            return verifySignature(nameBlock.value(),
+                                   nameBlock.value_size() - interestName[-1].size(),
+                                   sigSha256Ecdsa, key);
+          }
         default:
           {
+            // Unsupported sig type
             return false;
           }
         }
@@ -208,50 +230,94 @@ Validator::verifySignature(const Interest& interest, const PublicKey& key)
 }
 
 bool
-Validator::verifySignature(const Buffer& data, const Signature& sig, const PublicKey& key)
-{
-  try
-    {
-      switch (sig.getType())
-        {
-        case Signature::Sha256WithRsa:
-          {
-            SignatureSha256WithRsa sigSha256Rsa(sig);
-            return verifySignature(data, sigSha256Rsa, key);
-          }
-        default:
-          {
-            return false;
-          }
-        }
-    }
-  catch (Signature::Error& e)
-    {
-      return false;
-    }
-  return false;
-}
-
-bool
 Validator::verifySignature(const uint8_t* buf,
                            const size_t size,
-                           const SignatureSha256WithRsa& sig,
+                           const SignatureWithPublicKey& sig,
                            const PublicKey& key)
 {
   try
     {
       using namespace CryptoPP;
 
-      RSA::PublicKey publicKey;
-      ByteQueue queue;
+      switch (sig.getType())
+        {
+        case Tlv::SignatureSha256WithRsa:
+          {
+            if (key.getKeyType() != KEY_TYPE_RSA)
+              return false;
 
-      queue.Put(reinterpret_cast<const byte*>(key.get().buf()), key.get().size());
-      publicKey.Load(queue);
+            RSA::PublicKey publicKey;
+            ByteQueue queue;
 
-      RSASS<PKCS1v15, SHA256>::Verifier verifier(publicKey);
-      return verifier.VerifyMessage(buf, size,
-                                    sig.getValue().value(),
-                                    sig.getValue().value_size());
+            queue.Put(reinterpret_cast<const byte*>(key.get().buf()), key.get().size());
+            publicKey.Load(queue);
+
+            RSASS<PKCS1v15, SHA256>::Verifier verifier(publicKey);
+            return verifier.VerifyMessage(buf, size,
+                                          sig.getValue().value(), sig.getValue().value_size());
+          }
+        case Tlv::SignatureSha256WithEcdsa:
+          {
+            if (key.getKeyType() != KEY_TYPE_ECDSA)
+              return false;
+
+            ECDSA<ECP, SHA256>::PublicKey publicKey;
+            ByteQueue queue;
+
+            queue.Put(reinterpret_cast<const byte*>(key.get().buf()), key.get().size());
+            publicKey.Load(queue);
+
+            ECDSA<ECP, SHA256>::Verifier verifier(publicKey);
+
+            uint32_t length = 0;
+            StringSource src(key.get().buf(), key.get().size(), true);
+            BERSequenceDecoder subjectPublicKeyInfo(src);
+            {
+              BERSequenceDecoder algorithmInfo(subjectPublicKeyInfo);
+              {
+                OID algorithm;
+                algorithm.decode(algorithmInfo);
+
+                OID curveId;
+                curveId.decode(algorithmInfo);
+
+                if (curveId == SECP256R1)
+                  length = 256;
+                else if (curveId == SECP384R1)
+                  length = 384;
+                else
+                  return false;
+              }
+            }
+
+            switch (length)
+              {
+              case 256:
+                {
+                  uint8_t buffer[64];
+                  size_t usedSize = DSAConvertSignatureFormat(buffer, 64, DSA_P1363,
+                                                              sig.getValue().value(),
+                                                              sig.getValue().value_size(),
+                                                              DSA_DER);
+                  return verifier.VerifyMessage(buf, size, buffer, usedSize);
+                }
+              case 384:
+                {
+                  uint8_t buffer[96];
+                  size_t usedSize = DSAConvertSignatureFormat(buffer, 96, DSA_P1363,
+                                                              sig.getValue().value(),
+                                                              sig.getValue().value_size(),
+                                                              DSA_DER);
+                  return verifier.VerifyMessage(buf, size, buffer, usedSize);
+                }
+              default:
+                return false;
+              }
+          }
+        default:
+          // Unsupported sig type
+          return false;
+        }
     }
   catch (CryptoPP::Exception& e)
     {

@@ -29,6 +29,7 @@
 #include "key-params.hpp"
 #include "secured-bag.hpp"
 #include "signature-sha256-with-rsa.hpp"
+#include "signature-sha256-with-ecdsa.hpp"
 #include "digest-sha256.hpp"
 
 #include "../interest.hpp"
@@ -103,8 +104,10 @@ public:
    * @return The generated key name.
    */
   inline Name
-  generateRsaKeyPair(const Name& identityName, bool isKsk = false, int keySize = 2048);
+  generateRsaKeyPair(const Name& identityName, bool isKsk = false, uint32_t keySize = 2048);
 
+  inline Name
+  generateEcdsaKeyPair(const Name& identityName, bool isKsk = false, uint32_t keySize = 256);
   /**
    * @brief Generate a pair of RSA keys for the specified identity and set it as default key for
    *        the identity.
@@ -115,7 +118,11 @@ public:
    * @return The generated key name.
    */
   Name
-  generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk = false, int keySize = 2048);
+  generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk = false,
+                              uint32_t keySize = 2048);
+
+  Name
+  generateEcdsaKeyPairAsDefault(const Name& identityName, bool isKsk, uint32_t keySize = 256);
 
   /**
    * @brief prepare an unsigned identity certificate
@@ -635,6 +642,15 @@ public:
 
 private:
   /**
+   * @brief Determine signature type
+   *
+   * An empty pointer will be returned if there is no valid signature.
+   */
+  shared_ptr<SignatureWithPublicKey>
+  determineSignatureWithPublicKey(KeyType keyType,
+                                  DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256);
+
+  /**
    * @brief Set default certificate if it is not initialized
    */
   void
@@ -672,7 +688,7 @@ private:
    * @throws Tpm::Error
    */
   void
-  signPacketWrapper(Data& data, const SignatureSha256WithRsa& signature,
+  signPacketWrapper(Data& data, const Signature& signature,
                     const Name& keyName, DigestAlgorithm digestAlgorithm);
 
   /**
@@ -685,7 +701,7 @@ private:
    * @throws Tpm::Error
    */
   void
-  signPacketWrapper(Interest& interest, const SignatureSha256WithRsa& signature,
+  signPacketWrapper(Interest& interest, const Signature& signature,
                     const Name& keyName, DigestAlgorithm digestAlgorithm);
 
 
@@ -705,9 +721,16 @@ KeyChain::KeyChain(T)
 }
 
 inline Name
-KeyChain::generateRsaKeyPair(const Name& identityName, bool isKsk, int keySize)
+KeyChain::generateRsaKeyPair(const Name& identityName, bool isKsk, uint32_t keySize)
 {
   RsaKeyParams params(keySize);
+  return generateKeyPair(identityName, isKsk, params);
+}
+
+inline Name
+KeyChain::generateEcdsaKeyPair(const Name& identityName, bool isKsk, uint32_t keySize)
+{
+  EcdsaKeyParams params(keySize);
   return generateKeyPair(identityName, isKsk, params);
 }
 
@@ -725,18 +748,8 @@ template<typename T>
 void
 KeyChain::sign(T& packet, const Name& certificateName)
 {
-  if (!m_pib->doesCertificateExist(certificateName))
-    throw SecPublicInfo::Error("Requested certificate [" +
-                               certificateName.toUri() + "] doesn't exist");
-
-  SignatureSha256WithRsa signature;
-  // implicit conversion should take care
-  signature.setKeyLocator(certificateName.getPrefix(-1));
-
-  // For temporary usage, we support RSA + SHA256 only, but will support more.
-  signPacketWrapper(packet, signature,
-                    IdentityCertificate::certificateNameToPublicKeyName(certificateName),
-                    DIGEST_ALGORITHM_SHA256);
+  shared_ptr<IdentityCertificate> certificate = m_pib->getCertificate(certificateName);
+  sign(packet, *certificate);
 }
 
 template<typename T>
@@ -764,11 +777,35 @@ template<typename T>
 void
 KeyChain::sign(T& packet, const IdentityCertificate& certificate)
 {
-  SignatureSha256WithRsa signature;
-  signature.setKeyLocator(certificate.getName().getPrefix(-1));
+  switch (certificate.getPublicKeyInfo().getKeyType())
+    {
+    case KEY_TYPE_RSA:
+      {
+        // For temporary usage, we support SHA256 only, but will support more.
+        SignatureSha256WithRsa signature;
+        // implicit conversion should take care
+        signature.setKeyLocator(certificate.getName().getPrefix(-1));
 
-  // For temporary usage, we support RSA + SHA256 only, but will support more.
-  signPacketWrapper(packet, signature, certificate.getPublicKeyName(), DIGEST_ALGORITHM_SHA256);
+        signPacketWrapper(packet, signature,
+                          certificate.getPublicKeyName(),
+                          DIGEST_ALGORITHM_SHA256);
+        return;
+      }
+    case KEY_TYPE_ECDSA:
+      {
+        // For temporary usage, we support SHA256 only, but will support more.
+        SignatureSha256WithEcdsa signature;
+        // implicit conversion should take care
+        signature.setKeyLocator(certificate.getName().getPrefix(-1));
+
+        signPacketWrapper(packet, signature,
+                          certificate.getPublicKeyName(),
+                          DIGEST_ALGORITHM_SHA256);
+        return;
+      }
+    default:
+      throw SecPublicInfo::Error("unknown key type!");
+    }
 }
 
 }
