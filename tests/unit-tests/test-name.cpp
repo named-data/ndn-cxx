@@ -128,6 +128,14 @@ BOOST_AUTO_TEST_CASE(AppendNumber)
     }
 }
 
+BOOST_AUTO_TEST_CASE(GetSuccessor)
+{
+  BOOST_CHECK_EQUAL(Name("ndn:/%00%01/%01%02").getSuccessor(), Name("ndn:/%00%01/%01%03"));
+  BOOST_CHECK_EQUAL(Name("ndn:/%00%01/%01%FF").getSuccessor(), Name("ndn:/%00%01/%02%00"));
+  BOOST_CHECK_EQUAL(Name("ndn:/%00%01/%FF%FF").getSuccessor(), Name("ndn:/%00%01/%00%00%00"));
+  BOOST_CHECK_EQUAL(Name().getSuccessor(), Name("ndn:/%00"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace ndn

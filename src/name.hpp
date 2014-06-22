@@ -303,6 +303,15 @@ public:
   }
 
   /**
+   * @brief get the successor of a name
+   * successor of a name is defined that its last component is
+   * advanced next possible value of last component of original name
+   * @return a new name
+   */
+  Name
+  getSuccessor() const;
+
+  /**
    * Check if this name has the same component count and components as the given name.
    * @param name The Name to check.
    * @return true if the names are equal, otherwise false.
@@ -659,6 +668,19 @@ Name::getSubName(size_t iStartComponent) const
     result.append(at(i));
 
   return result;
+}
+
+inline Name
+Name::getSuccessor() const
+{
+  if (empty()) {
+    static uint8_t firstValue[] = { 0 };
+    Name firstName;
+    firstName.append(firstValue, 1);
+    return firstName;
+  }
+
+  return getPrefix(-1).append(get(-1).getSuccessor());
 }
 
 inline bool

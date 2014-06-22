@@ -290,6 +290,9 @@ public:
     return !hasValue();
   }
 
+  Component
+  getSuccessor() const;
+
   /**
    * @brief Check if this is the same component as other
    *
@@ -564,6 +567,34 @@ Component::compare(const Component& other) const
 
   // The components are equal length.  Just do a byte compare.
   return std::memcmp(value(), other.value(), value_size());
+}
+
+inline Component
+Component::getSuccessor() const
+{
+  size_t totalLength = 0;
+  EncodingBuffer encoder(size() + 1, 1); // + 1 in case there is an overflow
+                                         // in unlikely case TLV length changes more,
+                                         // EncodingBuffer will take care of that
+
+  bool isOverflow = true;
+  size_t i = value_size();
+  for (; isOverflow && i > 0; i--) {
+    uint8_t newValue = static_cast<uint8_t>((value()[i - 1] + 1) & 0xFF);
+    totalLength += encoder.prependByte(newValue);
+    isOverflow = (newValue == 0);
+  }
+  totalLength += encoder.prependByteArray(value(), i);
+
+  if (isOverflow) {
+    // new name components has to be extended
+    totalLength += encoder.appendByte(0);
+  }
+
+  totalLength += encoder.prependVarNumber(totalLength);
+  totalLength += encoder.prependVarNumber(Tlv::NameComponent);
+
+  return encoder.block();
 }
 
 
