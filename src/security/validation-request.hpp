@@ -41,18 +41,26 @@ typedef function<void(const shared_ptr<const Data>&)> OnDataValidated;
 typedef function<void(const shared_ptr<const Data>&,
                       const std::string&)> OnDataValidationFailed;
 
-
+/**
+ * @brief ValidationRequest contains information related to further validation.
+ *
+ * During a validation process, validator may not have retrieved the corresponding public
+ * key of the signature in a packet. ValidationRequest contains the interest for the
+ * certificate that carries the public key and also contains the context for the certificate
+ * including how to proceed when the public key is authenticated or not, the number of
+ * validation steps that have been performed, and how to handle interest timeout.
+ */
 class ValidationRequest
 {
 public:
   ValidationRequest(const Interest& interest,
-                    const OnDataValidated& onValidated,
-                    const OnDataValidationFailed& onDataValidated,
-                    int nRetrials, int nSteps)
+                    const OnDataValidated& onDataValidated,
+                    const OnDataValidationFailed& onDataValidationFailed,
+                    int nRetries, int nSteps)
     : m_interest(interest)
-    , m_onValidated(onValidated)
     , m_onDataValidated(onDataValidated)
-    , m_nRetrials(nRetrials)
+    , m_onDataValidationFailed(onDataValidationFailed)
+    , m_nRetries(nRetries)
     , m_nSteps(nSteps)
   {
   }
@@ -62,11 +70,16 @@ public:
   {
   }
 
-  Interest m_interest;                      // Interest for the requested data.
-  OnDataValidated m_onValidated;            // Callback function on validated certificate.
-  OnDataValidationFailed m_onDataValidated; // Callback function on validation failure.
-  int m_nRetrials;                          // The number of retrials when interest timeout.
-  int m_nSteps;                             // The stepCount of next step.
+  /// @brief the Interest for the requested data/certificate.
+  Interest m_interest;
+  /// @brief callback when the retrieved certificate is authenticated.
+  OnDataValidated m_onDataValidated;
+  /// @brief callback when the retrieved certificate cannot be authenticated.
+  OnDataValidationFailed m_onDataValidationFailed;
+  /// @brief the number of retries when the interest times out.
+  int m_nRetries;
+  /// @brief the number of validation steps that have been performed.
+  int m_nSteps;
 };
 
 } // namespace ndn

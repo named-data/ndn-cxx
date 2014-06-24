@@ -55,31 +55,23 @@ Validator::validate(const Interest& interest,
   std::vector<shared_ptr<ValidationRequest> > nextSteps;
   checkPolicy(interest, nSteps, onValidated, onValidationFailed, nextSteps);
 
-  if (!nextSteps.empty())
-    {
-      if (!m_hasFace)
-        {
-          onValidationFailed(interest.shared_from_this(),
-                             "Require more information to validate the interest!");
-          return;
-        }
-
-      std::vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
-      OnFailure onFailure = bind(onValidationFailed, interest.shared_from_this(), _1);
-      for (; it != nextSteps.end(); it++)
-        m_face.expressInterest((*it)->m_interest,
-                               bind(&Validator::onData, this, _1, _2, *it),
-                               bind(&Validator::onTimeout,
-                                    this, _1, (*it)->m_nRetrials,
-                                    onFailure,
-                                    *it));
-    }
-  else
+  if (nextSteps.empty())
     {
       // If there is no nextStep,
       // that means InterestPolicy has already been able to verify the Interest.
       // No more further processes.
+      return;
     }
+
+  if (!m_hasFace)
+    {
+      onValidationFailed(interest.shared_from_this(),
+                         "Require more information to validate the interest!");
+      return;
+    }
+
+  OnFailure onFailure = bind(onValidationFailed, interest.shared_from_this(), _1);
+  afterCheckPolicy(nextSteps, onFailure);
 }
 
 void
@@ -91,30 +83,23 @@ Validator::validate(const Data& data,
   std::vector<shared_ptr<ValidationRequest> > nextSteps;
   checkPolicy(data, nSteps, onValidated, onValidationFailed, nextSteps);
 
-  if (!nextSteps.empty())
-    {
-      if (!m_hasFace)
-        {
-          onValidationFailed(data.shared_from_this(),
-                             "Require more information to validate the data!");
-        }
-
-      std::vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
-      OnFailure onFailure = bind(onValidationFailed, data.shared_from_this(), _1);
-      for (; it != nextSteps.end(); it++)
-        m_face.expressInterest((*it)->m_interest,
-                               bind(&Validator::onData, this, _1, _2, *it),
-                               bind(&Validator::onTimeout,
-                                    this, _1, (*it)->m_nRetrials,
-                                    onFailure,
-                                    *it));
-    }
-  else
+  if (nextSteps.empty())
     {
       // If there is no nextStep,
       // that means Data Policy has already been able to verify the Interest.
       // No more further processes.
+      return;
     }
+
+  if (!m_hasFace)
+    {
+      onValidationFailed(data.shared_from_this(),
+                         "Require more information to validate the data!");
+      return;
+    }
+
+  OnFailure onFailure = bind(onValidationFailed, data.shared_from_this(), _1);
+  afterCheckPolicy(nextSteps, onFailure);
 }
 
 void
@@ -122,23 +107,15 @@ Validator::onData(const Interest& interest,
                   const Data& data,
                   const shared_ptr<ValidationRequest>& nextStep)
 {
-  validate(data, nextStep->m_onValidated, nextStep->m_onDataValidated, nextStep->m_nSteps);
-}
+  shared_ptr<const Data> certificateData = preCertificateValidation(data);
 
-void
-Validator::onTimeout(const Interest& interest,
-                     int nRetrials,
-                     const OnFailure& onFailure,
-                     const shared_ptr<ValidationRequest>& nextStep)
-{
-  if (nRetrials > 0)
-    // Issue the same expressInterest except decrement nRetrials.
-    m_face.expressInterest(interest,
-                            bind(&Validator::onData, this, _1, _2, nextStep),
-                            bind(&Validator::onTimeout, this, _1,
-                                 nRetrials - 1, onFailure, nextStep));
-  else
-    onFailure("Cannot fetch cert: " + interest.getName().toUri());
+  if (!static_cast<bool>(certificateData))
+    return nextStep->m_onDataValidationFailed(data.shared_from_this(),
+                                              "Cannot decode cert: " + data.getName().toUri());
+
+  validate(*certificateData,
+           nextStep->m_onDataValidated, nextStep->m_onDataValidationFailed,
+           nextStep->m_nSteps);
 }
 
 bool
@@ -349,6 +326,39 @@ Validator::verifySignature(const uint8_t* buf, const size_t size, const DigestSh
   catch (CryptoPP::Exception& e)
     {
       return false;
+    }
+}
+
+void
+Validator::onTimeout(const Interest& interest,
+                     int remainingRetries,
+                     const OnFailure& onFailure,
+                     const shared_ptr<ValidationRequest>& validationRequest)
+{
+  if (remainingRetries > 0)
+    // Issue the same expressInterest except decrement nRetrials.
+    m_face.expressInterest(interest,
+                           bind(&Validator::onData, this, _1, _2, validationRequest),
+                           bind(&Validator::onTimeout, this, _1,
+                                remainingRetries - 1, onFailure, validationRequest));
+  else
+    onFailure("Cannot fetch cert: " + interest.getName().toUri());
+}
+
+
+void
+Validator::afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest> >& nextSteps,
+                            const OnFailure& onFailure)
+{
+  for (std::vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
+       it != nextSteps.end(); it++)
+    {
+      m_face.expressInterest((*it)->m_interest,
+                             bind(&Validator::onData, this, _1, _2, *it),
+                             bind(&Validator::onTimeout,
+                                  this, _1, (*it)->m_nRetries,
+                                  onFailure,
+                                  *it));
     }
 }
 

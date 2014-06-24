@@ -236,13 +236,6 @@ protected:
          const Data& data,
          const shared_ptr<ValidationRequest>& nextStep);
 
-  /// @brief Re-express the interest if it times out.
-  void
-  onTimeout(const Interest& interest,
-            int retry,
-            const OnFailure& onFailure,
-            const shared_ptr<ValidationRequest>& nextStep);
-
   void
   validate(const Data& data,
            const OnDataValidated& onValidated,
@@ -254,6 +247,57 @@ protected:
            const OnInterestValidated& onValidated,
            const OnInterestValidationFailed& onValidationFailed,
            int nSteps);
+
+  /// Hooks
+
+  /**
+   * @brief trigger before validating requested certificate.
+   *
+   * The Data:
+   * - matches the interest in the validation-request.
+   * - may be certificate or a data encapsulating certificate.
+   *
+   * This method returns a data (actually certificate) that is will be passed as Data into:
+   * Validator::validate(const Data& data,
+   *                     const OnDataValidated& onValidated,
+   *                     const OnDataValidationFailed& onValidationFailed,
+   *                     int nSteps);
+   */
+  virtual shared_ptr<const Data>
+  preCertificateValidation(const Data& data)
+  {
+    return data.shared_from_this();
+  }
+
+  /**
+   * @brief trigger when interest for certificate times out.
+   *
+   * Validator can decide how to handle the timeout, either call onFailure, or retry.
+   *
+   * @param interest The interest that times out.
+   * @param nRemainingRetries The number of retries left.
+   * @param onFailure Failure callback when there is no more retries remaining.
+   * @param validationRequest The validationRequest containing the context of the interest.
+   */
+
+  virtual void
+  onTimeout(const Interest& interest,
+            int nRemainingRetries,
+            const OnFailure& onFailure,
+            const shared_ptr<ValidationRequest>& validationRequest);
+
+  /**
+   * @brief trigger after checkPolicy is done.
+   *
+   * Validator can decide how to handle the set of validation requests according to
+   * the trust model.
+   *
+   * @param nextSteps A set of validation request made by checkPolicy.
+   * @param onFailure Failure callback when errors happen in processing nextSteps.
+   */
+  virtual void
+  afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest> >& nextSteps,
+                   const OnFailure& onFailure);
 
 protected:
   bool m_hasFace;
