@@ -1544,6 +1544,107 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
   boost::filesystem::remove(CERT_PATH4);
 }
 
+BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
+{
+  KeyChain keyChain("sqlite3", "file");
+
+  Name rsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Rsa");
+  Name rsaCertName = keyChain.createIdentity(rsaIdentity);
+
+  EcdsaKeyParams params;
+  Name ecdsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Ecdsa");
+  Name ecdsaCertName = keyChain.createIdentity(ecdsaIdentity, params);
+  shared_ptr<IdentityCertificate> ecdsaCert = keyChain.getCertificate(ecdsaCertName);
+  io::save(*ecdsaCert, "trust-anchor-11.cert");
+
+
+  Name dataName("/TestValidatorConfig/FixedSignerChecker2");
+  shared_ptr<Data> dataRsa = make_shared<Data>(dataName);
+  keyChain.signByIdentity(*dataRsa, rsaIdentity);
+  shared_ptr<Data> dataEcdsa = make_shared<Data>(dataName);
+  keyChain.signByIdentity(*dataEcdsa, ecdsaIdentity);
+
+  shared_ptr<Interest> interestRsa = make_shared<Interest>(dataName);
+  keyChain.signByIdentity(*interestRsa, rsaIdentity);
+  shared_ptr<Interest> interestEcdsa = make_shared<Interest>(dataName);
+  keyChain.signByIdentity(*interestEcdsa, ecdsaIdentity);
+
+  const std::string CONFIG =
+    "rule\n"
+    "{\n"
+    "  id \"FixedSignerChecker Data Rule\"\n"
+    "  for data\n"
+    "  filter"
+    "  {\n"
+    "    type name\n"
+    "    name /TestValidatorConfig/FixedSignerChecker2\n"
+    "    relation equal\n"
+    "  }\n"
+    "  checker\n"
+    "  {\n"
+    "    type fixed-signer\n"
+    "    sig-type ecdsa-sha256\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-11.cert\"\n"
+    "    }\n"
+    "  }\n"
+    "}\n"
+    "rule\n"
+    "{\n"
+    "  id \"FixedSignerChecker Interest Rule\"\n"
+    "  for interest\n"
+    "  filter"
+    "  {\n"
+    "    type name\n"
+    "    name /TestValidatorConfig/FixedSignerChecker2\n"
+    "    relation equal\n"
+    "  }\n"
+    "  checker\n"
+    "  {\n"
+    "    type fixed-signer\n"
+    "    sig-type ecdsa-sha256\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-11.cert\"\n"
+    "    }\n"
+    "  }\n"
+    "}\n";
+  const boost::filesystem::path CONFIG_PATH =
+    (boost::filesystem::current_path() / std::string("unit-test.conf"));
+
+
+  Face face;
+  ValidatorConfig validator(face);
+  validator.load(CONFIG, CONFIG_PATH.native());
+
+  validator.validate(*dataEcdsa,
+                     bind(&onValidated, _1),
+                     bind(&onValidationFailed, _1, _2));
+
+  validator.validate(*dataRsa,
+                     bind(&onIntentionalFailureValidated, _1),
+                     bind(&onIntentionalFailureInvalidated, _1, _2));
+
+  validator.validate(*interestEcdsa,
+                     bind(&onValidated2, _1),
+                     bind(&onValidationFailed2, _1, _2));
+
+  validator.validate(*interestRsa,
+                     bind(&onIntentionalFailureValidated2, _1),
+                     bind(&onIntentionalFailureInvalidated2, _1, _2));
+
+
+  keyChain.deleteIdentity(rsaIdentity);
+  keyChain.deleteIdentity(ecdsaIdentity);
+
+  const boost::filesystem::path CERT_PATH =
+    (boost::filesystem::current_path() / std::string("trust-anchor-11.cert"));
+  boost::filesystem::remove(CERT_PATH);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

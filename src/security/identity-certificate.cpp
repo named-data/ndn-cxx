@@ -25,9 +25,9 @@
 
 #include "identity-certificate.hpp"
 
-using namespace std;
-
 namespace ndn {
+
+using std::string;
 
 bool
 IdentityCertificate::isCorrectName(const Name& name)

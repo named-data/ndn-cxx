@@ -29,14 +29,12 @@
 
 #include "cryptopp.hpp"
 
-using namespace std;
-using namespace CryptoPP;
-
 namespace ndn {
 
 void
 CertificateSubjectDescription::encode(CryptoPP::BufferedTransformation& out) const
 {
+  using namespace CryptoPP;
   // RelativeDistinguishedName ::=
   //     SET OF AttributeTypeAndValue
   //
@@ -58,6 +56,7 @@ CertificateSubjectDescription::encode(CryptoPP::BufferedTransformation& out) con
 void
 CertificateSubjectDescription::decode(CryptoPP::BufferedTransformation& in)
 {
+  using namespace CryptoPP;
   // RelativeDistinguishedName ::=
   //     SET OF AttributeTypeAndValue
   //

@@ -27,6 +27,7 @@
 #include "../../common.hpp"
 #include "../../data.hpp"
 #include "../../interest.hpp"
+#include "../../util/regex.hpp"
 #include "../security-common.hpp"
 #include <boost/algorithm/string.hpp>
 
@@ -50,12 +51,11 @@ class KeyLocatorCheckerFactory;
 class KeyLocatorChecker
 {
 public:
-  enum Relation
-    {
-      RELATION_EQUAL,
-      RELATION_IS_PREFIX_OF,
-      RELATION_IS_STRICT_PREFIX_OF
-    };
+  enum Relation {
+    RELATION_EQUAL,
+    RELATION_IS_PREFIX_OF,
+    RELATION_IS_STRICT_PREFIX_OF
+  };
 
   virtual
   ~KeyLocatorChecker()
@@ -264,8 +264,8 @@ private:
           }
         catch (Name::Error& e)
           {
-            throw Error("Invalid checker.key-locator.name: "
-                        + propertyIt->second.data());
+            throw Error("Invalid checker.key-locator.name: " +
+                        propertyIt->second.data());
           }
         propertyIt++;
 
@@ -361,8 +361,7 @@ private:
         else if (boost::iequals(hRelation, "is-strict-prefix-of"))
           relation = KeyLocatorChecker::RELATION_IS_STRICT_PREFIX_OF;
         else
-          throw Error("Unsupported checker.key-locator.hyper-relation.h-relation: "
-                      + hRelation);
+          throw Error("Unsupported checker.key-locator.hyper-relation.h-relation: " + hRelation);
 
         try
           {

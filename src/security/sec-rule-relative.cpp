@@ -28,14 +28,14 @@
 #include "signature-sha256-with-rsa.hpp"
 #include "security-common.hpp"
 
-using namespace std;
-
 namespace ndn {
 
-SecRuleRelative::SecRuleRelative (const string& dataRegex, const string& signerRegex,
-                                  const string& op,
-                                  const string& dataExpand, const string& signerExpand,
-                                  bool isPositive)
+using std::string;
+
+SecRuleRelative::SecRuleRelative(const string& dataRegex, const string& signerRegex,
+                                 const string& op,
+                                 const string& dataExpand, const string& signerExpand,
+                                 bool isPositive)
   : SecRule(isPositive),
     m_dataRegex(dataRegex),
     m_signerRegex(signerRegex),
@@ -54,23 +54,31 @@ SecRuleRelative::~SecRuleRelative()
 }
 
 bool
-SecRuleRelative::satisfy (const Data& data)
+SecRuleRelative::satisfy(const Data& data)
 {
   Name dataName = data.getName();
   try
     {
-      SignatureSha256WithRsa sig(data.getSignature());
-      Name signerName = sig.getKeyLocator().getName ();
-      return satisfy (dataName, signerName);
+      SignatureWithPublicKey sig(data.getSignature());
+      Name signerName = sig.getKeyLocator().getName();
+      return satisfy(dataName, signerName);
     }
-  catch (std::runtime_error& e)
+  catch (Tlv::Error& e)
+    {
+      return false;
+    }
+  catch (KeyLocator::Error& e)
+    {
+      return false;
+    }
+  catch (RegexMatcher::Error& e)
     {
       return false;
     }
 }
 
 bool
-SecRuleRelative::satisfy (const Name& dataName, const Name& signerName)
+SecRuleRelative::satisfy(const Name& dataName, const Name& signerName)
 {
   if (!m_dataNameRegex.match(dataName))
     return false;
@@ -86,21 +94,29 @@ SecRuleRelative::satisfy (const Name& dataName, const Name& signerName)
 }
 
 bool
-SecRuleRelative::matchDataName (const Data& data)
+SecRuleRelative::matchDataName(const Data& data)
 {
   return m_dataNameRegex.match(data.getName());
 }
 
 bool
-SecRuleRelative::matchSignerName (const Data& data)
+SecRuleRelative::matchSignerName(const Data& data)
 {
   try
     {
-      SignatureSha256WithRsa sig(data.getSignature());
-      Name signerName = sig.getKeyLocator().getName ();
+      SignatureWithPublicKey sig(data.getSignature());
+      Name signerName = sig.getKeyLocator().getName();
       return m_signerNameRegex.match(signerName);
     }
-  catch (std::runtime_error& e)
+  catch (Tlv::Error& e)
+    {
+      return false;
+    }
+  catch (KeyLocator::Error& e)
+    {
+      return false;
+    }
+  catch (RegexMatcher::Error& e)
     {
       return false;
     }
@@ -112,12 +128,12 @@ SecRuleRelative::compare(const Name& dataName, const Name& signerName)
   if ((dataName == signerName) && ("==" == m_op || ">=" == m_op))
     return true;
 
-  Name::const_iterator i = dataName.begin ();
-  Name::const_iterator j = signerName.begin ();
+  Name::const_iterator i = dataName.begin();
+  Name::const_iterator j = signerName.begin();
 
-  for (; i != dataName.end () && j != signerName.end (); i++, j++)
+  for (; i != dataName.end() && j != signerName.end(); i++, j++)
     {
-      if ((i->compare(*j)) == 0)
+      if (i->compare(*j) == 0)
         continue;
       else
         return false;

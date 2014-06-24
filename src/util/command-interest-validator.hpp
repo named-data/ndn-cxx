@@ -168,7 +168,7 @@ CommandInterestValidator::checkPolicy(const Interest& interest,
       Signature signature(interestName[POS_SIG_INFO].blockFromValue(),
                           interestName[POS_SIG_VALUE].blockFromValue());
 
-      if (signature.getType() != Signature::Sha256WithRsa)
+      if (signature.getType() != Tlv::SignatureSha256WithRsa)
         return onValidationFailed(interest.shared_from_this(),
                                   "Require SignatureSha256WithRsa");
 

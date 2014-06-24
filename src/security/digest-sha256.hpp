@@ -47,7 +47,7 @@ public:
   {
     m_info = Block(Tlv::SignatureInfo);
 
-    m_type = Signature::Sha256;
+    m_type = Tlv::DigestSha256;
     m_info.push_back(nonNegativeIntegerBlock(Tlv::SignatureType, Tlv::DigestSha256));
   }
 
@@ -55,7 +55,7 @@ public:
   DigestSha256(const Signature& signature)
     : Signature(signature)
   {
-    if (getType() != Signature::Sha256)
+    if (getType() != Tlv::DigestSha256)
       throw Error("Incorrect signature type");
   }
 };

@@ -26,8 +26,6 @@
 #include "sec-rule-specific.hpp"
 #include "signature-sha256-with-rsa.hpp"
 
-using namespace std;
-
 namespace ndn {
 
 SecRuleSpecific::SecRuleSpecific(shared_ptr<Regex> dataRegex,
@@ -68,11 +66,19 @@ SecRuleSpecific::matchSignerName(const Data& data)
 
   try
     {
-      SignatureSha256WithRsa sig(data.getSignature());
+      SignatureWithPublicKey sig(data.getSignature());
       Name signerName = sig.getKeyLocator().getName();
       return m_signerRegex->match(signerName);
     }
-  catch (std::runtime_error& e)
+  catch (Tlv::Error& e)
+    {
+      return false;
+    }
+  catch (KeyLocator::Error& e)
+    {
+      return false;
+    }
+  catch (RegexMatcher::Error& e)
     {
       return false;
     }
@@ -88,7 +94,7 @@ bool
 SecRuleSpecific::satisfy(const Name& dataName, const Name& signerName)
 {
   bool isSignerMatched = m_isExempted || m_signerRegex->match(signerName);
-  return (m_dataRegex->match(dataName) && isSignerMatched);
+  return m_dataRegex->match(dataName) && isSignerMatched;
 }
 
 } // namespace ndn

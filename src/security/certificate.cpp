@@ -31,8 +31,6 @@
 #include "../encoding/cryptopp/asn_ext.hpp"
 #include "../encoding/buffer-stream.hpp"
 
-using namespace std;
-
 namespace ndn {
 
 Certificate::Certificate()
@@ -79,13 +77,13 @@ Certificate::encode()
   // Content
   // DER encoded idCert:
   //
-  // 	idCert ::= SEQUENCE {
+  //    idCert ::= SEQUENCE {
   //        validity            Validity,
-  // 	    subject             Name,
-  // 	    subjectPubKeyInfo   SubjectPublicKeyInfo,
-  // 	    extension           Extensions OPTIONAL   }
+  //        subject             Name,
+  //        subjectPubKeyInfo   SubjectPublicKeyInfo,
+  //        extension           Extensions OPTIONAL   }
   //
-  // 	Validity ::= SEQUENCE {
+  //    Validity ::= SEQUENCE {
   //        notBefore           Time,
   //        notAfter            Time   }
   //
@@ -97,7 +95,7 @@ Certificate::encode()
   //    RelativeDistinguishedName ::=
   //        SET OF AttributeTypeAndValue
   //
-  // 	SubjectPublicKeyInfo ::= SEQUENCE {
+  //    SubjectPublicKeyInfo ::= SEQUENCE {
   //        algorithm           AlgorithmIdentifier
   //        keybits             BIT STRING   }
   //
@@ -244,22 +242,22 @@ Certificate::decode()
 void
 Certificate::printCertificate(std::ostream& os) const
 {
-  os << "Certificate name:" << endl;
-  os << "  " << getName() << endl;
-  os << "Validity:" << endl;
+  os << "Certificate name:" << std::endl;
+  os << "  " << getName() << std::endl;
+  os << "Validity:" << std::endl;
   {
-    os << "  NotBefore: " << time::toIsoString(m_notBefore) << endl;
-    os << "  NotAfter: "  << time::toIsoString(m_notAfter)  << endl;
+    os << "  NotBefore: " << time::toIsoString(m_notBefore) << std::endl;
+    os << "  NotAfter: "  << time::toIsoString(m_notAfter)  << std::endl;
   }
 
-  os << "Subject Description:" << endl;
+  os << "Subject Description:" << std::endl;
   for (SubjectDescriptionList::const_iterator it = m_subjectDescriptionList.begin();
        it != m_subjectDescriptionList.end(); ++it)
     {
-      os << "  " << it->getOidString() << ": " << it->getValue() << endl;
+      os << "  " << it->getOidString() << ": " << it->getValue() << std::endl;
     }
 
-  os << "Public key bits:" << endl;
+  os << "Public key bits:" << std::endl;
   CryptoPP::Base64Encoder encoder(new CryptoPP::FileSink(os), true, 64);
   m_key.encode(encoder);
 }

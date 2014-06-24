@@ -51,7 +51,7 @@ public:
   SignatureSha256WithRsa(const Signature& signature)
     : SignatureWithPublicKey(signature)
   {
-    if (getType() != Signature::Sha256WithRsa)
+    if (getType() != Tlv::SignatureSha256WithRsa)
       throw Error("Incorrect signature type");
   }
 };

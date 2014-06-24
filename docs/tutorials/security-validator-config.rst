@@ -215,13 +215,14 @@ checker: **sig-type**, **key-locator**. All of them are related to the
       }
     }
 
-The property **sig-type** specifies the acceptable signature type. Right
-now two signature types have been defined: **rsa-sha256** (which is a
-strong signature type) and **sha256** (which is a weak signature type).
+The property **sig-type** specifies the acceptable signature type.
+Right now three signature types have been defined: **rsa-sha256** and
+**ecdsa-sha256** (which are strong signature types) and **sha256**
+(which is a weak signature type).
 If sig-type is sha256, then **key-locator** will be ignored. Validator
 will simply calculate the digest of a packet and compare it with the one
-in ``SignatureValue``. If sig-type is rsa-sha256, you have to further
-customize the checker with **key-locator**.
+in ``SignatureValue``. If sig-type is rsa-sha256 or ecdsa-sha256, you
+have to further customize the checker with **key-locator**.
 
 The property **key-locator** which specifies the conditions on
 ``KeyLocator``. If the **key-locator** property is specified, it

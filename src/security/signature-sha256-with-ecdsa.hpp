@@ -51,7 +51,7 @@ public:
   SignatureSha256WithEcdsa(const Signature& signature)
     : SignatureWithPublicKey(signature)
   {
-    if (getType() != Signature::Sha256WithEcdsa)
+    if (getType() != Tlv::SignatureSha256WithEcdsa)
       throw Error("Incorrect signature type");
   }
 };

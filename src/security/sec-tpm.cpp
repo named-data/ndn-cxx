@@ -27,9 +27,9 @@
 #include "../encoding/buffer-stream.hpp"
 #include "cryptopp.hpp"
 
-using namespace std;
-
 namespace ndn {
+
+using std::string;
 
 ConstBufferPtr
 SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& passwordStr)

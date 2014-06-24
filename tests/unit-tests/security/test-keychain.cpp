@@ -24,10 +24,10 @@
 
 #include "boost-test.hpp"
 
-using namespace std;
-
 namespace ndn {
 namespace tests {
+
+using std::vector;
 
 class KeychainConfigFileFixture
 {
@@ -116,29 +116,29 @@ BOOST_AUTO_TEST_CASE(ExportIdentity)
 
   keyChain.deleteIdentity(identity);
 
-  BOOST_REQUIRE(keyChain.doesIdentityExist(identity) == false);
-  BOOST_REQUIRE(keyChain.doesPublicKeyExist(keyName) == false);
-  BOOST_REQUIRE(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
-  BOOST_REQUIRE(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
-  BOOST_REQUIRE(keyChain.doesCertificateExist(certName) == false);
+  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), false);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName), false);
+  BOOST_CHECK_EQUAL(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_CHECK_EQUAL(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName), false);
 
   SecuredBag imported;
   imported.wireDecode(block);
   keyChain.importIdentity(imported, "1234");
 
-  BOOST_REQUIRE(keyChain.doesIdentityExist(identity));
-  BOOST_REQUIRE(keyChain.doesPublicKeyExist(keyName));
-  BOOST_REQUIRE(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE));
-  BOOST_REQUIRE(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC));
-  BOOST_REQUIRE(keyChain.doesCertificateExist(certName));
+  BOOST_CHECK(keyChain.doesIdentityExist(identity));
+  BOOST_CHECK(keyChain.doesPublicKeyExist(keyName));
+  BOOST_CHECK(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE));
+  BOOST_CHECK(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC));
+  BOOST_CHECK(keyChain.doesCertificateExist(certName));
 
   keyChain.deleteIdentity(identity);
 
-  BOOST_REQUIRE(keyChain.doesIdentityExist(identity) == false);
-  BOOST_REQUIRE(keyChain.doesPublicKeyExist(keyName) == false);
-  BOOST_REQUIRE(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
-  BOOST_REQUIRE(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
-  BOOST_REQUIRE(keyChain.doesCertificateExist(certName) == false);
+  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), false);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName), false);
+  BOOST_CHECK_EQUAL(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_CHECK_EQUAL(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName), false);
 }
 
 BOOST_AUTO_TEST_CASE(PrepareIdentityCertificate)
@@ -154,14 +154,14 @@ BOOST_AUTO_TEST_CASE(PrepareIdentityCertificate)
   Name lowerIdentity = identity;
   lowerIdentity.append("Lower").appendVersion();
   Name lowerKeyName = keyChain.generateRsaKeyPair(lowerIdentity, true);
-  shared_ptr<IdentityCertificate> idCert
-    = keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
-                                                  time::system_clock::now(),
-                                                  time::system_clock::now() + time::days(365),
-                                                  subjectDescription);
+  shared_ptr<IdentityCertificate> idCert =
+    keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
+                                                time::system_clock::now(),
+                                                time::system_clock::now() + time::days(365),
+                                                subjectDescription);
   BOOST_CHECK(static_cast<bool>(idCert));
-  BOOST_CHECK(idCert->getName().getPrefix(5) ==
-              Name().append(identity).append("KEY").append("Lower"));
+  BOOST_CHECK_EQUAL(idCert->getName().getPrefix(5),
+                    Name().append(identity).append("KEY").append("Lower"));
 
   shared_ptr<IdentityCertificate> idCert11 =
     keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
@@ -170,46 +170,46 @@ BOOST_AUTO_TEST_CASE(PrepareIdentityCertificate)
                                                 subjectDescription,
                                                 lowerIdentity);
   BOOST_CHECK(static_cast<bool>(idCert11));
-  BOOST_CHECK(idCert11->getName().getPrefix(6) ==
+  BOOST_CHECK_EQUAL(idCert11->getName().getPrefix(6),
               Name().append(lowerIdentity).append("KEY"));
 
   Name anotherIdentity("/TestKeyChain/PrepareIdentityCertificate/Another/");
   anotherIdentity.appendVersion();
   Name anotherKeyName = keyChain.generateRsaKeyPair(anotherIdentity, true);
-  shared_ptr<IdentityCertificate> idCert2
-    = keyChain.prepareUnsignedIdentityCertificate(anotherKeyName, identity,
-                                                  time::system_clock::now(),
-                                                  time::system_clock::now() + time::days(365),
-                                                  subjectDescription);
+  shared_ptr<IdentityCertificate> idCert2 =
+    keyChain.prepareUnsignedIdentityCertificate(anotherKeyName, identity,
+                                                time::system_clock::now(),
+                                                time::system_clock::now() + time::days(365),
+                                                subjectDescription);
   BOOST_CHECK(static_cast<bool>(idCert2));
-  BOOST_CHECK(idCert2->getName().getPrefix(5) == Name().append(anotherIdentity).append("KEY"));
+  BOOST_CHECK_EQUAL(idCert2->getName().getPrefix(5), Name().append(anotherIdentity).append("KEY"));
 
 
   Name wrongKeyName1;
-  shared_ptr<IdentityCertificate> idCert3
-    = keyChain.prepareUnsignedIdentityCertificate(wrongKeyName1, identity,
-                                                  time::system_clock::now(),
-                                                  time::system_clock::now() + time::days(365),
-                                                  subjectDescription);
-  BOOST_CHECK(!static_cast<bool>(idCert3));
+  shared_ptr<IdentityCertificate> idCert3 =
+    keyChain.prepareUnsignedIdentityCertificate(wrongKeyName1, identity,
+                                                time::system_clock::now(),
+                                                time::system_clock::now() + time::days(365),
+                                                subjectDescription);
+  BOOST_CHECK_EQUAL(static_cast<bool>(idCert3), false);
 
 
   Name wrongKeyName2("/TestKeyChain/PrepareIdentityCertificate");
-  shared_ptr<IdentityCertificate> idCert4
-    = keyChain.prepareUnsignedIdentityCertificate(wrongKeyName2, identity,
-                                                  time::system_clock::now(),
-                                                  time::system_clock::now() + time::days(365),
-                                                  subjectDescription);
-  BOOST_CHECK(!static_cast<bool>(idCert4));
+  shared_ptr<IdentityCertificate> idCert4 =
+    keyChain.prepareUnsignedIdentityCertificate(wrongKeyName2, identity,
+                                                time::system_clock::now(),
+                                                time::system_clock::now() + time::days(365),
+                                                subjectDescription);
+  BOOST_CHECK_EQUAL(static_cast<bool>(idCert4), false);
 
 
   Name wrongKeyName3("/TestKeyChain/PrepareIdentityCertificate/ksk-1234");
-  shared_ptr<IdentityCertificate> idCert5
-    = keyChain.prepareUnsignedIdentityCertificate(wrongKeyName3, identity,
-                                                  time::system_clock::now(),
-                                                  time::system_clock::now() + time::days(365),
-                                                  subjectDescription);
-  BOOST_CHECK(!static_cast<bool>(idCert5));
+  shared_ptr<IdentityCertificate> idCert5 =
+    keyChain.prepareUnsignedIdentityCertificate(wrongKeyName3, identity,
+                                                time::system_clock::now(),
+                                                time::system_clock::now() + time::days(365),
+                                                subjectDescription);
+  BOOST_CHECK_EQUAL(static_cast<bool>(idCert5), false);
 
   keyChain.deleteIdentity(identity);
   keyChain.deleteIdentity(lowerIdentity);

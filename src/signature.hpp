@@ -42,6 +42,7 @@ public:
     }
   };
 
+  /// @deprecated use Tlv::SignatureTypeValue instead.
   enum {
     Sha256 = Tlv::DigestSha256,
     Sha256WithRsa = Tlv::SignatureSha256WithRsa,
@@ -53,6 +54,7 @@ public:
   {
   }
 
+  explicit
   Signature(const Block& info, const Block& value = Block())
     : m_value(value)
   {

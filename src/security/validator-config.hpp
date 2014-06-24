@@ -293,7 +293,7 @@ ValidatorConfig::checkSignature(const Packet& packet,
                                 const OnFailed& onValidationFailed,
                                 std::vector<shared_ptr<ValidationRequest> >& nextSteps)
 {
-  if (signature.getType() == Signature::Sha256)
+  if (signature.getType() == Tlv::DigestSha256)
     {
       DigestSha256 sigSha256(signature);
 
@@ -304,55 +304,81 @@ ValidatorConfig::checkSignature(const Packet& packet,
                                   "Sha256 Signature cannot be verified!");
     }
 
-  if (signature.getType() == Signature::Sha256WithRsa)
-    {
-      SignatureSha256WithRsa sigSha256Rsa(signature);
-      Name keyLocatorName = sigSha256Rsa.getKeyLocator().getName();
+  shared_ptr<SignatureWithPublicKey> publicKeySig;
 
-      shared_ptr<const Certificate> trustedCert;
-
-      refreshAnchors();
-
-      AnchorList::const_iterator it = m_anchors.find(keyLocatorName);
-      if (m_anchors.end() == it)
-        trustedCert = m_certificateCache->getCertificate(keyLocatorName);
-      else
-        trustedCert = it->second;
-
-      if (static_cast<bool>(trustedCert))
-        {
-          if (verifySignature(packet, sigSha256Rsa, trustedCert->getPublicKeyInfo()))
-            return onValidated(packet.shared_from_this());
-          else
-            return onValidationFailed(packet.shared_from_this(),
-                                      "Cannot verify signature");
-        }
-      else
-        {
-          if (m_stepLimit == nSteps)
-            return onValidationFailed(packet.shared_from_this(),
-                                      "Maximum steps of validation reached");
-
-          OnDataValidated onCertValidated =
-            bind(&ValidatorConfig::onCertValidated<Packet, OnValidated, OnFailed>,
-                 this, _1, packet.shared_from_this(), onValidated, onValidationFailed);
-
-          OnDataValidationFailed onCertValidationFailed =
-            bind(&ValidatorConfig::onCertFailed<Packet, OnFailed>,
-                 this, _1, _2, packet.shared_from_this(), onValidationFailed);
-
-          Interest certInterest(keyLocatorName);
-
-          shared_ptr<ValidationRequest> nextStep =
-            make_shared<ValidationRequest>(certInterest,
-                                           onCertValidated,
-                                           onCertValidationFailed,
-                                           1, nSteps + 1);
-
-          nextSteps.push_back(nextStep);
-          return;
-        }
+  try {
+    switch (signature.getType()) {
+    case Tlv::SignatureSha256WithRsa:
+      {
+        publicKeySig = make_shared<SignatureSha256WithRsa>(signature);
+        break;
+      }
+    case Tlv::SignatureSha256WithEcdsa:
+      {
+        publicKeySig = make_shared<SignatureSha256WithEcdsa>(signature);
+        break;
+      }
+    default:
+      return onValidationFailed(packet.shared_from_this(),
+                              "Unsupported signature type");
     }
+  }
+  catch (Tlv::Error& e) {
+    return onValidationFailed(packet.shared_from_this(),
+                              "Cannot decode public key signature");
+  }
+  catch (KeyLocator::Error& e) {
+    return onValidationFailed(packet.shared_from_this(),
+                              "Cannot decode KeyLocator in public key signature");
+  }
+
+
+  Name keyLocatorName = publicKeySig->getKeyLocator().getName();
+
+  shared_ptr<const Certificate> trustedCert;
+
+  refreshAnchors();
+
+  AnchorList::const_iterator it = m_anchors.find(keyLocatorName);
+  if (m_anchors.end() == it)
+    trustedCert = m_certificateCache->getCertificate(keyLocatorName);
+  else
+    trustedCert = it->second;
+
+  if (static_cast<bool>(trustedCert))
+    {
+      if (verifySignature(packet, *publicKeySig, trustedCert->getPublicKeyInfo()))
+        return onValidated(packet.shared_from_this());
+      else
+        return onValidationFailed(packet.shared_from_this(),
+                                  "Cannot verify signature");
+    }
+  else
+    {
+      if (m_stepLimit == nSteps)
+        return onValidationFailed(packet.shared_from_this(),
+                                  "Maximum steps of validation reached");
+
+      OnDataValidated onCertValidated =
+        bind(&ValidatorConfig::onCertValidated<Packet, OnValidated, OnFailed>,
+             this, _1, packet.shared_from_this(), onValidated, onValidationFailed);
+
+      OnDataValidationFailed onCertValidationFailed =
+        bind(&ValidatorConfig::onCertFailed<Packet, OnFailed>,
+             this, _1, _2, packet.shared_from_this(), onValidationFailed);
+
+      Interest certInterest(keyLocatorName);
+
+      shared_ptr<ValidationRequest> nextStep =
+        make_shared<ValidationRequest>(certInterest,
+                                       onCertValidated,
+                                       onCertValidationFailed,
+                                       1, nSteps + 1);
+
+      nextSteps.push_back(nextStep);
+      return;
+    }
+
   return onValidationFailed(packet.shared_from_this(), "Unsupported Signature Type!");
 }
 

@@ -122,6 +122,15 @@ KeyChain::KeyChain(const std::string& pibName,
     throw Error("TPM type '" + tpmName + "' is not supported");
 }
 
+KeyChain::~KeyChain()
+{
+  if (m_pib != 0)
+    delete m_pib;
+
+  if (m_tpm != 0)
+    delete m_tpm;
+}
+
 Name
 KeyChain::createIdentity(const Name& identityName, const KeyParams& params)
 {

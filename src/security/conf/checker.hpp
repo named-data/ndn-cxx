@@ -28,6 +28,7 @@
 
 #include "key-locator-checker.hpp"
 #include "../../util/io.hpp"
+#include "../validator.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -41,9 +42,15 @@ class Checker
 {
 public:
   typedef function<void(const shared_ptr<const Interest>&)> OnInterestChecked;
-  typedef function<void(const shared_ptr<const Interest>&, const std::string&)> OnInterestCheckFailed;
+  typedef function<void(const shared_ptr<const Interest>&,
+                        const std::string&)> OnInterestCheckFailed;
   typedef function<void(const shared_ptr<const Data>&)> OnDataChecked;
   typedef function<void(const shared_ptr<const Data>&, const std::string&)> OnDataCheckFailed;
+
+  enum {
+    INTEREST_SIG_VALUE = -1,
+    INTEREST_SIG_INFO = -2
+  };
 
 
   virtual
@@ -84,20 +91,27 @@ public:
 
 class CustomizedChecker : public Checker
 {
-  enum
-    {
-      INTEREST_SIG_VALUE = -1,
-      INTEREST_SIG_INFO = -2
-    };
-
 public:
   CustomizedChecker(uint32_t sigType,
                     shared_ptr<KeyLocatorChecker> keyLocatorChecker)
     : m_sigType(sigType)
     , m_keyLocatorChecker(keyLocatorChecker)
   {
-    if (m_sigType == Signature::Sha256WithRsa && !static_cast<bool>(m_keyLocatorChecker))
-      throw Error("Strong signature requires KeyLocatorChecker");
+    switch (sigType)
+      {
+      case Tlv::SignatureSha256WithRsa:
+      case Tlv::SignatureSha256WithEcdsa:
+        {
+          if (!static_cast<bool>(m_keyLocatorChecker))
+            throw Error("Strong signature requires KeyLocatorChecker");
+
+          return;
+        }
+      case Tlv::DigestSha256:
+        return;
+      default:
+        throw Error("Unsupported signature type");
+      }
   }
 
   virtual int8_t
@@ -116,8 +130,8 @@ public:
     try
       {
         const Name& interestName = interest.getName();
-        Signature signature(interestName[INTEREST_SIG_INFO].blockFromValue(),
-                            interestName[INTEREST_SIG_VALUE].blockFromValue());
+        Signature signature(interestName[Checker::INTEREST_SIG_INFO].blockFromValue(),
+                            interestName[Checker::INTEREST_SIG_VALUE].blockFromValue());
         return check(interest, signature, onValidated, onValidationFailed);
       }
     catch (Signature::Error& e)
@@ -149,39 +163,54 @@ private:
         return -1;
       }
 
-    switch (signature.getType())
-      {
-      case Signature::Sha256WithRsa:
-        {
-          try
-            {
-              SignatureSha256WithRsa sig(signature);
+    if (signature.getType() == Tlv::DigestSha256)
+      return 0;
 
-              std::string failInfo;
-              if (m_keyLocatorChecker->check(packet, sig.getKeyLocator(), failInfo))
-                return 0;
-              else
-                {
-                  onValidationFailed(packet.shared_from_this(), failInfo);
-                  return -1;
-                }
+    shared_ptr<SignatureWithPublicKey> publicKeySig;
+
+    try
+      {
+        switch (signature.getType())
+          {
+          case Tlv::SignatureSha256WithRsa:
+            {
+              publicKeySig = make_shared<SignatureSha256WithRsa>(signature);
+              break;
             }
-          catch (SignatureSha256WithRsa::Error& e)
+          case Tlv::SignatureSha256WithEcdsa:
+            {
+              publicKeySig = make_shared<SignatureSha256WithEcdsa>(signature);
+              break;
+            }
+          default:
             {
               onValidationFailed(packet.shared_from_this(),
-                                 "Cannot decode Sha256WithRsa signature!");
+                                 "Unsupported signature type: " +
+                                 boost::lexical_cast<std::string>(signature.getType()));
               return -1;
             }
-        }
-      case Signature::Sha256:
-        return 0;
-      default:
-        {
-          onValidationFailed(packet.shared_from_this(),
-                             "Unsupported signature type: " +
-                             boost::lexical_cast<std::string>(signature.getType()));
-          return -1;
-        }
+          }
+      }
+    catch (Tlv::Error& e)
+      {
+        onValidationFailed(packet.shared_from_this(),
+                           "Cannot decode signature");
+        return -1;
+      }
+    catch (KeyLocator::Error& e)
+      {
+        onValidationFailed(packet.shared_from_this(),
+                           "Cannot decode KeyLocator");
+        return -1;
+      }
+
+    std::string failInfo;
+    if (m_keyLocatorChecker->check(packet, publicKeySig->getKeyLocator(), failInfo))
+      return 0;
+    else
+      {
+        onValidationFailed(packet.shared_from_this(), failInfo);
+        return -1;
       }
   }
 
@@ -206,11 +235,6 @@ public:
 
 class FixedSignerChecker : public Checker
 {
-  enum
-    {
-      INTEREST_SIG_VALUE = -1,
-      INTEREST_SIG_INFO = -2
-    };
 public:
   FixedSignerChecker(uint32_t sigType,
                      const std::vector<shared_ptr<IdentityCertificate> >& signers)
@@ -219,6 +243,13 @@ public:
     for (std::vector<shared_ptr<IdentityCertificate> >::const_iterator it = signers.begin();
          it != signers.end(); it++)
       m_signers[(*it)->getName().getPrefix(-1)] = (*it);
+
+    if (sigType != Tlv::SignatureSha256WithRsa &&
+        sigType != Tlv::SignatureSha256WithEcdsa)
+      {
+        throw Error("FixedSigner is only meaningful for strong signature type");
+      }
+
   }
 
   virtual int8_t
@@ -237,8 +268,8 @@ public:
     try
       {
         const Name& interestName = interest.getName();
-        Signature signature(interestName[INTEREST_SIG_INFO].blockFromValue(),
-                            interestName[INTEREST_SIG_VALUE].blockFromValue());
+        Signature signature(interestName[Checker::INTEREST_SIG_INFO].blockFromValue(),
+                            interestName[Checker::INTEREST_SIG_VALUE].blockFromValue());
         return check(interest, signature, onValidated, onValidationFailed);
       }
     catch (Signature::Error& e)
@@ -263,69 +294,79 @@ private:
     if (m_sigType != signature.getType())
       {
         onValidationFailed(packet.shared_from_this(),
-                           "Signature type does not match: "
-                           + boost::lexical_cast<std::string>(m_sigType)
-                           + "!="
-                           + boost::lexical_cast<std::string>(signature.getType()));
+                           "Signature type does not match: " +
+                           boost::lexical_cast<std::string>(m_sigType) +
+                           "!=" +
+                           boost::lexical_cast<std::string>(signature.getType()));
         return -1;
       }
 
-    switch (signature.getType())
+    if (signature.getType() == Tlv::DigestSha256)
       {
-      case Signature::Sha256WithRsa:
-        {
-          try
+        onValidationFailed(packet.shared_from_this(),
+                           "FixedSigner does not allow Sha256 signature type");
+        return -1;
+      }
+
+    shared_ptr<SignatureWithPublicKey> publicKeySig;
+
+    try
+      {
+        switch (signature.getType())
+          {
+          case Tlv::SignatureSha256WithRsa:
             {
-              SignatureSha256WithRsa sig(signature);
-
-              const Name& keyLocatorName = sig.getKeyLocator().getName();
-              if (m_signers.find(keyLocatorName) == m_signers.end())
-                {
-                  onValidationFailed(packet.shared_from_this(),
-                                     "Signer is not in the fixed signer list: "
-                                     + keyLocatorName.toUri());
-                  return -1;
-                }
-
-              if (Validator::verifySignature(packet, sig,
-                                             m_signers[keyLocatorName]->getPublicKeyInfo()))
-                {
-                  onValidated(packet.shared_from_this());
-                  return 1;
-                }
-              else
-                {
-                  onValidationFailed(packet.shared_from_this(),
-                                     "Signature cannot be validated!");
-                  return -1;
-                }
+              publicKeySig = make_shared<SignatureSha256WithRsa>(signature);
+              break;
             }
-          catch (KeyLocator::Error& e)
+          case Tlv::SignatureSha256WithEcdsa:
+            {
+              publicKeySig = make_shared<SignatureSha256WithEcdsa>(signature);
+              break;
+            }
+          default:
             {
               onValidationFailed(packet.shared_from_this(),
-                                 "KeyLocator does not have name!");
+                                 "Unsupported signature type: " +
+                                 boost::lexical_cast<std::string>(signature.getType()));
               return -1;
             }
-          catch (SignatureSha256WithRsa::Error& e)
-            {
-              onValidationFailed(packet.shared_from_this(),
-                                 "Cannot decode signature!");
-              return -1;
-            }
-        }
-      case Signature::Sha256:
-        {
-          onValidationFailed(packet.shared_from_this(),
-                             "FixedSigner does not allow Sha256 signature type!");
-          return -1;
-        }
-      default:
-        {
-          onValidationFailed(packet.shared_from_this(),
-                             "Unsupported signature type: "
-                             + boost::lexical_cast<std::string>(signature.getType()));
-          return -1;
-        }
+          }
+
+        const Name& keyLocatorName = publicKeySig->getKeyLocator().getName();
+
+        if (m_signers.find(keyLocatorName) == m_signers.end())
+          {
+            onValidationFailed(packet.shared_from_this(),
+                               "Signer is not in the fixed signer list: " +
+                               keyLocatorName.toUri());
+            return -1;
+          }
+
+        if (Validator::verifySignature(packet, *publicKeySig,
+                                       m_signers[keyLocatorName]->getPublicKeyInfo()))
+          {
+            onValidated(packet.shared_from_this());
+            return 1;
+          }
+        else
+          {
+            onValidationFailed(packet.shared_from_this(),
+                               "Signature cannot be validated");
+            return -1;
+          }
+      }
+    catch (KeyLocator::Error& e)
+      {
+        onValidationFailed(packet.shared_from_this(),
+                           "KeyLocator does not have name");
+        return -1;
+      }
+    catch (Tlv::Error& e)
+      {
+        onValidationFailed(packet.shared_from_this(),
+                           "Cannot decode signature");
+        return -1;
       }
   }
 
@@ -353,7 +394,7 @@ public:
 
     // Get checker.type
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type"))
-      throw Error("Expect <checker.type>!");
+      throw Error("Expect <checker.type>");
 
     std::string type = propertyIt->second.data();
 
@@ -377,21 +418,21 @@ private:
 
     // Get checker.sig-type
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "sig-type"))
-      throw Error("Expect <checker.sig-type>!");
+      throw Error("Expect <checker.sig-type>");
 
     std::string sigType = propertyIt->second.data();
     propertyIt++;
 
     // Get checker.key-locator
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "key-locator"))
-      throw Error("Expect <checker.key-locator>!");
+      throw Error("Expect <checker.key-locator>");
 
     shared_ptr<KeyLocatorChecker> keyLocatorChecker =
       KeyLocatorCheckerFactory::create(propertyIt->second, configFilename);
     propertyIt++;
 
     if (propertyIt != configSection.end())
-      throw Error("Expect the end of checker!");
+      throw Error("Expect the end of checker");
 
     return make_shared<CustomizedChecker>(getSigType(sigType), keyLocatorChecker);
   }
@@ -405,13 +446,13 @@ private:
 
     // Get checker.sig-type
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "sig-type"))
-      throw Error("Expect <checker.sig-type>!");
+      throw Error("Expect <checker.sig-type>");
 
     std::string sigType = propertyIt->second.data();
     propertyIt++;
 
     if (propertyIt != configSection.end())
-      throw Error("Expect the end of checker!");
+      throw Error("Expect the end of checker");
 
     return make_shared<HierarchicalChecker>(getSigType(sigType));
   }
@@ -425,7 +466,7 @@ private:
 
     // Get checker.sig-type
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "sig-type"))
-      throw Error("Expect <checker.sig-type>!");
+      throw Error("Expect <checker.sig-type>");
 
     std::string sigType = propertyIt->second.data();
     propertyIt++;
@@ -434,14 +475,14 @@ private:
     for (; propertyIt != configSection.end(); propertyIt++)
       {
         if (!boost::iequals(propertyIt->first, "signer"))
-          throw Error("Expect <checker.signer> but get <checker."
-                      + propertyIt->first + ">");
+          throw Error("Expect <checker.signer> but get <checker." +
+                      propertyIt->first + ">");
 
         signers.push_back(getSigner(propertyIt->second, configFilename));
       }
 
     if (propertyIt != configSection.end())
-      throw Error("Expect the end of checker!");
+      throw Error("Expect the end of checker");
 
     return shared_ptr<FixedSignerChecker>(new FixedSignerChecker(getSigType(sigType),
                                                                  signers));
@@ -456,7 +497,7 @@ private:
 
     // Get checker.signer.type
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type"))
-      throw Error("Expect <checker.signer.type>!");
+      throw Error("Expect <checker.signer.type>");
 
     std::string type = propertyIt->second.data();
     propertyIt++;
@@ -465,7 +506,7 @@ private:
       {
         // Get checker.signer.file-name
         if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "file-name"))
-          throw Error("Expect <checker.signer.file-name>!");
+          throw Error("Expect <checker.signer.file-name>");
 
         path certfilePath = absolute(propertyIt->second.data(),
                                      path(configFilename).parent_path());
@@ -480,15 +521,15 @@ private:
         if (static_cast<bool>(idCert))
           return idCert;
         else
-          throw Error("Cannot read certificate from file: "
-                      + certfilePath.native());
+          throw Error("Cannot read certificate from file: " +
+                      certfilePath.native());
       }
     else if (boost::iequals(type, "base64"))
       {
         // Get checker.signer.base64-string
         if (propertyIt == configSection.end() ||
             !boost::iequals(propertyIt->first, "base64-string"))
-          throw Error("Expect <checker.signer.base64-string>!");
+          throw Error("Expect <checker.signer.base64-string>");
 
         std::stringstream ss(propertyIt->second.data());
         propertyIt++;
@@ -507,15 +548,17 @@ private:
       throw Error("Unsupported checker.signer type: " + type);
   }
 
-  static int32_t
+  static uint32_t
   getSigType(const std::string& sigType)
   {
     if (boost::iequals(sigType, "rsa-sha256"))
-      return Signature::Sha256WithRsa;
+      return Tlv::SignatureSha256WithRsa;
+    else if (boost::iequals(sigType, "ecdsa-sha256"))
+      return Tlv::SignatureSha256WithEcdsa;
     else if (boost::iequals(sigType, "sha256"))
-      return Signature::Sha256;
+      return Tlv::DigestSha256;
     else
-      return -1;
+      throw Error("Unsupported signature type");
   }
 };
 
@@ -523,4 +566,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_SEC_CONF_RULE_SIGNER_HPP
+#endif // NDN_SECURITY_CONF_CHECKER_HPP

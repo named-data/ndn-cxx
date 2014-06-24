@@ -27,9 +27,6 @@
 #include "../encoding/oid.hpp"
 #include "cryptopp.hpp"
 
-using namespace std;
-using namespace CryptoPP;
-
 namespace ndn {
 
 static OID RSA_OID("1.2.840.113549.1.1.1");
@@ -43,7 +40,7 @@ PublicKey::PublicKey()
 PublicKey::PublicKey(const uint8_t* keyDerBuf, size_t keyDerSize)
   : m_type(KEY_TYPE_NULL)
 {
-  StringSource src(keyDerBuf, keyDerSize, true);
+  CryptoPP::StringSource src(keyDerBuf, keyDerSize, true);
   decode(src);
 }
 
@@ -64,6 +61,7 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
   //     algorithm           AlgorithmIdentifier
   //     keybits             BIT STRING   }
 
+  using namespace CryptoPP;
   try
     {
       std::string out;

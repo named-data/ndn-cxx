@@ -121,38 +121,16 @@ Validator::onData(const Interest& interest,
 bool
 Validator::verifySignature(const Data& data, const PublicKey& key)
 {
-  try
-    {
-      switch (data.getSignature().getType())
-        {
-        case Tlv::SignatureSha256WithRsa:
-          {
-            SignatureSha256WithRsa sigSha256Rsa(data.getSignature());
-            return verifySignature(data.wireEncode().value(),
-                                   data.wireEncode().value_size() -
-                                   data.getSignature().getValue().size(),
-                                   sigSha256Rsa, key);
-          }
-        case Tlv::SignatureSha256WithEcdsa:
-          {
-            SignatureSha256WithEcdsa sigSha256Ecdsa(data.getSignature());
-            return verifySignature(data.wireEncode().value(),
-                                   data.wireEncode().value_size() -
-                                   data.getSignature().getValue().size(),
-                                   sigSha256Ecdsa, key);
-           }
-        default:
-          {
-            // Unsupported sig type
-            return false;
-          }
-        }
-    }
-  catch (Signature::Error& e)
-    {
-      return false;
-    }
-  return false;
+  shared_ptr<SignatureWithPublicKey> publicKeySig =
+    determineSignatureWithPublicKey(data.getSignature());
+
+  if (!static_cast<bool>(publicKeySig))
+    return false;
+
+  return verifySignature(data.wireEncode().value(),
+                         data.wireEncode().value_size() -
+                         data.getSignature().getValue().size(),
+                         *publicKeySig, key);
 }
 
 bool
@@ -170,40 +148,19 @@ Validator::verifySignature(const Interest& interest, const PublicKey& key)
       Signature sig(interestName[-2].blockFromValue(),
                     interestName[-1].blockFromValue());
 
-      switch (sig.getType())
-        {
-        case Tlv::SignatureSha256WithRsa:
-          {
-            SignatureSha256WithRsa sigSha256Rsa(sig);
+      shared_ptr<SignatureWithPublicKey> publicKeySig = determineSignatureWithPublicKey(sig);
 
-            return verifySignature(nameBlock.value(),
-                                   nameBlock.value_size() - interestName[-1].size(),
-                                   sigSha256Rsa, key);
-          }
-        case Tlv::SignatureSha256WithEcdsa:
-          {
-            SignatureSha256WithEcdsa sigSha256Ecdsa(sig);
+      if (!static_cast<bool>(publicKeySig))
+        return false;
 
-            return verifySignature(nameBlock.value(),
-                                   nameBlock.value_size() - interestName[-1].size(),
-                                   sigSha256Ecdsa, key);
-          }
-        default:
-          {
-            // Unsupported sig type
-            return false;
-          }
-        }
-    }
-  catch (Signature::Error& e)
-    {
-      return false;
+      return verifySignature(nameBlock.value(),
+                             nameBlock.value_size() - interestName[-1].size(),
+                             *publicKeySig, key);
     }
   catch (Block::Error& e)
     {
       return false;
     }
-  return false;
 }
 
 bool
@@ -327,6 +284,28 @@ Validator::verifySignature(const uint8_t* buf, const size_t size, const DigestSh
     {
       return false;
     }
+}
+
+shared_ptr<SignatureWithPublicKey>
+Validator::determineSignatureWithPublicKey(const Signature& signature)
+{
+  try {
+    switch (signature.getType())
+      {
+      case Tlv::SignatureSha256WithRsa:
+        return make_shared<SignatureSha256WithRsa>(signature);
+      case Tlv::SignatureSha256WithEcdsa:
+        return make_shared<SignatureSha256WithEcdsa>(signature);
+      default:
+        return shared_ptr<SignatureWithPublicKey>();
+      }
+  }
+  catch (Tlv::Error& e) {
+    return shared_ptr<SignatureWithPublicKey>();
+  }
+  catch (KeyLocator::Error& e) {
+    return shared_ptr<SignatureWithPublicKey>();
+  }
 }
 
 void

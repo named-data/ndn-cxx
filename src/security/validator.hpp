@@ -248,6 +248,9 @@ protected:
            const OnInterestValidationFailed& onValidationFailed,
            int nSteps);
 
+  static shared_ptr<SignatureWithPublicKey>
+  determineSignatureWithPublicKey(const Signature& signature);
+
   /// Hooks
 
   /**

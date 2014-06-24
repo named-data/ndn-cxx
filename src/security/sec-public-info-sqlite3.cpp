@@ -37,9 +37,10 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 
-using namespace std;
-
 namespace ndn {
+
+using std::string;
+using std::vector;
 
 static const string INIT_ID_TABLE = "\
 CREATE TABLE IF NOT EXISTS                                           \n \
@@ -104,7 +105,7 @@ static int sqlite3_bind_text(sqlite3_stmt* statement,
 SecPublicInfoSqlite3::SecPublicInfoSqlite3()
 {
   boost::filesystem::path identityDir = boost::filesystem::path(getenv("HOME")) / ".ndn";
-  boost::filesystem::create_directories (identityDir);
+  boost::filesystem::create_directories(identityDir);
 
   /// @todo Add define for windows/unix in wscript. The following may completely fail on windows
   int res = sqlite3_open_v2((identityDir / "ndnsec-public-info.db").c_str(), &m_database,
@@ -656,8 +657,7 @@ SecPublicInfoSqlite3::setDefaultKeyNameForIdentityInternal(const Name& keyName)
   sqlite3_bind_text(statement, 1, identityName.toUri(), SQLITE_TRANSIENT);
 
   while (sqlite3_step(statement) == SQLITE_ROW)
-    {
-    }
+    ;
 
   sqlite3_finalize(statement);
 
@@ -730,8 +730,7 @@ SecPublicInfoSqlite3::setDefaultCertificateNameForKeyInternal(const Name& certif
   sqlite3_bind_text(statement, 2, keyId, SQLITE_TRANSIENT);
 
   while (sqlite3_step(statement) == SQLITE_ROW)
-    {
-    }
+    ;
 
   sqlite3_finalize(statement);
 
@@ -868,7 +867,7 @@ SecPublicInfoSqlite3::getAllCertificateNamesOfKey(const Name& keyName,
                        -1, &stmt, 0);
 
   Name identity = keyName.getPrefix(-1);
-  sqlite3_bind_text(stmt, 1, identity.toUri().c_str(), identity.toUri().size (), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 1, identity.toUri().c_str(), identity.toUri().size(), SQLITE_TRANSIENT);
 
   std::string baseKeyName = keyName.get(-1).toUri();
   sqlite3_bind_text(stmt, 2, baseKeyName.c_str(), baseKeyName.size(), SQLITE_TRANSIENT);
@@ -888,7 +887,7 @@ SecPublicInfoSqlite3::deleteCertificateInfo(const Name& certName)
 
   sqlite3_stmt* stmt;
   sqlite3_prepare_v2(m_database, "DELETE FROM Certificate WHERE cert_name=?", -1, &stmt, 0);
-  sqlite3_bind_text(stmt, 1, certName.toUri().c_str(), certName.toUri().size (), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 1, certName.toUri().c_str(), certName.toUri().size(), SQLITE_TRANSIENT);
   sqlite3_step(stmt);
   sqlite3_finalize(stmt);
 }
@@ -906,7 +905,7 @@ SecPublicInfoSqlite3::deletePublicKeyInfo(const Name& keyName)
   sqlite3_prepare_v2(m_database,
                      "DELETE FROM Certificate WHERE identity_name=? and key_identifier=?",
                      -1, &stmt, 0);
-  sqlite3_bind_text(stmt, 1, identity.c_str(), identity.size (), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 1, identity.c_str(), identity.size(), SQLITE_TRANSIENT);
   sqlite3_bind_text(stmt, 2, keyId.c_str(), keyId.size(), SQLITE_TRANSIENT);
   sqlite3_step(stmt);
   sqlite3_finalize(stmt);
@@ -914,7 +913,7 @@ SecPublicInfoSqlite3::deletePublicKeyInfo(const Name& keyName)
   sqlite3_prepare_v2(m_database,
                      "DELETE FROM Key WHERE identity_name=? and key_identifier=?",
                      -1, &stmt, 0);
-  sqlite3_bind_text(stmt, 1, identity.c_str(), identity.size (), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 1, identity.c_str(), identity.size(), SQLITE_TRANSIENT);
   sqlite3_bind_text(stmt, 2, keyId.c_str(), keyId.size(), SQLITE_TRANSIENT);
   sqlite3_step(stmt);
   sqlite3_finalize(stmt);
@@ -927,17 +926,17 @@ SecPublicInfoSqlite3::deleteIdentityInfo(const Name& identityName)
 
   sqlite3_stmt* stmt;
   sqlite3_prepare_v2(m_database, "DELETE FROM Certificate WHERE identity_name=?", -1, &stmt, 0);
-  sqlite3_bind_text(stmt, 1, identity.c_str(), identity.size (), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 1, identity.c_str(), identity.size(), SQLITE_TRANSIENT);
   sqlite3_step(stmt);
   sqlite3_finalize(stmt);
 
   sqlite3_prepare_v2(m_database, "DELETE FROM Key WHERE identity_name=?", -1, &stmt, 0);
-  sqlite3_bind_text(stmt, 1, identity.c_str(), identity.size (), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 1, identity.c_str(), identity.size(), SQLITE_TRANSIENT);
   sqlite3_step(stmt);
   sqlite3_finalize(stmt);
 
   sqlite3_prepare_v2(m_database, "DELETE FROM Identity WHERE identity_name=?", -1, &stmt, 0);
-  sqlite3_bind_text(stmt, 1, identity.c_str(), identity.size (), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 1, identity.c_str(), identity.size(), SQLITE_TRANSIENT);
   sqlite3_step(stmt);
   sqlite3_finalize(stmt);
 }

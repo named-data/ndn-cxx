@@ -75,14 +75,7 @@ public:
            const std::string& tpmName);
 
   virtual
-  ~KeyChain()
-  {
-    if (m_pib != 0)
-      delete m_pib;
-
-    if (m_tpm != 0)
-      delete m_tpm;
-  }
+  ~KeyChain();
 
   /**
    * @brief Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a
@@ -777,35 +770,20 @@ template<typename T>
 void
 KeyChain::sign(T& packet, const IdentityCertificate& certificate)
 {
-  switch (certificate.getPublicKeyInfo().getKeyType())
-    {
-    case KEY_TYPE_RSA:
-      {
-        // For temporary usage, we support SHA256 only, but will support more.
-        SignatureSha256WithRsa signature;
-        // implicit conversion should take care
-        signature.setKeyLocator(certificate.getName().getPrefix(-1));
 
-        signPacketWrapper(packet, signature,
-                          certificate.getPublicKeyName(),
-                          DIGEST_ALGORITHM_SHA256);
-        return;
-      }
-    case KEY_TYPE_ECDSA:
-      {
-        // For temporary usage, we support SHA256 only, but will support more.
-        SignatureSha256WithEcdsa signature;
-        // implicit conversion should take care
-        signature.setKeyLocator(certificate.getName().getPrefix(-1));
+  shared_ptr<SignatureWithPublicKey> signature =
+    determineSignatureWithPublicKey(certificate.getPublicKeyInfo().getKeyType());
 
-        signPacketWrapper(packet, signature,
-                          certificate.getPublicKeyName(),
-                          DIGEST_ALGORITHM_SHA256);
-        return;
-      }
-    default:
-      throw SecPublicInfo::Error("unknown key type!");
-    }
+  if (!static_cast<bool>(signature))
+    throw SecPublicInfo::Error("unknown key type!");
+
+  signature->setKeyLocator(certificate.getName().getPrefix(-1));
+
+  signPacketWrapper(packet, *signature,
+                    certificate.getPublicKeyName(),
+                    DIGEST_ALGORITHM_SHA256);
+
+  return;
 }
 
 }

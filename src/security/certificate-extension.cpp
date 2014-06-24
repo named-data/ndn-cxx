@@ -27,14 +27,13 @@
 #include "certificate-extension.hpp"
 #include "cryptopp.hpp"
 
-using namespace std;
-using namespace CryptoPP;
-
 namespace ndn {
 
 void
 CertificateExtension::encode(CryptoPP::BufferedTransformation& out) const
 {
+  using namespace CryptoPP;
+
   // Extension ::= SEQUENCE {
   //        extnID      OBJECT IDENTIFIER,
   //        critical    BOOLEAN DEFAULT FALSE,
@@ -52,6 +51,8 @@ CertificateExtension::encode(CryptoPP::BufferedTransformation& out) const
 void
 CertificateExtension::decode(CryptoPP::BufferedTransformation& in)
 {
+  using namespace CryptoPP;
+
   // Extension ::= SEQUENCE {
   //        extnID      OBJECT IDENTIFIER,
   //        critical    BOOLEAN DEFAULT FALSE,

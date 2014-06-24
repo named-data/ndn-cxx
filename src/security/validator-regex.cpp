@@ -27,8 +27,6 @@
 #include "signature-sha256-with-rsa.hpp"
 #include "certificate-cache-ttl.hpp"
 
-using namespace std;
-
 namespace ndn {
 
 const shared_ptr<CertificateCache> ValidatorRegex::DEFAULT_CERTIFICATE_CACHE;
@@ -75,7 +73,7 @@ ValidatorRegex::onCertificateValidated(const shared_ptr<const Data>& signCertifi
 
 void
 ValidatorRegex::onCertificateValidationFailed(const shared_ptr<const Data>& signCertificate,
-                                              const string& failureInfo,
+                                              const std::string& failureInfo,
                                               const shared_ptr<const Data>& data,
                                               const OnDataValidationFailed& onValidationFailed)
 {
@@ -87,7 +85,7 @@ ValidatorRegex::checkPolicy(const Data& data,
                             int nSteps,
                             const OnDataValidated& onValidated,
                             const OnDataValidationFailed& onValidationFailed,
-                            vector<shared_ptr<ValidationRequest> >& nextSteps)
+                            std::vector<shared_ptr<ValidationRequest> >& nextSteps)
 {
   if (m_stepLimit == nSteps)
     return onValidationFailed(data.shared_from_this(),
@@ -110,7 +108,7 @@ ValidatorRegex::checkPolicy(const Data& data,
         {
           try
             {
-              SignatureSha256WithRsa sig(data.getSignature());
+              SignatureWithPublicKey sig(data.getSignature());
 
               Name keyLocatorName = sig.getKeyLocator().getName();
               shared_ptr<const Certificate> trustedCert;
@@ -153,11 +151,16 @@ ValidatorRegex::checkPolicy(const Data& data,
                   return;
                 }
             }
-          catch (SignatureSha256WithRsa::Error& e)
+          catch (SignatureWithPublicKey::Error& e)
             {
               return onValidationFailed(data.shared_from_this(),
-                                        "Not SignatureSha256WithRsa signature: " +
+                                        "Require sub-class of SignatureWithPublicKey: " +
                                         data.getName().toUri());
+            }
+          catch (Tlv::Error& e)
+            {
+              return onValidationFailed(data.shared_from_this(),
+                                        "Cannot decode signature");
             }
           catch (KeyLocator::Error& e)
             {
