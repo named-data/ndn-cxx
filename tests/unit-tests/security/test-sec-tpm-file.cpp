@@ -289,6 +289,122 @@ BOOST_AUTO_TEST_CASE(EcdsaSigning)
   tpm.deleteKeyPairInTpm(keyName);
 }
 
+
+BOOST_AUTO_TEST_CASE(ImportExportEcdsaKey)
+{
+  using namespace CryptoPP;
+
+  std::string imported =
+    "MIGMMEAGCSqGSIb3DQEFDTAzMBsGCSqGSIb3DQEFDDAOBAhqkJiLfzFWtQICCAAw"
+    "FAYIKoZIhvcNAwcECJ1HLtP8OZC6BEgNv9OH2mZdbkxvqTVlRBkUqPbbP3580OG6"
+    "f0htqWSRppcb4IEKYfuPt2qPCYKL2GcAN2pU3eJqhiM7LFTSFaxgBRFozzIwusk=";
+
+  std::string decoded;
+  BOOST_CHECK_NO_THROW(StringSource source(imported,
+                                           true,
+                                           new Base64Decoder(new StringSink(decoded))));
+
+  SecTpmFile tpm;
+
+  Name keyName("/TestSecTpmFile/ImportExportEcdsaKey/ksk-" +
+               boost::lexical_cast<std::string>(time::toUnixTimestamp(time::system_clock::now())));
+
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+
+  BOOST_REQUIRE_NO_THROW(
+    tpm.importPrivateKeyPkcs5IntoTpm(keyName,
+                                     reinterpret_cast<const uint8_t*>(decoded.c_str()),
+                                     decoded.size(),
+                                     "5678"));
+
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
+
+  shared_ptr<PublicKey> publicKey;
+  BOOST_CHECK_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
+
+  const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
+  Block sigBlock;
+  BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
+                                                keyName, DIGEST_ALGORITHM_SHA256));
+
+  try
+    {
+      using namespace CryptoPP;
+
+      ECDSA<ECP, SHA256>::PublicKey ecdsaPublicKey;
+      ByteQueue queue;
+      queue.Put(reinterpret_cast<const byte*>(publicKey->get().buf()), publicKey->get().size());
+      ecdsaPublicKey.Load(queue);
+
+      uint8_t buffer[64];
+      size_t usedSize = DSAConvertSignatureFormat(buffer, 64, DSA_P1363,
+                                                  sigBlock.value(), sigBlock.value_size(), DSA_DER);
+
+      ECDSA<ECP, SHA256>::Verifier verifier(ecdsaPublicKey);
+      bool isVerified = verifier.VerifyMessage(content, sizeof(content),
+                                               buffer, usedSize);
+
+      BOOST_CHECK_EQUAL(isVerified, true);
+    }
+  catch (CryptoPP::Exception& e)
+    {
+      BOOST_CHECK(false);
+    }
+
+  ConstBufferPtr exported;
+  BOOST_CHECK_NO_THROW(exported = tpm.exportPrivateKeyPkcs5FromTpm(keyName, "1234"));
+
+  tpm.deleteKeyPairInTpm(keyName);
+
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+
+  BOOST_REQUIRE(tpm.importPrivateKeyPkcs5IntoTpm(keyName, exported->buf(), exported->size(),
+                                                 "1234"));
+
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
+
+  const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
+  Block sigBlock2;
+  BOOST_CHECK_NO_THROW(sigBlock2 = tpm.signInTpm(content2, sizeof(content2),
+                                                 keyName, DIGEST_ALGORITHM_SHA256));
+
+  try
+    {
+      using namespace CryptoPP;
+
+      ECDSA<ECP, SHA256>::PublicKey ecdsaPublicKey;
+      ByteQueue queue;
+      queue.Put(reinterpret_cast<const byte*>(publicKey->get().buf()), publicKey->get().size());
+      ecdsaPublicKey.Load(queue);
+
+      uint8_t buffer[64];
+      size_t usedSize = DSAConvertSignatureFormat(buffer, 64, DSA_P1363,
+                                                  sigBlock2.value(), sigBlock2.value_size(),
+                                                  DSA_DER);
+
+      ECDSA<ECP, SHA256>::Verifier verifier(ecdsaPublicKey);
+      bool isVerified = verifier.VerifyMessage(content2, sizeof(content2),
+                                               buffer, usedSize);
+
+      BOOST_CHECK_EQUAL(isVerified, true);
+
+    }
+  catch (CryptoPP::Exception& e)
+    {
+      BOOST_CHECK(false);
+    }
+
+  tpm.deleteKeyPairInTpm(keyName);
+
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace ndn

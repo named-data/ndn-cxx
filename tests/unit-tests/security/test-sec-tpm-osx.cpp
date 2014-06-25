@@ -25,6 +25,7 @@
 #include "util/time.hpp"
 
 #include <boost/lexical_cast.hpp>
+#include <Availability.h>
 
 #include "boost-test.hpp"
 
@@ -177,9 +178,14 @@ BOOST_AUTO_TEST_CASE(ExportImportKey)
     }
 
   tpm.deleteKeyPairInTpm(keyName);
-  // This is some problem related to Mac OS Key chain, and we will fix it later.
-  // BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
-  // BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
+  // This is some problem related to Mac OS Key chain.
+  // On OSX 10.8, we cannot delete imported keys, but there is no such problem on OSX 10.9.
+#ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_9
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
+#endif
+#endif
 }
 
 BOOST_AUTO_TEST_CASE(NonExistingKey)
@@ -244,6 +250,82 @@ BOOST_AUTO_TEST_CASE(EcdsaSigning)
     }
 
   tpm.deleteKeyPairInTpm(keyName);
+}
+
+
+BOOST_AUTO_TEST_CASE(ExportImportEcdsaKey)
+{
+  using namespace CryptoPP;
+
+  SecTpmOsx tpm;
+
+  Name keyName("/TestSecTpmOsx/ExportImportEcdsaKey/ksk-" +
+               boost::lexical_cast<std::string>(
+                 time::toUnixTimestamp(time::system_clock::now()).count()));
+
+  EcdsaKeyParams params;
+  BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, params));
+
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
+
+  ConstBufferPtr exported;
+  BOOST_CHECK_NO_THROW(exported = tpm.exportPrivateKeyPkcs5FromTpm(keyName, "1234"));
+
+  shared_ptr<PublicKey> publicKey;
+  BOOST_REQUIRE_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
+
+  tpm.deleteKeyPairInTpm(keyName);
+
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+
+  BOOST_REQUIRE(tpm.importPrivateKeyPkcs5IntoTpm(keyName,
+                                                 exported->buf(), exported->size(),
+                                                 "1234"));
+
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
+
+  const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
+  Block sigBlock;
+  BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
+                                                keyName, DIGEST_ALGORITHM_SHA256));
+
+  try
+    {
+      using namespace CryptoPP;
+
+      ECDSA<ECP, SHA256>::PublicKey ecdsaPublicKey;
+      ByteQueue queue;
+      queue.Put(reinterpret_cast<const byte*>(publicKey->get().buf()), publicKey->get().size());
+      ecdsaPublicKey.Load(queue);
+
+      uint8_t buffer[64];
+      size_t usedSize = DSAConvertSignatureFormat(buffer, 64, DSA_P1363,
+                                                  sigBlock.value(), sigBlock.value_size(),
+                                                  DSA_DER);
+
+      ECDSA<ECP, SHA256>::Verifier verifier(ecdsaPublicKey);
+      bool isVerified = verifier.VerifyMessage(content, sizeof(content),
+                                               buffer, usedSize);
+
+      BOOST_CHECK_EQUAL(isVerified, true);
+    }
+  catch (CryptoPP::Exception& e)
+    {
+      BOOST_CHECK(false);
+    }
+
+  tpm.deleteKeyPairInTpm(keyName);
+  // This is some problem related to Mac OS Key chain.
+  // On OSX 10.8, we cannot delete imported keys, but there is no such problem on OSX 10.9.
+#ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_9
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
+#endif
+#endif
 }
 
 BOOST_AUTO_TEST_SUITE_END()

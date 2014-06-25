@@ -66,6 +66,7 @@ SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& password
   e.SetKeyWithIV(derived, derivedLen, iv);
 
   ConstBufferPtr pkcs8PrivateKey = exportPrivateKeyPkcs8FromTpm(keyName);
+
   if (!static_cast<bool>(pkcs8PrivateKey))
     throw Error("Cannot export the private key, #1");
 
@@ -233,7 +234,6 @@ SecTpm::importPrivateKeyPkcs5IntoTpm(const Name& keyName,
       return false;
     }
 
-
   PKCS5_PBKDF2_HMAC<SHA1> keyGenerator;
   size_t derivedLen = 24; //For DES-EDE3-CBC-PAD
   byte derived[24] = {0};
@@ -271,23 +271,70 @@ SecTpm::importPrivateKeyPkcs5IntoTpm(const Name& keyName,
                                     privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()))
     return false;
 
+  //determine key type
+  StringSource privateKeySource(privateKeyOs.buf()->buf(), privateKeyOs.buf()->size(), true);
+
+  KeyType publicKeyType = KEY_TYPE_NULL;
+  SecByteBlock rawKeyBits;
+  // PrivateKeyInfo ::= SEQUENCE {
+  //   INTEGER,
+  //   SEQUENCE,
+  //   OCTECT STRING}
+  BERSequenceDecoder privateKeyInfo(privateKeySource);
+  {
+    uint32_t versionNum;
+    BERDecodeUnsigned<uint32_t>(privateKeyInfo, versionNum, INTEGER);
+    BERSequenceDecoder sequenceDecoder(privateKeyInfo);
+    {
+      OID keyTypeOID;
+      keyTypeOID.decode(sequenceDecoder);
+      if (keyTypeOID == oid::RSA)
+        publicKeyType = KEY_TYPE_RSA;
+      else if (keyTypeOID == oid::ECDSA)
+        publicKeyType = KEY_TYPE_ECDSA;
+      else
+        return false; // Unsupported key type;
+    }
+  }
+
+
   //derive public key
   OBufferStream publicKeyOs;
 
-  try
-    {
-      RSA::PrivateKey privateKey;
-      privateKey.Load(StringStore(privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()).Ref());
-      RSAFunction publicKey(privateKey);
+  try {
+    switch (publicKeyType) {
+    case KEY_TYPE_RSA:
+      {
+        RSA::PrivateKey privateKey;
+        privateKey.Load(StringStore(privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()).Ref());
+        RSAFunction publicKey(privateKey);
 
-      FileSink publicKeySink(publicKeyOs);
-      publicKey.DEREncode(publicKeySink);
-      publicKeySink.MessageEnd();
-    }
-  catch (CryptoPP::Exception& e)
-    {
+        FileSink publicKeySink(publicKeyOs);
+        publicKey.DEREncode(publicKeySink);
+        publicKeySink.MessageEnd();
+        break;
+      }
+    case KEY_TYPE_ECDSA:
+      {
+        ECDSA<ECP, SHA256>::PrivateKey privateKey;
+        privateKey.Load(StringStore(privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()).Ref());
+
+        ECDSA<ECP, SHA256>::PublicKey publicKey;
+        privateKey.MakePublicKey(publicKey);
+        publicKey.AccessGroupParameters().SetEncodeAsOID(true);
+
+        FileSink publicKeySink(publicKeyOs);
+        publicKey.DEREncode(publicKeySink);
+        publicKeySink.MessageEnd();
+        break;
+      }
+    default:
       return false;
     }
+  }
+  catch (CryptoPP::Exception& e) {
+      return false;
+  }
 
   if (!importPublicKeyPkcs1IntoTpm(keyName, publicKeyOs.buf()->buf(), publicKeyOs.buf()->size()))
     return false;

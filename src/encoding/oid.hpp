@@ -35,14 +35,17 @@ namespace ndn {
 class OID
 {
 public:
-  OID ()
+  OID()
   {
   }
 
+  explicit
   OID(const char* oid);
 
+  explicit
   OID(const std::string& oid);
 
+  explicit
   OID(const std::vector<int>& oid)
     : m_oid(oid)
   {
@@ -55,19 +58,22 @@ public:
   }
 
   void
-  setIntegerList(const std::vector<int>& value){
+  setIntegerList(const std::vector<int>& value)
+  {
     m_oid = value;
   }
 
   std::string
   toString() const;
 
-  bool operator == (const OID& oid) const
+  bool
+  operator==(const OID& oid) const
   {
     return equal(oid);
   }
 
-  bool operator != (const OID& oid) const
+  bool
+  operator!=(const OID& oid) const
   {
     return !equal(oid);
   }
@@ -89,6 +95,15 @@ private:
 private:
   std::vector<int> m_oid;
 };
+
+namespace oid {
+//crypto algorithm
+extern const OID RSA;
+extern const OID ECDSA;
+
+//certificate entries
+extern const OID ATTRIBUTE_NAME;
+}
 
 }
 

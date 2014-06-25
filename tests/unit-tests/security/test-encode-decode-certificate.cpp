@@ -92,7 +92,8 @@ BOOST_AUTO_TEST_CASE(Encode)
   certificate.setNotAfter(time::fromUnixTimestamp(time::milliseconds(1388100174000LL)));
 
   // subject
-  certificate.addSubjectDescription(CertificateSubjectDescription("2.5.4.41", "TEST NAME"));
+  certificate.addSubjectDescription(CertificateSubjectDescription(oid::ATTRIBUTE_NAME,
+                                                                  "TEST NAME"));
 
   // publicKeyInfo
   ndn::PublicKey key(PUBLIC_KEY, sizeof(PUBLIC_KEY));
@@ -113,7 +114,8 @@ BOOST_AUTO_TEST_CASE(Encode)
     }
     seq.MessageEnd();
 
-    certificate.addExtension(CertificateExtension("1.3.6.1.5.32.1", true,
+    //create a randome extension
+    certificate.addExtension(CertificateExtension(OID("1.3.6.1.5.32.1"), true,
       reinterpret_cast<const uint8_t*>(extenstionValue.c_str()),
       extenstionValue.size()));
   });

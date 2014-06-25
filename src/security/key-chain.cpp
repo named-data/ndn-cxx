@@ -274,8 +274,7 @@ KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
 
   if (subjectDescription.empty())
     {
-      // OID 2.5.4.41 is the oid of subject name.
-      CertificateSubjectDescription subjectName("2.5.4.41", keyName.getPrefix(-1).toUri());
+      CertificateSubjectDescription subjectName(oid::ATTRIBUTE_NAME, keyName.getPrefix(-1).toUri());
       certificate->addSubjectDescription(subjectName);
     }
   else
@@ -333,9 +332,10 @@ KeyChain::selfSign(const Name& keyName)
 
   certificate->setName(certificateName);
   certificate->setNotBefore(time::system_clock::now());
-  certificate->setNotAfter(time::system_clock::now() + time::days(7300)/* ~20 years*/);
+  certificate->setNotAfter(time::system_clock::now() + time::days(7300)); // ~20 years
   certificate->setPublicKeyInfo(*pubKey);
-  certificate->addSubjectDescription(CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
+  certificate->addSubjectDescription(CertificateSubjectDescription(oid::ATTRIBUTE_NAME,
+                                                                   keyName.toUri()));
   certificate->encode();
 
   selfSign(*certificate);

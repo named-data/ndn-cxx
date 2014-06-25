@@ -105,10 +105,10 @@ ndnsec_cert_gen(int argc, char** argv)
     }
 
   std::vector<CertificateSubjectDescription> subjectDescription;
-  subjectDescription.push_back(CertificateSubjectDescription("2.5.4.41", subjectName));
+  subjectDescription.push_back(CertificateSubjectDescription(oid::ATTRIBUTE_NAME, subjectName));
 
   tokenizer<escaped_list_separator<char> > subjectInfoItems
-    (subjectInfo, escaped_list_separator<char> ("\\", " \t", "'\""));
+    (subjectInfo, escaped_list_separator<char>("\\", " \t", "'\""));
 
   tokenizer<escaped_list_separator<char> >::iterator it =
     subjectInfoItems.begin();
@@ -126,7 +126,7 @@ ndnsec_cert_gen(int argc, char** argv)
 
       std::string value = *it;
 
-      subjectDescription.push_back(CertificateSubjectDescription(oid, value));
+      subjectDescription.push_back(CertificateSubjectDescription(OID(oid), value));
 
       it++;
     }

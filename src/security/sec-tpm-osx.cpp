@@ -535,6 +535,8 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
       throw Error("Private key [" + keyName.toUri() + "] does not exist in OSX Keychain");
     }
 
+  shared_ptr<PublicKey> publicKey = getPublicKeyFromTpm(keyName);
+
   CFReleaser<CFDataRef> exportedKey;
   OSStatus res = SecItemExport(privateKey.get(),
                                kSecFormatOpenSSL,
@@ -555,11 +557,40 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
         return shared_ptr<Buffer>();
     }
 
-  OBufferStream pkcs1Os;
-  FileSink sink(pkcs1Os);
-
   uint32_t version = 0;
-  OID algorithm("1.2.840.113549.1.1.1"); // "RSA encryption"
+  OID algorithm;
+  bool hasParameters = false;
+  OID algorithmParameter;
+  switch (publicKey->getKeyType()) {
+  case KEY_TYPE_RSA:
+    {
+      algorithm = oid::RSA; // "RSA encryption"
+      hasParameters = false;
+      break;
+    }
+  case KEY_TYPE_ECDSA:
+    {
+      // "ECDSA encryption"
+      StringSource src(publicKey->get().buf(), publicKey->get().size(), true);
+      BERSequenceDecoder subjectPublicKeyInfo(src);
+      {
+        BERSequenceDecoder algorithmInfo(subjectPublicKeyInfo);
+        {
+          algorithm.decode(algorithmInfo);
+          algorithmParameter.decode(algorithmInfo);
+        }
+      }
+      hasParameters = true;
+      break;
+    }
+  default:
+    throw Error("Unsupported key type" +
+                boost::lexical_cast<std::string>(publicKey->getKeyType()));
+  }
+
+  OBufferStream pkcs8Os;
+  FileSink sink(pkcs8Os);
+
   SecByteBlock rawKeyBits;
   // PrivateKeyInfo ::= SEQUENCE {
   //   version              INTEGER,
@@ -571,7 +602,10 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
     DERSequenceEncoder privateKeyAlgorithm(privateKeyInfo);
     {
       algorithm.encode(privateKeyAlgorithm);
-      DEREncodeNull(privateKeyAlgorithm);
+      if (hasParameters)
+        algorithmParameter.encode(privateKeyAlgorithm);
+      else
+        DEREncodeNull(privateKeyAlgorithm);
     }
     privateKeyAlgorithm.MessageEnd();
     DEREncodeOctetString(privateKeyInfo,
@@ -580,7 +614,7 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
   }
   privateKeyInfo.MessageEnd();
 
-  return pkcs1Os.buf();
+  return pkcs8Os.buf();
 }
 
 #ifdef __GNUC__
@@ -598,8 +632,6 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
   using namespace CryptoPP;
 
   StringSource privateKeySource(buf, size, true);
-  uint32_t tmpNum;
-  OID tmpOID;
   SecByteBlock rawKeyBits;
   // PrivateKeyInfo ::= SEQUENCE {
   //   INTEGER,
@@ -607,11 +639,24 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
   //   OCTECT STRING}
   BERSequenceDecoder privateKeyInfo(privateKeySource);
   {
-    BERDecodeUnsigned<uint32_t>(privateKeyInfo, tmpNum, INTEGER);
+    uint32_t versionNum;
+    BERDecodeUnsigned<uint32_t>(privateKeyInfo, versionNum, INTEGER);
     BERSequenceDecoder sequenceDecoder(privateKeyInfo);
     {
-      tmpOID.decode(sequenceDecoder);
-      BERDecodeNull(sequenceDecoder);
+      OID keyTypeOID;
+      keyTypeOID.decode(sequenceDecoder);
+
+      if (keyTypeOID == oid::RSA)
+        BERDecodeNull(sequenceDecoder);
+      else if (keyTypeOID == oid::ECDSA)
+        {
+          OID parameterOID;
+          parameterOID.decode(sequenceDecoder);
+        }
+      else
+        return false; // Unsupported key type;
+
+
     }
     BERDecodeOctetString(privateKeyInfo, rawKeyBits);
   }

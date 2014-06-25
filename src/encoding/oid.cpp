@@ -28,10 +28,12 @@
 
 #include <sstream>
 
-using namespace std;
-using namespace CryptoPP;
-
 namespace ndn {
+
+using std::string;
+using std::vector;
+
+static const int OID_MAGIC_NUMBER = 40;
 
 OID::OID(const char* oid)
 {
@@ -64,9 +66,10 @@ OID::construct(const std::string& oid)
   }
 }
 
-string OID::toString() const
+string
+OID::toString() const
 {
-  ostringstream convert;
+  std::ostringstream convert;
 
   for (vector<int>::const_iterator it = m_oid.begin(); it != m_oid.end(); ++it) {
     if (it != m_oid.begin())
@@ -83,28 +86,29 @@ OID::equal(const OID& oid) const
   vector<int>::const_iterator i = m_oid.begin();
   vector<int>::const_iterator j = oid.m_oid.begin();
 
-  for (; i != m_oid.end () && j != oid.m_oid.end (); i++, j++) {
+  for (; i != m_oid.end() && j != oid.m_oid.end(); i++, j++) {
     if (*i != *j)
       return false;
   }
 
-  if (i == m_oid.end () && j == oid.m_oid.end ())
-    return true;
-  else
-    return false;
+  return (i == m_oid.end() && j == oid.m_oid.end()); // keep parenthesis for readability.
 }
 
 inline void
-EncodeValue(BufferedTransformation& bt, word32 v)
+encodeValue(CryptoPP::BufferedTransformation& bt, CryptoPP::word32 v)
 {
-  for (unsigned int i = RoundUpToMultipleOf(STDMAX(7U,BitPrecision(v)), 7U) - 7; i != 0; i -= 7)
-    bt.Put((byte)(0x80 | ((v >> i) & 0x7f)));
-  bt.Put((byte)(v & 0x7f));
+  using namespace CryptoPP;
+
+  for (unsigned int i = RoundUpToMultipleOf(STDMAX(7U, BitPrecision(v)), 7U) - 7; i != 0; i -= 7)
+    bt.Put(static_cast<byte>(0x80 | ((v >> i) & 0x7f)));
+  bt.Put(static_cast<byte>(v & 0x7f));
 }
 
 inline size_t
-DecodeValue(BufferedTransformation& bt, word32& v)
+decodeValue(CryptoPP::BufferedTransformation& bt, CryptoPP::word32& v)
 {
+  using namespace CryptoPP;
+
   v = 0;
   size_t i = 0;
   while (true)
@@ -113,11 +117,11 @@ DecodeValue(BufferedTransformation& bt, word32& v)
       if (!bt.Get(b))
         BERDecodeError();
       i++;
-      if (v >> (8*sizeof(v) - 7)) // v about to overflow
+      if (v >> (8 * sizeof(v) - 7)) // v about to overflow
         BERDecodeError();
       v <<= 7;
       v += b & 0x7f;
-      if (!(b & 0x80))
+      if ((b & 0x80) == 0)
         return i;
     }
 }
@@ -125,12 +129,14 @@ DecodeValue(BufferedTransformation& bt, word32& v)
 void
 OID::encode(CryptoPP::BufferedTransformation& out) const
 {
+  using namespace CryptoPP;
+
   BOOST_ASSERT(m_oid.size() >= 2);
 
   ByteQueue temp;
-  temp.Put(byte(m_oid[0] * 40 + m_oid[1]));
+  temp.Put(byte(m_oid[0] * OID_MAGIC_NUMBER + m_oid[1]));
   for (size_t i = 2; i < m_oid.size(); i++)
-    EncodeValue(temp, m_oid[i]);
+    encodeValue(temp, m_oid[i]);
 
   out.Put(OBJECT_IDENTIFIER);
   DERLengthEncode(out, temp.CurrentSize());
@@ -140,6 +146,8 @@ OID::encode(CryptoPP::BufferedTransformation& out) const
 void
 OID::decode(CryptoPP::BufferedTransformation& in)
 {
+  using namespace CryptoPP;
+
   byte b;
   if (!in.Get(b) || b != OBJECT_IDENTIFIER)
     BERDecodeError();
@@ -153,18 +161,25 @@ OID::decode(CryptoPP::BufferedTransformation& in)
 
   length--;
   m_oid.resize(2);
-  m_oid[0] = b / 40;
-  m_oid[1] = b % 40;
+  m_oid[0] = b / OID_MAGIC_NUMBER;
+  m_oid[1] = b % OID_MAGIC_NUMBER;
 
   while (length > 0)
     {
       word32 v;
-      size_t valueLen = DecodeValue(in, v);
+      size_t valueLen = decodeValue(in, v);
       if (valueLen > length)
         BERDecodeError();
       m_oid.push_back(v);
       length -= valueLen;
     }
+}
+
+namespace oid {
+const OID RSA("1.2.840.113549.1.1.1");
+const OID ECDSA("1.2.840.10045.2.1");
+
+const OID ATTRIBUTE_NAME("2.5.4.41");
 }
 
 } // namespace ndn

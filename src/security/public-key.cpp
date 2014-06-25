@@ -29,9 +29,6 @@
 
 namespace ndn {
 
-static OID RSA_OID("1.2.840.113549.1.1.1");
-static OID ECDSA_OID("1.2.840.10045.2.1");
-
 PublicKey::PublicKey()
   : m_type(KEY_TYPE_NULL)
 {
@@ -91,9 +88,9 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
           OID algorithm;
           algorithm.decode(algorithmInfo);
 
-          if (algorithm == RSA_OID)
+          if (algorithm == oid::RSA)
             m_type = KEY_TYPE_RSA;
-          else if (algorithm == ECDSA_OID)
+          else if (algorithm == oid::ECDSA)
             m_type = KEY_TYPE_ECDSA;
           else
             throw Error("Only RSA/ECDSA public keys are supported for now (" +
