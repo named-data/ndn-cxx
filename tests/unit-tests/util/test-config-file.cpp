@@ -33,12 +33,12 @@ class ConfigFileFixture
 public:
   ConfigFileFixture()
   {
-    m_HOME = std::getenv("HOME");
+    m_HOME = std::getenv("TEST_HOME");
   }
 
   ~ConfigFileFixture()
   {
-    setenv("HOME", m_HOME.c_str(), 1);
+    setenv("TEST_HOME", m_HOME.c_str(), 1);
     // std::cerr << "restoring home = " << m_HOME << std::endl;
   }
 
@@ -51,11 +51,11 @@ BOOST_FIXTURE_TEST_SUITE(UtilTestConfigFile, ConfigFileFixture)
 BOOST_AUTO_TEST_CASE(TestParse)
 {
   using namespace boost::filesystem;
-  // std::cerr << "current home = " << std::getenv("HOME") << std::endl;
+  // std::cerr << "current home = " << std::getenv("TEST_HOME") << std::endl;
 
-  setenv("HOME", "tests/unit-tests/util/config-file-home", 1);
+  setenv("TEST_HOME", "tests/unit-tests/util/config-file-home", 1);
 
-  path homePath(absolute(std::getenv("HOME")));
+  path homePath(absolute(std::getenv("TEST_HOME")));
   homePath /= ".ndn/client.conf";
 
   try
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(TestParse)
       BOOST_CHECK_EQUAL(parsed.get<std::string>("a"), "/path/to/nowhere");
       BOOST_CHECK_EQUAL(parsed.get<std::string>("b"), "some-othervalue.01");
     }
-  catch(const std::runtime_error& error)
+  catch (const std::runtime_error& error)
     {
       BOOST_FAIL("Unexpected exception: " << error.what());
     }
@@ -76,14 +76,14 @@ BOOST_AUTO_TEST_CASE(TestParse)
 
 BOOST_AUTO_TEST_CASE(EmptyPathParse)
 {
-  // std::cerr << "current home = " << std::getenv("HOME") << std::endl;
+  // std::cerr << "current home = " << std::getenv("TEST_HOME") << std::endl;
 
-  setenv("HOME", "tests/unit-tests/util/does/not/exist", 1);
+  setenv("TEST_HOME", "tests/unit-tests/util/does/not/exist", 1);
   try
     {
       ConfigFile config;
     }
-  catch(const std::runtime_error& error)
+  catch (const std::runtime_error& error)
     {
       BOOST_FAIL("Unexpected exception: " << error.what());
     }
@@ -92,16 +92,16 @@ BOOST_AUTO_TEST_CASE(EmptyPathParse)
 BOOST_AUTO_TEST_CASE(MalformedParse)
 {
   using namespace boost::filesystem;
-  // std::cerr << "current home = " << std::getenv("HOME") << std::endl;
+  // std::cerr << "current home = " << std::getenv("TEST_HOME") << std::endl;
 
-  setenv("HOME", "tests/unit-tests/util/config-file-malformed-home", 1);
+  setenv("TEST_HOME", "tests/unit-tests/util/config-file-malformed-home", 1);
 
   bool fileWasMalformed = false;
   try
     {
       ConfigFile config;
     }
-  catch(const ConfigFile::Error& error)
+  catch (const ConfigFile::Error& error)
     {
       fileWasMalformed = true;
     }
