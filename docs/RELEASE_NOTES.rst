@@ -1,7 +1,131 @@
-.. _ndn-cxx v0.1.0 Release Notes:
+.. _Release Notes:
 
-ndn-cxx v0.1.0 Release Notes
-----------------------------
+ndn-cxx Release Notes
+---------------------
+
+ndn-cxx v0.2.0
+++++++++++++++
+
+New features:
+^^^^^^^^^^^^^
+
+- **Base**
+
+  + The license under which the library is released is changed to **Lesser GNU Public
+    License version 3.0**.
+
+  + New ways to use incoming Interest dispatching:
+
+    * New :ndn-cxx:`InterestFilter` abstraction that supports filtering based on name
+      prefixes and regular expressions.
+
+    * Separated :ndn-cxx:`Face::registerPrefix()` and :ndn-cxx:`Face::setInterestFilter()`
+      methods allow distinct operations of registering with the local NDN forwarder and setting
+      up application-specific ``OnInterest`` call dispatch using InterestFilters.
+
+- **Security**
+
+  + Add ``type dir`` :ref:`trust-anchor in ValidatorConfig <validator-conf-trust-anchors>`
+    to add all certificates under the specified directory as trust anchors.
+    The new option also allow periodic reloading trust anchors, allowing dynamic trust
+    models.
+
+  + Added support for multiple signature types to :ndn-cxx:`PublicKey`,
+    :ndn-cxx:`SecPublicInfo` abstractions
+
+  + New :ndn-cxx:`SignatureSha256WithEcdsa` signature type
+
+- **Wire encoding**
+
+  + :ndn-cxx:`Data::getFullName() <getFullName()>` method to get :ndn-cxx:`Data` packet
+    name with implicit digest
+
+  + New :ndn-cxx:`Name::getSuccessor()` method to get `name successor
+    <http://redmine.named-data.net/issues/1677>`_
+
+- **Management**
+
+  + Support for :ndn-cxx:`ChannelStatus`, :ndn-cxx:`StrategyChoice` datasets
+
+- **Build**
+
+  + enabled support of precompiled headers for clang and gcc compilers to speed up compilation
+
+Updates and bug fixes:
+^^^^^^^^^^^^^^^^^^^^^^
+
+- **Wire encoding**
+
+  + Nonce field is now encoded as 4-byte uint8_t value, as defined by NDN-TLV spec.
+
+  + Optimized Data packet signing
+
+    :ndn-cxx:`KeyChain::sign` method now pre-allocates :ndn-cxx:`EncodingBuffer`, requests
+    unsigned portion of :ndn-cxx:`Data` using ``Data::wireEncode(EncodingBuffer, true)``,
+    and then appends the resulting signature and prepends :ndn-cxx:`Data` packet header.
+    This way there is no extra memory allocation after :ndn-cxx:`Data` packet is signed.
+
+- **Security**
+
+  + Allow user to explicitly specify the cert name prefix before 'KEY' component in
+    ``ndnsec-certgen``
+
+  + ``SignatureSha256`` has been renamed to :ndn-cxx:`DigestSha256` to conform with
+    `NDN-TLV specification <http://named-data.net/doc/ndn-tlv/>`_.
+
+  + Add checking of ``Timestamp`` and ``Nonce`` fields in signed Interest within
+    :ndn-cxx:`ValidatorConfig`
+
+  + Allow validator customization using hooks:
+
+    Sub-classes of :ndn-cxx:`Validator` class can use the following hooks to fine-tune the
+    validation process:
+
+      * :ndn-cxx:`Validator::preCertificateValidation <preCertificateValidation>` to
+        process received certificate before validation.
+      * :ndn-cxx:`Validator::onTimeout <onTimeout>` to process interest timeout
+      * :ndn-cxx:`Validator::afterCheckPolicy <afterCheckPolicy>` to process validation requests.
+
+- Other minor fixes and corrections
+
+Deprecated:
+^^^^^^^^^^^
+
+- ``SignatureSha256`` class, use :ndn-cxx:`DigestSha256` instead.
+
+- All :ndn-cxx:`Face` constructors that accept ``shared_ptr<io_service>``.
+
+  Use versions that accept reference to ``io_service`` object.
+
+- ``Face::ioService`` method, use :ndn-cxx:`Face::getIoService` instead.
+
+- :ndn-cxx:`Interest` constructor that accepts name, individual selectors, and individual
+  guiders as constructor parameters.
+
+  Use ``Interest().setX(...).setY(...)`` or use the overload taking ``Selectors``
+
+- ``name::Component::toEscapedString`` method, use :ndn-cxx:`name::Component::toUri` instead.
+
+- ``SecPublicInfo::addPublicKey`` method, use :ndn-cxx:`SecPublicInfo::addKey` instead.
+
+- ``Tlv::ConentType`` constant (typo), use ``Tlv::ContentType`` instead.
+
+Removed:
+^^^^^^^^
+
+- support of ndnd-tlv (only NFD management protocol is supported now)
+
+- ``SecPublicInfoMemory`` and ``SecTpmMemory`` classes that were no longer used
+
+- Removing concept of periodic event from :ndn-cxx:`Scheduler`.
+
+  In applications, periodic events should be just re-scheduled within the callback for
+  single-shot events.
+
+
+
+ndn-cxx v0.1.0
+++++++++++++++
 
 Version 0.1.0 is the initial release of ndn-cxx, an NDN C++ library with eXperimental
 eXtensions.

@@ -388,6 +388,8 @@ the trusted certificate via property **signer**. The definition of
       }
     }
 
+.. _validator-conf-trust-anchors:
+
 Trust Anchors
 -------------
 
