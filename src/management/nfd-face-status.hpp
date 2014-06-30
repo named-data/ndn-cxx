@@ -28,6 +28,7 @@
 #include "../encoding/tlv-nfd.hpp"
 #include "../encoding/encoding-buffer.hpp"
 #include "../encoding/block-helpers.hpp"
+#include "../util/time.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -117,6 +118,27 @@ public: // getters & setters
     return *this;
   }
 
+  bool
+  hasExpirationPeriod() const
+  {
+    return m_hasExpirationPeriod;
+  }
+
+  const time::milliseconds&
+  getExpirationPeriod() const
+  {
+    BOOST_ASSERT(m_hasExpirationPeriod);
+    return m_expirationPeriod;
+  }
+
+  FaceStatus&
+  setExpirationPeriod(const time::milliseconds& expirationPeriod)
+  {
+    m_expirationPeriod = expirationPeriod;
+    m_hasExpirationPeriod = true;
+    return *this;
+  }
+
   uint64_t
   getFlags() const
   {
@@ -191,6 +213,8 @@ private:
   uint64_t m_faceId;
   std::string m_remoteUri;
   std::string m_localUri;
+  time::milliseconds m_expirationPeriod;
+  bool m_hasExpirationPeriod;
   uint64_t m_flags;
   uint64_t m_nInInterests;
   uint64_t m_nInDatas;
@@ -203,6 +227,7 @@ private:
 inline
 FaceStatus::FaceStatus()
   : m_faceId(0)
+  , m_hasExpirationPeriod(false)
   , m_flags(0)
   , m_nInInterests(0)
   , m_nInDatas(0)
@@ -227,6 +252,10 @@ FaceStatus::wireEncode(EncodingImpl<T>& encoder) const
                  tlv::nfd::NInInterests, m_nInInterests);
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::FaceFlags, m_flags);
+  if (m_hasExpirationPeriod) {
+    totalLength += prependNonNegativeIntegerBlock(encoder,
+                   tlv::nfd::ExpirationPeriod, m_expirationPeriod.count());
+  }
   totalLength += prependByteArrayBlock(encoder, tlv::nfd::LocalUri,
                  reinterpret_cast<const uint8_t*>(m_localUri.c_str()), m_localUri.size());
   totalLength += prependByteArrayBlock(encoder, tlv::nfd::Uri,
@@ -266,7 +295,7 @@ FaceStatus::wireDecode(const Block& block)
   Block::element_const_iterator val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceId) {
-    m_faceId = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_faceId = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -289,8 +318,18 @@ FaceStatus::wireDecode(const Block& block)
     throw Error("missing required LocalUri field");
   }
 
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::ExpirationPeriod) {
+    m_expirationPeriod = time::milliseconds(readNonNegativeInteger(*val));
+    m_hasExpirationPeriod = true;
+    ++val;
+  }
+  else {
+    m_hasExpirationPeriod = false;
+    // ExpirationPeriod is optional
+  }
+
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceFlags) {
-    m_flags = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_flags = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -298,7 +337,7 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInInterests) {
-    m_nInInterests = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_nInInterests = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -306,7 +345,7 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInDatas) {
-    m_nInDatas = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_nInDatas = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -314,7 +353,7 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutInterests) {
-    m_nOutInterests = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_nOutInterests = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -322,7 +361,7 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutDatas) {
-    m_nOutDatas = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_nOutDatas = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -336,8 +375,16 @@ operator<<(std::ostream& os, const FaceStatus& status)
   os << "FaceStatus("
      << "FaceID: " << status.getFaceId() << ", "
      << "RemoteUri: " << status.getRemoteUri() << ", "
-     << "LocalUri: " << status.getLocalUri() << ", "
-     << "Flags: " << status.getFlags() << ", "
+     << "LocalUri: " << status.getLocalUri() << ", ";
+
+  if (status.hasExpirationPeriod()) {
+    os << "ExpirationPeriod: " << status.getExpirationPeriod() << ", ";
+  }
+  else {
+    os << "ExpirationPeriod: infinite, ";
+  }
+
+  os << "Flags: " << status.getFlags() << ", "
      << "Counters: " << status.getNInInterests() << "|" << status.getNInDatas()
      << "|" << status.getNOutInterests() << "|" << status.getNOutDatas()
      << ")";
