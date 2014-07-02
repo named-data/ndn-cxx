@@ -458,9 +458,12 @@ public:
  */
 enum {
   // route origin
-  ROUTE_ORIGIN_APP    = 0,
-  ROUTE_ORIGIN_NLSR   = 128,
-  ROUTE_ORIGIN_STATIC = 255,
+  ROUTE_ORIGIN_APP      = 0,
+  ROUTE_ORIGIN_AUTOREG  = 64,
+  ROUTE_ORIGIN_CLIENT   = 65,
+  ROUTE_ORIGIN_AUTOCONF = 66,
+  ROUTE_ORIGIN_NLSR     = 128,
+  ROUTE_ORIGIN_STATIC   = 255,
 
   // route inheritance flags
   ROUTE_FLAG_CHILD_INHERIT = 1,
