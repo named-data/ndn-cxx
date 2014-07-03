@@ -21,10 +21,9 @@
  * Based on code originally written by Jeff Thompson <jefft0@remap.ucla.edu>
  */
 
-#include "common.hpp"
-
 #include "interest.hpp"
 #include "util/random.hpp"
+#include "util/crypto.hpp"
 #include "data.hpp"
 
 namespace ndn {
@@ -102,10 +101,69 @@ Interest::matchesName(const Name& name) const
 bool
 Interest::matchesData(const Data& data) const
 {
-  if (!this->matchesName(data.getFullName())) {
+  size_t interestNameLength = m_name.size();
+  const Name& dataName = data.getName();
+  size_t fullNameLength = dataName.size() + 1;
+
+  // check MinSuffixComponents
+  bool hasMinSuffixComponents = getMinSuffixComponents() >= 0;
+  size_t minSuffixComponents = hasMinSuffixComponents ?
+                               static_cast<size_t>(getMinSuffixComponents()) : 0;
+  if (!(interestNameLength + minSuffixComponents <= fullNameLength))
     return false;
+
+  // check MaxSuffixComponents
+  bool hasMaxSuffixComponents = getMaxSuffixComponents() >= 0;
+  if (hasMaxSuffixComponents &&
+      !(interestNameLength + getMaxSuffixComponents() >= fullNameLength))
+    return false;
+
+  // check prefix
+  if (interestNameLength == fullNameLength) {
+    bool mightEndWithDigest = (interestNameLength > 0) &&
+                              (m_name.get(-1).value_size() == crypto::SHA256_DIGEST_SIZE);
+    if (mightEndWithDigest) {
+      // Interest Name is same length as Data full Name, last component could match digest
+      if (!m_name.isPrefixOf(data.getFullName()))
+        return false;
+    }
+    else {
+      // Interest Name is same length as Data full Name, but last component isn't digest
+      // so there's no possibility of matching
+      return false;
+    }
+  }
+  else {
+    // Interest Name is a strict prefix of Data full Name
+    if (!m_name.isPrefixOf(dataName))
+      return false;
   }
 
+  // check Exclude
+  // Exclude won't be violated if Interest Name is same as Data full Name
+  if (!getExclude().empty() && fullNameLength > interestNameLength) {
+    if (interestNameLength == fullNameLength - 1) {
+      // component to exclude is the digest
+      if (getExclude().isExcluded(data.getFullName().get(interestNameLength)))
+        return false;
+      // There's opportunity to inspect the Exclude filter and determine whether
+      // the digest would make a difference.
+      // eg. "Exclude=<Any>AA" won't exclude any digest - fullName not needed
+      //     "Exclude=ZZ<Any>" excludes all digests - fullName not needed
+      //     "Exclude=<Any>80000000000000000000000000000000"
+      //         excludes half of the digests - fullName required
+      // But Interests that contain the exact Data Name before digest and also
+      // contain Exclude filter is too rare to optimize for, so we request
+      // fullName no mater what's in the Exclude filter.
+    }
+    else {
+      // component to exclude is not the digest
+      if (getExclude().isExcluded(dataName.get(interestNameLength)))
+        return false;
+    }
+  }
+
+  // check PublisherPublicKeyLocator
   const KeyLocator& publisherPublicKeyLocator = this->getPublisherPublicKeyLocator();
   if (!publisherPublicKeyLocator.empty()) {
     const Signature& signature = data.getSignature();
