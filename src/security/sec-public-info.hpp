@@ -318,7 +318,7 @@ public:
    * @param identityName The default identity name
    * @throws SecPublicInfo::Error if the identity does not exist
    */
-  inline void
+  void
   setDefaultIdentity(const Name& identityName);
 
   /**
@@ -327,7 +327,7 @@ public:
    * @param keyName The key name
    * @throws SecPublicInfo::Error if either the identity or key does not exist
    */
-  inline void
+  void
   setDefaultKeyNameForIdentity(const Name& keyName);
 
   /**
@@ -336,7 +336,7 @@ public:
    * @param certificateName The certificate name
    * @throws SecPublicInfo::Error if either the certificate or key does not exist
    */
-  inline void
+  void
   setDefaultCertificateNameForKey(const Name& certificateName);
 
   /**
@@ -346,7 +346,7 @@ public:
    * @param useKsk If true, generate a KSK name, otherwise a DSK name
    * @return The generated key name
    */
-  inline Name
+  Name
   getNewKeyName(const Name& identityName, bool useKsk);
 
   /**
@@ -356,7 +356,7 @@ public:
    * @return The default certificate name
    * @throws SecPublicInfo::Error if no certificate is found
    */
-  inline Name
+  Name
   getDefaultCertificateNameForIdentity(const Name& identityName);
 
   /**
@@ -365,7 +365,7 @@ public:
    * @return The requested certificate name
    * @throws SecPublicInfo::Error if no certificate is found
    */
-  inline Name
+  Name
   getDefaultCertificateName();
 
   /**
@@ -374,7 +374,7 @@ public:
    * @param certificate The certificate to be added
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
-  inline void
+  void
   addCertificateAsKeyDefault(const IdentityCertificate& certificate);
 
   /**
@@ -384,7 +384,7 @@ public:
    * @param certificate The certificate to be added
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
-  inline void
+  void
   addCertificateAsIdentityDefault(const IdentityCertificate& certificate);
 
   /**
@@ -394,21 +394,31 @@ public:
    * @param certificate The certificate to be added
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
-  inline void
+  void
   addCertificateAsSystemDefault(const IdentityCertificate& certificate);
 
   /**
    * @brief Get cached default certificate of the default identity
    *
    * @return The certificate which might be empty shared_ptr<IdentityCertificate>()
+   * @deprecated Use getDefaultCertificate instead
    */
-  inline shared_ptr<IdentityCertificate>
-  defaultCertificate();
+  DEPRECATED(
+  shared_ptr<IdentityCertificate>
+  defaultCertificate());
+
+  /**
+   * @brief Get cached default certificate of the default identity
+   *
+   * @return The certificate which might be empty shared_ptr<IdentityCertificate>()
+   */
+  shared_ptr<IdentityCertificate>
+  getDefaultCertificate();
 
   /**
    * @brief try to get the default certificate of the default identity from the public info
    */
-  inline void
+  void
   refreshDefaultCertificate();
 
 protected:
@@ -507,6 +517,12 @@ SecPublicInfo::addCertificateAsSystemDefault(const IdentityCertificate& certific
 
 inline shared_ptr<IdentityCertificate>
 SecPublicInfo::defaultCertificate()
+{
+  return getDefaultCertificate();
+}
+
+inline shared_ptr<IdentityCertificate>
+SecPublicInfo::getDefaultCertificate()
 {
   return m_defaultCertificate;
 }

@@ -450,7 +450,7 @@ KeyChain::setDefaultCertificateInternal()
 {
   m_pib->refreshDefaultCertificate();
 
-  if (!static_cast<bool>(m_pib->defaultCertificate()))
+  if (!static_cast<bool>(m_pib->getDefaultCertificate()))
     {
       Name defaultIdentity;
       try

@@ -508,7 +508,10 @@ public:
   shared_ptr<IdentityCertificate>
   getDefaultCertificate() const
   {
-    return m_pib->defaultCertificate();
+    if (!static_cast<bool>(m_pib->getDefaultCertificate()))
+      const_cast<KeyChain*>(this)->setDefaultCertificateInternal();
+
+    return m_pib->getDefaultCertificate();
   }
 
   void
@@ -731,10 +734,10 @@ template<typename T>
 void
 KeyChain::sign(T& packet)
 {
-  if (!static_cast<bool>(m_pib->defaultCertificate()))
+  if (!static_cast<bool>(m_pib->getDefaultCertificate()))
     setDefaultCertificateInternal();
 
-  sign(packet, *m_pib->defaultCertificate());
+  sign(packet, *m_pib->getDefaultCertificate());
 }
 
 template<typename T>
