@@ -191,6 +191,13 @@ ndnsec_cert_gen(int argc, char** argv)
                                                 signIdName, notBefore, notAfter,
                                                 subjectDescription, prefix);
 
+  if (!static_cast<bool>(certificate))
+    {
+      std::cerr << "ERROR: key name is not formated correctly or does not match certificate name."
+                << std::endl;
+      return 1;
+    }
+
   keyChain.createIdentity(signIdName);
   Name signingCertificateName = keyChain.getDefaultCertificateNameForIdentity(signIdName);
   keyChain.sign(*certificate, signingCertificateName);
