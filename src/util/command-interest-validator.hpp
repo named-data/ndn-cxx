@@ -30,6 +30,15 @@
 
 namespace ndn {
 
+/**
+ * @brief Helper class to validate CommandInterests
+ *
+ * @deprecated Use ValidatorConfig instead.
+ * See http://redmine.named-data.net/projects/ndn-cxx/wiki/CommandValidatorConf
+ * for more details about the configuration format of ValidatorConfig.
+ *
+ * @see http://redmine.named-data.net/projects/nfd/wiki/Command_Interests
+ */
 class CommandInterestValidator : public Validator
 {
 public:
