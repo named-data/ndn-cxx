@@ -121,16 +121,13 @@ Validator::onData(const Interest& interest,
 bool
 Validator::verifySignature(const Data& data, const PublicKey& key)
 {
-  shared_ptr<SignatureWithPublicKey> publicKeySig =
-    determineSignatureWithPublicKey(data.getSignature());
-
-  if (!static_cast<bool>(publicKeySig))
+  if (!data.getSignature().hasKeyLocator())
     return false;
 
   return verifySignature(data.wireEncode().value(),
                          data.wireEncode().value_size() -
                          data.getSignature().getValue().size(),
-                         *publicKeySig, key);
+                         data.getSignature(), key);
 }
 
 bool
@@ -148,14 +145,12 @@ Validator::verifySignature(const Interest& interest, const PublicKey& key)
       Signature sig(interestName[-2].blockFromValue(),
                     interestName[-1].blockFromValue());
 
-      shared_ptr<SignatureWithPublicKey> publicKeySig = determineSignatureWithPublicKey(sig);
-
-      if (!static_cast<bool>(publicKeySig))
+      if (!sig.hasKeyLocator())
         return false;
 
       return verifySignature(nameBlock.value(),
                              nameBlock.value_size() - interestName[-1].size(),
-                             *publicKeySig, key);
+                             sig, key);
     }
   catch (Block::Error& e)
     {
@@ -166,7 +161,7 @@ Validator::verifySignature(const Interest& interest, const PublicKey& key)
 bool
 Validator::verifySignature(const uint8_t* buf,
                            const size_t size,
-                           const SignatureWithPublicKey& sig,
+                           const Signature& sig,
                            const PublicKey& key)
 {
   try
@@ -284,28 +279,6 @@ Validator::verifySignature(const uint8_t* buf, const size_t size, const DigestSh
     {
       return false;
     }
-}
-
-shared_ptr<SignatureWithPublicKey>
-Validator::determineSignatureWithPublicKey(const Signature& signature)
-{
-  try {
-    switch (signature.getType())
-      {
-      case Tlv::SignatureSha256WithRsa:
-        return make_shared<SignatureSha256WithRsa>(signature);
-      case Tlv::SignatureSha256WithEcdsa:
-        return make_shared<SignatureSha256WithEcdsa>(signature);
-      default:
-        return shared_ptr<SignatureWithPublicKey>();
-      }
-  }
-  catch (Tlv::Error& e) {
-    return shared_ptr<SignatureWithPublicKey>();
-  }
-  catch (KeyLocator::Error& e) {
-    return shared_ptr<SignatureWithPublicKey>();
-  }
 }
 
 void

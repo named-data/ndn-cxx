@@ -304,18 +304,15 @@ ValidatorConfig::checkSignature(const Packet& packet,
                                   "Sha256 Signature cannot be verified!");
     }
 
-  shared_ptr<SignatureWithPublicKey> publicKeySig;
-
   try {
     switch (signature.getType()) {
     case Tlv::SignatureSha256WithRsa:
-      {
-        publicKeySig = make_shared<SignatureSha256WithRsa>(signature);
-        break;
-      }
     case Tlv::SignatureSha256WithEcdsa:
       {
-        publicKeySig = make_shared<SignatureSha256WithEcdsa>(signature);
+        if (!signature.hasKeyLocator()) {
+          return onValidationFailed(packet.shared_from_this(),
+                                    "Missing KeyLocator in SignatureInfo");
+        }
         break;
       }
     default:
@@ -332,8 +329,11 @@ ValidatorConfig::checkSignature(const Packet& packet,
                               "Cannot decode KeyLocator in public key signature");
   }
 
+  if (signature.getKeyLocator().getType() != KeyLocator::KeyLocator_Name) {
+    return onValidationFailed(packet.shared_from_this(), "Unsupported KeyLocator type");
+  }
 
-  Name keyLocatorName = publicKeySig->getKeyLocator().getName();
+  const Name& keyLocatorName = signature.getKeyLocator().getName();
 
   shared_ptr<const Certificate> trustedCert;
 
@@ -347,7 +347,7 @@ ValidatorConfig::checkSignature(const Packet& packet,
 
   if (static_cast<bool>(trustedCert))
     {
-      if (verifySignature(packet, *publicKeySig, trustedCert->getPublicKeyInfo()))
+      if (verifySignature(packet, signature, trustedCert->getPublicKeyInfo()))
         return onValidated(packet.shared_from_this());
       else
         return onValidationFailed(packet.shared_from_this(),
@@ -379,7 +379,7 @@ ValidatorConfig::checkSignature(const Packet& packet,
       return;
     }
 
-  return onValidationFailed(packet.shared_from_this(), "Unsupported Signature Type!");
+  return onValidationFailed(packet.shared_from_this(), "Unsupported Signature Type");
 }
 
 template<class Packet, class OnValidated, class OnFailed>

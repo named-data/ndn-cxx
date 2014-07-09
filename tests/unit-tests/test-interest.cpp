@@ -466,8 +466,7 @@ BOOST_AUTO_TEST_CASE(MatchesData)
           .setExclude(Exclude().excludeBefore(name::Component("C")));
 
   Data data("ndn:/A/D");
-  SignatureSha256WithRsa signature;
-  signature.setKeyLocator(KeyLocator("ndn:/B"));
+  SignatureSha256WithRsa signature(KeyLocator("ndn:/B"));
   data.setSignature(signature);
   data.wireEncode();
   BOOST_CHECK_EQUAL(interest.matchesData(data), true);
@@ -491,8 +490,7 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   interest.setMaxSuffixComponents(2);
 
   Data data3 = data;
-  SignatureSha256WithRsa signature3;
-  signature3.setKeyLocator(KeyLocator("ndn:/G")); // violates PublisherPublicKeyLocator
+  SignatureSha256WithRsa signature3(KeyLocator("ndn:/G")); // violates PublisherPublicKeyLocator
   data3.setSignature(signature3);
   data3.wireEncode();
   BOOST_CHECK_EQUAL(interest.matchesData(data3), false);

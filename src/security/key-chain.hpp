@@ -642,8 +642,9 @@ private:
    *
    * An empty pointer will be returned if there is no valid signature.
    */
-  shared_ptr<SignatureWithPublicKey>
-  determineSignatureWithPublicKey(KeyType keyType,
+  shared_ptr<Signature>
+  determineSignatureWithPublicKey(const KeyLocator& keyLocator,
+                                  KeyType keyType,
                                   DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256);
 
   /**
@@ -773,14 +774,13 @@ template<typename T>
 void
 KeyChain::sign(T& packet, const IdentityCertificate& certificate)
 {
+  KeyLocator keyLocator(certificate.getName().getPrefix(-1));
 
-  shared_ptr<SignatureWithPublicKey> signature =
-    determineSignatureWithPublicKey(certificate.getPublicKeyInfo().getKeyType());
+  shared_ptr<Signature> signature =
+    determineSignatureWithPublicKey(keyLocator, certificate.getPublicKeyInfo().getKeyType());
 
   if (!static_cast<bool>(signature))
     throw SecPublicInfo::Error("unknown key type!");
-
-  signature->setKeyLocator(certificate.getName().getPrefix(-1));
 
   signPacketWrapper(packet, *signature,
                     certificate.getPublicKeyName(),

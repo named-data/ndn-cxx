@@ -59,8 +59,14 @@ SecRuleRelative::satisfy(const Data& data)
   Name dataName = data.getName();
   try
     {
-      SignatureWithPublicKey sig(data.getSignature());
-      Name signerName = sig.getKeyLocator().getName();
+      if (!data.getSignature().hasKeyLocator())
+        return false;
+
+      const KeyLocator& keyLocator = data.getSignature().getKeyLocator();
+      if (keyLocator.getType() != KeyLocator::KeyLocator_Name)
+        return false;
+
+      const Name& signerName = keyLocator.getName();
       return satisfy(dataName, signerName);
     }
   catch (Tlv::Error& e)
@@ -104,8 +110,14 @@ SecRuleRelative::matchSignerName(const Data& data)
 {
   try
     {
-      SignatureWithPublicKey sig(data.getSignature());
-      Name signerName = sig.getKeyLocator().getName();
+      if (!data.getSignature().hasKeyLocator())
+        return false;
+
+      const KeyLocator& keyLocator = data.getSignature().getKeyLocator();
+      if (keyLocator.getType() != KeyLocator::KeyLocator_Name)
+        return false;
+
+      const Name& signerName = keyLocator.getName();
       return m_signerNameRegex.match(signerName);
     }
   catch (Tlv::Error& e)

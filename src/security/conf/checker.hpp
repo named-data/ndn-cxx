@@ -166,20 +166,17 @@ private:
     if (signature.getType() == Tlv::DigestSha256)
       return 0;
 
-    shared_ptr<SignatureWithPublicKey> publicKeySig;
-
     try
       {
         switch (signature.getType())
           {
           case Tlv::SignatureSha256WithRsa:
-            {
-              publicKeySig = make_shared<SignatureSha256WithRsa>(signature);
-              break;
-            }
           case Tlv::SignatureSha256WithEcdsa:
             {
-              publicKeySig = make_shared<SignatureSha256WithEcdsa>(signature);
+              if (!signature.hasKeyLocator()) {
+                onValidationFailed(packet.shared_from_this(),
+                                   "Missing KeyLocator in SignatureInfo");
+              }
               break;
             }
           default:
@@ -205,7 +202,7 @@ private:
       }
 
     std::string failInfo;
-    if (m_keyLocatorChecker->check(packet, publicKeySig->getKeyLocator(), failInfo))
+    if (m_keyLocatorChecker->check(packet, signature.getKeyLocator(), failInfo))
       return 0;
     else
       {
@@ -308,20 +305,17 @@ private:
         return -1;
       }
 
-    shared_ptr<SignatureWithPublicKey> publicKeySig;
-
     try
       {
         switch (signature.getType())
           {
           case Tlv::SignatureSha256WithRsa:
-            {
-              publicKeySig = make_shared<SignatureSha256WithRsa>(signature);
-              break;
-            }
           case Tlv::SignatureSha256WithEcdsa:
             {
-              publicKeySig = make_shared<SignatureSha256WithEcdsa>(signature);
+              if (!signature.hasKeyLocator()) {
+                onValidationFailed(packet.shared_from_this(),
+                                   "Missing KeyLocator in SignatureInfo");
+              }
               break;
             }
           default:
@@ -333,7 +327,7 @@ private:
             }
           }
 
-        const Name& keyLocatorName = publicKeySig->getKeyLocator().getName();
+        const Name& keyLocatorName = signature.getKeyLocator().getName();
 
         if (m_signers.find(keyLocatorName) == m_signers.end())
           {
@@ -343,7 +337,7 @@ private:
             return -1;
           }
 
-        if (Validator::verifySignature(packet, *publicKeySig,
+        if (Validator::verifySignature(packet, signature,
                                        m_signers[keyLocatorName]->getPublicKeyInfo()))
           {
             onValidated(packet.shared_from_this());

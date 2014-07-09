@@ -490,9 +490,11 @@ ValidatorConfig::checkPolicy(const Interest& interest,
       Signature signature(interestName[signed_interest::POS_SIG_INFO].blockFromValue(),
                           interestName[signed_interest::POS_SIG_VALUE].blockFromValue());
 
-      SignatureWithPublicKey publicKeySig(signature);
+      if (!signature.hasKeyLocator())
+        return onValidationFailed(interest.shared_from_this(),
+                                  "No valid KeyLocator");
 
-      const KeyLocator& keyLocator = publicKeySig.getKeyLocator();
+      const KeyLocator& keyLocator = signature.getKeyLocator();
 
       if (keyLocator.getType() != KeyLocator::KeyLocator_Name)
         return onValidationFailed(interest.shared_from_this(),
@@ -523,7 +525,7 @@ ValidatorConfig::checkPolicy(const Interest& interest,
       if (checkResult == 0)
         {
           checkSignature<Interest, OnInterestValidated, OnInterestValidationFailed>
-            (interest, publicKeySig, nSteps,
+            (interest, signature, nSteps,
              bind(&ValidatorConfig::checkTimestamp, this, _1,
                   keyName, onValidated, onValidationFailed),
              onValidationFailed,

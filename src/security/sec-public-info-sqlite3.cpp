@@ -481,29 +481,14 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
     {
       // this will throw an exception if the signature is not the standard one
       // or there is no key locator present
-      switch (certificate.getSignature().getType())
-        {
-        case Tlv::SignatureSha256WithRsa:
-          {
-            SignatureSha256WithRsa signature(certificate.getSignature());
-            std::string signerName = signature.getKeyLocator().getName().toUri();
-
-            sqlite3_bind_text(statement, 2, signerName, SQLITE_STATIC);
-            break;
-          }
-        case Tlv::SignatureSha256WithEcdsa:
-          {
-            SignatureSha256WithEcdsa signature(certificate.getSignature());
-            std::string signerName = signature.getKeyLocator().getName().toUri();
-
-            sqlite3_bind_text(statement, 2, signerName, SQLITE_STATIC);
-            break;
-          }
-        default:
-          return;
-        }
+      std::string signerName = certificate.getSignature().getKeyLocator().getName().toUri();
+      sqlite3_bind_text(statement, 2, signerName, SQLITE_STATIC);
     }
-  catch (std::runtime_error& e)
+  catch (Tlv::Error& e)
+    {
+      return;
+    }
+  catch (KeyLocator::Error& e)
     {
       return;
     }

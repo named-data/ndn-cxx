@@ -107,7 +107,7 @@ public:
 
   /// @brief Verify the blob using the publicKey against the signature.
   static bool
-  verifySignature(const Buffer& blob, const SignatureWithPublicKey& sig, const PublicKey& publicKey)
+  verifySignature(const Buffer& blob, const Signature& sig, const PublicKey& publicKey)
   {
     return verifySignature(blob.buf(), blob.size(), sig, publicKey);
   }
@@ -115,7 +115,7 @@ public:
   /// @brief Verify the data using the publicKey against the SHA256-RSA signature.
   static bool
   verifySignature(const Data& data,
-                  const SignatureWithPublicKey& sig,
+                  const Signature& sig,
                   const PublicKey& publicKey)
   {
     return verifySignature(data.wireEncode().value(),
@@ -129,7 +129,7 @@ public:
    */
   static bool
   verifySignature(const Interest& interest,
-                  const SignatureWithPublicKey& sig,
+                  const Signature& sig,
                   const PublicKey& publicKey)
   {
     if (interest.getName().size() < 2)
@@ -146,7 +146,7 @@ public:
   static bool
   verifySignature(const uint8_t* buf,
                   const size_t size,
-                  const SignatureWithPublicKey& sig,
+                  const Signature& sig,
                   const PublicKey& publicKey);
 
 
@@ -247,9 +247,6 @@ protected:
            const OnInterestValidated& onValidated,
            const OnInterestValidationFailed& onValidationFailed,
            int nSteps);
-
-  static shared_ptr<SignatureWithPublicKey>
-  determineSignatureWithPublicKey(const Signature& signature);
 
   /// Hooks
 

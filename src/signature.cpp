@@ -19,36 +19,27 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
-#define NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
-
-#include "../signature.hpp"
+#include "signature.hpp"
 
 namespace ndn {
 
-/**
- * Represent a SHA256-with-RSA signature.
- */
-class SignatureSha256WithRsa : public Signature
+Signature::Signature(const Block& info, const Block& value)
+  : m_info(info)
+  , m_value(value)
 {
-public:
-  class Error : public Signature::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : Signature::Error(what)
-    {
-    }
-  };
+}
 
-  explicit
-  SignatureSha256WithRsa(const KeyLocator& keyLocator = KeyLocator());
 
-  explicit
-  SignatureSha256WithRsa(const Signature& signature);
-};
+Signature::Signature(const SignatureInfo& info, const Block& value)
+  : m_info(info)
+  , m_value(value)
+{
+}
+
+void
+Signature::setInfo(const Block& info)
+{
+  m_info = SignatureInfo(info);
+}
 
 } // namespace ndn
-
-#endif //NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP

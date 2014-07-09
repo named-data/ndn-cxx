@@ -297,13 +297,14 @@ KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certifica
 {
   shared_ptr<IdentityCertificate> certificate = m_pib->getCertificate(certificateName);
 
-  shared_ptr<SignatureWithPublicKey> sig =
-    determineSignatureWithPublicKey(certificate->getPublicKeyInfo().getKeyType());
+  KeyLocator keyLocator(certificate->getName().getPrefix(-1));
+  shared_ptr<Signature> sig =
+    determineSignatureWithPublicKey(keyLocator, certificate->getPublicKeyInfo().getKeyType());
 
   if (!static_cast<bool>(sig))
     throw SecTpm::Error("unknown key type");
 
-  sig->setKeyLocator(certificate->getName().getPrefix(-1));
+
   // For temporary usage, we support SHA256 only, but will support more.
   sig->setValue(m_tpm->signInTpm(buffer, bufferLength,
                                  certificate->getPublicKeyName(),
@@ -349,13 +350,14 @@ KeyChain::selfSign(IdentityCertificate& cert)
   if (!m_tpm->doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
     throw SecTpm::Error("Private key does not exist");
 
-  shared_ptr<SignatureWithPublicKey> sig =
-    determineSignatureWithPublicKey(cert.getPublicKeyInfo().getKeyType());
+
+  KeyLocator keyLocator(cert.getName().getPrefix(-1));
+  shared_ptr<Signature> sig =
+    determineSignatureWithPublicKey(keyLocator, cert.getPublicKeyInfo().getKeyType());
 
   if (!static_cast<bool>(sig))
     throw SecTpm::Error("unknown key type");
 
-  sig->setKeyLocator(cert.getName().getPrefix(-1)); // implicit conversion should take care
   signPacketWrapper(cert, *sig, keyName, DIGEST_ALGORITHM_SHA256);
 }
 
@@ -419,8 +421,9 @@ KeyChain::importIdentity(const SecuredBag& securedBag, const std::string& passwo
   m_pib->addCertificateAsIdentityDefault(securedBag.getCertificate());
 }
 
-shared_ptr<SignatureWithPublicKey>
-KeyChain::determineSignatureWithPublicKey(KeyType keyType, DigestAlgorithm digestAlgorithm)
+shared_ptr<Signature>
+KeyChain::determineSignatureWithPublicKey(const KeyLocator& keyLocator,
+                                          KeyType keyType, DigestAlgorithm digestAlgorithm)
 {
   switch (keyType)
     {
@@ -428,20 +431,20 @@ KeyChain::determineSignatureWithPublicKey(KeyType keyType, DigestAlgorithm diges
       {
         // For temporary usage, we support SHA256 only, but will support more.
         if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
-          return shared_ptr<SignatureWithPublicKey>();
+          return shared_ptr<Signature>();
 
-        return make_shared<SignatureSha256WithRsa>();
+        return make_shared<SignatureSha256WithRsa>(keyLocator);
       }
     case KEY_TYPE_ECDSA:
       {
         // For temporary usage, we support SHA256 only, but will support more.
         if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
-          return shared_ptr<SignatureWithPublicKey>();
+          return shared_ptr<Signature>();
 
-        return make_shared<SignatureSha256WithEcdsa>();
+        return make_shared<SignatureSha256WithEcdsa>(keyLocator);
       }
     default:
-      return shared_ptr<SignatureWithPublicKey>();
+      return shared_ptr<Signature>();
     }
 }
 

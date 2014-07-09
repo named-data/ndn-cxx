@@ -26,26 +26,25 @@
 
 #include "boost-test.hpp"
 
-using namespace std;
 namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(SecurityTestDigestSha256)
 
-string SHA256_RESULT("a883dafc480d466ee04e0d6da986bd78eb1fdd2178d04693723da3a8f95d42f4");
+std::string SHA256_RESULT("a883dafc480d466ee04e0d6da986bd78eb1fdd2178d04693723da3a8f95d42f4");
 
-BOOST_AUTO_TEST_CASE (Sha256)
+BOOST_AUTO_TEST_CASE(Sha256)
 {
   using namespace CryptoPP;
 
   char content[6] = "1234\n";
   ConstBufferPtr buf = crypto::sha256(reinterpret_cast<uint8_t*>(content), 5);
-  string result;
+  std::string result;
   StringSource(buf->buf(), buf->size(), true, new HexEncoder(new StringSink(result), false));
 
-  BOOST_REQUIRE_EQUAL(SHA256_RESULT, result);
+  BOOST_CHECK_EQUAL(SHA256_RESULT, result);
 }
 
-BOOST_AUTO_TEST_CASE (Signature)
+BOOST_AUTO_TEST_CASE(Signature)
 {
   using namespace CryptoPP;
 
@@ -63,7 +62,9 @@ BOOST_AUTO_TEST_CASE (Signature)
 
   DigestSha256 sig(testData.getSignature());
 
-  BOOST_REQUIRE(Validator::verifySignature(testData, sig));
+  BOOST_CHECK(Validator::verifySignature(testData, sig));
+
+  BOOST_CHECK_THROW(sig.getKeyLocator(), ndn::SignatureInfo::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

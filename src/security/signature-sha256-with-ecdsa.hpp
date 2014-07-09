@@ -22,38 +22,32 @@
 #ifndef NDN_SECURITY_SIGNATURE_SHA256_WITH_ECDSA_HPP
 #define NDN_SECURITY_SIGNATURE_SHA256_WITH_ECDSA_HPP
 
-#include "signature-with-public-key.hpp"
+#include "../signature.hpp"
 
 namespace ndn {
 
 /**
  * represents a Sha256WithEcdsa signature.
  */
-class SignatureSha256WithEcdsa : public SignatureWithPublicKey
+class SignatureSha256WithEcdsa : public Signature
 {
 public:
-  class Error : public SignatureWithPublicKey::Error
+  class Error : public Signature::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : SignatureWithPublicKey::Error(what)
+      : Signature::Error(what)
     {
     }
   };
 
-  SignatureSha256WithEcdsa()
-    : SignatureWithPublicKey(Tlv::SignatureSha256WithEcdsa)
-  {
-  }
+  explicit
+  SignatureSha256WithEcdsa(const KeyLocator& keyLocator = KeyLocator());
 
   explicit
-  SignatureSha256WithEcdsa(const Signature& signature)
-    : SignatureWithPublicKey(signature)
-  {
-    if (getType() != Tlv::SignatureSha256WithEcdsa)
-      throw Error("Incorrect signature type");
-  }
+  SignatureSha256WithEcdsa(const Signature& signature);
+
 };
 
 } // namespace ndn

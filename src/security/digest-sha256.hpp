@@ -43,21 +43,11 @@ public:
     }
   };
 
-  DigestSha256()
-  {
-    m_info = Block(Tlv::SignatureInfo);
-
-    m_type = Tlv::DigestSha256;
-    m_info.push_back(nonNegativeIntegerBlock(Tlv::SignatureType, Tlv::DigestSha256));
-  }
+  DigestSha256();
 
   explicit
-  DigestSha256(const Signature& signature)
-    : Signature(signature)
-  {
-    if (getType() != Tlv::DigestSha256)
-      throw Error("Incorrect signature type");
-  }
+  DigestSha256(const Signature& signature);
+
 };
 
 } // namespace ndn

@@ -57,17 +57,18 @@ BOOST_AUTO_TEST_CASE(Decoding)
   Block sigValueBlock(sigValue, sizeof(sigValue));
 
   Signature sig(sigInfoBlock, sigValueBlock);
-  BOOST_REQUIRE_NO_THROW(SignatureSha256WithEcdsa(sig));
+  BOOST_CHECK_NO_THROW(SignatureSha256WithEcdsa(sig));
+  BOOST_CHECK_NO_THROW(sig.getKeyLocator());
 }
 
 BOOST_AUTO_TEST_CASE(Encoding)
 {
-  SignatureSha256WithEcdsa sig;
-
   Name name("/test/key/locator");
   KeyLocator keyLocator(name);
 
-  sig.setKeyLocator(keyLocator);
+  SignatureSha256WithEcdsa sig(keyLocator);
+
+  BOOST_CHECK_NO_THROW(sig.getKeyLocator());
 
   const Block& encodeSigInfoBlock = sig.getInfo();
 

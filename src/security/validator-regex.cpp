@@ -108,9 +108,19 @@ ValidatorRegex::checkPolicy(const Data& data,
         {
           try
             {
-              SignatureWithPublicKey sig(data.getSignature());
+              if (!data.getSignature().hasKeyLocator())
+                return onValidationFailed(data.shared_from_this(),
+                                          "Key Locator is missing in Data packet: " +
+                                          data.getName().toUri());
 
-              Name keyLocatorName = sig.getKeyLocator().getName();
+              const KeyLocator& keyLocator = data.getSignature().getKeyLocator();
+              if (keyLocator.getType() != KeyLocator::KeyLocator_Name)
+                return onValidationFailed(data.shared_from_this(),
+                                          "Key Locator is not a name: " +
+                                          data.getName().toUri());
+
+
+              const Name& keyLocatorName = keyLocator.getName();
               shared_ptr<const Certificate> trustedCert;
               if (m_trustAnchors.end() == m_trustAnchors.find(keyLocatorName))
                 trustedCert = m_certificateCache->getCertificate(keyLocatorName);
@@ -119,7 +129,7 @@ ValidatorRegex::checkPolicy(const Data& data,
 
               if (static_cast<bool>(trustedCert))
                 {
-                  if (verifySignature(data, sig, trustedCert->getPublicKeyInfo()))
+                  if (verifySignature(data, data.getSignature(), trustedCert->getPublicKeyInfo()))
                     return onValidated(data.shared_from_this());
                   else
                     return onValidationFailed(data.shared_from_this(),
@@ -138,7 +148,7 @@ ValidatorRegex::checkPolicy(const Data& data,
                     bind(&ValidatorRegex::onCertificateValidationFailed, this, _1, _2,
                          data.shared_from_this(), onValidationFailed);
 
-                  Interest interest(sig.getKeyLocator().getName());
+                  Interest interest(keyLocatorName);
                   shared_ptr<ValidationRequest> nextStep =
                     make_shared<ValidationRequest>(interest,
                                                    onKeyValidated,
@@ -150,12 +160,6 @@ ValidatorRegex::checkPolicy(const Data& data,
 
                   return;
                 }
-            }
-          catch (SignatureWithPublicKey::Error& e)
-            {
-              return onValidationFailed(data.shared_from_this(),
-                                        "Require sub-class of SignatureWithPublicKey: " +
-                                        data.getName().toUri());
             }
           catch (Tlv::Error& e)
             {

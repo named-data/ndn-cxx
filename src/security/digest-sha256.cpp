@@ -19,36 +19,20 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
-#define NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP
-
-#include "../signature.hpp"
+#include "digest-sha256.hpp"
 
 namespace ndn {
 
-/**
- * Represent a SHA256-with-RSA signature.
- */
-class SignatureSha256WithRsa : public Signature
+DigestSha256::DigestSha256()
+  : Signature(SignatureInfo(Tlv::DigestSha256))
 {
-public:
-  class Error : public Signature::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : Signature::Error(what)
-    {
-    }
-  };
+}
 
-  explicit
-  SignatureSha256WithRsa(const KeyLocator& keyLocator = KeyLocator());
-
-  explicit
-  SignatureSha256WithRsa(const Signature& signature);
-};
+DigestSha256::DigestSha256(const Signature& signature)
+  : Signature(signature)
+{
+  if (getType() != Tlv::DigestSha256)
+    throw Error("Incorrect signature type");
+}
 
 } // namespace ndn
-
-#endif //NDN_SECURITY_SIGNATURE_SHA256_WITH_RSA_HPP

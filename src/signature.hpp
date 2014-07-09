@@ -22,7 +22,7 @@
 #ifndef NDN_SIGNATURE_HPP
 #define NDN_SIGNATURE_HPP
 
-#include "encoding/tlv.hpp"
+#include "signature-info.hpp"
 
 namespace ndn {
 
@@ -50,49 +50,40 @@ public:
   };
 
   Signature()
-    : m_type(-1)
   {
   }
 
   explicit
-  Signature(const Block& info, const Block& value = Block())
-    : m_value(value)
-  {
-    setInfo(info);
-  }
+  Signature(const Block& info, const Block& value = Block());
+
+  explicit
+  Signature(const SignatureInfo& info, const Block& value = Block());
 
   operator bool() const
   {
-    return m_type != -1;
+    return m_info.getSignatureType() != -1;
   }
 
-  uint32_t
-  getType() const
-  {
-    return m_type;
-  }
-
+  /// @brief Get SignatureInfo in the wire format
   const Block&
   getInfo() const
   {
-    m_info.encode(); // will do nothing if wire already exists
-    return m_info;
+    return m_info.wireEncode(); // will do nothing if wire already exists
   }
 
+  /**
+   * @brief Set SignatureInfo from a block
+   *
+   * @throws Tlv::Error if supplied block is not formatted correctly
+   */
   void
-  setInfo(const Block& info)
+  setInfo(const Block& info);
+
+  /// @brief Set SignatureInfo
+  void
+  setInfo(const SignatureInfo& info)
   {
     m_info = info;
-    if (m_info.hasWire() || m_info.hasValue())
-      {
-        m_info.parse();
-        const Block& signatureType = m_info.get(Tlv::SignatureType);
-        m_type = readNonNegativeInteger(signatureType);
-      }
-    else
-      {
-        m_type = -1;
-      }
   }
 
   const Block&
@@ -108,13 +99,29 @@ public:
     m_value = value;
   }
 
-  void
-  reset()
+  uint32_t
+  getType() const
   {
-    m_type = -1;
-    m_info.reset();
-    m_value.reset();
+    return m_info.getSignatureType();
   }
+
+  bool
+  hasKeyLocator() const
+  {
+    return m_info.hasKeyLocator();
+  }
+
+  /**
+   * @brief Get KeyLocator
+   *
+   * @throws Signature::Error if keyLocator does not exist
+   */
+  const KeyLocator&
+  getKeyLocator() const
+  {
+    return m_info.getKeyLocator();
+  }
+
 
 public: // EqualityComparable concept
   bool
@@ -131,9 +138,7 @@ public: // EqualityComparable concept
   }
 
 protected:
-  int32_t m_type;
-
-  mutable Block m_info;
+  SignatureInfo m_info;
   mutable Block m_value;
 };
 
