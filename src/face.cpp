@@ -338,10 +338,12 @@ Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::ze
   catch (Face::ProcessEventsTimeout&)
     {
       // break
+      m_impl->m_ioServiceWork.reset();
       m_ioService->reset();
     }
   catch (std::exception&)
     {
+      m_impl->m_ioServiceWork.reset();
       m_ioService->reset();
       m_impl->m_pendingInterestTable.clear();
       m_impl->m_registeredPrefixTable.clear();
@@ -367,6 +369,8 @@ Face::asyncShutdown()
   m_impl->m_pitTimeoutCheckTimer->cancel();
   m_impl->m_processEventsTimeoutTimer->cancel();
   m_impl->m_pitTimeoutCheckTimerActive = false;
+
+  m_impl->m_ioServiceWork.reset();
 }
 
 void
