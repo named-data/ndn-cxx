@@ -142,10 +142,6 @@ Face::construct(const shared_ptr<Transport>& transport,
 const PendingInterestId*
 Face::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)
 {
-  if (!m_transport->isConnected())
-    m_transport->connect(*m_ioService,
-                        bind(&Face::onReceiveElement, this, _1));
-
   shared_ptr<Interest> interestToExpress = make_shared<Interest>(interest);
 
   // If the same ioService thread, dispatch directly calls the method
