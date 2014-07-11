@@ -334,6 +334,17 @@ public:
   Interest&
   setNonce(uint32_t nonce);
 
+  /**
+   * @brief Refresh nonce
+   *
+   * Refresh guarantees that new nonce value is different from the existing one.
+   *
+   * If nonce is already set, it will be updated to a different random value.
+   * If nonce is not set, this method will do nothing.
+   */
+  void
+  refreshNonce();
+
   //
 
   nfd::LocalControlHeader&

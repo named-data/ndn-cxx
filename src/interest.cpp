@@ -58,6 +58,20 @@ Interest::setNonce(uint32_t nonce)
   return *this;
 }
 
+void
+Interest::refreshNonce()
+{
+  if (!hasNonce())
+    return;
+
+  uint32_t oldNonce = getNonce();
+  uint32_t newNonce = oldNonce;
+  while (newNonce == oldNonce)
+    newNonce = random::generateWord32();
+
+  setNonce(newNonce);
+}
+
 bool
 Interest::matchesName(const Name& name) const
 {

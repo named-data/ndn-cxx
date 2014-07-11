@@ -351,6 +351,11 @@ BOOST_AUTO_TEST_CASE(Encode)
                     "ndn.ChildSelector=1&ndn.Scope=1&"
                     "ndn.InterestLifetime=1000&"
                     "ndn.Nonce=2&ndn.Exclude=alex,xxxx,*,yyyy");
+
+  i.refreshNonce();
+  BOOST_CHECK_EQUAL(i.hasWire(), true);
+  BOOST_CHECK_EQUAL(originalWire, i.wireEncode().wire());
+  BOOST_CHECK_NE(i.getNonce(), 2);
 }
 
 BOOST_AUTO_TEST_CASE(EncodeWithLocalHeader)
