@@ -91,11 +91,7 @@ public:
     if (error) // e.g., cancelled timer
       return;
 
-    m_connectionInProgress = false;
-    m_transport.m_isConnected = false;
-    m_transport.m_isExpectingData = false;
-    m_socket.cancel();
-    m_socket.close();
+    m_transport.close();
     throw Transport::Error(error, "error while connecting to the forwarder");
   }
 
@@ -119,6 +115,8 @@ public:
   void
   close()
   {
+    m_connectionInProgress = false;
+
     boost::system::error_code error; // to silently ignore all errors
     m_connectTimer.cancel(error);
     m_socket.cancel(error);
@@ -213,11 +211,7 @@ public:
           return;
         }
 
-        boost::system::error_code error; // to silently ignore all errors
-        m_socket.cancel(error);
-        m_socket.close(error); // closing at this point may not be that necessary
-        m_transport.m_isConnected = true;
-        m_transport.m_isExpectingData = false;
+        m_transport.close();
         throw Transport::Error(error, "error while receiving data from socket");
       }
 
@@ -228,12 +222,7 @@ public:
     bool ok = processAll(m_inputBuffer, offset, m_inputBufferSize);
     if (!ok && m_inputBufferSize == MAX_LENGTH && offset == 0)
       {
-        // very bad... should close connection
-        boost::system::error_code error; // to silently ignore all errors
-        m_socket.cancel(error);
-        m_socket.close(error);
-        m_transport.m_isConnected = false;
-        m_transport.m_isExpectingData = false;
+        m_transport.close();
         throw Transport::Error(boost::system::error_code(),
                                "input buffer full, but a valid TLV cannot be decoded");
       }
@@ -314,10 +303,7 @@ public:
     typename protocol::resolver::iterator end;
     if (endpoint == end)
       {
-        this->m_connectionInProgress = false;
-        this->m_transport.m_isConnected = false;
-        this->m_transport.m_isExpectingData = false;
-        this->m_socket.close();
+        this->m_transport.close();
         throw Transport::Error(error, "Unable to resolve because host or port");
       }
 

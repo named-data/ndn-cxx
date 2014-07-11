@@ -66,6 +66,7 @@ void
 TcpTransport::close()
 {
   m_impl->close();
+  m_impl.reset();
 }
 
 void

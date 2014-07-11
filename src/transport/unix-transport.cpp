@@ -111,6 +111,7 @@ UnixTransport::close()
 {
   BOOST_ASSERT(static_cast<bool>(m_impl));
   m_impl->close();
+  m_impl.reset();
 }
 
 void
