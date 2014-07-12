@@ -151,6 +151,13 @@ Scheduler::cancelEvent(const EventId& eventId)
 }
 
 void
+Scheduler::cancelAllEvents()
+{
+  m_events.clear();
+  m_deadlineTimer.cancel();
+}
+
+void
 Scheduler::onEvent(const boost::system::error_code& error)
 {
   if (error) // e.g., cancelled

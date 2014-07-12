@@ -217,6 +217,58 @@ BOOST_FIXTURE_TEST_CASE(Reschedule3, SelfRescheduleFixture)
 }
 
 
+struct CancelAllFixture
+{
+  CancelAllFixture()
+    : m_scheduler(m_io)
+    , m_count(0)
+  {
+  }
+
+  void
+  cancelAll()
+  {
+    m_scheduler.cancelAllEvents();
+  }
+
+  void
+  event()
+  {
+    ++m_count;
+
+    m_scheduler.scheduleEvent(time::seconds(1),
+                              bind(&CancelAllFixture::event, this));
+  }
+
+  void
+  abort()
+  {
+    m_io.stop();
+  }
+
+  boost::asio::io_service m_io;
+  Scheduler m_scheduler;
+  uint32_t m_count;
+};
+
+
+BOOST_FIXTURE_TEST_CASE(CancelAll, CancelAllFixture)
+{
+  m_scheduler.scheduleEvent(time::milliseconds(500),
+                            bind(&CancelAllFixture::cancelAll, this));
+
+  m_scheduler.scheduleEvent(time::seconds(1),
+                            bind(&CancelAllFixture::event, this));
+
+  m_scheduler.scheduleEvent(time::seconds(3),
+                            bind(&CancelAllFixture::abort, this));
+
+  BOOST_REQUIRE_NO_THROW(m_io.run());
+
+  BOOST_CHECK_EQUAL(m_count, 0);
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace ndn

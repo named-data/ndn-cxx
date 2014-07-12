@@ -58,6 +58,12 @@ public:
   void
   cancelEvent(const EventId& eventId);
 
+  /**
+   * \brief Cancel all scheduled events
+   */
+  void
+  cancelAllEvents();
+
 private:
   void
   onEvent(const boost::system::error_code& code);
