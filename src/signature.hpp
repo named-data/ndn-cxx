@@ -130,6 +130,18 @@ public:
     m_info.setKeyLocator(keyLocator);
   }
 
+  /**
+   * @brief Unset KeyLocator
+   *
+   * Note that specific signature types may provide advisory (non-virtual) override
+   * to prevent unsetting KeyLocator if it is required by the specification.
+   */
+  void
+  unsetKeyLocator()
+  {
+    m_info.unsetKeyLocator();
+  }
+
 public: // EqualityComparable concept
   bool
   operator==(const Signature& other) const

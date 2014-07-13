@@ -39,4 +39,10 @@ SignatureSha256WithRsa::SignatureSha256WithRsa(const Signature& signature)
   }
 }
 
+void
+SignatureSha256WithRsa::unsetKeyLocator()
+{
+  throw Error("KeyLocator cannot be reset for SignatureSha256WithRsa");
+}
+
 } // namespace ndn

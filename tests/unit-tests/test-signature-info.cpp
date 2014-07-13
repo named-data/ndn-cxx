@@ -148,6 +148,10 @@ BOOST_AUTO_TEST_CASE(SetterGetter)
                                 sigInfoBlock.wire() + sigInfoBlock.size(),
                                 encoded.wire(),
                                 encoded.wire() + encoded.size());
+
+  info.unsetKeyLocator();
+  BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
+  BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
 }
 
 BOOST_AUTO_TEST_CASE(OtherTlvs)

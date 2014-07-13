@@ -78,6 +78,10 @@ public:
   void
   setKeyLocator(const KeyLocator& keyLocator);
 
+  /// @brief Unset KeyLocator
+  void
+  unsetKeyLocator();
+
   /**
    * @brief Get KeyLocator
    *

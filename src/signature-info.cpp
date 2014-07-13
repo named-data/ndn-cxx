@@ -63,6 +63,14 @@ SignatureInfo::setKeyLocator(const KeyLocator& keyLocator)
   m_hasKeyLocator = true;
 }
 
+void
+SignatureInfo::unsetKeyLocator()
+{
+  m_wire.reset();
+  m_keyLocator = KeyLocator();
+  m_hasKeyLocator = false;
+}
+
 const KeyLocator&
 SignatureInfo::getKeyLocator() const
 {

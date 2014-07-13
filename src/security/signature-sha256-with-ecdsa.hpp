@@ -48,6 +48,9 @@ public:
   explicit
   SignatureSha256WithEcdsa(const Signature& signature);
 
+private:
+  void
+  unsetKeyLocator();
 };
 
 } // namespace ndn

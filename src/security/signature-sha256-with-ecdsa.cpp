@@ -39,4 +39,10 @@ SignatureSha256WithEcdsa::SignatureSha256WithEcdsa(const Signature& signature)
   }
 }
 
+void
+SignatureSha256WithEcdsa::unsetKeyLocator()
+{
+  throw Error("KeyLocator cannot be reset for SignatureSha256WithEcdsa");
+}
+
 } // namespace ndn
