@@ -34,6 +34,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>
 #include <Security/SecRandom.h>

@@ -22,6 +22,7 @@
 #ifndef NDN_SIGNATURE_HPP
 #define NDN_SIGNATURE_HPP
 
+#include "common.hpp"
 #include "signature-info.hpp"
 
 namespace ndn {
@@ -122,6 +123,12 @@ public:
     return m_info.getKeyLocator();
   }
 
+  /// @brief Set KeyLocator
+  void
+  setKeyLocator(const KeyLocator& keyLocator)
+  {
+    m_info.setKeyLocator(keyLocator);
+  }
 
 public: // EqualityComparable concept
   bool

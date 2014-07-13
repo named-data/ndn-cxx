@@ -83,6 +83,11 @@ BOOST_AUTO_TEST_CASE(Encoding)
                                 sigInfoBlock.wire() + sigInfoBlock.size(),
                                 encodeSigInfoBlock.wire(),
                                 encodeSigInfoBlock.wire() + encodeSigInfoBlock.size());
+
+  sig.setKeyLocator(Name("/test/another/key/locator"));
+
+  const Block& encodeSigInfoBlock2 = sig.getInfo();
+  BOOST_CHECK(sigInfoBlock != encodeSigInfoBlock2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

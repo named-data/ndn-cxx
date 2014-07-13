@@ -20,6 +20,7 @@
  */
 
 #include "signature-info.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 

@@ -24,6 +24,7 @@
 
 #include "encoding/tlv.hpp"
 #include "key-locator.hpp"
+#include <list>
 
 namespace ndn {
 
