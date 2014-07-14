@@ -68,7 +68,7 @@ def configure(conf):
         conf.define('HAVE_CXX11', 1)
 
     USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams',
-                       'regex', 'program_options', 'chrono']
+                       'regex', 'program_options', 'chrono', 'random']
     if conf.env['WITH_TESTS']:
         USED_BOOST_LIBS += ['unit_test_framework']
         conf.define('HAVE_TESTS', 1)

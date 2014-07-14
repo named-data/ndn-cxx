@@ -27,9 +27,43 @@
 namespace ndn {
 namespace random {
 
+/**
+ * @brief Generate a cryptographically secure random integer from the range [0, 2^32)
+ *
+ * This method uses CryptoPP routines
+ */
+uint32_t
+generateSecureWord32();
+
+/**
+ * @brief Generate a cryptographically secure random integer from the range [0, 2^64)
+ *
+ * This method uses CryptoPP routines
+ */
+uint64_t
+generateSecureWord64();
+
+/**
+ * @brief Generate a cryptographically non-secure random integer from the range [0, 2^32)
+ *
+ * This method uses Boost.Random routines
+ *
+ * This version is faster than generateSecureWord32, but it should not be used when
+ * cryptographically secure random integers are needed (e.g., when creating signing or
+ * encryption keys)
+ */
 uint32_t
 generateWord32();
 
+/**
+ * @brief Generate a cryptographically non-secure random integer from range [0, 2^64)
+ *
+ * This method uses Boost.Random routines
+ *
+ * This version is faster than generateSecureWord64, but it should not be used when
+ * cryptographically secure random integers are needed (e.g., when creating signing or
+ * encryption keys)
+ */
 uint64_t
 generateWord64();
 

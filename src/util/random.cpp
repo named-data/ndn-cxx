@@ -23,30 +23,66 @@
 
 #include "random.hpp"
 
+#include <boost/nondet_random.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
 #include "../security/cryptopp.hpp"
 
 namespace ndn {
 namespace random {
 
-uint32_t
-generateWord32()
+// CryptoPP-based (secure) random generators
+
+static CryptoPP::AutoSeededRandomPool&
+getSecureRandomGenerator()
 {
   static CryptoPP::AutoSeededRandomPool rng;
 
-  return rng.GenerateWord32();
+  return rng;
+}
+
+uint32_t
+generateSecureWord32()
+{
+  return getSecureRandomGenerator().GenerateWord32();
+}
+
+uint64_t
+generateSecureWord64()
+{
+  uint64_t random;
+  getSecureRandomGenerator()
+    .GenerateBlock(reinterpret_cast<unsigned char*>(&random), sizeof(uint64_t));
+
+  return random;
+}
+
+// Boost.Random-based (simple) random generators
+
+static boost::random::mt19937&
+getRandomGenerator()
+{
+  static boost::random_device randomSeedGenerator;
+  static boost::random::mt19937 gen(randomSeedGenerator);
+
+  return gen;
+}
+
+uint32_t
+generateWord32()
+{
+  static boost::random::uniform_int_distribution<uint32_t> distribution;
+  return distribution(getRandomGenerator());
 }
 
 uint64_t
 generateWord64()
 {
-  static CryptoPP::AutoSeededRandomPool rng;
-
-  uint64_t random;
-
-  rng.GenerateBlock(reinterpret_cast<unsigned char*>(&random), 8);
-
-  return random;
+  static boost::random::uniform_int_distribution<uint64_t> distribution;
+  return distribution(getRandomGenerator());
 }
+
 
 } // namespace random
 } // namespace ndn
