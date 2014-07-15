@@ -94,10 +94,11 @@ CREATE INDEX subject ON Certificate(identity_name);          \n \
  * A utility function to call the normal sqlite3_bind_text where the value and length are
  * value.c_str() and value.size().
  */
-static int sqlite3_bind_text(sqlite3_stmt* statement,
-                             int index,
-                             const string& value,
-                             void(*destructor)(void*))
+static int
+sqlite3_bind_text(sqlite3_stmt* statement,
+                  int index,
+                  const string& value,
+                  void(*destructor)(void*))
 {
   return sqlite3_bind_text(statement, index, value.c_str(), value.size(), destructor);
 }
@@ -482,7 +483,7 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
       // this will throw an exception if the signature is not the standard one
       // or there is no key locator present
       std::string signerName = certificate.getSignature().getKeyLocator().getName().toUri();
-      sqlite3_bind_text(statement, 2, signerName, SQLITE_STATIC);
+      sqlite3_bind_text(statement, 2, signerName, SQLITE_TRANSIENT);
     }
   catch (Tlv::Error& e)
     {
