@@ -77,7 +77,11 @@ enum {
   NextHopRecord = 129,
 
   // Strategy Choice Management
-  StrategyChoice = 128
+  StrategyChoice = 128,
+
+  // RIB Management
+  RibEntry = 128,
+  Route    = 129
 
 };
 
