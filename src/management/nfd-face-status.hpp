@@ -209,6 +209,34 @@ public: // getters & setters
     return *this;
   }
 
+  uint64_t
+  getNInBytes() const
+  {
+    return m_nInBytes;
+  }
+
+  FaceStatus&
+  setNInBytes(uint64_t nInBytes)
+  {
+    m_wire.reset();
+    m_nInBytes = nInBytes;
+    return *this;
+  }
+
+  uint64_t
+  getNOutBytes() const
+  {
+    return m_nOutBytes;
+  }
+
+  FaceStatus&
+  setNOutBytes(uint64_t nOutBytes)
+  {
+    m_wire.reset();
+    m_nOutBytes = nOutBytes;
+    return *this;
+  }
+
 private:
   uint64_t m_faceId;
   std::string m_remoteUri;
@@ -220,176 +248,14 @@ private:
   uint64_t m_nInDatas;
   uint64_t m_nOutInterests;
   uint64_t m_nOutDatas;
+  uint64_t m_nInBytes;
+  uint64_t m_nOutBytes;
 
   mutable Block m_wire;
 };
 
-inline
-FaceStatus::FaceStatus()
-  : m_faceId(0)
-  , m_hasExpirationPeriod(false)
-  , m_flags(0)
-  , m_nInInterests(0)
-  , m_nInDatas(0)
-  , m_nOutInterests(0)
-  , m_nOutDatas(0)
-{
-}
-
-template<bool T>
-inline size_t
-FaceStatus::wireEncode(EncodingImpl<T>& encoder) const
-{
-  size_t totalLength = 0;
-
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NOutDatas, m_nOutDatas);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NOutInterests, m_nOutInterests);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NInDatas, m_nInDatas);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NInInterests, m_nInInterests);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::FaceFlags, m_flags);
-  if (m_hasExpirationPeriod) {
-    totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::ExpirationPeriod, m_expirationPeriod.count());
-  }
-  totalLength += prependByteArrayBlock(encoder, tlv::nfd::LocalUri,
-                 reinterpret_cast<const uint8_t*>(m_localUri.c_str()), m_localUri.size());
-  totalLength += prependByteArrayBlock(encoder, tlv::nfd::Uri,
-                 reinterpret_cast<const uint8_t*>(m_remoteUri.c_str()), m_remoteUri.size());
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::FaceId, m_faceId);
-
-  totalLength += encoder.prependVarNumber(totalLength);
-  totalLength += encoder.prependVarNumber(tlv::nfd::FaceStatus);
-  return totalLength;
-}
-
-inline const Block&
-FaceStatus::wireEncode() const
-{
-  if (m_wire.hasWire())
-    return m_wire;
-
-  EncodingEstimator estimator;
-  size_t estimatedSize = wireEncode(estimator);
-
-  EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
-
-  m_wire = buffer.block();
-  return m_wire;
-}
-
-inline void
-FaceStatus::wireDecode(const Block& block)
-{
-  if (block.type() != tlv::nfd::FaceStatus) {
-    throw Error("expecting FaceStatus block");
-  }
-  m_wire = block;
-  m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
-
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceId) {
-    m_faceId = readNonNegativeInteger(*val);
-    ++val;
-  }
-  else {
-    throw Error("missing required FaceId field");
-  }
-
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::Uri) {
-    m_remoteUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
-    ++val;
-  }
-  else {
-    throw Error("missing required Uri field");
-  }
-
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
-    m_localUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
-    ++val;
-  }
-  else {
-    throw Error("missing required LocalUri field");
-  }
-
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::ExpirationPeriod) {
-    m_expirationPeriod = time::milliseconds(readNonNegativeInteger(*val));
-    m_hasExpirationPeriod = true;
-    ++val;
-  }
-  else {
-    m_hasExpirationPeriod = false;
-    // ExpirationPeriod is optional
-  }
-
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceFlags) {
-    m_flags = readNonNegativeInteger(*val);
-    ++val;
-  }
-  else {
-    throw Error("missing required FaceFlags field");
-  }
-
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInInterests) {
-    m_nInInterests = readNonNegativeInteger(*val);
-    ++val;
-  }
-  else {
-    throw Error("missing required NInInterests field");
-  }
-
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInDatas) {
-    m_nInDatas = readNonNegativeInteger(*val);
-    ++val;
-  }
-  else {
-    throw Error("missing required NInDatas field");
-  }
-
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutInterests) {
-    m_nOutInterests = readNonNegativeInteger(*val);
-    ++val;
-  }
-  else {
-    throw Error("missing required NOutInterests field");
-  }
-
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutDatas) {
-    m_nOutDatas = readNonNegativeInteger(*val);
-    ++val;
-  }
-  else {
-    throw Error("missing required NOutDatas field");
-  }
-}
-
-inline std::ostream&
-operator<<(std::ostream& os, const FaceStatus& status)
-{
-  os << "FaceStatus("
-     << "FaceID: " << status.getFaceId() << ", "
-     << "RemoteUri: " << status.getRemoteUri() << ", "
-     << "LocalUri: " << status.getLocalUri() << ", ";
-
-  if (status.hasExpirationPeriod()) {
-    os << "ExpirationPeriod: " << status.getExpirationPeriod() << ", ";
-  }
-  else {
-    os << "ExpirationPeriod: infinite, ";
-  }
-
-  os << "Flags: " << status.getFlags() << ", "
-     << "Counters: " << status.getNInInterests() << "|" << status.getNInDatas()
-     << "|" << status.getNOutInterests() << "|" << status.getNOutDatas()
-     << ")";
-  return os;
-}
+std::ostream&
+operator<<(std::ostream& os, const FaceStatus& status);
 
 } // namespace nfd
 } // namespace ndn

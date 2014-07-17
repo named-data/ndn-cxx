@@ -55,10 +55,6 @@ enum {
   NPitEntries          = 133,
   NMeasurementsEntries = 134,
   NCsEntries           = 135,
-  NInInterests         = 144,
-  NInDatas             = 145,
-  NOutInterests        = 146,
-  NOutDatas            = 147,
 
   // Face Management
   FaceStatus            = 128,
@@ -67,6 +63,14 @@ enum {
   FaceFlags             = 194,
   FaceEventNotification = 192,
   FaceEventKind         = 193,
+
+  // ForwarderStatus and FaceStatus counters
+  NInInterests  = 144,
+  NInDatas      = 145,
+  NOutInterests = 146,
+  NOutDatas     = 147,
+  NInBytes      = 148,
+  NOutBytes     = 149,
 
   // FIB Management
   FibEntry      = 128,
@@ -89,7 +93,7 @@ enum {
 
 namespace nfd {
 
-const uint64_t INVALID_FACE_ID = std::numeric_limits<uint64_t>::max();
+static const uint64_t INVALID_FACE_ID = std::numeric_limits<uint64_t>::max();
 
 } // namespace nfd
 

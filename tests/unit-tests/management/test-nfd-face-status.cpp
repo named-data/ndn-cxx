@@ -39,7 +39,9 @@ BOOST_AUTO_TEST_CASE(Encode)
          .setNInInterests(10)
          .setNInDatas(200)
          .setNOutInterests(3000)
-         .setNOutDatas(4);
+         .setNOutDatas(4)
+         .setNInBytes(1329719163)
+         .setNOutBytes(999110448);
 
   Block wire;
   BOOST_REQUIRE_NO_THROW(wire = status1.wireEncode());
@@ -50,15 +52,16 @@ BOOST_AUTO_TEST_CASE(Encode)
   //  printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
-    0x80, 0x46, 0x69, 0x01, 0x64, 0x72, 0x15, 0x74, 0x63, 0x70, 0x34, 0x3a,
+    0x80, 0x52, 0x69, 0x01, 0x64, 0x72, 0x15, 0x74, 0x63, 0x70, 0x34, 0x3a,
     0x2f, 0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x31, 0x3a,
     0x36, 0x33, 0x36, 0x33, 0x81, 0x16, 0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f,
     0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x32, 0x3a, 0x35,
     0x35, 0x35, 0x35, 0x35, 0x6d, 0x02, 0x27, 0x10, 0xc2, 0x01, 0x02, 0x90,
-    0x01, 0x0a, 0x91, 0x01, 0xc8, 0x92, 0x02, 0x0b, 0xb8, 0x93, 0x01, 0x04
+    0x01, 0x0a, 0x91, 0x01, 0xc8, 0x92, 0x02, 0x0b, 0xb8, 0x93, 0x01, 0x04,
+    0x94, 0x04, 0x4f, 0x41, 0xe7, 0x7b, 0x95, 0x04, 0x3b, 0x8d, 0x37, 0x30
   };
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
-                                  wire.begin(), wire.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
+                                wire.begin(), wire.end());
 
   BOOST_REQUIRE_NO_THROW(FaceStatus(wire));
   FaceStatus status2(wire);
@@ -70,15 +73,20 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_CHECK_EQUAL(status1.getNInDatas(), status2.getNInDatas());
   BOOST_CHECK_EQUAL(status1.getNOutInterests(), status2.getNOutInterests());
   BOOST_CHECK_EQUAL(status1.getNOutDatas(), status2.getNOutDatas());
+  BOOST_CHECK_EQUAL(status1.getNInBytes(), status2.getNInBytes());
+  BOOST_CHECK_EQUAL(status1.getNOutBytes(), status2.getNOutBytes());
 
   std::ostringstream os;
   os << status2;
-  BOOST_CHECK_EQUAL(os.str(), "FaceStatus(FaceID: 100, "
-                              "RemoteUri: tcp4://192.0.2.1:6363, "
-                              "LocalUri: tcp4://192.0.2.2:55555, "
-                              "ExpirationPeriod: 10000 milliseconds, "
-                              "Flags: 2, "
-                              "Counters: 10|200|3000|4)");
+  BOOST_CHECK_EQUAL(os.str(), "FaceStatus(FaceID: 100,\n"
+                              "RemoteUri: tcp4://192.0.2.1:6363,\n"
+                              "LocalUri: tcp4://192.0.2.2:55555,\n"
+                              "ExpirationPeriod: 10000 milliseconds,\n"
+                              "Flags: 2,\n"
+                              "Counters: { Interests: {in: 10, out: 3000},\n"
+                              "            Data: {in: 200, out: 4},\n"
+                              "            bytes: {in: 1329719163, out: 999110448} }\n"
+                              ")");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
