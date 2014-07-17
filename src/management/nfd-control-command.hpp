@@ -495,7 +495,7 @@ public:
       .required(CONTROL_PARAMETER_ORIGIN)
       .required(CONTROL_PARAMETER_COST)
       .required(CONTROL_PARAMETER_FLAGS)
-      .required(CONTROL_PARAMETER_EXPIRATION_PERIOD);
+      .optional(CONTROL_PARAMETER_EXPIRATION_PERIOD);
   }
 
   virtual void
@@ -512,14 +512,6 @@ public:
     }
     if (!parameters.hasFlags()) {
       parameters.setFlags(ROUTE_FLAG_CHILD_INHERIT);
-    }
-    if (!parameters.hasExpirationPeriod()) {
-      if (parameters.getFaceId() == 0) {
-        parameters.setExpirationPeriod(time::milliseconds::max());
-      }
-      else {
-        parameters.setExpirationPeriod(time::hours(1));
-      }
     }
   }
 
