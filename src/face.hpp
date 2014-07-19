@@ -440,7 +440,12 @@ public:
    * @brief Publish data packet
    *
    * This method can be called to satisfy the incoming Interest or to put Data packet into
-   * the cache of the local NDN forwarder
+   * the cache of the local NDN forwarder.
+   *
+   * @param data Data packet to publish.  It is highly recommended to use Data packet that
+   *             was created using make_shared<Data>(...).  Otherwise, put() will make an
+   *             extra copy of the Data packet to ensure validity of published Data until
+   *             asynchronous put() operation finishes.
    */
   void
   put(const Data& data);

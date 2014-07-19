@@ -165,19 +165,18 @@ Face::expressInterest(const Name& name,
 void
 Face::put(const Data& data)
 {
-  if (!m_transport->isConnected())
-    m_transport->connect(*m_ioService,
-                         bind(&Face::onReceiveElement, this, _1));
+  shared_ptr<const Data> dataPtr;
+  try {
+    dataPtr = data.shared_from_this();
+  }
+  catch (const bad_weak_ptr& e) {
+    std::cerr << "Face::put WARNING: the supplied Data should be created using make_shared<Data>()"
+              << std::endl;
+    dataPtr = make_shared<Data>(data);
+  }
 
-  if (!data.getLocalControlHeader().empty(false, true))
-    {
-      m_transport->send(data.getLocalControlHeader().wireEncode(data, false, true),
-                        data.wireEncode());
-    }
-  else
-    {
-      m_transport->send(data.wireEncode());
-    }
+  // If the same ioService thread, dispatch directly calls the method
+  m_ioService->dispatch(bind(&Impl::asyncPutData, m_impl, dataPtr));
 }
 
 void
@@ -185,8 +184,6 @@ Face::removePendingInterest(const PendingInterestId* pendingInterestId)
 {
   m_ioService->post(bind(&Impl::asyncRemovePendingInterest, m_impl, pendingInterestId));
 }
-
-
 
 const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,

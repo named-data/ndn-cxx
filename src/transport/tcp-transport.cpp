@@ -53,18 +53,21 @@ TcpTransport::connect(boost::asio::io_service& ioService,
 void
 TcpTransport::send(const Block& wire)
 {
+  BOOST_ASSERT(static_cast<bool>(m_impl));
   m_impl->send(wire);
 }
 
 void
 TcpTransport::send(const Block& header, const Block& payload)
 {
+  BOOST_ASSERT(static_cast<bool>(m_impl));
   m_impl->send(header, payload);
 }
 
 void
 TcpTransport::close()
 {
+  BOOST_ASSERT(static_cast<bool>(m_impl));
   m_impl->close();
   m_impl.reset();
 }
@@ -72,12 +75,15 @@ TcpTransport::close()
 void
 TcpTransport::pause()
 {
-  m_impl->pause();
+  if (static_cast<bool>(m_impl)) {
+    m_impl->pause();
+  }
 }
 
 void
 TcpTransport::resume()
 {
+  BOOST_ASSERT(static_cast<bool>(m_impl));
   m_impl->resume();
 }
 

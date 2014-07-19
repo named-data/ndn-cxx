@@ -117,8 +117,9 @@ UnixTransport::close()
 void
 UnixTransport::pause()
 {
-  BOOST_ASSERT(static_cast<bool>(m_impl));
-  m_impl->pause();
+  if (static_cast<bool>(m_impl)) {
+    m_impl->pause();
+  }
 }
 
 void
