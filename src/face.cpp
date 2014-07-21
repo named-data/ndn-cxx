@@ -144,6 +144,10 @@ Face::expressInterest(const Interest& interest, const OnData& onData, const OnTi
 {
   shared_ptr<Interest> interestToExpress = make_shared<Interest>(interest);
 
+  // Use `interestToExpress` to avoid wire format creation for the original Interest
+  if (interestToExpress->wireEncode().size() > MAX_NDN_PACKET_SIZE)
+    throw Error("Interest size exceeds maximum limit");
+
   // If the same ioService thread, dispatch directly calls the method
   m_ioService->dispatch(bind(&Impl::asyncExpressInterest, m_impl,
                              interestToExpress, onData, onTimeout));
@@ -165,6 +169,10 @@ Face::expressInterest(const Name& name,
 void
 Face::put(const Data& data)
 {
+  // Use original `data`, since wire format should already exist for the original Data
+  if (data.wireEncode().size() > MAX_NDN_PACKET_SIZE)
+    throw Error("Data size exceeds maximum limit");
+
   shared_ptr<const Data> dataPtr;
   try {
     dataPtr = data.shared_from_this();
@@ -305,43 +313,40 @@ void
 Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::zero()*/,
                     bool keepThread/* = false*/)
 {
-  try
-    {
-      if (timeout < time::milliseconds::zero())
-        {
-          // do not block if timeout is negative, but process pending events
-          m_ioService->poll();
-          return;
-        }
-
-      if (timeout > time::milliseconds::zero())
-        {
-          m_impl->m_processEventsTimeoutTimer->expires_from_now(time::milliseconds(timeout));
-          m_impl->m_processEventsTimeoutTimer->async_wait(&fireProcessEventsTimeout);
-        }
-
-      if (keepThread) {
-        // work will ensure that m_ioService is running until work object exists
-        m_impl->m_ioServiceWork = make_shared<boost::asio::io_service::work>(ref(*m_ioService));
+  try {
+    if (timeout < time::milliseconds::zero())
+      {
+        // do not block if timeout is negative, but process pending events
+        m_ioService->poll();
+        return;
       }
 
-      m_ioService->run();
-      m_ioService->reset(); // so it is possible to run processEvents again (if necessary)
+    if (timeout > time::milliseconds::zero())
+      {
+        m_impl->m_processEventsTimeoutTimer->expires_from_now(time::milliseconds(timeout));
+        m_impl->m_processEventsTimeoutTimer->async_wait(&fireProcessEventsTimeout);
+      }
+
+    if (keepThread) {
+      // work will ensure that m_ioService is running until work object exists
+      m_impl->m_ioServiceWork = make_shared<boost::asio::io_service::work>(ref(*m_ioService));
     }
-  catch (Face::ProcessEventsTimeout&)
-    {
-      // break
-      m_impl->m_ioServiceWork.reset();
-      m_ioService->reset();
-    }
-  catch (std::exception&)
-    {
-      m_impl->m_ioServiceWork.reset();
-      m_ioService->reset();
-      m_impl->m_pendingInterestTable.clear();
-      m_impl->m_registeredPrefixTable.clear();
-      throw;
-    }
+
+    m_ioService->run();
+    m_ioService->reset(); // so it is possible to run processEvents again (if necessary)
+  }
+  catch (Face::ProcessEventsTimeout&) {
+    // break
+    m_impl->m_ioServiceWork.reset();
+    m_ioService->reset();
+  }
+  catch (...) {
+    m_impl->m_ioServiceWork.reset();
+    m_ioService->reset();
+    m_impl->m_pendingInterestTable.clear();
+    m_impl->m_registeredPrefixTable.clear();
+    throw;
+  }
 }
 
 void

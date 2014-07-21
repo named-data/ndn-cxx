@@ -192,6 +192,8 @@ public:
    * @param onTimeout (optional) A function object to call if the interest times out
    *
    * @return The pending interest ID which can be used with removePendingInterest
+   *
+   * @throws Error when Interest size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
    */
   const PendingInterestId*
   expressInterest(const Interest& interest,
@@ -206,6 +208,8 @@ public:
    * @param onTimeout (optional) A function object to call if the interest times out
    *
    * @return Opaque pending interest ID which can be used with removePendingInterest
+   *
+   * @throws Error when Interest size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
    */
   const PendingInterestId*
   expressInterest(const Name& name,
@@ -446,6 +450,8 @@ public:
    *             was created using make_shared<Data>(...).  Otherwise, put() will make an
    *             extra copy of the Data packet to ensure validity of published Data until
    *             asynchronous put() operation finishes.
+   *
+   * @throws Error when Data size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
    */
   void
   put(const Data& data);
