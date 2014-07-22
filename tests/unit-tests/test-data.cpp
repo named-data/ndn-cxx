@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(SignatureEqualityChecks)
 
   b = SignatureSha256WithRsa();
   static const uint8_t someData[256] = {};
-  Block signatureValue = dataBlock(Tlv::SignatureValue, someData, sizeof(someData));
+  Block signatureValue = dataBlock(tlv::SignatureValue, someData, sizeof(someData));
   b.setValue(signatureValue);
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
@@ -277,7 +277,7 @@ BOOST_FIXTURE_TEST_CASE(Decode, TestDataFixture)
   ndn::Block block = d.getSignature().getInfo();
   block.parse();
   KeyLocator keyLocator;
-  BOOST_REQUIRE_NO_THROW(keyLocator.wireDecode(block.get(Tlv::KeyLocator)));
+  BOOST_REQUIRE_NO_THROW(keyLocator.wireDecode(block.get(tlv::KeyLocator)));
 
   BOOST_REQUIRE_EQUAL(keyLocator.getName().toUri(), "/test/key/locator");
 
@@ -301,11 +301,11 @@ BOOST_FIXTURE_TEST_CASE(Encode, TestDataFixture)
 
   d.setContent(Content1, sizeof(Content1));
 
-  Block signatureInfo(Tlv::SignatureInfo);
+  Block signatureInfo(tlv::SignatureInfo);
   // SignatureType
   {
     signatureInfo.push_back
-      (nonNegativeIntegerBlock(Tlv::SignatureType, Signature::Sha256WithRsa));
+      (nonNegativeIntegerBlock(tlv::SignatureType, Signature::Sha256WithRsa));
   }
   // KeyLocator
   {
@@ -318,7 +318,7 @@ BOOST_FIXTURE_TEST_CASE(Encode, TestDataFixture)
 
   // SignatureValue
   OBufferStream os;
-  Tlv::writeVarNumber(os, Tlv::SignatureValue);
+  tlv::writeVarNumber(os, tlv::SignatureValue);
 
   using namespace CryptoPP;
 
@@ -334,7 +334,7 @@ BOOST_FIXTURE_TEST_CASE(Encode, TestDataFixture)
   SecByteBlock buf(length);
   signer.Sign(rng_, hash, buf);
 
-  Tlv::writeVarNumber(os, buf.size());
+  tlv::writeVarNumber(os, buf.size());
   os.write(reinterpret_cast<const char *>(buf.BytePtr()), buf.size());
 
   ndn::Block signatureValue(Block(os.buf()));

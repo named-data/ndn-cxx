@@ -42,10 +42,10 @@ namespace nfd {
 class NextHopRecord
 {
 public:
-  class Error : public Tlv::Error
+  class Error : public tlv::Error
   {
   public:
-    Error(const std::string& what) : Tlv::Error(what) {}
+    Error(const std::string& what) : tlv::Error(what) {}
   };
 
   NextHopRecord()
@@ -189,10 +189,10 @@ private:
 class FibEntry
 {
 public:
-    class Error : public Tlv::Error
+    class Error : public tlv::Error
     {
     public:
-      Error(const std::string& what) : Tlv::Error(what)
+      Error(const std::string& what) : tlv::Error(what)
       {
       }
     };
@@ -307,7 +307,7 @@ public:
       {
         throw Error("Unexpected end of FibEntry");
       }
-    else if (val->type() != Tlv::Name)
+    else if (val->type() != tlv::Name)
       {
         std::stringstream error;
         error << "Expected Name, but Block is of a different type: #"

@@ -177,7 +177,7 @@ CommandInterestValidator::checkPolicy(const Interest& interest,
       Signature signature(interestName[POS_SIG_INFO].blockFromValue(),
                           interestName[POS_SIG_VALUE].blockFromValue());
 
-      if (signature.getType() != Tlv::SignatureSha256WithRsa)
+      if (signature.getType() != tlv::SignatureSha256WithRsa)
         return onValidationFailed(interest.shared_from_this(),
                                   "Require SignatureSha256WithRsa");
 
@@ -265,7 +265,7 @@ CommandInterestValidator::checkPolicy(const Interest& interest,
       return onValidationFailed(interest.shared_from_this(),
                                 "Cannot locate the signing key");
     }
-  catch (Tlv::Error& e)
+  catch (tlv::Error& e)
     {
       return onValidationFailed(interest.shared_from_this(),
                                 "Cannot decode signature related TLVs");

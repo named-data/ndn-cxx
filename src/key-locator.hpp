@@ -139,7 +139,7 @@ KeyLocator::wireEncode(EncodingImpl<T>& block) const
   }
 
   totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(Tlv::KeyLocator);
+  totalLength += block.prependVarNumber(tlv::KeyLocator);
   return totalLength;
 }
 
@@ -162,13 +162,13 @@ KeyLocator::wireEncode() const
 inline void
 KeyLocator::wireDecode(const Block& value)
 {
-  if (value.type() != Tlv::KeyLocator)
+  if (value.type() != tlv::KeyLocator)
     throw Error("Unexpected TLV type during KeyLocator decoding");
 
   m_wire = value;
   m_wire.parse();
 
-  if (!m_wire.elements().empty() && m_wire.elements_begin()->type() == Tlv::Name)
+  if (!m_wire.elements().empty() && m_wire.elements_begin()->type() == tlv::Name)
     {
       m_type = KeyLocator_Name;
       m_name.wireDecode(*m_wire.elements_begin());

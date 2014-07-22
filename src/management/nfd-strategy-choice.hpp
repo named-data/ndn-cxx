@@ -38,12 +38,12 @@ namespace nfd {
 class StrategyChoice
 {
 public:
-  class Error : public Tlv::Error
+  class Error : public tlv::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : Tlv::Error(what)
+      : tlv::Error(what)
     {
     }
   };
@@ -145,7 +145,7 @@ StrategyChoice::wireDecode(const Block& block)
   m_wire.parse();
   Block::element_const_iterator val = m_wire.elements_begin();
 
-  if (val != m_wire.elements_end() && val->type() == Tlv::Name) {
+  if (val != m_wire.elements_end() && val->type() == tlv::Name) {
     m_name.wireDecode(*val);
     ++val;
   }

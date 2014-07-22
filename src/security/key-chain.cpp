@@ -550,7 +550,7 @@ KeyChain::signWithSha256(Data& data)
   DigestSha256 sig;
   data.setSignature(sig);
 
-  Block sigValue(Tlv::SignatureValue,
+  Block sigValue(tlv::SignatureValue,
                  crypto::sha256(data.wireEncode().value(),
                                 data.wireEncode().value_size() -
                                 data.getSignature().getValue().size()));

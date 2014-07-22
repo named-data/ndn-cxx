@@ -293,7 +293,7 @@ ValidatorConfig::checkSignature(const Packet& packet,
                                 const OnFailed& onValidationFailed,
                                 std::vector<shared_ptr<ValidationRequest> >& nextSteps)
 {
-  if (signature.getType() == Tlv::DigestSha256)
+  if (signature.getType() == tlv::DigestSha256)
     {
       DigestSha256 sigSha256(signature);
 
@@ -306,8 +306,8 @@ ValidatorConfig::checkSignature(const Packet& packet,
 
   try {
     switch (signature.getType()) {
-    case Tlv::SignatureSha256WithRsa:
-    case Tlv::SignatureSha256WithEcdsa:
+    case tlv::SignatureSha256WithRsa:
+    case tlv::SignatureSha256WithEcdsa:
       {
         if (!signature.hasKeyLocator()) {
           return onValidationFailed(packet.shared_from_this(),
@@ -320,7 +320,7 @@ ValidatorConfig::checkSignature(const Packet& packet,
                               "Unsupported signature type");
     }
   }
-  catch (Tlv::Error& e) {
+  catch (tlv::Error& e) {
     return onValidationFailed(packet.shared_from_this(),
                               "Cannot decode public key signature");
   }

@@ -25,7 +25,7 @@
 namespace ndn {
 
 Data::Data()
-  : m_content(Tlv::Content) // empty content
+  : m_content(tlv::Content) // empty content
 {
 }
 
@@ -79,7 +79,7 @@ Data::wireEncode(EncodingImpl<T>& block, bool unsignedPortion/* = false*/) const
   if (!unsignedPortion)
     {
       totalLength += block.prependVarNumber(totalLength);
-      totalLength += block.prependVarNumber(Tlv::Data);
+      totalLength += block.prependVarNumber(tlv::Data);
     }
   return totalLength;
 }
@@ -91,7 +91,7 @@ Data::wireEncode(EncodingBuffer& encoder, const Block& signatureValue) const
   totalLength += encoder.appendBlock(signatureValue);
 
   totalLength += encoder.prependVarNumber(totalLength);
-  encoder.prependVarNumber(Tlv::Data);
+  encoder.prependVarNumber(tlv::Data);
 
   const_cast<Data*>(this)->wireDecode(encoder.block());
   return m_wire;
@@ -127,23 +127,23 @@ Data::wireDecode(const Block& wire)
   //            Signature
 
   // Name
-  m_name.wireDecode(m_wire.get(Tlv::Name));
+  m_name.wireDecode(m_wire.get(tlv::Name));
 
   // MetaInfo
-  m_metaInfo.wireDecode(m_wire.get(Tlv::MetaInfo));
+  m_metaInfo.wireDecode(m_wire.get(tlv::MetaInfo));
 
   // Content
-  m_content = m_wire.get(Tlv::Content);
+  m_content = m_wire.get(tlv::Content);
 
   ///////////////
   // Signature //
   ///////////////
 
   // SignatureInfo
-  m_signature.setInfo(m_wire.get(Tlv::SignatureInfo));
+  m_signature.setInfo(m_wire.get(tlv::SignatureInfo));
 
   // SignatureValue
-  Block::element_const_iterator val = m_wire.find(Tlv::SignatureValue);
+  Block::element_const_iterator val = m_wire.find(tlv::SignatureValue);
   if (val != m_wire.elements_end())
     m_signature.setValue(*val);
 }
@@ -212,7 +212,7 @@ const Block&
 Data::getContent() const
 {
   if (m_content.empty())
-    m_content = dataBlock(Tlv::Content, reinterpret_cast<const uint8_t*>(0), 0);
+    m_content = dataBlock(tlv::Content, reinterpret_cast<const uint8_t*>(0), 0);
 
   if (!m_content.hasWire())
       m_content.encode();
@@ -224,7 +224,7 @@ Data::setContent(const uint8_t* content, size_t contentLength)
 {
   onChanged();
 
-  m_content = dataBlock(Tlv::Content, content, contentLength);
+  m_content = dataBlock(tlv::Content, content, contentLength);
 
   return *this;
 }
@@ -234,7 +234,7 @@ Data::setContent(const ConstBufferPtr& contentValue)
 {
   onChanged();
 
-  m_content = Block(Tlv::Content, contentValue); // not a real wire encoding yet
+  m_content = Block(tlv::Content, contentValue); // not a real wire encoding yet
 
   return *this;
 }
@@ -244,10 +244,10 @@ Data::setContent(const Block& content)
 {
   onChanged();
 
-  if (content.type() == Tlv::Content)
+  if (content.type() == tlv::Content)
     m_content = content;
   else {
-    m_content = Block(Tlv::Content, content);
+    m_content = Block(tlv::Content, content);
   }
 
   return *this;

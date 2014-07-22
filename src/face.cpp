@@ -384,7 +384,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
 {
   const Block& block = nfd::LocalControlHeader::getPayload(blockFromDaemon);
 
-  if (block.type() == Tlv::Interest)
+  if (block.type() == tlv::Interest)
     {
       shared_ptr<Interest> interest = make_shared<Interest>();
       interest->wireDecode(block);
@@ -393,7 +393,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
 
       m_impl->processInterestFilters(*interest);
     }
-  else if (block.type() == Tlv::Data)
+  else if (block.type() == tlv::Data)
     {
       shared_ptr<Data> data = make_shared<Data>();
       data->wireDecode(block);

@@ -99,15 +99,15 @@ public:
   {
     switch (sigType)
       {
-      case Tlv::SignatureSha256WithRsa:
-      case Tlv::SignatureSha256WithEcdsa:
+      case tlv::SignatureSha256WithRsa:
+      case tlv::SignatureSha256WithEcdsa:
         {
           if (!static_cast<bool>(m_keyLocatorChecker))
             throw Error("Strong signature requires KeyLocatorChecker");
 
           return;
         }
-      case Tlv::DigestSha256:
+      case tlv::DigestSha256:
         return;
       default:
         throw Error("Unsupported signature type");
@@ -139,7 +139,7 @@ public:
         onValidationFailed(interest.shared_from_this(), "Invalid signature");
         return -1;
       }
-    catch (Tlv::Error& e)
+    catch (tlv::Error& e)
       {
         onValidationFailed(interest.shared_from_this(), "Cannot decode signature related TLVs");
         return -1;
@@ -163,15 +163,15 @@ private:
         return -1;
       }
 
-    if (signature.getType() == Tlv::DigestSha256)
+    if (signature.getType() == tlv::DigestSha256)
       return 0;
 
     try
       {
         switch (signature.getType())
           {
-          case Tlv::SignatureSha256WithRsa:
-          case Tlv::SignatureSha256WithEcdsa:
+          case tlv::SignatureSha256WithRsa:
+          case tlv::SignatureSha256WithEcdsa:
             {
               if (!signature.hasKeyLocator()) {
                 onValidationFailed(packet.shared_from_this(),
@@ -188,7 +188,7 @@ private:
             }
           }
       }
-    catch (Tlv::Error& e)
+    catch (tlv::Error& e)
       {
         onValidationFailed(packet.shared_from_this(),
                            "Cannot decode signature");
@@ -241,8 +241,8 @@ public:
          it != signers.end(); it++)
       m_signers[(*it)->getName().getPrefix(-1)] = (*it);
 
-    if (sigType != Tlv::SignatureSha256WithRsa &&
-        sigType != Tlv::SignatureSha256WithEcdsa)
+    if (sigType != tlv::SignatureSha256WithRsa &&
+        sigType != tlv::SignatureSha256WithEcdsa)
       {
         throw Error("FixedSigner is only meaningful for strong signature type");
       }
@@ -274,7 +274,7 @@ public:
         onValidationFailed(interest.shared_from_this(), "Invalid signature");
         return -1;
       }
-    catch (Tlv::Error& e)
+    catch (tlv::Error& e)
       {
         onValidationFailed(interest.shared_from_this(), "Cannot decode signature related TLVs");
         return -1;
@@ -298,7 +298,7 @@ private:
         return -1;
       }
 
-    if (signature.getType() == Tlv::DigestSha256)
+    if (signature.getType() == tlv::DigestSha256)
       {
         onValidationFailed(packet.shared_from_this(),
                            "FixedSigner does not allow Sha256 signature type");
@@ -309,8 +309,8 @@ private:
       {
         switch (signature.getType())
           {
-          case Tlv::SignatureSha256WithRsa:
-          case Tlv::SignatureSha256WithEcdsa:
+          case tlv::SignatureSha256WithRsa:
+          case tlv::SignatureSha256WithEcdsa:
             {
               if (!signature.hasKeyLocator()) {
                 onValidationFailed(packet.shared_from_this(),
@@ -356,7 +356,7 @@ private:
                            "KeyLocator does not have name");
         return -1;
       }
-    catch (Tlv::Error& e)
+    catch (tlv::Error& e)
       {
         onValidationFailed(packet.shared_from_this(),
                            "Cannot decode signature");
@@ -546,11 +546,11 @@ private:
   getSigType(const std::string& sigType)
   {
     if (boost::iequals(sigType, "rsa-sha256"))
-      return Tlv::SignatureSha256WithRsa;
+      return tlv::SignatureSha256WithRsa;
     else if (boost::iequals(sigType, "ecdsa-sha256"))
-      return Tlv::SignatureSha256WithEcdsa;
+      return tlv::SignatureSha256WithEcdsa;
     else if (boost::iequals(sigType, "sha256"))
-      return Tlv::DigestSha256;
+      return tlv::DigestSha256;
     else
       throw Error("Unsupported signature type");
   }

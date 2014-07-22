@@ -45,7 +45,7 @@ Controller::processCommandResponse(const Data& data,
   try {
     response.wireDecode(data.getContent().blockFromValue());
   }
-  catch (ndn::Tlv::Error& e) {
+  catch (ndn::tlv::Error& e) {
     if (static_cast<bool>(onFailure))
       onFailure(serverErrorCode, e.what());
     return;
@@ -63,7 +63,7 @@ Controller::processCommandResponse(const Data& data,
   try {
     parameters.wireDecode(response.getBody());
   }
-  catch (ndn::Tlv::Error& e) {
+  catch (ndn::tlv::Error& e) {
     if (static_cast<bool>(onFailure))
       onFailure(serverErrorCode, e.what());
     return;

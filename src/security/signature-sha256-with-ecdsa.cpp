@@ -24,14 +24,14 @@
 namespace ndn {
 
 SignatureSha256WithEcdsa::SignatureSha256WithEcdsa(const KeyLocator& keyLocator)
-  : Signature(SignatureInfo(Tlv::SignatureSha256WithEcdsa, keyLocator))
+  : Signature(SignatureInfo(tlv::SignatureSha256WithEcdsa, keyLocator))
 {
 }
 
 SignatureSha256WithEcdsa::SignatureSha256WithEcdsa(const Signature& signature)
   : Signature(signature)
 {
-  if (getType() != Tlv::SignatureSha256WithEcdsa)
+  if (getType() != tlv::SignatureSha256WithEcdsa)
     throw Error("Incorrect signature type");
 
   if (!hasKeyLocator()) {

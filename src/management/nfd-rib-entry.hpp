@@ -52,11 +52,11 @@ namespace nfd {
 class Route
 {
 public:
-  class Error : public Tlv::Error
+  class Error : public tlv::Error
   {
   public:
     explicit
-    Error(const std::string& what) : Tlv::Error(what)
+    Error(const std::string& what) : tlv::Error(what)
     {
     }
   };
@@ -187,10 +187,10 @@ operator<<(std::ostream& os, const Route& route);
 class RibEntry
 {
 public:
-  class Error : public Tlv::Error
+  class Error : public tlv::Error
   {
   public:
-    Error(const std::string& what) : Tlv::Error(what)
+    Error(const std::string& what) : tlv::Error(what)
     {
     }
   };

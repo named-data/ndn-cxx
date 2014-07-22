@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(TlvFromBuffer)
     0xff, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00 // == 4294967296LL
   };
 
-  using namespace Tlv;
+  using namespace tlv;
 
   const uint8_t* begin;
   uint64_t value;
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(TlvFromStream)
     0xff, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00 // == 4294967296LL
   };
 
-  using namespace Tlv;
+  using namespace tlv;
 
   typedef boost::iostreams::stream<boost::iostreams::array_source> ArrayStream;
   typedef std::istream_iterator<uint8_t> Iterator;
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(NonNegativeIntegerFromBuffer)
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01
   };
 
-  using namespace Tlv;
+  using namespace tlv;
 
   const uint8_t* begin;
   uint64_t value;
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE(NonNegativeIntegerFromStream)
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01
   };
 
-  using namespace Tlv;
+  using namespace tlv;
 
   typedef boost::iostreams::stream<boost::iostreams::array_source> ArrayStream;
   typedef std::istream_iterator<uint8_t> Iterator;
@@ -579,7 +579,7 @@ BOOST_AUTO_TEST_CASE(BlockFromStream)
   BOOST_CHECK_EQUAL(*testBlock.wire(),  0x01);
   BOOST_CHECK_EQUAL(*testBlock.value(), 0xfb);
 
-  BOOST_CHECK_THROW(Block::fromStream(stream), Tlv::Error);
+  BOOST_CHECK_THROW(Block::fromStream(stream), tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(Equality)

@@ -425,7 +425,7 @@ BOOST_AUTO_TEST_CASE(DecodeWithLocalHeader)
   const Block& payload = nfd::LocalControlHeader::getPayload(wireBlock);
   BOOST_REQUIRE_NE(&payload, &wireBlock);
 
-  BOOST_CHECK_EQUAL(payload.type(), static_cast<uint32_t>(Tlv::Interest));
+  BOOST_CHECK_EQUAL(payload.type(), static_cast<uint32_t>(tlv::Interest));
   BOOST_CHECK_EQUAL(wireBlock.type(), static_cast<uint32_t>(tlv::nfd::LocalControlHeader));
 
   Interest interest(payload);

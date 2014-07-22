@@ -36,12 +36,12 @@ namespace ndn {
 class Exclude
 {
 public:
-  class Error : public Tlv::Error
+  class Error : public tlv::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : Tlv::Error(what)
+      : tlv::Error(what)
     {
     }
   };
@@ -278,7 +278,7 @@ Exclude::wireEncode(EncodingImpl<T>& block) const
     {
       if (i->second)
         {
-          totalLength += prependBooleanBlock(block, Tlv::Any);
+          totalLength += prependBooleanBlock(block, tlv::Any);
         }
       if (!i->first.empty())
         {
@@ -287,7 +287,7 @@ Exclude::wireEncode(EncodingImpl<T>& block) const
     }
 
   totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(Tlv::Exclude);
+  totalLength += block.prependVarNumber(tlv::Exclude);
   return totalLength;
 }
 
@@ -317,7 +317,7 @@ Exclude::wireDecode(const Block& wire)
   // Any     ::= ANY-TYPE TLV-LENGTH(=0)
 
   Block::element_const_iterator i = m_wire.elements_begin();
-  if (i->type() == Tlv::Any)
+  if (i->type() == tlv::Any)
     {
       appendExclude(name::Component(), true);
       ++i;
@@ -325,7 +325,7 @@ Exclude::wireDecode(const Block& wire)
 
   while (i != m_wire.elements_end())
     {
-      if (i->type() != Tlv::NameComponent)
+      if (i->type() != tlv::NameComponent)
         throw Error("Incorrect format of Exclude filter");
 
       name::Component excludedComponent(i->value(), i->value_size());
@@ -333,7 +333,7 @@ Exclude::wireDecode(const Block& wire)
 
       if (i != m_wire.elements_end())
         {
-          if (i->type() == Tlv::Any)
+          if (i->type() == tlv::Any)
             {
               appendExclude(excludedComponent, true);
               ++i;

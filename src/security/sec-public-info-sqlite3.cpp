@@ -485,7 +485,7 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
       std::string signerName = certificate.getSignature().getKeyLocator().getName().toUri();
       sqlite3_bind_text(statement, 2, signerName, SQLITE_TRANSIENT);
     }
-  catch (Tlv::Error& e)
+  catch (tlv::Error& e)
     {
       return;
     }

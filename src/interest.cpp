@@ -49,7 +49,7 @@ Interest::setNonce(uint32_t nonce)
     std::memcpy(const_cast<uint8_t*>(m_nonce.value()), &nonce, sizeof(nonce));
   }
   else {
-    m_nonce = dataBlock(Tlv::Nonce,
+    m_nonce = dataBlock(tlv::Nonce,
                         reinterpret_cast<const uint8_t*>(&nonce),
                         sizeof(nonce));
     m_wire.reset();
@@ -168,7 +168,7 @@ Interest::matchesData(const Data& data) const
   if (!publisherPublicKeyLocator.empty()) {
     const Signature& signature = data.getSignature();
     const Block& signatureInfo = signature.getInfo();
-    Block::element_const_iterator it = signatureInfo.find(Tlv::KeyLocator);
+    Block::element_const_iterator it = signatureInfo.find(tlv::KeyLocator);
     if (it == signatureInfo.elements_end()) {
       return false;
     }
@@ -200,14 +200,14 @@ Interest::wireEncode(EncodingImpl<T>& block) const
       getInterestLifetime() != DEFAULT_INTEREST_LIFETIME)
     {
       totalLength += prependNonNegativeIntegerBlock(block,
-                                                    Tlv::InterestLifetime,
+                                                    tlv::InterestLifetime,
                                                     getInterestLifetime().count());
     }
 
   // Scope
   if (getScope() >= 0)
     {
-      totalLength += prependNonNegativeIntegerBlock(block, Tlv::Scope, getScope());
+      totalLength += prependNonNegativeIntegerBlock(block, tlv::Scope, getScope());
     }
 
   // Nonce
@@ -224,7 +224,7 @@ Interest::wireEncode(EncodingImpl<T>& block) const
   totalLength += getName().wireEncode(block);
 
   totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(Tlv::Interest);
+  totalLength += block.prependVarNumber(tlv::Interest);
   return totalLength;
 }
 
@@ -259,14 +259,14 @@ Interest::wireDecode(const Block& wire)
   //                Scope?
   //                InterestLifetime?
 
-  if (m_wire.type() != Tlv::Interest)
-    throw Tlv::Error("Unexpected TLV number when decoding Interest");
+  if (m_wire.type() != tlv::Interest)
+    throw tlv::Error("Unexpected TLV number when decoding Interest");
 
   // Name
-  m_name.wireDecode(m_wire.get(Tlv::Name));
+  m_name.wireDecode(m_wire.get(tlv::Name));
 
   // Selectors
-  Block::element_const_iterator val = m_wire.find(Tlv::Selectors);
+  Block::element_const_iterator val = m_wire.find(tlv::Selectors);
   if (val != m_wire.elements_end())
     {
       m_selectors.wireDecode(*val);
@@ -275,10 +275,10 @@ Interest::wireDecode(const Block& wire)
     m_selectors = Selectors();
 
   // Nonce
-  m_nonce = m_wire.get(Tlv::Nonce);
+  m_nonce = m_wire.get(tlv::Nonce);
 
   // Scope
-  val = m_wire.find(Tlv::Scope);
+  val = m_wire.find(tlv::Scope);
   if (val != m_wire.elements_end())
     {
       m_scope = readNonNegativeInteger(*val);
@@ -287,7 +287,7 @@ Interest::wireDecode(const Block& wire)
     m_scope = -1;
 
   // InterestLifetime
-  val = m_wire.find(Tlv::InterestLifetime);
+  val = m_wire.find(tlv::InterestLifetime);
   if (val != m_wire.elements_end())
     {
       m_interestLifetime = time::milliseconds(readNonNegativeInteger(*val));

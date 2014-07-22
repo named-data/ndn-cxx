@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest1)
   shared_ptr<RelationKeyLocatorNameChecker> keyLocatorCheckerEqual1 =
     make_shared<RelationKeyLocatorNameChecker>(certName.getPrefix(-1),
                                                KeyLocatorChecker::RELATION_EQUAL);
-  CustomizedChecker checker1(Tlv::SignatureSha256WithRsa, keyLocatorCheckerEqual1);
+  CustomizedChecker checker1(tlv::SignatureSha256WithRsa, keyLocatorCheckerEqual1);
 
   result = checker1.check(*data1,
                           bind(dataChecked, _1),
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest1)
   shared_ptr<RelationKeyLocatorNameChecker> keyLocatorCheckerEqual2 =
     make_shared<RelationKeyLocatorNameChecker>(identity,
                                                KeyLocatorChecker::RELATION_EQUAL);
-  CustomizedChecker checker2(Tlv::SignatureSha256WithRsa, keyLocatorCheckerEqual2);
+  CustomizedChecker checker2(tlv::SignatureSha256WithRsa, keyLocatorCheckerEqual2);
 
   result = checker2.check(*data1,
                           bind(dataCheckedFalse, _1),
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest1)
   shared_ptr<RelationKeyLocatorNameChecker> keyLocatorCheckerPrefix1 =
     make_shared<RelationKeyLocatorNameChecker>(certName.getPrefix(-1),
                                                KeyLocatorChecker::RELATION_IS_PREFIX_OF);
-  CustomizedChecker checker3(Tlv::SignatureSha256WithRsa, keyLocatorCheckerPrefix1);
+  CustomizedChecker checker3(tlv::SignatureSha256WithRsa, keyLocatorCheckerPrefix1);
 
   result = checker3.check(*data1,
                           bind(dataChecked, _1),
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest1)
   shared_ptr<RelationKeyLocatorNameChecker> keyLocatorCheckerPrefix2 =
     make_shared<RelationKeyLocatorNameChecker>(identity,
                                                KeyLocatorChecker::RELATION_IS_PREFIX_OF);
-  CustomizedChecker checker4(Tlv::SignatureSha256WithRsa, keyLocatorCheckerPrefix2);
+  CustomizedChecker checker4(tlv::SignatureSha256WithRsa, keyLocatorCheckerPrefix2);
 
   result = checker4.check(*data1,
                           bind(dataChecked, _1),
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest1)
   shared_ptr<RelationKeyLocatorNameChecker> keyLocatorCheckerStrict1 =
     make_shared<RelationKeyLocatorNameChecker>(certName.getPrefix(-1),
                                                KeyLocatorChecker::RELATION_IS_STRICT_PREFIX_OF);
-  CustomizedChecker checker5(Tlv::SignatureSha256WithRsa, keyLocatorCheckerStrict1);
+  CustomizedChecker checker5(tlv::SignatureSha256WithRsa, keyLocatorCheckerStrict1);
 
   result = checker5.check(*data1,
                           bind(dataCheckedFalse, _1),
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest1)
   shared_ptr<RelationKeyLocatorNameChecker> keyLocatorCheckerStrict2 =
     make_shared<RelationKeyLocatorNameChecker>(identity,
                                                KeyLocatorChecker::RELATION_IS_STRICT_PREFIX_OF);
-  CustomizedChecker checker6(Tlv::SignatureSha256WithRsa, keyLocatorCheckerStrict2);
+  CustomizedChecker checker6(tlv::SignatureSha256WithRsa, keyLocatorCheckerStrict2);
 
   result = checker6.check(*data1,
                           bind(dataCheckedFalse, _1),
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest2)
   shared_ptr<RegexKeyLocatorNameChecker> keyLocatorCheckerRegex1 =
     make_shared<RegexKeyLocatorNameChecker>(
       Regex("^<SecurityTestConfChecker><CustomizedCheckerTest2>"));
-  CustomizedChecker checker1(Tlv::SignatureSha256WithRsa, keyLocatorCheckerRegex1);
+  CustomizedChecker checker1(tlv::SignatureSha256WithRsa, keyLocatorCheckerRegex1);
 
   result = checker1.check(*data1,
                           bind(dataChecked, _1),
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest3)
   shared_ptr<RegexKeyLocatorNameChecker> keyLocatorCheckerRegex1 =
     make_shared<RegexKeyLocatorNameChecker>(
       Regex("^<SecurityTestConfChecker><CustomizedCheckerTest3>"));
-  CustomizedChecker checker1(Tlv::SignatureSha256WithEcdsa, keyLocatorCheckerRegex1);
+  CustomizedChecker checker1(tlv::SignatureSha256WithEcdsa, keyLocatorCheckerRegex1);
 
   result = checker1.check(*data1,
                           bind(dataChecked, _1),
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest3)
   BOOST_CHECK_EQUAL(result, -1);
 
 
-  CustomizedChecker checker2(Tlv::SignatureSha256WithRsa, keyLocatorCheckerRegex1);
+  CustomizedChecker checker2(tlv::SignatureSha256WithRsa, keyLocatorCheckerRegex1);
 
   result = checker2.check(*data1,
                           bind(dataCheckedFalse, _1),
@@ -388,7 +388,7 @@ BOOST_AUTO_TEST_CASE(HierarchicalCheckerTest1)
 
   int8_t result = 0;
 
-  HierarchicalChecker checker1(Tlv::SignatureSha256WithEcdsa);
+  HierarchicalChecker checker1(tlv::SignatureSha256WithEcdsa);
 
   result = checker1.check(*data1,
                           bind(dataChecked, _1),
@@ -421,7 +421,7 @@ BOOST_AUTO_TEST_CASE(HierarchicalCheckerTest1)
   BOOST_CHECK_EQUAL(result, -1);
 
 
-  HierarchicalChecker checker2(Tlv::SignatureSha256WithRsa);
+  HierarchicalChecker checker2(tlv::SignatureSha256WithRsa);
 
   result = checker2.check(*data1,
                           bind(dataCheckedFalse, _1),
@@ -491,7 +491,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerCheckerTest1)
 
   int8_t result = 0;
 
-  FixedSignerChecker checker1(Tlv::SignatureSha256WithEcdsa, certSet1);
+  FixedSignerChecker checker1(tlv::SignatureSha256WithEcdsa, certSet1);
 
   result = checker1.check(*data1,
                           bind(dataChecked, _1),
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerCheckerTest1)
   BOOST_CHECK_EQUAL(result, -1);
 
 
-  FixedSignerChecker checker2(Tlv::SignatureSha256WithRsa, certSet1);
+  FixedSignerChecker checker2(tlv::SignatureSha256WithRsa, certSet1);
 
   result = checker2.check(*data1,
                           bind(dataCheckedFalse, _1),
@@ -517,7 +517,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerCheckerTest1)
   BOOST_CHECK_EQUAL(result, -1);
 
 
-  FixedSignerChecker checker3(Tlv::SignatureSha256WithEcdsa, certSet2);
+  FixedSignerChecker checker3(tlv::SignatureSha256WithEcdsa, certSet2);
 
   result = checker3.check(*data1,
                           bind(dataCheckedFalse, _1),
@@ -530,7 +530,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerCheckerTest1)
   BOOST_CHECK_EQUAL(result, -1);
 
 
-  FixedSignerChecker checker4(Tlv::SignatureSha256WithRsa, certSet2);
+  FixedSignerChecker checker4(tlv::SignatureSha256WithRsa, certSet2);
 
   result = checker4.check(*data1,
                           bind(dataCheckedFalse, _1),

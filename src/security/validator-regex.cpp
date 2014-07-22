@@ -161,7 +161,7 @@ ValidatorRegex::checkPolicy(const Data& data,
                   return;
                 }
             }
-          catch (Tlv::Error& e)
+          catch (tlv::Error& e)
             {
               return onValidationFailed(data.shared_from_this(),
                                         "Cannot decode signature");

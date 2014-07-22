@@ -33,21 +33,21 @@ namespace ndn {
 class Signature
 {
 public:
-  class Error : public Tlv::Error
+  class Error : public tlv::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : Tlv::Error(what)
+      : tlv::Error(what)
     {
     }
   };
 
-  /// @deprecated use Tlv::SignatureTypeValue instead.
+  /// @deprecated use tlv::SignatureTypeValue instead.
   enum {
-    Sha256 = Tlv::DigestSha256,
-    Sha256WithRsa = Tlv::SignatureSha256WithRsa,
-    Sha256WithEcdsa = Tlv::SignatureSha256WithEcdsa
+    Sha256 = tlv::DigestSha256,
+    Sha256WithRsa = tlv::SignatureSha256WithRsa,
+    Sha256WithEcdsa = tlv::SignatureSha256WithEcdsa
   };
 
   Signature()
@@ -75,7 +75,7 @@ public:
   /**
    * @brief Set SignatureInfo from a block
    *
-   * @throws Tlv::Error if supplied block is not formatted correctly
+   * @throws tlv::Error if supplied block is not formatted correctly
    */
   void
   setInfo(const Block& info);
