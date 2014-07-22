@@ -22,7 +22,10 @@
 #ifndef NDN_META_INFO_HPP
 #define NDN_META_INFO_HPP
 
+#include "common.hpp"
+#include "encoding/block-helpers.hpp"
 #include "encoding/encoding-buffer.hpp"
+#include "util/time.hpp"
 
 namespace ndn {
 

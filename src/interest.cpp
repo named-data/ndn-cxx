@@ -228,6 +228,12 @@ Interest::wireEncode(EncodingImpl<T>& block) const
   return totalLength;
 }
 
+template size_t
+Interest::wireEncode<true>(EncodingImpl<true>& block) const;
+
+template size_t
+Interest::wireEncode<false>(EncodingImpl<false>& block) const;
+
 const Block&
 Interest::wireEncode() const
 {

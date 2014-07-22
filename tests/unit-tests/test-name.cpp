@@ -22,6 +22,8 @@
 #include "name.hpp"
 
 #include "boost-test.hpp"
+#include <boost/tuple/tuple.hpp>
+#include <boost/mpl/vector.hpp>
 
 namespace ndn {
 
@@ -126,6 +128,97 @@ BOOST_AUTO_TEST_CASE(AppendNumber)
     {
       BOOST_CHECK_EQUAL(name[i].toNumber(), i);
     }
+}
+
+class Numeric
+{
+public:
+  typedef std::list<boost::tuple<function<name::Component(uint64_t)>,
+                                 function<uint64_t(const name::Component&)>,
+                                 function<Name&(Name&, uint64_t)>,
+                                 Name/*expected*/,
+                                 uint64_t/*value*/> > Dataset;
+
+  Numeric()
+  {
+    dataset.push_back(boost::make_tuple(bind(&name::Component::fromNumberWithMarker,
+                                             0xAA, _1),
+                                        bind(&name::Component::toNumberWithMarker, _1, 0xAA),
+                                        bind(&Name::appendNumberWithMarker, _1, 0xAA, _2),
+                                        Name("/%AA%03%E8"),
+                                        1000));
+    dataset.push_back(boost::make_tuple(&name::Component::fromSegment,
+                                        bind(&name::Component::toSegment, _1),
+                                        bind(&Name::appendSegment, _1, _2),
+                                        Name("/%00%27%10"),
+                                        10000));
+    dataset.push_back(boost::make_tuple(&name::Component::fromSegmentOffset,
+                                        bind(&name::Component::toSegmentOffset, _1),
+                                        bind(&Name::appendSegmentOffset, _1, _2),
+                                        Name("/%FB%00%01%86%A0"),
+                                        100000));
+    dataset.push_back(boost::make_tuple(&name::Component::fromVersion,
+                                        bind(&name::Component::toVersion, _1),
+                                        bind(&Name::appendVersion, _1, _2),
+                                        Name("/%FD%00%0FB%40"),
+                                        1000000));
+    dataset.push_back(boost::make_tuple(&name::Component::fromSequenceNumber,
+                                        bind(&name::Component::toSequenceNumber, _1),
+                                        bind(&Name::appendSequenceNumber, _1, _2),
+                                        Name("/%FE%00%98%96%80"),
+                                        10000000));
+  }
+
+  Dataset dataset;
+};
+
+class Timestamp
+{
+public:
+  typedef std::list<boost::tuple<function<name::Component(const time::system_clock::TimePoint&)>,
+                                 function<time::system_clock::TimePoint(const name::Component&)>,
+                                 function<Name&(Name&, const time::system_clock::TimePoint&)>,
+                                 Name/*expected*/,
+                                 time::system_clock::TimePoint/*value*/> > Dataset;
+  Timestamp()
+  {
+    dataset.push_back(boost::make_tuple(&name::Component::fromTimestamp,
+                                        bind(&name::Component::toTimestamp, _1),
+                                        bind(&Name::appendTimestamp, _1, _2),
+                                        Name("/%FC%00%04%7BE%E3%1B%00%00"),
+                                        (time::getUnixEpoch() + time::days(14600/*40 years*/))));
+  }
+
+  Dataset dataset;
+};
+
+typedef boost::mpl::vector<Numeric, Timestamp> ConventionsDatasets;
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(NamingConventions, T, ConventionsDatasets, T)
+{
+  // // These octets are obtained by the snippet below.
+  // // This check is intended to detect unexpected encoding change in the future.
+  // for (typename T::Dataset::const_iterator it = this->dataset.begin();
+  //      it != this->dataset.end(); ++it) {
+  //   Name name;
+  //   name.append(it->template get<0>()(it->template get<4>()));
+  //   std::cout << name << std::endl;
+  // }
+
+  for (typename T::Dataset::const_iterator it = this->dataset.begin();
+       it != this->dataset.end(); ++it) {
+    const Name& expected = it->template get<3>();
+
+    name::Component actualComponent = it->template get<0>()(it->template get<4>());
+    BOOST_CHECK_EQUAL(actualComponent, expected[0]);
+
+    Name actualName;
+    it->template get<2>()(actualName, it->template get<4>());
+    BOOST_CHECK_EQUAL(actualName, expected);
+
+    BOOST_REQUIRE_NO_THROW(it->template get<1>()(expected[0]));
+    BOOST_CHECK_EQUAL(it->template get<1>()(expected[0]), it->template get<4>());
+  }
 }
 
 BOOST_AUTO_TEST_CASE(GetSuccessor)

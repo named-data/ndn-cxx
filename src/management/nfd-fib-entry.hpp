@@ -23,11 +23,13 @@
 #define NDN_MANAGEMENT_NFD_FIB_ENTRY_HPP
 
 #include "../encoding/block.hpp"
+#include "../encoding/block-helpers.hpp"
 #include "../encoding/encoding-buffer.hpp"
 #include "../encoding/tlv-nfd.hpp"
 #include "../name.hpp"
 
 #include <list>
+#include <sstream>
 
 namespace ndn {
 namespace nfd {

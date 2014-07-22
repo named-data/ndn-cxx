@@ -20,6 +20,8 @@
  */
 
 #include "signature-info.hpp"
+#include "encoding/block-helpers.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {

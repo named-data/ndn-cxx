@@ -84,6 +84,14 @@ Data::wireEncode(EncodingImpl<T>& block, bool unsignedPortion/* = false*/) const
   return totalLength;
 }
 
+
+template size_t
+Data::wireEncode<true>(EncodingImpl<true>& block, bool unsignedPortion) const;
+
+template size_t
+Data::wireEncode<false>(EncodingImpl<false>& block, bool unsignedPortion) const;
+
+
 const Block&
 Data::wireEncode(EncodingBuffer& encoder, const Block& signatureValue) const
 {

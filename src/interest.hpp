@@ -29,6 +29,7 @@
 #include "name.hpp"
 #include "selectors.hpp"
 #include "interest-filter.hpp"
+#include "util/time.hpp"
 #include "management/nfd-local-control-header.hpp"
 
 namespace ndn {

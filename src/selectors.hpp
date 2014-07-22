@@ -26,6 +26,7 @@
 #include "key-locator.hpp"
 #include "exclude.hpp"
 #include "encoding/encoding-buffer.hpp"
+#include "encoding/block-helpers.hpp"
 
 namespace ndn {
 

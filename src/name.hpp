@@ -28,10 +28,6 @@
 
 #include "common.hpp"
 #include "name-component.hpp"
-#include "util/time.hpp"
-
-#include "encoding/block.hpp"
-#include "encoding/encoding-buffer.hpp"
 
 #include <boost/iterator/reverse_iterator.hpp>
 
@@ -233,7 +229,9 @@ public:
   getSubName(size_t iStartComponent, size_t nComponents) const;
 
   /**
-   * Get a new name, constructed as a subset of components starting at iStartComponent until the end of the name.
+   * @brief Get a new name, constructed as a subset of components starting at
+   *        iStartComponent until the end of the name.
+   *
    * @param iStartComponent The index if the first component to get.
    * @return A new name.
    */
@@ -241,13 +239,15 @@ public:
   getSubName(size_t iStartComponent) const;
 
   /**
-   * Return a new Name with the first nComponents components of this Name.
-   * @param nComponents The number of prefix components.  If nComponents is -N then return the prefix up
-   * to name.size() - N. For example getPrefix(-1) returns the name without the final component.
+   * @brief Return a new Name with the first nComponents components of this Name.
+   *
+   * @param nComponents The number of prefix components.  If nComponents is -N then return
+   *                    the prefix up to name.size() - N. For example getPrefix(-1)
+   *                    returns the name without the final component.
    * @return A new Name.
    */
   Name
-  getPrefix(int nComponents) const
+  getPrefix(ssize_t nComponents) const
   {
     if (nComponents < 0)
       return getSubName(0, m_nameBlock.elements_size() + nComponents);
@@ -271,41 +271,87 @@ public:
    * @return This name so that you can chain calls to append.
    */
   Name&
-  appendNumber(uint64_t number)
-  {
-    m_nameBlock.push_back(Component::fromNumber(number));
-    return *this;
-  }
+  appendNumber(uint64_t number);
 
   /**
-   * @brief An alias for appendNumber(uint64_t)
+   * @brief Create a component encoded as NameComponentWithMarker
+   *
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   *
+   * @param marker 1-byte marker octet
+   * @param number The non-negative number
    */
   Name&
-  appendVersion(uint64_t number)
-  {
-    return appendNumber(number);
-  }
+  appendNumberWithMarker(uint8_t marker, uint64_t number);
 
   /**
-   * @brief Append a component with the encoded version number (current UNIX timestamp
-   *        in milliseconds)
+   * @brief Append version using NDN naming conventions
+   *
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   */
+  Name&
+  appendVersion(uint64_t version);
+
+  /**
+   * @brief Append version using NDN naming conventions based on current UNIX timestamp
+   *        in milliseconds
+   *
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   Name&
   appendVersion();
 
   /**
-   * @brief An alias for appendNumber(uint64_t)
+   * @brief Append segment number (sequential) using NDN naming conventions
+   *
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   Name&
-  appendSegment(uint64_t number)
-  {
-    return appendNumber(number);
-  }
+  appendSegment(uint64_t segmentNo);
 
   /**
-   * @brief get the successor of a name
-   * successor of a name is defined that its last component is
-   * advanced next possible value of last component of original name
+   * @brief Append segment byte offset using NDN naming conventions
+   *
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   */
+  Name&
+  appendSegmentOffset(uint64_t offset);
+
+  /**
+   * @brief Append timestamp using NDN naming conventions
+   *
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   */
+  Name&
+  appendTimestamp(const time::system_clock::TimePoint& timePoint = time::system_clock::now());
+
+  /**
+   * @brief Append sequence number using NDN naming conventions
+   *
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   */
+  Name&
+  appendSequenceNumber(uint64_t seqNo);
+
+  /**
+   * @brief Get the successor of a name
+   *
+   * The successor of a name is defined as follows:
+   *
+   *     N represents the set of NDN Names, and X,Y ∈ N.
+   *     Operator < is defined by canonical order on N.
+   *     Y is the successor of X, if (a) X < Y, and (b) ∄ Z ∈ N s.t. X < Z < Y.
+   *
+   * In plain words, successor of a name is the same name, but with its last component
+   * advanced to a next possible value.
+   *
+   * Examples:
+   *
+   * - successor for / is /%00
+   * - successor for /%00%01/%01%02 is /%00%01/%01%03
+   * - successor for /%00%01/%01%FF is /%00%01/%02%00
+   * - successor for /%00%01/%FF%FF is /%00%01/%00%00%00
+   *
    * @return a new name
    */
   Name
@@ -320,9 +366,12 @@ public:
   equals(const Name& name) const;
 
   /**
-   * Check if the N components of this name are the same as the first N components of the given name.
+   * @brief Check if the N components of this name are the same as the first N components
+   *        of the given name.
+   *
    * @param name The Name to check.
-   * @return true if this matches the given name, otherwise false.  This always returns true if this name is empty.
+   * @return true if this matches the given name, otherwise false.  This always returns
+   *              true if this name is empty.
    */
   bool
   isPrefixOf(const Name& name) const;
@@ -534,255 +583,11 @@ private:
   mutable Block m_nameBlock;
 };
 
-inline std::ostream&
-operator<<(std::ostream& os, const Name& name)
-{
-  if (name.empty())
-    {
-      os << "/";
-    }
-  else
-    {
-      for (Name::const_iterator i = name.begin(); i != name.end(); i++) {
-        os << "/";
-        i->toUri(os);
-      }
-    }
-  return os;
-}
+std::ostream&
+operator<<(std::ostream& os, const Name& name);
 
-inline std::string
-Name::toUri() const
-{
-  std::ostringstream os;
-  os << *this;
-  return os.str();
-}
-
-inline std::istream&
-operator>>(std::istream& is, Name& name)
-{
-  std::string inputString;
-  is >> inputString;
-  name.set(inputString);
-
-  return is;
-}
-
-
-inline void
-Name::set(const char* uri_cstr)
-{
-  clear();
-
-  std::string uri = uri_cstr;
-  trim(uri);
-  if (uri.size() == 0)
-    return;
-
-  size_t iColon = uri.find(':');
-  if (iColon != std::string::npos) {
-    // Make sure the colon came before a '/'.
-    size_t iFirstSlash = uri.find('/');
-    if (iFirstSlash == std::string::npos || iColon < iFirstSlash) {
-      // Omit the leading protocol such as ndn:
-      uri.erase(0, iColon + 1);
-      trim(uri);
-    }
-  }
-
-  // Trim the leading slash and possibly the authority.
-  if (uri[0] == '/') {
-    if (uri.size() >= 2 && uri[1] == '/') {
-      // Strip the authority following "//".
-      size_t iAfterAuthority = uri.find('/', 2);
-      if (iAfterAuthority == std::string::npos)
-        // Unusual case: there was only an authority.
-        return;
-      else {
-        uri.erase(0, iAfterAuthority + 1);
-        trim(uri);
-      }
-    }
-    else {
-      uri.erase(0, 1);
-      trim(uri);
-    }
-  }
-
-  size_t iComponentStart = 0;
-
-  // Unescape the components.
-  while (iComponentStart < uri.size()) {
-    size_t iComponentEnd = uri.find("/", iComponentStart);
-    if (iComponentEnd == std::string::npos)
-      iComponentEnd = uri.size();
-
-    Component component = Component::fromEscapedString(&uri[0], iComponentStart, iComponentEnd);
-    // Ignore illegal components.  This also gets rid of a trailing '/'.
-    if (!component.empty())
-      append(Component(component));
-
-    iComponentStart = iComponentEnd + 1;
-  }
-}
-
-inline Name&
-Name::append(const Name& name)
-{
-  if (&name == this)
-    // Copying from this name, so need to make a copy first.
-    return append(Name(name));
-
-  for (size_t i = 0; i < name.size(); ++i)
-    append(name.at(i));
-
-  return *this;
-}
-
-inline Name&
-Name::appendVersion()
-{
-  appendNumber(time::toUnixTimestamp(time::system_clock::now()).count());
-  return *this;
-}
-
-inline Name
-Name::getSubName(size_t iStartComponent, size_t nComponents) const
-{
-  Name result;
-
-  size_t iEnd = iStartComponent + nComponents;
-  for (size_t i = iStartComponent; i < iEnd && i < size(); ++i)
-    result.append(at(i));
-
-  return result;
-}
-
-inline Name
-Name::getSubName(size_t iStartComponent) const
-{
-  Name result;
-
-  for (size_t i = iStartComponent; i < size(); ++i)
-    result.append(at(i));
-
-  return result;
-}
-
-inline Name
-Name::getSuccessor() const
-{
-  if (empty()) {
-    static uint8_t firstValue[] = { 0 };
-    Name firstName;
-    firstName.append(firstValue, 1);
-    return firstName;
-  }
-
-  return getPrefix(-1).append(get(-1).getSuccessor());
-}
-
-inline bool
-Name::equals(const Name& name) const
-{
-  if (size() != name.size())
-    return false;
-
-  for (size_t i = 0; i < size(); ++i) {
-    if (at(i) != name.at(i))
-      return false;
-  }
-
-  return true;
-}
-
-inline bool
-Name::isPrefixOf(const Name& name) const
-{
-  // This name is longer than the name we are checking it against.
-  if (size() > name.size())
-    return false;
-
-  // Check if at least one of given components doesn't match.
-  for (size_t i = 0; i < size(); ++i) {
-    if (at(i) != name.at(i))
-      return false;
-  }
-
-  return true;
-}
-
-
-inline int
-Name::compare(const Name& other) const
-{
-  for (size_t i = 0; i < size() && i < other.size(); ++i) {
-    int comparison = at(i).compare(other.at(i));
-    if (comparison == 0)
-      // The components at this index are equal, so check the next components.
-      continue;
-
-    // Otherwise, the result is based on the components at this index.
-    return comparison;
-  }
-
-  // The components up to min(this.size(), other.size()) are equal, so the shorter name is less.
-  if (size() < other.size())
-    return -1;
-  else if (size() > other.size())
-    return 1;
-  else
-    return 0;
-}
-
-
-
-template<bool T>
-inline size_t
-Name::wireEncode(EncodingImpl<T>& blk) const
-{
-  size_t totalLength = 0;
-
-  for (const_reverse_iterator i = rbegin();
-       i != rend();
-       ++i)
-    {
-      totalLength += i->wireEncode(blk);
-    }
-
-  totalLength += blk.prependVarNumber(totalLength);
-  totalLength += blk.prependVarNumber(tlv::Name);
-  return totalLength;
-}
-
-inline const Block&
-Name::wireEncode() const
-{
-  if (m_nameBlock.hasWire())
-    return m_nameBlock;
-
-  EncodingEstimator estimator;
-  size_t estimatedSize = wireEncode(estimator);
-
-  EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
-
-  m_nameBlock = buffer.block();
-  m_nameBlock.parse();
-
-  return m_nameBlock;
-}
-
-inline void
-Name::wireDecode(const Block& wire)
-{
-  if (wire.type() != tlv::Name)
-    throw tlv::Error("Unexpected TLV type when decoding Name");
-
-  m_nameBlock = wire;
-  m_nameBlock.parse();
-}
+std::istream&
+operator>>(std::istream& is, Name& name);
 
 inline bool
 Name::hasWire() const

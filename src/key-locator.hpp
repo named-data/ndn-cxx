@@ -23,6 +23,8 @@
 #define NDN_KEY_LOCATOR_HPP
 
 #include "encoding/block.hpp"
+#include "encoding/encoding-buffer.hpp"
+
 #include "name.hpp"
 
 namespace ndn {
