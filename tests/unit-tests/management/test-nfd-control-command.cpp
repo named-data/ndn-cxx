@@ -225,8 +225,7 @@ BOOST_AUTO_TEST_CASE(RibRegister)
   BOOST_CHECK_EQUAL(p1.getCost(), 0);
   BOOST_REQUIRE(p1.hasFlags());
   BOOST_CHECK_EQUAL(p1.getFlags(), static_cast<uint64_t>(ROUTE_FLAG_CHILD_INHERIT));
-  BOOST_REQUIRE(p1.hasExpirationPeriod());
-  BOOST_CHECK_GT(p1.getExpirationPeriod(), time::hours(240));
+  BOOST_CHECK_EQUAL(p1.hasExpirationPeriod(), false);
 
   ControlParameters p2;
   p2.setName("ndn:/example")
@@ -234,7 +233,7 @@ BOOST_AUTO_TEST_CASE(RibRegister)
     .setCost(6);
   BOOST_CHECK_NO_THROW(command.validateRequest(p2));
   command.applyDefaultsToRequest(p2);
-  BOOST_CHECK_EQUAL(p2.getExpirationPeriod(), time::hours(1));
+  BOOST_CHECK_EQUAL(p2.hasExpirationPeriod(), false);
   BOOST_CHECK_NO_THROW(command.validateResponse(p2));
 }
 

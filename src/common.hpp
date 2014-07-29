@@ -37,6 +37,12 @@
 #define DEPRECATED(func) func
 #endif
 
+namespace ndn {
+
+const size_t MAX_NDN_PACKET_SIZE = 8800;
+
+} // namespace ndn
+
 #ifdef NDN_CXX_HAVE_CXX11
 
 #if defined(__GNUC__)
@@ -49,7 +55,6 @@
 #  error "NDN-CXX library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
 #endif // defined(__clang__) && (__cplusplus < 201103L)
 
-
 #include <memory>
 #include <functional>
 
@@ -60,6 +65,7 @@ namespace func_lib = std;
 
 using std::shared_ptr;
 using std::weak_ptr;
+using std::bad_weak_ptr;
 using std::make_shared;
 using std::enable_shared_from_this;
 
@@ -102,6 +108,7 @@ namespace func_lib = boost;
 
 using boost::shared_ptr;
 using boost::weak_ptr;
+using boost::bad_weak_ptr;
 using boost::make_shared;
 using boost::enable_shared_from_this;
 

@@ -29,6 +29,12 @@
 #include "buffer.hpp"
 #include "tlv.hpp"
 
+namespace boost {
+namespace asio {
+class const_buffer;
+} // namespace asio
+} // namespace boost
+
 namespace ndn {
 
 template<bool> class EncodingImpl;
@@ -280,6 +286,9 @@ public: // EqualityComparable concept
 
   bool
   operator!=(const Block& other) const;
+
+public: // ConvertibleToConstBuffer
+  operator boost::asio::const_buffer() const;
 
 protected:
   ConstBufferPtr m_buffer;

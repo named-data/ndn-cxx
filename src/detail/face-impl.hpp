@@ -137,6 +137,27 @@ public:
     m_pendingInterestTable.remove_if(MatchPendingInterestId(pendingInterestId));
   }
 
+  void
+  asyncPutData(const shared_ptr<const Data>& data)
+  {
+    if (!m_face.m_transport->isConnected())
+      m_face.m_transport->connect(*m_face.m_ioService,
+                                  bind(&Face::onReceiveElement, &m_face, _1));
+
+    if (!m_face.m_transport->isExpectingData())
+      m_face.m_transport->resume();
+
+    if (!data->getLocalControlHeader().empty(false, true))
+      {
+        m_face.m_transport->send(data->getLocalControlHeader().wireEncode(*data, false, true),
+                                 data->wireEncode());
+      }
+    else
+      {
+        m_face.m_transport->send(data->wireEncode());
+      }
+  }
+
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
 

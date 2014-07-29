@@ -31,6 +31,7 @@
 #include "buffer-stream.hpp"
 
 #include <boost/lexical_cast.hpp>
+#include <boost/asio/buffer.hpp>
 
 namespace ndn {
 
@@ -396,5 +397,11 @@ Block::get(uint32_t type) const
   throw Error("(Block::get) Requested a non-existed type [" +
               boost::lexical_cast<std::string>(type) + "] from Block");
 }
+
+Block::operator boost::asio::const_buffer() const
+{
+  return boost::asio::const_buffer(wire(), size());
+}
+
 
 } // namespace ndn
