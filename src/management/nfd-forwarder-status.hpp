@@ -39,12 +39,12 @@ namespace nfd {
 class ForwarderStatus
 {
 public:
-  class Error : public Tlv::Error
+  class Error : public tlv::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : Tlv::Error(what)
+      : tlv::Error(what)
     {
     }
   };
@@ -314,7 +314,7 @@ ForwarderStatus::wireEncode(EncodingImpl<T>& encoder) const
                                                 m_nfdVersion);
 
   totalLength += encoder.prependVarNumber(totalLength);
-  totalLength += encoder.prependVarNumber(Tlv::Content);
+  totalLength += encoder.prependVarNumber(tlv::Content);
   return totalLength;
 }
 
@@ -337,7 +337,7 @@ ForwarderStatus::wireEncode() const
 inline void
 ForwarderStatus::wireDecode(const Block& block)
 {
-  if (block.type() != Tlv::Content) {
+  if (block.type() != tlv::Content) {
     throw Error("expecting Content block for Status payload");
   }
   m_wire = block;

@@ -62,8 +62,8 @@ public:
   /**
    * @brief Create name::Component from a wire block
    *
-   * @param wire Tlv::NameComponent Block from which to create name::Component
-   * @throws Error if wire.type() is not Tlv::NameComponent
+   * @param wire tlv::NameComponent Block from which to create name::Component
+   * @throws Error if wire.type() is not tlv::NameComponent
    *
    * Any block can be implicitly converted to name::Component
    */
@@ -74,7 +74,7 @@ public:
    *
    * @param buffer A pointer to an immutable buffer
    *
-   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
    * Note that this method **will not** allocate new memory for and copy the payload until
    * toWire() method is called.
    */
@@ -85,7 +85,7 @@ public:
    * @brief Create a new name::Component from the buffer (data from buffer will be copied)
    * @param buffer A reference to the buffer
    *
-   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
    * Note that this method **will** allocate new memory for and copy the payload.
    */
   explicit
@@ -96,7 +96,7 @@ public:
    * @param buffer     A pointer to the first byte of the buffer
    * @param bufferSize Size of the buffer
    *
-   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
    * Note that this method **will** allocate new memory for and copy the payload.
    */
   Component(const uint8_t* buffer, size_t bufferSize);
@@ -106,7 +106,7 @@ public:
    * @param begin Iterator pointing to the beginning of the buffer
    * @param end   Iterator pointing to the ending of the buffer
    *
-   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
    * Note that this method **will** allocate new memory for and copy the payload.
    */
   template<class InputIterator>
@@ -118,7 +118,7 @@ public:
    * @param str Zero-ended string.  Note that this string will be interpreted as is (i.e.,
    *            it will not be interpreted as URI)
    *
-   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
    * Note that this method **will** allocate new memory for and copy the payload.
    */
   explicit
@@ -130,7 +130,7 @@ public:
    * @param str Const reference to STL string.  Note that this string will be interpreted
    *            as is (i.e., it will not be interpreted as URI)
    *
-   * This constructor will create a new Tlv::NameComponent Block with `buffer` as a payload.
+   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
    * Note that this method **will** allocate new memory for and copy the payload.
    */
   explicit
@@ -410,7 +410,7 @@ operator<<(std::ostream& os, const Component& component)
 
 inline
 Component::Component()
-  : Block(Tlv::NameComponent)
+  : Block(tlv::NameComponent)
 {
 }
 
@@ -418,44 +418,44 @@ inline
 Component::Component(const Block& wire)
   : Block(wire)
 {
-  if (type() != Tlv::NameComponent)
+  if (type() != tlv::NameComponent)
     throw Error("Constructing name component from non name component TLV wire block");
 }
 
 inline
 Component::Component(const ConstBufferPtr& buffer)
-  : Block(Tlv::NameComponent, buffer)
+  : Block(tlv::NameComponent, buffer)
 {
 }
 
 inline
 Component::Component(const Buffer& value)
-  : Block(dataBlock(Tlv::NameComponent, value.buf(), value.size()))
+  : Block(dataBlock(tlv::NameComponent, value.buf(), value.size()))
 {
 }
 
 inline
 Component::Component(const uint8_t* value, size_t valueLen)
-  : Block(dataBlock(Tlv::NameComponent, value, valueLen))
+  : Block(dataBlock(tlv::NameComponent, value, valueLen))
 {
 }
 
 template<class InputIterator>
 inline
 Component::Component(InputIterator begin, InputIterator end)
-  : Block(dataBlock(Tlv::NameComponent, begin, end))
+  : Block(dataBlock(tlv::NameComponent, begin, end))
 {
 }
 
 inline
 Component::Component(const char* str)
-  : Block(dataBlock(Tlv::NameComponent, str, ::strlen(str)))
+  : Block(dataBlock(tlv::NameComponent, str, ::strlen(str)))
 {
 }
 
 inline
 Component::Component(const std::string& str)
-  : Block(dataBlock(Tlv::NameComponent, str.c_str(), str.size()))
+  : Block(dataBlock(tlv::NameComponent, str.c_str(), str.size()))
 {
 }
 
@@ -528,15 +528,15 @@ Component::toUri(std::ostream& result) const
 inline Component
 Component::fromNumber(uint64_t number)
 {
-  /// \todo Change to Tlv::NumberComponent
-  return nonNegativeIntegerBlock(Tlv::NameComponent, number);
+  /// \todo Change to tlv::NumberComponent
+  return nonNegativeIntegerBlock(tlv::NameComponent, number);
 }
 
 
 inline uint64_t
 Component::toNumber() const
 {
-  /// \todo Check if Component is of Tlv::NumberComponent type
+  /// \todo Check if Component is of tlv::NumberComponent type
   return readNonNegativeInteger(static_cast<const Block&>(*this));
 }
 
@@ -592,7 +592,7 @@ Component::getSuccessor() const
   }
 
   totalLength += encoder.prependVarNumber(totalLength);
-  totalLength += encoder.prependVarNumber(Tlv::NameComponent);
+  totalLength += encoder.prependVarNumber(tlv::NameComponent);
 
   return encoder.block();
 }
@@ -606,7 +606,7 @@ Component::wireEncode(EncodingImpl<T>& block) const
   if (value_size() > 0)
     totalLength += block.prependByteArray(value(), value_size());
   totalLength += block.prependVarNumber(value_size());
-  totalLength += block.prependVarNumber(Tlv::NameComponent);
+  totalLength += block.prependVarNumber(tlv::NameComponent);
   return totalLength;
 }
 
@@ -629,7 +629,7 @@ Component::wireEncode() const
 inline void
 Component::wireDecode(const Block& wire)
 {
-  if (wire.type() != Tlv::NameComponent)
+  if (wire.type() != tlv::NameComponent)
     throw Error("wireDecode name component from non name component TLV wire block");
 
   *this = wire;

@@ -868,7 +868,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
   if (signature.get() == 0)
     throw Error("Signature is NULL!\n");
 
-  return Block(Tlv::SignatureValue,
+  return Block(tlv::SignatureValue,
                make_shared<Buffer>(CFDataGetBytePtr(signature.get()),
                                    CFDataGetLength(signature.get())));
 }

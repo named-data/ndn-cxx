@@ -72,12 +72,12 @@ enum LocalControlFeature {
 class ControlParameters
 {
 public:
-  class Error : public Tlv::Error
+  class Error : public tlv::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : Tlv::Error(what)
+      : tlv::Error(what)
     {
     }
   };
@@ -471,7 +471,7 @@ ControlParameters::wireDecode(const Block& block)
   m_wire.parse();
   Block::element_const_iterator val;
 
-  val = m_wire.find(Tlv::Name);
+  val = m_wire.find(tlv::Name);
   m_hasFields[CONTROL_PARAMETER_NAME] = val != m_wire.elements_end();
   if (this->hasName()) {
     m_name.wireDecode(*val);

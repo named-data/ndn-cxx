@@ -142,24 +142,24 @@ MetaInfo::wireEncode(EncodingImpl<T>& blk) const
   // FinalBlockId
   if (!m_finalBlockId.empty())
     {
-      totalLength += prependNestedBlock(blk, Tlv::FinalBlockId, m_finalBlockId);
+      totalLength += prependNestedBlock(blk, tlv::FinalBlockId, m_finalBlockId);
     }
 
   // FreshnessPeriod
   if (m_freshnessPeriod >= time::milliseconds::zero())
     {
-      totalLength += prependNonNegativeIntegerBlock(blk, Tlv::FreshnessPeriod,
+      totalLength += prependNonNegativeIntegerBlock(blk, tlv::FreshnessPeriod,
                                                     m_freshnessPeriod.count());
     }
 
   // ContentType
   if (m_type != TYPE_DEFAULT)
     {
-      totalLength += prependNonNegativeIntegerBlock(blk, Tlv::ContentType, m_type);
+      totalLength += prependNonNegativeIntegerBlock(blk, tlv::ContentType, m_type);
     }
 
   totalLength += blk.prependVarNumber(totalLength);
-  totalLength += blk.prependVarNumber(Tlv::MetaInfo);
+  totalLength += blk.prependVarNumber(tlv::MetaInfo);
   return totalLength;
 }
 
@@ -190,7 +190,7 @@ MetaInfo::wireDecode(const Block& wire)
   //                FreshnessPeriod?
 
   // ContentType
-  Block::element_const_iterator val = m_wire.find(Tlv::ContentType);
+  Block::element_const_iterator val = m_wire.find(tlv::ContentType);
   if (val != m_wire.elements().end())
     {
       m_type = readNonNegativeInteger(*val);
@@ -199,7 +199,7 @@ MetaInfo::wireDecode(const Block& wire)
     m_type = TYPE_DEFAULT;
 
   // FreshnessPeriod
-  val = m_wire.find(Tlv::FreshnessPeriod);
+  val = m_wire.find(tlv::FreshnessPeriod);
   if (val != m_wire.elements().end())
     {
       m_freshnessPeriod = time::milliseconds(readNonNegativeInteger(*val));
@@ -208,11 +208,11 @@ MetaInfo::wireDecode(const Block& wire)
     m_freshnessPeriod = time::milliseconds::min();
 
   // FinalBlockId
-  val = m_wire.find(Tlv::FinalBlockId);
+  val = m_wire.find(tlv::FinalBlockId);
   if (val != m_wire.elements().end())
     {
       m_finalBlockId = val->blockFromValue();
-      if (m_finalBlockId.type() != Tlv::NameComponent)
+      if (m_finalBlockId.type() != tlv::NameComponent)
         {
           /// @todo May or may not throw exception later...
           m_finalBlockId.reset();

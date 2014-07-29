@@ -94,10 +94,10 @@ BlockPrinter(const ndn::Block& block, const std::string& indent = "")
   std::cout << " (size: " << block.value_size() << ")";
 
   try {
-    // if (block.type() != ndn::Tlv::Content && block.type() != ndn::Tlv::SignatureValue)
+    // if (block.type() != ndn::tlv::Content && block.type() != ndn::tlv::SignatureValue)
     block.parse();
   }
-  catch (ndn::Tlv::Error& e) {
+  catch (ndn::tlv::Error& e) {
     // pass (e.g., leaf block reached)
 
     // @todo: Figure how to deterministically figure out that value is not recursive TLV block

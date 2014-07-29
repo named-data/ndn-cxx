@@ -77,7 +77,7 @@ public:
    * Create a new Name with no components.
    */
   Name()
-    : m_nameBlock(Tlv::Name)
+    : m_nameBlock(tlv::Name)
   {
   }
 
@@ -198,10 +198,10 @@ public:
   Name&
   append(const Block& value)
   {
-    if (value.type() == Tlv::NameComponent)
+    if (value.type() == tlv::NameComponent)
       m_nameBlock.push_back(value);
     else
-      m_nameBlock.push_back(Block(Tlv::NameComponent, value));
+      m_nameBlock.push_back(Block(tlv::NameComponent, value));
 
     return *this;
   }
@@ -220,7 +220,7 @@ public:
   void
   clear()
   {
-    m_nameBlock = Block(Tlv::Name);
+    m_nameBlock = Block(tlv::Name);
   }
 
   /**
@@ -752,7 +752,7 @@ Name::wireEncode(EncodingImpl<T>& blk) const
     }
 
   totalLength += blk.prependVarNumber(totalLength);
-  totalLength += blk.prependVarNumber(Tlv::Name);
+  totalLength += blk.prependVarNumber(tlv::Name);
   return totalLength;
 }
 
@@ -777,8 +777,8 @@ Name::wireEncode() const
 inline void
 Name::wireDecode(const Block& wire)
 {
-  if (wire.type() != Tlv::Name)
-    throw Tlv::Error("Unexpected TLV type when decoding Name");
+  if (wire.type() != tlv::Name)
+    throw tlv::Error("Unexpected TLV type when decoding Name");
 
   m_nameBlock = wire;
   m_nameBlock.parse();

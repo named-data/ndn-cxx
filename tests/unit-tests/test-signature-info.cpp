@@ -48,14 +48,14 @@ BOOST_AUTO_TEST_CASE(Constructor)
   BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
   BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
 
-  SignatureInfo sha256Info(Tlv::DigestSha256);
-  BOOST_CHECK_EQUAL(sha256Info.getSignatureType(), Tlv::DigestSha256);
+  SignatureInfo sha256Info(tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(sha256Info.getSignatureType(), tlv::DigestSha256);
   BOOST_CHECK_EQUAL(sha256Info.hasKeyLocator(), false);
   BOOST_CHECK_THROW(sha256Info.getKeyLocator(), SignatureInfo::Error);
 
   KeyLocator keyLocator("/test/key/locator");
-  SignatureInfo sha256RsaInfo(Tlv::SignatureSha256WithRsa, keyLocator);
-  BOOST_CHECK_EQUAL(sha256RsaInfo.getSignatureType(), Tlv::SignatureSha256WithRsa);
+  SignatureInfo sha256RsaInfo(tlv::SignatureSha256WithRsa, keyLocator);
+  BOOST_CHECK_EQUAL(sha256RsaInfo.getSignatureType(), tlv::SignatureSha256WithRsa);
   BOOST_CHECK_EQUAL(sha256RsaInfo.hasKeyLocator(), true);
   BOOST_CHECK_NO_THROW(sha256RsaInfo.getKeyLocator());
   BOOST_CHECK_EQUAL(sha256RsaInfo.getKeyLocator().getName(), Name("/test/key/locator"));
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
                                 encoded.wire() + encoded.size());
 
   sha256RsaInfo = SignatureInfo(sigInfoBlock);
-  BOOST_CHECK_EQUAL(sha256RsaInfo.getSignatureType(), Tlv::SignatureSha256WithRsa);
+  BOOST_CHECK_EQUAL(sha256RsaInfo.getSignatureType(), tlv::SignatureSha256WithRsa);
   BOOST_CHECK_EQUAL(sha256RsaInfo.hasKeyLocator(), true);
   BOOST_CHECK_NO_THROW(sha256RsaInfo.getKeyLocator());
   BOOST_CHECK_EQUAL(sha256RsaInfo.getKeyLocator().getName(), Name("/test/key/locator"));
@@ -91,14 +91,14 @@ BOOST_AUTO_TEST_CASE(ConstructorError)
             0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72
   };
   Block errorBlock1(error1, sizeof(error1));
-  BOOST_CHECK_THROW(SignatureInfo info(errorBlock1), Tlv::Error);
+  BOOST_CHECK_THROW(SignatureInfo info(errorBlock1), tlv::Error);
 
   const uint8_t error2[] = {
     0x16, 0x01, // SignatureInfo
       0x01 // Wrong SignatureInfo value
   };
   Block errorBlock2(error2, sizeof(error2));
-  BOOST_CHECK_THROW(SignatureInfo info(errorBlock2), Tlv::Error);
+  BOOST_CHECK_THROW(SignatureInfo info(errorBlock2), tlv::Error);
 
   const uint8_t error3[] = {
     0x16, 0x01, // SignatureInfo
@@ -114,13 +114,13 @@ BOOST_AUTO_TEST_CASE(ConstructorError)
             0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72
   };
   Block errorBlock3(error3, sizeof(error3));
-  BOOST_CHECK_THROW(SignatureInfo info(errorBlock3), Tlv::Error);
+  BOOST_CHECK_THROW(SignatureInfo info(errorBlock3), tlv::Error);
 
   const uint8_t error4[] = {
     0x16, 0x00 // Empty SignatureInfo
   };
   Block errorBlock4(error4, sizeof(error4));
-  BOOST_CHECK_THROW(SignatureInfo info(errorBlock4), Tlv::Error);
+  BOOST_CHECK_THROW(SignatureInfo info(errorBlock4), tlv::Error);
 
 }
 
@@ -131,8 +131,8 @@ BOOST_AUTO_TEST_CASE(SetterGetter)
   BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
   BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
 
-  info.setSignatureType(Tlv::SignatureSha256WithRsa);
-  BOOST_CHECK_EQUAL(info.getSignatureType(), Tlv::SignatureSha256WithRsa);
+  info.setSignatureType(tlv::SignatureSha256WithRsa);
+  BOOST_CHECK_EQUAL(info.getSignatureType(), tlv::SignatureSha256WithRsa);
   BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
 
   KeyLocator keyLocator("/test/key/locator");

@@ -24,14 +24,14 @@
 namespace ndn {
 
 DigestSha256::DigestSha256()
-  : Signature(SignatureInfo(Tlv::DigestSha256))
+  : Signature(SignatureInfo(tlv::DigestSha256))
 {
 }
 
 DigestSha256::DigestSha256(const Signature& signature)
   : Signature(signature)
 {
-  if (getType() != Tlv::DigestSha256)
+  if (getType() != tlv::DigestSha256)
     throw Error("Incorrect signature type");
 }
 

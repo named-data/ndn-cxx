@@ -537,7 +537,7 @@ ValidatorConfig::checkPolicy(const Interest& interest,
       return onValidationFailed(interest.shared_from_this(),
                                 "No valid signature");
     }
-  catch (Tlv::Error& e)
+  catch (tlv::Error& e)
     {
       return onValidationFailed(interest.shared_from_this(),
                                 "Cannot decode signature");
@@ -569,7 +569,7 @@ ValidatorConfig::checkTimestamp(const shared_ptr<const Interest>& interest,
         time::fromUnixTimestamp(
           time::milliseconds(interestName.get(-signed_interest::MIN_LENGTH).toNumber()));
     }
-  catch (Tlv::Error& e)
+  catch (tlv::Error& e)
     {
       return onValidationFailed(interest,
                                 "Cannot decode signature related TLVs");

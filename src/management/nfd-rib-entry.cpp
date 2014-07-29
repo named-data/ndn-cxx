@@ -266,7 +266,7 @@ RibEntry::wireDecode(const Block& wire)
 
   Block::element_const_iterator val = m_wire.elements_begin();
 
-  if (val != m_wire.elements_end() && val->type() == Tlv::Name) {
+  if (val != m_wire.elements_end() && val->type() == tlv::Name) {
     m_prefix.wireDecode(*val);
     ++val;
   }

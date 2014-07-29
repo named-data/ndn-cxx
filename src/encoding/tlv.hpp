@@ -32,7 +32,7 @@ namespace ndn {
 /**
  * @brief Namespace defining NDN-TLV related constants and procedures
  */
-namespace Tlv {
+namespace tlv {
 
 class Error : public std::runtime_error
 {
@@ -125,7 +125,7 @@ readType(InputIterator& begin, const InputIterator& end, uint32_t& type);
 /**
  * @brief Read VAR-NUMBER in NDN-TLV encoding
  *
- * @throws This call will throw ndn::Tlv::Error (aka std::runtime_error) if number cannot be read
+ * @throws This call will throw ndn::tlv::Error (aka std::runtime_error) if number cannot be read
  *
  * Note that after call finished, begin will point to the first byte after the read VAR-NUMBER
  */
@@ -136,7 +136,7 @@ readVarNumber(InputIterator& begin, const InputIterator& end);
 /**
  * @brief Read TLV Type
  *
- * @throws This call will throw ndn::Tlv::Error (aka std::runtime_error) if number cannot be read
+ * @throws This call will throw ndn::tlv::Error (aka std::runtime_error) if number cannot be read
  *
  * This call is largely equivalent to tlv::readVarNumber, but exception will be thrown if type
  * is larger than 2^32-1 (type in this library is implemented as uint32_t)
@@ -160,7 +160,7 @@ writeVarNumber(std::ostream& os, uint64_t varNumber);
 /**
  * @brief Read nonNegativeInteger in NDN-TLV encoding
  *
- * This call will throw ndn::Tlv::Error (aka std::runtime_error) if number cannot be read
+ * This call will throw ndn::tlv::Error (aka std::runtime_error) if number cannot be read
  *
  * Note that after call finished, begin will point to the first byte after the read VAR-NUMBER
  *
@@ -536,7 +536,10 @@ writeNonNegativeInteger(std::ostream& os, uint64_t varNumber)
 }
 
 
-} // namespace Tlv
+} // namespace tlv
+
+/// @deprecated use namespace tlv instead
+namespace Tlv = tlv;
 
 } // namespace ndn
 

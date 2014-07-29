@@ -332,7 +332,7 @@ SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength,
                                  true,
                                  new SignerFilter(rng, signer, new FileSink(os)));
 
-                    return Block(Tlv::SignatureValue, os.buf());
+                    return Block(tlv::SignatureValue, os.buf());
                   }
                 default:
                   throw Error("Unsupported digest algorithm!");
@@ -368,7 +368,7 @@ SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength,
 
                   shared_ptr<Buffer> sigBuffer = make_shared<Buffer>(buf, bufSize);
 
-                  return Block(Tlv::SignatureValue, sigBuffer);
+                  return Block(tlv::SignatureValue, sigBuffer);
                 }
               default:
                 throw Error("Unsupported digest algorithm!");

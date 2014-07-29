@@ -241,13 +241,13 @@ Selectors::wireEncode(EncodingImpl<T>& block) const
   // MustBeFresh
   if (getMustBeFresh())
     {
-      totalLength += prependBooleanBlock(block, Tlv::MustBeFresh);
+      totalLength += prependBooleanBlock(block, tlv::MustBeFresh);
     }
 
   // ChildSelector
   if (getChildSelector() >= 0)
     {
-      totalLength += prependNonNegativeIntegerBlock(block, Tlv::ChildSelector, getChildSelector());
+      totalLength += prependNonNegativeIntegerBlock(block, tlv::ChildSelector, getChildSelector());
     }
 
   // Exclude
@@ -265,19 +265,19 @@ Selectors::wireEncode(EncodingImpl<T>& block) const
   // MaxSuffixComponents
   if (getMaxSuffixComponents() >= 0)
     {
-      totalLength += prependNonNegativeIntegerBlock(block, Tlv::MaxSuffixComponents,
+      totalLength += prependNonNegativeIntegerBlock(block, tlv::MaxSuffixComponents,
                                                     getMaxSuffixComponents());
     }
 
   // MinSuffixComponents
   if (getMinSuffixComponents() >= 0)
     {
-      totalLength += prependNonNegativeIntegerBlock(block, Tlv::MinSuffixComponents,
+      totalLength += prependNonNegativeIntegerBlock(block, tlv::MinSuffixComponents,
                                                     getMinSuffixComponents());
     }
 
   totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(Tlv::Selectors);
+  totalLength += block.prependVarNumber(tlv::Selectors);
   return totalLength;
 }
 
@@ -300,8 +300,8 @@ Selectors::wireEncode() const
 inline void
 Selectors::wireDecode(const Block& wire)
 {
-  if (wire.type() != Tlv::Selectors)
-    throw Tlv::Error("Unexpected TLV type when decoding Selectors");
+  if (wire.type() != tlv::Selectors)
+    throw tlv::Error("Unexpected TLV type when decoding Selectors");
 
   *this = Selectors();
 
@@ -309,42 +309,42 @@ Selectors::wireDecode(const Block& wire)
   m_wire.parse();
 
   // MinSuffixComponents
-  Block::element_const_iterator val = m_wire.find(Tlv::MinSuffixComponents);
+  Block::element_const_iterator val = m_wire.find(tlv::MinSuffixComponents);
   if (val != m_wire.elements_end())
     {
       m_minSuffixComponents = readNonNegativeInteger(*val);
     }
 
   // MaxSuffixComponents
-  val = m_wire.find(Tlv::MaxSuffixComponents);
+  val = m_wire.find(tlv::MaxSuffixComponents);
   if (val != m_wire.elements_end())
     {
       m_maxSuffixComponents = readNonNegativeInteger(*val);
     }
 
   // PublisherPublicKeyLocator
-  val = m_wire.find(Tlv::KeyLocator);
+  val = m_wire.find(tlv::KeyLocator);
   if (val != m_wire.elements_end())
     {
       m_publisherPublicKeyLocator.wireDecode(*val);
     }
 
   // Exclude
-  val = m_wire.find(Tlv::Exclude);
+  val = m_wire.find(tlv::Exclude);
   if (val != m_wire.elements_end())
     {
       m_exclude.wireDecode(*val);
     }
 
   // ChildSelector
-  val = m_wire.find(Tlv::ChildSelector);
+  val = m_wire.find(tlv::ChildSelector);
   if (val != m_wire.elements_end())
     {
       m_childSelector = readNonNegativeInteger(*val);
     }
 
   //MustBeFresh aka AnswerOriginKind
-  val = m_wire.find(Tlv::MustBeFresh);
+  val = m_wire.find(tlv::MustBeFresh);
   if (val != m_wire.elements_end())
     {
       m_mustBeFresh = true;

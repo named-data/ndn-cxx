@@ -69,7 +69,7 @@ SecRuleRelative::satisfy(const Data& data)
       const Name& signerName = keyLocator.getName();
       return satisfy(dataName, signerName);
     }
-  catch (Tlv::Error& e)
+  catch (tlv::Error& e)
     {
       return false;
     }
@@ -120,7 +120,7 @@ SecRuleRelative::matchSignerName(const Data& data)
       const Name& signerName = keyLocator.getName();
       return m_signerNameRegex.match(signerName);
     }
-  catch (Tlv::Error& e)
+  catch (tlv::Error& e)
     {
       return false;
     }

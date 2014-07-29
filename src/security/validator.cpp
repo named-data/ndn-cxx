@@ -170,7 +170,7 @@ Validator::verifySignature(const uint8_t* buf,
 
       switch (sig.getType())
         {
-        case Tlv::SignatureSha256WithRsa:
+        case tlv::SignatureSha256WithRsa:
           {
             if (key.getKeyType() != KEY_TYPE_RSA)
               return false;
@@ -185,7 +185,7 @@ Validator::verifySignature(const uint8_t* buf,
             return verifier.VerifyMessage(buf, size,
                                           sig.getValue().value(), sig.getValue().value_size());
           }
-        case Tlv::SignatureSha256WithEcdsa:
+        case tlv::SignatureSha256WithEcdsa:
           {
             if (key.getKeyType() != KEY_TYPE_ECDSA)
               return false;

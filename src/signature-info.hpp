@@ -31,12 +31,12 @@ namespace ndn {
 class SignatureInfo
 {
 public:
-  class Error : public Tlv::Error
+  class Error : public tlv::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : Tlv::Error(what)
+      : tlv::Error(what)
     {
     }
   };
@@ -44,21 +44,21 @@ public:
   SignatureInfo();
 
   explicit
-  SignatureInfo(Tlv::SignatureTypeValue type);
+  SignatureInfo(tlv::SignatureTypeValue type);
 
-  SignatureInfo(Tlv::SignatureTypeValue type, const KeyLocator& keyLocator);
+  SignatureInfo(tlv::SignatureTypeValue type, const KeyLocator& keyLocator);
 
   /**
    * @brief Generate SignatureInfo from a block
    *
-   * @throws Tlv::Error if supplied block is not formatted correctly
+   * @throws tlv::Error if supplied block is not formatted correctly
    */
   explicit
   SignatureInfo(const Block& block);
 
   /// @brief Set SignatureType
   void
-  setSignatureType(Tlv::SignatureTypeValue type);
+  setSignatureType(tlv::SignatureTypeValue type);
 
   /// @brief Get SignatureType
   int32_t

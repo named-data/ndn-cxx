@@ -30,13 +30,13 @@ SignatureInfo::SignatureInfo()
 {
 }
 
-SignatureInfo::SignatureInfo(Tlv::SignatureTypeValue type)
+SignatureInfo::SignatureInfo(tlv::SignatureTypeValue type)
   : m_type(type)
   , m_hasKeyLocator(false)
 {
 }
 
-SignatureInfo::SignatureInfo(Tlv::SignatureTypeValue type, const KeyLocator& keyLocator)
+SignatureInfo::SignatureInfo(tlv::SignatureTypeValue type, const KeyLocator& keyLocator)
   : m_type(type)
   , m_hasKeyLocator(true)
   , m_keyLocator(keyLocator)
@@ -49,7 +49,7 @@ SignatureInfo::SignatureInfo(const Block& block)
 }
 
 void
-SignatureInfo::setSignatureType(Tlv::SignatureTypeValue type)
+SignatureInfo::setSignatureType(tlv::SignatureTypeValue type)
 {
   m_wire.reset();
   m_type = type;
@@ -114,10 +114,10 @@ SignatureInfo::wireEncode(EncodingImpl<T>& block) const
   if (m_hasKeyLocator)
     totalLength += m_keyLocator.wireEncode(block);
 
-  totalLength += prependNonNegativeIntegerBlock(block, Tlv::SignatureType, m_type);
+  totalLength += prependNonNegativeIntegerBlock(block, tlv::SignatureType, m_type);
 
   totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(Tlv::SignatureInfo);
+  totalLength += block.prependVarNumber(tlv::SignatureInfo);
   return totalLength;
 }
 
@@ -156,13 +156,13 @@ SignatureInfo::wireDecode(const Block& wire)
   m_wire = wire;
   m_wire.parse();
 
-  if (m_wire.type() != Tlv::SignatureInfo)
-    throw Tlv::Error("Unexpected TLV type when decoding Name");
+  if (m_wire.type() != tlv::SignatureInfo)
+    throw tlv::Error("Unexpected TLV type when decoding Name");
 
   Block::element_const_iterator it = m_wire.elements_begin();
 
   // the first block must be SignatureType
-  if (it != m_wire.elements_end() && it->type() == Tlv::SignatureType) {
+  if (it != m_wire.elements_end() && it->type() == tlv::SignatureType) {
     m_type = readNonNegativeInteger(*it);
     it++;
   }
@@ -170,7 +170,7 @@ SignatureInfo::wireDecode(const Block& wire)
     throw Error("SignatureInfo does not have sub-TLV or the first sub-TLV is not SignatureType");
 
   // the second block could be KeyLocator
-  if (it != m_wire.elements_end() && it->type() == Tlv::KeyLocator) {
+  if (it != m_wire.elements_end() && it->type() == tlv::KeyLocator) {
     m_keyLocator.wireDecode(*it);
     m_hasKeyLocator = true;
     it++;

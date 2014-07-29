@@ -54,10 +54,10 @@ public:
   virtual void
   send(const Block& wire)
   {
-    if (wire.type() == Tlv::Interest) {
+    if (wire.type() == tlv::Interest) {
       m_sentInterests->push_back(Interest(wire));
     }
-    else if (wire.type() == Tlv::Data) {
+    else if (wire.type() == tlv::Data) {
       m_sentDatas->push_back(Data(wire));
     }
   }

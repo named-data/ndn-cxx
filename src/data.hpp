@@ -238,11 +238,11 @@ public:
    *
    * Depending on type of the supplied block, there are two cases:
    *
-   * - if block.type() == Tlv::Content, then block will be used directly as Data packet's
+   * - if block.type() == tlv::Content, then block will be used directly as Data packet's
    *   content (no extra copying)
    *
-   * - if block.type() != Tlv::Content, then this method will create a new Block with type
-   *   Tlv::Content and put block as a nested element in the content Block.
+   * - if block.type() != tlv::Content, then this method will create a new Block with type
+   *   tlv::Content and put block as a nested element in the content Block.
    *
    * @param block The Block containing the content to assign
    *
@@ -254,7 +254,7 @@ public:
   /**
    * @brief Set the content from the pointer to immutable buffer
    *
-   * This method will create a Block with Tlv::Content and set contentValue as a payload
+   * This method will create a Block with tlv::Content and set contentValue as a payload
    * for this block.  Note that this method is very different from setContent(const
    * Block&), since it does not require that payload should be a valid TLV element.
    *
