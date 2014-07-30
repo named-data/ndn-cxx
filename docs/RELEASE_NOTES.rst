@@ -3,8 +3,10 @@
 ndn-cxx Release Notes
 ---------------------
 
-ndn-cxx v0.2.0
-++++++++++++++
+ndn-cxx v0.2.0 (changes since version 0.1.0)
+++++++++++++++++++++++++++++++++++++++++++++
+
+Release date: August 25, 2014
 
 New features:
 ^^^^^^^^^^^^^
@@ -23,6 +25,10 @@ New features:
       methods allow distinct operations of registering with the local NDN forwarder and setting
       up application-specific ``OnInterest`` call dispatch using InterestFilters.
 
+  + Add support for new `NDN naming conventions
+    <http://named-data.net/doc/tech-memos/naming-conventions.pdf>`_
+     (`Issue #1761 <http://redmine.named-data.net/issues/1761>`_)
+
 - **Security**
 
   + Add ``type dir`` :ref:`trust-anchor in ValidatorConfig <validator-conf-trust-anchors>`
@@ -35,6 +41,9 @@ New features:
 
   + New :ndn-cxx:`SignatureSha256WithEcdsa` signature type
 
+  + Updates in :ndn-cxx:`Signature` data structure to reflect changes in `NDN-TLV spec
+    0.1.1 <http://named-data.net/doc/NDN-TLV/0.1.1/>`_
+
 - **Wire encoding**
 
   + :ndn-cxx:`Data::getFullName() <getFullName()>` method to get :ndn-cxx:`Data` packet
@@ -43,9 +52,32 @@ New features:
   + New :ndn-cxx:`Name::getSuccessor()` method to get `name successor
     <http://redmine.named-data.net/issues/1677>`_
 
+  + New in-wire refreshing of Interest's nonce
+    (`Issue #1758 <http://redmine.named-data.net/issues/1758>`_)
+
 - **Management**
 
   + Support for :ndn-cxx:`ChannelStatus`, :ndn-cxx:`StrategyChoice` datasets
+
+  + Defining new common Route Origins for NFD RIB management protocol
+    (`Issue #1719 <http://redmine.named-data.net/issues/1719>`_)
+
+  + New RibEntry and Route data structures for RIB management protocol
+    (`Issue #1764 <http://redmine.named-data.net/issues/1764>`_)
+
+  + Add support for RIB flags for setInterestFilter and registerPrefix
+    (`Issue #1842 <http://redmine.named-data.net/issues/1842>`_)
+
+- **Miscellaneous tools**
+
+  + Introduce :ndn-cxx:`Scheduler::cancelAllEvents` to cancel all previously scheduled events
+    (`Issue #1757 <http://redmine.named-data.net/issues/1757>`_)
+
+  + Introduce :ndn-cxx:`util::EventEmitter`, :ndn-cxx:`util::NotificationSubscriber`,
+    :ndn-cxx:`util::NotificationStream`, and :ndn-cxx:`nfd::FaceMonitor` utility classes
+
+  + Introduce :ndn-cxx:`util::SegmentFetcher` helper class to fetch multi-segmented data
+    (`Issue #1879 <http://redmine.named-data.net/issues/1879>`_)
 
 - **Build**
 
@@ -53,6 +85,21 @@ New features:
 
 Updates and bug fixes:
 ^^^^^^^^^^^^^^^^^^^^^^
+
+- **Base**
+
+  + Serialization of socket write operations
+    (`Issue #1707 <http://redmine.named-data.net/issues/1707>`_)
+
+  + Enforcing limit on Interest and Data packet size in :ndn-cxx:`Face::expressInterest`
+    and :ndn-cxx:`Face::put` methods
+    (`Issue #1774 <http://redmine.named-data.net/issues/1774>`_)
+
+  + Cleaning up transport state on communication failure, so Face can try to reconnect
+    in the future.
+
+  + Fix bug with Face::removePendingInterest
+    (`Issue #1917 <http://redmine.named-data.net/issues/1917>`_)
 
 - **Wire encoding**
 
@@ -64,6 +111,14 @@ Updates and bug fixes:
     unsigned portion of :ndn-cxx:`Data` using ``Data::wireEncode(EncodingBuffer, true)``,
     and then appends the resulting signature and prepends :ndn-cxx:`Data` packet header.
     This way there is no extra memory allocation after :ndn-cxx:`Data` packet is signed.
+
+  + Optimized implicit digest calculation in :ndn-cxx:`Interest::matchesData` method
+    (`Issue #1769 <http://redmine.named-data.net/issues/1769>`_)
+
+- **Management**
+
+  + Add link-layer byte counts in FaceStatus data structure
+    (`Issue #1765 <http://redmine.named-data.net/issues/1765>`_)
 
 - **Security**
 
@@ -85,6 +140,14 @@ Updates and bug fixes:
         process received certificate before validation.
       * :ndn-cxx:`Validator::onTimeout <onTimeout>` to process interest timeout
       * :ndn-cxx:`Validator::afterCheckPolicy <afterCheckPolicy>` to process validation requests.
+
+  + Fix memory issues in :ndn-cxx:`SecPublicInfoSqlite`
+
+- **Miscellaneous tools**
+
+  + Redefine method for random number generation: ``random::generateWord*`` and
+    ``random::generateSecureWord*`` to generate cryptographically non-secure (fast) and
+    secure (slow) random numbers.
 
 - Other minor fixes and corrections
 
@@ -110,6 +173,9 @@ Deprecated:
 
 - ``Tlv::ConentType`` constant (typo), use ``Tlv::ContentType`` instead.
 
+- ``CommandInterestGenerator`` and ``CommandInterestValidator`` utility classes.
+  :ndn-cxx:`ValidatorConfig` should be used instead.
+
 Removed:
 ^^^^^^^^
 
@@ -126,6 +192,8 @@ Removed:
 
 ndn-cxx v0.1.0
 ++++++++++++++
+
+Release date: May 7, 2014
 
 Version 0.1.0 is the initial release of ndn-cxx, an NDN C++ library with eXperimental
 eXtensions.
