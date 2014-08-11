@@ -22,7 +22,7 @@
 #include "management/nfd-controller.hpp"
 #include "management/nfd-control-response.hpp"
 
-#include "../transport/dummy-face.hpp"
+#include "../dummy-client-face.hpp"
 
 #include <boost/tuple/tuple.hpp>
 
@@ -30,6 +30,9 @@
 
 namespace ndn {
 namespace nfd {
+namespace tests {
+
+using namespace ::ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(ManagementTestNfdController)
 
@@ -37,7 +40,7 @@ class CommandFixture
 {
 protected:
   CommandFixture()
-    : face(makeDummyFace())
+    : face(makeDummyClientFace())
     , controller(*face)
     , commandSucceedCallback(bind(&CommandFixture::onCommandSucceed, this, _1))
     , commandFailCallback(bind(&CommandFixture::onCommandFail, this, _1, _2))
@@ -58,7 +61,7 @@ private:
   }
 
 protected:
-  shared_ptr<DummyFace> face;
+  shared_ptr<DummyClientFace> face;
   Controller controller;
   KeyChain keyChain;
 
@@ -188,5 +191,6 @@ BOOST_FIXTURE_TEST_CASE(CommandInvalidResponse, CommandFixture)
 
 BOOST_AUTO_TEST_SUITE_END()
 
+} // namespace tests
 } // namespace nfd
 } // namespace ndn

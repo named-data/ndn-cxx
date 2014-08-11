@@ -19,21 +19,23 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_TRANSPORT_DUMMY_FACE_HPP
-#define NDN_TESTS_UNIT_TESTS_TRANSPORT_DUMMY_FACE_HPP
+#ifndef NDN_TESTS_UNIT_TESTS_DUMMY_CLIENT_FACE_HPP
+#define NDN_TESTS_UNIT_TESTS_DUMMY_CLIENT_FACE_HPP
 
 #include "face.hpp"
 #include "transport/transport.hpp"
 
 namespace ndn {
+namespace tests {
 
-class DummyTransport : public Transport
+class DummyClientTransport : public ndn::Transport
 {
 public:
   void
   receive(const Block& block)
   {
-    m_receiveCallback(block);
+    if (static_cast<bool>(m_receiveCallback))
+      m_receiveCallback(block);
   }
 
   virtual void
@@ -74,13 +76,13 @@ public:
 };
 
 
-/** \brief a Face for unit testing
+/** \brief a client-side face for unit testing
  */
-class DummyFace : public Face
+class DummyClientFace : public ndn::Face
 {
 public:
   explicit
-  DummyFace(shared_ptr<DummyTransport> transport)
+  DummyClientFace(shared_ptr<DummyClientTransport> transport)
     : Face(transport)
     , m_transport(transport)
   {
@@ -98,19 +100,28 @@ public:
   }
 
 public:
+  /** \brief sent Interests
+   *  \note After .expressInterest, .processEvents must be called before
+   *        the Interest would show up here.
+   */
   std::vector<Interest> m_sentInterests;
+  /** \brief sent Datas
+   *  \note After .put, .processEvents must be called before
+   *        the Interest would show up here.
+   */
   std::vector<Data>     m_sentDatas;
 
 private:
-  shared_ptr<DummyTransport> m_transport;
+  shared_ptr<DummyClientTransport> m_transport;
 };
 
-inline shared_ptr<DummyFace>
-makeDummyFace()
+inline shared_ptr<DummyClientFace>
+makeDummyClientFace()
 {
-  return make_shared<DummyFace>(make_shared<DummyTransport>());
+  return make_shared<DummyClientFace>(make_shared<DummyClientTransport>());
 }
 
+} // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_TESTS_TRANSPORT_DUMMY_FACE_HPP
+#endif // NDN_TESTS_UNIT_TESTS_DUMMY_CLIENT_FACE_HPP
