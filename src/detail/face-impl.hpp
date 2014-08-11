@@ -188,6 +188,7 @@ public:
                  const shared_ptr<InterestFilterRecord>& filter,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
+                 uint64_t flags,
                  const SignatureGenerator& signatureGenerator)
   {
     using namespace nfd;
@@ -199,18 +200,20 @@ public:
        const SignatureGenerator&,
        const time::milliseconds&);
 
+    ControlParameters parameters;
+    parameters.setName(prefix);
+
     Registrator registrator, unregistrator;
     if (!m_face.m_isDirectNfdFibManagementRequested) {
       registrator = static_cast<Registrator>(&Controller::start<RibRegisterCommand>);
       unregistrator = static_cast<Registrator>(&Controller::start<RibUnregisterCommand>);
+
+      parameters.setFlags(flags);
     }
     else {
       registrator = static_cast<Registrator>(&Controller::start<FibAddNextHopCommand>);
       unregistrator = static_cast<Registrator>(&Controller::start<FibRemoveNextHopCommand>);
     }
-
-    ControlParameters parameters;
-    parameters.setName(prefix);
 
     RegisteredPrefix::Unregistrator bindedUnregistrator =
       bind(unregistrator, m_face.m_nfdController, parameters, _1, _2,

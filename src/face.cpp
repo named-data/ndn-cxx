@@ -198,13 +198,15 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
                         const RegisterPrefixSuccessCallback& onSuccess,
                         const RegisterPrefixFailureCallback& onFailure,
-                        const IdentityCertificate& certificate)
+                        const IdentityCertificate& certificate,
+                        uint64_t flags)
 {
   shared_ptr<InterestFilterRecord> filter =
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
                                 onSuccess, onFailure,
+                                flags,
                                 certificate);
 }
 
@@ -212,13 +214,15 @@ const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
                         const RegisterPrefixFailureCallback& onFailure,
-                        const IdentityCertificate& certificate)
+                        const IdentityCertificate& certificate,
+                        uint64_t flags)
 {
   shared_ptr<InterestFilterRecord> filter =
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
                                 RegisterPrefixSuccessCallback(), onFailure,
+                                flags,
                                 certificate);
 }
 
@@ -227,13 +231,15 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
                         const RegisterPrefixSuccessCallback& onSuccess,
                         const RegisterPrefixFailureCallback& onFailure,
-                        const Name& identity)
+                        const Name& identity,
+                        uint64_t flags)
 {
   shared_ptr<InterestFilterRecord> filter =
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
                                 onSuccess, onFailure,
+                                flags,
                                 identity);
 }
 
@@ -241,13 +247,15 @@ const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
                         const RegisterPrefixFailureCallback& onFailure,
-                        const Name& identity)
+                        const Name& identity,
+                        uint64_t flags)
 {
   shared_ptr<InterestFilterRecord> filter =
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
                                 RegisterPrefixSuccessCallback(), onFailure,
+                                flags,
                                 identity);
 }
 
@@ -268,10 +276,12 @@ const RegisteredPrefixId*
 Face::registerPrefix(const Name& prefix,
                      const RegisterPrefixSuccessCallback& onSuccess,
                      const RegisterPrefixFailureCallback& onFailure,
-                     const IdentityCertificate& certificate)
+                     const IdentityCertificate& certificate,
+                     uint64_t flags)
 {
   return m_impl->registerPrefix(prefix, shared_ptr<InterestFilterRecord>(),
                                 onSuccess, onFailure,
+                                flags,
                                 certificate);
 }
 
@@ -279,13 +289,14 @@ const RegisteredPrefixId*
 Face::registerPrefix(const Name& prefix,
                      const RegisterPrefixSuccessCallback& onSuccess,
                      const RegisterPrefixFailureCallback& onFailure,
-                     const Name& identity)
+                     const Name& identity,
+                     uint64_t flags)
 {
   return m_impl->registerPrefix(prefix, shared_ptr<InterestFilterRecord>(),
                                 onSuccess, onFailure,
+                                flags,
                                 identity);
 }
-
 
 void
 Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)

@@ -238,6 +238,7 @@ public:
    * @param onInterest     A callback to be called when a matching interest is received
    * @param onSuccess      A callback to be called when prefixRegister command succeeds
    * @param onFailure      A callback to be called when prefixRegister command fails
+   * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
    * @param certificate    (optional) A certificate under which the prefix registration
    *                       command interest is signed.  When omitted, a default certificate
    *                       of the default identity is used to sign the registration command
@@ -250,7 +251,8 @@ public:
                     const OnInterest& onInterest,
                     const RegisterPrefixSuccessCallback& onSuccess,
                     const RegisterPrefixFailureCallback& onFailure,
-                    const IdentityCertificate& certificate = IdentityCertificate());
+                    const IdentityCertificate& certificate = IdentityCertificate(),
+                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
 
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
@@ -265,6 +267,7 @@ public:
    * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
    * @param onInterest     A callback to be called when a matching interest is received
    * @param onFailure      A callback to be called when prefixRegister command fails
+   * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
    * @param certificate    (optional) A certificate under which the prefix registration
    *                       command interest is signed.  When omitted, a default certificate
    *                       of the default identity is used to sign the registration command
@@ -276,7 +279,8 @@ public:
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
-                    const IdentityCertificate& certificate = IdentityCertificate());
+                    const IdentityCertificate& certificate = IdentityCertificate(),
+                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
 
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
@@ -294,6 +298,7 @@ public:
    * @param onFailure      A callback to be called when prefixRegister command fails
    * @param identity       A signing identity. A command interest is signed under the default
    *                       certificate of this identity
+   * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
    *
    * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
    */
@@ -302,7 +307,8 @@ public:
                     const OnInterest& onInterest,
                     const RegisterPrefixSuccessCallback& onSuccess,
                     const RegisterPrefixFailureCallback& onFailure,
-                    const Name& identity);
+                    const Name& identity,
+                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
 
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
@@ -319,6 +325,7 @@ public:
    * @param onFailure      A callback to be called when prefixRegister command fails
    * @param identity       A signing identity. A command interest is signed under the default
    *                       certificate of this identity
+   * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
    *
    * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
    */
@@ -326,7 +333,8 @@ public:
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
-                    const Name& identity);
+                    const Name& identity,
+                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
 
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest callback
@@ -358,6 +366,7 @@ public:
    * @param certificate (optional) A certificate under which the prefix registration
    *                    command interest is signed.  When omitted, a default certificate
    *                    of the default identity is used to sign the registration command
+   * @param flags       (optional) RIB flags (not used when direct FIB management is requested)
    *
    * @return The registered prefix ID which can be used with unregisterPrefix
    */
@@ -365,7 +374,8 @@ public:
   registerPrefix(const Name& prefix,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
-                 const IdentityCertificate& certificate = IdentityCertificate());
+                 const IdentityCertificate& certificate = IdentityCertificate(),
+                 uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
 
   /**
    * @brief Register prefix with the connected NDN forwarder and call onInterest when a matching
@@ -380,6 +390,7 @@ public:
    * @param onFailure A callback to be called when prefixRegister command fails
    * @param identity  A signing identity. A command interest is signed under the default
    *                  certificate of this identity
+   * @param flags     (optional) RIB flags (not used when direct FIB management is requested)
    *
    * @return The registered prefix ID which can be used with unregisterPrefix
    */
@@ -387,8 +398,8 @@ public:
   registerPrefix(const Name& prefix,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
-                 const Name& identity);
-
+                 const Name& identity,
+                 uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
 
   /**
    * @brief Remove the registered prefix entry with the registeredPrefixId
