@@ -80,9 +80,9 @@ BOOST_FIXTURE_TEST_CASE(CommandSuccess, CommandFixture)
   parameters.setUri("tcp://example.com");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters,
-                         commandSucceedCallback,
-                         commandFailCallback));
+                       parameters,
+                       commandSucceedCallback,
+                       commandFailCallback));
   face->processEvents(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 1);

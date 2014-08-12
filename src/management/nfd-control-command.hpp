@@ -36,10 +36,6 @@ namespace nfd {
 class ControlCommand : noncopyable
 {
 public:
-  /** \brief a callback on signing command interest
-   */
-  typedef function<void(Interest&)> Sign;
-
   /** \brief represents an error in ControlParameters
    */
   class ArgumentError : public std::invalid_argument
@@ -60,68 +56,52 @@ public:
     return m_prefix;
   }
 
-  /** \brief make a Command Interest from parameters
-   */
-  Interest
-  makeCommandInterest(const ControlParameters& parameters,
-                      const Sign& sign) const
-  {
-    this->validateRequest(parameters);
-
-    Name name = m_prefix;
-    name.append(parameters.wireEncode());
-    Interest commandInterest(name);
-    sign(commandInterest);
-    return commandInterest;
-  }
-
   /** \brief validate request parameters
    *  \throw ArgumentError
    */
   virtual void
-  validateRequest(const ControlParameters& parameters) const
-  {
-    m_requestValidator.validate(parameters);
-  }
+  validateRequest(const ControlParameters& parameters) const;
 
   /** \brief apply default values to missing fields in request
    */
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const
-  {
-  }
+  applyDefaultsToRequest(ControlParameters& parameters) const;
 
   /** \brief validate response parameters
    *  \throw ArgumentError
    */
   virtual void
-  validateResponse(const ControlParameters& parameters) const
-  {
-    m_responseValidator.validate(parameters);
-  }
+  validateResponse(const ControlParameters& parameters) const;
 
   /** \brief apply default values to missing fields in response
    */
   virtual void
-  applyDefaultsToResponse(ControlParameters& parameters) const
-  {
-  }
+  applyDefaultsToResponse(ControlParameters& parameters) const;
+
+  /** \brief construct the Name for a request Interest
+   */
+  Name
+  getRequestName(const ControlParameters& parameters) const;
+
+public: // deprecated
+  /** \brief a callback on signing command interest
+   */
+  typedef function<void(Interest&)> Sign;
+
+  /** \brief make a Command Interest from parameters
+   *  \deprecated use .getCommandName and sign with KeyChain
+   */
+  Interest
+  makeCommandInterest(const ControlParameters& parameters,
+                      const Sign& sign) const;
 
 protected:
-  ControlCommand(const std::string& module, const std::string& verb)
-    : m_prefix("ndn:/localhost/nfd")
-  {
-    m_prefix.append(module).append(verb);
-  }
+  ControlCommand(const std::string& module, const std::string& verb);
 
   class FieldValidator
   {
   public:
-    FieldValidator()
-      : m_required(CONTROL_PARAMETER_UBOUND)
-      , m_optional(CONTROL_PARAMETER_UBOUND)
-    {
-    }
+    FieldValidator();
 
     /** \brief declare a required field
      */
@@ -146,22 +126,7 @@ protected:
      *  \throw ArgumentError
      */
     void
-    validate(const ControlParameters& parameters) const
-    {
-      const std::vector<bool>& presentFields = parameters.getPresentFields();
-
-      for (size_t i = 0; i < CONTROL_PARAMETER_UBOUND; ++i) {
-        bool isPresent = presentFields[i];
-        if (m_required[i]) {
-          if (!isPresent) {
-            throw ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is required but missing");
-          }
-        }
-        else if (isPresent && !m_optional[i]) {
-          throw ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is forbidden but present");
-        }
-      }
-    }
+    validate(const ControlParameters& parameters) const;
 
   private:
     std::vector<bool> m_required;
@@ -193,25 +158,10 @@ private:
 class FaceCreateCommand : public ControlCommand
 {
 public:
-  FaceCreateCommand()
-    : ControlCommand("faces", "create")
-  {
-    m_requestValidator
-      .required(CONTROL_PARAMETER_URI);
-    m_responseValidator
-      .required(CONTROL_PARAMETER_URI)
-      .required(CONTROL_PARAMETER_FACE_ID);
-  }
+  FaceCreateCommand();
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const
-  {
-    this->ControlCommand::validateResponse(parameters);
-
-    if (parameters.getFaceId() == 0) {
-      throw ArgumentError("FaceId must not be zero");
-    }
-  }
+  validateResponse(const ControlParameters& parameters) const;
 };
 
 
@@ -223,29 +173,13 @@ public:
 class FaceDestroyCommand : public ControlCommand
 {
 public:
-  FaceDestroyCommand()
-    : ControlCommand("faces", "destroy")
-  {
-    m_requestValidator
-      .required(CONTROL_PARAMETER_FACE_ID);
-    m_responseValidator = m_requestValidator;
-  }
+  FaceDestroyCommand();
 
   virtual void
-  validateRequest(const ControlParameters& parameters) const
-  {
-    this->ControlCommand::validateRequest(parameters);
-
-    if (parameters.getFaceId() == 0) {
-      throw ArgumentError("FaceId must not be zero");
-    }
-  }
+  validateRequest(const ControlParameters& parameters) const;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const
-  {
-    this->validateRequest(parameters);
-  }
+  validateResponse(const ControlParameters& parameters) const;
 };
 
 /**
@@ -256,34 +190,14 @@ class FaceLocalControlCommand : public ControlCommand
 {
 public:
   virtual void
-  validateRequest(const ControlParameters& parameters) const
-  {
-    this->ControlCommand::validateRequest(parameters);
-
-    switch (parameters.getLocalControlFeature()) {
-      case LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID:
-      case LOCAL_CONTROL_FEATURE_NEXT_HOP_FACE_ID:
-        break;
-      default:
-        throw ArgumentError("LocalControlFeature is invalid");
-    }
-  }
+  validateRequest(const ControlParameters& parameters) const;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const
-  {
-    this->validateRequest(parameters);
-  }
+  validateResponse(const ControlParameters& parameters) const;
 
 protected:
   explicit
-  FaceLocalControlCommand(const std::string& verb)
-    : ControlCommand("faces", verb)
-  {
-    m_requestValidator
-      .required(CONTROL_PARAMETER_LOCAL_CONTROL_FEATURE);
-    m_responseValidator = m_requestValidator;
-  }
+  FaceLocalControlCommand(const std::string& verb);
 };
 
 
@@ -295,10 +209,7 @@ protected:
 class FaceEnableLocalControlCommand : public FaceLocalControlCommand
 {
 public:
-  FaceEnableLocalControlCommand()
-    : FaceLocalControlCommand("enable-local-control")
-  {
-  }
+  FaceEnableLocalControlCommand();
 };
 
 
@@ -310,10 +221,7 @@ public:
 class FaceDisableLocalControlCommand : public FaceLocalControlCommand
 {
 public:
-  FaceDisableLocalControlCommand()
-    : FaceLocalControlCommand("disable-local-control")
-  {
-  }
+  FaceDisableLocalControlCommand();
 };
 
 
@@ -325,39 +233,13 @@ public:
 class FibAddNextHopCommand : public ControlCommand
 {
 public:
-  FibAddNextHopCommand()
-    : ControlCommand("fib", "add-nexthop")
-  {
-    m_requestValidator
-      .required(CONTROL_PARAMETER_NAME)
-      .optional(CONTROL_PARAMETER_FACE_ID)
-      .optional(CONTROL_PARAMETER_COST);
-    m_responseValidator
-      .required(CONTROL_PARAMETER_NAME)
-      .required(CONTROL_PARAMETER_FACE_ID)
-      .required(CONTROL_PARAMETER_COST);
-  }
+  FibAddNextHopCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const
-  {
-    if (!parameters.hasFaceId()) {
-      parameters.setFaceId(0);
-    }
-    if (!parameters.hasCost()) {
-      parameters.setCost(0);
-    }
-  }
+  applyDefaultsToRequest(ControlParameters& parameters) const;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const
-  {
-    this->ControlCommand::validateResponse(parameters);
-
-    if (parameters.getFaceId() == 0) {
-      throw ArgumentError("FaceId must not be zero");
-    }
-  }
+  validateResponse(const ControlParameters& parameters) const;
 };
 
 
@@ -369,34 +251,13 @@ public:
 class FibRemoveNextHopCommand : public ControlCommand
 {
 public:
-  FibRemoveNextHopCommand()
-    : ControlCommand("fib", "remove-nexthop")
-  {
-    m_requestValidator
-      .required(CONTROL_PARAMETER_NAME)
-      .optional(CONTROL_PARAMETER_FACE_ID);
-    m_responseValidator
-      .required(CONTROL_PARAMETER_NAME)
-      .required(CONTROL_PARAMETER_FACE_ID);
-  }
+  FibRemoveNextHopCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const
-  {
-    if (!parameters.hasFaceId()) {
-      parameters.setFaceId(0);
-    }
-  }
+  applyDefaultsToRequest(ControlParameters& parameters) const;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const
-  {
-    this->ControlCommand::validateResponse(parameters);
-
-    if (parameters.getFaceId() == 0) {
-      throw ArgumentError("FaceId must not be zero");
-    }
-  }
+  validateResponse(const ControlParameters& parameters) const;
 };
 
 
@@ -408,14 +269,7 @@ public:
 class StrategyChoiceSetCommand : public ControlCommand
 {
 public:
-  StrategyChoiceSetCommand()
-    : ControlCommand("strategy-choice", "set")
-  {
-    m_requestValidator
-      .required(CONTROL_PARAMETER_NAME)
-      .required(CONTROL_PARAMETER_STRATEGY);
-    m_responseValidator = m_requestValidator;
-  }
+  StrategyChoiceSetCommand();
 };
 
 
@@ -427,29 +281,13 @@ public:
 class StrategyChoiceUnsetCommand : public ControlCommand
 {
 public:
-  StrategyChoiceUnsetCommand()
-    : ControlCommand("strategy-choice", "unset")
-  {
-    m_requestValidator
-      .required(CONTROL_PARAMETER_NAME);
-    m_responseValidator = m_requestValidator;
-  }
+  StrategyChoiceUnsetCommand();
 
   virtual void
-  validateRequest(const ControlParameters& parameters) const
-  {
-    this->ControlCommand::validateRequest(parameters);
-
-    if (parameters.getName().size() == 0) {
-      throw ArgumentError("Name must not be ndn:/");
-    }
-  }
+  validateRequest(const ControlParameters& parameters) const;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const
-  {
-    this->validateRequest(parameters);
-  }
+  validateResponse(const ControlParameters& parameters) const;
 };
 
 
@@ -461,51 +299,13 @@ public:
 class RibRegisterCommand : public ControlCommand
 {
 public:
-  RibRegisterCommand()
-    : ControlCommand("rib", "register")
-  {
-    m_requestValidator
-      .required(CONTROL_PARAMETER_NAME)
-      .optional(CONTROL_PARAMETER_FACE_ID)
-      .optional(CONTROL_PARAMETER_ORIGIN)
-      .optional(CONTROL_PARAMETER_COST)
-      .optional(CONTROL_PARAMETER_FLAGS)
-      .optional(CONTROL_PARAMETER_EXPIRATION_PERIOD);
-    m_responseValidator
-      .required(CONTROL_PARAMETER_NAME)
-      .required(CONTROL_PARAMETER_FACE_ID)
-      .required(CONTROL_PARAMETER_ORIGIN)
-      .required(CONTROL_PARAMETER_COST)
-      .required(CONTROL_PARAMETER_FLAGS)
-      .optional(CONTROL_PARAMETER_EXPIRATION_PERIOD);
-  }
+  RibRegisterCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const
-  {
-    if (!parameters.hasFaceId()) {
-      parameters.setFaceId(0);
-    }
-    if (!parameters.hasOrigin()) {
-      parameters.setOrigin(ROUTE_ORIGIN_APP);
-    }
-    if (!parameters.hasCost()) {
-      parameters.setCost(0);
-    }
-    if (!parameters.hasFlags()) {
-      parameters.setFlags(ROUTE_FLAG_CHILD_INHERIT);
-    }
-  }
+  applyDefaultsToRequest(ControlParameters& parameters) const;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const
-  {
-    this->ControlCommand::validateResponse(parameters);
-
-    if (parameters.getFaceId() == 0) {
-      throw ArgumentError("FaceId must not be zero");
-    }
-  }
+  validateResponse(const ControlParameters& parameters) const;
 };
 
 
@@ -517,39 +317,13 @@ public:
 class RibUnregisterCommand : public ControlCommand
 {
 public:
-  RibUnregisterCommand()
-    : ControlCommand("rib", "unregister")
-  {
-    m_requestValidator
-      .required(CONTROL_PARAMETER_NAME)
-      .optional(CONTROL_PARAMETER_FACE_ID)
-      .optional(CONTROL_PARAMETER_ORIGIN);
-    m_responseValidator
-      .required(CONTROL_PARAMETER_NAME)
-      .required(CONTROL_PARAMETER_FACE_ID)
-      .required(CONTROL_PARAMETER_ORIGIN);
-  }
+  RibUnregisterCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const
-  {
-    if (!parameters.hasFaceId()) {
-      parameters.setFaceId(0);
-    }
-    if (!parameters.hasOrigin()) {
-      parameters.setOrigin(ROUTE_ORIGIN_APP);
-    }
-  }
+  applyDefaultsToRequest(ControlParameters& parameters) const;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const
-  {
-    this->ControlCommand::validateResponse(parameters);
-
-    if (parameters.getFaceId() == 0) {
-      throw ArgumentError("FaceId must not be zero");
-    }
-  }
+  validateResponse(const ControlParameters& parameters) const;
 };
 
 

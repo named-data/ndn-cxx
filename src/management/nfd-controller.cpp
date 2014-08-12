@@ -21,14 +21,44 @@
 
 #include "nfd-controller.hpp"
 #include "nfd-control-response.hpp"
-#include "../security/identity-certificate.hpp"
 
 namespace ndn {
 namespace nfd {
 
 Controller::Controller(Face& face)
   : m_face(face)
+  , m_internalKeyChain(make_shared<KeyChain>())
+  , m_keyChain(*m_internalKeyChain)
 {
+}
+
+Controller::Controller(Face& face, KeyChain& keyChain)
+  : m_face(face)
+  , m_keyChain(keyChain)
+{
+}
+
+void
+Controller::startCommand(const shared_ptr<ControlCommand>& command,
+                         const ControlParameters& parameters,
+                         const CommandSucceedCallback& onSuccess,
+                         const CommandFailCallback& onFailure,
+                         const Sign& sign,
+                         const time::milliseconds& timeout)
+{
+  BOOST_ASSERT(timeout > time::milliseconds::zero());
+
+  Name requestName = command->getRequestName(parameters);
+  Interest interest(requestName);
+  interest.setInterestLifetime(timeout);
+  sign(interest);
+
+  // http://msdn.microsoft.com/en-us/library/windows/desktop/ms740668.aspx
+  const uint32_t timeoutCode = 10060;
+  m_face.expressInterest(interest,
+                         bind(&Controller::processCommandResponse, this, _2,
+                              command, onSuccess, onFailure),
+                         bind(onFailure, timeoutCode, "Command Interest timed out"));
 }
 
 void

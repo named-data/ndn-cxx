@@ -33,7 +33,8 @@ namespace nfd {
  * @ingroup management
  * @brief Class defining abstraction of ControlResponse for NFD Control Protocol
  *
- * @see http://redmine.named-data.net/projects/nfd/wiki/ControlCommand
+ * @see http://redmine.named-data.net/projects/nfd/wiki/ControlCommand#Response-format
+ * @detail This type is copyable because it's an abstraction of a TLV type.
  */
 class ControlResponse
 {
@@ -48,44 +49,35 @@ public:
     }
   };
 
-  ControlResponse()
-    : m_code(200)
-  {
-  }
+  ControlResponse();
 
-  ControlResponse(uint32_t code, const std::string& text)
-    : m_code(code)
-    , m_text(text)
-  {
-  }
+  ControlResponse(uint32_t code, const std::string& text);
 
-  ControlResponse(const Block& block)
-  {
-    wireDecode(block);
-  }
+  explicit
+  ControlResponse(const Block& block);
 
-  inline uint32_t
+  uint32_t
   getCode() const;
 
-  inline void
+  void
   setCode(uint32_t code);
 
-  inline const std::string&
+  const std::string&
   getText() const;
 
-  inline void
+  void
   setText(const std::string& text);
 
-  inline const Block&
+  const Block&
   getBody() const;
 
-  inline void
+  void
   setBody(const Block& body);
 
-  inline const Block&
+  const Block&
   wireEncode() const;
 
-  inline void
+  void
   wireDecode(const Block& block);
 
 protected:
@@ -136,68 +128,8 @@ ControlResponse::setBody(const Block& body)
   m_wire.reset();
 }
 
-
-inline const Block&
-ControlResponse::wireEncode() const
-{
-  if (m_wire.hasWire())
-    return m_wire;
-
-  m_wire = Block(tlv::nfd::ControlResponse);
-  m_wire.push_back
-    (nonNegativeIntegerBlock(tlv::nfd::StatusCode, m_code));
-
-  m_wire.push_back
-    (dataBlock(tlv::nfd::StatusText, m_text.c_str(), m_text.size()));
-
-  if (m_body.hasWire())
-    {
-      m_wire.push_back(m_body);
-    }
-
-  m_wire.encode();
-  return m_wire;
-}
-
-inline void
-ControlResponse::wireDecode(const Block& wire)
-{
-  m_wire = wire;
-  m_wire.parse();
-
-  if (m_wire.type() != tlv::nfd::ControlResponse)
-    throw Error("Requested decoding of ControlResponse, but Block is of different type");
-
-  Block::element_const_iterator val = m_wire.elements_begin();
-  if (val == m_wire.elements_end() ||
-      val->type() != tlv::nfd::StatusCode)
-    {
-      throw Error("Incorrect ControlResponse format (StatusCode missing or not the first item)");
-    }
-
-  m_code = readNonNegativeInteger(*val);
-  ++val;
-
-  if (val == m_wire.elements_end() ||
-      val->type() != tlv::nfd::StatusText)
-    {
-      throw Error("Incorrect ControlResponse format (StatusText missing or not the second item)");
-    }
-  m_text.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
-  ++val;
-
-  if (val != m_wire.elements_end())
-    m_body = *val;
-  else
-    m_body = Block();
-}
-
-inline std::ostream&
-operator << (std::ostream& os, const ControlResponse& status)
-{
-  os << status.getCode() << " " << status.getText();
-  return os;
-}
+std::ostream&
+operator<<(std::ostream& os, const ControlResponse& response);
 
 } // namespace nfd
 } // namespace ndn

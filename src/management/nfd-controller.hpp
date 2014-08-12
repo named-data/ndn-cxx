@@ -24,6 +24,7 @@
 
 #include "nfd-control-command.hpp"
 #include "../face.hpp"
+#include "../security/key-chain.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -47,12 +48,20 @@ public:
    */
   typedef function<void(uint32_t/*code*/,const std::string&/*reason*/)> CommandFailCallback;
 
-  /** \brief a callback on signing command interest
+  /** \brief a function to sign the request Interest
    */
   typedef function<void(Interest&)> Sign;
 
+  /** \brief construct a Controller that uses face for transport,
+   *         and has an internal default KeyChain to sign commands
+   */
   explicit
   Controller(Face& face);
+
+  /** \brief construct a Controller that uses face for transport,
+   *         and uses the passed KeyChain to sign commands
+   */
+  Controller(Face& face, KeyChain& keyChain);
 
   /** \brief start command execution
    */
@@ -61,15 +70,38 @@ public:
   start(const ControlParameters& parameters,
         const CommandSucceedCallback& onSuccess,
         const CommandFailCallback& onFailure,
-        const IdentityCertificate& certificate = IdentityCertificate(),
         const time::milliseconds& timeout = getDefaultCommandTimeout())
   {
     start<Command>(parameters, onSuccess, onFailure,
-                   bind(&CommandInterestGenerator::generate,
-                        &m_commandInterestGenerator, _1, cref(certificate.getName())),
+                   bind(&KeyChain::sign<Interest>, &m_keyChain, _1),
                    timeout);
   }
 
+  /** \brief start command execution
+   *  \param certificate the certificate used to sign request Interests
+   *  \deprecated passing IdentityCertificate() empty certificate as fourth argument
+   *              is deprecated, use four-parameter overload instead
+   */
+  template<typename Command>
+  void
+  start(const ControlParameters& parameters,
+        const CommandSucceedCallback& onSuccess,
+        const CommandFailCallback& onFailure,
+        const IdentityCertificate& certificate,
+        const time::milliseconds& timeout = getDefaultCommandTimeout())
+  {
+    if (certificate.getName().empty()) { // deprecated usage
+      start<Command>(parameters, onSuccess, onFailure, timeout);
+    }
+    start<Command>(parameters, onSuccess, onFailure,
+      bind(static_cast<void(KeyChain::*)(Interest&,const Name&)>(&KeyChain::sign<Interest>),
+           &m_keyChain, _1, cref(certificate.getName())),
+      timeout);
+  }
+
+  /** \brief start command execution
+   *  \param identity the identity used to sign request Interests
+   */
   template<typename Command>
   void
   start(const ControlParameters& parameters,
@@ -79,20 +111,34 @@ public:
         const time::milliseconds& timeout = getDefaultCommandTimeout())
   {
     start<Command>(parameters, onSuccess, onFailure,
-                   bind(&CommandInterestGenerator::generateWithIdentity,
-                        &m_commandInterestGenerator, _1, cref(identity)),
+                   bind(&KeyChain::signByIdentity<Interest>, &m_keyChain, _1, cref(identity)),
                    timeout);
   }
 
+  /** \brief start command execution
+   *  \param sign a function to sign request Interests
+   */
   template<typename Command>
   void
   start(const ControlParameters& parameters,
         const CommandSucceedCallback& onSuccess,
         const CommandFailCallback& onFailure,
         const Sign& sign,
-        const time::milliseconds& timeout = getDefaultCommandTimeout());
+        const time::milliseconds& timeout = getDefaultCommandTimeout())
+  {
+    shared_ptr<ControlCommand> command = make_shared<Command>();
+    this->startCommand(command, parameters, onSuccess, onFailure, sign, timeout);
+  }
 
 private:
+  void
+  startCommand(const shared_ptr<ControlCommand>& command,
+               const ControlParameters& parameters,
+               const CommandSucceedCallback& onSuccess,
+               const CommandFailCallback& onFailure,
+               const Sign& sign,
+               const time::milliseconds& timeout);
+
   void
   processCommandResponse(const Data& data,
                          const shared_ptr<ControlCommand>& command,
@@ -108,32 +154,9 @@ public:
 
 protected:
   Face& m_face;
-  CommandInterestGenerator m_commandInterestGenerator;
+  shared_ptr<KeyChain> m_internalKeyChain;
+  KeyChain& m_keyChain;
 };
-
-template<typename Command>
-inline void
-Controller::start(const ControlParameters& parameters,
-                  const CommandSucceedCallback& onSuccess,
-                  const CommandFailCallback&    onFailure,
-                  const Sign& sign,
-                  const time::milliseconds& timeout)
-{
-  BOOST_ASSERT(timeout > time::milliseconds::zero());
-
-  shared_ptr<ControlCommand> command = make_shared<Command>();
-
-  Interest commandInterest = command->makeCommandInterest(parameters, sign);
-
-  commandInterest.setInterestLifetime(timeout);
-
-  // http://msdn.microsoft.com/en-us/library/windows/desktop/ms740668.aspx
-  const uint32_t timeoutCode = 10060;
-  m_face.expressInterest(commandInterest,
-                         bind(&Controller::processCommandResponse, this, _2,
-                              command, onSuccess, onFailure),
-                         bind(onFailure, timeoutCode, "Command Interest timed out"));
-}
 
 } // namespace nfd
 } // namespace ndn
