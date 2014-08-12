@@ -48,7 +48,7 @@
 #ifndef NDN_UTIL_EVENT_EMITTER_HPP
 #define NDN_UTIL_EVENT_EMITTER_HPP
 
-#include "common.hpp"
+#include "../common.hpp"
 #include <vector>
 
 namespace ndn {
