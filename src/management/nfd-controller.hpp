@@ -92,7 +92,9 @@ public:
   {
     if (certificate.getName().empty()) { // deprecated usage
       start<Command>(parameters, onSuccess, onFailure, timeout);
+      return;
     }
+
     start<Command>(parameters, onSuccess, onFailure,
       bind(static_cast<void(KeyChain::*)(Interest&,const Name&)>(&KeyChain::sign<Interest>),
            &m_keyChain, _1, cref(certificate.getName())),
