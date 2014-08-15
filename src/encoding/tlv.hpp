@@ -23,7 +23,9 @@
 #define NDN_ENCODING_TLV_HPP
 
 #include <stdexcept>
+#include <iostream>
 #include <iterator>
+
 #include "buffer.hpp"
 #include "endian.hpp"
 
