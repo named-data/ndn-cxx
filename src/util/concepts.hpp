@@ -49,6 +49,23 @@ public:
   }
 };
 
+template<class X>
+class Hashable
+{
+public:
+  BOOST_CONCEPT_USAGE(Hashable)
+  {
+    X hash;
+
+    uint8_t* buf = 0;
+    size_t size = hash.DigestSize();
+
+    hash.Update(buf, size);
+    hash.Final(buf);
+    hash.Restart();
+  }
+};
+
 } // namespace ndn
 
 #endif // NDN_UTIL_CONCEPTS_HPP
