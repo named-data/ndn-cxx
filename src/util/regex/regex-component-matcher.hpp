@@ -78,6 +78,18 @@ RegexComponentMatcher::RegexComponentMatcher(const std::string& expr,
   compile();
 }
 
+// Re: http://www.boost.org/users/history/version_1_56_0.html
+//
+//   Breaking change: corrected behavior of basic_regex<>::mark_count() to match existing
+//   documentation, basic_regex<>::subexpression(n) changed to match, see
+//   https://svn.boost.org/trac/boost/ticket/9227
+static const size_t BOOST_REGEXP_MARK_COUNT_CORRECTION =
+#if BOOST_VERSION < 105600
+                    1;
+#else
+                    0;
+#endif
+
 inline void
 RegexComponentMatcher::compile()
 {
@@ -86,7 +98,8 @@ RegexComponentMatcher::compile()
   m_pseudoMatchers.clear();
   m_pseudoMatchers.push_back(make_shared<RegexPseudoMatcher>());
 
-  for (size_t i = 1; i < m_componentRegex.mark_count(); i++)
+  for (size_t i = 1;
+       i <= m_componentRegex.mark_count() - BOOST_REGEXP_MARK_COUNT_CORRECTION; i++)
     {
       shared_ptr<RegexPseudoMatcher> pMatcher = make_shared<RegexPseudoMatcher>();
       m_pseudoMatchers.push_back(pMatcher);
@@ -111,7 +124,8 @@ RegexComponentMatcher::match(const Name& name, size_t offset, size_t len)
       std::string targetStr = name.get(offset).toUri();
       if (boost::regex_match(targetStr, subResult, m_componentRegex))
         {
-          for (size_t i = 1; i < m_componentRegex.mark_count(); i++)
+          for (size_t i = 1;
+               i <= m_componentRegex.mark_count() - BOOST_REGEXP_MARK_COUNT_CORRECTION; i++)
             {
               m_pseudoMatchers[i]->resetMatchResult();
               m_pseudoMatchers[i]->setMatchResult(subResult[i]);

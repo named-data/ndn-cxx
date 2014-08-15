@@ -59,6 +59,8 @@ BOOST_AUTO_TEST_CASE(ComponentMatcher)
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("ccc.cd"));
+
+  BOOST_REQUIRE_EQUAL(backRef->size(), 2);
   BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toUri(), string("ccc"));
   BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toUri(), string("cd"));
 }
