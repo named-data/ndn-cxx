@@ -46,7 +46,7 @@
  */
 
 #ifndef NDN_MANAGEMENT_NFD_FACE_MONITOR_HPP
-#define NDN_MANAGEMENT_NFD_MONITOR_HPP
+#define NDN_MANAGEMENT_NFD_FACE_MONITOR_HPP
 
 #include "../util/notification-subscriber.hpp"
 #include "nfd-face-event-notification.hpp"
