@@ -43,10 +43,5 @@ Documentation for ndn-cxx developers and contributors
 License
 -------
 
-ndn-cxx is an open source project licensed under BSD license. For more
-information about the license, refer to
-`COPYING <https://github.com/named-data/ndn-cxx/blob/master/COPYING>`_.
-
-While the license does not require it, we really would appreciate it if
-others would share their contributions to the library if they are
-willing to do so under the same license.
+ndn-cxx is an open source project licensed under LGPL 3.0 license. For more information about
+the license, refer to `COPYING.md <https://github.com/named-data/ndn-cxx/blob/master/COPYING.md>`_.
