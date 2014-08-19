@@ -22,6 +22,8 @@
 #ifndef NDN_MANAGEMENT_NFD_RIB_ENTRY_HPP
 #define NDN_MANAGEMENT_NFD_RIB_ENTRY_HPP
 
+#include "nfd-rib-flags.hpp"
+
 #include "../encoding/block.hpp"
 #include "../encoding/encoding-buffer.hpp"
 #include "../encoding/tlv-nfd.hpp"
@@ -50,7 +52,7 @@ namespace nfd {
  *
  * @sa http://redmine.named-data.net/projects/nfd/wiki/RibMgmt
  */
-class Route
+class Route : public RibFlagsTraits<Route>
 {
 public:
   class Error : public tlv::Error
