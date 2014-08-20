@@ -62,9 +62,9 @@ class EndToEndFixture
 public:
   EndToEndFixture()
     : streamPrefix("ndn:/NotificationSubscriberTest")
-    , publisherFace(makeDummyClientFace())
+    , publisherFace(makeDummyClientFace(ioService))
     , notificationStream(*publisherFace, streamPrefix, publisherKeyChain)
-    , subscriberFace(makeDummyClientFace())
+    , subscriberFace(makeDummyClientFace(ioService))
     , subscriber(*subscriberFace, streamPrefix, time::seconds(1))
   {
   }
@@ -77,7 +77,9 @@ public:
     publisherFace->m_sentDatas.clear();
     SimpleNotification notification(msg);
     notificationStream.postNotification(notification);
-    publisherFace->processEvents();
+
+    publisherFace->processEvents(time::milliseconds(100));
+
     BOOST_REQUIRE_EQUAL(publisherFace->m_sentDatas.size(), 1);
 
     lastDeliveredSeqNo = publisherFace->m_sentDatas[0].getName().at(-1).toSequenceNumber();
@@ -145,6 +147,7 @@ public:
   }
 
 protected:
+  boost::asio::io_service ioService;
   Name streamPrefix;
   shared_ptr<DummyClientFace> publisherFace;
   ndn::KeyChain publisherKeyChain;
@@ -173,27 +176,27 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
 
   // not received when subscriber is not running
   this->deliverNotification("n1");
-  subscriberFace->processEvents(time::milliseconds(10));
+  subscriberFace->processEvents(time::milliseconds(100));
   BOOST_CHECK(lastNotification.getMessage().empty());
   BOOST_CHECK_EQUAL(subscriberFace->m_sentInterests.size(), 0);
 
   subscriberFace->m_sentInterests.clear();
   subscriber.start();
-  subscriberFace->processEvents(time::milliseconds(10));
+  subscriberFace->processEvents(time::milliseconds(-100));
   BOOST_REQUIRE_EQUAL(subscriber.isRunning(), true);
   BOOST_CHECK(this->hasInitialRequest());
 
   // respond to initial request
   subscriberFace->m_sentInterests.clear();
   this->deliverNotification("n2");
-  subscriberFace->processEvents(time::milliseconds(10));
+  subscriberFace->processEvents(time::milliseconds(-100));
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n2");
   BOOST_CHECK_EQUAL(this->getRequestSeqNo(), lastDeliveredSeqNo + 1);
 
   // respond to continuation request
   subscriberFace->m_sentInterests.clear();
   this->deliverNotification("n3");
-  subscriberFace->processEvents(time::milliseconds(10));
+  subscriberFace->processEvents(time::milliseconds(-100));
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n3");
   BOOST_CHECK_EQUAL(this->getRequestSeqNo(), lastDeliveredSeqNo + 1);
 
@@ -213,7 +216,7 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   subscriberFace->receive(wrongData);
   subscriberFace->m_sentInterests.clear();
   lastNotification.setMessage("");
-  subscriberFace->processEvents(time::milliseconds(10));
+  subscriberFace->processEvents(time::milliseconds(-100));
   BOOST_CHECK(lastNotification.getMessage().empty());
   BOOST_CHECK_EQUAL(lastDecodeErrorData.getName(), wrongName);
   BOOST_CHECK(this->hasInitialRequest());
@@ -222,7 +225,7 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   subscriberFace->m_sentInterests.clear();
   lastNotification.setMessage("");
   this->deliverNotification("\x07n4");
-  subscriberFace->processEvents(time::milliseconds(10));
+  subscriberFace->processEvents(time::milliseconds(-100));
   BOOST_CHECK(lastNotification.getMessage().empty());
   BOOST_CHECK(this->hasInitialRequest());
 
@@ -230,7 +233,7 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   subscriber.onNotification += bind(&EndToEndFixture::clearNotificationHandlers, this);
   subscriberFace->m_sentInterests.clear();
   this->deliverNotification("n5");
-  subscriberFace->processEvents(time::milliseconds(10));
+  subscriberFace->processEvents(time::milliseconds(-100));
   BOOST_CHECK_EQUAL(subscriberFace->m_sentInterests.size(), 0);
 }
 

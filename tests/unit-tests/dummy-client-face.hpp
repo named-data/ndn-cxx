@@ -90,6 +90,14 @@ public:
     m_transport->m_sentDatas     = &m_sentDatas;
   }
 
+  DummyClientFace(shared_ptr<DummyClientTransport> transport, boost::asio::io_service& ioService)
+    : Face(transport, ioService)
+    , m_transport(transport)
+  {
+    m_transport->m_sentInterests = &m_sentInterests;
+    m_transport->m_sentDatas     = &m_sentDatas;
+  }
+
   /** \brief cause the Face to receive a packet
    */
   template<typename Packet>
@@ -119,6 +127,12 @@ inline shared_ptr<DummyClientFace>
 makeDummyClientFace()
 {
   return make_shared<DummyClientFace>(make_shared<DummyClientTransport>());
+}
+
+inline shared_ptr<DummyClientFace>
+makeDummyClientFace(boost::asio::io_service& ioService)
+{
+  return make_shared<DummyClientFace>(make_shared<DummyClientTransport>(), ref(ioService));
 }
 
 } // namespace tests
