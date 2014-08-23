@@ -57,13 +57,13 @@ public:
   }
 
   const shared_ptr<const Interest>&
-  getInterest()
+  getInterest() const
   {
     return m_interest;
   }
 
   const OnData&
-  getOnData()
+  getOnData() const
   {
     return m_onData;
   }
@@ -73,7 +73,7 @@ public:
    * @return true if this interest timed out, otherwise false.
    */
   bool
-  isTimedOut(const time::steady_clock::TimePoint& now)
+  isTimedOut(const time::steady_clock::TimePoint& now) const
   {
     return now >= m_timeout;
   }
@@ -82,7 +82,7 @@ public:
    * Call m_onTimeout (if defined).  This ignores exceptions from the m_onTimeout.
    */
   void
-  callTimeout()
+  callTimeout() const
   {
     if (m_onTimeout) {
       m_onTimeout(*m_interest);
@@ -114,7 +114,8 @@ public:
   bool
   operator()(const shared_ptr<const PendingInterest>& pendingInterest) const
   {
-    return (reinterpret_cast<const PendingInterestId*>(pendingInterest.get()) == m_id);
+    return (reinterpret_cast<const PendingInterestId*>(
+              pendingInterest->getInterest().get()) == m_id);
   }
 private:
   const PendingInterestId* m_id;

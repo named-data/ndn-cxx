@@ -225,6 +225,12 @@ public:
   removePendingInterest(const PendingInterestId* pendingInterestId);
 
   /**
+   * @brief Get number of pending Interests
+   */
+  size_t
+  getNPendingInterests() const;
+
+  /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
    * callback and register the filtered prefix with the connected NDN forwarder
    *

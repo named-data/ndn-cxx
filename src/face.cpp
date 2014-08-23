@@ -193,6 +193,12 @@ Face::removePendingInterest(const PendingInterestId* pendingInterestId)
   m_ioService->post(bind(&Impl::asyncRemovePendingInterest, m_impl, pendingInterestId));
 }
 
+size_t
+Face::getNPendingInterests() const
+{
+  return m_impl->m_pendingInterestTable.size();
+}
+
 const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
