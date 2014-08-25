@@ -28,6 +28,7 @@
 #include "ethernet.hpp"
 
 #include <stdio.h>
+#include <ostream>
 
 namespace ndn {
 namespace util {

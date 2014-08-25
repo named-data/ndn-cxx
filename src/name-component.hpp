@@ -189,7 +189,7 @@ public:
   static Component
   fromEscapedString(const char* escapedString)
   {
-    return fromEscapedString(escapedString, 0, ::strlen(escapedString));
+    return fromEscapedString(escapedString, 0, std::char_traits<char>::length(escapedString));
   }
 
   /**

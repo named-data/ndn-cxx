@@ -37,7 +37,6 @@
 
 #include <stack>
 #include <iterator>
-#include <stdexcept>
 
 namespace ndn {
 namespace util {

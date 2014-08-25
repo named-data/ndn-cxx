@@ -217,12 +217,12 @@ public:
     }
 
     RegisteredPrefix::Unregistrator bindedUnregistrator =
-      bind(unregistrator, m_face.m_nfdController, unregisterParameters, _1, _2,
-           signatureGenerator,
-           m_face.m_nfdController->getDefaultCommandTimeout());
+        ndn::bind(unregistrator, m_face.m_nfdController.get(), unregisterParameters, _1, _2,
+                  signatureGenerator,
+                  m_face.m_nfdController->getDefaultCommandTimeout());
 
     shared_ptr<RegisteredPrefix> prefixToRegister =
-      ndn::make_shared<RegisteredPrefix>(prefix, filter, bindedUnregistrator);
+      make_shared<RegisteredPrefix>(prefix, filter, bindedUnregistrator);
 
     ((*m_face.m_nfdController).*registrator)(registerParameters,
                                              bind(&Impl::afterPrefixRegistered, this,

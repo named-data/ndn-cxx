@@ -25,6 +25,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <iterator>
+#include <limits>
 
 #include "buffer.hpp"
 #include "endian.hpp"

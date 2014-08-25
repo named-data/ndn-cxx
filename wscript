@@ -58,15 +58,6 @@ def configure(conf):
     conf.check_sqlite3(mandatory=True)
     conf.check_cryptopp(mandatory=True, use='PTHREAD')
 
-    if conf.options.use_cxx11:
-        conf.check(msg='Checking for type std::shared_ptr',
-                   type_name="std::shared_ptr<int>", header_name="memory",
-                   define_name='HAVE_STD_SHARED_PTR', mandatory=True)
-        conf.check(msg='Checking for type std::function',
-                   type_name="std::function<void()>", header_name="functional",
-                   define_name='HAVE_STD_FUNCTION', mandatory=True)
-        conf.define('HAVE_CXX11', 1)
-
     USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams',
                        'regex', 'program_options', 'chrono', 'random']
     if conf.env['WITH_TESTS']:

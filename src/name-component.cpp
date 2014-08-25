@@ -60,7 +60,7 @@ Component::Component(const uint8_t* value, size_t valueLen)
 }
 
 Component::Component(const char* str)
-  : Block(dataBlock(tlv::NameComponent, str, ::strlen(str)))
+  : Block(dataBlock(tlv::NameComponent, str, std::char_traits<char>::length(str)))
 {
 }
 

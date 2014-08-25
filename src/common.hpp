@@ -38,46 +38,39 @@
 #define NDN_CXX_PROTECTED_WITH_TESTS_ELSE_PRIVATE private
 #endif
 
-#include <stdint.h>
-#include <stddef.h>
+// require C++11
+#if __cplusplus < 201103L && !defined(__GXX_EXPERIMENTAL_CXX0X__)
+#  error "ndn-cxx applications must be compiled using the C++11 standard"
+#endif
+
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <functional>
+#include <limits>
+#include <memory>
+#include <stdexcept>
+#include <string>
 #include <unistd.h>
 
 #if defined(__GNUC__) || defined(__clang__)
-#define DEPRECATED(func) func __attribute__ ((deprecated))
+#  define DEPRECATED(func) func __attribute__ ((deprecated))
 #elif defined(_MSC_VER)
-#define DEPRECATED(func) __declspec(deprecated) func
+#  define DEPRECATED(func) __declspec(deprecated) func
 #else
-#pragma message("DEPRECATED not implemented")
-#define DEPRECATED(func) func
+#  pragma message("DEPRECATED not implemented")
+#  define DEPRECATED(func) func
 #endif
 
 namespace ndn {
 
 const size_t MAX_NDN_PACKET_SIZE = 8800;
 
-} // namespace ndn
-
-#ifdef NDN_CXX_HAVE_CXX11
-
-#if defined(__GNUC__)
-#  if !defined(__GXX_EXPERIMENTAL_CXX0X__) && __cplusplus < 201103L
-#    error "NDN-CXX library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
-#  endif // !defined(__GXX_EXPERIMENTAL_CXX0X__) && __cplusplus < 201103L
-#endif // defined(__GNUC__)
-
-#if defined(__clang__) && __cplusplus < 201103L
-#  error "NDN-CXX library is configured and compiled in C++11 mode, but the current compiler is not C++11 enabled"
-#endif // defined(__clang__) && (__cplusplus < 201103L)
-
-#include <memory>
-#include <functional>
-
-namespace ndn {
-
 namespace ptr_lib = std;
 namespace func_lib = std;
 
 using std::shared_ptr;
+using std::unique_ptr;
 using std::weak_ptr;
 using std::bad_weak_ptr;
 using std::make_shared;
@@ -98,54 +91,16 @@ using std::placeholders::_6;
 using std::placeholders::_7;
 using std::placeholders::_8;
 using std::placeholders::_9;
-
 using std::ref;
 using std::cref;
 
 } // namespace ndn
 
-
-#else
-
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/make_shared.hpp>
-
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include <boost/assert.hpp>
+#include <boost/noncopyable.hpp>
 
 namespace ndn {
-
-namespace ptr_lib = boost;
-namespace func_lib = boost;
-
-using boost::shared_ptr;
-using boost::weak_ptr;
-using boost::bad_weak_ptr;
-using boost::make_shared;
-using boost::enable_shared_from_this;
-
-using boost::static_pointer_cast;
-using boost::dynamic_pointer_cast;
-using boost::const_pointer_cast;
-
-using boost::function;
-using boost::bind;
-
-using boost::ref;
-using boost::cref;
-
-} // namespace ndn
-
-#endif // NDN_CXX_HAVE_CXX11
-
-#include <boost/utility.hpp>
-
-namespace ndn {
-
 using boost::noncopyable;
-
 }
 
 #endif // NDN_COMMON_HPP

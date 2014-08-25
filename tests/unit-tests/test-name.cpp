@@ -163,7 +163,8 @@ public:
                                         bind(&name::Component::isSegmentOffset, _1)));
     dataset.push_back(boost::make_tuple(&name::Component::fromVersion,
                                         bind(&name::Component::toVersion, _1),
-                                        bind(&Name::appendVersion, _1, _2),
+                                        bind(static_cast<Name&(Name::*)(uint64_t)>(
+                                               &Name::appendVersion), _1, _2),
                                         Name("/%FD%00%0FB%40"),
                                         1000000,
                                         bind(&name::Component::isVersion, _1)));
@@ -193,7 +194,7 @@ public:
                                         bind(&name::Component::toTimestamp, _1),
                                         bind(&Name::appendTimestamp, _1, _2),
                                         Name("/%FC%00%04%7BE%E3%1B%00%00"),
-                                        (time::getUnixEpoch() + time::days(14600/*40 years*/)),
+                                        time::getUnixEpoch() + time::days(14600/*40 years*/),
                                         bind(&name::Component::isTimestamp, _1)));
   }
 
