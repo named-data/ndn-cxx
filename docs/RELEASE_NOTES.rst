@@ -27,7 +27,7 @@ New features:
 
   + Add support for new `NDN naming conventions
     <http://named-data.net/doc/tech-memos/naming-conventions.pdf>`_
-     (`Issue #1761 <http://redmine.named-data.net/issues/1761>`_)
+    (`Issue #1761 <http://redmine.named-data.net/issues/1761>`_)
 
 - **Security**
 
@@ -141,7 +141,7 @@ Updates and bug fixes:
       * :ndn-cxx:`Validator::onTimeout <onTimeout>` to process interest timeout
       * :ndn-cxx:`Validator::afterCheckPolicy <afterCheckPolicy>` to process validation requests.
 
-  + Fix memory issues in :ndn-cxx:`SecPublicInfoSqlite`
+  + Fix memory issues in :ndn-cxx:`SecPublicInfoSqlite3`
 
 - **Miscellaneous tools**
 
