@@ -163,6 +163,14 @@ public:
   static ConstBufferPtr
   computeDigest(const uint8_t* buffer, size_t size);
 
+  /**
+   * @brief Convert digest to std::string
+   *
+   * Note that this method will invoke computeDigest().
+   * Once this method is invoked, the digest is finalized.
+   */
+  std::string
+  toString();
 
 private:
   /**
@@ -179,6 +187,10 @@ private:
   bool m_isInProcess;
   bool m_isFinalized;
 };
+
+template<typename Hash>
+std::ostream&
+operator<<(std::ostream& os, Digest<Hash>& digest);
 
 /**
  * @brief A digest using SHA256 as the hash function.

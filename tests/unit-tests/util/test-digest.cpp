@@ -180,6 +180,30 @@ BOOST_AUTO_TEST_CASE(ComputeDigest)
                                 digest2->buf() + digest2->size());
 }
 
+BOOST_AUTO_TEST_CASE(Print)
+{
+  using namespace CryptoPP;
+
+  uint8_t origin[32] = {0x94, 0xEE, 0x05, 0x93, 0x35, 0xE5, 0x87, 0xE5,
+                        0x01, 0xCC, 0x4B, 0xF9, 0x06, 0x13, 0xE0, 0x81,
+                        0x4F, 0x00, 0xA7, 0xB0, 0x8B, 0xC7, 0xC6, 0x48,
+                        0xFD, 0x86, 0x5A, 0x2A, 0xF6, 0xA2, 0x2C, 0xC2};
+
+  std::string hexString;
+  StringSource(origin, 32, true, new HexEncoder(new StringSink(hexString)));
+
+  std::string str("TEST");
+  Sha256 digest;
+  digest << str;
+
+  std::ostringstream os;
+  os << digest;
+
+  BOOST_CHECK_EQUAL(os.str(), hexString);
+  BOOST_CHECK_EQUAL(digest.toString(), hexString);
+
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace test

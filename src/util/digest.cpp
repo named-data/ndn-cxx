@@ -130,7 +130,36 @@ Digest<Hash>::computeDigest(const uint8_t* buffer, size_t size)
   return result;
 }
 
-template class Digest<CryptoPP::SHA256>;
+template<typename Hash>
+std::string
+Digest<Hash>::toString()
+{
+  std::ostringstream os;
+  os << *this;
+
+  return os.str();
+}
+
+template<typename Hash>
+std::ostream&
+operator<<(std::ostream& os, Digest<Hash>& digest)
+{
+  using namespace CryptoPP;
+
+  std::string output;
+  ConstBufferPtr buffer = digest.computeDigest();
+  StringSource(buffer->buf(), buffer->size(), true, new HexEncoder(new FileSink(os)));
+
+  return os;
+}
+
+template
+class Digest<CryptoPP::SHA256>;
+
+template
+std::ostream&
+operator<<(std::ostream& os, Digest<CryptoPP::SHA256>& digest);
+
 
 } // namespace util
 } // namespace ndn
