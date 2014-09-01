@@ -1,0 +1,185 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
+/**
+ * Copyright (c) 2013-2014 Regents of the University of California.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ *
+ * ndn-cxx library is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * ndn-cxx library is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ *
+ * You should have received copies of the GNU General Public License and GNU Lesser
+ * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ */
+
+#include "key-locator.hpp"
+#include "encoding/block-helpers.hpp"
+
+namespace ndn {
+
+KeyLocator::KeyLocator()
+  : m_type(KeyLocator_None)
+{
+}
+
+KeyLocator::KeyLocator(const Block& wire)
+{
+  wireDecode(wire);
+}
+
+KeyLocator::KeyLocator(const Name& name)
+{
+  setName(name);
+}
+
+template<bool T>
+size_t
+KeyLocator::wireEncode(EncodingImpl<T>& block) const
+{
+  // KeyLocator ::= KEY-LOCATOR-TYPE TLV-LENGTH (Name | KeyDigest)
+  // KeyDigest ::= KEY-DIGEST-TYPE TLV-LENGTH BYTE+
+
+  size_t totalLength = 0;
+
+  switch (m_type) {
+  case KeyLocator_None:
+    break;
+  case KeyLocator_Name:
+    totalLength += m_name.wireEncode(block);
+    break;
+  case KeyLocator_KeyDigest:
+    totalLength += block.prependBlock(m_keyDigest);
+    break;
+  default:
+    throw Error("Unsupported KeyLocator type");
+  }
+
+  totalLength += block.prependVarNumber(totalLength);
+  totalLength += block.prependVarNumber(tlv::KeyLocator);
+  return totalLength;
+}
+
+template size_t
+KeyLocator::wireEncode<true>(EncodingImpl<true>& estimator) const;
+
+template size_t
+KeyLocator::wireEncode<false>(EncodingImpl<false>& encoder) const;
+
+const Block&
+KeyLocator::wireEncode() const
+{
+  if (m_wire.hasWire())
+    return m_wire;
+
+  EncodingEstimator estimator;
+  size_t estimatedSize = wireEncode(estimator);
+
+  EncodingBuffer buffer(estimatedSize, 0);
+  wireEncode(buffer);
+
+  m_wire = buffer.block();
+  return m_wire;
+}
+
+void
+KeyLocator::wireDecode(const Block& wire)
+{
+  if (wire.type() != tlv::KeyLocator)
+    throw Error("Unexpected TLV type during KeyLocator decoding");
+
+  m_wire = wire;
+  m_wire.parse();
+
+  if (m_wire.elements().empty()) {
+    m_type = KeyLocator_None;
+    return;
+  }
+
+  switch (m_wire.elements_begin()->type()) {
+  case tlv::Name:
+    m_type = KeyLocator_Name;
+    m_name.wireDecode(*m_wire.elements_begin());
+    break;
+  case tlv::KeyDigest:
+    m_type = KeyLocator_KeyDigest;
+    m_keyDigest = *m_wire.elements_begin();
+    break;
+  default:
+    m_type = KeyLocator_Unknown;
+    break;
+  }
+}
+
+KeyLocator&
+KeyLocator::clear()
+{
+  m_wire.reset();
+  m_type = KeyLocator_None;
+  m_name.clear();
+  m_keyDigest.reset();
+  return *this;
+}
+
+const Name&
+KeyLocator::getName() const
+{
+  if (m_type != KeyLocator_Name)
+    throw Error("KeyLocator type is not Name");
+
+  return m_name;
+}
+
+KeyLocator&
+KeyLocator::setName(const Name& name)
+{
+  this->clear();
+  m_type = KeyLocator_Name;
+  m_name = name;
+  return *this;
+}
+
+const Block&
+KeyLocator::getKeyDigest() const
+{
+  if (m_type != KeyLocator_KeyDigest)
+    throw Error("KeyLocator type is not KeyDigest");
+
+  return m_keyDigest;
+}
+
+KeyLocator&
+KeyLocator::setKeyDigest(const Block& keyDigest)
+{
+  if (keyDigest.type() != tlv::KeyDigest)
+    throw Error("expecting KeyDigest block");
+
+  this->clear();
+  m_type = KeyLocator_KeyDigest;
+  m_keyDigest = keyDigest;
+  return *this;
+}
+
+KeyLocator&
+KeyLocator::setKeyDigest(const ConstBufferPtr& keyDigest)
+{
+  // WARNING: ConstBufferPtr is shared_ptr<const Buffer>
+  // This function takes a constant reference of a shared pointer.
+  // It MUST NOT change the reference count of that shared pointer.
+
+  return this->setKeyDigest(dataBlock(tlv::KeyDigest, keyDigest->get(), keyDigest->size()));
+}
+
+bool
+KeyLocator::operator==(const KeyLocator& other) const
+{
+  return wireEncode() == other.wireEncode();
+}
+
+} // namespace ndn
