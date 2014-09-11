@@ -31,6 +31,104 @@ Exclude::Exclude()
 {
 }
 
+Exclude::Exclude(const Block& wire)
+{
+  wireDecode(wire);
+}
+
+template<bool T>
+size_t
+Exclude::wireEncode(EncodingImpl<T>& block) const
+{
+  size_t totalLength = 0;
+
+  // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
+  // Any     ::= ANY-TYPE TLV-LENGTH(=0)
+
+  for (Exclude::const_iterator i = m_exclude.begin(); i != m_exclude.end(); i++)
+    {
+      if (i->second)
+        {
+          totalLength += prependBooleanBlock(block, tlv::Any);
+        }
+      if (!i->first.empty())
+        {
+          totalLength += i->first.wireEncode(block);
+        }
+    }
+
+  totalLength += block.prependVarNumber(totalLength);
+  totalLength += block.prependVarNumber(tlv::Exclude);
+  return totalLength;
+}
+
+template size_t
+Exclude::wireEncode<true>(EncodingImpl<true>& block) const;
+
+template size_t
+Exclude::wireEncode<false>(EncodingImpl<false>& block) const;
+
+const Block&
+Exclude::wireEncode() const
+{
+  if (m_wire.hasWire())
+    return m_wire;
+
+  EncodingEstimator estimator;
+  size_t estimatedSize = wireEncode(estimator);
+
+  EncodingBuffer buffer(estimatedSize, 0);
+  wireEncode(buffer);
+
+  m_wire = buffer.block();
+  return m_wire;
+}
+
+void
+Exclude::wireDecode(const Block& wire)
+{
+  m_wire = wire;
+  m_wire.parse();
+
+  // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
+  // Any     ::= ANY-TYPE TLV-LENGTH(=0)
+
+  Block::element_const_iterator i = m_wire.elements_begin();
+  if (i->type() == tlv::Any)
+    {
+      appendExclude(name::Component(), true);
+      ++i;
+    }
+
+  while (i != m_wire.elements_end())
+    {
+      if (i->type() != tlv::NameComponent)
+        throw Error("Incorrect format of Exclude filter");
+
+      name::Component excludedComponent(i->value(), i->value_size());
+      ++i;
+
+      if (i != m_wire.elements_end())
+        {
+          if (i->type() == tlv::Any)
+            {
+              appendExclude(excludedComponent, true);
+              ++i;
+            }
+          else
+            {
+              appendExclude(excludedComponent, false);
+            }
+        }
+      else
+        {
+          appendExclude(excludedComponent, false);
+        }
+    }
+}
+
+
+
 // example: ANY /b /d ANY /f
 //
 // ordered in map as:

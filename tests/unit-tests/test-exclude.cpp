@@ -113,7 +113,8 @@ BOOST_AUTO_TEST_CASE(Ranges)
   BOOST_CHECK_EQUAL(e.size(), 1);
   BOOST_CHECK_EQUAL(e.toUri(), "*");
 
-  BOOST_REQUIRE_THROW(e.excludeRange(name::Component("d0"), name::Component("a0")), Exclude::Error);
+  BOOST_REQUIRE_THROW(e.excludeRange(name::Component("d0"), name::Component("a0")),
+                      Exclude::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -48,13 +48,6 @@ public:
     }
   };
 
-  typedef std::map< name::Component, bool /*any*/, std::greater<name::Component> > exclude_type;
-
-  typedef exclude_type::iterator iterator;
-  typedef exclude_type::const_iterator const_iterator;
-  typedef exclude_type::reverse_iterator reverse_iterator;
-  typedef exclude_type::const_reverse_iterator const_reverse_iterator;
-
   /**
    * @brief Default constructor an empty exclude
    */
@@ -64,33 +57,34 @@ public:
    * @brief Create from wire encoding
    */
   explicit
-  Exclude(const Block& wire)
-  {
-    wireDecode(wire);
-  }
+  Exclude(const Block& wire);
 
   /**
    * @brief Fast encoding or block size estimation
    */
   template<bool T>
-  inline size_t
+  size_t
   wireEncode(EncodingImpl<T>& block) const;
 
   /**
    * @brief Encode to a wire format
    */
-  inline const Block&
+  const Block&
   wireEncode() const;
 
   /**
    * @brief Decode from the wire format
    */
-  inline void
+  void
   wireDecode(const Block& wire);
 
-  ///////////////////////////////////////////////////////////////////////////////
+  /**
+   * @brief Get escaped string representation (e.g., for use in URI) of the exclude filter
+   */
+  std::string
+  toUri() const;
 
-
+public: // high-level API
   /**
    * @brief Check if name component is excluded
    * @param comp Name component to check against exclude filter
@@ -120,7 +114,7 @@ public:
    * @param to last element of the range
    * @returns *this to allow chaining
    */
-  inline Exclude&
+  Exclude&
   excludeBefore(const name::Component& to);
 
   /**
@@ -132,6 +126,26 @@ public:
   excludeAfter(const name::Component& from);
 
   /**
+   * @brief Check if exclude filter is empty
+   */
+  bool
+  empty() const;
+
+  /**
+   * @brief Clear the exclude filter
+   */
+  void
+  clear();
+
+public: // low-level exclude element API
+  typedef std::map< name::Component, bool /*any*/, std::greater<name::Component> > exclude_type;
+
+  typedef exclude_type::iterator iterator;
+  typedef exclude_type::const_iterator const_iterator;
+  typedef exclude_type::reverse_iterator reverse_iterator;
+  typedef exclude_type::const_reverse_iterator const_reverse_iterator;
+
+  /**
    * @brief Method to directly append exclude element
    * @param name excluded name component
    * @param any  flag indicating if there is a postfix ANY component after the name
@@ -140,56 +154,38 @@ public:
    *
    * If there is an error with ranges (e.g., order of components is wrong) an exception is thrown
    */
-  inline void
+  void
   appendExclude(const name::Component& name, bool any);
-
-  /**
-   * @brief Check if exclude filter is empty
-   */
-  inline bool
-  empty() const;
-
-  /**
-   * @brief Clear the exclude filter
-   */
-  inline void
-  clear();
 
   /**
    * @brief Get number of exclude terms
    */
-  inline size_t
+  size_t
   size() const;
 
   /**
    * @brief Get begin iterator of the exclude terms
    */
-  inline const_iterator
+  const_iterator
   begin() const;
 
   /**
    * @brief Get end iterator of the exclude terms
    */
-  inline const_iterator
+  const_iterator
   end() const;
 
   /**
    * @brief Get begin iterator of the exclude terms
    */
-  inline const_reverse_iterator
+  const_reverse_iterator
   rbegin() const;
 
   /**
    * @brief Get end iterator of the exclude terms
    */
-  inline const_reverse_iterator
+  const_reverse_iterator
   rend() const;
-
-  /**
-   * @brief Get escaped string representation (e.g., for use in URI) of the exclude filter
-   */
-  inline std::string
-  toUri() const;
 
 private:
   Exclude&
@@ -228,7 +224,6 @@ Exclude::clear()
   m_exclude.clear();
 }
 
-
 inline size_t
 Exclude::size() const
 {
@@ -266,92 +261,6 @@ Exclude::toUri() const
   os << *this;
   return os.str();
 }
-
-template<bool T>
-inline size_t
-Exclude::wireEncode(EncodingImpl<T>& block) const
-{
-  size_t totalLength = 0;
-
-  // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
-  // Any     ::= ANY-TYPE TLV-LENGTH(=0)
-
-  for (Exclude::const_iterator i = m_exclude.begin(); i != m_exclude.end(); i++)
-    {
-      if (i->second)
-        {
-          totalLength += prependBooleanBlock(block, tlv::Any);
-        }
-      if (!i->first.empty())
-        {
-          totalLength += i->first.wireEncode(block);
-        }
-    }
-
-  totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(tlv::Exclude);
-  return totalLength;
-}
-
-inline const Block&
-Exclude::wireEncode() const
-{
-  if (m_wire.hasWire())
-    return m_wire;
-
-  EncodingEstimator estimator;
-  size_t estimatedSize = wireEncode(estimator);
-
-  EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
-
-  m_wire = buffer.block();
-  return m_wire;
-}
-
-inline void
-Exclude::wireDecode(const Block& wire)
-{
-  m_wire = wire;
-  m_wire.parse();
-
-  // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
-  // Any     ::= ANY-TYPE TLV-LENGTH(=0)
-
-  Block::element_const_iterator i = m_wire.elements_begin();
-  if (i->type() == tlv::Any)
-    {
-      appendExclude(name::Component(), true);
-      ++i;
-    }
-
-  while (i != m_wire.elements_end())
-    {
-      if (i->type() != tlv::NameComponent)
-        throw Error("Incorrect format of Exclude filter");
-
-      name::Component excludedComponent(i->value(), i->value_size());
-      ++i;
-
-      if (i != m_wire.elements_end())
-        {
-          if (i->type() == tlv::Any)
-            {
-              appendExclude(excludedComponent, true);
-              ++i;
-            }
-          else
-            {
-              appendExclude(excludedComponent, false);
-            }
-        }
-      else
-        {
-          appendExclude(excludedComponent, false);
-        }
-    }
-}
-
 
 } // ndn
 
