@@ -21,11 +21,13 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#include "common.hpp"
-
 #include "exclude.hpp"
 
+#include <boost/static_assert.hpp>
+
 namespace ndn {
+
+BOOST_STATIC_ASSERT((boost::is_base_of<tlv::Error, Exclude::Error>::value));
 
 Exclude::Exclude()
 {
@@ -40,6 +42,10 @@ template<bool T>
 size_t
 Exclude::wireEncode(EncodingImpl<T>& block) const
 {
+  if (m_exclude.empty()) {
+    throw Error("Exclude filter cannot be empty");
+  }
+
   size_t totalLength = 0;
 
   // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
@@ -87,8 +93,15 @@ Exclude::wireEncode() const
 void
 Exclude::wireDecode(const Block& wire)
 {
+  if (wire.type() != tlv::Exclude)
+    throw tlv::Error("Unexpected TLV type when decoding Exclude");
+
   m_wire = wire;
   m_wire.parse();
+
+  if (m_wire.elements_size() == 0) {
+    throw Error("Exclude element cannot be empty");
+  }
 
   // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
   // Any     ::= ANY-TYPE TLV-LENGTH(=0)
@@ -127,8 +140,6 @@ Exclude::wireDecode(const Block& wire)
     }
 }
 
-
-
 // example: ANY /b /d ANY /f
 //
 // ordered in map as:
@@ -165,7 +176,6 @@ Exclude::excludeOne(const name::Component& comp)
     }
   return *this;
 }
-
 
 // example: ANY /b0 /d0 ANY /f0
 //
@@ -251,7 +261,6 @@ Exclude::excludeAfter(const name::Component& from)
   return *this;
 }
 
-
 std::ostream&
 operator<<(std::ostream& os, const Exclude& exclude)
 {
@@ -270,6 +279,5 @@ operator<<(std::ostream& os, const Exclude& exclude)
   }
   return os;
 }
-
 
 } // namespace ndn
