@@ -24,6 +24,7 @@
 #include "exclude.hpp"
 
 #include <boost/static_assert.hpp>
+#include <boost/type_traits.hpp>
 
 namespace ndn {
 
@@ -93,6 +94,8 @@ Exclude::wireEncode() const
 void
 Exclude::wireDecode(const Block& wire)
 {
+  clear();
+
   if (wire.type() != tlv::Exclude)
     throw tlv::Error("Unexpected TLV type when decoding Exclude");
 
@@ -173,6 +176,7 @@ Exclude::excludeOne(const name::Component& comp)
   if (!isExcluded(comp))
     {
       m_exclude.insert(std::make_pair(comp, false));
+      m_wire.reset();
     }
   return *this;
 }
@@ -235,6 +239,7 @@ Exclude::excludeRange(const name::Component& from, const name::Component& to)
 
   m_exclude.erase(newTo, newFrom); // remove any intermediate node, since all of the are excluded
 
+  m_wire.reset();
   return *this;
 }
 
@@ -258,6 +263,7 @@ Exclude::excludeAfter(const name::Component& from)
     m_exclude.erase(m_exclude.begin(), newFrom);
   }
 
+  m_wire.reset();
   return *this;
 }
 
@@ -278,6 +284,25 @@ operator<<(std::ostream& os, const Exclude& exclude)
     }
   }
   return os;
+}
+
+std::string
+Exclude::toUri() const
+{
+  std::ostringstream os;
+  os << *this;
+  return os.str();
+}
+
+bool
+Exclude::operator==(const Exclude& other) const
+{
+  if (empty() && other.empty())
+    return true;
+  if (empty() || other.empty())
+    return false;
+
+  return wireEncode() == other.wireEncode();
 }
 
 } // namespace ndn

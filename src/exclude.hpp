@@ -137,6 +137,13 @@ public: // high-level API
   void
   clear();
 
+public: // EqualityComparable concept
+  bool
+  operator==(const Exclude& other) const;
+
+  bool
+  operator!=(const Exclude& other) const;
+
 public: // low-level exclude element API
   typedef std::map< name::Component, bool /*any*/, std::greater<name::Component> > exclude_type;
 
@@ -222,6 +229,7 @@ inline void
 Exclude::clear()
 {
   m_exclude.clear();
+  m_wire.reset();
 }
 
 inline size_t
@@ -254,12 +262,10 @@ Exclude::rend() const
   return m_exclude.rend();
 }
 
-inline std::string
-Exclude::toUri() const
+inline bool
+Exclude::operator!=(const Exclude& other) const
 {
-  std::ostringstream os;
-  os << *this;
-  return os.str();
+  return !(*this == other);
 }
 
 } // ndn

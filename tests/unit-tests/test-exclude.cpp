@@ -55,6 +55,36 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(e.toUri(), "a,b,c,d,aa,cc");
 }
 
+BOOST_AUTO_TEST_CASE(EqualityComparable)
+{
+  Exclude e1;
+  Exclude e2;
+  BOOST_CHECK_EQUAL(e1, e2);
+
+  e1.excludeOne(name::Component("T"));
+  BOOST_CHECK_NE(e1, e2);
+
+  e2.excludeOne(name::Component("D"));
+  BOOST_CHECK_NE(e1, e2);
+
+  e2.clear();
+  e2.excludeOne(name::Component("T"));
+  BOOST_CHECK_EQUAL(e1, e2);
+
+  e2.clear();
+  const uint8_t EXCLUDE[] = { 0x10, 0x15, 0x13, 0x00, 0x08, 0x01, 0x41, 0x08, 0x01, 0x42,
+                              0x08, 0x01, 0x43, 0x13, 0x00, 0x08, 0x01, 0x44, 0x08, 0x01,
+                              0x45, 0x13, 0x00 };
+  e2.wireDecode(Block(EXCLUDE, sizeof(EXCLUDE)));
+
+  e1.clear();
+  e1.excludeBefore(name::Component("A"));
+  e1.excludeOne(name::Component("B"));
+  e1.excludeRange(name::Component("C"), name::Component("D"));
+  e1.excludeAfter(name::Component("E"));
+  BOOST_CHECK_EQUAL(e1, e2);
+}
+
 BOOST_AUTO_TEST_CASE(Before)
 {
   // based on http://redmine.named-data.net/issues/1158
