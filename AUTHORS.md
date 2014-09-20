@@ -26,3 +26,4 @@ in the library:
 * Lixia Zhang           <http://www.cs.ucla.edu/~lixia/home.html>
 * Jeff Burke            <http://remap.ucla.edu/jburke/>
 * Xiaoke Jiang          <http://netarchlab.tsinghua.edu.cn/~shock/>
+* Jiewen Tan            <alanwake@ucla.edu>

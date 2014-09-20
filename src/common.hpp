@@ -24,6 +24,18 @@
 
 #include "ndn-cxx-config.hpp"
 
+#ifdef NDN_CXX_HAVE_TESTS
+#define VIRTUAL_WITH_TESTS virtual
+#define PUBLIC_WITH_TESTS_ELSE_PROTECTED public
+#define PUBLIC_WITH_TESTS_ELSE_PRIVATE public
+#define PROTECTED_WITH_TESTS_ELSE_PRIVATE protected
+#else
+#define VIRTUAL_WITH_TESTS
+#define PUBLIC_WITH_TESTS_ELSE_PROTECTED protected
+#define PUBLIC_WITH_TESTS_ELSE_PRIVATE private
+#define PROTECTED_WITH_TESTS_ELSE_PRIVATE private
+#endif
+
 #include <stdint.h>
 #include <stddef.h>
 #include <unistd.h>
