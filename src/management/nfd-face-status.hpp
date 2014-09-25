@@ -23,11 +23,8 @@
 #define NDN_MANAGEMENT_NFD_FACE_STATUS_HPP
 
 // This include must be kept as the first one, to ensure nfd-face-flags.hpp compiles on its own.
-#include "nfd-face-flags.hpp"
+#include "nfd-face-traits.hpp"
 
-#include "../encoding/tlv-nfd.hpp"
-#include "../encoding/encoding-buffer.hpp"
-#include "../encoding/block-helpers.hpp"
 #include "../util/time.hpp"
 
 namespace ndn {
@@ -38,26 +35,13 @@ namespace nfd {
  * \brief represents Face status
  * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Dataset
  */
-class FaceStatus : public FaceFlagsTraits<FaceStatus>
+class FaceStatus : public FaceTraits<FaceStatus>
 {
 public:
-  class Error : public tlv::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : tlv::Error(what)
-    {
-    }
-  };
-
   FaceStatus();
 
   explicit
-  FaceStatus(const Block& block)
-  {
-    this->wireDecode(block);
-  }
+  FaceStatus(const Block& block);
 
   /** \brief prepend FaceStatus to the encoder
    */
@@ -76,48 +60,6 @@ public:
   wireDecode(const Block& wire);
 
 public: // getters & setters
-  uint64_t
-  getFaceId() const
-  {
-    return m_faceId;
-  }
-
-  FaceStatus&
-  setFaceId(uint64_t faceId)
-  {
-    m_wire.reset();
-    m_faceId = faceId;
-    return *this;
-  }
-
-  const std::string&
-  getRemoteUri() const
-  {
-    return m_remoteUri;
-  }
-
-  FaceStatus&
-  setRemoteUri(const std::string& remoteUri)
-  {
-    m_wire.reset();
-    m_remoteUri = remoteUri;
-    return *this;
-  }
-
-  const std::string&
-  getLocalUri() const
-  {
-    return m_localUri;
-  }
-
-  FaceStatus&
-  setLocalUri(const std::string& localUri)
-  {
-    m_wire.reset();
-    m_localUri = localUri;
-    return *this;
-  }
-
   bool
   hasExpirationPeriod() const
   {
@@ -132,26 +74,7 @@ public: // getters & setters
   }
 
   FaceStatus&
-  setExpirationPeriod(const time::milliseconds& expirationPeriod)
-  {
-    m_expirationPeriod = expirationPeriod;
-    m_hasExpirationPeriod = true;
-    return *this;
-  }
-
-  uint64_t
-  getFlags() const
-  {
-    return m_flags;
-  }
-
-  FaceStatus&
-  setFlags(uint64_t flags)
-  {
-    m_wire.reset();
-    m_flags = flags;
-    return *this;
-  }
+  setExpirationPeriod(const time::milliseconds& expirationPeriod);
 
   uint64_t
   getNInInterests() const
@@ -160,12 +83,7 @@ public: // getters & setters
   }
 
   FaceStatus&
-  setNInInterests(uint64_t nInInterests)
-  {
-    m_wire.reset();
-    m_nInInterests = nInInterests;
-    return *this;
-  }
+  setNInInterests(uint64_t nInInterests);
 
   uint64_t
   getNInDatas() const
@@ -174,12 +92,7 @@ public: // getters & setters
   }
 
   FaceStatus&
-  setNInDatas(uint64_t nInDatas)
-  {
-    m_wire.reset();
-    m_nInDatas = nInDatas;
-    return *this;
-  }
+  setNInDatas(uint64_t nInDatas);
 
   uint64_t
   getNOutInterests() const
@@ -188,12 +101,7 @@ public: // getters & setters
   }
 
   FaceStatus&
-  setNOutInterests(uint64_t nOutInterests)
-  {
-    m_wire.reset();
-    m_nOutInterests = nOutInterests;
-    return *this;
-  }
+  setNOutInterests(uint64_t nOutInterests);
 
   uint64_t
   getNOutDatas() const
@@ -202,12 +110,7 @@ public: // getters & setters
   }
 
   FaceStatus&
-  setNOutDatas(uint64_t nOutDatas)
-  {
-    m_wire.reset();
-    m_nOutDatas = nOutDatas;
-    return *this;
-  }
+  setNOutDatas(uint64_t nOutDatas);
 
   uint64_t
   getNInBytes() const
@@ -216,12 +119,7 @@ public: // getters & setters
   }
 
   FaceStatus&
-  setNInBytes(uint64_t nInBytes)
-  {
-    m_wire.reset();
-    m_nInBytes = nInBytes;
-    return *this;
-  }
+  setNInBytes(uint64_t nInBytes);
 
   uint64_t
   getNOutBytes() const
@@ -230,20 +128,15 @@ public: // getters & setters
   }
 
   FaceStatus&
-  setNOutBytes(uint64_t nOutBytes)
-  {
-    m_wire.reset();
-    m_nOutBytes = nOutBytes;
-    return *this;
-  }
+  setNOutBytes(uint64_t nOutBytes);
+
+protected:
+  void
+  wireReset() const;
 
 private:
-  uint64_t m_faceId;
-  std::string m_remoteUri;
-  std::string m_localUri;
   time::milliseconds m_expirationPeriod;
   bool m_hasExpirationPeriod;
-  uint64_t m_flags;
   uint64_t m_nInInterests;
   uint64_t m_nInDatas;
   uint64_t m_nOutInterests;

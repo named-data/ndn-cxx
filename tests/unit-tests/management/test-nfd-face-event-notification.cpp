@@ -28,25 +28,33 @@ namespace nfd {
 
 BOOST_AUTO_TEST_SUITE(ManagementTestNfdFaceEventNotification)
 
-BOOST_AUTO_TEST_CASE(Flags)
+BOOST_AUTO_TEST_CASE(Traits)
 {
   FaceEventNotification notification;
 
-  notification.setFlags(0);
-  BOOST_CHECK_EQUAL(notification.isLocal(), false);
-  BOOST_CHECK_EQUAL(notification.isOnDemand(), false);
+  BOOST_CHECK_EQUAL(notification.getFaceScope(), FACE_SCOPE_NON_LOCAL);
+  BOOST_CHECK_EQUAL(notification.getFacePersistency(), FACE_PERSISTENCY_PERSISTENT);
+  BOOST_CHECK_EQUAL(notification.getLinkType(), LINK_TYPE_POINT_TO_POINT);
 
-  notification.setFlags(FACE_IS_LOCAL);
-  BOOST_CHECK_EQUAL(notification.isLocal(), true);
-  BOOST_CHECK_EQUAL(notification.isOnDemand(), false);
+  notification.setFaceScope(FACE_SCOPE_LOCAL);
+  BOOST_CHECK_EQUAL(notification.getFaceScope(), FACE_SCOPE_LOCAL);
+  BOOST_CHECK_EQUAL(notification.getFacePersistency(), FACE_PERSISTENCY_PERSISTENT);
+  BOOST_CHECK_EQUAL(notification.getLinkType(), LINK_TYPE_POINT_TO_POINT);
 
-  notification.setFlags(FACE_IS_ON_DEMAND);
-  BOOST_CHECK_EQUAL(notification.isLocal(), false);
-  BOOST_CHECK_EQUAL(notification.isOnDemand(), true);
+  notification.setFacePersistency(FACE_PERSISTENCY_ON_DEMAND);
+  BOOST_CHECK_EQUAL(notification.getFaceScope(), FACE_SCOPE_LOCAL);
+  BOOST_CHECK_EQUAL(notification.getFacePersistency(), FACE_PERSISTENCY_ON_DEMAND);
+  BOOST_CHECK_EQUAL(notification.getLinkType(), LINK_TYPE_POINT_TO_POINT);
 
-  notification.setFlags(FACE_IS_LOCAL | FACE_IS_ON_DEMAND);
-  BOOST_CHECK_EQUAL(notification.isLocal(), true);
-  BOOST_CHECK_EQUAL(notification.isOnDemand(), true);
+  notification.setFacePersistency(FACE_PERSISTENCY_PERMANENT);
+  BOOST_CHECK_EQUAL(notification.getFaceScope(), FACE_SCOPE_LOCAL);
+  BOOST_CHECK_EQUAL(notification.getFacePersistency(), FACE_PERSISTENCY_PERMANENT);
+  BOOST_CHECK_EQUAL(notification.getLinkType(), LINK_TYPE_POINT_TO_POINT);
+
+  notification.setLinkType(LINK_TYPE_MULTI_ACCESS);
+  BOOST_CHECK_EQUAL(notification.getFaceScope(), FACE_SCOPE_LOCAL);
+  BOOST_CHECK_EQUAL(notification.getFacePersistency(), FACE_PERSISTENCY_PERMANENT);
+  BOOST_CHECK_EQUAL(notification.getLinkType(), LINK_TYPE_MULTI_ACCESS);
 }
 
 BOOST_AUTO_TEST_CASE(EncodeCreated)
@@ -56,21 +64,25 @@ BOOST_AUTO_TEST_CASE(EncodeCreated)
                .setFaceId(20)
                .setRemoteUri("tcp4://192.0.2.1:55555")
                .setLocalUri("tcp4://192.0.2.2:6363")
-               .setFlags(FACE_IS_ON_DEMAND);
+               .setFaceScope(FACE_SCOPE_LOCAL)
+               .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
+               .setLinkType(LINK_TYPE_MULTI_ACCESS);
   Block wire;
   BOOST_REQUIRE_NO_THROW(wire = notification1.wireEncode());
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
-  //for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
-  //  printf("0x%02x, ", *it);
-  //}
+  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  //   printf("0x%02x, ", *it);
+  // }
   static const uint8_t expected[] = {
-    0xc0, 0x38, 0xc1, 0x01, 0x01, 0x69, 0x01, 0x14, 0x72, 0x16, 0x74, 0x63,
-    0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32,
-    0x2e, 0x31, 0x3a, 0x35, 0x35, 0x35, 0x35, 0x35, 0x81, 0x15, 0x74, 0x63,
-    0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32,
-    0x2e, 0x32, 0x3a, 0x36, 0x33, 0x36, 0x33, 0xc2, 0x01, 0x02,
+    0xc0, 0x3e, 0xc1, 0x01, 0x01, 0x69, 0x01, 0x14, 0x72, 0x16,
+    0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32,
+    0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x31, 0x3a, 0x35, 0x35, 0x35,
+    0x35, 0x35, 0x81, 0x15, 0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f,
+    0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x32,
+    0x3a, 0x36, 0x33, 0x36, 0x33, 0x84, 0x01, 0x01, 0x85, 0x01,
+    0x01, 0x86, 0x01, 0x01,
   };
   BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                   wire.begin(), wire.end());
@@ -81,7 +93,9 @@ BOOST_AUTO_TEST_CASE(EncodeCreated)
   BOOST_CHECK_EQUAL(notification1.getFaceId(), notification2.getFaceId());
   BOOST_CHECK_EQUAL(notification1.getRemoteUri(), notification2.getRemoteUri());
   BOOST_CHECK_EQUAL(notification1.getLocalUri(), notification2.getLocalUri());
-  BOOST_CHECK_EQUAL(notification1.getFlags(), notification2.getFlags());
+  BOOST_CHECK_EQUAL(notification1.getFaceScope(), notification2.getFaceScope());
+  BOOST_CHECK_EQUAL(notification1.getFacePersistency(), notification2.getFacePersistency());
+  BOOST_CHECK_EQUAL(notification1.getLinkType(), notification2.getLinkType());
 
   std::ostringstream os;
   os << notification2;
@@ -90,7 +104,9 @@ BOOST_AUTO_TEST_CASE(EncodeCreated)
                               "FaceID: 20, "
                               "RemoteUri: tcp4://192.0.2.1:55555, "
                               "LocalUri: tcp4://192.0.2.2:6363, "
-                              "Flags: 2)");
+                              "FaceScope: local, "
+                              "FacePersistency: on-demand, "
+                              "LinkType: multi-access)");
 }
 
 BOOST_AUTO_TEST_CASE(EncodeDestroyed)
@@ -100,21 +116,25 @@ BOOST_AUTO_TEST_CASE(EncodeDestroyed)
                .setFaceId(20)
                .setRemoteUri("tcp4://192.0.2.1:55555")
                .setLocalUri("tcp4://192.0.2.2:6363")
-               .setFlags(FACE_IS_ON_DEMAND);
+               .setFaceScope(FACE_SCOPE_LOCAL)
+               .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
+               .setLinkType(LINK_TYPE_MULTI_ACCESS);
   Block wire;
   BOOST_REQUIRE_NO_THROW(wire = notification1.wireEncode());
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
-  //for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
-  //  printf("0x%02x, ", *it);
-  //}
+  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  //   printf("0x%02x, ", *it);
+  // }
   static const uint8_t expected[] = {
-    0xc0, 0x38, 0xc1, 0x01, 0x02, 0x69, 0x01, 0x14, 0x72, 0x16, 0x74, 0x63,
-    0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32,
-    0x2e, 0x31, 0x3a, 0x35, 0x35, 0x35, 0x35, 0x35, 0x81, 0x15, 0x74, 0x63,
-    0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32,
-    0x2e, 0x32, 0x3a, 0x36, 0x33, 0x36, 0x33, 0xc2, 0x01, 0x02,
+    0xc0, 0x3e, 0xc1, 0x01, 0x02, 0x69, 0x01, 0x14, 0x72, 0x16,
+    0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32,
+    0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x31, 0x3a, 0x35, 0x35, 0x35,
+    0x35, 0x35, 0x81, 0x15, 0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f,
+    0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x32,
+    0x3a, 0x36, 0x33, 0x36, 0x33, 0x84, 0x01, 0x01, 0x85, 0x01,
+    0x01, 0x86, 0x01, 0x01,
   };
   BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                   wire.begin(), wire.end());
@@ -125,7 +145,9 @@ BOOST_AUTO_TEST_CASE(EncodeDestroyed)
   BOOST_CHECK_EQUAL(notification1.getFaceId(), notification2.getFaceId());
   BOOST_CHECK_EQUAL(notification1.getRemoteUri(), notification2.getRemoteUri());
   BOOST_CHECK_EQUAL(notification1.getLocalUri(), notification2.getLocalUri());
-  BOOST_CHECK_EQUAL(notification1.getFlags(), notification2.getFlags());
+  BOOST_CHECK_EQUAL(notification1.getFaceScope(), notification2.getFaceScope());
+  BOOST_CHECK_EQUAL(notification1.getFacePersistency(), notification2.getFacePersistency());
+  BOOST_CHECK_EQUAL(notification1.getLinkType(), notification2.getLinkType());
 
   std::ostringstream os;
   os << notification2;
@@ -134,7 +156,9 @@ BOOST_AUTO_TEST_CASE(EncodeDestroyed)
                               "FaceID: 20, "
                               "RemoteUri: tcp4://192.0.2.1:55555, "
                               "LocalUri: tcp4://192.0.2.2:6363, "
-                              "Flags: 2)");
+                              "FaceScope: local, "
+                              "FacePersistency: on-demand, "
+                              "LinkType: multi-access)");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

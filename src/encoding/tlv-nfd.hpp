@@ -61,7 +61,9 @@ enum {
   FaceStatus            = 128,
   LocalUri              = 129,
   ChannelStatus         = 130,
-  FaceFlags             = 194,
+  FaceScope             = 132,
+  FacePersistency       = 133,
+  LinkType              = 134,
   FaceEventNotification = 192,
   FaceEventKind         = 193,
 

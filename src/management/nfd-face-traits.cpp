@@ -19,53 +19,64 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_MANAGEMENT_NFD_FACE_FLAGS_HPP
-#define NDN_MANAGEMENT_NFD_FACE_FLAGS_HPP
+#include "nfd-face-traits.hpp"
 
 namespace ndn {
 namespace nfd {
 
-/**
- * \ingroup management
- * \brief provides additional information about a face
- */
-enum FaceFlags {
-  /** \brief face is local (for scope control purpose)
-   */
-  FACE_IS_LOCAL = 1,
-  /** \brief face is created on demand (accepted incoming connection,
-   *         not initiated outgoing connection)
-   */
-  FACE_IS_ON_DEMAND = 2
-  // FACE_? = 4
-  // FACE_? = 8
-};
-
-/**
- * \ingroup management
- * \brief implements getters to each face flag
- *
- * \tparam T class containing a FaceFlags field and implements
- *           `FaceFlags getFlags() const` method
- */
-template<typename T>
-class FaceFlagsTraits
+std::ostream&
+operator<<(std::ostream& os, FaceScope faceScope)
 {
-public:
-  bool
-  isLocal() const
-  {
-    return static_cast<const T*>(this)->getFlags() & FACE_IS_LOCAL;
+  switch (faceScope) {
+  case FACE_SCOPE_NON_LOCAL:
+    os << "non-local";
+    break;
+  case FACE_SCOPE_LOCAL:
+    os << "local";
+    break;
+  default:
+    os << "unknown";
+    break;
   }
+  return os;
+}
 
-  bool
-  isOnDemand() const
-  {
-    return static_cast<const T*>(this)->getFlags() & FACE_IS_ON_DEMAND;
+std::ostream&
+operator<<(std::ostream& os, FacePersistency facePersistency)
+{
+  switch (facePersistency) {
+  case FACE_PERSISTENCY_PERSISTENT:
+    os << "persistent";
+    break;
+  case FACE_PERSISTENCY_ON_DEMAND:
+    os << "on-demand";
+    break;
+  case FACE_PERSISTENCY_PERMANENT:
+    os << "permanent";
+    break;
+  default:
+    os << "unknown";
+    break;
   }
-};
+  return os;
+}
+
+std::ostream&
+operator<<(std::ostream& os, LinkType linkType)
+{
+  switch (linkType) {
+  case LINK_TYPE_POINT_TO_POINT:
+    os << "point-to-point";
+    break;
+  case LINK_TYPE_MULTI_ACCESS:
+    os << "multi-access";
+    break;
+  default:
+    os << "unknown";
+    break;
+  }
+  return os;
+}
 
 } // namespace nfd
 } // namespace ndn
-
-#endif // NDN_MANAGEMENT_NFD_FACE_FLAGS_HPP

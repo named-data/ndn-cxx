@@ -25,9 +25,8 @@ namespace ndn {
 namespace nfd {
 
 FaceStatus::FaceStatus()
-  : m_faceId(0)
+  : FaceTraits()
   , m_hasExpirationPeriod(false)
-  , m_flags(0)
   , m_nInInterests(0)
   , m_nInDatas(0)
   , m_nOutInterests(0)
@@ -35,6 +34,11 @@ FaceStatus::FaceStatus()
   , m_nInBytes(0)
   , m_nOutBytes(0)
 {
+}
+
+FaceStatus::FaceStatus(const Block& block)
+{
+  this->wireDecode(block);
 }
 
 template<bool T>
@@ -56,7 +60,11 @@ FaceStatus::wireEncode(EncodingImpl<T>& encoder) const
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::NInInterests, m_nInInterests);
   totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::FaceFlags, m_flags);
+                 tlv::nfd::LinkType, m_linkType);
+  totalLength += prependNonNegativeIntegerBlock(encoder,
+                 tlv::nfd::FacePersistency, m_facePersistency);
+  totalLength += prependNonNegativeIntegerBlock(encoder,
+                 tlv::nfd::FaceScope, m_faceScope);
   if (m_hasExpirationPeriod) {
     totalLength += prependNonNegativeIntegerBlock(encoder,
                    tlv::nfd::ExpirationPeriod, m_expirationPeriod.count());
@@ -139,12 +147,28 @@ FaceStatus::wireDecode(const Block& block)
     // ExpirationPeriod is optional
   }
 
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceFlags) {
-    m_flags = readNonNegativeInteger(*val);
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceScope) {
+    m_faceScope = static_cast<FaceScope>(readNonNegativeInteger(*val));
     ++val;
   }
   else {
-    throw Error("missing required FaceFlags field");
+    throw Error("missing required FaceScope field");
+  }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::FacePersistency) {
+    m_facePersistency = static_cast<FacePersistency>(readNonNegativeInteger(*val));
+    ++val;
+  }
+  else {
+    throw Error("missing required FacePersistency field");
+  }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::LinkType) {
+    m_linkType = static_cast<LinkType>(readNonNegativeInteger(*val));
+    ++val;
+  }
+  else {
+    throw Error("missing required LinkType field");
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInInterests) {
@@ -196,6 +220,69 @@ FaceStatus::wireDecode(const Block& block)
   }
 }
 
+FaceStatus&
+FaceStatus::setExpirationPeriod(const time::milliseconds& expirationPeriod)
+{
+  m_wire.reset();
+  m_expirationPeriod = expirationPeriod;
+  m_hasExpirationPeriod = true;
+  return *this;
+}
+
+FaceStatus&
+FaceStatus::setNInInterests(uint64_t nInInterests)
+{
+  m_wire.reset();
+  m_nInInterests = nInInterests;
+  return *this;
+}
+
+FaceStatus&
+FaceStatus::setNInDatas(uint64_t nInDatas)
+{
+  m_wire.reset();
+  m_nInDatas = nInDatas;
+  return *this;
+}
+
+FaceStatus&
+FaceStatus::setNOutInterests(uint64_t nOutInterests)
+{
+  m_wire.reset();
+  m_nOutInterests = nOutInterests;
+  return *this;
+}
+
+FaceStatus&
+FaceStatus::setNOutDatas(uint64_t nOutDatas)
+{
+  m_wire.reset();
+  m_nOutDatas = nOutDatas;
+  return *this;
+}
+
+FaceStatus&
+FaceStatus::setNInBytes(uint64_t nInBytes)
+{
+  m_wire.reset();
+  m_nInBytes = nInBytes;
+  return *this;
+}
+
+FaceStatus&
+FaceStatus::setNOutBytes(uint64_t nOutBytes)
+{
+  m_wire.reset();
+  m_nOutBytes = nOutBytes;
+  return *this;
+}
+
+void
+FaceStatus::wireReset() const
+{
+  m_wire.reset();
+}
+
 std::ostream&
 operator<<(std::ostream& os, const FaceStatus& status)
 {
@@ -211,7 +298,9 @@ operator<<(std::ostream& os, const FaceStatus& status)
     os << "ExpirationPeriod: infinite,\n";
   }
 
-  os << "Flags: " << status.getFlags() << ",\n"
+  os << "FaceScope: " << status.getFaceScope() << ",\n"
+     << "FacePersistency: " << status.getFacePersistency() << ",\n"
+     << "LinkType: " << status.getLinkType() << ",\n"
      << "Counters: { Interests: {in: " << status.getNInInterests() << ", "
      << "out: " << status.getNOutInterests() << "},\n"
      << "            Data: {in: " << status.getNInDatas() << ", "
