@@ -20,6 +20,7 @@
  */
 
 #include "digest.hpp"
+#include <sstream>
 
 namespace ndn {
 namespace util {
