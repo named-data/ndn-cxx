@@ -23,9 +23,10 @@
 #define NDN_META_INFO_HPP
 
 #include "common.hpp"
-#include "encoding/block-helpers.hpp"
+#include "encoding/block.hpp"
 #include "encoding/encoding-buffer.hpp"
 #include "util/time.hpp"
+#include "name-component.hpp"
 
 namespace ndn {
 
@@ -41,19 +42,13 @@ public:
     TYPE_KEY = 2
   };
 
-  MetaInfo()
-    : m_type(TYPE_DEFAULT)
-    , m_freshnessPeriod(-1)
-  {
-  }
+  MetaInfo();
 
   /**
    * @brief Create from wire encoding
    */
-  MetaInfo(const Block& block)
-  {
-    wireDecode(block);
-  }
+  explicit
+  MetaInfo(const Block& block);
 
   template<bool T>
   size_t
@@ -69,59 +64,29 @@ public:
   // Getters/setters
 
   uint32_t
-  getType() const
-  {
-    return m_type;
-  }
+  getType() const;
 
   MetaInfo&
-  setType(uint32_t type)
-  {
-    m_wire.reset();
-    m_type = type;
-    return *this;
-  }
+  setType(uint32_t type);
 
   const time::milliseconds&
-  getFreshnessPeriod() const
-  {
-    return m_freshnessPeriod;
-  }
+  getFreshnessPeriod() const;
 
   MetaInfo&
-  setFreshnessPeriod(const time::milliseconds& freshnessPeriod)
-  {
-    m_wire.reset();
-    m_freshnessPeriod = freshnessPeriod;
-    return *this;
-  }
+  setFreshnessPeriod(const time::milliseconds& freshnessPeriod);
 
   const name::Component&
-  getFinalBlockId() const
-  {
-    return m_finalBlockId;
-  }
+  getFinalBlockId() const;
 
   MetaInfo&
-  setFinalBlockId(const name::Component& finalBlockId)
-  {
-    m_wire.reset();
-    m_finalBlockId = finalBlockId;
-    return *this;
-  }
+  setFinalBlockId(const name::Component& finalBlockId);
 
 public: // EqualityComparable concept
   bool
-  operator==(const MetaInfo& other) const
-  {
-    return wireEncode() == other.wireEncode();
-  }
+  operator==(const MetaInfo& other) const;
 
   bool
-  operator!=(const MetaInfo& other) const
-  {
-    return !(*this == other);
-  }
+  operator!=(const MetaInfo& other) const;
 
 private:
   uint32_t m_type;
@@ -131,116 +96,39 @@ private:
   mutable Block m_wire;
 };
 
-template<bool T>
-inline size_t
-MetaInfo::wireEncode(EncodingImpl<T>& blk) const
+std::ostream&
+operator<<(std::ostream& os, const MetaInfo& info);
+
+/////////////////////////////////////////////////////////////////////////
+
+inline uint32_t
+MetaInfo::getType() const
 {
-  // MetaInfo ::= META-INFO-TYPE TLV-LENGTH
-  //                ContentType?
-  //                FreshnessPeriod?
-  //                FinalBlockId?
-
-  size_t totalLength = 0;
-
-  // FinalBlockId
-  if (!m_finalBlockId.empty())
-    {
-      totalLength += prependNestedBlock(blk, tlv::FinalBlockId, m_finalBlockId);
-    }
-
-  // FreshnessPeriod
-  if (m_freshnessPeriod >= time::milliseconds::zero())
-    {
-      totalLength += prependNonNegativeIntegerBlock(blk, tlv::FreshnessPeriod,
-                                                    m_freshnessPeriod.count());
-    }
-
-  // ContentType
-  if (m_type != TYPE_DEFAULT)
-    {
-      totalLength += prependNonNegativeIntegerBlock(blk, tlv::ContentType, m_type);
-    }
-
-  totalLength += blk.prependVarNumber(totalLength);
-  totalLength += blk.prependVarNumber(tlv::MetaInfo);
-  return totalLength;
+  return m_type;
 }
 
-inline const Block&
-MetaInfo::wireEncode() const
+inline const time::milliseconds&
+MetaInfo::getFreshnessPeriod() const
 {
-  if (m_wire.hasWire())
-    return m_wire;
-
-  EncodingEstimator estimator;
-  size_t estimatedSize = wireEncode(estimator);
-
-  EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
-
-  m_wire = buffer.block();
-  return m_wire;
+  return m_freshnessPeriod;
 }
 
-inline void
-MetaInfo::wireDecode(const Block& wire)
+inline const name::Component&
+MetaInfo::getFinalBlockId() const
 {
-  m_wire = wire;
-  m_wire.parse();
-
-  // MetaInfo ::= META-INFO-TYPE TLV-LENGTH
-  //                ContentType?
-  //                FreshnessPeriod?
-
-  // ContentType
-  Block::element_const_iterator val = m_wire.find(tlv::ContentType);
-  if (val != m_wire.elements().end())
-    {
-      m_type = readNonNegativeInteger(*val);
-    }
-  else
-    m_type = TYPE_DEFAULT;
-
-  // FreshnessPeriod
-  val = m_wire.find(tlv::FreshnessPeriod);
-  if (val != m_wire.elements().end())
-    {
-      m_freshnessPeriod = time::milliseconds(readNonNegativeInteger(*val));
-    }
-  else
-    m_freshnessPeriod = time::milliseconds::min();
-
-  // FinalBlockId
-  val = m_wire.find(tlv::FinalBlockId);
-  if (val != m_wire.elements().end())
-    {
-      m_finalBlockId = val->blockFromValue();
-      if (m_finalBlockId.type() != tlv::NameComponent)
-        {
-          /// @todo May or may not throw exception later...
-          m_finalBlockId.reset();
-        }
-    }
-  else
-    m_finalBlockId.reset();
+  return m_finalBlockId;
 }
 
-inline std::ostream&
-operator<<(std::ostream& os, const MetaInfo& info)
+inline bool
+MetaInfo::operator==(const MetaInfo& other) const
 {
-  // ContentType
-  os << "ContentType: " << info.getType();
+  return wireEncode() == other.wireEncode();
+}
 
-  // FreshnessPeriod
-  if (info.getFreshnessPeriod() >= time::milliseconds::zero()) {
-    os << ", FreshnessPeriod: " << info.getFreshnessPeriod();
-  }
-
-  if (!info.getFinalBlockId().empty()) {
-    os << ", FinalBlockId: ";
-    info.getFinalBlockId().toUri(os);
-  }
-  return os;
+inline bool
+MetaInfo::operator!=(const MetaInfo& other) const
+{
+  return !(*this == other);
 }
 
 } // namespace ndn

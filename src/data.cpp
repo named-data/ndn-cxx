@@ -20,6 +20,7 @@
  */
 
 #include "data.hpp"
+#include "encoding/block-helpers.hpp"
 #include "util/crypto.hpp"
 
 namespace ndn {
