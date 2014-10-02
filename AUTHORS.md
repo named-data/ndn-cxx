@@ -25,3 +25,4 @@ in the library:
 * Michael Sweatt        <https://www.linkedin.com/in/michaelsweatt>
 * Lixia Zhang           <http://www.cs.ucla.edu/~lixia/home.html>
 * Jeff Burke            <http://remap.ucla.edu/jburke/>
+* Xiaoke Jiang          <http://netarchlab.tsinghua.edu.cn/~shock/>

@@ -27,15 +27,45 @@
 #include "encoding/encoding-buffer.hpp"
 #include "util/time.hpp"
 #include "name-component.hpp"
+#include <list>
 
 namespace ndn {
 
 /**
  * An MetaInfo holds the meta info which is signed inside the data packet.
+ *
+ * The class allows experimentation with application-defined meta information blocks,
+ * which slightly violates NDN-TLV specification.  When using the application-defined
+ * meta information blocks be aware that this may result in packet drop (NFD and
+ * previous versions of ndn-cxx will gracefully accept such packet).
+ *
+ * The following definition of MetaInfo block is assumed in this implementation (compared
+ * to the NDN-TLV spec, definition extended to allow optional AppMetaInfo TLV blocks):
+ *
+ *     MetaInfo ::= META-INFO-TYPE TLV-LENGTH
+ *                    ContentType?
+ *                    FreshnessPeriod?
+ *                    FinalBlockId?
+ *                    AppMetaInfo*
+ *
+ *     AppMetaInfo ::= any TLV block with type in the restricted application range [128, 252]
+ *
+ * Note that AppMetaInfo blocks are application-defined and must have TLV type from
+ * the restricted application range [128, 252].
  */
 class MetaInfo
 {
 public:
+  class Error : public tlv::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : tlv::Error(what)
+    {
+    }
+  };
+
   enum {
     TYPE_DEFAULT = 0,
     TYPE_LINK = 1,
@@ -81,6 +111,76 @@ public:
   MetaInfo&
   setFinalBlockId(const name::Component& finalBlockId);
 
+  /**
+   * @brief Get all app-defined MetaInfo items
+   *
+   * @note Warning: Experimental API, which may change or disappear in the future
+   *
+   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlockId
+   *       is called before *AppMetaInfo, all app-defined blocks will be lost
+   */
+  const std::list<Block>&
+  getAppMetaInfo() const;
+
+  /**
+   * @brief Set app-defined MetaInfo items
+   *
+   * This method will replace all existing app-defined MetaInfo items, if they existed.
+   *
+   * @throw Error if some block in @p info has type not in the application range
+   *              (http://named-data.net/doc/ndn-tlv/types.html)
+   *
+   * @note Warning: Experimental API, which may change or disappear in the future
+   *
+   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlockId
+   *       is called before *AppMetaInfo, all app-defined blocks will be lost
+   */
+  MetaInfo&
+  setAppMetaInfo(const std::list<Block>& info);
+
+  /**
+   * @brief Add an app-defined MetaInfo item
+   *
+   * @throw Error if @p block has type not in the application range
+   *              (http://named-data.net/doc/ndn-tlv/types.html)
+   *
+   * @note Warning: Experimental API, which may change or disappear in the future
+   *
+   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlockId
+   *       is called before *AppMetaInfo, all app-defined blocks will be lost
+   */
+  MetaInfo&
+  addAppMetaInfo(const Block& block);
+
+  /**
+   * @brief Remove a first app-defined MetaInfo item with type @p tlvType
+   *
+   * @return true if an item was deleted
+   *
+   * @note Warning: Experimental API, which may change or disappear in the future
+   *
+   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlockId
+   *       is called before *AppMetaInfo, all app-defined blocks will be lost
+   */
+  bool
+  removeAppMetaInfo(uint32_t tlvType);
+
+  /**
+   * @brief Find a first app-defined MetaInfo item of type @p tlvType
+   *
+   * @return NULL if an item is not found, otherwise const pointer to the item
+   *
+   * @throw Error if @p tlvType is not in the application range
+   *              (http://named-data.net/doc/ndn-tlv/types.html)
+   *
+   * @note Warning: Experimental API, which may change or disappear in the future
+   *
+   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlockId
+   *       is called before *AppMetaInfo, all app-defined blocks will be lost
+   */
+  const Block*
+  findAppMetaInfo(uint32_t tlvType) const;
+
 public: // EqualityComparable concept
   bool
   operator==(const MetaInfo& other) const;
@@ -92,6 +192,7 @@ private:
   uint32_t m_type;
   time::milliseconds m_freshnessPeriod;
   name::Component m_finalBlockId;
+  std::list<Block> m_appMetaInfo;
 
   mutable Block m_wire;
 };

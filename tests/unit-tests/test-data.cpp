@@ -32,7 +32,6 @@ namespace ndn {
 BOOST_AUTO_TEST_SUITE(TestData)
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Data>));
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<MetaInfo>));
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Signature>));
 
 const uint8_t Content1[] = {0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x21};
@@ -124,14 +123,6 @@ const unsigned char DEFAULT_PRIVATE_KEY_DER[] = {
   0x0a, 0xb6
 };
 
-const uint8_t MetaInfo1[] = {0x14, 0x04, 0x19, 0x02, 0x27, 0x10};
-const uint8_t MetaInfo2[] = {0x14, 0x14, 0x19, 0x02, 0x27, 0x10, 0x1a, 0x0e, 0x08, 0x0c,
-                             0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x77, 0x6f, 0x72, 0x6c,
-                             0x64, 0x21};
-const uint8_t MetaInfo3[] = {0x14, 0x17, 0x18, 0x01, 0x01, 0x19, 0x02, 0x27, 0x10, 0x1a,
-                             0x0e, 0x08, 0x0c, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x77,
-                             0x6f, 0x72, 0x6c, 0x64, 0x21};
-
 BOOST_AUTO_TEST_CASE(DataEqualityChecks)
 {
   using namespace time;
@@ -175,36 +166,6 @@ BOOST_AUTO_TEST_CASE(DataEqualityChecks)
   BOOST_CHECK_EQUAL(a != b, true);
 
   b.setSignature(SignatureSha256WithRsa());
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-}
-
-BOOST_AUTO_TEST_CASE(MetaInfoEqualityChecks)
-{
-  using namespace time;
-
-  MetaInfo a;
-  MetaInfo b;
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  a.setFreshnessPeriod(seconds(10));
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setFreshnessPeriod(milliseconds(90000));
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setFreshnessPeriod(milliseconds(10000));
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  a.setType(10);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setType(10);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 }
@@ -421,45 +382,6 @@ BOOST_FIXTURE_TEST_CASE(FullName, DataIdentityFixture)
   BOOST_CHECK_EQUAL(fullName.toUri(),
     "/local/ndn/prefix/"
     "%28%BA%D4%B5%27%5B%D3%92%DB%B6p%C7%5C%F0%B6o%13%F7%94+%21%E8%0FU%C0%E8k7GS%A5H");
-}
-
-BOOST_AUTO_TEST_CASE(EncodeMetaInfo)
-{
-  MetaInfo meta;
-  meta.setType(MetaInfo::TYPE_DEFAULT);
-  meta.setFreshnessPeriod(time::seconds(10));
-
-  BOOST_REQUIRE_NO_THROW(meta.wireEncode());
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo1, MetaInfo1+sizeof(MetaInfo1),
-                                  meta.wireEncode().begin(), meta.wireEncode().end());
-
-  meta.setFinalBlockId(name::Component("hello,world!"));
-  BOOST_REQUIRE_NO_THROW(meta.wireEncode());
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo2, MetaInfo2+sizeof(MetaInfo2),
-                                  meta.wireEncode().begin(), meta.wireEncode().end());
-
-  meta.setType(MetaInfo::TYPE_LINK);
-  BOOST_REQUIRE_NO_THROW(meta.wireEncode());
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo3, MetaInfo3+sizeof(MetaInfo3),
-                                  meta.wireEncode().begin(), meta.wireEncode().end());
-}
-
-BOOST_AUTO_TEST_CASE(DecodeMetaInfo)
-{
-  MetaInfo meta(Block(MetaInfo1, sizeof(MetaInfo1)));
-  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
-  BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component());
-
-  meta.wireDecode(Block(MetaInfo2, sizeof(MetaInfo2)));
-  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
-  BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
-
-  meta.wireDecode(Block(MetaInfo3, sizeof(MetaInfo3)));
-  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_LINK));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
-  BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

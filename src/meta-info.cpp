@@ -22,9 +22,14 @@
 #include "meta-info.hpp"
 #include "encoding/block-helpers.hpp"
 #include "encoding/encoding-buffer.hpp"
-#include "util/time.hpp"
+
+#include <boost/concept_check.hpp>
+#include <boost/type_traits.hpp>
 
 namespace ndn {
+
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<MetaInfo>));
+BOOST_STATIC_ASSERT((boost::is_base_of<tlv::Error, MetaInfo::Error>::value));
 
 MetaInfo::MetaInfo()
   : m_type(TYPE_DEFAULT)
@@ -61,6 +66,62 @@ MetaInfo::setFinalBlockId(const name::Component& finalBlockId)
   return *this;
 }
 
+const std::list<Block>&
+MetaInfo::getAppMetaInfo() const
+{
+  return m_appMetaInfo;
+}
+
+MetaInfo&
+MetaInfo::setAppMetaInfo(const std::list<Block>& info)
+{
+  for (std::list<Block>::const_iterator i = info.begin(); i != info.end(); ++i) {
+    if (!(128 <= i->type() && i->type() <= 252))
+      throw Error("AppMetaInfo block has type outside the application range [128, 252]");
+  }
+
+  m_wire.reset();
+  m_appMetaInfo = info;
+  return *this;
+}
+
+MetaInfo&
+MetaInfo::addAppMetaInfo(const Block& block)
+{
+  if (!(128 <= block.type() && block.type() <= 252))
+    throw Error("AppMetaInfo block has type outside the application range [128, 252]");
+
+  m_wire.reset();
+  m_appMetaInfo.push_back(block);
+  return *this;
+}
+
+bool
+MetaInfo::removeAppMetaInfo(uint32_t tlvType)
+{
+  for (std::list<Block>::iterator iter = m_appMetaInfo.begin();
+       iter != m_appMetaInfo.end(); ++iter) {
+    if (iter->type() == tlvType) {
+      m_wire.reset();
+      m_appMetaInfo.erase(iter);
+      return true;
+    }
+  }
+  return false;
+}
+
+const Block*
+MetaInfo::findAppMetaInfo(uint32_t tlvType) const
+{
+  for (std::list<Block>::const_iterator iter = m_appMetaInfo.begin();
+       iter != m_appMetaInfo.end(); ++iter) {
+    if (iter->type() == tlvType) {
+      return &*iter;
+    }
+  }
+  return 0;
+}
+
 template<bool T>
 size_t
 MetaInfo::wireEncode(EncodingImpl<T>& blk) const
@@ -69,8 +130,14 @@ MetaInfo::wireEncode(EncodingImpl<T>& blk) const
   //                ContentType?
   //                FreshnessPeriod?
   //                FinalBlockId?
+  //                AppMetaInfo*
 
   size_t totalLength = 0;
+
+  for (std::list<Block>::const_reverse_iterator appMetaInfoItem = m_appMetaInfo.rbegin();
+       appMetaInfoItem != m_appMetaInfo.rend(); ++appMetaInfoItem) {
+    totalLength += prependBlock(blk, *appMetaInfoItem);
+  }
 
   // FinalBlockId
   if (!m_finalBlockId.empty())
@@ -127,38 +194,48 @@ MetaInfo::wireDecode(const Block& wire)
   // MetaInfo ::= META-INFO-TYPE TLV-LENGTH
   //                ContentType?
   //                FreshnessPeriod?
+  //                FinalBlockId?
+  //                AppMetaInfo*
+
+
+  Block::element_const_iterator val = m_wire.elements_begin();
 
   // ContentType
-  Block::element_const_iterator val = m_wire.find(tlv::ContentType);
-  if (val != m_wire.elements().end())
-    {
-      m_type = readNonNegativeInteger(*val);
-    }
-  else
+  if (val != m_wire.elements_end() && val->type() == tlv::ContentType) {
+    m_type = readNonNegativeInteger(*val);
+    ++val;
+  }
+  else {
     m_type = TYPE_DEFAULT;
+  }
 
   // FreshnessPeriod
-  val = m_wire.find(tlv::FreshnessPeriod);
-  if (val != m_wire.elements().end())
-    {
-      m_freshnessPeriod = time::milliseconds(readNonNegativeInteger(*val));
-    }
-  else
+  if (val != m_wire.elements_end() && val->type() == tlv::FreshnessPeriod) {
+    m_freshnessPeriod = time::milliseconds(readNonNegativeInteger(*val));
+    ++val;
+  }
+  else {
     m_freshnessPeriod = time::milliseconds::min();
+  }
 
   // FinalBlockId
-  val = m_wire.find(tlv::FinalBlockId);
-  if (val != m_wire.elements().end())
-    {
-      m_finalBlockId = val->blockFromValue();
-      if (m_finalBlockId.type() != tlv::NameComponent)
-        {
-          /// @todo May or may not throw exception later...
-          m_finalBlockId.reset();
-        }
-    }
-  else
+  if (val != m_wire.elements_end() && val->type() == tlv::FinalBlockId) {
+    m_finalBlockId = val->blockFromValue();
+    if (m_finalBlockId.type() != tlv::NameComponent)
+      {
+        /// @todo May or may not throw exception later...
+        m_finalBlockId.reset();
+      }
+    ++val;
+  }
+  else {
     m_finalBlockId.reset();
+  }
+
+  // AppMetaInfo (if any)
+  for (; val != m_wire.elements().end(); ++val) {
+    m_appMetaInfo.push_back(*val);
+  }
 }
 
 std::ostream&
@@ -172,10 +249,18 @@ operator<<(std::ostream& os, const MetaInfo& info)
     os << ", FreshnessPeriod: " << info.getFreshnessPeriod();
   }
 
+  // FinalBlockId
   if (!info.getFinalBlockId().empty()) {
     os << ", FinalBlockId: ";
     info.getFinalBlockId().toUri(os);
   }
+
+  // App-defined MetaInfo items
+  for (std::list<Block>::const_iterator iter = info.getAppMetaInfo().begin();
+       iter != info.getAppMetaInfo().end(); ++iter) {
+    os << ", AppMetaInfoTlvType: " << iter->type();
+  }
+
   return os;
 }
 
