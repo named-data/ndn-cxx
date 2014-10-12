@@ -33,10 +33,12 @@
 namespace ndn {
 namespace util {
 
+BOOST_AUTO_TEST_SUITE(UtilInMemoryStorage)
+
+BOOST_AUTO_TEST_SUITE(Common)
+
 typedef boost::mpl::list<InMemoryStoragePersistent, InMemoryStorageFifo, InMemoryStorageLfu,
                          InMemoryStorageLru> InMemoryStorages;
-
-BOOST_AUTO_TEST_SUITE(UtilInMemoryStorageTemplate)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(Insertion, T, InMemoryStorages)
 {
@@ -1036,9 +1038,9 @@ BOOST_AUTO_TEST_CASE(MaxSuffixComponents32)
   BOOST_CHECK_EQUAL(find(), 6);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
-
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // Find
+BOOST_AUTO_TEST_SUITE_END() // Common
+BOOST_AUTO_TEST_SUITE_END() // UtilInMemoryStorage
 
 } // namespace util
 } // namespace ndn

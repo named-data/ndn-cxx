@@ -28,7 +28,8 @@
 namespace ndn {
 namespace util {
 
-BOOST_AUTO_TEST_SUITE(UtilInMemoryStoragePersistent)
+BOOST_AUTO_TEST_SUITE(UtilInMemoryStorage)
+BOOST_AUTO_TEST_SUITE(Persistent)
 
 BOOST_AUTO_TEST_CASE(GetLimit)
 {
@@ -56,7 +57,8 @@ BOOST_AUTO_TEST_CASE(InsertAndDouble)
   BOOST_CHECK_EQUAL(ims.getCapacity(), 20);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // Persistent
+BOOST_AUTO_TEST_SUITE_END() // UtilInMemoryStorage
 
 } // namespace util
 } // namespace ndn

@@ -44,7 +44,7 @@ public:
             bool isValid,
             bool shouldCheckAddress = false)
   {
-    std::cout << "Resolved to: " << resolvedAddress << std::endl;
+    BOOST_TEST_MESSAGE("Resolved to: " << resolvedAddress);
 
     ++m_nSuccesses;
 

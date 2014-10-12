@@ -28,7 +28,8 @@
 namespace ndn {
 namespace util {
 
-BOOST_AUTO_TEST_SUITE(UtilInMemoryStorageLru)
+BOOST_AUTO_TEST_SUITE(UtilInMemoryStorage)
+BOOST_AUTO_TEST_SUITE(Lru)
 
 BOOST_AUTO_TEST_CASE(UsedTimeQueue)
 {
@@ -128,7 +129,8 @@ BOOST_AUTO_TEST_CASE(UsedTimeQueue2)
   BOOST_CHECK_EQUAL(found3->getName(), name3);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // Lru
+BOOST_AUTO_TEST_SUITE_END() // UtilInMemoryStorage
 
 } // namespace util
 } // namespace ndn

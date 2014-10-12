@@ -28,7 +28,8 @@
 namespace ndn {
 namespace util {
 
-BOOST_AUTO_TEST_SUITE(UtilInMemoryStorageFifo)
+BOOST_AUTO_TEST_SUITE(UtilInMemoryStorage)
+BOOST_AUTO_TEST_SUITE(Fifo)
 
 BOOST_AUTO_TEST_CASE(ArrivalQueue)
 {
@@ -71,7 +72,8 @@ BOOST_AUTO_TEST_CASE(ArrivalQueue2)
   BOOST_CHECK(!static_cast<bool>(found2));
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // Fifo
+BOOST_AUTO_TEST_SUITE_END() // UtilInMemoryStorage
 
 } // namespace util
 } // namespace ndn
