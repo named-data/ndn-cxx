@@ -33,6 +33,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/local/stream_protocol.hpp>
 #include "ethernet.hpp"
+#include "time.hpp"
 
 namespace ndn {
 namespace util {
@@ -141,6 +142,36 @@ public: // EqualityComparable concept
 
   bool
   operator!=(const FaceUri& rhs) const;
+
+public: // canonical FaceUri
+  /** \return whether a FaceUri of the scheme can be canonized
+   */
+  static bool
+  canCanonize(const std::string& scheme);
+
+  /** \brief determine whether this FaceUri is in canonical form
+   *  \return true if this FaceUri is in canonical form,
+   *          false if this FaceUri is not in canonical form or
+   *          or it's undetermined whether this FaceUri is in canonical form
+   */
+  bool
+  isCanonical() const;
+
+  typedef function<void(const FaceUri&)> CanonizeSuccessCallback;
+  typedef function<void(const std::string& reason)> CanonizeFailureCallback;
+
+  /** \brief asynchronously convert this FaceUri to canonical form
+   *  \param onSuccess function to call after this FaceUri is converted to canonical form
+   *  \note A new FaceUri in canonical form will be created; this FaceUri is unchanged.
+   *  \param onFailure function to call if this FaceUri cannot be converted to canonical form
+   *  \param timeout maximum allowable duration of the operations.
+   *                 It's intentional not to provide a default value: the caller should set
+   *                 a reasonable value in balance between network delay and user experience.
+   */
+  void
+  canonize(const CanonizeSuccessCallback& onSuccess,
+           const CanonizeFailureCallback& onFailure,
+           boost::asio::io_service& io, const time::nanoseconds& timeout) const;
 
 private:
   std::string m_scheme;

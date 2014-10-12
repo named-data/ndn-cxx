@@ -34,7 +34,86 @@ namespace util {
 
 BOOST_AUTO_TEST_SUITE(UtilTestFaceUri)
 
-BOOST_AUTO_TEST_CASE(Internal)
+class CanonizeFixture : noncopyable
+{
+protected:
+  CanonizeFixture()
+    : m_nPending(0)
+  {
+  }
+
+  void
+  addTest(const std::string& request, bool shouldSucceed, const std::string& expectedUri);
+
+  void
+  runTests()
+  {
+    m_io.run();
+    BOOST_CHECK_EQUAL(m_nPending, 0);
+  }
+
+private:
+  struct CanonizeTestCase
+  {
+  public:
+    CanonizeTestCase(const std::string& request,
+                     bool shouldSucceed, const std::string& expectedUri)
+      : m_request(request)
+      , m_shouldSucceed(shouldSucceed)
+      , m_expectedUri(expectedUri)
+      , m_isCompleted(false)
+    {
+    }
+
+  public:
+    std::string m_request;
+    bool m_shouldSucceed;
+    std::string m_expectedUri;
+    bool m_isCompleted;
+  };
+
+  // tc is a shared_ptr passed by value, because this function can take ownership
+  void
+  onCanonizeSuccess(shared_ptr<CanonizeTestCase> tc, const FaceUri& canonicalUri)
+  {
+    BOOST_CHECK(!tc->m_isCompleted);
+    tc->m_isCompleted = true;
+    --m_nPending;
+
+    BOOST_CHECK_MESSAGE(tc->m_shouldSucceed, tc->m_request + " should fail");
+    BOOST_CHECK_EQUAL(tc->m_expectedUri, canonicalUri.toString());
+  }
+
+  // tc is a shared_ptr passed by value, because this function can take ownership
+  void
+  onCanonizeFailure(shared_ptr<CanonizeTestCase> tc, const std::string& reason)
+  {
+    BOOST_CHECK(!tc->m_isCompleted);
+    tc->m_isCompleted = true;
+    --m_nPending;
+
+    BOOST_CHECK_MESSAGE(!tc->m_shouldSucceed, tc->m_request + " should succeed");
+  }
+
+private:
+  boost::asio::io_service m_io;
+  ssize_t m_nPending;
+};
+
+void
+CanonizeFixture::addTest(const std::string& request,
+                         bool shouldSucceed, const std::string& expectedUri)
+{
+  ++m_nPending;
+  shared_ptr<CanonizeTestCase> tc = ndn::make_shared<CanonizeTestCase>(
+                                    request, shouldSucceed, expectedUri);
+  FaceUri uri(request);
+  uri.canonize(bind(&CanonizeFixture::onCanonizeSuccess, this, tc, _1),
+               bind(&CanonizeFixture::onCanonizeFailure, this, tc, _1),
+               m_io, time::seconds(4));
+}
+
+BOOST_AUTO_TEST_CASE(ParseInternal)
 {
   FaceUri uri;
 
@@ -48,7 +127,7 @@ BOOST_AUTO_TEST_CASE(Internal)
   BOOST_CHECK_EQUAL(uri.parse("internal:/"), false);
 }
 
-BOOST_AUTO_TEST_CASE(Udp)
+BOOST_AUTO_TEST_CASE(ParseUdp)
 {
   BOOST_CHECK_NO_THROW(FaceUri("udp://hostname:6363"));
   BOOST_CHECK_THROW(FaceUri("udp//hostname:6363"), FaceUri::Error);
@@ -93,7 +172,54 @@ BOOST_AUTO_TEST_CASE(Udp)
   BOOST_CHECK_EQUAL(FaceUri(endpoint6).toString(), "udp6://[2001:db8::1]:7777");
 }
 
-BOOST_AUTO_TEST_CASE(Tcp)
+BOOST_FIXTURE_TEST_CASE(CanonizeUdp, CanonizeFixture)
+{
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("udp"), true);
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("udp4"), true);
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("udp6"), true);
+
+  BOOST_CHECK_EQUAL(FaceUri("udp4://192.0.2.1:6363").isCanonical(), true);
+  BOOST_CHECK_EQUAL(FaceUri("udp://192.0.2.1:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("udp4://192.0.2.1").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("udp4://192.0.2.1:6363/").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("udp6://[2001:db8::1]:6363").isCanonical(), true);
+  BOOST_CHECK_EQUAL(FaceUri("udp6://[2001:db8::01]:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("udp://example.net:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("udp4://example.net:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("udp6://example.net:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("udp4://224.0.23.170:56363").isCanonical(), true);
+
+  // IPv4 unicast
+  addTest("udp4://192.0.2.1:6363", true, "udp4://192.0.2.1:6363");
+  addTest("udp://192.0.2.2:6363", true, "udp4://192.0.2.2:6363");
+  addTest("udp4://192.0.2.3", true, "udp4://192.0.2.3:6363");
+  addTest("udp4://192.0.2.4:6363/", true, "udp4://192.0.2.4:6363");
+  addTest("udp4://192.0.2.5:9695", true, "udp4://192.0.2.5:9695");
+  addTest("udp4://192.0.2.666:6363", false, "");
+  addTest("udp4://google-public-dns-a.google.com", true, "udp4://8.8.8.8:6363");
+  addTest("udp4://invalid.invalid", false, "");
+
+  // IPv4 multicast
+  addTest("udp4://224.0.23.170:56363", true, "udp4://224.0.23.170:56363");
+  addTest("udp4://224.0.23.170", true, "udp4://224.0.23.170:56363");
+  addTest("udp4://all-routers.mcast.net:56363", true, "udp4://224.0.0.2:56363");
+
+  // IPv6 unicast
+  addTest("udp6://[2001:db8::1]:6363", true, "udp6://[2001:db8::1]:6363");
+  addTest("udp://[2001:db8::1]:6363", true, "udp6://[2001:db8::1]:6363");
+  addTest("udp6://[2001:db8::01]:6363", true, "udp6://[2001:db8::1]:6363");
+  addTest("udp6://google-public-dns-a.google.com", true, "udp6://[2001:4860:4860::8888]:6363");
+  addTest("udp6://invalid.invalid", false, "");
+  addTest("udp://invalid.invalid", false, "");
+
+  // IPv6 multicast
+  addTest("udp6://[ff02::2]:56363", true, "udp6://[ff02::2]:56363");
+  addTest("udp6://[ff02::2]", true, "udp6://[ff02::2]:56363");
+
+  runTests();
+}
+
+BOOST_AUTO_TEST_CASE(ParseTcp)
 {
   FaceUri uri;
 
@@ -119,7 +245,54 @@ BOOST_AUTO_TEST_CASE(Tcp)
   BOOST_CHECK_EQUAL(FaceUri(endpoint6).toString(), "tcp6://[2001:db8::1]:7777");
 }
 
-BOOST_AUTO_TEST_CASE(Unix)
+BOOST_FIXTURE_TEST_CASE(CanonizeTcp, CanonizeFixture)
+{
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("tcp"), true);
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("tcp4"), true);
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("tcp6"), true);
+
+  BOOST_CHECK_EQUAL(FaceUri("tcp4://192.0.2.1:6363").isCanonical(), true);
+  BOOST_CHECK_EQUAL(FaceUri("tcp://192.0.2.1:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("tcp4://192.0.2.1").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("tcp4://192.0.2.1:6363/").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("tcp6://[2001:db8::1]:6363").isCanonical(), true);
+  BOOST_CHECK_EQUAL(FaceUri("tcp6://[2001:db8::01]:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("tcp://example.net:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("tcp4://example.net:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("tcp6://example.net:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("tcp4://224.0.23.170:56363").isCanonical(), false);
+
+  // IPv4 unicast
+  addTest("tcp4://192.0.2.1:6363", true, "tcp4://192.0.2.1:6363");
+  addTest("tcp://192.0.2.2:6363", true, "tcp4://192.0.2.2:6363");
+  addTest("tcp4://192.0.2.3", true, "tcp4://192.0.2.3:6363");
+  addTest("tcp4://192.0.2.4:6363/", true, "tcp4://192.0.2.4:6363");
+  addTest("tcp4://192.0.2.5:9695", true, "tcp4://192.0.2.5:9695");
+  addTest("tcp4://192.0.2.666:6363", false, "");
+  addTest("tcp4://google-public-dns-a.google.com", true, "tcp4://8.8.8.8:6363");
+  addTest("tcp4://invalid.invalid", false, "");
+
+  // IPv4 multicast
+  addTest("tcp4://224.0.23.170:56363", false, "");
+  addTest("tcp4://224.0.23.170", false, "");
+  addTest("tcp4://all-routers.mcast.net:56363", false, "");
+
+  // IPv6 unicast
+  addTest("tcp6://[2001:db8::1]:6363", true, "tcp6://[2001:db8::1]:6363");
+  addTest("tcp://[2001:db8::1]:6363", true, "tcp6://[2001:db8::1]:6363");
+  addTest("tcp6://[2001:db8::01]:6363", true, "tcp6://[2001:db8::1]:6363");
+  addTest("tcp6://google-public-dns-a.google.com", true, "tcp6://[2001:4860:4860::8888]:6363");
+  addTest("tcp6://invalid.invalid", false, "");
+  addTest("tcp://invalid.invalid", false, "");
+
+  // IPv6 multicast
+  addTest("tcp6://[ff02::2]:56363", false, "");
+  addTest("tcp6://[ff02::2]", false, "");
+
+  runTests();
+}
+
+BOOST_AUTO_TEST_CASE(ParseUnix)
 {
   FaceUri uri;
 
@@ -140,7 +313,7 @@ BOOST_AUTO_TEST_CASE(Unix)
 #endif // HAVE_UNIX_SOCKETS
 }
 
-BOOST_AUTO_TEST_CASE(Fd)
+BOOST_AUTO_TEST_CASE(ParseFd)
 {
   FaceUri uri;
 
@@ -155,7 +328,7 @@ BOOST_AUTO_TEST_CASE(Fd)
   BOOST_CHECK_EQUAL(FaceUri::fromFd(fd).toString(), "fd://21");
 }
 
-BOOST_AUTO_TEST_CASE(Ether)
+BOOST_AUTO_TEST_CASE(ParseEther)
 {
   FaceUri uri;
 
@@ -165,16 +338,31 @@ BOOST_AUTO_TEST_CASE(Ether)
   BOOST_CHECK_EQUAL(uri.getPort(), "");
   BOOST_CHECK_EQUAL(uri.getPath(), "");
 
-  BOOST_CHECK_EQUAL(uri.parse("ether://08:00:27:zz:dd:01"), false);
+  BOOST_CHECK_EQUAL(uri.parse("ether://[08:00:27:zz:dd:01]"), false);
 
-#ifdef HAVE_LIBPCAP
   ethernet::Address address = ethernet::Address::fromString("33:33:01:01:01:01");
   BOOST_REQUIRE_NO_THROW(FaceUri(address));
   BOOST_CHECK_EQUAL(FaceUri(address).toString(), "ether://[33:33:01:01:01:01]");
-#endif // HAVE_LIBPCAP
 }
 
-BOOST_AUTO_TEST_CASE(Dev)
+BOOST_FIXTURE_TEST_CASE(CanonizeEther, CanonizeFixture)
+{
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("ether"), true);
+
+  BOOST_CHECK_EQUAL(FaceUri("ether://[08:00:27:01:01:01]").isCanonical(), true);
+  BOOST_CHECK_EQUAL(FaceUri("ether://[08:00:27:1:1:1]").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("ether://[08:00:27:01:01:01]/").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("ether://[33:33:01:01:01:01]").isCanonical(), true);
+
+  addTest("ether://[08:00:27:01:01:01]", true, "ether://[08:00:27:01:01:01]");
+  addTest("ether://[08:00:27:1:1:1]", true, "ether://[08:00:27:01:01:01]");
+  addTest("ether://[08:00:27:01:01:01]/", true, "ether://[08:00:27:01:01:01]");
+  addTest("ether://[33:33:01:01:01:01]", true, "ether://[33:33:01:01:01:01]");
+
+  runTests();
+}
+
+BOOST_AUTO_TEST_CASE(ParseDev)
 {
   FaceUri uri;
 
@@ -187,6 +375,56 @@ BOOST_AUTO_TEST_CASE(Dev)
   std::string ifname = "en1";
   BOOST_REQUIRE_NO_THROW(FaceUri::fromDev(ifname));
   BOOST_CHECK_EQUAL(FaceUri::fromDev(ifname).toString(), "dev://en1");
+}
+
+BOOST_AUTO_TEST_CASE(CanonizeEmptyCallback)
+{
+  boost::asio::io_service io;
+
+  // unsupported scheme
+  FaceUri("null://").canonize(FaceUri::CanonizeSuccessCallback(),
+                              FaceUri::CanonizeFailureCallback(),
+                              io, time::milliseconds(1));
+
+  // cannot resolve
+  FaceUri("udp://192.0.2.333").canonize(FaceUri::CanonizeSuccessCallback(),
+                                        FaceUri::CanonizeFailureCallback(),
+                                        io, time::milliseconds(1));
+
+  // already canonical
+  FaceUri("udp4://192.0.2.1:6363").canonize(FaceUri::CanonizeSuccessCallback(),
+                                            FaceUri::CanonizeFailureCallback(),
+                                            io, time::milliseconds(1));
+
+  // need DNS resolution
+  FaceUri("udp://192.0.2.1:6363").canonize(FaceUri::CanonizeSuccessCallback(),
+                                           FaceUri::CanonizeFailureCallback(),
+                                           io, time::milliseconds(1));
+
+  io.run(); // should not crash
+}
+
+BOOST_FIXTURE_TEST_CASE(CanonizeUnsupported, CanonizeFixture)
+{
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("internal"), false);
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("null"), false);
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("unix"), false);
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("fd"), false);
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("dev"), false);
+
+  BOOST_CHECK_EQUAL(FaceUri("internal://").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("null://").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("unix:///var/run/nfd.sock").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("fd://0").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("dev://eth1").isCanonical(), false);
+
+  addTest("internal://", false, "");
+  addTest("null://", false, "");
+  addTest("unix:///var/run/nfd.sock", false, "");
+  addTest("fd://0", false, "");
+  addTest("dev://eth1", false, "");
+
+  runTests();
 }
 
 BOOST_AUTO_TEST_CASE(Bug1635)
