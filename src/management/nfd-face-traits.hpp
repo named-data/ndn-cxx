@@ -31,20 +31,6 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \deprecated provides additional information about a face
- */
-enum FaceFlags {
-  /** \deprecated face is local (for scope control purpose)
-   */
-  FACE_IS_LOCAL = 1,
-  /** \deprecated face is created on demand (accepted incoming connection,
-   *              not initiated outgoing connection)
-   */
-  FACE_IS_ON_DEMAND = 2
-};
-
-/**
- * \ingroup management
  * \brief provides additional information about a faceScope
  */
 enum FaceScope {
@@ -202,56 +188,6 @@ public:
   {
     wireReset();
     m_linkType = linkType;
-    return static_cast<C&>(*this);
-  }
-
-  /**
-   * \deprecated Use getFaceScope instead
-   */
-  bool
-  isLocal() const
-  {
-    return getFlags() & FACE_IS_LOCAL;
-  }
-
-  /**
-   * \deprecated Use getFacePersistency instead
-   */
-  bool
-  isOnDemand() const
-  {
-    return getFlags() & FACE_IS_ON_DEMAND;
-  }
-
-  /**
-   * \deprecated Use getFaceScope, and getFacePersistency instead
-   */
-  uint64_t
-  getFlags() const
-  {
-    uint64_t flags = 0;
-    if (m_faceScope == FACE_SCOPE_LOCAL)
-      flags |= FACE_IS_LOCAL;
-    if (m_facePersistency == FACE_PERSISTENCY_ON_DEMAND)
-      flags |= FACE_IS_ON_DEMAND;
-    return flags;
-  }
-
-  /**
-   * \deprecated Use setFaceScope, and setFacePersistency instead
-   */
-  C&
-  setFlags(uint64_t flags)
-  {
-    wireReset();
-    if ((flags & FACE_IS_LOCAL) != 0)
-      m_faceScope = FACE_SCOPE_LOCAL;
-    else
-      m_faceScope = FACE_SCOPE_NON_LOCAL;
-    if ((flags & FACE_IS_ON_DEMAND) != 0)
-      m_facePersistency = FACE_PERSISTENCY_ON_DEMAND;
-    else
-      m_facePersistency = FACE_PERSISTENCY_PERSISTENT;
     return static_cast<C&>(*this);
   }
 
