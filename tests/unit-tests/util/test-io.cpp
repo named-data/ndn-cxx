@@ -21,25 +21,22 @@
 
 #include "util/io.hpp"
 #include "security/key-chain.hpp"
+#include "../security/identity-management-fixture.hpp"
 
 #include "boost-test.hpp"
 
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(UtilTestIo)
+BOOST_FIXTURE_TEST_SUITE(UtilTestIo, security::IdentityManagementFixture)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
-  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
-  KeyChain keyChain("sqlite3", "file");
-
   Name identity("/TestIO/Basic");
   identity.appendVersion();
-
-  Name certName;
-  BOOST_REQUIRE_NO_THROW(certName = keyChain.createIdentity(identity));
+  BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
+  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
   shared_ptr<IdentityCertificate> idCert;
-  BOOST_REQUIRE_NO_THROW(idCert = keyChain.getCertificate(certName));
+  BOOST_REQUIRE_NO_THROW(idCert = m_keyChain.getCertificate(certName));
 
   std::string file("/tmp/TestIO-Basic");
   io::save(*idCert, file);
@@ -47,7 +44,6 @@ BOOST_AUTO_TEST_CASE(Basic)
 
   BOOST_CHECK(static_cast<bool>(readCert));
   BOOST_CHECK(idCert->getName() == readCert->getName());
-  keyChain.deleteIdentity(identity);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

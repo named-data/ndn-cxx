@@ -21,11 +21,12 @@
 
 #include "security/conf/checker.hpp"
 #include "security/key-chain.hpp"
+#include "identity-management-fixture.hpp"
 #include "boost-test.hpp"
 
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(SecurityTestConfChecker)
+BOOST_FIXTURE_TEST_SUITE(SecurityTestConfChecker, security::IdentityManagementFixture)
 
 void
 interestChecked(const shared_ptr<const Interest>& interest)
@@ -88,26 +89,26 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest1)
   using security::conf::KeyLocatorChecker;
   using security::conf::RelationKeyLocatorNameChecker;
 
-  KeyChain keyChain("sqlite3", "file");
-
   Name identity("/SecurityTestConfChecker/CustomizedCheckerTest1");
-  Name certName = keyChain.createIdentity(identity);
+  BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
+  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
 
   Name identity2("/SecurityTestConfChecker/CustomizedCheckerTest1Wrong");
-  Name certName2 = keyChain.createIdentity(identity2);
+  BOOST_REQUIRE(addIdentity(identity2, RsaKeyParams()));
+  Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
 
   Name packetName("/SecurityTestConfChecker/CustomizedCheckerTest1/Data");
   shared_ptr<Data> data1 = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*data1, identity);
+  m_keyChain.signByIdentity(*data1, identity);
 
   shared_ptr<Data> data2 = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*data2, identity2);
+  m_keyChain.signByIdentity(*data2, identity2);
 
   shared_ptr<Interest> interest1 = make_shared<Interest>(packetName);
-  keyChain.signByIdentity(*interest1, identity);
+  m_keyChain.signByIdentity(*interest1, identity);
 
   shared_ptr<Interest> interest2 = make_shared<Interest>(packetName);
-  keyChain.signByIdentity(*interest2, identity2);
+  m_keyChain.signByIdentity(*interest2, identity2);
 
   int8_t result = 0;
 
@@ -215,10 +216,6 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest1)
                           bind(dataCheckedFalse, _1),
                           bind(dataCheckFailedFalse, _1, _2));
   BOOST_CHECK_EQUAL(result, -1);
-
-
-  keyChain.deleteIdentity(identity);
-  keyChain.deleteIdentity(identity2);
 }
 
 BOOST_AUTO_TEST_CASE(CustomizedCheckerTest2)
@@ -227,26 +224,26 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest2)
   using security::conf::KeyLocatorChecker;
   using security::conf::RegexKeyLocatorNameChecker;
 
-  KeyChain keyChain("sqlite3", "file");
-
   Name identity("/SecurityTestConfChecker/CustomizedCheckerTest2");
-  Name certName = keyChain.createIdentity(identity);
+  BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
+  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
 
   Name identity2("/SecurityTestConfChecker/CustomizedCheckerTest2Wrong");
-  Name certName2 = keyChain.createIdentity(identity2);
+  BOOST_REQUIRE(addIdentity(identity2, RsaKeyParams()));
+  Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
 
   Name packetName("/SecurityTestConfChecker/CustomizedCheckerTest2/Data");
   shared_ptr<Data> data1 = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*data1, identity);
+  m_keyChain.signByIdentity(*data1, identity);
 
   shared_ptr<Data> data2 = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*data2, identity2);
+  m_keyChain.signByIdentity(*data2, identity2);
 
   shared_ptr<Interest> interest1 = make_shared<Interest>(packetName);
-  keyChain.signByIdentity(*interest1, identity);
+  m_keyChain.signByIdentity(*interest1, identity);
 
   shared_ptr<Interest> interest2 = make_shared<Interest>(packetName);
-  keyChain.signByIdentity(*interest2, identity2);
+  m_keyChain.signByIdentity(*interest2, identity2);
 
   int8_t result = 0;
 
@@ -275,9 +272,6 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest2)
                           bind(interestCheckedFalse, _1),
                           bind(interestCheckFailedFalse, _1, _2));
   BOOST_CHECK_EQUAL(result, -1);
-
-  keyChain.deleteIdentity(identity);
-  keyChain.deleteIdentity(identity2);
 }
 
 BOOST_AUTO_TEST_CASE(CustomizedCheckerTest3)
@@ -286,28 +280,26 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest3)
   using security::conf::KeyLocatorChecker;
   using security::conf::RegexKeyLocatorNameChecker;
 
-  KeyChain keyChain("sqlite3", "file");
-
-  EcdsaKeyParams params;
-
   Name identity("/SecurityTestConfChecker/CustomizedCheckerTest3");
-  Name certName = keyChain.createIdentity(identity, params);
+  BOOST_REQUIRE(addIdentity(identity, EcdsaKeyParams()));
+  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
 
   Name identity2("/SecurityTestConfChecker/CustomizedCheckerTest3Wrong");
-  Name certName2 = keyChain.createIdentity(identity2, params);
+  BOOST_REQUIRE(addIdentity(identity2, EcdsaKeyParams()));
+  Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
 
   Name packetName("/SecurityTestConfChecker/CustomizedCheckerTest3/Data");
   shared_ptr<Data> data1 = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*data1, identity);
+  m_keyChain.signByIdentity(*data1, identity);
 
   shared_ptr<Data> data2 = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*data2, identity2);
+  m_keyChain.signByIdentity(*data2, identity2);
 
   shared_ptr<Interest> interest1 = make_shared<Interest>(packetName);
-  keyChain.signByIdentity(*interest1, identity);
+  m_keyChain.signByIdentity(*interest1, identity);
 
   shared_ptr<Interest> interest2 = make_shared<Interest>(packetName);
-  keyChain.signByIdentity(*interest2, identity2);
+  m_keyChain.signByIdentity(*interest2, identity2);
 
   int8_t result = 0;
 
@@ -344,47 +336,41 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest3)
                           bind(dataCheckedFalse, _1),
                           bind(dataCheckFailedFalse, _1, _2));
   BOOST_CHECK_EQUAL(result, -1);
-
-
-  keyChain.deleteIdentity(identity);
-  keyChain.deleteIdentity(identity2);
 }
 
 BOOST_AUTO_TEST_CASE(HierarchicalCheckerTest1)
 {
   using security::conf::HierarchicalChecker;
 
-  KeyChain keyChain("sqlite3", "file");
-
-  EcdsaKeyParams params;
-
   Name identity("/SecurityTestConfChecker/HierarchicalCheckerTest1");
-  Name certName = keyChain.createIdentity(identity, params);
+  BOOST_REQUIRE(addIdentity(identity, EcdsaKeyParams()));
+  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
 
   Name identity2("/SecurityTestConfChecker/HierarchicalCheckerTest1/Data");
-  Name certName2 = keyChain.createIdentity(identity2);
+  BOOST_REQUIRE(addIdentity(identity2, RsaKeyParams()));
+  Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
 
   Name packetName("/SecurityTestConfChecker/HierarchicalCheckerTest1/Data");
   Name packetName2("/SecurityTestConfChecker");
   Name packetName3("/SecurityTestConfChecker/HierarchicalCheckerTest1");
 
   shared_ptr<Data> data1 = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*data1, identity);
+  m_keyChain.signByIdentity(*data1, identity);
 
   shared_ptr<Data> data2 = make_shared<Data>(packetName2);
-  keyChain.signByIdentity(*data2, identity);
+  m_keyChain.signByIdentity(*data2, identity);
 
   shared_ptr<Data> data3 = make_shared<Data>(packetName3);
-  keyChain.signByIdentity(*data3, identity);
+  m_keyChain.signByIdentity(*data3, identity);
 
   shared_ptr<Data> data4 = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*data4, identity2);
+  m_keyChain.signByIdentity(*data4, identity2);
 
   shared_ptr<Data> data5 = make_shared<Data>(packetName2);
-  keyChain.signByIdentity(*data5, identity2);
+  m_keyChain.signByIdentity(*data5, identity2);
 
   shared_ptr<Data> data6 = make_shared<Data>(packetName3);
-  keyChain.signByIdentity(*data6, identity2);
+  m_keyChain.signByIdentity(*data6, identity2);
 
   int8_t result = 0;
 
@@ -452,35 +438,29 @@ BOOST_AUTO_TEST_CASE(HierarchicalCheckerTest1)
                           bind(dataCheckedFalse, _1),
                           bind(dataCheckFailedFalse, _1, _2));
   BOOST_CHECK_EQUAL(result, -1);
-
-
-  keyChain.deleteIdentity(identity);
-  keyChain.deleteIdentity(identity2);
 }
 
 BOOST_AUTO_TEST_CASE(FixedSignerCheckerTest1)
 {
   using security::conf::FixedSignerChecker;
 
-  KeyChain keyChain("sqlite3", "file");
-
-  EcdsaKeyParams params;
-
   Name identity("/SecurityTestConfChecker/FixedSignerCheckerTest1");
-  Name certName = keyChain.createIdentity(identity, params);
-  shared_ptr<IdentityCertificate> cert1 = keyChain.getCertificate(certName);
+  BOOST_REQUIRE(addIdentity(identity, EcdsaKeyParams()));
+  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
+  shared_ptr<IdentityCertificate> cert1 = m_keyChain.getCertificate(certName);
 
   Name identity2("/SecurityTestConfChecker/FixedSignerCheckerTest1Wrong");
-  Name certName2 = keyChain.createIdentity(identity2);
-  shared_ptr<IdentityCertificate> cert2 = keyChain.getCertificate(certName2);
+  BOOST_REQUIRE(addIdentity(identity2, RsaKeyParams()));
+  Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
+  shared_ptr<IdentityCertificate> cert2 = m_keyChain.getCertificate(certName2);
 
   Name packetName("/Test/Data");
 
   shared_ptr<Data> data1 = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*data1, identity);
+  m_keyChain.signByIdentity(*data1, identity);
 
   shared_ptr<Data> data2 = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*data2, identity2);
+  m_keyChain.signByIdentity(*data2, identity2);
 
   std::vector<shared_ptr<IdentityCertificate> > certSet1;
   certSet1.push_back(cert1);
@@ -541,10 +521,6 @@ BOOST_AUTO_TEST_CASE(FixedSignerCheckerTest1)
                           bind(dataChecked, _1),
                           bind(dataCheckFailed, _1, _2));
   BOOST_CHECK_EQUAL(result, 1);
-
-
-  keyChain.deleteIdentity(identity);
-  keyChain.deleteIdentity(identity2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -22,14 +22,14 @@
 #include "security/validator-null.hpp"
 #include "security/key-chain.hpp"
 #include "util/time.hpp"
-
+#include "identity-management-fixture.hpp"
 #include "boost-test.hpp"
 
 namespace ndn {
 
 using std::string;
 
-BOOST_AUTO_TEST_SUITE(SecurityTestValidator)
+BOOST_FIXTURE_TEST_SUITE(SecurityTestValidator, security::IdentityManagementFixture)
 
 void
 onValidated(const shared_ptr<const Data>& data)
@@ -45,19 +45,15 @@ onValidationFailed(const shared_ptr<const Data>& data, const string& failureInfo
 
 BOOST_AUTO_TEST_CASE(Null)
 {
-  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
-  KeyChain keyChain("sqlite3", "file");
-
   Name identity("/TestValidator/Null");
   identity.appendVersion();
-
-  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity));
+  BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
 
   Name dataName = identity;
   dataName.append("1");
   shared_ptr<Data> data = make_shared<Data>(dataName);
 
-  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(*data, identity));
+  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(*data, identity));
 
   ValidatorNull validator;
 
@@ -65,8 +61,6 @@ BOOST_AUTO_TEST_CASE(Null)
   validator.validate(*data,
                      bind(&onValidated, _1),
                      bind(&onValidationFailed, _1, _2));
-
-  keyChain.deleteIdentity(identity);
 }
 
 const uint8_t ecdsaSigInfo[] = {
@@ -94,27 +88,23 @@ const uint8_t ecdsaSigValue[] = {
 
 BOOST_AUTO_TEST_CASE(RsaSignatureVerification)
 {
-  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
-  KeyChain keyChain("sqlite3", "file");
-
   Name identity("/TestValidator/RsaSignatureVerification");
-  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity));
-  Name keyName = keyChain.getDefaultKeyNameForIdentity(identity);
-  shared_ptr<PublicKey> publicKey = keyChain.getPublicKey(keyName);
+  BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
+  Name keyName = m_keyChain.getDefaultKeyNameForIdentity(identity);
+  shared_ptr<PublicKey> publicKey = m_keyChain.getPublicKey(keyName);
 
   Name identity2("/TestValidator/RsaSignatureVerification/id2");
-  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity2));
-  Name keyName2 = keyChain.getDefaultKeyNameForIdentity(identity2);
-  shared_ptr<PublicKey> publicKey2 = keyChain.getPublicKey(keyName2);
-
+  BOOST_REQUIRE(addIdentity(identity2, RsaKeyParams()));
+  Name keyName2 = m_keyChain.getDefaultKeyNameForIdentity(identity2);
+  shared_ptr<PublicKey> publicKey2 = m_keyChain.getPublicKey(keyName2);
 
   Data data("/TestData/1");
-  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(data, identity));
+  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(data, identity));
   BOOST_CHECK_EQUAL(Validator::verifySignature(data, *publicKey), true);
   BOOST_CHECK_EQUAL(Validator::verifySignature(data, *publicKey2), false);
 
   Interest interest("/TestInterest/1");
-  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(interest, identity));
+  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(interest, identity));
   BOOST_CHECK_EQUAL(Validator::verifySignature(interest, *publicKey), true);
   BOOST_CHECK_EQUAL(Validator::verifySignature(interest, *publicKey2), false);
 
@@ -124,9 +114,6 @@ BOOST_AUTO_TEST_CASE(RsaSignatureVerification)
   Signature ecdsaSig(ecdsaSigInfoBlock, ecdsaSigValueBlock);
   wrongData.setSignature(ecdsaSig);
   BOOST_CHECK_EQUAL(Validator::verifySignature(wrongData, *publicKey), false);
-
-  keyChain.deleteIdentity(identity);
-  keyChain.deleteIdentity(identity2);
 }
 
 const uint8_t rsaSigInfo[] = {
@@ -160,36 +147,24 @@ const uint8_t rsaSigValue[] = {
 
 BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification)
 {
-  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
-  KeyChain keyChain("sqlite3", "file");
-
   Name identity("/TestValidator/EcdsaSignatureVerification");
-  EcdsaKeyParams params;
-  // BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity, params));
-  try
-    {
-      keyChain.createIdentity(identity, params);
-    }
-  catch (std::runtime_error& e)
-    {
-      std::cerr << e.what() << std::endl;
-    }
-  Name keyName = keyChain.getDefaultKeyNameForIdentity(identity);
-  shared_ptr<PublicKey> publicKey = keyChain.getPublicKey(keyName);
+  BOOST_REQUIRE(addIdentity(identity, EcdsaKeyParams()));
+  Name keyName = m_keyChain.getDefaultKeyNameForIdentity(identity);
+  shared_ptr<PublicKey> publicKey = m_keyChain.getPublicKey(keyName);
 
   Name identity2("/TestValidator/EcdsaSignatureVerification/id2");
-  BOOST_REQUIRE_NO_THROW(keyChain.createIdentity(identity2, params));
-  Name keyName2 = keyChain.getDefaultKeyNameForIdentity(identity2);
-  shared_ptr<PublicKey> publicKey2 = keyChain.getPublicKey(keyName2);
+  BOOST_REQUIRE(addIdentity(identity2, EcdsaKeyParams()));
+  Name keyName2 = m_keyChain.getDefaultKeyNameForIdentity(identity2);
+  shared_ptr<PublicKey> publicKey2 = m_keyChain.getPublicKey(keyName2);
 
 
   Data data("/TestData/1");
-  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(data, identity));
+  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(data, identity));
   BOOST_CHECK_EQUAL(Validator::verifySignature(data, *publicKey), true);
   BOOST_CHECK_EQUAL(Validator::verifySignature(data, *publicKey2), false);
 
   Interest interest("/TestInterest/1");
-  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(interest, identity));
+  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(interest, identity));
   BOOST_CHECK_EQUAL(Validator::verifySignature(interest, *publicKey), true);
   BOOST_CHECK_EQUAL(Validator::verifySignature(interest, *publicKey2), false);
 
@@ -199,35 +174,30 @@ BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification)
   Signature rsaSig(rsaSigInfoBlock, rsaSigValueBlock);
   wrongData.setSignature(rsaSig);
   BOOST_CHECK_EQUAL(Validator::verifySignature(wrongData, *publicKey), false);
-
-  keyChain.deleteIdentity(identity);
-  keyChain.deleteIdentity(identity2);
 }
 
 BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification2)
 {
-  KeyChain keyChain("sqlite3", "file");
-
-  EcdsaKeyParams params;
-
   Name ecdsaIdentity("/SecurityTestValidator/EcdsaSignatureVerification2/ecdsa");
-  Name ecdsaCertName = keyChain.createIdentity(ecdsaIdentity, params);
-  shared_ptr<IdentityCertificate> ecdsaCert = keyChain.getCertificate(ecdsaCertName);
+  BOOST_REQUIRE(addIdentity(ecdsaIdentity, EcdsaKeyParams()));
+  Name ecdsaCertName = m_keyChain.getDefaultCertificateNameForIdentity(ecdsaIdentity);
+  shared_ptr<IdentityCertificate> ecdsaCert = m_keyChain.getCertificate(ecdsaCertName);
 
   Name rsaIdentity("/SecurityTestValidator/EcdsaSignatureVerification2/rsa");
-  Name rsaCertName = keyChain.createIdentity(rsaIdentity);
-  shared_ptr<IdentityCertificate> rsaCert = keyChain.getCertificate(rsaCertName);
+  BOOST_REQUIRE(addIdentity(rsaIdentity, RsaKeyParams()));
+  Name rsaCertName = m_keyChain.getDefaultCertificateNameForIdentity(rsaIdentity);
+  shared_ptr<IdentityCertificate> rsaCert = m_keyChain.getCertificate(rsaCertName);
 
   Name packetName("/Test/Packet/Name");
 
   shared_ptr<Data> testDataRsa = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*testDataRsa, rsaIdentity);
+  m_keyChain.signByIdentity(*testDataRsa, rsaIdentity);
   shared_ptr<Data> testDataEcdsa = make_shared<Data>(packetName);
-  keyChain.signByIdentity(*testDataEcdsa, ecdsaIdentity);
+  m_keyChain.signByIdentity(*testDataEcdsa, ecdsaIdentity);
   shared_ptr<Interest> testInterestRsa = make_shared<Interest>(packetName);
-  keyChain.signByIdentity(*testInterestRsa, rsaIdentity);
+  m_keyChain.signByIdentity(*testInterestRsa, rsaIdentity);
   shared_ptr<Interest> testInterestEcdsa = make_shared<Interest>(packetName);
-  keyChain.signByIdentity(*testInterestEcdsa, ecdsaIdentity);
+  m_keyChain.signByIdentity(*testInterestEcdsa, ecdsaIdentity);
 
   BOOST_CHECK(Validator::verifySignature(*ecdsaCert, ecdsaCert->getPublicKeyInfo()));
   BOOST_CHECK_EQUAL(Validator::verifySignature(*ecdsaCert, rsaCert->getPublicKeyInfo()), false);
@@ -245,9 +215,6 @@ BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification2)
   BOOST_CHECK_EQUAL(Validator::verifySignature(*testInterestRsa, ecdsaCert->getPublicKeyInfo()),
                     false);
   BOOST_CHECK(Validator::verifySignature(*testInterestRsa, rsaCert->getPublicKeyInfo()));
-
-  keyChain.deleteIdentity(ecdsaIdentity);
-  keyChain.deleteIdentity(rsaIdentity);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

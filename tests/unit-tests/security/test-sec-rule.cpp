@@ -22,29 +22,28 @@
 #include "security/sec-rule-specific.hpp"
 #include "security/sec-rule-relative.hpp"
 #include "security/key-chain.hpp"
+#include "identity-management-fixture.hpp"
 
 #include "boost-test.hpp"
 
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(SecurityTestSecRule)
+BOOST_FIXTURE_TEST_SUITE(SecurityTestSecRule, security::IdentityManagementFixture)
 
 BOOST_AUTO_TEST_CASE(SecRuleSpecificTest)
 {
-  KeyChain keyChain("sqlite3", "file");
-
   Name rsaIdentity("/SecurityTestSecRule/Basic/Rsa");
-  keyChain.createIdentity(rsaIdentity);
+  BOOST_REQUIRE(addIdentity(rsaIdentity, RsaKeyParams()));
   Name ecdsaIdentity("/SecurityTestSecRule/Basic/Ecdsa");
-  keyChain.createIdentity(ecdsaIdentity);
+  BOOST_REQUIRE(addIdentity(ecdsaIdentity, EcdsaKeyParams()));
 
   Name dataName("SecurityTestSecRule/Basic");
   Data rsaData(dataName);
-  keyChain.signByIdentity(rsaData, rsaIdentity);
+  m_keyChain.signByIdentity(rsaData, rsaIdentity);
   Data ecdsaData(dataName);
-  keyChain.signByIdentity(ecdsaData, ecdsaIdentity);
+  m_keyChain.signByIdentity(ecdsaData, ecdsaIdentity);
   Data sha256Data(dataName);
-  keyChain.signWithSha256(sha256Data);
+  m_keyChain.signWithSha256(sha256Data);
 
   shared_ptr<Regex> dataRegex =
     make_shared<Regex>("^<SecurityTestSecRule><Basic>$");
@@ -59,27 +58,22 @@ BOOST_AUTO_TEST_CASE(SecRuleSpecificTest)
   BOOST_CHECK(rule.matchSignerName(rsaData));
   BOOST_CHECK(rule.matchSignerName(ecdsaData));
   BOOST_CHECK_EQUAL(rule.matchSignerName(sha256Data), false);
-
-  keyChain.deleteIdentity(rsaIdentity);
-  keyChain.deleteIdentity(ecdsaIdentity);
 }
 
 BOOST_AUTO_TEST_CASE(SecRuleRelativeTest)
 {
-  KeyChain keyChain("sqlite3", "file");
-
   Name rsaIdentity("/SecurityTestSecRule/Basic/Rsa");
-  keyChain.createIdentity(rsaIdentity);
+  BOOST_REQUIRE(addIdentity(rsaIdentity, RsaKeyParams()));
   Name ecdsaIdentity("/SecurityTestSecRule/Basic/Ecdsa");
-  keyChain.createIdentity(ecdsaIdentity);
+  BOOST_REQUIRE(addIdentity(ecdsaIdentity, EcdsaKeyParams()));
 
   Name dataName("SecurityTestSecRule/Basic");
   Data rsaData(dataName);
-  keyChain.signByIdentity(rsaData, rsaIdentity);
+  m_keyChain.signByIdentity(rsaData, rsaIdentity);
   Data ecdsaData(dataName);
-  keyChain.signByIdentity(ecdsaData, ecdsaIdentity);
+  m_keyChain.signByIdentity(ecdsaData, ecdsaIdentity);
   Data sha256Data(dataName);
-  keyChain.signWithSha256(sha256Data);
+  m_keyChain.signWithSha256(sha256Data);
 
   SecRuleRelative rule("^(<SecurityTestSecRule><Basic>)$",
                        "^(<SecurityTestSecRule><Basic>)<><KEY><><>$",
@@ -91,9 +85,6 @@ BOOST_AUTO_TEST_CASE(SecRuleRelativeTest)
   BOOST_CHECK(rule.matchSignerName(rsaData));
   BOOST_CHECK(rule.matchSignerName(ecdsaData));
   BOOST_CHECK_EQUAL(rule.matchSignerName(sha256Data), false);
-
-  keyChain.deleteIdentity(rsaIdentity);
-  keyChain.deleteIdentity(ecdsaIdentity);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

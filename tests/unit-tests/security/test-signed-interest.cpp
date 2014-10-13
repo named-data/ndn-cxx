@@ -21,32 +21,27 @@
 
 #include "security/key-chain.hpp"
 #include "security/validator.hpp"
-
+#include "identity-management-fixture.hpp"
 #include "boost-test.hpp"
 
-using namespace std;
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(SecurityTestSignedInterest)
+BOOST_FIXTURE_TEST_SUITE(SecurityTestSignedInterest, security::IdentityManagementFixture)
 
 BOOST_AUTO_TEST_CASE(SignVerifyInterest)
 {
-  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
-  KeyChain keyChain("sqlite3", "file");
-
   Name identityName("/TestSignedInterest/SignVerify");
   identityName.appendVersion();
-
-  Name certificateName;
-  BOOST_REQUIRE_NO_THROW(certificateName = keyChain.createIdentity(identityName));
+  BOOST_REQUIRE(addIdentity(identityName, RsaKeyParams()));
+  Name certificateName = m_keyChain.getDefaultCertificateNameForIdentity(identityName);
 
   Interest interest("/TestSignedInterest/SignVerify/Interest1");
-  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(interest, identityName));
+  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(interest, identityName));
 
   usleep(100000);
 
   Interest interest11("/TestSignedInterest/SignVerify/Interest1");
-  BOOST_CHECK_NO_THROW(keyChain.signByIdentity(interest11, identityName));
+  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(interest11, identityName));
 
   time::system_clock::TimePoint timestamp1 =
     time::fromUnixTimestamp(
@@ -68,17 +63,12 @@ BOOST_AUTO_TEST_CASE(SignVerifyInterest)
   interest2.wireDecode(interestBlock);
 
   shared_ptr<PublicKey> publicKey;
-  BOOST_REQUIRE_NO_THROW(publicKey = keyChain.getPublicKeyFromTpm(
-    keyChain.getDefaultKeyNameForIdentity(identityName)));
+  BOOST_REQUIRE_NO_THROW(publicKey = m_keyChain.getPublicKeyFromTpm(
+    m_keyChain.getDefaultKeyNameForIdentity(identityName)));
   bool result = Validator::verifySignature(interest2, *publicKey);
 
   BOOST_CHECK_EQUAL(result, true);
-
-  keyChain.deleteIdentity(identityName);
 }
-
-
-
 
 BOOST_AUTO_TEST_SUITE_END()
 
