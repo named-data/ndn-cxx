@@ -79,8 +79,6 @@ public:
 
   /** \brief start command execution
    *  \param certificate the certificate used to sign request Interests
-   *  \deprecated passing IdentityCertificate() empty certificate as fourth argument
-   *              is deprecated, use four-parameter overload instead
    */
   template<typename Command>
   void
@@ -90,11 +88,6 @@ public:
         const IdentityCertificate& certificate,
         const time::milliseconds& timeout = getDefaultCommandTimeout())
   {
-    if (certificate.getName().empty()) { // deprecated usage
-      start<Command>(parameters, onSuccess, onFailure, timeout);
-      return;
-    }
-
     start<Command>(parameters, onSuccess, onFailure,
       bind(static_cast<void(KeyChain::*)(Interest&,const Name&)>(&KeyChain::sign<Interest>),
            &m_keyChain, _1, cref(certificate.getName())),

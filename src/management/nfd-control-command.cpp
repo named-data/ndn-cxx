@@ -62,15 +62,6 @@ ControlCommand::getRequestName(const ControlParameters& parameters) const
   return name;
 }
 
-Interest
-ControlCommand::makeCommandInterest(const ControlParameters& parameters,
-                                    const Sign& sign) const
-{
-  Interest commandInterest(this->getRequestName(parameters));
-  sign(commandInterest);
-  return commandInterest;
-}
-
 ControlCommand::FieldValidator::FieldValidator()
   : m_required(CONTROL_PARAMETER_UBOUND)
   , m_optional(CONTROL_PARAMETER_UBOUND)

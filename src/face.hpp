@@ -246,8 +246,8 @@ public:
    * @param onFailure      A callback to be called when prefixRegister command fails
    * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
    * @param certificate    (optional) A certificate under which the prefix registration
-   *                       command interest is signed.  When omitted, a default certificate
-   *                       of the default identity is used to sign the registration command
+   *                       command is signed.  When omitted, a default certificate of
+   *                       the default identity is used to sign the registration command
    *
    * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
    *         removeRegisteredPrefix
@@ -275,8 +275,8 @@ public:
    * @param onFailure      A callback to be called when prefixRegister command fails
    * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
    * @param certificate    (optional) A certificate under which the prefix registration
-   *                       command interest is signed.  When omitted, a default certificate
-   *                       of the default identity is used to sign the registration command
+   *                       command is signed.  When omitted, a default certificate of
+   *                       the default identity is used to sign the registration command
    *
    * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
    *         removeRegisteredPrefix
@@ -302,8 +302,8 @@ public:
    * @param onInterest     A callback to be called when a matching interest is received
    * @param onSuccess      A callback to be called when prefixRegister command succeeds
    * @param onFailure      A callback to be called when prefixRegister command fails
-   * @param identity       A signing identity. A command interest is signed under the default
-   *                       certificate of this identity
+   * @param identity       A signing identity. A prefix registration command is signed
+   *                       under the default certificate of this identity
    * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
    *
    * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
@@ -329,8 +329,8 @@ public:
    * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
    * @param onInterest     A callback to be called when a matching interest is received
    * @param onFailure      A callback to be called when prefixRegister command fails
-   * @param identity       A signing identity. A command interest is signed under the default
-   *                       certificate of this identity
+   * @param identity       A signing identity. A prefix registration command is signed
+   *                       under the default certificate of this identity
    * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
    *
    * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
@@ -370,8 +370,8 @@ public:
    * @param onSuccess   A callback to be called when prefixRegister command succeeds
    * @param onFailure   A callback to be called when prefixRegister command fails
    * @param certificate (optional) A certificate under which the prefix registration
-   *                    command interest is signed.  When omitted, a default certificate
-   *                    of the default identity is used to sign the registration command
+   *                    command is signed.  When omitted, a default certificate of
+   *                    the default identity is used to sign the registration command
    * @param flags       (optional) RIB flags (not used when direct FIB management is requested)
    *
    * @return The registered prefix ID which can be used with unregisterPrefix
@@ -394,8 +394,8 @@ public:
    * @param prefix    A prefix to register with the connected NDN forwarder
    * @param onSuccess A callback to be called when prefixRegister command succeeds
    * @param onFailure A callback to be called when prefixRegister command fails
-   * @param identity  A signing identity. A command interest is signed under the default
-   *                  certificate of this identity
+   * @param identity  A signing identity. A prefix registration command is signed
+   *                  under the default certificate of this identity
    * @param flags     (optional) RIB flags (not used when direct FIB management is requested)
    *
    * @return The registered prefix ID which can be used with unregisterPrefix

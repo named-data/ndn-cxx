@@ -22,11 +22,10 @@
 #include "management/nfd-controller.hpp"
 #include "management/nfd-control-response.hpp"
 
-#include "../dummy-client-face.hpp"
-
 #include <boost/tuple/tuple.hpp>
 
 #include "boost-test.hpp"
+#include "../dummy-client-face.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -86,18 +85,18 @@ BOOST_FIXTURE_TEST_CASE(CommandSuccess, CommandFixture)
   face->processEvents(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 1);
-  const Interest& commandInterest = face->m_sentInterests[0];
+  const Interest& requestInterest = face->m_sentInterests[0];
 
   FaceCreateCommand command;
-  BOOST_CHECK(command.getPrefix().isPrefixOf(commandInterest.getName()));
-  // 9 components: ndn:/localhost/nfd/face/create/<parameters>/<command Interest signature x4>
-  BOOST_REQUIRE_EQUAL(commandInterest.getName().size(), 9);
+  BOOST_CHECK(command.getPrefix().isPrefixOf(requestInterest.getName()));
+  // 9 components: ndn:/localhost/nfd/face/create/<parameters>/<signed Interest x4>
+  BOOST_REQUIRE_EQUAL(requestInterest.getName().size(), 9);
   ControlParameters request;
   // 4th component: <parameters>
-  BOOST_REQUIRE_NO_THROW(request.wireDecode(commandInterest.getName().at(4).blockFromValue()));
+  BOOST_REQUIRE_NO_THROW(request.wireDecode(requestInterest.getName().at(4).blockFromValue()));
   BOOST_CHECK_NO_THROW(command.validateRequest(request));
   BOOST_CHECK_EQUAL(request.getUri(), parameters.getUri());
-  BOOST_CHECK_EQUAL(commandInterest.getInterestLifetime(), Controller::getDefaultCommandTimeout());
+  BOOST_CHECK_EQUAL(requestInterest.getInterestLifetime(), Controller::getDefaultCommandTimeout());
 
   ControlParameters responseBody;
   responseBody.setUri("tcp4://192.0.2.1:6363")
@@ -105,7 +104,7 @@ BOOST_FIXTURE_TEST_CASE(CommandSuccess, CommandFixture)
   ControlResponse responsePayload(201, "created");
   responsePayload.setBody(responseBody.wireEncode());
 
-  Data responseData(commandInterest.getName());
+  Data responseData(requestInterest.getName());
   responseData.setContent(responsePayload.wireEncode());
   keyChain.sign(responseData);
   face->receive(responseData);
@@ -143,11 +142,11 @@ BOOST_FIXTURE_TEST_CASE(CommandErrorCode, CommandFixture)
   face->processEvents(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 1);
-  const Interest& commandInterest = face->m_sentInterests[0];
+  const Interest& requestInterest = face->m_sentInterests[0];
 
   ControlResponse responsePayload(401, "Not Authenticated");
 
-  Data responseData(commandInterest.getName());
+  Data responseData(requestInterest.getName());
   responseData.setContent(responsePayload.wireEncode());
   keyChain.sign(responseData);
   face->receive(responseData);
@@ -170,7 +169,7 @@ BOOST_FIXTURE_TEST_CASE(CommandInvalidResponse, CommandFixture)
   face->processEvents(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 1);
-  const Interest& commandInterest = face->m_sentInterests[0];
+  const Interest& requestInterest = face->m_sentInterests[0];
 
   ControlParameters responseBody;
   responseBody.setUri("tcp4://192.0.2.1:6363")
@@ -179,7 +178,7 @@ BOOST_FIXTURE_TEST_CASE(CommandInvalidResponse, CommandFixture)
   ControlResponse responsePayload(201, "created");
   responsePayload.setBody(responseBody.wireEncode());
 
-  Data responseData(commandInterest.getName());
+  Data responseData(requestInterest.getName());
   responseData.setContent(responsePayload.wireEncode());
   keyChain.sign(responseData);
   face->receive(responseData);

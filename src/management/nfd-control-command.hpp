@@ -23,7 +23,6 @@
 #define NDN_MANAGEMENT_NFD_CONTROL_COMMAND_HPP
 
 #include "nfd-control-parameters.hpp"
-#include "../util/command-interest-generator.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -82,18 +81,6 @@ public:
    */
   Name
   getRequestName(const ControlParameters& parameters) const;
-
-public: // deprecated
-  /** \brief a callback on signing command interest
-   */
-  typedef function<void(Interest&)> Sign;
-
-  /** \brief make a Command Interest from parameters
-   *  \deprecated use .getCommandName and sign with KeyChain
-   */
-  Interest
-  makeCommandInterest(const ControlParameters& parameters,
-                      const Sign& sign) const;
 
 protected:
   ControlCommand(const std::string& module, const std::string& verb);
