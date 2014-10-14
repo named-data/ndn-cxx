@@ -40,22 +40,32 @@ ndnsec_cert_dump(int argc, char** argv)
   bool isPretty = false;
   bool isStdOut = true;
   bool isRepoOut = false;
-  std::string repoHost = "127.0.0.1";
-  std::string repoPort = "7376";
+  std::string repoHost;
+  std::string repoPort;
   // bool isDnsOut = false;
 
-  po::options_description description("General Usage\n  ndnsec cert-dump [-h] [-p] [-d] [-r [-H repo-host] [-P repor-port] ] [-i|k|f] name\nGeneral options");
+  po::options_description description("General Usage\n"
+                                      "  ndnsec cert-dump [-h] [-p] [-d] [-r [-H repo-host] "
+                                         "[-P repo-port] ] [-i|k|f] name\n"
+                                      "General options");
   description.add_options()
-    ("help,h", "produce help message")
-    ("pretty,p", "optional, if specified, display certificate in human readable format")
-    ("identity,i", "optional, if specified, name is identity name (e.g. /ndn/edu/ucla/alice), otherwise certificate name")
-    ("key,k", "optional, if specified, name is key name (e.g. /ndn/edu/ucla/alice/KSK-123456789), otherwise certificate name")
-    ("file,f", "optional, if specified, name is file name, - for stdin")
-    ("repo-output,r", "optional, if specified, certificate is dumped (published) to repo")
-    ("repo-host,H", po::value<std::string>(&repoHost)->default_value("localhost"), "optional, the repo host if repo-output is specified")
-    ("repo-port,P", po::value<std::string>(&repoPort)->default_value("7376"), "optional, the repo port if repo-output is specified")
-    // ("dns-output,d", "optional, if specified, certificate is dumped (published) to DNS")
-    ("name,n", po::value<std::string>(&name), "certificate name, for example, /ndn/edu/ucla/KEY/cs/alice/ksk-1234567890/ID-CERT/%FD%FF%FF%FF%FF%FF%FF%FF")
+    ("help,h",     "produce help message")
+    ("pretty,p",   "display certificate in human readable format")
+    ("identity,i", "treat the name parameter as identity name (e.g., /ndn/edu/ucla/alice")
+    ("key,k",      "treat the name parameter as key name "
+                   "(e.g., /ndn/edu/ucla/alice/ksk-123456789)")
+    ("file,f",     "treat the name parameter as file name with base64 encoded certificate, "
+                   "- for stdin")
+    ("repo-output,r", "publish the certificate to the repo-ng")
+    ("repo-host,H", po::value<std::string>(&repoHost)->default_value("localhost"),
+                   "the repo host if repo-output is specified")
+    ("repo-port,P", po::value<std::string>(&repoPort)->default_value("7376"),
+                   "the repo port if repo-output is specified")
+    // ("dns-output,d", "published the certificate to NDNS")
+    ("name,n", po::value<std::string>(&name),
+                   "unless overridden with --identity or --key parameter, the certificate name, "
+                   "for example, /ndn/edu/ucla/KEY/cs/alice/ksk-1234567890"
+                                "/ID-CERT/%FD%FF%FF%FF%FF%FF%FF%FF")
     ;
 
   po::positional_options_description p;
@@ -122,7 +132,8 @@ ndnsec_cert_dump(int argc, char** argv)
 
   if (isPretty && !isStdOut)
     {
-      std::cerr << "Error: pretty option can only be specified when other output option is specified" << std::endl;
+      std::cerr << "Error: pretty option can only be specified when other "
+                << "output option is specified" << std::endl;
       return 1;
     }
 

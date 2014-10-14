@@ -38,13 +38,20 @@ ndnsec_key_gen(int argc, char** argv)
   int keySize = 2048;
   std::string outputFilename;
 
-  po::options_description description("General Usage\n  ndnsec key-gen [-h] [-n] identity\nGeneral options");
+  po::options_description description("General Usage\n"
+                                      "  ndnsec key-gen [-h] [-n] identity\n"
+                                      "General options");
   description.add_options()
     ("help,h", "produce help message")
-    ("identity,i", po::value<std::string>(&identityName), "identity name, for example, /ndn/ucla.edu/alice")
-    ("not_default,n", "optional, if not specified, the target identity will be set as the default identity of the system")
-    // ("type,t", po::value<char>(&keyType)->default_value('r'), "optional, key type, r for RSA key (default)")
-    // ("size,s", po::value<int>(&keySize)->default_value(2048), "optional, key size, 2048 (default)")
+    ("identity,i", po::value<std::string>(&identityName),
+     "identity name, for example, /ndn/edu/ucla/alice")
+    ("not_default,n",
+     "optional, if not specified, the target identity will be set as "
+     "the default identity of the system")
+    // ("type,t", po::value<char>(&keyType)->default_value('r'),
+    // "optional, key type, r for RSA key (default)")
+    // ("size,s", po::value<int>(&keySize)->default_value(2048),
+    // "optional, key size, 2048 (default)")
     ;
 
   po::positional_options_description p;
