@@ -24,16 +24,18 @@
 
 #include "ndn-cxx-config.hpp"
 
+// ndn-cxx specific macros declared in this and other headers must have NDN_CXX_ prefix
+// to avoid conflicts with other projects that include ndn-cxx headers.
 #ifdef NDN_CXX_HAVE_TESTS
-#define VIRTUAL_WITH_TESTS virtual
-#define PUBLIC_WITH_TESTS_ELSE_PROTECTED public
-#define PUBLIC_WITH_TESTS_ELSE_PRIVATE public
-#define PROTECTED_WITH_TESTS_ELSE_PRIVATE protected
+#define NDN_CXX_VIRTUAL_WITH_TESTS virtual
+#define NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED public
+#define NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE public
+#define NDN_CXX_PROTECTED_WITH_TESTS_ELSE_PRIVATE protected
 #else
-#define VIRTUAL_WITH_TESTS
-#define PUBLIC_WITH_TESTS_ELSE_PROTECTED protected
-#define PUBLIC_WITH_TESTS_ELSE_PRIVATE private
-#define PROTECTED_WITH_TESTS_ELSE_PRIVATE private
+#define NDN_CXX_VIRTUAL_WITH_TESTS
+#define NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED protected
+#define NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE private
+#define NDN_CXX_PROTECTED_WITH_TESTS_ELSE_PRIVATE private
 #endif
 
 #include <stdint.h>

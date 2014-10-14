@@ -39,7 +39,7 @@ public:
   virtual
   ~InMemoryStoragePersistent();
 
-PUBLIC_WITH_TESTS_ELSE_PROTECTED:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Do nothing.
    *
    *  This storage is persistent, and does not support eviction.

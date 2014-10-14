@@ -201,7 +201,7 @@ public:
   InMemoryStorage::const_iterator
   end() const;
 
-PUBLIC_WITH_TESTS_ELSE_PROTECTED:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Update the entry when the entry is returned by the find() function
    *  according to derived class implemented replacement policy
    */
@@ -232,7 +232,7 @@ PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   virtual bool
   evictItem() = 0;
 
-PUBLIC_WITH_TESTS_ELSE_PROTECTED:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief sets current capacity of in-memory storage (in packets)
    */
   void
@@ -269,7 +269,7 @@ PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   void
   printCache(std::ostream& os) const;
 
-PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /** @brief free in-memory storage entries by an iterator pointing to that entry.
     */
   void

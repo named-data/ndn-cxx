@@ -43,7 +43,7 @@ public:
   virtual
   ~InMemoryStorageFifo();
 
-PUBLIC_WITH_TESTS_ELSE_PROTECTED:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Removes one Data packet from in-memory storage based on FIFO
    *  @return{ whether the Data was removed }
    */

@@ -46,7 +46,7 @@ public:
   virtual
   ~InMemoryStorageLfu();
 
-PUBLIC_WITH_TESTS_ELSE_PROTECTED:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Removes one Data packet from in-memory storage based on LFU, i.e. evict the least
    *  frequently accessed Data packet
    *  @return{ whether the Data was removed }
