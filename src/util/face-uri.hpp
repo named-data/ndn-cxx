@@ -28,7 +28,7 @@
 #ifndef NDN_UTIL_FACE_URI_HPP
 #define NDN_UTIL_FACE_URI_HPP
 
-#include "common.hpp"
+#include "../common.hpp"
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/local/stream_protocol.hpp>

@@ -28,7 +28,7 @@
 #ifndef NDN_UTIL_ETHERNET_HPP
 #define NDN_UTIL_ETHERNET_HPP
 
-#include "common.hpp"
+#include "../common.hpp"
 
 #include <boost/array.hpp>
 
