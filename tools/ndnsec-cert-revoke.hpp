@@ -32,12 +32,24 @@ ndnsec_cert_revoke(int argc, char** argv)
   using namespace ndn;
   namespace po = boost::program_options;
 
-  std::string requestFile("-");
+  KeyChain keyChain;
 
-  po::options_description description("General Usage\n  ndnsec cert-revoke [-h] request\nGeneral options");
+  std::string requestFile("-");
+  Name signId = keyChain.getDefaultIdentity();
+  bool hasSignId = false;
+  Name certPrefix = KeyChain::DEFAULT_PREFIX;
+
+  po::options_description description("General Usage\n  ndnsec cert-revoke [-h] request\n"
+                                      "General options");
   description.add_options()
     ("help,h", "produce help message")
-    ("request,r", po::value<std::string>(&requestFile), "file name of the certificate to revoke, - for stdin")
+    ("sign-id,s",     po::value<Name>(&signId),
+                      "signing identity (default: use the same as in the revoked certificate)")
+    ("cert-prefix,p", po::value<Name>(&certPrefix),
+                      "cert prefix, which is the part of certificate name before "
+                      "KEY component (default: use the same as in the revoked certificate)")
+    ("request,r",     po::value<std::string>(&requestFile)->default_value("-"),
+                      "request file name, - for stdin")
     ;
 
   po::positional_options_description p;
@@ -62,6 +74,8 @@ ndnsec_cert_revoke(int argc, char** argv)
       return 0;
     }
 
+  hasSignId = (vm.count("sign-id") != 0);
+
   if (vm.count("request") == 0)
     {
       std::cerr << "request file must be specified" << std::endl;
@@ -77,32 +91,53 @@ ndnsec_cert_revoke(int argc, char** argv)
       return 1;
     }
 
-  KeyChain keyChain;
   Block wire;
 
   try
     {
-      Name certName = revokedCertificate->getName();
-      certName.append("REVOKED");
+      Name keyName;
+
+      if (hasSignId) {
+        keyName = keyChain.getDefaultKeyNameForIdentity(signId);
+      }
+      else {
+        const Signature& signature = revokedCertificate->getSignature();
+        if (!signature.hasKeyLocator() ||
+            signature.getKeyLocator().getType() != KeyLocator::KeyLocator_Name)
+          {
+            std::cerr << "ERROR: Invalid certificate to revoke" << std::endl;
+            return 1;
+          }
+
+        keyName = IdentityCertificate::certificateNameToPublicKeyName(
+                    signature.getKeyLocator().getName());
+      }
+
+      Name certName;
+      if (certPrefix == KeyChain::DEFAULT_PREFIX) {
+        certName = revokedCertificate->getName().getPrefix(-1);
+      }
+      else {
+        Name revokedKeyName = revokedCertificate->getPublicKeyName();
+
+        if (certPrefix.isPrefixOf(revokedKeyName) && certPrefix != revokedKeyName) {
+          certName.append(certPrefix)
+            .append("KEY")
+            .append(revokedKeyName.getSubName(certPrefix.size()))
+            .append("ID-CERT");
+        }
+        else {
+          std::cerr << "ERROR: certificate prefix does not match the revoked certificate"
+                    << std::endl;
+          return 1;
+        }
+      }
+      certName
+        .appendVersion()
+        .append("REVOKED");
 
       Data revocationCert;
       revocationCert.setName(certName);
-
-      Name keyName;
-
-      const Signature& signature = revokedCertificate->getSignature();
-      if (signature.getType() == Signature::Sha256WithRsa)
-        {
-          SignatureSha256WithRsa sigSha256Rsa(signature);
-          Name keyLocatorName = sigSha256Rsa.getKeyLocator().getName();
-
-          keyName = IdentityCertificate::certificateNameToPublicKeyName(keyLocatorName);
-        }
-      else
-        {
-          std::cerr << "ERROR: Unsupported Signature Type!" << std::endl;
-          return 1;
-        }
 
       if (keyChain.doesPublicKeyExist(keyName))
         {
@@ -132,14 +167,17 @@ ndnsec_cert_revoke(int argc, char** argv)
       std::cerr << "ERROR: Cannot determine the signing key!" << std::endl;
       return 1;
     }
+  catch (SecPublicInfo::Error& e)
+    {
+      std::cerr << "ERROR: Incomplete or corrupted PIB (" << e.what() << ")" << std::endl;
+      return 1;
+    }
 
   try
     {
       using namespace CryptoPP;
-      // StringSource ss(wire.wire(), wire.size(), true,
-      //                 new Base64Encoder(new FileSink(std::cout), true, 64));
       StringSource ss(wire.wire(), wire.size(), true,
-                      new FileSink(std::cout));
+                      new Base64Encoder(new FileSink(std::cout), true, 64));
     }
   catch (const CryptoPP::Exception& e)
     {
