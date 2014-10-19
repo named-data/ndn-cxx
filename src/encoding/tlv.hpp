@@ -540,9 +540,6 @@ writeNonNegativeInteger(std::ostream& os, uint64_t varNumber)
 
 } // namespace tlv
 
-/// @deprecated use namespace tlv instead
-namespace Tlv = tlv;
-
 } // namespace ndn
 
 #endif // NDN_ENCODING_TLV_HPP
