@@ -36,15 +36,16 @@ ndnsec_cert_gen(int argc, char** argv)
   using namespace ndn::time;
   namespace po = boost::program_options;
 
+  KeyChain keyChain;
+
   std::string notBeforeStr;
   std::string notAfterStr;
   std::string subjectName;
   std::string requestFile("-");
   Name signId;
   std::string subjectInfo;
-  Name certPrefix;
-
-  KeyChain keyChain;
+  std::vector<std::string> signedInfo;
+  Name certPrefix = KeyChain::DEFAULT_PREFIX; // to avoid displaying the default value
 
   po::options_description description(
     "General Usage\n"
@@ -61,11 +62,15 @@ ndnsec_cert_gen(int argc, char** argv)
     ("subject-name,N", po::value<std::string>(&subjectName),
                        "subject name")
     ("subject-info,I", po::value<std::string>(&subjectInfo),
-                       "subject info, pairs of OID and string description: "
-                       "\"2.5.4.10 'University of California, Los Angeles'\"")
+                       "(deprecated, uses 'signed-info') subject info, pairs of OID and string "
+                       " description: \"2.5.4.10 'University of California, Los Angeles'\"")
+    ("signed-info",    po::value<std::vector<std::string> >(&signedInfo),
+                       "a pair of OID and string (must be separated by a single space), e.g., "
+                       "\"2.5.4.10 University of California, Los Angeles\". "
+                       "May be repeated multiple times")
     ("sign-id,s",      po::value<Name>(&signId)->default_value(keyChain.getDefaultIdentity()),
                        "signing identity")
-    ("cert-prefix,p",  po::value<Name>(&certPrefix)->default_value(KeyChain::DEFAULT_PREFIX),
+    ("cert-prefix,p",  po::value<Name>(&certPrefix),
                        "cert prefix, which is the part of certificate name before "
                        "KEY component")
     ("request,r",      po::value<std::string>(&requestFile)->default_value("-"),
@@ -105,6 +110,7 @@ ndnsec_cert_gen(int argc, char** argv)
   std::vector<CertificateSubjectDescription> subjectDescription;
   subjectDescription.push_back(CertificateSubjectDescription(oid::ATTRIBUTE_NAME, subjectName));
 
+  // 'subjectInfo' is deprecated and the following block will be removed eventually
   tokenizer<escaped_list_separator<char> > subjectInfoItems
     (subjectInfo, escaped_list_separator<char>("\\", " \t", "'\""));
 
@@ -128,6 +134,20 @@ ndnsec_cert_gen(int argc, char** argv)
 
       it++;
     }
+
+  // new 'signedInfo' processing
+  for (std::vector<std::string>::const_iterator info = signedInfo.begin();
+       info != signedInfo.end(); ++info) {
+    size_t pos = info->find(" ");
+    if (pos == std::string::npos) {
+      std::cerr << "ERROR: incorrectly formatted signed info block [" << *info << "]" << std::endl;
+      return 1;
+    }
+    OID oid(info->substr(0, pos));
+    std::string value = info->substr(pos + 1);
+
+    subjectDescription.push_back(CertificateSubjectDescription(oid, value));
+  }
 
   system_clock::TimePoint notBefore;
   system_clock::TimePoint notAfter;
