@@ -78,7 +78,12 @@ public:
   }
 
   /** \brief start command execution
-   *  \param certificate the certificate used to sign request Interests
+   *  \param certificate the certificate used to sign request Interests.
+   *         If IdentityCertificate() is passed, the default signing certificate will be used.
+   *
+   *  \note IdentityCertificate() creates a certificate with an empty name, which is an
+   *        invalid certificate.  A valid IdentityCertificate has at least 4 name components,
+   *        as it follows `<...>/KEY/<...>/<key-id>/ID-CERT/<version>` naming model.
    */
   template<typename Command>
   void
@@ -88,10 +93,15 @@ public:
         const IdentityCertificate& certificate,
         const time::milliseconds& timeout = getDefaultCommandTimeout())
   {
-    start<Command>(parameters, onSuccess, onFailure,
-      bind(static_cast<void(KeyChain::*)(Interest&,const Name&)>(&KeyChain::sign<Interest>),
-           &m_keyChain, _1, cref(certificate.getName())),
-      timeout);
+    if (certificate.getName().empty()) {
+      start<Command>(parameters, onSuccess, onFailure, timeout);
+    }
+    else {
+      start<Command>(parameters, onSuccess, onFailure,
+        bind(static_cast<void(KeyChain::*)(Interest&,const Name&)>(&KeyChain::sign<Interest>),
+             &m_keyChain, _1, cref(certificate.getName())),
+        timeout);
+    }
   }
 
   /** \brief start command execution

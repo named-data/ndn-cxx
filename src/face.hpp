@@ -251,6 +251,10 @@ public:
    *
    * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
    *         removeRegisteredPrefix
+   *
+   * @note IdentityCertificate() creates a certificate with an empty name, which is an invalid
+   *       certificate.  A valid IdentityCertificate has at least 4 name components, as it follows
+   *       `<...>/KEY/<...>/<key-id>/ID-CERT/<version>` naming model.
    */
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
@@ -280,6 +284,10 @@ public:
    *
    * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
    *         removeRegisteredPrefix
+   *
+   * @note IdentityCertificate() creates a certificate with an empty name, which is an invalid
+   *       certificate.  A valid IdentityCertificate has at least 4 name components, as it follows
+   *       `<...>/KEY/<...>/<key-id>/ID-CERT/<version>` naming model.
    */
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
@@ -375,6 +383,10 @@ public:
    * @param flags       (optional) RIB flags (not used when direct FIB management is requested)
    *
    * @return The registered prefix ID which can be used with unregisterPrefix
+   *
+   * @note IdentityCertificate() creates a certificate with an empty name, which is an invalid
+   *       certificate.  A valid IdentityCertificate has at least 4 name components, as it follows
+   *       `<...>/KEY/<...>/<key-id>/ID-CERT/<version>` naming model.
    */
   const RegisteredPrefixId*
   registerPrefix(const Name& prefix,
