@@ -270,8 +270,11 @@ public:
         (*i)->unregister(bind(&Impl::finalizeUnregisterPrefix, this, i, onSuccess),
                          bind(onFailure, _2));
       }
-    else
-      onFailure("Unrecognized PrefixId");
+    else {
+      if (static_cast<bool>(onFailure)) {
+        onFailure("Unrecognized PrefixId");
+      }
+    }
 
     // there cannot be two registered prefixes with the same id
   }
