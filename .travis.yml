@@ -8,9 +8,4 @@ notifications:
 before_install:
   - travis_retry sudo apt-get install -qq libboost1.48-all-dev libcrypto++-dev libsqlite3-dev
 script:
-  - ./waf configure --with-tests
-  - ./waf -j1
-  - sudo ./waf install
-  - sudo ldconfig
-  - #
-  - ./build/unit-tests -l test_suite
+  - ./.jenkins
