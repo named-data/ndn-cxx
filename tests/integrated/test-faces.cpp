@@ -26,7 +26,7 @@
 #include "boost-test.hpp"
 
 namespace ndn {
-
+namespace tests {
 
 class FacesFixture
 {
@@ -491,6 +491,8 @@ BOOST_FIXTURE_TEST_CASE(SetRegexFilterAndRegister, FacesFixture3)
   BOOST_CHECK_EQUAL(nInInterests, 2);
   BOOST_CHECK_EQUAL(nTimeouts, 4);
 }
+
 BOOST_AUTO_TEST_SUITE_END()
 
+} // tests
 } // namespace ndn

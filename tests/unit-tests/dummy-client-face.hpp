@@ -24,6 +24,9 @@
 
 #include "face.hpp"
 #include "transport/transport.hpp"
+#include "management/nfd-controller.hpp"
+#include "management/nfd-control-response.hpp"
+#include "util/event-emitter.hpp"
 
 namespace ndn {
 namespace tests {
@@ -57,10 +60,12 @@ public:
   send(const Block& wire)
   {
     if (wire.type() == tlv::Interest) {
-      m_sentInterests->push_back(Interest(wire));
+      shared_ptr<Interest> interest = make_shared<Interest>(wire);
+      (*m_onInterest)(*interest, this);
     }
     else if (wire.type() == tlv::Data) {
-      m_sentDatas->push_back(Data(wire));
+      shared_ptr<Data> data = make_shared<Data>(wire);
+      (*m_onData)(*data, this);
     }
   }
 
@@ -70,11 +75,44 @@ public:
     this->send(payload);
   }
 
-public:
-  std::vector<Interest>* m_sentInterests;
-  std::vector<Data>*     m_sentDatas;
+  boost::asio::io_service&
+  getIoService()
+  {
+    return *m_ioService;
+  }
+
+private:
+  friend class DummyClientFace;
+  util::EventEmitter<Interest, DummyClientTransport*>* m_onInterest;
+  util::EventEmitter<Data, DummyClientTransport*>* m_onData;
 };
 
+
+/** \brief Callback to connect
+ */
+inline void
+replyNfdRibCommands(const Interest& interest, DummyClientTransport* transport)
+{
+  static const Name localhostRegistration("/localhost/nfd/rib");
+  if (localhostRegistration.isPrefixOf(interest.getName())) {
+    shared_ptr<Data> okResponse = make_shared<Data>(interest.getName());
+    nfd::ControlParameters params(interest.getName().get(-5).blockFromValue());
+    params.setFaceId(1);
+    params.setOrigin(0);
+    if (interest.getName().get(3) == name::Component("register")) {
+      params.setCost(0);
+    }
+    nfd::ControlResponse resp;
+    resp.setCode(200);
+    resp.setBody(params.wireEncode());
+    okResponse->setContent(resp.wireEncode());
+    KeyChain keyChain;
+    keyChain.signWithSha256(*okResponse);
+
+    transport->getIoService().post(bind(&DummyClientTransport::receive, transport,
+                                        okResponse->wireEncode()));
+  }
+}
 
 /** \brief a client-side face for unit testing
  */
@@ -86,16 +124,20 @@ public:
     : Face(transport)
     , m_transport(transport)
   {
-    m_transport->m_sentInterests = &m_sentInterests;
-    m_transport->m_sentDatas     = &m_sentDatas;
+    m_transport->m_onInterest = &onInterest;
+    m_transport->m_onData     = &onData;
+
+    enablePacketLogging();
   }
 
   DummyClientFace(shared_ptr<DummyClientTransport> transport, boost::asio::io_service& ioService)
     : Face(transport, ioService)
     , m_transport(transport)
   {
-    m_transport->m_sentInterests = &m_sentInterests;
-    m_transport->m_sentDatas     = &m_sentDatas;
+    m_transport->m_onInterest = &onInterest;
+    m_transport->m_onData     = &onData;
+
+    enablePacketLogging();
   }
 
   /** \brief cause the Face to receive a packet
@@ -105,6 +147,26 @@ public:
   receive(const Packet& packet)
   {
     m_transport->receive(packet.wireEncode());
+  }
+
+  void
+  enablePacketLogging()
+  {
+    // @todo Replace with C++11 lambdas
+
+    onInterest += bind(static_cast<void(std::vector<Interest>::*)(const Interest&)>(
+                         &std::vector<Interest>::push_back),
+                       &m_sentInterests, _1);
+
+    onData += bind(static_cast<void(std::vector<Data>::*)(const Data&)>(
+                     &std::vector<Data>::push_back),
+                   &m_sentDatas, _1);
+  }
+
+  void
+  enableRegistrationReply()
+  {
+    onInterest += &replyNfdRibCommands;
   }
 
 public:
@@ -118,6 +180,19 @@ public:
    *        the Interest would show up here.
    */
   std::vector<Data>     m_sentDatas;
+
+public:
+  /** \brief Event to be called whenever an Interest is received
+   *  \note After .expressInterest, .processEvents must be called before
+   *        the Interest would show up here.
+   */
+  util::EventEmitter<Interest, DummyClientTransport*> onInterest;
+
+  /** \brief Event to be called whenever a Data packet is received
+   *  \note After .put, .processEvents must be called before
+   *        the Interest would show up here.
+   */
+  util::EventEmitter<Data, DummyClientTransport*> onData;
 
 private:
   shared_ptr<DummyClientTransport> m_transport;
@@ -134,6 +209,7 @@ makeDummyClientFace(boost::asio::io_service& ioService)
 {
   return make_shared<DummyClientFace>(make_shared<DummyClientTransport>(), ref(ioService));
 }
+
 
 } // namespace tests
 } // namespace ndn

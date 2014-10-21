@@ -29,7 +29,7 @@
 
 namespace ndn {
 
-class Transport
+class Transport : noncopyable
 {
 public:
   class Error : public std::runtime_error
