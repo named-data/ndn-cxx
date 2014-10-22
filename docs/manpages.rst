@@ -2,7 +2,7 @@ Manpages
 ========
 
 .. toctree::
-    manpages/client.conf
+    ndn-client.conf     <manpages/ndn-client.conf>
     manpages/ndnsec
     ndnsec-list         <manpages/ndnsec-list>
     ndnsec-get-default  <manpages/ndnsec-get-default>
