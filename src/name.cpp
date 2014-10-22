@@ -184,7 +184,7 @@ Name::appendVersion(uint64_t version)
 Name&
 Name::appendVersion()
 {
-  appendNumber(time::toUnixTimestamp(time::system_clock::now()).count());
+  appendVersion(time::toUnixTimestamp(time::system_clock::now()).count());
   return *this;
 }
 

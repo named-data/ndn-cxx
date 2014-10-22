@@ -229,6 +229,31 @@ BOOST_AUTO_TEST_CASE(GetSuccessor)
   BOOST_CHECK_EQUAL(Name().getSuccessor(), Name("ndn:/%00"));
 }
 
+BOOST_AUTO_TEST_CASE(Markers)
+{
+  Name name;
+  uint64_t number;
+
+  BOOST_REQUIRE_NO_THROW(number = name.appendSegment(30923).at(-1).toSegment());
+  BOOST_CHECK_EQUAL(number, 30923);
+
+  BOOST_REQUIRE_NO_THROW(number = name.appendSegmentOffset(589).at(-1).toSegmentOffset());
+  BOOST_CHECK_EQUAL(number, 589);
+
+  BOOST_REQUIRE_NO_THROW(number = name.appendVersion().at(-1).toVersion());
+
+  BOOST_REQUIRE_NO_THROW(number = name.appendVersion(25912).at(-1).toVersion());
+  BOOST_CHECK_EQUAL(number, 25912);
+
+  const time::system_clock::TimePoint tp = time::system_clock::now();
+  time::system_clock::TimePoint tp2;
+  BOOST_REQUIRE_NO_THROW(tp2 = name.appendTimestamp(tp).at(-1).toTimestamp());
+  BOOST_CHECK_LE(std::abs(time::duration_cast<time::microseconds>(tp2 - tp).count()), 1);
+
+  BOOST_REQUIRE_NO_THROW(number = name.appendSequenceNumber(11676).at(-1).toSequenceNumber());
+  BOOST_CHECK_EQUAL(number, 11676);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace ndn
