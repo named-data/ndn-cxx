@@ -142,18 +142,68 @@ Component::toUri() const
   return os.str();
 }
 
+
+bool
+Component::isNumber() const
+{
+  return (value_size() == 1 || value_size() == 2 ||
+          value_size() == 4 || value_size() == 8);
+}
+
+bool
+Component::isNumberWithMarker(uint8_t marker) const
+{
+  return (!empty() && value()[0] == marker &&
+          (value_size() == 2 || value_size() == 3 ||
+           value_size() == 5 || value_size() == 9));
+}
+
+bool
+Component::isVersion() const
+{
+  return isNumberWithMarker(VERSION_MARKER);
+}
+
+bool
+Component::isSegment() const
+{
+  return isNumberWithMarker(SEGMENT_MARKER);
+}
+
+bool
+Component::isSegmentOffset() const
+{
+  return isNumberWithMarker(SEGMENT_OFFSET_MARKER);
+}
+
+bool
+Component::isTimestamp() const
+{
+  return isNumberWithMarker(TIMESTAMP_MARKER);
+}
+
+bool
+Component::isSequenceNumber() const
+{
+  return isNumberWithMarker(SEQUENCE_NUMBER_MARKER);
+}
+
+
 uint64_t
 Component::toNumber() const
 {
-  /// \todo Check if Component is of tlv::NumberComponent type
+  if (!isNumber())
+    throw Error("Name component does not have nonNegativeInteger value");
+
   return readNonNegativeInteger(*this);
 }
 
 uint64_t
 Component::toNumberWithMarker(uint8_t marker) const
 {
-  if (empty() || value()[0] != marker)
-    throw Error("Name component does not have the requested marker");
+  if (!isNumberWithMarker(marker))
+    throw Error("Name component does not have the requested marker "
+                "or the value is not a nonNegativeInteger");
 
   Buffer::const_iterator valueBegin = value_begin() + 1;
   return tlv::readNonNegativeInteger(value_size() - 1, valueBegin, value_end());

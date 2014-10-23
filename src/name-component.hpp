@@ -255,6 +255,59 @@ public:
   std::string
   toUri() const;
 
+  ////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * @brief Check if the component is nonNegativeInteger
+   * @see http://named-data.net/doc/ndn-tlv/tlv.html#non-negative-integer-encoding
+   */
+  bool
+  isNumber() const;
+
+  /**
+   * @brief Check if the component is NameComponentWithMarker per NDN naming conventions
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   */
+  bool
+  isNumberWithMarker(uint8_t marker) const;
+
+  /**
+   * @brief Check if the component is version per NDN naming conventions
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   */
+  bool
+  isVersion() const;
+
+  /**
+   * @brief Check if the component is segment number per NDN naming conventions
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   */
+  bool
+  isSegment() const;
+
+  /**
+   * @brief Check if the component is segment offset per NDN naming conventions
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   */
+  bool
+  isSegmentOffset() const;
+
+  /**
+   * @brief Check if the component is timestamp per NDN naming conventions
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   */
+  bool
+  isTimestamp() const;
+
+  /**
+   * @brief Check if the component is sequence number per NDN naming conventions
+   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   */
+  bool
+  isSequenceNumber() const;
+
+  ////////////////////////////////////////////////////////////////////////////////
+
   /**
    * @brief Interpret this name component as nonNegativeInteger
    *
@@ -332,6 +385,8 @@ public:
    */
   uint64_t
   toSequenceNumber() const;
+
+  ////////////////////////////////////////////////////////////////////////////////
 
   /**
    * @brief Create a component encoded as nonNegativeInteger
