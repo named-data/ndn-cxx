@@ -27,11 +27,11 @@
 #include <iomanip>
 #include <fstream>
 
-const uint32_t TLV_DICT_SIZE = 30;
+namespace ndn {
 
-const std::string TLV_DICT[TLV_DICT_SIZE] = {
+const std::vector<std::string> TLV_DICT = {
   "RESERVED", //      = 0
-  "RESERVED", //      = 1
+  "ImplicitSha256DigestComponent", //      = 1
   "RESERVED", //      = 2
   "RESERVED", //      = 3
   "RESERVED", //      = 4
@@ -59,7 +59,7 @@ const std::string TLV_DICT[TLV_DICT_SIZE] = {
   "FinalBlockId" // = 26
   "SignatureType", // = 27,
   "KeyLocator", //    = 28,
-  "KeyLocatorDigest", // = 29
+  "KeyDigest" // = 29
 };
 
 void
@@ -67,16 +67,16 @@ printTypeInfo(uint32_t type)
 {
   std::cout << type << " (";
 
-  if (type < TLV_DICT_SIZE) {
+  if (type < TLV_DICT.size()) {
     std::cout << TLV_DICT[type];
   }
-  else if (TLV_DICT_SIZE <= type && type < 128) {
+  else if (TLV_DICT.size() <= type && type < tlv::AppPrivateBlock1) {
     std::cout << "RESERVED_1";
   }
-  else if (128 <= type && type < 253) {
+  else if (tlv::AppPrivateBlock1 <= type && type < 253) {
     std::cout << "APP_TAG_1";
   }
-  else if (253 <= type && type < 32767) {
+  else if (253 <= type && type < tlv::AppPrivateBlock2) {
     std::cout << "RESERVED_3";
   }
   else {
@@ -87,17 +87,17 @@ printTypeInfo(uint32_t type)
 
 
 void
-BlockPrinter(const ndn::Block& block, const std::string& indent = "")
+BlockPrinter(const Block& block, const std::string& indent = "")
 {
   std::cout << indent;
   printTypeInfo(block.type());
   std::cout << " (size: " << block.value_size() << ")";
 
   try {
-    // if (block.type() != ndn::tlv::Content && block.type() != ndn::tlv::SignatureValue)
+    // if (block.type() != tlv::Content && block.type() != tlv::SignatureValue)
     block.parse();
   }
-  catch (ndn::tlv::Error& e) {
+  catch (tlv::Error& e) {
     // pass (e.g., leaf block reached)
 
     // @todo: Figure how to deterministically figure out that value is not recursive TLV block
@@ -106,12 +106,12 @@ BlockPrinter(const ndn::Block& block, const std::string& indent = "")
   if (block.elements().empty())
     {
       std::cout << " [[";
-      ndn::name::Component(block.value(), block.value_size()).toUri(std::cout);
+      name::Component(block.value(), block.value_size()).toUri(std::cout);
       std::cout<< "]]";
     }
   std::cout << std::endl;
 
-  for (ndn::Block::element_const_iterator i = block.elements_begin();
+  for (Block::element_const_iterator i = block.elements_begin();
        i != block.elements_end();
        ++i)
     {
@@ -120,10 +120,10 @@ BlockPrinter(const ndn::Block& block, const std::string& indent = "")
 }
 
 void
-HexPrinter(const ndn::Block& block, const std::string& indent = "")
+HexPrinter(const Block& block, const std::string& indent = "")
 {
   std::cout << indent;
-  for (ndn::Buffer::const_iterator i = block.begin (); i != block.value_begin(); ++i)
+  for (Buffer::const_iterator i = block.begin (); i != block.value_begin(); ++i)
     {
       std::cout << "0x";
       std::cout << std::noshowbase << std::hex << std::setw(2) <<
@@ -135,7 +135,7 @@ HexPrinter(const ndn::Block& block, const std::string& indent = "")
   if (block.elements_size() == 0 && block.value_size() > 0)
     {
       std::cout << indent << "    ";
-      for (ndn::Buffer::const_iterator i = block.value_begin (); i != block.value_end(); ++i)
+      for (Buffer::const_iterator i = block.value_begin (); i != block.value_end(); ++i)
       {
         std::cout << "0x";
         std::cout << std::noshowbase << std::hex << std::setw(2) <<
@@ -146,7 +146,7 @@ HexPrinter(const ndn::Block& block, const std::string& indent = "")
     }
   else
     {
-      for (ndn::Block::element_const_iterator i = block.elements_begin();
+      for (Block::element_const_iterator i = block.elements_begin();
            i != block.elements_end();
            ++i)
         {
@@ -160,7 +160,7 @@ parseBlocksFromStream(std::istream& is)
 {
   while (is.peek() != std::char_traits<char>::eof()) {
     try {
-      ndn::Block block = ndn::Block::fromStream(is);
+      Block block = Block::fromStream(is);
       BlockPrinter(block, "");
       // HexPrinter(block, "");
     }
@@ -171,17 +171,19 @@ parseBlocksFromStream(std::istream& is)
 
 }
 
+} // namespace ndn
+
 int main(int argc, const char *argv[])
 {
   if (argc == 1 ||
       (argc == 2 && std::string(argv[1]) == "-"))
     {
-      parseBlocksFromStream(std::cin);
+      ndn::parseBlocksFromStream(std::cin);
     }
   else
     {
       std::ifstream file(argv[1]);
-      parseBlocksFromStream(file);
+      ndn::parseBlocksFromStream(file);
     }
 
   return 0;

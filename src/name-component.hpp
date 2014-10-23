@@ -463,6 +463,34 @@ public:
   static Component
   fromSequenceNumber(uint64_t seqNo);
 
+  ////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * @brief Check if the component is GenericComponent
+   */
+  bool
+  isGeneric() const;
+
+  /**
+   * @brief Check if the component is ImplicitSha256DigestComponent
+   */
+  bool
+  isImplicitSha256Digest() const;
+
+  /**
+   * @brief Create ImplicitSha256DigestComponent component
+   */
+  static Component
+  fromImplicitSha256Digest(const ConstBufferPtr& digest);
+
+  /**
+   * @brief Create ImplicitSha256DigestComponent component
+   */
+  static Component
+  fromImplicitSha256Digest(const uint8_t* digest, size_t digestSize);
+
+  ////////////////////////////////////////////////////////////////////////////////
+
   bool
   empty() const
   {

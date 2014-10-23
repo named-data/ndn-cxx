@@ -334,6 +334,18 @@ public:
   appendSequenceNumber(uint64_t seqNo);
 
   /**
+   * @brief Append ImplicitSha256Digest
+   */
+  Name&
+  appendImplicitSha256Digest(const ConstBufferPtr& digest);
+
+  /**
+   * @brief Append ImplicitSha256Digest
+   */
+  Name&
+  appendImplicitSha256Digest(const uint8_t* digest, size_t digestSize);
+
+  /**
    * @brief Get the successor of a name
    *
    * The successor of a name is defined as follows:

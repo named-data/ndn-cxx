@@ -28,7 +28,11 @@
 #include "encoding/block-helpers.hpp"
 #include "encoding/encoding-buffer.hpp"
 #include "util/string-helper.hpp"
+#include "security/cryptopp.hpp"
+#include "util/crypto.hpp"
 #include "util/concepts.hpp"
+
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace name {
@@ -39,6 +43,13 @@ BOOST_CONCEPT_ASSERT((WireDecodable<Component>));
 static_assert(std::is_base_of<tlv::Error, Component::Error>::value,
               "name::Component::Error must inherit from tlv::Error");
 
+static const std::string&
+getSha256DigestUriPrefix()
+{
+  static const std::string prefix { "sha256digest=" };
+  return prefix;
+}
+
 Component::Component()
   : Block(tlv::NameComponent)
 {
@@ -47,8 +58,9 @@ Component::Component()
 Component::Component(const Block& wire)
   : Block(wire)
 {
-  if (type() != tlv::NameComponent)
-    throw Error("Cannot construct name::Component from not a NameComponent TLV wire block");
+  if (type() != tlv::NameComponent && type() != tlv::ImplicitSha256DigestComponent)
+    throw Error("Cannot construct name::Component from not a NameComponent "
+                "or ImplicitSha256DigestComponent TLV wire block");
 }
 
 Component::Component(const ConstBufferPtr& buffer)
@@ -82,62 +94,93 @@ Component::fromEscapedString(const char* escapedString, size_t beginOffset, size
 {
   std::string trimmedString(escapedString + beginOffset, escapedString + endOffset);
   trim(trimmedString);
-  std::string value = unescape(trimmedString);
 
-  if (value.find_first_not_of(".") == std::string::npos) {
-    // Special case for component of only periods.
-    if (value.size() <= 2)
-      // Zero, one or two periods is illegal.  Ignore this component.
-      throw Error("Illegal URI (name component cannot be . or ..)");
-    else
-      // Remove 3 periods.
-      return Component(reinterpret_cast<const uint8_t*>(&value[3]), value.size() - 3);
+  if (trimmedString.compare(0, getSha256DigestUriPrefix().size(),
+                            getSha256DigestUriPrefix()) == 0) {
+    if (trimmedString.size() != getSha256DigestUriPrefix().size() + crypto::SHA256_DIGEST_SIZE * 2)
+      throw Error("Cannot convert to ImplicitSha256DigestComponent"
+                  "(expected sha256 in hex encoding)");
+
+    try {
+      std::string value;
+      CryptoPP::StringSource(reinterpret_cast<const uint8_t*>(trimmedString.c_str()) +
+                               getSha256DigestUriPrefix().size(),
+                             trimmedString.size () - getSha256DigestUriPrefix().size(), true,
+                             new CryptoPP::HexDecoder(new CryptoPP::StringSink(value)));
+
+      return fromImplicitSha256Digest(reinterpret_cast<const uint8_t*>(value.c_str()),
+                                      value.size());
+    }
+    catch (CryptoPP::Exception& e) {
+      throw Error("Cannot convert to a ImplicitSha256DigestComponent (invalid hex encoding)");
+    }
   }
-  else
-    return Component(reinterpret_cast<const uint8_t*>(&value[0]), value.size());
+  else {
+    std::string value = unescape(trimmedString);
+
+    if (value.find_first_not_of(".") == std::string::npos) {
+      // Special case for component of only periods.
+      if (value.size() <= 2)
+        // Zero, one or two periods is illegal.  Ignore this component.
+        throw Error("Illegal URI (name component cannot be . or ..)");
+      else
+        // Remove 3 periods.
+        return Component(reinterpret_cast<const uint8_t*>(&value[3]), value.size() - 3);
+    }
+    else
+      return Component(reinterpret_cast<const uint8_t*>(&value[0]), value.size());
+  }
 }
 
 
 void
 Component::toUri(std::ostream& result) const
 {
-  const uint8_t* value = this->value();
-  size_t valueSize = value_size();
+  if (type() == tlv::ImplicitSha256DigestComponent) {
+    result << getSha256DigestUriPrefix();
 
-  bool gotNonDot = false;
-  for (size_t i = 0; i < valueSize; ++i) {
-    if (value[i] != 0x2e) {
-      gotNonDot = true;
-      break;
-    }
-  }
-  if (!gotNonDot) {
-    // Special case for component of zero or more periods.  Add 3 periods.
-    result << "...";
-    for (size_t i = 0; i < valueSize; ++i)
-      result << '.';
+    CryptoPP::StringSource(value(), value_size(), true,
+                           new CryptoPP::HexEncoder(new CryptoPP::FileSink(result), false));
   }
   else {
-    // In case we need to escape, set to upper case hex and save the previous flags.
-    std::ios::fmtflags saveFlags = result.flags(std::ios::hex | std::ios::uppercase);
+    const uint8_t* value = this->value();
+    size_t valueSize = value_size();
 
+    bool gotNonDot = false;
     for (size_t i = 0; i < valueSize; ++i) {
-      uint8_t x = value[i];
-      // Check for 0-9, A-Z, a-z, (+), (-), (.), (_)
-      if ((x >= 0x30 && x <= 0x39) || (x >= 0x41 && x <= 0x5a) ||
-          (x >= 0x61 && x <= 0x7a) || x == 0x2b || x == 0x2d ||
-          x == 0x2e || x == 0x5f)
-        result << x;
-      else {
-        result << '%';
-        if (x < 16)
-          result << '0';
-        result << static_cast<uint32_t>(x);
+      if (value[i] != 0x2e) {
+        gotNonDot = true;
+        break;
       }
     }
+    if (!gotNonDot) {
+      // Special case for component of zero or more periods.  Add 3 periods.
+      result << "...";
+      for (size_t i = 0; i < valueSize; ++i)
+        result << '.';
+    }
+    else {
+      // In case we need to escape, set to upper case hex and save the previous flags.
+      std::ios::fmtflags saveFlags = result.flags(std::ios::hex | std::ios::uppercase);
 
-    // Restore.
-    result.flags(saveFlags);
+      for (size_t i = 0; i < valueSize; ++i) {
+        uint8_t x = value[i];
+        // Check for 0-9, A-Z, a-z, (+), (-), (.), (_)
+        if ((x >= 0x30 && x <= 0x39) || (x >= 0x41 && x <= 0x5a) ||
+            (x >= 0x61 && x <= 0x7a) || x == 0x2b || x == 0x2d ||
+            x == 0x2e || x == 0x5f)
+          result << x;
+        else {
+          result << '%';
+          if (x < 16)
+            result << '0';
+          result << static_cast<uint32_t>(x);
+        }
+      }
+
+      // Restore.
+      result.flags(saveFlags);
+    }
   }
 }
 
@@ -149,6 +192,7 @@ Component::toUri() const
   return os.str();
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 bool
 Component::isNumber() const
@@ -195,6 +239,7 @@ Component::isSequenceNumber() const
   return isNumberWithMarker(SEQUENCE_NUMBER_MARKER);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 uint64_t
 Component::toNumber() const
@@ -247,11 +292,11 @@ Component::toSequenceNumber() const
   return toNumberWithMarker(SEQUENCE_NUMBER_MARKER);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 Component
 Component::fromNumber(uint64_t number)
 {
-  /// \todo Change to tlv::NumberComponent
   return nonNegativeIntegerBlock(tlv::NameComponent, number);
 }
 
@@ -307,11 +352,52 @@ Component::fromSequenceNumber(uint64_t seqNo)
   return fromNumberWithMarker(SEQUENCE_NUMBER_MARKER, seqNo);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+bool
+Component::isGeneric() const
+{
+  return (type() == tlv::NameComponent);
+}
+
+bool
+Component::isImplicitSha256Digest() const
+{
+  return (type() == tlv::ImplicitSha256DigestComponent &&
+          value_size() == crypto::SHA256_DIGEST_SIZE);
+}
+
+Component
+Component::fromImplicitSha256Digest(const ConstBufferPtr& digest)
+{
+  if (digest->size() != crypto::SHA256_DIGEST_SIZE)
+    throw Error("Cannot create ImplicitSha256DigestComponent (input digest must be " +
+                boost::lexical_cast<std::string>(crypto::SHA256_DIGEST_SIZE) + " octets)");
+
+  return Block(tlv::ImplicitSha256DigestComponent, digest);
+}
+
+Component
+Component::fromImplicitSha256Digest(const uint8_t* digest, size_t digestSize)
+{
+  if (digestSize != crypto::SHA256_DIGEST_SIZE)
+    throw Error("Cannot create ImplicitSha256DigestComponent (input digest must be " +
+                boost::lexical_cast<std::string>(crypto::SHA256_DIGEST_SIZE) + " octets)");
+
+  return dataBlock(tlv::ImplicitSha256DigestComponent, digest, digestSize);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 int
 Component::compare(const Component& other) const
 {
   // Imitate ndn_Exclude_compareComponents.
-  if (value_size() < other.value_size())
+  if (type() < other.type())
+    return -1;
+  else if (type() > other.type())
+    return 1;
+  else if (value_size() < other.value_size())
     return -1;
   if (value_size() > other.value_size())
     return 1;
@@ -346,7 +432,7 @@ Component::getSuccessor() const
   }
 
   totalLength += encoder.prependVarNumber(totalLength);
-  totalLength += encoder.prependVarNumber(tlv::NameComponent);
+  totalLength += encoder.prependVarNumber(type());
 
   return encoder.block();
 }
@@ -360,7 +446,7 @@ Component::wireEncode(EncodingImpl<T>& block) const
   if (value_size() > 0)
     totalLength += block.prependByteArray(value(), value_size());
   totalLength += block.prependVarNumber(value_size());
-  totalLength += block.prependVarNumber(tlv::NameComponent);
+  totalLength += block.prependVarNumber(type());
   return totalLength;
 }
 
@@ -389,8 +475,9 @@ Component::wireEncode() const
 void
 Component::wireDecode(const Block& wire)
 {
-  if (wire.type() != tlv::NameComponent)
-    throw Error("name::Component::wireDecode called on not a NameComponent TLV wire block");
+  if (wire.type() != tlv::NameComponent || wire.type() != tlv::ImplicitSha256DigestComponent)
+    throw Error("name::Component::wireDecode called on not a NameComponent "
+                "or ImplicitSha256DigestComponent TLV wire block");
 
   *this = wire;
 }

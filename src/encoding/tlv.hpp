@@ -61,6 +61,7 @@ enum {
   Interest      = 5,
   Data          = 6,
   Name          = 7,
+  ImplicitSha256DigestComponent = 1,
   NameComponent = 8,
   Selectors     = 9,
   Nonce         = 10,

@@ -225,6 +225,19 @@ Name::appendSequenceNumber(uint64_t seqNo)
   return *this;
 }
 
+Name&
+Name::appendImplicitSha256Digest(const ConstBufferPtr& digest)
+{
+  m_nameBlock.push_back(Component::fromImplicitSha256Digest(digest));
+  return *this;
+}
+
+Name&
+Name::appendImplicitSha256Digest(const uint8_t* digest, size_t digestSize)
+{
+  m_nameBlock.push_back(Component::fromImplicitSha256Digest(digest, digestSize));
+  return *this;
+}
 
 Name
 Name::getSubName(size_t iStartComponent, size_t nComponents) const

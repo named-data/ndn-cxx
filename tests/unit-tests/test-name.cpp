@@ -223,6 +223,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(NamingConventions, T, ConventionsDatasets, T)
     const Name& expected = it->template get<3>();
     BOOST_TEST_MESSAGE("Check " << expected[0].toUri());
 
+    BOOST_CHECK_EQUAL(expected[0].isGeneric(), true);
+
     name::Component actualComponent = it->template get<0>()(it->template get<4>());
     BOOST_CHECK_EQUAL(actualComponent, expected[0]);
 
@@ -288,6 +290,58 @@ BOOST_AUTO_TEST_CASE(UnorderedMap)
   BOOST_CHECK_EQUAL(map[name1], 1);
   BOOST_CHECK_EQUAL(map[name2], 2);
   BOOST_CHECK_EQUAL(map[name3], 3);
+}
+
+BOOST_AUTO_TEST_CASE(ImplictSha256Digest)
+{
+  Name n;
+
+  static const uint8_t DIGEST[] = { 0x28, 0xba, 0xd4, 0xb5, 0x27, 0x5b, 0xd3, 0x92,
+                                    0xdb, 0xb6, 0x70, 0xc7, 0x5c, 0xf0, 0xb6, 0x6f,
+                                    0x13, 0xf7, 0x94, 0x2b, 0x21, 0xe8, 0x0f, 0x55,
+                                    0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x48 };
+
+  BOOST_REQUIRE_NO_THROW(n.appendImplicitSha256Digest(DIGEST, 32));
+  BOOST_REQUIRE_NO_THROW(n.appendImplicitSha256Digest(make_shared<Buffer>(DIGEST, 32)));
+  BOOST_CHECK_EQUAL(n.get(0), n.get(1));
+
+  BOOST_REQUIRE_THROW(n.appendImplicitSha256Digest(DIGEST, 34), name::Component::Error);
+  BOOST_REQUIRE_THROW(n.appendImplicitSha256Digest(DIGEST, 30), name::Component::Error);
+
+  n.append(DIGEST, 32);
+  BOOST_CHECK_LT(n.get(0), n.get(2));
+  BOOST_CHECK_EQUAL_COLLECTIONS(n.get(0).value_begin(), n.get(0).value_end(),
+                                n.get(2).value_begin(), n.get(2).value_end());
+
+  n.append(DIGEST + 1, 32);
+  BOOST_CHECK_LT(n.get(0), n.get(3));
+
+  n.append(DIGEST + 2, 32);
+  BOOST_CHECK_LT(n.get(0), n.get(4));
+
+  BOOST_CHECK_EQUAL(n.get(0).toUri(), "sha256digest="
+                    "28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548");
+
+  BOOST_CHECK_EQUAL(n.get(0).isImplicitSha256Digest(), true);
+  BOOST_CHECK_EQUAL(n.get(2).isImplicitSha256Digest(), false);
+
+  BOOST_CHECK_THROW(Name("/hello/sha256digest=hmm"), name::Component::Error);
+
+  Name n2;
+  // check canonical URI encoding (lower case)
+  BOOST_CHECK_NO_THROW(n2 = Name("/hello/sha256digest="
+                              "28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548"));
+  BOOST_CHECK_EQUAL(n.get(0), n2.get(1));
+
+  // will accept hex value in upper case too
+  BOOST_CHECK_NO_THROW(n2 = Name("/hello/sha256digest="
+                              "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548"));
+  BOOST_CHECK_EQUAL(n.get(0), n2.get(1));
+
+  // this is not valid sha256digest component, will be treated as generic component
+  BOOST_CHECK_NO_THROW(n2 = Name("/hello/SHA256DIGEST="
+                              "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548"));
+  BOOST_CHECK_NE(n.get(0), n2.get(1));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
