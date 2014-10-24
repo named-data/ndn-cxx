@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -x
+set -e
 
 IS_COVR=$( python -c "print 'yes' if 'code-coverage' in '$JOB_NAME' else 'no'" )
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -x
+set -e
 
 # Cleanup
 sudo ./waf distclean -j1 --color=yes
