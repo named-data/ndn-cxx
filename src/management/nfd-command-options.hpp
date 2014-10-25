@@ -1,0 +1,166 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
+/**
+ * Copyright (c) 2013-2014 Regents of the University of California.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ *
+ * ndn-cxx library is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * ndn-cxx library is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ *
+ * You should have received copies of the GNU General Public License and GNU Lesser
+ * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ */
+
+#ifndef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_HPP
+#define NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_HPP
+
+#include "../security/identity-certificate.hpp"
+
+namespace ndn {
+namespace nfd {
+
+/** \ingroup management
+ *  \brief contains options for ControlCommand execution
+ *  \note This type is intentionally copyable
+ */
+class CommandOptions
+{
+public:
+  CommandOptions();
+
+  /** \return command timeout
+   */
+  const time::milliseconds&
+  getTimeout() const
+  {
+    return m_timeout;
+  }
+
+  /** \brief sets command timeout
+   *  \param timeout the new command timeout, must be positive
+   *  \throw std::out_of_range if timeout is non-positive
+   *  \return self
+   */
+  CommandOptions&
+  setTimeout(const time::milliseconds& timeout);
+
+  /** \return command prefix
+   */
+  const Name&
+  getPrefix() const
+  {
+    return m_prefix;
+  }
+
+  /** \brief sets command prefix
+   *  \return self
+   */
+  CommandOptions&
+  setPrefix(const Name& prefix);
+
+public: // signing parameters
+  /** \brief indicates the selection of signing parameters
+   */
+  enum SigningParamsKind {
+    /** \brief picks the default signing identity and certificate
+     */
+    SIGNING_PARAMS_DEFAULT,
+    /** \brief picks the default certificate of a specific identity Name
+     */
+    SIGNING_PARAMS_IDENTITY,
+    /** \brief picks a specific identity certificate
+     */
+    SIGNING_PARAMS_CERTIFICATE
+  };
+
+  /** \return selection of signing parameters
+   */
+  SigningParamsKind
+  getSigningParamsKind() const
+  {
+    return m_signingParamsKind;
+  }
+
+  /** \return identity Name
+   *  \pre getSigningParamsKind() == SIGNING_PARAMS_IDENTITY
+   */
+  const Name&
+  getSigningIdentity() const
+  {
+    BOOST_ASSERT(m_signingParamsKind == SIGNING_PARAMS_IDENTITY);
+    return m_identity;
+  }
+
+  /** \return certificate Name
+   *  \pre getSigningParamsKind() == SIGNING_PARAMS_CERTIFICATE
+   */
+  const Name&
+  getSigningCertificate() const
+  {
+    BOOST_ASSERT(m_signingParamsKind == SIGNING_PARAMS_CERTIFICATE);
+    return m_identity;
+  }
+
+  /** \brief chooses to use default identity and certificate
+   *  \post getSigningParamsKind() == SIGNING_PARAMS_DEFAULT
+   *  \return self
+   */
+  CommandOptions&
+  setSigningDefault()
+  {
+    m_signingParamsKind = SIGNING_PARAMS_DEFAULT;
+    return *this;
+  }
+
+  /** \brief chooses to use a specific identity and its default certificate
+   *  \post getSigningParamsKind() == SIGNING_PARAMS_IDENTITY
+   *  \post getIdentityName() == identityName
+   *  \return self
+   */
+  CommandOptions&
+  setSigningIdentity(const Name& identityName);
+
+  /** \brief chooses to use a specific identity certificate
+   *  \param certificateName identity certificate Name
+   *  \throw std::invalid_argument if certificateName is invalid
+   *  \post getSigningParamsKind() == SIGNING_PARAMS_CERTIFICATE
+   *  \post getIdentityCertificate() is a copy of certificate
+   *  \return self
+   */
+  CommandOptions&
+  setSigningCertificate(const Name& certificateName);
+
+  /** \brief chooses to use a specific identity certificate
+   *  \details This is equivalent to .setIdentityCertificate(certificate.getName())
+   */
+  CommandOptions&
+  setSigningCertificate(const IdentityCertificate& certificate);
+
+public:
+  /** \brief gives the default command timeout: 10000ms
+   */
+  static const time::milliseconds DEFAULT_TIMEOUT;
+
+  /** \brief gives the default command prefix: ndn:/localhost/nfd
+   */
+  static const Name DEFAULT_PREFIX;
+
+private:
+  time::milliseconds m_timeout;
+  Name m_prefix;
+  SigningParamsKind m_signingParamsKind;
+  Name m_identity; // identityName or certificateName
+};
+
+} // namespace nfd
+} // namespace ndn
+
+#endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_HPP
