@@ -76,7 +76,7 @@ protected:
 BOOST_FIXTURE_TEST_CASE(CommandSuccess, CommandFixture)
 {
   ControlParameters parameters;
-  parameters.setUri("tcp://example.com");
+  parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
                        parameters,
@@ -88,8 +88,8 @@ BOOST_FIXTURE_TEST_CASE(CommandSuccess, CommandFixture)
   const Interest& requestInterest = face->m_sentInterests[0];
 
   FaceCreateCommand command;
-  BOOST_CHECK(command.getPrefix().isPrefixOf(requestInterest.getName()));
-  // 9 components: ndn:/localhost/nfd/face/create/<parameters>/<signed Interest x4>
+  BOOST_CHECK(Name("/localhost/nfd/faces/create").isPrefixOf(requestInterest.getName()));
+  // 9 components: ndn:/localhost/nfd/faces/create/<parameters>/<signed Interest x4>
   BOOST_REQUIRE_EQUAL(requestInterest.getName().size(), 9);
   ControlParameters request;
   // 4th component: <parameters>
@@ -133,7 +133,7 @@ BOOST_FIXTURE_TEST_CASE(CommandInvalidRequest, CommandFixture)
 BOOST_FIXTURE_TEST_CASE(CommandErrorCode, CommandFixture)
 {
   ControlParameters parameters;
-  parameters.setUri("tcp://example.com");
+  parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
                          parameters,
@@ -160,7 +160,7 @@ BOOST_FIXTURE_TEST_CASE(CommandErrorCode, CommandFixture)
 BOOST_FIXTURE_TEST_CASE(CommandInvalidResponse, CommandFixture)
 {
   ControlParameters parameters;
-  parameters.setUri("tcp://example.com");
+  parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
                          parameters,
@@ -186,6 +186,49 @@ BOOST_FIXTURE_TEST_CASE(CommandInvalidResponse, CommandFixture)
 
   BOOST_CHECK_EQUAL(commandSucceedHistory.size(), 0);
   BOOST_REQUIRE_EQUAL(commandFailHistory.size(), 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(OptionsPrefix, CommandFixture)
+{
+  ControlParameters parameters;
+  parameters.setName("/ndn/com/example");
+  parameters.setFaceId(400);
+
+  CommandOptions options;
+  options.setPrefix("/localhop/net/example/router1/nfd");
+
+  BOOST_CHECK_NO_THROW(controller.start<RibRegisterCommand>(
+                       parameters,
+                       commandSucceedCallback,
+                       commandFailCallback,
+                       options));
+  face->processEvents(time::milliseconds(1));
+
+  BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 1);
+  const Interest& requestInterest = face->m_sentInterests[0];
+
+  FaceCreateCommand command;
+  BOOST_CHECK(Name("/localhop/net/example/router1/nfd/rib/register").isPrefixOf(
+              requestInterest.getName()));
+}
+
+BOOST_FIXTURE_TEST_CASE(OptionsTimeout, CommandFixture)
+{
+  ControlParameters parameters;
+  parameters.setUri("tcp4://192.0.2.1:6363");
+
+  CommandOptions options;
+  options.setTimeout(time::milliseconds(50));
+
+  BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
+                       parameters,
+                       commandSucceedCallback,
+                       commandFailCallback,
+                       options));
+  face->processEvents(time::milliseconds(300));
+
+  BOOST_REQUIRE_EQUAL(commandFailHistory.size(), 1);
+  BOOST_CHECK_EQUAL(commandFailHistory[0].get<0>(), Controller::ERROR_TIMEOUT);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

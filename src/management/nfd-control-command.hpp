@@ -47,16 +47,8 @@ public:
     }
   };
 
-  /** \return Name prefix of this ControlCommand
-   */
-  const Name&
-  getPrefix() const
-  {
-    return m_prefix;
-  }
-
   /** \brief validate request parameters
-   *  \throw ArgumentError
+   *  \throw ArgumentError if parameters are invalid
    */
   virtual void
   validateRequest(const ControlParameters& parameters) const;
@@ -67,7 +59,7 @@ public:
   applyDefaultsToRequest(ControlParameters& parameters) const;
 
   /** \brief validate response parameters
-   *  \throw ArgumentError
+   *  \throw ArgumentError if parameters are invalid
    */
   virtual void
   validateResponse(const ControlParameters& parameters) const;
@@ -78,6 +70,21 @@ public:
   applyDefaultsToResponse(ControlParameters& parameters) const;
 
   /** \brief construct the Name for a request Interest
+   *  \throw ArgumentError if parameters are invalid
+   */
+  Name
+  getRequestName(const Name& commandPrefix, const ControlParameters& parameters) const;
+
+public: // deprecated
+  /** \return Name prefix of this ControlCommand
+   *  \deprecated use getRequestName
+   */
+  const Name&
+  getPrefix() const;
+
+  /** \brief construct the Name for a request Interest
+   *  \throw ArgumentError if parameters are invalid
+   *  \deprecated use the two-argument overload
    */
   Name
   getRequestName(const ControlParameters& parameters) const;
@@ -133,7 +140,12 @@ protected:
   FieldValidator m_responseValidator;
 
 private:
-  Name m_prefix;
+  name::Component m_module;
+  name::Component m_verb;
+
+  /** \deprecated kept to support getPrefix
+   */
+  mutable Name m_prefix;
 };
 
 

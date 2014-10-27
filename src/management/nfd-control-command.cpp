@@ -20,14 +20,15 @@
  */
 
 #include "nfd-control-command.hpp"
+#include "nfd-command-options.hpp" // only used in deprecated functions
 
 namespace ndn {
 namespace nfd {
 
 ControlCommand::ControlCommand(const std::string& module, const std::string& verb)
-  : m_prefix("ndn:/localhost/nfd")
+  : m_module(module)
+  , m_verb(verb)
 {
-  m_prefix.append(module).append(verb);
 }
 
 void
@@ -53,13 +54,33 @@ ControlCommand::applyDefaultsToResponse(ControlParameters& parameters) const
 }
 
 Name
-ControlCommand::getRequestName(const ControlParameters& parameters) const
+ControlCommand::getRequestName(const Name& commandPrefix,
+                               const ControlParameters& parameters) const
 {
   this->validateRequest(parameters);
 
-  Name name = m_prefix;
+  Name name = commandPrefix;
+  name.append(m_module).append(m_verb);
   name.append(parameters.wireEncode());
   return name;
+}
+
+const Name&
+ControlCommand::getPrefix() const
+{
+  // m_prefix is needed because we can't return a local variable as a reference,
+  // and changing the "const Name&" return type to "Name" may cause incompatibility
+  if (m_prefix.empty()) {
+    m_prefix.append(CommandOptions::DEFAULT_PREFIX);
+    m_prefix.append(m_module).append(m_verb);
+  }
+  return m_prefix;
+}
+
+Name
+ControlCommand::getRequestName(const ControlParameters& parameters) const
+{
+  return this->getRequestName(CommandOptions::DEFAULT_PREFIX, parameters);
 }
 
 ControlCommand::FieldValidator::FieldValidator()

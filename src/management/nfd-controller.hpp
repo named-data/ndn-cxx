@@ -25,6 +25,7 @@
 #include "nfd-control-command.hpp"
 #include "../face.hpp"
 #include "../security/key-chain.hpp"
+#include "nfd-command-options.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -49,6 +50,7 @@ public:
   typedef function<void(uint32_t/*code*/,const std::string&/*reason*/)> CommandFailCallback;
 
   /** \brief a function to sign the request Interest
+   *  \deprecated arbitrary signing function is no longer supported
    */
   typedef function<void(Interest&)> Sign;
 
@@ -70,11 +72,26 @@ public:
   start(const ControlParameters& parameters,
         const CommandSucceedCallback& onSuccess,
         const CommandFailCallback& onFailure,
-        const time::milliseconds& timeout = getDefaultCommandTimeout())
+        const CommandOptions& options = CommandOptions())
   {
-    start<Command>(parameters, onSuccess, onFailure,
-                   bind(&KeyChain::sign<Interest>, &m_keyChain, _1),
-                   timeout);
+    shared_ptr<ControlCommand> command = make_shared<Command>();
+    this->startCommand(command, parameters, onSuccess, onFailure, options);
+  }
+
+  /** \brief start command execution
+   *  \deprecated use the overload taking CommandOptions
+   */
+  template<typename Command>
+  void
+  start(const ControlParameters& parameters,
+        const CommandSucceedCallback& onSuccess,
+        const CommandFailCallback& onFailure,
+        const time::milliseconds& timeout)
+  {
+    CommandOptions options;
+    options.setTimeout(timeout);
+
+    this->start<Command>(parameters, onSuccess, onFailure, options);
   }
 
   /** \brief start command execution
@@ -84,6 +101,8 @@ public:
    *  \note IdentityCertificate() creates a certificate with an empty name, which is an
    *        invalid certificate.  A valid IdentityCertificate has at least 4 name components,
    *        as it follows `<...>/KEY/<...>/<key-id>/ID-CERT/<version>` naming model.
+   *
+   *  \deprecated use the overload taking CommandOptions
    */
   template<typename Command>
   void
@@ -93,19 +112,21 @@ public:
         const IdentityCertificate& certificate,
         const time::milliseconds& timeout = getDefaultCommandTimeout())
   {
+    CommandOptions options;
     if (certificate.getName().empty()) {
-      start<Command>(parameters, onSuccess, onFailure, timeout);
+      options.setSigningDefault();
     }
     else {
-      start<Command>(parameters, onSuccess, onFailure,
-        bind(static_cast<void(KeyChain::*)(Interest&,const Name&)>(&KeyChain::sign<Interest>),
-             &m_keyChain, _1, cref(certificate.getName())),
-        timeout);
+      options.setSigningCertificate(certificate);
     }
+    options.setTimeout(timeout);
+
+    this->start<Command>(parameters, onSuccess, onFailure, options);
   }
 
   /** \brief start command execution
    *  \param identity the identity used to sign request Interests
+   *  \deprecated use the overload taking CommandOptions
    */
   template<typename Command>
   void
@@ -115,13 +136,16 @@ public:
         const Name& identity,
         const time::milliseconds& timeout = getDefaultCommandTimeout())
   {
-    start<Command>(parameters, onSuccess, onFailure,
-                   bind(&KeyChain::signByIdentity<Interest>, &m_keyChain, _1, cref(identity)),
-                   timeout);
+    CommandOptions options;
+    options.setSigningIdentity(identity);
+    options.setTimeout(timeout);
+
+    this->start<Command>(parameters, onSuccess, onFailure, options);
   }
 
   /** \brief start command execution
    *  \param sign a function to sign request Interests
+   *  \deprecated arbitrary signing function is no longer supported
    */
   template<typename Command>
   void
@@ -141,6 +165,15 @@ private:
                const ControlParameters& parameters,
                const CommandSucceedCallback& onSuccess,
                const CommandFailCallback& onFailure,
+               const CommandOptions& options);
+
+  /** \deprecated This is to support arbitrary signing function.
+   */
+  void
+  startCommand(const shared_ptr<ControlCommand>& command,
+               const ControlParameters& parameters,
+               const CommandSucceedCallback& onSuccess,
+               const CommandFailCallback& onFailure,
                const Sign& sign,
                const time::milliseconds& timeout);
 
@@ -151,11 +184,27 @@ private:
                          const CommandFailCallback& onFailure);
 
 public:
+  /** \deprecated use CommandOptions::DEFAULT_TIMEOUT
+   */
   static time::milliseconds
   getDefaultCommandTimeout()
   {
     return time::milliseconds(10000);
   }
+
+public:
+  /** \brief error code for timeout
+   *  \note comes from http://msdn.microsoft.com/en-us/library/windows/desktop/ms740668.aspx
+   */
+  static const uint32_t ERROR_TIMEOUT;
+
+  /** \brief error code for server error
+   */
+  static const uint32_t ERROR_SERVER;
+
+  /** \brief inclusive lower bound of error codes
+   */
+  static const uint32_t ERROR_LBOUND;
 
 protected:
   Face& m_face;
