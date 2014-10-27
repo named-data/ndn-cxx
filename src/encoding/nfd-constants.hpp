@@ -22,6 +22,8 @@
 #ifndef NDN_ENCODING_NFD_CONSTANTS_HPP
 #define NDN_ENCODING_NFD_CONSTANTS_HPP
 
+#include "../common.hpp"
+
 namespace ndn {
 namespace nfd {
 
