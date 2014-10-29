@@ -41,6 +41,7 @@ class io_service;
 namespace ndn {
 
 class Transport;
+class KeyChain;
 
 class PendingInterestId;
 class RegisteredPrefixId;
@@ -102,6 +103,7 @@ public:
     }
   };
 
+public: // constructors
   /**
    * @brief Create a new Face using the default transport (UnixTransport)
    *
@@ -185,6 +187,21 @@ public:
        boost::asio::io_service& ioService);
 
   /**
+   * @brief Create a new Face using the given Transport and IO service object
+   * @param transport the Transport used for communication
+   * @param ioService the io_service that controls all IO operations
+   * @param keyChain the KeyChain to sign commands
+   * @throws Face::Error on unsupported protocol
+   * @note shared_ptr is passed by value because ownership is shared with this class
+   */
+  Face(shared_ptr<Transport> transport,
+       boost::asio::io_service& ioService,
+       KeyChain& keyChain);
+
+  ~Face();
+
+public: // consumer
+  /**
    * @brief Express Interest
    *
    * @param interest  An Interest to be expressed
@@ -230,6 +247,7 @@ public:
   size_t
   getNPendingInterests() const;
 
+public: // producer
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
    * callback and register the filtered prefix with the connected NDN forwarder
@@ -485,6 +503,7 @@ public:
   void
   put(const Data& data);
 
+public: // IO routine
   /**
    * @brief Process any data to receive or call timeout callbacks.
    *
@@ -545,10 +564,12 @@ public:
 private:
   /**
    * @throws Face::Error on unsupported protocol
+   * @note shared_ptrs are passed by value because ownership is transferred to this function
    */
   void
-  construct(const shared_ptr<Transport>& transport,
-            const shared_ptr<boost::asio::io_service>& ioService);
+  construct(shared_ptr<Transport> transport,
+            shared_ptr<boost::asio::io_service> ioService,
+            KeyChain* keyChain);
 
   bool
   isSupportedNfdProtocol(const std::string& protocol);
@@ -570,15 +591,24 @@ private:
   fireProcessEventsTimeout(const boost::system::error_code& error);
 
 private:
+  /// @todo change to regular pointer after #2097
   shared_ptr<boost::asio::io_service> m_ioService;
 
   shared_ptr<Transport> m_transport;
 
-  shared_ptr<nfd::Controller> m_nfdController;
+  /** @brief if not null, a pointer to an internal KeyChain owned by Face
+   *  @note if a KeyChain is supplied to constructor, this pointer will be null,
+   *        and the passed KeyChain is given to nfdController;
+   *        currently Face does not keep the KeyChain passed in constructor
+   *        because it's not needed, but this may change in the future
+   */
+  KeyChain* m_internalKeyChain;
+
+  nfd::Controller* m_nfdController;
   bool m_isDirectNfdFibManagementRequested;
 
   class Impl;
-  shared_ptr<Impl> m_impl;
+  Impl* m_impl;
 };
 
 inline bool

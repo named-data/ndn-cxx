@@ -217,7 +217,7 @@ public:
     }
 
     RegisteredPrefix::Unregistrator bindedUnregistrator =
-        ndn::bind(unregistrator, m_face.m_nfdController.get(), unregisterParameters, _1, _2,
+        ndn::bind(unregistrator, m_face.m_nfdController, unregisterParameters, _1, _2,
                   signatureGenerator,
                   m_face.m_nfdController->getDefaultCommandTimeout());
 

@@ -56,6 +56,7 @@ public:
 
   /** \brief construct a Controller that uses face for transport,
    *         and has an internal default KeyChain to sign commands
+   *  \deprecated use two-parameter overload
    */
   explicit
   Controller(Face& face);
@@ -208,7 +209,11 @@ public:
 
 protected:
   Face& m_face;
+
+  /** \deprecated
+   */
   shared_ptr<KeyChain> m_internalKeyChain;
+
   KeyChain& m_keyChain;
 };
 

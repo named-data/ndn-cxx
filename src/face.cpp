@@ -24,9 +24,7 @@
 #include "face.hpp"
 #include "detail/face-impl.hpp"
 
-#include "interest.hpp"
-#include "data.hpp"
-#include "security/identity-certificate.hpp"
+#include "security/key-chain.hpp"
 
 #include "util/time.hpp"
 #include "util/random.hpp"
@@ -34,23 +32,25 @@
 namespace ndn {
 
 Face::Face()
-  : m_nfdController(new nfd::Controller(*this))
+  : m_internalKeyChain(new KeyChain())
   , m_isDirectNfdFibManagementRequested(false)
-  , m_impl(make_shared<Impl>(ref(*this)))
+  , m_impl(new Impl(*this))
 {
   const std::string socketName = UnixTransport::getDefaultSocketName(m_impl->m_config);
   construct(make_shared<UnixTransport>(socketName),
-            make_shared<boost::asio::io_service>());
+            make_shared<boost::asio::io_service>(),
+            m_internalKeyChain);
 }
 
 Face::Face(const shared_ptr<boost::asio::io_service>& ioService)
-  : m_nfdController(new nfd::Controller(*this))
+  : m_internalKeyChain(new KeyChain())
   , m_isDirectNfdFibManagementRequested(false)
-  , m_impl(make_shared<Impl>(ref(*this)))
+  , m_impl(new Impl(*this))
 {
   const std::string socketName = UnixTransport::getDefaultSocketName(m_impl->m_config);
   construct(make_shared<UnixTransport>(socketName),
-            ioService);
+            ioService,
+            m_internalKeyChain);
 }
 
 class NullIoDeleter
@@ -63,46 +63,65 @@ public:
 };
 
 Face::Face(boost::asio::io_service& ioService)
-  : m_nfdController(make_shared<nfd::Controller>(ref(*this)))
+  : m_internalKeyChain(new KeyChain())
   , m_isDirectNfdFibManagementRequested(false)
-  , m_impl(make_shared<Impl>(ref(*this)))
+  , m_impl(new Impl(*this))
 {
   const std::string socketName = UnixTransport::getDefaultSocketName(m_impl->m_config);
   construct(make_shared<UnixTransport>(socketName),
-            shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()));
+            shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()),
+            m_internalKeyChain);
 }
 
 Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
-  : m_nfdController(make_shared<nfd::Controller>(ref(*this)))
-  , m_impl(make_shared<Impl>(ref(*this)))
+  : m_internalKeyChain(new KeyChain())
+  , m_impl(new Impl(*this))
 {
   construct(make_shared<TcpTransport>(host, port),
-            make_shared<boost::asio::io_service>());
+            make_shared<boost::asio::io_service>(),
+            m_internalKeyChain);
 }
 
 Face::Face(const shared_ptr<Transport>& transport)
-  : m_nfdController(make_shared<nfd::Controller>(ref(*this)))
+  : m_internalKeyChain(new KeyChain())
   , m_isDirectNfdFibManagementRequested(false)
-  , m_impl(make_shared<Impl>(ref(*this)))
+  , m_impl(new Impl(*this))
 {
   construct(transport,
-            make_shared<boost::asio::io_service>());
+            make_shared<boost::asio::io_service>(),
+            m_internalKeyChain);
 }
 
 Face::Face(const shared_ptr<Transport>& transport,
            boost::asio::io_service& ioService)
-  : m_nfdController(make_shared<nfd::Controller>(ref(*this)))
+  : m_internalKeyChain(new KeyChain())
   , m_isDirectNfdFibManagementRequested(false)
-  , m_impl(make_shared<Impl>(ref(*this)))
+  , m_impl(new Impl(*this))
 {
   construct(transport,
-            shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()));
+            shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()),
+            m_internalKeyChain);
+}
+
+Face::Face(shared_ptr<Transport> transport,
+           boost::asio::io_service& ioService,
+           KeyChain& keyChain)
+  : m_internalKeyChain(nullptr)
+  , m_isDirectNfdFibManagementRequested(false)
+  , m_impl(new Impl(*this))
+{
+  construct(transport,
+            shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()),
+            &keyChain);
 }
 
 void
-Face::construct(const shared_ptr<Transport>& transport,
-                const shared_ptr<boost::asio::io_service>& ioService)
+Face::construct(shared_ptr<Transport> transport,
+                shared_ptr<boost::asio::io_service> ioService,
+                KeyChain* keyChain)
 {
+  m_nfdController = new nfd::Controller(*this, *keyChain);
+
   m_impl->m_pitTimeoutCheckTimerActive = false;
   m_transport = transport;
   m_ioService = ioService;
@@ -137,6 +156,16 @@ Face::construct(const shared_ptr<Transport>& transport,
     {
       throw Face::Error("Cannot create controller for unsupported protocol \"" + protocol + "\"");
     }
+}
+
+Face::~Face()
+{
+  if (m_internalKeyChain != nullptr) {
+    delete m_internalKeyChain;
+  }
+
+  delete m_nfdController;
+  delete m_impl;
 }
 
 const PendingInterestId*
