@@ -191,8 +191,8 @@ public:
   Timestamp()
   {
     dataset.push_back(boost::make_tuple(&name::Component::fromTimestamp,
-                                        bind(&name::Component::toTimestamp, _1),
-                                        bind(&Name::appendTimestamp, _1, _2),
+                                        ndn::bind(&name::Component::toTimestamp, _1),
+                                        ndn::bind(&Name::appendTimestamp, _1, _2),
                                         Name("/%FC%00%04%7BE%E3%1B%00%00"),
                                         time::getUnixEpoch() + time::days(14600/*40 years*/),
                                         bind(&name::Component::isTimestamp, _1)));
