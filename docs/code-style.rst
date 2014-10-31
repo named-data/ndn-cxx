@@ -823,7 +823,7 @@ Goto statements violate the idea of structured code.  Only in some very few case
 instance breaking out of deeply nested structures) should goto be considered, and only if
 the alternative structured counterpart is proven to be less readable.
 
-3.20. "0" should be used instead of "NULL".
+3.20. ``nullptr`` should be used to represent a null pointer, instead of "0" or "NULL".
 
 3.21. Logical units within a block should be separated by one blank line.
 
