@@ -66,7 +66,14 @@ namespace ndn {
 
 const size_t MAX_NDN_PACKET_SIZE = 8800;
 
+/** \brief the namespace contains smart pointers
+ *  \deprecated use std:: directly
+ */
 namespace ptr_lib = std;
+
+/** \brief the namespace contains function and bind
+ *  \deprecated use std:: directly
+ */
 namespace func_lib = std;
 
 using std::shared_ptr;
