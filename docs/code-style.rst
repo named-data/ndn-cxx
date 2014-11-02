@@ -322,6 +322,14 @@ should take the following form:
     Each initialization should be put on a separate line, starting either with the colon
     for the first initialization or with comma for all subsequent initializations.
 
+1.14. A range-based ``for`` statement should have the following form:
+
+    .. code-block:: c++
+
+        for (T i : range) {
+          statements;
+        }
+
 2. Naming Conventions
 ---------------------
 
