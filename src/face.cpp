@@ -239,10 +239,17 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   shared_ptr<InterestFilterRecord> filter =
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
+  nfd::CommandOptions options;
+  if (certificate.getName().empty()) {
+    options.setSigningDefault();
+  }
+  else {
+    options.setSigningCertificate(certificate);
+  }
+
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
                                 onSuccess, onFailure,
-                                flags,
-                                certificate);
+                                flags, options);
 }
 
 const RegisteredPrefixId*
@@ -255,10 +262,17 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   shared_ptr<InterestFilterRecord> filter =
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
+  nfd::CommandOptions options;
+  if (certificate.getName().empty()) {
+    options.setSigningDefault();
+  }
+  else {
+    options.setSigningCertificate(certificate);
+  }
+
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
                                 RegisterPrefixSuccessCallback(), onFailure,
-                                flags,
-                                certificate);
+                                flags, options);
 }
 
 const RegisteredPrefixId*
@@ -272,10 +286,12 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   shared_ptr<InterestFilterRecord> filter =
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
+  nfd::CommandOptions options;
+  options.setSigningIdentity(identity);
+
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
                                 onSuccess, onFailure,
-                                flags,
-                                identity);
+                                flags, options);
 }
 
 const RegisteredPrefixId*
@@ -288,10 +304,12 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   shared_ptr<InterestFilterRecord> filter =
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
+  nfd::CommandOptions options;
+  options.setSigningIdentity(identity);
+
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
                                 RegisterPrefixSuccessCallback(), onFailure,
-                                flags,
-                                identity);
+                                flags, options);
 }
 
 
@@ -314,10 +332,17 @@ Face::registerPrefix(const Name& prefix,
                      const IdentityCertificate& certificate,
                      uint64_t flags)
 {
+  nfd::CommandOptions options;
+  if (certificate.getName().empty()) {
+    options.setSigningDefault();
+  }
+  else {
+    options.setSigningCertificate(certificate);
+  }
+
   return m_impl->registerPrefix(prefix, shared_ptr<InterestFilterRecord>(),
                                 onSuccess, onFailure,
-                                flags,
-                                certificate);
+                                flags, options);
 }
 
 const RegisteredPrefixId*
@@ -327,10 +352,12 @@ Face::registerPrefix(const Name& prefix,
                      const Name& identity,
                      uint64_t flags)
 {
+  nfd::CommandOptions options;
+  options.setSigningIdentity(identity);
+
   return m_impl->registerPrefix(prefix, shared_ptr<InterestFilterRecord>(),
                                 onSuccess, onFailure,
-                                flags,
-                                identity);
+                                flags, options);
 }
 
 void

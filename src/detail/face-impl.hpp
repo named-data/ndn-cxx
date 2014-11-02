@@ -36,6 +36,7 @@
 #include "transport/tcp-transport.hpp"
 
 #include "management/nfd-controller.hpp"
+#include "management/nfd-command-options.hpp"
 
 namespace ndn {
 
@@ -182,23 +183,21 @@ public:
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-  template<class SignatureGenerator>
   const RegisteredPrefixId*
   registerPrefix(const Name& prefix,
                  const shared_ptr<InterestFilterRecord>& filter,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
                  uint64_t flags,
-                 const SignatureGenerator& signatureGenerator)
+                 const nfd::CommandOptions& options)
   {
     using namespace nfd;
 
-    typedef void (nfd::Controller::*Registrator)
-      (const nfd::ControlParameters&,
-       const nfd::Controller::CommandSucceedCallback&,
-       const nfd::Controller::CommandFailCallback&,
-       const SignatureGenerator&,
-       const time::milliseconds&);
+    typedef void (Controller::*Registrator)
+      (const ControlParameters&,
+       const Controller::CommandSucceedCallback&,
+       const Controller::CommandFailCallback&,
+       const CommandOptions&);
 
     ControlParameters registerParameters, unregisterParameters;
     registerParameters.setName(prefix);
@@ -217,9 +216,9 @@ public:
     }
 
     RegisteredPrefix::Unregistrator bindedUnregistrator =
-        ndn::bind(unregistrator, m_face.m_nfdController, unregisterParameters, _1, _2,
-                  signatureGenerator,
-                  m_face.m_nfdController->getDefaultCommandTimeout());
+        std::bind(unregistrator, m_face.m_nfdController, unregisterParameters, _1, _2,
+                  options);
+    // @todo get rid of "std::" after #2109
 
     shared_ptr<RegisteredPrefix> prefixToRegister =
       make_shared<RegisteredPrefix>(prefix, filter, bindedUnregistrator);
@@ -228,8 +227,7 @@ public:
                                              bind(&Impl::afterPrefixRegistered, this,
                                                   prefixToRegister, onSuccess),
                                              bind(onFailure, prefixToRegister->getPrefix(), _2),
-                                             signatureGenerator,
-                                             m_face.m_nfdController->getDefaultCommandTimeout());
+                                             options);
 
     return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
   }
