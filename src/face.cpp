@@ -32,102 +32,83 @@
 namespace ndn {
 
 Face::Face()
-  : m_internalKeyChain(new KeyChain())
+  : m_internalIoService(new boost::asio::io_service())
+  , m_ioService(*m_internalIoService)
+  , m_internalKeyChain(new KeyChain())
   , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
   const std::string socketName = UnixTransport::getDefaultSocketName(m_impl->m_config);
   construct(make_shared<UnixTransport>(socketName),
-            make_shared<boost::asio::io_service>(),
             m_internalKeyChain);
 }
-
-Face::Face(const shared_ptr<boost::asio::io_service>& ioService)
-  : m_internalKeyChain(new KeyChain())
-  , m_isDirectNfdFibManagementRequested(false)
-  , m_impl(new Impl(*this))
-{
-  const std::string socketName = UnixTransport::getDefaultSocketName(m_impl->m_config);
-  construct(make_shared<UnixTransport>(socketName),
-            ioService,
-            m_internalKeyChain);
-}
-
-class NullIoDeleter
-{
-public:
-  void
-  operator()(boost::asio::io_service*)
-  {
-  }
-};
 
 Face::Face(boost::asio::io_service& ioService)
-  : m_internalKeyChain(new KeyChain())
+  : m_ioService(ioService)
+  , m_internalKeyChain(new KeyChain())
   , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
   const std::string socketName = UnixTransport::getDefaultSocketName(m_impl->m_config);
   construct(make_shared<UnixTransport>(socketName),
-            shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()),
             m_internalKeyChain);
 }
 
 Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
-  : m_internalKeyChain(new KeyChain())
+  : m_internalIoService(new boost::asio::io_service())
+  , m_ioService(*m_internalIoService)
+  , m_internalKeyChain(new KeyChain())
   , m_impl(new Impl(*this))
 {
   construct(make_shared<TcpTransport>(host, port),
-            make_shared<boost::asio::io_service>(),
             m_internalKeyChain);
 }
 
 Face::Face(const shared_ptr<Transport>& transport)
-  : m_internalKeyChain(new KeyChain())
+  : m_internalIoService(new boost::asio::io_service())
+  , m_ioService(*m_internalIoService)
+  , m_internalKeyChain(new KeyChain())
   , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
   construct(transport,
-            make_shared<boost::asio::io_service>(),
             m_internalKeyChain);
 }
 
 Face::Face(const shared_ptr<Transport>& transport,
            boost::asio::io_service& ioService)
-  : m_internalKeyChain(new KeyChain())
+  : m_ioService(ioService)
+  , m_internalKeyChain(new KeyChain())
   , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
   construct(transport,
-            shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()),
             m_internalKeyChain);
 }
 
 Face::Face(shared_ptr<Transport> transport,
            boost::asio::io_service& ioService,
            KeyChain& keyChain)
-  : m_internalKeyChain(nullptr)
+  : m_ioService(ioService)
+  , m_internalKeyChain(nullptr)
   , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
   construct(transport,
-            shared_ptr<boost::asio::io_service>(&ioService, NullIoDeleter()),
             &keyChain);
 }
 
 void
 Face::construct(shared_ptr<Transport> transport,
-                shared_ptr<boost::asio::io_service> ioService,
                 KeyChain* keyChain)
 {
   m_nfdController = new nfd::Controller(*this, *keyChain);
 
   m_impl->m_pitTimeoutCheckTimerActive = false;
   m_transport = transport;
-  m_ioService = ioService;
 
-  m_impl->m_pitTimeoutCheckTimer      = make_shared<monotonic_deadline_timer>(ref(*m_ioService));
-  m_impl->m_processEventsTimeoutTimer = make_shared<monotonic_deadline_timer>(ref(*m_ioService));
+  m_impl->m_pitTimeoutCheckTimer      = make_shared<monotonic_deadline_timer>(ref(m_ioService));
+  m_impl->m_processEventsTimeoutTimer = make_shared<monotonic_deadline_timer>(ref(m_ioService));
 
   std::string protocol = "nrd-0.1";
 
@@ -178,8 +159,8 @@ Face::expressInterest(const Interest& interest, const OnData& onData, const OnTi
     throw Error("Interest size exceeds maximum limit");
 
   // If the same ioService thread, dispatch directly calls the method
-  m_ioService->dispatch(bind(&Impl::asyncExpressInterest, m_impl,
-                             interestToExpress, onData, onTimeout));
+  m_ioService.dispatch(bind(&Impl::asyncExpressInterest, m_impl,
+                            interestToExpress, onData, onTimeout));
 
   return reinterpret_cast<const PendingInterestId*>(interestToExpress.get());
 }
@@ -213,13 +194,13 @@ Face::put(const Data& data)
   }
 
   // If the same ioService thread, dispatch directly calls the method
-  m_ioService->dispatch(bind(&Impl::asyncPutData, m_impl, dataPtr));
+  m_ioService.dispatch(bind(&Impl::asyncPutData, m_impl, dataPtr));
 }
 
 void
 Face::removePendingInterest(const PendingInterestId* pendingInterestId)
 {
-  m_ioService->post(bind(&Impl::asyncRemovePendingInterest, m_impl, pendingInterestId));
+  m_ioService.post(bind(&Impl::asyncRemovePendingInterest, m_impl, pendingInterestId));
 }
 
 size_t
@@ -363,14 +344,14 @@ Face::registerPrefix(const Name& prefix,
 void
 Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
 {
-  m_ioService->post(bind(&Impl::asyncUnregisterPrefix, m_impl, registeredPrefixId,
-                         UnregisterPrefixSuccessCallback(), UnregisterPrefixFailureCallback()));
+  m_ioService.post(bind(&Impl::asyncUnregisterPrefix, m_impl, registeredPrefixId,
+                        UnregisterPrefixSuccessCallback(), UnregisterPrefixFailureCallback()));
 }
 
 void
 Face::unsetInterestFilter(const InterestFilterId* interestFilterId)
 {
-  m_ioService->post(bind(&Impl::asyncUnsetInterestFilter, m_impl, interestFilterId));
+  m_ioService.post(bind(&Impl::asyncUnsetInterestFilter, m_impl, interestFilterId));
 }
 
 void
@@ -378,8 +359,8 @@ Face::unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
                        const UnregisterPrefixSuccessCallback& onSuccess,
                        const UnregisterPrefixFailureCallback& onFailure)
 {
-  m_ioService->post(bind(&Impl::asyncUnregisterPrefix, m_impl, registeredPrefixId,
-                         onSuccess, onFailure));
+  m_ioService.post(bind(&Impl::asyncUnregisterPrefix, m_impl, registeredPrefixId,
+                        onSuccess, onFailure));
 }
 
 void
@@ -390,7 +371,7 @@ Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::ze
     if (timeout < time::milliseconds::zero())
       {
         // do not block if timeout is negative, but process pending events
-        m_ioService->poll();
+        m_ioService.poll();
         return;
       }
 
@@ -402,20 +383,20 @@ Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::ze
 
     if (keepThread) {
       // work will ensure that m_ioService is running until work object exists
-      m_impl->m_ioServiceWork = make_shared<boost::asio::io_service::work>(ref(*m_ioService));
+      m_impl->m_ioServiceWork = make_shared<boost::asio::io_service::work>(ref(m_ioService));
     }
 
-    m_ioService->run();
-    m_ioService->reset(); // so it is possible to run processEvents again (if necessary)
+    m_ioService.run();
+    m_ioService.reset(); // so it is possible to run processEvents again (if necessary)
   }
   catch (Face::ProcessEventsTimeout&) {
     // break
     m_impl->m_ioServiceWork.reset();
-    m_ioService->reset();
+    m_ioService.reset();
   }
   catch (...) {
     m_impl->m_ioServiceWork.reset();
-    m_ioService->reset();
+    m_ioService.reset();
     m_impl->m_pendingInterestTable.clear();
     m_impl->m_registeredPrefixTable.clear();
     throw;
@@ -425,7 +406,7 @@ Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::ze
 void
 Face::shutdown()
 {
-  m_ioService->post(bind(&Face::asyncShutdown, this));
+  m_ioService.post(bind(&Face::asyncShutdown, this));
 }
 
 void

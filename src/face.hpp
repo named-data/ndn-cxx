@@ -115,21 +115,6 @@ public: // constructors
   /**
    * @brief Create a new Face using the default transport (UnixTransport)
    *
-   * @deprecated This constructor is deprecated.  Use `Face(boost::asio::io_service&)`
-   *             instead.
-   *
-   * @param ioService A shared pointer to boost::io_service object that should control all
-   *                  IO operations
-   * @throws ConfigFile::Error on configuration file parse failure
-   * @throws Face::Error on unsupported protocol
-   */
-  DEPRECATED(
-  explicit
-  Face(const shared_ptr<boost::asio::io_service>& ioService));
-
-  /**
-   * @brief Create a new Face using the default transport (UnixTransport)
-   *
    * @par Usage examples:
    *
    *     Face face1;
@@ -541,34 +526,21 @@ public: // IO routine
   shutdown();
 
   /**
-   * @brief Get shared_ptr of the IO service object
-   *
-   * @deprecated Use getIoService instead
-   */
-  DEPRECATED(
-  shared_ptr<boost::asio::io_service>
-  ioService())
-  {
-    return m_ioService;
-  }
-
-  /**
    * @brief Get reference to IO service object
    */
   boost::asio::io_service&
   getIoService()
   {
-    return *m_ioService;
+    return m_ioService;
   }
 
 private:
   /**
    * @throws Face::Error on unsupported protocol
-   * @note shared_ptrs are passed by value because ownership is transferred to this function
+   * @note shared_ptr is passed by value because ownership is transferred to this function
    */
   void
   construct(shared_ptr<Transport> transport,
-            shared_ptr<boost::asio::io_service> ioService,
             KeyChain* keyChain);
 
   bool
@@ -591,8 +563,10 @@ private:
   fireProcessEventsTimeout(const boost::system::error_code& error);
 
 private:
-  /// @todo change to regular pointer after #2097
-  shared_ptr<boost::asio::io_service> m_ioService;
+  /// the IO service owned by this Face, could be null
+  unique_ptr<boost::asio::io_service> m_internalIoService;
+  /// the IO service used by this Face
+  boost::asio::io_service& m_ioService;
 
   shared_ptr<Transport> m_transport;
 

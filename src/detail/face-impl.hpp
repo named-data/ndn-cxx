@@ -105,7 +105,7 @@ public:
                        const OnData& onData, const OnTimeout& onTimeout)
   {
     if (!m_face.m_transport->isConnected())
-      m_face.m_transport->connect(*m_face.m_ioService,
+      m_face.m_transport->connect(m_face.m_ioService,
                                   bind(&Face::onReceiveElement, &m_face, _1));
 
     if (!m_face.m_transport->isExpectingData())
@@ -142,7 +142,7 @@ public:
   asyncPutData(const shared_ptr<const Data>& data)
   {
     if (!m_face.m_transport->isConnected())
-      m_face.m_transport->connect(*m_face.m_ioService,
+      m_face.m_transport->connect(m_face.m_ioService,
                                   bind(&Face::onReceiveElement, &m_face, _1));
 
     if (!m_face.m_transport->isExpectingData())
