@@ -330,6 +330,70 @@ should take the following form:
           statements;
         }
 
+1.15. A lambda expression should have the following form:
+
+    .. code-block:: c++
+
+        [&capture1, capture2] (T1 arg1, T2 arg2) {
+          statements;
+        }
+
+        [&capture1, capture2] (T1 arg1, T2 arg2) mutable {
+          statements;
+        }
+
+        [this] (T arg) {
+          statements;
+        }
+
+    If the function has no parameters, ``()`` should be omitted.
+
+    .. code-block:: c++
+
+        [&capture1, capture2] {
+          statements;
+        }
+
+    Capture-all (``[&]`` and ``[=]``) is permitted, but its usage should be minimized.
+    Only use capture-all when it significantly simplifies code and improves readability.
+
+    .. code-block:: c++
+
+        [&] (T arg) {
+          statements;
+        }
+
+        [=] (T arg) {
+          statements;
+        }
+
+    Trailing return type should be omitted. Write them only when compiler cannot deduce
+    return type automatically, or when it improves readability.
+    ``()`` is required by C++ standard when trailing return type is written.
+
+    .. code-block:: c++
+
+        [] (T arg) -> int {
+          statements;
+        }
+
+        [] () -> int {
+          statements;
+        }
+
+    If the function body has only one line, and the whole lambda expression can fit in one line,
+    the following form is also acceptable:
+
+    .. code-block:: c++
+
+        [&capture1, capture2] (T1 arg1, T2 arg2) { statement; }
+
+    No-op can be written in a more compact form:
+
+    .. code-block:: c++
+
+        []{}
+
 2. Naming Conventions
 ---------------------
 
