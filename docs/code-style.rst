@@ -914,3 +914,31 @@ the alternative structured counterpart is proven to be less readable.
         }
 
     This is to avoid that the comments break the logical structure of the program.
+
+3.27. Use ``BOOST_ASSERT`` and ``BOOST_ASSERT_MSG`` for runtime assertions.
+
+    .. code-block:: c++
+
+        int x = 1;
+        int y = 2;
+        int z = x + y;
+        BOOST_ASSERT(z - y == x);
+
+    The expression passed to ``BOOST_ASSERT`` MUST NOT have side effects,
+    because it MAY NOT be evaluated in release builds.
+
+3.28. Use ``static_assert`` for static assertions.
+
+
+    .. code-block:: c++
+
+        class BaseClass
+        {
+        };
+
+        class DerivedClass : public BaseClass
+        {
+        };
+
+        static_assert(std::is_base_of<BaseClass, DerivedClass>::value,
+                      "DerivedClass must inherit from BaseClass");
