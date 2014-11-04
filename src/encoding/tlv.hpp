@@ -100,9 +100,6 @@ enum ContentTypeValue {
   ContentType_Key = 2
 };
 
-/// @deprecated use ContentType instead
-typedef ContentTypeValue ConentType;
-
 /**
  * @brief Read VAR-NUMBER in NDN-TLV encoding
  *
