@@ -66,10 +66,27 @@ public:
     }
   };
 
+  /** \brief ContentType codes
+   */
   enum {
-    TYPE_DEFAULT = 0,
+    /** @brief indicates content is the actual data bits
+     */
+    TYPE_BLOB = 0,
+
+    /** @brief indicates content is another name which identifies actual data content
+     */
     TYPE_LINK = 1,
-    TYPE_KEY = 2
+
+    /** @brief indicates content is a public key
+     */
+    TYPE_KEY = 2,
+
+    /** @brief indicates a producer generated NACK
+     *  @warning Experimental. Not defined in NDN-TLV spec.
+     */
+    TYPE_NACK = 3,
+
+    TYPE_DEFAULT = TYPE_BLOB
   };
 
   MetaInfo();
