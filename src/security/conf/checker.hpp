@@ -188,16 +188,16 @@ private:
             }
           }
       }
-    catch (tlv::Error& e)
-      {
-        onValidationFailed(packet.shared_from_this(),
-                           "Cannot decode signature");
-        return -1;
-      }
     catch (KeyLocator::Error& e)
       {
         onValidationFailed(packet.shared_from_this(),
                            "Cannot decode KeyLocator");
+        return -1;
+      }
+    catch (tlv::Error& e)
+      {
+        onValidationFailed(packet.shared_from_this(),
+                           "Cannot decode signature");
         return -1;
       }
 

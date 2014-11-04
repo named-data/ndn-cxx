@@ -161,16 +161,16 @@ ValidatorRegex::checkPolicy(const Data& data,
                   return;
                 }
             }
-          catch (tlv::Error& e)
-            {
-              return onValidationFailed(data.shared_from_this(),
-                                        "Cannot decode signature");
-            }
           catch (KeyLocator::Error& e)
             {
               return onValidationFailed(data.shared_from_this(),
                                         "Key Locator is not a name: " +
                                         data.getName().toUri());
+            }
+          catch (tlv::Error& e)
+            {
+              return onValidationFailed(data.shared_from_this(),
+                                        "Cannot decode signature");
             }
         }
     }

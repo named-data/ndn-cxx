@@ -23,6 +23,10 @@
 
 namespace ndn {
 
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Signature>));
+static_assert(std::is_base_of<tlv::Error, Signature::Error>::value,
+              "Signature::Error must inherit from tlv::Error");
+
 Signature::Signature(const Block& info, const Block& value)
   : m_info(info)
   , m_value(value)

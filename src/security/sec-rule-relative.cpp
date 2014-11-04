@@ -73,10 +73,6 @@ SecRuleRelative::satisfy(const Data& data)
     {
       return false;
     }
-  catch (KeyLocator::Error& e)
-    {
-      return false;
-    }
   catch (RegexMatcher::Error& e)
     {
       return false;
@@ -121,10 +117,6 @@ SecRuleRelative::matchSignerName(const Data& data)
       return m_signerNameRegex.match(signerName);
     }
   catch (tlv::Error& e)
-    {
-      return false;
-    }
-  catch (KeyLocator::Error& e)
     {
       return false;
     }

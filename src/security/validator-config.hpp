@@ -320,13 +320,13 @@ ValidatorConfig::checkSignature(const Packet& packet,
                               "Unsupported signature type");
     }
   }
-  catch (tlv::Error& e) {
-    return onValidationFailed(packet.shared_from_this(),
-                              "Cannot decode public key signature");
-  }
   catch (KeyLocator::Error& e) {
     return onValidationFailed(packet.shared_from_this(),
                               "Cannot decode KeyLocator in public key signature");
+  }
+  catch (tlv::Error& e) {
+    return onValidationFailed(packet.shared_from_this(),
+                              "Cannot decode public key signature");
   }
 
   if (signature.getKeyLocator().getType() != KeyLocator::KeyLocator_Name) {

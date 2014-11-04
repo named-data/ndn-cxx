@@ -22,14 +22,15 @@
 #include "meta-info.hpp"
 #include "encoding/block-helpers.hpp"
 #include "encoding/encoding-buffer.hpp"
-
-#include <boost/concept_check.hpp>
-#include <boost/type_traits.hpp>
+#include "util/concepts.hpp"
 
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<MetaInfo>));
-BOOST_STATIC_ASSERT((boost::is_base_of<tlv::Error, MetaInfo::Error>::value));
+BOOST_CONCEPT_ASSERT((WireEncodable<MetaInfo>));
+BOOST_CONCEPT_ASSERT((WireDecodable<MetaInfo>));
+static_assert(std::is_base_of<tlv::Error, MetaInfo::Error>::value,
+              "MetaInfo::Error must inherit from tlv::Error");
 
 MetaInfo::MetaInfo()
   : m_type(TYPE_DEFAULT)

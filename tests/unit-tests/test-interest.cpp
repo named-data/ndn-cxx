@@ -32,9 +32,6 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(TestInterest)
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Interest>));
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Selectors>));
-
 const uint8_t Interest1[] = {
   0x05,  0x5c, // NDN Interest
       0x07,  0x14, // Name

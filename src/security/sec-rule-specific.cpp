@@ -80,10 +80,6 @@ SecRuleSpecific::matchSignerName(const Data& data)
     {
       return false;
     }
-  catch (KeyLocator::Error& e)
-    {
-      return false;
-    }
   catch (RegexMatcher::Error& e)
     {
       return false;

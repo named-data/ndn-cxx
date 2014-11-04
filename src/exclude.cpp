@@ -22,13 +22,15 @@
  */
 
 #include "exclude.hpp"
-
-#include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
+#include "util/concepts.hpp"
 
 namespace ndn {
 
-BOOST_STATIC_ASSERT((boost::is_base_of<tlv::Error, Exclude::Error>::value));
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Exclude>));
+BOOST_CONCEPT_ASSERT((WireEncodable<Exclude>));
+BOOST_CONCEPT_ASSERT((WireDecodable<Exclude>));
+static_assert(std::is_base_of<tlv::Error, Exclude::Error>::value,
+              "Exclude::Error must inherit from tlv::Error");
 
 Exclude::Exclude()
 {

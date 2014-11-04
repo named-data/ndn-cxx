@@ -24,9 +24,16 @@
 #include "interest.hpp"
 #include "util/random.hpp"
 #include "util/crypto.hpp"
+#include "util/concepts.hpp"
 #include "data.hpp"
 
 namespace ndn {
+
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Interest>));
+BOOST_CONCEPT_ASSERT((WireEncodable<Interest>));
+BOOST_CONCEPT_ASSERT((WireDecodable<Interest>));
+static_assert(std::is_base_of<tlv::Error, Interest::Error>::value,
+              "Interest::Error must inherit from tlv::Error");
 
 uint32_t
 Interest::getNonce() const
@@ -266,7 +273,7 @@ Interest::wireDecode(const Block& wire)
   //                InterestLifetime?
 
   if (m_wire.type() != tlv::Interest)
-    throw tlv::Error("Unexpected TLV number when decoding Interest");
+    throw Error("Unexpected TLV number when decoding Interest");
 
   // Name
   m_name.wireDecode(m_wire.get(tlv::Name));

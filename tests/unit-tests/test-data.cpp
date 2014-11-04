@@ -31,9 +31,6 @@ namespace ndn {
 
 BOOST_AUTO_TEST_SUITE(TestData)
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Data>));
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Signature>));
-
 const uint8_t Content1[] = {0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x21};
 
 const uint8_t Data1[] = {

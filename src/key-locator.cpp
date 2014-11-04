@@ -21,8 +21,15 @@
 
 #include "key-locator.hpp"
 #include "encoding/block-helpers.hpp"
+#include "util/concepts.hpp"
 
 namespace ndn {
+
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<KeyLocator>));
+BOOST_CONCEPT_ASSERT((WireEncodable<KeyLocator>));
+BOOST_CONCEPT_ASSERT((WireDecodable<KeyLocator>));
+static_assert(std::is_base_of<tlv::Error, KeyLocator::Error>::value,
+              "KeyLocator::Error must inherit from tlv::Error");
 
 KeyLocator::KeyLocator()
   : m_type(KeyLocator_None)

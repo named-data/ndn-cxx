@@ -38,12 +38,21 @@ class Data;
 
 const time::seconds DEFAULT_INTEREST_LIFETIME = time::seconds(4);
 
-/**
- * An Interest holds a Name and other fields for an Interest
+/** @brief represents an Interest packet
  */
 class Interest : public enable_shared_from_this<Interest>
 {
 public:
+  class Error : public tlv::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : tlv::Error(what)
+    {
+    }
+  };
+
   /**
    * @brief Create a new Interest with an empty name (`ndn:/`)
    *

@@ -489,10 +489,6 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
     {
       return;
     }
-  catch (KeyLocator::Error& e)
-    {
-      return;
-    }
 
   sqlite3_bind_text(statement, 3, identity.toUri(), SQLITE_TRANSIENT);
   sqlite3_bind_text(statement, 4, keyId, SQLITE_STATIC);

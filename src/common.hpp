@@ -51,6 +51,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <unistd.h>
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -104,6 +105,7 @@ using std::cref;
 } // namespace ndn
 
 #include <boost/assert.hpp>
+#include <boost/concept_check.hpp>
 #include <boost/noncopyable.hpp>
 
 namespace ndn {

@@ -20,16 +20,11 @@
  */
 
 #include "key-locator.hpp"
-#include "util/concepts.hpp"
 #include "encoding/block-helpers.hpp"
 
 #include "boost-test.hpp"
 
 namespace ndn {
-
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<KeyLocator>));
-BOOST_CONCEPT_ASSERT((WireEncodable<KeyLocator>));
-BOOST_CONCEPT_ASSERT((WireDecodable<KeyLocator>));
 
 BOOST_AUTO_TEST_SUITE(TestKeyLocator)
 

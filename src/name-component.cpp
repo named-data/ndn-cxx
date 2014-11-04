@@ -28,9 +28,16 @@
 #include "encoding/block-helpers.hpp"
 #include "encoding/encoding-buffer.hpp"
 #include "util/string-helper.hpp"
+#include "util/concepts.hpp"
 
 namespace ndn {
 namespace name {
+
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Component>));
+BOOST_CONCEPT_ASSERT((WireEncodable<Component>));
+BOOST_CONCEPT_ASSERT((WireDecodable<Component>));
+static_assert(std::is_base_of<tlv::Error, Component::Error>::value,
+              "name::Component::Error must inherit from tlv::Error");
 
 Component::Component()
   : Block(tlv::NameComponent)

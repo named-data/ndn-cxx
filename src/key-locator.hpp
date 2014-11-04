@@ -30,12 +30,12 @@ namespace ndn {
 class KeyLocator
 {
 public:
-  class Error : public std::runtime_error
+  class Error : public tlv::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : std::runtime_error(what)
+      : tlv::Error(what)
     {
     }
   };

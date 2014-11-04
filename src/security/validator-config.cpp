@@ -537,15 +537,15 @@ ValidatorConfig::checkPolicy(const Interest& interest,
       return onValidationFailed(interest.shared_from_this(),
                                 "No valid signature");
     }
-  catch (tlv::Error& e)
-    {
-      return onValidationFailed(interest.shared_from_this(),
-                                "Cannot decode signature");
-    }
   catch (KeyLocator::Error& e)
     {
       return onValidationFailed(interest.shared_from_this(),
                                 "No valid KeyLocator");
+    }
+  catch (tlv::Error& e)
+    {
+      return onValidationFailed(interest.shared_from_this(),
+                                "Cannot decode signature");
     }
   catch (IdentityCertificate::Error& e)
     {
