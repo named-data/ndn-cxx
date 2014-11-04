@@ -65,8 +65,6 @@
 
 namespace ndn {
 
-const size_t MAX_NDN_PACKET_SIZE = 8800;
-
 /** \brief the namespace contains smart pointers
  *  \deprecated use std:: directly
  */

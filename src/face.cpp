@@ -24,8 +24,8 @@
 #include "face.hpp"
 #include "detail/face-impl.hpp"
 
+#include "encoding/tlv.hpp"
 #include "security/key-chain.hpp"
-
 #include "util/time.hpp"
 #include "util/random.hpp"
 

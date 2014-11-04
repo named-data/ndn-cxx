@@ -32,11 +32,21 @@
 
 namespace ndn {
 
+/** @brief practical limit of network layer packet size
+ *
+ *  If a packet is longer than this size, library and application MAY drop it.
+ */
+const size_t MAX_NDN_PACKET_SIZE = 8800;
+
 /**
  * @brief Namespace defining NDN-TLV related constants and procedures
  */
 namespace tlv {
 
+/** @brief represents an error in TLV encoding or decoding
+ *
+ *  Element::Error SHOULD inherit from this Error class.
+ */
 class Error : public std::runtime_error
 {
 public:
@@ -273,9 +283,9 @@ readVarNumber(InputIterator& begin, const InputIterator& end)
 
 template<>
 inline bool
-readVarNumber<std::istream_iterator<uint8_t> >(std::istream_iterator<uint8_t>& begin,
-                                               const std::istream_iterator<uint8_t>& end,
-                                               uint64_t& value)
+readVarNumber<std::istream_iterator<uint8_t>>(std::istream_iterator<uint8_t>& begin,
+                                              const std::istream_iterator<uint8_t>& end,
+                                              uint64_t& value)
 {
   if (begin == end)
     return false;
@@ -540,7 +550,6 @@ writeNonNegativeInteger(std::ostream& os, uint64_t varNumber)
 
 
 } // namespace tlv
-
 } // namespace ndn
 
 #endif // NDN_ENCODING_TLV_HPP
