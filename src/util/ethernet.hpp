@@ -28,15 +28,15 @@
 #ifndef NDN_UTIL_ETHERNET_HPP
 #define NDN_UTIL_ETHERNET_HPP
 
-#include "../common.hpp"
-
-#include <boost/array.hpp>
+#include <array>
+#include <cstdint>
+#include <string>
 
 namespace ndn {
 namespace util {
 namespace ethernet {
 
-static const uint16_t ETHERTYPE_NDN = 0x8624;
+const uint16_t ETHERTYPE_NDN = 0x8624;
 
 const size_t ADDR_LEN     = 6;      ///< Octets in one Ethernet address
 const size_t TYPE_LEN     = 2;      ///< Octets in Ethertype field
@@ -49,7 +49,7 @@ const size_t CRC_LEN      = 4;      ///< Octets in Ethernet frame check sequence
 
 /** \brief represents an Ethernet hardware address
  */
-class Address : public boost::array<uint8_t, ADDR_LEN>
+class Address : public std::array<uint8_t, ADDR_LEN>
 {
 public:
   /// Constructs a null Ethernet address (00:00:00:00:00:00)
@@ -62,9 +62,6 @@ public:
   /// Constructs a new Ethernet address with the given octets
   explicit
   Address(const uint8_t octets[ADDR_LEN]);
-
-  /// Copy constructor
-  Address(const Address& address);
 
   /// True if this is a broadcast address (ff:ff:ff:ff:ff:ff)
   bool

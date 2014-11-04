@@ -34,9 +34,24 @@ namespace util {
 
 BOOST_AUTO_TEST_SUITE(UtilTestEthernet)
 
-BOOST_AUTO_TEST_CASE(Checks)
+BOOST_AUTO_TEST_CASE(BasicChecks)
 {
-  BOOST_CHECK(ethernet::Address().isNull());
+  ethernet::Address a;
+  BOOST_CHECK(a.isNull());
+
+  a = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB};
+  ethernet::Address b(0x01, 0x23, 0x45, 0x67, 0x89, 0xAB);
+  const uint8_t bytes[] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB};
+  ethernet::Address c(bytes);
+  ethernet::Address d(a);
+  ethernet::Address e;
+  e = a;
+
+  BOOST_CHECK_EQUAL(a, b);
+  BOOST_CHECK_EQUAL(a, c);
+  BOOST_CHECK_EQUAL(a, d);
+  BOOST_CHECK_EQUAL(a, e);
+
   BOOST_CHECK(ethernet::getBroadcastAddress().isBroadcast());
   BOOST_CHECK(ethernet::getDefaultMulticastAddress().isMulticast());
 }
