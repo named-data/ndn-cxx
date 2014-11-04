@@ -29,6 +29,7 @@
 #include "../common.hpp"
 
 #include "../encoding/buffer.hpp"
+#include "../encoding/block.hpp"
 #include "security-common.hpp"
 
 namespace CryptoPP {
@@ -84,6 +85,12 @@ public:
     return m_type;
   }
 
+  /**
+   * @return a KeyDigest block that matches this public key
+   */
+  const Block&
+  computeDigest() const;
+
   void
   encode(CryptoPP::BufferedTransformation& out) const;
 
@@ -105,6 +112,7 @@ public:
 private:
   KeyType m_type;
   Buffer m_key;
+  mutable Block m_digest;
 };
 
 std::ostream&

@@ -25,6 +25,7 @@
 #include "public-key.hpp"
 
 #include "../encoding/oid.hpp"
+#include "../util/crypto.hpp"
 #include "cryptopp.hpp"
 
 namespace ndn {
@@ -40,6 +41,22 @@ PublicKey::PublicKey(const uint8_t* keyDerBuf, size_t keyDerSize)
   CryptoPP::StringSource src(keyDerBuf, keyDerSize, true);
   decode(src);
 }
+
+const Block&
+PublicKey::computeDigest() const
+{
+  if (m_key.empty())
+    throw Error("Public key is empty");
+
+  if (m_digest.hasWire())
+    return m_digest;
+  else {
+    m_digest = Block(tlv::KeyDigest, crypto::sha256(m_key.buf(), m_key.size()));
+    m_digest.encode();
+    return m_digest;
+  }
+}
+
 
 void
 PublicKey::encode(CryptoPP::BufferedTransformation& out) const
@@ -105,6 +122,8 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
       m_type = KEY_TYPE_NULL;
       throw Error("PublicKey decoding error");
     }
+
+  m_digest.reset();
 }
 
 // Blob

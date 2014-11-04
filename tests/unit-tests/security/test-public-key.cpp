@@ -37,8 +37,25 @@ zL+zWT/WYemLq/8A1/hHWiwCtfOH1xQhGqWHJzeSgwIgOOrzxTbRaCjhAb1u2TeV\
 yx/I9H/DV+AqSHCaYbB92HDcDN0kqwSnUf5H1+osE9MR5DLBLhXdSiULSgxT3Or/\
 y2QgsgUK59WrjhlVMPEiHHRs15NZJbL1uQFXjgScdEarohcY3dilqotineFZCeN8\
 DwIDAQAB");
+
+const uint8_t RSA_DER_KEY_DIGEST[] = {
+  0x1d, 0x20,
+    0x58, 0x72, 0x4c, 0xf7, 0x36, 0x3d, 0xee, 0x4a,
+    0x5c, 0x5b, 0x39, 0x44, 0x2d, 0xf6, 0x1a, 0x24,
+    0xda, 0x13, 0xac, 0xab, 0x70, 0xf7, 0x74, 0x40,
+    0x5a, 0x44, 0xfe, 0xc0, 0xc9, 0x26, 0x58, 0x74
+};
+
 const std::string ECDSA_DER("MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAENZpqkPJDj8uhSpffOiCbvSYMLsGB\
 1Eo/WU6mrexjGvduQXjqwon/eSHFI6EgHZk8L9KfiV5XVtVsk2g5wIpJVg==");
+
+const uint8_t ECDSA_DER_KEY_DIGEST[] = {
+  0x1d, 0x20,
+    0xaf, 0x82, 0x3f, 0xfc, 0xdc, 0x85, 0xb2, 0xa4,
+    0xc8, 0xf5, 0x3b, 0x1a, 0xf8, 0xec, 0x4a, 0x55,
+    0x97, 0x55, 0x19, 0x3f, 0x54, 0xdd, 0xd0, 0xfd,
+    0xb5, 0x9d, 0x80, 0x65, 0x80, 0x6b, 0x4b, 0x63
+};
 
 BOOST_AUTO_TEST_CASE(RSA)
 {
@@ -53,6 +70,13 @@ BOOST_AUTO_TEST_CASE(RSA)
                                                                          os.buf()->size())));
 
   BOOST_CHECK_EQUAL(publicKey->getKeyType(), KEY_TYPE_RSA);
+
+  Block digestBlock(RSA_DER_KEY_DIGEST, sizeof(RSA_DER_KEY_DIGEST));
+  const Block& digest = publicKey->computeDigest();
+  BOOST_CHECK_EQUAL_COLLECTIONS(digestBlock.wire(),
+                                digestBlock.wire() + digestBlock.size(),
+                                digest.wire(),
+                                digest.wire() + digest.size());
 }
 
 BOOST_AUTO_TEST_CASE(ECDSA)
@@ -68,7 +92,15 @@ BOOST_AUTO_TEST_CASE(ECDSA)
                                                                          os.buf()->size())));
 
   BOOST_CHECK_EQUAL(publicKey->getKeyType(), KEY_TYPE_ECDSA);
+
+  Block digestBlock(ECDSA_DER_KEY_DIGEST, sizeof(ECDSA_DER_KEY_DIGEST));
+  const Block& digest = publicKey->computeDigest();
+  BOOST_CHECK_EQUAL_COLLECTIONS(digestBlock.wire(),
+                                digestBlock.wire() + digestBlock.size(),
+                                digest.wire(),
+                                digest.wire() + digest.size());
 }
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
