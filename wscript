@@ -89,6 +89,12 @@ def configure(conf):
 
     conf.write_config_header('src/ndn-cxx-config.hpp', define_prefix='NDN_CXX_')
 
+    # disable assertions in release builds
+    # This must appear after write_config_header, because otherwise all projects
+    # using a ndn-cxx release build would be compiled without assertions.
+    if not conf.options.debug:
+        conf.define('NDEBUG', 1)
+
 def build(bld):
     version(bld)
 
