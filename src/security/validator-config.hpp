@@ -33,7 +33,6 @@ namespace ndn {
 
 class ValidatorConfig : public Validator
 {
-
 public:
   class Error : public Validator::Error
   {
@@ -45,10 +44,19 @@ public:
     }
   };
 
-  static const shared_ptr<CertificateCache> DEFAULT_CERTIFICATE_CACHE;
-  static const time::milliseconds DEFAULT_GRACE_INTERVAL;
-  static const time::system_clock::Duration DEFAULT_KEY_TIMESTAMP_TTL;
+  /**
+   * @note  When both certificate cache and face are not supplied, no cache will be used.
+   *        However, if only face is supplied, a default cache will be created and used.
+   */
+  explicit
+  ValidatorConfig(Face* face = nullptr,
+                  const shared_ptr<CertificateCache>& certificateCache = DEFAULT_CERTIFICATE_CACHE,
+                  const time::milliseconds& graceInterval = DEFAULT_GRACE_INTERVAL,
+                  const size_t stepLimit = 10,
+                  const size_t maxTrackedKeys = 1000,
+                  const time::system_clock::Duration& keyTimestampTtl = DEFAULT_KEY_TIMESTAMP_TTL);
 
+  /// @deprecated Use the constructor taking Face* as parameter.
   explicit
   ValidatorConfig(Face& face,
                   const shared_ptr<CertificateCache>& certificateCache = DEFAULT_CERTIFICATE_CACHE,
@@ -75,10 +83,10 @@ public:
   load(const security::conf::ConfigSection& configSection,
        const std::string& filename);
 
-  inline void
+  void
   reset();
 
-  inline bool
+  bool
   isEmpty();
 
 protected:
@@ -137,7 +145,7 @@ private:
   time::nanoseconds
   getRefreshPeriod(std::string refreshString);
 
-  inline time::nanoseconds
+  time::nanoseconds
   getDefaultRefreshPeriod();
 
   void
@@ -153,9 +161,6 @@ private:
     return m_lastTimestamp.size();
   }
 #endif
-
-
-private:
 
   class TrustAnchorContainer
   {
@@ -220,6 +225,19 @@ private:
     time::nanoseconds m_refreshPeriod;
   };
 
+  static inline bool
+  compareDynamicContainer(const DynamicTrustAnchorContainer& containerA,
+                          const DynamicTrustAnchorContainer& containerB)
+  {
+    return (containerA.getLastRefresh() < containerB.getLastRefresh());
+  }
+
+public:
+  static const shared_ptr<CertificateCache> DEFAULT_CERTIFICATE_CACHE;
+  static const time::milliseconds DEFAULT_GRACE_INTERVAL;
+  static const time::system_clock::Duration DEFAULT_KEY_TIMESTAMP_TTL;
+
+private:
   typedef security::conf::Rule<Interest> InterestRule;
   typedef security::conf::Rule<Data>     DataRule;
   typedef std::vector<shared_ptr<InterestRule> > InterestRuleList;
@@ -228,12 +246,6 @@ private:
   typedef std::list<DynamicTrustAnchorContainer> DynamicContainers; // sorted by m_lastRefresh
   typedef std::list<shared_ptr<IdentityCertificate> > CertificateList;
 
-  static inline bool
-  compareDynamicContainer(const DynamicTrustAnchorContainer& containerA,
-                          const DynamicTrustAnchorContainer& containerB)
-  {
-    return (containerA.getLastRefresh() < containerB.getLastRefresh());
-  }
 
   /**
    * @brief gives whether validation should be preformed
@@ -258,175 +270,6 @@ private:
   LastTimestampMap m_lastTimestamp;
   const time::system_clock::Duration& m_keyTimestampTtl;
 };
-
-inline void
-ValidatorConfig::reset()
-{
-  m_certificateCache->reset();
-  m_interestRules.clear();
-  m_dataRules.clear();
-
-  m_anchors.clear();
-
-  m_staticContainer = TrustAnchorContainer();
-
-  m_dynamicContainers.clear();
-}
-
-inline bool
-ValidatorConfig::isEmpty()
-{
-  if (m_certificateCache->isEmpty() &&
-      m_interestRules.empty() &&
-      m_dataRules.empty() &&
-      m_anchors.empty())
-    return true;
-  return false;
-}
-
-template<class Packet, class OnValidated, class OnFailed>
-void
-ValidatorConfig::checkSignature(const Packet& packet,
-                                const Signature& signature,
-                                size_t nSteps,
-                                const OnValidated& onValidated,
-                                const OnFailed& onValidationFailed,
-                                std::vector<shared_ptr<ValidationRequest> >& nextSteps)
-{
-  if (signature.getType() == tlv::DigestSha256)
-    {
-      DigestSha256 sigSha256(signature);
-
-      if (verifySignature(packet, sigSha256))
-        return onValidated(packet.shared_from_this());
-      else
-        return onValidationFailed(packet.shared_from_this(),
-                                  "Sha256 Signature cannot be verified!");
-    }
-
-  try {
-    switch (signature.getType()) {
-    case tlv::SignatureSha256WithRsa:
-    case tlv::SignatureSha256WithEcdsa:
-      {
-        if (!signature.hasKeyLocator()) {
-          return onValidationFailed(packet.shared_from_this(),
-                                    "Missing KeyLocator in SignatureInfo");
-        }
-        break;
-      }
-    default:
-      return onValidationFailed(packet.shared_from_this(),
-                              "Unsupported signature type");
-    }
-  }
-  catch (KeyLocator::Error& e) {
-    return onValidationFailed(packet.shared_from_this(),
-                              "Cannot decode KeyLocator in public key signature");
-  }
-  catch (tlv::Error& e) {
-    return onValidationFailed(packet.shared_from_this(),
-                              "Cannot decode public key signature");
-  }
-
-  if (signature.getKeyLocator().getType() != KeyLocator::KeyLocator_Name) {
-    return onValidationFailed(packet.shared_from_this(), "Unsupported KeyLocator type");
-  }
-
-  const Name& keyLocatorName = signature.getKeyLocator().getName();
-
-  shared_ptr<const Certificate> trustedCert;
-
-  refreshAnchors();
-
-  AnchorList::const_iterator it = m_anchors.find(keyLocatorName);
-  if (m_anchors.end() == it)
-    trustedCert = m_certificateCache->getCertificate(keyLocatorName);
-  else
-    trustedCert = it->second;
-
-  if (static_cast<bool>(trustedCert))
-    {
-      if (verifySignature(packet, signature, trustedCert->getPublicKeyInfo()))
-        return onValidated(packet.shared_from_this());
-      else
-        return onValidationFailed(packet.shared_from_this(),
-                                  "Cannot verify signature");
-    }
-  else
-    {
-      if (m_stepLimit == nSteps)
-        return onValidationFailed(packet.shared_from_this(),
-                                  "Maximum steps of validation reached");
-
-      OnDataValidated onCertValidated =
-        bind(&ValidatorConfig::onCertValidated<Packet, OnValidated, OnFailed>,
-             this, _1, packet.shared_from_this(), onValidated, onValidationFailed);
-
-      OnDataValidationFailed onCertValidationFailed =
-        bind(&ValidatorConfig::onCertFailed<Packet, OnFailed>,
-             this, _1, _2, packet.shared_from_this(), onValidationFailed);
-
-      Interest certInterest(keyLocatorName);
-
-      shared_ptr<ValidationRequest> nextStep =
-        make_shared<ValidationRequest>(certInterest,
-                                       onCertValidated,
-                                       onCertValidationFailed,
-                                       1, nSteps + 1);
-
-      nextSteps.push_back(nextStep);
-      return;
-    }
-
-  return onValidationFailed(packet.shared_from_this(), "Unsupported Signature Type");
-}
-
-template<class Packet, class OnValidated, class OnFailed>
-void
-ValidatorConfig::onCertValidated(const shared_ptr<const Data>& signCertificate,
-                                 const shared_ptr<const Packet>& packet,
-                                 const OnValidated& onValidated,
-                                 const OnFailed& onValidationFailed)
-{
-  shared_ptr<IdentityCertificate> certificate =
-    make_shared<IdentityCertificate>(*signCertificate);
-
-  if (!certificate->isTooLate() && !certificate->isTooEarly())
-    {
-      m_certificateCache->insertCertificate(certificate);
-
-      if (verifySignature(*packet, certificate->getPublicKeyInfo()))
-        return onValidated(packet);
-      else
-        return onValidationFailed(packet,
-                                  "Cannot verify signature: " +
-                                  packet->getName().toUri());
-    }
-  else
-    {
-      return onValidationFailed(packet,
-                                "Signing certificate " +
-                                signCertificate->getName().toUri() +
-                                " is no longer valid.");
-    }
-}
-
-template<class Packet, class OnFailed>
-void
-ValidatorConfig::onCertFailed(const shared_ptr<const Data>& signCertificate,
-                              const std::string& failureInfo,
-                              const shared_ptr<const Packet>& packet,
-                              const OnFailed& onValidationFailed)
-{
-  onValidationFailed(packet, failureInfo);
-}
-
-inline time::nanoseconds
-ValidatorConfig::getDefaultRefreshPeriod()
-{
-  return time::duration_cast<time::nanoseconds>(time::seconds(3600));
-}
 
 } // namespace ndn
 

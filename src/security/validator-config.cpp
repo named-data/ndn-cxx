@@ -35,6 +35,25 @@ const shared_ptr<CertificateCache> ValidatorConfig::DEFAULT_CERTIFICATE_CACHE;
 const time::milliseconds ValidatorConfig::DEFAULT_GRACE_INTERVAL(3000);
 const time::system_clock::Duration ValidatorConfig::DEFAULT_KEY_TIMESTAMP_TTL = time::hours(1);
 
+ValidatorConfig::ValidatorConfig(Face* face,
+                                 const shared_ptr<CertificateCache>& certificateCache,
+                                 const time::milliseconds& graceInterval,
+                                 const size_t stepLimit,
+                                 const size_t maxTrackedKeys,
+                                 const time::system_clock::Duration& keyTimestampTtl)
+  : Validator(face)
+  , m_shouldValidate(true)
+  , m_stepLimit(stepLimit)
+  , m_certificateCache(certificateCache)
+  , m_graceInterval(graceInterval < time::milliseconds::zero() ?
+                    DEFAULT_GRACE_INTERVAL : graceInterval)
+  , m_maxTrackedKeys(maxTrackedKeys)
+  , m_keyTimestampTtl(keyTimestampTtl)
+{
+  if (!static_cast<bool>(m_certificateCache) && face != nullptr)
+    m_certificateCache = make_shared<CertificateCacheTtl>(ref(face->getIoService()));
+}
+
 ValidatorConfig::ValidatorConfig(Face& face,
                                  const shared_ptr<CertificateCache>& certificateCache,
                                  const time::milliseconds& graceInterval,
@@ -51,7 +70,7 @@ ValidatorConfig::ValidatorConfig(Face& face,
   , m_keyTimestampTtl(keyTimestampTtl)
 {
   if (!static_cast<bool>(m_certificateCache))
-    m_certificateCache = make_shared<CertificateCacheTtl>(ref(m_face.getIoService()));
+    m_certificateCache = make_shared<CertificateCacheTtl>(ref(face.getIoService()));
 }
 
 void
@@ -355,6 +374,32 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
     throw Error("Unsupported trust-anchor.type: " + type);
 }
 
+void
+ValidatorConfig::reset()
+{
+  if (static_cast<bool>(m_certificateCache))
+    m_certificateCache->reset();
+  m_interestRules.clear();
+  m_dataRules.clear();
+
+  m_anchors.clear();
+
+  m_staticContainer = TrustAnchorContainer();
+
+  m_dynamicContainers.clear();
+}
+
+bool
+ValidatorConfig::isEmpty()
+{
+  if ((!static_cast<bool>(m_certificateCache) || m_certificateCache->isEmpty()) &&
+      m_interestRules.empty() &&
+      m_dataRules.empty() &&
+      m_anchors.empty())
+    return true;
+  return false;
+}
+
 time::nanoseconds
 ValidatorConfig::getRefreshPeriod(std::string inputString)
 {
@@ -386,6 +431,12 @@ ValidatorConfig::getRefreshPeriod(std::string inputString)
     default:
       throw Error(std::string("Wrong time unit: ") + unit);
     }
+}
+
+time::nanoseconds
+ValidatorConfig::getDefaultRefreshPeriod()
+{
+  return time::duration_cast<time::nanoseconds>(time::seconds(3600));
 }
 
 void
@@ -674,5 +725,144 @@ ValidatorConfig::DynamicTrustAnchorContainer::refresh()
     }
 }
 
+template<class Packet, class OnValidated, class OnFailed>
+void
+ValidatorConfig::checkSignature(const Packet& packet,
+                                const Signature& signature,
+                                size_t nSteps,
+                                const OnValidated& onValidated,
+                                const OnFailed& onValidationFailed,
+                                std::vector<shared_ptr<ValidationRequest> >& nextSteps)
+{
+  if (signature.getType() == tlv::DigestSha256)
+    {
+      DigestSha256 sigSha256(signature);
+
+      if (verifySignature(packet, sigSha256))
+        return onValidated(packet.shared_from_this());
+      else
+        return onValidationFailed(packet.shared_from_this(),
+                                  "Sha256 Signature cannot be verified!");
+    }
+
+  try {
+    switch (signature.getType()) {
+    case tlv::SignatureSha256WithRsa:
+    case tlv::SignatureSha256WithEcdsa:
+      {
+        if (!signature.hasKeyLocator()) {
+          return onValidationFailed(packet.shared_from_this(),
+                                    "Missing KeyLocator in SignatureInfo");
+        }
+        break;
+      }
+    default:
+      return onValidationFailed(packet.shared_from_this(),
+                              "Unsupported signature type");
+    }
+  }
+  catch (KeyLocator::Error& e) {
+    return onValidationFailed(packet.shared_from_this(),
+                              "Cannot decode KeyLocator in public key signature");
+  }
+  catch (tlv::Error& e) {
+    return onValidationFailed(packet.shared_from_this(),
+                              "Cannot decode public key signature");
+  }
+
+
+  if (signature.getKeyLocator().getType() != KeyLocator::KeyLocator_Name) {
+    return onValidationFailed(packet.shared_from_this(), "Unsupported KeyLocator type");
+  }
+
+  const Name& keyLocatorName = signature.getKeyLocator().getName();
+
+  shared_ptr<const Certificate> trustedCert;
+
+  refreshAnchors();
+
+  AnchorList::const_iterator it = m_anchors.find(keyLocatorName);
+  if (m_anchors.end() == it && static_cast<bool>(m_certificateCache))
+    trustedCert = m_certificateCache->getCertificate(keyLocatorName);
+  else
+    trustedCert = it->second;
+
+  if (static_cast<bool>(trustedCert))
+    {
+      if (verifySignature(packet, signature, trustedCert->getPublicKeyInfo()))
+        return onValidated(packet.shared_from_this());
+      else
+        return onValidationFailed(packet.shared_from_this(),
+                                  "Cannot verify signature");
+    }
+  else
+    {
+      if (m_stepLimit == nSteps)
+        return onValidationFailed(packet.shared_from_this(),
+                                  "Maximum steps of validation reached");
+
+      OnDataValidated onCertValidated =
+        bind(&ValidatorConfig::onCertValidated<Packet, OnValidated, OnFailed>,
+             this, _1, packet.shared_from_this(), onValidated, onValidationFailed);
+
+      OnDataValidationFailed onCertValidationFailed =
+        bind(&ValidatorConfig::onCertFailed<Packet, OnFailed>,
+             this, _1, _2, packet.shared_from_this(), onValidationFailed);
+
+      Interest certInterest(keyLocatorName);
+
+      shared_ptr<ValidationRequest> nextStep =
+        make_shared<ValidationRequest>(certInterest,
+                                       onCertValidated,
+                                       onCertValidationFailed,
+                                       1, nSteps + 1);
+
+      nextSteps.push_back(nextStep);
+      return;
+    }
+
+  return onValidationFailed(packet.shared_from_this(), "Unsupported Signature Type");
+}
+
+template<class Packet, class OnValidated, class OnFailed>
+void
+ValidatorConfig::onCertValidated(const shared_ptr<const Data>& signCertificate,
+                                 const shared_ptr<const Packet>& packet,
+                                 const OnValidated& onValidated,
+                                 const OnFailed& onValidationFailed)
+{
+  shared_ptr<IdentityCertificate> certificate =
+    make_shared<IdentityCertificate>(*signCertificate);
+
+  if (!certificate->isTooLate() && !certificate->isTooEarly())
+    {
+      if (static_cast<bool>(m_certificateCache))
+        m_certificateCache->insertCertificate(certificate);
+
+      if (verifySignature(*packet, certificate->getPublicKeyInfo()))
+        return onValidated(packet);
+      else
+        return onValidationFailed(packet,
+                                  "Cannot verify signature: " +
+                                  packet->getName().toUri());
+    }
+  else
+    {
+      return onValidationFailed(packet,
+                                "Signing certificate " +
+                                signCertificate->getName().toUri() +
+                                " is no longer valid.");
+    }
+}
+
+template<class Packet, class OnFailed>
+void
+ValidatorConfig::onCertFailed(const shared_ptr<const Data>& signCertificate,
+                              const std::string& failureInfo,
+                              const shared_ptr<const Packet>& packet,
+                              const OnFailed& onValidationFailed)
+{
+  onValidationFailed(packet, failureInfo);
+}
 
 } // namespace ndn

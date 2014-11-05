@@ -45,8 +45,16 @@ public:
     }
   };
 
-  static const shared_ptr<CertificateCache> DEFAULT_CERTIFICATE_CACHE;
+  /**
+   * @note  When both certificate cache and face are not supplied, no cache will be used.
+   *        However, if only face is supplied, a default cache will be created and used.
+   */
+  explicit
+  ValidatorRegex(Face* face = nullptr,
+                 shared_ptr<CertificateCache> certificateCache = DEFAULT_CERTIFICATE_CACHE,
+                 const int stepLimit = 3);
 
+  /// @deprecated Use the constructor taking Face* as parameter.
   explicit
   ValidatorRegex(Face& face,
                  shared_ptr<CertificateCache> certificateCache = DEFAULT_CERTIFICATE_CACHE,
@@ -62,7 +70,7 @@ public:
    *
    * @param rule The verification rule
    */
-  inline void
+  void
   addDataVerificationRule(shared_ptr<SecRuleRelative> rule);
 
   /**
@@ -70,7 +78,7 @@ public:
    *
    * @param certificate The trust anchor
    */
-  inline void
+  void
   addTrustAnchor(shared_ptr<IdentityCertificate> certificate);
 
 protected:
@@ -103,6 +111,9 @@ protected:
                                 const shared_ptr<const Data>& data,
                                 const OnDataValidationFailed& onValidationFailed);
 
+public:
+  static const shared_ptr<CertificateCache> DEFAULT_CERTIFICATE_CACHE;
+
 protected:
   typedef std::vector< shared_ptr<SecRuleRelative> > RuleList;
   typedef std::vector< shared_ptr<Regex> > RegexList;
@@ -114,18 +125,6 @@ protected:
   std::map<Name, shared_ptr<IdentityCertificate> > m_trustAnchors;
 };
 
-inline void
-ValidatorRegex::addDataVerificationRule(shared_ptr<SecRuleRelative> rule)
-{
-  rule->isPositive() ? m_verifyPolicies.push_back(rule) : m_mustFailVerify.push_back(rule);
-}
-
-inline void
-ValidatorRegex::addTrustAnchor(shared_ptr<IdentityCertificate> certificate)
-{
-  m_trustAnchors[certificate->getName().getPrefix(-1)] = certificate;
-}
-
 } // namespace ndn
 
-#endif //NDN_SECURITY_VALIDATOR_REGEX_HPP
+#endif // NDN_SECURITY_VALIDATOR_REGEX_HPP

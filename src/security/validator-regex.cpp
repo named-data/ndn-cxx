@@ -31,6 +31,17 @@ namespace ndn {
 
 const shared_ptr<CertificateCache> ValidatorRegex::DEFAULT_CERTIFICATE_CACHE;
 
+ValidatorRegex::ValidatorRegex(Face* face,
+                               shared_ptr<CertificateCache> certificateCache,
+                               const int stepLimit)
+  : Validator(face)
+  , m_stepLimit(stepLimit)
+  , m_certificateCache(certificateCache)
+{
+  if (!static_cast<bool>(m_certificateCache) && face != nullptr)
+    m_certificateCache = make_shared<CertificateCacheTtl>(ref(face->getIoService()));
+}
+
 ValidatorRegex::ValidatorRegex(Face& face,
                                shared_ptr<CertificateCache> certificateCache,
                                const int stepLimit)
@@ -39,7 +50,19 @@ ValidatorRegex::ValidatorRegex(Face& face,
   , m_certificateCache(certificateCache)
 {
   if (!static_cast<bool>(m_certificateCache))
-    m_certificateCache = make_shared<CertificateCacheTtl>(ref(m_face.getIoService()));
+    m_certificateCache = make_shared<CertificateCacheTtl>(ref(face.getIoService()));
+}
+
+void
+ValidatorRegex::addDataVerificationRule(shared_ptr<SecRuleRelative> rule)
+{
+  rule->isPositive() ? m_verifyPolicies.push_back(rule) : m_mustFailVerify.push_back(rule);
+}
+
+void
+ValidatorRegex::addTrustAnchor(shared_ptr<IdentityCertificate> certificate)
+{
+  m_trustAnchors[certificate->getName().getPrefix(-1)] = certificate;
 }
 
 void
@@ -53,7 +76,8 @@ ValidatorRegex::onCertificateValidated(const shared_ptr<const Data>& signCertifi
 
   if (!certificate->isTooLate() && !certificate->isTooEarly())
     {
-      m_certificateCache->insertCertificate(certificate);
+      if (static_cast<bool>(m_certificateCache))
+        m_certificateCache->insertCertificate(certificate);
 
       if (verifySignature(*data, certificate->getPublicKeyInfo()))
         return onValidated(data);
@@ -122,7 +146,8 @@ ValidatorRegex::checkPolicy(const Data& data,
 
               const Name& keyLocatorName = keyLocator.getName();
               shared_ptr<const Certificate> trustedCert;
-              if (m_trustAnchors.end() == m_trustAnchors.find(keyLocatorName))
+              if (m_trustAnchors.end() == m_trustAnchors.find(keyLocatorName) &&
+                  static_cast<bool>(m_certificateCache))
                 trustedCert = m_certificateCache->getCertificate(keyLocatorName);
               else
                 trustedCert = m_trustAnchors[keyLocatorName];

@@ -54,8 +54,18 @@ public:
     }
   };
 
-  Validator();
+  /**
+   * @brief Validator constructor
+   *
+   * @param face Pointer to face through which validator may retrieve certificates.
+   *             Passing a null pointer implies the validator is in offline mode.
+   *
+   * @note Make sure the lifetime of the passed Face is longer than validator.
+   */
+  explicit
+  Validator(Face* face = nullptr);
 
+  /// @deprecated Use the constructor taking Face* as parameter.
   explicit
   Validator(Face& face);
 
@@ -300,10 +310,9 @@ protected:
                    const OnFailure& onFailure);
 
 protected:
-  bool m_hasFace;
-  Face& m_face;
+  Face* m_face;
 };
 
 } // namespace ndn
 
-#endif //NDN_SECURITY_VALIDATOR_HPP
+#endif // NDN_SECURITY_VALIDATOR_HPP

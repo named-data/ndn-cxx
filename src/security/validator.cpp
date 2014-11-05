@@ -34,15 +34,13 @@ namespace ndn {
 static OID SECP256R1("1.2.840.10045.3.1.7");
 static OID SECP384R1("1.3.132.0.34");
 
-Validator::Validator()
-  : m_hasFace(false)
-  , m_face(*static_cast<Face*>(0))
+Validator::Validator(Face* face)
+  : m_face(face)
 {
 }
 
 Validator::Validator(Face& face)
-  : m_hasFace(true)
-  , m_face(face)
+  : m_face(&face)
 {
 }
 
@@ -60,13 +58,6 @@ Validator::validate(const Interest& interest,
       // If there is no nextStep,
       // that means InterestPolicy has already been able to verify the Interest.
       // No more further processes.
-      return;
-    }
-
-  if (!m_hasFace)
-    {
-      onValidationFailed(interest.shared_from_this(),
-                         "Require more information to validate the interest!");
       return;
     }
 
@@ -88,13 +79,6 @@ Validator::validate(const Data& data,
       // If there is no nextStep,
       // that means Data Policy has already been able to verify the Interest.
       // No more further processes.
-      return;
-    }
-
-  if (!m_hasFace)
-    {
-      onValidationFailed(data.shared_from_this(),
-                         "Require more information to validate the data!");
       return;
     }
 
@@ -289,10 +273,10 @@ Validator::onTimeout(const Interest& interest,
 {
   if (remainingRetries > 0)
     // Issue the same expressInterest except decrement nRetrials.
-    m_face.expressInterest(interest,
-                           bind(&Validator::onData, this, _1, _2, validationRequest),
-                           bind(&Validator::onTimeout, this, _1,
-                                remainingRetries - 1, onFailure, validationRequest));
+    m_face->expressInterest(interest,
+                            bind(&Validator::onData, this, _1, _2, validationRequest),
+                            bind(&Validator::onTimeout, this, _1,
+                                 remainingRetries - 1, onFailure, validationRequest));
   else
     onFailure("Cannot fetch cert: " + interest.getName().toUri());
 }
@@ -302,15 +286,21 @@ void
 Validator::afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest> >& nextSteps,
                             const OnFailure& onFailure)
 {
+  if (m_face == nullptr)
+    {
+      onFailure("Require more information to validate the packet!");
+      return;
+    }
+
   for (std::vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
        it != nextSteps.end(); it++)
     {
-      m_face.expressInterest((*it)->m_interest,
-                             bind(&Validator::onData, this, _1, _2, *it),
-                             bind(&Validator::onTimeout,
-                                  this, _1, (*it)->m_nRetries,
-                                  onFailure,
-                                  *it));
+      m_face->expressInterest((*it)->m_interest,
+                              bind(&Validator::onData, this, _1, _2, *it),
+                              bind(&Validator::onTimeout,
+                                   this, _1, (*it)->m_nRetries,
+                                   onFailure,
+                                   *it));
     }
 }
 
