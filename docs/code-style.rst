@@ -9,8 +9,8 @@ Based on
     * NDN Platform "C++, C, C#, Java and JavaScript Code Guidelines".
       The original document available at `<http://named-data.net/codebase/platform/documentation/ndn-platform-development-guidelines/cpp-code-guidelines/>`_
 
-1. Code layout and file naming
-------------------------------
+1. Code layout
+--------------
 
 1.1. The code layout should generally follow the GNU coding standard layout for C,
 extended it to C++.
