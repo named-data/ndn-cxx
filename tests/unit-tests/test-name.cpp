@@ -24,6 +24,7 @@
 #include "boost-test.hpp"
 #include <boost/tuple/tuple.hpp>
 #include <boost/mpl/vector.hpp>
+#include <unordered_map>
 
 namespace ndn {
 
@@ -272,6 +273,21 @@ BOOST_AUTO_TEST_CASE(Markers)
 
   BOOST_REQUIRE_NO_THROW(number = name.appendSequenceNumber(11676).at(-1).toSequenceNumber());
   BOOST_CHECK_EQUAL(number, 11676);
+}
+
+BOOST_AUTO_TEST_CASE(UnorderedMap)
+{
+  std::unordered_map<Name, int> map;
+  Name name1("/1");
+  Name name2("/2");
+  Name name3("/3");
+  map[name1] = 1;
+  map[name2] = 2;
+  map[name3] = 3;
+
+  BOOST_CHECK_EQUAL(map[name1], 1);
+  BOOST_CHECK_EQUAL(map[name2], 2);
+  BOOST_CHECK_EQUAL(map[name3], 3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -597,4 +597,14 @@ Name::hasWire() const
 
 } // namespace ndn
 
+namespace std {
+template<>
+struct hash<ndn::Name>
+{
+  size_t
+  operator()(const ndn::Name& name) const;
+};
+
+} // namespace std
+
 #endif

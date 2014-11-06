@@ -31,6 +31,8 @@
 #include "encoding/block.hpp"
 #include "encoding/encoding-buffer.hpp"
 
+#include <boost/functional/hash.hpp>
+
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Name>));
@@ -341,3 +343,13 @@ operator>>(std::istream& is, Name& name)
 }
 
 } // namespace ndn
+
+namespace std {
+size_t
+hash<ndn::Name>::operator()(const ndn::Name& name) const
+{
+  return boost::hash_range(name.wireEncode().wire(),
+                           name.wireEncode().wire() + name.wireEncode().size());
+}
+
+} // namespace std
