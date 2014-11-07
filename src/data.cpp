@@ -182,7 +182,7 @@ Data::getFullName() const
                   "(e.g., not signed)");
     }
     m_fullName = m_name;
-    m_fullName.append(name::Component(crypto::sha256(m_wire.wire(), m_wire.size())));
+    m_fullName.appendImplicitSha256Digest(crypto::sha256(m_wire.wire(), m_wire.size()));
   }
 
   return m_fullName;

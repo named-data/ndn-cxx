@@ -221,8 +221,7 @@ BOOST_FIXTURE_TEST_CASE(Decode, TestDataFixture)
   Block dataBlock(Data1, sizeof(Data1));
 
   ndn::Data d;
-  // BOOST_REQUIRE_NO_THROW
-    (d.wireDecode(dataBlock));
+  BOOST_REQUIRE_NO_THROW(d.wireDecode(dataBlock));
 
   BOOST_REQUIRE_EQUAL(d.getName().toUri(), "/local/ndn/prefix");
   BOOST_REQUIRE_EQUAL(d.getContentType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
@@ -378,7 +377,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, DataIdentityFixture)
 
   BOOST_CHECK_EQUAL(fullName.toUri(),
     "/local/ndn/prefix/"
-    "%28%BA%D4%B5%27%5B%D3%92%DB%B6p%C7%5C%F0%B6o%13%F7%94+%21%E8%0FU%C0%E8k7GS%A5H");
+    "sha256digest=28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
