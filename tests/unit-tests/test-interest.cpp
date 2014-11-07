@@ -530,7 +530,7 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   data7.wireEncode();
 
   interest = Interest()
-    .setName("/A/B/%D5H%DE%CE%FCK%88%07%20%DC%92W%A8%D8%15%E9%DFDe%E67B%EEU%C2%913%05%5D%AAg%C2");
+    .setName("/A/B/sha256digest=D548DECEFC4B880720DC9257A8D815E9DF4465E63742EE55C29133055DAA67C2");
   BOOST_CHECK_EQUAL(interest.matchesData(data7), true);
 
   interest = Interest()
@@ -538,8 +538,6 @@ BOOST_AUTO_TEST_CASE(MatchesData)
                   "%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00");
   BOOST_CHECK_EQUAL(interest.matchesData(data7), false); // violates implicit digest
 }
-
-
 
 BOOST_AUTO_TEST_CASE(InterestFilterMatching)
 {

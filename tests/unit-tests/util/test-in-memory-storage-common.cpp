@@ -29,7 +29,6 @@
 #include "../test-make-interest-data.hpp"
 
 #include <boost/mpl/list.hpp>
-#include <boost/mpl/front.hpp>
 
 namespace ndn {
 namespace util {
@@ -384,13 +383,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EraseCanonical, T, InMemoryStorages)
   BOOST_CHECK_EQUAL(ims.size(), 6);
 }
 
-/// @todo Expected failures, needs to be fixed as part of Issue #2118
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(ImplicitDigestSelector, 1) // doesn't work with
-                                                                  // templated test cases
-// BOOST_AUTO_TEST_CASE_TEMPLATE(ImplicitDigestSelector, T, InMemoryStorages)
-BOOST_AUTO_TEST_CASE(ImplicitDigestSelector)
+BOOST_AUTO_TEST_CASE_TEMPLATE(ImplicitDigestSelector, T, InMemoryStorages)
 {
-  typedef boost::mpl::front<InMemoryStorages>::type T;
   T ims;
 
   Name name("/digest/works");
@@ -407,26 +401,23 @@ BOOST_AUTO_TEST_CASE(ImplicitDigestSelector)
                                                     data->wireEncode().size());
 
   shared_ptr<Interest> interest = makeInterest("");
-  interest->setName(Name(name).append(digest1->buf(), digest1->size()));
+  interest->setName(Name(name).appendImplicitSha256Digest(digest1->buf(), digest1->size()));
   interest->setMinSuffixComponents(0);
   interest->setMaxSuffixComponents(0);
 
   shared_ptr<const Data> found = ims.find(*interest);
+  BOOST_REQUIRE(static_cast<bool>(found));
+  BOOST_CHECK_EQUAL(found->getName(), name);
+
+  shared_ptr<Interest> interest2 = makeInterest("");
+  uint8_t digest2[32] = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1};
+  interest2->setName(Name(name).appendImplicitSha256Digest(digest2, 32));
+  interest2->setMinSuffixComponents(0);
+  interest2->setMaxSuffixComponents(0);
+
+  shared_ptr<const Data> notfound = ims.find(*interest2);
   BOOST_CHECK(static_cast<bool>(found));
-  // If changed to BOOST_REQUIRE, EXPECTED_FAILURES does not work
-  if (static_cast<bool>(found)) {
-    BOOST_CHECK_EQUAL(found->getName(), name);
-
-    shared_ptr<Interest> interest2 = makeInterest("");
-    uint8_t digest2[32] = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1};
-    interest2->setName(Name(name).append(digest2, 32));
-    interest2->setMinSuffixComponents(0);
-    interest2->setMaxSuffixComponents(0);
-
-    shared_ptr<const Data> notfound = ims.find(*interest2);
-    BOOST_CHECK(static_cast<bool>(found));
-  }
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ChildSelector, T, InMemoryStorages)
@@ -536,13 +527,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(PublisherKeySelector2, T, InMemoryStorages)
   BOOST_CHECK_EQUAL(found->getName(), data2->getName());
 }
 
-/// @todo Expected failures, needs to be fixed as part of Issue #2118
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(MinMaxComponentsSelector, 1) // doesn't work with
-                                                                    // templated test cases
-// BOOST_AUTO_TEST_CASE_TEMPLATE(MinMaxComponentsSelector, T, InMemoryStorages)
-BOOST_AUTO_TEST_CASE(MinMaxComponentsSelector)
+BOOST_AUTO_TEST_CASE_TEMPLATE(MinMaxComponentsSelector, T, InMemoryStorages)
 {
-  typedef boost::mpl::front<InMemoryStorages>::type T;
   T ims;
 
   shared_ptr<Data> data = makeData("/a");
@@ -571,7 +557,7 @@ BOOST_AUTO_TEST_CASE(MinMaxComponentsSelector)
   interest->setChildSelector(0);
 
   shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_CHECK_EQUAL(found->getName(), "/c/c/1/2/3/4/5/6");
+  BOOST_CHECK_EQUAL(found->getName(), "/c/c/1/2/3");
 
   shared_ptr<Interest> interest2 = makeInterest("/c/c");
   interest2->setMinSuffixComponents(4);

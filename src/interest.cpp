@@ -127,11 +127,8 @@ Interest::matchesData(const Data& data) const
 
   // check prefix
   if (interestNameLength == fullNameLength) {
-    bool mightEndWithDigest = (interestNameLength > 0) &&
-                              (m_name.get(-1).value_size() == crypto::SHA256_DIGEST_SIZE);
-    if (mightEndWithDigest) {
-      // Interest Name is same length as Data full Name, last component could match digest
-      if (!m_name.isPrefixOf(data.getFullName()))
+    if (m_name.get(-1).isImplicitSha256Digest()) {
+      if (m_name != data.getFullName())
         return false;
     }
     else {
