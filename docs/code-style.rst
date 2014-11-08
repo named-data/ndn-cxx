@@ -993,7 +993,6 @@ the alternative structured counterpart is proven to be less readable.
 
 3.28. Use ``static_assert`` for static assertions.
 
-
     .. code-block:: c++
 
         class BaseClass
@@ -1006,3 +1005,33 @@ the alternative structured counterpart is proven to be less readable.
 
         static_assert(std::is_base_of<BaseClass, DerivedClass>::value,
                       "DerivedClass must inherit from BaseClass");
+
+3.29. ``auto`` type specifier MAY be used for local variables, if a human reader
+      can easily deduce the actual type.
+
+    .. code-block:: c++
+
+        std::vector<int> intVector;
+        auto i = intVector.find(4);
+
+        auto stringSet = std::make_shared<std::set<std::string>>();
+
+    ``auto`` SHOULD NOT be used if a human reader cannot easily deduce the actual type.
+
+    .. code-block:: c++
+
+        auto x = foo(); // BAD if the declaration of foo() isn't nearby
+
+    ``const auto&`` SHOULD be used to represent constant reference types.
+    ``auto&&`` SHOULD be used to represent mutable reference types.
+
+    .. code-block:: c++
+
+        std::list<std::string> strings;
+
+        for (const auto& str : strings) {
+          statements; // cannot modify `str`
+        }
+        for (auto&& str : strings) {
+          statements; // can modify `str`
+        }
