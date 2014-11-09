@@ -88,19 +88,35 @@ using std::const_pointer_cast;
 
 using std::function;
 using std::bind;
-using std::placeholders::_1;
-using std::placeholders::_2;
-using std::placeholders::_3;
-using std::placeholders::_4;
-using std::placeholders::_5;
-using std::placeholders::_6;
-using std::placeholders::_7;
-using std::placeholders::_8;
-using std::placeholders::_9;
 using std::ref;
 using std::cref;
 
 } // namespace ndn
+
+// Bug 2109 workaround
+using namespace std::placeholders;
+#define BOOST_BIND_NO_PLACEHOLDERS
+#include <boost/is_placeholder.hpp>
+namespace boost {
+#define NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(N) \
+  template<> \
+  struct is_placeholder<typename std::remove_const<decltype(_##N)>::type> \
+  { \
+    enum _vt { \
+      value = N \
+    }; \
+  };
+NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(1)
+NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(2)
+NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(3)
+NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(4)
+NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(5)
+NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(6)
+NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(7)
+NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(8)
+NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(9)
+#undef NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER
+} // namespace boost
 
 #include <boost/assert.hpp>
 #include <boost/concept_check.hpp>

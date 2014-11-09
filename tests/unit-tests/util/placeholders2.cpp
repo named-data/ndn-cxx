@@ -17,35 +17,24 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_SECURITY_CONF_COMMON_HPP
-#define NDN_SECURITY_CONF_COMMON_HPP
+// Bug 2109 test case
 
-#include "../../common.hpp"
-#include <string>
-#include <boost/property_tree/ptree.hpp>
+// interest.hpp includes common.hpp; common.hpp shouldn't be used from external program
+#include "interest.hpp"
 
-namespace ndn {
-namespace security {
-namespace conf {
+#include <boost/bind.hpp>
 
-typedef boost::property_tree::ptree ConfigSection;
-
-class Error : public std::runtime_error
+void
+placeholders2TestFunction(int i)
 {
-public:
-  explicit
-  Error(const std::string& what)
-    : std::runtime_error(what)
-  {
-  }
-};
+}
 
-} // namespace conf
-} // namespace security
-} // namespace ndn
-
-#endif // NDN_SECURITY_CONF_COMMON_HPP
+int
+placeholders2TestMain()
+{
+  auto f = boost::bind(&placeholders2TestFunction, _1);
+  f(1);
+  return 0;
+}
