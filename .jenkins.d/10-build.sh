@@ -2,7 +2,7 @@
 set -x
 set -e
 
-COVERAGE=$( python -c "print '--with-coverage' if 'code-coverage' in '$JOB_NAME' else ''" )
+COVERAGE=$( python -c "print '--with-coverage --debug' if 'code-coverage' in '$JOB_NAME' else ''" )
 
 sudo rm -Rf /usr/local/include/ndn-cxx
 sudo rm -f /usr/local/lib/libndn-cxx*
