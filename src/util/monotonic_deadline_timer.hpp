@@ -32,11 +32,11 @@
 namespace boost {
 namespace asio {
 
-template <>
-struct time_traits<ndn::time::steady_clock::TimePoint::clock>
+template<>
+struct time_traits<ndn::time::steady_clock>
 {
   typedef ndn::time::steady_clock::TimePoint time_type;
-  typedef ndn::time::steady_clock::TimePoint::clock::duration duration_type;
+  typedef ndn::time::steady_clock::Duration  duration_type;
 
   static time_type
   now()
@@ -65,15 +65,7 @@ struct time_traits<ndn::time::steady_clock::TimePoint::clock>
   static boost::posix_time::time_duration
   to_posix_duration(const duration_type& duration)
   {
-    return
-#ifdef BOOST_DATE_TIME_HAS_NANOSECONDS
-      boost::posix_time::nanoseconds(
-        ndn::time::duration_cast<ndn::time::nanoseconds>(duration).count())
-#else
-      boost::posix_time::microseconds(
-        ndn::time::duration_cast<ndn::time::microseconds>(duration).count())
-#endif
-      ;
+    return ndn::time::steady_clock::to_posix_duration(duration);
   }
 };
 
@@ -82,7 +74,7 @@ struct time_traits<ndn::time::steady_clock::TimePoint::clock>
 
 namespace ndn {
 
-typedef boost::asio::basic_deadline_timer<time::steady_clock::TimePoint::clock> monotonic_deadline_timer;
+typedef boost::asio::basic_deadline_timer<time::steady_clock> monotonic_deadline_timer;
 
 } // namespace ndn
 

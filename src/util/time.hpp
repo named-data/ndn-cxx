@@ -24,6 +24,8 @@
 
 #include "../common.hpp"
 #include <boost/chrono.hpp>
+#include <boost/asio/time_traits.hpp>
+#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 namespace ndn {
 namespace time {
@@ -61,18 +63,29 @@ using boost::chrono::duration_cast;
  * <code>
  *     system_clock::TimePoint time = ...;
  *     uint64_t timestampInMilliseconds = toUnixTimestamp(time).count();
- *     system_clock::TimePoint time2 = fromUnixTimestamp(time::milliseconds(timestampInMilliseconds));
+ *     system_clock::TimePoint time2 = fromUnixTimestamp(milliseconds(timestampInMilliseconds));
  * </code>
  */
-class system_clock : public boost::chrono::system_clock
+class system_clock
 {
 public:
+  typedef BOOST_SYSTEM_CLOCK_DURATION      duration;
+  typedef duration::rep                    rep;
+  typedef duration::period                 period;
+  typedef boost::chrono::time_point<system_clock> time_point;
+  static constexpr bool is_steady = false;
+
   typedef time_point TimePoint;
   typedef duration Duration;
 
-  // /// \brief Get current TimePoint
-  // TimePoint
-  // now();
+  static time_point
+  now() noexcept;
+
+  static std::time_t
+  to_time_t(const time_point& t) noexcept;
+
+  static time_point
+  from_time_t(std::time_t t) noexcept;
 }; // class system_clock
 
 /**
@@ -82,56 +95,55 @@ public:
  * clock cannot decrease as physical time moves forward. This clock is
  * not related to wall clock time, and is best suitable for measuring
  * intervals.
- *
- * Note that on OS X platform this defaults to system clock and is not
- * truly monotonic. Refer to https://svn.boost.org/trac/boost/ticket/7719)
  */
-class steady_clock : public
-#ifdef __APPLE__
-// steady_clock may go backwards on OS X platforms, so use system_clock
-// instead
-    boost::chrono::system_clock
-#else
-    boost::chrono::steady_clock
-#endif
+class steady_clock
 {
 public:
+  typedef nanoseconds      duration;
+  typedef duration::rep    rep;
+  typedef duration::period period;
+  typedef boost::chrono::time_point<steady_clock> time_point;
+  static constexpr bool is_steady = true;
+
   typedef time_point TimePoint;
   typedef duration Duration;
 
-  // /// \brief Get current TimePoint
-  // TimePoint
-  // now();
+  static time_point
+  now() noexcept;
+
+private:
+  /**
+   * \brief Method to be used in deadline timer to select proper waiting
+   *
+   * Mock time implementations should return minimum value to ensure Boost.Asio
+   * is not enabling any waiting on mock timers.
+   *
+   * @sa http://stackoverflow.com/questions/14191855/how-do-you-mock-the-time-for-boost-timers
+   */
+  static boost::posix_time::time_duration
+  to_posix_duration(const duration& duration);
+
+  friend struct boost::asio::time_traits<steady_clock>;
 }; // class steady_clock
 
 
 /**
  * \brief Get system_clock::TimePoint representing UNIX time epoch (00:00:00 on Jan 1, 1970)
  */
-inline const system_clock::TimePoint&
-getUnixEpoch()
-{
-  static system_clock::TimePoint epoch = system_clock::from_time_t(0);
-  return epoch;
-}
+const system_clock::TimePoint&
+getUnixEpoch();
 
 /**
  * \brief Convert system_clock::TimePoint to UNIX timestamp
  */
-inline milliseconds
-toUnixTimestamp(const system_clock::TimePoint& point)
-{
-  return duration_cast<milliseconds>(point - getUnixEpoch());
-}
+milliseconds
+toUnixTimestamp(const system_clock::TimePoint& point);
 
 /**
  * \brief Convert UNIX timestamp to system_clock::TimePoint
  */
-inline system_clock::TimePoint
-fromUnixTimestamp(const milliseconds& duration)
-{
-  return getUnixEpoch() + duration;
-}
+system_clock::TimePoint
+fromUnixTimestamp(const milliseconds& duration);
 
 /**
  * \brief Convert to the ISO string representation of the time (YYYYMMDDTHHMMSS,fffffffff)
@@ -200,7 +212,30 @@ fromString(const std::string& formattedTimePoint,
            const std::string& format = "%Y-%m-%d %H:%M:%S",
            const std::locale& locale = std::locale("C"));
 
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // namespace time
 } // namespace ndn
+
+namespace boost {
+namespace chrono {
+
+template<class CharT>
+struct clock_string<ndn::time::system_clock, CharT>
+{
+  static std::basic_string<CharT>
+  since();
+};
+
+template<class CharT>
+struct clock_string<ndn::time::steady_clock, CharT>
+{
+  static std::basic_string<CharT>
+  since();
+};
+
+} // namespace chrono
+} // namespace boost
 
 #endif // NDN_TIME_HPP
