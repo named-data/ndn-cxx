@@ -22,7 +22,7 @@
 #include "util/segment-fetcher.hpp"
 
 #include "boost-test.hpp"
-#include "../dummy-client-face.hpp"
+#include "util/dummy-client-face.hpp"
 #include "security/key-chain.hpp"
 
 namespace ndn {
@@ -35,7 +35,7 @@ class Fixture
 {
 public:
   Fixture()
-    : face(::ndn::tests::makeDummyClientFace())
+    : face(makeDummyClientFace())
     , nErrors(0)
     , nDatas(0)
     , dataSize(0)
@@ -73,7 +73,7 @@ public:
 
 
 public:
-  shared_ptr<ndn::tests::DummyClientFace> face;
+  shared_ptr<DummyClientFace> face;
   KeyChain keyChain;
 
   uint32_t nErrors;
@@ -94,10 +94,10 @@ BOOST_FIXTURE_TEST_CASE(Timeout, Fixture)
   BOOST_CHECK_EQUAL(nErrors, 1);
   BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::INTEREST_TIMEOUT));
   BOOST_CHECK_EQUAL(nDatas, 0);
-  BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 1);
-  BOOST_CHECK_EQUAL(face->m_sentDatas.size(), 0);
+  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
+  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
 
-  const Interest& interest = face->m_sentInterests[0];
+  const Interest& interest = face->sentInterests[0];
   BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
   BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
   BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
@@ -122,10 +122,10 @@ BOOST_FIXTURE_TEST_CASE(Basic, Fixture)
 
   BOOST_CHECK_EQUAL(dataSize, 14);
 
-  BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 1);
-  BOOST_CHECK_EQUAL(face->m_sentDatas.size(), 0);
+  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
+  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
 
-  const Interest& interest = face->m_sentInterests[0];
+  const Interest& interest = face->sentInterests[0];
   BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
   BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
   BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
@@ -204,25 +204,25 @@ BOOST_FIXTURE_TEST_CASE(Triple, Fixture)
 
   BOOST_CHECK_EQUAL(dataSize, 42);
 
-  BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 3);
-  BOOST_CHECK_EQUAL(face->m_sentDatas.size(), 0);
+  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 3);
+  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
 
   {
-    const Interest& interest = face->m_sentInterests[0];
+    const Interest& interest = face->sentInterests[0];
     BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
     BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
     BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
   }
 
   {
-    const Interest& interest = face->m_sentInterests[1];
+    const Interest& interest = face->sentInterests[1];
     BOOST_CHECK_EQUAL(interest.getName(), "/hello/world/version0/%00%01");
     BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
     BOOST_CHECK_EQUAL(interest.getChildSelector(), 0);
   }
 
   {
-    const Interest& interest = face->m_sentInterests[2];
+    const Interest& interest = face->sentInterests[2];
     BOOST_CHECK_EQUAL(interest.getName(),  "/hello/world/version0/%00%02");
     BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
     BOOST_CHECK_EQUAL(interest.getChildSelector(), 0);
@@ -257,32 +257,32 @@ BOOST_FIXTURE_TEST_CASE(TripleWithInitialSegmentFetching, Fixture)
 
   BOOST_CHECK_EQUAL(dataSize, 42);
 
-  BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 4);
-  BOOST_CHECK_EQUAL(face->m_sentDatas.size(), 0);
+  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 4);
+  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
 
   {
-    const Interest& interest = face->m_sentInterests[0];
+    const Interest& interest = face->sentInterests[0];
     BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
     BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
     BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
   }
 
   {
-    const Interest& interest = face->m_sentInterests[1];
+    const Interest& interest = face->sentInterests[1];
     BOOST_CHECK_EQUAL(interest.getName(), "/hello/world/version0/%00%00");
     BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
     BOOST_CHECK_EQUAL(interest.getChildSelector(), 0);
   }
 
   {
-    const Interest& interest = face->m_sentInterests[2];
+    const Interest& interest = face->sentInterests[2];
     BOOST_CHECK_EQUAL(interest.getName(), "/hello/world/version0/%00%01");
     BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
     BOOST_CHECK_EQUAL(interest.getChildSelector(), 0);
   }
 
   {
-    const Interest& interest = face->m_sentInterests[3];
+    const Interest& interest = face->sentInterests[3];
     BOOST_CHECK_EQUAL(interest.getName(),  "/hello/world/version0/%00%02");
     BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
     BOOST_CHECK_EQUAL(interest.getChildSelector(), 0);

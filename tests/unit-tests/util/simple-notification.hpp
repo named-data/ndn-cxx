@@ -54,6 +54,7 @@
 #include "security/key-chain.hpp"
 
 namespace ndn {
+namespace util {
 namespace tests {
 
 class SimpleNotification
@@ -118,6 +119,7 @@ private:
 };
 
 } // namespace tests
+} // namespace util
 } // namespace ndn
 
 #endif // NDN_UNIT_TESTS_UTIL_CORE_SIMPLE_NOTIFICATION_HPP

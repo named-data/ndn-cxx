@@ -49,9 +49,10 @@
 #include "simple-notification.hpp"
 
 #include "boost-test.hpp"
-#include "../dummy-client-face.hpp"
+#include "util/dummy-client-face.hpp"
 
 namespace ndn {
+namespace util {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(UtilNotificationStream)
@@ -66,25 +67,26 @@ BOOST_AUTO_TEST_CASE(Post)
   SimpleNotification event1("msg1");
   notificationStream.postNotification(event1);
   face->processEvents();
-  BOOST_REQUIRE_EQUAL(face->m_sentDatas.size(), 1);
-  BOOST_CHECK_EQUAL(face->m_sentDatas[0].getName(),
+  BOOST_REQUIRE_EQUAL(face->sentDatas.size(), 1);
+  BOOST_CHECK_EQUAL(face->sentDatas[0].getName(),
                     "/localhost/nfd/NotificationStreamTest/%FE%00");
   SimpleNotification decoded1;
-  BOOST_CHECK_NO_THROW(decoded1.wireDecode(face->m_sentDatas[0].getContent().blockFromValue()));
+  BOOST_CHECK_NO_THROW(decoded1.wireDecode(face->sentDatas[0].getContent().blockFromValue()));
   BOOST_CHECK_EQUAL(decoded1.getMessage(), "msg1");
 
   SimpleNotification event2("msg2");
   notificationStream.postNotification(event2);
   face->processEvents();
-  BOOST_REQUIRE_EQUAL(face->m_sentDatas.size(), 2);
-  BOOST_CHECK_EQUAL(face->m_sentDatas[1].getName(),
+  BOOST_REQUIRE_EQUAL(face->sentDatas.size(), 2);
+  BOOST_CHECK_EQUAL(face->sentDatas[1].getName(),
                     "/localhost/nfd/NotificationStreamTest/%FE%01");
   SimpleNotification decoded2;
-  BOOST_CHECK_NO_THROW(decoded2.wireDecode(face->m_sentDatas[1].getContent().blockFromValue()));
+  BOOST_CHECK_NO_THROW(decoded2.wireDecode(face->sentDatas[1].getContent().blockFromValue()));
   BOOST_CHECK_EQUAL(decoded2.getMessage(), "msg2");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
+} // namespace util
 } // namespace ndn

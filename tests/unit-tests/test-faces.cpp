@@ -24,18 +24,19 @@
 #include "security/key-chain.hpp"
 
 #include "boost-test.hpp"
-
-#include "dummy-client-face.hpp"
+#include "util/dummy-client-face.hpp"
 
 namespace ndn {
 namespace tests {
 
+using ndn::util::DummyClientFace;
+using ndn::util::makeDummyClientFace;
+
 class FacesFixture
 {
 public:
-  FacesFixture()
-    : face(makeDummyClientFace(io))
-    , nData(0)
+  FacesFixture(bool enableRegistrationReply = true)
+    : nData(0)
     , nTimeouts(0)
     , nInInterests(0)
     , nInInterests2(0)
@@ -44,6 +45,8 @@ public:
     , nUnregSuccesses(0)
     , nUnregFailures(0)
   {
+    DummyClientFace::Options options { true, enableRegistrationReply };
+    this->face = makeDummyClientFace(io, options);
   }
 
   void
@@ -133,12 +136,19 @@ public:
   uint32_t nUnregFailures;
 };
 
+class FacesNoRegistrationReplyFixture : public FacesFixture
+{
+public:
+  FacesNoRegistrationReplyFixture()
+    : FacesFixture(false)
+  {
+  }
+};
+
 BOOST_FIXTURE_TEST_SUITE(TestFaces, FacesFixture)
 
 BOOST_AUTO_TEST_CASE(ExpressInterestData)
 {
-  face->enableRegistrationReply();
-
   face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
                         bind(&FacesFixture::onData, this),
                         bind(&FacesFixture::onTimeout, this));
@@ -154,8 +164,6 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
 
 BOOST_AUTO_TEST_CASE(ExpressInterestTimeout)
 {
-  face->enableRegistrationReply();
-
   face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
                         bind(&FacesFixture::onData, this),
                         bind(&FacesFixture::onTimeout, this));
@@ -168,8 +176,6 @@ BOOST_AUTO_TEST_CASE(ExpressInterestTimeout)
 
 BOOST_AUTO_TEST_CASE(SetFilter)
 {
-  face->enableRegistrationReply();
-
   face->setInterestFilter("/Hello/World",
                           bind(&FacesFixture::onInterest, this, ref(*face), _1, _2),
                           RegisterPrefixSuccessCallback(),
@@ -184,7 +190,7 @@ BOOST_AUTO_TEST_CASE(SetFilter)
   BOOST_CHECK_EQUAL(nInInterests, 1);
 }
 
-BOOST_AUTO_TEST_CASE(SetFilterFail)
+BOOST_FIXTURE_TEST_CASE(SetFilterFail, FacesNoRegistrationReplyFixture)
 {
   // don't enable registration reply
 
@@ -200,8 +206,6 @@ BOOST_AUTO_TEST_CASE(SetFilterFail)
 
 BOOST_AUTO_TEST_CASE(SetUnsetInterestFilter)
 {
-  face->enableRegistrationReply();
-
   const RegisteredPrefixId* regPrefixId =
     face->setInterestFilter(InterestFilter("/Hello/World"),
                             bind(&FacesFixture::onInterest, this,
@@ -234,8 +238,6 @@ BOOST_AUTO_TEST_CASE(SetUnsetInterestFilter)
 
 BOOST_AUTO_TEST_CASE(RegisterUnregisterPrefix)
 {
-  face->enableRegistrationReply();
-
   const RegisteredPrefixId* regPrefixId =
     face->registerPrefix("/Hello/World",
                          bind(&FacesFixture::onRegSucceeded, this),
@@ -257,8 +259,6 @@ BOOST_AUTO_TEST_CASE(RegisterUnregisterPrefix)
 
 BOOST_AUTO_TEST_CASE(SeTwoSimilarFilters)
 {
-  face->enableRegistrationReply();
-
   face->setInterestFilter("/Hello/World",
                           bind(&FacesFixture::onInterest, this, ref(*face), _1, _2),
                           RegisterPrefixSuccessCallback(),
@@ -282,8 +282,6 @@ BOOST_AUTO_TEST_CASE(SeTwoSimilarFilters)
 
 BOOST_AUTO_TEST_CASE(SetTwoDifferentFilters)
 {
-  face->enableRegistrationReply();
-
   face->setInterestFilter("/Hello/World",
                           bind(&FacesFixture::onInterest, this, ref(*face), _1, _2),
                           RegisterPrefixSuccessCallback(),
@@ -307,8 +305,6 @@ BOOST_AUTO_TEST_CASE(SetTwoDifferentFilters)
 
 BOOST_AUTO_TEST_CASE(SetRegexFilterError)
 {
-  face->enableRegistrationReply();
-
   face->setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
                           bind(&FacesFixture::onInterestRegexError, this,
                                ref(*face), _1, _2),
@@ -322,8 +318,6 @@ BOOST_AUTO_TEST_CASE(SetRegexFilterError)
 
 BOOST_AUTO_TEST_CASE(SetRegexFilter)
 {
-  face->enableRegistrationReply();
-
   face->setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
                           bind(&FacesFixture::onInterestRegex, this,
                                ref(*face), _1, _2),
@@ -348,8 +342,6 @@ BOOST_AUTO_TEST_CASE(SetRegexFilter)
 
 BOOST_AUTO_TEST_CASE(SetRegexFilterAndRegister)
 {
-  face->enableRegistrationReply();
-
   face->setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
                           bind(&FacesFixture::onInterestRegex, this,
                                ref(*face), _1, _2));

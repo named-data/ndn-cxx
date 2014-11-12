@@ -21,12 +21,15 @@
 
 #include "face.hpp"
 #include "security/key-chain.hpp"
-#include "dummy-client-face.hpp"
 
 #include "boost-test.hpp"
+#include "util/dummy-client-face.hpp"
 
 namespace ndn {
 namespace tests {
+
+using ndn::util::DummyClientFace;
+using ndn::util::makeDummyClientFace;
 
 BOOST_AUTO_TEST_SUITE(TestsFace)
 
@@ -65,8 +68,8 @@ BOOST_FIXTURE_TEST_CASE(ExpressInterest, Fixture)
                         bind(&Fixture::onTimeout, this));
   face->processEvents(time::milliseconds(100));
 
-  BOOST_CHECK_EQUAL(face->m_sentInterests.size(), 1);
-  BOOST_CHECK_EQUAL(face->m_sentDatas.size(), 0);
+  BOOST_CHECK_EQUAL(face->sentInterests.size(), 1);
+  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(RemovePendingInterest, Fixture)

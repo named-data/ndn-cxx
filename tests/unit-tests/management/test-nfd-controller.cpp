@@ -25,13 +25,14 @@
 #include <boost/tuple/tuple.hpp>
 
 #include "boost-test.hpp"
-#include "../dummy-client-face.hpp"
+#include "util/dummy-client-face.hpp"
 
 namespace ndn {
 namespace nfd {
 namespace tests {
 
-using namespace ::ndn::tests;
+using ndn::util::DummyClientFace;
+using ndn::util::makeDummyClientFace;
 
 BOOST_AUTO_TEST_SUITE(ManagementTestNfdController)
 
@@ -84,8 +85,8 @@ BOOST_FIXTURE_TEST_CASE(CommandSuccess, CommandFixture)
                        commandFailCallback));
   face->processEvents(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 1);
-  const Interest& requestInterest = face->m_sentInterests[0];
+  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
+  const Interest& requestInterest = face->sentInterests[0];
 
   FaceCreateCommand command;
   BOOST_CHECK(Name("/localhost/nfd/faces/create").isPrefixOf(requestInterest.getName()));
@@ -141,8 +142,8 @@ BOOST_FIXTURE_TEST_CASE(CommandErrorCode, CommandFixture)
                          commandFailCallback));
   face->processEvents(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 1);
-  const Interest& requestInterest = face->m_sentInterests[0];
+  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
+  const Interest& requestInterest = face->sentInterests[0];
 
   ControlResponse responsePayload(401, "Not Authenticated");
 
@@ -168,8 +169,8 @@ BOOST_FIXTURE_TEST_CASE(CommandInvalidResponse, CommandFixture)
                          commandFailCallback));
   face->processEvents(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 1);
-  const Interest& requestInterest = face->m_sentInterests[0];
+  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
+  const Interest& requestInterest = face->sentInterests[0];
 
   ControlParameters responseBody;
   responseBody.setUri("tcp4://192.0.2.1:6363")
@@ -204,8 +205,8 @@ BOOST_FIXTURE_TEST_CASE(OptionsPrefix, CommandFixture)
                        options));
   face->processEvents(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face->m_sentInterests.size(), 1);
-  const Interest& requestInterest = face->m_sentInterests[0];
+  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
+  const Interest& requestInterest = face->sentInterests[0];
 
   FaceCreateCommand command;
   BOOST_CHECK(Name("/localhop/net/example/router1/nfd/rib/register").isPrefixOf(
