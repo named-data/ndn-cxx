@@ -41,7 +41,7 @@ class CommandFixture
 protected:
   CommandFixture()
     : face(makeDummyClientFace())
-    , controller(*face)
+    , controller(*face, keyChain)
     , commandSucceedCallback(bind(&CommandFixture::onCommandSucceed, this, _1))
     , commandFailCallback(bind(&CommandFixture::onCommandFail, this, _1, _2))
   {
@@ -62,8 +62,8 @@ private:
 
 protected:
   shared_ptr<DummyClientFace> face;
-  Controller controller;
   KeyChain keyChain;
+  Controller controller;
 
   Controller::CommandSucceedCallback commandSucceedCallback;
   typedef boost::tuple<ControlParameters> CommandSucceedArgs;
@@ -97,7 +97,7 @@ BOOST_FIXTURE_TEST_CASE(CommandSuccess, CommandFixture)
   BOOST_REQUIRE_NO_THROW(request.wireDecode(requestInterest.getName().at(4).blockFromValue()));
   BOOST_CHECK_NO_THROW(command.validateRequest(request));
   BOOST_CHECK_EQUAL(request.getUri(), parameters.getUri());
-  BOOST_CHECK_EQUAL(requestInterest.getInterestLifetime(), Controller::getDefaultCommandTimeout());
+  BOOST_CHECK_EQUAL(requestInterest.getInterestLifetime(), CommandOptions::DEFAULT_TIMEOUT);
 
   ControlParameters responseBody;
   responseBody.setUri("tcp4://192.0.2.1:6363")

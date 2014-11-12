@@ -84,7 +84,7 @@ Controller::startCommand(const shared_ptr<ControlCommand>& command,
 {
   BOOST_ASSERT(timeout > time::milliseconds::zero());
 
-  Name requestName = command->getRequestName(parameters);
+  Name requestName = command->getRequestName(CommandOptions::DEFAULT_PREFIX, parameters);
   Interest interest(requestName);
   interest.setInterestLifetime(timeout);
   sign(interest);

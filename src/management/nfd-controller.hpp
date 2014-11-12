@@ -58,8 +58,9 @@ public:
    *         and has an internal default KeyChain to sign commands
    *  \deprecated use two-parameter overload
    */
+  DEPRECATED(
   explicit
-  Controller(Face& face);
+  Controller(Face& face));
 
   /** \brief construct a Controller that uses face for transport,
    *         and uses the passed KeyChain to sign commands
@@ -82,18 +83,13 @@ public:
   /** \brief start command execution
    *  \deprecated use the overload taking CommandOptions
    */
+  DEPRECATED(
   template<typename Command>
   void
   start(const ControlParameters& parameters,
         const CommandSucceedCallback& onSuccess,
         const CommandFailCallback& onFailure,
-        const time::milliseconds& timeout)
-  {
-    CommandOptions options;
-    options.setTimeout(timeout);
-
-    this->start<Command>(parameters, onSuccess, onFailure, options);
-  }
+        const time::milliseconds& timeout));
 
   /** \brief start command execution
    *  \param certificate the certificate used to sign request Interests.
@@ -105,60 +101,40 @@ public:
    *
    *  \deprecated use the overload taking CommandOptions
    */
+  DEPRECATED(
   template<typename Command>
   void
   start(const ControlParameters& parameters,
         const CommandSucceedCallback& onSuccess,
         const CommandFailCallback& onFailure,
         const IdentityCertificate& certificate,
-        const time::milliseconds& timeout = getDefaultCommandTimeout())
-  {
-    CommandOptions options;
-    if (certificate.getName().empty()) {
-      options.setSigningDefault();
-    }
-    else {
-      options.setSigningCertificate(certificate);
-    }
-    options.setTimeout(timeout);
-
-    this->start<Command>(parameters, onSuccess, onFailure, options);
-  }
+        const time::milliseconds& timeout = CommandOptions::DEFAULT_TIMEOUT));
 
   /** \brief start command execution
    *  \param identity the identity used to sign request Interests
    *  \deprecated use the overload taking CommandOptions
    */
+  DEPRECATED(
   template<typename Command>
   void
   start(const ControlParameters& parameters,
         const CommandSucceedCallback& onSuccess,
         const CommandFailCallback& onFailure,
         const Name& identity,
-        const time::milliseconds& timeout = getDefaultCommandTimeout())
-  {
-    CommandOptions options;
-    options.setSigningIdentity(identity);
-    options.setTimeout(timeout);
-
-    this->start<Command>(parameters, onSuccess, onFailure, options);
-  }
+        const time::milliseconds& timeout = CommandOptions::DEFAULT_TIMEOUT));
 
   /** \brief start command execution
    *  \param sign a function to sign request Interests
    *  \deprecated arbitrary signing function is no longer supported
    */
+  DEPRECATED(
   template<typename Command>
   void
   start(const ControlParameters& parameters,
         const CommandSucceedCallback& onSuccess,
         const CommandFailCallback& onFailure,
         const Sign& sign,
-        const time::milliseconds& timeout = getDefaultCommandTimeout())
-  {
-    shared_ptr<ControlCommand> command = make_shared<Command>();
-    this->startCommand(command, parameters, onSuccess, onFailure, sign, timeout);
-  }
+        const time::milliseconds& timeout = CommandOptions::DEFAULT_TIMEOUT));
 
 private:
   void
@@ -187,11 +163,9 @@ private:
 public:
   /** \deprecated use CommandOptions::DEFAULT_TIMEOUT
    */
+  DEPRECATED(
   static time::milliseconds
-  getDefaultCommandTimeout()
-  {
-    return time::milliseconds(10000);
-  }
+  getDefaultCommandTimeout());
 
 public:
   /** \brief error code for timeout
@@ -216,6 +190,76 @@ protected:
 
   KeyChain& m_keyChain;
 };
+
+
+// deprecated methods
+
+template<typename Command>
+inline void
+Controller::start(const ControlParameters& parameters,
+                  const CommandSucceedCallback& onSuccess,
+                  const CommandFailCallback& onFailure,
+                  const time::milliseconds& timeout)
+{
+  CommandOptions options;
+  options.setTimeout(timeout);
+
+  this->start<Command>(parameters, onSuccess, onFailure, options);
+}
+
+template<typename Command>
+inline void
+Controller::start(const ControlParameters& parameters,
+                  const CommandSucceedCallback& onSuccess,
+                  const CommandFailCallback& onFailure,
+                  const IdentityCertificate& certificate,
+                  const time::milliseconds& timeout)
+{
+  CommandOptions options;
+  if (certificate.getName().empty()) {
+    options.setSigningDefault();
+  }
+  else {
+    options.setSigningCertificate(certificate);
+  }
+  options.setTimeout(timeout);
+
+  this->start<Command>(parameters, onSuccess, onFailure, options);
+}
+
+template<typename Command>
+inline void
+Controller::start(const ControlParameters& parameters,
+                  const CommandSucceedCallback& onSuccess,
+                  const CommandFailCallback& onFailure,
+                  const Name& identity,
+                  const time::milliseconds& timeout)
+{
+  CommandOptions options;
+  options.setSigningIdentity(identity);
+  options.setTimeout(timeout);
+
+  this->start<Command>(parameters, onSuccess, onFailure, options);
+}
+
+template<typename Command>
+inline void
+Controller::start(const ControlParameters& parameters,
+                  const CommandSucceedCallback& onSuccess,
+                  const CommandFailCallback& onFailure,
+                  const Sign& sign,
+                  const time::milliseconds& timeout)
+{
+  shared_ptr<ControlCommand> command = make_shared<Command>();
+  this->startCommand(command, parameters, onSuccess, onFailure, sign, timeout);
+}
+
+inline time::milliseconds
+Controller::getDefaultCommandTimeout()
+{
+  return CommandOptions::DEFAULT_TIMEOUT;
+}
+
 
 } // namespace nfd
 } // namespace ndn

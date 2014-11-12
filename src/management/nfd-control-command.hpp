@@ -79,15 +79,17 @@ public: // deprecated
   /** \return Name prefix of this ControlCommand
    *  \deprecated use getRequestName
    */
+  DEPRECATED(
   const Name&
-  getPrefix() const;
+  getPrefix() const);
 
   /** \brief construct the Name for a request Interest
    *  \throw ArgumentError if parameters are invalid
    *  \deprecated use the two-argument overload
    */
+  DEPRECATED(
   Name
-  getRequestName(const ControlParameters& parameters) const;
+  getRequestName(const ControlParameters& parameters) const);
 
 protected:
   ControlCommand(const std::string& module, const std::string& verb);
