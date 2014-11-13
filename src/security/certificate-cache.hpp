@@ -29,7 +29,10 @@
 
 namespace ndn {
 
-class CertificateCache
+/**
+ * @brief Interface for the cache of validated certificates
+ */
+class CertificateCache : noncopyable
 {
 public:
   virtual
@@ -58,4 +61,4 @@ public:
 
 } // namespace ndn
 
-#endif //NDN_SECURITY_CERTIFICATE_CACHE_HPP
+#endif // NDN_SECURITY_CERTIFICATE_CACHE_HPP

@@ -110,6 +110,7 @@ BOOST_FIXTURE_TEST_CASE(Expiration, UnitTestTimeFixture)
 BOOST_FIXTURE_TEST_CASE(TtlRefresh, UnitTestTimeFixture)
 {
   cache->insertCertificate(cert1); // 500ms
+
   io.poll();
   BOOST_CHECK_EQUAL(cache->getSize(), 1);
 
@@ -119,6 +120,7 @@ BOOST_FIXTURE_TEST_CASE(TtlRefresh, UnitTestTimeFixture)
 
     // Refresh certificate in cache
   cache->insertCertificate(cert1); // +500ms
+
   io.poll();
   BOOST_CHECK_EQUAL(cache->getSize(), 1);
 
@@ -140,6 +142,7 @@ BOOST_FIXTURE_TEST_CASE(Reset, UnitTestTimeFixture)
   BOOST_CHECK_EQUAL(cache->getSize(), 2);
 
   cache->reset();
+
   io.poll();
   BOOST_CHECK_EQUAL(cache->getSize(), 0);
 }

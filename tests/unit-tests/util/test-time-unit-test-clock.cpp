@@ -24,6 +24,7 @@
 
 #include "boost-test.hpp"
 #include <boost/lexical_cast.hpp>
+#include <thread>
 
 namespace ndn {
 namespace tests {
@@ -54,7 +55,8 @@ BOOST_FIXTURE_TEST_CASE(SystemClock, UnitTestTimeFixture)
 {
   BOOST_CHECK_EQUAL(time::system_clock::now().time_since_epoch(),
                     time::UnitTestClockTraits<time::system_clock>::getDefaultStartTime());
-  usleep(1000000);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
   BOOST_CHECK_EQUAL(time::system_clock::now().time_since_epoch(),
                     time::UnitTestClockTraits<time::system_clock>::getDefaultStartTime());
 
@@ -109,7 +111,7 @@ BOOST_FIXTURE_TEST_CASE(SteadyClock, UnitTestTimeFixture)
   BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(),
                     time::steady_clock::duration::zero());
 
-  usleep(1000000);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
   BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(),
                     time::steady_clock::duration::zero());
 
@@ -138,13 +140,12 @@ BOOST_FIXTURE_TEST_CASE(Scheduler, UnitTestTimeFixture)
   bool hasFired = false;
   scheduler.scheduleEvent(time::seconds(100), [&] { hasFired = true; });
 
-  for (size_t i = 0; i < 10; ++i)
-    io.poll();
+  io.poll();
   BOOST_CHECK_EQUAL(hasFired, false);
 
   steadyClock->advance(time::seconds(100));
-  for (size_t i = 0; i < 10; ++i)
-    io.poll();
+
+  io.poll();
   BOOST_CHECK_EQUAL(hasFired, true);
 }
 
