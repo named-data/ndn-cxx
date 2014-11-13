@@ -43,7 +43,7 @@ const uint8_t MetaInfo3[] = {0x14, 0x17, 0x18, 0x01, 0x01, 0x19, 0x02, 0x27, 0x1
 BOOST_AUTO_TEST_CASE(Encode)
 {
   MetaInfo meta;
-  meta.setType(MetaInfo::TYPE_DEFAULT);
+  meta.setType(tlv::ContentType_Blob);
   meta.setFreshnessPeriod(time::seconds(10));
 
   BOOST_REQUIRE_NO_THROW(meta.wireEncode());
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo2, MetaInfo2+sizeof(MetaInfo2),
                                   meta.wireEncode().begin(), meta.wireEncode().end());
 
-  meta.setType(MetaInfo::TYPE_LINK);
+  meta.setType(tlv::ContentType_Link);
   BOOST_REQUIRE_NO_THROW(meta.wireEncode());
   BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo3, MetaInfo3+sizeof(MetaInfo3),
                                   meta.wireEncode().begin(), meta.wireEncode().end());
@@ -64,17 +64,17 @@ BOOST_AUTO_TEST_CASE(Encode)
 BOOST_AUTO_TEST_CASE(Decode)
 {
   MetaInfo meta(Block(MetaInfo1, sizeof(MetaInfo1)));
-  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
+  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(tlv::ContentType_Blob));
   BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
   BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component());
 
   meta.wireDecode(Block(MetaInfo2, sizeof(MetaInfo2)));
-  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
+  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(tlv::ContentType_Blob));
   BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
   BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
 
   meta.wireDecode(Block(MetaInfo3, sizeof(MetaInfo3)));
-  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(MetaInfo::TYPE_LINK));
+  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(tlv::ContentType_Link));
   BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
   BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
 }

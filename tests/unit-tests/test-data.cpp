@@ -224,7 +224,7 @@ BOOST_FIXTURE_TEST_CASE(Decode, TestDataFixture)
   BOOST_REQUIRE_NO_THROW(d.wireDecode(dataBlock));
 
   BOOST_REQUIRE_EQUAL(d.getName().toUri(), "/local/ndn/prefix");
-  BOOST_REQUIRE_EQUAL(d.getContentType(), static_cast<uint32_t>(MetaInfo::TYPE_DEFAULT));
+  BOOST_REQUIRE_EQUAL(d.getContentType(), static_cast<uint32_t>(tlv::ContentType_Blob));
   BOOST_REQUIRE_EQUAL(d.getFreshnessPeriod(), time::seconds(10));
 
   BOOST_REQUIRE_EQUAL(std::string(reinterpret_cast<const char*>(d.getContent().value()),
@@ -253,7 +253,7 @@ BOOST_FIXTURE_TEST_CASE(Encode, TestDataFixture)
   // manual data packet creation for now
 
   ndn::Data d(ndn::Name("/local/ndn/prefix"));
-  d.setContentType(MetaInfo::TYPE_DEFAULT);
+  d.setContentType(tlv::ContentType_Blob);
   d.setFreshnessPeriod(time::seconds(10));
 
   d.setContent(Content1, sizeof(Content1));
@@ -343,7 +343,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, DataIdentityFixture)
   // Encoding pipeline
 
   ndn::Data d(ndn::Name("/local/ndn/prefix"));
-  d.setContentType(MetaInfo::TYPE_DEFAULT);
+  d.setContentType(tlv::ContentType_Blob);
   d.setFreshnessPeriod(time::seconds(10));
 
   d.setContent(Content1, sizeof(Content1));

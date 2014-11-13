@@ -33,7 +33,7 @@ static_assert(std::is_base_of<tlv::Error, MetaInfo::Error>::value,
               "MetaInfo::Error must inherit from tlv::Error");
 
 MetaInfo::MetaInfo()
-  : m_type(TYPE_DEFAULT)
+  : m_type(tlv::ContentType_Blob)
   , m_freshnessPeriod(-1)
 {
 }
@@ -154,7 +154,7 @@ MetaInfo::wireEncode(EncodingImpl<T>& blk) const
     }
 
   // ContentType
-  if (m_type != TYPE_DEFAULT)
+  if (m_type != tlv::ContentType_Blob)
     {
       totalLength += prependNonNegativeIntegerBlock(blk, tlv::ContentType, m_type);
     }
@@ -207,7 +207,7 @@ MetaInfo::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    m_type = TYPE_DEFAULT;
+    m_type = tlv::ContentType_Blob;
   }
 
   // FreshnessPeriod

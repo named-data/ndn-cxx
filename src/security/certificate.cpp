@@ -169,7 +169,7 @@ Certificate::encode()
   idCert.MessageEnd();
 
   setContent(os.buf());
-  setContentType(MetaInfo::TYPE_KEY);
+  setContentType(tlv::ContentType_Key);
 }
 
 void

@@ -66,29 +66,6 @@ public:
     }
   };
 
-  /** \brief ContentType codes
-   */
-  enum {
-    /** @brief indicates content is the actual data bits
-     */
-    TYPE_BLOB = 0,
-
-    /** @brief indicates content is another name which identifies actual data content
-     */
-    TYPE_LINK = 1,
-
-    /** @brief indicates content is a public key
-     */
-    TYPE_KEY = 2,
-
-    /** @brief indicates a producer generated NACK
-     *  @warning Experimental. Not defined in NDN-TLV spec.
-     */
-    TYPE_NACK = 3,
-
-    TYPE_DEFAULT = TYPE_BLOB
-  };
-
   MetaInfo();
 
   /**
@@ -107,12 +84,13 @@ public:
   void
   wireDecode(const Block& wire);
 
-  ///////////////////////////////////////////////////////////////////////////////
-  // Getters/setters
-
+public: // getter/setter
   uint32_t
   getType() const;
 
+  /** @brief set ContentType
+   *  @param type a code defined in tlv::ContentTypeValue
+   */
   MetaInfo&
   setType(uint32_t type);
 
@@ -128,6 +106,7 @@ public:
   MetaInfo&
   setFinalBlockId(const name::Component& finalBlockId);
 
+public: // app-defined MetaInfo items
   /**
    * @brief Get all app-defined MetaInfo items
    *
@@ -204,6 +183,27 @@ public: // EqualityComparable concept
 
   bool
   operator!=(const MetaInfo& other) const;
+
+public: // deprecated
+  /** @deprecated use tlv::ContentType_Blob
+   */
+  static const uint32_t DEPRECATED(TYPE_BLOB) = tlv::ContentType_Blob;
+
+  /** @deprecated use tlv::ContentType_Link
+   */
+  static const uint32_t DEPRECATED(TYPE_LINK) = tlv::ContentType_Link;
+
+  /** @deprecated use tlv::ContentType_Key
+   */
+  static const uint32_t DEPRECATED(TYPE_KEY) = tlv::ContentType_Key;
+
+  /** @deprecated use tlv::ContentType_Nack
+   */
+  static const uint32_t DEPRECATED(TYPE_NACK) = tlv::ContentType_Nack;
+
+  /** @deprecated use tlv::ContentType_Default
+   */
+  static const uint32_t DEPRECATED(TYPE_DEFAULT) = tlv::ContentType_Blob;
 
 private:
   uint32_t m_type;

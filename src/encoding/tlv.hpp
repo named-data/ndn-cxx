@@ -95,11 +95,31 @@ enum SignatureTypeValue {
   SignatureSha256WithEcdsa = 3
 };
 
+/** @brief indicates a possible value of ContentType field
+ */
 enum ContentTypeValue {
-  ContentType_Default = 0,
+  /** @brief indicates content is the actual data bits
+   */
+  ContentType_Blob = 0,
+
+  /** @brief indicates content is another name which identifies actual data content
+   */
   ContentType_Link = 1,
-  ContentType_Key = 2
+
+  /** @brief indicates content is a public key
+   */
+  ContentType_Key = 2,
+
+  /** @brief indicates a producer generated NACK
+   *  @warning Experimental. Not defined in NDN-TLV spec.
+   */
+  ContentType_Nack = 3
 };
+
+/** @deprecated use ContentType_Blob
+ */
+static const uint32_t DEPRECATED(ContentType_Default) = ContentType_Blob;
+
 
 /**
  * @brief Read VAR-NUMBER in NDN-TLV encoding
