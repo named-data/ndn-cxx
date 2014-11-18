@@ -367,6 +367,10 @@ void
 Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::zero()*/,
                     bool keepThread/* = false*/)
 {
+  if (m_ioService.stopped()) {
+    m_ioService.reset(); // ensure that run()/poll() will do some work
+  }
+
   try {
     if (timeout < time::milliseconds::zero())
       {
@@ -387,16 +391,13 @@ Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::ze
     }
 
     m_ioService.run();
-    m_ioService.reset(); // so it is possible to run processEvents again (if necessary)
   }
   catch (Face::ProcessEventsTimeout&) {
     // break
     m_impl->m_ioServiceWork.reset();
-    m_ioService.reset();
   }
   catch (...) {
     m_impl->m_ioServiceWork.reset();
-    m_ioService.reset();
     m_impl->m_pendingInterestTable.clear();
     m_impl->m_registeredPrefixTable.clear();
     throw;

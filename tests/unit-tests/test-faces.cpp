@@ -367,6 +367,24 @@ BOOST_AUTO_TEST_CASE(SetRegexFilterAndRegister)
   BOOST_CHECK_EQUAL(nInInterests, 2);
 }
 
+BOOST_AUTO_TEST_CASE(ProcessEvents)
+{
+  face->processEvents(time::milliseconds(-1)); // io_service::reset()/poll() inside
+
+  face->registerPrefix("/Hello/World",
+                       bind(&FacesFixture::onRegSucceeded, this),
+                       bind(&FacesFixture::onRegFailed, this));
+
+  // io_service::poll() without reset
+  face->getIoService().poll();
+  BOOST_CHECK_EQUAL(nRegFailures, 0);
+  BOOST_CHECK_EQUAL(nRegSuccesses, 0);
+
+  face->processEvents(time::milliseconds(-1)); // io_service::reset()/poll() inside
+  BOOST_CHECK_EQUAL(nRegFailures, 0);
+  BOOST_CHECK_EQUAL(nRegSuccesses, 1);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // tests
