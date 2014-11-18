@@ -257,9 +257,67 @@ Certificate::printCertificate(std::ostream& os) const
       os << "  " << it->getOidString() << ": " << it->getValue() << std::endl;
     }
 
-  os << "Public key bits:" << std::endl;
+  os << "Public key bits: ";
+  switch (m_key.getKeyType()) {
+  case KEY_TYPE_RSA:
+    os << "(RSA)";
+    break;
+  case KEY_TYPE_ECDSA:
+    os << "(ECDSA)";
+    break;
+  default:
+    os << "(Unknown key type)";
+    break;
+  }
+  os << std::endl;
   CryptoPP::Base64Encoder encoder(new CryptoPP::FileSink(os), true, 64);
   m_key.encode(encoder);
+
+  os << std::endl;
+  os << "Signature Information:" << std::endl;
+  {
+    os << "  Signature Type: ";
+    switch (getSignature().getType()) {
+    case tlv::SignatureTypeValue::DigestSha256:
+      os << "DigestSha256";
+      break;
+    case tlv::SignatureTypeValue::SignatureSha256WithRsa:
+      os << "SignatureSha256WithRsa";
+      break;
+    case tlv::SignatureTypeValue::SignatureSha256WithEcdsa:
+      os << "SignatureSha256WithEcdsa";
+      break;
+    default:
+      os << "Unknown Signature Type";
+    }
+    os << std::endl;
+
+    if (getSignature().hasKeyLocator()) {
+      const KeyLocator& keyLocator = getSignature().getKeyLocator();
+      os << "  Key Locator: ";
+      switch (keyLocator.getType()) {
+      case KeyLocator::KeyLocator_Name:
+        {
+          const Name& signerName = keyLocator.getName();
+          if (signerName.isPrefixOf(getName()))
+            os << "(Self-Signed) " << keyLocator.getName();
+          else
+            os << "(Name) " << keyLocator.getName();
+          break;
+        }
+      case KeyLocator::KeyLocator_KeyDigest:
+        os << "(KeyDigest)";
+        break;
+      case KeyLocator::KeyLocator_None:
+        os << "None";
+        break;
+      default:
+        os << "Unknown";
+      }
+      os << std::endl;
+    }
+  }
+
 }
 
 } // namespace ndn
