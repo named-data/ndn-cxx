@@ -22,253 +22,186 @@
 #include "util/scheduler.hpp"
 
 #include "boost-test.hpp"
+#include "../unit-test-time-fixture.hpp"
 
 namespace ndn {
+namespace tests {
 
-BOOST_AUTO_TEST_SUITE(UtilTestScheduler)
+BOOST_FIXTURE_TEST_SUITE(UtilTestScheduler, UnitTestTimeFixture)
 
-struct SchedulerFixture
+BOOST_AUTO_TEST_CASE(Events)
 {
-  SchedulerFixture()
-    : count1(0)
-    , count2(0)
-    , count3(0)
-  {
-  }
-
-  void
-  event1()
-  {
-    BOOST_CHECK_EQUAL(count3, 1);
-    ++count1;
-  }
-
-  void
-  event2()
-  {
-    ++count2;
-  }
-
-  void
-  event3()
-  {
-    BOOST_CHECK_EQUAL(count1, 0);
-    ++count3;
-  }
-
-  int count1;
-  int count2;
-  int count3;
-};
-
-BOOST_FIXTURE_TEST_CASE(Events, SchedulerFixture)
-{
-  boost::asio::io_service io;
+  size_t count1 = 0;
+  size_t count2 = 0;
 
   Scheduler scheduler(io);
-  scheduler.scheduleEvent(time::milliseconds(500), bind(&SchedulerFixture::event1, this));
+  scheduler.scheduleEvent(time::milliseconds(500), [&] {
+      ++count1;
+      BOOST_CHECK_EQUAL(count2, 1);
+    });
 
-  EventId i = scheduler.scheduleEvent(time::seconds(1), bind(&SchedulerFixture::event2, this));
+  EventId i = scheduler.scheduleEvent(time::seconds(1), [&] {
+      BOOST_ERROR("This event should not have been fired");
+    });
   scheduler.cancelEvent(i);
 
-  scheduler.scheduleEvent(time::milliseconds(250), bind(&SchedulerFixture::event3, this));
+  scheduler.scheduleEvent(time::milliseconds(250), [&] {
+      BOOST_CHECK_EQUAL(count1, 0);
+      ++count2;
+    });
 
-  i = scheduler.scheduleEvent(time::milliseconds(50), bind(&SchedulerFixture::event2, this));
+  i = scheduler.scheduleEvent(time::milliseconds(50), [&] {
+      BOOST_ERROR("This event should not have been fired");
+    });
   scheduler.cancelEvent(i);
 
-  io.run();
-
+  advanceClocks(time::milliseconds(1), 1000);
   BOOST_CHECK_EQUAL(count1, 1);
-  BOOST_CHECK_EQUAL(count2, 0);
-  BOOST_CHECK_EQUAL(count3, 1);
+  BOOST_CHECK_EQUAL(count2, 1);
 }
 
 BOOST_AUTO_TEST_CASE(CancelEmptyEvent)
 {
-  boost::asio::io_service io;
   Scheduler scheduler(io);
 
   EventId i;
   scheduler.cancelEvent(i);
 }
 
-struct SelfCancelFixture
+BOOST_AUTO_TEST_CASE(SelfCancel)
 {
-  SelfCancelFixture()
-    : m_scheduler(m_io)
-  {
-  }
+  Scheduler scheduler(io);
 
-  void
-  cancelSelf()
-  {
-    m_scheduler.cancelEvent(m_selfEventId);
-  }
+  EventId selfEventId;
+  selfEventId = scheduler.scheduleEvent(time::milliseconds(100), [&] {
+      scheduler.cancelEvent(selfEventId);
+    });
 
-  boost::asio::io_service m_io;
-  Scheduler m_scheduler;
-  EventId m_selfEventId;
-};
-
-BOOST_FIXTURE_TEST_CASE(SelfCancel, SelfCancelFixture)
-{
-  m_selfEventId = m_scheduler.scheduleEvent(time::milliseconds(100),
-                                            bind(&SelfCancelFixture::cancelSelf, this));
-
-  BOOST_REQUIRE_NO_THROW(m_io.run());
+  BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(100), 10));
 }
 
-struct SelfRescheduleFixture
+class SelfRescheduleFixture : public UnitTestTimeFixture
 {
+public:
   SelfRescheduleFixture()
-    : m_scheduler(m_io)
-    , m_count(0)
+    : scheduler(io)
+    , count(0)
   {
   }
 
   void
   reschedule()
   {
-    EventId eventId = m_scheduler.scheduleEvent(time::milliseconds(100),
-                                                bind(&SelfRescheduleFixture::reschedule, this));
-    m_scheduler.cancelEvent(m_selfEventId);
-    m_selfEventId = eventId;
+    EventId eventId = scheduler.scheduleEvent(time::milliseconds(100),
+                                              bind(&SelfRescheduleFixture::reschedule, this));
+    scheduler.cancelEvent(selfEventId);
+    selfEventId = eventId;
 
-    if(m_count < 5)
-      m_count++;
+    if (count < 5)
+      count++;
     else
-      m_scheduler.cancelEvent(m_selfEventId);
+      scheduler.cancelEvent(selfEventId);
   }
 
   void
   reschedule2()
   {
-    m_scheduler.cancelEvent(m_selfEventId);
+    scheduler.cancelEvent(selfEventId);
 
-
-    if(m_count < 5)
-      {
-        m_selfEventId = m_scheduler.scheduleEvent(time::milliseconds(100),
-                                                  bind(&SelfRescheduleFixture::reschedule2, this));
-        m_count++;
-      }
-  }
-
-  void
-  doNothing()
-  {
-    m_count++;
+    if (count < 5)  {
+      selfEventId = scheduler.scheduleEvent(time::milliseconds(100),
+                                            bind(&SelfRescheduleFixture::reschedule2, this));
+      count++;
+    }
   }
 
   void
   reschedule3()
   {
-    m_scheduler.cancelEvent(m_selfEventId);
+    scheduler.cancelEvent(selfEventId);
 
-    m_scheduler.scheduleEvent(time::milliseconds(100),
-                              bind(&SelfRescheduleFixture::doNothing, this));
-    m_scheduler.scheduleEvent(time::milliseconds(100),
-                              bind(&SelfRescheduleFixture::doNothing, this));
-    m_scheduler.scheduleEvent(time::milliseconds(100),
-                              bind(&SelfRescheduleFixture::doNothing, this));
-    m_scheduler.scheduleEvent(time::milliseconds(100),
-                              bind(&SelfRescheduleFixture::doNothing, this));
-    m_scheduler.scheduleEvent(time::milliseconds(100),
-                              bind(&SelfRescheduleFixture::doNothing, this));
-    m_scheduler.scheduleEvent(time::milliseconds(100),
-                              bind(&SelfRescheduleFixture::doNothing, this));
+    scheduler.scheduleEvent(time::milliseconds(100), [&] { ++count; });
+    scheduler.scheduleEvent(time::milliseconds(100), [&] { ++count; });
+    scheduler.scheduleEvent(time::milliseconds(100), [&] { ++count; });
+    scheduler.scheduleEvent(time::milliseconds(100), [&] { ++count; });
+    scheduler.scheduleEvent(time::milliseconds(100), [&] { ++count; });
+    scheduler.scheduleEvent(time::milliseconds(100), [&] { ++count; });
   }
 
-  boost::asio::io_service m_io;
-  Scheduler m_scheduler;
-  EventId m_selfEventId;
-  int m_count;
-
+  Scheduler scheduler;
+  EventId selfEventId;
+  size_t count;
 };
 
 BOOST_FIXTURE_TEST_CASE(Reschedule, SelfRescheduleFixture)
 {
-  m_selfEventId = m_scheduler.scheduleEvent(time::seconds(0),
-                                            bind(&SelfRescheduleFixture::reschedule, this));
+  selfEventId = scheduler.scheduleEvent(time::seconds(0),
+                                        bind(&SelfRescheduleFixture::reschedule, this));
 
-  BOOST_REQUIRE_NO_THROW(m_io.run());
+  BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(10), 1000));
 
-  BOOST_CHECK_EQUAL(m_count, 5);
+  BOOST_CHECK_EQUAL(count, 5);
 }
 
 BOOST_FIXTURE_TEST_CASE(Reschedule2, SelfRescheduleFixture)
 {
-  m_selfEventId = m_scheduler.scheduleEvent(time::seconds(0),
-                                            bind(&SelfRescheduleFixture::reschedule2, this));
+  selfEventId = scheduler.scheduleEvent(time::seconds(0),
+                                        bind(&SelfRescheduleFixture::reschedule2, this));
 
-  BOOST_REQUIRE_NO_THROW(m_io.run());
+  BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(10), 1000));
 
-  BOOST_CHECK_EQUAL(m_count, 5);
+  BOOST_CHECK_EQUAL(count, 5);
 }
 
 BOOST_FIXTURE_TEST_CASE(Reschedule3, SelfRescheduleFixture)
 {
-  m_selfEventId = m_scheduler.scheduleEvent(time::seconds(0),
-                                            bind(&SelfRescheduleFixture::reschedule3, this));
+  selfEventId = scheduler.scheduleEvent(time::seconds(0),
+                                        bind(&SelfRescheduleFixture::reschedule3, this));
 
-  BOOST_REQUIRE_NO_THROW(m_io.run());
+  BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(10), 1000));
 
-  BOOST_CHECK_EQUAL(m_count, 6);
+  BOOST_CHECK_EQUAL(count, 6);
 }
 
 
-struct CancelAllFixture
+struct CancelAllFixture : public UnitTestTimeFixture
 {
   CancelAllFixture()
-    : m_scheduler(m_io)
-    , m_count(0)
+    : scheduler(io)
+    , count(0)
   {
-  }
-
-  void
-  cancelAll()
-  {
-    m_scheduler.cancelAllEvents();
   }
 
   void
   event()
   {
-    ++m_count;
+    ++count;
 
-    m_scheduler.scheduleEvent(time::seconds(1),
-                              bind(&CancelAllFixture::event, this));
+    scheduler.scheduleEvent(time::seconds(1), [&] { event(); });
   }
 
-  void
-  abort()
-  {
-    m_io.stop();
-  }
-
-  boost::asio::io_service m_io;
-  Scheduler m_scheduler;
-  uint32_t m_count;
+  Scheduler scheduler;
+  uint32_t count;
 };
 
 
 BOOST_FIXTURE_TEST_CASE(CancelAll, CancelAllFixture)
 {
-  m_scheduler.scheduleEvent(time::milliseconds(500),
-                            bind(&CancelAllFixture::cancelAll, this));
+  scheduler.scheduleEvent(time::milliseconds(500), [&] { scheduler.cancelAllEvents(); });
 
-  m_scheduler.scheduleEvent(time::seconds(1),
-                            bind(&CancelAllFixture::event, this));
+  scheduler.scheduleEvent(time::seconds(1), [&] { event(); });
 
-  m_scheduler.scheduleEvent(time::seconds(3),
-                            bind(&CancelAllFixture::abort, this));
+  scheduler.scheduleEvent(time::seconds(3), [] {
+      BOOST_ERROR("This event should have been cancelled" );
+    });
 
-  BOOST_REQUIRE_NO_THROW(m_io.run());
+  advanceClocks(time::milliseconds(100), 100);
 
-  BOOST_CHECK_EQUAL(m_count, 0);
+  BOOST_CHECK_EQUAL(count, 0);
 }
 
 
 BOOST_AUTO_TEST_SUITE_END()
 
+} // namespace tests
 } // namespace ndn

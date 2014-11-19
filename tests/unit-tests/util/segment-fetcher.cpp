@@ -24,6 +24,7 @@
 #include "boost-test.hpp"
 #include "util/dummy-client-face.hpp"
 #include "security/key-chain.hpp"
+#include "../unit-test-time-fixture.hpp"
 
 namespace ndn {
 namespace util {
@@ -31,11 +32,11 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(UtilSegmentFetcher)
 
-class Fixture
+class Fixture : public ndn::tests::UnitTestTimeFixture
 {
 public:
   Fixture()
-    : face(makeDummyClientFace())
+    : face(makeDummyClientFace(io))
     , nErrors(0)
     , nDatas(0)
     , dataSize(0)
@@ -89,10 +90,9 @@ BOOST_FIXTURE_TEST_CASE(Timeout, Fixture)
                         bind(&Fixture::onData, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  face->processEvents(time::seconds(1));
+  advanceClocks(time::milliseconds(1), 99);
 
-  BOOST_CHECK_EQUAL(nErrors, 1);
-  BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::INTEREST_TIMEOUT));
+  BOOST_CHECK_EQUAL(nErrors, 0);
   BOOST_CHECK_EQUAL(nDatas, 0);
   BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
   BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
@@ -101,21 +101,27 @@ BOOST_FIXTURE_TEST_CASE(Timeout, Fixture)
   BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
   BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
   BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
+
+  advanceClocks(time::milliseconds(1), 2);
+
+  BOOST_CHECK_EQUAL(nErrors, 1);
+  BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::INTEREST_TIMEOUT));
+  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
+  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
 }
 
 
 BOOST_FIXTURE_TEST_CASE(Basic, Fixture)
 {
-
   SegmentFetcher::fetch(*face, Interest("/hello/world", time::seconds(1000)),
                         DontVerifySegment(),
                         bind(&Fixture::onData, this, _1),
                         bind(&Fixture::onError, this, _1));
 
+  advanceClocks(time::milliseconds(1), 10);
 
-  face->processEvents(time::milliseconds(-100));
   face->receive(*makeData("/hello/world/version0", 0, true));
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
 
   BOOST_CHECK_EQUAL(nErrors, 0);
   BOOST_CHECK_EQUAL(nDatas, 1);
@@ -139,7 +145,7 @@ BOOST_FIXTURE_TEST_CASE(NoSegmentInData, Fixture)
                         bind(&Fixture::onData, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
 
   const uint8_t buffer[] = "Hello, world!";
 
@@ -148,7 +154,7 @@ BOOST_FIXTURE_TEST_CASE(NoSegmentInData, Fixture)
   keyChain.sign(*data);
 
   face->receive(*data);
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
 
   BOOST_CHECK_EQUAL(nErrors, 1);
   BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::DATA_HAS_NO_SEGMENT));
@@ -169,9 +175,9 @@ BOOST_FIXTURE_TEST_CASE(SegmentValidationFailure, Fixture)
                         bind(&Fixture::onData, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
   face->receive(*makeData("/hello/world/version0", 0, true));
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
 
   BOOST_CHECK_EQUAL(nErrors, 1);
   BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::SEGMENT_VERIFICATION_FAIL));
@@ -188,16 +194,16 @@ BOOST_FIXTURE_TEST_CASE(Triple, Fixture)
                         bind(&Fixture::onData, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
   face->receive(*makeData("/hello/world/version0", 0, false));
 
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
   face->receive(*makeData("/hello/world/version0", 1, false));
 
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
   face->receive(*makeData("/hello/world/version0", 2, true));
 
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
 
   BOOST_CHECK_EQUAL(nErrors, 0);
   BOOST_CHECK_EQUAL(nDatas, 1);
@@ -238,19 +244,19 @@ BOOST_FIXTURE_TEST_CASE(TripleWithInitialSegmentFetching, Fixture)
                         bind(&Fixture::onData, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
   face->receive(*makeData("/hello/world/version0", 1, false));
 
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
   face->receive(*makeData("/hello/world/version0", 0, false));
 
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
   face->receive(*makeData("/hello/world/version0", 1, false));
 
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
   face->receive(*makeData("/hello/world/version0", 2, true));
 
-  face->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1), 10);
 
   BOOST_CHECK_EQUAL(nErrors, 0);
   BOOST_CHECK_EQUAL(nDatas, 1);

@@ -22,9 +22,11 @@
 #include "face.hpp"
 #include "util/scheduler.hpp"
 #include "security/key-chain.hpp"
+#include "util/dummy-client-face.hpp"
 
 #include "boost-test.hpp"
-#include "util/dummy-client-face.hpp"
+#include "unit-test-time-fixture.hpp"
+#include "test-make-interest-data.hpp"
 
 namespace ndn {
 namespace tests {
@@ -32,108 +34,17 @@ namespace tests {
 using ndn::util::DummyClientFace;
 using ndn::util::makeDummyClientFace;
 
-class FacesFixture
+class FacesFixture : public UnitTestTimeFixture
 {
 public:
+  explicit
   FacesFixture(bool enableRegistrationReply = true)
-    : nData(0)
-    , nTimeouts(0)
-    , nInInterests(0)
-    , nInInterests2(0)
-    , nRegSuccesses(0)
-    , nRegFailures(0)
-    , nUnregSuccesses(0)
-    , nUnregFailures(0)
+    : face(makeDummyClientFace(io, { true, enableRegistrationReply }))
   {
-    DummyClientFace::Options options { true, enableRegistrationReply };
-    this->face = makeDummyClientFace(io, options);
   }
 
-  void
-  onData()
-  {
-    ++nData;
-  }
-
-  void
-  onTimeout()
-  {
-    ++nTimeouts;
-  }
-
-  void
-  onInterest(Face& face,
-             const Name&, const Interest&)
-  {
-    ++nInInterests;
-  }
-
-  void
-  onInterest2(Face& face,
-              const Name&, const Interest&)
-  {
-    ++nInInterests2;
-  }
-
-  void
-  onInterestRegex(Face& face,
-                  const InterestFilter&, const Interest&)
-  {
-    ++nInInterests;
-  }
-
-  void
-  onInterestRegexError(Face& face,
-                       const Name&, const Interest&)
-  {
-    BOOST_FAIL("InterestFilter::Error should have been triggered");
-  }
-
-  void
-  onRegSucceeded()
-  {
-    ++nRegSuccesses;
-  }
-
-  void
-  onRegFailed()
-  {
-    ++nRegFailures;
-  }
-
-  void
-  onUnregSucceeded()
-  {
-    ++nUnregSuccesses;
-  }
-
-  void
-  onUnregFailed()
-  {
-    ++nUnregFailures;
-  }
-
-  shared_ptr<Data>
-  makeData(const Name& name)
-  {
-    shared_ptr<Data> data = make_shared<Data>("/Hello/World/!");
-    static KeyChain keyChain;
-    keyChain.signWithSha256(*data);
-    return data;
-  }
-
-  boost::asio::io_service io;
+public:
   shared_ptr<DummyClientFace> face;
-
-  uint32_t nData;
-  uint32_t nTimeouts;
-
-  uint32_t nInInterests;
-  uint32_t nInInterests2;
-  uint32_t nRegSuccesses;
-  uint32_t nRegFailures;
-  uint32_t nUnregSuccesses;
-  uint32_t nUnregFailures;
 };
 
 class FacesNoRegistrationReplyFixture : public FacesFixture
@@ -149,182 +60,230 @@ BOOST_FIXTURE_TEST_SUITE(TestFaces, FacesFixture)
 
 BOOST_AUTO_TEST_CASE(ExpressInterestData)
 {
+  size_t nData = 0;
   face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
-                        bind(&FacesFixture::onData, this),
-                        bind(&FacesFixture::onTimeout, this));
+                        [&] (const Interest& i, const Data& d) {
+                          BOOST_CHECK(i.getName().isPrefixOf(d.getName()));
+                          ++nData;
+                        },
+                        bind([] {
+                            BOOST_FAIL("Unexpected timeout");
+                          }));
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(-100)));
+  advanceClocks(time::milliseconds(10));
 
-  face->receive(*makeData("/Hello/World/!"));
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(200)));
+  face->receive(*util::makeData("/Bye/World/!"));
+  face->receive(*util::makeData("/Hello/World/!"));
+
+  advanceClocks(time::milliseconds(10), 100);
 
   BOOST_CHECK_EQUAL(nData, 1);
-  BOOST_CHECK_EQUAL(nTimeouts, 0);
+  BOOST_CHECK_EQUAL(face->sentInterests.size(), 1);
+  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(ExpressInterestTimeout)
 {
+  size_t nTimeouts = 0;
   face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
-                        bind(&FacesFixture::onData, this),
-                        bind(&FacesFixture::onTimeout, this));
+                        bind([] {
+                            BOOST_FAIL("Unexpected data");
+                          }),
+                        bind([&nTimeouts] {
+                            ++nTimeouts;
+                          }));
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(200)));
+  advanceClocks(time::milliseconds(10), 100);
 
-  BOOST_CHECK_EQUAL(nData, 0);
   BOOST_CHECK_EQUAL(nTimeouts, 1);
+  BOOST_CHECK_EQUAL(face->sentInterests.size(), 1);
+  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(SetFilter)
+BOOST_AUTO_TEST_CASE(RemovePendingInterest)
 {
-  face->setInterestFilter("/Hello/World",
-                          bind(&FacesFixture::onInterest, this, ref(*face), _1, _2),
-                          RegisterPrefixSuccessCallback(),
-                          bind(&FacesFixture::onRegFailed, this));
+  const PendingInterestId* interestId =
+    face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+                          bind([] {
+                              BOOST_FAIL("Unexpected data");
+                            }),
+                          bind([] {
+                              BOOST_FAIL("Unexpected timeout");
+                            }));
+  advanceClocks(time::milliseconds(10));
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(-100)));
+  face->removePendingInterest(interestId);
+  advanceClocks(time::milliseconds(10));
 
-  face->receive(Interest("/Hello/World/!"));
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(-100)));
-
-  BOOST_CHECK_EQUAL(nRegFailures, 0);
-  BOOST_CHECK_EQUAL(nInInterests, 1);
-}
-
-BOOST_FIXTURE_TEST_CASE(SetFilterFail, FacesNoRegistrationReplyFixture)
-{
-  // don't enable registration reply
-
-  face->setInterestFilter("/Hello/World",
-                          bind(&FacesFixture::onInterest, this, ref(*face), _1, _2),
-                          RegisterPrefixSuccessCallback(),
-                          bind(&FacesFixture::onRegFailed, this));
-
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(11000)));
-
-  BOOST_CHECK_EQUAL(nRegFailures, 1);
+  face->receive(*util::makeData("/Hello/World/!"));
+  advanceClocks(time::milliseconds(10), 100);
 }
 
 BOOST_AUTO_TEST_CASE(SetUnsetInterestFilter)
 {
+  size_t nInterests = 0;
+  size_t nRegs = 0;
   const RegisteredPrefixId* regPrefixId =
-    face->setInterestFilter(InterestFilter("/Hello/World"),
-                            bind(&FacesFixture::onInterest, this,
-                                 ref(*face), _1, _2),
-                            RegisterPrefixSuccessCallback(),
-                            bind(&FacesFixture::onRegFailed, this));
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(100)));
+    face->setInterestFilter("/Hello/World",
+                            bind([&nInterests] { ++nInterests; }),
+                            bind([&nRegs] { ++nRegs; }),
+                            bind([] {
+                                BOOST_FAIL("Unexpected setInterestFilter failure");
+                              }));
+  advanceClocks(time::milliseconds(10), 10);
+  BOOST_CHECK_EQUAL(nRegs, 1);
+  BOOST_CHECK_EQUAL(nInterests, 0);
 
   face->receive(Interest("/Hello/World/!"));
-  BOOST_CHECK_EQUAL(nInInterests, 1);
+  advanceClocks(time::milliseconds(10), 10);
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(100)));
+  BOOST_CHECK_EQUAL(nRegs, 1);
+  BOOST_CHECK_EQUAL(nInterests, 1);
 
-  face->receive(Interest("/Hello/World/!"));
-  BOOST_CHECK_EQUAL(nInInterests, 2);
+  face->receive(Interest("/Bye/World/!"));
+  advanceClocks(time::milliseconds(10000), 10);
+  BOOST_CHECK_EQUAL(nInterests, 1);
 
+  face->receive(Interest("/Hello/World/!/2"));
+  advanceClocks(time::milliseconds(10), 10);
+  BOOST_CHECK_EQUAL(nInterests, 2);
+
+  // removing filter
   face->unsetInterestFilter(regPrefixId);
+  advanceClocks(time::milliseconds(10), 10);
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(100)));
+  face->receive(Interest("/Hello/World/!/3"));
+  BOOST_CHECK_EQUAL(nInterests, 2);
 
-  face->receive(Interest("/Hello/World/!"));
-  BOOST_CHECK_EQUAL(nInInterests, 2);
+  face->unsetInterestFilter(static_cast<const RegisteredPrefixId*>(0));
+  advanceClocks(time::milliseconds(10), 10);
 
-  BOOST_CHECK_NO_THROW(face->unsetInterestFilter(static_cast<const RegisteredPrefixId*>(0)));
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(100)));
+  face->unsetInterestFilter(static_cast<const InterestFilterId*>(0));
+  advanceClocks(time::milliseconds(10), 10);
+}
 
-  BOOST_CHECK_NO_THROW(face->unsetInterestFilter(static_cast<const InterestFilterId*>(0)));
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(100)));
+BOOST_FIXTURE_TEST_CASE(SetInterestFilterFail, FacesNoRegistrationReplyFixture)
+{
+  // don't enable registration reply
+  size_t nRegFailed = 0;
+  face->setInterestFilter("/Hello/World",
+                          bind([] {
+                              BOOST_FAIL("Unexpected Interest");
+                            }),
+                          bind([] {
+                              BOOST_FAIL("Unexpected success of setInterestFilter");
+                            }),
+                          bind([&nRegFailed] {
+                              ++nRegFailed;
+                            }));
+
+  advanceClocks(time::milliseconds(10), 10);
+  BOOST_CHECK_EQUAL(nRegFailed, 0);
+
+  advanceClocks(time::milliseconds(1000), 10);
+  BOOST_CHECK_EQUAL(nRegFailed, 1);
 }
 
 BOOST_AUTO_TEST_CASE(RegisterUnregisterPrefix)
 {
+  size_t nRegSuccesses = 0;
   const RegisteredPrefixId* regPrefixId =
     face->registerPrefix("/Hello/World",
-                         bind(&FacesFixture::onRegSucceeded, this),
-                         bind(&FacesFixture::onRegFailed, this));
+                         bind([&nRegSuccesses] { ++nRegSuccesses; }),
+                         bind([] {
+                             BOOST_FAIL("Unexpected registerPrefix failure");
+                           }));
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(100)));
-  BOOST_CHECK_EQUAL(nRegFailures, 0);
+  advanceClocks(time::milliseconds(10), 10);
   BOOST_CHECK_EQUAL(nRegSuccesses, 1);
 
+  size_t nUnregSuccesses = 0;
   face->unregisterPrefix(regPrefixId,
-                         bind(&FacesFixture::onUnregSucceeded, this),
-                         bind(&FacesFixture::onUnregFailed, this));
+                         bind([&nUnregSuccesses] { ++nUnregSuccesses; }),
+                         bind([] {
+                             BOOST_FAIL("Unexpected unregisterPrefix failure");
+                           }));
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(100)));
-  BOOST_CHECK_EQUAL(nUnregFailures, 0);
+  advanceClocks(time::milliseconds(10), 10);
   BOOST_CHECK_EQUAL(nUnregSuccesses, 1);
-
 }
 
-BOOST_AUTO_TEST_CASE(SeTwoSimilarFilters)
+BOOST_FIXTURE_TEST_CASE(RegisterUnregisterPrefixFail, FacesNoRegistrationReplyFixture)
 {
-  face->setInterestFilter("/Hello/World",
-                          bind(&FacesFixture::onInterest, this, ref(*face), _1, _2),
-                          RegisterPrefixSuccessCallback(),
-                          bind(&FacesFixture::onRegFailed, this));
+  size_t nRegFailures = 0;
+  face->registerPrefix("/Hello/World",
+                       bind([] {
+                           BOOST_FAIL("Unexpected registerPrefix success");
+                         }),
+                       bind([&nRegFailures] { ++nRegFailures; }));
 
+  advanceClocks(time::milliseconds(1000), 100);
+  BOOST_CHECK_EQUAL(nRegFailures, 1);
+}
+
+BOOST_AUTO_TEST_CASE(SimilarFilters)
+{
+  size_t nInInterests1 = 0;
+  face->setInterestFilter("/Hello/World",
+                          bind([&nInInterests1] { ++nInInterests1; }),
+                          RegisterPrefixSuccessCallback(),
+                          bind([] {
+                              BOOST_FAIL("Unexpected setInterestFilter failure");
+                            }));
+
+  size_t nInInterests2 = 0;
   face->setInterestFilter("/Hello",
-                          bind(&FacesFixture::onInterest2, this, ref(*face), _1, _2),
+                          bind([&nInInterests2] { ++nInInterests2; }),
                           RegisterPrefixSuccessCallback(),
-                          bind(&FacesFixture::onRegFailed, this));
+                          bind([] {
+                              BOOST_FAIL("Unexpected setInterestFilter failure");
+                            }));
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(-100)));
-
-  face->receive(Interest("/Hello/World/!"));
-
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(-100)));
-
-  BOOST_CHECK_EQUAL(nRegFailures, 0);
-  BOOST_CHECK_EQUAL(nInInterests, 1);
-  BOOST_CHECK_EQUAL(nInInterests2, 1);
-}
-
-BOOST_AUTO_TEST_CASE(SetTwoDifferentFilters)
-{
-  face->setInterestFilter("/Hello/World",
-                          bind(&FacesFixture::onInterest, this, ref(*face), _1, _2),
-                          RegisterPrefixSuccessCallback(),
-                          bind(&FacesFixture::onRegFailed, this));
-
+  size_t nInInterests3 = 0;
   face->setInterestFilter("/Los/Angeles/Lakers",
-                          bind(&FacesFixture::onInterest2, this, ref(*face), _1, _2),
+                          bind([&nInInterests3] { ++nInInterests3; }),
                           RegisterPrefixSuccessCallback(),
-                          bind(&FacesFixture::onRegFailed, this));
+                          bind([] {
+                              BOOST_FAIL("Unexpected setInterestFilter failure");
+                            }));
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(-100)));
+  advanceClocks(time::milliseconds(10), 10);
 
   face->receive(Interest("/Hello/World/!"));
+  advanceClocks(time::milliseconds(10), 10);
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(-100)));
-
-  BOOST_CHECK_EQUAL(nRegFailures, 0);
-  BOOST_CHECK_EQUAL(nInInterests, 1);
-  BOOST_CHECK_EQUAL(nInInterests2, 0);
+  BOOST_CHECK_EQUAL(nInInterests1, 1);
+  BOOST_CHECK_EQUAL(nInInterests2, 1);
+  BOOST_CHECK_EQUAL(nInInterests3, 0);
 }
 
 BOOST_AUTO_TEST_CASE(SetRegexFilterError)
 {
   face->setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
-                          bind(&FacesFixture::onInterestRegexError, this,
-                               ref(*face), _1, _2),
+                          [] (const Name&, const Interest&) {
+                            BOOST_FAIL("InterestFilter::Error should have been triggered");
+                          },
                           RegisterPrefixSuccessCallback(),
-                          bind(&FacesFixture::onRegFailed, this));
+                          bind([] {
+                              BOOST_FAIL("Unexpected setInterestFilter failure");
+                            }));
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(-100)));
+  advanceClocks(time::milliseconds(10), 10);
 
   BOOST_REQUIRE_THROW(face->receive(Interest("/Hello/World/XXX/b/c")), InterestFilter::Error);
 }
 
 BOOST_AUTO_TEST_CASE(SetRegexFilter)
 {
+  size_t nInInterests = 0;
   face->setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
-                          bind(&FacesFixture::onInterestRegex, this,
-                               ref(*face), _1, _2),
+                          bind([&nInInterests] { ++nInInterests; }),
                           RegisterPrefixSuccessCallback(),
-                          bind(&FacesFixture::onRegFailed, this));
+                          bind([] {
+                              BOOST_FAIL("Unexpected setInterestFilter failure");
+                            }));
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(-100)));
+  advanceClocks(time::milliseconds(10), 10);
 
   face->receive(Interest("/Hello/World/a"));     // shouldn't match
   BOOST_CHECK_EQUAL(nInInterests, 0);
@@ -339,19 +298,20 @@ BOOST_AUTO_TEST_CASE(SetRegexFilter)
   BOOST_CHECK_EQUAL(nInInterests, 2);
 }
 
-
 BOOST_AUTO_TEST_CASE(SetRegexFilterAndRegister)
 {
+  size_t nInInterests = 0;
   face->setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
-                          bind(&FacesFixture::onInterestRegex, this,
-                               ref(*face), _1, _2));
+                          bind([&nInInterests] { ++nInInterests; }));
 
+  size_t nRegSuccesses = 0;
   face->registerPrefix("/Hello/World",
-                       bind(&FacesFixture::onRegSucceeded, this),
-                       bind(&FacesFixture::onRegFailed, this));
+                       bind([&nRegSuccesses] { ++nRegSuccesses; }),
+                       bind([] {
+                           BOOST_FAIL("Unexpected setInterestFilter failure");
+                         }));
 
-  BOOST_REQUIRE_NO_THROW(face->processEvents(time::milliseconds(100)));
-  BOOST_CHECK_EQUAL(nRegFailures, 0);
+  advanceClocks(time::milliseconds(10), 10);
   BOOST_CHECK_EQUAL(nRegSuccesses, 1);
 
   face->receive(Interest("/Hello/World/a")); // shouldn't match
@@ -371,17 +331,18 @@ BOOST_AUTO_TEST_CASE(ProcessEvents)
 {
   face->processEvents(time::milliseconds(-1)); // io_service::reset()/poll() inside
 
+  size_t nRegSuccesses = 0;
   face->registerPrefix("/Hello/World",
-                       bind(&FacesFixture::onRegSucceeded, this),
-                       bind(&FacesFixture::onRegFailed, this));
+                       bind([&nRegSuccesses] { ++nRegSuccesses; }),
+                       bind([] {
+                           BOOST_FAIL("Unexpected setInterestFilter failure");
+                         }));
 
   // io_service::poll() without reset
   face->getIoService().poll();
-  BOOST_CHECK_EQUAL(nRegFailures, 0);
   BOOST_CHECK_EQUAL(nRegSuccesses, 0);
 
   face->processEvents(time::milliseconds(-1)); // io_service::reset()/poll() inside
-  BOOST_CHECK_EQUAL(nRegFailures, 0);
   BOOST_CHECK_EQUAL(nRegSuccesses, 1);
 }
 

@@ -48,10 +48,10 @@
 #include "util/notification-subscriber.hpp"
 #include "util/notification-stream.hpp"
 #include "simple-notification.hpp"
+#include "util/dummy-client-face.hpp"
 
 #include "boost-test.hpp"
-#include <boost/asio.hpp>
-#include "util/dummy-client-face.hpp"
+#include "../unit-test-time-fixture.hpp"
 
 namespace ndn {
 namespace util {
@@ -59,14 +59,14 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(UtilNotificationSubscriber)
 
-class EndToEndFixture
+class EndToEndFixture : public ndn::tests::UnitTestTimeFixture
 {
 public:
   EndToEndFixture()
     : streamPrefix("ndn:/NotificationSubscriberTest")
-    , publisherFace(makeDummyClientFace(ioService))
+    , publisherFace(makeDummyClientFace(io))
     , notificationStream(*publisherFace, streamPrefix, publisherKeyChain)
-    , subscriberFace(makeDummyClientFace(ioService))
+    , subscriberFace(makeDummyClientFace(io))
     , subscriber(*subscriberFace, streamPrefix, time::seconds(1))
   {
   }
@@ -80,7 +80,7 @@ public:
     SimpleNotification notification(msg);
     notificationStream.postNotification(notification);
 
-    publisherFace->processEvents(time::milliseconds(100));
+    advanceClocks(time::milliseconds(1));
 
     BOOST_REQUIRE_EQUAL(publisherFace->sentDatas.size(), 1);
 
@@ -149,7 +149,6 @@ public:
   }
 
 protected:
-  boost::asio::io_service ioService;
   Name streamPrefix;
   shared_ptr<DummyClientFace> publisherFace;
   ndn::KeyChain publisherKeyChain;
@@ -178,34 +177,34 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
 
   // not received when subscriber is not running
   this->deliverNotification("n1");
-  subscriberFace->processEvents(time::milliseconds(100));
+  advanceClocks(time::milliseconds(1));
   BOOST_CHECK(lastNotification.getMessage().empty());
   BOOST_CHECK_EQUAL(subscriberFace->sentInterests.size(), 0);
 
   subscriberFace->sentInterests.clear();
   subscriber.start();
-  subscriberFace->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1));
   BOOST_REQUIRE_EQUAL(subscriber.isRunning(), true);
   BOOST_CHECK(this->hasInitialRequest());
 
   // respond to initial request
   subscriberFace->sentInterests.clear();
   this->deliverNotification("n2");
-  subscriberFace->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n2");
   BOOST_CHECK_EQUAL(this->getRequestSeqNo(), lastDeliveredSeqNo + 1);
 
   // respond to continuation request
   subscriberFace->sentInterests.clear();
   this->deliverNotification("n3");
-  subscriberFace->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n3");
   BOOST_CHECK_EQUAL(this->getRequestSeqNo(), lastDeliveredSeqNo + 1);
 
   // timeout
   subscriberFace->sentInterests.clear();
   lastNotification.setMessage("");
-  subscriberFace->processEvents(2 * subscriber.getInterestLifetime());
+  advanceClocks(subscriber.getInterestLifetime(), 2);
   BOOST_CHECK(lastNotification.getMessage().empty());
   BOOST_CHECK_EQUAL(hasTimeout, true);
   BOOST_CHECK(this->hasInitialRequest());
@@ -218,7 +217,7 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   subscriberFace->receive(wrongData);
   subscriberFace->sentInterests.clear();
   lastNotification.setMessage("");
-  subscriberFace->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1));
   BOOST_CHECK(lastNotification.getMessage().empty());
   BOOST_CHECK_EQUAL(lastDecodeErrorData.getName(), wrongName);
   BOOST_CHECK(this->hasInitialRequest());
@@ -227,7 +226,7 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   subscriberFace->sentInterests.clear();
   lastNotification.setMessage("");
   this->deliverNotification("\x07n4");
-  subscriberFace->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1));
   BOOST_CHECK(lastNotification.getMessage().empty());
   BOOST_CHECK(this->hasInitialRequest());
 
@@ -235,7 +234,7 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   subscriber.onNotification += bind(&EndToEndFixture::clearNotificationHandlers, this);
   subscriberFace->sentInterests.clear();
   this->deliverNotification("n5");
-  subscriberFace->processEvents(time::milliseconds(-100));
+  advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(subscriberFace->sentInterests.size(), 0);
 }
 

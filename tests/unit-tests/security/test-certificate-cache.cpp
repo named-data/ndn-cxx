@@ -24,22 +24,20 @@
 #include "util/time-unit-test-clock.hpp"
 
 #include "boost-test.hpp"
+#include "../unit-test-time-fixture.hpp"
 
 namespace ndn {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(SecurityTestCertificateCache)
 
-class UnitTestTimeFixture
+class CertificateCacheFixture : public UnitTestTimeFixture
 {
 public:
-  UnitTestTimeFixture()
-    : steadyClock(make_shared<time::UnitTestSteadyClock>())
-    , scheduler(io)
+  CertificateCacheFixture()
+    : scheduler(io)
     , cache(make_shared<CertificateCacheTtl>(ref(io), time::seconds(1)))
   {
-    time::setCustomClocks(steadyClock);
-
     cert1 = make_shared<IdentityCertificate>();
     Name certName1("/tmp/KEY/ksk-1/ID-CERT/1");
     cert1->setName(certName1);
@@ -54,15 +52,7 @@ public:
     name2 = certName2.getPrefix(-1);
   }
 
-  ~UnitTestTimeFixture()
-  {
-    time::setCustomClocks(nullptr, nullptr);
-  }
-
 public:
-  shared_ptr<time::UnitTestSteadyClock> steadyClock;
-
-  boost::asio::io_service io;
   Scheduler scheduler;
 
   shared_ptr<CertificateCacheTtl> cache;
@@ -75,12 +65,12 @@ public:
 };
 
 
-BOOST_FIXTURE_TEST_CASE(Expiration, UnitTestTimeFixture)
+BOOST_FIXTURE_TEST_CASE(Expiration, CertificateCacheFixture)
 {
   cache->insertCertificate(cert1);
   cache->insertCertificate(cert2);
 
-  io.poll();
+  advanceClocks(time::nanoseconds(0));
   BOOST_CHECK_EQUAL(cache->getSize(), 2);
 
   scheduler.scheduleEvent(time::milliseconds(200), [&] {
@@ -89,8 +79,7 @@ BOOST_FIXTURE_TEST_CASE(Expiration, UnitTestTimeFixture)
       BOOST_CHECK_EQUAL(static_cast<bool>(cache->getCertificate(name2)), true);
     });
 
-  steadyClock->advance(time::milliseconds(200));
-  io.poll();
+  advanceClocks(time::milliseconds(200));
 
   // cert1 should removed from the cache
   scheduler.scheduleEvent(time::milliseconds(700), [&] {
@@ -98,52 +87,47 @@ BOOST_FIXTURE_TEST_CASE(Expiration, UnitTestTimeFixture)
       BOOST_CHECK_EQUAL(static_cast<bool>(cache->getCertificate(name2)), true);
     });
 
-  steadyClock->advance(time::milliseconds(700));
-  io.poll();
+  advanceClocks(time::milliseconds(700));
   BOOST_CHECK_EQUAL(cache->getSize(), 1);
 
-  steadyClock->advance(time::milliseconds(700));
-  io.poll();
+  advanceClocks(time::milliseconds(700));
   BOOST_CHECK_EQUAL(cache->getSize(), 0);
 }
 
-BOOST_FIXTURE_TEST_CASE(TtlRefresh, UnitTestTimeFixture)
+BOOST_FIXTURE_TEST_CASE(TtlRefresh, CertificateCacheFixture)
 {
   cache->insertCertificate(cert1); // 500ms
 
-  io.poll();
+  advanceClocks(time::nanoseconds(0));
   BOOST_CHECK_EQUAL(cache->getSize(), 1);
 
-  steadyClock->advance(time::milliseconds(400));
-  io.poll();
+  advanceClocks(time::milliseconds(400));
   BOOST_CHECK_EQUAL(cache->getSize(), 1);
 
     // Refresh certificate in cache
   cache->insertCertificate(cert1); // +500ms
 
-  io.poll();
+  advanceClocks(time::nanoseconds(0));
   BOOST_CHECK_EQUAL(cache->getSize(), 1);
 
-  steadyClock->advance(time::milliseconds(400));
-  io.poll();
+  advanceClocks(time::milliseconds(400));
   BOOST_CHECK_EQUAL(cache->getSize(), 1);
 
-  steadyClock->advance(time::milliseconds(200));
-  io.poll();
+  advanceClocks(time::milliseconds(200));
   BOOST_CHECK_EQUAL(cache->getSize(), 0);
 }
 
-BOOST_FIXTURE_TEST_CASE(Reset, UnitTestTimeFixture)
+BOOST_FIXTURE_TEST_CASE(Reset, CertificateCacheFixture)
 {
   cache->insertCertificate(cert1);
   cache->insertCertificate(cert2);
 
-  io.poll();
+  advanceClocks(time::nanoseconds(0));
   BOOST_CHECK_EQUAL(cache->getSize(), 2);
 
   cache->reset();
 
-  io.poll();
+  advanceClocks(time::nanoseconds(0));
   BOOST_CHECK_EQUAL(cache->getSize(), 0);
 }
 

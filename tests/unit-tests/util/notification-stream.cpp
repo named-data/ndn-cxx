@@ -47,26 +47,29 @@
 
 #include "util/notification-stream.hpp"
 #include "simple-notification.hpp"
+#include "util/dummy-client-face.hpp"
 
 #include "boost-test.hpp"
-#include "util/dummy-client-face.hpp"
+#include "../unit-test-time-fixture.hpp"
 
 namespace ndn {
 namespace util {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(UtilNotificationStream)
+BOOST_FIXTURE_TEST_SUITE(UtilNotificationStream, ndn::tests::UnitTestTimeFixture)
 
 BOOST_AUTO_TEST_CASE(Post)
 {
-  shared_ptr<DummyClientFace> face = makeDummyClientFace();
+  shared_ptr<DummyClientFace> face = makeDummyClientFace(io);
   ndn::KeyChain keyChain;
   util::NotificationStream<SimpleNotification> notificationStream(*face,
     "/localhost/nfd/NotificationStreamTest", keyChain);
 
   SimpleNotification event1("msg1");
   notificationStream.postNotification(event1);
-  face->processEvents();
+
+  advanceClocks(time::milliseconds(1));
+
   BOOST_REQUIRE_EQUAL(face->sentDatas.size(), 1);
   BOOST_CHECK_EQUAL(face->sentDatas[0].getName(),
                     "/localhost/nfd/NotificationStreamTest/%FE%00");
@@ -76,7 +79,9 @@ BOOST_AUTO_TEST_CASE(Post)
 
   SimpleNotification event2("msg2");
   notificationStream.postNotification(event2);
-  face->processEvents();
+
+  advanceClocks(time::milliseconds(1));
+
   BOOST_REQUIRE_EQUAL(face->sentDatas.size(), 2);
   BOOST_CHECK_EQUAL(face->sentDatas[1].getName(),
                     "/localhost/nfd/NotificationStreamTest/%FE%01");

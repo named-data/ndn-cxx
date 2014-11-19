@@ -26,6 +26,7 @@
 
 #include "boost-test.hpp"
 #include "util/dummy-client-face.hpp"
+#include "../unit-test-time-fixture.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -36,11 +37,11 @@ using ndn::util::makeDummyClientFace;
 
 BOOST_AUTO_TEST_SUITE(ManagementTestNfdController)
 
-class CommandFixture
+class CommandFixture : public ndn::tests::UnitTestTimeFixture
 {
 protected:
   CommandFixture()
-    : face(makeDummyClientFace())
+    : face(makeDummyClientFace(io))
     , controller(*face, keyChain)
     , commandSucceedCallback(bind(&CommandFixture::onCommandSucceed, this, _1))
     , commandFailCallback(bind(&CommandFixture::onCommandFail, this, _1, _2))
@@ -83,7 +84,8 @@ BOOST_FIXTURE_TEST_CASE(CommandSuccess, CommandFixture)
                        parameters,
                        commandSucceedCallback,
                        commandFailCallback));
-  face->processEvents(time::milliseconds(1));
+
+  advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
   const Interest& requestInterest = face->sentInterests[0];
@@ -109,7 +111,8 @@ BOOST_FIXTURE_TEST_CASE(CommandSuccess, CommandFixture)
   responseData.setContent(responsePayload.wireEncode());
   keyChain.sign(responseData);
   face->receive(responseData);
-  face->processEvents(time::milliseconds(1));
+
+  advanceClocks(time::milliseconds(1));
 
   BOOST_CHECK_EQUAL(commandFailHistory.size(), 0);
   BOOST_REQUIRE_EQUAL(commandSucceedHistory.size(), 1);
@@ -140,7 +143,7 @@ BOOST_FIXTURE_TEST_CASE(CommandErrorCode, CommandFixture)
                          parameters,
                          commandSucceedCallback,
                          commandFailCallback));
-  face->processEvents(time::milliseconds(1));
+  advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
   const Interest& requestInterest = face->sentInterests[0];
@@ -151,7 +154,7 @@ BOOST_FIXTURE_TEST_CASE(CommandErrorCode, CommandFixture)
   responseData.setContent(responsePayload.wireEncode());
   keyChain.sign(responseData);
   face->receive(responseData);
-  face->processEvents(time::milliseconds(1));
+  advanceClocks(time::milliseconds(1));
 
   BOOST_CHECK_EQUAL(commandSucceedHistory.size(), 0);
   BOOST_REQUIRE_EQUAL(commandFailHistory.size(), 1);
@@ -167,7 +170,7 @@ BOOST_FIXTURE_TEST_CASE(CommandInvalidResponse, CommandFixture)
                          parameters,
                          commandSucceedCallback,
                          commandFailCallback));
-  face->processEvents(time::milliseconds(1));
+  advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
   const Interest& requestInterest = face->sentInterests[0];
@@ -183,7 +186,7 @@ BOOST_FIXTURE_TEST_CASE(CommandInvalidResponse, CommandFixture)
   responseData.setContent(responsePayload.wireEncode());
   keyChain.sign(responseData);
   face->receive(responseData);
-  face->processEvents(time::milliseconds(1));
+  advanceClocks(time::milliseconds(1));
 
   BOOST_CHECK_EQUAL(commandSucceedHistory.size(), 0);
   BOOST_REQUIRE_EQUAL(commandFailHistory.size(), 1);
@@ -203,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE(OptionsPrefix, CommandFixture)
                        commandSucceedCallback,
                        commandFailCallback,
                        options));
-  face->processEvents(time::milliseconds(1));
+  advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
   const Interest& requestInterest = face->sentInterests[0];
@@ -226,7 +229,7 @@ BOOST_FIXTURE_TEST_CASE(OptionsTimeout, CommandFixture)
                        commandSucceedCallback,
                        commandFailCallback,
                        options));
-  face->processEvents(time::milliseconds(300));
+  advanceClocks(time::milliseconds(1), 101); // Face's PIT granularity is 100ms
 
   BOOST_REQUIRE_EQUAL(commandFailHistory.size(), 1);
   BOOST_CHECK_EQUAL(commandFailHistory[0].get<0>(), Controller::ERROR_TIMEOUT);
