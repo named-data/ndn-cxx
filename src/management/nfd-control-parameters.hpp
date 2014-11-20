@@ -22,9 +22,8 @@
 #ifndef NDN_MANAGEMENT_NFD_CONTROL_PARAMETERS_HPP
 #define NDN_MANAGEMENT_NFD_CONTROL_PARAMETERS_HPP
 
+#include "../encoding/nfd-constants.hpp"
 #include "../name.hpp"
-#include "../encoding/tlv-nfd.hpp"
-#include "../encoding/block-helpers.hpp"
 #include "../util/time.hpp"
 
 namespace ndn {

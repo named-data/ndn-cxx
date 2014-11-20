@@ -20,11 +20,24 @@
  */
 
 #include "nfd-rib-entry.hpp"
-
-#include "management/nfd-control-command.hpp"
+#include "encoding/tlv-nfd.hpp"
+#include "encoding/block-helpers.hpp"
+#include "util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
+
+//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Route>));
+BOOST_CONCEPT_ASSERT((WireEncodable<Route>));
+BOOST_CONCEPT_ASSERT((WireDecodable<Route>));
+static_assert(std::is_base_of<tlv::Error, Route::Error>::value,
+              "Route::Error must inherit from tlv::Error");
+
+//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<RibEntry>));
+BOOST_CONCEPT_ASSERT((WireEncodable<RibEntry>));
+BOOST_CONCEPT_ASSERT((WireDecodable<RibEntry>));
+static_assert(std::is_base_of<tlv::Error, RibEntry::Error>::value,
+              "RibEntry::Error must inherit from tlv::Error");
 
 const time::milliseconds Route::INFINITE_EXPIRATION_PERIOD(time::milliseconds::max());
 

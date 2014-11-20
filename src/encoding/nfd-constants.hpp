@@ -29,19 +29,65 @@ namespace nfd {
 
 static const uint64_t INVALID_FACE_ID = std::numeric_limits<uint64_t>::max();
 
-/**
- * \ingroup management
+/** \ingroup management
  */
-enum {
-  // route origin
+enum FaceScope {
+  /** \brief face is non-local
+   */
+  FACE_SCOPE_NON_LOCAL = 0,
+  /** \brief face is local
+   */
+  FACE_SCOPE_LOCAL = 1
+};
+
+std::ostream&
+operator<<(std::ostream& os, FaceScope faceScope);
+
+/** \ingroup management
+ */
+enum FacePersistency {
+  /** \brief face is persistent
+   */
+  FACE_PERSISTENCY_PERSISTENT = 0,
+  /** \brief face is on-demand
+   */
+  FACE_PERSISTENCY_ON_DEMAND = 1,
+  /** \brief face is permanent
+   */
+  FACE_PERSISTENCY_PERMANENT = 2
+};
+
+std::ostream&
+operator<<(std::ostream& os, FacePersistency facePersistency);
+
+/** \ingroup management
+ */
+enum LinkType {
+  /** \brief link is point-to-point
+   */
+  LINK_TYPE_POINT_TO_POINT = 0,
+  /** \brief link is multi-access
+   */
+  LINK_TYPE_MULTI_ACCESS = 1
+};
+
+std::ostream&
+operator<<(std::ostream& os, LinkType linkType);
+
+/** \ingroup management
+ */
+enum RouteOrigin {
   ROUTE_ORIGIN_APP      = 0,
   ROUTE_ORIGIN_AUTOREG  = 64,
   ROUTE_ORIGIN_CLIENT   = 65,
   ROUTE_ORIGIN_AUTOCONF = 66,
   ROUTE_ORIGIN_NLSR     = 128,
-  ROUTE_ORIGIN_STATIC   = 255,
+  ROUTE_ORIGIN_STATIC   = 255
+};
 
-  // route inheritance flags
+/** \ingroup management
+ */
+enum RouteFlags {
   ROUTE_FLAG_CHILD_INHERIT = 1,
   ROUTE_FLAG_CAPTURE       = 2
 };

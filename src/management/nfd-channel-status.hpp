@@ -22,11 +22,7 @@
 #ifndef NDN_MANAGEMENT_NFD_CHANNEL_STATUS_HPP
 #define NDN_MANAGEMENT_NFD_CHANNEL_STATUS_HPP
 
-#include "../encoding/tlv-nfd.hpp"
-#include "../encoding/encoding-buffer.hpp"
-#include "../encoding/block-helpers.hpp"
-
-#include "../util/time.hpp"
+#include "../encoding/block.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -49,15 +45,10 @@ public:
     }
   };
 
-  ChannelStatus()
-  {
-  }
+  ChannelStatus();
 
   explicit
-  ChannelStatus(const Block& payload)
-  {
-    this->wireDecode(payload);
-  }
+  ChannelStatus(const Block& payload);
 
   template<bool T>
   size_t
@@ -77,68 +68,13 @@ public: // getters & setters
   }
 
   ChannelStatus&
-  setLocalUri(const std::string localUri)
-  {
-    m_wire.reset();
-    m_localUri = localUri;
-    return *this;
-  }
+  setLocalUri(const std::string localUri);
 
 private:
   std::string m_localUri;
 
   mutable Block m_wire;
 };
-
-
-template<bool T>
-inline size_t
-ChannelStatus::wireEncode(EncodingImpl<T>& encoder) const
-{
-  size_t totalLength = 0;
-
-  totalLength += prependByteArrayBlock(encoder, tlv::nfd::LocalUri,
-                 reinterpret_cast<const uint8_t*>(m_localUri.c_str()), m_localUri.size());
-
-  totalLength += encoder.prependVarNumber(totalLength);
-  totalLength += encoder.prependVarNumber(tlv::nfd::ChannelStatus);
-  return totalLength;
-}
-
-inline const Block&
-ChannelStatus::wireEncode() const
-{
-  if (m_wire.hasWire())
-    return m_wire;
-
-  EncodingEstimator estimator;
-  size_t estimatedSize = wireEncode(estimator);
-
-  EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
-
-  m_wire = buffer.block();
-  return m_wire;
-}
-
-inline void
-ChannelStatus::wireDecode(const Block& block)
-{
-  if (block.type() != tlv::nfd::ChannelStatus) {
-    throw Error("expecting ChannelStatus block");
-  }
-  m_wire = block;
-  m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
-
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
-    m_localUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
-    ++val;
-  }
-  else {
-    throw Error("missing required LocalUri field");
-  }
-}
 
 } // namespace nfd
 } // namespace ndn

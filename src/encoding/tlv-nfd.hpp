@@ -22,7 +22,7 @@
 #ifndef NDN_ENCODING_TLV_NFD_HPP
 #define NDN_ENCODING_TLV_NFD_HPP
 
-#include "../common.hpp"
+#include "tlv.hpp"
 #include "nfd-constants.hpp"
 
 namespace ndn {

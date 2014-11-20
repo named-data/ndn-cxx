@@ -22,8 +22,8 @@
 #ifndef NDN_MANAGEMENT_NFD_FACE_EVENT_NOTIFICATION_HPP
 #define NDN_MANAGEMENT_NFD_FACE_EVENT_NOTIFICATION_HPP
 
-// This include must be kept as the first one, to ensure nfd-face-flags.hpp compiles on its own.
 #include "nfd-face-traits.hpp"
+#include "../encoding/block.hpp"
 
 namespace ndn {
 namespace nfd {

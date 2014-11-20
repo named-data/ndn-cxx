@@ -22,19 +22,10 @@
 #ifndef NDN_MANAGEMENT_NFD_RIB_FLAGS_HPP
 #define NDN_MANAGEMENT_NFD_RIB_FLAGS_HPP
 
+#include "../encoding/nfd-constants.hpp"
+
 namespace ndn {
 namespace nfd {
-
-/**
- * \ingroup management
- * \brief provides additional information about a RIB entry
- */
-enum RibFlags {
-  RIB_CHILD_INHERIT = 1,
-  RIB_CAPTURE = 2
-  // RIB_? = 4
-  // RIB_? = 8
-};
 
 /**
  * \ingroup management
@@ -50,13 +41,13 @@ public:
   bool
   isChildInherit() const
   {
-    return static_cast<const T*>(this)->getFlags() & RIB_CHILD_INHERIT;
+    return static_cast<const T*>(this)->getFlags() & ROUTE_FLAG_CHILD_INHERIT;
   }
 
   bool
   isRibCapture() const
   {
-    return static_cast<const T*>(this)->getFlags() & RIB_CAPTURE;
+    return static_cast<const T*>(this)->getFlags() & ROUTE_FLAG_CAPTURE;
   }
 };
 

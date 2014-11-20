@@ -20,9 +20,18 @@
  */
 
 #include "nfd-control-parameters.hpp"
+#include "encoding/tlv-nfd.hpp"
+#include "encoding/block-helpers.hpp"
+#include "util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
+
+//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<ControlParameters>));
+BOOST_CONCEPT_ASSERT((WireEncodable<ControlParameters>));
+BOOST_CONCEPT_ASSERT((WireDecodable<ControlParameters>));
+static_assert(std::is_base_of<tlv::Error, ControlParameters::Error>::value,
+              "ControlParameters::Error must inherit from tlv::Error");
 
 ControlParameters::ControlParameters()
   : m_hasFields(CONTROL_PARAMETER_UBOUND)

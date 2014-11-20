@@ -20,12 +20,21 @@
  */
 
 #include "nfd-face-event-notification.hpp"
+#include "encoding/tlv-nfd.hpp"
+#include "encoding/block-helpers.hpp"
+#include "util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
+
+//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceEventNotification>));
+BOOST_CONCEPT_ASSERT((WireEncodable<FaceEventNotification>));
+BOOST_CONCEPT_ASSERT((WireDecodable<FaceEventNotification>));
+static_assert(std::is_base_of<tlv::Error, FaceEventNotification::Error>::value,
+              "FaceEventNotification::Error must inherit from tlv::Error");
+
 FaceEventNotification::FaceEventNotification()
-  : FaceTraits()
-  , m_kind(static_cast<FaceEventKind>(0))
+  : m_kind(static_cast<FaceEventKind>(0))
 {
 }
 

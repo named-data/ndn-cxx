@@ -22,9 +22,7 @@
 #ifndef NDN_MANAGEMENT_NFD_STRATEGY_CHOICE_HPP
 #define NDN_MANAGEMENT_NFD_STRATEGY_CHOICE_HPP
 
-#include "../encoding/tlv-nfd.hpp"
-#include "../encoding/encoding-buffer.hpp"
-#include "../encoding/block-helpers.hpp"
+#include "../encoding/block.hpp"
 #include "../name.hpp"
 
 namespace ndn {
@@ -48,15 +46,10 @@ public:
     }
   };
 
-  StrategyChoice()
-  {
-  }
+  StrategyChoice();
 
   explicit
-  StrategyChoice(const Block& payload)
-  {
-    this->wireDecode(payload);
-  }
+  StrategyChoice(const Block& payload);
 
   template<bool T>
   size_t
@@ -76,12 +69,7 @@ public: // getters & setters
   }
 
   StrategyChoice&
-  setName(const Name& name)
-  {
-    m_wire.reset();
-    m_name = name;
-    return *this;
-  }
+  setName(const Name& name);
 
   const Name&
   getStrategy() const
@@ -90,12 +78,7 @@ public: // getters & setters
   }
 
   StrategyChoice&
-  setStrategy(const Name& strategy)
-  {
-    m_wire.reset();
-    m_strategy = strategy;
-    return *this;
-  }
+  setStrategy(const Name& strategy);
 
 private:
   Name m_name; // namespace
@@ -103,70 +86,6 @@ private:
 
   mutable Block m_wire;
 };
-
-
-template<bool T>
-inline size_t
-StrategyChoice::wireEncode(EncodingImpl<T>& encoder) const
-{
-  size_t totalLength = 0;
-
-  totalLength += prependNestedBlock(encoder, tlv::nfd::Strategy, m_strategy);
-  totalLength += m_name.wireEncode(encoder);
-
-  totalLength += encoder.prependVarNumber(totalLength);
-  totalLength += encoder.prependVarNumber(tlv::nfd::StrategyChoice);
-  return totalLength;
-}
-
-inline const Block&
-StrategyChoice::wireEncode() const
-{
-  if (m_wire.hasWire())
-    return m_wire;
-
-  EncodingEstimator estimator;
-  size_t estimatedSize = wireEncode(estimator);
-
-  EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
-
-  m_wire = buffer.block();
-  return m_wire;
-}
-
-inline void
-StrategyChoice::wireDecode(const Block& block)
-{
-  if (block.type() != tlv::nfd::StrategyChoice) {
-    throw Error("expecting StrategyChoice block");
-  }
-  m_wire = block;
-  m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
-
-  if (val != m_wire.elements_end() && val->type() == tlv::Name) {
-    m_name.wireDecode(*val);
-    ++val;
-  }
-  else {
-    throw Error("missing required Name field");
-  }
-
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::Strategy) {
-    val->parse();
-    if (val->elements().empty()) {
-      throw Error("expecting Strategy/Name");
-    }
-    else {
-      m_strategy.wireDecode(*val->elements_begin());
-    }
-    ++val;
-  }
-  else {
-    throw Error("missing required Strategy field");
-  }
-}
 
 } // namespace nfd
 } // namespace ndn

@@ -22,7 +22,8 @@
 #ifndef NDN_MANAGEMENT_NFD_FACE_QUERY_FILTER_HPP
 #define NDN_MANAGEMENT_NFD_FACE_QUERY_FILTER_HPP
 
-#include "nfd-face-traits.hpp"
+#include "../encoding/block.hpp"
+#include "../encoding/nfd-constants.hpp"
 
 namespace ndn {
 namespace nfd {

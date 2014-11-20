@@ -23,23 +23,13 @@
 #define NDN_MANAGEMENT_NFD_FIB_ENTRY_HPP
 
 #include "../encoding/block.hpp"
-#include "../encoding/block-helpers.hpp"
-#include "../encoding/encoding-buffer.hpp"
-#include "../encoding/tlv-nfd.hpp"
 #include "../name.hpp"
-
 #include <list>
-#include <sstream>
 
 namespace ndn {
 namespace nfd {
 
-// NextHopRecord := NEXT-HOP-RECORD TLV-LENGTH
-//                    FaceId
-//                    Cost
-
-/**
- * @ingroup management
+/** @ingroup management
  */
 class NextHopRecord
 {
@@ -47,20 +37,17 @@ public:
   class Error : public tlv::Error
   {
   public:
-    Error(const std::string& what) : tlv::Error(what) {}
+    explicit
+    Error(const std::string& what)
+      : tlv::Error(what)
+    {
+    }
   };
 
-  NextHopRecord()
-    : m_faceId(std::numeric_limits<uint64_t>::max())
-    , m_cost(0)
-  {
-  }
+  NextHopRecord();
 
   explicit
-  NextHopRecord(const Block& block)
-  {
-    wireDecode(block);
-  }
+  NextHopRecord(const Block& block);
 
   uint64_t
   getFaceId() const
@@ -69,12 +56,7 @@ public:
   }
 
   NextHopRecord&
-  setFaceId(uint64_t faceId)
-  {
-    m_faceId = faceId;
-    m_wire.reset();
-    return *this;
-  }
+  setFaceId(uint64_t faceId);
 
   uint64_t
   getCost() const
@@ -83,95 +65,17 @@ public:
   }
 
   NextHopRecord&
-  setCost(uint64_t cost)
-  {
-    m_cost = cost;
-    m_wire.reset();
-    return *this;
-  }
+  setCost(uint64_t cost);
 
   template<bool T>
   size_t
-  wireEncode(EncodingImpl<T>& block) const
-  {
-    size_t totalLength = 0;
-    totalLength += prependNonNegativeIntegerBlock(block,
-                                                  ndn::tlv::nfd::Cost,
-                                                  m_cost);
-
-    totalLength += prependNonNegativeIntegerBlock(block,
-                                                  ndn::tlv::nfd::FaceId,
-                                                  m_faceId);
-
-    totalLength += block.prependVarNumber(totalLength);
-    totalLength += block.prependVarNumber(ndn::tlv::nfd::NextHopRecord);
-    return totalLength;
-  }
+  wireEncode(EncodingImpl<T>& block) const;
 
   const Block&
-  wireEncode() const
-  {
-    if (m_wire.hasWire())
-      {
-        return m_wire;
-      }
-
-    EncodingEstimator estimator;
-    size_t estimatedSize = wireEncode(estimator);
-
-    EncodingBuffer buffer(estimatedSize, 0);
-    wireEncode(buffer);
-
-    m_wire = buffer.block();
-    return m_wire;
-  }
+  wireEncode() const;
 
   void
-  wireDecode(const Block& wire)
-  {
-    m_faceId = std::numeric_limits<uint64_t>::max();
-    m_cost = 0;
-
-    m_wire = wire;
-
-    if (m_wire.type() != tlv::nfd::NextHopRecord)
-      {
-        std::stringstream error;
-        error << "Requested decoding of NextHopRecord, but Block is of a different type: #"
-              << m_wire.type();
-        throw Error(error.str());
-      }
-    m_wire.parse();
-
-    Block::element_const_iterator val = m_wire.elements_begin();
-    if (val == m_wire.elements_end())
-      {
-        throw Error("Unexpected end of NextHopRecord");
-      }
-    else if (val->type() != tlv::nfd::FaceId)
-      {
-        std::stringstream error;
-        error << "Expected FaceId, but Block is of a different type: #"
-              << val->type();
-        throw Error(error.str());
-      }
-    m_faceId = readNonNegativeInteger(*val);
-    ++val;
-
-    if (val == m_wire.elements_end())
-      {
-        throw Error("Unexpected end of NextHopRecord");
-      }
-    else if (val->type() != tlv::nfd::Cost)
-      {
-        std::stringstream error;
-        error << "Expected Cost, but Block is of a different type: #"
-              << m_wire.type();
-        throw Error(error.str());
-      }
-    m_cost = readNonNegativeInteger(*val);
-  }
-
+  wireDecode(const Block& wire);
 
 private:
   uint64_t m_faceId;
@@ -180,34 +84,25 @@ private:
   mutable Block m_wire;
 };
 
-
-// FibEntry      := FIB-ENTRY-TYPE TLV-LENGTH
-//                    Name
-//                    NextHopRecord*
-
-/**
- * @ingroup management
+/** @ingroup management
  */
 class FibEntry
 {
 public:
-    class Error : public tlv::Error
-    {
-    public:
-      Error(const std::string& what) : tlv::Error(what)
-      {
-      }
-    };
-
-  FibEntry()
+  class Error : public tlv::Error
   {
-  }
+  public:
+    explicit
+    Error(const std::string& what)
+      : tlv::Error(what)
+    {
+    }
+  };
+
+  FibEntry();
 
   explicit
-  FibEntry(const Block& block)
-  {
-    wireDecode(block);
-  }
+  FibEntry(const Block& block);
 
   const Name&
   getPrefix() const
@@ -216,12 +111,7 @@ public:
   }
 
   FibEntry&
-  setPrefix(const Name& prefix)
-  {
-    m_prefix = prefix;
-    m_wire.reset();
-    return *this;
-  }
+  setPrefix(const Name& prefix);
 
   const std::list<NextHopRecord>&
   getNextHopRecords() const
@@ -230,12 +120,7 @@ public:
   }
 
   FibEntry&
-  addNextHopRecord(const NextHopRecord& nextHopRecord)
-  {
-    m_nextHopRecords.push_back(nextHopRecord);
-    m_wire.reset();
-    return *this;
-  }
+  addNextHopRecord(const NextHopRecord& nextHopRecord);
 
   template<typename T>
   FibEntry&
@@ -249,88 +134,13 @@ public:
 
   template<bool T>
   size_t
-  wireEncode(EncodingImpl<T>& block) const
-  {
-    size_t totalLength = 0;
-
-    for (std::list<NextHopRecord>::const_reverse_iterator i = m_nextHopRecords.rbegin();
-         i != m_nextHopRecords.rend();
-         ++i)
-      {
-        totalLength += i->wireEncode(block);
-      }
-
-    totalLength += m_prefix.wireEncode(block);
-    totalLength += block.prependVarNumber(totalLength);
-    totalLength += block.prependVarNumber(tlv::nfd::FibEntry);
-
-    return totalLength;
-  }
+  wireEncode(EncodingImpl<T>& block) const;
 
   const Block&
-  wireEncode() const
-  {
-    if (m_wire.hasWire())
-      {
-        return m_wire;
-      }
-
-    EncodingEstimator estimator;
-    size_t estimatedSize = wireEncode(estimator);
-
-    EncodingBuffer buffer(estimatedSize, 0);
-    wireEncode(buffer);
-
-    m_wire = buffer.block();
-
-    return m_wire;
-  }
+  wireEncode() const;
 
   void
-  wireDecode(const Block& wire)
-  {
-    m_prefix.clear();
-    m_nextHopRecords.clear();
-
-    m_wire = wire;
-
-    if (m_wire.type() != tlv::nfd::FibEntry)
-      {
-        std::stringstream error;
-        error << "Requested decoding of FibEntry, but Block is of a different type: #"
-              << m_wire.type();
-        throw Error(error.str());
-      }
-
-    m_wire.parse();
-
-    Block::element_const_iterator val = m_wire.elements_begin();
-    if (val == m_wire.elements_end())
-      {
-        throw Error("Unexpected end of FibEntry");
-      }
-    else if (val->type() != tlv::Name)
-      {
-        std::stringstream error;
-        error << "Expected Name, but Block is of a different type: #"
-              << val->type();
-        throw Error(error.str());
-      }
-    m_prefix.wireDecode(*val);
-    ++val;
-
-    for (; val != m_wire.elements_end(); ++val)
-      {
-        if (val->type() != tlv::nfd::NextHopRecord)
-          {
-            std::stringstream error;
-            error << "Expected NextHopRecords, but Block is of a different type: #"
-                  << val->type();
-            throw Error(error.str());
-          }
-        m_nextHopRecords.push_back(NextHopRecord(*val));
-      }
-  }
+  wireDecode(const Block& wire);
 
 private:
   Name m_prefix;

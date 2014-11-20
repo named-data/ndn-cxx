@@ -23,62 +23,9 @@
 #define NDN_MANAGEMENT_NFD_FACE_TRAITS_HPP
 
 #include "../encoding/tlv-nfd.hpp"
-#include "../encoding/encoding-buffer.hpp"
-#include "../encoding/block-helpers.hpp"
 
 namespace ndn {
 namespace nfd {
-
-/**
- * \ingroup management
- * \brief provides additional information about a faceScope
- */
-enum FaceScope {
-  /** \brief face is non-local
-   */
-  FACE_SCOPE_NON_LOCAL = 0,
-  /** \brief face is local
-   */
-  FACE_SCOPE_LOCAL = 1
-};
-
-std::ostream&
-operator<<(std::ostream& os, FaceScope faceScope);
-
-/**
- * \ingroup management
- * \brief provides additional information about a facePersistency
- */
-enum FacePersistency {
-  /** \brief face is persistent
-   */
-  FACE_PERSISTENCY_PERSISTENT = 0,
-  /** \brief face is on-demand
-   */
-  FACE_PERSISTENCY_ON_DEMAND = 1,
-  /** \brief face is permanent
-   */
-  FACE_PERSISTENCY_PERMANENT = 2
-};
-
-std::ostream&
-operator<<(std::ostream& os, FacePersistency facePersistency);
-
-/**
- * \ingroup management
- * \brief provides additional information about a linkType
- */
-enum LinkType {
-  /** \brief link is point-to-point
-   */
-  LINK_TYPE_POINT_TO_POINT = 0,
-  /** \brief link is multi-access
-   */
-  LINK_TYPE_MULTI_ACCESS = 1
-};
-
-std::ostream&
-operator<<(std::ostream& os, LinkType linkType);
 
 /** \ingroup management
  *  \brief providers getters and setters of face information fields

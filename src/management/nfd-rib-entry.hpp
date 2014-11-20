@@ -22,11 +22,7 @@
 #ifndef NDN_MANAGEMENT_NFD_RIB_ENTRY_HPP
 #define NDN_MANAGEMENT_NFD_RIB_ENTRY_HPP
 
-#include "nfd-rib-flags.hpp"
-
-#include "../encoding/block.hpp"
-#include "../encoding/encoding-buffer.hpp"
-#include "../encoding/tlv-nfd.hpp"
+#include "nfd-rib-flags.hpp" // include this first, to ensure it compiles on its own.
 #include "../name.hpp"
 #include "../util/time.hpp"
 
@@ -89,6 +85,9 @@ public:
     return m_origin;
   }
 
+  /** @brief set Origin
+   *  @param origin a code defined in ndn::nfd::RouteOrigin
+   */
   Route&
   setOrigin(uint64_t origin)
   {
@@ -117,6 +116,9 @@ public:
     return m_flags;
   }
 
+  /** @brief set route inheritance flags
+   *  @param flags a bitwise OR'ed code from ndn::nfd::RouteFlags
+   */
   Route&
   setFlags(uint64_t flags)
   {

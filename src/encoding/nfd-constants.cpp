@@ -19,7 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "nfd-face-traits.hpp"
+#include "nfd-constants.hpp"
+#include <iostream>
 
 namespace ndn {
 namespace nfd {

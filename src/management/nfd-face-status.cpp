@@ -20,13 +20,21 @@
  */
 
 #include "nfd-face-status.hpp"
+#include "encoding/tlv-nfd.hpp"
+#include "encoding/block-helpers.hpp"
+#include "util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
 
+//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceStatus>));
+BOOST_CONCEPT_ASSERT((WireEncodable<FaceStatus>));
+BOOST_CONCEPT_ASSERT((WireDecodable<FaceStatus>));
+static_assert(std::is_base_of<tlv::Error, FaceStatus::Error>::value,
+              "FaceStatus::Error must inherit from tlv::Error");
+
 FaceStatus::FaceStatus()
-  : FaceTraits()
-  , m_hasExpirationPeriod(false)
+  : m_hasExpirationPeriod(false)
   , m_nInInterests(0)
   , m_nInDatas(0)
   , m_nOutInterests(0)

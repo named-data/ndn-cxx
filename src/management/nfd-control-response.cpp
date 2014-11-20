@@ -20,9 +20,18 @@
  */
 
 #include "nfd-control-response.hpp"
+#include "encoding/tlv-nfd.hpp"
+#include "encoding/block-helpers.hpp"
+#include "util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
+
+//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<ControlResponse>));
+BOOST_CONCEPT_ASSERT((WireEncodable<ControlResponse>));
+BOOST_CONCEPT_ASSERT((WireDecodable<ControlResponse>));
+static_assert(std::is_base_of<tlv::Error, ControlResponse::Error>::value,
+              "ControlResponse::Error must inherit from tlv::Error");
 
 ControlResponse::ControlResponse()
   : m_code(200)
