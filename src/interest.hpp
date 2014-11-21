@@ -36,7 +36,10 @@ namespace ndn {
 
 class Data;
 
-const time::seconds DEFAULT_INTEREST_LIFETIME = time::seconds(4);
+/** @var const unspecified_duration_type DEFAULT_INTEREST_LIFETIME;
+ *  @brief default value for InterestLifetime
+ */
+const time::milliseconds DEFAULT_INTEREST_LIFETIME = time::milliseconds(4000);
 
 /** @brief represents an Interest packet
  */
