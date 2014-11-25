@@ -394,6 +394,46 @@ should take the following form:
 
         []{}
 
+1.16. List initialization should have the following form:
+
+    .. code-block:: c++
+
+        T object{arg1, arg2};
+
+        T{arg1, arg2};
+
+        new T{arg1, arg2};
+
+        return {arg1, arg2};
+
+        function({arg1, arg2}, otherArgument);
+
+        object[{arg1, arg2}];
+
+        T({arg1, arg2})
+
+        class Class
+        {
+        private:
+          T m_member = {arg1, arg2}; // not supported by GCC 4.6
+          static T s_member = {arg1, arg2};
+        };
+
+        Class::Class()
+          : m_member{arg1, arg2}
+        {
+        }
+
+        T object = {arg1, arg2};
+
+    An empty braced-init-list is written as ``{}``. For example:
+
+    .. code-block:: c++
+
+        T object{};
+
+        T object = {};
+
 2. Naming Conventions
 ---------------------
 
