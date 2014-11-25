@@ -27,6 +27,8 @@
 
 #include "ethernet.hpp"
 
+#include <boost/functional/hash.hpp>
+
 #include <cstdio>
 #include <ostream>
 
@@ -137,3 +139,12 @@ operator<<(std::ostream& o, const Address& a)
 } // namespace ethernet
 } // namespace util
 } // namespace ndn
+
+
+using ndn::util::ethernet::Address;
+
+std::size_t
+std::hash<Address>::operator()(const Address& a) const noexcept
+{
+  return boost::hash_range(a.cbegin(), a.cend());
+}

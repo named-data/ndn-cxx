@@ -30,6 +30,7 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <string>
 
 namespace ndn {
@@ -110,5 +111,18 @@ operator<<(std::ostream& o, const Address& a);
 } // namespace ethernet
 } // namespace util
 } // namespace ndn
+
+
+namespace std {
+
+// specialize std::hash<> for ethernet::Address
+template<>
+struct hash<ndn::util::ethernet::Address>
+{
+  size_t
+  operator()(const ndn::util::ethernet::Address& a) const noexcept;
+};
+
+} // namespace std
 
 #endif // NDN_UTIL_ETHERNET_HPP

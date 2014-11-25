@@ -102,6 +102,13 @@ BOOST_AUTO_TEST_CASE(FromString)
                     ethernet::Address());
 }
 
+BOOST_AUTO_TEST_CASE(StdHash)
+{
+  // make sure we can use ethernet::Address as key type in std::unordered_map
+  std::hash<ethernet::Address> h;
+  BOOST_CHECK_NO_THROW(h(ethernet::getDefaultMulticastAddress()));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace util
