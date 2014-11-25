@@ -24,10 +24,46 @@
 #include "common.hpp"
 
 #include "identity-certificate.hpp"
+#include "../util/concepts.hpp"
 
 namespace ndn {
 
 using std::string;
+
+BOOST_CONCEPT_ASSERT((WireEncodable<IdentityCertificate>));
+BOOST_CONCEPT_ASSERT((WireDecodable<IdentityCertificate>));
+static_assert(std::is_base_of<Certificate::Error, IdentityCertificate::Error>::value,
+              "IdentityCertificate::Error must inherit from Certificate::Error");
+
+IdentityCertificate::IdentityCertificate()
+{
+}
+
+IdentityCertificate::IdentityCertificate(const Data& data)
+  : Certificate(data)
+{
+  setPublicKeyName();
+}
+
+IdentityCertificate::IdentityCertificate(const Block& block)
+  : Certificate(block)
+{
+  setPublicKeyName();
+}
+
+void
+IdentityCertificate::wireDecode(const Block& wire)
+{
+  Certificate::wireDecode(wire);
+  setPublicKeyName();
+}
+
+void
+IdentityCertificate::setName(const Name& name)
+{
+  Certificate::setName(name);
+  setPublicKeyName();
+}
 
 bool
 IdentityCertificate::isCorrectName(const Name& name)

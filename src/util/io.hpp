@@ -88,15 +88,15 @@ load(std::istream& is, IoEncoding encoding = BASE_64)
       object->wireDecode(Block(os.buf()));
       return object;
     }
+  catch (TypeError& e)
+    {
+      return shared_ptr<T>();
+    }
   catch (CryptoPP::Exception& e)
     {
       return shared_ptr<T>();
     }
   catch (tlv::Error& e)
-    {
-      return shared_ptr<T>();
-    }
-  catch (TypeError& e)
     {
       return shared_ptr<T>();
     }
@@ -146,15 +146,15 @@ save(const T& object, std::ostream& os, IoEncoding encoding = BASE_64)
         }
       return;
     }
+  catch (TypeError& e)
+    {
+      throw Error(e.what());
+    }
   catch (CryptoPP::Exception& e)
     {
       throw Error(e.what());
     }
   catch (tlv::Error& e)
-    {
-      throw Error(e.what());
-    }
-  catch (TypeError& e)
     {
       throw Error(e.what());
     }

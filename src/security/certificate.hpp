@@ -37,12 +37,12 @@ namespace ndn {
 class Certificate : public Data
 {
 public:
-  class Error : public std::runtime_error
+  class Error : public Data::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : std::runtime_error(what)
+      : Data::Error(what)
     {
     }
   };
@@ -51,34 +51,38 @@ public:
   typedef std::vector<CertificateExtension> ExtensionList;
 
   /**
-   * The default constructor.
+   * @brief The default constructor.
    */
   Certificate();
 
   /**
-   * Create a Certificate from the content in the data packet.
+   * @brief Create a Certificate from the content in the data packet.
    * @param data The data packet with the content to decode.
    */
   explicit
   Certificate(const Data& data);
 
   /**
-   * The virtual destructor.
+   * @brief Create a Certificate from the a block
+   * @param block The raw block of the certificate
    */
+  explicit
+  Certificate(const Block& block);
+
   virtual
   ~Certificate();
 
-  inline void
+  void
   wireDecode(const Block& wire);
 
   /**
-   * encode certificate info into content
+   * @brief encode certificate info into content
    */
   void
   encode();
 
   /**
-   * Add a subject description.
+   * @brief Add a subject description.
    * @param description The description to be added.
    */
   void
@@ -100,7 +104,7 @@ public:
   }
 
   /**
-   * Add a certificate extension.
+   * @brief Add a certificate extension.
    * @param extension the extension to be added
    */
   void
@@ -176,14 +180,14 @@ public:
   }
 
   /**
-   * Check if the certificate is valid.
+   * @brief Check if the certificate is valid.
    * @return True if the current time is earlier than notBefore.
    */
   bool
   isTooEarly();
 
   /**
-   * Check if the certificate is valid.
+   * @brief Check if the certificate is valid.
    * @return True if the current time is later than notAfter.
    */
   bool
@@ -204,21 +208,8 @@ protected:
   ExtensionList m_extensionList;
 };
 
-inline void
-Certificate::wireDecode(const Block& wire)
-{
-  Data::wireDecode(wire);
-  decode();
-}
-
-
-inline std::ostream&
-operator<<(std::ostream& os, const Certificate& cert)
-{
-  cert.printCertificate(os);
-  return os;
-}
-
+std::ostream&
+operator<<(std::ostream& os, const Certificate& cert);
 } // namespace ndn
 
-#endif //NDN_SECURITY_CERTIFICATE_HPP
+#endif // NDN_SECURITY_CERTIFICATE_HPP

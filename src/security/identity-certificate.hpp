@@ -32,33 +32,34 @@ namespace ndn {
 class IdentityCertificate : public Certificate
 {
 public:
-  class Error : public std::runtime_error
+  class Error : public Certificate::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : std::runtime_error(what)
+      : Certificate::Error(what)
     {
     }
   };
 
   /**
-   * The default constructor.
+   * @brief The default constructor.
    */
   IdentityCertificate();
 
   /**
-   * Create an IdentityCertificate from the content in the data packet.
+   * @brief Create an IdentityCertificate from the content in the data packet.
    * @param data The data packet with the content to decode.
    */
   explicit
   IdentityCertificate(const Data& data);
 
   /**
-   * The virtual destructor.
+   * @brief Create an IdentityCertificate from a block.
+   * @param block The raw block of the certificate.
    */
-  virtual
-  ~IdentityCertificate();
+  explicit
+  IdentityCertificate(const Block& block);
 
   void
   wireDecode(const Block& wire);
@@ -67,13 +68,16 @@ public:
   setName(const Name& name);
 
   const Name&
-  getPublicKeyName() const;
+  getPublicKeyName() const
+  {
+    return m_publicKeyName;
+  }
 
   static bool
   isIdentityCertificate(const Certificate& certificate);
 
   /**
-   * Get the public key name from the full certificate name.
+   * @brief Get the public key name from the full certificate name.
    * @param certificateName The full certificate name.
    * @return The related public key name.
    */
@@ -91,43 +95,6 @@ protected:
   Name m_publicKeyName;
 };
 
-inline
-IdentityCertificate::IdentityCertificate()
-{
-}
-
-inline
-IdentityCertificate::IdentityCertificate(const Data& data)
-  : Certificate(data)
-{
-  setPublicKeyName();
-}
-
-inline
-IdentityCertificate::~IdentityCertificate()
-{
-}
-
-inline void
-IdentityCertificate::wireDecode(const Block& wire)
-{
-  Certificate::wireDecode(wire);
-  setPublicKeyName();
-}
-
-inline void
-IdentityCertificate::setName(const Name& name)
-{
-  Certificate::setName(name);
-  setPublicKeyName();
-}
-
-inline const Name&
-IdentityCertificate::getPublicKeyName() const
-{
-  return m_publicKeyName;
-}
-
 } // namespace ndn
 
-#endif //NDN_SECURITY_IDENTITY_CERTIFICATE_HPP
+#endif // NDN_SECURITY_IDENTITY_CERTIFICATE_HPP

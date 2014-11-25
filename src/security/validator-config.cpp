@@ -593,15 +593,16 @@ ValidatorConfig::checkPolicy(const Interest& interest,
       return onValidationFailed(interest.shared_from_this(),
                                 "No valid KeyLocator");
     }
-  catch (tlv::Error& e)
-    {
-      return onValidationFailed(interest.shared_from_this(),
-                                "Cannot decode signature");
-    }
   catch (IdentityCertificate::Error& e)
     {
       return onValidationFailed(interest.shared_from_this(),
                                 "Cannot determine the signing key");
+    }
+
+  catch (tlv::Error& e)
+    {
+      return onValidationFailed(interest.shared_from_this(),
+                                "Cannot decode signature");
     }
 }
 
@@ -831,8 +832,20 @@ ValidatorConfig::onCertValidated(const shared_ptr<const Data>& signCertificate,
                                  const OnValidated& onValidated,
                                  const OnFailed& onValidationFailed)
 {
-  shared_ptr<IdentityCertificate> certificate =
-    make_shared<IdentityCertificate>(*signCertificate);
+  if (signCertificate->getContentType() != tlv::ContentType_Key)
+    return onValidationFailed(packet,
+                              "Cannot retrieve signer's cert: " +
+                              signCertificate->getName().toUri());
+
+  shared_ptr<IdentityCertificate> certificate;
+  try {
+    certificate = make_shared<IdentityCertificate>(*signCertificate);
+  }
+  catch (tlv::Error&) {
+    return onValidationFailed(packet,
+                              "Cannot decode signer's cert: " +
+                              signCertificate->getName().toUri());
+  }
 
   if (!certificate->isTooLate() && !certificate->isTooEarly())
     {
