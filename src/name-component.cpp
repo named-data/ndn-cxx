@@ -58,7 +58,7 @@ Component::Component()
 Component::Component(const Block& wire)
   : Block(wire)
 {
-  if (type() != tlv::NameComponent && type() != tlv::ImplicitSha256DigestComponent)
+  if (!isGeneric() && !isImplicitSha256Digest())
     throw Error("Cannot construct name::Component from not a NameComponent "
                 "or ImplicitSha256DigestComponent TLV wire block");
 }
@@ -475,11 +475,8 @@ Component::wireEncode() const
 void
 Component::wireDecode(const Block& wire)
 {
-  if (wire.type() != tlv::NameComponent || wire.type() != tlv::ImplicitSha256DigestComponent)
-    throw Error("name::Component::wireDecode called on not a NameComponent "
-                "or ImplicitSha256DigestComponent TLV wire block");
-
   *this = wire;
+  // validity check is done within Component(const Block& wire)
 }
 
 } // namespace name

@@ -30,3 +30,4 @@ in the library:
 * Vince Lehman          <http://vslehman.com>
 * Mathias Gibbens       <gibmat@cs.arizona.edu>
 * Chengyu Fan           <chengyu@cs.colostate.edu>
+* Qiuhan Ding           <http://irl.cs.ucla.edu/~qiuhanding/>

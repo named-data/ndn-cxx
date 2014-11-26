@@ -50,6 +50,20 @@ const uint8_t Name2[] = {0x7,  0xc, // Name
                            0x8,  0x3, // NameComponent
                              0x6e,  0x64,  0x6e};
 
+static const uint8_t TestNameComponent[] = {
+        0x8, 0x3, // NameComponent
+          0x6e, 0x64, 0x6e};
+
+static const uint8_t TestDigestComponent[] = {
+        0x1, 0x20, // ImplicitSha256DigestComponent
+          0x28, 0xba, 0xd4, 0xb5, 0x27, 0x5b, 0xd3, 0x92,
+          0xdb, 0xb6, 0x70, 0xc7, 0x5c, 0xf0, 0xb6, 0x6f,
+          0x13, 0xf7, 0x94, 0x2b, 0x21, 0xe8, 0x0f, 0x55,
+          0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x48 };
+
+const uint8_t Component1[] = {0x7, 0x3, // Error in Type
+                                0x6e, 0x64, 0x6e};
+
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
@@ -96,6 +110,22 @@ BOOST_AUTO_TEST_CASE(Decode)
   Name name(block);
 
   BOOST_CHECK_EQUAL(name.toUri(), "/local/ndn/prefix");
+}
+
+BOOST_AUTO_TEST_CASE(DecodeComponent)
+{
+  Block componentBlock(TestNameComponent, sizeof(TestNameComponent));
+  name::Component nameComponent;
+  BOOST_REQUIRE_NO_THROW(nameComponent.wireDecode(componentBlock));
+  BOOST_CHECK_EQUAL(nameComponent.toUri(), "ndn");
+
+  Block digestComponentBlock(TestDigestComponent, sizeof(TestDigestComponent));
+  name::Component digestComponent;
+  BOOST_REQUIRE_NO_THROW(digestComponent.wireDecode(digestComponentBlock));
+
+  Block errorBlock(Component1, sizeof(Component1));
+  name::Component errorComponent;
+  BOOST_REQUIRE_THROW(errorComponent.wireDecode(errorBlock), name::Component::Error);
 }
 
 BOOST_AUTO_TEST_CASE(AppendsAndMultiEncode)
