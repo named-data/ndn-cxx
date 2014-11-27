@@ -558,6 +558,30 @@ KeyChain::signWithSha256(Data& data)
 }
 
 void
+KeyChain::signWithSha256(Interest& interest)
+{
+  DigestSha256 sig;
+
+  time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
+  if (timestamp <= m_lastTimestamp)
+    timestamp = m_lastTimestamp + time::milliseconds(1);
+
+  Name signedName = interest.getName();
+  signedName
+    .append(name::Component::fromNumber(timestamp.count()))        // timestamp
+    .append(name::Component::fromNumber(random::generateWord64())) // nonce
+    .append(sig.getInfo());                                        // signatureInfo
+
+  Block sigValue(tlv::SignatureValue,
+                 crypto::sha256(signedName.wireEncode().value(),
+                                signedName.wireEncode().value_size()));
+
+  sigValue.encode();
+  signedName.append(sigValue);                                     // signatureValue
+  interest.setName(signedName);
+}
+
+void
 KeyChain::deleteCertificate(const Name& certificateName)
 {
   try

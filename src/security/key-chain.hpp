@@ -226,10 +226,16 @@ public:
   signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName);
 
   /**
-   * @brief Set Sha256 weak signature for @param data
+   * @brief Set Sha256 weak signature for @p data
    */
   void
   signWithSha256(Data& data);
+
+  /**
+   * @brief Set Sha256 weak signature for @p interest
+   */
+  void
+  signWithSha256(Interest& interest);
 
   /**
    * @brief Generate a self-signed certificate for a public key.
@@ -789,6 +795,6 @@ KeyChain::sign(T& packet, const IdentityCertificate& certificate)
   return;
 }
 
-}
+} // namespace ndn
 
 #endif // NDN_SECURITY_KEY_CHAIN_HPP

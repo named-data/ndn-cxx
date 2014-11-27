@@ -21,14 +21,13 @@
 
 #include "security/key-chain.hpp"
 #include "security/validator.hpp"
-
 #include "security/cryptopp.hpp"
-
+#include "identity-management-fixture.hpp"
 #include "boost-test.hpp"
 
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(SecurityTestDigestSha256)
+BOOST_FIXTURE_TEST_SUITE(SecurityTestDigestSha256, security::IdentityManagementFixture)
 
 std::string SHA256_RESULT("a883dafc480d466ee04e0d6da986bd78eb1fdd2178d04693723da3a8f95d42f4");
 
@@ -44,7 +43,7 @@ BOOST_AUTO_TEST_CASE(Sha256)
   BOOST_CHECK_EQUAL(SHA256_RESULT, result);
 }
 
-BOOST_AUTO_TEST_CASE(Signature)
+BOOST_AUTO_TEST_CASE(DataSignature)
 {
   using namespace CryptoPP;
 
@@ -53,10 +52,7 @@ BOOST_AUTO_TEST_CASE(Signature)
   char content[5] = "1234";
   testData.setContent(reinterpret_cast<uint8_t*>(content), 5);
 
-  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
-  KeyChain keyChain("sqlite3", "file");
-
-  keyChain.signWithSha256(testData);
+  m_keyChain.signWithSha256(testData);
 
   testData.wireEncode();
 
@@ -66,6 +62,22 @@ BOOST_AUTO_TEST_CASE(Signature)
 
   BOOST_CHECK_THROW(sig.getKeyLocator(), ndn::SignatureInfo::Error);
 }
+
+BOOST_AUTO_TEST_CASE(InterestSignature)
+{
+  Name name("/SecurityTestDigestSha256/InterestSignature/Interest1");
+  Interest testInterest(name);
+
+  m_keyChain.signWithSha256(testInterest);
+  testInterest.wireEncode();
+  const Name& signedName = testInterest.getName();
+
+  Signature signature(signedName[signed_interest::POS_SIG_INFO].blockFromValue(),
+                      signedName[signed_interest::POS_SIG_VALUE].blockFromValue());
+  DigestSha256 sig(signature);
+  BOOST_CHECK(Validator::verifySignature(testInterest, sig));
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

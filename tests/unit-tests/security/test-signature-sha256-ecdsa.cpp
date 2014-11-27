@@ -20,12 +20,30 @@
  */
 
 #include "security/signature-sha256-with-ecdsa.hpp"
-
+#include "security/key-chain.hpp"
+#include "security/validator.hpp"
+#include "util/scheduler.hpp"
+#include "identity-management-fixture.hpp"
+#include "../unit-test-time-fixture.hpp"
 #include "boost-test.hpp"
 
 namespace ndn {
+namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecurityTestSignatureSha256WithEcdsa)
+class SignatureSha256EcdsaTimeFixture : public UnitTestTimeFixture
+                                      , public security::IdentityManagementFixture
+{
+public:
+  SignatureSha256EcdsaTimeFixture()
+    : scheduler(io)
+  {
+  }
+
+public:
+  Scheduler scheduler;
+};
+
+BOOST_FIXTURE_TEST_SUITE(SecurityTestSignatureSha256WithEcdsa, SignatureSha256EcdsaTimeFixture)
 
 const uint8_t sigInfo[] = {
 0x16, 0x1b, // SignatureInfo
@@ -85,6 +103,71 @@ BOOST_AUTO_TEST_CASE(Encoding)
   BOOST_CHECK(sigInfoBlock != encodeSigInfoBlock2);
 }
 
+BOOST_AUTO_TEST_CASE(DataSignature)
+{
+  Name identityName("/SecurityTestSignatureSha256WithEcdsa/DataSignature");
+  BOOST_REQUIRE(addIdentity(identityName, EcdsaKeyParams()));
+  shared_ptr<PublicKey> publicKey;
+  BOOST_REQUIRE_NO_THROW(publicKey = m_keyChain.getPublicKeyFromTpm(
+    m_keyChain.getDefaultKeyNameForIdentity(identityName)));
+
+  Data testData("/SecurityTestSignatureSha256WithEcdsa/DataSignature/Data1");
+  char content[5] = "1234";
+  testData.setContent(reinterpret_cast<uint8_t*>(content), 5);
+  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(testData, identityName));
+  Block dataBlock(testData.wireEncode().wire(), testData.wireEncode().size());
+
+  Data testData2;
+  testData2.wireDecode(dataBlock);
+  BOOST_CHECK(Validator::verifySignature(testData2, *publicKey));
+}
+
+
+BOOST_AUTO_TEST_CASE(InterestSignature)
+{
+  Name identityName("/SecurityTestSignatureSha256WithEcdsa/InterestSignature");
+  BOOST_REQUIRE(addIdentity(identityName, EcdsaKeyParams()));
+  shared_ptr<PublicKey> publicKey;
+  BOOST_REQUIRE_NO_THROW(publicKey = m_keyChain.getPublicKeyFromTpm(
+    m_keyChain.getDefaultKeyNameForIdentity(identityName)));
+
+
+  Interest interest("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");
+  Interest interest11("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");
+
+  scheduler.scheduleEvent(time::milliseconds(100), [&] {
+      BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(interest, identityName));
+    });
+
+  advanceClocks(time::milliseconds(100));
+  scheduler.scheduleEvent(time::milliseconds(100), [&] {
+      BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(interest11, identityName));
+    });
+
+  advanceClocks(time::milliseconds(100));
+
+  time::system_clock::TimePoint timestamp1 =
+    time::fromUnixTimestamp(
+      time::milliseconds(interest.getName().get(signed_interest::POS_TIMESTAMP).toNumber()));
+
+  time::system_clock::TimePoint timestamp2 =
+    time::fromUnixTimestamp(
+      time::milliseconds(interest11.getName().get(signed_interest::POS_TIMESTAMP).toNumber()));
+
+  BOOST_CHECK_EQUAL(time::milliseconds(100), (timestamp2 - timestamp1));
+
+  uint64_t nonce1 = interest.getName().get(signed_interest::POS_RANDOM_VAL).toNumber();
+  uint64_t nonce2 = interest11.getName().get(signed_interest::POS_RANDOM_VAL).toNumber();
+  BOOST_WARN_NE(nonce1, nonce2);
+
+  Block interestBlock(interest.wireEncode().wire(), interest.wireEncode().size());
+
+  Interest interest2;
+  interest2.wireDecode(interestBlock);
+  BOOST_CHECK(Validator::verifySignature(interest2, *publicKey));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
+} // namespace tests
 } // namespace ndn

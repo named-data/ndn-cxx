@@ -180,10 +180,10 @@ public:
     if (interest.getName().size() < 2)
       return false;
 
-    Name signedName = interest.getName().getPrefix(-2);
+    const Name& name = interest.getName();
 
-    return verifySignature(signedName.wireEncode().value(),
-                           signedName.wireEncode().value_size(),
+    return verifySignature(name.wireEncode().value(),
+                           name.wireEncode().value_size() - name[-1].size(),
                            sig);
   }
 
