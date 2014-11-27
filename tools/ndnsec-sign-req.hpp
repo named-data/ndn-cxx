@@ -80,18 +80,20 @@ ndnsec_sign_req(int argc, char** argv)
   KeyChain keyChain;
 
   if (isKeyName)
-    {
-      selfSignCert = keyChain.selfSign(name);
-    }
-  else
-    {
-      Name keyName = keyChain.getDefaultKeyNameForIdentity(name);
-      selfSignCert = keyChain.selfSign(keyName);
-    }
+    selfSignCert = keyChain.selfSign(name);
+  else {
+    Name keyName = keyChain.getDefaultKeyNameForIdentity(name);
+    selfSignCert = keyChain.selfSign(keyName);
+  }
 
-  io::save(*selfSignCert, std::cout);
-
-  return 0;
+  if (static_cast<bool>(selfSignCert)) {
+    io::save(*selfSignCert, std::cout);
+    return 0;
+  }
+  else {
+    std::cerr << "ERROR: Public key does not exist" << std::endl;
+    return 1;
+  }
 }
 
-#endif //NDNSEC_SIGN_REQ_HPP
+#endif // NDNSEC_SIGN_REQ_HPP
