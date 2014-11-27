@@ -46,14 +46,6 @@ public:
 
   Selectors();
 
-  /** @deprecated Selectors().setX(...).setY(...)
-   */
-  DEPRECATED(
-  Selectors(int minSuffixComponents, int maxSuffixComponents,
-            const Exclude& exclude,
-            int childSelector,
-            bool mustBeFresh));
-
   /**
    * @brief Create from wire encoding
    */

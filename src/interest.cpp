@@ -35,6 +35,46 @@ BOOST_CONCEPT_ASSERT((WireDecodable<Interest>));
 static_assert(std::is_base_of<tlv::Error, Interest::Error>::value,
               "Interest::Error must inherit from tlv::Error");
 
+Interest::Interest()
+  : m_scope(-1)
+  , m_interestLifetime(time::milliseconds::min())
+{
+}
+
+Interest::Interest(const Name& name)
+  : m_name(name)
+  , m_scope(-1)
+  , m_interestLifetime(time::milliseconds::min())
+{
+}
+
+Interest::Interest(const Name& name, const time::milliseconds& interestLifetime)
+  : m_name(name)
+  , m_scope(-1)
+  , m_interestLifetime(interestLifetime)
+{
+}
+
+Interest::Interest(const Name& name,
+                   const Selectors& selectors,
+                   int scope,
+                   const time::milliseconds& interestLifetime,
+                   uint32_t nonce)
+  : m_name(name)
+  , m_selectors(selectors)
+  , m_scope(scope)
+  , m_interestLifetime(interestLifetime)
+{
+  if (nonce > 0) {
+    setNonce(nonce);
+  }
+}
+
+Interest::Interest(const Block& wire)
+{
+  wireDecode(wire);
+}
+
 uint32_t
 Interest::getNonce() const
 {

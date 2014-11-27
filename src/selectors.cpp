@@ -40,18 +40,6 @@ Selectors::Selectors()
 {
 }
 
-Selectors::Selectors(int minSuffixComponents, int maxSuffixComponents,
-                     const Exclude& exclude,
-                     int childSelector,
-                     bool mustBeFresh)
-  : m_minSuffixComponents(minSuffixComponents)
-  , m_maxSuffixComponents(maxSuffixComponents)
-  , m_exclude(exclude)
-  , m_childSelector(childSelector)
-  , m_mustBeFresh(mustBeFresh)
-{
-}
-
 Selectors::Selectors(const Block& wire)
 {
   wireDecode(wire);

@@ -28,7 +28,6 @@
 
 #include "name.hpp"
 #include "selectors.hpp"
-#include "interest-filter.hpp"
 #include "util/time.hpp"
 #include "management/nfd-local-control-header.hpp"
 
@@ -56,138 +55,44 @@ public:
     }
   };
 
-  /**
-   * @brief Create a new Interest with an empty name (`ndn:/`)
-   *
-   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
-   * created using `make_shared`:
-   *
-   *     shared_ptr<Interest> interest = make_shared<Interest>();
-   *
-   * Otherwise, Interest::shared_from_this() will throw an exception.
+  /** @brief Create a new Interest with an empty name (`ndn:/`)
+   *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
+   *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
    */
-  Interest()
-    : m_scope(-1)
-    , m_interestLifetime(time::milliseconds::min())
-  {
-  }
+  Interest();
 
-  /**
-   * @brief Create a new Interest with the given name
-   *
-   * @param name The name for the interest.
-   *
-   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
-   * created using `make_shared`:
-   *
-   *     shared_ptr<Interest> interest = make_shared<Interest>(name);
-   *
-   * Otherwise, Interest::shared_from_this() will throw an exception.
+  /** @brief Create a new Interest with the given name
+   *  @param name The name for the interest.
+   *  @note This constructor allows implicit conversion from Name.
+   *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
+   *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
    */
-  Interest(const Name& name)
-    : m_name(name)
-    , m_scope(-1)
-    , m_interestLifetime(time::milliseconds::min())
-  {
-  }
+  Interest(const Name& name);
 
-  /**
-   * @brief Create a new Interest with the given name and interest lifetime
-   *
-   * @param name             The name for the interest.
-   * @param interestLifetime The interest lifetime in time::milliseconds, or -1 for none.
-   *
-   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
-   * created using `make_shared`:
-   *
-   *     shared_ptr<Interest> interest = make_shared<Interest>(name, time::seconds(1));
-   *
-   * Otherwise, Interest::shared_from_this() will throw an exception.
+  /** @brief Create a new Interest with the given name and interest lifetime
+   *  @param name             The name for the interest.
+   *  @param interestLifetime The interest lifetime in time::milliseconds, or -1 for none.
+   *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
+   *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
    */
-  Interest(const Name& name, const time::milliseconds& interestLifetime)
-    : m_name(name)
-    , m_scope(-1)
-    , m_interestLifetime(interestLifetime)
-  {
-  }
+  Interest(const Name& name, const time::milliseconds& interestLifetime);
 
-  /**
-   * @brief Create a new Interest for the given name, selectors, and guiders
-   *
-   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
-   * created using `make_shared`:
-   *
-   *     shared_ptr<Interest> interest = make_shared<Interest>(...);
-   *
-   * Otherwise, Interest::shared_from_this() will throw an exception.
+  /** @brief Create a new Interest for the given name, selectors, and guiders
+   *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
+   *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
    */
   Interest(const Name& name,
            const Selectors& selectors,
            int scope,
            const time::milliseconds& interestLifetime,
-           uint32_t nonce = 0)
-    : m_name(name)
-    , m_selectors(selectors)
-    , m_scope(scope)
-    , m_interestLifetime(interestLifetime)
-  {
-    if (nonce > 0) {
-      setNonce(nonce);
-    }
-  }
+           uint32_t nonce = 0);
 
-  /**
-   * @brief Create a new Interest for the given name and parameters
-   *
-   * @deprecated Interest().setX(...).setY(...)
-   *             or use the overload taking Selectors
-   *
-   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
-   * created using `make_shared`:
-   *
-   *     shared_ptr<Interest> interest = make_shared<Interest>(...);
-   *
-   * Otherwise, Interest::shared_from_this() will throw an exception.
-   */
-  DEPRECATED(
-  Interest(const Name& name,
-           int minSuffixComponents, int maxSuffixComponents,
-           const Exclude& exclude,
-           int childSelector,
-           bool mustBeFresh,
-           int scope,
-           const time::milliseconds& interestLifetime,
-           uint32_t nonce = 0))
-    : m_name(name)
-    , m_selectors(Selectors()
-                    .setMinSuffixComponents(minSuffixComponents)
-                    .setMaxSuffixComponents(maxSuffixComponents)
-                    .setExclude(exclude)
-                    .setChildSelector(childSelector)
-                    .setMustBeFresh(mustBeFresh))
-    , m_scope(scope)
-    , m_interestLifetime(interestLifetime)
-  {
-    if (nonce > 0) {
-      setNonce(nonce);
-    }
-  }
-
-  /**
-   * @brief Create from wire encoding
-   *
-   * Note that in certain contexts that use Interest::shared_from_this(), Interest must be
-   * created using `make_shared`:
-   *
-   *     shared_ptr<Interest> interest = make_shared<Interest>(wire);
-   *
-   * Otherwise, Interest::shared_from_this() will throw an exception.
+  /** @brief Create from wire encoding
+   *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
+   *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
    */
   explicit
-  Interest(const Block& wire)
-  {
-    wireDecode(wire);
-  }
+  Interest(const Block& wire);
 
   /**
    * @brief Fast encoding or block size estimation
@@ -212,7 +117,10 @@ public:
    * @brief Check if already has wire
    */
   bool
-  hasWire() const;
+  hasWire() const
+  {
+    return m_wire.hasWire();
+  }
 
   /**
    * @brief Encode the name according to the NDN URI Scheme
@@ -223,17 +131,10 @@ public:
   std::string
   toUri() const;
 
-  /**
-   * @brief Check if Interest has any selectors present
-   */
-  bool
-  hasSelectors() const;
-
-  /**
-   * @brief Check if Interest, including selectors, matches the given @p name
-   *
-   * @param name The name to be matched. If this is a Data name, it shall contain the
-   *             implicit digest component
+public: // matching
+  /** @brief Check if Interest, including selectors, matches the given @p name
+   *  @param name The name to be matched. If this is a Data name, it shall contain the
+   *              implicit digest component
    */
   bool
   matchesName(const Name& name) const;
@@ -250,11 +151,7 @@ public:
   bool
   matchesData(const Data& data) const;
 
-  ///////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////////
-  // Getters/setters
-
+public: // Name and guiders
   const Name&
   getName() const
   {
@@ -268,24 +165,6 @@ public:
     m_wire.reset();
     return *this;
   }
-
-  //
-
-  const Selectors&
-  getSelectors() const
-  {
-    return m_selectors;
-  }
-
-  Interest&
-  setSelectors(const Selectors& selectors)
-  {
-    m_selectors = selectors;
-    m_wire.reset();
-    return *this;
-  }
-
-  //
 
   int
   getScope() const
@@ -301,8 +180,6 @@ public:
     return *this;
   }
 
-  //
-
   const time::milliseconds&
   getInterestLifetime() const
   {
@@ -317,20 +194,7 @@ public:
     return *this;
   }
 
-  //
-
-  /**
-   * @brief Get Interest's nonce
-   *
-   * If nonce was not set before this call, it will be automatically assigned to a random value
-   *
-   * Const reference needed for C decoding
-   */
-  uint32_t
-  getNonce() const;
-
-  /**
-   * @brief Check if Nonce set
+  /** @brief Check if Nonce set
    */
   bool
   hasNonce() const
@@ -338,28 +202,32 @@ public:
     return m_nonce.hasWire();
   }
 
-  /**
-   * @brief Set Interest's nonce
+  /** @brief Get Interest's nonce
    *
-   * Note that if wire format already exists, this call simply replaces nonce in the
-   * existing wire format, without resetting and recreating it.
+   *  If nonce was not set before this call, it will be automatically assigned to a random value
+   */
+  uint32_t
+  getNonce() const;
+
+  /** @brief Set Interest's nonce
+   *
+   *  If wire format already exists, this call simply replaces nonce in the
+   *  existing wire format, without resetting and recreating it.
    */
   Interest&
   setNonce(uint32_t nonce);
 
-  /**
-   * @brief Refresh nonce
+  /** @brief Refresh nonce
    *
-   * Refresh guarantees that new nonce value is different from the existing one.
+   *  It's guaranteed that new nonce value differs from the existing one.
    *
-   * If nonce is already set, it will be updated to a different random value.
-   * If nonce is not set, this method will do nothing.
+   *  If nonce is already set, it will be updated to a different random value.
+   *  If nonce is not set, this method does nothing.
    */
   void
   refreshNonce();
 
-  //
-
+public: // local control header
   nfd::LocalControlHeader&
   getLocalControlHeader()
   {
@@ -371,8 +239,6 @@ public:
   {
     return m_localControlHeader;
   }
-
-  // helper methods for LocalControlHeader
 
   uint64_t
   getIncomingFaceId() const
@@ -388,10 +254,6 @@ public:
     return *this;
   }
 
-  //
-
-  // NextHopFaceId helpers make sense only for Interests
-
   uint64_t
   getNextHopFaceId() const
   {
@@ -406,13 +268,29 @@ public:
     return *this;
   }
 
-  //
+public: // Selectors
+  /**
+   * @return true if Interest has any selector present
+   */
+  bool
+  hasSelectors() const
+  {
+    return !m_selectors.empty();
+  }
 
-  ///////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////////
-  // Wrappers for Selectors
-  //
+  const Selectors&
+  getSelectors() const
+  {
+    return m_selectors;
+  }
+
+  Interest&
+  setSelectors(const Selectors& selectors)
+  {
+    m_selectors = selectors;
+    m_wire.reset();
+    return *this;
+  }
 
   int
   getMinSuffixComponents() const
@@ -428,8 +306,6 @@ public:
     return *this;
   }
 
-  //
-
   int
   getMaxSuffixComponents() const
   {
@@ -443,8 +319,6 @@ public:
     m_wire.reset();
     return *this;
   }
-
-  //
 
   const KeyLocator&
   getPublisherPublicKeyLocator() const
@@ -460,8 +334,6 @@ public:
     return *this;
   }
 
-  //
-
   const Exclude&
   getExclude() const
   {
@@ -476,8 +348,6 @@ public:
     return *this;
   }
 
-  //
-
   int
   getChildSelector() const
   {
@@ -491,8 +361,6 @@ public:
     m_wire.reset();
     return *this;
   }
-
-  //
 
   int
   getMustBeFresh() const
@@ -544,20 +412,6 @@ Interest::toUri() const
   os << *this;
   return os.str();
 }
-
-inline bool
-Interest::hasSelectors() const
-{
-  return !m_selectors.empty();
-}
-
-
-inline bool
-Interest::hasWire() const
-{
-  return m_wire.hasWire();
-}
-
 
 } // namespace ndn
 

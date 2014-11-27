@@ -20,6 +20,7 @@
  */
 
 #include "interest.hpp"
+#include "interest-filter.hpp"
 #include "data.hpp"
 #include "security/signature-sha256-with-rsa.hpp"
 #include "security/digest-sha256.hpp"
