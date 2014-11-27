@@ -13,7 +13,7 @@ def options(opt):
     opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
     opt.load(['default-compiler-flags', 'coverage', 'osx-security', 'pch',
               'boost', 'openssl', 'cryptopp', 'sqlite3',
-              'doxygen', 'sphinx_build'],
+              'doxygen', 'sphinx_build', 'type_traits'],
              tooldir=['.waf-tools'])
 
     opt = opt.add_option_group('Library Options')
@@ -40,7 +40,7 @@ def configure(conf):
     conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
                'default-compiler-flags', 'osx-security', 'pch',
                'boost', 'openssl', 'cryptopp', 'sqlite3',
-               'doxygen', 'sphinx_build'])
+               'doxygen', 'sphinx_build', 'type_traits'])
 
     conf.env['WITH_TESTS'] = conf.options.with_tests
     conf.env['WITH_TOOLS'] = conf.options.with_tools

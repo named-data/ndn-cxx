@@ -44,41 +44,26 @@ typedef shared_ptr<Buffer> BufferPtr;
 class Buffer : public std::vector<uint8_t>
 {
 public:
-  /**
-   * @brief Creates an empty buffer
+  /** @brief Creates an empty buffer
    */
-  Buffer()
-  {
-  }
+  Buffer();
 
-  /**
-   * @brief Creates a buffer with pre-allocated size
-   * @param size size of the buffer to be allocated
+  /** @brief Creates a buffer with pre-allocated size
+   *  @param size size of the buffer to be allocated
    */
   explicit
-  Buffer(size_t size)
-    : std::vector<uint8_t>(size, 0)
-  {
-  }
+  Buffer(size_t size);
 
-  /**
-   * @brief Create a buffer by copying the supplied data from a const buffer
-   * @param buf const pointer to buffer
-   * @param length length of the buffer to copy
+  /** @brief Create a buffer by copying contents from a buffer
+   *  @param buf const pointer to buffer
+   *  @param length length of the buffer to copy
    */
-  Buffer(const void* buf, size_t length)
-    : std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(buf),
-                           reinterpret_cast<const uint8_t*>(buf) + length)
-  {
-  }
+  Buffer(const void* buf, size_t length);
 
-  /**
-   * @brief Create a buffer by copying the supplied data using iterator interface
-   *
-   * Note that the supplied iterators must be compatible with std::vector<uint8_t> interface
-   *
-   * @param first iterator to a first element to copy
-   * @param last  iterator to an element immediately following the last element to copy
+  /** @brief Create a buffer by copying contents of the range [first, last)
+   *  @tparam InputIterator an InputIterator compatible with std::vector<uint8_t> constructor
+   *  @param first iterator to the first element to copy
+   *  @param last  iterator to the element immediately following the last element to copy
    */
   template <class InputIterator>
   Buffer(InputIterator first, InputIterator last)
@@ -86,8 +71,7 @@ public:
   {
   }
 
-  /**
-   * @brief Get pointer to the first byte of the buffer
+  /** @return pointer to the first byte of the buffer
    */
   uint8_t*
   get()
@@ -95,8 +79,9 @@ public:
     return &front();
   }
 
-  /**
-   * @brief Get pointer to the first byte of the buffer (alternative version)
+  /** @return pointer to the first byte of the buffer
+   *
+   *  This is same as \p .get()
    */
   uint8_t*
   buf()
@@ -104,9 +89,8 @@ public:
     return &front();
   }
 
-  /**
-   * @brief Get pointer to the first byte of the buffer and cast
-   * it (reinterpret_cast) to the requested type T
+  /** @return pointer to the first byte of the buffer and reinterpret_cast
+   *          it to the requested type T
    */
   template<class T>
   T*
@@ -115,8 +99,9 @@ public:
     return reinterpret_cast<T*>(&front());
   }
 
-  /**
-   * @brief Get pointer to the first byte of the buffer (alternative version)
+  /** @return pointer to the first byte of the buffer
+   *
+   *  This is same as \p .get()
    */
   const uint8_t*
   buf() const
@@ -124,8 +109,7 @@ public:
     return &front();
   }
 
-  /**
-   * @brief Get const pointer to the first byte of the buffer
+  /** @return pointer to the first byte of the buffer
    */
   const uint8_t*
   get() const
@@ -133,9 +117,8 @@ public:
     return &front();
   }
 
-  /**
-   * @brief Get const pointer to the first byte of the buffer and cast
-   * it (reinterpret_cast) to the requested type T
+  /** @return const pointer to the first byte of the buffer and reinterpret_cast
+   *          it to the requested type T
    */
   template<class T>
   const T*
@@ -145,6 +128,6 @@ public:
   }
 };
 
-} // ndn
+} // namespace ndn
 
 #endif // NDN_ENCODING_BUFFER_HPP
