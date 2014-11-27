@@ -78,12 +78,12 @@ const std::string CERT_INFO = "Certificate name:\n"
   "Subject Description:\n"
   "  2.5.4.41: TEST NAME\n"
   "Public key bits: (RSA)\n"
-  "MIGdMA0GCSqGSIb3DQEBAQUAA4GLADCBhwKBgQCeBj5HhbI0N6qFR6wDJIO1nKgF\n"
-  "OiQe64kBu+mbssMirGjj8GwCzmimxNCnBpCcqhsIHYtDmjNnRG0hoxuImpdeWcQV\n"
-  "C9ksvVEHYYKtwbjXv5vPfSTCY/OXF+v+YiW6W02Kwnq9Q4qPuPLxxWow01CMyJrf\n"
-  "7+0153pi6nZ8uwgmxwIB\n"
+  "  MIGdMA0GCSqGSIb3DQEBAQUAA4GLADCBhwKBgQCeBj5HhbI0N6qFR6wDJIO1nKgF\n"
+  "  OiQe64kBu+mbssMirGjj8GwCzmimxNCnBpCcqhsIHYtDmjNnRG0hoxuImpdeWcQV\n"
+  "  C9ksvVEHYYKtwbjXv5vPfSTCY/OXF+v+YiW6W02Kwnq9Q4qPuPLxxWow01CMyJrf\n"
+  "  7+0153pi6nZ8uwgmxwIB\n"
   "Signature Information:\n"
-  "  Signature Type: Unknown Signature Type\n\n";
+  "  Signature Type: Unknown Signature Type\n";
 
 BOOST_AUTO_TEST_CASE(Encode)
 {
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(Encode)
                                   certificate.getContent().value_end());
 
   std::ostringstream os;
-  os << certificate << std::endl;
+  os << certificate;
   std::string info(os.str());
 
   BOOST_CHECK_EQUAL(CERT_INFO, info);
@@ -179,15 +179,15 @@ const std::string REAL_CERT_INFO = "Certificate name:\n"
 "Subject Description:\n"
 "  2.5.4.41: NDN Testbed Root\n"
 "Public key bits: (RSA)\n"
-"MIIBIDANBgkqhkiG9w0BAQEFAAOCAQ0AMIIBCAKCAQEA06x+elwzWCHa4I3byrYC\n"
-"MAIVxQpRVLuOXp0h+BS+5GNgMVPi7+40o4zSJG+kiU8CIH1mtj8RQAzBX9hFI5VA\n"
-"yOC8nS8D8YOfBwt2yRDZPgt1E5PpyYUBiDYuq/zmJDL8xjxAlxrMzVOqD/uj/vkk\n"
-"cBM/T1t9Q6p1CpRyq+GMRbV4EAHvH7MFb6bDrH9t8DHEg7NPUCaSQBrd7PvL72P+\n"
-"QdiNH9zs/EiVzAkeMG4iniSXLuYM3z0gMqqcyUUUr6r1F9IBmDO+Kp97nZh8VCL+\n"
-"cnIEwyzAFAupQH5GoXUWGiee8oKWwH2vGHX7u6sWZsCp15NMSG3OC4jUIZOEiVUF\n"
-"1QIB\n"
+"  MIIBIDANBgkqhkiG9w0BAQEFAAOCAQ0AMIIBCAKCAQEA06x+elwzWCHa4I3byrYC\n"
+"  MAIVxQpRVLuOXp0h+BS+5GNgMVPi7+40o4zSJG+kiU8CIH1mtj8RQAzBX9hFI5VA\n"
+"  yOC8nS8D8YOfBwt2yRDZPgt1E5PpyYUBiDYuq/zmJDL8xjxAlxrMzVOqD/uj/vkk\n"
+"  cBM/T1t9Q6p1CpRyq+GMRbV4EAHvH7MFb6bDrH9t8DHEg7NPUCaSQBrd7PvL72P+\n"
+"  QdiNH9zs/EiVzAkeMG4iniSXLuYM3z0gMqqcyUUUr6r1F9IBmDO+Kp97nZh8VCL+\n"
+"  cnIEwyzAFAupQH5GoXUWGiee8oKWwH2vGHX7u6sWZsCp15NMSG3OC4jUIZOEiVUF\n"
+"  1QIB\n"
 "Signature Information:\n"
-"  Signature Type: Unknown Signature Type\n\n";
+"  Signature Type: Unknown Signature Type\n";
 
 const uint8_t SELF_SIGNED_ECDSA_CERT[] = {
 0x06, 0xfd, 0x01, 0x5b, 0x07, 0x33, 0x08, 0x05, 0x65, 0x63, 0x64, 0x73, 0x61, 0x08, 0x03,
@@ -225,11 +225,11 @@ const std::string SELF_SIGNED_ECDSA_CERT_INFO =
 "Subject Description:\n"
 "  2.5.4.41: /ecdsa/ksk-1416594552827\n"
 "Public key bits: (ECDSA)\n"
-"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEg+WBGdn6ZECtfJP8FZBrOB7FyrFr\n"
-"Cx9kv0iq0JFcJNZ4QP2VXVRk4S0OmGYderBhFwUmE2MlfNqHEclnzRIF\n"
+"  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEg+WBGdn6ZECtfJP8FZBrOB7FyrFr\n"
+"  Cx9kv0iq0JFcJNZ4QP2VXVRk4S0OmGYderBhFwUmE2MlfNqHEclnzRIF\n"
 "Signature Information:\n"
 "  Signature Type: SignatureSha256WithEcdsa\n"
-"  Key Locator: (Self-Signed) /ecdsa/KEY/ksk-1416594552827/ID-CERT\n\n";
+"  Key Locator: (Self-Signed) /ecdsa/KEY/ksk-1416594552827/ID-CERT\n";
 
 const uint8_t RSA_CERT[] = {
 0x06, 0xfd, 0x02, 0xd7, 0x07, 0x38, 0x08, 0x03, 0x6e, 0x64, 0x6e, 0x08, 0x03, 0x4b, 0x45,
@@ -292,16 +292,16 @@ const std::string RSA_CERT_INFO =
 "Subject Description:\n"
 "  2.5.4.41: /ndn/site1\n"
 "Public key bits: (RSA)\n"
-"MIIBIDANBgkqhkiG9w0BAQEFAAOCAQ0AMIIBCAKCAQEAtlR+6PKRfcFtyyVEl5Dc\n"
-"eBUO77Xn/Qks+NWcL+Wmrp1+lS38x8NDRrBvU83NaikdlaFizany+OL6i13+oSsV\n"
-"P39x5j65sSnRIm9W37aFr9SzZ4uUuIPLcobE8oayfJS8OHuMkoY2gw4RjJVJ/8wW\n"
-"YttVQH/IjeQ/hwKHr/Yvin10ENO7o/5ae49WCYtJRp99VaNK6CJ7gIpv3p/7L+v3\n"
-"KYo4Z0GuIXrje5YakDV9BKpNn+bWABdOAjRsVjqBPLR/mEgioJ9TNflOro/D+guT\n"
-"1FV4BbBAREh0t5stZfA9LocrSCkShfCvxNxzzhiL2UxgFVGuRx4rVN72uncwXWia\n"
-"+wIB\n"
+"  MIIBIDANBgkqhkiG9w0BAQEFAAOCAQ0AMIIBCAKCAQEAtlR+6PKRfcFtyyVEl5Dc\n"
+"  eBUO77Xn/Qks+NWcL+Wmrp1+lS38x8NDRrBvU83NaikdlaFizany+OL6i13+oSsV\n"
+"  P39x5j65sSnRIm9W37aFr9SzZ4uUuIPLcobE8oayfJS8OHuMkoY2gw4RjJVJ/8wW\n"
+"  YttVQH/IjeQ/hwKHr/Yvin10ENO7o/5ae49WCYtJRp99VaNK6CJ7gIpv3p/7L+v3\n"
+"  KYo4Z0GuIXrje5YakDV9BKpNn+bWABdOAjRsVjqBPLR/mEgioJ9TNflOro/D+guT\n"
+"  1FV4BbBAREh0t5stZfA9LocrSCkShfCvxNxzzhiL2UxgFVGuRx4rVN72uncwXWia\n"
+"  +wIB\n"
 "Signature Information:\n"
 "  Signature Type: SignatureSha256WithRsa\n"
-"  Key Locator: (Name) /ndn/KEY/ksk-1416425295546/ID-CERT\n\n";
+"  Key Locator: (Name) /ndn/KEY/ksk-1416425295546/ID-CERT\n";
 
 BOOST_AUTO_TEST_CASE(Decode)
 {
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE(Decode)
   ndn::Certificate certificate(data);
 
   std::ostringstream os;
-  os << certificate << std::endl;
+  os << certificate;
   std::string info(os.str());
 
   BOOST_CHECK_EQUAL(REAL_CERT_INFO, info);
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE(Decode)
   selfSignedCert.wireDecode(selfSignedCertBlock);
 
   std::ostringstream selfSignedCertOs;
-  selfSignedCertOs << selfSignedCert << std::endl;
+  selfSignedCertOs << selfSignedCert;
   std::string selfSignedCertInfo(selfSignedCertOs.str());
 
   BOOST_CHECK_EQUAL(SELF_SIGNED_ECDSA_CERT_INFO, selfSignedCertInfo);
@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE(Decode)
   rsaCert.wireDecode(rsaCertBlock);
 
   std::ostringstream rsaCertOs;
-  rsaCertOs << rsaCert << std::endl;
+  rsaCertOs << rsaCert;
   std::string rsaCertInfo(rsaCertOs.str());
 
   BOOST_CHECK_EQUAL(RSA_CERT_INFO, rsaCertInfo);

@@ -26,222 +26,149 @@
 
 #include "ndnsec-util.hpp"
 
+void
+printCertificate(ndn::KeyChain& keyChain,
+                 const ndn::Name& certName,
+                 bool isDefault,
+                 int verboseLevel)
+{
+  if (isDefault)
+    std::cout << "       +->* ";
+  else
+    std::cout << "       +->  ";
+
+  std::cout << certName << std::endl;
+
+  if (verboseLevel >= 3) {
+    ndn::shared_ptr<ndn::IdentityCertificate> certificate = keyChain.getCertificate(certName);
+    if (static_cast<bool>(certificate))
+      certificate->printCertificate(std::cout, "            ");
+  }
+}
+
+void
+printKey(ndn::KeyChain& keyChain,
+         const ndn::Name& keyName,
+         bool isDefault,
+         int verboseLevel)
+{
+  if (isDefault)
+    std::cout << "  +->* ";
+  else
+    std::cout << "  +->  ";
+
+  std::cout << keyName << std::endl;
+
+  if (verboseLevel >= 2) {
+    std::vector<ndn::Name> defaultCertificates;
+    keyChain.getAllCertificateNamesOfKey(keyName, defaultCertificates, true);
+
+    for (const auto& certName : defaultCertificates)
+      printCertificate(keyChain, certName, true, verboseLevel);
+
+    std::vector<ndn::Name> otherCertificates;
+    keyChain.getAllCertificateNamesOfKey(keyName, otherCertificates, false);
+    for (const auto& certName : otherCertificates)
+      printCertificate(keyChain, certName, false, verboseLevel);
+  }
+}
+
+void
+printIdentity(ndn::KeyChain& keyChain,
+              const ndn::Name& identity,
+              bool isDefault,
+              int verboseLevel)
+{
+  if (isDefault)
+    std::cout << "* ";
+  else
+    std::cout << "  ";
+
+  std::cout << identity << std::endl;
+
+  if (verboseLevel >= 1) {
+    std::vector<ndn::Name> defaultKeys;
+    keyChain.getAllKeyNamesOfIdentity(identity, defaultKeys, true);
+    for (const auto& keyName : defaultKeys)
+      printKey(keyChain, keyName, true, verboseLevel);
+
+    std::vector<ndn::Name> otherKeys;
+    keyChain.getAllKeyNamesOfIdentity(identity, otherKeys, false);
+    for (const auto& keyName : otherKeys) {
+      printKey(keyChain, keyName, false, verboseLevel);
+    }
+
+    std::cout << std::endl;
+  }
+}
+
 int
 ndnsec_list(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
 
-  bool isGetId = true;
-  bool isGetKey = false;
-  bool isGetCert = false;
+  int verboseLevel = 0; // 0 print identity only
+                        // 1 print key name
+                        // 2 print cert name
+                        // 3 print cert content
 
-  po::options_description description("General Usage\n  ndnsec list [-h] [-k|c]\nGeneral options");
-  description.add_options()
-    ("help,h", "produce help message")
-    ("key,k", "granularity: key")
-    ("key2,K", "granularity: key")
-    ("cert,c", "granularity: certificate")
-    ("cert2,C", "granularity: certificate")
+  po::options_description options("General Usage\n  ndnsec list [-h] [-k|c]\nGeneral options");
+  options.add_options()
+    ("help,h",    "produce help message")
+    ("key,k",     "granularity: key")
+    ("cert,c",    "granularity: certificate")
+    ("verbose,v", accumulator<int>(&verboseLevel),
+                  "verbose mode: -v is equivalent to -k, -vv is equivalent to -c")
     ;
 
+  po::options_description oldOptions;
+  oldOptions.add_options()
+    ("key2,K",         "granularity: key")
+    ("cert2,C",        "granularity: certificate");
+
+  po::options_description allOptions;
+  allOptions.add(options).add(oldOptions);
+
   po::variables_map vm;
-  try
-    {
-      po::store(po::parse_command_line(argc, argv, description), vm);
-      po::notify(vm);
-    }
-  catch (const std::exception& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  try {
+    po::store(po::parse_command_line(argc, argv, allOptions), vm);
+    po::notify(vm);
+  }
+  catch (const std::exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    std::cerr << options << std::endl;
+    return 1;
+  }
 
-  if (vm.count("help") != 0)
-    {
-      std::cerr << description << std::endl;;
-      return 0;
-    }
+  if (vm.count("help") != 0) {
+    std::cerr << options << std::endl;;
+    return 0;
+  }
 
+  int tmpVerboseLevel = 0;
   if (vm.count("cert") != 0 || vm.count("cert2") != 0)
-    {
-      isGetCert = true;
-      isGetId = false;
-    }
+    tmpVerboseLevel = 2;
   else if(vm.count("key") != 0 || vm.count("key2") != 0)
-    {
-      isGetKey = true;
-      isGetId = false;
-    }
+    tmpVerboseLevel = 1;
+
+  verboseLevel = std::max(verboseLevel, tmpVerboseLevel);
 
   KeyChain keyChain;
 
-  if (isGetId)
-    {
-      std::vector<Name> defaultIdentities;
-      keyChain.getAllIdentities(defaultIdentities, true);
+  std::vector<Name> defaultIdentities;
+  keyChain.getAllIdentities(defaultIdentities, true);
+  for (const auto& identity : defaultIdentities) {
+    printIdentity(keyChain, identity, true, verboseLevel);
+  }
 
-      for (size_t i = 0; i < defaultIdentities.size(); i++)
-        std::cout << "* " << defaultIdentities[i] << std::endl;
+  std::vector<Name> otherIdentities;
+  keyChain.getAllIdentities(otherIdentities, false);
+  for (const auto& identity : otherIdentities) {
+    printIdentity(keyChain, identity, false, verboseLevel);
+  }
 
-      std::vector<Name> otherIdentities;
-      keyChain.getAllIdentities(otherIdentities, false);
-      for (size_t i = 0; i < otherIdentities.size(); i++)
-        std::cout << "  " << otherIdentities[i] << std::endl;
-
-      return 0;
-    }
-  if (isGetKey)
-    {
-      std::vector<Name> defaultIdentities;
-      keyChain.getAllIdentities(defaultIdentities, true);
-
-      for (size_t i = 0; i < defaultIdentities.size(); i++)
-        {
-          std::cout << "* " << defaultIdentities[i] << std::endl;
-
-          std::vector<Name> defaultKeys;
-          keyChain.getAllKeyNamesOfIdentity(defaultIdentities[i], defaultKeys, true);
-
-          for (size_t j = 0; j < defaultKeys.size(); j++)
-            std::cout << "  +->* " << defaultKeys[j] << std::endl;
-
-          std::vector<Name> otherKeys;
-          keyChain.getAllKeyNamesOfIdentity(defaultIdentities[i], otherKeys, false);
-
-          for (size_t j = 0; j < otherKeys.size(); j++)
-            std::cout << "  +->  " << otherKeys[j] << std::endl;
-
-          std::cout << std::endl;
-        }
-
-      std::vector<Name> otherIdentities;
-      keyChain.getAllIdentities(otherIdentities, false);
-
-      for (size_t i = 0; i < otherIdentities.size(); i++)
-        {
-          std::cout << "  " << otherIdentities[i] << std::endl;
-
-          std::vector<Name> defaultKeys;
-          keyChain.getAllKeyNamesOfIdentity(otherIdentities[i], defaultKeys, true);
-
-          for (size_t j = 0; j < defaultKeys.size(); j++)
-            std::cout << "  +->* " << defaultKeys[j] << std::endl;
-
-          std::vector<Name> otherKeys;
-          keyChain.getAllKeyNamesOfIdentity(otherIdentities[i], otherKeys, false);
-
-          for (size_t j = 0; j < otherKeys.size(); j++)
-            std::cout << "  +->  " << otherKeys[j] << std::endl;
-
-          std::cout << std::endl;
-        }
-      return 0;
-    }
-  if (isGetCert)
-    {
-      std::vector<Name> defaultIdentities;
-      keyChain.getAllIdentities(defaultIdentities, true);
-
-      for (size_t i = 0; i < defaultIdentities.size(); i++)
-        {
-          std::cout << "* " << defaultIdentities[i] << std::endl;
-
-          std::vector<Name> defaultKeys;
-          keyChain.getAllKeyNamesOfIdentity(defaultIdentities[i], defaultKeys, true);
-
-          for (size_t j = 0; j < defaultKeys.size(); j++)
-            {
-              std::cout << "  +->* " << defaultKeys[j] << std::endl;
-
-              std::vector<Name> defaultCertificates;
-              keyChain.getAllCertificateNamesOfKey(defaultKeys[j], defaultCertificates, true);
-
-              for (size_t k = 0; k < defaultCertificates.size(); k++)
-                std::cout << "       +->* " << defaultCertificates[k] << std::endl;
-
-              std::vector<Name> otherCertificates;
-              keyChain.getAllCertificateNamesOfKey(defaultKeys[j], otherCertificates, false);
-
-              for (size_t k = 0; k < otherCertificates.size(); k++)
-                std::cout << "       +->  " << otherCertificates[k] << std::endl;
-            }
-
-          std::vector<Name> otherKeys;
-          keyChain.getAllKeyNamesOfIdentity(defaultIdentities[i], otherKeys, false);
-
-          for (size_t j = 0; j < otherKeys.size(); j++)
-            {
-              std::cout << "  +->  " << otherKeys[j] << std::endl;
-
-              std::vector<Name> defaultCertificates;
-              keyChain.getAllCertificateNamesOfKey(otherKeys[j], defaultCertificates, true);
-
-              for (size_t k = 0; k < defaultCertificates.size(); k++)
-                std::cout << "       +->* " << defaultCertificates[k] << std::endl;
-
-              std::vector<Name> otherCertificates;
-              keyChain.getAllCertificateNamesOfKey(otherKeys[j], otherCertificates, false);
-
-              for (size_t k = 0; k < otherCertificates.size(); k++)
-                std::cout << "       +->  " << otherCertificates[k] << std::endl;
-            }
-          std::cout << std::endl;
-        }
-
-      std::vector<Name> otherIdentities;
-      keyChain.getAllIdentities(otherIdentities, false);
-
-      for (size_t i = 0; i < otherIdentities.size(); i++)
-        {
-          std::cout << "  " << otherIdentities[i] << std::endl;
-
-          std::vector<Name> defaultKeys;
-          keyChain.getAllKeyNamesOfIdentity(otherIdentities[i], defaultKeys, true);
-
-          for (size_t j = 0; j < defaultKeys.size(); j++)
-            {
-              std::cout << "  +->* " << defaultKeys[j] << std::endl;
-
-              std::vector<Name> defaultCertificates;
-              keyChain.getAllCertificateNamesOfKey(defaultKeys[j], defaultCertificates, true);
-
-              for (size_t k = 0; k < defaultCertificates.size(); k++)
-                std::cout << "       +->* " << defaultCertificates[k] << std::endl;
-
-              std::vector<Name> otherCertificates;
-              keyChain.getAllCertificateNamesOfKey(defaultKeys[j], otherCertificates, false);
-
-              for (size_t k = 0; k < otherCertificates.size(); k++)
-                std::cout << "       +->  " << otherCertificates[k] << std::endl;
-            }
-
-          std::vector<Name> otherKeys;
-          keyChain.getAllKeyNamesOfIdentity(otherIdentities[i], otherKeys, false);
-
-          for (size_t j = 0; j < otherKeys.size(); j++)
-            {
-              std::cout << "  +->  " << otherKeys[j] << std::endl;
-
-              std::vector<Name> defaultCertificates;
-              keyChain.getAllCertificateNamesOfKey(otherKeys[j], defaultCertificates, true);
-
-              for (size_t k = 0; k < defaultCertificates.size(); k++)
-                std::cout << "       +->* " << defaultCertificates[k] << std::endl;
-
-              std::vector<Name> otherCertificates;
-              keyChain.getAllCertificateNamesOfKey(otherKeys[j], otherCertificates, false);
-
-              for (size_t k = 0; k < otherCertificates.size(); k++)
-                std::cout << "       +->  " << otherCertificates[k] << std::endl;
-            }
-
-          std::cout << std::endl;
-        }
-      return 0;
-    }
-  return 1;
+  return 0;
 }
 
-#endif //NDNSEC_LIST_HPP
+#endif // NDNSEC_LIST_HPP

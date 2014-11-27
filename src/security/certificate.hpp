@@ -194,7 +194,7 @@ public:
   isTooLate();
 
   void
-  printCertificate(std::ostream& os) const;
+  printCertificate(std::ostream& os, const std::string& indent = "") const;
 
 protected:
   void

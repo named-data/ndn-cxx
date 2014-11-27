@@ -32,6 +32,8 @@
 #include "../encoding/buffer-stream.hpp"
 #include "../util/concepts.hpp"
 
+#include <boost/algorithm/string/split.hpp>
+
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((WireEncodable<Certificate>));
@@ -262,23 +264,77 @@ Certificate::decode()
   }
 }
 
-void
-Certificate::printCertificate(std::ostream& os) const
+/**
+ * @brief Output to stream with specified indent
+ *
+ * Based on http://stackoverflow.com/a/2212940/2150331
+ */
+class IndentedStream : public std::ostream
 {
-  os << "Certificate name:" << std::endl;
-  os << "  " << getName() << std::endl;
-  os << "Validity:" << std::endl;
+public:
+  IndentedStream(std::ostream& os, const std::string& indent = "")
+    : std::ostream(&m_buffer)
+    , m_buffer(os, indent)
   {
-    os << "  NotBefore: " << time::toIsoString(m_notBefore) << std::endl;
-    os << "  NotAfter: "  << time::toIsoString(m_notAfter)  << std::endl;
   }
 
-  os << "Subject Description:" << std::endl;
-  for (SubjectDescriptionList::const_iterator it = m_subjectDescriptionList.begin();
-       it != m_subjectDescriptionList.end(); ++it)
+  ~IndentedStream()
+  {
+    flush();
+  }
+
+private:
+  // Write a stream buffer that prefixes each line with Plop
+  class StreamBuf : public std::stringbuf
+  {
+  public:
+    StreamBuf(std::ostream& os, const std::string& indent)
+      : m_output(os)
+      , m_indent(indent)
     {
-      os << "  " << it->getOidString() << ": " << it->getValue() << std::endl;
     }
+
+    virtual int
+    sync()
+    {
+      typedef boost::iterator_range<std::string::const_iterator> StringView;
+
+      const std::string& output = str();
+      std::vector<StringView> splitOutput;
+      boost::split(splitOutput, output, [] (const char& ch) { return ch == '\n'; });
+
+      if (!splitOutput.empty() && splitOutput.back().empty()) {
+        splitOutput.pop_back();
+      }
+      for (const StringView& line : splitOutput) {
+        m_output << m_indent << line << "\n";
+      }
+      return 0; // success
+    }
+  private:
+    std::ostream& m_output;
+    std::string m_indent;
+  };
+
+  StreamBuf m_buffer;
+};
+
+void
+Certificate::printCertificate(std::ostream& oss, const std::string& indent) const
+{
+  IndentedStream os(oss, indent);
+
+  os << "Certificate name:\n";
+  os << "  " << getName() << "\n";
+  os << "Validity:\n";
+  {
+    os << "  NotBefore: " << time::toIsoString(m_notBefore) << "\n";
+    os << "  NotAfter: "  << time::toIsoString(m_notAfter)  << "\n";
+  }
+
+  os << "Subject Description:\n";
+  for (const auto& description : m_subjectDescriptionList)
+    os << "  " << description.getOidString() << ": " << description.getValue() << "\n";
 
   os << "Public key bits: ";
   switch (m_key.getKeyType()) {
@@ -292,12 +348,15 @@ Certificate::printCertificate(std::ostream& os) const
     os << "(Unknown key type)";
     break;
   }
-  os << std::endl;
-  CryptoPP::Base64Encoder encoder(new CryptoPP::FileSink(os), true, 64);
-  m_key.encode(encoder);
+  os << "\n";
 
-  os << std::endl;
-  os << "Signature Information:" << std::endl;
+  {
+    IndentedStream os2(os, "  ");
+    CryptoPP::Base64Encoder encoder(new CryptoPP::FileSink(os2), true, 64);
+    m_key.encode(encoder);
+  }
+
+  os << "Signature Information:\n";
   {
     os << "  Signature Type: ";
     switch (getSignature().getType()) {
@@ -313,7 +372,7 @@ Certificate::printCertificate(std::ostream& os) const
     default:
       os << "Unknown Signature Type";
     }
-    os << std::endl;
+    os << "\n";
 
     if (getSignature().hasKeyLocator()) {
       const KeyLocator& keyLocator = getSignature().getKeyLocator();
@@ -337,10 +396,9 @@ Certificate::printCertificate(std::ostream& os) const
       default:
         os << "Unknown";
       }
-      os << std::endl;
+      os << "\n";
     }
   }
-
 }
 
 std::ostream&
