@@ -21,8 +21,6 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#include "common.hpp"
-
 #include "block.hpp"
 #include "block-helpers.hpp"
 
@@ -34,6 +32,16 @@
 #include <boost/asio/buffer.hpp>
 
 namespace ndn {
+
+#if NDN_CXX_HAVE_IS_MOVE_CONSTRUCTIBLE
+static_assert(std::is_move_constructible<Buffer>::value,
+              "Buffer must be MoveConstructible");
+#endif // NDN_CXX_HAVE_IS_MOVE_CONSTRUCTIBLE
+
+#if NDN_CXX_HAVE_IS_MOVE_ASSIGNABLE
+static_assert(std::is_move_assignable<Buffer>::value,
+              "Buffer must be MoveAssignable");
+#endif // NDN_CXX_HAVE_IS_MOVE_ASSIGNABLE
 
 const size_t MAX_SIZE_OF_BLOCK_FROM_STREAM = 8800;
 
@@ -112,7 +120,6 @@ Block::Block(const ConstBufferPtr& buffer,
         }
     }
 }
-
 
 Block::Block(const uint8_t* buffer, size_t maxlength)
 {
@@ -272,6 +279,26 @@ Block::fromBuffer(const uint8_t* buffer, size_t maxSize, Block& block)
 }
 
 void
+Block::reset()
+{
+  m_buffer.reset(); // reset of the shared_ptr
+  m_subBlocks.clear(); // remove all parsed subelements
+
+  m_type = std::numeric_limits<uint32_t>::max();
+  m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator();
+}
+
+void
+Block::resetWire()
+{
+  m_buffer.reset(); // reset of the shared_ptr
+  // keep subblocks
+
+  // keep type
+  m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator();
+}
+
+void
 Block::parse() const
 {
   if (!m_subBlocks.empty() || value_size() == 0)
@@ -358,6 +385,34 @@ Block::encode()
   tlv::readVarNumber(m_value_begin, m_value_end);
 }
 
+const Block&
+Block::get(uint32_t type) const
+{
+  element_const_iterator it = this->find(type);
+  if (it != m_subBlocks.end())
+    return *it;
+
+  throw Error("(Block::get) Requested a non-existed type [" +
+              boost::lexical_cast<std::string>(type) + "] from Block");
+}
+
+Block::element_const_iterator
+Block::find(uint32_t type) const
+{
+  return std::find_if(m_subBlocks.begin(), m_subBlocks.end(),
+                      [type] (const Block& subBlock) { return subBlock.type() == type; });
+}
+
+void
+Block::remove(uint32_t type)
+{
+  resetWire();
+
+  auto it = std::remove_if(m_subBlocks.begin(), m_subBlocks.end(),
+                           [type] (const Block& subBlock) { return subBlock.type() != type; });
+  m_subBlocks.resize(it - m_subBlocks.begin());
+}
+
 Block
 Block::blockFromValue() const
 {
@@ -365,7 +420,7 @@ Block::blockFromValue() const
     throw Error("Underlying value buffer is empty");
 
   Buffer::const_iterator begin = value_begin(),
-    end = value_end();
+                         end = value_end();
 
   Buffer::const_iterator element_begin = begin;
 
@@ -381,27 +436,16 @@ Block::blockFromValue() const
                begin, end);
 }
 
-const Block&
-Block::get(uint32_t type) const
+bool
+Block::operator==(const Block& other) const
 {
-  for (element_const_iterator i = m_subBlocks.begin();
-       i != m_subBlocks.end();
-       i++)
-    {
-      if (i->type() == type)
-        {
-          return *i;
-        }
-    }
-
-  throw Error("(Block::get) Requested a non-existed type [" +
-              boost::lexical_cast<std::string>(type) + "] from Block");
+  return this->size() == other.size() &&
+         std::equal(this->begin(), this->end(), other.begin());
 }
 
 Block::operator boost::asio::const_buffer() const
 {
   return boost::asio::const_buffer(wire(), size());
 }
-
 
 } // namespace ndn

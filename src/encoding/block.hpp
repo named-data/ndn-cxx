@@ -40,8 +40,7 @@ namespace ndn {
 template<bool> class EncodingImpl;
 typedef EncodingImpl<true> EncodingBuffer;
 
-/**
- * @brief Class representing wire element of the NDN packet
+/** @brief Class representing a wire element of NDN-TLV packet format
  */
 class Block
 {
@@ -50,7 +49,6 @@ public:
   typedef element_container::iterator        element_iterator;
   typedef element_container::const_iterator  element_const_iterator;
 
-  /// @brief Error that can be thrown from Block
   class Error : public tlv::Error
   {
   public:
@@ -61,164 +59,167 @@ public:
     }
   };
 
-  /**
-   * @brief Default constructor to create an empty Block
+public: // constructor, creation, assignment
+  /** @brief Create an empty Block
    */
   Block();
 
-  /**
-   * @brief Create block based on EncodingBuffer object
+  /** @brief Create a Block based on EncodingBuffer object
    */
   explicit
   Block(const EncodingBuffer& buffer);
 
-  /**
-   * @brief A helper version of a constructor to create Block from the raw buffer (type
-   * and value-length parsing)
+  /** @brief Create a Block from the raw buffer with Type-Length parsing
    */
   explicit
   Block(const ConstBufferPtr& buffer);
 
-  /**
-   * @brief Another helper to create block from a buffer, directly specifying boundaries
-   *        of the block within the buffer
+  /** @brief Create a Block from a buffer, directly specifying boundaries
+   *         of the block within the buffer
    *
-   * This version will automatically detect type and position of the value within the block
+   *  This overload will automatically detect type and position of the value within the block
    */
   Block(const ConstBufferPtr& buffer,
         const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
         bool verifyLength = true);
 
-  /**
-   * @brief A helper version of a constructor to create Block from the raw buffer (type
-   * and value-length parsing)
+  /** @brief Create a Block from the raw buffer with Type-Length parsing
    */
   Block(const uint8_t* buffer, size_t maxlength);
 
+  /** @brief Create a Block from the raw buffer with Type-Length parsing
+   */
   Block(const void* buffer, size_t maxlength);
 
-  /**
-   * @brief Create Block from the wire buffer (no parsing)
+  /** @brief Create a Block from the wire buffer (no parsing)
    *
-   * This version of the constructor does not do any parsing
+   *  This overload does not do any parsing
    */
   Block(const ConstBufferPtr& wire,
         uint32_t type,
         const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
         const Buffer::const_iterator& valueBegin, const Buffer::const_iterator& valueEnd);
 
-  /**
-   * @brief Create Block of a specific type with empty wire buffer
+  /** @brief Create Block of a specific type with empty wire buffer
    */
   explicit
   Block(uint32_t type);
 
-  /**
-   * @brief Create Block of a specific type with the specified value
+  /** @brief Create a Block of a specific type with the specified value
    *
-   * The underlying buffer hold only value, additional operations are needed
-   * to construct wire encoding, one need to prepend the wire buffer with type
-   * and value-length VAR-NUMBERs
+   *  The underlying buffer holds only value Additional operations are needed
+   *  to construct wire encoding, one need to prepend the wire buffer with type
+   *  and value-length VAR-NUMBERs
    */
   Block(uint32_t type, const ConstBufferPtr& value);
 
-  /**
-   * @brief Create nested Block of a specific type with the specified value
+  /** @brief Create a nested Block of a specific type with the specified value
    *
-   * The underlying buffer hold only value, additional operations are needed
-   * to construct wire encoding, one need to prepend the wire buffer with type
-   * and value-length VAR-NUMBERs
+   *  The underlying buffer holds only value. Additional operations are needed
+   *  to construct wire encoding, one need to prepend the wire buffer with type
+   *  and value-length VAR-NUMBERs
    */
-  explicit
   Block(uint32_t type, const Block& value);
 
-  /*
-   * @brief A helper version of a constructor to create Block from the stream
-   *
-   * @deprecated Use Block::fromStream instead
+  /** @brief Create a Block from an input stream
+   *  @deprecated Use Block::fromStream instead
    */
   explicit
   DEPRECATED(Block(std::istream& is))
   {
-    *this = Block::fromStream(is);
+    *this = std::move(Block::fromStream(is));
   }
 
-  /*
-   * @brief Constructor Block from the stream
+  /** @brief Create a Block from an input stream
    */
   static Block
   fromStream(std::istream& is);
 
-  /**
-   * @brief Try to construct block from Buffer, referencing data block pointed by wire
+  /** @brief Try to construct block from Buffer, referencing data block pointed by wire
    *
-   * @throws This method never throws an exception
-   *
-   * @returns true if Block successfully created, false if block cannot be created
+   *  This method does not throw upon decoding error.
+   *  @return true if Block successfully created, false if block cannot be created
    */
   static bool
   fromBuffer(const ConstBufferPtr& wire, size_t offset, Block& block);
 
-  /**
-   * @brief Try to construct block from Buffer, referencing data block pointed by wire
+  /** @brief Try to construct block from Buffer, referencing data block pointed by wire
    *
-   * @throws This method never throws an exception
-   *
-   * @returns true if Block successfully created, false if block cannot be created
+   *  This method does not throw upon decoding error.
+   *  @return true if Block successfully created, false if block cannot be created
    */
   static bool
   fromBuffer(const uint8_t* buffer, size_t maxSize, Block& block);
 
-  /**
-   * @brief Check if the Block is empty
+public: // wire format
+  /** @brief Check if the Block is empty
    */
   bool
   empty() const;
 
-  /**
-   * @brief Check if the Block has fully encoded wire
+  /** @brief Check if the Block has fully encoded wire
    */
   bool
   hasWire() const;
 
-  /**
-   * @brief Check if the Block has value block (no type and length are encoded)
-   */
-  bool
-  hasValue() const;
-
-  /**
-   * @brief Reset wire buffer of the element
+  /** @brief Reset wire buffer of the element
    */
   void
   reset();
 
-  /**
-   * @brief Reset wire buffer but keep sub elements (if any)
+  /** @brief Reset wire buffer but keep sub elements (if any)
    */
   void
   resetWire();
 
-  /**
-   * @brief Parse wire buffer into subblocks
+  Buffer::const_iterator
+  begin() const;
+
+  Buffer::const_iterator
+  end() const;
+
+  const uint8_t*
+  wire() const;
+
+  size_t
+  size() const;
+
+public: // type and value
+  uint32_t
+  type() const;
+
+  /** @brief Check if the Block has value block (no type and length are encoded)
+   */
+  bool
+  hasValue() const;
+
+  Buffer::const_iterator
+  value_begin() const;
+
+  Buffer::const_iterator
+  value_end() const;
+
+  const uint8_t*
+  value() const;
+
+  size_t
+  value_size() const;
+
+public: // sub elements
+  /** @brief Parse wire buffer into subblocks
    *
-   * This method is not really const, but it does not modify any data.  It simply
-   * parses contents of the buffer into subblocks
+   *  This method is not really const, but it does not modify any data.  It simply
+   *  parses contents of the buffer into subblocks
    */
   void
   parse() const;
 
-  /**
-   * @brief Encode subblocks into wire buffer
+  /** @brief Encode subblocks into wire buffer
    */
   void
   encode();
 
-  uint32_t
-  type() const;
-
-  /**
-   * @brief Get the first subelement of the requested type
+  /** @brief Get the first subelement of the requested type
    */
   const Block&
   get(uint32_t type) const;
@@ -238,32 +239,7 @@ public:
   void
   push_back(const Block& element);
 
-  Buffer::const_iterator
-  begin() const;
-
-  Buffer::const_iterator
-  end() const;
-
-  const uint8_t*
-  wire() const;
-
-  size_t
-  size() const;
-
-  Buffer::const_iterator
-  value_begin() const;
-
-  Buffer::const_iterator
-  value_end() const;
-
-  const uint8_t*
-  value() const;
-
-  size_t
-  value_size() const;
-
-  /**
-   * @brief Get all subelements
+  /** @brief Get all subelements
    */
   const element_container&
   elements() const;
@@ -316,104 +292,17 @@ Block::empty() const
   return m_type == std::numeric_limits<uint32_t>::max();
 }
 
-
 inline bool
 Block::hasWire() const
 {
   return m_buffer && (m_begin != m_end);
 }
 
-inline bool
-Block::hasValue() const
-{
-  return static_cast<bool>(m_buffer);
-}
-
-inline void
-Block::reset()
-{
-  m_buffer.reset(); // reset of the shared_ptr
-  m_subBlocks.clear(); // remove all parsed subelements
-
-  m_type = std::numeric_limits<uint32_t>::max();
-  m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator();
-}
-
-inline void
-Block::resetWire()
-{
-  m_buffer.reset(); // reset of the shared_ptr
-  // keep subblocks
-
-  // keep type
-  m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator();
-}
-
-inline uint32_t
-Block::type() const
-{
-  return m_type;
-}
-
-inline Block::element_const_iterator
-Block::find(uint32_t type) const
-{
-  for (element_const_iterator i = m_subBlocks.begin();
-       i != m_subBlocks.end();
-       i++)
-    {
-      if (i->type() == type)
-        {
-          return i;
-        }
-    }
-  return m_subBlocks.end();
-}
-
-inline void
-Block::remove(uint32_t type)
-{
-  resetWire();
-
-  element_container newContainer;
-  newContainer.reserve(m_subBlocks.size());
-  for (element_iterator i = m_subBlocks.begin();
-       i != m_subBlocks.end();
-       ++i)
-  {
-      if (i->type() != type)
-        newContainer.push_back(*i);
-  }
-  m_subBlocks.swap(newContainer);
-}
-
-inline Block::element_iterator
-Block::erase(Block::element_iterator position)
-{
-  resetWire();
-  return m_subBlocks.erase(position);
-}
-
-inline Block::element_iterator
-Block::erase(Block::element_iterator first, Block::element_iterator last)
-{
-  resetWire();
-  return m_subBlocks.erase(first, last);
-}
-
-
-inline void
-Block::push_back(const Block& element)
-{
-  resetWire();
-  m_subBlocks.push_back(element);
-}
-
 inline Buffer::const_iterator
 Block::begin() const
 {
   if (!hasWire())
-      throw Error("Underlying wire buffer is empty");
+    throw Error("Underlying wire buffer is empty");
 
   return m_begin;
 }
@@ -422,9 +311,18 @@ inline Buffer::const_iterator
 Block::end() const
 {
   if (!hasWire())
-      throw Error("Underlying wire buffer is empty");
+    throw Error("Underlying wire buffer is empty");
 
   return m_end;
+}
+
+inline const uint8_t*
+Block::wire() const
+{
+  if (!hasWire())
+    throw Error("(Block::wire) Underlying wire buffer is empty");
+
+  return &*m_begin;
 }
 
 inline size_t
@@ -437,6 +335,18 @@ Block::size() const
     throw Error("Block size cannot be determined (undefined block size)");
 }
 
+inline uint32_t
+Block::type() const
+{
+  return m_type;
+}
+
+inline bool
+Block::hasValue() const
+{
+  return static_cast<bool>(m_buffer);
+}
+
 inline Buffer::const_iterator
 Block::value_begin() const
 {
@@ -447,15 +357,6 @@ inline Buffer::const_iterator
 Block::value_end() const
 {
   return m_value_end;
-}
-
-inline const uint8_t*
-Block::wire() const
-{
-  if (!hasWire())
-      throw Error("(Block::wire) Underlying wire buffer is empty");
-
-  return &*m_begin;
 }
 
 inline const uint8_t*
@@ -474,6 +375,27 @@ Block::value_size() const
     return 0;
 
   return m_value_end - m_value_begin;
+}
+
+inline Block::element_iterator
+Block::erase(Block::element_iterator position)
+{
+  resetWire();
+  return m_subBlocks.erase(position);
+}
+
+inline Block::element_iterator
+Block::erase(Block::element_iterator first, Block::element_iterator last)
+{
+  resetWire();
+  return m_subBlocks.erase(first, last);
+}
+
+inline void
+Block::push_back(const Block& element)
+{
+  resetWire();
+  m_subBlocks.push_back(element);
 }
 
 inline const Block::element_container&
@@ -501,18 +423,11 @@ Block::elements_size() const
 }
 
 inline bool
-Block::operator==(const Block& other) const
-{
-  return (this->size() == other.size()) &&
-         std::equal(this->begin(), this->end(), other.begin());
-}
-
-inline bool
 Block::operator!=(const Block& other) const
 {
   return !this->operator==(other);
 }
 
-} // ndn
+} // namespace ndn
 
 #endif // NDN_ENCODING_BLOCK_HPP
