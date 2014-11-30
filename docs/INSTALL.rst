@@ -139,6 +139,12 @@ commands will also produce:
 
 -  ``build/unit-tests``: A unit test binary for the library
 
+1.5GB available memory per CPU core is necessary for efficient compilation.
+On a multi-core machine with less than 1.5GB available memory per CPU core,
+limit the objects being compiled in parallel with ``./waf -jN`` where N is the amount
+of available memory divided by 1.5GB (eg. ``./waf -j1`` for 1.5GB memory),
+which could usually avoid memory thrashing and result in faster compilation.
+
 Build with examples
 -------------------
 
