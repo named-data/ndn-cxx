@@ -39,6 +39,9 @@ ndnsec-set-default_
 ndnsec-key-gen_
   Generate a Key-Signing-Key for an identity.
 
+ndnsec-dsk-gen_
+  Generate a Data-Signing-Key (DSK) for an identity and sign the DSK using the corresponding KSK.
+
 ndnsec-sign-req_
   Generate a certificate signing request.
 
@@ -73,6 +76,7 @@ ndnsec-op-tool_
 .. _ndnsec-get-default: ndnsec-get-default.html
 .. _ndnsec-set-default: ndnsec-set-default.html
 .. _ndnsec-key-gen: ndnsec-key-gen.html
+.. _ndnsec-dsk-gen: ndnsec-dsk-gen.html
 .. _ndnsec-sign-req: ndnsec-sign-req.html
 .. _ndnsec-cert-gen: ndnsec-cert-gen.html
 .. _ndnsec-cert-dump: ndnsec-cert-dump.html

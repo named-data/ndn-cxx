@@ -50,6 +50,7 @@ std::string ndnsec_helper("\
   get-default  Get default setting info.\n\
   set-default  Configure default setting.\n\
   key-gen      Generate a Key-Signing-Key for an identity.\n\
+  dsk-gen      Generate a Data-Signing-Key for an identity.\n\
   sign-req     Generate a certificate signing request.\n\
   cert-gen     Generate an identity certificate.\n\
   cert-revoke  Revoke an identity certificate.\n\
@@ -84,6 +85,7 @@ main(int argc, char** argv)
       else if (command == "get-default")  { return ndnsec_get_default(argc - 1, argv + 1); }
       else if (command == "set-default")  { return ndnsec_set_default(argc - 1, argv + 1); }
       else if (command == "key-gen")      { return ndnsec_key_gen(argc - 1, argv + 1); }
+      else if (command == "dsk-gen")      { return ndnsec_dsk_gen(argc - 1, argv + 1); }
       else if (command == "sign-req")     { return ndnsec_sign_req(argc - 1, argv + 1); }
       else if (command == "cert-gen")     { return ndnsec_cert_gen(argc - 1, argv + 1); }
       else if (command == "cert-revoke")  { return ndnsec_cert_revoke(argc - 1, argv + 1); }

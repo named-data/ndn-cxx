@@ -8,6 +8,7 @@ Manpages
     ndnsec-get-default  <manpages/ndnsec-get-default>
     ndnsec-set-default  <manpages/ndnsec-set-default>
     ndnsec-key-gen      <manpages/ndnsec-key-gen>
+    ndnsec-dsk-gen      <manpages/ndnsec-dsk-gen>
     ndnsec-sign-req     <manpages/ndnsec-sign-req>
     ndnsec-cert-gen     <manpages/ndnsec-cert-gen>
     ndnsec-cert-revoke  <manpages/ndnsec-cert-revoke>
