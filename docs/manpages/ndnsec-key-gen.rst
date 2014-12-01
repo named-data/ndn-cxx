@@ -8,7 +8,7 @@ Usage
 
 ::
 
-    $ ndnsec-key-gen [-h] [-n] identity
+    $ ndnsec-key-gen [-h] [-n] [-d] identity
 
 Description
 -----------
@@ -24,6 +24,9 @@ Options
 
 ``-n``
   Do not set the identity as the system default identity.
+
+``-d``
+  Generate Data-Signing-Key (DSK) instead of the default Key-Signing-Key (KSK).
 
 Examples
 --------

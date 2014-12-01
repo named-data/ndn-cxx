@@ -48,6 +48,7 @@ ndnsec_key_gen(int argc, char** argv)
     ("not_default,n",
      "optional, if not specified, the target identity will be set as "
      "the default identity of the system")
+    ("dsk,d", "generate Data-Signing-Key (DSK) instead of the default Key-Signing-Key (KSK)")
     // ("type,t", po::value<char>(&keyType)->default_value('r'),
     // "optional, key type, r for RSA key (default)")
     // ("size,s", po::value<int>(&keySize)->default_value(2048),
@@ -58,64 +59,64 @@ ndnsec_key_gen(int argc, char** argv)
   p.add("identity", 1);
 
   po::variables_map vm;
-  try
-    {
-      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-                vm);
-      po::notify(vm);
-    }
-  catch (const std::exception& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  try {
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+              vm);
+    po::notify(vm);
+  }
+  catch (const std::exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    std::cerr << description << std::endl;
+    return 1;
+  }
 
-  if (vm.count("help") != 0)
-    {
-      std::cerr << description << std::endl;
-      return 0;
-    }
+  if (vm.count("help") != 0) {
+    std::cerr << description << std::endl;
+    return 0;
+  }
 
-  if (vm.count("identity") == 0)
-    {
-      std::cerr << "identity must be specified" << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  if (vm.count("identity") == 0) {
+    std::cerr << "identity must be specified" << std::endl;
+    std::cerr << description << std::endl;
+    return 1;
+  }
 
   if (vm.count("not_default") != 0)
     isDefault = false;
 
-  switch (keyType)
-    {
+  bool isKsk = (vm.count("dsk") == 0);
+
+  KeyChain keyChain;
+  Name keyName;
+
+  try {
+    switch (keyType) {
     case 'r':
-      {
-        shared_ptr<IdentityCertificate> identityCert;
-
-        KeyChain keyChain;
-
-        Name keyName = keyChain.generateRsaKeyPair(Name(identityName), true, keySize);
-
-        if (0 == keyName.size())
-          return 1;
-
-        keyChain.setDefaultKeyNameForIdentity(keyName);
-
-        identityCert = keyChain.selfSign(keyName);
-
-        if (isDefault)
-          keyChain.setDefaultIdentity(Name(identityName));
-
-        io::save(*identityCert, std::cout);
-        return 0;
-      }
+      keyName = keyChain.generateRsaKeyPair(Name(identityName), isKsk, keySize);
+      break;
     default:
       std::cerr << "Unrecongized key type" << "\n";
       std::cerr << description << std::endl;
       return 1;
     }
 
+    if (0 == keyName.size()) {
+      std::cerr << "Error: failed to generate key" << "\n";
+      return 1;
+    }
+
+    keyChain.setDefaultKeyNameForIdentity(keyName);
+
+    shared_ptr<IdentityCertificate> identityCert = keyChain.selfSign(keyName);
+
+    if (isDefault)
+      keyChain.setDefaultIdentity(Name(identityName));
+
+    io::save(*identityCert, std::cout);
+  }
+  catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
   return 0;
 }
 
