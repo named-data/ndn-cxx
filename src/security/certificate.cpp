@@ -31,6 +31,7 @@
 #include "../encoding/cryptopp/asn_ext.hpp"
 #include "../encoding/buffer-stream.hpp"
 #include "../util/concepts.hpp"
+#include "../util/indented-stream.hpp"
 
 #include <boost/algorithm/string/split.hpp>
 
@@ -264,65 +265,10 @@ Certificate::decode()
   }
 }
 
-/**
- * @brief Output to stream with specified indent
- *
- * Based on http://stackoverflow.com/a/2212940/2150331
- */
-class IndentedStream : public std::ostream
-{
-public:
-  IndentedStream(std::ostream& os, const std::string& indent = "")
-    : std::ostream(&m_buffer)
-    , m_buffer(os, indent)
-  {
-  }
-
-  ~IndentedStream()
-  {
-    flush();
-  }
-
-private:
-  // Write a stream buffer that prefixes each line with Plop
-  class StreamBuf : public std::stringbuf
-  {
-  public:
-    StreamBuf(std::ostream& os, const std::string& indent)
-      : m_output(os)
-      , m_indent(indent)
-    {
-    }
-
-    virtual int
-    sync()
-    {
-      typedef boost::iterator_range<std::string::const_iterator> StringView;
-
-      const std::string& output = str();
-      std::vector<StringView> splitOutput;
-      boost::split(splitOutput, output, [] (const char& ch) { return ch == '\n'; });
-
-      if (!splitOutput.empty() && splitOutput.back().empty()) {
-        splitOutput.pop_back();
-      }
-      for (const StringView& line : splitOutput) {
-        m_output << m_indent << line << "\n";
-      }
-      return 0; // success
-    }
-  private:
-    std::ostream& m_output;
-    std::string m_indent;
-  };
-
-  StreamBuf m_buffer;
-};
-
 void
 Certificate::printCertificate(std::ostream& oss, const std::string& indent) const
 {
-  IndentedStream os(oss, indent);
+  util::IndentedStream os(oss, indent);
 
   os << "Certificate name:\n";
   os << "  " << getName() << "\n";
@@ -351,7 +297,7 @@ Certificate::printCertificate(std::ostream& oss, const std::string& indent) cons
   os << "\n";
 
   {
-    IndentedStream os2(os, "  ");
+    util::IndentedStream os2(os, "  ");
     CryptoPP::Base64Encoder encoder(new CryptoPP::FileSink(os2), true, 64);
     m_key.encode(encoder);
   }
