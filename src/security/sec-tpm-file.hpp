@@ -49,9 +49,7 @@ public:
   SecTpmFile(const std::string& dir = "");
 
   virtual
-  ~SecTpmFile()
-  {
-  }
+  ~SecTpmFile();
 
   virtual void
   setTpmPassword(const uint8_t* password, size_t passwordLength)
@@ -124,6 +122,8 @@ protected:
   ////////////////////////////////
   // From TrustedPlatformModule //
   ////////////////////////////////
+  virtual std::string
+  getScheme();
 
   virtual ConstBufferPtr
   exportPrivateKeyPkcs8FromTpm(const Name& keyName);
@@ -134,12 +134,15 @@ protected:
   virtual bool
   importPublicKeyPkcs1IntoTpm(const Name& keyName, const uint8_t* buf, size_t size);
 
+public:
+  static const std::string SCHEME;
+
 private:
   class Impl;
-  shared_ptr<Impl> m_impl;
+  unique_ptr<Impl> m_impl;
   bool m_inTerminal;
 };
 
 } // namespace ndn
 
-#endif  //NDN_SECURITY_SEC_TPM_FILE_HPP
+#endif  // NDN_SECURITY_SEC_TPM_FILE_HPP

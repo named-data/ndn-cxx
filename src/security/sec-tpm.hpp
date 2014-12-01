@@ -51,10 +51,14 @@ public:
     }
   };
 
+  explicit
+  SecTpm(const std::string& location);
+
   virtual
-  ~SecTpm()
-  {
-  }
+  ~SecTpm();
+
+  std::string
+  getTpmLocator();
 
   /**
    * @brief set password of TPM
@@ -246,6 +250,9 @@ public:
                                const std::string& password);
 
 protected:
+  virtual std::string
+  getScheme() = 0;
+
   /**
    * @brief Export a private key in PKCS#8 format.
    *
@@ -288,8 +295,11 @@ protected:
    */
   virtual bool
   getImpExpPassWord(std::string& password, const std::string& prompt);
+
+protected:
+  std::string m_location;
 };
 
 } // namespace ndn
 
-#endif //NDN_SECURITY_SEC_TPM_HPP
+#endif // NDN_SECURITY_SEC_TPM_HPP

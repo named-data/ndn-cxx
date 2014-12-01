@@ -26,8 +26,6 @@
 
 namespace ndn {
 
-
-
 BOOST_FIXTURE_TEST_SUITE(TransportTestUnixTransport, TransportFixture)
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketNameOk)

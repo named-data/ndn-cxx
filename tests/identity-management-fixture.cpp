@@ -19,33 +19,34 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/io.hpp"
-#include "security/key-chain.hpp"
 #include "identity-management-fixture.hpp"
 
-#include "boost-test.hpp"
-
 namespace ndn {
+namespace security {
 
-BOOST_FIXTURE_TEST_SUITE(UtilTestIo, security::IdentityManagementFixture)
-
-BOOST_AUTO_TEST_CASE(Basic)
+IdentityManagementFixture::IdentityManagementFixture()
 {
-  Name identity("/TestIO/Basic");
-  identity.appendVersion();
-  BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
-  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<IdentityCertificate> idCert;
-  BOOST_REQUIRE_NO_THROW(idCert = m_keyChain.getCertificate(certName));
-
-  std::string file("/tmp/TestIO-Basic");
-  io::save(*idCert, file);
-  shared_ptr<IdentityCertificate> readCert = io::load<IdentityCertificate>(file);
-
-  BOOST_CHECK(static_cast<bool>(readCert));
-  BOOST_CHECK(idCert->getName() == readCert->getName());
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+IdentityManagementFixture::~IdentityManagementFixture()
+{
+  for (const auto& identity : m_identities) {
+    m_keyChain.deleteIdentity(identity);
+  }
+}
 
+bool
+IdentityManagementFixture::addIdentity(const Name& identity, const KeyParams& params)
+{
+  try {
+    m_keyChain.createIdentity(identity, params);
+    m_identities.push_back(identity);
+    return true;
+  }
+  catch (std::runtime_error&) {
+    return false;
+  }
+}
+
+} // namespace security
 } // namespace ndn

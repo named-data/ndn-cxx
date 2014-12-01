@@ -52,6 +52,42 @@ BOOST_AUTO_TEST_CASE(ConstructorEmptyConfig)
 
   setenv("TEST_HOME", "tests/unit-tests/security/config-file-empty-home", 1);
 
+#if defined(NDN_CXX_HAVE_OSX_SECURITY)
+  std::string oldHOME;
+  if (std::getenv("OLD_HOME"))
+    oldHOME = std::getenv("OLD_HOME");
+
+  std::string HOME;
+  if (std::getenv("HOME"))
+    HOME = std::getenv("HOME");
+
+  if (!oldHOME.empty())
+    setenv("HOME", oldHOME.c_str(), 1);
+  else
+    unsetenv("HOME");
+#endif
+
+  BOOST_REQUIRE_NO_THROW(KeyChain());
+
+#if defined(NDN_CXX_HAVE_OSX_SECURITY)
+  if (!HOME.empty())
+    setenv("HOME", HOME.c_str(), 1);
+  else
+    unsetenv("HOME");
+#endif
+
+  path pibPath(absolute(std::getenv("TEST_HOME")));
+  pibPath /= ".ndn/ndnsec-public-info.db";
+
+  boost::filesystem::remove(pibPath);
+}
+
+BOOST_AUTO_TEST_CASE(ConstructorEmpty2Config)
+{
+  using namespace boost::filesystem;
+
+  setenv("TEST_HOME", "tests/unit-tests/security/config-file-empty2-home", 1);
+
   BOOST_REQUIRE_NO_THROW(KeyChain());
 
   path pibPath(absolute(std::getenv("TEST_HOME")));
@@ -80,8 +116,7 @@ BOOST_AUTO_TEST_CASE(ConstructorMal2Config)
 
 BOOST_AUTO_TEST_CASE(ExportIdentity)
 {
-  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
-  KeyChain keyChain("sqlite3", "file");
+  KeyChain keyChain;
 
   Name identity("/TestKeyChain/ExportIdentity/");
   identity.appendVersion();
@@ -123,8 +158,7 @@ BOOST_AUTO_TEST_CASE(ExportIdentity)
 
 BOOST_AUTO_TEST_CASE(PrepareIdentityCertificate)
 {
-  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
-  KeyChain keyChain("sqlite3", "file");
+  KeyChain keyChain;
 
   Name identity("/TestKeyChain/PrepareIdentityCertificate/");
   identity.appendVersion();
@@ -194,6 +228,73 @@ BOOST_AUTO_TEST_CASE(PrepareIdentityCertificate)
   keyChain.deleteIdentity(identity);
   keyChain.deleteIdentity(lowerIdentity);
   keyChain.deleteIdentity(anotherIdentity);
+}
+
+BOOST_AUTO_TEST_CASE(Delete)
+{
+  KeyChain keyChain;
+
+  Name identity("/TestSecPublicInfoSqlite3/Delete");
+  identity.appendVersion();
+
+  Name certName1;
+  BOOST_REQUIRE_NO_THROW(certName1 = keyChain.createIdentity(identity));
+
+  Name keyName1 = IdentityCertificate::certificateNameToPublicKeyName(certName1);
+  Name keyName2;
+  BOOST_REQUIRE_NO_THROW(keyName2 = keyChain.generateRsaKeyPairAsDefault(identity));
+
+  shared_ptr<IdentityCertificate> cert2;
+  BOOST_REQUIRE_NO_THROW(cert2 = keyChain.selfSign(keyName2));
+  Name certName2 = cert2->getName();
+  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert2));
+
+  Name keyName3;
+  BOOST_REQUIRE_NO_THROW(keyName3 = keyChain.generateRsaKeyPairAsDefault(identity));
+
+  shared_ptr<IdentityCertificate> cert3;
+  BOOST_REQUIRE_NO_THROW(cert3 = keyChain.selfSign(keyName3));
+  Name certName3 = cert3->getName();
+  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert3));
+  shared_ptr<IdentityCertificate> cert4;
+  BOOST_REQUIRE_NO_THROW(cert4 = keyChain.selfSign(keyName3));
+  Name certName4 = cert4->getName();
+  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert4));
+  shared_ptr<IdentityCertificate> cert5;
+  BOOST_REQUIRE_NO_THROW(cert5 = keyChain.selfSign(keyName3));
+  Name certName5 = cert5->getName();
+  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert5));
+
+  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), true);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), true);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName2), true);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName1), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName2), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName5), true);
+
+  BOOST_REQUIRE_NO_THROW(keyChain.deleteCertificate(certName5));
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName5), false);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), true);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), true);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), true);
+
+  BOOST_REQUIRE_NO_THROW(keyChain.deleteKey(keyName3));
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), false);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), false);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), false);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName2), true);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), true);
+  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), true);
+
+  BOOST_REQUIRE_NO_THROW(keyChain.deleteIdentity(identity));
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName2), false);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName2), false);
+  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName1), false);
+  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), false);
+  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

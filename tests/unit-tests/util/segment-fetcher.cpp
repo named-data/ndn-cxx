@@ -187,8 +187,6 @@ BOOST_FIXTURE_TEST_CASE(SegmentValidationFailure, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(Triple, Fixture)
 {
-  KeyChain keyChain;
-
   SegmentFetcher::fetch(*face, Interest("/hello/world", time::seconds(1000)),
                         DontVerifySegment(),
                         bind(&Fixture::onData, this, _1),
@@ -237,8 +235,6 @@ BOOST_FIXTURE_TEST_CASE(Triple, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(TripleWithInitialSegmentFetching, Fixture)
 {
-  KeyChain keyChain;
-
   SegmentFetcher::fetch(*face, Interest("/hello/world", time::seconds(1000)),
                         DontVerifySegment(),
                         bind(&Fixture::onData, this, _1),

@@ -25,10 +25,31 @@
 #include "encoding/buffer-stream.hpp"
 #include "util/time.hpp"
 
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 #include "boost-test.hpp"
 
-using namespace std;
 namespace ndn {
+
+class PibTmpPathFixture
+{
+public:
+  PibTmpPathFixture()
+  {
+    boost::system::error_code error;
+    tmpPath = boost::filesystem::temp_directory_path(error);
+    BOOST_REQUIRE(boost::system::errc::success == error.value());
+    tmpPath /= boost::lexical_cast<std::string>(random::generateWord32());
+  }
+
+  ~PibTmpPathFixture()
+  {
+    boost::filesystem::remove_all(tmpPath);
+  }
+
+public:
+  boost::filesystem::path tmpPath;
+};
 
 BOOST_AUTO_TEST_SUITE(SecurityTestSecPublicInfoSqlite3)
 
@@ -42,72 +63,36 @@ DwIDAQAB");
 const std::string ECDSA_DER("MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAENZpqkPJDj8uhSpffOiCbvSYMLsGB\
 1Eo/WU6mrexjGvduQXjqwon/eSHFI6EgHZk8L9KfiV5XVtVsk2g5wIpJVg==");
 
-BOOST_AUTO_TEST_CASE(Delete)
+BOOST_FIXTURE_TEST_CASE(Basic, PibTmpPathFixture)
 {
-  BOOST_REQUIRE_NO_THROW(KeyChain("sqlite3", "file"));
-  KeyChain keyChain("sqlite3", "file");
+  SecPublicInfoSqlite3 pib(tmpPath.generic_string());
 
-  Name identity("/TestSecPublicInfoSqlite3/Delete");
-  identity.appendVersion();
+  BOOST_CHECK(pib.doesTableExist("Identity"));
+  BOOST_CHECK(pib.doesTableExist("Key"));
+  BOOST_CHECK(pib.doesTableExist("Certificate"));
+}
 
-  Name certName1;
-  BOOST_REQUIRE_NO_THROW(certName1 = keyChain.createIdentity(identity));
+BOOST_FIXTURE_TEST_CASE(TpmLocatorTest, PibTmpPathFixture)
+{
+  SecPublicInfoSqlite3 pib(tmpPath.generic_string());
 
-  Name keyName1 = IdentityCertificate::certificateNameToPublicKeyName(certName1);
-  Name keyName2;
-  BOOST_REQUIRE_NO_THROW(keyName2 = keyChain.generateRsaKeyPairAsDefault(identity));
+  BOOST_REQUIRE_THROW(pib.getTpmLocator(), SecPublicInfo::Error);
+  pib.addIdentity("/test/id1");
+  BOOST_CHECK(pib.doesIdentityExist("/test/id1"));
 
-  shared_ptr<IdentityCertificate> cert2;
-  BOOST_REQUIRE_NO_THROW(cert2 = keyChain.selfSign(keyName2));
-  Name certName2 = cert2->getName();
-  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert2));
+  // Pib does not have tpmInfo set yet, setTpmInfo simply set the tpmInfo.
+  std::string tpmLocator("tpm-file:");
+  tpmLocator.append((tmpPath / "tpm").generic_string());
+  pib.setTpmLocator(tpmLocator);
+  BOOST_CHECK(pib.doesIdentityExist("/test/id1"));
 
-  Name keyName3;
-  BOOST_REQUIRE_NO_THROW(keyName3 = keyChain.generateRsaKeyPairAsDefault(identity));
+  BOOST_REQUIRE_NO_THROW(pib.getTpmLocator());
+  BOOST_CHECK_EQUAL(tpmLocator, pib.getTpmLocator());
 
-  shared_ptr<IdentityCertificate> cert3;
-  BOOST_REQUIRE_NO_THROW(cert3 = keyChain.selfSign(keyName3));
-  Name certName3 = cert3->getName();
-  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert3));
-  shared_ptr<IdentityCertificate> cert4;
-  BOOST_REQUIRE_NO_THROW(cert4 = keyChain.selfSign(keyName3));
-  Name certName4 = cert4->getName();
-  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert4));
-  shared_ptr<IdentityCertificate> cert5;
-  BOOST_REQUIRE_NO_THROW(cert5 = keyChain.selfSign(keyName3));
-  Name certName5 = cert5->getName();
-  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert5));
-
-  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), true);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), true);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName2), true);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName1), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName2), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName5), true);
-
-  BOOST_REQUIRE_NO_THROW(keyChain.deleteCertificate(certName5));
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName5), false);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), true);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), true);
-
-  BOOST_REQUIRE_NO_THROW(keyChain.deleteKey(keyName3));
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), false);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), false);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), false);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName2), true);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), true);
-  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), true);
-
-  BOOST_REQUIRE_NO_THROW(keyChain.deleteIdentity(identity));
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName2), false);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName2), false);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName1), false);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), false);
-  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), false);
+  // Pib has tpmInfo set, set a different tpmInfo will reset Pib content.
+  std::string tpmLocator3("tpm-osxkeychain:");
+  pib.setTpmLocator(tpmLocator3);
+  BOOST_CHECK(!pib.doesIdentityExist("/test/id1"));
 }
 
 BOOST_AUTO_TEST_CASE(KeyTypeRsa)
@@ -123,7 +108,7 @@ BOOST_AUTO_TEST_CASE(KeyTypeRsa)
                                                                       os.buf()->size())));
   Name rsaKeyName("/TestSecPublicInfoSqlite3/KeyType/RSA/ksk-123");
   SecPublicInfoSqlite3 pib;
-  pib.addPublicKey(rsaKeyName, rsaKey->getKeyType(), *rsaKey);
+  pib.addKey(rsaKeyName, *rsaKey);
 
   BOOST_CHECK_EQUAL(KEY_TYPE_RSA, pib.getPublicKeyType(rsaKeyName));
 
@@ -143,7 +128,7 @@ BOOST_AUTO_TEST_CASE(KeyTypeEcdsa)
                                                                         os.buf()->size())));
   Name ecdsaKeyName("/TestSecPublicInfoSqlite3/KeyType/ECDSA/ksk-123");
   SecPublicInfoSqlite3 pib;
-  pib.addPublicKey(ecdsaKeyName, ecdsaKey->getKeyType(), *ecdsaKey);
+  pib.addKey(ecdsaKeyName, *ecdsaKey);
 
   BOOST_CHECK_EQUAL(KEY_TYPE_ECDSA, pib.getPublicKeyType(ecdsaKeyName));
   pib.deleteIdentityInfo(Name("/TestSecPublicInfoSqlite3/KeyType/ECDSA"));

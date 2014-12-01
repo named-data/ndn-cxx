@@ -25,8 +25,8 @@
 
 #include "util/time.hpp"
 
+#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-
 #include "boost-test.hpp"
 
 namespace ndn {

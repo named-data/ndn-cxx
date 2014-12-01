@@ -19,33 +19,35 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/io.hpp"
+#ifndef NDN_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
+#define NDN_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
+
 #include "security/key-chain.hpp"
+#include <vector>
 #include "identity-management-fixture.hpp"
+#include "unit-test-time-fixture.hpp"
 
 #include "boost-test.hpp"
 
 namespace ndn {
+namespace security {
 
-BOOST_FIXTURE_TEST_SUITE(UtilTestIo, security::IdentityManagementFixture)
-
-BOOST_AUTO_TEST_CASE(Basic)
+/**
+ * @brief IdentityManagementTimeFixture is a test suite level fixture.
+ * Test cases in the suite can use this fixture to create identities.
+ * Identities added via addIdentity method are automatically deleted
+ * during test teardown.
+ */
+class IdentityManagementTimeFixture : public tests::UnitTestTimeFixture
+                                    , public IdentityManagementFixture
 {
-  Name identity("/TestIO/Basic");
-  identity.appendVersion();
-  BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
-  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<IdentityCertificate> idCert;
-  BOOST_REQUIRE_NO_THROW(idCert = m_keyChain.getCertificate(certName));
+public:
+  IdentityManagementTimeFixture();
 
-  std::string file("/tmp/TestIO-Basic");
-  io::save(*idCert, file);
-  shared_ptr<IdentityCertificate> readCert = io::load<IdentityCertificate>(file);
+  ~IdentityManagementTimeFixture();
+};
 
-  BOOST_CHECK(static_cast<bool>(readCert));
-  BOOST_CHECK(idCert->getName() == readCert->getName());
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
+} // namespace security
 } // namespace ndn
+
+#endif // NDN_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP

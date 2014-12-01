@@ -47,6 +47,8 @@ namespace ndn {
 
 using std::string;
 
+const std::string SecTpmOsx::SCHEME("tpm-osxkeychain:");
+
 /**
  * @brief Helper class to wrap CoreFoundation object pointers
  *
@@ -236,9 +238,11 @@ public:
   bool m_inTerminal;
 };
 
-SecTpmOsx::SecTpmOsx()
-  : m_impl(new Impl)
+SecTpmOsx::SecTpmOsx(const std::string& location)
+  : SecTpm(location)
+  , m_impl(new Impl)
 {
+  // TODO: add location support
   if (m_impl->m_inTerminal)
     SecKeychainSetUserInteractionAllowed(false);
   else
@@ -250,8 +254,8 @@ SecTpmOsx::SecTpmOsx()
     throw Error("No default keychain, create one first!");
 }
 
-SecTpmOsx::~SecTpmOsx(){
-  //TODO: implement
+SecTpmOsx::~SecTpmOsx()
+{
 }
 
 void
@@ -523,6 +527,12 @@ SecTpmOsx::getPublicKeyFromTpm(const Name& keyName)
   shared_ptr<PublicKey> key = make_shared<PublicKey>(CFDataGetBytePtr(exportedKey.get()),
                                                      CFDataGetLength(exportedKey.get()));
   return key;
+}
+
+std::string
+SecTpmOsx::getScheme()
+{
+  return SCHEME;
 }
 
 ConstBufferPtr

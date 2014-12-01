@@ -21,6 +21,8 @@
 
 #include "security/key-chain.hpp"
 #include "../util/test-home-environment-fixture.hpp"
+#include <boost/filesystem.hpp>
+
 #include "boost-test.hpp"
 
 namespace ndn {
@@ -31,10 +33,18 @@ class IdentityFixture : public util::TestHomeEnvironmentFixture
 public:
   IdentityFixture()
   {
-    // initialize KeyChain from TEST_HOME
-    setenv("TEST_HOME", "tests/unit-tests/security/config-file-home", 1);
+    using namespace boost::filesystem;
 
-    KeyChain keyChain("sqlite3", "file");
+    // initialize KeyChain from test specific HOME: tests/unit-tests/security/tmp-home
+    if (std::getenv("HOME"))
+      m_HOME = std::getenv("HOME");
+    if (std::getenv("OLD_HOME"))
+      m_OLD_HOME = std::getenv("OLD_HOME");
+
+    setenv("HOME", "tests/unit-tests/security/tmp-home", 1);
+    setenv("OLD_HOME", m_HOME.c_str(), 1);
+
+    KeyChain keyChain;
 
     // save the old default identity
     try {
@@ -58,7 +68,9 @@ public:
 
   ~IdentityFixture()
   {
-    KeyChain keyChain("sqlite3", "file");
+    using namespace boost::filesystem;
+
+    KeyChain keyChain;
 
     // recover the old default setting
     if (m_hasOldDefaultIdentity) {
@@ -69,9 +81,30 @@ public:
     // XXX This has no effect if oldDefaultIdentity doesn't exist.
     //     newIdentity would be kept as default.
     keyChain.deleteIdentity(m_newIdentity);
+
+    path pibPath(absolute(std::getenv("HOME")));
+    pibPath /= ".ndn/ndnsec-public-info.db";
+
+    boost::filesystem::remove(pibPath);
+
+    path tpmPath(absolute(std::getenv("HOME")));
+    tpmPath /= ".ndn/ndnsec-tpm-file";
+
+    boost::filesystem::remove_all(tpmPath);
+
+    if (!m_HOME.empty())
+      setenv("HOME", m_HOME.c_str(), 1);
+    else
+      unsetenv("HOME");
+
+    if (!m_OLD_HOME.empty())
+      setenv("OLD_HOME", m_OLD_HOME.c_str(), 1);
+    else
+      unsetenv("OLD_HOME");
   }
 
 private:
+  std::string m_OLD_HOME;
   std::string m_HOME;
 
   bool m_hasOldDefaultIdentity;

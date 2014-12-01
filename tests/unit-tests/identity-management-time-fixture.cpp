@@ -19,35 +19,17 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "identity-management-fixture.hpp"
+#include "identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace security {
 
-IdentityManagementFixture::IdentityManagementFixture()
-  : m_keyChain("sqlite3", "file")
+IdentityManagementTimeFixture::IdentityManagementTimeFixture()
 {
 }
 
-IdentityManagementFixture::~IdentityManagementFixture()
+IdentityManagementTimeFixture::~IdentityManagementTimeFixture()
 {
-  for (std::vector<Name>::iterator it = m_identities.begin();
-       it != m_identities.end(); it++) {
-    m_keyChain.deleteIdentity(*it);
-  }
-}
-
-bool
-IdentityManagementFixture::addIdentity(const Name& identity, const KeyParams& params)
-{
-  try {
-    m_keyChain.createIdentity(identity, params);
-    m_identities.push_back(identity);
-    return true;
-  }
-  catch (std::runtime_error& e) {
-    return false;
-  }
 }
 
 } // namespace security

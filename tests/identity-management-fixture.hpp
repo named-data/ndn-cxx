@@ -19,6 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
+#ifndef NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
+#define NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
+
 #include "security/key-chain.hpp"
 #include <vector>
 
@@ -51,3 +54,5 @@ protected:
 
 } // namespace security
 } // namespace ndn
+
+#endif // NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP

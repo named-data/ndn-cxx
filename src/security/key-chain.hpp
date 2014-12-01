@@ -60,10 +60,19 @@ public:
     }
   };
 
-  static const Name DEFAULT_PREFIX;
-
-  // RsaKeyParams is set to be default for backward compatibility.
-  static const RsaKeyParams DEFAULT_KEY_PARAMS;
+  /**
+   * This error is thrown when the TPM locator retrieved from PIB is
+   * different from what is supplied to the KeyChain constructor.
+   */
+  class MismatchError : public Error
+  {
+  public:
+    explicit
+    MismatchError(const std::string& what)
+      : Error(what)
+    {
+    }
+  };
 
   KeyChain();
 
@@ -71,8 +80,19 @@ public:
   explicit
   KeyChain(KeyChainTraits traits);
 
-  KeyChain(const std::string& pibName,
-           const std::string& tpmName);
+  /**
+   * @brief KeyChain constructor
+   *
+   * @sa  http://redmine.named-data.net/issues/2260
+   *
+   * @param pibLocator
+   * @param tpmLocator
+   * @param allowReset if true, the PIB will be reset when the supplied tpmLocator
+   *        mismatches the one in PIB
+   */
+  KeyChain(const std::string& pibLocator,
+           const std::string& tpmLocator,
+           bool allowReset = false);
 
   virtual
   ~KeyChain();
@@ -96,10 +116,10 @@ public:
    * @param keySize The size of the key.
    * @return The generated key name.
    */
-  inline Name
+  Name
   generateRsaKeyPair(const Name& identityName, bool isKsk = false, uint32_t keySize = 2048);
 
-  inline Name
+  Name
   generateEcdsaKeyPair(const Name& identityName, bool isKsk = false, uint32_t keySize = 256);
   /**
    * @brief Generate a pair of RSA keys for the specified identity and set it as default key for
@@ -356,7 +376,7 @@ public:
   void
   addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer)
   {
-    return m_pib->addPublicKey(keyName, keyType, publicKeyDer);
+    return m_pib->addKey(keyName, publicKeyDer);
   }
 
   void
@@ -643,6 +663,17 @@ public:
   }
 
 private:
+  void
+  initialize(const std::string& pibLocator,
+             const std::string& tpmLocator,
+             bool needReset);
+
+  void
+  initializeTpm(const std::string& locator);
+
+  void
+  initializePib(const std::string& locator);
+
   /**
    * @brief Determine signature type
    *
@@ -707,35 +738,16 @@ private:
   signPacketWrapper(Interest& interest, const Signature& signature,
                     const Name& keyName, DigestAlgorithm digestAlgorithm);
 
+public:
+  static const Name DEFAULT_PREFIX;
+  // RsaKeyParams is set to be default for backward compatibility.
+  static const RsaKeyParams DEFAULT_KEY_PARAMS;
 
 private:
   SecPublicInfo* m_pib;
   SecTpm* m_tpm;
   time::milliseconds m_lastTimestamp;
 };
-
-template<class T>
-inline
-KeyChain::KeyChain(T)
-  : m_pib(new typename T::Pib)
-  , m_tpm(new typename T::Tpm)
-  , m_lastTimestamp(time::toUnixTimestamp(time::system_clock::now()))
-{
-}
-
-inline Name
-KeyChain::generateRsaKeyPair(const Name& identityName, bool isKsk, uint32_t keySize)
-{
-  RsaKeyParams params(keySize);
-  return generateKeyPair(identityName, isKsk, params);
-}
-
-inline Name
-KeyChain::generateEcdsaKeyPair(const Name& identityName, bool isKsk, uint32_t keySize)
-{
-  EcdsaKeyParams params(keySize);
-  return generateKeyPair(identityName, isKsk, params);
-}
 
 template<typename T>
 void

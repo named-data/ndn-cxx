@@ -45,7 +45,8 @@ public:
     }
   };
 
-  SecPublicInfoSqlite3();
+  explicit
+  SecPublicInfoSqlite3(const std::string& dir = "");
 
   virtual
   ~SecPublicInfoSqlite3();
@@ -53,6 +54,16 @@ public:
   /**********************
    * from SecPublicInfo *
    **********************/
+
+  virtual void
+  setTpmLocator(const std::string& tpmLocator);
+
+  virtual std::string
+  getTpmLocator();
+
+  virtual std::string
+  getPibLocator();
+
   virtual bool
   doesIdentityExist(const Name& identityName);
 
@@ -118,15 +129,34 @@ public:
   virtual void
   deleteIdentityInfo(const Name& identity);
 
-protected:
-  virtual void
+private:
+  bool
+  initializeTable(const std::string& tableName, const std::string& initCommand);
+
+  void
+  deleteTable(const std::string& tableName);
+
+  void
+  setTpmLocatorInternal(const std::string& tpmLocator, bool needReset);
+
+  void
   setDefaultIdentityInternal(const Name& identityName);
 
-  virtual void
+  void
   setDefaultKeyNameForIdentityInternal(const Name& keyName);
 
-  virtual void
+  void
   setDefaultCertificateNameForKeyInternal(const Name& certificateName);
+
+  std::string
+  getScheme();
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  bool
+  doesTableExist(const std::string& tableName);
+
+public:
+  static const std::string SCHEME;
 
 private:
   sqlite3* m_database;

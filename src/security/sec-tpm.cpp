@@ -31,6 +31,21 @@ namespace ndn {
 
 using std::string;
 
+SecTpm::SecTpm(const string& location)
+  : m_location(location)
+{
+}
+
+SecTpm::~SecTpm()
+{
+}
+
+std::string
+SecTpm::getTpmLocator()
+{
+  return this->getScheme() + m_location;
+}
+
 ConstBufferPtr
 SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& passwordStr)
 {

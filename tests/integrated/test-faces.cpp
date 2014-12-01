@@ -23,12 +23,13 @@
 #include "util/scheduler.hpp"
 #include "security/key-chain.hpp"
 
+#include "identity-management-fixture.hpp"
 #include "boost-test.hpp"
 
 namespace ndn {
 namespace tests {
 
-class FacesFixture
+class FacesFixture : public security::IdentityManagementFixture
 {
 public:
   FacesFixture()
@@ -147,8 +148,7 @@ BOOST_AUTO_TEST_CASE(Unix)
 
   shared_ptr<Data> data = make_shared<Data>(veryLongName);
   data->setContent(reinterpret_cast<const uint8_t*>("01234567890"), 10);
-  KeyChain keyChain;
-  keyChain.sign(*data);
+  m_keyChain.sign(*data);
   BOOST_CHECK_THROW(face.put(*data), Face::Error);
 
   BOOST_REQUIRE_NO_THROW(face.processEvents());

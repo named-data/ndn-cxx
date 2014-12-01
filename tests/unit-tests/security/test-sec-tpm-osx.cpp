@@ -31,7 +31,37 @@
 
 namespace ndn {
 
-BOOST_AUTO_TEST_SUITE(SecurityTestSecTpmOsx)
+class OsxKeyChainTestFixture
+{
+public:
+  OsxKeyChainTestFixture()
+  {
+    std::string oldHOME;
+    if (std::getenv("OLD_HOME"))
+      oldHOME = std::getenv("OLD_HOME");
+
+    if (std::getenv("HOME"))
+      m_HOME = std::getenv("HOME");
+
+    if (!oldHOME.empty())
+      setenv("HOME", oldHOME.c_str(), 1);
+    else
+      unsetenv("HOME");
+  }
+
+  ~OsxKeyChainTestFixture()
+  {
+    if (!m_HOME.empty())
+      setenv("HOME", m_HOME.c_str(), 1);
+    else
+      unsetenv("HOME");
+  }
+
+protected:
+  std::string m_HOME;
+};
+
+BOOST_FIXTURE_TEST_SUITE(SecurityTestSecTpmOsx, OsxKeyChainTestFixture)
 
 BOOST_AUTO_TEST_CASE(Delete)
 {

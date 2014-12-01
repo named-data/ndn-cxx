@@ -47,14 +47,13 @@ public:
     }
   };
 
-  SecTpmOsx();
+  explicit
+  SecTpmOsx(const std::string& location = "");
 
   virtual
   ~SecTpmOsx();
 
-
   // Following methods are inherited from SecTpm
-
   virtual void
   setTpmPassword(const uint8_t* password, size_t passwordLength);
 
@@ -115,6 +114,9 @@ public:
 
 protected:
   // Following methods are inherited from SecTpm
+  virtual std::string
+  getScheme();
+
   virtual ConstBufferPtr
   exportPrivateKeyPkcs8FromTpm(const Name& keyName)
   {
@@ -149,6 +151,9 @@ protected:
   signInTpmInternal(const uint8_t* data, size_t dataLength,
                     const Name& keyName, DigestAlgorithm digestAlgorithm,
                     bool needRetry);
+
+public:
+  static const std::string SCHEME;
 
 private:
   class Impl;

@@ -17,9 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
- * @author Jeff Thompson <jefft0@remap.ucla.edu>
  */
 
 #ifndef NDN_SECURITY_SEC_PUBLIC_INFO_HPP
@@ -52,13 +49,42 @@ public:
     }
   };
 
+  explicit
+  SecPublicInfo(const std::string& location);
+
   /**
    * @brief The virtual Destructor
    */
   virtual
-  ~SecPublicInfo()
-  {
-  }
+  ~SecPublicInfo();
+
+  /**
+   * @brief Set the corresponding TPM information to @p tpmLocator
+   *
+   * If the provided @p tpmLocator is different from the existing one, the PIB will be reset,
+   * otherwise nothing will be changed.
+   *
+   * For legacy issue, the TPM info may not exist (some old PIB content may not have this info),
+   * this method will simply set the TPM info as provided without changing anything else. Thus an
+   * ideal process of handling old PIB is to check if TPM info exists. If it does not exist,
+   * then set it to the default value according to configuration.
+   */
+  virtual void
+  setTpmLocator(const std::string& tpmLocator) = 0;
+
+  /**
+   * @brief Get TPM Locator
+   *
+   * @throws SecPublicInfo::Error if the TPM info does not exist
+   */
+  virtual std::string
+  getTpmLocator() = 0;
+
+  /**
+   * @brief Get PIB Locator
+   */
+  std::string
+  getPibLocator();
 
   /**
    * @brief Check if the specified identity already exists
@@ -99,17 +125,14 @@ public:
   /**
    * @brief Add a public key to the identity storage.
    *
-   * @deprecated Use addKey instead
-   *
    * @param keyName The name of the public key to be added
    * @param keyType Type of the public key to be added
    * @param publicKey Reference to the PublicKey object
+   * @deprecated Use addKey instead
    */
+  DEPRECATED(
   void
-  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKey)
-  {
-    addKey(keyName, publicKey);
-  }
+  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKey));
 
   /**
    * @brief Add a public key to the identity storage.
@@ -306,6 +329,12 @@ protected:
   virtual void
   setDefaultCertificateNameForKeyInternal(const Name& certificateName) = 0;
 
+  /**
+   * @brief return the scheme of the PibLocator
+   */
+  virtual std::string
+  getScheme() = 0;
+
 public:
 
   /*****************************************
@@ -423,125 +452,9 @@ public:
 
 protected:
   shared_ptr<IdentityCertificate> m_defaultCertificate;
+  std::string m_location;
 };
-
-inline void
-SecPublicInfo::setDefaultIdentity(const Name& identityName)
-{
-  setDefaultIdentityInternal(identityName);
-  refreshDefaultCertificate();
-}
-
-inline void
-SecPublicInfo::setDefaultKeyNameForIdentity(const Name& keyName)
-{
-  setDefaultKeyNameForIdentityInternal(keyName);
-  refreshDefaultCertificate();
-}
-
-inline void
-SecPublicInfo::setDefaultCertificateNameForKey(const Name& certificateName)
-{
-  setDefaultCertificateNameForKeyInternal(certificateName);
-  refreshDefaultCertificate();
-}
-
-inline Name
-SecPublicInfo::getDefaultCertificateNameForIdentity(const Name& identityName)
-{
-  return getDefaultCertificateNameForKey(getDefaultKeyNameForIdentity(identityName));
-}
-
-inline Name
-SecPublicInfo::getNewKeyName (const Name& identityName, bool useKsk)
-{
-  std::ostringstream oss;
-
-  if (useKsk)
-    oss << "ksk-";
-  else
-    oss << "dsk-";
-
-  oss << time::toUnixTimestamp(time::system_clock::now()).count();
-
-  Name keyName = Name(identityName).append(oss.str());
-
-  if (doesPublicKeyExist(keyName))
-    throw Error("Key name already exists: " + keyName.toUri());
-
-  return keyName;
-}
-
-inline Name
-SecPublicInfo::getDefaultCertificateName()
-{
-  if (!static_cast<bool>(m_defaultCertificate))
-    refreshDefaultCertificate();
-
-  if (!static_cast<bool>(m_defaultCertificate))
-    throw Error("No default certificate is set");
-
-  return m_defaultCertificate->getName();
-}
-
-inline void
-SecPublicInfo::addCertificateAsKeyDefault(const IdentityCertificate& certificate)
-{
-  addCertificate(certificate);
-  setDefaultCertificateNameForKeyInternal(certificate.getName());
-  refreshDefaultCertificate();
-}
-
-inline void
-SecPublicInfo::addCertificateAsIdentityDefault(const IdentityCertificate& certificate)
-{
-  addCertificate(certificate);
-  Name certName = certificate.getName();
-  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certName);
-  setDefaultKeyNameForIdentityInternal(keyName);
-  setDefaultCertificateNameForKeyInternal(certName);
-  refreshDefaultCertificate();
-}
-
-inline void
-SecPublicInfo::addCertificateAsSystemDefault(const IdentityCertificate& certificate)
-{
-  addCertificate(certificate);
-  Name certName = certificate.getName();
-  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certName);
-  setDefaultIdentityInternal(keyName.getPrefix(-1));
-  setDefaultKeyNameForIdentityInternal(keyName);
-  setDefaultCertificateNameForKeyInternal(certName);
-  refreshDefaultCertificate();
-}
-
-inline shared_ptr<IdentityCertificate>
-SecPublicInfo::defaultCertificate()
-{
-  return getDefaultCertificate();
-}
-
-inline shared_ptr<IdentityCertificate>
-SecPublicInfo::getDefaultCertificate()
-{
-  return m_defaultCertificate;
-}
-
-inline void
-SecPublicInfo::refreshDefaultCertificate()
-{
-  try
-    {
-      Name certName = getDefaultCertificateNameForIdentity(getDefaultIdentity());
-      m_defaultCertificate = getCertificate(certName);
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      m_defaultCertificate.reset();
-    }
-
-}
 
 } // namespace ndn
 
-#endif //NDN_SECURITY_SEC_PUBLIC_INFO_HPP
+#endif // NDN_SECURITY_SEC_PUBLIC_INFO_HPP
