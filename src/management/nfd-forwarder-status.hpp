@@ -74,14 +74,14 @@ public:
   wireDecode(const Block& wire);
 
 public: // getters & setters
-  int
+  const std::string&
   getNfdVersion() const
   {
     return m_nfdVersion;
   }
 
   ForwarderStatus&
-  setNfdVersion(int nfdVersion);
+  setNfdVersion(const std::string& nfdVersion);
 
   const time::system_clock::TimePoint&
   getStartTimestamp() const
@@ -183,7 +183,7 @@ public: // getters & setters
   setNOutDatas(uint64_t nOutDatas);
 
 private:
-  int m_nfdVersion;
+  std::string m_nfdVersion;
   time::system_clock::TimePoint m_startTimestamp;
   time::system_clock::TimePoint m_currentTimestamp;
   size_t m_nNameTreeEntries;

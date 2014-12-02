@@ -34,8 +34,7 @@ static_assert(std::is_base_of<tlv::Error, ForwarderStatus::Error>::value,
               "ForwarderStatus::Error must inherit from tlv::Error");
 
 ForwarderStatus::ForwarderStatus()
-  : m_nfdVersion(0)
-  , m_startTimestamp(time::system_clock::TimePoint::min())
+  : m_startTimestamp(time::system_clock::TimePoint::min())
   , m_currentTimestamp(time::system_clock::TimePoint::min())
   , m_nNameTreeEntries(0)
   , m_nFibEntries(0)
@@ -82,8 +81,9 @@ ForwarderStatus::wireEncode(EncodingImpl<T>& encoder) const
                                                 time::toUnixTimestamp(m_currentTimestamp).count());
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::StartTimestamp,
                                                 time::toUnixTimestamp(m_startTimestamp).count());
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NfdVersion,
-                                                m_nfdVersion);
+  totalLength += prependByteArrayBlock(encoder,tlv::nfd::NfdVersion,
+                                       reinterpret_cast<const uint8_t*>(m_nfdVersion.c_str()),
+                                       m_nfdVersion.size());
 
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::Content);
@@ -123,7 +123,7 @@ ForwarderStatus::wireDecode(const Block& block)
   Block::element_const_iterator val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NfdVersion) {
-    m_nfdVersion = static_cast<int>(readNonNegativeInteger(*val));
+    m_nfdVersion.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
     ++val;
   }
   else {
@@ -220,7 +220,7 @@ ForwarderStatus::wireDecode(const Block& block)
 }
 
 ForwarderStatus&
-ForwarderStatus::setNfdVersion(int nfdVersion)
+ForwarderStatus::setNfdVersion(const std::string& nfdVersion)
 {
   m_wire.reset();
   m_nfdVersion = nfdVersion;
