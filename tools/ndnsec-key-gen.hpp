@@ -35,7 +35,6 @@ ndnsec_key_gen(int argc, char** argv)
   std::string identityName;
   bool isDefault = true;
   char keyType = 'r';
-  int keySize = 2048;
   std::string outputFilename;
 
   po::options_description description("General Usage\n"
@@ -49,8 +48,8 @@ ndnsec_key_gen(int argc, char** argv)
      "optional, if not specified, the target identity will be set as "
      "the default identity of the system")
     ("dsk,d", "generate Data-Signing-Key (DSK) instead of the default Key-Signing-Key (KSK)")
-    // ("type,t", po::value<char>(&keyType)->default_value('r'),
-    // "optional, key type, r for RSA key (default)")
+    ("type,t", po::value<char>(&keyType)->default_value('r'),
+    "optional, key type, r for RSA key (default), e for ECDSA key")
     // ("size,s", po::value<int>(&keySize)->default_value(2048),
     // "optional, key size, 2048 (default)")
     ;
@@ -92,7 +91,11 @@ ndnsec_key_gen(int argc, char** argv)
   try {
     switch (keyType) {
     case 'r':
-      keyName = keyChain.generateRsaKeyPair(Name(identityName), isKsk, keySize);
+      keyName = keyChain.generateRsaKeyPair(Name(identityName), isKsk, RsaKeyParams().getKeySize());
+      break;
+    case 'e':
+      keyName = keyChain.generateEcdsaKeyPair(Name(identityName), isKsk,
+                                              EcdsaKeyParams().getKeySize());
       break;
     default:
       std::cerr << "Unrecongized key type" << "\n";
@@ -120,4 +123,4 @@ ndnsec_key_gen(int argc, char** argv)
   return 0;
 }
 
-#endif //NDNSEC_KEY_GEN_HPP
+#endif // NDNSEC_KEY_GEN_HPP
