@@ -24,64 +24,38 @@
 
 #include "../common.hpp"
 #include "identity-certificate.hpp"
-#include "../encoding/tlv-security.hpp"
 
 namespace ndn {
 
 class SecuredBag
 {
 public:
-  class Error : public std::runtime_error
+  class Error : public tlv::Error
   {
   public:
     explicit
     Error(const std::string& what)
-      : std::runtime_error(what)
+      : tlv::Error(what)
     {
     }
   };
 
-  SecuredBag()
-    : m_wire(tlv::security::IdentityPackage)
-  {
-  }
+  SecuredBag();
+
+  explicit
+  SecuredBag(const Block& wire);
 
   SecuredBag(const IdentityCertificate& cert,
-             ConstBufferPtr key)
-    : m_cert(cert)
-    , m_key(key)
-    , m_wire(tlv::security::IdentityPackage)
-  {
-    Block wireKey(tlv::security::KeyPackage, m_key);
-    Block wireCert(tlv::security::CertificatePackage, cert.wireEncode());
-    m_wire.push_back(wireCert);
-    m_wire.push_back(wireKey);
-  }
+             ConstBufferPtr key);
 
   virtual
-  ~SecuredBag()
-  {
-  }
+  ~SecuredBag();
 
   void
-  wireDecode(const Block& wire)
-  {
-    m_wire = wire;
-    m_wire.parse();
+  wireDecode(const Block& wire);
 
-    m_cert.wireDecode(m_wire.get(tlv::security::CertificatePackage).blockFromValue());
-
-    Block wireKey = m_wire.get(tlv::security::KeyPackage);
-    shared_ptr<Buffer> key = make_shared<Buffer>(wireKey.value(), wireKey.value_size());
-    m_key = key;
-  }
-
-  inline const Block&
-  wireEncode() const
-  {
-    m_wire.encode();
-    return m_wire;
-  }
+  const Block&
+  wireEncode() const;
 
   const IdentityCertificate&
   getCertificate() const
@@ -104,4 +78,4 @@ private:
 
 } // namespace ndn
 
-#endif //NDN_SECURITY_IDENTITY_CERTIFICATE_HPP
+#endif // NDN_SECURITY_SECURED_BAG_HPP
