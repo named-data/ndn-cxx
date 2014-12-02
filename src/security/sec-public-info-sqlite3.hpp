@@ -129,9 +129,9 @@ protected:
   setDefaultCertificateNameForKeyInternal(const Name& certificateName);
 
 private:
-  sqlite3 * m_database;
+  sqlite3* m_database;
 };
 
 } // namespace ndn
 
-#endif //NDN_SECURITY_SEC_PUBLIC_INFO_SQLITE3_HPP
+#endif // NDN_SECURITY_SEC_PUBLIC_INFO_SQLITE3_HPP

@@ -22,8 +22,6 @@
  * @author Jeff Thompson <jefft0@remap.ucla.edu>
  */
 
-#include "common.hpp"
-
 #include "sec-public-info-sqlite3.hpp"
 #include "identity-certificate.hpp"
 #include "signature-sha256-with-rsa.hpp"
@@ -104,6 +102,7 @@ sqlite3_bind_text(sqlite3_stmt* statement,
 }
 
 SecPublicInfoSqlite3::SecPublicInfoSqlite3()
+  : m_database(nullptr)
 {
   boost::filesystem::path identityDir = boost::filesystem::path(getenv("HOME")) / ".ndn";
   boost::filesystem::create_directories(identityDir);
@@ -119,6 +118,8 @@ SecPublicInfoSqlite3::SecPublicInfoSqlite3()
                             );
   if (res != SQLITE_OK)
     throw Error("identity DB cannot be opened/created");
+
+  BOOST_ASSERT(m_database != nullptr);
 
   //Check if Key table exists;
   sqlite3_stmt* statement;
@@ -187,6 +188,8 @@ SecPublicInfoSqlite3::SecPublicInfoSqlite3()
 
 SecPublicInfoSqlite3::~SecPublicInfoSqlite3()
 {
+  sqlite3_close(m_database);
+  m_database = nullptr;
 }
 
 bool
