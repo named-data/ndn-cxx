@@ -119,7 +119,7 @@ def build(bld):
         target="ndn-cxx",
         name="ndn-cxx",
         source=bld.path.ant_glob('src/**/*.cpp',
-                                   excl=['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
+                                 excl=['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
         headers='src/common-pch.hpp',
         use='version BOOST OPENSSL CRYPTOPP SQLITE3 RT PIC PTHREAD',
         includes=". src",
@@ -187,7 +187,11 @@ def build(bld):
     if bld.env['WITH_EXAMPLES']:
         bld.recurse("examples")
 
-    headers = bld.path.ant_glob(['src/**/*.hpp'])
+    headers = bld.path.ant_glob(['src/**/*.hpp'],
+                                 excl=['src/**/*-osx.hpp'])
+    if bld.env['HAVE_OSX_SECURITY']:
+        headers += bld.path.ant_glob('src/**/*-osx.hpp')
+
     bld.install_files("%s/ndn-cxx" % bld.env['INCLUDEDIR'], headers,
                       relative_trick=True, cwd=bld.path.find_node('src'))
 
