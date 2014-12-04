@@ -25,6 +25,7 @@
 #include "stream-transport.hpp"
 
 #include "../face.hpp"
+#include "util/face-uri.hpp"
 
 namespace ndn {
 
@@ -41,42 +42,43 @@ std::string
 UnixTransport::getDefaultSocketName(const ConfigFile& config)
 {
   const ConfigFile::Parsed& parsed = config.getParsedConfiguration();
-  try
-    {
-      return parsed.get<std::string>("unix_socket");
-    }
-  catch (boost::property_tree::ptree_bad_path& error)
-    {
-      // unix_socket not present, continue
-    }
-  catch (boost::property_tree::ptree_bad_data& error)
-    {
-      throw ConfigFile::Error(error.what());
-    }
 
-  // no unix_socket specified so the default socket name
-  // depends on the protocol we're using
   try
     {
-      const std::string protocol = parsed.get<std::string>("protocol");
-      if (protocol == "ndnd-tlv-0.7")
+      const util::FaceUri uri(parsed.get<std::string>("transport"));
+
+      if (uri.getScheme() != "unix")
         {
-          return "/tmp/.ndnd.sock";
+          throw Transport::Error("Cannot create UnixTransport from \"" +
+                                 uri.getScheme() + "\" URI");
+        }
+
+      if (!uri.getPath().empty())
+        {
+          return uri.getPath();
         }
     }
-  catch (boost::property_tree::ptree_bad_path& error)
+  catch (const boost::property_tree::ptree_bad_path& error)
     {
-      return "/var/run/nfd.sock";
+      // no transport specified
     }
-  catch (boost::property_tree::ptree_bad_data& error)
+  catch (const boost::property_tree::ptree_bad_data& error)
+    {
+      throw ConfigFile::Error(error.what());
+    }
+  catch (const util::FaceUri::Error& error)
     {
       throw ConfigFile::Error(error.what());
     }
 
-  // A we made here, then there's no unix_socket specified in the configuration
-  // file. A protocol is present, but it's not ndnd.
   // Assume the default nfd.sock location.
   return "/var/run/nfd.sock";
+}
+
+shared_ptr<UnixTransport>
+UnixTransport::create(const ConfigFile& config)
+{
+  return make_shared<UnixTransport>(getDefaultSocketName(config));
 }
 
 void

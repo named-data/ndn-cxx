@@ -1,5 +1,13 @@
-; "unix_socket" specifies the location of the NFD unix socket
-unix_socket=/var/run/nfd.sock
+; "transport" specifies Face's default transport connection.
+; The value is a unix or tcp4 scheme Face URI.
+;
+; For example:
+;
+;   unix:///var/run/nfd.sock
+;   tcp://192.0.2.1
+;   tcp4://example.com:6363
+
+transport=unix:///var/run/nfd.sock
 
 ; "protocol" determines the protocol for prefix registration
 ; it has a value of:

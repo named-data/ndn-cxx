@@ -23,6 +23,7 @@
 
 #include "tcp-transport.hpp"
 #include "stream-transport.hpp"
+#include "util/face-uri.hpp"
 
 namespace ndn {
 
@@ -34,6 +35,58 @@ TcpTransport::TcpTransport(const std::string& host, const std::string& port/* = 
 
 TcpTransport::~TcpTransport()
 {
+}
+
+shared_ptr<TcpTransport>
+TcpTransport::create(const ConfigFile& config)
+{
+  const auto hostAndPort(getDefaultSocketHostAndPort(config));
+  return make_shared<TcpTransport>(hostAndPort.first,
+                                   hostAndPort.second);
+}
+
+std::pair<std::string, std::string>
+TcpTransport::getDefaultSocketHostAndPort(const ConfigFile& config)
+{
+  const ConfigFile::Parsed& parsed = config.getParsedConfiguration();
+  std::string host = "localhost";
+  std::string port = "6363";
+
+  try
+    {
+      const util::FaceUri uri(parsed.get<std::string>("transport"));
+
+      const std::string scheme = uri.getScheme();
+      if (scheme != "tcp" && scheme != "tcp4" && scheme != "tcp6")
+        {
+          throw Transport::Error("Cannot create TcpTransport from \"" +
+                                 scheme + "\" URI");
+        }
+
+      if (!uri.getHost().empty())
+        {
+          host = uri.getHost();
+        }
+
+      if (!uri.getPort().empty())
+        {
+          port = uri.getPort();
+        }
+    }
+  catch (const boost::property_tree::ptree_bad_path& error)
+    {
+      // no transport specified, use default host and port
+    }
+  catch (const boost::property_tree::ptree_bad_data& error)
+    {
+      throw ConfigFile::Error(error.what());
+    }
+  catch (const util::FaceUri::Error& error)
+    {
+      throw ConfigFile::Error(error.what());
+    }
+
+  return std::make_pair(host, port);
 }
 
 void

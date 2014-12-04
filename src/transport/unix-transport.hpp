@@ -19,12 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UDPTRANSPORT_HPP
-#define NDN_UDPTRANSPORT_HPP
+#ifndef NDN_TRANSPORT_UNIX_TRANSPORT_HPP
+#define NDN_TRANSPORT_UNIX_TRANSPORT_HPP
 
 #include "../common.hpp"
 #include "transport.hpp"
-#include "../util/config-file.hpp"
+#include "util/config-file.hpp"
 
 // forward declaration
 namespace boost { namespace asio { namespace local { class stream_protocol; } } }
@@ -69,11 +69,15 @@ public:
   virtual void
   send(const Block& header, const Block& payload);
 
+  static shared_ptr<UnixTransport>
+  create(const ConfigFile& config);
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /**
    * Determine the default NFD unix socket
    *
-   * @returns unix_socket value if present in config, else /var/run/nfd.sock
-   * @throws ConfigFile::Error if fail to parse value of a present "unix_socket" field
+   * @returns transport value if present in config, else /var/run/nfd.sock
+   * @throws ConfigFile::Error if fail to parse value of a present "transport" field
    */
   static std::string
   getDefaultSocketName(const ConfigFile& config);
@@ -86,6 +90,6 @@ private:
   shared_ptr< Impl > m_impl;
 };
 
-}
+} // namespace ndn
 
-#endif
+#endif // NDN_TRANSPORT_UNIX_TRANSPORT_HPP

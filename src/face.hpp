@@ -535,6 +535,13 @@ public: // IO routine
   }
 
 private:
+
+  /**
+   * @throws ConfigFile::Error on parse error and unsupported protocols
+   */
+  void
+  construct(KeyChain* keyChain);
+
   /**
    * @throws Face::Error on unsupported protocol
    * @note shared_ptr is passed by value because ownership is transferred to this function

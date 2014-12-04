@@ -20,6 +20,7 @@
  */
 
 #include "util/config-file.hpp"
+#include "../util/test-home-environment-fixture.hpp"
 
 #include <cstdlib>
 
@@ -28,25 +29,7 @@
 namespace ndn {
 namespace tests {
 
-class ConfigFileFixture
-{
-public:
-  ConfigFileFixture()
-  {
-    m_HOME = std::getenv("TEST_HOME");
-  }
-
-  ~ConfigFileFixture()
-  {
-    setenv("TEST_HOME", m_HOME.c_str(), 1);
-    // std::cerr << "restoring home = " << m_HOME << std::endl;
-  }
-
-protected:
-  std::string m_HOME;
-};
-
-BOOST_FIXTURE_TEST_SUITE(UtilTestConfigFile, ConfigFileFixture)
+BOOST_FIXTURE_TEST_SUITE(UtilTestConfigFile, util::TestHomeEnvironmentFixture)
 
 BOOST_AUTO_TEST_CASE(TestParse)
 {

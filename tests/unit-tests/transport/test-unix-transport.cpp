@@ -20,62 +20,62 @@
  */
 
 #include "transport/unix-transport.hpp"
-#include "util/config-file.hpp"
+#include "transport-fixture.hpp"
 
 #include "boost-test.hpp"
 
 namespace ndn {
 
-class UnixTransportFixture
+
+
+BOOST_FIXTURE_TEST_SUITE(TransportTestUnixTransport, TransportFixture)
+
+BOOST_AUTO_TEST_CASE(GetDefaultSocketNameOk)
 {
-public:
-  UnixTransportFixture()
-  {
-    m_HOME = std::getenv("TEST_HOME");
-  }
+  initializeConfig("tests/unit-tests/transport/test-homes/unix-transport/ok");
 
-  ~UnixTransportFixture()
-  {
-    setenv("TEST_HOME", m_HOME.c_str(), 1);
-    // std::cerr << "restoring home = " << m_HOME << std::endl;
-  }
-
-protected:
-  std::string m_HOME;
-};
-
-BOOST_FIXTURE_TEST_SUITE(TransportTestUnixTransport, UnixTransportFixture)
-
-BOOST_AUTO_TEST_CASE(TestGetDefaultSocketNameOk)
-{
-  setenv("TEST_HOME", "tests/unit-tests/transport/test-homes/ok", 1);
-
-  ConfigFile config;
-  BOOST_REQUIRE_EQUAL(UnixTransport::getDefaultSocketName(config), "/tmp/test/nfd.sock");
+  BOOST_CHECK_EQUAL(UnixTransport::getDefaultSocketName(*m_config), "/tmp/test/nfd.sock");
 }
 
-BOOST_AUTO_TEST_CASE(TestGetDefaultSocketNameMissingSocketMissingProtocol)
+BOOST_AUTO_TEST_CASE(GetDefaultSocketNameOkOmittedSocketOmittedProtocol)
 {
-  setenv("TEST_HOME",
-         "tests/unit-tests/transport/test-homes/missing-unix-socket-missing-protocol", 1);
-  ConfigFile config;
-  BOOST_REQUIRE_EQUAL(UnixTransport::getDefaultSocketName(config), "/var/run/nfd.sock");
+  initializeConfig("tests/unit-tests/transport/test-homes/unix-transport/"
+                   "ok-omitted-unix-socket-omitted-protocol");
+
+  BOOST_CHECK_EQUAL(UnixTransport::getDefaultSocketName(*m_config), "/var/run/nfd.sock");
 }
 
-BOOST_AUTO_TEST_CASE(TestGetDefaultSocketNameMissingSocketNdndProtocol)
+BOOST_AUTO_TEST_CASE(GetDefaultSocketNameOkOmittedSocketWithProtocol)
 {
-  setenv("TEST_HOME",
-         "tests/unit-tests/transport/test-homes/missing-unix-socket-with-ndnd-protocol", 1);
-  ConfigFile config;
-  BOOST_REQUIRE_EQUAL(UnixTransport::getDefaultSocketName(config), "/tmp/.ndnd.sock");
+  initializeConfig("tests/unit-tests/transport/test-homes/unix-transport/"
+                   "ok-omitted-unix-socket-with-protocol");
+
+  BOOST_CHECK_EQUAL(UnixTransport::getDefaultSocketName(*m_config), "/var/run/nfd.sock");
 }
 
-BOOST_AUTO_TEST_CASE(TestGetDefaultSocketNameMissingSocketWithProtocol)
+BOOST_AUTO_TEST_CASE(GetDefaultSocketNameBadWrongTransport)
 {
-  setenv("TEST_HOME",
-         "tests/unit-tests/transport/test-homes/missing-unix-socket-with-protocol", 1);
-  ConfigFile config;
-  BOOST_REQUIRE_EQUAL(UnixTransport::getDefaultSocketName(config), "/var/run/nfd.sock");
+  initializeConfig("tests/unit-tests/transport/test-homes/unix-transport/"
+                   "bad-wrong-transport");
+
+  BOOST_CHECK_EXCEPTION(UnixTransport::getDefaultSocketName(*m_config),
+                        Transport::Error,
+                        [] (const Transport::Error& error) {
+                          return error.what() == std::string("Cannot create UnixTransport "
+                                                             "from \"tcp\" URI");
+                        });
+}
+
+BOOST_AUTO_TEST_CASE(GetDefaultSocketNameBadMalformedUri)
+{
+  initializeConfig("tests/unit-tests/transport/test-homes/unix-transport/"
+                   "bad-malformed-uri");
+
+  BOOST_CHECK_EXCEPTION(UnixTransport::getDefaultSocketName(*m_config),
+                        ConfigFile::Error,
+                        [] (const ConfigFile::Error& error) {
+                          return error.what() == std::string("Malformed URI: unix");
+                        });
 }
 
 BOOST_AUTO_TEST_SUITE_END()

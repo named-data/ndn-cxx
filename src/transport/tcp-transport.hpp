@@ -24,6 +24,8 @@
 
 #include "../common.hpp"
 #include "transport.hpp"
+#include "util/config-file.hpp"
+
 
 // forward declaration
 namespace boost { namespace asio { namespace ip { class tcp; } } }
@@ -59,6 +61,14 @@ public:
 
   virtual void
   send(const Block& header, const Block& payload);
+
+  static shared_ptr<TcpTransport>
+  create(const ConfigFile& config);
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+
+  static std::pair<std::string, std::string>
+  getDefaultSocketHostAndPort(const ConfigFile& config);
 
 private:
   std::string m_host;

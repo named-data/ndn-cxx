@@ -20,6 +20,7 @@
  */
 
 #include "security/key-chain.hpp"
+#include "../util/test-home-environment-fixture.hpp"
 #include <boost/filesystem.hpp>
 
 #include "boost-test.hpp"
@@ -29,28 +30,7 @@ namespace tests {
 
 using std::vector;
 
-class KeychainConfigFileFixture
-{
-public:
-  KeychainConfigFileFixture()
-  {
-    if (std::getenv("TEST_HOME"))
-      m_HOME = std::getenv("TEST_HOME");
-  }
-
-  ~KeychainConfigFileFixture()
-  {
-    if (!m_HOME.empty())
-      setenv("TEST_HOME", m_HOME.c_str(), 1);
-    else
-      unsetenv("TEST_HOME");
-  }
-
-protected:
-  std::string m_HOME;
-};
-
-BOOST_FIXTURE_TEST_SUITE(SecurityTestKeyChain, KeychainConfigFileFixture)
+BOOST_FIXTURE_TEST_SUITE(SecurityTestKeyChain, util::TestHomeEnvironmentFixture)
 
 BOOST_AUTO_TEST_CASE(ConstructorNormalConfig)
 {

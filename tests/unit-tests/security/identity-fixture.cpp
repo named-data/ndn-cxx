@@ -20,20 +20,18 @@
  */
 
 #include "security/key-chain.hpp"
-
+#include "../util/test-home-environment-fixture.hpp"
 #include "boost-test.hpp"
 
 namespace ndn {
 namespace security {
 
-class IdentityFixture
+class IdentityFixture : public util::TestHomeEnvironmentFixture
 {
 public:
   IdentityFixture()
   {
     // initialize KeyChain from TEST_HOME
-    if (std::getenv("TEST_HOME"))
-      m_HOME = std::getenv("TEST_HOME");
     setenv("TEST_HOME", "tests/unit-tests/security/config-file-home", 1);
 
     KeyChain keyChain("sqlite3", "file");
@@ -71,11 +69,6 @@ public:
     // XXX This has no effect if oldDefaultIdentity doesn't exist.
     //     newIdentity would be kept as default.
     keyChain.deleteIdentity(m_newIdentity);
-
-    if (!m_HOME.empty())
-      setenv("TEST_HOME", m_HOME.c_str(), 1);
-    else
-      unsetenv("TEST_HOME");
   }
 
 private:
