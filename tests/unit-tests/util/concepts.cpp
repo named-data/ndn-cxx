@@ -1,6 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2014,  Regents of the University of California,
+ *                      Arizona Board of Regents,
+ *                      Colorado State University,
+ *                      University Pierre & Marie Curie, Sorbonne University,
+ *                      Washington University in St. Louis,
+ *                      Beijing Institute of Technology,
+ *                      The University of Memphis
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,62 +25,37 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_CONCEPTS_HPP
-#define NDN_UTIL_CONCEPTS_HPP
-
-#include <boost/concept/usage.hpp>
-#include "../encoding/block.hpp"
+#include "util/concepts.hpp"
 
 namespace ndn {
+namespace tests {
 
-/** \brief a concept check for TLV abstraction with .wireEncode method
- */
-template<class X>
-class WireEncodable
+class WireEncodableType
 {
 public:
-  BOOST_CONCEPT_USAGE(WireEncodable)
-  {
-    X j;
-    Block block = j.wireEncode();
-    block.size(); // avoid 'unused variable block'
-  }
+  const Block&
+  wireEncode();
 };
+BOOST_CONCEPT_ASSERT((WireEncodable<WireEncodableType>));
 
-/** \brief a concept check for TLV abstraction with .wireDecode method
- *         and constructible from Block
- */
-template<class X>
-class WireDecodable
+class WireEncodableType2
 {
 public:
-  BOOST_CONCEPT_USAGE(WireDecodable)
-  {
-    Block block;
-    X j(block);
-    j.wireDecode(block);
-  }
+  Block
+  wireEncode();
 };
+BOOST_CONCEPT_ASSERT((WireEncodable<WireEncodableType2>));
 
-/** \brief a concept check for CryptoPP hash algorithm
- */
-template<class X>
-class Hashable
+class WireDecodableType
 {
 public:
-  BOOST_CONCEPT_USAGE(Hashable)
-  {
-    X hash;
+  explicit
+  WireDecodableType(const Block& wire);
 
-    uint8_t* buf = 0;
-    size_t size = hash.DigestSize();
-
-    hash.Update(buf, size);
-    hash.Final(buf);
-    hash.Restart();
-  }
+  void
+  wireDecode(const Block& wire);
 };
+BOOST_CONCEPT_ASSERT((WireDecodable<WireDecodableType>));
 
+} // namespace tests
 } // namespace ndn
-
-#endif // NDN_UTIL_CONCEPTS_HPP
