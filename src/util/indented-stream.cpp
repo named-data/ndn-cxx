@@ -25,6 +25,7 @@
 
 #include <boost/range/iterator_range.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 namespace ndn {
 namespace util {
@@ -53,7 +54,7 @@ IndentedStream::StreamBuf::sync()
 
   const std::string& output = str();
   std::vector<StringView> splitOutput;
-  boost::split(splitOutput, output, [] (char ch) { return ch == '\n'; });
+  boost::split(splitOutput, output, boost::is_any_of("\n"));
 
   if (!splitOutput.empty() && splitOutput.back().empty()) {
     splitOutput.pop_back();
