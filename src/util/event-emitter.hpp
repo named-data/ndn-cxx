@@ -39,6 +39,8 @@ namespace util {
  *    onEventName(args);
  *  To clear event subscriptions:
  *    onEventName.clear();
+ *
+ *  \deprecated use Signal instead
  */
 
 template<typename ...TArgs>
