@@ -278,10 +278,8 @@ public:
   /**
    * @brief delete a certificate.
    *
-   * If the certificate to be deleted is current default system default,
-   * the method will not delete the certificate and return immediately.
-   *
    * @param certificateName The certificate to be deleted.
+   * @throws KeyChain::Error if certificate cannot be deleted.
    */
   void
   deleteCertificate(const Name& certificateName);
@@ -289,10 +287,8 @@ public:
   /**
    * @brief delete a key.
    *
-   * If the key to be deleted is current default system default,
-   * the method will not delete the key and return immediately.
-   *
    * @param keyName The key to be deleted.
+   * @throws KeyChain::Error if key cannot be deleted.
    */
   void
   deleteKey(const Name& keyName);
@@ -300,10 +296,8 @@ public:
   /**
    * @brief delete an identity.
    *
-   * If the identity to be deleted is current default system default,
-   * the method will not delete the identity and return immediately.
-   *
    * @param identity The identity to be deleted.
+   * @throws KeyChain::Error if identity cannot be deleted.
    */
   void
   deleteIdentity(const Name& identity);

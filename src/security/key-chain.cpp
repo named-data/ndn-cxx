@@ -679,32 +679,12 @@ KeyChain::signWithSha256(Interest& interest)
 void
 KeyChain::deleteCertificate(const Name& certificateName)
 {
-  try
-    {
-      if (m_pib->getDefaultCertificateName() == certificateName)
-        return;
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      // Not a real error, just try to delete the certificate
-    }
-
   m_pib->deleteCertificateInfo(certificateName);
 }
 
 void
 KeyChain::deleteKey(const Name& keyName)
 {
-  try
-    {
-      if (m_pib->getDefaultKeyNameForIdentity(m_pib->getDefaultIdentity()) == keyName)
-        return;
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      // Not a real error, just try to delete the key
-    }
-
   m_pib->deletePublicKeyInfo(keyName);
   m_tpm->deleteKeyPairInTpm(keyName);
 }
@@ -712,25 +692,14 @@ KeyChain::deleteKey(const Name& keyName)
 void
 KeyChain::deleteIdentity(const Name& identity)
 {
-  try
-    {
-      if (m_pib->getDefaultIdentity() == identity)
-        return;
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      // Not a real error, just try to delete the identity
-    }
-
-  std::vector<Name> nameList;
-  m_pib->getAllKeyNamesOfIdentity(identity, nameList, true);
-  m_pib->getAllKeyNamesOfIdentity(identity, nameList, false);
+  std::vector<Name> keyNames;
+  m_pib->getAllKeyNamesOfIdentity(identity, keyNames, true);
+  m_pib->getAllKeyNamesOfIdentity(identity, keyNames, false);
 
   m_pib->deleteIdentityInfo(identity);
 
-  std::vector<Name>::const_iterator it = nameList.begin();
-  for(; it != nameList.end(); it++)
-    m_tpm->deleteKeyPairInTpm(*it);
+  for (const auto& keyName : keyNames)
+    m_tpm->deleteKeyPairInTpm(keyName);
 }
 
 }

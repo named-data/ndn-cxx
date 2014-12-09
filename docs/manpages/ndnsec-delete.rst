@@ -18,6 +18,7 @@ By default, ``ndnsec-delete`` interpret ``name`` as an identity name. If an iden
 all the keys and certificates belonging to the identity will be deleted as well. If a key is
 deleted,  all the certificate belonging to the key will be deleted as well.
 
+
 Options
 -------
 
@@ -26,6 +27,13 @@ Options
 
 ``-c``
   Interpret ``name`` as a certificate name and delete the certificate.
+
+Exit Status
+-----------
+
+Normally, the exit status is 0 if the requested entity is deleted successfully.
+If the entity to be deleted does not exist, the exit status is 1.
+For other errors, the exit status is 2.
 
 Examples
 --------
