@@ -155,7 +155,7 @@ SecPublicInfoSqlite3::doesTableExist(const string& tableName)
   string checkingString =
     "SELECT name FROM sqlite_master WHERE type='table' AND name='" + tableName + "'";
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database, checkingString.c_str(), -1, &statement, 0);
 
   int result = sqlite3_step(statement);
@@ -188,7 +188,7 @@ SecPublicInfoSqlite3::deleteTable(const string& tableName)
 {
   string query = "DROP TABLE IF EXISTS " + tableName;
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database, query.c_str(), -1, &statement, 0);
 
   sqlite3_step(statement);
@@ -216,7 +216,7 @@ SecPublicInfoSqlite3::setTpmLocator(const string& tpmLocator)
 string
 SecPublicInfoSqlite3::getTpmLocator()
 {
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database, "SELECT tpm_locator FROM TpmInfo", -1, &statement, 0);
 
   int res = sqlite3_step(statement);
@@ -235,7 +235,7 @@ SecPublicInfoSqlite3::getTpmLocator()
 void
 SecPublicInfoSqlite3::setTpmLocatorInternal(const string& tpmLocator, bool needReset)
 {
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
 
   if (needReset) {
     deleteTable("Identity");
@@ -272,7 +272,7 @@ SecPublicInfoSqlite3::doesIdentityExist(const Name& identityName)
 {
   bool result = false;
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database,
                      "SELECT count(*) FROM Identity WHERE identity_name=?",
                      -1, &statement, 0);
@@ -297,7 +297,7 @@ SecPublicInfoSqlite3::addIdentity(const Name& identityName)
   if (doesIdentityExist(identityName))
     return;
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
 
   sqlite3_prepare_v2(m_database,
                      "INSERT OR REPLACE INTO Identity (identity_name) values (?)",
@@ -326,7 +326,7 @@ SecPublicInfoSqlite3::doesPublicKeyExist(const Name& keyName)
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database,
                      "SELECT count(*) FROM Key WHERE identity_name=? AND key_identifier=?",
                      -1, &statement, 0);
@@ -363,7 +363,7 @@ SecPublicInfoSqlite3::addKey(const Name& keyName,
 
   addIdentity(identityName);
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database,
                      "INSERT OR REPLACE INTO Key \
                       (identity_name, key_identifier, key_type, public_key) \
@@ -387,14 +387,12 @@ shared_ptr<PublicKey>
 SecPublicInfoSqlite3::getPublicKey(const Name& keyName)
 {
   if (keyName.empty())
-    {
-      throw Error("SecPublicInfoSqlite3::getPublicKey  Empty keyName");
-    }
+    throw Error("SecPublicInfoSqlite3::getPublicKey  Empty keyName");
 
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database,
                      "SELECT public_key FROM Key WHERE identity_name=? AND key_identifier=?",
                      -1, &statement, 0);
@@ -405,19 +403,16 @@ SecPublicInfoSqlite3::getPublicKey(const Name& keyName)
   int res = sqlite3_step(statement);
 
   shared_ptr<PublicKey> result;
-  if (res == SQLITE_ROW)
-    {
-      result =
-        make_shared<PublicKey>(static_cast<const uint8_t*>(sqlite3_column_blob(statement, 0)),
-                               sqlite3_column_bytes(statement, 0));
-      sqlite3_finalize(statement);
-      return result;
-    }
-  else
-    {
-      sqlite3_finalize(statement);
-      throw Error("SecPublicInfoSqlite3::getPublicKey  public key does not exist");
-    }
+  if (res == SQLITE_ROW) {
+    result = make_shared<PublicKey>(static_cast<const uint8_t*>(sqlite3_column_blob(statement, 0)),
+                                    sqlite3_column_bytes(statement, 0));
+    sqlite3_finalize(statement);
+    return result;
+  }
+  else {
+    sqlite3_finalize(statement);
+    throw Error("SecPublicInfoSqlite3::getPublicKey  public key does not exist");
+  }
 }
 
 KeyType
@@ -429,7 +424,7 @@ SecPublicInfoSqlite3::getPublicKeyType(const Name& keyName)
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database,
                      "SELECT key_type FROM Key WHERE identity_name=? AND key_identifier=?",
                      -1, &statement, 0);
@@ -439,24 +434,21 @@ SecPublicInfoSqlite3::getPublicKeyType(const Name& keyName)
 
   int res = sqlite3_step(statement);
 
-  if (res == SQLITE_ROW)
-    {
-      int typeValue = sqlite3_column_int(statement, 0);
-      sqlite3_finalize(statement);
-      return static_cast<KeyType>(typeValue);
-    }
-  else
-    {
-      sqlite3_finalize(statement);
-      return KEY_TYPE_NULL;
-    }
-
+  if (res == SQLITE_ROW) {
+    int typeValue = sqlite3_column_int(statement, 0);
+    sqlite3_finalize(statement);
+    return static_cast<KeyType>(typeValue);
+  }
+  else {
+    sqlite3_finalize(statement);
+    return KEY_TYPE_NULL;
+  }
 }
 
 bool
 SecPublicInfoSqlite3::doesCertificateExist(const Name& certificateName)
 {
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database,
                      "SELECT count(*) FROM Certificate WHERE cert_name=?",
                      -1, &statement, 0);
@@ -477,58 +469,6 @@ SecPublicInfoSqlite3::doesCertificateExist(const Name& certificateName)
   return certExist;
 }
 
-// void
-// SecPublicInfoSqlite3::addAnyCertificate(const IdentityCertificate& certificate)
-// {
-//   std::string certificateName = certificate.getName().toUri();
-//   Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificate.getName());
-
-//   if (keyName.empty())
-//     return;
-
-//   std::string keyId = keyName.get(-1).toUri();
-//   std::string identityName = keyName.getPrefix(-1).toUri();
-
-//   sqlite3_stmt* statement;
-//   sqlite3_prepare_v2(m_database,
-//                       "INSERT OR REPLACE INTO Certificate (cert_name, cert_issuer, identity_name, key_identifier, not_before, not_after, certificate_data) "
-//                        "VALUES (?, ?, ?, ?, datetime(?, 'unixepoch'), datetime(?, 'unixepoch'), ?)",
-//                       -1, &statement, 0);
-
-//   sqlite3_bind_text(statement, 1, certificateName, SQLITE_STATIC);
-
-//   try
-//     {
-//       SignatureSha256WithRsa signature(certificate.getSignature());
-//       std::string signerName = signature.getKeyLocator().getName().toUri();
-
-//       sqlite3_bind_text(statement, 2, signerName, SQLITE_STATIC);
-//     }
-//   catch (KeyLocator::Error& e)
-//     {
-//       return;
-//     }
-//   catch (SignatureSha256WithRsa::Error& e)
-//     {
-//       return;
-//     }
-
-//   sqlite3_bind_text(statement, 3, identityName, SQLITE_STATIC);
-//   sqlite3_bind_text(statement, 4, keyId, SQLITE_STATIC);
-
-//   // Convert from time::milliseconds to time::seconds since 1/1/1970.
-// sqlite3_bind_int64(statement, 5, static_cast<sqlite3_int64>(
-//                                    time::toUnixTimestamp(certificate.getNotBefore()).count()));
-// sqlite3_bind_int64(statement, 6, static_cast<sqlite3_int64>(
-//                                    time::toUnixTimestamp(certificate.getNotAfter()).count()));
-
-//   sqlite3_bind_blob(statement, 7, certificate.wireEncode().wire(), certificate.wireEncode().size(), SQLITE_STATIC);
-
-//   sqlite3_step(statement);
-
-//   sqlite3_finalize(statement);
-// }
-
 void
 SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
 {
@@ -546,7 +486,7 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
   Name identity = keyName.getPrefix(-1);
 
   // Insert the certificate
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database,
                      "INSERT OR REPLACE INTO Certificate \
                       (cert_name, cert_issuer, identity_name, key_identifier, \
@@ -556,27 +496,23 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
 
   sqlite3_bind_string(statement, 1, certificateName.toUri(), SQLITE_TRANSIENT);
 
-  try
-    {
-      // this will throw an exception if the signature is not the standard one
-      // or there is no key locator present
-      std::string signerName = certificate.getSignature().getKeyLocator().getName().toUri();
-      sqlite3_bind_string(statement, 2, signerName, SQLITE_TRANSIENT);
-    }
-  catch (tlv::Error& e)
-    {
-      return;
-    }
+  try {
+    // this will throw an exception if the signature is not the standard one
+    // or there is no key locator present
+    std::string signerName = certificate.getSignature().getKeyLocator().getName().toUri();
+    sqlite3_bind_string(statement, 2, signerName, SQLITE_TRANSIENT);
+  }
+  catch (tlv::Error&) {
+    return;
+  }
 
   sqlite3_bind_string(statement, 3, identity.toUri(), SQLITE_TRANSIENT);
   sqlite3_bind_string(statement, 4, keyId, SQLITE_STATIC);
 
   sqlite3_bind_int64(statement, 5,
-                     static_cast<sqlite3_int64>(
-                       time::toUnixTimestamp(certificate.getNotBefore()).count()));
+    static_cast<sqlite3_int64>(time::toUnixTimestamp(certificate.getNotBefore()).count()));
   sqlite3_bind_int64(statement, 6,
-                     static_cast<sqlite3_int64>(
-                       time::toUnixTimestamp(certificate.getNotAfter()).count()));
+    static_cast<sqlite3_int64>(time::toUnixTimestamp(certificate.getNotAfter()).count()));
 
   sqlite3_bind_blob(statement, 7,
                     certificate.wireEncode().wire(),
@@ -591,7 +527,7 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
 shared_ptr<IdentityCertificate>
 SecPublicInfoSqlite3::getCertificate(const Name& certificateName)
 {
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
 
   sqlite3_prepare_v2(m_database,
                      "SELECT certificate_data FROM Certificate WHERE cert_name=?",
@@ -601,43 +537,46 @@ SecPublicInfoSqlite3::getCertificate(const Name& certificateName)
 
   int res = sqlite3_step(statement);
 
-  if (res == SQLITE_ROW)
-    {
-      shared_ptr<IdentityCertificate> certificate = make_shared<IdentityCertificate>();
+  if (res == SQLITE_ROW) {
+    shared_ptr<IdentityCertificate> certificate = make_shared<IdentityCertificate>();
+    try {
       certificate->wireDecode(Block(static_cast<const uint8_t*>(sqlite3_column_blob(statement, 0)),
                                     sqlite3_column_bytes(statement, 0)));
-      sqlite3_finalize(statement);
-      return certificate;
     }
-  else
-    {
+    catch (tlv::Error&) {
       sqlite3_finalize(statement);
-      throw Error("SecPublicInfoSqlite3::getCertificate  certificate does not exist");
+      throw Error("SecPublicInfoSqlite3::getCertificate  certificate cannot be decoded");
     }
+
+    sqlite3_finalize(statement);
+    return certificate;
+  }
+  else {
+    sqlite3_finalize(statement);
+    throw Error("SecPublicInfoSqlite3::getCertificate  certificate does not exist");
+  }
 }
 
 
 Name
 SecPublicInfoSqlite3::getDefaultIdentity()
 {
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database,
                      "SELECT identity_name FROM Identity WHERE default_identity=1",
                      -1, &statement, 0);
 
   int res = sqlite3_step(statement);
 
-  if (res == SQLITE_ROW)
-    {
-      Name identity(sqlite3_column_string(statement, 0));
-      sqlite3_finalize(statement);
-      return identity;
-    }
-  else
-    {
-      sqlite3_finalize(statement);
-      throw Error("SecPublicInfoSqlite3::getDefaultIdentity  no default identity");
-    }
+  if (res == SQLITE_ROW) {
+    Name identity(sqlite3_column_string(statement, 0));
+    sqlite3_finalize(statement);
+    return identity;
+  }
+  else {
+    sqlite3_finalize(statement);
+    throw Error("SecPublicInfoSqlite3::getDefaultIdentity  no default identity");
+  }
 }
 
 void
@@ -645,7 +584,7 @@ SecPublicInfoSqlite3::setDefaultIdentityInternal(const Name& identityName)
 {
   addIdentity(identityName);
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
 
   //Reset previous default identity
   sqlite3_prepare_v2(m_database,
@@ -653,8 +592,7 @@ SecPublicInfoSqlite3::setDefaultIdentityInternal(const Name& identityName)
                      -1, &statement, 0);
 
   while (sqlite3_step(statement) == SQLITE_ROW)
-    {
-    }
+    ;
 
   sqlite3_finalize(statement);
 
@@ -673,7 +611,7 @@ SecPublicInfoSqlite3::setDefaultIdentityInternal(const Name& identityName)
 Name
 SecPublicInfoSqlite3::getDefaultKeyNameForIdentity(const Name& identityName)
 {
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database,
                      "SELECT key_identifier FROM Key WHERE identity_name=? AND default_key=1",
                      -1, &statement, 0);
@@ -682,19 +620,17 @@ SecPublicInfoSqlite3::getDefaultKeyNameForIdentity(const Name& identityName)
 
   int res = sqlite3_step(statement);
 
-  if (res == SQLITE_ROW)
-    {
-      Name keyName = identityName;
-      keyName.append(string(reinterpret_cast<const char *>(sqlite3_column_text(statement, 0)),
-                            sqlite3_column_bytes(statement, 0)));
-      sqlite3_finalize(statement);
-      return keyName;
-    }
-  else
-    {
-      sqlite3_finalize(statement);
-      throw Error("SecPublicInfoSqlite3::getDefaultKeyNameForIdentity key not found");
-    }
+  if (res == SQLITE_ROW) {
+    Name keyName = identityName;
+    keyName.append(string(reinterpret_cast<const char*>(sqlite3_column_text(statement, 0)),
+                          sqlite3_column_bytes(statement, 0)));
+    sqlite3_finalize(statement);
+    return keyName;
+  }
+  else {
+    sqlite3_finalize(statement);
+    throw Error("SecPublicInfoSqlite3::getDefaultKeyNameForIdentity key not found");
+  }
 }
 
 void
@@ -706,7 +642,7 @@ SecPublicInfoSqlite3::setDefaultKeyNameForIdentityInternal(const Name& keyName)
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
 
   //Reset previous default Key
   sqlite3_prepare_v2(m_database,
@@ -742,7 +678,7 @@ SecPublicInfoSqlite3::getDefaultCertificateNameForKey(const Name& keyName)
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(m_database,
                      "SELECT cert_name FROM Certificate \
                       WHERE identity_name=? AND key_identifier=? AND default_cert=1",
@@ -753,18 +689,16 @@ SecPublicInfoSqlite3::getDefaultCertificateNameForKey(const Name& keyName)
 
   int res = sqlite3_step(statement);
 
-  if (res == SQLITE_ROW)
-    {
-      Name certName(string(reinterpret_cast<const char *>(sqlite3_column_text(statement, 0)),
-                           sqlite3_column_bytes(statement, 0)));
-      sqlite3_finalize(statement);
-      return certName;
-    }
-  else
-    {
-      sqlite3_finalize(statement);
-      throw Error("certificate not found");
-    }
+  if (res == SQLITE_ROW) {
+    Name certName(string(reinterpret_cast<const char*>(sqlite3_column_text(statement, 0)),
+                         sqlite3_column_bytes(statement, 0)));
+    sqlite3_finalize(statement);
+    return certName;
+  }
+  else {
+    sqlite3_finalize(statement);
+    throw Error("certificate not found");
+  }
 }
 
 void
@@ -777,7 +711,7 @@ SecPublicInfoSqlite3::setDefaultCertificateNameForKeyInternal(const Name& certif
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
-  sqlite3_stmt* statement;
+  sqlite3_stmt* statement = nullptr;
 
   //Reset previous default Key
   sqlite3_prepare_v2(m_database,
@@ -822,7 +756,7 @@ SecPublicInfoSqlite3::getAllIdentities(vector<Name>& nameList, bool isDefault)
                        -1, &stmt, 0);
 
   while (sqlite3_step(stmt) == SQLITE_ROW)
-    nameList.push_back(Name(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)),
+    nameList.push_back(Name(string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)),
                                    sqlite3_column_bytes(stmt, 0))));
 
   sqlite3_finalize(stmt);
@@ -842,14 +776,13 @@ SecPublicInfoSqlite3::getAllKeyNames(vector<Name>& nameList, bool isDefault)
                        "SELECT identity_name, key_identifier FROM Key WHERE default_key=0",
                        -1, &stmt, 0);
 
-  while (sqlite3_step(stmt) == SQLITE_ROW)
-    {
-      Name keyName(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)),
-                          sqlite3_column_bytes(stmt, 0)));
-      keyName.append(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)),
-                            sqlite3_column_bytes(stmt, 1)));
-      nameList.push_back(keyName);
-    }
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    Name keyName(string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)),
+                        sqlite3_column_bytes(stmt, 0)));
+    keyName.append(string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)),
+                          sqlite3_column_bytes(stmt, 1)));
+    nameList.push_back(keyName);
+  }
   sqlite3_finalize(stmt);
 }
 
@@ -871,13 +804,12 @@ SecPublicInfoSqlite3::getAllKeyNamesOfIdentity(const Name& identity,
 
   sqlite3_bind_string(stmt, 1, identity.toUri(), SQLITE_TRANSIENT);
 
-  while (sqlite3_step(stmt) == SQLITE_ROW)
-    {
-      Name keyName(identity);
-      keyName.append(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)),
-                            sqlite3_column_bytes(stmt, 0)));
-      nameList.push_back(keyName);
-    }
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    Name keyName(identity);
+    keyName.append(string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)),
+                          sqlite3_column_bytes(stmt, 0)));
+    nameList.push_back(keyName);
+  }
   sqlite3_finalize(stmt);
 }
 
@@ -896,7 +828,7 @@ SecPublicInfoSqlite3::getAllCertificateNames(vector<Name>& nameList, bool isDefa
                        -1, &stmt, 0);
 
   while (sqlite3_step(stmt) == SQLITE_ROW)
-    nameList.push_back(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)),
+    nameList.push_back(string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)),
                               sqlite3_column_bytes(stmt, 0)));
 
   sqlite3_finalize(stmt);
@@ -929,7 +861,7 @@ SecPublicInfoSqlite3::getAllCertificateNamesOfKey(const Name& keyName,
   sqlite3_bind_string(stmt, 2, baseKeyName, SQLITE_TRANSIENT);
 
   while (sqlite3_step(stmt) == SQLITE_ROW)
-    nameList.push_back(string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)),
+    nameList.push_back(string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)),
                               sqlite3_column_bytes(stmt, 0)));
 
   sqlite3_finalize(stmt);
