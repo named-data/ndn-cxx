@@ -22,7 +22,7 @@
 #ifndef NDN_TRANSPORT_STREAM_TRANSPORT_HPP
 #define NDN_TRANSPORT_STREAM_TRANSPORT_HPP
 
-#include "../common.hpp"
+#include "transport.hpp"
 
 #include <list>
 
