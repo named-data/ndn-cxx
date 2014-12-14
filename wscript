@@ -188,7 +188,7 @@ def build(bld):
         bld.recurse("examples")
 
     headers = bld.path.ant_glob(['src/**/*.hpp'],
-                                 excl=['src/**/*-osx.hpp'])
+                                 excl=['src/**/*-osx.hpp', 'src/detail/*'])
     if bld.env['HAVE_OSX_SECURITY']:
         headers += bld.path.ant_glob('src/**/*-osx.hpp')
 

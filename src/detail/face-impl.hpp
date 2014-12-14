@@ -31,12 +31,12 @@
 #include "../util/scheduler.hpp"
 #include "../util/config-file.hpp"
 
-#include "transport/transport.hpp"
-#include "transport/unix-transport.hpp"
-#include "transport/tcp-transport.hpp"
+#include "../transport/transport.hpp"
+#include "../transport/unix-transport.hpp"
+#include "../transport/tcp-transport.hpp"
 
-#include "management/nfd-controller.hpp"
-#include "management/nfd-command-options.hpp"
+#include "../management/nfd-controller.hpp"
+#include "../management/nfd-command-options.hpp"
 
 namespace ndn {
 
