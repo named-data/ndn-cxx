@@ -104,8 +104,7 @@ InMemoryStorage::~InMemoryStorage()
   // evict all items from cache
   Cache::iterator it = m_cache.begin();
   while (it != m_cache.end()) {
-    freeEntry(it);
-    it++;
+    it = freeEntry(it);
   }
 
   BOOST_ASSERT(m_freeEntries.size() == m_capacity);
@@ -319,13 +318,14 @@ InMemoryStorage::selectChild(const Interest& interest,
   return 0;
 }
 
-void
-InMemoryStorage::freeEntry(Cache::index<byFullName>::type::iterator it) {
+InMemoryStorage::Cache::iterator
+InMemoryStorage::freeEntry(Cache::iterator it)
+{
   //push the *empty* entry into mem pool
   (*it)->release();
   m_freeEntries.push(*it);
   m_nPackets--;
-  m_cache.get<byFullName>().erase(it);
+  return m_cache.erase(it);
 }
 
 void
@@ -334,14 +334,10 @@ InMemoryStorage::erase(const Name& prefix, const bool isPrefix)
   if (isPrefix) {
     Cache::index<byFullName>::type::iterator it = m_cache.get<byFullName>().lower_bound(prefix);
 
-    if (it == m_cache.get<byFullName>().end())
-      return;
-
     while (it != m_cache.get<byFullName>().end() && prefix.isPrefixOf((*it)->getName())) {
       //let derived class do something with the entry
       beforeErase(*it);
-      freeEntry(it);
-      it++;
+      it = freeEntry(it);
     }
   }
   else {

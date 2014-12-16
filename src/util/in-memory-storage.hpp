@@ -270,9 +270,10 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /** @brief free in-memory storage entries by an iterator pointing to that entry.
-    */
-  void
-  freeEntry(Cache::index<byFullName>::type::iterator it);
+      @return An iterator pointing to the element that followed the last element erased.
+   */
+  Cache::iterator
+  freeEntry(Cache::iterator it);
 
   /** @brief Implements child selector (leftmost, rightmost, undeclared).
    *  Operates on the first layer of a skip list.
