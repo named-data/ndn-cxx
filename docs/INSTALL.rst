@@ -29,7 +29,6 @@ Required:
 ~~~~~~~~~
 
 -  ``python`` >= 2.6
--  ``libcrypto``
 -  ``libsqlite3``
 -  ``libcrypto++``
 -  ``pkg-config``
@@ -54,7 +53,7 @@ development tools and libraries, and ndn-cxx prerequisites.
    In a terminal, enter::
 
        sudo apt-get install build-essential
-       sudo apt-get install libssl-dev libsqlite3-dev libcrypto++-dev
+       sudo apt-get install libsqlite3-dev libcrypto++-dev
 
        # For Ubuntu 12.04
        sudo apt-get install libboost1.48-all-dev
@@ -67,7 +66,7 @@ development tools and libraries, and ndn-cxx prerequisites.
    In a terminal, enter::
 
        sudo yum install gcc-g++ git
-       sudo yum install openssl-devel sqlite-devel cryptopp-devel boost-devel
+       sudo yum install sqlite-devel cryptopp-devel boost-devel
 
 Optional:
 ~~~~~~~~~

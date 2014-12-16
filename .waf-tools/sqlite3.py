@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-from waflib import Options
+from waflib import Options, Logs
 from waflib.Configure import conf
 
 def options(opt):
@@ -26,6 +26,8 @@ def check_sqlite3(self, *k, **kw):
         try:
             self.check_cfg(package='sqlite3',
                            args=['--cflags', '--libs'],
+                           global_define=True,
+                           define_name='HAVE_%s' % var,
                            uselib_store='SQLITE3',
                            mandatory=True)
         except:

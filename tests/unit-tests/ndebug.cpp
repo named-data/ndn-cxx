@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE(TestNdebug)
 
 BOOST_AUTO_TEST_CASE(AssertFalse)
 {
-#ifndef NDN_CXX__DEBUG
+#ifndef _DEBUG
   // in release builds, assertion shouldn't execute
   BOOST_ASSERT(false);
 #endif
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(SideEffect)
 {
   int a = 1;
   BOOST_ASSERT((a = 2) > 0);
-#ifdef NDN_CXX__DEBUG
+#ifdef _DEBUG
   BOOST_CHECK_EQUAL(a, 2);
 #else
   BOOST_CHECK_EQUAL(a, 1);

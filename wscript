@@ -12,7 +12,7 @@ GIT_TAG_PREFIX = "ndn-cxx-"
 def options(opt):
     opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
     opt.load(['default-compiler-flags', 'coverage', 'osx-security', 'pch',
-              'boost', 'openssl', 'cryptopp', 'sqlite3',
+              'boost', 'cryptopp', 'sqlite3',
               'doxygen', 'sphinx_build', 'type_traits', 'compiler-features'],
              tooldir=['.waf-tools'])
 
@@ -39,7 +39,7 @@ def options(opt):
 def configure(conf):
     conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
                'default-compiler-flags', 'osx-security', 'pch',
-               'boost', 'openssl', 'cryptopp', 'sqlite3',
+               'boost', 'cryptopp', 'sqlite3',
                'doxygen', 'sphinx_build', 'type_traits', 'compiler-features'])
 
     conf.env['WITH_TESTS'] = conf.options.with_tests
@@ -55,7 +55,6 @@ def configure(conf):
 
     conf.check_osx_security(mandatory=False)
 
-    conf.check_openssl(mandatory=True)
     conf.check_sqlite3(mandatory=True)
     conf.check_cryptopp(mandatory=True, use='PTHREAD')
 
@@ -89,12 +88,6 @@ def configure(conf):
 
     conf.write_config_header('src/ndn-cxx-config.hpp', define_prefix='NDN_CXX_')
 
-    # disable assertions in release builds
-    # This must appear after write_config_header, because otherwise all projects
-    # using a ndn-cxx release build would be compiled without assertions.
-    if not conf.options.debug:
-        conf.define('NDEBUG', 1)
-
 def build(bld):
     version(bld)
 
@@ -121,7 +114,7 @@ def build(bld):
         source=bld.path.ant_glob('src/**/*.cpp',
                                  excl=['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
         headers='src/common-pch.hpp',
-        use='version BOOST OPENSSL CRYPTOPP SQLITE3 RT PIC PTHREAD',
+        use='version BOOST CRYPTOPP SQLITE3 RT PIC PTHREAD',
         includes=". src",
         export_includes="src",
         install_path='${LIBDIR}',
