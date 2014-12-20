@@ -56,6 +56,7 @@ public: // API for anyone
 
   /** \brief connects a handler to the signal
    *  \note If invoked from a handler, the new handler won't receive the current emitted signal.
+   *  \warning The handler is permitted to disconnect itself, but it must ensure its validity.
    */
   Connection
   connect(const Handler& handler);
