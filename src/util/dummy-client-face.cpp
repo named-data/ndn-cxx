@@ -57,14 +57,7 @@ public:
   virtual void
   send(const Block& wire)
   {
-    if (wire.type() == tlv::Interest) {
-      shared_ptr<Interest> interest = make_shared<Interest>(wire);
-      (*m_onInterest)(*interest);
-    }
-    else if (wire.type() == tlv::Data) {
-      shared_ptr<Data> data = make_shared<Data>(wire);
-      (*m_onData)(*data);
-    }
+    onSendBlock(wire);
   }
 
   virtual void
@@ -79,10 +72,8 @@ public:
     return *m_ioService;
   }
 
-private:
-  friend class DummyClientFace;
-  EventEmitter<Interest>* m_onInterest;
-  EventEmitter<Data>* m_onData;
+public:
+  Signal<Transport, Block> onSendBlock;
 };
 
 DummyClientFace::DummyClientFace(const Options& options, shared_ptr<Transport> transport)
@@ -103,8 +94,19 @@ DummyClientFace::DummyClientFace(const Options& options, shared_ptr<Transport> t
 void
 DummyClientFace::construct(const Options& options)
 {
-  m_transport->m_onInterest = &onInterest;
-  m_transport->m_onData     = &onData;
+  m_transport->onSendBlock.connect([this] (const Block& wire) {
+    if (wire.type() == tlv::Interest) {
+      shared_ptr<Interest> interest = make_shared<Interest>(wire);
+      onSendInterest(*interest);
+    }
+    else if (wire.type() == tlv::Data) {
+      shared_ptr<Data> data = make_shared<Data>(wire);
+      onSendData(*data);
+    }
+  });
+
+  onSendInterest.connect([this] (const Interest& interest) { onInterest(interest); });
+  onSendData.connect([this] (const Data& data) { onData(data); });
 
   if (options.enablePacketLogging)
     this->enablePacketLogging();
@@ -116,14 +118,18 @@ DummyClientFace::construct(const Options& options)
 void
 DummyClientFace::enablePacketLogging()
 {
-  onInterest += [this] (const Interest& interest) { this->sentInterests.push_back(interest); };
-  onData     += [this] (const Data& data)         { this->sentDatas.push_back(data); };
+  onSendInterest.connect([this] (const Interest& interest) {
+    this->sentInterests.push_back(interest);
+  });
+  onSendData.connect([this] (const Data& data) {
+    this->sentDatas.push_back(data);
+  });
 }
 
 void
 DummyClientFace::enableRegistrationReply()
 {
-  onInterest += [this] (const Interest& interest) {
+  onSendInterest.connect([this] (const Interest& interest) {
     static const Name localhostRegistration("/localhost/nfd/rib");
     if (!localhostRegistration.isPrefixOf(interest.getName()))
       return;
@@ -146,7 +152,7 @@ DummyClientFace::enableRegistrationReply()
     keyChain.signWithSha256(*data);
 
     this->getIoService().post([this, data] { this->receive(*data); });
-  };
+  });
 }
 
 template<typename Packet>

@@ -23,7 +23,8 @@
 #define NDN_UTIL_DUMMY_CLIENT_FACE_HPP
 
 #include "../face.hpp"
-#include "event-emitter.hpp"
+#include "signal.hpp"
+#include "event-emitter.hpp" // deprecated
 
 namespace ndn {
 namespace util {
@@ -104,15 +105,24 @@ public:
    */
   std::vector<Data> sentDatas;
 
-  /** \brief Event to be called whenever an Interest is received
+  /** \brief emits whenever an Interest is sent
    *
-   *  After .expressInterest, .processEvents must be called before this event would be triggered.
+   *  After .expressInterest, .processEvents must be called before this signal would be emitted.
+   */
+  Signal<DummyClientFace, Interest> onSendInterest;
+
+  /** \brief emits whenever a Data packet is sent
+   *
+   *  After .put, .processEvents must be called before this signal would be emitted.
+   */
+  Signal<DummyClientFace, Data> onSendData;
+
+public: // deprecated
+  /** \deprecated use onSendInterest
    */
   util::EventEmitter<Interest> onInterest;
 
-  /** \brief Event to be called whenever a Data packet is received
-   *
-   *  After .put, .processEvents must be called before this event would be triggered.
+  /** \deprecated use onSendData
    */
   util::EventEmitter<Data> onData;
 
