@@ -29,6 +29,8 @@ namespace ndn {
 namespace util {
 namespace signal {
 
+class DummyExtraArg;
+
 /** \brief provides a lightweight signal / event system
  *
  *  To declare a signal:
@@ -75,6 +77,12 @@ private: // API for owner
    */
   void
   operator()(const TArgs&...args);
+
+  /** \brief (implementation detail) emits a signal
+   *  \note This overload is used by signal-emit.hpp.
+   */
+  void
+  operator()(const TArgs&...args, const DummyExtraArg&);
 
   // make Owner a friend of Signal<Owner, ...> so that API for owner can be called
 #if NDN_CXX_HAVE_CXX_FRIEND_TYPENAME
@@ -206,6 +214,13 @@ Signal<Owner, TArgs...>::operator()(const TArgs&... args)
     throw;
   }
   m_isExecuting = false;
+}
+
+template<typename Owner, typename ...TArgs>
+inline void
+Signal<Owner, TArgs...>::operator()(const TArgs&... args, const DummyExtraArg&)
+{
+  this->operator()(args...);
 }
 
 } // namespace signal

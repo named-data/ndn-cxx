@@ -68,6 +68,39 @@ BOOST_AUTO_TEST_CASE(TwoListeners)
   BOOST_CHECK_EQUAL(hit2, 1);
 }
 
+class SignalOwner1
+{
+public:
+  Signal<SignalOwner1, int> sig;
+
+protected:
+  DECLARE_SIGNAL_EMIT(sig)
+};
+
+class SignalEmitter1 : public SignalOwner1
+{
+public:
+  void
+  emitTestSignal()
+  {
+    this->emitSignal(sig, 8106);
+  }
+};
+
+BOOST_AUTO_TEST_CASE(OneArgument)
+{
+  SignalEmitter1 se;
+
+  int hit = 0;
+  se.sig.connect([&hit] (int a) {
+    ++hit;
+    BOOST_CHECK_EQUAL(a, 8106);
+  });
+  se.emitTestSignal();
+
+  BOOST_CHECK_EQUAL(hit, 1);
+}
+
 BOOST_AUTO_TEST_CASE(TwoArguments)
 {
   Signal<std::remove_pointer<decltype(this)>::type, int, int> sig;

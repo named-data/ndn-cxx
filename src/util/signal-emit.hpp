@@ -51,16 +51,14 @@ class DummyExtraArg
  *  \note This macro should be used in 'protected' section so that it's accessible
  *        by derived classes.
  *  \note emit_signalName method is implementation detail.
- *        Derived classes should use 'emit' macro.
+ *        Derived classes should use 'emitSignal' macro.
  *  \note The name 'emit_signalName' is an intentional violation of code-style rule 2.5.
- *  \note The DummyExtraArg is necessary so that 'emit' macro can be used for
- *        both signals with zero arguments and signals with non-zero arguments.
  *  \note The method is declared as a template, so that the macro doesn't need argument types.
  *        But only argument types that are compatible with Signal declaration will work.
  */
 #define DECLARE_SIGNAL_EMIT(signalName) \
   template<typename ...TArgs> \
-  void emit_##signalName(const TArgs&... args, const ::ndn::util::signal::DummyExtraArg&) \
+  void emit_##signalName(const TArgs&... args) \
   { \
     signalName(args...); \
   }
@@ -68,7 +66,7 @@ class DummyExtraArg
 /** \brief (implementation detail) invokes emit_signalName method
  *  \note C99 requires at least one argument to be passed in __VA_ARGS__,
  *        thus a DummyExtraArg is expected at the end of __VA_ARGS__,
- *        which will be accepted but ignored by emit_signalName method.
+ *        which will be accepted but ignored by Signal::operator() overload.
  */
 #define NDN_CXX_SIGNAL_EMIT(signalName, ...) \
   emit_##signalName(__VA_ARGS__)
