@@ -166,7 +166,7 @@ DummyClientFace::receive<Data>(const Data& packet);
 shared_ptr<DummyClientFace>
 makeDummyClientFace(const DummyClientFace::Options& options)
 {
-  // cannot use make_shared<DummyClientFace> before DummyClientFace constructor is private
+  // cannot use make_shared<DummyClientFace> because DummyClientFace constructor is private
   return shared_ptr<DummyClientFace>(
          new DummyClientFace(options, make_shared<DummyClientFace::Transport>()));
 }
@@ -175,7 +175,7 @@ shared_ptr<DummyClientFace>
 makeDummyClientFace(boost::asio::io_service& ioService,
                     const DummyClientFace::Options& options)
 {
-  // cannot use make_shared<DummyClientFace> before DummyClientFace constructor is private
+  // cannot use make_shared<DummyClientFace> because DummyClientFace constructor is private
   return shared_ptr<DummyClientFace>(
          new DummyClientFace(options, make_shared<DummyClientFace::Transport>(),
                              ref(ioService)));

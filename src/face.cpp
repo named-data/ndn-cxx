@@ -150,6 +150,7 @@ Face::construct(shared_ptr<Transport> transport,
 
   m_impl->m_pitTimeoutCheckTimer      = make_shared<monotonic_deadline_timer>(ref(m_ioService));
   m_impl->m_processEventsTimeoutTimer = make_shared<monotonic_deadline_timer>(ref(m_ioService));
+  m_impl->ensureConnected(false);
 
   std::string protocol = "nrd-0.1";
 

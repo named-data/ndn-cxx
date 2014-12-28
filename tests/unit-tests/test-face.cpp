@@ -34,11 +34,11 @@ namespace tests {
 using ndn::util::DummyClientFace;
 using ndn::util::makeDummyClientFace;
 
-class FacesFixture : public UnitTestTimeFixture
+class FaceFixture : public UnitTestTimeFixture
 {
 public:
   explicit
-  FacesFixture(bool enableRegistrationReply = true)
+  FaceFixture(bool enableRegistrationReply = true)
     : face(makeDummyClientFace(io, { true, enableRegistrationReply }))
   {
   }
@@ -47,16 +47,16 @@ public:
   shared_ptr<DummyClientFace> face;
 };
 
-class FacesNoRegistrationReplyFixture : public FacesFixture
+class FacesNoRegistrationReplyFixture : public FaceFixture
 {
 public:
   FacesNoRegistrationReplyFixture()
-    : FacesFixture(false)
+    : FaceFixture(false)
   {
   }
 };
 
-BOOST_FIXTURE_TEST_SUITE(TestFaces, FacesFixture)
+BOOST_FIXTURE_TEST_SUITE(TestFace, FaceFixture)
 
 BOOST_AUTO_TEST_CASE(ExpressInterestData)
 {
@@ -325,6 +325,22 @@ BOOST_AUTO_TEST_CASE(SetRegexFilterAndRegister)
 
   face->receive(Interest("/Hello/World/a/b/d")); // should not match
   BOOST_CHECK_EQUAL(nInInterests, 2);
+}
+
+BOOST_FIXTURE_TEST_CASE(SetInterestFilterNoReg, FacesNoRegistrationReplyFixture) // Bug 2318
+{
+  // This behavior is specific to DummyClientFace.
+  // Regular Face won't accept incoming packets until something is sent.
+
+  int hit = 0;
+  face->setInterestFilter(Name("/"), bind([&hit] { ++hit; }));
+  face->processEvents(time::milliseconds(-1));
+
+  auto interest = make_shared<Interest>("/A");
+  face->receive(*interest);
+  face->processEvents(time::milliseconds(-1));
+
+  BOOST_CHECK_EQUAL(hit, 1);
 }
 
 BOOST_AUTO_TEST_CASE(ProcessEvents)

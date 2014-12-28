@@ -101,15 +101,21 @@ public:
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   void
-  asyncExpressInterest(const shared_ptr<const Interest>& interest,
-                       const OnData& onData, const OnTimeout& onTimeout)
+  ensureConnected(bool wantResume = true)
   {
     if (!m_face.m_transport->isConnected())
       m_face.m_transport->connect(m_face.m_ioService,
                                   bind(&Face::onReceiveElement, &m_face, _1));
 
-    if (!m_face.m_transport->isExpectingData())
+    if (wantResume && !m_face.m_transport->isExpectingData())
       m_face.m_transport->resume();
+  }
+
+  void
+  asyncExpressInterest(const shared_ptr<const Interest>& interest,
+                       const OnData& onData, const OnTimeout& onTimeout)
+  {
+    this->ensureConnected();
 
     m_pendingInterestTable.push_back(make_shared<PendingInterest>(interest, onData, onTimeout));
 
@@ -141,12 +147,7 @@ public:
   void
   asyncPutData(const shared_ptr<const Data>& data)
   {
-    if (!m_face.m_transport->isConnected())
-      m_face.m_transport->connect(m_face.m_ioService,
-                                  bind(&Face::onReceiveElement, &m_face, _1));
-
-    if (!m_face.m_transport->isExpectingData())
-      m_face.m_transport->resume();
+    this->ensureConnected();
 
     if (!data->getLocalControlHeader().empty(false, true))
       {
