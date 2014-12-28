@@ -24,7 +24,7 @@
 
 #include "../common.hpp"
 #include "transport.hpp"
-#include "util/config-file.hpp"
+#include "../util/config-file.hpp"
 
 // forward declaration
 namespace boost { namespace asio { namespace local { class stream_protocol; } } }
