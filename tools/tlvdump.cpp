@@ -26,40 +26,37 @@
 
 #include <iomanip>
 #include <fstream>
+#include <map>
 
 namespace ndn {
 
-const std::vector<std::string> TLV_DICT = {
-  "RESERVED", //      = 0
-  "ImplicitSha256DigestComponent", //      = 1
-  "RESERVED", //      = 2
-  "RESERVED", //      = 3
-  "RESERVED", //      = 4
-  "Interest", //      = 5,
-  "Data", //          = 6,
-  "Name", //          = 7,
-  "NameComponent", // = 8,
-  "Selectors", //     = 9,
-  "Nonce", //         = 10,
-  "Scope", //         = 11,
-  "InterestLifetime", //          = 12,
-  "MinSuffixComponents", //       = 13,
-  "MaxSuffixComponents", //       = 14,
-  "PublisherPublicKeyLocator", // = 15,
-  "Exclude", //       = 16,
-  "ChildSelector", // = 17,
-  "MustBeFresh", //   = 18,
-  "Any", //           = 19,
-  "MetaInfo", //      = 20,
-  "Content", //       = 21,
-  "SignatureInfo", // = 22,
-  "SignatureValue", // = 23,
-  "ContentType", //   = 24,
-  "FreshnessPeriod", // = 25,
-  "FinalBlockId" // = 26
-  "SignatureType", // = 27,
-  "KeyLocator", //    = 28,
-  "KeyDigest" // = 29
+std::map<uint32_t, std::string> TLV_DICT = {
+  {tlv::Interest                     , "Interest"},
+  {tlv::Data                         , "Data"},
+  {tlv::Name                         , "Name"},
+  {tlv::NameComponent                , "NameComponent"},
+  {tlv::ImplicitSha256DigestComponent, "ImplicitSha256DigestComponent"},
+  {tlv::Selectors                    , "Selectors"},
+  {tlv::Nonce                        , "Nonce"},
+  {tlv::Scope                        , "Scope"},
+  {tlv::InterestLifetime             , "InterestLifetime"},
+  {tlv::MinSuffixComponents          , "MinSuffixComponents"},
+  {tlv::MaxSuffixComponents          , "MaxSuffixComponents"},
+  {tlv::PublisherPublicKeyLocator    , "PublisherPublicKeyLocator"},
+  {tlv::Exclude                      , "Exclude"},
+  {tlv::ChildSelector                , "ChildSelector"},
+  {tlv::MustBeFresh                  , "MustBeFresh"},
+  {tlv::Any                          , "Any"},
+  {tlv::MetaInfo                     , "MetaInfo"},
+  {tlv::Content                      , "Content"},
+  {tlv::SignatureInfo                , "SignatureInfo"},
+  {tlv::SignatureValue               , "SignatureValue"},
+  {tlv::ContentType                  , "ContentType"},
+  {tlv::FreshnessPeriod              , "FreshnessPeriod"},
+  {tlv::FinalBlockId                 , "FinalBlockId"},
+  {tlv::SignatureType                , "SignatureType"},
+  {tlv::KeyLocator                   , "KeyLocator"},
+  {tlv::KeyDigest                    , "KeyDigest"},
 };
 
 void
@@ -67,10 +64,10 @@ printTypeInfo(uint32_t type)
 {
   std::cout << type << " (";
 
-  if (type < TLV_DICT.size()) {
+  if (TLV_DICT.count(type) != 0) {
     std::cout << TLV_DICT[type];
   }
-  else if (TLV_DICT.size() <= type && type < tlv::AppPrivateBlock1) {
+  else if (type < tlv::AppPrivateBlock1) {
     std::cout << "RESERVED_1";
   }
   else if (tlv::AppPrivateBlock1 <= type && type < 253) {
