@@ -30,12 +30,13 @@
 #include "meta-info.hpp"
 #include "key-locator.hpp"
 #include "management/nfd-local-control-header.hpp"
+#include "tag-host.hpp"
 
 namespace ndn {
 
 /** @brief represents a Data packet
  */
-class Data : public enable_shared_from_this<Data>
+class Data : public TagHost, public enable_shared_from_this<Data>
 {
 public:
   class Error : public tlv::Error

@@ -30,6 +30,7 @@
 #include "selectors.hpp"
 #include "util/time.hpp"
 #include "management/nfd-local-control-header.hpp"
+#include "tag-host.hpp"
 
 namespace ndn {
 
@@ -42,7 +43,7 @@ const time::milliseconds DEFAULT_INTEREST_LIFETIME = time::milliseconds(4000);
 
 /** @brief represents an Interest packet
  */
-class Interest : public enable_shared_from_this<Interest>
+class Interest : public TagHost, public enable_shared_from_this<Interest>
 {
 public:
   class Error : public tlv::Error
