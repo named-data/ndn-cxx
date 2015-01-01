@@ -290,6 +290,46 @@ BOOST_AUTO_TEST_CASE(AutoDisconnectMove)
   BOOST_CHECK_EQUAL(hit, 2); // handler called
 }
 
+BOOST_AUTO_TEST_CASE(ConnectSingleShot)
+{
+  SignalOwner0 so;
+
+  int hit = 0;
+  so.sig.connectSingleShot([&hit] { ++hit; });
+
+  so.emitSignal(sig);
+  BOOST_CHECK_EQUAL(hit, 1); // handler called
+
+  so.emitSignal(sig);
+  BOOST_CHECK_EQUAL(hit, 1); // handler not called
+}
+
+BOOST_AUTO_TEST_CASE(ConnectSingleShotDisconnected)
+{
+  SignalOwner0 so;
+
+  int hit = 0;
+  Connection conn = so.sig.connectSingleShot([&hit] { ++hit; });
+  conn.disconnect();
+
+  so.emitSignal(sig);
+  BOOST_CHECK_EQUAL(hit, 0); // handler not called
+}
+
+BOOST_AUTO_TEST_CASE(ConnectSingleShot1)
+{
+  SignalEmitter1 se;
+
+  int hit = 0;
+  se.sig.connectSingleShot([&hit] (int) { ++hit; });
+
+  se.emitTestSignal();
+  BOOST_CHECK_EQUAL(hit, 1); // handler called
+
+  se.emitTestSignal();
+  BOOST_CHECK_EQUAL(hit, 1); // handler not called
+}
+
 BOOST_AUTO_TEST_CASE(ConnectInHandler)
 {
   SignalOwner0 so;

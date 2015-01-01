@@ -63,6 +63,13 @@ public: // API for anyone
   Connection
   connect(const Handler& handler);
 
+  /** \brief connects a single-shot handler to the signal
+   *
+   *  After the handler is executed once, it is automatically disconnected.
+   */
+  Connection
+  connectSingleShot(const Handler& handler);
+
 private: // API for owner
   /** \retval true if there is no connection
    */
@@ -161,6 +168,22 @@ Signal<Owner, TArgs...>::connect(const Handler& handler)
   it->disconnect = make_shared<function<void()>>(bind(&Self::disconnect, this, it));
 
   return signal::Connection(weak_ptr<function<void()>>(it->disconnect));
+}
+
+template<typename Owner, typename ...TArgs>
+inline Connection
+Signal<Owner, TArgs...>::connectSingleShot(const Handler& handler)
+{
+  typename SlotList::iterator it = m_slots.insert(m_slots.end(), {nullptr, nullptr});
+  it->disconnect = make_shared<function<void()>>(bind(&Self::disconnect, this, it));
+  signal::Connection conn(weak_ptr<function<void()>>(it->disconnect));
+
+  it->handler = [conn, handler] (const TArgs&... args) mutable {
+    handler(args...);
+    conn.disconnect();
+  };
+
+  return conn;
 }
 
 template<typename Owner, typename ...TArgs>
