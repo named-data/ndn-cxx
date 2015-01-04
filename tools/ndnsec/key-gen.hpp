@@ -21,10 +21,10 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_KEY_GEN_HPP
-#define NDNSEC_KEY_GEN_HPP
+#ifndef NDN_TOOLS_NDNSEC_KEY_GEN_HPP
+#define NDN_TOOLS_NDNSEC_KEY_GEN_HPP
 
-#include "ndnsec-util.hpp"
+#include "util.hpp"
 
 int
 ndnsec_key_gen(int argc, char** argv)
@@ -123,4 +123,4 @@ ndnsec_key_gen(int argc, char** argv)
   return 0;
 }
 
-#endif // NDNSEC_KEY_GEN_HPP
+#endif // NDN_TOOLS_NDNSEC_KEY_GEN_HPP

@@ -21,29 +21,36 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_UNLOCK_TPM_HPP
-#define NDNSEC_UNLOCK_TPM_HPP
-
-#include "ndnsec-util.hpp"
+#ifndef NDN_TOOLS_NDNSEC_SET_DEFAULT_HPP
+#define NDN_TOOLS_NDNSEC_SET_DEFAULT_HPP
 
 int
-ndnsec_unlock_tpm(int argc, char** argv)
+ndnsec_set_default(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
 
-  std::string keyName;
+  std::string certFileName;
+  bool isSetDefaultId = true;
+  bool isSetDefaultKey = false;
+  bool isSetDefaultCert = false;
+  std::string name;
 
-  po::options_description description("General Usage\n  ndnsec unlock-tpm [-h] \nGeneral options");
+  po::options_description description("General Usage\n  ndnsec set-default [-h] [-k|c] name\nGeneral options");
   description.add_options()
     ("help,h", "produce help message")
+    ("default_key,k", "set default key of the identity")
+    ("default_cert,c", "set default certificate of the key")
+    ("name,n", po::value<std::string>(&name), "the name to set")
     ;
 
+  po::positional_options_description p;
+  p.add("name", 1);
   po::variables_map vm;
-
   try
     {
-      po::store(po::parse_command_line(argc, argv, description), vm);
+      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+                vm);
       po::notify(vm);
     }
   catch (const std::exception& e)
@@ -59,25 +66,45 @@ ndnsec_unlock_tpm(int argc, char** argv)
       return 0;
     }
 
-  bool isUnlocked = false;
+  if (vm.count("name") == 0)
+    {
+      std::cerr << "ERROR: name is required!" << std::endl;
+      std::cerr << description << std::endl;
+      return 1;
+    }
 
   KeyChain keyChain;
 
-  char* password;
-  password = getpass("Password to unlock the TPM: ");
-  isUnlocked = keyChain.unlockTpm(password, strlen(password), true);
-  memset(password, 0, strlen(password));
-
-  if (isUnlocked)
+  if (vm.count("default_key") != 0)
     {
-      std::cerr << "OK: TPM is unlocked" << std::endl;
+      isSetDefaultKey = true;
+      isSetDefaultId = false;
+    }
+  else if (vm.count("default_cert") != 0)
+    {
+      isSetDefaultCert = true;
+      isSetDefaultId = false;
+    }
+
+  if (isSetDefaultId)
+    {
+      Name idName(name);
+      keyChain.setDefaultIdentity(idName);
       return 0;
     }
-  else
+  if (isSetDefaultKey)
     {
-      std::cerr << "ERROR: TPM is still locked" << std::endl;
-      return 1;
+      Name keyName(name);
+      keyChain.setDefaultKeyNameForIdentity(keyName);
+      return 0;
     }
-}
 
-#endif //NDNSEC_UNLOCK_TPM_HPP
+  if (isSetDefaultCert)
+    {
+      keyChain.setDefaultCertificateNameForKey(name);
+      return 0;
+    }
+
+  return 1;
+}
+#endif // NDN_TOOLS_NDNSEC_SET_DEFAULT_HPP

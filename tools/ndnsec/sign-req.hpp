@@ -21,29 +21,29 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_OP_TOOL_HPP
-#define NDNSEC_OP_TOOL_HPP
+#ifndef NDN_TOOLS_NDNSEC_SIGN_REQ_HPP
+#define NDN_TOOLS_NDNSEC_SIGN_REQ_HPP
 
-#include "ndnsec-util.hpp"
-
-using namespace std;
+#include "util.hpp"
 
 int
-ndnsec_op_tool(int argc, char** argv)
+ndnsec_sign_req(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
 
-  std::string command;
+  std::string name;
+  bool isKeyName = false;
 
-  po::options_description description("General options");
+  po::options_description description("General Usage\n  ndnsec sign-req [-h] [-k] name\nGeneral options");
   description.add_options()
-    ("help,h", "produce this help message")
-    ("command", po::value<std::string>(&command), "command")
+    ("help,h", "produce help message")
+    ("key,k", "optional, if specified, name is keyName (e.g. /ndn/edu/ucla/alice/ksk-123456789), otherwise identity name")
+    ("name,n", po::value<std::string>(&name), "name, for example, /ndn/edu/ucla/alice")
     ;
 
   po::positional_options_description p;
-  p.add("command", 1);
+  p.add("name", 1);
 
   po::variables_map vm;
   try
@@ -56,7 +56,7 @@ ndnsec_op_tool(int argc, char** argv)
     {
       std::cerr << "ERROR: " << e.what() << std::endl;
       std::cerr << description << std::endl;
-      return -1;
+      return 1;
     }
 
   if (vm.count("help") != 0)
@@ -65,33 +65,35 @@ ndnsec_op_tool(int argc, char** argv)
       return 0;
     }
 
-  if (vm.count("command") == 0)
+  if (vm.count("name") == 0)
     {
-      std::cerr << "command must be specified" << std::endl;
+      std::cerr << "ERROR: name must be specified" << std::endl;
       std::cerr << description << std::endl;
       return 1;
     }
 
-  if (command == "sign") // the content to be signed from stdin
-    {
-      KeyChain keyChain;
+  if (vm.count("key") != 0)
+    isKeyName = true;
 
-      Buffer dataToSign((istreambuf_iterator<char>(cin)), istreambuf_iterator<char>());
+  shared_ptr<IdentityCertificate> selfSignCert;
 
-      Signature signature = keyChain.sign(dataToSign.buf(), dataToSign.size(),
-                                          keyChain.getDefaultCertificateName());
+  KeyChain keyChain;
 
-      if (signature.getValue().value_size() == 0)
-        {
-          std::cerr << "Error signing with default key" << std::endl;
-          return -1;
-        }
+  if (isKeyName)
+    selfSignCert = keyChain.selfSign(name);
+  else {
+    Name keyName = keyChain.getDefaultKeyNameForIdentity(name);
+    selfSignCert = keyChain.selfSign(keyName);
+  }
 
-      std::cout.write(reinterpret_cast<const char*>(signature.getValue().wire()),
-                      signature.getValue().size());
-    }
-
-  return 0;
+  if (static_cast<bool>(selfSignCert)) {
+    io::save(*selfSignCert, std::cout);
+    return 0;
+  }
+  else {
+    std::cerr << "ERROR: Public key does not exist" << std::endl;
+    return 1;
+  }
 }
 
-#endif //NDNSEC_OP_TOOL_HPP
+#endif // NDN_TOOLS_NDNSEC_SIGN_REQ_HPP

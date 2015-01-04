@@ -21,10 +21,10 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_CERT_INSTALL_HPP
-#define NDNSEC_CERT_INSTALL_HPP
+#ifndef NDN_TOOLS_NDNSEC_CERT_INSTALL_HPP
+#define NDN_TOOLS_NDNSEC_CERT_INSTALL_HPP
 
-#include "ndnsec-util.hpp"
+#include "util.hpp"
 
 
 class HttpException : public std::runtime_error
@@ -232,4 +232,4 @@ ndnsec_cert_install(int argc, char** argv)
   return 0;
 }
 
-#endif //NDNSEC_CERT_INSTALL_HPP
+#endif // NDN_TOOLS_NDNSEC_CERT_INSTALL_HPP

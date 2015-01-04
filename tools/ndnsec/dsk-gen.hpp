@@ -21,10 +21,10 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_DSK_GEN_HPP
-#define NDNSEC_DSK_GEN_HPP
+#ifndef NDN_TOOLS_NDNSEC_DSK_GEN_HPP
+#define NDN_TOOLS_NDNSEC_DSK_GEN_HPP
 
-#include "ndnsec-util.hpp"
+#include "util.hpp"
 
 int
 ndnsec_dsk_gen(int argc, char** argv)
@@ -181,4 +181,4 @@ ndnsec_dsk_gen(int argc, char** argv)
   }
 }
 
-#endif //NDNSEC_DSK_GEN_HPP
+#endif // NDN_TOOLS_NDNSEC_DSK_GEN_HPP

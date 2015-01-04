@@ -21,32 +21,30 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_EXPORT_HPP
-#define NDNSEC_EXPORT_HPP
+#ifndef NDN_TOOLS_NDNSEC_IMPORT_HPP
+#define NDN_TOOLS_NDNSEC_IMPORT_HPP
 
-#include "ndnsec-util.hpp"
+#include "util.hpp"
 
 int
-ndnsec_export(int argc, char** argv)
+ndnsec_import(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
 
-  std::string identityStr;
-  std::string output;
-  std::string exportPassword;
-  bool isPrivateExport = false;
+  std::string input("-");
+  std::string importPassword;
+  bool isPrivateImport = false;
 
-  po::options_description description("General Usage\n  ndnsec export [-h] [-o output] [-p] identity \nGeneral options");
+  po::options_description description("General Usage\n  ndnsec import [-h] [-p] input \nGeneral options");
   description.add_options()
-    ("help,h", "Produce help message")
-    ("output,o", po::value<std::string>(&output), "(Optional) output file, stdout if not specified")
-    ("private,p", "export info contains private key")
-    ("identity,i", po::value<std::string>(&identityStr), "Identity to export")
+    ("help,h", "produce help message")
+    ("private,p", "import info contains private key")
+    ("input,i", po::value<std::string>(&input), "input source, stdin if -")
     ;
 
   po::positional_options_description p;
-  p.add("identity", 1);
+  p.add("input", 1);
 
   po::variables_map vm;
   try
@@ -68,68 +66,50 @@ ndnsec_export(int argc, char** argv)
       return 0;
     }
 
-  if (vm.count("identity") == 0)
-    {
-      std::cerr << "ERROR: identity must be specified" << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
-
   if (vm.count("private") != 0)
-    isPrivateExport = true;
+    isPrivateImport = true;
 
-  if (vm.count("output") == 0)
-    output = "-";
-
-  Name identity(identityStr);
-  if (!isPrivateExport)
+  if (!isPrivateImport)
     {
-      KeyChain keyChain;
-      shared_ptr<IdentityCertificate> cert
-        = keyChain.getCertificate(keyChain.getDefaultCertificateNameForIdentity(identity));
-
-      if (output == "-")
-        io::save(*cert, std::cout);
-      else
-        io::save(*cert, output);
-
-      return 0;
+      std::cerr << "You are trying to import certificate!\n"
+                << "Please use ndnsec cert-install!" << std::endl;
+      return 1;
     }
   else
     {
-      Block wire;
       try
         {
           KeyChain keyChain;
 
+          shared_ptr<SecuredBag> securedBag;
+          if (input == "-")
+            securedBag = io::load<SecuredBag>(std::cin);
+          else
+            securedBag = io::load<SecuredBag>(input);
+
           int count = 3;
-          while (!getPassword(exportPassword, "Passphrase for the private key: "))
+          while (!getPassword(importPassword, "Passphrase for the private key: "))
             {
               count--;
               if (count <= 0)
                 {
-                  std::cerr << "ERROR: invalid password" << std::endl;
-                  memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
+                  std::cerr << "ERROR: Fail to get password" << std::endl;
+                  memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
                   return 1;
                 }
             }
-          shared_ptr<SecuredBag> securedBag = keyChain.exportIdentity(identity, exportPassword);
-          memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
-
-          if (output == "-")
-            io::save(*securedBag, std::cout);
-          else
-            io::save(*securedBag, output);
-
-          return 0;
+          keyChain.importIdentity(*securedBag, importPassword);
+          memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
         }
       catch (const std::runtime_error& e)
         {
           std::cerr << "ERROR: " << e.what() << std::endl;
-          memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
+          memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
           return 1;
         }
+
+      return 0;
     }
 }
 
-#endif //NDNSEC_EXPORT_HPP
+#endif // NDN_TOOLS_NDNSEC_IMPORT_HPP

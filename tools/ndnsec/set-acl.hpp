@@ -21,36 +21,30 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_DELETE_HPP
-#define NDNSEC_DELETE_HPP
+#ifndef NDN_TOOLS_NDNSEC_SET_ACL_HPP
+#define NDN_TOOLS_NDNSEC_SET_ACL_HPP
 
-#include "ndnsec-util.hpp"
+#include "util.hpp"
 
 int
-ndnsec_delete(int argc, char** argv)
+ndnsec_set_acl(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
 
-  // bool deleteId = true;
-  bool isDeleteKey = false;
-  bool isDeleteCert = false;
-  std::string name;
+  std::string keyName;
+  std::string appPath;
 
-  po::options_description description("General Usage\n  ndnsec delete [-h] [-k|c] name\nGeneral options");
+  po::options_description description("General Usage\n  ndnsec set-acl [-h] keyName appPath \nGeneral options");
   description.add_options()
     ("help,h", "produce help message")
-    ("delete-key,k", "(Optional) delete a key if specified.")
-    ("delete-key2,K", "(Optional) delete a key if specified.")
-    ("delete-cert,c", "(Optional) delete a certificate if specified.")
-    ("delete-cert2,C", "(Optional) delete a certificate if specified.")
-    ("name,n", po::value<std::string>(&name), "By default, it refers to an identity."
-     "If -k is specified, it refers to a key."
-     "If -c is specified, it refers to a certificate.");
+    ("keyName,k", po::value<std::string>(&keyName), "Key name.")
+    ("appPath,p", po::value<std::string>(&appPath), "Application path.")
     ;
 
   po::positional_options_description p;
-  p.add("name", 1);
+  p.add("keyName", 1);
+  p.add("appPath", 1);
 
   po::variables_map vm;
   try
@@ -59,53 +53,36 @@ ndnsec_delete(int argc, char** argv)
                 vm);
       po::notify(vm);
     }
-  catch (const std::exception& e)
+  catch (std::exception& e)
     {
       std::cerr << "ERROR: " << e.what() << std::endl;
-      std::cerr << description << std::endl;
       return 1;
     }
 
   if (vm.count("help") != 0)
     {
-      std::cerr << description << std::endl;;
+      std::cerr << description << std::endl;
       return 0;
     }
 
-  if (vm.count("name") == 0)
+  if (vm.count("keyName") == 0)
     {
-      std::cerr << "ERROR: name must be specified" << std::endl;
+      std::cerr << "ERROR: keyName is required!" << std::endl;
       std::cerr << description << std::endl;
       return 1;
     }
 
-  if (vm.count("delete-cert") != 0 || vm.count("delete-cert2") != 0)
+  if (vm.count("appPath") == 0)
     {
-      isDeleteCert = true;
-      // deleteId = false;
-    }
-  else if (vm.count("delete-key") != 0 || vm.count("delete-key2") != 0)
-    {
-      isDeleteKey = true;
-      // deleteId = false;
+      std::cerr << "ERROR: appPath is required!" << std::endl;
+      std::cerr << description << std::endl;
+      return 1;
     }
 
   KeyChain keyChain;
-
-  if (isDeleteCert)
-    {
-      keyChain.deleteCertificate(name);
-    }
-  else if (isDeleteKey)
-    {
-      keyChain.deleteKey(name);
-    }
-  else
-    {
-      keyChain.deleteIdentity(name);
-    }
+  keyChain.addAppToAcl(keyName, KEY_CLASS_PRIVATE, appPath, ACL_TYPE_PRIVATE);
 
   return 0;
 }
 
-#endif //NDNSEC_DELETE_HPP
+#endif // NDN_TOOLS_NDNSEC_SET_ACL_HPP

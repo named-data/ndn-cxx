@@ -21,31 +21,37 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_SET_DEFAULT_HPP
-#define NDNSEC_SET_DEFAULT_HPP
+#ifndef NDN_TOOLS_NDNSEC_DELETE_HPP
+#define NDN_TOOLS_NDNSEC_DELETE_HPP
+
+#include "util.hpp"
 
 int
-ndnsec_set_default(int argc, char** argv)
+ndnsec_delete(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
 
-  std::string certFileName;
-  bool isSetDefaultId = true;
-  bool isSetDefaultKey = false;
-  bool isSetDefaultCert = false;
+  // bool deleteId = true;
+  bool isDeleteKey = false;
+  bool isDeleteCert = false;
   std::string name;
 
-  po::options_description description("General Usage\n  ndnsec set-default [-h] [-k|c] name\nGeneral options");
+  po::options_description description("General Usage\n  ndnsec delete [-h] [-k|c] name\nGeneral options");
   description.add_options()
     ("help,h", "produce help message")
-    ("default_key,k", "set default key of the identity")
-    ("default_cert,c", "set default certificate of the key")
-    ("name,n", po::value<std::string>(&name), "the name to set")
+    ("delete-key,k", "(Optional) delete a key if specified.")
+    ("delete-key2,K", "(Optional) delete a key if specified.")
+    ("delete-cert,c", "(Optional) delete a certificate if specified.")
+    ("delete-cert2,C", "(Optional) delete a certificate if specified.")
+    ("name,n", po::value<std::string>(&name), "By default, it refers to an identity."
+     "If -k is specified, it refers to a key."
+     "If -c is specified, it refers to a certificate.");
     ;
 
   po::positional_options_description p;
   p.add("name", 1);
+
   po::variables_map vm;
   try
     {
@@ -62,49 +68,44 @@ ndnsec_set_default(int argc, char** argv)
 
   if (vm.count("help") != 0)
     {
-      std::cerr << description << std::endl;
+      std::cerr << description << std::endl;;
       return 0;
     }
 
   if (vm.count("name") == 0)
     {
-      std::cerr << "ERROR: name is required!" << std::endl;
+      std::cerr << "ERROR: name must be specified" << std::endl;
       std::cerr << description << std::endl;
       return 1;
     }
 
+  if (vm.count("delete-cert") != 0 || vm.count("delete-cert2") != 0)
+    {
+      isDeleteCert = true;
+      // deleteId = false;
+    }
+  else if (vm.count("delete-key") != 0 || vm.count("delete-key2") != 0)
+    {
+      isDeleteKey = true;
+      // deleteId = false;
+    }
+
   KeyChain keyChain;
 
-  if (vm.count("default_key") != 0)
+  if (isDeleteCert)
     {
-      isSetDefaultKey = true;
-      isSetDefaultId = false;
+      keyChain.deleteCertificate(name);
     }
-  else if (vm.count("default_cert") != 0)
+  else if (isDeleteKey)
     {
-      isSetDefaultCert = true;
-      isSetDefaultId = false;
+      keyChain.deleteKey(name);
     }
-
-  if (isSetDefaultId)
+  else
     {
-      Name idName(name);
-      keyChain.setDefaultIdentity(idName);
-      return 0;
-    }
-  if (isSetDefaultKey)
-    {
-      Name keyName(name);
-      keyChain.setDefaultKeyNameForIdentity(keyName);
-      return 0;
+      keyChain.deleteIdentity(name);
     }
 
-  if (isSetDefaultCert)
-    {
-      keyChain.setDefaultCertificateNameForKey(name);
-      return 0;
-    }
-
-  return 1;
+  return 0;
 }
-#endif //NDNSEC_SET_DEFAULT_HPP
+
+#endif // NDN_TOOLS_NDNSEC_DELETE_HPP

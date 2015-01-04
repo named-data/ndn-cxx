@@ -21,8 +21,8 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_UTIL_HPP
-#define NDNSEC_UTIL_HPP
+#ifndef NDN_TOOLS_NDNSEC_UTIL_HPP
+#define NDN_TOOLS_NDNSEC_UTIL_HPP
 
 #include <iostream>
 #include <fstream>
@@ -222,4 +222,4 @@ AccumulatorType<T>* accumulator(T* store)
   return new AccumulatorType<T>(store);
 }
 
-#endif // NDNSEC_UTIL_HPP
+#endif // NDN_TOOLS_NDNSEC_UTIL_HPP

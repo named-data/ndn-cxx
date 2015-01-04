@@ -21,10 +21,10 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_GET_DEFAULT_HPP
-#define NDNSEC_GET_DEFAULT_HPP
+#ifndef NDN_TOOLS_NDNSEC_GET_DEFAULT_HPP
+#define NDN_TOOLS_NDNSEC_GET_DEFAULT_HPP
 
-#include "ndnsec-util.hpp"
+#include "util.hpp"
 
 
 int
@@ -145,4 +145,4 @@ ndnsec_get_default(int argc, char** argv)
     }
 }
 
-#endif //NDNSEC_GET_DEFAULT_HPP
+#endif // NDN_TOOLS_NDNSEC_GET_DEFAULT_HPP

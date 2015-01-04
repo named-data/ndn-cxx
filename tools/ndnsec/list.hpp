@@ -21,10 +21,10 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_LIST_HPP
-#define NDNSEC_LIST_HPP
+#ifndef NDN_TOOLS_NDNSEC_LIST_HPP
+#define NDN_TOOLS_NDNSEC_LIST_HPP
 
-#include "ndnsec-util.hpp"
+#include "util.hpp"
 
 void
 printCertificate(ndn::KeyChain& keyChain,
@@ -171,4 +171,4 @@ ndnsec_list(int argc, char** argv)
   return 0;
 }
 
-#endif // NDNSEC_LIST_HPP
+#endif // NDN_TOOLS_NDNSEC_LIST_HPP

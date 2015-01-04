@@ -21,10 +21,10 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_SIG_VERIFY_HPP
-#define NDNSEC_SIG_VERIFY_HPP
+#ifndef NDN_TOOLS_NDNSEC_SIG_VERIFY_HPP
+#define NDN_TOOLS_NDNSEC_SIG_VERIFY_HPP
 
-#include "ndnsec-util.hpp"
+#include "util.hpp"
 
 // using namespace ndn;
 // namespace po = boost::program_options;
@@ -125,4 +125,4 @@ ndnsec_sig_verify(int argc, char** argv)
   //   }
 }
 
-#endif //NDNSEC_SIG_VERIFY_HPP
+#endif // NDN_TOOLS_NDNSEC_SIG_VERIFY_HPP

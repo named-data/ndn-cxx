@@ -21,41 +21,35 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDNSEC_SET_ACL_HPP
-#define NDNSEC_SET_ACL_HPP
+#ifndef NDN_TOOLS_NDNSEC_UNLOCK_TPM_HPP
+#define NDN_TOOLS_NDNSEC_UNLOCK_TPM_HPP
 
-#include "ndnsec-util.hpp"
+#include "util.hpp"
 
 int
-ndnsec_set_acl(int argc, char** argv)
+ndnsec_unlock_tpm(int argc, char** argv)
 {
   using namespace ndn;
   namespace po = boost::program_options;
 
   std::string keyName;
-  std::string appPath;
 
-  po::options_description description("General Usage\n  ndnsec set-acl [-h] keyName appPath \nGeneral options");
+  po::options_description description("General Usage\n  ndnsec unlock-tpm [-h] \nGeneral options");
   description.add_options()
     ("help,h", "produce help message")
-    ("keyName,k", po::value<std::string>(&keyName), "Key name.")
-    ("appPath,p", po::value<std::string>(&appPath), "Application path.")
     ;
 
-  po::positional_options_description p;
-  p.add("keyName", 1);
-  p.add("appPath", 1);
-
   po::variables_map vm;
+
   try
     {
-      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-                vm);
+      po::store(po::parse_command_line(argc, argv, description), vm);
       po::notify(vm);
     }
-  catch (std::exception& e)
+  catch (const std::exception& e)
     {
       std::cerr << "ERROR: " << e.what() << std::endl;
+      std::cerr << description << std::endl;
       return 1;
     }
 
@@ -65,24 +59,25 @@ ndnsec_set_acl(int argc, char** argv)
       return 0;
     }
 
-  if (vm.count("keyName") == 0)
-    {
-      std::cerr << "ERROR: keyName is required!" << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
-
-  if (vm.count("appPath") == 0)
-    {
-      std::cerr << "ERROR: appPath is required!" << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  bool isUnlocked = false;
 
   KeyChain keyChain;
-  keyChain.addAppToAcl(keyName, KEY_CLASS_PRIVATE, appPath, ACL_TYPE_PRIVATE);
 
-  return 0;
+  char* password;
+  password = getpass("Password to unlock the TPM: ");
+  isUnlocked = keyChain.unlockTpm(password, strlen(password), true);
+  memset(password, 0, strlen(password));
+
+  if (isUnlocked)
+    {
+      std::cerr << "OK: TPM is unlocked" << std::endl;
+      return 0;
+    }
+  else
+    {
+      std::cerr << "ERROR: TPM is still locked" << std::endl;
+      return 1;
+    }
 }
 
-#endif //NDNSEC_SET_ACL_HPP
+#endif // NDN_TOOLS_NDNSEC_UNLOCK_TPM_HPP
