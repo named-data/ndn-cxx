@@ -8,17 +8,28 @@ def configure(conf):
     conf.find_program('sh')
 
 def build(bld):
-    for app in bld.path.ant_glob('*.cpp'):
+    # List all .cpp files (whole tool should be in one .cpp)
+    for i in bld.path.ant_glob(['*.cpp']):
+        name = str(i)[:-len(".cpp")]
         bld(features=['cxx', 'cxxprogram'],
-            target = '%s' % (str(app.change_ext('','.cpp'))),
-            source = app,
-            use = 'ndn-cxx',
+            target="../bin/%s" % name,
+            source=[i] + bld.path.ant_glob(['%s/**/*.cpp' % name]),
+            use='ndn-cxx'
             )
 
-    bld(features = "subst",
-        source = bld.path.ant_glob(['wrapper/*.sh']),
-        target = ['%s' % node.change_ext('', '.sh')
-                  for node in bld.path.ant_glob(['wrapper/*.sh'])],
-        install_path = "${BINDIR}",
-        chmod = Utils.O755,
+    # List all directories files (tool can has multiple .cpp in the directory)
+    for name in bld.path.ant_glob(['*'], dir=True, src=False, excl=['wrapper']):
+        bld(features=['cxx', 'cxxprogram'],
+            target="../bin/%s" % name,
+            source=bld.path.ant_glob(['%s/**/*.cpp' % name]),
+            use='ndn-cxx',
+            includes='%s' % name,
+            )
+
+    bld(features="subst",
+        source=bld.path.ant_glob(['wrapper/*.sh']),
+        target=['%s' % node.change_ext('', '.sh')
+                for node in bld.path.ant_glob(['wrapper/*.sh'])],
+        install_path="${BINDIR}",
+        chmod=Utils.O755,
        )
