@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,44 +30,42 @@ namespace ndn {
 // Additional nested namespace could be used to prevent/limit name contentions
 namespace examples {
 
-void
-onData(Face& face,
-       const Interest& interest, Data& data)
+class Consumer : noncopyable
 {
-  std::cout << "I: " << interest.toUri() << std::endl;
-  std::cout << "D: " << data.getName().toUri() << std::endl;
-}
+public:
+  void
+  run()
+  {
+    Interest interest(Name("/example/testApp/randomData"));
+    interest.setInterestLifetime(time::milliseconds(1000));
+    interest.setMustBeFresh(true);
 
-void
-onTimeout(Face& face,
-          const Interest& interest)
-{
-  std::cout << "Timeout" << std::endl;
-}
+    m_face.expressInterest(interest,
+                           bind(&Consumer::onData, this,  _1, _2),
+                           bind(&Consumer::onTimeout, this, _1));
 
-int
-main(int argc, char** argv)
-{
-  try {
-    Interest i(Name("/example/testApp/randomData"));
-    i.setScope(1);
-    i.setInterestLifetime(time::milliseconds(1000));
-    i.setMustBeFresh(true);
-
-    Face face;
-    face.expressInterest(i,
-                         bind(onData, ref(face), _1, _2),
-                         bind(onTimeout, ref(face), _1));
+    std::cout << "Sending " << interest << std::endl;
 
     // processEvents will block until the requested data received or timeout occurs
-    face.processEvents();
+    m_face.processEvents();
   }
-  catch(std::exception& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    return 1;
+
+private:
+  void
+  onData(const Interest& interest, const Data& data)
+  {
+    std::cout << data << std::endl;
   }
-  return 0;
-}
+
+  void
+  onTimeout(const Interest& interest)
+  {
+    std::cout << "Timeout " << interest << std::endl;
+  }
+
+private:
+  Face m_face;
+};
 
 } // namespace examples
 } // namespace ndn
@@ -75,5 +73,12 @@ main(int argc, char** argv)
 int
 main(int argc, char** argv)
 {
-  return ndn::examples::main(argc, argv);
+  ndn::examples::Consumer consumer;
+  try {
+    consumer.run();
+  }
+  catch (const std::exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+  }
+  return 0;
 }

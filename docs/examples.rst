@@ -15,15 +15,10 @@ transport (:ndn-cxx:`UnixTransport`) and sends an Interest for
 ``/localhost/testApp/randomData``.  While expressing Interest, the app specifies two
 callbacks to be called when Data is retrieved or Interest times out.
 
-``ndn::bind`` is an alias for either `boost::bind
-<http://www.boost.org/doc/libs/1_55_0/libs/bind/bind.html>`_ or `std::bind
-<http://en.cppreference.com/w/cpp/utility/functional/bind>`_ when the library is compiled
-in C++11 mode.
-
 .. literalinclude:: ../examples/consumer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 24-26,32-34,48-52,54
+   :emphasize-lines: 24-27,39,43-46,50,57,67
 
 
 Trivial producer
@@ -47,7 +42,7 @@ using :ndn-cxx:`Face::put` method.
 .. literalinclude:: ../examples/producer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 44-47,50,56,71-74
+   :emphasize-lines: 42,55-58,61,64,67,70,76
 
 
 Consumer that uses ndn::Scheduler
@@ -71,4 +66,5 @@ Interest approximately 2 seconds after the first one.
 .. literalinclude:: ../examples/consumer-with-timer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 19,61,76,79-80,83
+   :emphasize-lines: 39-40,51-54,58-59,61-62,99-100
+
