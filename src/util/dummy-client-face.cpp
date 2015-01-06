@@ -105,9 +105,6 @@ DummyClientFace::construct(const Options& options)
     }
   });
 
-  onSendInterest.connect([this] (const Interest& interest) { onInterest(interest); });
-  onSendData.connect([this] (const Data& data) { onData(data); });
-
   if (options.enablePacketLogging)
     this->enablePacketLogging();
 

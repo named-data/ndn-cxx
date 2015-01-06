@@ -24,7 +24,6 @@
 
 #include "../face.hpp"
 #include "signal.hpp"
-#include "event-emitter.hpp" // deprecated
 
 namespace ndn {
 namespace util {
@@ -116,15 +115,6 @@ public:
    *  After .put, .processEvents must be called before this signal would be emitted.
    */
   Signal<DummyClientFace, Data> onSendData;
-
-public: // deprecated
-  /** \deprecated use onSendInterest
-   */
-  util::EventEmitter<Interest> onInterest;
-
-  /** \deprecated use onSendData
-   */
-  util::EventEmitter<Data> onData;
 
 private:
   shared_ptr<Transport> m_transport;
