@@ -10,17 +10,20 @@ ndn-cxx uses continuous integration and has been tested on the following
 platforms:
 
 -  Ubuntu 12.04 (64-bit and 32-bit)
--  Ubuntu 13.10 (64-bit and 32-bit)
+-  Ubuntu 14.04 (64-bit and 32-bit)
+-  Ubuntu 14.10 (64-bit and 32-bit)
 -  OS X 10.8
 -  OS X 10.9
+-  OS X 10.10
 
 ndn-cxx is known to work on the following platforms, although they are not officially
 supported:
 
--  Ubuntu 14.04
 -  Fedora >= 20
+-  CentOS >= 6.2
+-  Gentoo Linux
 -  FreeBSD >= 10.0
--  Raspberry Pi
+-  Raspbian >= 3.12
 
 Prerequisites
 -------------
@@ -48,7 +51,7 @@ development tools and libraries, and ndn-cxx prerequisites.
 
        sudo port install pkgconfig boost sqlite3 libcryptopp
 
--  Ubuntu 12.04, Ubuntu 13.10
+-  Ubuntu
 
    In a terminal, enter::
 
@@ -58,10 +61,10 @@ development tools and libraries, and ndn-cxx prerequisites.
        # For Ubuntu 12.04
        sudo apt-get install libboost1.48-all-dev
 
-       # For Ubuntu 13.10
+       # For all other Ubuntu versions
        sudo apt-get install libboost-all-dev
 
-- Fedora >=20
+- Fedora
 
    In a terminal, enter::
 
@@ -81,7 +84,7 @@ dependencies need to be installed:
 
 The following lists steps for common platforms to install these prerequisites:
 
--  On OS X 10.8 and 10.9 with MacPorts::
+-  On OS X with MacPorts::
 
        sudo port install doxygen graphviz py27-sphinx sphinx_select
        sudo port select sphinx py27-sphinx
@@ -91,12 +94,12 @@ The following lists steps for common platforms to install these prerequisites:
        sudo port select pip pip27
        sudo pip install sphinxcontrib-doxylink sphinxcontrib-googleanalytics
 
--  On Ubuntu >= 12.04::
+-  On Ubuntu::
 
        sudo apt-get install doxygen graphviz python-sphinx python-pip
        sudo pip install sphinxcontrib-doxylink sphinxcontrib-googleanalytics
 
--  On Fedora >= 20::
+-  On Fedora::
 
        sudp yum install doxygen graphviz python-sphinx
        sudo pip install sphinxcontrib-doxylink sphinxcontrib-googleanalytics

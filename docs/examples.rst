@@ -31,7 +31,7 @@ Trivial producer
 
 The following example demonstrates how to write a simple producer application.
 
-First, the application sets an Interset filter for ``/localhost/testApp`` to receive all
+First, the application sets an Interest filter for ``/localhost/testApp`` to receive all
 Interests that have this prefix.  The :ndn-cxx:`Face::setInterestFilter` call accepts two
 callbacks; the first will be called when an Interest is received and the second if prefix
 registration fails.
