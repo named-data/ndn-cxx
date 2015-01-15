@@ -118,7 +118,7 @@ class GccFlags(GccBasicFlags):
         version = tuple(int(i) for i in conf.env['CC_VERSION'])
         if version < (4, 6, 0):
             conf.fatal('The version of gcc you are using (%s) is too old.\n' %
-                       '.',join(conf.env['CC_VERSION']) +
+                       '.'.join(conf.env['CC_VERSION']) +
                        'The minimum supported gcc version is 4.6.0.')
         elif version < (4, 7, 0):
             flags['CXXFLAGS'] += ['-std=c++0x']
