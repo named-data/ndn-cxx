@@ -43,7 +43,7 @@ SecTpm::~SecTpm()
 std::string
 SecTpm::getTpmLocator()
 {
-  return this->getScheme() + m_location;
+  return this->getScheme() + ":" + m_location;
 }
 
 ConstBufferPtr

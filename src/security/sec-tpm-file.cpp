@@ -23,9 +23,8 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#include "common.hpp"
-
 #include "sec-tpm-file.hpp"
+
 #include "../encoding/buffer-stream.hpp"
 
 #include <boost/filesystem.hpp>
@@ -44,7 +43,7 @@ using std::string;
 using std::ostringstream;
 using std::ofstream;
 
-const std::string SecTpmFile::SCHEME("tpm-file:");
+const std::string SecTpmFile::SCHEME("tpm-file");
 
 class SecTpmFile::Impl
 {
@@ -155,7 +154,7 @@ SecTpmFile::generateKeyPairInTpm(const Name& keyName, const KeyParams& params)
 
             const EcdsaKeyParams& ecdsaParams = static_cast<const EcdsaKeyParams&>(params);
 
-            OID curveName;
+            CryptoPP::OID curveName;
             switch (ecdsaParams.getKeySize())
               {
               case 256:

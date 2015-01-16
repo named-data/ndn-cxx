@@ -40,7 +40,7 @@ namespace ndn {
 using std::string;
 using std::vector;
 
-const std::string SecPublicInfoSqlite3::SCHEME("pib-sqlite3:");
+const std::string SecPublicInfoSqlite3::SCHEME("pib-sqlite3");
 
 static const string INIT_TPM_INFO_TABLE =
   "CREATE TABLE IF NOT EXISTS                "

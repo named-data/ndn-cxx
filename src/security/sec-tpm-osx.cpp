@@ -21,10 +21,9 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#include "common.hpp"
-
 #include "sec-tpm-osx.hpp"
 #include "public-key.hpp"
+
 #include "../encoding/oid.hpp"
 #include "../encoding/buffer-stream.hpp"
 #include "cryptopp.hpp"
@@ -47,7 +46,7 @@ namespace ndn {
 
 using std::string;
 
-const std::string SecTpmOsx::SCHEME("tpm-osxkeychain:");
+const std::string SecTpmOsx::SCHEME("tpm-osxkeychain");
 
 /**
  * @brief Helper class to wrap CoreFoundation object pointers

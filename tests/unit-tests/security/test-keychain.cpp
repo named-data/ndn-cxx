@@ -24,6 +24,7 @@
 #include <boost/filesystem.hpp>
 
 #include "boost-test.hpp"
+#include "dummy-keychain.hpp"
 
 namespace ndn {
 namespace tests {
@@ -39,6 +40,14 @@ BOOST_AUTO_TEST_CASE(ConstructorNormalConfig)
   setenv("TEST_HOME", "tests/unit-tests/security/config-file-home", 1);
 
   BOOST_REQUIRE_NO_THROW(KeyChain());
+
+  KeyChain keyChain;
+  BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(),
+                    "pib-sqlite3:/tmp/test/ndn-cxx/keychain/sqlite3-file/");
+  BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(),
+                    "tpm-file:/tmp/test/ndn-cxx/keychain/sqlite3-file/");
+  BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(),
+                    "tpm-file:/tmp/test/ndn-cxx/keychain/sqlite3-file/");
 
   path pibPath(absolute(std::getenv("TEST_HOME")));
   pibPath /= ".ndn/ndnsec-public-info.db";
@@ -68,6 +77,19 @@ BOOST_AUTO_TEST_CASE(ConstructorEmptyConfig)
 #endif
 
   BOOST_REQUIRE_NO_THROW(KeyChain());
+  KeyChain keyChain;
+  BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(),
+                    "pib-sqlite3:/tmp/test/ndn-cxx/keychain/sqlite3-empty/");
+
+#if defined(NDN_CXX_HAVE_OSX_SECURITY)
+  BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(), "tpm-osxkeychain:");
+  BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-osxkeychain:");
+#else
+  BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(),
+                    "tpm-file:");
+  BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(),
+                    "tpm-file:");
+#endif
 
 #if defined(NDN_CXX_HAVE_OSX_SECURITY)
   if (!HOME.empty())
@@ -89,6 +111,14 @@ BOOST_AUTO_TEST_CASE(ConstructorEmpty2Config)
   setenv("TEST_HOME", "tests/unit-tests/security/config-file-empty2-home", 1);
 
   BOOST_REQUIRE_NO_THROW(KeyChain());
+
+  KeyChain keyChain;
+  BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(),
+                    "pib-sqlite3:");
+  BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(),
+                    "tpm-file:/tmp/test/ndn-cxx/keychain/empty-file/");
+  BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(),
+                    "tpm-file:/tmp/test/ndn-cxx/keychain/empty-file/");
 
   path pibPath(absolute(std::getenv("TEST_HOME")));
   pibPath /= ".ndn/ndnsec-public-info.db";
@@ -295,6 +325,17 @@ BOOST_AUTO_TEST_CASE(Delete)
   BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName1), false);
   BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), false);
   BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), false);
+}
+
+BOOST_AUTO_TEST_CASE(KeyChainWithCustomTpmAndPib)
+{
+  BOOST_REQUIRE_NO_THROW((KeyChain("pib-dummy", "tpm-dummy")));
+  BOOST_REQUIRE_NO_THROW((KeyChain("dummy", "dummy")));
+  BOOST_REQUIRE_NO_THROW((KeyChain("dummy:", "dummy:")));
+  BOOST_REQUIRE_NO_THROW((KeyChain("dummy:/something", "dummy:/something")));
+
+  KeyChain keyChain("dummy", "dummy");
+  BOOST_CHECK_EQUAL(keyChain.getDefaultIdentity(), "/dummy/key");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

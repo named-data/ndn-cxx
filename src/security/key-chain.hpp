@@ -35,17 +35,10 @@
 #include "../interest.hpp"
 #include "../util/crypto.hpp"
 #include "../util/random.hpp"
+#include <initializer_list>
 
 
 namespace ndn {
-
-template<class TypePib, class TypeTpm>
-class KeyChainTraits
-{
-public:
-  typedef TypePib Pib;
-  typedef TypeTpm Tpm;
-};
 
 class KeyChain : noncopyable
 {
@@ -74,11 +67,34 @@ public:
     }
   };
 
-  KeyChain();
+  typedef function<unique_ptr<SecPublicInfo> (const std::string&)> PibCreateFunc;
+  typedef function<unique_ptr<SecTpm>(const std::string&)> TpmCreateFunc;
 
-  template<class KeyChainTraits>
-  explicit
-  KeyChain(KeyChainTraits traits);
+  /**
+   * @brief Register a new PIB
+   * @param schemes List of scheme with which this PIB will be associated
+   */
+  template<class PibType>
+  static void
+  registerPib(std::initializer_list<std::string> schemes);
+
+  /**
+   * @brief Register a new TPM
+   * @param schemes List of scheme with which this TPM will be associated
+   */
+  template<class TpmType>
+  static void
+  registerTpm(std::initializer_list<std::string> schemes);
+
+  /**
+   * @brief Constructor to create KeyChain with default PIB and TPM
+   *
+   * Default PIB and TPM are platform-dependent and can be overriden system-wide or on
+   * per-use basis.
+   *
+   * @todo Add detailed description about config file behavior here
+   */
+  KeyChain();
 
   /**
    * @brief KeyChain constructor
@@ -658,15 +674,9 @@ public:
 
 private:
   void
-  initialize(const std::string& pibLocator,
-             const std::string& tpmLocator,
+  initialize(const std::string& pibLocatorUri,
+             const std::string& tpmLocatorUri,
              bool needReset);
-
-  void
-  initializeTpm(const std::string& locator);
-
-  void
-  initializePib(const std::string& locator);
 
   /**
    * @brief Determine signature type
@@ -732,14 +742,20 @@ private:
   signPacketWrapper(Interest& interest, const Signature& signature,
                     const Name& keyName, DigestAlgorithm digestAlgorithm);
 
+  static void
+  registerPibImpl(std::initializer_list<std::string> schemes, PibCreateFunc createFunc);
+
+  static void
+  registerTpmImpl(std::initializer_list<std::string> schemes, TpmCreateFunc createFunc);
+
 public:
   static const Name DEFAULT_PREFIX;
   // RsaKeyParams is set to be default for backward compatibility.
   static const RsaKeyParams DEFAULT_KEY_PARAMS;
 
 private:
-  SecPublicInfo* m_pib;
-  SecTpm* m_tpm;
+  std::unique_ptr<SecPublicInfo> m_pib;
+  std::unique_ptr<SecTpm> m_tpm;
   time::milliseconds m_lastTimestamp;
 };
 
@@ -800,6 +816,56 @@ KeyChain::sign(T& packet, const IdentityCertificate& certificate)
 
   return;
 }
+
+template<class PibType>
+inline void
+KeyChain::registerPib(std::initializer_list<std::string> schemes)
+{
+  registerPibImpl(schemes, [] (const std::string& locator) {
+      return unique_ptr<SecPublicInfo>(new PibType(locator));
+    });
+}
+
+template<class TpmType>
+inline void
+KeyChain::registerTpm(std::initializer_list<std::string> schemes)
+{
+  registerTpmImpl(schemes, [] (const std::string& locator) {
+      return unique_ptr<SecTpm>(new TpmType(locator));
+    });
+}
+
+/**
+ * \brief Register SecPib class in ndn-cxx KeyChain
+ *
+ * This macro should be placed once in the implementation file of the
+ * SecPib type within the namespace where the type is declared.
+ */
+#define NDN_CXX_KEYCHAIN_REGISTER_PIB(PibType, ...)  \
+static class NdnCxxAuto ## PibType ## PibRegistrationClass    \
+{                                                             \
+public:                                                       \
+  NdnCxxAuto ## PibType ## PibRegistrationClass()             \
+  {                                                           \
+    ::ndn::KeyChain::registerPib<PibType>({__VA_ARGS__});     \
+  }                                                           \
+} ndnCxxAuto ## PibType ## PibRegistrationVariable
+
+/**
+ * \brief Register SecTpm class in ndn-cxx KeyChain
+ *
+ * This macro should be placed once in the implementation file of the
+ * SecTpm type within the namespace where the type is declared.
+ */
+#define NDN_CXX_KEYCHAIN_REGISTER_TPM(TpmType, ...)  \
+static class NdnCxxAuto ## TpmType ## TpmRegistrationClass    \
+{                                                             \
+public:                                                       \
+  NdnCxxAuto ## TpmType ## TpmRegistrationClass()             \
+  {                                                           \
+    ::ndn::KeyChain::registerTpm<TpmType>({__VA_ARGS__});     \
+  }                                                           \
+} ndnCxxAuto ## TpmType ## TpmRegistrationVariable
 
 } // namespace ndn
 

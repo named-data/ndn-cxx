@@ -35,7 +35,7 @@ SecPublicInfo::~SecPublicInfo()
 std::string
 SecPublicInfo::getPibLocator()
 {
-  return this->getScheme() + m_location;
+  return this->getScheme() + ":" + m_location;
 }
 
 void

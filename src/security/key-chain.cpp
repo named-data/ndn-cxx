@@ -23,15 +23,16 @@
 
 #include "key-chain.hpp"
 
+#include "../util/random.hpp"
+#include "../util/config-file.hpp"
+
 #include "sec-public-info-sqlite3.hpp"
-#include "sec-tpm-file.hpp"
 
 #ifdef NDN_CXX_HAVE_OSX_SECURITY
 #include "sec-tpm-osx.hpp"
-#endif
+#endif // NDN_CXX_HAVE_OSX_SECURITY
 
-#include "../util/random.hpp"
-#include "../util/config-file.hpp"
+#include "sec-tpm-file.hpp"
 
 namespace ndn {
 
@@ -40,22 +41,71 @@ const Name KeyChain::DEFAULT_PREFIX("/723821fd-f534-44b3-80d9-44bf5f58bbbb");
 
 const RsaKeyParams KeyChain::DEFAULT_KEY_PARAMS;
 
+const std::string DEFAULT_PIB_SCHEME = "pib-sqlite3";
+
+#if defined(NDN_CXX_HAVE_OSX_SECURITY) and defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+const std::string DEFAULT_TPM_SCHEME = "tpm-osxkeychain";
+#else
+const std::string DEFAULT_TPM_SCHEME = "tpm-file";
+#endif // defined(NDN_CXX_HAVE_OSX_SECURITY) and defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+
+// When static library is used, not everything is compiled into the resulting binary.
+// Therefore, the following standard PIB and TPMs need to be registered here.
+// http://stackoverflow.com/q/9459980/2150331
+//
+// Also, cannot use Type::SCHEME, as its value may be uninitialized
+NDN_CXX_KEYCHAIN_REGISTER_PIB(SecPublicInfoSqlite3, "pib-sqlite3", "sqlite3");
+
+#ifdef NDN_CXX_HAVE_OSX_SECURITY
+NDN_CXX_KEYCHAIN_REGISTER_TPM(SecTpmOsx, "tpm-osxkeychain", "osx-keychain");
+#endif // NDN_CXX_HAVE_OSX_SECURITY
+
+NDN_CXX_KEYCHAIN_REGISTER_TPM(SecTpmFile, "tpm-file", "file");
+
+static std::map<std::string, KeyChain::PibCreateFunc>&
+getPibFactories()
+{
+  static std::map<std::string, KeyChain::PibCreateFunc> pibFactories;
+  return pibFactories;
+}
+
+static std::map<std::string, KeyChain::TpmCreateFunc>&
+getTpmFactories()
+{
+  static std::map<std::string, KeyChain::TpmCreateFunc> tpmFactories;
+  return tpmFactories;
+}
+
+void
+KeyChain::registerPibImpl(std::initializer_list<std::string> schemes,
+                          KeyChain::PibCreateFunc createFunc)
+{
+  for (const std::string& scheme : schemes) {
+    getPibFactories()[scheme] = createFunc;
+  }
+}
+
+void
+KeyChain::registerTpmImpl(std::initializer_list<std::string> schemes,
+                          KeyChain::TpmCreateFunc createFunc)
+{
+  for (const std::string& scheme : schemes) {
+    getTpmFactories()[scheme] = createFunc;
+  }
+}
+
 KeyChain::KeyChain()
   : m_pib(nullptr)
   , m_tpm(nullptr)
   , m_lastTimestamp(time::toUnixTimestamp(time::system_clock::now()))
 {
-  initialize("", "", false);
-}
+  ConfigFile config;
+  const ConfigFile::Parsed& parsed = config.getParsedConfiguration();
 
-template<class T>
-inline
-KeyChain::KeyChain(T traits)
-  : m_pib(new typename T::Pib)
-  , m_tpm(nullptr)
-  , m_lastTimestamp(time::toUnixTimestamp(time::system_clock::now()))
-{
-  initialize(T::Pib::SCHEME, T::Tpm::SCHEME, false);
+  std::string pibLocator = parsed.get<std::string>("pib", "");
+  std::string tpmLocator = parsed.get<std::string>("tpm", "");
+
+  initialize(pibLocator, tpmLocator, false);
 }
 
 KeyChain::KeyChain(const std::string& pibName,
@@ -65,151 +115,80 @@ KeyChain::KeyChain(const std::string& pibName,
   , m_tpm(nullptr)
   , m_lastTimestamp(time::toUnixTimestamp(time::system_clock::now()))
 {
-  std::string pibLocator;
-  std::string tpmLocator;
-
-  if (tpmName == "file")
-    tpmLocator = SecTpmFile::SCHEME;
-#if defined(NDN_CXX_HAVE_OSX_SECURITY)
-  else if (tpmName == "osx-keychain")
-    tpmLocator = SecTpmOsx::SCHEME;
-#endif //NDN_CXX_HAVE_OSX_SECURITY
-  else
-    tpmLocator = tpmName;
-
-  if (pibName == "sqlite3")
-    pibLocator = SecPublicInfoSqlite3::SCHEME;
-  else
-    pibLocator = pibName;
-
-  initialize(pibLocator, tpmLocator, allowReset);
+  initialize(pibName, tpmName, allowReset);
 }
 
 KeyChain::~KeyChain()
 {
-  if (m_pib != nullptr)
-    delete m_pib;
+}
 
-  if (m_tpm != nullptr)
-    delete m_tpm;
+static inline std::tuple<std::string/*type*/, std::string/*location*/>
+parseUri(const std::string& uri)
+{
+  size_t pos = uri.find(':');
+  if (pos != std::string::npos) {
+    return std::make_tuple(uri.substr(0, pos),
+                           uri.substr(pos + 1));
+  }
+  else {
+    return std::make_tuple(uri, "");
+  }
 }
 
 void
-KeyChain::initialize(const std::string& pib,
-                     const std::string& tpm,
+KeyChain::initialize(const std::string& pibLocatorUri,
+                     const std::string& tpmLocatorUri,
                      bool allowReset)
 {
-  ConfigFile config;
-  const ConfigFile::Parsed& parsed = config.getParsedConfiguration();
+  BOOST_ASSERT(!getPibFactories().empty());
+  BOOST_ASSERT(!getTpmFactories().empty());
 
-  std::string defaultTpmLocator;
+  std::string pibScheme, pibLocation;
+  std::tie(pibScheme, pibLocation) = parseUri(pibLocatorUri);
+
+  std::string tpmScheme, tpmLocation;
+  std::tie(tpmScheme, tpmLocation) = parseUri(tpmLocatorUri);
+
+  // Find PIB and TPM factories
+  if (pibScheme.empty()) {
+    pibScheme = DEFAULT_PIB_SCHEME;
+  }
+  auto pibFactory = getPibFactories().find(pibScheme);
+  if (pibFactory == getPibFactories().end()) {
+    throw Error("PIB scheme '" + pibScheme + "' is not supported");
+  }
+
+  if (tpmScheme.empty()) {
+    tpmScheme = DEFAULT_TPM_SCHEME;
+  }
+  auto tpmFactory = getTpmFactories().find(tpmScheme);
+  if (tpmFactory == getTpmFactories().end()) {
+    throw Error("TPM scheme '" + tpmScheme + "' is not supported");
+  }
+
+  // Create PIB
+  m_pib = pibFactory->second(pibLocation);
+
+  std::string actualTpmLocator = tpmScheme + ":" + tpmLocation;
+
+  // Create TPM, checking that it matches to the previously associated one
   try {
-    defaultTpmLocator = parsed.get<std::string>("tpm");
-  }
-  catch (boost::property_tree::ptree_bad_path&) {
-    // tpm is not specified, take the default
-  }
-  catch (boost::property_tree::ptree_bad_data& error) {
-    throw ConfigFile::Error(error.what());
-  }
-
-  if (defaultTpmLocator.empty())
-#if defined(NDN_CXX_HAVE_OSX_SECURITY) and defined(NDN_CXX_WITH_OSX_KEYCHAIN)
-    defaultTpmLocator = SecTpmOsx::SCHEME;
-#else
-    defaultTpmLocator = SecTpmFile::SCHEME;
-#endif // defined(NDN_CXX_HAVE_OSX_SECURITY) and defined(NDN_CXX_WITH_OSX_KEYCHAIN)
-  else if (defaultTpmLocator == "osx-keychain")
-#if defined(NDN_CXX_HAVE_OSX_SECURITY)
-    defaultTpmLocator = SecTpmOsx::SCHEME;
-#else
-    throw Error("TPM Locator '" + defaultTpmLocator + "' is not supported on this platform");
-#endif // NDN_CXX_HAVE_OSX_SECURITY
-  else if (defaultTpmLocator == "file")
-    defaultTpmLocator = SecTpmFile::SCHEME;
-
-  std::string defaultPibLocator;
-  try {
-    defaultPibLocator = parsed.get<std::string>("pib");
-  }
-  catch (boost::property_tree::ptree_bad_path&) {
-    // pib is not specified, take the default
-  }
-  catch (boost::property_tree::ptree_bad_data& error) {
-    throw ConfigFile::Error(error.what());
-  }
-
-  if (defaultPibLocator.empty() || defaultPibLocator == "sqlite3")
-    defaultPibLocator = SecPublicInfoSqlite3::SCHEME;
-
-  std::string pibLocator = pib;
-  std::string tpmLocator = tpm;
-
-  if (pibLocator == "")
-    pibLocator = defaultPibLocator;
-
-  if (defaultPibLocator == pibLocator)
-    tpmLocator = defaultTpmLocator;
-
-  initializePib(pibLocator);
-
-  std::string currentTpmLocator;
-  try {
-    currentTpmLocator = m_pib->getTpmLocator();
-
-    if (currentTpmLocator != tpmLocator) {
-      if (!allowReset) {
-        // Tpm mismatch, but we do not want to reset PIB
-        throw MismatchError("TPM locator supplied and TPM locator in PIB mismatch: " +
-                            currentTpmLocator + " != " + tpmLocator);
-      }
-      else {
-        // reset is explicitly required
-        tpmLocator = currentTpmLocator;
-      }
-    }
+    if (!allowReset &&
+        !m_pib->getTpmLocator().empty() && m_pib->getTpmLocator() != actualTpmLocator)
+      // Tpm mismatch, but we do not want to reset PIB
+      throw MismatchError("TPM locator supplied does not match TPM locator in PIB: " +
+                          m_pib->getTpmLocator() + " != " + actualTpmLocator);
   }
   catch (SecPublicInfo::Error&) {
     // TPM locator is not set in PIB yet.
   }
 
-  initializeTpm(tpmLocator); // note that key mismatch may still happen
-                             // if the TPM locator is initially set to a wrong one
-                             // or if the PIB was shared by more than one TPMs before.
-                             // This is due to the old PIB does not have TPM info,
-                             // new pib should not have this problem.
+  // note that key mismatch may still happen if the TPM locator is initially set to a
+  // wrong one or if the PIB was shared by more than one TPMs before.  This is due to the
+  // old PIB does not have TPM info, new pib should not have this problem.
 
-  m_pib->setTpmLocator(tpmLocator);
-}
-
-void
-KeyChain::initializeTpm(const std::string& locator)
-{
-  size_t pos = locator.find(':');
-  std::string type = locator.substr(0, pos + 1);
-  std::string location = locator.substr(pos + 1);
-
-  if (type == SecTpmFile::SCHEME)
-    m_tpm = new SecTpmFile(location);
-#if defined(NDN_CXX_HAVE_OSX_SECURITY) and defined(NDN_CXX_WITH_OSX_KEYCHAIN)
-  else if (type == SecTpmOsx::SCHEME)
-    m_tpm = new SecTpmOsx(location);
-#endif
-  else
-    throw Error("Tpm locator error: Unsupported Tpm type: " + type);
-}
-
-void
-KeyChain::initializePib(const std::string& locator)
-{
-  size_t pos = locator.find(':');
-  std::string type = locator.substr(0, pos + 1);
-  std::string location = locator.substr(pos + 1);
-
-  if (type == SecPublicInfoSqlite3::SCHEME)
-    m_pib = new SecPublicInfoSqlite3(location);
-  else
-    throw Error("Pib locator error: Unsupported Pib type: " + type);
+  m_tpm = tpmFactory->second(tpmLocation);
+  m_pib->setTpmLocator(actualTpmLocator);
 }
 
 Name
