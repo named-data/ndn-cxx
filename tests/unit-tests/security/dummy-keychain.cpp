@@ -70,6 +70,12 @@ const std::string DummyTpm::SCHEME = "tpm-dummy";
 NDN_CXX_KEYCHAIN_REGISTER_PIB(DummyPublicInfo, "pib-dummy", "dummy");
 NDN_CXX_KEYCHAIN_REGISTER_TPM(DummyTpm, "tpm-dummy", "dummy");
 
+typedef DummyPublicInfo DummyPublicInfo2;
+typedef DummyTpm DummyTpm2;
+
+NDN_CXX_KEYCHAIN_REGISTER_PIB(DummyPublicInfo2, "pib-dummy2");
+NDN_CXX_KEYCHAIN_REGISTER_TPM(DummyTpm2, "tpm-dummy2");
+
 DummyPublicInfo::DummyPublicInfo(const std::string& locator)
   : SecPublicInfo(locator)
 {

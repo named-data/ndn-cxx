@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -62,35 +62,52 @@ NDN_CXX_KEYCHAIN_REGISTER_TPM(SecTpmOsx, "tpm-osxkeychain", "osx-keychain");
 
 NDN_CXX_KEYCHAIN_REGISTER_TPM(SecTpmFile, "tpm-file", "file");
 
-static std::map<std::string, KeyChain::PibCreateFunc>&
+template<class T>
+struct Factory
+{
+  Factory(const std::string& canonicalName, const T& create)
+    : canonicalName(canonicalName)
+    , create(create)
+  {
+  }
+
+  std::string canonicalName;
+  T create;
+};
+typedef Factory<KeyChain::PibCreateFunc> PibFactory;
+typedef Factory<KeyChain::TpmCreateFunc> TpmFactory;
+
+static std::map<std::string, PibFactory>&
 getPibFactories()
 {
-  static std::map<std::string, KeyChain::PibCreateFunc> pibFactories;
+  static std::map<std::string, PibFactory> pibFactories;
   return pibFactories;
 }
 
-static std::map<std::string, KeyChain::TpmCreateFunc>&
+static std::map<std::string, TpmFactory>&
 getTpmFactories()
 {
-  static std::map<std::string, KeyChain::TpmCreateFunc> tpmFactories;
+  static std::map<std::string, TpmFactory> tpmFactories;
   return tpmFactories;
 }
 
 void
-KeyChain::registerPibImpl(std::initializer_list<std::string> schemes,
+KeyChain::registerPibImpl(const std::string& canonicalName,
+                          std::initializer_list<std::string> aliases,
                           KeyChain::PibCreateFunc createFunc)
 {
-  for (const std::string& scheme : schemes) {
-    getPibFactories()[scheme] = createFunc;
+  for (const std::string& alias : aliases) {
+    getPibFactories().insert(make_pair(alias, PibFactory(canonicalName, createFunc)));
   }
 }
 
 void
-KeyChain::registerTpmImpl(std::initializer_list<std::string> schemes,
+KeyChain::registerTpmImpl(const std::string& canonicalName,
+                          std::initializer_list<std::string> aliases,
                           KeyChain::TpmCreateFunc createFunc)
 {
-  for (const std::string& scheme : schemes) {
-    getTpmFactories()[scheme] = createFunc;
+  for (const std::string& alias : aliases) {
+    getTpmFactories().insert(make_pair(alias, TpmFactory(canonicalName, createFunc)));
   }
 }
 
@@ -157,6 +174,7 @@ KeyChain::initialize(const std::string& pibLocatorUri,
   if (pibFactory == getPibFactories().end()) {
     throw Error("PIB scheme '" + pibScheme + "' is not supported");
   }
+  pibScheme = pibFactory->second.canonicalName;
 
   if (tpmScheme.empty()) {
     tpmScheme = DEFAULT_TPM_SCHEME;
@@ -165,9 +183,10 @@ KeyChain::initialize(const std::string& pibLocatorUri,
   if (tpmFactory == getTpmFactories().end()) {
     throw Error("TPM scheme '" + tpmScheme + "' is not supported");
   }
+  tpmScheme = tpmFactory->second.canonicalName;
 
   // Create PIB
-  m_pib = pibFactory->second(pibLocation);
+  m_pib = pibFactory->second.create(pibLocation);
 
   std::string actualTpmLocator = tpmScheme + ":" + tpmLocation;
 
@@ -187,7 +206,7 @@ KeyChain::initialize(const std::string& pibLocatorUri,
   // wrong one or if the PIB was shared by more than one TPMs before.  This is due to the
   // old PIB does not have TPM info, new pib should not have this problem.
 
-  m_tpm = tpmFactory->second(tpmLocation);
+  m_tpm = tpmFactory->second.create(tpmLocation);
   m_pib->setTpmLocator(actualTpmLocator);
 }
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -330,11 +330,15 @@ BOOST_AUTO_TEST_CASE(Delete)
 BOOST_AUTO_TEST_CASE(KeyChainWithCustomTpmAndPib)
 {
   BOOST_REQUIRE_NO_THROW((KeyChain("pib-dummy", "tpm-dummy")));
+  BOOST_REQUIRE_NO_THROW((KeyChain("pib-dummy2", "tpm-dummy2")));
   BOOST_REQUIRE_NO_THROW((KeyChain("dummy", "dummy")));
   BOOST_REQUIRE_NO_THROW((KeyChain("dummy:", "dummy:")));
   BOOST_REQUIRE_NO_THROW((KeyChain("dummy:/something", "dummy:/something")));
 
   KeyChain keyChain("dummy", "dummy");
+  BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-dummy:");
+  BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(), "tpm-dummy:");
+  BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-dummy:");
   BOOST_CHECK_EQUAL(keyChain.getDefaultIdentity(), "/dummy/key");
 }
 

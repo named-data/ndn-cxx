@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -72,19 +72,21 @@ public:
 
   /**
    * @brief Register a new PIB
-   * @param schemes List of scheme with which this PIB will be associated
+   * @param aliases List of schemes with which this PIB will be associated.
+   *        The first alias in the list is considered a canonical name of the PIB instance.
    */
   template<class PibType>
   static void
-  registerPib(std::initializer_list<std::string> schemes);
+  registerPib(std::initializer_list<std::string> aliases);
 
   /**
    * @brief Register a new TPM
-   * @param schemes List of scheme with which this TPM will be associated
+   * @param aliases List of schemes with which this TPM will be associated
+   *        The first alias in the list is considered a canonical name of the TPM instance.
    */
   template<class TpmType>
   static void
-  registerTpm(std::initializer_list<std::string> schemes);
+  registerTpm(std::initializer_list<std::string> aliases);
 
   /**
    * @brief Constructor to create KeyChain with default PIB and TPM
@@ -743,10 +745,12 @@ private:
                     const Name& keyName, DigestAlgorithm digestAlgorithm);
 
   static void
-  registerPibImpl(std::initializer_list<std::string> schemes, PibCreateFunc createFunc);
+  registerPibImpl(const std::string& canonicalName,
+                  std::initializer_list<std::string> aliases, PibCreateFunc createFunc);
 
   static void
-  registerTpmImpl(std::initializer_list<std::string> schemes, TpmCreateFunc createFunc);
+  registerTpmImpl(const std::string& canonicalName,
+                  std::initializer_list<std::string> aliases, TpmCreateFunc createFunc);
 
 public:
   static const Name DEFAULT_PREFIX;
@@ -819,18 +823,18 @@ KeyChain::sign(T& packet, const IdentityCertificate& certificate)
 
 template<class PibType>
 inline void
-KeyChain::registerPib(std::initializer_list<std::string> schemes)
+KeyChain::registerPib(std::initializer_list<std::string> aliases)
 {
-  registerPibImpl(schemes, [] (const std::string& locator) {
+  registerPibImpl(*aliases.begin(), aliases, [] (const std::string& locator) {
       return unique_ptr<SecPublicInfo>(new PibType(locator));
     });
 }
 
 template<class TpmType>
 inline void
-KeyChain::registerTpm(std::initializer_list<std::string> schemes)
+KeyChain::registerTpm(std::initializer_list<std::string> aliases)
 {
-  registerTpmImpl(schemes, [] (const std::string& locator) {
+  registerTpmImpl(*aliases.begin(), aliases, [] (const std::string& locator) {
       return unique_ptr<SecTpm>(new TpmType(locator));
     });
 }
@@ -841,7 +845,7 @@ KeyChain::registerTpm(std::initializer_list<std::string> schemes)
  * This macro should be placed once in the implementation file of the
  * SecPib type within the namespace where the type is declared.
  */
-#define NDN_CXX_KEYCHAIN_REGISTER_PIB(PibType, ...)  \
+#define NDN_CXX_KEYCHAIN_REGISTER_PIB(PibType, ...)     \
 static class NdnCxxAuto ## PibType ## PibRegistrationClass    \
 {                                                             \
 public:                                                       \
@@ -857,7 +861,7 @@ public:                                                       \
  * This macro should be placed once in the implementation file of the
  * SecTpm type within the namespace where the type is declared.
  */
-#define NDN_CXX_KEYCHAIN_REGISTER_TPM(TpmType, ...)  \
+#define NDN_CXX_KEYCHAIN_REGISTER_TPM(TpmType, ...)     \
 static class NdnCxxAuto ## TpmType ## TpmRegistrationClass    \
 {                                                             \
 public:                                                       \
