@@ -101,7 +101,7 @@ The following lists steps for common platforms to install these prerequisites:
 
 -  On Fedora::
 
-       sudp yum install doxygen graphviz python-sphinx
+       sudo yum install doxygen graphviz python-sphinx
        sudo pip install sphinxcontrib-doxylink sphinxcontrib-googleanalytics
 
 Build
@@ -243,3 +243,14 @@ running ``./waf configure``:
 
     CXXFLAGS="-O1 -g3" ./waf configure --debug --with-tests
     ...
+
+Customize Compiler
+------------------
+
+To customize compiler, set ``CXX`` environment variable to point to compiler binary and, in
+some case, specify type of the compiler using ``--check-cxx-compiler``.  For example, when
+using clang compiler on Linux system, use the following:
+
+::
+
+    CXX=clang++ ./waf configure --check-cxx-compiler=clang++

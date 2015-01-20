@@ -40,6 +40,8 @@ Documentation for ndn-cxx developers and contributors
 
 - :doc:`code-style`
 
+- :doc:`Release Notes <RELEASE_NOTES>`
+
 License
 -------
 
