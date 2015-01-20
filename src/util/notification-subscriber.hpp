@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,8 +48,8 @@
 #ifndef NDN_UTIL_NOTIFICATION_SUBSCRIBER_HPP
 #define NDN_UTIL_NOTIFICATION_SUBSCRIBER_HPP
 
-#include "event-emitter.hpp"
 #include "../face.hpp"
+#include "signal.hpp"
 #include "concepts.hpp"
 #include <boost/concept_check.hpp>
 
@@ -135,15 +135,15 @@ public: // subscriptions
   /** \brief fires when a Notification is received
    *  \note Removing all handlers will cause the subscriber to stop.
    */
-  EventEmitter<Notification> onNotification;
+  signal::Signal<NotificationSubscriber, Notification> onNotification;
 
   /** \brief fires when no Notification is received within .getInterestLifetime period
    */
-  EventEmitter<> onTimeout;
+  signal::Signal<NotificationSubscriber> onTimeout;
 
   /** \brief fires when a Data packet in the Notification Stream cannot be decoded as Notification
    */
-  EventEmitter<Data> onDecodeError;
+  signal::Signal<NotificationSubscriber, Data> onDecodeError;
 
 private:
   void

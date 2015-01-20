@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -97,12 +97,6 @@ public:
   }
 
   void
-  clearNotificationHandlers()
-  {
-    subscriber.onNotification.clear();
-  }
-
-  void
   afterTimeout()
   {
     hasTimeout = true;
@@ -155,6 +149,7 @@ protected:
   util::NotificationStream<SimpleNotification> notificationStream;
   shared_ptr<DummyClientFace> subscriberFace;
   util::NotificationSubscriber<SimpleNotification> subscriber;
+  util::signal::Connection notificationConn;
 
   uint64_t lastDeliveredSeqNo;
 
@@ -171,9 +166,10 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   subscriber.start();
   BOOST_REQUIRE_EQUAL(subscriber.isRunning(), false);
 
-  subscriber.onNotification += bind(&EndToEndFixture::afterNotification, this, _1);
-  subscriber.onTimeout += bind(&EndToEndFixture::afterTimeout, this);
-  subscriber.onDecodeError += bind(&EndToEndFixture::afterDecodeError, this, _1);
+  notificationConn = subscriber.onNotification.connect(
+      bind(&EndToEndFixture::afterNotification, this, _1));
+  subscriber.onTimeout.connect(bind(&EndToEndFixture::afterTimeout, this));
+  subscriber.onDecodeError.connect(bind(&EndToEndFixture::afterDecodeError, this, _1));
 
   // not received when subscriber is not running
   this->deliverNotification("n1");
@@ -231,7 +227,7 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   BOOST_CHECK(this->hasInitialRequest());
 
   // stop if handlers are cleared
-  subscriber.onNotification += bind(&EndToEndFixture::clearNotificationHandlers, this);
+  notificationConn.disconnect();
   subscriberFace->sentInterests.clear();
   this->deliverNotification("n5");
   advanceClocks(time::milliseconds(1));
