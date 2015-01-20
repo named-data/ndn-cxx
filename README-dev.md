@@ -39,3 +39,6 @@ you are choosing LGPL 3.0, please use the following license boilerplate in all `
      * @author Other Author's Name <another.email@domain-or-homepage://url>
      ////// [end of optional part] //////
      */
+
+If you are affiliated to an NSF-supported NDN project institution, please use the [NDN Team License
+Boilerplate](http://redmine.named-data.net/projects/ndn-cxx/wiki/NDN_Team_License_Boilerplate_(ndn-cxx)).
