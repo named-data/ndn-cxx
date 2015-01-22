@@ -130,15 +130,16 @@ class GccFlags(GccBasicFlags):
         flags = super(GccFlags, self).getDebugFlags(conf)
         flags['CXXFLAGS'] += ['-Og', # gcc >= 4.8
                               '-fdiagnostics-color', # gcc >= 4.9
-                              '-Wno-error=deprecated-register',
-                              '-Wno-error=unneeded-internal-declaration', # Bug #1588
                              ]
         return flags
 
 class ClangFlags(GccBasicFlags):
     def getGeneralFlags(self, conf):
         flags = super(ClangFlags, self).getGeneralFlags(conf)
-        flags['CXXFLAGS'] += ['-std=c++11']
+        flags['CXXFLAGS'] += ['-std=c++11',
+                              '-Wno-error=unneeded-internal-declaration', # Bug #1588
+                              '-Wno-error=deprecated-register',
+                              ]
         if Utils.unversioned_sys_platform() == "darwin":
             flags['CXXFLAGS'] += ['-stdlib=libc++']
             flags['LINKFLAGS'] += ['-stdlib=libc++']
