@@ -29,7 +29,7 @@
 
 #include <boost/functional/hash.hpp>
 
-#include <cstdio>
+#include <stdio.h>
 #include <ostream>
 
 namespace ndn {
@@ -79,9 +79,11 @@ Address::toString(char sep) const
 {
   char s[18]; // 12 digits + 5 separators + null terminator
 
-  // apparently gcc-4.6 does not support the 'hh' type modifier
-  std::snprintf(s, sizeof(s), "%02x%c%02x%c%02x%c%02x%c%02x%c%02x",
-                at(0), sep, at(1), sep, at(2), sep, at(3), sep, at(4), sep, at(5));
+  // - apparently gcc-4.6 does not support the 'hh' type modifier
+  // - std::snprintf not found in some environments
+  //   http://redmine.named-data.net/issues/2299 for more information
+  snprintf(s, sizeof(s), "%02x%c%02x%c%02x%c%02x%c%02x%c%02x",
+           at(0), sep, at(1), sep, at(2), sep, at(3), sep, at(4), sep, at(5));
 
   return std::string(s);
 }
