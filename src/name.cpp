@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -40,6 +40,8 @@ BOOST_CONCEPT_ASSERT((WireEncodable<Name>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Name>));
 static_assert(std::is_base_of<tlv::Error, Name::Error>::value,
               "Name::Error must inherit from tlv::Error");
+
+const size_t Name::npos = std::numeric_limits<size_t>::max();
 
 template<bool T>
 size_t
@@ -244,19 +246,11 @@ Name::getSubName(size_t iStartComponent, size_t nComponents) const
 {
   Name result;
 
-  size_t iEnd = iStartComponent + nComponents;
-  for (size_t i = iStartComponent; i < iEnd && i < size(); ++i)
-    result.append(at(i));
+  size_t iEnd = this->size();
+  if (nComponents != npos)
+    iEnd = std::min(this->size(), iStartComponent + nComponents);
 
-  return result;
-}
-
-Name
-Name::getSubName(size_t iStartComponent) const
-{
-  Name result;
-
-  for (size_t i = iStartComponent; i < size(); ++i)
+  for (size_t i = iStartComponent; i < iEnd; ++i)
     result.append(at(i));
 
   return result;
@@ -305,27 +299,21 @@ Name::isPrefixOf(const Name& name) const
   return true;
 }
 
-
 int
-Name::compare(const Name& other) const
+Name::compare(size_t pos1, size_t count1, const Name& other, size_t pos2, size_t count2) const
 {
-  for (size_t i = 0; i < size() && i < other.size(); ++i) {
-    int comparison = at(i).compare(other.at(i));
-    if (comparison == 0)
-      // The components at this index are equal, so check the next components.
-      continue;
+  count1 = std::min(count1, this->size() - pos1);
+  count2 = std::min(count2, other.size() - pos2);
+  size_t count = std::min(count1, count2);
 
-    // Otherwise, the result is based on the components at this index.
-    return comparison;
+  for (size_t i = 0; i < count; ++i) {
+    int comp = this->at(pos1 + i).compare(other.at(pos2 + i));
+    if (comp != 0) { // i-th component differs
+      return comp;
+    }
   }
-
-  // The components up to min(this.size(), other.size()) are equal, so the shorter name is less.
-  if (size() < other.size())
-    return -1;
-  else if (size() > other.size())
-    return 1;
-  else
-    return 0;
+  // [pos1, pos1+count) of this Name equals [pos2, pos2+count) of other Name
+  return (count1 > count2) - (count1 < count2); // signum(count1 - count2)
 }
 
 std::ostream&

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -372,6 +372,54 @@ BOOST_AUTO_TEST_CASE(ImplictSha256Digest)
   BOOST_CHECK_NO_THROW(n2 = Name("/hello/SHA256DIGEST="
                               "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548"));
   BOOST_CHECK_NE(n.get(0), n2.get(1));
+}
+
+BOOST_AUTO_TEST_CASE(Compare)
+{
+  BOOST_CHECK_EQUAL( 0, Name("/A")  .compare(Name("/A")));
+  BOOST_CHECK_EQUAL( 0, Name("/A")  .compare(Name("/A")));
+  BOOST_CHECK_EQUAL(-1, Name("/A")  .compare(Name("/B")));
+  BOOST_CHECK_EQUAL( 1, Name("/B")  .compare(Name("/A")));
+  BOOST_CHECK_EQUAL(-1, Name("/A")  .compare(Name("/AA")));
+  BOOST_CHECK_EQUAL( 1, Name("/AA") .compare(Name("/A")));
+  BOOST_CHECK_EQUAL(-1, Name("/A")  .compare(Name("/A/C")));
+  BOOST_CHECK_EQUAL( 1, Name("/A/C").compare(Name("/A")));
+
+  BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/A")));
+  BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/A")));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/B")));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/B/Y")  .compare(1, 1, Name("/A")));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/AA")));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/AA/Y") .compare(1, 1, Name("/A")));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/A/C")));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/A/C/Y").compare(1, 2, Name("/A")));
+
+  BOOST_CHECK_EQUAL( 0, Name("/Z/A")  .compare(1, Name::npos, Name("/A")));
+  BOOST_CHECK_EQUAL( 0, Name("/Z/A")  .compare(1, Name::npos, Name("/A")));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A")  .compare(1, Name::npos, Name("/B")));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/B")  .compare(1, Name::npos, Name("/A")));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A")  .compare(1, Name::npos, Name("/AA")));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/AA") .compare(1, Name::npos, Name("/A")));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A")  .compare(1, Name::npos, Name("/A/C")));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/A/C").compare(1, Name::npos, Name("/A")));
+
+  BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A/W"),   1, 1));
+  BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A/W"),   1, 1));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/B/W"),   1, 1));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/B/Y")  .compare(1, 1, Name("/X/A/W"),   1, 1));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/AA/W"),  1, 1));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/AA/Y") .compare(1, 1, Name("/X/A/W"),   1, 1));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A/C/W"), 1, 2));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/A/C/Y").compare(1, 2, Name("/X/A/W"),   1, 1));
+
+  BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A"),   1));
+  BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A"),   1));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/B"),   1));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/B/Y")  .compare(1, 1, Name("/X/A"),   1));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/AA"),  1));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/AA/Y") .compare(1, 1, Name("/X/A"),   1));
+  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A/C"), 1));
+  BOOST_CHECK_EQUAL( 1, Name("/Z/A/C/Y").compare(1, 2, Name("/X/A"),   1));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
