@@ -29,6 +29,7 @@
 int
 ndnsec_unlock_tpm(int argc, char** argv)
 {
+#ifndef NDN_CXX_HAVE_GETPASS
   using namespace ndn;
   namespace po = boost::program_options;
 
@@ -78,6 +79,10 @@ ndnsec_unlock_tpm(int argc, char** argv)
       std::cerr << "ERROR: TPM is still locked" << std::endl;
       return 1;
     }
+#else
+  std::cerr << "ERROR: Command not supported on this platform" << std::endl;
+  return 1;
+#endif // NDN_CXX_HAVE_GETPASS
 }
 
 #endif // NDN_TOOLS_NDNSEC_UNLOCK_TPM_HPP

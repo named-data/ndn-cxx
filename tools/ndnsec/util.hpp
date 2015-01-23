@@ -46,6 +46,7 @@
 bool
 getPassword(std::string& password, const std::string& prompt)
 {
+#ifndef NDN_CXX_HAVE_GETPASS
   bool isReady = false;
 
   char* pw0 = 0;
@@ -78,6 +79,9 @@ getPassword(std::string& password, const std::string& prompt)
     return false;
 
   return isReady;
+#else
+  return false;
+#endif // NDN_CXX_HAVE_GETPASS
 }
 
 ndn::shared_ptr<ndn::IdentityCertificate>

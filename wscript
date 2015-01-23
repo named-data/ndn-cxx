@@ -52,6 +52,7 @@ def configure(conf):
                    mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
     conf.check_cxx(cxxflags=['-fPIC'], uselib_store='PIC', mandatory=False)
+    conf.check_cxx(function_name='getpass', header_name='unistd.h', mandatory=False)
 
     conf.check_osx_security(mandatory=False)
 
