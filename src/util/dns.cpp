@@ -49,12 +49,7 @@ public:
                const time::nanoseconds& timeout,
                const shared_ptr<Resolver>& self)
   {
-    BoostResolver::query query(host, NULL_PORT
-
-#if not defined(__FreeBSD__)
-                               , BoostResolver::query::all_matching
-#endif
-                               );
+    BoostResolver::query query(host, NULL_PORT);
 
     m_resolver.async_resolve(query, bind(&Resolver::onResolveSuccess, this, _1, _2, self));
 
@@ -144,11 +139,7 @@ syncResolve(const std::string& host, boost::asio::io_service& ioService,
 {
   Resolver resolver(SuccessCallback(), ErrorCallback(), addressSelector, ioService);
 
-  BoostResolver::query query(host, Resolver::NULL_PORT
-#if not defined(__FreeBSD__)
-                                 , BoostResolver::query::all_matching
-#endif
-                                 );
+  BoostResolver::query query(host, Resolver::NULL_PORT);
 
   BoostResolver::iterator remoteEndpoint = resolver.syncResolve(query);
 

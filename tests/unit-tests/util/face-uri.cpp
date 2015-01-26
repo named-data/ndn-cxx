@@ -28,9 +28,13 @@
 #include "util/face-uri.hpp"
 
 #include "boost-test.hpp"
+#include "../network-configuration-detector.hpp"
 
 namespace ndn {
 namespace util {
+namespace tests {
+
+using ndn::tests::NetworkConfigurationDetector;
 
 BOOST_AUTO_TEST_SUITE(UtilTestFaceUri)
 
@@ -172,7 +176,7 @@ BOOST_AUTO_TEST_CASE(ParseUdp)
   BOOST_CHECK_EQUAL(FaceUri(endpoint6).toString(), "udp6://[2001:db8::1]:7777");
 }
 
-BOOST_FIXTURE_TEST_CASE(CanonizeUdp, CanonizeFixture)
+BOOST_FIXTURE_TEST_CASE(CheckCanonicalUdp, CanonizeFixture)
 {
   BOOST_CHECK_EQUAL(FaceUri::canCanonize("udp"), true);
   BOOST_CHECK_EQUAL(FaceUri::canCanonize("udp4"), true);
@@ -188,6 +192,14 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdp, CanonizeFixture)
   BOOST_CHECK_EQUAL(FaceUri("udp4://example.net:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("udp6://example.net:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("udp4://224.0.23.170:56363").isCanonical(), true);
+}
+
+BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture)
+{
+  if (!NetworkConfigurationDetector::hasIpv4()) {
+    BOOST_TEST_MESSAGE("Platform does not support IPv4, skipping the test case");
+    return;
+  }
 
   // IPv4 unicast
   addTest("udp4://192.0.2.1:6363", true, "udp4://192.0.2.1:6363");
@@ -203,6 +215,16 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdp, CanonizeFixture)
   addTest("udp4://224.0.23.170:56363", true, "udp4://224.0.23.170:56363");
   addTest("udp4://224.0.23.170", true, "udp4://224.0.23.170:56363");
   addTest("udp4://all-routers.mcast.net:56363", true, "udp4://224.0.0.2:56363");
+
+  runTests();
+}
+
+BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture)
+{
+  if (!NetworkConfigurationDetector::hasIpv6()) {
+    BOOST_TEST_MESSAGE("Platform does not support IPv6, skipping the test case");
+    return;
+  }
 
   // IPv6 unicast
   addTest("udp6://[2001:db8::1]:6363", true, "udp6://[2001:db8::1]:6363");
@@ -245,7 +267,7 @@ BOOST_AUTO_TEST_CASE(ParseTcp)
   BOOST_CHECK_EQUAL(FaceUri(endpoint6).toString(), "tcp6://[2001:db8::1]:7777");
 }
 
-BOOST_FIXTURE_TEST_CASE(CanonizeTcp, CanonizeFixture)
+BOOST_FIXTURE_TEST_CASE(CheckCanonicalTcp, CanonizeFixture)
 {
   BOOST_CHECK_EQUAL(FaceUri::canCanonize("tcp"), true);
   BOOST_CHECK_EQUAL(FaceUri::canCanonize("tcp4"), true);
@@ -261,6 +283,14 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcp, CanonizeFixture)
   BOOST_CHECK_EQUAL(FaceUri("tcp4://example.net:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("tcp6://example.net:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("tcp4://224.0.23.170:56363").isCanonical(), false);
+}
+
+BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
+{
+  if (!NetworkConfigurationDetector::hasIpv4()) {
+    BOOST_TEST_MESSAGE("Platform does not support IPv4, skipping the test case");
+    return;
+  }
 
   // IPv4 unicast
   addTest("tcp4://192.0.2.1:6363", true, "tcp4://192.0.2.1:6363");
@@ -276,6 +306,16 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcp, CanonizeFixture)
   addTest("tcp4://224.0.23.170:56363", false, "");
   addTest("tcp4://224.0.23.170", false, "");
   addTest("tcp4://all-routers.mcast.net:56363", false, "");
+
+  runTests();
+}
+
+BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture)
+{
+  if (!NetworkConfigurationDetector::hasIpv6()) {
+    BOOST_TEST_MESSAGE("Platform does not support IPv6, skipping the test case");
+    return;
+  }
 
   // IPv6 unicast
   addTest("tcp6://[2001:db8::1]:6363", true, "tcp6://[2001:db8::1]:6363");
@@ -441,5 +481,6 @@ BOOST_AUTO_TEST_CASE(Bug1635)
 
 BOOST_AUTO_TEST_SUITE_END()
 
+} // namespace tests
 } // namespace util
 } // namespace ndn
