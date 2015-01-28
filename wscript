@@ -52,7 +52,17 @@ def configure(conf):
                    mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
     conf.check_cxx(cxxflags=['-fPIC'], uselib_store='PIC', mandatory=False)
-    conf.check_cxx(function_name='getpass', header_name='unistd.h', mandatory=False)
+    conf.check_cxx(msg='Checking for function getpass', mandatory=False,
+                   define_name='HAVE_GETPASS', fragment='''
+#include <unistd.h>
+int
+main(int, char**)
+{
+  char* pass = getpass("test prompt");
+  (void)(pass);
+  return 0;
+}
+''')
 
     conf.check_osx_security(mandatory=False)
 
