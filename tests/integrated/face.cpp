@@ -19,6 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
+#define BOOST_TEST_MAIN 1
+#define BOOST_TEST_DYN_LINK 1
+#define BOOST_TEST_MODULE ndn-cxx Integrated Tests (Face)
+
 #include "face.hpp"
 #include "util/scheduler.hpp"
 #include "security/key-chain.hpp"

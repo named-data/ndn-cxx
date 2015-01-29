@@ -5,25 +5,16 @@ from waflib import Utils
 top = '..'
 
 def build(bld):
-    unittests = bld(
-        target="integrated-test-objects",
-        name="integrated-test-objects",
-        features="cxx",
-        source=bld.path.ant_glob(['**/*.cpp'],
-                                 excl=['main.cpp', '**/*-osx.cpp', '**/*-sqlite3.cpp']),
-        use='tests-base',
-        includes='.',
-        install_path=None,
-        )
+    bld(features="cxx cxxprogram",
+        target="face",
+        source="face.cpp",
+        use='ndn-cxx boost-tests-base BOOST',
+        includes='..',
+        install_path=None)
 
-    if bld.env['HAVE_OSX_SECURITY']:
-        unittests.source += bld.path.ant_glob('**/*-osx.cpp')
-
-    # In case we want to make it optional later
-    unittests.source += bld.path.ant_glob('**/*-sqlite3.cpp')
-
-    bld.program(
-        target="../integrated-tests",
-        use="integrated-test-objects",
-        source="main.cpp",
+    bld(features="cxx cxxprogram",
+        target="network-monitor",
+        source="network-monitor.cpp",
+        use='ndn-cxx boost-tests-base BOOST',
+        includes='..',
         install_path=None)

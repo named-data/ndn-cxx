@@ -5,66 +5,45 @@ from waflib import Utils
 top = '..'
 
 def build(bld):
+    # precompiled headers (if enabled)
     bld(features=['cxx', 'pch'],
         name='tests-base',
         target='tests-base',
         headers=['../src/common-pch.hpp', 'boost-test.hpp'],
-        use='ndn-cxx',
-        includes='.',
-        )
+        use='ndn-cxx BOOST',
+        includes='.')
 
+    # core modules that can be shared between unit and integrated tests
+    bld(features="cxx",
+        target="boost-tests-base",
+        source="identity-management-fixture.cpp",
+        use='ndn-cxx tests-base BOOST',
+        includes='.',
+        install_path=None)
+
+    # unit test objects
     unit_tests = bld(
         target="unit-test-objects",
         name="unit-test-objects",
         features="cxx",
         source=bld.path.ant_glob(['unit-tests/**/*.cpp'],
                                  excl=['**/*-osx.cpp', '**/*-sqlite3.cpp']),
-        use='tests-base',
+        use='ndn-cxx tests-base BOOST',
         includes='.',
-        install_path=None,
-        )
-
-    integrated = bld(
-        target="integrated-test-objects",
-        name="integrated-test-objects",
-        features="cxx",
-        source=bld.path.ant_glob(['integrated/**/*.cpp'],
-                                 excl=['**/*-osx.cpp', '**/*-sqlite3.cpp']),
-        use='tests-base',
-        includes='.',
-        install_path=None,
-        )
+        install_path=None)
 
     if bld.env['HAVE_OSX_SECURITY']:
         unit_tests.source += bld.path.ant_glob('unit-tests/**/*-osx.cpp')
-        integrated.source += bld.path.ant_glob('integrated/**/*-osx.cpp')
 
     # In case we want to make it optional later
     unit_tests.source += bld.path.ant_glob('unit-tests/**/*-sqlite3.cpp')
-    integrated.source += bld.path.ant_glob('integrated/**/*-sqlite3.cpp')
 
-    bld(features='cxx',
-        target='unit-tests-main-unit',
+    # unit test app
+    bld(features='cxx cxxprogram',
+        target='../unit-tests',
         name='unit-tests-main-unit',
-        source=bld.path.ant_glob(['*.cpp']),
-        use='ndn-cxx',
-        defines=['BOOST_TEST_MODULE=ndn-cxx Unit Tests'],
-    )
-
-    bld(features='cxx',
-        target='unit-tests-main-integrated',
-        name='unit-tests-main-integrated',
-        source=bld.path.ant_glob(['*.cpp']),
-        use='ndn-cxx',
-        defines=['BOOST_TEST_MODULE=ndn-cxx Integrated Tests'],
-    )
-
-    bld(features="cxx cxxprogram",
-        target="../unit-tests",
-        use="unit-test-objects unit-tests-main-unit",
+        source="main.cpp",
+        use='ndn-cxx unit-test-objects boost-tests-base BOOST',
         install_path=None)
 
-    bld(features="cxx cxxprogram",
-        target="../integrated-tests",
-        use="integrated-test-objects unit-tests-main-integrated",
-        install_path=None)
+    bld.recurse('integrated')

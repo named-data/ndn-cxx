@@ -21,6 +21,36 @@
 
 #define BOOST_TEST_MAIN 1
 #define BOOST_TEST_DYN_LINK 1
-#define BOOST_TEST_MODULE ndn-cxx Unit Tests
+#define BOOST_TEST_MODULE ndn-cxx Integrated Tests (Network Monitor)
+
+#include "util/network-monitor.hpp"
 
 #include "boost-test.hpp"
+#include <cstdlib>
+#include <iostream>
+#include "util/time.hpp"
+
+namespace ndn {
+namespace util {
+
+BOOST_AUTO_TEST_SUITE(UtilNetworkMonitor)
+
+BOOST_AUTO_TEST_CASE(Basic)
+{
+  boost::asio::io_service io;
+  BOOST_REQUIRE_NO_THROW((NetworkMonitor(io)));
+
+  NetworkMonitor monitor(io);
+
+  monitor.onNetworkStateChanged.connect([] {
+      std::cout << time::toString(time::system_clock::now())
+                << "\tReceived network state change event" << std::endl;
+    });
+
+  io.run();
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+} // namespace util
+} // namespace ndn
