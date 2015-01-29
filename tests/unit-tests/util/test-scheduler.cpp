@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,14 +20,17 @@
  */
 
 #include "util/scheduler.hpp"
+#include "util/scheduler-scoped-event-id.hpp"
 
 #include "boost-test.hpp"
 #include "../unit-test-time-fixture.hpp"
 
 namespace ndn {
+namespace util {
+namespace scheduler {
 namespace tests {
 
-BOOST_FIXTURE_TEST_SUITE(UtilTestScheduler, UnitTestTimeFixture)
+BOOST_FIXTURE_TEST_SUITE(UtilTestScheduler, ::ndn::tests::UnitTestTimeFixture)
 
 BOOST_AUTO_TEST_CASE(Events)
 {
@@ -80,7 +83,7 @@ BOOST_AUTO_TEST_CASE(SelfCancel)
   BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(100), 10));
 }
 
-class SelfRescheduleFixture : public UnitTestTimeFixture
+class SelfRescheduleFixture : public ::ndn::tests::UnitTestTimeFixture
 {
 public:
   SelfRescheduleFixture()
@@ -164,7 +167,7 @@ BOOST_FIXTURE_TEST_CASE(Reschedule3, SelfRescheduleFixture)
 }
 
 
-struct CancelAllFixture : public UnitTestTimeFixture
+struct CancelAllFixture : public ::ndn::tests::UnitTestTimeFixture
 {
   CancelAllFixture()
     : scheduler(io)
@@ -200,8 +203,72 @@ BOOST_FIXTURE_TEST_CASE(CancelAll, CancelAllFixture)
   BOOST_CHECK_EQUAL(count, 0);
 }
 
+class ScopedEventFixture : public ::ndn::tests::UnitTestTimeFixture
+{
+public:
+  ScopedEventFixture()
+    : scheduler(io)
+  {
+  }
 
-BOOST_AUTO_TEST_SUITE_END()
+public:
+  Scheduler scheduler;
+};
+
+BOOST_FIXTURE_TEST_SUITE(ScopedEvents, ScopedEventFixture)
+
+BOOST_AUTO_TEST_CASE(ScopedEventIdDestruct)
+{
+  int hit = 0;
+  {
+    ScopedEventId se(scheduler);
+    se = scheduler.scheduleEvent(time::milliseconds(10), [&] { ++hit; });
+  } // se goes out of scope
+  this->advanceClocks(time::milliseconds(1), 15);
+  BOOST_CHECK_EQUAL(hit, 0);
+}
+
+BOOST_AUTO_TEST_CASE(ScopedEventIdAssign)
+{
+  int hit1 = 0, hit2 = 0;
+  ScopedEventId se1(scheduler);
+  se1 = scheduler.scheduleEvent(time::milliseconds(10), [&] { ++hit1; });
+  se1 = scheduler.scheduleEvent(time::milliseconds(10), [&] { ++hit2; });
+  this->advanceClocks(time::milliseconds(1), 15);
+  BOOST_CHECK_EQUAL(hit1, 0);
+  BOOST_CHECK_EQUAL(hit2, 1);
+}
+
+BOOST_AUTO_TEST_CASE(ScopedEventIdRelease)
+{
+  int hit = 0;
+  {
+    ScopedEventId se(scheduler);
+    se = scheduler.scheduleEvent(time::milliseconds(10), [&] { ++hit; });
+    se.release();
+  } // se goes out of scope
+  this->advanceClocks(time::milliseconds(1), 15);
+  BOOST_CHECK_EQUAL(hit, 1);
+}
+
+BOOST_AUTO_TEST_CASE(ScopedEventIdMove)
+{
+  int hit = 0;
+  unique_ptr<scheduler::ScopedEventId> se2;
+  {
+    ScopedEventId se(scheduler);
+    se = scheduler.scheduleEvent(time::milliseconds(10), [&] { ++hit; });
+    se2.reset(new ScopedEventId(std::move(se)));
+  } // se goes out of scope
+  this->advanceClocks(time::milliseconds(1), 15);
+  BOOST_CHECK_EQUAL(hit, 1);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // ScopedEventId
+
+BOOST_AUTO_TEST_SUITE_END() // UtilTestScheduler
 
 } // namespace tests
+} // namespace scheduler
+} // namespace util
 } // namespace ndn

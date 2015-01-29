@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,6 +28,8 @@
 #include <set>
 
 namespace ndn {
+namespace util {
+namespace scheduler {
 
 struct EventIdImpl; ///< \brief Private storage of information about the event
 /**
@@ -104,6 +106,16 @@ private:
 
   bool m_isEventExecuting;
 };
+
+} // namespace scheduler
+
+using util::scheduler::Scheduler;
+
+} // namespace util
+
+// for backwards compatibility
+using util::scheduler::Scheduler;
+using util::scheduler::EventId;
 
 } // namespace ndn
 
