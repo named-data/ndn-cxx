@@ -122,15 +122,6 @@ public: // constructor, creation, assignment
   Block(uint32_t type, const Block& value);
 
   /** @brief Create a Block from an input stream
-   *  @deprecated Use Block::fromStream instead
-   */
-  explicit
-  DEPRECATED(Block(std::istream& is))
-  {
-    *this = std::move(Block::fromStream(is));
-  }
-
-  /** @brief Create a Block from an input stream
    */
   static Block
   fromStream(std::istream& is);
