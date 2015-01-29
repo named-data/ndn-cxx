@@ -38,7 +38,7 @@ namespace util {
  * @note Implementation of this class is platform dependent and not all supported platforms
  *       are supported:
  *       - OS X: CFNotificationCenterAddObserver
- *       - Linux: NetworkManager notifications through DBus IPC
+ *       - Linux: rtnetlink notifications
  *
  * Network state change detection is not guaranteed to be precise and (zero or more)
  * notifications are expected to be fired for the following events:

@@ -64,6 +64,10 @@ main(int, char**)
 }
 ''')
 
+    conf.check_cxx(msg='Checking for rtnetlink', mandatory=False,
+                   define_name='HAVE_RTNETLINK',
+                   header_name=['netinet/in.h', 'linux/netlink.h', 'linux/rtnetlink.h', 'net/if.h'])
+
     conf.check_osx_security(mandatory=False)
 
     conf.check_sqlite3(mandatory=True)
@@ -192,7 +196,7 @@ def build(bld):
         bld.recurse("examples")
 
     headers = bld.path.ant_glob(['src/**/*.hpp'],
-                                 excl=['src/**/*-osx.hpp', 'src/detail/*'])
+                                 excl=['src/**/*-osx.hpp', 'src/detail/**/*'])
     if bld.env['HAVE_OSX_SECURITY']:
         headers += bld.path.ant_glob('src/**/*-osx.hpp')
 

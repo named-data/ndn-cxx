@@ -139,14 +139,85 @@ NetworkMonitor::~NetworkMonitor()
 } // namespace ndn
 
 // done with defined(NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H)
-#elif defined(HAVE_DBUS)
+#elif defined(NDN_CXX_HAVE_RTNETLINK)
+
+#include <boost/asio.hpp>
+
+#include <netinet/in.h>
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+#include <net/if.h>
+
+#include <cerrno>
+#include <cstring>
 
 namespace ndn {
 namespace util {
 
-NetworkMonitor::NetworkMonitor(boost::asio::io_service&)
+const size_t NETLINK_BUFFER_SIZE = 4096;
+
+class NetworkMonitor::Impl
 {
-  throw Error("Not implemented yet");
+public:
+  Impl(NetworkMonitor& nm, boost::asio::io_service& io)
+    : m_nm(nm)
+    , m_socket(io)
+  {
+    int fd = ::socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+    if (fd < 0)
+      throw Error(std::string("Cannot create netlink socket (") + std::strerror(errno) + ")");
+
+    sockaddr_nl addr{};
+    addr.nl_family = AF_NETLINK;
+    addr.nl_groups = RTMGRP_LINK |
+      RTMGRP_IPV4_IFADDR | RTMGRP_IPV4_ROUTE |
+      RTMGRP_IPV6_IFADDR | RTMGRP_IPV6_ROUTE;
+
+    if (::bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) {
+      throw Error(std::string("Cannot bind on netlink socket (") + std::strerror(errno) + ")");
+    }
+
+    m_socket.assign(fd);
+
+    m_socket.async_read_some(boost::asio::buffer(m_buffer, NETLINK_BUFFER_SIZE),
+                             bind(&Impl::onReceiveRtNetlink, this, _1, _2));
+  }
+
+private:
+  void
+  onReceiveRtNetlink(const boost::system::error_code& error, size_t nBytesReceived)
+  {
+    if (error) {
+      return;
+    }
+
+    const nlmsghdr* nlh = reinterpret_cast<const nlmsghdr*>(m_buffer);
+    while ((NLMSG_OK(nlh, nBytesReceived)) && (nlh->nlmsg_type != NLMSG_DONE)) {
+      if (nlh->nlmsg_type == RTM_NEWADDR || nlh->nlmsg_type == RTM_DELADDR ||
+          nlh->nlmsg_type == RTM_NEWLINK || nlh->nlmsg_type == RTM_DELLINK ||
+          nlh->nlmsg_type == RTM_NEWROUTE || nlh->nlmsg_type == RTM_DELROUTE) {
+        m_nm.onNetworkStateChanged();
+        break;
+      }
+      nlh = NLMSG_NEXT(nlh, nBytesReceived);
+    }
+
+    m_socket.async_read_some(boost::asio::buffer(m_buffer, NETLINK_BUFFER_SIZE),
+                             bind(&Impl::onReceiveRtNetlink, this, _1, _2));
+  }
+
+private:
+  NetworkMonitor& m_nm;
+  uint8_t m_buffer[NETLINK_BUFFER_SIZE];
+
+  boost::asio::posix::stream_descriptor m_socket;
+};
+
+
+
+NetworkMonitor::NetworkMonitor(boost::asio::io_service& io)
+  : m_impl(new Impl(*this, io))
+{
 }
 
 NetworkMonitor::~NetworkMonitor()
@@ -156,7 +227,7 @@ NetworkMonitor::~NetworkMonitor()
 } // namespace util
 } // namespace ndn
 
-// done with defined(HAVE_DBUS)
+// done with defined(NDN_CXX_HAVE_RTNETLINK)
 #else // do not support network monitoring operations
 
 namespace ndn {
@@ -164,7 +235,6 @@ namespace util {
 
 class NetworkMonitor::Impl
 {
-public:
 };
 
 NetworkMonitor::NetworkMonitor(boost::asio::io_service&)
