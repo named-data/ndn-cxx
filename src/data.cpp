@@ -300,6 +300,15 @@ Data::setIncomingFaceId(uint64_t incomingFaceId)
   return *this;
 }
 
+Data&
+Data::setCachingPolicy(nfd::LocalControlHeader::CachingPolicy cachingPolicy)
+{
+  getLocalControlHeader().setCachingPolicy(cachingPolicy);
+  // ! do not reset Data's wire !
+
+  return *this;
+}
+
 void
 Data::onChanged()
 {

@@ -94,7 +94,9 @@ enum {
   // Local Control Header
   LocalControlHeader = 80,
   IncomingFaceId     = 81,
-  NextHopFaceId      = 82
+  NextHopFaceId      = 82,
+  CachingPolicy      = 83,
+  NoCache            = 96
 };
 
 } // namespace nfd

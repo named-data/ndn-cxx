@@ -119,11 +119,11 @@ public:
 
     m_pendingInterestTable.push_back(make_shared<PendingInterest>(interest, onData, onTimeout));
 
-    if (!interest->getLocalControlHeader().empty(false, true))
+    if (!interest->getLocalControlHeader().empty(nfd::LocalControlHeader::ENCODE_NEXT_HOP))
       {
         // encode only NextHopFaceId towards the forwarder
         m_face.m_transport->send(interest->getLocalControlHeader()
-                                   .wireEncode(*interest, false, true),
+                                   .wireEncode(*interest, nfd::LocalControlHeader::ENCODE_NEXT_HOP),
                                  interest->wireEncode());
       }
     else
@@ -149,10 +149,12 @@ public:
   {
     this->ensureConnected();
 
-    if (!data->getLocalControlHeader().empty(false, false))
+    if (!data->getLocalControlHeader().empty(nfd::LocalControlHeader::ENCODE_CACHING_POLICY))
       {
-        m_face.m_transport->send(data->getLocalControlHeader().wireEncode(*data, false, false),
-                                 data->wireEncode());
+        m_face.m_transport->send(
+          data->getLocalControlHeader().wireEncode(*data,
+                                                   nfd::LocalControlHeader::ENCODE_CACHING_POLICY),
+          data->wireEncode());
       }
     else
       {

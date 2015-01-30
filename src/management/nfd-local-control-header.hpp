@@ -47,9 +47,23 @@ public:
     }
   };
 
+  enum EncodeFlags : uint8_t {
+    ENCODE_NONE             = 0,
+    ENCODE_INCOMING_FACE_ID = (1 << 0),
+    ENCODE_NEXT_HOP         = (1 << 1),
+    ENCODE_CACHING_POLICY   = (1 << 2),
+    ENCODE_ALL              = 0xff
+  };
+
+  enum CachingPolicy : uint8_t {
+    INVALID_POLICY = 0,
+    NO_CACHE       = 1
+  };
+
   LocalControlHeader()
     : m_incomingFaceId(INVALID_FACE_ID)
     , m_nextHopFaceId(INVALID_FACE_ID)
+    , m_cachingPolicy(CachingPolicy::INVALID_POLICY)
   {
   }
 
@@ -59,10 +73,9 @@ public:
    * @sa wireDecode
    */
   explicit
-  LocalControlHeader(const Block& wire,
-                     bool encodeIncomingFaceId = true, bool encodeNextHopFaceId = true)
+  LocalControlHeader(const Block& wire, uint8_t encodeMask = ENCODE_ALL)
   {
-    wireDecode(wire, encodeIncomingFaceId, encodeNextHopFaceId);
+    wireDecode(wire, encodeMask);
   }
 
   /**
@@ -71,8 +84,8 @@ public:
    * The caller is responsible of checking whether LocalControlHeader contains
    * any information.
    *
-   * !It is an error to call this method if neither IncomingFaceId nor NextHopFaceId is
-   * set, or neither of them is enabled.
+   * !It is an error to call this method if none of IncomingFaceId, NextHopFaceId and CachingPolicy
+   * are set, or neither of them are enabled.
    *
    * @throws LocalControlHeader::Error when empty LocalControlHeader be produced
    *
@@ -86,8 +99,7 @@ public:
    */
   template<class U>
   inline Block
-  wireEncode(const U& payload,
-             bool encodeIncomingFaceId, bool encodeNextHopFaceId) const;
+  wireEncode(const U& payload, uint8_t encodeMask = ENCODE_ALL) const;
 
   /**
    * @brief Decode from the wire format and set LocalControlHeader on the supplied item
@@ -96,8 +108,7 @@ public:
    * LocalControlHeader should be done before calling this method.
    */
   inline void
-  wireDecode(const Block& wire,
-             bool encodeIncomingFaceId = true, bool encodeNextHopFaceId = true);
+  wireDecode(const Block& wire, uint8_t encodeMask = ENCODE_ALL);
 
   inline static const Block&
   getPayload(const Block& wire);
@@ -108,10 +119,15 @@ public:
   // Getters/setters
 
   bool
-  empty(bool encodeIncomingFaceId, bool encodeNextHopFaceId) const
+  empty(uint8_t encodeMask) const
   {
-    return !((encodeIncomingFaceId && hasIncomingFaceId()) ||
-             (encodeNextHopFaceId  && hasNextHopFaceId()));
+    bool needIncomingFaceId = encodeMask & ENCODE_INCOMING_FACE_ID;
+    bool needNextHopFaceId = encodeMask & ENCODE_NEXT_HOP;
+    bool needCachingPolicy = encodeMask & ENCODE_CACHING_POLICY;
+
+    return !((needIncomingFaceId && hasIncomingFaceId()) ||
+             (needNextHopFaceId  && hasNextHopFaceId())  ||
+             (needCachingPolicy  && hasCachingPolicy()));
   }
 
   //
@@ -154,15 +170,35 @@ public:
     m_nextHopFaceId = nextHopFaceId;
   }
 
+  //
+
+  bool
+  hasCachingPolicy() const
+  {
+    return m_cachingPolicy != CachingPolicy::INVALID_POLICY;
+  }
+
+  CachingPolicy
+  getCachingPolicy() const
+  {
+    return m_cachingPolicy;
+  }
+
+  void
+  setCachingPolicy(CachingPolicy cachingPolicy)
+  {
+    m_cachingPolicy = cachingPolicy;
+  }
+
 private:
   template<encoding::Tag TAG>
   inline size_t
-  wireEncode(EncodingImpl<TAG>& block, size_t payloadSize,
-             bool encodeIncomingFaceId, bool encodeNextHopFaceId) const;
+  wireEncode(EncodingImpl<TAG>& block, size_t payloadSize, uint8_t encodeMask) const;
 
 private:
   uint64_t m_incomingFaceId;
   uint64_t m_nextHopFaceId;
+  CachingPolicy m_cachingPolicy;
 };
 
 
@@ -172,20 +208,35 @@ private:
 template<encoding::Tag TAG>
 inline size_t
 LocalControlHeader::wireEncode(EncodingImpl<TAG>& block, size_t payloadSize,
-                               bool encodeIncomingFaceId, bool encodeNextHopFaceId) const
+                               uint8_t encodeMask) const
 {
+  bool needIncomingFaceId = encodeMask & ENCODE_INCOMING_FACE_ID;
+  bool needNextHopFaceId = encodeMask & ENCODE_NEXT_HOP;
+  bool needCachingPolicy = encodeMask & ENCODE_CACHING_POLICY;
+
   size_t totalLength = payloadSize;
 
-  if (encodeIncomingFaceId && hasIncomingFaceId())
+  if (needIncomingFaceId && hasIncomingFaceId())
     {
       totalLength += prependNonNegativeIntegerBlock(block,
                                                     tlv::nfd::IncomingFaceId, getIncomingFaceId());
     }
 
-  if (encodeNextHopFaceId && hasNextHopFaceId())
+  if (needNextHopFaceId && hasNextHopFaceId())
     {
       totalLength += prependNonNegativeIntegerBlock(block,
                                                     tlv::nfd::NextHopFaceId, getNextHopFaceId());
+    }
+
+  if (needCachingPolicy && hasCachingPolicy())
+    {
+      size_t cachingPolicyLength = 0;
+      cachingPolicyLength += block.prependVarNumber(0);
+      cachingPolicyLength += block.prependVarNumber(tlv::nfd::NoCache);
+      cachingPolicyLength += block.prependVarNumber(cachingPolicyLength);
+      cachingPolicyLength += block.prependVarNumber(tlv::nfd::CachingPolicy);
+
+      totalLength += cachingPolicyLength;
     }
 
   totalLength += block.prependVarNumber(totalLength);
@@ -195,34 +246,34 @@ LocalControlHeader::wireEncode(EncodingImpl<TAG>& block, size_t payloadSize,
 
 template<class U>
 inline Block
-LocalControlHeader::wireEncode(const U& payload,
-                               bool encodeIncomingFaceId, bool encodeNextHopFaceId) const
+LocalControlHeader::wireEncode(const U& payload, uint8_t encodeMask) const
 {
   /// @todo should this be BOOST_ASSERT instead?  This is kind of unnecessary overhead
-  if (empty(encodeIncomingFaceId, encodeNextHopFaceId))
+  if (empty(encodeMask))
     throw Error("Requested wire for LocalControlHeader, but none of the fields are set or enabled");
 
   EncodingEstimator estimator;
-  size_t length = wireEncode(estimator, payload.wireEncode().size(),
-                             encodeIncomingFaceId, encodeNextHopFaceId);
+  size_t length = wireEncode(estimator, payload.wireEncode().size(), encodeMask);
 
   EncodingBuffer buffer(length);
-  wireEncode(buffer, payload.wireEncode().size(),
-             encodeIncomingFaceId, encodeNextHopFaceId);
+  wireEncode(buffer, payload.wireEncode().size(), encodeMask);
 
   return buffer.block(false);
 }
 
 inline void
-LocalControlHeader::wireDecode(const Block& wire,
-                               bool encodeIncomingFaceId/* = true*/,
-                               bool encodeNextHopFaceId/* = true*/)
+LocalControlHeader::wireDecode(const Block& wire, uint8_t encodeMask)
 {
+  bool needIncomingFaceId = encodeMask & ENCODE_INCOMING_FACE_ID;
+  bool needNextHopFaceId = encodeMask & ENCODE_NEXT_HOP;
+  bool needCachingPolicy = encodeMask & ENCODE_CACHING_POLICY;
+
   BOOST_ASSERT(wire.type() == tlv::nfd::LocalControlHeader);
   wire.parse();
 
   m_incomingFaceId = INVALID_FACE_ID;
   m_nextHopFaceId = INVALID_FACE_ID;
+  m_cachingPolicy = CachingPolicy::INVALID_POLICY;
 
   for (Block::element_const_iterator i = wire.elements_begin();
        i != wire.elements_end();
@@ -231,12 +282,24 @@ LocalControlHeader::wireDecode(const Block& wire,
       switch (i->type())
         {
         case tlv::nfd::IncomingFaceId:
-          if (encodeIncomingFaceId)
+          if (needIncomingFaceId)
             m_incomingFaceId = readNonNegativeInteger(*i);
           break;
         case tlv::nfd::NextHopFaceId:
-          if (encodeNextHopFaceId)
+          if (needNextHopFaceId)
             m_nextHopFaceId = readNonNegativeInteger(*i);
+          break;
+        case tlv::nfd::CachingPolicy:
+          if (needCachingPolicy) {
+            i->parse();
+            Block::element_const_iterator it = i->elements_begin();
+            if (it != i->elements_end() && it->type() == tlv::nfd::NoCache) {
+              m_cachingPolicy = CachingPolicy::NO_CACHE;
+            }
+            else {
+              throw Error("CachingPolicy: Missing required NoCache field");
+            }
+          }
           break;
         default:
           // ignore all unsupported
@@ -261,7 +324,6 @@ LocalControlHeader::getPayload(const Block& wire)
       return wire;
     }
 }
-
 
 } // namespace nfd
 } // namespace ndn

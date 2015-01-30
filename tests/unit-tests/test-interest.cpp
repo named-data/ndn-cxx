@@ -365,7 +365,10 @@ BOOST_AUTO_TEST_CASE(EncodeWithLocalHeader)
 
   BOOST_CHECK(!interest.hasWire());
 
-  Block headerBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
+  Block headerBlock =
+    interest.getLocalControlHeader()
+            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
+                                  nfd::LocalControlHeader::ENCODE_NEXT_HOP);
 
   BOOST_CHECK(interest.hasWire());
   BOOST_CHECK(headerBlock.hasWire());
@@ -380,7 +383,10 @@ BOOST_AUTO_TEST_CASE(EncodeWithLocalHeader)
 
   interest.setNonce(1000);
 
-  Block updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
+  Block updatedHeaderBlock =
+    interest.getLocalControlHeader()
+            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
+                                  nfd::LocalControlHeader::ENCODE_NEXT_HOP);
   BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 5);
 
   // only length should have changed
@@ -389,30 +395,43 @@ BOOST_AUTO_TEST_CASE(EncodeWithLocalHeader)
 
   // updating IncomingFaceId that keeps the length
   interest.setIncomingFaceId(100);
-  updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
+  updatedHeaderBlock =
+    interest.getLocalControlHeader()
+            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
+                                  nfd::LocalControlHeader::ENCODE_NEXT_HOP);
   BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 5);
   BOOST_CHECK_NE(*(updatedHeaderBlock.begin() + 4), *(headerBlock.begin() + 4));
 
   // updating IncomingFaceId that increases the length by 2
   interest.setIncomingFaceId(1000);
-  updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
+  updatedHeaderBlock =
+    interest.getLocalControlHeader()
+            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
+                                  nfd::LocalControlHeader::ENCODE_NEXT_HOP);
   BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 6);
 
   // adding NextHopId
   interest.setNextHopFaceId(1);
-  updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, true, true);
+  updatedHeaderBlock =
+    interest.getLocalControlHeader()
+            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
+                                  nfd::LocalControlHeader::ENCODE_NEXT_HOP);
   BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 9);
 
   // masking IncomingFaceId
-  updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, false, true);
+  updatedHeaderBlock = interest.getLocalControlHeader()
+                               .wireEncode(interest, nfd::LocalControlHeader::ENCODE_NEXT_HOP);
   BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 5);
 
   // masking NextHopId
-  updatedHeaderBlock = interest.getLocalControlHeader().wireEncode(interest, true, false);
+  updatedHeaderBlock =
+    interest.getLocalControlHeader()
+            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID);
   BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 6);
 
   // masking everything
-  BOOST_CHECK_THROW(interest.getLocalControlHeader().wireEncode(interest, false, false),
+  BOOST_CHECK_THROW(interest.getLocalControlHeader()
+                            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_NONE),
                     nfd::LocalControlHeader::Error);
 }
 
@@ -432,24 +451,42 @@ BOOST_AUTO_TEST_CASE(DecodeWithLocalHeader)
 
   BOOST_REQUIRE_NO_THROW(interest.getLocalControlHeader().wireDecode(wireBlock));
 
-  BOOST_CHECK_EQUAL(interest.getLocalControlHeader().wireEncode(interest, true, true).size(), 5);
+  BOOST_CHECK_EQUAL(
+    interest.getLocalControlHeader()
+            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
+                                  nfd::LocalControlHeader::ENCODE_NEXT_HOP).size(),
+    5);
 
   BOOST_CHECK_EQUAL(interest.getIncomingFaceId(), 10);
   BOOST_CHECK(!interest.getLocalControlHeader().hasNextHopFaceId());
 
-  BOOST_CHECK_THROW(interest.getLocalControlHeader().wireEncode(interest, false, false),
+  BOOST_CHECK_THROW(interest.getLocalControlHeader()
+                            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_NONE),
                     nfd::LocalControlHeader::Error);
 
-  BOOST_CHECK_THROW(interest.getLocalControlHeader().wireEncode(interest, false, true),
+  BOOST_CHECK_THROW(interest.getLocalControlHeader()
+                            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_NEXT_HOP),
                     nfd::LocalControlHeader::Error);
 
-  BOOST_CHECK_NO_THROW(interest.getLocalControlHeader().wireEncode(interest, true, false));
-  BOOST_CHECK_NO_THROW(interest.getLocalControlHeader().wireEncode(interest, true, true));
+  BOOST_CHECK_NO_THROW(
+    interest.getLocalControlHeader()
+            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID));
+  BOOST_CHECK_NO_THROW(
+    interest.getLocalControlHeader()
+            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
+                                  nfd::LocalControlHeader::ENCODE_NEXT_HOP));
 
-  BOOST_CHECK_NE((void*)interest.getLocalControlHeader().wireEncode(interest, true, true).wire(),
-                 (void*)wireBlock.wire());
+  BOOST_CHECK_NE(
+    (void*)interest.getLocalControlHeader()
+                   .wireEncode(interest, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
+                                         nfd::LocalControlHeader::ENCODE_NEXT_HOP)
+                   .wire(),
+    (void*)wireBlock.wire());
 
-  BOOST_CHECK_EQUAL(interest.getLocalControlHeader().wireEncode(interest, true, true).size(), 5);
+  BOOST_CHECK_EQUAL(interest.getLocalControlHeader()
+                            .wireEncode(interest, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
+                                                  nfd::LocalControlHeader::ENCODE_NEXT_HOP).size(),
+                    5);
 }
 
 BOOST_AUTO_TEST_CASE(DecodeWithoutLocalHeader)

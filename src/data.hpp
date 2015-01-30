@@ -297,6 +297,12 @@ public:
   Data&
   setIncomingFaceId(uint64_t incomingFaceId);
 
+  nfd::LocalControlHeader::CachingPolicy
+  getCachingPolicy() const;
+
+  Data&
+  setCachingPolicy(nfd::LocalControlHeader::CachingPolicy cachingPolicy);
+
 public: // EqualityComparable concept
   bool
   operator==(const Data& other) const;
@@ -387,6 +393,11 @@ Data::getIncomingFaceId() const
   return getLocalControlHeader().getIncomingFaceId();
 }
 
+inline nfd::LocalControlHeader::CachingPolicy
+Data::getCachingPolicy() const
+{
+  return getLocalControlHeader().getCachingPolicy();
+}
 
 } // namespace ndn
 

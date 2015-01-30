@@ -367,6 +367,7 @@ BOOST_AUTO_TEST_CASE(ExpressInterestWithLocalControlHeader)
   Interest i("/Hello/World");
   i.setNextHopFaceId(1000);
   i.setIncomingFaceId(2000);
+  i.getLocalControlHeader().setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
 
   face->expressInterest(i, bind([]{}), bind([]{}));
   advanceClocks(time::milliseconds(10));
@@ -375,6 +376,7 @@ BOOST_AUTO_TEST_CASE(ExpressInterestWithLocalControlHeader)
   // only NextHopFaceId is allowed to go out
   BOOST_CHECK(face->sentInterests[0].getLocalControlHeader().hasNextHopFaceId());
   BOOST_CHECK(!face->sentInterests[0].getLocalControlHeader().hasIncomingFaceId());
+  BOOST_CHECK(!face->sentInterests[0].getLocalControlHeader().hasCachingPolicy());
   BOOST_CHECK_EQUAL(face->sentInterests[0].getNextHopFaceId(), 1000);
 }
 
@@ -384,8 +386,11 @@ BOOST_AUTO_TEST_CASE(ReceiveInterestWithLocalControlHeader)
                           [] (const InterestFilter&, const Interest& i) {
                             BOOST_CHECK(i.getLocalControlHeader().hasNextHopFaceId());
                             BOOST_CHECK(i.getLocalControlHeader().hasIncomingFaceId());
+                            BOOST_CHECK(i.getLocalControlHeader().hasCachingPolicy());
                             BOOST_CHECK_EQUAL(i.getNextHopFaceId(), 1000);
                             BOOST_CHECK_EQUAL(i.getIncomingFaceId(), 2000);
+                            BOOST_CHECK_EQUAL(i.getLocalControlHeader().getCachingPolicy(),
+                                              nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
                           },
                           bind([]{}),
                           bind([] {
@@ -396,6 +401,7 @@ BOOST_AUTO_TEST_CASE(ReceiveInterestWithLocalControlHeader)
   Interest i("/Hello/World/!");
   i.setNextHopFaceId(1000);
   i.setIncomingFaceId(2000);
+  i.getLocalControlHeader().setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
 
   face->receive(i);
   advanceClocks(time::milliseconds(10));
@@ -405,8 +411,8 @@ BOOST_AUTO_TEST_CASE(PutDataWithLocalControlHeader)
 {
   shared_ptr<Data> d = util::makeData("/Bye/World/!");
   d->setIncomingFaceId(2000);
-  d->getLocalControlHeader().setNextHopFaceId(1000); // setNextHopFaceId is intentionally
-                                                     // not exposed directly
+  d->getLocalControlHeader().setNextHopFaceId(1000);
+  d->setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
 
   face->put(*d);
   advanceClocks(time::milliseconds(10));
@@ -414,6 +420,9 @@ BOOST_AUTO_TEST_CASE(PutDataWithLocalControlHeader)
   BOOST_REQUIRE_EQUAL(face->sentDatas.size(), 1);
   BOOST_CHECK(!face->sentDatas[0].getLocalControlHeader().hasNextHopFaceId());
   BOOST_CHECK(!face->sentDatas[0].getLocalControlHeader().hasIncomingFaceId());
+  BOOST_CHECK(face->sentDatas[0].getLocalControlHeader().hasCachingPolicy());
+  BOOST_CHECK_EQUAL(face->sentDatas[0].getCachingPolicy(),
+                    nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
 }
 
 BOOST_AUTO_TEST_CASE(ReceiveDataWithLocalControlHeader)
@@ -422,6 +431,9 @@ BOOST_AUTO_TEST_CASE(ReceiveDataWithLocalControlHeader)
                         [&] (const Interest& i, const Data& d) {
                           BOOST_CHECK(d.getLocalControlHeader().hasNextHopFaceId());
                           BOOST_CHECK(d.getLocalControlHeader().hasIncomingFaceId());
+                          BOOST_CHECK(d.getLocalControlHeader().hasCachingPolicy());
+                          BOOST_CHECK_EQUAL(d.getCachingPolicy(),
+                                            nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
                           BOOST_CHECK_EQUAL(d.getIncomingFaceId(), 2000);
                           BOOST_CHECK_EQUAL(d.getLocalControlHeader().getNextHopFaceId(), 1000);
                         },
@@ -433,8 +445,8 @@ BOOST_AUTO_TEST_CASE(ReceiveDataWithLocalControlHeader)
 
   shared_ptr<Data> d = util::makeData("/Hello/World/!");
   d->setIncomingFaceId(2000);
-  d->getLocalControlHeader().setNextHopFaceId(1000); // setNextHopFaceId is intentionally
-                                                     // not exposed directly
+  d->getLocalControlHeader().setNextHopFaceId(1000);
+  d->setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
   face->receive(*d);
 
   advanceClocks(time::milliseconds(10), 100);

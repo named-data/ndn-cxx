@@ -169,9 +169,10 @@ void
 DummyClientFace::receive(const Packet& packet)
 {
   // do not restrict what injected control header can contain
-  if (!packet.getLocalControlHeader().empty(true, true)) {
+  if (!packet.getLocalControlHeader().empty(nfd::LocalControlHeader::ENCODE_ALL)) {
 
-    Block header = packet.getLocalControlHeader().wireEncode(packet, true, true);
+    Block header = packet.getLocalControlHeader().wireEncode(packet,
+                                                             nfd::LocalControlHeader::ENCODE_ALL);
     Block payload = packet.wireEncode();
 
     EncodingBuffer encoder(header.size() + payload.size(), header.size() + payload.size());
