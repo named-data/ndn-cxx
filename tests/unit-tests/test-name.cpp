@@ -145,6 +145,29 @@ BOOST_AUTO_TEST_CASE(AppendsAndMultiEncode)
                                 TestName, TestName+sizeof(TestName));
 }
 
+BOOST_AUTO_TEST_CASE(ZeroLengthComponent)
+{
+  static const uint8_t compOctets[] {0x08, 0x00};
+  Block compBlock(compOctets, sizeof(compOctets));
+  name::Component comp;
+  BOOST_REQUIRE_NO_THROW(comp.wireDecode(compBlock));
+  BOOST_CHECK_EQUAL(comp.value_size(), 0);
+
+  static const uint8_t nameOctets[] {0x07, 0x08, 0x08, 0x01, 0x41, 0x08, 0x00, 0x08, 0x01, 0x42};
+  Block nameBlock(nameOctets, sizeof(nameOctets));
+  static const std::string nameUri("/A/.../B");
+  Name name;
+  BOOST_REQUIRE_NO_THROW(name.wireDecode(nameBlock));
+  BOOST_CHECK_EQUAL(name.toUri(), nameUri);
+  Block nameEncoded = name.wireEncode();
+  BOOST_CHECK(nameEncoded == nameBlock);
+
+  Name name2;
+  BOOST_REQUIRE_NO_THROW(name2.set(nameUri));
+  Block name2Encoded = name2.wireEncode();
+  BOOST_CHECK(name2Encoded == nameBlock);
+}
+
 BOOST_AUTO_TEST_CASE(AppendNumber)
 {
   Name name;
@@ -420,6 +443,20 @@ BOOST_AUTO_TEST_CASE(Compare)
   BOOST_CHECK_EQUAL( 1, Name("/Z/AA/Y") .compare(1, 1, Name("/X/A"),   1));
   BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A/C"), 1));
   BOOST_CHECK_EQUAL( 1, Name("/Z/A/C/Y").compare(1, 2, Name("/X/A"),   1));
+}
+
+BOOST_AUTO_TEST_CASE(ZeroLengthComponentCompare)
+{
+  name::Component comp0("");
+  BOOST_REQUIRE_EQUAL(comp0.value_size(), 0);
+
+  BOOST_CHECK_EQUAL(comp0, comp0);
+  BOOST_CHECK_EQUAL(comp0, name::Component(""));
+  BOOST_CHECK_LT(comp0, name::Component("A"));
+  BOOST_CHECK_LE(comp0, name::Component("A"));
+  BOOST_CHECK_NE(comp0, name::Component("A"));
+  BOOST_CHECK_GT(name::Component("A"), comp0);
+  BOOST_CHECK_GE(name::Component("A"), comp0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
