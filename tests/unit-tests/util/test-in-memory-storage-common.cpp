@@ -704,7 +704,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndEvict, T, InMemoryStoragesLimited)
 class FindFixture
 {
 protected:
-  void
+  Name
   insert(uint32_t id, const Name& name)
   {
     shared_ptr<Data> data = makeData(name);
@@ -713,6 +713,8 @@ protected:
     signData(data);
 
     m_ims.insert(*data);
+
+    return data->getFullName();
   }
 
   Interest&
@@ -759,6 +761,30 @@ BOOST_AUTO_TEST_CASE(EmptyInterestName)
   BOOST_CHECK_EQUAL(find(), 1);
 }
 
+BOOST_AUTO_TEST_CASE(ExactName)
+{
+  insert(1, "ndn:/");
+  insert(2, "ndn:/A");
+  insert(3, "ndn:/A/B");
+  insert(4, "ndn:/A/C");
+  insert(5, "ndn:/D");
+
+  startInterest("ndn:/A");
+  BOOST_CHECK_EQUAL(find(), 2);
+}
+
+BOOST_AUTO_TEST_CASE(FullName)
+{
+  Name n1 = insert(1, "ndn:/A");
+  Name n2 = insert(2, "ndn:/A");
+
+  startInterest(n1);
+  BOOST_CHECK_EQUAL(find(), 1);
+
+  startInterest(n2);
+  BOOST_CHECK_EQUAL(find(), 2);
+}
+
 BOOST_AUTO_TEST_CASE(Leftmost)
 {
   insert(1, "ndn:/A");
@@ -786,125 +812,95 @@ BOOST_AUTO_TEST_CASE(Rightmost)
   BOOST_CHECK_EQUAL(find(), 4);
 }
 
-/// @todo Expected failures, needs to be fixed as part of Issue #2118
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(Leftmost_ExactName1, 1)
-BOOST_AUTO_TEST_CASE(Leftmost_ExactName1)
-{
-  insert(1, "ndn:/");
-  insert(2, "ndn:/A/B");
-  insert(3, "ndn:/A/C");
-  insert(4, "ndn:/A");
-  insert(5, "ndn:/D");
-
-  // Intuitively you would think Data 4 should be between Data 1 and 2,
-  // but Data 4 has full Name ndn:/A/<32-octet hash>.
-  startInterest("ndn:/A");
-  BOOST_CHECK_EQUAL(find(), 2);
-}
-
-BOOST_AUTO_TEST_CASE(Leftmost_ExactName33)
+BOOST_AUTO_TEST_CASE(MinSuffixComponents)
 {
   insert(1, "ndn:/");
   insert(2, "ndn:/A");
-  insert(3, "ndn:/A/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"); // 33 'B's
-  insert(4, "ndn:/A/CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"); // 33 'C's
-  insert(5, "ndn:/D");
-
-  // Data 2 is returned, because <32-octet hash> is less than Data 3.
-  startInterest("ndn:/A");
-  BOOST_CHECK_EQUAL(find(), 2);
-}
-
-/// @todo Expected failures, needs to be fixed as part of Issue #2118
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(MinSuffixComponents, 2)
-BOOST_AUTO_TEST_CASE(MinSuffixComponents)
-{
-  insert(1, "ndn:/A/1/2/3/4");
-  insert(2, "ndn:/B/1/2/3");
-  insert(3, "ndn:/C/1/2");
-  insert(4, "ndn:/D/1");
-  insert(5, "ndn:/E");
-  insert(6, "ndn:/");
+  insert(3, "ndn:/B/1");
+  insert(4, "ndn:/C/1/2");
+  insert(5, "ndn:/D/1/2/3");
+  insert(6, "ndn:/E/1/2/3/4");
 
   startInterest("ndn:/")
-    .setChildSelector(1)
     .setMinSuffixComponents(0);
-  BOOST_CHECK_EQUAL(find(), 6);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMinSuffixComponents(1);
-  BOOST_CHECK_EQUAL(find(), 6);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMinSuffixComponents(2);
-  BOOST_CHECK_EQUAL(find(), 5);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMinSuffixComponents(3);
-  BOOST_CHECK_EQUAL(find(), 4);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMinSuffixComponents(4);
-  BOOST_CHECK_EQUAL(find(), 3);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMinSuffixComponents(5);
-  BOOST_CHECK_EQUAL(find(), 2);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMinSuffixComponents(6);
   BOOST_CHECK_EQUAL(find(), 1);
 
   startInterest("ndn:/")
-    .setChildSelector(1)
+    .setMinSuffixComponents(1);
+  BOOST_CHECK_EQUAL(find(), 1);
+
+  startInterest("ndn:/")
+    .setMinSuffixComponents(2);
+  BOOST_CHECK_EQUAL(find(), 2);
+
+  startInterest("ndn:/")
+    .setMinSuffixComponents(3);
+  BOOST_CHECK_EQUAL(find(), 3);
+
+  startInterest("ndn:/")
+    .setMinSuffixComponents(4);
+  BOOST_CHECK_EQUAL(find(), 4);
+
+  startInterest("ndn:/")
+    .setMinSuffixComponents(5);
+  BOOST_CHECK_EQUAL(find(), 5);
+
+  startInterest("ndn:/")
+    .setMinSuffixComponents(6);
+  BOOST_CHECK_EQUAL(find(), 6);
+
+  startInterest("ndn:/")
     .setMinSuffixComponents(7);
   BOOST_CHECK_EQUAL(find(), 0);
 }
 
-/// @todo Expected failures, needs to be fixed as part of Issue #2118
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(MaxSuffixComponents, 5)
 BOOST_AUTO_TEST_CASE(MaxSuffixComponents)
 {
   insert(1, "ndn:/");
   insert(2, "ndn:/A");
-  insert(3, "ndn:/A/B");
-  insert(4, "ndn:/A/B/C");
-  insert(5, "ndn:/A/B/C/D");
-  insert(6, "ndn:/A/B/C/D/E");
-  // Order is 6,5,4,3,2,1, because <32-octet hash> is greater than a 1-octet component.
+  insert(3, "ndn:/B/2");
+  insert(4, "ndn:/C/2/3");
+  insert(5, "ndn:/D/2/3/4");
+  insert(6, "ndn:/E/2/3/4/5");
 
   startInterest("ndn:/")
+    .setChildSelector(1)
     .setMaxSuffixComponents(0);
   BOOST_CHECK_EQUAL(find(), 0);
 
   startInterest("ndn:/")
+    .setChildSelector(1)
     .setMaxSuffixComponents(1);
   BOOST_CHECK_EQUAL(find(), 1);
 
   startInterest("ndn:/")
+    .setChildSelector(1)
     .setMaxSuffixComponents(2);
   BOOST_CHECK_EQUAL(find(), 2);
 
   startInterest("ndn:/")
+    .setChildSelector(1)
     .setMaxSuffixComponents(3);
   BOOST_CHECK_EQUAL(find(), 3);
 
   startInterest("ndn:/")
+    .setChildSelector(1)
     .setMaxSuffixComponents(4);
   BOOST_CHECK_EQUAL(find(), 4);
 
   startInterest("ndn:/")
+    .setChildSelector(1)
     .setMaxSuffixComponents(5);
   BOOST_CHECK_EQUAL(find(), 5);
 
   startInterest("ndn:/")
+    .setChildSelector(1)
     .setMaxSuffixComponents(6);
+  BOOST_CHECK_EQUAL(find(), 6);
+
+  startInterest("ndn:/")
+    .setChildSelector(1)
+    .setMaxSuffixComponents(7);
   BOOST_CHECK_EQUAL(find(), 6);
 }
 
@@ -925,129 +921,59 @@ BOOST_AUTO_TEST_CASE(DigestOrder)
   BOOST_CHECK_NE(leftmost, rightmost);
 }
 
-/// @todo Expected failures, needs to be fixed as part of Issue #2118
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(DigestExclude, 1)
 BOOST_AUTO_TEST_CASE(DigestExclude)
 {
-  insert(1, "ndn:/A/B");
-  insert(2, "ndn:/A");
-  insert(3, "ndn:/A/CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"); // 33 'C's
+  insert(1, "ndn:/A");
+  Name n2 = insert(2, "ndn:/A");
+  insert(3, "ndn:/A/B");
+
+  uint8_t digest00[ndn::crypto::SHA256_DIGEST_SIZE];
+  std::fill_n(digest00, sizeof(digest00), 0x00);
+  uint8_t digestFF[ndn::crypto::SHA256_DIGEST_SIZE];
+  std::fill_n(digestFF, sizeof(digestFF), 0xFF);
+
+  Exclude excludeDigest;
+  excludeDigest.excludeRange(
+    name::Component::fromImplicitSha256Digest(digest00, sizeof(digest00)),
+    name::Component::fromImplicitSha256Digest(digestFF, sizeof(digestFF)));
 
   startInterest("ndn:/A")
-    .setExclude(Exclude().excludeBefore(name::Component(reinterpret_cast<const uint8_t*>(
-        "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"
-        "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"), 31))); // 31 0xFF's
-  BOOST_CHECK_EQUAL(find(), 2);
+    .setChildSelector(0)
+    .setExclude(excludeDigest);
+  BOOST_CHECK_EQUAL(find(), 3);
 
   startInterest("ndn:/A")
     .setChildSelector(1)
-    .setExclude(Exclude().excludeAfter(name::Component(reinterpret_cast<const uint8_t*>(
-        "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        "\x00"), 33))); // 33 0x00's
-  BOOST_CHECK_EQUAL(find(), 2);
-}
-
-BOOST_AUTO_TEST_CASE(ExactName32)
-{
-  insert(1, "ndn:/A/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"); // 32 'B's
-  insert(2, "ndn:/A/CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"); // 32 'C's
-
-  startInterest("ndn:/A/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
-  BOOST_CHECK_EQUAL(find(), 1);
-}
-
-/// @todo Expected failures, needs to be fixed as part of Issue #2118
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(MinSuffixComponents32, 2)
-BOOST_AUTO_TEST_CASE(MinSuffixComponents32)
-{
-  insert(1, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/A/1/2/3/4"); // 32 'x's
-  insert(2, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/B/1/2/3");
-  insert(3, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/C/1/2");
-  insert(4, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/D/1");
-  insert(5, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/E");
-  insert(6, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setChildSelector(1)
-    .setMinSuffixComponents(0);
-  BOOST_CHECK_EQUAL(find(), 6);
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setChildSelector(1)
-    .setMinSuffixComponents(1);
-  BOOST_CHECK_EQUAL(find(), 6);
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setChildSelector(1)
-    .setMinSuffixComponents(2);
-  BOOST_CHECK_EQUAL(find(), 5);
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setChildSelector(1)
-    .setMinSuffixComponents(3);
-  BOOST_CHECK_EQUAL(find(), 4);
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setChildSelector(1)
-    .setMinSuffixComponents(4);
+    .setExclude(excludeDigest);
   BOOST_CHECK_EQUAL(find(), 3);
 
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setChildSelector(1)
-    .setMinSuffixComponents(5);
-  BOOST_CHECK_EQUAL(find(), 2);
+  Exclude excludeGeneric;
+  excludeGeneric.excludeAfter(name::Component(static_cast<uint8_t*>(nullptr), 0));
 
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+  startInterest("ndn:/A")
+    .setChildSelector(0)
+    .setExclude(excludeGeneric);
+  int found1 = find();
+  BOOST_CHECK(found1 == 1 || found1 == 2);
+
+  startInterest("ndn:/A")
     .setChildSelector(1)
-    .setMinSuffixComponents(6);
+    .setExclude(excludeGeneric);
+  int found2 = find();
+  BOOST_CHECK(found2 == 1 || found2 == 2);
+
+  Exclude exclude2 = excludeGeneric;
+  exclude2.excludeOne(n2.get(-1));
+
+  startInterest("ndn:/A")
+    .setChildSelector(0)
+    .setExclude(exclude2);
   BOOST_CHECK_EQUAL(find(), 1);
 
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+  startInterest("ndn:/A")
     .setChildSelector(1)
-    .setMinSuffixComponents(7);
-  BOOST_CHECK_EQUAL(find(), 0);
-}
-
-/// @todo Expected failures, needs to be fixed as part of Issue #2118
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(MaxSuffixComponents32, 5)
-BOOST_AUTO_TEST_CASE(MaxSuffixComponents32)
-{
-  insert(1, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/"); // 32 'x's
-  insert(2, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/A");
-  insert(3, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/A/B");
-  insert(4, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/A/B/C");
-  insert(5, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/A/B/C/D");
-  insert(6, "ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/A/B/C/D/E");
-  // Order is 6,5,4,3,2,1, because <32-octet hash> is greater than a 1-octet component.
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setMaxSuffixComponents(0);
-  BOOST_CHECK_EQUAL(find(), 0);
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setMaxSuffixComponents(1);
+    .setExclude(exclude2);
   BOOST_CHECK_EQUAL(find(), 1);
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setMaxSuffixComponents(2);
-  BOOST_CHECK_EQUAL(find(), 2);
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setMaxSuffixComponents(3);
-  BOOST_CHECK_EQUAL(find(), 3);
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setMaxSuffixComponents(4);
-  BOOST_CHECK_EQUAL(find(), 4);
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setMaxSuffixComponents(5);
-  BOOST_CHECK_EQUAL(find(), 5);
-
-  startInterest("ndn:/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    .setMaxSuffixComponents(6);
-  BOOST_CHECK_EQUAL(find(), 6);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Find
