@@ -328,6 +328,7 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
                         m_impl->m_password.c_str(),
                         true);
     }
+#ifdef NDN_CXX_HAVE_GETPASS
   else if (m_impl->m_inTerminal)
     {
       // If no configured password, get password from terminal if inTerminal set.
@@ -358,6 +359,7 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
             break;
         }
     }
+#endif // NDN_CXX_HAVE_GETPASS
   else
     {
       // If inTerminal is not set, get the password from GUI.

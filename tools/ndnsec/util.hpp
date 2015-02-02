@@ -46,7 +46,7 @@
 bool
 getPassword(std::string& password, const std::string& prompt)
 {
-#ifndef NDN_CXX_HAVE_GETPASS
+#ifdef NDN_CXX_HAVE_GETPASS
   bool isReady = false;
 
   char* pw0 = 0;

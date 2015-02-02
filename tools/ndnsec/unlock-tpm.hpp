@@ -29,7 +29,7 @@
 int
 ndnsec_unlock_tpm(int argc, char** argv)
 {
-#ifndef NDN_CXX_HAVE_GETPASS
+#ifdef NDN_CXX_HAVE_GETPASS
   using namespace ndn;
   namespace po = boost::program_options;
 

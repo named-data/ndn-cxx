@@ -363,7 +363,7 @@ SecTpm::getImpExpPassWord(std::string& password, const std::string& prompt)
 {
   bool isInitialized = false;
 
-#ifndef NDN_CXX_HAVE_GETPASS
+#ifdef NDN_CXX_HAVE_GETPASS
   char* pw0 = 0;
 
   pw0 = getpass(prompt.c_str());
