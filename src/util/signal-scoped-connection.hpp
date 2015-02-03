@@ -61,6 +61,13 @@ public:
   void
   disconnect();
 
+  /** \brief check if the connection is connected to the signal
+   *  \return false when a default-constructed connection is used, the connection is released,
+   *          or the connection is disconnected
+   */
+  bool
+  isConnected() const;
+
   /** \brief releases the connection so that it won't be disconnected
    *         when this ScopedConnection is destructed
    */

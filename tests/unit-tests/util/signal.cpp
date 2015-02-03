@@ -164,12 +164,17 @@ BOOST_AUTO_TEST_CASE(ManualDisconnect)
 
   int hit = 0;
   Connection c1 = so.sig.connect([&hit] { ++hit; });
+  BOOST_CHECK_EQUAL(c1.isConnected(), true);
 
   so.emitSignal(sig);
   BOOST_CHECK_EQUAL(hit, 1); // handler called
 
   Connection c2 = c1; // make a copy
+  BOOST_CHECK_EQUAL(c2.isConnected(), true);
+  BOOST_CHECK_EQUAL(c1.isConnected(), true);
   c2.disconnect();
+  BOOST_CHECK_EQUAL(c2.isConnected(), false);
+  BOOST_CHECK_EQUAL(c1.isConnected(), false);
   so.emitSignal(sig);
   BOOST_CHECK_EQUAL(hit, 1); // handler not called
 
@@ -187,7 +192,9 @@ BOOST_AUTO_TEST_CASE(ManualDisconnectDestructed)
   so->emitSignal(sig);
   BOOST_CHECK_EQUAL(hit, 1); // handler called
 
+  BOOST_CHECK_EQUAL(connection.isConnected(), true);
   so.reset(); // destruct EventEmitter
+  BOOST_CHECK_EQUAL(connection.isConnected(), false);
   BOOST_CHECK_NO_THROW(connection.disconnect());
 }
 
@@ -199,6 +206,7 @@ BOOST_AUTO_TEST_CASE(AutoDisconnect)
   {
     ScopedConnection sc = so.sig.connect([&hit] { ++hit; });
 
+    BOOST_CHECK_EQUAL(sc.isConnected(), true);
     so.emitSignal(sig);
     BOOST_CHECK_EQUAL(hit, 1); // handler called
 
@@ -215,11 +223,13 @@ BOOST_AUTO_TEST_CASE(AutoDisconnectAssign)
 
   int hit1 = 0, hit2 = 0;
   ScopedConnection sc = so.sig.connect([&hit1] { ++hit1; });
+  BOOST_CHECK_EQUAL(sc.isConnected(), true);
 
   so.emitSignal(sig);
   BOOST_CHECK_EQUAL(hit1, 1); // handler1 called
 
   sc = so.sig.connect([&hit2] { ++hit2; }); // handler1 is disconnected
+  BOOST_CHECK_EQUAL(sc.isConnected(), true);
 
   so.emitSignal(sig);
   BOOST_CHECK_EQUAL(hit1, 1); // handler1 not called
@@ -236,15 +246,22 @@ BOOST_AUTO_TEST_CASE(AutoDisconnectAssignSame)
   ScopedConnection sc(c1);
   so.emitSignal(sig);
   BOOST_CHECK_EQUAL(hit, 1); // handler called
+  BOOST_CHECK_EQUAL(c1.isConnected(), true);
+  BOOST_CHECK_EQUAL(sc.isConnected(), true);
 
   sc = c1; // assign same connection
   so.emitSignal(sig);
   BOOST_CHECK_EQUAL(hit, 2); // handler called
+  BOOST_CHECK_EQUAL(c1.isConnected(), true);
+  BOOST_CHECK_EQUAL(sc.isConnected(), true);
 
   Connection c2 = c1;
   sc = c2; // assign a copy of same connection
   so.emitSignal(sig);
   BOOST_CHECK_EQUAL(hit, 3); // handler called
+  BOOST_CHECK_EQUAL(c1.isConnected(), true);
+  BOOST_CHECK_EQUAL(c2.isConnected(), true);
+  BOOST_CHECK_EQUAL(sc.isConnected(), true);
 }
 
 BOOST_AUTO_TEST_CASE(AutoDisconnectRelease)
@@ -257,8 +274,10 @@ BOOST_AUTO_TEST_CASE(AutoDisconnectRelease)
 
     so.emitSignal(sig);
     BOOST_CHECK_EQUAL(hit, 1); // handler called
+    BOOST_CHECK_EQUAL(sc.isConnected(), true);
 
     sc.release();
+    BOOST_CHECK_EQUAL(sc.isConnected(), false);
     // sc goes out of scope, but not disconnecting
   }
 
@@ -277,8 +296,11 @@ BOOST_AUTO_TEST_CASE(AutoDisconnectMove)
 
     so.emitSignal(sig);
     BOOST_CHECK_EQUAL(hit, 1); // handler called
+    BOOST_CHECK_EQUAL(sc.isConnected(), true);
 
     sc2.reset(new ScopedConnection(std::move(sc)));
+    BOOST_CHECK_EQUAL(sc.isConnected(), false);
+    BOOST_CHECK_EQUAL(sc2->isConnected(), true);
 
     // sc goes out of scope, but not disconnecting
   }
@@ -307,7 +329,9 @@ BOOST_AUTO_TEST_CASE(ConnectSingleShotDisconnected)
 
   int hit = 0;
   Connection conn = so.sig.connectSingleShot([&hit] { ++hit; });
+  BOOST_CHECK_EQUAL(conn.isConnected(), true);
   conn.disconnect();
+  BOOST_CHECK_EQUAL(conn.isConnected(), false);
 
   so.emitSignal(sig);
   BOOST_CHECK_EQUAL(hit, 0); // handler not called
@@ -356,9 +380,12 @@ BOOST_AUTO_TEST_CASE(DisconnectSelfInHandler)
 
   int hit = 0;
   Connection connection;
+  BOOST_CHECK_EQUAL(connection.isConnected(), false);
   connection = so.sig.connect(bind([&] (SignalOwner0& so) {
     ++hit;
+    BOOST_CHECK_EQUAL(connection.isConnected(), true);
     connection.disconnect();
+    BOOST_CHECK_EQUAL(connection.isConnected(), false);
     BOOST_CHECK_EQUAL(so.isSigEmpty(), false); // disconnecting hasn't taken effect
   }, ref(so)));
   // Bug 2302: 'so' needs to be bound to the handler;
@@ -366,6 +393,7 @@ BOOST_AUTO_TEST_CASE(DisconnectSelfInHandler)
 
   so.emitSignal(sig);
   BOOST_CHECK_EQUAL(hit, 1); // handler called
+  BOOST_CHECK_EQUAL(connection.isConnected(), false);
 
   // disconnecting takes effect
   BOOST_CHECK_EQUAL(so.isSigEmpty(), true);

@@ -61,6 +61,12 @@ ScopedConnection::disconnect()
   m_connection.disconnect();
 }
 
+bool
+ScopedConnection::isConnected() const
+{
+  return m_connection.isConnected();
+}
+
 void
 ScopedConnection::release()
 {

@@ -45,6 +45,12 @@ public:
   void
   disconnect();
 
+  /** \brief check if connected to the signal
+   *  \return false if disconnected from the signal
+   */
+  bool
+  isConnected() const;
+
   /** \brief compare for equality
    *
    *  Two connections are equal if they both refer to the same connection that isn't disconnected,

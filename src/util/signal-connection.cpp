@@ -46,6 +46,12 @@ Connection::disconnect()
 }
 
 bool
+Connection::isConnected() const
+{
+  return !m_disconnect.expired();
+}
+
+bool
 Connection::operator==(const Connection& other) const
 {
   shared_ptr<function<void()>> f1 = m_disconnect.lock();
