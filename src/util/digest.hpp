@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -93,6 +93,9 @@ public:
    *
    * Note that this method will invoke computeDigest().
    * Once this method is invoked, both this digest and the supplied digest are finalized.
+   *
+   * @warning This method cannot be used in security related context
+   *          because it is vulnerable to timing attack
    */
   bool
   operator==(Digest<Hash>& digest);
@@ -102,6 +105,9 @@ public:
    *
    * Note that this method will invoke computeDigest().
    * Once this method is invoked, both this digest and the supplied digest are finalized.
+   *
+   * @warning This method cannot be used in security related context
+   *          because it is vulnerable to timing attack
    */
   bool
   operator!=(Digest<Hash>& digest)
