@@ -51,7 +51,7 @@ Block::Block()
 }
 
 Block::Block(const EncodingBuffer& buffer)
-  : m_buffer(buffer.m_buffer)
+  : m_buffer(const_cast<EncodingBuffer&>(buffer).getBuffer())
   , m_begin(buffer.begin())
   , m_end(buffer.end())
   , m_size(m_end - m_begin)

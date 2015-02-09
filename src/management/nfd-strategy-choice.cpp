@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,9 +42,9 @@ StrategyChoice::StrategyChoice(const Block& payload)
   this->wireDecode(payload);
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-StrategyChoice::wireEncode(EncodingImpl<T>& encoder) const
+StrategyChoice::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
@@ -57,10 +57,10 @@ StrategyChoice::wireEncode(EncodingImpl<T>& encoder) const
 }
 
 template size_t
-StrategyChoice::wireEncode<true>(EncodingImpl<true>& block) const;
+StrategyChoice::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&) const;
 
 template size_t
-StrategyChoice::wireEncode<false>(EncodingImpl<false>& block) const;
+StrategyChoice::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
 
 const Block&
 StrategyChoice::wireEncode() const

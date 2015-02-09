@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,9 +46,9 @@ KeyLocator::KeyLocator(const Name& name)
   setName(name);
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-KeyLocator::wireEncode(EncodingImpl<T>& block) const
+KeyLocator::wireEncode(EncodingImpl<TAG>& block) const
 {
   // KeyLocator ::= KEY-LOCATOR-TYPE TLV-LENGTH (Name | KeyDigest)
   // KeyDigest ::= KEY-DIGEST-TYPE TLV-LENGTH BYTE+
@@ -74,10 +74,10 @@ KeyLocator::wireEncode(EncodingImpl<T>& block) const
 }
 
 template size_t
-KeyLocator::wireEncode<true>(EncodingImpl<true>& estimator) const;
+KeyLocator::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& estimator) const;
 
 template size_t
-KeyLocator::wireEncode<false>(EncodingImpl<false>& encoder) const;
+KeyLocator::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
 
 const Block&
 KeyLocator::wireEncode() const

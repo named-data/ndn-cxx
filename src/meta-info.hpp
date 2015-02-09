@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -74,9 +74,9 @@ public:
   explicit
   MetaInfo(const Block& block);
 
-  template<bool T>
+  template<encoding::Tag TAG>
   size_t
-  wireEncode(EncodingImpl<T>& block) const;
+  wireEncode(EncodingImpl<TAG>& block) const;
 
   const Block&
   wireEncode() const;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -47,9 +47,9 @@ Data::Data(const Block& wire)
   wireDecode(wire);
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-Data::wireEncode(EncodingImpl<T>& block, bool unsignedPortion/* = false*/) const
+Data::wireEncode(EncodingImpl<TAG>& encoder, bool unsignedPortion/* = false*/) const
 {
   size_t totalLength = 0;
 
@@ -69,35 +69,37 @@ Data::wireEncode(EncodingImpl<T>& block, bool unsignedPortion/* = false*/) const
   if (!unsignedPortion)
     {
       // SignatureValue
-      totalLength += prependBlock(block, m_signature.getValue());
+      totalLength += encoder.prependBlock(m_signature.getValue());
     }
 
   // SignatureInfo
-  totalLength += prependBlock(block, m_signature.getInfo());
+  totalLength += encoder.prependBlock(m_signature.getInfo());
 
   // Content
-  totalLength += prependBlock(block, getContent());
+  totalLength += encoder.prependBlock(getContent());
 
   // MetaInfo
-  totalLength += getMetaInfo().wireEncode(block);
+  totalLength += getMetaInfo().wireEncode(encoder);
 
   // Name
-  totalLength += getName().wireEncode(block);
+  totalLength += getName().wireEncode(encoder);
 
   if (!unsignedPortion)
     {
-      totalLength += block.prependVarNumber(totalLength);
-      totalLength += block.prependVarNumber(tlv::Data);
+      totalLength += encoder.prependVarNumber(totalLength);
+      totalLength += encoder.prependVarNumber(tlv::Data);
     }
   return totalLength;
 }
 
 
 template size_t
-Data::wireEncode<true>(EncodingImpl<true>& block, bool unsignedPortion) const;
+Data::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block,
+                                       bool unsignedPortion) const;
 
 template size_t
-Data::wireEncode<false>(EncodingImpl<false>& block, bool unsignedPortion) const;
+Data::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block,
+                                         bool unsignedPortion) const;
 
 
 const Block&

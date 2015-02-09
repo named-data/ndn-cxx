@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -438,9 +438,9 @@ Component::getSuccessor() const
 }
 
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-Component::wireEncode(EncodingImpl<T>& block) const
+Component::wireEncode(EncodingImpl<TAG>& block) const
 {
   size_t totalLength = 0;
   if (value_size() > 0)
@@ -451,10 +451,10 @@ Component::wireEncode(EncodingImpl<T>& block) const
 }
 
 template size_t
-Component::wireEncode<true>(EncodingImpl<true>& block) const;
+Component::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
 
 template size_t
-Component::wireEncode<false>(EncodingImpl<false>& block) const;
+Component::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
 
 const Block&
 Component::wireEncode() const

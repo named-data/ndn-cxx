@@ -19,64 +19,40 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_MANAGEMENT_NFD_CHANNEL_STATUS_HPP
-#define NDN_MANAGEMENT_NFD_CHANNEL_STATUS_HPP
-
-#include "../encoding/block.hpp"
+#ifndef NDN_ENCODING_ENCODING_BUFFER_FWD_HPP
+#define NDN_ENCODING_ENCODING_BUFFER_FWD_HPP
 
 namespace ndn {
-namespace nfd {
+namespace encoding {
+
+typedef bool Tag;
 
 /**
- * @ingroup management
- * @brief represents NFD Channel Status dataset
- * @sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Channel-Dataset
+ * @brief Tag for EncodingImpl to indicate that Encoder is requested
+ * Implementation of the tag may change to class. Use of true directly
+ * as a template parameter is discouraged.
  */
-class ChannelStatus
-{
-public:
-  class Error : public tlv::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : tlv::Error(what)
-    {
-    }
-  };
+static const Tag EncoderTag = true;
 
-  ChannelStatus();
+/**
+ * @brief Tag for EncodingImpl to indicate that Estimator is requested
+ * Implementation of the tag may change to class. Use of false directly
+ * as a template parameter is discouraged.
+ */
+static const Tag EstimatorTag = false;
 
-  explicit
-  ChannelStatus(const Block& payload);
+template<Tag TAG>
+class EncodingImpl;
 
-  template<encoding::Tag TAG>
-  size_t
-  wireEncode(EncodingImpl<TAG>& encoder) const;
+typedef EncodingImpl<EncoderTag> EncodingBuffer;
+typedef EncodingImpl<EstimatorTag> EncodingEstimator;
 
-  const Block&
-  wireEncode() const;
+} // namespace encoding
 
-  void
-  wireDecode(const Block& wire);
+using encoding::EncodingImpl;
+using encoding::EncodingBuffer;
+using encoding::EncodingEstimator;
 
-public: // getters & setters
-  const std::string&
-  getLocalUri() const
-  {
-    return m_localUri;
-  }
-
-  ChannelStatus&
-  setLocalUri(const std::string localUri);
-
-private:
-  std::string m_localUri;
-
-  mutable Block m_wire;
-};
-
-} // namespace nfd
 } // namespace ndn
 
-#endif // NDN_MANAGEMENT_NFD_CHANNEL_STATUS_HPP
+#endif // NDN_ENCODING_ENCODING_BUFFER_FWD_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,9 +41,9 @@ Exclude::Exclude(const Block& wire)
   wireDecode(wire);
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-Exclude::wireEncode(EncodingImpl<T>& block) const
+Exclude::wireEncode(EncodingImpl<TAG>& block) const
 {
   if (m_exclude.empty()) {
     throw Error("Exclude filter cannot be empty");
@@ -72,10 +72,10 @@ Exclude::wireEncode(EncodingImpl<T>& block) const
 }
 
 template size_t
-Exclude::wireEncode<true>(EncodingImpl<true>& block) const;
+Exclude::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
 
 template size_t
-Exclude::wireEncode<false>(EncodingImpl<false>& block) const;
+Exclude::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
 
 const Block&
 Exclude::wireEncode() const

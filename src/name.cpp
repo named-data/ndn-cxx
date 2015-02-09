@@ -43,9 +43,9 @@ static_assert(std::is_base_of<tlv::Error, Name::Error>::value,
 
 const size_t Name::npos = std::numeric_limits<size_t>::max();
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-Name::wireEncode(EncodingImpl<T>& encoder) const
+Name::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
@@ -60,10 +60,10 @@ Name::wireEncode(EncodingImpl<T>& encoder) const
 }
 
 template size_t
-Name::wireEncode<true>(EncodingImpl<true>& estimator) const;
+Name::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& estimator) const;
 
 template size_t
-Name::wireEncode<false>(EncodingImpl<false>& encoder) const;
+Name::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
 
 const Block&
 Name::wireEncode() const

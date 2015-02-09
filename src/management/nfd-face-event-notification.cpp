@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,9 +43,9 @@ FaceEventNotification::FaceEventNotification(const Block& block)
   this->wireDecode(block);
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-FaceEventNotification::wireEncode(EncodingImpl<T>& encoder) const
+FaceEventNotification::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
@@ -55,9 +55,9 @@ FaceEventNotification::wireEncode(EncodingImpl<T>& encoder) const
                  tlv::nfd::FacePersistency, m_facePersistency);
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::FaceScope, m_faceScope);
-  totalLength += prependByteArrayBlock(encoder, tlv::nfd::LocalUri,
+  totalLength += encoder.prependByteArrayBlock(tlv::nfd::LocalUri,
                  reinterpret_cast<const uint8_t*>(m_localUri.c_str()), m_localUri.size());
-  totalLength += prependByteArrayBlock(encoder, tlv::nfd::Uri,
+  totalLength += encoder.prependByteArrayBlock(tlv::nfd::Uri,
                  reinterpret_cast<const uint8_t*>(m_remoteUri.c_str()), m_remoteUri.size());
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::FaceId, m_faceId);

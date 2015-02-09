@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -155,9 +155,9 @@ public:
   }
 
 private:
-  template<bool T>
+  template<encoding::Tag TAG>
   inline size_t
-  wireEncode(EncodingImpl<T>& block, size_t payloadSize,
+  wireEncode(EncodingImpl<TAG>& block, size_t payloadSize,
              bool encodeIncomingFaceId, bool encodeNextHopFaceId) const;
 
 private:
@@ -169,9 +169,9 @@ private:
 /**
  * @brief Fast encoding or block size estimation
  */
-template<bool T>
+template<encoding::Tag TAG>
 inline size_t
-LocalControlHeader::wireEncode(EncodingImpl<T>& block, size_t payloadSize,
+LocalControlHeader::wireEncode(EncodingImpl<TAG>& block, size_t payloadSize,
                                bool encodeIncomingFaceId, bool encodeNextHopFaceId) const
 {
   size_t totalLength = payloadSize;

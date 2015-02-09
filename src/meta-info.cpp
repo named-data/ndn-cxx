@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -123,9 +123,9 @@ MetaInfo::findAppMetaInfo(uint32_t tlvType) const
   return 0;
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-MetaInfo::wireEncode(EncodingImpl<T>& blk) const
+MetaInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   // MetaInfo ::= META-INFO-TYPE TLV-LENGTH
   //                ContentType?
@@ -137,38 +137,38 @@ MetaInfo::wireEncode(EncodingImpl<T>& blk) const
 
   for (std::list<Block>::const_reverse_iterator appMetaInfoItem = m_appMetaInfo.rbegin();
        appMetaInfoItem != m_appMetaInfo.rend(); ++appMetaInfoItem) {
-    totalLength += prependBlock(blk, *appMetaInfoItem);
+    totalLength += encoder.prependBlock(*appMetaInfoItem);
   }
 
   // FinalBlockId
   if (!m_finalBlockId.empty())
     {
-      totalLength += prependNestedBlock(blk, tlv::FinalBlockId, m_finalBlockId);
+      totalLength += prependNestedBlock(encoder, tlv::FinalBlockId, m_finalBlockId);
     }
 
   // FreshnessPeriod
   if (m_freshnessPeriod >= time::milliseconds::zero())
     {
-      totalLength += prependNonNegativeIntegerBlock(blk, tlv::FreshnessPeriod,
+      totalLength += prependNonNegativeIntegerBlock(encoder, tlv::FreshnessPeriod,
                                                     m_freshnessPeriod.count());
     }
 
   // ContentType
   if (m_type != tlv::ContentType_Blob)
     {
-      totalLength += prependNonNegativeIntegerBlock(blk, tlv::ContentType, m_type);
+      totalLength += prependNonNegativeIntegerBlock(encoder, tlv::ContentType, m_type);
     }
 
-  totalLength += blk.prependVarNumber(totalLength);
-  totalLength += blk.prependVarNumber(tlv::MetaInfo);
+  totalLength += encoder.prependVarNumber(totalLength);
+  totalLength += encoder.prependVarNumber(tlv::MetaInfo);
   return totalLength;
 }
 
 template size_t
-MetaInfo::wireEncode<true>(EncodingImpl<true>& block) const;
+MetaInfo::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
 
 template size_t
-MetaInfo::wireEncode<false>(EncodingImpl<false>& block) const;
+MetaInfo::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
 
 const Block&
 MetaInfo::wireEncode() const

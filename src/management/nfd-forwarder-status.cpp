@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -53,9 +53,9 @@ ForwarderStatus::ForwarderStatus(const Block& payload)
   this->wireDecode(payload);
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-ForwarderStatus::wireEncode(EncodingImpl<T>& encoder) const
+ForwarderStatus::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
@@ -81,7 +81,7 @@ ForwarderStatus::wireEncode(EncodingImpl<T>& encoder) const
                                                 time::toUnixTimestamp(m_currentTimestamp).count());
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::StartTimestamp,
                                                 time::toUnixTimestamp(m_startTimestamp).count());
-  totalLength += prependByteArrayBlock(encoder,tlv::nfd::NfdVersion,
+  totalLength += encoder.prependByteArrayBlock(tlv::nfd::NfdVersion,
                                        reinterpret_cast<const uint8_t*>(m_nfdVersion.c_str()),
                                        m_nfdVersion.size());
 
@@ -91,10 +91,10 @@ ForwarderStatus::wireEncode(EncodingImpl<T>& encoder) const
 }
 
 template size_t
-ForwarderStatus::wireEncode<true>(EncodingImpl<true>& block) const;
+ForwarderStatus::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&) const;
 
 template size_t
-ForwarderStatus::wireEncode<false>(EncodingImpl<false>& block) const;
+ForwarderStatus::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
 
 const Block&
 ForwarderStatus::wireEncode() const

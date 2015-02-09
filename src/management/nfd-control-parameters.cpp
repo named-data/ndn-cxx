@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -44,9 +44,9 @@ ControlParameters::ControlParameters(const Block& block)
   wireDecode(block);
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-ControlParameters::wireEncode(EncodingImpl<T>& encoder) const
+ControlParameters::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
@@ -90,10 +90,10 @@ ControlParameters::wireEncode(EncodingImpl<T>& encoder) const
 }
 
 template size_t
-ControlParameters::wireEncode<true>(EncodingImpl<true>& encoder) const;
+ControlParameters::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&) const;
 
 template size_t
-ControlParameters::wireEncode<false>(EncodingImpl<false>& estimator) const;
+ControlParameters::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
 
 const Block&
 ControlParameters::wireEncode() const

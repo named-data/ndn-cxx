@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,8 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
 #ifndef NDN_ENCODING_BLOCK_HELPERS_HPP
@@ -27,7 +25,65 @@
 #include "block.hpp"
 #include "encoding-buffer.hpp"
 
+#include <iterator>
+
 namespace ndn {
+
+/**
+ * @deprecated Use Encoder::prependBlock and Estimator::prependBlock instead
+ */
+template<bool P>
+inline size_t
+prependBlock(EncodingImpl<P>& encoder, const Block& block)
+{
+  return encoder.prependBlock(block);
+}
+
+/**
+ * @deprecated Use Encoder::prependByteArrayBlock and Estimator::prependByteArrayBlock instead
+ */
+template<bool P>
+inline size_t
+prependByteArrayBlock(EncodingImpl<P>& encoder,
+                      uint32_t type, const uint8_t* array, size_t arraySize)
+{
+  return encoder.prependByteArrayBlock(type, array, arraySize);
+}
+
+template<bool P>
+inline size_t
+prependNonNegativeIntegerBlock(EncodingImpl<P>& encoder, uint32_t type, uint64_t number)
+{
+  size_t valueLength = encoder.prependNonNegativeInteger(number);
+  size_t totalLength = valueLength;
+  totalLength += encoder.prependVarNumber(valueLength);
+  totalLength += encoder.prependVarNumber(type);
+
+  return totalLength;
+}
+
+template<bool P>
+inline size_t
+prependBooleanBlock(EncodingImpl<P>& encoder, uint32_t type)
+{
+  size_t totalLength = encoder.prependVarNumber(0);
+  totalLength += encoder.prependVarNumber(type);
+
+  return totalLength;
+}
+
+template<bool P, class U>
+inline size_t
+prependNestedBlock(EncodingImpl<P>& encoder, uint32_t type, const U& nestedBlock)
+{
+  size_t valueLength = nestedBlock.wireEncode(encoder);
+  size_t totalLength = valueLength;
+  totalLength += encoder.prependVarNumber(valueLength);
+  totalLength += encoder.prependVarNumber(type);
+
+  return totalLength;
+}
+
 
 inline Block
 nonNegativeIntegerBlock(uint32_t type, uint64_t value)
@@ -64,10 +120,10 @@ inline Block
 dataBlock(uint32_t type, const uint8_t* data, size_t dataSize)
 {
   EncodingEstimator estimator;
-  size_t totalLength = prependByteArrayBlock(estimator, type, data, dataSize);
+  size_t totalLength = estimator.prependByteArrayBlock(type, data, dataSize);
 
   EncodingBuffer encoder(totalLength, 0);
-  prependByteArrayBlock(encoder, type, data, dataSize);
+  encoder.prependByteArrayBlock(type, data, dataSize);
 
   return encoder.block();
 }
@@ -78,21 +134,77 @@ dataBlock(uint32_t type, const char* data, size_t dataSize)
   return dataBlock(type, reinterpret_cast<const uint8_t*>(data), dataSize);
 }
 
-// template<class InputIterator>
-// inline Block
-// dataBlock(uint32_t type, InputIterator first, InputIterator last)
-// {
-//   size_t dataSize = 0;
-//   for (InputIterator i = first; i != last; i++)
-//     ++dataSize;
+/**
+ * @brief Helper class template to create a data block when RandomAccessIterator is used
+ */
+template<class Iterator>
+class DataBlockFast
+{
+public:
+  BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Iterator>));
 
-//   OBufferStream os;
-//   tlv::writeVarNumber(os, type);
-//   tlv::writeVarNumber(os, dataSize);
-//   std::copy(first, last, std::ostream_iterator<uint8_t>(os));
+  static Block
+  makeBlock(uint32_t type, Iterator first, Iterator last)
+  {
+    EncodingEstimator estimator;
+    size_t valueLength = last - first;
+    size_t totalLength = valueLength;
+    totalLength += estimator.prependVarNumber(valueLength);
+    totalLength += estimator.prependVarNumber(type);
 
-//   return Block(os.buf());
-// }
+    EncodingBuffer encoder(totalLength, 0);
+    encoder.prependRange(first, last);
+    encoder.prependVarNumber(valueLength);
+    encoder.prependVarNumber(type);
+
+    return encoder.block();
+  }
+};
+
+/**
+ * @brief Helper class template to create a data block when generic InputIterator is used
+ */
+template<class Iterator>
+class DataBlockSlow
+{
+public:
+  BOOST_CONCEPT_ASSERT((boost::InputIterator<Iterator>));
+
+  static Block
+  makeBlock(uint32_t type, Iterator first, Iterator last)
+  {
+    // reserve 4 bytes in front (common for 1(type)-3(length) encoding
+    // Actual size will be adjusted as necessary by the encoder
+    EncodingBuffer encoder(4, 4);
+    size_t valueLength = encoder.appendRange(first, last);
+    encoder.prependVarNumber(valueLength);
+    encoder.prependVarNumber(type);
+
+    return encoder.block();
+  }
+};
+
+/**
+ * @brief Free function to create a block given @p type and range [@p first, @p last) of bytes
+ * @tparam Iterator iterator type satisfying at least InputIterator concept.  Implementation
+ *                  is more optimal when the iterator type satisfies RandomAccessIterator concept
+ *                  It is required that sizeof(std::iterator_traits<Iterator>::value_type) == 1.
+ */
+template<class Iterator>
+inline Block
+dataBlock(uint32_t type, Iterator first, Iterator last)
+{
+  static_assert(sizeof(typename std::iterator_traits<Iterator>::value_type) == 1,
+                "Iterator should point only to char or unsigned char");
+
+  typedef typename boost::mpl::if_<
+    std::is_base_of<std::random_access_iterator_tag,
+                    typename std::iterator_traits<Iterator>::iterator_category>,
+    DataBlockFast<Iterator>,
+    DataBlockSlow<Iterator>>::type DataBlock;
+
+  return DataBlock::makeBlock(type, first, last);
+}
 
 } // namespace ndn
 

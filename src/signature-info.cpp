@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -109,9 +109,9 @@ SignatureInfo::getTypeSpecificTlv(uint32_t type) const
               boost::lexical_cast<std::string>(type) + "] from SignatureInfo");
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-SignatureInfo::wireEncode(EncodingImpl<T>& block) const
+SignatureInfo::wireEncode(EncodingImpl<TAG>& block) const
 {
   size_t totalLength = 0;
 
@@ -131,10 +131,10 @@ SignatureInfo::wireEncode(EncodingImpl<T>& block) const
 }
 
 template size_t
-SignatureInfo::wireEncode<true>(EncodingImpl<true>& block) const;
+SignatureInfo::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&) const;
 
 template size_t
-SignatureInfo::wireEncode<false>(EncodingImpl<false>& block) const;
+SignatureInfo::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
 
 
 const Block&

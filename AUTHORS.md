@@ -3,10 +3,11 @@ ndn-cxx authors
 
 ## The primary authors are (and/or have been):
 
-* Jeff Thompson         <jefft0@remap.ucla.edu>
-* Zhenkai Zhu           <http://irl.cs.ucla.edu/~zhenkai/>
 * Alexander Afanasyev   <http://lasr.cs.ucla.edu/afanasyev/index.html>
 * Yingdi Yu             <http://irl.cs.ucla.edu/~yingdi/>
+* Junxiao Shi           <http://www.cs.arizona.edu/people/shijunxiao/>
+* Jeff Thompson         <jefft0@remap.ucla.edu>
+* Zhenkai Zhu           <http://irl.cs.ucla.edu/~zhenkai/>
 
 ## All project authors and contributors
 
@@ -15,7 +16,6 @@ people who have reported bugs, submitted patches, and implemented new features
 in the library:
 
 * Wentao Shang          <http://irl.cs.ucla.edu/~wentao/>
-* Junxiao Shi           <http://www.cs.arizona.edu/people/shijunxiao/>
 * Steve DiBenedetto     <http://www.cs.colostate.edu/~dibenede/>
 * Davide Pesavento      <http://www.lip6.fr/actualite/personnes-fiche.php?ident=D1469>
 * Syed Obaid Amin       <http://obaidamin.weebly.com/>

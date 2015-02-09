@@ -28,6 +28,7 @@
 
 #include "buffer.hpp"
 #include "tlv.hpp"
+#include "encoding-buffer-fwd.hpp"
 
 namespace boost {
 namespace asio {
@@ -36,9 +37,6 @@ class const_buffer;
 } // namespace boost
 
 namespace ndn {
-
-template<bool> class EncodingImpl;
-typedef EncodingImpl<true> EncodingBuffer;
 
 /** @brief Class representing a wire element of NDN-TLV packet format
  */
@@ -247,6 +245,12 @@ public: // sub elements
   Block
   blockFromValue() const;
 
+  /**
+   * @brief Get underlying buffer
+   */
+  shared_ptr<const Buffer>
+  getBuffer() const;
+
 public: // EqualityComparable concept
   bool
   operator==(const Block& other) const;
@@ -258,7 +262,7 @@ public: // ConvertibleToConstBuffer
   operator boost::asio::const_buffer() const;
 
 protected:
-  ConstBufferPtr m_buffer;
+  shared_ptr<const Buffer> m_buffer;
 
   uint32_t m_type;
 
@@ -270,12 +274,17 @@ protected:
   Buffer::const_iterator m_value_end;
 
   mutable element_container m_subBlocks;
-  friend class EncodingImpl<true>;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+
+inline shared_ptr<const Buffer>
+Block::getBuffer() const
+{
+  return m_buffer;
+}
 
 inline bool
 Block::empty() const

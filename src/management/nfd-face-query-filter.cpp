@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,9 +49,9 @@ FaceQueryFilter::FaceQueryFilter(const Block& block)
   this->wireDecode(block);
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-FaceQueryFilter::wireEncode(EncodingImpl<T>& encoder) const
+FaceQueryFilter::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
@@ -71,17 +71,17 @@ FaceQueryFilter::wireEncode(EncodingImpl<T>& encoder) const
   }
 
   if (m_hasLocalUri) {
-    totalLength += prependByteArrayBlock(encoder, tlv::nfd::LocalUri,
+    totalLength += encoder.prependByteArrayBlock(tlv::nfd::LocalUri,
                    reinterpret_cast<const uint8_t*>(m_localUri.c_str()), m_localUri.size());
   }
 
   if (m_hasRemoteUri) {
-    totalLength += prependByteArrayBlock(encoder, tlv::nfd::Uri,
+    totalLength += encoder.prependByteArrayBlock(tlv::nfd::Uri,
                    reinterpret_cast<const uint8_t*>(m_remoteUri.c_str()), m_remoteUri.size());
   }
 
   if (m_hasUriScheme) {
-    totalLength += prependByteArrayBlock(encoder, tlv::nfd::UriScheme,
+    totalLength += encoder.prependByteArrayBlock(tlv::nfd::UriScheme,
                    reinterpret_cast<const uint8_t*>(m_uriScheme.c_str()), m_uriScheme.size());
   }
 
@@ -96,10 +96,10 @@ FaceQueryFilter::wireEncode(EncodingImpl<T>& encoder) const
 }
 
 template size_t
-FaceQueryFilter::wireEncode<true>(EncodingImpl<true>& block) const;
+FaceQueryFilter::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&) const;
 
 template size_t
-FaceQueryFilter::wireEncode<false>(EncodingImpl<false>& block) const;
+FaceQueryFilter::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
 
 const Block&
 FaceQueryFilter::wireEncode() const

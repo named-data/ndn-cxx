@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -56,9 +56,9 @@ Route::Route(const Block& block)
   wireDecode(block);
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-Route::wireEncode(EncodingImpl<T>& block) const
+Route::wireEncode(EncodingImpl<TAG>& block) const
 {
   size_t totalLength = 0;
 
@@ -92,10 +92,10 @@ Route::wireEncode(EncodingImpl<T>& block) const
 }
 
 template size_t
-Route::wireEncode<true>(EncodingImpl<true>& block) const;
+Route::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
 
 template size_t
-Route::wireEncode<false>(EncodingImpl<false>& block) const;
+Route::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
 
 const Block&
 Route::wireEncode() const
@@ -216,9 +216,9 @@ RibEntry::RibEntry(const Block& block)
 }
 
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-RibEntry::wireEncode(EncodingImpl<T>& block) const
+RibEntry::wireEncode(EncodingImpl<TAG>& block) const
 {
   size_t totalLength = 0;
 
@@ -237,10 +237,10 @@ RibEntry::wireEncode(EncodingImpl<T>& block) const
 }
 
 template size_t
-RibEntry::wireEncode<true>(EncodingImpl<true>& block) const;
+RibEntry::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
 
 template size_t
-RibEntry::wireEncode<false>(EncodingImpl<false>& block) const;
+RibEntry::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
 
 const Block&
 RibEntry::wireEncode() const

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,10 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Jeff Thompson <jefft0@remap.ucla.edu>
- * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
- * @author Zhenkai Zhu <http://irl.cs.ucla.edu/~zhenkai/>
  */
 
 #ifndef NDN_NAME_COMPONENT_HPP
@@ -28,6 +24,7 @@
 
 #include "common.hpp"
 #include "encoding/block.hpp"
+#include "encoding/block-helpers.hpp"
 #include "util/time.hpp"
 
 namespace ndn {
@@ -111,15 +108,18 @@ public:
   Component(const uint8_t* buffer, size_t bufferSize);
 
   /**
-   * @brief Create a new name::Component from the buffer (data from buffer will be copied)
-   * @param begin Iterator pointing to the beginning of the buffer
-   * @param end   Iterator pointing to the ending of the buffer
+   * @brief Create a new name::Component frome the range [@p first, @p last) of bytes
+   * @param first     Iterator pointing to the beginning of the buffer
+   * @param last      Iterator pointing to the ending of the buffer
+   * @tparam Iterator iterator type satisfying at least InputIterator concept.  Implementation
+   *                  is more optimal when the iterator type satisfies RandomAccessIterator concept.
+   *                  It is required that sizeof(std::iterator_traits<Iterator>::value_type) == 1.
    *
    * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
    * Note that this method **will** allocate new memory for and copy the payload.
    */
-  template<class InputIterator>
-  Component(InputIterator begin, InputIterator end);
+  template<class Iterator>
+  Component(Iterator first, Iterator last);
 
   /**
    * @brief Create a new name::Component from the C string (data from string will be copied)
@@ -148,9 +148,9 @@ public:
   /**
    * @brief Fast encoding or block size estimation
    */
-  template<bool T>
+  template<encoding::Tag TAG>
   size_t
-  wireEncode(EncodingImpl<T>& block) const;
+  wireEncode(EncodingImpl<TAG>& block) const;
 
   /**
    * @brief Encode to a wire format
@@ -615,10 +615,10 @@ operator<<(std::ostream& os, const Component& component)
   return os;
 }
 
-template<class InputIterator>
+template<class Iterator>
 inline
-Component::Component(InputIterator begin, InputIterator end)
-  : Block(dataBlock(tlv::NameComponent, begin, end))
+Component::Component(Iterator first, Iterator last)
+  : Block(dataBlock(tlv::NameComponent, first, last))
 {
 }
 

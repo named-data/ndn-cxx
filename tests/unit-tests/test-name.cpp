@@ -459,6 +459,37 @@ BOOST_AUTO_TEST_CASE(ZeroLengthComponentCompare)
   BOOST_CHECK_GE(name::Component("A"), comp0);
 }
 
+BOOST_AUTO_TEST_CASE(CreateComponentWithIterators) // Bug #2490
+{
+  {
+    std::vector<uint8_t> bytes = {1};
+    name::Component c(bytes.begin(), bytes.end());
+    BOOST_CHECK_EQUAL(c.value_size(), 1);
+    BOOST_CHECK_EQUAL(c.size(), 3);
+  }
+
+  {
+    std::list<uint8_t> bytes = {1, 2, 3, 4};
+    name::Component c(bytes.begin(), bytes.end());
+    BOOST_CHECK_EQUAL(c.value_size(), 4);
+    BOOST_CHECK_EQUAL(c.size(), 6);
+  }
+
+  {
+    std::vector<int8_t> bytes = {1};
+    name::Component c(bytes.begin(), bytes.end());
+    BOOST_CHECK_EQUAL(c.value_size(), 1);
+    BOOST_CHECK_EQUAL(c.size(), 3);
+  }
+
+  {
+    std::list<int8_t> bytes = {1, 2, 3, 4};
+    name::Component c(bytes.begin(), bytes.end());
+    BOOST_CHECK_EQUAL(c.value_size(), 4);
+    BOOST_CHECK_EQUAL(c.size(), 6);
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace ndn

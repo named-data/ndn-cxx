@@ -114,9 +114,9 @@ public:
   /**
    * @brief Fast encoding or block size estimation
    */
-  template<bool T>
+  template<encoding::Tag TAG>
   size_t
-  wireEncode(EncodingImpl<T>& block) const;
+  wireEncode(EncodingImpl<TAG>& block) const;
 
   const Block&
   wireEncode() const;
@@ -159,14 +159,19 @@ public:
   }
 
   /**
-   * Append a new component, copying from value of length valueLength.
+   * @brief Append a new component, copying from value frome the range [@p first, @p last) of bytes
+   * @param first     Iterator pointing to the beginning of the buffer
+   * @param last      Iterator pointing to the ending of the buffer
+   * @tparam Iterator iterator type satisfying at least InputIterator concept.  Implementation
+   *                  is more optimal when the iterator type satisfies RandomAccessIterator concept.
+   *                  It is required that sizeof(std::iterator_traits<Iterator>::value_type) == 1.
    * @return This name so that you can chain calls to append.
    */
-  template<class InputIterator>
+  template<class Iterator>
   Name&
-  append(InputIterator begin, InputIterator end)
+  append(Iterator first, Iterator last)
   {
-    m_nameBlock.push_back(Component(begin, end));
+    m_nameBlock.push_back(Component(first, last));
     return *this;
   }
 

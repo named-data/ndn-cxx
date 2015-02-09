@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -71,9 +71,9 @@ NextHopRecord::setCost(uint64_t cost)
   return *this;
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-NextHopRecord::wireEncode(EncodingImpl<T>& block) const
+NextHopRecord::wireEncode(EncodingImpl<TAG>& block) const
 {
   size_t totalLength = 0;
   totalLength += prependNonNegativeIntegerBlock(block,
@@ -90,10 +90,10 @@ NextHopRecord::wireEncode(EncodingImpl<T>& block) const
 }
 
 template size_t
-NextHopRecord::wireEncode<true>(EncodingImpl<true>& block) const;
+NextHopRecord::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
 
 template size_t
-NextHopRecord::wireEncode<false>(EncodingImpl<false>& block) const;
+NextHopRecord::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
 
 const Block&
 NextHopRecord::wireEncode() const
@@ -182,9 +182,9 @@ FibEntry::addNextHopRecord(const NextHopRecord& nextHopRecord)
   return *this;
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-FibEntry::wireEncode(EncodingImpl<T>& block) const
+FibEntry::wireEncode(EncodingImpl<TAG>& block) const
 {
   size_t totalLength = 0;
 
@@ -200,10 +200,10 @@ FibEntry::wireEncode(EncodingImpl<T>& block) const
 }
 
 template size_t
-FibEntry::wireEncode<true>(EncodingImpl<true>& block) const;
+FibEntry::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
 
 template size_t
-FibEntry::wireEncode<false>(EncodingImpl<false>& block) const;
+FibEntry::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
 
 const Block&
 FibEntry::wireEncode() const
