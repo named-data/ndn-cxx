@@ -101,6 +101,9 @@ main(int, char**)
 
     conf.define('SYSCONFDIR', conf.env['SYSCONFDIR'])
 
+    # config file will contain all defines that were added using conf.define('xxx'...)
+    # Everything that was added directly to conf.env['DEFINES'] will not appear in the
+    # config file and will be added using compiler directives in the command line.
     conf.write_config_header('src/ndn-cxx-config.hpp', define_prefix='NDN_CXX_')
 
 def build(bld):

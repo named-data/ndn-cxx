@@ -124,6 +124,8 @@ class GccFlags(GccBasicFlags):
             flags['CXXFLAGS'] += ['-std=c++0x']
         else:
             flags['CXXFLAGS'] += ['-std=c++11']
+        if version < (4, 8, 0):
+            flags['DEFINES'] += ['_GLIBCXX_USE_NANOSLEEP'] # Bug #2499
         return flags
 
     def getDebugFlags(self, conf):
