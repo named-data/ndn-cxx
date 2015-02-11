@@ -43,6 +43,27 @@ static_assert(std::is_base_of<tlv::Error, Name::Error>::value,
 
 const size_t Name::npos = std::numeric_limits<size_t>::max();
 
+Name::Name()
+  : m_nameBlock(tlv::Name)
+{
+}
+
+Name::Name(const Block& wire)
+{
+  m_nameBlock = wire;
+  m_nameBlock.parse();
+}
+
+Name::Name(const char* uri)
+{
+  construct(uri);
+}
+
+Name::Name(const std::string& uri)
+{
+  construct(uri.c_str());
+}
+
 template<encoding::Tag TAG>
 size_t
 Name::wireEncode(EncodingImpl<TAG>& encoder) const
@@ -94,7 +115,7 @@ Name::wireDecode(const Block& wire)
 }
 
 void
-Name::set(const char* uriOrig)
+Name::construct(const char* uriOrig)
 {
   clear();
 
@@ -148,6 +169,18 @@ Name::set(const char* uriOrig)
 
     iComponentStart = iComponentEnd + 1;
   }
+}
+
+void
+Name::set(const char* uri)
+{
+  *this = std::move(Name(uri));
+}
+
+void
+Name::set(const std::string& uri)
+{
+  *this = std::move(Name(uri));
 }
 
 std::string
@@ -338,7 +371,7 @@ operator>>(std::istream& is, Name& name)
 {
   std::string inputString;
   is >> inputString;
-  name.set(inputString);
+  name = std::move(Name(inputString));
 
   return is;
 }

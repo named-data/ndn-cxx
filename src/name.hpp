@@ -34,7 +34,7 @@
 namespace ndn {
 
 /**
- * A Name holds an array of Name::Component and represents an NDN name.
+ * @brief A Name holds an array of name::Component and represents an NDN name
  */
 class Name : public enable_shared_from_this<Name>
 {
@@ -70,12 +70,9 @@ public:
   typedef component_container::size_type       size_type;
 
   /**
-   * Create a new Name with no components.
+   * @brief Create a new Name with no components.
    */
-  Name()
-    : m_nameBlock(tlv::Name)
-  {
-  }
+  Name();
 
   /**
    * @brief Create Name object from wire block
@@ -87,29 +84,19 @@ public:
    * @endcode
    */
   explicit
-  Name(const Block& wire)
-  {
-    m_nameBlock = wire;
-    m_nameBlock.parse();
-  }
+  Name(const Block& wire);
 
   /**
-   * Parse the uri according to the NDN URI Scheme and create the name with the components.
-   * @param uri The URI string.
+   * @brief Create name from @p uri (NDN URI scheme)
+   * @param uri The null-terminated URI string
    */
-  Name(const char* uri)
-  {
-    set(uri);
-  }
+  Name(const char* uri);
 
   /**
-   * Parse the uri according to the NDN URI Scheme and create the name with the components.
-   * @param uri The URI string.
+   * @brief Create name from @p uri (NDN URI scheme)
+   * @param uri The URI string
    */
-  Name(const std::string& uri)
-  {
-    set(uri.c_str());
-  }
+  Name(const std::string& uri);
 
   /**
    * @brief Fast encoding or block size estimation
@@ -131,24 +118,21 @@ public:
   hasWire() const;
 
   /**
-   * Parse the uri according to the NDN URI Scheme and set the name with the components.
-   * @param uri The null-terminated URI string.
+   * @deprecated Use appropriate constructor
    */
+  DEPRECATED(
   void
-  set(const char* uri);
+  set(const char* uri));
 
   /**
-   * Parse the uri according to the NDN URI Scheme and set the name with the components.
-   * @param uri The URI string.
+   * @deprecated Use appropriate constructor
    */
+  DEPRECATED(
   void
-  set(const std::string& uri)
-  {
-    set(uri.c_str());
-  }
+  set(const std::string& uri));
 
   /**
-   * Append a new component, copying from value of length valueLength.
+   * @brief Append a new component, copying from value of length valueLength.
    * @return This name so that you can chain calls to append.
    */
   Name&
@@ -175,6 +159,9 @@ public:
     return *this;
   }
 
+  /**
+   * @brief Append component @p value
+   */
   Name&
   append(const Component& value)
   {
@@ -600,6 +587,10 @@ public:
   {
     return const_reverse_iterator(begin());
   }
+
+private:
+  void
+  construct(const char* uri);
 
 public:
   /** \brief indicates "until the end" in getSubName and compare
