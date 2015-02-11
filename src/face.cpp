@@ -483,8 +483,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
 
   if (block.type() == tlv::Interest)
     {
-      shared_ptr<Interest> interest = make_shared<Interest>();
-      interest->wireDecode(block);
+      shared_ptr<Interest> interest = make_shared<Interest>(block);
       if (&block != &blockFromDaemon)
         interest->getLocalControlHeader().wireDecode(blockFromDaemon);
 
@@ -492,8 +491,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
     }
   else if (block.type() == tlv::Data)
     {
-      shared_ptr<Data> data = make_shared<Data>();
-      data->wireDecode(block);
+      shared_ptr<Data> data = make_shared<Data>(block);
       if (&block != &blockFromDaemon)
         data->getLocalControlHeader().wireDecode(blockFromDaemon);
 

@@ -362,6 +362,84 @@ BOOST_AUTO_TEST_CASE(ProcessEvents)
   BOOST_CHECK_EQUAL(nRegSuccesses, 1);
 }
 
+BOOST_AUTO_TEST_CASE(ExpressInterestWithLocalControlHeader)
+{
+  Interest i("/Hello/World");
+  i.setNextHopFaceId(1000);
+  i.setIncomingFaceId(2000);
+
+  face->expressInterest(i, bind([]{}), bind([]{}));
+  advanceClocks(time::milliseconds(10));
+
+  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
+  // only NextHopFaceId is allowed to go out
+  BOOST_CHECK(face->sentInterests[0].getLocalControlHeader().hasNextHopFaceId());
+  BOOST_CHECK(!face->sentInterests[0].getLocalControlHeader().hasIncomingFaceId());
+  BOOST_CHECK_EQUAL(face->sentInterests[0].getNextHopFaceId(), 1000);
+}
+
+BOOST_AUTO_TEST_CASE(ReceiveInterestWithLocalControlHeader)
+{
+  face->setInterestFilter("/Hello/World",
+                          [] (const InterestFilter&, const Interest& i) {
+                            BOOST_CHECK(i.getLocalControlHeader().hasNextHopFaceId());
+                            BOOST_CHECK(i.getLocalControlHeader().hasIncomingFaceId());
+                            BOOST_CHECK_EQUAL(i.getNextHopFaceId(), 1000);
+                            BOOST_CHECK_EQUAL(i.getIncomingFaceId(), 2000);
+                          },
+                          bind([]{}),
+                          bind([] {
+                              BOOST_FAIL("Unexpected setInterestFilter failure");
+                            }));
+  advanceClocks(time::milliseconds(10));
+
+  Interest i("/Hello/World/!");
+  i.setNextHopFaceId(1000);
+  i.setIncomingFaceId(2000);
+
+  face->receive(i);
+  advanceClocks(time::milliseconds(10));
+}
+
+BOOST_AUTO_TEST_CASE(PutDataWithLocalControlHeader)
+{
+  shared_ptr<Data> d = util::makeData("/Bye/World/!");
+  d->setIncomingFaceId(2000);
+  d->getLocalControlHeader().setNextHopFaceId(1000); // setNextHopFaceId is intentionally
+                                                     // not exposed directly
+
+  face->put(*d);
+  advanceClocks(time::milliseconds(10));
+
+  BOOST_REQUIRE_EQUAL(face->sentDatas.size(), 1);
+  BOOST_CHECK(!face->sentDatas[0].getLocalControlHeader().hasNextHopFaceId());
+  BOOST_CHECK(!face->sentDatas[0].getLocalControlHeader().hasIncomingFaceId());
+}
+
+BOOST_AUTO_TEST_CASE(ReceiveDataWithLocalControlHeader)
+{
+  face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+                        [&] (const Interest& i, const Data& d) {
+                          BOOST_CHECK(d.getLocalControlHeader().hasNextHopFaceId());
+                          BOOST_CHECK(d.getLocalControlHeader().hasIncomingFaceId());
+                          BOOST_CHECK_EQUAL(d.getIncomingFaceId(), 2000);
+                          BOOST_CHECK_EQUAL(d.getLocalControlHeader().getNextHopFaceId(), 1000);
+                        },
+                        bind([] {
+                            BOOST_FAIL("Unexpected timeout");
+                          }));
+
+  advanceClocks(time::milliseconds(10));
+
+  shared_ptr<Data> d = util::makeData("/Hello/World/!");
+  d->setIncomingFaceId(2000);
+  d->getLocalControlHeader().setNextHopFaceId(1000); // setNextHopFaceId is intentionally
+                                                     // not exposed directly
+  face->receive(*d);
+
+  advanceClocks(time::milliseconds(10), 100);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // tests

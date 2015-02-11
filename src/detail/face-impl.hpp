@@ -149,9 +149,9 @@ public:
   {
     this->ensureConnected();
 
-    if (!data->getLocalControlHeader().empty(false, true))
+    if (!data->getLocalControlHeader().empty(false, false))
       {
-        m_face.m_transport->send(data->getLocalControlHeader().wireEncode(*data, false, true),
+        m_face.m_transport->send(data->getLocalControlHeader().wireEncode(*data, false, false),
                                  data->wireEncode());
       }
     else

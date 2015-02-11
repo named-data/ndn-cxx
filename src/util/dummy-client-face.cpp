@@ -63,7 +63,11 @@ public:
   virtual void
   send(const Block& header, const Block& payload)
   {
-    this->send(payload);
+    EncodingBuffer encoder(header.size() + payload.size(), header.size() + payload.size());
+    encoder.appendByteArray(header.wire(), header.size());
+    encoder.appendByteArray(payload.wire(), payload.size());
+
+    this->send(encoder.block());
   }
 
   boost::asio::io_service&
@@ -94,13 +98,21 @@ DummyClientFace::DummyClientFace(const Options& options, shared_ptr<Transport> t
 void
 DummyClientFace::construct(const Options& options)
 {
-  m_transport->onSendBlock.connect([this] (const Block& wire) {
-    if (wire.type() == tlv::Interest) {
-      shared_ptr<Interest> interest = make_shared<Interest>(wire);
+  m_transport->onSendBlock.connect([this] (const Block& blockFromDaemon) {
+    const Block& block = nfd::LocalControlHeader::getPayload(blockFromDaemon);
+
+    if (block.type() == tlv::Interest) {
+      shared_ptr<Interest> interest = make_shared<Interest>(block);
+      if (&block != &blockFromDaemon)
+        interest->getLocalControlHeader().wireDecode(blockFromDaemon);
+
       onSendInterest(*interest);
     }
-    else if (wire.type() == tlv::Data) {
-      shared_ptr<Data> data = make_shared<Data>(wire);
+    else if (block.type() == tlv::Data) {
+      shared_ptr<Data> data = make_shared<Data>(block);
+      if (&block != &blockFromDaemon)
+        data->getLocalControlHeader().wireDecode(blockFromDaemon);
+
       onSendData(*data);
     }
   });
@@ -156,7 +168,21 @@ template<typename Packet>
 void
 DummyClientFace::receive(const Packet& packet)
 {
-  m_transport->receive(packet.wireEncode());
+  // do not restrict what injected control header can contain
+  if (!packet.getLocalControlHeader().empty(true, true)) {
+
+    Block header = packet.getLocalControlHeader().wireEncode(packet, true, true);
+    Block payload = packet.wireEncode();
+
+    EncodingBuffer encoder(header.size() + payload.size(), header.size() + payload.size());
+    encoder.appendByteArray(header.wire(), header.size());
+    encoder.appendByteArray(payload.wire(), payload.size());
+
+    m_transport->receive(encoder.block());
+  }
+  else {
+    m_transport->receive(packet.wireEncode());
+  }
 }
 
 template void
