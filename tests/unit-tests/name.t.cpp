@@ -27,6 +27,7 @@
 #include <unordered_map>
 
 namespace ndn {
+namespace tests {
 
 BOOST_AUTO_TEST_SUITE(TestName)
 
@@ -345,14 +346,15 @@ BOOST_AUTO_TEST_CASE(UnorderedMap)
   BOOST_CHECK_EQUAL(map[name3], 3);
 }
 
-BOOST_AUTO_TEST_CASE(ImplictSha256Digest)
+BOOST_AUTO_TEST_CASE(ImplicitSha256Digest)
 {
   Name n;
 
-  static const uint8_t DIGEST[] = { 0x28, 0xba, 0xd4, 0xb5, 0x27, 0x5b, 0xd3, 0x92,
-                                    0xdb, 0xb6, 0x70, 0xc7, 0x5c, 0xf0, 0xb6, 0x6f,
-                                    0x13, 0xf7, 0x94, 0x2b, 0x21, 0xe8, 0x0f, 0x55,
-                                    0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x48 };
+  static const uint8_t DIGEST[] = {0x28, 0xba, 0xd4, 0xb5, 0x27, 0x5b, 0xd3, 0x92,
+                                   0xdb, 0xb6, 0x70, 0xc7, 0x5c, 0xf0, 0xb6, 0x6f,
+                                   0x13, 0xf7, 0x94, 0x2b, 0x21, 0xe8, 0x0f, 0x55,
+                                   0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x48,
+                                   0x00, 0x00};
 
   BOOST_REQUIRE_NO_THROW(n.appendImplicitSha256Digest(DIGEST, 32));
   BOOST_REQUIRE_NO_THROW(n.appendImplicitSha256Digest(make_shared<Buffer>(DIGEST, 32)));
@@ -395,6 +397,7 @@ BOOST_AUTO_TEST_CASE(ImplictSha256Digest)
   BOOST_CHECK_NO_THROW(n2 = Name("/hello/SHA256DIGEST="
                               "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548"));
   BOOST_CHECK_NE(n.get(0), n2.get(1));
+  BOOST_CHECK(n2.get(1).isGeneric());
 }
 
 BOOST_AUTO_TEST_CASE(Compare)
@@ -492,4 +495,5 @@ BOOST_AUTO_TEST_CASE(CreateComponentWithIterators) // Bug #2490
 
 BOOST_AUTO_TEST_SUITE_END()
 
+} // namespace tests
 } // namespace ndn
