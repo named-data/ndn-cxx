@@ -51,6 +51,11 @@ development tools and libraries, and ndn-cxx prerequisites.
 
        sudo port install pkgconfig boost sqlite3 libcryptopp
 
+   .. note::
+
+      If a major OS X system upgrade is performed after installing dependencies with MacPorts,
+      remember to `reinstall all ports <https://trac.macports.org/wiki/Migration>`__.
+
 -  Ubuntu
 
    In a terminal, enter::
