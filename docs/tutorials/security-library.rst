@@ -142,11 +142,11 @@ calling :ndn-cxx:`KeyChain::setDefaultKeyNameForIdentity`. There is also a helpe
     KeyChain keyChain;
     Name alice("/ndn/test/alice");
 
-    Name aliceKeyName = keyChain.generateRSAKeyPair(alice);
+    Name aliceKeyName = keyChain.generateRsaKeyPair(alice);
     keyChain.setDefaultKeyNameForIdentity(aliceKeyName);
 
     // Now the key with the name aliceKeyName2 becomes alice's default key
-    Name aliceKeyName2 = keyChain.generateRSAKeyPairAsDefault(alice);
+    Name aliceKeyName2 = keyChain.generateRsaKeyPairAsDefault(alice);
 
 Create Identity Certificate Manually
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
