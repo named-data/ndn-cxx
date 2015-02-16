@@ -381,14 +381,14 @@ BOOST_AUTO_TEST_CASE(DisconnectSelfInHandler)
   int hit = 0;
   Connection connection;
   BOOST_CHECK_EQUAL(connection.isConnected(), false);
-  connection = so.sig.connect(bind([&] (SignalOwner0& so) {
+  connection = so.sig.connect(bind([] (int& hit, SignalOwner0& so, Connection& connection) {
     ++hit;
     BOOST_CHECK_EQUAL(connection.isConnected(), true);
     connection.disconnect();
     BOOST_CHECK_EQUAL(connection.isConnected(), false);
     BOOST_CHECK_EQUAL(so.isSigEmpty(), false); // disconnecting hasn't taken effect
-  }, ref(so)));
-  // Bug 2302: 'so' needs to be bound to the handler;
+  }, ref(hit), ref(so), ref(connection)));
+  // Bug 2302, 2523: variables needs to be bound to the handler;
   // lambda capture won't work because closure would be destructed at .disconnect
 
   so.emitSignal(sig);
