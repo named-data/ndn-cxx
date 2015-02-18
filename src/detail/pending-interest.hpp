@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,6 +26,8 @@
 #include "../interest.hpp"
 #include "../data.hpp"
 #include "../util/time.hpp"
+#include "../util/scheduler.hpp"
+#include "../util/scheduler-scoped-event-id.hpp"
 
 namespace ndn {
 
@@ -43,57 +45,73 @@ public:
    * @param onData A function object to call when a matching data packet is received.
    * @param onTimeout A function object to call if the interest times out.
    *                  If onTimeout is an empty OnTimeout(), this does not use it.
+   * @param scheduler Scheduler instance to use to schedule a timeout event.  The scheduled
+   *                  event will be automatically cancelled when pending interest is destroyed.
    */
-  PendingInterest(const shared_ptr<const Interest>& interest, const OnData& onData,
-                  const OnTimeout& onTimeout)
+  PendingInterest(shared_ptr<const Interest> interest, const OnData& onData,
+                  const OnTimeout& onTimeout, Scheduler& scheduler)
     : m_interest(interest)
     , m_onData(onData)
     , m_onTimeout(onTimeout)
+    , m_timeoutEvent(scheduler)
   {
-    if (m_interest->getInterestLifetime() >= time::milliseconds::zero())
-      m_timeout = time::steady_clock::now() + m_interest->getInterestLifetime();
-    else
-      m_timeout = time::steady_clock::now() + DEFAULT_INTEREST_LIFETIME;
+    m_timeoutEvent =
+      scheduler.scheduleEvent(m_interest->getInterestLifetime() > time::milliseconds::zero() ?
+                              m_interest->getInterestLifetime() :
+                              DEFAULT_INTEREST_LIFETIME,
+                              bind(&PendingInterest::invokeTimeoutCallback, this));
   }
 
-  const shared_ptr<const Interest>&
+  /**
+   * @return the Interest
+   */
+  const Interest&
   getInterest() const
   {
-    return m_interest;
-  }
-
-  const OnData&
-  getOnData() const
-  {
-    return m_onData;
+    return *m_interest;
   }
 
   /**
-   * Check if this interest is timed out.
-   * @return true if this interest timed out, otherwise false.
-   */
-  bool
-  isTimedOut(const time::steady_clock::TimePoint& now) const
-  {
-    return now >= m_timeout;
-  }
-
-  /**
-   * Call m_onTimeout (if defined).  This ignores exceptions from the m_onTimeout.
+   * @brief invokes the DataCallback
+   * @note If the DataCallback is an empty function, this method does nothing.
    */
   void
-  callTimeout() const
+  invokeDataCallback(Data& data)
+  {
+    m_onData(*m_interest, data);
+  }
+
+  /**
+   * @brief Set cleanup function to be called after interest times out
+   */
+  void
+  setDeleter(const std::function<void()>& deleter)
+  {
+    m_deleter = deleter;
+  }
+
+private:
+  /**
+   * @brief invokes the TimeoutCallback
+   * @note If the TimeoutCallback is an empty function, this method does nothing.
+   */
+  void
+  invokeTimeoutCallback()
   {
     if (m_onTimeout) {
       m_onTimeout(*m_interest);
     }
+
+    BOOST_ASSERT(m_deleter);
+    m_deleter();
   }
 
 private:
   shared_ptr<const Interest> m_interest;
   const OnData m_onData;
   const OnTimeout m_onTimeout;
-  time::steady_clock::TimePoint m_timeout;
+  util::scheduler::ScopedEventId m_timeoutEvent;
+  std::function<void()> m_deleter;
 };
 
 
@@ -115,7 +133,7 @@ public:
   operator()(const shared_ptr<const PendingInterest>& pendingInterest) const
   {
     return (reinterpret_cast<const PendingInterestId*>(
-              pendingInterest->getInterest().get()) == m_id);
+              &pendingInterest->getInterest()) == m_id);
   }
 private:
   const PendingInterestId* m_id;

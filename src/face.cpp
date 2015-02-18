@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,8 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * Based on code originally written by Jeff Thompson <jefft0@remap.ucla.edu>
  */
 
 #include "face.hpp"
@@ -93,41 +91,34 @@ Face::construct(KeyChain& keyChain)
   // transport=unix:///var/run/nfd.sock
   // transport=tcp://localhost:6363
 
-  const ConfigFile::Parsed& parsed = m_impl->m_config.getParsedConfiguration();
-
-  const auto transportType = parsed.get_optional<std::string>("transport");
-  if (!transportType)
-    {
-      // transport not specified, use default Unix transport.
-      construct(UnixTransport::create(m_impl->m_config), keyChain);
-      return;
-    }
+  ConfigFile config;
+  const auto& transportType = config.getParsedConfiguration()
+                                .get_optional<std::string>("transport");
+  if (!transportType) {
+    // transport not specified, use default Unix transport.
+    construct(UnixTransport::create(config), keyChain);
+    return;
+  }
 
   unique_ptr<util::FaceUri> uri;
-  try
-    {
-      uri.reset(new util::FaceUri(*transportType));
-    }
-  catch (const util::FaceUri::Error& error)
-    {
-      throw ConfigFile::Error(error.what());
-    }
+  try {
+    uri.reset(new util::FaceUri(*transportType));
+  }
+  catch (const util::FaceUri::Error& error) {
+    throw ConfigFile::Error(error.what());
+  }
 
   const std::string protocol = uri->getScheme();
 
-  if (protocol == "unix")
-    {
-      construct(UnixTransport::create(m_impl->m_config), keyChain);
-
-    }
-  else if (protocol == "tcp" || protocol == "tcp4" || protocol == "tcp6")
-    {
-      construct(TcpTransport::create(m_impl->m_config), keyChain);
-    }
-  else
-    {
-      throw ConfigFile::Error("Unsupported transport protocol \"" + protocol + "\"");
-    }
+  if (protocol == "unix") {
+    construct(UnixTransport::create(config), keyChain);
+  }
+  else if (protocol == "tcp" || protocol == "tcp4" || protocol == "tcp6") {
+    construct(TcpTransport::create(config), keyChain);
+  }
+  else {
+    throw ConfigFile::Error("Unsupported transport protocol \"" + protocol + "\"");
+  }
 }
 
 void
@@ -135,11 +126,8 @@ Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
 {
   m_nfdController.reset(new nfd::Controller(*this, keyChain));
 
-  m_impl->m_pitTimeoutCheckTimerActive = false;
   m_transport = transport;
 
-  m_impl->m_pitTimeoutCheckTimer      = make_shared<monotonic_deadline_timer>(ref(m_ioService));
-  m_impl->m_processEventsTimeoutTimer = make_shared<monotonic_deadline_timer>(ref(m_ioService));
   m_impl->ensureConnected(false);
 }
 
@@ -358,29 +346,28 @@ Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::ze
   }
 
   try {
-    if (timeout < time::milliseconds::zero())
-      {
+    if (timeout < time::milliseconds::zero()) {
         // do not block if timeout is negative, but process pending events
         m_ioService.poll();
         return;
       }
 
-    if (timeout > time::milliseconds::zero())
-      {
-        m_impl->m_processEventsTimeoutTimer->expires_from_now(time::milliseconds(timeout));
-        m_impl->m_processEventsTimeoutTimer->async_wait(&fireProcessEventsTimeout);
-      }
+    if (timeout > time::milliseconds::zero()) {
+      boost::asio::io_service& ioService = m_ioService;
+      unique_ptr<boost::asio::io_service::work>& work = m_impl->m_ioServiceWork;
+      m_impl->m_processEventsTimeoutEvent =
+        m_impl->m_scheduler.scheduleEvent(timeout, [&ioService, &work] {
+            ioService.stop();
+            work.reset();
+          });
+    }
 
     if (keepThread) {
       // work will ensure that m_ioService is running until work object exists
-      m_impl->m_ioServiceWork = make_shared<boost::asio::io_service::work>(ref(m_ioService));
+      m_impl->m_ioServiceWork.reset(new boost::asio::io_service::work(m_ioService));
     }
 
     m_ioService.run();
-  }
-  catch (Face::ProcessEventsTimeout&) {
-    // break
-    m_impl->m_ioServiceWork.reset();
   }
   catch (...) {
     m_impl->m_ioServiceWork.reset();
@@ -405,20 +392,8 @@ Face::asyncShutdown()
   if (m_transport->isConnected())
     m_transport->close();
 
-  m_impl->m_pitTimeoutCheckTimer->cancel();
-  m_impl->m_processEventsTimeoutTimer->cancel();
-  m_impl->m_pitTimeoutCheckTimerActive = false;
-
   m_impl->m_ioServiceWork.reset();
 }
-
-void
-Face::fireProcessEventsTimeout(const boost::system::error_code& error)
-{
-  if (!error) // can fire for some other reason, e.g., cancelled
-    throw Face::ProcessEventsTimeout();
-}
-
 
 void
 Face::onReceiveElement(const Block& blockFromDaemon)
@@ -440,14 +415,8 @@ Face::onReceiveElement(const Block& blockFromDaemon)
         data->getLocalControlHeader().wireDecode(blockFromDaemon);
 
       m_impl->satisfyPendingInterests(*data);
-
-      if (m_impl->m_pendingInterestTable.empty()) {
-        m_impl->m_pitTimeoutCheckTimer->cancel(); // this will cause checkPitExpire invocation
-      }
     }
   // ignore any other type
 }
-
-
 
 } // namespace ndn

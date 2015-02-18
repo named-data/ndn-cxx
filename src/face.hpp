@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,8 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * Based on code originally written by Jeff Thompson <jefft0@remap.ucla.edu>
  */
 
 #ifndef NDN_FACE_HPP
@@ -547,18 +545,11 @@ private:
   void
   construct(shared_ptr<Transport> transport, KeyChain& keyChain);
 
-  class ProcessEventsTimeout
-  {
-  };
-
   void
   onReceiveElement(const Block& wire);
 
   void
   asyncShutdown();
-
-  static void
-  fireProcessEventsTimeout(const boost::system::error_code& error);
 
 private:
   /// the IO service owned by this Face, could be null

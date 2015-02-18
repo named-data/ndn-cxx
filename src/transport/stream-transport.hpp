@@ -127,6 +127,9 @@ public:
       }
   }
 
+  /**
+   * @warning Must not be called directly or indirectly from within handleAsyncReceive invocation
+   */
   void
   resume()
   {

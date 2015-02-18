@@ -31,11 +31,11 @@ namespace ndn {
 class InterestFilterRecord : noncopyable
 {
 public:
-  typedef function<void (const InterestFilter&, const Interest&)> OnInterest;
+  typedef function<void (const InterestFilter&, const Interest&)> InterestCallback;
 
-  InterestFilterRecord(const InterestFilter& filter, const OnInterest& onInterest)
+  InterestFilterRecord(const InterestFilter& filter, const InterestCallback& afterInterest)
     : m_filter(filter)
-    , m_onInterest(onInterest)
+    , m_afterInterest(afterInterest)
   {
   }
 
@@ -49,10 +49,14 @@ public:
     return m_filter.doesMatch(name);
   }
 
+  /**
+   * @brief invokes the InterestCallback
+   * @note If the DataCallback is an empty function, this method does nothing.
+   */
   void
-  operator()(const Interest& interest) const
+  invokeInterestCallback(const Interest& interest) const
   {
-    m_onInterest(m_filter, interest);
+    m_afterInterest(m_filter, interest);
   }
 
   const InterestFilter&
@@ -63,7 +67,7 @@ public:
 
 private:
   InterestFilter m_filter;
-  OnInterest m_onInterest;
+  InterestCallback m_afterInterest;
 };
 
 

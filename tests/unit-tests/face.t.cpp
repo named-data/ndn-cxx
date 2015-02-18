@@ -70,16 +70,42 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
                             BOOST_FAIL("Unexpected timeout");
                           }));
 
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(time::milliseconds(1), 40);
 
   face->receive(*util::makeData("/Bye/World/!"));
   face->receive(*util::makeData("/Hello/World/!"));
 
-  advanceClocks(time::milliseconds(10), 100);
+  advanceClocks(time::milliseconds(1), 100);
 
   BOOST_CHECK_EQUAL(nData, 1);
   BOOST_CHECK_EQUAL(face->sentInterests.size(), 1);
   BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
+
+  face->expressInterest(Interest("/Hello/World/!", time::milliseconds(50)),
+                        [&] (const Interest& i, const Data& d) {
+                          BOOST_CHECK(i.getName().isPrefixOf(d.getName()));
+                          ++nData;
+                        },
+                        bind([] {
+                            BOOST_FAIL("Unexpected timeout");
+                          }));
+  advanceClocks(time::milliseconds(1), 40);
+  face->receive(*util::makeData("/Hello/World/!/1/xxxxx"));
+
+  advanceClocks(time::milliseconds(1), 100);
+
+  BOOST_CHECK_EQUAL(nData, 2);
+  BOOST_CHECK_EQUAL(face->sentInterests.size(), 2);
+  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
+
+  size_t nTimeouts = 0;
+  face->expressInterest(Interest("/Hello/World/!/2", time::milliseconds(50)),
+                        bind([]{}),
+                        bind([&nTimeouts] {
+                            ++nTimeouts;
+                          }));
+  advanceClocks(time::milliseconds(10), 100);
+  BOOST_CHECK_EQUAL(nTimeouts, 1);
 }
 
 BOOST_AUTO_TEST_CASE(ExpressInterestTimeout)
@@ -367,7 +393,6 @@ BOOST_AUTO_TEST_CASE(ExpressInterestWithLocalControlHeader)
   Interest i("/Hello/World");
   i.setNextHopFaceId(1000);
   i.setIncomingFaceId(2000);
-  i.getLocalControlHeader().setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
 
   face->expressInterest(i, bind([]{}), bind([]{}));
   advanceClocks(time::milliseconds(10));
@@ -376,7 +401,6 @@ BOOST_AUTO_TEST_CASE(ExpressInterestWithLocalControlHeader)
   // only NextHopFaceId is allowed to go out
   BOOST_CHECK(face->sentInterests[0].getLocalControlHeader().hasNextHopFaceId());
   BOOST_CHECK(!face->sentInterests[0].getLocalControlHeader().hasIncomingFaceId());
-  BOOST_CHECK(!face->sentInterests[0].getLocalControlHeader().hasCachingPolicy());
   BOOST_CHECK_EQUAL(face->sentInterests[0].getNextHopFaceId(), 1000);
 }
 
@@ -386,11 +410,8 @@ BOOST_AUTO_TEST_CASE(ReceiveInterestWithLocalControlHeader)
                           [] (const InterestFilter&, const Interest& i) {
                             BOOST_CHECK(i.getLocalControlHeader().hasNextHopFaceId());
                             BOOST_CHECK(i.getLocalControlHeader().hasIncomingFaceId());
-                            BOOST_CHECK(i.getLocalControlHeader().hasCachingPolicy());
                             BOOST_CHECK_EQUAL(i.getNextHopFaceId(), 1000);
                             BOOST_CHECK_EQUAL(i.getIncomingFaceId(), 2000);
-                            BOOST_CHECK_EQUAL(i.getLocalControlHeader().getCachingPolicy(),
-                                              nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
                           },
                           bind([]{}),
                           bind([] {
@@ -401,7 +422,6 @@ BOOST_AUTO_TEST_CASE(ReceiveInterestWithLocalControlHeader)
   Interest i("/Hello/World/!");
   i.setNextHopFaceId(1000);
   i.setIncomingFaceId(2000);
-  i.getLocalControlHeader().setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
 
   face->receive(i);
   advanceClocks(time::milliseconds(10));
@@ -411,8 +431,8 @@ BOOST_AUTO_TEST_CASE(PutDataWithLocalControlHeader)
 {
   shared_ptr<Data> d = util::makeData("/Bye/World/!");
   d->setIncomingFaceId(2000);
-  d->getLocalControlHeader().setNextHopFaceId(1000);
-  d->setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
+  d->getLocalControlHeader().setNextHopFaceId(1000); // setNextHopFaceId is intentionally
+                                                     // not exposed directly
 
   face->put(*d);
   advanceClocks(time::milliseconds(10));
@@ -420,9 +440,6 @@ BOOST_AUTO_TEST_CASE(PutDataWithLocalControlHeader)
   BOOST_REQUIRE_EQUAL(face->sentDatas.size(), 1);
   BOOST_CHECK(!face->sentDatas[0].getLocalControlHeader().hasNextHopFaceId());
   BOOST_CHECK(!face->sentDatas[0].getLocalControlHeader().hasIncomingFaceId());
-  BOOST_CHECK(face->sentDatas[0].getLocalControlHeader().hasCachingPolicy());
-  BOOST_CHECK_EQUAL(face->sentDatas[0].getCachingPolicy(),
-                    nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
 }
 
 BOOST_AUTO_TEST_CASE(ReceiveDataWithLocalControlHeader)
@@ -431,9 +448,6 @@ BOOST_AUTO_TEST_CASE(ReceiveDataWithLocalControlHeader)
                         [&] (const Interest& i, const Data& d) {
                           BOOST_CHECK(d.getLocalControlHeader().hasNextHopFaceId());
                           BOOST_CHECK(d.getLocalControlHeader().hasIncomingFaceId());
-                          BOOST_CHECK(d.getLocalControlHeader().hasCachingPolicy());
-                          BOOST_CHECK_EQUAL(d.getCachingPolicy(),
-                                            nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
                           BOOST_CHECK_EQUAL(d.getIncomingFaceId(), 2000);
                           BOOST_CHECK_EQUAL(d.getLocalControlHeader().getNextHopFaceId(), 1000);
                         },
@@ -445,11 +459,23 @@ BOOST_AUTO_TEST_CASE(ReceiveDataWithLocalControlHeader)
 
   shared_ptr<Data> d = util::makeData("/Hello/World/!");
   d->setIncomingFaceId(2000);
-  d->getLocalControlHeader().setNextHopFaceId(1000);
-  d->setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
+  d->getLocalControlHeader().setNextHopFaceId(1000); // setNextHopFaceId is intentionally
+                                                     // not exposed directly
   face->receive(*d);
 
   advanceClocks(time::milliseconds(10), 100);
+}
+
+BOOST_AUTO_TEST_CASE(DestructionWithoutCancellingPendingInterests) // Bug #2518
+{
+  face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+                        bind([]{}), bind([]{}));
+  advanceClocks(time::milliseconds(10), 10);
+
+  face.reset();
+
+  advanceClocks(time::milliseconds(10), 10);
+  // should not segfault
 }
 
 BOOST_AUTO_TEST_SUITE_END()

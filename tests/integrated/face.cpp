@@ -109,7 +109,7 @@ public:
   void
   terminate(Face& face)
   {
-    face.shutdown();
+    face.getIoService().stop();
   }
 
   uint32_t nData;
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(SetFilter)
   Face face;
   Face face2(face.getIoService());
   Scheduler scheduler(face.getIoService());
-  scheduler.scheduleEvent(time::milliseconds(300),
+  scheduler.scheduleEvent(time::seconds(4),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
   regPrefixId = face.setInterestFilter("/Hello/World",
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE(SetRegexFilterError)
   Face face;
   Face face2(face.getIoService());
   Scheduler scheduler(face.getIoService());
-  scheduler.scheduleEvent(time::seconds(1),
+  scheduler.scheduleEvent(time::seconds(4),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
   regPrefixId = face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(SetRegexFilter)
   Face face;
   Face face2(face.getIoService());
   Scheduler scheduler(face.getIoService());
-  scheduler.scheduleEvent(time::seconds(2),
+  scheduler.scheduleEvent(time::seconds(4),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
   regPrefixId = face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
@@ -308,7 +308,7 @@ public:
   void
   checkPrefix(bool doesExist)
   {
-    int result = std::system("nfd-status | grep /Hello/World >/dev/null");
+    int result = std::system("nfd-status -r | grep /Hello/World >/dev/null");
 
     if (doesExist) {
       BOOST_CHECK_EQUAL(result, 0);
@@ -323,7 +323,7 @@ BOOST_FIXTURE_TEST_CASE(RegisterUnregisterPrefix, FacesFixture2)
 {
   Face face;
   Scheduler scheduler(face.getIoService());
-  scheduler.scheduleEvent(time::seconds(2),
+  scheduler.scheduleEvent(time::seconds(4),
                           bind(&FacesFixture::terminate, this, ref(face)));
 
   regPrefixId = face.setInterestFilter(InterestFilter("/Hello/World"),
@@ -340,7 +340,7 @@ BOOST_FIXTURE_TEST_CASE(RegisterUnregisterPrefix, FacesFixture2)
          &face,
     regPrefixId)); // shouldn't match
 
-  scheduler.scheduleEvent(time::milliseconds(1500),
+  scheduler.scheduleEvent(time::milliseconds(2000),
                           bind(&FacesFixture2::checkPrefix, this, false));
 
   BOOST_REQUIRE_NO_THROW(face.processEvents());
@@ -402,7 +402,7 @@ BOOST_FIXTURE_TEST_CASE(RegisterPrefix, FacesFixture3)
          static_cast<UnregisterPrefixSuccessCallback>(bind(&FacesFixture3::onUnregSucceeded, this)),
          static_cast<UnregisterPrefixFailureCallback>(bind(&FacesFixture3::onUnregFailed, this))));
 
-  scheduler.scheduleEvent(time::milliseconds(1500),
+  scheduler.scheduleEvent(time::milliseconds(2500),
                           bind(&FacesFixture2::checkPrefix, this, false));
 
   BOOST_REQUIRE_NO_THROW(face.processEvents());
