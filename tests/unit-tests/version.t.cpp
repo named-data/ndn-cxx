@@ -19,50 +19,34 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+#include "version.hpp"
 
-#include "util/time-unit-test-clock.hpp"
-#include <boost/asio.hpp>
+#include "boost-test.hpp"
+#include <stdio.h>
 
 namespace ndn {
 namespace tests {
 
-class UnitTestTimeFixture
+BOOST_AUTO_TEST_SUITE(TestVersion)
+
+BOOST_AUTO_TEST_CASE(Version)
 {
-public:
-  UnitTestTimeFixture()
-    : steadyClock(make_shared<time::UnitTestSteadyClock>())
-    , systemClock(make_shared<time::UnitTestSystemClock>())
-  {
-    time::setCustomClocks(steadyClock, systemClock);
-  }
+  BOOST_CHECK_EQUAL(NDN_CXX_VERSION, NDN_CXX_VERSION_MAJOR * 1000000 +
+                                     NDN_CXX_VERSION_MINOR * 1000 +
+                                     NDN_CXX_VERSION_PATCH);
+}
 
-  ~UnitTestTimeFixture()
-  {
-    time::setCustomClocks(nullptr, nullptr);
-  }
+BOOST_AUTO_TEST_CASE(VersionString)
+{
+  BOOST_STATIC_ASSERT(NDN_CXX_VERSION_MAJOR < 1000);
+  char buf[20];
+  snprintf(buf, sizeof(buf), "%d.%d.%d",
+           NDN_CXX_VERSION_MAJOR, NDN_CXX_VERSION_MINOR, NDN_CXX_VERSION_PATCH);
 
-  void
-  advanceClocks(const time::nanoseconds& tick, size_t nTicks = 1)
-  {
-    for (size_t i = 0; i < nTicks; ++i) {
-      steadyClock->advance(tick);
-      systemClock->advance(tick);
+  BOOST_CHECK_EQUAL(std::string(NDN_CXX_VERSION_STRING), std::string(buf));
+}
 
-      if (io.stopped())
-        io.reset();
-      io.poll();
-    }
-  }
-
-public:
-  shared_ptr<time::UnitTestSteadyClock> steadyClock;
-  shared_ptr<time::UnitTestSystemClock> systemClock;
-  boost::asio::io_service io;
-};
+BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
 } // namespace ndn
-
-#endif // NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP

@@ -1,6 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California,
+ *                         Arizona Board of Regents,
+ *                         Colorado State University,
+ *                         University Pierre & Marie Curie, Sorbonne University,
+ *                         Washington University in St. Louis,
+ *                         Beijing Institute of Technology,
+ *                         The University of Memphis.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,50 +25,37 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-
-#include "util/time-unit-test-clock.hpp"
-#include <boost/asio.hpp>
+#include "util/concepts.hpp"
 
 namespace ndn {
 namespace tests {
 
-class UnitTestTimeFixture
+class WireEncodableType
 {
 public:
-  UnitTestTimeFixture()
-    : steadyClock(make_shared<time::UnitTestSteadyClock>())
-    , systemClock(make_shared<time::UnitTestSystemClock>())
-  {
-    time::setCustomClocks(steadyClock, systemClock);
-  }
+  const Block&
+  wireEncode();
+};
+BOOST_CONCEPT_ASSERT((WireEncodable<WireEncodableType>));
 
-  ~UnitTestTimeFixture()
-  {
-    time::setCustomClocks(nullptr, nullptr);
-  }
+class WireEncodableType2
+{
+public:
+  Block
+  wireEncode();
+};
+BOOST_CONCEPT_ASSERT((WireEncodable<WireEncodableType2>));
+
+class WireDecodableType
+{
+public:
+  explicit
+  WireDecodableType(const Block& wire);
 
   void
-  advanceClocks(const time::nanoseconds& tick, size_t nTicks = 1)
-  {
-    for (size_t i = 0; i < nTicks; ++i) {
-      steadyClock->advance(tick);
-      systemClock->advance(tick);
-
-      if (io.stopped())
-        io.reset();
-      io.poll();
-    }
-  }
-
-public:
-  shared_ptr<time::UnitTestSteadyClock> steadyClock;
-  shared_ptr<time::UnitTestSystemClock> systemClock;
-  boost::asio::io_service io;
+  wireDecode(const Block& wire);
 };
+BOOST_CONCEPT_ASSERT((WireDecodable<WireDecodableType>));
 
 } // namespace tests
 } // namespace ndn
-
-#endif // NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP

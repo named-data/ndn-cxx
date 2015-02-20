@@ -19,50 +19,48 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+#include "util/in-memory-storage-persistent.hpp"
+#include "security/key-chain.hpp"
 
-#include "util/time-unit-test-clock.hpp"
-#include <boost/asio.hpp>
+#include "boost-test.hpp"
+#include "../make-interest-data.hpp"
 
 namespace ndn {
+namespace util {
 namespace tests {
 
-class UnitTestTimeFixture
+BOOST_AUTO_TEST_SUITE(UtilInMemoryStorage)
+BOOST_AUTO_TEST_SUITE(Persistent)
+
+BOOST_AUTO_TEST_CASE(GetLimit)
 {
-public:
-  UnitTestTimeFixture()
-    : steadyClock(make_shared<time::UnitTestSteadyClock>())
-    , systemClock(make_shared<time::UnitTestSystemClock>())
-  {
-    time::setCustomClocks(steadyClock, systemClock);
+  InMemoryStoragePersistent ims;
+
+  BOOST_CHECK_EQUAL(ims.getLimit(), -1);
+}
+
+BOOST_AUTO_TEST_CASE(InsertAndDouble)
+{
+  InMemoryStoragePersistent ims;
+
+  for(int i = 0; i < 11; i++) {
+    std::ostringstream convert;
+    convert << i;
+    Name name("/" + convert.str());
+    shared_ptr<Data> data = makeData(name);
+    data->setFreshnessPeriod(time::milliseconds(5000));
+    signData(data);
+    ims.insert(*data);
   }
 
-  ~UnitTestTimeFixture()
-  {
-    time::setCustomClocks(nullptr, nullptr);
-  }
+  BOOST_CHECK_EQUAL(ims.size(), 11);
 
-  void
-  advanceClocks(const time::nanoseconds& tick, size_t nTicks = 1)
-  {
-    for (size_t i = 0; i < nTicks; ++i) {
-      steadyClock->advance(tick);
-      systemClock->advance(tick);
+  BOOST_CHECK_EQUAL(ims.getCapacity(), 20);
+}
 
-      if (io.stopped())
-        io.reset();
-      io.poll();
-    }
-  }
-
-public:
-  shared_ptr<time::UnitTestSteadyClock> steadyClock;
-  shared_ptr<time::UnitTestSystemClock> systemClock;
-  boost::asio::io_service io;
-};
+BOOST_AUTO_TEST_SUITE_END() // Persistent
+BOOST_AUTO_TEST_SUITE_END() // UtilInMemoryStorage
 
 } // namespace tests
+} // namespace util
 } // namespace ndn
-
-#endif // NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP

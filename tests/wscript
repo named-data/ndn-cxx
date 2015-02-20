@@ -27,16 +27,16 @@ def build(bld):
         name="unit-test-objects",
         features="cxx",
         source=bld.path.ant_glob(['unit-tests/**/*.cpp'],
-                                 excl=['**/*-osx.cpp', '**/*-sqlite3.cpp']),
+                                 excl=['**/*-osx.t.cpp', '**/*-sqlite3.t.cpp']),
         use='ndn-cxx tests-base BOOST',
         includes='.',
         install_path=None)
 
     if bld.env['HAVE_OSX_SECURITY']:
-        unit_tests.source += bld.path.ant_glob('unit-tests/**/*-osx.cpp')
+        unit_tests.source += bld.path.ant_glob('unit-tests/**/*-osx.t.cpp')
 
     # In case we want to make it optional later
-    unit_tests.source += bld.path.ant_glob('unit-tests/**/*-sqlite3.cpp')
+    unit_tests.source += bld.path.ant_glob('unit-tests/**/*-sqlite3.t.cpp')
 
     # unit test app
     bld(features='cxx cxxprogram',

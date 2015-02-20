@@ -26,7 +26,7 @@
 #include "security/key-chain.hpp"
 
 #include "boost-test.hpp"
-#include "../test-make-interest-data.hpp"
+#include "../make-interest-data.hpp"
 
 #include <boost/mpl/list.hpp>
 

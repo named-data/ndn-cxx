@@ -19,50 +19,22 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+// Bug 2109 test case
 
-#include "util/time-unit-test-clock.hpp"
-#include <boost/asio.hpp>
+// interest.hpp includes common.hpp; common.hpp shouldn't be used from external program
+#include "interest.hpp"
 
-namespace ndn {
-namespace tests {
+#include <boost/bind.hpp>
 
-class UnitTestTimeFixture
+void
+placeholders2TestFunction(int i)
 {
-public:
-  UnitTestTimeFixture()
-    : steadyClock(make_shared<time::UnitTestSteadyClock>())
-    , systemClock(make_shared<time::UnitTestSystemClock>())
-  {
-    time::setCustomClocks(steadyClock, systemClock);
-  }
+}
 
-  ~UnitTestTimeFixture()
-  {
-    time::setCustomClocks(nullptr, nullptr);
-  }
-
-  void
-  advanceClocks(const time::nanoseconds& tick, size_t nTicks = 1)
-  {
-    for (size_t i = 0; i < nTicks; ++i) {
-      steadyClock->advance(tick);
-      systemClock->advance(tick);
-
-      if (io.stopped())
-        io.reset();
-      io.poll();
-    }
-  }
-
-public:
-  shared_ptr<time::UnitTestSteadyClock> steadyClock;
-  shared_ptr<time::UnitTestSystemClock> systemClock;
-  boost::asio::io_service io;
-};
-
-} // namespace tests
-} // namespace ndn
-
-#endif // NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+int
+placeholders2TestMain()
+{
+  auto f = boost::bind(&placeholders2TestFunction, _1);
+  f(1);
+  return 0;
+}

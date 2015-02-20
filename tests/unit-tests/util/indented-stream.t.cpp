@@ -19,50 +19,41 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+#include "util/indented-stream.hpp"
 
-#include "util/time-unit-test-clock.hpp"
-#include <boost/asio.hpp>
+#include "boost-test.hpp"
+#include <boost/test/output_test_stream.hpp>
+
+using boost::test_tools::output_test_stream;
 
 namespace ndn {
+namespace util {
 namespace tests {
 
-class UnitTestTimeFixture
+BOOST_AUTO_TEST_SUITE(UtilIndentedStream)
+
+BOOST_AUTO_TEST_CASE(Basic)
 {
-public:
-  UnitTestTimeFixture()
-    : steadyClock(make_shared<time::UnitTestSteadyClock>())
-    , systemClock(make_shared<time::UnitTestSystemClock>())
-  {
-    time::setCustomClocks(steadyClock, systemClock);
-  }
+  output_test_stream os;
 
-  ~UnitTestTimeFixture()
+  os << "Hello" << std::endl;
   {
-    time::setCustomClocks(nullptr, nullptr);
-  }
-
-  void
-  advanceClocks(const time::nanoseconds& tick, size_t nTicks = 1)
-  {
-    for (size_t i = 0; i < nTicks; ++i) {
-      steadyClock->advance(tick);
-      systemClock->advance(tick);
-
-      if (io.stopped())
-        io.reset();
-      io.poll();
+    IndentedStream os1(os, " [prefix] ");
+    os1 << "," << "\n";
+    {
+      IndentedStream os2(os1, " [another prefix] ");
+      os2 << "World!" << "\n";
     }
   }
 
-public:
-  shared_ptr<time::UnitTestSteadyClock> steadyClock;
-  shared_ptr<time::UnitTestSystemClock> systemClock;
-  boost::asio::io_service io;
-};
+  BOOST_CHECK(os.is_equal("Hello\n"
+                          " [prefix] ,\n"
+                          " [prefix]  [another prefix] World!\n"
+                          ));
+}
+
+BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
+} // namespace util
 } // namespace ndn
-
-#endif // NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP

@@ -19,50 +19,26 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-
-#include "util/time-unit-test-clock.hpp"
-#include <boost/asio.hpp>
+#include "identity-management-fixture.hpp"
+#include "boost-test.hpp"
 
 namespace ndn {
+namespace security {
 namespace tests {
 
-class UnitTestTimeFixture
+BOOST_FIXTURE_TEST_SUITE(SecurityIdentityManagementFixture, IdentityManagementFixture)
+
+BOOST_AUTO_TEST_CASE(Tmp)
 {
-public:
-  UnitTestTimeFixture()
-    : steadyClock(make_shared<time::UnitTestSteadyClock>())
-    , systemClock(make_shared<time::UnitTestSystemClock>())
-  {
-    time::setCustomClocks(steadyClock, systemClock);
-  }
+  Name identity("/tmp/identity");
+  BOOST_REQUIRE(addIdentity(identity));
+  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
+  BOOST_REQUIRE_EQUAL(certName.empty(), false);
+  BOOST_REQUIRE_NO_THROW(m_keyChain.getCertificate(certName));
+}
 
-  ~UnitTestTimeFixture()
-  {
-    time::setCustomClocks(nullptr, nullptr);
-  }
-
-  void
-  advanceClocks(const time::nanoseconds& tick, size_t nTicks = 1)
-  {
-    for (size_t i = 0; i < nTicks; ++i) {
-      steadyClock->advance(tick);
-      systemClock->advance(tick);
-
-      if (io.stopped())
-        io.reset();
-      io.poll();
-    }
-  }
-
-public:
-  shared_ptr<time::UnitTestSteadyClock> steadyClock;
-  shared_ptr<time::UnitTestSystemClock> systemClock;
-  boost::asio::io_service io;
-};
+BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
+} // namespace security
 } // namespace ndn
-
-#endif // NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP

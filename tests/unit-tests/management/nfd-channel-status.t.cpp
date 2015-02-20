@@ -19,50 +19,45 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+#include "management/nfd-channel-status.hpp"
 
-#include "util/time-unit-test-clock.hpp"
-#include <boost/asio.hpp>
+#include "boost-test.hpp"
 
 namespace ndn {
+namespace nfd {
 namespace tests {
 
-class UnitTestTimeFixture
+BOOST_AUTO_TEST_SUITE(ManagementNfdChannelStatus)
+
+BOOST_AUTO_TEST_CASE(Encode)
 {
-public:
-  UnitTestTimeFixture()
-    : steadyClock(make_shared<time::UnitTestSteadyClock>())
-    , systemClock(make_shared<time::UnitTestSystemClock>())
-  {
-    time::setCustomClocks(steadyClock, systemClock);
-  }
+  ChannelStatus status1;
+  status1
+    .setLocalUri("udp4://192.168.2.1")
+    ;
 
-  ~UnitTestTimeFixture()
-  {
-    time::setCustomClocks(nullptr, nullptr);
-  }
+  Block wire;
+  BOOST_REQUIRE_NO_THROW(wire = status1.wireEncode());
 
-  void
-  advanceClocks(const time::nanoseconds& tick, size_t nTicks = 1)
-  {
-    for (size_t i = 0; i < nTicks; ++i) {
-      steadyClock->advance(tick);
-      systemClock->advance(tick);
+  // These octets are obtained by the snippet below.
+  // This check is intended to detect unexpected encoding change in the future.
+  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  //  printf("0x%02x, ", *it);
+  // }
+  static const uint8_t expected[] = {
+    0x82, 0x14, 0x81, 0x12, 0x75, 0x64, 0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32,
+    0x2e, 0x31, 0x36, 0x38, 0x2e, 0x32, 0x2e, 0x31
+  };
+  BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
+                                  wire.begin(), wire.end());
 
-      if (io.stopped())
-        io.reset();
-      io.poll();
-    }
-  }
+  BOOST_REQUIRE_NO_THROW(ChannelStatus(wire));
+  ChannelStatus status2(wire);
+  BOOST_CHECK_EQUAL(status1.getLocalUri(), status2.getLocalUri());
+}
 
-public:
-  shared_ptr<time::UnitTestSteadyClock> steadyClock;
-  shared_ptr<time::UnitTestSystemClock> systemClock;
-  boost::asio::io_service io;
-};
+BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
+} // namespace nfd
 } // namespace ndn
-
-#endif // NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP

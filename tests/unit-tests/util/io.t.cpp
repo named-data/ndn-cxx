@@ -19,50 +19,35 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+#include "util/io.hpp"
+#include "security/key-chain.hpp"
+#include "identity-management-fixture.hpp"
 
-#include "util/time-unit-test-clock.hpp"
-#include <boost/asio.hpp>
+#include "boost-test.hpp"
 
 namespace ndn {
 namespace tests {
 
-class UnitTestTimeFixture
+BOOST_FIXTURE_TEST_SUITE(UtilIo, security::IdentityManagementFixture)
+
+BOOST_AUTO_TEST_CASE(Basic)
 {
-public:
-  UnitTestTimeFixture()
-    : steadyClock(make_shared<time::UnitTestSteadyClock>())
-    , systemClock(make_shared<time::UnitTestSystemClock>())
-  {
-    time::setCustomClocks(steadyClock, systemClock);
-  }
+  Name identity("/TestIO/Basic");
+  identity.appendVersion();
+  BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
+  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
+  shared_ptr<IdentityCertificate> idCert;
+  BOOST_REQUIRE_NO_THROW(idCert = m_keyChain.getCertificate(certName));
 
-  ~UnitTestTimeFixture()
-  {
-    time::setCustomClocks(nullptr, nullptr);
-  }
+  std::string file("/tmp/TestIO-Basic");
+  io::save(*idCert, file);
+  shared_ptr<IdentityCertificate> readCert = io::load<IdentityCertificate>(file);
 
-  void
-  advanceClocks(const time::nanoseconds& tick, size_t nTicks = 1)
-  {
-    for (size_t i = 0; i < nTicks; ++i) {
-      steadyClock->advance(tick);
-      systemClock->advance(tick);
+  BOOST_CHECK(static_cast<bool>(readCert));
+  BOOST_CHECK(idCert->getName() == readCert->getName());
+}
 
-      if (io.stopped())
-        io.reset();
-      io.poll();
-    }
-  }
-
-public:
-  shared_ptr<time::UnitTestSteadyClock> steadyClock;
-  shared_ptr<time::UnitTestSystemClock> systemClock;
-  boost::asio::io_service io;
-};
+BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
 } // namespace ndn
-
-#endif // NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
