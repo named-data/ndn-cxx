@@ -222,8 +222,10 @@ BOOST_AUTO_TEST_CASE(FromBuffer)
 
   // using BufferPtr (avoids memory copy)
   size_t offset = 0;
+  bool isOk = false;
   Block testBlock;
-  BOOST_CHECK(Block::fromBuffer(buffer, offset, testBlock));
+  std::tie(isOk, testBlock) = Block::fromBuffer(buffer, offset);
+  BOOST_CHECK(isOk);
   BOOST_CHECK_EQUAL(testBlock.type(), 0);
   BOOST_CHECK_EQUAL(testBlock.size(), 3);
   BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
@@ -231,7 +233,8 @@ BOOST_AUTO_TEST_CASE(FromBuffer)
   BOOST_CHECK_EQUAL(*testBlock.value(), 0xfa);
   offset += testBlock.size();
 
-  BOOST_CHECK(Block::fromBuffer(buffer, offset, testBlock));
+  std::tie(isOk, testBlock) = Block::fromBuffer(buffer, offset);
+  BOOST_CHECK(isOk);
   BOOST_CHECK_EQUAL(testBlock.type(), 1);
   BOOST_CHECK_EQUAL(testBlock.size(), 3);
   BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
@@ -239,11 +242,14 @@ BOOST_AUTO_TEST_CASE(FromBuffer)
   BOOST_CHECK_EQUAL(*testBlock.value(), 0xfb);
   offset += testBlock.size();
 
-  BOOST_CHECK(!Block::fromBuffer(buffer, offset, testBlock));
+  std::tie(isOk, testBlock) = Block::fromBuffer(buffer, offset);
+  BOOST_CHECK(!isOk);
 
   // just buffer, copies memory
   offset = 0;
-  BOOST_CHECK(Block::fromBuffer(TEST_BUFFER + offset, sizeof(TEST_BUFFER) - offset, testBlock));
+  std::tie(isOk, testBlock) = Block::fromBuffer(TEST_BUFFER + offset,
+                                                sizeof(TEST_BUFFER) - offset);
+  BOOST_CHECK(isOk);
   BOOST_CHECK_EQUAL(testBlock.type(), 0);
   BOOST_CHECK_EQUAL(testBlock.size(), 3);
   BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
@@ -251,7 +257,9 @@ BOOST_AUTO_TEST_CASE(FromBuffer)
   BOOST_CHECK_EQUAL(*testBlock.value(), 0xfa);
   offset += testBlock.size();
 
-  BOOST_CHECK(Block::fromBuffer(TEST_BUFFER + offset, sizeof(TEST_BUFFER) - offset, testBlock));
+  std::tie(isOk, testBlock) = Block::fromBuffer(TEST_BUFFER + offset,
+                                                sizeof(TEST_BUFFER) - offset);
+  BOOST_CHECK(isOk);
   BOOST_CHECK_EQUAL(testBlock.type(), 1);
   BOOST_CHECK_EQUAL(testBlock.size(), 3);
   BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
@@ -259,7 +267,9 @@ BOOST_AUTO_TEST_CASE(FromBuffer)
   BOOST_CHECK_EQUAL(*testBlock.value(), 0xfb);
   offset += testBlock.size();
 
-  BOOST_CHECK(!Block::fromBuffer(TEST_BUFFER + offset, sizeof(TEST_BUFFER) - offset, testBlock));
+  std::tie(isOk, testBlock) = Block::fromBuffer(TEST_BUFFER + offset,
+                                                sizeof(TEST_BUFFER) - offset);
+  BOOST_CHECK(!isOk);
 }
 
 BOOST_AUTO_TEST_CASE(BlockFromStream)

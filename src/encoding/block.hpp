@@ -124,21 +124,52 @@ public: // constructor, creation, assignment
   static Block
   fromStream(std::istream& is);
 
-  /** @brief Try to construct block from Buffer, referencing data block pointed by wire
+  /** @brief Try to construct block from Buffer
+   *  @param buffer the buffer to construct block from
+   *  @note buffer is passed by value because the constructed block
+   *        takes shared ownership of the buffer
+   *  @param offset offset from beginning of \p buffer to construct Block from
    *
    *  This method does not throw upon decoding error.
-   *  @return true if Block successfully created, false if block cannot be created
+   *  This method does not copy the bytes.
+   *
+   *  @return true and the Block, if Block is successfully created; otherwise false
    */
-  static bool
-  fromBuffer(const ConstBufferPtr& wire, size_t offset, Block& block);
+  static std::tuple<bool, Block>
+  fromBuffer(ConstBufferPtr buffer, size_t offset);
 
-  /** @brief Try to construct block from Buffer, referencing data block pointed by wire
-   *
-   *  This method does not throw upon decoding error.
-   *  @return true if Block successfully created, false if block cannot be created
+  /** @deprecated use fromBuffer(ConstBufferPtr, size_t)
    */
   static bool
-  fromBuffer(const uint8_t* buffer, size_t maxSize, Block& block);
+  fromBuffer(const ConstBufferPtr& buffer, size_t offset, Block& block)
+  {
+    bool isOk = false;
+    std::tie(isOk, block) = Block::fromBuffer(buffer, offset);
+    return isOk;
+  }
+
+  /** @brief Try to construct block from raw buffer
+   *  @param buffer the raw buffer to copy bytes from
+   *  @param maxSize the maximum size of constructed block;
+   *                 @p buffer must have a size of at least @p maxSize
+   *
+   *  This method does not throw upon decoding error.
+   *  This method copies the bytes into a new Buffer.
+   *
+   *  @return true and the Block, if Block is successfully created; otherwise false
+   */
+  static std::tuple<bool, Block>
+  fromBuffer(const uint8_t* buffer, size_t maxSize);
+
+  /** @deprecated use fromBuffer(const uint8_t*, size_t)
+   */
+  static bool
+  fromBuffer(const uint8_t* buffer, size_t maxSize, Block& block)
+  {
+    bool isOk = false;
+    std::tie(isOk, block) = Block::fromBuffer(buffer, maxSize);
+    return isOk;
+  }
 
 public: // wire format
   /** @brief Check if the Block is empty
