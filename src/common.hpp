@@ -71,16 +71,6 @@
 
 namespace ndn {
 
-/** \brief the namespace contains smart pointers
- *  \deprecated use std:: directly
- */
-namespace ptr_lib = std;
-
-/** \brief the namespace contains function and bind
- *  \deprecated use std:: directly
- */
-namespace func_lib = std;
-
 using std::shared_ptr;
 using std::unique_ptr;
 using std::weak_ptr;
