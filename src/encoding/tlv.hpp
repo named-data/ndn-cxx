@@ -116,11 +116,6 @@ enum ContentTypeValue {
   ContentType_Nack = 3
 };
 
-/** @deprecated use ContentType_Blob
- */
-static const uint32_t DEPRECATED(ContentType_Default) = ContentType_Blob;
-
-
 /**
  * @brief Read VAR-NUMBER in NDN-TLV encoding
  *
