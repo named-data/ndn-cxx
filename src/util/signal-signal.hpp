@@ -56,6 +56,8 @@ public: // API for anyone
 
   Signal();
 
+  ~Signal();
+
   /** \brief connects a handler to the signal
    *  \note If invoked from a handler, the new handler won't receive the current emitted signal.
    *  \warning The handler is permitted to disconnect itself, but it must ensure its validity.
@@ -79,6 +81,7 @@ private: // API for owner
   /** \brief emits a signal
    *  \param args arguments passed to all handlers
    *  \warning Emitting the signal from a handler is undefined behavior.
+   *  \warning Destructing the Signal object during signal emission is undefined behavior.
    *  \note If a handler throws, the exception will be propagated to the caller
    *        who emits this signal, and some handlers may not be executed.
    */
@@ -158,6 +161,12 @@ template<typename Owner, typename ...TArgs>
 Signal<Owner, TArgs...>::Signal()
   : m_isExecuting(false)
 {
+}
+
+template<typename Owner, typename ...TArgs>
+Signal<Owner, TArgs...>::~Signal()
+{
+  BOOST_ASSERT(!m_isExecuting);
 }
 
 template<typename Owner, typename ...TArgs>
