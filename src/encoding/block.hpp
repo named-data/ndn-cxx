@@ -140,8 +140,9 @@ public: // constructor, creation, assignment
 
   /** @deprecated use fromBuffer(ConstBufferPtr, size_t)
    */
+  DEPRECATED(
   static bool
-  fromBuffer(const ConstBufferPtr& buffer, size_t offset, Block& block)
+  fromBuffer(const ConstBufferPtr& buffer, size_t offset, Block& block))
   {
     bool isOk = false;
     std::tie(isOk, block) = Block::fromBuffer(buffer, offset);
@@ -163,8 +164,9 @@ public: // constructor, creation, assignment
 
   /** @deprecated use fromBuffer(const uint8_t*, size_t)
    */
+  DEPRECATED(
   static bool
-  fromBuffer(const uint8_t* buffer, size_t maxSize, Block& block)
+  fromBuffer(const uint8_t* buffer, size_t maxSize, Block& block))
   {
     bool isOk = false;
     std::tie(isOk, block) = Block::fromBuffer(buffer, maxSize);
