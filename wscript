@@ -32,11 +32,39 @@ def options(opt):
                    help='''Disable filesystem locking in sqlite3 database '''
                         '''(use unix-dot locking mechanism instead). '''
                         '''This option may be necessary if home directory is hosted on NFS.''')
+
     opt.add_option('--without-osx-keychain', action='store_false', default=True,
                    dest='with_osx_keychain',
                    help='''On Darwin, do not use OSX keychain as a default TPM''')
 
+    opt.add_option('--enable-static', action='store_true', default=True,
+                   dest='enable_static', help='''Build static library (enabled by default)''')
+    opt.add_option('--disable-static', action='store_false', default=True,
+                   dest='enable_static', help='''Do not build static library (enabled by default)''')
+
+    opt.add_option('--enable-shared', action='store_true', default=False,
+                   dest='enable_shared', help='''Build shared library (disabled by default)''')
+    opt.add_option('--disable-shared', action='store_false', default=False,
+                   dest='enable_shared', help='''Do not build shared library (disabled by default)''')
+
 def configure(conf):
+    conf.start_msg('Building static library')
+    if conf.options.enable_static:
+        conf.end_msg('yes')
+    else:
+        conf.end_msg('no', color='YELLOW')
+    conf.env.enable_static = conf.options.enable_static
+
+    conf.start_msg('Building shared library')
+    if conf.options.enable_shared:
+        conf.end_msg('yes')
+    else:
+        conf.end_msg('no', color='YELLOW')
+    conf.env.enable_shared = conf.options.enable_shared
+
+    if not conf.options.enable_shared and not conf.options.enable_static:
+        conf.fatal("Either static library or shared library must be enabled")
+
     conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
                'default-compiler-flags', 'osx-security', 'pch',
                'boost', 'cryptopp', 'sqlite3',
@@ -51,7 +79,6 @@ def configure(conf):
     conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD',
                    mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
-    conf.check_cxx(cxxflags=['-fPIC'], uselib_store='PIC', mandatory=False)
     conf.check_cxx(msg='Checking for function getpass', mandatory=False,
                    define_name='HAVE_GETPASS', fragment='''
 #include <unistd.h>
@@ -124,27 +151,35 @@ def build(bld):
         VERSION_PATCH=VERSION_SPLIT[2],
         )
 
-    libndn_cxx = bld(
-        features=['pch', 'cxx', 'cxxstlib'], # 'cxxshlib',
-        # vnum=VERSION,
+    libndn_cxx = dict(
         target="ndn-cxx",
         name="ndn-cxx",
         source=bld.path.ant_glob('src/**/*.cpp',
                                  excl=['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
         headers='src/common-pch.hpp',
-        use='version BOOST CRYPTOPP SQLITE3 RT PIC PTHREAD',
+        use='version BOOST CRYPTOPP SQLITE3 RT PTHREAD',
         includes=". src",
         export_includes="src",
         install_path='${LIBDIR}',
         )
 
     if bld.env['HAVE_OSX_SECURITY']:
-        libndn_cxx.source += bld.path.ant_glob('src/**/*-osx.cpp')
-        libndn_cxx.mac_app = True
-        libndn_cxx.use += " OSX_COREFOUNDATION OSX_SECURITY"
+        libndn_cxx['source'] += bld.path.ant_glob('src/**/*-osx.cpp')
+        libndn_cxx['mac_app'] = True
+        libndn_cxx['use'] += " OSX_COREFOUNDATION OSX_SECURITY"
 
     # In case we want to make it optional later
-    libndn_cxx.source += bld.path.ant_glob('src/**/*-sqlite3.cpp')
+    libndn_cxx['source'] += bld.path.ant_glob('src/**/*-sqlite3.cpp')
+
+    if bld.env.enable_shared:
+        bld(features=['pch', 'cxx', 'cxxshlib'],
+            vnum=VERSION_BASE,
+            cnum=VERSION_BASE,
+            **libndn_cxx)
+
+    if bld.env.enable_static:
+        bld(features=['pch', 'cxx', 'cxxstlib'],
+            **libndn_cxx)
 
     # Prepare flags that should go to pkgconfig file
     pkgconfig_libs = []
@@ -152,7 +187,7 @@ def build(bld):
     pkgconfig_linkflags = []
     pkgconfig_includes = []
     pkgconfig_cxxflags = []
-    for lib in Utils.to_list(libndn_cxx.use):
+    for lib in Utils.to_list(libndn_cxx['use']):
         if bld.env['LIB_%s' % lib]:
             pkgconfig_libs += Utils.to_list(bld.env['LIB_%s' % lib])
         if bld.env['LIBPATH_%s' % lib]:
