@@ -44,6 +44,20 @@
 #define NDN_CXX_PROTECTED_WITH_TESTS_ELSE_PRIVATE private
 #endif
 
+/** \def NDN_CXX_DECL_OVERRIDE
+ *  \brief expands to 'override' if compiler supports this feature, otherwise expands to nothing
+ */
+/** \def NDN_CXX_DECL_FINAL
+ *  \brief expands to 'final' if compiler supports this feature, otherwise expands to nothing
+ */
+#ifdef NDN_CXX_HAVE_CXX_OVERRIDE_FINAL
+#define NDN_CXX_DECL_OVERRIDE override
+#define NDN_CXX_DECL_FINAL override
+#else
+#define NDN_CXX_DECL_OVERRIDE
+#define NDN_CXX_DECL_FINAL
+#endif
+
 // require C++11
 #if __cplusplus < 201103L && !defined(__GXX_EXPERIMENTAL_CXX0X__)
 #  error "ndn-cxx applications must be compiled using the C++11 standard"
