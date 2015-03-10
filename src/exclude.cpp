@@ -120,10 +120,14 @@ Exclude::wireDecode(const Block& wire)
 
   while (i != m_wire.elements_end())
     {
-      if (i->type() != tlv::NameComponent)
+      name::Component excludedComponent;
+      try {
+        excludedComponent = std::move(name::Component(*i));
+      }
+      catch (const name::Component::Error&) {
         throw Error("Incorrect format of Exclude filter");
+      }
 
-      name::Component excludedComponent(i->value(), i->value_size());
       ++i;
 
       if (i != m_wire.elements_end())
