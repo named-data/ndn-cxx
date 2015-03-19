@@ -57,22 +57,22 @@ protected:
   }
 
 private:
-  struct CanonizeTestCase
+  class CanonizeTestCase
   {
   public:
     CanonizeTestCase(const std::string& request,
                      bool shouldSucceed, const std::string& expectedUri)
-      : m_request(request)
-      , m_shouldSucceed(shouldSucceed)
+      : m_shouldSucceed(shouldSucceed)
       , m_expectedUri(expectedUri)
+      , m_message(request + " should " + (shouldSucceed ? "succeed" : "fail"))
       , m_isCompleted(false)
     {
     }
 
   public:
-    std::string m_request;
     bool m_shouldSucceed;
     std::string m_expectedUri;
+    std::string m_message;
     bool m_isCompleted;
   };
 
@@ -84,7 +84,7 @@ private:
     tc->m_isCompleted = true;
     --m_nPending;
 
-    BOOST_CHECK_MESSAGE(tc->m_shouldSucceed, tc->m_request + " should fail");
+    BOOST_CHECK_MESSAGE(tc->m_shouldSucceed, tc->m_message);
     BOOST_CHECK_EQUAL(tc->m_expectedUri, canonicalUri.toString());
   }
 
@@ -96,7 +96,7 @@ private:
     tc->m_isCompleted = true;
     --m_nPending;
 
-    BOOST_CHECK_MESSAGE(!tc->m_shouldSucceed, tc->m_request + " should succeed");
+    BOOST_CHECK_MESSAGE(!tc->m_shouldSucceed, tc->m_message);
   }
 
 private:
@@ -109,12 +109,12 @@ CanonizeFixture::addTest(const std::string& request,
                          bool shouldSucceed, const std::string& expectedUri)
 {
   ++m_nPending;
-  shared_ptr<CanonizeTestCase> tc = ndn::make_shared<CanonizeTestCase>(
-                                    request, shouldSucceed, expectedUri);
+  auto tc = make_shared<CanonizeTestCase>(request, shouldSucceed, expectedUri);
+
   FaceUri uri(request);
   uri.canonize(bind(&CanonizeFixture::onCanonizeSuccess, this, tc, _1),
                bind(&CanonizeFixture::onCanonizeFailure, this, tc, _1),
-               m_io, time::seconds(4));
+               m_io, time::seconds(10));
 }
 
 BOOST_AUTO_TEST_CASE(ParseInternal)
