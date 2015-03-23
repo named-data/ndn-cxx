@@ -1075,3 +1075,41 @@ the alternative structured counterpart is proven to be less readable.
         for (auto&& str : strings) {
           statements; // can modify `str`
         }
+
+3.30. Annotate with ``override`` or ``final`` when overriding a virtual method or destructor.
+
+    ``virtual`` should still be used along with ``override`` and ``final``,
+    so that a human reader can easily recognize a virtual method
+    without looking toward the end of the function signature.
+
+    .. code-block:: c++
+
+        class Stream
+        {
+        public:
+          virtual void
+          open();
+        };
+
+        class InputStream : public Stream
+        {
+        public:
+          virtual void
+          open() override;
+        };
+
+        class Console : public InputStream
+        {
+        public:
+          virtual void
+          open() override;
+        };
+
+    ndn-cxx declares ``NDN_CXX_DECL_OVERRIDE`` and ``NDN_CXX_DECL_FINAL`` macros that
+    expand to ``override`` and ``final`` if the compiler supports this feature,
+    but expand to nothing with older compilers.
+    These must be used in place of ``override`` and ``final``,
+    so that ndn-cxx remains compatible with older compilers.
+
+    ``NDN_CXX_DECL_OVERRIDE`` and ``NDN_CXX_DECL_FINAL`` macros are for ndn-cxx internal use.
+    Other projects, if adopting this style guide, should define their own macros if needed.
