@@ -62,6 +62,7 @@ IndentedStream::StreamBuf::sync()
   for (const StringView& line : splitOutput) {
     m_output << m_indent << line << "\n";
   }
+  str(std::string());
   return 0; // success
 }
 
