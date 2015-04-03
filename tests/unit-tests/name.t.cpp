@@ -165,6 +165,7 @@ BOOST_AUTO_TEST_CASE(ZeroLengthComponent)
 
   Name name2;
   BOOST_REQUIRE_NO_THROW(name2 = std::move(Name(nameUri)));
+  BOOST_CHECK_EQUAL(name2.toUri(), nameUri);
   Block name2Encoded = name2.wireEncode();
   BOOST_CHECK(name2Encoded == nameBlock);
 }
@@ -492,6 +493,15 @@ BOOST_AUTO_TEST_CASE(CreateComponentWithIterators) // Bug #2490
     BOOST_CHECK_EQUAL(c.size(), 6);
   }
 }
+
+BOOST_AUTO_TEST_CASE(NameWithSpaces)
+{
+  Name name("/ hello\t/\tworld \r\n");
+
+  BOOST_CHECK_EQUAL("/hello/world", name);
+  BOOST_CHECK_THROW(Name("/hello//world"), name::Component::Error);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

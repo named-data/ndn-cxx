@@ -162,11 +162,7 @@ Name::construct(const char* uriOrig)
     if (iComponentEnd == std::string::npos)
       iComponentEnd = uri.size();
 
-    Component component = Component::fromEscapedString(&uri[0], iComponentStart, iComponentEnd);
-    // Ignore illegal components.  This also gets rid of a trailing '/'.
-    if (!component.empty())
-      append(Component(component));
-
+    append(Component::fromEscapedString(&uri[0], iComponentStart, iComponentEnd));
     iComponentStart = iComponentEnd + 1;
   }
 }
