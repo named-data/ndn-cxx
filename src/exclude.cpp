@@ -24,6 +24,8 @@
 #include "exclude.hpp"
 #include "util/concepts.hpp"
 
+#include <boost/range/adaptors.hpp>
+
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Exclude>));
@@ -54,17 +56,14 @@ Exclude::wireEncode(EncodingImpl<TAG>& block) const
   // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
   // Any     ::= ANY-TYPE TLV-LENGTH(=0)
 
-  for (Exclude::const_iterator i = m_exclude.begin(); i != m_exclude.end(); i++)
-    {
-      if (i->second)
-        {
-          totalLength += prependBooleanBlock(block, tlv::Any);
-        }
-      if (!i->first.empty())
-        {
-          totalLength += i->first.wireEncode(block);
-        }
+  for (const auto& item : m_exclude) {
+    if (item.second) {
+      totalLength += prependBooleanBlock(block, tlv::Any);
     }
+    if (!item.first.empty() || !item.second) {
+      totalLength += item.first.wireEncode(block);
+    }
+  }
 
   totalLength += block.prependVarNumber(totalLength);
   totalLength += block.prependVarNumber(tlv::Exclude);
@@ -112,41 +111,35 @@ Exclude::wireDecode(const Block& wire)
   // Any     ::= ANY-TYPE TLV-LENGTH(=0)
 
   Block::element_const_iterator i = m_wire.elements_begin();
-  if (i->type() == tlv::Any)
-    {
-      appendExclude(name::Component(), true);
-      ++i;
+  if (i->type() == tlv::Any) {
+    appendExclude(name::Component(), true);
+    ++i;
+  }
+
+  while (i != m_wire.elements_end()) {
+    name::Component excludedComponent;
+    try {
+      excludedComponent = std::move(name::Component(*i));
+    }
+    catch (const name::Component::Error&) {
+      throw Error("Incorrect format of Exclude filter");
     }
 
-  while (i != m_wire.elements_end())
-    {
-      name::Component excludedComponent;
-      try {
-        excludedComponent = std::move(name::Component(*i));
-      }
-      catch (const name::Component::Error&) {
-        throw Error("Incorrect format of Exclude filter");
-      }
+    ++i;
 
-      ++i;
-
-      if (i != m_wire.elements_end())
-        {
-          if (i->type() == tlv::Any)
-            {
-              appendExclude(excludedComponent, true);
-              ++i;
-            }
-          else
-            {
-              appendExclude(excludedComponent, false);
-            }
-        }
-      else
-        {
-          appendExclude(excludedComponent, false);
-        }
+    if (i != m_wire.elements_end()) {
+      if (i->type() == tlv::Any) {
+        appendExclude(excludedComponent, true);
+        ++i;
+      }
+      else {
+        appendExclude(excludedComponent, false);
+      }
     }
+    else {
+      appendExclude(excludedComponent, false);
+    }
+  }
 }
 
 // example: ANY /b /d ANY /f
@@ -172,18 +165,15 @@ Exclude::isExcluded(const name::Component& comp) const
     return true;
   else
     return lowerBound->first == comp;
-
-  return false;
 }
 
 Exclude&
 Exclude::excludeOne(const name::Component& comp)
 {
-  if (!isExcluded(comp))
-    {
-      m_exclude.insert(std::make_pair(comp, false));
-      m_wire.reset();
-    }
+  if (!isExcluded(comp)) {
+    m_exclude.insert(std::make_pair(comp, false));
+    m_wire.reset();
+  }
   return *this;
 }
 
@@ -236,9 +226,9 @@ Exclude::excludeRange(const name::Component& from, const name::Component& to)
 
   iterator newTo = m_exclude.lower_bound(to); // !newTo cannot be end()
   if (newTo == newFrom || !newTo->second) {
-      std::pair<iterator, bool> toResult = m_exclude.insert(std::make_pair(to, false));
-      newTo = toResult.first;
-      ++ newTo;
+    std::pair<iterator, bool> toResult = m_exclude.insert(std::make_pair(to, false));
+    newTo = toResult.first;
+    ++ newTo;
   }
   // else
   // nothing to do really
@@ -276,17 +266,19 @@ Exclude::excludeAfter(const name::Component& from)
 std::ostream&
 operator<<(std::ostream& os, const Exclude& exclude)
 {
-  bool empty = true;
-  for (Exclude::const_reverse_iterator i = exclude.rbegin(); i != exclude.rend(); i++) {
-    if (!i->first.empty()) {
-      if (!empty) os << ",";
-      os << i->first.toUri();
-      empty = false;
+  bool isFirst = true;
+  for (const auto& item : exclude | boost::adaptors::reversed) {
+    if (!item.first.empty() || !item.second) {
+      if (!isFirst)
+        os << ",";
+      os << item.first.toUri();
+      isFirst = false;
     }
-    if (i->second) {
-      if (!empty) os << ",";
+    if (item.second) {
+      if (!isFirst)
+        os << ",";
       os << "*";
-      empty = false;
+      isFirst = false;
     }
   }
   return os;

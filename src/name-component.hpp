@@ -494,7 +494,7 @@ public:
   bool
   empty() const
   {
-    return !hasValue();
+    return !hasValue() || value_size() == 0;
   }
 
   Component

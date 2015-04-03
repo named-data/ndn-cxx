@@ -219,6 +219,28 @@ BOOST_AUTO_TEST_CASE(ImplicitSha256Digest)
   BOOST_CHECK_NO_THROW(exclude.wireDecode(block));
 }
 
+BOOST_AUTO_TEST_CASE(ExcludeEmptyComponent) // Bug #2660
+{
+  Exclude e1, e2;
+
+  e1.excludeOne(name::Component());
+  e2.excludeOne(name::Component(""));
+
+  BOOST_CHECK_EQUAL(e1, e2);
+  BOOST_CHECK_EQUAL(e1.toUri(), e2.toUri());
+  BOOST_CHECK(e1.wireEncode() == e2.wireEncode());
+
+  BOOST_CHECK_EQUAL("...", e1.toUri());
+
+  uint8_t WIRE[] {0x10, 0x02, 0x08, 0x00};
+  BOOST_CHECK_EQUAL_COLLECTIONS(e1.wireEncode().begin(), e1.wireEncode().end(),
+                                WIRE, WIRE + sizeof(WIRE));
+
+  Exclude e3(Block(WIRE, sizeof(WIRE)));
+  BOOST_CHECK_EQUAL(e1, e3);
+  BOOST_CHECK_EQUAL(e1.toUri(), e3.toUri());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
