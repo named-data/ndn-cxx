@@ -199,11 +199,15 @@ Block::Block(uint32_t type, const Block& value)
 Block
 Block::fromStream(std::istream& is)
 {
-  std::istream_iterator<uint8_t> tmp_begin(is);
-  std::istream_iterator<uint8_t> tmp_end;
+  std::istream_iterator<uint8_t> begin(is >> std::noskipws);
+  std::istream_iterator<uint8_t> end;
 
-  uint32_t type = tlv::readType(tmp_begin, tmp_end);
-  uint64_t length = tlv::readVarNumber(tmp_begin, tmp_end);
+  uint32_t type = tlv::readType(begin, end);
+  uint64_t length = tlv::readVarNumber(begin, end);
+
+  if (length == 0) {
+    return dataBlock(type, static_cast<uint8_t*>(nullptr), length);
+  }
 
   if (length > MAX_SIZE_OF_BLOCK_FROM_STREAM)
     throw tlv::Error("Length of block from stream is too large");
@@ -212,8 +216,8 @@ Block::fromStream(std::istream& is)
   // we may completely lose all the bytes extracted from the stream.
 
   char buf[MAX_SIZE_OF_BLOCK_FROM_STREAM];
-  buf[0] = *tmp_begin;
-  is.read(buf+1, length-1);
+  buf[0] = *begin;
+  is.read(buf + 1, length - 1);
 
   if (length != static_cast<uint64_t>(is.gcount()) + 1) {
     throw tlv::Error("Not enough data in the buffer to fully parse TLV");
