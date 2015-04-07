@@ -84,6 +84,9 @@ enum {
   SignatureType = 27,
   KeyLocator    = 28,
   KeyDigest     = 29,
+  LinkPreference = 30,
+  LinkDelegation = 31,
+  SelectedDelegation = 32,
 
   AppPrivateBlock1 = 128,
   AppPrivateBlock2 = 32767

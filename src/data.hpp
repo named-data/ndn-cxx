@@ -310,7 +310,7 @@ public: // EqualityComparable concept
   bool
   operator!=(const Data& other) const;
 
-private:
+protected:
   /**
    * @brief Clear the wire encoding.
    */
