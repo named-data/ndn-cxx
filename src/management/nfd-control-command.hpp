@@ -75,22 +75,6 @@ public:
   Name
   getRequestName(const Name& commandPrefix, const ControlParameters& parameters) const;
 
-public: // deprecated
-  /** \return Name prefix of this ControlCommand
-   *  \deprecated use getRequestName
-   */
-  DEPRECATED(
-  const Name&
-  getPrefix() const);
-
-  /** \brief construct the Name for a request Interest
-   *  \throw ArgumentError if parameters are invalid
-   *  \deprecated use the two-argument overload
-   */
-  DEPRECATED(
-  Name
-  getRequestName(const ControlParameters& parameters) const);
-
 protected:
   ControlCommand(const std::string& module, const std::string& verb);
 
@@ -144,10 +128,6 @@ protected:
 private:
   name::Component m_module;
   name::Component m_verb;
-
-  /** \deprecated kept to support getPrefix
-   */
-  mutable Name m_prefix;
 };
 
 

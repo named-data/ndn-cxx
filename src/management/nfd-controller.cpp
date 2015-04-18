@@ -29,13 +29,6 @@ const uint32_t Controller::ERROR_TIMEOUT = 10060;
 const uint32_t Controller::ERROR_SERVER = 500;
 const uint32_t Controller::ERROR_LBOUND = 400;
 
-Controller::Controller(Face& face)
-  : m_face(face)
-  , m_internalKeyChain(make_shared<KeyChain>())
-  , m_keyChain(*m_internalKeyChain)
-{
-}
-
 Controller::Controller(Face& face, KeyChain& keyChain)
   : m_face(face)
   , m_keyChain(keyChain)
@@ -67,27 +60,6 @@ Controller::startCommand(const shared_ptr<ControlCommand>& command,
     BOOST_ASSERT(false);
     break;
   }
-
-  m_face.expressInterest(interest,
-                         bind(&Controller::processCommandResponse, this, _2,
-                              command, onSuccess, onFailure),
-                         bind(onFailure, ERROR_TIMEOUT, "request timed out"));
-}
-
-void
-Controller::startCommand(const shared_ptr<ControlCommand>& command,
-                         const ControlParameters& parameters,
-                         const CommandSucceedCallback& onSuccess,
-                         const CommandFailCallback& onFailure,
-                         const Sign& sign,
-                         const time::milliseconds& timeout)
-{
-  BOOST_ASSERT(timeout > time::milliseconds::zero());
-
-  Name requestName = command->getRequestName(CommandOptions::DEFAULT_PREFIX, parameters);
-  Interest interest(requestName);
-  interest.setInterestLifetime(timeout);
-  sign(interest);
 
   m_face.expressInterest(interest,
                          bind(&Controller::processCommandResponse, this, _2,
@@ -142,7 +114,6 @@ Controller::processCommandResponse(const Data& data,
   if (static_cast<bool>(onSuccess))
     onSuccess(parameters);
 }
-
 
 } // namespace nfd
 } // namespace ndn

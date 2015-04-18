@@ -65,24 +65,6 @@ ControlCommand::getRequestName(const Name& commandPrefix,
   return name;
 }
 
-const Name&
-ControlCommand::getPrefix() const
-{
-  // m_prefix is needed because we can't return a local variable as a reference,
-  // and changing the "const Name&" return type to "Name" may cause incompatibility
-  if (m_prefix.empty()) {
-    m_prefix.append(CommandOptions::DEFAULT_PREFIX);
-    m_prefix.append(m_module).append(m_verb);
-  }
-  return m_prefix;
-}
-
-Name
-ControlCommand::getRequestName(const ControlParameters& parameters) const
-{
-  return this->getRequestName(CommandOptions::DEFAULT_PREFIX, parameters);
-}
-
 ControlCommand::FieldValidator::FieldValidator()
   : m_required(CONTROL_PARAMETER_UBOUND)
   , m_optional(CONTROL_PARAMETER_UBOUND)
