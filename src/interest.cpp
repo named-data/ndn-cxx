@@ -36,6 +36,7 @@ static_assert(std::is_base_of<tlv::Error, Interest::Error>::value,
 Interest::Interest()
   : m_scope(-1)
   , m_interestLifetime(time::milliseconds::min())
+  , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
 {
 }
 
@@ -43,6 +44,7 @@ Interest::Interest(const Name& name)
   : m_name(name)
   , m_scope(-1)
   , m_interestLifetime(time::milliseconds::min())
+  , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
 {
 }
 
@@ -50,6 +52,7 @@ Interest::Interest(const Name& name, const time::milliseconds& interestLifetime)
   : m_name(name)
   , m_scope(-1)
   , m_interestLifetime(interestLifetime)
+  , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
 {
 }
 
@@ -62,6 +65,7 @@ Interest::Interest(const Name& name,
   , m_selectors(selectors)
   , m_scope(scope)
   , m_interestLifetime(interestLifetime)
+  , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
 {
   if (nonce > 0) {
     setNonce(nonce);
@@ -239,8 +243,22 @@ Interest::wireEncode(EncodingImpl<TAG>& block) const
   //                Nonce
   //                Scope?
   //                InterestLifetime?
+  //                Link?
+  //                SelectedDelegation?
 
   // (reverse encoding)
+
+  if (hasLink()) {
+    if (hasSelectedDelegation()) {
+      totalLength += prependNonNegativeIntegerBlock(block,
+                                                    tlv::SelectedDelegation,
+                                                    m_selectedDelegationIndex);
+    }
+    totalLength += prependBlock(block, m_link);
+  }
+  else {
+    BOOST_ASSERT(!hasSelectedDelegation());
+  }
 
   // InterestLifetime
   if (getInterestLifetime() >= time::milliseconds::zero() &&
@@ -311,6 +329,8 @@ Interest::wireDecode(const Block& wire)
   //                Nonce
   //                Scope?
   //                InterestLifetime?
+  //                Link?
+  //                SelectedDelegation?
 
   if (m_wire.type() != tlv::Interest)
     throw Error("Unexpected TLV number when decoding Interest");
@@ -349,6 +369,114 @@ Interest::wireDecode(const Block& wire)
     {
       m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
     }
+
+  // Link object
+  val = m_wire.find(tlv::Data);
+  if (val != m_wire.elements_end())
+    {
+      m_link = (*val);
+    }
+
+  // SelectedDelegation
+  val = m_wire.find(tlv::SelectedDelegation);
+  if (val != m_wire.elements_end()) {
+    if (!this->hasLink()) {
+      throw Error("Interest contains selectedDelegation, but no LINK object");
+    }
+    uint64_t selectedDelegation = readNonNegativeInteger(*val);
+    if (selectedDelegation < uint64_t(Link::countDelegationsFromWire(m_link))) {
+      m_selectedDelegationIndex = static_cast<size_t>(selectedDelegation);
+    }
+    else {
+      throw Error("Invalid selected delegation index when decoding Interest");
+    }
+  }
+}
+
+bool
+Interest::hasLink() const
+{
+  if (m_link.hasWire())
+    return true;
+  return false;
+}
+
+Link
+Interest::getLink() const
+{
+  if (hasLink())
+    {
+      return Link(m_link);
+    }
+  throw Error("There is no encapsulated link object");
+}
+
+void
+Interest::setLink(const Block& link)
+{
+  m_link = link;
+  if (!link.hasWire()) {
+    throw Error("The given link does not have a wire format");
+  }
+  m_wire.reset();
+  this->unsetSelectedDelegation();
+}
+
+void
+Interest::unsetLink()
+{
+  m_link.reset();
+  m_wire.reset();
+  this->unsetSelectedDelegation();
+}
+
+bool
+Interest::hasSelectedDelegation() const
+{
+  if (m_selectedDelegationIndex != INVALID_SELECTED_DELEGATION_INDEX)
+    {
+      return true;
+    }
+  return false;
+}
+
+Name
+Interest::getSelectedDelegation() const
+{
+  if (!hasSelectedDelegation()) {
+    throw Error("There is no encapsulated selected delegation");
+  }
+  return std::get<1>(Link::getDelegationFromWire(m_link, m_selectedDelegationIndex));
+}
+
+void
+Interest::setSelectedDelegation(const Name& delegationName)
+{
+  size_t delegationIndex = Link::findDelegationFromWire(m_link, delegationName);
+  if (delegationIndex != INVALID_SELECTED_DELEGATION_INDEX) {
+    m_selectedDelegationIndex = delegationIndex;
+  }
+  else {
+    throw std::invalid_argument("Invalid selected delegation name");
+  }
+  m_wire.reset();
+}
+
+void
+Interest::setSelectedDelegation(size_t delegationIndex)
+{
+  if (delegationIndex >= Link(m_link).getDelegations().size()) {
+    throw Error("Invalid selected delegation index");
+  }
+  m_selectedDelegationIndex = delegationIndex;
+  m_wire.reset();
+}
+
+void
+Interest::unsetSelectedDelegation()
+{
+  m_selectedDelegationIndex = INVALID_SELECTED_DELEGATION_INDEX;
+  m_wire.reset();
 }
 
 std::ostream&

@@ -373,6 +373,12 @@ BOOST_AUTO_TEST_CASE(Decode)
   }
 }
 
+BOOST_AUTO_TEST_CASE(CountDelegationFromWire)
+{
+  Block linkBlock(LinkTest, sizeof(LinkTest));
+  BOOST_CHECK_EQUAL(Link::countDelegationsFromWire(linkBlock), 2);
+}
+
 BOOST_AUTO_TEST_CASE(IncorrectContentType)
 {
   Block linkBlock(IncorrectContentTypeLink, sizeof(IncorrectContentTypeLink));

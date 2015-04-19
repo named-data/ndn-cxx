@@ -179,6 +179,53 @@ Link::wireDecode(const Block& wire)
   decodeContent();
 }
 
+std::tuple<uint32_t, Name>
+Link::getDelegationFromWire(const Block& block, size_t index)
+{
+  block.parse();
+  const Block& contentBlock = block.get(tlv::Content);
+  contentBlock.parse();
+  const Block& delegationBlock = contentBlock.elements().at(index);
+  delegationBlock.parse();
+  if (delegationBlock.type() != tlv::LinkDelegation) {
+    throw Error("Unexpected TLV-TYPE; expecting LinkDelegation");
+  }
+  return std::make_tuple(
+    static_cast<uint32_t>(
+      readNonNegativeInteger(delegationBlock.get(tlv::LinkPreference))),
+    Name(delegationBlock.get(tlv::Name)));
+}
+
+ssize_t
+Link::findDelegationFromWire(const Block& block, const Name& delegationName)
+{
+  block.parse();
+  const Block& contentBlock = block.get(tlv::Content);
+  contentBlock.parse();
+  size_t counter = 0;
+  for (auto&& delegationBlock : contentBlock.elements()) {
+    delegationBlock.parse();
+    if (delegationBlock.type() != tlv::LinkDelegation) {
+      throw Error("Unexpected TLV-TYPE; expecting LinkDelegation");
+    }
+    Name name(delegationBlock.get(tlv::Name));
+    if (name == delegationName) {
+      return counter;
+    }
+    ++counter;
+  }
+  return INVALID_SELECTED_DELEGATION_INDEX;
+}
+
+ssize_t
+Link::countDelegationsFromWire(const Block& block)
+{
+  block.parse();
+  const Block& contentBlock = block.get(tlv::Content);
+  contentBlock.parse();
+  return contentBlock.elements_size();
+}
+
 bool
 Link::removeDelegationNoEncode(const Name& name)
 {
