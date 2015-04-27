@@ -22,10 +22,14 @@
 #ifndef NDN_SECURITY_PIB_HPP
 #define NDN_SECURITY_PIB_HPP
 
-#include "../common.hpp"
+#include "identity-container.hpp"
 
 namespace ndn {
+class KeyChain;
+
 namespace security {
+
+class PibImpl;
 
 /**
  * @brief represents the PIB
@@ -45,6 +49,9 @@ namespace security {
 class Pib : noncopyable
 {
 public:
+  friend class KeyChain;
+
+public:
   /// @brief represents a semantic error
   class Error : public std::runtime_error
   {
@@ -56,7 +63,114 @@ public:
     }
   };
 
-  //TODO: Add Pib interfaces
+public:
+
+  ~Pib();
+
+  /**
+   * @brief return the scheme of the PibLocator
+   */
+  std::string
+  getScheme() const
+  {
+    return m_scheme;
+  }
+
+  /**
+   * @brief Get PIB Locator
+   */
+  std::string
+  getPibLocator() const;
+
+  /**
+   * @brief Set the corresponding TPM information to @p tpmLocator.
+   *
+   * If the provided @p tpmLocator is different from the existing one, the
+   * PIB will be reset, otherwise nothing will be changed.
+   *
+   * @param tmpLocator The name for the new tmpLocator
+   */
+  void
+  setTpmLocator(const std::string& tpmLocator);
+
+  /**
+   * @brief Get TPM Locator
+   */
+  std::string
+  getTpmLocator() const;
+
+  /*
+   * @brief Create an identity with name @p identityName and return a reference to it.
+   *
+   * If there already exists an identity for the name @p identityName, then it is returned.
+   * If no default identity is set, the newly created identity will be set as the default.
+   *
+   * @param identityName The name for the identity to be added
+   */
+  Identity
+  addIdentity(const Name& identityName);
+
+  /*
+   * @brief Remove an identity with name @p identityName.
+   *
+   * @param identityName The name for the identity to be deleted
+   */
+  void
+  removeIdentity(const Name& identityName);
+
+  /**
+   * @brief Get an identity with name @p identityName.
+   *
+   * @param identityName The name for the identity to get.
+   * @throw Pib::Error if the identity does not exist.
+   */
+  Identity
+  getIdentity(const Name& identityName);
+
+  /// @brief Get all the identities
+  IdentityContainer
+  getIdentities() const;
+
+  /**
+   * @brief Set an identity with name @p identityName as the default identity.
+   *
+   * Also create the identity if it does not exist.
+   *
+   * @param identityName The name for the default identity.
+   * @return the default identity
+   */
+  Identity
+  setDefaultIdentity(const Name& identityName);
+
+  /**
+   * @brief Get the default identity.
+   *
+   * @return the default identity.
+   * @throws Pib::Error if no default identity.
+   */
+  Identity
+  getDefaultIdentity();
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  /*
+   * @brief Create a new Pib with the specified @p location
+   *
+   * @param scheme The scheme for the Pib
+   * @param location The location for the Pib
+   * @param impl The backend implementation
+   */
+  Pib(const std::string scheme, const std::string& location, shared_ptr<PibImpl> impl);
+
+  shared_ptr<PibImpl>
+  getImpl()
+  {
+    return m_impl;
+  }
+
+protected:
+  std::string m_scheme;
+  std::string m_location;
+  shared_ptr<PibImpl> m_impl;
 };
 
 } // namespace security
