@@ -52,7 +52,7 @@
  */
 #ifdef NDN_CXX_HAVE_CXX_OVERRIDE_FINAL
 #define NDN_CXX_DECL_OVERRIDE override
-#define NDN_CXX_DECL_FINAL override
+#define NDN_CXX_DECL_FINAL final
 #else
 #define NDN_CXX_DECL_OVERRIDE
 #define NDN_CXX_DECL_FINAL
