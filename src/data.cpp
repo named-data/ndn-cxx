@@ -108,7 +108,7 @@ Data::wireEncode(EncodingBuffer& encoder, const Block& signatureValue) const
   size_t totalLength = encoder.size();
   totalLength += encoder.appendBlock(signatureValue);
 
-  totalLength += encoder.prependVarNumber(totalLength);
+  encoder.prependVarNumber(totalLength);
   encoder.prependVarNumber(tlv::Data);
 
   const_cast<Data*>(this)->wireDecode(encoder.block());

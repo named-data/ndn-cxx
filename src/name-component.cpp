@@ -431,8 +431,8 @@ Component::getSuccessor() const
     totalLength += encoder.appendByte(0);
   }
 
-  totalLength += encoder.prependVarNumber(totalLength);
-  totalLength += encoder.prependVarNumber(type());
+  encoder.prependVarNumber(totalLength);
+  encoder.prependVarNumber(type());
 
   return encoder.block();
 }
