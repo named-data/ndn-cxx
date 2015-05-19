@@ -307,7 +307,6 @@ public:
   validateResponse(const ControlParameters& parameters) const;
 };
 
-
 } // namespace nfd
 } // namespace ndn
 

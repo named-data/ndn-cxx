@@ -25,6 +25,7 @@
 #include "../encoding/nfd-constants.hpp"
 #include "../name.hpp"
 #include "../util/time.hpp"
+#include "../mgmt/control-parameters.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -71,7 +72,7 @@ enum LocalControlFeature {
  * @sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand#ControlParameters
  * @detail This type is copyable because it's an abstraction of a TLV type.
  */
-class ControlParameters
+class ControlParameters : public ndn::mgmt::ControlParameters
 {
 public:
   class Error : public tlv::Error
@@ -93,11 +94,11 @@ public:
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  const Block&
-  wireEncode() const;
+  virtual Block
+  wireEncode() const NDN_CXX_DECL_FINAL;
 
-  void
-  wireDecode(const Block& wire);
+  virtual void
+  wireDecode(const Block& wire) NDN_CXX_DECL_FINAL;
 
 public: // getters & setters
 

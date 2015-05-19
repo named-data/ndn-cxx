@@ -95,7 +95,7 @@ ControlParameters::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::Encod
 template size_t
 ControlParameters::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
 
-const Block&
+Block
 ControlParameters::wireEncode() const
 {
   if (m_wire.hasWire())
