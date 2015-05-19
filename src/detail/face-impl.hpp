@@ -218,13 +218,12 @@ public:
       unregistrator = static_cast<Registrator>(&Controller::start<FibRemoveNextHopCommand>);
     }
 
-    RegisteredPrefix::Unregistrator bindedUnregistrator =
-        std::bind(unregistrator, m_face.m_nfdController, unregisterParameters, _1, _2,
+    RegisteredPrefix::Unregistrator boundUnregistrator =
+        bind(unregistrator, m_face.m_nfdController.get(), unregisterParameters, _1, _2,
                   options);
-    // @todo get rid of "std::" after #2109
 
     shared_ptr<RegisteredPrefix> prefixToRegister =
-      make_shared<RegisteredPrefix>(prefix, filter, bindedUnregistrator);
+      make_shared<RegisteredPrefix>(prefix, filter, boundUnregistrator);
 
     ((*m_face.m_nfdController).*registrator)(registerParameters,
                                              bind(&Impl::afterPrefixRegistered, this,
@@ -267,7 +266,6 @@ public:
             // it was a combined operation
             m_interestFilterTable.remove(filter);
           }
-
         (*i)->unregister(bind(&Impl::finalizeUnregisterPrefix, this, i, onSuccess),
                          bind(onFailure, _2));
       }

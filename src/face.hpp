@@ -540,15 +540,14 @@ private:
    * @throws ConfigFile::Error on parse error and unsupported protocols
    */
   void
-  construct(KeyChain* keyChain);
+  construct(KeyChain& keyChain);
 
   /**
    * @throws Face::Error on unsupported protocol
    * @note shared_ptr is passed by value because ownership is transferred to this function
    */
   void
-  construct(shared_ptr<Transport> transport,
-            KeyChain* keyChain);
+  construct(shared_ptr<Transport> transport, KeyChain& keyChain);
 
   bool
   isSupportedNfdProtocol(const std::string& protocol);
@@ -583,13 +582,13 @@ private:
    *        currently Face does not keep the KeyChain passed in constructor
    *        because it's not needed, but this may change in the future
    */
-  KeyChain* m_internalKeyChain;
+  unique_ptr<KeyChain> m_internalKeyChain;
 
-  nfd::Controller* m_nfdController;
+  unique_ptr<nfd::Controller> m_nfdController;
   bool m_isDirectNfdFibManagementRequested;
 
   class Impl;
-  Impl* m_impl;
+  unique_ptr<Impl> m_impl;
 };
 
 inline bool

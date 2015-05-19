@@ -39,7 +39,7 @@ Face::Face()
   , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
-  construct(m_internalKeyChain);
+  construct(*m_internalKeyChain);
 }
 
 Face::Face(boost::asio::io_service& ioService)
@@ -48,7 +48,7 @@ Face::Face(boost::asio::io_service& ioService)
   , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
-  construct(m_internalKeyChain);
+  construct(*m_internalKeyChain);
 }
 
 Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
@@ -57,8 +57,7 @@ Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
   , m_internalKeyChain(new KeyChain())
   , m_impl(new Impl(*this))
 {
-  construct(make_shared<TcpTransport>(host, port),
-            m_internalKeyChain);
+  construct(make_shared<TcpTransport>(host, port), *m_internalKeyChain);
 }
 
 Face::Face(const shared_ptr<Transport>& transport)
@@ -68,8 +67,7 @@ Face::Face(const shared_ptr<Transport>& transport)
   , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
-  construct(transport,
-            m_internalKeyChain);
+  construct(transport, *m_internalKeyChain);
 }
 
 Face::Face(const shared_ptr<Transport>& transport,
@@ -79,8 +77,7 @@ Face::Face(const shared_ptr<Transport>& transport,
   , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
-  construct(transport,
-            m_internalKeyChain);
+  construct(transport, *m_internalKeyChain);
 }
 
 Face::Face(shared_ptr<Transport> transport,
@@ -91,12 +88,11 @@ Face::Face(shared_ptr<Transport> transport,
   , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
-  construct(transport,
-            &keyChain);
+  construct(transport, keyChain);
 }
 
 void
-Face::construct(KeyChain* keyChain)
+Face::construct(KeyChain& keyChain)
 {
   // transport=unix:///var/run/nfd.sock
   // transport=tcp://localhost:6363
@@ -121,7 +117,6 @@ Face::construct(KeyChain* keyChain)
       throw ConfigFile::Error(error.what());
     }
 
-  shared_ptr<Transport> transport;
   const std::string protocol = uri->getScheme();
 
   if (protocol == "unix")
@@ -140,10 +135,9 @@ Face::construct(KeyChain* keyChain)
 }
 
 void
-Face::construct(shared_ptr<Transport> transport,
-                KeyChain* keyChain)
+Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
 {
-  m_nfdController = new nfd::Controller(*this, *keyChain);
+  m_nfdController.reset(new nfd::Controller(*this, keyChain));
 
   m_impl->m_pitTimeoutCheckTimerActive = false;
   m_transport = transport;
@@ -181,15 +175,7 @@ Face::construct(shared_ptr<Transport> transport,
     }
 }
 
-Face::~Face()
-{
-  if (m_internalKeyChain != nullptr) {
-    delete m_internalKeyChain;
-  }
-
-  delete m_nfdController;
-  delete m_impl;
-}
+Face::~Face() = default;
 
 const PendingInterestId*
 Face::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)
@@ -201,8 +187,7 @@ Face::expressInterest(const Interest& interest, const OnData& onData, const OnTi
     throw Error("Interest size exceeds maximum limit");
 
   // If the same ioService thread, dispatch directly calls the method
-  m_ioService.dispatch(bind(&Impl::asyncExpressInterest, m_impl,
-                            interestToExpress, onData, onTimeout));
+  m_ioService.dispatch([=] { m_impl->asyncExpressInterest(interestToExpress, onData, onTimeout); });
 
   return reinterpret_cast<const PendingInterestId*>(interestToExpress.get());
 }
@@ -236,13 +221,13 @@ Face::put(const Data& data)
   }
 
   // If the same ioService thread, dispatch directly calls the method
-  m_ioService.dispatch(bind(&Impl::asyncPutData, m_impl, dataPtr));
+  m_ioService.dispatch([=] { m_impl->asyncPutData(dataPtr); });
 }
 
 void
 Face::removePendingInterest(const PendingInterestId* pendingInterestId)
 {
-  m_ioService.post(bind(&Impl::asyncRemovePendingInterest, m_impl, pendingInterestId));
+  m_ioService.post([=] { m_impl->asyncRemovePendingInterest(pendingInterestId); });
 }
 
 size_t
@@ -343,7 +328,7 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   shared_ptr<InterestFilterRecord> filter =
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
-  getIoService().post(bind(&Impl::asyncSetInterestFilter, m_impl, filter));
+  getIoService().post([=] { m_impl->asyncSetInterestFilter(filter); });
 
   return reinterpret_cast<const InterestFilterId*>(filter.get());
 }
@@ -386,14 +371,15 @@ Face::registerPrefix(const Name& prefix,
 void
 Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
 {
-  m_ioService.post(bind(&Impl::asyncUnregisterPrefix, m_impl, registeredPrefixId,
-                        UnregisterPrefixSuccessCallback(), UnregisterPrefixFailureCallback()));
+  m_ioService.post([=] { m_impl->asyncUnregisterPrefix(registeredPrefixId,
+                                                       UnregisterPrefixSuccessCallback(),
+                                                       UnregisterPrefixFailureCallback()); });
 }
 
 void
 Face::unsetInterestFilter(const InterestFilterId* interestFilterId)
 {
-  m_ioService.post(bind(&Impl::asyncUnsetInterestFilter, m_impl, interestFilterId));
+  m_ioService.post([=] { m_impl->asyncUnsetInterestFilter(interestFilterId); });
 }
 
 void
@@ -401,8 +387,7 @@ Face::unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
                        const UnregisterPrefixSuccessCallback& onSuccess,
                        const UnregisterPrefixFailureCallback& onFailure)
 {
-  m_ioService.post(bind(&Impl::asyncUnregisterPrefix, m_impl, registeredPrefixId,
-                        onSuccess, onFailure));
+  m_ioService.post([=] { m_impl->asyncUnregisterPrefix(registeredPrefixId,onSuccess, onFailure); });
 }
 
 void
@@ -449,7 +434,7 @@ Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::ze
 void
 Face::shutdown()
 {
-  m_ioService.post(bind(&Face::asyncShutdown, this));
+  m_ioService.post([this] { this->asyncShutdown(); });
 }
 
 void
