@@ -19,43 +19,35 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_REGEX_REGEX_PATTERN_LIST_MATCHER_HPP
-#define NDN_UTIL_REGEX_REGEX_PATTERN_LIST_MATCHER_HPP
-
-#include "../../common.hpp"
-
-#include "regex-matcher.hpp"
+#include "regex-pseudo-matcher.hpp"
 
 namespace ndn {
 
-class RegexBackrefManager;
-
-class RegexPatternListMatcher : public RegexMatcher
+RegexPseudoMatcher::RegexPseudoMatcher()
+  : RegexMatcher("", EXPR_PSEUDO)
 {
-public:
-  RegexPatternListMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backrefManager);
+}
 
-  virtual
-  ~RegexPatternListMatcher() NDN_CXX_DECL_FINAL;
+RegexPseudoMatcher::~RegexPseudoMatcher()
+{
+}
 
-protected:
-  virtual void
-  compile() NDN_CXX_DECL_FINAL;
+void
+RegexPseudoMatcher::compile()
+{
+}
 
-private:
-  bool
-  extractPattern(size_t index, size_t* next);
+void
+RegexPseudoMatcher::setMatchResult(const std::string& str)
+{
+  m_matchResult.push_back(name::Component(reinterpret_cast<const uint8_t*>(str.c_str()),
+                                          str.size()));
+}
 
-  int
-  extractSubPattern(const char left, const char right, size_t index);
-
-  int
-  extractRepetition(size_t index);
-
-private:
-
-};
+void
+RegexPseudoMatcher::resetMatchResult()
+{
+  m_matchResult.clear();
+}
 
 } // namespace ndn
-
-#endif // NDN_UTIL_REGEX_REGEX_PATTERN_LIST_MATCHER_HPP

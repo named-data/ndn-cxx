@@ -19,43 +19,44 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_REGEX_REGEX_PATTERN_LIST_MATCHER_HPP
-#define NDN_UTIL_REGEX_REGEX_PATTERN_LIST_MATCHER_HPP
+#include "regex-backref-matcher.hpp"
 
-#include "../../common.hpp"
-
-#include "regex-matcher.hpp"
+#include "regex-pattern-list-matcher.hpp"
 
 namespace ndn {
 
-class RegexBackrefManager;
-
-class RegexPatternListMatcher : public RegexMatcher
+RegexBackrefMatcher::RegexBackrefMatcher(const std::string& expr,
+                                         shared_ptr<RegexBackrefManager> backrefManager)
+  : RegexMatcher(expr, EXPR_BACKREF, backrefManager)
 {
-public:
-  RegexPatternListMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backrefManager);
+}
 
-  virtual
-  ~RegexPatternListMatcher() NDN_CXX_DECL_FINAL;
+RegexBackrefMatcher::~RegexBackrefMatcher()
+{
+}
 
-protected:
-  virtual void
-  compile() NDN_CXX_DECL_FINAL;
+void
+RegexBackrefMatcher::lateCompile()
+{
+  compile();
+}
 
-private:
-  bool
-  extractPattern(size_t index, size_t* next);
+void
+RegexBackrefMatcher::compile()
+{
+  if (m_expr.size() < 2)
+    throw Error("Unrecognized format: " + m_expr);
 
-  int
-  extractSubPattern(const char left, const char right, size_t index);
+  size_t lastIndex = m_expr.size() - 1;
+  if ('(' == m_expr[0] && ')' == m_expr[lastIndex]) {
+    // m_backRefManager->pushRef(this);
 
-  int
-  extractRepetition(size_t index);
-
-private:
-
-};
+    auto matcher = make_shared<RegexPatternListMatcher>(m_expr.substr(1, lastIndex - 1),
+                                                        m_backrefManager);
+    m_matchers.push_back(matcher);
+  }
+  else
+    throw Error("Unrecognized format: " + m_expr);
+}
 
 } // namespace ndn
-
-#endif // NDN_UTIL_REGEX_REGEX_PATTERN_LIST_MATCHER_HPP

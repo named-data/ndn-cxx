@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,8 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
 #ifndef NDN_UTIL_REGEX_REGEX_TOP_MATCHER_HPP
@@ -39,13 +37,13 @@ public:
   RegexTopMatcher(const std::string& expr, const std::string& expand = "");
 
   virtual
-  ~RegexTopMatcher();
+  ~RegexTopMatcher() NDN_CXX_DECL_FINAL;
 
   bool
   match(const Name& name);
 
   virtual bool
-  match(const Name& name, size_t offset, size_t len);
+  match(const Name& name, size_t offset, size_t len) NDN_CXX_DECL_FINAL;
 
   virtual Name
   expand(const std::string& expand = "");
@@ -55,7 +53,7 @@ public:
 
 protected:
   virtual void
-  compile();
+  compile() NDN_CXX_DECL_FINAL;
 
 private:
   std::string

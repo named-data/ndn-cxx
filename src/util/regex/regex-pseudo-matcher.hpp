@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,8 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
 #ifndef NDN_UTIL_REGEX_REGEX_PSEUDO_MATCHER_HPP
@@ -35,14 +33,10 @@ public:
   RegexPseudoMatcher();
 
   virtual
-  ~RegexPseudoMatcher()
-  {
-  }
+  ~RegexPseudoMatcher() NDN_CXX_DECL_FINAL;
 
   virtual void
-  compile()
-  {
-  }
+  compile() NDN_CXX_DECL_FINAL;
 
   void
   setMatchResult(const std::string& str);
@@ -50,26 +44,6 @@ public:
   void
   resetMatchResult();
 };
-
-inline
-RegexPseudoMatcher::RegexPseudoMatcher()
-  : RegexMatcher("", EXPR_PSEUDO)
-{
-}
-
-inline void
-RegexPseudoMatcher::setMatchResult(const std::string& str)
-{
-  m_matchResult.push_back(name::Component(reinterpret_cast<const uint8_t*>(str.c_str()),
-                                          str.size()));
-}
-
-inline void
-RegexPseudoMatcher::resetMatchResult()
-{
-  m_matchResult.clear();
-}
-
 
 } // namespace ndn
 
