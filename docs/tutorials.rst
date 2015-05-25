@@ -9,3 +9,4 @@ Tutorials
    tutorials/security-validator-config
    tutorials/signed-interest
    tutorials/certificate-format
+   tutorials/security-trust-schema

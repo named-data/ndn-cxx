@@ -34,6 +34,7 @@ ndn-cxx Documentation
    + :doc:`tutorials/security-validator-config`
    + :doc:`tutorials/signed-interest`
    + :doc:`tutorials/certificate-format`
+   + :doc:`tutorials/security-trust-schema`
 
 - :doc:`manpages`
 
