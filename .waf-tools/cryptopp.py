@@ -26,6 +26,24 @@ from waflib.Configure import conf
 CRYPTOPP_DIR = ['/usr', '/usr/local', '/opt/local', '/sw', '/usr/local/ndn', '/opt/ndn']
 CRYPTOPP_VERSION_FILE = 'config.h'
 
+CRYPTOPP_CHECK_FRAGMENT = '''
+#include "../../src/security/cryptopp.hpp"
+#include <iostream>
+
+int
+main()
+{
+  using namespace CryptoPP;
+
+  std::string buffer = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+  SHA256 hash;
+  StringSource(buffer, true, new HashFilter(hash, new FileSink(std::cout)));
+  StringSource(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.size(),
+               true, new HashFilter(hash, new FileSink(std::cout)));
+  return 0;
+}
+'''
+
 def options(opt):
     opt.add_option('--with-cryptopp', type='string', default=None, dest='cryptopp_dir',
                    help='''Path to where CryptoPP is installed, e.g., /usr/local''')
@@ -81,11 +99,23 @@ def check_cryptopp(self, *k, **kw):
     except:
         self.fatal('CryptoPP not found or is not usable')
 
-    val = self.check_cxx(msg='Checking if CryptoPP library works',
-                         header_name='cryptopp/config.h',
-                         lib='cryptopp',
-                         includes="%s/include" % root,
-                         libpath="%s/lib" % root,
-                         mandatory=mandatory,
-                         use=use,
-                         uselib_store=var)
+    isLibWorking = False
+    for defines in ['', 'CRYPTOPP_DISABLE_ASM']:
+        try:
+            self.check_cxx(msg='Checking if CryptoPP library works',
+                           fragment=CRYPTOPP_CHECK_FRAGMENT,
+                           lib='cryptopp',
+                           includes="%s/include" % root,
+                           libpath="%s/lib" % root,
+                           mandatory=True,
+                           use=use,
+                           defines=defines,
+                           uselib_store=var)
+            isLibWorking = True
+            break
+        except:
+            # try another flags
+            pass
+
+    if mandatory and not isLibWorking:
+        self.fatal('CryptoPP is present, but is not usable')
