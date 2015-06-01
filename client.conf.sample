@@ -9,12 +9,6 @@
 
 transport=unix:///var/run/nfd.sock
 
-; "protocol" determines the protocol for prefix registration
-; it has a value of:
-;   nfd-0.1
-;   nrd-0.1
-protocol=nrd-0.1
-
 ; "pib" determines which Public Info Base (PIB) should used by default in applications.
 ; If "pib" is not specified, the default PIB will be used.
 ; Note that default PIB could be different on different system.

@@ -196,40 +196,17 @@ public:
   {
     using namespace nfd;
 
-    typedef void (Controller::*Registrator)
-      (const ControlParameters&,
-       const Controller::CommandSucceedCallback&,
-       const Controller::CommandFailCallback&,
-       const CommandOptions&);
+    ControlParameters params;
+    params.setName(prefix);
+    params.setFlags(flags);
 
-    ControlParameters registerParameters, unregisterParameters;
-    registerParameters.setName(prefix);
-    unregisterParameters.setName(prefix);
+    auto prefixToRegister = make_shared<RegisteredPrefix>(prefix, filter, options);
 
-    Registrator registrator, unregistrator;
-    if (!m_face.m_isDirectNfdFibManagementRequested) {
-      registrator = static_cast<Registrator>(&Controller::start<RibRegisterCommand>);
-      unregistrator = static_cast<Registrator>(&Controller::start<RibUnregisterCommand>);
-
-      registerParameters.setFlags(flags);
-    }
-    else {
-      registrator = static_cast<Registrator>(&Controller::start<FibAddNextHopCommand>);
-      unregistrator = static_cast<Registrator>(&Controller::start<FibRemoveNextHopCommand>);
-    }
-
-    RegisteredPrefix::Unregistrator boundUnregistrator =
-        bind(unregistrator, m_face.m_nfdController.get(), unregisterParameters, _1, _2,
-                  options);
-
-    shared_ptr<RegisteredPrefix> prefixToRegister =
-      make_shared<RegisteredPrefix>(prefix, filter, boundUnregistrator);
-
-    ((*m_face.m_nfdController).*registrator)(registerParameters,
-                                             bind(&Impl::afterPrefixRegistered, this,
-                                                  prefixToRegister, onSuccess),
-                                             bind(onFailure, prefixToRegister->getPrefix(), _2),
-                                             options);
+    m_face.m_nfdController->start<RibRegisterCommand>(params,
+                                                      bind(&Impl::afterPrefixRegistered, this,
+                                                           prefixToRegister, onSuccess),
+                                                      bind(onFailure, prefixToRegister->getPrefix(), _2),
+                                                      options);
 
     return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
   }
@@ -255,22 +232,29 @@ public:
                         const UnregisterPrefixSuccessCallback& onSuccess,
                         const UnregisterPrefixFailureCallback& onFailure)
   {
-    RegisteredPrefixTable::iterator i = std::find_if(m_registeredPrefixTable.begin(),
-                                                     m_registeredPrefixTable.end(),
-                                                     MatchRegisteredPrefixId(registeredPrefixId));
-    if (i != m_registeredPrefixTable.end())
-      {
-        const shared_ptr<InterestFilterRecord>& filter = (*i)->getFilter();
-        if (static_cast<bool>(filter))
-          {
-            // it was a combined operation
-            m_interestFilterTable.remove(filter);
-          }
-        (*i)->unregister(bind(&Impl::finalizeUnregisterPrefix, this, i, onSuccess),
-                         bind(onFailure, _2));
+    using namespace nfd;
+    auto i = std::find_if(m_registeredPrefixTable.begin(),
+                          m_registeredPrefixTable.end(),
+                          MatchRegisteredPrefixId(registeredPrefixId));
+    if (i != m_registeredPrefixTable.end()) {
+      RegisteredPrefix& record = **i;
+
+      const shared_ptr<InterestFilterRecord>& filter = record.getFilter();
+
+      if (filter != nullptr) {
+        // it was a combined operation
+        m_interestFilterTable.remove(filter);
       }
+
+      ControlParameters params;
+      params.setName(record.getPrefix());
+      m_face.m_nfdController->start<RibUnregisterCommand>(params,
+                                                          bind(&Impl::finalizeUnregisterPrefix, this, i, onSuccess),
+                                                          bind(onFailure, _2),
+                                                          record.getCommandOptions());
+    }
     else {
-      if (static_cast<bool>(onFailure)) {
+      if (onFailure != nullptr) {
         onFailure("Unrecognized PrefixId");
       }
     }

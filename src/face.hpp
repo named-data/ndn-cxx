@@ -247,7 +247,7 @@ public: // producer
    * @param onInterest     A callback to be called when a matching interest is received
    * @param onSuccess      A callback to be called when prefixRegister command succeeds
    * @param onFailure      A callback to be called when prefixRegister command fails
-   * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
+   * @param flags          (optional) RIB flags
    * @param certificate    (optional) A certificate under which the prefix registration
    *                       command is signed.  When omitted, a default certificate of
    *                       the default identity is used to sign the registration command
@@ -280,7 +280,7 @@ public: // producer
    * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
    * @param onInterest     A callback to be called when a matching interest is received
    * @param onFailure      A callback to be called when prefixRegister command fails
-   * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
+   * @param flags          (optional) RIB flags
    * @param certificate    (optional) A certificate under which the prefix registration
    *                       command is signed.  When omitted, a default certificate of
    *                       the default identity is used to sign the registration command
@@ -315,7 +315,7 @@ public: // producer
    * @param onFailure      A callback to be called when prefixRegister command fails
    * @param identity       A signing identity. A prefix registration command is signed
    *                       under the default certificate of this identity
-   * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
+   * @param flags          (optional) RIB flags
    *
    * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
    */
@@ -342,7 +342,7 @@ public: // producer
    * @param onFailure      A callback to be called when prefixRegister command fails
    * @param identity       A signing identity. A prefix registration command is signed
    *                       under the default certificate of this identity
-   * @param flags          (optional) RIB flags (not used when direct FIB management is requested)
+   * @param flags          (optional) RIB flags
    *
    * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
    */
@@ -373,7 +373,7 @@ public: // producer
   /**
    * @brief Register prefix with the connected NDN forwarder
    *
-   * This method only modifies forwarder's RIB (or FIB) and does not associate any
+   * This method only modifies forwarder's RIB and does not associate any
    * onInterest callbacks.  Use setInterestFilter method to dispatch incoming Interests to
    * the right callbacks.
    *
@@ -383,7 +383,7 @@ public: // producer
    * @param certificate (optional) A certificate under which the prefix registration
    *                    command is signed.  When omitted, a default certificate of
    *                    the default identity is used to sign the registration command
-   * @param flags       (optional) RIB flags (not used when direct FIB management is requested)
+   * @param flags       (optional) RIB flags
    *
    * @return The registered prefix ID which can be used with unregisterPrefix
    *
@@ -402,7 +402,7 @@ public: // producer
    * @brief Register prefix with the connected NDN forwarder and call onInterest when a matching
    *        interest is received.
    *
-   * This method only modifies forwarder's RIB (or FIB) and does not associate any
+   * This method only modifies forwarder's RIB and does not associate any
    * onInterest callbacks.  Use setInterestFilter method to dispatch incoming Interests to
    * the right callbacks.
    *
@@ -411,7 +411,7 @@ public: // producer
    * @param onFailure A callback to be called when prefixRegister command fails
    * @param identity  A signing identity. A prefix registration command is signed
    *                  under the default certificate of this identity
-   * @param flags     (optional) RIB flags (not used when direct FIB management is requested)
+   * @param flags     (optional) RIB flags
    *
    * @return The registered prefix ID which can be used with unregisterPrefix
    */
@@ -449,7 +449,7 @@ public: // producer
   unsetInterestFilter(const InterestFilterId* interestFilterId);
 
   /**
-   * @brief Deregister prefix from RIB (or FIB)
+   * @brief Unregister prefix from RIB
    *
    * unregisterPrefix will use the same credentials as original
    * setInterestFilter/registerPrefix command
@@ -465,12 +465,6 @@ public: // producer
   unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
                    const UnregisterPrefixSuccessCallback& onSuccess,
                    const UnregisterPrefixFailureCallback& onFailure);
-
-  /**
-   * @brief (FOR DEBUG PURPOSES ONLY) Request direct NFD FIB management
-   */
-  void
-  setDirectFibManagement(bool isDirectFibManagementRequested = false);
 
    /**
    * @brief Publish data packet
@@ -549,12 +543,6 @@ private:
   void
   construct(shared_ptr<Transport> transport, KeyChain& keyChain);
 
-  bool
-  isSupportedNfdProtocol(const std::string& protocol);
-
-  bool
-  isSupportedNrdProtocol(const std::string& protocol);
-
   class ProcessEventsTimeout
   {
   };
@@ -585,29 +573,10 @@ private:
   unique_ptr<KeyChain> m_internalKeyChain;
 
   unique_ptr<nfd::Controller> m_nfdController;
-  bool m_isDirectNfdFibManagementRequested;
 
   class Impl;
   unique_ptr<Impl> m_impl;
 };
-
-inline bool
-Face::isSupportedNfdProtocol(const std::string& protocol)
-{
-  return protocol == "nfd-0.1";
-}
-
-inline bool
-Face::isSupportedNrdProtocol(const std::string& protocol)
-{
-  return protocol == "nrd-0.1";
-}
-
-inline void
-Face::setDirectFibManagement(bool isDirectFibManagementRequested/* = false*/)
-{
-  m_isDirectNfdFibManagementRequested = isDirectFibManagementRequested;
-}
 
 } // namespace ndn
 

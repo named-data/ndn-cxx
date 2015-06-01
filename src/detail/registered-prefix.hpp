@@ -27,12 +27,10 @@
 #include "../interest.hpp"
 
 #include "interest-filter-record.hpp"
+#include "management/nfd-command-options.hpp"
+#include "management/nfd-control-parameters.hpp"
 
 namespace ndn {
-
-namespace nfd {
-class ControlParameters;
-}
 
 class RegisteredPrefix : noncopyable
 {
@@ -45,23 +43,12 @@ public:
    */
   typedef function<void(uint32_t/*code*/,const std::string&/*reason*/)> FailureCallback;
 
-  /// @brief Function that should be called to unregister prefix
-  typedef function<void(const SuccessCallback& onSuccess,
-                        const FailureCallback& onFailure)> Unregistrator;
-
-  RegisteredPrefix(const Name& prefix,
-                   const Unregistrator& unregistrator)
-    : m_prefix(prefix)
-    , m_unregistrator(unregistrator)
-  {
-  }
-
   RegisteredPrefix(const Name& prefix,
                    const shared_ptr<InterestFilterRecord>& filter,
-                   const Unregistrator& unregistrator)
+                   const nfd::CommandOptions& options)
     : m_prefix(prefix)
     , m_filter(filter)
-    , m_unregistrator(unregistrator)
+    , m_options(options)
   {
   }
 
@@ -77,19 +64,16 @@ public:
     return m_filter;
   }
 
-  void
-  unregister(const SuccessCallback& onSuccess,
-             const FailureCallback& onFailure)
+  const nfd::CommandOptions&
+  getCommandOptions() const
   {
-    if (static_cast<bool>(m_unregistrator)) {
-      m_unregistrator(onSuccess, onFailure);
-    }
+    return m_options;
   }
 
 private:
   Name m_prefix;
   shared_ptr<InterestFilterRecord> m_filter;
-  Unregistrator m_unregistrator;
+  nfd::CommandOptions m_options;
 };
 
 /**

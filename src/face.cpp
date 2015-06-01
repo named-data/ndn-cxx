@@ -36,7 +36,6 @@ Face::Face()
   : m_internalIoService(new boost::asio::io_service())
   , m_ioService(*m_internalIoService)
   , m_internalKeyChain(new KeyChain())
-  , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
   construct(*m_internalKeyChain);
@@ -45,7 +44,6 @@ Face::Face()
 Face::Face(boost::asio::io_service& ioService)
   : m_ioService(ioService)
   , m_internalKeyChain(new KeyChain())
-  , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
   construct(*m_internalKeyChain);
@@ -64,7 +62,6 @@ Face::Face(const shared_ptr<Transport>& transport)
   : m_internalIoService(new boost::asio::io_service())
   , m_ioService(*m_internalIoService)
   , m_internalKeyChain(new KeyChain())
-  , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
   construct(transport, *m_internalKeyChain);
@@ -74,7 +71,6 @@ Face::Face(const shared_ptr<Transport>& transport,
            boost::asio::io_service& ioService)
   : m_ioService(ioService)
   , m_internalKeyChain(new KeyChain())
-  , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
   construct(transport, *m_internalKeyChain);
@@ -85,7 +81,6 @@ Face::Face(shared_ptr<Transport> transport,
            KeyChain& keyChain)
   : m_ioService(ioService)
   , m_internalKeyChain(nullptr)
-  , m_isDirectNfdFibManagementRequested(false)
   , m_impl(new Impl(*this))
 {
   construct(transport, keyChain);
@@ -145,34 +140,6 @@ Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
   m_impl->m_pitTimeoutCheckTimer      = make_shared<monotonic_deadline_timer>(ref(m_ioService));
   m_impl->m_processEventsTimeoutTimer = make_shared<monotonic_deadline_timer>(ref(m_ioService));
   m_impl->ensureConnected(false);
-
-  std::string protocol = "nrd-0.1";
-
-  try
-    {
-      protocol = m_impl->m_config.getParsedConfiguration().get<std::string>("protocol");
-    }
-  catch (boost::property_tree::ptree_bad_path& error)
-    {
-      // protocol not specified
-    }
-  catch (boost::property_tree::ptree_bad_data& error)
-    {
-      throw ConfigFile::Error(error.what());
-    }
-
-  if (isSupportedNrdProtocol(protocol))
-    {
-      // do nothing
-    }
-  else if (isSupportedNfdProtocol(protocol))
-    {
-      m_isDirectNfdFibManagementRequested = true;
-    }
-  else
-    {
-      throw Face::Error("Cannot create controller for unsupported protocol \"" + protocol + "\"");
-    }
 }
 
 Face::~Face() = default;
