@@ -2,66 +2,92 @@ client.conf
 ===========
 
 System configuration of NDN platform is specified in ``client.conf``.
+
+The configuration file ``client.conf`` is looked up in several directories in the following order:
+
+- ``$HOME/.ndn/``: user-specific settings
+- ``@SYSCONFDIR@/ndn/`` (``/usr/local/etc/ndn``, ``/opt/local/etc/ndn``, or other, depending how the library is configured): system-wide settings
+- ``/etc/ndn``: default system-wide settings
+
 Here is an example of ``client.conf`` for current ndn-cxx package:
 
-::
+.. literalinclude:: ../../client.conf.sample
 
-    ; "unix_socket" specifies the location of the NFD unix socket
-    unix_socket=/var/run/nfd.sock
-
-    ; "protocol" determines the protocol for prefix registration
-    ; it has a value of:
-    ;   nrd-0.1
-    protocol=nrd-0.1
-
-    ; "pib" determines which Public Info Base (PIB) should used by default in applications.
-    ; If "pib" is not specified, the default PIB will be used.
-    ; Note that default PIB could be different on different system.
-    ; If "pib" is specified, it may have a value of:
-    ;   sqlite3
-    ; pib=sqlite3
-
-    ; "tpm" determines which Trusted Platform Module (TPM) should used by default in applications.
-    ; If "tpm" is not specified, the default TPM will be used.
-    ; Note that default TPM could be different on different system.
-    ; If "tpm" is specified, it may have a value of:
-    ;   file
-    ;   osx-keychain
-    ; tpm=file
 
 NFD
 ---
 
-unix_socket
-  The local interface of NFD to applications. By default, the path to the socket is ``/var/run/nfd.sock``.
+transport
+  FaceUri for default connection toward local NDN forwarder.  Only ``unix`` and ``tcp4`` FaceUri
+  can be specified here.
+
+  By default, ``unix:///var/run/nfd.sock`` is used.
 
 Prefix Registration
 -------------------
 
 protocol
   The prefix registration protocol. For now, only one protocol ``nrd-0.1`` is supported.
-  With this protocol, applications send prefix registration requests to NRD.
-  NRD, after authenticating the request, will set up corresponding FIB entries in NFD.
+  With this protocol, applications send prefix registration requests to NFD RIB manager.
+  NFD RIB Manager, after authenticating the request, will set up corresponding FIB entries
+  in NFD.
 
 Key Management
 --------------
 
-tpm
-  Trusted Platform Module (TPM) where the private keys are stored.
-  Two options are currently available: ``file`` and ``osx-keychain``.
-  **Users are not supposed to change the ``tpm`` setting once it is configued,
-  otherwise users may face the problem of "Keys are not found".**
-  The default value of ``tpm`` depends on the operating system.
-  For OS X, the default value is ``osx-keychain``.
-  For other systems, the default value is ``file``.
-
 pib
-  The public key information for each private key stored in TPM.
-  There is only one option for ``pib``: ``sqlite3``, which is also the default value of ``pib``.
+  The public key information for each private key stored in TPM.  The format for this setting is::
 
-Users are not supposed to change the configuration of Key Management.
-If changes is inevitable, please clean up the all the existing data (which is usually under ``~/.ndn/``):
+      pib=[scheme]:[location]
 
-::
+  Possible values for ``[scheme]``:
 
-    rm -rf ~/.ndn/ndnsec-*
+  * ``pib-sqlite3``: local PIB implementation with SQLite3 storage engine
+
+    Possible values for ``[location]``:
+
+    * absolute path where SQLite3 database will be stored
+    * relative path (relative to ``config.conf``)
+    * empty: default path ``$HOME/.ndn`` will be used
+
+  When ``[location]`` is empty, trailing ``:`` can be omitted.  For example::
+
+     pib=pib-sqlite3
+
+  Changing PIB scheme without changing location is **not** allowed.  If such change is
+  necessary, the whole backend storage must be destroyed.  For example, when default location
+  is used::
+
+      rm -rf ~/.ndn/ndnsec-*
+
+tpm
+  Trusted Platform Module (TPM) where the private keys are stored.  The format for this setting
+  is::
+
+      tpm=[scheme]:[location]
+
+  Possible values for ``[scheme]``:
+
+  * ``tpm-osx-keychain`` (default on OS X platform): secure storage of private keys in OS X
+    Keychain with OS-provided access restrictions.
+
+    ``[location]`` parameter is ignored.
+
+    May not work for daemon applications, as user interaction may be required to access OS X
+    Keychain.
+
+  * ``tpm-file`` (default on all other platforms): file-based storage of private keys
+
+    Possible values for ``[location]``:
+
+    * absolute path to directory that will store private/public key files (unencrypted with
+      ``0700`` permission)
+    * relative path (relative to ``config.conf``)
+    * empty: default path ``$HOME/.ndn/ndnsec-tpm-file`` will be used
+
+  When ``[location]`` is empty, trailing ``:`` can be omitted.  For example::
+
+     tpm=tpm-file
+
+  **Change of ``tpm`` setting is only possible together with ``pib`` setting. Otherwise, an
+  error will be generated during PIB/TPM access**

@@ -13,21 +13,19 @@ transport=unix:///var/run/nfd.sock
 ; it has a value of:
 ;   nfd-0.1
 ;   nrd-0.1
-;   ndnd-tlv-0.7
-;   ndnx-0.7
 protocol=nrd-0.1
 
 ; "pib" determines which Public Info Base (PIB) should used by default in applications.
 ; If "pib" is not specified, the default PIB will be used.
 ; Note that default PIB could be different on different system.
 ; If "pib" is specified, it may have a value of:
-;   sqlite3
-; pib=sqlite3
+;   pib-sqlite3
+; pib=pib-sqlite3
 
 ; "tpm" determines which Trusted Platform Module (TPM) should used by default in applications.
 ; If "tpm" is not specified, the default TPM will be used.
 ; Note that default TPM could be different on different system.
 ; If "tpm" is specified, it may have a value of:
-;   file
-;   osx-keychain
-; tpm=file
+;   tpm-osxkeychain (default in OS X)
+;   tpm-file (default in operating systems other than OS X)
+; tpm=tpm-file
