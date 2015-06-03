@@ -2,13 +2,13 @@
 set -x
 set -e
 
+JDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source "$JDIR"/util.sh
+
 # Prepare environment
-rm -Rf ~/.ndnx ~/.ndn
+rm -Rf ~/.ndn
 
-echo $NODE_LABELS
-IS_OSX=$( python -c "print 'yes' if 'OSX' in '$NODE_LABELS'.strip().split(' ') else 'no'" )
-
-if [[ $IS_OSX == "yes" ]]; then
+if has OSX $NODE_LABELS; then
   echo "Unlocking OSX Keychain"
   security unlock-keychain -p "named-data"
 fi

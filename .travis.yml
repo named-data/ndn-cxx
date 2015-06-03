@@ -1,11 +1,15 @@
+sudo: true
 language: cpp
+os:
+  - linux
 compiler:
   - gcc
 notifications:
   email:
     on_success: always
     on_failure: always
-before_install:
-  - travis_retry sudo apt-get install -qq libboost1.48-all-dev libcrypto++-dev libsqlite3-dev
 script:
+  - if [[ $TRAVIS_OS_NAME == linux ]]; then export NODE_LABELS="Linux Ubuntu Ubuntu-12.04"; fi
+  - if [[ $TRAVIS_OS_NAME == osx ]]; then export NODE_LABELS="OSX OSX-10.10"; fi
+  - echo $NODE_LABELS
   - ./.jenkins

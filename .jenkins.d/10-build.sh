@@ -2,7 +2,8 @@
 set -x
 set -e
 
-COVERAGE=$( python -c "print '--with-coverage --debug' if 'code-coverage' in '$JOB_NAME' else ''" )
+JDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source "$JDIR"/util.sh
 
 sudo rm -Rf /usr/local/include/ndn-cxx
 sudo rm -f /usr/local/lib/libndn-cxx*
@@ -11,26 +12,34 @@ sudo rm -f /usr/local/lib/pkgconfig/libndn-cxx*
 # Cleanup
 sudo ./waf -j1 --color=yes distclean
 
-# Configure/build in debug mode
-./waf -j1 --color=yes configure --with-tests --debug
+# Configure/build static library in debug mode with precompiled headers
+./waf -j1 --color=yes configure --enable-static --disable-shared --with-tests --debug
 ./waf -j1 --color=yes build
 
 # Cleanup
 sudo ./waf -j1 --color=yes distclean
 
-# Configure/build in optimized mode without tests with precompiled headers
-./waf -j1 --color=yes configure
+# Configure/build static and shared library in optimized mode without tests with precompiled headers
+./waf -j1 --color=yes configure --enable-shared --enable-static
 ./waf -j1 --color=yes build
 
 # Cleanup
 sudo ./waf -j1 --color=yes distclean
 
-# Configure/build in optimized mode
-./waf -j1 --color=yes configure --with-tests --without-pch $COVERAGE
+# Configure/build shared library in debug mode without precompiled headers
+if has code-coverage $JOB_NAME; then
+    COVERAGE="--with-coverage"
+fi
+./waf -j1 --color=yes configure --debug --enable-shared --disable-static --with-tests --without-pch $COVERAGE
 ./waf -j1 --color=yes build
 
-# (tests will be run against optimized version)
+# (tests will be run against debug version)
 
 # Install
 sudo ./waf -j1 --color=yes install
-sudo ldconfig || true
+
+if has Linux $NODE_LABELS; then
+    sudo ldconfig
+elif has FreeBSD $NODE_LABELS; then
+    sudo ldconfig -a
+fi
