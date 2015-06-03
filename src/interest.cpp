@@ -34,15 +34,13 @@ static_assert(std::is_base_of<tlv::Error, Interest::Error>::value,
               "Interest::Error must inherit from tlv::Error");
 
 Interest::Interest()
-  : m_scope(-1)
-  , m_interestLifetime(time::milliseconds::min())
+  : m_interestLifetime(time::milliseconds::min())
   , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
 {
 }
 
 Interest::Interest(const Name& name)
   : m_name(name)
-  , m_scope(-1)
   , m_interestLifetime(time::milliseconds::min())
   , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
 {
@@ -50,26 +48,9 @@ Interest::Interest(const Name& name)
 
 Interest::Interest(const Name& name, const time::milliseconds& interestLifetime)
   : m_name(name)
-  , m_scope(-1)
   , m_interestLifetime(interestLifetime)
   , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
 {
-}
-
-Interest::Interest(const Name& name,
-                   const Selectors& selectors,
-                   int scope,
-                   const time::milliseconds& interestLifetime,
-                   uint32_t nonce)
-  : m_name(name)
-  , m_selectors(selectors)
-  , m_scope(scope)
-  , m_interestLifetime(interestLifetime)
-  , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
-{
-  if (nonce > 0) {
-    setNonce(nonce);
-  }
 }
 
 Interest::Interest(const Block& wire)
@@ -241,7 +222,6 @@ Interest::wireEncode(EncodingImpl<TAG>& block) const
   //                Name
   //                Selectors?
   //                Nonce
-  //                Scope?
   //                InterestLifetime?
   //                Link?
   //                SelectedDelegation?
@@ -267,12 +247,6 @@ Interest::wireEncode(EncodingImpl<TAG>& block) const
       totalLength += prependNonNegativeIntegerBlock(block,
                                                     tlv::InterestLifetime,
                                                     getInterestLifetime().count());
-    }
-
-  // Scope
-  if (getScope() >= 0)
-    {
-      totalLength += prependNonNegativeIntegerBlock(block, tlv::Scope, getScope());
     }
 
   // Nonce
@@ -327,7 +301,6 @@ Interest::wireDecode(const Block& wire)
   //                Name
   //                Selectors?
   //                Nonce
-  //                Scope?
   //                InterestLifetime?
   //                Link?
   //                SelectedDelegation?
@@ -349,15 +322,6 @@ Interest::wireDecode(const Block& wire)
 
   // Nonce
   m_nonce = m_wire.get(tlv::Nonce);
-
-  // Scope
-  val = m_wire.find(tlv::Scope);
-  if (val != m_wire.elements_end())
-    {
-      m_scope = readNonNegativeInteger(*val);
-    }
-  else
-    m_scope = -1;
 
   // InterestLifetime
   val = m_wire.find(tlv::InterestLifetime);
@@ -500,10 +464,6 @@ operator<<(std::ostream& os, const Interest& interest)
   }
   if (interest.getMustBeFresh()) {
     os << delim << "ndn.MustBeFresh=" << interest.getMustBeFresh();
-    delim = '&';
-  }
-  if (interest.getScope() >= 0) {
-    os << delim << "ndn.Scope=" << interest.getScope();
     delim = '&';
   }
   if (interest.getInterestLifetime() >= time::milliseconds::zero()

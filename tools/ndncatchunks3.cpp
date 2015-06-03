@@ -30,14 +30,13 @@ class Consumer
 public:
   Consumer(const std::string& dataName,
            size_t pipeSize, size_t nTotalSegments,
-           int scope = -1, bool mustBeFresh = true)
+           bool mustBeFresh = true)
     : m_dataName(dataName)
     , m_pipeSize(pipeSize)
     , m_nTotalSegments(nTotalSegments)
     , m_nextSegment(0)
     , m_totalSize(0)
     , m_isOutputEnabled(false)
-    , m_scope(scope)
     , m_mustBeFresh(mustBeFresh)
   {
   }
@@ -66,7 +65,6 @@ private:
   size_t m_totalSize;
   bool m_isOutputEnabled;  // set to false by default
 
-  int m_scope;
   bool m_mustBeFresh;
 };
 
@@ -79,8 +77,6 @@ Consumer::run()
         {
           Interest interest(Name(m_dataName).appendSegment(m_nextSegment++));
           interest.setInterestLifetime(time::milliseconds(4000));
-          if (m_scope >= 0)
-            interest.setScope(m_scope);
           interest.setMustBeFresh(m_mustBeFresh);
 
           m_face.expressInterest(interest,
@@ -119,8 +115,6 @@ Consumer::onData(Data& data)
     {
       // Send interest for next segment
       Interest interest(Name(m_dataName).appendSegment(m_nextSegment++));
-      if (m_scope >= 0)
-        interest.setScope(m_scope);
       interest.setInterestLifetime(time::milliseconds(4000));
       interest.setMustBeFresh(m_mustBeFresh);
 

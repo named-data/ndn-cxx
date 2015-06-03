@@ -38,7 +38,6 @@ std::map<uint32_t, std::string> TLV_DICT = {
   {tlv::ImplicitSha256DigestComponent, "ImplicitSha256DigestComponent"},
   {tlv::Selectors                    , "Selectors"},
   {tlv::Nonce                        , "Nonce"},
-  {tlv::Scope                        , "Scope"},
   {tlv::InterestLifetime             , "InterestLifetime"},
   {tlv::MinSuffixComponents          , "MinSuffixComponents"},
   {tlv::MaxSuffixComponents          , "MaxSuffixComponents"},

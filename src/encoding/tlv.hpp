@@ -65,7 +65,7 @@ enum {
   NameComponent = 8,
   Selectors     = 9,
   Nonce         = 10,
-  Scope         = 11, // deprecated
+  // <Unassigned> = 11,
   InterestLifetime          = 12,
   MinSuffixComponents       = 13,
   MaxSuffixComponents       = 14,
@@ -95,6 +95,7 @@ enum {
 enum SignatureTypeValue {
   DigestSha256 = 0,
   SignatureSha256WithRsa = 1,
+  // <Unassigned> = 2,
   SignatureSha256WithEcdsa = 3
 };
 

@@ -35,7 +35,7 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(TestInterest)
 
 const uint8_t Interest1[] = {
-  0x05,  0x5c, // NDN Interest
+  0x05,  0x59, // NDN Interest
       0x07,  0x14, // Name
           0x08,  0x5, // NameComponent
               0x6c,  0x6f,  0x63,  0x61,  0x6c,
@@ -66,14 +66,12 @@ const uint8_t Interest1[] = {
               0x1,
       0x0a,  0x4, // Nonce
           0x1, 0x0, 0x0, 0x00,
-      0x0b,  0x1, // Scope
-          0x1,
       0x0c,       // InterestLifetime
           0x2,  0x3,  0xe8
 };
 
 const uint8_t Interest2[] = {
-  0x05,  0x5c, // NDN Interest
+  0x05,  0x59, // NDN Interest
       0x07,  0x14, // Name
           0x08,  0x5, // NameComponent
               0x6c,  0x6f,  0x63,  0x61,  0x6c,
@@ -104,8 +102,6 @@ const uint8_t Interest2[] = {
               0x1,
       0x0a,  0x4, // Nonce
           0x2, 0x0, 0x0, 0x00,
-      0x0b,  0x1, // Scope
-          0x1,
       0x0c,       // InterestLifetime
           0x2,  0x3,  0xe8
 };
@@ -515,7 +511,6 @@ BOOST_AUTO_TEST_CASE(InterestEqualityChecks)
   //                Name
   //                Selectors?
   //                Nonce
-  //                Scope?
   //                InterestLifetime?
   //                Link?
   //                SelectedDelegation?
@@ -558,15 +553,6 @@ BOOST_AUTO_TEST_CASE(InterestEqualityChecks)
   BOOST_CHECK_EQUAL(a != b, true);
 
   b.setNonce(100);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // check comparison on Nonce
-  a.setScope(1);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setScope(1);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
@@ -745,7 +731,6 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeWithLink)
   a.setName("/Test/Encode/Decode/With/Link");
   a.setChildSelector(1);
   a.setNonce(100);
-  a.setScope(1);
   a.setInterestLifetime(time::seconds(10));
   a.setLink(wire);
 
@@ -861,7 +846,6 @@ BOOST_AUTO_TEST_CASE(SelectedDelegationEqualToDelegationCount)
   a.setName("/Test/Encode/Decode/With/Link");
   a.setChildSelector(1);
   a.setNonce(100);
-  a.setScope(1);
   a.setInterestLifetime(time::seconds(10));
   a.setLink(wire);
   BOOST_REQUIRE_THROW(a.setSelectedDelegation(3), Interest::Error);
@@ -878,7 +862,6 @@ BOOST_AUTO_TEST_CASE(SelectedDelegationGreaterThanDelegationCount)
   a.setName("/Test/Encode/Decode/With/Link");
   a.setChildSelector(1);
   a.setNonce(100);
-  a.setScope(1);
   a.setInterestLifetime(time::seconds(10));
   a.setLink(wire);
   BOOST_REQUIRE_THROW(a.setSelectedDelegation(4), Interest::Error);
@@ -892,7 +875,6 @@ BOOST_AUTO_TEST_CASE(Decode)
   BOOST_REQUIRE_NO_THROW(i.wireDecode(interestBlock));
 
   BOOST_CHECK_EQUAL(i.getName().toUri(), "/local/ndn/prefix");
-  BOOST_CHECK_EQUAL(i.getScope(), 1);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), time::milliseconds(1000));
   BOOST_CHECK_EQUAL(i.getMinSuffixComponents(), 1);
   BOOST_CHECK_EQUAL(i.getMaxSuffixComponents(), 1);
@@ -916,7 +898,6 @@ BOOST_AUTO_TEST_CASE(DecodeFromStream)
   BOOST_REQUIRE_NO_THROW(i.wireDecode(interestBlock));
 
   BOOST_CHECK_EQUAL(i.getName().toUri(), "/local/ndn/prefix");
-  BOOST_CHECK_EQUAL(i.getScope(), 1);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), time::milliseconds(1000));
   BOOST_CHECK_EQUAL(i.getMinSuffixComponents(), 1);
   BOOST_CHECK_EQUAL(i.getMaxSuffixComponents(), 1);
@@ -929,7 +910,6 @@ BOOST_AUTO_TEST_CASE(DecodeFromStream)
 BOOST_AUTO_TEST_CASE(Encode)
 {
   ndn::Interest i(ndn::Name("/local/ndn/prefix"));
-  i.setScope(1);
   i.setInterestLifetime(time::milliseconds(1000));
   i.setMinSuffixComponents(1);
   i.setMaxSuffixComponents(1);
@@ -965,7 +945,7 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_CHECK_EQUAL(strStream.str(),
                     "/local/ndn/prefix?"
                     "ndn.MinSuffixComponents=1&ndn.MaxSuffixComponents=1&"
-                    "ndn.ChildSelector=1&ndn.Scope=1&"
+                    "ndn.ChildSelector=1&"
                     "ndn.InterestLifetime=1000&"
                     "ndn.Nonce=2&ndn.Exclude=alex,xxxx,*,yyyy");
 

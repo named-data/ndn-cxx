@@ -77,16 +77,6 @@ public:
    */
   Interest(const Name& name, const time::milliseconds& interestLifetime);
 
-  /** @brief Create a new Interest for the given name, selectors, and guiders
-   *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
-   *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
-   */
-  Interest(const Name& name,
-           const Selectors& selectors,
-           int scope,
-           const time::milliseconds& interestLifetime,
-           uint32_t nonce = 0);
-
   /** @brief Create from wire encoding
    *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
    *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
@@ -232,20 +222,6 @@ public: // Name and guiders
   setName(const Name& name)
   {
     m_name = name;
-    m_wire.reset();
-    return *this;
-  }
-
-  int
-  getScope() const
-  {
-    return m_scope;
-  }
-
-  Interest&
-  setScope(int scope)
-  {
-    m_scope = scope;
     m_wire.reset();
     return *this;
   }
@@ -463,7 +439,6 @@ private:
   Name m_name;
   Selectors m_selectors;
   mutable Block m_nonce;
-  int m_scope;
   time::milliseconds m_interestLifetime;
 
   mutable Block m_link;
