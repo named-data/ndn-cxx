@@ -523,8 +523,9 @@ public:
    * @brief Compare this to the other Component using NDN canonical ordering
    *
    * @param other The other Component to compare with.
-   * @return 0 If they compare equal, -1 if *this comes before other in the canonical ordering, or
-   *         1 if *this comes after other in the canonical ordering.
+   * @retval negative this comes before other in canonical ordering
+   * @retval zero this equals other
+   * @retval positive this comes after other in canonical ordering
    *
    * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
    */

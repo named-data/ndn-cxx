@@ -342,7 +342,7 @@ Name::compare(size_t pos1, size_t count1, const Name& other, size_t pos2, size_t
     }
   }
   // [pos1, pos1+count) of this Name equals [pos2, pos2+count) of other Name
-  return (count1 > count2) - (count1 < count2); // signum(count1 - count2)
+  return count1 - count2;
 }
 
 std::ostream&
