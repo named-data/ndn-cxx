@@ -109,6 +109,8 @@ The following lists steps for common platforms to install these prerequisites:
        sudo yum install doxygen graphviz python-sphinx
        sudo pip install sphinxcontrib-doxylink sphinxcontrib-googleanalytics
 
+.. _build:
+
 Build
 -----
 
@@ -123,9 +125,51 @@ To build in a terminal, change directory to the ndn-cxx root. Enter:
     ./waf
     sudo ./waf install
 
+By default, only the static version of ndn-cxx library is built.  To build the shared library,
+use ``--enable-shared`` option for ``./waf configure`` command.  For example::
+
+    ./waf configure --enable-shared
+
+To disable build of the static library and build only the shared library, use additional
+``--disable-static`` option.  Note that at least one version of the library needs to be
+enabled.
+
+::
+
+    ./waf configure --enable-shared --disable-static
+
+
+After shared library is built and installed, some systems require additional actions.
+
+  - on Linux::
+
+      sudo ldconfig
+
+  - on FreeBSD::
+
+      sudo ldconfig -m
+
+  .. note::
+     When library is installed in a non-standard path (in general: not in ``/usr/lib`` or
+     ``/usr/local/lib``; on some Linux distros including Fedora: not in ``/usr/lib``),
+     additional actions may be necessary.
+
+     The installation path should be added to ``/etc/ld.so.conf`` (or in
+     ``/etc/ld.so.conf.d``) **before** running ``sudo ldconfig``. For example::
+
+         echo /usr/local/lib | sudo tee /etc/ld.so.conf.d/ndn-cxx.conf
+
+     Alternatively, ``LD_LIBRARY_PATH`` environment variable should be set to the location of
+     the library::
+
+         export LD_LIBRARY_PATH=/usr/local/lib
+
 This builds and installs the following items:
 
--  ``<LIBPATH>/libndn-cxx.a``: static NDN C++ library
+-  ``<LIBPATH>/libndn-cxx.a``: static NDN C++ library (if enabled)
+-  ``<LIBPATH>/libndn-cxx.so``, ``<LIBPATH>/libndn-cxx.so.<VERSION>`` (on Linux),
+   ``<LIBPATH>/libndn-cxx.dylib``, ``<LIBPATH>/libndn-cxx.<VERSION>.dylib`` (on OS X):
+   shared NDN C++ library (if enabled)
 -  ``<LIBPATH>/pkgconfig/libndn-cxx.pc``: pkgconfig file storing all
    neccessary flags to build against the library. For example, if
    pkgconfig or pkgconf package is installed and ``PKG_CONFIG_PATH`` is
@@ -162,6 +206,17 @@ By default, examples in ``examples/`` are not build.  To enable them, use
 
     ./waf configure --with-examples
     ./waf
+    sudo ./waf install
+
+:ref:`Additional step <build>`:
+
+  - on Linux::
+
+      sudo ldconfig
+
+  - on FreeBSD::
+
+      sudo ldconfig -m
 
 To run examples:
 
@@ -183,6 +238,7 @@ folder and it will be compiled on the next run on ``./waf``.  For example:
 
     cp examples/consumer.cpp examples/my-new-consumer-app.cpp
     ./waf
+    sudo ./waf install
     ./build/examples/my-new-consumer-app
 
 
@@ -200,6 +256,16 @@ If it is undesirable, default flags can be easily overridden:
     CXXFLAGS="-O2" ./waf configure --prefix=/usr --sysconfdir=/etc
     ./waf
     sudo ./waf install
+
+:ref:`Additional step <build>`:
+
+  - on Linux::
+
+      sudo ldconfig
+
+  - on FreeBSD::
+
+      sudo ldconfig -m
 
 Documentation
 -------------
@@ -238,6 +304,16 @@ The following is the suggested configure commands for development build.
     ./waf configure --debug --with-tests
     ./waf
     sudo ./waf install
+
+:ref:`Additional step <build>`:
+
+  - on Linux::
+
+      sudo ldconfig
+
+  - on FreeBSD::
+
+      sudo ldconfig -m
 
 In the development build all compiler optimizations are disabled by
 default and all warnings are treated as error. The default behavior can
