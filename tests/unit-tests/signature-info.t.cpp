@@ -155,6 +155,56 @@ BOOST_AUTO_TEST_CASE(SetterGetter)
   BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
 }
 
+BOOST_AUTO_TEST_CASE(ValidityPeriodExtension)
+{
+  const uint8_t sigInfo[] = {
+    0x16, 0x45, // SignatureInfo
+      0x1b, 0x01, // SignatureType
+        0x01, // Sha256WithRsa
+      0x1c, 0x16, // KeyLocator
+        0x07, 0x14, // Name
+          0x08, 0x04,
+            0x74, 0x65, 0x73, 0x74,
+          0x08, 0x03,
+            0x6b, 0x65, 0x79,
+          0x08, 0x07,
+            0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
+      0xfd, 0x00, 0xfd, 0x26, // ValidityPeriod
+        0xfd, 0x00, 0xfe, 0x0f, // NotBefore
+          0x31, 0x39, 0x37, 0x30, 0x30, 0x31, 0x30, 0x31, // 19700101T000000
+          0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+        0xfd, 0x00, 0xff, 0x0f, // NotAfter
+          0x31, 0x39, 0x37, 0x30, 0x30, 0x31, 0x30, 0x32, // 19700102T000000
+          0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30
+  };
+
+  time::system_clock::TimePoint notBefore = time::getUnixEpoch();
+  time::system_clock::TimePoint notAfter = notBefore + time::days(1);
+  security::ValidityPeriod vp1(notBefore, notAfter);
+
+  // encode
+  SignatureInfo info;
+  info.setSignatureType(tlv::SignatureSha256WithRsa);
+  info.setKeyLocator(KeyLocator("/test/key/locator"));
+  info.setValidityPeriod(vp1);
+
+  BOOST_CHECK(info.getValidityPeriod() == vp1);
+
+  const Block& encoded = info.wireEncode();
+
+  BOOST_CHECK_EQUAL_COLLECTIONS(sigInfo, sigInfo + sizeof(sigInfo),
+                                encoded.wire(), encoded.wire() + encoded.size());
+
+  // decode
+  Block block(sigInfo, sizeof(sigInfo));
+  SignatureInfo info2;
+  info2.wireDecode(block);
+  BOOST_CHECK(info2.getValidityPeriod() == vp1);
+
+  const security::ValidityPeriod& validityPeriod = info2.getValidityPeriod();
+  BOOST_CHECK(validityPeriod.getPeriod() == std::make_pair(notBefore, notAfter));
+}
+
 BOOST_AUTO_TEST_CASE(OtherTlvs)
 {
   SignatureInfo info;
