@@ -99,6 +99,16 @@ enum SignatureTypeValue {
   SignatureSha256WithEcdsa = 3
 };
 
+/** @brief TLV codes for SignatureInfo features
+ *  @sa docs/tutorials/certificate-format.rst
+ */
+enum {
+  // SignatureInfo TLVs
+  ValidityPeriod = 253,
+  NotBefore = 254,
+  NotAfter = 255
+};
+
 /** @brief indicates a possible value of ContentType field
  */
 enum ContentTypeValue {
