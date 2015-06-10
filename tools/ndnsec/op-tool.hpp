@@ -78,17 +78,17 @@ ndnsec_op_tool(int argc, char** argv)
 
       Buffer dataToSign((istreambuf_iterator<char>(cin)), istreambuf_iterator<char>());
 
-      Signature signature = keyChain.sign(dataToSign.buf(), dataToSign.size(),
-                                          keyChain.getDefaultCertificateName());
+      Block value = keyChain.sign(dataToSign.buf(), dataToSign.size(),
+                                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_CERT,
+                                                        keyChain.getDefaultCertificateName()));
 
-      if (signature.getValue().value_size() == 0)
+      if (value.value_size() == 0)
         {
           std::cerr << "Error signing with default key" << std::endl;
           return -1;
         }
 
-      std::cout.write(reinterpret_cast<const char*>(signature.getValue().wire()),
-                      signature.getValue().size());
+      std::cout.write(reinterpret_cast<const char*>(value.wire()), value.size());
     }
 
   return 0;

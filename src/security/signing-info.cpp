@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,40 +19,56 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "signature.hpp"
+#include "signing-info.hpp"
 
 namespace ndn {
+namespace security {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Signature>));
-static_assert(std::is_base_of<tlv::Error, Signature::Error>::value,
-              "Signature::Error must inherit from tlv::Error");
+const Name SigningInfo::EMPTY_NAME;
+const SignatureInfo SigningInfo::EMPTY_SIGNATURE_INFO;
 
-Signature::Signature(const Block& info, const Block& value)
-  : m_info(info)
-  , m_value(value)
-{
-}
-
-
-Signature::Signature(const SignatureInfo& info, const Block& value)
-  : m_info(info)
-  , m_value(value)
+SigningInfo::SigningInfo(SignerType signerType,
+                         const Name& signerName,
+                         const SignatureInfo& signatureInfo)
+  : m_type(signerType)
+  , m_name(signerName)
+  , m_digestAlgorithm(DIGEST_ALGORITHM_SHA256)
+  , m_info(signatureInfo)
 {
 }
 
 void
-Signature::setInfo(const Block& info)
+SigningInfo::setSigningIdentity(const Name& identity)
 {
-  m_info = SignatureInfo(info);
+  m_type = SIGNER_TYPE_ID;
+  m_name = identity;
+}
+void
+SigningInfo::setSigningKeyName(const Name& keyName)
+{
+  m_type = SIGNER_TYPE_KEY;
+  m_name = keyName;
 }
 
 void
-Signature::setValue(const Block& value)
+SigningInfo::setSigningCertName(const Name& certificateName)
 {
-  if (value.type() != tlv::SignatureValue) {
-    throw Error("The supplied block is not SignatureValue");
-  }
-  m_value = value;
+  m_type = SIGNER_TYPE_CERT;
+  m_name = certificateName;
+}
+
+void
+SigningInfo::setSha256Signing()
+{
+  m_type = SIGNER_TYPE_SHA256;
+  m_name.clear();
+}
+
+void
+SigningInfo::setSignatureInfo(const SignatureInfo& signatureInfo)
+{
+  m_info = signatureInfo;
 }
 
 } // namespace ndn
+} // namespace security

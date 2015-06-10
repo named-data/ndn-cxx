@@ -20,6 +20,7 @@
  */
 
 #include "security/key-chain.hpp"
+#include "security/validator.hpp"
 #include "../util/test-home-environment-fixture.hpp"
 #include <boost/filesystem.hpp>
 
@@ -27,6 +28,7 @@
 #include "dummy-keychain.hpp"
 
 namespace ndn {
+namespace security {
 namespace tests {
 
 BOOST_FIXTURE_TEST_SUITE(SecurityKeyChain, util::TestHomeEnvironmentFixture)
@@ -341,7 +343,82 @@ BOOST_AUTO_TEST_CASE(KeyChainWithCustomTpmAndPib)
   BOOST_CHECK_EQUAL(keyChain.getDefaultIdentity(), "/dummy/key");
 }
 
+BOOST_AUTO_TEST_CASE(GeneralSigningInterface)
+{
+  KeyChain keyChain;
+  Name id("/id");
+  Name certName = keyChain.createIdentity(id);
+  shared_ptr<IdentityCertificate> idCert = keyChain.getCertificate(certName);
+  Name keyName = idCert->getPublicKeyName();
+  keyChain.setDefaultIdentity(id);
+
+  Name id2("/id2");
+  Name cert2Name = keyChain.createIdentity(id2);
+  shared_ptr<IdentityCertificate> id2Cert = keyChain.getCertificate(cert2Name);
+
+  // SigningInfo is set to default
+  Data data1("/data1");
+  keyChain.sign(data1);
+  BOOST_CHECK(Validator::verifySignature(data1, idCert->getPublicKeyInfo()));
+  BOOST_CHECK_EQUAL(data1.getSignature().getKeyLocator().getName(), certName.getPrefix(-1));
+
+  Interest interest1("/interest1");
+  keyChain.sign(interest1);
+  BOOST_CHECK(Validator::verifySignature(interest1, idCert->getPublicKeyInfo()));
+  SignatureInfo sigInfo1(interest1.getName()[-2].blockFromValue());
+  BOOST_CHECK_EQUAL(sigInfo1.getKeyLocator().getName(), certName.getPrefix(-1));
+
+  // SigningInfo is set to Identity
+  Data data2("/data2");
+  keyChain.sign(data2, SigningInfo(SigningInfo::SIGNER_TYPE_ID, id2));
+  BOOST_CHECK(Validator::verifySignature(data2, id2Cert->getPublicKeyInfo()));
+  BOOST_CHECK_EQUAL(data2.getSignature().getKeyLocator().getName(), cert2Name.getPrefix(-1));
+
+  Interest interest2("/interest2");
+  keyChain.sign(interest2, SigningInfo(SigningInfo::SIGNER_TYPE_ID, id2));
+  BOOST_CHECK(Validator::verifySignature(interest2, id2Cert->getPublicKeyInfo()));
+  SignatureInfo sigInfo2(interest2.getName()[-2].blockFromValue());
+  BOOST_CHECK_EQUAL(sigInfo2.getKeyLocator().getName(), cert2Name.getPrefix(-1));
+
+  // SigningInfo is set to Key
+  Data data3("/data3");
+  keyChain.sign(data3, SigningInfo(SigningInfo::SIGNER_TYPE_KEY, keyName));
+  BOOST_CHECK(Validator::verifySignature(data3, idCert->getPublicKeyInfo()));
+  BOOST_CHECK_EQUAL(data3.getSignature().getKeyLocator().getName(), certName.getPrefix(-1));
+
+  Interest interest3("/interest3");
+  keyChain.sign(interest3);
+  BOOST_CHECK(Validator::verifySignature(interest3, idCert->getPublicKeyInfo()));
+  SignatureInfo sigInfo3(interest1.getName()[-2].blockFromValue());
+  BOOST_CHECK_EQUAL(sigInfo3.getKeyLocator().getName(), certName.getPrefix(-1));
+
+  // SigningInfo is set to Cert
+  Data data4("/data4");
+  keyChain.sign(data4, SigningInfo(SigningInfo::SIGNER_TYPE_CERT, certName));
+  BOOST_CHECK(Validator::verifySignature(data4, idCert->getPublicKeyInfo()));
+  BOOST_CHECK_EQUAL(data4.getSignature().getKeyLocator().getName(), certName.getPrefix(-1));
+
+  Interest interest4("/interest4");
+  keyChain.sign(interest4, SigningInfo(SigningInfo::SIGNER_TYPE_CERT, certName));
+  BOOST_CHECK(Validator::verifySignature(interest4, idCert->getPublicKeyInfo()));
+  SignatureInfo sigInfo4(interest4.getName()[-2].blockFromValue());
+  BOOST_CHECK_EQUAL(sigInfo4.getKeyLocator().getName(), certName.getPrefix(-1));
+
+
+  // SigningInfo is set to DigestSha256
+  Data data5("/data5");
+  keyChain.sign(data5, SigningInfo(SigningInfo::SIGNER_TYPE_SHA256));
+  BOOST_CHECK(Validator::verifySignature(data5, DigestSha256(data5.getSignature())));
+
+  Interest interest5("/interest4");
+  keyChain.sign(interest5, SigningInfo(SigningInfo::SIGNER_TYPE_SHA256));
+  BOOST_CHECK(Validator::verifySignature(interest5,
+                                         DigestSha256(Signature(interest5.getName()[-2].blockFromValue(),
+                                                                interest5.getName()[-1].blockFromValue()))));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
+} // namespace security
 } // namespace ndn

@@ -31,6 +31,7 @@
 #include "signature-sha256-with-rsa.hpp"
 #include "signature-sha256-with-ecdsa.hpp"
 #include "digest-sha256.hpp"
+#include "signing-info.hpp"
 
 #include "../interest.hpp"
 #include "../util/crypto.hpp"
@@ -39,7 +40,11 @@
 
 
 namespace ndn {
+namespace security {
 
+/**
+ * @brief The packet signing interface.
+ */
 class KeyChain : noncopyable
 {
 public:
@@ -54,8 +59,8 @@ public:
   };
 
   /**
-   * This error is thrown when the TPM locator retrieved from PIB is
-   * different from what is supplied to the KeyChain constructor.
+   * @brief Error thrown when the supplied TPM locator to KeyChain constructor does not match
+   *        the locator stored in PIB
    */
   class MismatchError : public Error
   {
@@ -88,19 +93,27 @@ public:
   static void
   registerTpm(std::initializer_list<std::string> aliases);
 
-  /// @brief Get default PIB locator
+  /**
+   * @brief Get default PIB locator
+   */
   static std::string
   getDefaultPibLocator();
 
-  /// @brief Create a PIB according to @p pibLocator
+  /**
+    * @brief Create a PIB according to @p pibLocator
+    */
   static unique_ptr<SecPublicInfo>
   createPib(const std::string& pibLocator);
 
-  /// @brief Get default TPM locator
+  /**
+   * @brief Get default TPM locator
+   */
   static std::string
   getDefaultTpmLocator();
 
-  /// @brief Create a TPM according to @p tpmLocator
+  /**
+    * @brief Create a TPM according to @p tpmLocator
+    */
   static unique_ptr<SecTpm>
   createTpm(const std::string& tpmLocator);
 
@@ -149,12 +162,23 @@ public:
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
    * @param keySize The size of the key.
    * @return The generated key name.
+   * @see generateEcdsaKeyPair
    */
   Name
   generateRsaKeyPair(const Name& identityName, bool isKsk = false, uint32_t keySize = 2048);
 
+  /**
+   * @brief Generate a pair of ECDSA keys for the specified identity.
+   *
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @param keySize The size of the key.
+   * @return The generated key name.
+   * @see generateRsaKeyPair
+   */
   Name
   generateEcdsaKeyPair(const Name& identityName, bool isKsk = false, uint32_t keySize = 256);
+
   /**
    * @brief Generate a pair of RSA keys for the specified identity and set it as default key for
    *        the identity.
@@ -163,11 +187,22 @@ public:
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
    * @param keySize The size of the key.
    * @return The generated key name.
+   * @see generateRsaKeyPair, generateEcdsaKeyPair, generateEcdsaKeyPairAsDefault
    */
   Name
   generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk = false,
                               uint32_t keySize = 2048);
 
+  /**
+   * @brief Generate a pair of ECDSA keys for the specified identity and set it as default key for
+   *        the identity.
+   *
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @param keySize The size of the key.
+   * @return The generated key name.
+   * @see generateRsaKeyPair, generateEcdsaKeyPair, generateRsaKeyPairAsDefault
+   */
   Name
   generateEcdsaKeyPairAsDefault(const Name& identityName, bool isKsk, uint32_t keySize = 256);
 
@@ -220,19 +255,58 @@ public:
     const Name& certPrefix = DEFAULT_PREFIX);
 
   /**
-   * @brief Sign packet with default identity
+   * @brief Sign data according to the supplied signing information
    *
-   * On return, signatureInfo and signatureValue in the packet are set.
-   * If default identity does not exist,
-   * a temporary identity will be created and set as default.
+   * This method uses the supplied signing information @p params to create the SignatureInfo block:
+   * - it selects a private key and its certificate to sign the packet
+   * - sets the KeyLocator field with the certificate name, and
+   * - adds other requested information to the SignatureInfo block).
    *
-   * @param packet The packet to be signed
+   * After that, the method assigns the created SignatureInfo to the data packets, generate a
+   * signature and sets as part of the SignatureValue block.
+   *
+   * @param data The data to sign
+   * @param params The signing parameters.
+   * @throws Error if signing fails.
+   * @see SigningInfo
    */
-  template<typename T>
   void
-  sign(T& packet);
+  sign(Data& data, const SigningInfo& params = DEFAULT_SIGNING_INFO);
 
   /**
+   * @brief Sign interest according to the supplied signing information
+   *
+   * This method uses the supplied signing information @p params to create the SignatureInfo block:
+   * - it selects a private key and its certificate to sign the packet
+   * - sets the KeyLocator field with the certificate name, and
+   * - adds other requested information to the SignatureInfo block).
+   *
+   * After that, the method appends the created SignatureInfo to the interest name, generate a
+   * signature and appends it as part of the SignatureValue block to the interest name.
+   *
+   * @param interest The interest to sign
+   * @param params The signing parameters.
+   * @throws Error if signing fails.
+   * @see SigningInfo
+   */
+  void
+  sign(Interest& interest, const SigningInfo& params = DEFAULT_SIGNING_INFO);
+
+  /**
+   * @brief Sign buffer according to the supplied signing information
+   *
+   * @param buffer The buffer to sign
+   * @param bufferLength The buffer size
+   * @param params The signing parameters.
+   * @return a SignatureValue TLV block
+   * @throws Error if signing fails.
+   * @see SigningInfo
+   */
+  Block
+  sign(const uint8_t* buffer, size_t bufferLength, const SigningInfo& params);
+
+  /**
+   * @deprecated use sign sign(T&, const SigningInfo&)
    * @brief Sign packet with a particular certificate.
    *
    * @param packet The packet to be signed.
@@ -244,6 +318,7 @@ public:
   sign(T& packet, const Name& certificateName);
 
   /**
+   * @deprecated Use sign(const uint8_t*, size_t, const SigningInfo&) instead
    * @brief Sign the byte array using a particular certificate.
    *
    * @param buffer The byte array to be signed.
@@ -256,6 +331,7 @@ public:
   sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName);
 
   /**
+   * @deprecated use sign sign(T&, const SigningInfo&)
    * @brief Sign packet using the default certificate of a particular identity.
    *
    * If there is no default certificate of that identity, this method will create a self-signed
@@ -269,6 +345,7 @@ public:
   signByIdentity(T& packet, const Name& identityName);
 
   /**
+   * @deprecated use sign(const uint8_t*, size_t, const SigningInfo&) instead
    * @brief Sign the byte array using the default certificate of a particular identity.
    *
    * @param buffer The byte array to be signed.
@@ -280,12 +357,14 @@ public:
   signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name& identityName);
 
   /**
+   * @deprecated use sign(Data&, SigningInfo(SigningInfo::SIGNER_TYPE_SHA256))
    * @brief Set Sha256 weak signature for @p data
    */
   void
   signWithSha256(Data& data);
 
   /**
+   * @deprecated use sign(Interest&, SigningInfo(SigningInfo::SIGNER_TYPE_SHA256))
    * @brief Set Sha256 weak signature for @p interest
    */
   void
@@ -697,30 +776,32 @@ private:
              bool needReset);
 
   /**
-   * @brief Determine signature type
+   * @brief Prepare a SignatureInfo TLV according to signing information and return the signing key name
    *
-   * An empty pointer will be returned if there is no valid signature.
+   * @param sigInfo The SignatureInfo to prepare.
+   * @param params The signing parameters.
+   * @return The signing key name and prepared SignatureInfo.
+   * @throw Error when the requested signing method cannot be satisfied.
    */
-  shared_ptr<Signature>
-  determineSignatureWithPublicKey(const KeyLocator& keyLocator,
-                                  KeyType keyType,
-                                  DigestAlgorithm digestAlgorithm = DIGEST_ALGORITHM_SHA256);
+  std::tuple<Name, SignatureInfo>
+  prepareSignatureInfo(const SigningInfo& params);
+
+  /**
+   * @brief Internal abstraction of packet signing.
+   *
+   * @param packet The packet to sign
+   * @param params The signing parameters.
+   * @throw Error when the signing fails.
+   */
+  template<typename T>
+  void
+  signImpl(T& packet, const SigningInfo& params);
 
   /**
    * @brief Set default certificate if it is not initialized
    */
   void
   setDefaultCertificateInternal();
-
-  /**
-   * @brief Sign a packet using a pariticular certificate.
-   *
-   * @param packet The packet to be signed.
-   * @param certificate The signing certificate.
-   */
-  template<typename T>
-  void
-  sign(T& packet, const IdentityCertificate& certificate);
 
   /**
    * @brief Generate a key pair for the specified identity.
@@ -760,6 +841,13 @@ private:
   signPacketWrapper(Interest& interest, const Signature& signature,
                     const Name& keyName, DigestAlgorithm digestAlgorithm);
 
+  /**
+   * @brief Generate a SignatureValue block for a buffer @p buf with size @p size using
+   *        a key with name @p keyName and digest algorithm @p digestAlgorithm.
+   */
+  Block
+  pureSign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
+
   static void
   registerPibImpl(const std::string& canonicalName,
                   std::initializer_list<std::string> aliases, PibCreateFunc createFunc);
@@ -769,9 +857,23 @@ private:
                   std::initializer_list<std::string> aliases, TpmCreateFunc createFunc);
 
 public:
+  static tlv::SignatureTypeValue
+  getSignatureType(KeyType keyType, DigestAlgorithm digestAlgorithm);
+
+public:
   static const Name DEFAULT_PREFIX;
+  static const SigningInfo DEFAULT_SIGNING_INFO;
+
+  /**
+   * @brief A localhost identity which indicates that signature is generated using SHA-256.
+   * @todo Passing this as identity is not implemented.
+   */
+  static const Name DIGEST_SHA256_IDENTITY;
+
   // RsaKeyParams is set to be default for backward compatibility.
   static const RsaKeyParams DEFAULT_KEY_PARAMS;
+
+  typedef std::map<std::string, Block> SignParams;
 
 private:
   std::unique_ptr<SecPublicInfo> m_pib;
@@ -781,60 +883,28 @@ private:
 
 template<typename T>
 void
-KeyChain::sign(T& packet)
+KeyChain::signImpl(T& packet, const SigningInfo& params)
 {
-  if (!static_cast<bool>(m_pib->getDefaultCertificate()))
-    setDefaultCertificateInternal();
+  Name keyName;
+  SignatureInfo sigInfo;
+  std::tie(keyName, sigInfo) = prepareSignatureInfo(params);
 
-  sign(packet, *m_pib->getDefaultCertificate());
+  signPacketWrapper(packet, Signature(sigInfo),
+                    keyName, params.getDigestAlgorithm());
 }
 
 template<typename T>
 void
 KeyChain::sign(T& packet, const Name& certificateName)
 {
-  shared_ptr<IdentityCertificate> certificate = m_pib->getCertificate(certificateName);
-  sign(packet, *certificate);
+  signImpl(packet, SigningInfo(SigningInfo::SIGNER_TYPE_CERT, certificateName));
 }
 
 template<typename T>
 void
 KeyChain::signByIdentity(T& packet, const Name& identityName)
 {
-  Name signingCertificateName;
-  try
-    {
-      signingCertificateName = m_pib->getDefaultCertificateNameForIdentity(identityName);
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      signingCertificateName = createIdentity(identityName);
-      // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which
-      // is a fatal error.
-    }
-
-  // We either get or create the signing certificate, sign packet! (no exception unless fatal
-  // error in TPM)
-  sign(packet, signingCertificateName);
-}
-
-template<typename T>
-void
-KeyChain::sign(T& packet, const IdentityCertificate& certificate)
-{
-  KeyLocator keyLocator(certificate.getName().getPrefix(-1));
-
-  shared_ptr<Signature> signature =
-    determineSignatureWithPublicKey(keyLocator, certificate.getPublicKeyInfo().getKeyType());
-
-  if (!static_cast<bool>(signature))
-    throw SecPublicInfo::Error("unknown key type!");
-
-  signPacketWrapper(packet, *signature,
-                    certificate.getPublicKeyName(),
-                    DIGEST_ALGORITHM_SHA256);
-
-  return;
+  signImpl(packet, SigningInfo(SigningInfo::SIGNER_TYPE_ID, identityName));
 }
 
 template<class PibType>
@@ -886,6 +956,10 @@ public:                                                       \
     ::ndn::KeyChain::registerTpm<TpmType>({__VA_ARGS__});     \
   }                                                           \
 } ndnCxxAuto ## TpmType ## TpmRegistrationVariable
+
+} // namespace security
+
+using security::KeyChain;
 
 } // namespace ndn
 

@@ -35,9 +35,15 @@
 #include "sec-tpm-file.hpp"
 
 namespace ndn {
+namespace security {
 
 // Use a GUID as a magic number of KeyChain::DEFAULT_PREFIX identifier
 const Name KeyChain::DEFAULT_PREFIX("/723821fd-f534-44b3-80d9-44bf5f58bbbb");
+const Name KeyChain::DIGEST_SHA256_IDENTITY("/localhost/identity/digest-sha256");
+
+// Note: cannot use default constructor, as it depends on static variables which may or may not be
+// initialized at this point
+const SigningInfo KeyChain::DEFAULT_SIGNING_INFO(SigningInfo::SIGNER_TYPE_NULL, Name(), SignatureInfo());
 
 const RsaKeyParams KeyChain::DEFAULT_KEY_PARAMS;
 
@@ -439,41 +445,125 @@ KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
   return certificate;
 }
 
+std::tuple<Name, SignatureInfo>
+KeyChain::prepareSignatureInfo(const SigningInfo& params)
+{
+  SignatureInfo sigInfo = params.getSignatureInfo();
+
+  shared_ptr<IdentityCertificate> signingCert;
+
+  switch (params.getSignerType()) {
+  case SigningInfo::SIGNER_TYPE_NULL:
+    {
+      if (m_pib->getDefaultCertificate() == nullptr)
+        setDefaultCertificateInternal();
+
+      signingCert = m_pib->getDefaultCertificate();
+      break;
+    }
+  case SigningInfo::SIGNER_TYPE_ID:
+    {
+      Name signingCertName;
+      try {
+        signingCertName = m_pib->getDefaultCertificateNameForIdentity(params.getSignerName());
+      }
+      catch (SecPublicInfo::Error&) {
+        signingCertName = createIdentity(params.getSignerName());
+      }
+
+      signingCert = m_pib->getCertificate(signingCertName);
+
+      break;
+    }
+  case SigningInfo::SIGNER_TYPE_KEY:
+    {
+      Name signingCertName;
+      try {
+        signingCertName = m_pib->getDefaultCertificateNameForKey(params.getSignerName());
+      }
+      catch (SecPublicInfo::Error&) {
+        throw Error("signing certificate does not exist");
+      }
+
+      signingCert = m_pib->getCertificate(signingCertName);
+
+      break;
+    }
+  case SigningInfo::SIGNER_TYPE_CERT:
+    {
+      signingCert = m_pib->getCertificate(params.getSignerName());
+      if (signingCert == nullptr)
+        throw Error("signing certificate does not exist");
+
+      break;
+    }
+  case SigningInfo::SIGNER_TYPE_SHA256:
+    {
+      sigInfo.setSignatureType(tlv::DigestSha256);
+      return std::make_tuple(DIGEST_SHA256_IDENTITY, sigInfo);
+    }
+  default:
+    throw Error("Unrecognized signer type");
+  }
+
+  sigInfo.setSignatureType(getSignatureType(signingCert->getPublicKeyInfo().getKeyType(),
+                                            params.getDigestAlgorithm()));
+  sigInfo.setKeyLocator(KeyLocator(signingCert->getName().getPrefix(-1)));
+
+  return std::make_tuple(signingCert->getPublicKeyName(), sigInfo);
+}
+
+void
+KeyChain::sign(Data& data, const SigningInfo& params)
+{
+  signImpl(data, params);
+}
+
+void
+KeyChain::sign(Interest& interest, const SigningInfo& params)
+{
+  signImpl(interest, params);
+}
+
+Block
+KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const SigningInfo& params)
+{
+  Name keyName;
+  SignatureInfo sigInfo;
+  std::tie(keyName, sigInfo) = prepareSignatureInfo(params);
+  return pureSign(buffer, bufferLength, keyName, DIGEST_ALGORITHM_SHA256);
+}
+
 Signature
 KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
 {
   shared_ptr<IdentityCertificate> certificate = m_pib->getCertificate(certificateName);
 
-  KeyLocator keyLocator(certificate->getName().getPrefix(-1));
-  shared_ptr<Signature> sig =
-    determineSignatureWithPublicKey(keyLocator, certificate->getPublicKeyInfo().getKeyType());
+  if (certificate == nullptr)
+    throw SecPublicInfo::Error("certificate does not exist");
 
-  if (!static_cast<bool>(sig))
-    throw SecTpm::Error("unknown key type");
-
+  Signature sig;
 
   // For temporary usage, we support SHA256 only, but will support more.
-  sig->setValue(m_tpm->signInTpm(buffer, bufferLength,
-                                 certificate->getPublicKeyName(),
-                                 DIGEST_ALGORITHM_SHA256));
+  sig.setValue(m_tpm->signInTpm(buffer, bufferLength,
+                                certificate->getPublicKeyName(),
+                                DIGEST_ALGORITHM_SHA256));
 
-  return *sig;
+  return sig;
 }
 
 shared_ptr<IdentityCertificate>
 KeyChain::selfSign(const Name& keyName)
 {
   shared_ptr<PublicKey> pubKey;
-  try
-    {
-      pubKey = m_pib->getPublicKey(keyName); // may throw an exception.
-    }
-  catch (SecPublicInfo::Error& e)
-    {
-      return shared_ptr<IdentityCertificate>();
-    }
+  try {
+    pubKey = m_pib->getPublicKey(keyName); // may throw an exception.
+  }
+  catch (SecPublicInfo::Error&) {
+    return shared_ptr<IdentityCertificate>();
+  }
 
-  shared_ptr<IdentityCertificate> certificate = make_shared<IdentityCertificate>();
+  auto certificate = make_shared<IdentityCertificate>();
 
   Name certificateName = keyName.getPrefix(-1);
   certificateName.append("KEY").append(keyName.get(-1)).append("ID-CERT").appendVersion();
@@ -486,6 +576,8 @@ KeyChain::selfSign(const Name& keyName)
                                                                    keyName.toUri()));
   certificate->encode();
 
+  certificate->setSignature(Signature(SignatureInfo()));
+
   selfSign(*certificate);
   return certificate;
 }
@@ -493,19 +585,16 @@ KeyChain::selfSign(const Name& keyName)
 void
 KeyChain::selfSign(IdentityCertificate& cert)
 {
-  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(cert.getName());
+  Name keyName = cert.getPublicKeyName();
   if (!m_tpm->doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
     throw SecTpm::Error("Private key does not exist");
 
+  SignatureInfo sigInfo(cert.getSignature().getInfo());
+  sigInfo.setKeyLocator(KeyLocator(cert.getName().getPrefix(-1)));
+  sigInfo.setSignatureType(getSignatureType(cert.getPublicKeyInfo().getKeyType(),
+                                            DIGEST_ALGORITHM_SHA256));
 
-  KeyLocator keyLocator(cert.getName().getPrefix(-1));
-  shared_ptr<Signature> sig =
-    determineSignatureWithPublicKey(keyLocator, cert.getPublicKeyInfo().getKeyType());
-
-  if (!static_cast<bool>(sig))
-    throw SecTpm::Error("unknown key type");
-
-  signPacketWrapper(cert, *sig, keyName, DIGEST_ALGORITHM_SHA256);
+  signPacketWrapper(cert, Signature(sigInfo), keyName, DIGEST_ALGORITHM_SHA256);
 }
 
 shared_ptr<SecuredBag>
@@ -568,33 +657,6 @@ KeyChain::importIdentity(const SecuredBag& securedBag, const std::string& passwo
   m_pib->addCertificateAsIdentityDefault(securedBag.getCertificate());
 }
 
-shared_ptr<Signature>
-KeyChain::determineSignatureWithPublicKey(const KeyLocator& keyLocator,
-                                          KeyType keyType, DigestAlgorithm digestAlgorithm)
-{
-  switch (keyType)
-    {
-    case KEY_TYPE_RSA:
-      {
-        // For temporary usage, we support SHA256 only, but will support more.
-        if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
-          return shared_ptr<Signature>();
-
-        return make_shared<SignatureSha256WithRsa>(keyLocator);
-      }
-    case KEY_TYPE_ECDSA:
-      {
-        // For temporary usage, we support SHA256 only, but will support more.
-        if (digestAlgorithm != DIGEST_ALGORITHM_SHA256)
-          return shared_ptr<Signature>();
-
-        return make_shared<SignatureSha256WithEcdsa>(keyLocator);
-      }
-    default:
-      return shared_ptr<Signature>();
-    }
-}
-
 void
 KeyChain::setDefaultCertificateInternal()
 {
@@ -641,9 +703,9 @@ KeyChain::signPacketWrapper(Data& data, const Signature& signature,
   EncodingBuffer encoder;
   data.wireEncode(encoder, true);
 
-  Block signatureValue = m_tpm->signInTpm(encoder.buf(), encoder.size(),
-                                          keyName, digestAlgorithm);
-  data.wireEncode(encoder, signatureValue);
+  Block sigValue = pureSign(encoder.buf(), encoder.size(), keyName, digestAlgorithm);
+
+  data.wireEncode(encoder, sigValue);
 }
 
 void
@@ -662,13 +724,24 @@ KeyChain::signPacketWrapper(Interest& interest, const Signature& signature,
     .append(name::Component::fromNumber(random::generateWord64())) // nonce
     .append(signature.getInfo());                                  // signatureInfo
 
-  Block sigValue = m_tpm->signInTpm(signedName.wireEncode().value(),
-                                    signedName.wireEncode().value_size(),
-                                    keyName,
-                                    digestAlgorithm);
+  Block sigValue = pureSign(signedName.wireEncode().value(),
+                            signedName.wireEncode().value_size(),
+                            keyName,
+                            digestAlgorithm);
+
   sigValue.encode();
   signedName.append(sigValue);                                     // signatureValue
   interest.setName(signedName);
+}
+
+Block
+KeyChain::pureSign(const uint8_t* buf, size_t size,
+                   const Name& keyName, DigestAlgorithm digestAlgorithm) const
+{
+  if (keyName == DIGEST_SHA256_IDENTITY)
+    return Block(tlv::SignatureValue, crypto::sha256(buf, size));
+
+  return m_tpm->signInTpm(buf, size, keyName, digestAlgorithm);
 }
 
 Signature
@@ -688,7 +761,13 @@ KeyChain::signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name&
 
   // We either get or create the signing certificate, sign data! (no exception unless fatal error
   // in TPM)
-  return sign(buffer, bufferLength, signingCertificateName);
+  Signature sig;
+
+  // For temporary usage, we support SHA256 only, but will support more.
+  sig.setValue(sign(buffer, bufferLength, SigningInfo(SigningInfo::SIGNER_TYPE_CERT,
+                                                      signingCertificateName)));
+
+  return sig;
 }
 
 void
@@ -754,4 +833,19 @@ KeyChain::deleteIdentity(const Name& identity)
     m_tpm->deleteKeyPairInTpm(keyName);
 }
 
+tlv::SignatureTypeValue
+KeyChain::getSignatureType(KeyType keyType, DigestAlgorithm digestAlgorithm)
+{
+  switch (keyType) {
+    case KEY_TYPE_RSA:
+      return tlv::SignatureSha256WithRsa;
+    case KEY_TYPE_ECDSA:
+      return tlv::SignatureSha256WithEcdsa;
+    default:
+      throw Error("Unsupported key types");
+  }
+
 }
+
+} // namespace security
+} // namespace ndn

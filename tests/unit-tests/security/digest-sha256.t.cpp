@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(DataSignature)
   char content[5] = "1234";
   testData.setContent(reinterpret_cast<uint8_t*>(content), 5);
 
-  m_keyChain.signWithSha256(testData);
+  m_keyChain.sign(testData, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
 
   testData.wireEncode();
 
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(InterestSignature)
   Name name("/SecurityTestDigestSha256/InterestSignature/Interest1");
   Interest testInterest(name);
 
-  m_keyChain.signWithSha256(testInterest);
+  m_keyChain.sign(testInterest, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
   testInterest.wireEncode();
   const Name& signedName = testInterest.getName();
 

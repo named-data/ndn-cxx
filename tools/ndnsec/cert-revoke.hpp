@@ -142,7 +142,9 @@ ndnsec_cert_revoke(int argc, char** argv)
       if (keyChain.doesPublicKeyExist(keyName))
         {
           Name signingCertificateName = keyChain.getDefaultCertificateNameForKey(keyName);
-          keyChain.sign(revocationCert, signingCertificateName);
+          keyChain.sign(revocationCert,
+                        security::SigningInfo(security::SigningInfo::SIGNER_TYPE_CERT,
+                                              signingCertificateName));
         }
       else
         {

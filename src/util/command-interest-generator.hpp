@@ -71,13 +71,16 @@ CommandInterestGenerator::generate(Interest& interest,
   if (certificateName.empty())
     m_keyChain.sign(interest);
   else
-    m_keyChain.sign(interest, certificateName);
+    m_keyChain.sign(interest,
+                    security::SigningInfo(security::SigningInfo::SIGNER_TYPE_CERT,
+                                          certificateName));
 }
 
 inline void
 CommandInterestGenerator::generateWithIdentity(Interest& interest, const Name& identity)
 {
-  m_keyChain.signByIdentity(interest, identity);
+  m_keyChain.sign(interest,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID, identity));
 }
 
 

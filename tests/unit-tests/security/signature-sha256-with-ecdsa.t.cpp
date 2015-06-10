@@ -114,7 +114,9 @@ BOOST_AUTO_TEST_CASE(DataSignature)
   Data testData("/SecurityTestSignatureSha256WithEcdsa/DataSignature/Data1");
   char content[5] = "1234";
   testData.setContent(reinterpret_cast<uint8_t*>(content), 5);
-  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(testData, identityName));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(testData,
+                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                                             identityName)));
   Block dataBlock(testData.wireEncode().wire(), testData.wireEncode().size());
 
   Data testData2;
@@ -136,12 +138,16 @@ BOOST_AUTO_TEST_CASE(InterestSignature)
   Interest interest11("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");
 
   scheduler.scheduleEvent(time::milliseconds(100), [&] {
-      BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(interest, identityName));
+      BOOST_CHECK_NO_THROW(m_keyChain.sign(interest,
+                                           security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                                                 identityName)));
     });
 
   advanceClocks(time::milliseconds(100));
   scheduler.scheduleEvent(time::milliseconds(100), [&] {
-      BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(interest11, identityName));
+      BOOST_CHECK_NO_THROW(m_keyChain.sign(interest11,
+                                           security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                                                 identityName)));
     });
 
   advanceClocks(time::milliseconds(100));

@@ -41,11 +41,15 @@ class io_service;
 namespace ndn {
 
 class Transport;
-class KeyChain;
 
 class PendingInterestId;
 class RegisteredPrefixId;
 class InterestFilterId;
+
+namespace security {
+class KeyChain;
+}
+using security::KeyChain;
 
 namespace nfd {
 class Controller;

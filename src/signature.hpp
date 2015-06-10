@@ -50,9 +50,7 @@ public:
     Sha256WithEcdsa = tlv::SignatureSha256WithEcdsa
   };
 
-  Signature()
-  {
-  }
+  Signature() = default;
 
   explicit
   Signature(const Block& info, const Block& value = Block());
@@ -65,7 +63,9 @@ public:
     return m_info.getSignatureType() != -1;
   }
 
-  /// @brief Get SignatureInfo in the wire format
+  /**
+   * @brief Get SignatureInfo in the wire format
+   */
   const Block&
   getInfo() const
   {
@@ -80,13 +80,18 @@ public:
   void
   setInfo(const Block& info);
 
-  /// @brief Set SignatureInfo
+  /**
+   * @brief Set SignatureInfo
+   */
   void
   setInfo(const SignatureInfo& info)
   {
     m_info = info;
   }
 
+  /**
+   * @brief Get SignatureValue in the wire format
+   */
   const Block&
   getValue() const
   {
@@ -94,18 +99,26 @@ public:
     return m_value;
   }
 
+  /**
+   * @brief Get SignatureValue from a block
+   *
+   * @throws tlv::Error if supplied block has type different from SignatureValue
+   */
   void
-  setValue(const Block& value)
-  {
-    m_value = value;
-  }
+  setValue(const Block& value);
 
+  /**
+   * @brief Get signature type
+   */
   uint32_t
   getType() const
   {
     return m_info.getSignatureType();
   }
 
+  /**
+   * @brief Check if SignatureInfo block has a KeyLocator
+   */
   bool
   hasKeyLocator() const
   {
@@ -115,7 +128,7 @@ public:
   /**
    * @brief Get KeyLocator
    *
-   * @throws Signature::Error if keyLocator does not exist
+   * @throws Signature::Error if KeyLocator does not exist
    */
   const KeyLocator&
   getKeyLocator() const
@@ -123,7 +136,9 @@ public:
     return m_info.getKeyLocator();
   }
 
-  /// @brief Set KeyLocator
+  /**
+   * @brief Set KeyLocator
+   */
   void
   setKeyLocator(const KeyLocator& keyLocator)
   {

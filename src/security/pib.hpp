@@ -25,10 +25,9 @@
 #include "identity-container.hpp"
 
 namespace ndn {
-class KeyChain;
-
 namespace security {
 
+class KeyChain;
 class PibImpl;
 
 /**

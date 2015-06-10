@@ -158,7 +158,7 @@ DummyClientFace::enableRegistrationReply()
     data->setContent(resp.wireEncode());
 
     KeyChain keyChain;
-    keyChain.signWithSha256(*data);
+    keyChain.sign(*data, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
 
     this->getIoService().post([this, data] { this->receive(*data); });
   });

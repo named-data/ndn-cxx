@@ -56,9 +56,6 @@
 
 namespace ndn {
 
-class Face;
-class KeyChain;
-
 namespace util {
 
 /** \brief provides a publisher of Notification Stream

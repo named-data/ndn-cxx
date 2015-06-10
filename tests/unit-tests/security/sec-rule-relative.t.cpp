@@ -37,11 +37,15 @@ BOOST_AUTO_TEST_CASE(SecRuleRelativeTest)
 
   Name dataName("SecurityTestSecRule/Basic");
   Data rsaData(dataName);
-  m_keyChain.signByIdentity(rsaData, rsaIdentity);
+  m_keyChain.sign(rsaData,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        rsaIdentity));
   Data ecdsaData(dataName);
-  m_keyChain.signByIdentity(ecdsaData, ecdsaIdentity);
+  m_keyChain.sign(ecdsaData,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        ecdsaIdentity));
   Data sha256Data(dataName);
-  m_keyChain.signWithSha256(sha256Data);
+  m_keyChain.sign(sha256Data, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
 
   SecRuleRelative rule("^(<SecurityTestSecRule><Basic>)$",
                        "^(<SecurityTestSecRule><Basic>)<><KEY><><>$",

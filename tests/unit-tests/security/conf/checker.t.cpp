@@ -102,16 +102,24 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest1)
 
   Name packetName("/SecurityTestConfChecker/CustomizedCheckerTest1/Data");
   shared_ptr<Data> data1 = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*data1, identity);
+  m_keyChain.sign(*data1,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity));
 
   shared_ptr<Data> data2 = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*data2, identity2);
+  m_keyChain.sign(*data2,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity2));
 
   shared_ptr<Interest> interest1 = make_shared<Interest>(packetName);
-  m_keyChain.signByIdentity(*interest1, identity);
+  m_keyChain.sign(*interest1,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity));
 
   shared_ptr<Interest> interest2 = make_shared<Interest>(packetName);
-  m_keyChain.signByIdentity(*interest2, identity2);
+  m_keyChain.sign(*interest2,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity2));
 
   int8_t result = 0;
 
@@ -237,16 +245,24 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest2)
 
   Name packetName("/SecurityTestConfChecker/CustomizedCheckerTest2/Data");
   shared_ptr<Data> data1 = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*data1, identity);
+  m_keyChain.sign(*data1,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity));
 
   shared_ptr<Data> data2 = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*data2, identity2);
+  m_keyChain.sign(*data2,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity2));
 
   shared_ptr<Interest> interest1 = make_shared<Interest>(packetName);
-  m_keyChain.signByIdentity(*interest1, identity);
+  m_keyChain.sign(*interest1,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity));
 
   shared_ptr<Interest> interest2 = make_shared<Interest>(packetName);
-  m_keyChain.signByIdentity(*interest2, identity2);
+  m_keyChain.sign(*interest2,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity2));
 
   int8_t result = 0;
 
@@ -293,16 +309,24 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest3)
 
   Name packetName("/SecurityTestConfChecker/CustomizedCheckerTest3/Data");
   shared_ptr<Data> data1 = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*data1, identity);
+  m_keyChain.sign(*data1,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity));
 
   shared_ptr<Data> data2 = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*data2, identity2);
+  m_keyChain.sign(*data2,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity2));
 
   shared_ptr<Interest> interest1 = make_shared<Interest>(packetName);
-  m_keyChain.signByIdentity(*interest1, identity);
+  m_keyChain.sign(*interest1,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity));
 
   shared_ptr<Interest> interest2 = make_shared<Interest>(packetName);
-  m_keyChain.signByIdentity(*interest2, identity2);
+  m_keyChain.sign(*interest2,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity2));
 
   int8_t result = 0;
 
@@ -358,22 +382,34 @@ BOOST_AUTO_TEST_CASE(HierarchicalCheckerTest1)
   Name packetName3("/SecurityTestConfChecker/HierarchicalCheckerTest1");
 
   shared_ptr<Data> data1 = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*data1, identity);
+  m_keyChain.sign(*data1,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity));
 
   shared_ptr<Data> data2 = make_shared<Data>(packetName2);
-  m_keyChain.signByIdentity(*data2, identity);
+  m_keyChain.sign(*data2,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity));
 
   shared_ptr<Data> data3 = make_shared<Data>(packetName3);
-  m_keyChain.signByIdentity(*data3, identity);
+  m_keyChain.sign(*data3,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity));
 
   shared_ptr<Data> data4 = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*data4, identity2);
+  m_keyChain.sign(*data4,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity2));
 
   shared_ptr<Data> data5 = make_shared<Data>(packetName2);
-  m_keyChain.signByIdentity(*data5, identity2);
+  m_keyChain.sign(*data5,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity2));
 
   shared_ptr<Data> data6 = make_shared<Data>(packetName3);
-  m_keyChain.signByIdentity(*data6, identity2);
+  m_keyChain.sign(*data6,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity2));
 
   int8_t result = 0;
 
@@ -460,10 +496,14 @@ BOOST_AUTO_TEST_CASE(FixedSignerCheckerTest1)
   Name packetName("/Test/Data");
 
   shared_ptr<Data> data1 = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*data1, identity);
+  m_keyChain.sign(*data1,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity));
 
   shared_ptr<Data> data2 = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*data2, identity2);
+  m_keyChain.sign(*data2,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        identity2));
 
   std::vector<shared_ptr<IdentityCertificate> > certSet1;
   certSet1.push_back(cert1);

@@ -54,7 +54,9 @@ BOOST_AUTO_TEST_CASE(Null)
   dataName.append("1");
   shared_ptr<Data> data = make_shared<Data>(dataName);
 
-  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(*data, identity));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data,
+                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                                             identity)));
 
   ValidatorNull validator;
 
@@ -100,12 +102,16 @@ BOOST_AUTO_TEST_CASE(RsaSignatureVerification)
   shared_ptr<PublicKey> publicKey2 = m_keyChain.getPublicKey(keyName2);
 
   Data data("/TestData/1");
-  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(data, identity));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(data,
+                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                                             identity)));
   BOOST_CHECK_EQUAL(Validator::verifySignature(data, *publicKey), true);
   BOOST_CHECK_EQUAL(Validator::verifySignature(data, *publicKey2), false);
 
   Interest interest("/TestInterest/1");
-  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(interest, identity));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(interest,
+                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                                             identity)));
   BOOST_CHECK_EQUAL(Validator::verifySignature(interest, *publicKey), true);
   BOOST_CHECK_EQUAL(Validator::verifySignature(interest, *publicKey2), false);
 
@@ -160,12 +166,16 @@ BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification)
 
 
   Data data("/TestData/1");
-  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(data, identity));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(data,
+                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                                             identity)));
   BOOST_CHECK_EQUAL(Validator::verifySignature(data, *publicKey), true);
   BOOST_CHECK_EQUAL(Validator::verifySignature(data, *publicKey2), false);
 
   Interest interest("/TestInterest/1");
-  BOOST_CHECK_NO_THROW(m_keyChain.signByIdentity(interest, identity));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(interest,
+                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                                             identity)));
   BOOST_CHECK_EQUAL(Validator::verifySignature(interest, *publicKey), true);
   BOOST_CHECK_EQUAL(Validator::verifySignature(interest, *publicKey2), false);
 
@@ -192,13 +202,21 @@ BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification2)
   Name packetName("/Test/Packet/Name");
 
   shared_ptr<Data> testDataRsa = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*testDataRsa, rsaIdentity);
+  m_keyChain.sign(*testDataRsa,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        rsaIdentity));
   shared_ptr<Data> testDataEcdsa = make_shared<Data>(packetName);
-  m_keyChain.signByIdentity(*testDataEcdsa, ecdsaIdentity);
+  m_keyChain.sign(*testDataEcdsa,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        ecdsaIdentity));
   shared_ptr<Interest> testInterestRsa = make_shared<Interest>(packetName);
-  m_keyChain.signByIdentity(*testInterestRsa, rsaIdentity);
+  m_keyChain.sign(*testInterestRsa,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        rsaIdentity));
   shared_ptr<Interest> testInterestEcdsa = make_shared<Interest>(packetName);
-  m_keyChain.signByIdentity(*testInterestEcdsa, ecdsaIdentity);
+  m_keyChain.sign(*testInterestEcdsa,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
+                                        ecdsaIdentity));
 
   BOOST_CHECK(Validator::verifySignature(*ecdsaCert, ecdsaCert->getPublicKeyInfo()));
   BOOST_CHECK_EQUAL(Validator::verifySignature(*ecdsaCert, rsaCert->getPublicKeyInfo()), false);

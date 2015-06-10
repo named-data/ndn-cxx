@@ -471,7 +471,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, DataIdentityFixture)
 
   BOOST_CHECK_THROW(d.getFullName(), Data::Error);
 
-  keyChain.sign(d, certName);
+  keyChain.sign(d, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_CERT, certName));
 
   Name fullName;
   BOOST_REQUIRE_NO_THROW(fullName = d.getFullName());

@@ -167,7 +167,8 @@ ndnsec_dsk_gen(int argc, char** argv)
       return 1;
     }
 
-    keyChain.sign(*certificate, signingCertName);
+    keyChain.sign(*certificate,
+                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_CERT, signingCertName));
 
     keyChain.addCertificateAsIdentityDefault(*certificate);
 

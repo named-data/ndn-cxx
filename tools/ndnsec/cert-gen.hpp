@@ -213,7 +213,9 @@ ndnsec_cert_gen(int argc, char** argv)
 
   keyChain.createIdentity(signId);
   Name signingCertificateName = keyChain.getDefaultCertificateNameForIdentity(signId);
-  keyChain.sign(*certificate, signingCertificateName);
+  keyChain.sign(*certificate,
+                security::SigningInfo(security::SigningInfo::SIGNER_TYPE_CERT,
+                                      signingCertificateName));
 
   Block wire = certificate->wireEncode();
 
