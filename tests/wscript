@@ -30,6 +30,7 @@ def build(bld):
                                  excl=['**/*-osx.t.cpp', '**/*-sqlite3.t.cpp']),
         use='ndn-cxx tests-base BOOST',
         includes='.',
+        defines='UNIT_TEST_CONFIG_PATH=\"%s/tmp-files/\"' %(bld.bldnode),
         install_path=None)
 
     if bld.env['HAVE_OSX_SECURITY']:
