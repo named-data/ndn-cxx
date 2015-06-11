@@ -20,10 +20,11 @@
  */
 
 #include "security/pib-memory.hpp"
+#include "security/pib-sqlite3.hpp"
 #include "security/pib.hpp"
 #include "pib-data-fixture.hpp"
 
-#include <boost/test/test_case_template.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/mpl/list.hpp>
 #include "boost-test.hpp"
 
@@ -33,11 +34,37 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(SecurityPibImpl)
 
-typedef boost::mpl::list<PibMemory> PibImpls;
+class PibMemoryWrapper
+{
+public:
+  PibMemory impl;
+};
+
+class PibSqlite3Wrapper
+{
+public:
+  PibSqlite3Wrapper()
+    : tmpPath(boost::filesystem::path(UNIT_TEST_CONFIG_PATH) / "DbTest")
+    , impl(tmpPath.c_str())
+  {
+  }
+
+  ~PibSqlite3Wrapper()
+  {
+    boost::filesystem::remove_all(tmpPath);
+  }
+
+  boost::filesystem::path tmpPath;
+  PibSqlite3 impl;
+};
+
+typedef boost::mpl::list<PibMemoryWrapper,
+                         PibSqlite3Wrapper> PibImpls;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(IdentityManagement, T, PibImpls, PibDataFixture)
 {
-  T pibImpl;
+  T wrapper;
+  PibImpl& pibImpl = wrapper.impl;
 
   // no default setting, throw Error
   BOOST_CHECK_THROW(pibImpl.getDefaultIdentity(), Pib::Error);
@@ -78,7 +105,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(IdentityManagement, T, PibImpls, PibDataFixture
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(KeyManagement, T, PibImpls, PibDataFixture)
 {
-  T pibImpl;
+  T wrapper;
+  PibImpl& pibImpl = wrapper.impl;
 
   // no default setting, throw Error
   BOOST_CHECK_THROW(pibImpl.getDefaultKeyOfIdentity(id1), Pib::Error);
@@ -135,7 +163,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(KeyManagement, T, PibImpls, PibDataFixture)
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(CertificateManagement, T, PibImpls, PibDataFixture)
 {
-  T pibImpl;
+  T wrapper;
+  PibImpl& pibImpl = wrapper.impl;
 
   // no default setting, throw Error
   BOOST_CHECK_THROW(pibImpl.getDefaultCertificateOfKey(id1, id1Key1Name.get(-1)), Pib::Error);
