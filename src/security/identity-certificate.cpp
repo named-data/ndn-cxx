@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,8 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
 #include "common.hpp"
@@ -37,6 +35,7 @@ static_assert(std::is_base_of<Certificate::Error, IdentityCertificate::Error>::v
 
 IdentityCertificate::IdentityCertificate()
 {
+  this->setFreshnessPeriod(time::hours(1));
 }
 
 IdentityCertificate::IdentityCertificate(const Data& data)

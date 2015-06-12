@@ -29,8 +29,6 @@
 namespace ndn {
 namespace tests {
 
-using std::vector;
-
 BOOST_FIXTURE_TEST_SUITE(SecurityKeyChain, util::TestHomeEnvironmentFixture)
 
 BOOST_AUTO_TEST_CASE(ConstructorNormalConfig)
@@ -194,7 +192,7 @@ BOOST_AUTO_TEST_CASE(PrepareIdentityCertificate)
   identity.appendVersion();
   keyChain.createIdentity(identity);
 
-  vector<CertificateSubjectDescription> subjectDescription;
+  std::vector<CertificateSubjectDescription> subjectDescription;
   Name lowerIdentity = identity;
   lowerIdentity.append("Lower").appendVersion();
   Name lowerKeyName = keyChain.generateRsaKeyPair(lowerIdentity, true);
@@ -206,6 +204,7 @@ BOOST_AUTO_TEST_CASE(PrepareIdentityCertificate)
   BOOST_CHECK(static_cast<bool>(idCert));
   BOOST_CHECK_EQUAL(idCert->getName().getPrefix(5),
                     Name().append(identity).append("KEY").append("Lower"));
+  BOOST_CHECK(idCert->getFreshnessPeriod() >= time::milliseconds::zero());
 
   shared_ptr<IdentityCertificate> idCert11 =
     keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
