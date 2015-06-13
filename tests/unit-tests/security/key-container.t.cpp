@@ -21,7 +21,7 @@
 
 #include "security/key-container.hpp"
 #include "security/pib.hpp"
-#include "security/in-memory-pib-impl.hpp"
+#include "security/pib-memory.hpp"
 #include "pib-data-fixture.hpp"
 
 #include "boost-test.hpp"
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_SUITE(SecurityKeyContainer)
 
 BOOST_FIXTURE_TEST_CASE(TestKeyContainer, PibDataFixture)
 {
-  auto pibImpl = make_shared<InMemoryPibImpl>();
+  auto pibImpl = make_shared<PibMemory>();
   Pib pib("pib-memory", "", pibImpl);
 
   Identity identity1 = pib.addIdentity(id1);

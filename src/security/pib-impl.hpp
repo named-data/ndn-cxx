@@ -94,6 +94,7 @@ public: // Identity management
    * @brief Add an identity.
    *
    * If the identity already exists, do nothing.
+   * If no default identity has been set, set the added one as default identity.
    *
    * @param identity The name of the identity to add.
    */
@@ -104,6 +105,7 @@ public: // Identity management
    * @brief Remove an identity
    *
    * If the identity does not exist, do nothing.
+   * Remove related keys and certificates as well.
    *
    * @param identity The name of the identity to remove.
    */
@@ -151,6 +153,8 @@ public: // Key management
    *
    * If the key already exists, do nothing.
    * If the identity does not exist, add the identity as well.
+   * If no default key of the identity has been set, set the added one as default
+   * key of the identity.
    *
    * @param identity The name of the belonged identity.
    * @param keyId The key id component.
@@ -163,6 +167,7 @@ public: // Key management
    * @brief Remove a key.
    *
    * If the key does not exist, do nothing.
+   * Remove related certificates as well.
    *
    * @param identity The name of the belonged identity.
    * @param keyId The key id component.
@@ -227,6 +232,8 @@ public: // Certificate Management
    *
    * If the certificate already exists, do nothing.
    * If the key or identity do not exist, add them as well.
+   * If no default certificate of the key has been set, set the added one as
+   * default certificate of the key.
    *
    * @param certificate The certificate to add.
    */

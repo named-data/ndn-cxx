@@ -21,7 +21,7 @@
 
 #include "security/identity.hpp"
 #include "security/pib.hpp"
-#include "security/in-memory-pib-impl.hpp"
+#include "security/pib-memory.hpp"
 #include "pib-data-fixture.hpp"
 
 #include "boost-test.hpp"
@@ -45,7 +45,7 @@ BOOST_FIXTURE_TEST_CASE(ValidityChecking, PibDataFixture)
   else
     BOOST_CHECK(true);
 
-  auto pibImpl = make_shared<InMemoryPibImpl>();
+  auto pibImpl = make_shared<PibMemory>();
   id = Identity(id1, pibImpl, true);
 
   BOOST_CHECK_EQUAL(static_cast<bool>(id), true);
@@ -59,7 +59,7 @@ BOOST_FIXTURE_TEST_CASE(ValidityChecking, PibDataFixture)
 
 BOOST_FIXTURE_TEST_CASE(TestKeyOperation, PibDataFixture)
 {
-  auto pibImpl = make_shared<InMemoryPibImpl>();
+  auto pibImpl = make_shared<PibMemory>();
 
   Identity identity1(id1, pibImpl, true);
 

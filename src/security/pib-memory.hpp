@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_IN_MEMORY_PIB_IMPL_HPP
-#define NDN_SECURITY_IN_MEMORY_PIB_IMPL_HPP
+#ifndef NDN_SECURITY_PIB_MEMORY_HPP
+#define NDN_SECURITY_PIB_MEMORY_HPP
 
 #include "pib-impl.hpp"
 
@@ -33,7 +33,7 @@ namespace security {
  * All the contents in Pib are stored in memory
  * and have the same lifetime as the implementation instance.
  */
-class InMemoryPibImpl : public PibImpl
+class PibMemory : public PibImpl
 {
 public:
   class Error : public PibImpl::Error
@@ -47,7 +47,7 @@ public:
   };
 
 public:
-  InMemoryPibImpl();
+  PibMemory();
 
 public: // TpmLocator management
 
@@ -150,4 +150,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_SEC_PIB_MEMORY_IMPL_HPP
+#endif // NDN_SECURITY_PIB_MEMORY_HPP

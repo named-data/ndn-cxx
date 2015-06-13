@@ -21,7 +21,7 @@
 
 #include "security/key.hpp"
 #include "security/pib.hpp"
-#include "security/in-memory-pib-impl.hpp"
+#include "security/pib-memory.hpp"
 #include "pib-data-fixture.hpp"
 
 #include "boost-test.hpp"
@@ -45,7 +45,7 @@ BOOST_FIXTURE_TEST_CASE(ValidityChecking, PibDataFixture)
   else
     BOOST_CHECK(true);
 
-  auto pibImpl = make_shared<InMemoryPibImpl>();
+  auto pibImpl = make_shared<PibMemory>();
   key = Key(id1, id1Key1Name.get(-1), id1Key1, pibImpl);
 
   BOOST_CHECK_EQUAL(static_cast<bool>(key), true);
@@ -59,7 +59,7 @@ BOOST_FIXTURE_TEST_CASE(ValidityChecking, PibDataFixture)
 
 BOOST_FIXTURE_TEST_CASE(TestCertificateOperation, PibDataFixture)
 {
-  auto pibImpl = make_shared<InMemoryPibImpl>();
+  auto pibImpl = make_shared<PibMemory>();
 
   Key key11(id1, id1Key1Name.get(-1), id1Key1, pibImpl);
 

@@ -20,7 +20,7 @@
  */
 
 #include "security/pib.hpp"
-#include "security/in-memory-pib-impl.hpp"
+#include "security/pib-memory.hpp"
 #include "pib-data-fixture.hpp"
 
 #include "boost-test.hpp"
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_SUITE(SecurityPib)
 
 BOOST_FIXTURE_TEST_CASE(ValidityChecking, PibDataFixture)
 {
-  auto pibImpl = make_shared<InMemoryPibImpl>();
+  auto pibImpl = make_shared<PibMemory>();
   Pib pib("pib-memory", "", pibImpl);
 
   Identity id = pib.addIdentity(id1);
@@ -60,7 +60,7 @@ BOOST_FIXTURE_TEST_CASE(ValidityChecking, PibDataFixture)
 
 BOOST_FIXTURE_TEST_CASE(TestIdentityOperation, PibDataFixture)
 {
-  auto pibImpl = make_shared<InMemoryPibImpl>();
+  auto pibImpl = make_shared<PibMemory>();
   Pib pib("pib-memory", "", pibImpl);
 
   BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);

@@ -19,57 +19,67 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "in-memory-pib-impl.hpp"
+#include "pib-memory.hpp"
 #include "pib.hpp"
 
 namespace ndn {
 namespace security {
 
-InMemoryPibImpl::InMemoryPibImpl()
+PibMemory::PibMemory()
   : m_hasDefaultIdentity(false)
 {
 }
 
 void
-InMemoryPibImpl::setTpmLocator(const std::string& tpmLocator)
+PibMemory::setTpmLocator(const std::string& tpmLocator)
 {
-  throw Error("InMemoryPib/Tpm does not need a locator");
+  throw Error("PibMemory does not need a locator");
 }
 
 std::string
-InMemoryPibImpl::getTpmLocator() const
+PibMemory::getTpmLocator() const
 {
   return "tpm-memory:";
 }
 
 bool
-InMemoryPibImpl::hasIdentity(const Name& identity) const
+PibMemory::hasIdentity(const Name& identity) const
 {
   return (m_identities.count(identity) > 0);
 }
 
 void
-InMemoryPibImpl::addIdentity(const Name& identity)
+PibMemory::addIdentity(const Name& identity)
 {
   m_identities.insert(identity);
+
+  if (!m_hasDefaultIdentity) {
+    m_defaultIdentity = identity;
+    m_hasDefaultIdentity = true;
+  }
 }
 
 void
-InMemoryPibImpl::removeIdentity(const Name& identity)
+PibMemory::removeIdentity(const Name& identity)
 {
   m_identities.erase(identity);
   if (identity == m_defaultIdentity)
     m_hasDefaultIdentity = false;
+
+  auto keyIds = this->getKeysOfIdentity(identity);
+  for (const name::Component& keyId : keyIds) {
+    this->removeKey(identity, keyId);
+  }
 }
 
 std::set<Name>
-InMemoryPibImpl::getIdentities() const
+PibMemory::getIdentities() const
 {
   return m_identities;
 }
 
 void
-InMemoryPibImpl::setDefaultIdentity(const Name& identityName)
+PibMemory::setDefaultIdentity(const Name& identityName)
 {
   addIdentity(identityName);
   m_defaultIdentity = identityName;
@@ -77,7 +87,7 @@ InMemoryPibImpl::setDefaultIdentity(const Name& identityName)
 }
 
 Name
-InMemoryPibImpl::getDefaultIdentity() const
+PibMemory::getDefaultIdentity() const
 {
   if (m_hasDefaultIdentity)
     return m_defaultIdentity;
@@ -86,35 +96,49 @@ InMemoryPibImpl::getDefaultIdentity() const
 }
 
 bool
-InMemoryPibImpl::hasKey(const Name& identity, const name::Component& keyId) const
+PibMemory::hasKey(const Name& identity, const name::Component& keyId) const
 {
   return (m_keys.count(getKeyName(identity, keyId)) > 0);
 }
 
 void
-InMemoryPibImpl::addKey(const Name& identity, const name::Component& keyId, const PublicKey& publicKey)
+PibMemory::addKey(const Name& identity, const name::Component& keyId, const PublicKey& publicKey)
 {
-  m_keys[getKeyName(identity, keyId)] = publicKey;
+  this->addIdentity(identity);
+
+  Name keyName = getKeyName(identity, keyId);
+  m_keys[keyName] = publicKey;
+
+  if (m_defaultKey.find(identity) == m_defaultKey.end())
+    m_defaultKey[identity] = keyName;
 }
 
 void
-InMemoryPibImpl::removeKey(const Name& identity, const name::Component& keyId)
+PibMemory::removeKey(const Name& identity, const name::Component& keyId)
 {
-  m_keys.erase(getKeyName(identity, keyId));
+  Name keyName = getKeyName(identity, keyId);
+  m_keys.erase(keyName);
+  m_defaultKey.erase(identity);
+
+
+  auto certNames = this->getCertificatesOfKey(identity, keyId);
+  for (const auto& certName : certNames) {
+    this->removeCertificate(certName);
+  }
 }
 
 PublicKey
-InMemoryPibImpl::getKeyBits(const Name& identity, const name::Component& keyId) const
+PibMemory::getKeyBits(const Name& identity, const name::Component& keyId) const
 {
-  auto it = m_keys.find(getKeyName(identity, keyId));
-  if (it == m_keys.end())
-    throw Pib::Error("No default certificate");
+  if (!hasKey(identity, keyId))
+    throw Pib::Error("No key");
 
+  auto it = m_keys.find(getKeyName(identity, keyId));
   return it->second;
 }
 
 std::set<name::Component>
-InMemoryPibImpl::getKeysOfIdentity(const Name& identity) const
+PibMemory::getKeysOfIdentity(const Name& identity) const
 {
   std::set<name::Component> ids;
   for (const auto& it : m_keys) {
@@ -125,7 +149,7 @@ InMemoryPibImpl::getKeysOfIdentity(const Name& identity) const
 }
 
 void
-InMemoryPibImpl::setDefaultKeyOfIdentity(const Name& identity, const name::Component& keyId)
+PibMemory::setDefaultKeyOfIdentity(const Name& identity, const name::Component& keyId)
 {
   Name keyName = getKeyName(identity, keyId);
 
@@ -136,7 +160,7 @@ InMemoryPibImpl::setDefaultKeyOfIdentity(const Name& identity, const name::Compo
 }
 
 name::Component
-InMemoryPibImpl::getDefaultKeyOfIdentity(const Name& identity) const
+PibMemory::getDefaultKeyOfIdentity(const Name& identity) const
 {
   auto it = m_defaultKey.find(identity);
   if (it == m_defaultKey.end())
@@ -146,7 +170,7 @@ InMemoryPibImpl::getDefaultKeyOfIdentity(const Name& identity) const
 }
 
 Name
-InMemoryPibImpl::getKeyName(const Name& identity, const name::Component& keyId) const
+PibMemory::getKeyName(const Name& identity, const name::Component& keyId) const
 {
   Name keyName = identity;
   keyName.append(keyId);
@@ -154,35 +178,44 @@ InMemoryPibImpl::getKeyName(const Name& identity, const name::Component& keyId) 
 }
 
 bool
-InMemoryPibImpl::hasCertificate(const Name& certName) const
+PibMemory::hasCertificate(const Name& certName) const
 {
   return (m_certs.count(certName) > 0);
 }
 
 void
-InMemoryPibImpl::addCertificate(const IdentityCertificate& certificate)
+PibMemory::addCertificate(const IdentityCertificate& certificate)
 {
+  this->addKey(certificate.getPublicKeyName().getPrefix(-1),
+               certificate.getPublicKeyName().get(-1),
+               certificate.getPublicKeyInfo());
+
   m_certs[certificate.getName()] = certificate;
+
+  const Name& keyName = certificate.getPublicKeyName();
+  if (m_defaultCert.find(keyName) == m_defaultCert.end())
+    m_defaultCert[keyName] = certificate.getName();
 }
 
 void
-InMemoryPibImpl::removeCertificate(const Name& certName)
+PibMemory::removeCertificate(const Name& certName)
 {
   m_certs.erase(certName);
+  m_defaultCert.erase(IdentityCertificate::certificateNameToPublicKeyName(certName));
 }
 
 IdentityCertificate
-InMemoryPibImpl::getCertificate(const Name& certName) const
+PibMemory::getCertificate(const Name& certName) const
 {
-  auto it = m_certs.find(certName);
-  if (it == m_certs.end())
+  if (!hasCertificate(certName))
     throw Pib::Error("No cert");
 
+  auto it = m_certs.find(certName);
   return it->second;
 }
 
 std::set<Name>
-InMemoryPibImpl::getCertificatesOfKey(const Name& identity, const name::Component& keyId) const
+PibMemory::getCertificatesOfKey(const Name& identity, const name::Component& keyId) const
 {
   Name keyName = getKeyName(identity, keyId);
 
@@ -195,7 +228,7 @@ InMemoryPibImpl::getCertificatesOfKey(const Name& identity, const name::Componen
 }
 
 void
-InMemoryPibImpl::setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId, const Name& certName)
+PibMemory::setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId, const Name& certName)
 {
   if (!hasCertificate(certName))
     throw Pib::Error("No cert");
@@ -205,7 +238,7 @@ InMemoryPibImpl::setDefaultCertificateOfKey(const Name& identity, const name::Co
 }
 
 IdentityCertificate
-InMemoryPibImpl::getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const
+PibMemory::getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const
 {
   Name keyName = getKeyName(identity, keyId);
 
