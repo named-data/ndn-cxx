@@ -88,6 +88,22 @@ public:
   static void
   registerTpm(std::initializer_list<std::string> aliases);
 
+  /// @brief Get default PIB locator
+  static std::string
+  getDefaultPibLocator();
+
+  /// @brief Create a PIB according to @p pibLocator
+  static unique_ptr<SecPublicInfo>
+  createPib(const std::string& pibLocator);
+
+  /// @brief Get default TPM locator
+  static std::string
+  getDefaultTpmLocator();
+
+  /// @brief Create a TPM according to @p tpmLocator
+  static unique_ptr<SecTpm>
+  createTpm(const std::string& tpmLocator);
+
   /**
    * @brief Constructor to create KeyChain with default PIB and TPM
    *

@@ -152,51 +152,106 @@ parseUri(const std::string& uri)
   }
 }
 
-void
-KeyChain::initialize(const std::string& pibLocatorUri,
-                     const std::string& tpmLocatorUri,
-                     bool allowReset)
+std::string
+KeyChain::getDefaultPibLocator()
 {
-  BOOST_ASSERT(!getPibFactories().empty());
-  BOOST_ASSERT(!getTpmFactories().empty());
+  std::string defaultPibLocator = DEFAULT_PIB_SCHEME + ":";
+  return defaultPibLocator;
+}
 
+static inline std::tuple<std::string/*type*/, std::string/*location*/>
+getCanonicalPibLocator(const std::string& pibLocator)
+{
   std::string pibScheme, pibLocation;
-  std::tie(pibScheme, pibLocation) = parseUri(pibLocatorUri);
+  std::tie(pibScheme, pibLocation) = parseUri(pibLocator);
 
-  std::string tpmScheme, tpmLocation;
-  std::tie(tpmScheme, tpmLocation) = parseUri(tpmLocatorUri);
-
-  // Find PIB and TPM factories
   if (pibScheme.empty()) {
     pibScheme = DEFAULT_PIB_SCHEME;
   }
+
   auto pibFactory = getPibFactories().find(pibScheme);
   if (pibFactory == getPibFactories().end()) {
-    throw Error("PIB scheme '" + pibScheme + "' is not supported");
+    throw KeyChain::Error("PIB scheme '" + pibScheme + "' is not supported");
   }
   pibScheme = pibFactory->second.canonicalName;
+
+  return std::make_tuple(pibScheme, pibLocation);
+}
+
+unique_ptr<SecPublicInfo>
+KeyChain::createPib(const std::string& pibLocator)
+{
+  BOOST_ASSERT(!getPibFactories().empty());
+
+  std::string pibScheme, pibLocation;
+  std::tie(pibScheme, pibLocation) = getCanonicalPibLocator(pibLocator);
+  auto pibFactory = getPibFactories().find(pibScheme);
+  BOOST_ASSERT(pibFactory != getPibFactories().end());
+  return pibFactory->second.create(pibLocation);
+}
+
+std::string
+KeyChain::getDefaultTpmLocator()
+{
+  std::string defaultTpmLocator = DEFAULT_TPM_SCHEME + ":";
+  return defaultTpmLocator;
+}
+
+static inline std::tuple<std::string/*type*/, std::string/*location*/>
+getCanonicalTpmLocator(const std::string& tpmLocator)
+{
+  std::string tpmScheme, tpmLocation;
+  std::tie(tpmScheme, tpmLocation) = parseUri(tpmLocator);
 
   if (tpmScheme.empty()) {
     tpmScheme = DEFAULT_TPM_SCHEME;
   }
   auto tpmFactory = getTpmFactories().find(tpmScheme);
   if (tpmFactory == getTpmFactories().end()) {
-    throw Error("TPM scheme '" + tpmScheme + "' is not supported");
+    throw KeyChain::Error("TPM scheme '" + tpmScheme + "' is not supported");
   }
   tpmScheme = tpmFactory->second.canonicalName;
 
-  // Create PIB
-  m_pib = pibFactory->second.create(pibLocation);
+  return std::make_tuple(tpmScheme, tpmLocation);
+}
 
-  std::string actualTpmLocator = tpmScheme + ":" + tpmLocation;
+unique_ptr<SecTpm>
+KeyChain::createTpm(const std::string& tpmLocator)
+{
+  BOOST_ASSERT(!getTpmFactories().empty());
+
+  std::string tpmScheme, tpmLocation;
+  std::tie(tpmScheme, tpmLocation) = getCanonicalTpmLocator(tpmLocator);
+  auto tpmFactory = getTpmFactories().find(tpmScheme);
+  BOOST_ASSERT(tpmFactory != getTpmFactories().end());
+  return tpmFactory->second.create(tpmLocation);
+}
+
+void
+KeyChain::initialize(const std::string& pibLocator,
+                     const std::string& tpmLocator,
+                     bool allowReset)
+{
+  // PIB Locator
+  std::string pibScheme, pibLocation;
+  std::tie(pibScheme, pibLocation) = getCanonicalPibLocator(pibLocator);
+  std::string canonicalPibLocator = pibScheme + ":" + pibLocation;
+
+  // Create PIB
+  m_pib = createPib(canonicalPibLocator);
+
+  // TPM Locator
+  std::string tpmScheme, tpmLocation;
+  std::tie(tpmScheme, tpmLocation) = getCanonicalTpmLocator(tpmLocator);
+  std::string canonicalTpmLocator = tpmScheme + ":" + tpmLocation;
 
   // Create TPM, checking that it matches to the previously associated one
   try {
     if (!allowReset &&
-        !m_pib->getTpmLocator().empty() && m_pib->getTpmLocator() != actualTpmLocator)
+        !m_pib->getTpmLocator().empty() && m_pib->getTpmLocator() != canonicalTpmLocator)
       // Tpm mismatch, but we do not want to reset PIB
       throw MismatchError("TPM locator supplied does not match TPM locator in PIB: " +
-                          m_pib->getTpmLocator() + " != " + actualTpmLocator);
+                          m_pib->getTpmLocator() + " != " + canonicalTpmLocator);
   }
   catch (SecPublicInfo::Error&) {
     // TPM locator is not set in PIB yet.
@@ -205,9 +260,8 @@ KeyChain::initialize(const std::string& pibLocatorUri,
   // note that key mismatch may still happen if the TPM locator is initially set to a
   // wrong one or if the PIB was shared by more than one TPMs before.  This is due to the
   // old PIB does not have TPM info, new pib should not have this problem.
-
-  m_tpm = tpmFactory->second.create(tpmLocation);
-  m_pib->setTpmLocator(actualTpmLocator);
+  m_tpm = createTpm(canonicalTpmLocator);
+  m_pib->setTpmLocator(canonicalTpmLocator);
 }
 
 Name
