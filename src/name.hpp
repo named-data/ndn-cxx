@@ -33,13 +33,22 @@
 
 namespace ndn {
 
+class Name;
+
 /**
- * @brief A Name holds an array of name::Component and represents an NDN name
+ * @brief Partial name abstraction to represent an arbitrary sequence of name components
+ */
+typedef Name PartialName;
+
+/**
+ * @brief Name abstraction to represent an absolute name
  */
 class Name : public enable_shared_from_this<Name>
 {
 public:
-  /// @brief Error that can be thrown from Name
+  /**
+   * @brief Error that can be thrown from Name
+   */
   class Error : public name::Component::Error
   {
   public:
@@ -195,12 +204,12 @@ public:
   }
 
   /**
-   * Append the components of the given name to this name.
-   * @param name The Name with components to append.
-   * @return This name so that you can chain calls to append.
+   * @brief append a PartialName to this Name.
+   * @param name the components to append
+   * @return this name
    */
   Name&
-  append(const Name& name);
+  append(const PartialName& name);
 
   /**
    * Clear all the components.
@@ -212,24 +221,31 @@ public:
   }
 
   /**
-   * Get a new name, constructed as a subset of components.
-   * @param iStartComponent The index if the first component to get.
+   * @brief Extract a sub-name (PartialName) of @p nComponents components starting
+   *        from @p iStartComponent
+   * @param iStartComponent index of the first component;
+   *        if iStartComponent is negative, size()+iStartComponent is used instead
    * @param nComponents The number of components starting at iStartComponent.
-   *                    Use npos to get the sub Name until the end of this Name.
-   * @return A new name.
+   *                    Use npos to get the Partial Name until the end of this Name.
+   * @detail If iStartComponent is out of bounds and is negative, will return the components
+   *         starting in the beginning of the Name
+   *         If iStartComponent is out of bounds and is positive, will return the component "/"
+   *         If nComponents is out of bounds, will return the components until the end of
+   *         this Name
+   * @return A new partial name
    */
-  Name
-  getSubName(size_t iStartComponent, size_t nComponents = npos) const;
+  PartialName
+  getSubName(ssize_t iStartComponent, size_t nComponents = npos) const;
 
   /**
-   * @brief Return a new Name with the first nComponents components of this Name.
+   * @brief Extract a prefix (PartialName) of the name, containing first @p nComponents components
    *
    * @param nComponents The number of prefix components.  If nComponents is -N then return
    *                    the prefix up to name.size() - N. For example getPrefix(-1)
    *                    returns the name without the final component.
-   * @return A new Name.
+   * @return A new partial name
    */
-  Name
+  PartialName
   getPrefix(ssize_t nComponents) const
   {
     if (nComponents < 0)

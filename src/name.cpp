@@ -188,11 +188,11 @@ Name::toUri() const
 }
 
 Name&
-Name::append(const Name& name)
+Name::append(const PartialName& name)
 {
   if (&name == this)
     // Copying from this name, so need to make a copy first.
-    return append(Name(name));
+    return append(PartialName(name));
 
   for (size_t i = 0; i < name.size(); ++i)
     append(name.at(i));
@@ -270,16 +270,20 @@ Name::appendImplicitSha256Digest(const uint8_t* digest, size_t digestSize)
   return *this;
 }
 
-Name
-Name::getSubName(size_t iStartComponent, size_t nComponents) const
+PartialName
+Name::getSubName(ssize_t iStartComponent, size_t nComponents) const
 {
-  Name result;
+  PartialName result;
 
+  ssize_t iStart = iStartComponent < 0 ? this->size() + iStartComponent : iStartComponent;
   size_t iEnd = this->size();
-  if (nComponents != npos)
-    iEnd = std::min(this->size(), iStartComponent + nComponents);
 
-  for (size_t i = iStartComponent; i < iEnd; ++i)
+  iStart = std::max(iStart, static_cast<ssize_t>(0));
+
+  if (nComponents != npos)
+    iEnd = std::min(this->size(), iStart + nComponents);
+
+  for (size_t i = iStart; i < iEnd; ++i)
     result.append(at(i));
 
   return result;

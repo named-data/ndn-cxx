@@ -502,6 +502,62 @@ BOOST_AUTO_TEST_CASE(NameWithSpaces)
   BOOST_CHECK_THROW(Name("/hello//world"), name::Component::Error);
 }
 
+BOOST_AUTO_TEST_CASE(Append)
+{
+  PartialName toAppend("/and");
+  PartialName toAppend1("/beyond");
+  {
+    Name name("/hello/world");
+    BOOST_CHECK_EQUAL("/hello/world/hello/world", name.append(name));
+    BOOST_CHECK_EQUAL("/hello/world/hello/world", name);
+  }
+  {
+    Name name("/hello/world");
+    BOOST_CHECK_EQUAL("/hello/world/and", name.append(toAppend));
+  }
+  {
+    Name name("/hello/world");
+    BOOST_CHECK_EQUAL("/hello/world/and/beyond", name.append(toAppend).append(toAppend1));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(SubName)
+{
+  Name name("/hello/world");
+
+  BOOST_CHECK_EQUAL("/hello/world", name.getSubName(0));
+  BOOST_CHECK_EQUAL("/world", name.getSubName(1));
+  BOOST_CHECK_EQUAL("/hello/", name.getSubName(0, 1));
+}
+
+BOOST_AUTO_TEST_CASE(SubNameNegativeIndex)
+{
+  Name name("/first/second/third/last");
+
+  BOOST_CHECK_EQUAL("/last", name.getSubName(-1));
+  BOOST_CHECK_EQUAL("/third/last", name.getSubName(-2));
+  BOOST_CHECK_EQUAL("/second", name.getSubName(-3, 1));
+}
+
+BOOST_AUTO_TEST_CASE(SubNameOutOfRangeIndexes)
+{
+  Name name("/first/second/last");
+  // No length
+  BOOST_CHECK_EQUAL("/first/second/last", name.getSubName(-10));
+  BOOST_CHECK_EQUAL("/", name.getSubName(10));
+
+  // Starting after the max position
+  BOOST_CHECK_EQUAL("/", name.getSubName(10, 1));
+  BOOST_CHECK_EQUAL("/", name.getSubName(10, 10));
+
+  // Not enough components
+  BOOST_CHECK_EQUAL("/second/last", name.getSubName(1, 10));
+  BOOST_CHECK_EQUAL("/last", name.getSubName(-1, 10));
+
+  // Start before first
+  BOOST_CHECK_EQUAL("/first/second", name.getSubName(-10, 2));
+  BOOST_CHECK_EQUAL("/first/second/last", name.getSubName(-10, 10));
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
