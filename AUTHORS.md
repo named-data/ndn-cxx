@@ -32,3 +32,4 @@ in the library:
 * Chengyu Fan           <chengyu@cs.colostate.edu>
 * Qiuhan Ding           <http://irl.cs.ucla.edu/~qiuhanding/>
 * Spyridon Mastorakis   <http://cs.ucla.edu/~mastorakis/>
+* Eric Newberry         <http://ericnewberry.com>
