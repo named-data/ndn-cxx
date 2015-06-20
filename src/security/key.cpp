@@ -127,15 +127,15 @@ Key::removeCertificate(const Name& certName)
 }
 
 IdentityCertificate
-Key::getCertificate(const Name& certName)
+Key::getCertificate(const Name& certName) const
 {
   validityCheck();
 
   return m_impl->getCertificate(certName);
 }
 
-CertificateContainer
-Key::getCertificates()
+const CertificateContainer&
+Key::getCertificates() const
 {
   validityCheck();
 
@@ -167,7 +167,7 @@ Key::setDefaultCertificate(const IdentityCertificate& certificate)
 }
 
 const IdentityCertificate&
-Key::getDefaultCertificate()
+Key::getDefaultCertificate() const
 {
   validityCheck();
 

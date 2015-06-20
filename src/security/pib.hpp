@@ -98,6 +98,30 @@ public:
   std::string
   getTpmLocator() const;
 
+  /**
+   * @brief Get an identity with name @p identityName.
+   *
+   * @param identityName The name for the identity to get.
+   * @throw Pib::Error if the identity does not exist.
+   */
+  Identity
+  getIdentity(const Name& identityName) const;
+
+  /// @brief Get all the identities
+  const IdentityContainer&
+  getIdentities() const;
+
+  /**
+   * @brief Get the default identity.
+   *
+   * @return the default identity.
+   * @throws Pib::Error if no default identity.
+   */
+  Identity&
+  getDefaultIdentity() const;
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
+
   /*
    * @brief Create an identity with name @p identityName and return a reference to it.
    *
@@ -118,19 +142,6 @@ public:
   removeIdentity(const Name& identityName);
 
   /**
-   * @brief Get an identity with name @p identityName.
-   *
-   * @param identityName The name for the identity to get.
-   * @throw Pib::Error if the identity does not exist.
-   */
-  Identity
-  getIdentity(const Name& identityName);
-
-  /// @brief Get all the identities
-  IdentityContainer
-  getIdentities() const;
-
-  /**
    * @brief Set an identity with name @p identityName as the default identity.
    *
    * Also create the identity if it does not exist.
@@ -138,17 +149,8 @@ public:
    * @param identityName The name for the default identity.
    * @return the default identity
    */
-  Identity
+  Identity&
   setDefaultIdentity(const Name& identityName);
-
-  /**
-   * @brief Get the default identity.
-   *
-   * @return the default identity.
-   * @throws Pib::Error if no default identity.
-   */
-  Identity
-  getDefaultIdentity();
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /*
@@ -169,6 +171,13 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 protected:
   std::string m_scheme;
   std::string m_location;
+
+  mutable bool m_hasDefaultIdentity;
+  mutable Identity m_defaultIdentity;
+
+  mutable bool m_needRefreshIdentities;
+  mutable IdentityContainer m_identities;
+
   shared_ptr<PibImpl> m_impl;
 };
 

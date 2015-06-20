@@ -47,6 +47,7 @@ class Key
 public:
   friend class Identity;
   friend class KeyContainer;
+  friend class KeyChain;
 
 public:
   /**
@@ -86,6 +87,36 @@ public:
   getPublicKey() const;
 
   /**
+   * @brief Get a certificate.
+   *
+   * @return the certificate
+   * @throws Pib::Error if the certificate does not exist.
+   */
+  IdentityCertificate
+  getCertificate(const Name& certName) const;
+
+  /// @brief Get all the certificates for this key.
+  const CertificateContainer&
+  getCertificates() const;
+
+  /**
+   * @brief Get the default certificate for this Key.
+   *
+   * @throws Pib::Error if the default certificate does not exist.
+   */
+  const IdentityCertificate&
+  getDefaultCertificate() const;
+
+  /// @brief Check if the Key instance is valid
+  operator bool() const;
+
+  /// @brief Check if the Key instance is invalid
+  bool
+  operator!() const;
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
+
+  /**
    * @brief Add a certificate.
    *
    * @param certificate The certificate to add.
@@ -100,19 +131,6 @@ public:
    */
   void
   removeCertificate(const Name& certName);
-
-  /**
-   * @brief Get a certificate.
-   *
-   * @return the certificate
-   * @throws Pib::Error if the certificate does not exist.
-   */
-  IdentityCertificate
-  getCertificate(const Name& certName);
-
-  /// @brief Get all the certificates for this key.
-  CertificateContainer
-  getCertificates();
 
   /**
    * @brief Set the default certificate.
@@ -135,21 +153,6 @@ public:
    */
   const IdentityCertificate&
   setDefaultCertificate(const IdentityCertificate& certificate);
-
-  /**
-   * @brief Get the default certificate for this Key.
-   *
-   * @throws Pib::Error if the default certificate does not exist.
-   */
-  const IdentityCertificate&
-  getDefaultCertificate();
-
-  /// @brief Check if the Key instance is valid
-  operator bool() const;
-
-  /// @brief Check if the Key instance is invalid
-  bool
-  operator!() const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /**
@@ -189,11 +192,11 @@ private:
   Name m_keyName;
   PublicKey m_key;
 
-  bool m_hasDefaultCertificate;
-  IdentityCertificate m_defaultCertificate;
+  mutable bool m_hasDefaultCertificate;
+  mutable IdentityCertificate m_defaultCertificate;
 
-  bool m_needRefreshCerts;
-  CertificateContainer m_certificates;
+  mutable bool m_needRefreshCerts;
+  mutable CertificateContainer m_certificates;
 
   shared_ptr<PibImpl> m_impl;
 };

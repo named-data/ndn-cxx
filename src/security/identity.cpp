@@ -90,7 +90,7 @@ Identity::removeKey(const name::Component& keyId)
 }
 
 Key
-Identity::getKey(const name::Component& keyId)
+Identity::getKey(const name::Component& keyId) const
 {
   validityCheck();
 
@@ -98,7 +98,7 @@ Identity::getKey(const name::Component& keyId)
 }
 
 const KeyContainer&
-Identity::getKeys()
+Identity::getKeys() const
 {
   validityCheck();
 
@@ -130,7 +130,7 @@ Identity::setDefaultKey(const PublicKey& publicKey, const name::Component& keyId
 }
 
 Key&
-Identity::getDefaultKey()
+Identity::getDefaultKey() const
 {
   validityCheck();
 

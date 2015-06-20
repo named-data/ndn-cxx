@@ -28,6 +28,8 @@ namespace security {
 Pib::Pib(const std::string scheme, const std::string& location, shared_ptr<PibImpl> impl)
   : m_scheme(scheme)
   , m_location(location)
+  , m_hasDefaultIdentity(false)
+  , m_needRefreshIdentities(true)
   , m_impl(impl)
 {
 }
@@ -57,38 +59,60 @@ Pib::getTpmLocator() const
 Identity
 Pib::addIdentity(const Name& identity)
 {
+  if (!m_needRefreshIdentities && m_identities.find(identity) == m_identities.end()) {
+    // if we have already loaded all the identities, but the new identity is not one of them
+    // the IdentityContainer should be refreshed
+    m_needRefreshIdentities = true;
+  }
   return Identity(identity, m_impl, true);
 }
 
 void
 Pib::removeIdentity(const Name& identity)
 {
+  if (m_hasDefaultIdentity && m_defaultIdentity.getName() == identity)
+    m_hasDefaultIdentity = false;
+
   m_impl->removeIdentity(identity);
+  m_needRefreshIdentities = true;
 }
 
 Identity
-Pib::getIdentity(const Name& identity)
+Pib::getIdentity(const Name& identity) const
 {
   return Identity(identity, m_impl, false);
 }
 
-IdentityContainer
+const IdentityContainer&
 Pib::getIdentities() const
 {
-  return IdentityContainer(m_impl->getIdentities(), m_impl);
+  if (m_needRefreshIdentities) {
+    m_identities = std::move(IdentityContainer(m_impl->getIdentities(), m_impl));
+    m_needRefreshIdentities = false;
+  }
+
+  return m_identities;
 }
 
-Identity
+Identity&
 Pib::setDefaultIdentity(const Name& identityName)
 {
+  m_defaultIdentity = addIdentity(identityName);
+  m_hasDefaultIdentity = true;
+
   m_impl->setDefaultIdentity(identityName);
-  return Identity(identityName, m_impl, true);
+  return m_defaultIdentity;
 }
 
-Identity
-Pib::getDefaultIdentity()
+Identity&
+Pib::getDefaultIdentity() const
 {
-  return Identity(m_impl->getDefaultIdentity(), m_impl, false);
+  if (!m_hasDefaultIdentity) {
+    m_defaultIdentity = std::move(Identity(m_impl->getDefaultIdentity(), m_impl, false));
+    m_hasDefaultIdentity = true;
+  }
+
+  return m_defaultIdentity;
 }
 
 

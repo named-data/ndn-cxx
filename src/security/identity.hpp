@@ -46,6 +46,7 @@ class Identity
 public:
   friend class Pib;
   friend class IdentityContainer;
+  friend class KeyChain;
 
 public:
   /**
@@ -73,6 +74,36 @@ public:
   getName() const;
 
   /**
+   * @brief Get a key with id @keyId.
+   *
+   * @param identityName The name for the identity to get.
+   * @throw Pib::Error if the identity does not exist.
+   */
+  Key
+  getKey(const name::Component& keyId) const;
+
+  /// @brief Get all the keys for this Identity.
+  const KeyContainer&
+  getKeys() const;
+
+  /**
+   * @brief Get the default key for this Identity.
+   *
+   * @throws Pib::Error if the default key does not exist.
+   */
+  Key&
+  getDefaultKey() const;
+
+  /// @brief Check if the Identity instance is valid
+  operator bool() const;
+
+  /// @brief Check if the Identity instance is invalid
+  bool
+  operator!() const;
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
+
+  /**
    * @brief Add a key.
    *
    * If the key already exists, do nothing.
@@ -96,19 +127,6 @@ public:
   removeKey(const name::Component& keyId);
 
   /**
-   * @brief Get a key with id @keyId.
-   *
-   * @param identityName The name for the identity to get.
-   * @throw Pib::Error if the identity does not exist.
-   */
-  Key
-  getKey(const name::Component& keyId);
-
-  /// @brief Get all the keys for this Identity.
-  const KeyContainer&
-  getKeys();
-
-  /**
    * @brief Set the key with id @p keyId as the default key.
    *
    * @param keyId The key id component of the default key.
@@ -130,21 +148,6 @@ public:
    */
   Key&
   setDefaultKey(const PublicKey& publicKey, const name::Component& keyId = EMPTY_KEY_ID);
-
-  /**
-   * @brief Get the default key for this Identity.
-   *
-   * @throws Pib::Error if the default key does not exist.
-   */
-  Key&
-  getDefaultKey();
-
-  /// @brief Check if the Identity instance is valid
-  operator bool() const;
-
-  /// @brief Check if the Identity instance is invalid
-  bool
-  operator!() const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /**
@@ -176,11 +179,11 @@ public:
 private:
   Name m_name;
 
-  bool m_hasDefaultKey;
-  Key m_defaultKey;
+  mutable bool m_hasDefaultKey;
+  mutable Key m_defaultKey;
 
-  bool m_needRefreshKeys;
-  KeyContainer m_keys;
+  mutable bool m_needRefreshKeys;
+  mutable KeyContainer m_keys;
 
   shared_ptr<PibImpl> m_impl;
 };
