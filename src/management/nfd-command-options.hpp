@@ -22,9 +22,14 @@
 #ifndef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_HPP
 #define NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_HPP
 
-#include "../security/identity-certificate.hpp"
+#include "../security/signing-info.hpp"
+
+#define NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
 namespace ndn {
+
+class IdentityCertificate;
+
 namespace nfd {
 
 /** \ingroup management
@@ -34,6 +39,11 @@ namespace nfd {
 class CommandOptions
 {
 public:
+  /** \brief constructs CommandOptions
+   *  \post getTimeout() == DEFAULT_TIMEOUT
+   *  \post getPrefix() == DEFAULT_PREFIX
+   *  \post getSigningInfo().getSignerType() == SIGNER_TYPE_NULL
+   */
   CommandOptions();
 
   /** \return command timeout
@@ -66,8 +76,24 @@ public:
   CommandOptions&
   setPrefix(const Name& prefix);
 
+  /** \return signing parameters
+   */
+  const security::SigningInfo&
+  getSigningInfo() const
+  {
+    return m_signingInfo;
+  }
+
+  /** \brief sets signing parameters
+   *  \return self
+   */
+  CommandOptions&
+  setSigningInfo(const security::SigningInfo& signingInfo);
+
+#ifdef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 public: // signing parameters
-  /** \brief indicates the selection of signing parameters
+  /** \deprecated use getSigningInfo and setSigningInfo
+   *  \brief indicates the selection of signing parameters
    */
   enum SigningParamsKind {
     /** \brief picks the default signing identity and certificate
@@ -81,46 +107,36 @@ public: // signing parameters
     SIGNING_PARAMS_CERTIFICATE
   };
 
-  /** \return selection of signing parameters
+  /** \deprecated use getSigningInfo and setSigningInfo
+   *  \return selection of signing parameters
    */
   SigningParamsKind
-  getSigningParamsKind() const
-  {
-    return m_signingParamsKind;
-  }
+  getSigningParamsKind() const;
 
-  /** \return identity Name
+  /** \deprecated use getSigningInfo and setSigningInfo
+   *  \return identity Name
    *  \pre getSigningParamsKind() == SIGNING_PARAMS_IDENTITY
    */
   const Name&
-  getSigningIdentity() const
-  {
-    BOOST_ASSERT(m_signingParamsKind == SIGNING_PARAMS_IDENTITY);
-    return m_identity;
-  }
+  getSigningIdentity() const;
 
-  /** \return certificate Name
+  /** \deprecated use getSigningInfo and setSigningInfo
+   *  \return certificate Name
    *  \pre getSigningParamsKind() == SIGNING_PARAMS_CERTIFICATE
    */
   const Name&
-  getSigningCertificate() const
-  {
-    BOOST_ASSERT(m_signingParamsKind == SIGNING_PARAMS_CERTIFICATE);
-    return m_identity;
-  }
+  getSigningCertificate() const;
 
-  /** \brief chooses to use default identity and certificate
+  /** \deprecated use getSigningInfo and setSigningInfo
+   *  \brief chooses to use default identity and certificate
    *  \post getSigningParamsKind() == SIGNING_PARAMS_DEFAULT
    *  \return self
    */
   CommandOptions&
-  setSigningDefault()
-  {
-    m_signingParamsKind = SIGNING_PARAMS_DEFAULT;
-    return *this;
-  }
+  setSigningDefault();
 
-  /** \brief chooses to use a specific identity and its default certificate
+  /** \deprecated use getSigningInfo and setSigningInfo
+   *  \brief chooses to use a specific identity and its default certificate
    *  \post getSigningParamsKind() == SIGNING_PARAMS_IDENTITY
    *  \post getIdentityName() == identityName
    *  \return self
@@ -128,21 +144,25 @@ public: // signing parameters
   CommandOptions&
   setSigningIdentity(const Name& identityName);
 
-  /** \brief chooses to use a specific identity certificate
+  /** \deprecated use getSigningInfo and setSigningInfo
+   *  \brief chooses to use a specific identity certificate
    *  \param certificateName identity certificate Name
    *  \throw std::invalid_argument if certificateName is invalid
    *  \post getSigningParamsKind() == SIGNING_PARAMS_CERTIFICATE
-   *  \post getIdentityCertificate() is a copy of certificate
+   *  \post getSigningCertificate() == certificateName
    *  \return self
    */
   CommandOptions&
   setSigningCertificate(const Name& certificateName);
 
-  /** \brief chooses to use a specific identity certificate
+  /** \deprecated use getSigningInfo and setSigningInfo
+   *  \brief chooses to use a specific identity certificate
    *  \details This is equivalent to .setIdentityCertificate(certificate.getName())
    */
   CommandOptions&
   setSigningCertificate(const IdentityCertificate& certificate);
+
+#endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
 public:
   /** \brief gives the default command timeout: 10000ms
@@ -156,8 +176,7 @@ public:
 private:
   time::milliseconds m_timeout;
   Name m_prefix;
-  SigningParamsKind m_signingParamsKind;
-  Name m_identity; // identityName or certificateName
+  security::SigningInfo m_signingInfo;
 };
 
 } // namespace nfd

@@ -26,6 +26,7 @@
 
 #include "encoding/tlv.hpp"
 #include "security/key-chain.hpp"
+#include "security/signing-helpers.hpp"
 #include "util/time.hpp"
 #include "util/random.hpp"
 #include "util/face-uri.hpp"
@@ -215,11 +216,8 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
   nfd::CommandOptions options;
-  if (certificate.getName().empty()) {
-    options.setSigningDefault();
-  }
-  else {
-    options.setSigningCertificate(certificate);
+  if (!certificate.getName().empty()) {
+    options.setSigningInfo(signingByCertificate(certificate.getName()));
   }
 
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
@@ -238,11 +236,8 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
   nfd::CommandOptions options;
-  if (certificate.getName().empty()) {
-    options.setSigningDefault();
-  }
-  else {
-    options.setSigningCertificate(certificate);
+  if (!certificate.getName().empty()) {
+    options.setSigningInfo(signingByCertificate(certificate.getName()));
   }
 
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
@@ -262,7 +257,7 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
   nfd::CommandOptions options;
-  options.setSigningIdentity(identity);
+  options.setSigningInfo(signingByIdentity(identity));
 
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
                                 onSuccess, onFailure,
@@ -280,7 +275,7 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
     make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
   nfd::CommandOptions options;
-  options.setSigningIdentity(identity);
+  options.setSigningInfo(signingByIdentity(identity));
 
   return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
                                 RegisterPrefixSuccessCallback(), onFailure,
@@ -308,11 +303,8 @@ Face::registerPrefix(const Name& prefix,
                      uint64_t flags)
 {
   nfd::CommandOptions options;
-  if (certificate.getName().empty()) {
-    options.setSigningDefault();
-  }
-  else {
-    options.setSigningCertificate(certificate);
+  if (!certificate.getName().empty()) {
+    options.setSigningInfo(signingByCertificate(certificate.getName()));
   }
 
   return m_impl->registerPrefix(prefix, shared_ptr<InterestFilterRecord>(),
@@ -328,7 +320,7 @@ Face::registerPrefix(const Name& prefix,
                      uint64_t flags)
 {
   nfd::CommandOptions options;
-  options.setSigningIdentity(identity);
+  options.setSigningInfo(signingByIdentity(identity));
 
   return m_impl->registerPrefix(prefix, shared_ptr<InterestFilterRecord>(),
                                 onSuccess, onFailure,

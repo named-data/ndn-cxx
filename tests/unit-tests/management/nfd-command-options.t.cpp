@@ -20,6 +20,11 @@
  */
 
 #include "management/nfd-command-options.hpp"
+#include "security/signing-helpers.hpp"
+
+#ifdef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
+#include "security/identity-certificate.hpp"
+#endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
 #include "boost-test.hpp"
 
@@ -57,6 +62,17 @@ BOOST_AUTO_TEST_CASE(Prefix)
   BOOST_CHECK_EQUAL(co.getPrefix(), Name("ndn:/localhop/net/example/nfd"));
 }
 
+BOOST_AUTO_TEST_CASE(SigningInfo)
+{
+  CommandOptions co;
+  BOOST_CHECK_EQUAL(co.getSigningInfo().getSignerType(), security::SigningInfo::SIGNER_TYPE_NULL);
+
+  co.setSigningInfo(signingByIdentity("ndn:/tmp/identity"));
+  BOOST_CHECK_EQUAL(co.getSigningInfo().getSignerType(), security::SigningInfo::SIGNER_TYPE_ID);
+  BOOST_CHECK_EQUAL(co.getSigningInfo().getSignerName(), "ndn:/tmp/identity");
+}
+
+#ifdef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 BOOST_AUTO_TEST_CASE(SigningParams)
 {
   CommandOptions co;
@@ -96,6 +112,7 @@ BOOST_AUTO_TEST_CASE(SigningParams)
   BOOST_CHECK_EQUAL(co.getSigningParamsKind(),
                     CommandOptions::SIGNING_PARAMS_DEFAULT); // unchanged after throw
 }
+#endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
 BOOST_AUTO_TEST_SUITE_END()
 

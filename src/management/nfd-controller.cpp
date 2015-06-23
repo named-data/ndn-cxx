@@ -45,23 +45,7 @@ Controller::startCommand(const shared_ptr<ControlCommand>& command,
   Name requestName = command->getRequestName(options.getPrefix(), parameters);
   Interest interest(requestName);
   interest.setInterestLifetime(options.getTimeout());
-
-  switch (options.getSigningParamsKind()) {
-  case CommandOptions::SIGNING_PARAMS_DEFAULT:
-    m_keyChain.sign(interest);
-    break;
-  case CommandOptions::SIGNING_PARAMS_IDENTITY:
-    m_keyChain.sign(interest, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                    options.getSigningIdentity()));
-    break;
-  case CommandOptions::SIGNING_PARAMS_CERTIFICATE:
-    m_keyChain.sign(interest, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_CERT,
-                                                    options.getSigningCertificate()));
-    break;
-  default:
-    BOOST_ASSERT(false);
-    break;
-  }
+  m_keyChain.sign(interest, options.getSigningInfo());
 
   m_face.expressInterest(interest,
                          bind(&Controller::processCommandResponse, this, _2,

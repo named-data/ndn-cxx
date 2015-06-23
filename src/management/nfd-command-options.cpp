@@ -21,6 +21,11 @@
 
 #include "nfd-command-options.hpp"
 
+#ifdef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
+#include "../security/identity-certificate.hpp"
+#include "../security/signing-helpers.hpp"
+#endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
+
 namespace ndn {
 namespace nfd {
 
@@ -30,7 +35,6 @@ const Name CommandOptions::DEFAULT_PREFIX("ndn:/localhost/nfd");
 CommandOptions::CommandOptions()
   : m_timeout(DEFAULT_TIMEOUT)
   , m_prefix(DEFAULT_PREFIX)
-  , m_signingParamsKind(SIGNING_PARAMS_DEFAULT)
 {
 }
 
@@ -53,10 +57,54 @@ CommandOptions::setPrefix(const Name& prefix)
 }
 
 CommandOptions&
+CommandOptions::setSigningInfo(const security::SigningInfo& signingInfo)
+{
+  m_signingInfo = signingInfo;
+  return *this;
+}
+
+#ifdef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
+
+CommandOptions::SigningParamsKind
+CommandOptions::getSigningParamsKind() const
+{
+  switch (m_signingInfo.getSignerType()) {
+  case security::SigningInfo::SIGNER_TYPE_NULL:
+    return SIGNING_PARAMS_DEFAULT;
+  case security::SigningInfo::SIGNER_TYPE_ID:
+    return SIGNING_PARAMS_IDENTITY;
+  case security::SigningInfo::SIGNER_TYPE_CERT:
+    return SIGNING_PARAMS_CERTIFICATE;
+  default:
+    throw std::out_of_range("SigningInfo::SignerType is not convertible to CommandOptions::SigningParamsKind");
+  }
+}
+
+const Name&
+CommandOptions::getSigningIdentity() const
+{
+  BOOST_ASSERT(m_signingInfo.getSignerType() == security::SigningInfo::SIGNER_TYPE_ID);
+  return m_signingInfo.getSignerName();
+}
+
+const Name&
+CommandOptions::getSigningCertificate() const
+{
+  BOOST_ASSERT(m_signingInfo.getSignerType() == security::SigningInfo::SIGNER_TYPE_CERT);
+  return m_signingInfo.getSignerName();
+}
+
+CommandOptions&
+CommandOptions::setSigningDefault()
+{
+  m_signingInfo = security::SigningInfo();
+  return *this;
+}
+
+CommandOptions&
 CommandOptions::setSigningIdentity(const Name& identityName)
 {
-  m_signingParamsKind = SIGNING_PARAMS_IDENTITY;
-  m_identity = identityName;
+  m_signingInfo = security::signingByIdentity(identityName);
   return *this;
 }
 
@@ -69,8 +117,7 @@ CommandOptions::setSigningCertificate(const Name& certificateName)
     throw std::invalid_argument("certificate is invalid");
   }
 
-  m_signingParamsKind = SIGNING_PARAMS_CERTIFICATE;
-  m_identity = certificateName;
+  m_signingInfo = security::signingByCertificate(certificateName);
   return *this;
 }
 
@@ -79,6 +126,8 @@ CommandOptions::setSigningCertificate(const IdentityCertificate& certificate)
 {
   return this->setSigningCertificate(certificate.getName());
 }
+
+#endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
 } // namespace nfd
 } // namespace ndn
