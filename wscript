@@ -12,7 +12,7 @@ GIT_TAG_PREFIX = "ndn-cxx-"
 def options(opt):
     opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
     opt.load(['default-compiler-flags', 'coverage', 'osx-security', 'pch',
-              'boost', 'cryptopp', 'sqlite3',
+              'boost', 'cryptopp', 'sqlite3', 'openssl',
               'doxygen', 'sphinx_build', 'type_traits', 'compiler-features'],
              tooldir=['.waf-tools'])
 
@@ -66,7 +66,7 @@ def configure(conf):
         conf.fatal("Either static library or shared library must be enabled")
 
     conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx', 'default-compiler-flags',
-               'osx-security', 'pch', 'boost', 'cryptopp', 'sqlite3',
+               'osx-security', 'pch', 'boost', 'cryptopp', 'sqlite3', 'openssl',
                'type_traits', 'compiler-features', 'doxygen', 'sphinx_build'])
 
     conf.env['WITH_TESTS'] = conf.options.with_tests
@@ -98,6 +98,7 @@ main(int, char**)
 
     conf.check_sqlite3(mandatory=True)
     conf.check_cryptopp(mandatory=True, use='PTHREAD')
+    conf.check_openssl(mandatory=True, atleast_version=0x10001000) # 1.0.1
 
     USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams',
                        'regex', 'program_options', 'chrono', 'random']
@@ -163,7 +164,7 @@ def build(bld):
                                  excl=['src/security/**/*-osx.cpp',
                                        'src/**/*-sqlite3.cpp']),
         headers='src/common-pch.hpp',
-        use='version BOOST CRYPTOPP SQLITE3 RT PTHREAD',
+        use='version BOOST CRYPTOPP OPENSSL SQLITE3 RT PTHREAD',
         includes=". src",
         export_includes="src",
         install_path='${LIBDIR}',

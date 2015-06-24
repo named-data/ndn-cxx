@@ -23,7 +23,7 @@ import sys
 import re
 from waflib import Utils,Logs,Errors
 from waflib.Configure import conf
-CRYPTOPP_DIR = ['/usr', '/usr/local', '/opt/local', '/sw', '/usr/local/ndn', '/opt/ndn']
+CRYPTOPP_DIR = ['/usr', '/usr/local', '/opt/local', '/sw']
 CRYPTOPP_VERSION_FILE = 'config.h'
 
 CRYPTOPP_CHECK_FRAGMENT = '''
