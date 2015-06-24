@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,6 @@
 #include "nfd-control-response.hpp"
 #include "encoding/tlv-nfd.hpp"
 #include "encoding/block-helpers.hpp"
-#include "util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -56,16 +55,13 @@ ControlResponse::wireEncode() const
     return m_wire;
 
   m_wire = Block(tlv::nfd::ControlResponse);
-  m_wire.push_back
-    (nonNegativeIntegerBlock(tlv::nfd::StatusCode, m_code));
+  m_wire.push_back(makeNonNegativeIntegerBlock(tlv::nfd::StatusCode, m_code));
 
-  m_wire.push_back
-    (dataBlock(tlv::nfd::StatusText, m_text.c_str(), m_text.size()));
+  m_wire.push_back(makeBinaryBlock(tlv::nfd::StatusText, m_text.c_str(), m_text.size()));
 
-  if (m_body.hasWire())
-    {
-      m_wire.push_back(m_body);
-    }
+  if (m_body.hasWire()) {
+    m_wire.push_back(m_body);
+  }
 
   m_wire.encode();
   return m_wire;

@@ -22,12 +22,12 @@
 #include "selectors.hpp"
 #include "encoding/encoding-buffer.hpp"
 #include "encoding/block-helpers.hpp"
-#include "util/concepts.hpp"
 
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Selectors>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Selectors>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Selectors>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Selectors>));
 static_assert(std::is_base_of<tlv::Error, Selectors::Error>::value,
               "Selectors::Error must inherit from tlv::Error");
@@ -58,7 +58,7 @@ Selectors::empty() const
 
 template<encoding::Tag TAG>
 size_t
-Selectors::wireEncode(EncodingImpl<TAG>& block) const
+Selectors::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
@@ -74,43 +74,43 @@ Selectors::wireEncode(EncodingImpl<TAG>& block) const
 
   // MustBeFresh
   if (getMustBeFresh()) {
-    totalLength += prependBooleanBlock(block, tlv::MustBeFresh);
+    totalLength += prependEmptyBlock(encoder, tlv::MustBeFresh);
   }
 
   // ChildSelector
   if (getChildSelector() >= 0) {
-    totalLength += prependNonNegativeIntegerBlock(block, tlv::ChildSelector, getChildSelector());
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::ChildSelector, getChildSelector());
   }
 
   // Exclude
   if (!getExclude().empty()) {
-    totalLength += getExclude().wireEncode(block);
+    totalLength += getExclude().wireEncode(encoder);
   }
 
   // PublisherPublicKeyLocator
   if (!getPublisherPublicKeyLocator().empty()) {
-    totalLength += getPublisherPublicKeyLocator().wireEncode(block);
+    totalLength += getPublisherPublicKeyLocator().wireEncode(encoder);
   }
 
   // MaxSuffixComponents
   if (getMaxSuffixComponents() >= 0) {
-    totalLength += prependNonNegativeIntegerBlock(block, tlv::MaxSuffixComponents,
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::MaxSuffixComponents,
                                                   getMaxSuffixComponents());
   }
 
   // MinSuffixComponents
   if (getMinSuffixComponents() >= 0) {
-    totalLength += prependNonNegativeIntegerBlock(block, tlv::MinSuffixComponents,
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::MinSuffixComponents,
                                                   getMinSuffixComponents());
   }
 
-  totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(tlv::Selectors);
+  totalLength += encoder.prependVarNumber(totalLength);
+  totalLength += encoder.prependVarNumber(tlv::Selectors);
   return totalLength;
 }
 
 template size_t
-Selectors::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& estimator) const;
+Selectors::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
 
 template size_t
 Selectors::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;

@@ -105,7 +105,7 @@ public:
   /// @brief Encode to a wire format or estimate wire format
   template<encoding::Tag TAG>
   size_t
-  wireEncode(EncodingImpl<TAG>& block) const;
+  wireEncode(EncodingImpl<TAG>& encoder) const;
 
   /// @brief Encode to a wire format
   const Block&

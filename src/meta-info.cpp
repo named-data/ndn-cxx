@@ -22,12 +22,12 @@
 #include "meta-info.hpp"
 #include "encoding/block-helpers.hpp"
 #include "encoding/encoding-buffer.hpp"
-#include "util/concepts.hpp"
 
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<MetaInfo>));
 BOOST_CONCEPT_ASSERT((WireEncodable<MetaInfo>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<MetaInfo>));
 BOOST_CONCEPT_ASSERT((WireDecodable<MetaInfo>));
 static_assert(std::is_base_of<tlv::Error, MetaInfo::Error>::value,
               "MetaInfo::Error must inherit from tlv::Error");
@@ -165,10 +165,10 @@ MetaInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 }
 
 template size_t
-MetaInfo::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
+MetaInfo::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
 
 template size_t
-MetaInfo::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
+MetaInfo::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
 
 const Block&
 MetaInfo::wireEncode() const

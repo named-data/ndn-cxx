@@ -22,13 +22,13 @@
 #include "interest.hpp"
 #include "util/random.hpp"
 #include "util/crypto.hpp"
-#include "util/concepts.hpp"
 #include "data.hpp"
 
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Interest>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Interest>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Interest>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Interest>));
 static_assert(std::is_base_of<tlv::Error, Interest::Error>::value,
               "Interest::Error must inherit from tlv::Error");
@@ -79,9 +79,9 @@ Interest::setNonce(uint32_t nonce)
     std::memcpy(const_cast<uint8_t*>(m_nonce.value()), &nonce, sizeof(nonce));
   }
   else {
-    m_nonce = dataBlock(tlv::Nonce,
-                        reinterpret_cast<const uint8_t*>(&nonce),
-                        sizeof(nonce));
+    m_nonce = makeBinaryBlock(tlv::Nonce,
+                              reinterpret_cast<const uint8_t*>(&nonce),
+                              sizeof(nonce));
     m_wire.reset();
   }
   return *this;
@@ -214,7 +214,7 @@ Interest::matchesData(const Data& data) const
 
 template<encoding::Tag TAG>
 size_t
-Interest::wireEncode(EncodingImpl<TAG>& block) const
+Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
@@ -230,11 +230,11 @@ Interest::wireEncode(EncodingImpl<TAG>& block) const
 
   if (hasLink()) {
     if (hasSelectedDelegation()) {
-      totalLength += prependNonNegativeIntegerBlock(block,
+      totalLength += prependNonNegativeIntegerBlock(encoder,
                                                     tlv::SelectedDelegation,
                                                     m_selectedDelegationIndex);
     }
-    totalLength += prependBlock(block, m_link);
+    totalLength += encoder.prependBlock(m_link);
   }
   else {
     BOOST_ASSERT(!hasSelectedDelegation());
@@ -244,34 +244,34 @@ Interest::wireEncode(EncodingImpl<TAG>& block) const
   if (getInterestLifetime() >= time::milliseconds::zero() &&
       getInterestLifetime() != DEFAULT_INTEREST_LIFETIME)
     {
-      totalLength += prependNonNegativeIntegerBlock(block,
+      totalLength += prependNonNegativeIntegerBlock(encoder,
                                                     tlv::InterestLifetime,
                                                     getInterestLifetime().count());
     }
 
   // Nonce
   getNonce(); // to ensure that Nonce is properly set
-  totalLength += block.prependBlock(m_nonce);
+  totalLength += encoder.prependBlock(m_nonce);
 
   // Selectors
   if (hasSelectors())
     {
-      totalLength += getSelectors().wireEncode(block);
+      totalLength += getSelectors().wireEncode(encoder);
     }
 
   // Name
-  totalLength += getName().wireEncode(block);
+  totalLength += getName().wireEncode(encoder);
 
-  totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(tlv::Interest);
+  totalLength += encoder.prependVarNumber(totalLength);
+  totalLength += encoder.prependVarNumber(tlv::Interest);
   return totalLength;
 }
 
 template size_t
-Interest::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
+Interest::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
 
 template size_t
-Interest::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
+Interest::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
 
 const Block&
 Interest::wireEncode() const

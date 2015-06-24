@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,7 @@
 
 #include <boost/concept/usage.hpp>
 #include "../encoding/block.hpp"
+#include "../encoding/encoding-buffer.hpp"
 
 namespace ndn {
 
@@ -35,10 +36,31 @@ class WireEncodable
 public:
   BOOST_CONCEPT_USAGE(WireEncodable)
   {
-    X j;
     Block block = j.wireEncode();
     block.size(); // avoid 'unused variable block'
   }
+
+private:
+  X j;
+};
+
+/** \brief a concept check for TLV abstraction with .wireEncode method
+ */
+template<class X>
+class WireEncodableWithEncodingBuffer
+{
+public:
+  BOOST_CONCEPT_USAGE(WireEncodableWithEncodingBuffer)
+  {
+    EncodingEstimator estimator;
+    size_t estimatedSize = j.wireEncode(estimator);
+
+    EncodingBuffer encoder(estimatedSize, 0);
+    j.wireEncode(encoder);
+  }
+
+private:
+  X j;
 };
 
 /** \brief a concept check for TLV abstraction with .wireDecode method
@@ -65,7 +87,6 @@ public:
   BOOST_CONCEPT_USAGE(Hashable)
   {
     X hash;
-
     uint8_t* buf = 0;
     size_t size = hash.DigestSize();
 

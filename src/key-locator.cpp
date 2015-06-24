@@ -21,12 +21,12 @@
 
 #include "key-locator.hpp"
 #include "encoding/block-helpers.hpp"
-#include "util/concepts.hpp"
 
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<KeyLocator>));
 BOOST_CONCEPT_ASSERT((WireEncodable<KeyLocator>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<KeyLocator>));
 BOOST_CONCEPT_ASSERT((WireDecodable<KeyLocator>));
 static_assert(std::is_base_of<tlv::Error, KeyLocator::Error>::value,
               "KeyLocator::Error must inherit from tlv::Error");
@@ -48,7 +48,7 @@ KeyLocator::KeyLocator(const Name& name)
 
 template<encoding::Tag TAG>
 size_t
-KeyLocator::wireEncode(EncodingImpl<TAG>& block) const
+KeyLocator::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   // KeyLocator ::= KEY-LOCATOR-TYPE TLV-LENGTH (Name | KeyDigest)
   // KeyDigest ::= KEY-DIGEST-TYPE TLV-LENGTH BYTE+
@@ -59,22 +59,22 @@ KeyLocator::wireEncode(EncodingImpl<TAG>& block) const
   case KeyLocator_None:
     break;
   case KeyLocator_Name:
-    totalLength += m_name.wireEncode(block);
+    totalLength += m_name.wireEncode(encoder);
     break;
   case KeyLocator_KeyDigest:
-    totalLength += block.prependBlock(m_keyDigest);
+    totalLength += encoder.prependBlock(m_keyDigest);
     break;
   default:
     throw Error("Unsupported KeyLocator type");
   }
 
-  totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(tlv::KeyLocator);
+  totalLength += encoder.prependVarNumber(totalLength);
+  totalLength += encoder.prependVarNumber(tlv::KeyLocator);
   return totalLength;
 }
 
 template size_t
-KeyLocator::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& estimator) const;
+KeyLocator::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
 
 template size_t
 KeyLocator::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
@@ -180,7 +180,7 @@ KeyLocator::setKeyDigest(const ConstBufferPtr& keyDigest)
   // This function takes a constant reference of a shared pointer.
   // It MUST NOT change the reference count of that shared pointer.
 
-  return this->setKeyDigest(dataBlock(tlv::KeyDigest, keyDigest->get(), keyDigest->size()));
+  return this->setKeyDigest(makeBinaryBlock(tlv::KeyDigest, keyDigest->get(), keyDigest->size()));
 }
 
 bool

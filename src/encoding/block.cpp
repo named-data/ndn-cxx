@@ -206,7 +206,7 @@ Block::fromStream(std::istream& is)
   uint64_t length = tlv::readVarNumber(begin, end);
 
   if (length == 0) {
-    return dataBlock(type, static_cast<uint8_t*>(nullptr), length);
+    return makeEmptyBlock(type);
   }
 
   if (length > MAX_SIZE_OF_BLOCK_FROM_STREAM)
@@ -223,7 +223,7 @@ Block::fromStream(std::istream& is)
     throw tlv::Error("Not enough data in the buffer to fully parse TLV");
   }
 
-  return dataBlock(type, buf, length);
+  return makeBinaryBlock(type, buf, length);
 }
 
 std::tuple<bool, Block>

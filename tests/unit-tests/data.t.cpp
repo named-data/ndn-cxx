@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(SignatureEqualityChecks)
 
   b = SignatureSha256WithRsa();
   static const uint8_t someData[256] = {};
-  Block signatureValue = dataBlock(tlv::SignatureValue, someData, sizeof(someData));
+  Block signatureValue = makeBinaryBlock(tlv::SignatureValue, someData, sizeof(someData));
   b.setValue(signatureValue);
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
@@ -382,8 +382,7 @@ BOOST_FIXTURE_TEST_CASE(Encode, TestDataFixture)
   Block signatureInfo(tlv::SignatureInfo);
   // SignatureType
   {
-    signatureInfo.push_back
-      (nonNegativeIntegerBlock(tlv::SignatureType, Signature::Sha256WithRsa));
+    signatureInfo.push_back(makeNonNegativeIntegerBlock(tlv::SignatureType, Signature::Sha256WithRsa));
   }
   // KeyLocator
   {

@@ -24,115 +24,90 @@
 
 #include "block.hpp"
 #include "encoding-buffer.hpp"
+#include "../util/concepts.hpp"
 
 #include <iterator>
 
 namespace ndn {
+namespace encoding {
 
 /**
- * @deprecated Use Encoder::prependBlock and Estimator::prependBlock instead
+ * @brief Helper to prepend TLV block type @p type containing non-negative integer @p value
+ * @see makeNonNegativeIntegerBlock, readNonNegativeInteger
  */
-template<bool P>
-inline size_t
-prependBlock(EncodingImpl<P>& encoder, const Block& block)
-{
-  return encoder.prependBlock(block);
-}
+template<Tag TAG>
+size_t
+prependNonNegativeIntegerBlock(EncodingImpl<TAG>& encoder, uint32_t type, uint64_t value);
 
 /**
- * @deprecated Use Encoder::prependByteArrayBlock and Estimator::prependByteArrayBlock instead
+ * @brief Create a TLV block type @p type containing non-negative integer @p value
+ * @see prependNonNegativeIntegerBlock, readNonNegativeInteger
  */
-template<bool P>
-inline size_t
-prependByteArrayBlock(EncodingImpl<P>& encoder,
-                      uint32_t type, const uint8_t* array, size_t arraySize)
-{
-  return encoder.prependByteArrayBlock(type, array, arraySize);
-}
+Block
+makeNonNegativeIntegerBlock(uint32_t type, uint64_t value);
 
-template<bool P>
-inline size_t
-prependNonNegativeIntegerBlock(EncodingImpl<P>& encoder, uint32_t type, uint64_t number)
-{
-  size_t valueLength = encoder.prependNonNegativeInteger(number);
-  size_t totalLength = valueLength;
-  totalLength += encoder.prependVarNumber(valueLength);
-  totalLength += encoder.prependVarNumber(type);
+/**
+ * @brief Helper to read a non-negative integer from a block
+ * @see prependNonNegativeIntegerBlock, makeNonNegativeIntegerBlock
+ * @throw tlv::Error if block does not contain a valid nonNegativeInteger
+ */
+uint64_t
+readNonNegativeInteger(const Block& block);
 
-  return totalLength;
-}
+////////
 
-template<bool P>
-inline size_t
-prependBooleanBlock(EncodingImpl<P>& encoder, uint32_t type)
-{
-  size_t totalLength = encoder.prependVarNumber(0);
-  totalLength += encoder.prependVarNumber(type);
+/**
+ * @brief Helper to prepend TLV block type @p type containing no value (i.e., a boolean block)
+ * @see makeEmptyBlock
+ */
+template<Tag TAG>
+size_t
+prependEmptyBlock(EncodingImpl<TAG>& encoder, uint32_t type);
 
-  return totalLength;
-}
+/**
+ * @brief Create a TLV block type @p type containing no value (i.e., a boolean block)
+ * @see prependEmptyBlock
+ */
+Block
+makeEmptyBlock(uint32_t type);
 
-template<bool P, class U>
-inline size_t
-prependNestedBlock(EncodingImpl<P>& encoder, uint32_t type, const U& nestedBlock)
-{
-  size_t valueLength = nestedBlock.wireEncode(encoder);
-  size_t totalLength = valueLength;
-  totalLength += encoder.prependVarNumber(valueLength);
-  totalLength += encoder.prependVarNumber(type);
+////////
 
-  return totalLength;
-}
+/**
+ * @brief Helper to prepend TLV block type @p type with value from a string @p value
+ * @see makeStringBlock, readString
+ */
+template<Tag TAG>
+size_t
+prependStringBlock(EncodingImpl<TAG>& encoder, uint32_t type, const std::string& value);
 
+/**
+ * @brief Create a TLV block type @p type with value from a string @p
+ * @see prependStringBlock, readString
+ */
+Block
+makeStringBlock(uint32_t type, const std::string& value);
 
-inline Block
-nonNegativeIntegerBlock(uint32_t type, uint64_t value)
-{
-  EncodingEstimator estimator;
-  size_t totalLength = prependNonNegativeIntegerBlock(estimator, type, value);
+/**
+ * @brief Helper to read a string value from a block
+ * @see prependStringBlock, makeStringBlock
+ */
+std::string
+readString(const Block& block);
 
-  EncodingBuffer encoder(totalLength, 0);
-  prependNonNegativeIntegerBlock(encoder, type, value);
+////////
 
-  return encoder.block();
-}
+/**
+ * @brief Create a TLV block type @p type with value from a buffer @p value of size @p length
+ */
+Block
+makeBinaryBlock(uint32_t type, const uint8_t* value, size_t length);
 
-inline uint64_t
-readNonNegativeInteger(const Block& block)
-{
-  Buffer::const_iterator begin = block.value_begin();
-  return tlv::readNonNegativeInteger(block.value_size(), begin, block.value_end());
-}
-
-inline Block
-booleanBlock(uint32_t type)
-{
-  EncodingEstimator estimator;
-  size_t totalLength = prependBooleanBlock(estimator, type);
-
-  EncodingBuffer encoder(totalLength, 0);
-  prependBooleanBlock(encoder, type);
-
-  return encoder.block();
-}
-
-inline Block
-dataBlock(uint32_t type, const uint8_t* data, size_t dataSize)
-{
-  EncodingEstimator estimator;
-  size_t totalLength = estimator.prependByteArrayBlock(type, data, dataSize);
-
-  EncodingBuffer encoder(totalLength, 0);
-  encoder.prependByteArrayBlock(type, data, dataSize);
-
-  return encoder.block();
-}
-
-inline Block
-dataBlock(uint32_t type, const char* data, size_t dataSize)
-{
-  return dataBlock(type, reinterpret_cast<const uint8_t*>(data), dataSize);
-}
+/**
+ * @brief Create a TLV block type @p type with value from a buffer @p value of size @p length
+ */
+Block
+makeBinaryBlock(uint32_t type, const char* value, size_t length);
 
 /**
  * @brief Helper class template to create a data block when RandomAccessIterator is used
@@ -192,7 +167,7 @@ public:
  */
 template<class Iterator>
 inline Block
-dataBlock(uint32_t type, Iterator first, Iterator last)
+makeBinaryBlock(uint32_t type, Iterator first, Iterator last)
 {
   static_assert(sizeof(typename std::iterator_traits<Iterator>::value_type) == 1,
                 "Iterator should point only to char or unsigned char");
@@ -205,6 +180,155 @@ dataBlock(uint32_t type, Iterator first, Iterator last)
 
   return DataBlock::makeBlock(type, first, last);
 }
+
+////////
+
+/**
+ * @brief Prepend a TLV block of type @p type with WireEncodable @p value as a value
+ * @tparam U type that satisfies WireEncodableWithEncodingBuffer concept
+ * @see makeNestedBlock
+ */
+template<Tag TAG, class U>
+inline size_t
+prependNestedBlock(EncodingImpl<TAG>& encoder, uint32_t type, const U& value)
+{
+  BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<U>));
+
+  size_t valueLength = value.wireEncode(encoder);
+  size_t totalLength = valueLength;
+  totalLength += encoder.prependVarNumber(valueLength);
+  totalLength += encoder.prependVarNumber(type);
+
+  return totalLength;
+}
+
+/**
+ * @brief Create a TLV block of type @p type with WireEncodable @p value as a value
+ * @tparam U type that satisfies WireEncodableWithEncodingBuffer concept
+ * @see prependNestedBlock
+ */
+template<class U>
+inline Block
+makeNestedBlock(uint32_t type, const U& value)
+{
+  EncodingEstimator estimator;
+  size_t totalLength = prependNestedBlock(estimator, type, value);
+
+  EncodingBuffer encoder(totalLength, 0);
+  prependNestedBlock(encoder, type, value);
+
+  return encoder.block();
+}
+
+#define NDN_CXX_ENABLE_DEPRECATED_BLOCK_HELPERS
+#ifdef NDN_CXX_ENABLE_DEPRECATED_BLOCK_HELPERS
+
+/**
+ * @deprecated Use Encoder::prependBlock and Estimator::prependBlock instead
+ */
+template<Tag TAG>
+inline size_t
+prependBlock(EncodingImpl<TAG>& encoder, const Block& block)
+{
+  return encoder.prependBlock(block);
+}
+
+/**
+ * @deprecated Use Encoder::prependByteArrayBlock and Estimator::prependByteArrayBlock instead
+ */
+template<Tag TAG>
+inline size_t
+prependByteArrayBlock(EncodingImpl<TAG>& encoder,
+                      uint32_t type, const uint8_t* array, size_t arraySize)
+{
+  return encoder.prependByteArrayBlock(type, array, arraySize);
+}
+
+/**
+ * @deprecated Use makeNonNegativeIntegerBlock instead
+ */
+inline Block
+nonNegativeIntegerBlock(uint32_t type, uint64_t value)
+{
+  return makeNonNegativeIntegerBlock(type, value);
+}
+
+/**
+ * @deprecated Use prependEmptyBlock instead
+ */
+template<Tag TAG>
+size_t
+prependBooleanBlock(EncodingImpl<TAG>& encoder, uint32_t type)
+{
+  return prependEmptyBlock(encoder, type);
+}
+
+/**
+ * @deprecated Use makeEmptyBlock instead
+ */
+inline Block
+booleanBlock(uint32_t type)
+{
+  return makeEmptyBlock(type);
+}
+
+/**
+ * @deprecated Use makeBinaryBlock instead
+ */
+inline Block
+dataBlock(uint32_t type, const uint8_t* data, size_t dataSize)
+{
+  return makeBinaryBlock(type, data, dataSize);
+}
+
+/**
+ * @deprecated Use makeBinaryBlock instead
+ */
+inline Block
+dataBlock(uint32_t type, const char* data, size_t dataSize)
+{
+  return makeBinaryBlock(type, data, dataSize);
+}
+
+/**
+ * @deprecated Use makeBinaryBlock instead
+ */
+template<class Iterator>
+inline Block
+dataBlock(uint32_t type, Iterator first, Iterator last)
+{
+  return makeBinaryBlock(type, first, last);
+}
+
+/**
+ * @deprecated Use makeNestedBlock instead
+ */
+template<class U>
+inline Block
+nestedBlock(uint32_t type, const U& value)
+{
+  return makeNestedBlock(type, value);
+}
+
+#endif // NDN_CXX_ENABLE_DEPRECATED_BLOCK_HELPERS
+
+} // namespace encoding
+
+using encoding::makeNonNegativeIntegerBlock;
+using encoding::readNonNegativeInteger;
+using encoding::makeEmptyBlock;
+using encoding::makeStringBlock;
+using encoding::readString;
+using encoding::makeBinaryBlock;
+using encoding::makeNestedBlock;
+
+#ifdef NDN_CXX_ENABLE_DEPRECATED_BLOCK_HELPERS
+
+using encoding::nonNegativeIntegerBlock;
+using encoding::booleanBlock;
+using encoding::dataBlock;
+
+#endif // NDN_CXX_ENABLE_DEPRECATED_BLOCK_HELPERS
 
 } // namespace ndn
 

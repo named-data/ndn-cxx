@@ -150,7 +150,7 @@ public:
    */
   template<encoding::Tag TAG>
   size_t
-  wireEncode(EncodingImpl<TAG>& block) const;
+  wireEncode(EncodingImpl<TAG>& encoder) const;
 
   /**
    * @brief Encode to a wire format
@@ -619,7 +619,7 @@ operator<<(std::ostream& os, const Component& component)
 template<class Iterator>
 inline
 Component::Component(Iterator first, Iterator last)
-  : Block(dataBlock(tlv::NameComponent, first, last))
+  : Block(makeBinaryBlock(tlv::NameComponent, first, last))
 {
 }
 

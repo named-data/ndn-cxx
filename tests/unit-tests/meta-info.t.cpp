@@ -122,18 +122,18 @@ BOOST_AUTO_TEST_CASE(AppMetaInfo)
 
   for (int i = 0; i < 5; i++) {
     uint32_t type = 128 + i * 10;
-    info1.addAppMetaInfo(nonNegativeIntegerBlock(type, ints[i]));
+    info1.addAppMetaInfo(makeNonNegativeIntegerBlock(type, ints[i]));
     const std::string& s = ss[i];
     type += 5;
-    info1.addAppMetaInfo(dataBlock(type, s.c_str(), s.size()));
+    info1.addAppMetaInfo(makeStringBlock(type, s));
   }
 
   BOOST_CHECK(info1.findAppMetaInfo(252) == 0);
 
-  info1.addAppMetaInfo(nonNegativeIntegerBlock(252, 1000));
+  info1.addAppMetaInfo(makeNonNegativeIntegerBlock(252, 1000));
   BOOST_CHECK(info1.findAppMetaInfo(252) != 0);
 
-  info1.addAppMetaInfo(nonNegativeIntegerBlock(252, 1000));
+  info1.addAppMetaInfo(makeNonNegativeIntegerBlock(252, 1000));
   BOOST_CHECK(info1.findAppMetaInfo(252) != 0);
 
   info1.removeAppMetaInfo(252);
@@ -187,11 +187,11 @@ BOOST_AUTO_TEST_CASE(AppMetaInfoTypeRange)
 {
   MetaInfo info;
 
-  BOOST_CHECK_NO_THROW(info.addAppMetaInfo(nonNegativeIntegerBlock(128, 1000)));
-  BOOST_CHECK_NO_THROW(info.addAppMetaInfo(nonNegativeIntegerBlock(252, 1000)));
+  BOOST_CHECK_NO_THROW(info.addAppMetaInfo(makeNonNegativeIntegerBlock(128, 1000)));
+  BOOST_CHECK_NO_THROW(info.addAppMetaInfo(makeNonNegativeIntegerBlock(252, 1000)));
 
-  BOOST_CHECK_THROW(info.addAppMetaInfo(nonNegativeIntegerBlock(127, 1000)), MetaInfo::Error);
-  BOOST_CHECK_THROW(info.addAppMetaInfo(nonNegativeIntegerBlock(253, 1000)), MetaInfo::Error);
+  BOOST_CHECK_THROW(info.addAppMetaInfo(makeNonNegativeIntegerBlock(127, 1000)), MetaInfo::Error);
+  BOOST_CHECK_THROW(info.addAppMetaInfo(makeNonNegativeIntegerBlock(253, 1000)), MetaInfo::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

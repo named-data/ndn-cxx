@@ -44,8 +44,7 @@ inline shared_ptr<Data>
 signData(const shared_ptr<Data>& data)
 {
   ndn::SignatureSha256WithRsa fakeSignature;
-  fakeSignature.setValue(ndn::dataBlock(tlv::SignatureValue,
-                                        reinterpret_cast<const uint8_t*>(0), 0));
+  fakeSignature.setValue(makeEmptyBlock(tlv::SignatureValue));
   data->setSignature(fakeSignature);
   data->wireEncode();
 

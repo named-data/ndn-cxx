@@ -72,11 +72,11 @@ public: // constructors
 
 public: // encode and decode
   /** \brief prepend wire encoding
-   *  \param block EncodingBuffer or Estimator
+   *  \param encoder EncodingBuffer or Estimator
    */
   template<encoding::Tag TAG>
   size_t
-  wireEncode(EncodingImpl<TAG>& block) const;
+  wireEncode(EncodingImpl<TAG>& encoder) const;
 
   /** \return wire encoding
    */

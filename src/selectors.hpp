@@ -60,7 +60,7 @@ public:
    */
   template<encoding::Tag TAG>
   size_t
-  wireEncode(EncodingImpl<TAG>& block) const;
+  wireEncode(EncodingImpl<TAG>& encoder) const;
 
   /**
    * @brief Encode to a wire format

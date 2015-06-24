@@ -29,6 +29,7 @@ namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<SignatureInfo>));
 BOOST_CONCEPT_ASSERT((WireEncodable<SignatureInfo>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<SignatureInfo>));
 BOOST_CONCEPT_ASSERT((WireDecodable<SignatureInfo>));
 static_assert(std::is_base_of<tlv::Error, SignatureInfo::Error>::value,
               "SignatureInfo::Error must inherit from tlv::Error");
@@ -111,30 +112,30 @@ SignatureInfo::getTypeSpecificTlv(uint32_t type) const
 
 template<encoding::Tag TAG>
 size_t
-SignatureInfo::wireEncode(EncodingImpl<TAG>& block) const
+SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
   for (std::list<Block>::const_reverse_iterator i = m_otherTlvs.rbegin();
        i != m_otherTlvs.rend(); i++) {
-    totalLength += block.appendBlock(*i);
+    totalLength += encoder.appendBlock(*i);
   }
 
   if (m_hasKeyLocator)
-    totalLength += m_keyLocator.wireEncode(block);
+    totalLength += m_keyLocator.wireEncode(encoder);
 
-  totalLength += prependNonNegativeIntegerBlock(block, tlv::SignatureType, m_type);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::SignatureType, m_type);
 
-  totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(tlv::SignatureInfo);
+  totalLength += encoder.prependVarNumber(totalLength);
+  totalLength += encoder.prependVarNumber(tlv::SignatureInfo);
   return totalLength;
 }
 
 template size_t
-SignatureInfo::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&) const;
+SignatureInfo::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
 
 template size_t
-SignatureInfo::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
+SignatureInfo::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
 
 
 const Block&

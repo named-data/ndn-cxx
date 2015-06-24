@@ -22,7 +22,7 @@
  */
 
 #include "exclude.hpp"
-#include "util/concepts.hpp"
+#include "encoding/block-helpers.hpp"
 
 #include <boost/range/adaptors.hpp>
 
@@ -30,6 +30,7 @@ namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Exclude>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Exclude>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Exclude>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Exclude>));
 static_assert(std::is_base_of<tlv::Error, Exclude::Error>::value,
               "Exclude::Error must inherit from tlv::Error");
@@ -45,7 +46,7 @@ Exclude::Exclude(const Block& wire)
 
 template<encoding::Tag TAG>
 size_t
-Exclude::wireEncode(EncodingImpl<TAG>& block) const
+Exclude::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   if (m_exclude.empty()) {
     throw Error("Exclude filter cannot be empty");
@@ -58,23 +59,23 @@ Exclude::wireEncode(EncodingImpl<TAG>& block) const
 
   for (const auto& item : m_exclude) {
     if (item.second) {
-      totalLength += prependBooleanBlock(block, tlv::Any);
+      totalLength += prependEmptyBlock(encoder, tlv::Any);
     }
     if (!item.first.empty() || !item.second) {
-      totalLength += item.first.wireEncode(block);
+      totalLength += item.first.wireEncode(encoder);
     }
   }
 
-  totalLength += block.prependVarNumber(totalLength);
-  totalLength += block.prependVarNumber(tlv::Exclude);
+  totalLength += encoder.prependVarNumber(totalLength);
+  totalLength += encoder.prependVarNumber(tlv::Exclude);
   return totalLength;
 }
 
 template size_t
-Exclude::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
+Exclude::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
 
 template size_t
-Exclude::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
+Exclude::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
 
 const Block&
 Exclude::wireEncode() const

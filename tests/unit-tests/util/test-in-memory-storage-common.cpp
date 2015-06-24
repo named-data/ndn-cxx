@@ -510,8 +510,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(PublisherKeySelector2, T, InMemoryStorages)
   const ndn::KeyLocator locator(keyName);
 
   ndn::SignatureSha256WithRsa fakeSignature;
-  fakeSignature.setValue(ndn::dataBlock(tlv::SignatureValue,
-                                        reinterpret_cast<const uint8_t*>(0), 0));
+  fakeSignature.setValue(makeEmptyBlock(tlv::SignatureValue));
 
   fakeSignature.setKeyLocator(locator);
   data2->setSignature(fakeSignature);

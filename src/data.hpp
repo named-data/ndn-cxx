@@ -91,7 +91,7 @@ public:
   /**
    * @brief Fast encoding or block size estimation
    *
-   * @param block                   EncodingEstimator or EncodingBuffer instance
+   * @param encoder                 EncodingEstimator or EncodingBuffer instance
    * @param wantUnsignedPortionOnly Request only unsigned portion to be encoded in block.
    *                                If true, only Name, MetaInfo, Content, and SignatureInfo
    *                                blocks will be encoded into the block. Note that there
@@ -99,7 +99,7 @@ public:
    */
   template<encoding::Tag TAG>
   size_t
-  wireEncode(EncodingImpl<TAG>& block, bool wantUnsignedPortionOnly = false) const;
+  wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly = false) const;
 
   /**
    * @brief Encode to a wire format

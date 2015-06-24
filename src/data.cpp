@@ -22,12 +22,12 @@
 #include "data.hpp"
 #include "encoding/block-helpers.hpp"
 #include "util/crypto.hpp"
-#include "util/concepts.hpp"
 
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Data>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Data>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Data>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Data>));
 static_assert(std::is_base_of<tlv::Error, Data::Error>::value,
               "Data::Error must inherit from tlv::Error");
@@ -94,11 +94,11 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool unsignedPortion/* = false*/) c
 
 
 template size_t
-Data::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block,
+Data::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder,
                                        bool unsignedPortion) const;
 
 template size_t
-Data::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block,
+Data::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder,
                                          bool unsignedPortion) const;
 
 
@@ -230,10 +230,10 @@ const Block&
 Data::getContent() const
 {
   if (m_content.empty())
-    m_content = dataBlock(tlv::Content, reinterpret_cast<const uint8_t*>(0), 0);
+    m_content = makeEmptyBlock(tlv::Content);
 
   if (!m_content.hasWire())
-      m_content.encode();
+    m_content.encode();
   return m_content;
 }
 
@@ -242,7 +242,7 @@ Data::setContent(const uint8_t* content, size_t contentLength)
 {
   onChanged();
 
-  m_content = dataBlock(tlv::Content, content, contentLength);
+  m_content = makeBinaryBlock(tlv::Content, content, contentLength);
 
   return *this;
 }

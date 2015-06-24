@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(TypeKeyDigest)
 {
   char digestOctets[] = "\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD";
   ConstBufferPtr digestBuffer = make_shared<Buffer>(digestOctets, 8);
-  Block expectedDigestBlock = dataBlock(tlv::KeyDigest, digestOctets, 8);
+  Block expectedDigestBlock = makeBinaryBlock(tlv::KeyDigest, digestOctets, 8);
 
   KeyLocator a;
   a.setKeyDigest(digestBuffer);

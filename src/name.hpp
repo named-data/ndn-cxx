@@ -112,7 +112,7 @@ public:
    */
   template<encoding::Tag TAG>
   size_t
-  wireEncode(EncodingImpl<TAG>& block) const;
+  wireEncode(EncodingImpl<TAG>& encoder) const;
 
   const Block&
   wireEncode() const;

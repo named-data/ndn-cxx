@@ -30,7 +30,6 @@
 #include "util/string-helper.hpp"
 #include "security/cryptopp.hpp"
 #include "util/crypto.hpp"
-#include "util/concepts.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -39,6 +38,7 @@ namespace name {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Component>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Component>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Component>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Component>));
 static_assert(std::is_base_of<tlv::Error, Component::Error>::value,
               "name::Component::Error must inherit from tlv::Error");
@@ -46,7 +46,7 @@ static_assert(std::is_base_of<tlv::Error, Component::Error>::value,
 static const std::string&
 getSha256DigestUriPrefix()
 {
-  static const std::string prefix { "sha256digest=" };
+  static const std::string prefix{"sha256digest="};
   return prefix;
 }
 
@@ -69,22 +69,22 @@ Component::Component(const ConstBufferPtr& buffer)
 }
 
 Component::Component(const Buffer& value)
-  : Block(dataBlock(tlv::NameComponent, value.buf(), value.size()))
+  : Block(makeBinaryBlock(tlv::NameComponent, value.buf(), value.size()))
 {
 }
 
 Component::Component(const uint8_t* value, size_t valueLen)
-  : Block(dataBlock(tlv::NameComponent, value, valueLen))
+  : Block(makeBinaryBlock(tlv::NameComponent, value, valueLen))
 {
 }
 
 Component::Component(const char* str)
-  : Block(dataBlock(tlv::NameComponent, str, std::char_traits<char>::length(str)))
+  : Block(makeBinaryBlock(tlv::NameComponent, str, std::char_traits<char>::length(str)))
 {
 }
 
 Component::Component(const std::string& str)
-  : Block(dataBlock(tlv::NameComponent, str.c_str(), str.size()))
+  : Block(makeStringBlock(tlv::NameComponent, str))
 {
 }
 
@@ -297,7 +297,7 @@ Component::toSequenceNumber() const
 Component
 Component::fromNumber(uint64_t number)
 {
-  return nonNegativeIntegerBlock(tlv::NameComponent, number);
+  return makeNonNegativeIntegerBlock(tlv::NameComponent, number);
 }
 
 Component
@@ -384,7 +384,7 @@ Component::fromImplicitSha256Digest(const uint8_t* digest, size_t digestSize)
     throw Error("Cannot create ImplicitSha256DigestComponent (input digest must be " +
                 boost::lexical_cast<std::string>(crypto::SHA256_DIGEST_SIZE) + " octets)");
 
-  return dataBlock(tlv::ImplicitSha256DigestComponent, digest, digestSize);
+  return makeBinaryBlock(tlv::ImplicitSha256DigestComponent, digest, digestSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -440,21 +440,21 @@ Component::getSuccessor() const
 
 template<encoding::Tag TAG>
 size_t
-Component::wireEncode(EncodingImpl<TAG>& block) const
+Component::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
   if (value_size() > 0)
-    totalLength += block.prependByteArray(value(), value_size());
-  totalLength += block.prependVarNumber(value_size());
-  totalLength += block.prependVarNumber(type());
+    totalLength += encoder.prependByteArray(value(), value_size());
+  totalLength += encoder.prependVarNumber(value_size());
+  totalLength += encoder.prependVarNumber(type());
   return totalLength;
 }
 
 template size_t
-Component::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
+Component::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
 
 template size_t
-Component::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
+Component::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
 
 const Block&
 Component::wireEncode() const

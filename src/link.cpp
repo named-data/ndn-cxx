@@ -24,7 +24,6 @@
 #include "encoding/block-helpers.hpp"
 #include "util/crypto.hpp"
 #include "security/key-chain.hpp"
-#include "util/concepts.hpp"
 
 #include <algorithm>
 
@@ -34,6 +33,7 @@ namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Link>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Link>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Link>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Link>));
 static_assert(std::is_base_of<Data::Error, Link::Error>::value,
               "Link::Error should inherit from Data::Error");
@@ -109,10 +109,10 @@ Link::encodeContent(EncodingImpl<TAG>& encoder) const
 }
 
 template size_t
-Link::encodeContent<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&) const;
+Link::encodeContent<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
 
 template size_t
-Link::encodeContent<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
+Link::encodeContent<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
 
 void
 Link::encodeContent()

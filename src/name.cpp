@@ -27,7 +27,6 @@
 
 #include "util/time.hpp"
 #include "util/string-helper.hpp"
-#include "util/concepts.hpp"
 #include "encoding/block.hpp"
 #include "encoding/encoding-buffer.hpp"
 
@@ -37,6 +36,7 @@ namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Name>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Name>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Name>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Name>));
 static_assert(std::is_base_of<tlv::Error, Name::Error>::value,
               "Name::Error must inherit from tlv::Error");
@@ -81,7 +81,7 @@ Name::wireEncode(EncodingImpl<TAG>& encoder) const
 }
 
 template size_t
-Name::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& estimator) const;
+Name::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
 
 template size_t
 Name::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
