@@ -21,5 +21,3 @@ the following projects:
 
 Please submit any bugs or issues to the `ndn-cxx issue tracker
 <http://redmine.named-data.net/projects/ndn-cxx/issues>`__.
-
-.. include:: RELEASE_NOTES.rst

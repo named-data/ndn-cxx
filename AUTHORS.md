@@ -33,3 +33,5 @@ in the library:
 * Qiuhan Ding           <http://irl.cs.ucla.edu/~qiuhanding/>
 * Spyridon Mastorakis   <http://cs.ucla.edu/~mastorakis/>
 * Eric Newberry         <http://ericnewberry.com>
+* João Pereira          <http://website.jpereira.co.uk>
+* Mickey Sweatt         <https://www.linkedin.com/in/michaelsweatt>
