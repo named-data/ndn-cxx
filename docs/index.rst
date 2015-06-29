@@ -18,6 +18,7 @@ ndn-cxx Documentation
    INSTALL
    examples
    tutorials
+   manpages
    code-style
 
 - :doc:`README`
@@ -31,7 +32,9 @@ ndn-cxx Documentation
    + :doc:`tutorials/security-library`
    + :doc:`tutorials/utils-ndn-regex`
    + :doc:`tutorials/security-validator-config`
-   + :doc:`manpages`
+   + :doc:`tutorials/signed-interest`
+
+- :doc:`manpages`
 
 Documentation for ndn-cxx developers and contributors
 +++++++++++++++++++++++++++++++++++++++++++++++++++++
