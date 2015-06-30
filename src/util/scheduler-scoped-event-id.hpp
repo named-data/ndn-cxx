@@ -42,7 +42,7 @@ public:
 
   /** \brief move constructor
    */
-  ScopedEventId(ScopedEventId&& other);
+  ScopedEventId(ScopedEventId&& other) noexcept;
 
   /** \brief assigns an event
    *

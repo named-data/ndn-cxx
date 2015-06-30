@@ -33,15 +33,15 @@
 
 namespace ndn {
 
-#if NDN_CXX_HAVE_IS_MOVE_CONSTRUCTIBLE
-static_assert(std::is_move_constructible<Buffer>::value,
-              "Buffer must be MoveConstructible");
-#endif // NDN_CXX_HAVE_IS_MOVE_CONSTRUCTIBLE
+#if NDN_CXX_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE
+static_assert(std::is_nothrow_move_constructible<Block>::value,
+              "Block must be MoveConstructible with noexcept");
+#endif // NDN_CXX_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE
 
-#if NDN_CXX_HAVE_IS_MOVE_ASSIGNABLE
-static_assert(std::is_move_assignable<Buffer>::value,
-              "Buffer must be MoveAssignable");
-#endif // NDN_CXX_HAVE_IS_MOVE_ASSIGNABLE
+#if NDN_CXX_HAVE_IS_NOTHROW_MOVE_ASSIGNABLE
+static_assert(std::is_nothrow_move_assignable<Block>::value,
+              "Block must be MoveAssignable with noexcept");
+#endif // NDN_CXX_HAVE_IS_NOTHROW_MOVE_ASSIGNABLE
 
 const size_t MAX_SIZE_OF_BLOCK_FROM_STREAM = 8800;
 

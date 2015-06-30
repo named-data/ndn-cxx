@@ -42,7 +42,7 @@ public:
 
   /** \brief move constructor
    */
-  ScopedConnection(ScopedConnection&& other);
+  ScopedConnection(ScopedConnection&& other) noexcept;
 
   /** \brief assigns a connection
    *

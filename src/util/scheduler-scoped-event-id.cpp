@@ -25,12 +25,17 @@ namespace ndn {
 namespace util {
 namespace scheduler {
 
+#if NDN_CXX_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE
+static_assert(std::is_nothrow_move_constructible<ScopedEventId>::value,
+              "ScopedEventId must be MoveConstructible with noexcept");
+#endif // NDN_CXX_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE
+
 ScopedEventId::ScopedEventId(Scheduler& scheduler)
   : m_scheduler(&scheduler)
 {
 }
 
-ScopedEventId::ScopedEventId(ScopedEventId&& other)
+ScopedEventId::ScopedEventId(ScopedEventId&& other) noexcept
   : m_scheduler(other.m_scheduler)
   , m_event(other.m_event)
 {

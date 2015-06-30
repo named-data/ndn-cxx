@@ -11,5 +11,5 @@ def checkForTypeProperty(conf, prop, tparams):
 
 def configure(conf):
     checkForTypeProperty(conf, 'is_default_constructible', 'int')
-    checkForTypeProperty(conf, 'is_move_constructible', 'int')
-    checkForTypeProperty(conf, 'is_move_assignable', 'int')
+    checkForTypeProperty(conf, 'is_nothrow_move_constructible', 'int')
+    checkForTypeProperty(conf, 'is_nothrow_move_assignable', 'int')
