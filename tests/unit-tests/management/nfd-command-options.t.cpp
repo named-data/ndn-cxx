@@ -22,10 +22,6 @@
 #include "management/nfd-command-options.hpp"
 #include "security/signing-helpers.hpp"
 
-#ifdef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
-#include "security/identity-certificate.hpp"
-#endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
-
 #include "boost-test.hpp"
 
 namespace ndn {
@@ -71,48 +67,6 @@ BOOST_AUTO_TEST_CASE(SigningInfo)
   BOOST_CHECK_EQUAL(co.getSigningInfo().getSignerType(), security::SigningInfo::SIGNER_TYPE_ID);
   BOOST_CHECK_EQUAL(co.getSigningInfo().getSignerName(), "ndn:/tmp/identity");
 }
-
-#ifdef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
-BOOST_AUTO_TEST_CASE(SigningParams)
-{
-  CommandOptions co;
-  BOOST_CHECK_EQUAL(co.getSigningParamsKind(), CommandOptions::SIGNING_PARAMS_DEFAULT);
-
-  co.setSigningIdentity("ndn:/tmp/identity");
-  BOOST_CHECK_EQUAL(co.getSigningParamsKind(), CommandOptions::SIGNING_PARAMS_IDENTITY);
-  BOOST_CHECK_EQUAL(co.getSigningIdentity(), Name("ndn:/tmp/identity"));
-
-  co.setSigningDefault(); // reset
-  BOOST_CHECK_EQUAL(co.getSigningParamsKind(), CommandOptions::SIGNING_PARAMS_DEFAULT);
-
-  co.setSigningIdentity(Name()); // empty Name is valid identity Name
-  BOOST_CHECK_EQUAL(co.getSigningParamsKind(), CommandOptions::SIGNING_PARAMS_IDENTITY);
-  BOOST_CHECK_EQUAL(co.getSigningIdentity(), Name());
-
-  co.setSigningDefault(); // reset
-  BOOST_CHECK_EQUAL(co.getSigningParamsKind(), CommandOptions::SIGNING_PARAMS_DEFAULT);
-
-  co.setSigningCertificate("ndn:/tmp/KEY/identity/dsk-1/ID-CERT/%FD%01");
-  BOOST_CHECK_EQUAL(co.getSigningParamsKind(), CommandOptions::SIGNING_PARAMS_CERTIFICATE);
-  BOOST_CHECK_EQUAL(co.getSigningCertificate(),
-                    Name("ndn:/tmp/KEY/identity/dsk-1/ID-CERT/%FD%01"));
-
-  co.setSigningDefault(); // reset
-  BOOST_CHECK_EQUAL(co.getSigningParamsKind(), CommandOptions::SIGNING_PARAMS_DEFAULT);
-
-  co.setSigningCertificate("ndn:/KEY/dsk-1/ID-CERT/%FD%01"); // minimal certificateName
-  BOOST_CHECK_EQUAL(co.getSigningParamsKind(), CommandOptions::SIGNING_PARAMS_CERTIFICATE);
-  BOOST_CHECK_EQUAL(co.getSigningCertificate(), Name("ndn:/KEY/dsk-1/ID-CERT/%FD%01"));
-
-  co.setSigningDefault(); // reset
-  BOOST_CHECK_EQUAL(co.getSigningParamsKind(), CommandOptions::SIGNING_PARAMS_DEFAULT);
-
-  BOOST_CHECK_THROW(co.setSigningCertificate(IdentityCertificate()), // invalid certificate
-                    std::invalid_argument);
-  BOOST_CHECK_EQUAL(co.getSigningParamsKind(),
-                    CommandOptions::SIGNING_PARAMS_DEFAULT); // unchanged after throw
-}
-#endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
 BOOST_AUTO_TEST_SUITE_END()
 

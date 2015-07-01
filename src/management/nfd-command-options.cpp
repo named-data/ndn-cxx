@@ -108,8 +108,8 @@ CommandOptions::setSigningIdentity(const Name& identityName)
   return *this;
 }
 
-CommandOptions&
-CommandOptions::setSigningCertificate(const Name& certificateName)
+static security::SigningInfo
+makeSigningInfoFromIdentityCertificate(const Name& certificateName)
 {
   // A valid IdentityCertificate has at least 4 name components,
   // as it follows `<...>/KEY/<...>/<key-id>/ID-CERT/<version>` naming model.
@@ -117,14 +117,21 @@ CommandOptions::setSigningCertificate(const Name& certificateName)
     throw std::invalid_argument("certificate is invalid");
   }
 
-  m_signingInfo = security::signingByCertificate(certificateName);
+  return security::signingByCertificate(certificateName);
+}
+
+CommandOptions&
+CommandOptions::setSigningCertificate(const Name& certificateName)
+{
+  m_signingInfo = makeSigningInfoFromIdentityCertificate(certificateName);
   return *this;
 }
 
 CommandOptions&
 CommandOptions::setSigningCertificate(const IdentityCertificate& certificate)
 {
-  return this->setSigningCertificate(certificate.getName());
+  m_signingInfo = makeSigningInfoFromIdentityCertificate(certificate.getName());
+  return *this;
 }
 
 #endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS

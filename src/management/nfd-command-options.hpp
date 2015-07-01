@@ -110,30 +110,34 @@ public: // signing parameters
   /** \deprecated use getSigningInfo and setSigningInfo
    *  \return selection of signing parameters
    */
+  DEPRECATED(
   SigningParamsKind
-  getSigningParamsKind() const;
+  getSigningParamsKind() const);
 
   /** \deprecated use getSigningInfo and setSigningInfo
    *  \return identity Name
    *  \pre getSigningParamsKind() == SIGNING_PARAMS_IDENTITY
    */
+  DEPRECATED(
   const Name&
-  getSigningIdentity() const;
+  getSigningIdentity() const);
 
   /** \deprecated use getSigningInfo and setSigningInfo
    *  \return certificate Name
    *  \pre getSigningParamsKind() == SIGNING_PARAMS_CERTIFICATE
    */
+  DEPRECATED(
   const Name&
-  getSigningCertificate() const;
+  getSigningCertificate() const);
 
   /** \deprecated use getSigningInfo and setSigningInfo
    *  \brief chooses to use default identity and certificate
    *  \post getSigningParamsKind() == SIGNING_PARAMS_DEFAULT
    *  \return self
    */
+  DEPRECATED(
   CommandOptions&
-  setSigningDefault();
+  setSigningDefault());
 
   /** \deprecated use getSigningInfo and setSigningInfo
    *  \brief chooses to use a specific identity and its default certificate
@@ -141,8 +145,9 @@ public: // signing parameters
    *  \post getIdentityName() == identityName
    *  \return self
    */
+  DEPRECATED(
   CommandOptions&
-  setSigningIdentity(const Name& identityName);
+  setSigningIdentity(const Name& identityName));
 
   /** \deprecated use getSigningInfo and setSigningInfo
    *  \brief chooses to use a specific identity certificate
@@ -152,15 +157,17 @@ public: // signing parameters
    *  \post getSigningCertificate() == certificateName
    *  \return self
    */
+  DEPRECATED(
   CommandOptions&
-  setSigningCertificate(const Name& certificateName);
+  setSigningCertificate(const Name& certificateName));
 
   /** \deprecated use getSigningInfo and setSigningInfo
    *  \brief chooses to use a specific identity certificate
    *  \details This is equivalent to .setIdentityCertificate(certificate.getName())
    */
+  DEPRECATED(
   CommandOptions&
-  setSigningCertificate(const IdentityCertificate& certificate);
+  setSigningCertificate(const IdentityCertificate& certificate));
 
 #endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
