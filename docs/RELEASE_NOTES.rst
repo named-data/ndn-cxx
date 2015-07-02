@@ -95,7 +95,7 @@ Deprecated:
   * ``dataBlock`` (use ``makeBinaryBlock``)
   * ``nestedBlock`` (use ``makeNestedBlock``)
 
-- The following methods of ``CommandOptions`` class, use ``setSigningInfo()`` instead (:refs:`2893`):
+- The following methods of ``CommandOptions`` class, use ``setSigningInfo()`` instead (:issue:`2893`):
 
   * ``CommandOptions::getSigningParamsKind``
   * ``CommandOptions::getSigningIdentity``
@@ -518,7 +518,7 @@ New features:
 
 - **Security**
 
-  + Add ``type dir`` :ref:`trust-anchor in ValidatorConfig <validator-conf-trust-anchors>`
+  + Add ``type dir`` :ref:`trust-anchor in ValidatorConfig <validator-conf-trust-anchors>`_
     to add all certificates under the specified directory as trust anchors.
     The new option also allow periodic reloading trust anchors, allowing dynamic trust
     models.
