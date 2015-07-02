@@ -32,6 +32,19 @@ Digest<Hash>::Digest()
 }
 
 template<typename Hash>
+Digest<Hash>::Digest(std::istream& is)
+  : m_isInProcess(false)
+  , m_isFinalized(true)
+{
+  using namespace CryptoPP;
+
+  m_buffer = make_shared<Buffer>(m_hash.DigestSize());
+  FileSource(is, true,
+             new HashFilter(m_hash,
+                            new ArraySink(m_buffer->get(), m_buffer->size())));
+}
+
+template<typename Hash>
 void
 Digest<Hash>::reset()
 {

@@ -64,6 +64,13 @@ public:
   Digest();
 
   /**
+   * @brief Create digest of the input stream @p
+   * @param is input stream
+   */
+  explicit
+  Digest(std::istream& is);
+
+  /**
    * @brief Discard the current state and start a new digest.
    */
   void

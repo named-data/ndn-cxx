@@ -48,6 +48,39 @@ BOOST_AUTO_TEST_CASE(Sha256Digest)
                                 digest2->buf() + digest2->size());
 }
 
+BOOST_AUTO_TEST_CASE(Compute)
+{
+  std::string input = "Hello, World!";
+  ConstBufferPtr digest1 = crypto::sha256(reinterpret_cast<const uint8_t*>(input.data()),
+                                          input.size());
+
+  Sha256 hashObject;
+  hashObject << input;
+  BOOST_CHECK_EQUAL(hashObject.toString(), "DFFD6021BB2BD5B0AF676290809EC3A53191DD81C7F70A4B28688A362182986F");
+  ConstBufferPtr digest2 = hashObject.computeDigest();
+  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(),
+                                digest1->buf() + digest1->size(),
+                                digest2->buf(),
+                                digest2->buf() + digest2->size());
+
+}
+
+BOOST_AUTO_TEST_CASE(ConstructFromStream)
+{
+  std::string input = "Hello, World!";
+  ConstBufferPtr digest1 = crypto::sha256(reinterpret_cast<const uint8_t*>(input.data()),
+                                          input.size());
+
+  std::istringstream is(input);
+  Sha256 hashObject(is);
+  BOOST_CHECK_EQUAL(hashObject.toString(), "DFFD6021BB2BD5B0AF676290809EC3A53191DD81C7F70A4B28688A362182986F");
+  ConstBufferPtr digest2 = hashObject.computeDigest();
+  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(),
+                                digest1->buf() + digest1->size(),
+                                digest2->buf(),
+                                digest2->buf() + digest2->size());
+}
+
 BOOST_AUTO_TEST_CASE(Compare)
 {
   uint8_t origin[4] = {0x01, 0x02, 0x03, 0x04};
