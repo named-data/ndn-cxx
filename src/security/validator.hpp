@@ -34,8 +34,10 @@
 #include "signature-sha256-with-ecdsa.hpp"
 #include "digest-sha256.hpp"
 #include "validation-request.hpp"
+#include "identity-certificate.hpp"
 
 namespace ndn {
+
 /**
  * @brief Validator is one of the main classes of the security library.
  *

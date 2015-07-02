@@ -29,6 +29,7 @@
 #include "key-locator-checker.hpp"
 #include "../../util/io.hpp"
 #include "../validator.hpp"
+#include "../identity-certificate.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>

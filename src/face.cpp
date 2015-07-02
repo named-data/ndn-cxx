@@ -194,82 +194,37 @@ Face::getNPendingInterests() const
 
 const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
-                        const OnInterest& onInterest,
-                        const RegisterPrefixSuccessCallback& onSuccess,
-                        const RegisterPrefixFailureCallback& onFailure,
-                        const IdentityCertificate& certificate,
-                        uint64_t flags)
+                  const OnInterest& onInterest,
+                  const RegisterPrefixFailureCallback& onFailure,
+                  const security::SigningInfo& signingInfo,
+                  uint64_t flags)
 {
-  shared_ptr<InterestFilterRecord> filter =
-    make_shared<InterestFilterRecord>(interestFilter, onInterest);
-
-  nfd::CommandOptions options;
-  if (!certificate.getName().empty()) {
-    options.setSigningInfo(signingByCertificate(certificate.getName()));
-  }
-
-  return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
-                                onSuccess, onFailure,
-                                flags, options);
+    return setInterestFilter(interestFilter,
+                             onInterest,
+                             RegisterPrefixSuccessCallback(),
+                             onFailure,
+                             signingInfo,
+                             flags);
 }
 
 const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
-                        const OnInterest& onInterest,
-                        const RegisterPrefixFailureCallback& onFailure,
-                        const IdentityCertificate& certificate,
-                        uint64_t flags)
+                  const OnInterest& onInterest,
+                  const RegisterPrefixSuccessCallback& onSuccess,
+                  const RegisterPrefixFailureCallback& onFailure,
+                  const security::SigningInfo& signingInfo,
+                  uint64_t flags)
 {
-  shared_ptr<InterestFilterRecord> filter =
-    make_shared<InterestFilterRecord>(interestFilter, onInterest);
+    shared_ptr<InterestFilterRecord> filter =
+      make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
-  nfd::CommandOptions options;
-  if (!certificate.getName().empty()) {
-    options.setSigningInfo(signingByCertificate(certificate.getName()));
-  }
+    nfd::CommandOptions options;
+    options.setSigningInfo(signingInfo);
 
-  return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
-                                RegisterPrefixSuccessCallback(), onFailure,
-                                flags, options);
+    return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
+                                  onSuccess, onFailure,
+                                  flags, options);
 }
-
-const RegisteredPrefixId*
-Face::setInterestFilter(const InterestFilter& interestFilter,
-                        const OnInterest& onInterest,
-                        const RegisterPrefixSuccessCallback& onSuccess,
-                        const RegisterPrefixFailureCallback& onFailure,
-                        const Name& identity,
-                        uint64_t flags)
-{
-  shared_ptr<InterestFilterRecord> filter =
-    make_shared<InterestFilterRecord>(interestFilter, onInterest);
-
-  nfd::CommandOptions options;
-  options.setSigningInfo(signingByIdentity(identity));
-
-  return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
-                                onSuccess, onFailure,
-                                flags, options);
-}
-
-const RegisteredPrefixId*
-Face::setInterestFilter(const InterestFilter& interestFilter,
-                        const OnInterest& onInterest,
-                        const RegisterPrefixFailureCallback& onFailure,
-                        const Name& identity,
-                        uint64_t flags)
-{
-  shared_ptr<InterestFilterRecord> filter =
-    make_shared<InterestFilterRecord>(interestFilter, onInterest);
-
-  nfd::CommandOptions options;
-  options.setSigningInfo(signingByIdentity(identity));
-
-  return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
-                                RegisterPrefixSuccessCallback(), onFailure,
-                                flags, options);
-}
-
 
 const InterestFilterId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
@@ -283,6 +238,87 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   return reinterpret_cast<const InterestFilterId*>(filter.get());
 }
 
+#ifdef NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
+
+const RegisteredPrefixId*
+Face::setInterestFilter(const InterestFilter& interestFilter,
+                        const OnInterest& onInterest,
+                        const RegisterPrefixSuccessCallback& onSuccess,
+                        const RegisterPrefixFailureCallback& onFailure,
+                        const IdentityCertificate& certificate,
+                        uint64_t flags)
+{
+  security::SigningInfo signingInfo;
+  if (!certificate.getName().empty()) {
+    signingInfo = signingByCertificate(certificate.getName());
+  }
+  return setInterestFilter(interestFilter, onInterest,
+                           onSuccess, onFailure,
+                           signingInfo, flags);
+}
+
+const RegisteredPrefixId*
+Face::setInterestFilter(const InterestFilter& interestFilter,
+                        const OnInterest& onInterest,
+                        const RegisterPrefixFailureCallback& onFailure,
+                        const IdentityCertificate& certificate,
+                        uint64_t flags)
+{
+  security::SigningInfo signingInfo;
+  if (!certificate.getName().empty()) {
+    signingInfo = signingByCertificate(certificate.getName());
+  }
+  return setInterestFilter(interestFilter, onInterest,
+                             onFailure, signingInfo, flags);
+}
+
+const RegisteredPrefixId*
+Face::setInterestFilter(const InterestFilter& interestFilter,
+                        const OnInterest& onInterest,
+                        const RegisterPrefixSuccessCallback& onSuccess,
+                        const RegisterPrefixFailureCallback& onFailure,
+                        const Name& identity,
+                        uint64_t flags)
+{
+  security::SigningInfo signingInfo = signingByIdentity(identity);
+
+  return setInterestFilter(interestFilter, onInterest,
+                           onSuccess, onFailure,
+                           signingInfo, flags);
+}
+
+const RegisteredPrefixId*
+Face::setInterestFilter(const InterestFilter& interestFilter,
+                        const OnInterest& onInterest,
+                        const RegisterPrefixFailureCallback& onFailure,
+                        const Name& identity,
+                        uint64_t flags)
+{
+  security::SigningInfo signingInfo = signingByIdentity(identity);
+
+  return setInterestFilter(interestFilter, onInterest,
+                           onFailure, signingInfo, flags);
+}
+
+#endif // NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
+
+const RegisteredPrefixId*
+Face::registerPrefix(const Name& prefix,
+               const RegisterPrefixSuccessCallback& onSuccess,
+               const RegisterPrefixFailureCallback& onFailure,
+               const security::SigningInfo& signingInfo,
+               uint64_t flags)
+{
+
+    nfd::CommandOptions options;
+    options.setSigningInfo(signingInfo);
+
+    return m_impl->registerPrefix(prefix, shared_ptr<InterestFilterRecord>(),
+                                  onSuccess, onFailure,
+                                  flags, options);
+}
+
+#ifdef NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 const RegisteredPrefixId*
 Face::registerPrefix(const Name& prefix,
                      const RegisterPrefixSuccessCallback& onSuccess,
@@ -290,14 +326,12 @@ Face::registerPrefix(const Name& prefix,
                      const IdentityCertificate& certificate,
                      uint64_t flags)
 {
-  nfd::CommandOptions options;
+  security::SigningInfo signingInfo;
   if (!certificate.getName().empty()) {
-    options.setSigningInfo(signingByCertificate(certificate.getName()));
+    signingInfo = signingByCertificate(certificate.getName());
   }
-
-  return m_impl->registerPrefix(prefix, shared_ptr<InterestFilterRecord>(),
-                                onSuccess, onFailure,
-                                flags, options);
+  return registerPrefix(prefix, onSuccess,
+                        onFailure, signingInfo, flags);
 }
 
 const RegisteredPrefixId*
@@ -307,13 +341,11 @@ Face::registerPrefix(const Name& prefix,
                      const Name& identity,
                      uint64_t flags)
 {
-  nfd::CommandOptions options;
-  options.setSigningInfo(signingByIdentity(identity));
-
-  return m_impl->registerPrefix(prefix, shared_ptr<InterestFilterRecord>(),
-                                onSuccess, onFailure,
-                                flags, options);
+  security::SigningInfo signingInfo = signingByIdentity(identity);
+  return registerPrefix(prefix, onSuccess,
+                        onFailure, signingInfo, flags);
 }
+#endif // NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 
 void
 Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
