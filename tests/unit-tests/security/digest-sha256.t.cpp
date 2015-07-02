@@ -22,7 +22,8 @@
 #include "security/digest-sha256.hpp"
 #include "security/key-chain.hpp"
 #include "security/validator.hpp"
-#include "security/cryptopp.hpp"
+#include "util/string-helper.hpp"
+
 #include "identity-management-fixture.hpp"
 #include "boost-test.hpp"
 
@@ -39,10 +40,8 @@ BOOST_AUTO_TEST_CASE(Sha256)
 
   char content[6] = "1234\n";
   ConstBufferPtr buf = crypto::sha256(reinterpret_cast<uint8_t*>(content), 5);
-  std::string result;
-  StringSource(buf->buf(), buf->size(), true, new HexEncoder(new StringSink(result), false));
 
-  BOOST_CHECK_EQUAL(SHA256_RESULT, result);
+  BOOST_CHECK_EQUAL(SHA256_RESULT, toHex(buf->buf(), buf->size(), false));
 }
 
 BOOST_AUTO_TEST_CASE(DataSignature)

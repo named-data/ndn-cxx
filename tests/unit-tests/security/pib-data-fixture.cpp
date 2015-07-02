@@ -79,10 +79,7 @@
  *   {
  *     using namespace CryptoPP;
  *
- *     std::stringstream ss;
- *     StringSource(buf, size, true, new HexEncoder(new FileSink(ss)));
- *
- *     std::string hex = ss.str();
+ *     std::string hex = toHex(buf, size);
  *
  *     for (int i = 0; i < hex.size(); i++) {
  *       if (i % 40 == 0)

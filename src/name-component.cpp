@@ -102,16 +102,10 @@ Component::fromEscapedString(const char* escapedString, size_t beginOffset, size
                   "(expected sha256 in hex encoding)");
 
     try {
-      std::string value;
-      CryptoPP::StringSource(reinterpret_cast<const uint8_t*>(trimmedString.c_str()) +
-                               getSha256DigestUriPrefix().size(),
-                             trimmedString.size () - getSha256DigestUriPrefix().size(), true,
-                             new CryptoPP::HexDecoder(new CryptoPP::StringSink(value)));
-
-      return fromImplicitSha256Digest(reinterpret_cast<const uint8_t*>(value.c_str()),
-                                      value.size());
+      trimmedString.erase(0, getSha256DigestUriPrefix().size());
+      return fromImplicitSha256Digest(fromHex(trimmedString));
     }
-    catch (CryptoPP::Exception& e) {
+    catch (StringHelperError& e) {
       throw Error("Cannot convert to a ImplicitSha256DigestComponent (invalid hex encoding)");
     }
   }
@@ -139,8 +133,7 @@ Component::toUri(std::ostream& result) const
   if (type() == tlv::ImplicitSha256DigestComponent) {
     result << getSha256DigestUriPrefix();
 
-    CryptoPP::StringSource(value(), value_size(), true,
-                           new CryptoPP::HexEncoder(new CryptoPP::FileSink(result), false));
+    printHex(result, value(), value_size(), false);
   }
   else {
     const uint8_t* value = this->value();

@@ -17,131 +17,126 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Jeff Thompson <jefft0@remap.ucla.edu>
  */
 
 #ifndef NDN_STRING_HELPER_HPP
 #define NDN_STRING_HELPER_HPP
 
-#include <string>
-#include <sstream>
+#include "../common.hpp"
+#include "../encoding/buffer.hpp"
 
 namespace ndn {
 
-static const char* WHITESPACE_CHARS = " \n\r\t";
+class StringHelperError : public std::invalid_argument
+{
+public:
+  explicit
+  StringHelperError(const std::string& what)
+    : std::invalid_argument(what)
+  {
+  }
+};
+
+/**
+ * @brief Output the hex representation of the bytes in array to the output stream @p os
+ *
+ * @param os Output stream
+ * @param buffer The array of bytes
+ * @param length Size of the array
+ * @param isUpperCase if true (default) output use uppercase for hex values
+ *
+ * @example
+ *     printHex(std::cout, "Hello, World!") outputs "48656C6C6F2C20776F726C6421"
+ *     printHex(std::cout, "Hello, World!", false) outputs "48656c6c6f2c20776f726c6421"
+ *
+ * Each octet is always represented as two hex characters ("00" for octet==0).
+ *
+ * The output string is a continuous sequence of hex characters without any whitespace separators.
+ */
+void
+printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool isUpperCase = true);
+
+/**
+ * @brief Output the hex representation of the bytes in the @p buffer to the output stream @p os
+ *
+ * @param os Output stream
+ * @param buffer The array of bytes
+ * @param isUpperCase if true (default) output use uppercase for hex values
+ */
+void
+printHex(std::ostream& os, const Buffer& buffer, bool isUpperCase = true);
 
 /**
  * @brief Return the hex representation of the bytes in array
  *
- * @param array The array of bytes
- * @param arraySize Size of the array
+ * @param buffer The array of bytes
+ * @param length Size of the array
+ * @param isUpperCase if true (default) output use uppercase for hex values
+ *
+ * @example
+ *     toHex("Hello, World!") == "48656C6C6F2C20776F726C6421"
+ *     toHex("Hello, World!", false) == "48656c6c6f2c20776f726c6421"
+ *
+ * Each octet is always represented as two hex characters ("00" for octet==0).
+ *
+ * The output string is a continuous sequence of hex characters without any whitespace separators.
  */
-inline std::string
-toHex(const uint8_t* array, size_t arraySize)
-{
-  if (array == 0 || arraySize == 0)
-    return "";
+std::string
+toHex(const uint8_t* buffer, size_t length, bool isUpperCase = true);
 
-  std::ostringstream result;
-  result.flags(std::ios::hex | std::ios::uppercase);
-  for (size_t i = 0; i < arraySize; ++i) {
-    uint8_t x = array[i];
-    if (x < 16)
-      result << '0';
-    result << (unsigned int)x;
-  }
+/**
+ * @brief Return the hex representation of the bytes in the @p buffer to the output stream @p os
+ *
+ * @param buffer The array of bytes
+ * @param isUpperCase if true (default) output use uppercase for hex values
+ */
+std::string
+toHex(const Buffer& buffer, bool isUpperCase = true);
 
-  return result.str();
-}
+/**
+ * @brief Convert the hex string to buffer
+ * @param hexString sequence of pairs of hex numbers (lower and upper case can be mixed)
+ *        without any whitespace separators (e.g., "48656C6C6F2C20776F726C6421")
+ * @throw StringHelperError if input is invalid
+ */
+shared_ptr<const Buffer>
+fromHex(const std::string& hexString);
 
 /**
  * @brief Modify str in place to erase whitespace on the left
  */
-inline void
-trimLeft(std::string& str)
-{
-  size_t found = str.find_first_not_of(WHITESPACE_CHARS);
-  if (found != std::string::npos) {
-    if (found > 0)
-      str.erase(0, found);
-  }
-  else
-    // All whitespace
-    str.clear();
-}
+void
+trimLeft(std::string& str);
 
 /**
  * @brief Modify str in place to erase whitespace on the right
  */
-inline void
-trimRight(std::string& str)
-{
-  size_t found = str.find_last_not_of(WHITESPACE_CHARS);
-  if (found != std::string::npos) {
-    if (found + 1 < str.size())
-      str.erase(found + 1);
-  }
-  else
-    // All whitespace
-    str.clear();
-}
+void
+trimRight(std::string& str);
 
 /**
  * @brief Modify str in place to erase whitespace on the left and right
  */
-inline void
-trim(std::string& str)
-{
-  trimLeft(str);
-  trimRight(str);
-}
+void
+trim(std::string& str);
 
 /**
  * @brief Convert the hex character to an integer from 0 to 15, or -1 if not a hex character
  */
-inline int
-fromHexChar(uint8_t c)
-{
-  if (c >= '0' && c <= '9')
-    return (int)c - (int)'0';
-  else if (c >= 'A' && c <= 'F')
-    return (int)c - (int)'A' + 10;
-  else if (c >= 'a' && c <= 'f')
-    return (int)c - (int)'a' + 10;
-  else
-    return -1;
-}
+int
+fromHexChar(uint8_t c);
 
 /**
- * @brief Return a copy of str, converting each escaped "%XX" to the char value
+ * @brief Decode a percent-encoded string
+ * @see RFC 3986 section 2
+ *
+ * When % is not followed by two hex characters, the output is not transformed.
+ *
+ * @example unescape("hello%20world") == "hello world"
+ * @example unescape("hello%20world%FooBar") == "hello world%FooBar"
  */
-inline std::string
-unescape(const std::string& str)
-{
-  std::ostringstream result;
-
-  for (size_t i = 0; i < str.size(); ++i) {
-    if (str[i] == '%' && i + 2 < str.size()) {
-      int hi = fromHexChar(str[i + 1]);
-      int lo = fromHexChar(str[i + 2]);
-
-      if (hi < 0 || lo < 0)
-        // Invalid hex characters, so just keep the escaped string.
-        result << str[i] << str[i + 1] << str[i + 2];
-      else
-        result << (uint8_t)(16 * hi + lo);
-
-      // Skip ahead past the escaped value.
-      i += 2;
-    }
-    else
-      // Just copy through.
-      result << str[i];
-  }
-
-  return result.str();
-}
+std::string
+unescape(const std::string& str);
 
 } // namespace ndn
 

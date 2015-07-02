@@ -20,6 +20,7 @@
  */
 
 #include "digest.hpp"
+#include "string-helper.hpp"
 #include <sstream>
 
 namespace ndn {
@@ -158,11 +159,8 @@ template<typename Hash>
 std::ostream&
 operator<<(std::ostream& os, Digest<Hash>& digest)
 {
-  using namespace CryptoPP;
-
-  std::string output;
   ConstBufferPtr buffer = digest.computeDigest();
-  StringSource(buffer->buf(), buffer->size(), true, new HexEncoder(new FileSink(os)));
+  printHex(os, buffer->buf(), buffer->size());
 
   return os;
 }
