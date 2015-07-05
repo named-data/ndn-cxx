@@ -19,20 +19,23 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_SECURITY_TRANSFORM_HPP
-#define NDN_CXX_SECURITY_TRANSFORM_HPP
+#include "openssl-helper.hpp"
 
-#include "transform/buffer-source.hpp"
-#include "transform/stream-source.hpp"
-#include "transform/step-source.hpp"
+namespace ndn {
+namespace security {
+namespace detail {
 
-#include "transform/bool-sink.hpp"
-#include "transform/stream-sink.hpp"
+const EVP_MD*
+toDigestEvpMd(DigestAlgorithm algo)
+{
+  switch (algo) {
+  case DIGEST_ALGORITHM_SHA256:
+    return EVP_sha256();
+  default:
+    return nullptr;
+  }
+}
 
-#include "transform/hex-encode.hpp"
-#include "transform/hex-decode.hpp"
-#include "transform/base64-encode.hpp"
-#include "transform/base64-decode.hpp"
-#include "transform/digest-filter.hpp"
-
-#endif // NDN_CXX_SECURITY_TRANSFORM_HPP
+} // namespace detail
+} // namespace security
+} // namespace ndn

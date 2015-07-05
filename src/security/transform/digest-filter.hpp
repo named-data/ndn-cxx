@@ -19,58 +19,53 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_COMMON_HPP
-#define NDN_SECURITY_COMMON_HPP
+#ifndef NDN_CXX_SECURITY_TRANSFORM_DIGEST_FILTER_HPP
+#define NDN_CXX_SECURITY_TRANSFORM_DIGEST_FILTER_HPP
 
-#include "../common.hpp"
+#include "transform-base.hpp"
+#include "../security-common.hpp"
 
 namespace ndn {
+namespace security {
+namespace transform {
 
-namespace signed_interest {
+/**
+ * @brief The module to calculate digest.
+ */
+class DigestFilter : public Transform
+{
+public:
+  /**
+   * @brief Create a digest module with algorithm @p algo
+   */
+  explicit
+  DigestFilter(DigestAlgorithm algo);
 
-const ssize_t POS_SIG_VALUE = -1;
-const ssize_t POS_SIG_INFO = -2;
-const ssize_t POS_RANDOM_VAL = -3;
-const ssize_t POS_TIMESTAMP = -4;
+private:
+  /**
+   * @brief Append data @p buf into digest calculation
+   *
+   * @return The number of bytes that have been accepted
+   */
+  virtual size_t
+  convert(const uint8_t* buf, size_t size) final;
 
-const size_t MIN_LENGTH = 4;
+  /**
+   * @brief Finalize digest calculation and write the digest into next module.
+   */
+  virtual void
+  finalize() final;
 
-} // namespace signed_interest
-
-enum KeyType {
-  KEY_TYPE_NONE  = 0,
-  /// @deprecated use KEY_TYPE_NONE
-  KEY_TYPE_NULL = KEY_TYPE_NONE,
-
-  KEY_TYPE_RSA   = 1,
-  KEY_TYPE_ECDSA = 2,
-  KEY_TYPE_AES   = 128
+private:
+  class Impl;
+  unique_ptr<Impl> m_impl;
 };
 
-enum KeyClass {
-  KEY_CLASS_NONE,
-  KEY_CLASS_PUBLIC,
-  KEY_CLASS_PRIVATE,
-  KEY_CLASS_SYMMETRIC
-};
+unique_ptr<Transform>
+digestFilter(DigestAlgorithm algo = DIGEST_ALGORITHM_SHA256);
 
-enum DigestAlgorithm {
-  DIGEST_ALGORITHM_NONE = 0,
-  DIGEST_ALGORITHM_SHA256 = 1
-};
-
-enum EncryptMode {
-  ENCRYPT_MODE_DEFAULT,
-  ENCRYPT_MODE_CFB_AES
-  // ENCRYPT_MODE_CBC_AES
-};
-
-enum AclType {
-  ACL_TYPE_NONE,
-  ACL_TYPE_PUBLIC,
-  ACL_TYPE_PRIVATE
-};
-
+} // namespace transform
+} // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_COMMON_HPP
+#endif // NDN_CXX_SECURITY_TRANSFORM_DIGEST_FILTER_HPP

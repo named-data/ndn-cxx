@@ -58,6 +58,9 @@ BOOST_AUTO_TEST_CASE(SymbolVisibility)
 
   transform::Base64Decode* base64Decode = nullptr;
   BOOST_CHECK(base64Decode == nullptr);
+
+  transform::DigestFilter* digestFilter = nullptr;
+  BOOST_CHECK(digestFilter == nullptr);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestTransform

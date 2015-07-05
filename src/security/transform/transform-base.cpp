@@ -92,6 +92,14 @@ Transform::flushOutputBuffer()
 }
 
 void
+Transform::flushAllOutput()
+{
+  while (!isOutputBufferEmpty()) {
+    flushOutputBuffer();
+  }
+}
+
+void
 Transform::setOutputBuffer(unique_ptr<OBuffer> buffer)
 {
   BOOST_ASSERT(isOutputBufferEmpty());
@@ -139,9 +147,7 @@ Transform::preTransform()
 void
 Transform::finalize()
 {
-  while (!isOutputBufferEmpty()) {
-    flushOutputBuffer();
-  }
+  flushAllOutput();
 }
 
 Source::Source()

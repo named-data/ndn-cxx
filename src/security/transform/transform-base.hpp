@@ -186,9 +186,18 @@ protected:
 
   /**
    * @brief Read the content from output buffer and write it into next module.
+   *
+   * It is not guaranteed that all the content in output buffer will be flushed to next module.
    */
   void
   flushOutputBuffer();
+
+  /**
+   * @brief Read the all the content from output buffer and write it into next module.
+   * @post isOutputBufferEmpty() returns true.
+   */
+  void
+  flushAllOutput();
 
   /**
    * @brief Set output buffer to @p buffer
