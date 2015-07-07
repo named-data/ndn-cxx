@@ -512,17 +512,33 @@ Block::value_size() const
 }
 
 Block::element_iterator
-Block::erase(Block::element_iterator position)
+Block::erase(Block::element_const_iterator position)
 {
   resetWire();
+
+#ifdef NDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR
   return m_subBlocks.erase(position);
+#else
+  element_iterator it = m_subBlocks.begin();
+  std::advance(it, std::distance(m_subBlocks.cbegin(), position));
+  return m_subBlocks.erase(it);
+#endif
 }
 
 Block::element_iterator
-Block::erase(Block::element_iterator first, Block::element_iterator last)
+Block::erase(Block::element_const_iterator first, Block::element_const_iterator last)
 {
   resetWire();
+
+#ifdef NDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR
   return m_subBlocks.erase(first, last);
+#else
+  element_iterator itStart = m_subBlocks.begin();
+  element_iterator itEnd = m_subBlocks.begin();
+  std::advance(itStart, std::distance(m_subBlocks.cbegin(), first));
+  std::advance(itEnd, std::distance(m_subBlocks.cbegin(), last));
+  return m_subBlocks.erase(itStart, itEnd);
+#endif
 }
 
 void
@@ -530,6 +546,20 @@ Block::push_back(const Block& element)
 {
   resetWire();
   m_subBlocks.push_back(element);
+}
+
+Block::element_iterator
+Block::insert(Block::element_const_iterator pos, const Block& element)
+{
+  resetWire();
+
+#ifdef NDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR
+  return m_subBlocks.insert(pos, element);
+#else
+  element_iterator it = m_subBlocks.begin();
+  std::advance(it, std::distance(m_subBlocks.cbegin(), pos));
+  return m_subBlocks.insert(it, element);
+#endif
 }
 
 Block::element_const_iterator

@@ -21,6 +21,7 @@
 
 #include "encoding/encoding-buffer.hpp"
 #include "encoding/buffer-stream.hpp"
+#include "encoding/block-helpers.hpp"
 
 #include "boost-test.hpp"
 
@@ -357,6 +358,123 @@ BOOST_AUTO_TEST_CASE(Equality)
   Block f("\x06\x01\xcc", 3);;
   BOOST_CHECK_EQUAL(e == f, false);
   BOOST_CHECK_EQUAL(e != f, true);
+}
+
+BOOST_AUTO_TEST_CASE(InsertBeginning)
+{
+  Block masterBlock(tlv::Name);
+  Block firstBlock = makeStringBlock(tlv::NameComponent, "firstName");
+  Block secondBlock = makeStringBlock(tlv::NameComponent, "secondName");
+  Block thirdBlock = makeStringBlock(tlv::NameComponent, "thirdName");
+
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 0);
+  masterBlock.push_back(secondBlock);
+  masterBlock.push_back(thirdBlock);
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 2);
+  Block::element_const_iterator it = masterBlock.find(tlv::NameComponent);
+  BOOST_CHECK_EQUAL(*it == secondBlock, true);
+
+  it = masterBlock.insert(it, firstBlock);
+
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 3);
+  BOOST_CHECK_EQUAL(*(it + 1) == secondBlock, true);
+  BOOST_CHECK_EQUAL(*(masterBlock.elements_begin()) == firstBlock, true);
+}
+
+BOOST_AUTO_TEST_CASE(InsertEnd)
+{
+  Block masterBlock(tlv::Name);
+  Block firstBlock = makeStringBlock(tlv::NameComponent, "firstName");
+  Block secondBlock = makeStringBlock(tlv::NameComponent, "secondName");
+  Block thirdBlock = makeStringBlock(tlv::NameComponent, "thirdName");
+
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 0);
+  masterBlock.push_back(firstBlock);
+  masterBlock.push_back(secondBlock);
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 2);
+  Block::element_const_iterator it = masterBlock.elements_end();
+  BOOST_CHECK_EQUAL(*(it - 1) == secondBlock, true);
+
+  it = masterBlock.insert(it, thirdBlock);
+
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 3);
+  BOOST_CHECK_EQUAL(*(it - 1) == secondBlock, true);
+  BOOST_CHECK_EQUAL(*(masterBlock.elements_end() - 1) == thirdBlock, true);
+}
+
+BOOST_AUTO_TEST_CASE(InsertMiddle)
+{
+  Block masterBlock(tlv::Name);
+  Block firstBlock = makeStringBlock(tlv::NameComponent, "firstName");
+  Block secondBlock = makeStringBlock(tlv::NameComponent, "secondName");
+  Block thirdBlock = makeStringBlock(tlv::NameComponent, "thirdName");
+
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 0);
+  masterBlock.push_back(firstBlock);
+  masterBlock.push_back(thirdBlock);
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 2);
+  Block::element_const_iterator it = masterBlock.find(tlv::NameComponent);
+  BOOST_CHECK_EQUAL(*it == firstBlock, true);
+
+  it = masterBlock.insert(it+1, secondBlock);
+
+  BOOST_CHECK_EQUAL(*it == secondBlock, true);
+  BOOST_CHECK_EQUAL(*(it + 1) == thirdBlock, true);
+  BOOST_CHECK_EQUAL(*(it - 1) == firstBlock, true);
+}
+
+BOOST_AUTO_TEST_CASE(EraseSingleElement)
+{
+  Block masterBlock(tlv::Name);
+  Block firstBlock = makeStringBlock(tlv::NameComponent, "firstName");
+  Block secondBlock = makeStringBlock(tlv::NameComponent, "secondName");
+  Block thirdBlock = makeStringBlock(tlv::NameComponent, "thirdName");
+
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 0);
+  masterBlock.push_back(firstBlock);
+  masterBlock.push_back(secondBlock);
+  masterBlock.push_back(thirdBlock);
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 3);
+  Block::element_const_iterator it = masterBlock.find(tlv::NameComponent);
+  it++;
+  BOOST_CHECK_EQUAL(*it == secondBlock, true);
+
+  it = masterBlock.erase(it);
+
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 2);
+  BOOST_CHECK_EQUAL(*(it) == thirdBlock, true);
+  BOOST_CHECK_EQUAL(*(it - 1) == firstBlock, true);
+}
+
+BOOST_AUTO_TEST_CASE(EraseRange)
+{
+  Block masterBlock(tlv::Name);
+  Block firstBlock = makeStringBlock(tlv::NameComponent, "firstName");
+  Block secondBlock = makeStringBlock(tlv::NameComponent, "secondName");
+  Block thirdBlock = makeStringBlock(tlv::NameComponent, "thirdName");
+  Block fourthBlock = makeStringBlock(tlv::NameComponent, "fourthName");
+  Block fifthBlock = makeStringBlock(tlv::NameComponent, "fifthName");
+  Block sixthBlock = makeStringBlock(tlv::NameComponent, "sixthName");
+
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 0);
+  masterBlock.push_back(firstBlock);
+  masterBlock.push_back(secondBlock);
+  masterBlock.push_back(thirdBlock);
+  masterBlock.push_back(fourthBlock);
+  masterBlock.push_back(fifthBlock);
+  masterBlock.push_back(sixthBlock);
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 6);
+  Block::element_const_iterator itStart = masterBlock.find(tlv::NameComponent);
+  itStart++;
+  Block::element_const_iterator itEnd = itStart + 3;
+  BOOST_CHECK_EQUAL(*itStart == secondBlock, true);
+  BOOST_CHECK_EQUAL(*itEnd == fifthBlock, true);
+
+  Block::element_const_iterator newIt = masterBlock.erase(itStart, itEnd);
+
+  BOOST_CHECK_EQUAL(masterBlock.elements_size(), 3);
+  BOOST_CHECK_EQUAL(*(newIt) == fifthBlock, true);
+  BOOST_CHECK_EQUAL(*(newIt - 1) == firstBlock, true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

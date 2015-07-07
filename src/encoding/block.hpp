@@ -253,13 +253,22 @@ public: // sub elements
   remove(uint32_t type);
 
   element_iterator
-  erase(element_iterator position);
+  erase(element_const_iterator position);
 
   element_iterator
-  erase(element_iterator first, element_iterator last);
+  erase(element_const_iterator first, element_const_iterator last);
 
   void
   push_back(const Block& element);
+
+  /**
+   * @brief insert Insert a new element in a specific position
+   * @param pos Position to insert the new element
+   * @param element Element to be inserted
+   * @return An iterator that points to the first of the newly inserted elements.
+   */
+  element_iterator
+  insert(element_const_iterator pos, const Block& element);
 
   /** @brief Get all subelements
    */
