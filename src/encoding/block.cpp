@@ -433,16 +433,134 @@ Block::blockFromValue() const
                begin, end);
 }
 
+Block::operator boost::asio::const_buffer() const
+{
+  return boost::asio::const_buffer(wire(), size());
+}
+
+bool
+Block::empty() const
+{
+  return m_type == std::numeric_limits<uint32_t>::max();
+}
+
+bool
+Block::hasWire() const
+{
+  return m_buffer && (m_begin != m_end);
+}
+
+Buffer::const_iterator
+Block::begin() const
+{
+  if (!hasWire())
+    throw Error("Underlying wire buffer is empty");
+
+  return m_begin;
+}
+
+Buffer::const_iterator
+Block::end() const
+{
+  if (!hasWire())
+    throw Error("Underlying wire buffer is empty");
+
+  return m_end;
+}
+
+const uint8_t*
+Block::wire() const
+{
+  if (!hasWire())
+    throw Error("(Block::wire) Underlying wire buffer is empty");
+
+  return &*m_begin;
+}
+
+size_t
+Block::size() const
+{
+  if (hasWire() || hasValue()) {
+    return m_size;
+  }
+  else
+    throw Error("Block size cannot be determined (undefined block size)");
+}
+
+bool
+Block::hasValue() const
+{
+  return static_cast<bool>(m_buffer);
+}
+
+const uint8_t*
+Block::value() const
+{
+  if (!hasValue())
+    return 0;
+
+  return &*m_value_begin;
+}
+
+size_t
+Block::value_size() const
+{
+  if (!hasValue())
+    return 0;
+
+  return m_value_end - m_value_begin;
+}
+
+Block::element_iterator
+Block::erase(Block::element_iterator position)
+{
+  resetWire();
+  return m_subBlocks.erase(position);
+}
+
+Block::element_iterator
+Block::erase(Block::element_iterator first, Block::element_iterator last)
+{
+  resetWire();
+  return m_subBlocks.erase(first, last);
+}
+
+void
+Block::push_back(const Block& element)
+{
+  resetWire();
+  m_subBlocks.push_back(element);
+}
+
+Block::element_const_iterator
+Block::elements_begin() const
+{
+  return m_subBlocks.begin();
+}
+
+Block::element_const_iterator
+Block::elements_end() const
+{
+  return m_subBlocks.end();
+}
+
+size_t
+Block::elements_size() const
+{
+  return m_subBlocks.size();
+}
+
+bool
+Block::operator!=(const Block& other) const
+{
+  return !this->operator==(other);
+}
+
 bool
 Block::operator==(const Block& other) const
 {
   return this->size() == other.size() &&
          std::equal(this->begin(), this->end(), other.begin());
-}
-
-Block::operator boost::asio::const_buffer() const
-{
-  return boost::asio::const_buffer(wire(), size());
 }
 
 } // namespace ndn
