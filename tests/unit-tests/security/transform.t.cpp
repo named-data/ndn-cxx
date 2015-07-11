@@ -64,6 +64,9 @@ BOOST_AUTO_TEST_CASE(SymbolVisibility)
 
   transform::HmacFilter* hmacFilter = nullptr;
   BOOST_CHECK(hmacFilter == nullptr);
+
+  transform::BlockCipher* blockCipher = nullptr;
+  BOOST_CHECK(blockCipher == nullptr);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestTransform

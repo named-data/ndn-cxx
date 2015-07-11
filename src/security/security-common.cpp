@@ -105,6 +105,23 @@ operator<<(std::ostream& os, BlockCipherAlgorithm algorithm)
 }
 
 std::ostream&
+operator<<(std::ostream& os, CipherOperator op)
+{
+  switch (op) {
+  case CipherOperator::DECRYPT:
+    os << "DECRYPT";
+    break;
+  case CipherOperator::ENCRYPT:
+    os << "ENCRYPT";
+    break;
+  default:
+    os << static_cast<int>(op);
+    break;
+  };
+  return os;
+}
+
+std::ostream&
 operator<<(std::ostream& os, AclType aclType)
 {
   switch (aclType) {

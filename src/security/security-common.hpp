@@ -73,6 +73,14 @@ enum class BlockCipherAlgorithm {
 std::ostream&
 operator<<(std::ostream& os, BlockCipherAlgorithm algorithm);
 
+enum class CipherOperator {
+  DECRYPT = 0,
+  ENCRYPT = 1
+};
+
+std::ostream&
+operator<<(std::ostream& os, CipherOperator op);
+
 enum class AclType {
   NONE,
   PUBLIC,
