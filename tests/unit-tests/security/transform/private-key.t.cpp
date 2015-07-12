@@ -388,7 +388,21 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, TestKeyParams)
   ConstBufferPtr pKeyBits = sKey->derivePublicKey();
   pKey.loadPkcs8(pKeyBits->buf(), pKeyBits->size());
 
-  // TODO: Sign/Verify using the generated key
+  uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
+
+  OBufferStream os;
+  BOOST_REQUIRE_NO_THROW(bufferSource(data, sizeof(data)) >>
+                         signerFilter(DigestAlgorithm::SHA256, *sKey) >>
+                         streamSink(os));
+
+  ConstBufferPtr sig = os.buf();
+  bool result = false;
+  BOOST_REQUIRE_NO_THROW(bufferSource(data, sizeof(data)) >>
+                         verifierFilter(DigestAlgorithm::SHA256, pKey, sig->buf(), sig->size()) >>
+                         boolSink(result));
+
+  BOOST_CHECK(result);
+
 
   unique_ptr<PrivateKey> sKey2 = generatePrivateKey(T());
 

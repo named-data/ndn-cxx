@@ -67,6 +67,12 @@ BOOST_AUTO_TEST_CASE(SymbolVisibility)
 
   transform::BlockCipher* blockCipher = nullptr;
   BOOST_CHECK(blockCipher == nullptr);
+
+  transform::SignerFilter* signerFilter = nullptr;
+  BOOST_CHECK(signerFilter == nullptr);
+
+  transform::VerifierFilter* verifierFilter = nullptr;
+  BOOST_CHECK(verifierFilter == nullptr);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestTransform

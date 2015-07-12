@@ -36,5 +36,7 @@
 #include "transform/digest-filter.hpp"
 #include "transform/hmac-filter.hpp"
 #include "transform/block-cipher.hpp"
+#include "transform/signer-filter.hpp"
+#include "transform/verifier-filter.hpp"
 
 #endif // NDN_CXX_SECURITY_TRANSFORM_HPP
