@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,6 +26,7 @@
 
 namespace ndn {
 namespace security {
+namespace pib {
 
 /**
  * @brief An in-memory implementation of Pib
@@ -80,73 +81,68 @@ public: // Identity management
 public: // Key management
 
   bool
-  hasKey(const Name& identity, const name::Component& keyId) const override;
+  hasKey(const Name& keyName) const override;
 
   void
-  addKey(const Name& identity, const name::Component& keyId, const v1::PublicKey& publicKey) override;
+  addKey(const Name& identity, const Name& keyName, const uint8_t* key, size_t keyLen) override;
 
   void
-  removeKey(const Name& identity, const name::Component& keyId) override;
+  removeKey(const Name& keyName) override;
 
-  v1::PublicKey
-  getKeyBits(const Name& identity, const name::Component& keyId) const override;
+  Buffer
+  getKeyBits(const Name& keyName) const override;
 
-  std::set<name::Component>
+  std::set<Name>
   getKeysOfIdentity(const Name& identity) const override;
 
   void
-  setDefaultKeyOfIdentity(const Name& identity, const name::Component& keyId) override;
+  setDefaultKeyOfIdentity(const Name& identity, const Name& keyName) override;
 
-  name::Component
+  Name
   getDefaultKeyOfIdentity(const Name& identity) const override;
 
 public: // Certificate management
-
   bool
   hasCertificate(const Name& certName) const override;
 
   void
-  addCertificate(const v1::IdentityCertificate& certificate) override;
+  addCertificate(const v2::Certificate& certificate) override;
 
   void
   removeCertificate(const Name& certName) override;
 
-  v1::IdentityCertificate
+  v2::Certificate
   getCertificate(const Name& certName) const override;
 
   std::set<Name>
-  getCertificatesOfKey(const Name& identity, const name::Component& keyId) const override;
+  getCertificatesOfKey(const Name& keyName) const override;
 
   void
-  setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId, const Name& certName) override;
+  setDefaultCertificateOfKey(const Name& keyName, const Name& certName) override;
 
-  v1::IdentityCertificate
-  getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const override;
-
-private: // Key management
-
-  Name
-  getKeyName(const Name& identity, const name::Component& keyId) const;
+  v2::Certificate
+  getDefaultCertificateOfKey(const Name& keyName) const override;
 
 private:
-
-  std::set<Name> m_identities;
   bool m_hasDefaultIdentity;
   Name m_defaultIdentity;
 
-  /// @brief keyName => keyBits
-  std::map<Name, v1::PublicKey> m_keys;
+  std::set<Name> m_identities;
 
   /// @brief identity => default key Name
   std::map<Name, Name> m_defaultKey;
 
-  /// @brief certificate Name => certificate
-  std::map<Name, v1::IdentityCertificate> m_certs;
+  /// @brief keyName => keyBits
+  std::map<Name, Buffer> m_keys;
 
   /// @brief keyName => default certificate Name
   std::map<Name, Name> m_defaultCert;
+
+  /// @brief certificate Name => certificate
+  std::map<Name, v2::Certificate> m_certs;
 };
 
+} // namespace pib
 } // namespace security
 } // namespace ndn
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,11 +28,16 @@
 
 namespace ndn {
 namespace security {
+namespace pib {
 namespace tests {
 
+using namespace ndn::security::tests;
+
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(TestPib)
+BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_FIXTURE_TEST_SUITE(TestIdentity, PibDataFixture)
+
+using pib::Pib;
 
 BOOST_AUTO_TEST_CASE(ValidityChecking)
 {
@@ -65,26 +70,44 @@ BOOST_AUTO_TEST_CASE(KeyOperations)
 
   Identity identity1(id1, pibImpl, true);
 
-  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name.get(-1)), Pib::Error);
-  Key key11 = identity1.addKey(id1Key1, id1Key1Name.get(-1));
-  BOOST_CHECK_NO_THROW(identity1.getKey(id1Key1Name.get(-1)));
-  identity1.removeKey(id1Key1Name.get(-1));
-  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name.get(-1)), Pib::Error);
+  // Key does not exist, throw Error
+  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), Pib::Error);
+  // Key name does not match identity name, throw Error
+  BOOST_CHECK_THROW(identity1.getKey(id2Key1Name), Pib::Error);
 
+  // Add key
+  Key key11 = identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
+  BOOST_CHECK_NO_THROW(identity1.getKey(id1Key1Name));
+  // Key name does not match identity name, throw Error
+  BOOST_CHECK_THROW(identity1.addKey(id2Key1.buf(), id2Key1.size(), id2Key1Name), Pib::Error);
+
+  // Remove key
+  identity1.removeKey(id1Key1Name);
+  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), Pib::Error);
+  // Key name does not match identity name, throw Error
+  BOOST_CHECK_THROW(identity1.removeKey(id2Key1Name), Pib::Error);
+
+  // Default key does not exist, throw Error
   BOOST_CHECK_THROW(identity1.getDefaultKey(), Pib::Error);
-  BOOST_REQUIRE_THROW(identity1.setDefaultKey(id1Key1Name.get(-1)), Pib::Error);
-  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1, id1Key1Name.get(-1)));
-  BOOST_REQUIRE_NO_THROW(identity1.getDefaultKey());
-  BOOST_CHECK_EQUAL(identity1.getDefaultKey().getKeyId(), id1Key1Name.get(-1));
-  identity1.removeKey(id1Key1Name.get(-1));
-  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name.get(-1)), Pib::Error);
+
+  // Set default key but the key does not exist, throw Error
+  BOOST_CHECK_THROW(identity1.setDefaultKey(id1Key1Name), Pib::Error);
+  // Set default key
+  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1.buf(), id1Key1.size(), id1Key1Name));
+  BOOST_CHECK_NO_THROW(identity1.getDefaultKey());
+  BOOST_CHECK_EQUAL(identity1.getDefaultKey().getName(), id1Key1Name);
+
+  // Remove the default key
+  identity1.removeKey(id1Key1Name);
+  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), Pib::Error);
   BOOST_CHECK_THROW(identity1.getDefaultKey(), Pib::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestIdentity
-BOOST_AUTO_TEST_SUITE_END() // TestPib
+BOOST_AUTO_TEST_SUITE_END() // Pib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace pib
 } // namespace security
 } // namespace ndn

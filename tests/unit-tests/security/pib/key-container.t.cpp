@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,11 +28,16 @@
 
 namespace ndn {
 namespace security {
+namespace pib {
 namespace tests {
 
+using namespace ndn::security::tests;
+
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(TestPib)
+BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_AUTO_TEST_SUITE(TestKeyContainer)
+
+using pib::Pib;
 
 BOOST_FIXTURE_TEST_CASE(Basic, PibDataFixture)
 {
@@ -41,24 +46,24 @@ BOOST_FIXTURE_TEST_CASE(Basic, PibDataFixture)
 
   Identity identity1 = pib.addIdentity(id1);
 
-  Key key11 = identity1.addKey(id1Key1, id1Key1Name.get(-1));
-  Key key12 = identity1.addKey(id1Key2, id1Key2Name.get(-1));
+  Key key11 = identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
+  Key key12 = identity1.addKey(id1Key2.buf(), id1Key2.size(), id1Key2Name);
 
   KeyContainer container = identity1.getKeys();
   BOOST_CHECK_EQUAL(container.size(), 2);
-  BOOST_CHECK(container.find(id1Key1Name.get(-1)) != container.end());
-  BOOST_CHECK(container.find(id1Key2Name.get(-1)) != container.end());
+  BOOST_CHECK(container.find(id1Key1Name) != container.end());
+  BOOST_CHECK(container.find(id1Key2Name) != container.end());
 
-  std::set<name::Component> keyNames;
-  keyNames.insert(id1Key1Name.get(-1));
-  keyNames.insert(id1Key2Name.get(-1));
+  std::set<Name> keyNames;
+  keyNames.insert(id1Key1Name);
+  keyNames.insert(id1Key2Name);
 
   KeyContainer::const_iterator it = container.begin();
-  std::set<name::Component>::const_iterator testIt = keyNames.begin();
-  BOOST_CHECK_EQUAL((*it).getKeyId(), *testIt);
+  std::set<Name>::const_iterator testIt = keyNames.begin();
+  BOOST_CHECK_EQUAL((*it).getName(), *testIt);
   it++;
   testIt++;
-  BOOST_CHECK_EQUAL((*it).getKeyId(), *testIt);
+  BOOST_CHECK_EQUAL((*it).getName(), *testIt);
   ++it;
   testIt++;
   BOOST_CHECK(it == container.end());
@@ -67,7 +72,7 @@ BOOST_FIXTURE_TEST_CASE(Basic, PibDataFixture)
   testIt = keyNames.begin();
   for (const auto& key : container) {
     BOOST_CHECK_EQUAL(key.getIdentity(), id1);
-    BOOST_CHECK_EQUAL(key.getKeyId(), *testIt);
+    BOOST_CHECK_EQUAL(key.getName(), *testIt);
     testIt++;
     count++;
   }
@@ -75,9 +80,10 @@ BOOST_FIXTURE_TEST_CASE(Basic, PibDataFixture)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestKeyContainer
-BOOST_AUTO_TEST_SUITE_END() // TestPib
+BOOST_AUTO_TEST_SUITE_END() // Pib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace pib
 } // namespace security
 } // namespace ndn

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "security/pib/pib-memory.hpp"
 #include "security/pib/pib-sqlite3.hpp"
 #include "security/pib/pib.hpp"
+#include "security/security-common.hpp"
 
 #include "boost-test.hpp"
 #include "pib-data-fixture.hpp"
@@ -31,11 +32,16 @@
 
 namespace ndn {
 namespace security {
+namespace pib {
 namespace tests {
 
+using namespace ndn::security::tests;
+
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(TestPib)
+BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_AUTO_TEST_SUITE(TestPibImpl)
+
+using pib::Pib;
 
 class PibMemoryWrapper
 {
@@ -116,48 +122,47 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(KeyManagement, T, PibImpls, PibDataFixture)
   BOOST_CHECK_THROW(pibImpl.getDefaultKeyOfIdentity(id1), Pib::Error);
 
   // check id1Key1, should not exist, neither should id1.
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1, id1Key1Name.get(-1)), false);
+  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key1Name), false);
   BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), false);
 
   // add id1Key1, should be default, id1 should be added implicitly
-  pibImpl.addKey(id1, id1Key1Name.get(-1), id1Key1);
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1, id1Key1Name.get(-1)), true);
+  pibImpl.addKey(id1, id1Key1Name, id1Key1.buf(), id1Key1.size());
+  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key1Name), true);
   BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), true);
-  const v1::PublicKey& keyBits = pibImpl.getKeyBits(id1, id1Key1Name.get(-1));
-  BOOST_CHECK_EQUAL_COLLECTIONS(keyBits.get().buf(), keyBits.get().buf() + keyBits.get().size(),
-                                id1Key1.get().buf(), id1Key1.get().buf() + id1Key1.get().size());
+  const Buffer& keyBits = pibImpl.getKeyBits(id1Key1Name);
+  BOOST_CHECK_EQUAL_COLLECTIONS(keyBits.begin(), keyBits.end(), id1Key1.begin(), id1Key1.end());
   BOOST_CHECK_NO_THROW(pibImpl.getDefaultKeyOfIdentity(id1));
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key1Name.get(-1));
+  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key1Name);
 
   // add id1Key2, should not be default
-  pibImpl.addKey(id1, id1Key2Name.get(-1), id1Key2);
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1, id1Key2Name.get(-1)), true);
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key1Name.get(-1));
+  pibImpl.addKey(id1, id1Key2Name, id1Key2.buf(), id1Key2.size());
+  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key2Name), true);
+  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key1Name);
 
   // set id1Key2 explicitly as default
-  pibImpl.setDefaultKeyOfIdentity(id1, id1Key2Name.get(-1));
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key2Name.get(-1));
+  pibImpl.setDefaultKeyOfIdentity(id1, id1Key2Name);
+  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key2Name);
 
   // set a non-existing key as default, throw Error
-  BOOST_CHECK_THROW(pibImpl.setDefaultKeyOfIdentity(id1, name::Component("non-existing")),
+  BOOST_CHECK_THROW(pibImpl.setDefaultKeyOfIdentity(id1, Name("/non-existing")),
                     Pib::Error);
 
   // remove id1Key2, should not have default key
-  pibImpl.removeKey(id1, id1Key2Name.get(-1));
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1, id1Key2Name.get(-1)), false);
-  BOOST_CHECK_THROW(pibImpl.getKeyBits(id1, id1Key2Name.get(-1)), Pib::Error);
+  pibImpl.removeKey(id1Key2Name);
+  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key2Name), false);
+  BOOST_CHECK_THROW(pibImpl.getKeyBits(id1Key2Name), Pib::Error);
   BOOST_CHECK_THROW(pibImpl.getDefaultKeyOfIdentity(id1), Pib::Error);
 
   // add id1Key2 back, should be default
-  pibImpl.addKey(id1, id1Key2Name.get(-1), id1Key2);
-  BOOST_CHECK_NO_THROW(pibImpl.getKeyBits(id1, id1Key2Name.get(-1)));
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key2Name.get(-1));
+  pibImpl.addKey(id1, id1Key2Name, id1Key2.buf(), id1Key2.size());
+  BOOST_CHECK_NO_THROW(pibImpl.getKeyBits(id1Key2Name));
+  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key2Name);
 
   // get all the keys: id1Key1 and id1Key2
-  std::set<name::Component> keyNames = pibImpl.getKeysOfIdentity(id1);
+  std::set<Name> keyNames = pibImpl.getKeysOfIdentity(id1);
   BOOST_CHECK_EQUAL(keyNames.size(), 2);
-  BOOST_CHECK_EQUAL(keyNames.count(id1Key1Name.get(-1)), 1);
-  BOOST_CHECK_EQUAL(keyNames.count(id1Key2Name.get(-1)), 1);
+  BOOST_CHECK_EQUAL(keyNames.count(id1Key1Name), 1);
+  BOOST_CHECK_EQUAL(keyNames.count(id1Key2Name), 1);
 
   // remove id1, should remove all the keys
   pibImpl.removeIdentity(id1);
@@ -171,66 +176,67 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(CertificateManagement, T, PibImpls, PibDataFixt
   PibImpl& pibImpl = wrapper.impl;
 
   // no default setting, throw Error
-  BOOST_CHECK_THROW(pibImpl.getDefaultCertificateOfKey(id1, id1Key1Name.get(-1)), Pib::Error);
+  BOOST_CHECK_THROW(pibImpl.getDefaultCertificateOfKey(id1Key1Name), Pib::Error);
 
   // check id1Key1Cert1, should not exist, neither should id1 and id1Key1
   BOOST_CHECK_EQUAL(pibImpl.hasCertificate(id1Key1Cert1.getName()), false);
   BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), false);
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1, id1Key1Name.get(-1)), false);
+  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key1Name), false);
 
   // add id1Key1Cert1, should be default, id1 and id1Key1 should be added implicitly
   pibImpl.addCertificate(id1Key1Cert1);
   BOOST_CHECK_EQUAL(pibImpl.hasCertificate(id1Key1Cert1.getName()), true);
   BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), true);
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1, id1Key1Name.get(-1)), true);
-  const v1::IdentityCertificate& cert = pibImpl.getCertificate(id1Key1Cert1.getName());
+  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key1Name), true);
+  const auto& cert = pibImpl.getCertificate(id1Key1Cert1.getName());
   BOOST_CHECK_EQUAL_COLLECTIONS(cert.wireEncode().wire(),
                                 cert.wireEncode().wire() + cert.wireEncode().size(),
                                 id1Key1Cert1.wireEncode().wire(),
                                 id1Key1Cert1.wireEncode().wire() + id1Key1Cert1.wireEncode().size());
-  BOOST_CHECK_NO_THROW(pibImpl.getDefaultCertificateOfKey(id1, id1Key1Name.get(-1)));
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1, id1Key1Name.get(-1)), id1Key1Cert1);
+  BOOST_CHECK_NO_THROW(pibImpl.getDefaultCertificateOfKey(id1Key1Name));
+  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1Key1Name), id1Key1Cert1);
 
   // add id1Key1Cert2, should not be default
   pibImpl.addCertificate(id1Key1Cert2);
   BOOST_CHECK_EQUAL(pibImpl.hasCertificate(id1Key1Cert2.getName()), true);
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1, id1Key1Name.get(-1)), id1Key1Cert1);
+  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1Key1Name), id1Key1Cert1);
 
   // set id1Key1Cert2 explicitly as default
-  pibImpl.setDefaultCertificateOfKey(id1, id1Key1Name.get(-1), id1Key1Cert2.getName());
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1, id1Key1Name.get(-1)), id1Key1Cert2);
+  pibImpl.setDefaultCertificateOfKey(id1Key1Name, id1Key1Cert2.getName());
+  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1Key1Name), id1Key1Cert2);
 
   // set a non-existing cert as default, throw Error
-  BOOST_CHECK_THROW(pibImpl.setDefaultCertificateOfKey(id1, id1Key1Name.get(-1), Name("/non-existing")),
+  BOOST_CHECK_THROW(pibImpl.setDefaultCertificateOfKey(id1Key1Name, Name("/non-existing")),
                     Pib::Error);
 
   // remove id1Key1Cert2, should not have default cert
   pibImpl.removeCertificate(id1Key1Cert2.getName());
   BOOST_CHECK_EQUAL(pibImpl.hasCertificate(id1Key1Cert2.getName()), false);
   BOOST_CHECK_THROW(pibImpl.getCertificate(id1Key1Cert2.getName()), Pib::Error);
-  BOOST_CHECK_THROW(pibImpl.getDefaultCertificateOfKey(id1, id1Key1Name.get(-1)), Pib::Error);
+  BOOST_CHECK_THROW(pibImpl.getDefaultCertificateOfKey(id1Key1Name), Pib::Error);
 
   // add id1Key1Cert2, should be default
   pibImpl.addCertificate(id1Key1Cert2);
   BOOST_CHECK_NO_THROW(pibImpl.getCertificate(id1Key1Cert1.getName()));
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1, id1Key1Name.get(-1)), id1Key1Cert2);
+  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1Key1Name), id1Key1Cert2);
 
   // get all certificates: id1Key1Cert1 and id1Key1Cert2
-  std::set<Name> certNames = pibImpl.getCertificatesOfKey(id1, id1Key1Name.get(-1));
+  std::set<Name> certNames = pibImpl.getCertificatesOfKey(id1Key1Name);
   BOOST_CHECK_EQUAL(certNames.size(), 2);
   BOOST_CHECK_EQUAL(certNames.count(id1Key1Cert1.getName()), 1);
   BOOST_CHECK_EQUAL(certNames.count(id1Key1Cert2.getName()), 1);
 
   // remove id1Key1, should remove all the certs
-  pibImpl.removeKey(id1, id1Key1Name.get(-1));
-  certNames = pibImpl.getCertificatesOfKey(id1, id1Key1Name.get(-1));
+  pibImpl.removeKey(id1Key1Name);
+  certNames = pibImpl.getCertificatesOfKey(id1Key1Name);
   BOOST_CHECK_EQUAL(certNames.size(), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestPibImpl
-BOOST_AUTO_TEST_SUITE_END() // TestPib
+BOOST_AUTO_TEST_SUITE_END() // Pib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace pib
 } // namespace security
 } // namespace ndn

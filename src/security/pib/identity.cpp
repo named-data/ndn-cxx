@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,8 +25,7 @@
 
 namespace ndn {
 namespace security {
-
-const name::Component Identity::EMPTY_KEY_ID;
+namespace pib {
 
 Identity::Identity()
   : m_hasDefaultKey(false)
@@ -52,49 +51,45 @@ Identity::Identity(const Name& identityName, shared_ptr<PibImpl> impl, bool need
 const Name&
 Identity::getName() const
 {
-  validityCheck();
-
   return m_name;
 }
 
 Key
-Identity::addKey(const v1::PublicKey& publicKey, const name::Component& keyId)
+Identity::addKey(const uint8_t* key, size_t keyLen, const Name& keyName)
 {
-  validityCheck();
-
-  name::Component actualKeyId = keyId;
-  if (actualKeyId == EMPTY_KEY_ID) {
-    const Block& digest = publicKey.computeDigest();
-    actualKeyId = name::Component(digest.wire(), digest.size());
+  if (m_name != v2::extractIdentityFromKeyName(keyName)) {
+    BOOST_THROW_EXCEPTION(Pib::Error("Key name `" + keyName.toUri() + "` does not match identity "
+                                     "`" + m_name.toUri() + "`"));
   }
 
-  if (!m_needRefreshKeys && m_keys.find(actualKeyId) == m_keys.end()) {
-    // if we have already loaded all the keys, but the new key is not one of them
-    // the KeyContainer should be refreshed
-    m_needRefreshKeys = true;
-  }
+  // if we have already loaded all the keys, but the new key is not one of them the
+  // KeyContainer should be refreshed
+  m_needRefreshKeys = m_needRefreshKeys || m_keys.find(keyName) == m_keys.end();
 
-  return Key(m_name, actualKeyId, publicKey, m_impl);
+  return Key(keyName, key, keyLen, m_impl);
 }
 
 void
-Identity::removeKey(const name::Component& keyId)
+Identity::removeKey(const Name& keyName)
 {
+  if (m_name != v2::extractIdentityFromKeyName(keyName)) {
+    BOOST_THROW_EXCEPTION(Pib::Error("Key name `" + keyName.toUri() + "` does not match identity "
+                                     "`" + m_name.toUri() + "`"));
+  }
+
   validityCheck();
 
-  if (m_hasDefaultKey && m_defaultKey.getKeyId() == keyId)
+  if (m_hasDefaultKey && m_defaultKey.getName() == keyName)
     m_hasDefaultKey = false;
 
-  m_impl->removeKey(m_name, keyId);
+  m_impl->removeKey(keyName);
   m_needRefreshKeys = true;
 }
 
 Key
-Identity::getKey(const name::Component& keyId) const
+Identity::getKey(const Name& keyName) const
 {
-  validityCheck();
-
-  return Key(m_name, keyId, m_impl);
+  return Key(keyName, m_impl);
 }
 
 const KeyContainer&
@@ -111,22 +106,24 @@ Identity::getKeys() const
 }
 
 Key&
-Identity::setDefaultKey(const name::Component& keyId)
+Identity::setDefaultKey(const Name& keyName)
 {
   validityCheck();
 
-  m_defaultKey = Key(m_name, keyId, m_impl);
+  m_defaultKey = Key(keyName, m_impl);
   m_hasDefaultKey = true;
 
-  m_impl->setDefaultKeyOfIdentity(m_name, keyId);
+  m_impl->setDefaultKeyOfIdentity(m_name, keyName);
   return m_defaultKey;
 }
 
 Key&
-Identity::setDefaultKey(const v1::PublicKey& publicKey, const name::Component& keyId)
+Identity::setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName)
 {
-  const Key& keyEntry = addKey(publicKey, keyId);
-  return setDefaultKey(keyEntry.getKeyId());
+  validityCheck();
+
+  addKey(key, keyLen, keyName);
+  return setDefaultKey(keyName);
 }
 
 Key&
@@ -135,7 +132,7 @@ Identity::getDefaultKey() const
   validityCheck();
 
   if (!m_hasDefaultKey) {
-    m_defaultKey = Key(m_name, m_impl->getDefaultKeyOfIdentity(m_name), m_impl);
+    m_defaultKey = Key(m_impl->getDefaultKeyOfIdentity(m_name), m_impl);
     m_hasDefaultKey = true;
   }
 
@@ -156,9 +153,11 @@ Identity::operator!() const
 void
 Identity::validityCheck() const
 {
-  if (m_impl == nullptr)
-    BOOST_THROW_EXCEPTION(std::domain_error("Invalid Identity instance"));
+  if (m_impl == nullptr) {
+    BOOST_THROW_EXCEPTION(std::domain_error("Invalid identity instance"));
+  }
 }
 
+} // namespace pib
 } // namespace security
 } // namespace ndn

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #ifndef NDN_TESTS_SECURITY_PIB_DATA_FIXTURE_HPP
 #define NDN_TESTS_SECURITY_PIB_DATA_FIXTURE_HPP
 
-#include "security/v1/identity-certificate.hpp"
+#include "security/v2/certificate.hpp"
 
 #include "boost-test.hpp"
 
@@ -44,19 +44,19 @@ public:
   Name id2Key1Name;
   Name id2Key2Name;
 
-  v1::PublicKey id1Key1;
-  v1::PublicKey id1Key2;
-  v1::PublicKey id2Key1;
-  v1::PublicKey id2Key2;
+  Buffer id1Key1;
+  Buffer id1Key2;
+  Buffer id2Key1;
+  Buffer id2Key2;
 
-  v1::IdentityCertificate id1Key1Cert1;
-  v1::IdentityCertificate id1Key1Cert2;
-  v1::IdentityCertificate id1Key2Cert1;
-  v1::IdentityCertificate id1Key2Cert2;
-  v1::IdentityCertificate id2Key1Cert1;
-  v1::IdentityCertificate id2Key1Cert2;
-  v1::IdentityCertificate id2Key2Cert1;
-  v1::IdentityCertificate id2Key2Cert2;
+  v2::Certificate id1Key1Cert1;
+  v2::Certificate id1Key1Cert2;
+  v2::Certificate id1Key2Cert1;
+  v2::Certificate id1Key2Cert2;
+  v2::Certificate id2Key1Cert1;
+  v2::Certificate id2Key1Cert2;
+  v2::Certificate id2Key2Cert1;
+  v2::Certificate id2Key2Cert2;
 };
 
 } // namespace tests

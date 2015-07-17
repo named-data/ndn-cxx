@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -130,6 +130,28 @@ Certificate::isValidName(const Name& certName)
   // /<NameSpace>/KEY/[KeyId]/[IssuerId]/[Version]
   return (certName.size() >= Certificate::MIN_CERT_NAME_LENGTH &&
           certName.get(Certificate::KEY_COMPONENT_OFFSET) == Certificate::KEY_COMPONENT);
+}
+
+Name
+extractIdentityFromCertName(const Name& certName)
+{
+  if (!Certificate::isValidName(certName)) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
+                                                "does not follow the naming conventions"));
+  }
+
+  return certName.getPrefix(Certificate::KEY_COMPONENT_OFFSET); // trim everything after and including "KEY"
+}
+
+Name
+extractKeyNameFromCertName(const Name& certName)
+{
+  if (!Certificate::isValidName(certName)) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
+                                                "does not follow the naming conventions"));
+  }
+
+  return certName.getPrefix(Certificate::KEY_ID_OFFSET + 1); // trim everything after key id
 }
 
 } // namespace v2

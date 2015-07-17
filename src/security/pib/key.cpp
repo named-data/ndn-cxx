@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,49 +23,52 @@
 #include "pib-impl.hpp"
 #include "pib.hpp"
 #include "../v2/certificate.hpp"
+#include "../transform/public-key.hpp"
 
 namespace ndn {
 namespace security {
+namespace pib {
 
 Key::Key()
-  : m_hasDefaultCertificate(false)
+  : m_keyType(KeyType::NONE)
+  , m_hasDefaultCertificate(false)
   , m_needRefreshCerts(false)
   , m_impl(nullptr)
 {
 }
 
-Key::Key(const Name& identityName, const name::Component& keyId,
-         const v1::PublicKey& publicKey, shared_ptr<PibImpl> impl)
-  : m_id(identityName)
-  , m_keyId(keyId)
-  , m_key(publicKey)
+Key::Key(const Name& keyName, const uint8_t* key, size_t keyLen, shared_ptr<PibImpl> impl)
+  : m_keyName(keyName)
+  , m_key(key, keyLen)
   , m_hasDefaultCertificate(false)
   , m_needRefreshCerts(true)
   , m_impl(impl)
 {
   validityCheck();
 
-  m_keyName = m_id;
-  m_keyName.append(m_keyId);
+  m_identity = v2::extractIdentityFromKeyName(keyName);
+  m_impl->addIdentity(m_identity);
+  m_impl->addKey(m_identity, m_keyName, key, keyLen);
 
-  m_impl->addIdentity(m_id);
-  m_impl->addKey(m_id, m_keyId, publicKey);
+  transform::PublicKey publicKey;
+  publicKey.loadPkcs8(key, keyLen);
+  m_keyType = publicKey.getKeyType();
 }
 
-Key::Key(const Name& identityName, const name::Component& keyId,
-         shared_ptr<PibImpl> impl)
-  : m_id(identityName)
-  , m_keyId(keyId)
+Key::Key(const Name& keyName, shared_ptr<PibImpl> impl)
+  : m_keyName(keyName)
   , m_hasDefaultCertificate(false)
   , m_needRefreshCerts(true)
   , m_impl(impl)
 {
   validityCheck();
 
-  m_keyName = m_id;
-  m_keyName.append(m_keyId);
+  m_identity = v2::extractIdentityFromKeyName(keyName);
+  m_key = m_impl->getKeyBits(m_keyName);
 
-  m_key = m_impl->getKeyBits(m_id, m_keyId);
+  transform::PublicKey key;
+  key.loadPkcs8(m_key.buf(), m_key.size());
+  m_keyType = key.getKeyType();
 }
 
 const Name&
@@ -81,18 +84,10 @@ Key::getIdentity() const
 {
   validityCheck();
 
-  return m_id;
+  return m_identity;
 }
 
-const name::Component&
-Key::getKeyId() const
-{
-  validityCheck();
-
-  return m_keyId;
-}
-
-const v1::PublicKey&
+const Buffer&
 Key::getPublicKey() const
 {
   validityCheck();
@@ -101,9 +96,12 @@ Key::getPublicKey() const
 }
 
 void
-Key::addCertificate(const v1::IdentityCertificate& certificate)
+Key::addCertificate(const v2::Certificate& certificate)
 {
   validityCheck();
+
+  if (certificate.getKeyName() != m_keyName)
+    BOOST_THROW_EXCEPTION(Pib::Error("Certificate name does not match key name"));
 
   if (!m_needRefreshCerts &&
       m_certificates.find(certificate.getName()) == m_certificates.end()) {
@@ -127,7 +125,7 @@ Key::removeCertificate(const Name& certName)
   m_needRefreshCerts = true;
 }
 
-v1::IdentityCertificate
+v2::Certificate
 Key::getCertificate(const Name& certName) const
 {
   validityCheck();
@@ -141,38 +139,38 @@ Key::getCertificates() const
   validityCheck();
 
   if (m_needRefreshCerts) {
-    m_certificates = CertificateContainer(m_impl->getCertificatesOfKey(m_id, m_keyId), m_impl);
+    m_certificates = CertificateContainer(m_impl->getCertificatesOfKey(m_keyName), m_impl);
     m_needRefreshCerts = false;
   }
 
   return m_certificates;
 }
 
-const v1::IdentityCertificate&
+const v2::Certificate&
 Key::setDefaultCertificate(const Name& certName)
 {
   validityCheck();
 
+  m_impl->setDefaultCertificateOfKey(m_keyName, certName);
   m_defaultCertificate = m_impl->getCertificate(certName);
-  m_impl->setDefaultCertificateOfKey(m_id, m_keyId, certName);
   m_hasDefaultCertificate = true;
   return m_defaultCertificate;
 }
 
-const v1::IdentityCertificate&
-Key::setDefaultCertificate(const v1::IdentityCertificate& certificate)
+const v2::Certificate&
+Key::setDefaultCertificate(const v2::Certificate& certificate)
 {
   addCertificate(certificate);
   return setDefaultCertificate(certificate.getName());
 }
 
-const v1::IdentityCertificate&
+const v2::Certificate&
 Key::getDefaultCertificate() const
 {
   validityCheck();
 
   if (!m_hasDefaultCertificate) {
-    m_defaultCertificate = m_impl->getDefaultCertificateOfKey(m_id, m_keyId);
+    m_defaultCertificate = m_impl->getDefaultCertificateOfKey(m_keyName);
     m_hasDefaultCertificate = true;
   }
 
@@ -197,6 +195,8 @@ Key::validityCheck() const
     BOOST_THROW_EXCEPTION(std::domain_error("Invalid Key instance"));
 }
 
+} // namespace pib
+
 namespace v2 {
 
 Name
@@ -207,6 +207,24 @@ constructKeyName(const Name& identity, const name::Component& keyId)
     .append(Certificate::KEY_COMPONENT)
     .append(keyId);
   return keyName;
+}
+
+bool
+isValidKeyName(const Name& keyName)
+{
+  return (keyName.size() > Certificate::MIN_KEY_NAME_LENGTH &&
+          keyName.get(-Certificate::MIN_KEY_NAME_LENGTH) == Certificate::KEY_COMPONENT);
+}
+
+Name
+extractIdentityFromKeyName(const Name& keyName)
+{
+  if (!isValidKeyName(keyName)) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Key name `" + keyName.toUri() + "` "
+                                                "does not follow the naming conventions"));
+  }
+
+  return keyName.getPrefix(-Certificate::MIN_KEY_NAME_LENGTH); // trim everything after and including "KEY"
 }
 
 } // namespace v2

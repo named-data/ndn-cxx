@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,15 +28,19 @@
 
 namespace ndn {
 namespace security {
+namespace pib {
 namespace tests {
 
+using namespace ndn::security::tests;
+
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(TestPib)
+BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_FIXTURE_TEST_SUITE(TestKey, PibDataFixture)
+
+using pib::Pib;
 
 BOOST_AUTO_TEST_CASE(ValidityChecking)
 {
-  // key
   Key key;
 
   BOOST_CHECK_EQUAL(static_cast<bool>(key), false);
@@ -47,8 +51,7 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   else
     BOOST_CHECK(true);
 
-  auto pibImpl = make_shared<PibMemory>();
-  key = Key(id1, id1Key1Name.get(-1), id1Key1, pibImpl);
+  key = Key(id1Key1Name, id1Key1.buf(), id1Key1.size(), make_shared<PibMemory>());
 
   BOOST_CHECK_EQUAL(static_cast<bool>(key), true);
   BOOST_CHECK_EQUAL(!key, false);
@@ -61,9 +64,7 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
 
 BOOST_AUTO_TEST_CASE(CertificateOperations)
 {
-  auto pibImpl = make_shared<PibMemory>();
-
-  Key key11(id1, id1Key1Name.get(-1), id1Key1, pibImpl);
+  Key key11(id1Key1Name, id1Key1.buf(), id1Key1.size(), make_shared<PibMemory>());
 
   BOOST_CHECK_THROW(key11.getCertificate(id1Key1Cert1.getName()), Pib::Error);
   key11.addCertificate(id1Key1Cert1);
@@ -76,7 +77,7 @@ BOOST_AUTO_TEST_CASE(CertificateOperations)
   BOOST_REQUIRE_NO_THROW(key11.setDefaultCertificate(id1Key1Cert1));
   BOOST_REQUIRE_NO_THROW(key11.getDefaultCertificate());
 
-  const v1::IdentityCertificate& defaultCert = key11.getDefaultCertificate();
+  const auto& defaultCert = key11.getDefaultCertificate();
   BOOST_CHECK_EQUAL_COLLECTIONS(defaultCert.wireEncode().wire(),
                                 defaultCert.wireEncode().wire() + defaultCert.wireEncode().size(),
                                 id1Key1Cert1.wireEncode().wire(),
@@ -88,9 +89,10 @@ BOOST_AUTO_TEST_CASE(CertificateOperations)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestKey
-BOOST_AUTO_TEST_SUITE_END() // TestPib
+BOOST_AUTO_TEST_SUITE_END() // Pib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace pib
 } // namespace security
 } // namespace ndn

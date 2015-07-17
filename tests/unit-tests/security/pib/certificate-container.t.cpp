@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,11 +28,16 @@
 
 namespace ndn {
 namespace security {
+namespace pib {
 namespace tests {
 
+using namespace ndn::security::tests;
+
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(TestPib)
+BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_AUTO_TEST_SUITE(TestCertificateContainer)
+
+using pib::Pib;
 
 BOOST_FIXTURE_TEST_CASE(TestCertificateContainer, PibDataFixture)
 {
@@ -40,7 +45,7 @@ BOOST_FIXTURE_TEST_CASE(TestCertificateContainer, PibDataFixture)
   Pib pib("pib-memory", "", pibImpl);
 
   Identity identity1 = pib.addIdentity(id1);
-  Key key11 = identity1.addKey(id1Key1, id1Key1Name.get(-1));
+  Key key11 = identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
   key11.addCertificate(id1Key1Cert1);
   key11.addCertificate(id1Key1Cert2);
 
@@ -74,9 +79,10 @@ BOOST_FIXTURE_TEST_CASE(TestCertificateContainer, PibDataFixture)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestCertificateContainer
-BOOST_AUTO_TEST_SUITE_END() // TestPib
+BOOST_AUTO_TEST_SUITE_END() // Pib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace pib
 } // namespace security
 } // namespace ndn

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,6 +28,7 @@ struct sqlite3;
 
 namespace ndn {
 namespace security {
+namespace pib {
 
 /**
  * @brief Pib backend implementation based on SQLite3 database
@@ -87,56 +88,55 @@ public: // Identity management
   getDefaultIdentity() const final;
 
 public: // Key management
-
   bool
-  hasKey(const Name& identity, const name::Component& keyId) const final;
+  hasKey(const Name& keyName) const final;
 
   void
-  addKey(const Name& identity, const name::Component& keyId, const v1::PublicKey& publicKey) final;
+  addKey(const Name& identity, const Name& keyName,
+         const uint8_t* key, size_t keyLen) final;
 
   void
-  removeKey(const Name& identity, const name::Component& keyId) final;
+  removeKey(const Name& keyName) final;
 
-  v1::PublicKey
-  getKeyBits(const Name& identity, const name::Component& keyId) const final;
+  Buffer
+  getKeyBits(const Name& keyName) const final;
 
-  std::set<name::Component>
+  std::set<Name>
   getKeysOfIdentity(const Name& identity) const final;
 
   void
-  setDefaultKeyOfIdentity(const Name& identity, const name::Component& keyId) final;
+  setDefaultKeyOfIdentity(const Name& identity, const Name& keyName) final;
 
-  name::Component
+  Name
   getDefaultKeyOfIdentity(const Name& identity) const final;
 
 public: // Certificate Management
-
   bool
   hasCertificate(const Name& certName) const final;
 
   void
-  addCertificate(const v1::IdentityCertificate& certificate) final;
+  addCertificate(const v2::Certificate& certificate) final;
 
   void
   removeCertificate(const Name& certName) final;
 
-  v1::IdentityCertificate
+  v2::Certificate
   getCertificate(const Name& certName) const final;
 
   std::set<Name>
-  getCertificatesOfKey(const Name& identity, const name::Component& keyId) const final;
+  getCertificatesOfKey(const Name& keyName) const final;
 
   void
-  setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId,
-                             const Name& certName) final;
+  setDefaultCertificateOfKey(const Name& keyName, const Name& certName) final;
 
-  v1::IdentityCertificate
-  getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const final;
+  v2::Certificate
+  getDefaultCertificateOfKey(const Name& keyName) const final;
 
 private:
   sqlite3* m_database;
 };
 
+} // namespace pib
 } // namespace security
 } // namespace ndn
 

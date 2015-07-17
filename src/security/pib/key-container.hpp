@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,6 +27,7 @@
 
 namespace ndn {
 namespace security {
+namespace pib {
 
 class PibImpl;
 
@@ -36,9 +37,6 @@ class KeyContainer
 public:
   class const_iterator
   {
-  public:
-    friend class KeyContainer;
-
   public:
     Key
     operator*();
@@ -56,14 +54,14 @@ public:
     operator!=(const const_iterator& other);
 
   private:
-    const_iterator(const Name& identity,
-                   std::set<name::Component>::const_iterator it,
-                   shared_ptr<PibImpl> impl);
+    const_iterator(const Name& identity, std::set<Name>::const_iterator it, shared_ptr<PibImpl> impl);
 
   private:
     Name m_identity;
-    std::set<name::Component>::const_iterator m_it;
+    std::set<Name>::const_iterator m_it;
     shared_ptr<PibImpl> m_impl;
+
+    friend class KeyContainer;
   };
 
   typedef const_iterator iterator;
@@ -71,9 +69,7 @@ public:
 public:
   KeyContainer();
 
-  KeyContainer(const Name& identity,
-               std::set<name::Component>&& keyIds,
-               shared_ptr<PibImpl> impl);
+  KeyContainer(const Name& identity, std::set<Name>&& keyNames, shared_ptr<PibImpl> impl);
 
   const_iterator
   begin() const;
@@ -82,16 +78,20 @@ public:
   end() const;
 
   const_iterator
-  find(const name::Component& keyId) const;
+  find(const Name& keyName) const;
 
   size_t
   size() const;
 
 private:
   Name m_identity;
-  std::set<name::Component> m_keyIds;
+  std::set<Name> m_keyNames;
   shared_ptr<PibImpl> m_impl;
 };
+
+} // namespace pib
+
+using pib::KeyContainer;
 
 } // namespace security
 } // namespace ndn

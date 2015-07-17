@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,10 +23,11 @@
 #define NDN_SECURITY_PIB_PIB_IMPL_HPP
 
 #include <set>
-#include "../v1/identity-certificate.hpp"
+#include "../v2/certificate.hpp"
 
 namespace ndn {
 namespace security {
+namespace pib {
 
 /**
  * @brief Abstract class of PIB implementation
@@ -34,7 +35,7 @@ namespace security {
  * This class defines the interface that an actual PIB (e.g., one based on sqlite3)
  * implementation should provide.
  */
-class PibImpl
+class PibImpl : noncopyable
 {
 public:
   /**
@@ -54,14 +55,10 @@ public:
   };
 
 public:
-
   virtual
-  ~PibImpl()
-  {
-  }
+  ~PibImpl() = default;
 
 public: // TpmLocator management
-
   /**
    * @brief Set the corresponding TPM information to @p tpmLocator.
    *
@@ -80,7 +77,6 @@ public: // TpmLocator management
   getTpmLocator() const = 0;
 
 public: // Identity management
-
   /**
    * @brief Check the existence of an identity.
    *
@@ -137,16 +133,13 @@ public: // Identity management
   getDefaultIdentity() const = 0;
 
 public: // Key management
-
   /**
-   * @brief Check the existence of a key.
+   * @brief Check the existence of a key with @p keyName.
    *
-   * @param identity The name of the belonged identity.
-   * @param keyId The key id component.
    * @return true if the key exists, otherwise false. Return false if the identity does not exist
    */
   virtual bool
-  hasKey(const Name& identity, const name::Component& keyId) const = 0;
+  hasKey(const Name& keyName) const = 0;
 
   /**
    * @brief Add a key.
@@ -157,67 +150,59 @@ public: // Key management
    * key of the identity.
    *
    * @param identity The name of the belonged identity.
-   * @param keyId The key id component.
-   * @param publicKey The public key bits.
+   * @param keyName The key name.
+   * @param key The public key bits.
+   * @param keyLen The length of the public key.
    */
   virtual void
-  addKey(const Name& identity, const name::Component& keyId, const v1::PublicKey& publicKey) = 0;
+  addKey(const Name& identity, const Name& keyName, const uint8_t* key, size_t keyLen) = 0;
 
   /**
-   * @brief Remove a key.
+   * @brief Remove a key with @p keyName
    *
    * If the key does not exist, do nothing.
    * Remove related certificates as well.
-   *
-   * @param identity The name of the belonged identity.
-   * @param keyId The key id component.
    */
   virtual void
-  removeKey(const Name& identity, const name::Component& keyId) = 0;
+  removeKey(const Name& keyName) = 0;
 
   /**
-   * @brief Get the key bits of a key.
+   * @brief Get the key bits of a key with name @p keyName.
    *
-   * @param identity The name of the belonged identity.
-   * @param keyId The key id component.
    * @return key bits
    * @throws Pib::Error if the key does not exist.
    */
-  virtual v1::PublicKey
-  getKeyBits(const Name& identity, const name::Component& keyId) const = 0;
+  virtual Buffer
+  getKeyBits(const Name& keyName) const = 0;
 
   /**
-   * @brief Get all the key ids of an identity with name @p identity
+   * @brief Get all the key names of an identity with name @p identity
    *
-   * The returned key ids can be used to create a KeyContainer.
-   * With key id, identity name, backend implementation, one can create a Key frontend instance.
+   * The returned key names can be used to create a KeyContainer.
+   * With key name, identity name, backend implementation, one can create a Key frontend instance.
    *
-   * @return the key id name component set. If the identity does not exist, return an empty set.
+   * @return the key name component set. If the identity does not exist, return an empty set.
    */
-  virtual std::set<name::Component>
+  virtual std::set<Name>
   getKeysOfIdentity(const Name& identity) const = 0;
 
   /**
-   * @brief Set an key with id @p keyId as the default key of an identity with name @p identity.
+   * @brief Set an key with @p keyName as the default key of an identity with name @p identity.
    *
-   * @param identity The name of the belonged identity.
-   * @param keyId The key id component.
    * @throws Pib::Error if the key does not exist.
    */
   virtual void
-  setDefaultKeyOfIdentity(const Name& identity, const name::Component& keyId) = 0;
+  setDefaultKeyOfIdentity(const Name& identity, const Name& keyName) = 0;
 
   /**
-   * @brief Get the id of the default key of an identity with name @p identity.
+   * @return The name of the default key of an identity with name @p identity.
    *
-   * @param identity The name of the belonged identity.
    * @throws Pib::Error if no default key or the identity does not exist.
    */
-  virtual name::Component
+  virtual Name
   getDefaultKeyOfIdentity(const Name& identity) const = 0;
 
 public: // Certificate Management
-
   /**
    * @brief Check the existence of a certificate with name @p certName.
    *
@@ -238,7 +223,7 @@ public: // Certificate Management
    * @param certificate The certificate to add.
    */
   virtual void
-  addCertificate(const v1::IdentityCertificate& certificate) = 0;
+  addCertificate(const v2::Certificate& certificate) = 0;
 
   /**
    * @brief Remove a certificate with name @p certName.
@@ -257,47 +242,38 @@ public: // Certificate Management
    * @return the certificate.
    * @throws Pib::Error if the certificate does not exist.
    */
-  virtual v1::IdentityCertificate
+  virtual v2::Certificate
   getCertificate(const Name& certName) const = 0;
 
   /**
-   * @brief Get a list of certificate names of a key with id @p keyId of @p identity.
+   * @brief Get a list of certificate names of a key with id @p keyName.
    *
    * The returned certificate names can be used to create a CertificateContainer.
    * With certificate name and backend implementation, one can obtain the certificate directly.
    *
-   * @param identity The name of the belonging identity.
-   * @param keyId The key id.
    * @return The certificate name set. If the key does not exist, return an empty set.
    */
   virtual std::set<Name>
-  getCertificatesOfKey(const Name& identity, const name::Component& keyId) const = 0;
+  getCertificatesOfKey(const Name& keyName) const = 0;
 
   /**
-   * @brief Set a cert with name @p certName as the default of a key with id @p keyId of @p identity.
+   * @brief Set a cert with name @p certName as the default of a key with @p keyName.
    *
-   * @param identity The name of the belonging identity.
-   * @param keyId The key id.
-   * @param certName The name of the certificate.
    * @throws Pib::Error if the certificate with name @p certName does not exist.
    */
   virtual void
-  setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId,
-                             const Name& certName) = 0;
+  setDefaultCertificateOfKey(const Name& keyName, const Name& certName) = 0;
 
   /**
-   * @brief Get the default certificate of a key with id @p keyId of @p identity.
+   * @return Get the default certificate of a key with @p keyName.
    *
-   * @param identity The name of the belonging identity.
-   * @param keyId The key id.
-   * @return a pointer to the certificate, null if no default certificate for the key.
    * @throws Pib::Error if the default certificate does not exist.
    */
-  virtual v1::IdentityCertificate
-  getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const = 0;
-
+  virtual v2::Certificate
+  getDefaultCertificateOfKey(const Name& keyName) const = 0;
 };
 
+} // namespace pib
 } // namespace security
 } // namespace ndn
 

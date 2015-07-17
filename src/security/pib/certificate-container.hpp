@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,10 +23,11 @@
 #define NDN_SECURITY_PIB_CERTIFICATE_CONTAINER_HPP
 
 #include <set>
-#include "../v1/identity-certificate.hpp"
+#include "../v2/certificate.hpp"
 
 namespace ndn {
 namespace security {
+namespace pib {
 
 class PibImpl;
 
@@ -40,7 +41,7 @@ public:
     friend class CertificateContainer;
 
   public:
-    v1::IdentityCertificate
+    v2::Certificate
     operator*();
 
     const_iterator&
@@ -86,6 +87,10 @@ private:
   std::set<Name> m_certNames;
   shared_ptr<PibImpl> m_impl;
 };
+
+} // namespace pib
+
+using pib::CertificateContainer;
 
 } // namespace security
 } // namespace ndn
