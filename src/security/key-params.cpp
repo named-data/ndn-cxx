@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,37 +23,50 @@
 
 namespace ndn {
 
-static const uint32_t RSA_KEY_SIZES[] = {2048, 1024};
+static const uint32_t MIN_RSA_KEY_SIZE = 1024;
+static const uint32_t DEFAULT_RSA_KEY_SIZE = 2048;
 static const uint32_t ECDSA_KEY_SIZES[] = {256, 384};
-static const uint32_t AES_KEY_SIZES[] = {64, 128, 256};
+static const uint32_t AES_KEY_SIZES[] = {128, 192, 256};
+
+KeyParams::~KeyParams() = default;
+
+KeyParams::KeyParams(KeyType keyType, KeyIdType keyIdType)
+  : m_keyType(keyType)
+  , m_keyIdType(keyIdType)
+{
+  BOOST_ASSERT(keyIdType != KeyIdType::USER_SPECIFIED);
+}
+
+KeyParams::KeyParams(KeyType keyType, const name::Component& keyId)
+  : m_keyType(keyType)
+  , m_keyIdType(KeyIdType::USER_SPECIFIED)
+  , m_keyId(keyId)
+{
+  BOOST_ASSERT(!keyId.empty());
+}
 
 uint32_t
 RsaKeyParamsInfo::checkKeySize(uint32_t size)
 {
-  for (size_t i = 0; i < (sizeof(RSA_KEY_SIZES) / sizeof(uint32_t)); i++)
-    {
-      if (RSA_KEY_SIZES[i] == size)
-        return size;
-    }
-  return getDefaultSize();
+  if (size < MIN_RSA_KEY_SIZE)
+    BOOST_THROW_EXCEPTION(KeyParams::Error("Unsupported key size"));
+  return size;
 }
 
 uint32_t
 RsaKeyParamsInfo::getDefaultSize()
 {
-  return RSA_KEY_SIZES[0];
+  return DEFAULT_RSA_KEY_SIZE;
 }
 
 uint32_t
 EcdsaKeyParamsInfo::checkKeySize(uint32_t size)
 {
-
-  for (size_t i = 0; i < (sizeof(ECDSA_KEY_SIZES) / sizeof(uint32_t)); i++)
-    {
-      if (ECDSA_KEY_SIZES[i] == size)
-        return size;
-    }
-  return getDefaultSize();
+  for (size_t i = 0; i < (sizeof(ECDSA_KEY_SIZES) / sizeof(ECDSA_KEY_SIZES[0])); i++) {
+    if (ECDSA_KEY_SIZES[i] == size)
+      return size;
+  }
+  BOOST_THROW_EXCEPTION(KeyParams::Error("Unsupported key size"));
 }
 
 uint32_t
@@ -66,12 +79,11 @@ EcdsaKeyParamsInfo::getDefaultSize()
 uint32_t
 AesKeyParamsInfo::checkKeySize(uint32_t size)
 {
-  for (size_t i = 0; i < (sizeof(AES_KEY_SIZES) / sizeof(uint32_t)); i++)
-    {
-      if (AES_KEY_SIZES[i] == size)
-        return size;
-    }
-  return getDefaultSize();
+  for (size_t i = 0; i < (sizeof(AES_KEY_SIZES) / sizeof(AES_KEY_SIZES[0])); i++) {
+    if (AES_KEY_SIZES[i] == size)
+      return size;
+  }
+  BOOST_THROW_EXCEPTION(KeyParams::Error("Unsupported key size"));
 }
 
 uint32_t

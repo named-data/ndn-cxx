@@ -47,6 +47,33 @@ const size_t MIN_LENGTH_SIG_ONLY = 2;
 
 } // namespace signed_interest
 
+/**
+ * @brief The type of KeyId component in a key name
+ */
+enum class KeyIdType {
+  /**
+   * @brief User-specified key ID
+   *
+   * It is user's responsibility to assure the uniqueness of the key names.
+   */
+  USER_SPECIFIED = 0,
+  /**
+   * @brief Use the SHA256 hash of the public key as the key id
+   *
+   * This KeyId type guarantees the uniqueness of the key names.
+   */
+  SHA256 = 1,
+  /**
+   * @brief Use a 64-bit random number as the key id
+   *
+   * This KeyId provides roughly uniqueness of the key names.
+   */
+  RANDOM = 2
+};
+
+std::ostream&
+operator<<(std::ostream& os, KeyIdType keyIdType);
+
 enum class KeyType {
   NONE = 0,
   RSA  = 1,
