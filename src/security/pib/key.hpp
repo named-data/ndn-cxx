@@ -201,7 +201,17 @@ private:
   shared_ptr<PibImpl> m_impl;
 };
 
+namespace v2 {
+
+/**
+ * @brief Construct key name based on the appropriate naming conventions
+ */
+Name
+constructKeyName(const Name& identity, const name::Component& keyId);
+
+} // namespace v2
+
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_PIB_PIB_HPP
+#endif // NDN_SECURITY_PIB_KEY_HPP

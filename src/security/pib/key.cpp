@@ -22,6 +22,7 @@
 #include "key.hpp"
 #include "pib-impl.hpp"
 #include "pib.hpp"
+#include "../v2/certificate.hpp"
 
 namespace ndn {
 namespace security {
@@ -195,6 +196,20 @@ Key::validityCheck() const
   if (m_impl == nullptr)
     BOOST_THROW_EXCEPTION(std::domain_error("Invalid Key instance"));
 }
+
+namespace v2 {
+
+Name
+constructKeyName(const Name& identity, const name::Component& keyId)
+{
+  Name keyName = identity;
+  keyName
+    .append(Certificate::KEY_COMPONENT)
+    .append(keyId);
+  return keyName;
+}
+
+} // namespace v2
 
 } // namespace security
 } // namespace ndn
