@@ -106,7 +106,12 @@ enum {
   // SignatureInfo TLVs
   ValidityPeriod = 253,
   NotBefore = 254,
-  NotAfter = 255
+  NotAfter = 255,
+
+  AdditionalDescription = 258,
+  DescriptionEntry = 512,
+  DescriptionKey = 513,
+  DescriptionValue = 514
 };
 
 /** @brief indicates a possible value of ContentType field
