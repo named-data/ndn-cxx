@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_OPENSSL_HPP
-#define NDN_SECURITY_OPENSSL_HPP
+#ifndef NDN_SECURITY_DETAIL_OPENSSL_HPP
+#define NDN_SECURITY_DETAIL_OPENSSL_HPP
 
 // suppress deprecation warnings in OSX >= 10.7
 
@@ -30,16 +30,16 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif // __clang__
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif // __GNUC__
+#endif // __APPLE__
 
-#endif
-
-
-#include <openssl/ssl.h>
-#include <openssl/sha.h>
+#include <openssl/rand.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
 #include <openssl/rsa.h>
+#include <openssl/ec.h>
+#include <openssl/pem.h>
+#include <openssl/hmac.h>
+#include <openssl/x509.h>
 
 
-#endif // NDN_SECURITY_OPENSSL_HPP
+#endif // NDN_SECURITY_DETAIL_OPENSSL_HPP

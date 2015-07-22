@@ -23,6 +23,7 @@
 #define NDN_CXX_SECURITY_TRANSFORM_BASE_HPP
 
 #include "../../common.hpp"
+#include <vector>
 
 namespace ndn {
 namespace security {
@@ -178,6 +179,80 @@ class Transform : public Upstream,
                   public Downstream,
                   noncopyable
 {
+protected:
+  typedef std::vector<uint8_t> OBuffer;
+
+  Transform();
+
+  /**
+   * @brief Read the content from output buffer and write it into next module.
+   */
+  void
+  flushOutputBuffer();
+
+  /**
+   * @brief Set output buffer to @p buffer
+   */
+  void
+  setOutputBuffer(unique_ptr<OBuffer> buffer);
+
+  /**
+   * @brief Check if output buffer is empty
+   */
+  bool
+  isOutputBufferEmpty() const;
+
+private:
+
+  /**
+   * @brief Abstraction of data processing in an intermediate module
+   */
+  virtual size_t
+  doWrite(const uint8_t* data, size_t dataLen) final;
+
+  /**
+   * @brief Finalize transformation in this module
+   *
+   * This method will not return until all transformation result is written into next module
+   */
+  virtual void
+  doEnd() final;
+
+  /**
+   * @brief Process before transformation.
+   *
+   * @pre output buffer is empty.
+   *
+   * This method is invoked before every convert(...) invocation.
+   *
+   * This implementation does nothing.  A subclass can override this method to perform
+   * specific pre-transformation procedure, e.g., read partial transformation results into
+   * output buffer.
+   */
+  virtual void
+  preTransform();
+
+  /**
+   * @brief Convert input @p data.
+   *
+   * @return The number of input bytes that have been accepted by the converter.
+   */
+  virtual size_t
+  convert(const uint8_t* data, size_t dataLen) = 0;
+
+  /**
+   * @brief Finalize the transformation.
+   *
+   * This implementation only flushes content in output buffer into next module.
+   * A subclass can override this method to perform specific finalization procedure, i.e.,
+   * finalize the transformation and flush the result into next module.
+   */
+  virtual void
+  finalize();
+
+private:
+  unique_ptr<OBuffer> m_oBuffer;
+  size_t m_outputOffset;
 };
 
 /**

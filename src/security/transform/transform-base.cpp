@@ -74,6 +74,76 @@ Upstream::appendChain(unique_ptr<Downstream> tail)
   }
 }
 
+Transform::Transform()
+  : m_oBuffer(nullptr)
+  , m_outputOffset(0)
+{
+}
+
+void
+Transform::flushOutputBuffer()
+{
+  if (isOutputBufferEmpty())
+    return;
+
+  size_t nWritten = m_next->write(&(*m_oBuffer)[m_outputOffset],
+                                  m_oBuffer->size() - m_outputOffset);
+  m_outputOffset += nWritten;
+}
+
+void
+Transform::setOutputBuffer(unique_ptr<OBuffer> buffer)
+{
+  BOOST_ASSERT(isOutputBufferEmpty());
+  m_oBuffer = std::move(buffer);
+  m_outputOffset = 0;
+}
+
+bool
+Transform::isOutputBufferEmpty() const
+{
+  return (m_oBuffer == nullptr || m_oBuffer->size() == m_outputOffset);
+}
+
+size_t
+Transform::doWrite(const uint8_t* data, size_t dataLen)
+{
+  flushOutputBuffer();
+  if (!isOutputBufferEmpty())
+    return 0;
+
+  preTransform();
+  flushOutputBuffer();
+  if (!isOutputBufferEmpty())
+    return 0;
+
+  size_t nConverted = convert(data, dataLen);
+
+  flushOutputBuffer();
+
+  return nConverted;
+}
+
+void
+Transform::doEnd()
+{
+  finalize();
+  m_next->end();
+}
+
+void
+Transform::preTransform()
+{
+}
+
+void
+Transform::finalize()
+{
+  while (!isOutputBufferEmpty()) {
+    flushOutputBuffer();
+  }
+}
+
 Source::Source()
   : m_nModules(1) // source per se is counted as one module
 {

@@ -19,50 +19,58 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/transform.hpp"
-
-#include "boost-test.hpp"
+#include "hex-encode.hpp"
 
 namespace ndn {
 namespace security {
-namespace tests {
+namespace transform {
 
-BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(TestTransform)
+static const char H2CL[16] = {
+  '0', '1', '2', '3', '4', '5', '6', '7',
+  '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+};
 
-BOOST_AUTO_TEST_CASE(SymbolVisibility)
+static const char H2CU[16] = {
+  '0', '1', '2', '3', '4', '5', '6', '7',
+  '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+};
+
+HexEncode::HexEncode(bool useUpperCase)
+  : m_useUpperCase(useUpperCase)
 {
-  transform::BufferSource* bufferSource = nullptr;
-  BOOST_CHECK(bufferSource == nullptr);
-
-  transform::StreamSource* streamSource = nullptr;
-  BOOST_CHECK(streamSource == nullptr);
-
-  transform::StepSource* stepSource = nullptr;
-  BOOST_CHECK(stepSource == nullptr);
-
-  transform::BoolSink* boolSink = nullptr;
-  BOOST_CHECK(boolSink == nullptr);
-
-  transform::StreamSink* streamSink = nullptr;
-  BOOST_CHECK(streamSink == nullptr);
-
-  transform::HexEncode* hexEncode = nullptr;
-  BOOST_CHECK(hexEncode == nullptr);
-
-  transform::HexDecode* hexDecode = nullptr;
-  BOOST_CHECK(hexDecode == nullptr);
-
-  transform::Base64Encode* base64Encode = nullptr;
-  BOOST_CHECK(base64Encode == nullptr);
-
-  transform::Base64Decode* base64Decode = nullptr;
-  BOOST_CHECK(base64Decode == nullptr);
 }
 
-BOOST_AUTO_TEST_SUITE_END() // TestTransform
-BOOST_AUTO_TEST_SUITE_END() // Security
+size_t
+HexEncode::convert(const uint8_t* data, size_t dataLen)
+{
+  setOutputBuffer(toHex(data, dataLen));
+  return dataLen;
+}
 
-} // namespace tests
+unique_ptr<Transform::OBuffer>
+HexEncode::toHex(const uint8_t* data, size_t dataLen)
+{
+  const char* encodePad = (m_useUpperCase) ? H2CU : H2CL;
+
+  auto encoded = make_unique<OBuffer>(dataLen * 2);
+  uint8_t* buf = &encoded->front();
+  for (size_t i = 0; i < dataLen; i++) {
+    buf[0] = encodePad[((data[i] >> 4) & 0x0F)];
+    buf++;
+    buf[0] = encodePad[(data[i] & 0x0F)];
+    buf++;
+  }
+  return encoded;
+}
+
+
+
+unique_ptr<Transform>
+hexEncode(bool useUpperCase)
+{
+  return make_unique<HexEncode>(useUpperCase);
+}
+
+} // namespace transform
 } // namespace security
 } // namespace ndn

@@ -29,4 +29,9 @@
 #include "transform/bool-sink.hpp"
 #include "transform/stream-sink.hpp"
 
+#include "transform/hex-encode.hpp"
+#include "transform/hex-decode.hpp"
+#include "transform/base64-encode.hpp"
+#include "transform/base64-decode.hpp"
+
 #endif // NDN_CXX_SECURITY_TRANSFORM_HPP
