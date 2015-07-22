@@ -37,15 +37,15 @@ def options(opt):
                    dest='with_osx_keychain',
                    help='''On Darwin, do not use OSX keychain as a default TPM''')
 
-    opt.add_option('--enable-static', action='store_true', default=True,
-                   dest='enable_static', help='''Build static library (enabled by default)''')
-    opt.add_option('--disable-static', action='store_false', default=True,
-                   dest='enable_static', help='''Do not build static library (enabled by default)''')
+    opt.add_option('--enable-static', action='store_true', default=False,
+                   dest='enable_static', help='''Build static library (disabled by default)''')
+    opt.add_option('--disable-static', action='store_false', default=False,
+                   dest='enable_static', help='''Do not build static library (disabled by default)''')
 
-    opt.add_option('--enable-shared', action='store_true', default=False,
-                   dest='enable_shared', help='''Build shared library (disabled by default)''')
-    opt.add_option('--disable-shared', action='store_false', default=False,
-                   dest='enable_shared', help='''Do not build shared library (disabled by default)''')
+    opt.add_option('--enable-shared', action='store_true', default=True,
+                   dest='enable_shared', help='''Build shared library (enabled by default)''')
+    opt.add_option('--disable-shared', action='store_false', default=True,
+                   dest='enable_shared', help='''Do not build shared library (enabled by default)''')
 
 def configure(conf):
     conf.start_msg('Building static library')

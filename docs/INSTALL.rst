@@ -125,21 +125,21 @@ To build in a terminal, change directory to the ndn-cxx root. Enter:
     ./waf
     sudo ./waf install
 
-By default, only the static version of ndn-cxx library is built.  To build the shared library,
-use ``--enable-shared`` option for ``./waf configure`` command.  For example::
+By default, only the shared version of ndn-cxx library is built.  To build the static library,
+use ``--enable-static`` option for ``./waf configure`` command.  For example::
 
-    ./waf configure --enable-shared
+    ./waf configure --enable-static
 
-To disable build of the static library and build only the shared library, use additional
-``--disable-static`` option.  Note that at least one version of the library needs to be
+To disable build of the shared library and build only the static library, use additional
+``--disable-shared`` option.  Note that at least one version of the library needs to be
 enabled.
 
 ::
 
-    ./waf configure --enable-shared --disable-static
+    ./waf configure --enable-static --disable-shared
 
 
-After shared library is built and installed, some systems require additional actions.
+After the shared library is built and installed, some systems require additional actions.
 
   - on Linux::
 
