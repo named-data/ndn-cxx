@@ -251,7 +251,7 @@ Signing Interests
 %%%%%%%%%%%%%%%%%
 
 The process of signing Interests according to the :doc:`Signed Interest specification
-<signed-interest>` is exactly the same as the process of signing Data packets:
+<../specs/signed-interest>` is exactly the same as the process of signing Data packets:
 
 .. code-block:: cpp
 

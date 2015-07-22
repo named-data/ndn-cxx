@@ -45,10 +45,10 @@ using :ndn-cxx:`Face::put` method.
    :emphasize-lines: 42,55-58,61,64,67,70,76
 
 
-Consumer that uses ndn::Scheduler
----------------------------------
+Consumer that uses Scheduler
+----------------------------
 
-The following example demonstrates how to use :ndn-cxx:`ndn::Scheduler` to schedule arbitrary
+The following example demonstrates how to use :ndn-cxx:`Scheduler` to schedule arbitrary
 events for execution at specific points of time.
 
 The library internally uses `boost::asio::io_service
@@ -57,7 +57,7 @@ implement fully asynchronous NDN operations (i.e., sending and receiving Interes
 Data).  In addition to network-related operations, ``boost::asio::io_service`` can be used
 to execute any arbitrary callback within the processing thread (run either explicitly via
 ``io.run`` or implicitly via :ndn-cxx:`Face::processEvents` as in previous examples).
-:ndn-cxx:`ndn::Scheduler` is just a wrapper on top of ``boost::asio::io_service``,
+:ndn-cxx:`Scheduler` is just a wrapper on top of ``boost::asio::io_service``,
 allowing simple interface to schedule tasks at specific times.
 
 The highlighted lines in the example demonstrate all that is needed to express a second

@@ -18,6 +18,7 @@ ndn-cxx Documentation
    INSTALL
    examples
    tutorials
+   specs
    manpages
 
 .. toctree::
@@ -39,8 +40,12 @@ ndn-cxx Documentation
    + :doc:`tutorials/security-library`
    + :doc:`tutorials/utils-ndn-regex`
    + :doc:`tutorials/security-validator-config`
-   + :doc:`tutorials/signed-interest`
-   + :doc:`tutorials/certificate-format`
+
+- :doc:`specs`
+
+   + :doc:`specs/signed-interest`
+   + :doc:`specs/certificate-format`
+   + :doc:`specs/safe-bag`
 
 - :doc:`manpages`
 
