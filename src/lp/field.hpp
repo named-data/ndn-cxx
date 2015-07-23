@@ -19,54 +19,64 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_LP_TLV_HPP
-#define NDN_CXX_LP_TLV_HPP
+#ifndef NDN_CXX_LP_FIELD_HPP
+#define NDN_CXX_LP_FIELD_HPP
+
+#include "../common.hpp"
+#include "../encoding/encoding-buffer.hpp"
+
+#include <boost/type_traits.hpp>
 
 namespace ndn {
 namespace lp {
-namespace tlv {
 
 /**
- * \brief TLV-TYPE code assignments for NDNLPv2
+ * \brief indicates where a field may occur
  */
-enum {
-  LpPacket = 100,
-  Fragment = 80,
-  Sequence = 81,
-  FragIndex = 82,
-  FragCount = 83,
-  Nack = 800,
-  NackReason = 801,
-  NextHopFaceId = 816,
-  CachePolicy = 820,
-  CachePolicyType = 821,
-  IncomingFaceId = 817
+namespace field_location_tags {
+
+class Base
+{
 };
 
-enum {
-  /**
-   * \brief lower bound of 1-octet header field
-   */
-  HEADER1_MIN = 81,
-
-  /**
-   * \brief upper bound of 1-octet header field
-   */
-  HEADER1_MAX = 99,
-
-  /**
-   * \brief lower bound of 3-octet header field
-   */
-  HEADER3_MIN = 800,
-
-  /**
-   * \brief upper bound of 3-octet header field
-   */
-  HEADER3_MAX = 959
+/**
+ * \brief a header field
+ */
+class Header : public Base
+{
 };
 
-} // namespace tlv
+/**
+ * \brief the Fragment field
+ */
+class Fragment : public Base
+{
+};
+
+} // namespace field_location_tags
+
+/**
+ * \brief concept check for fields
+ */
+template<class X>
+struct Field
+{
+  BOOST_CONCEPT_ASSERT((boost::is_base_of<field_location_tags::Base, typename X::FieldLocation>));
+  BOOST_CONCEPT_ASSERT((boost::DefaultConstructible<typename X::ValueType>));
+  BOOST_CONCEPT_ASSERT((boost::CopyConstructible<typename X::ValueType>));
+  BOOST_CONCEPT_ASSERT((boost::is_same<typename X::TlvType::value_type, uint64_t>));
+  BOOST_CONCEPT_ASSERT((boost::is_same<typename X::IsRepeatable::value_type, bool>));
+  BOOST_CONCEPT_USAGE(Field)
+  {
+    Block wire;
+    X j;
+    typename X::ValueType decoded = j.decode(wire);
+    EncodingBuffer enc;
+    j.encode(enc, decoded);
+  }
+};
+
 } // namespace lp
 } // namespace ndn
 
-#endif // NDN_CXX_LP_TLV_HPP
+#endif // NDN_CXX_LP_FIELD_HPP

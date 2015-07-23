@@ -19,54 +19,79 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_LP_TLV_HPP
-#define NDN_CXX_LP_TLV_HPP
+#ifndef NDN_CXX_LP_DETAIL_FIELD_INFO_HPP
+#define NDN_CXX_LP_DETAIL_FIELD_INFO_HPP
+
+#include "../../common.hpp"
+
+#include "../fields.hpp"
 
 namespace ndn {
 namespace lp {
-namespace tlv {
+namespace detail {
 
-/**
- * \brief TLV-TYPE code assignments for NDNLPv2
- */
-enum {
-  LpPacket = 100,
-  Fragment = 80,
-  Sequence = 81,
-  FragIndex = 82,
-  FragCount = 83,
-  Nack = 800,
-  NackReason = 801,
-  NextHopFaceId = 816,
-  CachePolicy = 820,
-  CachePolicyType = 821,
-  IncomingFaceId = 817
+class FieldInfo
+{
+public:
+  FieldInfo();
+
+  explicit
+  FieldInfo(uint64_t tlv);
+
+public:
+  /**
+   * \brief TLV-TYPE of the field; 0 if field does not exist
+   */
+  uint64_t tlvType;
+
+  /**
+   * \brief is this field known
+   */
+  bool isRecognized;
+
+  /**
+   * \brief can this unknown field be ignored
+   */
+  bool canIgnore;
+
+  /**
+   * \brief is the field repeatable
+   */
+  bool isRepeatable;
+
+  /**
+   * \brief sort order of field_location_tag
+   */
+  int locationSortOrder;
 };
 
-enum {
-  /**
-   * \brief lower bound of 1-octet header field
-   */
-  HEADER1_MIN = 81,
+template<typename TAG>
+inline int
+getLocationSortOrder();
 
-  /**
-   * \brief upper bound of 1-octet header field
-   */
-  HEADER1_MAX = 99,
+template<>
+inline int
+getLocationSortOrder<field_location_tags::Header>()
+{
+  return 1;
+}
 
-  /**
-   * \brief lower bound of 3-octet header field
-   */
-  HEADER3_MIN = 800,
+template<>
+inline int
+getLocationSortOrder<field_location_tags::Fragment>()
+{
+  return 2;
+}
 
-  /**
-   * \brief upper bound of 3-octet header field
-   */
-  HEADER3_MAX = 959
-};
+inline bool
+compareFieldSortOrder(const FieldInfo& first, const FieldInfo& second)
+{
+  return (first.locationSortOrder < second.locationSortOrder) ||
+         (first.locationSortOrder == second.locationSortOrder && first.tlvType < second.tlvType);
+}
 
-} // namespace tlv
+} // namespace detail
 } // namespace lp
 } // namespace ndn
 
-#endif // NDN_CXX_LP_TLV_HPP
+#endif // NDN_CXX_LP_DETAIL_FIELD_INFO_HPP
