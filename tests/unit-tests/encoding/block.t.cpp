@@ -477,6 +477,27 @@ BOOST_AUTO_TEST_CASE(EraseRange)
   BOOST_CHECK_EQUAL(*(newIt - 1) == firstBlock, true);
 }
 
+BOOST_AUTO_TEST_CASE(Remove)
+{
+  Block block(tlv::Data);
+  block.push_back(makeNonNegativeIntegerBlock(tlv::ContentType, 0));
+  block.push_back(makeNonNegativeIntegerBlock(tlv::FreshnessPeriod, 123));
+  block.push_back(makeStringBlock(tlv::Name, "ndn:/test-prefix"));
+  block.push_back(makeNonNegativeIntegerBlock(tlv::ContentType, 2));
+  block.push_back(makeNonNegativeIntegerBlock(tlv::ContentType, 1));
+
+  BOOST_CHECK_EQUAL(5, block.elements_size());
+  BOOST_REQUIRE_NO_THROW(block.remove(tlv::ContentType));
+  BOOST_CHECK_EQUAL(2, block.elements_size());
+
+  Block::element_container elements = block.elements();
+
+  BOOST_CHECK_EQUAL(tlv::FreshnessPeriod, elements[0].type());
+  BOOST_CHECK_EQUAL(123, readNonNegativeInteger(elements[0]));
+  BOOST_CHECK_EQUAL(tlv::Name, elements[1].type());
+  BOOST_CHECK(readString(elements[1]).compare("ndn:/test-prefix") == 0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests

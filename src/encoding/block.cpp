@@ -406,7 +406,7 @@ Block::remove(uint32_t type)
   resetWire();
 
   auto it = std::remove_if(m_subBlocks.begin(), m_subBlocks.end(),
-                           [type] (const Block& subBlock) { return subBlock.type() != type; });
+                           [type] (const Block& subBlock) { return subBlock.type() == type; });
   m_subBlocks.resize(it - m_subBlocks.begin());
 }
 

@@ -249,6 +249,11 @@ public: // sub elements
   element_const_iterator
   find(uint32_t type) const;
 
+  /**
+   * @brief remove all subelements of \p type
+   * @param type TLV-TYPE of subelements to remove
+   * @pre parse() has been invoked
+   */
   void
   remove(uint32_t type);
 
