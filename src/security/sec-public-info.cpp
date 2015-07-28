@@ -78,7 +78,7 @@ SecPublicInfo::getDefaultCertificateName()
     refreshDefaultCertificate();
 
   if (m_defaultCertificate == nullptr)
-    throw Error("No default certificate is set");
+    BOOST_THROW_EXCEPTION(Error("No default certificate is set"));
 
   return m_defaultCertificate->getName();
 }
@@ -98,7 +98,7 @@ SecPublicInfo::getNewKeyName(const Name& identityName, bool useKsk)
   Name keyName = Name(identityName).append(oss.str());
 
   if (doesPublicKeyExist(keyName))
-    throw Error("Key name already exists: " + keyName.toUri());
+    BOOST_THROW_EXCEPTION(Error("Key name already exists: " + keyName.toUri()));
 
   return keyName;
 }

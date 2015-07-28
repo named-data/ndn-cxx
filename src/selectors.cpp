@@ -135,7 +135,7 @@ void
 Selectors::wireDecode(const Block& wire)
 {
   if (wire.type() != tlv::Selectors)
-    throw tlv::Error("Unexpected TLV type when decoding Selectors");
+    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV type when decoding Selectors"));
 
   *this = Selectors();
 

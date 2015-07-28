@@ -33,7 +33,7 @@ PibMemory::PibMemory()
 void
 PibMemory::setTpmLocator(const std::string& tpmLocator)
 {
-  throw Error("PibMemory does not need a locator");
+  BOOST_THROW_EXCEPTION(Error("PibMemory does not need a locator"));
 }
 
 std::string
@@ -92,7 +92,7 @@ PibMemory::getDefaultIdentity() const
   if (m_hasDefaultIdentity)
     return m_defaultIdentity;
 
-  throw Pib::Error("No default identity");
+  BOOST_THROW_EXCEPTION(Pib::Error("No default identity"));
 }
 
 bool
@@ -131,7 +131,7 @@ PublicKey
 PibMemory::getKeyBits(const Name& identity, const name::Component& keyId) const
 {
   if (!hasKey(identity, keyId))
-    throw Pib::Error("No key");
+    BOOST_THROW_EXCEPTION(Pib::Error("No key"));
 
   auto it = m_keys.find(getKeyName(identity, keyId));
   return it->second;
@@ -154,7 +154,7 @@ PibMemory::setDefaultKeyOfIdentity(const Name& identity, const name::Component& 
   Name keyName = getKeyName(identity, keyId);
 
   if (!hasKey(identity, keyId))
-    throw Pib::Error("No key");
+    BOOST_THROW_EXCEPTION(Pib::Error("No key"));
 
   m_defaultKey[identity] = keyName;
 }
@@ -164,7 +164,7 @@ PibMemory::getDefaultKeyOfIdentity(const Name& identity) const
 {
   auto it = m_defaultKey.find(identity);
   if (it == m_defaultKey.end())
-    throw Pib::Error("No default key");
+    BOOST_THROW_EXCEPTION(Pib::Error("No default key"));
 
   return it->second.get(-1);
 }
@@ -208,7 +208,7 @@ IdentityCertificate
 PibMemory::getCertificate(const Name& certName) const
 {
   if (!hasCertificate(certName))
-    throw Pib::Error("No cert");
+    BOOST_THROW_EXCEPTION(Pib::Error("No cert"));
 
   auto it = m_certs.find(certName);
   return it->second;
@@ -231,7 +231,7 @@ void
 PibMemory::setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId, const Name& certName)
 {
   if (!hasCertificate(certName))
-    throw Pib::Error("No cert");
+    BOOST_THROW_EXCEPTION(Pib::Error("No cert"));
 
   Name keyName = getKeyName(identity, keyId);
   m_defaultCert[keyName] = certName;
@@ -244,11 +244,11 @@ PibMemory::getDefaultCertificateOfKey(const Name& identity, const name::Componen
 
   auto it = m_defaultCert.find(keyName);
   if (it == m_defaultCert.end())
-    throw Pib::Error("No default certificate");
+    BOOST_THROW_EXCEPTION(Pib::Error("No default certificate"));
 
   auto certIt = m_certs.find(it->second);
   if (certIt == m_certs.end())
-    throw Pib::Error("No default certificate");
+    BOOST_THROW_EXCEPTION(Pib::Error("No default certificate"));
   else
     return certIt->second;
 }

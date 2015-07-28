@@ -57,7 +57,7 @@ SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& password
 
   // derive key
   if (!generateRandomBlock(salt, 8) || !generateRandomBlock(iv, 8))
-    throw Error("Cannot generate salt or iv");
+    BOOST_THROW_EXCEPTION(Error("Cannot generate salt or iv"));
 
   uint32_t iterationCount = 2048;
 
@@ -74,7 +74,7 @@ SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& password
     }
   catch (CryptoPP::Exception& e)
     {
-      throw Error("Cannot derived the encryption key");
+      BOOST_THROW_EXCEPTION(Error("Cannot derived the encryption key"));
     }
 
   //encrypt
@@ -84,7 +84,7 @@ SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& password
   ConstBufferPtr pkcs8PrivateKey = exportPrivateKeyPkcs8FromTpm(keyName);
 
   if (!static_cast<bool>(pkcs8PrivateKey))
-    throw Error("Cannot export the private key, #1");
+    BOOST_THROW_EXCEPTION(Error("Cannot export the private key, #1"));
 
   OBufferStream encryptedOs;
   try
@@ -94,7 +94,7 @@ SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& password
     }
   catch (CryptoPP::Exception& e)
     {
-      throw Error("Cannot export the private key, #2");
+      BOOST_THROW_EXCEPTION(Error("Cannot export the private key, #2"));
     }
 
   //encode
@@ -166,7 +166,7 @@ SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& password
     }
   catch (CryptoPP::Exception& e)
     {
-      throw Error("Cannot export the private key, #3");
+      BOOST_THROW_EXCEPTION(Error("Cannot export the private key, #3"));
     }
 }
 

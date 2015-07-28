@@ -50,7 +50,7 @@ void
 Signature::setValue(const Block& value)
 {
   if (value.type() != tlv::SignatureValue) {
-    throw Error("The supplied block is not SignatureValue");
+    BOOST_THROW_EXCEPTION(Error("The supplied block is not SignatureValue"));
   }
   m_value = value;
 }

@@ -250,7 +250,7 @@ SecTpmOsx::SecTpmOsx(const std::string& location)
   OSStatus res = SecKeychainCopyDefault(&m_impl->m_keyChainRef);
 
   if (res == errSecNoDefaultKeychain) //If no default key chain, create one.
-    throw Error("No default keychain, create one first!");
+    BOOST_THROW_EXCEPTION(Error("No default keychain, please create one first"));
 }
 
 SecTpmOsx::~SecTpmOsx()
@@ -377,7 +377,7 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName,
 
   if (doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC))
     {
-      throw Error("keyName has existed");
+      BOOST_THROW_EXCEPTION(Error("keyName already exists"));
     }
 
   string keyNameUri = m_impl->toInternalKeyName(keyName, KEY_CLASS_PUBLIC);
@@ -410,7 +410,7 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName,
         break;
       }
     default:
-      throw Error("Fail to create a key pair: Unsupported key type");
+      BOOST_THROW_EXCEPTION(Error("Fail to create a key pair: Unsupported key type"));
     }
 
   CFReleaser<CFNumberRef> cfKeySize = CFNumberCreate(0, kCFNumberIntType, &keySize);
@@ -434,11 +434,11 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName,
       if (unlockTpm(0, 0, false))
         generateKeyPairInTpmInternal(keyName, params, true);
       else
-        throw Error("Fail to unlock the keychain");
+        BOOST_THROW_EXCEPTION(Error("Fail to unlock the keychain"));
     }
   else
     {
-      throw Error("Fail to create a key pair");
+      BOOST_THROW_EXCEPTION(Error("Fail to create a key pair"));
     }
 }
 
@@ -473,7 +473,7 @@ SecTpmOsx::deleteKeyPairInTpmInternal(const Name& keyName, bool needRetry)
 void
 SecTpmOsx::generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& params)
 {
-  throw Error("SecTpmOsx::generateSymmetricKeyInTpm is not supported");
+  BOOST_THROW_EXCEPTION(Error("SecTpmOsx::generateSymmetricKeyInTpm is not supported"));
   // if (doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
   //   throw Error("keyName has existed!");
 
@@ -511,7 +511,8 @@ SecTpmOsx::getPublicKeyFromTpm(const Name& keyName)
   CFReleaser<SecKeychainItemRef> publicKey = m_impl->getKey(keyName, KEY_CLASS_PUBLIC);
   if (publicKey.get() == 0)
     {
-      throw Error("Requested public key [" + keyName.toUri() + "] does not exist in OSX Keychain");
+      BOOST_THROW_EXCEPTION(Error("Requested public key [" + keyName.toUri() + "] does not exist "
+                                  "in OSX Keychain"));
     }
 
   CFReleaser<CFDataRef> exportedKey;
@@ -522,7 +523,7 @@ SecTpmOsx::getPublicKeyFromTpm(const Name& keyName)
                                &exportedKey.get());
   if (res != errSecSuccess)
     {
-      throw Error("Cannot export requested public key from OSX Keychain");
+      BOOST_THROW_EXCEPTION(Error("Cannot export requested public key from OSX Keychain"));
     }
 
   shared_ptr<PublicKey> key = make_shared<PublicKey>(CFDataGetBytePtr(exportedKey.get()),
@@ -545,7 +546,8 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
   if (privateKey.get() == 0)
     {
       /// @todo Can this happen because of keychain is locked?
-      throw Error("Private key [" + keyName.toUri() + "] does not exist in OSX Keychain");
+      BOOST_THROW_EXCEPTION(Error("Private key [" + keyName.toUri() + "] does not exist "
+                                  "in OSX Keychain"));
     }
 
   shared_ptr<PublicKey> publicKey = getPublicKeyFromTpm(keyName);
@@ -597,8 +599,8 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
       break;
     }
   default:
-    throw Error("Unsupported key type" +
-                boost::lexical_cast<std::string>(publicKey->getKeyType()));
+    BOOST_THROW_EXCEPTION(Error("Unsupported key type" +
+                                boost::lexical_cast<std::string>(publicKey->getKeyType())));
   }
 
   OBufferStream pkcs8Os;
@@ -813,7 +815,8 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
   CFReleaser<SecKeychainItemRef> privateKey = m_impl->getKey(keyName, KEY_CLASS_PRIVATE);
   if (privateKey.get() == 0)
     {
-      throw Error("Private key [" + keyName.toUri() + "] does not exist in OSX Keychain");
+      BOOST_THROW_EXCEPTION(Error("Private key [" + keyName.toUri() + "] does not exist "
+                                  "in OSX Keychain"));
     }
 
   CFReleaser<CFErrorRef> error;
@@ -821,7 +824,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
   CFReleaser<SecTransformRef> signer = SecSignTransformCreate((SecKeyRef)privateKey.get(),
                                                               &error.get());
   if (error.get() != 0)
-    throw Error("Fail to create signer");
+    BOOST_THROW_EXCEPTION(Error("Fail to create signer"));
 
   // Set input
   SecTransformSetAttribute(signer.get(),
@@ -829,7 +832,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
                            dataRef.get(),
                            &error.get());
   if (error.get() != 0)
-    throw Error("Fail to configure input of signer");
+    BOOST_THROW_EXCEPTION(Error("Fail to configure input of signer"));
 
   // Enable use of padding
   SecTransformSetAttribute(signer.get(),
@@ -837,7 +840,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
                            kSecPaddingPKCS1Key,
                            &error.get());
   if (error.get() != 0)
-    throw Error("Fail to configure digest algorithm of signer");
+    BOOST_THROW_EXCEPTION(Error("Fail to configure digest algorithm of signer"));
 
   // Set padding type
   SecTransformSetAttribute(signer.get(),
@@ -845,7 +848,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
                            m_impl->getDigestAlgorithm(digestAlgorithm),
                            &error.get());
   if (error.get() != 0)
-    throw Error("Fail to configure digest algorithm of signer");
+    BOOST_THROW_EXCEPTION(Error("Fail to configure digest algorithm of signer"));
 
   // Set padding attribute
   long digestSize = m_impl->getDigestSize(digestAlgorithm);
@@ -855,7 +858,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
                            cfDigestSize.get(),
                            &error.get());
   if (error.get() != 0)
-    throw Error("Fail to configure digest size of signer");
+    BOOST_THROW_EXCEPTION(Error("Fail to configure digest size of signer"));
 
   // Actually sign
   // C-style cast is used as per Apple convention
@@ -867,17 +870,17 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
           if (unlockTpm(0, 0, false))
             return signInTpmInternal(data, dataLength, keyName, digestAlgorithm, true);
           else
-            throw Error("Fail to unlock the keychain");
+            BOOST_THROW_EXCEPTION(Error("Fail to unlock the keychain"));
         }
       else
         {
           CFShow(error.get());
-          throw Error("Fail to sign data");
+          BOOST_THROW_EXCEPTION(Error("Fail to sign data"));
         }
     }
 
   if (signature.get() == 0)
-    throw Error("Signature is NULL!\n");
+    BOOST_THROW_EXCEPTION(Error("Signature is NULL!\n"));
 
   return Block(tlv::SignatureValue,
                make_shared<Buffer>(CFDataGetBytePtr(signature.get()),
@@ -887,7 +890,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
 ConstBufferPtr
 SecTpmOsx::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool sym)
 {
-  throw Error("SecTpmOsx::decryptInTpm is not supported");
+  BOOST_THROW_EXCEPTION(Error("SecTpmOsx::decryptInTpm is not supported"));
 
   // KeyClass keyClass;
   // if (sym)
@@ -936,7 +939,8 @@ SecTpmOsx::addAppToAcl(const Name& keyName, KeyClass keyClass, const string& app
       CFReleaser<SecKeychainItemRef> privateKey = m_impl->getKey(keyName, keyClass);
       if (privateKey.get() == 0)
         {
-          throw Error("Private key [" + keyName.toUri() + "] does not exist in OSX Keychain");
+          BOOST_THROW_EXCEPTION(Error("Private key [" + keyName.toUri() + "] does not exist "
+                                      "in OSX Keychain"));
         }
 
       CFReleaser<SecAccessRef> accRef;
@@ -978,7 +982,7 @@ SecTpmOsx::addAppToAcl(const Name& keyName, KeyClass keyClass, const string& app
 ConstBufferPtr
 SecTpmOsx::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName, bool sym)
 {
-  throw Error("SecTpmOsx::encryptInTpm is not supported");
+  BOOST_THROW_EXCEPTION(Error("SecTpmOsx::encryptInTpm is not supported"));
 
   // KeyClass keyClass;
   // if (sym)

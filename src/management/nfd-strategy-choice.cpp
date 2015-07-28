@@ -82,7 +82,7 @@ void
 StrategyChoice::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::StrategyChoice) {
-    throw Error("expecting StrategyChoice block");
+    BOOST_THROW_EXCEPTION(Error("expecting StrategyChoice block"));
   }
   m_wire = block;
   m_wire.parse();
@@ -93,13 +93,13 @@ StrategyChoice::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required Name field");
+    BOOST_THROW_EXCEPTION(Error("missing required Name field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Strategy) {
     val->parse();
     if (val->elements().empty()) {
-      throw Error("expecting Strategy/Name");
+      BOOST_THROW_EXCEPTION(Error("expecting Strategy/Name"));
     }
     else {
       m_strategy.wireDecode(*val->elements_begin());
@@ -107,7 +107,7 @@ StrategyChoice::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required Strategy field");
+    BOOST_THROW_EXCEPTION(Error("missing required Strategy field"));
   }
 }
 

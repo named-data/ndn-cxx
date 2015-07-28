@@ -250,7 +250,8 @@ LocalControlHeader::wireEncode(const U& payload, uint8_t encodeMask) const
 {
   /// @todo should this be BOOST_ASSERT instead?  This is kind of unnecessary overhead
   if (empty(encodeMask))
-    throw Error("Requested wire for LocalControlHeader, but none of the fields are set or enabled");
+    BOOST_THROW_EXCEPTION(Error("Requested wire for LocalControlHeader, but none of the fields are "
+                                "set or enabled"));
 
   EncodingEstimator estimator;
   size_t length = wireEncode(estimator, payload.wireEncode().size(), encodeMask);
@@ -297,7 +298,7 @@ LocalControlHeader::wireDecode(const Block& wire, uint8_t encodeMask)
               m_cachingPolicy = CachingPolicy::NO_CACHE;
             }
             else {
-              throw Error("CachingPolicy: Missing required NoCache field");
+              BOOST_THROW_EXCEPTION(Error("CachingPolicy: Missing required NoCache field"));
             }
           }
           break;

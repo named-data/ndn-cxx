@@ -146,7 +146,7 @@ RegexTopMatcher::expand(const std::string& expandStr)
                 result.append(*it);
             }
           else
-            throw RegexMatcher::Error("Exceed the range of back reference");
+            BOOST_THROW_EXCEPTION(RegexMatcher::Error("Exceed the range of back reference"));
         }
     }
   return result;
@@ -161,23 +161,23 @@ RegexTopMatcher::getItemFromExpand(const std::string& expand, size_t& offset)
     {
       offset++;
       if (offset >= expand.size())
-        throw RegexMatcher::Error("wrong format of expand string!");
+        BOOST_THROW_EXCEPTION(RegexMatcher::Error("wrong format of expand string!"));
 
       while (expand[offset] <= '9' and expand[offset] >= '0') {
         offset++;
         if (offset > expand.size())
-          throw RegexMatcher::Error("wrong format of expand string!");
+          BOOST_THROW_EXCEPTION(RegexMatcher::Error("wrong format of expand string!"));
       }
       if (offset > begin + 1)
         return expand.substr(begin, offset - begin);
       else
-        throw RegexMatcher::Error("wrong format of expand string!");
+        BOOST_THROW_EXCEPTION(RegexMatcher::Error("wrong format of expand string!"));
     }
   else if (expand[offset] == '<')
     {
       offset++;
       if (offset >= expand.size())
-        throw RegexMatcher::Error("wrong format of expand string!");
+        BOOST_THROW_EXCEPTION(RegexMatcher::Error("wrong format of expand string!"));
 
       size_t left = 1;
       size_t right = 0;
@@ -189,12 +189,12 @@ RegexTopMatcher::getItemFromExpand(const std::string& expand, size_t& offset)
             right++;
           offset++;
           if (offset >= expand.size())
-            throw RegexMatcher::Error("wrong format of expand string!");
+            BOOST_THROW_EXCEPTION(RegexMatcher::Error("wrong format of expand string!"));
         }
       return expand.substr(begin, offset - begin);
     }
   else
-    throw RegexMatcher::Error("wrong format of expand string!");
+    BOOST_THROW_EXCEPTION(RegexMatcher::Error("wrong format of expand string!"));
 }
 
 shared_ptr<RegexTopMatcher>

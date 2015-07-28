@@ -130,7 +130,7 @@ SecPublicInfoSqlite3::SecPublicInfoSqlite3(const std::string& dir)
 #endif
                             );
   if (res != SQLITE_OK)
-    throw Error("identity DB cannot be opened/created");
+    BOOST_THROW_EXCEPTION(Error("identity DB cannot be opened/created"));
 
 
   BOOST_ASSERT(m_database != nullptr);
@@ -228,7 +228,7 @@ SecPublicInfoSqlite3::getTpmLocator()
   }
   else {
     sqlite3_finalize(statement);
-    throw SecPublicInfo::Error("TPM info does not exist");
+    BOOST_THROW_EXCEPTION(SecPublicInfo::Error("TPM info does not exist"));
   }
 }
 
@@ -321,7 +321,7 @@ bool
 SecPublicInfoSqlite3::doesPublicKeyExist(const Name& keyName)
 {
   if (keyName.empty())
-    throw Error("Incorrect key name " + keyName.toUri());
+    BOOST_THROW_EXCEPTION(Error("Incorrect key name " + keyName.toUri()));
 
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
@@ -387,7 +387,7 @@ shared_ptr<PublicKey>
 SecPublicInfoSqlite3::getPublicKey(const Name& keyName)
 {
   if (keyName.empty())
-    throw Error("SecPublicInfoSqlite3::getPublicKey  Empty keyName");
+    BOOST_THROW_EXCEPTION(Error("SecPublicInfoSqlite3::getPublicKey  Empty keyName"));
 
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
@@ -411,7 +411,7 @@ SecPublicInfoSqlite3::getPublicKey(const Name& keyName)
   }
   else {
     sqlite3_finalize(statement);
-    throw Error("SecPublicInfoSqlite3::getPublicKey  public key does not exist");
+    BOOST_THROW_EXCEPTION(Error("SecPublicInfoSqlite3::getPublicKey  public key does not exist"));
   }
 }
 
@@ -545,7 +545,8 @@ SecPublicInfoSqlite3::getCertificate(const Name& certificateName)
     }
     catch (tlv::Error&) {
       sqlite3_finalize(statement);
-      throw Error("SecPublicInfoSqlite3::getCertificate  certificate cannot be decoded");
+      BOOST_THROW_EXCEPTION(Error("SecPublicInfoSqlite3::getCertificate  certificate cannot be "
+                                  "decoded"));
     }
 
     sqlite3_finalize(statement);
@@ -553,7 +554,8 @@ SecPublicInfoSqlite3::getCertificate(const Name& certificateName)
   }
   else {
     sqlite3_finalize(statement);
-    throw Error("SecPublicInfoSqlite3::getCertificate  certificate does not exist");
+    BOOST_THROW_EXCEPTION(Error("SecPublicInfoSqlite3::getCertificate  certificate does not "
+                                "exist"));
   }
 }
 
@@ -575,7 +577,7 @@ SecPublicInfoSqlite3::getDefaultIdentity()
   }
   else {
     sqlite3_finalize(statement);
-    throw Error("SecPublicInfoSqlite3::getDefaultIdentity  no default identity");
+    BOOST_THROW_EXCEPTION(Error("SecPublicInfoSqlite3::getDefaultIdentity  no default identity"));
   }
 }
 
@@ -629,7 +631,8 @@ SecPublicInfoSqlite3::getDefaultKeyNameForIdentity(const Name& identityName)
   }
   else {
     sqlite3_finalize(statement);
-    throw Error("SecPublicInfoSqlite3::getDefaultKeyNameForIdentity key not found");
+    BOOST_THROW_EXCEPTION(Error("SecPublicInfoSqlite3::getDefaultKeyNameForIdentity key not "
+                                "found"));
   }
 }
 
@@ -637,7 +640,7 @@ void
 SecPublicInfoSqlite3::setDefaultKeyNameForIdentityInternal(const Name& keyName)
 {
   if (!doesPublicKeyExist(keyName))
-    throw Error("Key does not exist:" + keyName.toUri());
+    BOOST_THROW_EXCEPTION(Error("Key does not exist:" + keyName.toUri()));
 
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
@@ -673,7 +676,7 @@ Name
 SecPublicInfoSqlite3::getDefaultCertificateNameForKey(const Name& keyName)
 {
   if (keyName.empty())
-    throw Error("SecPublicInfoSqlite3::getDefaultCertificateNameForKey wrong key");
+    BOOST_THROW_EXCEPTION(Error("SecPublicInfoSqlite3::getDefaultCertificateNameForKey wrong key"));
 
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
@@ -697,7 +700,7 @@ SecPublicInfoSqlite3::getDefaultCertificateNameForKey(const Name& keyName)
   }
   else {
     sqlite3_finalize(statement);
-    throw Error("certificate not found");
+    BOOST_THROW_EXCEPTION(Error("certificate not found"));
   }
 }
 
@@ -705,7 +708,7 @@ void
 SecPublicInfoSqlite3::setDefaultCertificateNameForKeyInternal(const Name& certificateName)
 {
   if (!doesCertificateExist(certificateName))
-    throw Error("certificate does not exist:" + certificateName.toUri());
+    BOOST_THROW_EXCEPTION(Error("certificate does not exist:" + certificateName.toUri()));
 
   Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
   string keyId = keyName.get(-1).toUri();

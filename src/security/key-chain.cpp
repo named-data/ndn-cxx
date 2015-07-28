@@ -177,7 +177,7 @@ getCanonicalPibLocator(const std::string& pibLocator)
 
   auto pibFactory = getPibFactories().find(pibScheme);
   if (pibFactory == getPibFactories().end()) {
-    throw KeyChain::Error("PIB scheme '" + pibScheme + "' is not supported");
+    BOOST_THROW_EXCEPTION(KeyChain::Error("PIB scheme '" + pibScheme + "' is not supported"));
   }
   pibScheme = pibFactory->second.canonicalName;
 
@@ -214,7 +214,7 @@ getCanonicalTpmLocator(const std::string& tpmLocator)
   }
   auto tpmFactory = getTpmFactories().find(tpmScheme);
   if (tpmFactory == getTpmFactories().end()) {
-    throw KeyChain::Error("TPM scheme '" + tpmScheme + "' is not supported");
+    BOOST_THROW_EXCEPTION(KeyChain::Error("TPM scheme '" + tpmScheme + "' is not supported"));
   }
   tpmScheme = tpmFactory->second.canonicalName;
 
@@ -256,8 +256,8 @@ KeyChain::initialize(const std::string& pibLocator,
     if (!allowReset &&
         !m_pib->getTpmLocator().empty() && m_pib->getTpmLocator() != canonicalTpmLocator)
       // Tpm mismatch, but we do not want to reset PIB
-      throw MismatchError("TPM locator supplied does not match TPM locator in PIB: " +
-                          m_pib->getTpmLocator() + " != " + canonicalTpmLocator);
+      BOOST_THROW_EXCEPTION(MismatchError("TPM locator supplied does not match TPM locator in PIB: "
+                                          + m_pib->getTpmLocator() + " != " + canonicalTpmLocator));
   }
   catch (SecPublicInfo::Error&) {
     // TPM locator is not set in PIB yet.
@@ -482,7 +482,7 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
         signingCertName = m_pib->getDefaultCertificateNameForKey(params.getSignerName());
       }
       catch (SecPublicInfo::Error&) {
-        throw Error("signing certificate does not exist");
+        BOOST_THROW_EXCEPTION(Error("signing certificate does not exist"));
       }
 
       signingCert = m_pib->getCertificate(signingCertName);
@@ -493,7 +493,7 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
     {
       signingCert = m_pib->getCertificate(params.getSignerName());
       if (signingCert == nullptr)
-        throw Error("signing certificate does not exist");
+        BOOST_THROW_EXCEPTION(Error("signing certificate does not exist"));
 
       break;
     }
@@ -503,7 +503,7 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
       return std::make_tuple(DIGEST_SHA256_IDENTITY, sigInfo);
     }
   default:
-    throw Error("Unrecognized signer type");
+    BOOST_THROW_EXCEPTION(Error("Unrecognized signer type"));
   }
 
   sigInfo.setSignatureType(getSignatureType(signingCert->getPublicKeyInfo().getKeyType(),
@@ -540,7 +540,7 @@ KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certifica
   shared_ptr<IdentityCertificate> certificate = m_pib->getCertificate(certificateName);
 
   if (certificate == nullptr)
-    throw SecPublicInfo::Error("certificate does not exist");
+    BOOST_THROW_EXCEPTION(SecPublicInfo::Error("certificate does not exist"));
 
   Signature sig;
 
@@ -587,7 +587,7 @@ KeyChain::selfSign(IdentityCertificate& cert)
 {
   Name keyName = cert.getPublicKeyName();
   if (!m_tpm->doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
-    throw SecTpm::Error("Private key does not exist");
+    BOOST_THROW_EXCEPTION(SecTpm::Error("Private key does not exist"));
 
   SignatureInfo sigInfo(cert.getSignature().getInfo());
   sigInfo.setKeyLocator(KeyLocator(cert.getName().getPrefix(-1)));
@@ -601,7 +601,7 @@ shared_ptr<SecuredBag>
 KeyChain::exportIdentity(const Name& identity, const std::string& passwordStr)
 {
   if (!m_pib->doesIdentityExist(identity))
-    throw SecPublicInfo::Error("Identity does not exist");
+    BOOST_THROW_EXCEPTION(SecPublicInfo::Error("Identity does not exist"));
 
   Name keyName = m_pib->getDefaultKeyNameForIdentity(identity);
 
@@ -612,7 +612,7 @@ KeyChain::exportIdentity(const Name& identity, const std::string& passwordStr)
     }
   catch (SecTpm::Error& e)
     {
-      throw SecPublicInfo::Error("Fail to export PKCS5 of private key");
+      BOOST_THROW_EXCEPTION(SecPublicInfo::Error("Fail to export PKCS5 of private key"));
     }
 
   shared_ptr<IdentityCertificate> cert;
@@ -842,7 +842,7 @@ KeyChain::getSignatureType(KeyType keyType, DigestAlgorithm digestAlgorithm)
     case KEY_TYPE_ECDSA:
       return tlv::SignatureSha256WithEcdsa;
     default:
-      throw Error("Unsupported key types");
+      BOOST_THROW_EXCEPTION(Error("Unsupported key types"));
   }
 
 }

@@ -89,7 +89,8 @@ shared_ptr<const Buffer>
 fromHex(const std::string& hexString)
 {
   if (hexString.size() % 2 != 0) {
-    throw StringHelperError("Invalid number of characters in the supplied hex string");
+    BOOST_THROW_EXCEPTION(StringHelperError("Invalid number of characters in the supplied hex "
+                                            "string"));
   }
 
   using namespace CryptoPP;
@@ -99,7 +100,7 @@ fromHex(const std::string& hexString)
   shared_ptr<const Buffer> buffer = os.buf();
 
   if (buffer->size() * 2 != hexString.size()) {
-    throw StringHelperError("The supplied hex string contains non-hex characters");
+    BOOST_THROW_EXCEPTION(StringHelperError("The supplied hex string contains non-hex characters"));
   }
 
   return buffer;

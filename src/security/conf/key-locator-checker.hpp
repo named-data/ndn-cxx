@@ -234,14 +234,14 @@ public:
 
     // Get checker.key-locator.type
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type"))
-      throw Error("Expect <checker.key-locator.type>!");
+      BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.type>!"));
 
     std::string type = propertyIt->second.data();
 
     if (boost::iequals(type, "name"))
       return createKeyLocatorNameChecker(configSection, filename);
     else
-      throw Error("Unsupported checker.key-locator.type: " + type);
+      BOOST_THROW_EXCEPTION(Error("Unsupported checker.key-locator.type: " + type));
   }
 
 private:
@@ -253,7 +253,7 @@ private:
     propertyIt++;
 
     if (propertyIt == configSection.end())
-      throw Error("Expect more checker.key-locator properties");
+      BOOST_THROW_EXCEPTION(Error("Expect more checker.key-locator properties"));
 
     if (boost::iequals(propertyIt->first, "name"))
       {
@@ -264,13 +264,13 @@ private:
           }
         catch (Name::Error& e)
           {
-            throw Error("Invalid checker.key-locator.name: " +
-                        propertyIt->second.data());
+            BOOST_THROW_EXCEPTION(Error("Invalid checker.key-locator.name: " +
+                                        propertyIt->second.data()));
           }
         propertyIt++;
 
         if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "relation"))
-          throw Error("Expect <checker.key-locator.relation>!");
+          BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.relation>!"));
 
         std::string relationString = propertyIt->second.data();
         propertyIt++;
@@ -283,10 +283,10 @@ private:
         else if (boost::iequals(relationString, "is-strict-prefix-of"))
           relation = KeyLocatorChecker::RELATION_IS_STRICT_PREFIX_OF;
         else
-          throw Error("Unsupported relation: " + relationString);
+          BOOST_THROW_EXCEPTION(Error("Unsupported relation: " + relationString));
 
         if (propertyIt != configSection.end())
-          throw Error("Expect the end of checker.key-locator!");
+          BOOST_THROW_EXCEPTION(Error("Expect the end of checker.key-locator!"));
 
         return shared_ptr<RelationKeyLocatorNameChecker>
           (new RelationKeyLocatorNameChecker(name, relation));
@@ -297,7 +297,7 @@ private:
         propertyIt++;
 
         if (propertyIt != configSection.end())
-          throw Error("Expect the end of checker.key-locator!");
+          BOOST_THROW_EXCEPTION(Error("Expect the end of checker.key-locator!"));
 
         try
           {
@@ -306,7 +306,7 @@ private:
           }
         catch (Regex::Error& e)
           {
-            throw Error("Invalid checker.key-locator.regex: " + regexString);
+            BOOST_THROW_EXCEPTION(Error("Invalid checker.key-locator.regex: " + regexString));
           }
       }
     else if (boost::iequals(propertyIt->first, "hyper-relation"))
@@ -317,41 +317,41 @@ private:
 
         // Get k-regex
         if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "k-regex"))
-          throw Error("Expect <checker.key-locator.hyper-relation.k-regex>!");
+          BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.hyper-relation.k-regex>!"));
 
         std::string kRegex = hPropertyIt->second.data();
         hPropertyIt++;
 
         // Get k-expand
         if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "k-expand"))
-          throw Error("Expect <checker.key-locator.hyper-relation.k-expand>!");
+          BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.hyper-relation.k-expand>!"));
 
         std::string kExpand = hPropertyIt->second.data();
         hPropertyIt++;
 
         // Get h-relation
         if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "h-relation"))
-          throw Error("Expect <checker.key-locator.hyper-relation.h-relation>!");
+          BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.hyper-relation.h-relation>!"));
 
         std::string hRelation = hPropertyIt->second.data();
         hPropertyIt++;
 
         // Get p-regex
         if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "p-regex"))
-          throw Error("Expect <checker.key-locator.hyper-relation.p-regex>!");
+          BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.hyper-relation.p-regex>!"));
 
         std::string pRegex = hPropertyIt->second.data();
         hPropertyIt++;
 
         // Get p-expand
         if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "p-expand"))
-          throw Error("Expect <checker.key-locator.hyper-relation.p-expand>!");
+          BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.hyper-relation.p-expand>!"));
 
         std::string pExpand = hPropertyIt->second.data();
         hPropertyIt++;
 
         if (hPropertyIt != hSection.end())
-          throw Error("Expect the end of checker.key-locator.hyper-relation!");
+          BOOST_THROW_EXCEPTION(Error("Expect the end of checker.key-locator.hyper-relation!"));
 
         KeyLocatorChecker::Relation relation;
         if (boost::iequals(hRelation, "equal"))
@@ -361,7 +361,8 @@ private:
         else if (boost::iequals(hRelation, "is-strict-prefix-of"))
           relation = KeyLocatorChecker::RELATION_IS_STRICT_PREFIX_OF;
         else
-          throw Error("Unsupported checker.key-locator.hyper-relation.h-relation: " + hRelation);
+          BOOST_THROW_EXCEPTION(Error("Unsupported checker.key-locator.hyper-relation.h-relation: "
+                                      + hRelation));
 
         try
           {
@@ -372,11 +373,11 @@ private:
           }
         catch (Regex::Error& e)
           {
-            throw Error("Invalid regex for key-locator.hyper-relation");
+            BOOST_THROW_EXCEPTION(Error("Invalid regex for key-locator.hyper-relation"));
           }
       }
     else
-      throw Error("Unsupported checker.key-locator");
+      BOOST_THROW_EXCEPTION(Error("Unsupported checker.key-locator"));
   }
 };
 

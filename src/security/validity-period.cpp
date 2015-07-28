@@ -94,23 +94,23 @@ void
 ValidityPeriod::wireDecode(const Block& wire)
 {
   if (!wire.hasWire()) {
-    throw Error("The supplied block does not contain wire format");
+    BOOST_THROW_EXCEPTION(Error("The supplied block does not contain wire format"));
   }
 
   m_wire = wire;
   m_wire.parse();
 
   if (m_wire.type() != tlv::ValidityPeriod)
-    throw Error("Unexpected TLV type when decoding ValidityPeriod");
+    BOOST_THROW_EXCEPTION(Error("Unexpected TLV type when decoding ValidityPeriod"));
 
   if (m_wire.elements_size() != 2)
-    throw Error("Does not have two sub-TLVs");
+    BOOST_THROW_EXCEPTION(Error("Does not have two sub-TLVs"));
 
   if (m_wire.elements()[NOT_BEFORE_OFFSET].type() != tlv::NotBefore ||
       m_wire.elements()[NOT_BEFORE_OFFSET].value_size() != ISO_DATETIME_SIZE ||
       m_wire.elements()[NOT_AFTER_OFFSET].type() != tlv::NotAfter ||
       m_wire.elements()[NOT_AFTER_OFFSET].value_size() != ISO_DATETIME_SIZE) {
-    throw Error("Invalid NotBefore or NotAfter field");
+    BOOST_THROW_EXCEPTION(Error("Invalid NotBefore or NotAfter field"));
   }
 
   try {
@@ -120,7 +120,7 @@ ValidityPeriod::wireDecode(const Block& wire)
                    time::fromIsoString(readString(m_wire.elements()[NOT_AFTER_OFFSET])));
   }
   catch (const std::bad_cast&) {
-    throw Error("Invalid date format in NOT-BEFORE or NOT-AFTER field");
+    BOOST_THROW_EXCEPTION(Error("Invalid date format in NOT-BEFORE or NOT-AFTER field"));
   }
 }
 

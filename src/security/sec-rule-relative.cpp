@@ -46,7 +46,7 @@ SecRuleRelative::SecRuleRelative(const string& dataRegex, const string& signerRe
     m_signerNameRegex(signerRegex, signerExpand)
 {
   if (op != ">" && op != ">=" && op != "==")
-    throw Error("op is wrong!");
+    BOOST_THROW_EXCEPTION(Error("op is wrong"));
 }
 
 SecRuleRelative::~SecRuleRelative()

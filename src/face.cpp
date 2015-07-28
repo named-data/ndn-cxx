@@ -105,7 +105,7 @@ Face::construct(KeyChain& keyChain)
     uri.reset(new util::FaceUri(*transportType));
   }
   catch (const util::FaceUri::Error& error) {
-    throw ConfigFile::Error(error.what());
+    BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
   }
 
   const std::string protocol = uri->getScheme();
@@ -117,7 +117,7 @@ Face::construct(KeyChain& keyChain)
     construct(TcpTransport::create(config), keyChain);
   }
   else {
-    throw ConfigFile::Error("Unsupported transport protocol \"" + protocol + "\"");
+    BOOST_THROW_EXCEPTION(ConfigFile::Error("Unsupported transport protocol \"" + protocol + "\""));
   }
 }
 
@@ -140,7 +140,7 @@ Face::expressInterest(const Interest& interest, const OnData& onData, const OnTi
 
   // Use `interestToExpress` to avoid wire format creation for the original Interest
   if (interestToExpress->wireEncode().size() > MAX_NDN_PACKET_SIZE)
-    throw Error("Interest size exceeds maximum limit");
+    BOOST_THROW_EXCEPTION(Error("Interest size exceeds maximum limit"));
 
   // If the same ioService thread, dispatch directly calls the method
   m_ioService.dispatch([=] { m_impl->asyncExpressInterest(interestToExpress, onData, onTimeout); });
@@ -164,7 +164,7 @@ Face::put(const Data& data)
 {
   // Use original `data`, since wire format should already exist for the original Data
   if (data.wireEncode().size() > MAX_NDN_PACKET_SIZE)
-    throw Error("Data size exceeds maximum limit");
+    BOOST_THROW_EXCEPTION(Error("Data size exceeds maximum limit"));
 
   shared_ptr<const Data> dataPtr;
   try {

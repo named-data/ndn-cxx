@@ -108,7 +108,7 @@ void
 Name::wireDecode(const Block& wire)
 {
   if (wire.type() != tlv::Name)
-    throw tlv::Error("Unexpected TLV type when decoding Name");
+    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV type when decoding Name"));
 
   m_nameBlock = wire;
   m_nameBlock.parse();

@@ -122,7 +122,7 @@ FaceQueryFilter::wireDecode(const Block& block)
 {
   //all fields are optional
   if (block.type() != tlv::nfd::FaceQueryFilter) {
-    throw Error("expecting FaceQueryFilter block");
+    BOOST_THROW_EXCEPTION(Error("expecting FaceQueryFilter block"));
   }
 
   m_wire = block;
@@ -350,4 +350,3 @@ operator<<(std::ostream& os, const FaceQueryFilter& filter)
 
 } // namespace nfd
 } // namespace ndn
-

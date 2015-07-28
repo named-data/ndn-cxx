@@ -63,7 +63,7 @@ Block::Block(const EncodingBuffer& buffer)
   uint64_t length = tlv::readVarNumber(m_value_begin, m_value_end);
   if (length != static_cast<uint64_t>(m_value_end - m_value_begin))
     {
-      throw tlv::Error("TLV length doesn't match buffer length");
+      BOOST_THROW_EXCEPTION(tlv::Error("TLV length doesn't match buffer length"));
     }
 }
 
@@ -95,7 +95,7 @@ Block::Block(const ConstBufferPtr& buffer)
   uint64_t length = tlv::readVarNumber(m_value_begin, m_value_end);
   if (length != static_cast<uint64_t>(m_value_end - m_value_begin))
     {
-      throw tlv::Error("TLV length doesn't match buffer length");
+      BOOST_THROW_EXCEPTION(tlv::Error("TLV length doesn't match buffer length"));
     }
 }
 
@@ -116,7 +116,7 @@ Block::Block(const ConstBufferPtr& buffer,
     {
       if (length != static_cast<uint64_t>(m_value_end - m_value_begin))
         {
-          throw tlv::Error("TLV length doesn't match buffer length");
+          BOOST_THROW_EXCEPTION(tlv::Error("TLV length doesn't match buffer length"));
         }
     }
 }
@@ -131,7 +131,7 @@ Block::Block(const uint8_t* buffer, size_t maxlength)
 
   if (length > static_cast<uint64_t>(tmp_end - tmp_begin))
     {
-      throw tlv::Error("Not enough data in the buffer to fully parse TLV");
+      BOOST_THROW_EXCEPTION(tlv::Error("Not enough data in the buffer to fully parse TLV"));
     }
 
   m_buffer = make_shared<Buffer>(buffer, (tmp_begin - buffer) + length);
@@ -156,7 +156,7 @@ Block::Block(const void* bufferX, size_t maxlength)
 
   if (length > static_cast<uint64_t>(tmp_end - tmp_begin))
     {
-      throw tlv::Error("Not enough data in the buffer to fully parse TLV");
+      BOOST_THROW_EXCEPTION(tlv::Error("Not enough data in the buffer to fully parse TLV"));
     }
 
   m_buffer = make_shared<Buffer>(buffer, (tmp_begin - buffer) + length);
@@ -210,7 +210,7 @@ Block::fromStream(std::istream& is)
   }
 
   if (length > MAX_SIZE_OF_BLOCK_FROM_STREAM)
-    throw tlv::Error("Length of block from stream is too large");
+    BOOST_THROW_EXCEPTION(tlv::Error("Length of block from stream is too large"));
 
   // We may still have some problem here, if some exception happens,
   // we may completely lose all the bytes extracted from the stream.
@@ -220,7 +220,7 @@ Block::fromStream(std::istream& is)
   is.read(buf + 1, length - 1);
 
   if (length != static_cast<uint64_t>(is.gcount()) + 1) {
-    throw tlv::Error("Not enough data in the buffer to fully parse TLV");
+    BOOST_THROW_EXCEPTION(tlv::Error("Not enough data in the buffer to fully parse TLV"));
   }
 
   return makeBinaryBlock(type, buf, length);
@@ -314,7 +314,7 @@ Block::parse() const
       if (length > static_cast<uint64_t>(end - begin))
         {
           m_subBlocks.clear();
-          throw tlv::Error("TLV length exceeds buffer length");
+          BOOST_THROW_EXCEPTION(tlv::Error("TLV length exceeds buffer length"));
         }
       Buffer::const_iterator element_end = begin + length;
 
@@ -364,7 +364,7 @@ Block::encode()
           os.write(reinterpret_cast<const char*>(i->value()), i->value_size());
         }
         else
-          throw Error("Underlying value buffer is empty");
+          BOOST_THROW_EXCEPTION(Error("Underlying value buffer is empty"));
       }
     }
 
@@ -389,8 +389,8 @@ Block::get(uint32_t type) const
   if (it != m_subBlocks.end())
     return *it;
 
-  throw Error("(Block::get) Requested a non-existed type [" +
-              boost::lexical_cast<std::string>(type) + "] from Block");
+  BOOST_THROW_EXCEPTION(Error("(Block::get) Requested a non-existed type [" +
+                              boost::lexical_cast<std::string>(type) + "] from Block"));
 }
 
 Block::element_const_iterator
@@ -414,7 +414,7 @@ Block
 Block::blockFromValue() const
 {
   if (value_size() == 0)
-    throw Error("Underlying value buffer is empty");
+    BOOST_THROW_EXCEPTION(Error("Underlying value buffer is empty"));
 
   Buffer::const_iterator begin = value_begin(),
                          end = value_end();
@@ -425,7 +425,7 @@ Block::blockFromValue() const
   uint64_t length = tlv::readVarNumber(begin, end);
 
   if (length != static_cast<uint64_t>(end - begin))
-    throw tlv::Error("TLV length mismatches buffer length");
+    BOOST_THROW_EXCEPTION(tlv::Error("TLV length mismatches buffer length"));
 
   return Block(m_buffer,
                type,
@@ -454,7 +454,7 @@ Buffer::const_iterator
 Block::begin() const
 {
   if (!hasWire())
-    throw Error("Underlying wire buffer is empty");
+    BOOST_THROW_EXCEPTION(Error("Underlying wire buffer is empty"));
 
   return m_begin;
 }
@@ -463,7 +463,7 @@ Buffer::const_iterator
 Block::end() const
 {
   if (!hasWire())
-    throw Error("Underlying wire buffer is empty");
+    BOOST_THROW_EXCEPTION(Error("Underlying wire buffer is empty"));
 
   return m_end;
 }
@@ -472,7 +472,7 @@ const uint8_t*
 Block::wire() const
 {
   if (!hasWire())
-    throw Error("(Block::wire) Underlying wire buffer is empty");
+    BOOST_THROW_EXCEPTION(Error("(Block::wire) Underlying wire buffer is empty"));
 
   return &*m_begin;
 }
@@ -484,7 +484,7 @@ Block::size() const
     return m_size;
   }
   else
-    throw Error("Block size cannot be determined (undefined block size)");
+    BOOST_THROW_EXCEPTION(Error("Block size cannot be determined (undefined block size)"));
 }
 
 bool

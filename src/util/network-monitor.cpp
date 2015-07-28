@@ -165,7 +165,8 @@ public:
   {
     int fd = ::socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
     if (fd < 0)
-      throw Error(std::string("Cannot create netlink socket (") + std::strerror(errno) + ")");
+      BOOST_THROW_EXCEPTION(Error(std::string("Cannot create netlink socket (") +
+                                  std::strerror(errno) + ")"));
 
     sockaddr_nl addr{};
     addr.nl_family = AF_NETLINK;
@@ -174,7 +175,8 @@ public:
       RTMGRP_IPV6_IFADDR | RTMGRP_IPV6_ROUTE;
 
     if (::bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) {
-      throw Error(std::string("Cannot bind on netlink socket (") + std::strerror(errno) + ")");
+      BOOST_THROW_EXCEPTION(Error(std::string("Cannot bind on netlink socket (") +
+                                  std::strerror(errno) + ")"));
     }
 
     m_socket.assign(fd);
@@ -239,7 +241,7 @@ class NetworkMonitor::Impl
 
 NetworkMonitor::NetworkMonitor(boost::asio::io_service&)
 {
-  throw Error("Network monitoring is not supported on this platform");
+  BOOST_THROW_EXCEPTION(Error("Network monitoring is not supported on this platform"));
 }
 
 NetworkMonitor::~NetworkMonitor()

@@ -78,7 +78,8 @@ MetaInfo::setAppMetaInfo(const std::list<Block>& info)
 {
   for (std::list<Block>::const_iterator i = info.begin(); i != info.end(); ++i) {
     if (!(128 <= i->type() && i->type() <= 252))
-      throw Error("AppMetaInfo block has type outside the application range [128, 252]");
+      BOOST_THROW_EXCEPTION(Error("AppMetaInfo block has type outside the application range "
+                                  "[128, 252]"));
   }
 
   m_wire.reset();
@@ -90,7 +91,8 @@ MetaInfo&
 MetaInfo::addAppMetaInfo(const Block& block)
 {
   if (!(128 <= block.type() && block.type() <= 252))
-    throw Error("AppMetaInfo block has type outside the application range [128, 252]");
+    BOOST_THROW_EXCEPTION(Error("AppMetaInfo block has type outside the application range "
+                                "[128, 252]"));
 
   m_wire.reset();
   m_appMetaInfo.push_back(block);

@@ -97,16 +97,16 @@ Packet::wireDecode(const Block& wire)
     detail::FieldInfo info(element.type());
 
     if (!info.isRecognized && !info.canIgnore) {
-      throw Error("unknown field cannot be ignored");
+      BOOST_THROW_EXCEPTION(Error("unknown field cannot be ignored"));
     }
 
     if (!isFirst) {
       if (info.tlvType == prev.tlvType && !info.isRepeatable) {
-        throw Error("non-repeatable field cannot be repeated");
+        BOOST_THROW_EXCEPTION(Error("non-repeatable field cannot be repeated"));
       }
 
       else if (info.tlvType != prev.tlvType && !detail::compareFieldSortOrder(prev, info)) {
-        throw Error("fields are not in correct sort order");
+        BOOST_THROW_EXCEPTION(Error("fields are not in correct sort order"));
       }
     }
 

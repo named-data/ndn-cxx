@@ -405,14 +405,14 @@ BOOST_AUTO_TEST_CASE(ThrowInHandler)
 {
   SignalOwner0 so;
 
-  struct HandlerError
+  struct HandlerError : public std::exception
   {
   };
 
   int hit = 0;
   so.sig.connect([&] {
     ++hit;
-    throw HandlerError();
+    BOOST_THROW_EXCEPTION(HandlerError());
   });
 
   BOOST_CHECK_THROW(so.emitSignal(sig), HandlerError);

@@ -82,7 +82,7 @@ void
 ChannelStatus::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::ChannelStatus) {
-    throw Error("expecting ChannelStatus block");
+    BOOST_THROW_EXCEPTION(Error("Expecting ChannelStatus block"));
   }
   m_wire = block;
   m_wire.parse();
@@ -93,7 +93,7 @@ ChannelStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required LocalUri field");
+    BOOST_THROW_EXCEPTION(Error("Missing required LocalUri field"));
   }
 }
 

@@ -94,8 +94,8 @@ public:
   operator const Name&() const
   {
     if (static_cast<bool>(m_regexFilter)) {
-      throw Error("Please update OnInterest callback to accept const InterestFilter& "
-                  "(non-trivial Interest filter is being used)");
+      BOOST_THROW_EXCEPTION(Error("Please update OnInterest callback to accept const "
+                                  "InterestFilter& (non-trivial Interest filter is being used)"));
     }
     return m_prefix;
   }

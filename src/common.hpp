@@ -131,6 +131,7 @@ NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(9)
 #include <boost/assert.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/throw_exception.hpp>
 
 namespace ndn {
 using boost::noncopyable;

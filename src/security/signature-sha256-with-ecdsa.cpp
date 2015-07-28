@@ -32,17 +32,17 @@ SignatureSha256WithEcdsa::SignatureSha256WithEcdsa(const Signature& signature)
   : Signature(signature)
 {
   if (getType() != tlv::SignatureSha256WithEcdsa)
-    throw Error("Incorrect signature type");
+    BOOST_THROW_EXCEPTION(Error("Incorrect signature type"));
 
   if (!hasKeyLocator()) {
-    throw Error("KeyLocator is missing");
+    BOOST_THROW_EXCEPTION(Error("KeyLocator is missing"));
   }
 }
 
 void
 SignatureSha256WithEcdsa::unsetKeyLocator()
 {
-  throw Error("KeyLocator cannot be reset for SignatureSha256WithEcdsa");
+  BOOST_THROW_EXCEPTION(Error("KeyLocator cannot be reset for SignatureSha256WithEcdsa"));
 }
 
 } // namespace ndn

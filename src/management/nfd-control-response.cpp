@@ -74,13 +74,15 @@ ControlResponse::wireDecode(const Block& wire)
   m_wire.parse();
 
   if (m_wire.type() != tlv::nfd::ControlResponse)
-    throw Error("Requested decoding of ControlResponse, but Block is of different type");
+    BOOST_THROW_EXCEPTION(Error("Requested decoding of ControlResponse, but Block is of different "
+                                "type"));
 
   Block::element_const_iterator val = m_wire.elements_begin();
   if (val == m_wire.elements_end() ||
       val->type() != tlv::nfd::StatusCode)
     {
-      throw Error("Incorrect ControlResponse format (StatusCode missing or not the first item)");
+      BOOST_THROW_EXCEPTION(Error("Incorrect ControlResponse format (StatusCode missing or not the "
+                                  "first item)"));
     }
 
   m_code = readNonNegativeInteger(*val);
@@ -89,7 +91,8 @@ ControlResponse::wireDecode(const Block& wire)
   if (val == m_wire.elements_end() ||
       val->type() != tlv::nfd::StatusText)
     {
-      throw Error("Incorrect ControlResponse format (StatusText missing or not the second item)");
+      BOOST_THROW_EXCEPTION(Error("Incorrect ControlResponse format (StatusText missing or not the "
+                                  "second item)"));
     }
   m_text.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
   ++val;

@@ -128,7 +128,7 @@ public:
   SimplePublicKeyParams(const KeyParams& params)
     : KeyParams(params.getKeyType())
   {
-    throw KeyParams::Error("Incorrect key parameters (incompatible key type)");
+    BOOST_THROW_EXCEPTION(KeyParams::Error("Incorrect key parameters (incompatible key type)"));
   }
 
   uint32_t
@@ -202,7 +202,7 @@ public:
   explicit
   SimpleSymmetricKeyParams(const KeyParams& params)
   {
-    throw KeyParams::Error("Incorrect key parameters (incompatible key type)");
+    BOOST_THROW_EXCEPTION(KeyParams::Error("Incorrect key parameters (incompatible key type)"));
   }
 
   uint32_t

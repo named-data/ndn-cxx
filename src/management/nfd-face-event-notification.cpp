@@ -89,7 +89,7 @@ void
 FaceEventNotification::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::FaceEventNotification) {
-    throw Error("expecting FaceEventNotification block");
+    BOOST_THROW_EXCEPTION(Error("expecting FaceEventNotification block"));
   }
   m_wire = block;
   m_wire.parse();
@@ -100,7 +100,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required FaceEventKind field");
+    BOOST_THROW_EXCEPTION(Error("missing required FaceEventKind field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceId) {
@@ -108,7 +108,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required FaceId field");
+    BOOST_THROW_EXCEPTION(Error("missing required FaceId field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Uri) {
@@ -116,7 +116,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required Uri field");
+    BOOST_THROW_EXCEPTION(Error("missing required Uri field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
@@ -124,7 +124,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required LocalUri field");
+    BOOST_THROW_EXCEPTION(Error("missing required LocalUri field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceScope) {
@@ -132,7 +132,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required FaceScope field");
+    BOOST_THROW_EXCEPTION(Error("missing required FaceScope field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FacePersistency) {
@@ -140,7 +140,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required FacePersistency field");
+    BOOST_THROW_EXCEPTION(Error("missing required FacePersistency field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LinkType) {
@@ -148,7 +148,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required LinkType field");
+    BOOST_THROW_EXCEPTION(Error("missing required LinkType field"));
   }
 }
 

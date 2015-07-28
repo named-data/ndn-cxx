@@ -217,7 +217,7 @@ PibSqlite3::PibSqlite3(const string& dir)
   boost::filesystem::path actualDir;
   if (dir == "") {
     if (getenv("HOME") == nullptr)
-      throw PibImpl::Error("Environment variable HOME is not set");
+      BOOST_THROW_EXCEPTION(PibImpl::Error("Environment variable HOME is not set"));
 
     actualDir = boost::filesystem::path(getenv("HOME")) / ".ndn";
     boost::filesystem::create_directories(actualDir);
@@ -237,7 +237,7 @@ PibSqlite3::PibSqlite3(const string& dir)
                                );
 
   if (result != SQLITE_OK)
-    throw PibImpl::Error("PIB DB cannot be opened/created: " + dir);
+    BOOST_THROW_EXCEPTION(PibImpl::Error("PIB DB cannot be opened/created: " + dir));
 
 
   // enable foreign key
@@ -248,7 +248,7 @@ PibSqlite3::PibSqlite3(const string& dir)
   result = sqlite3_exec(m_database, INITIALIZATION.c_str(), nullptr, nullptr, &errorMessage);
   if (result != SQLITE_OK && errorMessage != nullptr) {
     sqlite3_free(errorMessage);
-    throw PibImpl::Error("PIB DB cannot be initialized");
+    BOOST_THROW_EXCEPTION(PibImpl::Error("PIB DB cannot be initialized"));
   }
 }
 
@@ -282,7 +282,7 @@ PibSqlite3::getTpmLocator() const
   if (res == SQLITE_ROW)
     return statement.getString(0);
   else
-    throw Pib::Error("TPM info does not exist");
+    BOOST_THROW_EXCEPTION(Pib::Error("TPM info does not exist"));
 }
 
 bool
@@ -337,7 +337,7 @@ PibSqlite3::getDefaultIdentity() const
   if (statement.step() == SQLITE_ROW)
     return Name(statement.getBlock(0));
   else
-    throw Pib::Error("No default identity");
+    BOOST_THROW_EXCEPTION(Pib::Error("No default identity"));
 }
 
 bool
@@ -395,7 +395,7 @@ PibSqlite3::getKeyBits(const Name& identity, const name::Component& keyId) const
   if (statement.step() == SQLITE_ROW)
     return PublicKey(statement.getBlob(0), statement.getSize(0));
   else
-    throw Pib::Error("Key does not exist");
+    BOOST_THROW_EXCEPTION(Pib::Error("Key does not exist"));
 }
 
 std::set<name::Component>
@@ -423,7 +423,7 @@ PibSqlite3::setDefaultKeyOfIdentity(const Name& identity, const name::Component&
   Name keyName = getKeyName(identity, keyId);
 
   if (!hasKey(identity, keyId)) {
-    throw Pib::Error("No such key");
+    BOOST_THROW_EXCEPTION(Pib::Error("No such key"));
   }
 
   Sqlite3Statement statement(m_database, "UPDATE keys SET is_default=1 WHERE key_name=?");
@@ -435,7 +435,7 @@ name::Component
 PibSqlite3::getDefaultKeyOfIdentity(const Name& identity) const
 {
   if (!hasIdentity(identity)) {
-    throw Pib::Error("Identity does not exist");
+    BOOST_THROW_EXCEPTION(Pib::Error("Identity does not exist"));
   }
 
   Sqlite3Statement statement(m_database,
@@ -449,7 +449,7 @@ PibSqlite3::getDefaultKeyOfIdentity(const Name& identity) const
     return keyName.get(-1);
   }
   else
-    throw Pib::Error("No default key");
+    BOOST_THROW_EXCEPTION(Pib::Error("No default key"));
 }
 
 bool
@@ -500,7 +500,7 @@ PibSqlite3::getCertificate(const Name& certName) const
   if (statement.step() == SQLITE_ROW)
     return IdentityCertificate(statement.getBlock(0));
   else
-    throw Pib::Error("Certificate does not exit");
+    BOOST_THROW_EXCEPTION(Pib::Error("Certificate does not exit"));
 }
 
 std::set<Name>
@@ -527,7 +527,7 @@ PibSqlite3::setDefaultCertificateOfKey(const Name& identity, const name::Compone
                                        const Name& certName)
 {
   if (!hasCertificate(certName)) {
-    throw Pib::Error("Certificate does not exist");
+    BOOST_THROW_EXCEPTION(Pib::Error("Certificate does not exist"));
   }
 
   Sqlite3Statement statement(m_database,
@@ -550,7 +550,7 @@ PibSqlite3::getDefaultCertificateOfKey(const Name& identity, const name::Compone
   if (statement.step() == SQLITE_ROW)
     return IdentityCertificate(statement.getBlock(0));
   else
-    throw Pib::Error("Certificate does not exit");
+    BOOST_THROW_EXCEPTION(Pib::Error("Certificate does not exit"));
 }
 
 } // namespace security

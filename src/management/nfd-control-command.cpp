@@ -80,11 +80,13 @@ ControlCommand::FieldValidator::validate(const ControlParameters& parameters) co
     bool isPresent = presentFields[i];
     if (m_required[i]) {
       if (!isPresent) {
-        throw ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is required but missing");
+        BOOST_THROW_EXCEPTION(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is required but "
+                                            "missing"));
       }
     }
     else if (isPresent && !m_optional[i]) {
-      throw ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is forbidden but present");
+      BOOST_THROW_EXCEPTION(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is forbidden but "
+                                          "present"));
     }
   }
 }
@@ -105,7 +107,7 @@ FaceCreateCommand::validateResponse(const ControlParameters& parameters) const
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.getFaceId() == 0) {
-    throw ArgumentError("FaceId must not be zero");
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
   }
 }
 
@@ -123,7 +125,7 @@ FaceDestroyCommand::validateRequest(const ControlParameters& parameters) const
   this->ControlCommand::validateRequest(parameters);
 
   if (parameters.getFaceId() == 0) {
-    throw ArgumentError("FaceId must not be zero");
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
   }
 }
 
@@ -151,7 +153,7 @@ FaceLocalControlCommand::validateRequest(const ControlParameters& parameters) co
     case LOCAL_CONTROL_FEATURE_NEXT_HOP_FACE_ID:
       break;
     default:
-      throw ArgumentError("LocalControlFeature is invalid");
+      BOOST_THROW_EXCEPTION(ArgumentError("LocalControlFeature is invalid"));
   }
 }
 
@@ -201,7 +203,7 @@ FibAddNextHopCommand::validateResponse(const ControlParameters& parameters) cons
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.getFaceId() == 0) {
-    throw ArgumentError("FaceId must not be zero");
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
   }
 }
 
@@ -230,7 +232,7 @@ FibRemoveNextHopCommand::validateResponse(const ControlParameters& parameters) c
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.getFaceId() == 0) {
-    throw ArgumentError("FaceId must not be zero");
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
   }
 }
 
@@ -257,7 +259,7 @@ StrategyChoiceUnsetCommand::validateRequest(const ControlParameters& parameters)
   this->ControlCommand::validateRequest(parameters);
 
   if (parameters.getName().size() == 0) {
-    throw ArgumentError("Name must not be ndn:/");
+    BOOST_THROW_EXCEPTION(ArgumentError("Name must not be ndn:/"));
   }
 }
 
@@ -309,7 +311,7 @@ RibRegisterCommand::validateResponse(const ControlParameters& parameters) const
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.getFaceId() == 0) {
-    throw ArgumentError("FaceId must not be zero");
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
   }
 }
 
@@ -343,7 +345,7 @@ RibUnregisterCommand::validateResponse(const ControlParameters& parameters) cons
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.getFaceId() == 0) {
-    throw ArgumentError("FaceId must not be zero");
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
   }
 }
 

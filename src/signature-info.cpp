@@ -87,7 +87,7 @@ SignatureInfo::getKeyLocator() const
   if (m_hasKeyLocator)
     return m_keyLocator;
   else
-    throw Error("KeyLocator does not exist");
+    BOOST_THROW_EXCEPTION(Error("KeyLocator does not exist"));
 }
 
 void
@@ -110,7 +110,7 @@ security::ValidityPeriod
 SignatureInfo::getValidityPeriod() const
 {
   if (m_otherTlvs.empty() || m_otherTlvs.front().type() != tlv::ValidityPeriod) {
-    throw Error("SignatureInfo does not contain the requested ValidityPeriod field");
+    BOOST_THROW_EXCEPTION(Error("SignatureInfo does not contain the requested ValidityPeriod field"));
   }
 
   return security::ValidityPeriod(m_otherTlvs.front());
@@ -132,8 +132,8 @@ SignatureInfo::getTypeSpecificTlv(uint32_t type) const
       return *i;
   }
 
-  throw Error("(SignatureInfo::getTypeSpecificTlv) Requested a non-existed type [" +
-              boost::lexical_cast<std::string>(type) + "] from SignatureInfo");
+  BOOST_THROW_EXCEPTION(Error("(SignatureInfo::getTypeSpecificTlv) Requested a non-existed type [" +
+                              boost::lexical_cast<std::string>(type) + "] from SignatureInfo"));
 }
 
 template<encoding::Tag TAG>
@@ -184,7 +184,7 @@ void
 SignatureInfo::wireDecode(const Block& wire)
 {
   if (!wire.hasWire()) {
-    throw Error("The supplied block does not contain wire format");
+    BOOST_THROW_EXCEPTION(Error("The supplied block does not contain wire format"));
   }
 
   m_hasKeyLocator = false;
@@ -193,7 +193,7 @@ SignatureInfo::wireDecode(const Block& wire)
   m_wire.parse();
 
   if (m_wire.type() != tlv::SignatureInfo)
-    throw tlv::Error("Unexpected TLV type when decoding Name");
+    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV type when decoding Name"));
 
   Block::element_const_iterator it = m_wire.elements_begin();
 
@@ -203,7 +203,8 @@ SignatureInfo::wireDecode(const Block& wire)
     it++;
   }
   else
-    throw Error("SignatureInfo does not have sub-TLV or the first sub-TLV is not SignatureType");
+    BOOST_THROW_EXCEPTION(Error("SignatureInfo does not have sub-TLV or the first sub-TLV is not "
+                                "SignatureType"));
 
   // the second block could be KeyLocator
   if (it != m_wire.elements_end() && it->type() == tlv::KeyLocator) {

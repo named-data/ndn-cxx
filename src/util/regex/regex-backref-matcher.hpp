@@ -69,7 +69,7 @@ inline void
 RegexBackrefMatcher::compile()
 {
   if (m_expr.size() < 2)
-    throw RegexMatcher::Error("Unrecognized format: " + m_expr);
+    BOOST_THROW_EXCEPTION(RegexMatcher::Error("Unrecognized format: " + m_expr));
 
   size_t lastIndex = m_expr.size() - 1;
   if ('(' == m_expr[0] && ')' == m_expr[lastIndex]) {
@@ -80,7 +80,7 @@ RegexBackrefMatcher::compile()
     m_matchers.push_back(matcher);
   }
   else
-    throw RegexMatcher::Error("Unrecognized format: " + m_expr);
+    BOOST_THROW_EXCEPTION(RegexMatcher::Error("Unrecognized format: " + m_expr));
 }
 
 

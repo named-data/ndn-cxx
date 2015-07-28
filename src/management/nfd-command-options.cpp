@@ -42,7 +42,7 @@ CommandOptions&
 CommandOptions::setTimeout(const time::milliseconds& timeout)
 {
   if (timeout <= time::milliseconds::zero()) {
-    throw std::out_of_range("timeout must be positive");
+    BOOST_THROW_EXCEPTION(std::out_of_range("Timeout must be positive"));
   }
 
   m_timeout = timeout;
@@ -76,7 +76,8 @@ CommandOptions::getSigningParamsKind() const
   case security::SigningInfo::SIGNER_TYPE_CERT:
     return SIGNING_PARAMS_CERTIFICATE;
   default:
-    throw std::out_of_range("SigningInfo::SignerType is not convertible to CommandOptions::SigningParamsKind");
+    BOOST_THROW_EXCEPTION(std::out_of_range("SigningInfo::SignerType is not convertible to "
+                                            "CommandOptions::SigningParamsKind"));
   }
 }
 
@@ -114,7 +115,7 @@ makeSigningInfoFromIdentityCertificate(const Name& certificateName)
   // A valid IdentityCertificate has at least 4 name components,
   // as it follows `<...>/KEY/<...>/<key-id>/ID-CERT/<version>` naming model.
   if (certificateName.size() < 4) {
-    throw std::invalid_argument("certificate is invalid");
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate is invalid"));
   }
 
   return security::signingByCertificate(certificateName);

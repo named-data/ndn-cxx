@@ -96,7 +96,7 @@ void
 NackHeader::wireDecode(const Block& wire)
 {
   if (wire.type() != tlv::Nack) {
-    throw ndn::tlv::Error("expecting Nack block");
+    BOOST_THROW_EXCEPTION(ndn::tlv::Error("expecting Nack block"));
   }
 
   m_wire = wire;
@@ -110,7 +110,7 @@ NackHeader::wireDecode(const Block& wire)
       m_reason = static_cast<NackReason>(readNonNegativeInteger(*it));
     }
     else {
-      throw ndn::tlv::Error("expecting NackReason block");
+      BOOST_THROW_EXCEPTION(ndn::tlv::Error("expecting NackReason block"));
     }
   }
 }

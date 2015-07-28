@@ -46,7 +46,7 @@ const Block&
 PublicKey::computeDigest() const
 {
   if (m_key.empty())
-    throw Error("Public key is empty");
+    BOOST_THROW_EXCEPTION(Error("Public key is empty"));
 
   if (m_digest.hasWire())
     return m_digest;
@@ -110,8 +110,8 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
           else if (algorithm == oid::ECDSA)
             m_type = KEY_TYPE_ECDSA;
           else
-            throw Error("Only RSA/ECDSA public keys are supported for now (" +
-                        algorithm.toString() + " requested)");
+            BOOST_THROW_EXCEPTION(Error("Only RSA/ECDSA public keys are supported for now (" +
+                                        algorithm.toString() + " requested)"));
         }
       }
 
@@ -120,7 +120,7 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
   catch (CryptoPP::BERDecodeErr& err)
     {
       m_type = KEY_TYPE_NULL;
-      throw Error("PublicKey decoding error");
+      BOOST_THROW_EXCEPTION(Error("PublicKey decoding error"));
     }
 
   m_digest.reset();

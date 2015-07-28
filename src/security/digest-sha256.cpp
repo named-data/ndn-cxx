@@ -32,7 +32,7 @@ DigestSha256::DigestSha256(const Signature& signature)
   : Signature(signature)
 {
   if (getType() != tlv::DigestSha256)
-    throw Error("Incorrect signature type");
+    BOOST_THROW_EXCEPTION(Error("Incorrect signature type"));
 }
 
 } // namespace ndn

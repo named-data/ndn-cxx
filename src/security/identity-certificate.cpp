@@ -94,7 +94,7 @@ void
 IdentityCertificate::setPublicKeyName()
 {
   if (!isCorrectName(getName()))
-    throw Error("Wrong Identity Certificate Name!");
+    BOOST_THROW_EXCEPTION(Error("Wrong Identity Certificate Name"));
 
   m_publicKeyName = certificateNameToPublicKeyName(getName());
 }
@@ -120,7 +120,7 @@ IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
   }
 
   if (!foundIdString)
-    throw Error("Incorrect identity certificate name " + certificateName.toUri());
+    BOOST_THROW_EXCEPTION(Error("Incorrect identity certificate name " + certificateName.toUri()));
 
   Name tmpName = certificateName.getSubName(0, idCertComponentIndex);
   string keyString("KEY");
@@ -135,7 +135,7 @@ IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
   }
 
   if (!foundKeyString)
-    throw Error("Incorrect identity certificate name " + certificateName.toUri());
+    BOOST_THROW_EXCEPTION(Error("Incorrect identity certificate name " + certificateName.toUri()));
 
   return tmpName
            .getSubName(0, keyComponentIndex)

@@ -68,7 +68,7 @@ public:
         // may need to throw exception
         m_transport.m_isConnected = false;
         m_transport.close();
-        throw Transport::Error(error, "error while connecting to the forwarder");
+        BOOST_THROW_EXCEPTION(Transport::Error(error, "error while connecting to the forwarder"));
       }
   }
 
@@ -79,7 +79,7 @@ public:
       return;
 
     m_transport.close();
-    throw Transport::Error(error, "error while connecting to the forwarder");
+    BOOST_THROW_EXCEPTION(Transport::Error(error, "error while connecting to the forwarder"));
   }
 
   void
@@ -192,7 +192,7 @@ public:
         }
 
         m_transport.close();
-        throw Transport::Error(error, "error while sending data to socket");
+        BOOST_THROW_EXCEPTION(Transport::Error(error, "error while sending data to socket"));
       }
 
     m_transmissionQueue.erase(queueItem);
@@ -231,7 +231,7 @@ public:
         }
 
         m_transport.close();
-        throw Transport::Error(error, "error while receiving data from socket");
+        BOOST_THROW_EXCEPTION(Transport::Error(error, "error while receiving data from socket"));
       }
 
     m_inputBufferSize += nBytesRecvd;
@@ -242,8 +242,9 @@ public:
     if (!hasProcessedSome && m_inputBufferSize == MAX_NDN_PACKET_SIZE && offset == 0)
       {
         m_transport.close();
-        throw Transport::Error(boost::system::error_code(),
-                               "input buffer full, but a valid TLV cannot be decoded");
+        BOOST_THROW_EXCEPTION(Transport::Error(boost::system::error_code(),
+                                               "input buffer full, but a valid TLV cannot be "
+                                               "decoded"));
       }
 
     if (offset > 0)
@@ -300,14 +301,14 @@ public:
         if (error == boost::system::errc::operation_canceled)
           return;
 
-        throw Transport::Error(error, "Error during resolution of host or port");
+        BOOST_THROW_EXCEPTION(Transport::Error(error, "Error during resolution of host or port"));
       }
 
     typename Protocol::resolver::iterator end;
     if (endpoint == end)
       {
         this->m_transport.close();
-        throw Transport::Error(error, "Unable to resolve because host or port");
+        BOOST_THROW_EXCEPTION(Transport::Error(error, "Unable to resolve because host or port"));
       }
 
     this->m_socket.async_connect(*endpoint,

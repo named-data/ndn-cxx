@@ -303,12 +303,12 @@ inline uint64_t
 readVarNumber(InputIterator& begin, const InputIterator& end)
 {
   if (begin == end)
-    throw Error("Empty buffer during TLV processing");
+    BOOST_THROW_EXCEPTION(Error("Empty buffer during TLV processing"));
 
   uint64_t value;
   bool isOk = readVarNumber(begin, end, value);
   if (!isOk)
-    throw Error("Insufficient data during TLV processing");
+    BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV processing"));
 
   return value;
 }
@@ -378,7 +378,7 @@ readType(InputIterator& begin, const InputIterator& end)
   uint64_t type = readVarNumber(begin, end);
   if (type > std::numeric_limits<uint32_t>::max())
     {
-      throw Error("TLV type code exceeds allowed maximum");
+      BOOST_THROW_EXCEPTION(Error("TLV type code exceeds allowed maximum"));
     }
 
   return static_cast<uint32_t>(type);
@@ -436,7 +436,7 @@ readNonNegativeInteger(size_t size, InputIterator& begin, const InputIterator& e
   case 1:
     {
       if (end - begin < 1)
-        throw Error("Insufficient data during TLV processing");
+        BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV processing"));
 
       uint8_t value = *begin;
       begin++;
@@ -445,7 +445,7 @@ readNonNegativeInteger(size_t size, InputIterator& begin, const InputIterator& e
   case 2:
     {
       if (end - begin < 2)
-        throw Error("Insufficient data during TLV processing");
+        BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV processing"));
 
       uint16_t value = *reinterpret_cast<const uint16_t*>(&*begin);
       begin += 2;
@@ -454,7 +454,7 @@ readNonNegativeInteger(size_t size, InputIterator& begin, const InputIterator& e
   case 4:
     {
       if (end - begin < 4)
-        throw Error("Insufficient data during TLV processing");
+        BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV processing"));
 
       uint32_t value = *reinterpret_cast<const uint32_t*>(&*begin);
       begin += 4;
@@ -463,14 +463,14 @@ readNonNegativeInteger(size_t size, InputIterator& begin, const InputIterator& e
   case 8:
     {
       if (end - begin < 8)
-        throw Error("Insufficient data during TLV processing");
+        BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV processing"));
 
       uint64_t value = *reinterpret_cast<const uint64_t*>(&*begin);
       begin += 8;
       return be64toh(value);
     }
   }
-  throw Error("Invalid length for nonNegativeInteger (only 1, 2, 4, and 8 are allowed)");
+  BOOST_THROW_EXCEPTION(Error("Invalid length for nonNegativeInteger (only 1, 2, 4, and 8 are allowed)"));
 }
 
 template<>
@@ -483,7 +483,7 @@ readNonNegativeInteger<std::istream_iterator<uint8_t> >(size_t size,
   case 1:
     {
       if (begin == end)
-        throw Error("Insufficient data during TLV processing");
+        BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV processing"));
 
       uint64_t value = *begin;
       begin++;
@@ -500,7 +500,7 @@ readNonNegativeInteger<std::istream_iterator<uint8_t> >(size_t size,
         }
 
       if (count != 2)
-        throw Error("Insufficient data during TLV processing");
+        BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV processing"));
 
       return value;
     }
@@ -515,7 +515,7 @@ readNonNegativeInteger<std::istream_iterator<uint8_t> >(size_t size,
         }
 
       if (count != 4)
-        throw Error("Insufficient data during TLV processing");
+        BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV processing"));
 
       return value;
     }
@@ -530,12 +530,12 @@ readNonNegativeInteger<std::istream_iterator<uint8_t> >(size_t size,
         }
 
       if (count != 8)
-        throw Error("Insufficient data during TLV processing");
+        BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV processing"));
 
       return value;
     }
   }
-  throw Error("Invalid length for nonNegativeInteger (only 1, 2, 4, and 8 are allowed)");
+  BOOST_THROW_EXCEPTION(Error("Invalid length for nonNegativeInteger (only 1, 2, 4, and 8 are allowed)"));
 }
 
 inline size_t

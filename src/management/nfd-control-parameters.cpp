@@ -115,7 +115,7 @@ void
 ControlParameters::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::ControlParameters) {
-    throw Error("expecting TLV-TYPE ControlParameters");
+    BOOST_THROW_EXCEPTION(Error("Expecting TLV-TYPE ControlParameters"));
   }
   m_wire = block;
   m_wire.parse();
@@ -168,7 +168,7 @@ ControlParameters::wireDecode(const Block& block)
   if (this->hasStrategy()) {
     val->parse();
     if (val->elements().empty()) {
-      throw Error("expecting Strategy/Name");
+      BOOST_THROW_EXCEPTION(Error("Expecting Strategy/Name"));
     }
     else {
       m_strategy.wireDecode(*val->elements_begin());

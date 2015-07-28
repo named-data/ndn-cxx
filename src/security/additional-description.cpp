@@ -46,7 +46,7 @@ AdditionalDescription::get(const std::string& key) const
 {
   auto it = m_info.find(key);
   if (it == m_info.end())
-    throw Error("Entry does not exist for key (" + key + ")");
+    BOOST_THROW_EXCEPTION(Error("Entry does not exist for key (" + key + ")"));
 
   return it->second;
 }
@@ -136,14 +136,14 @@ void
 AdditionalDescription::wireDecode(const Block& wire)
 {
    if (!wire.hasWire()) {
-    throw Error("The supplied block does not contain wire format");
+     BOOST_THROW_EXCEPTION(Error("The supplied block does not contain wire format"));
   }
 
   m_wire = wire;
   m_wire.parse();
 
   if (m_wire.type() != tlv::AdditionalDescription)
-    throw Error("Unexpected TLV type when decoding AdditionalDescription");
+    BOOST_THROW_EXCEPTION(Error("Unexpected TLV type when decoding AdditionalDescription"));
 
   Block::element_const_iterator it = m_wire.elements_begin();
   while (it != m_wire.elements_end()) {
@@ -151,14 +151,14 @@ AdditionalDescription::wireDecode(const Block& wire)
     entry.parse();
 
     if (entry.type() != tlv::DescriptionEntry)
-      throw Error("Unexpected TLV type when decoding DescriptionEntry");
+      BOOST_THROW_EXCEPTION(Error("Unexpected TLV type when decoding DescriptionEntry"));
 
     if (entry.elements_size() != 2)
-      throw Error("DescriptionEntry does not have two sub-TLVs");
+      BOOST_THROW_EXCEPTION(Error("DescriptionEntry does not have two sub-TLVs"));
 
     if (entry.elements()[KEY_OFFSET].type() != tlv::DescriptionKey ||
         entry.elements()[VALUE_OFFSET].type() != tlv::DescriptionValue)
-      throw Error("Invalid DescriptionKey or DescriptionValue field");
+      BOOST_THROW_EXCEPTION(Error("Invalid DescriptionKey or DescriptionValue field"));
 
     m_info[readString(entry.elements()[KEY_OFFSET])] = readString(entry.elements()[VALUE_OFFSET]);
     it++;

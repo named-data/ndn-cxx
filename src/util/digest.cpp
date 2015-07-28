@@ -126,7 +126,7 @@ Digest<Hash>::update(const uint8_t* buffer, size_t size)
 {
   // cannot update Digest when it has been finalized
   if (m_isFinalized)
-    throw Error("Digest has been already finalized");
+    BOOST_THROW_EXCEPTION(Error("Digest has been already finalized"));
 
   m_hash.Update(buffer, size);
 

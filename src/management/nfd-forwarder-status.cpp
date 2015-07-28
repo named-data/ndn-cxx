@@ -116,7 +116,7 @@ void
 ForwarderStatus::wireDecode(const Block& block)
 {
   if (block.type() != tlv::Content) {
-    throw Error("expecting Content block for Status payload");
+    BOOST_THROW_EXCEPTION(Error("expecting Content block for Status payload"));
   }
   m_wire = block;
   m_wire.parse();
@@ -127,7 +127,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required NfdVersion field");
+    BOOST_THROW_EXCEPTION(Error("missing required NfdVersion field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::StartTimestamp) {
@@ -135,7 +135,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required StartTimestamp field");
+    BOOST_THROW_EXCEPTION(Error("missing required StartTimestamp field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::CurrentTimestamp) {
@@ -143,7 +143,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required CurrentTimestamp field");
+    BOOST_THROW_EXCEPTION(Error("missing required CurrentTimestamp field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NNameTreeEntries) {
@@ -151,7 +151,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required NNameTreeEntries field");
+    BOOST_THROW_EXCEPTION(Error("missing required NNameTreeEntries field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NFibEntries) {
@@ -159,7 +159,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required NFibEntries field");
+    BOOST_THROW_EXCEPTION(Error("missing required NFibEntries field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NPitEntries) {
@@ -167,7 +167,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required NPitEntries field");
+    BOOST_THROW_EXCEPTION(Error("missing required NPitEntries field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NMeasurementsEntries) {
@@ -175,7 +175,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required NMeasurementsEntries field");
+    BOOST_THROW_EXCEPTION(Error("missing required NMeasurementsEntries field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NCsEntries) {
@@ -183,7 +183,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required NCsEntries field");
+    BOOST_THROW_EXCEPTION(Error("missing required NCsEntries field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInInterests) {
@@ -191,7 +191,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required NInInterests field");
+    BOOST_THROW_EXCEPTION(Error("missing required NInInterests field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInDatas) {
@@ -199,7 +199,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required NInDatas field");
+    BOOST_THROW_EXCEPTION(Error("missing required NInDatas field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutInterests) {
@@ -207,7 +207,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required NOutInterests field");
+    BOOST_THROW_EXCEPTION(Error("missing required NOutInterests field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutDatas) {
@@ -215,7 +215,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    throw Error("missing required NOutDatas field");
+    BOOST_THROW_EXCEPTION(Error("missing required NOutDatas field"));
   }
 }
 

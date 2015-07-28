@@ -124,31 +124,31 @@ NextHopRecord::wireDecode(const Block& wire)
     std::stringstream error;
     error << "Requested decoding of NextHopRecord, but Block is of a different type: #"
           << m_wire.type();
-    throw Error(error.str());
+    BOOST_THROW_EXCEPTION(Error(error.str()));
   }
   m_wire.parse();
 
   Block::element_const_iterator val = m_wire.elements_begin();
   if (val == m_wire.elements_end()) {
-    throw Error("Unexpected end of NextHopRecord");
+    BOOST_THROW_EXCEPTION(Error("Unexpected end of NextHopRecord"));
   }
   else if (val->type() != tlv::nfd::FaceId) {
     std::stringstream error;
     error << "Expected FaceId, but Block is of a different type: #"
           << val->type();
-    throw Error(error.str());
+    BOOST_THROW_EXCEPTION(Error(error.str()));
   }
   m_faceId = readNonNegativeInteger(*val);
   ++val;
 
   if (val == m_wire.elements_end()) {
-    throw Error("Unexpected end of NextHopRecord");
+    BOOST_THROW_EXCEPTION(Error("Unexpected end of NextHopRecord"));
   }
   else if (val->type() != tlv::nfd::Cost) {
     std::stringstream error;
     error << "Expected Cost, but Block is of a different type: #"
           << m_wire.type();
-    throw Error(error.str());
+    BOOST_THROW_EXCEPTION(Error(error.str()));
   }
   m_cost = readNonNegativeInteger(*val);
 }
@@ -235,20 +235,20 @@ FibEntry::wireDecode(const Block& wire)
     std::stringstream error;
     error << "Requested decoding of FibEntry, but Block is of a different type: #"
           << m_wire.type();
-    throw Error(error.str());
+    BOOST_THROW_EXCEPTION(Error(error.str()));
   }
 
   m_wire.parse();
 
   Block::element_const_iterator val = m_wire.elements_begin();
   if (val == m_wire.elements_end()) {
-    throw Error("Unexpected end of FibEntry");
+    BOOST_THROW_EXCEPTION(Error("Unexpected end of FibEntry"));
   }
   else if (val->type() != tlv::Name) {
     std::stringstream error;
     error << "Expected Name, but Block is of a different type: #"
           << val->type();
-    throw Error(error.str());
+    BOOST_THROW_EXCEPTION(Error(error.str()));
   }
   m_prefix.wireDecode(*val);
   ++val;
@@ -258,7 +258,7 @@ FibEntry::wireDecode(const Block& wire)
       std::stringstream error;
       error << "Expected NextHopRecords, but Block is of a different type: #"
             << val->type();
-      throw Error(error.str());
+      BOOST_THROW_EXCEPTION(Error(error.str()));
     }
     m_nextHopRecords.push_back(NextHopRecord(*val));
   }

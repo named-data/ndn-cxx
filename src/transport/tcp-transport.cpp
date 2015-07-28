@@ -57,8 +57,8 @@ TcpTransport::getDefaultSocketHostAndPort(const ConfigFile& config)
 
     const std::string scheme = uri.getScheme();
     if (scheme != "tcp" && scheme != "tcp4" && scheme != "tcp6") {
-      throw Transport::Error("Cannot create TcpTransport from \"" +
-                             scheme + "\" URI");
+      BOOST_THROW_EXCEPTION(Transport::Error("Cannot create TcpTransport from \"" +
+                                             scheme + "\" URI"));
     }
 
     if (!uri.getHost().empty()) {
@@ -70,7 +70,7 @@ TcpTransport::getDefaultSocketHostAndPort(const ConfigFile& config)
     }
   }
   catch (const util::FaceUri::Error& error) {
-    throw ConfigFile::Error(error.what());
+    BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
   }
 
   return {host, port};

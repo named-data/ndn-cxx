@@ -35,7 +35,7 @@ Sqlite3Statement::Sqlite3Statement(sqlite3* database, const std::string& stateme
 {
   int res = sqlite3_prepare_v2(database, statement.c_str(), -1, &m_stmt, nullptr);
   if (res != SQLITE_OK)
-    throw std::domain_error("bad SQL statement: " + statement);
+    BOOST_THROW_EXCEPTION(std::domain_error("bad SQL statement: " + statement));
 }
 
 int

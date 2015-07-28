@@ -148,15 +148,15 @@ save(const T& object, std::ostream& os, IoEncoding encoding = BASE_64)
     }
   catch (TypeError& e)
     {
-      throw Error(e.what());
+      BOOST_THROW_EXCEPTION(Error(e.what()));
     }
   catch (CryptoPP::Exception& e)
     {
-      throw Error(e.what());
+      BOOST_THROW_EXCEPTION(Error(e.what()));
     }
   catch (tlv::Error& e)
     {
-      throw Error(e.what());
+      BOOST_THROW_EXCEPTION(Error(e.what()));
     }
 }
 

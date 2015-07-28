@@ -443,7 +443,7 @@ public:
   {
     if ((i >= 0 && static_cast<size_t>(i) >= size()) ||
         (i < 0  && static_cast<size_t>(-i) > size()))
-      throw Error("Requested component does not exist (out of bounds)");
+      BOOST_THROW_EXCEPTION(Error("Requested component does not exist (out of bounds)"));
 
     return get(i);
   }

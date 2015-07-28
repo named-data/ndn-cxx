@@ -104,14 +104,14 @@ public:
       case tlv::SignatureSha256WithEcdsa:
         {
           if (!static_cast<bool>(m_keyLocatorChecker))
-            throw Error("Strong signature requires KeyLocatorChecker");
+            BOOST_THROW_EXCEPTION(Error("Strong signature requires KeyLocatorChecker"));
 
           return;
         }
       case tlv::DigestSha256:
         return;
       default:
-        throw Error("Unsupported signature type");
+        BOOST_THROW_EXCEPTION(Error("Unsupported signature type"));
       }
   }
 
@@ -245,7 +245,7 @@ public:
     if (sigType != tlv::SignatureSha256WithRsa &&
         sigType != tlv::SignatureSha256WithEcdsa)
       {
-        throw Error("FixedSigner is only meaningful for strong signature type");
+        BOOST_THROW_EXCEPTION(Error("FixedSigner is only meaningful for strong signature type"));
       }
 
   }
@@ -389,7 +389,7 @@ public:
 
     // Get checker.type
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type"))
-      throw Error("Expect <checker.type>");
+      BOOST_THROW_EXCEPTION(Error("Expect <checker.type>"));
 
     std::string type = propertyIt->second.data();
 
@@ -400,7 +400,7 @@ public:
     else if (boost::iequals(type, "fixed-signer"))
       return createFixedSignerChecker(configSection, configFilename);
     else
-      throw Error("Unsupported checker type: " + type);
+      BOOST_THROW_EXCEPTION(Error("Unsupported checker type: " + type));
   }
 
 private:
@@ -413,21 +413,21 @@ private:
 
     // Get checker.sig-type
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "sig-type"))
-      throw Error("Expect <checker.sig-type>");
+      BOOST_THROW_EXCEPTION(Error("Expect <checker.sig-type>"));
 
     std::string sigType = propertyIt->second.data();
     propertyIt++;
 
     // Get checker.key-locator
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "key-locator"))
-      throw Error("Expect <checker.key-locator>");
+      BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator>"));
 
     shared_ptr<KeyLocatorChecker> keyLocatorChecker =
       KeyLocatorCheckerFactory::create(propertyIt->second, configFilename);
     propertyIt++;
 
     if (propertyIt != configSection.end())
-      throw Error("Expect the end of checker");
+      BOOST_THROW_EXCEPTION(Error("Expect the end of checker"));
 
     return make_shared<CustomizedChecker>(getSigType(sigType), keyLocatorChecker);
   }
@@ -441,13 +441,13 @@ private:
 
     // Get checker.sig-type
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "sig-type"))
-      throw Error("Expect <checker.sig-type>");
+      BOOST_THROW_EXCEPTION(Error("Expect <checker.sig-type>"));
 
     std::string sigType = propertyIt->second.data();
     propertyIt++;
 
     if (propertyIt != configSection.end())
-      throw Error("Expect the end of checker");
+      BOOST_THROW_EXCEPTION(Error("Expect the end of checker"));
 
     return make_shared<HierarchicalChecker>(getSigType(sigType));
   }
@@ -461,7 +461,7 @@ private:
 
     // Get checker.sig-type
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "sig-type"))
-      throw Error("Expect <checker.sig-type>");
+      BOOST_THROW_EXCEPTION(Error("Expect <checker.sig-type>"));
 
     std::string sigType = propertyIt->second.data();
     propertyIt++;
@@ -470,14 +470,14 @@ private:
     for (; propertyIt != configSection.end(); propertyIt++)
       {
         if (!boost::iequals(propertyIt->first, "signer"))
-          throw Error("Expect <checker.signer> but get <checker." +
-                      propertyIt->first + ">");
+          BOOST_THROW_EXCEPTION(Error("Expect <checker.signer> but get <checker." +
+                                      propertyIt->first + ">"));
 
         signers.push_back(getSigner(propertyIt->second, configFilename));
       }
 
     if (propertyIt != configSection.end())
-      throw Error("Expect the end of checker");
+      BOOST_THROW_EXCEPTION(Error("Expect the end of checker"));
 
     return shared_ptr<FixedSignerChecker>(new FixedSignerChecker(getSigType(sigType),
                                                                  signers));
@@ -492,7 +492,7 @@ private:
 
     // Get checker.signer.type
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type"))
-      throw Error("Expect <checker.signer.type>");
+      BOOST_THROW_EXCEPTION(Error("Expect <checker.signer.type>"));
 
     std::string type = propertyIt->second.data();
     propertyIt++;
@@ -501,14 +501,14 @@ private:
       {
         // Get checker.signer.file-name
         if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "file-name"))
-          throw Error("Expect <checker.signer.file-name>");
+          BOOST_THROW_EXCEPTION(Error("Expect <checker.signer.file-name>"));
 
         path certfilePath = absolute(propertyIt->second.data(),
                                      path(configFilename).parent_path());
         propertyIt++;
 
         if (propertyIt != configSection.end())
-          throw Error("Expect the end of checker.signer");
+          BOOST_THROW_EXCEPTION(Error("Expect the end of checker.signer"));
 
         shared_ptr<IdentityCertificate> idCert
           = io::load<IdentityCertificate>(certfilePath.c_str());
@@ -516,31 +516,31 @@ private:
         if (static_cast<bool>(idCert))
           return idCert;
         else
-          throw Error("Cannot read certificate from file: " +
-                      certfilePath.native());
+          BOOST_THROW_EXCEPTION(Error("Cannot read certificate from file: " +
+                                      certfilePath.native()));
       }
     else if (boost::iequals(type, "base64"))
       {
         // Get checker.signer.base64-string
         if (propertyIt == configSection.end() ||
             !boost::iequals(propertyIt->first, "base64-string"))
-          throw Error("Expect <checker.signer.base64-string>");
+          BOOST_THROW_EXCEPTION(Error("Expect <checker.signer.base64-string>"));
 
         std::stringstream ss(propertyIt->second.data());
         propertyIt++;
 
         if (propertyIt != configSection.end())
-          throw Error("Expect the end of checker.signer");
+          BOOST_THROW_EXCEPTION(Error("Expect the end of checker.signer"));
 
         shared_ptr<IdentityCertificate> idCert = io::load<IdentityCertificate>(ss);
 
         if (static_cast<bool>(idCert))
           return idCert;
         else
-          throw Error("Cannot decode certificate from string");
+          BOOST_THROW_EXCEPTION(Error("Cannot decode certificate from string"));
       }
     else
-      throw Error("Unsupported checker.signer type: " + type);
+      BOOST_THROW_EXCEPTION(Error("Unsupported checker.signer type: " + type));
   }
 
   static uint32_t
@@ -553,7 +553,7 @@ private:
     else if (boost::iequals(sigType, "sha256"))
       return tlv::DigestSha256;
     else
-      throw Error("Unsupported signature type");
+      BOOST_THROW_EXCEPTION(Error("Unsupported signature type"));
   }
 };
 

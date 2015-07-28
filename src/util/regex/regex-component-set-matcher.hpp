@@ -92,7 +92,8 @@ inline void
 RegexComponentSetMatcher::compile()
 {
   if (m_expr.size() < 2)
-    throw RegexMatcher::Error("Regexp compile error (cannot parse " + m_expr + ")");
+    BOOST_THROW_EXCEPTION(RegexMatcher::Error("Regexp compile error (cannot parse " +
+                                              m_expr + ")"));
 
   switch (m_expr[0]) {
   case '<':
@@ -101,7 +102,8 @@ RegexComponentSetMatcher::compile()
     {
       size_t lastIndex = m_expr.size() - 1;
       if (']' != m_expr[lastIndex])
-        throw RegexMatcher::Error("Regexp compile error (no matching ']' in " + m_expr + ")");
+        BOOST_THROW_EXCEPTION(RegexMatcher::Error("Regexp compile error (no matching ']' in " +
+                                                  m_expr + ")"));
 
       if ('^' == m_expr[1]) {
         m_isInclusion = false;
@@ -112,7 +114,8 @@ RegexComponentSetMatcher::compile()
       break;
     }
   default:
-    throw RegexMatcher::Error("Regexp compile error (cannot parse " + m_expr + ")");
+    BOOST_THROW_EXCEPTION(RegexMatcher::Error("Regexp compile error (cannot parse " +
+                                              m_expr + ")"));
   }
 }
 
@@ -123,7 +126,7 @@ RegexComponentSetMatcher::compileSingleComponent()
 
   if (m_expr.size() != end)
     {
-      throw RegexMatcher::Error("Component expr error " + m_expr);
+      BOOST_THROW_EXCEPTION(RegexMatcher::Error("Component expr error " + m_expr));
     }
   else
     {
@@ -142,7 +145,7 @@ RegexComponentSetMatcher::compileMultipleComponents(size_t start, size_t lastInd
 
   while (index < lastIndex) {
     if ('<' != m_expr[index])
-      throw RegexMatcher::Error("Component expr error " + m_expr);
+      BOOST_THROW_EXCEPTION(RegexMatcher::Error("Component expr error " + m_expr));
 
     tempIndex = index + 1;
     index = extractComponent(tempIndex);
@@ -155,7 +158,7 @@ RegexComponentSetMatcher::compileMultipleComponents(size_t start, size_t lastInd
   }
 
   if (index != lastIndex)
-    throw RegexMatcher::Error("Not sufficient expr to parse " + m_expr);
+    BOOST_THROW_EXCEPTION(RegexMatcher::Error("Not sufficient expr to parse " + m_expr));
 }
 
 inline bool
@@ -208,7 +211,7 @@ RegexComponentSetMatcher::extractComponent(size_t index)
       break;
 
     case 0:
-      throw RegexMatcher::Error("Error: square brackets mismatch");
+      BOOST_THROW_EXCEPTION(RegexMatcher::Error("Error: square brackets mismatch"));
       break;
     }
     index++;

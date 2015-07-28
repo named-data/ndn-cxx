@@ -136,7 +136,8 @@ RegexComponentMatcher::match(const Name& name, size_t offset, size_t len)
     }
   else
     {
-      throw RegexMatcher::Error("Non-exact component search is not supported yet!");
+      BOOST_THROW_EXCEPTION(RegexMatcher::Error("Non-exact component search is not supported "
+                                                "yet"));
     }
 
   return false;

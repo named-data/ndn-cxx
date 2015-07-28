@@ -49,8 +49,8 @@ UnixTransport::getDefaultSocketName(const ConfigFile& config)
 
       if (uri.getScheme() != "unix")
         {
-          throw Transport::Error("Cannot create UnixTransport from \"" +
-                                 uri.getScheme() + "\" URI");
+          BOOST_THROW_EXCEPTION(Transport::Error("Cannot create UnixTransport from \"" +
+                                                 uri.getScheme() + "\" URI"));
         }
 
       if (!uri.getPath().empty())
@@ -64,11 +64,11 @@ UnixTransport::getDefaultSocketName(const ConfigFile& config)
     }
   catch (const boost::property_tree::ptree_bad_data& error)
     {
-      throw ConfigFile::Error(error.what());
+      BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
     }
   catch (const util::FaceUri::Error& error)
     {
-      throw ConfigFile::Error(error.what());
+      BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
     }
 
   // Assume the default nfd.sock location.

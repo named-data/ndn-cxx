@@ -162,12 +162,12 @@ RegexRepeatMatcher::parseRepetition()
         max = min;
       }
       else
-        throw RegexMatcher::Error(std::string("Error: RegexRepeatMatcher.ParseRepetition(): ")
-                                  + "Unrecognized format "+ m_expr);
+        BOOST_THROW_EXCEPTION(RegexMatcher::Error(std::string("Error: RegexRepeatMatcher.ParseRepetition():")
+                                                  + " Unrecognized format "+ m_expr));
 
       if (min > MAX_REPETITIONS || max > MAX_REPETITIONS || min > max)
-        throw RegexMatcher::Error(std::string("Error: RegexRepeatMatcher.ParseRepetition(): ")
-                                  + "Wrong number " + m_expr);
+        BOOST_THROW_EXCEPTION(RegexMatcher::Error(std::string("Error: RegexRepeatMatcher.ParseRepetition():")
+                                                  + " Wrong number " + m_expr));
 
       m_repeatMin = min;
       m_repeatMax = max;

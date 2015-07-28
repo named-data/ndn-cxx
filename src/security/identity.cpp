@@ -46,7 +46,7 @@ Identity::Identity(const Name& identityName, shared_ptr<PibImpl> impl, bool need
   if (needInit)
     m_impl->addIdentity(m_name);
   else if (!m_impl->hasIdentity(m_name))
-    throw Pib::Error("Identity: " + m_name.toUri() + " does not exist");
+    BOOST_THROW_EXCEPTION(Pib::Error("Identity: " + m_name.toUri() + " does not exist"));
 }
 
 const Name&
@@ -157,7 +157,7 @@ void
 Identity::validityCheck() const
 {
   if (m_impl == nullptr)
-    throw std::domain_error("Invalid Identity instance");
+    BOOST_THROW_EXCEPTION(std::domain_error("Invalid Identity instance"));
 }
 
 } // namespace security

@@ -49,7 +49,7 @@ size_t
 Exclude::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   if (m_exclude.empty()) {
-    throw Error("Exclude filter cannot be empty");
+    BOOST_THROW_EXCEPTION(Error("Exclude filter cannot be empty"));
   }
 
   size_t totalLength = 0;
@@ -99,13 +99,13 @@ Exclude::wireDecode(const Block& wire)
   clear();
 
   if (wire.type() != tlv::Exclude)
-    throw tlv::Error("Unexpected TLV type when decoding Exclude");
+    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV type when decoding Exclude"));
 
   m_wire = wire;
   m_wire.parse();
 
   if (m_wire.elements_size() == 0) {
-    throw Error("Exclude element cannot be empty");
+    BOOST_THROW_EXCEPTION(Error("Exclude element cannot be empty"));
   }
 
   // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
@@ -123,7 +123,7 @@ Exclude::wireDecode(const Block& wire)
       excludedComponent = std::move(name::Component(*i));
     }
     catch (const name::Component::Error&) {
-      throw Error("Incorrect format of Exclude filter");
+      BOOST_THROW_EXCEPTION(Error("Incorrect format of Exclude filter"));
     }
 
     ++i;
@@ -209,8 +209,8 @@ Exclude&
 Exclude::excludeRange(const name::Component& from, const name::Component& to)
 {
   if (from >= to) {
-    throw Error("Invalid exclude range [" + from.toUri() + ", " + to.toUri() + "] "
-                "(for single name exclude use Exclude::excludeOne)");
+    BOOST_THROW_EXCEPTION(Error("Invalid exclude range [" + from.toUri() + ", " + to.toUri() + "] "
+                                "(for single name exclude use Exclude::excludeOne)"));
   }
 
   iterator newFrom = m_exclude.lower_bound(from);

@@ -86,7 +86,7 @@ RegexPatternListMatcher::compile()
     subHead = index;
 
     if (!extractPattern(subHead, &index))
-      throw RegexMatcher::Error("Compile error");
+      BOOST_THROW_EXCEPTION(RegexMatcher::Error("Compile error"));
   }
 }
 
@@ -135,7 +135,7 @@ RegexPatternListMatcher::extractPattern(size_t index, size_t* next)
     break;
 
   default:
-    throw RegexMatcher::Error("Unexpected syntax");
+    BOOST_THROW_EXCEPTION(RegexMatcher::Error("Unexpected syntax"));
   }
 
   *next = end;
@@ -152,7 +152,7 @@ RegexPatternListMatcher::extractSubPattern(const char left, const char right, si
   while (lcount > rcount) {
 
     if (index >= m_expr.size())
-      throw RegexMatcher::Error("Parenthesis mismatch");
+      BOOST_THROW_EXCEPTION(RegexMatcher::Error("Parenthesis mismatch"));
 
     if (left == m_expr[index])
       lcount++;
@@ -184,7 +184,7 @@ RegexPatternListMatcher::extractRepetition(size_t index)
         break;
     }
     if (index == exprSize)
-      throw RegexMatcher::Error("Missing right brace bracket");
+      BOOST_THROW_EXCEPTION(RegexMatcher::Error("Missing right brace bracket"));
     else
       return ++index;
   }

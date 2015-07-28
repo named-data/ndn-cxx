@@ -123,11 +123,11 @@ ConfigFile::parse()
 {
   if (m_path.empty())
     {
-      throw Error("Failed to locate configuration file for parsing");
+      BOOST_THROW_EXCEPTION(Error("Failed to locate configuration file for parsing"));
     }
   else if (!m_input.is_open() && !open())
     {
-      throw Error("Failed to open configuration file for parsing");
+      BOOST_THROW_EXCEPTION(Error("Failed to open configuration file for parsing"));
     }
 
   try
@@ -140,7 +140,7 @@ ConfigFile::parse()
       msg << "Failed to parse configuration file";
       msg << " " << m_path;
       msg << " " << error.message() << " line " << error.line();
-      throw Error(msg.str());
+      BOOST_THROW_EXCEPTION(Error(msg.str()));
     }
   return m_config;
 }

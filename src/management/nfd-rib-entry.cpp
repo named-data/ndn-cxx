@@ -130,7 +130,7 @@ Route::wireDecode(const Block& wire)
     std::stringstream error;
     error << "Expected Route Block, but Block is of a different type: #"
           << m_wire.type();
-    throw Error(error.str());
+    BOOST_THROW_EXCEPTION(Error(error.str()));
   }
 
   m_wire.parse();
@@ -142,7 +142,7 @@ Route::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    throw Error("Missing required FaceId field");
+    BOOST_THROW_EXCEPTION(Error("Missing required FaceId field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Origin) {
@@ -150,7 +150,7 @@ Route::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    throw Error("Missing required Origin field");
+    BOOST_THROW_EXCEPTION(Error("Missing required Origin field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Cost) {
@@ -158,7 +158,7 @@ Route::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    throw Error("Missing required Cost field");
+    BOOST_THROW_EXCEPTION(Error("Missing required Cost field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Flags) {
@@ -166,7 +166,7 @@ Route::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    throw Error("Missing required Flags field");
+    BOOST_THROW_EXCEPTION(Error("Missing required Flags field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::ExpirationPeriod) {
@@ -272,7 +272,7 @@ RibEntry::wireDecode(const Block& wire)
     std::stringstream error;
     error << "Expected RibEntry Block, but Block is of a different type: #"
           << m_wire.type();
-    throw Error(error.str());
+    BOOST_THROW_EXCEPTION(Error(error.str()));
   }
 
   m_wire.parse();
@@ -284,7 +284,7 @@ RibEntry::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    throw Error("Missing required Name field");
+    BOOST_THROW_EXCEPTION(Error("Missing required Name field"));
   }
 
   for (; val != m_wire.elements_end(); ++val) {
@@ -296,7 +296,7 @@ RibEntry::wireDecode(const Block& wire)
       std::stringstream error;
       error << "Expected Route Block, but Block is of a different type: #"
             << m_wire.type();
-      throw Error(error.str());
+      BOOST_THROW_EXCEPTION(Error(error.str()));
     }
   }
 }

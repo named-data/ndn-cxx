@@ -333,14 +333,14 @@ ConstBufferPtr
 DummyTpm::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName,
                        bool isSymmetric)
 {
-  throw Error("Not supported");
+  BOOST_THROW_EXCEPTION(Error("Not supported"));
 }
 
 ConstBufferPtr
 DummyTpm::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyName,
                        bool isSymmetric)
 {
-  throw Error("Not supported");
+  BOOST_THROW_EXCEPTION(Error("Not supported"));
 }
 
 void
@@ -369,7 +369,7 @@ DummyTpm::addAppToAcl(const Name& keyName, KeyClass keyClass, const std::string&
 ConstBufferPtr
 DummyTpm::exportPrivateKeyPkcs8FromTpm(const Name& keyName)
 {
-  throw Error("Not supported");
+  BOOST_THROW_EXCEPTION(Error("Not supported"));
 }
 
 bool

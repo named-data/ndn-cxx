@@ -110,7 +110,7 @@ public: // field access
       }
     }
 
-    throw std::out_of_range("Index out of range");
+    BOOST_THROW_EXCEPTION(std::out_of_range("Index out of range"));
   }
 
   /**
@@ -155,7 +155,7 @@ public: // field access
   add(const typename FIELD::ValueType& value)
   {
     if (!FIELD::IsRepeatable::value && has<FIELD>()) {
-      throw std::length_error("Field cannot be repeated");
+      BOOST_THROW_EXCEPTION(std::length_error("Field cannot be repeated"));
     }
 
     EncodingEstimator estimator;
@@ -195,7 +195,7 @@ public: // field access
       }
     }
 
-    throw std::out_of_range("Index out of range");
+    BOOST_THROW_EXCEPTION(std::out_of_range("Index out of range"));
   }
 
   /**

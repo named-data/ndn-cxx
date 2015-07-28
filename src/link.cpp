@@ -144,7 +144,7 @@ Link::decodeContent()
 
   if (getContentType() != tlv::ContentType_Link)
     {
-      throw Error("Expected Content Type Link");
+      BOOST_THROW_EXCEPTION(Error("Expected Content Type Link"));
     }
 
   const Block& content = getContent();
@@ -154,18 +154,18 @@ Link::decodeContent()
     delegation.parse();
     Block::element_const_iterator val = delegation.elements_begin();
     if (val == delegation.elements_end()) {
-      throw Error("Unexpected Link Encoding");
+      BOOST_THROW_EXCEPTION(Error("Unexpected Link Encoding"));
     }
     uint32_t preference;
     try {
       preference = static_cast<uint32_t>(readNonNegativeInteger(*val));
     }
     catch (tlv::Error&) {
-      throw Error("Missing preference field in Link Encoding");
+      BOOST_THROW_EXCEPTION(Error("Missing preference field in Link Encoding"));
     }
     ++val;
     if (val == delegation.elements_end()) {
-      throw Error("Missing name field in Link Encoding");
+      BOOST_THROW_EXCEPTION(Error("Missing name field in Link Encoding"));
     }
     Name name(*val);
     m_delegations.insert({preference, name});
@@ -188,7 +188,7 @@ Link::getDelegationFromWire(const Block& block, size_t index)
   const Block& delegationBlock = contentBlock.elements().at(index);
   delegationBlock.parse();
   if (delegationBlock.type() != tlv::LinkDelegation) {
-    throw Error("Unexpected TLV-TYPE; expecting LinkDelegation");
+    BOOST_THROW_EXCEPTION(Error("Unexpected TLV-TYPE, expecting LinkDelegation"));
   }
   return std::make_tuple(
     static_cast<uint32_t>(
@@ -206,7 +206,7 @@ Link::findDelegationFromWire(const Block& block, const Name& delegationName)
   for (auto&& delegationBlock : contentBlock.elements()) {
     delegationBlock.parse();
     if (delegationBlock.type() != tlv::LinkDelegation) {
-      throw Error("Unexpected TLV-TYPE; expecting LinkDelegation");
+      BOOST_THROW_EXCEPTION(Error("Unexpected TLV-TYPE, expecting LinkDelegation"));
     }
     Name name(delegationBlock.get(tlv::Name));
     if (name == delegationName) {

@@ -151,7 +151,7 @@ syncResolve(const std::string& host, boost::asio::io_service& ioService,
           return EndPoint(*remoteEndpoint).address();
         }
     }
-  throw Error("No endpoint matching the specified address selector found");
+  BOOST_THROW_EXCEPTION(Error("No endpoint matching the specified address selector found"));
 }
 
 } // namespace dns

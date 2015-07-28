@@ -63,7 +63,7 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool unsignedPortion/* = false*/) c
 
   if (!unsignedPortion && !m_signature)
     {
-      throw Error("Requested wire format, but data packet has not been signed yet");
+      BOOST_THROW_EXCEPTION(Error("Requested wire format, but data packet has not been signed yet"));
     }
 
   if (!unsignedPortion)
@@ -180,8 +180,8 @@ Data::getFullName() const
 {
   if (m_fullName.empty()) {
     if (!m_wire.hasWire()) {
-      throw Error("Full name requested, but Data packet does not have wire format "
-                  "(e.g., not signed)");
+      BOOST_THROW_EXCEPTION(Error("Full name requested, but Data packet does not have wire format "
+                                  "(e.g., not signed)"));
     }
     m_fullName = m_name;
     m_fullName.appendImplicitSha256Digest(crypto::sha256(m_wire.wire(), m_wire.size()));

@@ -113,9 +113,9 @@ SecTpmFile::generateKeyPairInTpm(const Name& keyName, const KeyParams& params)
   string keyURI = keyName.toUri();
 
   if (doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC))
-    throw Error("public key exists");
+    BOOST_THROW_EXCEPTION(Error("public key exists"));
   if (doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
-    throw Error("private key exists");
+    BOOST_THROW_EXCEPTION(Error("private key exists"));
 
   string keyFileName = m_impl->maintainMapping(keyURI);
 
@@ -194,16 +194,16 @@ SecTpmFile::generateKeyPairInTpm(const Name& keyName, const KeyParams& params)
             return;
           }
         default:
-          throw Error("Unsupported key type!");
+          BOOST_THROW_EXCEPTION(Error("Unsupported key type"));
         }
     }
   catch (KeyParams::Error& e)
     {
-      throw Error(e.what());
+      BOOST_THROW_EXCEPTION(Error(e.what()));
     }
   catch (CryptoPP::Exception& e)
     {
-      throw Error(e.what());
+      BOOST_THROW_EXCEPTION(Error(e.what()));
     }
 }
 
@@ -226,7 +226,7 @@ SecTpmFile::getPublicKeyFromTpm(const Name&  keyName)
   string keyURI = keyName.toUri();
 
   if (!doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC))
-    throw Error("Public Key does not exist");
+    BOOST_THROW_EXCEPTION(Error("Public Key does not exist"));
 
   ostringstream os;
   try
@@ -238,7 +238,7 @@ SecTpmFile::getPublicKeyFromTpm(const Name&  keyName)
     }
   catch (CryptoPP::Exception& e)
     {
-      throw Error(e.what());
+      BOOST_THROW_EXCEPTION(Error(e.what()));
     }
 
   return make_shared<PublicKey>(reinterpret_cast<const uint8_t*>(os.str().c_str()),
@@ -308,7 +308,7 @@ SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength,
   string keyURI = keyName.toUri();
 
   if (!doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
-    throw Error("private key doesn't exists");
+    BOOST_THROW_EXCEPTION(Error("private key doesn't exist"));
 
   try
     {
@@ -347,7 +347,7 @@ SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength,
                     return Block(tlv::SignatureValue, os.buf());
                   }
                 default:
-                  throw Error("Unsupported digest algorithm!");
+                  BOOST_THROW_EXCEPTION(Error("Unsupported digest algorithm"));
                 }
             }
         case KEY_TYPE_ECDSA:
@@ -383,16 +383,16 @@ SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength,
                   return Block(tlv::SignatureValue, sigBuffer);
                 }
               default:
-                throw Error("Unsupported digest algorithm!");
+                BOOST_THROW_EXCEPTION(Error("Unsupported digest algorithm"));
               }
           }
         default:
-          throw Error("Unsupported key type!");
+          BOOST_THROW_EXCEPTION(Error("Unsupported key type"));
         }
     }
   catch (CryptoPP::Exception& e)
     {
-      throw Error(e.what());
+      BOOST_THROW_EXCEPTION(Error(e.what()));
     }
 }
 
@@ -401,7 +401,7 @@ ConstBufferPtr
 SecTpmFile::decryptInTpm(const uint8_t* data, size_t dataLength,
                          const Name& keyName, bool isSymmetric)
 {
-  throw Error("SecTpmFile::decryptInTpm is not supported!");
+  BOOST_THROW_EXCEPTION(Error("SecTpmFile::decryptInTpm is not supported"));
   // string keyURI = keyName.toUri();
   // if (!isSymmetric)
   //   {
@@ -463,7 +463,7 @@ ConstBufferPtr
 SecTpmFile::encryptInTpm(const uint8_t* data, size_t dataLength,
                          const Name& keyName, bool isSymmetric)
 {
-  throw Error("SecTpmFile::encryptInTpm is not supported!");
+  BOOST_THROW_EXCEPTION(Error("SecTpmFile::encryptInTpm is not supported"));
   // string keyURI = keyName.toUri();
 
   // if (!isSymmetric)
@@ -521,11 +521,10 @@ SecTpmFile::encryptInTpm(const uint8_t* data, size_t dataLength,
   //   }
 }
 
-
 void
 SecTpmFile::generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& params)
 {
-  throw Error("SecTpmFile::generateSymmetricKeyInTpm is not supported!");
+  BOOST_THROW_EXCEPTION(Error("SecTpmFile::generateSymmetricKeyInTpm is not supported"));
   // string keyURI = keyName.toUri();
 
   // if (doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))

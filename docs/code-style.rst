@@ -1113,3 +1113,9 @@ the alternative structured counterpart is proven to be less readable.
 
     ``NDN_CXX_DECL_OVERRIDE`` and ``NDN_CXX_DECL_FINAL`` macros are for ndn-cxx internal use.
     Other projects, if adopting this style guide, should define their own macros if needed.
+
+3.31. The recommended way to throw an exception derived from ``std::exception`` is to use
+the ``BOOST_THROW_EXCEPTION``
+`macro <http://www.boost.org/doc/libs/1_42_0/libs/exception/doc/BOOST_THROW_EXCEPTION.html>`__.
+Exceptions thrown using this macro will be bundled with additional diagnostic information, including
+filename, line number, and function name from where the exception was thrown.

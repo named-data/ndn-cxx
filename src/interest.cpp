@@ -306,7 +306,7 @@ Interest::wireDecode(const Block& wire)
   //                SelectedDelegation?
 
   if (m_wire.type() != tlv::Interest)
-    throw Error("Unexpected TLV number when decoding Interest");
+    BOOST_THROW_EXCEPTION(Error("Unexpected TLV number when decoding Interest"));
 
   // Name
   m_name.wireDecode(m_wire.get(tlv::Name));
@@ -345,14 +345,14 @@ Interest::wireDecode(const Block& wire)
   val = m_wire.find(tlv::SelectedDelegation);
   if (val != m_wire.elements_end()) {
     if (!this->hasLink()) {
-      throw Error("Interest contains selectedDelegation, but no LINK object");
+      BOOST_THROW_EXCEPTION(Error("Interest contains selectedDelegation, but no LINK object"));
     }
     uint64_t selectedDelegation = readNonNegativeInteger(*val);
     if (selectedDelegation < uint64_t(Link::countDelegationsFromWire(m_link))) {
       m_selectedDelegationIndex = static_cast<size_t>(selectedDelegation);
     }
     else {
-      throw Error("Invalid selected delegation index when decoding Interest");
+      BOOST_THROW_EXCEPTION(Error("Invalid selected delegation index when decoding Interest"));
     }
   }
 }
@@ -372,7 +372,7 @@ Interest::getLink() const
     {
       return Link(m_link);
     }
-  throw Error("There is no encapsulated link object");
+  BOOST_THROW_EXCEPTION(Error("There is no encapsulated link object"));
 }
 
 void
@@ -380,7 +380,7 @@ Interest::setLink(const Block& link)
 {
   m_link = link;
   if (!link.hasWire()) {
-    throw Error("The given link does not have a wire format");
+    BOOST_THROW_EXCEPTION(Error("The given link does not have a wire format"));
   }
   m_wire.reset();
   this->unsetSelectedDelegation();
@@ -408,7 +408,7 @@ Name
 Interest::getSelectedDelegation() const
 {
   if (!hasSelectedDelegation()) {
-    throw Error("There is no encapsulated selected delegation");
+    BOOST_THROW_EXCEPTION(Error("There is no encapsulated selected delegation"));
   }
   return std::get<1>(Link::getDelegationFromWire(m_link, m_selectedDelegationIndex));
 }
@@ -421,7 +421,7 @@ Interest::setSelectedDelegation(const Name& delegationName)
     m_selectedDelegationIndex = delegationIndex;
   }
   else {
-    throw std::invalid_argument("Invalid selected delegation name");
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid selected delegation name"));
   }
   m_wire.reset();
 }
@@ -430,7 +430,7 @@ void
 Interest::setSelectedDelegation(size_t delegationIndex)
 {
   if (delegationIndex >= Link(m_link).getDelegations().size()) {
-    throw Error("Invalid selected delegation index");
+    BOOST_THROW_EXCEPTION(Error("Invalid selected delegation index"));
   }
   m_selectedDelegationIndex = delegationIndex;
   m_wire.reset();

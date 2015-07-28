@@ -82,7 +82,7 @@ ValidatorConfig::load(const std::string& filename)
     {
       std::string msg = "Failed to read configuration file: ";
       msg += filename;
-      throw security::conf::Error(msg);
+      BOOST_THROW_EXCEPTION(security::conf::Error(msg));
     }
   load(inputFile, filename);
   inputFile.close();
@@ -110,7 +110,7 @@ ValidatorConfig::load(std::istream& input, const std::string& filename)
       msg << "Failed to parse configuration file";
       msg << " " << filename;
       msg << " " << error.message() << " line " << error.line();
-      throw security::conf::Error(msg.str());
+      BOOST_THROW_EXCEPTION(security::conf::Error(msg.str()));
     }
 
   load(tree, filename);
@@ -130,7 +130,7 @@ ValidatorConfig::load(const security::conf::ConfigSection& configSection,
       msg += ": ";
       msg += filename;
       msg += " no data";
-      throw security::conf::Error(msg);
+      BOOST_THROW_EXCEPTION(security::conf::Error(msg));
     }
 
   for (security::conf::ConfigSection::const_iterator i = configSection.begin();
@@ -153,7 +153,7 @@ ValidatorConfig::load(const security::conf::ConfigSection& configSection,
           msg += " ";
           msg += filename;
           msg += " unrecognized section: " + sectionName;
-          throw security::conf::Error(msg);
+          BOOST_THROW_EXCEPTION(security::conf::Error(msg));
         }
     }
 }
@@ -168,14 +168,14 @@ ValidatorConfig::onConfigRule(const security::conf::ConfigSection& configSection
 
   // Get rule.id
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "id"))
-    throw Error("Expect <rule.id>!");
+    BOOST_THROW_EXCEPTION(Error("Expect <rule.id>!"));
 
   std::string ruleId = propertyIt->second.data();
   propertyIt++;
 
   // Get rule.for
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first,"for"))
-    throw Error("Expect <rule.for> in rule: " + ruleId + "!");
+    BOOST_THROW_EXCEPTION(Error("Expect <rule.for> in rule: " + ruleId + "!"));
 
   std::string usage = propertyIt->second.data();
   propertyIt++;
@@ -186,8 +186,8 @@ ValidatorConfig::onConfigRule(const security::conf::ConfigSection& configSection
   else if (boost::iequals(usage, "interest"))
     isForData = false;
   else
-    throw Error("Unrecognized <rule.for>: " + usage
-                + " in rule: " + ruleId);
+    BOOST_THROW_EXCEPTION(Error("Unrecognized <rule.for>: " + usage
+                                + " in rule: " + ruleId));
 
   // Get rule.filter(s)
   std::vector<shared_ptr<Filter> > filters;
@@ -197,7 +197,7 @@ ValidatorConfig::onConfigRule(const security::conf::ConfigSection& configSection
         {
           if (boost::iequals(propertyIt->first, "checker"))
             break;
-          throw Error("Expect <rule.filter> in rule: " + ruleId);
+          BOOST_THROW_EXCEPTION(Error("Expect <rule.filter> in rule: " + ruleId));
         }
 
       filters.push_back(FilterFactory::create(propertyIt->second));
@@ -209,7 +209,7 @@ ValidatorConfig::onConfigRule(const security::conf::ConfigSection& configSection
   for (; propertyIt != configSection.end(); propertyIt++)
     {
       if (!boost::iequals(propertyIt->first, "checker"))
-        throw Error("Expect <rule.checker> in rule: " + ruleId);
+        BOOST_THROW_EXCEPTION(Error("Expect <rule.checker> in rule: " + ruleId));
 
       checkers.push_back(CheckerFactory::create(propertyIt->second, filename));
       continue;
@@ -217,10 +217,10 @@ ValidatorConfig::onConfigRule(const security::conf::ConfigSection& configSection
 
   // Check other stuff
   if (propertyIt != configSection.end())
-    throw Error("Expect the end of rule: " + ruleId);
+    BOOST_THROW_EXCEPTION(Error("Expect the end of rule: " + ruleId));
 
   if (checkers.size() == 0)
-    throw Error("No <rule.checker> is specified in rule: " + ruleId);
+    BOOST_THROW_EXCEPTION(Error("No <rule.checker> is specified in rule: " + ruleId));
 
   if (isForData)
     {
@@ -255,7 +255,7 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
 
   // Get trust-anchor.type
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type"))
-    throw Error("Expect <trust-anchor.type>!");
+    BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.type>!"));
 
   std::string type = propertyIt->second.data();
   propertyIt++;
@@ -264,14 +264,14 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
     {
       // Get trust-anchor.file
       if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first,"file-name"))
-        throw Error("Expect <trust-anchor.file-name>!");
+        BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.file-name>!"));
 
       std::string file = propertyIt->second.data();
       propertyIt++;
 
       // Check other stuff
       if (propertyIt != configSection.end())
-        throw Error("Expect the end of trust-anchor!");
+        BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor!"));
 
       path certfilePath = absolute(file, path(filename).parent_path());
       shared_ptr<IdentityCertificate> idCert =
@@ -284,8 +284,8 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
           m_anchors[idCert->getName().getPrefix(-1)] = idCert;
         }
       else
-        throw Error("Cannot read certificate from file: " +
-                    certfilePath.native());
+        BOOST_THROW_EXCEPTION(Error("Cannot read certificate from file: " +
+                                    certfilePath.native()));
 
       return;
     }
@@ -293,14 +293,14 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
     {
       // Get trust-anchor.base64-string
       if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "base64-string"))
-        throw Error("Expect <trust-anchor.base64-string>!");
+        BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.base64-string>!"));
 
       std::stringstream ss(propertyIt->second.data());
       propertyIt++;
 
       // Check other stuff
       if (propertyIt != configSection.end())
-        throw Error("Expect the end of trust-anchor!");
+        BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor!"));
 
       shared_ptr<IdentityCertificate> idCert = io::load<IdentityCertificate>(ss);
 
@@ -311,14 +311,14 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
           m_anchors[idCert->getName().getPrefix(-1)] = idCert;
         }
       else
-        throw Error("Cannot decode certificate from base64-string");
+        BOOST_THROW_EXCEPTION(Error("Cannot decode certificate from base64-string"));
 
       return;
     }
   else if (boost::iequals(type, "dir"))
     {
       if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "dir"))
-        throw Error("Expect <trust-anchor.dir>!");
+        BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.dir>"));
 
       std::string dirString(propertyIt->second.data());
       propertyIt++;
@@ -333,7 +333,7 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
               propertyIt++;
 
               if (propertyIt != configSection.end())
-                throw Error("Expect the end of trust-anchor!");
+                BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor"));
 
               path dirPath = absolute(dirString, path(filename).parent_path());
 
@@ -344,7 +344,7 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
               return;
             }
           else
-            throw Error("Expect <trust-anchor.refresh>!");
+            BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.refresh>!"));
         }
       else
         {
@@ -371,7 +371,7 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
       m_shouldValidate = false;
     }
   else
-    throw Error("Unsupported trust-anchor.type: " + type);
+    BOOST_THROW_EXCEPTION(Error("Unsupported trust-anchor.type: " + type));
 }
 
 void
@@ -414,7 +414,7 @@ ValidatorConfig::getRefreshPeriod(std::string inputString)
     }
   catch (boost::bad_lexical_cast&)
     {
-      throw Error("Bad number: " + refreshString);
+      BOOST_THROW_EXCEPTION(Error("Bad number: " + refreshString));
     }
 
   if (number == 0)
@@ -429,7 +429,7 @@ ValidatorConfig::getRefreshPeriod(std::string inputString)
     case 's':
       return time::duration_cast<time::nanoseconds>(time::seconds(number));
     default:
-      throw Error(std::string("Wrong time unit: ") + unit);
+      BOOST_THROW_EXCEPTION(Error(std::string("Wrong time unit: ") + unit));
     }
 }
 

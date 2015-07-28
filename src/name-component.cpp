@@ -59,8 +59,8 @@ Component::Component(const Block& wire)
   : Block(wire)
 {
   if (!isGeneric() && !isImplicitSha256Digest())
-    throw Error("Cannot construct name::Component from not a NameComponent "
-                "or ImplicitSha256DigestComponent TLV wire block");
+    BOOST_THROW_EXCEPTION(Error("Cannot construct name::Component from not a NameComponent "
+                                "or ImplicitSha256DigestComponent TLV wire block"));
 }
 
 Component::Component(const ConstBufferPtr& buffer)
@@ -98,15 +98,16 @@ Component::fromEscapedString(const char* escapedString, size_t beginOffset, size
   if (trimmedString.compare(0, getSha256DigestUriPrefix().size(),
                             getSha256DigestUriPrefix()) == 0) {
     if (trimmedString.size() != getSha256DigestUriPrefix().size() + crypto::SHA256_DIGEST_SIZE * 2)
-      throw Error("Cannot convert to ImplicitSha256DigestComponent"
-                  "(expected sha256 in hex encoding)");
+      BOOST_THROW_EXCEPTION(Error("Cannot convert to ImplicitSha256DigestComponent"
+                                  "(expected sha256 in hex encoding)"));
 
     try {
       trimmedString.erase(0, getSha256DigestUriPrefix().size());
       return fromImplicitSha256Digest(fromHex(trimmedString));
     }
     catch (StringHelperError& e) {
-      throw Error("Cannot convert to a ImplicitSha256DigestComponent (invalid hex encoding)");
+      BOOST_THROW_EXCEPTION(Error("Cannot convert to a ImplicitSha256DigestComponent (invalid hex "
+                                  "encoding)"));
     }
   }
   else {
@@ -116,7 +117,7 @@ Component::fromEscapedString(const char* escapedString, size_t beginOffset, size
       // Special case for component of only periods.
       if (value.size() <= 2)
         // Zero, one or two periods is illegal.  Ignore this component.
-        throw Error("Illegal URI (name component cannot be . or ..)");
+        BOOST_THROW_EXCEPTION(Error("Illegal URI (name component cannot be . or ..)"));
       else
         // Remove 3 periods.
         return Component(reinterpret_cast<const uint8_t*>(&value[3]), value.size() - 3);
@@ -238,7 +239,7 @@ uint64_t
 Component::toNumber() const
 {
   if (!isNumber())
-    throw Error("Name component does not have nonNegativeInteger value");
+    BOOST_THROW_EXCEPTION(Error("Name component does not have nonNegativeInteger value"));
 
   return readNonNegativeInteger(*this);
 }
@@ -247,8 +248,8 @@ uint64_t
 Component::toNumberWithMarker(uint8_t marker) const
 {
   if (!isNumberWithMarker(marker))
-    throw Error("Name component does not have the requested marker "
-                "or the value is not a nonNegativeInteger");
+    BOOST_THROW_EXCEPTION(Error("Name component does not have the requested marker "
+                                "or the value is not a nonNegativeInteger"));
 
   Buffer::const_iterator valueBegin = value_begin() + 1;
   return tlv::readNonNegativeInteger(value_size() - 1, valueBegin, value_end());
@@ -364,8 +365,8 @@ Component
 Component::fromImplicitSha256Digest(const ConstBufferPtr& digest)
 {
   if (digest->size() != crypto::SHA256_DIGEST_SIZE)
-    throw Error("Cannot create ImplicitSha256DigestComponent (input digest must be " +
-                boost::lexical_cast<std::string>(crypto::SHA256_DIGEST_SIZE) + " octets)");
+    BOOST_THROW_EXCEPTION(Error("Cannot create ImplicitSha256DigestComponent (input digest must be " +
+                                std::to_string(crypto::SHA256_DIGEST_SIZE) + " octets)"));
 
   return Block(tlv::ImplicitSha256DigestComponent, digest);
 }
@@ -374,8 +375,8 @@ Component
 Component::fromImplicitSha256Digest(const uint8_t* digest, size_t digestSize)
 {
   if (digestSize != crypto::SHA256_DIGEST_SIZE)
-    throw Error("Cannot create ImplicitSha256DigestComponent (input digest must be " +
-                boost::lexical_cast<std::string>(crypto::SHA256_DIGEST_SIZE) + " octets)");
+    BOOST_THROW_EXCEPTION(Error("Cannot create ImplicitSha256DigestComponent (input digest must be "
+                                + std::to_string(crypto::SHA256_DIGEST_SIZE) + " octets)"));
 
   return makeBinaryBlock(tlv::ImplicitSha256DigestComponent, digest, digestSize);
 }

@@ -44,7 +44,7 @@ struct DecodeHelper
   decode(const Block& wire)
   {
     if (wire.type() != TlvType::value) {
-      throw ndn::tlv::Error("Unexpected TLV type " + std::to_string(wire.type()));
+      BOOST_THROW_EXCEPTION(ndn::tlv::Error("Unexpected TLV type " + std::to_string(wire.type())));
     }
 
     T type;
@@ -60,7 +60,7 @@ struct DecodeHelper<TlvType, uint64_t>
   decode(const Block& wire)
   {
     if (wire.type() != TlvType::value) {
-      throw ndn::tlv::Error("Unexpected TLV type " + std::to_string(wire.type()));
+      BOOST_THROW_EXCEPTION(ndn::tlv::Error("Unexpected TLV type " + std::to_string(wire.type())));
     }
 
     return readNonNegativeInteger(wire);
@@ -74,11 +74,11 @@ struct DecodeHelper<TlvType, std::pair<Buffer::const_iterator, Buffer::const_ite
   decode(const Block& wire)
   {
     if (wire.type() != TlvType::value) {
-      throw ndn::tlv::Error("Unexpected TLV type " + std::to_string(wire.type()));
+      BOOST_THROW_EXCEPTION(ndn::tlv::Error("Unexpected TLV type " + std::to_string(wire.type())));
     }
 
     if (wire.value_size() == 0) {
-      throw ndn::tlv::Error(std::to_string(wire.type()) + " must not be empty");
+      BOOST_THROW_EXCEPTION(ndn::tlv::Error(std::to_string(wire.type()) + " must not be empty"));
     }
 
     return std::make_pair(wire.value_begin(), wire.value_end());

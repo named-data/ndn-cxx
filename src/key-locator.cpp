@@ -65,7 +65,7 @@ KeyLocator::wireEncode(EncodingImpl<TAG>& encoder) const
     totalLength += encoder.prependBlock(m_keyDigest);
     break;
   default:
-    throw Error("Unsupported KeyLocator type");
+    BOOST_THROW_EXCEPTION(Error("Unsupported KeyLocator type"));
   }
 
   totalLength += encoder.prependVarNumber(totalLength);
@@ -99,7 +99,7 @@ void
 KeyLocator::wireDecode(const Block& wire)
 {
   if (wire.type() != tlv::KeyLocator)
-    throw Error("Unexpected TLV type during KeyLocator decoding");
+    BOOST_THROW_EXCEPTION(Error("Unexpected TLV type during KeyLocator decoding"));
 
   m_wire = wire;
   m_wire.parse();
@@ -138,7 +138,7 @@ const Name&
 KeyLocator::getName() const
 {
   if (m_type != KeyLocator_Name)
-    throw Error("KeyLocator type is not Name");
+    BOOST_THROW_EXCEPTION(Error("KeyLocator type is not Name"));
 
   return m_name;
 }
@@ -156,7 +156,7 @@ const Block&
 KeyLocator::getKeyDigest() const
 {
   if (m_type != KeyLocator_KeyDigest)
-    throw Error("KeyLocator type is not KeyDigest");
+    BOOST_THROW_EXCEPTION(Error("KeyLocator type is not KeyDigest"));
 
   return m_keyDigest;
 }
@@ -165,7 +165,7 @@ KeyLocator&
 KeyLocator::setKeyDigest(const Block& keyDigest)
 {
   if (keyDigest.type() != tlv::KeyDigest)
-    throw Error("expecting KeyDigest block");
+    BOOST_THROW_EXCEPTION(Error("expecting KeyDigest block"));
 
   this->clear();
   m_type = KeyLocator_KeyDigest;

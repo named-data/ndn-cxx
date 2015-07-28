@@ -194,7 +194,7 @@ void
 Key::validityCheck() const
 {
   if (m_impl == nullptr)
-    throw std::domain_error("Invalid Key instance");
+    BOOST_THROW_EXCEPTION(std::domain_error("Invalid Key instance"));
 }
 
 } // namespace security

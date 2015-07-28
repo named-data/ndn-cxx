@@ -56,7 +56,7 @@ size_t
 CachePolicy::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   if (m_policy == CachePolicyType::NONE) {
-    throw Error("CachePolicyType must be set");
+    BOOST_THROW_EXCEPTION(Error("CachePolicyType must be set"));
   }
   size_t length = 0;
   length += prependNonNegativeIntegerBlock(encoder, tlv::CachePolicyType,
@@ -76,7 +76,7 @@ const Block&
 CachePolicy::wireEncode() const
 {
   if (m_policy == CachePolicyType::NONE) {
-    throw Error("CachePolicyType must be set");
+    BOOST_THROW_EXCEPTION(Error("CachePolicyType must be set"));
   }
 
   if (m_wire.hasWire()) {
@@ -98,7 +98,7 @@ void
 CachePolicy::wireDecode(const Block& wire)
 {
   if (wire.type() != tlv::CachePolicy) {
-    throw Error("expecting CachePolicy block");
+    BOOST_THROW_EXCEPTION(Error("expecting CachePolicy block"));
   }
 
   m_wire = wire;
@@ -108,11 +108,11 @@ CachePolicy::wireDecode(const Block& wire)
   if (it != m_wire.elements_end() && it->type() == tlv::CachePolicyType) {
     m_policy = static_cast<CachePolicyType>(readNonNegativeInteger(*it));
     if (this->getPolicy() == CachePolicyType::NONE) {
-      throw Error("unknown CachePolicyType");
+      BOOST_THROW_EXCEPTION(Error("unknown CachePolicyType"));
     }
   }
   else {
-    throw Error("expecting CachePolicyType block");
+    BOOST_THROW_EXCEPTION(Error("expecting CachePolicyType block"));
   }
 }
 

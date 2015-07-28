@@ -48,14 +48,14 @@ FaceUri::FaceUri()
 FaceUri::FaceUri(const std::string& uri)
 {
   if (!parse(uri)) {
-    throw Error("Malformed URI: " + uri);
+    BOOST_THROW_EXCEPTION(Error("Malformed URI: " + uri));
   }
 }
 
 FaceUri::FaceUri(const char* uri)
 {
   if (!parse(uri)) {
-    throw Error("Malformed URI: " + std::string(uri));
+    BOOST_THROW_EXCEPTION(Error("Malformed URI: " + std::string(uri)));
   }
 }
 

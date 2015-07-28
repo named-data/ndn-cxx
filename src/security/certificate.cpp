@@ -261,7 +261,7 @@ Certificate::decode()
     idCert.MessageEnd();
   }
   catch (CryptoPP::BERDecodeErr&) {
-    throw Error("Certificate Decoding Error");
+    BOOST_THROW_EXCEPTION(Error("Certificate Decoding Error"));
   }
 }
 

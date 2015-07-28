@@ -152,14 +152,14 @@ public:
     ConfigSection::const_iterator propertyIt = configSection.begin();
 
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type"))
-      throw Error("Expect <filter.type>!");
+      BOOST_THROW_EXCEPTION(Error("Expect <filter.type>!"));
 
     std::string type = propertyIt->second.data();
 
     if (boost::iequals(type, "name"))
       return createNameFilter(configSection);
     else
-      throw Error("Unsupported filter.type: " + type);
+      BOOST_THROW_EXCEPTION(Error("Unsupported filter.type: " + type));
   }
 private:
   static shared_ptr<Filter>
@@ -169,7 +169,7 @@ private:
     propertyIt++;
 
     if (propertyIt == configSection.end())
-      throw Error("Expect more properties for filter(name)");
+      BOOST_THROW_EXCEPTION(Error("Expect more properties for filter(name)"));
 
     if (boost::iequals(propertyIt->first, "name"))
       {
@@ -181,14 +181,14 @@ private:
           }
         catch (Name::Error& e)
           {
-            throw Error("Wrong filter.name: " + propertyIt->second.data());
+            BOOST_THROW_EXCEPTION(Error("Wrong filter.name: " + propertyIt->second.data()));
           }
 
         propertyIt++;
 
         // Get filter.relation
         if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "relation"))
-          throw Error("Expect <filter.relation>!");
+          BOOST_THROW_EXCEPTION(Error("Expect <filter.relation>!"));
 
         std::string relationString = propertyIt->second.data();
         propertyIt++;
@@ -201,11 +201,11 @@ private:
         else if (boost::iequals(relationString, "is-strict-prefix-of"))
           relation = RelationNameFilter::RELATION_IS_STRICT_PREFIX_OF;
         else
-          throw Error("Unsupported relation: " + relationString);
+          BOOST_THROW_EXCEPTION(Error("Unsupported relation: " + relationString));
 
 
         if (propertyIt != configSection.end())
-          throw Error("Expect the end of filter!");
+          BOOST_THROW_EXCEPTION(Error("Expect the end of filter!"));
 
         return make_shared<RelationNameFilter>(name, relation);
       }
@@ -215,7 +215,7 @@ private:
         propertyIt++;
 
         if (propertyIt != configSection.end())
-          throw Error("Expect the end of filter!");
+          BOOST_THROW_EXCEPTION(Error("Expect the end of filter!"));
 
         try
           {
@@ -223,11 +223,11 @@ private:
           }
         catch (Regex::Error& e)
           {
-            throw Error("Wrong filter.regex: " + regexString);
+            BOOST_THROW_EXCEPTION(Error("Wrong filter.regex: " + regexString));
           }
       }
     else
-      throw Error("Wrong filter(name) properties");
+      BOOST_THROW_EXCEPTION(Error("Wrong filter(name) properties"));
   }
 };
 
