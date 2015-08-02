@@ -61,6 +61,9 @@ BOOST_AUTO_TEST_CASE(SymbolVisibility)
 
   transform::DigestFilter* digestFilter = nullptr;
   BOOST_CHECK(digestFilter == nullptr);
+
+  transform::HmacFilter* hmacFilter = nullptr;
+  BOOST_CHECK(hmacFilter == nullptr);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestTransform

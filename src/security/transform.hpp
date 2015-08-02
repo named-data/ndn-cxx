@@ -34,5 +34,6 @@
 #include "transform/base64-encode.hpp"
 #include "transform/base64-decode.hpp"
 #include "transform/digest-filter.hpp"
+#include "transform/hmac-filter.hpp"
 
 #endif // NDN_CXX_SECURITY_TRANSFORM_HPP
