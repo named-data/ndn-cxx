@@ -91,6 +91,32 @@ SignatureInfo::getKeyLocator() const
 }
 
 void
+SignatureInfo::setValidityPeriod(const security::ValidityPeriod& validityPeriod)
+{
+  unsetValidityPeriod();
+  m_otherTlvs.push_front(validityPeriod.wireEncode());
+}
+
+void
+SignatureInfo::unsetValidityPeriod()
+{
+  m_wire.reset();
+  if (!m_otherTlvs.empty() && m_otherTlvs.front().type() == tlv::ValidityPeriod) {
+    m_otherTlvs.erase(m_otherTlvs.begin());
+  }
+}
+
+security::ValidityPeriod
+SignatureInfo::getValidityPeriod() const
+{
+  if (m_otherTlvs.empty() || m_otherTlvs.front().type() != tlv::ValidityPeriod) {
+    throw Error("SignatureInfo does not contain the requested ValidityPeriod field");
+  }
+
+  return security::ValidityPeriod(m_otherTlvs.front());
+}
+
+void
 SignatureInfo::appendTypeSpecificTlv(const Block& block)
 {
   m_otherTlvs.push_back(block);

@@ -24,6 +24,7 @@
 
 #include "encoding/tlv.hpp"
 #include "key-locator.hpp"
+#include "security/validity-period.hpp"
 #include <list>
 
 namespace ndn {
@@ -89,6 +90,18 @@ public:
    */
   const KeyLocator&
   getKeyLocator() const;
+
+  /// @brief Set ValidityPeriod
+  void
+  setValidityPeriod(const security::ValidityPeriod& validityPeriod);
+
+  /// @brief Unset ValidityPeriod
+  void
+  unsetValidityPeriod();
+
+  /// @brief Get ValidityPeriod
+  security::ValidityPeriod
+  getValidityPeriod() const;
 
   /// @brief Append signature type specific tlv block
   void
