@@ -39,6 +39,9 @@
 
 #include "../management/nfd-controller.hpp"
 #include "../management/nfd-command-options.hpp"
+#include "../management/nfd-local-control-header.hpp"
+
+#include "../lp/packet.hpp"
 
 namespace ndn {
 
@@ -74,7 +77,7 @@ public:
   satisfyPendingInterests(Data& data)
   {
     for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
-      if ((*entry)->getInterest().matchesData(data)) {
+      if ((*entry)->getInterest()->matchesData(data)) {
         shared_ptr<PendingInterest> matchedEntry = *entry;
 
         entry = m_pendingInterestTable.erase(entry);
@@ -83,6 +86,24 @@ public:
       }
       else
         ++entry;
+    }
+  }
+
+  void
+  nackPendingInterests(const lp::Nack& nack)
+  {
+    for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
+      const Interest& pendingInterest = *(*entry)->getInterest();
+      if (pendingInterest == nack.getInterest()) {
+        shared_ptr<PendingInterest> matchedEntry = *entry;
+
+        entry = m_pendingInterestTable.erase(entry);
+
+        matchedEntry->invokeNackCallback(nack);
+      }
+      else {
+        ++entry;
+      }
     }
   }
 
@@ -111,26 +132,32 @@ public:
   }
 
   void
-  asyncExpressInterest(const shared_ptr<const Interest>& interest,
-                       const OnData& onData, const OnTimeout& onTimeout)
+  asyncExpressInterest(shared_ptr<const Interest> interest,
+                       const DataCallback& afterSatisfied,
+                       const NackCallback& afterNacked,
+                       const TimeoutCallback& afterTimeout)
   {
     this->ensureConnected(true);
 
     auto entry =
       m_pendingInterestTable.insert(make_shared<PendingInterest>(interest,
-                                                                 onData, onTimeout,
+                                                                 afterSatisfied,
+                                                                 afterNacked,
+                                                                 afterTimeout,
                                                                  ref(m_scheduler))).first;
     (*entry)->setDeleter([this, entry] { m_pendingInterestTable.erase(entry); });
 
-    if (!interest->getLocalControlHeader().empty(nfd::LocalControlHeader::ENCODE_NEXT_HOP)) {
-      // encode only NextHopFaceId towards the forwarder
-      m_face.m_transport->send(interest->getLocalControlHeader()
-                               .wireEncode(*interest, nfd::LocalControlHeader::ENCODE_NEXT_HOP),
-                               interest->wireEncode());
+    lp::Packet packet;
+
+    nfd::LocalControlHeader localControlHeader = interest->getLocalControlHeader();
+    if (localControlHeader.hasNextHopFaceId()) {
+      packet.add<lp::NextHopFaceIdField>(localControlHeader.getNextHopFaceId());
     }
-    else {
-      m_face.m_transport->send(interest->wireEncode());
-    }
+
+    packet.add<lp::FragmentField>(std::make_pair(interest->wireEncode().begin(),
+                                                 interest->wireEncode().end()));
+
+    m_face.m_transport->send(packet.wireEncode());
   }
 
   void
@@ -144,15 +171,40 @@ public:
   {
     this->ensureConnected(true);
 
-    if (!data->getLocalControlHeader().empty(nfd::LocalControlHeader::ENCODE_CACHING_POLICY)) {
-      m_face.m_transport->send(
-        data->getLocalControlHeader().wireEncode(*data,
-                                                 nfd::LocalControlHeader::ENCODE_CACHING_POLICY),
-        data->wireEncode());
+    lp::Packet packet;
+
+    nfd::LocalControlHeader localControlHeader = data->getLocalControlHeader();
+    if (localControlHeader.hasCachingPolicy()) {
+      switch (localControlHeader.getCachingPolicy()) {
+        case nfd::LocalControlHeader::CachingPolicy::NO_CACHE: {
+          lp::CachePolicy cachePolicy;
+          cachePolicy.setPolicy(lp::CachePolicyType::NO_CACHE);
+          packet.add<lp::CachePolicyField>(cachePolicy);
+          break;
+        }
+        default:
+          break;
+      }
     }
-    else {
-      m_face.m_transport->send(data->wireEncode());
-    }
+
+    packet.add<lp::FragmentField>(std::make_pair(data->wireEncode().begin(),
+                                                 data->wireEncode().end()));
+
+    m_face.m_transport->send(packet.wireEncode());
+  }
+
+  void
+  asyncPutNack(shared_ptr<const lp::Nack> nack)
+  {
+    this->ensureConnected(true);
+
+    lp::Packet packet;
+    packet.add<lp::NackField>(nack->getHeader());
+
+    Block interest = nack->getInterest().wireEncode();
+    packet.add<lp::FragmentField>(std::make_pair(interest.begin(), interest.end()));
+
+    m_face.m_transport->send(packet.wireEncode());
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////

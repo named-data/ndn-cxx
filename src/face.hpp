@@ -29,6 +29,7 @@
 #include "interest-filter.hpp"
 #include "data.hpp"
 #include "security/signing-info.hpp"
+#include "lp/nack.hpp"
 
 #define NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 
@@ -60,12 +61,29 @@ class Controller;
 }
 
 /**
+ * @brief Callback called when expressed Interest gets satisfied with a Data packet
+ */
+typedef function<void(const Interest&, const Data&)> DataCallback;
+
+/**
+ * @brief Callback called when Nack is sent in response to expressed Interest
+ */
+typedef function<void(const Interest&, const lp::Nack&)> NackCallback;
+
+/**
+ * @brief Callback called when expressed Interest times out
+ */
+typedef function<void(const Interest&)> TimeoutCallback;
+
+/**
  * @brief Callback called when expressed Interest gets satisfied with Data packet
+ * @deprecated use DataCallback
  */
 typedef function<void(const Interest&, Data&)> OnData;
 
 /**
  * @brief Callback called when expressed Interest times out
+ * @deprecated use TimeoutCallback
  */
 typedef function<void(const Interest&)> OnTimeout;
 
@@ -93,7 +111,6 @@ typedef function<void()> UnregisterPrefixSuccessCallback;
  * @brief Callback called when unregisterPrefix or unsetInterestFilter command fails
  */
 typedef function<void(const std::string&)> UnregisterPrefixFailureCallback;
-
 
 /**
  * @brief Abstraction to communicate with local or remote NDN forwarder
@@ -196,18 +213,36 @@ public: // constructors
 public: // consumer
   /**
    * @brief Express Interest
+   * @param interest the Interest; a copy will be made, so that the caller is not
+   *                 required to maintain the argument unchanged
+   * @param afterSatisfied function to be invoked if Data is returned
+   * @param afterNacked function to be invoked if Network NACK is returned
+   * @param afterTimeout function to be invoked if neither Data nor Network NACK
+   *                     is returned within InterestLifetime
+   */
+  const PendingInterestId*
+  expressInterest(const Interest& interest,
+                  const DataCallback& afterSatisfied,
+                  const NackCallback& afterNacked,
+                  const TimeoutCallback& afterTimeout);
+
+  /**
+   * @brief Express Interest
    *
    * @param interest  An Interest to be expressed
    * @param onData    Callback to be called when a matching data packet is received
-   * @param onTimeout (optional) A function object to call if the interest times out
+   * @param onTimeout (optional) A function object to call if the interest times out or is Nacked
    *
    * @return The pending interest ID which can be used with removePendingInterest
    *
    * @throws Error when Interest size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
+   *
+   * @deprecated use expressInterest(Interest, DataCallback, NackCallback, TimeoutCallback)
    */
   const PendingInterestId*
   expressInterest(const Interest& interest,
-                  const OnData& onData, const OnTimeout& onTimeout = OnTimeout());
+                  const OnData& onData,
+                  const OnTimeout& onTimeout = nullptr);
 
   /**
    * @brief Express Interest using name and Interest template
@@ -215,16 +250,19 @@ public: // consumer
    * @param name      Name of the Interest
    * @param tmpl      Interest template to fill parameters
    * @param onData    Callback to be called when a matching data packet is received
-   * @param onTimeout (optional) A function object to call if the interest times out
+   * @param onTimeout (optional) A function object to call if the interest times out or is Nacked
    *
    * @return Opaque pending interest ID which can be used with removePendingInterest
    *
    * @throws Error when Interest size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
+   *
+   * @deprecated use expressInterest(Interest, DataCallback, NackCallback, TimeoutCallback)
    */
   const PendingInterestId*
   expressInterest(const Name& name,
                   const Interest& tmpl,
-                  const OnData& onData, const OnTimeout& onTimeout = OnTimeout());
+                  const OnData& onData,
+                  const OnTimeout& onTimeout = nullptr);
 
   /**
    * @brief Cancel previously expressed Interest
@@ -573,6 +611,14 @@ public: // producer
   void
   put(const Data& data);
 
+  /**
+   * @brief sends a Network NACK
+   * @param nack the Nack; a copy will be made, so that the caller is not required to
+   *             maintain the argument unchanged
+   */
+  void
+  put(const lp::Nack& nack);
+
 public: // IO routine
   /**
    * @brief Process any data to receive or call timeout callbacks.
@@ -635,7 +681,7 @@ private:
   construct(shared_ptr<Transport> transport, KeyChain& keyChain);
 
   void
-  onReceiveElement(const Block& wire);
+  onReceiveElement(const Block& blockFromDaemon);
 
   void
   asyncShutdown();

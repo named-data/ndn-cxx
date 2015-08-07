@@ -27,6 +27,7 @@
 #include "../common.hpp"
 #include "../tag-host.hpp"
 #include "../interest.hpp"
+#include "../management/nfd-local-control-header.hpp"
 
 #include "nack-header.hpp"
 
@@ -85,6 +86,18 @@ public: // getter/setter
   {
     m_header = header;
     return *this;
+  }
+
+  nfd::LocalControlHeader&
+  getLocalControlHeader()
+  {
+    return m_interest.getLocalControlHeader();
+  }
+
+  const nfd::LocalControlHeader&
+  getLocalControlHeader() const
+  {
+    return m_interest.getLocalControlHeader();
   }
 
 public: // NackHeader proxy

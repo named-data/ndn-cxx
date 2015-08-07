@@ -64,6 +64,45 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
   face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
                         [&] (const Interest& i, const Data& d) {
                           BOOST_CHECK(i.getName().isPrefixOf(d.getName()));
+                          BOOST_CHECK_EQUAL(i.getName(), "/Hello/World");
+                          ++nData;
+                        },
+                        bind([] {
+                          BOOST_FAIL("Unexpected Nack");
+                        }),
+                        bind([] {
+                          BOOST_FAIL("Unexpected timeout");
+                        }));
+
+  advanceClocks(time::milliseconds(1), 40);
+
+  face->receive(*util::makeData("/Bye/World/a"));
+  face->receive(*util::makeData("/Hello/World/a"));
+
+  advanceClocks(time::milliseconds(1), 100);
+
+  BOOST_CHECK_EQUAL(nData, 1);
+  BOOST_CHECK_EQUAL(face->sentInterests.size(), 1);
+  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
+
+  size_t nTimeouts = 0;
+  face->expressInterest(Interest("/Hello/World/a/2", time::milliseconds(50)),
+                        bind([]{}),
+                        bind([]{}),
+                        bind([&nTimeouts] {
+                            ++nTimeouts;
+                        }));
+  advanceClocks(time::milliseconds(10), 100);
+  BOOST_CHECK_EQUAL(nTimeouts, 1);
+}
+
+// test case for deprecated expressInterest implementation
+BOOST_AUTO_TEST_CASE(DeprecatedExpressInterestData)
+{
+  size_t nData = 0;
+  face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+                        [&] (const Interest& i, const Data& d) {
+                          BOOST_CHECK(i.getName().isPrefixOf(d.getName()));
                           ++nData;
                         },
                         bind([] {
@@ -72,8 +111,8 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
 
   advanceClocks(time::milliseconds(1), 40);
 
-  face->receive(*util::makeData("/Bye/World/!"));
-  face->receive(*util::makeData("/Hello/World/!"));
+  face->receive(*util::makeData("/Bye/World/a"));
+  face->receive(*util::makeData("/Hello/World/a"));
 
   advanceClocks(time::milliseconds(1), 100);
 
@@ -81,7 +120,7 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
   BOOST_CHECK_EQUAL(face->sentInterests.size(), 1);
   BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
 
-  face->expressInterest(Interest("/Hello/World/!", time::milliseconds(50)),
+  face->expressInterest(Interest("/Hello/World/a", time::milliseconds(50)),
                         [&] (const Interest& i, const Data& d) {
                           BOOST_CHECK(i.getName().isPrefixOf(d.getName()));
                           ++nData;
@@ -90,7 +129,7 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
                             BOOST_FAIL("Unexpected timeout");
                           }));
   advanceClocks(time::milliseconds(1), 40);
-  face->receive(*util::makeData("/Hello/World/!/1/xxxxx"));
+  face->receive(*util::makeData("/Hello/World/a/1/xxxxx"));
 
   advanceClocks(time::milliseconds(1), 100);
 
@@ -99,7 +138,7 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
   BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
 
   size_t nTimeouts = 0;
-  face->expressInterest(Interest("/Hello/World/!/2", time::milliseconds(50)),
+  face->expressInterest(Interest("/Hello/World/a/2", time::milliseconds(50)),
                         bind([]{}),
                         bind([&nTimeouts] {
                             ++nTimeouts;
@@ -109,6 +148,30 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
 }
 
 BOOST_AUTO_TEST_CASE(ExpressInterestTimeout)
+{
+  size_t nTimeouts = 0;
+  face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+                        bind([] {
+                          BOOST_FAIL("Unexpected ata");
+                        }),
+                        bind([] {
+                          BOOST_FAIL("Unexpected Nack");
+                        }),
+                        [&nTimeouts] (const Interest& i) {
+                          BOOST_CHECK_EQUAL(i.getName(), "/Hello/World");
+                          ++nTimeouts;
+                        });
+
+  advanceClocks(time::milliseconds(10), 100);
+
+  BOOST_CHECK_EQUAL(nTimeouts, 1);
+  BOOST_CHECK_EQUAL(face->sentInterests.size(), 1);
+  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
+  BOOST_CHECK_EQUAL(face->sentNacks.size(), 0);
+}
+
+// test case for deprecated expressInterest implementation
+BOOST_AUTO_TEST_CASE(DeprecatedExpressInterestTimeout)
 {
   size_t nTimeouts = 0;
   face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
@@ -124,6 +187,41 @@ BOOST_AUTO_TEST_CASE(ExpressInterestTimeout)
   BOOST_CHECK_EQUAL(nTimeouts, 1);
   BOOST_CHECK_EQUAL(face->sentInterests.size(), 1);
   BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(ExpressInterestNack)
+{
+  size_t nNacks = 0;
+
+  Interest interest("/Hello/World", time::milliseconds(50));
+
+  face->expressInterest(interest,
+                        bind([] {
+                          BOOST_FAIL("Unexpected Data");
+                        }),
+                        [&] (const Interest& i, const lp::Nack& n) {
+                          BOOST_CHECK(i.getName().isPrefixOf(n.getInterest().getName()));
+                          BOOST_CHECK_EQUAL(i.getName(), "/Hello/World");
+                          BOOST_CHECK_EQUAL(n.getReason(), lp::NackReason::DUPLICATE);
+                          ++nNacks;
+                        },
+                        bind([] {
+                          BOOST_FAIL("Unexpected timeout");
+                        }));
+
+  advanceClocks(time::milliseconds(1), 40);
+
+  lp::Nack nack(face->sentInterests[0]);
+  nack.setReason(lp::NackReason::DUPLICATE);
+
+  BOOST_CHECK_EQUAL(face->sentNacks.size(), 0);
+
+  face->receive(nack);
+
+  advanceClocks(time::milliseconds(1), 100);
+
+  BOOST_CHECK_EQUAL(nNacks, 1);
+  BOOST_CHECK_EQUAL(face->sentInterests.size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(RemovePendingInterest)
@@ -466,9 +564,7 @@ BOOST_AUTO_TEST_CASE(ReceiveInterestWithLocalControlHeader)
 {
   face->setInterestFilter("/Hello/World",
                           [] (const InterestFilter&, const Interest& i) {
-                            BOOST_CHECK(i.getLocalControlHeader().hasNextHopFaceId());
                             BOOST_CHECK(i.getLocalControlHeader().hasIncomingFaceId());
-                            BOOST_CHECK_EQUAL(i.getNextHopFaceId(), 1000);
                             BOOST_CHECK_EQUAL(i.getIncomingFaceId(), 2000);
                           },
                           bind([]{}),
@@ -504,10 +600,8 @@ BOOST_AUTO_TEST_CASE(ReceiveDataWithLocalControlHeader)
 {
   face->expressInterest(Interest("/Hello/World", time::milliseconds(50)),
                         [&] (const Interest& i, const Data& d) {
-                          BOOST_CHECK(d.getLocalControlHeader().hasNextHopFaceId());
                           BOOST_CHECK(d.getLocalControlHeader().hasIncomingFaceId());
                           BOOST_CHECK_EQUAL(d.getIncomingFaceId(), 2000);
-                          BOOST_CHECK_EQUAL(d.getLocalControlHeader().getNextHopFaceId(), 1000);
                         },
                         bind([] {
                             BOOST_FAIL("Unexpected timeout");
@@ -522,6 +616,20 @@ BOOST_AUTO_TEST_CASE(ReceiveDataWithLocalControlHeader)
   face->receive(*d);
 
   advanceClocks(time::milliseconds(10), 100);
+}
+
+BOOST_AUTO_TEST_CASE(PutNack)
+{
+  lp::Nack nack(Interest("/Hello/World", time::milliseconds(50)));
+  nack.setReason(lp::NackReason::NO_ROUTE);
+
+  BOOST_CHECK_EQUAL(face->sentNacks.size(), 0);
+
+  face->put(nack);
+
+  advanceClocks(time::milliseconds(10));
+
+  BOOST_CHECK_EQUAL(face->sentNacks.size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(DestructionWithoutCancellingPendingInterests) // Bug #2518

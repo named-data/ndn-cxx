@@ -58,7 +58,9 @@ BOOST_AUTO_TEST_CASE(FieldAccess)
 BOOST_AUTO_TEST_CASE(EncodeFragment)
 {
   static const uint8_t expectedBlock[] = {
-    0x64, 0x04, // LpPacket
+    0x64, 0x08, // LpPacket
+          0x51, 0x02, // Sequence
+                0x03, 0xe8,
           0x50, 0x02, // Fragment
                 0x03, 0xe8,
   };
@@ -69,8 +71,9 @@ BOOST_AUTO_TEST_CASE(EncodeFragment)
 
   Packet packet;
   BOOST_CHECK_NO_THROW(packet.add<FragmentField>(std::make_pair(buf.begin(), buf.end())));
+  BOOST_CHECK_NO_THROW(packet.add<SequenceField>(1000));
   Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = packet.wireEncode());
+  BOOST_CHECK_NO_THROW(wire = packet.wireEncode());
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
                                 wire.begin(), wire.end());
 }
@@ -316,19 +319,9 @@ BOOST_AUTO_TEST_CASE(DecodeBareNetworkLayerPacket)
   BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
   BOOST_CHECK_EQUAL(1, packet.count<FragmentField>());
 
-  static const uint8_t expectedBlock[] = {
-    0x64, 0x0e, // LpPacket
-          0x50, 0x0c, // Fragment
-                0x05, 0x0a, // Interest
-                      0x07, 0x02, // Name
-                            0x03, 0xe8,
-                      0x0a, 0x04, // Nonce
-                            0x01, 0x02, 0x03, 0x04,
-  };
-
   Block encoded;
   BOOST_CHECK_NO_THROW(encoded = packet.wireEncode());
-  BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
+  BOOST_CHECK_EQUAL_COLLECTIONS(inputBlock, inputBlock + sizeof(inputBlock),
                                 encoded.begin(), encoded.end());
 }
 

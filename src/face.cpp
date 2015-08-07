@@ -134,24 +134,50 @@ Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
 Face::~Face() = default;
 
 const PendingInterestId*
-Face::expressInterest(const Interest& interest, const OnData& onData, const OnTimeout& onTimeout)
+Face::expressInterest(const Interest& interest,
+                      const DataCallback& afterSatisfied,
+                      const NackCallback& afterNacked,
+                      const TimeoutCallback& afterTimeout)
 {
   shared_ptr<Interest> interestToExpress = make_shared<Interest>(interest);
 
   // Use `interestToExpress` to avoid wire format creation for the original Interest
-  if (interestToExpress->wireEncode().size() > MAX_NDN_PACKET_SIZE)
+  if (interestToExpress->wireEncode().size() > MAX_NDN_PACKET_SIZE) {
     BOOST_THROW_EXCEPTION(Error("Interest size exceeds maximum limit"));
+  }
 
   // If the same ioService thread, dispatch directly calls the method
-  m_ioService.dispatch([=] { m_impl->asyncExpressInterest(interestToExpress, onData, onTimeout); });
+  m_ioService.dispatch([=] { m_impl->asyncExpressInterest(interestToExpress, afterSatisfied,
+                                                          afterNacked, afterTimeout); });
 
   return reinterpret_cast<const PendingInterestId*>(interestToExpress.get());
 }
 
 const PendingInterestId*
+Face::expressInterest(const Interest& interest,
+                      const OnData& onData,
+                      const OnTimeout& onTimeout)
+{
+  return this->expressInterest(
+    interest,
+    [onData] (const Interest& interest, const Data& data) {
+      if (onData != nullptr) {
+        onData(interest, const_cast<Data&>(data));
+      }
+    },
+    [onTimeout] (const Interest& interest, const lp::Nack& nack) {
+      if (onTimeout != nullptr) {
+        onTimeout(interest);
+      }
+    },
+    onTimeout
+  );
+}
+
+const PendingInterestId*
 Face::expressInterest(const Name& name,
                       const Interest& tmpl,
-                      const OnData& onData, const OnTimeout& onTimeout/* = OnTimeout()*/)
+                      const OnData& onData, const OnTimeout& onTimeout/* = nullptr*/)
 {
   return expressInterest(Interest(tmpl)
                          .setName(name)
@@ -178,6 +204,12 @@ Face::put(const Data& data)
 
   // If the same ioService thread, dispatch directly calls the method
   m_ioService.dispatch([=] { m_impl->asyncPutData(dataPtr); });
+}
+
+void
+Face::put(const lp::Nack& nack)
+{
+  m_ioService.dispatch([=] { m_impl->asyncPutNack(make_shared<lp::Nack>(nack)); });
 }
 
 void
@@ -427,28 +459,50 @@ Face::asyncShutdown()
   m_impl->m_ioServiceWork.reset();
 }
 
+/**
+ * @brief extract local fields from NDNLPv2 packet and tag onto a network layer packet
+ */
+template<typename NETPKT>
+static void
+extractLpLocalFields(NETPKT& netPacket, const lp::Packet& lpPacket)
+{
+  if (lpPacket.has<lp::IncomingFaceIdField>()) {
+    netPacket.getLocalControlHeader().
+      setIncomingFaceId(lpPacket.get<lp::IncomingFaceIdField>());
+  }
+}
+
 void
 Face::onReceiveElement(const Block& blockFromDaemon)
 {
-  const Block& block = nfd::LocalControlHeader::getPayload(blockFromDaemon);
+  lp::Packet lpPacket(blockFromDaemon); // bare Interest/Data is a valid lp::Packet,
+                                        // no need to distinguish
 
-  if (block.type() == tlv::Interest)
-    {
-      shared_ptr<Interest> interest = make_shared<Interest>(block);
-      if (&block != &blockFromDaemon)
-        interest->getLocalControlHeader().wireDecode(blockFromDaemon);
-
-      m_impl->processInterestFilters(*interest);
+  Buffer::const_iterator begin, end;
+  std::tie(begin, end) = lpPacket.get<lp::FragmentField>();
+  Block netPacket(&*begin, std::distance(begin, end));
+  switch (netPacket.type()) {
+    case tlv::Interest: {
+      shared_ptr<Interest> interest = make_shared<Interest>(netPacket);
+      if (lpPacket.has<lp::NackField>()) {
+        auto nack = make_shared<lp::Nack>(std::move(*interest));
+        nack->setHeader(lpPacket.get<lp::NackField>());
+        extractLpLocalFields(*nack, lpPacket);
+        m_impl->nackPendingInterests(*nack);
+      }
+      else {
+        extractLpLocalFields(*interest, lpPacket);
+        m_impl->processInterestFilters(*interest);
+      }
+      break;
     }
-  else if (block.type() == tlv::Data)
-    {
-      shared_ptr<Data> data = make_shared<Data>(block);
-      if (&block != &blockFromDaemon)
-        data->getLocalControlHeader().wireDecode(blockFromDaemon);
-
+    case tlv::Data: {
+      shared_ptr<Data> data = make_shared<Data>(netPacket);
+      extractLpLocalFields(*data, lpPacket);
       m_impl->satisfyPendingInterests(*data);
+      break;
     }
-  // ignore any other type
+  }
 }
 
 } // namespace ndn

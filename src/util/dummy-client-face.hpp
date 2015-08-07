@@ -24,6 +24,7 @@
 
 #include "../face.hpp"
 #include "signal.hpp"
+#include "../lp/packet.hpp"
 
 namespace ndn {
 namespace util {
@@ -104,6 +105,14 @@ public:
    */
   std::vector<Data> sentDatas;
 
+  /** \brief NACKs sent out of this DummyClientFace
+   *
+   *  Sent NACKs are appended to this container if options.enablePacketLogger is true.
+   *  User of this class is responsible for cleaning up the container, if necessary.
+   *  After .put, .processEvents must be called before the NACK would show up here.
+   */
+  std::vector<lp::Nack> sentNacks;
+
   /** \brief emits whenever an Interest is sent
    *
    *  After .expressInterest, .processEvents must be called before this signal would be emitted.
@@ -115,6 +124,12 @@ public:
    *  After .put, .processEvents must be called before this signal would be emitted.
    */
   Signal<DummyClientFace, Data> onSendData;
+
+  /** \brief emits whenever a NACK is sent
+   *
+   *  After .put, .processEvents must be called before this signal would be emitted.
+   */
+  Signal<DummyClientFace, lp::Nack> onSendNack;
 
 private:
   shared_ptr<Transport> m_transport;

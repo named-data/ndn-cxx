@@ -63,11 +63,19 @@ Packet::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& enc
 template size_t
 Packet::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
 
-const Block&
+const Block
 Packet::wireEncode() const
 {
   if (m_wire.hasWire()) {
     return m_wire;
+  }
+
+  // If no header or trailer, return bare network packet
+  Block::element_container elements = m_wire.elements();
+  if (elements.size() == 1 && elements.front().type() == FragmentField::TlvType::value) {
+    elements.front().parse();
+    elements.front().elements().front().parse();
+    return elements.front().elements().front();
   }
 
   EncodingEstimator estimator;
