@@ -81,6 +81,15 @@ public: // constructor, creation, assignment
         const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
         bool verifyLength = true);
 
+  /** @brief Create a Block from existing block (reusing the underlying buffer), directly
+   *         specifying boundaries of the block within the buffer
+   *
+   *  This overload will automatically detect type and position of the value within the block
+   */
+  Block(const Block& block,
+        const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
+        bool verifyLength = true);
+
   /** @brief Create a Block from the raw buffer with Type-Length parsing
    */
   Block(const uint8_t* buffer, size_t maxlength);

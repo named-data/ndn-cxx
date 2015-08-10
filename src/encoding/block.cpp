@@ -112,13 +112,36 @@ Block::Block(const ConstBufferPtr& buffer,
 
   m_type = tlv::readType(m_value_begin, m_value_end);
   uint64_t length = tlv::readVarNumber(m_value_begin, m_value_end);
-  if (verifyLength)
-    {
-      if (length != static_cast<uint64_t>(m_value_end - m_value_begin))
-        {
-          BOOST_THROW_EXCEPTION(tlv::Error("TLV length doesn't match buffer length"));
-        }
+  if (verifyLength) {
+    if (length != static_cast<uint64_t>(std::distance(m_value_begin, m_value_end))) {
+      BOOST_THROW_EXCEPTION(tlv::Error("TLV length doesn't match buffer length"));
     }
+  }
+}
+
+Block::Block(const Block& block,
+             const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
+             bool verifyLength/* = true*/)
+  : m_buffer(block.m_buffer)
+  , m_begin(begin)
+  , m_end(end)
+  , m_size(m_end - m_begin)
+{
+  if (!(m_buffer->begin() <= begin && begin <= m_buffer->end()) ||
+      !(m_buffer->begin() <= end   && end   <= m_buffer->end())) {
+    BOOST_THROW_EXCEPTION(Error("begin/end iterators do not point to the underlying buffer of the block"));
+  }
+
+  m_value_begin = m_begin;
+  m_value_end   = m_end;
+
+  m_type = tlv::readType(m_value_begin, m_value_end);
+  uint64_t length = tlv::readVarNumber(m_value_begin, m_value_end);
+  if (verifyLength) {
+    if (length != static_cast<uint64_t>(std::distance(m_value_begin, m_value_end))) {
+      BOOST_THROW_EXCEPTION(tlv::Error("TLV length doesn't match buffer length"));
+    }
+  }
 }
 
 Block::Block(const uint8_t* buffer, size_t maxlength)

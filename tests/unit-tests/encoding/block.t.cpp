@@ -167,6 +167,25 @@ BOOST_AUTO_TEST_CASE(NonNegativeNumberEightBytes)
 
 BOOST_AUTO_TEST_SUITE_END() // Basic
 
+BOOST_AUTO_TEST_CASE(BlockFromBlock)
+{
+  static uint8_t buffer[] = {0x80, 0x06, 0x81, 0x01, 0x01, 0x82, 0x01, 0x01};
+  Block block(buffer, sizeof(buffer));
+
+  Block derivedBlock(block, block.begin(), block.end());
+  BOOST_CHECK_EQUAL(derivedBlock.wire(), block.wire()); // pointers should match
+  BOOST_CHECK(derivedBlock == block); // blocks should match
+
+  derivedBlock = Block(block, block.begin() + 2, block.begin() + 5);
+  BOOST_CHECK(derivedBlock.begin() == block.begin() + 2);
+  BOOST_CHECK(derivedBlock == Block(buffer + 2, 3));
+
+  Buffer otherBuffer(buffer, sizeof(buffer));
+  BOOST_CHECK_THROW(Block(block, otherBuffer.begin(), block.end()), Block::Error);
+  BOOST_CHECK_THROW(Block(block, block.begin(), otherBuffer.end()), Block::Error);
+  BOOST_CHECK_THROW(Block(block, otherBuffer.begin(), otherBuffer.end()), Block::Error);
+}
+
 BOOST_AUTO_TEST_CASE(EncodingBufferToBlock)
 {
   uint8_t value[4];
