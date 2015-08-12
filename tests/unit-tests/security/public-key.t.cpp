@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(RSA)
   BOOST_REQUIRE_NO_THROW(publicKey = shared_ptr<PublicKey>(new PublicKey(os.buf()->buf(),
                                                                          os.buf()->size())));
 
-  BOOST_CHECK_EQUAL(publicKey->getKeyType(), KEY_TYPE_RSA);
+  BOOST_CHECK_EQUAL(publicKey->getKeyType(), KeyType::RSA);
 
   Block digestBlock(RSA_DER_KEY_DIGEST, sizeof(RSA_DER_KEY_DIGEST));
   const Block& digest = publicKey->computeDigest();
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(ECDSA)
   BOOST_REQUIRE_NO_THROW(publicKey = shared_ptr<PublicKey>(new PublicKey(os.buf()->buf(),
                                                                          os.buf()->size())));
 
-  BOOST_CHECK_EQUAL(publicKey->getKeyType(), KEY_TYPE_ECDSA);
+  BOOST_CHECK_EQUAL(publicKey->getKeyType(), KeyType::EC);
 
   Block digestBlock(ECDSA_DER_KEY_DIGEST, sizeof(ECDSA_DER_KEY_DIGEST));
   const Block& digest = publicKey->computeDigest();

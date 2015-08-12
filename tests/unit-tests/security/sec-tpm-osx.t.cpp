@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -74,13 +74,13 @@ BOOST_AUTO_TEST_CASE(Delete)
   RsaKeyParams params(2048);
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, params));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
 
   tpm.deleteKeyPairInTpm(keyName);
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), false);
 }
 
 BOOST_AUTO_TEST_CASE(SignVerify)
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(SignVerify)
 
   Block sigBlock;
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
-                                                keyName, DIGEST_ALGORITHM_SHA256));
+                                                keyName, DigestAlgorithm::SHA256));
 
   shared_ptr<PublicKey> publicKey;
   BOOST_CHECK_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
@@ -163,8 +163,8 @@ BOOST_AUTO_TEST_CASE(ExportImportKey)
   RsaKeyParams params(2048);
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, params));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
 
   ConstBufferPtr exported;
   BOOST_CHECK_NO_THROW(exported = tpm.exportPrivateKeyPkcs5FromTpm(keyName, "1234"));
@@ -173,20 +173,20 @@ BOOST_AUTO_TEST_CASE(ExportImportKey)
 
   tpm.deleteKeyPairInTpm(keyName);
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
 
   BOOST_REQUIRE(tpm.importPrivateKeyPkcs5IntoTpm(keyName,
                                                  exported->buf(), exported->size(),
                                                  "1234"));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
 
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
   Block sigBlock;
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
-                                                keyName, DIGEST_ALGORITHM_SHA256));
+                                                keyName, DigestAlgorithm::SHA256));
 
   try
     {
@@ -213,8 +213,8 @@ BOOST_AUTO_TEST_CASE(ExportImportKey)
   // On OSX 10.8, we cannot delete imported keys, but there is no such problem on OSX 10.9.
 #ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_9
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE) == false);
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC) == false);
 #endif
 #endif
 }
@@ -230,10 +230,10 @@ BOOST_AUTO_TEST_CASE(NonExistingKey)
   BOOST_REQUIRE_THROW(tpm.getPublicKeyFromTpm(keyName), SecTpmOsx::Error);
 
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
-  BOOST_REQUIRE_THROW(tpm.signInTpm(content, sizeof(content), keyName, DIGEST_ALGORITHM_SHA256),
+  BOOST_REQUIRE_THROW(tpm.signInTpm(content, sizeof(content), keyName, DigestAlgorithm::SHA256),
                       SecTpmOsx::Error);
 
-  BOOST_REQUIRE_THROW(tpm.signInTpm(0, 1, keyName, DIGEST_ALGORITHM_SHA256),
+  BOOST_REQUIRE_THROW(tpm.signInTpm(0, 1, keyName, DigestAlgorithm::SHA256),
                       SecTpmOsx::Error);
 }
 
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE(EcdsaSigning)
 
   Block sigBlock;
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
-                                                keyName, DIGEST_ALGORITHM_SHA256));
+                                                keyName, DigestAlgorithm::SHA256));
 
   shared_ptr<PublicKey> pubkeyPtr;
   BOOST_CHECK_NO_THROW(pubkeyPtr = tpm.getPublicKeyFromTpm(keyName));
@@ -297,8 +297,8 @@ BOOST_AUTO_TEST_CASE(ExportImportEcdsaKey)
   EcdsaKeyParams params;
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, params));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
 
   ConstBufferPtr exported;
   BOOST_CHECK_NO_THROW(exported = tpm.exportPrivateKeyPkcs5FromTpm(keyName, "1234"));
@@ -308,20 +308,20 @@ BOOST_AUTO_TEST_CASE(ExportImportEcdsaKey)
 
   tpm.deleteKeyPairInTpm(keyName);
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
 
   BOOST_REQUIRE(tpm.importPrivateKeyPkcs5IntoTpm(keyName,
                                                  exported->buf(), exported->size(),
                                                  "1234"));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
 
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
   Block sigBlock;
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
-                                                keyName, DIGEST_ALGORITHM_SHA256));
+                                                keyName, DigestAlgorithm::SHA256));
 
   try
     {
@@ -353,8 +353,8 @@ BOOST_AUTO_TEST_CASE(ExportImportEcdsaKey)
   // On OSX 10.8, we cannot delete imported keys, but there is no such problem on OSX 10.9.
 #ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_9
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE) == false);
-  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC) == false);
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE) == false);
+  BOOST_REQUIRE(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC) == false);
 #endif
 #endif
 }

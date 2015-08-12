@@ -385,7 +385,7 @@ SecPublicInfoSqlite3::addKey(const Name& keyName,
 
   sqlite3_bind_string(statement, 1, identityName.toUri(), SQLITE_TRANSIENT);
   sqlite3_bind_string(statement, 2, keyId, SQLITE_TRANSIENT);
-  sqlite3_bind_int(statement, 3, publicKeyDer.getKeyType());
+  sqlite3_bind_int(statement, 3, static_cast<int>(publicKeyDer.getKeyType()));
   sqlite3_bind_blob(statement, 4,
                     publicKeyDer.get().buf(),
                     publicKeyDer.get().size(),
@@ -432,7 +432,7 @@ KeyType
 SecPublicInfoSqlite3::getPublicKeyType(const Name& keyName)
 {
   if (keyName.empty())
-    return KEY_TYPE_NULL;
+    return KeyType::NONE;
 
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
@@ -454,7 +454,7 @@ SecPublicInfoSqlite3::getPublicKeyType(const Name& keyName)
   }
   else {
     sqlite3_finalize(statement);
-    return KEY_TYPE_NULL;
+    return KeyType::NONE;
   }
 }
 

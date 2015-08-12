@@ -62,7 +62,7 @@ private:
 };
 
 unique_ptr<Transform>
-digestFilter(DigestAlgorithm algo = DIGEST_ALGORITHM_SHA256);
+digestFilter(DigestAlgorithm algo = DigestAlgorithm::SHA256);
 
 } // namespace transform
 } // namespace security

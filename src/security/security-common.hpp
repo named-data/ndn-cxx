@@ -37,39 +37,50 @@ const size_t MIN_LENGTH = 4;
 
 } // namespace signed_interest
 
-enum KeyType {
-  KEY_TYPE_NONE  = 0,
-  /// @deprecated use KEY_TYPE_NONE
-  KEY_TYPE_NULL = KEY_TYPE_NONE,
-
-  KEY_TYPE_RSA   = 1,
-  KEY_TYPE_ECDSA = 2,
-  KEY_TYPE_AES   = 128
+enum class KeyType {
+  NONE = 0,
+  RSA  = 1,
+  EC   = 2,
+  AES  = 128
 };
 
-enum KeyClass {
-  KEY_CLASS_NONE,
-  KEY_CLASS_PUBLIC,
-  KEY_CLASS_PRIVATE,
-  KEY_CLASS_SYMMETRIC
+std::ostream&
+operator<<(std::ostream& os, KeyType keyType);
+
+enum class KeyClass {
+  NONE,
+  PUBLIC,
+  PRIVATE,
+  SYMMETRIC
 };
 
-enum DigestAlgorithm {
-  DIGEST_ALGORITHM_NONE = 0,
-  DIGEST_ALGORITHM_SHA256 = 1
+std::ostream&
+operator<<(std::ostream& os, KeyClass keyClass);
+
+enum class DigestAlgorithm {
+  NONE   = 0,
+  SHA256 = 1
 };
 
-enum EncryptMode {
-  ENCRYPT_MODE_DEFAULT,
-  ENCRYPT_MODE_CFB_AES
-  // ENCRYPT_MODE_CBC_AES
+std::ostream&
+operator<<(std::ostream& os, DigestAlgorithm algorithm);
+
+enum class BlockCipherAlgorithm {
+  NONE,
+  AES_CBC
 };
 
-enum AclType {
-  ACL_TYPE_NONE,
-  ACL_TYPE_PUBLIC,
-  ACL_TYPE_PRIVATE
+std::ostream&
+operator<<(std::ostream& os, BlockCipherAlgorithm algorithm);
+
+enum class AclType {
+  NONE,
+  PUBLIC,
+  PRIVATE
 };
+
+std::ostream&
+operator<<(std::ostream& os, AclType aclType);
 
 } // namespace ndn
 

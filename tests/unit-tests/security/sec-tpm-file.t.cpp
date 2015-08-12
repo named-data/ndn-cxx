@@ -43,13 +43,13 @@ BOOST_AUTO_TEST_CASE(Delete)
   RsaKeyParams params(2048);
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, params));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
 
   tpm.deleteKeyPairInTpm(keyName);
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), false);
 }
 
 BOOST_AUTO_TEST_CASE(SignVerify)
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(SignVerify)
 
   Block sigBlock;
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
-                                                keyName, DIGEST_ALGORITHM_SHA256));
+                                                keyName, DigestAlgorithm::SHA256));
   shared_ptr<PublicKey> publicKey;
   BOOST_CHECK_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
 
@@ -157,8 +157,8 @@ BOOST_AUTO_TEST_CASE(ImportExportKey)
   Name keyName("/TestSecTpmFile/ImportKey/ksk-" +
                boost::lexical_cast<std::string>(time::toUnixTimestamp(time::system_clock::now())));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
 
   BOOST_REQUIRE_NO_THROW(
     tpm.importPrivateKeyPkcs5IntoTpm(keyName,
@@ -166,8 +166,8 @@ BOOST_AUTO_TEST_CASE(ImportExportKey)
                                      decoded.size(),
                                      "1234"));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
 
   shared_ptr<PublicKey> publicKey;
   BOOST_CHECK_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(ImportExportKey)
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
   Block sigBlock;
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
-                                                keyName, DIGEST_ALGORITHM_SHA256));
+                                                keyName, DigestAlgorithm::SHA256));
 
   try
     {
@@ -202,19 +202,19 @@ BOOST_AUTO_TEST_CASE(ImportExportKey)
 
   tpm.deleteKeyPairInTpm(keyName);
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
 
   BOOST_REQUIRE(tpm.importPrivateKeyPkcs5IntoTpm(keyName, exported->buf(), exported->size(),
                                                  "5678"));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
 
   const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
   Block sigBlock2;
   BOOST_CHECK_NO_THROW(sigBlock2 = tpm.signInTpm(content2, sizeof(content2),
-                                                 keyName, DIGEST_ALGORITHM_SHA256));
+                                                 keyName, DigestAlgorithm::SHA256));
 
   try
     {
@@ -238,8 +238,8 @@ BOOST_AUTO_TEST_CASE(ImportExportKey)
 
   tpm.deleteKeyPairInTpm(keyName);
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
 }
 
 BOOST_AUTO_TEST_CASE(EcdsaSigning)
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(EcdsaSigning)
 
   Block sigBlock;
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
-                                                keyName, DIGEST_ALGORITHM_SHA256));
+                                                keyName, DigestAlgorithm::SHA256));
 
   shared_ptr<PublicKey> pubkeyPtr;
   BOOST_CHECK_NO_THROW(pubkeyPtr = tpm.getPublicKeyFromTpm(keyName));
@@ -308,8 +308,8 @@ BOOST_AUTO_TEST_CASE(ImportExportEcdsaKey)
   Name keyName("/TestSecTpmFile/ImportExportEcdsaKey/ksk-" +
                boost::lexical_cast<std::string>(time::toUnixTimestamp(time::system_clock::now())));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
 
   BOOST_REQUIRE_NO_THROW(
     tpm.importPrivateKeyPkcs5IntoTpm(keyName,
@@ -317,8 +317,8 @@ BOOST_AUTO_TEST_CASE(ImportExportEcdsaKey)
                                      decoded.size(),
                                      "5678"));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
 
   shared_ptr<PublicKey> publicKey;
   BOOST_CHECK_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
@@ -326,7 +326,7 @@ BOOST_AUTO_TEST_CASE(ImportExportEcdsaKey)
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
   Block sigBlock;
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
-                                                keyName, DIGEST_ALGORITHM_SHA256));
+                                                keyName, DigestAlgorithm::SHA256));
 
   try
     {
@@ -357,19 +357,19 @@ BOOST_AUTO_TEST_CASE(ImportExportEcdsaKey)
 
   tpm.deleteKeyPairInTpm(keyName);
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
 
   BOOST_REQUIRE(tpm.importPrivateKeyPkcs5IntoTpm(keyName, exported->buf(), exported->size(),
                                                  "1234"));
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), true);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
 
   const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
   Block sigBlock2;
   BOOST_CHECK_NO_THROW(sigBlock2 = tpm.signInTpm(content2, sizeof(content2),
-                                                 keyName, DIGEST_ALGORITHM_SHA256));
+                                                 keyName, DigestAlgorithm::SHA256));
 
   try
     {
@@ -399,8 +399,8 @@ BOOST_AUTO_TEST_CASE(ImportExportEcdsaKey)
 
   tpm.deleteKeyPairInTpm(keyName);
 
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
-  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), false);
+  BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

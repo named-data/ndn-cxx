@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(Basic)
 
   BOOST_CHECK_EQUAL(info.getSignerType(), SigningInfo::SIGNER_TYPE_NULL);
   BOOST_CHECK_EQUAL(info.getSignerName(), SigningInfo::EMPTY_NAME);
-  BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   const SignatureInfo& sigInfo = info.getSignatureInfo();
   BOOST_CHECK_EQUAL(sigInfo.getSignatureType(), -1);
@@ -52,42 +52,42 @@ BOOST_AUTO_TEST_CASE(Basic)
   info.setSigningIdentity(id);
   BOOST_CHECK_EQUAL(info.getSignerType(), SigningInfo::SIGNER_TYPE_ID);
   BOOST_CHECK_EQUAL(info.getSignerName(), id);
-  BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   SigningInfo infoId(SigningInfo::SIGNER_TYPE_ID, id);
   BOOST_CHECK_EQUAL(infoId.getSignerType(), SigningInfo::SIGNER_TYPE_ID);
   BOOST_CHECK_EQUAL(infoId.getSignerName(), id);
-  BOOST_CHECK_EQUAL(infoId.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(infoId.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   info.setSigningKeyName(key);
   BOOST_CHECK_EQUAL(info.getSignerType(), SigningInfo::SIGNER_TYPE_KEY);
   BOOST_CHECK_EQUAL(info.getSignerName(), key);
-  BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   SigningInfo infoKey(SigningInfo::SIGNER_TYPE_KEY, key);
   BOOST_CHECK_EQUAL(infoKey.getSignerType(), SigningInfo::SIGNER_TYPE_KEY);
   BOOST_CHECK_EQUAL(infoKey.getSignerName(), key);
-  BOOST_CHECK_EQUAL(infoKey.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(infoKey.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   info.setSigningCertName(cert);
   BOOST_CHECK_EQUAL(info.getSignerType(), SigningInfo::SIGNER_TYPE_CERT);
   BOOST_CHECK_EQUAL(info.getSignerName(), cert);
-  BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   SigningInfo infoCert(SigningInfo::SIGNER_TYPE_CERT, cert);
   BOOST_CHECK_EQUAL(infoCert.getSignerType(), SigningInfo::SIGNER_TYPE_CERT);
   BOOST_CHECK_EQUAL(infoCert.getSignerName(), cert);
-  BOOST_CHECK_EQUAL(infoCert.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(infoCert.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   info.setSha256Signing();
   BOOST_CHECK_EQUAL(info.getSignerType(), SigningInfo::SIGNER_TYPE_SHA256);
   BOOST_CHECK_EQUAL(info.getSignerName(), SigningInfo::EMPTY_NAME);
-  BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   SigningInfo infoSha(SigningInfo::SIGNER_TYPE_SHA256);
   BOOST_CHECK_EQUAL(infoSha.getSignerType(), SigningInfo::SIGNER_TYPE_SHA256);
   BOOST_CHECK_EQUAL(infoSha.getSignerName(), SigningInfo::EMPTY_NAME);
-  BOOST_CHECK_EQUAL(infoSha.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(infoSha.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 }
 
 BOOST_AUTO_TEST_CASE(CustomSignatureInfo)
@@ -110,27 +110,27 @@ BOOST_AUTO_TEST_CASE(FromString)
   SigningInfo infoDefault("");
   BOOST_CHECK_EQUAL(infoDefault.getSignerType(), SigningInfo::SIGNER_TYPE_NULL);
   BOOST_CHECK_EQUAL(infoDefault.getSignerName(), SigningInfo::EMPTY_NAME);
-  BOOST_CHECK_EQUAL(infoDefault.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(infoDefault.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   SigningInfo infoId("id:/my-identity");
   BOOST_CHECK_EQUAL(infoId.getSignerType(), SigningInfo::SIGNER_TYPE_ID);
   BOOST_CHECK_EQUAL(infoId.getSignerName(), "/my-identity");
-  BOOST_CHECK_EQUAL(infoId.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(infoId.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   SigningInfo infoKey("key:/my-key");
   BOOST_CHECK_EQUAL(infoKey.getSignerType(), SigningInfo::SIGNER_TYPE_KEY);
   BOOST_CHECK_EQUAL(infoKey.getSignerName(), "/my-key");
-  BOOST_CHECK_EQUAL(infoKey.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(infoKey.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   SigningInfo infoCert("cert:/my-cert");
   BOOST_CHECK_EQUAL(infoCert.getSignerType(), SigningInfo::SIGNER_TYPE_CERT);
   BOOST_CHECK_EQUAL(infoCert.getSignerName(), "/my-cert");
-  BOOST_CHECK_EQUAL(infoCert.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(infoCert.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   SigningInfo infoSha("id:/localhost/identity/digest-sha256");
   BOOST_CHECK_EQUAL(infoSha.getSignerType(), SigningInfo::SIGNER_TYPE_SHA256);
   BOOST_CHECK_EQUAL(infoSha.getSignerName(), SigningInfo::EMPTY_NAME);
-  BOOST_CHECK_EQUAL(infoSha.getDigestAlgorithm(), DIGEST_ALGORITHM_SHA256);
+  BOOST_CHECK_EQUAL(infoSha.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 }
 
 BOOST_AUTO_TEST_CASE(ToString)

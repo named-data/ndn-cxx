@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,12 +31,12 @@
 namespace ndn {
 
 PublicKey::PublicKey()
-  : m_type(KEY_TYPE_NULL)
+  : m_type(KeyType::NONE)
 {
 }
 
 PublicKey::PublicKey(const uint8_t* keyDerBuf, size_t keyDerSize)
-  : m_type(KEY_TYPE_NULL)
+  : m_type(KeyType::NONE)
 {
   CryptoPP::StringSource src(keyDerBuf, keyDerSize, true);
   decode(src);
@@ -106,9 +106,9 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
           algorithm.decode(algorithmInfo);
 
           if (algorithm == oid::RSA)
-            m_type = KEY_TYPE_RSA;
+            m_type = KeyType::RSA;
           else if (algorithm == oid::ECDSA)
-            m_type = KEY_TYPE_ECDSA;
+            m_type = KeyType::EC;
           else
             BOOST_THROW_EXCEPTION(Error("Only RSA/ECDSA public keys are supported for now (" +
                                         algorithm.toString() + " requested)"));
@@ -119,7 +119,7 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
     }
   catch (CryptoPP::BERDecodeErr& err)
     {
-      m_type = KEY_TYPE_NULL;
+      m_type = KeyType::NONE;
       BOOST_THROW_EXCEPTION(Error("PublicKey decoding error"));
     }
 
@@ -129,7 +129,7 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
 // Blob
 // PublicKey::getDigest(DigestAlgorithm digestAlgorithm) const
 // {
-//   if (digestAlgorithm == DIGEST_ALGORITHM_SHA256) {
+//   if (digestAlgorithm == DigestAlgorithm::SHA256) {
 //     uint8_t digest[SHA256_DIGEST_LENGTH];
 //     ndn_digestSha256(keyDer_.buf(), keyDer_.size(), digest);
 

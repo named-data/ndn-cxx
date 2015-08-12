@@ -160,8 +160,8 @@ BOOST_FIXTURE_TEST_CASE(ExportIdentity, IdentityManagementFixture)
 
   BOOST_CHECK_EQUAL(m_keyChain.doesIdentityExist(identity), false);
   BOOST_CHECK_EQUAL(m_keyChain.doesPublicKeyExist(keyName), false);
-  BOOST_CHECK_EQUAL(m_keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
-  BOOST_CHECK_EQUAL(m_keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
   BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName), false);
 
   SecuredBag imported;
@@ -170,8 +170,8 @@ BOOST_FIXTURE_TEST_CASE(ExportIdentity, IdentityManagementFixture)
 
   BOOST_CHECK(m_keyChain.doesIdentityExist(identity));
   BOOST_CHECK(m_keyChain.doesPublicKeyExist(keyName));
-  BOOST_CHECK(m_keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE));
-  BOOST_CHECK(m_keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC));
+  BOOST_CHECK(m_keyChain.doesKeyExistInTpm(keyName, KeyClass::PRIVATE));
+  BOOST_CHECK(m_keyChain.doesKeyExistInTpm(keyName, KeyClass::PUBLIC));
   BOOST_CHECK(m_keyChain.doesCertificateExist(certName));
 }
 
@@ -406,14 +406,14 @@ BOOST_FIXTURE_TEST_CASE(EcdsaSigningByIdentityNoCert, IdentityManagementFixture)
   BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(nonExistingIdentity)));
   BOOST_CHECK_EQUAL(data.getSignature().getType(),
                     KeyChain::getSignatureType(KeyChain::DEFAULT_KEY_PARAMS.getKeyType(),
-                                               DIGEST_ALGORITHM_SHA256));
+                                               DigestAlgorithm::SHA256));
   BOOST_CHECK(nonExistingIdentity.isPrefixOf(data.getSignature().getKeyLocator().getName()));
 
   Name ecdsaIdentity = Name("/ndn/test/ecdsa").appendVersion();
   Name ecdsaKeyName = m_keyChain.generateEcdsaKeyPairAsDefault(ecdsaIdentity, false, 256);
   BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(ecdsaIdentity)));
   BOOST_CHECK_EQUAL(data.getSignature().getType(),
-                    KeyChain::getSignatureType(EcdsaKeyParams().getKeyType(), DIGEST_ALGORITHM_SHA256));
+                    KeyChain::getSignatureType(EcdsaKeyParams().getKeyType(), DigestAlgorithm::SHA256));
   BOOST_CHECK(ecdsaIdentity.isPrefixOf(data.getSignature().getKeyLocator().getName()));
 }
 

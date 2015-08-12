@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -65,7 +65,7 @@ public:
   // Construction/destruction //
 
   CFReleaser()
-    : m_typeRef(0)
+    : m_typeRef(nullptr)
   {
   }
 
@@ -75,7 +75,7 @@ public:
   }
 
   CFReleaser(const CFReleaser& inReleaser)
-    : m_typeRef(0)
+    : m_typeRef(nullptr)
   {
     retain(inReleaser.m_typeRef);
   }
@@ -133,20 +133,33 @@ public:
   void
   retain(const T& typeRef)
   {
-    if (typeRef != 0) {
+    if (typeRef != nullptr) {
       CFRetain(typeRef);
     }
     release();
     m_typeRef = typeRef;
   }
 
-  void release()
+  void
+  release()
   {
-    if (m_typeRef != 0) {
+    if (m_typeRef != nullptr) {
       CFRelease(m_typeRef);
-      m_typeRef = 0;
+      m_typeRef = nullptr;
     }
   };
+
+  bool
+  operator==(std::nullptr_t)
+  {
+    return get() == nullptr;
+  }
+
+  bool
+  operator!=(std::nullptr_t)
+  {
+    return get() != nullptr;
+  }
 
 private:
   T m_typeRef;
@@ -303,59 +316,54 @@ SecTpmOsx::unlockTpm(const char* password, size_t passwordLength, bool usePasswo
     return true;
 
   // If the default key chain is locked, unlock the key chain.
-  if (usePassword)
-    {
-      // Use the supplied password.
-      res = SecKeychainUnlock(m_impl->m_keyChainRef,
-                              passwordLength,
-                              password,
-                              true);
-    }
-  else if (m_impl->m_passwordSet)
-    {
-      // If no password supplied, then use the configured password if exists.
-      SecKeychainUnlock(m_impl->m_keyChainRef,
-                        m_impl->m_password.size(),
-                        m_impl->m_password.c_str(),
-                        true);
-    }
+  if (usePassword) {
+    // Use the supplied password.
+    res = SecKeychainUnlock(m_impl->m_keyChainRef,
+                            passwordLength,
+                            password,
+                            true);
+  }
+  else if (m_impl->m_passwordSet) {
+    // If no password supplied, then use the configured password if exists.
+    SecKeychainUnlock(m_impl->m_keyChainRef,
+                      m_impl->m_password.size(),
+                      m_impl->m_password.c_str(),
+                      true);
+  }
 #ifdef NDN_CXX_HAVE_GETPASS
-  else if (m_impl->m_inTerminal)
-    {
-      // If no configured password, get password from terminal if inTerminal set.
-      bool isLocked = true;
-      const char* fmt = "Password to unlock the default keychain: ";
-      int count = 0;
+  else if (m_impl->m_inTerminal) {
+    // If no configured password, get password from terminal if inTerminal set.
+    bool isLocked = true;
+    const char* fmt = "Password to unlock the default keychain: ";
+    int count = 0;
 
-      while (isLocked)
-        {
-          if (count > 2)
-            break;
+    while (isLocked) {
+      if (count > 2)
+        break;
 
-          char* getPassword = 0;
-          getPassword = getpass(fmt);
-          count++;
+      char* getPassword = nullptr;
+      getPassword = getpass(fmt);
+      count++;
 
-          if (!getPassword)
-            continue;
+      if (!getPassword)
+        continue;
 
-          res = SecKeychainUnlock(m_impl->m_keyChainRef,
-                                  strlen(getPassword),
-                                  getPassword,
-                                  true);
+      res = SecKeychainUnlock(m_impl->m_keyChainRef,
+                              strlen(getPassword),
+                              getPassword,
+                              true);
 
-          memset(getPassword, 0, strlen(getPassword));
+      memset(getPassword, 0, strlen(getPassword));
 
-          if (res == errSecSuccess)
-            break;
-        }
+      if (res == errSecSuccess)
+        break;
     }
+  }
 #endif // NDN_CXX_HAVE_GETPASS
-  else
-    {
-      // If inTerminal is not set, get the password from GUI.
-      SecKeychainUnlock(m_impl->m_keyChainRef, 0, 0, false);
-    }
+  else {
+    // If inTerminal is not set, get the password from GUI.
+    SecKeychainUnlock(m_impl->m_keyChainRef, 0, nullptr, false);
+  }
 
   return !isLocked();
 }
@@ -366,12 +374,11 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName,
                                         bool needRetry)
 {
 
-  if (doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC))
-    {
-      BOOST_THROW_EXCEPTION(Error("keyName already exists"));
-    }
+  if (doesKeyExistInTpm(keyName, KeyClass::PUBLIC)) {
+    BOOST_THROW_EXCEPTION(Error("keyName already exists"));
+  }
 
-  string keyNameUri = m_impl->toInternalKeyName(keyName, KEY_CLASS_PUBLIC);
+  string keyNameUri = m_impl->toInternalKeyName(keyName, KeyClass::PUBLIC);
 
   CFReleaser<CFStringRef> keyLabel =
     CFStringCreateWithCString(0,
@@ -385,24 +392,23 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName,
                               0);
 
   KeyType keyType = params.getKeyType();
-  uint32_t keySize;
-  switch (keyType)
-    {
-    case KEY_TYPE_RSA:
-      {
-        const RsaKeyParams& rsaParams = static_cast<const RsaKeyParams&>(params);
-        keySize = rsaParams.getKeySize();
-        break;
-      }
-    case KEY_TYPE_ECDSA:
-      {
-        const EcdsaKeyParams& ecdsaParams = static_cast<const EcdsaKeyParams&>(params);
-        keySize = ecdsaParams.getKeySize();
-        break;
-      }
+  uint32_t keySize = 0;
+  switch (keyType) {
+    case KeyType::RSA: {
+      const RsaKeyParams& rsaParams = static_cast<const RsaKeyParams&>(params);
+      keySize = rsaParams.getKeySize();
+      break;
+    }
+
+    case KeyType::EC: {
+      const EcdsaKeyParams& ecdsaParams = static_cast<const EcdsaKeyParams&>(params);
+      keySize = ecdsaParams.getKeySize();
+      break;
+    }
+
     default:
       BOOST_THROW_EXCEPTION(Error("Fail to create a key pair: Unsupported key type"));
-    }
+  }
 
   CFReleaser<CFNumberRef> cfKeySize = CFNumberCreate(0, kCFNumberIntType, &keySize);
 
@@ -415,22 +421,19 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName,
   OSStatus res = SecKeyGeneratePair((CFDictionaryRef)attrDict.get(),
                                     &publicKey.get(), &privateKey.get());
 
-  if (res == errSecSuccess)
-    {
-      return;
-    }
+  if (res == errSecSuccess) {
+    return;
+  }
 
-  if (res == errSecAuthFailed && !needRetry)
-    {
-      if (unlockTpm(0, 0, false))
-        generateKeyPairInTpmInternal(keyName, params, true);
-      else
-        BOOST_THROW_EXCEPTION(Error("Fail to unlock the keychain"));
-    }
-  else
-    {
-      BOOST_THROW_EXCEPTION(Error("Fail to create a key pair"));
-    }
+  if (res == errSecAuthFailed && !needRetry) {
+    if (unlockTpm(nullptr, 0, false))
+      generateKeyPairInTpmInternal(keyName, params, true);
+    else
+      BOOST_THROW_EXCEPTION(Error("Fail to unlock the keychain"));
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("Fail to create a key pair"));
+  }
 }
 
 void
@@ -454,21 +457,20 @@ SecTpmOsx::deleteKeyPairInTpmInternal(const Name& keyName, bool needRetry)
   if (res == errSecSuccess)
     return;
 
-  if (res == errSecAuthFailed && !needRetry)
-    {
-      if (unlockTpm(0, 0, false))
-        deleteKeyPairInTpmInternal(keyName, true);
-    }
+  if (res == errSecAuthFailed && !needRetry) {
+    if (unlockTpm(nullptr, 0, false))
+      deleteKeyPairInTpmInternal(keyName, true);
+  }
 }
 
 void
 SecTpmOsx::generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& params)
 {
   BOOST_THROW_EXCEPTION(Error("SecTpmOsx::generateSymmetricKeyInTpm is not supported"));
-  // if (doesKeyExistInTpm(keyName, KEY_CLASS_SYMMETRIC))
+  // if (doesKeyExistInTpm(keyName, KeyClass::SYMMETRIC))
   //   throw Error("keyName has existed!");
 
-  // string keyNameUri =  m_impl->toInternalKeyName(keyName, KEY_CLASS_SYMMETRIC);
+  // string keyNameUri =  m_impl->toInternalKeyName(keyName, KeyClass::SYMMETRIC);
 
   // CFReleaser<CFMutableDictionaryRef> attrDict =
   //   CFDictionaryCreateMutable(kCFAllocatorDefault,
@@ -499,23 +501,21 @@ SecTpmOsx::generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& param
 shared_ptr<PublicKey>
 SecTpmOsx::getPublicKeyFromTpm(const Name& keyName)
 {
-  CFReleaser<SecKeychainItemRef> publicKey = m_impl->getKey(keyName, KEY_CLASS_PUBLIC);
-  if (publicKey.get() == 0)
-    {
-      BOOST_THROW_EXCEPTION(Error("Requested public key [" + keyName.toUri() + "] does not exist "
-                                  "in OSX Keychain"));
-    }
+  CFReleaser<SecKeychainItemRef> publicKey = m_impl->getKey(keyName, KeyClass::PUBLIC);
+  if (publicKey == nullptr) {
+    BOOST_THROW_EXCEPTION(Error("Requested public key [" + keyName.toUri() + "] does not exist "
+                                "in OSX Keychain"));
+  }
 
   CFReleaser<CFDataRef> exportedKey;
   OSStatus res = SecItemExport(publicKey.get(),
                                kSecFormatOpenSSL,
                                0,
-                               0,
+                               nullptr,
                                &exportedKey.get());
-  if (res != errSecSuccess)
-    {
-      BOOST_THROW_EXCEPTION(Error("Cannot export requested public key from OSX Keychain"));
-    }
+  if (res != errSecSuccess) {
+    BOOST_THROW_EXCEPTION(Error("Cannot export requested public key from OSX Keychain"));
+  }
 
   shared_ptr<PublicKey> key = make_shared<PublicKey>(CFDataGetBytePtr(exportedKey.get()),
                                                      CFDataGetLength(exportedKey.get()));
@@ -533,13 +533,12 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
 {
   using namespace CryptoPP;
 
-  CFReleaser<SecKeychainItemRef> privateKey = m_impl->getKey(keyName, KEY_CLASS_PRIVATE);
-  if (privateKey.get() == 0)
-    {
-      /// @todo Can this happen because of keychain is locked?
-      BOOST_THROW_EXCEPTION(Error("Private key [" + keyName.toUri() + "] does not exist "
-                                  "in OSX Keychain"));
-    }
+  CFReleaser<SecKeychainItemRef> privateKey = m_impl->getKey(keyName, KeyClass::PRIVATE);
+  if (privateKey == nullptr) {
+    /// @todo Can this happen because of keychain is locked?
+    BOOST_THROW_EXCEPTION(Error("Private key [" + keyName.toUri() + "] does not exist "
+                                "in OSX Keychain"));
+  }
 
   shared_ptr<PublicKey> publicKey = getPublicKeyFromTpm(keyName);
 
@@ -547,35 +546,32 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
   OSStatus res = SecItemExport(privateKey.get(),
                                kSecFormatOpenSSL,
                                0,
-                               0,
+                               nullptr,
                                &exportedKey.get());
 
-  if (res != errSecSuccess)
-    {
-      if (res == errSecAuthFailed && !needRetry)
-        {
-          if (unlockTpm(0, 0, false))
-            return exportPrivateKeyPkcs8FromTpmInternal(keyName, true);
-          else
-            return shared_ptr<Buffer>();
-        }
+  if (res != errSecSuccess) {
+    if (res == errSecAuthFailed && !needRetry) {
+      if (unlockTpm(nullptr, 0, false))
+        return exportPrivateKeyPkcs8FromTpmInternal(keyName, true);
       else
-        return shared_ptr<Buffer>();
+        return nullptr;
     }
+    else
+      return nullptr;
+  }
 
   uint32_t version = 0;
   OID algorithm;
   bool hasParameters = false;
   OID algorithmParameter;
   switch (publicKey->getKeyType()) {
-  case KEY_TYPE_RSA:
-    {
+    case KeyType::RSA: {
       algorithm = oid::RSA; // "RSA encryption"
       hasParameters = false;
       break;
     }
-  case KEY_TYPE_ECDSA:
-    {
+
+    case KeyType::EC: {
       // "ECDSA encryption"
       StringSource src(publicKey->get().buf(), publicKey->get().size(), true);
       BERSequenceDecoder subjectPublicKeyInfo(src);
@@ -589,9 +585,10 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
       hasParameters = true;
       break;
     }
-  default:
-    BOOST_THROW_EXCEPTION(Error("Unsupported key type" +
-                                boost::lexical_cast<std::string>(publicKey->getKeyType())));
+
+    default:
+      BOOST_THROW_EXCEPTION(Error("Unsupported key type" +
+                                  boost::lexical_cast<std::string>(publicKey->getKeyType())));
   }
 
   OBufferStream pkcs8Os;
@@ -654,15 +651,12 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
 
       if (keyTypeOID == oid::RSA)
         BERDecodeNull(sequenceDecoder);
-      else if (keyTypeOID == oid::ECDSA)
-        {
-          OID parameterOID;
-          parameterOID.decode(sequenceDecoder);
-        }
+      else if (keyTypeOID == oid::ECDSA) {
+        OID parameterOID;
+        parameterOID.decode(sequenceDecoder);
+      }
       else
         return false; // Unsupported key type;
-
-
     }
     BERDecodeOctetString(privateKeyInfo, rawKeyBits);
   }
@@ -705,23 +699,21 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
 #pragma clang diagnostic pop
 #endif // __clang__
 
-  if (res != errSecSuccess)
-    {
-      if (res == errSecAuthFailed && !needRetry)
-        {
-          if (unlockTpm(0, 0, false))
-            return importPrivateKeyPkcs8IntoTpmInternal(keyName, buf, size, true);
-          else
-            return false;
-        }
+  if (res != errSecSuccess) {
+    if (res == errSecAuthFailed && !needRetry) {
+      if (unlockTpm(nullptr, 0, false))
+        return importPrivateKeyPkcs8IntoTpmInternal(keyName, buf, size, true);
       else
         return false;
     }
+    else
+      return false;
+  }
 
   // C-style cast is used as per Apple convention
   SecKeychainItemRef privateKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems.get(), 0);
   SecKeychainAttribute attrs[1]; // maximum number of attributes
-  SecKeychainAttributeList attrList = { 0, attrs };
+  SecKeychainAttributeList attrList = {0, attrs};
   string keyUri = keyName.toUri();
   {
     attrs[attrList.count].tag = kSecKeyPrintName;
@@ -733,12 +725,11 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
   res = SecKeychainItemModifyAttributesAndData(privateKey,
                                                &attrList,
                                                0,
-                                               0);
+                                               nullptr);
 
-  if (res != errSecSuccess)
-    {
-      return false;
-    }
+  if (res != errSecSuccess) {
+    return false;
+  }
 
   return true;
 }
@@ -803,18 +794,17 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
                                                               dataLength,
                                                               kCFAllocatorNull);
 
-  CFReleaser<SecKeychainItemRef> privateKey = m_impl->getKey(keyName, KEY_CLASS_PRIVATE);
-  if (privateKey.get() == 0)
-    {
-      BOOST_THROW_EXCEPTION(Error("Private key [" + keyName.toUri() + "] does not exist "
-                                  "in OSX Keychain"));
-    }
+  CFReleaser<SecKeychainItemRef> privateKey = m_impl->getKey(keyName, KeyClass::PRIVATE);
+  if (privateKey == nullptr) {
+    BOOST_THROW_EXCEPTION(Error("Private key [" + keyName.toUri() + "] does not exist "
+                                "in OSX Keychain"));
+  }
 
   CFReleaser<CFErrorRef> error;
   // C-style cast is used as per Apple convention
   CFReleaser<SecTransformRef> signer = SecSignTransformCreate((SecKeyRef)privateKey.get(),
                                                               &error.get());
-  if (error.get() != 0)
+  if (error != nullptr)
     BOOST_THROW_EXCEPTION(Error("Fail to create signer"));
 
   // Set input
@@ -822,7 +812,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
                            kSecTransformInputAttributeName,
                            dataRef.get(),
                            &error.get());
-  if (error.get() != 0)
+  if (error != nullptr)
     BOOST_THROW_EXCEPTION(Error("Fail to configure input of signer"));
 
   // Enable use of padding
@@ -830,7 +820,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
                            kSecPaddingKey,
                            kSecPaddingPKCS1Key,
                            &error.get());
-  if (error.get() != 0)
+  if (error != nullptr)
     BOOST_THROW_EXCEPTION(Error("Fail to configure digest algorithm of signer"));
 
   // Set padding type
@@ -838,7 +828,7 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
                            kSecDigestTypeAttribute,
                            m_impl->getDigestAlgorithm(digestAlgorithm),
                            &error.get());
-  if (error.get() != 0)
+  if (error != nullptr)
     BOOST_THROW_EXCEPTION(Error("Fail to configure digest algorithm of signer"));
 
   // Set padding attribute
@@ -848,29 +838,26 @@ SecTpmOsx::signInTpmInternal(const uint8_t* data, size_t dataLength,
                            kSecDigestLengthAttribute,
                            cfDigestSize.get(),
                            &error.get());
-  if (error.get() != 0)
+  if (error != nullptr)
     BOOST_THROW_EXCEPTION(Error("Fail to configure digest size of signer"));
 
   // Actually sign
   // C-style cast is used as per Apple convention
   CFReleaser<CFDataRef> signature = (CFDataRef)SecTransformExecute(signer.get(), &error.get());
-  if (error.get() != 0)
-    {
-      if (!needRetry)
-        {
-          if (unlockTpm(0, 0, false))
-            return signInTpmInternal(data, dataLength, keyName, digestAlgorithm, true);
-          else
-            BOOST_THROW_EXCEPTION(Error("Fail to unlock the keychain"));
-        }
+  if (error != nullptr) {
+    if (!needRetry) {
+      if (unlockTpm(nullptr, 0, false))
+        return signInTpmInternal(data, dataLength, keyName, digestAlgorithm, true);
       else
-        {
-          CFShow(error.get());
-          BOOST_THROW_EXCEPTION(Error("Fail to sign data"));
-        }
+        BOOST_THROW_EXCEPTION(Error("Fail to unlock the keychain"));
     }
+    else {
+      CFShow(error.get());
+      BOOST_THROW_EXCEPTION(Error("Fail to sign data"));
+    }
+  }
 
-  if (signature.get() == 0)
+  if (signature == nullptr)
     BOOST_THROW_EXCEPTION(Error("Signature is NULL!\n"));
 
   return Block(tlv::SignatureValue,
@@ -885,9 +872,9 @@ SecTpmOsx::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyN
 
   // KeyClass keyClass;
   // if (sym)
-  //   keyClass = KEY_CLASS_SYMMETRIC;
+  //   keyClass = KeyClass::SYMMETRIC;
   // else
-  //   keyClass = KEY_CLASS_PRIVATE;
+  //   keyClass = KeyClass::PRIVATE;
 
   // CFDataRef dataRef = CFDataCreate(0,
   //                                  reinterpret_cast<const unsigned char*>(data),
@@ -895,7 +882,7 @@ SecTpmOsx::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyN
   //                                  );
 
   // CFReleaser<SecKeyRef> decryptKey = (SecKeyRef)m_impl->getKey(keyName, keyClass);
-  // if (decryptKey.get() == 0)
+  // if (decryptKey == nullptr)
   //   {
   //     /// @todo Can this happen because of keychain is locked?
   //     throw Error("Decruption key [" + ??? + "] does not exist in OSX Keychain");
@@ -925,49 +912,47 @@ SecTpmOsx::decryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyN
 void
 SecTpmOsx::addAppToAcl(const Name& keyName, KeyClass keyClass, const string& appPath, AclType acl)
 {
-  if (keyClass == KEY_CLASS_PRIVATE && acl == ACL_TYPE_PRIVATE)
-    {
-      CFReleaser<SecKeychainItemRef> privateKey = m_impl->getKey(keyName, keyClass);
-      if (privateKey.get() == 0)
-        {
-          BOOST_THROW_EXCEPTION(Error("Private key [" + keyName.toUri() + "] does not exist "
-                                      "in OSX Keychain"));
-        }
-
-      CFReleaser<SecAccessRef> accRef;
-      SecKeychainItemCopyAccess(privateKey.get(), &accRef.get());
-
-      CFReleaser<CFArrayRef> signACL = SecAccessCopyMatchingACLList(accRef.get(),
-                                                                    kSecACLAuthorizationSign);
-
-      // C-style cast is used as per Apple convention
-      SecACLRef aclRef = (SecACLRef)CFArrayGetValueAtIndex(signACL.get(), 0);
-
-      CFReleaser<CFArrayRef> appList;
-      CFReleaser<CFStringRef> description;
-      SecKeychainPromptSelector promptSelector;
-      SecACLCopyContents(aclRef,
-                         &appList.get(),
-                         &description.get(),
-                         &promptSelector);
-
-      CFReleaser<CFMutableArrayRef> newAppList = CFArrayCreateMutableCopy(0,
-                                                                          0,
-                                                                          appList.get());
-
-      CFReleaser<SecTrustedApplicationRef> trustedApp;
-      SecTrustedApplicationCreateFromPath(appPath.c_str(),
-                                          &trustedApp.get());
-
-      CFArrayAppendValue(newAppList.get(), trustedApp.get());
-
-      SecACLSetContents(aclRef,
-                        newAppList.get(),
-                        description.get(),
-                        promptSelector);
-
-      SecKeychainItemSetAccess(privateKey.get(), accRef.get());
+  if (keyClass == KeyClass::PRIVATE && acl == AclType::PRIVATE) {
+    CFReleaser<SecKeychainItemRef> privateKey = m_impl->getKey(keyName, keyClass);
+    if (privateKey == nullptr) {
+      BOOST_THROW_EXCEPTION(Error("Private key [" + keyName.toUri() + "] does not exist "
+                                  "in OSX Keychain"));
     }
+
+    CFReleaser<SecAccessRef> accRef;
+    SecKeychainItemCopyAccess(privateKey.get(), &accRef.get());
+
+    CFReleaser<CFArrayRef> signACL = SecAccessCopyMatchingACLList(accRef.get(),
+                                                                  kSecACLAuthorizationSign);
+
+    // C-style cast is used as per Apple convention
+    SecACLRef aclRef = (SecACLRef)CFArrayGetValueAtIndex(signACL.get(), 0);
+
+    CFReleaser<CFArrayRef> appList;
+    CFReleaser<CFStringRef> description;
+    SecKeychainPromptSelector promptSelector;
+    SecACLCopyContents(aclRef,
+                       &appList.get(),
+                       &description.get(),
+                       &promptSelector);
+
+    CFReleaser<CFMutableArrayRef> newAppList = CFArrayCreateMutableCopy(0,
+                                                                        0,
+                                                                        appList.get());
+
+    CFReleaser<SecTrustedApplicationRef> trustedApp;
+    SecTrustedApplicationCreateFromPath(appPath.c_str(),
+                                        &trustedApp.get());
+
+    CFArrayAppendValue(newAppList.get(), trustedApp.get());
+
+    SecACLSetContents(aclRef,
+                      newAppList.get(),
+                      description.get(),
+                      promptSelector);
+
+    SecKeychainItemSetAccess(privateKey.get(), accRef.get());
+  }
 }
 
 ConstBufferPtr
@@ -977,9 +962,9 @@ SecTpmOsx::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyN
 
   // KeyClass keyClass;
   // if (sym)
-  //   keyClass = KEY_CLASS_SYMMETRIC;
+  //   keyClass = KeyClass::SYMMETRIC;
   // else
-  //   keyClass = KEY_CLASS_PUBLIC;
+  //   keyClass = KeyClass::PUBLIC;
 
   // CFDataRef dataRef = CFDataCreate(0,
   //                                  reinterpret_cast<const unsigned char*>(data),
@@ -987,7 +972,7 @@ SecTpmOsx::encryptInTpm(const uint8_t* data, size_t dataLength, const Name& keyN
   //                                  );
 
   // CFReleaser<SecKeyRef> encryptKey = (SecKeyRef)m_impl->getKey(keyName, keyClass);
-  // if (encryptKey.get() == 0)
+  // if (encryptKey == nullptr)
   //   {
   //     throw Error("Encryption key [" + ???? + "] does not exist in OSX Keychain");
   //   }
@@ -1086,7 +1071,7 @@ SecTpmOsx::Impl::toInternalKeyName(const Name& keyName, KeyClass keyClass)
 {
   string keyUri = keyName.toUri();
 
-  if (KEY_CLASS_SYMMETRIC == keyClass)
+  if (KeyClass::SYMMETRIC == keyClass)
     return keyUri + "/symmetric";
   else
     return keyUri;
@@ -1096,9 +1081,9 @@ CFTypeRef
 SecTpmOsx::Impl::getAsymKeyType(KeyType keyType)
 {
   switch (keyType) {
-  case KEY_TYPE_RSA:
+  case KeyType::RSA:
     return kSecAttrKeyTypeRSA;
-  case KEY_TYPE_ECDSA:
+  case KeyType::EC:
     return kSecAttrKeyTypeECDSA;
   default:
     return 0;
@@ -1109,7 +1094,7 @@ CFTypeRef
 SecTpmOsx::Impl::getSymKeyType(KeyType keyType)
 {
   switch (keyType) {
-  case KEY_TYPE_AES:
+  case KeyType::AES:
     return kSecAttrKeyTypeAES;
   default:
     return 0;
@@ -1120,11 +1105,11 @@ CFTypeRef
 SecTpmOsx::Impl::getKeyClass(KeyClass keyClass)
 {
   switch (keyClass) {
-  case KEY_CLASS_PRIVATE:
+  case KeyClass::PRIVATE:
     return kSecAttrKeyClassPrivate;
-  case KEY_CLASS_PUBLIC:
+  case KeyClass::PUBLIC:
     return kSecAttrKeyClassPublic;
-  case KEY_CLASS_SYMMETRIC:
+  case KeyClass::SYMMETRIC:
     return kSecAttrKeyClassSymmetric;
   default:
     return 0;
@@ -1135,7 +1120,7 @@ CFStringRef
 SecTpmOsx::Impl::getDigestAlgorithm(DigestAlgorithm digestAlgo)
 {
   switch (digestAlgo) {
-  case DIGEST_ALGORITHM_SHA256:
+  case DigestAlgorithm::SHA256:
     return kSecDigestSHA2;
   default:
     return 0;
@@ -1146,7 +1131,7 @@ long
 SecTpmOsx::Impl::getDigestSize(DigestAlgorithm digestAlgo)
 {
   switch (digestAlgo) {
-  case DIGEST_ALGORITHM_SHA256:
+  case DigestAlgorithm::SHA256:
     return 256;
   default:
     return -1;

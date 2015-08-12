@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -159,7 +159,7 @@ public:
    *       This method is more efficient if only KeyType is needed.
    *
    * @param keyName The name of the requested public key
-   * @return the type of the key. If the queried key does not exist, KEY_TYPE_NULL will be returned
+   * @return the type of the key. If the queried key does not exist, KeyType::NONE will be returned
    */
   virtual KeyType
   getPublicKeyType(const Name& keyName) = 0;

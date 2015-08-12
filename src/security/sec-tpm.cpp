@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -62,112 +62,106 @@ SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& password
   uint32_t iterationCount = 2048;
 
   PKCS5_PBKDF2_HMAC<SHA1> keyGenerator;
-  size_t derivedLen = 24; //For DES-EDE3-CBC-PAD
+  size_t derivedLen = 24; // For DES-EDE3-CBC-PAD
   byte derived[24] = {0};
   byte purpose = 0;
 
-  try
-    {
-      keyGenerator.DeriveKey(derived, derivedLen, purpose,
-                             reinterpret_cast<const byte*>(passwordStr.c_str()), passwordStr.size(),
-                             salt, 8, iterationCount);
-    }
-  catch (CryptoPP::Exception& e)
-    {
-      BOOST_THROW_EXCEPTION(Error("Cannot derived the encryption key"));
-    }
+  try {
+    keyGenerator.DeriveKey(derived, derivedLen, purpose,
+                           reinterpret_cast<const byte*>(passwordStr.c_str()), passwordStr.size(),
+                           salt, 8, iterationCount);
+  }
+  catch (const CryptoPP::Exception& e) {
+    BOOST_THROW_EXCEPTION(Error("Cannot derived the encryption key"));
+  }
 
-  //encrypt
+  // encrypt
   CBC_Mode< DES_EDE3 >::Encryption e;
   e.SetKeyWithIV(derived, derivedLen, iv);
 
   ConstBufferPtr pkcs8PrivateKey = exportPrivateKeyPkcs8FromTpm(keyName);
 
-  if (!static_cast<bool>(pkcs8PrivateKey))
+  if (pkcs8PrivateKey == nullptr)
     BOOST_THROW_EXCEPTION(Error("Cannot export the private key, #1"));
 
   OBufferStream encryptedOs;
-  try
-    {
-      StringSource stringSource(pkcs8PrivateKey->buf(), pkcs8PrivateKey->size(), true,
-                                new StreamTransformationFilter(e, new FileSink(encryptedOs)));
-    }
-  catch (CryptoPP::Exception& e)
-    {
-      BOOST_THROW_EXCEPTION(Error("Cannot export the private key, #2"));
-    }
+  try {
+    StringSource stringSource(pkcs8PrivateKey->buf(), pkcs8PrivateKey->size(), true,
+                              new StreamTransformationFilter(e, new FileSink(encryptedOs)));
+  }
+  catch (const CryptoPP::Exception& e) {
+    BOOST_THROW_EXCEPTION(Error("Cannot export the private key, #2"));
+  }
 
-  //encode
+  // encode
   OID pbes2Id("1.2.840.113549.1.5.13");
   OID pbkdf2Id("1.2.840.113549.1.5.12");
   OID pbes2encsId("1.2.840.113549.3.7");
 
   OBufferStream pkcs8Os;
-  try
-    {
-      FileSink sink(pkcs8Os);
+  try {
+    FileSink sink(pkcs8Os);
 
-      // EncryptedPrivateKeyInfo ::= SEQUENCE {
-      //   encryptionAlgorithm  EncryptionAlgorithmIdentifier,
-      //   encryptedData        OCTET STRING }
-      DERSequenceEncoder encryptedPrivateKeyInfo(sink);
+    // EncryptedPrivateKeyInfo ::= SEQUENCE {
+    //   encryptionAlgorithm  EncryptionAlgorithmIdentifier,
+    //   encryptedData        OCTET STRING }
+    DERSequenceEncoder encryptedPrivateKeyInfo(sink);
+    {
+      // EncryptionAlgorithmIdentifier ::= SEQUENCE {
+      //   algorithm      OBJECT IDENTIFIER {{PBES2-id}},
+      //   parameters     SEQUENCE {{PBES2-params}} }
+      DERSequenceEncoder encryptionAlgorithm(encryptedPrivateKeyInfo);
       {
-        // EncryptionAlgorithmIdentifier ::= SEQUENCE {
-        //   algorithm      OBJECT IDENTIFIER {{PBES2-id}},
-        //   parameters     SEQUENCE {{PBES2-params}} }
-        DERSequenceEncoder encryptionAlgorithm(encryptedPrivateKeyInfo);
+        pbes2Id.encode(encryptionAlgorithm);
+        // PBES2-params ::= SEQUENCE {
+        //   keyDerivationFunc AlgorithmIdentifier {{PBES2-KDFs}},
+        //   encryptionScheme AlgorithmIdentifier {{PBES2-Encs}} }
+        DERSequenceEncoder pbes2Params(encryptionAlgorithm);
         {
-          pbes2Id.encode(encryptionAlgorithm);
-          // PBES2-params ::= SEQUENCE {
-          //   keyDerivationFunc AlgorithmIdentifier {{PBES2-KDFs}},
-          //   encryptionScheme AlgorithmIdentifier {{PBES2-Encs}} }
-          DERSequenceEncoder pbes2Params(encryptionAlgorithm);
+          // AlgorithmIdentifier ::= SEQUENCE {
+          //   algorithm      OBJECT IDENTIFIER {{PBKDF2-id}},
+          //   parameters     SEQUENCE {{PBKDF2-params}} }
+          DERSequenceEncoder pbes2KDFs(pbes2Params);
           {
+            pbkdf2Id.encode(pbes2KDFs);
             // AlgorithmIdentifier ::= SEQUENCE {
-            //   algorithm      OBJECT IDENTIFIER {{PBKDF2-id}},
-            //   parameters     SEQUENCE {{PBKDF2-params}} }
-            DERSequenceEncoder pbes2KDFs(pbes2Params);
+            //   salt           OCTET STRING,
+            //   iterationCount INTEGER (1..MAX),
+            //   keyLength      INTEGER (1..MAX) OPTIONAL,
+            //   prf AlgorithmIdentifier {{PBKDF2-PRFs}} DEFAULT algid-hmacWithSHA1 }
+            DERSequenceEncoder pbkdf2Params(pbes2KDFs);
             {
-              pbkdf2Id.encode(pbes2KDFs);
-              // AlgorithmIdentifier ::= SEQUENCE {
-              //   salt           OCTET STRING,
-              //   iterationCount INTEGER (1..MAX),
-              //   keyLength      INTEGER (1..MAX) OPTIONAL,
-              //   prf AlgorithmIdentifier {{PBKDF2-PRFs}} DEFAULT algid-hmacWithSHA1 }
-              DERSequenceEncoder pbkdf2Params(pbes2KDFs);
-              {
-                DEREncodeOctetString(pbkdf2Params, salt, 8);
-                DEREncodeUnsigned<uint32_t>(pbkdf2Params, iterationCount, INTEGER);
-              }
-              pbkdf2Params.MessageEnd();
+              DEREncodeOctetString(pbkdf2Params, salt, 8);
+              DEREncodeUnsigned<uint32_t>(pbkdf2Params, iterationCount, INTEGER);
             }
-            pbes2KDFs.MessageEnd();
-
-            // AlgorithmIdentifier ::= SEQUENCE {
-            //   algorithm   OBJECT IDENTIFIER {{DES-EDE3-CBC-PAD}},
-            //   parameters  OCTET STRING} {{iv}} }
-            DERSequenceEncoder pbes2Encs(pbes2Params);
-            {
-              pbes2encsId.encode(pbes2Encs);
-              DEREncodeOctetString(pbes2Encs, iv, 8);
-            }
-            pbes2Encs.MessageEnd();
+            pbkdf2Params.MessageEnd();
           }
-          pbes2Params.MessageEnd();
+          pbes2KDFs.MessageEnd();
+
+          // AlgorithmIdentifier ::= SEQUENCE {
+          //   algorithm   OBJECT IDENTIFIER {{DES-EDE3-CBC-PAD}},
+          //   parameters  OCTET STRING} {{iv}} }
+          DERSequenceEncoder pbes2Encs(pbes2Params);
+          {
+            pbes2encsId.encode(pbes2Encs);
+            DEREncodeOctetString(pbes2Encs, iv, 8);
+          }
+          pbes2Encs.MessageEnd();
         }
-        encryptionAlgorithm.MessageEnd();
-
-        DEREncodeOctetString(encryptedPrivateKeyInfo,
-                             encryptedOs.buf()->buf(), encryptedOs.buf()->size());
+        pbes2Params.MessageEnd();
       }
-      encryptedPrivateKeyInfo.MessageEnd();
+      encryptionAlgorithm.MessageEnd();
 
-      return pkcs8Os.buf();
+      DEREncodeOctetString(encryptedPrivateKeyInfo,
+                           encryptedOs.buf()->buf(), encryptedOs.buf()->size());
     }
-  catch (CryptoPP::Exception& e)
-    {
-      BOOST_THROW_EXCEPTION(Error("Cannot export the private key, #3"));
-    }
+    encryptedPrivateKeyInfo.MessageEnd();
+
+    return pkcs8Os.buf();
+  }
+  catch (const CryptoPP::Exception& e) {
+    BOOST_THROW_EXCEPTION(Error("Cannot export the private key, #3"));
+  }
 }
 
 bool
@@ -185,112 +179,106 @@ SecTpm::importPrivateKeyPkcs5IntoTpm(const Name& keyName,
   SecByteBlock ivBlock;
   SecByteBlock encryptedDataBlock;
 
-  try
-    {
-      // decode some decoding processes are not necessary for now,
-      // because we assume only one encryption scheme.
-      StringSource source(buf, size, true);
+  try {
+    // decode some decoding processes are not necessary for now,
+    // because we assume only one encryption scheme.
+    StringSource source(buf, size, true);
 
-      // EncryptedPrivateKeyInfo ::= SEQUENCE {
-      //   encryptionAlgorithm  EncryptionAlgorithmIdentifier,
-      //   encryptedData        OCTET STRING }
-      BERSequenceDecoder encryptedPrivateKeyInfo(source);
+    // EncryptedPrivateKeyInfo ::= SEQUENCE {
+    //   encryptionAlgorithm  EncryptionAlgorithmIdentifier,
+    //   encryptedData        OCTET STRING }
+    BERSequenceDecoder encryptedPrivateKeyInfo(source);
+    {
+      // EncryptionAlgorithmIdentifier ::= SEQUENCE {
+      //   algorithm      OBJECT IDENTIFIER {{PBES2-id}},
+      //   parameters     SEQUENCE {{PBES2-params}} }
+      BERSequenceDecoder encryptionAlgorithm(encryptedPrivateKeyInfo);
       {
-        // EncryptionAlgorithmIdentifier ::= SEQUENCE {
-        //   algorithm      OBJECT IDENTIFIER {{PBES2-id}},
-        //   parameters     SEQUENCE {{PBES2-params}} }
-        BERSequenceDecoder encryptionAlgorithm(encryptedPrivateKeyInfo);
+        pbes2Id.decode(encryptionAlgorithm);
+        // PBES2-params ::= SEQUENCE {
+        //   keyDerivationFunc AlgorithmIdentifier {{PBES2-KDFs}},
+        //   encryptionScheme AlgorithmIdentifier {{PBES2-Encs}} }
+        BERSequenceDecoder pbes2Params(encryptionAlgorithm);
         {
-          pbes2Id.decode(encryptionAlgorithm);
-          // PBES2-params ::= SEQUENCE {
-          //   keyDerivationFunc AlgorithmIdentifier {{PBES2-KDFs}},
-          //   encryptionScheme AlgorithmIdentifier {{PBES2-Encs}} }
-          BERSequenceDecoder pbes2Params(encryptionAlgorithm);
+          // AlgorithmIdentifier ::= SEQUENCE {
+          //   algorithm      OBJECT IDENTIFIER {{PBKDF2-id}},
+          //   parameters     SEQUENCE {{PBKDF2-params}} }
+          BERSequenceDecoder pbes2KDFs(pbes2Params);
           {
+            pbkdf2Id.decode(pbes2KDFs);
             // AlgorithmIdentifier ::= SEQUENCE {
-            //   algorithm      OBJECT IDENTIFIER {{PBKDF2-id}},
-            //   parameters     SEQUENCE {{PBKDF2-params}} }
-            BERSequenceDecoder pbes2KDFs(pbes2Params);
+            //   salt           OCTET STRING,
+            //   iterationCount INTEGER (1..MAX),
+            //   keyLength      INTEGER (1..MAX) OPTIONAL,
+            //   prf AlgorithmIdentifier {{PBKDF2-PRFs}} DEFAULT algid-hmacWithSHA1 }
+            BERSequenceDecoder pbkdf2Params(pbes2KDFs);
             {
-              pbkdf2Id.decode(pbes2KDFs);
-              // AlgorithmIdentifier ::= SEQUENCE {
-              //   salt           OCTET STRING,
-              //   iterationCount INTEGER (1..MAX),
-              //   keyLength      INTEGER (1..MAX) OPTIONAL,
-              //   prf AlgorithmIdentifier {{PBKDF2-PRFs}} DEFAULT algid-hmacWithSHA1 }
-              BERSequenceDecoder pbkdf2Params(pbes2KDFs);
-              {
-                BERDecodeOctetString(pbkdf2Params, saltBlock);
-                BERDecodeUnsigned<uint32_t>(pbkdf2Params, iterationCount, INTEGER);
-              }
-              pbkdf2Params.MessageEnd();
+              BERDecodeOctetString(pbkdf2Params, saltBlock);
+              BERDecodeUnsigned<uint32_t>(pbkdf2Params, iterationCount, INTEGER);
             }
-            pbes2KDFs.MessageEnd();
-
-            // AlgorithmIdentifier ::= SEQUENCE {
-            //   algorithm   OBJECT IDENTIFIER {{DES-EDE3-CBC-PAD}},
-            //   parameters  OCTET STRING} {{iv}} }
-            BERSequenceDecoder pbes2Encs(pbes2Params);
-            {
-              pbes2encsId.decode(pbes2Encs);
-              BERDecodeOctetString(pbes2Encs, ivBlock);
-            }
-            pbes2Encs.MessageEnd();
+            pbkdf2Params.MessageEnd();
           }
-          pbes2Params.MessageEnd();
-        }
-        encryptionAlgorithm.MessageEnd();
+          pbes2KDFs.MessageEnd();
 
-        BERDecodeOctetString(encryptedPrivateKeyInfo, encryptedDataBlock);
+          // AlgorithmIdentifier ::= SEQUENCE {
+          //   algorithm   OBJECT IDENTIFIER {{DES-EDE3-CBC-PAD}},
+          //   parameters  OCTET STRING} {{iv}} }
+          BERSequenceDecoder pbes2Encs(pbes2Params);
+          {
+            pbes2encsId.decode(pbes2Encs);
+            BERDecodeOctetString(pbes2Encs, ivBlock);
+          }
+          pbes2Encs.MessageEnd();
+        }
+        pbes2Params.MessageEnd();
       }
-      encryptedPrivateKeyInfo.MessageEnd();
+      encryptionAlgorithm.MessageEnd();
+
+      BERDecodeOctetString(encryptedPrivateKeyInfo, encryptedDataBlock);
     }
-  catch (CryptoPP::Exception& e)
-    {
-      return false;
-    }
+    encryptedPrivateKeyInfo.MessageEnd();
+  }
+  catch (const CryptoPP::Exception& e) {
+    return false;
+  }
 
   PKCS5_PBKDF2_HMAC<SHA1> keyGenerator;
   size_t derivedLen = 24; //For DES-EDE3-CBC-PAD
   byte derived[24] = {0};
   byte purpose = 0;
 
-  try
-    {
-      keyGenerator.DeriveKey(derived, derivedLen,
-                             purpose,
-                             reinterpret_cast<const byte*>(passwordStr.c_str()), passwordStr.size(),
-                             saltBlock.BytePtr(), saltBlock.size(),
-                             iterationCount);
-    }
-  catch (CryptoPP::Exception& e)
-    {
-      return false;
-    }
+  try {
+    keyGenerator.DeriveKey(derived, derivedLen,
+                           purpose,
+                           reinterpret_cast<const byte*>(passwordStr.c_str()), passwordStr.size(),
+                           saltBlock.BytePtr(), saltBlock.size(),
+                           iterationCount);
+  }
+  catch (const CryptoPP::Exception& e) {
+    return false;
+  }
 
   //decrypt
   CBC_Mode< DES_EDE3 >::Decryption d;
   d.SetKeyWithIV(derived, derivedLen, ivBlock.BytePtr());
 
   OBufferStream privateKeyOs;
-  try
-    {
-      StringSource encryptedSource(encryptedDataBlock.BytePtr(), encryptedDataBlock.size(), true,
-                                   new StreamTransformationFilter(d,  new FileSink(privateKeyOs)));
-    }
-  catch (CryptoPP::Exception& e)
-    {
-      return false;
-    }
+  try {
+    StringSource encryptedSource(encryptedDataBlock.BytePtr(), encryptedDataBlock.size(), true,
+                                 new StreamTransformationFilter(d,  new FileSink(privateKeyOs)));
+  }
+  catch (const CryptoPP::Exception& e) {
+    return false;
+  }
 
   if (!importPrivateKeyPkcs8IntoTpm(keyName,
                                     privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()))
     return false;
 
-  //determine key type
+  // determine key type
   StringSource privateKeySource(privateKeyOs.buf()->buf(), privateKeyOs.buf()->size(), true);
 
-  KeyType publicKeyType = KEY_TYPE_NULL;
+  KeyType publicKeyType = KeyType::NONE;
   SecByteBlock rawKeyBits;
   // PrivateKeyInfo ::= SEQUENCE {
   //   INTEGER,
@@ -305,22 +293,21 @@ SecTpm::importPrivateKeyPkcs5IntoTpm(const Name& keyName,
       OID keyTypeOID;
       keyTypeOID.decode(sequenceDecoder);
       if (keyTypeOID == oid::RSA)
-        publicKeyType = KEY_TYPE_RSA;
+        publicKeyType = KeyType::RSA;
       else if (keyTypeOID == oid::ECDSA)
-        publicKeyType = KEY_TYPE_ECDSA;
+        publicKeyType = KeyType::EC;
       else
         return false; // Unsupported key type;
     }
   }
 
 
-  //derive public key
+  // derive public key
   OBufferStream publicKeyOs;
 
   try {
     switch (publicKeyType) {
-    case KEY_TYPE_RSA:
-      {
+      case KeyType::RSA: {
         RSA::PrivateKey privateKey;
         privateKey.Load(StringStore(privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()).Ref());
         RSAFunction publicKey(privateKey);
@@ -330,8 +317,8 @@ SecTpm::importPrivateKeyPkcs5IntoTpm(const Name& keyName,
         publicKeySink.MessageEnd();
         break;
       }
-    case KEY_TYPE_ECDSA:
-      {
+
+      case KeyType::EC: {
         ECDSA<ECP, SHA256>::PrivateKey privateKey;
         privateKey.Load(StringStore(privateKeyOs.buf()->buf(), privateKeyOs.buf()->size()).Ref());
 
@@ -344,12 +331,13 @@ SecTpm::importPrivateKeyPkcs5IntoTpm(const Name& keyName,
         publicKeySink.MessageEnd();
         break;
       }
-    default:
-      return false;
+
+      default:
+        return false;
     }
   }
-  catch (CryptoPP::Exception& e) {
-      return false;
+  catch (const CryptoPP::Exception& e) {
+    return false;
   }
 
   if (!importPublicKeyPkcs1IntoTpm(keyName, publicKeyOs.buf()->buf(), publicKeyOs.buf()->size()))
@@ -364,26 +352,24 @@ SecTpm::getImpExpPassWord(std::string& password, const std::string& prompt)
   bool isInitialized = false;
 
 #ifdef NDN_CXX_HAVE_GETPASS
-  char* pw0 = 0;
+  char* pw0 = nullptr;
 
   pw0 = getpass(prompt.c_str());
-  if (0 == pw0)
+  if (pw0 == nullptr)
     return false;
   std::string password1 = pw0;
   memset(pw0, 0, strlen(pw0));
 
   pw0 = getpass("Confirm:");
-  if (0 == pw0)
-    {
-      std::fill(password1.begin(), password1.end(), 0);
-      return false;
-    }
+  if (pw0 == nullptr) {
+    std::fill(password1.begin(), password1.end(), 0);
+    return false;
+  }
 
-  if (0 == password1.compare(pw0))
-    {
-      isInitialized = true;
-      password.swap(password1);
-    }
+  if (password1.compare(pw0) == 0) {
+    isInitialized = true;
+    password.swap(password1);
+  }
 
   std::fill(password1.begin(), password1.end(), 0);
   memset(pw0, 0, strlen(pw0));

@@ -377,7 +377,7 @@ PibSqlite3::addKey(const Name& identity, const name::Component& keyId, const Pub
                              "VALUES ((SELECT id FROM identities WHERE identity=?), ?, ?, ?)");
   statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
   statement.bind(2, keyName.wireEncode(), SQLITE_TRANSIENT);
-  statement.bind(3, publicKey.getKeyType());
+  statement.bind(3, static_cast<int>(publicKey.getKeyType()));
   statement.bind(4, publicKey.get().buf(), publicKey.get().size(), SQLITE_STATIC);
   statement.step();
 }

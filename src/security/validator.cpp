@@ -53,13 +53,12 @@ Validator::validate(const Interest& interest,
   std::vector<shared_ptr<ValidationRequest> > nextSteps;
   checkPolicy(interest, nSteps, onValidated, onValidationFailed, nextSteps);
 
-  if (nextSteps.empty())
-    {
-      // If there is no nextStep,
-      // that means InterestPolicy has already been able to verify the Interest.
-      // No more further processes.
-      return;
-    }
+  if (nextSteps.empty()) {
+    // If there is no nextStep,
+    // that means InterestPolicy has already been able to verify the Interest.
+    // No more further processes.
+    return;
+  }
 
   OnFailure onFailure = bind(onValidationFailed, interest.shared_from_this(), _1);
   afterCheckPolicy(nextSteps, onFailure);
@@ -74,13 +73,12 @@ Validator::validate(const Data& data,
   std::vector<shared_ptr<ValidationRequest> > nextSteps;
   checkPolicy(data, nSteps, onValidated, onValidationFailed, nextSteps);
 
-  if (nextSteps.empty())
-    {
-      // If there is no nextStep,
-      // that means Data Policy has already been able to verify the Interest.
-      // No more further processes.
-      return;
-    }
+  if (nextSteps.empty()) {
+    // If there is no nextStep,
+    // that means Data Policy has already been able to verify the Interest.
+    // No more further processes.
+    return;
+  }
 
   OnFailure onFailure = bind(onValidationFailed, data.shared_from_this(), _1);
   afterCheckPolicy(nextSteps, onFailure);
@@ -122,24 +120,22 @@ Validator::verifySignature(const Interest& interest, const PublicKey& key)
   if (interestName.size() < 2)
     return false;
 
-  try
-    {
-      const Block& nameBlock = interestName.wireEncode();
+  try {
+    const Block& nameBlock = interestName.wireEncode();
 
-      Signature sig(interestName[-2].blockFromValue(),
-                    interestName[-1].blockFromValue());
+    Signature sig(interestName[signed_interest::POS_SIG_INFO].blockFromValue(),
+                  interestName[signed_interest::POS_SIG_VALUE].blockFromValue());
 
-      if (!sig.hasKeyLocator())
-        return false;
-
-      return verifySignature(nameBlock.value(),
-                             nameBlock.value_size() - interestName[-1].size(),
-                             sig, key);
-    }
-  catch (Block::Error& e)
-    {
+    if (!sig.hasKeyLocator())
       return false;
-    }
+
+    return verifySignature(nameBlock.value(),
+                           nameBlock.value_size() - interestName[signed_interest::POS_SIG_VALUE].size(),
+                           sig, key);
+  }
+  catch (const Block::Error& e) {
+    return false;
+  }
 }
 
 bool
@@ -148,121 +144,113 @@ Validator::verifySignature(const uint8_t* buf,
                            const Signature& sig,
                            const PublicKey& key)
 {
-  try
-    {
-      using namespace CryptoPP;
+  try {
+    using namespace CryptoPP;
 
-      switch (sig.getType())
-        {
-        case tlv::SignatureSha256WithRsa:
-          {
-            if (key.getKeyType() != KEY_TYPE_RSA)
-              return false;
-
-            RSA::PublicKey publicKey;
-            ByteQueue queue;
-
-            queue.Put(reinterpret_cast<const byte*>(key.get().buf()), key.get().size());
-            publicKey.Load(queue);
-
-            RSASS<PKCS1v15, SHA256>::Verifier verifier(publicKey);
-            return verifier.VerifyMessage(buf, size,
-                                          sig.getValue().value(), sig.getValue().value_size());
-          }
-        case tlv::SignatureSha256WithEcdsa:
-          {
-            if (key.getKeyType() != KEY_TYPE_ECDSA)
-              return false;
-
-            ECDSA<ECP, SHA256>::PublicKey publicKey;
-            ByteQueue queue;
-
-            queue.Put(reinterpret_cast<const byte*>(key.get().buf()), key.get().size());
-            publicKey.Load(queue);
-
-            ECDSA<ECP, SHA256>::Verifier verifier(publicKey);
-
-            uint32_t length = 0;
-            StringSource src(key.get().buf(), key.get().size(), true);
-            BERSequenceDecoder subjectPublicKeyInfo(src);
-            {
-              BERSequenceDecoder algorithmInfo(subjectPublicKeyInfo);
-              {
-                OID algorithm;
-                algorithm.decode(algorithmInfo);
-
-                OID curveId;
-                curveId.decode(algorithmInfo);
-
-                if (curveId == SECP256R1)
-                  length = 256;
-                else if (curveId == SECP384R1)
-                  length = 384;
-                else
-                  return false;
-              }
-            }
-
-            switch (length)
-              {
-              case 256:
-                {
-                  uint8_t buffer[64];
-                  size_t usedSize = DSAConvertSignatureFormat(buffer, 64, DSA_P1363,
-                                                              sig.getValue().value(),
-                                                              sig.getValue().value_size(),
-                                                              DSA_DER);
-                  return verifier.VerifyMessage(buf, size, buffer, usedSize);
-                }
-              case 384:
-                {
-                  uint8_t buffer[96];
-                  size_t usedSize = DSAConvertSignatureFormat(buffer, 96, DSA_P1363,
-                                                              sig.getValue().value(),
-                                                              sig.getValue().value_size(),
-                                                              DSA_DER);
-                  return verifier.VerifyMessage(buf, size, buffer, usedSize);
-                }
-              default:
-                return false;
-              }
-          }
-        default:
-          // Unsupported sig type
+    switch (sig.getType()) {
+      case tlv::SignatureSha256WithRsa: {
+        if (key.getKeyType() != KeyType::RSA)
           return false;
+
+        RSA::PublicKey publicKey;
+        ByteQueue queue;
+
+        queue.Put(reinterpret_cast<const byte*>(key.get().buf()), key.get().size());
+        publicKey.Load(queue);
+
+        RSASS<PKCS1v15, SHA256>::Verifier verifier(publicKey);
+        return verifier.VerifyMessage(buf, size,
+                                      sig.getValue().value(), sig.getValue().value_size());
+      }
+
+      case tlv::SignatureSha256WithEcdsa: {
+        if (key.getKeyType() != KeyType::EC)
+          return false;
+
+        ECDSA<ECP, SHA256>::PublicKey publicKey;
+        ByteQueue queue;
+
+        queue.Put(reinterpret_cast<const byte*>(key.get().buf()), key.get().size());
+        publicKey.Load(queue);
+
+        ECDSA<ECP, SHA256>::Verifier verifier(publicKey);
+
+        uint32_t length = 0;
+        StringSource src(key.get().buf(), key.get().size(), true);
+        BERSequenceDecoder subjectPublicKeyInfo(src);
+        {
+          BERSequenceDecoder algorithmInfo(subjectPublicKeyInfo);
+          {
+            OID algorithm;
+            algorithm.decode(algorithmInfo);
+
+            OID curveId;
+            curveId.decode(algorithmInfo);
+
+            if (curveId == SECP256R1)
+              length = 256;
+            else if (curveId == SECP384R1)
+              length = 384;
+            else
+              return false;
+          }
         }
+
+        switch (length) {
+          case 256: {
+            uint8_t buffer[64];
+            size_t usedSize = DSAConvertSignatureFormat(buffer, sizeof(buffer), DSA_P1363,
+                                                        sig.getValue().value(),
+                                                        sig.getValue().value_size(),
+                                                        DSA_DER);
+            return verifier.VerifyMessage(buf, size, buffer, usedSize);
+          }
+
+          case 384: {
+            uint8_t buffer[96];
+            size_t usedSize = DSAConvertSignatureFormat(buffer, sizeof(buffer), DSA_P1363,
+                                                        sig.getValue().value(),
+                                                        sig.getValue().value_size(),
+                                                        DSA_DER);
+            return verifier.VerifyMessage(buf, size, buffer, usedSize);
+          }
+
+          default:
+            return false;
+        }
+      }
+
+      default:
+        // Unsupported sig type
+        return false;
     }
-  catch (CryptoPP::Exception& e)
-    {
-      return false;
-    }
+  }
+  catch (const CryptoPP::Exception& e) {
+    return false;
+  }
 }
 
 bool
 Validator::verifySignature(const uint8_t* buf, const size_t size, const DigestSha256& sig)
 {
-  try
-    {
-      ConstBufferPtr buffer = crypto::sha256(buf, size);
-      const Block& sigValue = sig.getValue();
+  try {
+    ConstBufferPtr buffer = crypto::sha256(buf, size);
+    const Block& sigValue = sig.getValue();
 
-      if (static_cast<bool>(buffer) &&
-          buffer->size() == sigValue.value_size() &&
-          buffer->size() == crypto::SHA256_DIGEST_SIZE)
-        {
+    if (buffer != nullptr &&
+        buffer->size() == sigValue.value_size() &&
+        buffer->size() == crypto::SHA256_DIGEST_SIZE) {
+      const uint8_t* p1 = buffer->buf();
+      const uint8_t* p2 = sigValue.value();
 
-          const uint8_t* p1 = buffer->buf();
-          const uint8_t* p2 = sigValue.value();
-
-          return 0 == memcmp(p1, p2, crypto::SHA256_DIGEST_SIZE);
-        }
-      else
-        return false;
+      return 0 == memcmp(p1, p2, crypto::SHA256_DIGEST_SIZE);
     }
-  catch (CryptoPP::Exception& e)
-    {
+    else
       return false;
-    }
+  }
+  catch (const CryptoPP::Exception& e) {
+    return false;
+  }
 }
 
 void
@@ -313,27 +301,24 @@ Validator::onTimeout(const Interest& interest,
 }
 
 void
-Validator::afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest> >& nextSteps,
+Validator::afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest>>& nextSteps,
                             const OnFailure& onFailure)
 {
-  if (m_face == nullptr)
-    {
-      onFailure("Require more information to validate the packet!");
-      return;
-    }
+  if (m_face == nullptr) {
+    onFailure("Require more information to validate the packet!");
+    return;
+  }
 
-  for (std::vector<shared_ptr<ValidationRequest> >::const_iterator it = nextSteps.begin();
-       it != nextSteps.end(); it++)
-    {
-      m_face->expressInterest((*it)->m_interest,
-                              bind(&Validator::onData, this, _1, _2, *it),
-                              bind(&Validator::onNack, this, _1, _2,
-                                   (*it)->m_nRetries, onFailure, *it),
-                              bind(&Validator::onTimeout,
-                                   this, _1, (*it)->m_nRetries,
-                                   onFailure,
-                                   *it));
-    }
+  for (shared_ptr<ValidationRequest> step : nextSteps) {
+    m_face->expressInterest(step->m_interest,
+                            bind(&Validator::onData, this, _1, _2, step),
+                            bind(&Validator::onNack, this, _1, _2,
+                                 step->m_nRetries, onFailure, step),
+                            bind(&Validator::onTimeout,
+                                 this, _1, step->m_nRetries,
+                                 onFailure,
+                                 step));
+  }
 }
 
 } // namespace ndn

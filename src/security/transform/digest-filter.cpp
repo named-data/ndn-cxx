@@ -23,6 +23,8 @@
 #include "../../encoding/buffer.hpp"
 #include "../detail/openssl-helper.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 namespace ndn {
 namespace security {
 namespace transform {
@@ -56,13 +58,13 @@ DigestFilter::DigestFilter(DigestAlgorithm algo)
 {
   const EVP_MD* md = detail::toDigestEvpMd(algo);
   if (md == nullptr) {
-    // @todo Add digest algorithm to the error message
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported digest algorithm"));
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported digest algorithm " +
+                                boost::lexical_cast<std::string>(algo)));
   }
 
   if (!BIO_set_md(m_impl->m_md, md)) {
-    // @todo Add digest algorithm to the error message
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Cannot set digest"));
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Cannot set digest"+
+                                boost::lexical_cast<std::string>(algo)));
   }
 }
 

@@ -533,7 +533,7 @@ KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const SigningInfo& pa
   Name keyName;
   SignatureInfo sigInfo;
   std::tie(keyName, sigInfo) = prepareSignatureInfo(params);
-  return pureSign(buffer, bufferLength, keyName, DIGEST_ALGORITHM_SHA256);
+  return pureSign(buffer, bufferLength, keyName, DigestAlgorithm::SHA256);
 }
 
 Signature
@@ -550,7 +550,7 @@ KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certifica
   // For temporary usage, we support SHA256 only, but will support more.
   sig.setValue(m_tpm->signInTpm(buffer, bufferLength,
                                 certificate->getPublicKeyName(),
-                                DIGEST_ALGORITHM_SHA256));
+                                DigestAlgorithm::SHA256));
 
   return sig;
 }
@@ -589,15 +589,16 @@ void
 KeyChain::selfSign(IdentityCertificate& cert)
 {
   Name keyName = cert.getPublicKeyName();
-  if (!m_tpm->doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE))
+
+  if (!m_tpm->doesKeyExistInTpm(keyName, KeyClass::PRIVATE))
     BOOST_THROW_EXCEPTION(SecTpm::Error("Private key does not exist"));
 
   SignatureInfo sigInfo(cert.getSignature().getInfo());
   sigInfo.setKeyLocator(KeyLocator(cert.getName().getPrefix(-1)));
   sigInfo.setSignatureType(getSignatureType(cert.getPublicKeyInfo().getKeyType(),
-                                            DIGEST_ALGORITHM_SHA256));
+                                            DigestAlgorithm::SHA256));
 
-  signPacketWrapper(cert, Signature(sigInfo), keyName, DIGEST_ALGORITHM_SHA256);
+  signPacketWrapper(cert, Signature(sigInfo), keyName, DigestAlgorithm::SHA256);
 }
 
 shared_ptr<SecuredBag>
@@ -657,7 +658,7 @@ KeyChain::importIdentity(const SecuredBag& securedBag, const std::string& passwo
 const KeyParams&
 KeyChain::getDefaultKeyParamsForIdentity(const Name &identityName) const
 {
-  KeyType keyType = KEY_TYPE_NULL;
+  KeyType keyType = KeyType::NONE;
   try {
     keyType = m_pib->getPublicKeyType(m_pib->getDefaultKeyNameForIdentity(identityName));
   }
@@ -666,15 +667,15 @@ KeyChain::getDefaultKeyParamsForIdentity(const Name &identityName) const
   }
 
   switch (keyType) {
-    case KEY_TYPE_RSA: {
+    case KeyType::RSA: {
       static RsaKeyParams defaultRsaParams;
       return defaultRsaParams;
     }
-    case KEY_TYPE_ECDSA: {
+    case KeyType::EC: {
       static EcdsaKeyParams defaultEcdsaParams;
       return defaultEcdsaParams;
     }
-    case KEY_TYPE_NULL: {
+    case KeyType::NONE: {
       return DEFAULT_KEY_PARAMS;
     }
     default:
@@ -833,9 +834,9 @@ tlv::SignatureTypeValue
 KeyChain::getSignatureType(KeyType keyType, DigestAlgorithm digestAlgorithm)
 {
   switch (keyType) {
-    case KEY_TYPE_RSA:
+    case KeyType::RSA:
       return tlv::SignatureSha256WithRsa;
-    case KEY_TYPE_ECDSA:
+    case KeyType::EC:
       return tlv::SignatureSha256WithEcdsa;
     default:
       BOOST_THROW_EXCEPTION(Error("Unsupported key types"));
