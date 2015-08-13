@@ -186,6 +186,48 @@ BOOST_AUTO_TEST_CASE(BlockFromBlock)
   BOOST_CHECK_THROW(Block(block, otherBuffer.begin(), otherBuffer.end()), Block::Error);
 }
 
+BOOST_AUTO_TEST_CASE(BlockFromBlockCopyOnWriteModifyOrig)
+{
+  static uint8_t buffer[] = {
+    0x05, 0x0b, 0x07, 0x03, 0x01, 0x02, 0x03, 0x0a, 0x04, 0x04, 0x05, 0x06, 0x07,
+  };
+
+  Block block1(buffer, sizeof(buffer));
+
+  Block block2(block1, block1.begin(), block1.end());
+  auto buf2 = block2.getBuffer();
+
+  block1.parse();
+  block1.remove(tlv::Name);
+  block1.encode();
+
+  block2.parse();
+
+  BOOST_CHECK_EQUAL_COLLECTIONS(block2.begin(), block2.end(), buffer, buffer + sizeof(buffer));
+  BOOST_CHECK_EQUAL(buf2, block2.getBuffer());
+}
+
+BOOST_AUTO_TEST_CASE(BlockFromBlockCopyOnWriteModifyCopy)
+{
+  static uint8_t buffer[] = {
+    0x05, 0x0b, 0x07, 0x03, 0x01, 0x02, 0x03, 0x0a, 0x04, 0x04, 0x05, 0x06, 0x07,
+  };
+
+  Block block1(buffer, sizeof(buffer));
+  auto buf1 = block1.getBuffer();
+
+  Block block2(block1, block1.begin(), block1.end());
+
+  block2.parse();
+  block2.remove(tlv::Name);
+  block2.encode();
+
+  block1.parse();
+
+  BOOST_CHECK_EQUAL_COLLECTIONS(block1.begin(), block1.end(), buffer, buffer + sizeof(buffer));
+  BOOST_CHECK_EQUAL(buf1, block1.getBuffer());
+}
+
 BOOST_AUTO_TEST_CASE(EncodingBufferToBlock)
 {
   uint8_t value[4];
