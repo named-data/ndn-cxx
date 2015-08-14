@@ -41,17 +41,6 @@ static const string INITIALIZATION =
   "    tpm_locator           BLOB                \n"
   "  );                                          \n"
   "                                              \n"
-  "CREATE TRIGGER IF NOT EXISTS                  \n"
-  "  tpm_update_trigger                          \n"
-  "  BEFORE UPDATE ON tpmInfo                    \n"
-  "  WHEN NEW.tpm_locator!=OLD.tpm_locator       \n"
-  "  BEGIN                                       \n"
-  "    DELETE FROM certificates;                 \n"
-  "    DELETE FROM keys;                         \n"
-  "    DELETE FROM identities;                   \n"
-  "  END;                                        \n"
-  "                                              \n"
-  "                                              \n"
   "CREATE TABLE IF NOT EXISTS                    \n"
   "  identities(                                 \n"
   "    id                    INTEGER PRIMARY KEY,\n"
@@ -273,12 +262,10 @@ PibSqlite3::getTpmLocator() const
 {
   Sqlite3Statement statement(m_database, "SELECT tpm_locator FROM tpmInfo");
   int res = statement.step();
-
-  string tpmLocator;
   if (res == SQLITE_ROW)
     return statement.getString(0);
   else
-    BOOST_THROW_EXCEPTION(Pib::Error("TPM info does not exist"));
+    return "";
 }
 
 bool
@@ -302,6 +289,13 @@ PibSqlite3::removeIdentity(const Name& identity)
 {
   Sqlite3Statement statement(m_database, "DELETE FROM identities WHERE identity=?");
   statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
+  statement.step();
+}
+
+void
+PibSqlite3::clearIdentities()
+{
+  Sqlite3Statement statement(m_database, "DELETE FROM identities");
   statement.step();
 }
 

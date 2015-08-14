@@ -66,7 +66,6 @@ public:
   };
 
 public:
-
   ~Pib();
 
   /**
@@ -87,19 +86,24 @@ public:
   /**
    * @brief Set the corresponding TPM information to @p tpmLocator.
    *
-   * If the provided @p tpmLocator is different from the existing one, the
-   * PIB will be reset, otherwise nothing will be changed.
-   *
-   * @param tpmLocator The name for the new TPM locator
+   * If the provided @p tpmLocator is different from the existing one, PIB will be reset.
+   * Otherwise, nothing will be changed.
    */
   void
   setTpmLocator(const std::string& tpmLocator);
 
   /**
    * @brief Get TPM Locator
+   * @throws Error if TPM locator is empty
    */
   std::string
   getTpmLocator() const;
+
+  /**
+   * @brief Reset content in PIB, including reset of the TPM locator
+   */
+  void
+  reset();
 
   /**
    * @brief Get an identity with name @p identityName.
@@ -163,7 +167,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @param location The location for the Pib
    * @param impl The backend implementation
    */
-  Pib(const std::string scheme, const std::string& location, shared_ptr<PibImpl> impl);
+  Pib(const std::string& scheme, const std::string& location, shared_ptr<PibImpl> impl);
 
   shared_ptr<PibImpl>
   getImpl()

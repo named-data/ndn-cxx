@@ -43,192 +43,225 @@ BOOST_AUTO_TEST_SUITE(TestPibImpl)
 
 using pib::Pib;
 
-class PibMemoryWrapper
+class PibMemoryFixture : public PibDataFixture
 {
 public:
-  PibMemory impl;
+  PibMemory pib;
 };
 
-class PibSqlite3Wrapper
+class PibSqlite3Fixture : public PibDataFixture
 {
 public:
-  PibSqlite3Wrapper()
+  PibSqlite3Fixture()
     : tmpPath(boost::filesystem::path(UNIT_TEST_CONFIG_PATH) / "DbTest")
-    , impl(tmpPath.c_str())
+    , pib(tmpPath.c_str())
   {
   }
 
-  ~PibSqlite3Wrapper()
+  ~PibSqlite3Fixture()
   {
     boost::filesystem::remove_all(tmpPath);
   }
 
 public:
   boost::filesystem::path tmpPath;
-  PibSqlite3 impl;
+  PibSqlite3 pib;
 };
 
-typedef boost::mpl::list<PibMemoryWrapper,
-                         PibSqlite3Wrapper> PibImpls;
+typedef boost::mpl::list<PibMemoryFixture,
+                         PibSqlite3Fixture> PibImpls;
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(IdentityManagement, T, PibImpls, PibDataFixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(TpmLocator, T, PibImpls, T)
 {
-  T wrapper;
-  PibImpl& pibImpl = wrapper.impl;
+  // Basic getting and setting
+  BOOST_CHECK_NO_THROW(this->pib.getTpmLocator());
 
-  // no default setting, throw Error
-  BOOST_CHECK_THROW(pibImpl.getDefaultIdentity(), Pib::Error);
+  BOOST_CHECK_NO_THROW(this->pib.setTpmLocator("tpmLocator"));
+  BOOST_CHECK_EQUAL(this->pib.getTpmLocator(), "tpmLocator");
 
-  // check id1, which should not exist
-  BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), false);
+  // Add cert, and do not change TPM locator
+  this->pib.addCertificate(this->id1Key1Cert1);
+  BOOST_CHECK(this->pib.hasIdentity(this->id1));
+  BOOST_CHECK(this->pib.hasKey(this->id1Key1Name));
+  BOOST_CHECK(this->pib.hasCertificate(this->id1Key1Cert1.getName()));
 
-  // add id1, should be default
-  pibImpl.addIdentity(id1);
-  BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), true);
-  BOOST_CHECK_NO_THROW(pibImpl.getDefaultIdentity());
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultIdentity(), id1);
+  // Set TPM locator to the same value, nothing should change
+  this->pib.setTpmLocator("tpmLocator");
+  BOOST_CHECK(this->pib.hasIdentity(this->id1));
+  BOOST_CHECK(this->pib.hasKey(this->id1Key1Name));
+  BOOST_CHECK(this->pib.hasCertificate(this->id1Key1Cert1.getName()));
 
-  // add id2, should not be default
-  pibImpl.addIdentity(id2);
-  BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id2), true);
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultIdentity(), id1);
-
-  // set id2 explicitly as default
-  pibImpl.setDefaultIdentity(id2);
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultIdentity(), id2);
-
-  // remove id2, should not have default identity
-  pibImpl.removeIdentity(id2);
-  BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id2), false);
-  BOOST_CHECK_THROW(pibImpl.getDefaultIdentity(), Pib::Error);
-
-  // add id2 again, should be default
-  pibImpl.addIdentity(id2);
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultIdentity(), id2);
-
-  // get all identities, should contain id1 and id2
-  std::set<Name> idNames = pibImpl.getIdentities();
-  BOOST_CHECK_EQUAL(idNames.size(), 2);
-  BOOST_CHECK_EQUAL(idNames.count(id1), 1);
-  BOOST_CHECK_EQUAL(idNames.count(id2), 1);
+  // Change TPM locator (contents of PIB should not change)
+  this->pib.setTpmLocator("newTpmLocator");
+  BOOST_CHECK(this->pib.hasIdentity(this->id1));
+  BOOST_CHECK(this->pib.hasKey(this->id1Key1Name));
+  BOOST_CHECK(this->pib.hasCertificate(this->id1Key1Cert1.getName()));
 }
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(KeyManagement, T, PibImpls, PibDataFixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(IdentityManagement, T, PibImpls, T)
 {
-  T wrapper;
-  PibImpl& pibImpl = wrapper.impl;
-
   // no default setting, throw Error
-  BOOST_CHECK_THROW(pibImpl.getDefaultKeyOfIdentity(id1), Pib::Error);
+  BOOST_CHECK_THROW(this->pib.getDefaultIdentity(), Pib::Error);
+
+  // check id1, which should not exist
+  BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), false);
+
+  // add id1, should be default
+  this->pib.addIdentity(this->id1);
+  BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), true);
+  BOOST_CHECK_NO_THROW(this->pib.getDefaultIdentity());
+  BOOST_CHECK_EQUAL(this->pib.getDefaultIdentity(), this->id1);
+
+  // add id2, should not be default
+  this->pib.addIdentity(this->id2);
+  BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id2), true);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultIdentity(), this->id1);
+
+  // set id2 explicitly as default
+  this->pib.setDefaultIdentity(this->id2);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultIdentity(), this->id2);
+
+  // remove id2, should not have default identity
+  this->pib.removeIdentity(this->id2);
+  BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id2), false);
+  BOOST_CHECK_THROW(this->pib.getDefaultIdentity(), Pib::Error);
+
+  // add id2 again, should be default
+  this->pib.addIdentity(this->id2);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultIdentity(), this->id2);
+
+  // get all identities, should contain id1 and id2
+  std::set<Name> idNames = this->pib.getIdentities();
+  BOOST_CHECK_EQUAL(idNames.size(), 2);
+  BOOST_CHECK_EQUAL(idNames.count(this->id1), 1);
+  BOOST_CHECK_EQUAL(idNames.count(this->id2), 1);
+}
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(ClearIdentities, T, PibImpls, T)
+{
+  this->pib.setTpmLocator("tpmLocator");
+
+  // Add id, key, and cert
+  this->pib.addCertificate(this->id1Key1Cert1);
+  BOOST_CHECK(this->pib.hasIdentity(this->id1));
+  BOOST_CHECK(this->pib.hasKey(this->id1Key1Name));
+  BOOST_CHECK(this->pib.hasCertificate(this->id1Key1Cert1.getName()));
+
+  // Clear identities
+  this->pib.clearIdentities();
+  BOOST_CHECK_EQUAL(this->pib.getIdentities().size(), 0);
+  BOOST_CHECK_EQUAL(this->pib.getKeysOfIdentity(this->id1).size(), 0);
+  BOOST_CHECK_EQUAL(this->pib.getCertificatesOfKey(this->id1Key1Name).size(), 0);
+  BOOST_CHECK_EQUAL(this->pib.getTpmLocator(), "tpmLocator");
+}
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(KeyManagement, T, PibImpls, T)
+{
+  // no default setting, throw Error
+  BOOST_CHECK_THROW(this->pib.getDefaultKeyOfIdentity(this->id1), Pib::Error);
 
   // check id1Key1, should not exist, neither should id1.
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key1Name), false);
-  BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), false);
+  BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), false);
+  BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), false);
 
   // add id1Key1, should be default, id1 should be added implicitly
-  pibImpl.addKey(id1, id1Key1Name, id1Key1.buf(), id1Key1.size());
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key1Name), true);
-  BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), true);
-  const Buffer& keyBits = pibImpl.getKeyBits(id1Key1Name);
-  BOOST_CHECK_EQUAL_COLLECTIONS(keyBits.begin(), keyBits.end(), id1Key1.begin(), id1Key1.end());
-  BOOST_CHECK_NO_THROW(pibImpl.getDefaultKeyOfIdentity(id1));
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key1Name);
+  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key1.buf(), this->id1Key1.size());
+  BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), true);
+  BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), true);
+  const Buffer& keyBits = this->pib.getKeyBits(this->id1Key1Name);
+  BOOST_CHECK_EQUAL_COLLECTIONS(keyBits.begin(), keyBits.end(), this->id1Key1.begin(), this->id1Key1.end());
+  BOOST_CHECK_NO_THROW(this->pib.getDefaultKeyOfIdentity(this->id1));
+  BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id1), this->id1Key1Name);
 
   // add id1Key2, should not be default
-  pibImpl.addKey(id1, id1Key2Name, id1Key2.buf(), id1Key2.size());
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key2Name), true);
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key1Name);
+  this->pib.addKey(this->id1, this->id1Key2Name, this->id1Key2.buf(), this->id1Key2.size());
+  BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key2Name), true);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id1), this->id1Key1Name);
 
   // set id1Key2 explicitly as default
-  pibImpl.setDefaultKeyOfIdentity(id1, id1Key2Name);
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key2Name);
+  this->pib.setDefaultKeyOfIdentity(this->id1, this->id1Key2Name);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id1), this->id1Key2Name);
 
   // set a non-existing key as default, throw Error
-  BOOST_CHECK_THROW(pibImpl.setDefaultKeyOfIdentity(id1, Name("/non-existing")),
+  BOOST_CHECK_THROW(this->pib.setDefaultKeyOfIdentity(this->id1, Name("/non-existing")),
                     Pib::Error);
 
   // remove id1Key2, should not have default key
-  pibImpl.removeKey(id1Key2Name);
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key2Name), false);
-  BOOST_CHECK_THROW(pibImpl.getKeyBits(id1Key2Name), Pib::Error);
-  BOOST_CHECK_THROW(pibImpl.getDefaultKeyOfIdentity(id1), Pib::Error);
+  this->pib.removeKey(this->id1Key2Name);
+  BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key2Name), false);
+  BOOST_CHECK_THROW(this->pib.getKeyBits(this->id1Key2Name), Pib::Error);
+  BOOST_CHECK_THROW(this->pib.getDefaultKeyOfIdentity(this->id1), Pib::Error);
 
   // add id1Key2 back, should be default
-  pibImpl.addKey(id1, id1Key2Name, id1Key2.buf(), id1Key2.size());
-  BOOST_CHECK_NO_THROW(pibImpl.getKeyBits(id1Key2Name));
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultKeyOfIdentity(id1), id1Key2Name);
+  this->pib.addKey(this->id1, this->id1Key2Name, this->id1Key2.buf(), this->id1Key2.size());
+  BOOST_CHECK_NO_THROW(this->pib.getKeyBits(this->id1Key2Name));
+  BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id1), this->id1Key2Name);
 
   // get all the keys: id1Key1 and id1Key2
-  std::set<Name> keyNames = pibImpl.getKeysOfIdentity(id1);
+  std::set<Name> keyNames = this->pib.getKeysOfIdentity(this->id1);
   BOOST_CHECK_EQUAL(keyNames.size(), 2);
-  BOOST_CHECK_EQUAL(keyNames.count(id1Key1Name), 1);
-  BOOST_CHECK_EQUAL(keyNames.count(id1Key2Name), 1);
+  BOOST_CHECK_EQUAL(keyNames.count(this->id1Key1Name), 1);
+  BOOST_CHECK_EQUAL(keyNames.count(this->id1Key2Name), 1);
 
   // remove id1, should remove all the keys
-  pibImpl.removeIdentity(id1);
-  keyNames = pibImpl.getKeysOfIdentity(id1);
+  this->pib.removeIdentity(this->id1);
+  keyNames = this->pib.getKeysOfIdentity(this->id1);
   BOOST_CHECK_EQUAL(keyNames.size(), 0);
 }
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(CertificateManagement, T, PibImpls, PibDataFixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(CertificateManagement, T, PibImpls, T)
 {
-  T wrapper;
-  PibImpl& pibImpl = wrapper.impl;
-
   // no default setting, throw Error
-  BOOST_CHECK_THROW(pibImpl.getDefaultCertificateOfKey(id1Key1Name), Pib::Error);
+  BOOST_CHECK_THROW(this->pib.getDefaultCertificateOfKey(this->id1Key1Name), Pib::Error);
 
   // check id1Key1Cert1, should not exist, neither should id1 and id1Key1
-  BOOST_CHECK_EQUAL(pibImpl.hasCertificate(id1Key1Cert1.getName()), false);
-  BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), false);
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key1Name), false);
+  BOOST_CHECK_EQUAL(this->pib.hasCertificate(this->id1Key1Cert1.getName()), false);
+  BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), false);
+  BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), false);
 
   // add id1Key1Cert1, should be default, id1 and id1Key1 should be added implicitly
-  pibImpl.addCertificate(id1Key1Cert1);
-  BOOST_CHECK_EQUAL(pibImpl.hasCertificate(id1Key1Cert1.getName()), true);
-  BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), true);
-  BOOST_CHECK_EQUAL(pibImpl.hasKey(id1Key1Name), true);
-  const auto& cert = pibImpl.getCertificate(id1Key1Cert1.getName());
-  BOOST_CHECK_EQUAL_COLLECTIONS(cert.wireEncode().wire(),
-                                cert.wireEncode().wire() + cert.wireEncode().size(),
-                                id1Key1Cert1.wireEncode().wire(),
-                                id1Key1Cert1.wireEncode().wire() + id1Key1Cert1.wireEncode().size());
-  BOOST_CHECK_NO_THROW(pibImpl.getDefaultCertificateOfKey(id1Key1Name));
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1Key1Name), id1Key1Cert1);
+  this->pib.addCertificate(this->id1Key1Cert1);
+  BOOST_CHECK_EQUAL(this->pib.hasCertificate(this->id1Key1Cert1.getName()), true);
+  BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), true);
+  BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), true);
+  const auto& cert = this->pib.getCertificate(this->id1Key1Cert1.getName());
+  BOOST_CHECK(cert.wireEncode() == this->id1Key1Cert1.wireEncode());
+  BOOST_CHECK_NO_THROW(this->pib.getDefaultCertificateOfKey(this->id1Key1Name));
+  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id1Key1Name), this->id1Key1Cert1);
 
   // add id1Key1Cert2, should not be default
-  pibImpl.addCertificate(id1Key1Cert2);
-  BOOST_CHECK_EQUAL(pibImpl.hasCertificate(id1Key1Cert2.getName()), true);
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1Key1Name), id1Key1Cert1);
+  this->pib.addCertificate(this->id1Key1Cert2);
+  BOOST_CHECK_EQUAL(this->pib.hasCertificate(this->id1Key1Cert2.getName()), true);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id1Key1Name), this->id1Key1Cert1);
 
   // set id1Key1Cert2 explicitly as default
-  pibImpl.setDefaultCertificateOfKey(id1Key1Name, id1Key1Cert2.getName());
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1Key1Name), id1Key1Cert2);
+  this->pib.setDefaultCertificateOfKey(this->id1Key1Name, this->id1Key1Cert2.getName());
+  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id1Key1Name), this->id1Key1Cert2);
 
   // set a non-existing cert as default, throw Error
-  BOOST_CHECK_THROW(pibImpl.setDefaultCertificateOfKey(id1Key1Name, Name("/non-existing")),
+  BOOST_CHECK_THROW(this->pib.setDefaultCertificateOfKey(this->id1Key1Name, Name("/non-existing")),
                     Pib::Error);
 
   // remove id1Key1Cert2, should not have default cert
-  pibImpl.removeCertificate(id1Key1Cert2.getName());
-  BOOST_CHECK_EQUAL(pibImpl.hasCertificate(id1Key1Cert2.getName()), false);
-  BOOST_CHECK_THROW(pibImpl.getCertificate(id1Key1Cert2.getName()), Pib::Error);
-  BOOST_CHECK_THROW(pibImpl.getDefaultCertificateOfKey(id1Key1Name), Pib::Error);
+  this->pib.removeCertificate(this->id1Key1Cert2.getName());
+  BOOST_CHECK_EQUAL(this->pib.hasCertificate(this->id1Key1Cert2.getName()), false);
+  BOOST_CHECK_THROW(this->pib.getCertificate(this->id1Key1Cert2.getName()), Pib::Error);
+  BOOST_CHECK_THROW(this->pib.getDefaultCertificateOfKey(this->id1Key1Name), Pib::Error);
 
   // add id1Key1Cert2, should be default
-  pibImpl.addCertificate(id1Key1Cert2);
-  BOOST_CHECK_NO_THROW(pibImpl.getCertificate(id1Key1Cert1.getName()));
-  BOOST_CHECK_EQUAL(pibImpl.getDefaultCertificateOfKey(id1Key1Name), id1Key1Cert2);
+  this->pib.addCertificate(this->id1Key1Cert2);
+  BOOST_CHECK_NO_THROW(this->pib.getCertificate(this->id1Key1Cert1.getName()));
+  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id1Key1Name), this->id1Key1Cert2);
 
   // get all certificates: id1Key1Cert1 and id1Key1Cert2
-  std::set<Name> certNames = pibImpl.getCertificatesOfKey(id1Key1Name);
+  std::set<Name> certNames = this->pib.getCertificatesOfKey(this->id1Key1Name);
   BOOST_CHECK_EQUAL(certNames.size(), 2);
-  BOOST_CHECK_EQUAL(certNames.count(id1Key1Cert1.getName()), 1);
-  BOOST_CHECK_EQUAL(certNames.count(id1Key1Cert2.getName()), 1);
+  BOOST_CHECK_EQUAL(certNames.count(this->id1Key1Cert1.getName()), 1);
+  BOOST_CHECK_EQUAL(certNames.count(this->id1Key1Cert2.getName()), 1);
 
   // remove id1Key1, should remove all the certs
-  pibImpl.removeKey(id1Key1Name);
-  certNames = pibImpl.getCertificatesOfKey(id1Key1Name);
+  this->pib.removeKey(this->id1Key1Name);
+  certNames = this->pib.getCertificatesOfKey(this->id1Key1Name);
   BOOST_CHECK_EQUAL(certNames.size(), 0);
 }
 

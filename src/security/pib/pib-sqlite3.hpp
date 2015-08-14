@@ -60,7 +60,6 @@ public:
   ~PibSqlite3();
 
 public: // TpmLocator management
-
   void
   setTpmLocator(const std::string& tpmLocator) final;
 
@@ -68,7 +67,6 @@ public: // TpmLocator management
   getTpmLocator() const final;
 
 public: // Identity management
-
   bool
   hasIdentity(const Name& identity) const final;
 
@@ -77,6 +75,9 @@ public: // Identity management
 
   void
   removeIdentity(const Name& identity) final;
+
+  void
+  clearIdentities() final;
 
   std::set<Name>
   getIdentities() const final;

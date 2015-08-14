@@ -60,12 +60,9 @@ public:
 
 public: // TpmLocator management
   /**
-   * @brief Set the corresponding TPM information to @p tpmLocator.
+   * @brief Set the corresponding TPM information to @p tpmLocator
    *
-   * If the provided @p tpmLocator is different from the existing one, the
-   * content in PIB will be cleaned up, otherwise nothing will be changed.
-   *
-   * @param tpmLocator The name for the new TPM locator
+   * This method does not reset contents of the PIB
    */
   virtual void
   setTpmLocator(const std::string& tpmLocator) = 0;
@@ -108,7 +105,15 @@ public: // Identity management
   virtual void
   removeIdentity(const Name& identity) = 0;
 
-  /// @brief Get the name of all the identities
+  /**
+   * @brief Erasing all certificates, keys, and identities
+   */
+  virtual void
+  clearIdentities() = 0;
+
+  /**
+   * @brief Get the name of all the identities
+   */
   virtual std::set<Name>
   getIdentities() const = 0;
 

@@ -34,18 +34,17 @@ using namespace ndn::security::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
-BOOST_FIXTURE_TEST_SUITE(Common, PibDataFixture)
+BOOST_FIXTURE_TEST_SUITE(TestPib, PibDataFixture)
 
 using pib::Pib;
 
 BOOST_AUTO_TEST_CASE(ValidityChecking)
 {
-  auto pibImpl = make_shared<PibMemory>();
-  Pib pib("pib-memory", "", pibImpl);
+  Pib pib("pib-memory", "", make_shared<PibMemory>());
 
   Identity id = pib.addIdentity(id1);
 
-  BOOST_CHECK_EQUAL(bool(id), true);
+  BOOST_CHECK_EQUAL(static_cast<bool>(id), true);
   BOOST_CHECK_EQUAL(!id, false);
 
   if (id)
@@ -56,7 +55,7 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   // key
   Key key = id.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
 
-  BOOST_CHECK_EQUAL(bool(key), true);
+  BOOST_CHECK_EQUAL(static_cast<bool>(key), true);
   BOOST_CHECK_EQUAL(!key, false);
 
   if (key)
@@ -65,10 +64,33 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
     BOOST_CHECK(false);
 }
 
+BOOST_AUTO_TEST_CASE(TpmLocator)
+{
+  Pib pib("pib-memory", "", make_shared<PibMemory>());
+
+  BOOST_CHECK_EQUAL(pib.getPibLocator(), "pib-memory:");
+  BOOST_CHECK_THROW(pib.getTpmLocator(), Pib::Error);
+
+  pib.setTpmLocator("test-tpm-locator");
+  BOOST_CHECK_NO_THROW(pib.getTpmLocator());
+
+  BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
+  pib.addIdentity(id1);
+  BOOST_CHECK_NO_THROW(pib.getIdentity(id1));
+
+  pib.setTpmLocator("another-tpm-locator");
+  BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
+
+  pib.addIdentity(id1);
+  BOOST_CHECK_NO_THROW(pib.getIdentity(id1));
+  pib.reset();
+  BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
+  BOOST_CHECK_THROW(pib.getTpmLocator(), Pib::Error);
+}
+
 BOOST_AUTO_TEST_CASE(IdentityOperations)
 {
-  auto pibImpl = make_shared<PibMemory>();
-  Pib pib("pib-memory", "", pibImpl);
+  Pib pib("pib-memory", "", make_shared<PibMemory>());
 
   BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
   Identity identity1 = pib.addIdentity(id1);
@@ -85,7 +107,7 @@ BOOST_AUTO_TEST_CASE(IdentityOperations)
   BOOST_CHECK_THROW(pib.getDefaultIdentity(), Pib::Error);
 }
 
-BOOST_AUTO_TEST_SUITE_END() // Common
+BOOST_AUTO_TEST_SUITE_END() // TestPib
 BOOST_AUTO_TEST_SUITE_END() // Pib
 BOOST_AUTO_TEST_SUITE_END() // Security
 

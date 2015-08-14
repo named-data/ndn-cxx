@@ -52,8 +52,7 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   else
     BOOST_CHECK(true);
 
-  auto pibImpl = make_shared<PibMemory>();
-  id = Identity(id1, pibImpl, true);
+  id = Identity(id1, make_shared<PibMemory>(), true);
 
   BOOST_CHECK_EQUAL(static_cast<bool>(id), true);
   BOOST_CHECK_EQUAL(!id, false);
@@ -66,9 +65,7 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
 
 BOOST_AUTO_TEST_CASE(KeyOperations)
 {
-  auto pibImpl = make_shared<PibMemory>();
-
-  Identity identity1(id1, pibImpl, true);
+  Identity identity1(id1, make_shared<PibMemory>(), true);
 
   // Key does not exist, throw Error
   BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), Pib::Error);

@@ -35,14 +35,13 @@ PibMemory::PibMemory()
 void
 PibMemory::setTpmLocator(const std::string& tpmLocator)
 {
-  // The locator of PibMemory is always 'tpm-memory:'
-  BOOST_THROW_EXCEPTION(Error("PibMemory does not need a locator"));
+  m_tpmLocator = tpmLocator;
 }
 
 std::string
 PibMemory::getTpmLocator() const
 {
-  return "tpm-memory:";
+  return m_tpmLocator;
 }
 
 bool
@@ -73,6 +72,18 @@ PibMemory::removeIdentity(const Name& identity)
   for (const Name& keyName : keyNames) {
     this->removeKey(keyName);
   }
+}
+
+void
+PibMemory::clearIdentities()
+{
+  m_hasDefaultIdentity = false;
+  m_defaultIdentity.clear();
+  m_identities.clear();
+  m_defaultKey.clear();
+  m_keys.clear();
+  m_defaultCert.clear();
+  m_certs.clear();
 }
 
 std::set<Name>

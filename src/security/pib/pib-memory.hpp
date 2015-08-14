@@ -51,7 +51,6 @@ public:
   PibMemory();
 
 public: // TpmLocator management
-
   void
   setTpmLocator(const std::string& tpmLocator) override;
 
@@ -59,7 +58,6 @@ public: // TpmLocator management
   getTpmLocator() const override;
 
 public: // Identity management
-
   bool
   hasIdentity(const Name& identity) const override;
 
@@ -68,6 +66,9 @@ public: // Identity management
 
   void
   removeIdentity(const Name& identity) override;
+
+  void
+  clearIdentities() override;
 
   std::set<Name>
   getIdentities() const override;
@@ -79,7 +80,6 @@ public: // Identity management
   getDefaultIdentity() const override;
 
 public: // Key management
-
   bool
   hasKey(const Name& keyName) const override;
 
@@ -124,6 +124,8 @@ public: // Certificate management
   getDefaultCertificateOfKey(const Name& keyName) const override;
 
 private:
+  std::string m_tpmLocator;
+
   bool m_hasDefaultIdentity;
   Name m_defaultIdentity;
 

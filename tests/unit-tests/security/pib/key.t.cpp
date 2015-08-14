@@ -78,10 +78,7 @@ BOOST_AUTO_TEST_CASE(CertificateOperations)
   BOOST_REQUIRE_NO_THROW(key11.getDefaultCertificate());
 
   const auto& defaultCert = key11.getDefaultCertificate();
-  BOOST_CHECK_EQUAL_COLLECTIONS(defaultCert.wireEncode().wire(),
-                                defaultCert.wireEncode().wire() + defaultCert.wireEncode().size(),
-                                id1Key1Cert1.wireEncode().wire(),
-                                id1Key1Cert1.wireEncode().wire() + id1Key1Cert1.wireEncode().size());
+  BOOST_CHECK(defaultCert.wireEncode() == id1Key1Cert1.wireEncode());
 
   key11.removeCertificate(id1Key1Cert1.getName());
   BOOST_CHECK_THROW(key11.getCertificate(id1Key1Cert1.getName()), Pib::Error);

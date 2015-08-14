@@ -26,7 +26,7 @@ namespace ndn {
 namespace security {
 namespace pib {
 
-Pib::Pib(const std::string scheme, const std::string& location, shared_ptr<PibImpl> impl)
+Pib::Pib(const std::string& scheme, const std::string& location, shared_ptr<PibImpl> impl)
   : m_scheme(scheme)
   , m_location(location)
   , m_hasDefaultIdentity(false)
@@ -35,9 +35,7 @@ Pib::Pib(const std::string scheme, const std::string& location, shared_ptr<PibIm
 {
 }
 
-Pib::~Pib()
-{
-}
+Pib::~Pib() = default;
 
 std::string
 Pib::getPibLocator() const
@@ -48,13 +46,31 @@ Pib::getPibLocator() const
 void
 Pib::setTpmLocator(const std::string& tpmLocator)
 {
+  if (tpmLocator == m_impl->getTpmLocator()) {
+    return;
+  }
+  reset();
   m_impl->setTpmLocator(tpmLocator);
 }
 
 std::string
 Pib::getTpmLocator() const
 {
-  return m_impl->getTpmLocator();
+  std::string tpmLocator = m_impl->getTpmLocator();
+  if (tpmLocator.empty()) {
+    BOOST_THROW_EXCEPTION(Pib::Error("TPM info does not exist"));
+  }
+  return tpmLocator;
+}
+
+void
+Pib::reset()
+{
+  m_impl->clearIdentities();
+  m_impl->setTpmLocator("");
+
+  m_hasDefaultIdentity = false;
+  m_needRefreshIdentities = true;
 }
 
 Identity

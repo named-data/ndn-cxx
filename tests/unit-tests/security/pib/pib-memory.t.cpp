@@ -28,18 +28,11 @@ namespace security {
 namespace pib {
 namespace tests {
 
-// most functionalities are tested in pib-impl.t.cpp
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_AUTO_TEST_SUITE(TestPibMemory)
 
-BOOST_AUTO_TEST_CASE(TpmLocatorManagement)
-{
-  PibMemory pibImpl;
-
-  BOOST_CHECK_EQUAL(pibImpl.getTpmLocator(), "tpm-memory:");
-  BOOST_CHECK_THROW(pibImpl.setTpmLocator(""), PibImpl::Error);
-}
+// Functionality is tested as part of pib-impl.t.cpp
 
 BOOST_AUTO_TEST_SUITE_END() // TestPibMemory
 BOOST_AUTO_TEST_SUITE_END() // Pib
