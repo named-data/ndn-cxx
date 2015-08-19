@@ -209,15 +209,63 @@ extended it to C++.
     .. code-block:: c++
 
         switch (condition) {
-        case ABC:
-          statements;
-          // Fallthrough
+          case ABC:        // 2 space indent
+            statements;    // 4 space indent
+            // Fallthrough
 
-        case DEF:
+          case DEF:
+            statements;
+            break;
+
+          case XYZ: {
+            statements;
+            break;
+          }
+
+          default:
+            statements;
+            break;
+        }
+
+    When curly braces are used inside a ``case`` block, the braces must cover the entire
+    ``case`` block.
+
+    .. code-block:: c++
+
+        switch (condition) {
+          // Correct style
+          case A0: {
+            statements;
+            break;
+          }
+
+          // Correct style
+          case A1: {
+            statements;
+            // Fallthrough
+          }
+
+          // Incorrect style: braces should cover the entire case block
+          case B: {
+            statements;
+          }
           statements;
           break;
 
-        case XYZ:
+          default:
+            break;
+        }
+
+    The following style is still allowed when none of the ``case`` blocks has curly braces.
+
+    .. code-block:: c++
+
+        switch (condition) {
+        case ABC:        // no indent
+          statements;    // 2 space indent
+          // Fallthrough
+
+        case DEF:
           statements;
           break;
 
@@ -225,29 +273,6 @@ extended it to C++.
           statements;
           break;
         }
-
-    or (less preferred):
-
-    .. code-block:: c++
-
-        switch (condition)
-          {
-          case ABC:
-            statements;
-            // Fallthrough
-
-          case DEF:
-            statements;
-            break;
-
-          case XYZ:
-            statements;
-            break;
-
-          default:
-            statements;
-            break;
-          }
 
     The explicit ``Fallthrough`` comment should be included whenever there is a case
     statement without a break statement.  Leaving the break out is a common error, and it
