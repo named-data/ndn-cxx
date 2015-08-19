@@ -27,4 +27,4 @@ Environment Variables Used in Build Scripts
   Possible values:
 
   * empty: default build process
-  * `code-coverage` (Linux OS is assumed): build process with code coverage analysis
+  * `<any-string-with-extra-job-description>code-coverage` (Linux OS is assumed): build process with code coverage analysis

@@ -27,7 +27,7 @@ sudo ./waf -j1 --color=yes distclean
 sudo ./waf -j1 --color=yes distclean
 
 # Configure/build shared library in debug mode with examples without precompiled headers
-if has code-coverage $JOB_NAME; then
+if [[ "$JOB_NAME" == *"code-coverage" ]]; then
     COVERAGE="--with-coverage"
 fi
 ./waf -j1 --color=yes configure --debug --enable-shared --disable-static --with-tests --without-pch --with-examples $COVERAGE
