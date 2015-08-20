@@ -11,7 +11,7 @@ the specification of a data packet is not sufficient to be the specification of
 a common certificate format, as it requires additional components.  For example,
 a certificate may follow a specific naming convention and may need to include
 validity period, revocation information, etc.  This specification defines
-naming and components of the NDN certificates and is complementary to NDN packet
+naming and structure of the NDN certificates and is complementary to NDN packet
 specification.
 
 ::
@@ -23,6 +23,9 @@ specification.
                                  |         MetaInfo         |
                                  |+------------------------+|
                                  || ContentType:  KEY(2)   ||
+                                 |+------------------------+|
+                                 |+------------------------+|
+                                 || FreshnessPeriod: >~ 1h ||
                                  |+------------------------+|
                                  +--------------------------+
                                  |          Content         |
@@ -42,6 +45,24 @@ specification.
                                  +--------------------------+
 
 
+     CertificateV2 ::= DATA-TLV TLV-LENGTH
+                         Name      (= /<NameSpace>/KEY/[KeyId]/[IssuerId]/[Version])
+                         MetaInfo  (.ContentType = KEY,
+                                    .FreshnessPeriod >~ 1h))
+                         Content   (= X509PublicKeyContent)
+                         SignatureInfo (= CertificateV2SignatureInfo)
+                         SignatureValue
+
+     X509PublicKeyContent ::= CONTENT-TLV TLV-LENGTH
+                                BYTE+ (= public key bits in PKCS#8 format)
+
+     CertificateV2SignatureInfo ::= SIGNATURE-INFO-TYPE TLV-LENGTH
+                                      SignatureType
+                                      KeyLocator
+                                      ValidityPeriod
+                                      ... optional critical or non-critical extension blocks ...
+
+
 Name
 ----
 
@@ -49,24 +70,29 @@ The name of a certificate consists of five parts as shown below:
 
 ::
 
-    /<SubjectName>/[KeyId]/KEY/[IssuerId]/[Version]
+    /<SubjectName>/KEY/[KeyId]/[IssuerId]/[Version]
 
-A certificate name starts with the subject to which a public key is bound.  The
-second part is a single name component, called KeyId, which should uniquely
-identify the key under the subject namespace.  The value of KeyId is up to
-the owner of the subject namespace (e.g., 8-byte random number, SHA-256 digest
-of the public key, timestamp, or numerical identifier).  A special name
-component ``KEY`` is appended after KeyId, which indicates that the data is a
-certificate.  After ``KEY``, there is an IssuerId name component that
-distinguishes different issuers for the same key.  How to specify the IssuerId
-is up to the issuer and key owner.  The last component is version number.
+A certificate name starts with the subject to which a public key is bound.  The following parts
+include the keyword ``KEY`` component, KeyId, IssuerId, and version components.
+
+``KeyId`` is an opaque name component to identify an instance of the public key for the
+certificate namespace.  The value of `Key ID` is controlled by the namespace owner and can be
+an 8-byte random number, SHA-256 digest of the public key, timestamp, or a simple numerical
+identifier.
+
+``Issuer Id`` is an opaque name component to identify issuer of the certificate.  The value is
+controlled by the certificate issuer and, similar to KeyId, can be an 8-byte random number,
+SHA-256 digest of the issuer's public key, or a simple numerical identifier.
+
+
 For example,
 
 ::
 
-    /edu/ucla/cs/yingdi/%03%CD...%F1/KEY/%9F%D3...%B7/%FD%d2...%8E
-    \_________________/\___________/    \___________/\___________/
-       Subject Name       Key ID          Issuer Id     Version
+      /edu/ucla/cs/yingdi/KEY/%03%CD...%F1/%9F%D3...%B7/%FD%d2...%8E
+      \_________________/    \___________/ \___________/\___________/
+     Certificate Namespace      Key Id       Issuer Id     Version
+          (Identity)
 
 
 MetaInfo
@@ -86,27 +112,15 @@ By default, the content of a certificate is the public key encoded in
 SignatureInfo
 -------------
 
-Besides, ``SignatureType`` and ``KeyLocator``, the ``SignatureInfo`` field of a
-certificate include more optional fields.
-
-::
-
-    SignatureInfo ::= SIGNATURE-INFO-TYPE TLV-LENGTH
-                        SignatureType
-                        KeyLocator
-                        ValidityPeriod?
-                        ... (SignatureInfo Extension TLVs)
-
-One optional field is ``ValidityPeriod``, which contains two sub TLV fields:
-``NotBefore`` and ``NotAfter``, which are two UTC timestamps in ISO 8601 compact
-format (``yyyymmddTHHMMSS``, e.g., "20020131T235959").  NotBefore indicates
-when the certificate takes effect while NotAfter indicates when the certificate
-expires.
+The SignatureInfo block of a certificate is required to include the ``ValidityPeriod`` field.
+``ValidityPeriod`` includes two sub TLV fields: ``NotBefore`` and ``NotAfter``, which carry two
+UTC timestamps in ISO 8601 compact format (``yyyymmddTHHMMSS``, e.g., "20020131T235959").
+``NotBefore`` indicates when the certificate takes effect while ``NotAfter`` indicates when the
+certificate expires.
 
 .. note::
-    Using ISO style string is the convention of specifying validity period of
-    certificate, which has been adopted by many certificate systems, such as
-    X.509, PGP, and DNSSEC.
+    Using ISO style string is the convention of specifying the validity period of certificate,
+    which has been adopted by many certificate systems, such as X.509, PGP, and DNSSEC.
 
 ::
 
@@ -133,17 +147,13 @@ For each TLV, the TLV-TYPE codes are assigned as below:
 | NotAfter                                    | 255               | 0xFF           |
 +---------------------------------------------+-------------------+----------------+
 
-.. note::
-    TLV-TYPE code that falls into [253, 65536) is encoded in
-    `3-byte <http://named-data.net/doc/ndn-tlv/tlv.html#variable-size-encoding-for-type-t-and-length-l>`__
-
 Extensions
 ~~~~~~~~~~
 
 A certificate may optionally carry some extensions in SignatureInfo.  An extension
-could be either critical or non-critical depends on the TLV-TYPE code convention.  An
-critical extension implies that if a validator cannot recognize or cannot parse the
-extension, the validator must reject the certificate.  An non-critical extension
+could be either critical or non-critical depends on the TLV-TYPE code convention.  A
+critical extension implies that if a validator cannot recognize or parse the
+extension, the validator must reject the certificate.  A non-critical extension
 implies that if a validator cannot recognize or cannot parse the extension, the
 validator may ignore the extension.
 
@@ -151,42 +161,19 @@ The TLV-TYPE code range [256, 512) is reserved for extensions.  The last bit of 
 TLV-TYPE code indicates whether the extension is critical or not: ``1`` for critical
 while ``0`` for non-critical.  If an extension could be either critical or
 non-critical, the extension should be allocated with two TLV-TYPE codes which only
-differ at the last bit.  For example, TLV-TYPE codes 256 and 257 are allocated to the
-``StatusChecking`` extension, 256 for critical StatusChecking while 257 for
-non-critical StatusChecking.
+differ at the last bit.
 
+Extensions
+----------
 
-Proposed Extensions
--------------------
-
-We list the proposed extensions here:
+We list currently defined extensions:
 
 +---------------------------------------------+-------------------+----------------+
 | TLV-TYPE                                    | Assigned code     | Assigned code  |
 |                                             | (decimal)         | (hexadecimal)  |
 +=============================================+===================+================+
-| StatusChecking (Non-critical)               | 256               | 0x0100         |
+| AdditionalDescription (non-critical)        | 258               | 0x0102         |
 +---------------------------------------------+-------------------+----------------+
-| StatusChecking (Critical)                   | 257               | 0x0101         |
-+---------------------------------------------+-------------------+----------------+
-| AdditionalDescription (Non-critical)        | 258               | 0x0102         |
-+---------------------------------------------+-------------------+----------------+
-| MultipleSignature (Critical)                | 259               | 0x0103         |
-+---------------------------------------------+-------------------+----------------+
-
-.. note::
-    TLV-TYPE code that falls into [253, 65536) is encoded in
-    `3-byte <http://named-data.net/doc/ndn-tlv/tlv.html#variable-size-encoding-for-type-t-and-length-l>`__
-
-Status Checking
-~~~~~~~~~~~~~~~
-
-TBD
-
-Multiple Signature
-~~~~~~~~~~~~~~~~~~
-
-TBD
 
 AdditionalDescription
 ~~~~~~~~~~~~~~~~~~~~~
