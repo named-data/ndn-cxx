@@ -45,7 +45,8 @@ public:
  * @param length Size of the array
  * @param isUpperCase if true (default) output use uppercase for hex values
  *
- * @example
+ * Examples:
+ *
  *     printHex(std::cout, "Hello, World!") outputs "48656C6C6F2C20776F726C6421"
  *     printHex(std::cout, "Hello, World!", false) outputs "48656c6c6f2c20776f726c6421"
  *
@@ -73,7 +74,8 @@ printHex(std::ostream& os, const Buffer& buffer, bool isUpperCase = true);
  * @param length Size of the array
  * @param isUpperCase if true (default) output use uppercase for hex values
  *
- * @example
+ * Examples:
+ *
  *     toHex("Hello, World!") == "48656C6C6F2C20776F726C6421"
  *     toHex("Hello, World!", false) == "48656c6c6f2c20776f726c6421"
  *
@@ -132,8 +134,10 @@ fromHexChar(uint8_t c);
  *
  * When % is not followed by two hex characters, the output is not transformed.
  *
- * @example unescape("hello%20world") == "hello world"
- * @example unescape("hello%20world%FooBar") == "hello world%FooBar"
+ * Examples:
+ *
+ *     unescape("hello%20world") == "hello world"
+ *     unescape("hello%20world%FooBar") == "hello world%FooBar"
  */
 std::string
 unescape(const std::string& str);
