@@ -139,34 +139,34 @@ public:
   }
 
   virtual std::string
-  name() const
+  name() const NDN_CXX_DECL_FINAL
   {
     return std::string();
   }
 
   // There are no tokens for an AccumulatorType
   virtual unsigned
-  min_tokens() const
+  min_tokens() const NDN_CXX_DECL_FINAL
   {
     return 0;
   }
 
   virtual unsigned
-  max_tokens() const
+  max_tokens() const NDN_CXX_DECL_FINAL
   {
     return 0;
   }
 
   // Accumulating from different sources is silly.
   virtual bool
-  is_composing() const
+  is_composing() const NDN_CXX_DECL_FINAL
   {
     return false;
   }
 
   // Requiring one or more appearances is unlikely.
   virtual bool
-  is_required() const
+  is_required() const NDN_CXX_DECL_FINAL
   {
     return false;
   }
@@ -180,7 +180,7 @@ public:
   virtual void
   parse(boost::any& value_store,
         const std::vector<std::string>& new_tokens,
-        bool utf8) const
+        bool utf8) const NDN_CXX_DECL_FINAL
   {
     if (value_store.empty())
       value_store = T();
@@ -191,7 +191,7 @@ public:
    * @brief If the option doesn't appear, this is the default value.
    */
   virtual bool
-  apply_default(boost::any& value_store) const
+  apply_default(boost::any& value_store) const NDN_CXX_DECL_FINAL
   {
     value_store = m_default;
     return true;
@@ -201,12 +201,20 @@ public:
    * @brief Notify the user function with the value of the value store.
    */
   virtual void
-  notify(const boost::any& value_store) const
+  notify(const boost::any& value_store) const NDN_CXX_DECL_FINAL
   {
     const T* val = boost::any_cast<T>(&value_store);
     if (m_store)
       *m_store = *val;
   }
+
+#if BOOST_VERSION >= 105900
+  virtual bool
+  adjacent_tokens_only() const NDN_CXX_DECL_FINAL
+  {
+    return false;
+  }
+#endif // BOOST_VERSION >= 105900
 
 private:
     T* m_store;
