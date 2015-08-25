@@ -337,13 +337,14 @@ public: // producer
    * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
    *         removeRegisteredPrefix
    */
+  DEPRECATED(
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const RegisterPrefixSuccessCallback& onSuccess,
                     const RegisterPrefixFailureCallback& onFailure,
                     const IdentityCertificate& certificate,
-                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
+                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
 
   /**
    * @deprecated Use override with SigningInfo instead of this function
@@ -367,12 +368,13 @@ public: // producer
    * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
    *         removeRegisteredPrefix
    */
+  DEPRECATED(
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
                     const IdentityCertificate& certificate,
-                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
+                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
 
   /**
    * @deprecated Use override with SigningInfo instead of this function
@@ -395,13 +397,14 @@ public: // producer
    *
    * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
    */
+  DEPRECATED(
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const RegisterPrefixSuccessCallback& onSuccess,
                     const RegisterPrefixFailureCallback& onFailure,
                     const Name& identity,
-                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
+                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
 
   /**
    * @deprecated Use override with SigningInfo instead of this function
@@ -423,12 +426,13 @@ public: // producer
    *
    * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
    */
+  DEPRECATED(
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
                     const Name& identity,
-                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
+                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
 #endif // NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 
   /**
@@ -472,12 +476,13 @@ public: // producer
    *
    * @return The registered prefix ID which can be used with unregisterPrefix
    */
+  DEPRECATED(
   const RegisteredPrefixId*
   registerPrefix(const Name& prefix,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
                  const IdentityCertificate& certificate,
-                 uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
+                 uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
 
   /**
    * @deprecated Use override with SigningInfo instead of this function
@@ -497,12 +502,13 @@ public: // producer
    *
    * @return The registered prefix ID which can be used with unregisterPrefix
    */
+  DEPRECATED(
   const RegisteredPrefixId*
   registerPrefix(const Name& prefix,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
                  const Name& identity,
-                 uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
+                 uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
 #endif // NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 
   /**
