@@ -103,7 +103,8 @@ BOOST_FIXTURE_TEST_CASE(CommandSuccess, CommandFixture)
 
   ControlParameters responseBody;
   responseBody.setUri("tcp4://192.0.2.1:6363")
-              .setFaceId(22);
+              .setFaceId(22)
+              .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
   ControlResponse responsePayload(201, "created");
   responsePayload.setBody(responseBody.wireEncode());
 

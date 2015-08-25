@@ -142,6 +142,9 @@ public:
   FaceCreateCommand();
 
   virtual void
+  applyDefaultsToRequest(ControlParameters& parameters) const;
+
+  virtual void
   validateResponse(const ControlParameters& parameters) const;
 };
 

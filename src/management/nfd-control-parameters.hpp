@@ -43,6 +43,7 @@ enum ControlParameterField {
   CONTROL_PARAMETER_FLAGS,
   CONTROL_PARAMETER_STRATEGY,
   CONTROL_PARAMETER_EXPIRATION_PERIOD,
+  CONTROL_PARAMETER_FACE_PERSISTENCY,
   CONTROL_PARAMETER_UBOUND
 };
 
@@ -56,6 +57,7 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
   "Flags",
   "Strategy",
   "ExpirationPeriod",
+  "FacePersistency",
 };
 
 /**
@@ -372,6 +374,36 @@ public: // getters & setters
     return *this;
   }
 
+  bool
+  hasFacePersistency() const
+  {
+    return m_hasFields[CONTROL_PARAMETER_FACE_PERSISTENCY];
+  }
+
+  FacePersistency
+  getFacePersistency() const
+  {
+    BOOST_ASSERT(this->hasFacePersistency());
+    return m_facePersistency;
+  }
+
+  ControlParameters&
+  setFacePersistency(FacePersistency persistency)
+  {
+    m_wire.reset();
+    m_facePersistency = persistency;
+    m_hasFields[CONTROL_PARAMETER_FACE_PERSISTENCY] = true;
+    return *this;
+  }
+
+  ControlParameters&
+  unsetFacePersistency()
+  {
+    m_wire.reset();
+    m_hasFields[CONTROL_PARAMETER_FACE_PERSISTENCY] = false;
+    return *this;
+  }
+
   const std::vector<bool>&
   getPresentFields() const
   {
@@ -390,6 +422,7 @@ private: // fields
   uint64_t            m_flags;
   Name                m_strategy;
   time::milliseconds  m_expirationPeriod;
+  FacePersistency     m_facePersistency;
 
 private:
   mutable Block m_wire;

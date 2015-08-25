@@ -95,10 +95,20 @@ FaceCreateCommand::FaceCreateCommand()
   : ControlCommand("faces", "create")
 {
   m_requestValidator
-    .required(CONTROL_PARAMETER_URI);
+    .required(CONTROL_PARAMETER_URI)
+    .optional(CONTROL_PARAMETER_FACE_PERSISTENCY);
   m_responseValidator
     .required(CONTROL_PARAMETER_URI)
-    .required(CONTROL_PARAMETER_FACE_ID);
+    .required(CONTROL_PARAMETER_FACE_ID)
+    .required(CONTROL_PARAMETER_FACE_PERSISTENCY);
+}
+
+void
+FaceCreateCommand::applyDefaultsToRequest(ControlParameters& parameters) const
+{
+  if (!parameters.hasFacePersistency()) {
+    parameters.setFacePersistency(FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  }
 }
 
 void
