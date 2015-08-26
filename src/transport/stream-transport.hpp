@@ -195,6 +195,10 @@ public:
         BOOST_THROW_EXCEPTION(Transport::Error(error, "error while sending data to socket"));
       }
 
+    if (!m_transport.m_isConnected) {
+      return; // queue has been already cleared
+    }
+
     m_transmissionQueue.erase(queueItem);
 
     if (!m_transmissionQueue.empty()) {

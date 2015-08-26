@@ -496,6 +496,21 @@ BOOST_FIXTURE_TEST_CASE(SetRegexFilterAndRegister, FacesFixture3)
   BOOST_CHECK_EQUAL(nTimeouts, 4);
 }
 
+BOOST_AUTO_TEST_CASE(ShutdownWhileSendInProgress) // Bug #3136
+{
+  Face face;
+  face.expressInterest(Name("/Hello/World/!"), bind([]{}), bind([]{}));
+  BOOST_REQUIRE_NO_THROW(face.processEvents(time::seconds(1)));
+
+  face.expressInterest(Name("/Bye/World/1"), bind([]{}), bind([]{}));
+  face.expressInterest(Name("/Bye/World/2"), bind([]{}), bind([]{}));
+  face.expressInterest(Name("/Bye/World/3"), bind([]{}), bind([]{}));
+  face.shutdown();
+
+  BOOST_REQUIRE_NO_THROW(face.processEvents(time::seconds(1)));
+  // should not segfault
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // tests
