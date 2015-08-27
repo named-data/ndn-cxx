@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,40 +22,40 @@
 #include "common.hpp"
 
 #include "random.hpp"
+#include "../security/detail/openssl.hpp"
 
 #include <boost/nondet_random.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
-#include "../security/cryptopp.hpp"
-
 namespace ndn {
 namespace random {
 
-// CryptoPP-based (secure) random generators
-
-static CryptoPP::AutoSeededRandomPool&
-getSecureRandomGenerator()
-{
-  static CryptoPP::AutoSeededRandomPool rng;
-
-  return rng;
-}
+// OpenSSL-based (secure) pseudo-randomness generators
 
 uint32_t
 generateSecureWord32()
 {
-  return getSecureRandomGenerator().GenerateWord32();
+  uint32_t random;
+  generateSecureBytes(reinterpret_cast<uint8_t*>(&random), sizeof(random));
+  return random;
 }
 
 uint64_t
 generateSecureWord64()
 {
   uint64_t random;
-  getSecureRandomGenerator()
-    .GenerateBlock(reinterpret_cast<unsigned char*>(&random), sizeof(uint64_t));
-
+  generateSecureBytes(reinterpret_cast<uint8_t*>(&random), sizeof(random));
   return random;
+}
+
+void
+generateSecureBytes(uint8_t* bytes, size_t size)
+{
+  if (RAND_bytes(bytes, size) != 1) {
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to generate random bytes (error code " +
+                                             std::to_string(ERR_get_error()) + ")"));
+  }
 }
 
 // Boost.Random-based (simple) random generators

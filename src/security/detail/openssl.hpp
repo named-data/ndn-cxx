@@ -40,6 +40,6 @@
 #include <openssl/pem.h>
 #include <openssl/hmac.h>
 #include <openssl/x509.h>
-
+#include <openssl/err.h>
 
 #endif // NDN_SECURITY_DETAIL_OPENSSL_HPP

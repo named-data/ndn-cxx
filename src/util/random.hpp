@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@ namespace random {
 /**
  * @brief Generate a cryptographically secure random integer from the range [0, 2^32)
  *
- * This method uses CryptoPP routines
+ * @throw std::runtime_error if generation fails.
  */
 uint32_t
 generateSecureWord32();
@@ -38,10 +38,18 @@ generateSecureWord32();
 /**
  * @brief Generate a cryptographically secure random integer from the range [0, 2^64)
  *
- * This method uses CryptoPP routines
+ * @throw std::runtime_error if generation fails.
  */
 uint64_t
 generateSecureWord64();
+
+/**
+ * @brief Fill @p bytes of @p size with cryptographically secure random bytes
+ *
+ * @throw std::runtime_error if generation fails.
+ */
+void
+generateSecureBytes(uint8_t* bytes, size_t size);
 
 /**
  * @brief Generate a cryptographically non-secure random integer from the range [0, 2^32)
