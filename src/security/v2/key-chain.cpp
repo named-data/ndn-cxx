@@ -154,7 +154,7 @@ KeyChain::getDefaultSigningInfo()
 const KeyParams&
 KeyChain::getDefaultKeyParams()
 {
-  static EcdsaKeyParams keyParams;
+  static EcKeyParams keyParams;
   return keyParams;
 }
 

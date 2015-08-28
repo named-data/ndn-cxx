@@ -134,7 +134,7 @@ public: // Identity management
    *
    * @param identityName The name of the identity.
    * @param params The key parameters if a key needs to be created for the identity (default:
-   *               ECDSA key with random key id)
+   *               EC key with random key id)
    * @return The created Identity instance.
    */
   Identity
@@ -162,7 +162,7 @@ public: // Key management
    *
    * @param identity reference to a valid Identity object
    * @param params The key parameters if a key needs to be created for the identity (default:
-   *               ECDSA key with random key id)
+   *               EC key with random key id)
    *
    * If @p identity had no default key selected, the created key will be set as the default for
    * this identity.

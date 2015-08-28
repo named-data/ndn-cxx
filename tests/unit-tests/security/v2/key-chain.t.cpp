@@ -336,11 +336,11 @@ BOOST_FIXTURE_TEST_CASE(PublicKeySigningDefaults, IdentityManagementFixture)
   // Identity will be created with generated key and self-signed cert with default parameters
   BOOST_CHECK_THROW(m_keyChain.sign(data, signingByIdentity("/non-existing/identity")), KeyChain::InvalidSigningInfoError);
 
-  // Create identity with ECDSA key and the corresponding self-signed certificate
-  Identity id = addIdentity("/ndn/test/ecdsa", EcdsaKeyParams());
+  // Create identity with EC key and the corresponding self-signed certificate
+  Identity id = addIdentity("/ndn/test/ec", EcKeyParams());
   BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(id.getName())));
   BOOST_CHECK_EQUAL(data.getSignature().getType(),
-                    KeyChain::getSignatureType(EcdsaKeyParams().getKeyType(), DigestAlgorithm::SHA256));
+                    KeyChain::getSignatureType(EcKeyParams().getKeyType(), DigestAlgorithm::SHA256));
   BOOST_CHECK(id.getName().isPrefixOf(data.getSignature().getKeyLocator().getName()));
 
   // Create identity with RSA key and the corresponding self-signed certificate

@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(KeyTypeRsa)
   pib.deleteIdentityInfo(Name("/TestSecPublicInfoSqlite3/KeyType/RSA"));
 }
 
-BOOST_AUTO_TEST_CASE(KeyTypeEcdsa)
+BOOST_AUTO_TEST_CASE(KeyTypeEc)
 {
   using namespace CryptoPP;
 
@@ -128,14 +128,14 @@ BOOST_AUTO_TEST_CASE(KeyTypeEcdsa)
   StringSource ss(reinterpret_cast<const uint8_t*>(ECDSA_DER.c_str()), ECDSA_DER.size(),
                   true, new Base64Decoder(new FileSink(os)));
 
-  shared_ptr<v1::PublicKey> ecdsaKey;
-  BOOST_REQUIRE_NO_THROW(ecdsaKey = make_shared<v1::PublicKey>(os.buf()->buf(), os.buf()->size()));
-  Name ecdsaKeyName("/TestSecPublicInfoSqlite3/KeyType/ECDSA/ksk-123");
+  shared_ptr<v1::PublicKey> ecKey;
+  BOOST_REQUIRE_NO_THROW(ecKey = make_shared<v1::PublicKey>(os.buf()->buf(), os.buf()->size()));
+  Name ecKeyName("/TestSecPublicInfoSqlite3/KeyType/EC/ksk-123");
   SecPublicInfoSqlite3 pib;
-  pib.addKey(ecdsaKeyName, *ecdsaKey);
+  pib.addKey(ecKeyName, *ecKey);
 
-  BOOST_CHECK_EQUAL(KeyType::EC, pib.getPublicKeyType(ecdsaKeyName));
-  pib.deleteIdentityInfo(Name("/TestSecPublicInfoSqlite3/KeyType/ECDSA"));
+  BOOST_CHECK_EQUAL(KeyType::EC, pib.getPublicKeyType(ecKeyName));
+  pib.deleteIdentityInfo(Name("/TestSecPublicInfoSqlite3/KeyType/EC"));
 }
 
 BOOST_AUTO_TEST_CASE(KeyTypeNonExistent)

@@ -341,8 +341,8 @@ BackEndOsx::doCreateKey(const Name& identityName, const KeyParams& params)
       break;
     }
     case KeyType::EC: {
-      const EcdsaKeyParams& ecdsaParams = static_cast<const EcdsaKeyParams&>(params);
-      keySize = ecdsaParams.getKeySize();
+      const EcKeyParams& ecParams = static_cast<const EcKeyParams&>(params);
+      keySize = ecParams.getKeySize();
       break;
     }
     default: {

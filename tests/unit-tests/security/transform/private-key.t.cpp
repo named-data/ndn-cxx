@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -114,10 +114,10 @@ public:
   std::string publicKeyPkcs8;
 };
 
-class EcdsaKeyTestData
+class EcKeyTestData
 {
 public:
-  EcdsaKeyTestData()
+  EcKeyTestData()
   {
     privateKeyPkcs1 =
       "MIIBaAIBAQQgRxwcbzK9RV6AHYFsDcykI86o3M/a1KlJn0z8PcLMBZOggfowgfcC\n"
@@ -158,7 +158,7 @@ public:
 };
 
 typedef boost::mpl::list<RsaKeyTestData,
-                         EcdsaKeyTestData> KeyTestDataSets;
+                         EcKeyTestData> KeyTestDataSets;
 
 void
 checkPkcs8Encoding(ConstBufferPtr encoding, const std::string& password, ConstBufferPtr pkcs1)
@@ -377,7 +377,7 @@ BOOST_AUTO_TEST_CASE(RsaEncryption)
 }
 
 typedef boost::mpl::list<RsaKeyParams,
-                         EcdsaKeyParams> TestKeyParams;
+                         EcKeyParams> TestKeyParams;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, TestKeyParams)
 {

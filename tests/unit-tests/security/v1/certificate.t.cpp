@@ -227,7 +227,7 @@ const std::string SELF_SIGNED_ECDSA_CERT_INFO =
   "  NotAfter: 20341116T182912\n"
   "Subject Description:\n"
   "  2.5.4.41: /ecdsa/ksk-1416594552827\n"
-  "Public key bits: (ECDSA)\n"
+  "Public key bits: (EC)\n"
   "  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEg+WBGdn6ZECtfJP8FZBrOB7FyrFr\n"
   "  Cx9kv0iq0JFcJNZ4QP2VXVRk4S0OmGYderBhFwUmE2MlfNqHEclnzRIF\n"
   "Signature Information:\n"

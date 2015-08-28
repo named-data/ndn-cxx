@@ -164,13 +164,13 @@ public:
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
    * @param keySize The size of the key.
    * @return The generated key name.
-   * @see generateEcdsaKeyPair
+   * @see generateEcKeyPair
    */
   Name
   generateRsaKeyPair(const Name& identityName, bool isKsk = false, uint32_t keySize = 2048);
 
   /**
-   * @brief Generate a pair of ECDSA keys for the specified identity.
+   * @brief Generate a pair of EC keys for the specified identity.
    *
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
@@ -179,7 +179,7 @@ public:
    * @see generateRsaKeyPair
    */
   Name
-  generateEcdsaKeyPair(const Name& identityName, bool isKsk = false, uint32_t keySize = 256);
+  generateEcKeyPair(const Name& identityName, bool isKsk = false, uint32_t keySize = 256);
 
   /**
    * @brief Generate a pair of RSA keys for the specified identity and set it as default key for
@@ -189,23 +189,23 @@ public:
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
    * @param keySize The size of the key.
    * @return The generated key name.
-   * @see generateRsaKeyPair, generateEcdsaKeyPair, generateEcdsaKeyPairAsDefault
+   * @see generateRsaKeyPair, generateEcKeyPair, generateEcKeyPairAsDefault
    */
   Name
   generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk = false, uint32_t keySize = 2048);
 
   /**
-   * @brief Generate a pair of ECDSA keys for the specified identity and set it as default key for
+   * @brief Generate a pair of EC keys for the specified identity and set it as default key for
    *        the identity.
    *
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
    * @param keySize The size of the key.
    * @return The generated key name.
-   * @see generateRsaKeyPair, generateEcdsaKeyPair, generateRsaKeyPairAsDefault
+   * @see generateRsaKeyPair, generateEcKeyPair, generateRsaKeyPairAsDefault
    */
   Name
-  generateEcdsaKeyPairAsDefault(const Name& identityName, bool isKsk = false, uint32_t keySize = 256);
+  generateEcKeyPairAsDefault(const Name& identityName, bool isKsk = false, uint32_t keySize = 256);
 
   /**
    * @brief prepare an unsigned identity certificate

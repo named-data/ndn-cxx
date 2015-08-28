@@ -166,10 +166,10 @@ SecTpmFile::generateKeyPairInTpm(const Name& keyName, const KeyParams& params)
       case KeyType::EC: {
         using namespace CryptoPP;
 
-        const EcdsaKeyParams& ecdsaParams = static_cast<const EcdsaKeyParams&>(params);
+        const EcKeyParams& ecParams = static_cast<const EcKeyParams&>(params);
 
         CryptoPP::OID curveName;
-        switch (ecdsaParams.getKeySize()) {
+        switch (ecParams.getKeySize()) {
         case 256:
           curveName = ASN1::secp256r1();
           break;

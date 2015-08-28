@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -431,8 +431,8 @@ generatePrivateKey(const KeyParams& keyParams)
       return generateRsaKey(rsaParams.getKeySize());
     }
     case KeyType::EC: {
-      const EcdsaKeyParams& ecdsaParams = static_cast<const EcdsaKeyParams&>(keyParams);
-      return generateEcKey(ecdsaParams.getKeySize());
+      const EcKeyParams& ecParams = static_cast<const EcKeyParams&>(keyParams);
+      return generateEcKey(ecParams.getKeySize());
     }
     default:
       BOOST_THROW_EXCEPTION(std::invalid_argument("Unsupported asymmetric key type"));

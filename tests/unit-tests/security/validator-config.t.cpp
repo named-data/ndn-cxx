@@ -994,20 +994,20 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
   Name rsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Rsa");
   addIdentity(rsaIdentity, RsaKeyParams());
 
-  Name ecdsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Ecdsa");
-  auto identity = addIdentity(ecdsaIdentity, EcdsaKeyParams());
+  Name ecIdentity("/TestValidatorConfig/FixedSignerChecker2/Ec");
+  auto identity = addIdentity(ecIdentity, EcKeyParams());
   BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-11.cert"));
 
   Name dataName("/TestValidatorConfig/FixedSignerChecker2");
   shared_ptr<Data> dataRsa = make_shared<Data>(dataName);
   m_keyChain.sign(*dataRsa, security::signingByIdentity(rsaIdentity));
-  shared_ptr<Data> dataEcdsa = make_shared<Data>(dataName);
-  m_keyChain.sign(*dataEcdsa, security::signingByIdentity(ecdsaIdentity));
+  shared_ptr<Data> dataEc = make_shared<Data>(dataName);
+  m_keyChain.sign(*dataEc, security::signingByIdentity(ecIdentity));
 
   shared_ptr<Interest> interestRsa = make_shared<Interest>(dataName);
   m_keyChain.sign(*interestRsa, security::signingByIdentity(rsaIdentity));
-  shared_ptr<Interest> interestEcdsa = make_shared<Interest>(dataName);
-  m_keyChain.sign(*interestEcdsa, security::signingByIdentity(ecdsaIdentity));
+  shared_ptr<Interest> interestEc = make_shared<Interest>(dataName);
+  m_keyChain.sign(*interestEc, security::signingByIdentity(ecIdentity));
 
   const std::string CONFIG =
     "rule\n"
@@ -1057,7 +1057,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
 
   validator.load(CONFIG, CONFIG_PATH.c_str());
 
-  validator.validate(*dataEcdsa,
+  validator.validate(*dataEc,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 
@@ -1065,7 +1065,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
     [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
 
-  validator.validate(*interestEcdsa,
+  validator.validate(*interestEc,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 

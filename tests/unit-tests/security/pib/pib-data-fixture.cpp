@@ -43,7 +43,7 @@ namespace tests {
 //   printTestDataForId(const std::string& prefix, const Name& id)
 //   {
 //     for (int keyId : {1, 2}) {
-//       Name keyName = tpm.createKey(id, EcdsaKeyParams(name::Component::fromNumber(keyId)));
+//       Name keyName = tpm.createKey(id, EcKeyParams(name::Component::fromNumber(keyId)));
 
 //       for (int certVersion : {1, 2}) {
 //         Name certName = keyName;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -53,22 +53,22 @@ BOOST_AUTO_TEST_CASE(Rsa)
   BOOST_CHECK_EQUAL(params4.getKeyId(), keyId);
 }
 
-BOOST_AUTO_TEST_CASE(Ecdsa)
+BOOST_AUTO_TEST_CASE(Ec)
 {
-  EcdsaKeyParams params;
+  EcKeyParams params;
   BOOST_CHECK_EQUAL(params.getKeyType(), KeyType::EC);
   BOOST_CHECK_EQUAL(params.getKeySize(), 256);
   BOOST_CHECK(params.getKeyIdType() == KeyIdType::RANDOM);
 
-  EcdsaKeyParams params2(384, KeyIdType::SHA256);
+  EcKeyParams params2(384, KeyIdType::SHA256);
   BOOST_CHECK_EQUAL(params2.getKeyType(), KeyType::EC);
   BOOST_CHECK_EQUAL(params2.getKeySize(), 384);
   BOOST_CHECK(params2.getKeyIdType() == KeyIdType::SHA256);
 
-  BOOST_CHECK_THROW(EcdsaKeyParams(3), KeyParams::Error);
+  BOOST_CHECK_THROW(EcKeyParams(3), KeyParams::Error);
 
   name::Component keyId("keyId");
-  EcdsaKeyParams params4(keyId);
+  EcKeyParams params4(keyId);
   BOOST_CHECK(params4.getKeyType() == KeyType::EC);
   BOOST_CHECK_EQUAL(params4.getKeySize(), 256);
   BOOST_CHECK(params4.getKeyIdType() == KeyIdType::USER_SPECIFIED);

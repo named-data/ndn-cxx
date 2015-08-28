@@ -412,12 +412,12 @@ BOOST_FIXTURE_TEST_CASE(EcdsaSigningByIdentityNoCert, IdentityManagementV1Fixtur
                                                DigestAlgorithm::SHA256));
   BOOST_CHECK(nonExistingIdentity.isPrefixOf(data.getSignature().getKeyLocator().getName()));
 
-  Name ecdsaIdentity = Name("/ndn/test/ecdsa").appendVersion();
-  Name ecdsaKeyName = m_keyChain.generateEcdsaKeyPairAsDefault(ecdsaIdentity, false, 256);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(ecdsaIdentity)));
+  Name ecIdentity = Name("/ndn/test/ec").appendVersion();
+  Name ecKeyName = m_keyChain.generateEcKeyPairAsDefault(ecIdentity, false, 256);
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(ecIdentity)));
   BOOST_CHECK_EQUAL(data.getSignature().getType(),
-                    KeyChain::getSignatureType(EcdsaKeyParams().getKeyType(), DigestAlgorithm::SHA256));
-  BOOST_CHECK(ecdsaIdentity.isPrefixOf(data.getSignature().getKeyLocator().getName()));
+                    KeyChain::getSignatureType(EcKeyParams().getKeyType(), DigestAlgorithm::SHA256));
+  BOOST_CHECK(ecIdentity.isPrefixOf(data.getSignature().getKeyLocator().getName()));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestKeyChain

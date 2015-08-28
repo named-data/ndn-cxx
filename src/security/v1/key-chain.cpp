@@ -331,18 +331,16 @@ KeyChain::generateRsaKeyPair(const Name& identityName, bool isKsk, uint32_t keyS
 }
 
 Name
-KeyChain::generateEcdsaKeyPair(const Name& identityName, bool isKsk, uint32_t keySize)
+KeyChain::generateEcKeyPair(const Name& identityName, bool isKsk, uint32_t keySize)
 {
-  EcdsaKeyParams params(keySize);
+  EcKeyParams params(keySize);
   return generateKeyPair(identityName, isKsk, params);
 }
 
 Name
 KeyChain::generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk, uint32_t keySize)
 {
-  RsaKeyParams params(keySize);
-
-  Name keyName = generateKeyPair(identityName, isKsk, params);
+  Name keyName = generateRsaKeyPair(identityName, isKsk, keySize);
 
   m_pib->setDefaultKeyNameForIdentity(keyName);
 
@@ -350,11 +348,9 @@ KeyChain::generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk, uint
 }
 
 Name
-KeyChain::generateEcdsaKeyPairAsDefault(const Name& identityName, bool isKsk, uint32_t keySize)
+KeyChain::generateEcKeyPairAsDefault(const Name& identityName, bool isKsk, uint32_t keySize)
 {
-  EcdsaKeyParams params(keySize);
-
-  Name keyName = generateKeyPair(identityName, isKsk, params);
+  Name keyName = generateEcKeyPair(identityName, isKsk, keySize);
 
   m_pib->setDefaultKeyNameForIdentity(keyName);
 
@@ -670,8 +666,8 @@ KeyChain::getDefaultKeyParamsForIdentity(const Name &identityName) const
       return defaultRsaParams;
     }
     case KeyType::EC: {
-      static EcdsaKeyParams defaultEcdsaParams;
-      return defaultEcdsaParams;
+      static EcKeyParams defaultEcParams;
+      return defaultEcParams;
     }
     case KeyType::NONE: {
       return DEFAULT_KEY_PARAMS;

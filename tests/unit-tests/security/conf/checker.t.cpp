@@ -213,11 +213,11 @@ BOOST_AUTO_TEST_CASE(CustomizedCheckerTest3)
   using security::conf::RegexKeyLocatorNameChecker;
 
   Name identity("/SecurityTestConfChecker/CustomizedCheckerTest3");
-  addIdentity(identity, EcdsaKeyParams());
+  addIdentity(identity, EcKeyParams());
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
 
   Name identity2("/SecurityTestConfChecker/CustomizedCheckerTest3Wrong");
-  addIdentity(identity2, EcdsaKeyParams());
+  addIdentity(identity2, EcKeyParams());
   Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
 
   Name packetName("/SecurityTestConfChecker/CustomizedCheckerTest3/Data");
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE(HierarchicalCheckerTest1)
   using security::conf::HierarchicalChecker;
 
   Name identity("/SecurityTestConfChecker/HierarchicalCheckerTest1");
-  addIdentity(identity, EcdsaKeyParams());
+  addIdentity(identity, EcKeyParams());
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
 
   Name identity2("/SecurityTestConfChecker/HierarchicalCheckerTest1/Data");
@@ -363,7 +363,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerCheckerTest1)
   using security::conf::FixedSignerChecker;
 
   Name identity("/SecurityTestConfChecker/FixedSignerCheckerTest1");
-  addIdentity(identity, EcdsaKeyParams());
+  addIdentity(identity, EcKeyParams());
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
   shared_ptr<v1::IdentityCertificate> cert1 = m_keyChain.getCertificate(certName);
 

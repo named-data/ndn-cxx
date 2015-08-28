@@ -157,12 +157,12 @@ const uint8_t rsaSigValue[] = {
 BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification)
 {
   Name identity("/TestValidator/EcdsaSignatureVerification");
-  addIdentity(identity, EcdsaKeyParams());
+  addIdentity(identity, EcKeyParams());
   Name keyName = m_keyChain.getDefaultKeyNameForIdentity(identity);
   shared_ptr<v1::PublicKey> publicKey = m_keyChain.getPublicKey(keyName);
 
   Name identity2("/TestValidator/EcdsaSignatureVerification/id2");
-  addIdentity(identity2, EcdsaKeyParams());
+  addIdentity(identity2, EcKeyParams());
   Name keyName2 = m_keyChain.getDefaultKeyNameForIdentity(identity2);
   shared_ptr<v1::PublicKey> publicKey2 = m_keyChain.getPublicKey(keyName2);
 
@@ -191,10 +191,10 @@ BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification)
 
 BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification2)
 {
-  Name ecdsaIdentity("/SecurityTestValidator/EcdsaSignatureVerification2/ecdsa");
-  addIdentity(ecdsaIdentity, EcdsaKeyParams());
-  Name ecdsaCertName = m_keyChain.getDefaultCertificateNameForIdentity(ecdsaIdentity);
-  shared_ptr<v1::IdentityCertificate> ecdsaCert = m_keyChain.getCertificate(ecdsaCertName);
+  Name ecIdentity("/SecurityTestValidator/EcdsaSignatureVerification2/ec");
+  addIdentity(ecIdentity, EcKeyParams());
+  Name ecCertName = m_keyChain.getDefaultCertificateNameForIdentity(ecIdentity);
+  shared_ptr<v1::IdentityCertificate> ecCert = m_keyChain.getCertificate(ecCertName);
 
   Name rsaIdentity("/SecurityTestValidator/EcdsaSignatureVerification2/rsa");
   addIdentity(rsaIdentity, RsaKeyParams());
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification2)
   shared_ptr<Data> testDataEcdsa = make_shared<Data>(packetName);
   m_keyChain.sign(*testDataEcdsa,
                   security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        ecdsaIdentity));
+                                        ecIdentity));
   shared_ptr<Interest> testInterestRsa = make_shared<Interest>(packetName);
   m_keyChain.sign(*testInterestRsa,
                   security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
@@ -218,22 +218,22 @@ BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification2)
   shared_ptr<Interest> testInterestEcdsa = make_shared<Interest>(packetName);
   m_keyChain.sign(*testInterestEcdsa,
                   security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        ecdsaIdentity));
+                                        ecIdentity));
 
-  BOOST_CHECK(Validator::verifySignature(*ecdsaCert, ecdsaCert->getPublicKeyInfo()));
-  BOOST_CHECK_EQUAL(Validator::verifySignature(*ecdsaCert, rsaCert->getPublicKeyInfo()), false);
-  BOOST_CHECK_EQUAL(Validator::verifySignature(*rsaCert, ecdsaCert->getPublicKeyInfo()), false);
+  BOOST_CHECK(Validator::verifySignature(*ecCert, ecCert->getPublicKeyInfo()));
+  BOOST_CHECK_EQUAL(Validator::verifySignature(*ecCert, rsaCert->getPublicKeyInfo()), false);
+  BOOST_CHECK_EQUAL(Validator::verifySignature(*rsaCert, ecCert->getPublicKeyInfo()), false);
   BOOST_CHECK(Validator::verifySignature(*rsaCert, rsaCert->getPublicKeyInfo()));
 
-  BOOST_CHECK(Validator::verifySignature(*testDataEcdsa, ecdsaCert->getPublicKeyInfo()));
+  BOOST_CHECK(Validator::verifySignature(*testDataEcdsa, ecCert->getPublicKeyInfo()));
   BOOST_CHECK_EQUAL(Validator::verifySignature(*testDataEcdsa, rsaCert->getPublicKeyInfo()), false);
-  BOOST_CHECK_EQUAL(Validator::verifySignature(*testDataRsa, ecdsaCert->getPublicKeyInfo()), false);
+  BOOST_CHECK_EQUAL(Validator::verifySignature(*testDataRsa, ecCert->getPublicKeyInfo()), false);
   BOOST_CHECK(Validator::verifySignature(*testDataRsa, rsaCert->getPublicKeyInfo()));
 
-  BOOST_CHECK(Validator::verifySignature(*testInterestEcdsa, ecdsaCert->getPublicKeyInfo()));
+  BOOST_CHECK(Validator::verifySignature(*testInterestEcdsa, ecCert->getPublicKeyInfo()));
   BOOST_CHECK_EQUAL(Validator::verifySignature(*testInterestEcdsa, rsaCert->getPublicKeyInfo()),
                     false);
-  BOOST_CHECK_EQUAL(Validator::verifySignature(*testInterestRsa, ecdsaCert->getPublicKeyInfo()),
+  BOOST_CHECK_EQUAL(Validator::verifySignature(*testInterestRsa, ecCert->getPublicKeyInfo()),
                     false);
   BOOST_CHECK(Validator::verifySignature(*testInterestRsa, rsaCert->getPublicKeyInfo()));
 }

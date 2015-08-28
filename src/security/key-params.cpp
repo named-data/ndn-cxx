@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,7 +25,7 @@ namespace ndn {
 
 static const uint32_t MIN_RSA_KEY_SIZE = 1024;
 static const uint32_t DEFAULT_RSA_KEY_SIZE = 2048;
-static const uint32_t ECDSA_KEY_SIZES[] = {256, 384};
+static const uint32_t EC_KEY_SIZES[] = {256, 384};
 static const uint32_t AES_KEY_SIZES[] = {128, 192, 256};
 
 KeyParams::~KeyParams() = default;
@@ -60,19 +60,19 @@ RsaKeyParamsInfo::getDefaultSize()
 }
 
 uint32_t
-EcdsaKeyParamsInfo::checkKeySize(uint32_t size)
+EcKeyParamsInfo::checkKeySize(uint32_t size)
 {
-  for (size_t i = 0; i < (sizeof(ECDSA_KEY_SIZES) / sizeof(ECDSA_KEY_SIZES[0])); i++) {
-    if (ECDSA_KEY_SIZES[i] == size)
+  for (size_t i = 0; i < (sizeof(EC_KEY_SIZES) / sizeof(EC_KEY_SIZES[0])); i++) {
+    if (EC_KEY_SIZES[i] == size)
       return size;
   }
   BOOST_THROW_EXCEPTION(KeyParams::Error("Unsupported key size"));
 }
 
 uint32_t
-EcdsaKeyParamsInfo::getDefaultSize()
+EcKeyParamsInfo::getDefaultSize()
 {
-  return ECDSA_KEY_SIZES[0];
+  return EC_KEY_SIZES[0];
 }
 
 

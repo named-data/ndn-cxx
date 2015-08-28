@@ -403,8 +403,8 @@ SecTpmOsx::generateKeyPairInTpmInternal(const Name& keyName,
     }
 
     case KeyType::EC: {
-      const EcdsaKeyParams& ecdsaParams = static_cast<const EcdsaKeyParams&>(params);
-      keySize = ecdsaParams.getKeySize();
+      const EcKeyParams& ecParams = static_cast<const EcKeyParams&>(params);
+      keySize = ecParams.getKeySize();
       break;
     }
 

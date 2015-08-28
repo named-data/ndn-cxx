@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -56,10 +56,10 @@ public:
   std::string publicKeyPkcs8;
 };
 
-class EcdsaPublicKeyTestData
+class EcPublicKeyTestData
 {
 public:
-  EcdsaPublicKeyTestData()
+  EcPublicKeyTestData()
   {
     publicKeyPkcs8 =
       "MIIBSzCCAQMGByqGSM49AgEwgfcCAQEwLAYHKoZIzj0BAQIhAP////8AAAABAAAA\n"
@@ -76,7 +76,7 @@ public:
 };
 
 typedef boost::mpl::list<RsaPublicKeyTestData,
-                         EcdsaPublicKeyTestData> PublicKeyTestDataSets;
+                         EcPublicKeyTestData> PublicKeyTestDataSets;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, PublicKeyTestDataSets)
 {

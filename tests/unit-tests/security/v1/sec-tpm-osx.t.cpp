@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(EcdsaSigning)
 
   Name keyName("/TestSecTpmOsx/EcdsaSigning/ksk-" +
                boost::lexical_cast<std::string>(time::toUnixTimestamp(time::system_clock::now())));
-  EcdsaKeyParams params;
+  EcKeyParams params;
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, params));
 
   Data data("/TestSecTpmOsx/EcdsaSigning/Data/1");
@@ -287,17 +287,17 @@ BOOST_AUTO_TEST_CASE(EcdsaSigning)
 }
 
 
-BOOST_AUTO_TEST_CASE(ExportImportEcdsaKey)
+BOOST_AUTO_TEST_CASE(ExportImportEcKey)
 {
   using namespace CryptoPP;
 
   SecTpmOsx tpm;
 
-  Name keyName("/TestSecTpmOsx/ExportImportEcdsaKey/ksk-" +
+  Name keyName("/TestSecTpmOsx/ExportImportEcKey/ksk-" +
                boost::lexical_cast<std::string>(
                  time::toUnixTimestamp(time::system_clock::now()).count()));
 
-  EcdsaKeyParams params;
+  EcKeyParams params;
   BOOST_CHECK_NO_THROW(tpm.generateKeyPairInTpm(keyName, params));
 
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
@@ -330,17 +330,17 @@ BOOST_AUTO_TEST_CASE(ExportImportEcdsaKey)
     {
       using namespace CryptoPP;
 
-      ECDSA<ECP, SHA256>::PublicKey ecdsaPublicKey;
+      ECDSA<ECP, SHA256>::PublicKey ecPublicKey;
       ByteQueue queue;
       queue.Put(reinterpret_cast<const byte*>(publicKey->get().buf()), publicKey->get().size());
-      ecdsaPublicKey.Load(queue);
+      ecPublicKey.Load(queue);
 
       uint8_t buffer[64];
       size_t usedSize = DSAConvertSignatureFormat(buffer, 64, DSA_P1363,
                                                   sigBlock.value(), sigBlock.value_size(),
                                                   DSA_DER);
 
-      ECDSA<ECP, SHA256>::Verifier verifier(ecdsaPublicKey);
+      ECDSA<ECP, SHA256>::Verifier verifier(ecPublicKey);
       bool isVerified = verifier.VerifyMessage(content, sizeof(content),
                                                buffer, usedSize);
 

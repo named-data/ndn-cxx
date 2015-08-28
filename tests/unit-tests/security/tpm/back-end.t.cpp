@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -149,11 +149,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
   T wrapper;
   BackEnd& tpm = wrapper.getTpm();
 
-  // create an ecdsa key
-  Name identity("/Test/Ecdsa/KeyName");
+  // create an ec key
+  Name identity("/Test/Ec/KeyName");
 
-  unique_ptr<KeyHandle> key = tpm.createKey(identity, EcdsaKeyParams());
-  Name ecdsaKeyName = key->getKeyName();
+  unique_ptr<KeyHandle> key = tpm.createKey(identity, EcKeyParams());
+  Name ecKeyName = key->getKeyName();
 
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
   Block sigBlock(tlv::SignatureValue, key->sign(DigestAlgorithm::SHA256, content, sizeof(content)));
@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
   }
   BOOST_CHECK_EQUAL(result, true);
 
-  tpm.deleteKey(ecdsaKeyName);
-  BOOST_CHECK_EQUAL(tpm.hasKey(ecdsaKeyName), false);
+  tpm.deleteKey(ecKeyName);
+  BOOST_CHECK_EQUAL(tpm.hasKey(ecKeyName), false);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)

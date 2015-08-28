@@ -35,18 +35,18 @@ BOOST_AUTO_TEST_CASE(Basic)
 {
   Name rsaIdentity("/SecurityTestSecRule/Basic/Rsa");
   addIdentity(rsaIdentity, RsaKeyParams());
-  Name ecdsaIdentity("/SecurityTestSecRule/Basic/Ecdsa");
-  addIdentity(ecdsaIdentity, EcdsaKeyParams());
+  Name ecIdentity("/SecurityTestSecRule/Basic/Ec");
+  addIdentity(ecIdentity, EcKeyParams());
 
   Name dataName("SecurityTestSecRule/Basic");
   Data rsaData(dataName);
   m_keyChain.sign(rsaData,
                   security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
                                         rsaIdentity));
-  Data ecdsaData(dataName);
-  m_keyChain.sign(ecdsaData,
+  Data ecData(dataName);
+  m_keyChain.sign(ecData,
                   security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        ecdsaIdentity));
+                                        ecIdentity));
   Data sha256Data(dataName);
   m_keyChain.sign(sha256Data, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
 
@@ -54,11 +54,11 @@ BOOST_AUTO_TEST_CASE(Basic)
                        "^(<SecurityTestSecRule><Basic>)<><KEY><><>$",
                        "==", "\\1", "\\1", true);
   BOOST_CHECK(rule.satisfy(rsaData));
-  BOOST_CHECK(rule.satisfy(ecdsaData));
+  BOOST_CHECK(rule.satisfy(ecData));
   BOOST_CHECK_EQUAL(rule.satisfy(sha256Data), false);
 
   BOOST_CHECK(rule.matchSignerName(rsaData));
-  BOOST_CHECK(rule.matchSignerName(ecdsaData));
+  BOOST_CHECK(rule.matchSignerName(ecData));
   BOOST_CHECK_EQUAL(rule.matchSignerName(sha256Data), false);
 }
 

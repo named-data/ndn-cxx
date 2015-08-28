@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(Encoding)
 
 BOOST_AUTO_TEST_CASE(DataSignature)
 {
-  Identity identity = addIdentity("/SecurityTestSignatureSha256WithEcdsa/DataSignature", EcdsaKeyParams());
+  Identity identity = addIdentity("/SecurityTestSignatureSha256WithEcdsa/DataSignature", EcKeyParams());
 
   Data testData("/SecurityTestSignatureSha256WithEcdsa/DataSignature/Data1");
   char content[5] = "1234";
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(DataSignature)
 
 BOOST_AUTO_TEST_CASE(InterestSignature)
 {
-  Identity identity = addIdentity("/SecurityTestSignatureSha256WithEcdsa/InterestSignature", EcdsaKeyParams());
+  Identity identity = addIdentity("/SecurityTestSignatureSha256WithEcdsa/InterestSignature", EcKeyParams());
 
   Interest interest("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");
   Interest interest11("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");

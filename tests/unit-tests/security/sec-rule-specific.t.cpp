@@ -20,6 +20,7 @@
  */
 
 #include "security/sec-rule-specific.hpp"
+#include "security/signing-helpers.hpp"
 
 #include "boost-test.hpp"
 #include "identity-management-fixture.hpp"
@@ -31,39 +32,31 @@ namespace tests {
 using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestSecRuleSpecific, IdentityManagementV1Fixture)
+BOOST_FIXTURE_TEST_SUITE(TestSecRuleSpecific, IdentityManagementFixture)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
-  Name rsaIdentity("/SecurityTestSecRule/Basic/Rsa");
-  addIdentity(rsaIdentity, RsaKeyParams());
-  Name ecdsaIdentity("/SecurityTestSecRule/Basic/Ecdsa");
-  addIdentity(ecdsaIdentity, EcdsaKeyParams());
+  auto rsaIdentity = addIdentity("/SecurityTestSecRule/Basic/Rsa", RsaKeyParams());
+  auto ecIdentity = addIdentity("/SecurityTestSecRule/Basic/Ec", EcKeyParams());
 
-  Name dataName("SecurityTestSecRule/Basic");
+  Name dataName("/SecurityTestSecRule/Basic");
   Data rsaData(dataName);
-  m_keyChain.sign(rsaData,
-                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        rsaIdentity));
-  Data ecdsaData(dataName);
-  m_keyChain.sign(ecdsaData,
-                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        ecdsaIdentity));
+  m_keyChain.sign(rsaData, signingByIdentity(rsaIdentity));
+  Data ecData(dataName);
+  m_keyChain.sign(ecData, signingByIdentity(ecIdentity));
   Data sha256Data(dataName);
-  m_keyChain.sign(sha256Data, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
+  m_keyChain.sign(sha256Data, security::signingWithSha256());
 
-  shared_ptr<Regex> dataRegex =
-    make_shared<Regex>("^<SecurityTestSecRule><Basic>$");
-  shared_ptr<Regex> signerRegex =
-    make_shared<Regex>("^<SecurityTestSecRule><Basic><><KEY><><>$");
+  auto dataRegex = make_shared<Regex>("^<SecurityTestSecRule><Basic>$");
+  auto signerRegex = make_shared<Regex>("^<SecurityTestSecRule><Basic><><KEY><>$");
 
   SecRuleSpecific rule(dataRegex, signerRegex);
   BOOST_CHECK(rule.satisfy(rsaData));
-  BOOST_CHECK(rule.satisfy(ecdsaData));
+  BOOST_CHECK(rule.satisfy(ecData));
   BOOST_CHECK_EQUAL(rule.satisfy(sha256Data), false);
 
   BOOST_CHECK(rule.matchSignerName(rsaData));
-  BOOST_CHECK(rule.matchSignerName(ecdsaData));
+  BOOST_CHECK(rule.matchSignerName(ecData));
   BOOST_CHECK_EQUAL(rule.matchSignerName(sha256Data), false);
 }
 

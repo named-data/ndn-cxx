@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -122,8 +122,8 @@ public:
   getDefaultSize();
 };
 
-/// @brief EcdsaKeyParamInfo is used to initialize a SimplePublicKeyParams template for ECDSA key.
-class EcdsaKeyParamsInfo
+/// @brief EcKeyParamInfo is used to initialize a SimplePublicKeyParams template for elliptic curve key.
+class EcKeyParamsInfo
 {
 public:
   static KeyType
@@ -199,9 +199,8 @@ private:
 /// @brief RsaKeyParams carries parameters for RSA key.
 typedef SimplePublicKeyParams<RsaKeyParamsInfo> RsaKeyParams;
 
-/// @brief EcdsaKeyParams carries parameters for ECDSA key.
-typedef SimplePublicKeyParams<EcdsaKeyParamsInfo> EcdsaKeyParams;
-
+/// @brief EcKeyParams carries parameters for EC key.
+typedef SimplePublicKeyParams<EcKeyParamsInfo> EcKeyParams;
 
 /// @brief AesKeyParamsInfo is used to initialize a SimpleSymmetricKeyParams template for AES key.
 class AesKeyParamsInfo
@@ -224,7 +223,6 @@ public:
   static uint32_t
   getDefaultSize();
 };
-
 
 /// @brief SimpleSymmetricKeyParams is a template for symmetric keys with only one parameter: size.
 template<typename KeyParamsInfo>

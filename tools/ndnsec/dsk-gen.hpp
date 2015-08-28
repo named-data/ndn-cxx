@@ -44,7 +44,7 @@ ndnsec_dsk_gen(int argc, char** argv)
     ("identity,i", po::value<std::string>(&identityName),
      "identity name, for example, /ndn/ucla.edu/alice")
     ("type,t", po::value<char>(&keyType)->default_value('r'),
-     "optional, key type, r for RSA key (default), e for ECDSA key.")
+     "optional, key type, r for RSA key (default), e for EC key.")
     // ("size,s", po::value<int>(&keySize)->default_value(2048),
     //  "optional, key size, 2048 (default)")
     ;
@@ -134,10 +134,10 @@ ndnsec_dsk_gen(int argc, char** argv)
       }
     case 'e':
       {
-        EcdsaKeyParams params;
-        newKeyName = keyChain.generateEcdsaKeyPair(Name(identityName), false, params.getKeySize());
+        EcKeyParams params;
+        newKeyName = keyChain.generateEcKeyPair(Name(identityName), false, params.getKeySize());
         if (0 == newKeyName.size()) {
-          std::cerr << "ERROR: Fail to generate ECDSA key!" << std::endl;
+          std::cerr << "ERROR: Fail to generate EC key!" << std::endl;
           return 1;
         }
         break;
