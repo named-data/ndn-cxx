@@ -511,6 +511,15 @@ BOOST_AUTO_TEST_CASE(ShutdownWhileSendInProgress) // Bug #3136
   // should not segfault
 }
 
+BOOST_AUTO_TEST_CASE(LargeDelayBetweenFaceConstructorAndProcessEvents) // Bug #2742
+{
+  ndn::Face face;
+
+  ::sleep(5); // simulate setup workload
+
+  BOOST_CHECK_NO_THROW(face.processEvents(time::seconds(1)));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // tests

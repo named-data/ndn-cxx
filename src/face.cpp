@@ -128,7 +128,7 @@ Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
 
   m_transport = transport;
 
-  m_impl->ensureConnected(false);
+  m_ioService.post([=] { m_impl->ensureConnected(false); });
 }
 
 Face::~Face() = default;
