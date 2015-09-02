@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2015 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,27 +22,16 @@
 #ifndef NDN_UTIL_SEGMENT_FETCHER_HPP
 #define NDN_UTIL_SEGMENT_FETCHER_HPP
 
+#include "scheduler.hpp"
 #include "../common.hpp"
 #include "../face.hpp"
+#include "../security/validator.hpp"
 
 namespace ndn {
 
 class OBufferStream;
 
 namespace util {
-
-/**
- * @brief Functor to skip validation of individual packets by SegmentFetcher
- */
-class DontVerifySegment
-{
-public:
-  bool
-  operator()(const Data& data) const
-  {
-    return true;
-  }
-};
 
 /**
  * @brief Utility class to fetch latest version of the segmented data
@@ -82,38 +71,42 @@ public:
  * - `INTEREST_TIMEOUT`: if any of the Interests times out
  * - `DATA_HAS_NO_SEGMENT`: if any of the retrieved Data packets don't have segment
  *   as a last component of the name (not counting implicit digest)
- * - `SEGMENT_VERIFICATION_FAIL`: if any retrieved segment fails user-provided validation
+ * - `SEGMENT_VALIDATION_FAIL`: if any retrieved segment fails user-provided validation
  *
- * In order to validate individual segments, an VerifySegment callback needs to be specified.
- * If the callback returns false, fetching process is aborted with SEGMENT_VERIFICATION_FAIL.
- * If data validation is not required, provided DontVerifySegment() functor can be used.
+ * In order to validate individual segments, a Validator instance needs to be specified.
+ * If the segment validation is successful, afterValidationSuccess callback is fired, otherwise
+ * afterValidationFailure callback.
  *
  * Examples:
  *
  *     void
- *     onComplete(const ConstBufferPtr& data)
+ *     afterFetchComplete(const ConstBufferPtr& data)
  *     {
  *       ...
  *     }
  *
  *     void
- *     onError(uint32_t errorCode, const std::string& errorMsg)
+ *     afterFetchError(uint32_t errorCode, const std::string& errorMsg)
  *     {
  *       ...
  *     }
  *
  *     ...
  *     SegmentFetcher::fetch(face, Interest("/data/prefix", time::seconds(1000)),
- *                           DontVerifySegment(),
- *                           bind(&onComplete, this, _1),
- *                           bind(&onError, this, _1, _2));
+ *                           validator,
+ *                           bind(&afterFetchComplete, this, _1),
+ *                           bind(&afterFetchError, this, _1, _2));
  *
  */
 class SegmentFetcher : noncopyable
 {
 public:
+  /**
+   * @brief Maximum number of times an interest will be reexpressed incase of NackCallback
+   */
+  static const uint32_t MAX_INTEREST_REEXPRESS;
+
   typedef function<void (const ConstBufferPtr& data)> CompleteCallback;
-  typedef function<bool (const Data& data)> VerifySegment;
   typedef function<void (uint32_t code, const std::string& msg)> ErrorCallback;
 
   /**
@@ -122,8 +115,34 @@ public:
   enum ErrorCode {
     INTEREST_TIMEOUT = 1,
     DATA_HAS_NO_SEGMENT = 2,
-    SEGMENT_VERIFICATION_FAIL = 3
+    SEGMENT_VALIDATION_FAIL = 3,
+    NACK_ERROR = 4
   };
+
+  /**
+   * @brief Initiate segment fetching
+   *
+   * @param face          Reference to the Face that should be used to fetch data
+   * @param baseInterest  An Interest for the initial segment of requested data.
+   *                      This interest may include custom InterestLifetime and selectors that
+   *                      will propagate to all subsequent Interests.  The only exception is that
+   *                      the initial Interest will be forced to include "ChildSelector=rightmost" and
+   *                      "MustBeFresh=true" selectors, which will be turned off in subsequent
+   *                      Interests.
+   * @param validator     Reference to the Validator that should be used to validate data. Caller
+   *                      must ensure validator is valid until either completeCallback or errorCallback
+   *                      is invoked.
+   *
+   * @param completeCallback    Callback to be fired when all segments are fetched
+   * @param errorCallback       Callback to be fired when an error occurs (@see Errors)
+   */
+  static
+  void
+  fetch(Face& face,
+        const Interest& baseInterest,
+        Validator& validator,
+        const CompleteCallback& completeCallback,
+        const ErrorCallback& errorCallback);
 
   /**
    * @brief Initiate segment fetching
@@ -135,9 +154,8 @@ public:
    *                      the initial Interest will be forced to include "ChildSelector=1" and
    *                      "MustBeFresh=true" selectors, which will be turned off in subsequent
    *                      Interests.
-   * @param verifySegment Functor to be called when Data segment is received.  If
-   *                      functor return false, fetching will be aborted with
-   *                      SEGMENT_VERIFICATION_FAIL error
+   * @param validator     A shared_ptr to the Validator that should be used to validate data.
+   *
    * @param completeCallback    Callback to be fired when all segments are fetched
    * @param errorCallback       Callback to be fired when an error occurs (@see Errors)
    */
@@ -145,38 +163,55 @@ public:
   void
   fetch(Face& face,
         const Interest& baseInterest,
-        const VerifySegment& verifySegment,
+        shared_ptr<Validator> validator,
         const CompleteCallback& completeCallback,
         const ErrorCallback& errorCallback);
 
 private:
   SegmentFetcher(Face& face,
-                 const VerifySegment& verifySegment,
+                 shared_ptr<Validator> validator,
                  const CompleteCallback& completeCallback,
                  const ErrorCallback& errorCallback);
 
   void
-  fetchFirstSegment(const Interest& baseInterest, const shared_ptr<SegmentFetcher>& self);
+  fetchFirstSegment(const Interest& baseInterest, shared_ptr<SegmentFetcher> self);
 
   void
   fetchNextSegment(const Interest& origInterest, const Name& dataName, uint64_t segmentNo,
-                   const shared_ptr<SegmentFetcher>& self);
+                   shared_ptr<SegmentFetcher> self);
 
   void
-  onSegmentReceived(const Interest& origInterest,
-                    const Data& data, bool isSegmentZeroExpected,
-                    const shared_ptr<SegmentFetcher>& self);
+  afterSegmentReceived(const Interest& origInterest,
+                       const Data& data, bool isSegmentZeroExpected,
+                       shared_ptr<SegmentFetcher> self);
+  void
+  afterValidationSuccess(const shared_ptr<const Data> data,
+                         bool isSegmentZeroExpected,
+                         const Interest& origInterest,
+                         shared_ptr<SegmentFetcher> self);
+
+  void
+  afterValidationFailure(const shared_ptr<const Data> data);
+
+  void
+  afterNackReceived(const Interest& origInterest, const lp::Nack& nack,
+                    uint32_t reExpressCount, shared_ptr<SegmentFetcher> self);
+
+  void
+  reExpressInterest(Interest interest, uint32_t reExpressCount,
+                    shared_ptr<SegmentFetcher> self);
 
 private:
   Face& m_face;
-  VerifySegment m_verifySegment;
+  Scheduler m_scheduler;
+  shared_ptr<Validator> m_validator;
   CompleteCallback m_completeCallback;
   ErrorCallback m_errorCallback;
 
   shared_ptr<OBufferStream> m_buffer;
 };
 
-} // util
-} // ndn
+} // namespace util
+} // namespace ndn
 
 #endif // NDN_UTIL_SEGMENT_FETCHER_HPP

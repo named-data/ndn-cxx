@@ -20,17 +20,47 @@
  */
 
 #include "util/segment-fetcher.hpp"
+#include "security/validator-null.hpp"
+#include "security/validator.hpp"
+#include "data.hpp"
+#include "encoding/block.hpp"
 
 #include "boost-test.hpp"
 #include "util/dummy-client-face.hpp"
 #include "security/key-chain.hpp"
+#include "lp/nack-header.hpp"
 #include "../unit-test-time-fixture.hpp"
+#include "../make-interest-data.hpp"
 
 namespace ndn {
 namespace util {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(UtilSegmentFetcher)
+
+class ValidatorFailed : public Validator
+{
+protected:
+  virtual void
+  checkPolicy(const Data& data,
+              int nSteps,
+              const OnDataValidated& onValidated,
+              const OnDataValidationFailed& onValidationFailed,
+              std::vector<shared_ptr<ValidationRequest>>& nextSteps)
+  {
+    onValidationFailed(data.shared_from_this(), "Data validation failed.");
+  }
+
+  virtual void
+  checkPolicy(const Interest& interest,
+              int nSteps,
+              const OnInterestValidated& onValidated,
+              const OnInterestValidationFailed& onValidationFailed,
+              std::vector<shared_ptr<ValidationRequest>>& nextSteps)
+  {
+    onValidationFailed(interest.shared_from_this(), "Interest validation failed.");
+  }
+};
 
 class Fixture : public ndn::tests::UnitTestTimeFixture
 {
@@ -44,16 +74,17 @@ public:
   }
 
   shared_ptr<Data>
-  makeData(const Name& baseName, uint64_t segment, bool isFinal)
+  makeDataSegment(const Name& baseName, uint64_t segment, bool isFinal)
   {
     const uint8_t buffer[] = "Hello, world!";
 
     shared_ptr<Data> data = make_shared<Data>(Name(baseName).appendSegment(segment));
     data->setContent(buffer, sizeof(buffer));
 
-    if (isFinal)
+    if (isFinal) {
       data->setFinalBlockId(data->getName()[-1]);
-    keyChain.sign(*data);
+    }
+    data = signData(data);
 
     return data;
   }
@@ -66,12 +97,21 @@ public:
   }
 
   void
-  onData(const ConstBufferPtr& data)
+  onComplete(const ConstBufferPtr& data)
   {
     ++nDatas;
     dataSize = data->size();
+    dataString = std::string(reinterpret_cast<const char*>(data->get()));
   }
 
+  void
+  nackLastInterest(lp::NackReason nackReason)
+  {
+    const Interest& lastInterest = face->sentInterests.back();
+    lp::Nack nack = makeNack(lastInterest, nackReason);
+    face->receive(nack);
+    advanceClocks(time::milliseconds(1), 10);
+  }
 
 public:
   shared_ptr<DummyClientFace> face;
@@ -81,13 +121,15 @@ public:
   uint32_t lastError;
   uint32_t nDatas;
   size_t dataSize;
+  std::string dataString;
 };
 
 BOOST_FIXTURE_TEST_CASE(Timeout, Fixture)
 {
+  ValidatorNull nullValidator;
   SegmentFetcher::fetch(*face, Interest("/hello/world", time::milliseconds(100)),
-                        DontVerifySegment(),
-                        bind(&Fixture::onData, this, _1),
+                        nullValidator,
+                        bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
   advanceClocks(time::milliseconds(1), 99);
@@ -113,20 +155,26 @@ BOOST_FIXTURE_TEST_CASE(Timeout, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(Basic, Fixture)
 {
+  ValidatorNull nullValidator;
   SegmentFetcher::fetch(*face, Interest("/hello/world", time::seconds(1000)),
-                        DontVerifySegment(),
-                        bind(&Fixture::onData, this, _1),
+                        nullValidator,
+                        bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
   advanceClocks(time::milliseconds(1), 10);
 
-  face->receive(*makeData("/hello/world/version0", 0, true));
+  face->receive(*makeDataSegment("/hello/world/version0", 0, true));
   advanceClocks(time::milliseconds(1), 10);
 
   BOOST_CHECK_EQUAL(nErrors, 0);
   BOOST_CHECK_EQUAL(nDatas, 1);
 
   BOOST_CHECK_EQUAL(dataSize, 14);
+
+  const uint8_t buffer[] = "Hello, world!";
+  std::string bufferString = std::string(reinterpret_cast<const char*>(buffer));
+
+  BOOST_CHECK_EQUAL(dataString, bufferString);
 
   BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
   BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
@@ -139,19 +187,19 @@ BOOST_FIXTURE_TEST_CASE(Basic, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(NoSegmentInData, Fixture)
 {
-
+  ValidatorNull nullValidator;
   SegmentFetcher::fetch(*face, Interest("/hello/world", time::seconds(1000)),
-                        DontVerifySegment(),
-                        bind(&Fixture::onData, this, _1),
+                        nullValidator,
+                        bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
   advanceClocks(time::milliseconds(1), 10);
 
   const uint8_t buffer[] = "Hello, world!";
 
-  shared_ptr<Data> data = make_shared<Data>("/hello/world/version0/no-segment");
+  shared_ptr<Data> data = makeData("/hello/world/version0/no-segment");
+
   data->setContent(buffer, sizeof(buffer));
-  keyChain.sign(*data);
 
   face->receive(*data);
   advanceClocks(time::milliseconds(1), 10);
@@ -161,45 +209,39 @@ BOOST_FIXTURE_TEST_CASE(NoSegmentInData, Fixture)
   BOOST_CHECK_EQUAL(nDatas, 0);
 }
 
-bool
-failValidation(const Data& data)
-{
-  return false;
-}
-
 BOOST_FIXTURE_TEST_CASE(SegmentValidationFailure, Fixture)
 {
-
+  ValidatorFailed failedValidator;
   SegmentFetcher::fetch(*face, Interest("/hello/world", time::seconds(1000)),
-                        &failValidation,
-                        bind(&Fixture::onData, this, _1),
+                        failedValidator,
+                        bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
   advanceClocks(time::milliseconds(1), 10);
-  face->receive(*makeData("/hello/world/version0", 0, true));
+  face->receive(*makeDataSegment("/hello/world/version0", 0, true));
   advanceClocks(time::milliseconds(1), 10);
 
   BOOST_CHECK_EQUAL(nErrors, 1);
-  BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::SEGMENT_VERIFICATION_FAIL));
+  BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::SEGMENT_VALIDATION_FAIL));
   BOOST_CHECK_EQUAL(nDatas, 0);
 }
 
-
 BOOST_FIXTURE_TEST_CASE(Triple, Fixture)
 {
+  ValidatorNull nullValidator;
   SegmentFetcher::fetch(*face, Interest("/hello/world", time::seconds(1000)),
-                        DontVerifySegment(),
-                        bind(&Fixture::onData, this, _1),
+                        nullValidator,
+                        bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
   advanceClocks(time::milliseconds(1), 10);
-  face->receive(*makeData("/hello/world/version0", 0, false));
+  face->receive(*makeDataSegment("/hello/world/version0", 0, false));
 
   advanceClocks(time::milliseconds(1), 10);
-  face->receive(*makeData("/hello/world/version0", 1, false));
+  face->receive(*makeDataSegment("/hello/world/version0", 1, false));
 
   advanceClocks(time::milliseconds(1), 10);
-  face->receive(*makeData("/hello/world/version0", 2, true));
+  face->receive(*makeDataSegment("/hello/world/version0", 2, true));
 
   advanceClocks(time::milliseconds(1), 10);
 
@@ -235,22 +277,23 @@ BOOST_FIXTURE_TEST_CASE(Triple, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(TripleWithInitialSegmentFetching, Fixture)
 {
+  ValidatorNull nullValidator;
   SegmentFetcher::fetch(*face, Interest("/hello/world", time::seconds(1000)),
-                        DontVerifySegment(),
-                        bind(&Fixture::onData, this, _1),
+                        nullValidator,
+                        bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
   advanceClocks(time::milliseconds(1), 10);
-  face->receive(*makeData("/hello/world/version0", 1, false));
+  face->receive(*makeDataSegment("/hello/world/version0", 1, false));
 
   advanceClocks(time::milliseconds(1), 10);
-  face->receive(*makeData("/hello/world/version0", 0, false));
+  face->receive(*makeDataSegment("/hello/world/version0", 0, false));
 
   advanceClocks(time::milliseconds(1), 10);
-  face->receive(*makeData("/hello/world/version0", 1, false));
+  face->receive(*makeDataSegment("/hello/world/version0", 1, false));
 
   advanceClocks(time::milliseconds(1), 10);
-  face->receive(*makeData("/hello/world/version0", 2, true));
+  face->receive(*makeDataSegment("/hello/world/version0", 2, true));
 
   advanceClocks(time::milliseconds(1), 10);
 
@@ -291,6 +334,68 @@ BOOST_FIXTURE_TEST_CASE(TripleWithInitialSegmentFetching, Fixture)
   }
 }
 
+BOOST_FIXTURE_TEST_CASE(MultipleSegmentFetching, Fixture)
+{
+  ValidatorNull nullValidator;
+  SegmentFetcher::fetch(*face, Interest("/hello/world", time::seconds(1000)),
+                        nullValidator,
+                        bind(&Fixture::onComplete, this, _1),
+                        bind(&Fixture::onError, this, _1));
+
+  advanceClocks(time::milliseconds(1), 10);
+
+  for (uint64_t i = 0; i < 400; i++) {
+    advanceClocks(time::milliseconds(1), 10);
+    face->receive(*makeDataSegment("/hello/world/version0", i, false));
+  }
+  advanceClocks(time::milliseconds(1), 10);
+  face->receive(*makeDataSegment("/hello/world/version0", 400, true));
+
+  advanceClocks(time::milliseconds(1), 10);
+
+  BOOST_CHECK_EQUAL(nErrors, 0);
+  BOOST_CHECK_EQUAL(nDatas, 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(SegmentFetcherDuplicateNack, Fixture)
+{
+  SegmentFetcher::fetch(*face, Interest("/hello/world", time::seconds(1000)),
+                        make_shared<ValidatorNull>(),
+                        bind(&Fixture::onComplete, this, _1),
+                        bind(&Fixture::onError, this, _1));
+  advanceClocks(time::milliseconds(1), 10);
+
+  // receive nack for the original interest
+  nackLastInterest(lp::NackReason::DUPLICATE);
+
+  // receive nack due to Duplication for the reexpressed interests
+  for (uint32_t i = 1; i <= SegmentFetcher::MAX_INTEREST_REEXPRESS; ++i) {
+    nackLastInterest(lp::NackReason::DUPLICATE);
+  }
+
+  BOOST_CHECK_EQUAL(face->sentInterests.size(), (SegmentFetcher::MAX_INTEREST_REEXPRESS + 1));
+  BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::NACK_ERROR));
+}
+
+BOOST_FIXTURE_TEST_CASE(SegmentFetcherCongestionNack, Fixture)
+{
+  SegmentFetcher::fetch(*face, Interest("/hello/world", time::seconds(1000)),
+                        make_shared<ValidatorNull>(),
+                        bind(&Fixture::onComplete, this, _1),
+                        bind(&Fixture::onError, this, _1));
+  advanceClocks(time::milliseconds(1), 10);
+
+  // receive nack for the original interest
+  nackLastInterest(lp::NackReason::CONGESTION);
+
+  // receive nack due to Congestion for the reexpressed interests
+  for (uint32_t i = 1; i <= SegmentFetcher::MAX_INTEREST_REEXPRESS; ++i) {
+    nackLastInterest(lp::NackReason::CONGESTION);
+  }
+
+  BOOST_CHECK_EQUAL(face->sentInterests.size(), (SegmentFetcher::MAX_INTEREST_REEXPRESS + 1));
+  BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::NACK_ERROR));
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
