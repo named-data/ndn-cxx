@@ -161,11 +161,11 @@ Link::decodeContent()
       preference = static_cast<uint32_t>(readNonNegativeInteger(*val));
     }
     catch (tlv::Error&) {
-      BOOST_THROW_EXCEPTION(Error("Missing preference field in Link Encoding"));
+      BOOST_THROW_EXCEPTION(Error("Missing Preference field in Link Encoding"));
     }
     ++val;
     if (val == delegation.elements_end()) {
-      BOOST_THROW_EXCEPTION(Error("Missing name field in Link Encoding"));
+      BOOST_THROW_EXCEPTION(Error("Missing Name field in Link Encoding"));
     }
     Name name(*val);
     m_delegations.insert({preference, name});

@@ -313,10 +313,9 @@ Interest::wireDecode(const Block& wire)
 
   // Selectors
   Block::element_const_iterator val = m_wire.find(tlv::Selectors);
-  if (val != m_wire.elements_end())
-    {
-      m_selectors.wireDecode(*val);
-    }
+  if (val != m_wire.elements_end()) {
+    m_selectors.wireDecode(*val);
+  }
   else
     m_selectors = Selectors();
 
@@ -325,27 +324,28 @@ Interest::wireDecode(const Block& wire)
 
   // InterestLifetime
   val = m_wire.find(tlv::InterestLifetime);
-  if (val != m_wire.elements_end())
-    {
-      m_interestLifetime = time::milliseconds(readNonNegativeInteger(*val));
-    }
-  else
-    {
-      m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
-    }
+  if (val != m_wire.elements_end()) {
+    m_interestLifetime = time::milliseconds(readNonNegativeInteger(*val));
+  }
+  else {
+    m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
+  }
 
   // Link object
+  m_linkCached.reset();
   val = m_wire.find(tlv::Data);
-  if (val != m_wire.elements_end())
-    {
-      m_link = (*val);
-    }
+  if (val != m_wire.elements_end()) {
+    m_link = (*val);
+  }
+  else {
+    m_link = Block();
+  }
 
   // SelectedDelegation
   val = m_wire.find(tlv::SelectedDelegation);
   if (val != m_wire.elements_end()) {
     if (!this->hasLink()) {
-      BOOST_THROW_EXCEPTION(Error("Interest contains selectedDelegation, but no LINK object"));
+      BOOST_THROW_EXCEPTION(Error("Interest contains SelectedDelegation, but no LINK object"));
     }
     uint64_t selectedDelegation = readNonNegativeInteger(*val);
     if (selectedDelegation < uint64_t(Link::countDelegationsFromWire(m_link))) {
@@ -355,23 +355,26 @@ Interest::wireDecode(const Block& wire)
       BOOST_THROW_EXCEPTION(Error("Invalid selected delegation index when decoding Interest"));
     }
   }
+  else {
+    m_selectedDelegationIndex = INVALID_SELECTED_DELEGATION_INDEX;
+  }
 }
 
 bool
 Interest::hasLink() const
 {
-  if (m_link.hasWire())
-    return true;
-  return false;
+  return m_link.hasWire();
 }
 
-Link
+const Link&
 Interest::getLink() const
 {
-  if (hasLink())
-    {
-      return Link(m_link);
+  if (hasLink()) {
+    if (!m_linkCached) {
+      m_linkCached = make_shared<Link>(m_link);
     }
+    return *m_linkCached;
+  }
   BOOST_THROW_EXCEPTION(Error("There is no encapsulated link object"));
 }
 
@@ -383,6 +386,7 @@ Interest::setLink(const Block& link)
     BOOST_THROW_EXCEPTION(Error("The given link does not have a wire format"));
   }
   m_wire.reset();
+  m_linkCached.reset();
   this->unsetSelectedDelegation();
 }
 
@@ -391,17 +395,14 @@ Interest::unsetLink()
 {
   m_link.reset();
   m_wire.reset();
+  m_linkCached.reset();
   this->unsetSelectedDelegation();
 }
 
 bool
 Interest::hasSelectedDelegation() const
 {
-  if (m_selectedDelegationIndex != INVALID_SELECTED_DELEGATION_INDEX)
-    {
-      return true;
-    }
-  return false;
+  return m_selectedDelegationIndex != INVALID_SELECTED_DELEGATION_INDEX;
 }
 
 Name

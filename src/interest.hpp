@@ -134,8 +134,9 @@ public: // Link and forwarding hint
    * @brief Get the link object for this interest
    * @return The link object if there is one contained in this interest
    * @throws Interest::Error if there is no link object contained in the interest
+   * @throws tlv::Error if the incorporated link object is malformed
    */
-  Link
+  const Link&
   getLink() const;
 
   /**
@@ -147,7 +148,8 @@ public: // Link and forwarding hint
   setLink(const Block& link);
 
   /**
-   *@brief Reset the wire format of the given interest and the contained link
+   * @brief Delete the link object for this interest
+   * @post !hasLink()
    */
   void
   unsetLink();
@@ -442,6 +444,7 @@ private:
   time::milliseconds m_interestLifetime;
 
   mutable Block m_link;
+  mutable shared_ptr<Link> m_linkCached;
   size_t m_selectedDelegationIndex;
   mutable Block m_wire;
 
