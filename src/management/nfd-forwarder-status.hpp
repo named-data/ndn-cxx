@@ -165,6 +165,15 @@ public: // getters & setters
   setNInDatas(uint64_t nInDatas);
 
   uint64_t
+  getNInNacks() const
+  {
+    return m_nInNacks;
+  }
+
+  ForwarderStatus&
+  setNInNacks(uint64_t nInNacks);
+
+  uint64_t
   getNOutInterests() const
   {
     return m_nOutInterests;
@@ -182,6 +191,15 @@ public: // getters & setters
   ForwarderStatus&
   setNOutDatas(uint64_t nOutDatas);
 
+  uint64_t
+  getNOutNacks() const
+  {
+    return m_nOutNacks;
+  }
+
+  ForwarderStatus&
+  setNOutNacks(uint64_t nOutNacks);
+
 private:
   std::string m_nfdVersion;
   time::system_clock::TimePoint m_startTimestamp;
@@ -193,8 +211,10 @@ private:
   size_t m_nCsEntries;
   uint64_t m_nInInterests;
   uint64_t m_nInDatas;
+  uint64_t m_nInNacks;
   uint64_t m_nOutInterests;
   uint64_t m_nOutDatas;
+  uint64_t m_nOutNacks;
 
   mutable Block m_wire;
 };

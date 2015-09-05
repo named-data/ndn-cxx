@@ -94,6 +94,15 @@ public: // getters & setters
   setNInDatas(uint64_t nInDatas);
 
   uint64_t
+  getNInNacks() const
+  {
+    return m_nInNacks;
+  }
+
+  FaceStatus&
+  setNInNacks(uint64_t nInNacks);
+
+  uint64_t
   getNOutInterests() const
   {
     return m_nOutInterests;
@@ -110,6 +119,15 @@ public: // getters & setters
 
   FaceStatus&
   setNOutDatas(uint64_t nOutDatas);
+
+  uint64_t
+  getNOutNacks() const
+  {
+    return m_nOutNacks;
+  }
+
+  FaceStatus&
+  setNOutNacks(uint64_t nOutNacks);
 
   uint64_t
   getNInBytes() const
@@ -138,8 +156,10 @@ private:
   bool m_hasExpirationPeriod;
   uint64_t m_nInInterests;
   uint64_t m_nInDatas;
+  uint64_t m_nInNacks;
   uint64_t m_nOutInterests;
   uint64_t m_nOutDatas;
+  uint64_t m_nOutNacks;
   uint64_t m_nInBytes;
   uint64_t m_nOutBytes;
 

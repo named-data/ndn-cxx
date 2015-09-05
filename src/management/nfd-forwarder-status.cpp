@@ -43,8 +43,10 @@ ForwarderStatus::ForwarderStatus()
   , m_nCsEntries(0)
   , m_nInInterests(0)
   , m_nInDatas(0)
+  , m_nInNacks(0)
   , m_nOutInterests(0)
   , m_nOutDatas(0)
+  , m_nOutNacks(0)
 {
 }
 
@@ -59,10 +61,14 @@ ForwarderStatus::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutNacks,
+                                                m_nOutNacks);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutDatas,
                                                 m_nOutDatas);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutInterests,
                                                 m_nOutInterests);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInNacks,
+                                                m_nInNacks);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInDatas,
                                                 m_nInDatas);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInInterests,
@@ -202,6 +208,14 @@ ForwarderStatus::wireDecode(const Block& block)
     BOOST_THROW_EXCEPTION(Error("missing required NInDatas field"));
   }
 
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInNacks) {
+    m_nInNacks = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required NInNacks field"));
+  }
+
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutInterests) {
     m_nOutInterests = static_cast<uint64_t>(readNonNegativeInteger(*val));
     ++val;
@@ -216,6 +230,14 @@ ForwarderStatus::wireDecode(const Block& block)
   }
   else {
     BOOST_THROW_EXCEPTION(Error("missing required NOutDatas field"));
+  }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutNacks) {
+    m_nOutNacks = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required NInNacks field"));
   }
 }
 
@@ -300,6 +322,14 @@ ForwarderStatus::setNInDatas(uint64_t nInDatas)
 }
 
 ForwarderStatus&
+ForwarderStatus::setNInNacks(uint64_t nInNacks)
+{
+  m_wire.reset();
+  m_nInNacks = nInNacks;
+  return *this;
+}
+
+ForwarderStatus&
 ForwarderStatus::setNOutInterests(uint64_t nOutInterests)
 {
   m_wire.reset();
@@ -312,6 +342,14 @@ ForwarderStatus::setNOutDatas(uint64_t nOutDatas)
 {
   m_wire.reset();
   m_nOutDatas = nOutDatas;
+  return *this;
+}
+
+ForwarderStatus&
+ForwarderStatus::setNOutNacks(uint64_t nOutNacks)
+{
+  m_wire.reset();
+  m_nOutNacks = nOutNacks;
   return *this;
 }
 

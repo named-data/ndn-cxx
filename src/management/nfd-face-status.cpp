@@ -37,8 +37,10 @@ FaceStatus::FaceStatus()
   : m_hasExpirationPeriod(false)
   , m_nInInterests(0)
   , m_nInDatas(0)
+  , m_nInNacks(0)
   , m_nOutInterests(0)
   , m_nOutDatas(0)
+  , m_nOutNacks(0)
   , m_nInBytes(0)
   , m_nOutBytes(0)
 {
@@ -60,9 +62,13 @@ FaceStatus::wireEncode(EncodingImpl<TAG>& encoder) const
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::NInBytes, m_nInBytes);
   totalLength += prependNonNegativeIntegerBlock(encoder,
+                 tlv::nfd::NOutNacks, m_nOutNacks);
+  totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::NOutDatas, m_nOutDatas);
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::NOutInterests, m_nOutInterests);
+  totalLength += prependNonNegativeIntegerBlock(encoder,
+                 tlv::nfd::NInNacks, m_nInNacks);
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::NInDatas, m_nInDatas);
   totalLength += prependNonNegativeIntegerBlock(encoder,
@@ -195,6 +201,14 @@ FaceStatus::wireDecode(const Block& block)
     BOOST_THROW_EXCEPTION(Error("missing required NInDatas field"));
   }
 
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInNacks) {
+    m_nInNacks = readNonNegativeInteger(*val);
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required NInNacks field"));
+  }
+
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutInterests) {
     m_nOutInterests = readNonNegativeInteger(*val);
     ++val;
@@ -209,6 +223,14 @@ FaceStatus::wireDecode(const Block& block)
   }
   else {
     BOOST_THROW_EXCEPTION(Error("missing required NOutDatas field"));
+  }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutNacks) {
+    m_nOutNacks = readNonNegativeInteger(*val);
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required NOutNacks field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInBytes) {
@@ -254,6 +276,14 @@ FaceStatus::setNInDatas(uint64_t nInDatas)
 }
 
 FaceStatus&
+FaceStatus::setNInNacks(uint64_t nInNacks)
+{
+  m_wire.reset();
+  m_nInNacks = nInNacks;
+  return *this;
+}
+
+FaceStatus&
 FaceStatus::setNOutInterests(uint64_t nOutInterests)
 {
   m_wire.reset();
@@ -266,6 +296,14 @@ FaceStatus::setNOutDatas(uint64_t nOutDatas)
 {
   m_wire.reset();
   m_nOutDatas = nOutDatas;
+  return *this;
+}
+
+FaceStatus&
+FaceStatus::setNOutNacks(uint64_t nOutNacks)
+{
+  m_wire.reset();
+  m_nOutNacks = nOutNacks;
   return *this;
 }
 
@@ -313,6 +351,8 @@ operator<<(std::ostream& os, const FaceStatus& status)
      << "out: " << status.getNOutInterests() << "},\n"
      << "            Data: {in: " << status.getNInDatas() << ", "
      << "out: " << status.getNOutDatas() << "},\n"
+     << "            Nack: {in: " << status.getNInNacks() << ", "
+     << "out: " << status.getNOutNacks() << "},\n"
      << "            bytes: {in: " << status.getNInBytes() << ", "
      << "out: " << status.getNOutBytes() << "} }\n"
      << ")";

@@ -72,8 +72,10 @@ enum {
   // ForwarderStatus and FaceStatus counters
   NInInterests  = 144,
   NInDatas      = 145,
+  NInNacks      = 151,
   NOutInterests = 146,
   NOutDatas     = 147,
+  NOutNacks     = 152,
   NInBytes      = 148,
   NOutBytes     = 149,
 

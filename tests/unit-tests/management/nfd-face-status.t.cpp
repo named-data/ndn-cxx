@@ -41,8 +41,10 @@ BOOST_AUTO_TEST_CASE(Encode)
          .setExpirationPeriod(time::seconds(10))
          .setNInInterests(10)
          .setNInDatas(200)
+         .setNInNacks(1)
          .setNOutInterests(3000)
          .setNOutDatas(4)
+         .setNOutNacks(2)
          .setNInBytes(1329719163)
          .setNOutBytes(999110448);
 
@@ -55,15 +57,16 @@ BOOST_AUTO_TEST_CASE(Encode)
   //  printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
-    0x80, 0x58, 0x69, 0x01, 0x64, 0x72, 0x15, 0x74, 0x63, 0x70,
+    0x80, 0x5e, 0x69, 0x01, 0x64, 0x72, 0x15, 0x74, 0x63, 0x70,
     0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e,
     0x32, 0x2e, 0x31, 0x3a, 0x36, 0x33, 0x36, 0x33, 0x81, 0x16,
     0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32,
     0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x32, 0x3a, 0x35, 0x35, 0x35,
     0x35, 0x35, 0x6d, 0x02, 0x27, 0x10, 0x84, 0x01, 0x01, 0x85,
     0x01, 0x01, 0x86, 0x01, 0x01, 0x90, 0x01, 0x0a, 0x91, 0x01,
-    0xc8, 0x92, 0x02, 0x0b, 0xb8, 0x93, 0x01, 0x04, 0x94, 0x04,
-    0x4f, 0x41, 0xe7, 0x7b, 0x95, 0x04, 0x3b, 0x8d, 0x37, 0x30,
+    0xc8, 0x97, 0x01, 0x01, 0x92, 0x02, 0x0b, 0xb8, 0x93, 0x01,
+    0x04, 0x98, 0x01, 0x02, 0x94, 0x04, 0x4f, 0x41, 0xe7, 0x7b,
+    0x95, 0x04, 0x3b, 0x8d, 0x37, 0x30,
   };
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
@@ -78,8 +81,10 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_CHECK_EQUAL(status1.getLinkType(), status2.getLinkType());
   BOOST_CHECK_EQUAL(status1.getNInInterests(), status2.getNInInterests());
   BOOST_CHECK_EQUAL(status1.getNInDatas(), status2.getNInDatas());
+  BOOST_CHECK_EQUAL(status1.getNInNacks(), status2.getNInNacks());
   BOOST_CHECK_EQUAL(status1.getNOutInterests(), status2.getNOutInterests());
   BOOST_CHECK_EQUAL(status1.getNOutDatas(), status2.getNOutDatas());
+  BOOST_CHECK_EQUAL(status1.getNOutNacks(), status2.getNOutNacks());
   BOOST_CHECK_EQUAL(status1.getNInBytes(), status2.getNInBytes());
   BOOST_CHECK_EQUAL(status1.getNOutBytes(), status2.getNOutBytes());
 
@@ -94,6 +99,7 @@ BOOST_AUTO_TEST_CASE(Encode)
                               "LinkType: multi-access,\n"
                               "Counters: { Interests: {in: 10, out: 3000},\n"
                               "            Data: {in: 200, out: 4},\n"
+                              "            Nack: {in: 1, out: 2},\n"
                               "            bytes: {in: 1329719163, out: 999110448} }\n"
                               ")");
 }
