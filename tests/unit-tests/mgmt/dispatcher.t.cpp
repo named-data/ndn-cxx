@@ -38,7 +38,8 @@ namespace tests {
 
 using namespace ndn::tests;
 
-BOOST_AUTO_TEST_SUITE(MgmtDispatcher)
+BOOST_AUTO_TEST_SUITE(Mgmt)
+BOOST_AUTO_TEST_SUITE(TestDispatcher)
 
 class DispatcherFixture : public UnitTestTimeFixture
                         , public security::IdentityManagementFixture
@@ -255,7 +256,7 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
   dispatcher.addStatusDataset("test/small",
                               makeTestAuthorization(),
                               [] (const Name& prefix, const Interest& interest,
-                                  StatusDatasetContext context) {
+                                  StatusDatasetContext& context) {
                                 context.append(smallBlock);
                                 context.append(smallBlock);
                                 context.append(smallBlock);
@@ -265,7 +266,7 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
   dispatcher.addStatusDataset("test/large",
                               makeTestAuthorization(),
                               [] (const Name& prefix, const Interest& interest,
-                                  StatusDatasetContext context) {
+                                  StatusDatasetContext& context) {
                                 context.append(largeBlock);
                                 context.append(largeBlock);
                                 context.append(largeBlock);
@@ -275,7 +276,7 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
   dispatcher.addStatusDataset("test/reject",
                               makeTestAuthorization(),
                               [] (const Name& prefix, const Interest& interest,
-                                  StatusDatasetContext context) {
+                                  StatusDatasetContext& context) {
                                 context.reject();
                               });
 
@@ -379,6 +380,7 @@ BOOST_FIXTURE_TEST_CASE(NotificationStream, DispatcherFixture)
   BOOST_CHECK(face->sentDatas[3].getContent().blockFromValue() == block);
 }
 
+BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests

@@ -38,8 +38,8 @@ makeAcceptAllAuthorization()
   return [] (const Name& prefix,
              const Interest& interest,
              const ControlParameters* params,
-             AcceptContinuation accept,
-             RejectContinuation reject) {
+             const AcceptContinuation& accept,
+             const RejectContinuation& reject) {
     accept("");
   };
 }
@@ -226,8 +226,8 @@ Dispatcher::sendControlResponse(const ControlResponse& resp, const Interest& int
 
 void
 Dispatcher::addStatusDataset(const PartialName& relPrefix,
-                             Authorization authorization,
-                             StatusDatasetHandler handler)
+                             const Authorization& authorization,
+                             const StatusDatasetHandler& handler)
 {
   if (!m_topLevelPrefixes.empty()) {
     BOOST_THROW_EXCEPTION(std::domain_error("one or more top-level prefix has been added"));

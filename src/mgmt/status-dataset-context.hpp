@@ -35,7 +35,9 @@
 namespace ndn {
 namespace mgmt {
 
-class StatusDatasetContext
+/** \brief provides a context for generating response to a StatusDataset request
+ */
+class StatusDatasetContext : noncopyable
 {
 public:
   /** \return prefix of Data packets, with version component but without segment component

@@ -76,8 +76,8 @@ typedef std::function<void(RejectReply act)> RejectContinuation;
  */
 typedef std::function<void(const Name& prefix, const Interest& interest,
                            const ControlParameters* params,
-                           AcceptContinuation accept,
-                           RejectContinuation reject)> Authorization;
+                           const AcceptContinuation& accept,
+                           const RejectContinuation& reject)> Authorization;
 
 /** \return an Authorization that accepts all Interests, with empty string as requester
  */
@@ -106,7 +106,7 @@ typedef std::function<void(const ControlResponse& resp)> CommandContinuation;
  */
 typedef std::function<void(const Name& prefix, const Interest& interest,
                            const ControlParameters& params,
-                           CommandContinuation done)> ControlCommandHandler;
+                           const CommandContinuation& done)> ControlCommandHandler;
 
 
 /** \brief a function to handle a StatusDataset request
@@ -217,9 +217,9 @@ public: // ControlCommand
   template<typename CP>
   void
   addControlCommand(const PartialName& relPrefix,
-                    Authorization authorization,
-                    ValidateParameters validateParams,
-                    ControlCommandHandler handler);
+                    const Authorization& authorization,
+                    const ValidateParameters& validateParams,
+                    const ControlCommandHandler& handler);
 
 public: // StatusDataset
   /** \brief register a StatusDataset or a prefix under which StatusDatasets can be requested
@@ -254,8 +254,8 @@ public: // StatusDataset
    */
   void
   addStatusDataset(const PartialName& relPrefix,
-                   Authorization authorization,
-                   StatusDatasetHandler handler);
+                   const Authorization& authorization,
+                   const StatusDatasetHandler& handler);
 
 public: // NotificationStream
   /** \brief register a NotificationStream
@@ -418,9 +418,9 @@ private:
 template<typename CP>
 void
 Dispatcher::addControlCommand(const PartialName& relPrefix,
-                              Authorization authorization,
-                              ValidateParameters validateParams,
-                              ControlCommandHandler handler)
+                              const Authorization& authorization,
+                              const ValidateParameters& validateParams,
+                              const ControlCommandHandler& handler)
 {
   if (!m_topLevelPrefixes.empty()) {
     throw std::domain_error("one or more top-level prefix has been added");
