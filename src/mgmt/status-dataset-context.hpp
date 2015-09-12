@@ -86,7 +86,7 @@ public:
    *  This should be invoked when the incoming Interest is malformed.
    *  A producer-generated NACK will be returned to requester.
    *
-   *  \param content Content of producer-generated NACK
+   *  \param resp Content of producer-generated NACK
    */
   void
   reject(const ControlResponse& resp = ControlResponse().setCode(400));

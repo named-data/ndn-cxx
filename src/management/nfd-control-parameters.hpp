@@ -72,7 +72,7 @@ enum LocalControlFeature {
  * @ingroup management
  * @brief represents parameters in a ControlCommand request or response
  * @sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand#ControlParameters
- * @detail This type is copyable because it's an abstraction of a TLV type.
+ * @details This type is copyable because it's an abstraction of a TLV type.
  */
 class ControlParameters : public ndn::mgmt::ControlParameters
 {

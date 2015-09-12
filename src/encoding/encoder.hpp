@@ -38,8 +38,8 @@ class Encoder
 public: // common interface between Encoder and Estimator
   /**
    * @brief Create instance of the encoder with the specified reserved sizes
-   * @param totalReserve  initial buffer size to reserve
-   * @param totalFromBack number of bytes to reserve for append* operations
+   * @param totalReserve    initial buffer size to reserve
+   * @param reserveFromBack number of bytes to reserve for append* operations
    */
   explicit
   Encoder(size_t totalReserve = 8800, size_t reserveFromBack = 400);

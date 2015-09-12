@@ -83,7 +83,6 @@ public:
 protected:
   /**
    * @brief Compile the regular expression to generate the more matchers when necessary
-   * @returns true if compiling succeeds
    */
   virtual void
   compile() = 0;

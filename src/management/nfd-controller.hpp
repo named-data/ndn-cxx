@@ -34,6 +34,7 @@ namespace nfd {
  * \defgroup management Management
  * \brief Classes and data structures to manage NDN forwarder
  */
+
 /**
  * \ingroup management
  * \brief NFD Management protocol - ControlCommand client

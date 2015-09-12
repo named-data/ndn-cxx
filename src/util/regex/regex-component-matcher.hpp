@@ -47,7 +47,7 @@ public:
   virtual
   ~RegexComponentMatcher()
   {
-  };
+  }
 
   virtual bool
   match(const Name& name, size_t offset, size_t len = 1);
@@ -55,7 +55,6 @@ public:
 protected:
   /**
    * @brief Compile the regular expression to generate the more matchers when necessary
-   * @returns true if compiling succeeds
    */
   virtual void
   compile();

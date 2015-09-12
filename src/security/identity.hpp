@@ -76,8 +76,8 @@ public:
   /**
    * @brief Get a key with id @keyId.
    *
-   * @param identityName The name for the identity to get.
-   * @throw Pib::Error if the identity does not exist.
+   * @param keyId The id of the key to get.
+   * @throw Pib::Error if the key does not exist.
    */
   Key
   getKey(const name::Component& keyId) const;

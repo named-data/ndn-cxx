@@ -35,7 +35,7 @@ namespace lp {
 
 /**
  * \brief represents a Network NACK
- * \detail This type binds a NackHeader and an Interest, and is intended for use in network layer.
+ * \details This type binds a NackHeader and an Interest, and is intended for use in network layer.
  */
 class Nack : public TagHost
 {

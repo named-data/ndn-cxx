@@ -180,7 +180,7 @@ public: // Link and forwarding hint
 
   /**
    * @brief Set the selected delegation
-   * @param delegation The index of the selected delegation
+   * @param delegationIndex The index of the selected delegation
    * @throw Error Link is not set.
    * @throw std::out_of_range @p delegationIndex is out of bound in Link.
    */

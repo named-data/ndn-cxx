@@ -56,7 +56,7 @@ public:
    *
    * @param index The binding position
    * @param value The pointer of the binding string
-   * @param value The size of the binding string
+   * @param size The size of the binding string
    * @param destructor SQLite3 destructor, e.g., SQLITE_TRANSIENT
    * @return SQLite result value.
    */
@@ -79,7 +79,7 @@ public:
    *
    * @param index The binding position
    * @param value The pointer of the blob
-   * @param value The size of the blob
+   * @param size The size of the blob
    * @param destructor SQLite3 destructor, e.g., SQLITE_TRANSIENT
    * @return SQLite result value.
    */

@@ -132,8 +132,8 @@ public:
    *
    * @sa  http://redmine.named-data.net/issues/2260
    *
-   * @param pibLocator
-   * @param tpmLocator
+   * @param pibLocator PIB locator
+   * @param tpmLocator TPM locator
    * @param allowReset if true, the PIB will be reset when the supplied tpmLocator
    *        mismatches the one in PIB
    */
@@ -778,7 +778,6 @@ private:
   /**
    * @brief Prepare a SignatureInfo TLV according to signing information and return the signing key name
    *
-   * @param sigInfo The SignatureInfo to prepare.
    * @param params The signing parameters.
    * @return The signing key name and prepared SignatureInfo.
    * @throw Error when the requested signing method cannot be satisfied.

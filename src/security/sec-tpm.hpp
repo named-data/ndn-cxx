@@ -80,7 +80,7 @@ public:
   resetTpmPassword() = 0;
 
   /**
-   * @brief Set inTerminal flag to @param inTerminal
+   * @brief Set inTerminal flag to @p inTerminal
    *
    * If the inTerminal flag is set, and password is not set, TPM may ask for password via terminal.
    * inTerminal flag is set by default.
@@ -233,7 +233,7 @@ public:
   exportPrivateKeyPkcs5FromTpm(const Name& keyName, const std::string& password);
 
   /**
-   * @brief Import a private key in PKCS#5 formatted @param buffer of size @param bufferSize
+   * @brief Import a private key in PKCS#5 formatted buffer of size @p bufferSize
    *
    * Also recover the public key and installed it in TPM.
    *
@@ -263,7 +263,7 @@ protected:
   exportPrivateKeyPkcs8FromTpm(const Name& keyName) = 0;
 
   /**
-   * @brief Import a private key from PKCS#8 formatted @param buffer of size @param bufferSize
+   * @brief Import a private key from PKCS#8 formatted buffer of size @p bufferSize
    *
    * @param keyName    The private key name.
    * @param buffer     Pointer to the first byte of the buffer containing PKCS#8-encoded
@@ -275,7 +275,7 @@ protected:
   importPrivateKeyPkcs8IntoTpm(const Name& keyName, const uint8_t* buffer, size_t bufferSize) = 0;
 
   /**
-   * @brief Import a public key in PKCS#1 formatted @param buffer of size @param bufferSize
+   * @brief Import a public key in PKCS#1 formatted buffer of size @p bufferSize
    *
    * @param keyName    The public key name
    * @param buffer     Pointer to the first byte of the buffer containing PKCS#1-encoded

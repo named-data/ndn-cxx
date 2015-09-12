@@ -87,7 +87,7 @@ public:
    * If the provided @p tpmLocator is different from the existing one, the
    * PIB will be reset, otherwise nothing will be changed.
    *
-   * @param tmpLocator The name for the new tmpLocator
+   * @param tpmLocator The name for the new TPM locator
    */
   void
   setTpmLocator(const std::string& tpmLocator);

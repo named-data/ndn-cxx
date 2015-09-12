@@ -64,7 +64,7 @@ public:
   close() = 0;
 
   /**
-   * @brief Send block of data from @param wire through the transport
+   * @brief Send block of data from @p wire through the transport
    *
    * @param wire A block of data to send
    */

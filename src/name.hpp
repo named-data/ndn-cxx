@@ -227,11 +227,11 @@ public:
    *        if iStartComponent is negative, size()+iStartComponent is used instead
    * @param nComponents The number of components starting at iStartComponent.
    *                    Use npos to get the Partial Name until the end of this Name.
-   * @detail If iStartComponent is out of bounds and is negative, will return the components
-   *         starting in the beginning of the Name
-   *         If iStartComponent is out of bounds and is positive, will return the component "/"
-   *         If nComponents is out of bounds, will return the components until the end of
-   *         this Name
+   * @details If iStartComponent is out of bounds and is negative, returns the components
+   *          starting from the beginning of the Name.
+   *          If iStartComponent is out of bounds and is positive, returns the component "/".
+   *          If nComponents is out of bounds, returns the components until the end of
+   *          this Name
    * @return A new partial name
    */
   PartialName

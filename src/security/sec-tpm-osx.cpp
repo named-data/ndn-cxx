@@ -165,8 +165,6 @@ public:
   /**
    * @brief Convert NDN name of a key to internal name of the key.
    *
-   * @param keyName
-   * @param keyClass
    * @return the internal key name
    */
   std::string
@@ -175,8 +173,6 @@ public:
   /**
    * @brief Get key.
    *
-   * @param keyName
-   * @param keyClass
    * @returns pointer to the key
    */
   CFReleaser<SecKeychainItemRef>
@@ -185,7 +181,6 @@ public:
   /**
    * @brief Convert keyType to MAC OS symmetric key key type
    *
-   * @param keyType
    * @returns MAC OS key type
    */
   CFTypeRef
@@ -194,7 +189,6 @@ public:
   /**
    * @brief Convert keyType to MAC OS asymmetirc key type
    *
-   * @param keyType
    * @returns MAC OS key type
    */
   CFTypeRef
@@ -203,7 +197,6 @@ public:
   /**
    * @brief Convert keyClass to MAC OS key class
    *
-   * @param keyClass
    * @returns MAC OS key class
    */
   CFTypeRef
@@ -212,7 +205,6 @@ public:
   /**
    * @brief Convert digestAlgo to MAC OS algorithm id
    *
-   * @param digestAlgo
    * @returns MAC OS algorithm id
    */
   CFStringRef
@@ -221,7 +213,6 @@ public:
   /**
    * @brief Get the digest size of the corresponding algorithm
    *
-   * @param digestAlgo
    * @return digest size
    */
   long

@@ -38,8 +38,8 @@ class Estimator
 public: // common interface between Encoder and Estimator
   /**
    * @brief Create instance of the estimator
-   * @param totalReserve  not used (for compatibility with the Encoder)
-   * @param totalFromBack not used (for compatibility with the Encoder)
+   * @param totalReserve    not used (for compatibility with the Encoder)
+   * @param reserveFromBack not used (for compatibility with the Encoder)
    */
   explicit
   Estimator(size_t totalReserve = 0, size_t reserveFromBack = 0);

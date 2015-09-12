@@ -57,7 +57,7 @@ public:
   PublicKey();
 
   /**
-   * @brief Create a new PublicKey from @param keyDerBuf in DER buffer
+   * @brief Create a new PublicKey from @p keyDerBuf in DER buffer
    *
    * @param keyDerBuf The pointer to the first byte of buffer containing DER of public key
    * @param keyDerSize Size of the buffer

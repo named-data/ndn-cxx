@@ -68,7 +68,7 @@ public: // TpmLocator management
    * If the provided @p tpmLocator is different from the existing one, the
    * content in PIB will be cleaned up, otherwise nothing will be changed.
    *
-   * @param tmpLocator The name for the new tmpLocator
+   * @param tpmLocator The name for the new TPM locator
    */
   virtual void
   setTpmLocator(const std::string& tpmLocator) = 0;
