@@ -40,7 +40,7 @@ public:
     do
       {
         std::cin.read(buf, MAX_SEG_SIZE);
-        int got = std::cin.gcount();
+        ssize_t got = std::cin.gcount();
 
         if (got > 0)
           {

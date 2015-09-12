@@ -294,7 +294,7 @@ readType(InputIterator& begin, const InputIterator& end, uint32_t& type)
       return false;
     }
 
-  type = static_cast<uint64_t>(number);
+  type = static_cast<uint32_t>(number);
   return true;
 }
 

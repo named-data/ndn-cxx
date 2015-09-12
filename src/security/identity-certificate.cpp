@@ -68,7 +68,7 @@ bool
 IdentityCertificate::isCorrectName(const Name& name)
 {
   string idString("ID-CERT");
-  int i = name.size() - 1;
+  ssize_t i = name.size() - 1;
   for (; i >= 0; i--) {
     if (name.get(i).toUri() == idString)
       break;
