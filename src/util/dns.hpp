@@ -81,6 +81,11 @@ typedef function<void (const std::string& reason)> ErrorCallback;
  * - resolver::AnyAddress()
  * - resolver::Ipv4Address()
  * - resolver::Ipv6Address()
+ *
+ * \warning Even after the DNS resolution has timed out, it's possible that
+ *          \p ioService keeps running and \p onSuccess is invoked at a later time.
+ *          This could cause segmentation fault if \p onSuccess is deallocated.
+ *          To stop the io_service, explicitly invoke \p ioService.stop().
  */
 void
 asyncResolve(const std::string& host,
