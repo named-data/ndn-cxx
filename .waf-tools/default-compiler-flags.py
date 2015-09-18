@@ -104,12 +104,15 @@ class GccBasicFlags(CompilerFlags):
                               '-g3',
                               '-Werror',
                               '-Wno-error=maybe-uninitialized', # Bug #1615
-                             ]
+                              ]
         return flags
 
     def getOptimizedFlags(self, conf):
         flags = super(GccBasicFlags, self).getOptimizedFlags(conf)
-        flags['CXXFLAGS'] += ['-pedantic', '-Wall', '-O2', '-g']
+        flags['CXXFLAGS'] += ['-pedantic', '-Wall',
+                              '-O2',
+                              '-g',
+                              ]
         return flags
 
 class GccFlags(GccBasicFlags):
@@ -132,17 +135,13 @@ class GccFlags(GccBasicFlags):
         flags = super(GccFlags, self).getDebugFlags(conf)
         flags['CXXFLAGS'] += ['-Og', # gcc >= 4.8
                               '-fdiagnostics-color', # gcc >= 4.9
-                             ]
+                              ]
         return flags
 
 class ClangFlags(GccBasicFlags):
     def getGeneralFlags(self, conf):
         flags = super(ClangFlags, self).getGeneralFlags(conf)
-        flags['CXXFLAGS'] += ['-std=c++11',
-                              '-Wno-error=unneeded-internal-declaration', # Bug #1588
-                              '-Wno-error=deprecated-register',
-                              '-Wno-error=unused-local-typedef', # Bug #2657
-                              ]
+        flags['CXXFLAGS'] += ['-std=c++11']
         if Utils.unversioned_sys_platform() == "darwin":
             flags['CXXFLAGS'] += ['-stdlib=libc++']
             flags['LINKFLAGS'] += ['-stdlib=libc++']
@@ -150,5 +149,9 @@ class ClangFlags(GccBasicFlags):
 
     def getDebugFlags(self, conf):
         flags = super(ClangFlags, self).getDebugFlags(conf)
-        flags['CXXFLAGS'] += ['-fcolor-diagnostics']
+        flags['CXXFLAGS'] += ['-fcolor-diagnostics',
+                              '-Wno-error=unneeded-internal-declaration', # Bug #1588
+                              '-Wno-error=deprecated-register',
+                              '-Wno-error=unused-local-typedef', # Bug #2657
+                              ]
         return flags
