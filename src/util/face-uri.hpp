@@ -164,9 +164,10 @@ public: // canonical FaceUri
    *  \param onSuccess function to call after this FaceUri is converted to canonical form
    *  \note A new FaceUri in canonical form will be created; this FaceUri is unchanged.
    *  \param onFailure function to call if this FaceUri cannot be converted to canonical form
-   *  \param timeout maximum allowable duration of the operations.
-   *                 It's intentional not to provide a default value: the caller should set
-   *                 a reasonable value in balance between network delay and user experience.
+   *  \param io        reference to `boost::asio::io_service` instance
+   *  \param timeout   maximum allowable duration of the operations.
+   *                   It's intentional not to provide a default value: the caller should set
+   *                   a reasonable value in balance between network delay and user experience.
    */
   void
   canonize(const CanonizeSuccessCallback& onSuccess,

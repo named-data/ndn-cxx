@@ -45,7 +45,7 @@ Address::Address(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4, uint8_t a5, uin
   data()[5] = a6;
 }
 
-Address::Address(const uint8_t octets[])
+Address::Address(const uint8_t octets[ADDR_LEN])
 {
   std::copy(octets, octets + size(), begin());
 }
@@ -137,10 +137,8 @@ operator<<(std::ostream& o, const Address& a)
 } // namespace ndn
 
 
-using ndn::util::ethernet::Address;
-
 std::size_t
-std::hash<Address>::operator()(const Address& a) const noexcept
+std::hash<ndn::util::ethernet::Address>::operator()(const ndn::util::ethernet::Address& a) const noexcept
 {
   return boost::hash_range(a.cbegin(), a.cend());
 }

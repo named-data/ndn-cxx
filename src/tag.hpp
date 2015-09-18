@@ -38,11 +38,13 @@ public:
    * @return an integer that uniquely identifies this Tag type
    * @sa http://redmine.named-data.net/projects/ndn-cxx/wiki/PacketTagTypes
    */
-  // static constexpr int
-  // getTypeId()
-  // {
-  //   return <type-identifier>;
-  // }
+#ifdef DOXYGEN
+  static constexpr int
+  getTypeId()
+  {
+    return <type-identifier>;
+  }
+#endif // DOXYGEN
 };
 
 inline

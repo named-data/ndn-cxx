@@ -274,7 +274,7 @@ public: // Certificate Management
   getCertificatesOfKey(const Name& identity, const name::Component& keyId) const = 0;
 
   /**
-   * @brief Set a cert with name @p certName as the default of a key with id @keyId of @identity.
+   * @brief Set a cert with name @p certName as the default of a key with id @p keyId of @p identity.
    *
    * @param identity The name of the belonging identity.
    * @param keyId The key id.
@@ -286,7 +286,7 @@ public: // Certificate Management
                              const Name& certName) = 0;
 
   /**
-   * @brief Get the default certificate of a key with id @keyId of @identity.
+   * @brief Get the default certificate of a key with id @p keyId of @p identity.
    *
    * @param identity The name of the belonging identity.
    * @param keyId The key id.

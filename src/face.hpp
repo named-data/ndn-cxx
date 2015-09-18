@@ -447,8 +447,10 @@ public: // producer
    * @param onFailure   A callback to be called when prefixRegister command fails
    * @param signingInfo (optional) Signing parameters.  When omitted, a default parameters
    *                    used in the signature will be used.
+   * @param flags       Prefix registration flags
    *
    * @return The registered prefix ID which can be used with unregisterPrefix
+   * @see nfd::RouteFlags
    */
   const RegisteredPrefixId*
   registerPrefix(const Name& prefix,

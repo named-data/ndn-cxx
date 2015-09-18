@@ -159,6 +159,7 @@ public: // unique interface to the Encoder
 
   /**
    * @brief Reserve @p size bytes for the underlying buffer
+   * @param size amount of bytes to reserve in the underlying buffer
    * @param addInFront if true, then @p size bytes will be available in front (i.e., subsequent call
    *        to prepend* will not need to allocate memory).  If false, then reservation will be done
    *        at the end of the buffer (i.d., for subsequent append* calls)

@@ -193,6 +193,9 @@ public: // ControlCommand
    *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
    *                   non-overlapping
    *                   (no relPrefix is a prefix of another relPrefix)
+   *  \param authorization Callback to authorize the incoming commands
+   *  \param validateParams Callback to validate parameters of the incoming commands
+   *  \param handler Callback to handle the commands
    *  \pre no top-level prefix has been added
    *  \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix
    *  \throw std::domain_error one or more top-level prefix has been added
@@ -224,6 +227,7 @@ public: // StatusDataset
    *                   non-overlapping
    *                   (no relPrefix is a prefix of another relPrefix)
    *  \param authorization should set identity to Name() if the dataset is public
+   *  \param handler Callback to process the incoming dataset requests
    *  \pre no top-level prefix has been added
    *  \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix
    *  \throw std::domain_error one or more top-level prefix has been added

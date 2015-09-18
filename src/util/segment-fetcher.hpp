@@ -47,31 +47,31 @@ public:
 /**
  * @brief Utility class to fetch latest version of the segmented data
  *
- * SegmentFetcher assumes that the data is named /<prefix>/<version>/<segment>,
+ * SegmentFetcher assumes that the data is named `/<prefix>/<version>/<segment>`,
  * where:
- * - <prefix> is the specified prefix,
- * - <version> is an unknown version that needs to be discovered, and
- * - <segment> is a segment number (number of segments is unknown and is controlled
+ * - `<prefix>` is the specified prefix,
+ * - `<version>` is an unknown version that needs to be discovered, and
+ * - `<segment>` is a segment number (number of segments is unknown and is controlled
  *   by `FinalBlockId` field in at least the last Data packet
  *
  * The following logic is implemented in SegmentFetcher:
  *
  * 1. Express first interest to discover version:
  *
- *    >> Interest: /<prefix>?ChildSelector=1&MustBeFresh=yes
+ *    >> Interest: `/<prefix>?ChildSelector=1&MustBeFresh=yes`
  *
- * 2. Infer the latest version of Data:  <version> = Data.getName().get(-2)
+ * 2. Infer the latest version of Data:  `<version> = Data.getName().get(-2)`
  *
  * 3. If segment number in the retrieved packet == 0, go to step 5.
  *
  * 4. Send Interest for segment 0:
  *
- *    >> Interest: /<prefix>/<version>/<segment=0>
+ *    >> Interest: `/<prefix>/<version>/<segment=0>`
  *
  * 5. Keep sending Interests for the next segment while the retrieved Data does not have
  *    FinalBlockId or FinalBlockId != Data.getName().get(-1).
  *
- *    >> Interest: /<prefix>/<version>/<segment=(N+1))>
+ *    >> Interest: `/<prefix>/<version>/<segment=(N+1))>`
  *
  * 6. Fire onCompletion callback with memory block that combines content part from all
  *    segmented objects.

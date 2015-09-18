@@ -74,7 +74,7 @@ public:
   getName() const;
 
   /**
-   * @brief Get a key with id @keyId.
+   * @brief Get a key with id @p keyId.
    *
    * @param keyId The id of the key to get.
    * @throw Pib::Error if the key does not exist.

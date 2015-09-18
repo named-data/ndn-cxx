@@ -130,12 +130,12 @@ public:
   /**
    * @brief Decode from the wire format
    * @warning This method does not preserve the relative order between delegations.
-   *     To get a delegation by index, use \p getDelegationFromWire method.
+   *     To get a delegation by index, use @p getDelegationFromWire method.
    */
   void
   wireDecode(const Block& wire);
 
-  /** @brief gets the delegation at \p index from \p block
+  /** @brief gets the delegation at @p index from @p block
    *  @param block wire format of a Link object
    *  @param index 0-based index of a delegation in the Link object
    *  @return delegation preference and name
@@ -144,9 +144,10 @@ public:
   static std::tuple<uint32_t, Name>
   getDelegationFromWire(const Block& block, size_t index);
 
-  /** @brief finds index of a delegation with \p delegationName from \p block
+  /** @brief finds index of a delegation with @p delegationName from @p block
    *  @param block wire format of a Link object
-   *  @return 0-based index of the first delegation with \p delegationName ,
+   *  @param delegationName delegation name in the Link object
+   *  @return 0-based index of the first delegation with @p delegationName ,
    *          or -1 if no such delegation exists
    */
   static ssize_t
