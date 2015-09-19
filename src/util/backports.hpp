@@ -30,6 +30,10 @@
 
 #include "../common.hpp"
 
+#ifndef NDN_CXX_HAVE_STD_TO_STRING
+#include <boost/lexical_cast.hpp>
+#endif
+
 namespace ndn {
 
 #if __cpp_lib_make_unique
@@ -42,6 +46,17 @@ make_unique(Args&&... args)
   return unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 #endif // __cpp_lib_make_unique
+
+#ifdef NDN_CXX_HAVE_STD_TO_STRING
+using std::to_string;
+#else
+template<typename V>
+inline std::string
+to_string(const V& v)
+{
+  return boost::lexical_cast<std::string>(v);
+}
+#endif // NDN_CXX_HAVE_STD_TO_STRING
 
 } // namespace ndn
 

@@ -70,6 +70,32 @@ def check_override(self):
                       features='cxx', mandatory=False):
         self.define('HAVE_CXX_OVERRIDE_FINAL', 1)
 
+STD_TO_STRING = '''
+#include <string>
+int
+main(int argc, char** argv)
+{
+  std::string s = std::to_string(0);
+  s = std::to_string(0l);
+  s = std::to_string(0ll);
+  s = std::to_string(0u);
+  s = std::to_string(0ul);
+  s = std::to_string(0ull);
+  s = std::to_string(0.0f);
+  s = std::to_string(0.0);
+  s = std::to_string(0.0l);
+  s.clear();
+  return 0;
+}
+'''
+
+@conf
+def check_std_to_string(self):
+    if self.check_cxx(msg='Checking for std::to_string',
+                      fragment=STD_TO_STRING,
+                      features='cxx', mandatory=False):
+        self.define('HAVE_STD_TO_STRING', 1)
+
 VECTOR_INSERT_ERASE_CONST_ITERATOR = '''
 #include <vector>
 int
@@ -87,12 +113,13 @@ main()
 
 @conf
 def check_vector_const_iterators(self):
-    if self.check_cxx(msg='Checking for std::vector::insert with const_iterators',
+    if self.check_cxx(msg='Checking for std::vector::insert with const_iterator',
                       fragment=VECTOR_INSERT_ERASE_CONST_ITERATOR,
                       features='cxx', mandatory=False):
-        self.define('NDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR', 1)
+        self.define('HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR', 1)
 
 def configure(conf):
     conf.check_friend_typename()
     conf.check_override()
+    conf.check_std_to_string()
     conf.check_vector_const_iterators()
