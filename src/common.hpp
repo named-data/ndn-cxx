@@ -73,6 +73,7 @@
 #include <string>
 #include <type_traits>
 #include <unistd.h>
+#include <utility>
 
 #if defined(__GNUC__) || defined(__clang__)
 #  define DEPRECATED(func) func __attribute__ ((deprecated))
@@ -136,5 +137,7 @@ NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(9)
 namespace ndn {
 using boost::noncopyable;
 }
+
+#include "util/backports.hpp"
 
 #endif // NDN_COMMON_HPP

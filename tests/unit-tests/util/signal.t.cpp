@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(ManualDisconnect)
 
 BOOST_AUTO_TEST_CASE(ManualDisconnectDestructed)
 {
-  unique_ptr<SignalOwner0> so(new SignalOwner0());
+  auto so = make_unique<SignalOwner0>();
 
   int hit = 0;
   Connection connection = so->sig.connect([&hit] { ++hit; });

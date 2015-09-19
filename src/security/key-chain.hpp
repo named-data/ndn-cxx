@@ -911,7 +911,7 @@ inline void
 KeyChain::registerPib(std::initializer_list<std::string> aliases)
 {
   registerPibImpl(*aliases.begin(), aliases, [] (const std::string& locator) {
-      return unique_ptr<SecPublicInfo>(new PibType(locator));
+      return make_unique<PibType>(locator);
     });
 }
 
@@ -920,7 +920,7 @@ inline void
 KeyChain::registerTpm(std::initializer_list<std::string> aliases)
 {
   registerTpmImpl(*aliases.begin(), aliases, [] (const std::string& locator) {
-      return unique_ptr<SecTpm>(new TpmType(locator));
+      return make_unique<TpmType>(locator);
     });
 }
 
