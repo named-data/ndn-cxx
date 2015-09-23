@@ -285,7 +285,7 @@ extended it to C++.
         try {
           statements;
         }
-        catch (Exception& exception) {
+        catch (const Exception& exception) {
           statements;
         }
 
@@ -297,7 +297,7 @@ extended it to C++.
           {
             statements;
           }
-        catch (Exception& exception)
+        catch (const Exception& exception)
           {
             statements;
           }
