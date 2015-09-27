@@ -132,6 +132,7 @@ public:
   }
 
   /** \brief encodes a field and prepends to \p encoder its Block with top-level type \p TYPE
+   *  \param encoder Instance of the buffer encoder or buffer estimator
    *  \param value value of the field
    */
   template<typename encoding::Tag TAG, typename T>
