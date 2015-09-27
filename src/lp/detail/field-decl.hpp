@@ -125,7 +125,7 @@ public:
   decode(const Block& wire)
   {
     if (wire.type() != TlvType::value) {
-      BOOST_THROW_EXCEPTION(ndn::tlv::Error("Unexpected TLV type " + std::to_string(wire.type())));
+      BOOST_THROW_EXCEPTION(ndn::tlv::Error("Unexpected TLV type " + to_string(wire.type())));
     }
 
     return DecodeHelper<TlvType, ValueType>::decode(wire);
