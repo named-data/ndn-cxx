@@ -161,6 +161,7 @@ class ClangFlags(GccBasicFlags):
                               '-Wno-unused-local-typedef', # Bugs #2657 and #3209
                               '-Wno-error=unneeded-internal-declaration', # Bug #1588
                               '-Wno-error=deprecated-register',
+                              '-Wno-error=keyword-macro', # Bug #3235
                               ]
         return flags
 
