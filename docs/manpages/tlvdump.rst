@@ -3,6 +3,12 @@ tlvdump
 
 ``tlvdump`` is a simple application allowing to decode structure of TLV-encoded packet.
 
+Deprecated
+----------
+
+tlvdump is deprecated and will be removed in a future release of ndn-cxx.
+Please use ``ndn-dissect`` program from ndn-tools repository `<https://github.com/named-data/ndn-tools>`__.
+
 Usage
 -----
 
