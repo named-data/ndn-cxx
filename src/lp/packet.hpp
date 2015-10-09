@@ -60,6 +60,7 @@ public:
 
   /**
    * \brief decode packet from wire format
+   * \throws Error unknown TLV-TYPE
    */
   void
   wireDecode(const Block& wire);

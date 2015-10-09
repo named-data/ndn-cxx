@@ -97,6 +97,10 @@ Packet::wireDecode(const Block& wire)
     return;
   }
 
+  if (wire.type() != tlv::LpPacket) {
+    BOOST_THROW_EXCEPTION(Error("unrecognized TLV-TYPE " + to_string(wire.type())));
+  }
+
   wire.parse();
 
   bool isFirst = true;
@@ -105,7 +109,7 @@ Packet::wireDecode(const Block& wire)
     detail::FieldInfo info(element.type());
 
     if (!info.isRecognized && !info.canIgnore) {
-      BOOST_THROW_EXCEPTION(Error("unknown field cannot be ignored"));
+      BOOST_THROW_EXCEPTION(Error("unrecognized field cannot be ignored"));
     }
 
     if (!isFirst) {

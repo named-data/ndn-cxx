@@ -325,6 +325,13 @@ BOOST_AUTO_TEST_CASE(DecodeBareNetworkLayerPacket)
                                 encoded.begin(), encoded.end());
 }
 
+BOOST_AUTO_TEST_CASE(DecodeUnrecognizedTlvType)
+{
+  Packet packet;
+  Block wire = encoding::makeEmptyBlock(ndn::tlv::Name);
+  BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
