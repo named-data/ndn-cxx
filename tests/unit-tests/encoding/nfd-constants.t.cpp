@@ -20,5 +20,69 @@
  */
 #include "encoding/nfd-constants.hpp"
 
-// This file is intentionally empty.
-// See Bug 2091.
+#include "boost-test.hpp"
+#include <boost/lexical_cast.hpp>
+
+namespace ndn {
+namespace nfd {
+namespace tests {
+
+BOOST_AUTO_TEST_SUITE(Encoding)
+BOOST_AUTO_TEST_SUITE(TestNfdConstants)
+
+BOOST_AUTO_TEST_CASE(FaceScopeOutputStream)
+{
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_SCOPE_NONE), "none");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_SCOPE_NON_LOCAL), "non-local");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_SCOPE_LOCAL), "local");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<FaceScope>(126)), "126");
+}
+
+BOOST_AUTO_TEST_CASE(FacePersistencyOutputStream)
+{
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_PERSISTENCY_NONE), "none");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_PERSISTENCY_ON_DEMAND), "on-demand");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_PERSISTENCY_PERSISTENT), "persistent");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_PERSISTENCY_PERMANENT), "permanent");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<FacePersistency>(110)), "110");
+}
+
+BOOST_AUTO_TEST_CASE(LinkTypeOutputStream)
+{
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(LINK_TYPE_NONE), "none");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(LINK_TYPE_POINT_TO_POINT), "point-to-point");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(LINK_TYPE_MULTI_ACCESS), "multi-access");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<LinkType>(104)), "104");
+}
+
+BOOST_AUTO_TEST_CASE(RouteOriginOutputStream)
+{
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_NONE), "none");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_APP), "app");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_AUTOREG), "autoreg");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_CLIENT), "client");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_AUTOCONF), "autoconf");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_NLSR), "nlsr");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_STATIC), "static");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<RouteOrigin>(27)), "27");
+}
+
+BOOST_AUTO_TEST_CASE(RouteFlagsOutputStream)
+{
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_FLAGS_NONE), "none");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_FLAG_CHILD_INHERIT), "child-inherit");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_FLAG_CAPTURE), "capture");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<RouteFlags>(
+                    ROUTE_FLAG_CHILD_INHERIT | ROUTE_FLAG_CAPTURE)),
+                    "child-inherit|capture");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<RouteFlags>(
+                    ROUTE_FLAG_CAPTURE | static_cast<RouteFlags>(0x9c))),
+                    "capture|0x9c");
+}
+
+BOOST_AUTO_TEST_SUITE_END() // TestNfdConstants
+BOOST_AUTO_TEST_SUITE_END() // Encoding
+
+} // namespace tests
+} // namespace nfd
+} // namespace ndn

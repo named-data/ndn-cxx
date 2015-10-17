@@ -31,7 +31,8 @@ static const uint64_t INVALID_FACE_ID = std::numeric_limits<uint64_t>::max();
 
 /** \ingroup management
  */
-enum FaceScope {
+enum FaceScope : uint8_t {
+  FACE_SCOPE_NONE = std::numeric_limits<uint8_t>::max(),
   /** \brief face is non-local
    */
   FACE_SCOPE_NON_LOCAL = 0,
@@ -45,7 +46,8 @@ operator<<(std::ostream& os, FaceScope faceScope);
 
 /** \ingroup management
  */
-enum FacePersistency {
+enum FacePersistency : uint8_t {
+  FACE_PERSISTENCY_NONE = std::numeric_limits<uint8_t>::max(),
   /** \brief face is persistent
    */
   FACE_PERSISTENCY_PERSISTENT = 0,
@@ -62,7 +64,8 @@ operator<<(std::ostream& os, FacePersistency facePersistency);
 
 /** \ingroup management
  */
-enum LinkType {
+enum LinkType : uint8_t {
+  LINK_TYPE_NONE = std::numeric_limits<uint8_t>::max(),
   /** \brief link is point-to-point
    */
   LINK_TYPE_POINT_TO_POINT = 0,
@@ -76,7 +79,8 @@ operator<<(std::ostream& os, LinkType linkType);
 
 /** \ingroup management
  */
-enum RouteOrigin {
+enum RouteOrigin : uint16_t {
+  ROUTE_ORIGIN_NONE     = std::numeric_limits<uint16_t>::max(),
   ROUTE_ORIGIN_APP      = 0,
   ROUTE_ORIGIN_AUTOREG  = 64,
   ROUTE_ORIGIN_CLIENT   = 65,
@@ -85,12 +89,19 @@ enum RouteOrigin {
   ROUTE_ORIGIN_STATIC   = 255
 };
 
+std::ostream&
+operator<<(std::ostream& os, RouteOrigin routeOrigin);
+
 /** \ingroup management
  */
 enum RouteFlags {
+  ROUTE_FLAGS_NONE         = 0,
   ROUTE_FLAG_CHILD_INHERIT = 1,
   ROUTE_FLAG_CAPTURE       = 2
 };
+
+std::ostream&
+operator<<(std::ostream& os, RouteFlags routeFlags);
 
 } // namespace nfd
 } // namespace ndn

@@ -21,6 +21,7 @@
 
 #include "nfd-constants.hpp"
 #include <iostream>
+#include <map>
 
 namespace ndn {
 namespace nfd {
@@ -29,53 +30,114 @@ std::ostream&
 operator<<(std::ostream& os, FaceScope faceScope)
 {
   switch (faceScope) {
-  case FACE_SCOPE_NON_LOCAL:
-    os << "non-local";
-    break;
-  case FACE_SCOPE_LOCAL:
-    os << "local";
-    break;
-  default:
-    os << "unknown";
-    break;
+    case FACE_SCOPE_NONE:
+      return os << "none";
+    case FACE_SCOPE_NON_LOCAL:
+      return os << "non-local";
+    case FACE_SCOPE_LOCAL:
+      return os << "local";
+    default:
+      return os << static_cast<unsigned>(faceScope);
   }
-  return os;
 }
 
 std::ostream&
 operator<<(std::ostream& os, FacePersistency facePersistency)
 {
   switch (facePersistency) {
-  case FACE_PERSISTENCY_PERSISTENT:
-    os << "persistent";
-    break;
-  case FACE_PERSISTENCY_ON_DEMAND:
-    os << "on-demand";
-    break;
-  case FACE_PERSISTENCY_PERMANENT:
-    os << "permanent";
-    break;
-  default:
-    os << "unknown";
-    break;
+    case FACE_PERSISTENCY_NONE:
+      return os << "none";
+    case FACE_PERSISTENCY_PERSISTENT:
+      return os << "persistent";
+    case FACE_PERSISTENCY_ON_DEMAND:
+      return os << "on-demand";
+    case FACE_PERSISTENCY_PERMANENT:
+      return os << "permanent";
+    default:
+      return os << static_cast<unsigned>(facePersistency);
   }
-  return os;
 }
 
 std::ostream&
 operator<<(std::ostream& os, LinkType linkType)
 {
   switch (linkType) {
-  case LINK_TYPE_POINT_TO_POINT:
-    os << "point-to-point";
-    break;
-  case LINK_TYPE_MULTI_ACCESS:
-    os << "multi-access";
-    break;
-  default:
-    os << "unknown";
-    break;
+    case LINK_TYPE_NONE:
+      return os << "none";
+    case LINK_TYPE_POINT_TO_POINT:
+      return os << "point-to-point";
+    case LINK_TYPE_MULTI_ACCESS:
+      return os << "multi-access";
+    default:
+      return os << static_cast<unsigned>(linkType);
   }
+}
+
+std::ostream&
+operator<<(std::ostream& os, RouteOrigin routeOrigin)
+{
+  switch (routeOrigin) {
+    case ROUTE_ORIGIN_NONE:
+      return os << "none";
+    case ROUTE_ORIGIN_APP:
+      return os << "app";
+    case ROUTE_ORIGIN_AUTOREG:
+      return os << "autoreg";
+    case ROUTE_ORIGIN_CLIENT:
+      return os << "client";
+    case ROUTE_ORIGIN_AUTOCONF:
+      return os << "autoconf";
+    case ROUTE_ORIGIN_NLSR:
+      return os << "nlsr";
+    case ROUTE_ORIGIN_STATIC:
+      return os << "static";
+    default:
+      return os << static_cast<unsigned>(routeOrigin);
+  }
+}
+
+std::ostream&
+operator<<(std::ostream& os, RouteFlags routeFlags)
+{
+  if (routeFlags == ROUTE_FLAGS_NONE) {
+    return os << "none";
+  }
+
+  bool isFirst = true;
+  auto printToken = [&os, &isFirst] (const std::string& token) {
+    if (isFirst) {
+      isFirst = false;
+    }
+    else {
+      os << '|';
+    }
+    os << token;
+  };
+
+  static const std::map<RouteFlags, std::string> knownBits = {
+    {ROUTE_FLAG_CHILD_INHERIT, "child-inherit"},
+    {ROUTE_FLAG_CAPTURE, "capture"}};
+  for (const auto& pair : knownBits) {
+    RouteFlags bit = ROUTE_FLAGS_NONE;
+    std::string token;
+    std::tie(bit, token) = pair;
+
+    if ((routeFlags & bit) == 0) {
+      continue;
+    }
+
+    printToken(token);
+    routeFlags = static_cast<RouteFlags>(routeFlags & ~bit);
+  }
+
+  if (routeFlags != 0) {
+    printToken("0x");
+    std::ios_base::fmtflags oldFmt = os.flags();
+    os << std::hex << std::nouppercase
+       << static_cast<unsigned>(routeFlags);
+    os.flags(oldFmt);
+  }
+
   return os;
 }
 
