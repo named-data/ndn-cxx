@@ -40,6 +40,9 @@ Deprecated:
 - Overloads of ``Face::registerPrefix`` and ``Face::setInterestFilter`` that do not accept
   SigningInfo parameter (:issue:`2932`)
 
+- tlvdump tool (:issue:`3196`).  Use ``ndn-dissect`` program from ndn-tools repository
+  `<https://github.com/named-data/ndn-tools>`__
+
 Removed:
 ^^^^^^^^
 
