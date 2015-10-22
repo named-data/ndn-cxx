@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -77,8 +77,8 @@ public: // key management
    * The key name is set in the returned KeyHandle.
    *
    * @return The handle of the created key.
-   * @throws Tpm::Error if @p params is invalid
-   * @throws Error if the key cannot be created.
+   * @throw Tpm::Error @p params are invalid
+   * @throw Error the key cannot be created
    */
   unique_ptr<KeyHandle>
   createKey(const Name& identity, const KeyParams& params);
@@ -88,15 +88,15 @@ public: // key management
    *
    * Continuing to use existing KeyHandles on a deleted key results in undefined behavior.
    *
-   * @throws Error if the deletion fails.
+   * @throw Error if the deletion fails.
    */
   void
   deleteKey(const Name& keyName);
 
   /**
    * @return A private key with name @p keyName in encrypted PKCS #8 format using password @p pw
-   * @throws Error if the key does not exist
-   * @throws Error if the key cannot be exported, e.g., insufficient privilege
+   * @throw Error the key does not exist
+   * @throw Error the key cannot be exported, e.g., insufficient privilege
    */
   ConstBufferPtr
   exportKey(const Name& keyName, const char* pw, size_t pwLen);
@@ -109,10 +109,47 @@ public: // key management
    * @param pkcs8Len The size of the key in encrypted PKCS #8 format
    * @param pw The password to decrypt the private key
    * @param pwLen The length of the password
-   * @throws Error if import fails.
+   * @throw Error import failed
    */
   void
   importKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len, const char* pw, size_t pwLen);
+
+  /**
+   * @brief Check if TPM is in terminal mode
+   *
+   * Default implementation always returns true.
+   */
+  virtual bool
+  isTerminalMode() const;
+
+  /**
+   * @brief Set the terminal mode of TPM.
+   *
+   * In terminal mode, TPM will not ask user permission from GUI.
+   *
+   * Default implementation does nothing.
+   */
+  virtual void
+  setTerminalMode(bool isTerminal) const;
+
+  /**
+   * @return True if TPM is locked, otherwise false
+   *
+   * Default implementation always returns false.
+   */
+  virtual bool
+  isTpmLocked() const;
+
+  /**
+   * @brief Unlock TPM
+   *
+   * @param pw    The password to unlock TPM
+   * @param pwLen The password size.
+   *
+   * Default implementation always returns !isTpmLocked()
+   */
+  virtual bool
+  unlockTpm(const char* pw, size_t pwLen) const;
 
 protected: // static helper method
   /**
@@ -141,7 +178,7 @@ private: // pure virtual methods
    * The key name is set in the returned KeyHandle.
    *
    * @return The handle of the created key.
-   * @throws Error when key cannot be created.
+   * @throw Error key cannot be created
    */
   virtual unique_ptr<KeyHandle>
   doCreateKey(const Name& identity, const KeyParams& params) = 0;
@@ -149,14 +186,14 @@ private: // pure virtual methods
   /**
    * @brief Delete a key with name @p keyName.
    *
-   * @throws Error if the deletion fails.
+   * @throw Error the deletion failed
    */
   virtual void
   doDeleteKey(const Name& keyName) = 0;
 
   /**
    * @return A private key with name @p keyName in encrypted PKCS #8 format using password @p pw
-   * @throws Error if the key cannot be exported, e.g., insufficient privilege
+   * @throw Error the key cannot be exported, e.g., insufficient privilege
    */
   virtual ConstBufferPtr
   doExportKey(const Name& keyName, const char* pw, size_t pwLen) = 0;
@@ -169,7 +206,7 @@ private: // pure virtual methods
    * @param pkcs8Len The size of the key in PKCS #8 format
    * @param pw The password to decrypt the private key
    * @param pwLen The length of the password
-   * @throws Error if import fails.
+   * @throw Error import failed
    */
   virtual void
   doImportKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len, const char* pw, size_t pwLen) = 0;

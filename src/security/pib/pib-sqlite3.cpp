@@ -32,171 +32,171 @@ namespace ndn {
 namespace security {
 namespace pib {
 
-using std::string;
 using util::Sqlite3Statement;
 
-static const string INITIALIZATION =
-  "CREATE TABLE IF NOT EXISTS                    \n"
-  "  tpmInfo(                                    \n"
-  "    tpm_locator           BLOB                \n"
-  "  );                                          \n"
-  "                                              \n"
-  "CREATE TABLE IF NOT EXISTS                    \n"
-  "  identities(                                 \n"
-  "    id                    INTEGER PRIMARY KEY,\n"
-  "    identity              BLOB NOT NULL,      \n"
-  "    is_default            INTEGER DEFAULT 0   \n"
-  "  );                                          \n"
-  "                                              \n"
-  "CREATE UNIQUE INDEX IF NOT EXISTS             \n"
-  "  identityIndex ON identities(identity);      \n"
-  "                                              \n"
-  "CREATE TRIGGER IF NOT EXISTS                  \n"
-  "  identity_default_before_insert_trigger      \n"
-  "  BEFORE INSERT ON identities                 \n"
-  "  FOR EACH ROW                                \n"
-  "  WHEN NEW.is_default=1                       \n"
-  "  BEGIN                                       \n"
-  "    UPDATE identities SET is_default=0;       \n"
-  "  END;                                        \n"
-  "                                              \n"
-  "CREATE TRIGGER IF NOT EXISTS                  \n"
-  "  identity_default_after_insert_trigger       \n"
-  "  AFTER INSERT ON identities                  \n"
-  "  FOR EACH ROW                                \n"
-  "  WHEN NOT EXISTS                             \n"
-  "    (SELECT id                                \n"
-  "       FROM identities                        \n"
-  "       WHERE is_default=1)                    \n"
-  "  BEGIN                                       \n"
-  "    UPDATE identities                         \n"
-  "      SET is_default=1                        \n"
-  "      WHERE identity=NEW.identity;            \n"
-  "  END;                                        \n"
-  "                                              \n"
-  "CREATE TRIGGER IF NOT EXISTS                  \n"
-  "  identity_default_update_trigger             \n"
-  "  BEFORE UPDATE ON identities                 \n"
-  "  FOR EACH ROW                                \n"
-  "  WHEN NEW.is_default=1 AND OLD.is_default=0  \n"
-  "  BEGIN                                       \n"
-  "    UPDATE identities SET is_default=0;       \n"
-  "  END;                                        \n"
-  "                                              \n"
-  "                                              \n"
-  "CREATE TABLE IF NOT EXISTS                    \n"
-  "  keys(                                       \n"
-  "    id                    INTEGER PRIMARY KEY,\n"
-  "    identity_id           INTEGER NOT NULL,   \n"
-  "    key_name              BLOB NOT NULL,      \n"
-  "    key_bits              BLOB NOT NULL,      \n"
-  "    is_default            INTEGER DEFAULT 0,  \n"
-  "    FOREIGN KEY(identity_id)                  \n"
-  "      REFERENCES identities(id)               \n"
-  "      ON DELETE CASCADE                       \n"
-  "      ON UPDATE CASCADE                       \n"
-  "  );                                          \n"
-  "                                              \n"
-  "CREATE UNIQUE INDEX IF NOT EXISTS             \n"
-  "  keyIndex ON keys(key_name);                 \n"
-  "                                              \n"
-  "CREATE TRIGGER IF NOT EXISTS                  \n"
-  "  key_default_before_insert_trigger           \n"
-  "  BEFORE INSERT ON keys                       \n"
-  "  FOR EACH ROW                                \n"
-  "  WHEN NEW.is_default=1                       \n"
-  "  BEGIN                                       \n"
-  "    UPDATE keys                               \n"
-  "      SET is_default=0                        \n"
-  "      WHERE identity_id=NEW.identity_id;      \n"
-  "  END;                                        \n"
-  "                                              \n"
-  "CREATE TRIGGER IF NOT EXISTS                  \n"
-  "  key_default_after_insert_trigger            \n"
-  "  AFTER INSERT ON keys                        \n"
-  "  FOR EACH ROW                                \n"
-  "  WHEN NOT EXISTS                             \n"
-  "    (SELECT id                                \n"
-  "       FROM keys                              \n"
-  "       WHERE is_default=1                     \n"
-  "         AND identity_id=NEW.identity_id)     \n"
-  "  BEGIN                                       \n"
-  "    UPDATE keys                               \n"
-  "      SET is_default=1                        \n"
-  "      WHERE key_name=NEW.key_name;            \n"
-  "  END;                                        \n"
-  "                                              \n"
-  "CREATE TRIGGER IF NOT EXISTS                  \n"
-  "  key_default_update_trigger                  \n"
-  "  BEFORE UPDATE ON keys                       \n"
-  "  FOR EACH ROW                                \n"
-  "  WHEN NEW.is_default=1 AND OLD.is_default=0  \n"
-  "  BEGIN                                       \n"
-  "    UPDATE keys                               \n"
-  "      SET is_default=0                        \n"
-  "      WHERE identity_id=NEW.identity_id;      \n"
-  "  END;                                        \n"
-  "                                              \n"
-  "                                              \n"
-  "CREATE TABLE IF NOT EXISTS                    \n"
-  "  certificates(                               \n"
-  "    id                    INTEGER PRIMARY KEY,\n"
-  "    key_id                INTEGER NOT NULL,   \n"
-  "    certificate_name      BLOB NOT NULL,      \n"
-  "    certificate_data      BLOB NOT NULL,      \n"
-  "    is_default            INTEGER DEFAULT 0,  \n"
-  "    FOREIGN KEY(key_id)                       \n"
-  "      REFERENCES keys(id)                     \n"
-  "      ON DELETE CASCADE                       \n"
-  "      ON UPDATE CASCADE                       \n"
-  "  );                                          \n"
-  "                                              \n"
-  "CREATE UNIQUE INDEX IF NOT EXISTS             \n"
-  "  certIndex ON certificates(certificate_name);\n"
-  "                                              \n"
-  "CREATE TRIGGER IF NOT EXISTS                  \n"
-  "  cert_default_before_insert_trigger          \n"
-  "  BEFORE INSERT ON certificates               \n"
-  "  FOR EACH ROW                                \n"
-  "  WHEN NEW.is_default=1                       \n"
-  "  BEGIN                                       \n"
-  "    UPDATE certificates                       \n"
-  "      SET is_default=0                        \n"
-  "      WHERE key_id=NEW.key_id;                \n"
-  "  END;                                        \n"
-  "                                              \n"
-  "CREATE TRIGGER IF NOT EXISTS                  \n"
-  "  cert_default_after_insert_trigger           \n"
-  "  AFTER INSERT ON certificates                \n"
-  "  FOR EACH ROW                                \n"
-  "  WHEN NOT EXISTS                             \n"
-  "    (SELECT id                                \n"
-  "       FROM certificates                      \n"
-  "       WHERE is_default=1                     \n"
-  "         AND key_id=NEW.key_id)               \n"
-  "  BEGIN                                       \n"
-  "    UPDATE certificates                       \n"
-  "      SET is_default=1                        \n"
-  "      WHERE certificate_name=NEW.certificate_name;\n"
-  "  END;                                        \n"
-  "                                              \n"
-  "CREATE TRIGGER IF NOT EXISTS                  \n"
-  "  cert_default_update_trigger                 \n"
-  "  BEFORE UPDATE ON certificates               \n"
-  "  FOR EACH ROW                                \n"
-  "  WHEN NEW.is_default=1 AND OLD.is_default=0  \n"
-  "  BEGIN                                       \n"
-  "    UPDATE certificates                       \n"
-  "      SET is_default=0                        \n"
-  "      WHERE key_id=NEW.key_id;                \n"
-  "  END;                                        \n";
+static const std::string INITIALIZATION = R"SQL(
+CREATE TABLE IF NOT EXISTS
+  tpmInfo(
+    tpm_locator           BLOB
+  );
 
-PibSqlite3::PibSqlite3(const string& dir)
+CREATE TABLE IF NOT EXISTS
+  identities(
+    id                    INTEGER PRIMARY KEY,
+    identity              BLOB NOT NULL,
+    is_default            INTEGER DEFAULT 0
+  );
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+  identityIndex ON identities(identity);
+
+CREATE TRIGGER IF NOT EXISTS
+  identity_default_before_insert_trigger
+  BEFORE INSERT ON identities
+  FOR EACH ROW
+  WHEN NEW.is_default=1
+  BEGIN
+    UPDATE identities SET is_default=0;
+  END;
+
+CREATE TRIGGER IF NOT EXISTS
+  identity_default_after_insert_trigger
+  AFTER INSERT ON identities
+  FOR EACH ROW
+  WHEN NOT EXISTS
+    (SELECT id
+       FROM identities
+       WHERE is_default=1)
+  BEGIN
+    UPDATE identities
+      SET is_default=1
+      WHERE identity=NEW.identity;
+  END;
+
+CREATE TRIGGER IF NOT EXISTS
+  identity_default_update_trigger
+  BEFORE UPDATE ON identities
+  FOR EACH ROW
+  WHEN NEW.is_default=1 AND OLD.is_default=0
+  BEGIN
+    UPDATE identities SET is_default=0;
+  END;
+
+
+CREATE TABLE IF NOT EXISTS
+  keys(
+    id                    INTEGER PRIMARY KEY,
+    identity_id           INTEGER NOT NULL,
+    key_name              BLOB NOT NULL,
+    key_bits              BLOB NOT NULL,
+    is_default            INTEGER DEFAULT 0,
+    FOREIGN KEY(identity_id)
+      REFERENCES identities(id)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+  );
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+  keyIndex ON keys(key_name);
+
+CREATE TRIGGER IF NOT EXISTS
+  key_default_before_insert_trigger
+  BEFORE INSERT ON keys
+  FOR EACH ROW
+  WHEN NEW.is_default=1
+  BEGIN
+    UPDATE keys
+      SET is_default=0
+      WHERE identity_id=NEW.identity_id;
+  END;
+
+CREATE TRIGGER IF NOT EXISTS
+  key_default_after_insert_trigger
+  AFTER INSERT ON keys
+  FOR EACH ROW
+  WHEN NOT EXISTS
+    (SELECT id
+       FROM keys
+       WHERE is_default=1
+         AND identity_id=NEW.identity_id)
+  BEGIN
+    UPDATE keys
+      SET is_default=1
+      WHERE key_name=NEW.key_name;
+  END;
+
+CREATE TRIGGER IF NOT EXISTS
+  key_default_update_trigger
+  BEFORE UPDATE ON keys
+  FOR EACH ROW
+  WHEN NEW.is_default=1 AND OLD.is_default=0
+  BEGIN
+    UPDATE keys
+      SET is_default=0
+      WHERE identity_id=NEW.identity_id;
+  END;
+
+
+CREATE TABLE IF NOT EXISTS
+  certificates(
+    id                    INTEGER PRIMARY KEY,
+    key_id                INTEGER NOT NULL,
+    certificate_name      BLOB NOT NULL,
+    certificate_data      BLOB NOT NULL,
+    is_default            INTEGER DEFAULT 0,
+    FOREIGN KEY(key_id)
+      REFERENCES keys(id)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+  );
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+  certIndex ON certificates(certificate_name);
+
+CREATE TRIGGER IF NOT EXISTS
+  cert_default_before_insert_trigger
+  BEFORE INSERT ON certificates
+  FOR EACH ROW
+  WHEN NEW.is_default=1
+  BEGIN
+    UPDATE certificates
+      SET is_default=0
+      WHERE key_id=NEW.key_id;
+  END;
+
+CREATE TRIGGER IF NOT EXISTS
+  cert_default_after_insert_trigger
+  AFTER INSERT ON certificates
+  FOR EACH ROW
+  WHEN NOT EXISTS
+    (SELECT id
+       FROM certificates
+       WHERE is_default=1
+         AND key_id=NEW.key_id)
+  BEGIN
+    UPDATE certificates
+      SET is_default=1
+      WHERE certificate_name=NEW.certificate_name;
+  END;
+
+CREATE TRIGGER IF NOT EXISTS
+  cert_default_update_trigger
+  BEFORE UPDATE ON certificates
+  FOR EACH ROW
+  WHEN NEW.is_default=1 AND OLD.is_default=0
+  BEGIN
+    UPDATE certificates
+      SET is_default=0
+      WHERE key_id=NEW.key_id;
+  END;
+)SQL";
+
+PibSqlite3::PibSqlite3(const std::string& location)
 {
   // Determine the path of PIB DB
   boost::filesystem::path dbDir;
-  if (!dir.empty()) {
-    dbDir = boost::filesystem::path(dir);
+  if (!location.empty()) {
+    dbDir = boost::filesystem::path(location);
   }
 #ifdef NDN_CXX_HAVE_TESTS
   else if (getenv("TEST_HOME") != nullptr) {
@@ -222,7 +222,7 @@ PibSqlite3::PibSqlite3(const string& dir)
                                );
 
   if (result != SQLITE_OK) {
-    BOOST_THROW_EXCEPTION(PibImpl::Error("PIB database cannot be opened/created in " + dir));
+    BOOST_THROW_EXCEPTION(PibImpl::Error("PIB database cannot be opened/created in " + location));
   }
 
   // enable foreign key
@@ -240,6 +240,13 @@ PibSqlite3::PibSqlite3(const string& dir)
 PibSqlite3::~PibSqlite3()
 {
   sqlite3_close(m_database);
+}
+
+const std::string&
+PibSqlite3::getScheme()
+{
+  static std::string scheme = "pib-sqlite3";
+  return scheme;
 }
 
 void

@@ -40,24 +40,27 @@ class PibSqlite3 : public PibImpl
 {
 public:
   /**
-   * @brief Constructor of PibSqlite3
+   * @brief Create sqlite3-based PIB backed
    *
-   * This method will create a SQLite3 database file under the directory @p dir.
+   * This method will create a SQLite3 database file under the directory @p location.
    * If the directory does not exist, it will be created automatically.
    * It assumes that the directory does not contain a PIB database of an older version,
    * It is user's responsibility to update the older version database or remove the database.
    *
-   * @param dir The directory where the database file is located. By default, it points to the
-   *        $HOME/.ndn directory.
+   * @param location The directory where the database file is located. By default, it points to the
+   *                 $HOME/.ndn directory.
    * @throw PibImpl::Error when initialization fails.
    */
   explicit
-  PibSqlite3(const std::string& dir = "");
+  PibSqlite3(const std::string& location = "");
 
   /**
    * @brief Destruct and cleanup internal state
    */
   ~PibSqlite3();
+
+  static const std::string&
+  getScheme();
 
 public: // TpmLocator management
   void

@@ -48,7 +48,15 @@ public:
   };
 
 public:
-  PibMemory();
+  /**
+   * @brief Create memory based PIB backend
+   * @param location Not used (required by the PIB-registration interface)
+   */
+  explicit
+  PibMemory(const std::string& location = "");
+
+  static const std::string&
+  getScheme();
 
 public: // TpmLocator management
   void

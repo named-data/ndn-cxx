@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(Sha256)
 {
   SigningInfo info = signingWithSha256();
   BOOST_CHECK_EQUAL(info.getSignerType(), SigningInfo::SIGNER_TYPE_SHA256);
-  BOOST_CHECK_EQUAL(info.getSignerName(), SigningInfo::EMPTY_NAME);
+  BOOST_CHECK_EQUAL(info.getSignerName(), SigningInfo::getEmptyName());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestSigningHelpers

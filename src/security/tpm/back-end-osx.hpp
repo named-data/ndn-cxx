@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,7 +34,7 @@ namespace security {
 namespace tpm {
 
 /**
- * @brief The back-end implementation of TPM based on OS X KeyChain service.
+ * @brief The back-end implementation of TPM based on macOS Keychain Services.
  */
 class BackEndOsx : public BackEnd
 {
@@ -50,39 +50,30 @@ public:
   };
 
 public:
-  BackEndOsx();
+  /**
+   * @brief Create TPM backed based on macOS KeyChain service
+   * @param location Not used (required by the TPM-registration interface)
+   */
+  explicit
+  BackEndOsx(const std::string& location = "");
 
   ~BackEndOsx() override;
 
+  static const std::string&
+  getScheme();
+
 public: // management
-  /**
-   * @brief Set the terminal mode of TPM.
-   *
-   * In terminal mode, TPM will not ask user permission from GUI.
-   */
+  bool
+  isTerminalMode() const final;
+
   void
-  setTerminalMode(bool isTerminal);
+  setTerminalMode(bool isTerminal) const final;
 
-  /**
-   * @brief Check if TPM is in terminal mode
-   */
   bool
-  isTerminalMode() const;
+  isTpmLocked() const final;
 
-  /**
-   * @return True if TPM is locked, otherwise false
-   */
   bool
-  isLocked() const;
-
-  /**
-   * @brief Unlock TPM
-   *
-   * @param password       The password to unlock TPM
-   * @param passwordLength The password size.
-   */
-  bool
-  unlockTpm(const char* password = nullptr, size_t passwordLength = 0);
+  unlockTpm(const char* pw, size_t pwLen) const final;
 
 public: // crypto transformation
   /**
@@ -125,14 +116,14 @@ private: // inherited from tpm::BackEnd
   /**
    * @brief Delete a key with name @p keyName.
    *
-   * @throws Error if the deletion fails.
+   * @throw Error the deletion failed
    */
   void
   doDeleteKey(const Name& keyName) final;
 
   /**
    * @return A private key with name @p keyName in encrypted PKCS #8 format using password @p pw
-   * @throws Error if the key cannot be exported, e.g., not enough privilege
+   * @throw Error the key cannot be exported, e.g., not enough privilege
    */
   ConstBufferPtr
   doExportKey(const Name& keyName, const char* pw, size_t pwLen) final;
@@ -145,7 +136,7 @@ private: // inherited from tpm::BackEnd
    * @param size The size of the key in encrypted PKCS #8 format
    * @param pw The password to decrypt the private key
    * @param pwLen The length of the password
-   * @throws Error if import fails
+   * @throw Error import fails
    */
   void
   doImportKey(const Name& keyName, const uint8_t* buf, size_t size, const char* pw, size_t pwLen) final;

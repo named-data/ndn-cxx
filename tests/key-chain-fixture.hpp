@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #define NDN_TESTS_KEY_CHAIN_FIXTURE_HPP
 
 #include "security/key-chain.hpp"
+#include "security/v2/key-chain.hpp"
 
 #include "boost-test.hpp"
 #include "identity-management-fixture.hpp"
@@ -76,6 +77,8 @@ public:
     }
 
     boost::filesystem::remove_all(m_pibDir);
+    const_cast<std::string&>(security::v2::KeyChain::getDefaultPibLocator()).clear();
+    const_cast<std::string&>(security::v2::KeyChain::getDefaultTpmLocator()).clear();
   }
 
 protected:

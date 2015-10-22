@@ -153,6 +153,7 @@ private:
   mutable std::unordered_map<Name, shared_ptr<detail::IdentityImpl>> m_identities;
 
   shared_ptr<PibImpl> m_pibImpl;
+
   friend class Pib;
 };
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -66,7 +66,7 @@ BackEnd::createKey(const Name& identity, const KeyParams& params)
       name::Component keyId;
       do {
         keyId = name::Component::fromNumber(random::generateSecureWord64());
-        keyName = v2::constructKeyName(identity, params.getKeyId());
+        keyName = v2::constructKeyName(identity, keyId);
       } while (hasKey(keyName));
 
       const_cast<KeyParams&>(params).setKeyId(keyId);
@@ -131,6 +131,29 @@ BackEnd::setKeyName(KeyHandle& keyHandle, const Name& identity, const KeyParams&
   }
 
   keyHandle.setKeyName(v2::constructKeyName(identity, keyId));
+}
+
+bool
+BackEnd::isTerminalMode() const
+{
+  return true;
+}
+
+void
+BackEnd::setTerminalMode(bool isTerminal) const
+{
+}
+
+bool
+BackEnd::isTpmLocked() const
+{
+  return false;
+}
+
+bool
+BackEnd::unlockTpm(const char* pw, size_t pwLen) const
+{
+  return !isTpmLocked();
 }
 
 } // namespace tpm

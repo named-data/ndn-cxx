@@ -59,13 +59,13 @@ Key::getPublicKey() const
 }
 
 void
-Key::addCertificate(const v2::Certificate& certificate)
+Key::addCertificate(const v2::Certificate& certificate) const
 {
   return lock()->addCertificate(certificate);
 }
 
 void
-Key::removeCertificate(const Name& certName)
+Key::removeCertificate(const Name& certName) const
 {
   return lock()->removeCertificate(certName);
 }
@@ -83,13 +83,13 @@ Key::getCertificates() const
 }
 
 const v2::Certificate&
-Key::setDefaultCertificate(const Name& certName)
+Key::setDefaultCertificate(const Name& certName) const
 {
   return lock()->setDefaultCertificate(certName);
 }
 
 const v2::Certificate&
-Key::setDefaultCertificate(const v2::Certificate& certificate)
+Key::setDefaultCertificate(const v2::Certificate& certificate) const
 {
   return lock()->setDefaultCertificate(certificate);
 }

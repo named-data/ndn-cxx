@@ -20,13 +20,30 @@
  */
 
 #include "signing-info.hpp"
-#include "key-chain.hpp"
 
 namespace ndn {
 namespace security {
 
-const Name SigningInfo::EMPTY_NAME;
-const SignatureInfo SigningInfo::EMPTY_SIGNATURE_INFO;
+const Name&
+SigningInfo::getEmptyName()
+{
+  static Name emptyName;
+  return emptyName;
+}
+
+const SignatureInfo&
+SigningInfo::getEmptySignatureInfo()
+{
+  static SignatureInfo emptySignatureInfo;
+  return emptySignatureInfo;
+}
+
+const Name&
+SigningInfo::getDigestSha256Identity()
+{
+  static Name digestSha256Identity("/localhost/identity/digest-sha256");
+  return digestSha256Identity;
+}
 
 SigningInfo::SigningInfo(SignerType signerType,
                          const Name& signerName,
@@ -56,7 +73,7 @@ SigningInfo::SigningInfo(const std::string& signingStr)
   std::string nameArg = signingStr.substr(pos + 1);
 
   if (scheme == "id") {
-    if (nameArg == KeyChain::DIGEST_SHA256_IDENTITY.toUri()) {
+    if (nameArg == getDigestSha256Identity().toUri()) {
       setSha256Signing();
     }
     else {
@@ -129,7 +146,7 @@ operator<<(std::ostream& os, const SigningInfo& si)
       os << "cert:";
       break;
     case SigningInfo::SIGNER_TYPE_SHA256:
-      os << "id:" << KeyChain::DIGEST_SHA256_IDENTITY;
+      os << "id:" << SigningInfo::getDigestSha256Identity();
       return os;
     default:
       BOOST_THROW_EXCEPTION(std::invalid_argument("Unknown signer type"));

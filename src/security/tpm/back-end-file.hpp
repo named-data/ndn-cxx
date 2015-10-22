@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -52,10 +52,17 @@ public:
   };
 
 public:
+  /**
+   * @brief Create file-based TPM backend
+   * @param location Directory to store private keys
+   */
   explicit
   BackEndFile(const std::string& location = "");
 
   ~BackEndFile() override;
+
+  static const std::string&
+  getScheme();
 
 private: // inherited from tpm::BackEnd
   /**
@@ -87,14 +94,14 @@ private: // inherited from tpm::BackEnd
   /**
    * @brief Delete a key with name @p keyName.
    *
-   * @throws Error if the deletion fails.
+   * @throw Error the deletion failed
    */
   void
   doDeleteKey(const Name& keyName) final;
 
   /**
    * @return A private key with name @p keyName in encrypted PKCS #8 format using password @p pw
-   * @throws Error if the key cannot be exported, e.g., not enough privilege
+   * @throw Error the key cannot be exported, e.g., not enough privilege
    */
   ConstBufferPtr
   doExportKey(const Name& keyName, const char* pw, size_t pwLen) final;
@@ -107,7 +114,7 @@ private: // inherited from tpm::BackEnd
    * @param size The size of the key in encrypted PKCS #8 format
    * @param pw The password to decrypt the key
    * @param pwLen The length of the password
-   * @throws Error if import fails.
+   * @throw Error import failed
    */
   void
   doImportKey(const Name& keyName, const uint8_t* buf, size_t size, const char* pw, size_t pwLen) final;

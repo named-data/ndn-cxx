@@ -40,13 +40,13 @@ Identity::getName() const
 }
 
 Key
-Identity::addKey(const uint8_t* key, size_t keyLen, const Name& keyName)
+Identity::addKey(const uint8_t* key, size_t keyLen, const Name& keyName) const
 {
   return lock()->addKey(key, keyLen, keyName);
 }
 
 void
-Identity::removeKey(const Name& keyName)
+Identity::removeKey(const Name& keyName) const
 {
   return lock()->removeKey(keyName);
 }
@@ -64,13 +64,13 @@ Identity::getKeys() const
 }
 
 const Key&
-Identity::setDefaultKey(const Name& keyName)
+Identity::setDefaultKey(const Name& keyName) const
 {
   return lock()->setDefaultKey(keyName);
 }
 
 const Key&
-Identity::setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName)
+Identity::setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName) const
 {
   return lock()->setDefaultKey(key, keyLen, keyName);
 }

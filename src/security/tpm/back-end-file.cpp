@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -82,6 +82,13 @@ BackEndFile::BackEndFile(const std::string& location)
 }
 
 BackEndFile::~BackEndFile() = default;
+
+const std::string&
+BackEndFile::getScheme()
+{
+  static std::string scheme = "tpm-file";
+  return scheme;
+}
 
 bool
 BackEndFile::doHasKey(const Name& keyName) const

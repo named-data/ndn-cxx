@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -117,7 +117,7 @@ getDigestSize(DigestAlgorithm digestAlgo)
   }
 }
 
-BackEndOsx::BackEndOsx()
+BackEndOsx::BackEndOsx(const std::string&)
   : m_impl(new Impl)
 {
   SecKeychainSetUserInteractionAllowed(!m_impl->isTerminalMode);
@@ -131,11 +131,11 @@ BackEndOsx::BackEndOsx()
 
 BackEndOsx::~BackEndOsx() = default;
 
-void
-BackEndOsx::setTerminalMode(bool isTerminal)
+const std::string&
+BackEndOsx::getScheme()
 {
-  m_impl->isTerminalMode = isTerminal;
-  SecKeychainSetUserInteractionAllowed(!isTerminal);
+  static std::string scheme = "tpm-osxkeychain";
+  return scheme;
 }
 
 bool
@@ -144,8 +144,15 @@ BackEndOsx::isTerminalMode() const
   return m_impl->isTerminalMode;
 }
 
+void
+BackEndOsx::setTerminalMode(bool isTerminal) const
+{
+  m_impl->isTerminalMode = isTerminal;
+  SecKeychainSetUserInteractionAllowed(!isTerminal);
+}
+
 bool
-BackEndOsx::isLocked() const
+BackEndOsx::isTpmLocked() const
 {
   SecKeychainStatus keychainStatus;
 
@@ -157,22 +164,22 @@ BackEndOsx::isLocked() const
 }
 
 bool
-BackEndOsx::unlockTpm(const char* password, size_t passwordLength)
+BackEndOsx::unlockTpm(const char* pw, size_t pwLen) const
 {
   // If the default key chain is already unlocked, return immediately.
-  if (!isLocked())
+  if (!isTpmLocked())
     return true;
 
   if (m_impl->isTerminalMode) {
     // Use the supplied password.
-    SecKeychainUnlock(m_impl->keyChainRef, passwordLength, password, true);
+    SecKeychainUnlock(m_impl->keyChainRef, pwLen, pw, true);
   }
   else {
     // If inTerminal is not set, get the password from GUI.
     SecKeychainUnlock(m_impl->keyChainRef, 0, nullptr, false);
   }
 
-  return !isLocked();
+  return !isTpmLocked();
 }
 
 ConstBufferPtr

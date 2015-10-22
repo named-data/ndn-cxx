@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,12 +37,19 @@ public:
   std::unordered_map<Name, shared_ptr<PrivateKey>> keys;
 };
 
-BackEndMem::BackEndMem()
+BackEndMem::BackEndMem(const std::string&)
   : m_impl(new Impl)
 {
 }
 
 BackEndMem::~BackEndMem() = default;
+
+const std::string&
+BackEndMem::getScheme()
+{
+  static std::string scheme = "tpm-memory";
+  return scheme;
+}
 
 bool
 BackEndMem::doHasKey(const Name& keyName) const

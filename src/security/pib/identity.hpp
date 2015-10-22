@@ -116,14 +116,14 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @throw Pib::Error a key with the same name already exists
    */
   Key
-  addKey(const uint8_t* key, size_t keyLen, const Name& keyName);
+  addKey(const uint8_t* key, size_t keyLen, const Name& keyName) const;
 
   /**
    * @brief Remove a key with @p keyName
    * @throw std::invalid_argument @p keyName does not match identity
    */
   void
-  removeKey(const Name& keyName);
+  removeKey(const Name& keyName) const;
 
   /**
    * @brief Set an existing key with @p keyName as the default key.
@@ -132,7 +132,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @return The default key
    */
   const Key&
-  setDefaultKey(const Name& keyName);
+  setDefaultKey(const Name& keyName) const;
 
   /**
    * @brief Add a @p key of @p keyLen bytes with @p keyName and set it as the default key
@@ -141,7 +141,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @return the default key
    */
   const Key&
-  setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName);
+  setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName) const;
 
 private:
   /**
@@ -154,6 +154,8 @@ private:
 
 private:
   weak_ptr<detail::IdentityImpl> m_impl;
+
+  friend class v2::KeyChain;
 };
 
 } // namespace pib

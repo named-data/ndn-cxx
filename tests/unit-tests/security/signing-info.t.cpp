@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   SigningInfo info;
 
   BOOST_CHECK_EQUAL(info.getSignerType(), SigningInfo::SIGNER_TYPE_NULL);
-  BOOST_CHECK_EQUAL(info.getSignerName(), SigningInfo::EMPTY_NAME);
+  BOOST_CHECK_EQUAL(info.getSignerName(), SigningInfo::getEmptyName());
   BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   const SignatureInfo& sigInfo = info.getSignatureInfo();
@@ -82,12 +82,12 @@ BOOST_AUTO_TEST_CASE(Basic)
 
   info.setSha256Signing();
   BOOST_CHECK_EQUAL(info.getSignerType(), SigningInfo::SIGNER_TYPE_SHA256);
-  BOOST_CHECK_EQUAL(info.getSignerName(), SigningInfo::EMPTY_NAME);
+  BOOST_CHECK_EQUAL(info.getSignerName(), SigningInfo::getEmptyName());
   BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   SigningInfo infoSha(SigningInfo::SIGNER_TYPE_SHA256);
   BOOST_CHECK_EQUAL(infoSha.getSignerType(), SigningInfo::SIGNER_TYPE_SHA256);
-  BOOST_CHECK_EQUAL(infoSha.getSignerName(), SigningInfo::EMPTY_NAME);
+  BOOST_CHECK_EQUAL(infoSha.getSignerName(), SigningInfo::getEmptyName());
   BOOST_CHECK_EQUAL(infoSha.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 }
 
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(CustomSignatureInfo)
 
   BOOST_CHECK(info1.getSignatureInfo() == si);
 
-  SigningInfo info2(SigningInfo::SIGNER_TYPE_NULL, SigningInfo::EMPTY_NAME, si);
+  SigningInfo info2(SigningInfo::SIGNER_TYPE_NULL, SigningInfo::getEmptyName(), si);
   BOOST_CHECK(info2.getSignatureInfo() == si);
 }
 
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(FromString)
 {
   SigningInfo infoDefault("");
   BOOST_CHECK_EQUAL(infoDefault.getSignerType(), SigningInfo::SIGNER_TYPE_NULL);
-  BOOST_CHECK_EQUAL(infoDefault.getSignerName(), SigningInfo::EMPTY_NAME);
+  BOOST_CHECK_EQUAL(infoDefault.getSignerName(), SigningInfo::getEmptyName());
   BOOST_CHECK_EQUAL(infoDefault.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
   SigningInfo infoId("id:/my-identity");
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(FromString)
 
   SigningInfo infoSha("id:/localhost/identity/digest-sha256");
   BOOST_CHECK_EQUAL(infoSha.getSignerType(), SigningInfo::SIGNER_TYPE_SHA256);
-  BOOST_CHECK_EQUAL(infoSha.getSignerName(), SigningInfo::EMPTY_NAME);
+  BOOST_CHECK_EQUAL(infoSha.getSignerName(), SigningInfo::getEmptyName());
   BOOST_CHECK_EQUAL(infoSha.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 }
 

@@ -26,9 +26,6 @@
 
 namespace ndn {
 namespace security {
-
-class KeyChain;
-
 namespace pib {
 
 class PibImpl;
@@ -45,6 +42,10 @@ class PibImpl;
  * Information in the PIB is organized in a hierarchy of Identity-Key-Certificate. At the top level,
  * the Pib class provides access to identities, and allows setting a default identity. Properties of
  * an identity can be accessed after obtaining an Identity object.
+ *
+ * @note Pib instance is created and managed only by v2::KeyChain.  v2::KeyChain::getPib()
+ *       returns a const reference to the managed Pib instance, through which it is possible to
+ *       retrieve information about identities, keys, and certificates.
  *
  * @throw PibImpl::Error when underlying implementation has non-semantic error.
  */
@@ -184,7 +185,7 @@ protected:
 
   shared_ptr<PibImpl> m_impl;
 
-  friend class KeyChain;
+  friend class v2::KeyChain;
 };
 
 } // namespace pib

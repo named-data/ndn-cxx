@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -870,12 +870,6 @@ public:
 public:
   static const Name DEFAULT_PREFIX;
   static const SigningInfo DEFAULT_SIGNING_INFO;
-
-  /**
-   * @brief A localhost identity which indicates that signature is generated using SHA-256.
-   * @todo Passing this as identity is not implemented.
-   */
-  static const Name DIGEST_SHA256_IDENTITY;
 
   // RsaKeyParams is set to be default for backward compatibility.
   static const RsaKeyParams DEFAULT_KEY_PARAMS;

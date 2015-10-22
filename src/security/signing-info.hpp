@@ -71,8 +71,8 @@ public:
    */
   explicit
   SigningInfo(SignerType signerType = SIGNER_TYPE_NULL,
-              const Name& signerName = EMPTY_NAME,
-              const SignatureInfo& signatureInfo = EMPTY_SIGNATURE_INFO);
+              const Name& signerName = getEmptyName(),
+              const SignatureInfo& signatureInfo = getEmptySignatureInfo());
 
   /**
    * @brief Construct SigningInfo from its string representation
@@ -170,15 +170,22 @@ public:
   }
 
 public:
-  static const Name EMPTY_NAME;
-  static const SignatureInfo EMPTY_SIGNATURE_INFO;
+  static const Name&
+  getEmptyName();
+
+  static const SignatureInfo&
+  getEmptySignatureInfo();
+
+  /**
+   * @brief A localhost identity to indicate that the signature is generated using SHA-256.
+   */
+  static const Name&
+  getDigestSha256Identity();
 
 private:
   SignerType m_type;
   Name m_name;
-
   DigestAlgorithm m_digestAlgorithm;
-
   SignatureInfo m_info;
 };
 

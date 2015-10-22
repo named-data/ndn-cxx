@@ -27,9 +27,16 @@ namespace ndn {
 namespace security {
 namespace pib {
 
-PibMemory::PibMemory()
+PibMemory::PibMemory(const std::string&)
   : m_hasDefaultIdentity(false)
 {
+}
+
+const std::string&
+PibMemory::getScheme()
+{
+  static std::string scheme = "pib-memory";
+  return scheme;
 }
 
 void

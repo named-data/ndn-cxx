@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,6 +31,11 @@
 
 namespace ndn {
 namespace security {
+
+namespace v2 {
+class KeyChain;
+} // namespace v2
+
 namespace tpm {
 
 class BackEnd;
@@ -48,14 +53,17 @@ class BackEnd;
  * A TPM consists of a unified front-end interface and a back-end implementation. The front-end
  * cache the handles of private keys which is provided by the back-end implementation.
  *
- * @throw tpm::BackEnd::Error when underlying implementation has non-semantic error.
- * @throw Tpm::Error when there is an semantic error.
+ * @note Tpm instance is created and managed only by v2::KeyChain.  v2::KeyChain::getTpm()
+ *       returns a const reference to the managed Tpm instance, through which it is possible to
+ *       check existence of private keys, get public keys for the private keys, sign, and decrypt
+ *       the supplied buffers using managed private keys.
+ *
+ * @throw BackEnd::Error Failure with the underlying implementation having non-semantic errors
+ * @throw Tpm::Error Failure with semantic error in the underlying implementation
  */
 class Tpm : noncopyable
 {
 public:
-  friend class KeyChain;
-
   class Error : public std::runtime_error
   {
   public:
@@ -106,6 +114,36 @@ public:
   ConstBufferPtr
   decrypt(const uint8_t* buf, size_t size, const Name& keyName) const;
 
+public: // Management
+  /**
+   * @brief Check if TPM is in terminal mode
+   */
+  bool
+  isTerminalMode() const;
+
+  /**
+   * @brief Set the terminal mode of TPM.
+   *
+   * In terminal mode, TPM will not ask user permission from GUI.
+   */
+  void
+  setTerminalMode(bool isTerminal) const;
+
+  /**
+   * @return True if TPM is locked, otherwise false
+   */
+  bool
+  isTpmLocked() const;
+
+  /**
+   * @brief Unlock TPM
+   *
+   * @param password       The password to unlock TPM
+   * @param passwordLength The password size.
+   */
+  bool
+  unlockTpm(const char* password, size_t passwordLength) const;
+
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /*
    * @brief Create a new TPM instance with the specified @p location
@@ -128,7 +166,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * The created key is named as: /<identityName>/[keyId]/KEY
    *
    * @return the key name
-   * @throws Tpm::Error if the key has already existed or the params is invalid
+   * @throw Tpm::Error the key has already existed or the params is invalid
    */
   Name
   createKey(const Name& identityName, const KeyParams& params);
@@ -179,7 +217,6 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   }
 
 private:
-
   /**
    * @brief Internal KeyHandle lookup
    *
@@ -195,6 +232,8 @@ private:
   mutable std::unordered_map<Name, unique_ptr<KeyHandle>> m_keys;
 
   unique_ptr<BackEnd> m_backEnd;
+
+  friend class v2::KeyChain;
 };
 
 } // namespace tpm

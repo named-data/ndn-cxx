@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -40,7 +40,6 @@ namespace security {
 
 // Use a GUID as a magic number of KeyChain::DEFAULT_PREFIX identifier
 const Name KeyChain::DEFAULT_PREFIX("/723821fd-f534-44b3-80d9-44bf5f58bbbb");
-const Name KeyChain::DIGEST_SHA256_IDENTITY("/localhost/identity/digest-sha256");
 
 // Note: cannot use default constructor, as it depends on static variables which may or may not be
 // initialized at this point
@@ -500,7 +499,7 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
     }
     case SigningInfo::SIGNER_TYPE_SHA256: {
       sigInfo.setSignatureType(tlv::DigestSha256);
-      return std::make_tuple(DIGEST_SHA256_IDENTITY, sigInfo);
+      return std::make_tuple(SigningInfo::getDigestSha256Identity(), sigInfo);
     }
     default:
       BOOST_THROW_EXCEPTION(Error("Unrecognized signer type"));
@@ -758,7 +757,7 @@ Block
 KeyChain::pureSign(const uint8_t* buf, size_t size,
                    const Name& keyName, DigestAlgorithm digestAlgorithm) const
 {
-  if (keyName == DIGEST_SHA256_IDENTITY)
+  if (keyName == SigningInfo::getDigestSha256Identity())
     return Block(tlv::SignatureValue, crypto::computeSha256Digest(buf, size));
 
   return m_tpm->signInTpm(buf, size, keyName, digestAlgorithm);

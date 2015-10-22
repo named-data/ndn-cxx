@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -106,6 +106,30 @@ Tpm::decrypt(const uint8_t* buf, size_t size, const Name& keyName) const
     return nullptr;
   else
     return key->decrypt(buf, size);
+}
+
+bool
+Tpm::isTerminalMode() const
+{
+  return m_backEnd->isTerminalMode();
+}
+
+void
+Tpm::setTerminalMode(bool isTerminal) const
+{
+  m_backEnd->setTerminalMode(isTerminal);
+}
+
+bool
+Tpm::isTpmLocked() const
+{
+  return m_backEnd->isTpmLocked();
+}
+
+bool
+Tpm::unlockTpm(const char* password, size_t passwordLength) const
+{
+  return m_backEnd->unlockTpm(password, passwordLength);
 }
 
 ConstBufferPtr

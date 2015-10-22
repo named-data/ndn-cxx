@@ -28,7 +28,9 @@
 namespace ndn {
 namespace security {
 
+namespace v2 {
 class KeyChain;
+} // namespace v2
 
 namespace pib {
 
@@ -138,14 +140,14 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @throw Pib::Error a certificate with the same name already exists
    */
   void
-  addCertificate(const v2::Certificate& certificate);
+  addCertificate(const v2::Certificate& certificate) const;
 
   /**
    * @brief Remove a certificate with @p certName
    * @throw std::invalid_argument @p certName does not match key name
    */
   void
-  removeCertificate(const Name& certName);
+  removeCertificate(const Name& certName) const;
 
   /**
    * @brief Set an existing certificate with @p certName as the default certificate
@@ -154,7 +156,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @return the default certificate
    */
   const v2::Certificate&
-  setDefaultCertificate(const Name& certName);
+  setDefaultCertificate(const Name& certName) const;
 
   /**
    * @brief Add @p certificate and set it as the default certificate of the key
@@ -163,7 +165,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @return the default certificate
    */
   const v2::Certificate&
-  setDefaultCertificate(const v2::Certificate& certificate);
+  setDefaultCertificate(const v2::Certificate& certificate) const;
 
 private:
   /**
@@ -176,6 +178,8 @@ private:
 
 private:
   weak_ptr<detail::KeyImpl> m_impl;
+
+  friend class v2::KeyChain;
 };
 
 } // namespace pib
