@@ -128,11 +128,12 @@ private: // internal implementation
 
     /** \brief the disconnect function which will disconnect this handler
      *
-     *  This is .disconnect method bound with the iterator to this slot.
+     *  In practice this is the Signal::disconnect method bound to an iterator
+     *  pointing at this slot.
      *
      *  This is the only shared_ptr to this function object.
      *  Connection class has a weak_ptr which references the same function object.
-     *  When the slot is removed or the signal is destructed, this function object would be
+     *  When the slot is erased or the signal is destructed, this function object is
      *  destructed, and the related Connections cannot disconnect this slot again.
      */
     shared_ptr<function<void()>> disconnect;
@@ -170,7 +171,7 @@ Signal<Owner, TArgs...>::~Signal()
 }
 
 template<typename Owner, typename ...TArgs>
-inline Connection
+Connection
 Signal<Owner, TArgs...>::connect(const Handler& handler)
 {
   typename SlotList::iterator it = m_slots.insert(m_slots.end(), {handler, nullptr});
@@ -180,7 +181,7 @@ Signal<Owner, TArgs...>::connect(const Handler& handler)
 }
 
 template<typename Owner, typename ...TArgs>
-inline Connection
+Connection
 Signal<Owner, TArgs...>::connectSingleShot(const Handler& handler)
 {
   typename SlotList::iterator it = m_slots.insert(m_slots.end(), {nullptr, nullptr});
@@ -196,60 +197,72 @@ Signal<Owner, TArgs...>::connectSingleShot(const Handler& handler)
 }
 
 template<typename Owner, typename ...TArgs>
-inline void
+void
 Signal<Owner, TArgs...>::disconnect(typename SlotList::iterator it)
 {
-  // it could be const_iterator, but gcc 4.6 doesn't support std::list::erase(const_iterator)
+  // 'it' could be const_iterator, but gcc 4.6 doesn't support std::list::erase(const_iterator)
 
   if (m_isExecuting) {
     // during signal emission, only the currently executing handler can be disconnected
-    BOOST_ASSERT_MSG(it == m_currentSlot,
-                     "cannot disconnect another handler from a handler");
-    m_currentSlot = m_slots.end(); // prevent disconnect twice
+    BOOST_ASSERT_MSG(it == m_currentSlot, "cannot disconnect another handler from a handler");
+
+    // this serves to indicate that the current slot needs to be erased from the list
+    // after it finishes executing; we cannot do it here because of bug #2333
+    m_currentSlot = m_slots.end();
+
+    // expire all weak_ptrs, to prevent double disconnections
+    it->disconnect.reset();
   }
-  m_slots.erase(it);
+  else {
+    m_slots.erase(it);
+  }
 }
 
 template<typename Owner, typename ...TArgs>
-inline bool
+bool
 Signal<Owner, TArgs...>::isEmpty() const
 {
   return !m_isExecuting && m_slots.empty();
 }
 
 template<typename Owner, typename ...TArgs>
-inline void
+void
 Signal<Owner, TArgs...>::operator()(const TArgs&... args)
 {
   BOOST_ASSERT_MSG(!m_isExecuting, "cannot emit signal from a handler");
+
   if (m_slots.empty()) {
     return;
   }
-  m_isExecuting = true;
 
-  typename SlotList::iterator it = m_slots.begin();
-  typename SlotList::iterator last = m_slots.end();
-  --last;
+  auto it = m_slots.begin();
+  auto last = std::prev(m_slots.end());
+  m_isExecuting = true;
 
   try {
     bool isLast = false;
     while (!isLast) {
       m_currentSlot = it;
       isLast = it == last;
-      ++it;
 
       m_currentSlot->handler(args...);
+
+      if (m_currentSlot == m_slots.end())
+        it = m_slots.erase(it);
+      else
+        ++it;
     }
   }
   catch (...) {
     m_isExecuting = false;
     throw;
   }
+
   m_isExecuting = false;
 }
 
 template<typename Owner, typename ...TArgs>
-inline void
+void
 Signal<Owner, TArgs...>::operator()(const TArgs&... args, const DummyExtraArg&)
 {
   this->operator()(args...);
