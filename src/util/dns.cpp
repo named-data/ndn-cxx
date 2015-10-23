@@ -70,6 +70,8 @@ private:
                   iterator it, const shared_ptr<Resolver>& self)
   {
     m_scheduler.cancelEvent(m_resolveTimeout);
+    // ensure the Resolver isn't destructed while callbacks are still pending, see #2653
+    m_resolver.get_io_service().post(bind([] (const shared_ptr<Resolver>&) {}, self));
 
     if (error) {
       if (error == boost::asio::error::operation_aborted)
@@ -95,6 +97,8 @@ private:
   onResolveTimeout(const shared_ptr<Resolver>& self)
   {
     m_resolver.cancel();
+    // ensure the Resolver isn't destructed while callbacks are still pending, see #2653
+    m_resolver.get_io_service().post(bind([] (const shared_ptr<Resolver>&) {}, self));
 
     if (m_onError)
       m_onError("Hostname resolution timed out");
