@@ -150,13 +150,38 @@ IdentityManagementV2Fixture::addSubCertificate(const Name& subIdentityName,
   description.set("type", "sub-certificate");
   info.appendTypeSpecificTlv(description.wireEncode());
 
-  request.setSignature(Signature(info));
-
-  m_keyChain.sign(request, signingByIdentity(issuer));
+  m_keyChain.sign(request, signingByIdentity(issuer).setSignatureInfo(info));
   m_keyChain.setDefaultCertificate(subIdentity.getDefaultKey(), request);
 
   return subIdentity;
 }
+
+v2::Certificate
+IdentityManagementV2Fixture::addCertificate(const security::Key& key, const std::string& issuer)
+{
+  Name certificateName = key.getName();
+  certificateName
+    .append(issuer)
+    .appendVersion();
+  v2::Certificate certificate;
+  certificate.setName(certificateName);
+
+  // set metainfo
+  certificate.setContentType(tlv::ContentType_Key);
+  certificate.setFreshnessPeriod(time::hours(1));
+
+  // set content
+  certificate.setContent(key.getPublicKey().buf(), key.getPublicKey().size());
+
+  // set signature-info
+  SignatureInfo info;
+  info.setValidityPeriod(security::ValidityPeriod(time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(10)));
+
+  m_keyChain.sign(certificate, signingByKey(key).setSignatureInfo(info));
+  return certificate;
+}
+
 
 } // namespace tests
 } // namespace ndn

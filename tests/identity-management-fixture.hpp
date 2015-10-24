@@ -132,6 +132,12 @@ public:
   addSubCertificate(const Name& subIdentityName, const security::Identity& issuer,
                     const KeyParams& params = security::v2::KeyChain::getDefaultKeyParams());
 
+  /**
+   * @brief Add a self-signed certificate to @p key with issuer ID @p issuer
+   */
+  security::v2::Certificate
+  addCertificate(const security::Key& key, const std::string& issuer);
+
 protected:
   security::v2::KeyChain m_keyChain;
 };
