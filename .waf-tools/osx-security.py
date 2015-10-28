@@ -10,11 +10,7 @@ OSX_SECURITY_CODE='''
 #include <Security/SecRandom.h>
 #include <CoreServices/CoreServices.h>
 #include <Security/SecDigestTransform.h>
-
-int main(int argc, char **argv) {
-    (void)argc; (void)argv;
-    return 0;
-}
+int main() {}
 '''
 
 @conf

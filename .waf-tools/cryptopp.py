@@ -40,7 +40,6 @@ main()
   StringSource(buffer, true, new HashFilter(hash, new FileSink(std::cout)));
   StringSource(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.size(),
                true, new HashFilter(hash, new FileSink(std::cout)));
-  return 0;
 }
 '''
 

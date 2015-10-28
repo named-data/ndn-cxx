@@ -73,7 +73,7 @@ def check_override(self):
 STD_TO_STRING = '''
 #include <string>
 int
-main(int argc, char** argv)
+main()
 {
   std::string s = std::to_string(0);
   s = std::to_string(0l);
@@ -85,7 +85,6 @@ main(int argc, char** argv)
   s = std::to_string(0.0);
   s = std::to_string(0.0l);
   s.clear();
-  return 0;
 }
 '''
 
@@ -107,7 +106,6 @@ main()
   v.insert(it, 2);
   it = v.cend() - 1;
   v.erase(it);
-  return 0;
 }
 '''
 
