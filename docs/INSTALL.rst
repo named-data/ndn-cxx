@@ -11,7 +11,7 @@ platforms:
 
 -  Ubuntu 12.04 (64-bit and 32-bit)
 -  Ubuntu 14.04 (64-bit and 32-bit)
--  Ubuntu 14.10 (64-bit and 32-bit)
+-  Ubuntu 15.10 (64-bit)
 -  OS X 10.8
 -  OS X 10.9
 -  OS X 10.10
