@@ -22,18 +22,23 @@
 #include "security/validity-period.hpp"
 
 #include "boost-test.hpp"
+#include "unit-tests/unit-test-time-fixture.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace security {
-namespace test {
+namespace tests {
+
+using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestValidityPeriod)
 
-BOOST_AUTO_TEST_CASE(ConstructorSetter)
+BOOST_FIXTURE_TEST_CASE(ConstructorSetter, UnitTestTimeFixture)
 {
-  time::system_clock::TimePoint notBefore = time::system_clock::now() - time::days(1);
+  time::system_clock::TimePoint now = this->systemClock->getNow();
+
+  time::system_clock::TimePoint notBefore = now - time::days(1);
   time::system_clock::TimePoint notAfter = notBefore + time::days(2);
 
   ValidityPeriod validity1 = ValidityPeriod(notBefore, notAfter);
@@ -46,13 +51,13 @@ BOOST_AUTO_TEST_CASE(ConstructorSetter)
   BOOST_CHECK_GT(period.second, notAfter - time::seconds(1));
   BOOST_CHECK_EQUAL(validity1.isValid(), true);
 
-  BOOST_CHECK_EQUAL(ValidityPeriod(time::system_clock::now() - time::days(2),
-                                   time::system_clock::now() - time::days(1)).isValid(),
+  BOOST_CHECK_EQUAL(ValidityPeriod(now - time::days(2),
+                                   now - time::days(1)).isValid(),
                     false);
 
   BOOST_CHECK_NO_THROW((ValidityPeriod()));
   ValidityPeriod validity2;
-  BOOST_CHECK(validity2.getPeriod() == std::make_pair(time::getUnixEpoch(), time::getUnixEpoch()));
+  BOOST_CHECK_EQUAL(validity2.isValid(), false);
 
   validity2.setPeriod(notBefore, notAfter);
   BOOST_CHECK(validity2.getPeriod() != std::make_pair(time::getUnixEpoch(), time::getUnixEpoch()));
@@ -66,6 +71,9 @@ BOOST_AUTO_TEST_CASE(ConstructorSetter)
                       time::getUnixEpoch() + time::days(10 * 365) + time::nanoseconds(1));
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(validity1),
                     "(19700101T000001, 19791230T000000)");
+
+  BOOST_CHECK_EQUAL(ValidityPeriod(now, now).isValid(), true);
+  BOOST_CHECK_EQUAL(ValidityPeriod(now + time::seconds(1), now).isValid(), false);
 }
 
 const uint8_t VP1[] = {
@@ -188,6 +196,6 @@ BOOST_AUTO_TEST_CASE(Comparison)
 BOOST_AUTO_TEST_SUITE_END() // TestValidityPeriod
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace test
+} // namespace tests
 } // namespace security
 } // namespace ndn

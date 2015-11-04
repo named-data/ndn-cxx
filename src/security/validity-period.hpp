@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,16 +48,16 @@ public:
   };
 
 public:
-  /** @brief Set validity period (UNIX epoch, UNIX epoch) that is always invalid
+  /** @brief Set validity period [UNIX epoch + 1 nanosecond, UNIX epoch] that is always invalid
    */
-  ValidityPeriod() = default;
+  ValidityPeriod();
 
   /** @brief Create validity period from @p block
    */
   explicit
   ValidityPeriod(const Block& block);
 
-  /** @brief Create validity period (@p notBefore, @p notAfter)
+  /** @brief Create validity period [@p notBefore, @p notAfter]
    *  @param notBefore exclusive beginning of the validity period range
    *  @param notAfter exclusive end of the validity period range
    *
@@ -70,12 +70,12 @@ public:
 
   /** @brief Check if @p now falls within the validity period
    *  @param now Time point to check if it falls within the period
-   *  @return periodBegin < @p now and @p now < periodEnd
+   *  @return periodBegin <= @p now and @p now <= periodEnd
    */
   bool
   isValid(const time::system_clock::TimePoint& now = time::system_clock::now()) const;
 
-  /** @brief Set validity period (@p notBefore, @p notAfter)
+  /** @brief Set validity period [@p notBefore, @p notAfter]
    *  @param notBefore exclusive beginning of the validity period range
    *  @param notAfter exclusive end of the validity period range
    *
