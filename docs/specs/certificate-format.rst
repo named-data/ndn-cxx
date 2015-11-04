@@ -45,25 +45,28 @@ specification.
 Name
 ----
 
-The name of a certificate consists of four parts as shown below:
+The name of a certificate consists of five parts as shown below:
 
 ::
 
-    /<PrincipalName>/[KeyId]/KEY/[Version]
+    /<SubjectName>/[KeyId]/KEY/[IssuerId]/[Version]
 
-A certificate name starts with the name to which a public key is bound.  The
+A certificate name starts with the subject to which a public key is bound.  The
 second part is a single name component, called KeyId, which should uniquely
-identify the key under the principal namespace.  The value of KeyId is up to
-the owner of the principal namespace (e.g., SHA-256 digest of the public key,
-timestamp, or numerical identifier).  A special name component ``KEY`` is
-appended after KeyId, which indicates that the data is a certificate.  The last
-component is version number.  For example,
+identify the key under the subject namespace.  The value of KeyId is up to
+the owner of the subject namespace (e.g., 8-byte random number, SHA-256 digest
+of the public key, timestamp, or numerical identifier).  A special name
+component ``KEY`` is appended after KeyId, which indicates that the data is a
+certificate.  After ``KEY``, there is an IssuerId name component that
+distinguishes different issuers for the same key.  How to specify the IssuerId
+is up to the issuer and key owner.  The last component is version number.
+For example,
 
 ::
 
-    /edu/ucla/cs/yingdi/%03%CD...%F1/KEY/%FD%d2...%8E
-    \_________________/\___________/    \___________/
-      Principal Name      Key ID           Version
+    /edu/ucla/cs/yingdi/%03%CD...%F1/KEY/%9F%D3...%B7/%FD%d2...%8E
+    \_________________/\___________/    \___________/\___________/
+       Subject Name       Key ID          Issuer Id     Version
 
 
 MetaInfo
