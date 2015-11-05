@@ -30,33 +30,60 @@
 #include "boost-test.hpp"
 
 #include "security/key-chain.hpp"
+#include "lp/nack.hpp"
 
 namespace ndn {
 namespace util {
 
 inline shared_ptr<Interest>
-makeInterest(const Name& name)
+makeInterest(const Name& name, uint32_t nonce = 0)
 {
-  return make_shared<Interest>(name);
+  auto interest = make_shared<Interest>(name);
+  if (nonce != 0) {
+    interest->setNonce(nonce);
+  }
+  return interest;
 }
 
 inline shared_ptr<Data>
-signData(const shared_ptr<Data>& data)
+signData(shared_ptr<Data> data)
 {
-  ndn::SignatureSha256WithRsa fakeSignature;
-  fakeSignature.setValue(makeEmptyBlock(tlv::SignatureValue));
+  SignatureSha256WithRsa fakeSignature;
+  fakeSignature.setValue(encoding::makeEmptyBlock(tlv::SignatureValue));
   data->setSignature(fakeSignature);
   data->wireEncode();
-
   return data;
 }
 
 inline shared_ptr<Data>
 makeData(const Name& name)
 {
-  shared_ptr<Data> data = make_shared<Data>(name);
-
+  auto data = make_shared<Data>(name);
   return signData(data);
+}
+
+inline shared_ptr<Link>
+makeLink(const Name& name, std::initializer_list<std::pair<uint32_t, Name>> delegations)
+{
+  auto link = make_shared<Link>(name, delegations);
+  signData(link);
+  return link;
+}
+
+inline lp::Nack
+makeNack(const Interest& interest, lp::NackReason reason)
+{
+  lp::Nack nack(interest);
+  nack.setReason(reason);
+  return nack;
+}
+
+inline lp::Nack
+makeNack(const Name& name, uint32_t nonce, lp::NackReason reason)
+{
+  Interest interest(name);
+  interest.setNonce(nonce);
+  return makeNack(interest, reason);
 }
 
 } // namespace util

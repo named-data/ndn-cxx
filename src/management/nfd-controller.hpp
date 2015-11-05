@@ -84,9 +84,12 @@ private:
 
 public:
   /** \brief error code for timeout
-   *  \note comes from http://msdn.microsoft.com/en-us/library/windows/desktop/ms740668.aspx
    */
   static const uint32_t ERROR_TIMEOUT;
+
+  /** \brief error code for network Nack
+   */
+  static const uint32_t ERROR_NACK;
 
   /** \brief error code for server error
    */
