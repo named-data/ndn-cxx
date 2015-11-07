@@ -63,7 +63,7 @@ Packet::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& enc
 template size_t
 Packet::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
 
-const Block
+Block
 Packet::wireEncode() const
 {
   if (m_wire.hasWire()) {

@@ -55,7 +55,7 @@ public:
   /**
    * \brief encode packet into wire format
    */
-  const Block
+  Block
   wireEncode() const;
 
   /**
