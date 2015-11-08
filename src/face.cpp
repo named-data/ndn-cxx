@@ -218,6 +218,12 @@ Face::removePendingInterest(const PendingInterestId* pendingInterestId)
   m_ioService.post([=] { m_impl->asyncRemovePendingInterest(pendingInterestId); });
 }
 
+void
+Face::removeAllPendingInterests()
+{
+  m_ioService.post([=] { m_impl->asyncRemoveAllPendingInterests(); });
+}
+
 size_t
 Face::getNPendingInterests() const
 {

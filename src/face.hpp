@@ -273,6 +273,12 @@ public: // consumer
   removePendingInterest(const PendingInterestId* pendingInterestId);
 
   /**
+   * @brief Cancel all previously expressed Interests
+   */
+  void
+  removeAllPendingInterests();
+
+  /**
    * @brief Get number of pending Interests
    */
   size_t

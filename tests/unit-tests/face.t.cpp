@@ -243,6 +243,31 @@ BOOST_AUTO_TEST_CASE(RemovePendingInterest)
   advanceClocks(time::milliseconds(10), 100);
 }
 
+BOOST_AUTO_TEST_CASE(removeAllPendingInterests)
+{
+  face->expressInterest(Interest("/Hello/World/0", time::milliseconds(50)),
+                        bind([] { BOOST_FAIL("Unexpected data"); }),
+                        bind([] { BOOST_FAIL("Unexpected nack"); }),
+                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
+
+  face->expressInterest(Interest("/Hello/World/1", time::milliseconds(50)),
+                        bind([] { BOOST_FAIL("Unexpected data"); }),
+                        bind([] { BOOST_FAIL("Unexpected nack"); }),
+                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
+
+  advanceClocks(time::milliseconds(10));
+
+  face->removeAllPendingInterests();
+  advanceClocks(time::milliseconds(10));
+
+  BOOST_CHECK_EQUAL(face->getNPendingInterests(), 0);
+
+  face->receive(*util::makeData("/Hello/World/0"));
+  face->receive(*util::makeData("/Hello/World/1"));
+  advanceClocks(time::milliseconds(10), 100);
+}
+
+
 BOOST_AUTO_TEST_CASE(SetUnsetInterestFilter)
 {
   size_t nInterests = 0;

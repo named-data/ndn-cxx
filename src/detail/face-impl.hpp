@@ -167,6 +167,12 @@ public:
   }
 
   void
+  asyncRemoveAllPendingInterests()
+  {
+    m_pendingInterestTable.clear();
+  }
+
+  void
   asyncPutData(const shared_ptr<const Data>& data)
   {
     this->ensureConnected(true);
