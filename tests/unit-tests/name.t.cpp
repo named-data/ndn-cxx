@@ -405,8 +405,8 @@ BOOST_AUTO_TEST_CASE(Compare)
 {
   BOOST_CHECK_EQUAL( 0, Name("/A")  .compare(Name("/A")));
   BOOST_CHECK_EQUAL( 0, Name("/A")  .compare(Name("/A")));
-  BOOST_CHECK_EQUAL(-1, Name("/A")  .compare(Name("/B")));
-  BOOST_CHECK_EQUAL( 1, Name("/B")  .compare(Name("/A")));
+  BOOST_CHECK_GT( 0, Name("/A")  .compare(Name("/B")));
+  BOOST_CHECK_LT( 0, Name("/B")  .compare(Name("/A")));
   BOOST_CHECK_EQUAL(-1, Name("/A")  .compare(Name("/AA")));
   BOOST_CHECK_EQUAL( 1, Name("/AA") .compare(Name("/A")));
   BOOST_CHECK_EQUAL(-1, Name("/A")  .compare(Name("/A/C")));
@@ -414,8 +414,8 @@ BOOST_AUTO_TEST_CASE(Compare)
 
   BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/A")));
   BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/A")));
-  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/B")));
-  BOOST_CHECK_EQUAL( 1, Name("/Z/B/Y")  .compare(1, 1, Name("/A")));
+  BOOST_CHECK_GT( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/B")));
+  BOOST_CHECK_LT( 0, Name("/Z/B/Y")  .compare(1, 1, Name("/A")));
   BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/AA")));
   BOOST_CHECK_EQUAL( 1, Name("/Z/AA/Y") .compare(1, 1, Name("/A")));
   BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/A/C")));
@@ -423,8 +423,8 @@ BOOST_AUTO_TEST_CASE(Compare)
 
   BOOST_CHECK_EQUAL( 0, Name("/Z/A")  .compare(1, Name::npos, Name("/A")));
   BOOST_CHECK_EQUAL( 0, Name("/Z/A")  .compare(1, Name::npos, Name("/A")));
-  BOOST_CHECK_EQUAL(-1, Name("/Z/A")  .compare(1, Name::npos, Name("/B")));
-  BOOST_CHECK_EQUAL( 1, Name("/Z/B")  .compare(1, Name::npos, Name("/A")));
+  BOOST_CHECK_GT( 0, Name("/Z/A")  .compare(1, Name::npos, Name("/B")));
+  BOOST_CHECK_LT( 0, Name("/Z/B")  .compare(1, Name::npos, Name("/A")));
   BOOST_CHECK_EQUAL(-1, Name("/Z/A")  .compare(1, Name::npos, Name("/AA")));
   BOOST_CHECK_EQUAL( 1, Name("/Z/AA") .compare(1, Name::npos, Name("/A")));
   BOOST_CHECK_EQUAL(-1, Name("/Z/A")  .compare(1, Name::npos, Name("/A/C")));
@@ -432,8 +432,8 @@ BOOST_AUTO_TEST_CASE(Compare)
 
   BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A/W"),   1, 1));
   BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A/W"),   1, 1));
-  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/B/W"),   1, 1));
-  BOOST_CHECK_EQUAL( 1, Name("/Z/B/Y")  .compare(1, 1, Name("/X/A/W"),   1, 1));
+  BOOST_CHECK_GT( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/X/B/W"),   1, 1));
+  BOOST_CHECK_LT( 0, Name("/Z/B/Y")  .compare(1, 1, Name("/X/A/W"),   1, 1));
   BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/AA/W"),  1, 1));
   BOOST_CHECK_EQUAL( 1, Name("/Z/AA/Y") .compare(1, 1, Name("/X/A/W"),   1, 1));
   BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A/C/W"), 1, 2));
@@ -441,8 +441,8 @@ BOOST_AUTO_TEST_CASE(Compare)
 
   BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A"),   1));
   BOOST_CHECK_EQUAL( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A"),   1));
-  BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/B"),   1));
-  BOOST_CHECK_EQUAL( 1, Name("/Z/B/Y")  .compare(1, 1, Name("/X/A"),   1));
+  BOOST_CHECK_GT( 0, Name("/Z/A/Y")  .compare(1, 1, Name("/X/B"),   1));
+  BOOST_CHECK_LT( 0, Name("/Z/B/Y")  .compare(1, 1, Name("/X/A"),   1));
   BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/AA"),  1));
   BOOST_CHECK_EQUAL( 1, Name("/Z/AA/Y") .compare(1, 1, Name("/X/A"),   1));
   BOOST_CHECK_EQUAL(-1, Name("/Z/A/Y")  .compare(1, 1, Name("/X/A/C"), 1));
