@@ -135,6 +135,10 @@ private:
   shared_ptr<Transport> m_transport;
 };
 
+template<>
+void
+DummyClientFace::receive(const lp::Nack& nack);
+
 shared_ptr<DummyClientFace>
 makeDummyClientFace(const DummyClientFace::Options& options = DummyClientFace::DEFAULT_OPTIONS);
 
