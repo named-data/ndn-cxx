@@ -75,6 +75,21 @@ public:
               const SignatureInfo& signatureInfo = EMPTY_SIGNATURE_INFO);
 
   /**
+   * @brief Construct SigningInfo from its string representation
+   *
+   * @param signingStr The representative signing string for SigningInfo signing method
+   *
+   * Structure of the representative string is as follows:
+   * - default signing: "" (empty string)
+   * - signing with a default certificate of a default key for the identity: `id:/my-identity`
+   * - signing with a default certificate of the key: `key:/my-identity/ksk-1`
+   * - signing with the certificate: `cert:/my-identity/KEY/ksk-1/ID-CERT/%FD%01`
+   * - signing with sha256 digest: `id:/localhost/identity/digest-sha256`
+   */
+  explicit
+  SigningInfo(const std::string& signingStr);
+
+  /**
    * @brief Set signer as an identity with name @p identity
    * @post Change the signerType to SIGNER_TYPE_ID
    */
@@ -165,6 +180,9 @@ private:
 
   SignatureInfo m_info;
 };
+
+std::ostream&
+operator<<(std::ostream& os, const SigningInfo& si);
 
 } // namespace security
 } // namespace ndn

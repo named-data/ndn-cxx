@@ -20,6 +20,7 @@
  */
 
 #include "signing-info.hpp"
+#include "key-chain.hpp"
 
 namespace ndn {
 namespace security {
@@ -35,6 +36,41 @@ SigningInfo::SigningInfo(SignerType signerType,
   , m_digestAlgorithm(DIGEST_ALGORITHM_SHA256)
   , m_info(signatureInfo)
 {
+}
+
+SigningInfo::SigningInfo(const std::string& signingStr)
+{
+  if (signingStr.empty()) {
+    *this = SigningInfo();
+    return;
+  }
+
+  size_t pos = signingStr.find(':');
+
+  if (pos == std::string::npos) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid signing string cannot represent SigningInfo"));
+  }
+
+  std::string scheme = signingStr.substr(0, pos);
+  std::string nameArg = signingStr.substr(pos + 1);
+
+  if (scheme == "id") {
+    if (nameArg == KeyChain::DIGEST_SHA256_IDENTITY.toUri()) {
+      setSha256Signing();
+    }
+    else {
+      setSigningIdentity(nameArg);
+    }
+  }
+  else if (scheme == "key") {
+    setSigningKeyName(nameArg);
+  }
+  else if (scheme == "cert") {
+    setSigningCertName(nameArg);
+  }
+  else {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid signing string scheme"));
+  }
 }
 
 void
@@ -70,5 +106,31 @@ SigningInfo::setSignatureInfo(const SignatureInfo& signatureInfo)
   m_info = signatureInfo;
 }
 
-} // namespace ndn
+std::ostream&
+operator<<(std::ostream& os, const SigningInfo& si)
+{
+  switch (si.getSignerType()) {
+    case SigningInfo::SIGNER_TYPE_NULL:
+      return os;
+    case SigningInfo::SIGNER_TYPE_ID:
+      os << "id:";
+      break;
+    case SigningInfo::SIGNER_TYPE_KEY:
+      os << "key:";
+      break;
+    case SigningInfo::SIGNER_TYPE_CERT:
+      os << "cert:";
+      break;
+    case SigningInfo::SIGNER_TYPE_SHA256:
+      os << "id:" << KeyChain::DIGEST_SHA256_IDENTITY;
+      return os;
+    default:
+      BOOST_THROW_EXCEPTION(std::invalid_argument("Unknown signer type"));
+  }
+
+  os << si.getSignerName();
+  return os;
+}
+
 } // namespace security
+} // namespace ndn
