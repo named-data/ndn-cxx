@@ -134,6 +134,16 @@ public: // Certificate Management
   getDefaultCertificateOfKey(const Name& keyName) const final;
 
 private:
+  bool
+  hasDefaultIdentity() const;
+
+  bool
+  hasDefaultKeyOfIdentity(const Name& identity) const;
+
+  bool
+  hasDefaultCertificateOfKey(const Name& keyName) const;
+
+private:
   sqlite3* m_database;
 };
 

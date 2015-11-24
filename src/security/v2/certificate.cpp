@@ -98,7 +98,7 @@ Certificate::getIssuerId() const
   return getName().at(ISSUER_ID_OFFSET);
 }
 
-const Buffer
+Buffer
 Certificate::getPublicKey() const
 {
   if (getContent().value_size() == 0)

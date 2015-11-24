@@ -132,13 +132,13 @@ private:
   std::set<Name> m_identities;
 
   /// @brief identity => default key Name
-  std::map<Name, Name> m_defaultKey;
+  std::map<Name, Name> m_defaultKeys;
 
   /// @brief keyName => keyBits
   std::map<Name, Buffer> m_keys;
 
   /// @brief keyName => default certificate Name
-  std::map<Name, Name> m_defaultCert;
+  std::map<Name, Name> m_defaultCerts;
 
   /// @brief certificate Name => certificate
   std::map<Name, v2::Certificate> m_certs;

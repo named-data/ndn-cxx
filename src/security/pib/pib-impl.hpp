@@ -86,8 +86,8 @@ public: // Identity management
   /**
    * @brief Add an identity.
    *
-   * If the identity already exists, do nothing.
-   * If no default identity has been set, set the added one as default identity.
+   * If the identity already exists, do nothing.  If no default identity has been set, set the
+   * added one as default identity.
    *
    * @param identity The name of the identity to add.
    */
@@ -95,10 +95,10 @@ public: // Identity management
   addIdentity(const Name& identity) = 0;
 
   /**
-   * @brief Remove an identity
+   * @brief Remove an identity and related keys and certificates.
    *
-   * If the identity does not exist, do nothing.
-   * Remove related keys and certificates as well.
+   * If the default identity is being removed, no default identity will be selected.  If the
+   * identity does not exist, do nothing.
    *
    * @param identity The name of the identity to remove.
    */
@@ -120,8 +120,7 @@ public: // Identity management
   /**
    * @brief Set an identity with name @p identityName as the default identity.
    *
-   * Since adding an identity only requires the identity name, create the
-   * identity if it does not exist.
+   * If @p identityName identity does not exist, it will be created.
    *
    * @param identityName The name for the default identity.
    */
@@ -149,10 +148,10 @@ public: // Key management
   /**
    * @brief Add a key.
    *
-   * If the key already exists, do nothing.
-   * If the identity does not exist, add the identity as well.
-   * If no default key of the identity has been set, set the added one as default
-   * key of the identity.
+   * If a key with the same name already exists, overwrite the key.  If the identity does not
+   * exist, it will be created.  If no default key of the identity has been set, set the added
+   * one as default key of the identity.  If no default identity has been set, @p identity
+   * becomes the default.
    *
    * @param identity The name of the belonged identity.
    * @param keyName The key name.
@@ -163,10 +162,9 @@ public: // Key management
   addKey(const Name& identity, const Name& keyName, const uint8_t* key, size_t keyLen) = 0;
 
   /**
-   * @brief Remove a key with @p keyName
+   * @brief Remove a key with @p keyName and related certificates
    *
    * If the key does not exist, do nothing.
-   * Remove related certificates as well.
    */
   virtual void
   removeKey(const Name& keyName) = 0;
@@ -183,8 +181,8 @@ public: // Key management
   /**
    * @brief Get all the key names of an identity with name @p identity
    *
-   * The returned key names can be used to create a KeyContainer.
-   * With key name, identity name, backend implementation, one can create a Key frontend instance.
+   * The returned key names can be used to create a KeyContainer.  With key name and backend
+   * implementation, one can create a Key frontend instance.
    *
    * @return the key name component set. If the identity does not exist, return an empty set.
    */
@@ -220,10 +218,12 @@ public: // Certificate Management
   /**
    * @brief Add a certificate.
    *
-   * If the certificate already exists, do nothing.
-   * If the key or identity do not exist, add them as well.
-   * If no default certificate of the key has been set, set the added one as
-   * default certificate of the key.
+   * If a certificate with the same name (without implicit digest) already exists, overwrite
+   * the certificate.  If the key or identity does not exist, they will be created.  If no
+   * default certificate of the key has been set, set the added one as default certificate of
+   * the key.  If no default key was set for the identity, it will be set as default key for
+   * the identity.  If no default identity was selected, the certificate's identity becomes
+   * default.
    *
    * @param certificate The certificate to add.
    */
@@ -253,8 +253,8 @@ public: // Certificate Management
   /**
    * @brief Get a list of certificate names of a key with id @p keyName.
    *
-   * The returned certificate names can be used to create a CertificateContainer.
-   * With certificate name and backend implementation, one can obtain the certificate directly.
+   * The returned certificate names can be used to create a CertificateContainer.  With
+   * certificate name and backend implementation, one can obtain the certificate.
    *
    * @return The certificate name set. If the key does not exist, return an empty set.
    */

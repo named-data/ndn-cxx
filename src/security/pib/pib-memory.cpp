@@ -65,12 +65,14 @@ void
 PibMemory::removeIdentity(const Name& identity)
 {
   m_identities.erase(identity);
-  if (identity == m_defaultIdentity)
+  if (identity == m_defaultIdentity) {
     m_hasDefaultIdentity = false;
+    m_defaultIdentity.clear();
+  }
 
-  auto keyNames = this->getKeysOfIdentity(identity);
+  auto keyNames = getKeysOfIdentity(identity);
   for (const Name& keyName : keyNames) {
-    this->removeKey(keyName);
+    removeKey(keyName);
   }
 }
 
@@ -80,9 +82,9 @@ PibMemory::clearIdentities()
   m_hasDefaultIdentity = false;
   m_defaultIdentity.clear();
   m_identities.clear();
-  m_defaultKey.clear();
+  m_defaultKeys.clear();
   m_keys.clear();
-  m_defaultCert.clear();
+  m_defaultCerts.clear();
   m_certs.clear();
 }
 
@@ -103,8 +105,9 @@ PibMemory::setDefaultIdentity(const Name& identityName)
 Name
 PibMemory::getDefaultIdentity() const
 {
-  if (m_hasDefaultIdentity)
+  if (m_hasDefaultIdentity) {
     return m_defaultIdentity;
+  }
 
   BOOST_THROW_EXCEPTION(Pib::Error("No default identity"));
 }
@@ -119,12 +122,13 @@ void
 PibMemory::addKey(const Name& identity, const Name& keyName,
                   const uint8_t* key, size_t keyLen)
 {
-  this->addIdentity(identity);
+  addIdentity(identity);
 
   m_keys[keyName] = Buffer(key, keyLen);
 
-  if (m_defaultKey.find(identity) == m_defaultKey.end())
-    m_defaultKey[identity] = keyName;
+  if (m_defaultKeys.count(identity) == 0) {
+    m_defaultKeys[identity] = keyName;
+  }
 }
 
 void
@@ -133,31 +137,34 @@ PibMemory::removeKey(const Name& keyName)
   Name identity = v2::extractIdentityFromKeyName(keyName);
 
   m_keys.erase(keyName);
-  m_defaultKey.erase(identity);
+  m_defaultKeys.erase(identity);
 
-  auto certNames = this->getCertificatesOfKey(keyName);
+  auto certNames = getCertificatesOfKey(keyName);
   for (const auto& certName : certNames) {
-    this->removeCertificate(certName);
+    removeCertificate(certName);
   }
 }
 
 Buffer
 PibMemory::getKeyBits(const Name& keyName) const
 {
-  if (!hasKey(keyName))
+  if (!hasKey(keyName)) {
     BOOST_THROW_EXCEPTION(Pib::Error("Key `" + keyName.toUri() + "` not found"));
+  }
 
-  auto it = m_keys.find(keyName);
-  return it->second;
+  auto key = m_keys.find(keyName);
+  BOOST_ASSERT(key != m_keys.end());
+  return key->second;
 }
 
 std::set<Name>
 PibMemory::getKeysOfIdentity(const Name& identity) const
 {
   std::set<Name> ids;
-  for (const auto& it : m_keys) {
-    if (identity == v2::extractIdentityFromKeyName(it.first))
-      ids.insert(it.first);
+  for (const auto& key : m_keys) {
+    if (identity == v2::extractIdentityFromKeyName(key.first)) {
+      ids.insert(key.first);
+    }
   }
   return ids;
 }
@@ -165,20 +172,22 @@ PibMemory::getKeysOfIdentity(const Name& identity) const
 void
 PibMemory::setDefaultKeyOfIdentity(const Name& identity, const Name& keyName)
 {
-  if (!hasKey(keyName))
+  if (!hasKey(keyName)) {
     BOOST_THROW_EXCEPTION(Pib::Error("Key `" + keyName.toUri() + "` not found"));
+  }
 
-  m_defaultKey[identity] = keyName;
+  m_defaultKeys[identity] = keyName;
 }
 
 Name
 PibMemory::getDefaultKeyOfIdentity(const Name& identity) const
 {
-  auto it = m_defaultKey.find(identity);
-  if (it == m_defaultKey.end())
+  auto defaultKey = m_defaultKeys.find(identity);
+  if (defaultKey == m_defaultKeys.end()) {
     BOOST_THROW_EXCEPTION(Pib::Error("No default key for identity `" + identity.toUri() + "`"));
+  }
 
-  return it->second;
+  return defaultKey->second;
 }
 
 bool
@@ -194,25 +203,30 @@ PibMemory::addCertificate(const v2::Certificate& certificate)
   Name keyName = certificate.getKeyName();
   Name identity = certificate.getIdentity();
 
-  this->addKey(identity, keyName, certificate.getContent().value(), certificate.getContent().value_size());
+  addKey(identity, keyName, certificate.getContent().value(), certificate.getContent().value_size());
 
   m_certs[certName] = certificate;
-  if (m_defaultCert.find(keyName) == m_defaultCert.end())
-    m_defaultCert[keyName] = certName;
+  if (m_defaultCerts.count(keyName) == 0) {
+    m_defaultCerts[keyName] = certName;
+  }
 }
 
 void
 PibMemory::removeCertificate(const Name& certName)
 {
   m_certs.erase(certName);
-  m_defaultCert.erase(v2::extractKeyNameFromCertName(certName));
+  auto defaultCert = m_defaultCerts.find(v2::extractKeyNameFromCertName(certName));
+  if (defaultCert != m_defaultCerts.end() && defaultCert->second == certName) {
+    m_defaultCerts.erase(defaultCert);
+  }
 }
 
 v2::Certificate
 PibMemory::getCertificate(const Name& certName) const
 {
-  if (!hasCertificate(certName))
+  if (!hasCertificate(certName)) {
     BOOST_THROW_EXCEPTION(Pib::Error("Certificate `" + certName.toUri() +  "` does not exist"));
+  }
 
   auto it = m_certs.find(certName);
   return it->second;
@@ -223,8 +237,9 @@ PibMemory::getCertificatesOfKey(const Name& keyName) const
 {
   std::set<Name> certNames;
   for (const auto& it : m_certs) {
-    if (v2::extractKeyNameFromCertName(it.second.getName()) == keyName)
+    if (v2::extractKeyNameFromCertName(it.second.getName()) == keyName) {
       certNames.insert(it.first);
+    }
   }
   return certNames;
 }
@@ -232,24 +247,24 @@ PibMemory::getCertificatesOfKey(const Name& keyName) const
 void
 PibMemory::setDefaultCertificateOfKey(const Name& keyName, const Name& certName)
 {
-  if (!hasCertificate(certName))
+  if (!hasCertificate(certName)) {
     BOOST_THROW_EXCEPTION(Pib::Error("Certificate `" + certName.toUri() +  "` does not exist"));
+  }
 
-  m_defaultCert[keyName] = certName;
+  m_defaultCerts[keyName] = certName;
 }
 
 v2::Certificate
 PibMemory::getDefaultCertificateOfKey(const Name& keyName) const
 {
-  auto it = m_defaultCert.find(keyName);
-  if (it == m_defaultCert.end())
+  auto it = m_defaultCerts.find(keyName);
+  if (it == m_defaultCerts.end()) {
     BOOST_THROW_EXCEPTION(Pib::Error("No default certificate for key `" + keyName.toUri() + "`"));
+  }
 
   auto certIt = m_certs.find(it->second);
-  if (certIt == m_certs.end())
-    BOOST_THROW_EXCEPTION(Pib::Error("No default certificate for key `" + keyName.toUri() + "`"));
-  else
-    return certIt->second;
+  BOOST_ASSERT(certIt != m_certs.end());
+  return certIt->second;
 }
 
 } // namespace pib

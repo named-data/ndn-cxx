@@ -128,7 +128,6 @@ public:
   getDefaultIdentity() const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
-
   /*
    * @brief Create an identity with name @p identityName and return a reference to it.
    *
@@ -142,6 +141,8 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
 
   /*
    * @brief Remove an identity with name @p identityName.
+   *
+   * If the default identity is being removed, no default identity will be selected.
    *
    * @param identityName The name for the identity to be deleted
    */

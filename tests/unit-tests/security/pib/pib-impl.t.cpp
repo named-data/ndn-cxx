@@ -224,8 +224,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(CertificateManagement, T, PibImpls, T)
   BOOST_CHECK_EQUAL(this->pib.hasCertificate(this->id1Key1Cert1.getName()), true);
   BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), true);
   BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), true);
-  const auto& cert = this->pib.getCertificate(this->id1Key1Cert1.getName());
-  BOOST_CHECK(cert.wireEncode() == this->id1Key1Cert1.wireEncode());
+  BOOST_CHECK(this->pib.getCertificate(this->id1Key1Cert1.getName()).wireEncode() == this->id1Key1Cert1.wireEncode());
   BOOST_CHECK_NO_THROW(this->pib.getDefaultCertificateOfKey(this->id1Key1Name));
   BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id1Key1Name), this->id1Key1Cert1);
 
@@ -263,6 +262,81 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(CertificateManagement, T, PibImpls, T)
   this->pib.removeKey(this->id1Key1Name);
   certNames = this->pib.getCertificatesOfKey(this->id1Key1Name);
   BOOST_CHECK_EQUAL(certNames.size(), 0);
+}
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(DefaultsManagement, T, PibImpls, T)
+{
+  this->pib.addIdentity(this->id1);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultIdentity(), this->id1);
+
+  this->pib.addIdentity(this->id2);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultIdentity(), this->id1);
+
+  this->pib.removeIdentity(this->id1);
+  BOOST_CHECK_THROW(this->pib.getDefaultIdentity(), Pib::Error);
+
+  this->pib.addKey(this->id2, this->id2Key1Name, this->id2Key1.buf(), this->id2Key1.size());
+  BOOST_CHECK_EQUAL(this->pib.getDefaultIdentity(), this->id2);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id2), this->id2Key1Name);
+
+  this->pib.addKey(this->id2, this->id2Key2Name, this->id2Key2.buf(), this->id2Key2.size());
+  BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id2), this->id2Key1Name);
+
+  this->pib.removeKey(this->id2Key1Name);
+  BOOST_CHECK_THROW(this->pib.getDefaultKeyOfIdentity(this->id2), Pib::Error);
+
+  this->pib.addCertificate(this->id2Key2Cert1);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id2), this->id2Key2Name);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id2Key2Name).getName(), this->id2Key2Cert1.getName());
+
+  this->pib.addCertificate(this->id2Key2Cert2);
+  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id2Key2Name).getName(), this->id2Key2Cert1.getName());
+
+  this->pib.removeCertificate(this->id2Key2Cert2.getName());
+  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id2Key2Name).getName(), this->id2Key2Cert1.getName());
+}
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(Overwrite, T, PibImpls, T)
+{
+  // check id1Key1, should not exist
+  this->pib.removeIdentity(this->id1);
+  BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), false);
+
+  // add id1Key1
+  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key1.buf(), this->id1Key1.size());
+  BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), true);
+  const Buffer& keyBits = this->pib.getKeyBits(this->id1Key1Name);
+  BOOST_CHECK(keyBits == this->id1Key1);
+
+  // check overwrite, add a key with the same name.
+  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key2.buf(), this->id1Key2.size());
+  const Buffer& keyBits2 = this->pib.getKeyBits(this->id1Key1Name);
+  BOOST_CHECK(keyBits2 == this->id1Key2);
+
+  // check id1Key1Cert1, should not exist
+  this->pib.removeIdentity(this->id1);
+  BOOST_CHECK_EQUAL(this->pib.hasCertificate(this->id1Key1Cert1.getName()), false);
+
+  // add id1Key1Cert1
+  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key1.buf(), this->id1Key1.size());
+  this->pib.addCertificate(this->id1Key1Cert1);
+  BOOST_CHECK_EQUAL(this->pib.hasCertificate(this->id1Key1Cert1.getName()), true);
+
+  auto cert = this->pib.getCertificate(this->id1Key1Cert1.getName());
+  BOOST_CHECK(cert.wireEncode() == this->id1Key1Cert1.wireEncode());
+
+  // Create a fake cert with the same name
+  auto cert2 = this->id1Key2Cert1;
+  cert2.setName(this->id1Key1Cert1.getName());
+  cert2.setSignature(this->id1Key2Cert1.getSignature());
+  this->pib.addCertificate(cert2);
+
+  auto cert3 = this->pib.getCertificate(this->id1Key1Cert1.getName());
+  BOOST_CHECK(cert3.wireEncode() == cert2.wireEncode());
+
+  // both key and certificate are overwritten
+  Buffer keyBits3 = this->pib.getKeyBits(this->id1Key1Name);
+  BOOST_CHECK(keyBits3 == this->id1Key2);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestPibImpl

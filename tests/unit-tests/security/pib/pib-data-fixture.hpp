@@ -36,6 +36,15 @@ public:
   PibDataFixture();
 
 public:
+  v2::Certificate id1Key1Cert1;
+  v2::Certificate id1Key1Cert2;
+  v2::Certificate id1Key2Cert1;
+  v2::Certificate id1Key2Cert2;
+  v2::Certificate id2Key1Cert1;
+  v2::Certificate id2Key1Cert2;
+  v2::Certificate id2Key2Cert1;
+  v2::Certificate id2Key2Cert2;
+
   Name id1;
   Name id2;
 
@@ -48,15 +57,6 @@ public:
   Buffer id1Key2;
   Buffer id2Key1;
   Buffer id2Key2;
-
-  v2::Certificate id1Key1Cert1;
-  v2::Certificate id1Key1Cert2;
-  v2::Certificate id1Key2Cert1;
-  v2::Certificate id1Key2Cert2;
-  v2::Certificate id2Key1Cert1;
-  v2::Certificate id2Key1Cert2;
-  v2::Certificate id2Key2Cert1;
-  v2::Certificate id2Key2Cert2;
 };
 
 } // namespace tests

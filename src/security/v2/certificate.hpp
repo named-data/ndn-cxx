@@ -132,7 +132,7 @@ public:
    * @brief Get public key bits (in PKCS#8 format)
    * @throw Error If content is empty
    */
-  const Buffer
+  Buffer
   getPublicKey() const;
 
   /**

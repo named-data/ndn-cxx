@@ -279,9 +279,15 @@ PibSqlite3::hasIdentity(const Name& identity) const
 void
 PibSqlite3::addIdentity(const Name& identity)
 {
-  Sqlite3Statement statement(m_database, "INSERT INTO identities (identity) values (?)");
-  statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
-  statement.step();
+  if (!hasIdentity(identity)) {
+    Sqlite3Statement statement(m_database, "INSERT INTO identities (identity) values (?)");
+    statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
+    statement.step();
+  }
+
+  if (!hasDefaultIdentity()) {
+    setDefaultIdentity(identity);
+  }
 }
 
 void
@@ -331,6 +337,13 @@ PibSqlite3::getDefaultIdentity() const
 }
 
 bool
+PibSqlite3::hasDefaultIdentity() const
+{
+  Sqlite3Statement statement(m_database, "SELECT identity FROM identities WHERE is_default=1");
+  return (statement.step() == SQLITE_ROW);
+}
+
+bool
 PibSqlite3::hasKey(const Name& keyName) const
 {
   Sqlite3Statement statement(m_database, "SELECT id FROM keys WHERE key_name=?");
@@ -343,20 +356,29 @@ void
 PibSqlite3::addKey(const Name& identity, const Name& keyName,
                    const uint8_t* key, size_t keyLen)
 {
-  if (hasKey(keyName)) {
-    return;
-  }
-
   // ensure identity exists
   addIdentity(identity);
 
-  Sqlite3Statement statement(m_database,
-                             "INSERT INTO keys (identity_id, key_name, key_bits) "
-                             "VALUES ((SELECT id FROM identities WHERE identity=?), ?, ?)");
-  statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
-  statement.bind(2, keyName.wireEncode(), SQLITE_TRANSIENT);
-  statement.bind(3, key, keyLen, SQLITE_STATIC);
-  statement.step();
+  if (!hasKey(keyName)) {
+    Sqlite3Statement statement(m_database,
+                               "INSERT INTO keys (identity_id, key_name, key_bits) "
+                               "VALUES ((SELECT id FROM identities WHERE identity=?), ?, ?)");
+    statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
+    statement.bind(2, keyName.wireEncode(), SQLITE_TRANSIENT);
+    statement.bind(3, key, keyLen, SQLITE_STATIC);
+    statement.step();
+  }
+  else {
+    Sqlite3Statement statement(m_database,
+                               "UPDATE keys SET key_bits=? WHERE key_name=?");
+    statement.bind(1, key, keyLen, SQLITE_STATIC);
+    statement.bind(2, keyName.wireEncode(), SQLITE_TRANSIENT);
+    statement.step();
+  }
+
+  if (!hasDefaultKeyOfIdentity(identity)) {
+    setDefaultKeyOfIdentity(identity, keyName);
+  }
 }
 
 void
@@ -430,6 +452,18 @@ PibSqlite3::getDefaultKeyOfIdentity(const Name& identity) const
 }
 
 bool
+PibSqlite3::hasDefaultKeyOfIdentity(const Name& identity) const
+{
+  Sqlite3Statement statement(m_database,
+                             "SELECT key_name "
+                             "FROM keys JOIN identities ON keys.identity_id=identities.id "
+                             "WHERE identities.identity=? AND keys.is_default=1");
+  statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
+
+  return (statement.step() == SQLITE_ROW);
+}
+
+bool
 PibSqlite3::hasCertificate(const Name& certName) const
 {
   Sqlite3Statement statement(m_database, "SELECT id FROM certificates WHERE certificate_name=?");
@@ -444,14 +478,27 @@ PibSqlite3::addCertificate(const v2::Certificate& certificate)
   const Block& content = certificate.getContent();
   addKey(certificate.getIdentity(), certificate.getKeyName(), content.value(), content.value_size());
 
-  Sqlite3Statement statement(m_database,
-                             "INSERT INTO certificates "
-                             "(key_id, certificate_name, certificate_data) "
-                             "VALUES ((SELECT id FROM keys WHERE key_name=?), ?, ?)");
-  statement.bind(1, certificate.getKeyName().wireEncode(), SQLITE_TRANSIENT);
-  statement.bind(2, certificate.getName().wireEncode(), SQLITE_TRANSIENT);
-  statement.bind(3, certificate.wireEncode(), SQLITE_STATIC);
-  statement.step();
+  if (!hasCertificate(certificate.getName())) {
+    Sqlite3Statement statement(m_database,
+                               "INSERT INTO certificates "
+                               "(key_id, certificate_name, certificate_data) "
+                               "VALUES ((SELECT id FROM keys WHERE key_name=?), ?, ?)");
+    statement.bind(1, certificate.getKeyName().wireEncode(), SQLITE_TRANSIENT);
+    statement.bind(2, certificate.getName().wireEncode(), SQLITE_TRANSIENT);
+    statement.bind(3, certificate.wireEncode(), SQLITE_STATIC);
+    statement.step();
+  }
+  else {
+    Sqlite3Statement statement(m_database,
+                               "UPDATE certificates SET certificate_data=? WHERE certificate_name=?");
+    statement.bind(1, certificate.wireEncode(), SQLITE_STATIC);
+    statement.bind(2, certificate.getName().wireEncode(), SQLITE_TRANSIENT);
+    statement.step();
+  }
+
+  if (!hasDefaultCertificateOfKey(certificate.getKeyName())) {
+    setDefaultCertificateOfKey(certificate.getKeyName(), certificate.getName());
+  }
 }
 
 void
@@ -518,6 +565,18 @@ PibSqlite3::getDefaultCertificateOfKey(const Name& keyName) const
     return v2::Certificate(statement.getBlock(0));
   else
     BOOST_THROW_EXCEPTION(Pib::Error("No default certificate for key `" + keyName.toUri() + "`"));
+}
+
+bool
+PibSqlite3::hasDefaultCertificateOfKey(const Name& keyName) const
+{
+  Sqlite3Statement statement(m_database,
+                             "SELECT certificate_data "
+                             "FROM certificates JOIN keys ON certificates.key_id=keys.id "
+                             "WHERE certificates.is_default=1 AND keys.key_name=?");
+  statement.bind(1, keyName.wireEncode(), SQLITE_TRANSIENT);
+
+  return (statement.step() == SQLITE_ROW);
 }
 
 } // namespace pib
