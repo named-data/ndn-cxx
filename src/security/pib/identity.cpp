@@ -20,123 +20,65 @@
  */
 
 #include "identity.hpp"
-#include "pib-impl.hpp"
-#include "pib.hpp"
+#include "detail/identity-impl.hpp"
 
 namespace ndn {
 namespace security {
 namespace pib {
 
-Identity::Identity()
-  : m_hasDefaultKey(false)
-  , m_needRefreshKeys(false)
-  , m_impl(nullptr)
-{
-}
+Identity::Identity() = default;
 
-Identity::Identity(const Name& identityName, shared_ptr<PibImpl> impl, bool needInit)
-  : m_name(identityName)
-  , m_hasDefaultKey(false)
-  , m_needRefreshKeys(true)
-  , m_impl(impl)
+Identity::Identity(weak_ptr<detail::IdentityImpl> impl)
+  : m_impl(impl)
 {
-  validityCheck();
-
-  if (needInit)
-    m_impl->addIdentity(m_name);
-  else if (!m_impl->hasIdentity(m_name))
-    BOOST_THROW_EXCEPTION(Pib::Error("Identity: " + m_name.toUri() + " does not exist"));
 }
 
 const Name&
 Identity::getName() const
 {
-  return m_name;
+  return lock()->getName();
 }
 
 Key
 Identity::addKey(const uint8_t* key, size_t keyLen, const Name& keyName)
 {
-  if (m_name != v2::extractIdentityFromKeyName(keyName)) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Key name `" + keyName.toUri() + "` does not match identity "
-                                     "`" + m_name.toUri() + "`"));
-  }
-
-  // if we have already loaded all the keys, but the new key is not one of them the
-  // KeyContainer should be refreshed
-  m_needRefreshKeys = m_needRefreshKeys || m_keys.find(keyName) == m_keys.end();
-
-  return Key(keyName, key, keyLen, m_impl);
+  return lock()->addKey(key, keyLen, keyName);
 }
 
 void
 Identity::removeKey(const Name& keyName)
 {
-  if (m_name != v2::extractIdentityFromKeyName(keyName)) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Key name `" + keyName.toUri() + "` does not match identity "
-                                     "`" + m_name.toUri() + "`"));
-  }
-
-  validityCheck();
-
-  if (m_hasDefaultKey && m_defaultKey.getName() == keyName)
-    m_hasDefaultKey = false;
-
-  m_impl->removeKey(keyName);
-  m_needRefreshKeys = true;
+  return lock()->removeKey(keyName);
 }
 
 Key
 Identity::getKey(const Name& keyName) const
 {
-  return Key(keyName, m_impl);
+  return lock()->getKey(keyName);
 }
 
 const KeyContainer&
 Identity::getKeys() const
 {
-  validityCheck();
-
-  if (m_needRefreshKeys) {
-    m_keys = KeyContainer(m_name, m_impl->getKeysOfIdentity(m_name), m_impl);
-    m_needRefreshKeys = false;
-  }
-
-  return m_keys;
+  return lock()->getKeys();
 }
 
-Key&
+const Key&
 Identity::setDefaultKey(const Name& keyName)
 {
-  validityCheck();
-
-  m_defaultKey = Key(keyName, m_impl);
-  m_hasDefaultKey = true;
-
-  m_impl->setDefaultKeyOfIdentity(m_name, keyName);
-  return m_defaultKey;
+  return lock()->setDefaultKey(keyName);
 }
 
-Key&
+const Key&
 Identity::setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName)
 {
-  validityCheck();
-
-  addKey(key, keyLen, keyName);
-  return setDefaultKey(keyName);
+  return lock()->setDefaultKey(key, keyLen, keyName);
 }
 
-Key&
+const Key&
 Identity::getDefaultKey() const
 {
-  validityCheck();
-
-  if (!m_hasDefaultKey) {
-    m_defaultKey = Key(m_impl->getDefaultKeyOfIdentity(m_name), m_impl);
-    m_hasDefaultKey = true;
-  }
-
-  return m_defaultKey;
+  return lock()->getDefaultKey();
 }
 
 Identity::operator bool() const
@@ -147,15 +89,18 @@ Identity::operator bool() const
 bool
 Identity::operator!() const
 {
-  return (m_impl == nullptr);
+  return m_impl.expired();
 }
 
-void
-Identity::validityCheck() const
+shared_ptr<detail::IdentityImpl>
+Identity::lock() const
 {
-  if (m_impl == nullptr) {
-    BOOST_THROW_EXCEPTION(std::domain_error("Invalid identity instance"));
-  }
+  auto impl = m_impl.lock();
+
+  if (impl == nullptr)
+    BOOST_THROW_EXCEPTION(std::domain_error("Invalid Identity instance"));
+
+  return impl;
 }
 
 } // namespace pib

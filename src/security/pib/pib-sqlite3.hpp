@@ -49,7 +49,7 @@ public:
    *
    * @param dir The directory where the database file is located. By default, it points to the
    *        $HOME/.ndn directory.
-   * @throws PibImpl::Error when initialization fails.
+   * @throw PibImpl::Error when initialization fails.
    */
   explicit
   PibSqlite3(const std::string& dir = "");

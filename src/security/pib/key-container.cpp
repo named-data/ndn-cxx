@@ -21,24 +21,32 @@
 
 #include "key-container.hpp"
 #include "pib-impl.hpp"
+#include "detail/key-impl.hpp"
+#include "util/concepts.hpp"
 
 namespace ndn {
 namespace security {
 namespace pib {
 
-KeyContainer::const_iterator::const_iterator(const Name& identity,
-                                             std::set<Name>::const_iterator it,
-                                             shared_ptr<PibImpl> impl)
-  : m_identity(identity)
-  , m_it(it)
-  , m_impl(impl)
+NDN_CXX_ASSERT_FORWARD_ITERATOR(KeyContainer::const_iterator);
+
+KeyContainer::const_iterator::const_iterator()
+  : m_container(nullptr)
+{
+}
+
+KeyContainer::const_iterator::const_iterator(std::set<Name>::const_iterator it,
+                                             const KeyContainer& container)
+  : m_it(it)
+  , m_container(&container)
 {
 }
 
 Key
 KeyContainer::const_iterator::operator*()
 {
-  return Key(*m_it, m_impl);
+  BOOST_ASSERT(m_container != nullptr);
+  return m_container->get(*m_it);
 }
 
 KeyContainer::const_iterator&
@@ -59,7 +67,11 @@ KeyContainer::const_iterator::operator++(int)
 bool
 KeyContainer::const_iterator::operator==(const const_iterator& other)
 {
-  return (m_impl == other.m_impl && m_identity == other.m_identity && m_it == other.m_it);
+  bool isThisEnd = m_container == nullptr || m_it == m_container->m_keyNames.end();
+  bool isOtherEnd = other.m_container == nullptr || other.m_it == other.m_container->m_keyNames.end();
+  return ((isThisEnd || isOtherEnd) ?
+          (isThisEnd == isOtherEnd) :
+          m_container->m_impl == other.m_container->m_impl && m_it == other.m_it);
 }
 
 bool
@@ -68,39 +80,93 @@ KeyContainer::const_iterator::operator!=(const const_iterator& other)
   return !(*this == other);
 }
 
-KeyContainer::KeyContainer()
-{
-}
-
-KeyContainer::KeyContainer(const Name& identity, std::set<Name>&& keyNames, shared_ptr<PibImpl> impl)
+KeyContainer::KeyContainer(const Name& identity, shared_ptr<PibImpl> impl)
   : m_identity(identity)
-  , m_keyNames(keyNames)
   , m_impl(impl)
 {
+  BOOST_ASSERT(impl != nullptr);
+  m_keyNames = impl->getKeysOfIdentity(identity);
 }
 
 KeyContainer::const_iterator
 KeyContainer::begin() const
 {
-  return const_iterator(m_identity, m_keyNames.begin(), m_impl);
+  return const_iterator(m_keyNames.begin(), *this);
 }
 
 KeyContainer::const_iterator
 KeyContainer::end() const
 {
-  return const_iterator(m_identity, m_keyNames.end(), m_impl);
+  return const_iterator();
 }
 
 KeyContainer::const_iterator
 KeyContainer::find(const Name& keyName) const
 {
-  return const_iterator(m_identity, m_keyNames.find(keyName), m_impl);
+  return const_iterator(m_keyNames.find(keyName), *this);
 }
 
 size_t
 KeyContainer::size() const
 {
   return m_keyNames.size();
+}
+
+Key
+KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName)
+{
+  if (m_identity != v2::extractIdentityFromKeyName(keyName)) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
+                                                "`" + m_identity.toUri() + "`"));
+  }
+
+  if (m_keyNames.count(keyName) == 0) {
+    m_keyNames.insert(keyName);
+    m_keys[keyName] = shared_ptr<detail::KeyImpl>(new detail::KeyImpl(keyName, key, keyLen, m_impl));
+  }
+
+  return get(keyName);
+}
+
+void
+KeyContainer::remove(const Name& keyName)
+{
+  if (m_identity != v2::extractIdentityFromKeyName(keyName)) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
+                                                "`" + m_identity.toUri() + "`"));
+  }
+
+  m_keyNames.erase(keyName);
+  m_keys.erase(keyName);
+  m_impl->removeKey(keyName);
+}
+
+Key
+KeyContainer::get(const Name& keyName) const
+{
+  if (m_identity != v2::extractIdentityFromKeyName(keyName)) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
+                                                "`" + m_identity.toUri() + "`"));
+  }
+
+  shared_ptr<detail::KeyImpl> key;
+  auto it = m_keys.find(keyName);
+
+  if (it != m_keys.end()) {
+    key = it->second;
+  }
+  else {
+    key = shared_ptr<detail::KeyImpl>(new detail::KeyImpl(keyName, m_impl));
+    m_keys[keyName] = key;
+  }
+
+  return Key(key);
+}
+
+bool
+KeyContainer::isConsistent() const
+{
+  return m_keyNames == m_impl->getKeysOfIdentity(m_identity);
 }
 
 } // namespace pib

@@ -22,6 +22,7 @@
 #include "security/pib/identity.hpp"
 #include "security/pib/pib.hpp"
 #include "security/pib/pib-memory.hpp"
+#include "security/pib/detail/identity-impl.hpp"
 
 #include "boost-test.hpp"
 #include "pib-data-fixture.hpp"
@@ -41,7 +42,8 @@ using pib::Pib;
 
 BOOST_AUTO_TEST_CASE(ValidityChecking)
 {
-  // identity
+  using security::pib::detail::IdentityImpl;
+
   Identity id;
 
   BOOST_CHECK_EQUAL(static_cast<bool>(id), false);
@@ -52,7 +54,8 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   else
     BOOST_CHECK(true);
 
-  id = Identity(id1, make_shared<PibMemory>(), true);
+  auto identityImpl = make_shared<IdentityImpl>(id1, make_shared<PibMemory>(), true);
+  id = Identity(identityImpl);
 
   BOOST_CHECK_EQUAL(static_cast<bool>(id), true);
   BOOST_CHECK_EQUAL(!id, false);
@@ -63,41 +66,26 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
     BOOST_CHECK(false);
 }
 
-BOOST_AUTO_TEST_CASE(KeyOperations)
+/**
+ * pib::Identity is a wrapper of pib::detail::IdentityImpl.  Since the functionalities of
+ * IdentityImpl have already been tested in detail/identity-impl.t.cpp, we only test the shared
+ * property of pib::Identity in this test case.
+ */
+BOOST_AUTO_TEST_CASE(Share)
 {
-  Identity identity1(id1, make_shared<PibMemory>(), true);
+  using security::pib::detail::IdentityImpl;
 
-  // Key does not exist, throw Error
+  auto identityImpl = make_shared<IdentityImpl>(id1, make_shared<pib::PibMemory>(), true);
+  Identity identity1(identityImpl);
+  Identity identity2(identityImpl);
+
+  identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
+  BOOST_CHECK_NO_THROW(identity2.getKey(id1Key1Name));
+  identity2.removeKey(id1Key1Name);
   BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), Pib::Error);
-  // Key name does not match identity name, throw Error
-  BOOST_CHECK_THROW(identity1.getKey(id2Key1Name), Pib::Error);
 
-  // Add key
-  Key key11 = identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
-  BOOST_CHECK_NO_THROW(identity1.getKey(id1Key1Name));
-  // Key name does not match identity name, throw Error
-  BOOST_CHECK_THROW(identity1.addKey(id2Key1.buf(), id2Key1.size(), id2Key1Name), Pib::Error);
-
-  // Remove key
-  identity1.removeKey(id1Key1Name);
-  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), Pib::Error);
-  // Key name does not match identity name, throw Error
-  BOOST_CHECK_THROW(identity1.removeKey(id2Key1Name), Pib::Error);
-
-  // Default key does not exist, throw Error
-  BOOST_CHECK_THROW(identity1.getDefaultKey(), Pib::Error);
-
-  // Set default key but the key does not exist, throw Error
-  BOOST_CHECK_THROW(identity1.setDefaultKey(id1Key1Name), Pib::Error);
-  // Set default key
-  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1.buf(), id1Key1.size(), id1Key1Name));
-  BOOST_CHECK_NO_THROW(identity1.getDefaultKey());
-  BOOST_CHECK_EQUAL(identity1.getDefaultKey().getName(), id1Key1Name);
-
-  // Remove the default key
-  identity1.removeKey(id1Key1Name);
-  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), Pib::Error);
-  BOOST_CHECK_THROW(identity1.getDefaultKey(), Pib::Error);
+  identity1.setDefaultKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
+  BOOST_CHECK_NO_THROW(identity2.getDefaultKey());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestIdentity

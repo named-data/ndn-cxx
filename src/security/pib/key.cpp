@@ -20,161 +20,84 @@
  */
 
 #include "key.hpp"
-#include "pib-impl.hpp"
-#include "pib.hpp"
+#include "detail/key-impl.hpp"
 #include "../v2/certificate.hpp"
-#include "../transform/public-key.hpp"
 
 namespace ndn {
 namespace security {
 namespace pib {
 
-Key::Key()
-  : m_keyType(KeyType::NONE)
-  , m_hasDefaultCertificate(false)
-  , m_needRefreshCerts(false)
-  , m_impl(nullptr)
+Key::Key() = default;
+
+Key::Key(weak_ptr<detail::KeyImpl> impl)
+  : m_impl(impl)
 {
-}
-
-Key::Key(const Name& keyName, const uint8_t* key, size_t keyLen, shared_ptr<PibImpl> impl)
-  : m_keyName(keyName)
-  , m_key(key, keyLen)
-  , m_hasDefaultCertificate(false)
-  , m_needRefreshCerts(true)
-  , m_impl(impl)
-{
-  validityCheck();
-
-  m_identity = v2::extractIdentityFromKeyName(keyName);
-  m_impl->addIdentity(m_identity);
-  m_impl->addKey(m_identity, m_keyName, key, keyLen);
-
-  transform::PublicKey publicKey;
-  publicKey.loadPkcs8(key, keyLen);
-  m_keyType = publicKey.getKeyType();
-}
-
-Key::Key(const Name& keyName, shared_ptr<PibImpl> impl)
-  : m_keyName(keyName)
-  , m_hasDefaultCertificate(false)
-  , m_needRefreshCerts(true)
-  , m_impl(impl)
-{
-  validityCheck();
-
-  m_identity = v2::extractIdentityFromKeyName(keyName);
-  m_key = m_impl->getKeyBits(m_keyName);
-
-  transform::PublicKey key;
-  key.loadPkcs8(m_key.buf(), m_key.size());
-  m_keyType = key.getKeyType();
 }
 
 const Name&
 Key::getName() const
 {
-  validityCheck();
-
-  return m_keyName;
+  return lock()->getName();
 }
 
 const Name&
 Key::getIdentity() const
 {
-  validityCheck();
+  return lock()->getIdentity();
+}
 
-  return m_identity;
+KeyType
+Key::getKeyType() const
+{
+  return lock()->getKeyType();
 }
 
 const Buffer&
 Key::getPublicKey() const
 {
-  validityCheck();
-
-  return m_key;
+  return lock()->getPublicKey();
 }
 
 void
 Key::addCertificate(const v2::Certificate& certificate)
 {
-  validityCheck();
-
-  if (certificate.getKeyName() != m_keyName)
-    BOOST_THROW_EXCEPTION(Pib::Error("Certificate name does not match key name"));
-
-  if (!m_needRefreshCerts &&
-      m_certificates.find(certificate.getName()) == m_certificates.end()) {
-    // if we have already loaded all the certificate, but the new certificate is not one of them
-    // the CertificateContainer should be refreshed
-    m_needRefreshCerts = true;
-  }
-
-  m_impl->addCertificate(certificate);
+  return lock()->addCertificate(certificate);
 }
 
 void
 Key::removeCertificate(const Name& certName)
 {
-  validityCheck();
-
-  if (m_hasDefaultCertificate && m_defaultCertificate.getName() == certName)
-    m_hasDefaultCertificate = false;
-
-  m_impl->removeCertificate(certName);
-  m_needRefreshCerts = true;
+  return lock()->removeCertificate(certName);
 }
 
 v2::Certificate
 Key::getCertificate(const Name& certName) const
 {
-  validityCheck();
-
-  return m_impl->getCertificate(certName);
+  return lock()->getCertificate(certName);
 }
 
 const CertificateContainer&
 Key::getCertificates() const
 {
-  validityCheck();
-
-  if (m_needRefreshCerts) {
-    m_certificates = CertificateContainer(m_impl->getCertificatesOfKey(m_keyName), m_impl);
-    m_needRefreshCerts = false;
-  }
-
-  return m_certificates;
+  return lock()->getCertificates();
 }
 
 const v2::Certificate&
 Key::setDefaultCertificate(const Name& certName)
 {
-  validityCheck();
-
-  m_impl->setDefaultCertificateOfKey(m_keyName, certName);
-  m_defaultCertificate = m_impl->getCertificate(certName);
-  m_hasDefaultCertificate = true;
-  return m_defaultCertificate;
+  return lock()->setDefaultCertificate(certName);
 }
 
 const v2::Certificate&
 Key::setDefaultCertificate(const v2::Certificate& certificate)
 {
-  addCertificate(certificate);
-  return setDefaultCertificate(certificate.getName());
+  return lock()->setDefaultCertificate(certificate);
 }
 
 const v2::Certificate&
 Key::getDefaultCertificate() const
 {
-  validityCheck();
-
-  if (!m_hasDefaultCertificate) {
-    m_defaultCertificate = m_impl->getDefaultCertificateOfKey(m_keyName);
-    m_hasDefaultCertificate = true;
-  }
-
-  return m_defaultCertificate;
+  return lock()->getDefaultCertificate();
 }
 
 Key::operator bool() const
@@ -185,14 +108,19 @@ Key::operator bool() const
 bool
 Key::operator!() const
 {
-  return (m_impl == nullptr);
+  return m_impl.expired();
 }
 
-void
-Key::validityCheck() const
+shared_ptr<detail::KeyImpl>
+Key::lock() const
 {
-  if (m_impl == nullptr)
-    BOOST_THROW_EXCEPTION(std::domain_error("Invalid Key instance"));
+  auto impl = m_impl.lock();
+
+  if (impl == nullptr) {
+    BOOST_THROW_EXCEPTION(std::domain_error("Invalid key instance"));
+  }
+
+  return impl;
 }
 
 } // namespace pib

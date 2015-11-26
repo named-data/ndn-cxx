@@ -22,6 +22,7 @@
 #include "security/pib/key.hpp"
 #include "security/pib/pib.hpp"
 #include "security/pib/pib-memory.hpp"
+#include "security/pib/detail/key-impl.hpp"
 
 #include "boost-test.hpp"
 #include "pib-data-fixture.hpp"
@@ -41,6 +42,8 @@ using pib::Pib;
 
 BOOST_AUTO_TEST_CASE(ValidityChecking)
 {
+  using security::pib::detail::KeyImpl;
+
   Key key;
 
   BOOST_CHECK_EQUAL(static_cast<bool>(key), false);
@@ -51,7 +54,8 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   else
     BOOST_CHECK(true);
 
-  key = Key(id1Key1Name, id1Key1.buf(), id1Key1.size(), make_shared<PibMemory>());
+  auto keyImpl = make_shared<KeyImpl>(id1Key1Name, id1Key1.buf(), id1Key1.size(), make_shared<pib::PibMemory>());
+  key = Key(keyImpl);
 
   BOOST_CHECK_EQUAL(static_cast<bool>(key), true);
   BOOST_CHECK_EQUAL(!key, false);
@@ -62,27 +66,27 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
     BOOST_CHECK(false);
 }
 
-BOOST_AUTO_TEST_CASE(CertificateOperations)
+/**
+ * pib::Key is a wrapper of pib::detail::KeyImpl.  Since the functionalities of KeyImpl
+ * have already been tested in detail/key-impl.t.cpp, we only test the shared property
+ * of pib::Key in this test case.
+ */
+
+BOOST_AUTO_TEST_CASE(Share)
 {
-  Key key11(id1Key1Name, id1Key1.buf(), id1Key1.size(), make_shared<PibMemory>());
+  using security::pib::detail::KeyImpl;
 
-  BOOST_CHECK_THROW(key11.getCertificate(id1Key1Cert1.getName()), Pib::Error);
-  key11.addCertificate(id1Key1Cert1);
-  BOOST_CHECK_NO_THROW(key11.getCertificate(id1Key1Cert1.getName()));
-  key11.removeCertificate(id1Key1Cert1.getName());
-  BOOST_CHECK_THROW(key11.getCertificate(id1Key1Cert1.getName()), Pib::Error);
+  auto keyImpl = make_shared<KeyImpl>(id1Key1Name, id1Key1.buf(), id1Key1.size(), make_shared<pib::PibMemory>());
+  Key key1(keyImpl);
+  Key key2(keyImpl);
 
-  BOOST_CHECK_THROW(key11.getDefaultCertificate(), Pib::Error);
-  BOOST_REQUIRE_THROW(key11.setDefaultCertificate(id1Key1Cert1.getName()), Pib::Error);
-  BOOST_REQUIRE_NO_THROW(key11.setDefaultCertificate(id1Key1Cert1));
-  BOOST_REQUIRE_NO_THROW(key11.getDefaultCertificate());
+  key1.addCertificate(id1Key1Cert1);
+  BOOST_CHECK_NO_THROW(key2.getCertificate(id1Key1Cert1.getName()));
+  key2.removeCertificate(id1Key1Cert1.getName());
+  BOOST_CHECK_THROW(key1.getCertificate(id1Key1Cert1.getName()), Pib::Error);
 
-  const auto& defaultCert = key11.getDefaultCertificate();
-  BOOST_CHECK(defaultCert.wireEncode() == id1Key1Cert1.wireEncode());
-
-  key11.removeCertificate(id1Key1Cert1.getName());
-  BOOST_CHECK_THROW(key11.getCertificate(id1Key1Cert1.getName()), Pib::Error);
-  BOOST_CHECK_THROW(key11.getDefaultCertificate(), Pib::Error);
+  key1.setDefaultCertificate(id1Key1Cert1);
+  BOOST_CHECK_NO_THROW(key2.getDefaultCertificate());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestKey

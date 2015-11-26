@@ -51,9 +51,6 @@ class PibImpl;
 class Pib : noncopyable
 {
 public:
-  friend class KeyChain;
-
-public:
   /// @brief represents a semantic error
   class Error : public std::runtime_error
   {
@@ -107,8 +104,6 @@ public:
 
   /**
    * @brief Get an identity with name @p identityName.
-   *
-   * @param identityName The name for the identity to get.
    * @throw Pib::Error if the identity does not exist.
    */
   Identity
@@ -120,14 +115,21 @@ public:
 
   /**
    * @brief Get the default identity.
-   *
-   * @return the default identity.
-   * @throws Pib::Error if no default identity.
+   * @throw Pib::Error if no default identity.
    */
-  Identity&
+  const Identity&
   getDefaultIdentity() const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
+  /*
+   * @brief Create a Pib instance
+   *
+   * @param scheme The scheme for the Pib
+   * @param location The location for the Pib
+   * @param impl The backend implementation
+   */
+  Pib(const std::string& scheme, const std::string& location, shared_ptr<PibImpl> impl);
+
   /*
    * @brief Create an identity with name @p identityName and return a reference to it.
    *
@@ -136,39 +138,34 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    *
    * @param identityName The name for the identity to be added
    */
-  Identity
-  addIdentity(const Name& identityName);
-
-  /*
-   * @brief Remove an identity with name @p identityName.
-   *
-   * If the default identity is being removed, no default identity will be selected.
-   *
-   * @param identityName The name for the identity to be deleted
-   */
-  void
-  removeIdentity(const Name& identityName);
 
   /**
-   * @brief Set an identity with name @p identityName as the default identity.
+   * @brief Add an @p identity.
    *
-   * Also create the identity if it does not exist.
+   * If no default identity is set before, the new identity will be set as the default identity
    *
-   * @param identityName The name for the default identity.
-   * @return the default identity
+   * @return handle of the added identity.
    */
-  Identity&
-  setDefaultIdentity(const Name& identityName);
+  Identity
+  addIdentity(const Name& identity);
 
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /*
-   * @brief Create a new Pib with the specified @p location
+   * @brief Remove an @p identity.
    *
-   * @param scheme The scheme for the Pib
-   * @param location The location for the Pib
-   * @param impl The backend implementation
+   * If the default identity is being removed, no default identity will be selected.
    */
-  Pib(const std::string& scheme, const std::string& location, shared_ptr<PibImpl> impl);
+  void
+  removeIdentity(const Name& identity);
+
+  /**
+   * @brief Set an @p identity as the default identity.
+   *
+   * Create the identity if it does not exist.
+   *
+   * @return handle of the default identity
+   */
+  const Identity&
+  setDefaultIdentity(const Name& identity);
 
   shared_ptr<PibImpl>
   getImpl()
@@ -180,13 +177,14 @@ protected:
   std::string m_scheme;
   std::string m_location;
 
-  mutable bool m_hasDefaultIdentity;
+  mutable bool m_isDefaultIdentityLoaded;
   mutable Identity m_defaultIdentity;
 
-  mutable bool m_needRefreshIdentities;
-  mutable IdentityContainer m_identities;
+  IdentityContainer m_identities;
 
   shared_ptr<PibImpl> m_impl;
+
+  friend class KeyChain;
 };
 
 } // namespace pib

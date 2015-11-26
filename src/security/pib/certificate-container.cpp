@@ -21,22 +21,31 @@
 
 #include "certificate-container.hpp"
 #include "pib-impl.hpp"
+#include "util/concepts.hpp"
 
 namespace ndn {
 namespace security {
 namespace pib {
 
+NDN_CXX_ASSERT_FORWARD_ITERATOR(CertificateContainer::const_iterator);
+
+CertificateContainer::const_iterator::const_iterator()
+  : m_container(nullptr)
+{
+}
+
 CertificateContainer::const_iterator::const_iterator(std::set<Name>::const_iterator it,
-                                                     shared_ptr<PibImpl> impl)
+                                                     const CertificateContainer& container)
   : m_it(it)
-  , m_impl(impl)
+  , m_container(&container)
 {
 }
 
 v2::Certificate
 CertificateContainer::const_iterator::operator*()
 {
-  return m_impl->getCertificate(*m_it);
+  BOOST_ASSERT(m_container != nullptr);
+  return m_container->get(*m_it);
 }
 
 CertificateContainer::const_iterator&
@@ -49,56 +58,109 @@ CertificateContainer::const_iterator::operator++()
 CertificateContainer::const_iterator
 CertificateContainer::const_iterator::operator++(int)
 {
-  const_iterator it(m_it, m_impl);
+  BOOST_ASSERT(m_container != nullptr);
+  const_iterator it(m_it, *m_container);
   ++m_it;
   return it;
 }
 
 bool
-CertificateContainer::const_iterator::operator==(const const_iterator& other)
+CertificateContainer::const_iterator::operator==(const const_iterator& other) const
 {
-  return (m_impl == other.m_impl && m_it == other.m_it);
+  bool isThisEnd = m_container == nullptr || m_it == m_container->m_certNames.end();
+  bool isOtherEnd = other.m_container == nullptr || other.m_it == other.m_container->m_certNames.end();
+  return ((isThisEnd || isOtherEnd) ?
+          (isThisEnd == isOtherEnd) :
+          m_container->m_impl == other.m_container->m_impl && m_it == other.m_it);
 }
 
 bool
-CertificateContainer::const_iterator::operator!=(const const_iterator& other)
+CertificateContainer::const_iterator::operator!=(const const_iterator& other) const
 {
   return !(*this == other);
 }
 
-CertificateContainer::CertificateContainer()
-{
-}
-
-CertificateContainer::CertificateContainer(std::set<Name>&& certNames,
-                                           shared_ptr<PibImpl> impl)
-  : m_certNames(certNames)
+CertificateContainer::CertificateContainer(const Name& keyName, shared_ptr<PibImpl> impl)
+  : m_keyName(keyName)
   , m_impl(impl)
 {
+  BOOST_ASSERT(impl != nullptr);
+  m_certNames = impl->getCertificatesOfKey(keyName);
 }
 
 CertificateContainer::const_iterator
 CertificateContainer::begin() const
 {
-  return const_iterator(m_certNames.begin(), m_impl);
+  return const_iterator(m_certNames.begin(), *this);
 }
 
 CertificateContainer::const_iterator
 CertificateContainer::end() const
 {
-  return const_iterator(m_certNames.end(), m_impl);
+  return const_iterator();
 }
 
 CertificateContainer::const_iterator
 CertificateContainer::find(const Name& certName) const
 {
-  return const_iterator(m_certNames.find(certName), m_impl);
+  return const_iterator(m_certNames.find(certName), *this);
 }
 
 size_t
 CertificateContainer::size() const
 {
   return m_certNames.size();
+}
+
+void
+CertificateContainer::add(const v2::Certificate& certificate)
+{
+  if (m_keyName != certificate.getKeyName())
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate name `" + certificate.getKeyName().toUri() + "` "
+                                                "does not match key name"));
+
+  const Name& certName = certificate.getName();
+  m_certNames.insert(certName);
+  m_certs[certName] = certificate;
+  m_impl->addCertificate(certificate);
+}
+
+void
+CertificateContainer::remove(const Name& certName)
+{
+  if (!v2::Certificate::isValidName(certName) ||
+      v2::extractKeyNameFromCertName(certName) != m_keyName) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
+                                                "is invalid or does not match key name"));
+  }
+
+  m_certNames.erase(certName);
+  m_certs.erase(certName);
+  m_impl->removeCertificate(certName);
+}
+
+v2::Certificate
+CertificateContainer::get(const Name& certName) const
+{
+  auto it = m_certs.find(certName);
+
+  if (it != m_certs.end())
+    return it->second;
+
+  if (!v2::Certificate::isValidName(certName) ||
+      v2::extractKeyNameFromCertName(certName) != m_keyName) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
+                                                "is invalid or does not match key name"));
+  }
+
+  m_certs[certName] = m_impl->getCertificate(certName);
+  return m_certs[certName];
+}
+
+bool
+CertificateContainer::isConsistent() const
+{
+  return m_certNames == m_impl->getCertificatesOfKey(m_keyName);
 }
 
 } // namespace pib

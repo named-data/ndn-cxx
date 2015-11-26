@@ -28,14 +28,16 @@ namespace ndn {
 namespace security {
 namespace pib {
 
+namespace detail {
+class IdentityImpl;
+} // namespace detail
+
 /**
- * @brief represents an identity
+ * @brief A frontend handle of an Identity
  *
  * Identity is at the top level in PIB's Identity-Key-Certificate hierarchy.  An identity has a
  * Name, and contains zero or more keys, at most one of which is set as the default key of this
  * identity.  Properties of a key can be accessed after obtaining a Key object.
- *
- * @throw Pib::Error when underlying implementation has non-semantic error.
  */
 class Identity
 {
@@ -44,7 +46,7 @@ public:
    * @brief Default Constructor
    *
    * Identity created using this default constructor is just a place holder.
-   * It must obtain an actual instance from Pib::getIdentity(...).  A typical
+   * It can obtain an actual instance from Pib::getIdentity(...).  A typical
    * usage would be for exception handling:
    *
    *   Identity id;
@@ -61,105 +63,97 @@ public:
   Identity();
 
   /**
-   * @brief Create an Identity with @p identityName.
+   * @brief Create an Identity with a backend implementation @p impl.
    *
-   * @param identityName The name of the Identity.
-   * @param impl The backend implementation.
-   * @param needInit If true, create the identity in backend when the identity does not exist.
-   *                 Otherwise, throw Pib::Error when the identity does not exist.
+   * This method should only be used by IdentityContainer.
    */
-  Identity(const Name& identityName, shared_ptr<PibImpl> impl, bool needInit = false);
+  explicit
+  Identity(weak_ptr<detail::IdentityImpl> impl);
 
-  /// @brief Get the name of the identity.
+  /**
+   * @brief Get the name of the identity.
+   */
   const Name&
   getName() const;
 
   /**
-   * @brief Get a key with @p keyName.
-   * @throw Pib::Error if the key does not exist.
+   * @brief Get a key with id @p keyName.
+   * @throw std::invalid_argument @p keyName does not match identity
+   * @throw Pib::Error the key does not exist.
    */
   Key
   getKey(const Name& keyName) const;
 
-  /// @brief Get all the keys for this Identity.
+  /**
+   * @brief Get all keys for this identity.
+   */
   const KeyContainer&
   getKeys() const;
 
   /**
    * @brief Get the default key for this Identity.
-   *
-   * @throws Pib::Error if the default key does not exist.
+   * @throw Pib::Error the default key does not exist.
    */
-  Key&
+  const Key&
   getDefaultKey() const;
 
-  /// @brief Check if the Identity instance is valid
+  /*
+   * @return True if the identity instance is valid
+   */
   operator bool() const;
 
-  /// @brief Check if the Identity instance is invalid
+  /**
+   * @return True if the identity instance is invalid
+   */
   bool
   operator!() const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   /**
-   * @brief Add a @p key (in PKCS#8 format) with @p keyName.
-   *
-   * If the key already exists, do nothing.
-   *
-   * If no default key is set before, the new key will be set as the default key of the identity.
-   *
-   * @return the added key or existing key with the same key id.
+   * @brief Add a @p key of @p keyLen bytes (in PKCS#8 format) with @p keyName.
+   * @return the handle of added key
+   * @throw std::invalid_argument key name does not match identity
+   * @throw Pib::Error a key with the same name already exists
    */
   Key
   addKey(const uint8_t* key, size_t keyLen, const Name& keyName);
 
   /**
    * @brief Remove a key with @p keyName
+   * @throw std::invalid_argument @p keyName does not match identity
    */
   void
   removeKey(const Name& keyName);
 
   /**
-   * @brief Set the key with id @p keyName.
-   *
+   * @brief Set an existing key with @p keyName as the default key.
+   * @throw std::invalid_argument @p keyName does not match identity
+   * @throw Pib::Error the key does not exist.
    * @return The default key
-   * @throws Pib::Error if the key does not exist.
    */
-  Key&
+  const Key&
   setDefaultKey(const Name& keyName);
 
   /**
-   * @brief Set the default key with @p keyName (in PKCS#8 format).
-   *
-   * If the key does not exist, add the key and set it as the default of the Identity.
-   * If the key exists, simply set it as the default key of the Identity.
-   *
-   * @param key The public key to add.
-   * @param keyLen The length of the key.
+   * @brief Add a @p key of @p keyLen bytes with @p keyName and set it as the default key
+   * @throw std::invalid_argument @p keyName does not match identity
+   * @throw Pib::Error the key with the same name already exists.
    * @return the default key
    */
-  Key&
+  const Key&
   setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName);
 
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+private:
   /**
-   * @brief Check the validity of this instance
-   *
-   * @throws std::domain_error if the instance is invalid
+   * @brief Check the validity of the instance
+   * @return a shared_ptr when the instance is valid
+   * @throw std::domain_error the instance is invalid
    */
-  void
-  validityCheck() const;
+  shared_ptr<detail::IdentityImpl>
+  lock() const;
 
 private:
-  Name m_name;
-
-  mutable bool m_hasDefaultKey;
-  mutable Key m_defaultKey;
-
-  mutable bool m_needRefreshKeys;
-  mutable KeyContainer m_keys;
-
-  shared_ptr<PibImpl> m_impl;
+  weak_ptr<detail::IdentityImpl> m_impl;
 };
 
 } // namespace pib

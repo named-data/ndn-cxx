@@ -22,6 +22,7 @@
 #ifndef NDN_SECURITY_PIB_PIB_IMPL_HPP
 #define NDN_SECURITY_PIB_PIB_IMPL_HPP
 
+#include "pib.hpp"
 #include <set>
 #include "../v2/certificate.hpp"
 
@@ -131,7 +132,7 @@ public: // Identity management
    * @brief Get the default identity.
    *
    * @return The name for the default identity.
-   * @throws Pib::Error if no default identity.
+   * @throw Pib::Error no default identity.
    */
   virtual Name
   getDefaultIdentity() const = 0;
@@ -173,7 +174,7 @@ public: // Key management
    * @brief Get the key bits of a key with name @p keyName.
    *
    * @return key bits
-   * @throws Pib::Error if the key does not exist.
+   * @throw Pib::Error the key does not exist.
    */
   virtual Buffer
   getKeyBits(const Name& keyName) const = 0;
@@ -192,7 +193,7 @@ public: // Key management
   /**
    * @brief Set an key with @p keyName as the default key of an identity with name @p identity.
    *
-   * @throws Pib::Error if the key does not exist.
+   * @throw Pib::Error the key does not exist.
    */
   virtual void
   setDefaultKeyOfIdentity(const Name& identity, const Name& keyName) = 0;
@@ -200,7 +201,7 @@ public: // Key management
   /**
    * @return The name of the default key of an identity with name @p identity.
    *
-   * @throws Pib::Error if no default key or the identity does not exist.
+   * @throw Pib::Error no default key or the identity does not exist.
    */
   virtual Name
   getDefaultKeyOfIdentity(const Name& identity) const = 0;
@@ -245,7 +246,7 @@ public: // Certificate Management
    *
    * @param certName The name of the certificate.
    * @return the certificate.
-   * @throws Pib::Error if the certificate does not exist.
+   * @throw Pib::Error the certificate does not exist.
    */
   virtual v2::Certificate
   getCertificate(const Name& certName) const = 0;
@@ -264,7 +265,7 @@ public: // Certificate Management
   /**
    * @brief Set a cert with name @p certName as the default of a key with @p keyName.
    *
-   * @throws Pib::Error if the certificate with name @p certName does not exist.
+   * @throw Pib::Error the certificate with name @p certName does not exist.
    */
   virtual void
   setDefaultCertificateOfKey(const Name& keyName, const Name& certName) = 0;
@@ -272,7 +273,7 @@ public: // Certificate Management
   /**
    * @return Get the default certificate of a key with @p keyName.
    *
-   * @throws Pib::Error if the default certificate does not exist.
+   * @throw Pib::Error the default certificate does not exist.
    */
   virtual v2::Certificate
   getDefaultCertificateOfKey(const Name& keyName) const = 0;

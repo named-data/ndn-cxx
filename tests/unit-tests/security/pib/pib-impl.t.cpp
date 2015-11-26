@@ -169,7 +169,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(KeyManagement, T, PibImpls, T)
   BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), true);
   BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), true);
   const Buffer& keyBits = this->pib.getKeyBits(this->id1Key1Name);
-  BOOST_CHECK_EQUAL_COLLECTIONS(keyBits.begin(), keyBits.end(), this->id1Key1.begin(), this->id1Key1.end());
+  BOOST_CHECK(keyBits == this->id1Key1);
   BOOST_CHECK_NO_THROW(this->pib.getDefaultKeyOfIdentity(this->id1));
   BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id1), this->id1Key1Name);
 

@@ -22,7 +22,6 @@
 #ifndef NDN_SECURITY_PIB_KEY_HPP
 #define NDN_SECURITY_PIB_KEY_HPP
 
-#include "../../data.hpp"
 #include "certificate-container.hpp"
 #include "../security-common.hpp"
 
@@ -33,10 +32,12 @@ class KeyChain;
 
 namespace pib {
 
-class PibImpl;
+namespace detail {
+class KeyImpl;
+} // namespace detail
 
 /**
- * @brief represents a key
+ * @brief A frontend handle of a key instance
  *
  * Key is at the second level in PIB's Identity-Key-Certificate hierarchy.  A Key has a Name
  * (identity + "KEY" + keyId), and contains one or more certificates, one of which is set as
@@ -50,7 +51,7 @@ public:
    * @brief Default Constructor
    *
    * Key created using this default constructor is just a place holder.
-   * It must obtain an actual instance from Identity::getKey(...).  A typical
+   * It can obtain an actual instance from Identity::getKey(...).  A typical
    * usage would be for exception handling:
    *
    *   Key key;
@@ -67,134 +68,114 @@ public:
   Key();
 
   /**
-   * @brief Create a Key with @p keyName
+   * @brief Create a Key with a backend implementation @p impl.
    *
-   * If the key/identity does not exist in the backend, create it in backend.
-   *
-   * @param keyName Key name
-   * @param key The public key to add.
-   * @param keyLen The length of the key.
-   * @param impl The actual backend implementation.
+   * This method should only be used by KeyContainer.
    */
-  Key(const Name& keyName, const uint8_t* key, size_t keyLen, shared_ptr<PibImpl> impl);
+  explicit
+  Key(weak_ptr<detail::KeyImpl> impl);
 
-  /**
-   * @brief Create a Key with @p keyName
-   *
-   * @param keyName Key name
-   * @param impl The actual backend implementation.
-   * @throws Pib::Error if the key does not exist.
+  /*
+   * @brief Get key name.
    */
-  Key(const Name& keyName, shared_ptr<PibImpl> impl);
-
-  /// @brief Get the key name.
   const Name&
   getName() const;
 
-  /// @brief Get the name of the belonging identity.
+  /**
+   * @brief Get the name of the belonging identity.
+   */
   const Name&
   getIdentity() const;
 
-  /// @brief Get key type.
+  /**
+   * @brief Get key type.
+   */
   KeyType
-  getKeyType() const
-  {
-    return m_keyType;
-  }
+  getKeyType() const;
 
-  /// @brief Get public key.
+  /**
+   * @brief Get public key bits.
+   */
   const Buffer&
   getPublicKey() const;
 
   /**
-   * @brief Get a certificate.
-   *
-   * @return the certificate
-   * @throws Pib::Error if the certificate does not exist.
+   * @brief Get a certificate with @p certName
+   * @throw std::invalid_argument @p certName does not match key name
+   * @throw Pib::Error the certificate does not exist.
    */
   v2::Certificate
   getCertificate(const Name& certName) const;
 
-  /// @brief Get all certificates for this key.
+  /**
+   * @brief Get all certificates for this key.
+   */
   const CertificateContainer&
   getCertificates() const;
 
   /**
    * @brief Get the default certificate for this Key.
-   *
-   * @throws Pib::Error if the default certificate does not exist.
+   * @throw Pib::Error the default certificate does not exist.
    */
   const v2::Certificate&
   getDefaultCertificate() const;
 
-  /// @brief Check if the Key instance is valid
+  /**
+   * @brief Check if the Key instance is valid.
+   */
   operator bool() const;
 
-  /// @brief Check if the Key instance is invalid
+  /**
+   * @brief Check if the Key instance is invalid.
+   */
   bool
   operator!() const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   /**
-   * @brief Add a certificate.
-   *
-   * @param certificate The certificate to add.
+   * @brief Add @p certificate.
+   * @throw std::invalid_argument certificate name does not match key name
+   * @throw Pib::Error a certificate with the same name already exists
    */
   void
   addCertificate(const v2::Certificate& certificate);
 
   /**
-   * @brief Remove a certificate.
-   *
-   * @param certName The name of the certificate to delete.
+   * @brief Remove a certificate with @p certName
+   * @throw std::invalid_argument @p certName does not match key name
    */
   void
   removeCertificate(const Name& certName);
 
   /**
-   * @brief Set the default certificate.
-   *
-   * @param certName The name of the default certificate of the key.
+   * @brief Set an existing certificate with @p certName as the default certificate
+   * @throw std::invalid_argument @p certName does not match key name
+   * @throw Pib::Error the certificate does not exist.
    * @return the default certificate
-   * @throws Pib::Error if the certificate does not exist.
    */
   const v2::Certificate&
   setDefaultCertificate(const Name& certName);
 
   /**
-   * @brief Set the default certificate.
-   *
-   * If the certificate does not exist, add it and set it as the default certificate of the key.
-   * If the certificate exists, simply set it as the default certificate of the key.
-   *
-   * @param certificate The certificate to add.
+   * @brief Add @p certificate and set it as the default certificate of the key
+   * @throw std::invalid_argument @p certificate does not match key name
+   * @throw Pib::Error the certificate with the same name already exists.
    * @return the default certificate
    */
   const v2::Certificate&
   setDefaultCertificate(const v2::Certificate& certificate);
 
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+private:
   /**
-   * @brief Check the validity of this instance
-   *
-   * @throws std::domain_error if the instance is invalid
+   * @brief Check the validity of the instance
+   * @return a shared_ptr when the instance is valid
+   * @throw std::domain_error the instance is invalid
    */
-  void
-  validityCheck() const;
+  shared_ptr<detail::KeyImpl>
+  lock() const;
 
 private:
-  Name m_identity;
-  Name m_keyName;
-  Buffer m_key;
-  KeyType m_keyType;
-
-  mutable bool m_hasDefaultCertificate;
-  mutable v2::Certificate m_defaultCertificate;
-
-  mutable bool m_needRefreshCerts;
-  mutable CertificateContainer m_certificates;
-
-  shared_ptr<PibImpl> m_impl;
+  weak_ptr<detail::KeyImpl> m_impl;
 };
 
 } // namespace pib

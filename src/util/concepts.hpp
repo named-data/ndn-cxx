@@ -1,6 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2014-2017,  Regents of the University of California,
+ *                           Arizona Board of Regents,
+ *                           Colorado State University,
+ *                           University Pierre & Marie Curie, Sorbonne University,
+ *                           Washington University in St. Louis,
+ *                           Beijing Institute of Technology,
+ *                           The University of Memphis.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -95,6 +101,41 @@ public:
     hash.Restart();
   }
 };
+
+// NDN_CXX_ASSERT_DEFAULT_CONSTRUCTIBLE and NDN_CXX_ASSERT_FORWARD_ITERATOR
+// originally written as part of NFD codebase
+
+namespace detail {
+
+// As of Boost 1.54.0, the internal implementation of BOOST_CONCEPT_ASSERT does not allow
+// multiple assertions on the same line, so we have to combine multiple concepts together.
+
+template<typename T>
+class StlForwardIteratorConcept : public boost::ForwardIterator<T>
+                                , public boost::DefaultConstructible<T>
+{
+};
+
+} // namespace detail
+
+/** \brief assert T is default constructible
+ *  \sa http://en.cppreference.com/w/cpp/concept/DefaultConstructible
+ */
+#define NDN_CXX_ASSERT_DEFAULT_CONSTRUCTIBLE(T) \
+  static_assert(std::is_default_constructible<T>::value, \
+                #T " must be default-constructible"); \
+  BOOST_CONCEPT_ASSERT((boost::DefaultConstructible<T>))
+
+/** \brief assert T is a forward iterator
+ *  \sa http://en.cppreference.com/w/cpp/concept/ForwardIterator
+ *  \note A forward iterator should be default constructible, but boost::ForwardIterator follows
+ *        SGI standard which doesn't require DefaultConstructible, so a separate check is needed.
+ */
+#define NDN_CXX_ASSERT_FORWARD_ITERATOR(T) \
+  BOOST_CONCEPT_ASSERT((::ndn::detail::StlForwardIteratorConcept<T>)); \
+  static_assert(std::is_default_constructible<T>::value, \
+                #T " must be default-constructible")
+
 
 } // namespace ndn
 

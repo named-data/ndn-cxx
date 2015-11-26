@@ -22,8 +22,10 @@
 #ifndef NDN_SECURITY_PIB_IDENTITY_CONTAINER_HPP
 #define NDN_SECURITY_PIB_IDENTITY_CONTAINER_HPP
 
-#include <set>
 #include "identity.hpp"
+
+#include <set>
+#include <unordered_map>
 
 namespace ndn {
 namespace security {
@@ -31,16 +33,24 @@ namespace pib {
 
 class PibImpl;
 
-/// @brief A handler to search or enumerate identities in PIB.
-class IdentityContainer
+namespace detail {
+class IdentityImpl;
+} // namespace detail
+
+/**
+ * @brief Container of identities of a Pib
+ *
+ * The container is used to search/enumerate identities of a Pib.
+ * The container can be created only by Pib.
+ */
+class IdentityContainer : noncopyable
 {
 public:
-  class const_iterator
+  class const_iterator : public std::iterator<std::forward_iterator_tag, const Identity>
   {
   public:
-    friend class IdentityContainer;
+    const_iterator();
 
-  public:
     Identity
     operator*();
 
@@ -57,21 +67,18 @@ public:
     operator!=(const const_iterator& other);
 
   private:
-    const_iterator(std::set<Name>::const_iterator it, shared_ptr<PibImpl> impl);
+    const_iterator(std::set<Name>::const_iterator it, const IdentityContainer& container);
 
   private:
-    Name m_identity;
     std::set<Name>::const_iterator m_it;
-    shared_ptr<PibImpl> m_impl;
+    const IdentityContainer* m_container;
+
+    friend class IdentityContainer;
   };
 
   typedef const_iterator iterator;
 
 public:
-  IdentityContainer();
-
-  IdentityContainer(std::set<Name>&& identities, shared_ptr<PibImpl> impl);
-
   const_iterator
   begin() const;
 
@@ -84,9 +91,69 @@ public:
   size_t
   size() const;
 
+  /**
+   * @brief Add @p identity into the container
+   */
+  Identity
+  add(const Name& identityName);
+
+  /**
+   * @brief Remove @p identity from the container
+   */
+  void
+  remove(const Name& identity);
+
+  /**
+   * @brief Get @p identity from the container
+   * @throw Pib::Error @p identity does not exist
+   */
+  Identity
+  get(const Name& identity) const;
+
+  /**
+   * @brief Reset state of the container
+   *
+   * This method removes all loaded identities and retrieves identity names from the PIB
+   * implementation.
+   */
+  void
+  reset();
+
+  /**
+   * @brief Check if the container is consistent with the backend storage
+   *
+   * @note this method is heavyweight and should be used in debugging mode only.
+   */
+  bool
+  isConsistent() const;
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  /**
+   * @brief Create identity container
+   * @param impl The PIB backend implementation.
+   */
+  explicit
+  IdentityContainer(shared_ptr<PibImpl> pibImpl);
+
+  const std::set<Name>&
+  getIdentityNames() const
+  {
+    return m_identityNames;
+  }
+
+  const std::unordered_map<Name, shared_ptr<detail::IdentityImpl>>&
+  getLoadedIdentities() const
+  {
+    return m_identities;
+  }
+
 private:
-  std::set<Name> m_identities;
-  shared_ptr<PibImpl> m_impl;
+  std::set<Name> m_identityNames;
+  /// @brief Cache of loaded detail::IdentityImpl.
+  mutable std::unordered_map<Name, shared_ptr<detail::IdentityImpl>> m_identities;
+
+  shared_ptr<PibImpl> m_pibImpl;
+  friend class Pib;
 };
 
 } // namespace pib

@@ -91,20 +91,46 @@ BOOST_AUTO_TEST_CASE(TpmLocator)
 BOOST_AUTO_TEST_CASE(IdentityOperations)
 {
   Pib pib("pib-memory", "", make_shared<PibMemory>());
+  BOOST_CHECK_EQUAL(pib.getIdentities().size(), 0);
 
+  // get non-existing identity, throw Pib::Error
   BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
-  Identity identity1 = pib.addIdentity(id1);
+  // get default identity when it is not set yet, throw Pib::Error
+  BOOST_CHECK_THROW(pib.getDefaultIdentity(), Pib::Error);
+
+  // add identity
+  pib.addIdentity(id1);
   BOOST_CHECK_NO_THROW(pib.getIdentity(id1));
+  BOOST_CHECK_EQUAL(pib.getIdentities().size(), 1);
+
+  // new key becomes default key when there was no default key
+  BOOST_REQUIRE_NO_THROW(pib.getDefaultIdentity());
+  BOOST_CHECK_EQUAL(pib.getDefaultIdentity().getName(), id1);
+
+  // remove identity
   pib.removeIdentity(id1);
   BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
-
   BOOST_CHECK_THROW(pib.getDefaultIdentity(), Pib::Error);
+  BOOST_CHECK_EQUAL(pib.getIdentities().size(), 0);
+
+  // set default identity
   BOOST_REQUIRE_NO_THROW(pib.setDefaultIdentity(id1));
   BOOST_REQUIRE_NO_THROW(pib.getDefaultIdentity());
   BOOST_CHECK_EQUAL(pib.getDefaultIdentity().getName(), id1);
+  BOOST_CHECK_EQUAL(pib.getIdentities().size(), 1);
+  BOOST_REQUIRE_NO_THROW(pib.setDefaultIdentity(id2));
+  BOOST_REQUIRE_NO_THROW(pib.getDefaultIdentity());
+  BOOST_CHECK_EQUAL(pib.getDefaultIdentity().getName(), id2);
+  BOOST_CHECK_EQUAL(pib.getIdentities().size(), 2);
+
+  // remove default identity
+  pib.removeIdentity(id2);
+  BOOST_CHECK_THROW(pib.getIdentity(id2), Pib::Error);
+  BOOST_CHECK_THROW(pib.getDefaultIdentity(), Pib::Error);
+  BOOST_CHECK_EQUAL(pib.getIdentities().size(), 1);
   pib.removeIdentity(id1);
   BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
-  BOOST_CHECK_THROW(pib.getDefaultIdentity(), Pib::Error);
+  BOOST_CHECK_EQUAL(pib.getIdentities().size(), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestPib

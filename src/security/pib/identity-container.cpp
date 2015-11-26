@@ -21,22 +21,32 @@
 
 #include "identity-container.hpp"
 #include "pib-impl.hpp"
+#include "detail/identity-impl.hpp"
+#include "util/concepts.hpp"
 
 namespace ndn {
 namespace security {
 namespace pib {
 
+NDN_CXX_ASSERT_FORWARD_ITERATOR(IdentityContainer::const_iterator);
+
+IdentityContainer::const_iterator::const_iterator()
+  : m_container(nullptr)
+{
+}
+
 IdentityContainer::const_iterator::const_iterator(std::set<Name>::const_iterator it,
-                                                  shared_ptr<PibImpl> impl)
+                                                  const IdentityContainer& container)
   : m_it(it)
-  , m_impl(impl)
+  , m_container(&container)
 {
 }
 
 Identity
 IdentityContainer::const_iterator::operator*()
 {
-  return Identity(*m_it, m_impl);
+  BOOST_ASSERT(m_container != nullptr);
+  return m_container->get(*m_it);
 }
 
 IdentityContainer::const_iterator&
@@ -57,7 +67,11 @@ IdentityContainer::const_iterator::operator++(int)
 bool
 IdentityContainer::const_iterator::operator==(const const_iterator& other)
 {
-  return (m_impl == other.m_impl && m_it == other.m_it);
+  bool isThisEnd = m_container == nullptr || m_it == m_container->m_identityNames.end();
+  bool isOtherEnd = other.m_container == nullptr || other.m_it == other.m_container->m_identityNames.end();
+  return ((isThisEnd || isOtherEnd) ?
+          (isThisEnd == isOtherEnd) :
+          m_container->m_pibImpl == other.m_container->m_pibImpl && m_it == other.m_it);
 }
 
 bool
@@ -66,39 +80,83 @@ IdentityContainer::const_iterator::operator!=(const const_iterator& other)
   return !(*this == other);
 }
 
-IdentityContainer::IdentityContainer()
+IdentityContainer::IdentityContainer(shared_ptr<PibImpl> pibImpl)
+  : m_pibImpl(pibImpl)
 {
-}
-
-IdentityContainer::IdentityContainer(std::set<Name>&& identities,
-                                     shared_ptr<PibImpl> impl)
-  : m_identities(identities)
-  , m_impl(impl)
-{
+  BOOST_ASSERT(pibImpl != nullptr);
+  m_identityNames = pibImpl->getIdentities();
 }
 
 IdentityContainer::const_iterator
 IdentityContainer::begin() const
 {
-  return const_iterator(m_identities.begin(), m_impl);
+  return const_iterator(m_identityNames.begin(), *this);
 }
 
 IdentityContainer::const_iterator
 IdentityContainer::end() const
 {
-  return const_iterator(m_identities.end(), m_impl);
+  return const_iterator();
 }
 
 IdentityContainer::const_iterator
 IdentityContainer::find(const Name& identity) const
 {
-  return const_iterator(m_identities.find(identity), m_impl);
+  return const_iterator(m_identityNames.find(identity), *this);
 }
 
 size_t
 IdentityContainer::size() const
 {
-  return m_identities.size();
+  return m_identityNames.size();
+}
+
+Identity
+IdentityContainer::add(const Name& identityName)
+{
+  if (m_identityNames.count(identityName) == 0) {
+    m_identityNames.insert(identityName);
+    m_identities[identityName] =
+      shared_ptr<detail::IdentityImpl>(new detail::IdentityImpl(identityName, m_pibImpl, true));
+  }
+  return get(identityName);
+}
+
+void
+IdentityContainer::remove(const Name& identityName)
+{
+  m_identityNames.erase(identityName);
+  m_identities.erase(identityName);
+  m_pibImpl->removeIdentity(identityName);
+}
+
+Identity
+IdentityContainer::get(const Name& identityName) const
+{
+  shared_ptr<detail::IdentityImpl> id;
+  auto it = m_identities.find(identityName);
+
+  if (it != m_identities.end()) {
+    id = it->second;
+  }
+  else {
+    id = shared_ptr<detail::IdentityImpl>(new detail::IdentityImpl(identityName, m_pibImpl, false));
+    m_identities[identityName] = id;
+  }
+  return Identity(id);
+}
+
+void
+IdentityContainer::reset()
+{
+  m_identities.clear();
+  m_identityNames = m_pibImpl->getIdentities();
+}
+
+bool
+IdentityContainer::isConsistent() const
+{
+  return m_identityNames == m_pibImpl->getIdentities();
 }
 
 } // namespace pib
