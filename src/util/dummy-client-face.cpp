@@ -101,47 +101,42 @@ void
 DummyClientFace::construct(const Options& options)
 {
   m_transport->onSendBlock.connect([this] (const Block& blockFromDaemon) {
-    try {
-      Block packet(blockFromDaemon);
-      packet.encode();
-      lp::Packet lpPacket(packet);
+    Block packet(blockFromDaemon);
+    packet.encode();
+    lp::Packet lpPacket(packet);
 
-      Buffer::const_iterator begin, end;
-      std::tie(begin, end) = lpPacket.get<lp::FragmentField>();
-      Block block(&*begin, std::distance(begin, end));
+    Buffer::const_iterator begin, end;
+    std::tie(begin, end) = lpPacket.get<lp::FragmentField>();
+    Block block(&*begin, std::distance(begin, end));
 
-      if (block.type() == tlv::Interest) {
-        shared_ptr<Interest> interest = make_shared<Interest>(block);
-        if (lpPacket.has<lp::NackField>()) {
-          shared_ptr<lp::Nack> nack = make_shared<lp::Nack>(std::move(*interest));
-          nack->setHeader(lpPacket.get<lp::NackField>());
-          if (lpPacket.has<lp::NextHopFaceIdField>()) {
-            nack->getLocalControlHeader().setNextHopFaceId(lpPacket.get<lp::NextHopFaceIdField>());
-          }
-          onSendNack(*nack);
+    if (block.type() == tlv::Interest) {
+      shared_ptr<Interest> interest = make_shared<Interest>(block);
+      if (lpPacket.has<lp::NackField>()) {
+        shared_ptr<lp::Nack> nack = make_shared<lp::Nack>(std::move(*interest));
+        nack->setHeader(lpPacket.get<lp::NackField>());
+        if (lpPacket.has<lp::NextHopFaceIdField>()) {
+          nack->getLocalControlHeader().setNextHopFaceId(lpPacket.get<lp::NextHopFaceIdField>());
         }
-        else {
-          if (lpPacket.has<lp::NextHopFaceIdField>()) {
-            interest->getLocalControlHeader().
-              setNextHopFaceId(lpPacket.get<lp::NextHopFaceIdField>());
-          }
-          onSendInterest(*interest);
-        }
+        onSendNack(*nack);
       }
-      else if (block.type() == tlv::Data) {
-        shared_ptr<Data> data = make_shared<Data>(block);
-
-        if (lpPacket.has<lp::CachePolicyField>()) {
-          if (lpPacket.get<lp::CachePolicyField>().getPolicy() == lp::CachePolicyType::NO_CACHE) {
-            data->getLocalControlHeader().setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
-          }
+      else {
+        if (lpPacket.has<lp::NextHopFaceIdField>()) {
+          interest->getLocalControlHeader().
+            setNextHopFaceId(lpPacket.get<lp::NextHopFaceIdField>());
         }
-
-        onSendData(*data);
+        onSendInterest(*interest);
       }
     }
-    catch (tlv::Error& e) {
-      throw tlv::Error("Error decoding NDNLPv2 packet");
+    else if (block.type() == tlv::Data) {
+      shared_ptr<Data> data = make_shared<Data>(block);
+
+      if (lpPacket.has<lp::CachePolicyField>()) {
+        if (lpPacket.get<lp::CachePolicyField>().getPolicy() == lp::CachePolicyType::NO_CACHE) {
+          data->getLocalControlHeader().setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
+        }
+      }
+
+      onSendData(*data);
     }
   });
 
