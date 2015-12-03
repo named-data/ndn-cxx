@@ -63,6 +63,7 @@
 #  error "ndn-cxx applications must be compiled using the C++11 standard"
 #endif
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>

@@ -22,14 +22,11 @@
 #ifndef NDN_CXX_LP_DETAIL_FIELD_DECL_HPP
 #define NDN_CXX_LP_DETAIL_FIELD_DECL_HPP
 
-#include "../../common.hpp"
-
 #include "../field.hpp"
-#include "../sequence.hpp"
-#include "../cache-policy.hpp"
-#include "../nack.hpp"
 #include "../tlv.hpp"
 
+#include "../../encoding/block-helpers.hpp"
+#include "../../util/concepts.hpp"
 #include <boost/concept/requires.hpp>
 
 namespace ndn {

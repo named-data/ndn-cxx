@@ -289,26 +289,6 @@ Data::setSignatureValue(const Block& value)
   return *this;
 }
 
-//
-
-Data&
-Data::setIncomingFaceId(uint64_t incomingFaceId)
-{
-  getLocalControlHeader().setIncomingFaceId(incomingFaceId);
-  // ! do not reset Data's wire !
-
-  return *this;
-}
-
-Data&
-Data::setCachingPolicy(nfd::LocalControlHeader::CachingPolicy cachingPolicy)
-{
-  getLocalControlHeader().setCachingPolicy(cachingPolicy);
-  // ! do not reset Data's wire !
-
-  return *this;
-}
-
 void
 Data::onChanged()
 {
@@ -348,5 +328,54 @@ operator<<(std::ostream& os, const Data& data)
 
   return os;
 }
+
+#ifdef NDN_LP_KEEP_LOCAL_CONTROL_HEADER
+
+// Permit deprecated usage for gcc only.
+// clang allows deprecated usage in deprecated functions, so it doesn't need this directive.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
+lp::LocalControlHeaderFacade
+Data::getLocalControlHeader()
+{
+  return lp::LocalControlHeaderFacade(*this);
+}
+
+const lp::LocalControlHeaderFacade
+Data::getLocalControlHeader() const
+{
+  return lp::LocalControlHeaderFacade(const_cast<Data&>(*this));
+}
+
+uint64_t
+Data::getIncomingFaceId() const
+{
+  return getLocalControlHeader().getIncomingFaceId();
+}
+
+Data&
+Data::setIncomingFaceId(uint64_t incomingFaceId)
+{
+  getLocalControlHeader().setIncomingFaceId(incomingFaceId);
+  return *this;
+}
+
+lp::LocalControlHeaderFacade::CachingPolicy
+Data::getCachingPolicy() const
+{
+  return getLocalControlHeader().getCachingPolicy();
+}
+
+Data&
+Data::setCachingPolicy(lp::LocalControlHeaderFacade::CachingPolicy cachingPolicy)
+{
+  getLocalControlHeader().setCachingPolicy(cachingPolicy);
+  return *this;
+}
+
+#pragma GCC diagnostic pop
+
+#endif // NDN_LP_KEEP_LOCAL_CONTROL_HEADER
 
 } // namespace ndn

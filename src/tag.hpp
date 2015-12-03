@@ -25,13 +25,13 @@
 namespace ndn {
 
 /**
- * @brief Base class for interest/data tags that can hold any arbitrary information
+ * @brief Base class for packet tags that can hold any arbitrary information
  */
 class Tag
 {
 public:
   virtual
-  ~Tag() = 0;
+  ~Tag();
 
   /**
    * @fn static constexpr int getTypeId()
@@ -48,9 +48,49 @@ public:
 };
 
 inline
-Tag::~Tag()
+Tag::~Tag() = default;
+
+/** @brief provides a tag type for simple types
+ *  @tparam T the value type
+ *  @tparam TypeId the TypeId
+ */
+template<typename T, int TypeId>
+class SimpleTag : public Tag
 {
-}
+public:
+  static constexpr int
+  getTypeId()
+  {
+    return TypeId;
+  }
+
+  /** \brief explicitly convertible from T
+   */
+  explicit
+  SimpleTag(const T& value)
+    : m_value(value)
+  {
+  }
+
+  /** \brief implicitly convertible to T
+   *  \return a copy of the enclosed value
+   */
+  operator T() const
+  {
+    return m_value;
+  }
+
+  /** \return the enclosed value
+   */
+  const T&
+  get() const
+  {
+    return m_value;
+  }
+
+private:
+  T m_value;
+};
 
 } // namespace ndn
 

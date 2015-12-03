@@ -29,7 +29,7 @@
 #include "signature.hpp"
 #include "meta-info.hpp"
 #include "key-locator.hpp"
-#include "management/nfd-local-control-header.hpp"
+#include "lp/tags.hpp"
 #include "tag-host.hpp"
 
 namespace ndn {
@@ -285,23 +285,43 @@ public:
 
   ///////////////////////////////////////////////////////////////
 
-  nfd::LocalControlHeader&
-  getLocalControlHeader();
+#ifdef NDN_LP_KEEP_LOCAL_CONTROL_HEADER
+  /** @deprecated use getTag and setTag with lp::IncomingFaceIdTag, lp::CachePolicyTag
+   */
+  DEPRECATED(
+  lp::LocalControlHeaderFacade
+  getLocalControlHeader());
 
-  const nfd::LocalControlHeader&
-  getLocalControlHeader() const;
+  /** @deprecated use getTag with lp::IncomingFaceIdTag, lp::CachePolicyTag
+   */
+  DEPRECATED(
+  const lp::LocalControlHeaderFacade
+  getLocalControlHeader() const);
 
+  /** @deprecated use getTag<lp::IncomingFaceIdTag>
+   */
+  DEPRECATED(
   uint64_t
-  getIncomingFaceId() const;
+  getIncomingFaceId() const);
 
+  /** @deprecated use setTag<lp::IncomingFaceIdTag>
+   */
+  DEPRECATED(
   Data&
-  setIncomingFaceId(uint64_t incomingFaceId);
+  setIncomingFaceId(uint64_t incomingFaceId));
 
-  nfd::LocalControlHeader::CachingPolicy
-  getCachingPolicy() const;
+  /** @deprecated use getTag<lp::CachePolicyTag>
+   */
+  DEPRECATED(
+  lp::LocalControlHeaderFacade::CachingPolicy
+  getCachingPolicy() const);
 
+  /** @deprecated use setTag<lp::CachePolicyTag>
+   */
+  DEPRECATED(
   Data&
-  setCachingPolicy(nfd::LocalControlHeader::CachingPolicy cachingPolicy);
+  setCachingPolicy(lp::LocalControlHeaderFacade::CachingPolicy cachingPolicy));
+#endif // NDN_LP_KEEP_LOCAL_CONTROL_HEADER
 
 public: // EqualityComparable concept
   bool
@@ -325,9 +345,6 @@ private:
 
   mutable Block m_wire;
   mutable Name m_fullName;
-
-  nfd::LocalControlHeader m_localControlHeader;
-  friend class nfd::LocalControlHeader;
 };
 
 std::ostream&
@@ -373,30 +390,6 @@ inline const Signature&
 Data::getSignature() const
 {
   return m_signature;
-}
-
-inline nfd::LocalControlHeader&
-Data::getLocalControlHeader()
-{
-  return m_localControlHeader;
-}
-
-inline const nfd::LocalControlHeader&
-Data::getLocalControlHeader() const
-{
-  return m_localControlHeader;
-}
-
-inline uint64_t
-Data::getIncomingFaceId() const
-{
-  return getLocalControlHeader().getIncomingFaceId();
-}
-
-inline nfd::LocalControlHeader::CachingPolicy
-Data::getCachingPolicy() const
-{
-  return getLocalControlHeader().getCachingPolicy();
 }
 
 } // namespace ndn

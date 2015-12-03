@@ -19,21 +19,27 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_MANAGEMENT_NFD_LOCAL_CONTROL_HEADER_HPP
-#define NDN_MANAGEMENT_NFD_LOCAL_CONTROL_HEADER_HPP
+#include "tag.hpp"
 
-#include "../lp/tags.hpp"
+#include "boost-test.hpp"
 
 namespace ndn {
-namespace nfd {
+namespace tests {
 
-#ifdef NDN_LP_KEEP_LOCAL_CONTROL_HEADER
-typedef ndn::lp::LocalControlHeaderFacade LocalControlHeader;
-#else
-#error "LocalControlHeader is deleted"
-#endif // NDN_LP_KEEP_LOCAL_CONTROL_HEADER
+BOOST_AUTO_TEST_SUITE(TestTag)
 
-} // namespace nfd
+BOOST_AUTO_TEST_CASE(SimpleTag)
+{
+  typedef ndn::SimpleTag<int, 3> MyTag;
+
+  BOOST_CHECK_EQUAL(MyTag::getTypeId(), 3);
+  MyTag tag(23361); // explicitly convertible from value type
+  int value = tag; // implicitly convertible to value type
+  BOOST_CHECK_EQUAL(value, 23361);
+  BOOST_CHECK_EQUAL(tag.get(), 23361);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // TestTag
+
+} // namespace tests
 } // namespace ndn
-
-#endif // NDN_MANAGEMENT_NFD_LOCAL_CONTROL_HEADER_HPP

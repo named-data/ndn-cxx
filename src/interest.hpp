@@ -27,7 +27,7 @@
 #include "name.hpp"
 #include "selectors.hpp"
 #include "util/time.hpp"
-#include "management/nfd-local-control-header.hpp"
+#include "lp/tags.hpp"
 #include "tag-host.hpp"
 #include "link.hpp"
 
@@ -275,46 +275,44 @@ public: // Name and guiders
   void
   refreshNonce();
 
+#ifdef NDN_LP_KEEP_LOCAL_CONTROL_HEADER
 public: // local control header
-  nfd::LocalControlHeader&
-  getLocalControlHeader()
-  {
-    return m_localControlHeader;
-  }
+  /** @deprecated use getTag and setTag with lp::IncomingFaceIdTag, lp::NextHopFaceIdTag
+   */
+  DEPRECATED(
+  lp::LocalControlHeaderFacade
+  getLocalControlHeader());
 
-  const nfd::LocalControlHeader&
-  getLocalControlHeader() const
-  {
-    return m_localControlHeader;
-  }
+  /** @deprecated use getTag with lp::IncomingFaceIdTag, lp::NextHopFaceIdTag
+   */
+  DEPRECATED(
+  const lp::LocalControlHeaderFacade
+  getLocalControlHeader() const);
 
+  /** @deprecated use getTag<lp::IncomingFaceIdTag>
+   */
+  DEPRECATED(
   uint64_t
-  getIncomingFaceId() const
-  {
-    return getLocalControlHeader().getIncomingFaceId();
-  }
+  getIncomingFaceId() const);
 
+  /** @deprecated use setTag<lp::IncomingFaceIdTag>
+   */
+  DEPRECATED(
   Interest&
-  setIncomingFaceId(uint64_t incomingFaceId)
-  {
-    getLocalControlHeader().setIncomingFaceId(incomingFaceId);
-    // ! do not reset Interest's wire !
-    return *this;
-  }
+  setIncomingFaceId(uint64_t incomingFaceId));
 
+  /** @deprecated use getTag<lp::NextHopFaceIdTag>
+   */
+  DEPRECATED(
   uint64_t
-  getNextHopFaceId() const
-  {
-    return getLocalControlHeader().getNextHopFaceId();
-  }
+  getNextHopFaceId() const);
 
+  /** @deprecated use setTag<lp::NextHopFaceIdTag>
+   */
+  DEPRECATED(
   Interest&
-  setNextHopFaceId(uint64_t nextHopFaceId)
-  {
-    getLocalControlHeader().setNextHopFaceId(nextHopFaceId);
-    // ! do not reset Interest's wire !
-    return *this;
-  }
+  setNextHopFaceId(uint64_t nextHopFaceId));
+#endif // NDN_LP_KEEP_LOCAL_CONTROL_HEADER
 
 public: // Selectors
   /**
@@ -447,9 +445,6 @@ private:
   mutable shared_ptr<Link> m_linkCached;
   size_t m_selectedDelegationIndex;
   mutable Block m_wire;
-
-  nfd::LocalControlHeader m_localControlHeader;
-  friend class nfd::LocalControlHeader;
 };
 
 std::ostream&

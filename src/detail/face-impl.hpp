@@ -39,9 +39,9 @@
 
 #include "../management/nfd-controller.hpp"
 #include "../management/nfd-command-options.hpp"
-#include "../management/nfd-local-control-header.hpp"
 
 #include "../lp/packet.hpp"
+#include "../lp/tags.hpp"
 
 namespace ndn {
 
@@ -149,9 +149,9 @@ public:
 
     lp::Packet packet;
 
-    nfd::LocalControlHeader localControlHeader = interest->getLocalControlHeader();
-    if (localControlHeader.hasNextHopFaceId()) {
-      packet.add<lp::NextHopFaceIdField>(localControlHeader.getNextHopFaceId());
+    shared_ptr<lp::NextHopFaceIdTag> nextHopFaceIdTag = interest->getTag<lp::NextHopFaceIdTag>();
+    if (nextHopFaceIdTag != nullptr) {
+      packet.add<lp::NextHopFaceIdField>(*nextHopFaceIdTag);
     }
 
     packet.add<lp::FragmentField>(std::make_pair(interest->wireEncode().begin(),
@@ -179,18 +179,9 @@ public:
 
     lp::Packet packet;
 
-    nfd::LocalControlHeader localControlHeader = data->getLocalControlHeader();
-    if (localControlHeader.hasCachingPolicy()) {
-      switch (localControlHeader.getCachingPolicy()) {
-        case nfd::LocalControlHeader::CachingPolicy::NO_CACHE: {
-          lp::CachePolicy cachePolicy;
-          cachePolicy.setPolicy(lp::CachePolicyType::NO_CACHE);
-          packet.add<lp::CachePolicyField>(cachePolicy);
-          break;
-        }
-        default:
-          break;
-      }
+    shared_ptr<lp::CachePolicyTag> cachePolicyTag = data->getTag<lp::CachePolicyTag>();
+    if (cachePolicyTag != nullptr) {
+      packet.add<lp::CachePolicyField>(*cachePolicyTag);
     }
 
     packet.add<lp::FragmentField>(std::make_pair(data->wireEncode().begin(),

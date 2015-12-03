@@ -115,14 +115,13 @@ DummyClientFace::construct(const Options& options)
         shared_ptr<lp::Nack> nack = make_shared<lp::Nack>(std::move(*interest));
         nack->setHeader(lpPacket.get<lp::NackField>());
         if (lpPacket.has<lp::NextHopFaceIdField>()) {
-          nack->getLocalControlHeader().setNextHopFaceId(lpPacket.get<lp::NextHopFaceIdField>());
+          nack->setTag(make_shared<lp::NextHopFaceIdTag>(lpPacket.get<lp::NextHopFaceIdField>()));
         }
         onSendNack(*nack);
       }
       else {
         if (lpPacket.has<lp::NextHopFaceIdField>()) {
-          interest->getLocalControlHeader().
-            setNextHopFaceId(lpPacket.get<lp::NextHopFaceIdField>());
+          interest->setTag(make_shared<lp::NextHopFaceIdTag>(lpPacket.get<lp::NextHopFaceIdField>()));
         }
         onSendInterest(*interest);
       }
@@ -131,9 +130,7 @@ DummyClientFace::construct(const Options& options)
       shared_ptr<Data> data = make_shared<Data>(block);
 
       if (lpPacket.has<lp::CachePolicyField>()) {
-        if (lpPacket.get<lp::CachePolicyField>().getPolicy() == lp::CachePolicyType::NO_CACHE) {
-          data->getLocalControlHeader().setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
-        }
+        data->setTag(make_shared<lp::CachePolicyTag>(lpPacket.get<lp::CachePolicyField>()));
       }
 
       onSendData(*data);
@@ -196,16 +193,17 @@ DummyClientFace::receive(const Packet& packet)
 {
   lp::Packet lpPacket(packet.wireEncode());
 
-  nfd::LocalControlHeader localControlHeader = packet.getLocalControlHeader();
-
-  if (localControlHeader.hasIncomingFaceId()) {
-    lpPacket.add<lp::IncomingFaceIdField>(localControlHeader.getIncomingFaceId());
+  shared_ptr<lp::IncomingFaceIdTag> incomingFaceIdTag =
+    static_cast<const TagHost&>(packet).getTag<lp::IncomingFaceIdTag>();
+  if (incomingFaceIdTag != nullptr) {
+    lpPacket.add<lp::IncomingFaceIdField>(*incomingFaceIdTag);
   }
 
-  if (localControlHeader.hasNextHopFaceId()) {
-    lpPacket.add<lp::NextHopFaceIdField>(localControlHeader.getNextHopFaceId());
+  shared_ptr<lp::NextHopFaceIdTag> nextHopFaceIdTag =
+    static_cast<const TagHost&>(packet).getTag<lp::NextHopFaceIdTag>();
+  if (nextHopFaceIdTag != nullptr) {
+    lpPacket.add<lp::NextHopFaceIdField>(*nextHopFaceIdTag);
   }
-
   m_transport->receive(lpPacket.wireEncode());
 }
 
@@ -224,10 +222,9 @@ DummyClientFace::receive<lp::Nack>(const lp::Nack& nack)
   Block interest = nack.getInterest().wireEncode();
   lpPacket.add<lp::FragmentField>(make_pair(interest.begin(), interest.end()));
 
-  nfd::LocalControlHeader localControlHeader = nack.getLocalControlHeader();
-
-  if (localControlHeader.hasIncomingFaceId()) {
-    lpPacket.add<lp::IncomingFaceIdField>(localControlHeader.getIncomingFaceId());
+  shared_ptr<lp::IncomingFaceIdTag> incomingFaceIdTag = nack.getTag<lp::IncomingFaceIdTag>();
+  if (incomingFaceIdTag != nullptr) {
+    lpPacket.add<lp::IncomingFaceIdField>(*incomingFaceIdTag);
   }
 
   m_transport->receive(lpPacket.wireEncode());

@@ -25,6 +25,8 @@
 #include "../common.hpp"
 #include "../encoding/encoding-buffer.hpp"
 
+#include <boost/concept/assert.hpp>
+#include <boost/concept/usage.hpp>
 #include <boost/type_traits.hpp>
 
 namespace ndn {

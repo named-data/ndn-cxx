@@ -120,19 +120,6 @@ const unsigned char DEFAULT_PRIVATE_KEY_DER[] = {
   0x0a, 0xb6
 };
 
-const uint8_t DataWithLocalControlHeader[] = {
-  0x50, 0x29, 0x53, 0x02, 0x60, 0x00,
-  0x06, 0x23, 0x07, 0x03, 0x08, 0x01, 0x41, 0x14, 0x04, 0x19, 0x02, 0x27, 0x10, 0x15,
-  0x09, 0x73, 0x6F, 0x6D, 0x65, 0x44, 0x61, 0x74, 0x61, 0x00, 0x16, 0x05, 0x1B, 0x01,
-  0x01, 0x1C, 0x00, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0x00
-};
-
-const uint8_t DataWithoutLocalControlHeader[] = {
-  0x06, 0x23, 0x07, 0x03, 0x08, 0x01, 0x41, 0x14, 0x04, 0x19, 0x02, 0x27, 0x10, 0x15,
-  0x09, 0x73, 0x6F, 0x6D, 0x65, 0x44, 0x61, 0x74, 0x61, 0x00, 0x16, 0x05, 0x1B, 0x01,
-  0x01, 0x1C, 0x00, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0x00
-};
-
 BOOST_AUTO_TEST_CASE(DataEqualityChecks)
 {
   using namespace time;
@@ -211,114 +198,6 @@ BOOST_AUTO_TEST_CASE(SignatureEqualityChecks)
   b = DigestSha256();
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
-}
-
-BOOST_AUTO_TEST_CASE(EncodeWithLocalHeader)
-{
-  Data data("ndn:/A");
-  data.setFreshnessPeriod(time::seconds(10));
-  static const uint8_t someData[] = "someData";
-  data.setContent(someData, sizeof(someData));
-  data.setSignature(SignatureSha256WithRsa());
-  data.setCachingPolicy(nfd::LocalControlHeader::CachingPolicy::NO_CACHE);
-
-  BOOST_CHECK(!data.hasWire());
-
-  Block headerBlock =
-    data.getLocalControlHeader().wireEncode(data, nfd::LocalControlHeader::ENCODE_CACHING_POLICY);
-
-  BOOST_CHECK(data.hasWire());
-  BOOST_CHECK(headerBlock.hasWire());
-
-  BOOST_CHECK_NE(headerBlock.wire(), data.wireEncode().wire());
-  BOOST_CHECK_NE(headerBlock.size(), data.wireEncode().size());
-  BOOST_CHECK_EQUAL(headerBlock.size(), 6);
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(DataWithLocalControlHeader,
-                                DataWithLocalControlHeader + 6,
-                                headerBlock.begin(), headerBlock.end());
-
-  data.setFreshnessPeriod(time::seconds(1000));
-
-  Block updatedHeaderBlock = data.getLocalControlHeader()
-                                 .wireEncode(data, nfd::LocalControlHeader::ENCODE_CACHING_POLICY);
-  BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 6);
-
-  // only length should have changed
-  BOOST_CHECK_EQUAL_COLLECTIONS(updatedHeaderBlock.begin() + 2, updatedHeaderBlock.end(),
-                                headerBlock.begin() + 2,        headerBlock.end());
-
-  // adding IncomingFaceId
-  data.setIncomingFaceId(10);
-  updatedHeaderBlock =
-    data.getLocalControlHeader().wireEncode(data, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID
-                                                  | nfd::LocalControlHeader::ENCODE_CACHING_POLICY);
-  BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 9);
-
-  // masking CachingPolicy
-  updatedHeaderBlock = data.getLocalControlHeader()
-                           .wireEncode(data, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID);
-  BOOST_CHECK_EQUAL(updatedHeaderBlock.size(), 5);
-
-  // masking everything
-  BOOST_CHECK_THROW(data.getLocalControlHeader()
-                        .wireEncode(data, nfd::LocalControlHeader::ENCODE_NONE),
-                    nfd::LocalControlHeader::Error);
-}
-
-BOOST_AUTO_TEST_CASE(DecodeWithLocalHeader)
-{
-  Block wireBlock(DataWithLocalControlHeader, sizeof(DataWithLocalControlHeader));
-  const Block& payload = nfd::LocalControlHeader::getPayload(wireBlock);
-  BOOST_REQUIRE_NE(&payload, &wireBlock);
-
-  BOOST_CHECK_EQUAL(payload.type(), static_cast<uint32_t>(tlv::Data));
-  BOOST_CHECK_EQUAL(wireBlock.type(), static_cast<uint32_t>(tlv::nfd::LocalControlHeader));
-
-  Data data(payload);
-  BOOST_CHECK(!data.getLocalControlHeader().hasCachingPolicy());
-  BOOST_CHECK(!data.getLocalControlHeader().hasIncomingFaceId());
-
-  data.getLocalControlHeader().wireDecode(wireBlock);
-
-  BOOST_CHECK_EQUAL(data.getLocalControlHeader()
-                        .wireEncode(data, nfd::LocalControlHeader::ENCODE_CACHING_POLICY).size(),
-                    6);
-
-  BOOST_CHECK(data.getLocalControlHeader().hasCachingPolicy());
-  BOOST_CHECK(!data.getLocalControlHeader().hasIncomingFaceId());
-
-  BOOST_CHECK_THROW(data.getLocalControlHeader()
-                        .wireEncode(data, nfd::LocalControlHeader::ENCODE_NONE),
-                    nfd::LocalControlHeader::Error);
-
-  BOOST_CHECK_THROW(data.getLocalControlHeader()
-                        .wireEncode(data, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID),
-                    nfd::LocalControlHeader::Error);
-
-  BOOST_CHECK_NO_THROW(data.getLocalControlHeader()
-                           .wireEncode(data, nfd::LocalControlHeader::ENCODE_CACHING_POLICY));
-  BOOST_CHECK_NO_THROW(
-    data.getLocalControlHeader().wireEncode(data, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
-                                                  nfd::LocalControlHeader::ENCODE_CACHING_POLICY));
-
-  BOOST_CHECK_NE((void*)data.getLocalControlHeader()
-                            .wireEncode(data, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
-                                              nfd::LocalControlHeader::ENCODE_CACHING_POLICY)
-                            .wire(),
-                 (void*)wireBlock.wire());
-
-  BOOST_CHECK_EQUAL(data.getLocalControlHeader()
-                        .wireEncode(data, nfd::LocalControlHeader::ENCODE_INCOMING_FACE_ID |
-                                          nfd::LocalControlHeader::ENCODE_CACHING_POLICY).size(),
-                    6);
-}
-
-BOOST_AUTO_TEST_CASE(DecodeWithoutLocalHeader)
-{
-  Block wireBlock(DataWithoutLocalControlHeader, sizeof(DataWithoutLocalControlHeader));
-  const Block& payload = nfd::LocalControlHeader::getPayload(wireBlock);
-  BOOST_CHECK_EQUAL(&payload, &wireBlock);
 }
 
 class TestDataFixture

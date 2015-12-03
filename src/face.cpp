@@ -473,8 +473,7 @@ static void
 extractLpLocalFields(NETPKT& netPacket, const lp::Packet& lpPacket)
 {
   if (lpPacket.has<lp::IncomingFaceIdField>()) {
-    netPacket.getLocalControlHeader().
-      setIncomingFaceId(lpPacket.get<lp::IncomingFaceIdField>());
+    netPacket.setTag(make_shared<lp::IncomingFaceIdTag>(lpPacket.get<lp::IncomingFaceIdField>()));
   }
 }
 

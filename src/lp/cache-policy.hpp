@@ -25,6 +25,7 @@
 #define NDN_CXX_LP_CACHE_POLICY_HPP
 
 #include "../common.hpp"
+#include "../tag.hpp"
 #include "../encoding/encoding-buffer.hpp"
 #include "../encoding/block-helpers.hpp"
 

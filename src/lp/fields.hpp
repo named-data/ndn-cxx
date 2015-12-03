@@ -22,11 +22,11 @@
 #ifndef NDN_CXX_LP_FIELDS_HPP
 #define NDN_CXX_LP_FIELDS_HPP
 
-#include "../common.hpp"
-
-#include "tlv.hpp"
 #include "detail/field-decl.hpp"
-#include "field.hpp"
+
+#include "sequence.hpp"
+#include "cache-policy.hpp"
+#include "nack-header.hpp"
 
 #include <boost/mpl/set.hpp>
 

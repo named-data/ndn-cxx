@@ -28,8 +28,9 @@
 #include "interest.hpp"
 #include "interest-filter.hpp"
 #include "data.hpp"
-#include "security/signing-info.hpp"
+#include "encoding/nfd-constants.hpp"
 #include "lp/nack.hpp"
+#include "security/signing-info.hpp"
 
 #define NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 
