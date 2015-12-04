@@ -172,6 +172,7 @@ class ClangFlags(GccBasicFlags):
                               '-Wno-error=unneeded-internal-declaration', # Bug #1588
                               '-Wno-error=deprecated-register',
                               '-Wno-error=keyword-macro', # Bug #3235
+                              '-Wno-error=infinite-recursion', # Bug #3358
                               ]
         return flags
 
