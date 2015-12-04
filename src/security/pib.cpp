@@ -87,7 +87,7 @@ const IdentityContainer&
 Pib::getIdentities() const
 {
   if (m_needRefreshIdentities) {
-    m_identities = std::move(IdentityContainer(m_impl->getIdentities(), m_impl));
+    m_identities = IdentityContainer(m_impl->getIdentities(), m_impl);
     m_needRefreshIdentities = false;
   }
 
@@ -108,7 +108,7 @@ Identity&
 Pib::getDefaultIdentity() const
 {
   if (!m_hasDefaultIdentity) {
-    m_defaultIdentity = std::move(Identity(m_impl->getDefaultIdentity(), m_impl, false));
+    m_defaultIdentity = Identity(m_impl->getDefaultIdentity(), m_impl, false);
     m_hasDefaultIdentity = true;
   }
 

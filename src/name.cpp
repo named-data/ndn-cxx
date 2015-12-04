@@ -170,13 +170,13 @@ Name::construct(const char* uriOrig)
 void
 Name::set(const char* uri)
 {
-  *this = std::move(Name(uri));
+  *this = Name(uri);
 }
 
 void
 Name::set(const std::string& uri)
 {
-  *this = std::move(Name(uri));
+  *this = Name(uri);
 }
 
 std::string
@@ -371,7 +371,7 @@ operator>>(std::istream& is, Name& name)
 {
   std::string inputString;
   is >> inputString;
-  name = std::move(Name(inputString));
+  name = Name(inputString);
 
   return is;
 }

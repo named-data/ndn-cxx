@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(ZeroLengthComponent)
   BOOST_CHECK(nameEncoded == nameBlock);
 
   Name name2;
-  BOOST_REQUIRE_NO_THROW(name2 = std::move(Name(nameUri)));
+  BOOST_REQUIRE_NO_THROW(name2 = Name(nameUri));
   BOOST_CHECK_EQUAL(name2.toUri(), nameUri);
   Block name2Encoded = name2.wireEncode();
   BOOST_CHECK(name2Encoded == nameBlock);

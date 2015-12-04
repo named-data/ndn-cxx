@@ -120,7 +120,7 @@ Exclude::wireDecode(const Block& wire)
   while (i != m_wire.elements_end()) {
     name::Component excludedComponent;
     try {
-      excludedComponent = std::move(name::Component(*i));
+      excludedComponent = name::Component(*i);
     }
     catch (const name::Component::Error&) {
       BOOST_THROW_EXCEPTION(Error("Incorrect format of Exclude filter"));

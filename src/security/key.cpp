@@ -140,8 +140,7 @@ Key::getCertificates() const
   validityCheck();
 
   if (m_needRefreshCerts) {
-    m_certificates = std::move(CertificateContainer(m_impl->getCertificatesOfKey(m_id, m_keyId),
-                                                    m_impl));
+    m_certificates = CertificateContainer(m_impl->getCertificatesOfKey(m_id, m_keyId), m_impl);
     m_needRefreshCerts = false;
   }
 

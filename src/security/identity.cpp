@@ -103,7 +103,7 @@ Identity::getKeys() const
   validityCheck();
 
   if (m_needRefreshKeys) {
-    m_keys = std::move(KeyContainer(m_name, m_impl->getKeysOfIdentity(m_name), m_impl));
+    m_keys = KeyContainer(m_name, m_impl->getKeysOfIdentity(m_name), m_impl);
     m_needRefreshKeys = false;
   }
 
@@ -115,7 +115,7 @@ Identity::setDefaultKey(const name::Component& keyId)
 {
   validityCheck();
 
-  m_defaultKey = std::move(Key(m_name, keyId, m_impl));
+  m_defaultKey = Key(m_name, keyId, m_impl);
   m_hasDefaultKey = true;
 
   m_impl->setDefaultKeyOfIdentity(m_name, keyId);
@@ -135,7 +135,7 @@ Identity::getDefaultKey() const
   validityCheck();
 
   if (!m_hasDefaultKey) {
-    m_defaultKey = std::move(Key(m_name, m_impl->getDefaultKeyOfIdentity(m_name), m_impl));
+    m_defaultKey = Key(m_name, m_impl->getDefaultKeyOfIdentity(m_name), m_impl);
     m_hasDefaultKey = true;
   }
 
