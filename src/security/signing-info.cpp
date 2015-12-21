@@ -40,8 +40,9 @@ SigningInfo::SigningInfo(SignerType signerType,
 
 SigningInfo::SigningInfo(const std::string& signingStr)
 {
+  *this = SigningInfo();
+
   if (signingStr.empty()) {
-    *this = SigningInfo();
     return;
   }
 
