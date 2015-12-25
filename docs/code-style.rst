@@ -860,11 +860,7 @@ than to the name.
         if (nLines != 0)  // NOT: if (nLines)
         if (value != 0.0) // NOT: if (value)
 
-3.11. When checking if ``shared_ptr`` points to an object, explicit ``static_cast<bool>``
-must be used.
-
-    ``shared_ptr`` in C++11 (unlike ``boost::shared_ptr``) does not have implicit
-    conversion to bool.
+3.11. *(removed)*
 
 3.12. Loop variables should be initialized immediately before the loop.
 
@@ -1142,5 +1138,5 @@ the alternative structured counterpart is proven to be less readable.
 3.31. The recommended way to throw an exception derived from ``std::exception`` is to use
 the ``BOOST_THROW_EXCEPTION``
 `macro <http://www.boost.org/doc/libs/1_42_0/libs/exception/doc/BOOST_THROW_EXCEPTION.html>`__.
-Exceptions thrown using this macro will be bundled with additional diagnostic information, including
-filename, line number, and function name from where the exception was thrown.
+Exceptions thrown using this macro will be augmented with additional diagnostic information,
+including file name, line number, and function name from where the exception was thrown.
