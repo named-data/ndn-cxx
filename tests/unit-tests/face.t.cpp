@@ -602,9 +602,9 @@ BOOST_AUTO_TEST_CASE(FaceTransport)
 
   BOOST_CHECK(Face().getTransport() != nullptr);
 
-  BOOST_CHECK(Face(shared_ptr<Transport>()).getTransport() == nullptr);
-  BOOST_CHECK(Face(shared_ptr<Transport>(), io).getTransport() == nullptr);
-  BOOST_CHECK(Face(shared_ptr<Transport>(), io, keyChain).getTransport() == nullptr);
+  BOOST_CHECK(Face(shared_ptr<Transport>()).getTransport() != nullptr);
+  BOOST_CHECK(Face(shared_ptr<Transport>(), io).getTransport() != nullptr);
+  BOOST_CHECK(Face(shared_ptr<Transport>(), io, keyChain).getTransport() != nullptr);
 
   auto transport = make_shared<TcpTransport>("localhost", "6363"); // no real io operations will be scheduled
   BOOST_CHECK(Face(transport).getTransport() == transport);

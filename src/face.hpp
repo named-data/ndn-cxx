@@ -179,27 +179,31 @@ public: // constructors
 
   /**
    * @brief Create a new Face using the given Transport
-   *
-   * @param transport A shared_ptr to a Transport object used for communication
+   * @param transport the Transport used for communication. If nullptr, then the default
+   *                  transport will be used.
    *
    * @throws Face::Error on unsupported protocol
    */
   explicit
-  Face(const shared_ptr<Transport>& transport);
+  Face(shared_ptr<Transport> transport);
 
   /**
    * @brief Create a new Face using the given Transport and IO service object
+   * @param transport the Transport used for communication. If nullptr, then the default
+   *                  transport will be used.
+   * @param ioService the io_service that controls all IO operations
    *
    * @sa Face(boost::asio::io_service&)
    *
    * @throws Face::Error on unsupported protocol
    */
-  Face(const shared_ptr<Transport>& transport,
+  Face(shared_ptr<Transport> transport,
        boost::asio::io_service& ioService);
 
   /**
    * @brief Create a new Face using the given Transport and IO service object
-   * @param transport the Transport used for communication
+   * @param transport the Transport used for communication. If nullptr, then the default
+   *                  transport will be used.
    * @param ioService the io_service that controls all IO operations
    * @param keyChain the KeyChain to sign commands
    * @throws Face::Error on unsupported protocol
@@ -684,8 +688,8 @@ private:
   /**
    * @throws ConfigFile::Error on parse error and unsupported protocols
    */
-  void
-  construct(KeyChain& keyChain);
+  shared_ptr<Transport>
+  makeDefaultTransport();
 
   /**
    * @throws Face::Error on unsupported protocol

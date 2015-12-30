@@ -37,7 +37,7 @@ Face::Face()
   , m_internalKeyChain(new KeyChain())
   , m_impl(new Impl(*this))
 {
-  construct(*m_internalKeyChain);
+  construct(nullptr, *m_internalKeyChain);
 }
 
 Face::Face(boost::asio::io_service& ioService)
@@ -45,7 +45,7 @@ Face::Face(boost::asio::io_service& ioService)
   , m_internalKeyChain(new KeyChain())
   , m_impl(new Impl(*this))
 {
-  construct(*m_internalKeyChain);
+  construct(nullptr, *m_internalKeyChain);
 }
 
 Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
@@ -57,7 +57,7 @@ Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
   construct(make_shared<TcpTransport>(host, port), *m_internalKeyChain);
 }
 
-Face::Face(const shared_ptr<Transport>& transport)
+Face::Face(shared_ptr<Transport> transport)
   : m_internalIoService(new boost::asio::io_service())
   , m_ioService(*m_internalIoService)
   , m_internalKeyChain(new KeyChain())
@@ -66,7 +66,7 @@ Face::Face(const shared_ptr<Transport>& transport)
   construct(transport, *m_internalKeyChain);
 }
 
-Face::Face(const shared_ptr<Transport>& transport,
+Face::Face(shared_ptr<Transport> transport,
            boost::asio::io_service& ioService)
   : m_ioService(ioService)
   , m_internalKeyChain(new KeyChain())
@@ -85,36 +85,34 @@ Face::Face(shared_ptr<Transport> transport,
   construct(transport, keyChain);
 }
 
-void
-Face::construct(KeyChain& keyChain)
+shared_ptr<Transport>
+Face::makeDefaultTransport()
 {
   // transport=unix:///var/run/nfd.sock
   // transport=tcp://localhost:6363
 
   ConfigFile config;
-  const auto& transportType = config.getParsedConfiguration()
-                                .get_optional<std::string>("transport");
-  if (!transportType) {
+  const auto& transportUri = config.getParsedConfiguration()
+                               .get_optional<std::string>("transport");
+  if (!transportUri) {
     // transport not specified, use default Unix transport.
-    construct(UnixTransport::create(config), keyChain);
-    return;
+    return UnixTransport::create(config);
   }
 
-  unique_ptr<util::FaceUri> uri;
+  std::string protocol;
   try {
-    uri.reset(new util::FaceUri(*transportType));
+    util::FaceUri uri(*transportUri);
+    protocol = uri.getScheme();
   }
   catch (const util::FaceUri::Error& error) {
     BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
   }
 
-  const std::string protocol = uri->getScheme();
-
   if (protocol == "unix") {
-    construct(UnixTransport::create(config), keyChain);
+    return UnixTransport::create(config);
   }
   else if (protocol == "tcp" || protocol == "tcp4" || protocol == "tcp6") {
-    construct(TcpTransport::create(config), keyChain);
+    return TcpTransport::create(config);
   }
   else {
     BOOST_THROW_EXCEPTION(ConfigFile::Error("Unsupported transport protocol \"" + protocol + "\""));
@@ -124,9 +122,13 @@ Face::construct(KeyChain& keyChain)
 void
 Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
 {
-  m_nfdController.reset(new nfd::Controller(*this, keyChain));
-
+  if (transport == nullptr) {
+    transport = makeDefaultTransport();
+  }
+  BOOST_ASSERT(transport != nullptr);
   m_transport = transport;
+
+  m_nfdController.reset(new nfd::Controller(*this, keyChain));
 
   m_ioService.post([=] { m_impl->ensureConnected(false); });
 }
