@@ -672,6 +672,13 @@ public: // IO routine
     return m_ioService;
   }
 
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
+  /**
+   * @brief Get the underlying transport of the face
+   */
+  shared_ptr<Transport>
+  getTransport();
+
 private:
 
   /**

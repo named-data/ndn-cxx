@@ -133,6 +133,12 @@ Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
 
 Face::~Face() = default;
 
+shared_ptr<Transport>
+Face::getTransport()
+{
+  return m_transport;
+}
+
 const PendingInterestId*
 Face::expressInterest(const Interest& interest,
                       const DataCallback& afterSatisfied,

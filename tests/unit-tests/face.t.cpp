@@ -23,6 +23,7 @@
 #include "util/scheduler.hpp"
 #include "security/key-chain.hpp"
 #include "util/dummy-client-face.hpp"
+#include "transport/tcp-transport.hpp"
 
 #include "boost-test.hpp"
 #include "unit-test-time-fixture.hpp"
@@ -593,6 +594,22 @@ BOOST_AUTO_TEST_CASE(DestructionWithoutCancellingPendingInterests) // Bug #2518
 
   advanceClocks(time::milliseconds(10), 10);
   // should not segfault
+}
+
+BOOST_AUTO_TEST_CASE(FaceTransport)
+{
+  KeyChain keyChain;
+
+  BOOST_CHECK(Face().getTransport() != nullptr);
+
+  BOOST_CHECK(Face(shared_ptr<Transport>()).getTransport() == nullptr);
+  BOOST_CHECK(Face(shared_ptr<Transport>(), io).getTransport() == nullptr);
+  BOOST_CHECK(Face(shared_ptr<Transport>(), io, keyChain).getTransport() == nullptr);
+
+  auto transport = make_shared<TcpTransport>("localhost", "6363"); // no real io operations will be scheduled
+  BOOST_CHECK(Face(transport).getTransport() == transport);
+  BOOST_CHECK(Face(transport, io).getTransport() == transport);
+  BOOST_CHECK(Face(transport, io, keyChain).getTransport() == transport);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

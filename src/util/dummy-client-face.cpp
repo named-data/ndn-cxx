@@ -82,17 +82,21 @@ public:
   Signal<Transport, Block> onSendBlock;
 };
 
-DummyClientFace::DummyClientFace(const Options& options, shared_ptr<Transport> transport)
-  : Face(transport)
-  , m_transport(transport)
+DummyClientFace::DummyClientFace(const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
+  : Face(make_shared<DummyClientFace::Transport>())
+#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
+  , sentDatas(sentData)
+#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
 {
   this->construct(options);
 }
 
-DummyClientFace::DummyClientFace(const Options& options, shared_ptr<Transport> transport,
-                                 boost::asio::io_service& ioService)
-  : Face(transport, ioService)
-  , m_transport(transport)
+DummyClientFace::DummyClientFace(boost::asio::io_service& ioService,
+                                 const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
+  : Face(make_shared<DummyClientFace::Transport>(), ioService)
+#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
+  , sentDatas(sentData)
+#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
 {
   this->construct(options);
 }
@@ -100,7 +104,7 @@ DummyClientFace::DummyClientFace(const Options& options, shared_ptr<Transport> t
 void
 DummyClientFace::construct(const Options& options)
 {
-  m_transport->onSendBlock.connect([this] (const Block& blockFromDaemon) {
+  static_pointer_cast<Transport>(getTransport())->onSendBlock.connect([this] (const Block& blockFromDaemon) {
     Block packet(blockFromDaemon);
     packet.encode();
     lp::Packet lpPacket(packet);
@@ -151,7 +155,7 @@ DummyClientFace::enablePacketLogging()
     this->sentInterests.push_back(interest);
   });
   onSendData.connect([this] (const Data& data) {
-    this->sentDatas.push_back(data);
+    this->sentData.push_back(data);
   });
   onSendNack.connect([this] (const lp::Nack& nack) {
     this->sentNacks.push_back(nack);
@@ -204,7 +208,7 @@ DummyClientFace::receive(const Packet& packet)
   if (nextHopFaceIdTag != nullptr) {
     lpPacket.add<lp::NextHopFaceIdField>(*nextHopFaceIdTag);
   }
-  m_transport->receive(lpPacket.wireEncode());
+  static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
 }
 
 template void
@@ -227,15 +231,16 @@ DummyClientFace::receive<lp::Nack>(const lp::Nack& nack)
     lpPacket.add<lp::IncomingFaceIdField>(*incomingFaceIdTag);
   }
 
-  m_transport->receive(lpPacket.wireEncode());
+  static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
 }
+
+#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
 
 shared_ptr<DummyClientFace>
 makeDummyClientFace(const DummyClientFace::Options& options)
 {
   // cannot use make_shared<DummyClientFace> because DummyClientFace constructor is private
-  return shared_ptr<DummyClientFace>(
-         new DummyClientFace(options, make_shared<DummyClientFace::Transport>()));
+  return shared_ptr<DummyClientFace>(new DummyClientFace(options));
 }
 
 shared_ptr<DummyClientFace>
@@ -243,10 +248,10 @@ makeDummyClientFace(boost::asio::io_service& ioService,
                     const DummyClientFace::Options& options)
 {
   // cannot use make_shared<DummyClientFace> because DummyClientFace constructor is private
-  return shared_ptr<DummyClientFace>(
-         new DummyClientFace(options, make_shared<DummyClientFace::Transport>(),
-                             ref(ioService)));
+  return shared_ptr<DummyClientFace>(new DummyClientFace(ref(ioService), options));
 }
+
+#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
 
 } // namespace util
 } // namespace ndn
