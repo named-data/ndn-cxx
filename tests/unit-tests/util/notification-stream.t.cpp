@@ -60,9 +60,9 @@ BOOST_FIXTURE_TEST_SUITE(UtilNotificationStream, ndn::tests::UnitTestTimeFixture
 
 BOOST_AUTO_TEST_CASE(Post)
 {
-  shared_ptr<DummyClientFace> face = makeDummyClientFace(io);
+  DummyClientFace face(io);
   ndn::KeyChain keyChain;
-  util::NotificationStream<SimpleNotification> notificationStream(*face,
+  util::NotificationStream<SimpleNotification> notificationStream(face,
     "/localhost/nfd/NotificationStreamTest", keyChain);
 
   SimpleNotification event1("msg1");
@@ -70,11 +70,11 @@ BOOST_AUTO_TEST_CASE(Post)
 
   advanceClocks(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face->sentDatas.size(), 1);
-  BOOST_CHECK_EQUAL(face->sentDatas[0].getName(),
+  BOOST_REQUIRE_EQUAL(face.sentData.size(), 1);
+  BOOST_CHECK_EQUAL(face.sentData[0].getName(),
                     "/localhost/nfd/NotificationStreamTest/%FE%00");
   SimpleNotification decoded1;
-  BOOST_CHECK_NO_THROW(decoded1.wireDecode(face->sentDatas[0].getContent().blockFromValue()));
+  BOOST_CHECK_NO_THROW(decoded1.wireDecode(face.sentData[0].getContent().blockFromValue()));
   BOOST_CHECK_EQUAL(decoded1.getMessage(), "msg1");
 
   SimpleNotification event2("msg2");
@@ -82,11 +82,11 @@ BOOST_AUTO_TEST_CASE(Post)
 
   advanceClocks(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face->sentDatas.size(), 2);
-  BOOST_CHECK_EQUAL(face->sentDatas[1].getName(),
+  BOOST_REQUIRE_EQUAL(face.sentData.size(), 2);
+  BOOST_CHECK_EQUAL(face.sentData[1].getName(),
                     "/localhost/nfd/NotificationStreamTest/%FE%01");
   SimpleNotification decoded2;
-  BOOST_CHECK_NO_THROW(decoded2.wireDecode(face->sentDatas[1].getContent().blockFromValue()));
+  BOOST_CHECK_NO_THROW(decoded2.wireDecode(face.sentData[1].getContent().blockFromValue()));
   BOOST_CHECK_EQUAL(decoded2.getMessage(), "msg2");
 }
 

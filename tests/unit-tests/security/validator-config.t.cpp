@@ -1134,8 +1134,8 @@ BOOST_FIXTURE_TEST_CASE(FixedSignerChecker2, security::IdentityManagementFixture
 struct FacesFixture : public security::IdentityManagementTimeFixture
 {
   FacesFixture()
-    : face1(util::makeDummyClientFace(io, {true, true}))
-    , face2(util::makeDummyClientFace(io, {true, true}))
+    : face1(io, {true, true})
+    , face2(io, {true, true})
     , readInterestOffset1(0)
     , readDataOffset1(0)
     , readInterestOffset2(0)
@@ -1148,10 +1148,10 @@ struct FacesFixture : public security::IdentityManagementTimeFixture
   {
     bool hasPassed = false;
 
-    checkFace(face1->sentInterests, readInterestOffset1, *face2, hasPassed);
-    checkFace(face1->sentDatas, readDataOffset1, *face2, hasPassed);
-    checkFace(face2->sentInterests, readInterestOffset2, *face1, hasPassed);
-    checkFace(face2->sentInterests, readDataOffset2, *face1, hasPassed);
+    checkFace(face1.sentInterests, readInterestOffset1, face2, hasPassed);
+    checkFace(face1.sentData, readDataOffset1, face2, hasPassed);
+    checkFace(face2.sentInterests, readInterestOffset2, face1, hasPassed);
+    checkFace(face2.sentInterests, readDataOffset2, face1, hasPassed);
 
     return hasPassed;
   }
@@ -1175,8 +1175,8 @@ struct FacesFixture : public security::IdentityManagementTimeFixture
   }
 
 public:
-  shared_ptr<util::DummyClientFace> face1;
-  shared_ptr<util::DummyClientFace> face2;
+  util::DummyClientFace face1;
+  util::DummyClientFace face2;
 
   size_t readInterestOffset1;
   size_t readDataOffset1;
@@ -1225,13 +1225,13 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
                                         sld));
   m_keyChain.addCertificateAsIdentityDefault(*nldCert);
 
-  face1->setInterestFilter(sldCert->getName().getPrefix(-1),
-    [&] (const InterestFilter&, const Interest&) { face1->put(*sldCert); },
+  face1.setInterestFilter(sldCert->getName().getPrefix(-1),
+    [&] (const InterestFilter&, const Interest&) { face1.put(*sldCert); },
     RegisterPrefixSuccessCallback(),
     [] (const Name&, const std::string&) {});
 
-  face1->setInterestFilter(nldCert->getName().getPrefix(-1),
-    [&] (const InterestFilter&, const Interest&) { face1->put(*nldCert); },
+  face1.setInterestFilter(nldCert->getName().getPrefix(-1),
+    [&] (const InterestFilter&, const Interest&) { face1.put(*nldCert); },
     RegisterPrefixSuccessCallback(),
     [] (const Name&, const std::string&) {});
 
@@ -1270,7 +1270,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
 
-  auto validator = make_shared<ValidatorConfig>(face2.get());
+  auto validator = make_shared<ValidatorConfig>(&face2);
   validator->load(CONFIG, CONFIG_PATH.native());
 
   advanceClocks(time::milliseconds(2), 100);
@@ -1338,13 +1338,13 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
                                         sld));
   m_keyChain.addCertificateAsIdentityDefault(*nldCert);
 
-  face1->setInterestFilter(sldCert->getName().getPrefix(-1),
-    [&] (const InterestFilter&, const Interest&) { face1->put(*sldCert); },
+  face1.setInterestFilter(sldCert->getName().getPrefix(-1),
+    [&] (const InterestFilter&, const Interest&) { face1.put(*sldCert); },
     RegisterPrefixSuccessCallback(),
     [] (const Name&, const std::string&) {});
 
-  face1->setInterestFilter(nldCert->getName().getPrefix(-1),
-    [&] (const InterestFilter&, const Interest&) { face1->put(*nldCert); },
+  face1.setInterestFilter(nldCert->getName().getPrefix(-1),
+    [&] (const InterestFilter&, const Interest&) { face1.put(*nldCert); },
     RegisterPrefixSuccessCallback(),
     [] (const Name&, const std::string&) {});
 
@@ -1417,8 +1417,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
-  auto validator = make_shared<ValidatorConfig>(face2.get());
+  auto validator = make_shared<ValidatorConfig>(&face2);
   validator->load(CONFIG, CONFIG_PATH.native());
 
   advanceClocks(time::milliseconds(2), 100);
@@ -1467,8 +1466,8 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
 struct DirTestFixture : public security::IdentityManagementTimeFixture
 {
   DirTestFixture()
-    : face(util::makeDummyClientFace(io, {true, true}))
-    , validator(face.get(), ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
+    : face(io, {true, true})
+    , validator(&face, ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
                 ValidatorConfig::DEFAULT_GRACE_INTERVAL, 0)
   {
     certDirPath = (boost::filesystem::current_path() / std::string("test-cert-dir"));
@@ -1510,7 +1509,7 @@ public:
   shared_ptr<IdentityCertificate> firstCert;
   shared_ptr<IdentityCertificate> secondCert;
 
-  shared_ptr<util::DummyClientFace> face;
+  util::DummyClientFace face;
   ValidatorConfig validator;
 };
 

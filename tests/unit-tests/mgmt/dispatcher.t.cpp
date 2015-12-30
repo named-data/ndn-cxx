@@ -42,13 +42,13 @@ class DispatcherFixture : public UnitTestTimeFixture
 {
 public:
   DispatcherFixture()
-    : face(util::makeDummyClientFace(io, {true, true}))
-    , dispatcher(*face, m_keyChain, security::SigningInfo())
+    : face(io, {true, true})
+    , dispatcher(face, m_keyChain, security::SigningInfo())
   {
   }
 
 public:
-  shared_ptr<util::DummyClientFace> face;
+  util::DummyClientFace face;
   mgmt::Dispatcher dispatcher;
 };
 
@@ -157,7 +157,7 @@ BOOST_FIXTURE_TEST_CASE(AddRemoveTopPrefix, DispatcherFixture)
                                        bind([] { return true; }),
                                        bind([&nCallbackCalled] { ++nCallbackCalled["test/2"]; }));
 
-  face->receive(*util::makeInterest("/root/1/test/1/%80%00"));
+  face.receive(*util::makeInterest("/root/1/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 0);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 0);
@@ -165,18 +165,18 @@ BOOST_FIXTURE_TEST_CASE(AddRemoveTopPrefix, DispatcherFixture)
   dispatcher.addTopPrefix("/root/1");
   advanceClocks(time::milliseconds(1));
 
-  face->receive(*util::makeInterest("/root/1/test/1/%80%00"));
+  face.receive(*util::makeInterest("/root/1/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 1);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 0);
 
-  face->receive(*util::makeInterest("/root/1/test/2/%80%00"));
+  face.receive(*util::makeInterest("/root/1/test/2/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 1);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 1);
 
-  face->receive(*util::makeInterest("/root/2/test/1/%80%00"));
-  face->receive(*util::makeInterest("/root/2/test/2/%80%00"));
+  face.receive(*util::makeInterest("/root/2/test/1/%80%00"));
+  face.receive(*util::makeInterest("/root/2/test/2/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 1);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 1);
@@ -184,22 +184,22 @@ BOOST_FIXTURE_TEST_CASE(AddRemoveTopPrefix, DispatcherFixture)
   dispatcher.addTopPrefix("/root/2");
   advanceClocks(time::milliseconds(1));
 
-  face->receive(*util::makeInterest("/root/1/test/1/%80%00"));
+  face.receive(*util::makeInterest("/root/1/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 2);
 
-  face->receive(*util::makeInterest("/root/2/test/1/%80%00"));
+  face.receive(*util::makeInterest("/root/2/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 3);
 
   dispatcher.removeTopPrefix("/root/1");
   advanceClocks(time::milliseconds(1));
 
-  face->receive(*util::makeInterest("/root/1/test/1/%80%00"));
+  face.receive(*util::makeInterest("/root/1/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 3);
 
-  face->receive(*util::makeInterest("/root/2/test/1/%80%00"));
+  face.receive(*util::makeInterest("/root/2/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 4);
 }
@@ -215,23 +215,23 @@ BOOST_FIXTURE_TEST_CASE(ControlCommand, DispatcherFixture)
 
   dispatcher.addTopPrefix("/root");
   advanceClocks(time::milliseconds(1));
-  face->sentDatas.clear();
+  face.sentData.clear();
 
-  face->receive(*util::makeInterest("/root/test/%80%00")); // returns 403
-  face->receive(*util::makeInterest("/root/test/%80%00/invalid")); // returns 403
-  face->receive(*util::makeInterest("/root/test/%80%00/silent")); // silently ignored
-  face->receive(*util::makeInterest("/root/test/.../invalid")); // silently ignored (wrong format)
-  face->receive(*util::makeInterest("/root/test/.../valid"));  // silently ignored (wrong format)
+  face.receive(*util::makeInterest("/root/test/%80%00")); // returns 403
+  face.receive(*util::makeInterest("/root/test/%80%00/invalid")); // returns 403
+  face.receive(*util::makeInterest("/root/test/%80%00/silent")); // silently ignored
+  face.receive(*util::makeInterest("/root/test/.../invalid")); // silently ignored (wrong format)
+  face.receive(*util::makeInterest("/root/test/.../valid"));  // silently ignored (wrong format)
   advanceClocks(time::milliseconds(1), 20);
   BOOST_CHECK_EQUAL(nCallbackCalled, 0);
-  BOOST_CHECK_EQUAL(face->sentDatas.size(), 2);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 2);
 
-  BOOST_CHECK(face->sentDatas[0].getContentType() == tlv::ContentType_Blob);
-  BOOST_CHECK_EQUAL(ControlResponse(face->sentDatas[0].getContent().blockFromValue()).getCode(), 403);
-  BOOST_CHECK(face->sentDatas[1].getContentType() == tlv::ContentType_Blob);
-  BOOST_CHECK_EQUAL(ControlResponse(face->sentDatas[1].getContent().blockFromValue()).getCode(), 403);
+  BOOST_CHECK(face.sentData[0].getContentType() == tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(ControlResponse(face.sentData[0].getContent().blockFromValue()).getCode(), 403);
+  BOOST_CHECK(face.sentData[1].getContentType() == tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(ControlResponse(face.sentData[1].getContent().blockFromValue()).getCode(), 403);
 
-  face->receive(*util::makeInterest("/root/test/%80%00/valid"));
+  face.receive(*util::makeInterest("/root/test/%80%00/valid"));
   advanceClocks(time::milliseconds(1), 10);
   BOOST_CHECK_EQUAL(nCallbackCalled, 1);
 }
@@ -278,30 +278,30 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
 
   dispatcher.addTopPrefix("/root");
   advanceClocks(time::milliseconds(1));
-  face->sentDatas.clear();
+  face.sentData.clear();
 
-  face->receive(*util::makeInterest("/root/test/small/%80%00")); // returns 403
-  face->receive(*util::makeInterest("/root/test/small/%80%00/invalid")); // returns 403
-  face->receive(*util::makeInterest("/root/test/small/%80%00/silent")); // silently ignored
+  face.receive(*util::makeInterest("/root/test/small/%80%00")); // returns 403
+  face.receive(*util::makeInterest("/root/test/small/%80%00/invalid")); // returns 403
+  face.receive(*util::makeInterest("/root/test/small/%80%00/silent")); // silently ignored
   advanceClocks(time::milliseconds(1), 20);
-  BOOST_CHECK_EQUAL(face->sentDatas.size(), 2);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 2);
 
-  BOOST_CHECK(face->sentDatas[0].getContentType() == tlv::ContentType_Blob);
-  BOOST_CHECK_EQUAL(ControlResponse(face->sentDatas[0].getContent().blockFromValue()).getCode(), 403);
-  BOOST_CHECK(face->sentDatas[1].getContentType() == tlv::ContentType_Blob);
-  BOOST_CHECK_EQUAL(ControlResponse(face->sentDatas[1].getContent().blockFromValue()).getCode(), 403);
+  BOOST_CHECK(face.sentData[0].getContentType() == tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(ControlResponse(face.sentData[0].getContent().blockFromValue()).getCode(), 403);
+  BOOST_CHECK(face.sentData[1].getContentType() == tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(ControlResponse(face.sentData[1].getContent().blockFromValue()).getCode(), 403);
 
-  face->sentDatas.clear();
-  face->receive(*util::makeInterest("/root/test/small/valid"));
+  face.sentData.clear();
+  face.receive(*util::makeInterest("/root/test/small/valid"));
   advanceClocks(time::milliseconds(1), 10);
-  BOOST_CHECK_EQUAL(face->sentDatas.size(), 1);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 1);
 
-  face->receive(*util::makeInterest(Name("/root/test/small/valid").appendVersion(10))); // should be ignored
-  face->receive(*util::makeInterest(Name("/root/test/small/valid").appendSegment(20))); // should be ignored
+  face.receive(*util::makeInterest(Name("/root/test/small/valid").appendVersion(10))); // should be ignored
+  face.receive(*util::makeInterest(Name("/root/test/small/valid").appendSegment(20))); // should be ignored
   advanceClocks(time::milliseconds(1), 10);
-  BOOST_CHECK_EQUAL(face->sentDatas.size(), 1);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 1);
 
-  Block content = face->sentDatas[0].getContent();
+  Block content = face.sentData[0].getContent();
   BOOST_CHECK_NO_THROW(content.parse());
 
   BOOST_CHECK_EQUAL(content.elements().size(), 3);
@@ -309,12 +309,12 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
   BOOST_CHECK(content.elements()[1] == smallBlock);
   BOOST_CHECK(content.elements()[2] == smallBlock);
 
-  face->sentDatas.clear();
-  face->receive(*util::makeInterest("/root/test/large/valid"));
+  face.sentData.clear();
+  face.receive(*util::makeInterest("/root/test/large/valid"));
   advanceClocks(time::milliseconds(1), 10);
-  BOOST_CHECK_EQUAL(face->sentDatas.size(), 2);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 2);
 
-  const auto& datas = face->sentDatas;
+  const auto& datas = face.sentData;
   content = [&datas] () -> Block {
     EncodingBuffer encoder;
     size_t valueLength = encoder.prependByteArray(datas[1].getContent().value(),
@@ -333,12 +333,12 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
   BOOST_CHECK(content.elements()[1] == largeBlock);
   BOOST_CHECK(content.elements()[2] == largeBlock);
 
-  face->sentDatas.clear();
-  face->receive(*util::makeInterest("/root/test/reject/%80%00/valid")); // returns nack
+  face.sentData.clear();
+  face.receive(*util::makeInterest("/root/test/reject/%80%00/valid")); // returns nack
   advanceClocks(time::milliseconds(1));
-  BOOST_CHECK_EQUAL(face->sentDatas.size(), 1);
-  BOOST_CHECK(face->sentDatas[0].getContentType() == tlv::ContentType_Nack);
-  BOOST_CHECK_EQUAL(ControlResponse(face->sentDatas[0].getContent().blockFromValue()).getCode(), 400);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 1);
+  BOOST_CHECK(face.sentData[0].getContentType() == tlv::ContentType_Nack);
+  BOOST_CHECK_EQUAL(ControlResponse(face.sentData[0].getContent().blockFromValue()).getCode(), 400);
 }
 
 BOOST_FIXTURE_TEST_CASE(NotificationStream, DispatcherFixture)
@@ -349,31 +349,31 @@ BOOST_FIXTURE_TEST_CASE(NotificationStream, DispatcherFixture)
 
   post(block);
   advanceClocks(time::milliseconds(1));
-  BOOST_CHECK_EQUAL(face->sentDatas.size(), 0);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 0);
 
   dispatcher.addTopPrefix("/root");
   advanceClocks(time::milliseconds(1));
-  face->sentDatas.clear();
+  face.sentData.clear();
 
   post(block);
   advanceClocks(time::milliseconds(1));
-  BOOST_CHECK_EQUAL(face->sentDatas.size(), 1);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 1);
 
   post(block);
   post(block);
   post(block);
   advanceClocks(time::milliseconds(1), 10);
 
-  BOOST_CHECK_EQUAL(face->sentDatas.size(), 4);
-  BOOST_CHECK_EQUAL(face->sentDatas[0].getName(), "/root/test/%FE%00");
-  BOOST_CHECK_EQUAL(face->sentDatas[1].getName(), "/root/test/%FE%01");
-  BOOST_CHECK_EQUAL(face->sentDatas[2].getName(), "/root/test/%FE%02");
-  BOOST_CHECK_EQUAL(face->sentDatas[3].getName(), "/root/test/%FE%03");
+  BOOST_CHECK_EQUAL(face.sentData.size(), 4);
+  BOOST_CHECK_EQUAL(face.sentData[0].getName(), "/root/test/%FE%00");
+  BOOST_CHECK_EQUAL(face.sentData[1].getName(), "/root/test/%FE%01");
+  BOOST_CHECK_EQUAL(face.sentData[2].getName(), "/root/test/%FE%02");
+  BOOST_CHECK_EQUAL(face.sentData[3].getName(), "/root/test/%FE%03");
 
-  BOOST_CHECK(face->sentDatas[0].getContent().blockFromValue() == block);
-  BOOST_CHECK(face->sentDatas[1].getContent().blockFromValue() == block);
-  BOOST_CHECK(face->sentDatas[2].getContent().blockFromValue() == block);
-  BOOST_CHECK(face->sentDatas[3].getContent().blockFromValue() == block);
+  BOOST_CHECK(face.sentData[0].getContent().blockFromValue() == block);
+  BOOST_CHECK(face.sentData[1].getContent().blockFromValue() == block);
+  BOOST_CHECK(face.sentData[2].getContent().blockFromValue() == block);
+  BOOST_CHECK(face.sentData[3].getContent().blockFromValue() == block);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

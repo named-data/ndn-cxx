@@ -34,7 +34,6 @@ namespace nfd {
 namespace tests {
 
 using ndn::util::DummyClientFace;
-using ndn::util::makeDummyClientFace;
 
 BOOST_AUTO_TEST_SUITE(Management)
 
@@ -42,8 +41,8 @@ class CommandFixture : public ndn::tests::UnitTestTimeFixture
 {
 protected:
   CommandFixture()
-    : face(makeDummyClientFace(io))
-    , controller(*face, keyChain)
+    : face(io)
+    , controller(face, keyChain)
     , commandSucceedCallback(bind(&CommandFixture::onCommandSucceed, this, _1))
     , commandFailCallback(bind(&CommandFixture::onCommandFail, this, _1, _2))
   {
@@ -63,7 +62,7 @@ private:
   }
 
 protected:
-  shared_ptr<DummyClientFace> face;
+  DummyClientFace face;
   KeyChain keyChain;
   Controller controller;
 
@@ -90,8 +89,8 @@ BOOST_AUTO_TEST_CASE(CommandSuccess)
 
   advanceClocks(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
-  const Interest& requestInterest = face->sentInterests[0];
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+  const Interest& requestInterest = face.sentInterests[0];
 
   FaceCreateCommand command;
   BOOST_CHECK(Name("/localhost/nfd/faces/create").isPrefixOf(requestInterest.getName()));
@@ -113,7 +112,7 @@ BOOST_AUTO_TEST_CASE(CommandSuccess)
 
   auto responseData = util::makeData(requestInterest.getName());
   responseData->setContent(responsePayload.wireEncode());
-  face->receive(*responseData);
+  face.receive(*responseData);
 
   advanceClocks(time::milliseconds(1));
 
@@ -148,14 +147,14 @@ BOOST_AUTO_TEST_CASE(CommandErrorCode)
                          commandFailCallback));
   advanceClocks(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
-  const Interest& requestInterest = face->sentInterests[0];
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+  const Interest& requestInterest = face.sentInterests[0];
 
   ControlResponse responsePayload(401, "Not Authenticated");
 
   auto responseData = util::makeData(requestInterest.getName());
   responseData->setContent(responsePayload.wireEncode());
-  face->receive(*responseData);
+  face.receive(*responseData);
   advanceClocks(time::milliseconds(1));
 
   BOOST_CHECK_EQUAL(commandSucceedHistory.size(), 0);
@@ -174,8 +173,8 @@ BOOST_AUTO_TEST_CASE(CommandInvalidResponse)
                          commandFailCallback));
   advanceClocks(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
-  const Interest& requestInterest = face->sentInterests[0];
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+  const Interest& requestInterest = face.sentInterests[0];
 
   ControlParameters responseBody;
   responseBody.setUri("tcp4://192.0.2.1:6363")
@@ -186,7 +185,7 @@ BOOST_AUTO_TEST_CASE(CommandInvalidResponse)
 
   auto responseData = util::makeData(requestInterest.getName());
   responseData->setContent(responsePayload.wireEncode());
-  face->receive(*responseData);
+  face.receive(*responseData);
   advanceClocks(time::milliseconds(1));
 
   BOOST_CHECK_EQUAL(commandSucceedHistory.size(), 0);
@@ -204,11 +203,11 @@ BOOST_AUTO_TEST_CASE(CommandNack)
                        commandFailCallback));
   advanceClocks(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
-  const Interest& requestInterest = face->sentInterests[0];
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+  const Interest& requestInterest = face.sentInterests[0];
 
   auto responseNack = util::makeNack(requestInterest, lp::NackReason::NO_ROUTE);
-  face->receive(responseNack);
+  face.receive(responseNack);
   advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(commandFailHistory.size(), 1);
@@ -231,8 +230,8 @@ BOOST_AUTO_TEST_CASE(OptionsPrefix)
                        options));
   advanceClocks(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face->sentInterests.size(), 1);
-  const Interest& requestInterest = face->sentInterests[0];
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+  const Interest& requestInterest = face.sentInterests[0];
 
   FaceCreateCommand command;
   BOOST_CHECK(Name("/localhop/net/example/router1/nfd/rib/register").isPrefixOf(

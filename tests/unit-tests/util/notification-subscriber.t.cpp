@@ -44,10 +44,10 @@ class EndToEndFixture : public ndn::tests::UnitTestTimeFixture
 public:
   EndToEndFixture()
     : streamPrefix("ndn:/NotificationSubscriberTest")
-    , publisherFace(makeDummyClientFace(io))
-    , notificationStream(*publisherFace, streamPrefix, publisherKeyChain)
-    , subscriberFace(makeDummyClientFace(io))
-    , subscriber(*subscriberFace, streamPrefix, time::seconds(1))
+    , publisherFace(io)
+    , notificationStream(publisherFace, streamPrefix, publisherKeyChain)
+    , subscriberFace(io)
+    , subscriber(subscriberFace, streamPrefix, time::seconds(1))
   {
   }
 
@@ -56,18 +56,18 @@ public:
   void
   deliverNotification(const std::string& msg)
   {
-    publisherFace->sentDatas.clear();
+    publisherFace.sentData.clear();
     SimpleNotification notification(msg);
     notificationStream.postNotification(notification);
 
     advanceClocks(time::milliseconds(1));
 
-    BOOST_REQUIRE_EQUAL(publisherFace->sentDatas.size(), 1);
+    BOOST_REQUIRE_EQUAL(publisherFace.sentData.size(), 1);
 
-    lastDeliveredSeqNo = publisherFace->sentDatas[0].getName().at(-1).toSequenceNumber();
+    lastDeliveredSeqNo = publisherFace.sentData[0].getName().at(-1).toSequenceNumber();
 
     lastNotification.setMessage("");
-    subscriberFace->receive(publisherFace->sentDatas[0]);
+    subscriberFace.receive(publisherFace.sentData[0]);
   }
 
   void
@@ -93,10 +93,10 @@ public:
   bool
   hasInitialRequest() const
   {
-    if (subscriberFace->sentInterests.empty())
+    if (subscriberFace.sentInterests.empty())
       return 0;
 
-    const Interest& interest = subscriberFace->sentInterests[0];
+    const Interest& interest = subscriberFace.sentInterests[0];
     return interest.getName() == streamPrefix &&
            interest.getChildSelector() == 1 &&
            interest.getMustBeFresh() &&
@@ -109,10 +109,10 @@ public:
   uint64_t
   getRequestSeqNo() const
   {
-    if (subscriberFace->sentInterests.size() != 1)
+    if (subscriberFace.sentInterests.size() != 1)
       return 0;
 
-    const Interest& interest = subscriberFace->sentInterests[0];
+    const Interest& interest = subscriberFace.sentInterests[0];
     const Name& name = interest.getName();
     if (streamPrefix.isPrefixOf(name) &&
         name.size() == streamPrefix.size() + 1 &&
@@ -124,10 +124,10 @@ public:
 
 protected:
   Name streamPrefix;
-  shared_ptr<DummyClientFace> publisherFace;
+  DummyClientFace publisherFace;
   ndn::KeyChain publisherKeyChain;
   util::NotificationStream<SimpleNotification> notificationStream;
-  shared_ptr<DummyClientFace> subscriberFace;
+  DummyClientFace subscriberFace;
   util::NotificationSubscriber<SimpleNotification> subscriber;
   util::signal::Connection notificationConn;
 
@@ -155,30 +155,30 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   this->deliverNotification("n1");
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK(lastNotification.getMessage().empty());
-  BOOST_CHECK_EQUAL(subscriberFace->sentInterests.size(), 0);
+  BOOST_CHECK_EQUAL(subscriberFace.sentInterests.size(), 0);
 
-  subscriberFace->sentInterests.clear();
+  subscriberFace.sentInterests.clear();
   subscriber.start();
   advanceClocks(time::milliseconds(1));
   BOOST_REQUIRE_EQUAL(subscriber.isRunning(), true);
   BOOST_CHECK(this->hasInitialRequest());
 
   // respond to initial request
-  subscriberFace->sentInterests.clear();
+  subscriberFace.sentInterests.clear();
   this->deliverNotification("n2");
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n2");
   BOOST_CHECK_EQUAL(this->getRequestSeqNo(), lastDeliveredSeqNo + 1);
 
   // respond to continuation request
-  subscriberFace->sentInterests.clear();
+  subscriberFace.sentInterests.clear();
   this->deliverNotification("n3");
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n3");
   BOOST_CHECK_EQUAL(this->getRequestSeqNo(), lastDeliveredSeqNo + 1);
 
   // timeout
-  subscriberFace->sentInterests.clear();
+  subscriberFace.sentInterests.clear();
   lastNotification.setMessage("");
   advanceClocks(subscriber.getInterestLifetime(), 2);
   BOOST_CHECK(lastNotification.getMessage().empty());
@@ -190,8 +190,8 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   wrongName.append("%07%07");
   Data wrongData(wrongName);
   publisherKeyChain.sign(wrongData);
-  subscriberFace->receive(wrongData);
-  subscriberFace->sentInterests.clear();
+  subscriberFace.receive(wrongData);
+  subscriberFace.sentInterests.clear();
   lastNotification.setMessage("");
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK(lastNotification.getMessage().empty());
@@ -199,7 +199,7 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   BOOST_CHECK(this->hasInitialRequest());
 
   // decode error in payload
-  subscriberFace->sentInterests.clear();
+  subscriberFace.sentInterests.clear();
   lastNotification.setMessage("");
   this->deliverNotification("\x07n4");
   advanceClocks(time::milliseconds(1));
@@ -208,10 +208,10 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
 
   // stop if handlers are cleared
   notificationConn.disconnect();
-  subscriberFace->sentInterests.clear();
+  subscriberFace.sentInterests.clear();
   this->deliverNotification("n5");
   advanceClocks(time::milliseconds(1));
-  BOOST_CHECK_EQUAL(subscriberFace->sentInterests.size(), 0);
+  BOOST_CHECK_EQUAL(subscriberFace.sentInterests.size(), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
