@@ -52,7 +52,7 @@ ScopedEventId::operator=(const EventId& event)
   return *this;
 }
 
-ScopedEventId::~ScopedEventId()
+ScopedEventId::~ScopedEventId() noexcept
 {
   m_scheduler->cancelEvent(m_event);
 }
@@ -64,7 +64,7 @@ ScopedEventId::cancel()
 }
 
 void
-ScopedEventId::release()
+ScopedEventId::release() noexcept
 {
   m_event.reset();
 }

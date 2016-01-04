@@ -57,7 +57,7 @@ public:
 
   /** \brief cancels the event
    */
-  ~ScopedEventId();
+  ~ScopedEventId() noexcept;
 
   /** \brief cancels the event manually
    */
@@ -68,7 +68,7 @@ public:
    *         when this ScopedEventId is destructed
    */
   void
-  release();
+  release() noexcept;
 
 private:
   Scheduler* m_scheduler; // pointer to allow move semantics

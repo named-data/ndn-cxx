@@ -55,7 +55,7 @@ ScopedConnection::operator=(const Connection& connection)
   return *this;
 }
 
-ScopedConnection::~ScopedConnection()
+ScopedConnection::~ScopedConnection() noexcept
 {
   m_connection.disconnect();
 }

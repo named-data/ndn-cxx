@@ -54,7 +54,7 @@ public:
 
   /** \brief disconnects the connection
    */
-  ~ScopedConnection();
+  ~ScopedConnection() noexcept;
 
   /** \brief disconnects the connection manually
    */
