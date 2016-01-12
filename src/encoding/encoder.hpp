@@ -42,7 +42,7 @@ public: // common interface between Encoder and Estimator
    * @param reserveFromBack number of bytes to reserve for append* operations
    */
   explicit
-  Encoder(size_t totalReserve = 8800, size_t reserveFromBack = 400);
+  Encoder(size_t totalReserve = MAX_NDN_PACKET_SIZE, size_t reserveFromBack = 400);
 
   Encoder(const Encoder&) = delete;
 

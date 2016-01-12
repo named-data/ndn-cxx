@@ -24,7 +24,7 @@
 namespace ndn {
 namespace encoding {
 
-Encoder::Encoder(size_t totalReserve/* = 8800*/, size_t reserveFromBack/* = 400*/)
+Encoder::Encoder(size_t totalReserve/* = MAX_NDN_PACKET_SIZE*/, size_t reserveFromBack/* = 400*/)
   : m_buffer(new Buffer(totalReserve))
 {
   m_begin = m_end = m_buffer->end() - (reserveFromBack < totalReserve ? reserveFromBack : 0);

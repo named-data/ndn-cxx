@@ -43,7 +43,7 @@ static_assert(std::is_nothrow_move_assignable<Block>::value,
               "Block must be MoveAssignable with noexcept");
 #endif // NDN_CXX_HAVE_IS_NOTHROW_MOVE_ASSIGNABLE
 
-const size_t MAX_SIZE_OF_BLOCK_FROM_STREAM = 8800;
+const size_t MAX_SIZE_OF_BLOCK_FROM_STREAM = MAX_NDN_PACKET_SIZE;
 
 Block::Block()
   : m_type(std::numeric_limits<uint32_t>::max())
