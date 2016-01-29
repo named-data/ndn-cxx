@@ -417,6 +417,20 @@ BOOST_AUTO_TEST_CASE(GeneralSigningInterface)
                                                                 interest5.getName()[-1].blockFromValue()))));
 }
 
+BOOST_AUTO_TEST_CASE(EcdsaSigningByIdentityNoCert)
+{
+  KeyChain keyChain;
+  Name ecdsaIdentity("/ndn/test/ecdsa");
+  Name ecdsaKeyName = keyChain.generateEcdsaKeyPairAsDefault(ecdsaIdentity,false,256);
+  Data ecdsaData("/ecdsaSignedData");
+  BOOST_CHECK_EQUAL(keyChain.getPublicKey(keyChain.getDefaultKeyNameForIdentity(ecdsaIdentity))->getKeyType(),
+		  KeyType::KEY_TYPE_ECDSA);
+  keyChain.signByIdentity(ecdsaData,ecdsaIdentity);
+  BOOST_CHECK_EQUAL(ecdsaData.getSignature().getType(),tlv::SignatureSha256WithEcdsa);
+  BOOST_CHECK_EQUAL(keyChain.getPublicKey(keyChain.getDefaultKeyNameForIdentity(ecdsaIdentity))->getKeyType(),
+		  KeyType::KEY_TYPE_ECDSA);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
