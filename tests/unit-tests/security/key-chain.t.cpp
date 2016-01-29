@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,11 +21,13 @@
 
 #include "security/key-chain.hpp"
 #include "security/validator.hpp"
-#include "../util/test-home-environment-fixture.hpp"
-#include <boost/filesystem.hpp>
+#include "security/signing-helpers.hpp"
 
 #include "boost-test.hpp"
 #include "dummy-keychain.hpp"
+#include "../util/test-home-environment-fixture.hpp"
+
+#include <boost/filesystem.hpp>
 
 namespace ndn {
 namespace security {
@@ -415,6 +417,27 @@ BOOST_AUTO_TEST_CASE(GeneralSigningInterface)
   BOOST_CHECK(Validator::verifySignature(interest5,
                                          DigestSha256(Signature(interest5.getName()[-2].blockFromValue(),
                                                                 interest5.getName()[-1].blockFromValue()))));
+}
+
+BOOST_AUTO_TEST_CASE(EcdsaSigningByIdentityNoCert)
+{
+  KeyChain keyChain;
+  Data data("/test/data");
+
+  Name nonExistingIdentity = Name("/non-existing/identity").appendVersion();
+
+  BOOST_CHECK_NO_THROW(keyChain.sign(data, signingByIdentity(nonExistingIdentity)));
+  BOOST_CHECK_EQUAL(data.getSignature().getType(),
+                    KeyChain::getSignatureType(KeyChain::DEFAULT_KEY_PARAMS.getKeyType(),
+                                               DIGEST_ALGORITHM_SHA256));
+  BOOST_CHECK(nonExistingIdentity.isPrefixOf(data.getSignature().getKeyLocator().getName()));
+
+  Name ecdsaIdentity = Name("/ndn/test/ecdsa").appendVersion();
+  Name ecdsaKeyName = keyChain.generateEcdsaKeyPairAsDefault(ecdsaIdentity, false, 256);
+  BOOST_CHECK_NO_THROW(keyChain.sign(data, signingByIdentity(ecdsaIdentity)));
+  BOOST_CHECK_EQUAL(data.getSignature().getType(),
+                    KeyChain::getSignatureType(EcdsaKeyParams().getKeyType(), DIGEST_ALGORITHM_SHA256));
+  BOOST_CHECK(ecdsaIdentity.isPrefixOf(data.getSignature().getKeyLocator().getName()));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

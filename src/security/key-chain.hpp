@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -527,6 +527,16 @@ public:
   {
     return m_pib->getDefaultKeyNameForIdentity(identityName);
   }
+
+  /**
+   * @brief Get default key parameters for the specified identity
+   *
+   * If identity has a previously generated key, the returned parameters
+   * will include the same type of the key.  If there are no existing
+   * keys, DEFAULT_KEY_PARAMS is used.
+   */
+  const KeyParams&
+  getDefaultKeyParamsForIdentity(const Name& identityName) const;
 
   Name
   getDefaultCertificateNameForKey(const Name& keyName) const
