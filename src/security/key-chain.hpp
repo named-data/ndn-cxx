@@ -204,7 +204,7 @@ public:
    * @see generateRsaKeyPair, generateEcdsaKeyPair, generateRsaKeyPairAsDefault
    */
   Name
-  generateEcdsaKeyPairAsDefault(const Name& identityName, bool isKsk, uint32_t keySize = 256);
+  generateEcdsaKeyPairAsDefault(const Name& identityName, bool isKsk=false, uint32_t keySize = 256);
 
   /**
    * @brief prepare an unsigned identity certificate
