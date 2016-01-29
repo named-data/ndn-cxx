@@ -190,8 +190,7 @@ public:
    * @see generateRsaKeyPair, generateEcdsaKeyPair, generateEcdsaKeyPairAsDefault
    */
   Name
-  generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk = false,
-                              uint32_t keySize = 2048);
+  generateRsaKeyPairAsDefault(const Name& identityName, bool isKsk = false, uint32_t keySize = 2048);
 
   /**
    * @brief Generate a pair of ECDSA keys for the specified identity and set it as default key for
@@ -204,7 +203,7 @@ public:
    * @see generateRsaKeyPair, generateEcdsaKeyPair, generateRsaKeyPairAsDefault
    */
   Name
-  generateEcdsaKeyPairAsDefault(const Name& identityName, bool isKsk, uint32_t keySize = 256);
+  generateEcdsaKeyPairAsDefault(const Name& identityName, bool isKsk = false, uint32_t keySize = 256);
 
   /**
    * @brief prepare an unsigned identity certificate
