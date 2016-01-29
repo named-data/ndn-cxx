@@ -528,6 +528,9 @@ public:
     return m_pib->getDefaultKeyNameForIdentity(identityName);
   }
 
+  KeyParams
+  getDefaultKeyParamsForIdentity(const Name& identityName) const;
+
   Name
   getDefaultCertificateNameForKey(const Name& keyName) const
   {

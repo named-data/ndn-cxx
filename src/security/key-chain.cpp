@@ -468,7 +468,7 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
         signingCertName = m_pib->getDefaultCertificateNameForIdentity(params.getSignerName());
       }
       catch (SecPublicInfo::Error&) {
-        signingCertName = createIdentity(params.getSignerName());
+        signingCertName = createIdentity(params.getSignerName(), getDefaultKeyParamsForIdentity(params.getSignerName()));
       }
 
       signingCert = m_pib->getCertificate(signingCertName);
@@ -657,6 +657,30 @@ KeyChain::importIdentity(const SecuredBag& securedBag, const std::string& passwo
   m_pib->addCertificateAsIdentityDefault(securedBag.getCertificate());
 }
 
+KeyParams
+KeyChain::getDefaultKeyParamsForIdentity(const Name &identityName) const
+{
+  KeyType keyType = m_pib->getPublicKeyType(
+          m_pib->getDefaultKeyNameForIdentity(identityName));
+
+  switch(keyType) {
+  case KEY_TYPE_RSA:
+    {
+      return RsaKeyParams();
+    }
+  case KEY_TYPE_ECDSA:
+    {
+      return EcdsaKeyParams();
+    }
+  case KEY_TYPE_NULL:
+    {
+      return DEFAULT_KEY_PARAMS;
+    }
+  default:
+    BOOST_THROW_EXCEPTION(Error("Unsupported key type"));
+  }
+}
+
 void
 KeyChain::setDefaultCertificateInternal()
 {
@@ -754,7 +778,7 @@ KeyChain::signByIdentity(const uint8_t* buffer, size_t bufferLength, const Name&
     }
   catch (SecPublicInfo::Error& e)
     {
-      signingCertificateName = createIdentity(identityName);
+      signingCertificateName = createIdentity(identityName, getDefaultKeyParamsForIdentity(identityName));
       // Ideally, no exception will be thrown out, unless something goes wrong in the TPM, which
       // is a fatal error.
     }
