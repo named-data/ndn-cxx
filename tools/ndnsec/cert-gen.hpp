@@ -211,7 +211,7 @@ ndnsec_cert_gen(int argc, char** argv)
       return 1;
     }
 
-  keyChain.createIdentity(signId);
+  keyChain.createIdentity(signId,keyChain.getDefaultKeyParamsForIdentity(signId));
   Name signingCertificateName = keyChain.getDefaultCertificateNameForIdentity(signId);
   keyChain.sign(*certificate,
                 security::SigningInfo(security::SigningInfo::SIGNER_TYPE_CERT,
