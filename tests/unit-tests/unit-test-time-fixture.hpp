@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,8 @@
 #define NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
 
 #include "util/time-unit-test-clock.hpp"
-#include <boost/asio.hpp>
+
+#include <boost/asio/io_service.hpp>
 
 namespace ndn {
 namespace tests {

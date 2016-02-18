@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,37 +22,35 @@
 #ifndef NDN_COMMON_PCH_HPP
 #define NDN_COMMON_PCH_HPP
 
-// If compiler supports precompiled header, this header should be compiled and include
-// before anything else
+// If the compiler supports precompiled headers, this header should be compiled
+// and included before anything else
 
 #include "common.hpp"
 
 // STL headers to precompile
-#include <vector>
-#include <list>
-#include <set>
-#include <algorithm>
-#include <map>
-#include <sstream>
 #include <fstream>
-#include <exception>
+#include <list>
 #include <map>
+#include <set>
+#include <sstream>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
-// Other useful headers to precompile
-#include <boost/lexical_cast.hpp>
-#include <boost/asio.hpp>
+// Boost headers to precompile
+#include <boost/algorithm/string.hpp>
 #include <boost/chrono.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/info_parser.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/regex.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include <boost/iostreams/detail/ios.hpp>
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/info_parser.hpp>
+#include <boost/regex.hpp>
+#include <boost/system/error_code.hpp>
 
+// Other useful headers to precompile
 #include "security/cryptopp.hpp"
 
 #endif // NDN_COMMON_PCH_HPP

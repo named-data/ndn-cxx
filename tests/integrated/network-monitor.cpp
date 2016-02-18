@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,10 +25,12 @@
 
 #include "util/network-monitor.hpp"
 
-#include "boost-test.hpp"
-#include <cstdlib>
-#include <iostream>
 #include "util/time.hpp"
+
+#include "boost-test.hpp"
+
+#include <boost/asio/io_service.hpp>
+#include <iostream>
 
 namespace ndn {
 namespace util {

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,12 @@
 
 #include "signal.hpp"
 
-#include <boost/asio/io_service.hpp>
+// forward declaration
+namespace boost {
+namespace asio {
+class io_service;
+} // namespace asio
+} // namespace boost
 
 namespace ndn {
 namespace util {
