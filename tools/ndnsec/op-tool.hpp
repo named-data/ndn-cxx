@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,8 +25,6 @@
 #define NDN_TOOLS_NDNSEC_OP_TOOL_HPP
 
 #include "util.hpp"
-
-using namespace std;
 
 int
 ndnsec_op_tool(int argc, char** argv)
@@ -76,7 +74,7 @@ ndnsec_op_tool(int argc, char** argv)
     {
       KeyChain keyChain;
 
-      Buffer dataToSign((istreambuf_iterator<char>(cin)), istreambuf_iterator<char>());
+      Buffer dataToSign((std::istreambuf_iterator<char>(std::cin)), std::istreambuf_iterator<char>());
 
       Block value = keyChain.sign(dataToSign.buf(), dataToSign.size(),
                                   security::SigningInfo(security::SigningInfo::SIGNER_TYPE_CERT,
@@ -88,6 +86,7 @@ ndnsec_op_tool(int argc, char** argv)
           return -1;
         }
 
+      value.encode();
       std::cout.write(reinterpret_cast<const char*>(value.wire()), value.size());
     }
 
