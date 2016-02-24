@@ -19,42 +19,35 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "network-monitor.hpp"
+#ifndef NDN_UTIL_NETWORK_MONITOR_IMPL_RTNL_HPP
+#define NDN_UTIL_NETWORK_MONITOR_IMPL_RTNL_HPP
 
-#include "ndn-cxx-config.hpp"
+#include "../network-monitor.hpp"
 
-#if defined(NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H)
-#include "detail/network-monitor-impl-osx.hpp"
-#elif defined(NDN_CXX_HAVE_RTNETLINK)
-#include "detail/network-monitor-impl-rtnl.hpp"
-#else
+#include <boost/asio/posix/stream_descriptor.hpp>
 
 namespace ndn {
 namespace util {
 
+const size_t NETLINK_BUFFER_SIZE = 4096;
+
 class NetworkMonitor::Impl
 {
 public:
-  Impl(NetworkMonitor& nm, boost::asio::io_service& io)
-  {
-    BOOST_THROW_EXCEPTION(Error("Network monitoring is not supported on this platform"));
-  }
+  Impl(NetworkMonitor& nm, boost::asio::io_service& io);
+
+private:
+  void
+  onReceiveRtNetlink(const boost::system::error_code& error, size_t nBytesReceived);
+
+private:
+  NetworkMonitor& m_nm;
+
+  uint8_t m_buffer[NETLINK_BUFFER_SIZE];
+  boost::asio::posix::stream_descriptor m_socket;
 };
 
 } // namespace util
 } // namespace ndn
 
-#endif
-
-namespace ndn {
-namespace util {
-
-NetworkMonitor::NetworkMonitor(boost::asio::io_service& io)
-  : m_impl(new Impl(*this, io))
-{
-}
-
-NetworkMonitor::~NetworkMonitor() = default;
-
-} // namespace util
-} // namespace ndn
+#endif // NDN_UTIL_NETWORK_MONITOR_IMPL_RTNL_HPP

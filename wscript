@@ -65,10 +65,9 @@ def configure(conf):
     if not conf.options.enable_shared and not conf.options.enable_static:
         conf.fatal("Either static library or shared library must be enabled")
 
-    conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
-               'default-compiler-flags', 'osx-security', 'pch',
-               'boost', 'cryptopp', 'sqlite3',
-               'doxygen', 'sphinx_build', 'type_traits', 'compiler-features'])
+    conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx', 'default-compiler-flags',
+               'osx-security', 'pch', 'boost', 'cryptopp', 'sqlite3',
+               'type_traits', 'compiler-features', 'doxygen', 'sphinx_build'])
 
     conf.env['WITH_TESTS'] = conf.options.with_tests
     conf.env['WITH_TOOLS'] = conf.options.with_tools
@@ -155,7 +154,8 @@ def build(bld):
         target="ndn-cxx",
         name="ndn-cxx",
         source=bld.path.ant_glob('src/**/*.cpp',
-                                 excl=['src/**/*-osx.cpp', 'src/**/*-sqlite3.cpp']),
+                                 excl=['src/security/**/*-osx.cpp',
+                                       'src/**/*-sqlite3.cpp']),
         headers='src/common-pch.hpp',
         use='version BOOST CRYPTOPP SQLITE3 RT PTHREAD',
         includes=". src",
@@ -164,7 +164,7 @@ def build(bld):
         )
 
     if bld.env['HAVE_OSX_SECURITY']:
-        libndn_cxx['source'] += bld.path.ant_glob('src/**/*-osx.cpp')
+        libndn_cxx['source'] += bld.path.ant_glob('src/security/**/*-osx.cpp')
         libndn_cxx['mac_app'] = True
         libndn_cxx['use'] += " OSX_COREFOUNDATION OSX_SECURITY"
 
@@ -233,10 +233,12 @@ def build(bld):
     if bld.env['WITH_EXAMPLES']:
         bld.recurse("examples")
 
-    headers = bld.path.ant_glob(['src/**/*.hpp'],
-                                 excl=['src/**/*-osx.hpp', 'src/detail/**/*'])
+    headers = bld.path.ant_glob('src/**/*.hpp',
+                                excl=['src/security/**/*-osx.hpp',
+                                      'src/detail/**/*',
+                                      'src/util/detail/**/*'])
     if bld.env['HAVE_OSX_SECURITY']:
-        headers += bld.path.ant_glob('src/**/*-osx.hpp')
+        headers += bld.path.ant_glob('src/security/**/*-osx.hpp')
 
     bld.install_files("%s/ndn-cxx" % bld.env['INCLUDEDIR'], headers,
                       relative_trick=True, cwd=bld.path.find_node('src'))

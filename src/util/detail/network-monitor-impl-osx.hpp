@@ -19,15 +19,16 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "network-monitor.hpp"
+#ifndef NDN_UTIL_NETWORK_MONITOR_IMPL_OSX_HPP
+#define NDN_UTIL_NETWORK_MONITOR_IMPL_OSX_HPP
 
-#include "ndn-cxx-config.hpp"
+#include "../network-monitor.hpp"
 
-#if defined(NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H)
-#include "detail/network-monitor-impl-osx.hpp"
-#elif defined(NDN_CXX_HAVE_RTNETLINK)
-#include "detail/network-monitor-impl-rtnl.hpp"
-#else
+#include "../scheduler.hpp"
+#include "../scheduler-scoped-event-id.hpp"
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <SystemConfiguration/SystemConfiguration.h>
 
 namespace ndn {
 namespace util {
@@ -35,26 +36,32 @@ namespace util {
 class NetworkMonitor::Impl
 {
 public:
-  Impl(NetworkMonitor& nm, boost::asio::io_service& io)
-  {
-    BOOST_THROW_EXCEPTION(Error("Network monitoring is not supported on this platform"));
-  }
+  Impl(NetworkMonitor& nm, boost::asio::io_service& io);
+
+  ~Impl();
+
+  static void
+  afterNotificationCenterEvent(CFNotificationCenterRef center,
+                               void *observer,
+                               CFStringRef name,
+                               const void *object,
+                               CFDictionaryRef userInfo);
+
+private:
+  void
+  scheduleCfLoop();
+
+  void
+  pollCfLoop();
+
+private:
+  NetworkMonitor& m_nm;
+
+  Scheduler m_scheduler;
+  scheduler::ScopedEventId m_cfLoopEvent;
 };
 
 } // namespace util
 } // namespace ndn
 
-#endif
-
-namespace ndn {
-namespace util {
-
-NetworkMonitor::NetworkMonitor(boost::asio::io_service& io)
-  : m_impl(new Impl(*this, io))
-{
-}
-
-NetworkMonitor::~NetworkMonitor() = default;
-
-} // namespace util
-} // namespace ndn
+#endif // NDN_UTIL_NETWORK_MONITOR_IMPL_OSX_HPP
