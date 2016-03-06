@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,6 +25,7 @@
 #include "../common.hpp"
 #include "../interest.hpp"
 #include "../data.hpp"
+#include "scheduler-scoped-event-id.hpp"
 
 namespace ndn {
 namespace util {
@@ -34,6 +35,11 @@ namespace util {
 class InMemoryStorageEntry : noncopyable
 {
 public:
+
+  /** @brief Create an entry
+   */
+  InMemoryStorageEntry();
+
   /** @brief Releases reference counts on shared objects
    */
   void
@@ -67,12 +73,35 @@ public:
 
 
   /** @brief Changes the content of in-memory storage entry
+   *
+   *  This method also allows data to satisfy Interest with MustBeFresh
    */
   void
   setData(const Data& data);
 
+  /** @brief Set eventId for the markStale event.
+   */
+  void
+  setMarkStaleEventId(unique_ptr<scheduler::ScopedEventId>&& eventId);
+
+  /** @brief Disable the data from satisfying interest with MustBeFresh
+   */
+  void
+  markStale();
+
+  /** @brief Check if the data can satisfy an interest with MustBeFresh
+   */
+  bool
+  isFresh()
+  {
+    return m_isFresh;
+  }
+
 private:
   shared_ptr<const Data> m_dataPacket;
+
+  bool m_isFresh;
+  unique_ptr<scheduler::ScopedEventId> m_markStaleEventId;
 };
 
 } // namespace util

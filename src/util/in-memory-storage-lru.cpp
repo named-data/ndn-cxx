@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,6 +26,12 @@ namespace util {
 
 InMemoryStorageLru::InMemoryStorageLru(size_t limit)
   : InMemoryStorage(limit)
+{
+}
+
+InMemoryStorageLru::InMemoryStorageLru(boost::asio::io_service& ioService,
+                                       size_t limit)
+  : InMemoryStorage(ioService, limit)
 {
 }
 

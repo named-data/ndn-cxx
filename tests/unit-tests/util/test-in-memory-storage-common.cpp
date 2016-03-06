@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,6 +27,7 @@
 
 #include "boost-test.hpp"
 #include "../make-interest-data.hpp"
+#include "../unit-test-time-fixture.hpp"
 
 #include <boost/mpl/list.hpp>
 
@@ -631,7 +632,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ExcludeSelector, T, InMemoryStorages)
 typedef boost::mpl::list<InMemoryStorageFifo, InMemoryStorageLfu, InMemoryStorageLru>
                          InMemoryStoragesLimited;
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(setCapacity, T, InMemoryStoragesLimited)
+BOOST_AUTO_TEST_CASE_TEMPLATE(SetCapacity, T, InMemoryStoragesLimited)
 {
   T ims;
 
@@ -700,18 +701,24 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndEvict, T, InMemoryStoragesLimited)
 
 ///as Find function is implemented at the base case, therefore testing for one derived class is
 ///sufficient for all
-class FindFixture
+class FindFixture : public ndn::tests::UnitTestTimeFixture
 {
 protected:
+  FindFixture()
+    : m_ims(io)
+  {
+  }
+
   Name
-  insert(uint32_t id, const Name& name)
+  insert(uint32_t id, const Name& name,
+         const time::milliseconds& freshWindow = InMemoryStorage::INFINITE_WINDOW)
   {
     shared_ptr<Data> data = makeData(name);
     data->setFreshnessPeriod(time::milliseconds(99999));
     data->setContent(reinterpret_cast<const uint8_t*>(&id), sizeof(id));
     signData(data);
 
-    m_ims.insert(*data);
+    m_ims.insert(*data, freshWindow);
 
     return data->getFullName();
   }
@@ -973,6 +980,78 @@ BOOST_AUTO_TEST_CASE(DigestExclude)
     .setChildSelector(1)
     .setExclude(exclude2);
   BOOST_CHECK_EQUAL(find(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(MustBeFresh)
+{
+  Name data1Name = insert(1, "ndn:/A/1", time::milliseconds(500));
+  insert(2, "ndn:/A/2", time::milliseconds(2500));
+  insert(3, "ndn:/A/3", time::milliseconds(3500));
+  insert(4, "ndn:/A/4", time::milliseconds(1500));
+
+  // @0s, all Data are fresh
+  startInterest("ndn:/A/1")
+    .setMustBeFresh(true);
+  BOOST_CHECK_EQUAL(find(), 1);
+
+  startInterest("ndn:/A/1")
+    .setMustBeFresh(false);
+  BOOST_CHECK_EQUAL(find(), 1);
+
+  startInterest("ndn:/A")
+    .setMustBeFresh(true)
+    .setChildSelector(0);
+  BOOST_CHECK_EQUAL(find(), 1);
+
+  startInterest("ndn:/A")
+    .setMustBeFresh(true)
+    .setChildSelector(1);
+  BOOST_CHECK_EQUAL(find(), 4);
+
+  advanceClocks(time::milliseconds(1000));
+  // @1s, /A/1 is stale
+  startInterest("ndn:/A/1")
+    .setMustBeFresh(true);
+  BOOST_CHECK_EQUAL(find(), 0);
+  startInterest("ndn:/A/1")
+    .setMustBeFresh(false);
+  BOOST_CHECK_EQUAL(find(), 1);
+
+  // MustBeFresh is ignored when full Name is specified
+  startInterest(data1Name)
+    .setMustBeFresh(true);
+  BOOST_CHECK_EQUAL(find(), 1);
+
+  startInterest("ndn:/A")
+    .setMustBeFresh(true)
+    .setChildSelector(0);
+  BOOST_CHECK_EQUAL(find(), 2);
+  startInterest("ndn:/A")
+    .setMustBeFresh(false)
+    .setChildSelector(0);
+  BOOST_CHECK_EQUAL(find(), 1);
+
+  advanceClocks(time::milliseconds(1000));
+  // @2s, /A/1 and /A/4 are stale
+  startInterest("ndn:/A")
+    .setMustBeFresh(true)
+    .setChildSelector(1);
+  BOOST_CHECK_EQUAL(find(), 3);
+  startInterest("ndn:/A")
+    .setMustBeFresh(false)
+    .setChildSelector(1);
+  BOOST_CHECK_EQUAL(find(), 4);
+
+  advanceClocks(time::milliseconds(2000));
+  // @4s, all Data are stale
+  startInterest("ndn:/A")
+    .setMustBeFresh(true)
+    .setChildSelector(0);
+  BOOST_CHECK_EQUAL(find(), 0);
+  startInterest("ndn:/A")
+    .setMustBeFresh(true)
+    .setChildSelector(1);
+  BOOST_CHECK_EQUAL(find(), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Find

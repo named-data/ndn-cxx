@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,6 +21,7 @@
 
 #include "in-memory-storage.hpp"
 #include "in-memory-storage-entry.hpp"
+#include "util/backports.hpp"
 
 #include "crypto.hpp"
 
@@ -28,6 +29,9 @@
 
 namespace ndn {
 namespace util {
+
+const time::milliseconds InMemoryStorage::INFINITE_WINDOW(-1);
+const time::milliseconds InMemoryStorage::ZERO_WINDOW(0);
 
 InMemoryStorage::const_iterator::const_iterator(const Data* ptr, const Cache* cache,
                                                 Cache::index<byFullName>::type::iterator it)
@@ -87,10 +91,24 @@ InMemoryStorage::InMemoryStorage(size_t limit)
   : m_limit(limit)
   , m_nPackets(0)
 {
+  init();
+}
+
+InMemoryStorage::InMemoryStorage(boost::asio::io_service& ioService, size_t limit)
+  : m_limit(limit)
+  , m_nPackets(0)
+{
+  m_scheduler = make_unique<Scheduler>(ioService);
+  init();
+}
+
+void
+InMemoryStorage::init()
+{
   // TODO consider a more suitable initial value
   m_capacity = 10;
 
-  if (limit != std::numeric_limits<size_t>::max() && m_capacity > m_limit) {
+  if (m_limit != std::numeric_limits<size_t>::max() && m_capacity > m_limit) {
     m_capacity = m_limit;
   }
 
@@ -146,7 +164,7 @@ InMemoryStorage::setCapacity(size_t capacity)
 }
 
 void
-InMemoryStorage::insert(const Data& data)
+InMemoryStorage::insert(const Data& data, const time::milliseconds& mustBeFreshProcessingWindow)
 {
   //check if identical Data/Name already exists
   Cache::index<byFullName>::type::iterator it = m_cache.get<byFullName>().find(data.getFullName());
@@ -173,6 +191,12 @@ InMemoryStorage::insert(const Data& data)
   m_freeEntries.pop();
   m_nPackets++;
   entry->setData(data);
+  if (m_scheduler != nullptr && mustBeFreshProcessingWindow > ZERO_WINDOW) {
+    auto eventId = make_unique<scheduler::ScopedEventId>(*m_scheduler);
+    *eventId = m_scheduler->scheduleEvent(mustBeFreshProcessingWindow,
+                                          bind(&InMemoryStorageEntry::markStale, entry));
+    entry->setMarkStaleEventId(std::move(eventId));
+  }
   m_cache.insert(entry);
 
   //let derived class do something with the entry
@@ -218,7 +242,6 @@ InMemoryStorage::find(const Interest& interest)
     return shared_ptr<const Data>();
   }
 
-
   //to locate the element that has a just smaller name than the interest's
   if (it != m_cache.get<byFullName>().begin())
     it--;
@@ -234,6 +257,17 @@ InMemoryStorage::find(const Interest& interest)
   }
 }
 
+InMemoryStorage::Cache::index<InMemoryStorage::byFullName>::type::iterator
+InMemoryStorage::findNextFresh(Cache::index<byFullName>::type::iterator it) const
+{
+  for (; it != m_cache.get<byFullName>().end(); it++) {
+    if ((*it)->isFresh())
+      return it;
+  }
+
+  return it;
+}
+
 InMemoryStorageEntry*
 InMemoryStorage::selectChild(const Interest& interest,
                              Cache::index<byFullName>::type::iterator startingPoint) const
@@ -247,6 +281,14 @@ InMemoryStorage::selectChild(const Interest& interest,
 
   bool hasLeftmostSelector = (interest.getChildSelector() <= 0);
   bool hasRightmostSelector = !hasLeftmostSelector;
+
+  // filter out "stale" data
+  if (interest.getMustBeFresh())
+    startingPoint = findNextFresh(startingPoint);
+
+  if (startingPoint == m_cache.get<byFullName>().end()) {
+    return nullptr;
+  }
 
   if (hasLeftmostSelector)
     {
@@ -266,6 +308,9 @@ InMemoryStorage::selectChild(const Interest& interest,
       while (true)
         {
           ++rightmostCandidate;
+          // filter out "stale" data
+          if (interest.getMustBeFresh())
+            rightmostCandidate = findNextFresh(rightmostCandidate);
 
           bool isInBoundaries = (rightmostCandidate != m_cache.get<byFullName>().end());
           bool isInPrefix = false;

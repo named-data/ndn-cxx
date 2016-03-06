@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,7 +25,7 @@
 #include "../common.hpp"
 #include "../interest.hpp"
 #include "../data.hpp"
-
+#include "scheduler.hpp"
 #include "in-memory-storage-entry.hpp"
 
 #include <boost/multi_index/member.hpp>
@@ -109,8 +109,18 @@ public:
     }
   };
 
+  /** @brief Create a InMemoryStorage with up to @p limit entries
+   *  The InMemoryStorage created through this method will ignore MustBeFresh in interest processing
+   */
   explicit
   InMemoryStorage(size_t limit = std::numeric_limits<size_t>::max());
+
+  /** @brief Create a InMemoryStorage with up to @p limit entries
+   *  The InMemoryStorage created through this method will handle MustBeFresh in interest processing
+   */
+  explicit
+  InMemoryStorage(boost::asio::io_service& ioService,
+                  size_t limit = std::numeric_limits<size_t>::max());
 
   /** @note Please make sure to implement it to free m_freeEntries and evict
     * all items in the derived class for anybody who wishes to inherit this class
@@ -120,6 +130,10 @@ public:
 
   /** @brief Inserts a Data packet
    *
+   *  @param data the packet to insert
+   *  @param mustBeFreshProcessingWindow Beyond this time period after the data is inserted, the
+   *         data can only be used to answer interest without MustBeFresh selector.
+   *
    *  @note Packets are considered duplicate if the name with implicit digest matches.
    *  The new Data packet with the identical name, but a different payload
    *  will be placed in the in-memory storage.
@@ -127,7 +141,7 @@ public:
    *  @note It will invoke afterInsert(shared_ptr<InMemoryStorageEntry>).
    */
   void
-  insert(const Data& data);
+  insert(const Data& data, const time::milliseconds& mustBeFreshProcessingWindow = INFINITE_WINDOW);
 
   /** @brief Finds the best match Data for an Interest
    *
@@ -294,6 +308,24 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   selectChild(const Interest& interest,
               Cache::index<byFullName>::type::iterator startingPoint) const;
 
+  /** @brief Get the next iterator (include startingPoint) that satisfies MustBeFresh requirement
+   *
+   *  @param startingPoint The iterator to start with.
+   *  @return The next qualified iterator
+   */
+  Cache::index<byFullName>::type::iterator
+  findNextFresh(Cache::index<byFullName>::type::iterator startingPoint) const;
+
+private:
+  void
+  init();
+
+public:
+  static const time::milliseconds INFINITE_WINDOW;
+
+private:
+  static const time::milliseconds ZERO_WINDOW;
+
 private:
   Cache m_cache;
   /// user defined maximum capacity of the in-memory storage in packets
@@ -304,6 +336,8 @@ private:
   size_t m_nPackets;
   /// memory pool
   std::stack<InMemoryStorageEntry*> m_freeEntries;
+  /// scheduler
+  unique_ptr<Scheduler> m_scheduler;
 };
 
 } // namespace util
