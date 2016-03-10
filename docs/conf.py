@@ -254,7 +254,6 @@ man_pages = [
     ('manpages/ndnsec-unlock-tpm',   'ndnsec-unlock-tpm',  'part of NDN security tools', None, 1),
     ('tutorials/security-validator-config', 'ndnsec-validator.conf',
      'NDN trust validator configuration file', None, 5),
-    ('manpages/tlvdump', 'tlvdump',  'Decode structure of TLV encoded buffer', None, 1),
     ('manpages/ndn-client.conf', 'ndn-client.conf',  'Configuration file for NDN platform', None, 5),
 ]
 
