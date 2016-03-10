@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -92,16 +92,20 @@ public:
   reject(const ControlResponse& resp = ControlResponse().setCode(400));
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-  typedef std::function<void(const Name& dataName, const Block& content,
-                             const MetaInfo& metaInfo)> DataSender;
+  typedef std::function<void(const Name& dataName, const Block& content, time::milliseconds imsFresh,
+                             bool isFinalBlock)> DataSender;
+  typedef std::function<void(const ControlResponse& resp)> NackSender;
 
-  StatusDatasetContext(const Interest& interest, const DataSender& dataSender);
+  StatusDatasetContext(const Interest& interest,
+                       const DataSender& dataSender,
+                       const NackSender& nackSender);
 
 private:
   friend class Dispatcher;
 
   const Interest& m_interest;
   DataSender m_dataSender;
+  NackSender m_nackSender;
   Name m_prefix;
   time::milliseconds m_expiry;
 

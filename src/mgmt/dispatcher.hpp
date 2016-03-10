@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,6 +25,7 @@
 #include "../face.hpp"
 #include "../security/key-chain.hpp"
 #include "../encoding/block.hpp"
+#include "../util/in-memory-storage-fifo.hpp"
 #include "control-response.hpp"
 #include "control-parameters.hpp"
 #include "status-dataset-context.hpp"
@@ -142,9 +143,11 @@ public:
    *  \param face the Face on which the dispatcher operates
    *  \param keyChain a KeyChain to sign Data
    *  \param signingInfo signing parameters to sign Data with \p keyChain
+   *  \param imsCapacity capacity of the internal InMemoryStorage used by dispatcher
    */
   Dispatcher(Face& face, security::KeyChain& keyChain,
-             const security::SigningInfo& signingInfo = security::SigningInfo());
+             const security::SigningInfo& signingInfo = security::SigningInfo(),
+             size_t imsCapacity = 256);
 
   virtual
   ~Dispatcher();
@@ -315,9 +318,52 @@ private:
   void
   afterAuthorizationRejected(RejectReply act, const Interest& interest);
 
+  /**
+   * @brief query Data the in-memory storage by a given Interest
+   *
+   * if the query fails, invoke @p missContinuation to process @p interest.
+   *
+   * @param prefix the top-level prefix
+   * @param interest the request
+   * @param missContinuation the handler of request when the query fails
+   */
   void
-  sendData(const Name& dataName, const Block& content,
-           const MetaInfo& metaInfo);
+  queryStorage(const Name& prefix, const Interest& interest, const InterestHandler& missContinuation);
+
+  enum class SendDestination {
+    NONE = 0,
+    FACE = 1,
+    IMS  = 2,
+    FACE_AND_IMS = 3
+  };
+
+  /**
+   * @brief send data to the face or in-memory storage
+   *
+   * create a data packet with the given @p dataName, @p content, and @p metaInfo,
+   * set its FreshnessPeriod to DEFAULT_FRESHNESS_PERIOD, and then send it out through the face and/or
+   * insert it into the in-memory storage as specified in @p option.
+   *
+   * if it's toward the in-memory storage, set its CachePolicy to NO_CACHE and limit
+   * its FreshnessPeriod in the storage as @p imsFresh
+   *
+   * @param dataName the name of this piece of data
+   * @param content the content of this piece of data
+   * @param metaInfo some meta information of this piece of data
+   * @param destination where to send this piece of data
+   * @param imsFresh freshness period of this piece of data in in-memory storage
+   */
+  void
+  sendData(const Name& dataName, const Block& content, const MetaInfo& metaInfo,
+           SendDestination destination, time::milliseconds imsFresh);
+
+  /**
+   * @brief send out a data packt through the face
+   *
+   * @param data the data packet to insert
+   */
+  void
+  sendOnFace(const Data& data);
 
   /**
    * @brief process the control-command Interest before authorization.
@@ -390,6 +436,18 @@ private:
                                          const Interest& interest,
                                          const StatusDatasetHandler& handler);
 
+  /**
+   * @brief send a segment of StatusDataset
+   *
+   * @param dataName the name of this piece of data
+   * @param content the content of this piece of data
+   * @param imsFresh the freshness period of this piece of data in the in-memory storage
+   * @param isFinalBlock indicates whether this piece of data is the final block
+   */
+  void
+  sendStatusDatasetSegment(const Name& dataName, const Block& content,
+                           time::milliseconds imsFresh, bool isFinalBlock);
+
   void
   postNotification(const Block& notification, const PartialName& relPrefix);
 
@@ -413,6 +471,9 @@ private:
 
   // NotificationStream name => next sequence number
   std::unordered_map<Name, uint64_t> m_streams;
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  util::InMemoryStorageFifo m_storage;
 };
 
 template<typename CP>

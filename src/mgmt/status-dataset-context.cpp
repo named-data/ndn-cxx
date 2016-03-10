@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -75,7 +75,6 @@ StatusDatasetContext::append(const Block& block)
   m_state = State::RESPONDED;
 
   size_t nBytesLeft = block.size();
-
   while (nBytesLeft > 0) {
     size_t nBytesAppend = std::min(nBytesLeft,
                                    (ndn::MAX_NDN_PACKET_SIZE >> 1) - m_buffer->size());
@@ -83,9 +82,9 @@ StatusDatasetContext::append(const Block& block)
     nBytesLeft -= nBytesAppend;
 
     if (nBytesLeft > 0) {
-      const Block& content = makeBinaryBlock(tlv::Content, m_buffer->buf(), m_buffer->size());
-      m_dataSender(Name(m_prefix).appendSegment(m_segmentNo++), content,
-                   MetaInfo().setFreshnessPeriod(m_expiry));
+      m_dataSender(Name(m_prefix).appendSegment(m_segmentNo++),
+                   makeBinaryBlock(tlv::Content, m_buffer->buf(), m_buffer->size()),
+                   m_expiry, false);
 
       m_buffer = std::make_shared<EncodingBuffer>();
     }
@@ -101,9 +100,9 @@ StatusDatasetContext::end()
 
   m_state = State::FINALIZED;
 
-  auto dataName = Name(m_prefix).appendSegment(m_segmentNo++);
-  m_dataSender(dataName, makeBinaryBlock(tlv::Content, m_buffer->buf(), m_buffer->size()),
-               MetaInfo().setFreshnessPeriod(m_expiry).setFinalBlockId(dataName[-1]));
+  m_dataSender(Name(m_prefix).appendSegment(m_segmentNo),
+               makeBinaryBlock(tlv::Content, m_buffer->buf(), m_buffer->size()),
+               m_expiry, true);
 }
 
 void
@@ -115,14 +114,15 @@ StatusDatasetContext::reject(const ControlResponse& resp /*= a ControlResponse w
 
   m_state = State::FINALIZED;
 
-  m_dataSender(m_interest.getName(), resp.wireEncode(),
-               MetaInfo().setType(tlv::ContentType_Nack));
+  m_nackSender(resp);
 }
 
 StatusDatasetContext::StatusDatasetContext(const Interest& interest,
-                                           const DataSender& dataSender)
+                                           const DataSender& dataSender,
+                                           const NackSender& nackSender)
   : m_interest(interest)
   , m_dataSender(dataSender)
+  , m_nackSender(nackSender)
   , m_expiry(DEFAULT_STATUS_DATASET_FRESHNESS_PERIOD)
   , m_buffer(make_shared<EncodingBuffer>())
   , m_segmentNo(0)

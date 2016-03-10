@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -44,12 +44,14 @@ public:
   DispatcherFixture()
     : face(io, {true, true})
     , dispatcher(face, m_keyChain, security::SigningInfo())
+    , storage(dispatcher.m_storage)
   {
   }
 
 public:
   util::DummyClientFace face;
   mgmt::Dispatcher dispatcher;
+  util::InMemoryStorageFifo& storage;
 };
 
 class VoidParameters : public mgmt::ControlParameters
@@ -292,14 +294,24 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[1].getContent().blockFromValue()).getCode(), 403);
 
   face.sentData.clear();
-  face.receive(*util::makeInterest("/root/test/small/valid"));
+
+  auto interestSmall = *util::makeInterest("/root/test/small/valid");
+  face.receive(interestSmall);
   advanceClocks(time::milliseconds(1), 10);
+
+  // one data packet is generated and sent to both places
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
+  BOOST_CHECK_EQUAL(storage.size(), 1);
+
+  auto fetchedData = storage.find(interestSmall);
+  BOOST_REQUIRE(fetchedData != nullptr);
+  BOOST_CHECK(face.sentData[0].wireEncode() == fetchedData->wireEncode());
 
   face.receive(*util::makeInterest(Name("/root/test/small/valid").appendVersion(10))); // should be ignored
   face.receive(*util::makeInterest(Name("/root/test/small/valid").appendSegment(20))); // should be ignored
   advanceClocks(time::milliseconds(1), 10);
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
+  BOOST_CHECK_EQUAL(storage.size(), 1);
 
   Block content = face.sentData[0].getContent();
   BOOST_CHECK_NO_THROW(content.parse());
@@ -309,36 +321,53 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
   BOOST_CHECK(content.elements()[1] == smallBlock);
   BOOST_CHECK(content.elements()[2] == smallBlock);
 
+  storage.erase("/", true); // clear the storage
   face.sentData.clear();
   face.receive(*util::makeInterest("/root/test/large/valid"));
   advanceClocks(time::milliseconds(1), 10);
-  BOOST_CHECK_EQUAL(face.sentData.size(), 2);
 
-  const auto& datas = face.sentData;
-  content = [&datas] () -> Block {
+  // two data packets are generated, the first one will be sent to both places
+  // while the second one will only be inserted into the in-memory storage
+  BOOST_CHECK_EQUAL(face.sentData.size(), 1);
+  BOOST_CHECK_EQUAL(storage.size(), 2);
+
+  // segment0 should be sent through the face
+  const auto& component = face.sentData[0].getName().at(-1);
+  BOOST_CHECK(component.isSegment());
+  BOOST_CHECK_EQUAL(component.toSegment(), 0);
+
+  std::vector<Data> dataInStorage;
+  std::copy(storage.begin(), storage.end(), std::back_inserter(dataInStorage));
+
+  // the Data sent through the face should be the same as the first Data in the storage
+  BOOST_CHECK_EQUAL(face.sentData[0].getName(), dataInStorage[0].getName());
+  BOOST_CHECK(face.sentData[0].getContent() == dataInStorage[0].getContent());
+
+  content = [&dataInStorage] () -> Block {
     EncodingBuffer encoder;
-    size_t valueLength = encoder.prependByteArray(datas[1].getContent().value(),
-                                                  datas[1].getContent().value_size());
-    valueLength += encoder.prependByteArray(datas[0].getContent().value(),
-                                            datas[0].getContent().value_size());
+    size_t valueLength = encoder.prependByteArray(dataInStorage[1].getContent().value(),
+                                                  dataInStorage[1].getContent().value_size());
+    valueLength += encoder.prependByteArray(dataInStorage[0].getContent().value(),
+                                            dataInStorage[0].getContent().value_size());
     encoder.prependVarNumber(valueLength);
     encoder.prependVarNumber(tlv::Content);
     return encoder.block();
   }();
 
   BOOST_CHECK_NO_THROW(content.parse());
-
   BOOST_CHECK_EQUAL(content.elements().size(), 3);
   BOOST_CHECK(content.elements()[0] == largeBlock);
   BOOST_CHECK(content.elements()[1] == largeBlock);
   BOOST_CHECK(content.elements()[2] == largeBlock);
 
+  storage.erase("/", true);// clear the storage
   face.sentData.clear();
   face.receive(*util::makeInterest("/root/test/reject/%80%00/valid")); // returns nack
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
   BOOST_CHECK(face.sentData[0].getContentType() == tlv::ContentType_Nack);
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[0].getContent().blockFromValue()).getCode(), 400);
+  BOOST_CHECK_EQUAL(storage.size(), 0); // the nack packet will not be inserted into the in-memory storage
 }
 
 BOOST_FIXTURE_TEST_CASE(NotificationStream, DispatcherFixture)
@@ -358,6 +387,7 @@ BOOST_FIXTURE_TEST_CASE(NotificationStream, DispatcherFixture)
   post(block);
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
+  BOOST_CHECK_EQUAL(storage.size(), 1);
 
   post(block);
   post(block);
@@ -374,10 +404,24 @@ BOOST_FIXTURE_TEST_CASE(NotificationStream, DispatcherFixture)
   BOOST_CHECK(face.sentData[1].getContent().blockFromValue() == block);
   BOOST_CHECK(face.sentData[2].getContent().blockFromValue() == block);
   BOOST_CHECK(face.sentData[3].getContent().blockFromValue() == block);
+
+  // each version of notification will be sent to both places
+  std::vector<Data> dataInStorage;
+  std::copy(storage.begin(), storage.end(), std::back_inserter(dataInStorage));
+  BOOST_CHECK_EQUAL(dataInStorage.size(), 4);
+  BOOST_CHECK_EQUAL(dataInStorage[0].getName(), "/root/test/%FE%00");
+  BOOST_CHECK_EQUAL(dataInStorage[1].getName(), "/root/test/%FE%01");
+  BOOST_CHECK_EQUAL(dataInStorage[2].getName(), "/root/test/%FE%02");
+  BOOST_CHECK_EQUAL(dataInStorage[3].getName(), "/root/test/%FE%03");
+
+  BOOST_CHECK(dataInStorage[0].getContent().blockFromValue() == block);
+  BOOST_CHECK(dataInStorage[1].getContent().blockFromValue() == block);
+  BOOST_CHECK(dataInStorage[2].getContent().blockFromValue() == block);
+  BOOST_CHECK(dataInStorage[3].getContent().blockFromValue() == block);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestDispatcher
+BOOST_AUTO_TEST_SUITE_END() // Mgmt
 
 } // namespace tests
 } // namespace mgmt

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,27 +30,45 @@ namespace tests {
 class StatusDatasetContextFixture
 {
 public:
+  struct SendDataArgs
+  {
+    Name dataName;
+    Block content;
+    time::milliseconds imsFresh;
+    bool isFinalBlock;
+  };
+
   StatusDatasetContextFixture()
     : interest(util::makeInterest("/test/context/interest"))
     , contentBlock(makeStringBlock(tlv::Content, "/test/data/content"))
-    , context(*interest, bind(&StatusDatasetContextFixture::sendData, this, _1, _2, _3))
+    , context(*interest,
+              [this] (const Name& dataName, const Block& content,
+                      time::milliseconds imsFresh, bool isFinalBlock) {
+                SendDataArgs args{dataName, content, imsFresh, isFinalBlock};
+                sendDataHistory.push_back(args);
+              },
+              [this] (const ControlResponse& resp) {
+                sendNackHistory.push_back(resp);
+              })
+    , defaultImsFresh(time::milliseconds(1000))
   {
   }
 
-  void
-  sendData(const Name& dataName, const Block& content, const MetaInfo& info)
+  Name
+  makeSegmentName(size_t segmentNo)
   {
-    sentData.push_back(Data(dataName).setContent(content).setMetaInfo(info));
+    auto name = context.getPrefix();
+    return name.appendSegment(segmentNo);
   }
 
   Block
-  concatenate()
+  concatenateDataContent()
   {
     EncodingBuffer encoder;
     size_t valueLength = 0;
-    for (auto data : sentData) {
-       valueLength += encoder.appendByteArray(data.getContent().value(),
-                                              data.getContent().value_size());
+    for (auto args : sendDataHistory) {
+      const auto& content = args.content;
+      valueLength += encoder.appendByteArray(content.value(), content.value_size());
     }
     encoder.prependVarNumber(valueLength);
     encoder.prependVarNumber(tlv::Content);
@@ -58,13 +76,16 @@ public:
   }
 
 public:
-  std::vector<Data> sentData;
+  std::vector<SendDataArgs> sendDataHistory;
+  std::vector<ControlResponse> sendNackHistory;
   shared_ptr<Interest> interest;
   Block contentBlock;
   mgmt::StatusDatasetContext context;
+  time::milliseconds defaultImsFresh;
 };
 
-BOOST_FIXTURE_TEST_SUITE(MgmtStatusDatasetContext, StatusDatasetContextFixture)
+BOOST_AUTO_TEST_SUITE(Mgmt)
+BOOST_FIXTURE_TEST_SUITE(TestStatusDatasetContext, StatusDatasetContextFixture)
 
 BOOST_AUTO_TEST_CASE(GetPrefix)
 {
@@ -123,14 +144,17 @@ BOOST_AUTO_TEST_CASE(Expiry)
 BOOST_AUTO_TEST_CASE(Respond)
 {
   BOOST_CHECK_NO_THROW(context.append(contentBlock));
-  BOOST_CHECK(sentData.empty()); // does not call end yet
+  BOOST_CHECK(sendDataHistory.empty()); // does not call end yet
 
   BOOST_CHECK_NO_THROW(context.end());
-  BOOST_CHECK_EQUAL(sentData.size(), 1);
-  BOOST_CHECK_EQUAL(sentData[0].getName()[-1].toSegment(), 0);
-  BOOST_CHECK_EQUAL(sentData[0].getName().getPrefix(-1), context.getPrefix());
-  BOOST_CHECK_EQUAL(sentData[0].getFinalBlockId().toSegment(), 0);
-  BOOST_CHECK(sentData[0].getContent().blockFromValue() == contentBlock);
+
+  BOOST_REQUIRE_EQUAL(sendDataHistory.size(), 1);
+  const auto& args = sendDataHistory[0];
+
+  BOOST_CHECK_EQUAL(args.dataName, makeSegmentName(0));
+  BOOST_CHECK(args.content.blockFromValue() == contentBlock);
+  BOOST_CHECK_EQUAL(args.imsFresh, defaultImsFresh);
+  BOOST_CHECK_EQUAL(args.isFinalBlock, true);
 }
 
 BOOST_AUTO_TEST_CASE(RespondLarge)
@@ -148,16 +172,24 @@ BOOST_AUTO_TEST_CASE(RespondLarge)
 
   BOOST_CHECK_NO_THROW(context.append(largeBlock));
   BOOST_CHECK_NO_THROW(context.end());
-  BOOST_CHECK_EQUAL(sentData.size(), 2);
-  BOOST_CHECK_EQUAL(sentData[0].getName()[-1].toSegment(), 0);
-  BOOST_CHECK_EQUAL(sentData[0].getName().getPrefix(-1), context.getPrefix());
-  BOOST_CHECK_EQUAL(sentData[1].getName()[-1].toSegment(), 1);
-  BOOST_CHECK_EQUAL(sentData[1].getName().getPrefix(-1), context.getPrefix());
-  BOOST_CHECK_EQUAL(sentData[1].getFinalBlockId().toSegment(), 1);
 
-  auto contentLargeBlock = concatenate();
+  // two segments are generated
+  BOOST_REQUIRE_EQUAL(sendDataHistory.size(), 2);
+
+  // check segment0
+  BOOST_CHECK_EQUAL(sendDataHistory[0].dataName, makeSegmentName(0));
+  BOOST_CHECK_EQUAL(sendDataHistory[0].imsFresh, defaultImsFresh);
+  BOOST_CHECK_EQUAL(sendDataHistory[0].isFinalBlock, false);
+
+  // check segment1
+  BOOST_CHECK_EQUAL(sendDataHistory[1].dataName, makeSegmentName(1));
+  BOOST_CHECK_EQUAL(sendDataHistory[1].imsFresh, defaultImsFresh);
+  BOOST_CHECK_EQUAL(sendDataHistory[1].isFinalBlock, true);
+
+  // check data content
+  auto contentLargeBlock = concatenateDataContent();
   BOOST_CHECK_NO_THROW(contentLargeBlock.parse());
-  BOOST_CHECK_EQUAL(contentLargeBlock.elements().size(), 1);
+  BOOST_REQUIRE_EQUAL(contentLargeBlock.elements().size(), 1);
   BOOST_CHECK(contentLargeBlock.elements()[0] == largeBlock);
 }
 
@@ -168,12 +200,14 @@ BOOST_AUTO_TEST_CASE(ResponseMultipleSmall)
     BOOST_CHECK_NO_THROW(context.append(contentBlock));
   }
   BOOST_CHECK_NO_THROW(context.end());
-  BOOST_CHECK_EQUAL(sentData.size(), 1);
-  BOOST_CHECK_EQUAL(sentData[0].getName()[-1].toSegment(), 0);
-  BOOST_CHECK_EQUAL(sentData[0].getName().getPrefix(-1), context.getPrefix());
-  BOOST_CHECK_EQUAL(sentData[0].getFinalBlockId().toSegment(), 0);
 
-  auto contentMultiBlocks = concatenate();
+  // check data to in-memory storage
+  BOOST_REQUIRE_EQUAL(sendDataHistory.size(), 1);
+  BOOST_CHECK_EQUAL(sendDataHistory[0].dataName, makeSegmentName(0));
+  BOOST_CHECK_EQUAL(sendDataHistory[0].imsFresh, defaultImsFresh);
+  BOOST_CHECK_EQUAL(sendDataHistory[0].isFinalBlock, true);
+
+  auto contentMultiBlocks = concatenateDataContent();
   BOOST_CHECK_NO_THROW(contentMultiBlocks.parse());
   BOOST_CHECK_EQUAL(contentMultiBlocks.elements().size(), nBlocks);
   for (auto&& element : contentMultiBlocks.elements()) {
@@ -184,23 +218,32 @@ BOOST_AUTO_TEST_CASE(ResponseMultipleSmall)
 BOOST_AUTO_TEST_CASE(Reject)
 {
   BOOST_CHECK_NO_THROW(context.reject());
-  BOOST_CHECK_EQUAL(sentData.size(), 1);
-  BOOST_CHECK(sentData[0].getContentType() == tlv::ContentType_Nack);
-  BOOST_CHECK_EQUAL(ControlResponse(sentData[0].getContent().blockFromValue()).getCode(), 400);
+  BOOST_REQUIRE_EQUAL(sendNackHistory.size(), 1);
+  BOOST_CHECK_EQUAL(sendNackHistory[0].getCode(), 400);
 }
 
-BOOST_AUTO_TEST_SUITE(AbnormalState)
+class AbnormalStateTestFixture
+{
+public:
+  AbnormalStateTestFixture()
+    : context(Interest("/abnormal-state"), bind([]{}), bind([]{}))
+  {
+  }
+
+public:
+  mgmt::StatusDatasetContext context;
+};
+
+BOOST_FIXTURE_TEST_SUITE(AbnormalState, AbnormalStateTestFixture)
 
 BOOST_AUTO_TEST_CASE(AppendReject)
 {
-  mgmt::StatusDatasetContext context(Interest("/abnormal-state"), bind([]{}));
   BOOST_CHECK_NO_THROW(context.append(Block("\x82\x01\x02", 3)));
   BOOST_CHECK_THROW(context.reject(), std::domain_error);
 }
 
 BOOST_AUTO_TEST_CASE(AppendEndReject)
 {
-  mgmt::StatusDatasetContext context(Interest("/abnormal-state"), bind([]{}));
   BOOST_CHECK_NO_THROW(context.append(Block("\x82\x01\x02", 3)));
   BOOST_CHECK_NO_THROW(context.end());
   BOOST_CHECK_THROW(context.reject(), std::domain_error);
@@ -208,7 +251,6 @@ BOOST_AUTO_TEST_CASE(AppendEndReject)
 
 BOOST_AUTO_TEST_CASE(EndAppend)
 {
-  mgmt::StatusDatasetContext context (Interest("/abnormal-state"), bind([]{}));
   BOOST_CHECK_NO_THROW(context.end());
   // end, append -> error
   BOOST_CHECK_THROW(context.append(Block("\x82\x01\x02", 3)), std::domain_error);
@@ -216,36 +258,31 @@ BOOST_AUTO_TEST_CASE(EndAppend)
 
 BOOST_AUTO_TEST_CASE(EndEnd)
 {
-  mgmt::StatusDatasetContext context(Interest("/abnormal-state"), bind([]{}));
   BOOST_CHECK_NO_THROW(context.end());
   BOOST_CHECK_THROW(context.end(), std::domain_error);
 }
 
 BOOST_AUTO_TEST_CASE(EndReject)
 {
-  mgmt::StatusDatasetContext context(Interest("/abnormal-state"), bind([]{}));
   BOOST_CHECK_NO_THROW(context.end());
   BOOST_CHECK_THROW(context.reject(), std::domain_error);
 }
 
 BOOST_AUTO_TEST_CASE(RejectAppend)
 {
-  mgmt::StatusDatasetContext context(Interest("/abnormal-state"), bind([]{}));
   BOOST_CHECK_NO_THROW(context.reject());
   BOOST_CHECK_THROW(context.append(Block("\x82\x01\x02", 3)), std::domain_error);
 }
 
 BOOST_AUTO_TEST_CASE(RejectEnd)
 {
-  mgmt::StatusDatasetContext context(Interest("/abnormal-state"), bind([]{}));
   BOOST_CHECK_NO_THROW(context.reject());
   BOOST_CHECK_THROW(context.end(), std::domain_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // AbnormalState
-
-
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestStatusDatasetContext
+BOOST_AUTO_TEST_SUITE_END() // Mgmt
 
 } // namespace tests
 } // namespace mgmt
