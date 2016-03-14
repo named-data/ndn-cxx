@@ -4,12 +4,12 @@ matrix:
   include:
     - os: linux
       dist: trusty
-      compiler: gcc
+      env: CXX=g++
     - os: linux
       dist: trusty
-      compiler: clang
+      env: CXX=clang++
     - os: osx
-      compiler: clang
+      env: CXX=clang++
 notifications:
   email:
     on_success: always
