@@ -37,3 +37,5 @@ in the library:
 * Mickey Sweatt         <https://www.linkedin.com/in/michaelsweatt>
 * Yanbiao Li            <https://www.linkedin.com/pub/yanbiao-li/24/7a1/4ba>
 * Marcin Juszkiewicz    <http://marcin.juszkiewicz.com.pl/>
+* Susmit Shannigrahi    <https://www.linkedin.com/in/susmit-shannigrahi-90433b8>
+* José Quevedo          <http://atnog.av.it.pt/members/jquevedo>
