@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -178,9 +178,17 @@ SegmentFetcher::reExpressInterest(Interest interest, uint32_t reExpressCount,
   interest.refreshNonce();
   BOOST_ASSERT(interest.hasNonce());
 
+  bool isSegmentZeroExpected = true;
+  if (!interest.getName().empty()) {
+    name::Component lastComponent = interest.getName().get(-1);
+    isSegmentZeroExpected = !lastComponent.isSegment();
+  }
+
   m_face.expressInterest(interest,
-                         bind(&SegmentFetcher::afterSegmentReceived, this, _1, _2, true, self),
-                         bind(&SegmentFetcher::afterNackReceived, this, _1, _2, ++reExpressCount, self),
+                         bind(&SegmentFetcher::afterSegmentReceived, this, _1, _2,
+                              isSegmentZeroExpected, self),
+                         bind(&SegmentFetcher::afterNackReceived, this, _1, _2,
+                              ++reExpressCount, self),
                          bind(m_errorCallback, INTEREST_TIMEOUT, "Timeout"));
 }
 

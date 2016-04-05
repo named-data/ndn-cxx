@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -357,7 +357,7 @@ BOOST_FIXTURE_TEST_CASE(MultipleSegmentFetching, Fixture)
   BOOST_CHECK_EQUAL(nDatas, 1);
 }
 
-BOOST_FIXTURE_TEST_CASE(SegmentFetcherDuplicateNack, Fixture)
+BOOST_FIXTURE_TEST_CASE(DuplicateNack, Fixture)
 {
   SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
                         make_shared<ValidatorNull>(),
@@ -377,7 +377,7 @@ BOOST_FIXTURE_TEST_CASE(SegmentFetcherDuplicateNack, Fixture)
   BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::NACK_ERROR));
 }
 
-BOOST_FIXTURE_TEST_CASE(SegmentFetcherCongestionNack, Fixture)
+BOOST_FIXTURE_TEST_CASE(CongestionNack, Fixture)
 {
   SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
                         make_shared<ValidatorNull>(),
@@ -395,6 +395,61 @@ BOOST_FIXTURE_TEST_CASE(SegmentFetcherCongestionNack, Fixture)
 
   BOOST_CHECK_EQUAL(face.sentInterests.size(), (SegmentFetcher::MAX_INTEREST_REEXPRESS + 1));
   BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::NACK_ERROR));
+}
+
+BOOST_FIXTURE_TEST_CASE(SegmentZero, Fixture)
+{
+  int nNacks = 2;
+
+  ndn::Name interestName("ndn:/A");
+  SegmentFetcher::fetch(face,
+                        Interest(interestName),
+                        make_shared<ValidatorNull>(),
+                        bind(&Fixture::onComplete, this, _1),
+                        bind(&Fixture::onError, this, _1));
+
+  advanceClocks(time::milliseconds(1), 1000);
+
+  for (uint64_t segmentNo = 0; segmentNo <= 3; segmentNo++) {
+    if (segmentNo == 1) {
+      while (nNacks--) {
+        nackLastInterest(lp::NackReason::CONGESTION);
+        advanceClocks(time::milliseconds(1), 10);
+      }
+    }
+
+    auto data = makeDataSegment(interestName, segmentNo, segmentNo == 3);
+    face.receive(*data);
+    advanceClocks(time::milliseconds(1), 10);
+  }
+
+  // Total number of sent interests should be 6: one interest for segment zero and segment one each,
+  // two re-expressed interests for segment one after getting nack twice, and two interests for
+  // segment two and three
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 6);
+
+  BOOST_CHECK_EQUAL(face.sentInterests[0].getName(), ndn::Name("ndn:/A"));
+  BOOST_CHECK_EQUAL(face.sentInterests[1].getName(), ndn::Name("ndn:/A/%00%01"));
+  BOOST_CHECK_EQUAL(face.sentInterests[2].getName(), ndn::Name("ndn:/A/%00%01"));
+  BOOST_CHECK_EQUAL(face.sentInterests[3].getName(), ndn::Name("ndn:/A/%00%01"));
+  BOOST_CHECK_EQUAL(face.sentInterests[4].getName(), ndn::Name("ndn:/A/%00%02"));
+  BOOST_CHECK_EQUAL(face.sentInterests[5].getName(), ndn::Name("ndn:/A/%00%03"));
+}
+
+BOOST_FIXTURE_TEST_CASE(ZeroComponentName, Fixture)
+{
+  SegmentFetcher::fetch(face, Interest("ndn:/"),
+                        make_shared<ValidatorNull>(),
+                        bind(&Fixture::onComplete, this, _1),
+                        bind(&Fixture::onError, this, _1));
+  advanceClocks(time::milliseconds(1), 10);
+  nackLastInterest(lp::NackReason::DUPLICATE);
+  face.receive(*makeDataSegment("/hello/world", 0, true));
+
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 2);
+  BOOST_CHECK_EQUAL(face.sentInterests[0].getName(), ndn::Name("ndn:/"));
+  BOOST_CHECK_EQUAL(face.sentInterests[1].getName(), ndn::Name("ndn:/"));
+  BOOST_REQUIRE_EQUAL(nDatas, 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
