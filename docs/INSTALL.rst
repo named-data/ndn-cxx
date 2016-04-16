@@ -9,12 +9,12 @@ Supported platforms
 ndn-cxx uses continuous integration and has been tested on the following
 platforms:
 
--  Ubuntu 12.04 (64-bit and 32-bit)
 -  Ubuntu 14.04 (64-bit and 32-bit)
--  Ubuntu 15.10 (64-bit)
+-  Ubuntu 16.04 (64-bit and 32-bit)
 -  OS X 10.8
 -  OS X 10.9
 -  OS X 10.10
+-  OS X 10.11
 
 ndn-cxx is known to work on the following platforms, although they are not officially
 supported:
@@ -60,14 +60,7 @@ development tools and libraries, and ndn-cxx prerequisites.
 
    In a terminal, enter::
 
-       sudo apt-get install build-essential
-       sudo apt-get install libsqlite3-dev libcrypto++-dev
-
-       # For Ubuntu 12.04
-       sudo apt-get install libboost1.48-all-dev
-
-       # For all other Ubuntu versions
-       sudo apt-get install libboost-all-dev
+       sudo apt-get install build-essential libcrypto++-dev libsqlite3-dev libboost-all-dev
 
 - Fedora
 
