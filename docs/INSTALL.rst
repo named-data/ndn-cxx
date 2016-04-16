@@ -35,7 +35,7 @@ Required:
 -  ``libsqlite3``
 -  ``libcrypto++``
 -  ``pkg-config``
--  Boost libraries >= 1.48
+-  Boost libraries >= 1.54
 -  OSX Security framework (on OSX platform only)
 
 Following are the detailed steps for each platform to install the compiler, all necessary

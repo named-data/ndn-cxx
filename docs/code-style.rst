@@ -440,7 +440,7 @@ should take the following form:
         class Class
         {
         private:
-          T m_member = {arg1, arg2}; // not supported by GCC 4.6
+          T m_member = {arg1, arg2};
           static T s_member = {arg1, arg2};
         };
 
