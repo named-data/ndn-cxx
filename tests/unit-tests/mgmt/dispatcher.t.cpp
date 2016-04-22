@@ -64,13 +64,13 @@ public:
   }
 
   virtual Block
-  wireEncode() const NDN_CXX_DECL_FINAL
+  wireEncode() const final
   {
     return Block(128);
   }
 
   virtual void
-  wireDecode(const Block& wire) NDN_CXX_DECL_FINAL
+  wireDecode(const Block& wire) final
   {
     if (wire.type() != 128)
       throw tlv::Error("Expecting TLV type 128");

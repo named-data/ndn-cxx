@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -52,76 +52,76 @@ public:
 public: // TpmLocator management
 
   virtual void
-  setTpmLocator(const std::string& tpmLocator) NDN_CXX_DECL_OVERRIDE;
+  setTpmLocator(const std::string& tpmLocator) override;
 
   virtual std::string
-  getTpmLocator() const NDN_CXX_DECL_OVERRIDE;
+  getTpmLocator() const override;
 
 public: // Identity management
 
   virtual bool
-  hasIdentity(const Name& identity) const NDN_CXX_DECL_OVERRIDE;
+  hasIdentity(const Name& identity) const override;
 
   virtual void
-  addIdentity(const Name& identity) NDN_CXX_DECL_OVERRIDE;
+  addIdentity(const Name& identity) override;
 
   virtual void
-  removeIdentity(const Name& identity) NDN_CXX_DECL_OVERRIDE;
+  removeIdentity(const Name& identity) override;
 
   virtual std::set<Name>
-  getIdentities() const NDN_CXX_DECL_OVERRIDE;
+  getIdentities() const override;
 
   virtual void
-  setDefaultIdentity(const Name& identityName) NDN_CXX_DECL_OVERRIDE;
+  setDefaultIdentity(const Name& identityName) override;
 
   virtual Name
-  getDefaultIdentity() const NDN_CXX_DECL_OVERRIDE;
+  getDefaultIdentity() const override;
 
 public: // Key management
 
   virtual bool
-  hasKey(const Name& identity, const name::Component& keyId) const NDN_CXX_DECL_OVERRIDE;
+  hasKey(const Name& identity, const name::Component& keyId) const override;
 
   virtual void
-  addKey(const Name& identity, const name::Component& keyId, const PublicKey& publicKey) NDN_CXX_DECL_OVERRIDE;
+  addKey(const Name& identity, const name::Component& keyId, const PublicKey& publicKey) override;
 
   virtual void
-  removeKey(const Name& identity, const name::Component& keyId) NDN_CXX_DECL_OVERRIDE;
+  removeKey(const Name& identity, const name::Component& keyId) override;
 
   virtual PublicKey
-  getKeyBits(const Name& identity, const name::Component& keyId) const NDN_CXX_DECL_OVERRIDE;
+  getKeyBits(const Name& identity, const name::Component& keyId) const override;
 
   virtual std::set<name::Component>
-  getKeysOfIdentity(const Name& identity) const NDN_CXX_DECL_OVERRIDE;
+  getKeysOfIdentity(const Name& identity) const override;
 
   virtual void
-  setDefaultKeyOfIdentity(const Name& identity, const name::Component& keyId) NDN_CXX_DECL_OVERRIDE;
+  setDefaultKeyOfIdentity(const Name& identity, const name::Component& keyId) override;
 
   virtual name::Component
-  getDefaultKeyOfIdentity(const Name& identity) const NDN_CXX_DECL_OVERRIDE;
+  getDefaultKeyOfIdentity(const Name& identity) const override;
 
 public: // Certificate management
 
   virtual bool
-  hasCertificate(const Name& certName) const NDN_CXX_DECL_OVERRIDE;
+  hasCertificate(const Name& certName) const override;
 
   virtual void
-  addCertificate(const IdentityCertificate& certificate) NDN_CXX_DECL_OVERRIDE;
+  addCertificate(const IdentityCertificate& certificate) override;
 
   virtual void
-  removeCertificate(const Name& certName) NDN_CXX_DECL_OVERRIDE;
+  removeCertificate(const Name& certName) override;
 
   virtual IdentityCertificate
-  getCertificate(const Name& certName) const NDN_CXX_DECL_OVERRIDE;
+  getCertificate(const Name& certName) const override;
 
   virtual std::set<Name>
-  getCertificatesOfKey(const Name& identity, const name::Component& keyId) const NDN_CXX_DECL_OVERRIDE;
+  getCertificatesOfKey(const Name& identity, const name::Component& keyId) const override;
 
   virtual void
-  setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId, const Name& certName) NDN_CXX_DECL_OVERRIDE;
+  setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId, const Name& certName) override;
 
   virtual IdentityCertificate
-  getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const NDN_CXX_DECL_OVERRIDE;
+  getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const override;
 
 private: // Key management
 

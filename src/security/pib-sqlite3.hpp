@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -61,77 +61,77 @@ public:
 public: // TpmLocator management
 
   virtual void
-  setTpmLocator(const std::string& tpmLocator) NDN_CXX_DECL_FINAL;
+  setTpmLocator(const std::string& tpmLocator) final;
 
   virtual std::string
-  getTpmLocator() const NDN_CXX_DECL_FINAL;
+  getTpmLocator() const final;
 
 public: // Identity management
 
   virtual bool
-  hasIdentity(const Name& identity) const NDN_CXX_DECL_FINAL;
+  hasIdentity(const Name& identity) const final;
 
   virtual void
-  addIdentity(const Name& identity) NDN_CXX_DECL_FINAL;
+  addIdentity(const Name& identity) final;
 
   virtual void
-  removeIdentity(const Name& identity) NDN_CXX_DECL_FINAL;
+  removeIdentity(const Name& identity) final;
 
   virtual std::set<Name>
-  getIdentities() const NDN_CXX_DECL_FINAL;
+  getIdentities() const final;
 
   virtual void
-  setDefaultIdentity(const Name& identityName) NDN_CXX_DECL_FINAL;
+  setDefaultIdentity(const Name& identityName) final;
 
   virtual Name
-  getDefaultIdentity() const NDN_CXX_DECL_FINAL;
+  getDefaultIdentity() const final;
 
 public: // Key management
 
   virtual bool
-  hasKey(const Name& identity, const name::Component& keyId) const NDN_CXX_DECL_FINAL;
+  hasKey(const Name& identity, const name::Component& keyId) const final;
 
   virtual void
-  addKey(const Name& identity, const name::Component& keyId, const PublicKey& publicKey) NDN_CXX_DECL_FINAL;
+  addKey(const Name& identity, const name::Component& keyId, const PublicKey& publicKey) final;
 
   virtual void
-  removeKey(const Name& identity, const name::Component& keyId) NDN_CXX_DECL_FINAL;
+  removeKey(const Name& identity, const name::Component& keyId) final;
 
   virtual PublicKey
-  getKeyBits(const Name& identity, const name::Component& keyId) const NDN_CXX_DECL_FINAL;
+  getKeyBits(const Name& identity, const name::Component& keyId) const final;
 
   virtual std::set<name::Component>
-  getKeysOfIdentity(const Name& identity) const NDN_CXX_DECL_FINAL;
+  getKeysOfIdentity(const Name& identity) const final;
 
   virtual void
-  setDefaultKeyOfIdentity(const Name& identity, const name::Component& keyId) NDN_CXX_DECL_FINAL;
+  setDefaultKeyOfIdentity(const Name& identity, const name::Component& keyId) final;
 
   virtual name::Component
-  getDefaultKeyOfIdentity(const Name& identity) const NDN_CXX_DECL_FINAL;
+  getDefaultKeyOfIdentity(const Name& identity) const final;
 
 public: // Certificate Management
 
   virtual bool
-  hasCertificate(const Name& certName) const NDN_CXX_DECL_FINAL;
+  hasCertificate(const Name& certName) const final;
 
   virtual void
-  addCertificate(const IdentityCertificate& certificate) NDN_CXX_DECL_FINAL;
+  addCertificate(const IdentityCertificate& certificate) final;
 
   virtual void
-  removeCertificate(const Name& certName) NDN_CXX_DECL_FINAL;
+  removeCertificate(const Name& certName) final;
 
   virtual IdentityCertificate
-  getCertificate(const Name& certName) const NDN_CXX_DECL_FINAL;
+  getCertificate(const Name& certName) const final;
 
   virtual std::set<Name>
-  getCertificatesOfKey(const Name& identity, const name::Component& keyId) const NDN_CXX_DECL_FINAL;
+  getCertificatesOfKey(const Name& identity, const name::Component& keyId) const final;
 
   virtual void
   setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId,
-                             const Name& certName) NDN_CXX_DECL_FINAL;
+                             const Name& certName) final;
 
   virtual IdentityCertificate
-  getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const NDN_CXX_DECL_FINAL;
+  getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const final;
 
 private:
   sqlite3* m_database;

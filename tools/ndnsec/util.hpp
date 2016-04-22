@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -139,34 +139,34 @@ public:
   }
 
   virtual std::string
-  name() const NDN_CXX_DECL_FINAL
+  name() const final
   {
     return std::string();
   }
 
   // There are no tokens for an AccumulatorType
   virtual unsigned
-  min_tokens() const NDN_CXX_DECL_FINAL
+  min_tokens() const final
   {
     return 0;
   }
 
   virtual unsigned
-  max_tokens() const NDN_CXX_DECL_FINAL
+  max_tokens() const final
   {
     return 0;
   }
 
   // Accumulating from different sources is silly.
   virtual bool
-  is_composing() const NDN_CXX_DECL_FINAL
+  is_composing() const final
   {
     return false;
   }
 
   // Requiring one or more appearances is unlikely.
   virtual bool
-  is_required() const NDN_CXX_DECL_FINAL
+  is_required() const final
   {
     return false;
   }
@@ -180,7 +180,7 @@ public:
   virtual void
   parse(boost::any& value_store,
         const std::vector<std::string>& new_tokens,
-        bool utf8) const NDN_CXX_DECL_FINAL
+        bool utf8) const final
   {
     if (value_store.empty())
       value_store = T();
@@ -191,7 +191,7 @@ public:
    * @brief If the option doesn't appear, this is the default value.
    */
   virtual bool
-  apply_default(boost::any& value_store) const NDN_CXX_DECL_FINAL
+  apply_default(boost::any& value_store) const final
   {
     value_store = m_default;
     return true;
@@ -201,7 +201,7 @@ public:
    * @brief Notify the user function with the value of the value store.
    */
   virtual void
-  notify(const boost::any& value_store) const NDN_CXX_DECL_FINAL
+  notify(const boost::any& value_store) const final
   {
     const T* val = boost::any_cast<T>(&value_store);
     if (m_store)
@@ -210,7 +210,7 @@ public:
 
 #if BOOST_VERSION >= 105900
   virtual bool
-  adjacent_tokens_only() const NDN_CXX_DECL_FINAL
+  adjacent_tokens_only() const final
   {
     return false;
   }

@@ -1923,7 +1923,6 @@ PREDEFINED             = DOXYGEN \
                          PUBLIC_WITH_TESTS_ELSE_PRIVATE=private \
                          PROTECTED_WITH_TESTS_ELSE_PRIVATE=private \
                          VIRTUAL_WITH_TESTS \
-                         DECL_OVERRIDE=override \
                          NDN_CXX_KEYCHAIN_REGISTER_PIB \
                          NDN_CXX_KEYCHAIN_REGISTER_TPM
 

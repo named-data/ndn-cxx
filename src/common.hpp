@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -44,23 +44,9 @@
 #define NDN_CXX_PROTECTED_WITH_TESTS_ELSE_PRIVATE private
 #endif
 
-/** \def NDN_CXX_DECL_OVERRIDE
- *  \brief expands to 'override' if compiler supports this feature, otherwise expands to nothing
- */
-/** \def NDN_CXX_DECL_FINAL
- *  \brief expands to 'final' if compiler supports this feature, otherwise expands to nothing
- */
-#ifdef NDN_CXX_HAVE_CXX_OVERRIDE_FINAL
-#define NDN_CXX_DECL_OVERRIDE override
-#define NDN_CXX_DECL_FINAL final
-#else
-#define NDN_CXX_DECL_OVERRIDE
-#define NDN_CXX_DECL_FINAL
-#endif
-
 // require C++11
 #if __cplusplus < 201103L && !defined(__GXX_EXPERIMENTAL_CXX0X__)
-#  error "ndn-cxx applications must be compiled using the C++11 standard"
+#  error "ndn-cxx applications must be compiled using the C++11 standard (-std=c++11)"
 #endif
 
 #include <algorithm>
@@ -137,7 +123,7 @@ NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(9)
 
 namespace ndn {
 using boost::noncopyable;
-}
+} // namespace ndn
 
 #include "util/backports.hpp"
 
