@@ -13,6 +13,7 @@ if has OSX $NODE_LABELS; then
     brew update
     brew upgrade
     brew install boost pkg-config cryptopp $EXTRA_FLAGS
+    brew link --force openssl
     brew cleanup
 fi
 
