@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -557,6 +557,26 @@ BOOST_AUTO_TEST_CASE(SubNameOutOfRangeIndexes)
   // Start before first
   BOOST_CHECK_EQUAL("/first/second", name.getSubName(-10, 2));
   BOOST_CHECK_EQUAL("/first/second/last", name.getSubName(-10, 10));
+}
+
+BOOST_AUTO_TEST_CASE(DeepCopy)
+{
+  Name n1("/hello/world");
+  Name n2 = n1.deepCopy();
+
+  BOOST_CHECK_EQUAL(n1, n2);
+  BOOST_CHECK_NE(&n1.wireEncode(), &n2.wireEncode());
+
+  EncodingBuffer buffer(1024, 0);
+  n1.wireEncode(buffer);
+  Name n3(buffer.block());
+
+  BOOST_CHECK_EQUAL(n1, n3);
+  BOOST_CHECK_EQUAL(n3.wireEncode().getBuffer()->size(), 1024);
+  n3 = n3.deepCopy();
+
+  BOOST_CHECK_LT(n3.wireEncode().size(), 1024);
+  BOOST_CHECK_EQUAL(n3.wireEncode().getBuffer()->size(), n3.wireEncode().size());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

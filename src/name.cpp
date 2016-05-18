@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -62,6 +62,15 @@ Name::Name(const char* uri)
 Name::Name(const std::string& uri)
 {
   construct(uri.c_str());
+}
+
+Name
+Name::deepCopy() const
+{
+  Name copiedName(*this);
+  copiedName.m_nameBlock.resetWire();
+  copiedName.wireEncode(); // "compress" the underlying buffer
+  return copiedName;
 }
 
 template<encoding::Tag TAG>

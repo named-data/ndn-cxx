@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -106,6 +106,12 @@ public:
    * @param uri The URI string
    */
   Name(const std::string& uri);
+
+  /**
+   * @brief Make a deep copy of the name, reallocating the underlying memory buffer
+   */
+  Name
+  deepCopy() const;
 
   /**
    * @brief Fast encoding or block size estimation
