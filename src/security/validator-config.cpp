@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,6 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  *
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
+ * @author Zhiyi Zhang <zhangzhiyi1919@gmail.com>
  */
 
 #include "validator-config.hpp"
@@ -190,7 +191,7 @@ ValidatorConfig::onConfigRule(const security::conf::ConfigSection& configSection
                                 + " in rule: " + ruleId));
 
   // Get rule.filter(s)
-  std::vector<shared_ptr<Filter> > filters;
+  std::vector<shared_ptr<Filter>> filters;
   for (; propertyIt != configSection.end(); propertyIt++)
     {
       if (!boost::iequals(propertyIt->first, "filter"))
@@ -205,7 +206,7 @@ ValidatorConfig::onConfigRule(const security::conf::ConfigSection& configSection
     }
 
   // Get rule.checker(s)
-  std::vector<shared_ptr<Checker> > checkers;
+  std::vector<shared_ptr<Checker>> checkers;
   for (; propertyIt != configSection.end(); propertyIt++)
     {
       if (!boost::iequals(propertyIt->first, "checker"))
@@ -489,7 +490,7 @@ ValidatorConfig::checkPolicy(const Data& data,
                              int nSteps,
                              const OnDataValidated& onValidated,
                              const OnDataValidationFailed& onValidationFailed,
-                             std::vector<shared_ptr<ValidationRequest> >& nextSteps)
+                             std::vector<shared_ptr<ValidationRequest>>& nextSteps)
 {
   if (!m_shouldValidate)
     return onValidated(data.shared_from_this());
@@ -524,7 +525,7 @@ ValidatorConfig::checkPolicy(const Interest& interest,
                              int nSteps,
                              const OnInterestValidated& onValidated,
                              const OnInterestValidationFailed& onValidationFailed,
-                             std::vector<shared_ptr<ValidationRequest> >& nextSteps)
+                             std::vector<shared_ptr<ValidationRequest>>& nextSteps)
 {
   if (!m_shouldValidate)
     return onValidated(interest.shared_from_this());
@@ -733,7 +734,7 @@ ValidatorConfig::checkSignature(const Packet& packet,
                                 size_t nSteps,
                                 const OnValidated& onValidated,
                                 const OnFailed& onValidationFailed,
-                                std::vector<shared_ptr<ValidationRequest> >& nextSteps)
+                                std::vector<shared_ptr<ValidationRequest>>& nextSteps)
 {
   if (signature.getType() == tlv::DigestSha256)
     {
@@ -785,7 +786,7 @@ ValidatorConfig::checkSignature(const Packet& packet,
   AnchorList::const_iterator it = m_anchors.find(keyLocatorName);
   if (m_anchors.end() == it && static_cast<bool>(m_certificateCache))
     trustedCert = m_certificateCache->getCertificate(keyLocatorName);
-  else
+  else if (m_anchors.end() != it)
     trustedCert = it->second;
 
   if (static_cast<bool>(trustedCert))

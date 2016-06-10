@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,6 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  *
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
+ * @author Zhiyi Zhang <zhangzhiyi1919@gmail.com>
  */
 
 #ifndef NDN_SECURITY_VALIDATOR_CONFIG_HPP
@@ -66,9 +67,7 @@ public:
                   const time::system_clock::Duration& keyTimestampTtl = DEFAULT_KEY_TIMESTAMP_TTL);
 
   virtual
-  ~ValidatorConfig()
-  {
-  }
+  ~ValidatorConfig() = default;
 
   void
   load(const std::string& filename);
@@ -95,14 +94,14 @@ protected:
               int nSteps,
               const OnDataValidated& onValidated,
               const OnDataValidationFailed& onValidationFailed,
-              std::vector<shared_ptr<ValidationRequest> >& nextSteps);
+              std::vector<shared_ptr<ValidationRequest>>& nextSteps);
 
   virtual void
   checkPolicy(const Interest& interest,
               int nSteps,
               const OnInterestValidated& onValidated,
               const OnInterestValidationFailed& onValidationFailed,
-              std::vector<shared_ptr<ValidationRequest> >& nextSteps);
+              std::vector<shared_ptr<ValidationRequest>>& nextSteps);
 
 private:
   template<class Packet, class OnValidated, class OnFailed>
@@ -112,7 +111,7 @@ private:
                  size_t nSteps,
                  const OnValidated& onValidated,
                  const OnFailed& onValidationFailed,
-                 std::vector<shared_ptr<ValidationRequest> >& nextSteps);
+                 std::vector<shared_ptr<ValidationRequest>>& nextSteps);
 
   void
   checkTimestamp(const shared_ptr<const Interest>& interest,
@@ -154,14 +153,6 @@ private:
   void
   cleanOldKeys();
 
-#ifdef NDN_CXX_HAVE_TESTS
-  size_t
-  getTimestampMapSize()
-  {
-    return m_lastTimestamp.size();
-  }
-#endif
-
   class TrustAnchorContainer
   {
   public:
@@ -169,7 +160,7 @@ private:
     {
     }
 
-    const std::list<shared_ptr<IdentityCertificate> >&
+    const std::list<shared_ptr<IdentityCertificate>>&
     getAll() const
     {
       return m_certificates;
@@ -182,7 +173,7 @@ private:
     }
 
   protected:
-    std::list<shared_ptr<IdentityCertificate> > m_certificates;
+    std::list<shared_ptr<IdentityCertificate>> m_certificates;
   };
 
   class DynamicTrustAnchorContainer : public TrustAnchorContainer
@@ -237,14 +228,14 @@ public:
   static const time::milliseconds DEFAULT_GRACE_INTERVAL;
   static const time::system_clock::Duration DEFAULT_KEY_TIMESTAMP_TTL;
 
-private:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   typedef security::conf::Rule<Interest> InterestRule;
   typedef security::conf::Rule<Data>     DataRule;
-  typedef std::vector<shared_ptr<InterestRule> > InterestRuleList;
-  typedef std::vector<shared_ptr<DataRule> >     DataRuleList;
-  typedef std::map<Name, shared_ptr<IdentityCertificate> > AnchorList;
+  typedef std::vector<shared_ptr<InterestRule>> InterestRuleList;
+  typedef std::vector<shared_ptr<DataRule>>     DataRuleList;
+  typedef std::map<Name, shared_ptr<IdentityCertificate>> AnchorList;
   typedef std::list<DynamicTrustAnchorContainer> DynamicContainers; // sorted by m_lastRefresh
-  typedef std::list<shared_ptr<IdentityCertificate> > CertificateList;
+  typedef std::list<shared_ptr<IdentityCertificate>> CertificateList;
 
 
   /**

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,6 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  *
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
+ * @author Zhiyi Zhang <zhangzhiyi1919@gmail.com>
  */
 
 #ifndef NDN_SECURITY_CONF_RULE_HPP
@@ -97,19 +98,28 @@ public:
         const ValidatedCallback& onValidated,
         const ValidationFailureCallback& onValidationFailed)
   {
-    for (CheckerList::iterator it = m_checkers.begin();
-         it != m_checkers.end(); it++)
-      {
-        int8_t result = (*it)->check(packet, onValidated, onValidationFailed);
-        if (result >= 0)
-          return result;
+    bool hasPendingResult = false;
+    for (CheckerList::iterator it = m_checkers.begin(); it != m_checkers.end(); it++) {
+      int8_t result = (*it)->check(packet);
+      if (result > 0) {
+        onValidated(packet.shared_from_this());
+        return result;
       }
-    return -1;
+      else if (result == 0)
+        hasPendingResult = true;
+    }
+    if (hasPendingResult) {
+      return 0;
+    }
+    else {
+      onValidationFailed(packet.shared_from_this(), "Packet cannot pass any checkers.");
+      return -1;
+    }
   }
 
-private:
-  typedef std::vector<shared_ptr<Filter> > FilterList;
-  typedef std::vector<shared_ptr<Checker> > CheckerList;
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  typedef std::vector<shared_ptr<Filter>> FilterList;
+  typedef std::vector<shared_ptr<Checker>> CheckerList;
 
   std::string m_id;
   FilterList m_filters;

@@ -22,6 +22,7 @@
 #include "security/validator-config.hpp"
 
 #include "security/key-chain.hpp"
+#include "security/signing-helpers.hpp"
 #include "util/io.hpp"
 #include "util/scheduler.hpp"
 #include "util/dummy-client-face.hpp"
@@ -30,6 +31,7 @@
 
 #include "identity-management-fixture.hpp"
 #include "../identity-management-time-fixture.hpp"
+#include "../make-interest-data.hpp"
 #include "boost-test.hpp"
 
 namespace ndn {
@@ -52,15 +54,11 @@ BOOST_AUTO_TEST_CASE(NameFilter)
 
   Name dataName1("/simple/equal");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1, security::signingByIdentity(identity)));
 
   Name dataName2("/simple/different");
   shared_ptr<Data> data2 = make_shared<Data>(dataName2);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2, security::signingByIdentity(identity)));
 
   std::string CONFIG_1 =
     "rule\n"
@@ -100,7 +98,7 @@ BOOST_AUTO_TEST_CASE(NameFilter)
 
   Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
@@ -126,21 +124,15 @@ BOOST_AUTO_TEST_CASE(NameFilter2)
 
   Name dataName1("/simple/isPrefixOf");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1, security::signingByIdentity(identity)));
 
   Name dataName2("/simple/notPrefixOf");
   shared_ptr<Data> data2 = make_shared<Data>(dataName2);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2, security::signingByIdentity(identity)));
 
   Name dataName3("/simple/isPrefixOf/anotherLevel");
   shared_ptr<Data> data3 = make_shared<Data>(dataName3);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data3,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data3, security::signingByIdentity(identity)));
 
   std::string CONFIG_1 =
     "rule\n"
@@ -180,7 +172,7 @@ BOOST_AUTO_TEST_CASE(NameFilter2)
 
   Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
@@ -210,21 +202,15 @@ BOOST_AUTO_TEST_CASE(NameFilter3)
 
   Name dataName1("/simple/isStrictPrefixOf");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1, security::signingByIdentity(identity)));
 
   Name dataName2("/simple");
   shared_ptr<Data> data2 = make_shared<Data>(dataName2);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2, security::signingByIdentity(identity)));
 
   Name dataName3("/simple/isStrictPrefixOf/anotherLevel");
   shared_ptr<Data> data3 = make_shared<Data>(dataName3);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data3,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data3, security::signingByIdentity(identity)));
 
   std::string CONFIG_1 =
     "rule\n"
@@ -264,7 +250,7 @@ BOOST_AUTO_TEST_CASE(NameFilter3)
 
   Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
@@ -294,21 +280,15 @@ BOOST_AUTO_TEST_CASE(NameFilter4)
 
   Name dataName1("/simple/regex");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1, security::signingByIdentity(identity)));
 
   Name dataName2("/simple/regex-wrong");
   shared_ptr<Data> data2 = make_shared<Data>(dataName2);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2, security::signingByIdentity(identity)));
 
   Name dataName3("/simple/regex/correct");
   shared_ptr<Data> data3 = make_shared<Data>(dataName3);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data3,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data3, security::signingByIdentity(identity)));
 
   std::string CONFIG_1 =
     "rule\n"
@@ -347,7 +327,7 @@ BOOST_AUTO_TEST_CASE(NameFilter4)
 
   Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
@@ -378,21 +358,15 @@ BOOST_AUTO_TEST_CASE(KeyLocatorNameChecker1)
   Name dataName1 = identity;
   dataName1.append("1");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1, security::signingByIdentity(identity)));
 
   Name dataName2 = identity;
   shared_ptr<Data> data2 = make_shared<Data>(dataName2);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2, security::signingByIdentity(identity)));
 
   Name dataName3("/TestValidatorConfig/KeyLocatorNameChecker1");
   shared_ptr<Data> data3 = make_shared<Data>(dataName3);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data3,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data3, security::signingByIdentity(identity)));
 
   const std::string CONFIG =
     "rule\n"
@@ -427,7 +401,7 @@ BOOST_AUTO_TEST_CASE(KeyLocatorNameChecker1)
 
   Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
@@ -464,16 +438,12 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker)
   Name dataName1 = identity;
   dataName1.append("data").appendVersion();
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity1)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1, security::signingByIdentity(identity1)));
 
   Name dataName2 = identity;
   dataName2.append("data").appendVersion();
   shared_ptr<Data> data2 = make_shared<Data>(dataName2);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity2)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2, security::signingByIdentity(identity2)));
 
   Name interestName("/TestValidatorConfig/FixedSignerChecker/fakeSigInfo/fakeSigValue");
   shared_ptr<Interest> interest = make_shared<Interest>(interestName);
@@ -526,7 +496,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker)
 
   Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
@@ -543,6 +513,148 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker)
   const boost::filesystem::path CERT_PATH =
     (boost::filesystem::current_path() / std::string("trust-anchor-7.cert"));
   boost::filesystem::remove(CERT_PATH);
+}
+
+struct CertCleanFixture : public IdentityManagementTimeFixture
+{
+public:
+  CertCleanFixture()
+    : tmpPath(boost::filesystem::path(UNIT_TEST_CONFIG_PATH))
+  {
+    boost::filesystem::create_directories(tmpPath);
+  }
+
+  ~CertCleanFixture()
+  {
+    boost::filesystem::remove_all(tmpPath);
+  }
+
+public:
+  boost::filesystem::path tmpPath;
+};
+
+BOOST_FIXTURE_TEST_CASE(MultiCheckers, CertCleanFixture)
+{
+  std::string certDir = tmpPath.c_str();
+
+  Name identity1("/TestValidatorConfig/MultiCheckers/");
+  identity1.appendVersion();
+  addIdentity(identity1);
+  Name certName1 = m_keyChain.getDefaultCertificateNameForIdentity(identity1);
+  shared_ptr<IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
+  std::string certDir1 = certDir + "trust-anchor-multi-1.cert";
+  io::save(*idCert1, certDir1);
+
+  Name identity2("/TestValidatorConfig/");
+  identity2.appendVersion();
+  addIdentity(identity2);
+  Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
+  shared_ptr<IdentityCertificate> idCert2 = m_keyChain.getCertificate(certName2);
+  std::string certDir2 = certDir + "trust-anchor-multi-2.cert";
+  io::save(*idCert2, certDir2);
+
+  const std::string CONFIG =
+    "rule\n"
+    "{\n"
+    "  id \"Simple Rule01\"\n"
+    "  for data\n"
+    "  filter"
+    "  {\n"
+    "    type name\n"
+    "    name /\n"
+    "    relation is-prefix-of\n"
+    "  }\n"
+    "  checker\n" // checker 1, signer should have prefix /TestValidatorConfig/MultiCheckers
+    "  {\n"
+    "    type customized\n"
+    "    sig-type rsa-sha256\n"
+    "    key-locator\n"
+    "    {\n"
+    "      type name\n"
+    "      name /TestValidatorConfig/MultiCheckers/\n"
+    "      relation is-prefix-of\n"
+    "    }\n"
+    "  }\n"
+    "  checker\n" // checker 2, data should have same prefix of its signer
+    "  {\n"
+    "    type hierarchical\n"
+    "    sig-type rsa-sha256\n"
+    "  }\n"
+    "  checker\n" // checker 3, the signer should be identity1
+    "  {\n"
+    "    type fixed-signer\n"
+    "    sig-type rsa-sha256\n"
+    "    signer\n"
+    "    {\n"
+    "      type file\n"
+    "      file-name \"trust-anchor-multi-1.cert\"\n"
+    "    }\n"
+    "  }\n"
+    "}\n";
+
+  const boost::filesystem::path CONFIG_PATH =
+    (tmpPath / std::string("unit-test-multicheckers.conf"));
+
+  ValidatorConfig validator;
+  validator.load(CONFIG, CONFIG_PATH.c_str());
+  conf::Checker& checker0 = *validator.m_dataRules.front()->m_checkers[0];
+  conf::Checker& checker1 = *validator.m_dataRules.front()->m_checkers[1];
+  conf::Checker& checker2 = *validator.m_dataRules.front()->m_checkers[2];
+
+  auto data1 = util::makeData(Name(identity1).append("Test"));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1, security::signingByIdentity(identity1)));
+  BOOST_CHECK_EQUAL(checker0.check(*data1), 0);
+  BOOST_CHECK_EQUAL(checker1.check(*data1), 0);
+  BOOST_CHECK_EQUAL(checker2.check(*data1), 1);
+
+  auto data2 = util::makeData(Name(identity2).append("Data2"));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2, security::signingByIdentity(identity2)));
+  BOOST_CHECK_EQUAL(checker0.check(*data2), -1);
+  BOOST_CHECK_EQUAL(checker1.check(*data2), 0);
+  BOOST_CHECK_EQUAL(checker2.check(*data2), -1);
+
+  auto data3 = util::makeData(Name(identity2).append("Data3"));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data3, security::signingByIdentity(identity1)));
+  BOOST_CHECK_EQUAL(checker0.check(*data3), 0);
+  BOOST_CHECK_EQUAL(checker1.check(*data3), -1);
+  BOOST_CHECK_EQUAL(checker2.check(*data3), 1);
+
+  auto data4 = util::makeData("/Data4");
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data4, security::signingByIdentity(identity2)));
+  BOOST_CHECK_EQUAL(checker0.check(*data4), -1);
+  BOOST_CHECK_EQUAL(checker1.check(*data4), -1);
+  BOOST_CHECK_EQUAL(checker2.check(*data4), -1);
+
+  int count = 0;
+  validator.validate(*data1,
+    [&] (const shared_ptr<const Data>&) {
+      BOOST_CHECK(true);
+      count++;
+    },
+    [] (const shared_ptr<const Data>&, const std::string& str) { BOOST_CHECK(false); });
+
+  validator.validate(*data2,
+    [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
+    [&] (const shared_ptr<const Data>&, const std::string& str) {
+      BOOST_CHECK(true);
+      count++;
+    });
+
+  validator.validate(*data3,
+    [&] (const shared_ptr<const Data>&) {
+      BOOST_CHECK(true);
+      count++;
+    },
+    [] (const shared_ptr<const Data>&, const std::string& str) { BOOST_CHECK(false); });
+
+  validator.validate(*data4,
+    [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
+    [&] (const shared_ptr<const Data>&, const std::string& str) {
+      BOOST_CHECK(true);
+      count++;
+    });
+
+  BOOST_CHECK_EQUAL(count, 4);
 }
 
 BOOST_AUTO_TEST_CASE(Reset)
@@ -602,7 +714,7 @@ BOOST_AUTO_TEST_CASE(Reset)
 
   shared_ptr<ValidatorConfig> validator = shared_ptr<ValidatorConfig>(new ValidatorConfig(face));
 
-  validator->load(CONFIG, CONFIG_PATH.native());
+  validator->load(CONFIG, CONFIG_PATH.c_str());
   BOOST_CHECK_EQUAL(validator->isEmpty(), false);
 
   validator->reset();
@@ -621,9 +733,7 @@ BOOST_AUTO_TEST_CASE(TrustAnchorWildcard)
 
   Name dataName1("/any/data");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1, security::signingByIdentity(identity)));
 
   std::string CONFIG =
     "trust-anchor\n"
@@ -636,7 +746,7 @@ BOOST_AUTO_TEST_CASE(TrustAnchorWildcard)
 
   Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
@@ -662,13 +772,9 @@ BOOST_AUTO_TEST_CASE(SignedInterestTest)
   interestName2.append("2");
   shared_ptr<Interest> interest2 = make_shared<Interest>(interestName2);
 
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity1)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1, security::signingByIdentity(identity1)));
   usleep(10000);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity1)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2, security::signingByIdentity(identity1)));
 
   const std::string CONFIG =
     "rule\n"
@@ -697,7 +803,7 @@ BOOST_AUTO_TEST_CASE(SignedInterestTest)
 
   Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
@@ -754,17 +860,11 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest)
   interestName3.append("3");
   shared_ptr<Interest> interest3 = make_shared<Interest>(interestName3);
 
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity1)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1, security::signingByIdentity(identity1)));
   usleep(10000);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity2)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2, security::signingByIdentity(identity2)));
   usleep(10000);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest3,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity3)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest3, security::signingByIdentity(identity3)));
 
   const std::string CONFIG =
     "rule\n"
@@ -808,7 +908,7 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest)
                             10,
                             2,                 // Two keys can be tracked
                             time::seconds(1)); // TTL is set to 1 sec
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
@@ -892,21 +992,13 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
   shared_ptr<Interest> interest4 = make_shared<Interest>(interestName4);
 
 
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity1)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1, security::signingByIdentity(identity1)));
   usleep(10000);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity2)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2, security::signingByIdentity(identity2)));
   usleep(10000);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest3,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity3)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest3, security::signingByIdentity(identity3)));
   usleep(10000);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest4,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity4)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest4, security::signingByIdentity(identity4)));
 
   const std::string CONFIG =
     "rule\n"
@@ -955,7 +1047,7 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
                             10,
                             3,                 // Two keys can be tracked
                             time::seconds(1)); // TTL is set to 1 sec
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
@@ -1033,22 +1125,14 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
 
   Name dataName("/TestValidatorConfig/FixedSignerChecker2");
   shared_ptr<Data> dataRsa = make_shared<Data>(dataName);
-  m_keyChain.sign(*dataRsa,
-                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        rsaIdentity));
+  m_keyChain.sign(*dataRsa, security::signingByIdentity(rsaIdentity));
   shared_ptr<Data> dataEcdsa = make_shared<Data>(dataName);
-  m_keyChain.sign(*dataEcdsa,
-                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        ecdsaIdentity));
+  m_keyChain.sign(*dataEcdsa, security::signingByIdentity(ecdsaIdentity));
 
   shared_ptr<Interest> interestRsa = make_shared<Interest>(dataName);
-  m_keyChain.sign(*interestRsa,
-                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        rsaIdentity));
+  m_keyChain.sign(*interestRsa, security::signingByIdentity(rsaIdentity));
   shared_ptr<Interest> interestEcdsa = make_shared<Interest>(dataName);
-  m_keyChain.sign(*interestEcdsa,
-                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        ecdsaIdentity));
+  m_keyChain.sign(*interestEcdsa, security::signingByIdentity(ecdsaIdentity));
 
   const std::string CONFIG =
     "rule\n"
@@ -1098,7 +1182,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
 
   Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*dataEcdsa,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
@@ -1196,9 +1280,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(7300),
                                                   subjectDescription);
-  m_keyChain.sign(*sldCert,
-                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        root));
+  m_keyChain.sign(*sldCert, security::signingByIdentity(root));
   m_keyChain.addCertificateAsIdentityDefault(*sldCert);
 
   Name nld("/TestValidatorConfig/HierarchicalChecker/NextLevel");
@@ -1211,9 +1293,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(7300),
                                                   subjectDescription);
-  m_keyChain.sign(*nldCert,
-                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        sld));
+m_keyChain.sign(*nldCert, security::signingByIdentity(sld));
   m_keyChain.addCertificateAsIdentityDefault(*nldCert);
 
   face1.setInterestFilter(sldCert->getName().getPrefix(-1),
@@ -1229,16 +1309,12 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   Name dataName1 = nld;
   dataName1.append("data1");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             nld)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1, security::signingByIdentity(nld)));
 
   Name dataName2("/ConfValidatorTest");
   dataName2.append("data1");
   shared_ptr<Data> data2 = make_shared<Data>(dataName2);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             nld)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2, security::signingByIdentity(nld)));
 
 
   const std::string CONFIG =
@@ -1262,7 +1338,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
 
 
   auto validator = make_shared<ValidatorConfig>(&face2);
-  validator->load(CONFIG, CONFIG_PATH.native());
+  validator->load(CONFIG, CONFIG_PATH.c_str());
 
   advanceClocks(time::milliseconds(2), 100);
   validator->validate(*data1,
@@ -1309,9 +1385,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(7300),
                                                   subjectDescription);
-  m_keyChain.sign(*sldCert,
-                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        root));
+  m_keyChain.sign(*sldCert, security::signingByIdentity(root));
   m_keyChain.addCertificateAsIdentityDefault(*sldCert);
 
   Name nld("/TestValidatorConfig/Nrd-1/Nrd-2");
@@ -1324,9 +1398,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(7300),
                                                   subjectDescription);
-  m_keyChain.sign(*nldCert,
-                  security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                        sld));
+  m_keyChain.sign(*nldCert, security::signingByIdentity(sld));
   m_keyChain.addCertificateAsIdentityDefault(*nldCert);
 
   face1.setInterestFilter(sldCert->getName().getPrefix(-1),
@@ -1342,23 +1414,17 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   advanceClocks(time::milliseconds(10));
   Name interestName1("/localhost/nrd/register/option");
   shared_ptr<Interest> interest1 = make_shared<Interest>(interestName1);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             nld)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1, security::signingByIdentity(nld)));
 
   advanceClocks(time::milliseconds(10));
   Name interestName2("/localhost/nrd/non-register");
   shared_ptr<Interest> interest2 = make_shared<Interest>(interestName2);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             nld)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2, security::signingByIdentity(nld)));
 
   advanceClocks(time::milliseconds(10));
   Name interestName3("/localhost/nrd/register/option");
   shared_ptr<Interest> interest3 = make_shared<Interest>(interestName3);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest3,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             root)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest3, security::signingByIdentity(root)));
 
   advanceClocks(time::milliseconds(10));
   Name interestName4("/localhost/nrd/register/option/timestamp/nonce/fakeSigInfo/fakeSigValue");
@@ -1409,7 +1475,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
   auto validator = make_shared<ValidatorConfig>(&face2);
-  validator->load(CONFIG, CONFIG_PATH.native());
+  validator->load(CONFIG, CONFIG_PATH.c_str());
 
   advanceClocks(time::milliseconds(2), 100);
 
@@ -1510,15 +1576,11 @@ BOOST_FIXTURE_TEST_CASE(TrustAnchorDir, DirTestFixture)
 
   Name dataName1("/any/data/1");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             firstIdentity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1, security::signingByIdentity(firstIdentity)));
 
   Name dataName2("/any/data/2");
   shared_ptr<Data> data2 = make_shared<Data>(dataName2);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             secondIdentity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2, security::signingByIdentity(secondIdentity)));
 
   std::string CONFIG =
     "rule\n"
@@ -1551,7 +1613,7 @@ BOOST_FIXTURE_TEST_CASE(TrustAnchorDir, DirTestFixture)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  validator.load(CONFIG, CONFIG_PATH.native());
+  validator.load(CONFIG, CONFIG_PATH.c_str());
 
   advanceClocks(time::milliseconds(10), 20);
   validator.validate(*data1,

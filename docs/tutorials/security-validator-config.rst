@@ -97,8 +97,9 @@ can be checked by a rule only if the packet satisfies all the filters.
     **ATTENTION: A packet that satisfies all the filters may not be valid**.
 
 The property **checker** defines the conditions that a matched packet must fulfill to be
-treated as a valid packet. A rule must have at least one **checker** property, a packet is
-treated as invalid if it cannot pass none of the checkers.
+treated as a valid packet. A rule must have at least one **checker** property. A packet is
+treated as valid if it can pass at least one of the checkers and as invalid when it cannot
+pass any checkers.
 
 **filter** and **checker** have their own properties. Next, we will introduce them
 separately.
