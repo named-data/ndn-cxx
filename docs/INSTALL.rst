@@ -34,6 +34,7 @@ Required:
 -  ``python`` >= 2.6
 -  ``libsqlite3``
 -  ``libcrypto++``
+-  OpenSSL version >= 1.0
 -  ``pkg-config``
 -  Boost libraries >= 1.54
 -  OSX Security framework (on OSX platform only)
@@ -43,31 +44,38 @@ development tools and libraries, and ndn-cxx prerequisites.
 
 -  OS X
 
-   Install Xcode. In Xcode Preferences > Downloads, install "Command
-   Line Tools".
+   Install Xcode from AppStore or at least Command Line Tools (``xcode-select --install``)
 
-   If using MacPorts, dependencies can be installed using the following
-   commands::
+   * When using MacPorts
 
-       sudo port install pkgconfig boost sqlite3 libcryptopp
+       In a terminal, enter::
+
+           sudo port install pkgconfig boost sqlite3 libcryptopp openssl
+
+   * When using Homebrew
+
+       In a terminal, enter::
+
+           brew install boost pkg-config cryptopp openssl
+           brew link --force openssl
 
    .. note::
 
-      If a major OS X system upgrade is performed after installing dependencies with MacPorts,
-      remember to `reinstall all ports <https://trac.macports.org/wiki/Migration>`__.
+      If a major OS X system upgrade is performed after installing dependencies with
+      MacPorts or Homebrew, remember to reinstall all packages.
 
 -  Ubuntu
 
-   In a terminal, enter::
+    In a terminal, enter::
 
-       sudo apt-get install build-essential libcrypto++-dev libsqlite3-dev libboost-all-dev
+        sudo apt-get install build-essential libcrypto++-dev libsqlite3-dev libboost-all-dev libssl-dev
 
 - Fedora
 
-   In a terminal, enter::
+    In a terminal, enter::
 
-       sudo yum install gcc-g++ git
-       sudo yum install sqlite-devel cryptopp-devel boost-devel
+        sudo yum install gcc-g++ git
+        sudo yum install sqlite-devel cryptopp-devel boost-devel openssl-devel
 
 Optional:
 ~~~~~~~~~

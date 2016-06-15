@@ -12,7 +12,7 @@ if has OSX $NODE_LABELS; then
     set -x
     brew update
     brew upgrade
-    brew install boost pkg-config cryptopp $EXTRA_FLAGS
+    brew install boost pkg-config cryptopp openssl $EXTRA_FLAGS
     brew link --force openssl
     brew cleanup
 fi
@@ -21,5 +21,5 @@ if has Ubuntu $NODE_LABELS; then
     set -x
     sudo apt-get -qq update
     sudo apt-get -qq install build-essential pkg-config libboost-all-dev \
-                             libcrypto++-dev libsqlite3-dev
+                             libcrypto++-dev libsqlite3-dev libssl-dev
 fi
