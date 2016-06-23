@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,18 +69,18 @@ public:
   virtual void
   send(const Block& header, const Block& payload);
 
+  /**
+   * @brief Create transport with parameters defined in URI
+   *
+   * @throws Transport::Error if incorrect URI or unsupported protocol is specified
+   */
   static shared_ptr<UnixTransport>
-  create(const ConfigFile& config);
+  create(const std::string& uri);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-  /**
-   * Determine the default NFD unix socket
-   *
-   * @returns transport value if present in config, else /var/run/nfd.sock
-   * @throws ConfigFile::Error if fail to parse value of a present "transport" field
-   */
+
   static std::string
-  getDefaultSocketName(const ConfigFile& config);
+  getSocketNameFromUri(const std::string& uri);
 
 private:
   std::string m_unixSocket;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -62,13 +62,18 @@ public:
   virtual void
   send(const Block& header, const Block& payload);
 
+  /**
+   * @brief Create transport with parameters defined in URI
+   *
+   * @throws Transport::Error if incorrect URI or unsupported protocol is specified
+   */
   static shared_ptr<TcpTransport>
-  create(const ConfigFile& config);
+  create(const std::string& uri);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 
   static std::pair<std::string, std::string>
-  getDefaultSocketHostAndPort(const ConfigFile& config);
+  getSocketHostAndPortFromUri(const std::string& uri);
 
 private:
   std::string m_host;

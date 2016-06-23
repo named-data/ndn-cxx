@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -91,31 +91,41 @@ Face::makeDefaultTransport()
   // transport=unix:///var/run/nfd.sock
   // transport=tcp://localhost:6363
 
-  ConfigFile config;
-  const auto& transportUri = config.getParsedConfiguration()
-                               .get_optional<std::string>("transport");
-  if (!transportUri) {
+  std::string transportUri;
+
+  if (getenv("NDN_CLIENT_TRANSPORT") != nullptr) {
+    transportUri = getenv("NDN_CLIENT_TRANSPORT");
+  }
+  else {
+    ConfigFile config;
+    transportUri = config.getParsedConfiguration().get<std::string>("transport", "");
+  }
+
+  if (transportUri.empty()) {
     // transport not specified, use default Unix transport.
-    return UnixTransport::create(config);
+    return UnixTransport::create("");
   }
 
   std::string protocol;
   try {
-    util::FaceUri uri(*transportUri);
+    util::FaceUri uri(transportUri);
     protocol = uri.getScheme();
+
+    if (protocol == "unix") {
+      return UnixTransport::create(transportUri);
+    }
+    else if (protocol == "tcp" || protocol == "tcp4" || protocol == "tcp6") {
+      return TcpTransport::create(transportUri);
+    }
+    else {
+      BOOST_THROW_EXCEPTION(ConfigFile::Error("Unsupported transport protocol \"" + protocol + "\""));
+    }
+  }
+  catch (const Transport::Error& error) {
+    BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
   }
   catch (const util::FaceUri::Error& error) {
     BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
-  }
-
-  if (protocol == "unix") {
-    return UnixTransport::create(config);
-  }
-  else if (protocol == "tcp" || protocol == "tcp4" || protocol == "tcp6") {
-    return TcpTransport::create(config);
-  }
-  else {
-    BOOST_THROW_EXCEPTION(ConfigFile::Error("Unsupported transport protocol \"" + protocol + "\""));
   }
 }
 

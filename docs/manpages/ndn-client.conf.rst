@@ -23,14 +23,8 @@ transport
 
   By default, ``unix:///var/run/nfd.sock`` is used.
 
-Prefix Registration
--------------------
-
-protocol
-  The prefix registration protocol. For now, only one protocol ``nrd-0.1`` is supported.
-  With this protocol, applications send prefix registration requests to NFD RIB manager.
-  NFD RIB Manager, after authenticating the request, will set up corresponding FIB entries
-  in NFD.
+  ..note::
+    This value can be overriden using `NDN_CLIENT_TRANSPORT` environment variable.
 
 Key Management
 --------------
@@ -59,6 +53,9 @@ pib
   is used::
 
       rm -rf ~/.ndn/ndnsec-*
+
+  ..note::
+    This value can be overriden using `NDN_CLIENT_PIB` environment variable.
 
 tpm
   Trusted Platform Module (TPM) where the private keys are stored.  The format for this setting
@@ -91,3 +88,6 @@ tpm
 
   **Change of ``tpm`` setting is only possible together with ``pib`` setting. Otherwise, an
   error will be generated during PIB/TPM access**
+
+  ..note::
+    This value can be overriden using `NDN_CLIENT_TPM` environment variable.

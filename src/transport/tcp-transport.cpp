@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,27 +38,28 @@ TcpTransport::~TcpTransport()
 }
 
 shared_ptr<TcpTransport>
-TcpTransport::create(const ConfigFile& config)
+TcpTransport::create(const std::string& uri)
 {
-  const auto hostAndPort(getDefaultSocketHostAndPort(config));
+  const auto hostAndPort(getSocketHostAndPortFromUri(uri));
   return make_shared<TcpTransport>(hostAndPort.first, hostAndPort.second);
 }
 
 std::pair<std::string, std::string>
-TcpTransport::getDefaultSocketHostAndPort(const ConfigFile& config)
+TcpTransport::getSocketHostAndPortFromUri(const std::string& uriString)
 {
-  const ConfigFile::Parsed& parsed = config.getParsedConfiguration();
-
   std::string host = "localhost";
   std::string port = "6363";
 
+  if (uriString.empty()) {
+    return {host, port};
+  }
+
   try {
-    const util::FaceUri uri(parsed.get<std::string>("transport", "tcp://" + host));
+    const util::FaceUri uri(uriString);
 
     const std::string scheme = uri.getScheme();
     if (scheme != "tcp" && scheme != "tcp4" && scheme != "tcp6") {
-      BOOST_THROW_EXCEPTION(Transport::Error("Cannot create TcpTransport from \"" +
-                                             scheme + "\" URI"));
+      BOOST_THROW_EXCEPTION(Error("Cannot create TcpTransport from \"" + scheme + "\" URI"));
     }
 
     if (!uri.getHost().empty()) {
@@ -70,7 +71,7 @@ TcpTransport::getDefaultSocketHostAndPort(const ConfigFile& config)
     }
   }
   catch (const util::FaceUri::Error& error) {
-    BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
+    BOOST_THROW_EXCEPTION(Error(error.what()));
   }
 
   return {host, port};

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -216,16 +216,24 @@ PibSqlite3::PibSqlite3(const string& dir)
   // Determine the path of PIB DB
   boost::filesystem::path actualDir;
   if (dir == "") {
-    if (getenv("HOME") == nullptr)
-      BOOST_THROW_EXCEPTION(PibImpl::Error("Environment variable HOME is not set"));
-
-    actualDir = boost::filesystem::path(getenv("HOME")) / ".ndn";
-    boost::filesystem::create_directories(actualDir);
+#ifdef NDN_CXX_HAVE_TESTS
+    if (getenv("TEST_HOME") != nullptr) {
+      actualDir = boost::filesystem::path(getenv("TEST_HOME")) / ".ndn";
+    }
+    else
+#endif // NDN_CXX_HAVE_TESTS
+    if (getenv("HOME") != nullptr) {
+      actualDir = boost::filesystem::path(getenv("HOME")) / ".ndn";
+    }
+    else {
+      actualDir = boost::filesystem::path(".") / ".ndn";
+    }
   }
   else {
     actualDir = boost::filesystem::path(dir);
-    boost::filesystem::create_directories(actualDir);
   }
+  boost::filesystem::create_directories(actualDir);
+
   // Open PIB
   int result = sqlite3_open_v2((actualDir / "pib.db").c_str(), &m_database,
                                SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,

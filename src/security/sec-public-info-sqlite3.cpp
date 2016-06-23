@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -114,10 +114,23 @@ SecPublicInfoSqlite3::SecPublicInfoSqlite3(const std::string& dir)
   , m_database(nullptr)
 {
   boost::filesystem::path identityDir;
-  if (dir == "")
-    identityDir = boost::filesystem::path(getenv("HOME")) / ".ndn";
-  else
-    identityDir = boost::filesystem::path(dir) / ".ndn";
+  if (dir == "") {
+#ifdef NDN_CXX_HAVE_TESTS
+    if (getenv("TEST_HOME") != nullptr) {
+      identityDir = boost::filesystem::path(getenv("TEST_HOME")) / ".ndn";
+    }
+    else
+#endif // NDN_CXX_HAVE_TESTS
+    if (getenv("HOME") != nullptr) {
+      identityDir = boost::filesystem::path(getenv("HOME")) / ".ndn";
+    }
+    else {
+      identityDir = boost::filesystem::path(".") / ".ndn";
+    }
+  }
+  else {
+    identityDir = boost::filesystem::path(dir);
+  }
   boost::filesystem::create_directories(identityDir);
 
   /// @todo Add define for windows/unix in wscript. The following may completely fail on windows

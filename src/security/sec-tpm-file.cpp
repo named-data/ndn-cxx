@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -51,11 +51,26 @@ public:
   explicit
   Impl(const string& dir)
   {
-    if (dir.empty())
-      m_keystorePath = boost::filesystem::path(getenv("HOME")) / ".ndn" / "ndnsec-tpm-file";
-    else
-      m_keystorePath = boost::filesystem::path(dir) / ".ndn" / "ndnsec-tpm-file";
+    boost::filesystem::path actualDir;
+    if (dir.empty()) {
+#ifdef NDN_CXX_HAVE_TESTS
+      if (getenv("TEST_HOME") != nullptr) {
+        actualDir = boost::filesystem::path(getenv("TEST_HOME")) / ".ndn";
+      }
+      else
+#endif // NDN_CXX_HAVE_TESTS
+      if (getenv("HOME") != nullptr) {
+        actualDir = boost::filesystem::path(getenv("HOME")) / ".ndn";
+      }
+      else {
+        actualDir = boost::filesystem::path(".") / ".ndn";
+      }
+    }
+    else {
+      actualDir = boost::filesystem::path(dir);
+    }
 
+    m_keystorePath = actualDir / "ndnsec-tpm-file";
     boost::filesystem::create_directories(m_keystorePath);
   }
 

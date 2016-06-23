@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,46 +39,38 @@ UnixTransport::~UnixTransport()
 }
 
 std::string
-UnixTransport::getDefaultSocketName(const ConfigFile& config)
+UnixTransport::getSocketNameFromUri(const std::string& uriString)
 {
-  const ConfigFile::Parsed& parsed = config.getParsedConfiguration();
-
-  try
-    {
-      const util::FaceUri uri(parsed.get<std::string>("transport"));
-
-      if (uri.getScheme() != "unix")
-        {
-          BOOST_THROW_EXCEPTION(Transport::Error("Cannot create UnixTransport from \"" +
-                                                 uri.getScheme() + "\" URI"));
-        }
-
-      if (!uri.getPath().empty())
-        {
-          return uri.getPath();
-        }
-    }
-  catch (const boost::property_tree::ptree_bad_path& error)
-    {
-      // no transport specified
-    }
-  catch (const boost::property_tree::ptree_bad_data& error)
-    {
-      BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
-    }
-  catch (const util::FaceUri::Error& error)
-    {
-      BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
-    }
-
   // Assume the default nfd.sock location.
-  return "/var/run/nfd.sock";
+  std::string path = "/var/run/nfd.sock";
+
+  if (uriString.empty()) {
+    return path;
+  }
+
+  try {
+    const util::FaceUri uri(uriString);
+
+    if (uri.getScheme() != "unix") {
+      BOOST_THROW_EXCEPTION(Error("Cannot create UnixTransport from \"" +
+                                  uri.getScheme() + "\" URI"));
+    }
+
+    if (!uri.getPath().empty()) {
+      path = uri.getPath();
+    }
+  }
+  catch (const util::FaceUri::Error& error) {
+    BOOST_THROW_EXCEPTION(Error(error.what()));
+  }
+
+  return path;
 }
 
 shared_ptr<UnixTransport>
-UnixTransport::create(const ConfigFile& config)
+UnixTransport::create(const std::string& uri)
 {
-  return make_shared<UnixTransport>(getDefaultSocketName(config));
+  return make_shared<UnixTransport>(getSocketNameFromUri(uri));
 }
 
 void
@@ -131,4 +123,4 @@ UnixTransport::resume()
   m_impl->resume();
 }
 
-}
+} // namespace ndn

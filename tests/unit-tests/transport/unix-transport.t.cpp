@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,33 +31,17 @@ BOOST_FIXTURE_TEST_SUITE(TransportUnixTransport, TransportFixture)
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketNameOk)
 {
-  initializeConfig("tests/unit-tests/transport/test-homes/unix-transport/ok");
-
-  BOOST_CHECK_EQUAL(UnixTransport::getDefaultSocketName(*m_config), "/tmp/test/nfd.sock");
+  BOOST_CHECK_EQUAL(UnixTransport::getSocketNameFromUri("unix:///tmp/test/nfd.sock"), "/tmp/test/nfd.sock");
 }
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketNameOkOmittedSocketOmittedProtocol)
 {
-  initializeConfig("tests/unit-tests/transport/test-homes/unix-transport/"
-                   "ok-omitted-unix-socket-omitted-protocol");
-
-  BOOST_CHECK_EQUAL(UnixTransport::getDefaultSocketName(*m_config), "/var/run/nfd.sock");
-}
-
-BOOST_AUTO_TEST_CASE(GetDefaultSocketNameOkOmittedSocketWithProtocol)
-{
-  initializeConfig("tests/unit-tests/transport/test-homes/unix-transport/"
-                   "ok-omitted-unix-socket-with-protocol");
-
-  BOOST_CHECK_EQUAL(UnixTransport::getDefaultSocketName(*m_config), "/var/run/nfd.sock");
+  BOOST_CHECK_EQUAL(UnixTransport::getSocketNameFromUri(""), "/var/run/nfd.sock");
 }
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketNameBadWrongTransport)
 {
-  initializeConfig("tests/unit-tests/transport/test-homes/unix-transport/"
-                   "bad-wrong-transport");
-
-  BOOST_CHECK_EXCEPTION(UnixTransport::getDefaultSocketName(*m_config),
+  BOOST_CHECK_EXCEPTION(UnixTransport::getSocketNameFromUri("tcp://"),
                         Transport::Error,
                         [] (const Transport::Error& error) {
                           return error.what() == std::string("Cannot create UnixTransport "
@@ -67,12 +51,9 @@ BOOST_AUTO_TEST_CASE(GetDefaultSocketNameBadWrongTransport)
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketNameBadMalformedUri)
 {
-  initializeConfig("tests/unit-tests/transport/test-homes/unix-transport/"
-                   "bad-malformed-uri");
-
-  BOOST_CHECK_EXCEPTION(UnixTransport::getDefaultSocketName(*m_config),
-                        ConfigFile::Error,
-                        [] (const ConfigFile::Error& error) {
+  BOOST_CHECK_EXCEPTION(UnixTransport::getSocketNameFromUri("unix"),
+                        Transport::Error,
+                        [] (const Transport::Error& error) {
                           return error.what() == std::string("Malformed URI: unix");
                         });
 }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,9 +31,7 @@ BOOST_FIXTURE_TEST_SUITE(TransportTcpTransport, TransportFixture)
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketNameOk)
 {
-  initializeConfig("tests/unit-tests/transport/test-homes/tcp-transport/ok");
-
-  const auto got = TcpTransport::getDefaultSocketHostAndPort(*m_config);
+  const auto got = TcpTransport::getSocketHostAndPortFromUri("tcp://127.0.0.1:6000");
 
   BOOST_CHECK_EQUAL(got.first, "127.0.0.1");
   BOOST_CHECK_EQUAL(got.second, "6000");
@@ -41,22 +39,16 @@ BOOST_AUTO_TEST_CASE(GetDefaultSocketNameOk)
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketHostAndPortBadMissingHost)
 {
-  initializeConfig("tests/unit-tests/transport/test-homes/tcp-transport/"
-                   "bad-missing-host");
-
-  BOOST_CHECK_EXCEPTION(TcpTransport::getDefaultSocketHostAndPort(*m_config),
-                        ConfigFile::Error,
-                        [] (const ConfigFile::Error& error) {
+  BOOST_CHECK_EXCEPTION(TcpTransport::getSocketHostAndPortFromUri("tcp://:6000"),
+                        Transport::Error,
+                        [] (const Transport::Error& error) {
                           return error.what() == std::string("Malformed URI: tcp://:6000");
                         });
 }
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketHostAndPortOkOmittedPort)
 {
-  initializeConfig("tests/unit-tests/transport/test-homes/tcp-transport/"
-                   "ok-omitted-port");
-
-  const auto got = TcpTransport::getDefaultSocketHostAndPort(*m_config);
+  const auto got = TcpTransport::getSocketHostAndPortFromUri("tcp://127.0.0.1");
 
   BOOST_CHECK_EQUAL(got.first, "127.0.0.1");
   BOOST_CHECK_EQUAL(got.second, "6363");
@@ -64,10 +56,7 @@ BOOST_AUTO_TEST_CASE(GetDefaultSocketHostAndPortOkOmittedPort)
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketHostAndPortNameOkOmittedHostOmittedPort)
 {
-  initializeConfig("tests/unit-tests/transport/test-homes/tcp-transport/"
-                   "ok-omitted-host-omitted-port");
-
-  const auto got = TcpTransport::getDefaultSocketHostAndPort(*m_config);
+  const auto got = TcpTransport::getSocketHostAndPortFromUri("tcp://");
 
   BOOST_CHECK_EQUAL(got.first, "localhost");
   BOOST_CHECK_EQUAL(got.second, "6363");
@@ -75,10 +64,7 @@ BOOST_AUTO_TEST_CASE(GetDefaultSocketHostAndPortNameOkOmittedHostOmittedPort)
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketHostAndPortBadWrongTransport)
 {
-  initializeConfig("tests/unit-tests/transport/test-homes/tcp-transport/"
-                   "bad-wrong-transport");
-
-  BOOST_CHECK_EXCEPTION(TcpTransport::getDefaultSocketHostAndPort(*m_config),
+  BOOST_CHECK_EXCEPTION(TcpTransport::getSocketHostAndPortFromUri("unix://"),
                         Transport::Error,
                         [] (const Transport::Error& error) {
                           return error.what() == std::string("Cannot create TcpTransport "
@@ -88,12 +74,9 @@ BOOST_AUTO_TEST_CASE(GetDefaultSocketHostAndPortBadWrongTransport)
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketHostAndPortBadMalformedUri)
 {
-  initializeConfig("tests/unit-tests/transport/test-homes/tcp-transport/"
-                   "bad-malformed-uri");
-
-  BOOST_CHECK_EXCEPTION(TcpTransport::getDefaultSocketHostAndPort(*m_config),
-                        ConfigFile::Error,
-                        [] (const ConfigFile::Error& error) {
+  BOOST_CHECK_EXCEPTION(TcpTransport::getSocketHostAndPortFromUri("tcp"),
+                        Transport::Error,
+                        [] (const Transport::Error& error) {
                           return error.what() == std::string("Malformed URI: tcp");
                         });
 }

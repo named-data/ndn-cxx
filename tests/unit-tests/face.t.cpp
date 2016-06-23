@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,7 @@
 #include "security/key-chain.hpp"
 #include "util/dummy-client-face.hpp"
 #include "transport/tcp-transport.hpp"
+#include "transport/unix-transport.hpp"
 
 #include "boost-test.hpp"
 #include "unit-test-time-fixture.hpp"
@@ -612,7 +613,25 @@ BOOST_AUTO_TEST_CASE(FaceTransport)
   BOOST_CHECK(Face(transport, io, keyChain).getTransport() == transport);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_CASE(CustomizeTransportWithEnv)
+{
+  shared_ptr<Face> face;
+  BOOST_REQUIRE_NO_THROW(face = make_shared<Face>());
+  BOOST_CHECK(dynamic_pointer_cast<UnixTransport>(face->getTransport()) != nullptr);
 
-} // tests
+  setenv("NDN_CLIENT_TRANSPORT", "tcp://localhost:6363", true);
+  BOOST_REQUIRE_NO_THROW(face = make_shared<Face>());
+  BOOST_CHECK(dynamic_pointer_cast<TcpTransport>(face->getTransport()) != nullptr);
+  unsetenv("NDN_CLIENT_TRANSPORT");
+
+  setenv("NDN_CLIENT_TRANSPORT", "wrong-transport:", true);
+  BOOST_CHECK_THROW(face = make_shared<Face>(), ConfigFile::Error);
+  unsetenv("NDN_CLIENT_TRANSPORT");
+}
+
+/// @todo Tests to create Face using the config file
+
+BOOST_AUTO_TEST_SUITE_END() // TestFace
+
+} // namespace tests
 } // namespace ndn

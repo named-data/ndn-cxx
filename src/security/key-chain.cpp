@@ -123,11 +123,29 @@ KeyChain::KeyChain()
   , m_tpm(nullptr)
   , m_lastTimestamp(time::toUnixTimestamp(time::system_clock::now()))
 {
-  ConfigFile config;
-  const ConfigFile::Parsed& parsed = config.getParsedConfiguration();
+  std::string pibLocator;
+  std::string tpmLocator;
 
-  std::string pibLocator = parsed.get<std::string>("pib", "");
-  std::string tpmLocator = parsed.get<std::string>("tpm", "");
+  if (getenv("NDN_CLIENT_PIB") != nullptr) {
+    pibLocator = getenv("NDN_CLIENT_PIB");
+  }
+
+  if (getenv("NDN_CLIENT_TPM") != nullptr) {
+    tpmLocator = getenv("NDN_CLIENT_TPM");
+  }
+
+  if (pibLocator.empty() || tpmLocator.empty()) {
+    ConfigFile config;
+    const ConfigFile::Parsed& parsed = config.getParsedConfiguration();
+
+    if (pibLocator.empty()) {
+      pibLocator = parsed.get<std::string>("pib", "");
+    }
+
+    if (tpmLocator.empty()) {
+      tpmLocator = parsed.get<std::string>("tpm", "");
+    }
+  }
 
   initialize(pibLocator, tpmLocator, false);
 }

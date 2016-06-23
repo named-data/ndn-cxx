@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,6 +31,20 @@
 
 namespace ndn {
 
+/**
+ * @brief System configuration file for NDN platform
+ *
+ * The config file controls the default transport to connect to NDN forwarder, type and
+ * location of PIB and TPM.
+ *
+ * Looking for the configuration file in these well-known locations (in order):
+ *
+ * - `$HOME/.ndn/client.conf`
+ * - `@SYSCONFDIR@/ndn/client.conf`
+ * - `/etc/ndn/client.conf`
+ *
+ * @sa Manpage of ndn-client.conf
+ */
 class ConfigFile : noncopyable
 {
 public:
@@ -48,7 +62,7 @@ public:
   typedef boost::property_tree::ptree Parsed;
 
   /**
-   * Locate, open, and parse a library configuration file.
+   * @brief Locate, open, and parse a library configuration file.
    *
    * @throws ConfigFile::Error on parse error
    */
@@ -71,7 +85,8 @@ private:
   close();
 
   /**
-   * Parse a previously discovered and opened configuration file.
+   * @brief Parse a previously discovered and opened configuration file.
+   *
    * For convenience this method will attempt to open the file
    * if it has previously been located, but open() has not been called.
    *
@@ -83,11 +98,13 @@ private:
   parse();
 
   /**
-   * Looking for the configuration file in these well-known locations:
+   * @brief Find the configuration file in well-known locations
    *
-   * 1. $HOME/.ndn/client.conf
-   * 2. @SYSCONFDIR@/ndn/client.conf
-   * 3. /etc/ndn/client.conf
+   * The well-known locations include (in order):
+   *
+   * - `$HOME/.ndn/client.conf`
+   * - `@SYSCONFDIR@/ndn/client.conf`
+   * - `/etc/ndn/client.conf`
    *
    * @return path to preferred configuration (according to above order) or empty path on failure
    */
