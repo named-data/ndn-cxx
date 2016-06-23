@@ -66,8 +66,16 @@ Face::Face(shared_ptr<Transport> transport)
   construct(transport, *m_internalKeyChain);
 }
 
-Face::Face(shared_ptr<Transport> transport,
-           boost::asio::io_service& ioService)
+Face::Face(shared_ptr<Transport> transport, KeyChain& keyChain)
+  : m_internalIoService(new boost::asio::io_service())
+  , m_ioService(*m_internalIoService)
+  , m_internalKeyChain(nullptr)
+  , m_impl(new Impl(*this))
+{
+  construct(transport, keyChain);
+}
+
+Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService)
   : m_ioService(ioService)
   , m_internalKeyChain(new KeyChain())
   , m_impl(new Impl(*this))
@@ -75,9 +83,7 @@ Face::Face(shared_ptr<Transport> transport,
   construct(transport, *m_internalKeyChain);
 }
 
-Face::Face(shared_ptr<Transport> transport,
-           boost::asio::io_service& ioService,
-           KeyChain& keyChain)
+Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService, KeyChain& keyChain)
   : m_ioService(ioService)
   , m_internalKeyChain(nullptr)
   , m_impl(new Impl(*this))

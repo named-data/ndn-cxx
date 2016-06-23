@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,8 +41,8 @@
 namespace boost {
 namespace asio {
 class io_service;
-}
-}
+} // namespace asio
+} // namespace boost
 
 namespace ndn {
 
@@ -54,12 +54,12 @@ class InterestFilterId;
 
 namespace security {
 class KeyChain;
-}
+} // namespace security
 using security::KeyChain;
 
 namespace nfd {
 class Controller;
-}
+} // namespace nfd
 
 /**
  * @brief Callback called when expressed Interest gets satisfied with a Data packet
@@ -134,7 +134,7 @@ public: // constructors
    * @brief Create a new Face using the default transport (UnixTransport)
    *
    * @throws ConfigFile::Error on configuration file parse failure
-   * @throws Face::Error on unsupported protocol
+   * @throws ConfigFile::Error if configuration file specifies an unsupported protocol
    */
   Face();
 
@@ -162,7 +162,7 @@ public: // constructors
    * @param ioService A reference to boost::io_service object that should control all
    *                  IO operations.
    * @throws ConfigFile::Error on configuration file parse failure
-   * @throws Face::Error on unsupported protocol
+   * @throws ConfigFile::Error if configuration file specifies an unsupported protocol
    */
   explicit
   Face(boost::asio::io_service& ioService);
@@ -172,8 +172,6 @@ public: // constructors
    *
    * @param host The host of the NDN forwarder
    * @param port (optional) The port or service name of the NDN forwarder (**default**: "6363")
-   *
-   * @throws Face::Error on unsupported protocol
    */
   Face(const std::string& host, const std::string& port = "6363");
 
@@ -182,10 +180,26 @@ public: // constructors
    * @param transport the Transport used for communication. If nullptr, then the default
    *                  transport will be used.
    *
-   * @throws Face::Error on unsupported protocol
+   * @throws ConfigFile::Error if @p transport is nullptr on configuration file parse failure
+   * @throws ConfigFile::Error if @p transport is nullptr and the configuration file
+   *         specifies an unsupported protocol
+   * @note shared_ptr is passed by value because ownership is shared with this class
    */
   explicit
   Face(shared_ptr<Transport> transport);
+
+  /**
+   * @brief Create a new Face using the given Transport and KeyChain instance
+   * @param transport the Transport used for communication. If nullptr, then the default
+   *                  transport will be used.
+   * @param keyChain the KeyChain to sign commands
+   *
+   * @throws ConfigFile::Error if @p transport is nullptr on configuration file parse failure
+   * @throws ConfigFile::Error if @p transport is nullptr and the configuration file
+   *         specifies an unsupported protocol
+   * @note shared_ptr is passed by value because ownership is shared with this class
+   */
+  Face(shared_ptr<Transport> transport, KeyChain& keyChain);
 
   /**
    * @brief Create a new Face using the given Transport and IO service object
@@ -195,10 +209,12 @@ public: // constructors
    *
    * @sa Face(boost::asio::io_service&)
    *
-   * @throws Face::Error on unsupported protocol
+   * @throws ConfigFile::Error if @p transport is nullptr on configuration file parse failure
+   * @throws ConfigFile::Error if @p transport is nullptr and the configuration file
+   *         specifies an unsupported protocol
+   * @note shared_ptr is passed by value because ownership is shared with this class
    */
-  Face(shared_ptr<Transport> transport,
-       boost::asio::io_service& ioService);
+  Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService);
 
   /**
    * @brief Create a new Face using the given Transport and IO service object
@@ -206,12 +222,13 @@ public: // constructors
    *                  transport will be used.
    * @param ioService the io_service that controls all IO operations
    * @param keyChain the KeyChain to sign commands
-   * @throws Face::Error on unsupported protocol
+   *
+   * @throws ConfigFile::Error if @p transport is nullptr on configuration file parse failure
+   * @throws ConfigFile::Error if @p transport is nullptr and the configuration file
+   *         specifies an unsupported protocol
    * @note shared_ptr is passed by value because ownership is shared with this class
    */
-  Face(shared_ptr<Transport> transport,
-       boost::asio::io_service& ioService,
-       KeyChain& keyChain);
+  Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService, KeyChain& keyChain);
 
   ~Face();
 

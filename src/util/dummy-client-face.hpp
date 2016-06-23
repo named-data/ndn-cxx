@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -56,9 +56,21 @@ public:
   DummyClientFace(const Options& options = DummyClientFace::DEFAULT_OPTIONS);
 
   /**
+   * @brief Create a dummy face with internal IO service and the specified KeyChain
+   */
+  DummyClientFace(KeyChain& keyChain, const Options& options = DummyClientFace::DEFAULT_OPTIONS);
+
+  /**
    * @brief Create a dummy face with the provided IO service
    */
-  DummyClientFace(boost::asio::io_service& ioService, const Options& options = DummyClientFace::DEFAULT_OPTIONS);
+  DummyClientFace(boost::asio::io_service& ioService,
+                  const Options& options = DummyClientFace::DEFAULT_OPTIONS);
+
+  /**
+   * @brief Create a dummy face with the provided IO service and the specified KeyChain
+   */
+  DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
+                  const Options& options = DummyClientFace::DEFAULT_OPTIONS);
 
   /** \brief cause the Face to receive a packet
    *  \tparam Packet either Interest or Data
@@ -133,6 +145,10 @@ public:
    *  After .put, .processEvents must be called before this signal would be emitted.
    */
   Signal<DummyClientFace, lp::Nack> onSendNack;
+
+private:
+  std::unique_ptr<KeyChain> m_internalKeyChain;
+  KeyChain& m_keyChain;
 };
 
 template<>

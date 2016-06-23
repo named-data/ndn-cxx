@@ -89,6 +89,19 @@ DummyClientFace::DummyClientFace(const Options& options/* = DummyClientFace::DEF
 #ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
   , sentDatas(sentData)
 #endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
+  , m_internalKeyChain(new KeyChain)
+  , m_keyChain(*m_internalKeyChain)
+{
+  this->construct(options);
+}
+
+DummyClientFace::DummyClientFace(KeyChain& keyChain,
+                                 const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
+  : Face(make_shared<DummyClientFace::Transport>(), keyChain)
+#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
+  , sentDatas(sentData)
+#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
+  , m_keyChain(keyChain)
 {
   this->construct(options);
 }
@@ -99,6 +112,19 @@ DummyClientFace::DummyClientFace(boost::asio::io_service& ioService,
 #ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
   , sentDatas(sentData)
 #endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
+  , m_internalKeyChain(new KeyChain)
+  , m_keyChain(*m_internalKeyChain)
+{
+  this->construct(options);
+}
+
+DummyClientFace::DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
+                                 const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
+  : Face(make_shared<DummyClientFace::Transport>(), ioService, keyChain)
+#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
+  , sentDatas(sentData)
+#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
+  , m_keyChain(keyChain)
 {
   this->construct(options);
 }
@@ -186,8 +212,7 @@ DummyClientFace::enableRegistrationReply()
     shared_ptr<Data> data = make_shared<Data>(interest.getName());
     data->setContent(resp.wireEncode());
 
-    KeyChain keyChain;
-    keyChain.sign(*data, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
+    m_keyChain.sign(*data, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
 
     this->getIoService().post([this, data] { this->receive(*data); });
   });
