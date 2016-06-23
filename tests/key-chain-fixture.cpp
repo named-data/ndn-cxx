@@ -19,34 +19,20 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "identity-management-fixture.hpp"
+#include "key-chain-fixture.hpp"
 
 namespace ndn {
 namespace tests {
 
-IdentityManagementFixture::IdentityManagementFixture()
+KeyChainFixture::KeyChainFixture()
 {
+  addIdentity(Name("/localhost/ndn-cxx-test-identity").appendVersion());
 }
 
-IdentityManagementFixture::~IdentityManagementFixture()
-{
-  for (const auto& identity : m_identities) {
-    m_keyChain.deleteIdentity(identity);
-  }
-}
-
-bool
-IdentityManagementFixture::addIdentity(const Name& identity, const KeyParams& params)
-{
-  try {
-    m_keyChain.createIdentity(identity, params);
-    m_identities.push_back(identity);
-    return true;
-  }
-  catch (std::runtime_error&) {
-    return false;
-  }
-}
+BOOST_GLOBAL_FIXTURE(KeyChainFixture)
+#if BOOST_VERSION >= 105900
+;
+#endif // BOOST_VERSION >= 105900
 
 } // namespace tests
 } // namespace ndn

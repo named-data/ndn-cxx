@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,14 +32,15 @@
 #include "../identity-management-time-fixture.hpp"
 #include "boost-test.hpp"
 
-using namespace std;
-
 namespace ndn {
+namespace security {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecurityValidatorConfig)
+using namespace ndn::tests;
 
-BOOST_FIXTURE_TEST_CASE(NameFilter, security::IdentityManagementFixture)
+BOOST_FIXTURE_TEST_SUITE(SecurityValidatorConfig, IdentityManagementFixture)
+
+BOOST_AUTO_TEST_CASE(NameFilter)
 {
   Name identity("/TestValidatorConfig/NameFilter");
   identity.appendVersion();
@@ -96,25 +97,24 @@ BOOST_FIXTURE_TEST_CASE(NameFilter, security::IdentityManagementFixture)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
-  Face face;
+  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*data2,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
 
   const boost::filesystem::path CERT_PATH =
     (boost::filesystem::current_path() / std::string("trust-anchor-1.cert"));
   boost::filesystem::remove(CERT_PATH);
 }
 
-BOOST_FIXTURE_TEST_CASE(NameFilter2, security::IdentityManagementFixture)
+BOOST_AUTO_TEST_CASE(NameFilter2)
 {
   Name identity("/TestValidatorConfig/NameFilter2");
   identity.appendVersion();
@@ -177,29 +177,28 @@ BOOST_FIXTURE_TEST_CASE(NameFilter2, security::IdentityManagementFixture)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
-  Face face;
+  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*data2,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
 
   validator.validate(*data3,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 
   const boost::filesystem::path CERT_PATH =
     (boost::filesystem::current_path() / std::string("trust-anchor-2.cert"));
   boost::filesystem::remove(CERT_PATH);
 }
 
-BOOST_FIXTURE_TEST_CASE(NameFilter3, security::IdentityManagementFixture)
+BOOST_AUTO_TEST_CASE(NameFilter3)
 {
   Name identity("/TestValidatorConfig/NameFilter3");
   identity.appendVersion();
@@ -262,29 +261,28 @@ BOOST_FIXTURE_TEST_CASE(NameFilter3, security::IdentityManagementFixture)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
-  Face face;
+  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
 
   validator.validate(*data2,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
 
   validator.validate(*data3,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 
   const boost::filesystem::path CERT_PATH =
     (boost::filesystem::current_path() / std::string("trust-anchor-3.cert"));
   boost::filesystem::remove(CERT_PATH);
 }
 
-BOOST_FIXTURE_TEST_CASE(NameFilter4, security::IdentityManagementFixture)
+BOOST_AUTO_TEST_CASE(NameFilter4)
 {
   Name identity("/TestValidatorConfig/NameFilter4");
   identity.appendVersion();
@@ -346,29 +344,28 @@ BOOST_FIXTURE_TEST_CASE(NameFilter4, security::IdentityManagementFixture)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
-  Face face;
+  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*data2,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
 
   validator.validate(*data3,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 
   const boost::filesystem::path CERT_PATH =
     (boost::filesystem::current_path() / std::string("trust-anchor-4.cert"));
   boost::filesystem::remove(CERT_PATH);
 }
 
-BOOST_FIXTURE_TEST_CASE(KeyLocatorNameChecker1, security::IdentityManagementFixture)
+BOOST_AUTO_TEST_CASE(KeyLocatorNameChecker1)
 {
   Name identity("/TestValidatorConfig/KeyLocatorNameChecker1");
   identity.appendVersion();
@@ -427,29 +424,28 @@ BOOST_FIXTURE_TEST_CASE(KeyLocatorNameChecker1, security::IdentityManagementFixt
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
-  Face face;
+  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*data2,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
 
   validator.validate(*data3,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
 
   const boost::filesystem::path CERT_PATH =
     (boost::filesystem::current_path() / std::string("trust-anchor-5.cert"));
   boost::filesystem::remove(CERT_PATH);
 }
 
-BOOST_FIXTURE_TEST_CASE(FixedSignerChecker, security::IdentityManagementFixture)
+BOOST_AUTO_TEST_CASE(FixedSignerChecker)
 {
   Name identity("/TestValidatorConfig/FixedSignerChecker");
 
@@ -527,29 +523,28 @@ BOOST_FIXTURE_TEST_CASE(FixedSignerChecker, security::IdentityManagementFixture)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
-  Face face;
+  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*data2,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
 
   validator.validate(*interest,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
 
   const boost::filesystem::path CERT_PATH =
     (boost::filesystem::current_path() / std::string("trust-anchor-7.cert"));
   boost::filesystem::remove(CERT_PATH);
 }
 
-BOOST_FIXTURE_TEST_CASE(Reset, security::IdentityManagementFixture)
+BOOST_AUTO_TEST_CASE(Reset)
 {
   Name root("/TestValidatorConfig/Reload");
   BOOST_REQUIRE_NO_THROW(addIdentity(root));
@@ -557,7 +552,7 @@ BOOST_FIXTURE_TEST_CASE(Reset, security::IdentityManagementFixture)
   shared_ptr<IdentityCertificate> rootCert = m_keyChain.getCertificate(rootCertName);
   io::save(*rootCert, "trust-anchor-8.cert");
 
-  Face face;
+  Face face(nullptr, m_keyChain);
 
   const std::string CONFIG =
     "rule\n"
@@ -617,7 +612,7 @@ BOOST_FIXTURE_TEST_CASE(Reset, security::IdentityManagementFixture)
   boost::filesystem::remove(CERT_PATH);
 }
 
-BOOST_FIXTURE_TEST_CASE(TrustAnchorWildcard, security::IdentityManagementFixture)
+BOOST_AUTO_TEST_CASE(TrustAnchorWildcard)
 {
   Name identity("/TestValidatorConfig/Wildcard");
   identity.appendVersion();
@@ -638,17 +633,16 @@ BOOST_FIXTURE_TEST_CASE(TrustAnchorWildcard, security::IdentityManagementFixture
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
-  Face face;
+  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 }
 
-BOOST_FIXTURE_TEST_CASE(SignedInterestTest, security::IdentityManagementFixture)
+BOOST_AUTO_TEST_CASE(SignedInterestTest)
 {
   Name identity("/TestValidatorConfig/SignedInterestTest");
 
@@ -700,22 +694,21 @@ BOOST_FIXTURE_TEST_CASE(SignedInterestTest, security::IdentityManagementFixture)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
-  Face face;
+  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*interest2,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
 
   const boost::filesystem::path CERT_PATH =
     (boost::filesystem::current_path() / std::string("trust-anchor-9.cert"));
@@ -723,7 +716,7 @@ BOOST_FIXTURE_TEST_CASE(SignedInterestTest, security::IdentityManagementFixture)
 }
 
 
-BOOST_FIXTURE_TEST_CASE(MaxKeyTest, security::IdentityManagementFixture)
+BOOST_AUTO_TEST_CASE(MaxKeyTest)
 {
   Name identity("/TestValidatorConfig/MaxKeyTest");
 
@@ -807,8 +800,7 @@ BOOST_FIXTURE_TEST_CASE(MaxKeyTest, security::IdentityManagementFixture)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
-  Face face;
+  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face,
                             ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
                             ValidatorConfig::DEFAULT_GRACE_INTERVAL,
@@ -819,24 +811,24 @@ BOOST_FIXTURE_TEST_CASE(MaxKeyTest, security::IdentityManagementFixture)
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*interest2,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
 
   validator.validate(*interest3,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   // Should succeed because identity1's key has been cleaned up due to space limit.
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   const boost::filesystem::path CERT_PATH1 =
     (boost::filesystem::current_path() / std::string("trust-anchor-10-1.cert"));
@@ -851,7 +843,7 @@ BOOST_FIXTURE_TEST_CASE(MaxKeyTest, security::IdentityManagementFixture)
   boost::filesystem::remove(CERT_PATH3);
 }
 
-BOOST_FIXTURE_TEST_CASE(MaxKeyTest2, security::IdentityManagementFixture)
+BOOST_AUTO_TEST_CASE(MaxKeyTest2)
 {
   Name identity("/TestValidatorConfig/MaxKeyTest");
 
@@ -955,8 +947,7 @@ BOOST_FIXTURE_TEST_CASE(MaxKeyTest2, security::IdentityManagementFixture)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
-  Face face;
+  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face,
                             ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
                             ValidatorConfig::DEFAULT_GRACE_INTERVAL,
@@ -967,46 +958,46 @@ BOOST_FIXTURE_TEST_CASE(MaxKeyTest2, security::IdentityManagementFixture)
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*interest2,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*interest3,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
 
   validator.validate(*interest2,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
 
   validator.validate(*interest3,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
 
   sleep(2);
 
   validator.validate(*interest4,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   // Should succeed because identity1 and identity2's key has been cleaned up due to ttl limit.
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*interest2,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*interest3,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
 
   const boost::filesystem::path CERT_PATH1 =
@@ -1026,7 +1017,7 @@ BOOST_FIXTURE_TEST_CASE(MaxKeyTest2, security::IdentityManagementFixture)
   boost::filesystem::remove(CERT_PATH4);
 }
 
-BOOST_FIXTURE_TEST_CASE(FixedSignerChecker2, security::IdentityManagementFixture)
+BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
 {
   Name rsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Rsa");
   BOOST_REQUIRE_NO_THROW(addIdentity(rsaIdentity));
@@ -1104,26 +1095,25 @@ BOOST_FIXTURE_TEST_CASE(FixedSignerChecker2, security::IdentityManagementFixture
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test.conf"));
 
-
-  Face face;
+  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.native());
 
   validator.validate(*dataEcdsa,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*dataRsa,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
 
   validator.validate(*interestEcdsa,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   validator.validate(*interestRsa,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
 
   const boost::filesystem::path CERT_PATH =
     (boost::filesystem::current_path() / std::string("trust-anchor-11.cert"));
@@ -1131,11 +1121,11 @@ BOOST_FIXTURE_TEST_CASE(FixedSignerChecker2, security::IdentityManagementFixture
 }
 
 
-struct FacesFixture : public security::IdentityManagementTimeFixture
+struct FacesFixture : public IdentityManagementTimeFixture
 {
   FacesFixture()
-    : face1(io, {true, true})
-    , face2(io, {true, true})
+    : face1(io, m_keyChain, {true, true})
+    , face2(io, m_keyChain, {true, true})
     , readInterestOffset1(0)
     , readDataOffset1(0)
     , readInterestOffset2(0)
@@ -1276,7 +1266,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   advanceClocks(time::milliseconds(2), 100);
   validator->validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
 
   do {
     advanceClocks(time::milliseconds(2), 10);
@@ -1284,7 +1274,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
 
   validator->validate(*data2,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
 
   do {
     advanceClocks(time::milliseconds(2), 10);
@@ -1425,7 +1415,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   // should succeed
   validator->validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   do {
     advanceClocks(time::milliseconds(2), 10);
@@ -1434,7 +1424,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   // should fail
   validator->validate(*interest2,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
 
   do {
     advanceClocks(time::milliseconds(2), 10);
@@ -1443,7 +1433,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   // should succeed
   validator->validate(*interest3,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
 
   do {
     advanceClocks(time::milliseconds(2), 10);
@@ -1452,7 +1442,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   // should fail
   validator->validate(*interest4,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Interest>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
 
   do {
     advanceClocks(time::milliseconds(2), 10);
@@ -1463,10 +1453,10 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   boost::filesystem::remove(CERT_PATH);
 }
 
-struct DirTestFixture : public security::IdentityManagementTimeFixture
+struct DirTestFixture : public IdentityManagementTimeFixture
 {
   DirTestFixture()
-    : face(io, {true, true})
+    : face(io, m_keyChain, {true, true})
     , validator(&face, ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
                 ValidatorConfig::DEFAULT_GRACE_INTERVAL, 0)
   {
@@ -1565,12 +1555,12 @@ BOOST_FIXTURE_TEST_CASE(TrustAnchorDir, DirTestFixture)
   advanceClocks(time::milliseconds(10), 20);
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
   advanceClocks(time::milliseconds(10), 20);
 
   validator.validate(*data2,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(true); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
   advanceClocks(time::milliseconds(10), 20);
 
   io::save(*secondCert, secondCertPath.string());
@@ -1578,16 +1568,17 @@ BOOST_FIXTURE_TEST_CASE(TrustAnchorDir, DirTestFixture)
 
   validator.validate(*data1,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
   advanceClocks(time::milliseconds(10), 20);
 
   validator.validate(*data2,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
-    [] (const shared_ptr<const Data>&, const string&) { BOOST_CHECK(false); });
+    [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
   advanceClocks(time::milliseconds(10), 20);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
+} // namespace security
 } // namespace ndn

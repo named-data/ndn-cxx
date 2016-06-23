@@ -26,42 +26,74 @@
 #include "boost-test.hpp"
 #include "dummy-keychain.hpp"
 #include "../util/test-home-environment-fixture.hpp"
+#include "key-chain-fixture.hpp"
+#include "identity-management-fixture.hpp"
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
+#include <fstream>
 
 namespace ndn {
 namespace security {
 namespace tests {
 
+using namespace ndn::tests;
+
 BOOST_FIXTURE_TEST_SUITE(SecurityKeyChain, util::TestHomeEnvironmentFixture)
 
-BOOST_AUTO_TEST_CASE(ConstructorNormalConfig)
+template<class Path>
+class TestHomeAndPibFixture : public PibDirFixture<Path>
 {
-  using namespace boost::filesystem;
+public:
+  TestHomeAndPibFixture()
+  {
+    setenv("TEST_HOME", this->m_pibDir.c_str(), true);
+    unsetenv("NDN_CLIENT_PIB");
+    unsetenv("NDN_CLIENT_TPM");
+  }
 
-  setenv("TEST_HOME", "tests/unit-tests/security/config-file-home", 1);
+  ~TestHomeAndPibFixture()
+  {
+    unsetenv("TEST_HOME");
+  }
+
+  void
+  createClientConf(std::initializer_list<std::string> lines)
+  {
+    boost::filesystem::create_directories(boost::filesystem::path(this->m_pibDir) / ".ndn");
+    std::ofstream of((boost::filesystem::path(this->m_pibDir) / ".ndn" / "client.conf").c_str());
+    for (auto line : lines) {
+      boost::replace_all(line, "%PATH%", this->m_pibDir);
+      of << line << std::endl;
+    }
+  }
+};
+
+struct PibPathSqlite3File
+{
+  const std::string PATH = "build/keys-sqlite3-file/";
+};
+
+BOOST_FIXTURE_TEST_CASE(ConstructorNormalConfig, TestHomeAndPibFixture<PibPathSqlite3File>)
+{
+  createClientConf({"pib=pib-sqlite3:%PATH%", "tpm=tpm-file:%PATH%"});
 
   BOOST_REQUIRE_NO_THROW(KeyChain());
 
   KeyChain keyChain;
-  BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(),
-                    "pib-sqlite3:/tmp/test/ndn-cxx/keychain/sqlite3-file/");
-  BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(),
-                    "tpm-file:/tmp/test/ndn-cxx/keychain/sqlite3-file/");
-  BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(),
-                    "tpm-file:/tmp/test/ndn-cxx/keychain/sqlite3-file/");
-
-  path pibPath(absolute(std::getenv("TEST_HOME")));
-  pibPath /= ".ndn/ndnsec-public-info.db";
-
-  boost::filesystem::remove(pibPath);
+  BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-sqlite3:" + m_pibDir);
+  BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(), "tpm-file:" + m_pibDir);
+  BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-file:" + m_pibDir);
 }
 
-BOOST_AUTO_TEST_CASE(ConstructorEmptyConfig)
+struct PibPathSqlite3Empty
 {
-  using namespace boost::filesystem;
+  const std::string PATH = "build/keys-sqlite3-empty/";
+};
 
-  setenv("TEST_HOME", "tests/unit-tests/security/config-file-empty-home", 1);
+BOOST_FIXTURE_TEST_CASE(ConstructorEmptyConfig, TestHomeAndPibFixture<PibPathSqlite3Empty>)
+{
+  createClientConf({"pib=pib-sqlite3:%PATH%"});
 
 #if defined(NDN_CXX_HAVE_OSX_SECURITY)
   std::string oldHOME;
@@ -73,261 +105,225 @@ BOOST_AUTO_TEST_CASE(ConstructorEmptyConfig)
     HOME = std::getenv("HOME");
 
   if (!oldHOME.empty())
-    setenv("HOME", oldHOME.c_str(), 1);
+    setenv("HOME", oldHOME.c_str(), true);
   else
     unsetenv("HOME");
 #endif
 
   BOOST_REQUIRE_NO_THROW(KeyChain());
   KeyChain keyChain;
-  BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(),
-                    "pib-sqlite3:/tmp/test/ndn-cxx/keychain/sqlite3-empty/");
+  BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-sqlite3:" + m_pibDir);
 
 #if defined(NDN_CXX_HAVE_OSX_SECURITY)
   BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(), "tpm-osxkeychain:");
   BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-osxkeychain:");
 #else
-  BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(),
-                    "tpm-file:");
-  BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(),
-                    "tpm-file:");
+  BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(), "tpm-file:");
+  BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-file:");
 #endif
 
 #if defined(NDN_CXX_HAVE_OSX_SECURITY)
   if (!HOME.empty())
-    setenv("HOME", HOME.c_str(), 1);
+    setenv("HOME", HOME.c_str(), true);
   else
     unsetenv("HOME");
 #endif
-
-  path pibPath(absolute(std::getenv("TEST_HOME")));
-  pibPath /= ".ndn/ndnsec-public-info.db";
-
-  boost::filesystem::remove(pibPath);
 }
 
-BOOST_AUTO_TEST_CASE(ConstructorEmpty2Config)
+struct PibPathEmptyFile
 {
-  using namespace boost::filesystem;
+  const std::string PATH = "build/keys-empty-file/";
+};
 
-  setenv("TEST_HOME", "tests/unit-tests/security/config-file-empty2-home", 1);
+BOOST_FIXTURE_TEST_CASE(ConstructorEmpty2Config, TestHomeAndPibFixture<PibPathEmptyFile>)
+{
+  createClientConf({"tpm=tpm-file:%PATH%"});
 
   BOOST_REQUIRE_NO_THROW(KeyChain());
 
   KeyChain keyChain;
-  BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(),
-                    "pib-sqlite3:");
-  BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(),
-                    "tpm-file:/tmp/test/ndn-cxx/keychain/empty-file/");
-  BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(),
-                    "tpm-file:/tmp/test/ndn-cxx/keychain/empty-file/");
-
-  path pibPath(absolute(std::getenv("TEST_HOME")));
-  pibPath /= ".ndn/ndnsec-public-info.db";
-
-  boost::filesystem::remove(pibPath);
+  BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-sqlite3:");
+  BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(), "tpm-file:" + m_pibDir);
+  BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-file:" + m_pibDir);
 }
 
-BOOST_AUTO_TEST_CASE(ConstructorMalConfig)
+BOOST_FIXTURE_TEST_CASE(ConstructorMalConfig, TestHomeAndPibFixture<DefaultPibDir>)
 {
-  using namespace boost::filesystem;
-
-  setenv("TEST_HOME", "tests/unit-tests/security/config-file-malformed-home", 1);
+  createClientConf({"pib=lord", "tpm=ring"});
 
   BOOST_REQUIRE_THROW(KeyChain(), KeyChain::Error); // Wrong configuration. Error expected.
 }
 
-BOOST_AUTO_TEST_CASE(ConstructorMal2Config)
+BOOST_FIXTURE_TEST_CASE(ConstructorMal2Config, TestHomeAndPibFixture<DefaultPibDir>)
 {
-  using namespace boost::filesystem;
-
-  setenv("TEST_HOME", "tests/unit-tests/security/config-file-malformed2-home", 1);
-
+  createClientConf({"pib=pib-sqlite3:%PATH%", "tpm=just-wrong"});
   BOOST_REQUIRE_THROW(KeyChain(), KeyChain::Error); // Wrong configuration. Error expected.
 }
 
-BOOST_AUTO_TEST_CASE(ExportIdentity)
+BOOST_FIXTURE_TEST_CASE(ExportIdentity, IdentityManagementFixture)
 {
-  KeyChain keyChain;
-
   Name identity("/TestKeyChain/ExportIdentity/");
   identity.appendVersion();
-  keyChain.createIdentity(identity);
+  addIdentity(identity);
 
-  shared_ptr<SecuredBag> exported = keyChain.exportIdentity(identity, "1234");
+  shared_ptr<SecuredBag> exported = m_keyChain.exportIdentity(identity, "1234");
 
   Block block = exported->wireEncode();
 
-  Name keyName = keyChain.getDefaultKeyNameForIdentity(identity);
-  Name certName = keyChain.getDefaultCertificateNameForKey(keyName);
+  Name keyName = m_keyChain.getDefaultKeyNameForIdentity(identity);
+  Name certName = m_keyChain.getDefaultCertificateNameForKey(keyName);
 
-  keyChain.deleteIdentity(identity);
+  m_keyChain.deleteIdentity(identity);
 
-  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), false);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName), false);
-  BOOST_CHECK_EQUAL(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
-  BOOST_CHECK_EQUAL(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesIdentityExist(identity), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesPublicKeyExist(keyName), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName), false);
 
   SecuredBag imported;
   imported.wireDecode(block);
-  keyChain.importIdentity(imported, "1234");
+  m_keyChain.importIdentity(imported, "1234");
 
-  BOOST_CHECK(keyChain.doesIdentityExist(identity));
-  BOOST_CHECK(keyChain.doesPublicKeyExist(keyName));
-  BOOST_CHECK(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE));
-  BOOST_CHECK(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC));
-  BOOST_CHECK(keyChain.doesCertificateExist(certName));
-
-  keyChain.deleteIdentity(identity);
-
-  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), false);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName), false);
-  BOOST_CHECK_EQUAL(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE), false);
-  BOOST_CHECK_EQUAL(keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC), false);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName), false);
+  BOOST_CHECK(m_keyChain.doesIdentityExist(identity));
+  BOOST_CHECK(m_keyChain.doesPublicKeyExist(keyName));
+  BOOST_CHECK(m_keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PRIVATE));
+  BOOST_CHECK(m_keyChain.doesKeyExistInTpm(keyName, KEY_CLASS_PUBLIC));
+  BOOST_CHECK(m_keyChain.doesCertificateExist(certName));
 }
 
-BOOST_AUTO_TEST_CASE(PrepareIdentityCertificate)
+BOOST_FIXTURE_TEST_CASE(PrepareIdentityCertificate, IdentityManagementFixture)
 {
-  KeyChain keyChain;
-
   Name identity("/TestKeyChain/PrepareIdentityCertificate/");
   identity.appendVersion();
-  keyChain.createIdentity(identity);
+  addIdentity(identity);
 
   std::vector<CertificateSubjectDescription> subjectDescription;
   Name lowerIdentity = identity;
   lowerIdentity.append("Lower").appendVersion();
-  Name lowerKeyName = keyChain.generateRsaKeyPair(lowerIdentity, true);
+  Name lowerKeyName = m_keyChain.generateRsaKeyPair(lowerIdentity, true);
   shared_ptr<IdentityCertificate> idCert =
-    keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
-                                                time::system_clock::now(),
-                                                time::system_clock::now() + time::days(365),
-                                                subjectDescription);
+    m_keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(365),
+                                                  subjectDescription);
   BOOST_CHECK(static_cast<bool>(idCert));
   BOOST_CHECK_EQUAL(idCert->getName().getPrefix(5),
                     Name().append(identity).append("KEY").append("Lower"));
   BOOST_CHECK(idCert->getFreshnessPeriod() >= time::milliseconds::zero());
 
   shared_ptr<IdentityCertificate> idCert11 =
-    keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
-                                                time::system_clock::now(),
-                                                time::system_clock::now() + time::days(365),
-                                                subjectDescription,
-                                                lowerIdentity);
+    m_keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(365),
+                                                  subjectDescription,
+                                                  lowerIdentity);
   BOOST_CHECK(static_cast<bool>(idCert11));
   BOOST_CHECK_EQUAL(idCert11->getName().getPrefix(6),
               Name().append(lowerIdentity).append("KEY"));
 
   Name anotherIdentity("/TestKeyChain/PrepareIdentityCertificate/Another/");
   anotherIdentity.appendVersion();
-  Name anotherKeyName = keyChain.generateRsaKeyPair(anotherIdentity, true);
+  Name anotherKeyName = m_keyChain.generateRsaKeyPair(anotherIdentity, true);
   shared_ptr<IdentityCertificate> idCert2 =
-    keyChain.prepareUnsignedIdentityCertificate(anotherKeyName, identity,
-                                                time::system_clock::now(),
-                                                time::system_clock::now() + time::days(365),
-                                                subjectDescription);
+    m_keyChain.prepareUnsignedIdentityCertificate(anotherKeyName, identity,
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(365),
+                                                  subjectDescription);
   BOOST_CHECK(static_cast<bool>(idCert2));
   BOOST_CHECK_EQUAL(idCert2->getName().getPrefix(5), Name().append(anotherIdentity).append("KEY"));
 
 
   Name wrongKeyName1;
   shared_ptr<IdentityCertificate> idCert3 =
-    keyChain.prepareUnsignedIdentityCertificate(wrongKeyName1, identity,
-                                                time::system_clock::now(),
-                                                time::system_clock::now() + time::days(365),
-                                                subjectDescription);
+    m_keyChain.prepareUnsignedIdentityCertificate(wrongKeyName1, identity,
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(365),
+                                                  subjectDescription);
   BOOST_CHECK_EQUAL(static_cast<bool>(idCert3), false);
 
 
   Name wrongKeyName2("/TestKeyChain/PrepareIdentityCertificate");
   shared_ptr<IdentityCertificate> idCert4 =
-    keyChain.prepareUnsignedIdentityCertificate(wrongKeyName2, identity,
-                                                time::system_clock::now(),
-                                                time::system_clock::now() + time::days(365),
-                                                subjectDescription);
+    m_keyChain.prepareUnsignedIdentityCertificate(wrongKeyName2, identity,
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(365),
+                                                  subjectDescription);
   BOOST_CHECK_EQUAL(static_cast<bool>(idCert4), false);
 
 
   Name wrongKeyName3("/TestKeyChain/PrepareIdentityCertificate/ksk-1234");
   shared_ptr<IdentityCertificate> idCert5 =
-    keyChain.prepareUnsignedIdentityCertificate(wrongKeyName3, identity,
-                                                time::system_clock::now(),
-                                                time::system_clock::now() + time::days(365),
-                                                subjectDescription);
+    m_keyChain.prepareUnsignedIdentityCertificate(wrongKeyName3, identity,
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(365),
+                                                  subjectDescription);
   BOOST_CHECK_EQUAL(static_cast<bool>(idCert5), false);
-
-  keyChain.deleteIdentity(identity);
-  keyChain.deleteIdentity(lowerIdentity);
-  keyChain.deleteIdentity(anotherIdentity);
 }
 
-BOOST_AUTO_TEST_CASE(Delete)
+BOOST_FIXTURE_TEST_CASE(Delete, IdentityManagementFixture)
 {
-  KeyChain keyChain;
-
   Name identity("/TestSecPublicInfoSqlite3/Delete");
   identity.appendVersion();
 
   Name certName1;
-  BOOST_REQUIRE_NO_THROW(certName1 = keyChain.createIdentity(identity));
+  BOOST_REQUIRE_NO_THROW(certName1 = m_keyChain.createIdentity(identity));
 
   Name keyName1 = IdentityCertificate::certificateNameToPublicKeyName(certName1);
   Name keyName2;
-  BOOST_REQUIRE_NO_THROW(keyName2 = keyChain.generateRsaKeyPairAsDefault(identity));
+  BOOST_REQUIRE_NO_THROW(keyName2 = m_keyChain.generateRsaKeyPairAsDefault(identity));
 
   shared_ptr<IdentityCertificate> cert2;
-  BOOST_REQUIRE_NO_THROW(cert2 = keyChain.selfSign(keyName2));
+  BOOST_REQUIRE_NO_THROW(cert2 = m_keyChain.selfSign(keyName2));
   Name certName2 = cert2->getName();
-  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert2));
+  BOOST_REQUIRE_NO_THROW(m_keyChain.addCertificateAsKeyDefault(*cert2));
 
   Name keyName3;
-  BOOST_REQUIRE_NO_THROW(keyName3 = keyChain.generateRsaKeyPairAsDefault(identity));
+  BOOST_REQUIRE_NO_THROW(keyName3 = m_keyChain.generateRsaKeyPairAsDefault(identity));
 
   shared_ptr<IdentityCertificate> cert3;
-  BOOST_REQUIRE_NO_THROW(cert3 = keyChain.selfSign(keyName3));
+  BOOST_REQUIRE_NO_THROW(cert3 = m_keyChain.selfSign(keyName3));
   Name certName3 = cert3->getName();
-  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert3));
+  BOOST_REQUIRE_NO_THROW(m_keyChain.addCertificateAsKeyDefault(*cert3));
   shared_ptr<IdentityCertificate> cert4;
-  BOOST_REQUIRE_NO_THROW(cert4 = keyChain.selfSign(keyName3));
+  BOOST_REQUIRE_NO_THROW(cert4 = m_keyChain.selfSign(keyName3));
   Name certName4 = cert4->getName();
-  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert4));
+  BOOST_REQUIRE_NO_THROW(m_keyChain.addCertificateAsKeyDefault(*cert4));
   shared_ptr<IdentityCertificate> cert5;
-  BOOST_REQUIRE_NO_THROW(cert5 = keyChain.selfSign(keyName3));
+  BOOST_REQUIRE_NO_THROW(cert5 = m_keyChain.selfSign(keyName3));
   Name certName5 = cert5->getName();
-  BOOST_REQUIRE_NO_THROW(keyChain.addCertificateAsKeyDefault(*cert5));
+  BOOST_REQUIRE_NO_THROW(m_keyChain.addCertificateAsKeyDefault(*cert5));
 
-  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), true);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), true);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName2), true);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName1), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName2), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName5), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesIdentityExist(identity), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesPublicKeyExist(keyName1), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesPublicKeyExist(keyName2), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesPublicKeyExist(keyName3), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName1), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName2), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName3), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName4), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName5), true);
 
-  BOOST_REQUIRE_NO_THROW(keyChain.deleteCertificate(certName5));
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName5), false);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), true);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), true);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), true);
+  BOOST_REQUIRE_NO_THROW(m_keyChain.deleteCertificate(certName5));
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName5), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName3), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName4), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesPublicKeyExist(keyName3), true);
 
-  BOOST_REQUIRE_NO_THROW(keyChain.deleteKey(keyName3));
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName4), false);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName3), false);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName3), false);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName2), true);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), true);
-  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), true);
+  BOOST_REQUIRE_NO_THROW(m_keyChain.deleteKey(keyName3));
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName4), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName3), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesPublicKeyExist(keyName3), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesPublicKeyExist(keyName2), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesPublicKeyExist(keyName1), true);
+  BOOST_CHECK_EQUAL(m_keyChain.doesIdentityExist(identity), true);
 
-  BOOST_REQUIRE_NO_THROW(keyChain.deleteIdentity(identity));
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName2), false);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName2), false);
-  BOOST_CHECK_EQUAL(keyChain.doesCertificateExist(certName1), false);
-  BOOST_CHECK_EQUAL(keyChain.doesPublicKeyExist(keyName1), false);
-  BOOST_CHECK_EQUAL(keyChain.doesIdentityExist(identity), false);
+  BOOST_REQUIRE_NO_THROW(m_keyChain.deleteIdentity(identity));
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName2), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesPublicKeyExist(keyName2), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesCertificateExist(certName1), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesPublicKeyExist(keyName1), false);
+  BOOST_CHECK_EQUAL(m_keyChain.doesIdentityExist(identity), false);
 }
 
 BOOST_AUTO_TEST_CASE(KeyChainWithCustomTpmAndPib)
@@ -345,63 +341,62 @@ BOOST_AUTO_TEST_CASE(KeyChainWithCustomTpmAndPib)
   BOOST_CHECK_EQUAL(keyChain.getDefaultIdentity(), "/dummy/key");
 }
 
-BOOST_AUTO_TEST_CASE(GeneralSigningInterface)
+BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
 {
-  KeyChain keyChain;
   Name id("/id");
-  Name certName = keyChain.createIdentity(id);
-  shared_ptr<IdentityCertificate> idCert = keyChain.getCertificate(certName);
+  Name certName = m_keyChain.createIdentity(id);
+  shared_ptr<IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
   Name keyName = idCert->getPublicKeyName();
-  keyChain.setDefaultIdentity(id);
+  m_keyChain.setDefaultIdentity(id);
 
   Name id2("/id2");
-  Name cert2Name = keyChain.createIdentity(id2);
-  shared_ptr<IdentityCertificate> id2Cert = keyChain.getCertificate(cert2Name);
+  Name cert2Name = m_keyChain.createIdentity(id2);
+  shared_ptr<IdentityCertificate> id2Cert = m_keyChain.getCertificate(cert2Name);
 
   // SigningInfo is set to default
   Data data1("/data1");
-  keyChain.sign(data1);
+  m_keyChain.sign(data1);
   BOOST_CHECK(Validator::verifySignature(data1, idCert->getPublicKeyInfo()));
   BOOST_CHECK_EQUAL(data1.getSignature().getKeyLocator().getName(), certName.getPrefix(-1));
 
   Interest interest1("/interest1");
-  keyChain.sign(interest1);
+  m_keyChain.sign(interest1);
   BOOST_CHECK(Validator::verifySignature(interest1, idCert->getPublicKeyInfo()));
   SignatureInfo sigInfo1(interest1.getName()[-2].blockFromValue());
   BOOST_CHECK_EQUAL(sigInfo1.getKeyLocator().getName(), certName.getPrefix(-1));
 
   // SigningInfo is set to Identity
   Data data2("/data2");
-  keyChain.sign(data2, SigningInfo(SigningInfo::SIGNER_TYPE_ID, id2));
+  m_keyChain.sign(data2, SigningInfo(SigningInfo::SIGNER_TYPE_ID, id2));
   BOOST_CHECK(Validator::verifySignature(data2, id2Cert->getPublicKeyInfo()));
   BOOST_CHECK_EQUAL(data2.getSignature().getKeyLocator().getName(), cert2Name.getPrefix(-1));
 
   Interest interest2("/interest2");
-  keyChain.sign(interest2, SigningInfo(SigningInfo::SIGNER_TYPE_ID, id2));
+  m_keyChain.sign(interest2, SigningInfo(SigningInfo::SIGNER_TYPE_ID, id2));
   BOOST_CHECK(Validator::verifySignature(interest2, id2Cert->getPublicKeyInfo()));
   SignatureInfo sigInfo2(interest2.getName()[-2].blockFromValue());
   BOOST_CHECK_EQUAL(sigInfo2.getKeyLocator().getName(), cert2Name.getPrefix(-1));
 
   // SigningInfo is set to Key
   Data data3("/data3");
-  keyChain.sign(data3, SigningInfo(SigningInfo::SIGNER_TYPE_KEY, keyName));
+  m_keyChain.sign(data3, SigningInfo(SigningInfo::SIGNER_TYPE_KEY, keyName));
   BOOST_CHECK(Validator::verifySignature(data3, idCert->getPublicKeyInfo()));
   BOOST_CHECK_EQUAL(data3.getSignature().getKeyLocator().getName(), certName.getPrefix(-1));
 
   Interest interest3("/interest3");
-  keyChain.sign(interest3);
+  m_keyChain.sign(interest3);
   BOOST_CHECK(Validator::verifySignature(interest3, idCert->getPublicKeyInfo()));
   SignatureInfo sigInfo3(interest1.getName()[-2].blockFromValue());
   BOOST_CHECK_EQUAL(sigInfo3.getKeyLocator().getName(), certName.getPrefix(-1));
 
   // SigningInfo is set to Cert
   Data data4("/data4");
-  keyChain.sign(data4, SigningInfo(SigningInfo::SIGNER_TYPE_CERT, certName));
+  m_keyChain.sign(data4, SigningInfo(SigningInfo::SIGNER_TYPE_CERT, certName));
   BOOST_CHECK(Validator::verifySignature(data4, idCert->getPublicKeyInfo()));
   BOOST_CHECK_EQUAL(data4.getSignature().getKeyLocator().getName(), certName.getPrefix(-1));
 
   Interest interest4("/interest4");
-  keyChain.sign(interest4, SigningInfo(SigningInfo::SIGNER_TYPE_CERT, certName));
+  m_keyChain.sign(interest4, SigningInfo(SigningInfo::SIGNER_TYPE_CERT, certName));
   BOOST_CHECK(Validator::verifySignature(interest4, idCert->getPublicKeyInfo()));
   SignatureInfo sigInfo4(interest4.getName()[-2].blockFromValue());
   BOOST_CHECK_EQUAL(sigInfo4.getKeyLocator().getName(), certName.getPrefix(-1));
@@ -409,32 +404,31 @@ BOOST_AUTO_TEST_CASE(GeneralSigningInterface)
 
   // SigningInfo is set to DigestSha256
   Data data5("/data5");
-  keyChain.sign(data5, SigningInfo(SigningInfo::SIGNER_TYPE_SHA256));
+  m_keyChain.sign(data5, SigningInfo(SigningInfo::SIGNER_TYPE_SHA256));
   BOOST_CHECK(Validator::verifySignature(data5, DigestSha256(data5.getSignature())));
 
   Interest interest5("/interest4");
-  keyChain.sign(interest5, SigningInfo(SigningInfo::SIGNER_TYPE_SHA256));
+  m_keyChain.sign(interest5, SigningInfo(SigningInfo::SIGNER_TYPE_SHA256));
   BOOST_CHECK(Validator::verifySignature(interest5,
                                          DigestSha256(Signature(interest5.getName()[-2].blockFromValue(),
                                                                 interest5.getName()[-1].blockFromValue()))));
 }
 
-BOOST_AUTO_TEST_CASE(EcdsaSigningByIdentityNoCert)
+BOOST_FIXTURE_TEST_CASE(EcdsaSigningByIdentityNoCert, IdentityManagementFixture)
 {
-  KeyChain keyChain;
   Data data("/test/data");
 
   Name nonExistingIdentity = Name("/non-existing/identity").appendVersion();
 
-  BOOST_CHECK_NO_THROW(keyChain.sign(data, signingByIdentity(nonExistingIdentity)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(nonExistingIdentity)));
   BOOST_CHECK_EQUAL(data.getSignature().getType(),
                     KeyChain::getSignatureType(KeyChain::DEFAULT_KEY_PARAMS.getKeyType(),
                                                DIGEST_ALGORITHM_SHA256));
   BOOST_CHECK(nonExistingIdentity.isPrefixOf(data.getSignature().getKeyLocator().getName()));
 
   Name ecdsaIdentity = Name("/ndn/test/ecdsa").appendVersion();
-  Name ecdsaKeyName = keyChain.generateEcdsaKeyPairAsDefault(ecdsaIdentity, false, 256);
-  BOOST_CHECK_NO_THROW(keyChain.sign(data, signingByIdentity(ecdsaIdentity)));
+  Name ecdsaKeyName = m_keyChain.generateEcdsaKeyPairAsDefault(ecdsaIdentity, false, 256);
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(ecdsaIdentity)));
   BOOST_CHECK_EQUAL(data.getSignature().getType(),
                     KeyChain::getSignatureType(EcdsaKeyParams().getKeyType(), DIGEST_ALGORITHM_SHA256));
   BOOST_CHECK(ecdsaIdentity.isPrefixOf(data.getSignature().getKeyLocator().getName()));

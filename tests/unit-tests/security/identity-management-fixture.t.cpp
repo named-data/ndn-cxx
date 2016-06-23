@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,6 @@
 #include "boost-test.hpp"
 
 namespace ndn {
-namespace security {
 namespace tests {
 
 BOOST_FIXTURE_TEST_SUITE(SecurityIdentityManagementFixture, IdentityManagementFixture)
@@ -40,5 +39,4 @@ BOOST_AUTO_TEST_CASE(Tmp)
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
-} // namespace security
 } // namespace ndn

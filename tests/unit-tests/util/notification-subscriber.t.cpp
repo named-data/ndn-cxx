@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California,
+ * Copyright (c) 2013-2016 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -31,7 +31,7 @@
 #include "util/dummy-client-face.hpp"
 
 #include "boost-test.hpp"
-#include "../unit-test-time-fixture.hpp"
+#include "../identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace util {
@@ -39,14 +39,14 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(UtilNotificationSubscriber)
 
-class EndToEndFixture : public ndn::tests::UnitTestTimeFixture
+class EndToEndFixture : public ndn::tests::IdentityManagementTimeFixture
 {
 public:
   EndToEndFixture()
     : streamPrefix("ndn:/NotificationSubscriberTest")
-    , publisherFace(io)
-    , notificationStream(publisherFace, streamPrefix, publisherKeyChain)
-    , subscriberFace(io)
+    , publisherFace(io, m_keyChain)
+    , notificationStream(publisherFace, streamPrefix, m_keyChain)
+    , subscriberFace(io, m_keyChain)
     , subscriber(subscriberFace, streamPrefix, time::seconds(1))
   {
   }
@@ -125,7 +125,6 @@ public:
 protected:
   Name streamPrefix;
   DummyClientFace publisherFace;
-  ndn::KeyChain publisherKeyChain;
   util::NotificationStream<SimpleNotification> notificationStream;
   DummyClientFace subscriberFace;
   util::NotificationSubscriber<SimpleNotification> subscriber;
@@ -189,7 +188,7 @@ BOOST_FIXTURE_TEST_CASE(EndToEnd, EndToEndFixture)
   Name wrongName = streamPrefix;
   wrongName.append("%07%07");
   Data wrongData(wrongName);
-  publisherKeyChain.sign(wrongData);
+  m_keyChain.sign(wrongData);
   subscriberFace.receive(wrongData);
   subscriberFace.sentInterests.clear();
   lastNotification.setMessage("");

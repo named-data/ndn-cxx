@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,18 +19,17 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
-#define NDN_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
+#ifndef NDN_TESTS_UNIT_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
+#define NDN_TESTS_UNIT_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
 
 #include "security/key-chain.hpp"
-#include <vector>
+
 #include "identity-management-fixture.hpp"
 #include "unit-test-time-fixture.hpp"
-
 #include "boost-test.hpp"
 
 namespace ndn {
-namespace security {
+namespace tests {
 
 /**
  * @brief IdentityManagementTimeFixture is a test suite level fixture.
@@ -47,7 +46,7 @@ public:
   ~IdentityManagementTimeFixture();
 };
 
-} // namespace security
+} // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
+#endif // NDN_TESTS_UNIT_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP

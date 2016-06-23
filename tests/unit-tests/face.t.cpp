@@ -27,7 +27,8 @@
 #include "transport/unix-transport.hpp"
 
 #include "boost-test.hpp"
-#include "unit-test-time-fixture.hpp"
+#include "identity-management-time-fixture.hpp"
+#include "key-chain-fixture.hpp"
 #include "make-interest-data.hpp"
 
 namespace ndn {
@@ -35,12 +36,12 @@ namespace tests {
 
 using ndn::util::DummyClientFace;
 
-class FaceFixture : public UnitTestTimeFixture
+class FaceFixture : public IdentityManagementTimeFixture
 {
 public:
   explicit
   FaceFixture(bool enableRegistrationReply = true)
-    : face(io, { true, enableRegistrationReply })
+    : face(io, m_keyChain, { true, enableRegistrationReply })
   {
   }
 
@@ -587,7 +588,7 @@ BOOST_AUTO_TEST_CASE(PutNack)
 BOOST_AUTO_TEST_CASE(DestructionWithoutCancellingPendingInterests) // Bug #2518
 {
   {
-    DummyClientFace face2(io);
+    DummyClientFace face2(io, m_keyChain);
     face2.expressInterest(Interest("/Hello/World", time::milliseconds(50)),
                           bind([]{}), bind([]{}));
     advanceClocks(time::milliseconds(10), 10);
@@ -597,9 +598,15 @@ BOOST_AUTO_TEST_CASE(DestructionWithoutCancellingPendingInterests) // Bug #2518
   // should not segfault
 }
 
-BOOST_AUTO_TEST_CASE(FaceTransport)
+struct PibDirWithDefaultTpm
+{
+  const std::string PATH = "build/keys-with-default-tpm";
+};
+
+BOOST_FIXTURE_TEST_CASE(FaceTransport, PibDirFixture<PibDirWithDefaultTpm>)
 {
   KeyChain keyChain;
+  boost::asio::io_service io;
 
   BOOST_CHECK(Face().getTransport() != nullptr);
 

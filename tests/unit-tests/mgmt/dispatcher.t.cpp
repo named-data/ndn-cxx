@@ -25,8 +25,8 @@
 
 #include "boost-test.hpp"
 #include "identity-management-fixture.hpp"
-#include "unit-tests/unit-test-time-fixture.hpp"
-#include "unit-tests/make-interest-data.hpp"
+#include "../identity-management-time-fixture.hpp"
+#include "../make-interest-data.hpp"
 
 namespace ndn {
 namespace mgmt {
@@ -37,12 +37,11 @@ using namespace ndn::tests;
 BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_AUTO_TEST_SUITE(TestDispatcher)
 
-class DispatcherFixture : public UnitTestTimeFixture
-                        , public security::IdentityManagementFixture
+class DispatcherFixture : public IdentityManagementTimeFixture
 {
 public:
   DispatcherFixture()
-    : face(io, {true, true})
+    : face(io, m_keyChain, {true, true})
     , dispatcher(face, m_keyChain, security::SigningInfo())
     , storage(dispatcher.m_storage)
   {

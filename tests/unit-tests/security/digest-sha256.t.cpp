@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@
 namespace ndn {
 namespace tests {
 
-BOOST_FIXTURE_TEST_SUITE(SecurityDigestSha256, security::IdentityManagementFixture)
+BOOST_FIXTURE_TEST_SUITE(SecurityDigestSha256, IdentityManagementFixture)
 
 std::string SHA256_RESULT("a883dafc480d466ee04e0d6da986bd78eb1fdd2178d04693723da3a8f95d42f4");
 

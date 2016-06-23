@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,11 +29,18 @@
 
 #include "identity-management-fixture.hpp"
 #include "boost-test.hpp"
+#include "key-chain-fixture.hpp"
 
 namespace ndn {
 namespace tests {
 
-class FacesFixture : public security::IdentityManagementFixture
+struct PibDirWithDefaultTpm
+{
+  const std::string PATH = "build/keys-with-default-tpm";
+};
+
+class FacesFixture : public IdentityManagementFixture,
+                     public PibDirFixture<PibDirWithDefaultTpm>
 {
 public:
   FacesFixture()
@@ -522,5 +529,5 @@ BOOST_AUTO_TEST_CASE(LargeDelayBetweenFaceConstructorAndProcessEvents) // Bug #2
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // tests
+} // namespace tests
 } // namespace ndn

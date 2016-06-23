@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,6 +25,7 @@
 #include "encoding/buffer-stream.hpp"
 
 #include "boost-test.hpp"
+#include "identity-management-fixture.hpp"
 
 namespace ndn {
 namespace tests {
@@ -315,29 +316,7 @@ BOOST_FIXTURE_TEST_CASE(Encode, TestDataFixture)
                     "Signature: (type: 1, value_length: 128)\n");
 }
 
-class DataIdentityFixture
-{
-public:
-  DataIdentityFixture()
-    : identity("/TestData")
-  {
-    identity.appendVersion();
-
-    BOOST_REQUIRE_NO_THROW(certName = keyChain.createIdentity(identity));
-  }
-
-  ~DataIdentityFixture()
-  {
-    BOOST_CHECK_NO_THROW(keyChain.deleteIdentity(identity));
-  }
-
-public:
-  KeyChain keyChain;
-  Name identity;
-  Name certName;
-};
-
-BOOST_FIXTURE_TEST_CASE(FullName, DataIdentityFixture)
+BOOST_FIXTURE_TEST_CASE(FullName, IdentityManagementFixture)
 {
   // Encoding pipeline
 
@@ -349,7 +328,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, DataIdentityFixture)
 
   BOOST_CHECK_THROW(d.getFullName(), Data::Error);
 
-  keyChain.sign(d, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_CERT, certName));
+  m_keyChain.sign(d);
 
   Name fullName;
   BOOST_REQUIRE_NO_THROW(fullName = d.getFullName());

@@ -29,7 +29,7 @@
 #include "util/dummy-client-face.hpp"
 #include "security/key-chain.hpp"
 #include "lp/nack-header.hpp"
-#include "../unit-test-time-fixture.hpp"
+#include "../identity-management-time-fixture.hpp"
 #include "../make-interest-data.hpp"
 
 namespace ndn {
@@ -62,11 +62,11 @@ protected:
   }
 };
 
-class Fixture : public ndn::tests::UnitTestTimeFixture
+class Fixture : public ndn::tests::IdentityManagementTimeFixture
 {
 public:
   Fixture()
-    : face(io)
+    : face(io, m_keyChain)
     , nErrors(0)
     , nDatas(0)
     , dataSize(0)
@@ -115,7 +115,6 @@ public:
 
 public:
   DummyClientFace face;
-  KeyChain keyChain;
 
   uint32_t nErrors;
   uint32_t lastError;

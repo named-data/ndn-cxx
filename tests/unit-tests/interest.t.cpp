@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,11 +28,12 @@
 #include "encoding/buffer-stream.hpp"
 
 #include "boost-test.hpp"
+#include "identity-management-fixture.hpp"
 
 namespace ndn {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(TestInterest)
+BOOST_FIXTURE_TEST_SUITE(TestInterest, IdentityManagementFixture)
 
 const uint8_t Interest1[] = {
   0x05,  0x59, // NDN Interest
@@ -701,8 +702,7 @@ BOOST_AUTO_TEST_CASE(SelectorsEqualityChecks)
 BOOST_AUTO_TEST_CASE(LinkObject)
 {
   Link link1("test", {{100, "/test3"}, {20, "/test2"}, {10, "/test1"}});
-  KeyChain keyChain;
-  keyChain.sign(link1);
+  m_keyChain.sign(link1);
   Block wire = link1.wireEncode();
 
   Interest a;
@@ -737,8 +737,7 @@ BOOST_AUTO_TEST_CASE(LinkObject)
 BOOST_AUTO_TEST_CASE(SelectedDelegationChecks)
 {
   Link link("test", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
-  KeyChain keyChain;
-  keyChain.sign(link);
+  m_keyChain.sign(link);
   Block wire = link.wireEncode();
 
   Interest a;
@@ -758,8 +757,7 @@ BOOST_AUTO_TEST_CASE(SelectedDelegationChecks)
 BOOST_AUTO_TEST_CASE(EncodeDecodeWithLink)
 {
   Link link1("test", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
-  KeyChain keyChain;
-  keyChain.sign(link1);
+  m_keyChain.sign(link1);
   Block wire = link1.wireEncode();
 
   Interest a;
@@ -874,8 +872,7 @@ BOOST_AUTO_TEST_CASE(SelectedDelegationIsNotNonNegativeInteger)
 BOOST_AUTO_TEST_CASE(SelectedDelegationEqualToDelegationCount)
 {
   Link link1("test", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
-  KeyChain keyChain;
-  keyChain.sign(link1);
+  m_keyChain.sign(link1);
   Block wire = link1.wireEncode();
 
   Interest a;
@@ -890,8 +887,7 @@ BOOST_AUTO_TEST_CASE(SelectedDelegationEqualToDelegationCount)
 BOOST_AUTO_TEST_CASE(SelectedDelegationGreaterThanDelegationCount)
 {
   Link link1("test", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
-  KeyChain keyChain;
-  keyChain.sign(link1);
+  m_keyChain.sign(link1);
   Block wire = link1.wireEncode();
 
   Interest a;

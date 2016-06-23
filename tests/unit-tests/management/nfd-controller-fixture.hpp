@@ -32,11 +32,11 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class ControllerFixture : public security::IdentityManagementTimeFixture
+class ControllerFixture : public IdentityManagementTimeFixture
 {
 protected:
   ControllerFixture()
-    : face(io)
+    : face(io, m_keyChain)
     , controller(face, m_keyChain)
     , failCallback(bind(&ControllerFixture::fail, this, _1, _2))
   {

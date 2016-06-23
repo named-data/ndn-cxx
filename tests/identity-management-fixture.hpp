@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,7 +28,7 @@
 #include "boost-test.hpp"
 
 namespace ndn {
-namespace security {
+namespace tests {
 
 /**
  * @brief IdentityManagementFixture is a test suite level fixture.
@@ -52,7 +52,7 @@ protected:
   std::vector<Name> m_identities;
 };
 
-} // namespace security
+} // namespace tests
 } // namespace ndn
 
 #endif // NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,6 +25,7 @@
 #include "encoding/buffer-stream.hpp"
 
 #include "boost-test.hpp"
+#include "identity-management-fixture.hpp"
 
 namespace ndn {
 namespace tests {
@@ -290,11 +291,10 @@ BOOST_AUTO_TEST_CASE(CheckRemoveDelegation)
   }
 }
 
-BOOST_AUTO_TEST_CASE(CheckEncodeDecode)
+BOOST_FIXTURE_TEST_CASE(CheckEncodeDecode, IdentityManagementFixture)
 {
   Link link1("test", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
-  KeyChain keyChain;
-  keyChain.sign(link1);
+  m_keyChain.sign(link1);
   Block wire = link1.wireEncode();
 
   Link link2;
