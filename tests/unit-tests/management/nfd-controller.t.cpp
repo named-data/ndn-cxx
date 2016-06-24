@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,55 +24,36 @@
 
 #include <boost/tuple/tuple.hpp>
 
-#include "boost-test.hpp"
-#include "util/dummy-client-face.hpp"
+#include "nfd-controller-fixture.hpp"
 #include "../make-interest-data.hpp"
-#include "../unit-test-time-fixture.hpp"
 
 namespace ndn {
 namespace nfd {
 namespace tests {
 
-using ndn::util::DummyClientFace;
+using ndn::util::makeData;
+using ndn::util::makeNack;
 
 BOOST_AUTO_TEST_SUITE(Management)
 
-class CommandFixture : public ndn::tests::UnitTestTimeFixture
+class CommandFixture : public ControllerFixture
 {
 protected:
   CommandFixture()
-    : face(io)
-    , controller(face, keyChain)
-    , commandSucceedCallback(bind(&CommandFixture::onCommandSucceed, this, _1))
-    , commandFailCallback(bind(&CommandFixture::onCommandFail, this, _1, _2))
+    : succeedCallback(bind(&CommandFixture::succeed, this, _1))
   {
   }
 
 private:
   void
-  onCommandSucceed(const ControlParameters& parameters)
+  succeed(const ControlParameters& parameters)
   {
-    commandSucceedHistory.push_back(boost::make_tuple(parameters));
-  }
-
-  void
-  onCommandFail(uint32_t code, const std::string& reason)
-  {
-    commandFailHistory.push_back(boost::make_tuple(code, reason));
+    succeeds.push_back(parameters);
   }
 
 protected:
-  DummyClientFace face;
-  KeyChain keyChain;
-  Controller controller;
-
-  Controller::CommandSucceedCallback commandSucceedCallback;
-  typedef boost::tuple<ControlParameters> CommandSucceedArgs;
-  std::vector<CommandSucceedArgs> commandSucceedHistory;
-
-  Controller::CommandFailCallback commandFailCallback;
-  typedef boost::tuple<uint32_t,std::string> CommandFailArgs;
-  std::vector<CommandFailArgs> commandFailHistory;
+  Controller::CommandSucceedCallback succeedCallback;
+  std::vector<ControlParameters> succeeds;
 };
 
 BOOST_FIXTURE_TEST_SUITE(TestNfdController, CommandFixture)
@@ -83,10 +64,7 @@ BOOST_AUTO_TEST_CASE(CommandSuccess)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                       parameters,
-                       commandSucceedCallback,
-                       commandFailCallback));
-
+                         parameters, succeedCallback, failCallback));
   advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -110,17 +88,16 @@ BOOST_AUTO_TEST_CASE(CommandSuccess)
   ControlResponse responsePayload(201, "created");
   responsePayload.setBody(responseBody.wireEncode());
 
-  auto responseData = util::makeData(requestInterest.getName());
+  auto responseData = makeData(requestInterest.getName());
   responseData->setContent(responsePayload.wireEncode());
   face.receive(*responseData);
 
   advanceClocks(time::milliseconds(1));
 
-  BOOST_CHECK_EQUAL(commandFailHistory.size(), 0);
-  BOOST_REQUIRE_EQUAL(commandSucceedHistory.size(), 1);
-  const ControlParameters& response = commandSucceedHistory[0].get<0>();
-  BOOST_CHECK_EQUAL(response.getUri(), responseBody.getUri());
-  BOOST_CHECK_EQUAL(response.getFaceId(), responseBody.getFaceId());
+  BOOST_CHECK_EQUAL(failCodes.size(), 0);
+  BOOST_REQUIRE_EQUAL(succeeds.size(), 1);
+  BOOST_CHECK_EQUAL(succeeds.back().getUri(), responseBody.getUri());
+  BOOST_CHECK_EQUAL(succeeds.back().getFaceId(), responseBody.getFaceId());
 }
 
 BOOST_AUTO_TEST_CASE(CommandInvalidRequest)
@@ -130,9 +107,7 @@ BOOST_AUTO_TEST_CASE(CommandInvalidRequest)
   // Uri is missing
 
   BOOST_CHECK_THROW(controller.start<FaceCreateCommand>(
-                      parameters,
-                      commandSucceedCallback,
-                      commandFailCallback),
+                      parameters, succeedCallback, failCallback),
                     ControlCommand::ArgumentError);
 }
 
@@ -142,9 +117,7 @@ BOOST_AUTO_TEST_CASE(CommandErrorCode)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters,
-                         commandSucceedCallback,
-                         commandFailCallback));
+                         parameters, succeedCallback, failCallback));
   advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -152,14 +125,14 @@ BOOST_AUTO_TEST_CASE(CommandErrorCode)
 
   ControlResponse responsePayload(401, "Not Authenticated");
 
-  auto responseData = util::makeData(requestInterest.getName());
+  auto responseData = makeData(requestInterest.getName());
   responseData->setContent(responsePayload.wireEncode());
   face.receive(*responseData);
   advanceClocks(time::milliseconds(1));
 
-  BOOST_CHECK_EQUAL(commandSucceedHistory.size(), 0);
-  BOOST_REQUIRE_EQUAL(commandFailHistory.size(), 1);
-  BOOST_CHECK_EQUAL(commandFailHistory[0].get<0>(), 401);
+  BOOST_CHECK_EQUAL(succeeds.size(), 0);
+  BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
+  BOOST_CHECK_EQUAL(failCodes.back(), 401);
 }
 
 BOOST_AUTO_TEST_CASE(CommandInvalidResponse)
@@ -168,9 +141,7 @@ BOOST_AUTO_TEST_CASE(CommandInvalidResponse)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters,
-                         commandSucceedCallback,
-                         commandFailCallback));
+                         parameters, succeedCallback, failCallback));
   advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -183,13 +154,13 @@ BOOST_AUTO_TEST_CASE(CommandInvalidResponse)
   ControlResponse responsePayload(201, "created");
   responsePayload.setBody(responseBody.wireEncode());
 
-  auto responseData = util::makeData(requestInterest.getName());
+  auto responseData = makeData(requestInterest.getName());
   responseData->setContent(responsePayload.wireEncode());
   face.receive(*responseData);
   advanceClocks(time::milliseconds(1));
 
-  BOOST_CHECK_EQUAL(commandSucceedHistory.size(), 0);
-  BOOST_REQUIRE_EQUAL(commandFailHistory.size(), 1);
+  BOOST_CHECK_EQUAL(succeeds.size(), 0);
+  BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(CommandNack)
@@ -198,20 +169,18 @@ BOOST_AUTO_TEST_CASE(CommandNack)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                       parameters,
-                       commandSucceedCallback,
-                       commandFailCallback));
+                         parameters, succeedCallback, failCallback));
   advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
   const Interest& requestInterest = face.sentInterests[0];
 
-  auto responseNack = util::makeNack(requestInterest, lp::NackReason::NO_ROUTE);
+  auto responseNack = makeNack(requestInterest, lp::NackReason::NO_ROUTE);
   face.receive(responseNack);
   advanceClocks(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(commandFailHistory.size(), 1);
-  BOOST_CHECK_EQUAL(commandFailHistory[0].get<0>(), Controller::ERROR_NACK);
+  BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
+  BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_NACK);
 }
 
 BOOST_AUTO_TEST_CASE(OptionsPrefix)
@@ -224,10 +193,7 @@ BOOST_AUTO_TEST_CASE(OptionsPrefix)
   options.setPrefix("/localhop/net/example/router1/nfd");
 
   BOOST_CHECK_NO_THROW(controller.start<RibRegisterCommand>(
-                       parameters,
-                       commandSucceedCallback,
-                       commandFailCallback,
-                       options));
+                         parameters, succeedCallback, failCallback, options));
   advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -247,18 +213,17 @@ BOOST_AUTO_TEST_CASE(OptionsTimeout)
   options.setTimeout(time::milliseconds(50));
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                       parameters,
-                       commandSucceedCallback,
-                       commandFailCallback,
-                       options));
+                         parameters, succeedCallback, failCallback, options));
   advanceClocks(time::milliseconds(1), 101); // Face's PIT granularity is 100ms
 
-  BOOST_REQUIRE_EQUAL(commandFailHistory.size(), 1);
-  BOOST_CHECK_EQUAL(commandFailHistory[0].get<0>(), Controller::ERROR_TIMEOUT);
+  BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
+  BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_TIMEOUT);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestController
 BOOST_AUTO_TEST_SUITE_END() // Management
+
+// Controller::fetch<Dataset> has a separate test suite in nfd-status-dataset.t.cpp
 
 } // namespace tests
 } // namespace nfd

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,18 +21,23 @@
 
 #include "nfd-controller.hpp"
 #include "nfd-control-response.hpp"
+#include "../util/segment-fetcher.hpp"
 
 namespace ndn {
 namespace nfd {
+
+using ndn::util::SegmentFetcher;
 
 const uint32_t Controller::ERROR_TIMEOUT = 10060; // WinSock ESAETIMEDOUT
 const uint32_t Controller::ERROR_NACK = 10800; // 10000 + TLV-TYPE of Nack header
 const uint32_t Controller::ERROR_SERVER = 500;
 const uint32_t Controller::ERROR_LBOUND = 400;
+ValidatorNull Controller::s_validatorNull;
 
 Controller::Controller(Face& face, KeyChain& keyChain)
   : m_face(face)
   , m_keyChain(keyChain)
+  , m_validator(s_validatorNull) /// \todo #3653 accept validator as constructor parameter
 {
 }
 
@@ -101,6 +106,42 @@ Controller::processCommandResponse(const Data& data,
 
   if (static_cast<bool>(onSuccess))
     onSuccess(parameters);
+}
+
+void
+Controller::fetchDataset(const Name& prefix,
+                         const std::function<void(const ConstBufferPtr&)>& processResponse,
+                         const CommandFailCallback& onFailure,
+                         const CommandOptions& options)
+{
+  Interest baseInterest(prefix);
+  baseInterest.setInterestLifetime(options.getTimeout());
+
+  SegmentFetcher::fetch(m_face, baseInterest, m_validator, processResponse,
+                        bind(&Controller::processDatasetFetchError, this, onFailure, _1, _2));
+}
+
+void
+Controller::processDatasetFetchError(const CommandFailCallback& onFailure,
+                                     uint32_t code, std::string msg)
+{
+  switch (static_cast<SegmentFetcher::ErrorCode>(code)) {
+    // It's intentional to cast as SegmentFetcher::ErrorCode, and to not have a 'default' clause.
+    // This forces the switch statement to handle every defined SegmentFetcher::ErrorCode,
+    // and breaks compilation if it does not.
+    case SegmentFetcher::ErrorCode::INTEREST_TIMEOUT:
+      onFailure(ERROR_TIMEOUT, msg);
+      break;
+    case SegmentFetcher::ErrorCode::DATA_HAS_NO_SEGMENT:
+      onFailure(ERROR_SERVER, msg);
+      break;
+    case SegmentFetcher::ErrorCode::SEGMENT_VALIDATION_FAIL:
+      BOOST_ASSERT(false); /// \todo #3653 introduce ERROR_VALIDATION
+      break;
+    case SegmentFetcher::ErrorCode::NACK_ERROR:
+      onFailure(ERROR_NACK, msg);
+      break;
+  }
 }
 
 } // namespace nfd
