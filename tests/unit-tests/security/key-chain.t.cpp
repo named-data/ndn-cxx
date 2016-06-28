@@ -42,30 +42,13 @@ using namespace ndn::tests;
 BOOST_FIXTURE_TEST_SUITE(SecurityKeyChain, util::TestHomeEnvironmentFixture)
 
 template<class Path>
-class TestHomeAndPibFixture : public PibDirFixture<Path>
+class TestHomeAndPibFixture : public TestHomeFixture<Path>
 {
 public:
   TestHomeAndPibFixture()
   {
-    setenv("TEST_HOME", this->m_pibDir.c_str(), true);
     unsetenv("NDN_CLIENT_PIB");
     unsetenv("NDN_CLIENT_TPM");
-  }
-
-  ~TestHomeAndPibFixture()
-  {
-    unsetenv("TEST_HOME");
-  }
-
-  void
-  createClientConf(std::initializer_list<std::string> lines)
-  {
-    boost::filesystem::create_directories(boost::filesystem::path(this->m_pibDir) / ".ndn");
-    std::ofstream of((boost::filesystem::path(this->m_pibDir) / ".ndn" / "client.conf").c_str());
-    for (auto line : lines) {
-      boost::replace_all(line, "%PATH%", this->m_pibDir);
-      of << line << std::endl;
-    }
   }
 };
 

@@ -28,6 +28,8 @@
 #include "identity-management-fixture.hpp"
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
+#include <fstream>
 
 namespace ndn {
 namespace tests {
@@ -84,6 +86,36 @@ private:
   std::string m_oldTpm;
 };
 
+/**
+ * @brief Extension of PibDirFixture to set TEST_HOME variable and allow config file creation
+ */
+template<class Path>
+class TestHomeFixture : public PibDirFixture<Path>
+{
+public:
+  TestHomeFixture()
+  {
+    setenv("TEST_HOME", this->m_pibDir.c_str(), true);
+  }
+
+  ~TestHomeFixture()
+  {
+    unsetenv("TEST_HOME");
+  }
+
+  void
+  createClientConf(std::initializer_list<std::string> lines)
+  {
+    boost::filesystem::create_directories(boost::filesystem::path(this->m_pibDir) / ".ndn");
+    std::ofstream of((boost::filesystem::path(this->m_pibDir) / ".ndn" / "client.conf").c_str());
+    for (auto line : lines) {
+      boost::replace_all(line, "%PATH%", this->m_pibDir);
+      of << line << std::endl;
+    }
+  }
+};
+
+
 struct DefaultPibDir
 {
   const std::string PATH = "build/keys";
@@ -98,6 +130,7 @@ class KeyChainFixture : public PibDirFixture<DefaultPibDir>,
 public:
   KeyChainFixture();
 };
+
 
 } // namespace tests
 } // namespace ndn

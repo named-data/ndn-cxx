@@ -620,24 +620,116 @@ BOOST_FIXTURE_TEST_CASE(FaceTransport, PibDirFixture<PibDirWithDefaultTpm>)
   BOOST_CHECK(Face(transport, io, keyChain).getTransport() == transport);
 }
 
-BOOST_AUTO_TEST_CASE(CustomizeTransportWithEnv)
+BOOST_AUTO_TEST_SUITE(CustomizeTransport)
+
+class WithEnv : private IdentityManagementTimeFixture
+{
+public:
+  WithEnv()
+  {
+    if (getenv("NDN_CLIENT_TRANSPORT") != nullptr) {
+      m_oldTransport = getenv("NDN_CLIENT_TRANSPORT");
+      unsetenv("NDN_CLIENT_TRANSPORT");
+    }
+  }
+
+  void
+  configure(const std::string& faceUri)
+  {
+    setenv("NDN_CLIENT_TRANSPORT", faceUri.c_str(), true);
+  }
+
+  ~WithEnv()
+  {
+    if (!m_oldTransport.empty()) {
+      setenv("NDN_CLIENT_TRANSPORT", m_oldTransport.c_str(), true);
+    }
+    else {
+      unsetenv("NDN_CLIENT_TRANSPORT");
+    }
+  }
+
+private:
+  std::string m_oldTransport;
+};
+
+class WithConfig : private TestHomeFixture<DefaultPibDir>
+{
+public:
+  void
+  configure(const std::string& faceUri)
+  {
+    createClientConf({"transport=" + faceUri});
+  }
+};
+
+class WithEnvAndConfig : public WithEnv, public WithConfig
+{
+};
+
+typedef boost::mpl::vector<WithEnv, WithConfig> ConfigOptions;
+
+BOOST_FIXTURE_TEST_CASE(NoConfig, WithEnvAndConfig) // fixture configures test HOME and PIB/TPM path
 {
   shared_ptr<Face> face;
   BOOST_REQUIRE_NO_THROW(face = make_shared<Face>());
   BOOST_CHECK(dynamic_pointer_cast<UnixTransport>(face->getTransport()) != nullptr);
-
-  setenv("NDN_CLIENT_TRANSPORT", "tcp://localhost:6363", true);
-  BOOST_REQUIRE_NO_THROW(face = make_shared<Face>());
-  BOOST_CHECK(dynamic_pointer_cast<TcpTransport>(face->getTransport()) != nullptr);
-  unsetenv("NDN_CLIENT_TRANSPORT");
-
-  setenv("NDN_CLIENT_TRANSPORT", "wrong-transport:", true);
-  BOOST_CHECK_THROW(face = make_shared<Face>(), ConfigFile::Error);
-  unsetenv("NDN_CLIENT_TRANSPORT");
 }
 
-/// @todo Tests to create Face using the config file
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(Unix, T, ConfigOptions, T)
+{
+  this->configure("unix://some/path");
 
+  shared_ptr<Face> face;
+  BOOST_REQUIRE_NO_THROW(face = make_shared<Face>());
+  BOOST_CHECK(dynamic_pointer_cast<UnixTransport>(face->getTransport()) != nullptr);
+}
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(Tcp, T, ConfigOptions, T)
+{
+  this->configure("tcp://127.0.0.1:6000");
+
+  shared_ptr<Face> face;
+  BOOST_REQUIRE_NO_THROW(face = make_shared<Face>());
+  BOOST_CHECK(dynamic_pointer_cast<TcpTransport>(face->getTransport()) != nullptr);
+}
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(WrongTransport, T, ConfigOptions, T)
+{
+  this->configure("wrong-transport:");
+
+  BOOST_CHECK_THROW(make_shared<Face>(), ConfigFile::Error);
+}
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(WrongUri, T, ConfigOptions, T)
+{
+  this->configure("wrong-uri");
+
+  BOOST_CHECK_THROW(make_shared<Face>(), ConfigFile::Error);
+}
+
+BOOST_FIXTURE_TEST_CASE(EnvOverride, WithEnvAndConfig)
+{
+  this->WithEnv::configure("tcp://127.0.0.1:6000");
+  this->WithConfig::configure("unix://some/path");
+
+  shared_ptr<Face> face;
+  BOOST_REQUIRE_NO_THROW(face = make_shared<Face>());
+  BOOST_CHECK(dynamic_pointer_cast<TcpTransport>(face->getTransport()) != nullptr);
+}
+
+BOOST_FIXTURE_TEST_CASE(ExplicitTransport, WithEnvAndConfig)
+{
+  this->WithEnv::configure("wrong-uri");
+  this->WithConfig::configure("wrong-transport:");
+
+  auto transport = make_shared<UnixTransport>("unix://some/path");
+  shared_ptr<Face> face;
+  BOOST_REQUIRE_NO_THROW(face = make_shared<Face>(transport));
+  BOOST_CHECK(dynamic_pointer_cast<UnixTransport>(face->getTransport()) != nullptr);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // CustomizeTransport
 BOOST_AUTO_TEST_SUITE_END() // TestFace
 
 } // namespace tests

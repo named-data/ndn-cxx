@@ -42,3 +42,60 @@ you are choosing LGPL 3.0, please use the following license boilerplate in all `
 
 If you are affiliated to an NSF-supported NDN project institution, please use the [NDN Team License
 Boilerplate](http://redmine.named-data.net/projects/ndn-cxx/wiki/NDN_Team_License_Boilerplate_(ndn-cxx)).
+
+Running unit-tests
+------------------
+
+To run unit tests, ndn-cxx needs to be configured, build with unit test support, and installed
+into the configured location.  For example:
+
+    ./waf configure --with-tests
+    ./waf
+    sudo ./waf install
+
+**Note**: On Linux platform you also need to run `sudo ldconfig` to reconfigure dynamic loader
+run-time bindings.  On FreeBSD, use `sudo ldconfig -a` instead.
+
+The simplest way to run tests, is just to run the compiled binary without any parameters:
+
+    ./build/unit-tests
+
+[Boost.Test framework](http://www.boost.org/doc/libs/1_54_0/libs/test/doc/html/index.html)
+is very flexible and allows a number of run-time customization of what tests should be run.
+For example, it is possible to choose to run only a specific test suite, only a specific
+test case within a suite, or specific test cases within specific test suites:
+
+    # Run only Face test suite tests (tests/unit-tests/face.t.cpp)
+    ./build/unit-tests -t TestFace
+
+    # Run only test case ExpressInterestData from the same test suite
+    ./build/unit-tests -t TestFace/ExpressInterestData
+
+    # Run Basic test case from all test suites
+    ./build/unit-tests -t */Basic
+
+By default, Boost.Test framework will produce verbose output only when a test case fails.
+If it is desired to see verbose output (result of each test assertion), add `-l all`
+option to `./build/unit-tests` command.  To see test progress, you can use `-l test_suite`
+or `-p` to show progress bar:
+
+    # Show report all log messages including the passed test notification
+    ./build/unit-tests -l all
+
+    # Show test suite messages
+    ./build/unit-tests -l test_suite
+
+    # Show nothing
+    ./build/unit-tests -l nothing
+
+    # Show progress bar
+    ./build/unit-tests -p
+
+There are many more command line options available, information about which can be obtained
+either from the command line using `--help` switch, or online on
+[Boost.Test library](http://www.boost.org/doc/libs/1_54_0/libs/test/doc/html/index.html)
+website.
+
+**Warning:** If you have customized parameters for NDN platform using `client.conf` in
+`/etc/ndn` or `/usr/local/etc/ndn` (or other `@SYSCONFDIR@/etc` if it was configured to custom
+path during `./waf configure`), Face-related test cases may fail.
