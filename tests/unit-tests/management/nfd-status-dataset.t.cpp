@@ -284,6 +284,29 @@ BOOST_AUTO_TEST_CASE(FaceQueryWithOptions)
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
 }
 
+BOOST_AUTO_TEST_CASE(FaceChannels)
+{
+  bool hasResult = false;
+  controller.fetch<ChannelDataset>(
+    [&hasResult] (const std::vector<ChannelStatus>& result) {
+      hasResult = true;
+      BOOST_CHECK_EQUAL(result.size(), 2);
+      BOOST_CHECK_EQUAL(result.front().getLocalUri(), "tcp4://192.0.2.1:6363");
+    },
+    failCallback);
+  this->advanceClocks(time::milliseconds(500));
+
+  ChannelStatus payload1;
+  payload1.setLocalUri("tcp4://192.0.2.1:6363");
+  ChannelStatus payload2;
+  payload2.setLocalUri("udp4://192.0.2.1:6363");
+  this->sendDataset("/localhost/nfd/faces/channels", payload1, payload2);
+  this->advanceClocks(time::milliseconds(500));
+
+  BOOST_CHECK(hasResult);
+  BOOST_CHECK_EQUAL(failCodes.size(), 0);
+}
+
 BOOST_AUTO_TEST_CASE(FibList)
 {
   bool hasResult = false;

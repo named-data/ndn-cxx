@@ -26,6 +26,7 @@
 #include "nfd-forwarder-status.hpp"
 #include "nfd-face-status.hpp"
 #include "nfd-face-query-filter.hpp"
+#include "nfd-channel-status.hpp"
 #include "nfd-fib-entry.hpp"
 #include "nfd-strategy-choice.hpp"
 #include "nfd-rib-entry.hpp"
@@ -174,6 +175,23 @@ private:
 
 private:
   FaceQueryFilter m_filter;
+};
+
+
+/**
+ * \ingroup management
+ * \brief represents a faces/channels dataset
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Channel-Dataset
+ */
+class ChannelDataset : public StatusDataset
+{
+public:
+  ChannelDataset();
+
+  typedef std::vector<ChannelStatus> ResultType;
+
+  ResultType
+  parseResult(ConstBufferPtr payload) const;
 };
 
 

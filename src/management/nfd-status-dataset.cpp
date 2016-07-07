@@ -114,6 +114,17 @@ FaceQueryDataset::addParameters(Name& name) const
   name.append(m_filter.wireEncode());
 }
 
+ChannelDataset::ChannelDataset()
+  : StatusDataset("faces/channels")
+{
+}
+
+ChannelDataset::ResultType
+ChannelDataset::parseResult(ConstBufferPtr payload) const
+{
+  return parseDatasetVector<ChannelStatus>(payload);
+}
+
 FibDataset::FibDataset()
   : StatusDataset("fib/list")
 {
