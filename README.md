@@ -10,7 +10,7 @@ of the following projects:
 * [repo-ng - Next generation of NDN repository](https://github.com/named-data/repo-ng)
 * [ChronoChat - Multi-user NDN chat application](https://github.com/named-data/ChronoChat)
 * [ChronoSync - Sync library for multiuser realtime applications for NDN](https://github.com/named-data/ChronoSync)
-* [ndn-tlv-ping - Ping Application For NDN](https://github.com/named-data/ndn-tlv-ping)
+* [ndn-tools - NDN Essential Tools](https://github.com/named-data/ndn-tools)
 * [ndn-traffic-generator - Traffic Generator For NDN](https://github.com/named-data/ndn-traffic-generator)
 
 See the file [`docs/INSTALL.rst`](https://github.com/cawka/ndn-cxx/blob/master/docs/INSTALL.rst)

@@ -14,8 +14,7 @@ the following projects:
    application <https://github.com/named-data/ChronoChat>`__
 -  `ChronoSync - Sync library for multiuser realtime applications for
    NDN <https://github.com/named-data/ChronoSync>`__
--  `ndn-tlv-ping - Ping Application For
-   NDN <https://github.com/named-data/ndn-tlv-ping>`__
+-  `ndn-tools - NDN Essential Tools <https://github.com/named-data/ndn-tools>`__
 -  `ndn-traffic-generator - Traffic Generator For
    NDN <https://github.com/named-data/ndn-traffic-generator>`__
 
