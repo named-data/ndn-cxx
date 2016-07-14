@@ -38,7 +38,8 @@ namespace tests {
 
 using namespace ndn::tests;
 
-BOOST_FIXTURE_TEST_SUITE(SecurityValidatorConfig, IdentityManagementFixture)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_FIXTURE_TEST_SUITE(TestValidatorConfig, IdentityManagementFixture)
 
 BOOST_AUTO_TEST_CASE(NameFilter)
 {
@@ -1287,7 +1288,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
 
 BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
 {
-  advanceClocks(time::milliseconds(0));
+  advanceClocks(time::nanoseconds(1));
 
   std::vector<CertificateSubjectDescription> subjectDescription;
 
@@ -1577,7 +1578,8 @@ BOOST_FIXTURE_TEST_CASE(TrustAnchorDir, DirTestFixture)
   advanceClocks(time::milliseconds(10), 20);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestValidatorConfig
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

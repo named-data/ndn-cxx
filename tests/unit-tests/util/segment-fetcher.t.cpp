@@ -38,7 +38,8 @@ namespace tests {
 
 using namespace ndn::tests;
 
-BOOST_AUTO_TEST_SUITE(UtilSegmentFetcher)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestSegmentFetcher)
 
 class Fixture : public IdentityManagementTimeFixture
 {
@@ -46,7 +47,7 @@ public:
   Fixture()
     : face(io, m_keyChain)
     , nErrors(0)
-    , nDatas(0)
+    , nData(0)
     , dataSize(0)
   {
   }
@@ -56,7 +57,7 @@ public:
   {
     const uint8_t buffer[] = "Hello, world!";
 
-    shared_ptr<Data> data = make_shared<Data>(Name(baseName).appendSegment(segment));
+    auto data = make_shared<Data>(Name(baseName).appendSegment(segment));
     data->setContent(buffer, sizeof(buffer));
 
     if (isFinal) {
@@ -77,7 +78,7 @@ public:
   void
   onComplete(const ConstBufferPtr& data)
   {
-    ++nDatas;
+    ++nData;
     dataSize = data->size();
     dataString = std::string(reinterpret_cast<const char*>(data->get()));
   }
@@ -88,7 +89,7 @@ public:
     const Interest& lastInterest = face.sentInterests.back();
     lp::Nack nack = makeNack(lastInterest, nackReason);
     face.receive(nack);
-    advanceClocks(time::milliseconds(1), 10);
+    advanceClocks(time::milliseconds(10));
   }
 
 public:
@@ -96,7 +97,7 @@ public:
 
   uint32_t nErrors;
   uint32_t lastError;
-  uint32_t nDatas;
+  uint32_t nData;
   size_t dataSize;
   std::string dataString;
 };
@@ -109,20 +110,20 @@ BOOST_FIXTURE_TEST_CASE(Timeout, Fixture)
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  advanceClocks(time::milliseconds(1), 99);
-
-  BOOST_CHECK_EQUAL(nErrors, 0);
-  BOOST_CHECK_EQUAL(nDatas, 0);
+  advanceClocks(time::milliseconds(1));
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
-  BOOST_CHECK_EQUAL(face.sentData.size(), 0);
 
   const Interest& interest = face.sentInterests[0];
   BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
   BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
   BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
 
-  advanceClocks(time::milliseconds(1), 2);
+  advanceClocks(time::milliseconds(98));
+  BOOST_CHECK_EQUAL(nErrors, 0);
+  BOOST_CHECK_EQUAL(nData, 0);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 0);
 
+  advanceClocks(time::milliseconds(1), 2);
   BOOST_CHECK_EQUAL(nErrors, 1);
   BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::INTEREST_TIMEOUT));
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -138,13 +139,13 @@ BOOST_FIXTURE_TEST_CASE(Basic, Fixture)
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
 
   face.receive(*makeDataSegment("/hello/world/version0", 0, true));
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
 
   BOOST_CHECK_EQUAL(nErrors, 0);
-  BOOST_CHECK_EQUAL(nDatas, 1);
+  BOOST_CHECK_EQUAL(nData, 1);
 
   BOOST_CHECK_EQUAL(dataSize, 14);
 
@@ -170,7 +171,7 @@ BOOST_FIXTURE_TEST_CASE(NoSegmentInData, Fixture)
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
 
   const uint8_t buffer[] = "Hello, world!";
 
@@ -179,11 +180,11 @@ BOOST_FIXTURE_TEST_CASE(NoSegmentInData, Fixture)
   data->setContent(buffer, sizeof(buffer));
 
   face.receive(*data);
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
 
   BOOST_CHECK_EQUAL(nErrors, 1);
   BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::DATA_HAS_NO_SEGMENT));
-  BOOST_CHECK_EQUAL(nDatas, 0);
+  BOOST_CHECK_EQUAL(nData, 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(SegmentValidationFailure, Fixture)
@@ -194,13 +195,13 @@ BOOST_FIXTURE_TEST_CASE(SegmentValidationFailure, Fixture)
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
   face.receive(*makeDataSegment("/hello/world/version0", 0, true));
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
 
   BOOST_CHECK_EQUAL(nErrors, 1);
   BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::SEGMENT_VALIDATION_FAIL));
-  BOOST_CHECK_EQUAL(nDatas, 0);
+  BOOST_CHECK_EQUAL(nData, 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(Triple, Fixture)
@@ -211,19 +212,19 @@ BOOST_FIXTURE_TEST_CASE(Triple, Fixture)
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
   face.receive(*makeDataSegment("/hello/world/version0", 0, false));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
   face.receive(*makeDataSegment("/hello/world/version0", 1, false));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
   face.receive(*makeDataSegment("/hello/world/version0", 2, true));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
 
   BOOST_CHECK_EQUAL(nErrors, 0);
-  BOOST_CHECK_EQUAL(nDatas, 1);
+  BOOST_CHECK_EQUAL(nData, 1);
 
   BOOST_CHECK_EQUAL(dataSize, 42);
 
@@ -260,22 +261,22 @@ BOOST_FIXTURE_TEST_CASE(TripleWithInitialSegmentFetching, Fixture)
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
   face.receive(*makeDataSegment("/hello/world/version0", 1, false));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
   face.receive(*makeDataSegment("/hello/world/version0", 0, false));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
   face.receive(*makeDataSegment("/hello/world/version0", 1, false));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
   face.receive(*makeDataSegment("/hello/world/version0", 2, true));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
 
   BOOST_CHECK_EQUAL(nErrors, 0);
-  BOOST_CHECK_EQUAL(nDatas, 1);
+  BOOST_CHECK_EQUAL(nData, 1);
 
   BOOST_CHECK_EQUAL(dataSize, 42);
 
@@ -319,19 +320,19 @@ BOOST_FIXTURE_TEST_CASE(MultipleSegmentFetching, Fixture)
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
 
   for (uint64_t i = 0; i < 400; i++) {
-    advanceClocks(time::milliseconds(1), 10);
+    advanceClocks(time::milliseconds(10));
     face.receive(*makeDataSegment("/hello/world/version0", i, false));
   }
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
   face.receive(*makeDataSegment("/hello/world/version0", 400, true));
 
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
 
   BOOST_CHECK_EQUAL(nErrors, 0);
-  BOOST_CHECK_EQUAL(nDatas, 1);
+  BOOST_CHECK_EQUAL(nData, 1);
 }
 
 BOOST_FIXTURE_TEST_CASE(DuplicateNack, Fixture)
@@ -340,7 +341,7 @@ BOOST_FIXTURE_TEST_CASE(DuplicateNack, Fixture)
                         make_shared<ValidatorNull>(),
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
 
   // receive nack for the original interest
   nackLastInterest(lp::NackReason::DUPLICATE);
@@ -360,7 +361,7 @@ BOOST_FIXTURE_TEST_CASE(CongestionNack, Fixture)
                         make_shared<ValidatorNull>(),
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
 
   // receive nack for the original interest
   nackLastInterest(lp::NackReason::CONGESTION);
@@ -385,19 +386,19 @@ BOOST_FIXTURE_TEST_CASE(SegmentZero, Fixture)
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
-  advanceClocks(time::milliseconds(1), 1000);
+  advanceClocks(time::milliseconds(1000));
 
   for (uint64_t segmentNo = 0; segmentNo <= 3; segmentNo++) {
     if (segmentNo == 1) {
       while (nNacks--) {
         nackLastInterest(lp::NackReason::CONGESTION);
-        advanceClocks(time::milliseconds(1), 10);
+        advanceClocks(time::milliseconds(10));
       }
     }
 
     auto data = makeDataSegment(interestName, segmentNo, segmentNo == 3);
     face.receive(*data);
-    advanceClocks(time::milliseconds(1), 10);
+    advanceClocks(time::milliseconds(10));
   }
 
   // Total number of sent interests should be 6: one interest for segment zero and segment one each,
@@ -419,17 +420,18 @@ BOOST_FIXTURE_TEST_CASE(ZeroComponentName, Fixture)
                         make_shared<ValidatorNull>(),
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(time::milliseconds(10));
   nackLastInterest(lp::NackReason::DUPLICATE);
   face.receive(*makeDataSegment("/hello/world", 0, true));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 2);
   BOOST_CHECK_EQUAL(face.sentInterests[0].getName(), ndn::Name("ndn:/"));
   BOOST_CHECK_EQUAL(face.sentInterests[1].getName(), ndn::Name("ndn:/"));
-  BOOST_REQUIRE_EQUAL(nDatas, 1);
+  BOOST_REQUIRE_EQUAL(nData, 1);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestSegmentFetcher
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace util

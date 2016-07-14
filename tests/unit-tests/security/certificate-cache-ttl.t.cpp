@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,8 @@
 namespace ndn {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecurityCertificateCacheTtl)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestCertificateCacheTtl)
 
 class CertificateCacheFixture : public UnitTestTimeFixture
 {
@@ -69,7 +70,7 @@ BOOST_FIXTURE_TEST_CASE(Expiration, CertificateCacheFixture)
   cache->insertCertificate(cert1);
   cache->insertCertificate(cert2);
 
-  advanceClocks(time::nanoseconds(0));
+  advanceClocks(time::nanoseconds(1));
   BOOST_CHECK_EQUAL(cache->getSize(), 2);
 
   scheduler.scheduleEvent(time::milliseconds(200), [&] {
@@ -97,7 +98,7 @@ BOOST_FIXTURE_TEST_CASE(TtlRefresh, CertificateCacheFixture)
 {
   cache->insertCertificate(cert1); // 500ms
 
-  advanceClocks(time::nanoseconds(0));
+  advanceClocks(time::nanoseconds(1));
   BOOST_CHECK_EQUAL(cache->getSize(), 1);
 
   advanceClocks(time::milliseconds(400));
@@ -106,7 +107,7 @@ BOOST_FIXTURE_TEST_CASE(TtlRefresh, CertificateCacheFixture)
     // Refresh certificate in cache
   cache->insertCertificate(cert1); // +500ms
 
-  advanceClocks(time::nanoseconds(0));
+  advanceClocks(time::nanoseconds(1));
   BOOST_CHECK_EQUAL(cache->getSize(), 1);
 
   advanceClocks(time::milliseconds(400));
@@ -121,16 +122,17 @@ BOOST_FIXTURE_TEST_CASE(Reset, CertificateCacheFixture)
   cache->insertCertificate(cert1);
   cache->insertCertificate(cert2);
 
-  advanceClocks(time::nanoseconds(0));
+  advanceClocks(time::nanoseconds(1));
   BOOST_CHECK_EQUAL(cache->getSize(), 2);
 
   cache->reset();
 
-  advanceClocks(time::nanoseconds(0));
+  advanceClocks(time::nanoseconds(1));
   BOOST_CHECK_EQUAL(cache->getSize(), 0);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestCertificateCacheTtl
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace ndn
