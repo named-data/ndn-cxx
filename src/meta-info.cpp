@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -227,12 +227,12 @@ MetaInfo::wireDecode(const Block& wire)
     if (m_finalBlockId.type() != tlv::NameComponent)
       {
         /// @todo May or may not throw exception later...
-        m_finalBlockId.reset();
+        m_finalBlockId = name::Component();
       }
     ++val;
   }
   else {
-    m_finalBlockId.reset();
+    m_finalBlockId = name::Component();
   }
 
   // AppMetaInfo (if any)

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "exclude.hpp"
+#include "util/crypto.hpp"
 
 #include "boost-test.hpp"
 
@@ -28,7 +29,9 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(TestExclude)
 
-BOOST_AUTO_TEST_CASE(Basic)
+BOOST_AUTO_TEST_SUITE(GenericComponent) // exclude generic NameComponent
+
+BOOST_AUTO_TEST_CASE(One)
 {
   Exclude e;
   e.excludeOne(name::Component("b"));
@@ -56,36 +59,6 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(e.toUri(), "a,b,c,d,aa,cc");
 }
 
-BOOST_AUTO_TEST_CASE(EqualityComparable)
-{
-  Exclude e1;
-  Exclude e2;
-  BOOST_CHECK_EQUAL(e1, e2);
-
-  e1.excludeOne(name::Component("T"));
-  BOOST_CHECK_NE(e1, e2);
-
-  e2.excludeOne(name::Component("D"));
-  BOOST_CHECK_NE(e1, e2);
-
-  e2.clear();
-  e2.excludeOne(name::Component("T"));
-  BOOST_CHECK_EQUAL(e1, e2);
-
-  e2.clear();
-  const uint8_t EXCLUDE[] = { 0x10, 0x15, 0x13, 0x00, 0x08, 0x01, 0x41, 0x08, 0x01, 0x42,
-                              0x08, 0x01, 0x43, 0x13, 0x00, 0x08, 0x01, 0x44, 0x08, 0x01,
-                              0x45, 0x13, 0x00 };
-  e2.wireDecode(Block(EXCLUDE, sizeof(EXCLUDE)));
-
-  e1.clear();
-  e1.excludeBefore(name::Component("A"));
-  e1.excludeOne(name::Component("B"));
-  e1.excludeRange(name::Component("C"), name::Component("D"));
-  e1.excludeAfter(name::Component("E"));
-  BOOST_CHECK_EQUAL(e1, e2);
-}
-
 BOOST_AUTO_TEST_CASE(Before)
 {
   // based on http://redmine.named-data.net/issues/1158
@@ -97,18 +70,18 @@ BOOST_AUTO_TEST_CASE(Before)
 
 BOOST_AUTO_TEST_CASE(Ranges)
 {
-// example: ANY /b /d ANY /f
+  // example: ANY /b /d ANY /f
 
   Exclude e;
   e.excludeOne(name::Component("b0"));
   BOOST_CHECK_EQUAL(e.size(), 1);
   BOOST_CHECK_EQUAL(e.toUri(), "b0");
 
-  e.excludeRange(name::Component(), name::Component("b1"));
+  e.excludeBefore(name::Component("b1"));
   BOOST_CHECK_EQUAL(e.size(), 2);
   BOOST_CHECK_EQUAL(e.toUri(), "*,b1");
 
-  e.excludeRange(name::Component(), name::Component("c0"));
+  e.excludeBefore(name::Component("c0"));
   BOOST_CHECK_EQUAL(e.size(), 2);
   BOOST_CHECK_EQUAL(e.toUri(), "*,c0");
 
@@ -146,6 +119,216 @@ BOOST_AUTO_TEST_CASE(Ranges)
 
   BOOST_REQUIRE_THROW(e.excludeRange(name::Component("d0"), name::Component("a0")),
                       Exclude::Error);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // GenericComponent
+
+
+BOOST_AUTO_TEST_SUITE(ImplicitDigest) // exclude ImplicitSha256DigestComponent
+
+/** \brief make a name::Component with an octet repeated crypto::SHA256_DIGEST_SIZE times
+ *  \param octet the octet to fill the component
+ *  \param isDigest whether to make an ImplicitSha256DigestComponent or a generic NameComponent
+ *  \param lastOctet if non-negative, set the last octet to a different value
+ */
+static name::Component
+makeComponent(uint8_t octet, bool isDigest, int lastOctet = -1)
+{
+  uint8_t wire[crypto::SHA256_DIGEST_SIZE];
+  std::memset(wire, octet, sizeof(wire));
+  if (lastOctet >= 0) {
+    wire[crypto::SHA256_DIGEST_SIZE - 1] = static_cast<uint8_t>(lastOctet);
+  }
+
+  if (isDigest) {
+    return name::Component::fromImplicitSha256Digest(wire, sizeof(wire));
+  }
+  else {
+    return name::Component(wire, sizeof(wire));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(One)
+{
+  name::Component digestC = makeComponent(0xCC, true);;
+  name::Component genericC = makeComponent(0xCC, false);
+  name::Component digestD = makeComponent(0xDD, true);
+
+  Exclude e;
+  e.excludeOne(digestC);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestC), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(genericC), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestD), false);
+
+  e.clear();
+  e.excludeOne(genericC);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestC), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(genericC), true);
+}
+
+BOOST_AUTO_TEST_CASE(BeforeDigest)
+{
+  name::Component digestBA = makeComponent(0xBB, true, 0xBA);
+  name::Component digestBB = makeComponent(0xBB, true);
+  name::Component digestBC = makeComponent(0xBB, true, 0xBC);
+
+  Exclude e;
+  e.excludeBefore(digestBB);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestBA), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestBB), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestBC), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("")), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("generic")), false);
+}
+
+BOOST_AUTO_TEST_CASE(BeforeGeneric)
+{
+  name::Component digest0 = makeComponent(0x00, true);
+  name::Component digest9 = makeComponent(0x99, true);
+  name::Component digestF = makeComponent(0xFF, true);
+
+  Exclude e;
+  e.excludeBefore(name::Component(""));
+  BOOST_CHECK_EQUAL(e.isExcluded(digest0), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(digest9), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestF), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("")), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("generic")), false);
+}
+
+BOOST_AUTO_TEST_CASE(AfterDigest)
+{
+  name::Component digestBA = makeComponent(0xBB, true, 0xBA);
+  name::Component digestBB = makeComponent(0xBB, true);
+  name::Component digestBC = makeComponent(0xBB, true, 0xBC);
+
+  Exclude e;
+  e.excludeAfter(digestBB);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestBA), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestBB), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestBC), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("")), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("generic")), true);
+}
+
+BOOST_AUTO_TEST_CASE(AfterDigestFF)
+{
+  name::Component digest00 = makeComponent(0x00, true);
+  name::Component digest99 = makeComponent(0x99, true);
+  name::Component digestFE = makeComponent(0xFF, true, 0xFE);
+  name::Component digestFF = makeComponent(0xFF, true);
+
+  Exclude e;
+  e.excludeAfter(digestFF);
+  BOOST_CHECK_EQUAL(e.isExcluded(digest00), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(digest99), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestFE), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestFF), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("")), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("generic")), true);
+}
+
+BOOST_AUTO_TEST_CASE(AfterGeneric)
+{
+  name::Component digest0 = makeComponent(0x00, true);
+  name::Component digest9 = makeComponent(0x99, true);
+  name::Component digestF = makeComponent(0xFF, true);
+
+  Exclude e;
+  e.excludeAfter(name::Component(""));
+  BOOST_CHECK_EQUAL(e.isExcluded(digest0), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(digest9), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestF), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("")), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("generic")), true);
+}
+
+BOOST_AUTO_TEST_CASE(RangeDigest)
+{
+  name::Component digest0 = makeComponent(0x00, true);
+  name::Component digest7 = makeComponent(0x77, true);
+  name::Component digest8 = makeComponent(0x88, true);
+  name::Component digest9 = makeComponent(0x99, true);
+  name::Component digestF = makeComponent(0xFF, true);
+
+  Exclude e;
+  e.excludeRange(digest7, digest9);
+  BOOST_CHECK_EQUAL(e.isExcluded(digest0), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(digest7), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(digest8), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(digest9), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestF), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("")), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("generic")), false);
+}
+
+BOOST_AUTO_TEST_CASE(RangeDigestReverse)
+{
+  name::Component digest7 = makeComponent(0x77, true);
+  name::Component digest9 = makeComponent(0x99, true);
+
+  Exclude e;
+  BOOST_CHECK_THROW(e.excludeRange(digest9, digest7), Exclude::Error);
+}
+
+BOOST_AUTO_TEST_CASE(RangeDigestGeneric)
+{
+  name::Component digest0 = makeComponent(0x00, true);
+  name::Component digest7 = makeComponent(0x77, true);
+  name::Component digest9 = makeComponent(0x99, true);
+  name::Component digestF = makeComponent(0xFF, true);
+
+  Exclude e;
+  e.excludeRange(digest9, name::Component(""));
+  BOOST_CHECK_EQUAL(e.isExcluded(digest0), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(digest7), false);
+  BOOST_CHECK_EQUAL(e.isExcluded(digest9), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(digestF), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("")), true);
+  BOOST_CHECK_EQUAL(e.isExcluded(name::Component("generic")), false);
+}
+
+BOOST_AUTO_TEST_CASE(RangeGenericDigest)
+{
+  name::Component digestF = makeComponent(0xFF, true);
+
+  Exclude e;
+  BOOST_CHECK_THROW(e.excludeRange(name::Component(""), digestF), Exclude::Error);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // ImplicitDigest
+
+
+BOOST_AUTO_TEST_SUITE(WireCompare) // wireEncode, wireDecode, operator==, operator!=
+
+BOOST_AUTO_TEST_CASE(EqualityComparable)
+{
+  Exclude e1;
+  Exclude e2;
+  BOOST_CHECK_EQUAL(e1, e2);
+
+  e1.excludeOne(name::Component("T"));
+  BOOST_CHECK_NE(e1, e2);
+
+  e2.excludeOne(name::Component("D"));
+  BOOST_CHECK_NE(e1, e2);
+
+  e2.clear();
+  e2.excludeOne(name::Component("T"));
+  BOOST_CHECK_EQUAL(e1, e2);
+
+  e2.clear();
+  const uint8_t EXCLUDE[] = { 0x10, 0x15, 0x13, 0x00, 0x08, 0x01, 0x41, 0x08, 0x01, 0x42,
+                              0x08, 0x01, 0x43, 0x13, 0x00, 0x08, 0x01, 0x44, 0x08, 0x01,
+                              0x45, 0x13, 0x00 };
+  e2.wireDecode(Block(EXCLUDE, sizeof(EXCLUDE)));
+
+  e1.clear();
+  e1.excludeBefore(name::Component("A"));
+  e1.excludeOne(name::Component("B"));
+  e1.excludeRange(name::Component("C"), name::Component("D"));
+  e1.excludeAfter(name::Component("E"));
+  BOOST_CHECK_EQUAL(e1, e2);
 }
 
 BOOST_AUTO_TEST_CASE(Malformed)
@@ -217,9 +400,10 @@ BOOST_AUTO_TEST_CASE(ImplicitSha256Digest)
 
   Exclude exclude;
   BOOST_CHECK_NO_THROW(exclude.wireDecode(block));
+  BOOST_CHECK(exclude.wireEncode() == block);
 }
 
-BOOST_AUTO_TEST_CASE(ExcludeEmptyComponent) // Bug #2660
+BOOST_AUTO_TEST_CASE(EmptyComponent) // Bug #2660
 {
   Exclude e1, e2;
 
@@ -240,6 +424,8 @@ BOOST_AUTO_TEST_CASE(ExcludeEmptyComponent) // Bug #2660
   BOOST_CHECK_EQUAL(e1, e3);
   BOOST_CHECK_EQUAL(e1.toUri(), e3.toUri());
 }
+
+BOOST_AUTO_TEST_SUITE_END() // WireCompare
 
 BOOST_AUTO_TEST_SUITE_END()
 

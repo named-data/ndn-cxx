@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,6 +28,25 @@
 
 namespace ndn {
 
+Exclude::ExcludeComponent::ExcludeComponent(const name::Component& component1)
+  : isNegInf(false)
+  , component(component1)
+{
+}
+
+Exclude::ExcludeComponent::ExcludeComponent(bool isNegInf1)
+  : isNegInf(true)
+{
+  BOOST_ASSERT(isNegInf1 == true);
+}
+
+bool
+operator>(const Exclude::ExcludeComponent& a, const Exclude::ExcludeComponent& b)
+{
+  return a.isNegInf < b.isNegInf ||
+         (a.isNegInf == b.isNegInf && a.component > b.component);
+}
+
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Exclude>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Exclude>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Exclude>));
@@ -35,9 +54,7 @@ BOOST_CONCEPT_ASSERT((WireDecodable<Exclude>));
 static_assert(std::is_base_of<tlv::Error, Exclude::Error>::value,
               "Exclude::Error must inherit from tlv::Error");
 
-Exclude::Exclude()
-{
-}
+Exclude::Exclude() = default;
 
 Exclude::Exclude(const Block& wire)
 {
@@ -48,8 +65,8 @@ template<encoding::Tag TAG>
 size_t
 Exclude::wireEncode(EncodingImpl<TAG>& encoder) const
 {
-  if (m_exclude.empty()) {
-    BOOST_THROW_EXCEPTION(Error("Exclude filter cannot be empty"));
+  if (m_entries.empty()) {
+    BOOST_THROW_EXCEPTION(Error("cannot encode empty Exclude selector"));
   }
 
   size_t totalLength = 0;
@@ -57,12 +74,12 @@ Exclude::wireEncode(EncodingImpl<TAG>& encoder) const
   // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
   // Any     ::= ANY-TYPE TLV-LENGTH(=0)
 
-  for (const auto& item : m_exclude) {
-    if (item.second) {
+  for (const Entry& entry : m_entries) {
+    if (entry.second) {
       totalLength += prependEmptyBlock(encoder, tlv::Any);
     }
-    if (!item.first.empty() || !item.second) {
-      totalLength += item.first.wireEncode(encoder);
+    if (!entry.first.isNegInf) {
+      totalLength += entry.first.component.wireEncode(encoder);
     }
   }
 
@@ -113,111 +130,104 @@ Exclude::wireDecode(const Block& wire)
 
   Block::element_const_iterator i = m_wire.elements_begin();
   if (i->type() == tlv::Any) {
-    appendExclude(name::Component(), true);
+    this->appendEntry(true, true);
     ++i;
   }
 
   while (i != m_wire.elements_end()) {
-    name::Component excludedComponent;
+    name::Component component;
     try {
-      excludedComponent = name::Component(*i);
+      component = name::Component(*i);
     }
     catch (const name::Component::Error&) {
       BOOST_THROW_EXCEPTION(Error("Incorrect format of Exclude filter"));
     }
-
     ++i;
 
-    if (i != m_wire.elements_end()) {
-      if (i->type() == tlv::Any) {
-        appendExclude(excludedComponent, true);
-        ++i;
-      }
-      else {
-        appendExclude(excludedComponent, false);
-      }
+    if (i != m_wire.elements_end() && i->type() == tlv::Any) {
+      this->appendEntry(component, true);
+      ++i;
     }
     else {
-      appendExclude(excludedComponent, false);
+      this->appendEntry(component, false);
     }
   }
 }
 
-// example: ANY /b /d ANY /f
+template<typename T>
+void
+Exclude::appendEntry(const T& component, bool hasAny)
+{
+  m_entries.emplace_hint(m_entries.begin(), std::piecewise_construct,
+                         std::forward_as_tuple(component),
+                         std::forward_as_tuple(hasAny));
+}
+
+// example: ANY "b" "d" ANY "f"
+// ordered in map as: "f" (false); "d" (true); "b" (false); -Inf (true)
 //
-// ordered in map as:
-//
-// /f (false); /d (true); /b (false); / (true)
-//
-// lower_bound(/)  -> / (true) <-- excluded (equal)
-// lower_bound(/a) -> / (true) <-- excluded (any)
-// lower_bound(/b) -> /b (false) <--- excluded (equal)
-// lower_bound(/c) -> /b (false) <--- not excluded (not equal and no ANY)
-// lower_bound(/d) -> /d (true) <- excluded
-// lower_bound(/e) -> /d (true) <- excluded
+// lower_bound("")  -> -Inf (true) <-- excluded (ANY)
+// lower_bound("a") -> -Inf (true) <-- excluded (ANY)
+// lower_bound("b") -> "b" (false) <--- excluded (equal)
+// lower_bound("c") -> "b" (false) <--- not excluded (not equal and no ANY)
+// lower_bound("d") -> "d" (true) <- excluded
+// lower_bound("e") -> "d" (true) <- excluded
 bool
 Exclude::isExcluded(const name::Component& comp) const
 {
-  const_iterator lowerBound = m_exclude.lower_bound(comp);
-  if (lowerBound == end())
-    return false;
-
-  if (lowerBound->second)
-    return true;
-  else
-    return lowerBound->first == comp;
+  const_iterator lb = m_entries.lower_bound(comp);
+  return lb != end() && // lb==end() means comp is less than the first excluded component
+         (lb->second || // comp matches an ANY range
+          (!lb->first.isNegInf && lb->first.component == comp)); // comp equals an exact excluded component
 }
 
 Exclude&
 Exclude::excludeOne(const name::Component& comp)
 {
   if (!isExcluded(comp)) {
-    m_exclude.insert(std::make_pair(comp, false));
+    this->appendEntry(comp, false);
     m_wire.reset();
   }
   return *this;
 }
 
-// example: ANY /b0 /d0 ANY /f0
-//
-// ordered in map as:
-//
-// /f0 (false); /d0 (true); /b0 (false); / (true)
-//
-// lower_bound(/)  -> / (true) <-- excluded (equal)
-// lower_bound(/a0) -> / (true) <-- excluded (any)
-// lower_bound(/b0) -> /b0 (false) <--- excluded (equal)
-// lower_bound(/c0) -> /b0 (false) <--- not excluded (not equal and no ANY)
-// lower_bound(/d0) -> /d0 (true) <- excluded
-// lower_bound(/e0) -> /d0 (true) <- excluded
-
-
-// examples with desired outcomes
-// excludeRange(/, /f0) ->  ANY /f0
-//                          /f0 (false); / (true)
-// excludeRange(/, /f1) ->  ANY /f1
-//                          /f1 (false); / (true)
-// excludeRange(/a0, /e0) ->  ANY /f0
-//                          /f0 (false); / (true)
-// excludeRange(/a0, /e0) ->  ANY /f0
-//                          /f0 (false); / (true)
-
-// excludeRange(/b1, /c0) ->  ANY /b0 /b1 ANY /c0 /d0 ANY /f0
-//                          /f0 (false); /d0 (true); /c0 (false); /b1 (true); /b0 (false); / (true)
+Exclude&
+Exclude::excludeBefore(const name::Component& to)
+{
+  return excludeRange(ExcludeComponent(true), to);
+}
 
 Exclude&
 Exclude::excludeRange(const name::Component& from, const name::Component& to)
 {
-  if (from >= to) {
-    BOOST_THROW_EXCEPTION(Error("Invalid exclude range [" + from.toUri() + ", " + to.toUri() + "] "
+  return excludeRange(ExcludeComponent(from), to);
+}
+
+// example: ANY "b" "d" ANY "g"
+// ordered in map as: "f" (false); "d" (true); "b" (false); -Inf (true)
+// possible sequence of operations:
+// excludeBefore("a") -> excludeRange(-Inf, "a") ->  ANY "a"
+//                          "a" (false); -Inf (true)
+// excludeBefore("b") -> excludeRange(-Inf, "b") ->  ANY "b"
+//                          "b" (false); -Inf (true)
+// excludeRange("e", "g") ->  ANY "b" "e" ANY "g"
+//                          "g" (false); "e" (true); "b" (false); -Inf (true)
+// excludeRange("d", "f") ->  ANY "b" "d" ANY "g"
+//                          "g" (false); "d" (true); "b" (false); -Inf (true)
+
+Exclude&
+Exclude::excludeRange(const ExcludeComponent& from, const name::Component& to)
+{
+  if (!from.isNegInf && from.component >= to) {
+    BOOST_THROW_EXCEPTION(Error("Invalid exclude range [" + from.component.toUri() + ", " + to.toUri() + "] "
                                 "(for single name exclude use Exclude::excludeOne)"));
   }
 
-  iterator newFrom = m_exclude.lower_bound(from);
+  iterator newFrom = m_entries.lower_bound(from);
   if (newFrom == end() || !newFrom->second /*without ANY*/) {
-    std::pair<iterator, bool> fromResult = m_exclude.insert(std::make_pair(from, true));
-    newFrom = fromResult.first;
-    if (!fromResult.second) {
+    bool isNewEntry = false;
+    std::tie(newFrom, isNewEntry) = m_entries.emplace(from, true);
+    if (!isNewEntry) {
       // this means that the lower bound is equal to the item itself. So, just update ANY flag
       newFrom->second = true;
     }
@@ -225,16 +235,17 @@ Exclude::excludeRange(const name::Component& from, const name::Component& to)
   // else
   // nothing special if start of the range already exists with ANY flag set
 
-  iterator newTo = m_exclude.lower_bound(to); // !newTo cannot be end()
+  iterator newTo = m_entries.lower_bound(to);
+  BOOST_ASSERT(newTo != end());
   if (newTo == newFrom || !newTo->second) {
-    std::pair<iterator, bool> toResult = m_exclude.insert(std::make_pair(to, false));
-    newTo = toResult.first;
-    ++ newTo;
+    newTo = m_entries.emplace_hint(newTo, to, false);
+    ++newTo;
   }
   // else
   // nothing to do really
 
-  m_exclude.erase(newTo, newFrom); // remove any intermediate node, since all of the are excluded
+  // remove any intermediate entries, since all of the are excluded
+  m_entries.erase(newTo, newFrom);
 
   m_wire.reset();
   return *this;
@@ -243,11 +254,11 @@ Exclude::excludeRange(const name::Component& from, const name::Component& to)
 Exclude&
 Exclude::excludeAfter(const name::Component& from)
 {
-  iterator newFrom = m_exclude.lower_bound(from);
+  iterator newFrom = m_entries.lower_bound(from);
   if (newFrom == end() || !newFrom->second /*without ANY*/) {
-    std::pair<iterator, bool> fromResult = m_exclude.insert(std::make_pair(from, true));
-    newFrom = fromResult.first;
-    if (!fromResult.second) {
+    bool isNewEntry = false;
+    std::tie(newFrom, isNewEntry) = m_entries.emplace(from, true);
+    if (!isNewEntry) {
       // this means that the lower bound is equal to the item itself. So, just update ANY flag
       newFrom->second = true;
     }
@@ -255,27 +266,32 @@ Exclude::excludeAfter(const name::Component& from)
   // else
   // nothing special if start of the range already exists with ANY flag set
 
-  if (newFrom != m_exclude.begin()) {
-    // remove any intermediate node, since all of the are excluded
-    m_exclude.erase(m_exclude.begin(), newFrom);
-  }
+  // remove any intermediate node, since all of the are excluded
+  m_entries.erase(m_entries.begin(), newFrom);
 
   m_wire.reset();
   return *this;
+}
+
+void
+Exclude::clear()
+{
+  m_entries.clear();
+  m_wire.reset();
 }
 
 std::ostream&
 operator<<(std::ostream& os, const Exclude& exclude)
 {
   bool isFirst = true;
-  for (const auto& item : exclude | boost::adaptors::reversed) {
-    if (!item.first.empty() || !item.second) {
+  for (const Exclude::Entry& entry : exclude | boost::adaptors::reversed) {
+    if (!entry.first.isNegInf) {
       if (!isFirst)
         os << ",";
-      os << item.first.toUri();
+      entry.first.component.toUri(os);
       isFirst = false;
     }
-    if (item.second) {
+    if (entry.second) {
       if (!isFirst)
         os << ",";
       os << "*";

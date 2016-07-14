@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -383,23 +383,29 @@ Component::fromImplicitSha256Digest(const uint8_t* digest, size_t digestSize)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool
+Component::equals(const Component& other) const
+{
+  return type() == other.type() &&
+         value_size() == other.value_size() &&
+         (empty() || // needed on OSX 10.9 due to STL bug
+          std::equal(value_begin(), value_end(), other.value_begin()));
+}
+
 int
 Component::compare(const Component& other) const
 {
-  // Imitate ndn_Exclude_compareComponents.
-  if (type() < other.type())
-    return -1;
-  else if (type() > other.type())
-    return 1;
-  else if (value_size() < other.value_size())
-    return -1;
-  if (value_size() > other.value_size())
-    return 1;
+  int cmpType = type() - other.type();
+  if (cmpType != 0)
+    return cmpType;
 
-  if (value_size() == 0)
+  int cmpSize = value_size() - other.value_size();
+  if (cmpSize != 0)
+    return cmpSize;
+
+  if (empty()) // needed on OSX 10.9 due to STL bug
     return 0;
 
-  // The components are equal length.  Just do a byte compare.
   return std::memcmp(value(), other.value(), value_size());
 }
 

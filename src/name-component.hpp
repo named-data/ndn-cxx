@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -494,11 +494,8 @@ public:
   bool
   empty() const
   {
-    return !hasValue() || value_size() == 0;
+    return value_size() == 0;
   }
-
-  Component
-  getSuccessor() const;
 
   /**
    * @brief Check if this is the same component as other
@@ -507,17 +504,7 @@ public:
    * @return true if the components are equal, otherwise false.
    */
   bool
-  equals(const Component& other) const
-  {
-    if (value_size() != other.value_size())
-      return false;
-    if (value_size() == 0 /* == other.value_size()*/)
-      return true;
-
-    // somehow, behavior is wrong on OSX 10.9 when component is empty
-    // (probably some bug in STL...)
-    return std::equal(value_begin(), value_end(), other.value_begin());
-  }
+  equals(const Component& other) const;
 
   /**
    * @brief Compare this to the other Component using NDN canonical ordering
@@ -602,6 +589,9 @@ public:
   {
     return compare(other) > 0;
   }
+
+  Component
+  getSuccessor() const;
 
   // !!! NOTE TO IMPLEMENTOR !!!
   //

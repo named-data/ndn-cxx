@@ -51,21 +51,6 @@ const uint8_t Name2[] = {0x7,  0xc, // Name
                            0x8,  0x3, // NameComponent
                              0x6e,  0x64,  0x6e};
 
-static const uint8_t TestNameComponent[] = {
-        0x8, 0x3, // NameComponent
-          0x6e, 0x64, 0x6e};
-
-static const uint8_t TestDigestComponent[] = {
-        0x1, 0x20, // ImplicitSha256DigestComponent
-          0x28, 0xba, 0xd4, 0xb5, 0x27, 0x5b, 0xd3, 0x92,
-          0xdb, 0xb6, 0x70, 0xc7, 0x5c, 0xf0, 0xb6, 0x6f,
-          0x13, 0xf7, 0x94, 0x2b, 0x21, 0xe8, 0x0f, 0x55,
-          0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x48 };
-
-const uint8_t Component1[] = {0x7, 0x3, // Error in Type
-                                0x6e, 0x64, 0x6e};
-
-
 BOOST_AUTO_TEST_CASE(Basic)
 {
   Name name("/hello/world");
@@ -111,22 +96,6 @@ BOOST_AUTO_TEST_CASE(Decode)
   Name name(block);
 
   BOOST_CHECK_EQUAL(name.toUri(), "/local/ndn/prefix");
-}
-
-BOOST_AUTO_TEST_CASE(DecodeComponent)
-{
-  Block componentBlock(TestNameComponent, sizeof(TestNameComponent));
-  name::Component nameComponent;
-  BOOST_REQUIRE_NO_THROW(nameComponent.wireDecode(componentBlock));
-  BOOST_CHECK_EQUAL(nameComponent.toUri(), "ndn");
-
-  Block digestComponentBlock(TestDigestComponent, sizeof(TestDigestComponent));
-  name::Component digestComponent;
-  BOOST_REQUIRE_NO_THROW(digestComponent.wireDecode(digestComponentBlock));
-
-  Block errorBlock(Component1, sizeof(Component1));
-  name::Component errorComponent;
-  BOOST_REQUIRE_THROW(errorComponent.wireDecode(errorBlock), name::Component::Error);
 }
 
 BOOST_AUTO_TEST_CASE(AppendsAndMultiEncode)
@@ -447,51 +416,6 @@ BOOST_AUTO_TEST_CASE(Compare)
   BOOST_CHECK_GT   (Name("/Z/AA/Y") .compare(1, 1, Name("/X/A"),   1), 0);
   BOOST_CHECK_LT   (Name("/Z/A/Y")  .compare(1, 1, Name("/X/A/C"), 1), 0);
   BOOST_CHECK_GT   (Name("/Z/A/C/Y").compare(1, 2, Name("/X/A"),   1), 0);
-}
-
-BOOST_AUTO_TEST_CASE(ZeroLengthComponentCompare)
-{
-  name::Component comp0("");
-  BOOST_REQUIRE_EQUAL(comp0.value_size(), 0);
-
-  BOOST_CHECK_EQUAL(comp0, comp0);
-  BOOST_CHECK_EQUAL(comp0, name::Component(""));
-  BOOST_CHECK_LT(comp0, name::Component("A"));
-  BOOST_CHECK_LE(comp0, name::Component("A"));
-  BOOST_CHECK_NE(comp0, name::Component("A"));
-  BOOST_CHECK_GT(name::Component("A"), comp0);
-  BOOST_CHECK_GE(name::Component("A"), comp0);
-}
-
-BOOST_AUTO_TEST_CASE(CreateComponentWithIterators) // Bug #2490
-{
-  {
-    std::vector<uint8_t> bytes = {1};
-    name::Component c(bytes.begin(), bytes.end());
-    BOOST_CHECK_EQUAL(c.value_size(), 1);
-    BOOST_CHECK_EQUAL(c.size(), 3);
-  }
-
-  {
-    std::list<uint8_t> bytes = {1, 2, 3, 4};
-    name::Component c(bytes.begin(), bytes.end());
-    BOOST_CHECK_EQUAL(c.value_size(), 4);
-    BOOST_CHECK_EQUAL(c.size(), 6);
-  }
-
-  {
-    std::vector<int8_t> bytes = {1};
-    name::Component c(bytes.begin(), bytes.end());
-    BOOST_CHECK_EQUAL(c.value_size(), 1);
-    BOOST_CHECK_EQUAL(c.size(), 3);
-  }
-
-  {
-    std::list<int8_t> bytes = {1, 2, 3, 4};
-    name::Component c(bytes.begin(), bytes.end());
-    BOOST_CHECK_EQUAL(c.value_size(), 4);
-    BOOST_CHECK_EQUAL(c.size(), 6);
-  }
 }
 
 BOOST_AUTO_TEST_CASE(NameWithSpaces)

@@ -1027,7 +1027,7 @@ BOOST_AUTO_TEST_CASE(MatchesData)
           .setMinSuffixComponents(2)
           .setMaxSuffixComponents(2)
           .setPublisherPublicKeyLocator(KeyLocator("ndn:/B"))
-          .setExclude(Exclude().excludeBefore(name::Component("C")));
+          .setExclude(Exclude().excludeAfter(name::Component("J")));
 
   Data data("ndn:/A/D");
   SignatureSha256WithRsa signature(KeyLocator("ndn:/B"));
@@ -1040,18 +1040,18 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   data1.wireEncode();
   BOOST_CHECK_EQUAL(interest.matchesData(data1), false);
 
-  interest.setMinSuffixComponents(1);
-  BOOST_CHECK_EQUAL(interest.matchesData(data1), true);
-  interest.setMinSuffixComponents(2);
+  Interest interest1 = interest;
+  interest1.setMinSuffixComponents(1);
+  BOOST_CHECK_EQUAL(interest1.matchesData(data1), true);
 
   Data data2 = data;
   data2.setName("ndn:/A/E/F"); // violates MaxSuffixComponents
   data2.wireEncode();
   BOOST_CHECK_EQUAL(interest.matchesData(data2), false);
 
-  interest.setMaxSuffixComponents(3);
-  BOOST_CHECK_EQUAL(interest.matchesData(data2), true);
-  interest.setMaxSuffixComponents(2);
+  Interest interest2 = interest;
+  interest2.setMaxSuffixComponents(3);
+  BOOST_CHECK_EQUAL(interest2.matchesData(data2), true);
 
   Data data3 = data;
   SignatureSha256WithRsa signature3(KeyLocator("ndn:/G")); // violates PublisherPublicKeyLocator
@@ -1059,9 +1059,9 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   data3.wireEncode();
   BOOST_CHECK_EQUAL(interest.matchesData(data3), false);
 
-  interest.setPublisherPublicKeyLocator(KeyLocator("ndn:/G"));
-  BOOST_CHECK_EQUAL(interest.matchesData(data3), true);
-  interest.setPublisherPublicKeyLocator(KeyLocator("ndn:/B"));
+  Interest interest3 = interest;
+  interest3.setPublisherPublicKeyLocator(KeyLocator("ndn:/G"));
+  BOOST_CHECK_EQUAL(interest3.matchesData(data3), true);
 
   Data data4 = data;
   DigestSha256 signature4; // violates PublisherPublicKeyLocator
@@ -1069,18 +1069,18 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   data4.wireEncode();
   BOOST_CHECK_EQUAL(interest.matchesData(data4), false);
 
-  interest.setPublisherPublicKeyLocator(KeyLocator());
-  BOOST_CHECK_EQUAL(interest.matchesData(data4), true);
-  interest.setPublisherPublicKeyLocator(KeyLocator("ndn:/B"));
+  Interest interest4 = interest;
+  interest4.setPublisherPublicKeyLocator(KeyLocator());
+  BOOST_CHECK_EQUAL(interest4.matchesData(data4), true);
 
   Data data5 = data;
-  data5.setName("ndn:/A/C"); // violates Exclude
+  data5.setName("ndn:/A/J"); // violates Exclude
   data5.wireEncode();
   BOOST_CHECK_EQUAL(interest.matchesData(data5), false);
 
-  interest.setExclude(Exclude().excludeBefore(name::Component("A")));
-  BOOST_CHECK_EQUAL(interest.matchesData(data5), true);
-  interest.setExclude(Exclude().excludeBefore(name::Component("C")));
+  Interest interest5 = interest;
+  interest5.setExclude(Exclude().excludeAfter(name::Component("K")));
+  BOOST_CHECK_EQUAL(interest5.matchesData(data5), true);
 
   Data data6 = data;
   data6.setName("ndn:/H/I"); // violates Name
@@ -1091,14 +1091,11 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   data7.setName("ndn:/A/B");
   data7.wireEncode();
 
-  interest = Interest()
-    .setName("/A/B/sha256digest=D548DECEFC4B880720DC9257A8D815E9DF4465E63742EE55C29133055DAA67C2");
-  BOOST_CHECK_EQUAL(interest.matchesData(data7), true);
+  Interest interest7("/A/B/sha256digest=D548DECEFC4B880720DC9257A8D815E9DF4465E63742EE55C29133055DAA67C2");
+  BOOST_CHECK_EQUAL(interest7.matchesData(data7), true);
 
-  interest = Interest()
-    .setName("/A/B/%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00"
-                  "%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00");
-  BOOST_CHECK_EQUAL(interest.matchesData(data7), false); // violates implicit digest
+  Interest interest7b("/A/B/sha256digest=0000000000000000000000000000000000000000000000000000000000000000");
+  BOOST_CHECK_EQUAL(interest7b.matchesData(data7), false); // violates implicit digest
 }
 
 BOOST_AUTO_TEST_CASE(InterestFilterMatching)

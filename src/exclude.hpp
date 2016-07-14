@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,7 +33,7 @@
 namespace ndn {
 
 /**
- * @brief Class to represent Exclude component in NDN interests
+ * @brief Represents Exclude selector in NDN Interest
  */
 class Exclude
 {
@@ -49,7 +49,7 @@ public:
   };
 
   /**
-   * @brief Default constructor an empty exclude
+   * @brief Constructs an empty Exclude
    */
   Exclude();
 
@@ -101,16 +101,17 @@ public: // high-level API
   excludeOne(const name::Component& comp);
 
   /**
-   * @brief Exclude components from range [from, to]
+   * @brief Exclude components in range [from, to]
    * @param from first element of the range
    * @param to last element of the range
+   * @throw Error \p from equals or comes after \p to in canonical ordering
    * @returns *this to allow chaining
    */
   Exclude&
   excludeRange(const name::Component& from, const name::Component& to);
 
   /**
-   * @brief Exclude all components from range [/, to]
+   * @brief Exclude all components in range (-Inf, to]
    * @param to last element of the range
    * @returns *this to allow chaining
    */
@@ -118,7 +119,7 @@ public: // high-level API
   excludeBefore(const name::Component& to);
 
   /**
-   * @brief Exclude all components from range [from, +Inf]
+   * @brief Exclude all components in range [from, +Inf)
    * @param from the first element of the range
    * @returns *this to allow chaining
    */
@@ -144,25 +145,46 @@ public: // EqualityComparable concept
   bool
   operator!=(const Exclude& other) const;
 
-public: // low-level exclude element API
-  typedef std::map< name::Component, bool /*any*/, std::greater<name::Component> > exclude_type;
+public: // low-level exclude entry API
+  /**
+   * @brief either a name::Component or "negative infinity"
+   */
+  class ExcludeComponent
+  {
+  public:
+    /**
+     * @brief implicitly construct a regular infinity ExcludeComponent
+     * @param component a name component which is excluded
+     */
+    ExcludeComponent(const name::Component& component);
 
-  typedef exclude_type::iterator iterator;
-  typedef exclude_type::const_iterator const_iterator;
-  typedef exclude_type::reverse_iterator reverse_iterator;
-  typedef exclude_type::const_reverse_iterator const_reverse_iterator;
+    /**
+     * @brief construct a negative infinity ExcludeComponent
+     * @param isNegInf must be true
+     */
+    explicit
+    ExcludeComponent(bool isNegInf);
+
+  public:
+    bool isNegInf;
+    name::Component component;
+  };
 
   /**
-   * @brief Method to directly append exclude element
-   * @param name excluded name component
-   * @param any  flag indicating if there is a postfix ANY component after the name
+   * @brief a map of exclude entries
    *
-   * This method is used during conversion from wire format of exclude filter
+   * Each key, except "negative infinity", is a name component that is excluded.
+   * The mapped boolean indicates whether the range between a key and the next greater key
+   * is also excluded. If true, the wire encoding shall have an ANY element.
    *
-   * If there is an error with ranges (e.g., order of components is wrong) an exception is thrown
+   * The map is ordered in descending order to simplify \p isExcluded.
    */
-  void
-  appendExclude(const name::Component& name, bool any);
+  typedef std::map<ExcludeComponent, bool, std::greater<ExcludeComponent>> ExcludeType;
+  typedef ExcludeType::value_type Entry;
+  typedef ExcludeType::iterator iterator;
+  typedef ExcludeType::const_iterator const_iterator;
+  typedef ExcludeType::reverse_iterator reverse_iterator;
+  typedef ExcludeType::const_reverse_iterator const_reverse_iterator;
 
   /**
    * @brief Get number of exclude terms
@@ -182,24 +204,22 @@ public: // low-level exclude element API
   const_iterator
   end() const;
 
-  /**
-   * @brief Get begin iterator of the exclude terms
-   */
-  const_reverse_iterator
-  rbegin() const;
-
-  /**
-   * @brief Get end iterator of the exclude terms
-   */
-  const_reverse_iterator
-  rend() const;
-
 private:
+  /**
+   * @brief directly append exclude element
+   * @tparam T either name::Component or bool
+   *
+   * This method is used during conversion from wire format of exclude filter
+   */
+  template<typename T>
+  void
+  appendEntry(const T& component, bool hasAny);
+
   Exclude&
-  excludeRange(iterator fromLowerBound, iterator toLowerBound);
+  excludeRange(const ExcludeComponent& from, const name::Component& to);
 
 private:
-  exclude_type m_exclude;
+  ExcludeType m_entries;
 
   mutable Block m_wire;
 };
@@ -207,59 +227,31 @@ private:
 std::ostream&
 operator<<(std::ostream& os, const Exclude& name);
 
-inline Exclude&
-Exclude::excludeBefore(const name::Component& to)
-{
-  return excludeRange(name::Component(), to);
-}
-
-inline void
-Exclude::appendExclude(const name::Component& name, bool any)
-{
-  m_exclude[name] = any;
-}
+bool
+operator>(const Exclude::ExcludeComponent& a, const Exclude::ExcludeComponent& b);
 
 inline bool
 Exclude::empty() const
 {
-  return m_exclude.empty();
-}
-
-inline void
-Exclude::clear()
-{
-  m_exclude.clear();
-  m_wire.reset();
+  return m_entries.empty();
 }
 
 inline size_t
 Exclude::size() const
 {
-  return m_exclude.size();
+  return m_entries.size();
 }
 
 inline Exclude::const_iterator
 Exclude::begin() const
 {
-  return m_exclude.begin();
+  return m_entries.begin();
 }
 
 inline Exclude::const_iterator
 Exclude::end() const
 {
-  return m_exclude.end();
-}
-
-inline Exclude::const_reverse_iterator
-Exclude::rbegin() const
-{
-  return m_exclude.rbegin();
-}
-
-inline Exclude::const_reverse_iterator
-Exclude::rend() const
-{
-  return m_exclude.rend();
+  return m_entries.end();
 }
 
 inline bool
@@ -268,6 +260,6 @@ Exclude::operator!=(const Exclude& other) const
   return !(*this == other);
 }
 
-} // ndn
+} // namespace ndn
 
 #endif // NDN_EXCLUDE_H
