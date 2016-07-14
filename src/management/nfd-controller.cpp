@@ -30,14 +30,15 @@ using ndn::util::SegmentFetcher;
 
 const uint32_t Controller::ERROR_TIMEOUT = 10060; // WinSock ESAETIMEDOUT
 const uint32_t Controller::ERROR_NACK = 10800; // 10000 + TLV-TYPE of Nack header
+const uint32_t Controller::ERROR_VALIDATION = 10021; // 10000 + TLS1_ALERT_DECRYPTION_FAILED
 const uint32_t Controller::ERROR_SERVER = 500;
 const uint32_t Controller::ERROR_LBOUND = 400;
 ValidatorNull Controller::s_validatorNull;
 
-Controller::Controller(Face& face, KeyChain& keyChain)
+Controller::Controller(Face& face, KeyChain& keyChain, Validator& validator)
   : m_face(face)
   , m_keyChain(keyChain)
-  , m_validator(s_validatorNull) /// \todo #3653 accept validator as constructor parameter
+  , m_validator(validator)
 {
 }
 
@@ -136,7 +137,9 @@ Controller::processDatasetFetchError(const CommandFailCallback& onFailure,
       onFailure(ERROR_SERVER, msg);
       break;
     case SegmentFetcher::ErrorCode::SEGMENT_VALIDATION_FAIL:
-      BOOST_ASSERT(false); /// \todo #3653 introduce ERROR_VALIDATION
+      /// \todo When SegmentFetcher exposes validator error code, Controller::ERROR_VALIDATION
+      ///       should be replaced with a range that corresponds to validator error codes.
+      onFailure(ERROR_VALIDATION, msg);
       break;
     case SegmentFetcher::ErrorCode::NACK_ERROR:
       onFailure(ERROR_NACK, msg);

@@ -22,6 +22,9 @@
 #ifndef NDN_TESTS_MANAGEMENT_NFD_CONTROLLER_FIXTURE_HPP
 #define NDN_TESTS_MANAGEMENT_NFD_CONTROLLER_FIXTURE_HPP
 
+#include "management/nfd-controller.hpp"
+#include "../../dummy-validator.hpp"
+
 #include "boost-test.hpp"
 #include "util/dummy-client-face.hpp"
 #include "../identity-management-time-fixture.hpp"
@@ -37,7 +40,7 @@ class ControllerFixture : public IdentityManagementTimeFixture
 protected:
   ControllerFixture()
     : face(io, m_keyChain)
-    , controller(face, m_keyChain)
+    , controller(face, m_keyChain, m_validator)
     , failCallback(bind(&ControllerFixture::fail, this, _1, _2))
   {
     Name identityName("/localhost/ControllerFixture");
@@ -47,6 +50,17 @@ protected:
     else {
       BOOST_FAIL("cannot create identity");
     }
+  }
+
+  /** \brief controls whether Controller's validator should accept or reject validation requests
+   *
+   *  Initially, the validator accepts all requests.
+   *  Setting \p false causes validator to reject all requests.
+   */
+  void
+  setValidationResult(bool shouldAccept)
+  {
+    m_validator.setResult(shouldAccept);
   }
 
 private:
@@ -61,6 +75,9 @@ protected:
   Controller controller;
   Controller::CommandFailCallback failCallback;
   std::vector<uint32_t> failCodes;
+
+private:
+  DummyValidator m_validator;
 };
 
 } // namespace tests

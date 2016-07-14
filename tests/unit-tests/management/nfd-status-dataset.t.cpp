@@ -135,6 +135,24 @@ BOOST_AUTO_TEST_CASE(DataHasNoSegment)
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_SERVER);
 }
 
+BOOST_AUTO_TEST_CASE(ValidationFailure)
+{
+  this->setValidationResult(false);
+
+  controller.fetch<FaceDataset>(
+    [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
+    failCallback);
+  this->advanceClocks(time::milliseconds(500));
+
+  FaceStatus payload;
+  payload.setFaceId(5744);
+  this->sendDataset("/localhost/nfd/faces/list", payload);
+  this->advanceClocks(time::milliseconds(500));
+
+  BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
+  BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_VALIDATION);
+}
+
 BOOST_AUTO_TEST_CASE(Nack)
 {
   controller.fetch<FaceDataset>(

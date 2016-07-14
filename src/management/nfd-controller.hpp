@@ -55,7 +55,7 @@ public:
   /** \brief construct a Controller that uses face for transport,
    *         and uses the passed KeyChain to sign commands
    */
-  Controller(Face& face, KeyChain& keyChain);
+  Controller(Face& face, KeyChain& keyChain, Validator& validator = s_validatorNull);
 
   /** \brief start command execution
    */
@@ -139,6 +139,10 @@ public:
   /** \brief error code for network Nack
    */
   static const uint32_t ERROR_NACK;
+
+  /** \brief error code for response validation failure
+   */
+  static const uint32_t ERROR_VALIDATION;
 
   /** \brief error code for server error
    */

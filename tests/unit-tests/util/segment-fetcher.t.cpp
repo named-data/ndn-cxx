@@ -21,7 +21,7 @@
 
 #include "util/segment-fetcher.hpp"
 #include "security/validator-null.hpp"
-#include "security/validator.hpp"
+#include "../../dummy-validator.hpp"
 #include "data.hpp"
 #include "encoding/block.hpp"
 
@@ -36,33 +36,11 @@ namespace ndn {
 namespace util {
 namespace tests {
 
+using namespace ndn::tests;
+
 BOOST_AUTO_TEST_SUITE(UtilSegmentFetcher)
 
-class ValidatorFailed : public Validator
-{
-protected:
-  virtual void
-  checkPolicy(const Data& data,
-              int nSteps,
-              const OnDataValidated& onValidated,
-              const OnDataValidationFailed& onValidationFailed,
-              std::vector<shared_ptr<ValidationRequest>>& nextSteps)
-  {
-    onValidationFailed(data.shared_from_this(), "Data validation failed.");
-  }
-
-  virtual void
-  checkPolicy(const Interest& interest,
-              int nSteps,
-              const OnInterestValidated& onValidated,
-              const OnInterestValidationFailed& onValidationFailed,
-              std::vector<shared_ptr<ValidationRequest>>& nextSteps)
-  {
-    onValidationFailed(interest.shared_from_this(), "Interest validation failed.");
-  }
-};
-
-class Fixture : public ndn::tests::IdentityManagementTimeFixture
+class Fixture : public IdentityManagementTimeFixture
 {
 public:
   Fixture()
@@ -210,9 +188,9 @@ BOOST_FIXTURE_TEST_CASE(NoSegmentInData, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(SegmentValidationFailure, Fixture)
 {
-  ValidatorFailed failedValidator;
+  DummyRejectValidator rejectValidator;
   SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
-                        failedValidator,
+                        rejectValidator,
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
