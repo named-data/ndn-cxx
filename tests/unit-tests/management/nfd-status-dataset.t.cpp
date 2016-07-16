@@ -202,6 +202,36 @@ BOOST_AUTO_TEST_CASE(ParseError2)
 
 BOOST_AUTO_TEST_SUITE_END() // Failures
 
+BOOST_AUTO_TEST_SUITE(NoCallback)
+
+BOOST_AUTO_TEST_CASE(Success)
+{
+  controller.fetch<FaceDataset>(
+    nullptr,
+    failCallback);
+  this->advanceClocks(time::milliseconds(500));
+
+  FaceStatus payload;
+  payload.setFaceId(2577);
+  this->sendDataset("/localhost/nfd/faces/list", payload);
+  BOOST_CHECK_NO_THROW(this->advanceClocks(time::milliseconds(500)));
+
+  BOOST_CHECK_EQUAL(failCodes.size(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(Failure)
+{
+  CommandOptions options;
+  options.setTimeout(time::milliseconds(3000));
+  controller.fetch<FaceDataset>(
+    [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
+    nullptr,
+    options);
+  BOOST_CHECK_NO_THROW(this->advanceClocks(time::milliseconds(500), 7));
+}
+
+BOOST_AUTO_TEST_SUITE_END() // NoCallback
+
 BOOST_AUTO_TEST_SUITE(Datasets)
 
 BOOST_AUTO_TEST_CASE(StatusGeneral)

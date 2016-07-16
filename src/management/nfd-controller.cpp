@@ -45,10 +45,15 @@ Controller::Controller(Face& face, KeyChain& keyChain, Validator& validator)
 void
 Controller::startCommand(const shared_ptr<ControlCommand>& command,
                          const ControlParameters& parameters,
-                         const CommandSucceedCallback& onSuccess,
-                         const CommandFailCallback& onFailure,
+                         const CommandSucceedCallback& onSuccess1,
+                         const CommandFailCallback& onFailure1,
                          const CommandOptions& options)
 {
+  const CommandSucceedCallback& onSuccess = onSuccess1 ?
+    onSuccess1 : [] (const ControlParameters&) {};
+  const CommandFailCallback& onFailure = onFailure1 ?
+    onFailure1 : [] (uint32_t, const std::string&) {};
+
   Name requestName = command->getRequestName(options.getPrefix(), parameters);
   Interest interest(requestName);
   interest.setInterestLifetime(options.getTimeout());
@@ -73,16 +78,14 @@ Controller::processCommandResponse(const Data& data,
   try {
     response.wireDecode(data.getContent().blockFromValue());
   }
-  catch (tlv::Error& e) {
-    if (static_cast<bool>(onFailure))
-      onFailure(ERROR_SERVER, e.what());
+  catch (const tlv::Error& e) {
+    onFailure(ERROR_SERVER, e.what());
     return;
   }
 
   uint32_t code = response.getCode();
   if (code >= ERROR_LBOUND) {
-    if (static_cast<bool>(onFailure))
-      onFailure(code, response.getText());
+    onFailure(code, response.getText());
     return;
   }
 
@@ -90,23 +93,20 @@ Controller::processCommandResponse(const Data& data,
   try {
     parameters.wireDecode(response.getBody());
   }
-  catch (tlv::Error& e) {
-    if (static_cast<bool>(onFailure))
-      onFailure(ERROR_SERVER, e.what());
+  catch (const tlv::Error& e) {
+    onFailure(ERROR_SERVER, e.what());
     return;
   }
 
   try {
     command->validateResponse(parameters);
   }
-  catch (ControlCommand::ArgumentError& e) {
-    if (static_cast<bool>(onFailure))
-      onFailure(ERROR_SERVER, e.what());
+  catch (const ControlCommand::ArgumentError& e) {
+    onFailure(ERROR_SERVER, e.what());
     return;
   }
 
-  if (static_cast<bool>(onSuccess))
-    onSuccess(parameters);
+  onSuccess(parameters);
 }
 
 void

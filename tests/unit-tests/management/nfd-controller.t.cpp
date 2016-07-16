@@ -56,16 +56,19 @@ protected:
   std::vector<ControlParameters> succeeds;
 };
 
+// This test suite focuses on ControlCommand functionality of Controller.
+// Individual commands are tested in nfd-control-command.t.cpp
+// StatusDataset functionality is tested in nfd-status-dataset.t.cpp
 BOOST_FIXTURE_TEST_SUITE(TestNfdController, CommandFixture)
 
-BOOST_AUTO_TEST_CASE(CommandSuccess)
+BOOST_AUTO_TEST_CASE(Success)
 {
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
                          parameters, succeedCallback, failCallback));
-  advanceClocks(time::milliseconds(1));
+  this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
   const Interest& requestInterest = face.sentInterests[0];
@@ -92,7 +95,7 @@ BOOST_AUTO_TEST_CASE(CommandSuccess)
   responseData->setContent(responsePayload.wireEncode());
   face.receive(*responseData);
 
-  advanceClocks(time::milliseconds(1));
+  this->advanceClocks(time::milliseconds(1));
 
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
   BOOST_REQUIRE_EQUAL(succeeds.size(), 1);
@@ -100,7 +103,55 @@ BOOST_AUTO_TEST_CASE(CommandSuccess)
   BOOST_CHECK_EQUAL(succeeds.back().getFaceId(), responseBody.getFaceId());
 }
 
-BOOST_AUTO_TEST_CASE(CommandInvalidRequest)
+BOOST_AUTO_TEST_CASE(SuccessNoCallback)
+{
+  ControlParameters parameters;
+  parameters.setUri("tcp4://192.0.2.1:6363");
+
+  controller.start<FaceCreateCommand>(parameters, nullptr, failCallback);
+  this->advanceClocks(time::milliseconds(1));
+
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+  const Interest& requestInterest = face.sentInterests[0];
+
+  ControlParameters responseBody;
+  responseBody.setUri("tcp4://192.0.2.1:6363")
+              .setFaceId(22)
+              .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  ControlResponse responsePayload(201, "created");
+  responsePayload.setBody(responseBody.wireEncode());
+
+  auto responseData = makeData(requestInterest.getName());
+  responseData->setContent(responsePayload.wireEncode());
+  face.receive(*responseData);
+
+  BOOST_CHECK_NO_THROW(this->advanceClocks(time::milliseconds(1)));
+
+  BOOST_CHECK_EQUAL(failCodes.size(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(OptionsPrefix)
+{
+  ControlParameters parameters;
+  parameters.setName("/ndn/com/example");
+  parameters.setFaceId(400);
+
+  CommandOptions options;
+  options.setPrefix("/localhop/net/example/router1/nfd");
+
+  BOOST_CHECK_NO_THROW(controller.start<RibRegisterCommand>(
+                         parameters, succeedCallback, failCallback, options));
+  this->advanceClocks(time::milliseconds(1));
+
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+  const Interest& requestInterest = face.sentInterests[0];
+
+  FaceCreateCommand command;
+  BOOST_CHECK(Name("/localhop/net/example/router1/nfd/rib/register").isPrefixOf(
+              requestInterest.getName()));
+}
+
+BOOST_AUTO_TEST_CASE(InvalidRequest)
 {
   ControlParameters parameters;
   parameters.setName("ndn:/should-not-have-this-field");
@@ -111,14 +162,14 @@ BOOST_AUTO_TEST_CASE(CommandInvalidRequest)
                     ControlCommand::ArgumentError);
 }
 
-BOOST_AUTO_TEST_CASE(CommandErrorCode)
+BOOST_AUTO_TEST_CASE(ErrorCode)
 {
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
                          parameters, succeedCallback, failCallback));
-  advanceClocks(time::milliseconds(1));
+  this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
   const Interest& requestInterest = face.sentInterests[0];
@@ -128,21 +179,21 @@ BOOST_AUTO_TEST_CASE(CommandErrorCode)
   auto responseData = makeData(requestInterest.getName());
   responseData->setContent(responsePayload.wireEncode());
   face.receive(*responseData);
-  advanceClocks(time::milliseconds(1));
+  this->advanceClocks(time::milliseconds(1));
 
   BOOST_CHECK_EQUAL(succeeds.size(), 0);
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), 401);
 }
 
-BOOST_AUTO_TEST_CASE(CommandInvalidResponse)
+BOOST_AUTO_TEST_CASE(InvalidResponse)
 {
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
                          parameters, succeedCallback, failCallback));
-  advanceClocks(time::milliseconds(1));
+  this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
   const Interest& requestInterest = face.sentInterests[0];
@@ -157,54 +208,33 @@ BOOST_AUTO_TEST_CASE(CommandInvalidResponse)
   auto responseData = makeData(requestInterest.getName());
   responseData->setContent(responsePayload.wireEncode());
   face.receive(*responseData);
-  advanceClocks(time::milliseconds(1));
+  this->advanceClocks(time::milliseconds(1));
 
   BOOST_CHECK_EQUAL(succeeds.size(), 0);
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
 }
 
-BOOST_AUTO_TEST_CASE(CommandNack)
+BOOST_AUTO_TEST_CASE(Nack)
 {
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
                          parameters, succeedCallback, failCallback));
-  advanceClocks(time::milliseconds(1));
+  this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
   const Interest& requestInterest = face.sentInterests[0];
 
   auto responseNack = makeNack(requestInterest, lp::NackReason::NO_ROUTE);
   face.receive(responseNack);
-  advanceClocks(time::milliseconds(1));
+  this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_NACK);
 }
 
-BOOST_AUTO_TEST_CASE(OptionsPrefix)
-{
-  ControlParameters parameters;
-  parameters.setName("/ndn/com/example");
-  parameters.setFaceId(400);
-
-  CommandOptions options;
-  options.setPrefix("/localhop/net/example/router1/nfd");
-
-  BOOST_CHECK_NO_THROW(controller.start<RibRegisterCommand>(
-                         parameters, succeedCallback, failCallback, options));
-  advanceClocks(time::milliseconds(1));
-
-  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
-  const Interest& requestInterest = face.sentInterests[0];
-
-  FaceCreateCommand command;
-  BOOST_CHECK(Name("/localhop/net/example/router1/nfd/rib/register").isPrefixOf(
-              requestInterest.getName()));
-}
-
-BOOST_AUTO_TEST_CASE(OptionsTimeout)
+BOOST_AUTO_TEST_CASE(Timeout)
 {
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
@@ -214,16 +244,29 @@ BOOST_AUTO_TEST_CASE(OptionsTimeout)
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
                          parameters, succeedCallback, failCallback, options));
-  advanceClocks(time::milliseconds(1), 101); // Face's PIT granularity is 100ms
+  this->advanceClocks(time::milliseconds(1), 101); // Face's PIT granularity is 100ms
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_TIMEOUT);
 }
 
-BOOST_AUTO_TEST_SUITE_END() // TestController
-BOOST_AUTO_TEST_SUITE_END() // Management
+BOOST_AUTO_TEST_CASE(FailureNoCallback)
+{
+  ControlParameters parameters;
+  parameters.setUri("tcp4://192.0.2.1:6363");
 
-// Controller::fetch<Dataset> has a separate test suite in nfd-status-dataset.t.cpp
+  CommandOptions options;
+  options.setTimeout(time::milliseconds(50));
+
+  controller.start<FaceCreateCommand>(parameters, succeedCallback, nullptr, options);
+  BOOST_CHECK_NO_THROW(this->advanceClocks(time::milliseconds(100), 10));
+  // timeout
+
+  BOOST_CHECK_EQUAL(succeeds.size(), 0);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // TestNfdController
+BOOST_AUTO_TEST_SUITE_END() // Management
 
 } // namespace tests
 } // namespace nfd

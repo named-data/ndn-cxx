@@ -164,10 +164,15 @@ private:
 template<typename Dataset>
 inline void
 Controller::fetchDataset(shared_ptr<Dataset> dataset,
-                         const std::function<void(typename Dataset::ResultType)>& onSuccess,
-                         const CommandFailCallback& onFailure,
+                         const std::function<void(typename Dataset::ResultType)>& onSuccess1,
+                         const CommandFailCallback& onFailure1,
                          const CommandOptions& options)
 {
+  const std::function<void(typename Dataset::ResultType)>& onSuccess = onSuccess1 ?
+    onSuccess1 : [] (const typename Dataset::ResultType&) {};
+  const CommandFailCallback& onFailure = onFailure1 ?
+    onFailure1 : [] (uint32_t, const std::string&) {};
+
   Name prefix = dataset->getDatasetPrefix(options.getPrefix());
   this->fetchDataset(prefix,
                      bind(&Controller::processDatasetResponse<Dataset>, this, dataset, onSuccess, onFailure, _1),
@@ -190,6 +195,7 @@ Controller::processDatasetResponse(shared_ptr<Dataset> dataset,
     onFailure(ERROR_SERVER, ex.what());
     return;
   }
+
   onSuccess(result);
 }
 
