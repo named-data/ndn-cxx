@@ -29,8 +29,9 @@
 #include "simple-notification.hpp"
 #include "util/dummy-client-face.hpp"
 
-#include "boost-test.hpp"
 #include "../identity-management-time-fixture.hpp"
+#include "../make-interest-data.hpp"
+#include "boost-test.hpp"
 
 namespace ndn {
 namespace util {
@@ -69,10 +70,25 @@ public:
     subscriberFace.receive(data);
   }
 
+  /** \brief deliver a Nack to subscriber
+   */
+  void
+  deliverNack(const Interest& interest, const lp::NackReason& reason)
+  {
+    lp::Nack nack = makeNack(interest, reason);
+    subscriberFace.receive(nack);
+  }
+
   void
   afterNotification(const SimpleNotification& notification)
   {
     lastNotification = notification;
+  }
+
+  void
+  afterNack(const lp::Nack& nack)
+  {
+    lastNack = nack;
   }
 
   void
@@ -92,6 +108,8 @@ public:
   {
     notificationConn = subscriber.onNotification.connect(
       bind(&NotificationSubscriberFixture::afterNotification, this, _1));
+    nackConn = subscriber.onNack.connect(
+      bind(&NotificationSubscriberFixture::afterNack, this, _1));
     subscriber.onTimeout.connect(
       bind(&NotificationSubscriberFixture::afterTimeout, this));
     subscriber.onDecodeError.connect(
@@ -102,6 +120,7 @@ public:
   disconnectHandlers()
   {
     notificationConn.disconnect();
+    nackConn.disconnect();
   }
 
   /** \return true if subscriberFace has an initial request (first sent Interest)
@@ -143,9 +162,11 @@ protected:
   DummyClientFace subscriberFace;
   util::NotificationSubscriber<SimpleNotification> subscriber;
   util::signal::Connection notificationConn;
+  util::signal::Connection nackConn;
   uint64_t nextSendNotificationNo;
   uint64_t lastDeliveredSeqNo;
   SimpleNotification lastNotification;
+  lp::Nack lastNack;
   bool hasTimeout;
   Data lastDecodeErrorData;
 };
@@ -192,6 +213,50 @@ BOOST_AUTO_TEST_CASE(Notifications)
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n2");
   BOOST_CHECK_EQUAL(this->getRequestSeqNo(), lastDeliveredSeqNo + 1);
+}
+
+BOOST_AUTO_TEST_CASE(Nack)
+{
+  this->connectHandlers();
+  subscriber.start();
+  advanceClocks(time::milliseconds(1));
+
+  // send the first Nack to initial request
+  BOOST_REQUIRE_EQUAL(subscriberFace.sentInterests.size(), 1);
+  Interest interest = subscriberFace.sentInterests[0];
+  subscriberFace.sentInterests.clear();
+  this->deliverNack(interest, lp::NackReason::CONGESTION);
+  advanceClocks(time::milliseconds(1));
+  BOOST_CHECK_EQUAL(lastNack.getReason(), lp::NackReason::CONGESTION);
+  BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), false);
+  advanceClocks(time::milliseconds(300));
+  BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), true);
+
+  // send the second Nack to initial request
+  BOOST_REQUIRE_EQUAL(subscriberFace.sentInterests.size(), 1);
+  interest = subscriberFace.sentInterests[0];
+  subscriberFace.sentInterests.clear();
+  this->deliverNack(interest, lp::NackReason::CONGESTION);
+  advanceClocks(time::milliseconds(301));
+  BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), false);
+  advanceClocks(time::milliseconds(200));
+  BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), true);
+
+  // send a notification to initial request
+  subscriberFace.sentInterests.clear();
+  this->deliverNotification("n1");
+  advanceClocks(time::milliseconds(1));
+
+  // send a Nack to subsequent request
+  BOOST_REQUIRE_EQUAL(subscriberFace.sentInterests.size(), 1);
+  interest = subscriberFace.sentInterests[0];
+  subscriberFace.sentInterests.clear();
+  this->deliverNack(interest, lp::NackReason::CONGESTION);
+  advanceClocks(time::milliseconds(1));
+  BOOST_CHECK_EQUAL(lastNack.getReason(), lp::NackReason::CONGESTION);
+  BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), false);
+  advanceClocks(time::milliseconds(300));
+  BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), true);
 }
 
 BOOST_AUTO_TEST_CASE(Timeout)

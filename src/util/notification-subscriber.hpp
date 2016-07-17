@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -51,6 +51,10 @@
 #include "../face.hpp"
 #include "signal.hpp"
 #include "concepts.hpp"
+#include "time.hpp"
+#include "random.hpp"
+#include "scheduler.hpp"
+#include "scheduler-scoped-event-id.hpp"
 #include <boost/concept_check.hpp>
 
 namespace ndn {
@@ -77,7 +81,10 @@ public:
     , m_prefix(prefix)
     , m_isRunning(false)
     , m_lastSequenceNo(std::numeric_limits<uint64_t>::max())
-    , m_lastInterestId(0)
+    , m_lastNackSequenceNo(std::numeric_limits<uint64_t>::max())
+    , m_attempts(1)
+    , m_scheduler(face.getIoService())
+    , m_nackEvent(m_scheduler)
     , m_interestLifetime(interestLifetime)
   {
   }
@@ -137,6 +144,10 @@ public: // subscriptions
    */
   signal::Signal<NotificationSubscriber, Notification> onNotification;
 
+  /** \brief fires when a NACK is received
+   */
+  signal::Signal<NotificationSubscriber, lp::Nack> onNack;
+
   /** \brief fires when no Notification is received within .getInterestLifetime period
    */
   signal::Signal<NotificationSubscriber> onTimeout;
@@ -159,6 +170,7 @@ private:
 
     m_lastInterestId = m_face.expressInterest(*interest,
                          bind(&NotificationSubscriber<Notification>::afterReceiveData, this, _2),
+                         bind(&NotificationSubscriber<Notification>::afterReceiveNack, this, _2),
                          bind(&NotificationSubscriber<Notification>::afterTimeout, this));
   }
 
@@ -179,6 +191,7 @@ private:
 
     m_lastInterestId = m_face.expressInterest(*interest,
                          bind(&NotificationSubscriber<Notification>::afterReceiveData, this, _2),
+                         bind(&NotificationSubscriber<Notification>::afterReceiveNack, this, _2),
                          bind(&NotificationSubscriber<Notification>::afterTimeout, this));
   }
 
@@ -190,7 +203,7 @@ private:
   {
     if (!m_isRunning)
       return true;
-    if (onNotification.isEmpty()) {
+    if (onNotification.isEmpty() && onNack.isEmpty()) {
       this->stop();
       return true;
     }
@@ -220,6 +233,18 @@ private:
   }
 
   void
+  afterReceiveNack(const lp::Nack& nack)
+  {
+    if (this->shouldStop())
+      return;
+
+    this->onNack(nack);
+
+    time::milliseconds delay = exponentialBackoff(nack);
+    m_nackEvent = m_scheduler.scheduleEvent(delay, [this] {this->sendInitialInterest();});
+  }
+
+  void
   afterTimeout()
   {
     if (this->shouldStop())
@@ -230,11 +255,40 @@ private:
     this->sendInitialInterest();
   }
 
+  time::milliseconds
+  exponentialBackoff(lp::Nack nack)
+  {
+    uint64_t nackSequenceNo;
+
+    try {
+      nackSequenceNo = nack.getInterest().getName().get(-1).toSequenceNumber();
+    }
+    catch (name::Component::Error&) {
+      nackSequenceNo = 0;
+    }
+
+    if (m_lastNackSequenceNo ==  nackSequenceNo) {
+      ++m_attempts;
+    } else {
+      m_attempts = 1;
+    }
+
+    time::milliseconds delayTime =
+      time::milliseconds (static_cast<uint32_t>( pow(2, m_attempts) * 100 + random::generateWord32() % 100));
+
+    m_lastNackSequenceNo = nackSequenceNo;
+    return delayTime;
+  }
+
 private:
   Face& m_face;
   Name m_prefix;
   bool m_isRunning;
   uint64_t m_lastSequenceNo;
+  uint64_t m_lastNackSequenceNo;
+  uint64_t m_attempts;
+  util::scheduler::Scheduler m_scheduler;
+  util::scheduler::ScopedEventId m_nackEvent;
   const PendingInterestId* m_lastInterestId;
   time::milliseconds m_interestLifetime;
 };
