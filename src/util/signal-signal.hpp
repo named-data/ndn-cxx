@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -95,18 +95,7 @@ private: // API for owner
   operator()(const TArgs&...args, const DummyExtraArg&);
 
   // make Owner a friend of Signal<Owner, ...> so that API for owner can be called
-#if NDN_CXX_HAVE_CXX_FRIEND_TYPENAME
   friend Owner;
-#elif NDN_CXX_HAVE_CXX_FRIEND_TYPENAME_WRAPPER
-  template<typename T>
-  struct TypeWrapper
-  {
-    typedef T Type;
-  }; // http://stackoverflow.com/a/5608542/3729203
-  friend class TypeWrapper<Owner>::Type;
-#else
-#  error "cannot declare Owner as friend"
-#endif
 
 private: // internal implementation
   typedef Signal<Owner, TArgs...> Self;
