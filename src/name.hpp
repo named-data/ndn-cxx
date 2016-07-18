@@ -105,7 +105,7 @@ public:
    * @brief Create name from @p uri (NDN URI scheme)
    * @param uri The URI string
    */
-  Name(const std::string& uri);
+  Name(std::string uri);
 
   /**
    * @brief Make a deep copy of the name, reallocating the underlying memory buffer
@@ -131,20 +131,6 @@ public:
    */
   bool
   hasWire() const;
-
-  /**
-   * @deprecated Use appropriate constructor
-   */
-  DEPRECATED(
-  void
-  set(const char* uri));
-
-  /**
-   * @deprecated Use appropriate constructor
-   */
-  DEPRECATED(
-  void
-  set(const std::string& uri));
 
   /**
    * @brief Append a new component, copying from value of length valueLength.
@@ -612,10 +598,6 @@ public:
   {
     return const_reverse_iterator(begin());
   }
-
-private:
-  void
-  construct(const char* uri);
 
 public:
   /** \brief indicates "until the end" in getSubName and compare

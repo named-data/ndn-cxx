@@ -55,13 +55,57 @@ Name::Name(const Block& wire)
 }
 
 Name::Name(const char* uri)
+  : Name(std::string(uri))
 {
-  construct(uri);
 }
 
-Name::Name(const std::string& uri)
+Name::Name(std::string uri)
 {
-  construct(uri.c_str());
+  trim(uri);
+  if (uri.empty())
+    return;
+
+  size_t iColon = uri.find(':');
+  if (iColon != std::string::npos) {
+    // Make sure the colon came before a '/'.
+    size_t iFirstSlash = uri.find('/');
+    if (iFirstSlash == std::string::npos || iColon < iFirstSlash) {
+      // Omit the leading protocol such as ndn:
+      uri.erase(0, iColon + 1);
+      trim(uri);
+    }
+  }
+
+  // Trim the leading slash and possibly the authority.
+  if (uri[0] == '/') {
+    if (uri.size() >= 2 && uri[1] == '/') {
+      // Strip the authority following "//".
+      size_t iAfterAuthority = uri.find('/', 2);
+      if (iAfterAuthority == std::string::npos)
+        // Unusual case: there was only an authority.
+        return;
+      else {
+        uri.erase(0, iAfterAuthority + 1);
+        trim(uri);
+      }
+    }
+    else {
+      uri.erase(0, 1);
+      trim(uri);
+    }
+  }
+
+  size_t iComponentStart = 0;
+
+  // Unescape the components.
+  while (iComponentStart < uri.size()) {
+    size_t iComponentEnd = uri.find("/", iComponentStart);
+    if (iComponentEnd == std::string::npos)
+      iComponentEnd = uri.size();
+
+    append(Component::fromEscapedString(&uri[0], iComponentStart, iComponentEnd));
+    iComponentStart = iComponentEnd + 1;
+  }
 }
 
 Name
@@ -121,71 +165,6 @@ Name::wireDecode(const Block& wire)
 
   m_nameBlock = wire;
   m_nameBlock.parse();
-}
-
-void
-Name::construct(const char* uriOrig)
-{
-  clear();
-
-  std::string uri = uriOrig;
-  trim(uri);
-  if (uri.size() == 0)
-    return;
-
-  size_t iColon = uri.find(':');
-  if (iColon != std::string::npos) {
-    // Make sure the colon came before a '/'.
-    size_t iFirstSlash = uri.find('/');
-    if (iFirstSlash == std::string::npos || iColon < iFirstSlash) {
-      // Omit the leading protocol such as ndn:
-      uri.erase(0, iColon + 1);
-      trim(uri);
-    }
-  }
-
-  // Trim the leading slash and possibly the authority.
-  if (uri[0] == '/') {
-    if (uri.size() >= 2 && uri[1] == '/') {
-      // Strip the authority following "//".
-      size_t iAfterAuthority = uri.find('/', 2);
-      if (iAfterAuthority == std::string::npos)
-        // Unusual case: there was only an authority.
-        return;
-      else {
-        uri.erase(0, iAfterAuthority + 1);
-        trim(uri);
-      }
-    }
-    else {
-      uri.erase(0, 1);
-      trim(uri);
-    }
-  }
-
-  size_t iComponentStart = 0;
-
-  // Unescape the components.
-  while (iComponentStart < uri.size()) {
-    size_t iComponentEnd = uri.find("/", iComponentStart);
-    if (iComponentEnd == std::string::npos)
-      iComponentEnd = uri.size();
-
-    append(Component::fromEscapedString(&uri[0], iComponentStart, iComponentEnd));
-    iComponentStart = iComponentEnd + 1;
-  }
-}
-
-void
-Name::set(const char* uri)
-{
-  *this = Name(uri);
-}
-
-void
-Name::set(const std::string& uri)
-{
-  *this = Name(uri);
 }
 
 std::string
