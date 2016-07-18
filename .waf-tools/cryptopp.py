@@ -101,7 +101,7 @@ def check_cryptopp(self, *k, **kw):
         self.fatal('CryptoPP not found or is not usable')
 
     isLibWorking = False
-    for defines in ['', 'CRYPTOPP_DISABLE_ASM']:
+    for defines in [[], ['CRYPTOPP_DISABLE_ASM']]:
         try:
             self.check_cxx(msg='Checking if CryptoPP library works',
                            fragment=CRYPTOPP_CHECK_FRAGMENT,

@@ -19,7 +19,7 @@ def options(opt):
     opt = opt.add_option_group('Library Options')
 
     opt.add_option('--with-tests', action='store_true', default=False, dest='with_tests',
-                   help='''build unit tests''')
+                   help='''Build unit tests''')
 
     opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
                    help='''Do not build tools''')
@@ -126,6 +126,12 @@ main(int, char**)
     conf.load('coverage')
 
     conf.define('SYSCONFDIR', conf.env['SYSCONFDIR'])
+
+    if not conf.env.enable_static:
+        # If there happens to be a static library, waf will put the corresponding -L flags
+        # before dynamic library flags.  This can result in compilation failure when the
+        # system has a different version of the ndn-cxx library installed.
+        conf.env['STLIBPATH'] = ['.'] + conf.env['STLIBPATH']
 
     # config file will contain all defines that were added using conf.define('xxx'...)
     # Everything that was added directly to conf.env['DEFINES'] will not appear in the
