@@ -26,8 +26,6 @@
 #include "signal.hpp"
 #include "../lp/packet.hpp"
 
-#define NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
-
 namespace ndn {
 namespace util {
 
@@ -116,10 +114,6 @@ public:
    */
   std::vector<Data> sentData;
 
-#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
-  std::vector<Data>& sentDatas; ///< deprecated alias to sentData
-#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
-
   /** \brief NACKs sent out of this DummyClientFace
    *
    *  Sent NACKs are appended to this container if options.enablePacketLogger is true.
@@ -154,23 +148,6 @@ private:
 template<>
 void
 DummyClientFace::receive(const lp::Nack& nack);
-
-#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
-/**
- * @brief Create a dummy face with internal IO service
- * @deprecated Use the DummyFace constructor directly
- */
-shared_ptr<DummyClientFace>
-makeDummyClientFace(const DummyClientFace::Options& options = DummyClientFace::DEFAULT_OPTIONS);
-
-/**
- * @brief Create a dummy face with the provided IO service
- * @deprecated Use the DummyFace constructor directly
- */
-shared_ptr<DummyClientFace>
-makeDummyClientFace(boost::asio::io_service& ioService,
-                    const DummyClientFace::Options& options = DummyClientFace::DEFAULT_OPTIONS);
-#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
 
 } // namespace util
 } // namespace ndn

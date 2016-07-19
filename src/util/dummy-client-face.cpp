@@ -86,9 +86,6 @@ public:
 
 DummyClientFace::DummyClientFace(const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
   : Face(make_shared<DummyClientFace::Transport>())
-#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
-  , sentDatas(sentData)
-#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
   , m_internalKeyChain(new KeyChain)
   , m_keyChain(*m_internalKeyChain)
 {
@@ -98,9 +95,6 @@ DummyClientFace::DummyClientFace(const Options& options/* = DummyClientFace::DEF
 DummyClientFace::DummyClientFace(KeyChain& keyChain,
                                  const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
   : Face(make_shared<DummyClientFace::Transport>(), keyChain)
-#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
-  , sentDatas(sentData)
-#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
   , m_keyChain(keyChain)
 {
   this->construct(options);
@@ -109,9 +103,6 @@ DummyClientFace::DummyClientFace(KeyChain& keyChain,
 DummyClientFace::DummyClientFace(boost::asio::io_service& ioService,
                                  const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
   : Face(make_shared<DummyClientFace::Transport>(), ioService)
-#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
-  , sentDatas(sentData)
-#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
   , m_internalKeyChain(new KeyChain)
   , m_keyChain(*m_internalKeyChain)
 {
@@ -121,9 +112,6 @@ DummyClientFace::DummyClientFace(boost::asio::io_service& ioService,
 DummyClientFace::DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
                                  const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
   : Face(make_shared<DummyClientFace::Transport>(), ioService, keyChain)
-#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
-  , sentDatas(sentData)
-#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
   , m_keyChain(keyChain)
 {
   this->construct(options);
@@ -260,25 +248,6 @@ DummyClientFace::receive<lp::Nack>(const lp::Nack& nack)
 
   static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
 }
-
-#ifdef NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
-
-shared_ptr<DummyClientFace>
-makeDummyClientFace(const DummyClientFace::Options& options)
-{
-  // cannot use make_shared<DummyClientFace> because DummyClientFace constructor is private
-  return shared_ptr<DummyClientFace>(new DummyClientFace(options));
-}
-
-shared_ptr<DummyClientFace>
-makeDummyClientFace(boost::asio::io_service& ioService,
-                    const DummyClientFace::Options& options)
-{
-  // cannot use make_shared<DummyClientFace> because DummyClientFace constructor is private
-  return shared_ptr<DummyClientFace>(new DummyClientFace(ref(ioService), options));
-}
-
-#endif // NDN_UTIL_DUMMY_FACE_KEEP_DEPRECATED
 
 } // namespace util
 } // namespace ndn
