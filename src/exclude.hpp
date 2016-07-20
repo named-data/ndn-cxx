@@ -126,18 +126,6 @@ public: // high-level API
   Exclude&
   excludeAfter(const name::Component& from);
 
-  /**
-   * @brief Check if exclude filter is empty
-   */
-  bool
-  empty() const;
-
-  /**
-   * @brief Clear the exclude filter
-   */
-  void
-  clear();
-
 public: // EqualityComparable concept
   bool
   operator==(const Exclude& other) const;
@@ -145,7 +133,7 @@ public: // EqualityComparable concept
   bool
   operator!=(const Exclude& other) const;
 
-public: // low-level exclude entry API
+public: // interal storage
   /**
    * @brief either a name::Component or "negative infinity"
    */
@@ -179,30 +167,105 @@ public: // low-level exclude entry API
    *
    * The map is ordered in descending order to simplify \p isExcluded.
    */
-  typedef std::map<ExcludeComponent, bool, std::greater<ExcludeComponent>> ExcludeType;
-  typedef ExcludeType::value_type Entry;
-  typedef ExcludeType::iterator iterator;
-  typedef ExcludeType::const_iterator const_iterator;
-  typedef ExcludeType::reverse_iterator reverse_iterator;
-  typedef ExcludeType::const_reverse_iterator const_reverse_iterator;
+  typedef std::map<ExcludeComponent, bool, std::greater<ExcludeComponent>> ExcludeMap;
+  typedef ExcludeMap::value_type Entry;
 
+public: // enumeration API
   /**
-   * @brief Get number of exclude terms
+   * @brief represent an excluded component or range
    */
-  size_t
-  size() const;
+  class Range
+  {
+  public:
+    /**
+     * @retval true A single component is excluded
+     * @retval false A range of more than one components are excluded
+     */
+    bool
+    isSingular() const;
 
-  /**
-   * @brief Get begin iterator of the exclude terms
-   */
+    bool
+    operator==(const Exclude::Range& other) const;
+
+    bool
+    operator!=(const Exclude::Range& other) const;
+
+  public:
+    /**
+     * @brief from negative infinity?
+     */
+    bool fromInfinity;
+
+    /**
+     * @brief from component (inclusive)
+     * @pre valid only if !fromInfinity
+     */
+    name::Component from;
+
+    /**
+     * @brief to positive infinity?
+     */
+    bool toInfinity;
+
+    /**
+     * @brief to component (inclusive)
+     * @pre valid only if !toInfinity
+     */
+    name::Component to;
+  };
+
+  class const_iterator : public std::iterator<std::forward_iterator_tag, const Range>
+  {
+  public:
+    const_iterator() = default;
+
+    const_iterator(ExcludeMap::const_reverse_iterator it, ExcludeMap::const_reverse_iterator rend);
+
+    const Range&
+    operator*() const;
+
+    const Range*
+    operator->() const;
+
+    const_iterator&
+    operator++();
+
+    const_iterator
+    operator++(int);
+
+    bool
+    operator==(const const_iterator& other) const;
+
+    bool
+    operator!=(const const_iterator& other) const;
+
+  private:
+    void
+    update();
+
+  private:
+    ExcludeMap::const_reverse_iterator m_it;
+    ExcludeMap::const_reverse_iterator m_rend;
+    Range m_range;
+    friend class Exclude;
+  };
+
   const_iterator
   begin() const;
 
-  /**
-   * @brief Get end iterator of the exclude terms
-   */
   const_iterator
   end() const;
+
+  bool
+  empty() const;
+
+  size_t
+  size() const;
+
+  /// \todo const_iterator erase(const_iterator i);
+
+  void
+  clear();
 
 private:
   /**
@@ -219,16 +282,36 @@ private:
   excludeRange(const ExcludeComponent& from, const name::Component& to);
 
 private:
-  ExcludeType m_entries;
-
+  ExcludeMap m_entries;
   mutable Block m_wire;
+
+  friend std::ostream&
+  operator<<(std::ostream& os, const Exclude& name);
 };
 
 std::ostream&
 operator<<(std::ostream& os, const Exclude& name);
 
 bool
+operator==(const Exclude::ExcludeComponent& a, const Exclude::ExcludeComponent& b);
+
+bool
 operator>(const Exclude::ExcludeComponent& a, const Exclude::ExcludeComponent& b);
+
+std::ostream&
+operator<<(std::ostream& os, const Exclude::Range& range);
+
+inline Exclude::const_iterator
+Exclude::begin() const
+{
+  return const_iterator(m_entries.rbegin(), m_entries.rend());
+}
+
+inline Exclude::const_iterator
+Exclude::end() const
+{
+  return const_iterator(m_entries.rend(), m_entries.rend());
+}
 
 inline bool
 Exclude::empty() const
@@ -236,28 +319,48 @@ Exclude::empty() const
   return m_entries.empty();
 }
 
-inline size_t
-Exclude::size() const
-{
-  return m_entries.size();
-}
-
-inline Exclude::const_iterator
-Exclude::begin() const
-{
-  return m_entries.begin();
-}
-
-inline Exclude::const_iterator
-Exclude::end() const
-{
-  return m_entries.end();
-}
-
 inline bool
 Exclude::operator!=(const Exclude& other) const
 {
   return !(*this == other);
+}
+
+inline bool
+Exclude::Range::isSingular() const
+{
+  return !this->fromInfinity && !this->toInfinity && this->from == this->to;
+}
+
+inline bool
+Exclude::Range::operator!=(const Exclude::Range& other) const
+{
+  return !this->operator==(other);
+}
+
+inline const Exclude::Range&
+Exclude::const_iterator::operator*() const
+{
+  BOOST_ASSERT(m_it != m_rend);
+  return m_range;
+}
+
+inline const Exclude::Range*
+Exclude::const_iterator::operator->() const
+{
+  BOOST_ASSERT(m_it != m_rend);
+  return &m_range;
+}
+
+inline bool
+Exclude::const_iterator::operator==(const const_iterator& other) const
+{
+  return m_it == other.m_it;
+}
+
+inline bool
+Exclude::const_iterator::operator!=(const const_iterator& other) const
+{
+  return !this->operator==(other);
 }
 
 } // namespace ndn

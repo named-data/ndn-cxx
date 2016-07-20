@@ -41,10 +41,51 @@ Exclude::ExcludeComponent::ExcludeComponent(bool isNegInf1)
 }
 
 bool
+operator==(const Exclude::ExcludeComponent& a, const Exclude::ExcludeComponent& b)
+{
+  return (a.isNegInf && b.isNegInf) ||
+         (a.isNegInf == b.isNegInf && a.component == b.component);
+}
+
+bool
 operator>(const Exclude::ExcludeComponent& a, const Exclude::ExcludeComponent& b)
 {
   return a.isNegInf < b.isNegInf ||
          (a.isNegInf == b.isNegInf && a.component > b.component);
+}
+
+bool
+Exclude::Range::operator==(const Exclude::Range& other) const
+{
+  return this->fromInfinity == other.fromInfinity && this->toInfinity == other.toInfinity &&
+         (this->fromInfinity || this->from == other.from) &&
+         (this->toInfinity || this->to == other.to);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Exclude::Range& range)
+{
+  if (range.isSingular()) {
+    return os << '{' << range.from << '}';
+  }
+
+  if (range.fromInfinity) {
+    os << "(-∞";
+  }
+  else {
+    os << '[' << range.from;
+  }
+
+  os << ",";
+
+  if (range.toInfinity) {
+    os << "+∞)";
+  }
+  else {
+    os << range.to << ']';
+  }
+
+  return os;
 }
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Exclude>));
@@ -175,8 +216,8 @@ Exclude::appendEntry(const T& component, bool hasAny)
 bool
 Exclude::isExcluded(const name::Component& comp) const
 {
-  const_iterator lb = m_entries.lower_bound(comp);
-  return lb != end() && // lb==end() means comp is less than the first excluded component
+  ExcludeMap::const_iterator lb = m_entries.lower_bound(comp);
+  return lb != m_entries.end() && // if false, comp is less than the first excluded component
          (lb->second || // comp matches an ANY range
           (!lb->first.isNegInf && lb->first.component == comp)); // comp equals an exact excluded component
 }
@@ -223,8 +264,8 @@ Exclude::excludeRange(const ExcludeComponent& from, const name::Component& to)
                                 "(for single name exclude use Exclude::excludeOne)"));
   }
 
-  iterator newFrom = m_entries.lower_bound(from);
-  if (newFrom == end() || !newFrom->second /*without ANY*/) {
+  ExcludeMap::iterator newFrom = m_entries.lower_bound(from);
+  if (newFrom == m_entries.end() || !newFrom->second /*without ANY*/) {
     bool isNewEntry = false;
     std::tie(newFrom, isNewEntry) = m_entries.emplace(from, true);
     if (!isNewEntry) {
@@ -235,8 +276,8 @@ Exclude::excludeRange(const ExcludeComponent& from, const name::Component& to)
   // else
   // nothing special if start of the range already exists with ANY flag set
 
-  iterator newTo = m_entries.lower_bound(to);
-  BOOST_ASSERT(newTo != end());
+  ExcludeMap::iterator newTo = m_entries.lower_bound(to);
+  BOOST_ASSERT(newTo != m_entries.end());
   if (newTo == newFrom || !newTo->second) {
     newTo = m_entries.emplace_hint(newTo, to, false);
     ++newTo;
@@ -254,8 +295,8 @@ Exclude::excludeRange(const ExcludeComponent& from, const name::Component& to)
 Exclude&
 Exclude::excludeAfter(const name::Component& from)
 {
-  iterator newFrom = m_entries.lower_bound(from);
-  if (newFrom == end() || !newFrom->second /*without ANY*/) {
+  ExcludeMap::iterator newFrom = m_entries.lower_bound(from);
+  if (newFrom == m_entries.end() || !newFrom->second /*without ANY*/) {
     bool isNewEntry = false;
     std::tie(newFrom, isNewEntry) = m_entries.emplace(from, true);
     if (!isNewEntry) {
@@ -273,18 +314,11 @@ Exclude::excludeAfter(const name::Component& from)
   return *this;
 }
 
-void
-Exclude::clear()
-{
-  m_entries.clear();
-  m_wire.reset();
-}
-
 std::ostream&
 operator<<(std::ostream& os, const Exclude& exclude)
 {
   bool isFirst = true;
-  for (const Exclude::Entry& entry : exclude | boost::adaptors::reversed) {
+  for (const Exclude::Entry& entry : exclude.m_entries | boost::adaptors::reversed) {
     if (!entry.first.isNegInf) {
       if (!isFirst)
         os << ",";
@@ -312,12 +346,81 @@ Exclude::toUri() const
 bool
 Exclude::operator==(const Exclude& other) const
 {
-  if (empty() && other.empty())
-    return true;
-  if (empty() || other.empty())
-    return false;
+  return m_entries == other.m_entries;
+}
 
-  return wireEncode() == other.wireEncode();
+size_t
+Exclude::size() const
+{
+  return std::distance(begin(), end());
+}
+
+void
+Exclude::clear()
+{
+  m_entries.clear();
+  m_wire.reset();
+}
+
+Exclude::const_iterator::const_iterator(ExcludeMap::const_reverse_iterator it,
+                                        ExcludeMap::const_reverse_iterator rend)
+  : m_it(it)
+  , m_rend(rend)
+{
+  this->update();
+}
+
+Exclude::const_iterator&
+Exclude::const_iterator::operator++()
+{
+  bool wasInRange = m_it->second;
+  ++m_it;
+  if (wasInRange && m_it != m_rend) {
+    BOOST_ASSERT(m_it->second == false); // consecutive ranges should have been combined
+    ++m_it; // skip over range high limit
+  }
+  this->update();
+  return *this;
+}
+
+Exclude::const_iterator
+Exclude::const_iterator::operator++(int)
+{
+  const_iterator i = *this;
+  this->operator++();
+  return i;
+}
+
+void
+Exclude::const_iterator::update()
+{
+  if (m_it == m_rend) {
+    return;
+  }
+
+  if (m_it->second) { // range
+    if (m_it->first.isNegInf) {
+      m_range.fromInfinity = true;
+    }
+    else {
+      m_range.fromInfinity = false;
+      m_range.from = m_it->first.component;
+    }
+
+    auto next = std::next(m_it);
+    if (next == m_rend) {
+      m_range.toInfinity = true;
+    }
+    else {
+      m_range.toInfinity = false;
+      m_range.to = next->first.component;
+    }
+  }
+  else { // single
+    BOOST_ASSERT(!m_it->first.isNegInf);
+    m_range.fromInfinity = m_range.toInfinity = false;
+    m_range.from = m_range.to = m_it->first.component;
+  }
 }
 
 } // namespace ndn

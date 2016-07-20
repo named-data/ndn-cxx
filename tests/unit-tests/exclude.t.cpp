@@ -21,6 +21,7 @@
 
 #include "exclude.hpp"
 #include "util/crypto.hpp"
+#include <boost/lexical_cast.hpp>
 
 #include "boost-test.hpp"
 
@@ -34,29 +35,52 @@ BOOST_AUTO_TEST_SUITE(GenericComponent) // exclude generic NameComponent
 BOOST_AUTO_TEST_CASE(One)
 {
   Exclude e;
+  std::vector<Exclude::Range> enumerated;
+
   e.excludeOne(name::Component("b"));
-  BOOST_CHECK_EQUAL(e.size(), 1);
   BOOST_CHECK_EQUAL(e.toUri(), "b");
+  BOOST_CHECK_EQUAL(e.size(), 1);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 1);
+  BOOST_CHECK_EQUAL(enumerated[0].isSingular(), true);
+  BOOST_CHECK_EQUAL(enumerated[0].from, name::Component("b"));
 
   e.excludeOne(name::Component("d"));
-  BOOST_CHECK_EQUAL(e.size(), 2);
   BOOST_CHECK_EQUAL(e.toUri(), "b,d");
+  BOOST_CHECK_EQUAL(e.size(), 2);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 2);
+  BOOST_CHECK_EQUAL(enumerated[0].isSingular(), true);
+  BOOST_CHECK_EQUAL(enumerated[0].from, name::Component("b"));
+  BOOST_CHECK_EQUAL(enumerated[1].isSingular(), true);
+  BOOST_CHECK_EQUAL(enumerated[1].from, name::Component("d"));
 
   e.excludeOne(name::Component("a"));
-  BOOST_CHECK_EQUAL(e.size(), 3);
   BOOST_CHECK_EQUAL(e.toUri(), "a,b,d");
+  BOOST_CHECK_EQUAL(e.size(), 3);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 3);
+  BOOST_CHECK_EQUAL(enumerated[0].isSingular(), true);
+  BOOST_CHECK_EQUAL(enumerated[0].from, name::Component("a"));
+  BOOST_CHECK_EQUAL(enumerated[1].isSingular(), true);
+  BOOST_CHECK_EQUAL(enumerated[1].from, name::Component("b"));
+  BOOST_CHECK_EQUAL(enumerated[2].isSingular(), true);
+  BOOST_CHECK_EQUAL(enumerated[2].from, name::Component("d"));
 
   e.excludeOne(name::Component("aa"));
-  BOOST_CHECK_EQUAL(e.size(), 4);
   BOOST_CHECK_EQUAL(e.toUri(), "a,b,d,aa");
+  BOOST_CHECK_EQUAL(e.size(), 4);
 
   e.excludeOne(name::Component("cc"));
-  BOOST_CHECK_EQUAL(e.size(), 5);
   BOOST_CHECK_EQUAL(e.toUri(), "a,b,d,aa,cc");
+  BOOST_CHECK_EQUAL(e.size(), 5);
 
   e.excludeOne(name::Component("c"));
-  BOOST_CHECK_EQUAL(e.size(), 6);
   BOOST_CHECK_EQUAL(e.toUri(), "a,b,c,d,aa,cc");
+  BOOST_CHECK_EQUAL(e.size(), 6);
 }
 
 BOOST_AUTO_TEST_CASE(Before)
@@ -73,49 +97,136 @@ BOOST_AUTO_TEST_CASE(Ranges)
   // example: ANY /b /d ANY /f
 
   Exclude e;
+  std::vector<Exclude::Range> enumerated;
+
   e.excludeOne(name::Component("b0"));
-  BOOST_CHECK_EQUAL(e.size(), 1);
   BOOST_CHECK_EQUAL(e.toUri(), "b0");
+  BOOST_CHECK_EQUAL(e.size(), 1);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 1);
+  BOOST_CHECK_EQUAL(enumerated[0].isSingular(), true);
+  BOOST_CHECK_EQUAL(enumerated[0].from, name::Component("b0"));
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(enumerated[0]), "{b0}");
+  BOOST_CHECK_EQUAL(enumerated[0], (Exclude::Range{false, name::Component("b0"), false, name::Component("b0")}));
+  BOOST_CHECK_NE(enumerated[0], (Exclude::Range{false, name::Component("b0"), false, name::Component("b1")}));
 
   e.excludeBefore(name::Component("b1"));
-  BOOST_CHECK_EQUAL(e.size(), 2);
   BOOST_CHECK_EQUAL(e.toUri(), "*,b1");
+  BOOST_CHECK_EQUAL(e.size(), 1);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 1);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, true);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].to, name::Component("b1"));
 
   e.excludeBefore(name::Component("c0"));
-  BOOST_CHECK_EQUAL(e.size(), 2);
   BOOST_CHECK_EQUAL(e.toUri(), "*,c0");
+  BOOST_CHECK_EQUAL(e.size(), 1);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 1);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, true);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].to, name::Component("c0"));
 
   e.excludeRange(name::Component("a0"), name::Component("c0"));
-  BOOST_CHECK_EQUAL(e.size(), 2);
   BOOST_CHECK_EQUAL(e.toUri(), "*,c0");
+  BOOST_CHECK_EQUAL(e.size(), 1);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 1);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, true);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].to, name::Component("c0"));
 
   e.excludeRange(name::Component("d0"), name::Component("e0"));
-  BOOST_CHECK_EQUAL(e.size(), 4);
   BOOST_CHECK_EQUAL(e.toUri(), "*,c0,d0,*,e0");
+  BOOST_CHECK_EQUAL(e.size(), 2);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 2);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, true);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].to, name::Component("c0"));
+  BOOST_CHECK_EQUAL(enumerated[1].fromInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[1].from, name::Component("d0"));
+  BOOST_CHECK_EQUAL(enumerated[1].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[1].to, name::Component("e0"));
 
   e.excludeRange(name::Component("c1"), name::Component("d1"));
-  BOOST_CHECK_EQUAL(e.size(), 4);
   BOOST_CHECK_EQUAL(e.toUri(), "*,c0,c1,*,e0");
+  BOOST_CHECK_EQUAL(e.size(), 2);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 2);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, true);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].to, name::Component("c0"));
+  BOOST_CHECK_EQUAL(enumerated[1].fromInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[1].from, name::Component("c1"));
+  BOOST_CHECK_EQUAL(enumerated[1].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[1].to, name::Component("e0"));
 
   e.excludeRange(name::Component("a1"), name::Component("d1"));
-  BOOST_CHECK_EQUAL(e.size(), 2);
   BOOST_CHECK_EQUAL(e.toUri(), "*,e0");
+  BOOST_CHECK_EQUAL(e.size(), 1);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 1);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, true);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].to, name::Component("e0"));
 
   e.excludeBefore(name::Component("e2"));
-  BOOST_CHECK_EQUAL(e.size(), 2);
   BOOST_CHECK_EQUAL(e.toUri(), "*,e2");
+  BOOST_CHECK_EQUAL(e.size(), 1);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 1);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, true);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].to, name::Component("e2"));
 
   e.excludeAfter(name::Component("f0"));
-  BOOST_CHECK_EQUAL(e.size(), 3);
   BOOST_CHECK_EQUAL(e.toUri(), "*,e2,f0,*");
+  BOOST_CHECK_EQUAL(e.size(), 2);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 2);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, true);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].to, name::Component("e2"));
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(enumerated[0]), "(-∞,e2]");
+  BOOST_CHECK_EQUAL(enumerated[0], (Exclude::Range{true, name::Component("ignore"), false, name::Component("e2")}));
+  BOOST_CHECK_EQUAL(enumerated[1].fromInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[1].from, name::Component("f0"));
+  BOOST_CHECK_EQUAL(enumerated[1].toInfinity, true);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(enumerated[1]), "[f0,+∞)");
+  BOOST_CHECK_EQUAL(enumerated[1], (Exclude::Range{false, name::Component("f0"), true, name::Component("ignore")}));
 
   e.excludeAfter(name::Component("e5"));
-  BOOST_CHECK_EQUAL(e.size(), 3);
   BOOST_CHECK_EQUAL(e.toUri(), "*,e2,e5,*");
+  BOOST_CHECK_EQUAL(e.size(), 2);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 2);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, true);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].to, name::Component("e2"));
+  BOOST_CHECK_EQUAL(enumerated[1].fromInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[1].from, name::Component("e5"));
+  BOOST_CHECK_EQUAL(enumerated[1].toInfinity, true);
 
   e.excludeAfter(name::Component("b2"));
-  BOOST_CHECK_EQUAL(e.size(), 1);
   BOOST_CHECK_EQUAL(e.toUri(), "*");
+  BOOST_CHECK_EQUAL(e.size(), 1);
+  enumerated.clear();
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 1);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, true);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, true);
 
   BOOST_REQUIRE_THROW(e.excludeRange(name::Component("d0"), name::Component("a0")),
                       Exclude::Error);
@@ -179,6 +290,14 @@ BOOST_AUTO_TEST_CASE(BeforeDigest)
   BOOST_CHECK_EQUAL(e.isExcluded(digestBC), false);
   BOOST_CHECK_EQUAL(e.isExcluded(name::Component("")), false);
   BOOST_CHECK_EQUAL(e.isExcluded(name::Component("generic")), false);
+
+  BOOST_CHECK_EQUAL(e.size(), 1);
+  std::vector<Exclude::Range> enumerated;
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 1);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, true);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].to, digestBB);
 }
 
 BOOST_AUTO_TEST_CASE(BeforeGeneric)
@@ -209,6 +328,14 @@ BOOST_AUTO_TEST_CASE(AfterDigest)
   BOOST_CHECK_EQUAL(e.isExcluded(digestBC), true);
   BOOST_CHECK_EQUAL(e.isExcluded(name::Component("")), true);
   BOOST_CHECK_EQUAL(e.isExcluded(name::Component("generic")), true);
+
+  BOOST_CHECK_EQUAL(e.size(), 1);
+  std::vector<Exclude::Range> enumerated;
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 1);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].from, digestBB);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, true);
 }
 
 BOOST_AUTO_TEST_CASE(AfterDigestFF)
@@ -286,6 +413,15 @@ BOOST_AUTO_TEST_CASE(RangeDigestGeneric)
   BOOST_CHECK_EQUAL(e.isExcluded(digestF), true);
   BOOST_CHECK_EQUAL(e.isExcluded(name::Component("")), true);
   BOOST_CHECK_EQUAL(e.isExcluded(name::Component("generic")), false);
+
+  BOOST_CHECK_EQUAL(e.size(), 1);
+  std::vector<Exclude::Range> enumerated;
+  std::copy(e.begin(), e.end(), std::back_inserter(enumerated));
+  BOOST_REQUIRE_EQUAL(enumerated.size(), 1);
+  BOOST_CHECK_EQUAL(enumerated[0].fromInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].from, digest9);
+  BOOST_CHECK_EQUAL(enumerated[0].toInfinity, false);
+  BOOST_CHECK_EQUAL(enumerated[0].to, name::Component(""));
 }
 
 BOOST_AUTO_TEST_CASE(RangeGenericDigest)
@@ -426,6 +562,7 @@ BOOST_AUTO_TEST_CASE(EmptyComponent) // Bug #2660
 }
 
 BOOST_AUTO_TEST_SUITE_END() // WireCompare
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
