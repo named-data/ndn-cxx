@@ -27,7 +27,6 @@
 
 #include <boost/system/error_code.hpp>
 
-// forward declaration
 namespace boost {
 namespace asio {
 class io_service;
@@ -36,123 +35,105 @@ class io_service;
 
 namespace ndn {
 
+/** \brief provides TLV-block delivery service
+ */
 class Transport : noncopyable
 {
 public:
   class Error : public std::runtime_error
   {
   public:
-    inline Error(const boost::system::error_code& code, const std::string& msg);
-    inline Error(const std::string& msg);
+    Error(const boost::system::error_code& code, const std::string& msg);
+
+    explicit
+    Error(const std::string& msg);
   };
 
-  typedef function<void (const Block& wire)> ReceiveCallback;
-  typedef function<void ()> ErrorCallback;
+  typedef function<void(const Block& wire)> ReceiveCallback;
+  typedef function<void()> ErrorCallback;
 
-  inline
   Transport();
 
-  inline virtual
-  ~Transport();
+  virtual
+  ~Transport() = default;
 
-  /**
-   * @brief Connect transport
-   *
-   * @throws boost::system::system_error if connection cannot be established
+  /** \brief asynchronously open the connection
+   *  \param ioService io_service to create socket on
+   *  \param receiveCallback callback function when a TLV block is received; must not be empty
+   *  \throw boost::system::system_error connection cannot be established
    */
-  inline virtual void
-  connect(boost::asio::io_service& io_service,
-          const ReceiveCallback& receiveCallback);
+  virtual void
+  connect(boost::asio::io_service& ioService, const ReceiveCallback& receiveCallback);
 
-  /**
-   * @brief Close the connection.
+  /** \brief Close the connection.
    */
   virtual void
   close() = 0;
 
-  /**
-   * @brief Send block of data from @p wire through the transport
-   *
-   * @param wire A block of data to send
+  /** \brief send a TLV block through the transport
    */
   virtual void
   send(const Block& wire) = 0;
 
-  /**
-   * @brief Alternative version of sending data, applying scatter/gather I/O concept
+  /** \brief send two memory blocks through the transport
    *
-   * Two non-consecutive memory blocks will be send out together, e.g., as part of the
-   * same message in datagram-oriented transports.
+   *  Scatter/gather API is utilized to send two non-consecutive memory blocks together
+   *  (as part of the same message in datagram-oriented transports).
    */
   virtual void
   send(const Block& header, const Block& payload) = 0;
 
+  /** \brief pause the transport
+   *  \post receiveCallback will not be invoked
+   *  \note This operation has no effect if transport has been paused,
+   *        or when connection is being established.
+   */
   virtual void
   pause() = 0;
 
+  /** \brief resume the transport
+   *  \post receiveCallback will be invoked
+   *  \note This operation has no effect if transport is not paused,
+   *        or when connection is being established.
+   */
   virtual void
   resume() = 0;
 
-  inline bool
-  isConnected();
+  /** \retval true connection has been established
+   *  \retval false connection is not yet established or has been closed
+   */
+  bool
+  isConnected() const;
 
-  inline bool
-  isExpectingData();
+  /** \retval true incoming packets are expected, receiveCallback will be invoked
+   *  \retval false incoming packets are not expected, receiveCallback will not be invoked
+   */
+  bool
+  isReceiving() const;
 
 protected:
-  inline void
+  /** \brief invoke the receive callback
+   */
+  void
   receive(const Block& wire);
 
 protected:
   boost::asio::io_service* m_ioService;
   bool m_isConnected;
-  bool m_isExpectingData;
+  bool m_isReceiving;
   ReceiveCallback m_receiveCallback;
 };
 
-inline
-Transport::Transport()
-  : m_ioService(0)
-  , m_isConnected(false)
-  , m_isExpectingData(false)
-{
-}
-
-inline
-Transport::Error::Error(const boost::system::error_code& code, const std::string& msg)
-  : std::runtime_error(msg + (code.value() ? " (" + code.category().message(code.value()) + ")" : ""))
-{
-}
-
-inline
-Transport::Error::Error(const std::string& msg)
-  : std::runtime_error(msg)
-{
-}
-
-inline
-Transport::~Transport()
-{
-}
-
-inline void
-Transport::connect(boost::asio::io_service& ioService,
-                   const ReceiveCallback& receiveCallback)
-{
-  m_ioService = &ioService;
-  m_receiveCallback = receiveCallback;
-}
-
 inline bool
-Transport::isConnected()
+Transport::isConnected() const
 {
   return m_isConnected;
 }
 
 inline bool
-Transport::isExpectingData()
+Transport::isReceiving() const
 {
-  return m_isExpectingData;
+  return m_isReceiving;
 }
 
 inline void

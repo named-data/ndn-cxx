@@ -22,63 +22,58 @@
 #ifndef NDN_TRANSPORT_UNIX_TRANSPORT_HPP
 #define NDN_TRANSPORT_UNIX_TRANSPORT_HPP
 
-#include "../common.hpp"
 #include "transport.hpp"
 #include "../util/config-file.hpp"
 
-// forward declaration
-namespace boost { namespace asio { namespace local { class stream_protocol; } } }
+namespace boost {
+namespace asio {
+namespace local {
+class stream_protocol;
+} // namespace local
+} // namespace asio
+} // namespace boost
 
 namespace ndn {
 
-// forward declaration
-template<class T, class U>
+template<typename BaseTransport, typename Protocol>
 class StreamTransportImpl;
 
+/** \brief a transport using Unix stream socket
+ */
 class UnixTransport : public Transport
 {
 public:
-
-  /**
-   * Create Unix transport based on the socket specified
-   * in a well-known configuration file or fallback to /var/run/nfd.sock
-   *
-   * @throws Throws UnixTransport::Error on failure to parse a discovered configuration file
-   */
+  explicit
   UnixTransport(const std::string& unixSocket);
 
   ~UnixTransport();
 
-  // from Transport
   virtual void
   connect(boost::asio::io_service& ioService,
-          const ReceiveCallback& receiveCallback);
+          const ReceiveCallback& receiveCallback) override;
 
   virtual void
-  close();
+  close() override;
 
   virtual void
-  pause();
+  pause() override;
 
   virtual void
-  resume();
+  resume() override;
 
   virtual void
-  send(const Block& wire);
+  send(const Block& wire) override;
 
   virtual void
-  send(const Block& header, const Block& payload);
+  send(const Block& header, const Block& payload) override;
 
-  /**
-   * @brief Create transport with parameters defined in URI
-   *
-   * @throws Transport::Error if incorrect URI or unsupported protocol is specified
+  /** \brief Create transport with parameters defined in URI
+   *  \throw Transport::Error if incorrect URI or unsupported protocol is specified
    */
   static shared_ptr<UnixTransport>
   create(const std::string& uri);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-
   static std::string
   getSocketNameFromUri(const std::string& uri);
 
@@ -87,7 +82,7 @@ private:
 
   typedef StreamTransportImpl<UnixTransport, boost::asio::local::stream_protocol> Impl;
   friend class StreamTransportImpl<UnixTransport, boost::asio::local::stream_protocol>;
-  shared_ptr< Impl > m_impl;
+  shared_ptr<Impl> m_impl;
 };
 
 } // namespace ndn

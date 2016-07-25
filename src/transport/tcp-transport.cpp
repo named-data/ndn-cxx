@@ -19,10 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "common.hpp"
-
 #include "tcp-transport.hpp"
-#include "stream-transport.hpp"
+#include "stream-transport-with-resolver-impl.hpp"
 #include "util/face-uri.hpp"
 
 namespace ndn {
@@ -33,9 +31,7 @@ TcpTransport::TcpTransport(const std::string& host, const std::string& port/* = 
 {
 }
 
-TcpTransport::~TcpTransport()
-{
-}
+TcpTransport::~TcpTransport() = default;
 
 shared_ptr<TcpTransport>
 TcpTransport::create(const std::string& uri)
@@ -81,7 +77,7 @@ void
 TcpTransport::connect(boost::asio::io_service& ioService,
                       const ReceiveCallback& receiveCallback)
 {
-  if (!static_cast<bool>(m_impl)) {
+  if (m_impl == nullptr) {
     Transport::connect(ioService, receiveCallback);
 
     m_impl = make_shared<Impl>(ref(*this), ref(ioService));
@@ -94,21 +90,21 @@ TcpTransport::connect(boost::asio::io_service& ioService,
 void
 TcpTransport::send(const Block& wire)
 {
-  BOOST_ASSERT(static_cast<bool>(m_impl));
+  BOOST_ASSERT(m_impl != nullptr);
   m_impl->send(wire);
 }
 
 void
 TcpTransport::send(const Block& header, const Block& payload)
 {
-  BOOST_ASSERT(static_cast<bool>(m_impl));
+  BOOST_ASSERT(m_impl != nullptr);
   m_impl->send(header, payload);
 }
 
 void
 TcpTransport::close()
 {
-  BOOST_ASSERT(static_cast<bool>(m_impl));
+  BOOST_ASSERT(m_impl != nullptr);
   m_impl->close();
   m_impl.reset();
 }
@@ -116,7 +112,7 @@ TcpTransport::close()
 void
 TcpTransport::pause()
 {
-  if (static_cast<bool>(m_impl)) {
+  if (m_impl != nullptr) {
     m_impl->pause();
   }
 }
@@ -124,7 +120,7 @@ TcpTransport::pause()
 void
 TcpTransport::resume()
 {
-  BOOST_ASSERT(static_cast<bool>(m_impl));
+  BOOST_ASSERT(m_impl != nullptr);
   m_impl->resume();
 }
 

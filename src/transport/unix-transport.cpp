@@ -19,10 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "common.hpp"
-
 #include "unix-transport.hpp"
-#include "stream-transport.hpp"
+#include "stream-transport-impl.hpp"
 
 #include "../face.hpp"
 #include "util/face-uri.hpp"
@@ -77,7 +75,7 @@ void
 UnixTransport::connect(boost::asio::io_service& ioService,
                        const ReceiveCallback& receiveCallback)
 {
-  if (!static_cast<bool>(m_impl)) {
+  if (m_impl == nullptr) {
     Transport::connect(ioService, receiveCallback);
 
     m_impl = make_shared<Impl>(ref(*this), ref(ioService));
@@ -89,21 +87,21 @@ UnixTransport::connect(boost::asio::io_service& ioService,
 void
 UnixTransport::send(const Block& wire)
 {
-  BOOST_ASSERT(static_cast<bool>(m_impl));
+  BOOST_ASSERT(m_impl != nullptr);
   m_impl->send(wire);
 }
 
 void
 UnixTransport::send(const Block& header, const Block& payload)
 {
-  BOOST_ASSERT(static_cast<bool>(m_impl));
+  BOOST_ASSERT(m_impl != nullptr);
   m_impl->send(header, payload);
 }
 
 void
 UnixTransport::close()
 {
-  BOOST_ASSERT(static_cast<bool>(m_impl));
+  BOOST_ASSERT(m_impl != nullptr);
   m_impl->close();
   m_impl.reset();
 }
@@ -111,7 +109,7 @@ UnixTransport::close()
 void
 UnixTransport::pause()
 {
-  if (static_cast<bool>(m_impl)) {
+  if (m_impl != nullptr) {
     m_impl->pause();
   }
 }
@@ -119,7 +117,7 @@ UnixTransport::pause()
 void
 UnixTransport::resume()
 {
-  BOOST_ASSERT(static_cast<bool>(m_impl));
+  BOOST_ASSERT(m_impl != nullptr);
   m_impl->resume();
 }
 
