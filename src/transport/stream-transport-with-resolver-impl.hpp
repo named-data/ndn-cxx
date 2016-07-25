@@ -52,11 +52,11 @@ public:
     // Wait at most 4 seconds to connect
     /// @todo Decide whether this number should be configurable
     this->m_connectTimer.expires_from_now(boost::posix_time::seconds(4));
-    this->m_connectTimer.async_wait(bind(&Impl::connectTimeoutHandler, this, _1));
+    this->m_connectTimer.async_wait(bind(&Impl::connectTimeoutHandler, this->shared_from_this(), _1));
 
     // typename boost::asio::ip::basic_resolver< Protocol > resolver;
     auto resolver = make_shared<typename Protocol::resolver>(ref(this->m_socket.get_io_service()));
-    resolver->async_resolve(query, bind(&Impl::resolveHandler, this, _1, _2, resolver));
+    resolver->async_resolve(query, bind(&Impl::resolveHandler, this->shared_from_base(), _1, _2, resolver));
   }
 
 protected:
@@ -78,7 +78,14 @@ protected:
       BOOST_THROW_EXCEPTION(Transport::Error(error, "Unable to resolve because host or port"));
     }
 
-    this->m_socket.async_connect(*endpoint, bind(&Impl::connectHandler, this, _1));
+    this->m_socket.async_connect(*endpoint, bind(&Impl::connectHandler, this->shared_from_this(), _1));
+  }
+
+private:
+  shared_ptr<Impl>
+  shared_from_base()
+  {
+    return static_pointer_cast<Impl>(this->shared_from_this());
   }
 };
 

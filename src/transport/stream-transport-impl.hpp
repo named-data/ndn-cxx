@@ -35,7 +35,7 @@ namespace ndn {
  *                   and boost::asio::local::stream_protocol
  */
 template<typename BaseTransport, typename Protocol>
-class StreamTransportImpl
+class StreamTransportImpl : public enable_shared_from_this<StreamTransportImpl<BaseTransport, Protocol>>
 {
 public:
   typedef StreamTransportImpl<BaseTransport,Protocol> Impl;
@@ -60,10 +60,10 @@ public:
       // Wait at most 4 seconds to connect
       /// @todo Decide whether this number should be configurable
       m_connectTimer.expires_from_now(boost::posix_time::seconds(4));
-      m_connectTimer.async_wait(bind(&Impl::connectTimeoutHandler, this, _1));
+      m_connectTimer.async_wait(bind(&Impl::connectTimeoutHandler, this->shared_from_this(), _1));
 
       m_socket.open();
-      m_socket.async_connect(endpoint, bind(&Impl::connectHandler, this, _1));
+      m_socket.async_connect(endpoint, bind(&Impl::connectHandler, this->shared_from_this(), _1));
     }
   }
 
@@ -103,8 +103,7 @@ public:
     if (!m_transport.m_isReceiving) {
       m_transport.m_isReceiving = true;
       m_inputBufferSize = 0;
-      m_socket.async_receive(boost::asio::buffer(m_inputBuffer, MAX_NDN_PACKET_SIZE), 0,
-                             bind(&Impl::handleAsyncReceive, this, _1, _2));
+      asyncReceive();
     }
   }
 
@@ -137,9 +136,7 @@ protected:
       m_transport.m_isConnected = true;
 
       if (!m_transmissionQueue.empty()) {
-        boost::asio::async_write(m_socket, *m_transmissionQueue.begin(),
-                                 bind(&Impl::handleAsyncWrite, this, _1,
-                                      m_transmissionQueue.begin()));
+        asyncWrite();
       }
     }
     else {
@@ -165,13 +162,19 @@ protected:
     m_transmissionQueue.emplace_back(sequence);
 
     if (m_transport.m_isConnected && m_transmissionQueue.size() == 1) {
-      boost::asio::async_write(m_socket, *m_transmissionQueue.begin(),
-                               bind(&Impl::handleAsyncWrite, this, _1,
-                                    m_transmissionQueue.begin()));
+      asyncWrite();
     }
 
     // if not connected or there is transmission in progress (m_transmissionQueue.size() > 1),
     // next write will be scheduled either in connectHandler or in asyncWriteHandler
+  }
+
+  void
+  asyncWrite()
+  {
+    BOOST_ASSERT(!m_transmissionQueue.empty());
+    boost::asio::async_write(m_socket, m_transmissionQueue.front(),
+      bind(&Impl::handleAsyncWrite, this->shared_from_this(), _1, m_transmissionQueue.begin()));
   }
 
   void
@@ -194,10 +197,16 @@ protected:
     m_transmissionQueue.erase(queueItem);
 
     if (!m_transmissionQueue.empty()) {
-      boost::asio::async_write(m_socket, *m_transmissionQueue.begin(),
-                               bind(&Impl::handleAsyncWrite, this, _1,
-                                    m_transmissionQueue.begin()));
+      asyncWrite();
     }
+  }
+
+  void
+  asyncReceive()
+  {
+    m_socket.async_receive(boost::asio::buffer(m_inputBuffer + m_inputBufferSize,
+                                               MAX_NDN_PACKET_SIZE - m_inputBufferSize), 0,
+                           bind(&Impl::handleAsyncReceive, this->shared_from_this(), _1, _2));
   }
 
   void
@@ -235,9 +244,7 @@ protected:
       }
     }
 
-    m_socket.async_receive(boost::asio::buffer(m_inputBuffer + m_inputBufferSize,
-                                               MAX_NDN_PACKET_SIZE - m_inputBufferSize), 0,
-                           bind(&Impl::handleAsyncReceive, this, _1, _2));
+    asyncReceive();
   }
 
   bool
