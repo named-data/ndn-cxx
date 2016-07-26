@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -220,98 +220,6 @@ makeNestedBlock(uint32_t type, const U& value)
   return encoder.block();
 }
 
-#define NDN_CXX_ENABLE_DEPRECATED_BLOCK_HELPERS
-#ifdef NDN_CXX_ENABLE_DEPRECATED_BLOCK_HELPERS
-
-/**
- * @deprecated Use Encoder::prependBlock and Estimator::prependBlock instead
- */
-template<Tag TAG>
-inline size_t
-prependBlock(EncodingImpl<TAG>& encoder, const Block& block)
-{
-  return encoder.prependBlock(block);
-}
-
-/**
- * @deprecated Use Encoder::prependByteArrayBlock and Estimator::prependByteArrayBlock instead
- */
-template<Tag TAG>
-inline size_t
-prependByteArrayBlock(EncodingImpl<TAG>& encoder,
-                      uint32_t type, const uint8_t* array, size_t arraySize)
-{
-  return encoder.prependByteArrayBlock(type, array, arraySize);
-}
-
-/**
- * @deprecated Use makeNonNegativeIntegerBlock instead
- */
-inline Block
-nonNegativeIntegerBlock(uint32_t type, uint64_t value)
-{
-  return makeNonNegativeIntegerBlock(type, value);
-}
-
-/**
- * @deprecated Use prependEmptyBlock instead
- */
-template<Tag TAG>
-size_t
-prependBooleanBlock(EncodingImpl<TAG>& encoder, uint32_t type)
-{
-  return prependEmptyBlock(encoder, type);
-}
-
-/**
- * @deprecated Use makeEmptyBlock instead
- */
-inline Block
-booleanBlock(uint32_t type)
-{
-  return makeEmptyBlock(type);
-}
-
-/**
- * @deprecated Use makeBinaryBlock instead
- */
-inline Block
-dataBlock(uint32_t type, const uint8_t* data, size_t dataSize)
-{
-  return makeBinaryBlock(type, data, dataSize);
-}
-
-/**
- * @deprecated Use makeBinaryBlock instead
- */
-inline Block
-dataBlock(uint32_t type, const char* data, size_t dataSize)
-{
-  return makeBinaryBlock(type, data, dataSize);
-}
-
-/**
- * @deprecated Use makeBinaryBlock instead
- */
-template<class Iterator>
-inline Block
-dataBlock(uint32_t type, Iterator first, Iterator last)
-{
-  return makeBinaryBlock(type, first, last);
-}
-
-/**
- * @deprecated Use makeNestedBlock instead
- */
-template<class U>
-inline Block
-nestedBlock(uint32_t type, const U& value)
-{
-  return makeNestedBlock(type, value);
-}
-
-#endif // NDN_CXX_ENABLE_DEPRECATED_BLOCK_HELPERS
-
 } // namespace encoding
 
 using encoding::makeNonNegativeIntegerBlock;
@@ -321,14 +229,6 @@ using encoding::makeStringBlock;
 using encoding::readString;
 using encoding::makeBinaryBlock;
 using encoding::makeNestedBlock;
-
-#ifdef NDN_CXX_ENABLE_DEPRECATED_BLOCK_HELPERS
-
-using encoding::nonNegativeIntegerBlock;
-using encoding::booleanBlock;
-using encoding::dataBlock;
-
-#endif // NDN_CXX_ENABLE_DEPRECATED_BLOCK_HELPERS
 
 } // namespace ndn
 

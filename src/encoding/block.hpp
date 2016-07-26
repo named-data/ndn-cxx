@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -147,17 +147,6 @@ public: // constructor, creation, assignment
   static std::tuple<bool, Block>
   fromBuffer(ConstBufferPtr buffer, size_t offset);
 
-  /** @deprecated use fromBuffer(ConstBufferPtr, size_t)
-   */
-  DEPRECATED(
-  static bool
-  fromBuffer(const ConstBufferPtr& buffer, size_t offset, Block& block))
-  {
-    bool isOk = false;
-    std::tie(isOk, block) = Block::fromBuffer(buffer, offset);
-    return isOk;
-  }
-
   /** @brief Try to construct block from raw buffer
    *  @param buffer the raw buffer to copy bytes from
    *  @param maxSize the maximum size of constructed block;
@@ -170,17 +159,6 @@ public: // constructor, creation, assignment
    */
   static std::tuple<bool, Block>
   fromBuffer(const uint8_t* buffer, size_t maxSize);
-
-  /** @deprecated use fromBuffer(const uint8_t*, size_t)
-   */
-  DEPRECATED(
-  static bool
-  fromBuffer(const uint8_t* buffer, size_t maxSize, Block& block))
-  {
-    bool isOk = false;
-    std::tie(isOk, block) = Block::fromBuffer(buffer, maxSize);
-    return isOk;
-  }
 
 public: // wire format
   /** @brief Check if the Block is empty
