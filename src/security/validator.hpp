@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -282,6 +282,24 @@ protected:
   }
 
   /**
+   * @brief trigger when interest retrieves a Nack.
+   *
+   * Validator can decide how to handle a Nack, either call onFailure, or retry.
+   *
+   * @param interest The interest that retrieves a Nack.
+   * @param nack The Nack that is retrieved.
+   * @param nRemainingRetries The number of retries left.
+   * @param onFailure Failure callback when there is no more retries remaining.
+   * @param validationRequest The validationRequest containing the context of the interest.
+   */
+  virtual void
+  onNack(const Interest& interest,
+         const lp::Nack& nack,
+         int nRemainingRetries,
+         const OnFailure& onFailure,
+         const shared_ptr<ValidationRequest>& validationRequest);
+
+  /**
    * @brief trigger when interest for certificate times out.
    *
    * Validator can decide how to handle the timeout, either call onFailure, or retry.
@@ -291,7 +309,6 @@ protected:
    * @param onFailure Failure callback when there is no more retries remaining.
    * @param validationRequest The validationRequest containing the context of the interest.
    */
-
   virtual void
   onTimeout(const Interest& interest,
             int nRemainingRetries,

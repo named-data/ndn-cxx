@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -266,21 +266,51 @@ Validator::verifySignature(const uint8_t* buf, const size_t size, const DigestSh
 }
 
 void
+Validator::onNack(const Interest& interest,
+                  const lp::Nack& nack,
+                  int remainingRetries,
+                  const OnFailure& onFailure,
+                  const shared_ptr<ValidationRequest>& validationRequest)
+{
+  if (remainingRetries > 0) {
+    Interest newInterest = Interest(interest);
+    newInterest.refreshNonce();
+
+    //Express the same interest with different nonce and decremented remainingRetries.
+    m_face->expressInterest(newInterest,
+                            bind(&Validator::onData, this, _1, _2, validationRequest),
+                            bind(&Validator::onNack, this, _1, _2,
+                                 remainingRetries - 1, onFailure, validationRequest),
+                            bind(&Validator::onTimeout, this, _1,
+                                 remainingRetries - 1, onFailure, validationRequest));
+  }
+  else {
+    onFailure("Cannot fetch cert: " + interest.getName().toUri());
+  }
+}
+
+void
 Validator::onTimeout(const Interest& interest,
                      int remainingRetries,
                      const OnFailure& onFailure,
                      const shared_ptr<ValidationRequest>& validationRequest)
 {
-  if (remainingRetries > 0)
-    // Issue the same expressInterest except decrement nRetrials.
-    m_face->expressInterest(interest,
+  if (remainingRetries > 0) {
+    Interest newInterest = Interest(interest);
+    newInterest.refreshNonce();
+
+    // Express the same interest with different nonce and decremented remainingRetries.
+    m_face->expressInterest(newInterest,
                             bind(&Validator::onData, this, _1, _2, validationRequest),
+                            bind(&Validator::onNack, this, _1, _2,
+                                 remainingRetries - 1, onFailure, validationRequest),
                             bind(&Validator::onTimeout, this, _1,
                                  remainingRetries - 1, onFailure, validationRequest));
-  else
+  }
+  else {
     onFailure("Cannot fetch cert: " + interest.getName().toUri());
+  }
 }
-
 
 void
 Validator::afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest> >& nextSteps,
@@ -297,6 +327,8 @@ Validator::afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest> >& n
     {
       m_face->expressInterest((*it)->m_interest,
                               bind(&Validator::onData, this, _1, _2, *it),
+                              bind(&Validator::onNack, this, _1, _2,
+                                   (*it)->m_nRetries, onFailure, *it),
                               bind(&Validator::onTimeout,
                                    this, _1, (*it)->m_nRetries,
                                    onFailure,
