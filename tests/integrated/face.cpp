@@ -31,6 +31,8 @@
 #include "boost-test.hpp"
 #include "key-chain-fixture.hpp"
 
+#include <stdio.h>
+
 namespace ndn {
 namespace tests {
 
@@ -313,16 +315,33 @@ class FacesFixture2 : public FacesFixture
 {
 public:
   void
-  checkPrefix(bool doesExist)
+  checkPrefix(bool shouldExist)
   {
-    int result = std::system("nfd-status -r | grep /Hello/World >/dev/null");
+    // Boost.Test fails if a child process exits with non-zero.
+    // http://stackoverflow.com/q/5325202
+    std::string output = this->executeCommand("nfd-status -r | grep /Hello/World || true");
 
-    if (doesExist) {
-      BOOST_CHECK_EQUAL(result, 0);
+    if (shouldExist) {
+      BOOST_CHECK_NE(output.size(), 0);
     }
     else {
-      BOOST_CHECK_NE(result, 0);
+      BOOST_CHECK_EQUAL(output.size(), 0);
     }
+  }
+
+protected:
+  std::string
+  executeCommand(const std::string& cmd)
+  {
+    std::string output;
+    char buf[256];
+    FILE* pipe = popen(cmd.c_str(), "r");
+    BOOST_REQUIRE_MESSAGE(pipe != nullptr, "cannot execute '" << cmd << "'");
+    while (fgets(buf, sizeof(buf), pipe) != nullptr) {
+      output += buf;
+    }
+    pclose(pipe);
+    return output;
   }
 };
 
