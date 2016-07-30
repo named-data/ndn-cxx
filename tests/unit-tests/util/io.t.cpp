@@ -248,11 +248,11 @@ BOOST_FIXTURE_TEST_CASE(IdCert, IdCertFixture)
   identity.appendVersion();
   BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<IdentityCertificate> idCert;
+  shared_ptr<security::v1::IdentityCertificate> idCert;
   BOOST_REQUIRE_NO_THROW(idCert = m_keyChain.getCertificate(certName));
 
   io::save(*idCert, filename);
-  shared_ptr<IdentityCertificate> readCert = io::load<IdentityCertificate>(filename);
+  shared_ptr<security::v1::IdentityCertificate> readCert = io::load<security::v1::IdentityCertificate>(filename);
 
   BOOST_CHECK(readCert != nullptr);
   BOOST_CHECK_EQUAL(idCert->getName(), readCert->getName());

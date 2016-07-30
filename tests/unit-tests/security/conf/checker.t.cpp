@@ -363,12 +363,12 @@ BOOST_AUTO_TEST_CASE(FixedSignerCheckerTest1)
   Name identity("/SecurityTestConfChecker/FixedSignerCheckerTest1");
   BOOST_REQUIRE(addIdentity(identity, EcdsaKeyParams()));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<IdentityCertificate> cert1 = m_keyChain.getCertificate(certName);
+  shared_ptr<v1::IdentityCertificate> cert1 = m_keyChain.getCertificate(certName);
 
   Name identity2("/SecurityTestConfChecker/FixedSignerCheckerTest1Wrong");
   BOOST_REQUIRE(addIdentity(identity2, RsaKeyParams()));
   Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
-  shared_ptr<IdentityCertificate> cert2 = m_keyChain.getCertificate(certName2);
+  shared_ptr<v1::IdentityCertificate> cert2 = m_keyChain.getCertificate(certName2);
 
   Name packetName("/Test/Data");
 
@@ -382,10 +382,10 @@ BOOST_AUTO_TEST_CASE(FixedSignerCheckerTest1)
                   security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
                                         identity2));
 
-  std::vector<shared_ptr<IdentityCertificate> > certSet1;
+  std::vector<shared_ptr<v1::IdentityCertificate> > certSet1;
   certSet1.push_back(cert1);
 
-  std::vector<shared_ptr<IdentityCertificate> > certSet2;
+  std::vector<shared_ptr<v1::IdentityCertificate> > certSet2;
   certSet2.push_back(cert2);
 
 

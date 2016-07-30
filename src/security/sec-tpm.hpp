@@ -28,10 +28,11 @@
 #include "security-common.hpp"
 #include "../name.hpp"
 #include "../data.hpp"
-#include "public-key.hpp"
 #include "key-params.hpp"
+#include "v1/public-key.hpp"
 
 namespace ndn {
+namespace security {
 
 /**
  * @brief SecTpm is the base class of the TPM classes.
@@ -136,7 +137,7 @@ public:
    * @return The public key.
    * @throws SecTpm::Error if public key does not exist in TPM.
    */
-  virtual shared_ptr<PublicKey>
+  virtual shared_ptr<v1::PublicKey>
   getPublicKeyFromTpm(const Name& keyName) = 0;
 
   /**
@@ -299,6 +300,10 @@ protected:
 protected:
   std::string m_location;
 };
+
+} // namespace security
+
+using security::SecTpm;
 
 } // namespace ndn
 

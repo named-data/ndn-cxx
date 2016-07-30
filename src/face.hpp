@@ -35,7 +35,7 @@
 #define NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 
 #ifdef NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
-#include "security/identity-certificate.hpp"
+#include "security/v1/identity-certificate.hpp"
 #endif // NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 
 namespace boost {
@@ -414,7 +414,7 @@ public: // producer
                     const OnInterest& onInterest,
                     const RegisterPrefixSuccessCallback& onSuccess,
                     const RegisterPrefixFailureCallback& onFailure,
-                    const IdentityCertificate& certificate,
+                    const security::v1::IdentityCertificate& certificate,
                     uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
 
   /**
@@ -444,7 +444,7 @@ public: // producer
   setInterestFilter(const InterestFilter& interestFilter,
                     const OnInterest& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
-                    const IdentityCertificate& certificate,
+                    const security::v1::IdentityCertificate& certificate,
                     uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
 
   /**
@@ -554,7 +554,7 @@ public: // producer
   registerPrefix(const Name& prefix,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
-                 const IdentityCertificate& certificate,
+                 const security::v1::IdentityCertificate& certificate,
                  uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
 
   /**

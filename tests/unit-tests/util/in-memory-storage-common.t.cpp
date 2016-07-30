@@ -278,8 +278,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(DigestCalculation, T, InMemoryStorages)
 {
   shared_ptr<Data> data = makeData("/digest/compute");
 
-  ndn::ConstBufferPtr digest1 = ndn::crypto::sha256(data->wireEncode().wire(),
-                                                    data->wireEncode().size());
+  ndn::ConstBufferPtr digest1 = ndn::crypto::computeSha256Digest(data->wireEncode().wire(),
+                                                                 data->wireEncode().size());
   BOOST_CHECK_EQUAL(digest1->size(), 32);
 
   InMemoryStorageEntry* entry = new InMemoryStorageEntry();
@@ -374,8 +374,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EraseCanonical, T, InMemoryStorages)
   shared_ptr<Data> data7 = makeData("/c/c/1");
   ims.insert(*data7);
 
-  ndn::ConstBufferPtr digest1 = ndn::crypto::sha256(data->wireEncode().wire(),
-                                                    data->wireEncode().size());
+  ndn::ConstBufferPtr digest1 = ndn::crypto::computeSha256Digest(data->wireEncode().wire(),
+                                                                 data->wireEncode().size());
 
   Name name("/a");
   ims.erase(name);
@@ -396,8 +396,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImplicitDigestSelector, T, InMemoryStorages)
   shared_ptr<Data> data3 = makeData("/z/z/z");
   ims.insert(*data3);
 
-  ndn::ConstBufferPtr digest1 = ndn::crypto::sha256(data->wireEncode().wire(),
-                                                    data->wireEncode().size());
+  ndn::ConstBufferPtr digest1 = ndn::crypto::computeSha256Digest(data->wireEncode().wire(),
+                                                                 data->wireEncode().size());
 
   shared_ptr<Interest> interest = makeInterest("");
   interest->setName(Name(name).appendImplicitSha256Digest(digest1->buf(), digest1->size()));

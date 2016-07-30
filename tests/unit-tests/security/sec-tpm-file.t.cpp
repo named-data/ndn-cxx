@@ -21,7 +21,7 @@
 
 #include "security/sec-tpm-file.hpp"
 #include "security/key-chain.hpp"
-#include "security/cryptopp.hpp"
+#include "security/v1/cryptopp.hpp"
 
 #include "util/time.hpp"
 
@@ -30,6 +30,7 @@
 #include "boost-test.hpp"
 
 namespace ndn {
+namespace security {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(SecuritySecTpmFile)
@@ -67,7 +68,7 @@ BOOST_AUTO_TEST_CASE(SignVerify)
   Block sigBlock;
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
                                                 keyName, DigestAlgorithm::SHA256));
-  shared_ptr<PublicKey> publicKey;
+  shared_ptr<v1::PublicKey> publicKey;
   BOOST_CHECK_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
 
   try
@@ -169,7 +170,7 @@ BOOST_AUTO_TEST_CASE(ImportExportKey)
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
 
-  shared_ptr<PublicKey> publicKey;
+  shared_ptr<v1::PublicKey> publicKey;
   BOOST_CHECK_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
 
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
@@ -258,7 +259,7 @@ BOOST_AUTO_TEST_CASE(EcdsaSigning)
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
                                                 keyName, DigestAlgorithm::SHA256));
 
-  shared_ptr<PublicKey> pubkeyPtr;
+  shared_ptr<v1::PublicKey> pubkeyPtr;
   BOOST_CHECK_NO_THROW(pubkeyPtr = tpm.getPublicKeyFromTpm(keyName));
 
   try
@@ -320,7 +321,7 @@ BOOST_AUTO_TEST_CASE(ImportExportEcdsaKey)
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PRIVATE), true);
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), true);
 
-  shared_ptr<PublicKey> publicKey;
+  shared_ptr<v1::PublicKey> publicKey;
   BOOST_CHECK_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
 
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
@@ -406,4 +407,5 @@ BOOST_AUTO_TEST_CASE(ImportExportEcdsaKey)
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
+} // namespace security
 } // namespace ndn

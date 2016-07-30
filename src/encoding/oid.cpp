@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,47 +17,35 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
  */
-
-#include "common.hpp"
 
 #include "oid.hpp"
 
-#include "../security/cryptopp.hpp"
+#include "../security/v1/cryptopp.hpp"
 
 #include <sstream>
 
 namespace ndn {
 
-using std::string;
-using std::vector;
-
 static const int OID_MAGIC_NUMBER = 40;
 
-OID::OID(const char* oid)
+Oid::Oid(const char* oid)
+  : Oid(std::string(oid))
 {
-  construct(oid);
 }
 
-OID::OID(const string& oid)
+Oid::Oid(const std::string& oid)
 {
-  construct(oid);
-}
-
-void
-OID::construct(const std::string& oid)
-{
-  string str = oid + ".";
+  std::string str = oid + ".";
 
   size_t pos = 0;
   size_t ppos = 0;
 
-  while (string::npos != pos) {
+  while (std::string::npos != pos) {
     ppos = pos;
 
     pos = str.find_first_of('.', pos);
-    if (pos == string::npos)
+    if (pos == std::string::npos)
       break;
 
     m_oid.push_back(atoi(str.substr(ppos, pos - ppos).c_str()));
@@ -66,12 +54,12 @@ OID::construct(const std::string& oid)
   }
 }
 
-string
-OID::toString() const
+std::string
+Oid::toString() const
 {
   std::ostringstream convert;
 
-  for (vector<int>::const_iterator it = m_oid.begin(); it != m_oid.end(); ++it) {
+  for (std::vector<int>::const_iterator it = m_oid.begin(); it != m_oid.end(); ++it) {
     if (it != m_oid.begin())
       convert << ".";
     convert << *it;
@@ -81,10 +69,10 @@ OID::toString() const
 }
 
 bool
-OID::equal(const OID& oid) const
+Oid::equal(const Oid& oid) const
 {
-  vector<int>::const_iterator i = m_oid.begin();
-  vector<int>::const_iterator j = oid.m_oid.begin();
+  std::vector<int>::const_iterator i = m_oid.begin();
+  std::vector<int>::const_iterator j = oid.m_oid.begin();
 
   for (; i != m_oid.end() && j != oid.m_oid.end(); i++, j++) {
     if (*i != *j)
@@ -127,7 +115,7 @@ decodeValue(CryptoPP::BufferedTransformation& bt, CryptoPP::word32& v)
 }
 
 void
-OID::encode(CryptoPP::BufferedTransformation& out) const
+Oid::encode(CryptoPP::BufferedTransformation& out) const
 {
   using namespace CryptoPP;
 
@@ -144,7 +132,7 @@ OID::encode(CryptoPP::BufferedTransformation& out) const
 }
 
 void
-OID::decode(CryptoPP::BufferedTransformation& in)
+Oid::decode(CryptoPP::BufferedTransformation& in)
 {
   using namespace CryptoPP;
 
@@ -176,10 +164,10 @@ OID::decode(CryptoPP::BufferedTransformation& in)
 }
 
 namespace oid {
-const OID RSA("1.2.840.113549.1.1.1");
-const OID ECDSA("1.2.840.10045.2.1");
+const Oid RSA("1.2.840.113549.1.1.1");
+const Oid ECDSA("1.2.840.10045.2.1");
 
-const OID ATTRIBUTE_NAME("2.5.4.41");
-}
+const Oid ATTRIBUTE_NAME("2.5.4.41");
+} // namespace oid
 
 } // namespace ndn

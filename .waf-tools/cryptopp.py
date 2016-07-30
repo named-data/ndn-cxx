@@ -27,7 +27,7 @@ CRYPTOPP_DIR = ['/usr', '/usr/local', '/opt/local', '/sw']
 CRYPTOPP_VERSION_FILE = 'config.h'
 
 CRYPTOPP_CHECK_FRAGMENT = '''
-#include "../../src/security/cryptopp.hpp"
+#include "../../src/security/v1/cryptopp.hpp"
 #include <iostream>
 
 int

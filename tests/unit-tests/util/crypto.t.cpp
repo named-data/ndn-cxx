@@ -19,46 +19,37 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_PIB_DATA_FIXTURE_HPP
-#define NDN_TESTS_PIB_DATA_FIXTURE_HPP
-
-#include "security/v1/identity-certificate.hpp"
+#include "util/crypto.hpp"
 
 #include "boost-test.hpp"
 
 namespace ndn {
-namespace security {
+namespace crypto {
+namespace tests {
 
-class PibDataFixture
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestCrypto)
+
+BOOST_AUTO_TEST_CASE(Basic)
 {
-public:
-  PibDataFixture();
+  const std::string testString = "Hello, world!";
+  ConstBufferPtr result;
+  BOOST_CHECK_NO_THROW(result = computeSha256Digest(reinterpret_cast<const uint8_t*>(testString.data()),
+                                                    testString.size()));
 
-public:
-  Name id1;
-  Name id2;
+  BOOST_CHECK_EQUAL(result->size(), SHA256_DIGEST_SIZE);
 
-  Name id1Key1Name;
-  Name id1Key2Name;
-  Name id2Key1Name;
-  Name id2Key2Name;
+  const uint8_t expectedSha256[] = {0x31, 0x5f, 0x5b, 0xdb, 0x76, 0xd0, 0x78, 0xc4,
+                                    0x3b, 0x8a, 0xc0, 0x06, 0x4e, 0x4a, 0x01, 0x64,
+                                    0x61, 0x2b, 0x1f, 0xce, 0x77, 0xc8, 0x69, 0x34,
+                                    0x5b, 0xfc, 0x94, 0xc7, 0x58, 0x94, 0xed, 0xd3};
+  BOOST_CHECK_EQUAL_COLLECTIONS(result->begin(), result->end(),
+                                expectedSha256, expectedSha256 + sizeof(expectedSha256));
+}
 
-  v1::PublicKey id1Key1;
-  v1::PublicKey id1Key2;
-  v1::PublicKey id2Key1;
-  v1::PublicKey id2Key2;
+BOOST_AUTO_TEST_SUITE_END() // TestCrypto
+BOOST_AUTO_TEST_SUITE_END() // Util
 
-  v1::IdentityCertificate id1Key1Cert1;
-  v1::IdentityCertificate id1Key1Cert2;
-  v1::IdentityCertificate id1Key2Cert1;
-  v1::IdentityCertificate id1Key2Cert2;
-  v1::IdentityCertificate id2Key1Cert1;
-  v1::IdentityCertificate id2Key1Cert2;
-  v1::IdentityCertificate id2Key2Cert1;
-  v1::IdentityCertificate id2Key2Cert2;
-};
-
-} // namespace security
+} // namespace tests
+} // namespace crypto
 } // namespace ndn
-
-#endif // NDN_TESTS_PIB_DATA_FIXTURE_HPP

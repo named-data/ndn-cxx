@@ -22,11 +22,11 @@
  */
 
 #include "sec-tpm-osx.hpp"
-#include "public-key.hpp"
+#include "v1/public-key.hpp"
 
 #include "../encoding/oid.hpp"
 #include "../encoding/buffer-stream.hpp"
-#include "cryptopp.hpp"
+#include "v1/cryptopp.hpp"
 
 #include <pwd.h>
 #include <unistd.h>
@@ -43,6 +43,7 @@
 #include <Security/SecDigestTransform.h>
 
 namespace ndn {
+namespace security {
 
 using std::string;
 
@@ -498,7 +499,7 @@ SecTpmOsx::generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& param
   //   throw Error("Fail to create a symmetric key");
 }
 
-shared_ptr<PublicKey>
+shared_ptr<v1::PublicKey>
 SecTpmOsx::getPublicKeyFromTpm(const Name& keyName)
 {
   CFReleaser<SecKeychainItemRef> publicKey = m_impl->getKey(keyName, KeyClass::PUBLIC);
@@ -517,8 +518,8 @@ SecTpmOsx::getPublicKeyFromTpm(const Name& keyName)
     BOOST_THROW_EXCEPTION(Error("Cannot export requested public key from OSX Keychain"));
   }
 
-  shared_ptr<PublicKey> key = make_shared<PublicKey>(CFDataGetBytePtr(exportedKey.get()),
-                                                     CFDataGetLength(exportedKey.get()));
+  shared_ptr<v1::PublicKey> key = make_shared<v1::PublicKey>(CFDataGetBytePtr(exportedKey.get()),
+                                                             CFDataGetLength(exportedKey.get()));
   return key;
 }
 
@@ -540,7 +541,7 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
                                 "in OSX Keychain"));
   }
 
-  shared_ptr<PublicKey> publicKey = getPublicKeyFromTpm(keyName);
+  shared_ptr<v1::PublicKey> publicKey = getPublicKeyFromTpm(keyName);
 
   CFReleaser<CFDataRef> exportedKey;
   OSStatus res = SecItemExport(privateKey.get(),
@@ -561,9 +562,9 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
   }
 
   uint32_t version = 0;
-  OID algorithm;
+  Oid algorithm;
   bool hasParameters = false;
-  OID algorithmParameter;
+  Oid algorithmParameter;
   switch (publicKey->getKeyType()) {
     case KeyType::RSA: {
       algorithm = oid::RSA; // "RSA encryption"
@@ -646,14 +647,14 @@ SecTpmOsx::importPrivateKeyPkcs8IntoTpmInternal(const Name& keyName,
     BERDecodeUnsigned<uint32_t>(privateKeyInfo, versionNum, INTEGER);
     BERSequenceDecoder sequenceDecoder(privateKeyInfo);
     {
-      OID keyTypeOID;
-      keyTypeOID.decode(sequenceDecoder);
+      Oid keyTypeOid;
+      keyTypeOid.decode(sequenceDecoder);
 
-      if (keyTypeOID == oid::RSA)
+      if (keyTypeOid == oid::RSA)
         BERDecodeNull(sequenceDecoder);
-      else if (keyTypeOID == oid::ECDSA) {
-        OID parameterOID;
-        parameterOID.decode(sequenceDecoder);
+      else if (keyTypeOid == oid::ECDSA) {
+        Oid parameterOid;
+        parameterOid.decode(sequenceDecoder);
       }
       else
         return false; // Unsupported key type;
@@ -1138,4 +1139,5 @@ SecTpmOsx::Impl::getDigestSize(DigestAlgorithm digestAlgo)
   }
 }
 
+} // namespace security
 } // namespace ndn

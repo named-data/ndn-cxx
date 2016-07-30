@@ -25,14 +25,13 @@
 
 #include "../encoding/oid.hpp"
 #include "../encoding/buffer-stream.hpp"
-#include "cryptopp.hpp"
+#include "v1/cryptopp.hpp"
 #include <unistd.h>
 
 namespace ndn {
+namespace security {
 
-using std::string;
-
-SecTpm::SecTpm(const string& location)
+SecTpm::SecTpm(const std::string& location)
   : m_location(location)
 {
 }
@@ -48,7 +47,7 @@ SecTpm::getTpmLocator()
 }
 
 ConstBufferPtr
-SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& passwordStr)
+SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const std::string& passwordStr)
 {
   using namespace CryptoPP;
 
@@ -94,9 +93,9 @@ SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& password
   }
 
   // encode
-  OID pbes2Id("1.2.840.113549.1.5.13");
-  OID pbkdf2Id("1.2.840.113549.1.5.12");
-  OID pbes2encsId("1.2.840.113549.3.7");
+  Oid pbes2Id("1.2.840.113549.1.5.13");
+  Oid pbkdf2Id("1.2.840.113549.1.5.12");
+  Oid pbes2encsId("1.2.840.113549.3.7");
 
   OBufferStream pkcs8Os;
   try {
@@ -167,15 +166,15 @@ SecTpm::exportPrivateKeyPkcs5FromTpm(const Name& keyName, const string& password
 bool
 SecTpm::importPrivateKeyPkcs5IntoTpm(const Name& keyName,
                                      const uint8_t* buf, size_t size,
-                                     const string& passwordStr)
+                                     const std::string& passwordStr)
 {
   using namespace CryptoPP;
 
-  OID pbes2Id;
-  OID pbkdf2Id;
+  Oid pbes2Id;
+  Oid pbkdf2Id;
   SecByteBlock saltBlock;
   uint32_t iterationCount;
-  OID pbes2encsId;
+  Oid pbes2encsId;
   SecByteBlock ivBlock;
   SecByteBlock encryptedDataBlock;
 
@@ -290,11 +289,11 @@ SecTpm::importPrivateKeyPkcs5IntoTpm(const Name& keyName,
     BERDecodeUnsigned<uint32_t>(privateKeyInfo, versionNum, INTEGER);
     BERSequenceDecoder sequenceDecoder(privateKeyInfo);
     {
-      OID keyTypeOID;
-      keyTypeOID.decode(sequenceDecoder);
-      if (keyTypeOID == oid::RSA)
+      Oid keyTypeOid;
+      keyTypeOid.decode(sequenceDecoder);
+      if (keyTypeOid == oid::RSA)
         publicKeyType = KeyType::RSA;
-      else if (keyTypeOID == oid::ECDSA)
+      else if (keyTypeOid == oid::ECDSA)
         publicKeyType = KeyType::EC;
       else
         return false; // Unsupported key type;
@@ -382,5 +381,5 @@ SecTpm::getImpExpPassWord(std::string& password, const std::string& prompt)
   return isInitialized;
 }
 
-
+} // namespace security
 } // namespace ndn

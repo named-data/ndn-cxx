@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,9 +46,9 @@ public:
   doesPublicKeyExist(const Name& keyName);
 
   virtual void
-  addKey(const Name& keyName, const PublicKey& publicKey);
+  addKey(const Name& keyName, const v1::PublicKey& publicKey);
 
-  virtual shared_ptr<PublicKey>
+  virtual shared_ptr<v1::PublicKey>
   getPublicKey(const Name& keyName);
 
   virtual KeyType
@@ -58,9 +58,9 @@ public:
   doesCertificateExist(const Name& certificateName);
 
   virtual void
-  addCertificate(const IdentityCertificate& certificate);
+  addCertificate(const v1::IdentityCertificate& certificate);
 
-  virtual shared_ptr<IdentityCertificate>
+  virtual shared_ptr<v1::IdentityCertificate>
   getCertificate(const Name& certificateName);
 
   virtual Name
@@ -155,7 +155,7 @@ public:
   virtual void
   deleteKeyPairInTpm(const Name& keyName);
 
-  virtual shared_ptr<PublicKey>
+  virtual shared_ptr<v1::PublicKey>
   getPublicKeyFromTpm(const Name& keyName);
 
   virtual Block

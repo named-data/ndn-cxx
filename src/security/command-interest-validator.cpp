@@ -20,7 +20,7 @@
  */
 
 #include "command-interest-validator.hpp"
-#include "identity-certificate.hpp"
+#include "v1/identity-certificate.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {
@@ -146,9 +146,9 @@ CommandInterestValidator::parseCommandInterest(const Interest& interest, Name& k
   }
 
   try {
-    keyName = IdentityCertificate::certificateNameToPublicKeyName(keyLocator.getName());
+    keyName = v1::IdentityCertificate::certificateNameToPublicKeyName(keyLocator.getName());
   }
-  catch (const IdentityCertificate::Error&) {
+  catch (const v1::IdentityCertificate::Error&) {
     return ErrorCode::BAD_CERT_NAME;
   }
 

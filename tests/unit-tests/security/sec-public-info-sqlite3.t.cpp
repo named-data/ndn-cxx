@@ -21,7 +21,7 @@
 
 #include "security/sec-public-info-sqlite3.hpp"
 #include "security/key-chain.hpp"
-#include "security/cryptopp.hpp"
+#include "security/v1/cryptopp.hpp"
 #include "encoding/buffer-stream.hpp"
 #include "util/time.hpp"
 
@@ -30,6 +30,7 @@
 #include "boost-test.hpp"
 
 namespace ndn {
+namespace security {
 namespace tests {
 
 class PibTmpPathFixture
@@ -104,9 +105,8 @@ BOOST_AUTO_TEST_CASE(KeyTypeRsa)
   StringSource ss(reinterpret_cast<const uint8_t*>(RSA_DER.c_str()), RSA_DER.size(),
                   true, new Base64Decoder(new FileSink(os)));
 
-  shared_ptr<PublicKey> rsaKey;
-  BOOST_REQUIRE_NO_THROW(rsaKey = shared_ptr<PublicKey>(new PublicKey(os.buf()->buf(),
-                                                                      os.buf()->size())));
+  shared_ptr<v1::PublicKey> rsaKey;
+  BOOST_REQUIRE_NO_THROW(rsaKey = make_shared<v1::PublicKey>(os.buf()->buf(), os.buf()->size()));
   Name rsaKeyName("/TestSecPublicInfoSqlite3/KeyType/RSA/ksk-123");
   SecPublicInfoSqlite3 pib;
   pib.addKey(rsaKeyName, *rsaKey);
@@ -124,9 +124,8 @@ BOOST_AUTO_TEST_CASE(KeyTypeEcdsa)
   StringSource ss(reinterpret_cast<const uint8_t*>(ECDSA_DER.c_str()), ECDSA_DER.size(),
                   true, new Base64Decoder(new FileSink(os)));
 
-  shared_ptr<PublicKey> ecdsaKey;
-  BOOST_REQUIRE_NO_THROW(ecdsaKey = shared_ptr<PublicKey>(new PublicKey(os.buf()->buf(),
-                                                                        os.buf()->size())));
+  shared_ptr<v1::PublicKey> ecdsaKey;
+  BOOST_REQUIRE_NO_THROW(ecdsaKey = make_shared<v1::PublicKey>(os.buf()->buf(), os.buf()->size()));
   Name ecdsaKeyName("/TestSecPublicInfoSqlite3/KeyType/ECDSA/ksk-123");
   SecPublicInfoSqlite3 pib;
   pib.addKey(ecdsaKeyName, *ecdsaKey);
@@ -147,4 +146,5 @@ BOOST_AUTO_TEST_CASE(KeyTypeNonExist)
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
+} // namespace security
 } // namespace ndn

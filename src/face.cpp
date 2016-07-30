@@ -321,7 +321,7 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
                         const RegisterPrefixSuccessCallback& onSuccess,
                         const RegisterPrefixFailureCallback& onFailure,
-                        const IdentityCertificate& certificate,
+                        const security::v1::IdentityCertificate& certificate,
                         uint64_t flags)
 {
   security::SigningInfo signingInfo;
@@ -335,7 +335,7 @@ const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
                         const OnInterest& onInterest,
                         const RegisterPrefixFailureCallback& onFailure,
-                        const IdentityCertificate& certificate,
+                        const security::v1::IdentityCertificate& certificate,
                         uint64_t flags)
 {
   security::SigningInfo signingInfo;
@@ -390,7 +390,7 @@ const RegisteredPrefixId*
 Face::registerPrefix(const Name& prefix,
                      const RegisterPrefixSuccessCallback& onSuccess,
                      const RegisterPrefixFailureCallback& onFailure,
-                     const IdentityCertificate& certificate,
+                     const security::v1::IdentityCertificate& certificate,
                      uint64_t flags)
 {
   security::SigningInfo signingInfo;

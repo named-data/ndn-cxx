@@ -23,7 +23,7 @@
  */
 
 #include "sec-public-info-sqlite3.hpp"
-#include "identity-certificate.hpp"
+#include "v1/identity-certificate.hpp"
 #include "signature-sha256-with-rsa.hpp"
 #include "signature-sha256-with-ecdsa.hpp"
 #include "../data.hpp"
@@ -36,6 +36,7 @@
 #include <boost/filesystem.hpp>
 
 namespace ndn {
+namespace security {
 
 using std::string;
 using std::vector;
@@ -363,7 +364,7 @@ SecPublicInfoSqlite3::doesPublicKeyExist(const Name& keyName)
 
 void
 SecPublicInfoSqlite3::addKey(const Name& keyName,
-                             const PublicKey& publicKeyDer)
+                             const v1::PublicKey& publicKeyDer)
 {
   if (keyName.empty())
     return;
@@ -396,7 +397,7 @@ SecPublicInfoSqlite3::addKey(const Name& keyName,
   sqlite3_finalize(statement);
 }
 
-shared_ptr<PublicKey>
+shared_ptr<v1::PublicKey>
 SecPublicInfoSqlite3::getPublicKey(const Name& keyName)
 {
   if (keyName.empty())
@@ -415,10 +416,10 @@ SecPublicInfoSqlite3::getPublicKey(const Name& keyName)
 
   int res = sqlite3_step(statement);
 
-  shared_ptr<PublicKey> result;
+  shared_ptr<v1::PublicKey> result;
   if (res == SQLITE_ROW) {
-    result = make_shared<PublicKey>(static_cast<const uint8_t*>(sqlite3_column_blob(statement, 0)),
-                                    sqlite3_column_bytes(statement, 0));
+    result = make_shared<v1::PublicKey>(static_cast<const uint8_t*>(sqlite3_column_blob(statement, 0)),
+                                        sqlite3_column_bytes(statement, 0));
     sqlite3_finalize(statement);
     return result;
   }
@@ -483,12 +484,12 @@ SecPublicInfoSqlite3::doesCertificateExist(const Name& certificateName)
 }
 
 void
-SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
+SecPublicInfoSqlite3::addCertificate(const v1::IdentityCertificate& certificate)
 {
   const Name& certificateName = certificate.getName();
-  // KeyName is from IdentityCertificate name, so should be qualified.
+  // KeyName is from v1::IdentityCertificate name, so should be qualified.
   Name keyName =
-    IdentityCertificate::certificateNameToPublicKeyName(certificate.getName());
+    v1::IdentityCertificate::certificateNameToPublicKeyName(certificate.getName());
 
   addKey(keyName, certificate.getPublicKeyInfo());
 
@@ -537,7 +538,7 @@ SecPublicInfoSqlite3::addCertificate(const IdentityCertificate& certificate)
   sqlite3_finalize(statement);
 }
 
-shared_ptr<IdentityCertificate>
+shared_ptr<v1::IdentityCertificate>
 SecPublicInfoSqlite3::getCertificate(const Name& certificateName)
 {
   sqlite3_stmt* statement = nullptr;
@@ -551,7 +552,7 @@ SecPublicInfoSqlite3::getCertificate(const Name& certificateName)
   int res = sqlite3_step(statement);
 
   if (res == SQLITE_ROW) {
-    shared_ptr<IdentityCertificate> certificate = make_shared<IdentityCertificate>();
+    shared_ptr<v1::IdentityCertificate> certificate = make_shared<v1::IdentityCertificate>();
     try {
       certificate->wireDecode(Block(static_cast<const uint8_t*>(sqlite3_column_blob(statement, 0)),
                                     sqlite3_column_bytes(statement, 0)));
@@ -723,7 +724,7 @@ SecPublicInfoSqlite3::setDefaultCertificateNameForKeyInternal(const Name& certif
   if (!doesCertificateExist(certificateName))
     BOOST_THROW_EXCEPTION(Error("certificate does not exist:" + certificateName.toUri()));
 
-  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
+  Name keyName = v1::IdentityCertificate::certificateNameToPublicKeyName(certificateName);
   string keyId = keyName.get(-1).toUri();
   Name identityName = keyName.getPrefix(-1);
 
@@ -951,4 +952,5 @@ SecPublicInfoSqlite3::getScheme()
   return SCHEME;
 }
 
+} // namespace security
 } // namespace ndn

@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(NameFilter)
   identity.appendVersion();
   BOOST_REQUIRE_NO_THROW(addIdentity(identity));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
+  shared_ptr<v1::IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
   io::save(*idCert, "trust-anchor-1.cert");
 
   Name dataName1("/simple/equal");
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(NameFilter2)
   identity.appendVersion();
   BOOST_REQUIRE_NO_THROW(addIdentity(identity));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
+  shared_ptr<v1::IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
   io::save(*idCert, "trust-anchor-2.cert");
 
   Name dataName1("/simple/isPrefixOf");
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(NameFilter3)
   identity.appendVersion();
   BOOST_REQUIRE_NO_THROW(addIdentity(identity));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
+  shared_ptr<v1::IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
   io::save(*idCert, "trust-anchor-3.cert");
 
   Name dataName1("/simple/isStrictPrefixOf");
@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(NameFilter4)
   identity.appendVersion();
   BOOST_REQUIRE_NO_THROW(addIdentity(identity));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
+  shared_ptr<v1::IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
   io::save(*idCert, "trust-anchor-4.cert");
 
   Name dataName1("/simple/regex");
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE(KeyLocatorNameChecker1)
   identity.appendVersion();
   BOOST_REQUIRE_NO_THROW(addIdentity(identity));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
+  shared_ptr<v1::IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
   io::save(*idCert, "trust-anchor-5.cert");
 
   Name dataName1 = identity;
@@ -428,7 +428,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker)
   identity1.append("1").appendVersion();
   BOOST_REQUIRE_NO_THROW(addIdentity(identity1));
   Name certName1 = m_keyChain.getDefaultCertificateNameForIdentity(identity1);
-  shared_ptr<IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
+  shared_ptr<v1::IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
   io::save(*idCert1, "trust-anchor-7.cert");
 
   Name identity2 = identity;
@@ -541,7 +541,7 @@ BOOST_FIXTURE_TEST_CASE(MultiCheckers, CertCleanFixture)
   identity1.appendVersion();
   addIdentity(identity1);
   Name certName1 = m_keyChain.getDefaultCertificateNameForIdentity(identity1);
-  shared_ptr<IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
+  shared_ptr<v1::IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
   std::string certDir1 = certDir + "trust-anchor-multi-1.cert";
   io::save(*idCert1, certDir1);
 
@@ -549,7 +549,7 @@ BOOST_FIXTURE_TEST_CASE(MultiCheckers, CertCleanFixture)
   identity2.appendVersion();
   addIdentity(identity2);
   Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
-  shared_ptr<IdentityCertificate> idCert2 = m_keyChain.getCertificate(certName2);
+  shared_ptr<v1::IdentityCertificate> idCert2 = m_keyChain.getCertificate(certName2);
   std::string certDir2 = certDir + "trust-anchor-multi-2.cert";
   io::save(*idCert2, certDir2);
 
@@ -662,7 +662,7 @@ BOOST_AUTO_TEST_CASE(Reset)
   Name root("/TestValidatorConfig/Reload");
   BOOST_REQUIRE_NO_THROW(addIdentity(root));
   Name rootCertName = m_keyChain.getDefaultCertificateNameForIdentity(root);
-  shared_ptr<IdentityCertificate> rootCert = m_keyChain.getCertificate(rootCertName);
+  shared_ptr<v1::IdentityCertificate> rootCert = m_keyChain.getCertificate(rootCertName);
   io::save(*rootCert, "trust-anchor-8.cert");
 
   Face face(nullptr, m_keyChain);
@@ -761,7 +761,7 @@ BOOST_AUTO_TEST_CASE(SignedInterestTest)
   identity1.appendVersion();
   BOOST_REQUIRE_NO_THROW(addIdentity(identity1));
   Name certName1 = m_keyChain.getDefaultCertificateNameForIdentity(identity1);
-  shared_ptr<IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
+  shared_ptr<v1::IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
   io::save(*idCert1, "trust-anchor-9.cert");
 
   Name interestName("/TestValidatorConfig/SignedInterestTest");
@@ -831,21 +831,21 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest)
   identity1.append("Key1");
   BOOST_REQUIRE_NO_THROW(addIdentity(identity1));
   Name certName1 = m_keyChain.getDefaultCertificateNameForIdentity(identity1);
-  shared_ptr<IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
+  shared_ptr<v1::IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
   io::save(*idCert1, "trust-anchor-10-1.cert");
 
   Name identity2 = identity;
   identity2.append("Key2");
   BOOST_REQUIRE_NO_THROW(addIdentity(identity2));
   Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
-  shared_ptr<IdentityCertificate> idCert2 = m_keyChain.getCertificate(certName2);
+  shared_ptr<v1::IdentityCertificate> idCert2 = m_keyChain.getCertificate(certName2);
   io::save(*idCert2, "trust-anchor-10-2.cert");
 
   Name identity3 = identity;
   identity3.append("Key3");
   BOOST_REQUIRE_NO_THROW(addIdentity(identity3));
   Name certName3 = m_keyChain.getDefaultCertificateNameForIdentity(identity3);
-  shared_ptr<IdentityCertificate> idCert3 = m_keyChain.getCertificate(certName3);
+  shared_ptr<v1::IdentityCertificate> idCert3 = m_keyChain.getCertificate(certName3);
   io::save(*idCert3, "trust-anchor-10-3.cert");
 
 
@@ -952,28 +952,28 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
   identity1.append("Key1");
   BOOST_REQUIRE_NO_THROW(addIdentity(identity1));
   Name certName1 = m_keyChain.getDefaultCertificateNameForIdentity(identity1);
-  shared_ptr<IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
+  shared_ptr<v1::IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
   io::save(*idCert1, "trust-anchor-10-1.cert");
 
   Name identity2 = identity;
   identity2.append("Key2");
   BOOST_REQUIRE_NO_THROW(addIdentity(identity2));
   Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
-  shared_ptr<IdentityCertificate> idCert2 = m_keyChain.getCertificate(certName2);
+  shared_ptr<v1::IdentityCertificate> idCert2 = m_keyChain.getCertificate(certName2);
   io::save(*idCert2, "trust-anchor-10-2.cert");
 
   Name identity3 = identity;
   identity3.append("Key3");
   BOOST_REQUIRE_NO_THROW(addIdentity(identity3));
   Name certName3 = m_keyChain.getDefaultCertificateNameForIdentity(identity3);
-  shared_ptr<IdentityCertificate> idCert3 = m_keyChain.getCertificate(certName3);
+  shared_ptr<v1::IdentityCertificate> idCert3 = m_keyChain.getCertificate(certName3);
   io::save(*idCert3, "trust-anchor-10-3.cert");
 
   Name identity4 = identity;
   identity4.append("Key4");
   BOOST_REQUIRE_NO_THROW(addIdentity(identity4));
   Name certName4 = m_keyChain.getDefaultCertificateNameForIdentity(identity4);
-  shared_ptr<IdentityCertificate> idCert4 = m_keyChain.getCertificate(certName4);
+  shared_ptr<v1::IdentityCertificate> idCert4 = m_keyChain.getCertificate(certName4);
   io::save(*idCert4, "trust-anchor-10-4.cert");
 
 
@@ -1119,7 +1119,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
   Name ecdsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Ecdsa");
   BOOST_REQUIRE_NO_THROW(addIdentity(ecdsaIdentity, EcdsaKeyParams()));
   Name ecdsaCertName = m_keyChain.getDefaultCertificateNameForIdentity(ecdsaIdentity);
-  shared_ptr<IdentityCertificate> ecdsaCert = m_keyChain.getCertificate(ecdsaCertName);
+  shared_ptr<v1::IdentityCertificate> ecdsaCert = m_keyChain.getCertificate(ecdsaCertName);
   io::save(*ecdsaCert, "trust-anchor-11.cert");
 
 
@@ -1261,12 +1261,12 @@ public:
 
 BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
 {
-  std::vector<CertificateSubjectDescription> subjectDescription;
+  std::vector<v1::CertificateSubjectDescription> subjectDescription;
 
   Name root("/TestValidatorConfig");
   BOOST_REQUIRE_NO_THROW(addIdentity(root));
   Name rootCertName = m_keyChain.getDefaultCertificateNameForIdentity(root);
-  shared_ptr<IdentityCertificate> rootCert = m_keyChain.getCertificate(rootCertName);
+  shared_ptr<v1::IdentityCertificate> rootCert = m_keyChain.getCertificate(rootCertName);
   io::save(*rootCert, "trust-anchor-6.cert");
 
 
@@ -1274,7 +1274,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   BOOST_REQUIRE_NO_THROW(addIdentity(sld));
   advanceClocks(time::milliseconds(100));
   Name sldKeyName = m_keyChain.generateRsaKeyPairAsDefault(sld, true);
-  shared_ptr<IdentityCertificate> sldCert =
+  shared_ptr<v1::IdentityCertificate> sldCert =
     m_keyChain.prepareUnsignedIdentityCertificate(sldKeyName,
                                                   root,
                                                   time::system_clock::now(),
@@ -1287,7 +1287,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   BOOST_REQUIRE_NO_THROW(addIdentity(nld));
   advanceClocks(time::milliseconds(100));
   Name nldKeyName = m_keyChain.generateRsaKeyPairAsDefault(nld, true);
-  shared_ptr<IdentityCertificate> nldCert =
+  shared_ptr<v1::IdentityCertificate> nldCert =
     m_keyChain.prepareUnsignedIdentityCertificate(nldKeyName,
                                                   sld,
                                                   time::system_clock::now(),
@@ -1366,12 +1366,12 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
 {
   advanceClocks(time::nanoseconds(1));
 
-  std::vector<CertificateSubjectDescription> subjectDescription;
+  std::vector<v1::CertificateSubjectDescription> subjectDescription;
 
   Name root("/TestValidatorConfig");
   BOOST_REQUIRE_NO_THROW(addIdentity(root));
   Name rootCertName = m_keyChain.getDefaultCertificateNameForIdentity(root);
-  shared_ptr<IdentityCertificate> rootCert = m_keyChain.getCertificate(rootCertName);
+  shared_ptr<v1::IdentityCertificate> rootCert = m_keyChain.getCertificate(rootCertName);
   io::save(*rootCert, "trust-anchor-8.cert");
 
 
@@ -1379,7 +1379,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   BOOST_REQUIRE_NO_THROW(addIdentity(sld));
   advanceClocks(time::milliseconds(100));
   Name sldKeyName = m_keyChain.generateRsaKeyPairAsDefault(sld, true);
-  shared_ptr<IdentityCertificate> sldCert =
+  shared_ptr<v1::IdentityCertificate> sldCert =
     m_keyChain.prepareUnsignedIdentityCertificate(sldKeyName,
                                                   root,
                                                   time::system_clock::now(),
@@ -1392,7 +1392,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   BOOST_REQUIRE_NO_THROW(addIdentity(nld));
   advanceClocks(time::milliseconds(100));
   Name nldKeyName = m_keyChain.generateRsaKeyPairAsDefault(nld, true);
-  shared_ptr<IdentityCertificate> nldCert =
+  shared_ptr<v1::IdentityCertificate> nldCert =
     m_keyChain.prepareUnsignedIdentityCertificate(nldKeyName,
                                                   sld,
                                                   time::system_clock::now(),
@@ -1563,8 +1563,8 @@ public:
   Name firstIdentity;
   Name secondIdentity;
 
-  shared_ptr<IdentityCertificate> firstCert;
-  shared_ptr<IdentityCertificate> secondCert;
+  shared_ptr<v1::IdentityCertificate> firstCert;
+  shared_ptr<v1::IdentityCertificate> secondCert;
 
   util::DummyClientFace face;
   ValidatorConfig validator;

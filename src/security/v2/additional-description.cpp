@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,11 +20,12 @@
  */
 
 #include "additional-description.hpp"
-#include "../util/concepts.hpp"
-#include "../encoding/block-helpers.hpp"
+#include "../../util/concepts.hpp"
+#include "../../encoding/block-helpers.hpp"
 
 namespace ndn {
 namespace security {
+namespace v2 {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<AdditionalDescription>));
 BOOST_CONCEPT_ASSERT((WireEncodable<AdditionalDescription>));
@@ -193,5 +194,6 @@ operator<<(std::ostream& os, const AdditionalDescription& other)
   return os;
 }
 
+} // namespace v2
 } // namespace security
 } // namespace ndn

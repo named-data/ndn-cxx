@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,84 +17,17 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_SECURITY_IDENTITY_CERTIFICATE_HPP
-#define NDN_SECURITY_IDENTITY_CERTIFICATE_HPP
+/**
+ * @file security/identity-certificate.hpp
+ * @deprecated Use security/v1/identity-certificate.hpp
+ */
 
-#include "../common.hpp"
-#include "certificate.hpp"
+#include "security-common.hpp"
 
-namespace ndn {
-
-class IdentityCertificate : public Certificate
-{
-public:
-  class Error : public Certificate::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : Certificate::Error(what)
-    {
-    }
-  };
-
-  /**
-   * @brief The default constructor.
-   */
-  IdentityCertificate();
-
-  /**
-   * @brief Create an IdentityCertificate from the content in the data packet.
-   * @param data The data packet with the content to decode.
-   */
-  explicit
-  IdentityCertificate(const Data& data);
-
-  /**
-   * @brief Create an IdentityCertificate from a block.
-   * @param block The raw block of the certificate.
-   */
-  explicit
-  IdentityCertificate(const Block& block);
-
-  void
-  wireDecode(const Block& wire);
-
-  void
-  setName(const Name& name);
-
-  const Name&
-  getPublicKeyName() const
-  {
-    return m_publicKeyName;
-  }
-
-  static bool
-  isIdentityCertificate(const Certificate& certificate);
-
-  /**
-   * @brief Get the public key name from the full certificate name.
-   * @param certificateName The full certificate name.
-   * @return The related public key name.
-   */
-  static Name
-  certificateNameToPublicKeyName(const Name& certificateName);
-
-private:
-  static bool
-  isCorrectName(const Name& name);
-
-  void
-  setPublicKeyName();
-
-protected:
-  Name m_publicKeyName;
-};
-
-} // namespace ndn
-
-#endif // NDN_SECURITY_IDENTITY_CERTIFICATE_HPP
+#ifdef NDN_CXX_KEEP_SECURITY_V1_ALIASES
+#include "v1/identity-certificate.hpp"
+#else
+#error "Deprecated. Use `v1/identity-certificate.hpp` instead."
+#endif // NDN_CXX_KEEP_SECURITY_V1_ALIASES

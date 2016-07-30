@@ -20,7 +20,7 @@
  */
 
 #include "security/sec-tpm-osx.hpp"
-#include "security/cryptopp.hpp"
+#include "security/v1/cryptopp.hpp"
 
 #include "util/time.hpp"
 
@@ -30,6 +30,7 @@
 #include "boost-test.hpp"
 
 namespace ndn {
+namespace security {
 namespace tests {
 
 class OsxKeyChainTestFixture
@@ -100,7 +101,7 @@ BOOST_AUTO_TEST_CASE(SignVerify)
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
                                                 keyName, DigestAlgorithm::SHA256));
 
-  shared_ptr<PublicKey> publicKey;
+  shared_ptr<v1::PublicKey> publicKey;
   BOOST_CHECK_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
   try
     {
@@ -168,7 +169,7 @@ BOOST_AUTO_TEST_CASE(ExportImportKey)
 
   ConstBufferPtr exported;
   BOOST_CHECK_NO_THROW(exported = tpm.exportPrivateKeyPkcs5FromTpm(keyName, "1234"));
-  shared_ptr<PublicKey> publicKey;
+  shared_ptr<v1::PublicKey> publicKey;
   BOOST_REQUIRE_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
 
   tpm.deleteKeyPairInTpm(keyName);
@@ -253,7 +254,7 @@ BOOST_AUTO_TEST_CASE(EcdsaSigning)
   BOOST_CHECK_NO_THROW(sigBlock = tpm.signInTpm(content, sizeof(content),
                                                 keyName, DigestAlgorithm::SHA256));
 
-  shared_ptr<PublicKey> pubkeyPtr;
+  shared_ptr<v1::PublicKey> pubkeyPtr;
   BOOST_CHECK_NO_THROW(pubkeyPtr = tpm.getPublicKeyFromTpm(keyName));
 
   try
@@ -303,7 +304,7 @@ BOOST_AUTO_TEST_CASE(ExportImportEcdsaKey)
   ConstBufferPtr exported;
   BOOST_CHECK_NO_THROW(exported = tpm.exportPrivateKeyPkcs5FromTpm(keyName, "1234"));
 
-  shared_ptr<PublicKey> publicKey;
+  shared_ptr<v1::PublicKey> publicKey;
   BOOST_REQUIRE_NO_THROW(publicKey = tpm.getPublicKeyFromTpm(keyName));
 
   tpm.deleteKeyPairInTpm(keyName);
@@ -362,4 +363,5 @@ BOOST_AUTO_TEST_CASE(ExportImportEcdsaKey)
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace tests
+} // namespace security
 } // namespace ndn

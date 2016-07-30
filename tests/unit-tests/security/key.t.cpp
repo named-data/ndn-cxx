@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -74,7 +74,7 @@ BOOST_FIXTURE_TEST_CASE(TestCertificateOperation, PibDataFixture)
   BOOST_REQUIRE_NO_THROW(key11.setDefaultCertificate(id1Key1Cert1));
   BOOST_REQUIRE_NO_THROW(key11.getDefaultCertificate());
 
-  const IdentityCertificate& defaultCert = key11.getDefaultCertificate();
+  const v1::IdentityCertificate& defaultCert = key11.getDefaultCertificate();
   BOOST_CHECK_EQUAL_COLLECTIONS(defaultCert.wireEncode().wire(),
                                 defaultCert.wireEncode().wire() + defaultCert.wireEncode().size(),
                                 id1Key1Cert1.wireEncode().wire(),

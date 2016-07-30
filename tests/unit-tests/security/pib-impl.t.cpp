@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -119,7 +119,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(KeyManagement, T, PibImpls, PibDataFixture)
   pibImpl.addKey(id1, id1Key1Name.get(-1), id1Key1);
   BOOST_CHECK_EQUAL(pibImpl.hasKey(id1, id1Key1Name.get(-1)), true);
   BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), true);
-  const PublicKey& keyBits = pibImpl.getKeyBits(id1, id1Key1Name.get(-1));
+  const v1::PublicKey& keyBits = pibImpl.getKeyBits(id1, id1Key1Name.get(-1));
   BOOST_CHECK_EQUAL_COLLECTIONS(keyBits.get().buf(), keyBits.get().buf() + keyBits.get().size(),
                                 id1Key1.get().buf(), id1Key1.get().buf() + id1Key1.get().size());
   BOOST_CHECK_NO_THROW(pibImpl.getDefaultKeyOfIdentity(id1));
@@ -179,7 +179,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(CertificateManagement, T, PibImpls, PibDataFixt
   BOOST_CHECK_EQUAL(pibImpl.hasCertificate(id1Key1Cert1.getName()), true);
   BOOST_CHECK_EQUAL(pibImpl.hasIdentity(id1), true);
   BOOST_CHECK_EQUAL(pibImpl.hasKey(id1, id1Key1Name.get(-1)), true);
-  const IdentityCertificate& cert = pibImpl.getCertificate(id1Key1Cert1.getName());
+  const v1::IdentityCertificate& cert = pibImpl.getCertificate(id1Key1Cert1.getName());
   BOOST_CHECK_EQUAL_COLLECTIONS(cert.wireEncode().wire(),
                                 cert.wireEncode().wire() + cert.wireEncode().size(),
                                 id1Key1Cert1.wireEncode().wire(),

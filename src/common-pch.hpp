@@ -51,6 +51,6 @@
 #include <boost/system/error_code.hpp>
 
 // Other useful headers to precompile
-#include "security/cryptopp.hpp"
+#include "security/v1/cryptopp.hpp"
 
 #endif // NDN_COMMON_PCH_HPP

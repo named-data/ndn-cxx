@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,18 +23,20 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#ifndef NDN_SECURITY_CERTIFICATE_EXTENSION_HPP
-#define NDN_SECURITY_CERTIFICATE_EXTENSION_HPP
+#ifndef NDN_SECURITY_V1_CERTIFICATE_EXTENSION_HPP
+#define NDN_SECURITY_V1_CERTIFICATE_EXTENSION_HPP
 
-#include "../common.hpp"
-#include "../encoding/buffer.hpp"
-#include "../encoding/oid.hpp"
+#include "../../common.hpp"
+#include "../../encoding/buffer.hpp"
+#include "../../encoding/oid.hpp"
 
 namespace CryptoPP {
 class BufferedTransformation;
-}
+} // namespace CryptoPP
 
 namespace ndn {
+namespace security {
+namespace v1 {
 
 /**
  * A CertificateExtension represents the Extension entry in a certificate.
@@ -64,12 +66,12 @@ public:
    * @param isCritical If true, the extension must be handled.
    * @param value The extension value.
    */
-  CertificateExtension(const OID& oid, const bool isCritical, const Buffer& value)
+  CertificateExtension(const Oid& oid, const bool isCritical, const Buffer& value)
     : m_extensionId(oid), m_isCritical(isCritical), m_extensionValue(value)
   {
   }
 
-  CertificateExtension(const OID& oid, const bool isCritical,
+  CertificateExtension(const Oid& oid, const bool isCritical,
                        const uint8_t* value, size_t valueSize)
     : m_extensionId(oid), m_isCritical(isCritical), m_extensionValue(value, valueSize)
   {
@@ -89,7 +91,7 @@ public:
   void
   decode(CryptoPP::BufferedTransformation& in);
 
-  inline const OID&
+  inline const Oid&
   getOid() const
   {
     return m_extensionId;
@@ -108,11 +110,19 @@ public:
   }
 
 protected:
-  OID m_extensionId;
+  Oid m_extensionId;
   bool m_isCritical;
   Buffer m_extensionValue;
 };
 
+} // namespace v1
+} // namespace security
+
+#ifdef NDN_CXX_KEEP_SECURITY_V1_ALIASES
+/// @deprecated When needed, use explicit namespace
+using security::v1::CertificateExtension;
+#endif // NDN_CXX_KEEP_SECURITY_V1_ALIASES
+
 } // namespace ndn
 
-#endif //NDN_SECURITY_CERTIFICATE_EXTENSION_HPP
+#endif // NDN_SECURITY_V1_CERTIFICATE_EXTENSION_HPP

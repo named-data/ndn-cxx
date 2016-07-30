@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_SUITE(UtilDigest)
 BOOST_AUTO_TEST_CASE(Sha256Digest)
 {
   uint8_t origin[4] = {0x01, 0x02, 0x03, 0x04};
-  ConstBufferPtr digest1 = crypto::sha256(origin, 4);
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, 4);
 
   Sha256 statefulSha256;
   statefulSha256.update(origin, 1);
@@ -52,8 +52,8 @@ BOOST_AUTO_TEST_CASE(Sha256Digest)
 BOOST_AUTO_TEST_CASE(Compute)
 {
   std::string input = "Hello, World!";
-  ConstBufferPtr digest1 = crypto::sha256(reinterpret_cast<const uint8_t*>(input.data()),
-                                          input.size());
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(reinterpret_cast<const uint8_t*>(input.data()),
+                                                       input.size());
 
   Sha256 hashObject;
   hashObject << input;
@@ -69,8 +69,8 @@ BOOST_AUTO_TEST_CASE(Compute)
 BOOST_AUTO_TEST_CASE(ConstructFromStream)
 {
   std::string input = "Hello, World!";
-  ConstBufferPtr digest1 = crypto::sha256(reinterpret_cast<const uint8_t*>(input.data()),
-                                          input.size());
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(reinterpret_cast<const uint8_t*>(input.data()),
+                                                       input.size());
 
   std::istringstream is(input);
   Sha256 hashObject(is);
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(OperatorDigest)
                         0x01, 0xCC, 0x4B, 0xF9, 0x06, 0x13, 0xE0, 0x81,
                         0x4F, 0x00, 0xA7, 0xB0, 0x8B, 0xC7, 0xC6, 0x48,
                         0xFD, 0x86, 0x5A, 0x2A, 0xF6, 0xA2, 0x2C, 0xC2};
-  ConstBufferPtr digest1 = crypto::sha256(origin, 32);
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, 32);
 
   std::string str("TEST");
   Sha256 metaDigest;
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(OperatorDigest)
 BOOST_AUTO_TEST_CASE(OperatorString)
 {
   uint8_t origin[4] = {0x54, 0x45, 0x53, 0x54};
-  ConstBufferPtr digest1 = crypto::sha256(origin, 4);
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, 4);
 
   std::string str("TEST");
   Sha256 statefulSha256;
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(OperatorBlock)
           0x08, 0x07,
             0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72
   };
-  ConstBufferPtr digest1 = crypto::sha256(origin, sizeof(origin));
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, sizeof(origin));
 
   Sha256 statefulSha256;
   Block block(origin, sizeof(origin));
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(OperatorBlock)
 BOOST_AUTO_TEST_CASE(OperatorUint64t)
 {
   uint64_t origin[4] = {1, 2, 3, 4};
-  ConstBufferPtr digest1 = crypto::sha256(reinterpret_cast<uint8_t*>(origin), 32);
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(reinterpret_cast<uint8_t*>(origin), 32);
 
   Sha256 statefulSha256;
   statefulSha256 << origin[0];
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(Error)
 BOOST_AUTO_TEST_CASE(ComputeDigest)
 {
   uint8_t origin[4] = {0x01, 0x02, 0x03, 0x04};
-  ConstBufferPtr digest1 = crypto::sha256(origin, 4);
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, 4);
 
   ConstBufferPtr digest2 = Sha256::computeDigest(origin, 4);
 

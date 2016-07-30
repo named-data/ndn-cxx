@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #include "nfd-command-options.hpp"
 
 #ifdef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
-#include "../security/identity-certificate.hpp"
+#include "../security/v1/identity-certificate.hpp"
 #include "../security/signing-helpers.hpp"
 #endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
@@ -129,7 +129,7 @@ CommandOptions::setSigningCertificate(const Name& certificateName)
 }
 
 CommandOptions&
-CommandOptions::setSigningCertificate(const IdentityCertificate& certificate)
+CommandOptions::setSigningCertificate(const security::v1::IdentityCertificate& certificate)
 {
   m_signingInfo = makeSigningInfoFromIdentityCertificate(certificate.getName());
   return *this;

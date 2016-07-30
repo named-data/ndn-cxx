@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -110,7 +110,7 @@ ndnsec_key_gen(int argc, char** argv)
 
     keyChain.setDefaultKeyNameForIdentity(keyName);
 
-    shared_ptr<IdentityCertificate> identityCert = keyChain.selfSign(keyName);
+    shared_ptr<security::v1::IdentityCertificate> identityCert = keyChain.selfSign(keyName);
 
     if (isDefault)
       keyChain.setDefaultIdentity(Name(identityName));

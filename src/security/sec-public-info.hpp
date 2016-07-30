@@ -24,11 +24,11 @@
 
 #include "../name.hpp"
 #include "security-common.hpp"
-#include "public-key.hpp"
-#include "identity-certificate.hpp"
-
+#include "v1/public-key.hpp"
+#include "v1/identity-certificate.hpp"
 
 namespace ndn {
+namespace security {
 
 /**
  * @brief SecPublicInfo is a base class for the storage of public information.
@@ -132,7 +132,7 @@ public:
    */
   DEPRECATED(
   void
-  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKey));
+  addPublicKey(const Name& keyName, KeyType keyType, const v1::PublicKey& publicKey));
 
   /**
    * @brief Add a public key to the identity storage.
@@ -141,7 +141,7 @@ public:
    * @param publicKey Reference to the PublicKey object
    */
   virtual void
-  addKey(const Name& keyName, const PublicKey& publicKey) = 0;
+  addKey(const Name& keyName, const v1::PublicKey& publicKey) = 0;
 
   /**
    * @brief Get shared pointer to PublicKey object from the identity storage
@@ -149,7 +149,7 @@ public:
    * @param keyName The name of the requested public key
    * @throws SecPublicInfo::Error if public key does not exist
    */
-  virtual shared_ptr<PublicKey>
+  virtual shared_ptr<v1::PublicKey>
   getPublicKey(const Name& keyName) = 0;
 
   /**
@@ -180,7 +180,7 @@ public:
    * @param certificate The certificate to be added
    */
   virtual void
-  addCertificate(const IdentityCertificate& certificate) = 0;
+  addCertificate(const v1::IdentityCertificate& certificate) = 0;
 
   /**
    * @brief Get a shared pointer to identity certificate object from the identity storage
@@ -188,7 +188,7 @@ public:
    * @param certificateName The name of the requested certificate
    * @throws SecPublicInfo::Error if the certificate does not exist
    */
-  virtual shared_ptr<IdentityCertificate>
+  virtual shared_ptr<v1::IdentityCertificate>
   getCertificate(const Name& certificateName) = 0;
 
 
@@ -404,7 +404,7 @@ public:
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
   void
-  addCertificateAsKeyDefault(const IdentityCertificate& certificate);
+  addCertificateAsKeyDefault(const v1::IdentityCertificate& certificate);
 
   /**
    * @brief Add a certificate into the public key identity storage and set the certificate as the
@@ -414,7 +414,7 @@ public:
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
   void
-  addCertificateAsIdentityDefault(const IdentityCertificate& certificate);
+  addCertificateAsIdentityDefault(const v1::IdentityCertificate& certificate);
 
   /**
    * @brief Add a certificate into the public key identity storage and set the certificate as the
@@ -424,24 +424,24 @@ public:
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
   void
-  addCertificateAsSystemDefault(const IdentityCertificate& certificate);
+  addCertificateAsSystemDefault(const v1::IdentityCertificate& certificate);
 
   /**
    * @brief Get cached default certificate of the default identity
    *
-   * @return The certificate which might be empty shared_ptr<IdentityCertificate>()
+   * @return The certificate which might be empty shared_ptr<v1::IdentityCertificate>()
    * @deprecated Use getDefaultCertificate instead
    */
   DEPRECATED(
-  shared_ptr<IdentityCertificate>
+  shared_ptr<v1::IdentityCertificate>
   defaultCertificate());
 
   /**
    * @brief Get cached default certificate of the default identity
    *
-   * @return The certificate which might be empty shared_ptr<IdentityCertificate>()
+   * @return The certificate which might be empty shared_ptr<v1::IdentityCertificate>()
    */
-  shared_ptr<IdentityCertificate>
+  shared_ptr<v1::IdentityCertificate>
   getDefaultCertificate();
 
   /**
@@ -451,9 +451,13 @@ public:
   refreshDefaultCertificate();
 
 protected:
-  shared_ptr<IdentityCertificate> m_defaultCertificate;
+  shared_ptr<v1::IdentityCertificate> m_defaultCertificate;
   std::string m_location;
 };
+
+} // namespace security
+
+using security::SecPublicInfo;
 
 } // namespace ndn
 

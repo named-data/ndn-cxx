@@ -38,7 +38,6 @@
 #include "../util/random.hpp"
 #include <initializer_list>
 
-
 namespace ndn {
 namespace security {
 
@@ -210,22 +209,22 @@ public:
    *
    * @param keyName Key name, e.g., `/<identity_name>/ksk-123456`.
    * @param signingIdentity The signing identity.
-   * @param notBefore Refer to IdentityCertificate.
-   * @param notAfter Refer to IdentityCertificate.
-   * @param subjectDescription Refer to IdentityCertificate.
+   * @param notBefore Refer to v1::IdentityCertificate.
+   * @param notAfter Refer to v1::IdentityCertificate.
+   * @param subjectDescription Refer to v1::IdentityCertificate.
    * @param certPrefix Prefix before `KEY` component. By default, KeyChain will infer the
    *                   certificate name according to the relation between the signingIdentity and
    *                   the subject identity. If signingIdentity is a prefix of the subject identity,
    *                   `KEY` will be inserted after the signingIdentity, otherwise `KEY` is inserted
    *                   after subject identity (i.e., before `ksk-....`).
-   * @return IdentityCertificate.
+   * @return v1::IdentityCertificate.
    */
-  shared_ptr<IdentityCertificate>
+  shared_ptr<v1::IdentityCertificate>
   prepareUnsignedIdentityCertificate(const Name& keyName,
     const Name& signingIdentity,
     const time::system_clock::TimePoint& notBefore,
     const time::system_clock::TimePoint& notAfter,
-    const std::vector<CertificateSubjectDescription>& subjectDescription,
+    const std::vector<security::v1::CertificateSubjectDescription>& subjectDescription,
     const Name& certPrefix = DEFAULT_PREFIX);
 
   /**
@@ -234,23 +233,23 @@ public:
    * @param keyName Key name, e.g., `/<identity_name>/ksk-123456`.
    * @param publicKey Public key to sign.
    * @param signingIdentity The signing identity.
-   * @param notBefore Refer to IdentityCertificate.
-   * @param notAfter Refer to IdentityCertificate.
-   * @param subjectDescription Refer to IdentityCertificate.
+   * @param notBefore Refer to v1::IdentityCertificate.
+   * @param notAfter Refer to v1::IdentityCertificate.
+   * @param subjectDescription Refer to v1::IdentityCertificate.
    * @param certPrefix Prefix before `KEY` component. By default, KeyChain will infer the
    *                   certificate name according to the relation between the signingIdentity and
    *                   the subject identity. If signingIdentity is a prefix of the subject identity,
    *                   `KEY` will be inserted after the signingIdentity, otherwise `KEY` is inserted
    *                   after subject identity (i.e., before `ksk-....`).
-   * @return IdentityCertificate.
+   * @return v1::IdentityCertificate.
    */
-  shared_ptr<IdentityCertificate>
+  shared_ptr<v1::IdentityCertificate>
   prepareUnsignedIdentityCertificate(const Name& keyName,
-    const PublicKey& publicKey,
+    const v1::PublicKey& publicKey,
     const Name& signingIdentity,
     const time::system_clock::TimePoint& notBefore,
     const time::system_clock::TimePoint& notAfter,
-    const std::vector<CertificateSubjectDescription>& subjectDescription,
+    const std::vector<security::v1::CertificateSubjectDescription>& subjectDescription,
     const Name& certPrefix = DEFAULT_PREFIX);
 
   /**
@@ -373,9 +372,9 @@ public:
    * @brief Generate a self-signed certificate for a public key.
    *
    * @param keyName The name of the public key
-   * @return The generated certificate, shared_ptr<IdentityCertificate>() if selfSign fails
+   * @return The generated certificate, shared_ptr<v1::IdentityCertificate>() if selfSign fails
    */
-  shared_ptr<IdentityCertificate>
+  shared_ptr<v1::IdentityCertificate>
   selfSign(const Name& keyName);
 
   /**
@@ -385,7 +384,7 @@ public:
    * @throws SecTpm::Error if the private key does not exist.
    */
   void
-  selfSign(IdentityCertificate& cert);
+  selfSign(v1::IdentityCertificate& cert);
 
   /**
    * @brief delete a certificate.
@@ -480,18 +479,18 @@ public:
   }
 
   void
-  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKeyDer)
+  addPublicKey(const Name& keyName, KeyType keyType, const v1::PublicKey& publicKeyDer)
   {
     return m_pib->addKey(keyName, publicKeyDer);
   }
 
   void
-  addKey(const Name& keyName, const PublicKey& publicKeyDer)
+  addKey(const Name& keyName, const v1::PublicKey& publicKeyDer)
   {
     return m_pib->addKey(keyName, publicKeyDer);
   }
 
-  shared_ptr<PublicKey>
+  shared_ptr<v1::PublicKey>
   getPublicKey(const Name& keyName) const
   {
     return m_pib->getPublicKey(keyName);
@@ -504,12 +503,12 @@ public:
   }
 
   void
-  addCertificate(const IdentityCertificate& certificate)
+  addCertificate(const v1::IdentityCertificate& certificate)
   {
     return m_pib->addCertificate(certificate);
   }
 
-  shared_ptr<IdentityCertificate>
+  shared_ptr<v1::IdentityCertificate>
   getCertificate(const Name& certificateName) const
   {
     return m_pib->getCertificate(certificateName);
@@ -630,24 +629,24 @@ public:
   }
 
   void
-  addCertificateAsKeyDefault(const IdentityCertificate& certificate)
+  addCertificateAsKeyDefault(const v1::IdentityCertificate& certificate)
   {
     return m_pib->addCertificateAsKeyDefault(certificate);
   }
 
   void
-  addCertificateAsIdentityDefault(const IdentityCertificate& certificate)
+  addCertificateAsIdentityDefault(const v1::IdentityCertificate& certificate)
   {
     return m_pib->addCertificateAsIdentityDefault(certificate);
   }
 
   void
-  addCertificateAsSystemDefault(const IdentityCertificate& certificate)
+  addCertificateAsSystemDefault(const v1::IdentityCertificate& certificate)
   {
     return m_pib->addCertificateAsSystemDefault(certificate);
   }
 
-  shared_ptr<IdentityCertificate>
+  shared_ptr<v1::IdentityCertificate>
   getDefaultCertificate() const
   {
     if (!static_cast<bool>(m_pib->getDefaultCertificate()))
@@ -714,7 +713,7 @@ public:
     return m_tpm->deleteKeyPairInTpm(keyName);
   }
 
-  shared_ptr<PublicKey>
+  shared_ptr<v1::PublicKey>
   getPublicKeyFromTpm(const Name& keyName) const
   {
     return m_tpm->getPublicKeyFromTpm(keyName);

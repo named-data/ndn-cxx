@@ -26,14 +26,15 @@
 #define NDN_SECURITY_VALIDATOR_HPP
 
 #include "../face.hpp"
-#include "public-key.hpp"
 #include "signature-sha256-with-rsa.hpp"
 #include "signature-sha256-with-ecdsa.hpp"
 #include "digest-sha256.hpp"
 #include "validation-request.hpp"
-#include "identity-certificate.hpp"
+#include "v1/public-key.hpp"
+#include "v1/identity-certificate.hpp"
 
 namespace ndn {
+namespace security {
 
 /**
  * @brief provides the interfaces for packet validation.
@@ -105,7 +106,7 @@ public:
 
   /// @brief Verify the data using the publicKey.
   static bool
-  verifySignature(const Data& data, const PublicKey& publicKey);
+  verifySignature(const Data& data, const v1::PublicKey& publicKey);
 
   /**
    * @brief Verify the signed Interest using the publicKey.
@@ -113,11 +114,11 @@ public:
    * (Note the signature covers the first n-2 name components).
    */
   static bool
-  verifySignature(const Interest& interest, const PublicKey& publicKey);
+  verifySignature(const Interest& interest, const v1::PublicKey& publicKey);
 
   /// @brief Verify the blob using the publicKey against the signature.
   static bool
-  verifySignature(const Buffer& blob, const Signature& sig, const PublicKey& publicKey)
+  verifySignature(const Buffer& blob, const Signature& sig, const v1::PublicKey& publicKey)
   {
     return verifySignature(blob.buf(), blob.size(), sig, publicKey);
   }
@@ -126,7 +127,7 @@ public:
   static bool
   verifySignature(const Data& data,
                   const Signature& sig,
-                  const PublicKey& publicKey)
+                  const v1::PublicKey& publicKey)
   {
     return verifySignature(data.wireEncode().value(),
                            data.wireEncode().value_size() - data.getSignature().getValue().size(),
@@ -140,7 +141,7 @@ public:
   static bool
   verifySignature(const Interest& interest,
                   const Signature& sig,
-                  const PublicKey& publicKey)
+                  const v1::PublicKey& publicKey)
   {
     if (interest.getName().size() < 2)
       return false;
@@ -157,7 +158,7 @@ public:
   verifySignature(const uint8_t* buf,
                   const size_t size,
                   const Signature& sig,
-                  const PublicKey& publicKey);
+                  const v1::PublicKey& publicKey);
 
 
   /// @brief Verify the data against the SHA256 signature.
@@ -329,6 +330,10 @@ protected:
 protected:
   Face* m_face;
 };
+
+} // namespace security
+
+using security::Validator;
 
 } // namespace ndn
 

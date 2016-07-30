@@ -19,46 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_PIB_DATA_FIXTURE_HPP
-#define NDN_TESTS_PIB_DATA_FIXTURE_HPP
-
-#include "security/v1/identity-certificate.hpp"
-
-#include "boost-test.hpp"
+#include "util/command-interest-validator.hpp"
 
 namespace ndn {
-namespace security {
+namespace util {
+namespace tests {
 
-class PibDataFixture
-{
-public:
-  PibDataFixture();
+// CommandInterestValidator is deprecated, therefore no tests added
+// (just checking that code with header can be compiled)
 
-public:
-  Name id1;
-  Name id2;
-
-  Name id1Key1Name;
-  Name id1Key2Name;
-  Name id2Key1Name;
-  Name id2Key2Name;
-
-  v1::PublicKey id1Key1;
-  v1::PublicKey id1Key2;
-  v1::PublicKey id2Key1;
-  v1::PublicKey id2Key2;
-
-  v1::IdentityCertificate id1Key1Cert1;
-  v1::IdentityCertificate id1Key1Cert2;
-  v1::IdentityCertificate id1Key2Cert1;
-  v1::IdentityCertificate id1Key2Cert2;
-  v1::IdentityCertificate id2Key1Cert1;
-  v1::IdentityCertificate id2Key1Cert2;
-  v1::IdentityCertificate id2Key2Cert1;
-  v1::IdentityCertificate id2Key2Cert2;
-};
-
-} // namespace security
+} // namespace tests
+} // namespace util
 } // namespace ndn
-
-#endif // NDN_TESTS_PIB_DATA_FIXTURE_HPP

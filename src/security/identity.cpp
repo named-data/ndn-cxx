@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -58,7 +58,7 @@ Identity::getName() const
 }
 
 Key
-Identity::addKey(const PublicKey& publicKey, const name::Component& keyId)
+Identity::addKey(const v1::PublicKey& publicKey, const name::Component& keyId)
 {
   validityCheck();
 
@@ -123,7 +123,7 @@ Identity::setDefaultKey(const name::Component& keyId)
 }
 
 Key&
-Identity::setDefaultKey(const PublicKey& publicKey, const name::Component& keyId)
+Identity::setDefaultKey(const v1::PublicKey& publicKey, const name::Component& keyId)
 {
   const Key& keyEntry = addKey(publicKey, keyId);
   return setDefaultKey(keyEntry.getKeyId());

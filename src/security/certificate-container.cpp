@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,7 +32,7 @@ CertificateContainer::const_iterator::const_iterator(std::set<Name>::const_itera
 {
 }
 
-IdentityCertificate
+v1::IdentityCertificate
 CertificateContainer::const_iterator::operator*()
 {
   return m_impl->getCertificate(*m_it);

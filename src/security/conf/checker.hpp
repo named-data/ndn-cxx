@@ -29,7 +29,7 @@
 #include "key-locator-checker.hpp"
 #include "../../util/io.hpp"
 #include "../validator.hpp"
-#include "../identity-certificate.hpp"
+#include "../v1/identity-certificate.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -198,10 +198,10 @@ class FixedSignerChecker : public Checker
 {
 public:
   FixedSignerChecker(uint32_t sigType,
-                     const std::vector<shared_ptr<IdentityCertificate>>& signers)
+                     const std::vector<shared_ptr<v1::IdentityCertificate>>& signers)
     : m_sigType(sigType)
   {
-    for (std::vector<shared_ptr<IdentityCertificate>>::const_iterator it = signers.begin();
+    for (std::vector<shared_ptr<v1::IdentityCertificate>>::const_iterator it = signers.begin();
          it != signers.end(); it++)
       m_signers[(*it)->getName().getPrefix(-1)] = (*it);
 
@@ -295,7 +295,7 @@ private:
   }
 
 private:
-  typedef std::map<Name, shared_ptr<IdentityCertificate>> SignerList;
+  typedef std::map<Name, shared_ptr<v1::IdentityCertificate>> SignerList;
   uint32_t m_sigType;
   SignerList m_signers;
 };
@@ -394,7 +394,7 @@ private:
     std::string sigType = propertyIt->second.data();
     propertyIt++;
 
-    std::vector<shared_ptr<IdentityCertificate>> signers;
+    std::vector<shared_ptr<v1::IdentityCertificate>> signers;
     for (; propertyIt != configSection.end(); propertyIt++) {
       if (!boost::iequals(propertyIt->first, "signer"))
         BOOST_THROW_EXCEPTION(Error("Expect <checker.signer> but get <checker." +
@@ -410,7 +410,7 @@ private:
                                                                  signers));
   }
 
-  static shared_ptr<IdentityCertificate>
+  static shared_ptr<v1::IdentityCertificate>
   getSigner(const ConfigSection& configSection, const std::string& configFilename)
   {
     using namespace boost::filesystem;
@@ -436,8 +436,8 @@ private:
       if (propertyIt != configSection.end())
         BOOST_THROW_EXCEPTION(Error("Expect the end of checker.signer"));
 
-      shared_ptr<IdentityCertificate> idCert
-        = io::load<IdentityCertificate>(certfilePath.c_str());
+      shared_ptr<v1::IdentityCertificate> idCert
+        = io::load<v1::IdentityCertificate>(certfilePath.c_str());
 
       if (static_cast<bool>(idCert))
         return idCert;
@@ -457,7 +457,7 @@ private:
       if (propertyIt != configSection.end())
         BOOST_THROW_EXCEPTION(Error("Expect the end of checker.signer"));
 
-      shared_ptr<IdentityCertificate> idCert = io::load<IdentityCertificate>(ss);
+      shared_ptr<v1::IdentityCertificate> idCert = io::load<v1::IdentityCertificate>(ss);
 
       if (static_cast<bool>(idCert))
         return idCert;

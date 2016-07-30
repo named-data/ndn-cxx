@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,12 +25,13 @@
 #define NDN_SECURITY_VALIDATOR_REGEX_HPP
 
 #include "validator.hpp"
-#include "identity-certificate.hpp"
+#include "v1/identity-certificate.hpp"
 #include "sec-rule-relative.hpp"
 #include "certificate-cache.hpp"
 #include "../util/regex.hpp"
 
 namespace ndn {
+namespace security {
 
 class ValidatorRegex : public Validator
 {
@@ -79,7 +80,7 @@ public:
    * @param certificate The trust anchor
    */
   void
-  addTrustAnchor(shared_ptr<IdentityCertificate> certificate);
+  addTrustAnchor(shared_ptr<v1::IdentityCertificate> certificate);
 
 protected:
   virtual void
@@ -122,8 +123,12 @@ protected:
   shared_ptr<CertificateCache> m_certificateCache;
   RuleList m_mustFailVerify;
   RuleList m_verifyPolicies;
-  std::map<Name, shared_ptr<IdentityCertificate> > m_trustAnchors;
+  std::map<Name, shared_ptr<v1::IdentityCertificate> > m_trustAnchors;
 };
+
+} // namespace security
+
+using security::ValidatorRegex;
 
 } // namespace ndn
 

@@ -27,7 +27,10 @@
 #include "../make-interest-data.hpp"
 
 namespace ndn {
+namespace security {
 namespace tests {
+
+using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestValidator, IdentityManagementFixture)
@@ -94,12 +97,12 @@ BOOST_AUTO_TEST_CASE(RsaSignatureVerification)
   Name identity("/TestValidator/RsaSignatureVerification");
   BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
   Name keyName = m_keyChain.getDefaultKeyNameForIdentity(identity);
-  shared_ptr<PublicKey> publicKey = m_keyChain.getPublicKey(keyName);
+  shared_ptr<v1::PublicKey> publicKey = m_keyChain.getPublicKey(keyName);
 
   Name identity2("/TestValidator/RsaSignatureVerification/id2");
   BOOST_REQUIRE(addIdentity(identity2, RsaKeyParams()));
   Name keyName2 = m_keyChain.getDefaultKeyNameForIdentity(identity2);
-  shared_ptr<PublicKey> publicKey2 = m_keyChain.getPublicKey(keyName2);
+  shared_ptr<v1::PublicKey> publicKey2 = m_keyChain.getPublicKey(keyName2);
 
   Data data("/TestData/1");
   BOOST_CHECK_NO_THROW(m_keyChain.sign(data,
@@ -157,12 +160,12 @@ BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification)
   Name identity("/TestValidator/EcdsaSignatureVerification");
   BOOST_REQUIRE(addIdentity(identity, EcdsaKeyParams()));
   Name keyName = m_keyChain.getDefaultKeyNameForIdentity(identity);
-  shared_ptr<PublicKey> publicKey = m_keyChain.getPublicKey(keyName);
+  shared_ptr<v1::PublicKey> publicKey = m_keyChain.getPublicKey(keyName);
 
   Name identity2("/TestValidator/EcdsaSignatureVerification/id2");
   BOOST_REQUIRE(addIdentity(identity2, EcdsaKeyParams()));
   Name keyName2 = m_keyChain.getDefaultKeyNameForIdentity(identity2);
-  shared_ptr<PublicKey> publicKey2 = m_keyChain.getPublicKey(keyName2);
+  shared_ptr<v1::PublicKey> publicKey2 = m_keyChain.getPublicKey(keyName2);
 
 
   Data data("/TestData/1");
@@ -192,12 +195,12 @@ BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification2)
   Name ecdsaIdentity("/SecurityTestValidator/EcdsaSignatureVerification2/ecdsa");
   BOOST_REQUIRE(addIdentity(ecdsaIdentity, EcdsaKeyParams()));
   Name ecdsaCertName = m_keyChain.getDefaultCertificateNameForIdentity(ecdsaIdentity);
-  shared_ptr<IdentityCertificate> ecdsaCert = m_keyChain.getCertificate(ecdsaCertName);
+  shared_ptr<v1::IdentityCertificate> ecdsaCert = m_keyChain.getCertificate(ecdsaCertName);
 
   Name rsaIdentity("/SecurityTestValidator/EcdsaSignatureVerification2/rsa");
   BOOST_REQUIRE(addIdentity(rsaIdentity, RsaKeyParams()));
   Name rsaCertName = m_keyChain.getDefaultCertificateNameForIdentity(rsaIdentity);
-  shared_ptr<IdentityCertificate> rsaCert = m_keyChain.getCertificate(rsaCertName);
+  shared_ptr<v1::IdentityCertificate> rsaCert = m_keyChain.getCertificate(rsaCertName);
 
   Name packetName("/Test/Packet/Name");
 
@@ -243,7 +246,7 @@ BOOST_AUTO_TEST_CASE(MalformedInterestSigInfo)
 
   setNameComponent(*interest, signed_interest::POS_SIG_INFO, "not-SignatureInfo");
 
-  PublicKey pubkey = m_keyChain.getDefaultCertificate()->getPublicKeyInfo();
+  v1::PublicKey pubkey = m_keyChain.getDefaultCertificate()->getPublicKeyInfo();
   BOOST_CHECK_EQUAL(Validator::verifySignature(*interest, pubkey), false);
 }
 
@@ -254,7 +257,7 @@ BOOST_AUTO_TEST_CASE(MalformedInterestSigValue)
 
   setNameComponent(*interest, signed_interest::POS_SIG_VALUE, "bad-signature-bits");
 
-  PublicKey pubkey = m_keyChain.getDefaultCertificate()->getPublicKeyInfo();
+  v1::PublicKey pubkey = m_keyChain.getDefaultCertificate()->getPublicKeyInfo();
   BOOST_CHECK_EQUAL(Validator::verifySignature(*interest, pubkey), false);
 }
 
@@ -262,4 +265,5 @@ BOOST_AUTO_TEST_SUITE_END() // TestValidator
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace security
 } // namespace ndn

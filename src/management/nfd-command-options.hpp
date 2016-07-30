@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,7 +28,11 @@
 
 namespace ndn {
 
+namespace security {
+namespace v1 {
 class IdentityCertificate;
+} // namespace v1
+} // namespace security
 
 namespace nfd {
 
@@ -167,7 +171,7 @@ public: // signing parameters
    */
   DEPRECATED(
   CommandOptions&
-  setSigningCertificate(const IdentityCertificate& certificate));
+  setSigningCertificate(const security::v1::IdentityCertificate& certificate));
 
 #endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 

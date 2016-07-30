@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,7 +34,7 @@ Key::Key()
 }
 
 Key::Key(const Name& identityName, const name::Component& keyId,
-         const PublicKey& publicKey, shared_ptr<PibImpl> impl)
+         const v1::PublicKey& publicKey, shared_ptr<PibImpl> impl)
   : m_id(identityName)
   , m_keyId(keyId)
   , m_key(publicKey)
@@ -91,7 +91,7 @@ Key::getKeyId() const
   return m_keyId;
 }
 
-const PublicKey&
+const v1::PublicKey&
 Key::getPublicKey() const
 {
   validityCheck();
@@ -100,7 +100,7 @@ Key::getPublicKey() const
 }
 
 void
-Key::addCertificate(const IdentityCertificate& certificate)
+Key::addCertificate(const v1::IdentityCertificate& certificate)
 {
   validityCheck();
 
@@ -126,7 +126,7 @@ Key::removeCertificate(const Name& certName)
   m_needRefreshCerts = true;
 }
 
-IdentityCertificate
+v1::IdentityCertificate
 Key::getCertificate(const Name& certName) const
 {
   validityCheck();
@@ -147,7 +147,7 @@ Key::getCertificates() const
   return m_certificates;
 }
 
-const IdentityCertificate&
+const v1::IdentityCertificate&
 Key::setDefaultCertificate(const Name& certName)
 {
   validityCheck();
@@ -158,14 +158,14 @@ Key::setDefaultCertificate(const Name& certName)
   return m_defaultCertificate;
 }
 
-const IdentityCertificate&
-Key::setDefaultCertificate(const IdentityCertificate& certificate)
+const v1::IdentityCertificate&
+Key::setDefaultCertificate(const v1::IdentityCertificate& certificate)
 {
   addCertificate(certificate);
   return setDefaultCertificate(certificate.getName());
 }
 
-const IdentityCertificate&
+const v1::IdentityCertificate&
 Key::getDefaultCertificate() const
 {
   validityCheck();

@@ -83,12 +83,12 @@ public: // Key management
   hasKey(const Name& identity, const name::Component& keyId) const override;
 
   virtual void
-  addKey(const Name& identity, const name::Component& keyId, const PublicKey& publicKey) override;
+  addKey(const Name& identity, const name::Component& keyId, const v1::PublicKey& publicKey) override;
 
   virtual void
   removeKey(const Name& identity, const name::Component& keyId) override;
 
-  virtual PublicKey
+  virtual v1::PublicKey
   getKeyBits(const Name& identity, const name::Component& keyId) const override;
 
   virtual std::set<name::Component>
@@ -106,12 +106,12 @@ public: // Certificate management
   hasCertificate(const Name& certName) const override;
 
   virtual void
-  addCertificate(const IdentityCertificate& certificate) override;
+  addCertificate(const v1::IdentityCertificate& certificate) override;
 
   virtual void
   removeCertificate(const Name& certName) override;
 
-  virtual IdentityCertificate
+  virtual v1::IdentityCertificate
   getCertificate(const Name& certName) const override;
 
   virtual std::set<Name>
@@ -120,7 +120,7 @@ public: // Certificate management
   virtual void
   setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId, const Name& certName) override;
 
-  virtual IdentityCertificate
+  virtual v1::IdentityCertificate
   getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const override;
 
 private: // Key management
@@ -135,13 +135,13 @@ private:
   Name m_defaultIdentity;
 
   /// @brief keyName => keyBits
-  std::map<Name, PublicKey> m_keys;
+  std::map<Name, v1::PublicKey> m_keys;
 
   /// @brief identity => default key Name
   std::map<Name, Name> m_defaultKey;
 
   /// @brief certificate Name => certificate
-  std::map<Name, IdentityCertificate> m_certs;
+  std::map<Name, v1::IdentityCertificate> m_certs;
 
   /// @brief keyName => default certificate Name
   std::map<Name, Name> m_defaultCert;

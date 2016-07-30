@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,17 +23,19 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#ifndef NDN_SECURITY_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
-#define NDN_SECURITY_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
+#ifndef NDN_SECURITY_V1_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
+#define NDN_SECURITY_V1_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
 
-#include "../common.hpp"
-#include "../encoding/oid.hpp"
+#include "../../common.hpp"
+#include "../../encoding/oid.hpp"
 
 namespace CryptoPP {
 class BufferedTransformation;
-}
+} // namespace CryptoPP
 
 namespace ndn {
+namespace security {
+namespace v1 {
 
 /**
  * A CertificateSubjectDescription represents the SubjectDescription entry in a Certificate.
@@ -52,7 +54,7 @@ public:
    * @param oid The oid of the subject description entry.
    * @param value The value of the subject description entry.
    */
-  CertificateSubjectDescription(const OID& oid, const std::string& value)
+  CertificateSubjectDescription(const Oid& oid, const std::string& value)
   : m_oid(oid), m_value(value)
   {
   }
@@ -76,10 +78,18 @@ public:
   }
 
 private:
-  OID m_oid;
+  Oid m_oid;
   std::string m_value;
 };
 
+} // namespace v1
+} // namespace security
+
+#ifdef NDN_CXX_KEEP_SECURITY_V1_ALIASES
+/// @deprecated When needed, use explicit namespace
+using security::v1::CertificateSubjectDescription;
+#endif // NDN_CXX_KEEP_SECURITY_V1_ALIASES
+
 } // namespace ndn
 
-#endif //NDN_SECURITY_CERTIFICATE_SUBJECT_DESCRIPTION_HPP
+#endif // NDN_SECURITY_V1_CERTIFICATE_SUBJECT_DESCRIPTION_HPP

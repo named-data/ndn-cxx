@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -84,8 +84,8 @@ const uint8_t SELF_SIGNED_ECDSA_CERT[] = {
 
 BOOST_AUTO_TEST_CASE(TpmTest)
 {
-  ndn::Block selfSignedCertBlock(SELF_SIGNED_ECDSA_CERT, sizeof(SELF_SIGNED_ECDSA_CERT));
-  ndn::IdentityCertificate cert;
+  Block selfSignedCertBlock(SELF_SIGNED_ECDSA_CERT, sizeof(SELF_SIGNED_ECDSA_CERT));
+  v1::IdentityCertificate cert;
   cert.wireDecode(selfSignedCertBlock);
   Name identity = cert.getPublicKeyName().getPrefix(-1);
   name::Component keyId = cert.getPublicKeyName().get(-1);

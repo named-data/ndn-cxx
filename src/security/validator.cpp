@@ -25,12 +25,13 @@
 #include "validator.hpp"
 #include "../util/crypto.hpp"
 
-#include "cryptopp.hpp"
+#include "v1/cryptopp.hpp"
 
 namespace ndn {
+namespace security {
 
-static OID SECP256R1("1.2.840.10045.3.1.7");
-static OID SECP384R1("1.3.132.0.34");
+static Oid SECP256R1("1.2.840.10045.3.1.7");
+static Oid SECP384R1("1.3.132.0.34");
 
 Validator::Validator(Face* face)
   : m_face(face)
@@ -101,7 +102,7 @@ Validator::onData(const Interest& interest,
 }
 
 bool
-Validator::verifySignature(const Data& data, const PublicKey& key)
+Validator::verifySignature(const Data& data, const v1::PublicKey& key)
 {
   if (!data.getSignature().hasKeyLocator())
     return false;
@@ -113,7 +114,7 @@ Validator::verifySignature(const Data& data, const PublicKey& key)
 }
 
 bool
-Validator::verifySignature(const Interest& interest, const PublicKey& key)
+Validator::verifySignature(const Interest& interest, const v1::PublicKey& key)
 {
   const Name& name = interest.getName();
 
@@ -142,7 +143,7 @@ bool
 Validator::verifySignature(const uint8_t* buf,
                            const size_t size,
                            const Signature& sig,
-                           const PublicKey& key)
+                           const v1::PublicKey& key)
 {
   try {
     using namespace CryptoPP;
@@ -181,10 +182,10 @@ Validator::verifySignature(const uint8_t* buf,
         {
           BERSequenceDecoder algorithmInfo(subjectPublicKeyInfo);
           {
-            OID algorithm;
+            Oid algorithm;
             algorithm.decode(algorithmInfo);
 
-            OID curveId;
+            Oid curveId;
             curveId.decode(algorithmInfo);
 
             if (curveId == SECP256R1)
@@ -234,7 +235,7 @@ bool
 Validator::verifySignature(const uint8_t* buf, const size_t size, const DigestSha256& sig)
 {
   try {
-    ConstBufferPtr buffer = crypto::sha256(buf, size);
+    ConstBufferPtr buffer = crypto::computeSha256Digest(buf, size);
     const Block& sigValue = sig.getValue();
 
     if (buffer != nullptr &&
@@ -321,4 +322,5 @@ Validator::afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest>>& ne
   }
 }
 
+} // namespace security
 } // namespace ndn

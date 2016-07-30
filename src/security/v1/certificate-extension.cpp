@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,12 +22,12 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#include "common.hpp"
-
 #include "certificate-extension.hpp"
 #include "cryptopp.hpp"
 
 namespace ndn {
+namespace security {
+namespace v1 {
 
 void
 CertificateExtension::encode(CryptoPP::BufferedTransformation& out) const
@@ -72,4 +72,6 @@ CertificateExtension::decode(CryptoPP::BufferedTransformation& in)
   extension.MessageEnd();
 }
 
+} // namespace v1
+} // namespace security
 } // namespace ndn

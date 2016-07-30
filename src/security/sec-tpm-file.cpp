@@ -30,7 +30,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "cryptopp.hpp"
+#include "v1/cryptopp.hpp"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -38,6 +38,7 @@
 #include <algorithm>
 
 namespace ndn {
+namespace security {
 
 using std::string;
 using std::ostringstream;
@@ -231,7 +232,7 @@ SecTpmFile::deleteKeyPairInTpm(const Name& keyName)
     boost::filesystem::remove(privateKeyPath);
 }
 
-shared_ptr<PublicKey>
+shared_ptr<v1::PublicKey>
 SecTpmFile::getPublicKeyFromTpm(const Name&  keyName)
 {
   string keyURI = keyName.toUri();
@@ -250,7 +251,7 @@ SecTpmFile::getPublicKeyFromTpm(const Name&  keyName)
     BOOST_THROW_EXCEPTION(Error(e.what()));
   }
 
-  return make_shared<PublicKey>(reinterpret_cast<const uint8_t*>(os.str().c_str()),
+  return make_shared<v1::PublicKey>(reinterpret_cast<const uint8_t*>(os.str().c_str()),
                                 os.str().size());
 }
 
@@ -320,7 +321,7 @@ SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength,
     AutoSeededRandomPool rng;
 
     // Read public key
-    shared_ptr<PublicKey> pubkeyPtr;
+    shared_ptr<v1::PublicKey> pubkeyPtr;
     pubkeyPtr = getPublicKeyFromTpm(keyName);
 
     switch (pubkeyPtr->getKeyType()) {
@@ -586,4 +587,5 @@ SecTpmFile::generateRandomBlock(uint8_t* res, size_t size)
   }
 }
 
+} // namespace security
 } // namespace ndn

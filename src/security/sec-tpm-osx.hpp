@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,6 +33,7 @@
 #include "sec-tpm.hpp"
 
 namespace ndn {
+namespace security {
 
 class SecTpmOsx : public SecTpm
 {
@@ -84,7 +85,7 @@ public:
     deleteKeyPairInTpmInternal(keyName, false);
   }
 
-  virtual shared_ptr<PublicKey>
+  virtual shared_ptr<v1::PublicKey>
   getPublicKeyFromTpm(const Name& keyName);
 
   virtual Block
@@ -159,6 +160,10 @@ private:
   class Impl;
   shared_ptr<Impl> m_impl;
 };
+
+} // namespace security
+
+using security::SecTpmOsx;
 
 } // namespace ndn
 

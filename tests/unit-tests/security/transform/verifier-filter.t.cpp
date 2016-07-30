@@ -24,7 +24,7 @@
 #include "encoding/buffer-stream.hpp"
 
 // TODO: remove CryptoPP dependency
-#include "security/cryptopp.hpp"
+#include "security/v1/cryptopp.hpp"
 
 #include "boost-test.hpp"
 

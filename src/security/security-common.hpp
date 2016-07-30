@@ -24,6 +24,8 @@
 
 #include "../common.hpp"
 
+#define NDN_CXX_KEEP_SECURITY_V1_ALIASES
+
 namespace ndn {
 
 namespace signed_interest {

@@ -23,7 +23,6 @@
 #define NDN_UTIL_COMMAND_INTEREST_VALIDATOR_HPP
 
 #include "../security/validator.hpp"
-#include "../security/identity-certificate.hpp"
 #include "../security/sec-rule-specific.hpp"
 
 #include <list>
@@ -67,7 +66,7 @@ public:
    * @param certificate trusted certificate
    */
   void
-  addInterestRule(const std::string& regex, const IdentityCertificate& certificate);
+  addInterestRule(const std::string& regex, const security::v1::IdentityCertificate& certificate);
 
   /**
    * @brief add an Interest rule that allows a specific public key
@@ -77,7 +76,7 @@ public:
    * @param publicKey public key
    */
   void
-  addInterestRule(const std::string& regex, const Name& keyName, const PublicKey& publicKey);
+  addInterestRule(const std::string& regex, const Name& keyName, const security::v1::PublicKey& publicKey);
 
   /**
    * @brief add an Interest rule that allows any signer
@@ -114,7 +113,7 @@ protected:
 
 private:
   time::milliseconds m_graceInterval; //ms
-  std::map<Name, PublicKey> m_trustAnchorsForInterest;
+  std::map<Name, security::v1::PublicKey> m_trustAnchorsForInterest;
   std::list<SecRuleSpecific> m_trustScopeForInterest;
 
   typedef std::map<Name, time::system_clock::TimePoint> LastTimestampMap;
@@ -123,16 +122,16 @@ private:
 
 inline void
 CommandInterestValidator::addInterestRule(const std::string& regex,
-                                          const IdentityCertificate& certificate)
+                                          const security::v1::IdentityCertificate& certificate)
 {
-  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificate.getName());
+  Name keyName = security::v1::IdentityCertificate::certificateNameToPublicKeyName(certificate.getName());
   addInterestRule(regex, keyName, certificate.getPublicKeyInfo());
 }
 
 inline void
 CommandInterestValidator::addInterestRule(const std::string& regex,
                                           const Name& keyName,
-                                          const PublicKey& publicKey)
+                                          const security::v1::PublicKey& publicKey)
 {
   m_trustAnchorsForInterest[keyName] = publicKey;
   shared_ptr<Regex> interestRegex = make_shared<Regex>(regex);
@@ -185,7 +184,7 @@ CommandInterestValidator::checkPolicy(const Interest& interest,
         return onValidationFailed(interest.shared_from_this(),
                                   "Key Locator is not a name");
 
-      keyName = IdentityCertificate::certificateNameToPublicKeyName(keyLocator.getName());
+      keyName = security::v1::IdentityCertificate::certificateNameToPublicKeyName(keyLocator.getName());
 
       //Check if command is in the trusted scope
       bool isInScope = false;
@@ -256,7 +255,7 @@ CommandInterestValidator::checkPolicy(const Interest& interest,
       return onValidationFailed(interest.shared_from_this(),
                                 "No valid signature");
     }
-  catch (const IdentityCertificate::Error&)
+  catch (const security::v1::IdentityCertificate::Error&)
     {
       return onValidationFailed(interest.shared_from_this(),
                                 "Cannot locate the signing key");

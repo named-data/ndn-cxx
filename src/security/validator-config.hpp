@@ -31,6 +31,7 @@
 #include "conf/common.hpp"
 
 namespace ndn {
+namespace security {
 
 class ValidatorConfig : public Validator
 {
@@ -160,20 +161,20 @@ private:
     {
     }
 
-    const std::list<shared_ptr<IdentityCertificate>>&
+    const std::list<shared_ptr<v1::IdentityCertificate>>&
     getAll() const
     {
       return m_certificates;
     }
 
     void
-    add(shared_ptr<IdentityCertificate> certificate)
+    add(shared_ptr<v1::IdentityCertificate> certificate)
     {
       m_certificates.push_back(certificate);
     }
 
   protected:
-    std::list<shared_ptr<IdentityCertificate>> m_certificates;
+    std::list<shared_ptr<v1::IdentityCertificate>> m_certificates;
   };
 
   class DynamicTrustAnchorContainer : public TrustAnchorContainer
@@ -233,9 +234,9 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   typedef security::conf::Rule<Data>     DataRule;
   typedef std::vector<shared_ptr<InterestRule>> InterestRuleList;
   typedef std::vector<shared_ptr<DataRule>>     DataRuleList;
-  typedef std::map<Name, shared_ptr<IdentityCertificate>> AnchorList;
+  typedef std::map<Name, shared_ptr<v1::IdentityCertificate>> AnchorList;
   typedef std::list<DynamicTrustAnchorContainer> DynamicContainers; // sorted by m_lastRefresh
-  typedef std::list<shared_ptr<IdentityCertificate>> CertificateList;
+  typedef std::list<shared_ptr<v1::IdentityCertificate>> CertificateList;
 
 
   /**
@@ -261,6 +262,10 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   LastTimestampMap m_lastTimestamp;
   const time::system_clock::Duration& m_keyTimestampTtl;
 };
+
+} // namespace security
+
+using security::ValidatorConfig;
 
 } // namespace ndn
 

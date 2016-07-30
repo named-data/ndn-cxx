@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,16 +23,18 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#ifndef NDN_SECURITY_CERTIFICATE_HPP
-#define NDN_SECURITY_CERTIFICATE_HPP
+#ifndef NDN_SECURITY_V1_CERTIFICATE_HPP
+#define NDN_SECURITY_V1_CERTIFICATE_HPP
 
-#include "../common.hpp"
-#include "../data.hpp"
+#include "../../common.hpp"
+#include "../../data.hpp"
 #include "certificate-subject-description.hpp"
 #include "certificate-extension.hpp"
 #include "public-key.hpp"
 
 namespace ndn {
+namespace security {
+namespace v1 {
 
 class Certificate : public Data
 {
@@ -210,6 +212,15 @@ protected:
 
 std::ostream&
 operator<<(std::ostream& os, const Certificate& cert);
+
+} // namespace v1
+} // namespace security
+
+#ifdef NDN_CXX_KEEP_SECURITY_V1_ALIASES
+/// @deprecated When needed, use explicit namespace
+using security::v1::Certificate;
+#endif // NDN_CXX_KEEP_SECURITY_V1_ALIASES
+
 } // namespace ndn
 
-#endif // NDN_SECURITY_CERTIFICATE_HPP
+#endif // NDN_SECURITY_V1_CERTIFICATE_HPP

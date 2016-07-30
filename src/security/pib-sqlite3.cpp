@@ -360,7 +360,7 @@ PibSqlite3::hasKey(const Name& identity, const name::Component& keyId) const
 }
 
 void
-PibSqlite3::addKey(const Name& identity, const name::Component& keyId, const PublicKey& publicKey)
+PibSqlite3::addKey(const Name& identity, const name::Component& keyId, const v1::PublicKey& publicKey)
 {
   if (hasKey(identity, keyId)) {
     return;
@@ -392,7 +392,7 @@ PibSqlite3::removeKey(const Name& identity, const name::Component& keyId)
   statement.step();
 }
 
-PublicKey
+v1::PublicKey
 PibSqlite3::getKeyBits(const Name& identity, const name::Component& keyId) const
 {
   Name keyName = getKeyName(identity, keyId);
@@ -401,7 +401,7 @@ PibSqlite3::getKeyBits(const Name& identity, const name::Component& keyId) const
   statement.bind(1, keyName.wireEncode(), SQLITE_TRANSIENT);
 
   if (statement.step() == SQLITE_ROW)
-    return PublicKey(statement.getBlob(0), statement.getSize(0));
+    return v1::PublicKey(statement.getBlob(0), statement.getSize(0));
   else
     BOOST_THROW_EXCEPTION(Pib::Error("Key does not exist"));
 }
@@ -469,7 +469,7 @@ PibSqlite3::hasCertificate(const Name& certName) const
 }
 
 void
-PibSqlite3::addCertificate(const IdentityCertificate& certificate)
+PibSqlite3::addCertificate(const v1::IdentityCertificate& certificate)
 {
   const Name& certName = certificate.getName();
   const Name& keyName = certificate.getPublicKeyName();
@@ -498,7 +498,7 @@ PibSqlite3::removeCertificate(const Name& certName)
   statement.step();
 }
 
-IdentityCertificate
+v1::IdentityCertificate
 PibSqlite3::getCertificate(const Name& certName) const
 {
   Sqlite3Statement statement(m_database,
@@ -506,7 +506,7 @@ PibSqlite3::getCertificate(const Name& certName) const
   statement.bind(1, certName.wireEncode(), SQLITE_TRANSIENT);
 
   if (statement.step() == SQLITE_ROW)
-    return IdentityCertificate(statement.getBlock(0));
+    return v1::IdentityCertificate(statement.getBlock(0));
   else
     BOOST_THROW_EXCEPTION(Pib::Error("Certificate does not exit"));
 }
@@ -544,7 +544,7 @@ PibSqlite3::setDefaultCertificateOfKey(const Name& identity, const name::Compone
   statement.step();
 }
 
-IdentityCertificate
+v1::IdentityCertificate
 PibSqlite3::getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const
 {
   Name keyName = getKeyName(identity, keyId);
@@ -556,7 +556,7 @@ PibSqlite3::getDefaultCertificateOfKey(const Name& identity, const name::Compone
   statement.bind(1, keyName.wireEncode(), SQLITE_TRANSIENT);
 
   if (statement.step() == SQLITE_ROW)
-    return IdentityCertificate(statement.getBlock(0));
+    return v1::IdentityCertificate(statement.getBlock(0));
   else
     BOOST_THROW_EXCEPTION(Pib::Error("Certificate does not exit"));
 }

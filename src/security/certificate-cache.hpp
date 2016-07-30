@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,9 +25,10 @@
 #define NDN_SECURITY_CERTIFICATE_CACHE_HPP
 
 #include "../name.hpp"
-#include "identity-certificate.hpp"
+#include "v1/identity-certificate.hpp"
 
 namespace ndn {
+namespace security {
 
 /**
  * @brief Interface for the cache of validated certificates
@@ -41,9 +42,9 @@ public:
   }
 
   virtual void
-  insertCertificate(shared_ptr<const IdentityCertificate> certificate) = 0;
+  insertCertificate(shared_ptr<const v1::IdentityCertificate> certificate) = 0;
 
-  virtual shared_ptr<const IdentityCertificate>
+  virtual shared_ptr<const v1::IdentityCertificate>
   getCertificate(const Name& certificateNameWithoutVersion) = 0;
 
   virtual void
@@ -58,6 +59,10 @@ public:
     return (getSize() == 0);
   }
 };
+
+} // namespace security
+
+using security::CertificateCache;
 
 } // namespace ndn
 

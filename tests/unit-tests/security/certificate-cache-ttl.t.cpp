@@ -27,7 +27,10 @@
 #include "../unit-test-time-fixture.hpp"
 
 namespace ndn {
+namespace security {
 namespace tests {
+
+using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestCertificateCacheTtl)
@@ -39,12 +42,12 @@ public:
     : scheduler(io)
     , cache(make_shared<CertificateCacheTtl>(ref(io), time::seconds(1)))
   {
-    cert1 = make_shared<IdentityCertificate>();
+    cert1 = make_shared<v1::IdentityCertificate>();
     Name certName1("/tmp/KEY/ksk-1/ID-CERT/1");
     cert1->setName(certName1);
     cert1->setFreshnessPeriod(time::milliseconds(500));
 
-    cert2 = make_shared<IdentityCertificate>();
+    cert2 = make_shared<v1::IdentityCertificate>();
     Name certName2("/tmp/KEY/ksk-2/ID-CERT/2");
     cert2->setName(certName2);
     cert2->setFreshnessPeriod(time::milliseconds(1000));
@@ -58,8 +61,8 @@ public:
 
   shared_ptr<CertificateCacheTtl> cache;
 
-  shared_ptr<IdentityCertificate> cert1;
-  shared_ptr<IdentityCertificate> cert2;
+  shared_ptr<v1::IdentityCertificate> cert1;
+  shared_ptr<v1::IdentityCertificate> cert2;
 
   Name name1;
   Name name2;
@@ -135,4 +138,5 @@ BOOST_AUTO_TEST_SUITE_END() // TestCertificateCacheTtl
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace security
 } // namespace ndn

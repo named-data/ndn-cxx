@@ -92,12 +92,12 @@ public: // Key management
   hasKey(const Name& identity, const name::Component& keyId) const final;
 
   virtual void
-  addKey(const Name& identity, const name::Component& keyId, const PublicKey& publicKey) final;
+  addKey(const Name& identity, const name::Component& keyId, const v1::PublicKey& publicKey) final;
 
   virtual void
   removeKey(const Name& identity, const name::Component& keyId) final;
 
-  virtual PublicKey
+  virtual v1::PublicKey
   getKeyBits(const Name& identity, const name::Component& keyId) const final;
 
   virtual std::set<name::Component>
@@ -115,12 +115,12 @@ public: // Certificate Management
   hasCertificate(const Name& certName) const final;
 
   virtual void
-  addCertificate(const IdentityCertificate& certificate) final;
+  addCertificate(const v1::IdentityCertificate& certificate) final;
 
   virtual void
   removeCertificate(const Name& certName) final;
 
-  virtual IdentityCertificate
+  virtual v1::IdentityCertificate
   getCertificate(const Name& certName) const final;
 
   virtual std::set<Name>
@@ -130,7 +130,7 @@ public: // Certificate Management
   setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId,
                              const Name& certName) final;
 
-  virtual IdentityCertificate
+  virtual v1::IdentityCertificate
   getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const final;
 
 private:

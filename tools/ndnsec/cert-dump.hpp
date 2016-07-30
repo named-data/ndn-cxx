@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,6 +30,7 @@ int
 ndnsec_cert_dump(int argc, char** argv)
 {
   using namespace ndn;
+  using namespace ndn::security;
   namespace po = boost::program_options;
 
   std::string name;
@@ -72,134 +73,114 @@ ndnsec_cert_dump(int argc, char** argv)
   p.add("name", 1);
 
   po::variables_map vm;
-  try
-    {
-      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-                vm);
-      po::notify(vm);
-    }
-  catch (const std::exception& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  try {
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+              vm);
+    po::notify(vm);
+  }
+  catch (const std::exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    std::cerr << description << std::endl;
+    return 1;
+  }
 
-  if (vm.count("help") != 0)
-    {
-      std::cerr << description << std::endl;
-      return 0;
-    }
+  if (vm.count("help") != 0) {
+    std::cerr << description << std::endl;
+    return 0;
+  }
 
-  if (vm.count("name") == 0)
-    {
-      std::cerr << "identity_name must be specified" << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  if (vm.count("name") == 0) {
+    std::cerr << "identity_name must be specified" << std::endl;
+    std::cerr << description << std::endl;
+    return 1;
+  }
 
-  if (vm.count("key") != 0)
-    {
-      isCertName = false;
-      isKeyName = true;
-    }
-  else if (vm.count("identity") != 0)
-    {
-      isCertName = false;
-      isIdentityName = true;
-    }
-  else if (vm.count("file") != 0)
-    {
-      isCertName = false;
-      // isFileName = true;
-    }
+  if (vm.count("key") != 0) {
+    isCertName = false;
+    isKeyName = true;
+  }
+  else if (vm.count("identity") != 0) {
+    isCertName = false;
+    isIdentityName = true;
+  }
+  else if (vm.count("file") != 0) {
+    isCertName = false;
+    // isFileName = true;
+  }
 
   if (vm.count("pretty") != 0)
     isPretty = true;
 
-  if (vm.count("repo-output") != 0)
-    {
-      isRepoOut = true;
-      isStdOut = false;
-    }
-  else if (vm.count("dns-output") != 0)
-    {
-      // isDnsOut = true;
-      isStdOut = false;
-      std::cerr << "Error: DNS output is not supported yet!" << std::endl;
-      return 1;
-    }
+  if (vm.count("repo-output") != 0) {
+    isRepoOut = true;
+    isStdOut = false;
+  }
+  else if (vm.count("dns-output") != 0) {
+    // isDnsOut = true;
+    isStdOut = false;
+    std::cerr << "Error: DNS output is not supported yet!" << std::endl;
+    return 1;
+  }
 
-  if (isPretty && !isStdOut)
-    {
-      std::cerr << "Error: pretty option can only be specified when other "
-                << "output option is specified" << std::endl;
-      return 1;
-    }
+  if (isPretty && !isStdOut) {
+    std::cerr << "Error: pretty option can only be specified when other "
+              << "output option is specified" << std::endl;
+    return 1;
+  }
 
-  shared_ptr<IdentityCertificate> certificate;
+  shared_ptr<v1::IdentityCertificate> certificate;
 
   KeyChain keyChain;
 
-  if (isIdentityName || isKeyName || isCertName)
-    {
-      if (isIdentityName)
-        {
-          Name certName = keyChain.getDefaultCertificateNameForIdentity(name);
-          certificate = keyChain.getCertificate(certName);
-        }
-      else if (isKeyName)
-        {
-          Name certName = keyChain.getDefaultCertificateNameForKey(name);
-          certificate = keyChain.getCertificate(certName);
-        }
-      else
-        certificate = keyChain.getCertificate(name);
+  if (isIdentityName || isKeyName || isCertName) {
+    if (isIdentityName) {
+      Name certName = keyChain.getDefaultCertificateNameForIdentity(name);
+      certificate = keyChain.getCertificate(certName);
+    }
+    else if (isKeyName) {
+      Name certName = keyChain.getDefaultCertificateNameForKey(name);
+      certificate = keyChain.getCertificate(certName);
+    }
+    else
+      certificate = keyChain.getCertificate(name);
 
-      if (!static_cast<bool>(certificate))
-        {
-          std::cerr << "No certificate found!" << std::endl;
-          return 1;
-        }
+    if (!static_cast<bool>(certificate)) {
+      std::cerr << "No certificate found!" << std::endl;
+      return 1;
     }
-  else
-    {
-      certificate = getIdentityCertificate(name);
-      if (!static_cast<bool>(certificate))
-        {
-          std::cerr << "No certificate read!" << std::endl;
-          return 1;
-        }
-    }
+  }
+  else {
+    certificate = getIdentityCertificate(name);
+    if (!static_cast<bool>(certificate))
+      {
+        std::cerr << "No certificate read!" << std::endl;
+        return 1;
+      }
+  }
 
-  if (isPretty)
-    {
-      std::cout << *certificate << std::endl;
+  if (isPretty) {
+    std::cout << *certificate << std::endl;
+  }
+  else {
+    if (isStdOut) {
+      io::save(*certificate, std::cout);
+      return 0;
     }
-  else
-    {
-      if (isStdOut)
-        {
-          io::save(*certificate, std::cout);
-          return 0;
-        }
-      if (isRepoOut)
-        {
-          using namespace boost::asio::ip;
-          tcp::iostream request_stream;
-          request_stream.expires_from_now(boost::posix_time::milliseconds(3000));
-          request_stream.connect(repoHost, repoPort);
-          if (!request_stream)
-            {
-              std::cerr << "fail to open the stream!" << std::endl;
-              return 1;
-            }
-          request_stream.write(reinterpret_cast<const char*>(certificate->wireEncode().wire()),
-                               certificate->wireEncode().size());
+    if (isRepoOut) {
+      using namespace boost::asio::ip;
+      tcp::iostream request_stream;
+      request_stream.expires_from_now(boost::posix_time::milliseconds(3000));
+      request_stream.connect(repoHost, repoPort);
+      if (!request_stream) {
+        std::cerr << "fail to open the stream!" << std::endl;
+        return 1;
+      }
+      request_stream.write(reinterpret_cast<const char*>(certificate->wireEncode().wire()),
+                           certificate->wireEncode().size());
 
-          return 0;
-        }
+      return 0;
     }
+  }
   return 0;
 }
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,25 +28,23 @@
 
 namespace CryptoPP {
 class BufferedTransformation;
-}
+} // namespace CryptoPP
 
 namespace ndn {
 
-class OID
+class Oid
 {
 public:
-  OID()
-  {
-  }
+  Oid() = default;
 
   explicit
-  OID(const char* oid);
+  Oid(const char* oid);
 
   explicit
-  OID(const std::string& oid);
+  Oid(const std::string& oid);
 
   explicit
-  OID(const std::vector<int>& oid)
+  Oid(const std::vector<int>& oid)
     : m_oid(oid)
   {
   }
@@ -67,13 +65,13 @@ public:
   toString() const;
 
   bool
-  operator==(const OID& oid) const
+  operator==(const Oid& oid) const
   {
     return equal(oid);
   }
 
   bool
-  operator!=(const OID& oid) const
+  operator!=(const Oid& oid) const
   {
     return !equal(oid);
   }
@@ -86,25 +84,27 @@ public:
 
 
 private:
-  void
-  construct(const std::string& value);
-
   bool
-  equal(const OID& oid) const;
+  equal(const Oid& oid) const;
 
 private:
   std::vector<int> m_oid;
 };
 
+/**
+ * @deprecated Use Oid type instead
+ */
+typedef Oid OID;
+
 namespace oid {
-//crypto algorithm
-extern const OID RSA;
-extern const OID ECDSA;
+// crypto algorithm
+extern const Oid RSA;
+extern const Oid ECDSA;
 
-//certificate entries
-extern const OID ATTRIBUTE_NAME;
-}
+// certificate entries
+extern const Oid ATTRIBUTE_NAME;
+} // namespace oid
 
-}
+} // namespace ndn
 
 #endif // NDN_ENCODING_OID_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,6 +30,7 @@ int
 ndnsec_cert_revoke(int argc, char** argv)
 {
   using namespace ndn;
+  using namespace ndn::security;
   namespace po = boost::program_options;
 
   KeyChain keyChain;
@@ -56,136 +57,118 @@ ndnsec_cert_revoke(int argc, char** argv)
   p.add("request", 1);
 
   po::variables_map vm;
-  try
-    {
-      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-                vm);
-      po::notify(vm);
-    }
-  catch (const std::exception& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
-    }
+  try {
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+              vm);
+    po::notify(vm);
+  }
+  catch (const std::exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    return 1;
+  }
 
-  if (vm.count("help") != 0)
-    {
-      std::cerr << description << std::endl;
-      return 0;
-    }
+  if (vm.count("help") != 0) {
+    std::cerr << description << std::endl;
+    return 0;
+  }
 
   hasSignId = (vm.count("sign-id") != 0);
 
-  if (vm.count("request") == 0)
-    {
-      std::cerr << "request file must be specified" << std::endl;
-      return 1;
-    }
+  if (vm.count("request") == 0) {
+    std::cerr << "request file must be specified" << std::endl;
+    return 1;
+  }
 
-  shared_ptr<IdentityCertificate> revokedCertificate
-    = getIdentityCertificate(requestFile);
+  shared_ptr<v1::IdentityCertificate> revokedCertificate = getIdentityCertificate(requestFile);
 
-  if (!static_cast<bool>(revokedCertificate))
-    {
-      std::cerr << "ERROR: input error" << std::endl;
-      return 1;
-    }
+  if (!static_cast<bool>(revokedCertificate)) {
+    std::cerr << "ERROR: input error" << std::endl;
+    return 1;
+  }
 
   Block wire;
 
-  try
-    {
-      Name keyName;
+  try {
+    Name keyName;
 
-      if (hasSignId) {
-        keyName = keyChain.getDefaultKeyNameForIdentity(signId);
-      }
-      else {
-        const Signature& signature = revokedCertificate->getSignature();
-        if (!signature.hasKeyLocator() ||
-            signature.getKeyLocator().getType() != KeyLocator::KeyLocator_Name)
-          {
-            std::cerr << "ERROR: Invalid certificate to revoke" << std::endl;
-            return 1;
-          }
-
-        keyName = IdentityCertificate::certificateNameToPublicKeyName(
-                    signature.getKeyLocator().getName());
-      }
-
-      Name certName;
-      if (certPrefix == KeyChain::DEFAULT_PREFIX) {
-        certName = revokedCertificate->getName().getPrefix(-1);
-      }
-      else {
-        Name revokedKeyName = revokedCertificate->getPublicKeyName();
-
-        if (certPrefix.isPrefixOf(revokedKeyName) && certPrefix != revokedKeyName) {
-          certName.append(certPrefix)
-            .append("KEY")
-            .append(revokedKeyName.getSubName(certPrefix.size()))
-            .append("ID-CERT");
-        }
-        else {
-          std::cerr << "ERROR: certificate prefix does not match the revoked certificate"
-                    << std::endl;
-          return 1;
-        }
-      }
-      certName
-        .appendVersion()
-        .append("REVOKED");
-
-      Data revocationCert;
-      revocationCert.setName(certName);
-
-      if (keyChain.doesPublicKeyExist(keyName))
+    if (hasSignId) {
+      keyName = keyChain.getDefaultKeyNameForIdentity(signId);
+    }
+    else {
+      const Signature& signature = revokedCertificate->getSignature();
+      if (!signature.hasKeyLocator() ||
+          signature.getKeyLocator().getType() != KeyLocator::KeyLocator_Name)
         {
-          Name signingCertificateName = keyChain.getDefaultCertificateNameForKey(keyName);
-          keyChain.sign(revocationCert,
-                        security::SigningInfo(security::SigningInfo::SIGNER_TYPE_CERT,
-                                              signingCertificateName));
-        }
-      else
-        {
-          std::cerr << "ERROR: Cannot find the signing key!" << std::endl;
+          std::cerr << "ERROR: Invalid certificate to revoke" << std::endl;
           return 1;
         }
 
-      wire = revocationCert.wireEncode();
+      keyName = v1::IdentityCertificate::certificateNameToPublicKeyName(
+                  signature.getKeyLocator().getName());
     }
-  catch (Signature::Error& e)
-    {
-      std::cerr << "ERROR: No valid signature!" << std::endl;
-      return 1;
+
+    Name certName;
+    if (certPrefix == KeyChain::DEFAULT_PREFIX) {
+      certName = revokedCertificate->getName().getPrefix(-1);
     }
-  catch (KeyLocator::Error& e)
-    {
-      std::cerr << "ERROR: No valid KeyLocator!" << std::endl;
-      return 1;
+    else {
+      Name revokedKeyName = revokedCertificate->getPublicKeyName();
+
+      if (certPrefix.isPrefixOf(revokedKeyName) && certPrefix != revokedKeyName) {
+        certName.append(certPrefix)
+          .append("KEY")
+          .append(revokedKeyName.getSubName(certPrefix.size()))
+          .append("ID-CERT");
+      }
+      else {
+        std::cerr << "ERROR: certificate prefix does not match the revoked certificate"
+                  << std::endl;
+        return 1;
+      }
     }
-  catch (IdentityCertificate::Error& e)
-    {
-      std::cerr << "ERROR: Cannot determine the signing key!" << std::endl;
-      return 1;
+    certName
+      .appendVersion()
+      .append("REVOKED");
+
+    Data revocationCert;
+    revocationCert.setName(certName);
+
+    if (keyChain.doesPublicKeyExist(keyName)) {
+      Name signingCertificateName = keyChain.getDefaultCertificateNameForKey(keyName);
+      keyChain.sign(revocationCert,
+                    SigningInfo(SigningInfo::SIGNER_TYPE_CERT, signingCertificateName));
     }
-  catch (SecPublicInfo::Error& e)
-    {
-      std::cerr << "ERROR: Incomplete or corrupted PIB (" << e.what() << ")" << std::endl;
+    else {
+      std::cerr << "ERROR: Cannot find the signing key!" << std::endl;
       return 1;
     }
 
-  try
-    {
-      using namespace CryptoPP;
-      StringSource ss(wire.wire(), wire.size(), true,
-                      new Base64Encoder(new FileSink(std::cout), true, 64));
+    wire = revocationCert.wireEncode();
+  }
+  catch (const Signature::Error& e) {
+    std::cerr << "ERROR: No valid signature!" << std::endl;
+    return 1;
+  }
+  catch (const KeyLocator::Error& e) {
+    std::cerr << "ERROR: No valid KeyLocator!" << std::endl;
+    return 1;
+  }
+  catch (const v1::IdentityCertificate::Error& e) {
+    std::cerr << "ERROR: Cannot determine the signing key!" << std::endl;
+    return 1;
+  }
+  catch (const SecPublicInfo::Error& e) {
+    std::cerr << "ERROR: Incomplete or corrupted PIB (" << e.what() << ")" << std::endl;
+    return 1;
+  }
+
+  try {
+    transform::bufferSource(wire.wire(), wire.size()) >> transform::base64Encode(true) >> transform::streamSink(std::cout);
     }
-  catch (const CryptoPP::Exception& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
-    }
+  catch (const transform::Error& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    return 1;
+  }
 
   return 0;
 }

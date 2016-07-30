@@ -19,46 +19,27 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_PIB_DATA_FIXTURE_HPP
-#define NDN_TESTS_PIB_DATA_FIXTURE_HPP
+#ifndef NDN_SECURITY_V1_CRYPTOPP_HPP
+#define NDN_SECURITY_V1_CRYPTOPP_HPP
 
-#include "security/v1/identity-certificate.hpp"
+// suppress CryptoPP warnings
+#pragma GCC system_header
+#pragma clang system_header
 
-#include "boost-test.hpp"
+#include <cryptopp/asn.h>
+#include <cryptopp/base64.h>
+#include <cryptopp/des.h>
+#include <cryptopp/files.h>
+#include <cryptopp/filters.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/modes.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/pssr.h>
+#include <cryptopp/pwdbased.h>
+#include <cryptopp/rsa.h>
+#include <cryptopp/sha.h>
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/oids.h>
+#include <cryptopp/dsa.h>
 
-namespace ndn {
-namespace security {
-
-class PibDataFixture
-{
-public:
-  PibDataFixture();
-
-public:
-  Name id1;
-  Name id2;
-
-  Name id1Key1Name;
-  Name id1Key2Name;
-  Name id2Key1Name;
-  Name id2Key2Name;
-
-  v1::PublicKey id1Key1;
-  v1::PublicKey id1Key2;
-  v1::PublicKey id2Key1;
-  v1::PublicKey id2Key2;
-
-  v1::IdentityCertificate id1Key1Cert1;
-  v1::IdentityCertificate id1Key1Cert2;
-  v1::IdentityCertificate id1Key2Cert1;
-  v1::IdentityCertificate id1Key2Cert2;
-  v1::IdentityCertificate id2Key1Cert1;
-  v1::IdentityCertificate id2Key1Cert2;
-  v1::IdentityCertificate id2Key2Cert1;
-  v1::IdentityCertificate id2Key2Cert2;
-};
-
-} // namespace security
-} // namespace ndn
-
-#endif // NDN_TESTS_PIB_DATA_FIXTURE_HPP
+#endif // NDN_SECURITY_V1_CRYPTOPP_HPP

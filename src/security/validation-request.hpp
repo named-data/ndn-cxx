@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,6 +27,8 @@
 #include "../interest.hpp"
 
 namespace ndn {
+namespace security {
+
 /// @brief Callback to report a successful Interest validation.
 typedef function<void(const shared_ptr<const Interest>&)> OnInterestValidated;
 
@@ -81,6 +83,14 @@ public:
   /// @brief the number of validation steps that have been performed.
   int m_nSteps;
 };
+
+} // namespace security
+
+using security::ValidationRequest;
+using security::OnInterestValidated;
+using security::OnInterestValidationFailed;
+using security::OnDataValidated;
+using security::OnDataValidationFailed;
 
 } // namespace ndn
 

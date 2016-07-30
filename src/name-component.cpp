@@ -28,7 +28,6 @@
 #include "encoding/block-helpers.hpp"
 #include "encoding/encoding-buffer.hpp"
 #include "util/string-helper.hpp"
-#include "security/cryptopp.hpp"
 #include "util/crypto.hpp"
 
 #include <boost/lexical_cast.hpp>

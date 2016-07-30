@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(Sha256)
   using namespace CryptoPP;
 
   char content[6] = "1234\n";
-  ConstBufferPtr buf = crypto::sha256(reinterpret_cast<uint8_t*>(content), 5);
+  ConstBufferPtr buf = crypto::computeSha256Digest(reinterpret_cast<uint8_t*>(content), 5);
 
   BOOST_CHECK_EQUAL(SHA256_RESULT, toHex(buf->buf(), buf->size(), false));
 }

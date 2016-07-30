@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,6 +30,7 @@ int
 ndnsec_dsk_gen(int argc, char** argv)
 {
   using namespace ndn;
+  using namespace ndn::security;
   namespace po = boost::program_options;
 
   std::string identityName;
@@ -73,7 +74,7 @@ ndnsec_dsk_gen(int argc, char** argv)
     return 1;
   }
 
-  shared_ptr<IdentityCertificate> kskCert;
+  shared_ptr<v1::IdentityCertificate> kskCert;
   Name signingCertName;
 
   KeyChain keyChain;
@@ -92,14 +93,14 @@ ndnsec_dsk_gen(int argc, char** argv)
     }
 
     if (isDefaultDsk) {
-      shared_ptr<IdentityCertificate> dskCert = keyChain.getCertificate(defaultCertName);
+      shared_ptr<v1::IdentityCertificate> dskCert = keyChain.getCertificate(defaultCertName);
 
       if (static_cast<bool>(dskCert)) {
         SignatureSha256WithRsa sha256sig(dskCert->getSignature());
 
         Name keyLocatorName = sha256sig.getKeyLocator().getName();
 
-        Name kskName = IdentityCertificate::certificateNameToPublicKeyName(keyLocatorName);
+        Name kskName = v1::IdentityCertificate::certificateNameToPublicKeyName(keyLocatorName);
         Name kskCertName = keyChain.getDefaultCertificateNameForKey(kskName);
         signingCertName = kskCertName;
         kskCert = keyChain.getCertificate(kskCertName);
@@ -153,7 +154,7 @@ ndnsec_dsk_gen(int argc, char** argv)
       .append("ID-CERT")
       .appendVersion();
 
-    shared_ptr<IdentityCertificate> certificate =
+    shared_ptr<v1::IdentityCertificate> certificate =
       keyChain.prepareUnsignedIdentityCertificate(newKeyName,
                                                   Name(identityName),
                                                   kskCert->getNotBefore(),

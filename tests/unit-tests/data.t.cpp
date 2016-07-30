@@ -21,7 +21,7 @@
 
 #include "data.hpp"
 #include "security/key-chain.hpp"
-#include "security/cryptopp.hpp"
+#include "security/v1/cryptopp.hpp"
 #include "encoding/buffer-stream.hpp"
 
 #include "boost-test.hpp"

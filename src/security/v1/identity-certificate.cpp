@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,12 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "common.hpp"
-
 #include "identity-certificate.hpp"
-#include "../util/concepts.hpp"
+#include "../../util/concepts.hpp"
 
 namespace ndn {
+namespace security {
+namespace v1 {
 
 using std::string;
 
@@ -143,4 +143,6 @@ IdentityCertificate::certificateNameToPublicKeyName(const Name& certificateName)
                                       tmpName.size() - keyComponentIndex - 1));
 }
 
+} // namespace v1
+} // namespace security
 } // namespace ndn

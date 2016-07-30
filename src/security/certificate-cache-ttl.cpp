@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,7 @@
 #include "certificate-cache-ttl.hpp"
 
 namespace ndn {
+namespace security {
 
 CertificateCacheTtl::CertificateCacheTtl(boost::asio::io_service& io,
                                          const time::seconds& defaultTtl/* = time::seconds(3600)*/)
@@ -38,19 +39,19 @@ CertificateCacheTtl::~CertificateCacheTtl()
 }
 
 void
-CertificateCacheTtl::insertCertificate(shared_ptr<const IdentityCertificate> certificate)
+CertificateCacheTtl::insertCertificate(shared_ptr<const v1::IdentityCertificate> certificate)
 {
   m_io.dispatch([this, certificate] { this->insert(certificate); });
 }
 
-shared_ptr<const IdentityCertificate>
+shared_ptr<const v1::IdentityCertificate>
 CertificateCacheTtl::getCertificate(const Name& certificateName)
 {
   Cache::iterator it = m_cache.find(certificateName);
   if (it != m_cache.end())
     return it->second.first;
   else
-    return shared_ptr<IdentityCertificate>();
+    return shared_ptr<v1::IdentityCertificate>();
 }
 
 void
@@ -66,7 +67,7 @@ CertificateCacheTtl::getSize()
 }
 
 void
-CertificateCacheTtl::insert(shared_ptr<const IdentityCertificate> certificate)
+CertificateCacheTtl::insert(shared_ptr<const v1::IdentityCertificate> certificate)
 {
   time::milliseconds expire = (certificate->getFreshnessPeriod() >= time::seconds::zero() ?
                                certificate->getFreshnessPeriod() : m_defaultTtl);
@@ -102,4 +103,5 @@ CertificateCacheTtl::removeAll()
   m_cache.clear();
 }
 
+} // namespace security
 } // namespace ndn

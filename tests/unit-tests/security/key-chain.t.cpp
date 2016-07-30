@@ -181,11 +181,11 @@ BOOST_FIXTURE_TEST_CASE(PrepareIdentityCertificate, IdentityManagementFixture)
   identity.appendVersion();
   addIdentity(identity);
 
-  std::vector<CertificateSubjectDescription> subjectDescription;
+  std::vector<v1::CertificateSubjectDescription> subjectDescription;
   Name lowerIdentity = identity;
   lowerIdentity.append("Lower").appendVersion();
   Name lowerKeyName = m_keyChain.generateRsaKeyPair(lowerIdentity, true);
-  shared_ptr<IdentityCertificate> idCert =
+  shared_ptr<v1::IdentityCertificate> idCert =
     m_keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(365),
@@ -195,7 +195,7 @@ BOOST_FIXTURE_TEST_CASE(PrepareIdentityCertificate, IdentityManagementFixture)
                     Name().append(identity).append("KEY").append("Lower"));
   BOOST_CHECK(idCert->getFreshnessPeriod() >= time::milliseconds::zero());
 
-  shared_ptr<IdentityCertificate> idCert11 =
+  shared_ptr<v1::IdentityCertificate> idCert11 =
     m_keyChain.prepareUnsignedIdentityCertificate(lowerKeyName, identity,
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(365),
@@ -208,7 +208,7 @@ BOOST_FIXTURE_TEST_CASE(PrepareIdentityCertificate, IdentityManagementFixture)
   Name anotherIdentity("/TestKeyChain/PrepareIdentityCertificate/Another/");
   anotherIdentity.appendVersion();
   Name anotherKeyName = m_keyChain.generateRsaKeyPair(anotherIdentity, true);
-  shared_ptr<IdentityCertificate> idCert2 =
+  shared_ptr<v1::IdentityCertificate> idCert2 =
     m_keyChain.prepareUnsignedIdentityCertificate(anotherKeyName, identity,
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(365),
@@ -218,7 +218,7 @@ BOOST_FIXTURE_TEST_CASE(PrepareIdentityCertificate, IdentityManagementFixture)
 
 
   Name wrongKeyName1;
-  shared_ptr<IdentityCertificate> idCert3 =
+  shared_ptr<v1::IdentityCertificate> idCert3 =
     m_keyChain.prepareUnsignedIdentityCertificate(wrongKeyName1, identity,
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(365),
@@ -227,7 +227,7 @@ BOOST_FIXTURE_TEST_CASE(PrepareIdentityCertificate, IdentityManagementFixture)
 
 
   Name wrongKeyName2("/TestKeyChain/PrepareIdentityCertificate");
-  shared_ptr<IdentityCertificate> idCert4 =
+  shared_ptr<v1::IdentityCertificate> idCert4 =
     m_keyChain.prepareUnsignedIdentityCertificate(wrongKeyName2, identity,
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(365),
@@ -236,7 +236,7 @@ BOOST_FIXTURE_TEST_CASE(PrepareIdentityCertificate, IdentityManagementFixture)
 
 
   Name wrongKeyName3("/TestKeyChain/PrepareIdentityCertificate/ksk-1234");
-  shared_ptr<IdentityCertificate> idCert5 =
+  shared_ptr<v1::IdentityCertificate> idCert5 =
     m_keyChain.prepareUnsignedIdentityCertificate(wrongKeyName3, identity,
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(365),
@@ -252,11 +252,11 @@ BOOST_FIXTURE_TEST_CASE(Delete, IdentityManagementFixture)
   Name certName1;
   BOOST_REQUIRE_NO_THROW(certName1 = m_keyChain.createIdentity(identity));
 
-  Name keyName1 = IdentityCertificate::certificateNameToPublicKeyName(certName1);
+  Name keyName1 = v1::IdentityCertificate::certificateNameToPublicKeyName(certName1);
   Name keyName2;
   BOOST_REQUIRE_NO_THROW(keyName2 = m_keyChain.generateRsaKeyPairAsDefault(identity));
 
-  shared_ptr<IdentityCertificate> cert2;
+  shared_ptr<v1::IdentityCertificate> cert2;
   BOOST_REQUIRE_NO_THROW(cert2 = m_keyChain.selfSign(keyName2));
   Name certName2 = cert2->getName();
   BOOST_REQUIRE_NO_THROW(m_keyChain.addCertificateAsKeyDefault(*cert2));
@@ -264,15 +264,15 @@ BOOST_FIXTURE_TEST_CASE(Delete, IdentityManagementFixture)
   Name keyName3;
   BOOST_REQUIRE_NO_THROW(keyName3 = m_keyChain.generateRsaKeyPairAsDefault(identity));
 
-  shared_ptr<IdentityCertificate> cert3;
+  shared_ptr<v1::IdentityCertificate> cert3;
   BOOST_REQUIRE_NO_THROW(cert3 = m_keyChain.selfSign(keyName3));
   Name certName3 = cert3->getName();
   BOOST_REQUIRE_NO_THROW(m_keyChain.addCertificateAsKeyDefault(*cert3));
-  shared_ptr<IdentityCertificate> cert4;
+  shared_ptr<v1::IdentityCertificate> cert4;
   BOOST_REQUIRE_NO_THROW(cert4 = m_keyChain.selfSign(keyName3));
   Name certName4 = cert4->getName();
   BOOST_REQUIRE_NO_THROW(m_keyChain.addCertificateAsKeyDefault(*cert4));
-  shared_ptr<IdentityCertificate> cert5;
+  shared_ptr<v1::IdentityCertificate> cert5;
   BOOST_REQUIRE_NO_THROW(cert5 = m_keyChain.selfSign(keyName3));
   Name certName5 = cert5->getName();
   BOOST_REQUIRE_NO_THROW(m_keyChain.addCertificateAsKeyDefault(*cert5));
@@ -328,13 +328,13 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
 {
   Name id("/id");
   Name certName = m_keyChain.createIdentity(id);
-  shared_ptr<IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
+  shared_ptr<v1::IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
   Name keyName = idCert->getPublicKeyName();
   m_keyChain.setDefaultIdentity(id);
 
   Name id2("/id2");
   Name cert2Name = m_keyChain.createIdentity(id2);
-  shared_ptr<IdentityCertificate> id2Cert = m_keyChain.getCertificate(cert2Name);
+  shared_ptr<v1::IdentityCertificate> id2Cert = m_keyChain.getCertificate(cert2Name);
 
   // SigningInfo is set to default
   Data data1("/data1");

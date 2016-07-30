@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,6 +29,7 @@
 #include "../util/scheduler.hpp"
 
 namespace ndn {
+namespace security {
 
 /**
  * @brief Cache of validated certificates with freshness-based eviction policy
@@ -47,9 +48,9 @@ public:
   ~CertificateCacheTtl();
 
   virtual void
-  insertCertificate(shared_ptr<const IdentityCertificate> certificate);
+  insertCertificate(shared_ptr<const v1::IdentityCertificate> certificate);
 
-  virtual shared_ptr<const IdentityCertificate>
+  virtual shared_ptr<const v1::IdentityCertificate>
   getCertificate(const Name& certificateNameWithoutVersion);
 
   virtual void
@@ -60,7 +61,7 @@ public:
 
 private:
   void
-  insert(shared_ptr<const IdentityCertificate> certificate);
+  insert(shared_ptr<const v1::IdentityCertificate> certificate);
 
   void
   remove(const Name& certificateName);
@@ -69,13 +70,17 @@ private:
   removeAll();
 
 protected:
-  typedef std::map<Name, std::pair<shared_ptr<const IdentityCertificate>, EventId> > Cache;
+  typedef std::map<Name, std::pair<shared_ptr<const v1::IdentityCertificate>, EventId> > Cache;
 
   time::seconds m_defaultTtl;
   Cache m_cache;
   boost::asio::io_service& m_io;
   Scheduler m_scheduler;
 };
+
+} // namespace security
+
+using security::CertificateCacheTtl;
 
 } // namespace ndn
 

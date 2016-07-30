@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,31 +49,27 @@ ndnsec_export(int argc, char** argv)
   p.add("identity", 1);
 
   po::variables_map vm;
-  try
-    {
-      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-                vm);
-      po::notify(vm);
-    }
-  catch (const std::exception& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  try {
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
+              vm);
+    po::notify(vm);
+  }
+  catch (const std::exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    std::cerr << description << std::endl;
+    return 1;
+  }
 
-  if (vm.count("help") != 0)
-    {
-      std::cerr << description << std::endl;
-      return 0;
-    }
+  if (vm.count("help") != 0) {
+    std::cerr << description << std::endl;
+    return 0;
+  }
 
-  if (vm.count("identity") == 0)
-    {
-      std::cerr << "ERROR: identity must be specified" << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  if (vm.count("identity") == 0) {
+    std::cerr << "ERROR: identity must be specified" << std::endl;
+    std::cerr << description << std::endl;
+    return 1;
+  }
 
   if (vm.count("private") != 0)
     isPrivateExport = true;
@@ -82,54 +78,48 @@ ndnsec_export(int argc, char** argv)
     output = "-";
 
   Name identity(identityStr);
-  if (!isPrivateExport)
-    {
+  if (!isPrivateExport) {
+    KeyChain keyChain;
+    shared_ptr<security::v1::IdentityCertificate> cert
+      = keyChain.getCertificate(keyChain.getDefaultCertificateNameForIdentity(identity));
+
+    if (output == "-")
+      io::save(*cert, std::cout);
+    else
+      io::save(*cert, output);
+
+    return 0;
+  }
+  else {
+    Block wire;
+    try {
       KeyChain keyChain;
-      shared_ptr<IdentityCertificate> cert
-        = keyChain.getCertificate(keyChain.getDefaultCertificateNameForIdentity(identity));
 
-      if (output == "-")
-        io::save(*cert, std::cout);
-      else
-        io::save(*cert, output);
-
-      return 0;
-    }
-  else
-    {
-      Block wire;
-      try
-        {
-          KeyChain keyChain;
-
-          int count = 3;
-          while (!getPassword(exportPassword, "Passphrase for the private key: "))
-            {
-              count--;
-              if (count <= 0)
-                {
-                  std::cerr << "ERROR: invalid password" << std::endl;
-                  memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
-                  return 1;
-                }
-            }
-          shared_ptr<SecuredBag> securedBag = keyChain.exportIdentity(identity, exportPassword);
-          memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
-
-          if (output == "-")
-            io::save(*securedBag, std::cout);
-          else
-            io::save(*securedBag, output);
-
-          return 0;
-        }
-      catch (const std::runtime_error& e)
-        {
-          std::cerr << "ERROR: " << e.what() << std::endl;
+      int count = 3;
+      while (!getPassword(exportPassword, "Passphrase for the private key: ")) {
+        count--;
+        if (count <= 0) {
+          std::cerr << "ERROR: invalid password" << std::endl;
           memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
           return 1;
         }
+      }
+      shared_ptr<SecuredBag> securedBag = keyChain.exportIdentity(identity, exportPassword);
+      memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
+
+      if (output == "-")
+        io::save(*securedBag, std::cout);
+      else
+        io::save(*securedBag, output);
+
+      return 0;
     }
+    catch (const std::runtime_error& e) {
+      std::cerr << "ERROR: " << e.what() << std::endl;
+      memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
+      return 1;
+    }
+  }
 }
 
 #endif // NDN_TOOLS_NDNSEC_EXPORT_HPP

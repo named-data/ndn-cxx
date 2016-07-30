@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,107 +17,17 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
- * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
- * @author Jeff Thompson <jefft0@remap.ucla.edu>
  */
 
-#ifndef NDN_SECURITY_PUBLIC_KEY_HPP
-#define NDN_SECURITY_PUBLIC_KEY_HPP
+/**
+ * @file security/public-key.hpp
+ * @deprecated Use security/v1/public-key.hpp
+ */
 
-#include "../common.hpp"
-
-#include "../encoding/buffer.hpp"
-#include "../encoding/block.hpp"
 #include "security-common.hpp"
 
-namespace CryptoPP {
-class BufferedTransformation;
-}
-
-namespace ndn {
-
-class PublicKey
-{
-public:
-  class Error : public std::runtime_error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : std::runtime_error(what)
-    {
-    }
-  };
-
-  /**
-   * The default constructor.
-   */
-  PublicKey();
-
-  /**
-   * @brief Create a new PublicKey from @p keyDerBuf in DER buffer
-   *
-   * @param keyDerBuf The pointer to the first byte of buffer containing DER of public key
-   * @param keyDerSize Size of the buffer
-   *
-   * @throws PublicKey::Error If DER in buffer cannot be decoded
-   */
-  PublicKey(const uint8_t* keyDerBuf, size_t keyDerSize);
-
-  const Buffer&
-  get() const
-  {
-    return m_key;
-  }
-
-  void
-  set(const uint8_t* keyDerBuf, size_t keyDerSize)
-  {
-    Buffer buf(keyDerBuf, keyDerSize);
-    m_key.swap(buf);
-  }
-
-  KeyType
-  getKeyType() const
-  {
-    return m_type;
-  }
-
-  /**
-   * @return a KeyDigest block that matches this public key
-   */
-  const Block&
-  computeDigest() const;
-
-  void
-  encode(CryptoPP::BufferedTransformation& out) const;
-
-  void
-  decode(CryptoPP::BufferedTransformation& in);
-
-  bool
-  operator==(const PublicKey& key) const
-  {
-    return m_key == key.m_key;
-  }
-
-  bool
-  operator!=(const PublicKey& key) const
-  {
-    return m_key != key.m_key;
-  }
-
-private:
-  KeyType m_type;
-  Buffer m_key;
-  mutable Block m_digest;
-};
-
-std::ostream&
-operator<<(std::ostream& os, const PublicKey& key);
-
-} // namespace ndn
-
-#endif //NDN_SECURITY_PUBLIC_KEY_HPP
+#ifdef NDN_CXX_KEEP_SECURITY_V1_ALIASES
+#include "v1/public-key.hpp"
+#else
+#error "Deprecated. Use `v1/public-key.hpp` instead."
+#endif // NDN_CXX_KEEP_SECURITY_V1_ALIASES

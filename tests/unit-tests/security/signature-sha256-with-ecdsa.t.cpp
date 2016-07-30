@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(DataSignature)
 {
   Name identityName("/SecurityTestSignatureSha256WithEcdsa/DataSignature");
   BOOST_REQUIRE(addIdentity(identityName, EcdsaKeyParams()));
-  shared_ptr<PublicKey> publicKey;
+  shared_ptr<security::v1::PublicKey> publicKey;
   BOOST_REQUIRE_NO_THROW(publicKey = m_keyChain.getPublicKeyFromTpm(
     m_keyChain.getDefaultKeyNameForIdentity(identityName)));
 
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(InterestSignature)
 {
   Name identityName("/SecurityTestSignatureSha256WithEcdsa/InterestSignature");
   BOOST_REQUIRE(addIdentity(identityName, EcdsaKeyParams()));
-  shared_ptr<PublicKey> publicKey;
+  shared_ptr<security::v1::PublicKey> publicKey;
   BOOST_REQUIRE_NO_THROW(publicKey = m_keyChain.getPublicKeyFromTpm(
     m_keyChain.getDefaultKeyNameForIdentity(identityName)));
 

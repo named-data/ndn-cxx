@@ -37,9 +37,6 @@
 #include <boost/asio.hpp>
 #include <boost/exception/all.hpp>
 
-
-#include "security/cryptopp.hpp"
-
 #include "security/key-chain.hpp"
 #include "util/io.hpp"
 
@@ -84,14 +81,14 @@ getPassword(std::string& password, const std::string& prompt)
 #endif // NDN_CXX_HAVE_GETPASS
 }
 
-ndn::shared_ptr<ndn::IdentityCertificate>
+ndn::shared_ptr<ndn::security::v1::IdentityCertificate>
 getIdentityCertificate(const std::string& fileName)
 {
 
   if (fileName == "-")
-    return ndn::io::load<ndn::IdentityCertificate>(std::cin);
+    return ndn::io::load<ndn::security::v1::IdentityCertificate>(std::cin);
   else
-    return ndn::io::load<ndn::IdentityCertificate>(fileName);
+    return ndn::io::load<ndn::security::v1::IdentityCertificate>(fileName);
 }
 
 

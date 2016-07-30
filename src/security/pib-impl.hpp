@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,7 @@
 #define NDN_SECURITY_PIB_IMPL_HPP
 
 #include <set>
-#include "identity-certificate.hpp"
+#include "v1/identity-certificate.hpp"
 
 namespace ndn {
 namespace security {
@@ -161,7 +161,7 @@ public: // Key management
    * @param publicKey The public key bits.
    */
   virtual void
-  addKey(const Name& identity, const name::Component& keyId, const PublicKey& publicKey) = 0;
+  addKey(const Name& identity, const name::Component& keyId, const v1::PublicKey& publicKey) = 0;
 
   /**
    * @brief Remove a key.
@@ -183,7 +183,7 @@ public: // Key management
    * @return key bits
    * @throws Pib::Error if the key does not exist.
    */
-  virtual PublicKey
+  virtual v1::PublicKey
   getKeyBits(const Name& identity, const name::Component& keyId) const = 0;
 
   /**
@@ -238,7 +238,7 @@ public: // Certificate Management
    * @param certificate The certificate to add.
    */
   virtual void
-  addCertificate(const IdentityCertificate& certificate) = 0;
+  addCertificate(const v1::IdentityCertificate& certificate) = 0;
 
   /**
    * @brief Remove a certificate with name @p certName.
@@ -257,7 +257,7 @@ public: // Certificate Management
    * @return the certificate.
    * @throws Pib::Error if the certificate does not exist.
    */
-  virtual IdentityCertificate
+  virtual v1::IdentityCertificate
   getCertificate(const Name& certName) const = 0;
 
   /**
@@ -293,7 +293,7 @@ public: // Certificate Management
    * @return a pointer to the certificate, null if no default certificate for the key.
    * @throws Pib::Error if the default certificate does not exist.
    */
-  virtual IdentityCertificate
+  virtual v1::IdentityCertificate
   getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const = 0;
 
 };

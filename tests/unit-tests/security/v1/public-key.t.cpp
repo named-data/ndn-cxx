@@ -19,16 +19,20 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/public-key.hpp"
-#include "security/cryptopp.hpp"
+#include "security/v1/public-key.hpp"
+#include "security/v1/cryptopp.hpp"
 #include "encoding/buffer-stream.hpp"
 
 #include "boost-test.hpp"
 
 namespace ndn {
+namespace security {
+namespace v1 {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecurityPublicKey)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(V1)
+BOOST_AUTO_TEST_SUITE(TestPublicKey)
 
 const std::string RSA_DER("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuFoDcNtffwbfFix64fw0\
 hI2tKMkFrc6Ex7yw0YLMK9vGE8lXOyBl/qXabow6RCz+GldmFN6E2Qhm1+AX3Zm5\
@@ -57,7 +61,7 @@ const uint8_t ECDSA_DER_KEY_DIGEST[] = {
     0xb5, 0x9d, 0x80, 0x65, 0x80, 0x6b, 0x4b, 0x63
 };
 
-BOOST_AUTO_TEST_CASE(RSA)
+BOOST_AUTO_TEST_CASE(Rsa)
 {
   using namespace CryptoPP;
 
@@ -79,7 +83,7 @@ BOOST_AUTO_TEST_CASE(RSA)
                                 digest.wire() + digest.size());
 }
 
-BOOST_AUTO_TEST_CASE(ECDSA)
+BOOST_AUTO_TEST_CASE(Ecdsa)
 {
   using namespace CryptoPP;
 
@@ -101,8 +105,11 @@ BOOST_AUTO_TEST_CASE(ECDSA)
                                 digest.wire() + digest.size());
 }
 
-
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestPublicKey
+BOOST_AUTO_TEST_SUITE_END() // V1
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace v1
+} // namespace security
 } // namespace ndn

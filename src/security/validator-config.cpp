@@ -31,6 +31,7 @@
 #include <boost/algorithm/string.hpp>
 
 namespace ndn {
+namespace security {
 
 const shared_ptr<CertificateCache> ValidatorConfig::DEFAULT_CERTIFICATE_CACHE;
 const time::milliseconds ValidatorConfig::DEFAULT_GRACE_INTERVAL(3000);
@@ -275,8 +276,8 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
         BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor!"));
 
       path certfilePath = absolute(file, path(filename).parent_path());
-      shared_ptr<IdentityCertificate> idCert =
-        io::load<IdentityCertificate>(certfilePath.string());
+      shared_ptr<v1::IdentityCertificate> idCert =
+        io::load<v1::IdentityCertificate>(certfilePath.string());
 
       if (static_cast<bool>(idCert))
         {
@@ -303,7 +304,7 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
       if (propertyIt != configSection.end())
         BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor!"));
 
-      shared_ptr<IdentityCertificate> idCert = io::load<IdentityCertificate>(ss);
+      shared_ptr<v1::IdentityCertificate> idCert = io::load<v1::IdentityCertificate>(ss);
 
       if (static_cast<bool>(idCert))
         {
@@ -357,8 +358,8 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
 
           for (directory_iterator it(dirPath); it != end; it++)
             {
-              shared_ptr<IdentityCertificate> idCert =
-                io::load<IdentityCertificate>(it->path().string());
+              shared_ptr<v1::IdentityCertificate> idCert =
+                io::load<v1::IdentityCertificate>(it->path().string());
 
               if (static_cast<bool>(idCert))
                 m_staticContainer.add(idCert);
@@ -552,7 +553,7 @@ ValidatorConfig::checkPolicy(const Interest& interest,
         return onValidationFailed(interest.shared_from_this(),
                                   "Key Locator is not a name");
 
-      Name keyName = IdentityCertificate::certificateNameToPublicKeyName(keyLocator.getName());
+      Name keyName = v1::IdentityCertificate::certificateNameToPublicKeyName(keyLocator.getName());
 
       bool isMatched = false;
       int8_t checkResult = -1;
@@ -594,7 +595,7 @@ ValidatorConfig::checkPolicy(const Interest& interest,
       return onValidationFailed(interest.shared_from_this(),
                                 "No valid KeyLocator");
     }
-  catch (IdentityCertificate::Error& e)
+  catch (v1::IdentityCertificate::Error& e)
     {
       return onValidationFailed(interest.shared_from_this(),
                                 "Cannot determine the signing key");
@@ -710,8 +711,8 @@ ValidatorConfig::DynamicTrustAnchorContainer::refresh()
 
       for (directory_iterator it(m_path); it != end; it++)
         {
-          shared_ptr<IdentityCertificate> idCert =
-            io::load<IdentityCertificate>(it->path().string());
+          shared_ptr<v1::IdentityCertificate> idCert =
+            io::load<v1::IdentityCertificate>(it->path().string());
 
           if (static_cast<bool>(idCert))
             m_certificates.push_back(idCert);
@@ -719,8 +720,8 @@ ValidatorConfig::DynamicTrustAnchorContainer::refresh()
     }
   else
     {
-      shared_ptr<IdentityCertificate> idCert =
-        io::load<IdentityCertificate>(m_path.string());
+      shared_ptr<v1::IdentityCertificate> idCert =
+        io::load<v1::IdentityCertificate>(m_path.string());
 
       if (static_cast<bool>(idCert))
         m_certificates.push_back(idCert);
@@ -779,7 +780,7 @@ ValidatorConfig::checkSignature(const Packet& packet,
 
   const Name& keyLocatorName = signature.getKeyLocator().getName();
 
-  shared_ptr<const Certificate> trustedCert;
+  shared_ptr<const v1::Certificate> trustedCert;
 
   refreshAnchors();
 
@@ -838,9 +839,9 @@ ValidatorConfig::onCertValidated(const shared_ptr<const Data>& signCertificate,
                               "Cannot retrieve signer's cert: " +
                               signCertificate->getName().toUri());
 
-  shared_ptr<IdentityCertificate> certificate;
+  shared_ptr<v1::IdentityCertificate> certificate;
   try {
-    certificate = make_shared<IdentityCertificate>(*signCertificate);
+    certificate = make_shared<v1::IdentityCertificate>(*signCertificate);
   }
   catch (tlv::Error&) {
     return onValidationFailed(packet,
@@ -879,4 +880,5 @@ ValidatorConfig::onCertFailed(const shared_ptr<const Data>& signCertificate,
   onValidationFailed(packet, failureInfo);
 }
 
+} // namespace security
 } // namespace ndn

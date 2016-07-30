@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,7 +41,7 @@ SecuredBag::SecuredBag(const Block& wire)
   this->wireDecode(wire);
 }
 
-SecuredBag::SecuredBag(const IdentityCertificate& cert, ConstBufferPtr key)
+SecuredBag::SecuredBag(const v1::IdentityCertificate& cert, ConstBufferPtr key)
   : m_cert(cert)
   , m_key(key)
   , m_wire(tlv::security::IdentityPackage)

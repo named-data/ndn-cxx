@@ -105,20 +105,20 @@ DummyPublicInfo::doesPublicKeyExist(const Name& keyName)
 }
 
 void
-DummyPublicInfo::addKey(const Name& keyName, const PublicKey& publicKey)
+DummyPublicInfo::addKey(const Name& keyName, const v1::PublicKey& publicKey)
 {
 }
 
-shared_ptr<PublicKey>
+shared_ptr<v1::PublicKey>
 DummyPublicInfo::getPublicKey(const Name& keyName)
 {
-  static shared_ptr<PublicKey> publicKey = nullptr;
+  static shared_ptr<v1::PublicKey> publicKey = nullptr;
   if (publicKey == nullptr) {
     typedef boost::iostreams::stream<boost::iostreams::array_source> arrayStream;
     arrayStream
     is(reinterpret_cast<const char*>(DUMMY_CERT), sizeof(DUMMY_CERT));
-    auto cert = io::load<IdentityCertificate>(is, io::NO_ENCODING);
-    publicKey = make_shared<PublicKey>(cert->getPublicKeyInfo());
+    auto cert = io::load<v1::IdentityCertificate>(is, io::NO_ENCODING);
+    publicKey = make_shared<v1::PublicKey>(cert->getPublicKeyInfo());
   }
 
   return publicKey;
@@ -137,19 +137,19 @@ DummyPublicInfo::doesCertificateExist(const Name& certificateName)
 }
 
 void
-DummyPublicInfo::addCertificate(const IdentityCertificate& certificate)
+DummyPublicInfo::addCertificate(const v1::IdentityCertificate& certificate)
 {
 }
 
-shared_ptr<IdentityCertificate>
+shared_ptr<v1::IdentityCertificate>
 DummyPublicInfo::getCertificate(const Name& certificateName)
 {
-  static shared_ptr<IdentityCertificate> cert = nullptr;
+  static shared_ptr<v1::IdentityCertificate> cert = nullptr;
   if (cert == nullptr) {
     typedef boost::iostreams::stream<boost::iostreams::array_source> arrayStream;
     arrayStream
     is(reinterpret_cast<const char*>(DUMMY_CERT), sizeof(DUMMY_CERT));
-    cert = io::load<IdentityCertificate>(is, io::BASE_64);
+    cert = io::load<v1::IdentityCertificate>(is, io::BASE_64);
   }
 
   return cert;
@@ -316,7 +316,7 @@ DummyTpm::deleteKeyPairInTpm(const Name& keyName)
 {
 }
 
-shared_ptr<PublicKey>
+shared_ptr<v1::PublicKey>
 DummyTpm::getPublicKeyFromTpm(const Name& keyName)
 {
   return nullptr;

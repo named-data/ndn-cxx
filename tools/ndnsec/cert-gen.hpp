@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,6 +34,7 @@ ndnsec_cert_gen(int argc, char** argv)
 
   using namespace ndn;
   using namespace ndn::time;
+  using namespace ndn::security;
   namespace po = boost::program_options;
 
   KeyChain keyChain;
@@ -107,8 +108,8 @@ ndnsec_cert_gen(int argc, char** argv)
       return 1;
     }
 
-  std::vector<CertificateSubjectDescription> subjectDescription;
-  subjectDescription.push_back(CertificateSubjectDescription(oid::ATTRIBUTE_NAME, subjectName));
+  std::vector<v1::CertificateSubjectDescription> subjectDescription;
+  subjectDescription.push_back(v1::CertificateSubjectDescription(oid::ATTRIBUTE_NAME, subjectName));
 
   // 'subjectInfo' is deprecated and the following block will be removed eventually
   tokenizer<escaped_list_separator<char> > subjectInfoItems
@@ -130,7 +131,7 @@ ndnsec_cert_gen(int argc, char** argv)
 
       std::string value = *it;
 
-      subjectDescription.push_back(CertificateSubjectDescription(OID(oid), value));
+      subjectDescription.push_back(v1::CertificateSubjectDescription(Oid(oid), value));
 
       it++;
     }
@@ -143,10 +144,10 @@ ndnsec_cert_gen(int argc, char** argv)
       std::cerr << "ERROR: incorrectly formatted signed info block [" << *info << "]" << std::endl;
       return 1;
     }
-    OID oid(info->substr(0, pos));
+    Oid oid(info->substr(0, pos));
     std::string value = info->substr(pos + 1);
 
-    subjectDescription.push_back(CertificateSubjectDescription(oid, value));
+    subjectDescription.push_back(v1::CertificateSubjectDescription(oid, value));
   }
 
   system_clock::TimePoint notBefore;
@@ -188,7 +189,7 @@ ndnsec_cert_gen(int argc, char** argv)
       return 1;
     }
 
-  shared_ptr<IdentityCertificate> selfSignedCertificate
+  shared_ptr<v1::IdentityCertificate> selfSignedCertificate
     = getIdentityCertificate(requestFile);
 
   if (!static_cast<bool>(selfSignedCertificate))
@@ -199,7 +200,7 @@ ndnsec_cert_gen(int argc, char** argv)
 
   Name keyName = selfSignedCertificate->getPublicKeyName();
 
-  shared_ptr<IdentityCertificate> certificate =
+  shared_ptr<v1::IdentityCertificate> certificate =
     keyChain.prepareUnsignedIdentityCertificate(keyName, selfSignedCertificate->getPublicKeyInfo(),
                                                 signId, notBefore, notAfter,
                                                 subjectDescription, certPrefix);
@@ -219,17 +220,13 @@ ndnsec_cert_gen(int argc, char** argv)
 
   Block wire = certificate->wireEncode();
 
-  try
-    {
-      using namespace CryptoPP;
-      StringSource ss(wire.wire(), wire.size(), true,
-                      new Base64Encoder(new FileSink(std::cout), true, 64));
-    }
-  catch (const CryptoPP::Exception& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
-    }
+  try {
+    transform::bufferSource(wire.wire(), wire.size()) >> transform::base64Encode(true) >> transform::streamSink(std::cout);
+  }
+  catch (const transform::Error& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    return 1;
+  }
 
   return 0;
 }

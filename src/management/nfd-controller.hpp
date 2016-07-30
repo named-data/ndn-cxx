@@ -32,9 +32,9 @@ namespace ndn {
 
 namespace security {
 class KeyChain;
+class Validator;
 } // namespace security
 class Face;
-class Validator;
 
 namespace nfd {
 
@@ -66,7 +66,7 @@ public:
   /** \brief construct a Controller that uses face for transport,
    *         and uses the passed KeyChain to sign commands
    */
-  Controller(Face& face, security::KeyChain& keyChain, Validator& validator = s_validatorNull);
+  Controller(Face& face, security::KeyChain& keyChain, security::Validator& validator = s_validatorNull);
 
   /** \brief start command execution
    */
@@ -171,7 +171,7 @@ public:
 protected:
   Face& m_face;
   security::KeyChain& m_keyChain;
-  Validator& m_validator;
+  security::Validator& m_validator;
 
 private:
   static ValidatorNull s_validatorNull;

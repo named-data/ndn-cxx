@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -102,7 +102,7 @@ PibMemory::hasKey(const Name& identity, const name::Component& keyId) const
 }
 
 void
-PibMemory::addKey(const Name& identity, const name::Component& keyId, const PublicKey& publicKey)
+PibMemory::addKey(const Name& identity, const name::Component& keyId, const v1::PublicKey& publicKey)
 {
   this->addIdentity(identity);
 
@@ -127,7 +127,7 @@ PibMemory::removeKey(const Name& identity, const name::Component& keyId)
   }
 }
 
-PublicKey
+v1::PublicKey
 PibMemory::getKeyBits(const Name& identity, const name::Component& keyId) const
 {
   if (!hasKey(identity, keyId))
@@ -184,7 +184,7 @@ PibMemory::hasCertificate(const Name& certName) const
 }
 
 void
-PibMemory::addCertificate(const IdentityCertificate& certificate)
+PibMemory::addCertificate(const v1::IdentityCertificate& certificate)
 {
   this->addKey(certificate.getPublicKeyName().getPrefix(-1),
                certificate.getPublicKeyName().get(-1),
@@ -201,10 +201,10 @@ void
 PibMemory::removeCertificate(const Name& certName)
 {
   m_certs.erase(certName);
-  m_defaultCert.erase(IdentityCertificate::certificateNameToPublicKeyName(certName));
+  m_defaultCert.erase(v1::IdentityCertificate::certificateNameToPublicKeyName(certName));
 }
 
-IdentityCertificate
+v1::IdentityCertificate
 PibMemory::getCertificate(const Name& certName) const
 {
   if (!hasCertificate(certName))
@@ -237,7 +237,7 @@ PibMemory::setDefaultCertificateOfKey(const Name& identity, const name::Componen
   m_defaultCert[keyName] = certName;
 }
 
-IdentityCertificate
+v1::IdentityCertificate
 PibMemory::getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const
 {
   Name keyName = getKeyName(identity, keyId);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_KEY_HPP
 #define NDN_SECURITY_KEY_HPP
 
-#include "identity-certificate.hpp"
+#include "v1/identity-certificate.hpp"
 #include "certificate-container.hpp"
 
 namespace ndn {
@@ -83,7 +83,7 @@ public:
   getKeyId() const;
 
   /// @brief Get public key
-  const PublicKey&
+  const v1::PublicKey&
   getPublicKey() const;
 
   /**
@@ -92,7 +92,7 @@ public:
    * @return the certificate
    * @throws Pib::Error if the certificate does not exist.
    */
-  IdentityCertificate
+  v1::IdentityCertificate
   getCertificate(const Name& certName) const;
 
   /// @brief Get all the certificates for this key.
@@ -104,7 +104,7 @@ public:
    *
    * @throws Pib::Error if the default certificate does not exist.
    */
-  const IdentityCertificate&
+  const v1::IdentityCertificate&
   getDefaultCertificate() const;
 
   /// @brief Check if the Key instance is valid
@@ -122,7 +122,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @param certificate The certificate to add.
    */
   void
-  addCertificate(const IdentityCertificate& certificate);
+  addCertificate(const v1::IdentityCertificate& certificate);
 
   /**
    * @brief Remove a certificate.
@@ -139,7 +139,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @return the default certificate
    * @throws Pib::Error if the certificate does not exist.
    */
-  const IdentityCertificate&
+  const v1::IdentityCertificate&
   setDefaultCertificate(const Name& certName);
 
   /**
@@ -151,8 +151,8 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @param certificate The certificate to add.
    * @return the default certificate
    */
-  const IdentityCertificate&
-  setDefaultCertificate(const IdentityCertificate& certificate);
+  const v1::IdentityCertificate&
+  setDefaultCertificate(const v1::IdentityCertificate& certificate);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /**
@@ -166,7 +166,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @param impl The actual backend implementation.
    */
   Key(const Name& identityName, const name::Component& keyId,
-      const PublicKey& publicKey, shared_ptr<PibImpl> impl);
+      const v1::PublicKey& publicKey, shared_ptr<PibImpl> impl);
 
   /**
    * @brief Create an KeyEntry with @p identityName and @p keyId.
@@ -190,10 +190,10 @@ private:
   Name m_id;
   name::Component m_keyId;
   Name m_keyName;
-  PublicKey m_key;
+  v1::PublicKey m_key;
 
   mutable bool m_hasDefaultCertificate;
-  mutable IdentityCertificate m_defaultCertificate;
+  mutable v1::IdentityCertificate m_defaultCertificate;
 
   mutable bool m_needRefreshCerts;
   mutable CertificateContainer m_certificates;

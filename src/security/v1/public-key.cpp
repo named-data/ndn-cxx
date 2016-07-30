@@ -24,11 +24,13 @@
 
 #include "public-key.hpp"
 
-#include "../encoding/oid.hpp"
-#include "../util/crypto.hpp"
+#include "../../encoding/oid.hpp"
+#include "../../util/crypto.hpp"
 #include "cryptopp.hpp"
 
 namespace ndn {
+namespace security {
+namespace v1 {
 
 PublicKey::PublicKey()
   : m_type(KeyType::NONE)
@@ -51,7 +53,7 @@ PublicKey::computeDigest() const
   if (m_digest.hasWire())
     return m_digest;
   else {
-    m_digest = Block(tlv::KeyDigest, crypto::sha256(m_key.buf(), m_key.size()));
+    m_digest = Block(tlv::KeyDigest, crypto::computeSha256Digest(m_key.buf(), m_key.size()));
     m_digest.encode();
     return m_digest;
   }
@@ -102,7 +104,7 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
       {
         BERSequenceDecoder algorithmInfo(subjectPublicKeyInfo);
         {
-          OID algorithm;
+          Oid algorithm;
           algorithm.decode(algorithmInfo);
 
           if (algorithm == oid::RSA)
@@ -148,4 +150,6 @@ operator<<(std::ostream& os, const PublicKey& key)
   return os;
 }
 
+} // namespace v1
+} // namespace security
 } // namespace ndn

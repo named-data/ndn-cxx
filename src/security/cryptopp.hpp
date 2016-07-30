@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,27 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_CRYPTOPP_HPP
-#define NDN_SECURITY_CRYPTOPP_HPP
+/**
+ * @file security/cryptopp.hpp
+ * @deprecated Use security/v1/cryptopp.hpp
+ */
 
-// suppress CryptoPP warnings
-#pragma GCC system_header
-#pragma clang system_header
+#include "security-common.hpp"
 
-#include <cryptopp/asn.h>
-#include <cryptopp/base64.h>
-#include <cryptopp/des.h>
-#include <cryptopp/files.h>
-#include <cryptopp/filters.h>
-#include <cryptopp/hex.h>
-#include <cryptopp/modes.h>
-#include <cryptopp/osrng.h>
-#include <cryptopp/pssr.h>
-#include <cryptopp/pwdbased.h>
-#include <cryptopp/rsa.h>
-#include <cryptopp/sha.h>
-#include <cryptopp/eccrypto.h>
-#include <cryptopp/oids.h>
-#include <cryptopp/dsa.h>
-
-#endif // NDN_SECURITY_CRYPTOPP_HPP
+#ifdef NDN_CXX_KEEP_SECURITY_V1_ALIASES
+#include "v1/cryptopp.hpp"
+#else
+#error "Deprecated. Use v1/cryptopp.hpp instead."
+#endif // NDN_CXX_KEEP_SECURITY_V1_ALIASES

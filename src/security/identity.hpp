@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -116,7 +116,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @return the added key or existing key with the same key id.
    */
   Key
-  addKey(const PublicKey& publicKey, const name::Component& keyId = EMPTY_KEY_ID);
+  addKey(const v1::PublicKey& publicKey, const name::Component& keyId = EMPTY_KEY_ID);
 
   /**
    * @brief Remove a key.
@@ -147,7 +147,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @return the default key
    */
   Key&
-  setDefaultKey(const PublicKey& publicKey, const name::Component& keyId = EMPTY_KEY_ID);
+  setDefaultKey(const v1::PublicKey& publicKey, const name::Component& keyId = EMPTY_KEY_ID);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /**

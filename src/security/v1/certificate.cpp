@@ -23,19 +23,19 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#include "common.hpp"
-
 #include "certificate.hpp"
-#include "../util/time.hpp"
+#include "../../util/time.hpp"
 #include "cryptopp.hpp"
-#include "../encoding/cryptopp/asn_ext.hpp"
-#include "../encoding/buffer-stream.hpp"
-#include "../util/concepts.hpp"
-#include "../util/indented-stream.hpp"
+#include "../../encoding/cryptopp/asn_ext.hpp"
+#include "../../encoding/buffer-stream.hpp"
+#include "../../util/concepts.hpp"
+#include "../../util/indented-stream.hpp"
 
 #include <boost/algorithm/string/split.hpp>
 
 namespace ndn {
+namespace security {
+namespace v1 {
 
 BOOST_CONCEPT_ASSERT((WireEncodable<Certificate>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Certificate>));
@@ -354,5 +354,6 @@ operator<<(std::ostream& os, const Certificate& cert)
   return os;
 }
 
-
+} // namespace v1
+} // namespace security
 } // namespace ndn
