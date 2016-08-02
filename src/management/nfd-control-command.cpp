@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -119,6 +119,34 @@ FaceCreateCommand::validateResponse(const ControlParameters& parameters) const
   if (parameters.getFaceId() == 0) {
     BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
   }
+}
+
+FaceUpdateCommand::FaceUpdateCommand()
+  : ControlCommand("faces", "update")
+{
+  m_requestValidator
+    .required(CONTROL_PARAMETER_FACE_ID)
+    .optional(CONTROL_PARAMETER_FACE_PERSISTENCY);
+  m_responseValidator
+    .required(CONTROL_PARAMETER_FACE_ID)
+    .optional(CONTROL_PARAMETER_FACE_PERSISTENCY);
+  m_responseValidator = m_requestValidator;
+}
+
+void
+FaceUpdateCommand::validateRequest(const ControlParameters& parameters) const
+{
+  this->ControlCommand::validateRequest(parameters);
+
+  if (parameters.getFaceId() == 0) {
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
+  }
+}
+
+void
+FaceUpdateCommand::validateResponse(const ControlParameters& parameters) const
+{
+  this->validateRequest(parameters);
 }
 
 FaceDestroyCommand::FaceDestroyCommand()

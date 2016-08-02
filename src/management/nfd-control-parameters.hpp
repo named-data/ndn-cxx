@@ -57,7 +57,7 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
   "Flags",
   "Strategy",
   "ExpirationPeriod",
-  "FacePersistency",
+  "FacePersistency"
 };
 
 /**

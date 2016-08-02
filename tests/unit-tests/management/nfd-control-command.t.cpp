@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -71,6 +71,43 @@ BOOST_AUTO_TEST_CASE(FaceCreate)
   Name n6;
   BOOST_CHECK_NO_THROW(n6 = command.getRequestName("/PREFIX", p6));
   BOOST_CHECK(Name("ndn:/PREFIX/faces/create").isPrefixOf(n6));
+}
+
+BOOST_AUTO_TEST_CASE(FaceUpdate)
+{
+  FaceUpdateCommand command;
+
+  ControlParameters p1;
+  p1.setFaceId(0);
+  BOOST_CHECK_THROW(command.validateRequest(p1), ControlCommand::ArgumentError);
+  BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
+
+  p1.setFaceId(1);
+  BOOST_CHECK_NO_THROW(command.validateRequest(p1));
+  BOOST_CHECK_NO_THROW(command.validateResponse(p1));
+
+  ControlParameters p2;
+  p2.setFaceId(1)
+    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  BOOST_CHECK_NO_THROW(command.validateRequest(p2));
+  BOOST_CHECK_NO_THROW(command.validateResponse(p2));
+
+  ControlParameters p3;
+  p3.setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  BOOST_CHECK_THROW(command.validateRequest(p3), ControlCommand::ArgumentError);
+  BOOST_CHECK_THROW(command.validateResponse(p3), ControlCommand::ArgumentError);
+
+  ControlParameters p4;
+  p4.setFaceId(1)
+    .setName("/ndn/name");
+  BOOST_CHECK_THROW(command.validateRequest(p4), ControlCommand::ArgumentError);
+  BOOST_CHECK_THROW(command.validateResponse(p4), ControlCommand::ArgumentError);
+
+  ControlParameters p5;
+  p5.setFaceId(1)
+    .setUri("tcp4://192.0.2.1");
+  BOOST_CHECK_THROW(command.validateRequest(p5), ControlCommand::ArgumentError);
+  BOOST_CHECK_THROW(command.validateResponse(p5), ControlCommand::ArgumentError);
 }
 
 BOOST_AUTO_TEST_CASE(FaceDestroy)

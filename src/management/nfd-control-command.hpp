@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -148,6 +148,22 @@ public:
   validateResponse(const ControlParameters& parameters) const;
 };
 
+/**
+ * \ingroup management
+ * \brief represents a faces/update command
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Update-a-face
+ */
+class FaceUpdateCommand : public ControlCommand
+{
+public:
+  FaceUpdateCommand();
+
+  virtual void
+  validateRequest(const ControlParameters& parameters) const;
+
+  virtual void
+  validateResponse(const ControlParameters& parameters) const;
+};
 
 /**
  * \ingroup management
