@@ -43,6 +43,18 @@ using boost::chrono::nanoseconds;
 
 using boost::chrono::duration_cast;
 
+/** \return the absolute value of the duration d
+ *  \note The function does not participate in the overload resolution
+ *        unless std::numeric_limits<Rep>::is_signed is true.
+ */
+template<typename Rep, typename Period,
+         typename = typename std::enable_if<duration<Rep, Period>::min() < duration<Rep, Period>::zero()>::type>
+constexpr duration<Rep, Period>
+abs(duration<Rep, Period> d)
+{
+  return d >= d.zero() ? d : -d;
+}
+
 /**
  * \brief System clock
  *
