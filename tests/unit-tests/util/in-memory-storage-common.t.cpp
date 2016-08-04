@@ -33,9 +33,12 @@
 
 namespace ndn {
 namespace util {
+namespace tests {
 
-BOOST_AUTO_TEST_SUITE(UtilInMemoryStorage)
+using namespace ndn::tests;
 
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestInMemoryStorage)
 BOOST_AUTO_TEST_SUITE(Common)
 
 typedef boost::mpl::list<InMemoryStoragePersistent, InMemoryStorageFifo, InMemoryStorageLfu,
@@ -124,8 +127,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndFind, T, InMemoryStorages)
   shared_ptr<Interest> interest = makeInterest(name);
 
   shared_ptr<const Data> found = ims.find(*interest);
-
-  BOOST_CHECK(static_cast<bool>(found));
+  BOOST_CHECK(found != nullptr);
   BOOST_CHECK_EQUAL(data->getName(), found->getName());
 }
 
@@ -155,8 +157,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndFindByName, T, InMemoryStorages)
   ims.insert(*data);
 
   shared_ptr<const Data> found = ims.find(name);
-
-  BOOST_CHECK(static_cast<bool>(found));
+  BOOST_CHECK(found != nullptr);
   BOOST_CHECK_EQUAL(data->getName(), found->getName());
 }
 
@@ -170,8 +171,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndFindByFullName, T, InMemoryStorages)
   ims.insert(*data);
 
   shared_ptr<const Data> found = ims.find(data->getFullName());
-
-  BOOST_CHECK(static_cast<bool>(found));
+  BOOST_CHECK(found != nullptr);
   BOOST_CHECK_EQUAL(data->getFullName(), found->getFullName());
 }
 
@@ -186,8 +186,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndNotFindByName, T, InMemoryStorages)
   Name name2("/not/find");
 
   shared_ptr<const Data> found = ims.find(name2);
-
-  BOOST_CHECK(!static_cast<bool>(found));
+  BOOST_CHECK(found == nullptr);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndNotFindByFullName, T, InMemoryStorages)
@@ -207,8 +206,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndNotFindByFullName, T, InMemoryStorages)
   signData(data2);
 
   shared_ptr<const Data> found = ims.find(data2->getFullName());
-
-  BOOST_CHECK(!static_cast<bool>(found));
+  BOOST_CHECK(found == nullptr);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndEraseByName, T, InMemoryStorages)
@@ -407,7 +405,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImplicitDigestSelector, T, InMemoryStorages)
   interest->setMaxSuffixComponents(0);
 
   shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_REQUIRE(static_cast<bool>(found));
+  BOOST_REQUIRE(found != nullptr);
   BOOST_CHECK_EQUAL(found->getName(), name);
 
   shared_ptr<Interest> interest2 = makeInterest("");
@@ -418,7 +416,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImplicitDigestSelector, T, InMemoryStorages)
   interest2->setMaxSuffixComponents(0);
 
   shared_ptr<const Data> notfound = ims.find(*interest2);
-  BOOST_CHECK(static_cast<bool>(found));
+  BOOST_CHECK(notfound == nullptr);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ChildSelector, T, InMemoryStorages)
@@ -494,7 +492,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(PublisherKeySelector, T, InMemoryStorages)
   interest->setPublisherPublicKeyLocator(locator);
 
   shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_CHECK(!static_cast<bool>(found));
+  BOOST_CHECK(found == nullptr);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(PublisherKeySelector2, T, InMemoryStorages)
@@ -523,7 +521,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(PublisherKeySelector2, T, InMemoryStorages)
   interest->setPublisherPublicKeyLocator(locator);
 
   shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_CHECK(static_cast<bool>(found));
+  BOOST_CHECK(found != nullptr);
   BOOST_CHECK_EQUAL(found->getName(), data2->getName());
 }
 
@@ -696,7 +694,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndEvict, T, InMemoryStoragesLimited)
 
   shared_ptr<Interest> interest = makeInterest(name);
   shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_CHECK(!static_cast<bool>(found));
+  BOOST_CHECK(found == nullptr);
 }
 
 ///as Find function is implemented at the base case, therefore testing for one derived class is
@@ -1056,7 +1054,9 @@ BOOST_AUTO_TEST_CASE(MustBeFresh)
 
 BOOST_AUTO_TEST_SUITE_END() // Find
 BOOST_AUTO_TEST_SUITE_END() // Common
-BOOST_AUTO_TEST_SUITE_END() // UtilInMemoryStorage
+BOOST_AUTO_TEST_SUITE_END() // TestInMemoryStorage
+BOOST_AUTO_TEST_SUITE_END() // Util
 
+} // namespace tests
 } // namespace util
 } // namespace ndn

@@ -158,7 +158,7 @@ BOOST_FIXTURE_TEST_CASE(AddRemoveTopPrefix, DispatcherFixture)
                                        bind([] { return true; }),
                                        bind([&nCallbackCalled] { ++nCallbackCalled["test/2"]; }));
 
-  face.receive(*util::makeInterest("/root/1/test/1/%80%00"));
+  face.receive(*makeInterest("/root/1/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 0);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 0);
@@ -166,18 +166,18 @@ BOOST_FIXTURE_TEST_CASE(AddRemoveTopPrefix, DispatcherFixture)
   dispatcher.addTopPrefix("/root/1");
   advanceClocks(time::milliseconds(1));
 
-  face.receive(*util::makeInterest("/root/1/test/1/%80%00"));
+  face.receive(*makeInterest("/root/1/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 1);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 0);
 
-  face.receive(*util::makeInterest("/root/1/test/2/%80%00"));
+  face.receive(*makeInterest("/root/1/test/2/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 1);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 1);
 
-  face.receive(*util::makeInterest("/root/2/test/1/%80%00"));
-  face.receive(*util::makeInterest("/root/2/test/2/%80%00"));
+  face.receive(*makeInterest("/root/2/test/1/%80%00"));
+  face.receive(*makeInterest("/root/2/test/2/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 1);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 1);
@@ -185,22 +185,22 @@ BOOST_FIXTURE_TEST_CASE(AddRemoveTopPrefix, DispatcherFixture)
   dispatcher.addTopPrefix("/root/2");
   advanceClocks(time::milliseconds(1));
 
-  face.receive(*util::makeInterest("/root/1/test/1/%80%00"));
+  face.receive(*makeInterest("/root/1/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 2);
 
-  face.receive(*util::makeInterest("/root/2/test/1/%80%00"));
+  face.receive(*makeInterest("/root/2/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 3);
 
   dispatcher.removeTopPrefix("/root/1");
   advanceClocks(time::milliseconds(1));
 
-  face.receive(*util::makeInterest("/root/1/test/1/%80%00"));
+  face.receive(*makeInterest("/root/1/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 3);
 
-  face.receive(*util::makeInterest("/root/2/test/1/%80%00"));
+  face.receive(*makeInterest("/root/2/test/1/%80%00"));
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 4);
 }
@@ -218,11 +218,11 @@ BOOST_FIXTURE_TEST_CASE(ControlCommand, DispatcherFixture)
   advanceClocks(time::milliseconds(1));
   face.sentData.clear();
 
-  face.receive(*util::makeInterest("/root/test/%80%00")); // returns 403
-  face.receive(*util::makeInterest("/root/test/%80%00/invalid")); // returns 403
-  face.receive(*util::makeInterest("/root/test/%80%00/silent")); // silently ignored
-  face.receive(*util::makeInterest("/root/test/.../invalid")); // silently ignored (wrong format)
-  face.receive(*util::makeInterest("/root/test/.../valid"));  // silently ignored (wrong format)
+  face.receive(*makeInterest("/root/test/%80%00")); // returns 403
+  face.receive(*makeInterest("/root/test/%80%00/invalid")); // returns 403
+  face.receive(*makeInterest("/root/test/%80%00/silent")); // silently ignored
+  face.receive(*makeInterest("/root/test/.../invalid")); // silently ignored (wrong format)
+  face.receive(*makeInterest("/root/test/.../valid"));  // silently ignored (wrong format)
   advanceClocks(time::milliseconds(1), 20);
   BOOST_CHECK_EQUAL(nCallbackCalled, 0);
   BOOST_CHECK_EQUAL(face.sentData.size(), 2);
@@ -232,7 +232,7 @@ BOOST_FIXTURE_TEST_CASE(ControlCommand, DispatcherFixture)
   BOOST_CHECK(face.sentData[1].getContentType() == tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[1].getContent().blockFromValue()).getCode(), 403);
 
-  face.receive(*util::makeInterest("/root/test/%80%00/valid"));
+  face.receive(*makeInterest("/root/test/%80%00/valid"));
   advanceClocks(time::milliseconds(1), 10);
   BOOST_CHECK_EQUAL(nCallbackCalled, 1);
 }
@@ -281,9 +281,9 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
   advanceClocks(time::milliseconds(1));
   face.sentData.clear();
 
-  face.receive(*util::makeInterest("/root/test/small/%80%00")); // returns 403
-  face.receive(*util::makeInterest("/root/test/small/%80%00/invalid")); // returns 403
-  face.receive(*util::makeInterest("/root/test/small/%80%00/silent")); // silently ignored
+  face.receive(*makeInterest("/root/test/small/%80%00")); // returns 403
+  face.receive(*makeInterest("/root/test/small/%80%00/invalid")); // returns 403
+  face.receive(*makeInterest("/root/test/small/%80%00/silent")); // silently ignored
   advanceClocks(time::milliseconds(1), 20);
   BOOST_CHECK_EQUAL(face.sentData.size(), 2);
 
@@ -294,7 +294,7 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
 
   face.sentData.clear();
 
-  auto interestSmall = *util::makeInterest("/root/test/small/valid");
+  auto interestSmall = *makeInterest("/root/test/small/valid");
   face.receive(interestSmall);
   advanceClocks(time::milliseconds(1), 10);
 
@@ -306,8 +306,8 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
   BOOST_REQUIRE(fetchedData != nullptr);
   BOOST_CHECK(face.sentData[0].wireEncode() == fetchedData->wireEncode());
 
-  face.receive(*util::makeInterest(Name("/root/test/small/valid").appendVersion(10))); // should be ignored
-  face.receive(*util::makeInterest(Name("/root/test/small/valid").appendSegment(20))); // should be ignored
+  face.receive(*makeInterest(Name("/root/test/small/valid").appendVersion(10))); // should be ignored
+  face.receive(*makeInterest(Name("/root/test/small/valid").appendSegment(20))); // should be ignored
   advanceClocks(time::milliseconds(1), 10);
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
   BOOST_CHECK_EQUAL(storage.size(), 1);
@@ -322,7 +322,7 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
 
   storage.erase("/", true); // clear the storage
   face.sentData.clear();
-  face.receive(*util::makeInterest("/root/test/large/valid"));
+  face.receive(*makeInterest("/root/test/large/valid"));
   advanceClocks(time::milliseconds(1), 10);
 
   // two data packets are generated, the first one will be sent to both places
@@ -361,7 +361,7 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
 
   storage.erase("/", true);// clear the storage
   face.sentData.clear();
-  face.receive(*util::makeInterest("/root/test/reject/%80%00/valid")); // returns nack
+  face.receive(*makeInterest("/root/test/reject/%80%00/valid")); // returns nack
   advanceClocks(time::milliseconds(1));
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
   BOOST_CHECK(face.sentData[0].getContentType() == tlv::ContentType_Nack);

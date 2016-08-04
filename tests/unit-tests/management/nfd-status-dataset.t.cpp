@@ -29,8 +29,7 @@ namespace ndn {
 namespace nfd {
 namespace tests {
 
-using ndn::util::makeData;
-using ndn::util::signData;
+using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Management)
 

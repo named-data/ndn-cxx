@@ -78,8 +78,8 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
 
   advanceClocks(time::milliseconds(1), 40);
 
-  face.receive(*util::makeData("/Bye/World/a"));
-  face.receive(*util::makeData("/Hello/World/a"));
+  face.receive(*makeData("/Bye/World/a"));
+  face.receive(*makeData("/Hello/World/a"));
 
   advanceClocks(time::milliseconds(1), 100);
 
@@ -113,8 +113,8 @@ BOOST_AUTO_TEST_CASE(DeprecatedExpressInterestData)
 
   advanceClocks(time::milliseconds(1), 40);
 
-  face.receive(*util::makeData("/Bye/World/a"));
-  face.receive(*util::makeData("/Hello/World/a"));
+  face.receive(*makeData("/Bye/World/a"));
+  face.receive(*makeData("/Hello/World/a"));
 
   advanceClocks(time::milliseconds(1), 100);
 
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(DeprecatedExpressInterestData)
                            BOOST_FAIL("Unexpected timeout");
                          }));
   advanceClocks(time::milliseconds(1), 40);
-  face.receive(*util::makeData("/Hello/World/a/1/xxxxx"));
+  face.receive(*makeData("/Hello/World/a/1/xxxxx"));
 
   advanceClocks(time::milliseconds(1), 100);
 
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(RemovePendingInterest)
   face.removePendingInterest(interestId);
   advanceClocks(time::milliseconds(10));
 
-  face.receive(*util::makeData("/Hello/World/!"));
+  face.receive(*makeData("/Hello/World/!"));
   advanceClocks(time::milliseconds(10), 100);
 }
 
@@ -264,8 +264,8 @@ BOOST_AUTO_TEST_CASE(removeAllPendingInterests)
 
   BOOST_CHECK_EQUAL(face.getNPendingInterests(), 0);
 
-  face.receive(*util::makeData("/Hello/World/0"));
-  face.receive(*util::makeData("/Hello/World/1"));
+  face.receive(*makeData("/Hello/World/0"));
+  face.receive(*makeData("/Hello/World/1"));
   advanceClocks(time::milliseconds(10), 100);
 }
 

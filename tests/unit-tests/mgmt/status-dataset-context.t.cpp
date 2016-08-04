@@ -27,6 +27,8 @@ namespace ndn {
 namespace mgmt {
 namespace tests {
 
+using namespace ndn::tests;
+
 class StatusDatasetContextFixture
 {
 public:
@@ -39,7 +41,7 @@ public:
   };
 
   StatusDatasetContextFixture()
-    : interest(util::makeInterest("/test/context/interest"))
+    : interest(makeInterest("/test/context/interest"))
     , contentBlock(makeStringBlock(tlv::Content, "/test/data/content"))
     , context(*interest,
               [this] (const Name& dataName, const Block& content,

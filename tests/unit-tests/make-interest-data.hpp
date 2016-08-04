@@ -1,11 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California,
- *                         Arizona Board of Regents,
- *                         Colorado State University,
- *                         University Pierre & Marie Curie, Sorbonne University,
- *                         Washington University in St. Louis,
- *                         Beijing Institute of Technology
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,66 +22,66 @@
 #ifndef NDN_TESTS_UNIT_TESTS_MAKE_INTEREST_DATA_HPP
 #define NDN_TESTS_UNIT_TESTS_MAKE_INTEREST_DATA_HPP
 
-#include "boost-test.hpp"
-
-#include "security/key-chain.hpp"
+#include "interest.hpp"
+#include "data.hpp"
+#include "link.hpp"
 #include "lp/nack.hpp"
 
 namespace ndn {
-namespace util {
+namespace tests {
 
-inline shared_ptr<Interest>
-makeInterest(const Name& name, uint32_t nonce = 0)
-{
-  auto interest = make_shared<Interest>(name);
-  if (nonce != 0) {
-    interest->setNonce(nonce);
-  }
-  return interest;
-}
+/** \brief create an Interest
+ *  \param name Interest name
+ *  \param nonce if non-zero, set Nonce to this value
+ *               (useful for creating Nack with same Nonce)
+ */
+shared_ptr<Interest>
+makeInterest(const Name& name, uint32_t nonce = 0);
 
+/** \brief create a Data with fake signature
+ *  \note Data may be modified afterwards without losing the fake signature.
+ *        If a real signature is desired, sign again with KeyChain.
+ */
+shared_ptr<Data>
+makeData(const Name& name);
+
+/** \brief add a fake signature to Data
+ */
+Data&
+signData(Data& data);
+
+/** \brief add a fake signature to Data
+ */
 inline shared_ptr<Data>
 signData(shared_ptr<Data> data)
 {
-  SignatureSha256WithRsa fakeSignature;
-  fakeSignature.setValue(encoding::makeEmptyBlock(tlv::SignatureValue));
-  data->setSignature(fakeSignature);
-  data->wireEncode();
+  signData(*data);
   return data;
 }
 
-inline shared_ptr<Data>
-makeData(const Name& name)
-{
-  auto data = make_shared<Data>(name);
-  return signData(data);
-}
+/** \brief create a Link object with fake signature
+ *  \note Link may be modified afterwards without losing the fake signature.
+ *        If a real signature is desired, sign again with KeyChain.
+ */
+shared_ptr<Link>
+makeLink(const Name& name, std::initializer_list<std::pair<uint32_t, Name>> delegations);
 
-inline shared_ptr<Link>
-makeLink(const Name& name, std::initializer_list<std::pair<uint32_t, Name>> delegations)
-{
-  auto link = make_shared<Link>(name, delegations);
-  signData(link);
-  return link;
-}
+/** \brief create a Nack
+ *  \param interest Interest
+ *  \param reason Nack reason
+ */
+lp::Nack
+makeNack(const Interest& interest, lp::NackReason reason);
 
-inline lp::Nack
-makeNack(const Interest& interest, lp::NackReason reason)
-{
-  lp::Nack nack(interest);
-  nack.setReason(reason);
-  return nack;
-}
+/** \brief create a Nack
+ *  \param name Interest name
+ *  \param nonce Interest nonce
+ *  \param reason Nack reason
+ */
+lp::Nack
+makeNack(const Name& name, uint32_t nonce, lp::NackReason reason);
 
-inline lp::Nack
-makeNack(const Name& name, uint32_t nonce, lp::NackReason reason)
-{
-  Interest interest(name);
-  interest.setNonce(nonce);
-  return makeNack(interest, reason);
-}
-
-} // namespace util
+} // namespace tests
 } // namespace ndn
 
 #endif // NDN_TESTS_UNIT_TESTS_MAKE_INTEREST_DATA_HPP

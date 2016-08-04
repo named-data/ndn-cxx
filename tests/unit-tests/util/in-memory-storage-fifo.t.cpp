@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,10 @@ namespace ndn {
 namespace util {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(UtilInMemoryStorage)
+using namespace ndn::tests;
+
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestInMemoryStorage)
 BOOST_AUTO_TEST_SUITE(Fifo)
 
 BOOST_AUTO_TEST_CASE(ArrivalQueue)
@@ -45,7 +48,7 @@ BOOST_AUTO_TEST_CASE(ArrivalQueue)
 
   shared_ptr<Interest> interest = makeInterest("/1");
   shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_CHECK(!static_cast<bool>(found));
+  BOOST_CHECK(found == nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(ArrivalQueue2)
@@ -61,7 +64,7 @@ BOOST_AUTO_TEST_CASE(ArrivalQueue2)
 
   shared_ptr<Interest> interest1 = makeInterest("/1");
   shared_ptr<const Data> found1 = ims.find(*interest1);
-  BOOST_CHECK(!static_cast<bool>(found1));
+  BOOST_CHECK(found1 == nullptr);
 
   ims.insert(*makeData("/4"));
 
@@ -70,11 +73,12 @@ BOOST_AUTO_TEST_CASE(ArrivalQueue2)
 
   shared_ptr<Interest> interest2 = makeInterest("/2");
   shared_ptr<const Data> found2 = ims.find(*interest2);
-  BOOST_CHECK(!static_cast<bool>(found2));
+  BOOST_CHECK(found2 == nullptr);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Fifo
-BOOST_AUTO_TEST_SUITE_END() // UtilInMemoryStorage
+BOOST_AUTO_TEST_SUITE_END() // TestInMemoryStorage
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace util

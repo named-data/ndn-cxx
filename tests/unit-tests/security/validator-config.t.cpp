@@ -601,25 +601,25 @@ BOOST_FIXTURE_TEST_CASE(MultiCheckers, CertCleanFixture)
   conf::Checker& checker1 = *validator.m_dataRules.front()->m_checkers[1];
   conf::Checker& checker2 = *validator.m_dataRules.front()->m_checkers[2];
 
-  auto data1 = util::makeData(Name(identity1).append("Test"));
+  auto data1 = makeData(Name(identity1).append("Test"));
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*data1, security::signingByIdentity(identity1)));
   BOOST_CHECK_EQUAL(checker0.check(*data1), 0);
   BOOST_CHECK_EQUAL(checker1.check(*data1), 0);
   BOOST_CHECK_EQUAL(checker2.check(*data1), 1);
 
-  auto data2 = util::makeData(Name(identity2).append("Data2"));
+  auto data2 = makeData(Name(identity2).append("Data2"));
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2, security::signingByIdentity(identity2)));
   BOOST_CHECK_EQUAL(checker0.check(*data2), -1);
   BOOST_CHECK_EQUAL(checker1.check(*data2), 0);
   BOOST_CHECK_EQUAL(checker2.check(*data2), -1);
 
-  auto data3 = util::makeData(Name(identity2).append("Data3"));
+  auto data3 = makeData(Name(identity2).append("Data3"));
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*data3, security::signingByIdentity(identity1)));
   BOOST_CHECK_EQUAL(checker0.check(*data3), 0);
   BOOST_CHECK_EQUAL(checker1.check(*data3), -1);
   BOOST_CHECK_EQUAL(checker2.check(*data3), 1);
 
-  auto data4 = util::makeData("/Data4");
+  auto data4 = makeData("/Data4");
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*data4, security::signingByIdentity(identity2)));
   BOOST_CHECK_EQUAL(checker0.check(*data4), -1);
   BOOST_CHECK_EQUAL(checker1.check(*data4), -1);
