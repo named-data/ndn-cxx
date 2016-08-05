@@ -23,7 +23,7 @@ from waflib import Utils, Logs
 from waflib.Configure import conf
 
 OPENSSL_VERSION_FILE = 'opensslv.h'
-OPENSSL_DIR_OSX = ['/usr/local', '/opt/local']
+OPENSSL_DIR_OSX = ['/usr/local', '/opt/local', '/usr/local/opt/openssl']
 OPENSSL_DIR = ['/usr', '/usr/local', '/opt/local', '/sw']
 
 def options(opt):
