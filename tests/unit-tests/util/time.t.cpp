@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,7 +26,8 @@
 namespace ndn {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(UtilTime)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestTime)
 
 BOOST_AUTO_TEST_CASE(SystemClock)
 {
@@ -73,7 +74,15 @@ BOOST_AUTO_TEST_CASE(SteadyClock)
   BOOST_CHECK_GT(newValue, oldValue);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_CASE(Abs)
+{
+  BOOST_CHECK_EQUAL(time::abs(time::nanoseconds(24422)), time::nanoseconds(24422));
+  BOOST_CHECK_EQUAL(time::abs(time::microseconds(0)), time::microseconds(0));
+  BOOST_CHECK_EQUAL(time::abs(time::milliseconds(-15583)), time::milliseconds(15583));
+}
+
+BOOST_AUTO_TEST_SUITE_END() // TestTime
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace ndn

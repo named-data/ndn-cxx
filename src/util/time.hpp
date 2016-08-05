@@ -48,7 +48,7 @@ using boost::chrono::duration_cast;
  *        unless std::numeric_limits<Rep>::is_signed is true.
  */
 template<typename Rep, typename Period,
-         typename = typename std::enable_if<duration<Rep, Period>::min() < duration<Rep, Period>::zero()>::type>
+         typename = typename std::enable_if<std::numeric_limits<Rep>::is_signed>::type>
 constexpr duration<Rep, Period>
 abs(duration<Rep, Period> d)
 {
