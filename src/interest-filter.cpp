@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,38 +20,46 @@
  */
 
 #include "interest-filter.hpp"
-
 #include "util/regex/regex-pattern-list-matcher.hpp"
 
 namespace ndn {
 
+InterestFilter::InterestFilter(const Name& prefix)
+  : m_prefix(prefix)
+{
+}
+
+InterestFilter::InterestFilter(const char* prefixUri)
+  : m_prefix(prefixUri)
+{
+}
+
+InterestFilter::InterestFilter(const std::string& prefixUri)
+  : m_prefix(prefixUri)
+{
+}
+
 InterestFilter::InterestFilter(const Name& prefix, const std::string& regexFilter)
   : m_prefix(prefix)
-  , m_regexFilter(ndn::make_shared<RegexPatternListMatcher>(regexFilter,
-                                                            shared_ptr<RegexBackrefManager>()))
+  , m_regexFilter(make_shared<RegexPatternListMatcher>(regexFilter, nullptr))
 {
+}
+
+InterestFilter::operator const Name&() const
+{
+  if (hasRegexFilter()) {
+    BOOST_THROW_EXCEPTION(Error("Please update InterestCallback to accept const InterestFilter&"
+                                " (non-trivial InterestFilter is being used)"));
+  }
+  return m_prefix;
 }
 
 bool
 InterestFilter::doesMatch(const Name& name) const
 {
-  if (name.size() < m_prefix.size())
-    return false;
-
-  if (hasRegexFilter()) {
-    // perform prefix match and regular expression match for the remaining components
-    bool isMatch = m_prefix.isPrefixOf(name);
-
-    if (!isMatch)
-      return false;
-
-    return m_regexFilter->match(name, m_prefix.size(), name.size() - m_prefix.size());
-  }
-  else {
-    // perform just prefix match
-
-    return m_prefix.isPrefixOf(name);
-  }
+  return m_prefix.isPrefixOf(name) &&
+         (!hasRegexFilter() ||
+          m_regexFilter->match(name, m_prefix.size(), name.size() - m_prefix.size()));
 }
 
 std::ostream&

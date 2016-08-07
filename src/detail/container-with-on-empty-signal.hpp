@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,7 +28,7 @@
 namespace ndn {
 
 /**
- * @brief A simple container that will fire up onEmpty signal when there are no entries left
+ * @brief A container that emits onEmpty signal when it becomes empty
  */
 template<class T>
 class ContainerWithOnEmptySignal

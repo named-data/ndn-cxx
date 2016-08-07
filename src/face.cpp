@@ -31,13 +31,13 @@
 
 namespace ndn {
 
-Face::Face()
+Face::Face(shared_ptr<Transport> transport)
   : m_internalIoService(new boost::asio::io_service())
   , m_ioService(*m_internalIoService)
   , m_internalKeyChain(new KeyChain())
   , m_impl(new Impl(*this))
 {
-  construct(nullptr, *m_internalKeyChain);
+  construct(transport, *m_internalKeyChain);
 }
 
 Face::Face(boost::asio::io_service& ioService)
@@ -48,7 +48,7 @@ Face::Face(boost::asio::io_service& ioService)
   construct(nullptr, *m_internalKeyChain);
 }
 
-Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
+Face::Face(const std::string& host, const std::string& port)
   : m_internalIoService(new boost::asio::io_service())
   , m_ioService(*m_internalIoService)
   , m_internalKeyChain(new KeyChain())
@@ -57,19 +57,9 @@ Face::Face(const std::string& host, const std::string& port/* = "6363"*/)
   construct(make_shared<TcpTransport>(host, port), *m_internalKeyChain);
 }
 
-Face::Face(shared_ptr<Transport> transport)
-  : m_internalIoService(new boost::asio::io_service())
-  , m_ioService(*m_internalIoService)
-  , m_internalKeyChain(new KeyChain())
-  , m_impl(new Impl(*this))
-{
-  construct(transport, *m_internalKeyChain);
-}
-
 Face::Face(shared_ptr<Transport> transport, KeyChain& keyChain)
   : m_internalIoService(new boost::asio::io_service())
   , m_ioService(*m_internalIoService)
-  , m_internalKeyChain(nullptr)
   , m_impl(new Impl(*this))
 {
   construct(transport, keyChain);
@@ -85,7 +75,6 @@ Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService)
 
 Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService, KeyChain& keyChain)
   : m_ioService(ioService)
-  , m_internalKeyChain(nullptr)
   , m_impl(new Impl(*this))
 {
   construct(transport, keyChain);
@@ -99,8 +88,9 @@ Face::makeDefaultTransport()
 
   std::string transportUri;
 
-  if (getenv("NDN_CLIENT_TRANSPORT") != nullptr) {
-    transportUri = getenv("NDN_CLIENT_TRANSPORT");
+  const char* transportEnviron = getenv("NDN_CLIENT_TRANSPORT");
+  if (transportEnviron != nullptr) {
+    transportUri = transportEnviron;
   }
   else {
     ConfigFile config;
@@ -171,8 +161,9 @@ Face::expressInterest(const Interest& interest,
   }
 
   // If the same ioService thread, dispatch directly calls the method
-  m_ioService.dispatch([=] { m_impl->asyncExpressInterest(interestToExpress, afterSatisfied,
-                                                          afterNacked, afterTimeout); });
+  m_ioService.dispatch([=] {
+    m_impl->asyncExpressInterest(interestToExpress, afterSatisfied, afterNacked, afterTimeout);
+  });
 
   return reinterpret_cast<const PendingInterestId*>(interestToExpress.get());
 }
@@ -199,13 +190,10 @@ Face::expressInterest(const Interest& interest,
 }
 
 const PendingInterestId*
-Face::expressInterest(const Name& name,
-                      const Interest& tmpl,
-                      const OnData& onData, const OnTimeout& onTimeout/* = nullptr*/)
+Face::expressInterest(const Name& name, const Interest& tmpl,
+                      const OnData& onData, const OnTimeout& onTimeout)
 {
-  return expressInterest(Interest(tmpl)
-                         .setName(name)
-                         .setNonce(0),
+  return expressInterest(Interest(tmpl).setName(name).setNonce(0),
                          onData, onTimeout);
 }
 
@@ -256,46 +244,38 @@ Face::getNPendingInterests() const
 
 const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
-                  const OnInterest& onInterest,
-                  const RegisterPrefixFailureCallback& onFailure,
-                  const security::SigningInfo& signingInfo,
-                  uint64_t flags)
+                        const InterestCallback& onInterest,
+                        const RegisterPrefixFailureCallback& onFailure,
+                        const security::SigningInfo& signingInfo,
+                        uint64_t flags)
 {
-    return setInterestFilter(interestFilter,
-                             onInterest,
-                             RegisterPrefixSuccessCallback(),
-                             onFailure,
-                             signingInfo,
-                             flags);
+  return setInterestFilter(interestFilter, onInterest, nullptr, onFailure, signingInfo, flags);
 }
 
 const RegisteredPrefixId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
-                  const OnInterest& onInterest,
-                  const RegisterPrefixSuccessCallback& onSuccess,
-                  const RegisterPrefixFailureCallback& onFailure,
-                  const security::SigningInfo& signingInfo,
-                  uint64_t flags)
+                        const InterestCallback& onInterest,
+                        const RegisterPrefixSuccessCallback& onSuccess,
+                        const RegisterPrefixFailureCallback& onFailure,
+                        const security::SigningInfo& signingInfo,
+                        uint64_t flags)
 {
-    shared_ptr<InterestFilterRecord> filter =
-      make_shared<InterestFilterRecord>(interestFilter, onInterest);
+  auto filter = make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
-    nfd::CommandOptions options;
-    options.setSigningInfo(signingInfo);
+  nfd::CommandOptions options;
+  options.setSigningInfo(signingInfo);
 
-    return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
-                                  onSuccess, onFailure,
-                                  flags, options);
+  return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
+                                onSuccess, onFailure, flags, options);
 }
 
 const InterestFilterId*
 Face::setInterestFilter(const InterestFilter& interestFilter,
-                        const OnInterest& onInterest)
+                        const InterestCallback& onInterest)
 {
-  shared_ptr<InterestFilterRecord> filter =
-    make_shared<InterestFilterRecord>(interestFilter, onInterest);
+  auto filter = make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
-  getIoService().post([=] { m_impl->asyncSetInterestFilter(filter); });
+  m_ioService.post([=] { m_impl->asyncSetInterestFilter(filter); });
 
   return reinterpret_cast<const InterestFilterId*>(filter.get());
 }
@@ -314,9 +294,7 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   if (!certificate.getName().empty()) {
     signingInfo = signingByCertificate(certificate.getName());
   }
-  return setInterestFilter(interestFilter, onInterest,
-                           onSuccess, onFailure,
-                           signingInfo, flags);
+  return setInterestFilter(interestFilter, onInterest, onSuccess, onFailure, signingInfo, flags);
 }
 
 const RegisteredPrefixId*
@@ -330,8 +308,7 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   if (!certificate.getName().empty()) {
     signingInfo = signingByCertificate(certificate.getName());
   }
-  return setInterestFilter(interestFilter, onInterest,
-                             onFailure, signingInfo, flags);
+  return setInterestFilter(interestFilter, onInterest, onFailure, signingInfo, flags);
 }
 
 const RegisteredPrefixId*
@@ -343,7 +320,6 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
                         uint64_t flags)
 {
   security::SigningInfo signingInfo = signingByIdentity(identity);
-
   return setInterestFilter(interestFilter, onInterest,
                            onSuccess, onFailure,
                            signingInfo, flags);
@@ -357,27 +333,22 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
                         uint64_t flags)
 {
   security::SigningInfo signingInfo = signingByIdentity(identity);
-
-  return setInterestFilter(interestFilter, onInterest,
-                           onFailure, signingInfo, flags);
+  return setInterestFilter(interestFilter, onInterest, onFailure, signingInfo, flags);
 }
 
 #endif // NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 
 const RegisteredPrefixId*
 Face::registerPrefix(const Name& prefix,
-               const RegisterPrefixSuccessCallback& onSuccess,
-               const RegisterPrefixFailureCallback& onFailure,
-               const security::SigningInfo& signingInfo,
-               uint64_t flags)
+                     const RegisterPrefixSuccessCallback& onSuccess,
+                     const RegisterPrefixFailureCallback& onFailure,
+                     const security::SigningInfo& signingInfo,
+                     uint64_t flags)
 {
+  nfd::CommandOptions options;
+  options.setSigningInfo(signingInfo);
 
-    nfd::CommandOptions options;
-    options.setSigningInfo(signingInfo);
-
-    return m_impl->registerPrefix(prefix, shared_ptr<InterestFilterRecord>(),
-                                  onSuccess, onFailure,
-                                  flags, options);
+  return m_impl->registerPrefix(prefix, nullptr, onSuccess, onFailure, flags, options);
 }
 
 #ifdef NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
@@ -392,8 +363,7 @@ Face::registerPrefix(const Name& prefix,
   if (!certificate.getName().empty()) {
     signingInfo = signingByCertificate(certificate.getName());
   }
-  return registerPrefix(prefix, onSuccess,
-                        onFailure, signingInfo, flags);
+  return registerPrefix(prefix, onSuccess, onFailure, signingInfo, flags);
 }
 
 const RegisteredPrefixId*
@@ -404,17 +374,14 @@ Face::registerPrefix(const Name& prefix,
                      uint64_t flags)
 {
   security::SigningInfo signingInfo = signingByIdentity(identity);
-  return registerPrefix(prefix, onSuccess,
-                        onFailure, signingInfo, flags);
+  return registerPrefix(prefix, onSuccess, onFailure, signingInfo, flags);
 }
 #endif // NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 
 void
 Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
 {
-  m_ioService.post([=] { m_impl->asyncUnregisterPrefix(registeredPrefixId,
-                                                       UnregisterPrefixSuccessCallback(),
-                                                       UnregisterPrefixFailureCallback()); });
+  m_ioService.post([=] { m_impl->asyncUnregisterPrefix(registeredPrefixId, nullptr, nullptr); });
 }
 
 void
@@ -428,12 +395,11 @@ Face::unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
                        const UnregisterPrefixSuccessCallback& onSuccess,
                        const UnregisterPrefixFailureCallback& onFailure)
 {
-  m_ioService.post([=] { m_impl->asyncUnregisterPrefix(registeredPrefixId,onSuccess, onFailure); });
+  m_ioService.post([=] { m_impl->asyncUnregisterPrefix(registeredPrefixId, onSuccess, onFailure); });
 }
 
 void
-Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::zero()*/,
-                    bool keepThread/* = false*/)
+Face::processEvents(const time::milliseconds& timeout, bool keepThread)
 {
   if (m_ioService.stopped()) {
     m_ioService.reset(); // ensure that run()/poll() will do some work
@@ -441,19 +407,19 @@ Face::processEvents(const time::milliseconds& timeout/* = time::milliseconds::ze
 
   try {
     if (timeout < time::milliseconds::zero()) {
-        // do not block if timeout is negative, but process pending events
-        m_ioService.poll();
-        return;
-      }
+      // do not block if timeout is negative, but process pending events
+      m_ioService.poll();
+      return;
+    }
 
     if (timeout > time::milliseconds::zero()) {
       boost::asio::io_service& ioService = m_ioService;
       unique_ptr<boost::asio::io_service::work>& work = m_impl->m_ioServiceWork;
-      m_impl->m_processEventsTimeoutEvent =
-        m_impl->m_scheduler.scheduleEvent(timeout, [&ioService, &work] {
-            ioService.stop();
-            work.reset();
-          });
+      m_impl->m_processEventsTimeoutEvent = m_impl->m_scheduler.scheduleEvent(timeout,
+        [&ioService, &work] {
+          ioService.stop();
+          work.reset();
+        });
     }
 
     if (keepThread) {
@@ -512,7 +478,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
   Block netPacket(&*begin, std::distance(begin, end));
   switch (netPacket.type()) {
     case tlv::Interest: {
-      shared_ptr<Interest> interest = make_shared<Interest>(netPacket);
+      auto interest = make_shared<Interest>(netPacket);
       if (lpPacket.has<lp::NackField>()) {
         auto nack = make_shared<lp::Nack>(std::move(*interest));
         nack->setHeader(lpPacket.get<lp::NackField>());
@@ -526,7 +492,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
       break;
     }
     case tlv::Data: {
-      shared_ptr<Data> data = make_shared<Data>(netPacket);
+      auto data = make_shared<Data>(netPacket);
       extractLpLocalFields(*data, lpPacket);
       m_impl->satisfyPendingInterests(*data);
       break;

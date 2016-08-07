@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,6 +28,10 @@ namespace ndn {
 
 class RegexPatternListMatcher;
 
+/**
+ * @brief declares the set of Interests a producer can serve,
+ *        which starts with a name prefix, plus an optional regular expression
+ */
 class InterestFilter
 {
 public:
@@ -42,66 +46,63 @@ public:
   };
 
   /**
-   * @brief Create an Interest filter to match Interests by prefix
+   * @brief Construct an InterestFilter to match Interests by prefix
    *
-   * This filter will match all Interests, whose name start with the given prefix
+   * This filter matches Interests whose name start with the given prefix.
    *
-   * Any Name can be implicitly converted to the InterestFilter.
+   * @note InterestFilter is implicitly convertible from Name.
    */
   InterestFilter(const Name& prefix);
 
   /**
-   * @brief Create an Interest filter to match Interests by prefix URI
+   * @brief Construct an InterestFilter to match Interests by prefix
    *
-   * This filter will match all Interests, whose name start with the given prefix
+   * This filter matches Interests whose name start with the given prefix.
    *
-   * Any const char* can be implicitly converted to the InterestFilter.
+   * @param prefixUri name prefix, interpreted as ndn URI
+   * @note InterestFilter is implicitly convertible from null-terminated byte string.
    */
   InterestFilter(const char* prefixUri);
 
   /**
-   * @brief Create an Interest filter to match Interests by prefix URI
+   * @brief Construct an InterestFilter to match Interests by prefix
    *
-   * This filter will match all Interests, whose name start with the given prefix
+   * This filter matches Interests whose name start with the given prefix.
    *
-   * Any std::string can be implicitly converted to the InterestFilter.
+   * @param prefixUri name prefix, interpreted as ndn URI
+   * @note InterestFilter is implicitly convertible from std::string.
    */
   InterestFilter(const std::string& prefixUri);
 
   /**
-   * @brief Create an Interest filter to match Interest by prefix and regular expression
+   * @brief Construct an InterestFilter to match Interests by prefix and regular expression
    *
-   * This filter will match all Interests, whose name start with the given prefix and
-   * other components of the Interest name match the given regular expression.
+   * This filter matches Interests whose name start with the given prefix and
+   * the remaining components match the given regular expression.
    * For example, the following InterestFilter:
    *
    *    InterestFilter("/hello", "<world><>+")
    *
-   * will match all Interests, whose name has prefix `/hello`, which is followed by
-   * component `world` and has at least one more component after it.  Examples:
+   * matches Interests whose name has prefix `/hello` followed by component `world`
+   * and has at least one more component after it, such as:
    *
-   *    /hello/world/!
+   *    /hello/world/%21
    *    /hello/world/x/y/z
    *
-   * Note that regular expression will need to match all components (e.g., there is
-   * an implicit heading `^` and trailing `$` symbols in the regular expression).
+   * Note that regular expression will need to match all components (e.g., there are
+   * implicit heading `^` and trailing `$` symbols in the regular expression).
    */
   InterestFilter(const Name& prefix, const std::string& regexFilter);
 
   /**
-   * @brief Implicit conversion to Name (to provide backwards compatibility for onInterest callback)
+   * @brief Implicit conversion to Name
+   * @note This allows InterestCallback to be declared with `Name` rather than `InterestFilter`,
+   *       but this does not work if InterestFilter has regular expression.
    */
-  operator const Name&() const
-  {
-    if (static_cast<bool>(m_regexFilter)) {
-      BOOST_THROW_EXCEPTION(Error("Please update OnInterest callback to accept const "
-                                  "InterestFilter& (non-trivial Interest filter is being used)"));
-    }
-    return m_prefix;
-  }
+  operator const Name&() const;
 
   /**
-   * @brief Check if specified name matches the filter
+   * @brief Check if specified Interest name matches the filter
    */
   bool
   doesMatch(const Name& name) const;
@@ -115,7 +116,7 @@ public:
   bool
   hasRegexFilter() const
   {
-    return static_cast<bool>(m_regexFilter);
+    return m_regexFilter != nullptr;
   }
 
   const RegexPatternListMatcher&
@@ -131,25 +132,6 @@ private:
 
 std::ostream&
 operator<<(std::ostream& os, const InterestFilter& filter);
-
-
-inline
-InterestFilter::InterestFilter(const Name& prefix)
-  : m_prefix(prefix)
-{
-}
-
-inline
-InterestFilter::InterestFilter(const char* prefixUri)
-  : m_prefix(prefixUri)
-{
-}
-
-inline
-InterestFilter::InterestFilter(const std::string& prefixUri)
-  : m_prefix(prefixUri)
-{
-}
 
 } // namespace ndn
 

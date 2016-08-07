@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,21 +22,37 @@
 #ifndef NDN_DETAIL_INTEREST_FILTER_RECORD_HPP
 #define NDN_DETAIL_INTEREST_FILTER_RECORD_HPP
 
-#include "../common.hpp"
 #include "../name.hpp"
 #include "../interest.hpp"
 
 namespace ndn {
 
+/**
+ * @brief associates an InterestFilter with Interest callback
+ */
 class InterestFilterRecord : noncopyable
 {
 public:
-  typedef function<void (const InterestFilter&, const Interest&)> InterestCallback;
-
-  InterestFilterRecord(const InterestFilter& filter, const InterestCallback& afterInterest)
+  /**
+   * @brief Construct an Interest filter record
+   *
+   * @param filter an InterestFilter that represents what Interest should invoke the callback
+   * @param interestCallback invoked when matching Interest is received
+   */
+  InterestFilterRecord(const InterestFilter& filter,
+                       const InterestCallback& interestCallback)
     : m_filter(filter)
-    , m_afterInterest(afterInterest)
+    , m_interestCallback(interestCallback)
   {
+  }
+
+  /**
+   * @return the filter
+   */
+  const InterestFilter&
+  getFilter() const
+  {
+    return m_filter;
   }
 
   /**
@@ -51,28 +67,20 @@ public:
 
   /**
    * @brief invokes the InterestCallback
-   * @note If the DataCallback is an empty function, this method does nothing.
    */
   void
   invokeInterestCallback(const Interest& interest) const
   {
-    m_afterInterest(m_filter, interest);
-  }
-
-  const InterestFilter&
-  getFilter() const
-  {
-    return m_filter;
+    m_interestCallback(m_filter, interest);
   }
 
 private:
   InterestFilter m_filter;
-  InterestCallback m_afterInterest;
+  InterestCallback m_interestCallback;
 };
 
-
 /**
- * @brief Opaque class representing ID of the Interest filter
+ * @brief Opaque type to identify an InterestFilterRecord
  */
 class InterestFilterId;
 
@@ -91,8 +99,9 @@ public:
   bool
   operator()(const shared_ptr<InterestFilterRecord>& interestFilterId) const
   {
-    return (reinterpret_cast<const InterestFilterId*>(interestFilterId.get()) == m_id);
+    return reinterpret_cast<const InterestFilterId*>(interestFilterId.get()) == m_id;
   }
+
 private:
   const InterestFilterId* m_id;
 };

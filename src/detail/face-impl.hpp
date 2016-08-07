@@ -45,11 +45,16 @@
 
 namespace ndn {
 
+using ndn::nfd::ControlParameters;
+
+/**
+ * @brief implementation detail of Face
+ */
 class Face::Impl : noncopyable
 {
 public:
   typedef ContainerWithOnEmptySignal<shared_ptr<PendingInterest>> PendingInterestTable;
-  typedef std::list<shared_ptr<InterestFilterRecord> > InterestFilterTable;
+  typedef std::list<shared_ptr<InterestFilterRecord>> InterestFilterTable;
   typedef ContainerWithOnEmptySignal<shared_ptr<RegisteredPrefix>> RegisteredPrefixTable;
 
   explicit
@@ -59,7 +64,7 @@ public:
     , m_processEventsTimeoutEvent(m_scheduler)
   {
     auto postOnEmptyPitOrNoRegisteredPrefixes = [this] {
-      this->m_face.getIoService().post(bind(&Impl::onEmptyPitOrNoRegisteredPrefixes, this));
+      this->m_face.getIoService().post([this] { this->onEmptyPitOrNoRegisteredPrefixes(); });
       // without this extra "post", transport can get paused (-async_read) and then resumed
       // (+async_read) from within onInterest/onData callback.  After onInterest/onData
       // finishes, there is another +async_read with the same memory block.  A few of such
@@ -70,67 +75,7 @@ public:
     m_registeredPrefixTable.onEmpty.connect(postOnEmptyPitOrNoRegisteredPrefixes);
   }
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-
-  void
-  satisfyPendingInterests(Data& data)
-  {
-    for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
-      if ((*entry)->getInterest()->matchesData(data)) {
-        shared_ptr<PendingInterest> matchedEntry = *entry;
-
-        entry = m_pendingInterestTable.erase(entry);
-
-        matchedEntry->invokeDataCallback(data);
-      }
-      else
-        ++entry;
-    }
-  }
-
-  void
-  nackPendingInterests(const lp::Nack& nack)
-  {
-    for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
-      const Interest& pendingInterest = *(*entry)->getInterest();
-      if (pendingInterest == nack.getInterest()) {
-        shared_ptr<PendingInterest> matchedEntry = *entry;
-
-        entry = m_pendingInterestTable.erase(entry);
-
-        matchedEntry->invokeNackCallback(nack);
-      }
-      else {
-        ++entry;
-      }
-    }
-  }
-
-  void
-  processInterestFilters(Interest& interest)
-  {
-    for (const auto& filter : m_interestFilterTable) {
-      if (filter->doesMatch(interest.getName())) {
-        filter->invokeInterestCallback(interest);
-      }
-    }
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-
-  void
-  ensureConnected(bool wantResume)
-  {
-    if (!m_face.m_transport->isConnected())
-      m_face.m_transport->connect(m_face.m_ioService,
-                                  bind(&Face::onReceiveElement, &m_face, _1));
-
-    if (wantResume && !m_face.m_transport->isReceiving())
-      m_face.m_transport->resume();
-  }
-
+public: // consumer
   void
   asyncExpressInterest(shared_ptr<const Interest> interest,
                        const DataCallback& afterSatisfied,
@@ -139,12 +84,8 @@ public:
   {
     this->ensureConnected(true);
 
-    auto entry =
-      m_pendingInterestTable.insert(make_shared<PendingInterest>(interest,
-                                                                 afterSatisfied,
-                                                                 afterNacked,
-                                                                 afterTimeout,
-                                                                 ref(m_scheduler))).first;
+    auto entry = m_pendingInterestTable.insert(make_shared<PendingInterest>(
+      interest, afterSatisfied, afterNacked, afterTimeout, ref(m_scheduler))).first;
     (*entry)->setDeleter([this, entry] { m_pendingInterestTable.erase(entry); });
 
     lp::Packet packet;
@@ -170,6 +111,65 @@ public:
   asyncRemoveAllPendingInterests()
   {
     m_pendingInterestTable.clear();
+  }
+
+  void
+  satisfyPendingInterests(const Data& data)
+  {
+    for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
+      if ((*entry)->getInterest()->matchesData(data)) {
+        shared_ptr<PendingInterest> matchedEntry = *entry;
+        entry = m_pendingInterestTable.erase(entry);
+        matchedEntry->invokeDataCallback(data);
+      }
+      else {
+        ++entry;
+      }
+    }
+  }
+
+  void
+  nackPendingInterests(const lp::Nack& nack)
+  {
+    for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
+      const Interest& pendingInterest = *(*entry)->getInterest();
+      if (pendingInterest == nack.getInterest()) {
+        shared_ptr<PendingInterest> matchedEntry = *entry;
+        entry = m_pendingInterestTable.erase(entry);
+        matchedEntry->invokeNackCallback(nack);
+      }
+      else {
+        ++entry;
+      }
+    }
+  }
+
+public: // producer
+  void
+  asyncSetInterestFilter(shared_ptr<InterestFilterRecord> interestFilterRecord)
+  {
+    m_interestFilterTable.push_back(interestFilterRecord);
+  }
+
+  void
+  asyncUnsetInterestFilter(const InterestFilterId* interestFilterId)
+  {
+    InterestFilterTable::iterator i = std::find_if(m_interestFilterTable.begin(),
+                                                   m_interestFilterTable.end(),
+                                                   MatchInterestFilterId(interestFilterId));
+    if (i != m_interestFilterTable.end()) {
+      m_interestFilterTable.erase(i);
+    }
+  }
+
+  void
+  processInterestFilters(Interest& interest)
+  {
+    for (const auto& filter : m_interestFilterTable) {
+      if (filter->doesMatch(interest.getName())) {
+        filter->invokeInterestCallback(interest);
+      }
+    }
   }
 
   void
@@ -204,67 +204,42 @@ public:
     m_face.m_transport->send(packet.wireEncode());
   }
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-
-  void
-  asyncSetInterestFilter(const shared_ptr<InterestFilterRecord>& interestFilterRecord)
-  {
-    m_interestFilterTable.push_back(interestFilterRecord);
-  }
-
-  void
-  asyncUnsetInterestFilter(const InterestFilterId* interestFilterId)
-  {
-    InterestFilterTable::iterator i = std::find_if(m_interestFilterTable.begin(),
-                                                   m_interestFilterTable.end(),
-                                                   MatchInterestFilterId(interestFilterId));
-    if (i != m_interestFilterTable.end())
-      {
-        m_interestFilterTable.erase(i);
-      }
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-
+public: // prefix registration
   const RegisteredPrefixId*
   registerPrefix(const Name& prefix,
-                 const shared_ptr<InterestFilterRecord>& filter,
+                 shared_ptr<InterestFilterRecord> filter,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
                  uint64_t flags,
                  const nfd::CommandOptions& options)
   {
-    using namespace nfd;
-
     ControlParameters params;
     params.setName(prefix);
     params.setFlags(flags);
 
     auto prefixToRegister = make_shared<RegisteredPrefix>(prefix, filter, options);
 
-    m_face.m_nfdController->start<RibRegisterCommand>(params,
-                                                      bind(&Impl::afterPrefixRegistered, this,
-                                                           prefixToRegister, onSuccess),
-                                                      bind(onFailure, prefixToRegister->getPrefix(), _2),
-                                                      options);
+    m_face.m_nfdController->start<nfd::RibRegisterCommand>(
+      params,
+      [=] (const ControlParameters&) { this->afterPrefixRegistered(prefixToRegister, onSuccess); },
+      [=] (uint32_t code, const std::string& reason) { onFailure(prefixToRegister->getPrefix(), reason); },
+      options);
 
     return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
   }
 
   void
-  afterPrefixRegistered(const shared_ptr<RegisteredPrefix>& registeredPrefix,
+  afterPrefixRegistered(shared_ptr<RegisteredPrefix> registeredPrefix,
                         const RegisterPrefixSuccessCallback& onSuccess)
   {
     m_registeredPrefixTable.insert(registeredPrefix);
 
-    if (static_cast<bool>(registeredPrefix->getFilter())) {
+    if (registeredPrefix->getFilter() != nullptr) {
       // it was a combined operation
       m_interestFilterTable.push_back(registeredPrefix->getFilter());
     }
 
-    if (static_cast<bool>(onSuccess)) {
+    if (onSuccess != nullptr) {
       onSuccess(registeredPrefix->getPrefix());
     }
   }
@@ -274,13 +249,11 @@ public:
                         const UnregisterPrefixSuccessCallback& onSuccess,
                         const UnregisterPrefixFailureCallback& onFailure)
   {
-    using namespace nfd;
     auto i = std::find_if(m_registeredPrefixTable.begin(),
                           m_registeredPrefixTable.end(),
                           MatchRegisteredPrefixId(registeredPrefixId));
     if (i != m_registeredPrefixTable.end()) {
       RegisteredPrefix& record = **i;
-
       const shared_ptr<InterestFilterRecord>& filter = record.getFilter();
 
       if (filter != nullptr) {
@@ -290,10 +263,11 @@ public:
 
       ControlParameters params;
       params.setName(record.getPrefix());
-      m_face.m_nfdController->start<RibUnregisterCommand>(params,
-                                                          bind(&Impl::finalizeUnregisterPrefix, this, i, onSuccess),
-                                                          bind(onFailure, _2),
-                                                          record.getCommandOptions());
+      m_face.m_nfdController->start<nfd::RibUnregisterCommand>(
+        params,
+        [=] (const ControlParameters&) { this->finalizeUnregisterPrefix(i, onSuccess); },
+        [=] (uint32_t code, const std::string& reason) { onFailure(reason); },
+        record.getCommandOptions());
     }
     else {
       if (onFailure != nullptr) {
@@ -310,8 +284,21 @@ public:
   {
     m_registeredPrefixTable.erase(item);
 
-    if (static_cast<bool>(onSuccess)) {
+    if (onSuccess != nullptr) {
       onSuccess();
+    }
+  }
+
+public: // IO routine
+  void
+  ensureConnected(bool wantResume)
+  {
+    if (!m_face.m_transport->isConnected())
+      m_face.m_transport->connect(m_face.m_ioService,
+                                  [=] (const Block& wire) { m_face.onReceiveElement(wire); });
+
+    if (wantResume && !m_face.m_transport->isReceiving()) {
+      m_face.m_transport->resume();
     }
   }
 

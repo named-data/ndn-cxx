@@ -62,59 +62,65 @@ class Controller;
 } // namespace nfd
 
 /**
- * @brief Callback called when expressed Interest gets satisfied with a Data packet
+ * @brief Callback invoked when expressed Interest gets satisfied with a Data packet
  */
 typedef function<void(const Interest&, const Data&)> DataCallback;
 
 /**
- * @brief Callback called when Nack is sent in response to expressed Interest
+ * @brief Callback invoked when Nack is sent in response to expressed Interest
  */
 typedef function<void(const Interest&, const lp::Nack&)> NackCallback;
 
 /**
- * @brief Callback called when expressed Interest times out
+ * @brief Callback invoked when expressed Interest times out
  */
 typedef function<void(const Interest&)> TimeoutCallback;
 
 /**
- * @brief Callback called when expressed Interest gets satisfied with Data packet
+ * @brief Callback invoked when expressed Interest gets satisfied with Data packet
  * @deprecated use DataCallback
  */
 typedef function<void(const Interest&, Data&)> OnData;
 
 /**
- * @brief Callback called when expressed Interest times out
+ * @brief Callback invoked when expressed Interest times out
  * @deprecated use TimeoutCallback
  */
 typedef function<void(const Interest&)> OnTimeout;
 
 /**
- * @brief Callback called when incoming Interest matches the specified InterestFilter
+ * @brief Callback invoked when incoming Interest matches the specified InterestFilter
+ */
+typedef function<void(const InterestFilter&, const Interest&)> InterestCallback;
+
+/**
+ * @brief Callback invoked when incoming Interest matches the specified InterestFilter
+ * @deprecated use InterestCallback
  */
 typedef function<void (const InterestFilter&, const Interest&)> OnInterest;
 
 /**
- * @brief Callback called when registerPrefix or setInterestFilter command succeeds
+ * @brief Callback invoked when registerPrefix or setInterestFilter command succeeds
  */
 typedef function<void(const Name&)> RegisterPrefixSuccessCallback;
 
 /**
- * @brief Callback called when registerPrefix or setInterestFilter command fails
+ * @brief Callback invoked when registerPrefix or setInterestFilter command fails
  */
 typedef function<void(const Name&, const std::string&)> RegisterPrefixFailureCallback;
 
 /**
- * @brief Callback called when unregisterPrefix or unsetInterestFilter command succeeds
+ * @brief Callback invoked when unregisterPrefix or unsetInterestFilter command succeeds
  */
 typedef function<void()> UnregisterPrefixSuccessCallback;
 
 /**
- * @brief Callback called when unregisterPrefix or unsetInterestFilter command fails
+ * @brief Callback invoked when unregisterPrefix or unsetInterestFilter command fails
  */
 typedef function<void(const std::string&)> UnregisterPrefixFailureCallback;
 
 /**
- * @brief Abstraction to communicate with local or remote NDN forwarder
+ * @brief Provide a communication channel with local or remote NDN forwarder
  */
 class Face : noncopyable
 {
@@ -131,101 +137,99 @@ public:
 
 public: // constructors
   /**
-   * @brief Create a new Face using the default transport (UnixTransport)
+   * @brief Create Face using given transport (or default transport if omitted)
+   * @param transport the transport for lower layer communication. If nullptr,
+   *                  a default transport will be used. The default transport is
+   *                  determined from a FaceUri in NDN_CLIENT_TRANSPORT environ,
+   *                  a FaceUri in configuration file 'transport' key, or UnixTransport.
    *
-   * @throws ConfigFile::Error on configuration file parse failure
-   * @throws ConfigFile::Error if configuration file specifies an unsupported protocol
+   * @throw ConfigFile::Error if @p transport is nullptr, and the configuration file cannot be
+   *                          parsed or specifies an unsupported protocol
+   * @note shared_ptr is passed by value because ownership is shared with this class
    */
-  Face();
+  explicit
+  Face(shared_ptr<Transport> transport = nullptr);
 
   /**
-   * @brief Create a new Face using the default transport (UnixTransport)
+   * @brief Create Face using default transport and given io_service
    *
-   * @par Usage examples:
+   * Usage examples:
    *
-   *     Face face1;
-   *     Face face2(face1.getIoService());
+   * @code
+   * Face face1;
+   * Face face2(face1.getIoService());
    *
-   *     // Now the following ensures that events on both faces are processed
-   *     face1.processEvents();
-   *     // or face1.getIoService().run();
+   * // Now the following ensures that events on both faces are processed
+   * face1.processEvents();
+   * // or face1.getIoService().run();
+   * @endcode
    *
-   * @par or
+   * or
    *
-   *     boost::asio::io_service ioService;
-   *     Face face1(ioService);
-   *     Face face2(ioService);
-   *     ...
+   * @code
+   * boost::asio::io_service ioService;
+   * Face face1(ioService);
+   * Face face2(ioService);
    *
-   *     ioService.run();
+   * ioService.run();
+   * @endcode
    *
    * @param ioService A reference to boost::io_service object that should control all
    *                  IO operations.
-   * @throws ConfigFile::Error on configuration file parse failure
-   * @throws ConfigFile::Error if configuration file specifies an unsupported protocol
+   * @throw ConfigFile::Error the configuration file cannot be parsed or specifies an unsupported protocol
    */
   explicit
   Face(boost::asio::io_service& ioService);
 
   /**
-   * @brief Create a new Face using TcpTransport
+   * @brief Create Face using TcpTransport
    *
-   * @param host The host of the NDN forwarder
-   * @param port (optional) The port or service name of the NDN forwarder (**default**: "6363")
+   * @param host IP address or hostname of the NDN forwarder
+   * @param port port number or service name of the NDN forwarder (**default**: "6363")
    */
   Face(const std::string& host, const std::string& port = "6363");
 
   /**
-   * @brief Create a new Face using the given Transport
-   * @param transport the Transport used for communication. If nullptr, then the default
-   *                  transport will be used.
-   *
-   * @throws ConfigFile::Error if @p transport is nullptr on configuration file parse failure
-   * @throws ConfigFile::Error if @p transport is nullptr and the configuration file
-   *         specifies an unsupported protocol
-   * @note shared_ptr is passed by value because ownership is shared with this class
-   */
-  explicit
-  Face(shared_ptr<Transport> transport);
-
-  /**
-   * @brief Create a new Face using the given Transport and KeyChain instance
-   * @param transport the Transport used for communication. If nullptr, then the default
-   *                  transport will be used.
+   * @brief Create Face using given transport and KeyChain
+   * @param transport the transport for lower layer communication. If nullptr,
+   *                  a default transport will be used.
    * @param keyChain the KeyChain to sign commands
    *
-   * @throws ConfigFile::Error if @p transport is nullptr on configuration file parse failure
-   * @throws ConfigFile::Error if @p transport is nullptr and the configuration file
-   *         specifies an unsupported protocol
+   * @sa Face(shared_ptr<Transport>)
+   *
+   * @throw ConfigFile::Error if @p transport is nullptr, and the configuration file cannot be
+   *                          parsed or specifies an unsupported protocol
    * @note shared_ptr is passed by value because ownership is shared with this class
    */
   Face(shared_ptr<Transport> transport, KeyChain& keyChain);
 
   /**
-   * @brief Create a new Face using the given Transport and IO service object
-   * @param transport the Transport used for communication. If nullptr, then the default
-   *                  transport will be used.
+   * @brief Create Face using given transport and IO service
+   * @param transport the transport for lower layer communication. If nullptr,
+   *                  a default transport will be used.
    * @param ioService the io_service that controls all IO operations
    *
    * @sa Face(boost::asio::io_service&)
+   * @sa Face(shared_ptr<Transport>)
    *
-   * @throws ConfigFile::Error if @p transport is nullptr on configuration file parse failure
-   * @throws ConfigFile::Error if @p transport is nullptr and the configuration file
-   *         specifies an unsupported protocol
+   * @throw ConfigFile::Error if @p transport is nullptr, and the configuration file cannot be
+   *                          parsed or specifies an unsupported protocol
    * @note shared_ptr is passed by value because ownership is shared with this class
    */
   Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService);
 
   /**
-   * @brief Create a new Face using the given Transport and IO service object
-   * @param transport the Transport used for communication. If nullptr, then the default
-   *                  transport will be used.
+   * @brief Create a new Face using given Transport and IO service
+   * @param transport the transport for lower layer communication. If nullptr,
+   *                  a default transport will be used.
    * @param ioService the io_service that controls all IO operations
    * @param keyChain the KeyChain to sign commands
    *
-   * @throws ConfigFile::Error if @p transport is nullptr on configuration file parse failure
-   * @throws ConfigFile::Error if @p transport is nullptr and the configuration file
-   *         specifies an unsupported protocol
+   * @sa Face(boost::asio::io_service&)
+   * @sa Face(shared_ptr<Transport>, KeyChain&)
+   *
+   * @throw ConfigFile::Error if @p transport is nullptr, and the configuration file cannot be
+   *                          parsed or specifies an unsupported protocol
    * @note shared_ptr is passed by value because ownership is shared with this class
    */
   Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService, KeyChain& keyChain);
@@ -257,7 +261,7 @@ public: // consumer
    *
    * @return The pending interest ID which can be used with removePendingInterest
    *
-   * @throws Error when Interest size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
+   * @throw Error when Interest size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
    *
    * @deprecated use expressInterest(Interest, DataCallback, NackCallback, TimeoutCallback)
    */
@@ -276,7 +280,7 @@ public: // consumer
    *
    * @return Opaque pending interest ID which can be used with removePendingInterest
    *
-   * @throws Error when Interest size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
+   * @throw Error when Interest size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
    *
    * @deprecated use expressInterest(Interest, DataCallback, NackCallback, TimeoutCallback)
    */
@@ -329,7 +333,7 @@ public: // producer
    */
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
-                    const OnInterest& onInterest,
+                    const InterestCallback& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
                     const security::SigningInfo& signingInfo = security::SigningInfo(),
                     uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
@@ -357,7 +361,7 @@ public: // producer
    */
   const RegisteredPrefixId*
   setInterestFilter(const InterestFilter& interestFilter,
-                    const OnInterest& onInterest,
+                    const InterestCallback& onInterest,
                     const RegisterPrefixSuccessCallback& onSuccess,
                     const RegisterPrefixFailureCallback& onFailure,
                     const security::SigningInfo& signingInfo = security::SigningInfo(),
@@ -377,7 +381,7 @@ public: // producer
    */
   const InterestFilterId*
   setInterestFilter(const InterestFilter& interestFilter,
-                    const OnInterest& onInterest);
+                    const InterestCallback& onInterest);
 
 #ifdef NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
   /**
@@ -634,7 +638,7 @@ public: // producer
    *             extra copy of the Data packet to ensure validity of published Data until
    *             asynchronous put() operation finishes.
    *
-   * @throws Error when Data size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
+   * @throw Error when Data size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
    */
   void
   put(const Data& data);
@@ -685,7 +689,7 @@ public: // IO routine
   shutdown();
 
   /**
-   * @brief Get reference to IO service object
+   * @return reference to IO service object
    */
   boost::asio::io_service&
   getIoService()
@@ -695,21 +699,20 @@ public: // IO routine
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /**
-   * @brief Get the underlying transport of the face
+   * @return underlying transport
    */
   shared_ptr<Transport>
   getTransport();
 
 private:
-
   /**
-   * @throws ConfigFile::Error on parse error and unsupported protocols
+   * @throw ConfigFile::Error on parse error and unsupported protocols
    */
   shared_ptr<Transport>
   makeDefaultTransport();
 
   /**
-   * @throws Face::Error on unsupported protocol
+   * @throw Face::Error on unsupported protocol
    * @note shared_ptr is passed by value because ownership is transferred to this function
    */
   void
@@ -729,11 +732,12 @@ private:
 
   shared_ptr<Transport> m_transport;
 
-  /** @brief if not null, a pointer to an internal KeyChain owned by Face
-   *  @note if a KeyChain is supplied to constructor, this pointer will be null,
-   *        and the passed KeyChain is given to nfdController;
-   *        currently Face does not keep the KeyChain passed in constructor
-   *        because it's not needed, but this may change in the future
+  /**
+   * @brief if not null, a pointer to an internal KeyChain owned by Face
+   * @note if a KeyChain is supplied to constructor, this pointer will be null,
+   *       and the passed KeyChain is given to nfdController;
+   *       currently Face does not keep the KeyChain passed in constructor
+   *       because it's not needed, but this may change in the future
    */
   unique_ptr<KeyChain> m_internalKeyChain;
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,19 +32,14 @@
 
 namespace ndn {
 
+/**
+ * @brief stores information about a prefix registered in NDN forwarder
+ */
 class RegisteredPrefix : noncopyable
 {
 public:
-  /** \brief a callback on command success
-   */
-  typedef function<void(const nfd::ControlParameters&)> SuccessCallback;
-
-  /** \brief a callback on command failure
-   */
-  typedef function<void(uint32_t/*code*/,const std::string&/*reason*/)> FailureCallback;
-
   RegisteredPrefix(const Name& prefix,
-                   const shared_ptr<InterestFilterRecord>& filter,
+                   shared_ptr<InterestFilterRecord> filter,
                    const nfd::CommandOptions& options)
     : m_prefix(prefix)
     , m_filter(filter)
@@ -77,7 +72,7 @@ private:
 };
 
 /**
- * @brief Opaque class representing ID of the registered prefix
+ * @brief Opaque type to identify a RegisteredPrefix
  */
 class RegisteredPrefixId;
 
@@ -96,12 +91,12 @@ public:
   bool
   operator()(const shared_ptr<RegisteredPrefix>& registeredPrefix) const
   {
-    return (reinterpret_cast<const RegisteredPrefixId*>(registeredPrefix.get()) == m_id);
+    return reinterpret_cast<const RegisteredPrefixId*>(registeredPrefix.get()) == m_id;
   }
+
 private:
   const RegisteredPrefixId* m_id;
 };
-
 
 } // namespace ndn
 
