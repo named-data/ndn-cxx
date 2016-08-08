@@ -72,8 +72,22 @@ Controller::processCommandResponse(const Data& data,
                                    const CommandSucceedCallback& onSuccess,
                                    const CommandFailCallback& onFailure)
 {
-  /// \todo verify Data signature
+  m_validator.validate(data,
+    [=] (const shared_ptr<const Data>& data) {
+      this->processValidatedCommandResponse(*data, command, onSuccess, onFailure);
+    },
+    [=] (const shared_ptr<const Data>&, const std::string& msg) {
+      onFailure(ERROR_VALIDATION, msg);
+    }
+  );
+}
 
+void
+Controller::processValidatedCommandResponse(const Data& data,
+                                            const shared_ptr<ControlCommand>& command,
+                                            const CommandSucceedCallback& onSuccess,
+                                            const CommandFailCallback& onFailure)
+{
   ControlResponse response;
   try {
     response.wireDecode(data.getContent().blockFromValue());

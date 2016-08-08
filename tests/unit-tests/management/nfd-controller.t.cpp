@@ -161,6 +161,37 @@ BOOST_AUTO_TEST_CASE(InvalidRequest)
                     ControlCommand::ArgumentError);
 }
 
+BOOST_AUTO_TEST_CASE(ValidationFailure)
+{
+  this->setValidationResult(false);
+
+  ControlParameters parameters;
+  parameters.setUri("tcp4://192.0.2.1:6363");
+
+  BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
+                         parameters, succeedCallback, failCallback));
+  this->advanceClocks(time::milliseconds(1));
+
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+  const Interest& requestInterest = face.sentInterests[0];
+
+  ControlParameters responseBody;
+  responseBody.setUri("tcp4://192.0.2.1:6363")
+              .setFaceId(22)
+              .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  ControlResponse responsePayload(201, "created");
+  responsePayload.setBody(responseBody.wireEncode());
+
+  auto responseData = makeData(requestInterest.getName());
+  responseData->setContent(responsePayload.wireEncode());
+  face.receive(*responseData);
+  this->advanceClocks(time::milliseconds(1));
+
+  BOOST_CHECK_EQUAL(succeeds.size(), 0);
+  BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
+  BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_VALIDATION);
+}
+
 BOOST_AUTO_TEST_CASE(ErrorCode)
 {
   ControlParameters parameters;

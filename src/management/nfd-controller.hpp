@@ -107,6 +107,12 @@ private:
                          const CommandSucceedCallback& onSuccess,
                          const CommandFailCallback& onFailure);
 
+  void
+  processValidatedCommandResponse(const Data& data,
+                                  const shared_ptr<ControlCommand>& command,
+                                  const CommandSucceedCallback& onSuccess,
+                                  const CommandFailCallback& onFailure);
+
   template<typename Dataset>
   void
   fetchDataset(shared_ptr<Dataset> dataset,
@@ -129,7 +135,6 @@ private:
 
   void
   processDatasetFetchError(const CommandFailCallback& onFailure, uint32_t code, std::string msg);
-
 
 public:
   /** \brief error code for timeout
