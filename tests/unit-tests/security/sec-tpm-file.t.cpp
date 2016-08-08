@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -97,25 +97,23 @@ BOOST_AUTO_TEST_CASE(RandomGenerator)
 {
   SecTpmFile tpm;
 
-  size_t scale = 1000;
-  size_t size = 256 * scale;
-  uint8_t* block = new uint8_t[size];
-  tpm.generateRandomBlock(block, size);
+  constexpr size_t scale = 1000;
+  constexpr size_t size = 256 * scale;
+  auto block = unique_ptr<uint8_t[]>{new uint8_t[size]};
+  tpm.generateRandomBlock(block.get(), size);
 
-  std::map<uint8_t, int> counter;
-  for (size_t i = 0; i < size; i++)
-    {
-      counter[block[i]] += 1;
-    }
+  std::map<uint8_t, size_t> counter;
+  for (size_t i = 0; i < size; i++) {
+    counter[block[i]] += 1;
+  }
 
-  float dev = 0.0;
-  for (size_t i = 0; i != 255; i++)
-    {
-      dev += ((counter[i] - scale) * (counter[i] - scale)) * 1.0 / (scale * scale);
-    }
+  double dev = 0.0;
+  for (uint8_t i = 0; i < 255; i++) {
+    dev += static_cast<double>((counter[i] - scale) * (counter[i] - scale)) / (scale * scale);
+  }
+  dev /= 256;
 
-  BOOST_CHECK_CLOSE(dev / 256, 0.001, 100);
-
+  BOOST_CHECK_CLOSE(dev, 0.001, 100);
 }
 
 BOOST_AUTO_TEST_CASE(ImportExportKey)
