@@ -173,35 +173,10 @@ public: // producer
   }
 
   void
-  asyncPutData(const shared_ptr<const Data>& data)
+  asyncSend(const Block& wire)
   {
     this->ensureConnected(true);
-
-    lp::Packet packet;
-
-    shared_ptr<lp::CachePolicyTag> cachePolicyTag = data->getTag<lp::CachePolicyTag>();
-    if (cachePolicyTag != nullptr) {
-      packet.add<lp::CachePolicyField>(*cachePolicyTag);
-    }
-
-    packet.add<lp::FragmentField>(std::make_pair(data->wireEncode().begin(),
-                                                 data->wireEncode().end()));
-
-    m_face.m_transport->send(packet.wireEncode());
-  }
-
-  void
-  asyncPutNack(shared_ptr<const lp::Nack> nack)
-  {
-    this->ensureConnected(true);
-
-    lp::Packet packet;
-    packet.add<lp::NackField>(nack->getHeader());
-
-    Block interest = nack->getInterest().wireEncode();
-    packet.add<lp::FragmentField>(std::make_pair(interest.begin(), interest.end()));
-
-    m_face.m_transport->send(packet.wireEncode());
+    m_face.m_transport->send(wire);
   }
 
 public: // prefix registration

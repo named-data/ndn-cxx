@@ -238,33 +238,39 @@ Face::getNPendingInterests() const
 void
 Face::put(const Data& data)
 {
-  // Use original `data`, since wire format should already exist for the original Data
-  if (data.wireEncode().size() > MAX_NDN_PACKET_SIZE)
+  Block wire = data.wireEncode();
+
+  shared_ptr<lp::CachePolicyTag> cachePolicyTag = data.getTag<lp::CachePolicyTag>();
+  if (cachePolicyTag != nullptr) {
+    lp::Packet packet;
+    packet.add<lp::CachePolicyField>(*cachePolicyTag);
+    packet.add<lp::FragmentField>(std::make_pair(wire.begin(), wire.end()));
+    wire = packet.wireEncode();
+  }
+
+  if (wire.size() > MAX_NDN_PACKET_SIZE)
     BOOST_THROW_EXCEPTION(Error("Data size exceeds maximum limit"));
 
-  shared_ptr<const Data> dataPtr;
-  try {
-    dataPtr = data.shared_from_this();
-  }
-  catch (const bad_weak_ptr& e) {
-    std::cerr << "Face::put WARNING: the supplied Data should be created using make_shared<Data>()"
-              << std::endl;
-    dataPtr = make_shared<Data>(data);
-  }
-
-  // If the same ioService thread, dispatch directly calls the method
   IO_CAPTURE_WEAK_IMPL(dispatch) {
-    impl->asyncPutData(dataPtr);
+    impl->asyncSend(wire);
   } IO_CAPTURE_WEAK_IMPL_END
 }
 
 void
 Face::put(const lp::Nack& nack)
 {
-  auto nackPtr = make_shared<lp::Nack>(nack);
+  lp::Packet packet;
+  packet.add<lp::NackField>(nack.getHeader());
+  const Block& interestWire = nack.getInterest().wireEncode();
+  packet.add<lp::FragmentField>(std::make_pair(interestWire.begin(), interestWire.end()));
+
+  Block wire = packet.wireEncode();
+
+  if (wire.size() > MAX_NDN_PACKET_SIZE)
+    BOOST_THROW_EXCEPTION(Error("Nack size exceeds maximum limit"));
 
   IO_CAPTURE_WEAK_IMPL(dispatch) {
-    impl->asyncPutNack(nackPtr);
+    impl->asyncSend(wire);
   } IO_CAPTURE_WEAK_IMPL_END
 }
 
