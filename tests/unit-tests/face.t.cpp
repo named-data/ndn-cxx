@@ -94,6 +94,20 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
   BOOST_CHECK_EQUAL(nTimeouts, 1);
 }
 
+BOOST_AUTO_TEST_CASE(ExpressInterestEmptyDataCallback)
+{
+  face.expressInterest(Interest("/Hello/World"),
+                       nullptr,
+                       bind([] { BOOST_FAIL("Unexpected Nack"); }),
+                       bind([] { BOOST_FAIL("Unexpected timeout"); }));
+  advanceClocks(time::milliseconds(1));
+
+  BOOST_CHECK_NO_THROW(do {
+    face.receive(*makeData("/Hello/World/a"));
+    advanceClocks(time::milliseconds(1));
+  } while (false));
+}
+
 // test case for deprecated expressInterest implementation
 BOOST_AUTO_TEST_CASE(DeprecatedExpressInterestData)
 {
@@ -158,6 +172,19 @@ BOOST_AUTO_TEST_CASE(ExpressInterestTimeout)
   BOOST_CHECK_EQUAL(face.sentNacks.size(), 0);
 }
 
+BOOST_AUTO_TEST_CASE(ExpressInterestEmptyTimeoutCallback)
+{
+  face.expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+                       bind([] { BOOST_FAIL("Unexpected Data"); }),
+                       bind([] { BOOST_FAIL("Unexpected Nack"); }),
+                       nullptr);
+  advanceClocks(time::milliseconds(40));
+
+  BOOST_CHECK_NO_THROW(do {
+    advanceClocks(time::milliseconds(6), 2);
+  } while (false));
+}
+
 // test case for deprecated expressInterest implementation
 BOOST_AUTO_TEST_CASE(DeprecatedExpressInterestTimeout)
 {
@@ -202,6 +229,20 @@ BOOST_AUTO_TEST_CASE(ExpressInterestNack)
 
   BOOST_CHECK_EQUAL(nNacks, 1);
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(ExpressInterestEmptyNackCallback)
+{
+  face.expressInterest(Interest("/Hello/World"),
+                       bind([] { BOOST_FAIL("Unexpected Data"); }),
+                       nullptr,
+                       bind([] { BOOST_FAIL("Unexpected timeout"); }));
+  advanceClocks(time::milliseconds(1));
+
+  BOOST_CHECK_NO_THROW(do {
+    face.receive(makeNack(face.sentInterests.at(0), lp::NackReason::DUPLICATE));
+    advanceClocks(time::milliseconds(1));
+  } while (false));
 }
 
 BOOST_AUTO_TEST_CASE(RemovePendingInterest)
@@ -314,6 +355,17 @@ BOOST_AUTO_TEST_CASE(SetUnsetInterestFilter)
 
   face.unsetInterestFilter(static_cast<const InterestFilterId*>(nullptr));
   advanceClocks(time::milliseconds(10), 10);
+}
+
+BOOST_AUTO_TEST_CASE(SetInterestFilterEmptyInterestCallback)
+{
+  face.setInterestFilter("/A", nullptr);
+  advanceClocks(time::milliseconds(1));
+
+  BOOST_CHECK_NO_THROW(do {
+    face.receive(*makeInterest("/A/1"));
+    advanceClocks(time::milliseconds(1));
+  } while (false));
 }
 
 BOOST_AUTO_TEST_CASE(SetUnsetInterestFilterWithoutSucessCallback)

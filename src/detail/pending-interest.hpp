@@ -76,20 +76,26 @@ public:
 
   /**
    * @brief invokes the Data callback
+   * @note This method does nothing if the Data callback is empty
    */
   void
   invokeDataCallback(const Data& data)
   {
-    m_dataCallback(*m_interest, data);
+    if (m_dataCallback != nullptr) {
+      m_dataCallback(*m_interest, data);
+    }
   }
 
   /**
    * @brief invokes the Nack callback
+   * @note This method does nothing if the Nack callback is empty
    */
   void
   invokeNackCallback(const lp::Nack& nack)
   {
-    m_nackCallback(*m_interest, nack);
+    if (m_nackCallback != nullptr) {
+      m_nackCallback(*m_interest, nack);
+    }
   }
 
   /**

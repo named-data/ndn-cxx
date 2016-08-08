@@ -67,11 +67,14 @@ public:
 
   /**
    * @brief invokes the InterestCallback
+   * @note This method does nothing if the Interest callback is empty
    */
   void
   invokeInterestCallback(const Interest& interest) const
   {
-    m_interestCallback(m_filter, interest);
+    if (m_interestCallback != nullptr) {
+      m_interestCallback(m_filter, interest);
+    }
   }
 
 private:
