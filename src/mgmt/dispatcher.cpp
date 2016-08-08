@@ -20,10 +20,11 @@
  */
 
 #include "dispatcher.hpp"
+#include "../util/logger.hpp"
 
 #include <algorithm>
 
-// #define NDN_CXX_MGMT_DISPATCHER_ENABLE_LOGGING
+NDN_LOG_INIT(ndn.mgmt.Dispatcher);
 
 namespace ndn {
 namespace mgmt {
@@ -192,10 +193,8 @@ Dispatcher::sendOnFace(const Data& data)
   try {
     m_face.put(data);
   }
-  catch (Face::Error& e) {
-#ifdef NDN_CXX_MGMT_DISPATCHER_ENABLE_LOGGING
-    std::clog << e.what() << std::endl;
-#endif // NDN_CXX_MGMT_DISPATCHER_ENABLE_LOGGING.
+  catch (const Face::Error& e) {
+    NDN_LOG_ERROR("sendOnFace: " << e.what());
   }
 }
 
@@ -216,7 +215,7 @@ Dispatcher::processControlCommandInterest(const Name& prefix,
   try {
     parameters = parser(pc);
   }
-  catch (tlv::Error& e) {
+  catch (const tlv::Error&) {
     return;
   }
 
@@ -334,11 +333,11 @@ PostNotification
 Dispatcher::addNotificationStream(const PartialName& relPrefix)
 {
   if (!m_topLevelPrefixes.empty()) {
-    throw std::domain_error("one or more top-level prefix has been added");
+    BOOST_THROW_EXCEPTION(std::domain_error("one or more top-level prefix has been added"));
   }
 
   if (isOverlappedWithOthers(relPrefix)) {
-    throw std::out_of_range("relPrefix overlaps with another relPrefix");
+    BOOST_THROW_EXCEPTION(std::out_of_range("relPrefix overlaps with another relPrefix"));
   }
 
   // keep silent if Interest does not match a stored notification
@@ -354,9 +353,7 @@ void
 Dispatcher::postNotification(const Block& notification, const PartialName& relPrefix)
 {
   if (m_topLevelPrefixes.empty() || m_topLevelPrefixes.size() > 1) {
-#ifdef NDN_CXX_MGMT_DISPATCHER_ENABLE_LOGGING
-    std::clog << "no top-level prefix or too many top-level prefixes" << std::endl;
-#endif // NDN_CXX_MGMT_DISPATCHER_ENABLE_LOGGING.
+    NDN_LOG_WARN("postNotification: no top-level prefix or too many top-level prefixes");
     return;
   }
 
@@ -364,7 +361,7 @@ Dispatcher::postNotification(const Block& notification, const PartialName& relPr
   streamName.append(relPrefix);
   streamName.appendSequenceNumber(m_streams[streamName]++);
 
-  // notification is sent out the by face after inserting into the in-memory storage,
+  // notification is sent out by the face after inserting into the in-memory storage,
   // because a request may be pending in the PIT
   sendData(streamName, notification, MetaInfo(), SendDestination::FACE_AND_IMS,
            DEFAULT_FRESHNESS_PERIOD);
