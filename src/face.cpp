@@ -29,13 +29,27 @@
 #include "util/random.hpp"
 #include "util/face-uri.hpp"
 
+// A callback scheduled through io.post and io.dispatch may be invoked after the face
+// is destructed. To prevent this situation, these macros captures Face::m_impl as weak_ptr,
+// and skips callback execution if the face has been destructed.
+#define IO_CAPTURE_WEAK_IMPL(OP) \
+  { \
+    weak_ptr<Impl> implWeak(m_impl); \
+    m_ioService.OP([=] { \
+      auto impl = implWeak.lock(); \
+      if (impl != nullptr) {
+#define IO_CAPTURE_WEAK_IMPL_END \
+      } \
+    }); \
+  }
+
 namespace ndn {
 
 Face::Face(shared_ptr<Transport> transport)
   : m_internalIoService(new boost::asio::io_service())
   , m_ioService(*m_internalIoService)
   , m_internalKeyChain(new KeyChain())
-  , m_impl(new Impl(*this))
+  , m_impl(make_shared<Impl>(*this))
 {
   construct(transport, *m_internalKeyChain);
 }
@@ -43,7 +57,7 @@ Face::Face(shared_ptr<Transport> transport)
 Face::Face(boost::asio::io_service& ioService)
   : m_ioService(ioService)
   , m_internalKeyChain(new KeyChain())
-  , m_impl(new Impl(*this))
+  , m_impl(make_shared<Impl>(*this))
 {
   construct(nullptr, *m_internalKeyChain);
 }
@@ -52,7 +66,7 @@ Face::Face(const std::string& host, const std::string& port)
   : m_internalIoService(new boost::asio::io_service())
   , m_ioService(*m_internalIoService)
   , m_internalKeyChain(new KeyChain())
-  , m_impl(new Impl(*this))
+  , m_impl(make_shared<Impl>(*this))
 {
   construct(make_shared<TcpTransport>(host, port), *m_internalKeyChain);
 }
@@ -60,7 +74,7 @@ Face::Face(const std::string& host, const std::string& port)
 Face::Face(shared_ptr<Transport> transport, KeyChain& keyChain)
   : m_internalIoService(new boost::asio::io_service())
   , m_ioService(*m_internalIoService)
-  , m_impl(new Impl(*this))
+  , m_impl(make_shared<Impl>(*this))
 {
   construct(transport, keyChain);
 }
@@ -68,14 +82,14 @@ Face::Face(shared_ptr<Transport> transport, KeyChain& keyChain)
 Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService)
   : m_ioService(ioService)
   , m_internalKeyChain(new KeyChain())
-  , m_impl(new Impl(*this))
+  , m_impl(make_shared<Impl>(*this))
 {
   construct(transport, *m_internalKeyChain);
 }
 
 Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService, KeyChain& keyChain)
   : m_ioService(ioService)
-  , m_impl(new Impl(*this))
+  , m_impl(make_shared<Impl>(*this))
 {
   construct(transport, keyChain);
 }
@@ -136,7 +150,9 @@ Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
 
   m_nfdController.reset(new nfd::Controller(*this, keyChain));
 
-  m_ioService.post([=] { m_impl->ensureConnected(false); });
+  IO_CAPTURE_WEAK_IMPL(post) {
+    impl->ensureConnected(false);
+  } IO_CAPTURE_WEAK_IMPL_END
 }
 
 Face::~Face() = default;
@@ -161,9 +177,9 @@ Face::expressInterest(const Interest& interest,
   }
 
   // If the same ioService thread, dispatch directly calls the method
-  m_ioService.dispatch([=] {
-    m_impl->asyncExpressInterest(interestToExpress, afterSatisfied, afterNacked, afterTimeout);
-  });
+  IO_CAPTURE_WEAK_IMPL(dispatch) {
+    impl->asyncExpressInterest(interestToExpress, afterSatisfied, afterNacked, afterTimeout);
+  } IO_CAPTURE_WEAK_IMPL_END
 
   return reinterpret_cast<const PendingInterestId*>(interestToExpress.get());
 }
@@ -198,6 +214,28 @@ Face::expressInterest(const Name& name, const Interest& tmpl,
 }
 
 void
+Face::removePendingInterest(const PendingInterestId* pendingInterestId)
+{
+  IO_CAPTURE_WEAK_IMPL(post) {
+    impl->asyncRemovePendingInterest(pendingInterestId);
+  } IO_CAPTURE_WEAK_IMPL_END
+}
+
+void
+Face::removeAllPendingInterests()
+{
+  IO_CAPTURE_WEAK_IMPL(post) {
+    impl->asyncRemoveAllPendingInterests();
+  } IO_CAPTURE_WEAK_IMPL_END
+}
+
+size_t
+Face::getNPendingInterests() const
+{
+  return m_impl->m_pendingInterestTable.size();
+}
+
+void
 Face::put(const Data& data)
 {
   // Use original `data`, since wire format should already exist for the original Data
@@ -215,31 +253,19 @@ Face::put(const Data& data)
   }
 
   // If the same ioService thread, dispatch directly calls the method
-  m_ioService.dispatch([=] { m_impl->asyncPutData(dataPtr); });
+  IO_CAPTURE_WEAK_IMPL(dispatch) {
+    impl->asyncPutData(dataPtr);
+  } IO_CAPTURE_WEAK_IMPL_END
 }
 
 void
 Face::put(const lp::Nack& nack)
 {
-  m_ioService.dispatch([=] { m_impl->asyncPutNack(make_shared<lp::Nack>(nack)); });
-}
+  auto nackPtr = make_shared<lp::Nack>(nack);
 
-void
-Face::removePendingInterest(const PendingInterestId* pendingInterestId)
-{
-  m_ioService.post([=] { m_impl->asyncRemovePendingInterest(pendingInterestId); });
-}
-
-void
-Face::removeAllPendingInterests()
-{
-  m_ioService.post([=] { m_impl->asyncRemoveAllPendingInterests(); });
-}
-
-size_t
-Face::getNPendingInterests() const
-{
-  return m_impl->m_pendingInterestTable.size();
+  IO_CAPTURE_WEAK_IMPL(dispatch) {
+    impl->asyncPutNack(nackPtr);
+  } IO_CAPTURE_WEAK_IMPL_END
 }
 
 const RegisteredPrefixId*
@@ -275,7 +301,9 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
 {
   auto filter = make_shared<InterestFilterRecord>(interestFilter, onInterest);
 
-  m_ioService.post([=] { m_impl->asyncSetInterestFilter(filter); });
+  IO_CAPTURE_WEAK_IMPL(post) {
+    impl->asyncSetInterestFilter(filter);
+  } IO_CAPTURE_WEAK_IMPL_END
 
   return reinterpret_cast<const InterestFilterId*>(filter.get());
 }
@@ -381,13 +409,17 @@ Face::registerPrefix(const Name& prefix,
 void
 Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
 {
-  m_ioService.post([=] { m_impl->asyncUnregisterPrefix(registeredPrefixId, nullptr, nullptr); });
+  IO_CAPTURE_WEAK_IMPL(post) {
+    impl->asyncUnregisterPrefix(registeredPrefixId, nullptr, nullptr);
+  } IO_CAPTURE_WEAK_IMPL_END
 }
 
 void
 Face::unsetInterestFilter(const InterestFilterId* interestFilterId)
 {
-  m_ioService.post([=] { m_impl->asyncUnsetInterestFilter(interestFilterId); });
+  IO_CAPTURE_WEAK_IMPL(post) {
+    impl->asyncUnsetInterestFilter(interestFilterId);
+  } IO_CAPTURE_WEAK_IMPL_END
 }
 
 void
@@ -395,7 +427,9 @@ Face::unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
                        const UnregisterPrefixSuccessCallback& onSuccess,
                        const UnregisterPrefixFailureCallback& onFailure)
 {
-  m_ioService.post([=] { m_impl->asyncUnregisterPrefix(registeredPrefixId, onSuccess, onFailure); });
+  IO_CAPTURE_WEAK_IMPL(post) {
+    impl->asyncUnregisterPrefix(registeredPrefixId, onSuccess, onFailure);
+  } IO_CAPTURE_WEAK_IMPL_END
 }
 
 void
@@ -440,7 +474,9 @@ Face::processEvents(const time::milliseconds& timeout, bool keepThread)
 void
 Face::shutdown()
 {
-  m_ioService.post([this] { this->asyncShutdown(); });
+  IO_CAPTURE_WEAK_IMPL(post) {
+    this->asyncShutdown();
+  } IO_CAPTURE_WEAK_IMPL_END
 }
 
 void

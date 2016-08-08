@@ -577,6 +577,8 @@ BOOST_FIXTURE_TEST_CASE(SetInterestFilterNoReg, FacesNoRegistrationReplyFixture)
 
 BOOST_AUTO_TEST_SUITE_END() // Producer
 
+BOOST_AUTO_TEST_SUITE(IoRoutines)
+
 BOOST_AUTO_TEST_CASE(ProcessEvents)
 {
   face.processEvents(time::milliseconds(-1)); // io_service::reset()/poll() inside
@@ -593,6 +595,20 @@ BOOST_AUTO_TEST_CASE(ProcessEvents)
   face.processEvents(time::milliseconds(-1)); // io_service::reset()/poll() inside
   BOOST_CHECK_EQUAL(nRegSuccesses, 1);
 }
+
+BOOST_AUTO_TEST_CASE(DestroyWithoutProcessEvents) // Bug 3248
+{
+  auto face2 = make_unique<Face>(io);
+  face2.reset();
+
+  io.poll(); // should not crash
+}
+
+BOOST_AUTO_TEST_SUITE_END() // IoRoutines
+
+BOOST_AUTO_TEST_SUITE(Transport)
+
+using ndn::Transport;
 
 struct PibDirWithDefaultTpm
 {
@@ -615,8 +631,6 @@ BOOST_FIXTURE_TEST_CASE(FaceTransport, PibDirFixture<PibDirWithDefaultTpm>)
   BOOST_CHECK(Face(transport, io).getTransport() == transport);
   BOOST_CHECK(Face(transport, io, keyChain).getTransport() == transport);
 }
-
-BOOST_AUTO_TEST_SUITE(CustomizeTransport)
 
 class WithEnv : private IdentityManagementTimeFixture
 {
@@ -725,7 +739,8 @@ BOOST_FIXTURE_TEST_CASE(ExplicitTransport, WithEnvAndConfig)
   BOOST_CHECK(dynamic_pointer_cast<UnixTransport>(face->getTransport()) != nullptr);
 }
 
-BOOST_AUTO_TEST_SUITE_END() // CustomizeTransport
+BOOST_AUTO_TEST_SUITE_END() // Transport
+
 BOOST_AUTO_TEST_SUITE_END() // TestFace
 
 } // namespace tests

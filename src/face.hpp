@@ -187,6 +187,7 @@ public: // constructors
    * @param host IP address or hostname of the NDN forwarder
    * @param port port number or service name of the NDN forwarder (**default**: "6363")
    */
+  explicit
   Face(const std::string& host, const std::string& port = "6363");
 
   /**
@@ -744,7 +745,7 @@ private:
   unique_ptr<nfd::Controller> m_nfdController;
 
   class Impl;
-  unique_ptr<Impl> m_impl;
+  shared_ptr<Impl> m_impl;
 };
 
 } // namespace ndn
