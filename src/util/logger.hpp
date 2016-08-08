@@ -57,7 +57,7 @@ LogLevel
 parseLogLevel(const std::string& s);
 
 /** \brief represents a logger in logging facility
- *  \note User should declare a new logger with \p NDN_CXX_LOG_INIT macro.
+ *  \note User should declare a new logger with \p NDN_LOG_INIT macro.
  */
 class Logger : public boost::log::sources::logger_mt
 {
@@ -90,7 +90,7 @@ private:
 
 /** \brief declare a log module
  */
-#define NDN_CXX_LOG_INIT(name) \
+#define NDN_LOG_INIT(name) \
   namespace { \
     inline ::ndn::util::Logger& getNdnCxxLogger() \
     { \
@@ -117,15 +117,15 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
 
 #if (BOOST_VERSION >= 105900) && (BOOST_VERSION < 106000)
 // workaround Boost bug 11549
-#define NDN_CXX_BOOST_LOG(x) BOOST_LOG(x) << ""
+#define NDN_BOOST_LOG(x) BOOST_LOG(x) << ""
 #else
-#define NDN_CXX_BOOST_LOG(x) BOOST_LOG(x)
+#define NDN_BOOST_LOG(x) BOOST_LOG(x)
 #endif
 
-#define NDN_CXX_LOG(lvl, lvlstr, expression) \
+#define NDN_LOG(lvl, lvlstr, expression) \
   do { \
     if (getNdnCxxLogger().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
-      NDN_CXX_BOOST_LOG(getNdnCxxLogger()) << ::ndn::util::LoggerTimestamp{} \
+      NDN_BOOST_LOG(getNdnCxxLogger()) << ::ndn::util::LoggerTimestamp{} \
         << " " BOOST_STRINGIZE(lvlstr) ": [" << getNdnCxxLogger().getModuleName() << "] " \
         << expression; \
     } \
@@ -134,32 +134,32 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
 /** \brief log at TRACE level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_TRACE(expression) NDN_CXX_LOG(TRACE, TRACE, expression)
+#define NDN_LOG_TRACE(expression) NDN_LOG(TRACE, TRACE, expression)
 
 /** \brief log at DEBUG level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_DEBUG(expression) NDN_CXX_LOG(DEBUG, DEBUG, expression)
+#define NDN_LOG_DEBUG(expression) NDN_LOG(DEBUG, DEBUG, expression)
 
 /** \brief log at INFO level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_INFO(expression) NDN_CXX_LOG(INFO, INFO, expression)
+#define NDN_LOG_INFO(expression) NDN_LOG(INFO, INFO, expression)
 
 /** \brief log at WARN level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_WARN(expression) NDN_CXX_LOG(WARN, WARNING, expression)
+#define NDN_LOG_WARN(expression) NDN_LOG(WARN, WARNING, expression)
 
 /** \brief log at ERROR level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_ERROR(expression) NDN_CXX_LOG(ERROR, ERROR, expression)
+#define NDN_LOG_ERROR(expression) NDN_LOG(ERROR, ERROR, expression)
 
 /** \brief log at FATAL level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_FATAL(expression) NDN_CXX_LOG(FATAL, FATAL, expression)
+#define NDN_LOG_FATAL(expression) NDN_LOG(FATAL, FATAL, expression)
 
 } // namespace util
 } // namespace ndn

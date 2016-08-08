@@ -18,6 +18,7 @@
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
+
 #include "util/logging.hpp"
 #include "util/logger.hpp"
 
@@ -46,12 +47,12 @@ logFromNewLogger(const std::string& moduleName)
   Logger& logger = *loggerPtr;
 
   auto getNdnCxxLogger = [&logger] () -> Logger& { return logger; };
-  NDN_CXX_LOG_TRACE("trace" << moduleName);
-  NDN_CXX_LOG_DEBUG("debug" << moduleName);
-  NDN_CXX_LOG_INFO("info" << moduleName);
-  NDN_CXX_LOG_WARN("warn" << moduleName);
-  NDN_CXX_LOG_ERROR("error" << moduleName);
-  NDN_CXX_LOG_FATAL("fatal" << moduleName);
+  NDN_LOG_TRACE("trace" << moduleName);
+  NDN_LOG_DEBUG("debug" << moduleName);
+  NDN_LOG_INFO("info" << moduleName);
+  NDN_LOG_WARN("warn" << moduleName);
+  NDN_LOG_ERROR("error" << moduleName);
+  NDN_LOG_FATAL("fatal" << moduleName);
 
   BOOST_CHECK(Logging::get().removeLogger(logger));
 }

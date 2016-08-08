@@ -43,7 +43,7 @@ class Logging : noncopyable
 {
 public:
   /** \brief register a new logger
-   *  \note App should declare a new logger with \p NDN_CXX_LOG_INIT macro.
+   *  \note App should declare a new logger with \p NDN_LOG_INIT macro.
    */
   static void
   addLogger(Logger& logger);

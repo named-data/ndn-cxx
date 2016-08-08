@@ -44,7 +44,7 @@ Logging::Logging()
 {
   this->setDestinationImpl(shared_ptr<std::ostream>(&std::clog, bind([]{})));
 
-  const char* environ = std::getenv("NDN_CXX_LOG");
+  const char* environ = std::getenv("NDN_LOG");
   if (environ != nullptr) {
     this->setLevelImpl(environ);
   }
