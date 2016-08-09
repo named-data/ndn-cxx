@@ -11,9 +11,10 @@ GIT_TAG_PREFIX = "ndn-cxx-"
 
 def options(opt):
     opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
-    opt.load(['default-compiler-flags', 'coverage', 'osx-security', 'pch',
-              'boost', 'cryptopp', 'sqlite3', 'openssl',
-              'doxygen', 'sphinx_build', 'type_traits', 'compiler-features'],
+    opt.load(['default-compiler-flags', 'compiler-features', 'type_traits',
+              'coverage', 'pch', 'sanitizers', 'osx-security',
+              'boost', 'cryptopp', 'openssl', 'sqlite3',
+              'doxygen', 'sphinx_build'],
              tooldir=['.waf-tools'])
 
     opt = opt.add_option_group('Library Options')
@@ -65,9 +66,11 @@ def configure(conf):
     if not conf.options.enable_shared and not conf.options.enable_static:
         conf.fatal("Either static library or shared library must be enabled")
 
-    conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx', 'default-compiler-flags',
-               'osx-security', 'pch', 'boost', 'cryptopp', 'sqlite3', 'openssl',
-               'type_traits', 'compiler-features', 'doxygen', 'sphinx_build'])
+    conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
+               'default-compiler-flags', 'compiler-features', 'type_traits',
+               'pch', 'sanitizers', 'osx-security',
+               'boost', 'cryptopp', 'openssl', 'sqlite3',
+               'doxygen', 'sphinx_build'])
 
     conf.env['WITH_TESTS'] = conf.options.with_tests
     conf.env['WITH_TOOLS'] = conf.options.with_tools
@@ -156,8 +159,7 @@ def build(bld):
                 int(VERSION_SPLIT[2]),
         VERSION_MAJOR=VERSION_SPLIT[0],
         VERSION_MINOR=VERSION_SPLIT[1],
-        VERSION_PATCH=VERSION_SPLIT[2],
-        )
+        VERSION_PATCH=VERSION_SPLIT[2])
 
     libndn_cxx = dict(
         target="ndn-cxx",
@@ -169,8 +171,7 @@ def build(bld):
         use='version BOOST CRYPTOPP OPENSSL SQLITE3 RT PTHREAD',
         includes=". src",
         export_includes="src",
-        install_path='${LIBDIR}',
-        )
+        install_path='${LIBDIR}')
 
     if bld.env['HAVE_OSX_SECURITY']:
         libndn_cxx['source'] += bld.path.ant_glob('src/security/**/*-osx.cpp')
@@ -208,13 +209,13 @@ def build(bld):
         if bld.env['CXXFLAGS_%s' % lib]:
             pkgconfig_cxxflags += Utils.to_list(bld.env['CXXFLAGS_%s' % lib])
 
-    EXTRA_FRAMEWORKS = "";
+    EXTRA_FRAMEWORKS = ""
     if bld.env['HAVE_OSX_SECURITY']:
         EXTRA_FRAMEWORKS = "-framework CoreFoundation -framework Security"
 
     def uniq(alist):
-        set = {}
-        return [set.setdefault(e,e) for e in alist if e not in set]
+        seen = set()
+        return [x for x in alist if x not in seen and not seen.add(x)]
 
     pkconfig = bld(features="subst",
          source="libndn-cxx.pc.in",
@@ -229,10 +230,8 @@ def build(bld):
          EXTRA_LINKFLAGS=" ".join(uniq(pkgconfig_linkflags)),
          EXTRA_INCLUDES=" ".join([('-I%s' % i) for i in uniq(pkgconfig_includes)]),
          EXTRA_CXXFLAGS=" ".join(uniq(pkgconfig_cxxflags)),
-         EXTRA_FRAMEWORKS=EXTRA_FRAMEWORKS,
-        )
+         EXTRA_FRAMEWORKS=EXTRA_FRAMEWORKS)
 
-    # Unit tests
     if bld.env['WITH_TESTS']:
         bld.recurse('tests')
 
@@ -277,7 +276,7 @@ def doxygen(bld):
     version(bld)
 
     if not bld.env.DOXYGEN:
-        Logs.error("ERROR: cannot build documentation (`doxygen' is not found in $PATH)")
+        Logs.error("ERROR: cannot build documentation (`doxygen' not found in $PATH)")
     else:
         bld(features="subst",
             name="doxygen-conf",
@@ -289,8 +288,7 @@ def doxygen(bld):
             HTML_FOOTER="../build/docs/named_data_theme/named_data_footer-with-analytics.html" \
                           if os.getenv('GOOGLE_ANALYTICS', None) \
                           else "../docs/named_data_theme/named_data_footer.html",
-            GOOGLE_ANALYTICS=os.getenv('GOOGLE_ANALYTICS', ""),
-            )
+            GOOGLE_ANALYTICS=os.getenv('GOOGLE_ANALYTICS', ""))
 
         bld(features="doxygen",
             doxyfile='docs/doxygen.conf',
@@ -300,14 +298,13 @@ def sphinx(bld):
     version(bld)
 
     if not bld.env.SPHINX_BUILD:
-        bld.fatal("ERROR: cannot build documentation (`sphinx-build' is not found in $PATH)")
+        bld.fatal("ERROR: cannot build documentation (`sphinx-build' not found in $PATH)")
     else:
         bld(features="sphinx",
             outdir="docs",
             source=bld.path.ant_glob("docs/**/*.rst"),
             config="docs/conf.py",
             VERSION=VERSION)
-
 
 def version(ctx):
     if getattr(Context.g_module, 'VERSION_BASE', None):
