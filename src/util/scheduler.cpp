@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,175 +27,136 @@ namespace ndn {
 namespace util {
 namespace scheduler {
 
-struct EventIdImpl
+class EventInfo : noncopyable
 {
-  EventIdImpl(const Scheduler::EventQueue::iterator& event)
-    : m_event(event)
-    , m_isValid(true)
+public:
+  EventInfo(time::nanoseconds after, const EventCallback& callback)
+    : expireTime(time::steady_clock::now() + after)
+    , isExpired(false)
+    , callback(callback)
   {
   }
 
-  void
-  invalidate()
+  time::nanoseconds
+  expiresFromNow() const
   {
-    m_isValid = false;
+    return std::max(expireTime - time::steady_clock::now(), time::nanoseconds::zero());
   }
 
-  bool
-  isValid() const
-  {
-    return m_isValid;
-  }
-
-  operator const Scheduler::EventQueue::iterator&() const
-  {
-    return m_event;
-  }
-
-  void
-  reset(const Scheduler::EventQueue::iterator& newIterator)
-  {
-    m_event = newIterator;
-    m_isValid = true;
-  }
-
-private:
-  Scheduler::EventQueue::iterator m_event;
-  bool m_isValid;
+public:
+  time::steady_clock::TimePoint expireTime;
+  bool isExpired;
+  EventCallback callback;
+  EventQueue::const_iterator queueIt;
 };
 
-Scheduler::EventInfo::EventInfo(const time::nanoseconds& after,
-                                const Event& event)
-  : m_scheduledTime(time::steady_clock::now() + after)
-  , m_event(event)
+bool
+EventId::operator!() const
 {
+  return m_info.expired() || m_info.lock()->isExpired;
 }
 
-Scheduler::EventInfo::EventInfo(const time::steady_clock::TimePoint& when,
-                                const EventInfo& previousEvent)
-  : m_scheduledTime(when)
-  , m_event(previousEvent.m_event)
-  , m_eventId(previousEvent.m_eventId)
+bool
+EventId::operator==(const EventId& other) const
 {
+  return (!(*this) && !other) ||
+         !(m_info.owner_before(other.m_info) || other.m_info.owner_before(m_info));
 }
 
-time::nanoseconds
-Scheduler::EventInfo::expiresFromNow() const
+std::ostream&
+operator<<(std::ostream& os, const EventId& eventId)
 {
-  time::steady_clock::TimePoint now = time::steady_clock::now();
-  if (now > m_scheduledTime)
-    return time::seconds(0); // event should be scheduled ASAP
-  else
-    return m_scheduledTime - now;
+  return os << eventId.m_info.lock();
 }
 
+bool
+EventQueueCompare::operator()(const shared_ptr<EventInfo>& a, const shared_ptr<EventInfo>& b) const
+{
+  return a->expireTime < b->expireTime;
+}
 
 Scheduler::Scheduler(boost::asio::io_service& ioService)
-  : m_scheduledEvent(m_events.end())
-  , m_deadlineTimer(ioService)
+  : m_deadlineTimer(ioService)
   , m_isEventExecuting(false)
 {
 }
 
 EventId
-Scheduler::scheduleEvent(const time::nanoseconds& after,
-                         const Event& event)
+Scheduler::scheduleEvent(const time::nanoseconds& after, const EventCallback& callback)
 {
-  EventQueue::iterator i = m_events.insert(EventInfo(after, event));
+  BOOST_ASSERT(callback != nullptr);
 
-  // On OSX 10.9, boost, and C++03 the following doesn't work without ndn::
-  // because the argument-dependent lookup prefers STL to boost
-  i->m_eventId = ndn::make_shared<EventIdImpl>(i);
+  EventQueue::iterator i = m_queue.insert(make_shared<EventInfo>(after, callback));
+  (*i)->queueIt = i;
 
-  if (!m_isEventExecuting)
-    {
-      if (m_scheduledEvent == m_events.end() ||
-          *i < *m_scheduledEvent)
-        {
-          m_deadlineTimer.expires_from_now(after);
-          m_deadlineTimer.async_wait(bind(&Scheduler::onEvent, this, _1));
-          m_scheduledEvent = i;
-        }
-    }
+  if (!m_isEventExecuting && i == m_queue.begin()) {
+    // the new event is the first one to expire
+    this->scheduleNext();
+  }
 
-  return i->m_eventId;
+  return EventId(*i);
 }
 
 void
 Scheduler::cancelEvent(const EventId& eventId)
 {
-  if (!static_cast<bool>(eventId) || !eventId->isValid())
-    return; // event already fired or cancelled
-
-  if (static_cast<EventQueue::iterator>(*eventId) != m_scheduledEvent) {
-    m_events.erase(*eventId);
-    eventId->invalidate();
-    return;
+  shared_ptr<EventInfo> info = eventId.m_info.lock();
+  if (info == nullptr || info->isExpired) {
+    return; // event already expired or cancelled
   }
 
-  m_deadlineTimer.cancel();
-  m_events.erase(static_cast<EventQueue::iterator>(*eventId));
-  eventId->invalidate();
+  if (info->queueIt == m_queue.begin()) {
+    m_deadlineTimer.cancel();
+  }
+  m_queue.erase(info->queueIt);
 
-  if (!m_isEventExecuting)
-    {
-      if (!m_events.empty())
-        {
-          m_deadlineTimer.expires_from_now(m_events.begin()->expiresFromNow());
-          m_deadlineTimer.async_wait(bind(&Scheduler::onEvent, this, _1));
-          m_scheduledEvent = m_events.begin();
-        }
-      else
-        {
-          m_scheduledEvent = m_events.end();
-        }
-    }
+  if (!m_isEventExecuting) {
+    this->scheduleNext();
+  }
 }
 
 void
 Scheduler::cancelAllEvents()
 {
-  m_events.clear();
+  m_queue.clear();
   m_deadlineTimer.cancel();
 }
 
 void
-Scheduler::onEvent(const boost::system::error_code& error)
+Scheduler::scheduleNext()
 {
-  if (error) // e.g., cancelled
-    {
-      return;
-    }
+  if (!m_queue.empty()) {
+    m_deadlineTimer.expires_from_now((*m_queue.begin())->expiresFromNow());
+    m_deadlineTimer.async_wait(bind(&Scheduler::executeEvent, this, _1));
+  }
+}
+
+void
+Scheduler::executeEvent(const boost::system::error_code& error)
+{
+  if (error) { // e.g., cancelled
+    return;
+  }
 
   m_isEventExecuting = true;
 
   // process all expired events
   time::steady_clock::TimePoint now = time::steady_clock::now();
-  while(!m_events.empty() && m_events.begin()->m_scheduledTime <= now)
-    {
-      EventQueue::iterator head = m_events.begin();
-
-      Event event = head->m_event;
-      head->m_eventId->invalidate();
-      m_events.erase(head);
-
-      event();
+  while (!m_queue.empty()) {
+    EventQueue::iterator head = m_queue.begin();
+    shared_ptr<EventInfo> info = *head;
+    if (info->expireTime > now) {
+      break;
     }
 
-  if (!m_events.empty())
-    {
-      m_deadlineTimer.expires_from_now(m_events.begin()->m_scheduledTime - now);
-      m_deadlineTimer.async_wait(bind(&Scheduler::onEvent, this, _1));
-      m_scheduledEvent = m_events.begin();
-    }
-  else
-    {
-      m_scheduledEvent = m_events.end();
-    }
+    m_queue.erase(head);
+    info->isExpired = true;
+    info->callback();
+  }
 
   m_isEventExecuting = false;
+  this->scheduleNext();
 }
-
 
 } // namespace scheduler
 } // namespace util

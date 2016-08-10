@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,7 @@
 
 #include "boost-test.hpp"
 #include "../unit-test-time-fixture.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace util {
@@ -32,14 +33,26 @@ namespace tests {
 
 using namespace ndn::tests;
 
-BOOST_FIXTURE_TEST_SUITE(UtilScheduler, UnitTestTimeFixture)
+class SchedulerFixture : public UnitTestTimeFixture
+{
+public:
+  SchedulerFixture()
+    : scheduler(io)
+  {
+  }
+
+public:
+  Scheduler scheduler;
+};
+
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_FIXTURE_TEST_SUITE(TestScheduler, SchedulerFixture)
 
 BOOST_AUTO_TEST_CASE(Events)
 {
   size_t count1 = 0;
   size_t count2 = 0;
 
-  Scheduler scheduler(io);
   scheduler.scheduleEvent(time::milliseconds(500), [&] {
       ++count1;
       BOOST_CHECK_EQUAL(count2, 1);
@@ -60,23 +73,19 @@ BOOST_AUTO_TEST_CASE(Events)
     });
   scheduler.cancelEvent(i);
 
-  advanceClocks(time::milliseconds(1), 1000);
+  advanceClocks(time::milliseconds(25), time::milliseconds(1000));
   BOOST_CHECK_EQUAL(count1, 1);
   BOOST_CHECK_EQUAL(count2, 1);
 }
 
 BOOST_AUTO_TEST_CASE(CancelEmptyEvent)
 {
-  Scheduler scheduler(io);
-
   EventId i;
   scheduler.cancelEvent(i);
 }
 
 BOOST_AUTO_TEST_CASE(SelfCancel)
 {
-  Scheduler scheduler(io);
-
   EventId selfEventId;
   selfEventId = scheduler.scheduleEvent(time::milliseconds(100), [&] {
       scheduler.cancelEvent(selfEventId);
@@ -85,12 +94,11 @@ BOOST_AUTO_TEST_CASE(SelfCancel)
   BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(100), 10));
 }
 
-class SelfRescheduleFixture : public UnitTestTimeFixture
+class SelfRescheduleFixture : public SchedulerFixture
 {
 public:
   SelfRescheduleFixture()
-    : scheduler(io)
-    , count(0)
+    : count(0)
   {
   }
 
@@ -133,7 +141,7 @@ public:
     scheduler.scheduleEvent(time::milliseconds(100), [&] { ++count; });
   }
 
-  Scheduler scheduler;
+public:
   EventId selfEventId;
   size_t count;
 };
@@ -143,7 +151,7 @@ BOOST_FIXTURE_TEST_CASE(Reschedule, SelfRescheduleFixture)
   selfEventId = scheduler.scheduleEvent(time::seconds(0),
                                         bind(&SelfRescheduleFixture::reschedule, this));
 
-  BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(10), 1000));
+  BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(50), time::milliseconds(1000)));
 
   BOOST_CHECK_EQUAL(count, 5);
 }
@@ -153,7 +161,7 @@ BOOST_FIXTURE_TEST_CASE(Reschedule2, SelfRescheduleFixture)
   selfEventId = scheduler.scheduleEvent(time::seconds(0),
                                         bind(&SelfRescheduleFixture::reschedule2, this));
 
-  BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(10), 1000));
+  BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(50), time::milliseconds(1000)));
 
   BOOST_CHECK_EQUAL(count, 5);
 }
@@ -163,17 +171,16 @@ BOOST_FIXTURE_TEST_CASE(Reschedule3, SelfRescheduleFixture)
   selfEventId = scheduler.scheduleEvent(time::seconds(0),
                                         bind(&SelfRescheduleFixture::reschedule3, this));
 
-  BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(10), 1000));
+  BOOST_REQUIRE_NO_THROW(advanceClocks(time::milliseconds(50), time::milliseconds(1000)));
 
   BOOST_CHECK_EQUAL(count, 6);
 }
 
-
-struct CancelAllFixture : public ::ndn::tests::UnitTestTimeFixture
+class CancelAllFixture : public SchedulerFixture
 {
+public:
   CancelAllFixture()
-    : scheduler(io)
-    , count(0)
+    : count(0)
   {
   }
 
@@ -185,10 +192,9 @@ struct CancelAllFixture : public ::ndn::tests::UnitTestTimeFixture
     scheduler.scheduleEvent(time::seconds(1), [&] { event(); });
   }
 
-  Scheduler scheduler;
+public:
   uint32_t count;
 };
-
 
 BOOST_FIXTURE_TEST_CASE(CancelAll, CancelAllFixture)
 {
@@ -205,21 +211,123 @@ BOOST_FIXTURE_TEST_CASE(CancelAll, CancelAllFixture)
   BOOST_CHECK_EQUAL(count, 0);
 }
 
-class ScopedEventFixture : public UnitTestTimeFixture
+BOOST_AUTO_TEST_CASE(CancelAllWithScopedEventId) // Bug 3691
 {
-public:
-  ScopedEventFixture()
-    : scheduler(io)
-  {
-  }
+  Scheduler sched(io);
+  ScopedEventId eid(sched);
+  eid = sched.scheduleEvent(time::milliseconds(10), []{});
+  sched.cancelAllEvents();
+  eid.cancel(); // should not crash
+}
 
-public:
-  Scheduler scheduler;
-};
+BOOST_AUTO_TEST_SUITE(EventId)
 
-BOOST_FIXTURE_TEST_SUITE(ScopedEvents, ScopedEventFixture)
+using scheduler::EventId;
 
-BOOST_AUTO_TEST_CASE(ScopedEventIdDestruct)
+BOOST_AUTO_TEST_CASE(ConstructEmpty)
+{
+  EventId eid;
+  eid = nullptr;
+}
+
+BOOST_AUTO_TEST_CASE(Compare)
+{
+  EventId eid, eid2;
+  BOOST_CHECK_EQUAL(eid == eid2, true);
+  BOOST_CHECK_EQUAL(eid != eid2, false);
+  BOOST_CHECK_EQUAL(eid == nullptr, true);
+  BOOST_CHECK_EQUAL(eid != nullptr, false);
+
+  eid = scheduler.scheduleEvent(time::milliseconds(10), []{});
+  BOOST_CHECK_EQUAL(eid == eid2, false);
+  BOOST_CHECK_EQUAL(eid != eid2, true);
+  BOOST_CHECK_EQUAL(eid == nullptr, false);
+  BOOST_CHECK_EQUAL(eid != nullptr, true);
+
+  eid2 = eid;
+  BOOST_CHECK_EQUAL(eid == eid2, true);
+  BOOST_CHECK_EQUAL(eid != eid2, false);
+
+  eid2 = scheduler.scheduleEvent(time::milliseconds(10), []{});
+  BOOST_CHECK_EQUAL(eid == eid2, false);
+  BOOST_CHECK_EQUAL(eid != eid2, true);
+}
+
+BOOST_AUTO_TEST_CASE(Valid)
+{
+  EventId eid;
+  BOOST_CHECK_EQUAL(static_cast<bool>(eid), false);
+  BOOST_CHECK_EQUAL(!eid, true);
+
+  eid = scheduler.scheduleEvent(time::milliseconds(10), []{});
+  BOOST_CHECK_EQUAL(static_cast<bool>(eid), true);
+  BOOST_CHECK_EQUAL(!eid, false);
+
+  EventId eid2 = eid;
+  scheduler.cancelEvent(eid2);
+  BOOST_CHECK_EQUAL(static_cast<bool>(eid), false);
+  BOOST_CHECK_EQUAL(!eid, true);
+  BOOST_CHECK_EQUAL(static_cast<bool>(eid2), false);
+  BOOST_CHECK_EQUAL(!eid2, true);
+}
+
+BOOST_AUTO_TEST_CASE(DuringCallback)
+{
+  EventId eid;
+  EventId eid2 = scheduler.scheduleEvent(time::milliseconds(20), []{});
+
+  bool isCallbackInvoked = false;
+  eid = scheduler.scheduleEvent(time::milliseconds(10), [this, &eid, &eid2, &isCallbackInvoked] {
+    isCallbackInvoked = true;
+
+    // eid is "expired" during callback execution
+    BOOST_CHECK_EQUAL(static_cast<bool>(eid), false);
+    BOOST_CHECK_EQUAL(!eid, true);
+    BOOST_CHECK_EQUAL(eid == eid2, false);
+    BOOST_CHECK_EQUAL(eid != eid2, true);
+    BOOST_CHECK_EQUAL(eid == nullptr, true);
+    BOOST_CHECK_EQUAL(eid != nullptr, false);
+
+    scheduler.cancelEvent(eid2);
+    BOOST_CHECK_EQUAL(eid == eid2, true);
+    BOOST_CHECK_EQUAL(eid != eid2, false);
+  });
+  this->advanceClocks(time::milliseconds(6), 2);
+  BOOST_CHECK(isCallbackInvoked);
+}
+
+BOOST_AUTO_TEST_CASE(Reset)
+{
+  bool isCallbackInvoked = false;
+  EventId eid = scheduler.scheduleEvent(time::milliseconds(10),
+                                        [&isCallbackInvoked]{ isCallbackInvoked = true; });
+  eid.reset();
+  BOOST_CHECK_EQUAL(!eid, true);
+  BOOST_CHECK_EQUAL(eid == nullptr, true);
+
+  this->advanceClocks(time::milliseconds(6), 2);
+  BOOST_CHECK(isCallbackInvoked);
+}
+
+BOOST_AUTO_TEST_CASE(ToString)
+{
+  std::string nullString = boost::lexical_cast<std::string>(shared_ptr<int>());
+
+  EventId eid;
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(eid), nullString);
+
+  eid = scheduler.scheduleEvent(time::milliseconds(10), []{});
+  BOOST_TEST_MESSAGE("eid=" << eid);
+  BOOST_CHECK_NE(boost::lexical_cast<std::string>(eid), nullString);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // EventId
+
+BOOST_AUTO_TEST_SUITE(ScopedEventId)
+
+using scheduler::ScopedEventId;
+
+BOOST_AUTO_TEST_CASE(Destruct)
 {
   int hit = 0;
   {
@@ -230,7 +338,7 @@ BOOST_AUTO_TEST_CASE(ScopedEventIdDestruct)
   BOOST_CHECK_EQUAL(hit, 0);
 }
 
-BOOST_AUTO_TEST_CASE(ScopedEventIdAssign)
+BOOST_AUTO_TEST_CASE(Assign)
 {
   int hit1 = 0, hit2 = 0;
   ScopedEventId se1(scheduler);
@@ -241,7 +349,7 @@ BOOST_AUTO_TEST_CASE(ScopedEventIdAssign)
   BOOST_CHECK_EQUAL(hit2, 1);
 }
 
-BOOST_AUTO_TEST_CASE(ScopedEventIdRelease)
+BOOST_AUTO_TEST_CASE(Release)
 {
   int hit = 0;
   {
@@ -253,7 +361,7 @@ BOOST_AUTO_TEST_CASE(ScopedEventIdRelease)
   BOOST_CHECK_EQUAL(hit, 1);
 }
 
-BOOST_AUTO_TEST_CASE(ScopedEventIdMove)
+BOOST_AUTO_TEST_CASE(Move)
 {
   int hit = 0;
   unique_ptr<scheduler::ScopedEventId> se2;
@@ -268,7 +376,8 @@ BOOST_AUTO_TEST_CASE(ScopedEventIdMove)
 
 BOOST_AUTO_TEST_SUITE_END() // ScopedEventId
 
-BOOST_AUTO_TEST_SUITE_END() // UtilTestScheduler
+BOOST_AUTO_TEST_SUITE_END() // TestScheduler
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace scheduler

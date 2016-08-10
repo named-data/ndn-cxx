@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,31 +31,119 @@ namespace ndn {
 namespace util {
 namespace scheduler {
 
-struct EventIdImpl; ///< \brief Private storage of information about the event
 /**
- * \brief Opaque type (shared_ptr) representing ID of the scheduled event
+ * \brief Function to be invoked when a scheduled event expires
  */
-typedef shared_ptr<EventIdImpl> EventId;
+typedef function<void()> EventCallback;
+
+/**
+ * \brief Stores internal information about a scheduled event
+ */
+class EventInfo;
+
+/**
+ * \brief Identifies a scheduled event
+ */
+class EventId
+{
+public:
+  /**
+   * \brief Constructs an empty EventId
+   * \note EventId is implicitly convertible from nullptr.
+   */
+  EventId(std::nullptr_t = nullptr)
+  {
+  }
+
+  /**
+   * \retval true The event is valid.
+   * \retval false This EventId is empty, or the event is expired or cancelled.
+   */
+  explicit
+  operator bool() const
+  {
+    return !this->operator!();
+  }
+
+  /**
+   * \retval true This EventId is empty, or the event is expired or cancelled.
+   * \retval false The event is valid.
+   */
+  bool
+  operator!() const;
+
+  /**
+   * \return whether this and other refer to the same event, or are both empty/expired/cancelled
+   */
+  bool
+  operator==(const EventId& other) const;
+
+  bool
+  operator!=(const EventId& other) const
+  {
+    return !this->operator==(other);
+  }
+
+  /**
+   * \brief clear this EventId
+   * \note This does not cancel the event.
+   * \post !(*this)
+   */
+  void
+  reset()
+  {
+    m_info.reset();
+  }
+
+private:
+  explicit
+  EventId(const weak_ptr<EventInfo>& info)
+    : m_info(info)
+  {
+  }
+
+private:
+  weak_ptr<EventInfo> m_info;
+
+  friend class Scheduler;
+  friend std::ostream& operator<<(std::ostream& os, const EventId& eventId);
+};
+
+std::ostream&
+operator<<(std::ostream& os, const EventId& eventId);
+
+class EventQueueCompare
+{
+public:
+  bool
+  operator()(const shared_ptr<EventInfo>& a, const shared_ptr<EventInfo>& b) const;
+};
+
+typedef std::multiset<shared_ptr<EventInfo>, EventQueueCompare> EventQueue;
 
 /**
  * \brief Generic scheduler
  */
-class Scheduler
+class Scheduler : noncopyable
 {
 public:
-  typedef function<void()> Event;
+  /**
+   * \deprecated use EventCallback
+   */
+  typedef EventCallback Event;
 
+  explicit
   Scheduler(boost::asio::io_service& ioService);
 
   /**
-   * \brief Schedule one time event after the specified delay
+   * \brief Schedule a one-time event after the specified delay
    * \returns EventId that can be used to cancel the scheduled event
    */
   EventId
-  scheduleEvent(const time::nanoseconds& after, const Event& event);
+  scheduleEvent(const time::nanoseconds& after, const EventCallback& callback);
 
   /**
-   * \brief Cancel scheduled event
+   * \brief Cancel a scheduled event
    */
   void
   cancelEvent(const EventId& eventId);
@@ -67,43 +155,18 @@ public:
   cancelAllEvents();
 
 private:
+  /**
+   * \brief Schedule the next event on the deadline timer
+   */
   void
-  onEvent(const boost::system::error_code& code);
+  scheduleNext();
+
+  void
+  executeEvent(const boost::system::error_code& code);
 
 private:
-  struct EventInfo
-  {
-    EventInfo(const time::nanoseconds& after, const Event& event);
-
-    EventInfo(const time::steady_clock::TimePoint& when, const EventInfo& previousEvent);
-
-    bool
-    operator <=(const EventInfo& other) const
-    {
-      return this->m_scheduledTime <= other.m_scheduledTime;
-    }
-
-    bool
-    operator <(const EventInfo& other) const
-    {
-      return this->m_scheduledTime < other.m_scheduledTime;
-    }
-
-    time::nanoseconds
-    expiresFromNow() const;
-
-    time::steady_clock::TimePoint m_scheduledTime;
-    Event m_event;
-    mutable EventId m_eventId;
-  };
-
-  typedef std::multiset<EventInfo> EventQueue;
-  friend struct EventIdImpl;
-
-  EventQueue m_events;
-  EventQueue::iterator m_scheduledEvent;
   monotonic_deadline_timer m_deadlineTimer;
-
+  EventQueue m_queue;
   bool m_isEventExecuting;
 };
 
