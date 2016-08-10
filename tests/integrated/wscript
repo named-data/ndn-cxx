@@ -5,16 +5,11 @@ from waflib import Utils
 top = '..'
 
 def build(bld):
-    bld(features="cxx cxxprogram",
-        target="face",
-        source="face.cpp",
-        use='ndn-cxx boost-tests-base BOOST',
-        includes='..',
-        install_path=None)
-
-    bld(features="cxx cxxprogram",
-        target="network-monitor",
-        source="network-monitor.cpp",
-        use='ndn-cxx boost-tests-base BOOST',
-        includes='..',
-        install_path=None)
+    for i in bld.path.ant_glob(['*.cpp']):
+        name = str(i)[:-len(".cpp")]
+        bld(features='cxx cxxprogram',
+            target=name,
+            source=[i],
+            use='ndn-cxx boost-tests-base BOOST',
+            includes='..',
+            install_path=None)
