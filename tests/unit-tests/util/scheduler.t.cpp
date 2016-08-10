@@ -78,6 +78,21 @@ BOOST_AUTO_TEST_CASE(Events)
   BOOST_CHECK_EQUAL(count2, 1);
 }
 
+BOOST_AUTO_TEST_CASE(CallbackException)
+{
+  class MyException : public std::exception
+  {
+  };
+  scheduler.scheduleEvent(time::milliseconds(10), [] { BOOST_THROW_EXCEPTION(MyException()); });
+
+  bool isCallbackInvoked = false;
+  scheduler.scheduleEvent(time::milliseconds(20), [&isCallbackInvoked] { isCallbackInvoked = true; });
+
+  BOOST_CHECK_THROW(this->advanceClocks(time::milliseconds(6), 2), MyException);
+  this->advanceClocks(time::milliseconds(6), 2);
+  BOOST_CHECK(isCallbackInvoked);
+}
+
 BOOST_AUTO_TEST_CASE(CancelEmptyEvent)
 {
   EventId i;

@@ -19,9 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "common.hpp"
-
 #include "scheduler.hpp"
+#include <boost/scope_exit.hpp>
 
 namespace ndn {
 namespace util {
@@ -140,6 +139,11 @@ Scheduler::executeEvent(const boost::system::error_code& error)
 
   m_isEventExecuting = true;
 
+  BOOST_SCOPE_EXIT_ALL(this) {
+    m_isEventExecuting = false;
+    this->scheduleNext();
+  };
+
   // process all expired events
   time::steady_clock::TimePoint now = time::steady_clock::now();
   while (!m_queue.empty()) {
@@ -153,9 +157,6 @@ Scheduler::executeEvent(const boost::system::error_code& error)
     info->isExpired = true;
     info->callback();
   }
-
-  m_isEventExecuting = false;
-  this->scheduleNext();
 }
 
 } // namespace scheduler

@@ -137,7 +137,7 @@ public:
 
   /**
    * \brief Schedule a one-time event after the specified delay
-   * \returns EventId that can be used to cancel the scheduled event
+   * \return EventId that can be used to cancel the scheduled event
    */
   EventId
   scheduleEvent(const time::nanoseconds& after, const EventCallback& callback);
@@ -161,6 +161,12 @@ private:
   void
   scheduleNext();
 
+  /**
+   * \brief Execute expired events
+   * \note If an event callback throws, the exception is propagated to the thread running the
+   *       io_service. In case there are other expired events, they will be processed in the next
+   *       invocation of this method.
+   */
   void
   executeEvent(const boost::system::error_code& code);
 
