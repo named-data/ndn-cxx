@@ -98,18 +98,33 @@ FaceCreateCommand::FaceCreateCommand()
 {
   m_requestValidator
     .required(CONTROL_PARAMETER_URI)
-    .optional(CONTROL_PARAMETER_FACE_PERSISTENCY);
+    .optional(CONTROL_PARAMETER_FACE_PERSISTENCY)
+    .optional(CONTROL_PARAMETER_FLAGS)
+    .optional(CONTROL_PARAMETER_MASK);
   m_responseValidator
-    .required(CONTROL_PARAMETER_URI)
     .required(CONTROL_PARAMETER_FACE_ID)
-    .required(CONTROL_PARAMETER_FACE_PERSISTENCY);
+    .required(CONTROL_PARAMETER_FACE_PERSISTENCY)
+    .optional(CONTROL_PARAMETER_FLAGS)
+    .optional(CONTROL_PARAMETER_URI);
 }
 
 void
 FaceCreateCommand::applyDefaultsToRequest(ControlParameters& parameters) const
 {
+  parameters.setFaceId(0);
+
   if (!parameters.hasFacePersistency()) {
     parameters.setFacePersistency(FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  }
+}
+
+void
+FaceCreateCommand::validateRequest(const ControlParameters& parameters) const
+{
+  this->ControlCommand::validateRequest(parameters);
+
+  if (parameters.hasFlags() != parameters.hasMask()) {
+    BOOST_THROW_EXCEPTION(ArgumentError("Flags must be accompanied by Mask"));
   }
 }
 
@@ -127,12 +142,21 @@ FaceUpdateCommand::FaceUpdateCommand()
   : ControlCommand("faces", "update")
 {
   m_requestValidator
-    .required(CONTROL_PARAMETER_FACE_ID)
-    .optional(CONTROL_PARAMETER_FACE_PERSISTENCY);
+    .optional(CONTROL_PARAMETER_FACE_ID)
+    .optional(CONTROL_PARAMETER_FACE_PERSISTENCY)
+    .optional(CONTROL_PARAMETER_FLAGS)
+    .optional(CONTROL_PARAMETER_MASK);
   m_responseValidator
-    .required(CONTROL_PARAMETER_FACE_ID)
-    .optional(CONTROL_PARAMETER_FACE_PERSISTENCY);
-  m_responseValidator = m_requestValidator;
+    .optional(CONTROL_PARAMETER_FACE_ID)
+    .optional(CONTROL_PARAMETER_FACE_PERSISTENCY)
+    .optional(CONTROL_PARAMETER_FLAGS)
+    .optional(CONTROL_PARAMETER_MASK);
+}
+
+void
+FaceUpdateCommand::applyDefaultsToRequest(ControlParameters& parameters) const
+{
+  parameters.setFaceId(0);
 }
 
 void
@@ -140,8 +164,8 @@ FaceUpdateCommand::validateRequest(const ControlParameters& parameters) const
 {
   this->ControlCommand::validateRequest(parameters);
 
-  if (parameters.getFaceId() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
+  if (parameters.hasFlags() != parameters.hasMask()) {
+    BOOST_THROW_EXCEPTION(ArgumentError("Flags must be accompanied by Mask"));
   }
 }
 

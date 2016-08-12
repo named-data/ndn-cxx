@@ -148,6 +148,9 @@ public:
   applyDefaultsToRequest(ControlParameters& parameters) const override;
 
   virtual void
+  validateRequest(const ControlParameters& parameters) const override;
+
+  virtual void
   validateResponse(const ControlParameters& parameters) const override;
 };
 
@@ -161,6 +164,9 @@ class FaceUpdateCommand : public ControlCommand
 {
 public:
   FaceUpdateCommand();
+
+  virtual void
+  applyDefaultsToRequest(ControlParameters& parameters) const override;
 
   virtual void
   validateRequest(const ControlParameters& parameters) const override;

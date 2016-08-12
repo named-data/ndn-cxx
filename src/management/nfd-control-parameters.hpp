@@ -41,6 +41,7 @@ enum ControlParameterField {
   CONTROL_PARAMETER_ORIGIN,
   CONTROL_PARAMETER_COST,
   CONTROL_PARAMETER_FLAGS,
+  CONTROL_PARAMETER_MASK,
   CONTROL_PARAMETER_STRATEGY,
   CONTROL_PARAMETER_EXPIRATION_PERIOD,
   CONTROL_PARAMETER_FACE_PERSISTENCY,
@@ -55,6 +56,7 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
   "Origin",
   "Cost",
   "Flags",
+  "Mask",
   "Strategy",
   "ExpirationPeriod",
   "FacePersistency"
@@ -62,6 +64,7 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
 
 /**
  * \ingroup management
+ * \deprecated use Flags+Mask fields instead
  */
 enum LocalControlFeature {
   LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID = 1,
@@ -69,10 +72,10 @@ enum LocalControlFeature {
 };
 
 /**
- * @ingroup management
- * @brief represents parameters in a ControlCommand request or response
- * @sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand#ControlParameters
- * @details This type is copyable because it's an abstraction of a TLV type.
+ * \ingroup management
+ * \brief represents parameters in a ControlCommand request or response
+ * \sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand#ControlParameters
+ * \details This type is copyable because it's an abstraction of a TLV type.
  */
 class ControlParameters : public ndn::mgmt::ControlParameters
 {
@@ -103,7 +106,6 @@ public:
   wireDecode(const Block& wire) final;
 
 public: // getters & setters
-
   bool
   hasName() const
   {
@@ -194,12 +196,18 @@ public: // getters & setters
     return *this;
   }
 
+  /**
+   * \deprecated use Flags+Mask fields instead
+   */
   bool
   hasLocalControlFeature() const
   {
     return m_hasFields[CONTROL_PARAMETER_LOCAL_CONTROL_FEATURE];
   }
 
+  /**
+   * \deprecated use Flags+Mask fields instead
+   */
   LocalControlFeature
   getLocalControlFeature() const
   {
@@ -207,6 +215,9 @@ public: // getters & setters
     return m_localControlFeature;
   }
 
+  /**
+   * \deprecated use Flags+Mask fields instead
+   */
   ControlParameters&
   setLocalControlFeature(LocalControlFeature localControlFeature)
   {
@@ -216,6 +227,9 @@ public: // getters & setters
     return *this;
   }
 
+  /**
+   * \deprecated use Flags+Mask fields instead
+   */
   ControlParameters&
   unsetLocalControlFeature()
   {
@@ -315,6 +329,36 @@ public: // getters & setters
   }
 
   bool
+  hasMask() const
+  {
+    return m_hasFields[CONTROL_PARAMETER_MASK];
+  }
+
+  uint64_t
+  getMask() const
+  {
+    BOOST_ASSERT(this->hasMask());
+    return m_mask;
+  }
+
+  ControlParameters&
+  setMask(uint64_t mask)
+  {
+    m_wire.reset();
+    m_mask = mask;
+    m_hasFields[CONTROL_PARAMETER_MASK] = true;
+    return *this;
+  }
+
+  ControlParameters&
+  unsetMask()
+  {
+    m_wire.reset();
+    m_hasFields[CONTROL_PARAMETER_MASK] = false;
+    return *this;
+  }
+
+  bool
   hasStrategy() const
   {
     return m_hasFields[CONTROL_PARAMETER_STRATEGY];
@@ -410,6 +454,38 @@ public: // getters & setters
     return m_hasFields;
   }
 
+public: // Flags and Mask helpers
+  /**
+   * \return whether bit is enabled in Mask
+   * \param bit bit position within range [0, 64) (least significant bit is 0)
+   */
+  bool
+  hasFlagBit(size_t bit) const;
+
+  /**
+   * \return bit at a position in Flags
+   * \param bit bit position within range [0, 64) (least significant bit is 0)
+   */
+  bool
+  getFlagBit(size_t bit) const;
+
+  /**
+   * \brief set a bit in Flags
+   * \param bit bit position within range [0, 64) (least significant bit is 0)
+   * \param value new value in Flags
+   * \param wantMask if true, enable the bit in Mask
+   */
+  ControlParameters&
+  setFlagBit(size_t bit, bool value, bool wantMask = true);
+
+  /**
+   * \brief disable a bit in Mask
+   * \param bit bit position within range [0, 64) (least significant bit is 0)
+   * \post If all bits are disabled, Flags and Mask fields are deleted.
+   */
+  ControlParameters&
+  unsetFlagBit(size_t bit);
+
 private: // fields
   std::vector<bool>   m_hasFields;
 
@@ -420,6 +496,7 @@ private: // fields
   uint64_t            m_origin;
   uint64_t            m_cost;
   uint64_t            m_flags;
+  uint64_t            m_mask;
   Name                m_strategy;
   time::milliseconds  m_expirationPeriod;
   FacePersistency     m_facePersistency;

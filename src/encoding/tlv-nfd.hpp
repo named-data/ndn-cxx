@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,6 +39,7 @@ enum {
   Origin              = 111,
   Cost                = 106,
   Flags               = 108,
+  Mask                = 112,
   Strategy            = 107,
   ExpirationPeriod    = 109,
 

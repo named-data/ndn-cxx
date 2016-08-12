@@ -51,8 +51,16 @@ BOOST_AUTO_TEST_CASE(FaceCreate)
 
   ControlParameters p4;
   p4.setUri("tcp4://192.0.2.1")
-    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT)
+    .setFlags(0x3)
+    .setMask(0x1);
   BOOST_CHECK_NO_THROW(command.validateRequest(p4));
+
+  ControlParameters p5;
+  p5.setUri("tcp4://192.0.2.1")
+    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT)
+    .setFlags(0x1);
+  BOOST_CHECK_THROW(command.validateRequest(p5), ControlCommand::ArgumentError);
 
   p4.unsetFacePersistency();
   BOOST_CHECK_NO_THROW(command.validateRequest(p4));
@@ -60,17 +68,23 @@ BOOST_AUTO_TEST_CASE(FaceCreate)
   BOOST_REQUIRE(p4.hasFacePersistency());
   BOOST_CHECK_EQUAL(p4.getFacePersistency(), ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
 
-  ControlParameters p5;
-  p5.setUri("tcp4://192.0.2.1")
-    .setFaceId(4)
-    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
-  BOOST_CHECK_NO_THROW(command.validateResponse(p5));
-
   ControlParameters p6;
-  p6.setUri("tcp4://192.0.2.1:6363");
-  Name n6;
-  BOOST_CHECK_NO_THROW(n6 = command.getRequestName("/PREFIX", p6));
-  BOOST_CHECK(Name("ndn:/PREFIX/faces/create").isPrefixOf(n6));
+  p6.setFaceId(4)
+    .setUri("tcp4://192.0.2.1")
+    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  BOOST_CHECK_NO_THROW(command.validateResponse(p6));
+
+  ControlParameters p7;
+  p7.setUri("tcp4://192.0.2.1:6363");
+  Name n7;
+  BOOST_CHECK_NO_THROW(n7 = command.getRequestName("/PREFIX", p7));
+  BOOST_CHECK(Name("ndn:/PREFIX/faces/create").isPrefixOf(n7));
+
+  ControlParameters p8;
+  p8.setFaceId(5)
+    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERMANENT)
+    .setFlags(0x2);
+  BOOST_CHECK_NO_THROW(command.validateResponse(p8));
 }
 
 BOOST_AUTO_TEST_CASE(FaceUpdate)
@@ -79,8 +93,8 @@ BOOST_AUTO_TEST_CASE(FaceUpdate)
 
   ControlParameters p1;
   p1.setFaceId(0);
-  BOOST_CHECK_THROW(command.validateRequest(p1), ControlCommand::ArgumentError);
-  BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
+  BOOST_CHECK_NO_THROW(command.validateRequest(p1));
+  BOOST_CHECK_NO_THROW(command.validateResponse(p1));
 
   p1.setFaceId(1);
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
@@ -88,26 +102,32 @@ BOOST_AUTO_TEST_CASE(FaceUpdate)
 
   ControlParameters p2;
   p2.setFaceId(1)
-    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT)
+    .setFlags(0x0)
+    .setMask(0x1);
   BOOST_CHECK_NO_THROW(command.validateRequest(p2));
   BOOST_CHECK_NO_THROW(command.validateResponse(p2));
 
+  p2.unsetFaceId();
+  BOOST_CHECK_NO_THROW(command.validateRequest(p2));
+
+  p2.unsetMask();
+  BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
+
   ControlParameters p3;
-  p3.setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  p3.setFaceId(1)
+    .setName("/ndn/name");
   BOOST_CHECK_THROW(command.validateRequest(p3), ControlCommand::ArgumentError);
   BOOST_CHECK_THROW(command.validateResponse(p3), ControlCommand::ArgumentError);
 
   ControlParameters p4;
   p4.setFaceId(1)
-    .setName("/ndn/name");
+    .setUri("tcp4://192.0.2.1");
   BOOST_CHECK_THROW(command.validateRequest(p4), ControlCommand::ArgumentError);
   BOOST_CHECK_THROW(command.validateResponse(p4), ControlCommand::ArgumentError);
 
   ControlParameters p5;
-  p5.setFaceId(1)
-    .setUri("tcp4://192.0.2.1");
-  BOOST_CHECK_THROW(command.validateRequest(p5), ControlCommand::ArgumentError);
-  BOOST_CHECK_THROW(command.validateResponse(p5), ControlCommand::ArgumentError);
+  BOOST_CHECK_NO_THROW(command.validateResponse(p5));
 }
 
 BOOST_AUTO_TEST_CASE(FaceDestroy)

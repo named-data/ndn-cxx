@@ -61,6 +61,9 @@ ControlParameters::wireEncode(EncodingImpl<TAG>& encoder) const
   if (this->hasStrategy()) {
     totalLength += prependNestedBlock(encoder, tlv::nfd::Strategy, m_strategy);
   }
+  if (this->hasMask()) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Mask, m_mask);
+  }
   if (this->hasFlags()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Flags, m_flags);
   }
@@ -167,6 +170,12 @@ ControlParameters::wireDecode(const Block& block)
     m_flags = static_cast<uint64_t>(readNonNegativeInteger(*val));
   }
 
+  val = m_wire.find(tlv::nfd::Mask);
+  m_hasFields[CONTROL_PARAMETER_MASK] = val != m_wire.elements_end();
+  if (this->hasMask()) {
+    m_mask = static_cast<uint64_t>(readNonNegativeInteger(*val));
+  }
+
   val = m_wire.find(tlv::nfd::Strategy);
   m_hasFields[CONTROL_PARAMETER_STRATEGY] = val != m_wire.elements_end();
   if (this->hasStrategy()) {
@@ -190,6 +199,79 @@ ControlParameters::wireDecode(const Block& block)
   if (this->hasFacePersistency()) {
     m_facePersistency = static_cast<FacePersistency>(readNonNegativeInteger(*val));
   }
+}
+
+bool
+ControlParameters::hasFlagBit(size_t bit) const
+{
+  if (bit >= 64) {
+    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+  }
+
+  if (!hasMask()) {
+    return false;
+  }
+
+  return getMask() & (1 << bit);
+}
+
+bool
+ControlParameters::getFlagBit(size_t bit) const
+{
+  if (bit >= 64) {
+    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+  }
+
+  if (!hasFlags()) {
+    return false;
+  }
+
+  return getFlags() & (1 << bit);
+}
+
+ControlParameters&
+ControlParameters::setFlagBit(size_t bit, bool value, bool wantMask/* = true*/)
+{
+  if (bit >= 64) {
+    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+  }
+
+  uint64_t flags = hasFlags() ? getFlags() : 0;
+  if (value) {
+    flags |= (1 << bit);
+  }
+  else {
+    flags &= ~(1 << bit);
+  }
+  setFlags(flags);
+
+  if (wantMask) {
+    uint64_t mask = hasMask() ? getMask() : 0;
+    mask |= (1 << bit);
+    setMask(mask);
+  }
+
+  return *this;
+}
+
+ControlParameters&
+ControlParameters::unsetFlagBit(size_t bit)
+{
+  if (bit >= 64) {
+    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+  }
+
+  uint64_t mask = hasMask() ? getMask() : 0;
+  mask &= ~(1 << bit);
+  if (mask == 0) {
+    unsetMask();
+    unsetFlags();
+  }
+  else {
+    setMask(mask);
+  }
+
+  return *this;
 }
 
 std::ostream&
@@ -222,7 +304,15 @@ operator<<(std::ostream& os, const ControlParameters& parameters)
   }
 
   if (parameters.hasFlags()) {
-    os << "Flags: " << parameters.getFlags() << ", ";
+    std::ios_base::fmtflags osFlags = os.flags();
+    os << "Flags: " << std::showbase << std::hex << parameters.getFlags() << ", ";
+    os.flags(osFlags);
+  }
+
+  if (parameters.hasMask()) {
+    std::ios_base::fmtflags osFlags = os.flags();
+    os << "Mask: " << std::showbase << std::hex << parameters.getMask() << ", ";
+    os.flags(osFlags);
   }
 
   if (parameters.hasStrategy()) {
