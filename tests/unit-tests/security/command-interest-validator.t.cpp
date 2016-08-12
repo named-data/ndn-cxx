@@ -112,16 +112,6 @@ protected:
   unique_ptr<CommandInterestValidator> validator;
 };
 
-template<typename...A>
-void
-setNameComponent(Name& name, ssize_t index, const A& ...a)
-{
-  Name name2 = name.getPrefix(index);
-  name2.append(name::Component(a...));
-  name2.append(name.getSubName(index + 1));
-  name = name2;
-}
-
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestCommandInterestValidator, CommandInterestValidatorFixture)
 
@@ -162,57 +152,47 @@ BOOST_AUTO_TEST_CASE(NameTooShort)
 BOOST_AUTO_TEST_CASE(BadTimestamp)
 {
   auto i1 = makeCommandInterest();
-  Name n1 = i1->getName();
-  setNameComponent(n1, signed_interest::POS_TIMESTAMP, "not-timestamp");
-  i1->setName(n1);
+  setNameComponent(*i1, signed_interest::POS_TIMESTAMP, "not-timestamp");
   assertReject(*i1, CommandInterestValidator::ErrorCode::BAD_TIMESTAMP);
 }
 
 BOOST_AUTO_TEST_CASE(BadSigInfo)
 {
   auto i1 = makeCommandInterest();
-  Name n1 = i1->getName();
-  setNameComponent(n1, signed_interest::POS_SIG_INFO, "not-SignatureInfo");
-  i1->setName(n1);
+  setNameComponent(*i1, signed_interest::POS_SIG_INFO, "not-SignatureInfo");
   assertReject(*i1, CommandInterestValidator::ErrorCode::BAD_SIG_INFO);
 }
 
 BOOST_AUTO_TEST_CASE(MissingKeyLocator)
 {
   auto i1 = makeCommandInterest();
-  Name n1 = i1->getName();
   SignatureInfo sigInfo;
-  setNameComponent(n1, signed_interest::POS_SIG_INFO,
+  setNameComponent(*i1, signed_interest::POS_SIG_INFO,
                    sigInfo.wireEncode().begin(), sigInfo.wireEncode().end());
-  i1->setName(n1);
   assertReject(*i1, CommandInterestValidator::ErrorCode::MISSING_KEY_LOCATOR);
 }
 
 BOOST_AUTO_TEST_CASE(BadKeyLocatorType)
 {
   auto i1 = makeCommandInterest();
-  Name n1 = i1->getName();
   KeyLocator kl;
   kl.setKeyDigest(makeBinaryBlock(tlv::KeyDigest, "\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD", 8));
   SignatureInfo sigInfo;
   sigInfo.setKeyLocator(kl);
-  setNameComponent(n1, signed_interest::POS_SIG_INFO,
+  setNameComponent(*i1, signed_interest::POS_SIG_INFO,
                    sigInfo.wireEncode().begin(), sigInfo.wireEncode().end());
-  i1->setName(n1);
   assertReject(*i1, CommandInterestValidator::ErrorCode::BAD_KEY_LOCATOR_TYPE);
 }
 
 BOOST_AUTO_TEST_CASE(BadCertName)
 {
   auto i1 = makeCommandInterest();
-  Name n1 = i1->getName();
   KeyLocator kl;
   kl.setName("/bad/cert/name");
   SignatureInfo sigInfo;
   sigInfo.setKeyLocator(kl);
-  setNameComponent(n1, signed_interest::POS_SIG_INFO,
+  setNameComponent(*i1, signed_interest::POS_SIG_INFO,
                    sigInfo.wireEncode().begin(), sigInfo.wireEncode().end());
-  i1->setName(n1);
   assertReject(*i1, CommandInterestValidator::ErrorCode::BAD_CERT_NAME);
 }
 
@@ -265,12 +245,9 @@ BOOST_AUTO_TEST_CASE(TimestampReorderEqual)
   auto i1 = makeCommandInterest(); // signed at 0s
   assertAccept(*i1);
 
-  auto i2 = makeCommandInterest();
-  Name n1 = i1->getName();
-  Name n2 = i2->getName();
-  setNameComponent(n2, signed_interest::POS_TIMESTAMP,
-                   n1[signed_interest::POS_TIMESTAMP]);
-  i2->setName(n2); // signed at 0s
+  auto i2 = makeCommandInterest(); // signed at 0s
+  setNameComponent(*i2, signed_interest::POS_TIMESTAMP,
+                   i1->getName()[signed_interest::POS_TIMESTAMP]);
   assertReject(*i2, CommandInterestValidator::ErrorCode::TIMESTAMP_REORDER);
 
   advanceClocks(time::seconds(2));
@@ -320,10 +297,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GraceNonPositive, VALUE, GraceNonPositiveValues)
   auto i1 = makeCommandInterest(1); // signed at 0ms
   auto i2 = makeCommandInterest(2); // signed at 0ms
   for (auto interest : {i1, i2}) {
-    Name name = interest->getName();
-    setNameComponent(name, signed_interest::POS_TIMESTAMP,
+    setNameComponent(*interest, signed_interest::POS_TIMESTAMP,
                      name::Component::fromNumber(time::toUnixTimestamp(time::system_clock::now()).count()));
-    interest->setName(name);
   } // ensure timestamps are exactly 0ms
 
   assertAccept(*i1); // verifying at 0ms

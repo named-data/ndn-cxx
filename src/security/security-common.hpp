@@ -33,7 +33,15 @@ const ssize_t POS_SIG_INFO = -2;
 const ssize_t POS_RANDOM_VAL = -3;
 const ssize_t POS_TIMESTAMP = -4;
 
+/** \brief minimal number of components for Command Interest
+ *  \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
+ */
 const size_t MIN_LENGTH = 4;
+
+/** \brief minimal number of components for Signed Interest
+ *  \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/SignedInterest
+ */
+const size_t MIN_LENGTH_SIG_ONLY = 2;
 
 } // namespace signed_interest
 

@@ -81,6 +81,30 @@ makeNack(const Interest& interest, lp::NackReason reason);
 lp::Nack
 makeNack(const Name& name, uint32_t nonce, lp::NackReason reason);
 
+/** \brief replace a name component
+ *  \param[inout] name name
+ *  \param index name component index
+ *  \param a arguments to name::Component constructor
+ */
+template<typename...A>
+void
+setNameComponent(Name& name, ssize_t index, const A& ...a)
+{
+  Name name2 = name.getPrefix(index);
+  name2.append(name::Component(a...));
+  name2.append(name.getSubName(name2.size()));
+  name = name2;
+}
+
+template<typename PKT, typename...A>
+void
+setNameComponent(PKT& pkt, ssize_t index, const A& ...a)
+{
+  Name name = pkt.getName();
+  setNameComponent(name, index, a...);
+  pkt.setName(name);
+}
+
 } // namespace tests
 } // namespace ndn
 

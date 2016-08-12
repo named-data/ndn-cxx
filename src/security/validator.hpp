@@ -25,9 +25,6 @@
 #ifndef NDN_SECURITY_VALIDATOR_HPP
 #define NDN_SECURITY_VALIDATOR_HPP
 
-#include "../common.hpp"
-
-#include "../data.hpp"
 #include "../face.hpp"
 #include "public-key.hpp"
 #include "signature-sha256-with-rsa.hpp"
@@ -39,9 +36,7 @@
 namespace ndn {
 
 /**
- * @brief Validator is one of the main classes of the security library.
- *
- * The Validator class provides the interfaces for packet validation.
+ * @brief provides the interfaces for packet validation.
  */
 class Validator
 {

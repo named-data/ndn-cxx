@@ -21,16 +21,16 @@
 
 #include "security/validator-null.hpp"
 #include "security/key-chain.hpp"
-#include "util/time.hpp"
-#include "identity-management-fixture.hpp"
+
 #include "boost-test.hpp"
+#include "identity-management-fixture.hpp"
+#include "../make-interest-data.hpp"
 
 namespace ndn {
 namespace tests {
 
-using std::string;
-
-BOOST_FIXTURE_TEST_SUITE(SecurityValidator, IdentityManagementFixture)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_FIXTURE_TEST_SUITE(TestValidator, IdentityManagementFixture)
 
 void
 onValidated(const shared_ptr<const Data>& data)
@@ -39,7 +39,7 @@ onValidated(const shared_ptr<const Data>& data)
 }
 
 void
-onValidationFailed(const shared_ptr<const Data>& data, const string& failureInfo)
+onValidationFailed(const shared_ptr<const Data>& data, const std::string& failureInfo)
 {
   BOOST_CHECK(false);
 }
@@ -236,7 +236,30 @@ BOOST_AUTO_TEST_CASE(EcdsaSignatureVerification2)
   BOOST_CHECK(Validator::verifySignature(*testInterestRsa, rsaCert->getPublicKeyInfo()));
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_CASE(MalformedInterestSigInfo)
+{
+  auto interest = make_shared<Interest>("/prefix");
+  m_keyChain.sign(*interest);
+
+  setNameComponent(*interest, signed_interest::POS_SIG_INFO, "not-SignatureInfo");
+
+  PublicKey pubkey = m_keyChain.getDefaultCertificate()->getPublicKeyInfo();
+  BOOST_CHECK_EQUAL(Validator::verifySignature(*interest, pubkey), false);
+}
+
+BOOST_AUTO_TEST_CASE(MalformedInterestSigValue)
+{
+  auto interest = make_shared<Interest>("/prefix");
+  m_keyChain.sign(*interest);
+
+  setNameComponent(*interest, signed_interest::POS_SIG_VALUE, "bad-signature-bits");
+
+  PublicKey pubkey = m_keyChain.getDefaultCertificate()->getPublicKeyInfo();
+  BOOST_CHECK_EQUAL(Validator::verifySignature(*interest, pubkey), false);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // TestValidator
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace ndn

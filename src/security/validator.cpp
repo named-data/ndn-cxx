@@ -22,8 +22,6 @@
  * @author Jeff Thompson <jefft0@remap.ucla.edu>
  */
 
-#include "common.hpp"
-
 #include "validator.hpp"
 #include "../util/crypto.hpp"
 
@@ -115,27 +113,27 @@ Validator::verifySignature(const Data& data, const PublicKey& key)
 bool
 Validator::verifySignature(const Interest& interest, const PublicKey& key)
 {
-  const Name& interestName = interest.getName();
+  const Name& name = interest.getName();
 
-  if (interestName.size() < 2)
+  if (name.size() < signed_interest::MIN_LENGTH_SIG_ONLY)
     return false;
 
+  Signature sig;
   try {
-    const Block& nameBlock = interestName.wireEncode();
-
-    Signature sig(interestName[signed_interest::POS_SIG_INFO].blockFromValue(),
-                  interestName[signed_interest::POS_SIG_VALUE].blockFromValue());
-
-    if (!sig.hasKeyLocator())
-      return false;
-
-    return verifySignature(nameBlock.value(),
-                           nameBlock.value_size() - interestName[signed_interest::POS_SIG_VALUE].size(),
-                           sig, key);
+    sig.setInfo(name[signed_interest::POS_SIG_INFO].blockFromValue());
+    sig.setValue(name[signed_interest::POS_SIG_VALUE].blockFromValue());
   }
-  catch (const Block::Error& e) {
+  catch (const tlv::Error&) {
     return false;
   }
+
+  if (!sig.hasKeyLocator())
+    return false;
+
+  const Block& nameWire = name.wireEncode();
+  return verifySignature(nameWire.value(),
+                         nameWire.value_size() - name[signed_interest::POS_SIG_VALUE].size(),
+                         sig, key);
 }
 
 bool
