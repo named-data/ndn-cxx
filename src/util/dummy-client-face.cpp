@@ -35,37 +35,37 @@ class DummyClientFace::Transport : public ndn::Transport
 {
 public:
   void
-  receive(Block block)
+  receive(Block block) const
   {
     block.encode();
-    if (static_cast<bool>(m_receiveCallback)) {
+    if (m_receiveCallback) {
       m_receiveCallback(block);
     }
   }
 
   virtual void
-  close()
+  close() override
   {
   }
 
   virtual void
-  pause()
+  pause() override
   {
   }
 
   virtual void
-  resume()
+  resume() override
   {
   }
 
   virtual void
-  send(const Block& wire)
+  send(const Block& wire) override
   {
     onSendBlock(wire);
   }
 
   virtual void
-  send(const Block& header, const Block& payload)
+  send(const Block& header, const Block& payload) override
   {
     EncodingBuffer encoder(header.size() + payload.size(), header.size() + payload.size());
     encoder.appendByteArray(header.wire(), header.size());

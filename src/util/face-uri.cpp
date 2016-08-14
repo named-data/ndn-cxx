@@ -1,12 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2014,  Regents of the University of California,
- *                      Arizona Board of Regents,
- *                      Colorado State University,
- *                      University Pierre & Marie Curie, Sorbonne University,
- *                      Washington University in St. Louis,
- *                      Beijing Institute of Technology,
- *                      The University of Memphis
+ * Copyright (c) 2015-2016, Regents of the University of California,
+ *                          Arizona Board of Regents,
+ *                          Colorado State University,
+ *                          University Pierre & Marie Curie, Sorbonne University,
+ *                          Washington University in St. Louis,
+ *                          Beijing Institute of Technology,
+ *                          The University of Memphis.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -212,9 +212,7 @@ class CanonizeProvider : noncopyable
 {
 public:
   virtual
-  ~CanonizeProvider()
-  {
-  }
+  ~CanonizeProvider() = default;
 
   virtual std::set<std::string>
   getSchemes() const = 0;
@@ -234,7 +232,7 @@ class IpHostCanonizeProvider : public CanonizeProvider
 {
 public:
   virtual std::set<std::string>
-  getSchemes() const
+  getSchemes() const override
   {
     std::set<std::string> schemes;
     schemes.insert(m_baseScheme);
@@ -244,7 +242,7 @@ public:
   }
 
   virtual bool
-  isCanonical(const FaceUri& faceUri) const
+  isCanonical(const FaceUri& faceUri) const override
   {
     if (faceUri.getPort().empty()) {
       return false;
@@ -272,7 +270,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, const time::nanoseconds& timeout) const
+           boost::asio::io_service& io, const time::nanoseconds& timeout) const override
   {
     if (this->isCanonical(faceUri)) {
       onSuccess(faceUri);
@@ -300,6 +298,7 @@ public:
   }
 
 protected:
+  explicit
   IpHostCanonizeProvider(const std::string& baseScheme,
                          uint32_t defaultUnicastPort = 6363,
                          uint32_t defaultMulticastPort = 56363)
@@ -359,7 +358,7 @@ private:
   virtual std::pair<bool, std::string>
   checkAddress(const dns::IpAddress& ipAddress) const
   {
-    return std::make_pair(true, "");
+    return {true, ""};
   }
 
 private:
@@ -387,7 +386,6 @@ protected:
 class TcpCanonizeProvider : public IpHostCanonizeProvider<boost::asio::ip::tcp>
 {
 public:
-public:
   TcpCanonizeProvider()
     : IpHostCanonizeProvider("tcp")
   {
@@ -395,12 +393,12 @@ public:
 
 protected:
   virtual std::pair<bool, std::string>
-  checkAddress(const dns::IpAddress& ipAddress) const
+  checkAddress(const dns::IpAddress& ipAddress) const override
   {
     if (ipAddress.is_multicast()) {
-      return std::make_pair(false, "cannot use multicast address");
+      return {false, "cannot use multicast address"};
     }
-    return std::make_pair(true, "");
+    return {true, ""};
   }
 };
 
@@ -408,7 +406,7 @@ class EtherCanonizeProvider : public CanonizeProvider
 {
 public:
   virtual std::set<std::string>
-  getSchemes() const
+  getSchemes() const override
   {
     std::set<std::string> schemes;
     schemes.insert("ether");
@@ -416,7 +414,7 @@ public:
   }
 
   virtual bool
-  isCanonical(const FaceUri& faceUri) const
+  isCanonical(const FaceUri& faceUri) const override
   {
     if (!faceUri.getPort().empty()) {
       return false;
@@ -433,7 +431,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, const time::nanoseconds& timeout) const
+           boost::asio::io_service& io, const time::nanoseconds& timeout) const override
   {
     ethernet::Address addr = ethernet::Address::fromString(faceUri.getHost());
     if (addr.isNull()) {
@@ -490,9 +488,9 @@ getCanonizeProvider(const std::string& scheme)
     BOOST_ASSERT(!providerTable.empty());
   }
 
-  CanonizeProviderTable::const_iterator it = providerTable.find(scheme);
+  auto it = providerTable.find(scheme);
   if (it == providerTable.end()) {
-    return 0;
+    return nullptr;
   }
   return it->second.get();
 }
@@ -514,30 +512,25 @@ FaceUri::isCanonical() const
   return cp->isCanonical(*this);
 }
 
-static inline void
-nop()
-{
-}
-
 void
 FaceUri::canonize(const CanonizeSuccessCallback& onSuccess,
                   const CanonizeFailureCallback& onFailure,
                   boost::asio::io_service& io, const time::nanoseconds& timeout) const
 {
   const CanonizeProvider* cp = getCanonizeProvider(this->getScheme());
-  if (cp == 0) {
-    if (static_cast<bool>(onFailure)) {
+  if (cp == nullptr) {
+    if (onFailure) {
       onFailure("scheme not supported");
     }
     return;
   }
 
-  static CanonizeSuccessCallback successNop = bind(&nop);
-  static CanonizeFailureCallback failureNop = bind(&nop);
+  static CanonizeSuccessCallback successNop = bind([]{});
+  static CanonizeFailureCallback failureNop = bind([]{});
 
   cp->canonize(*this,
-               static_cast<bool>(onSuccess) ? onSuccess : successNop,
-               static_cast<bool>(onFailure) ? onFailure : failureNop,
+               onSuccess ? onSuccess : successNop,
+               onFailure ? onFailure : failureNop,
                io, timeout);
 }
 

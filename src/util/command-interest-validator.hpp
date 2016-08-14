@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -60,11 +60,6 @@ public:
   {
   }
 
-  virtual
-  ~CommandInterestValidator()
-  {
-  }
-
   /**
    * @brief add an Interest rule that allows a specific certificate
    *
@@ -105,7 +100,7 @@ protected:
               int stepCount,
               const OnDataValidated& onValidated,
               const OnDataValidationFailed& onValidationFailed,
-              std::vector<shared_ptr<ValidationRequest> >& nextSteps)
+              std::vector<shared_ptr<ValidationRequest>>& nextSteps) override
   {
     onValidationFailed(data.shared_from_this(), "No policy for data checking");
   }
@@ -115,7 +110,8 @@ protected:
               int stepCount,
               const OnInterestValidated& onValidated,
               const OnInterestValidationFailed& onValidationFailed,
-              std::vector<shared_ptr<ValidationRequest> >& nextSteps);
+              std::vector<shared_ptr<ValidationRequest>>& nextSteps) override;
+
 private:
   time::milliseconds m_graceInterval; //ms
   std::map<Name, PublicKey> m_trustAnchorsForInterest;
@@ -163,7 +159,7 @@ CommandInterestValidator::checkPolicy(const Interest& interest,
                                       int stepCount,
                                       const OnInterestValidated& onValidated,
                                       const OnInterestValidationFailed& onValidationFailed,
-                                      std::vector<shared_ptr<ValidationRequest> >& nextSteps)
+                                      std::vector<shared_ptr<ValidationRequest>>& nextSteps)
 {
   const Name& interestName = interest.getName();
 
@@ -255,17 +251,17 @@ CommandInterestValidator::checkPolicy(const Interest& interest,
           timestampIt->second = interestTime;
         }
     }
-  catch (Signature::Error& e)
+  catch (const Signature::Error&)
     {
       return onValidationFailed(interest.shared_from_this(),
                                 "No valid signature");
     }
-  catch (IdentityCertificate::Error& e)
+  catch (const IdentityCertificate::Error&)
     {
       return onValidationFailed(interest.shared_from_this(),
                                 "Cannot locate the signing key");
     }
-  catch (tlv::Error& e)
+  catch (const tlv::Error&)
     {
       return onValidationFailed(interest.shared_from_this(),
                                 "Cannot decode signature related TLVs");

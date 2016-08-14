@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -56,7 +56,8 @@ class IndentedStream : public std::ostream
 public:
   IndentedStream(std::ostream& os, const std::string& indent);
 
-  ~IndentedStream();
+  virtual
+  ~IndentedStream() override;
 
 private:
   // Write a stream buffer that prefixes each line
@@ -66,7 +67,7 @@ private:
     StreamBuf(std::ostream& os, const std::string& indent);
 
     virtual int
-    sync();
+    sync() override;
 
   private:
     std::ostream& m_output;

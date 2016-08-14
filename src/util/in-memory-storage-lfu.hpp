@@ -46,40 +46,37 @@ public:
   explicit
   InMemoryStorageLfu(boost::asio::io_service& ioService, size_t limit = 10);
 
-  virtual
-  ~InMemoryStorageLfu();
-
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Removes one Data packet from in-memory storage based on LFU, i.e. evict the least
    *  frequently accessed Data packet
    *  @return{ whether the Data was removed }
    */
   virtual bool
-  evictItem();
+  evictItem() override;
 
   /** @brief Update the entry when the entry is returned by the find() function,
    *  increment the frequency according to LFU
    */
   virtual void
-  afterAccess(InMemoryStorageEntry* entry);
+  afterAccess(InMemoryStorageEntry* entry) override;
 
   /** @brief Update the entry after a entry is successfully inserted, add it to the cleanupIndex
    */
   virtual void
-  afterInsert(InMemoryStorageEntry* entry);
+  afterInsert(InMemoryStorageEntry* entry) override;
 
   /** @brief Update the entry or other data structures before a entry is successfully erased,
    *  erase it from the cleanupIndex
    */
   virtual void
-  beforeErase(InMemoryStorageEntry* entry);
+  beforeErase(InMemoryStorageEntry* entry) override;
 
 private:
-  //binds frequency and entry together
+  // binds frequency and entry together
   struct CleanupEntry
   {
     InMemoryStorageEntry* entry;
-    uint64_t frequency;//could potentially be overflowed
+    uint64_t frequency; // could potentially be overflowed
   };
 
   /** @brief Function to increment frequency of the entry in the CleanupEntry

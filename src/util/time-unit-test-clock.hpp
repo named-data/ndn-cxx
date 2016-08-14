@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,7 +27,6 @@
 namespace ndn {
 namespace time {
 
-
 /**
  * @brief Traits for UnitTestClock, defining default behavior for different clocks
  *
@@ -42,7 +41,7 @@ public:
   getDefaultStartTime()
   {
     return nanoseconds::zero();
-  };
+  }
 };
 
 /**
@@ -59,7 +58,7 @@ public:
   getDefaultStartTime()
   {
     return seconds(1415684132);
-  };
+  }
 };
 
 /**
@@ -75,8 +74,7 @@ class UnitTestClock : public CustomClock<BaseClock>
 {
 public:
   explicit
-  UnitTestClock(const nanoseconds& startTime =
-                UnitTestClockTraits<BaseClock>::getDefaultStartTime());
+  UnitTestClock(const nanoseconds& startTime = UnitTestClockTraits<BaseClock>::getDefaultStartTime());
 
   /**
    * @brief Advance unit test clock by @p duration
@@ -91,15 +89,14 @@ public:
   setNow(const nanoseconds& timeSinceEpoch);
 
 public: // CustomClock<BaseClock>
-
   virtual std::string
-  getSince() const;
+  getSince() const override;
 
   virtual typename BaseClock::time_point
-  getNow() const;
+  getNow() const override;
 
   virtual boost::posix_time::time_duration
-  toPosixDuration(const typename BaseClock::duration& duration) const;
+  toPosixDuration(const typename BaseClock::duration& duration) const override;
 
 private:
   nanoseconds m_currentTime;

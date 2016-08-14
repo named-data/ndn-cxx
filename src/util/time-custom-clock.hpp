@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,9 +37,8 @@ template<typename BaseClock>
 class CustomClock
 {
 public:
-  virtual ~CustomClock()
-  {
-  }
+  virtual
+  ~CustomClock() = default;
 
   virtual typename BaseClock::time_point
   getNow() const = 0;

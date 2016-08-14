@@ -34,10 +34,6 @@ InMemoryStoragePersistent::InMemoryStoragePersistent(boost::asio::io_service& io
 {
 }
 
-InMemoryStoragePersistent::~InMemoryStoragePersistent()
-{
-}
-
 bool
 InMemoryStoragePersistent::evictItem()
 {

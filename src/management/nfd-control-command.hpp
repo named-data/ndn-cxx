@@ -47,6 +47,9 @@ public:
     }
   };
 
+  virtual
+  ~ControlCommand();
+
   /** \brief validate request parameters
    *  \throw ArgumentError if parameters are invalid
    */
@@ -142,11 +145,12 @@ public:
   FaceCreateCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const;
+  applyDefaultsToRequest(ControlParameters& parameters) const override;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const override;
 };
+
 
 /**
  * \ingroup management
@@ -159,11 +163,12 @@ public:
   FaceUpdateCommand();
 
   virtual void
-  validateRequest(const ControlParameters& parameters) const;
+  validateRequest(const ControlParameters& parameters) const override;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const override;
 };
+
 
 /**
  * \ingroup management
@@ -176,11 +181,12 @@ public:
   FaceDestroyCommand();
 
   virtual void
-  validateRequest(const ControlParameters& parameters) const;
+  validateRequest(const ControlParameters& parameters) const override;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const override;
 };
+
 
 /**
  * \ingroup management
@@ -190,10 +196,10 @@ class FaceLocalControlCommand : public ControlCommand
 {
 public:
   virtual void
-  validateRequest(const ControlParameters& parameters) const;
+  validateRequest(const ControlParameters& parameters) const override;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const override;
 
 protected:
   explicit
@@ -236,10 +242,10 @@ public:
   FibAddNextHopCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const;
+  applyDefaultsToRequest(ControlParameters& parameters) const override;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const override;
 };
 
 
@@ -254,10 +260,10 @@ public:
   FibRemoveNextHopCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const;
+  applyDefaultsToRequest(ControlParameters& parameters) const override;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const override;
 };
 
 
@@ -284,10 +290,10 @@ public:
   StrategyChoiceUnsetCommand();
 
   virtual void
-  validateRequest(const ControlParameters& parameters) const;
+  validateRequest(const ControlParameters& parameters) const override;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const override;
 };
 
 
@@ -302,10 +308,10 @@ public:
   RibRegisterCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const;
+  applyDefaultsToRequest(ControlParameters& parameters) const override;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const override;
 };
 
 
@@ -320,10 +326,10 @@ public:
   RibUnregisterCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const;
+  applyDefaultsToRequest(ControlParameters& parameters) const override;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const override;
 };
 
 } // namespace nfd

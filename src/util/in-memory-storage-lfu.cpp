@@ -34,10 +34,6 @@ InMemoryStorageLfu::InMemoryStorageLfu(boost::asio::io_service& ioService, size_
 {
 }
 
-InMemoryStorageLfu::~InMemoryStorageLfu()
-{
-}
-
 void
 InMemoryStorageLfu::afterInsert(InMemoryStorageEntry* entry)
 {

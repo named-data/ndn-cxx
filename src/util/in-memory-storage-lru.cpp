@@ -35,10 +35,6 @@ InMemoryStorageLru::InMemoryStorageLru(boost::asio::io_service& ioService,
 {
 }
 
-InMemoryStorageLru::~InMemoryStorageLru()
-{
-}
-
 void
 InMemoryStorageLru::afterInsert(InMemoryStorageEntry* entry)
 {

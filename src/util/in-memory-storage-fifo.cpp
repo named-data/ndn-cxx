@@ -34,10 +34,6 @@ InMemoryStorageFifo::InMemoryStorageFifo(boost::asio::io_service& ioService, siz
 {
 }
 
-InMemoryStorageFifo::~InMemoryStorageFifo()
-{
-}
-
 void
 InMemoryStorageFifo::afterInsert(InMemoryStorageEntry* entry)
 {

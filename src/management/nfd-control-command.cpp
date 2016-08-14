@@ -31,6 +31,8 @@ ControlCommand::ControlCommand(const std::string& module, const std::string& ver
 {
 }
 
+ControlCommand::~ControlCommand() = default;
+
 void
 ControlCommand::validateRequest(const ControlParameters& parameters) const
 {

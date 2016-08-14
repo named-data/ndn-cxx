@@ -44,33 +44,30 @@ public:
 
   InMemoryStorageLru(boost::asio::io_service& ioService, size_t limit = 10);
 
-  virtual
-  ~InMemoryStorageLru();
-
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Removes one Data packet from in-memory storage based on LRU, i.e. evict the least
    *  recently accessed Data packet
    *  @return{ whether the Data was removed }
    */
   virtual bool
-  evictItem();
+  evictItem() override;
 
   /** @brief Update the entry when the entry is returned by the find() function,
    *  update the last used time according to LRU
    */
   virtual void
-  afterAccess(InMemoryStorageEntry* entry);
+  afterAccess(InMemoryStorageEntry* entry) override;
 
   /** @brief Update the entry after a entry is successfully inserted, add it to the cleanupIndex
    */
   virtual void
-  afterInsert(InMemoryStorageEntry* entry);
+  afterInsert(InMemoryStorageEntry* entry) override;
 
   /** @brief Update the entry or other data structures before a entry is successfully erased,
    *  erase it from the cleanupIndex
    */
   virtual void
-  beforeErase(InMemoryStorageEntry* entry);
+  beforeErase(InMemoryStorageEntry* entry) override;
 
 private:
   //multi_index_container to implement LRU

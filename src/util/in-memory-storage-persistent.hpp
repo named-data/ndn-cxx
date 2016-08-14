@@ -38,9 +38,6 @@ public:
   explicit
   InMemoryStoragePersistent(boost::asio::io_service& ioService);
 
-  virtual
-  ~InMemoryStoragePersistent();
-
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Do nothing.
    *
@@ -49,7 +46,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
    *  @return false
    */
   virtual bool
-  evictItem();
+  evictItem() override;
 };
 
 } // namespace util
