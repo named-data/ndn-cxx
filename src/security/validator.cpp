@@ -42,6 +42,8 @@ Validator::Validator(Face& face)
 {
 }
 
+Validator::~Validator() = default;
+
 void
 Validator::validate(const Interest& interest,
                     const OnInterestValidated& onValidated,

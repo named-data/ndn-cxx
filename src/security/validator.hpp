@@ -66,6 +66,9 @@ public:
   explicit
   Validator(Face& face);
 
+  virtual
+  ~Validator();
+
   /**
    * @brief Validate Data and call either onValidated or onValidationFailed.
    *
@@ -213,7 +216,7 @@ protected:
               int nSteps,
               const OnDataValidated& onValidated,
               const OnDataValidationFailed& onValidationFailed,
-              std::vector<shared_ptr<ValidationRequest> >& nextSteps) = 0;
+              std::vector<shared_ptr<ValidationRequest>>& nextSteps) = 0;
 
   /**
    * @brief Check the Interest against validation policy and return the next validation step
@@ -233,7 +236,7 @@ protected:
               int nSteps,
               const OnInterestValidated& onValidated,
               const OnInterestValidationFailed& onValidationFailed,
-              std::vector<shared_ptr<ValidationRequest> >& nextSteps) = 0;
+              std::vector<shared_ptr<ValidationRequest>>& nextSteps) = 0;
 
   typedef function<void(const std::string&)> OnFailure;
 
@@ -320,7 +323,7 @@ protected:
    * @param onFailure Failure callback when errors happen in processing nextSteps.
    */
   virtual void
-  afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest> >& nextSteps,
+  afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest>>& nextSteps,
                    const OnFailure& onFailure);
 
 protected:
