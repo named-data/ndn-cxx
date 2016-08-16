@@ -147,16 +147,17 @@ FaceUpdateCommand::FaceUpdateCommand()
     .optional(CONTROL_PARAMETER_FLAGS)
     .optional(CONTROL_PARAMETER_MASK);
   m_responseValidator
-    .optional(CONTROL_PARAMETER_FACE_ID)
-    .optional(CONTROL_PARAMETER_FACE_PERSISTENCY)
-    .optional(CONTROL_PARAMETER_FLAGS)
-    .optional(CONTROL_PARAMETER_MASK);
+    .required(CONTROL_PARAMETER_FACE_ID)
+    .required(CONTROL_PARAMETER_FACE_PERSISTENCY)
+    .required(CONTROL_PARAMETER_FLAGS);
 }
 
 void
 FaceUpdateCommand::applyDefaultsToRequest(ControlParameters& parameters) const
 {
-  parameters.setFaceId(0);
+  if (!parameters.hasFaceId()) {
+    parameters.setFaceId(0);
+  }
 }
 
 void
@@ -172,7 +173,11 @@ FaceUpdateCommand::validateRequest(const ControlParameters& parameters) const
 void
 FaceUpdateCommand::validateResponse(const ControlParameters& parameters) const
 {
-  this->validateRequest(parameters);
+  this->ControlCommand::validateResponse(parameters);
+
+  if (parameters.getFaceId() == 0) {
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
+  }
 }
 
 FaceDestroyCommand::FaceDestroyCommand()

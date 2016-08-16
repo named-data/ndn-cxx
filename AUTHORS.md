@@ -32,7 +32,7 @@ in the library:
 * Chengyu Fan           <chengyu@cs.colostate.edu>
 * Qiuhan Ding           <http://irl.cs.ucla.edu/~qiuhanding/>
 * Spyridon Mastorakis   <http://cs.ucla.edu/~mastorakis/>
-* Eric Newberry         <http://ericnewberry.com>
+* Eric Newberry         <http://cs.arizona.edu/~enewberry/>
 * João Pereira          <http://website.jpereira.co.uk>
 * Mickey Sweatt         <https://www.linkedin.com/in/michaelsweatt>
 * Yanbiao Li            <https://www.linkedin.com/pub/yanbiao-li/24/7a1/4ba>

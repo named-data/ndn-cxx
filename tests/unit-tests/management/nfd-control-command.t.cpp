@@ -51,14 +51,14 @@ BOOST_AUTO_TEST_CASE(FaceCreate)
 
   ControlParameters p4;
   p4.setUri("tcp4://192.0.2.1")
-    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT)
+    .setFacePersistency(FACE_PERSISTENCY_PERSISTENT)
     .setFlags(0x3)
     .setMask(0x1);
   BOOST_CHECK_NO_THROW(command.validateRequest(p4));
 
   ControlParameters p5;
   p5.setUri("tcp4://192.0.2.1")
-    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT)
+    .setFacePersistency(FACE_PERSISTENCY_PERSISTENT)
     .setFlags(0x1);
   BOOST_CHECK_THROW(command.validateRequest(p5), ControlCommand::ArgumentError);
 
@@ -66,12 +66,12 @@ BOOST_AUTO_TEST_CASE(FaceCreate)
   BOOST_CHECK_NO_THROW(command.validateRequest(p4));
   command.applyDefaultsToRequest(p4);
   BOOST_REQUIRE(p4.hasFacePersistency());
-  BOOST_CHECK_EQUAL(p4.getFacePersistency(), ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  BOOST_CHECK_EQUAL(p4.getFacePersistency(), FACE_PERSISTENCY_PERSISTENT);
 
   ControlParameters p6;
   p6.setFaceId(4)
     .setUri("tcp4://192.0.2.1")
-    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+    .setFacePersistency(FACE_PERSISTENCY_PERSISTENT);
   BOOST_CHECK_NO_THROW(command.validateResponse(p6));
 
   ControlParameters p7;
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(FaceCreate)
 
   ControlParameters p8;
   p8.setFaceId(5)
-    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERMANENT)
+    .setFacePersistency(FACE_PERSISTENCY_PERMANENT)
     .setFlags(0x2);
   BOOST_CHECK_NO_THROW(command.validateResponse(p8));
 }
@@ -94,25 +94,29 @@ BOOST_AUTO_TEST_CASE(FaceUpdate)
   ControlParameters p1;
   p1.setFaceId(0);
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
-  BOOST_CHECK_NO_THROW(command.validateResponse(p1));
+  BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
 
   p1.setFaceId(1);
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
-  BOOST_CHECK_NO_THROW(command.validateResponse(p1));
+  BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
+  command.applyDefaultsToRequest(p1);
+  BOOST_CHECK_EQUAL(p1.getFaceId(), 1);
 
   ControlParameters p2;
   p2.setFaceId(1)
-    .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT)
-    .setFlags(0x0)
-    .setMask(0x1);
+    .setFacePersistency(FACE_PERSISTENCY_PERSISTENT)
+    .setFlagBit(BIT_LOCAL_FIELDS_ENABLED, false);
   BOOST_CHECK_NO_THROW(command.validateRequest(p2));
-  BOOST_CHECK_NO_THROW(command.validateResponse(p2));
+  BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError); // Mask forbidden but present
 
-  p2.unsetFaceId();
-  BOOST_CHECK_NO_THROW(command.validateRequest(p2));
-
+  // Flags without Mask
   p2.unsetMask();
   BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
+  BOOST_CHECK_NO_THROW(command.validateResponse(p2));
+
+  p2.setFlagBit(BIT_LOCAL_FIELDS_ENABLED, false);
+  p2.unsetFaceId();
+  BOOST_CHECK_NO_THROW(command.validateRequest(p2));
 
   ControlParameters p3;
   p3.setFaceId(1)
@@ -127,7 +131,14 @@ BOOST_AUTO_TEST_CASE(FaceUpdate)
   BOOST_CHECK_THROW(command.validateResponse(p4), ControlCommand::ArgumentError);
 
   ControlParameters p5;
-  BOOST_CHECK_NO_THROW(command.validateResponse(p5));
+  BOOST_CHECK_NO_THROW(command.validateRequest(p5));
+  BOOST_CHECK_THROW(command.validateResponse(p5), ControlCommand::ArgumentError);
+  BOOST_CHECK(!p5.hasFaceId());
+  command.applyDefaultsToRequest(p5);
+  BOOST_REQUIRE(p5.hasFaceId());
+  BOOST_CHECK_NO_THROW(command.validateRequest(p5));
+  BOOST_CHECK_THROW(command.validateResponse(p5), ControlCommand::ArgumentError);
+  BOOST_CHECK_EQUAL(p5.getFaceId(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(FaceDestroy)

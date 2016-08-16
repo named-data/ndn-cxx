@@ -171,6 +171,10 @@ public:
   virtual void
   validateRequest(const ControlParameters& parameters) const override;
 
+  /**
+   * \note This can only validate ControlParameters in a success response.
+   *       Failure responses should be validated with validateRequest.
+   */
   virtual void
   validateResponse(const ControlParameters& parameters) const override;
 };
