@@ -21,33 +21,246 @@
 
 #include "util/io.hpp"
 #include "security/key-chain.hpp"
-#include "identity-management-fixture.hpp"
 
 #include "boost-test.hpp"
+#include "identity-management-fixture.hpp"
+#include <boost/filesystem.hpp>
+#include <fstream>
 
 namespace ndn {
 namespace tests {
 
-BOOST_FIXTURE_TEST_SUITE(UtilIo, IdentityManagementFixture)
-
-BOOST_AUTO_TEST_CASE(Basic)
+class IoFixture
 {
-  Name identity("/TestIO/Basic");
+protected:
+  IoFixture()
+    : filepath(boost::filesystem::path(UNIT_TEST_CONFIG_PATH) /= "TestIo")
+    , filename(filepath.string())
+  {
+    boost::filesystem::create_directories(filepath.parent_path());
+  }
+
+  ~IoFixture()
+  {
+    boost::system::error_code ec;
+    boost::filesystem::remove(filepath, ec); // ignore error
+  }
+
+  /** \brief create a directory at filename, so that it's neither readable nor writable as a file
+   */
+  void
+  mkdir() const
+  {
+    boost::filesystem::create_directory(filepath);
+  }
+
+  template<typename Container, typename CharT = typename Container::value_type>
+  Container
+  readFile() const
+  {
+    Container container;
+    std::ifstream fs(filename, std::ios_base::binary);
+    char ch;
+    while (fs.get(ch)) {
+      container.push_back(static_cast<CharT>(ch));
+    }
+    return container;
+  }
+
+  template<typename Container, typename CharT = typename Container::value_type>
+  void
+  writeFile(const Container& content) const
+  {
+    std::ofstream fs(filename, std::ios_base::binary);
+    for (CharT ch : content) {
+      fs.put(static_cast<char>(ch));
+    }
+    fs.close();
+    BOOST_REQUIRE_MESSAGE(fs, "error writing file");
+  }
+
+protected:
+  const boost::filesystem::path filepath;
+  const std::string filename;
+};
+
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_FIXTURE_TEST_SUITE(TestIo, IoFixture)
+
+class EncodableType
+{
+public:
+  class Error : public tlv::Error
+  {
+  public:
+    Error()
+      : tlv::Error("encode error")
+    {
+    }
+  };
+
+  Block
+  wireEncode() const
+  {
+    if (shouldThrow) {
+      BOOST_THROW_EXCEPTION(Error());
+    }
+
+    // block will be 0xAA, 0x01, 0xDD
+    return makeNonNegativeIntegerBlock(0xAA, 0xDD);
+  }
+
+public:
+  bool shouldThrow = false;
+};
+
+class DecodableType
+{
+public:
+  class Error : public tlv::Error
+  {
+  public:
+    Error()
+      : tlv::Error("decode error")
+    {
+    }
+  };
+
+  void
+  wireDecode(const Block& block) const
+  {
+    if (shouldThrow) {
+      BOOST_THROW_EXCEPTION(Error());
+    }
+
+    // block must be 0xBB, 0x01, 0xEE
+    BOOST_CHECK_EQUAL(block.type(), 0xBB);
+    BOOST_REQUIRE_EQUAL(block.value_size(), 1);
+    BOOST_CHECK_EQUAL(block.value()[0], 0xEE);
+  }
+
+public:
+  bool shouldThrow = false;
+};
+
+class DecodableTypeThrow : public DecodableType
+{
+public:
+  DecodableTypeThrow()
+  {
+    this->shouldThrow = true;
+  }
+};
+
+BOOST_AUTO_TEST_CASE(LoadNoEncoding)
+{
+  this->writeFile<std::vector<uint8_t>>({0xBB, 0x01, 0xEE});
+  shared_ptr<DecodableType> decoded = io::load<DecodableType>(filename, io::NO_ENCODING);
+  BOOST_CHECK(decoded != nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(LoadBase64)
+{
+  this->writeFile<std::string>("uwHu\n"); // printf '\xBB\x01\xEE' | base64
+  shared_ptr<DecodableType> decoded = io::load<DecodableType>(filename, io::BASE_64);
+  BOOST_CHECK(decoded != nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(LoadHex)
+{
+  this->writeFile<std::string>("BB01EE");
+  shared_ptr<DecodableType> decoded = io::load<DecodableType>(filename, io::HEX);
+  BOOST_CHECK(decoded != nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(LoadException)
+{
+  this->writeFile<std::vector<uint8_t>>({0xBB, 0x01, 0xEE});
+  shared_ptr<DecodableTypeThrow> decoded;
+  BOOST_CHECK_NO_THROW(decoded = io::load<DecodableTypeThrow>(filename, io::NO_ENCODING));
+  BOOST_CHECK(decoded == nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(LoadNotHex)
+{
+  this->writeFile<std::string>("not-hex");
+  shared_ptr<DecodableType> decoded;
+  BOOST_CHECK_NO_THROW(decoded = io::load<DecodableType>(filename, io::HEX));
+  BOOST_CHECK(decoded == nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(LoadFileNotReadable)
+{
+  this->mkdir();
+  shared_ptr<DecodableType> decoded;
+  BOOST_CHECK_NO_THROW(decoded = io::load<DecodableType>(filename, io::NO_ENCODING));
+  BOOST_CHECK(decoded == nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(SaveNoEncoding)
+{
+  EncodableType encoded;
+  BOOST_CHECK_NO_THROW(io::save(encoded, filename, io::NO_ENCODING));
+  auto content = this->readFile<std::vector<uint8_t>>();
+  uint8_t expected[] = {0xAA, 0x01, 0xDD};
+  BOOST_CHECK_EQUAL_COLLECTIONS(content.begin(), content.end(),
+                                expected, expected + sizeof(expected));
+}
+
+BOOST_AUTO_TEST_CASE(SaveBase64)
+{
+  EncodableType encoded;
+  BOOST_CHECK_NO_THROW(io::save(encoded, filename, io::BASE_64));
+  auto content = this->readFile<std::string>();
+  BOOST_CHECK_EQUAL(content, "qgHd\n"); // printf '\xAA\x01\xDD' | base64
+}
+
+BOOST_AUTO_TEST_CASE(SaveHex)
+{
+  EncodableType encoded;
+  BOOST_CHECK_NO_THROW(io::save(encoded, filename, io::HEX));
+  auto content = this->readFile<std::string>();
+  BOOST_CHECK_EQUAL(content, "AA01DD");
+}
+
+BOOST_AUTO_TEST_CASE(SaveException)
+{
+  EncodableType encoded;
+  encoded.shouldThrow = true;
+  BOOST_CHECK_THROW(io::save(encoded, filename, io::NO_ENCODING), io::Error);
+}
+
+BOOST_AUTO_TEST_CASE(SaveFileNotWritable)
+{
+  this->mkdir();
+  EncodableType encoded;
+  encoded.shouldThrow = true;
+  BOOST_CHECK_THROW(io::save(encoded, filename, io::NO_ENCODING), io::Error);
+}
+
+class IdCertFixture : public IoFixture
+                    , public IdentityManagementFixture
+{
+};
+
+BOOST_FIXTURE_TEST_CASE(IdCert, IdCertFixture)
+{
+  Name identity("/TestIo/IdCert");
   identity.appendVersion();
   BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
   shared_ptr<IdentityCertificate> idCert;
   BOOST_REQUIRE_NO_THROW(idCert = m_keyChain.getCertificate(certName));
 
-  std::string file("/tmp/TestIO-Basic");
-  io::save(*idCert, file);
-  shared_ptr<IdentityCertificate> readCert = io::load<IdentityCertificate>(file);
+  io::save(*idCert, filename);
+  shared_ptr<IdentityCertificate> readCert = io::load<IdentityCertificate>(filename);
 
-  BOOST_CHECK(static_cast<bool>(readCert));
-  BOOST_CHECK(idCert->getName() == readCert->getName());
+  BOOST_CHECK(readCert != nullptr);
+  BOOST_CHECK_EQUAL(idCert->getName(), readCert->getName());
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestIo
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace ndn
