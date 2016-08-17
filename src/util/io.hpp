@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,14 +22,12 @@
 #ifndef NDN_UTIL_IO_HPP
 #define NDN_UTIL_IO_HPP
 
-#include "../common.hpp"
-
 #include "../encoding/block.hpp"
 #include "../encoding/buffer-stream.hpp"
+#include "../security/cryptopp.hpp"
 
 #include <iostream>
 #include <fstream>
-#include "../security/cryptopp.hpp"
 
 
 namespace ndn {
@@ -56,50 +54,42 @@ shared_ptr<T>
 load(std::istream& is, IoEncoding encoding = BASE_64)
 {
   typedef typename T::Error TypeError;
-  try
-    {
-      using namespace CryptoPP;
+  try {
+    using namespace CryptoPP;
 
-      shared_ptr<T> object = make_shared<T>();
+    shared_ptr<T> object = make_shared<T>();
 
-      OBufferStream os;
+    OBufferStream os;
 
-      switch (encoding)
-        {
-        case NO_ENCODING:
-          {
-            FileSource ss(is, true, new FileSink(os));
-            break;
-          }
-        case BASE_64:
-          {
-            FileSource ss(is, true, new Base64Decoder(new FileSink(os)));
-            break;
-          }
-        case HEX:
-          {
-            FileSource ss(is, true, new HexDecoder(new FileSink(os)));
-            break;
-          }
-        default:
-          return shared_ptr<T>();
-        }
+    switch (encoding) {
+      case NO_ENCODING: {
+        FileSource ss(is, true, new FileSink(os));
+        break;
+      }
+      case BASE_64: {
+        FileSource ss(is, true, new Base64Decoder(new FileSink(os)));
+        break;
+      }
+      case HEX: {
+        FileSource ss(is, true, new HexDecoder(new FileSink(os)));
+        break;
+      }
+      default:
+        return nullptr;
+    }
 
-      object->wireDecode(Block(os.buf()));
-      return object;
-    }
-  catch (TypeError& e)
-    {
-      return shared_ptr<T>();
-    }
-  catch (CryptoPP::Exception& e)
-    {
-      return shared_ptr<T>();
-    }
-  catch (tlv::Error& e)
-    {
-      return shared_ptr<T>();
-    }
+    object->wireDecode(Block(os.buf()));
+    return object;
+  }
+  catch (const TypeError& e) {
+    return nullptr;
+  }
+  catch (const CryptoPP::Exception& e) {
+    return nullptr;
+  }
+  catch (const tlv::Error& e) {
+    return nullptr;
+  }
 }
 
 template<typename T>
@@ -115,49 +105,40 @@ void
 save(const T& object, std::ostream& os, IoEncoding encoding = BASE_64)
 {
   typedef typename T::Error TypeError;
-  try
-    {
-      using namespace CryptoPP;
+  try {
+    using namespace CryptoPP;
 
-      Block block = object.wireEncode();
+    Block block = object.wireEncode();
 
-      switch (encoding)
-        {
-        case NO_ENCODING:
-          {
-            StringSource ss(block.wire(), block.size(), true,
-                            new FileSink(os));
-            break;
-          }
-        case BASE_64:
-          {
-            StringSource ss(block.wire(), block.size(), true,
-                            new Base64Encoder(new FileSink(os), true, 64));
-            break;
-          }
-        case HEX:
-          {
-            StringSource ss(block.wire(), block.size(), true,
-                            new HexEncoder(new FileSink(os)));
-            break;
-          }
-        default:
-          return;
-        }
-      return;
+    switch (encoding) {
+      case NO_ENCODING: {
+        StringSource ss(block.wire(), block.size(), true, new FileSink(os));
+        break;
+      }
+      case BASE_64: {
+        StringSource ss(block.wire(), block.size(), true,
+                        new Base64Encoder(new FileSink(os), true, 64));
+        break;
+      }
+      case HEX: {
+        StringSource ss(block.wire(), block.size(), true,
+                        new HexEncoder(new FileSink(os)));
+        break;
+      }
+      default:
+        return;
     }
-  catch (TypeError& e)
-    {
-      BOOST_THROW_EXCEPTION(Error(e.what()));
-    }
-  catch (CryptoPP::Exception& e)
-    {
-      BOOST_THROW_EXCEPTION(Error(e.what()));
-    }
-  catch (tlv::Error& e)
-    {
-      BOOST_THROW_EXCEPTION(Error(e.what()));
-    }
+    return;
+  }
+  catch (const TypeError& e) {
+    BOOST_THROW_EXCEPTION(Error(e.what()));
+  }
+  catch (const CryptoPP::Exception& e) {
+    BOOST_THROW_EXCEPTION(Error(e.what()));
+  }
+  catch (const tlv::Error& e) {
+    BOOST_THROW_EXCEPTION(Error(e.what()));
+  }
 }
 
 template<typename T>
