@@ -24,11 +24,10 @@
 
 #include "../encoding/block.hpp"
 #include "../encoding/buffer-stream.hpp"
-#include "../security/cryptopp.hpp"
+#include "../security/transform.hpp"
 
 #include <iostream>
 #include <fstream>
-
 
 namespace ndn {
 namespace io {
@@ -43,48 +42,50 @@ public:
   }
 };
 
+/** \brief indicates how a file or stream is encoded
+ */
 enum IoEncoding {
-  NO_ENCODING,
-  BASE_64,
-  HEX
+  NO_ENCODING, ///< binary without encoding
+  BASE_64, ///< base64 encoding
+  HEX ///< uppercase hexadecimal encoding
 };
 
+/** \brief loads a TLV element from a stream
+ *  \tparam T type of TLV element; T must be WireDecodable,
+ *            and must have a Error nested type
+ *  \return the TLV element, or nullptr if an error occurs
+ */
 template<typename T>
 shared_ptr<T>
 load(std::istream& is, IoEncoding encoding = BASE_64)
 {
-  typedef typename T::Error TypeError;
+  OBufferStream os;
   try {
-    using namespace CryptoPP;
-
-    shared_ptr<T> object = make_shared<T>();
-
-    OBufferStream os;
-
+    namespace t = ndn::security::transform;
     switch (encoding) {
-      case NO_ENCODING: {
-        FileSource ss(is, true, new FileSink(os));
+      case NO_ENCODING:
+        t::streamSource(is) >> t::streamSink(os);
         break;
-      }
-      case BASE_64: {
-        FileSource ss(is, true, new Base64Decoder(new FileSink(os)));
+      case BASE_64:
+        t::streamSource(is) >> t::base64Decode() >> t::streamSink(os);
         break;
-      }
-      case HEX: {
-        FileSource ss(is, true, new HexDecoder(new FileSink(os)));
+      case HEX:
+        t::streamSource(is) >> t::hexDecode() >> t::streamSink(os);
         break;
-      }
       default:
         return nullptr;
     }
-
-    object->wireDecode(Block(os.buf()));
-    return object;
   }
-  catch (const TypeError& e) {
+  catch (const ndn::security::transform::Error&) {
     return nullptr;
   }
-  catch (const CryptoPP::Exception& e) {
+
+  try {
+    auto obj = make_shared<T>();
+    obj->wireDecode(Block(os.buf()));
+    return obj;
+  }
+  catch (const typename T::Error& e) {
     return nullptr;
   }
   catch (const tlv::Error& e) {
@@ -92,61 +93,65 @@ load(std::istream& is, IoEncoding encoding = BASE_64)
   }
 }
 
+/** \brief loads a TLV element from a file
+ */
 template<typename T>
 shared_ptr<T>
-load(const std::string& file, IoEncoding encoding = BASE_64)
+load(const std::string& filename, IoEncoding encoding = BASE_64)
 {
-  std::ifstream is(file.c_str());
+  std::ifstream is(filename);
   return load<T>(is, encoding);
 }
 
+/** \brief saves a TLV element to a stream
+ *  \tparam T type of TLV element; T must be WireEncodable,
+ *            and must have a Error nested type
+ *  \throw Error error during encoding or saving
+ */
 template<typename T>
 void
-save(const T& object, std::ostream& os, IoEncoding encoding = BASE_64)
+save(const T& obj, std::ostream& os, IoEncoding encoding = BASE_64)
 {
-  typedef typename T::Error TypeError;
+  Block block;
   try {
-    using namespace CryptoPP;
-
-    Block block = object.wireEncode();
-
-    switch (encoding) {
-      case NO_ENCODING: {
-        StringSource ss(block.wire(), block.size(), true, new FileSink(os));
-        break;
-      }
-      case BASE_64: {
-        StringSource ss(block.wire(), block.size(), true,
-                        new Base64Encoder(new FileSink(os), true, 64));
-        break;
-      }
-      case HEX: {
-        StringSource ss(block.wire(), block.size(), true,
-                        new HexEncoder(new FileSink(os)));
-        break;
-      }
-      default:
-        return;
-    }
-    return;
+    block = obj.wireEncode();
   }
-  catch (const TypeError& e) {
-    BOOST_THROW_EXCEPTION(Error(e.what()));
-  }
-  catch (const CryptoPP::Exception& e) {
+  catch (const typename T::Error& e) {
     BOOST_THROW_EXCEPTION(Error(e.what()));
   }
   catch (const tlv::Error& e) {
     BOOST_THROW_EXCEPTION(Error(e.what()));
   }
+
+  try {
+    namespace t = ndn::security::transform;
+    switch (encoding) {
+      case NO_ENCODING:
+        t::bufferSource(block.wire(), block.size()) >> t::streamSink(os);
+        break;
+      case BASE_64:
+        t::bufferSource(block.wire(), block.size()) >> t::base64Encode() >> t::streamSink(os);
+        break;
+      case HEX:
+        t::bufferSource(block.wire(), block.size()) >> t::hexEncode(true) >> t::streamSink(os);
+        break;
+      default:
+        BOOST_THROW_EXCEPTION(Error("unrecognized IoEncoding"));
+    }
+  }
+  catch (const ndn::security::transform::Error& e) {
+    BOOST_THROW_EXCEPTION(Error(e.what()));
+  }
 }
 
+/** \brief saves a TLV element to a file
+ */
 template<typename T>
 void
-save(const T& object, const std::string& file, IoEncoding encoding = BASE_64)
+save(const T& obj, const std::string& filename, IoEncoding encoding = BASE_64)
 {
-  std::ofstream os(file.c_str());
-  save(object, os, encoding);
+  std::ofstream os(filename);
+  save(obj, os, encoding);
 }
 
 } // namespace io
