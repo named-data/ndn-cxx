@@ -191,7 +191,6 @@ BOOST_AUTO_TEST_CASE(LoadNotHex)
 
 BOOST_AUTO_TEST_CASE(LoadFileNotReadable)
 {
-  this->mkdir();
   shared_ptr<DecodableType> decoded;
   BOOST_CHECK_NO_THROW(decoded = io::load<DecodableType>(filename, io::NO_ENCODING));
   BOOST_CHECK(decoded == nullptr);

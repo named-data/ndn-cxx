@@ -53,7 +53,7 @@ StreamSource::doPump()
       dataOffset += nBytesWritten;
       dataLen -= nBytesWritten;
     }
-    else if (m_is.bad()) {
+    else if (!m_is) {
       BOOST_THROW_EXCEPTION(Error(getIndex(), "Input stream in bad state"));
     }
     else if (m_is.good()) {

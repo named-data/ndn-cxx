@@ -23,6 +23,8 @@
 #include "security/transform/stream-sink.hpp"
 
 #include "boost-test.hpp"
+#include <boost/mpl/integral_c.hpp>
+#include <boost/mpl/vector.hpp>
 
 namespace ndn {
 namespace security {
@@ -63,6 +65,28 @@ BOOST_AUTO_TEST_CASE(Basic)
   std::string output = os.str();
 
   BOOST_CHECK_EQUAL(input, output);
+}
+
+BOOST_AUTO_TEST_CASE(EmptyStream)
+{
+  std::stringstream is;
+  std::stringstream os;
+  streamSource(is) >> streamSink(os);
+
+  BOOST_CHECK_EQUAL(os.str(), "");
+}
+
+typedef boost::mpl::vector<
+  boost::mpl::integral_c<std::ios_base::iostate, std::ios_base::badbit>,
+  boost::mpl::integral_c<std::ios_base::iostate, std::ios_base::failbit>
+> BadBits;
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(BadStream, BadBit, BadBits)
+{
+  std::stringstream is;
+  is.setstate(BadBit::value);
+  std::stringstream os;
+  BOOST_CHECK_THROW(streamSource(is) >> streamSink(os), transform::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestStreamSource
