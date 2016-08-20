@@ -20,7 +20,8 @@
  */
 
 #include "nfd-controller.hpp"
-#include "nfd-control-response.hpp"
+#include "../face.hpp"
+#include "../security/key-chain.hpp"
 #include "../util/segment-fetcher.hpp"
 
 namespace ndn {
@@ -52,7 +53,7 @@ Controller::startCommand(const shared_ptr<ControlCommand>& command,
   const CommandSucceedCallback& onSuccess = onSuccess1 ?
     onSuccess1 : [] (const ControlParameters&) {};
   const CommandFailCallback& onFailure = onFailure1 ?
-    onFailure1 : [] (uint32_t, const std::string&) {};
+    onFailure1 : [] (const ControlResponse&) {};
 
   Name requestName = command->getRequestName(options.getPrefix(), parameters);
   Interest interest(requestName);
@@ -60,10 +61,15 @@ Controller::startCommand(const shared_ptr<ControlCommand>& command,
   m_keyChain.sign(interest, options.getSigningInfo());
 
   m_face.expressInterest(interest,
-                         bind(&Controller::processCommandResponse, this, _2,
-                              command, onSuccess, onFailure),
-                         bind(onFailure, ERROR_NACK, "network Nack received"),
-                         bind(onFailure, ERROR_TIMEOUT, "request timed out"));
+    [=] (const Interest&, const Data& data) {
+      this->processCommandResponse(data, command, onSuccess, onFailure);
+    },
+    [=] (const Interest&, const lp::Nack&) {
+      onFailure(ControlResponse(Controller::ERROR_NACK, "network Nack received"));
+    },
+    [=] (const Interest&) {
+      onFailure(ControlResponse(Controller::ERROR_TIMEOUT, "request timed out"));
+    });
 }
 
 void
@@ -77,7 +83,7 @@ Controller::processCommandResponse(const Data& data,
       this->processValidatedCommandResponse(*data, command, onSuccess, onFailure);
     },
     [=] (const shared_ptr<const Data>&, const std::string& msg) {
-      onFailure(ERROR_VALIDATION, msg);
+      onFailure(ControlResponse(ERROR_VALIDATION, msg));
     }
   );
 }
@@ -93,13 +99,13 @@ Controller::processValidatedCommandResponse(const Data& data,
     response.wireDecode(data.getContent().blockFromValue());
   }
   catch (const tlv::Error& e) {
-    onFailure(ERROR_SERVER, e.what());
+    onFailure(ControlResponse(ERROR_SERVER, e.what()));
     return;
   }
 
   uint32_t code = response.getCode();
   if (code >= ERROR_LBOUND) {
-    onFailure(code, response.getText());
+    onFailure(response);
     return;
   }
 
@@ -108,7 +114,7 @@ Controller::processValidatedCommandResponse(const Data& data,
     parameters.wireDecode(response.getBody());
   }
   catch (const tlv::Error& e) {
-    onFailure(ERROR_SERVER, e.what());
+    onFailure(ControlResponse(ERROR_SERVER, e.what()));
     return;
   }
 
@@ -116,7 +122,7 @@ Controller::processValidatedCommandResponse(const Data& data,
     command->validateResponse(parameters);
   }
   catch (const ControlCommand::ArgumentError& e) {
-    onFailure(ERROR_SERVER, e.what());
+    onFailure(ControlResponse(ERROR_SERVER, e.what()));
     return;
   }
 
@@ -126,7 +132,7 @@ Controller::processValidatedCommandResponse(const Data& data,
 void
 Controller::fetchDataset(const Name& prefix,
                          const std::function<void(const ConstBufferPtr&)>& processResponse,
-                         const CommandFailCallback& onFailure,
+                         const DatasetFailCallback& onFailure,
                          const CommandOptions& options)
 {
   Interest baseInterest(prefix);
@@ -137,7 +143,7 @@ Controller::fetchDataset(const Name& prefix,
 }
 
 void
-Controller::processDatasetFetchError(const CommandFailCallback& onFailure,
+Controller::processDatasetFetchError(const DatasetFailCallback& onFailure,
                                      uint32_t code, std::string msg)
 {
   switch (static_cast<SegmentFetcher::ErrorCode>(code)) {

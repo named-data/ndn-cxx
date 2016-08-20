@@ -45,8 +45,6 @@
 
 namespace ndn {
 
-using ndn::nfd::ControlParameters;
-
 /**
  * @brief implementation detail of Face
  */
@@ -188,7 +186,7 @@ public: // prefix registration
                  uint64_t flags,
                  const nfd::CommandOptions& options)
   {
-    ControlParameters params;
+    nfd::ControlParameters params;
     params.setName(prefix);
     params.setFlags(flags);
 
@@ -196,8 +194,8 @@ public: // prefix registration
 
     m_face.m_nfdController->start<nfd::RibRegisterCommand>(
       params,
-      [=] (const ControlParameters&) { this->afterPrefixRegistered(prefixToRegister, onSuccess); },
-      [=] (uint32_t code, const std::string& reason) { onFailure(prefixToRegister->getPrefix(), reason); },
+      [=] (const nfd::ControlParameters&) { this->afterPrefixRegistered(prefixToRegister, onSuccess); },
+      [=] (const nfd::ControlResponse& resp) { onFailure(prefixToRegister->getPrefix(), resp.getText()); },
       options);
 
     return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
@@ -236,12 +234,12 @@ public: // prefix registration
         m_interestFilterTable.remove(filter);
       }
 
-      ControlParameters params;
+      nfd::ControlParameters params;
       params.setName(record.getPrefix());
       m_face.m_nfdController->start<nfd::RibUnregisterCommand>(
         params,
-        [=] (const ControlParameters&) { this->finalizeUnregisterPrefix(i, onSuccess); },
-        [=] (uint32_t code, const std::string& reason) { onFailure(reason); },
+        [=] (const nfd::ControlParameters&) { this->finalizeUnregisterPrefix(i, onSuccess); },
+        [=] (const nfd::ControlResponse& resp) { onFailure(resp.getText()); },
         record.getCommandOptions());
     }
     else {

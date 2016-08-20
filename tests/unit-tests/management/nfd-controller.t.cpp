@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(Success)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, failCallback));
+                         parameters, succeedCallback, commandFailCallback));
   this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(SuccessNoCallback)
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
 
-  controller.start<FaceCreateCommand>(parameters, nullptr, failCallback);
+  controller.start<FaceCreateCommand>(parameters, nullptr, commandFailCallback);
   this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(OptionsPrefix)
   options.setPrefix("/localhop/net/example/router1/nfd");
 
   BOOST_CHECK_NO_THROW(controller.start<RibRegisterCommand>(
-                         parameters, succeedCallback, failCallback, options));
+                         parameters, succeedCallback, commandFailCallback, options));
   this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(InvalidRequest)
   // Uri is missing
 
   BOOST_CHECK_THROW(controller.start<FaceCreateCommand>(
-                      parameters, succeedCallback, failCallback),
+                      parameters, succeedCallback, commandFailCallback),
                     ControlCommand::ArgumentError);
 }
 
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(ValidationFailure)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, failCallback));
+                         parameters, succeedCallback, commandFailCallback));
   this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(ErrorCode)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, failCallback));
+                         parameters, succeedCallback, commandFailCallback));
   this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(InvalidResponse)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, failCallback));
+                         parameters, succeedCallback, commandFailCallback));
   this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(Nack)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, failCallback));
+                         parameters, succeedCallback, commandFailCallback));
   this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE(Timeout)
   options.setTimeout(time::milliseconds(50));
 
   BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, failCallback, options));
+                         parameters, succeedCallback, commandFailCallback, options));
   this->advanceClocks(time::milliseconds(1), 101); // Face's PIT granularity is 100ms
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);

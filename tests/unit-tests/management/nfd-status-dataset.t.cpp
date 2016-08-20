@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(Timeout)
   options.setTimeout(time::milliseconds(3000));
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
-    failCallback,
+    datasetFailCallback,
     options);
   this->advanceClocks(time::milliseconds(500), 7);
 
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(DataHasNoSegment)
 {
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   face.receive(*makeData("/localhost/nfd/faces/list/%FD%00"));
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(ValidationFailure)
 
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   FaceStatus payload;
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(Nack)
 {
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(ParseError1)
 {
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   Name payload; // Name is not valid FaceStatus
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE(ParseError2)
 {
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   FaceStatus payload1;
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(Success)
 {
   controller.fetch<FaceDataset>(
     nullptr,
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   FaceStatus payload;
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(StatusGeneral)
       hasResult = true;
       BOOST_CHECK_EQUAL(result.getNfdVersion(), "0.4.2");
     },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   ForwarderStatus payload;
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE(FaceList)
       BOOST_CHECK_EQUAL(result.size(), 2);
       BOOST_CHECK_EQUAL(result.front().getFaceId(), 24485);
     },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   FaceStatus payload1;
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE(FaceQuery)
       BOOST_CHECK_EQUAL(result.size(), 1);
       BOOST_CHECK_EQUAL(result.front().getFaceId(), 8795);
     },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   Name prefix("/localhost/nfd/faces/query");
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE(FaceQueryWithOptions)
       BOOST_CHECK_EQUAL(result.size(), 1);
       BOOST_CHECK_EQUAL(result.front().getFaceId(), 14022);
     },
-    failCallback,
+    datasetFailCallback,
     options);
   this->advanceClocks(time::milliseconds(500));
 
@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE(FaceChannels)
       BOOST_CHECK_EQUAL(result.size(), 2);
       BOOST_CHECK_EQUAL(result.front().getLocalUri(), "tcp4://192.0.2.1:6363");
     },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   ChannelStatus payload1;
@@ -363,7 +363,7 @@ BOOST_AUTO_TEST_CASE(FibList)
       BOOST_CHECK_EQUAL(result.size(), 2);
       BOOST_CHECK_EQUAL(result.front().getPrefix(), "/wYs7fzYcfG");
     },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   FibEntry payload1;
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE(StrategyChoiceList)
       BOOST_CHECK_EQUAL(result.size(), 2);
       BOOST_CHECK_EQUAL(result.front().getName(), "/8MLz6N3B");
     },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   StrategyChoice payload1;
@@ -409,7 +409,7 @@ BOOST_AUTO_TEST_CASE(RibList)
       BOOST_CHECK_EQUAL(result.size(), 2);
       BOOST_CHECK_EQUAL(result.front().getName(), "/zXxBth97ee");
     },
-    failCallback);
+    datasetFailCallback);
   this->advanceClocks(time::milliseconds(500));
 
   RibEntry payload1;
@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(RibListWithOptions)
       BOOST_CHECK_EQUAL(result.size(), 1);
       BOOST_CHECK_EQUAL(result.front().getName(), "/e6L5K4ascd");
     },
-    failCallback,
+    datasetFailCallback,
     options);
   this->advanceClocks(time::milliseconds(500));
 

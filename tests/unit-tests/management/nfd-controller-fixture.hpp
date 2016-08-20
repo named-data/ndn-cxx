@@ -41,7 +41,8 @@ protected:
   ControllerFixture()
     : face(io, m_keyChain)
     , controller(face, m_keyChain, m_validator)
-    , failCallback(bind(&ControllerFixture::fail, this, _1, _2))
+    , commandFailCallback(bind(&ControllerFixture::recordCommandFail, this, _1))
+    , datasetFailCallback(bind(&ControllerFixture::recordDatasetFail, this, _1, _2))
   {
     Name identityName("/localhost/ControllerFixture");
     if (this->addIdentity(identityName)) {
@@ -65,7 +66,13 @@ protected:
 
 private:
   void
-  fail(uint32_t code, const std::string& reason)
+  recordCommandFail(const ControlResponse& response)
+  {
+    failCodes.push_back(response.getCode());
+  }
+
+  void
+  recordDatasetFail(uint32_t code, const std::string& reason)
   {
     failCodes.push_back(code);
   }
@@ -73,7 +80,8 @@ private:
 protected:
   ndn::util::DummyClientFace face;
   Controller controller;
-  Controller::CommandFailCallback failCallback;
+  Controller::CommandFailCallback commandFailCallback;
+  Controller::DatasetFailCallback datasetFailCallback;
   std::vector<uint32_t> failCodes;
 
 private:

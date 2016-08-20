@@ -23,13 +23,19 @@
 #define NDN_MANAGEMENT_NFD_CONTROLLER_HPP
 
 #include "nfd-control-command.hpp"
+#include "nfd-control-response.hpp"
 #include "nfd-status-dataset.hpp"
 #include "nfd-command-options.hpp"
-#include "../face.hpp"
-#include "../security/key-chain.hpp"
 #include "../security/validator-null.hpp"
 
 namespace ndn {
+
+namespace security {
+class KeyChain;
+} // namespace security
+class Face;
+class Validator;
+
 namespace nfd {
 
 /**
@@ -39,7 +45,8 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \brief NFD Management protocol - ControlCommand client
+ * \brief NFD Management protocol client
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/Management
  */
 class Controller : noncopyable
 {
@@ -50,12 +57,16 @@ public:
 
   /** \brief a callback on command failure
    */
-  typedef function<void(uint32_t code, const std::string& reason)> CommandFailCallback;
+  typedef function<void(const ControlResponse&)> CommandFailCallback;
+
+  /** \brief a callback on dataset retrieval failure
+   */
+  typedef function<void(uint32_t code, const std::string& reason)> DatasetFailCallback;
 
   /** \brief construct a Controller that uses face for transport,
    *         and uses the passed KeyChain to sign commands
    */
-  Controller(Face& face, KeyChain& keyChain, Validator& validator = s_validatorNull);
+  Controller(Face& face, security::KeyChain& keyChain, Validator& validator = s_validatorNull);
 
   /** \brief start command execution
    */
@@ -75,7 +86,7 @@ public:
   template<typename Dataset>
   typename std::enable_if<std::is_default_constructible<Dataset>::value>::type
   fetch(const std::function<void(typename Dataset::ResultType)>& onSuccess,
-        const CommandFailCallback& onFailure,
+        const DatasetFailCallback& onFailure,
         const CommandOptions& options = CommandOptions())
   {
     this->fetchDataset(make_shared<Dataset>(), onSuccess, onFailure, options);
@@ -87,7 +98,7 @@ public:
   void
   fetch(const ParamType& param,
         const std::function<void(typename Dataset::ResultType)>& onSuccess,
-        const CommandFailCallback& onFailure,
+        const DatasetFailCallback& onFailure,
         const CommandOptions& options = CommandOptions())
   {
     this->fetchDataset(make_shared<Dataset>(param), onSuccess, onFailure, options);
@@ -117,24 +128,24 @@ private:
   void
   fetchDataset(shared_ptr<Dataset> dataset,
                const std::function<void(typename Dataset::ResultType)>& onSuccess,
-               const CommandFailCallback& onFailure,
+               const DatasetFailCallback& onFailure,
                const CommandOptions& options);
 
   void
   fetchDataset(const Name& prefix,
                const std::function<void(const ConstBufferPtr&)>& processResponse,
-               const CommandFailCallback& onFailure,
+               const DatasetFailCallback& onFailure,
                const CommandOptions& options);
 
   template<typename Dataset>
   void
   processDatasetResponse(shared_ptr<Dataset> dataset,
                          const std::function<void(typename Dataset::ResultType)>& onSuccess,
-                         const CommandFailCallback& onFailure,
+                         const DatasetFailCallback& onFailure,
                          ConstBufferPtr payload);
 
   void
-  processDatasetFetchError(const CommandFailCallback& onFailure, uint32_t code, std::string msg);
+  processDatasetFetchError(const DatasetFailCallback& onFailure, uint32_t code, std::string msg);
 
 public:
   /** \brief error code for timeout
@@ -159,7 +170,7 @@ public:
 
 protected:
   Face& m_face;
-  KeyChain& m_keyChain;
+  security::KeyChain& m_keyChain;
   Validator& m_validator;
 
 private:
@@ -170,12 +181,12 @@ template<typename Dataset>
 inline void
 Controller::fetchDataset(shared_ptr<Dataset> dataset,
                          const std::function<void(typename Dataset::ResultType)>& onSuccess1,
-                         const CommandFailCallback& onFailure1,
+                         const DatasetFailCallback& onFailure1,
                          const CommandOptions& options)
 {
   const std::function<void(typename Dataset::ResultType)>& onSuccess = onSuccess1 ?
     onSuccess1 : [] (const typename Dataset::ResultType&) {};
-  const CommandFailCallback& onFailure = onFailure1 ?
+  const DatasetFailCallback& onFailure = onFailure1 ?
     onFailure1 : [] (uint32_t, const std::string&) {};
 
   Name prefix = dataset->getDatasetPrefix(options.getPrefix());
@@ -189,15 +200,15 @@ template<typename Dataset>
 inline void
 Controller::processDatasetResponse(shared_ptr<Dataset> dataset,
                                    const std::function<void(typename Dataset::ResultType)>& onSuccess,
-                                   const CommandFailCallback& onFailure,
+                                   const DatasetFailCallback& onFailure,
                                    ConstBufferPtr payload)
 {
   typename Dataset::ResultType result;
   try {
     result = dataset->parseResult(payload);
   }
-  catch (const tlv::Error& ex) {
-    onFailure(ERROR_SERVER, ex.what());
+  catch (const tlv::Error& e) {
+    onFailure(ERROR_SERVER, e.what());
     return;
   }
 
