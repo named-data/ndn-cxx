@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,12 +20,18 @@
  */
 
 #define BOOST_TEST_MODULE ndn-cxx Unit Tests
-
-#define BOOST_TEST_NO_MAIN
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_ALTERNATIVE_INIT_API
 
+#include <boost/version.hpp>
+
+#if BOOST_VERSION >= 106200
+// Boost.Test v3.3 (Boost 1.62) natively supports multi-logger output
 #include "boost-test.hpp"
+#else
+#define BOOST_TEST_NO_MAIN
+#include "boost-test.hpp"
+
 #include "boost-multi-log-formatter.hpp"
 
 #include <boost/program_options/options_description.hpp>
@@ -102,3 +108,5 @@ main(int argc, char* argv[])
 {
   return ::boost::unit_test::unit_test_main(&init_tests, argc, argv);
 }
+
+#endif // BOOST_VERSION >= 106200
