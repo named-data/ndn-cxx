@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_PIB_MEMORY_HPP
-#define NDN_SECURITY_PIB_MEMORY_HPP
+#ifndef NDN_SECURITY_PIB_PIB_MEMORY_HPP
+#define NDN_SECURITY_PIB_PIB_MEMORY_HPP
 
 #include "pib-impl.hpp"
 
@@ -150,4 +150,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_PIB_MEMORY_HPP
+#endif // NDN_SECURITY_PIB_PIB_MEMORY_HPP

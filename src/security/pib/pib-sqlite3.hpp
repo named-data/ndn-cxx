@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITTY_PIB_SQLITE3_HPP
-#define NDN_SECURITTY_PIB_SQLITE3_HPP
+#ifndef NDN_SECURITTY_PIB_PIB_SQLITE3_HPP
+#define NDN_SECURITTY_PIB_PIB_SQLITE3_HPP
 
 #include "pib-impl.hpp"
 
@@ -140,4 +140,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITTY_PIB_SQLITE3_HPP
+#endif // NDN_SECURITTY_PIB_PIB_SQLITE3_HPP

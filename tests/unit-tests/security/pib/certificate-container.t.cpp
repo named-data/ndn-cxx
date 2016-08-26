@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/key-container.hpp"
-#include "security/pib.hpp"
-#include "security/pib-memory.hpp"
+#include "security/pib/certificate-container.hpp"
+#include "security/pib/pib.hpp"
+#include "security/pib/pib-memory.hpp"
 
 #include "boost-test.hpp"
 #include "pib-data-fixture.hpp"
@@ -31,49 +31,50 @@ namespace security {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(TestKeyContainer)
+BOOST_AUTO_TEST_SUITE(TestPib)
+BOOST_AUTO_TEST_SUITE(TestCertificateContainer)
 
-BOOST_FIXTURE_TEST_CASE(Basic, PibDataFixture)
+BOOST_FIXTURE_TEST_CASE(TestCertificateContainer, PibDataFixture)
 {
   auto pibImpl = make_shared<PibMemory>();
   Pib pib("pib-memory", "", pibImpl);
 
   Identity identity1 = pib.addIdentity(id1);
-
   Key key11 = identity1.addKey(id1Key1, id1Key1Name.get(-1));
-  Key key12 = identity1.addKey(id1Key2, id1Key2Name.get(-1));
+  key11.addCertificate(id1Key1Cert1);
+  key11.addCertificate(id1Key1Cert2);
 
-  KeyContainer container = identity1.getKeys();
+  CertificateContainer container = key11.getCertificates();
   BOOST_CHECK_EQUAL(container.size(), 2);
-  BOOST_CHECK(container.find(id1Key1Name.get(-1)) != container.end());
-  BOOST_CHECK(container.find(id1Key2Name.get(-1)) != container.end());
+  BOOST_CHECK(container.find(id1Key1Cert1.getName()) != container.end());
+  BOOST_CHECK(container.find(id1Key1Cert2.getName()) != container.end());
 
-  std::set<name::Component> keyNames;
-  keyNames.insert(id1Key1Name.get(-1));
-  keyNames.insert(id1Key2Name.get(-1));
+  std::set<Name> certNames;
+  certNames.insert(id1Key1Cert1.getName());
+  certNames.insert(id1Key1Cert2.getName());
 
-  KeyContainer::const_iterator it = container.begin();
-  std::set<name::Component>::const_iterator testIt = keyNames.begin();
-  BOOST_CHECK_EQUAL((*it).getKeyId(), *testIt);
+  CertificateContainer::const_iterator it = container.begin();
+  std::set<Name>::const_iterator testIt = certNames.begin();
+  BOOST_CHECK_EQUAL((*it).getName(), *testIt);
   it++;
   testIt++;
-  BOOST_CHECK_EQUAL((*it).getKeyId(), *testIt);
+  BOOST_CHECK_EQUAL((*it).getName(), *testIt);
   ++it;
   testIt++;
   BOOST_CHECK(it == container.end());
 
   size_t count = 0;
-  testIt = keyNames.begin();
-  for (const auto& key : container) {
-    BOOST_CHECK_EQUAL(key.getIdentity(), id1);
-    BOOST_CHECK_EQUAL(key.getKeyId(), *testIt);
+  testIt = certNames.begin();
+  for (const auto& cert : container) {
+    BOOST_CHECK_EQUAL(cert.getName(), *testIt);
     testIt++;
     count++;
   }
   BOOST_CHECK_EQUAL(count, 2);
 }
 
-BOOST_AUTO_TEST_SUITE_END() // TestKeyContainer
+BOOST_AUTO_TEST_SUITE_END() // TestCertificateContainer
+BOOST_AUTO_TEST_SUITE_END() // TestPib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests

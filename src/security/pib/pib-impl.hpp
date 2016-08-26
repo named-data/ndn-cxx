@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_PIB_IMPL_HPP
-#define NDN_SECURITY_PIB_IMPL_HPP
+#ifndef NDN_SECURITY_PIB_PIB_IMPL_HPP
+#define NDN_SECURITY_PIB_PIB_IMPL_HPP
 
 #include <set>
-#include "v1/identity-certificate.hpp"
+#include "../v1/identity-certificate.hpp"
 
 namespace ndn {
 namespace security {
@@ -301,4 +301,4 @@ public: // Certificate Management
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_PIB_IMPL_HPP
+#endif // NDN_SECURITY_PIB_PIB_IMPL_HPP

@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/pib-sqlite3.hpp"
-#include "security/pib.hpp"
+#include "security/pib/pib-sqlite3.hpp"
+#include "security/pib/pib.hpp"
 
 #include "boost-test.hpp"
 
@@ -29,6 +29,9 @@
 namespace ndn {
 namespace security {
 namespace tests {
+
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestPib)
 
 class PibSqlite3TestFixture
 {
@@ -51,7 +54,6 @@ public:
   PibSqlite3 impl;
 };
 
-BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestPibSqlite3, PibSqlite3TestFixture)
 
 // most functionalities are tested in pib-impl.t.cpp
@@ -119,6 +121,7 @@ BOOST_AUTO_TEST_CASE(TpmTest)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestPibSqlite3
+BOOST_AUTO_TEST_SUITE_END() // TestPib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests

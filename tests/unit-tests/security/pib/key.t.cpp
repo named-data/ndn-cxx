@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/key.hpp"
-#include "security/pib.hpp"
-#include "security/pib-memory.hpp"
+#include "security/pib/key.hpp"
+#include "security/pib/pib.hpp"
+#include "security/pib/pib-memory.hpp"
 
 #include "boost-test.hpp"
 #include "pib-data-fixture.hpp"
@@ -31,6 +31,7 @@ namespace security {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestPib)
 BOOST_FIXTURE_TEST_SUITE(TestKey, PibDataFixture)
 
 BOOST_AUTO_TEST_CASE(ValidityChecking)
@@ -87,6 +88,7 @@ BOOST_AUTO_TEST_CASE(CertificateOperations)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestKey
+BOOST_AUTO_TEST_SUITE_END() // TestPib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests

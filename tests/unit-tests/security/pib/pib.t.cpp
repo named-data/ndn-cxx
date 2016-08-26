@@ -19,9 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/identity.hpp"
-#include "security/pib.hpp"
-#include "security/pib-memory.hpp"
+#include "security/pib/pib.hpp"
+#include "security/pib/pib-memory.hpp"
 
 #include "boost-test.hpp"
 #include "pib-data-fixture.hpp"
@@ -31,56 +30,58 @@ namespace security {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestIdentity, PibDataFixture)
+BOOST_AUTO_TEST_SUITE(TestPib)
+BOOST_FIXTURE_TEST_SUITE(Common, PibDataFixture)
 
 BOOST_AUTO_TEST_CASE(ValidityChecking)
 {
-  // identity
-  Identity id;
-
-  BOOST_CHECK_EQUAL(static_cast<bool>(id), false);
-  BOOST_CHECK_EQUAL(!id, true);
-
-  if (id)
-    BOOST_CHECK(false);
-  else
-    BOOST_CHECK(true);
-
   auto pibImpl = make_shared<PibMemory>();
-  id = Identity(id1, pibImpl, true);
+  Pib pib("pib-memory", "", pibImpl);
 
-  BOOST_CHECK_EQUAL(static_cast<bool>(id), true);
+  Identity id = pib.addIdentity(id1);
+
+  BOOST_CHECK_EQUAL(bool(id), true);
   BOOST_CHECK_EQUAL(!id, false);
 
   if (id)
     BOOST_CHECK(true);
   else
     BOOST_CHECK(false);
+
+  // key
+  Key key = id.addKey(id1Key1, id1Key1Name.get(-1));
+
+  BOOST_CHECK_EQUAL(bool(key), true);
+  BOOST_CHECK_EQUAL(!key, false);
+
+  if (key)
+    BOOST_CHECK(true);
+  else
+    BOOST_CHECK(false);
 }
 
-BOOST_AUTO_TEST_CASE(KeyOperations)
+BOOST_AUTO_TEST_CASE(IdentityOperations)
 {
   auto pibImpl = make_shared<PibMemory>();
+  Pib pib("pib-memory", "", pibImpl);
 
-  Identity identity1(id1, pibImpl, true);
+  BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
+  Identity identity1 = pib.addIdentity(id1);
+  BOOST_CHECK_NO_THROW(pib.getIdentity(id1));
+  pib.removeIdentity(id1);
+  BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
 
-  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name.get(-1)), Pib::Error);
-  Key key11 = identity1.addKey(id1Key1, id1Key1Name.get(-1));
-  BOOST_CHECK_NO_THROW(identity1.getKey(id1Key1Name.get(-1)));
-  identity1.removeKey(id1Key1Name.get(-1));
-  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name.get(-1)), Pib::Error);
-
-  BOOST_CHECK_THROW(identity1.getDefaultKey(), Pib::Error);
-  BOOST_REQUIRE_THROW(identity1.setDefaultKey(id1Key1Name.get(-1)), Pib::Error);
-  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1, id1Key1Name.get(-1)));
-  BOOST_REQUIRE_NO_THROW(identity1.getDefaultKey());
-  BOOST_CHECK_EQUAL(identity1.getDefaultKey().getKeyId(), id1Key1Name.get(-1));
-  identity1.removeKey(id1Key1Name.get(-1));
-  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name.get(-1)), Pib::Error);
-  BOOST_CHECK_THROW(identity1.getDefaultKey(), Pib::Error);
+  BOOST_CHECK_THROW(pib.getDefaultIdentity(), Pib::Error);
+  BOOST_REQUIRE_NO_THROW(pib.setDefaultIdentity(id1));
+  BOOST_REQUIRE_NO_THROW(pib.getDefaultIdentity());
+  BOOST_CHECK_EQUAL(pib.getDefaultIdentity().getName(), id1);
+  pib.removeIdentity(id1);
+  BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
+  BOOST_CHECK_THROW(pib.getDefaultIdentity(), Pib::Error);
 }
 
-BOOST_AUTO_TEST_SUITE_END() // TestIdentity
+BOOST_AUTO_TEST_SUITE_END() // Common
+BOOST_AUTO_TEST_SUITE_END() // TestPib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests

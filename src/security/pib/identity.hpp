@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_IDENTITY_HPP
-#define NDN_SECURITY_IDENTITY_HPP
+#ifndef NDN_SECURITY_PIB_IDENTITY_HPP
+#define NDN_SECURITY_PIB_IDENTITY_HPP
 
 #include "key-container.hpp"
 
@@ -191,4 +191,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_IDENTITY_HPP
+#endif // NDN_SECURITY_PIB_IDENTITY_HPP

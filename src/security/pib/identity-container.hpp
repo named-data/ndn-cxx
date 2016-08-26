@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,28 +19,28 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_KEY_CONTAINER_HPP
-#define NDN_SECURITY_KEY_CONTAINER_HPP
+#ifndef NDN_SECURITY_PIB_IDENTITY_CONTAINER_HPP
+#define NDN_SECURITY_PIB_IDENTITY_CONTAINER_HPP
 
 #include <set>
-#include "key.hpp"
+#include "identity.hpp"
 
 namespace ndn {
 namespace security {
 
 class PibImpl;
 
-/// @brief A handler to search or enumerate keys of an identity.
-class KeyContainer
+/// @brief A handler to search or enumerate identities in PIB.
+class IdentityContainer
 {
 public:
   class const_iterator
   {
   public:
-    friend class KeyContainer;
+    friend class IdentityContainer;
 
   public:
-    Key
+    Identity
     operator*();
 
     const_iterator&
@@ -56,24 +56,20 @@ public:
     operator!=(const const_iterator& other);
 
   private:
-    const_iterator(const Name& identity,
-                   std::set<name::Component>::const_iterator it,
-                   shared_ptr<PibImpl> impl);
+    const_iterator(std::set<Name>::const_iterator it, shared_ptr<PibImpl> impl);
 
   private:
     Name m_identity;
-    std::set<name::Component>::const_iterator m_it;
+    std::set<Name>::const_iterator m_it;
     shared_ptr<PibImpl> m_impl;
   };
 
   typedef const_iterator iterator;
 
 public:
-  KeyContainer();
+  IdentityContainer();
 
-  KeyContainer(const Name& identity,
-               std::set<name::Component>&& keyIds,
-               shared_ptr<PibImpl> impl);
+  IdentityContainer(std::set<Name>&& identities, shared_ptr<PibImpl> impl);
 
   const_iterator
   begin() const;
@@ -82,18 +78,17 @@ public:
   end() const;
 
   const_iterator
-  find(const name::Component& keyId) const;
+  find(const Name& keyId) const;
 
   size_t
   size() const;
 
 private:
-  Name m_identity;
-  std::set<name::Component> m_keyIds;
+  std::set<Name> m_identities;
   shared_ptr<PibImpl> m_impl;
 };
 
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_KEY_CONTAINER_HPP
+#endif // NDN_SECURITY_PIB_IDENTITY_CONTAINER_HPP

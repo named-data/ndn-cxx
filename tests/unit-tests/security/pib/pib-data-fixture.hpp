@@ -28,6 +28,7 @@
 
 namespace ndn {
 namespace security {
+namespace tests {
 
 class PibDataFixture
 {
@@ -58,6 +59,7 @@ public:
   v1::IdentityCertificate id2Key2Cert2;
 };
 
+} // namespace tests
 } // namespace security
 } // namespace ndn
 

@@ -20,6 +20,11 @@
  */
 
 #include "pib-data-fixture.hpp"
+#include "../../identity-management-time-fixture.hpp"
+
+namespace ndn {
+namespace security {
+namespace tests {
 
 /**
  * The test data can be generated with a TestCertDataGenerator defined as below:
@@ -311,9 +316,6 @@ const uint8_t ID2_KEY2_CERT2[] = {
   0x2C, 0x3D, 0x86, 0xCF, 0xF6, 0x8D, 0x2F, 0x13, 0x60, 0x28, 0xB1, 0x13, 0xFE, 0x49, 0x3B, 0xA4, 0xAD
 };
 
-namespace ndn {
-namespace security {
-
 PibDataFixture::PibDataFixture()
   : id1("/pib/interface/id/1")
   , id2("/pib/interface/id/2")
@@ -336,5 +338,6 @@ PibDataFixture::PibDataFixture()
 {
 }
 
+} // namespace tests
 } // namespace security
 } // namespace ndn

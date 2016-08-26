@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/pib-memory.hpp"
-#include "security/pib-sqlite3.hpp"
-#include "security/pib.hpp"
+#include "security/pib/pib-memory.hpp"
+#include "security/pib/pib-sqlite3.hpp"
+#include "security/pib/pib.hpp"
 
 #include "boost-test.hpp"
 #include "pib-data-fixture.hpp"
@@ -34,6 +34,7 @@ namespace security {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestPib)
 BOOST_AUTO_TEST_SUITE(TestPibImpl)
 
 class PibMemoryWrapper
@@ -227,6 +228,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(CertificateManagement, T, PibImpls, PibDataFixt
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestPibImpl
+BOOST_AUTO_TEST_SUITE_END() // TestPib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests

@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_KEY_HPP
-#define NDN_SECURITY_KEY_HPP
+#ifndef NDN_SECURITY_PIB_KEY_HPP
+#define NDN_SECURITY_PIB_KEY_HPP
 
-#include "v1/identity-certificate.hpp"
+#include "../v1/identity-certificate.hpp"
 #include "certificate-container.hpp"
 
 namespace ndn {
@@ -204,4 +204,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_PIB_HPP
+#endif // NDN_SECURITY_PIB_PIB_HPP
