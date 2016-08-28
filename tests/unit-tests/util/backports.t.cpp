@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -70,6 +70,27 @@ BOOST_AUTO_TEST_CASE(MakeUnique)
   Movable m;
   auto ptr = make_unique<Container>(std::move(m));
   BOOST_CHECK_EQUAL(ptr->m.value, 42);
+}
+
+BOOST_AUTO_TEST_CASE(Clamp)
+{
+  int x = clamp(5, 1, 10);
+  BOOST_CHECK_EQUAL(x, 5);
+
+  x = clamp(-5, 1, 10);
+  BOOST_CHECK_EQUAL(x, 1);
+
+  x = clamp(15, 1, 10);
+  BOOST_CHECK_EQUAL(x, 10);
+
+  x = clamp(5, 10, 1, std::greater<int>());
+  BOOST_CHECK_EQUAL(x, 5);
+
+  x = clamp(-5, 10, 1, std::greater<int>());
+  BOOST_CHECK_EQUAL(x, 1);
+
+  x = clamp(15, 10, 1, std::greater<int>());
+  BOOST_CHECK_EQUAL(x, 10);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

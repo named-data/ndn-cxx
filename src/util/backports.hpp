@@ -1,12 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015, Regents of the University of California,
- *                     Arizona Board of Regents,
- *                     Colorado State University,
- *                     University Pierre & Marie Curie, Sorbonne University,
- *                     Washington University in St. Louis,
- *                     Beijing Institute of Technology,
- *                     The University of Memphis.
+ * Copyright (c) 2015-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,6 +28,8 @@
 #include <boost/lexical_cast.hpp>
 #endif
 
+#include <algorithm>
+
 namespace ndn {
 
 #if __cpp_lib_make_unique
@@ -57,6 +53,24 @@ to_string(const V& v)
   return boost::lexical_cast<std::string>(v);
 }
 #endif // NDN_CXX_HAVE_STD_TO_STRING
+
+#if __cpp_lib_clamp >= 201603
+using std::clamp;
+#else
+template<typename T, typename Compare>
+constexpr const T&
+clamp(const T& v, const T& lo, const T& hi, Compare comp)
+{
+  return comp(v, lo) ? lo : comp(hi, v) ? hi : v;
+}
+
+template<typename T>
+constexpr const T&
+clamp(const T& v, const T& lo, const T& hi)
+{
+  return (v < lo) ? lo : (hi < v) ? hi : v;
+}
+#endif // __cpp_lib_clamp
 
 } // namespace ndn
 
