@@ -35,7 +35,7 @@ namespace ndn {
 #if __cpp_lib_make_unique
 using std::make_unique;
 #else
-template<typename T, typename... Args>
+template<typename T, typename ...Args>
 inline unique_ptr<T>
 make_unique(Args&&... args)
 {
@@ -73,5 +73,7 @@ clamp(const T& v, const T& lo, const T& hi)
 #endif // __cpp_lib_clamp
 
 } // namespace ndn
+
+#include "backports-optional.hpp"
 
 #endif // NDN_UTIL_BACKPORTS_HPP

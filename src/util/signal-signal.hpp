@@ -86,13 +86,13 @@ private: // API for owner
    *        who emits this signal, and some handlers may not be executed.
    */
   void
-  operator()(const TArgs&...args);
+  operator()(const TArgs&... args);
 
   /** \brief (implementation detail) emits a signal
    *  \note This overload is used by signal-emit.hpp.
    */
   void
-  operator()(const TArgs&...args, const DummyExtraArg&);
+  operator()(const TArgs&... args, const DummyExtraArg&);
 
   // make Owner a friend of Signal<Owner, ...> so that API for owner can be called
   friend Owner;

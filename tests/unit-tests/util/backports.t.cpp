@@ -93,8 +93,182 @@ BOOST_AUTO_TEST_CASE(Clamp)
   BOOST_CHECK_EQUAL(x, 10);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE(Optional)
+
+BOOST_AUTO_TEST_CASE(Construct)
+{
+  optional<int> o1;
+  BOOST_CHECK_EQUAL(static_cast<bool>(o1), false);
+
+  optional<int> o2(1);
+  BOOST_CHECK_EQUAL(static_cast<bool>(o2), true);
+  BOOST_CHECK_EQUAL(o2.value(), 1);
+
+  optional<int> o3(o2);
+  BOOST_CHECK_EQUAL(static_cast<bool>(o3), true);
+  BOOST_CHECK_EQUAL(static_cast<bool>(o2), true);
+  BOOST_CHECK_EQUAL(o3.value(), 1);
+
+  optional<std::pair<int, int>> o4(in_place, 41, 42);
+  BOOST_CHECK_EQUAL(static_cast<bool>(o4), true);
+  BOOST_CHECK_EQUAL(o4.value().first, 41);
+  BOOST_CHECK_EQUAL(o4.value().second, 42);
+}
+
+BOOST_AUTO_TEST_CASE(Assign)
+{
+  optional<int> o1;
+  BOOST_CHECK_EQUAL(static_cast<bool>(o1), false);
+
+  optional<int> o2(2);
+  o1 = o2;
+  BOOST_CHECK_EQUAL(static_cast<bool>(o1), true);
+  BOOST_CHECK_EQUAL(o1.value(), 2);
+
+  o1 = nullopt;
+  BOOST_CHECK_EQUAL(static_cast<bool>(o1), false);
+
+  o1 = 18763;
+  BOOST_CHECK_EQUAL(static_cast<bool>(o1), true);
+  BOOST_CHECK_EQUAL(o1.value(), 18763);
+}
+
+BOOST_AUTO_TEST_CASE(Access)
+{
+  optional<int> o1(1);
+  BOOST_CHECK_EQUAL(*o1, 1);
+
+  optional<std::string> o2("abc");
+  BOOST_CHECK_EQUAL(o2->size(), 3);
+}
+
+BOOST_AUTO_TEST_CASE(HasValue)
+{
+  optional<int> o1;
+  BOOST_CHECK_EQUAL(static_cast<bool>(o1), false);
+  BOOST_CHECK_EQUAL(!o1, true);
+  if (o1) {
+    BOOST_ERROR("o1 should evaluate to false");
+  }
+
+  optional<int> o2(1);
+  BOOST_CHECK_EQUAL(static_cast<bool>(o2), true);
+  BOOST_CHECK_EQUAL(!o2, false);
+  if (o2) {
+  }
+  else {
+    BOOST_ERROR("o2 should evaluate to true");
+  }
+}
+
+BOOST_AUTO_TEST_CASE(Value)
+{
+  optional<int> o1;
+  BOOST_CHECK_THROW(o1.value(), bad_optional_access);
+
+  optional<int> o2(2);
+  BOOST_CHECK_NO_THROW(o2.value());
+}
+
+BOOST_AUTO_TEST_CASE(ValueOr)
+{
+  optional<int> o1;
+  BOOST_CHECK_EQUAL(o1.value_or(3.0), 3);
+
+  optional<int> o2(2);
+  BOOST_CHECK_EQUAL(o2.value_or(3.0), 2);
+}
+
+BOOST_AUTO_TEST_CASE(Swap)
+{
+  optional<int> o1;
+  optional<int> o2(2);
+
+  o1.swap(o2);
+  BOOST_CHECK_EQUAL(static_cast<bool>(o1), true);
+  BOOST_CHECK_EQUAL(o1.value(), 2);
+  BOOST_CHECK_EQUAL(static_cast<bool>(o2), false);
+}
+
+BOOST_AUTO_TEST_CASE(Emplace)
+{
+  optional<std::pair<int, int>> o1;
+  o1.emplace(11, 12);
+  BOOST_CHECK_EQUAL(static_cast<bool>(o1), true);
+  BOOST_CHECK_EQUAL(o1.value().first, 11);
+  BOOST_CHECK_EQUAL(o1.value().second, 12);
+}
+
+BOOST_AUTO_TEST_CASE(Compare)
+{
+  optional<int> o0a;
+  optional<int> o0b;
+  optional<int> o1a(1);
+  optional<int> o1b(1);
+  optional<int> o2(2);
+
+  BOOST_CHECK_EQUAL(o0a == o0b, true);
+  BOOST_CHECK_EQUAL(o0a != o0b, false);
+  BOOST_CHECK_EQUAL(o0a <  o0b, false);
+  BOOST_CHECK_EQUAL(o0a <= o0b, true);
+  BOOST_CHECK_EQUAL(o0a >  o0b, false);
+  BOOST_CHECK_EQUAL(o0a >= o0b, true);
+
+  BOOST_CHECK_EQUAL(o1a == o1b, true);
+  BOOST_CHECK_EQUAL(o1a != o1b, false);
+  BOOST_CHECK_EQUAL(o1a <  o1b, false);
+  BOOST_CHECK_EQUAL(o1a <= o1b, true);
+  BOOST_CHECK_EQUAL(o1a >  o1b, false);
+  BOOST_CHECK_EQUAL(o1a >= o1b, true);
+
+  BOOST_CHECK_EQUAL(o0a == o1a, false);
+  BOOST_CHECK_EQUAL(o0a != o1a, true);
+  BOOST_CHECK_EQUAL(o0a <  o1a, true);
+  BOOST_CHECK_EQUAL(o0a <= o1a, true);
+  BOOST_CHECK_EQUAL(o0a >  o1a, false);
+  BOOST_CHECK_EQUAL(o0a >= o1a, false);
+
+  BOOST_CHECK_EQUAL(o1a == o0a, false);
+  BOOST_CHECK_EQUAL(o1a != o0a, true);
+  BOOST_CHECK_EQUAL(o1a <  o0a, false);
+  BOOST_CHECK_EQUAL(o1a <= o0a, false);
+  BOOST_CHECK_EQUAL(o1a >  o0a, true);
+  BOOST_CHECK_EQUAL(o1a >= o0a, true);
+
+  BOOST_CHECK_EQUAL(o1a == o2, false);
+  BOOST_CHECK_EQUAL(o1a != o2, true);
+  BOOST_CHECK_EQUAL(o1a <  o2, true);
+  BOOST_CHECK_EQUAL(o1a <= o2, true);
+  BOOST_CHECK_EQUAL(o1a >  o2, false);
+  BOOST_CHECK_EQUAL(o1a >= o2, false);
+
+  BOOST_CHECK_EQUAL(o2 == o1a, false);
+  BOOST_CHECK_EQUAL(o2 != o1a, true);
+  BOOST_CHECK_EQUAL(o2 <  o1a, false);
+  BOOST_CHECK_EQUAL(o2 <= o1a, false);
+  BOOST_CHECK_EQUAL(o2 >  o1a, true);
+  BOOST_CHECK_EQUAL(o2 >= o1a, true);
+}
+
+BOOST_AUTO_TEST_CASE(MakeOptional)
+{
+  auto o1 = make_optional(1);
+  static_assert(std::is_same<decltype(o1), optional<int>>::value, "o1 must be optional<int>");
+  BOOST_CHECK_EQUAL(static_cast<bool>(o1), true);
+  BOOST_CHECK_EQUAL(o1.value(), 1);
+
+  auto o2 = make_optional<std::pair<int, int>>(21, 22);
+  static_assert(std::is_same<decltype(o2), optional<std::pair<int, int>>>::value,
+                "o2 must be optional<std::pair<int, int>>");
+  BOOST_CHECK_EQUAL(static_cast<bool>(o2), true);
+  BOOST_CHECK_EQUAL(o2.value().first, 21);
+  BOOST_CHECK_EQUAL(o2.value().second, 22);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // Optional
+
+BOOST_AUTO_TEST_SUITE_END() // TestBackports
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace ndn
