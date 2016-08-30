@@ -37,7 +37,9 @@
 #include <boost/asio.hpp>
 #include <boost/exception/all.hpp>
 
+#include "encoding/buffer-stream.hpp"
 #include "security/key-chain.hpp"
+#include "security/transform.hpp"
 #include "util/io.hpp"
 
 bool

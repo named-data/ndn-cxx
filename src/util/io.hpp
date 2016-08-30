@@ -23,8 +23,6 @@
 #define NDN_UTIL_IO_HPP
 
 #include "../encoding/block.hpp"
-#include "../encoding/buffer-stream.hpp"
-#include "../security/transform.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -50,6 +48,13 @@ enum IoEncoding {
   HEX ///< uppercase hexadecimal encoding
 };
 
+/** \brief loads a TLV block from a stream
+ *  \return if success, the Block and true
+ *          otherwise, a default-constructed Block and false
+ */
+optional<Block>
+loadBlock(std::istream& is, IoEncoding encoding = BASE_64);
+
 /** \brief loads a TLV element from a stream
  *  \tparam T type of TLV element; T must be WireDecodable,
  *            and must have a Error nested type
@@ -59,30 +64,14 @@ template<typename T>
 shared_ptr<T>
 load(std::istream& is, IoEncoding encoding = BASE_64)
 {
-  OBufferStream os;
-  try {
-    namespace t = ndn::security::transform;
-    switch (encoding) {
-      case NO_ENCODING:
-        t::streamSource(is) >> t::streamSink(os);
-        break;
-      case BASE_64:
-        t::streamSource(is) >> t::base64Decode() >> t::streamSink(os);
-        break;
-      case HEX:
-        t::streamSource(is) >> t::hexDecode() >> t::streamSink(os);
-        break;
-      default:
-        return nullptr;
-    }
-  }
-  catch (const ndn::security::transform::Error&) {
+  optional<Block> block = loadBlock(is, encoding);
+  if (!block) {
     return nullptr;
   }
 
   try {
     auto obj = make_shared<T>();
-    obj->wireDecode(Block(os.buf()));
+    obj->wireDecode(*block);
     return obj;
   }
   catch (const typename T::Error& e) {
@@ -102,6 +91,12 @@ load(const std::string& filename, IoEncoding encoding = BASE_64)
   std::ifstream is(filename);
   return load<T>(is, encoding);
 }
+
+/** \brief saves a TLV block to a stream
+ *  \throw Error error during saving
+ */
+void
+saveBlock(const Block& block, std::ostream& os, IoEncoding encoding = BASE_64);
 
 /** \brief saves a TLV element to a stream
  *  \tparam T type of TLV element; T must be WireEncodable,
@@ -123,25 +118,7 @@ save(const T& obj, std::ostream& os, IoEncoding encoding = BASE_64)
     BOOST_THROW_EXCEPTION(Error(e.what()));
   }
 
-  try {
-    namespace t = ndn::security::transform;
-    switch (encoding) {
-      case NO_ENCODING:
-        t::bufferSource(block.wire(), block.size()) >> t::streamSink(os);
-        break;
-      case BASE_64:
-        t::bufferSource(block.wire(), block.size()) >> t::base64Encode() >> t::streamSink(os);
-        break;
-      case HEX:
-        t::bufferSource(block.wire(), block.size()) >> t::hexEncode(true) >> t::streamSink(os);
-        break;
-      default:
-        BOOST_THROW_EXCEPTION(Error("unrecognized IoEncoding"));
-    }
-  }
-  catch (const ndn::security::transform::Error& e) {
-    BOOST_THROW_EXCEPTION(Error(e.what()));
-  }
+  saveBlock(block, os, encoding);
 }
 
 /** \brief saves a TLV element to a file

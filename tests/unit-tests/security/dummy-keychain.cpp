@@ -20,7 +20,7 @@
  */
 
 #include "dummy-keychain.hpp"
-
+#include "encoding/buffer-stream.hpp"
 #include "util/io.hpp"
 #include <boost/iostreams/device/array.hpp>
 
