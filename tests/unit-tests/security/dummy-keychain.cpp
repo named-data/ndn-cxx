@@ -114,9 +114,8 @@ DummyPublicInfo::getPublicKey(const Name& keyName)
 {
   static shared_ptr<v1::PublicKey> publicKey = nullptr;
   if (publicKey == nullptr) {
-    typedef boost::iostreams::stream<boost::iostreams::array_source> arrayStream;
-    arrayStream
-    is(reinterpret_cast<const char*>(DUMMY_CERT), sizeof(DUMMY_CERT));
+    typedef boost::iostreams::stream<boost::iostreams::array_source> ArrayStream;
+    ArrayStream is(reinterpret_cast<const char*>(DUMMY_CERT), sizeof(DUMMY_CERT));
     auto cert = io::load<v1::IdentityCertificate>(is, io::NO_ENCODING);
     publicKey = make_shared<v1::PublicKey>(cert->getPublicKeyInfo());
   }
@@ -146,10 +145,9 @@ DummyPublicInfo::getCertificate(const Name& certificateName)
 {
   static shared_ptr<v1::IdentityCertificate> cert = nullptr;
   if (cert == nullptr) {
-    typedef boost::iostreams::stream<boost::iostreams::array_source> arrayStream;
-    arrayStream
-    is(reinterpret_cast<const char*>(DUMMY_CERT), sizeof(DUMMY_CERT));
-    cert = io::load<v1::IdentityCertificate>(is, io::BASE_64);
+    typedef boost::iostreams::stream<boost::iostreams::array_source> ArrayStream;
+    ArrayStream is(reinterpret_cast<const char*>(DUMMY_CERT), sizeof(DUMMY_CERT));
+    cert = io::load<v1::IdentityCertificate>(is);
   }
 
   return cert;

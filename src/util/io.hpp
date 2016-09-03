@@ -43,17 +43,32 @@ public:
 /** \brief indicates how a file or stream is encoded
  */
 enum IoEncoding {
-  NO_ENCODING, ///< binary without encoding
-  BASE_64, ///< base64 encoding
-  HEX ///< uppercase hexadecimal encoding
+  /** \brief binary without encoding
+   */
+  NO_ENCODING,
+
+  /** \brief base64 encoding
+   *
+   *  \p save() inserts a newline after every 64 characters,
+   *  \p load() can accept base64 text with or without newlines
+   */
+  BASE64,
+
+  /** \brief hexadecimal encoding
+   *
+   *  \p save() uses uppercase letters A-F, \p load() can accept mixed-case
+   */
+  HEX
 };
+
+constexpr IoEncoding DEPRECATED(BASE_64) = BASE64;
 
 /** \brief loads a TLV block from a stream
  *  \return if success, the Block and true
  *          otherwise, a default-constructed Block and false
  */
 optional<Block>
-loadBlock(std::istream& is, IoEncoding encoding = BASE_64);
+loadBlock(std::istream& is, IoEncoding encoding = BASE64);
 
 /** \brief loads a TLV element from a stream
  *  \tparam T type of TLV element; T must be WireDecodable,
@@ -62,7 +77,7 @@ loadBlock(std::istream& is, IoEncoding encoding = BASE_64);
  */
 template<typename T>
 shared_ptr<T>
-load(std::istream& is, IoEncoding encoding = BASE_64)
+load(std::istream& is, IoEncoding encoding = BASE64)
 {
   optional<Block> block = loadBlock(is, encoding);
   if (!block) {
@@ -86,7 +101,7 @@ load(std::istream& is, IoEncoding encoding = BASE_64)
  */
 template<typename T>
 shared_ptr<T>
-load(const std::string& filename, IoEncoding encoding = BASE_64)
+load(const std::string& filename, IoEncoding encoding = BASE64)
 {
   std::ifstream is(filename);
   return load<T>(is, encoding);
@@ -96,7 +111,7 @@ load(const std::string& filename, IoEncoding encoding = BASE_64)
  *  \throw Error error during saving
  */
 void
-saveBlock(const Block& block, std::ostream& os, IoEncoding encoding = BASE_64);
+saveBlock(const Block& block, std::ostream& os, IoEncoding encoding = BASE64);
 
 /** \brief saves a TLV element to a stream
  *  \tparam T type of TLV element; T must be WireEncodable,
@@ -105,7 +120,7 @@ saveBlock(const Block& block, std::ostream& os, IoEncoding encoding = BASE_64);
  */
 template<typename T>
 void
-save(const T& obj, std::ostream& os, IoEncoding encoding = BASE_64)
+save(const T& obj, std::ostream& os, IoEncoding encoding = BASE64)
 {
   Block block;
   try {
@@ -125,7 +140,7 @@ save(const T& obj, std::ostream& os, IoEncoding encoding = BASE_64)
  */
 template<typename T>
 void
-save(const T& obj, const std::string& filename, IoEncoding encoding = BASE_64)
+save(const T& obj, const std::string& filename, IoEncoding encoding = BASE64)
 {
   std::ofstream os(filename);
   save(obj, os, encoding);

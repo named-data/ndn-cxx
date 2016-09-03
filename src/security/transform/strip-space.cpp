@@ -19,25 +19,44 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_SECURITY_TRANSFORM_HPP
-#define NDN_CXX_SECURITY_TRANSFORM_HPP
+#include "strip-space.hpp"
 
-#include "transform/buffer-source.hpp"
-#include "transform/stream-source.hpp"
-#include "transform/step-source.hpp"
+namespace ndn {
+namespace security {
+namespace transform {
 
-#include "transform/bool-sink.hpp"
-#include "transform/stream-sink.hpp"
+const char* const StripSpace::DEFAULT_WHITESPACES = " \f\n\r\t\v";
 
-#include "transform/strip-space.hpp"
-#include "transform/hex-encode.hpp"
-#include "transform/hex-decode.hpp"
-#include "transform/base64-encode.hpp"
-#include "transform/base64-decode.hpp"
-#include "transform/digest-filter.hpp"
-#include "transform/hmac-filter.hpp"
-#include "transform/block-cipher.hpp"
-#include "transform/signer-filter.hpp"
-#include "transform/verifier-filter.hpp"
+StripSpace::StripSpace(const char* whitespaces)
+{
+  for (const char* i = whitespaces; *i != '\0'; ++i) {
+    m_isWhitespace.set(*i);
+  }
+}
 
-#endif // NDN_CXX_SECURITY_TRANSFORM_HPP
+size_t
+StripSpace::convert(const uint8_t* buf, size_t buflen)
+{
+  auto buffer = make_unique<OBuffer>();
+  buffer->reserve(buflen);
+
+  for (size_t i = 0; i < buflen; ++i) {
+    uint8_t ch = buf[i];
+    if (!m_isWhitespace[ch]) {
+      buffer->push_back(ch);
+    }
+  }
+
+  setOutputBuffer(std::move(buffer));
+  return buflen;
+}
+
+unique_ptr<Transform>
+stripSpace(const char* whitespaces)
+{
+  return make_unique<StripSpace>(whitespaces);
+}
+
+} // namespace transform
+} // namespace security
+} // namespace ndn

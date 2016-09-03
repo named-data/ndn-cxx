@@ -37,8 +37,8 @@ loadBlock(std::istream& is, IoEncoding encoding)
       case NO_ENCODING:
         t::streamSource(is) >> t::streamSink(os);
         break;
-      case BASE_64:
-        t::streamSource(is) >> t::base64Decode() >> t::streamSink(os);
+      case BASE64:
+        t::streamSource(is) >> t::stripSpace("\n") >> t::base64Decode(false) >> t::streamSink(os);
         break;
       case HEX:
         t::streamSource(is) >> t::hexDecode() >> t::streamSink(os);
@@ -69,7 +69,7 @@ saveBlock(const Block& block, std::ostream& os, IoEncoding encoding)
       case NO_ENCODING:
         t::bufferSource(block.wire(), block.size()) >> t::streamSink(os);
         break;
-      case BASE_64:
+      case BASE64:
         t::bufferSource(block.wire(), block.size()) >> t::base64Encode() >> t::streamSink(os);
         break;
       case HEX:

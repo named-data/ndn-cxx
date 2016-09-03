@@ -50,6 +50,9 @@ BOOST_AUTO_TEST_CASE(SymbolVisibility)
   transform::HexEncode* hexEncode = nullptr;
   BOOST_CHECK(hexEncode == nullptr);
 
+  transform::StripSpace* stripSpace = nullptr;
+  BOOST_CHECK(stripSpace == nullptr);
+
   transform::HexDecode* hexDecode = nullptr;
   BOOST_CHECK(hexDecode == nullptr);
 

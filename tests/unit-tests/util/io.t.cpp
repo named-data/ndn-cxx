@@ -162,7 +162,46 @@ BOOST_AUTO_TEST_CASE(LoadNoEncoding)
 BOOST_AUTO_TEST_CASE(LoadBase64)
 {
   this->writeFile<std::string>("uwHu\n"); // printf '\xBB\x01\xEE' | base64
-  shared_ptr<DecodableType> decoded = io::load<DecodableType>(filename, io::BASE_64);
+  shared_ptr<DecodableType> decoded = io::load<DecodableType>(filename, io::BASE64);
+  BOOST_CHECK(decoded != nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(LoadBase64Newline64)
+{
+  this->writeFile<std::string>(
+    "CEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
+    "AAAAAAAAAAAA\n");
+  // printf '\x08\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+  //         \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+  //         \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+  //         \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' | base64
+  shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
+  BOOST_CHECK(decoded != nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(LoadBase64Newline32)
+{
+  this->writeFile<std::string>(
+    "CEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
+    "AAAAAAAAAAAA\n");
+  shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
+  BOOST_CHECK(decoded != nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(LoadBase64NewlineEnd)
+{
+  this->writeFile<std::string>(
+    "CEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
+  shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
+  BOOST_CHECK(decoded != nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(LoadBase64NoNewline)
+{
+  this->writeFile<std::string>(
+    "CEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+  shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
   BOOST_CHECK(decoded != nullptr);
 }
 
@@ -209,7 +248,7 @@ BOOST_AUTO_TEST_CASE(SaveNoEncoding)
 BOOST_AUTO_TEST_CASE(SaveBase64)
 {
   EncodableType encoded;
-  BOOST_CHECK_NO_THROW(io::save(encoded, filename, io::BASE_64));
+  BOOST_CHECK_NO_THROW(io::save(encoded, filename, io::BASE64));
   auto content = this->readFile<std::string>();
   BOOST_CHECK_EQUAL(content, "qgHd\n"); // printf '\xAA\x01\xDD' | base64
 }
@@ -254,7 +293,7 @@ BOOST_FIXTURE_TEST_CASE(IdCert, IdCertFixture)
   io::save(*idCert, filename);
   shared_ptr<security::v1::IdentityCertificate> readCert = io::load<security::v1::IdentityCertificate>(filename);
 
-  BOOST_CHECK(readCert != nullptr);
+  BOOST_REQUIRE(readCert != nullptr);
   BOOST_CHECK_EQUAL(idCert->getName(), readCert->getName());
 }
 
